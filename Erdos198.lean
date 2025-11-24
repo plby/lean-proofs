@@ -4,7 +4,10 @@ The original human proof was found by: James E. Baumgartner
 
 Baumgartner, James E. Canonical partition relations. Journal of Symbolic Logic, 40(4):541–554, 1975
 
-That proof was explained by ChatGPT 5.1 Pro from OpenAI.
+ChatGPT 5.1 Pro from OpenAI explained some proof of this result (not
+necessarily the original human proof, instead prioritizing clarity).
+
+[In this case, the proof used was actually due to AlphaProof!]
 
 The LaTeX file output from the previous step was auto-formalized into
 Lean by Aristotle from Harmonic.
