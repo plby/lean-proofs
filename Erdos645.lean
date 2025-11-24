@@ -4,7 +4,8 @@ The original human proof was found by: Brown, Tom C. and Landman, Bruce M.
 
 Brown, Tom C.; Landman, Bruce M. Monochromatic arithmetic progressions with large differences. Bulletin of the Australian Mathematical Society, 60(1): 21–35, 1999.
 
-That proof was explained by ChatGPT 5.1 Pro from OpenAI.
+An alternate proof by Ryan Alweiss was explained by ChatGPT 5.1 Pro from OpenAI.  See the text below the problem at
+https://www.erdosproblems.com/forum/thread/645
 
 The LaTeX file output from the previous step was auto-formalized into
 Lean by Aristotle from Harmonic.
