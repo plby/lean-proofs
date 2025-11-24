@@ -1,8 +1,8 @@
 /-
 
-The original human proof was found by: 
+The original human proof was found by: Stefan Steinerberger
 
-
+https://www.erdosproblems.com/370
 
 ChatGPT 5.1 Pro from OpenAI explained some proof of this result (not
 necessarily the original human proof, instead prioritizing clarity).
