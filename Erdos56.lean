@@ -3,6 +3,8 @@
 This file contains a simple counterexample to a formal Lean statement,
 suggesting that the statement is missing some condition.
 
+The counterexample was found by Aristotle from Harmonic.
+
 The final theorem statement is from the Formal Conjectures project
 organized by Google DeepMind.
 
