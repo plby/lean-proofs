@@ -1,5 +1,6 @@
 /-
 
+This is a Lean formalization of a solution to Erdős Problem 418.
 https://www.erdosproblems.com/418
 
 The original human proof was found by Browkin and Schinzel:

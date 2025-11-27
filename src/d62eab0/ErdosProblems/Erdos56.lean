@@ -1,5 +1,8 @@
 /-
 
+This is a Lean formalization of a solution to Erdős Problem 56.
+https://www.erdosproblems.com/56
+
 The original human proof was found by: Rudolf Ahlswede and Levon H. Khachatrian 
 
 Ahlswede, Rudolf; Khachatrian, Levon H. On extremal sets without coprimes. Acta Arithmetica 66(1): 89–99 (1994). 

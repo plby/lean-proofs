@@ -1,5 +1,8 @@
 /-
 
+This is a Lean formalization of a solution to Erdős Problem 367.
+https://www.erdosproblems.com/367
+
 The original human proof was found by Wouter van Doorn and posted at
 https://www.erdosproblems.com/forum/thread/367#post-1766
 

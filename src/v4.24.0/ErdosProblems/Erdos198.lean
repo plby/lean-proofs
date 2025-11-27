@@ -1,5 +1,8 @@
 /-
 
+This is a Lean formalization of a solution to Erdős Problem 198.
+https://www.erdosproblems.com/198
+
 The original human proof was found by: James E. Baumgartner
 
 Baumgartner, James E. Canonical partition relations. Journal of Symbolic Logic, 40(4):541–554, 1975

@@ -1,5 +1,8 @@
 /-
 
+This is a Lean formalization of a solution to Erdős Problem 31.
+https://www.erdosproblems.com/31
+
 The original human proof was found by: G. G. Lorentz
 
 G. G. Lorentz, On a problem of additive number theory. Proc. Amer. Math. Soc. 5 (1954), 838-841.

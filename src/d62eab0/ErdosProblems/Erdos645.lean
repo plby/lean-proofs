@@ -1,5 +1,8 @@
 /-
 
+This is a Lean formalization of a solution to Erdős Problem 645.
+https://www.erdosproblems.com/645
+
 The original human proof was found by: Brown, Tom C. and Landman, Bruce M.
 
 Brown, Tom C.; Landman, Bruce M. Monochromatic arithmetic progressions with large differences. Bulletin of the Australian Mathematical Society, 60(1): 21–35, 1999.

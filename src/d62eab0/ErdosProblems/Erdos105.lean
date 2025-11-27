@@ -1,5 +1,8 @@
 /-
 
+This is a Lean formalization of a solution to Erdős Problem 105.
+https://www.erdosproblems.com/105
+
 The original human proof was found by Wu Xichuan and posted at
 https://www.erdosproblems.com/forum/thread/105#post-1430
 

@@ -1,5 +1,8 @@
 /-
 
+This is a Lean formalization of a solution to Erdős Problem 370.
+https://www.erdosproblems.com/370
+
 The original human proof was found by: Stefan Steinerberger
 
 https://www.erdosproblems.com/370

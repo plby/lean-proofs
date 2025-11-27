@@ -1,5 +1,8 @@
 /-
 
+This is a Lean formalization of a solution to Erdős Problem 350.
+https://www.erdosproblems.com/350
+
 The original human proof was found by: Ryavec
 
 Benkoski, S. J., and Erdős, P. On weird and pseudoperfect numbers. Math. Comput. 28 (1974), 617–623.
