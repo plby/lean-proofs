@@ -1,1 +1,0 @@
-../../v4.24.0/ErdosProblems/Erdos198.lean
