@@ -1,0 +1,5 @@
+# Emacs backup files (ends with ~)
+*~
+
+# Emacs auto-save files (starts and ends with #)
+\#*#
