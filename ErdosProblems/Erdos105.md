@@ -1,5 +1,5 @@
 This is a formalized proof of [Erdős Problem
-105](https://www.erdosproblems.com/forum/thread/488).
+105](https://www.erdosproblems.com/forum/thread/105).
 
 It is available for these Mathlib (and Lean) versions:
 
