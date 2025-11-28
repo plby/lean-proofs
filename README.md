@@ -9,6 +9,7 @@ This repository collects Lean proofs for various mathematical statements:
 	* (part of) [Erdős Problem 367](ErdosProblems/Erdos367.md)
 	* [Erdős Problem 370](ErdosProblems/Erdos370.md)
 	* [Erdős Problem 418](ErdosProblems/Erdos418.md)
+	* a misformalization of [Erdős Problem 480](ErdosProblems/Erdos480.md)
 	* [Erdős Problem 488](ErdosProblems/Erdos488.md)
 	* [Erdős Problem 645](ErdosProblems/Erdos645.md)
 	* [Erdős Problem 707](ErdosProblems/Erdos707.md)
