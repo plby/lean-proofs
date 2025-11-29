@@ -50,7 +50,7 @@ Suppose $A \subseteq \{1,\dots,N\}$ is such that there are no $k+1$ elements of 
 relatively prime. An example is the set of all multiples of the first $k$ primes.
 Is this the largest such set?
 -/
-theorem erdos_56 : (∀ᵉ (N ≥ 2) (k > 0), (MaxWeaklyDivisible N k = (FirstPrimesMultiples N k).card)) ↔
+theorem misformalized_erdos_56 : (∀ᵉ (N ≥ 2) (k > 0), (MaxWeaklyDivisible N k = (FirstPrimesMultiples N k).card)) ↔
     False := by
   bound;
   · contrapose! a;
