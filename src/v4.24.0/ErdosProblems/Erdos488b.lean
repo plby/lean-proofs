@@ -1,6 +1,8 @@
 /-
 
-This is a Lean formalization of a solution to Erdős Problem 488.
+This is a Lean formalization of a solution to (the former statement
+of) Erdős Problem 488.
+
 https://www.erdosproblems.com/488
 
 Aristotle from Harmonic found and proved the correctness of a

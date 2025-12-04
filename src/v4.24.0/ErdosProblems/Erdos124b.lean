@@ -1,6 +1,8 @@
 /-
 
-This is a Lean formalization of a solution to Erdős Problem 124.
+This is a Lean formalization of a solution to (the former statement
+of) Erdős Problem 124.
+
 https://www.erdosproblems.com/124
 
 The proof was found by Aristotle from Harmonic, all by itself working
