@@ -149,7 +149,7 @@ lemma neg_last_condition_sets :
     have h_check : ∃ e f : ℤ, (e, f) ∈ Bℤ ∧ (f - b) * (c - a) = (e - a) * (d - b) := by
       -- By checking each pair of points in Aℤ, we can verify that there exists a point in Bℤ that lies on the line defined by them.
       have h_check : ∀ p ∈ Aℤ, ∀ q ∈ Aℤ, p ≠ q → ∃ r ∈ Bℤ, (r.2 - p.2) * (q.1 - p.1) = (r.1 - p.1) * (q.2 - p.2) := by
-        native_decide +revert;
+        decide
       aesop;
     -- By definition of $lineThrough$, if $(f - b) * (c - a) = (e - a) * (d - b)$, then $(e, f)$ lies on the line through $(a, b)$ and $(c, d)$.
     obtain ⟨e, f, he, hf⟩ := h_check;
