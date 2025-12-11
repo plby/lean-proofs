@@ -4,6 +4,8 @@ This is a Lean formalization of
 
 8: The Impossibility of Trisecting the Angle and Doubling the Cube
 
+interpreted as a statement about constructible real numbers.
+
 
 This was proven by Aristotle.
 
