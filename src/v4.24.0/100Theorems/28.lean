@@ -168,6 +168,7 @@ lemma intersection_diff_formula_conj (u v a b c d : ℂ)
       rw [ h_conj.left, h_conj.right ];
       grind
 
+set_option maxHeartbeats 0 in
 /-
 Proof of Pascal's hexagon theorem for points on the unit circle in the complex plane, using the derived intersection formulas.
 -/
@@ -317,6 +318,7 @@ lemma pascal_polynomial_identity (z₁ z₂ z₃ z₄ z₅ z₆ : ℂ) :
   P98 z₁ z₂ z₃ z₄ z₅ z₆ * Q78 z₁ z₂ z₃ z₄ z₅ z₆ = Q98 z₁ z₂ z₃ z₄ z₅ z₆ * P78 z₁ z₂ z₃ z₄ z₅ z₆ := by
     unfold P98 P78 Q98 Q78; ring;
 
+set_option maxHeartbeats 0 in
 /-
 If two distinct chords (defined by pairs {z1, z2} and {z3, z4} on the unit circle) intersect at a point p, then the product of the endpoints of one chord is not equal to the product of the endpoints of the other. This condition ensures the chords are not parallel.
 -/
@@ -332,6 +334,7 @@ lemma denom_ne_zero_of_intersection (z₁ z₂ z₃ z₄ p : ℂ)
 
 end AristotleLemmas
 
+set_option maxHeartbeats 0 in
 /--
 Pascal's hexagon theorem (circle version, cf. HOL Light 28).
 
@@ -382,9 +385,9 @@ by
     · convert complex_map_collinear c x₁ x₉ x₅ r hr |>.1 h195 using 1;
     · convert complex_map_collinear c x₂ x₉ x₄ r hr |>.1 h294 using 1
   have hz8 : Collinear ℝ {z₁, complex_map c r x₈, z₆} ∧ Collinear ℝ {z₃, complex_map c r x₈, z₄} := by
-    bound;
-    · convert complex_map_collinear c x₁ x₈ x₆ ( Dist.dist c x₆ ) ( by positivity ) |>.1 h186 using 1;
-    · convert complex_map_collinear c x₃ x₈ x₄ ( Dist.dist c x₆ ) ( by aesop ) |>.1 h384 using 1
+    apply And.intro;
+    · convert complex_map_collinear c x₁ x₈ x₆ r hr |>.1 h186 using 1;
+    · convert complex_map_collinear c x₃ x₈ x₄ r hr |>.1 h384 using 1
   have hz7 : Collinear ℝ {z₂, complex_map c r x₇, z₆} ∧ Collinear ℝ {z₃, complex_map c r x₇, z₅} := by
     apply And.intro;
     · convert complex_map_collinear c x₂ x₇ x₆ r hr |>.1 h276 using 1;
