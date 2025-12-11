@@ -4,8 +4,6 @@ This is a Lean formalization of
 
 8: The Impossibility of Trisecting the Angle and Doubling the Cube
 
-interpreted as a statement about constructible real numbers.
-
 
 This was proven by Aristotle.
 
@@ -86,6 +84,7 @@ lemma degree_adjoin_sq (K : IntermediateField ℚ ℝ) (x : ℝ) (hx : x^2 ∈ K
     · exact Polynomial.natDegree_pos_iff_degree_pos.mpr ( Polynomial.degree_pos_of_irreducible ( minpoly.irreducible ( show IsIntegral K x from by exact ( show IsIntegral K x from by exact ( by by_contra h; simp_all +decide [ minpoly.eq_zero ] ) ) ) ) );
   have := Polynomial.natDegree_le_of_degree_le h_min_deg; interval_cases ( minpoly K x |> Polynomial.natDegree ) <;> simp_all +decide ;
 
+set_option maxHeartbeats 0 in
 /-
 If K has degree 2^n over Q and x^2 is in K, then K(x) has degree a power of 2 over Q.
 Proof:
@@ -197,6 +196,7 @@ lemma hasQuadTower_adjoin_sqrt {K : IntermediateField ℚ ℝ} (hK : HasQuadTowe
       · rw [ IntermediateField.adjoin_le_iff ];
         aesop_cat
 
+set_option maxHeartbeats 0 in
 /-
 If K and L have quadratic towers, then their compositum K ⊔ L has a quadratic tower.
 Proof:
@@ -420,7 +420,7 @@ If $x^2 \in K$, then the degree of the extension $K(x)/K$ is either 1 or 2.
 -/
 open IntermediateField Polynomial
 
-lemma degree_adjoin_sq (K : IntermediateField ℚ ℝ) (x : ℝ) (hx : x^2 ∈ K) :
+lemma degree_adjoin_sq' (K : IntermediateField ℚ ℝ) (x : ℝ) (hx : x^2 ∈ K) :
     Module.finrank K (adjoin K {x}) = 1 ∨ Module.finrank K (adjoin K {x}) = 2 := by
       -- Let $L = K(x)$.
       set L : IntermediateField K ℝ := IntermediateField.adjoin K {x};
