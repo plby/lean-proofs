@@ -755,7 +755,12 @@ lemma gamma_const_eq_proof : gamma_const = 7 / 2 + Real.sqrt 10 := by
 lemma gamma_not_half_integer_proven : ∀ k : ℤ, gamma_const ≠ k + 1/2 := by
   -- Since $\sqrt{10}$ is irrational, $3 + \sqrt{10}$ cannot be an integer.
   have h_irr : Irrational (Real.sqrt 10) := by
-    native_decide +revert;
+    have h_not_sq : ¬IsSquare 10 := by
+      apply Aesop.BuiltinRules.not_intro
+      intro a
+      obtain ⟨k, hk⟩ := a;
+      cases le_or_gt k 3 <;> nlinarith
+    exact irrational_sqrt_ofNat_iff.mpr h_not_sq
   -- Since $\sqrt{10}$ is irrational, $3 + \sqrt{10}$ cannot be an integer. Therefore, $\gamma \neq k + 1/2$ for any integer $k$.
   intros k hk
   have h_contra : 3 + Real.sqrt 10 = k := by
@@ -819,7 +824,12 @@ lemma gamma_not_integer : ∀ k : ℤ, gamma_const ≠ k := by
     exact a.symm ▸ gamma_const_eq.symm ▸ by ring;
   -- Since $\sqrt{10}$ is irrational, it cannot be equal to any rational number, including $k - 7/2$.
   have h_irr : Irrational (Real.sqrt 10) := by
-    native_decide +revert;
+    have h_not_sq : ¬IsSquare 10 := by
+      apply Aesop.BuiltinRules.not_intro
+      intro a
+      obtain ⟨k, hk⟩ := a;
+      cases le_or_gt k 3 <;> nlinarith
+    exact irrational_sqrt_ofNat_iff.mpr h_not_sq
   exact h_irr ⟨ k - 7 / 2, by push_cast; linarith ⟩
 
 lemma fract_b_div_s_tendsto_fract_gamma : Filter.Tendsto (fun n : ℕ => Int.fract ((⌊alpha_star * n⌋₊ : ℝ) / (s_func_robust n alpha_star : ℝ))) Filter.atTop (nhds (Int.fract gamma_const)) := by
