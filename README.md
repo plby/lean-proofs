@@ -22,4 +22,5 @@ This repository collects Lean proofs for various mathematical statements:
 * [Freek Wiedijk's list of 100 Theorems](https://www.cs.ru.nl/~freek/100/)
 	* [8: The Impossibility of Trisecting the Angle and Doubling the Cube](100Theorems/8.md)
 	* [28: Pascal’s Hexagon Theorem](100Theorems/28.md)
+	* [61: Theorem of Ceva](100Theorems/61.md)
 	* [87: Desargues’s Theorem](100Theorems/87.md)
