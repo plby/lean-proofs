@@ -14,8 +14,8 @@ Later, this statement was found in a survey of J. Michael Steele.
 A later collaborative process of Boris Alexeev, Aristotle (from
 Harmonic), KoishiChan, Terence Tao, AlphaProof (from Google DeepMind),
 and Lawrence Wu together with prior literature of Jineon Baek,
-Junnosuke Koizumi, and Takahiro Ueoro (and Adam Zsolt Wagner) solved
-the problem.
+Junnosuke Koizumi, and Takahiro Ueoro (and Iwan Praton and Adam Zsolt
+Wagner) solved the problem.
 
 The problem is a generalization of the Erdős–Szekeres theorem,
 especially of its proof by Abraham Seidenberg.
