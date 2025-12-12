@@ -17,6 +17,7 @@ This repository collects Lean proofs for various mathematical statements:
 	* [Erdős Problem 499](ErdosProblems/Erdos499.md)
 	* [Erdős Problem 645](ErdosProblems/Erdos645.md)
 	* [Erdős Problem 707](ErdosProblems/Erdos707.md)
+	* [Erdős Problem 1026](ErdosProblems/Erdos1026.md)
 	* [Erdős Problem 1034](ErdosProblems/Erdos1034.md)
 
 * [Freek Wiedijk's list of 100 Theorems](https://www.cs.ru.nl/~freek/100/)
