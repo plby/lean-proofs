@@ -4,7 +4,9 @@ This is a Lean formalization of
 
 8: The Impossibility of Trisecting the Angle and Doubling the Cube
 
-interpreted as a statement about constructible real numbers.
+interpreted as a statement about constructible real numbers in
+`freek_08` AND also in terms of ruler-compass constructions in
+`freek_08_plane`.
 
 
 This was proven by Aristotle.
@@ -574,3 +576,738 @@ theorem freek_08 :
     (¬ (∀ θ : ℝ, ConstructibleAngle θ → ConstructibleAngle (θ / 3))) ∧
     (¬ ∃ x : ℝ, x ^ 3 = (2 : ℝ) ∧ Constructible x) := by
   exact ⟨ fun h => angle_trisection_impossible h, fun ⟨ x, hx₁, hx₂ ⟩ => doubling_the_cube_impossible ⟨ x, hx₁, hx₂ ⟩ ⟩
+
+open scoped EuclideanGeometry
+
+noncomputable section
+
+/-- The standard Euclidean plane, implemented as `ℝ²`. -/
+abbrev Point : Type := EuclideanSpace ℝ (Fin 2)
+
+namespace RulerCompass
+
+/-- The (infinite) straight line through the points `A` and `B`. -/
+def line (A B : Point) : Set Point :=
+  { P : Point | ∃ t : ℝ, P = (1 - t) • A + t • B }
+
+/-- The circle of radius `r` with center `C`. -/
+def circle (C : Point) (r : ℝ) : Set Point :=
+  { P : Point | (dist : Point → Point → ℝ) P C = r }
+
+/-- The circle with center `C` and passing through the point `D`. -/
+def circleThrough (C D : Point) : Set Point :=
+  circle C ((dist : Point → Point → ℝ) C D)
+
+/-- A base configuration for ruler-and-compass constructions in the Euclidean plane:
+two distinct points `O` and `E`, with the segment `OE` declared to have unit length. -/
+structure RCBase where
+  O : Point
+  E : Point
+  hOE : O ≠ E
+  unit : (dist : Point → Point → ℝ) O E = 1
+
+/-- Points that are ruler-and-compass constructible in the Euclidean plane,
+starting from a fixed base configuration. This inductive predicate is closed
+under the usual straightedge-and-compass operations: intersections of lines,
+line–circle intersections, and circle–circle intersections. -/
+inductive RCPoint (cfg : RCBase) : Point → Prop
+  | base_O :
+      RCPoint cfg (RCBase.O cfg)
+  | base_E :
+      RCPoint cfg (RCBase.E cfg)
+  | line_line
+      {A B C D P : Point}
+      (hA : RCPoint cfg A) (hB : RCPoint cfg B)
+      (hC : RCPoint cfg C) (hD : RCPoint cfg D)
+      (hAB : A ≠ B) (hCD : C ≠ D)
+      -- Prevent the degenerate case where `line A B = line C D`,
+      -- which would make *every* point on the line an "intersection".
+      (hLines : line A B ≠ line C D)
+      (hP₁ : P ∈ line A B) (hP₂ : P ∈ line C D) :
+      RCPoint cfg P
+  | line_circle
+      {A B C D P : Point}
+      (hA : RCPoint cfg A) (hB : RCPoint cfg B)
+      (hC : RCPoint cfg C) (hD : RCPoint cfg D)
+      (hAB : A ≠ B) (hCD : C ≠ D)
+      (hP₁ : P ∈ line A B)
+      (hP₂ : P ∈ circleThrough C D) :
+      RCPoint cfg P
+  | circle_circle
+      {A B C D P : Point}
+      (hA : RCPoint cfg A) (hB : RCPoint cfg B)
+      (hC : RCPoint cfg C) (hD : RCPoint cfg D)
+      (hAB : A ≠ B) (hCD : C ≠ D)
+      -- Again avoid the degenerate case `circleThrough A B = circleThrough C D`,
+      -- which would otherwise allow any point on that circle.
+      (hCircles : circleThrough A B ≠ circleThrough C D)
+      (hP₁ : P ∈ circleThrough A B)
+      (hP₂ : P ∈ circleThrough C D) :
+      RCPoint cfg P
+
+namespace RCPoint
+
+variable {cfg : RCBase}
+
+/-! (API lemmas about `RCPoint` could go here.) -/
+
+end RCPoint
+
+/-- The length of the segment from the base point `O` to a point `P`. -/
+def segmentLength (cfg : RCBase) (P : Point) : ℝ :=
+  (dist : Point → Point → ℝ) (RCBase.O cfg) P
+
+/-- A real number is realized as the length of a ruler-and-compass constructible
+segment with one endpoint at the base point `O`. -/
+def RCConstructibleLength (cfg : RCBase) (x : ℝ) : Prop :=
+  ∃ P : Point, RCPoint cfg P ∧ segmentLength cfg P = x
+
+/-- The angle at the base point `O` from the ray `OE` to the ray `OP`. -/
+def baseAngle (cfg : RCBase) (P : Point) : ℝ :=
+  ∠ (RCBase.E cfg) (RCBase.O cfg) P
+
+/-- A real angle `θ` is (plane) constructible if there is a ruler-and-compass
+constructible point whose base angle equals `θ`. -/
+def ConstructibleAngle (cfg : RCBase) (θ : ℝ) : Prop :=
+  ∃ P : Point, RCPoint cfg P ∧ baseAngle cfg P = θ
+
+noncomputable section AristotleLemmas
+
+/-
+The coordinates of a point P in the coordinate system defined by the base points O and E. O is the origin, and E is at (1, 0).
+-/
+open RulerCompass
+
+noncomputable def RulerCompass.RC_coords (cfg : RCBase) (P : Point) : ℝ × ℝ :=
+  let u := cfg.E - cfg.O
+  let v : Point := fun i => if i = (0 : Fin 2) then -u (1 : Fin 2) else u (0 : Fin 2)
+  let d := P - cfg.O
+  (inner (𝕜 := ℝ) u d, inner (𝕜 := ℝ) v d)
+
+/-
+The solution to a 2x2 linear system with constructible coefficients is constructible, provided the determinant is non-zero.
+-/
+lemma Constructible.cramer_rule_2x2 {a b c d e f : ℝ}
+  (ha : Constructible a) (hb : Constructible b) (hc : Constructible c)
+  (hd : Constructible d) (he : Constructible e) (hf : Constructible f)
+  (h_det : a * d - b * c ≠ 0) :
+  Constructible ((e * d - b * f) / (a * d - b * c)) ∧
+  Constructible ((a * f - e * c) / (a * d - b * c)) := by
+    -- We'll use the fact that if the denominator is non-zero, then the division of constructible numbers is constructible.
+    have h_div : ∀ x y : ℝ, Constructible x → Constructible y → y ≠ 0 → Constructible (x / y) := by
+      exact fun x y hx hy hy0 => by simpa [ div_eq_mul_inv ] using Constructible.mul hx ( Constructible.inv hy hy0 ) ;
+    -- Since the numerator and denominator are constructible and the denominator is non-zero, the division is constructible.
+    have h_num_denom : Constructible (e * d - b * f) ∧ Constructible (a * f - e * c) ∧ Constructible (a * d - b * c) := by
+      exact ⟨ by exact Constructible.add ( Constructible.mul he hd ) ( Constructible.neg ( Constructible.mul hb hf ) ), by exact Constructible.add ( Constructible.mul ha hf ) ( Constructible.neg ( Constructible.mul he hc ) ), by exact Constructible.add ( Constructible.mul ha hd ) ( Constructible.neg ( Constructible.mul hb hc ) ) ⟩;
+    exact ⟨ h_div _ _ h_num_denom.1 h_num_denom.2.2 h_det, h_div _ _ h_num_denom.2.1 h_num_denom.2.2 h_det ⟩
+
+/-
+The roots of a quadratic equation with constructible coefficients are constructible, provided the discriminant is non-negative and the leading coefficient is non-zero.
+-/
+lemma Constructible.quadratic_roots {a b c : ℝ}
+  (ha : Constructible a) (hb : Constructible b) (hc : Constructible c)
+  (h_delta : 0 ≤ b^2 - 4 * a * c) (ha_ne_zero : a ≠ 0) :
+  Constructible ((-b + Real.sqrt (b^2 - 4 * a * c)) / (2 * a)) ∧
+  Constructible ((-b - Real.sqrt (b^2 - 4 * a * c)) / (2 * a)) := by
+    -- The square root of a constructible non-negative number is constructible.
+    have h_sqrt : Constructible (Real.sqrt (b^2 - 4 * a * c)) := by
+      apply_rules [ Constructible.sqrt, Constructible.mul, Constructible.add, Constructible.rat, Constructible.neg ];
+      exact mod_cast Constructible.rat 1;
+    constructor;
+    · apply_rules [ Constructible.add, Constructible.neg, Constructible.inv, Constructible.mul, Constructible.rat ];
+      positivity;
+    · apply_rules [ Constructible.add, Constructible.neg, Constructible.mul, Constructible.inv, Constructible.sqrt ];
+      · exact Constructible.rat 2;
+      · positivity
+
+/-
+A point P has constructible coordinates if both its x and y coordinates (in the standard basis) are constructible numbers.
+-/
+open RulerCompass
+
+def RulerCompass.IsConstructibleCoords (cfg : RCBase) (P : Point) : Prop :=
+  Constructible (RulerCompass.RC_coords cfg P).1 ∧ Constructible (RulerCompass.RC_coords cfg P).2
+
+/-
+Points on the line passing through A and B satisfy the linear equation $(y_A - y_B)x + (x_B - x_A)y = x_B y_A - y_B x_A$.
+-/
+lemma RulerCompass.line_equation {cfg : RCBase} {A B P : Point} (h : P ∈ line A B) :
+    let x := fun Q => (RulerCompass.RC_coords cfg Q).1
+    let y := fun Q => (RulerCompass.RC_coords cfg Q).2
+    (y A - y B) * x P + (x B - x A) * y P = x B * y A - y B * x A := by
+      -- By definition of a point on the line through A and B, we can write P as (1 - t) * A + t * B for some t.
+      obtain ⟨t, ht⟩ : ∃ t : ℝ, P = (1 - t) • A + t • B := by
+        exact h.imp fun t ht => by simpa [ ht ] ;
+      unfold RulerCompass.RulerCompass.RC_coords; aesop; ring;
+      norm_num [ Fin.sum_univ_two, inner_add_left, inner_add_right, inner_sub_left, inner_sub_right, inner_smul_left, inner_smul_right ] ; ring!
+
+set_option maxHeartbeats 0 in
+/-
+If the determinant of the direction vectors of two lines is zero, and the lines intersect, then the lines are identical.
+-/
+lemma RulerCompass.lines_eq_of_det_eq_zero {cfg : RCBase} {A B C D P : Point}
+    (hAB : A ≠ B) (hCD : C ≠ D)
+    (hP₁ : P ∈ line A B) (hP₂ : P ∈ line C D)
+    (h_det : let x := fun Q => (RulerCompass.RC_coords cfg Q).1
+             let y := fun Q => (RulerCompass.RC_coords cfg Q).2
+             (y A - y B) * (x D - x C) - (x B - x A) * (y C - y D) = 0) :
+    line A B = line C D := by
+      unfold RulerCompass.line at *;
+      -- Since the determinant is zero, the direction vectors of the lines are parallel. Therefore, the lines are identical.
+      have h_parallel : ∃ k : ℝ, D - C = k • (B - A) := by
+        -- Since the determinant is zero, the vectors (D - C) and (B - A) are linearly dependent. Therefore, there exists a scalar k such that D - C = k • (B - A).
+        have h_linear_dep : (D - C) 0 * (B - A) 1 - (D - C) 1 * (B - A) 0 = 0 := by
+          unfold RulerCompass.RulerCompass.RC_coords at *; aesop;
+          norm_num [ Fin.sum_univ_two, Inner.inner ] at *;
+          have h_det_nonzero : (cfg.E 0 - cfg.O 0)^2 + (cfg.E 1 - cfg.O 1)^2 ≠ 0 := by
+            exact fun h => cfg.hOE <| by ext i; fin_cases i <;> nlinarith! only [ h ] ;
+          exact mul_left_cancel₀ h_det_nonzero <| by linarith;
+        by_cases h_cases : (B - A) 0 = 0;
+        · use (D - C) 1 / (B - A) 1;
+          ext i; fin_cases i <;> simp_all +decide [ sub_eq_iff_eq_add ] ;
+          · exact h_linear_dep.resolve_right ( fun h => hAB <| by ext i; fin_cases i <;> aesop );
+          · by_cases h : B 1 = A 1 <;> simp_all +decide [ sub_eq_iff_eq_add ];
+            exact False.elim <| hAB <| by ext i; fin_cases i <;> aesop;
+        · use (D - C) 0 / (B - A) 0;
+          ext i; fin_cases i <;> simp_all +decide [ sub_eq_iff_eq_add ] ;
+          grind;
+      ext; aesop;
+      · -- Since $w_2 \neq 0$, we can solve for $t$ in terms of $w_1$ and $w_2$.
+        by_cases hw2 : w_2 = 0;
+        · simp_all +decide [ sub_eq_iff_eq_add ];
+        · use (w_3 - w) / w_2 + w_1;
+          rw [ show D = C + w_2 • ( B - A ) by ext ; have := congr_fun h_2 ‹_› ; norm_num at * ; linarith ] ; ext ; norm_num ; ring;
+          simp_all +decide [ sub_eq_iff_eq_add, mul_assoc, mul_comm, mul_left_comm ];
+          -- By simplifying, we can see that the right-hand side matches the left-hand side.
+          field_simp [hw2]
+          ring;
+          have := congr_fun h_1 ‹_›; norm_num at this; cases lt_or_gt_of_ne hw2 <;> nlinarith;
+      · rw [ sub_eq_iff_eq_add ] at h_2;
+        simp_all +decide [ ← eq_sub_iff_add_eq', sub_smul, smul_sub ];
+        -- By definition of $h_linear_dep$, we know that $w_3 • (w_2 • B - w_2 • A) = A - t • A + t • B - C$ for some $t$.
+        use w + (w_3 - w_1) * w_2;
+        ext x ; have := congr_fun h_1 x ; norm_num at * ; linarith
+
+/-
+If two distinct lines intersect, the determinant of the linear system formed by their equations is non-zero.
+-/
+lemma RulerCompass.det_ne_zero_of_inter_distinct {cfg : RCBase} {A B C D P : Point}
+    (hAB : A ≠ B) (hCD : C ≠ D)
+    (hLines : line A B ≠ line C D)
+    (hP₁ : P ∈ line A B) (hP₂ : P ∈ line C D) :
+    let x := fun Q => (RulerCompass.RC_coords cfg Q).1
+    let y := fun Q => (RulerCompass.RC_coords cfg Q).2
+    (y A - y B) * (x D - x C) - (x B - x A) * (y C - y D) ≠ 0 := by
+      -- Apply the lemma `lines_eq_of_det_eq_zero` with the equal determinant to derive that the lines are identical, which contradicts `hLines`.
+      apply fun h_det => hLines (lines_eq_of_det_eq_zero hAB hCD hP₁ hP₂ h_det)
+
+/-
+If two lines are defined by points with constructible coordinates, their intersection point has constructible coordinates.
+-/
+lemma RulerCompass.line_line_coords_constructible {cfg : RCBase} {A B C D P : Point}
+    (hA : IsConstructibleCoords cfg A) (hB : IsConstructibleCoords cfg B)
+    (hC : IsConstructibleCoords cfg C) (hD : IsConstructibleCoords cfg D)
+    (hAB : A ≠ B) (hCD : C ≠ D)
+    (hLines : line A B ≠ line C D)
+    (hP₁ : P ∈ line A B) (hP₂ : P ∈ line C D) :
+    IsConstructibleCoords cfg P := by
+      -- Let's express the coordinates of P in terms of the coordinates of A, B, C, and D.
+      obtain ⟨a, b, c, d, e, f, ha, hb, hc, hd, he, hf, h_det⟩ : ∃ a b c d e f : ℝ, a * (RulerCompass.RC_coords cfg P).1 + b * (RulerCompass.RC_coords cfg P).2 = e ∧ c * (RulerCompass.RC_coords cfg P).1 + d * (RulerCompass.RC_coords cfg P).2 = f ∧ a * d - b * c ≠ 0 ∧ Constructible a ∧ Constructible b ∧ Constructible c ∧ Constructible d ∧ Constructible e ∧ Constructible f := by
+        use (RulerCompass.RC_coords cfg A).2 - (RulerCompass.RC_coords cfg B).2, (RulerCompass.RC_coords cfg B).1 - (RulerCompass.RC_coords cfg A).1, (RulerCompass.RC_coords cfg C).2 - (RulerCompass.RC_coords cfg D).2, (RulerCompass.RC_coords cfg D).1 - (RulerCompass.RC_coords cfg C).1, (RulerCompass.RC_coords cfg B).1 * (RulerCompass.RC_coords cfg A).2 - (RulerCompass.RC_coords cfg B).2 * (RulerCompass.RC_coords cfg A).1, (RulerCompass.RC_coords cfg D).1 * (RulerCompass.RC_coords cfg C).2 - (RulerCompass.RC_coords cfg D).2 * (RulerCompass.RC_coords cfg C).1;
+        refine' ⟨ _, _, _, _ ⟩;
+        · exact line_equation hP₁;
+        · field_simp;
+          convert RulerCompass.line_equation hP₂ using 1 ; ring;
+        · exact?;
+        · -- By definition of constructible numbers, the difference of two constructible numbers is constructible.
+          have h_diff : ∀ x y : ℝ, Constructible x → Constructible y → Constructible (x - y) := by
+            exact fun x y hx hy => by simpa using Constructible.add hx ( Constructible.neg hy ) ;
+          have h_mul : ∀ x y : ℝ, Constructible x → Constructible y → Constructible (x * y) := by
+            exact fun x y hx hy => Constructible.mul hx hy;
+          exact ⟨ h_diff _ _ hA.2 hB.2, h_diff _ _ hB.1 hA.1, h_diff _ _ hC.2 hD.2, h_diff _ _ hD.1 hC.1, h_diff _ _ ( h_mul _ _ hB.1 hA.2 ) ( h_mul _ _ hB.2 hA.1 ), h_diff _ _ ( h_mul _ _ hD.1 hC.2 ) ( h_mul _ _ hD.2 hC.1 ) ⟩;
+      have := Constructible.cramer_rule_2x2 hd he hf h_det.1 h_det.2.1 h_det.2.2 hc;
+      exact ⟨ by convert this.1 using 1; rw [ show ( RulerCompass.RulerCompass.RC_coords cfg P ).1 = ( e * d - b * f ) / ( a * d - b * c ) by rw [ eq_div_iff hc ] ; linear_combination ha * d - hb * b ], by convert this.2 using 1; rw [ show ( RulerCompass.RulerCompass.RC_coords cfg P ).2 = ( a * f - e * c ) / ( a * d - b * c ) by rw [ eq_div_iff hc ] ; linear_combination hb * a - ha * c ] ⟩
+
+/-
+The squared distance between two points is the sum of the squared differences of their coordinates in the standard basis.
+-/
+lemma RulerCompass.dist_sq_eq_coords_sq_add_sq (cfg : RCBase) (P Q : Point) :
+    (dist P Q)^2 = ((RulerCompass.RC_coords cfg P).1 - (RulerCompass.RC_coords cfg Q).1)^2 + ((RulerCompass.RC_coords cfg P).2 - (RulerCompass.RC_coords cfg Q).2)^2 := by
+      simp +decide [ RulerCompass.RulerCompass.RC_coords, dist_eq_norm, EuclideanSpace.norm_eq ];
+      rw [ Real.sq_sqrt <| by positivity ] ; ring;
+      norm_num [ Fin.sum_univ_two, inner ] ; ring;
+      have h_dist : (cfg.O 0 - cfg.E 0)^2 + (cfg.O 1 - cfg.E 1)^2 = 1 := by
+        have := cfg.unit;
+        norm_num [ dist_eq_norm, EuclideanSpace.norm_eq ] at this;
+        exact this;
+      grind +ring
+
+/-
+If a point (x, y) lies on a line $ax + by = c$ and a circle $(x-x_0)^2 + (y-y_0)^2 = r^2$ with constructible coefficients, then x and y are constructible.
+-/
+lemma Constructible.coords_of_line_circle_inter {a b c x0 y0 r2 x y : ℝ}
+    (ha : Constructible a) (hb : Constructible b) (hc : Constructible c)
+    (hx0 : Constructible x0) (hy0 : Constructible y0) (hr2 : Constructible r2)
+    (h_line : a * x + b * y = c)
+    (h_circle : (x - x0) ^ 2 + (y - y0) ^ 2 = r2)
+    (h_ab : a ≠ 0 ∨ b ≠ 0) :
+    Constructible x ∧ Constructible y := by
+      by_cases ha' : a = 0 <;> by_cases hb' : b = 0 <;> simp_all ( config := { decide := Bool.true } );
+      · -- Since $b \neq 0$, we can solve for $y$ in the line equation: $y = \frac{c}{b}$.
+        have hy : y = c / b := by
+          rw [ ← h_line, mul_div_cancel_left₀ _ hb' ];
+        -- Since $y$ is constructible, we can solve for $x$ in the circle equation: $x = x0 \pm \sqrt{r^2 - (y - y0)^2}$.
+        have hx : x = x0 + Real.sqrt (r2 - (y - y0)^2) ∨ x = x0 - Real.sqrt (r2 - (y - y0)^2) := by
+          exact Classical.or_iff_not_imp_left.2 fun h => mul_left_cancel₀ ( sub_ne_zero_of_ne h ) <| by linarith [ Real.mul_self_sqrt ( show 0 ≤ r2 - ( y - y0 ) ^ 2 by linarith [ sq_nonneg ( x - x0 ) ] ) ] ;
+        -- Since $r2 - (y - y0)^2$ is constructible, its square root is also constructible.
+        have h_sqrt : Constructible (Real.sqrt (r2 - (y - y0)^2)) := by
+          have h_sqrt : Constructible (r2 - (y - y0)^2) := by
+            have h_sqrt : Constructible (y - y0) := by
+              have h_sqrt : Constructible y := by
+                rw [ hy ];
+                simpa using Constructible.mul hc ( Constructible.inv hb hb' );
+              convert Constructible.add h_sqrt ( Constructible.neg hy0 ) using 1;
+            have h_sqrt : Constructible ((y - y0)^2) := by
+              simpa only [ sq ] using Constructible.mul h_sqrt h_sqrt;
+            have h_sqrt : Constructible (r2 + -((y - y0)^2)) := by
+              apply Constructible.add hr2;
+              apply Constructible.neg h_sqrt;
+            exact h_sqrt;
+          exact Constructible.sqrt h_sqrt ( by nlinarith );
+        cases hx <;> simp_all ( config := { decide := Bool.true } ) [ Constructible ];
+        · exact ⟨ by exact Constructible.add hx0 h_sqrt, by exact Constructible.mul hc ( Constructible.inv hb hb' ) ⟩;
+        · exact ⟨ by exact Constructible.add hx0 ( Constructible.neg h_sqrt ), by exact Constructible.mul hc ( Constructible.inv hb hb' ) ⟩;
+      · -- Since $a \neq 0$, we can solve for $x$ in the line equation: $x = \frac{c}{a}$.
+        have hx : Constructible x := by
+          have hx : Constructible (c / a) := by
+            exact Constructible.mul hc ( Constructible.inv ha ha' );
+          rwa [ show x = c / a by rw [ eq_div_iff ha' ] ; linarith ];
+        -- Since $a \neq 0$, we can solve for $y$ in the circle equation: $y = y0 \pm \sqrt{r2 - (x - x0)^2}$.
+        have hy : Constructible (y0 + Real.sqrt (r2 - (x - x0)^2)) ∧ Constructible (y0 - Real.sqrt (r2 - (x - x0)^2)) := by
+          have hy : Constructible (r2 - (x - x0)^2) := by
+            -- By definition of constructible, if $x$ is constructible, then $x^2$ is also constructible.
+            have hx_sq : Constructible (x^2) := by
+              simpa only [ sq ] using hx.mul hx;
+            have hx_sub_sq : Constructible ((x - x0)^2) := by
+              have hx_sub_sq : Constructible (x - x0) := by
+                convert Constructible.add hx ( Constructible.neg hx0 ) using 1;
+              simpa only [ sq ] using Constructible.mul hx_sub_sq hx_sub_sq;
+            have hx_sub_sq : Constructible (r2 - (x - x0)^2) := by
+              have h_sub : ∀ {a b : ℝ}, Constructible a → Constructible b → Constructible (a - b) := by
+                intro a b ha hb; exact (by
+                simpa using Constructible.add ha ( Constructible.neg hb ))
+              exact h_sub hr2 hx_sub_sq;
+            exact hx_sub_sq;
+          have hy : Constructible (Real.sqrt (r2 - (x - x0)^2)) := by
+            exact Constructible.sqrt hy ( by nlinarith );
+          exact ⟨ Constructible.add hy0 hy, Constructible.add hy0 ( Constructible.neg hy ) ⟩;
+        cases' eq_or_eq_neg_of_sq_eq_sq ( y - y0 ) ( Real.sqrt ( r2 - ( x - x0 ) ^ 2 ) ) ( by rw [ Real.sq_sqrt <| sub_nonneg_of_le <| by nlinarith ] ; linarith ) with h h <;> simp_all ( config := { decide := Bool.true } );
+        · convert hy.1 using 1 ; linarith;
+        · convert hy.2 using 1 ; linarith;
+      · -- Substitute $y = \frac{c - ax}{b}$ into the circle equation to get a quadratic equation in $x$.
+        have h_quad_x : ∃ A B C : ℝ, A ≠ 0 ∧ A * x^2 + B * x + C = 0 ∧ Constructible A ∧ Constructible B ∧ Constructible C := by
+          refine' ⟨ 1 + ( a / b ) ^ 2, -2 * x0 - 2 * ( a / b ) * ( c / b - y0 ), x0 ^ 2 + ( c / b - y0 ) ^ 2 - r2, _, _, _, _, _ ⟩;
+          · positivity;
+          · rw [ ← h_circle ];
+            grind +ring;
+          · apply_rules [ Constructible.add, Constructible.mul, Constructible.inv ];
+            · bound;
+              convert Constructible.rat 1;
+              norm_num;
+            · field_simp;
+              exact Constructible.rat 1 |> fun h => by simpa [ npowRec ] using h;
+          · apply_rules [ Constructible.add, Constructible.neg, Constructible.mul, Constructible.rat, Constructible.inv ];
+          · -- Since $x0$, $c$, $b$, and $y0$ are constructible, their squares and differences are also constructible.
+            have hx0_sq : Constructible (x0^2) := by
+              rw [ pow_two ];
+              exact Constructible.mul hx0 hx0
+            have hc_div_b : Constructible (c / b) := by
+              simpa only [ div_eq_mul_inv ] using Constructible.mul hc ( Constructible.inv hb hb' )
+            have hc_div_b_sub_y0 : Constructible (c / b - y0) := by
+              exact Constructible.add hc_div_b ( Constructible.neg hy0 )
+            have hc_div_b_sub_y0_sq : Constructible ((c / b - y0)^2) := by
+              simpa only [ sq ] using Constructible.mul hc_div_b_sub_y0 hc_div_b_sub_y0
+            have hr2 : Constructible r2 := by
+              assumption;
+            exact Constructible.add ( Constructible.add hx0_sq hc_div_b_sub_y0_sq ) ( Constructible.neg hr2 );
+        obtain ⟨ A, B, C, hA, hB, hA', hB', hC' ⟩ := h_quad_x; have h_x : Constructible x := by
+          by_cases h_det : B^2 - 4 * A * C ≥ 0;
+          · have := Constructible.quadratic_roots hA' hB' hC' h_det hA;
+            -- Since $x$ is a root of the quadratic equation, it must be equal to one of the roots given by the quadratic formula.
+            have h_root : x = (-B + Real.sqrt (B^2 - 4 * A * C)) / (2 * A) ∨ x = (-B - Real.sqrt (B^2 - 4 * A * C)) / (2 * A) := by
+              field_simp;
+              exact Classical.or_iff_not_imp_left.2 fun h => mul_left_cancel₀ ( sub_ne_zero_of_ne h ) <| by cases lt_or_gt_of_ne hA <;> nlinarith [ Real.mul_self_sqrt h_det ] ;
+            exact h_root.elim ( fun h => h.symm ▸ this.1 ) fun h => h.symm ▸ this.2;
+          · cases lt_or_gt_of_ne hA <;> nlinarith [ sq_nonneg ( B + 2 * A * x ) ];
+        -- Since $b \neq 0$, we can solve for $y$ in the line equation: $y = \frac{c - ax}{b}$.
+        have h_y : y = (c - a * x) / b := by
+          rw [ eq_div_iff hb' ] ; linarith;
+        -- Since $c$, $a$, and $x$ are constructible, their combination $(c - a * x)$ is also constructible.
+        have h_comb : Constructible (c - a * x) := by
+          exact Constructible.add ( hc ) ( Constructible.neg ( Constructible.mul ha h_x ) ) |> fun h => by simpa using h;
+        exact ⟨ h_x, h_y.symm ▸ by exact Constructible.mul h_comb ( Constructible.inv hb hb' ) ⟩
+
+/-
+If a point (x, y) lies on the intersection of two distinct circles with constructible centers and squared radii, then x and y are constructible.
+-/
+lemma Constructible.coords_of_circle_circle_inter {x1 y1 r1sq x2 y2 r2sq x y : ℝ}
+    (hx1 : Constructible x1) (hy1 : Constructible y1) (hr1sq : Constructible r1sq)
+    (hx2 : Constructible x2) (hy2 : Constructible y2) (hr2sq : Constructible r2sq)
+    (h_circle1 : (x - x1)^2 + (y - y1)^2 = r1sq)
+    (h_circle2 : (x - x2)^2 + (y - y2)^2 = r2sq)
+    (h_centers_distinct : x1 ≠ x2 ∨ y1 ≠ y2) :
+    Constructible x ∧ Constructible y := by
+      -- Let $a = 2(x_2 - x_1)$, $b = 2(y_2 - y_1)$, $c = r_1^2 - r_2^2 - x_1^2 + x_2^2 - y_1^2 + y_2^2$. Since $x_1, y_1, r_1^2, x_2, y_2, r_2^2$ are constructible, $a, b, c$ are constructible.
+      set a := 2 * (x2 - x1)
+      set b := 2 * (y2 - y1)
+      set c := r1sq - r2sq - x1^2 + x2^2 - y1^2 + y2^2;
+      -- Since $x_1, y_1, r_1^2, x_2, y_2, r_2^2$ are constructible, $a, b, c$ are constructible.
+      have ha : Constructible a := by
+        apply_rules [ Constructible.mul, Constructible.neg, Constructible.rat ];
+        simpa using Constructible.add hx2 ( Constructible.neg hx1 )
+      have hb : Constructible b := by
+        apply_rules [ Constructible.mul, Constructible.neg, Constructible.add, Constructible.rat, hx1, hy1, hx2, hy2 ]
+      have hc : Constructible c := by
+        -- Since $x_1, y_1, r_1^2, x_2, y_2, r_2^2$ are constructible, their squares and differences are also constructible.
+        have hx1_sq : Constructible (x1^2) := by
+          simpa only [ sq ] using hx1.mul hx1
+        have hy1_sq : Constructible (y1^2) := by
+          simpa only [ sq ] using Constructible.mul hy1 hy1
+        have hx2_sq : Constructible (x2^2) := by
+          simpa only [ sq ] using Constructible.mul hx2 hx2
+        have hy2_sq : Constructible (y2^2) := by
+          simpa only [ sq ] using Constructible.mul hy2 hy2;
+        -- Since the sum and difference of constructible numbers are constructible, we can combine these to show that $c$ is constructible.
+        have hc : Constructible (r1sq - r2sq) ∧ Constructible (-x1^2 + x2^2 - y1^2 + y2^2) := by
+          constructor;
+          · simpa using Constructible.add hr1sq ( Constructible.neg hr2sq );
+          · apply_rules [ Constructible.add, Constructible.neg ];
+        convert hc.1.add hc.2 using 1 ; ring;
+      -- By `Constructible.coords_of_line_circle_inter`, $x$ and $y$ are constructible.
+      apply Constructible.coords_of_line_circle_inter ha hb hc hx1 hy1 hr1sq;
+      · linear_combination h_circle1 - h_circle2;
+      · exact h_circle1;
+      · grind
+
+set_option maxHeartbeats 0 in
+/-
+If a point is constructible, its coordinates are constructible numbers.
+-/
+lemma RulerCompass.RC_coords_constructible (cfg : RCBase) (P : Point) (h : RCPoint cfg P) :
+    IsConstructibleCoords cfg P := by
+      induction h;
+      · constructor;
+        · simp +decide [ RulerCompass.RulerCompass.RC_coords ];
+          simpa using Constructible.rat 0;
+        · unfold RulerCompass.RulerCompass.RC_coords; aesop;
+          simpa using Constructible.rat 0;
+      · constructor;
+        · convert Constructible.rat 1;
+          unfold RulerCompass.RulerCompass.RC_coords; aesop;
+          rw [ real_inner_self_eq_norm_sq ];
+          simp +decide [ cfg.unit, dist_eq_norm' ];
+          exact Or.inl ( by simpa [ norm_sub_rev ] using cfg.unit );
+        · convert Constructible.rat 0;
+          unfold RulerCompass.RulerCompass.RC_coords; norm_num;
+          norm_num [ Fin.sum_univ_succ, inner_sub_left, inner_sub_right ] ; ring;
+          simp +decide [ Fin.sum_univ_two, inner ] ; ring;
+      · aesop;
+        apply RulerCompass.line_line_coords_constructible hA_ih hB_ih hC_ih hD_ih hAB hCD hLines hP₁ hP₂;
+      · unfold RulerCompass.IsConstructibleCoords;
+        aesop;
+        · have hP₁_const : ∃ a b c : ℝ, Constructible a ∧ Constructible b ∧ Constructible c ∧ a * (RulerCompass.RC_coords cfg P_1).1 + b * (RulerCompass.RC_coords cfg P_1).2 = c ∧ (a ≠ 0 ∨ b ≠ 0) := by
+            use (RulerCompass.RC_coords cfg A).2 - (RulerCompass.RC_coords cfg B).2, (RulerCompass.RC_coords cfg B).1 - (RulerCompass.RC_coords cfg A).1, (RulerCompass.RC_coords cfg B).1 * (RulerCompass.RC_coords cfg A).2 - (RulerCompass.RC_coords cfg B).2 * (RulerCompass.RC_coords cfg A).1;
+            bound;
+            · exact Constructible.add ( hA_ih.2 ) ( Constructible.neg hB_ih.2 );
+            · exact Constructible.add ( hB_ih.1 ) ( Constructible.neg ( hA_ih.1 ) );
+            · exact Constructible.add ( Constructible.mul hB_ih.1 hA_ih.2 ) ( Constructible.neg ( Constructible.mul hB_ih.2 hA_ih.1 ) );
+            · unfold RulerCompass.RulerCompass.RC_coords; ring;
+              simp +decide [ Fin.sum_univ_two, inner ] ; ring;
+              rw [ show P_1 = ( 1 - hP₁.choose ) • A + hP₁.choose • B by simpa using hP₁.choose_spec ] ; norm_num ; ring;
+            · unfold RulerCompass.RulerCompass.RC_coords;
+              contrapose! hAB; simp_all ( config := { decide := Bool.true } ) [ sub_eq_iff_eq_add ] ;
+              simp_all +decide [ Fin.sum_univ_two, inner_sub_left, inner_sub_right ];
+              simp_all +decide [ Fin.sum_univ_two, inner ];
+              have h_eq : (A 0 - B 0) * (cfg.E 0 - cfg.O 0) + (A 1 - B 1) * (cfg.E 1 - cfg.O 1) = 0 ∧ (A 0 - B 0) * (cfg.E 1 - cfg.O 1) - (A 1 - B 1) * (cfg.E 0 - cfg.O 0) = 0 := by
+                constructor <;> linarith;
+              have h_eq : (A 0 - B 0) = 0 ∧ (A 1 - B 1) = 0 := by
+                have h_eq : (cfg.E 0 - cfg.O 0)^2 + (cfg.E 1 - cfg.O 1)^2 ≠ 0 := by
+                  have := cfg.unit;
+                  norm_num [ dist_eq_norm, EuclideanSpace.norm_eq ] at this;
+                  linarith;
+                exact ⟨ mul_left_cancel₀ h_eq <| by linear_combination' ‹ ( A 0 - B 0 ) * ( cfg.E 0 - cfg.O 0 ) + ( A 1 - B 1 ) * ( cfg.E 1 - cfg.O 1 ) = 0 ∧ ( A 0 - B 0 ) * ( cfg.E 1 - cfg.O 1 ) - ( A 1 - B 1 ) * ( cfg.E 0 - cfg.O 0 ) = 0 ›.1 * ( cfg.E 0 - cfg.O 0 ) + ‹ ( A 0 - B 0 ) * ( cfg.E 0 - cfg.O 0 ) + ( A 1 - B 1 ) * ( cfg.E 1 - cfg.O 1 ) = 0 ∧ ( A 0 - B 0 ) * ( cfg.E 1 - cfg.O 1 ) - ( A 1 - B 1 ) * ( cfg.E 0 - cfg.O 0 ) = 0 ›.2 * ( cfg.E 1 - cfg.O 1 ), mul_left_cancel₀ h_eq <| by linear_combination' ‹ ( A 0 - B 0 ) * ( cfg.E 0 - cfg.O 0 ) + ( A 1 - B 1 ) * ( cfg.E 1 - cfg.O 1 ) = 0 ∧ ( A 0 - B 0 ) * ( cfg.E 1 - cfg.O 1 ) - ( A 1 - B 1 ) * ( cfg.E 0 - cfg.O 0 ) = 0 ›.1 * ( cfg.E 1 - cfg.O 1 ) - ‹ ( A 0 - B 0 ) * ( cfg.E 0 - cfg.O 0 ) + ( A 1 - B 1 ) * ( cfg.E 1 - cfg.O 1 ) = 0 ∧ ( A 0 - B 0 ) * ( cfg.E 1 - cfg.O 1 ) - ( A 1 - B 1 ) * ( cfg.E 0 - cfg.O 0 ) = 0 ›.2 * ( cfg.E 0 - cfg.O 0 ) ⟩;
+              exact funext fun i => by fin_cases i <;> simp_all +decide [ sub_eq_iff_eq_add ] ;
+          have hP₂_const : ∃ x0 y0 r2 : ℝ, Constructible x0 ∧ Constructible y0 ∧ Constructible r2 ∧ ((RulerCompass.RulerCompass.RC_coords cfg P_1).1 - x0)^2 + ((RulerCompass.RulerCompass.RC_coords cfg P_1).2 - y0)^2 = r2 := by
+            use (RulerCompass.RulerCompass.RC_coords cfg C).1, (RulerCompass.RulerCompass.RC_coords cfg C).2, ((RulerCompass.RulerCompass.RC_coords cfg C).1 - (RulerCompass.RulerCompass.RC_coords cfg D).1)^2 + ((RulerCompass.RulerCompass.RC_coords cfg C).2 - (RulerCompass.RulerCompass.RC_coords cfg D).2)^2;
+            simp +zetaDelta at *;
+            refine' ⟨ hC_ih.1, hC_ih.2, _, _ ⟩;
+            · -- The square of a constructible number is constructible.
+              have h_sq : ∀ x : ℝ, Constructible x → Constructible (x^2) := by
+                exact fun x hx => by simpa only [ sq ] using Constructible.mul hx hx;
+              -- The difference of two constructible numbers is constructible.
+              have h_diff : ∀ x y : ℝ, Constructible x → Constructible y → Constructible (x - y) := by
+                intros x y hx hy;
+                simpa using Constructible.add hx ( Constructible.neg hy );
+              exact Constructible.add ( h_sq _ ( h_diff _ _ hC_ih.1 hD_ih.1 ) ) ( h_sq _ ( h_diff _ _ hC_ih.2 hD_ih.2 ) );
+            · field_simp;
+              rw [ ← RulerCompass.dist_sq_eq_coords_sq_add_sq ];
+              exact hP₂.symm ▸ by rw [ ← RulerCompass.dist_sq_eq_coords_sq_add_sq ] ;
+          obtain ⟨ a, b, c, ha, hb, hc, h₁, h₂ ⟩ := hP₁_const; obtain ⟨ x0, y0, r2, hx0, hy0, hr2, h₃ ⟩ := hP₂_const; exact Constructible.coords_of_line_circle_inter ha hb hc hx0 hy0 hr2 h₁ h₃ h₂ |>.1;
+        · unfold RulerCompass.RulerCompass.IsConstructibleCoords at *;
+          have h_line : ∃ a b c : ℝ, Constructible a ∧ Constructible b ∧ Constructible c ∧ a * (RulerCompass.RulerCompass.RC_coords cfg P_1).1 + b * (RulerCompass.RulerCompass.RC_coords cfg P_1).2 = c ∧ (a ≠ 0 ∨ b ≠ 0) := by
+            use (RulerCompass.RulerCompass.RC_coords cfg A).2 - (RulerCompass.RulerCompass.RC_coords cfg B).2, (RulerCompass.RulerCompass.RC_coords cfg B).1 - (RulerCompass.RulerCompass.RC_coords cfg A).1, (RulerCompass.RulerCompass.RC_coords cfg B).1 * (RulerCompass.RulerCompass.RC_coords cfg A).2 - (RulerCompass.RulerCompass.RC_coords cfg A).1 * (RulerCompass.RulerCompass.RC_coords cfg B).2;
+            refine' ⟨ _, _, _, _, _ ⟩;
+            · exact Constructible.add ( hA_ih.2 ) ( Constructible.neg hB_ih.2 );
+            · exact Constructible.add ( hB_ih.1 ) ( Constructible.neg ( hA_ih.1 ) );
+            · exact Constructible.add ( Constructible.mul hB_ih.1 hA_ih.2 ) ( Constructible.neg ( Constructible.mul hA_ih.1 hB_ih.2 ) );
+            · convert RulerCompass.line_equation hP₁ using 1 ; ring;
+            · contrapose! hAB;
+              unfold RulerCompass.RulerCompass.RC_coords at *;
+              simp_all +decide [ sub_eq_iff_eq_add, Fin.forall_fin_two, funext_iff ];
+              simp_all +decide [ Fin.sum_univ_two, inner ];
+              -- Since the determinant is non-zero, the only solution to the system is A 0 = B 0 and A 1 = B 1.
+              have h_det_nonzero : (cfg.E 0 - cfg.O 0)^2 + (cfg.E 1 - cfg.O 1)^2 ≠ 0 := by
+                have := cfg.unit;
+                norm_num [ dist_eq_norm, EuclideanSpace.norm_eq ] at this;
+                linarith;
+              exact funext fun i => by fin_cases i <;> exact mul_left_cancel₀ h_det_nonzero <| by cases lt_or_ge ( cfg.E 0 - cfg.O 0 ) 0 <;> cases lt_or_ge ( cfg.E 1 - cfg.O 1 ) 0 <;> nlinarith!;
+          have h_circle : ∃ x0 y0 r2 : ℝ, Constructible x0 ∧ Constructible y0 ∧ Constructible r2 ∧ ((RulerCompass.RulerCompass.RC_coords cfg P_1).1 - x0)^2 + ((RulerCompass.RulerCompass.RC_coords cfg P_1).2 - y0)^2 = r2 := by
+            use (RulerCompass.RulerCompass.RC_coords cfg C).1, (RulerCompass.RulerCompass.RC_coords cfg C).2, ((RulerCompass.RulerCompass.RC_coords cfg D).1 - (RulerCompass.RulerCompass.RC_coords cfg C).1)^2 + ((RulerCompass.RulerCompass.RC_coords cfg D).2 - (RulerCompass.RulerCompass.RC_coords cfg C).2)^2;
+            aesop;
+            · have h_diff : Constructible ((RulerCompass.RulerCompass.RC_coords cfg D).1 - (RulerCompass.RulerCompass.RC_coords cfg C).1) ∧ Constructible ((RulerCompass.RulerCompass.RC_coords cfg D).2 - (RulerCompass.RulerCompass.RC_coords cfg C).2) := by
+                exact ⟨ by exact Constructible.add left_3 ( Constructible.neg left_2 ), by exact Constructible.add right_3 ( Constructible.neg right_2 ) ⟩;
+              have h_sq : Constructible ((RulerCompass.RulerCompass.RC_coords cfg D).1 - (RulerCompass.RulerCompass.RC_coords cfg C).1) ∧ Constructible ((RulerCompass.RulerCompass.RC_coords cfg D).2 - (RulerCompass.RulerCompass.RC_coords cfg C).2) → Constructible (((RulerCompass.RulerCompass.RC_coords cfg D).1 - (RulerCompass.RulerCompass.RC_coords cfg C).1)^2 + ((RulerCompass.RulerCompass.RC_coords cfg D).2 - (RulerCompass.RulerCompass.RC_coords cfg C).2)^2) := by
+                exact fun h => by simpa only [ sq ] using Constructible.add ( Constructible.mul h.1 h.1 ) ( Constructible.mul h.2 h.2 ) ;
+              exact h_sq h_diff;
+            · unfold RulerCompass.RulerCompass.RC_coords at *;
+              norm_num [ EuclideanSpace.dist_eq ] at *;
+              unfold RulerCompass.circleThrough at hP₂; aesop;
+              unfold RulerCompass.circle at hP₂; aesop;
+              norm_num [ dist_eq_norm, EuclideanSpace.norm_eq ] at *;
+              rw [ Real.sqrt_inj ( by positivity ) ( by positivity ) ] at hP₂;
+              norm_num [ Fin.sum_univ_two, inner ] at *;
+              grind +ring;
+            · have h_diff : ∀ {x y : ℝ}, Constructible x → Constructible y → Constructible (x - y) := by
+                intro x y hx hy; exact (by
+                simpa using Constructible.add hx ( Constructible.neg hy ));
+              have h_sq : ∀ {x : ℝ}, Constructible x → Constructible (x^2) := by
+                intro x hx; exact (by
+                simpa only [ sq ] using Constructible.mul hx hx);
+              exact Constructible.add ( h_sq ( h_diff left_3 left_2 ) ) ( h_sq ( h_diff right_3 right_2 ) );
+            · have h_dist_eq : (dist P_1 C)^2 = (dist D C)^2 := by
+                unfold RulerCompass.circleThrough at hP₂; aesop;
+                exact hP₂.trans ( dist_comm _ _ );
+              convert h_dist_eq using 1;
+              · field_simp;
+                norm_num +zetaDelta at *;
+                rw [ RulerCompass.dist_sq_eq_coords_sq_add_sq ];
+              · rw [ ← RulerCompass.dist_sq_eq_coords_sq_add_sq ];
+          obtain ⟨ a, b, c, ha, hb, hc, h₁, h₂ ⟩ := h_line;
+          obtain ⟨ x0, y0, r2, hx0, hy0, hr2, h ⟩ := h_circle;
+          have := Constructible.coords_of_line_circle_inter ha hb hc hx0 hy0 hr2 h₁ h;
+          exact this h₂ |>.2;
+      · rename_i A B C D P hA hB hC hD hAB hCD hCircles hP₁ hP₂ hA_ih hB_ih hC_ih hD_ih;
+        -- By definition of `RC_coords`, we know that `(RC_coords A).1`, `(RC_coords A).2`, `(RC_coords B).1`, `(RC_coords B).2`, `(RC_coords C).1`, `(RC_coords C).2`, `(RC_coords D).1`, and `(RC_coords D).2` are constructible.
+        obtain ⟨hx_A, hy_A⟩ := hA_ih
+        obtain ⟨hx_B, hy_B⟩ := hB_ih
+        obtain ⟨hx_C, hy_C⟩ := hC_ih
+        obtain ⟨hx_D, hy_D⟩ := hD_ih;
+        -- By definition of `RC_coords`, we know that `(RC_coords P).1` and `(RC_coords P).2` satisfy the equations of the circles.
+        have hP₁_eq : ( (RC_coords cfg P).1 - (RC_coords cfg A).1 )^2 + ( (RC_coords cfg P).2 - (RC_coords cfg A).2 )^2 = ( dist A B )^2 := by
+          convert RulerCompass.dist_sq_eq_coords_sq_add_sq cfg P A using 1;
+          · simp +zetaDelta at *;
+            rw [ ← RulerCompass.dist_sq_eq_coords_sq_add_sq ];
+          · convert RulerCompass.dist_sq_eq_coords_sq_add_sq cfg P A using 1;
+            rw [ hP₁.symm ]
+        have hP₂_eq : ( (RC_coords cfg P).1 - (RC_coords cfg C).1 )^2 + ( (RC_coords cfg P).2 - (RC_coords cfg C).2 )^2 = ( dist C D )^2 := by
+          have := RulerCompass.dist_sq_eq_coords_sq_add_sq cfg P C;
+          rw [ ← this, ← hP₂ ];
+        -- By definition of `RC_coords`, we know that `(RC_coords P).1` and `(RC_coords P).2` satisfy the equations of the circles, and thus are constructible.
+        have hP₁_constr : Constructible (dist A B ^ 2) := by
+          -- The sum of squares of constructible numbers is constructible.
+          have h_sum_squares_constr : ∀ (x y : ℝ), Constructible x → Constructible y → Constructible (x^2 + y^2) := by
+            intros x y hx hy;
+            have h_sum_squares_constr : ∀ (x y : ℝ), Constructible x → Constructible y → Constructible (x^2) ∧ Constructible (y^2) := by
+              exact fun x y hx hy => ⟨ by simpa only [ sq ] using Constructible.mul hx hx, by simpa only [ sq ] using Constructible.mul hy hy ⟩;
+            exact Constructible.add ( h_sum_squares_constr x y hx hy |>.1 ) ( h_sum_squares_constr x y hx hy |>.2 );
+          convert h_sum_squares_constr ( ( RulerCompass.RulerCompass.RC_coords cfg A |>.1 ) - ( RulerCompass.RulerCompass.RC_coords cfg B |>.1 ) ) ( ( RulerCompass.RulerCompass.RC_coords cfg A |>.2 ) - ( RulerCompass.RulerCompass.RC_coords cfg B |>.2 ) ) _ _ using 1;
+          · convert dist_sq_eq_coords_sq_add_sq cfg A B using 1;
+          · exact Constructible.add hx_A ( Constructible.neg hx_B );
+          · exact Constructible.add hy_A ( Constructible.neg hy_B )
+        have hP₂_constr : Constructible (dist C D ^ 2) := by
+          -- By definition of `dist`, we know that `dist C D ^ 2` is constructible.
+          have h_dist_sq : Constructible ((dist C D) ^ 2) := by
+            have h_dist_sq_eq : (dist C D) ^ 2 = ((RC_coords cfg C).1 - (RC_coords cfg D).1) ^ 2 + ((RC_coords cfg C).2 - (RC_coords cfg D).2) ^ 2 := by
+              norm_num +zetaDelta at *;
+              rw [ RulerCompass.dist_sq_eq_coords_sq_add_sq ]
+            rw [h_dist_sq_eq];
+            apply_rules [ Constructible.add, Constructible.mul, Constructible.neg, Constructible.sqrt ];
+            · exact Constructible.rat 1 |> fun h => by simpa using h;
+            · exact Constructible.rat 1 |> fun h => by simpa using h;
+          exact h_dist_sq;
+        have hP₁_constr : Constructible (RC_coords cfg P).1 ∧ Constructible (RC_coords cfg P).2 := by
+          apply Constructible.coords_of_circle_circle_inter hx_A hy_A hP₁_constr hx_C hy_C hP₂_constr hP₁_eq hP₂_eq;
+          contrapose! hCircles;
+          unfold RulerCompass.RulerCompass.RC_coords at * ; aesop;
+          unfold RulerCompass.circleThrough; aesop;
+          simp_all ( config := { decide := Bool.true } ) [ dist_eq_norm, EuclideanSpace.norm_eq ];
+          simp_all ( config := { decide := Bool.true } ) [ Real.sqrt_inj ( add_nonneg ( sq_nonneg _ ) ( sq_nonneg _ ) ) ( add_nonneg ( sq_nonneg _ ) ( sq_nonneg _ ) ), inner ];
+          -- Since the coordinates of A and C are the same, we have A = C.
+          have hA_eq_C : A = C := by
+            ext i; fin_cases i <;> norm_num <;> have := cfg.unit <;> simp_all ( config := { decide := Bool.true } ) [ dist_eq_norm, EuclideanSpace.norm_eq ];
+            · cases lt_or_ge ( cfg.E 0 - cfg.O 0 ) 0 <;> cases lt_or_ge ( cfg.E 1 - cfg.O 1 ) 0 <;> nlinarith;
+            · cases lt_or_ge ( cfg.E 0 - cfg.O 0 ) 0 <;> cases lt_or_ge ( cfg.E 1 - cfg.O 1 ) 0 <;> nlinarith;
+          rw [ hA_eq_C ];
+        exact hP₁_constr
+
+/-
+If a point P is constructible, then the length of the segment OP is a constructible number.
+-/
+lemma RulerCompass.RC_length_constructible (cfg : RCBase) (P : Point) (h : RCPoint cfg P) :
+    Constructible (segmentLength cfg P) := by
+      have := RulerCompass.RC_coords_constructible cfg P h;
+      -- By definition of `segmentLength`, we have `segmentLength cfg P = Real.sqrt ((RulerCompass.RC_coords cfg P).1 ^ 2 + (RulerCompass.RC_coords cfg P).2 ^ 2)`.
+      have h_segmentLength : RulerCompass.segmentLength cfg P = Real.sqrt ((RulerCompass.RC_coords cfg P).1 ^ 2 + (RulerCompass.RC_coords cfg P).2 ^ 2) := by
+        unfold RulerCompass.segmentLength;
+        convert ( RulerCompass.dist_sq_eq_coords_sq_add_sq cfg cfg.O P ) |> congr_arg Real.sqrt using 1;
+        · rw [ Real.sqrt_sq ( dist_nonneg ) ];
+        · unfold RulerCompass.RulerCompass.RC_coords; norm_num;
+      obtain ⟨ h₁, h₂ ⟩ := this;
+      convert Constructible.sqrt ( h₁.mul h₁ |> Constructible.add <| h₂.mul h₂ ) _;
+      · rw [ h_segmentLength, sq, sq ];
+      · nlinarith
+
+end AristotleLemmas
+
+/- **Doubling the cube is impossible (geometric version)**: starting from a
+unit segment `OE`, there is no ruler-and-compass construction that produces a
+point `P` such that the length `OP` satisfies `OP ^ 3 = 2`. -/
+theorem doubling_the_cube_impossible_plane (cfg : RCBase) :
+    ¬ ∃ P : Point, RCPoint cfg P ∧ (segmentLength cfg P) ^ 3 = (2 : ℝ) := by
+  bound;
+  apply_mod_cast doubling_the_cube_impossible;
+  exact ⟨ _, right, RulerCompass.RC_length_constructible cfg w left ⟩
+
+/-- **Angle trisection is impossible (geometric version)**: it is *not* the case
+that for every constructible angle `θ`, the angle `θ / 3` is also constructible. -/
+theorem angle_trisection_impossible_plane (cfg : RCBase) :
+    ¬ (∀ θ : ℝ,
+          ConstructibleAngle cfg θ →
+          ConstructibleAngle cfg (θ / 3)) := by
+  intro h
+  obtain ⟨P, hP⟩ : ∃ P : Point, RCPoint cfg P ∧ Real.cos (baseAngle cfg P) = Real.cos (Real.pi / 9) := by
+    have hP : ∃ P : Point, RulerCompass.RCPoint cfg P ∧ RulerCompass.baseAngle cfg P = Real.pi / 3 := by
+      -- Let's choose the point $P$ such that $OP = 1$ and $\angle POE = 60^\circ$.
+      obtain ⟨P, hP⟩ : ∃ P : Point, RulerCompass.RCPoint cfg P ∧ (dist (RulerCompass.RCBase.O cfg) P) = 1 ∧ (dist (RulerCompass.RCBase.E cfg) P) = 1 := by
+        -- Let's choose the point $P$ as the intersection of the circles $circleThrough cfg.O cfg.E$ and $circleThrough cfg.E cfg.O$.
+        obtain ⟨P, hP⟩ : ∃ P : Point, P ∈ RulerCompass.circleThrough cfg.O cfg.E ∧ P ∈ RulerCompass.circleThrough cfg.E cfg.O := by
+          unfold RulerCompass.circleThrough;
+          unfold RulerCompass.circle;
+          norm_num [ Real.dist_eq, EuclideanSpace.dist_eq ];
+          -- Let's choose the point $P$ such that $P = O + (E - O) \cdot \frac{1}{2} + (E - O) \cdot \frac{\sqrt{3}}{2} \cdot i$.
+          use fun i => if i = 0 then (cfg.O 0 + cfg.E 0) / 2 + (cfg.E 1 - cfg.O 1) * Real.sqrt 3 / 2 else (cfg.O 1 + cfg.E 1) / 2 - (cfg.E 0 - cfg.O 0) * Real.sqrt 3 / 2;
+          grind;
+        use P;
+        aesop;
+        · -- By definition of $P$, we know that $P$ is the intersection of the circles centered at $O$ and $E$ with radius $OE$.
+          have hP : RulerCompass.RCPoint cfg P := by
+            have h_circle_O : RulerCompass.RCPoint cfg cfg.O := by
+              exact RulerCompass.RCPoint.base_O
+            have h_circle_E : RulerCompass.RCPoint cfg cfg.E := by
+              exact RulerCompass.RCPoint.base_E
+            apply RulerCompass.RCPoint.circle_circle h_circle_O h_circle_E h_circle_E h_circle_O;
+            · exact cfg.hOE;
+            · exact cfg.hOE.symm;
+            · unfold RulerCompass.circleThrough;
+              unfold RulerCompass.circle; aesop;
+              rw [ Set.ext_iff ] at a ; specialize a cfg.O ; aesop;
+              exact cfg.hOE ( a.mpr ( dist_comm _ _ ) );
+            · assumption;
+            · assumption;
+          exact hP;
+        · rw [ dist_comm, left, cfg.unit ];
+        · unfold RulerCompass.circleThrough at *;
+          unfold RulerCompass.circle at * ; aesop;
+          simp_all +decide [ dist_comm ];
+          exact cfg.unit;
+      use P;
+      aesop;
+      -- Since $OP = OE = EP = 1$, triangle $OPE$ is equilateral, and thus $\angle POE = 60^\circ$.
+      have h_eq : dist cfg.O P = 1 ∧ dist cfg.E P = 1 ∧ dist cfg.O cfg.E = 1 := by
+        exact ⟨ left_1, right, cfg.unit ⟩;
+      -- Since $OP = OE = EP = 1$, triangle $OPE$ is equilateral, and thus $\angle POE = 60^\circ$ by definition of equilateral triangles.
+      have h_eq_triangle : EuclideanGeometry.angle cfg.E cfg.O P = Real.arccos ((dist cfg.O cfg.E ^ 2 + dist cfg.O P ^ 2 - dist cfg.E P ^ 2) / (2 * dist cfg.O cfg.E * dist cfg.O P)) := by
+        rw [ EuclideanGeometry.angle, dist_eq_norm, dist_eq_norm, dist_eq_norm ];
+        rw [ InnerProductGeometry.angle ];
+        norm_num [ EuclideanSpace.norm_eq, dist_eq_norm ];
+        norm_num [ Real.sq_sqrt ( add_nonneg ( sq_nonneg _ ) ( sq_nonneg _ ) ), inner ] ; ring;
+      aesop;
+      exact h_eq_triangle.trans ( by rw [ show ( 2⁻¹ : ℝ ) = Real.cos ( Real.pi / 3 ) by norm_num, Real.arccos_cos ] <;> linarith [ Real.pi_pos ] );
+    obtain ⟨ P, hP₁, hP₂ ⟩ := hP;
+    obtain ⟨ Q, hQ₁, hQ₂ ⟩ := h ( Real.pi / 3 ) ⟨ P, hP₁, hP₂ ⟩;
+    exact ⟨ Q, hQ₁, by rw [ hQ₂ ] ; ring ⟩;
+  -- By the lemma, $2 \cos(\pi / 9)$ is constructible.
+  have h_two_cos_pi_div_nine : Constructible (2 * Real.cos (Real.pi / 9)) := by
+    -- The distance from O to P is constructible, and since the unit distance is 1, the coordinates of P are constructible.
+    have h_dist_O_P : Constructible (dist (RulerCompass.RCBase.O cfg) P) := by
+      apply RulerCompass.RC_length_constructible cfg P hP.1;
+    -- The x-coordinate of P in the coordinate system defined by O and E is constructible.
+    have h_x_coord : Constructible (inner (𝕜 := ℝ) (cfg.E - cfg.O) (P - cfg.O)) := by
+      have := RulerCompass.RC_coords_constructible cfg P hP.1;
+      exact this.1;
+    -- Since the inner product of (P - O) and (E - O) is equal to the distance from O to P times the cosine of the angle between them, we can write:
+    have h_cos_eq : inner (𝕜 := ℝ) (cfg.E - cfg.O) (P - cfg.O) = (dist (RulerCompass.RCBase.O cfg) P) * Real.cos (baseAngle cfg P) := by
+      unfold RulerCompass.baseAngle; simp +decide [ dist_eq_norm, EuclideanGeometry.angle ] ;
+      rw [ InnerProductGeometry.cos_angle ] ; ring ; aesop;
+      simp +decide [ norm_sub_rev, mul_assoc, mul_comm, mul_left_comm, cfg.unit ];
+      by_cases h : ‖P - cfg.O‖ = 0 <;> by_cases h' : ‖cfg.O - cfg.E‖ = 0 <;> simp_all +decide [ sub_eq_zero ];
+      rw [ show ‖cfg.O - cfg.E‖ = 1 by simpa [ dist_eq_norm ] using cfg.unit ] ; ring;
+    have h_cos_eq : Constructible (Real.cos (RulerCompass.baseAngle cfg P)) := by
+      have h_cos_eq : Constructible ((dist (RulerCompass.RCBase.O cfg) P) * Real.cos (baseAngle cfg P)) := by
+        exact h_cos_eq ▸ h_x_coord;
+      have h_cos_eq : Constructible ((dist (RulerCompass.RCBase.O cfg) P)⁻¹ * ((dist (RulerCompass.RCBase.O cfg) P) * Real.cos (baseAngle cfg P))) := by
+        apply_rules [ Constructible.mul, Constructible.inv ];
+        aesop;
+        unfold RulerCompass.baseAngle at right ; norm_num at right;
+        exact ne_of_lt ( Real.cos_pos_of_mem_Ioo ⟨ by linarith [ Real.pi_pos ], by linarith [ Real.pi_pos ] ⟩ ) right;
+      by_cases h : Dist.dist cfg.O P = 0 <;> aesop;
+      unfold RulerCompass.baseAngle at right ; aesop;
+    aesop;
+    exact Constructible.mul ( Constructible.rat 2 ) h_cos_eq;
+  -- By the lemma, $2 \cos(\pi / 9)$ is a root of the polynomial $X^3 - 3X - 1$.
+  have h_root : Polynomial.eval (2 * Real.cos (Real.pi / 9)) (Polynomial.X^3 - 3 * Polynomial.X - 1 : Polynomial ℝ) = 0 := by
+    have := Real.cos_three_mul ( Real.pi / 9 ) ; ring_nf at *; norm_num [ mul_div ] at *; linarith;
+  -- Since $X^3 - 3X - 1$ is irreducible over the rationals, $2 \cos(\pi / 9)$ cannot be constructible.
+  have h_irreducible : Irreducible (Polynomial.X^3 - 3 * Polynomial.X - 1 : Polynomial ℚ) := by
+    exact?;
+  -- Since $X^3 - 3X - 1$ is irreducible over the rationals, $2 \cos(\pi / 9)$ cannot be constructible, contradicting our assumption.
+  have h_contradiction : ∀ {x : ℝ}, Constructible x → Polynomial.eval x (Polynomial.X^3 - 3 * Polynomial.X - 1 : Polynomial ℝ) = 0 → False := by
+    intros x hx h_root
+    have h_deg : Module.finrank ℚ (IntermediateField.adjoin ℚ {x}) = 3 := by
+      have h_deg : minpoly ℚ x = Polynomial.X^3 - 3 * Polynomial.X - 1 := by
+        refine' Eq.symm ( minpoly.eq_of_irreducible_of_monic _ _ _ );
+        · exact h_irreducible;
+        · aesop;
+          erw [ Polynomial.aeval_C ] ; norm_num ; linarith;
+        · erw [ Polynomial.Monic, Polynomial.leadingCoeff, Polynomial.natDegree_sub_eq_left_of_natDegree_lt ] <;> erw [ Polynomial.natDegree_sub_eq_left_of_natDegree_lt ] <;> norm_num;
+          norm_num [ Polynomial.coeff_one, Polynomial.coeff_X ];
+      rw [ IntermediateField.adjoin.finrank ];
+      · erw [ h_deg, Polynomial.natDegree_sub_eq_left_of_natDegree_lt ] <;> erw [ Polynomial.natDegree_sub_eq_left_of_natDegree_lt ] <;> norm_num;
+      · exact ⟨ Polynomial.X ^ 3 - 3 * Polynomial.X - 1, by exact Polynomial.Monic.def.mpr <| by erw [ Polynomial.leadingCoeff ] ; erw [ Polynomial.natDegree_sub_eq_left_of_natDegree_lt ] <;> erw [ Polynomial.natDegree_sub_eq_left_of_natDegree_lt ] <;> norm_num [ Polynomial.coeff_one, Polynomial.coeff_X ], by aesop ⟩;
+    have := degree_of_constructible x hx;
+    rcases this with ⟨ n, hn ⟩ ; linarith [ Nat.pow_le_pow_right ( show 1 ≤ 2 by norm_num ) ( show n ≥ 2 by contrapose! hn; interval_cases n <;> linarith ) ] ;
+  exact h_contradiction h_two_cos_pi_div_nine h_root
+
+/-- Freek Wiedijk’s theorem 8, in a geometric formulation: the impossibility of
+trisecting the angle and doubling the cube by ruler-and-compass constructions
+in the Euclidean plane. -/
+theorem freek_08_plane (cfg : RCBase) :
+    (¬ (∀ θ : ℝ,
+          ConstructibleAngle cfg θ →
+          ConstructibleAngle cfg (θ / 3))) ∧
+    (¬ ∃ P : Point, RCPoint cfg P ∧ (segmentLength cfg P) ^ 3 = (2 : ℝ)) := by
+  exact ⟨ angle_trisection_impossible_plane cfg, fun ⟨ P, hP₁, hP₂ ⟩ ↦ doubling_the_cube_impossible_plane cfg ⟨ P, hP₁, hP₂ ⟩ ⟩
+
+end RulerCompass
+
+end
