@@ -5,6 +5,7 @@ This repository collects Lean proofs for various mathematical statements:
 	* [Erdős Problem 56](ErdosProblems/Erdos56.md), as well as an earlier [misformalization](ErdosProblems/Erdos56x.md) thereof
 	* [Erdős Problem 105](ErdosProblems/Erdos105.md)
 	* the former statement of [Erdős Problem 124](ErdosProblems/Erdos124b.md)
+	* [Erdős Problem 189](ErdosProblems/Erdos189.md)
 	* [Erdős Problem 198](ErdosProblems/Erdos198.md)
 	* (parts of) [Erdős Problem 264](ErdosProblems/Erdos264.md)
 	* [Erdős Problem 337](ErdosProblems/Erdos337.md)
