@@ -5,8 +5,8 @@ https://www.erdosproblems.com/493
 
 This proof was written by ChatGPT.
 
-Lean Toolchain version: leanprover/lean4:v4.20.0-rc5
-Mathlib version: d62eab0cc36ea522904895389c301cf8d844fd69 (May 9, 2025)
+Lean Toolchain version: leanprover/lean4:v4.24.0
+Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 -/
 
