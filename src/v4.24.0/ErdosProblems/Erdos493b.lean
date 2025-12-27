@@ -3,7 +3,7 @@
 This is a Lean formalization of a solution to Erdős Problem 493.
 https://www.erdosproblems.com/493
 
-This proof was written by Aristotle.
+This proof was written by ChatGPT.
 
 Lean Toolchain version: leanprover/lean4:v4.20.0-rc5
 Mathlib version: d62eab0cc36ea522904895389c301cf8d844fd69 (May 9, 2025)
@@ -21,10 +21,15 @@ theorem erdos_493 :
     ∃ a : Fin k → ℤ,
       (∀ i : Fin k, (2 : ℤ) ≤ a i) ∧
       (∏ i : Fin k, a i) - (∑ i : Fin k, a i) = n := by
-  use 2;
-  use 0;
-  -- For any non-negative integer $n$, we can choose $a_0 = n + 2$ and $a_1 = 2$.
+  -- Take `k = 2` and `N = 0`.
+  refine ⟨2, 0, ?_⟩
   intro n hn
-  use ![n + 2, 2];
-  norm_num [ Fin.forall_fin_two ];
-  exact ⟨ hn, by ring ⟩
+  -- Choose a₀ = 2 and a₁ = n + 2.
+  let a : Fin 2 → ℤ := fun i => if (i : ℕ) = 0 then 2 else n + 2
+  refine ⟨a, ?_, ?_⟩
+  · intro i
+    fin_cases i <;> simp [a]
+    linarith [hn]
+  · -- Compute `∏ aᵢ - ∑ aᵢ` on `Fin 2`.
+    simp [a, Fin.prod_univ_two, Fin.sum_univ_two]
+    ring
