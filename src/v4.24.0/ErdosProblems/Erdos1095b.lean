@@ -1,7 +1,7 @@
 /-
 
-This is a Lean formalization of a solution to an uninteresting part of
-Erdős Problem 1095.
+This is a Lean formalization of a solution to a previously-known part
+of Erdős Problem 1095.
 https://www.erdosproblems.com/forum/thread/1095
 
 The original proof was found by: Ecklund, Erdős, and Selfridge
