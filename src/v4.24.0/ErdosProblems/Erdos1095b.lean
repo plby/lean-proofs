@@ -217,3 +217,6 @@ theorem erdos_1095_weaker_upper_bound :
       have := exists_good_bound k hk;
       obtain ⟨ n, hn₁, hn₂ ⟩ := this; have := ‹∀ x : ℕ, k + 1 < x → Nat.minFac ( Nat.choose x k ) ≤ k› n ( by linarith [ hn₁.1 ] ) ; linarith [ hn₁.2 ] ;
     · exact Real.exp_le_exp.mpr ( Real.rpow_le_rpow_of_exponent_le ( by norm_cast; linarith ) ( by norm_num ) )
+
+#print axioms erdos_1095_weaker_upper_bound
+-- 'erdos_1095_weaker_upper_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
