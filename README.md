@@ -32,6 +32,7 @@ This repository collects Lean proofs for various mathematical statements:
 	* [Erdős Problem 1034](ErdosProblems/Erdos1034.md)
 	* [Erdős Problem 1043](ErdosProblems/Erdos1043.md)
 	* [Erdős Problem 1080](ErdosProblems/Erdos1080.md)
+	* [Erdős Problem 1095](ErdosProblems/Erdos1095.md)
 
 * [Freek Wiedijk's list of 100 Theorems](https://www.cs.ru.nl/~freek/100/)
 	* [8: The Impossibility of Trisecting the Angle and Doubling the Cube](100Theorems/8.md)
