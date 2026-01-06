@@ -3,6 +3,9 @@
 This is a Lean formalization of a solution to Erdős Problem 871.
 https://www.erdosproblems.com/forum/thread/871
 
+Daniel Larsen operated the following process (please see the forum
+above for details):
+
 A multiagent system built on Claude Opus 4.5 (from Anthropic) and
 Gemini 3 Pro (from Google DeepMind) formalized Lemmas 3 and 4 from
 [ErNa89].  Daniel Larsen wondered what the obstacle was in extending
@@ -13,9 +16,10 @@ solve the problem.
 B. Nathanson Acta Arithmetica LII (1989), pp. 399–406.
 
 
-The theorems of that proof were given to Aristotle (from Harmonic) to
-reprove, and the results were re-organized in an attempt to shorten
-the proof.
+Separately from Larsen's work above, the theorems of that proof were
+given to Aristotle (from Harmonic) to reprove, and the results were
+re-organized in an attempt to shorten the proof.  This is an
+experiment in simplification &c.
 
 
 The proof is verified by Lean.  The following version numbers were
