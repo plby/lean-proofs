@@ -2,6 +2,8 @@ import Mathlib
 
 set_option maxHeartbeats 0
 
+open Classical
+
 /-
 A Lean 4 formalization of the game:
 
@@ -904,3 +906,122 @@ theorem exists_optimalSolution_for_B
   obtain ⟨s, hs₁, hs₂⟩ := exists_optimalStrategy_tight_of_inStepRange hn₁ hn₂
   use R';
   grind
+
+/-!
+## Step-count `n(B)` and first guess `x(B)` as functions of `B`
+-/
+
+-- These names are assumed to exist from the previous framework:
+-- `stepBreakpoint`, `InStepRange`, `ratioLower`, `ratioUpper`, `tightPoly`,
+-- `exists_stepCount_of_one_lt`, `existsUnique_ratio_of_inStepRange`.
+
+/-- `n(B)`: the (minimal) step-count in the breakpoint decomposition.
+For `B ≤ 1` we set it to `1` by convention (irrelevant for `B → ∞`). -/
+noncomputable def nSteps (B : ℝ) : ℕ :=
+  if h : 1 < B then
+    Nat.find (exists_stepCount_of_one_lt (B := B) h)
+  else
+    1
+
+/-- Specification lemma for `nSteps` (in the nontrivial case `1 < B`). -/
+theorem nSteps_spec {B : ℝ} (hB : 1 < B) :
+    1 ≤ nSteps B ∧ InStepRange B (nSteps B) := by
+  -- would follow from `Nat.find_spec` and the definition of `nSteps`
+  unfold nSteps;
+  grind
+
+/-- `x(B)`: the first guess of the canonical “tight” optimal strategy.
+For `B ≤ 1` we set it to `1` by convention (irrelevant for `B → ∞`).
+
+Definition: let `n := nSteps B`, and let `x(B)` be the unique `R` in the
+bracket `[ratioLower n, ratioUpper n]` such that `tightPoly n R = B`.
+-/
+noncomputable def firstGuess (B : ℝ) : ℝ :=
+by
+  classical
+  by_cases hB : 1 < B
+  ·
+    let n : ℕ := nSteps B
+    have hn : 1 ≤ n := (nSteps_spec (B := B) hB).1
+    have hBn : InStepRange B n := (nSteps_spec (B := B) hB).2
+    exact Classical.choose (existsUnique_ratio_of_inStepRange (B := B) (n := n) hn hBn)
+  ·
+    exact 1
+
+/-- The “growth base” associated to the optimal step count: `B^(1/n(B))`. -/
+noncomputable def growthBase (B : ℝ) : ℝ :=
+  Real.rpow B (1 / (nSteps B : ℝ))
+
+/-!
+## The two limits
+-/
+
+open Topology
+
+/-- `lim_{B→∞} B^{1/n(B)} = 2`. -/
+theorem tendsto_growthBase_atTop :
+    Filter.Tendsto growthBase Filter.atTop (𝓝 (2 : ℝ)) := by
+  -- Let's choose any ε > 0. We need to find a B such that for all B' ≥ B, |growthBase B' - 2| < ε.
+  have h_eps_delta : ∀ ε > 0, ∃ B : ℝ, ∀ B' ≥ B, |growthBase B' - 2| < ε := by
+    -- By definition of $n(B)$, we know that $B_{n(B)-1} < B \leq B_{n(B)}$.
+    have h_nB_bounds : ∀ B > 1, (2 * Real.cos (Real.pi / (nSteps B + 2))) ^ (nSteps B) < B ∧ B ≤ (2 * Real.cos (Real.pi / (nSteps B + 3))) ^ (nSteps B + 1) := by
+      intro B hB
+      obtain ⟨hnB, hB_bounds⟩ := nSteps_spec hB;
+      convert hB_bounds using 1;
+      unfold InStepRange; norm_cast;
+      unfold stepBreakpoint; rcases nSteps B with ( _ | _ | n ) <;> norm_num at *;
+      grind;
+    -- Taking the $n(B)$-th root of the bounds, we get $2 \cos(\pi/(n(B)+2)) < B^{1/n(B)} \leq (2 \cos(\pi/(n(B)+3)))^{(n(B)+1)/n(B)}$.
+    have h_root_bounds : ∀ B > 1, 2 * Real.cos (Real.pi / (nSteps B + 2)) < Real.rpow B (1 / (nSteps B : ℝ)) ∧ Real.rpow B (1 / (nSteps B : ℝ)) ≤ (2 * Real.cos (Real.pi / (nSteps B + 3))) ^ ((nSteps B + 1) / (nSteps B : ℝ)) := by
+      intro B hB
+      obtain ⟨h_left, h_right⟩ := h_nB_bounds B hB
+      have h_root_left : 2 * Real.cos (Real.pi / (nSteps B + 2)) < Real.rpow B (1 / (nSteps B : ℝ)) := by
+        contrapose! h_left;
+        convert pow_le_pow_left₀ ( Real.rpow_nonneg ( by positivity ) _ ) h_left ( nSteps B ) using 1 ; norm_num [ ← Real.rpow_natCast, ← Real.rpow_mul ( by positivity : 0 ≤ B ) ];
+        rw [ inv_mul_cancel₀ ( Nat.cast_ne_zero.mpr <| by linarith [ nSteps_spec hB ] ), Real.rpow_one ]
+      have h_root_right : Real.rpow B (1 / (nSteps B : ℝ)) ≤ (2 * Real.cos (Real.pi / (nSteps B + 3))) ^ ((nSteps B + 1) / (nSteps B : ℝ)) := by
+        have h_root_right : Real.rpow B (1 / (nSteps B : ℝ)) ≤ Real.rpow ((2 * Real.cos (Real.pi / (nSteps B + 3))) ^ (nSteps B + 1)) (1 / (nSteps B : ℝ)) := by
+          exact Real.rpow_le_rpow ( by positivity ) h_right ( by positivity );
+        norm_num +zetaDelta at *;
+        convert h_root_right using 1 ; rw [ ← Real.rpow_natCast, ← Real.rpow_mul ( mul_nonneg zero_le_two ( Real.cos_nonneg_of_mem_Icc ⟨ by rw [ le_div_iff₀ <| by positivity ] ; nlinarith [ Real.pi_pos ], by rw [ div_le_iff₀ <| by positivity ] ; nlinarith [ Real.pi_pos ] ⟩ ) ) ] ; push_cast ; ring_nf
+      exact ⟨h_root_left, h_root_right⟩;
+    -- As $B \to \infty$, $n(B) \to \infty$ as well, so we can apply the fact that $\cos(\pi/(n+2)) \to 1$ and $\cos(\pi/(n+3)) \to 1$.
+    have h_cos_limit : Filter.Tendsto (fun n : ℕ => 2 * Real.cos (Real.pi / (n + 2))) Filter.atTop (nhds 2) ∧ Filter.Tendsto (fun n : ℕ => 2 * Real.cos (Real.pi / (n + 3))) Filter.atTop (nhds 2) := by
+      exact ⟨ le_trans ( tendsto_const_nhds.mul ( Real.continuous_cos.continuousAt.tendsto.comp <| tendsto_const_nhds.div_atTop <| Filter.tendsto_atTop_add_const_right _ _ tendsto_natCast_atTop_atTop ) ) <| by norm_num, le_trans ( tendsto_const_nhds.mul ( Real.continuous_cos.continuousAt.tendsto.comp <| tendsto_const_nhds.div_atTop <| Filter.tendsto_atTop_add_const_right _ _ tendsto_natCast_atTop_atTop ) ) <| by norm_num ⟩;
+    -- Since $n(B) \to \infty$ as $B \to \infty$, we can apply the fact that $\cos(\pi/(n+2)) \to 1$ and $\cos(\pi/(n+3)) \to 1$.
+    have h_nB_inf : Filter.Tendsto (fun B : ℝ => nSteps B) Filter.atTop Filter.atTop := by
+      refine' Filter.tendsto_atTop_atTop.mpr fun x => _;
+      use ( 2 * Real.cos ( Real.pi / ( x + 3 ) ) ) ^ ( x + 1 ) + 1;
+      intro a ha;
+      by_cases ha1 : 1 < a;
+      · have := nSteps_spec ha1;
+        contrapose! ha;
+        refine' lt_of_le_of_lt _ ( lt_add_of_pos_right _ zero_lt_one );
+        refine' le_trans ( h_nB_bounds a ha1 |>.2 ) _;
+        refine' le_trans _ ( pow_le_pow_left₀ _ _ _ );
+        rotate_left;
+        exact 2 * Real.cos ( Real.pi / ( nSteps a + 3 ) );
+        · exact mul_nonneg zero_le_two ( Real.cos_nonneg_of_mem_Icc ⟨ by rw [ le_div_iff₀ ] <;> nlinarith [ Real.pi_pos, show ( nSteps a : ℝ ) ≥ 1 by norm_cast; linarith ], by rw [ div_le_iff₀ ] <;> nlinarith [ Real.pi_pos, show ( nSteps a : ℝ ) ≥ 1 by norm_cast; linarith ] ⟩ );
+        · exact mul_le_mul_of_nonneg_left ( Real.cos_le_cos_of_nonneg_of_le_pi ( by positivity ) ( by rw [ div_le_iff₀ ] <;> nlinarith [ Real.pi_pos, show ( nSteps a : ℝ ) + 3 ≥ 3 by linarith, show ( x : ℝ ) + 3 ≥ 3 by linarith ] ) ( by gcongr ) ) zero_le_two;
+        · exact pow_le_pow_right₀ ( by nlinarith [ show 1 ≤ 2 * Real.cos ( Real.pi / ( nSteps a + 3 ) ) from by nlinarith [ show Real.cos ( Real.pi / ( nSteps a + 3 ) ) ≥ 1 / 2 from by rw [ ← Real.cos_pi_div_three ] ; exact Real.cos_le_cos_of_nonneg_of_le_pi ( by positivity ) ( by nlinarith [ Real.pi_pos, show ( nSteps a : ℝ ) ≥ 1 by norm_cast; linarith, div_mul_cancel₀ Real.pi ( by positivity : ( nSteps a + 3 : ℝ ) ≠ 0 ) ] ) ( by nlinarith [ Real.pi_pos, show ( nSteps a : ℝ ) ≥ 1 by norm_cast; linarith, div_mul_cancel₀ Real.pi ( by positivity : ( nSteps a + 3 : ℝ ) ≠ 0 ) ] ) ] ] ) ( by linarith );
+      · linarith [ pow_pos ( show 0 < 2 * Real.cos ( Real.pi / ( x + 3 ) ) by exact mul_pos zero_lt_two ( Real.cos_pos_of_mem_Ioo ⟨ by rw [ lt_div_iff₀ ] <;> nlinarith [ Real.pi_pos ], by rw [ div_lt_iff₀ ] <;> nlinarith [ Real.pi_pos ] ⟩ ) ) ( x + 1 ) ];
+    -- Applying the fact that the composition of continuous functions is continuous, we get the desired result.
+    have h_cont : Filter.Tendsto (fun B : ℝ => (2 * Real.cos (Real.pi / (nSteps B + 3))) ^ ((nSteps B + 1) / (nSteps B : ℝ))) Filter.atTop (nhds 2) := by
+      have h_cont : Filter.Tendsto (fun n : ℕ => (2 * Real.cos (Real.pi / (n + 3))) ^ ((n + 1) / (n : ℝ))) Filter.atTop (nhds 2) := by
+        have h_exp_limit : Filter.Tendsto (fun n : ℕ => ((n + 1) / (n : ℝ))) Filter.atTop (nhds 1) := by
+          norm_num [ add_div ];
+          simpa using Filter.Tendsto.add ( tendsto_const_nhds.congr' ( by filter_upwards [ Filter.eventually_ne_atTop 0 ] with n hn; aesop ) ) ( tendsto_inverse_atTop_nhds_zero_nat );
+        simpa using h_cos_limit.2.rpow h_exp_limit;
+      exact h_cont.comp h_nB_inf;
+    have h_squeeze : Filter.Tendsto (fun B : ℝ => Real.rpow B (1 / (nSteps B : ℝ))) Filter.atTop (nhds 2) := by
+      refine' tendsto_of_tendsto_of_tendsto_of_le_of_le' ( h_cos_limit.1.comp h_nB_inf ) h_cont _ _;
+      · filter_upwards [ Filter.eventually_gt_atTop 1 ] with B hB using le_of_lt ( h_root_bounds B hB |>.1 );
+      · filter_upwards [ Filter.eventually_gt_atTop 1 ] with B hB using h_root_bounds B hB |>.2;
+    exact fun ε ε_pos => by rcases Metric.tendsto_atTop.mp h_squeeze ε ε_pos with ⟨ B, hB ⟩ ; exact ⟨ B, fun B' hB' => by simpa [ growthBase ] using hB B' hB' ⟩ ;
+  exact Metric.tendsto_atTop.mpr h_eps_delta
+
+/- Aristotle took a wrong turn (reason code: 9). Please try again. -/
+/-- `lim_{B→∞} x(B) = 4`. -/
+theorem tendsto_firstGuess_atTop :
+    Filter.Tendsto firstGuess Filter.atTop (𝓝 (4 : ℝ)) := by
+  sorry
