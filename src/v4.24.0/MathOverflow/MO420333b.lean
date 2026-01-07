@@ -868,3 +868,172 @@ lemma exists_strict_ge {s : Strategy} {n k : ℕ} (hk : k < n) (h_n : s.x (n - 1
         · by_cases hk0 : k = 0 <;> simp_all
           · exact ⟨ 0, Nat.zero_lt_succ _, Or.inl rfl, le_rfl ⟩;
           · exact ⟨ k, le_rfl, hk, by cases lt_or_gt_of_ne h_eq <;> [ exact Or.inr ‹_› ; exact Or.inl <| by linarith! [ s.mono <| Nat.sub_le k 1 ] ], le_rfl ⟩
+
+/-
+The first guess $x_0$ is bounded by $R$.
+-/
+lemma recurrence_start {s : Strategy} {B R : ℝ}
+    (h_score : boundedWorstCaseScore s B ≤ ENNReal.ofReal R)
+    (hB : 1 ≤ B) (h_x0 : s.x 0 ≤ B) : s.x 0 ≤ R := by
+      -- By considering the score when $y = 1$, we have $\text{score}(s, 1) = s.x 0$.
+      have h_score_one : score s ⟨1, by linarith⟩ = ENNReal.ofReal (s.x 0) := by
+        unfold score;
+        unfold partialSum; norm_num [ hitIndex_one ] ;
+      have h_le_R : ENNReal.ofReal (s.x 0) ≤ ENNReal.ofReal R := by
+        refine' le_trans _ h_score;
+        exact h_score_one ▸ le_iSup_of_le ⟨ 1, by norm_num, hB ⟩ ( le_rfl );
+      rw [ ENNReal.ofReal_le_ofReal_iff ] at h_le_R <;> try linarith [ s.nonneg 0 ];
+      contrapose! h_le_R;
+      rw [ ENNReal.ofReal_eq_zero.mpr h_le_R.le ] ; exact ENNReal.ofReal_pos.mpr ( by linarith [ s.one_le ] )
+
+/-
+For a strictly increasing strategy, the guesses satisfy the recurrence $x_k \le R x_{k-1} - S_{k-1}$.
+-/
+lemma recurrence_strict {s : Strategy} {B R : ℝ} {n : ℕ}
+    (h_strict : StrictMono s.x)
+    (h_n : s.x (n - 1) = B)
+    (h_score : boundedWorstCaseScore s B ≤ ENNReal.ofReal R) :
+    s.x 0 ≤ R ∧ ∀ k, 1 ≤ k → k < n → s.x k ≤ R * s.x (k - 1) - partialSum s (k - 1) := by
+      have := bounded_boundary_reduction_ge h_strict h_n;
+      refine' ⟨ _, _ ⟩;
+      · convert recurrence_start h_score _ _;
+        · exact h_n ▸ s.one_le.trans ( h_strict.monotone ( Nat.zero_le _ ) );
+        · exact h_n ▸ h_strict.monotone ( Nat.zero_le _ );
+      · intro k hk₁ hk₂
+        have h_partialSum : partialSum s k ≤ R * s.x (k - 1) := by
+          have h_partialSum : ENNReal.ofReal (partialSum s k / s.x (k - 1)) ≤ ENNReal.ofReal R := by
+            refine' le_trans _ h_score;
+            refine' le_trans _ this;
+            refine' le_trans _ ( le_iSup₂_of_le k ( Finset.mem_range.mpr ( by omega ) ) le_rfl ) ; aesop;
+          rw [ ENNReal.ofReal_le_ofReal_iff ] at h_partialSum;
+          · rwa [ div_le_iff₀ ( show 0 < s.x ( k - 1 ) from lt_of_lt_of_le zero_lt_one ( s.one_le.trans ( s.mono ( Nat.zero_le _ ) ) ) ) ] at h_partialSum;
+          · contrapose! h_partialSum;
+            simp [ENNReal.ofReal];
+            exact ⟨ lt_of_lt_of_le h_partialSum <| div_nonneg ( Finset.sum_nonneg fun _ _ => s.nonneg _ ) <| s.nonneg _, div_pos ( Finset.sum_pos ( fun _ _ => lt_of_lt_of_le zero_lt_one <| s.one_le.trans <| s.mono <| Nat.zero_le _ ) <| by norm_num ) <| lt_of_lt_of_le zero_lt_one <| s.one_le.trans <| s.mono <| Nat.zero_le _ ⟩;
+        rcases k <;> simp_all +decide [ Finset.sum_range_succ, partialSum ];
+        linarith
+
+/-
+If $B > 2$, then the worst-case score is at least 2.
+-/
+lemma boundedWorstCaseScore_ge_two {s : Strategy} {B : ℝ} (hB : 2 < B) :
+    2 ≤ boundedWorstCaseScore s B := by
+      -- Consider two cases: when $x_0 < 2$ and when $x_0 \ge 2$.
+      by_cases hx0 : s.x 0 < 2;
+      · -- Since $x_0 < 2$, we have $x_0 < B$. Consider $y$ slightly larger than $x_0$.
+        -- The hit index is at least 1.
+        -- The score is $S_k/y \ge S_1/y = (x_0 + x_1)/y$.
+        -- As $y \downarrow x_0$, this approaches $(x_0 + x_1)/x_0$.
+        -- Since $x_1 \ge x_0$, this is $\ge 2x_0/x_0 = 2$.
+        have h_score_ge_two : ∀ ε > 0, ε < B - s.x 0 → ENNReal.ofReal ((partialSum s 1) / (s.x 0 + ε)) ≤ boundedWorstCaseScore s B := by
+          intros ε hε_pos hε_lt;
+          refine' le_trans _ ( le_ciSup _ ⟨ s.x 0 + ε, _, _ ⟩ ) <;> norm_num [ *, partialSum ];
+          all_goals try linarith [ s.one_le ];
+          refine' ENNReal.ofReal_le_ofReal _;
+          gcongr;
+          · linarith [ s.nonneg 0 ];
+          · refine' Finset.sum_le_sum_of_subset_of_nonneg _ _ <;> norm_num [ Finset.sum_range_succ ];
+            · unfold hitIndex; aesop;
+            · exact fun _ _ _ => s.nonneg _;
+        -- Taking the limit as $\epsilon \to 0$, we get $(partialSum s 1) / s.x 0 \le boundedWorstCaseScore s B$.
+        have h_limit : ENNReal.ofReal ((partialSum s 1) / s.x 0) ≤ boundedWorstCaseScore s B := by
+          have h_limit : Filter.Tendsto (fun ε => ENNReal.ofReal ((partialSum s 1) / (s.x 0 + ε))) (nhdsWithin 0 (Set.Ioi 0)) (nhds (ENNReal.ofReal ((partialSum s 1) / s.x 0))) := by
+            refine' ENNReal.tendsto_ofReal _;
+            exact tendsto_nhdsWithin_of_tendsto_nhds ( by simpa using tendsto_const_nhds.div ( Continuous.tendsto ( show Continuous fun ε : ℝ => s.x 0 + ε from continuous_const.add continuous_id' ) 0 ) ( show ( s.x 0 + 0 ) ≠ 0 from by linarith [ s.nonneg 0, s.one_le ] ) );
+          exact le_of_tendsto h_limit ( Filter.eventually_of_mem ( Ioo_mem_nhdsGT <| show 0 < B - s.x 0 from sub_pos.mpr <| by linarith [ s.one_le ] ) fun ε hε => h_score_ge_two ε hε.1 hε.2 );
+        simp_all +decide [ partialSum ];
+        refine le_trans ?_ h_limit ; norm_num [ Finset.sum_range_succ ];
+        rw [ le_div_iff₀ ] <;> linarith [ s.nonneg 0, s.nonneg 1, s.one_le, s.mono zero_le_one ];
+      · refine' le_trans _ ( le_ciSup _ ⟨ 1, by norm_num, by linarith ⟩ );
+        · refine' le_trans _ ( ENNReal.ofReal_le_ofReal <| div_le_div_of_nonneg_right ( Finset.single_le_sum ( fun a _ => s.nonneg a ) ( Finset.mem_range.mpr <| Nat.succ_pos _ ) ) <| by positivity ) ; norm_num;
+          linarith;
+        · exact OrderTop.bddAbove (Set.range fun y => boundedScore s B y)
+
+/-
+If the strategy is strictly increasing and has at least 2 steps, then $R \ge 2$.
+-/
+lemma R_ge_two_strict {s : Strategy} {B R : ℝ} {n : ℕ}
+    (h_strict : StrictMono s.x)
+    (hn : 2 ≤ n) (h_n : s.x (n - 1) = B)
+    (h_score : boundedWorstCaseScore s B ≤ ENNReal.ofReal R) : 2 ≤ R := by
+      -- Since $n \ge 2$, the range $0 \dots n-1$ contains $k=1$. By `bounded_boundary_reduction_ge` (applied to $n-1$), $W_B \ge S_2/x_0$.
+      have h_worst_case_ge_two : boundedWorstCaseScore s B ≥ ENNReal.ofReal ((partialSum s 1) / (s.x 0)) := by
+        refine' le_trans _ ( bounded_boundary_reduction_ge h_strict h_n );
+        refine' le_trans _ ( le_iSup₂ 1 _ ) <;> norm_num;
+        linarith;
+      have h_worst_case_ge_two : ENNReal.ofReal ((partialSum s 1) / (s.x 0)) > ENNReal.ofReal 2 := by
+        norm_num [ partialSum ];
+        rw [ lt_div_iff₀ ] <;> norm_num [ Finset.sum_range_succ ] <;> linarith [ s.nonneg 0, s.nonneg 1, s.one_le, h_strict ( show 0 < 1 from by norm_num ) ];
+      contrapose! h_worst_case_ge_two;
+      exact le_trans ‹_› ( h_score.trans ( ENNReal.ofReal_le_ofReal h_worst_case_ge_two.le ) )
+
+/-
+The partial sums of the difference sequence satisfy $\Delta_k \ge R \Delta_{k-1} - R \Delta_{k-2}$.
+-/
+noncomputable def diff_sum (s : Strategy) (R : ℝ) (k : ℕ) : ℝ :=
+  ∑ i ∈ Finset.range (k + 1), (tightPoly (i + 1) R - s.x i)
+
+lemma diff_sum_recurrence {s : Strategy} {B R : ℝ} {n : ℕ}
+    (h_strict : StrictMono s.x)
+    (h_n : s.x (n - 1) = B)
+    (h_score : boundedWorstCaseScore s B ≤ ENNReal.ofReal R) :
+    diff_sum s R 0 = R - s.x 0 ∧
+    (1 < n → diff_sum s R 1 ≥ R * diff_sum s R 0) ∧
+    ∀ k, 2 ≤ k → k < n → diff_sum s R k ≥ R * diff_sum s R (k - 1) - R * diff_sum s R (k - 2) := by
+      refine' ⟨ _, _, _ ⟩;
+      · unfold diff_sum; aesop;
+      · intro hn;
+        have := recurrence_strict h_strict h_n h_score;
+        unfold diff_sum;
+        norm_num [ Finset.sum_range_succ, tightPoly ];
+        have := this.2 1 ( by norm_num ) ( by linarith ) ; norm_num [ partialSum ] at this ; nlinarith [ h_strict <| show 0 < 1 from by norm_num ] ;
+      · -- For $k \ge 2$, we use the recurrence relation $x_k \le R x_{k-1} - S_{k-1}$.
+        have h_recurrence : ∀ k, 2 ≤ k → k < n → s.x k ≤ R * s.x (k - 1) - partialSum s (k - 1) := by
+          exact fun k hk₁ hk₂ => recurrence_strict h_strict h_n h_score |>.2 k ( by linarith ) ( by linarith );
+        intro k hk hk'; have := h_recurrence k hk hk'; rcases k with ( _ | _ | k ) <;> norm_num [ diff_sum, partialSum ] at *;
+        have h_diff_sum : ∑ x ∈ Finset.range (k + 3), tightPoly (x + 1) R = R * tightPoly (k + 2) R := by
+          convert tight_strategies_sum ( k + 3 ) R ( k + 2 ) ( by linarith ) using 1;
+        norm_num [ Finset.sum_range_succ ] at *;
+        nlinarith!
+
+/-
+Definition of `diff_seq`.
+-/
+noncomputable def diff_seq (s : Strategy) (R : ℝ) (k : ℕ) : ℝ := tightPoly (k + 1) R - s.x k
+
+/-
+The difference sequence satisfies $\delta_k \ge R \delta_{k-1} - S_{k-1}^\delta$.
+-/
+lemma diff_seq_recurrence_sum {s : Strategy} {B R : ℝ} {n : ℕ}
+    (h_strict : StrictMono s.x)
+    (h_n : s.x (n - 1) = B)
+    (h_score : boundedWorstCaseScore s B ≤ ENNReal.ofReal R) :
+    diff_seq s R 0 = R - s.x 0 ∧
+    ∀ k, 1 ≤ k → k < n → diff_seq s R k ≥ R * diff_seq s R (k - 1) - diff_sum s R (k - 1) := by
+      unfold diff_seq diff_sum;
+      refine' ⟨ _, fun k hk₁ hk₂ => _ ⟩;
+      · rfl;
+      · rcases k with ( _ | k ) <;> simp_all +decide [ Finset.sum_range_succ ];
+        -- Apply the recurrence relation for the tight polynomial.
+        have h_tight_poly : tightPoly (k + 2) R = R * (tightPoly (k + 1) R - tightPoly k R) := by
+          exact rfl;
+        -- Apply the recurrence relation for the strategy.
+        have h_strategy : s.x (k + 1) ≤ R * s.x k - ∑ i ∈ Finset.range (k + 1), s.x i := by
+          apply (recurrence_strict h_strict h_n h_score).right (k + 1) (by linarith) (by linarith);
+        have h_tight_poly_sum : ∑ i ∈ Finset.range (k + 1), tightPoly (i + 1) R = R * tightPoly k R := by
+          apply tight_strategies_sum;
+          exact Nat.lt_of_succ_lt hk₂;
+        norm_num [ Finset.sum_range_succ ] at * ; nlinarith
+
+/-
+The difference sequence $\delta_k = p_{k+1} - x_k$ satisfies $\delta_k \ge R \delta_{k-1} - \sum_{j < k} \delta_j$.
+-/
+lemma diff_seq_recurrence_explicit {s : Strategy} {B R : ℝ} {n : ℕ}
+    (h_strict : StrictMono s.x)
+    (h_n : s.x (n - 1) = B)
+    (h_score : boundedWorstCaseScore s B ≤ ENNReal.ofReal R) :
+    (tightPoly 1 R - s.x 0 = R - s.x 0) ∧
+    ∀ k, 1 ≤ k → k < n →
+      (tightPoly (k + 1) R - s.x k) ≥ R * (tightPoly k R - s.x (k - 1)) - ∑ i ∈ Finset.range k, (tightPoly (i + 1) R - s.x i) := by
+        have := @diff_seq_recurrence_sum s B R n h_strict h_n h_score;
+        unfold diff_seq diff_sum at this; aesop;
