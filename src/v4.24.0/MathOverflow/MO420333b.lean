@@ -1,5 +1,7 @@
 import Mathlib
 
+set_option linter.style.longLine false
+
 set_option maxHeartbeats 0
 
 open Classical
@@ -1037,3 +1039,613 @@ lemma diff_seq_recurrence_explicit {s : Strategy} {B R : ℝ} {n : ℕ}
       (tightPoly (k + 1) R - s.x k) ≥ R * (tightPoly k R - s.x (k - 1)) - ∑ i ∈ Finset.range k, (tightPoly (i + 1) R - s.x i) := by
         have := @diff_seq_recurrence_sum s B R n h_strict h_n h_score;
         unfold diff_seq diff_sum at this; aesop;
+
+/-
+The tight polynomials satisfy the linear recurrence $p_{k+2} = R p_{k+1} - R p_k$.
+-/
+lemma tightPoly_recurrence_values (R : ℝ) (k : ℕ) :
+    tightPoly (k + 2) R = R * tightPoly (k + 1) R - R * tightPoly k R := by
+      -- By definition of tightPoly, we have:
+      have h_def : tightPoly (k + 2) R = R * (tightPoly (k + 1) R - tightPoly k R) := by
+        exact rfl;
+      rw [ h_def, mul_sub ]
+
+/-
+The strategy guesses satisfy the recurrence $x_k \le (R-1)x_{k-1} - S_{k-2}$.
+-/
+lemma strategy_recurrence_correct {s : Strategy} {B R : ℝ} {n : ℕ}
+    (h_strict : StrictMono s.x)
+    (h_n : s.x (n - 1) = B)
+    (h_score : boundedWorstCaseScore s B ≤ ENNReal.ofReal R) :
+    (s.x 0 ≤ R) ∧
+    (1 < n → s.x 1 ≤ (R - 1) * s.x 0) ∧
+    (∀ k, 2 ≤ k → k < n → s.x k ≤ (R - 1) * s.x (k - 1) - partialSum s (k - 2)) := by
+      refine' ⟨ _, _, _ ⟩;
+      · apply recurrence_start h_score;
+        · exact h_n ▸ s.one_le.trans ( h_strict.monotone ( Nat.zero_le _ ) );
+        · exact h_n ▸ h_strict.monotone ( Nat.zero_le _ );
+      · intro hn;
+        have := recurrence_strict h_strict h_n h_score;
+        have := this.2 1 ( by norm_num ) ( by linarith ) ; norm_num [ partialSum ] at * ; linarith;
+      · intro k hk₁ hk₂
+        have h_recurrence : s.x k ≤ R * s.x (k - 1) - partialSum s (k - 1) := by
+          have := recurrence_strict h_strict h_n h_score;
+          exact this.2 k ( by linarith ) ( by linarith );
+        rcases k with ( _ | _ | k ) <;> simp_all +decide [ Finset.sum_range_succ ];
+        unfold partialSum at *; norm_num [ Finset.sum_range_succ ] at *; linarith;
+
+/-
+For each $k < n$, the partial sum $S_k$ is bounded by $R$ times the previous guess.
+-/
+lemma partial_sum_le {s : Strategy} {B R : ℝ} {n : ℕ}
+    (h_strict : StrictMono s.x)
+    (h_n : s.x (n - 1) = B)
+    (h_score : boundedWorstCaseScore s B ≤ ENNReal.ofReal R) :
+    ∀ k, k < n → partialSum s k ≤ R * (if k = 0 then 1 else s.x (k - 1)) := by
+      by_contra h_contra;
+      have h_partialSum_bound : ∀ k, k < n → ENNReal.ofReal (partialSum s k / if k = 0 then 1 else s.x (k - 1)) ≤ ENNReal.ofReal R := by
+        intro k hk_lt_n
+        have h_term_le : scoreTerm s k ≤ boundedWorstCaseScore s B := by
+          have h_term_le : k ∈ Finset.range (n + 1) := by
+            exact Finset.mem_range.mpr ( Nat.lt_succ_of_lt hk_lt_n );
+          apply_rules [ scoreTerm_le_boundedWorstCaseScore ];
+          exact Finset.mem_range.mpr ( by omega );
+        exact le_trans h_term_le h_score;
+      apply h_contra;
+      intro k hk; specialize h_partialSum_bound k hk; rw [ ENNReal.ofReal_le_ofReal_iff ] at h_partialSum_bound;
+      · rwa [ div_le_iff₀ ] at h_partialSum_bound;
+        split_ifs <;> norm_num ; linarith [ s.nonneg ( k - 1 ), s.one_le, h_strict.monotone ( Nat.zero_le ( k - 1 ) ) ];
+      · contrapose! h_partialSum_bound;
+        rw [ ENNReal.ofReal_eq_zero.mpr h_partialSum_bound.le ] ; exact ENNReal.ofReal_pos.mpr ( div_pos ( Finset.sum_pos ( fun _ _ => s.nonneg _ |> lt_of_le_of_ne <| Ne.symm <| by linarith [ s.one_le, show 0 < s.x ‹_› from lt_of_lt_of_le ( by linarith [ s.one_le ] ) ( s.mono <| Nat.zero_le _ ) ] ) <| by norm_num ) <| by split_ifs <;> linarith [ s.one_le, show 0 < s.x ( k - 1 ) from lt_of_lt_of_le ( by linarith [ s.one_le ] ) ( s.mono <| Nat.zero_le _ ) ] )
+
+/-
+The tight polynomials satisfy the identity $p_{k+1} = (R-1)p_k - R p_{k-2}$ for $k \ge 2$.
+-/
+lemma tightPoly_algebraic_identity {R : ℝ} {k : ℕ} (hk : 2 ≤ k) :
+    tightPoly (k + 1) R = (R - 1) * tightPoly k R - R * tightPoly (k - 2) R := by
+      rcases k with ( _ | _ | k ) <;> norm_num [ tightPoly ] at *;
+      ring!
+
+/-
+Lemma 3: Trigonometric form of the tight polynomials.
+If R = 4 cos^2(theta), then p_k(R) = (2 cos theta)^k * sin((k+1)theta) / sin theta.
+-/
+theorem tightPoly_trig_form (θ : ℝ) (hθ : Real.sin θ ≠ 0) (k : ℕ) :
+    let R := 4 * (Real.cos θ) ^ 2
+    tightPoly k R = (2 * Real.cos θ) ^ k * Real.sin ((k + 1) * θ) / Real.sin θ := by
+      induction' k using Nat.strong_induction_on with n ih;
+      rcases n with ( _ | _ | n ) <;> norm_num [ Nat.succ_eq_add_one, ih ];
+      · aesop;
+      · rw [ Real.sin_two_mul ] ; ring;
+        aesop;
+      · -- Applying the recurrence relation for tightPoly, we have:
+        have h_rec : tightPoly (n + 2) (4 * Real.cos θ ^ 2) = 4 * Real.cos θ ^ 2 * (tightPoly (n + 1) (4 * Real.cos θ ^ 2) - tightPoly n (4 * Real.cos θ ^ 2)) := by
+          exact?;
+        rw [ h_rec, ih _ <| Nat.lt_succ_self _, ih _ <| Nat.lt_succ_of_lt <| Nat.lt_succ_self _ ];
+        norm_num [ add_mul, Real.sin_add, Real.cos_add, pow_succ' ] ; ring;
+        rw [ show Real.sin θ ^ 3 = Real.sin θ * Real.sin θ ^ 2 by ring, Real.sin_sq ] ; ring
+
+/-
+Lemma 4 (Part 1): Difference formula for tight polynomials.
+If R = 4 cos^2(theta) with theta in (0, pi), then p_{k+1}(R) - p_k(R) = (2 cos theta)^k * sin((k+3)theta) / sin theta.
+-/
+theorem tightPoly_diff_sign (θ : ℝ) (hθ_pos : 0 < θ) (hθ_lt : θ < Real.pi) (k : ℕ) :
+    let R := 4 * (Real.cos θ) ^ 2
+    tightPoly (k + 1) R - tightPoly k R = (2 * Real.cos θ) ^ k * Real.sin ((k + 3) * θ) / Real.sin θ := by
+      have h_diff : tightPoly (k + 1) (4 * (Real.cos θ) ^ 2) - tightPoly k (4 * (Real.cos θ) ^ 2) =
+          (2 * Real.cos θ) ^ k * (2 * Real.cos θ * Real.sin ((k + 2) * θ) - Real.sin ((k + 1) * θ)) / Real.sin θ := by
+            have h_diff : ∀ k, tightPoly k (4 * (Real.cos θ) ^ 2) = (2 * Real.cos θ) ^ k * Real.sin ((k + 1) * θ) / Real.sin θ := by
+              intro k;
+              convert tightPoly_trig_form θ ( ne_of_gt ( Real.sin_pos_of_pos_of_lt_pi hθ_pos hθ_lt ) ) k using 1;
+            grind;
+      convert h_diff using 2 ; rw [ show ( k + 3 : ℝ ) * θ = ( k + 2 ) * θ + θ by ring, show ( k + 1 : ℝ ) * θ = ( k + 2 ) * θ - θ by ring ] ; rw [ Real.sin_add, Real.sin_sub ] ; ring;
+
+/-
+Lemma 4 (Part 2): Monotonicity of tight polynomials for small angles.
+If 0 < theta <= pi/(m+3), then p_0(R) <= p_1(R) <= ... <= p_m(R).
+-/
+theorem tightPoly_monotone_of_small_angle (m : ℕ) (θ : ℝ)
+    (hθ_pos : 0 < θ) (hθ_le : θ ≤ Real.pi / (m + 3)) (k : ℕ) (hk : k < m) :
+    let R := 4 * (Real.cos θ) ^ 2
+    tightPoly k R ≤ tightPoly (k + 1) R := by
+      have h_diff_pos : 0 < (2 * Real.cos θ) ^ k * Real.sin ((k + 3) * θ) / Real.sin θ := by
+        refine' div_pos ( mul_pos ( pow_pos ( mul_pos zero_lt_two ( Real.cos_pos_of_mem_Ioo ⟨ _, _ ⟩ ) ) _ ) ( Real.sin_pos_of_mem_Ioo ⟨ _, _ ⟩ ) ) ( Real.sin_pos_of_mem_Ioo ⟨ hθ_pos, _ ⟩ );
+        · linarith [ Real.pi_pos ];
+        · rw [ le_div_iff₀ ] at hθ_le <;> nlinarith [ Real.pi_pos ];
+        · positivity;
+        · rw [ le_div_iff₀ ] at hθ_le <;> nlinarith [ Real.pi_pos, show ( k : ℝ ) + 1 ≤ m by norm_cast ];
+        · rw [ le_div_iff₀ ] at hθ_le <;> nlinarith [ Real.pi_pos ];
+      have h_diff_pos : tightPoly (k + 1) (4 * (Real.cos θ) ^ 2) - tightPoly k (4 * (Real.cos θ) ^ 2) = (2 * Real.cos θ) ^ k * Real.sin ((k + 3) * θ) / Real.sin θ := by
+        convert tightPoly_diff_sign θ hθ_pos ( by linarith [ Real.pi_pos, show θ < Real.pi from hθ_le.trans_lt <| by rw [ div_lt_iff₀ <| by positivity ] ; nlinarith [ Real.pi_pos ] ] ) k using 1;
+      linarith
+
+/-
+Lemma 5: Endpoint values.
+p_n(rho_{n-1}) = B_{n-1} and p_n(rho_n) = B_n.
+-/
+theorem tightPoly_endpoints (n : ℕ) (hn : 1 ≤ n) :
+    tightPoly n (ratioLower n) = stepBreakpoint (n - 1) ∧
+    tightPoly n (ratioUpper n) = stepBreakpoint n := by
+      unfold ratioLower ratioUpper stepBreakpoint;
+      constructor;
+      · rw [ Nat.sub_add_cancel hn, tightPoly_trig_form ];
+        · rw [ div_eq_iff ];
+          · rw [ ← Real.sin_pi_sub ] ; ring_nf;
+            rcases n with ( _ | _ | n ) <;> norm_num at *;
+            · norm_num [ Real.sin_add, Real.sin_sub, mul_div ];
+              ring;
+            · field_simp;
+              ring_nf;
+          · exact ne_of_gt ( Real.sin_pos_of_pos_of_lt_pi ( by positivity ) ( by rw [ div_lt_iff₀ ( by positivity ) ] ; norm_num; nlinarith [ Real.pi_pos ] ) );
+        · exact ne_of_gt ( Real.sin_pos_of_pos_of_lt_pi ( by positivity ) ( by rw [ div_lt_iff₀ ( by positivity ) ] ; norm_num; nlinarith [ Real.pi_pos ] ) );
+      · convert tightPoly_trig_form ( Real.pi / ( n + 3 ) ) _ n using 1 <;> norm_num;
+        · rw [ eq_div_iff ( ne_of_gt ( Real.sin_pos_of_pos_of_lt_pi ( by positivity ) ( by rw [ div_lt_iff₀ ( by positivity ) ] ; nlinarith [ Real.pi_pos ] ) ) ) ] ; rw [ show ( n + 1 : ℝ ) * ( Real.pi / ( n + 3 ) ) = Real.pi - 2 * ( Real.pi / ( n + 3 ) ) by linarith [ Real.pi_pos, mul_div_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 3 ≠ 0 ) ] ] ; rw [ Real.sin_pi_sub, Real.sin_two_mul ] ; ring;
+        · exact ne_of_gt ( Real.sin_pos_of_pos_of_lt_pi ( by positivity ) ( by rw [ div_lt_iff₀ ( by positivity ) ] ; nlinarith [ Real.pi_pos ] ) )
+
+/-
+Lemma 6: Strict monotonicity of p_n on the bracket [rho_{n-1}, rho_n].
+-/
+theorem tightPoly_strictMono_on_bracket (n : ℕ) (hn : 1 ≤ n) :
+    StrictMonoOn (tightPoly n) (Set.Icc (ratioLower n) (ratioUpper n)) := by
+      -- By definition of $R$, we know that $p_n(R) = (2 \cos \theta)^n \frac{\sin((n+1)\theta)}{\sin \theta}$ where $\theta = \arccos(\sqrt{R}/2)$.
+      have h_trig_form : ∀ R ∈ Set.Icc (ratioLower n) (ratioUpper n), tightPoly n R = (2 * Real.cos (Real.arccos (Real.sqrt R / 2))) ^ n * Real.sin ((n + 1) * Real.arccos (Real.sqrt R / 2)) / Real.sin (Real.arccos (Real.sqrt R / 2)) := by
+        intro R hR
+        have h_cos : Real.cos (Real.arccos (Real.sqrt R / 2)) = Real.sqrt R / 2 := by
+          rw [ Real.cos_arccos ];
+          · linarith [ Real.sqrt_nonneg R ];
+          · rw [ div_le_iff₀, Real.sqrt_le_left ] <;> norm_num;
+            exact hR.2.trans ( by exact mul_le_of_le_one_right ( by norm_num ) ( Real.cos_sq_le_one _ ) |> le_trans <| by norm_num )
+        have h_sin : Real.sin (Real.arccos (Real.sqrt R / 2)) ≠ 0 := by
+          norm_num [ Real.sin_arccos ];
+          field_simp;
+          rw [ Real.sqrt_eq_zero' ] ; norm_num;
+          rw [ Real.sq_sqrt ] <;> norm_num [ ratioLower, ratioUpper ] at *;
+          · exact hR.2.trans_lt ( by nlinarith only [ Real.cos_sq' ( Real.pi / ( n + 3 ) ), Real.sin_pos_of_pos_of_lt_pi ( show 0 < Real.pi / ( n + 3 ) from by positivity ) ( by rw [ div_lt_iff₀ ( by positivity ) ] ; nlinarith only [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] ) ] );
+          · nlinarith [ Real.cos_sq_le_one ( Real.pi / ( n + 2 ) ) ];
+        convert tightPoly_trig_form ( Real.arccos ( Real.sqrt R / 2 ) ) h_sin n using 1;
+        rw [ h_cos ] ; ring_nf;
+        rw [ Real.sq_sqrt ( show 0 ≤ R by exact le_trans ( by exact mul_nonneg zero_le_four ( sq_nonneg _ ) ) hR.1 ) ];
+      -- Since $\theta$ is strictly decreasing in $R$, we need to show that $p_n(R)$ is strictly decreasing in $\theta$.
+      have h_trig_decreasing : StrictAntiOn (fun θ => (2 * Real.cos θ) ^ n * Real.sin ((n + 1) * θ) / Real.sin θ) (Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2))) := by
+        -- The factors $(2 \cos \theta)^n$, $\sin((n+1)\theta)$, and $1/\sin \theta$ are all strictly decreasing in $\theta$ on $[\pi/(n+3), \pi/(n+2)]$.
+        have h_factors_decreasing : StrictAntiOn (fun θ => (2 * Real.cos θ) ^ n) (Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2))) ∧ StrictAntiOn (fun θ => Real.sin ((n + 1) * θ)) (Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2))) ∧ StrictAntiOn (fun θ => 1 / Real.sin θ) (Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2))) := by
+          refine' ⟨ _, _, _ ⟩;
+          · -- Since $\cos$ is strictly decreasing on $[0, \pi]$, multiplying by $2$ (which is positive) preserves the strict decrease.
+            have h_cos_decreasing : StrictAntiOn Real.cos (Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2))) := by
+              exact Real.strictAntiOn_cos.mono ( Set.Icc_subset_Icc ( by positivity ) ( by rw [ div_le_iff₀ ( by positivity ) ] ; nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] ) );
+            exact fun x hx y hy hxy => pow_lt_pow_left₀ ( mul_lt_mul_of_pos_left ( h_cos_decreasing hx hy hxy ) zero_lt_two ) ( mul_nonneg zero_le_two ( Real.cos_nonneg_of_mem_Icc ⟨ by nlinarith [ Real.pi_pos, hx.1, show ( n : ℝ ) ≥ 1 by norm_cast, div_mul_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 3 ≠ 0 ) ], by nlinarith [ Real.pi_pos, hy.2, show ( n : ℝ ) ≥ 1 by norm_cast, div_mul_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 2 ≠ 0 ) ] ⟩ ) ) ( by positivity );
+          · -- The sine function is strictly decreasing on the interval $[\frac{\pi}{2}, \pi]$.
+            have h_sin_decreasing : StrictAntiOn Real.sin (Set.Icc (Real.pi / 2) Real.pi) := by
+              exact fun x hx y hy hxy => by rw [ ← Real.cos_sub_pi_div_two, ← Real.cos_sub_pi_div_two ] ; exact Real.cos_lt_cos_of_nonneg_of_le_pi ( by linarith [ Set.mem_Icc.mp hx, Set.mem_Icc.mp hy ] ) ( by linarith [ Set.mem_Icc.mp hx, Set.mem_Icc.mp hy ] ) ( by linarith [ Set.mem_Icc.mp hx, Set.mem_Icc.mp hy ] ) ;
+            intro θ hθ θ' hθ' hθθ';
+            refine' h_sin_decreasing ⟨ _, _ ⟩ ⟨ _, _ ⟩ _;
+            · rw [ Set.mem_Icc ] at hθ ; rw [ div_le_iff₀ ] at * <;> nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ];
+            · nlinarith [ hθ.1, hθ.2, hθ'.1, hθ'.2, Real.pi_pos, mul_div_cancel₀ ( Real.pi : ℝ ) ( by positivity : ( n : ℝ ) + 3 ≠ 0 ), mul_div_cancel₀ ( Real.pi : ℝ ) ( by positivity : ( n : ℝ ) + 2 ≠ 0 ) ];
+            · rw [ Set.mem_Icc ] at *;
+              rw [ div_le_iff₀ ] at * <;> nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ];
+            · nlinarith [ hθ'.1, hθ'.2, Real.pi_pos, mul_div_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 2 ≠ 0 ), mul_div_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 3 ≠ 0 ) ];
+            · exact mul_lt_mul_of_pos_left hθθ' <| by positivity;
+          · refine' fun x hx y hy hxy => one_div_lt_one_div_of_lt _ _;
+            · exact Real.sin_pos_of_pos_of_lt_pi ( lt_of_lt_of_le ( by positivity ) hx.1 ) ( lt_of_le_of_lt hx.2 ( by rw [ div_lt_iff₀ ] <;> nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] ) );
+            · rw [ ← Real.cos_pi_div_two_sub, ← Real.cos_pi_div_two_sub ] ; refine' Real.cos_lt_cos_of_nonneg_of_le_pi _ _ _ <;> nlinarith [ Real.pi_pos, hx.1, hx.2, hy.1, hy.2, mul_div_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 3 ≠ 0 ), mul_div_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 2 ≠ 0 ) ];
+        have h_prod_decreasing : StrictAntiOn (fun θ => (2 * Real.cos θ) ^ n * Real.sin ((n + 1) * θ)) (Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2))) ∧ StrictAntiOn (fun θ => 1 / Real.sin θ) (Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2))) := by
+          simp_all +decide [ StrictAntiOn ];
+          intro a ha₁ ha₂ b hb₁ hb₂ hab; have := h_factors_decreasing.1 ha₁ ha₂ hb₁ hb₂ hab; have := h_factors_decreasing.2.1 ha₁ ha₂ hb₁ hb₂ hab; gcongr;
+          · exact pow_nonneg ( mul_nonneg zero_le_two ( Real.cos_nonneg_of_mem_Icc ⟨ by linarith [ Real.pi_pos, show ( Real.pi : ℝ ) / ( n + 3 ) ≥ 0 by positivity ], by linarith [ Real.pi_pos, show ( Real.pi : ℝ ) / ( n + 2 ) ≤ Real.pi / 2 by rw [ div_le_iff₀ <| by positivity ] ; nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] ] ⟩ ) ) _;
+          · exact Real.sin_nonneg_of_nonneg_of_le_pi ( by exact mul_nonneg ( by positivity ) ( by exact le_trans ( by positivity ) hb₁ ) ) ( by rw [ le_div_iff₀ ( by positivity ) ] at *; nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] );
+        simp_all +decide [ StrictAntiOn ];
+        field_simp;
+        intro a ha₁ ha₂ b hb₁ hb₂ hab; have := h_prod_decreasing ( show Real.pi / ( n + 3 ) ≤ a by rw [ div_le_iff₀ <| by positivity ] ; linarith ) ( show a ≤ Real.pi / ( n + 2 ) by rw [ le_div_iff₀ <| by positivity ] ; linarith ) ( show Real.pi / ( n + 3 ) ≤ b by rw [ div_le_iff₀ <| by positivity ] ; linarith ) ( show b ≤ Real.pi / ( n + 2 ) by rw [ le_div_iff₀ <| by positivity ] ; linarith ) hab; simp_all +decide [ mul_comm ] ;
+        gcongr;
+        · exact mul_nonneg ( pow_nonneg ( mul_nonneg zero_le_two ( Real.cos_nonneg_of_mem_Icc ⟨ by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ], by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] ⟩ ) ) _ ) ( Real.sin_nonneg_of_mem_Icc ⟨ by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ], by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] ⟩ );
+        · exact Real.sin_pos_of_pos_of_lt_pi ( by nlinarith [ Real.pi_pos ] ) ( by nlinarith [ Real.pi_pos ] );
+        · rw [ ← Real.cos_pi_div_two_sub, ← Real.cos_pi_div_two_sub ] ; exact Real.cos_le_cos_of_nonneg_of_le_pi ( by nlinarith [ Real.pi_pos, mul_div_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 3 ≠ 0 ), mul_div_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 2 ≠ 0 ) ] ) ( by nlinarith [ Real.pi_pos, mul_div_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 3 ≠ 0 ), mul_div_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 2 ≠ 0 ) ] ) ( by nlinarith [ Real.pi_pos, mul_div_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 3 ≠ 0 ), mul_div_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 2 ≠ 0 ) ] );
+      -- Since $\theta$ is strictly decreasing in $R$, we need to show that $p_n(R)$ is strictly increasing in $R$.
+      intros R1 hR1 R2 hR2 hR_lt
+      have hθ_lt : Real.arccos (Real.sqrt R1 / 2) > Real.arccos (Real.sqrt R2 / 2) := by
+        gcongr;
+        · linarith [ Real.sqrt_nonneg R1 ];
+        · unfold ratioUpper at *;
+          exact div_le_one_of_le₀ ( Real.sqrt_le_iff.mpr ⟨ by norm_num, by norm_num at *; nlinarith [ Real.cos_sq_le_one ( Real.pi / ( n + 3 ) ) ] ⟩ ) ( by norm_num );
+        · exact le_trans ( by exact mul_nonneg zero_le_four ( sq_nonneg _ ) ) hR1.1;
+      have hθ_bounds : Real.pi / (n + 3) ≤ Real.arccos (Real.sqrt R1 / 2) ∧ Real.arccos (Real.sqrt R1 / 2) ≤ Real.pi / (n + 2) ∧ Real.pi / (n + 3) ≤ Real.arccos (Real.sqrt R2 / 2) ∧ Real.arccos (Real.sqrt R2 / 2) ≤ Real.pi / (n + 2) := by
+        have hθ_bounds : ∀ R ∈ Set.Icc (ratioLower n) (ratioUpper n), Real.pi / (n + 3) ≤ Real.arccos (Real.sqrt R / 2) ∧ Real.arccos (Real.sqrt R / 2) ≤ Real.pi / (n + 2) := by
+          intros R hR
+          have hθ_bounds : Real.cos (Real.pi / (n + 2)) ≤ Real.sqrt R / 2 ∧ Real.sqrt R / 2 ≤ Real.cos (Real.pi / (n + 3)) := by
+            constructor;
+            · have h_cos_lower : Real.cos (Real.pi / (n + 2)) ≤ Real.sqrt (ratioLower n) / 2 := by
+                unfold ratioLower; norm_num;
+                rw [ Real.sqrt_sq ( Real.cos_nonneg_of_mem_Icc ⟨ by rw [ le_div_iff₀ ] <;> nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ], by rw [ div_le_iff₀ ] <;> nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] ⟩ ) ];
+              exact le_trans h_cos_lower ( by gcongr ; linarith [ hR.1 ] );
+            · have h_sqrt_R_le : R ≤ (2 * Real.cos (Real.pi / (n + 3))) ^ 2 := by
+                exact hR.2.trans ( by unfold ratioUpper; ring_nf; norm_num );
+              rw [ div_le_iff₀, Real.sqrt_le_left ] <;> nlinarith [ show 0 ≤ Real.cos ( Real.pi / ( n + 3 ) ) from Real.cos_nonneg_of_mem_Icc ⟨ by rw [ le_div_iff₀ <| by positivity ] ; nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ], by rw [ div_le_iff₀ <| by positivity ] ; nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] ⟩ ];
+          rw [ Real.arccos_eq_arcsin ];
+          · rw [ Real.le_arcsin_iff_sin_le', Real.arcsin_le_iff_le_sin ];
+            · constructor;
+              · rw [ Real.sin_eq_sqrt_one_sub_cos_sq ] <;> try linarith [ Real.pi_pos, div_pos Real.pi_pos ( by positivity : 0 < ( n : ℝ ) + 3 ) ];
+                · exact Real.sqrt_le_sqrt <| sub_le_sub_left ( pow_le_pow_left₀ ( by positivity ) hθ_bounds.2 2 ) _;
+                · exact div_le_self Real.pi_pos.le ( by linarith );
+              · rw [ Real.sin_eq_sqrt_one_sub_cos_sq ] <;> try linarith [ Real.pi_pos, div_le_self Real.pi_pos.le ( by linarith : ( n : ℝ ) + 2 ≥ 1 ) ];
+                · exact Real.sqrt_le_sqrt <| sub_le_sub_left ( pow_le_pow_left₀ ( Real.cos_nonneg_of_mem_Icc ⟨ by rw [ le_div_iff₀ <| by positivity ] ; nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ], by rw [ div_le_iff₀ <| by positivity ] ; nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] ⟩ ) hθ_bounds.1 2 ) _;
+                · positivity;
+            · exact ⟨ by linarith [ Real.sqrt_nonneg ( 1 - ( Real.sqrt R / 2 ) ^ 2 ) ], Real.sqrt_le_iff.mpr ⟨ by norm_num, by nlinarith [ Real.sqrt_nonneg R ] ⟩ ⟩;
+            · exact ⟨ by rw [ le_div_iff₀ ] <;> nlinarith only [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ], by rw [ div_le_iff₀ ] <;> nlinarith only [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] ⟩;
+            · exact ⟨ by rw [ lt_div_iff₀ ] <;> nlinarith only [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ], by rw [ div_le_iff₀ ] <;> nlinarith only [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] ⟩;
+          · positivity;
+        exact ⟨ hθ_bounds R1 hR1 |>.1, hθ_bounds R1 hR1 |>.2, hθ_bounds R2 hR2 |>.1, hθ_bounds R2 hR2 |>.2 ⟩;
+      aesop
+
+/-
+Lemma 7: Step limit property.
+If R is in [rho_{n-1}, rho_n], then p_{n+1}(R) <= p_n(R) and p_{n+2}(R) <= 0.
+-/
+theorem tightPoly_step_limit (n : ℕ) (hn : 1 ≤ n) (R : ℝ)
+    (hR : R ∈ Set.Icc (ratioLower n) (ratioUpper n)) :
+    tightPoly (n + 1) R ≤ tightPoly n R ∧ tightPoly (n + 2) R ≤ 0 := by
+      -- Since R is in the interval [ρ_{n-1}, ρ_n], we can find θ such that R = 4 cos^2 θ and θ is in [π/(n+3), π/(n+2)].
+      obtain ⟨θ, hθ⟩ : ∃ θ, R = 4 * (Real.cos θ) ^ 2 ∧ Real.pi / (n + 3) ≤ θ ∧ θ ≤ Real.pi / (n + 2) := by
+        obtain ⟨θ, hθ_range, hθ_R⟩ : ∃ θ, Real.pi / (n + 3) ≤ θ ∧ θ ≤ Real.pi / (n + 2) ∧ R = 4 * (Real.cos θ) ^ 2 := by
+          have hθ_exists : ∃ θ ∈ Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2)), 4 * (Real.cos θ) ^ 2 = R := by
+            apply_rules [ intermediate_value_Icc' ];
+            · bound;
+            · exact Continuous.continuousOn ( by continuity );
+            · unfold ratioLower ratioUpper at hR; aesop
+          aesop;
+        grind;
+      have h_sin_le_zero : Real.sin ((n + 3) * θ) ≤ 0 := by
+        rw [ ← Real.cos_sub_pi_div_two ];
+        refine' Real.cos_nonpos_of_pi_div_two_le_of_le _ _;
+        · rw [ div_le_iff₀ ] at hθ <;> nlinarith [ Real.pi_pos ];
+        · rw [ le_div_iff₀ ] at hθ <;> nlinarith [ Real.pi_pos ];
+      have h_pn1_le_pn : tightPoly (n + 1) R - tightPoly n R ≤ 0 := by
+        have h_diff : tightPoly (n + 1) R - tightPoly n R = (2 * Real.cos θ) ^ n * Real.sin ((n + 3) * θ) / Real.sin θ := by
+          have := tightPoly_diff_sign θ ( show 0 < θ from lt_of_lt_of_le ( by positivity ) hθ.2.1 ) ( show θ < Real.pi from lt_of_le_of_lt hθ.2.2 ( by rw [ div_lt_iff₀ ( by positivity ) ] ; nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] ) ) n; aesop;
+        exact h_diff.symm ▸ div_nonpos_of_nonpos_of_nonneg ( mul_nonpos_of_nonneg_of_nonpos ( pow_nonneg ( mul_nonneg zero_le_two ( Real.cos_nonneg_of_mem_Icc ⟨ by linarith [ Real.pi_pos, show 0 ≤ θ by exact le_trans ( by positivity ) hθ.2.1 ], by rw [ le_div_iff₀ ] at * <;> nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] ⟩ ) ) _ ) h_sin_le_zero ) ( Real.sin_nonneg_of_mem_Icc ⟨ by linarith [ Real.pi_pos, show 0 ≤ θ by exact le_trans ( by positivity ) hθ.2.1 ], by rw [ le_div_iff₀ ] at * <;> nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] ⟩ )
+      have h_pn2_le_zero : tightPoly (n + 2) R ≤ 0 := by
+        have h_pn2_le_zero : tightPoly (n + 2) R = (2 * Real.cos θ) ^ (n + 2) * Real.sin ((n + 3) * θ) / Real.sin θ := by
+          convert tightPoly_trig_form θ _ ( n + 2 ) using 1 ; aesop;
+          · norm_cast;
+          · exact ne_of_gt ( Real.sin_pos_of_pos_of_lt_pi ( by exact lt_of_lt_of_le ( by positivity ) hθ.2.1 ) ( by exact lt_of_le_of_lt hθ.2.2 ( by rw [ div_lt_iff₀ ] <;> nlinarith [ Real.pi_pos ] ) ) );
+        exact h_pn2_le_zero ▸ div_nonpos_of_nonpos_of_nonneg ( mul_nonpos_of_nonneg_of_nonpos ( pow_nonneg ( mul_nonneg zero_le_two ( Real.cos_nonneg_of_mem_Icc ⟨ by linarith [ Real.pi_pos, show 0 ≤ θ by exact le_trans ( by positivity ) hθ.2.1 ], by linarith [ Real.pi_pos, show θ ≤ Real.pi / 2 by exact hθ.2.2.trans ( by rw [ div_le_iff₀ <| by positivity ] ; nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] ) ] ⟩ ) ) _ ) h_sin_le_zero ) ( Real.sin_nonneg_of_mem_Icc ⟨ by linarith [ Real.pi_pos, show 0 ≤ θ by exact le_trans ( by positivity ) hθ.2.1 ], by linarith [ Real.pi_pos, show θ ≤ Real.pi / 2 by exact hθ.2.2.trans ( by rw [ div_le_iff₀ <| by positivity ] ; nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] ) ] ⟩ )
+      exact ⟨by linarith, h_pn2_le_zero⟩
+
+/-
+Definition of the sequence of guesses for the optimal strategy.
+-/
+noncomputable def optimalStrategy_x (n : ℕ) (R B : ℝ) (k : ℕ) : ℝ :=
+  if k < n then tightPoly (k + 1) R else B + (k - (n - 1))
+
+/-
+Lemma: ratioLower n >= 1 for n >= 1.
+-/
+theorem ratioLower_ge_one (n : ℕ) (hn : 1 ≤ n) : 1 ≤ ratioLower n := by
+  unfold ratioLower;
+  have h_cos : Real.cos (Real.pi / (n + 2)) ≥ 1 / 2 := by
+    exact Real.cos_pi_div_three ▸ Real.cos_le_cos_of_nonneg_of_le_pi ( by positivity ) ( by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, div_mul_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 2 ≠ 0 ) ] ) ( by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, div_mul_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 2 ≠ 0 ) ] );
+  norm_num; nlinarith
+
+/-
+Lemma: tightPoly k R is positive for k <= n and R in the n-step range.
+-/
+theorem tightPoly_pos (n : ℕ) (hn : 1 ≤ n) (R : ℝ)
+    (hR : R ∈ Set.Icc (ratioLower n) (ratioUpper n)) (k : ℕ) (hk : k ≤ n) :
+    0 < tightPoly k R := by
+      -- Let θ be such that R = 4 cos^2 θ.
+      obtain ⟨θ, hθ⟩ : ∃ θ, 0 < θ ∧ θ ≤ Real.pi / (n + 2) ∧ R = 4 * (Real.cos θ) ^ 2 := by
+        -- By definition of ratioLower and ratioUpper, we know that R is in the interval [4 * cos²(π/(n+2)), 4 * cos²(π/(n+3))].
+        obtain ⟨θ, hθ⟩ : ∃ θ ∈ Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2)), R = 4 * (Real.cos θ) ^ 2 := by
+          -- Since $R \in [\rho_{n-1}, \rho_n]$, we can use the fact that $4 \cos^2 \theta$ is continuous and strictly decreasing on $[0, \frac{\pi}{2}]$.
+          have h_cont : ContinuousOn (fun θ => 4 * (Real.cos θ) ^ 2) (Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2))) := by
+            exact Continuous.continuousOn ( by continuity );
+          have h_ivt : ∃ θ ∈ Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2)), 4 * (Real.cos θ) ^ 2 = R := by
+            apply_rules [ intermediate_value_Icc' ];
+            · bound;
+            · unfold ratioLower ratioUpper at hR; aesop;
+          aesop;
+        exact ⟨ θ, lt_of_lt_of_le ( by positivity ) hθ.1.1, hθ.1.2, hθ.2 ⟩;
+      -- For k ≤ n, (k+1)θ ≤ (n+1)θ ≤ (n+1)π/(n+2) = π - π/(n+2) < π.
+      have h_angle_bound : (k + 1) * θ < Real.pi := by
+        nlinarith [ Real.pi_pos, show ( k : ℝ ) ≤ n by norm_cast, mul_div_cancel₀ Real.pi ( by linarith : ( n : ℝ ) + 2 ≠ 0 ) ];
+      -- Since $(k+1)\theta < \pi$ and $\theta > 0$, we have $\sin((k+1)\theta) > 0$.
+      have h_sin_pos : Real.sin ((k + 1) * θ) > 0 := by
+        exact Real.sin_pos_of_pos_of_lt_pi ( by nlinarith ) h_angle_bound;
+      -- Since $(k+1)\theta < \pi$ and $\theta > 0$, we have $(2 \cos \theta)^k > 0$.
+      have h_cos_pos : 0 < (2 * Real.cos θ) ^ k := by
+        exact pow_pos ( mul_pos zero_lt_two ( Real.cos_pos_of_mem_Ioo ⟨ by linarith [ Real.pi_pos ], by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 2 ≠ 0 ) ] ⟩ ) ) _;
+      have h_tightPoly_pos : tightPoly k R = (2 * Real.cos θ) ^ k * Real.sin ((k + 1) * θ) / Real.sin θ := by
+        convert tightPoly_trig_form θ ( ne_of_gt <| Real.sin_pos_of_pos_of_lt_pi hθ.left <| by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ ( Real.pi : ℝ ) ( by positivity : ( n : ℝ ) + 2 ≠ 0 ) ] ) k using 1 ; aesop;
+      exact h_tightPoly_pos.symm ▸ div_pos ( mul_pos h_cos_pos h_sin_pos ) ( Real.sin_pos_of_pos_of_lt_pi hθ.1 ( by linarith [ Real.pi_pos, show θ ≤ Real.pi / 3 by exact le_trans hθ.2.1 ( by rw [ div_le_iff₀ ] <;> nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] ) ] ) )
+
+/-
+Specification of the first guess R: it lies in the correct interval and satisfies p_n(R) = B.
+-/
+theorem firstGuess_spec {B : ℝ} (hB : 1 < B) :
+    let n := nSteps B
+    let R := firstGuess B
+    ratioLower n ≤ R ∧ R ≤ ratioUpper n ∧ tightPoly n R = B := by
+      unfold firstGuess;
+      field_simp;
+      split_ifs;
+      · have := Classical.choose_spec ( existsUnique_ratio_of_inStepRange ( B := B ) ( n := nSteps B ) ( nSteps_spec hB |>.1 ) ( nSteps_spec hB |>.2 ) );
+        tauto;
+      · contradiction
+
+/-
+Lemma: optimalStrategy_x is non-negative.
+-/
+theorem optimalStrategy_x_nonneg (n : ℕ) (R B : ℝ)
+    (hn : 1 ≤ n) (hB : 1 < B)
+    (hR_range : R ∈ Set.Icc (ratioLower n) (ratioUpper n))
+    (h_tight : tightPoly n R = B) (k : ℕ) :
+    0 ≤ optimalStrategy_x n R B k := by
+      unfold optimalStrategy_x;
+      split_ifs <;> try linarith [ tightPoly_pos n hn R hR_range ( k + 1 ) ( by linarith ) ];
+      linarith [ show ( k : ℝ ) ≥ n by norm_cast; linarith ]
+
+/-
+Lemma: The first guess of the optimal strategy is at least 1.
+-/
+theorem optimalStrategy_x_one_le (n : ℕ) (R B : ℝ)
+    (hn : 1 ≤ n) (hB : 1 < B)
+    (hR_range : R ∈ Set.Icc (ratioLower n) (ratioUpper n))
+    (h_tight : tightPoly n R = B) :
+    1 ≤ optimalStrategy_x n R B 0 := by
+      -- By definition of `optimalStrategy_x`, we have `optimalStrategy_x n R B 0 = tightPoly 1 R`.
+      have h_def : optimalStrategy_x n R B 0 = tightPoly 1 R := by
+        unfold optimalStrategy_x; aesop;
+      norm_num [ h_def ];
+      exact le_trans ( ratioLower_ge_one n hn ) hR_range.1
+
+/-
+Lemma: The optimal strategy sequence is monotonic.
+-/
+theorem optimalStrategy_x_mono (n : ℕ) (R B : ℝ)
+    (hn : 1 ≤ n) (hB : 1 < B)
+    (hR_range : R ∈ Set.Icc (ratioLower n) (ratioUpper n))
+    (h_tight : tightPoly n R = B) :
+    Monotone (optimalStrategy_x n R B) := by
+      refine' monotone_nat_of_le_succ fun k => _;
+      by_cases hk : k < n <;> simp_all +decide [ optimalStrategy_x ];
+      · -- Since $R \in [\rho_{n-1}, \rho_n]$, we have $R = 4 \cos^2(\theta)$ for some $\theta \in [\frac{\pi}{n+2}, \frac{\pi}{n+3}]$.
+        obtain ⟨θ, hθ⟩ : ∃ θ : ℝ, 0 < θ ∧ θ ≤ Real.pi / (n + 2) ∧ R = 4 * (Real.cos θ) ^ 2 := by
+          unfold ratioLower ratioUpper at hR_range;
+          -- Since $R$ is between $4 \cos^2(\pi/(n+2))$ and $4 \cos^2(\pi/(n+3))$, we can find $\theta$ such that $\cos(\theta) = \sqrt{R/4}$.
+          obtain ⟨θ, hθ⟩ : ∃ θ ∈ Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2)), Real.cos θ ^ 2 = R / 4 := by
+            apply_rules [ intermediate_value_Icc' ] <;> norm_num;
+            · gcongr ; linarith;
+            · exact Continuous.continuousOn ( Real.continuous_cos.pow 2 );
+            · constructor <;> push_cast at * <;> linarith;
+          exact ⟨ θ, lt_of_lt_of_le ( by positivity ) hθ.1.1, hθ.1.2, by linarith ⟩;
+        split_ifs <;> simp_all +decide [ tightPoly_diff_sign ];
+        · have h_sin_nonneg : Real.sin ((k + 4) * θ) ≥ 0 := by
+            exact Real.sin_nonneg_of_nonneg_of_le_pi ( by nlinarith ) ( by rw [ le_div_iff₀ ( by positivity ) ] at *; nlinarith [ Real.pi_pos, show ( k : ℝ ) + 1 + 1 ≤ n by norm_cast ] );
+          have h_sin_nonneg : tightPoly (k + 2) (4 * Real.cos θ ^ 2) - tightPoly (k + 1) (4 * Real.cos θ ^ 2) = (2 * Real.cos θ) ^ (k + 1) * Real.sin ((k + 4) * θ) / Real.sin θ := by
+            convert tightPoly_diff_sign θ hθ.1 ( show θ < Real.pi from by rw [ le_div_iff₀ ( by positivity ) ] at hθ; nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] ) ( k + 1 ) using 1 ; norm_num [ mul_assoc, pow_succ' ] ; ring_nf;
+          exact le_of_sub_nonneg ( h_sin_nonneg.symm ▸ div_nonneg ( mul_nonneg ( pow_nonneg ( mul_nonneg zero_le_two ( Real.cos_nonneg_of_mem_Icc ⟨ by linarith [ Real.pi_pos ], by linarith [ Real.pi_pos, show θ ≤ Real.pi / 2 by exact hθ.2.1.trans ( by rw [ div_le_iff₀ ] <;> nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] ) ] ⟩ ) ) _ ) ‹_› ) ( Real.sin_nonneg_of_mem_Icc ⟨ by linarith [ Real.pi_pos ], by linarith [ Real.pi_pos, show θ ≤ Real.pi / 2 by exact hθ.2.1.trans ( by rw [ div_le_iff₀ ] <;> nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] ) ] ⟩ ) );
+        · cases eq_or_lt_of_le ‹_› <;> first | linarith | aesop;
+      · split_ifs <;> linarith [ ( by norm_cast : ( n : ℝ ) ≤ k ) ]
+
+/-
+Definition of the optimal strategy as a Strategy structure.
+-/
+noncomputable def optimalStrategy (B : ℝ) : Strategy :=
+  if hB : 1 < B then
+    let n := nSteps B
+    let R := firstGuess B
+    have hn : 1 ≤ n := (nSteps_spec hB).1
+    have h_spec := firstGuess_spec hB
+    have hR_range : R ∈ Set.Icc (ratioLower n) (ratioUpper n) := ⟨h_spec.1, h_spec.2.1⟩
+    have h_tight : tightPoly n R = B := h_spec.2.2
+    { x := optimalStrategy_x n R B
+      nonneg := optimalStrategy_x_nonneg n R B hn hB hR_range h_tight
+      one_le := optimalStrategy_x_one_le n R B hn hB hR_range h_tight
+      mono := optimalStrategy_x_mono n R B hn hB hR_range h_tight
+      hits := fun {y} hy => by
+        -- Since $y \geq 1$, we can choose $n$ large enough such that $B + (n - (n - 1)) \geq y$.
+        use Nat.ceil (y - B) + n;
+        unfold optimalStrategy_x;
+        split_ifs <;> norm_num at * ; linarith [ Nat.le_ceil ( y - B ) ] }
+  else
+    doublingStrategy
+
+/-
+Lemma: If B > 1, then the first guess R is strictly greater than the lower bound of the interval.
+-/
+theorem firstGuess_gt_ratioLower {B : ℝ} (hB : 1 < B) :
+    ratioLower (nSteps B) < firstGuess B := by
+      have := firstGuess_spec hB
+      obtain ⟨hR_range, h_tight⟩ := this;
+      refine' hR_range.lt_of_ne' _;
+      have := tightPoly_endpoints ( nSteps B ) ( by linarith [ nSteps_spec hB ] );
+      have := nSteps_spec hB;
+      unfold InStepRange at this; aesop;
+
+/-
+Lemma: For the optimal strategy, the ratio of the partial sum to the previous guess is equal to the first guess R, for all steps k < n.
+-/
+theorem optimalStrategy_ratio_eq_firstGuess (B : ℝ) (hB : 1 < B) (k : ℕ) (hk : k < nSteps B) :
+    partialSum (optimalStrategy B) k / (if k = 0 then 1 else (optimalStrategy B).x (k - 1)) = firstGuess B := by
+      -- Let's use the fact that `optimalStrategy_x` is equal to `tightGuess k R` for `k < n` and `B + (k - (n - 1))` for `k ≥ n`.
+      have h_optimal_x : ∀ k < (if 1 < B then nSteps B else 0), (optimalStrategy B).x k = tightGuess k (firstGuess B) := by
+        unfold optimalStrategy;
+        unfold optimalStrategy_x; aesop;
+      rcases k <;> simp_all +decide [ partialSum ];
+      · exact?;
+      · rw [ Finset.sum_congr rfl fun i hi => h_optimal_x i ( by linarith [ Finset.mem_range.mp hi ] ) ];
+        -- By definition of `tightGuess`, we know that `∑ i ∈ Finset.range (n + 2), tightGuess i R = R * tightGuess n R`.
+        have h_sum : ∑ i ∈ Finset.range (Nat.succ ‹_› + 1), tightGuess i (firstGuess B) = firstGuess B * tightGuess ‹_› (firstGuess B) := by
+          apply tight_strategies_sum;
+          exact hk;
+        rw [ h_sum, h_optimal_x _ ( by linarith ), mul_div_cancel_right₀ _ ( ne_of_gt <| by exact ( show 0 < tightGuess _ _ from by exact ( show 0 < tightPoly ( Nat.succ _ ) _ from by exact ( show 0 < tightPoly ( Nat.succ _ ) _ from by exact ( tightPoly_pos _ ( by linarith ) _ ⟨ ( firstGuess_spec hB ) |>.1, ( firstGuess_spec hB ) |>.2.1 ⟩ _ ( by linarith ) ) ) ) ) ) ]
+
+/-
+Lemma: tightPoly is strictly increasing in k for k < n, given R > ratioLower n.
+-/
+theorem tightPoly_strictMono_in_k (n : ℕ) (hn : 1 ≤ n) (R : ℝ)
+    (hR : R ∈ Set.Icc (ratioLower n) (ratioUpper n))
+    (hR_gt : ratioLower n < R) (j : ℕ) (hj : j < n) :
+    tightPoly j R < tightPoly (j + 1) R := by
+      -- Let θ be such that R = 4 cos^2 θ.
+      obtain ⟨θ, hθ⟩ : ∃ θ ∈ Set.Ioo 0 (Real.pi / (n + 2)), R = 4 * (Real.cos θ) ^ 2 := by
+        have hθ : ∃ θ ∈ Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2)), R = 4 * (Real.cos θ) ^ 2 := by
+          unfold ratioLower ratioUpper at *;
+          have hθ_exists : ∃ θ ∈ Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2)), 4 * (Real.cos θ) ^ 2 = R := by
+            apply_rules [ intermediate_value_Icc' ] <;> norm_num;
+            · gcongr ; norm_num;
+            · exact Continuous.continuousOn ( by continuity );
+            · aesop;
+          aesop;
+        obtain ⟨ θ, hθ₁, hθ₂ ⟩ := hθ;
+        by_cases hθ_eq : θ = Real.pi / (n + 2);
+        · simp_all +decide [ ratioLower ];
+        · exact ⟨ θ, ⟨ lt_of_lt_of_le ( by positivity ) hθ₁.1, lt_of_le_of_ne hθ₁.2 hθ_eq ⟩, hθ₂ ⟩;
+      have h_pos : 0 < (2 * Real.cos θ) ^ j * Real.sin ((j + 3) * θ) / Real.sin θ := by
+        refine' div_pos ( mul_pos ( pow_pos ( mul_pos zero_lt_two ( Real.cos_pos_of_mem_Ioo ⟨ _, _ ⟩ ) ) _ ) ( Real.sin_pos_of_mem_Ioo ⟨ _, _ ⟩ ) ) ( Real.sin_pos_of_mem_Ioo ⟨ _, _ ⟩ );
+        all_goals nlinarith [ hθ.1.1, hθ.1.2, Real.pi_pos, mul_div_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 2 ≠ 0 ), show ( j : ℝ ) + 3 ≤ n + 2 by norm_cast; linarith ];
+      have h_diff : tightPoly (j + 1) R - tightPoly j R = (2 * Real.cos θ) ^ j * Real.sin ((j + 3) * θ) / Real.sin θ := by
+        have := tightPoly_diff_sign θ hθ.1.1 ( by linarith [ hθ.1.2, Real.pi_pos, div_le_self Real.pi_pos.le ( by linarith : ( n : ℝ ) + 2 ≥ 1 ) ] ) j; aesop;
+      linarith
+
+/-
+Lemma: optimalStrategy_x is strictly monotonic.
+-/
+theorem optimalStrategy_x_strictMono (n : ℕ) (R B : ℝ)
+    (hn : 1 ≤ n) (hB : 1 < B)
+    (hR_range : R ∈ Set.Icc (ratioLower n) (ratioUpper n))
+    (hR_gt : ratioLower n < R)
+    (h_tight : tightPoly n R = B) :
+    StrictMono (optimalStrategy_x n R B) := by
+      refine' strictMono_nat_of_lt_succ fun k => _;
+      by_cases hk : k < n <;> by_cases hk' : k + 1 < n <;> simp +decide [ *, optimalStrategy_x ];
+      · convert tightPoly_strictMono_in_k n hn R hR_range hR_gt ( k + 1 ) hk' using 1;
+      · cases eq_or_lt_of_le ( Nat.succ_le_of_lt hk ) <;> aesop;
+      · linarith
+
+/-
+Lemma: The optimal strategy is strictly increasing.
+-/
+theorem optimalStrategy_strictMono (B : ℝ) (hB : 1 < B) :
+    StrictMono (optimalStrategy B).x := by
+      unfold optimalStrategy;
+      split_ifs;
+      apply_rules [ optimalStrategy_x_strictMono ];
+      · exact ( nSteps_spec hB ).1;
+      · exact ⟨ firstGuess_spec hB |>.1, firstGuess_spec hB |>.2.1 ⟩;
+      · exact firstGuess_gt_ratioLower hB;
+      · exact firstGuess_spec hB |>.2.2
+
+/-
+Lemma: The (n-1)-th guess of the optimal strategy is B.
+-/
+theorem optimalStrategy_x_at_n_minus_one (n : ℕ) (R B : ℝ)
+    (hn : 1 ≤ n) (h_tight : tightPoly n R = B) :
+    optimalStrategy_x n R B (n - 1) = B := by
+      unfold optimalStrategy_x; aesop;
+
+/-
+Theorem: The bounded worst-case score of the optimal strategy is exactly the first guess R.
+-/
+theorem optimalStrategy_boundedScore (B : ℝ) (hB : 1 < B) :
+    boundedWorstCaseScore (optimalStrategy B) B = ENNReal.ofReal (firstGuess B) := by
+      let n := nSteps B
+      let R := firstGuess B
+      have hR_range : R ∈ Set.Icc (ratioLower n) (ratioUpper n) ∧ tightPoly n R = B := by
+        exact ⟨ ⟨ firstGuess_spec hB |>.1, firstGuess_spec hB |>.2.1 ⟩, firstGuess_spec hB |>.2.2 ⟩
+      have h_strict : StrictMono (optimalStrategy B).x := by
+        exact?
+      have h_xn_minus_one : (optimalStrategy B).x (n - 1) = B := by
+        convert optimalStrategy_x_at_n_minus_one n R B _ _;
+        · unfold optimalStrategy; aesop;
+        · exact nSteps_spec hB |>.1;
+        · exact hR_range.2;
+      -- We apply bounded_boundary_reduction with index m.
+      have h_bounded : ⨆ k ∈ Finset.range n, ENNReal.ofReal (partialSum (optimalStrategy B) k / if k = 0 then 1 else (optimalStrategy B).x (k - 1)) = ENNReal.ofReal (firstGuess B) := by
+        have h_bounded : ∀ k ∈ Finset.range n, ENNReal.ofReal (partialSum (optimalStrategy B) k / if k = 0 then 1 else (optimalStrategy B).x (k - 1)) = ENNReal.ofReal R := by
+          intro k hk; rw [ optimalStrategy_ratio_eq_firstGuess B hB k ( Finset.mem_range.mp hk ) ] ;
+        rw [ @ciSup_eq_of_forall_le_of_forall_lt_exists_gt ];
+        · intro i; rw [ ciSup_eq_ite ] ; aesop;
+        · intro w hw;
+          use 0;
+          rcases n with ( _ | _ | n ) <;> norm_num at *;
+          · exact absurd hR_range.2 ( by erw [ show tightPoly 0 R = 1 by rfl ] ; linarith );
+          · aesop;
+          · specialize h_bounded 0 ; aesop;
+      rw [ ← h_bounded, bounded_boundary_reduction ];
+      any_goals exact n - 1;
+      · rw [ Nat.sub_add_cancel ( show 1 ≤ n from ( nSteps_spec hB ).1 ) ];
+      · assumption;
+      · exact h_xn_minus_one;
+      · rcases n with ( _ | _ | n ) <;> simp_all +decide [ Nat.sub_sub ];
+        linarith [ h_strict ( Nat.lt_succ_self n ) ]
+
+/-
+Lemma: The supremum of the ratios for the optimal strategy is equal to the first guess R.
+-/
+lemma optimalStrategy_sup_ratio (B : ℝ) (hB : 1 < B) :
+    (⨆ k ∈ Finset.range (nSteps B), ENNReal.ofReal (partialSum (optimalStrategy B) k / if k = 0 then 1 else (optimalStrategy B).x (k - 1))) = ENNReal.ofReal (firstGuess B) := by
+      refine' le_antisymm _ _;
+      · refine' iSup_le fun k => iSup_le fun hk => _;
+        rw [ optimalStrategy_ratio_eq_firstGuess B hB k ( Finset.mem_range.mp hk ) ];
+      · field_simp;
+        refine' le_trans _ ( le_iSup₂_of_le ( nSteps B - 1 ) ( Finset.mem_range.mpr ( Nat.sub_lt ( by linarith [ show 1 ≤ nSteps B from Nat.succ_le_of_lt ( Nat.pos_of_ne_zero ( by { intro h; have := nSteps_spec hB; aesop } ) ) ] ) zero_lt_one ) ) le_rfl );
+        rw [ optimalStrategy_ratio_eq_firstGuess ];
+        · linarith;
+        · exact Nat.pred_lt ( ne_bot_of_gt ( nSteps_spec hB |>.1 ) )
+
+/-
+Lemma: The optimal strategy is strictly increasing (renamed to avoid conflict).
+-/
+theorem optimalStrategy_strictMono_proof (B : ℝ) (hB : 1 < B) :
+    StrictMono (optimalStrategy B).x := by
+      exact?
+
+/-
+Lemma: If the strategy guesses are bounded by the tight polynomials, then the partial sum is bounded by R times the k-th tight polynomial.
+-/
+theorem dominance_le_tightPoly_sum {s : Strategy} {R : ℝ} {n k : ℕ}
+    (hk : k < n)
+    (h : ∀ j, j ≤ k → s.x j ≤ tightPoly (j + 1) R) :
+    partialSum s k ≤ R * tightPoly k R := by
+      have h_partialSum : ∑ i ∈ Finset.range (k + 1), s.x i ≤ ∑ i ∈ Finset.range (k + 1), tightPoly (i + 1) R := by
+        exact Finset.sum_le_sum fun i hi => h i <| Finset.mem_range_succ_iff.mp hi;
+      exact h_partialSum.trans ( by rw [ tight_strategies_sum n R k hk ] )
+
+/-
+The value of the 0-th breakpoint B_0 is 1.
+-/
+lemma stepBreakpoint_zero : stepBreakpoint 0 = 1 := by
+  unfold stepBreakpoint; norm_num
+
+/-
+The value of the 1st breakpoint B_1 is 2.
+-/
+lemma stepBreakpoint_one : stepBreakpoint 1 = 2 := by
+  unfold stepBreakpoint; norm_num [ Real.cos_pi_div_four ] ;
+  ring_nf; norm_num;
+
+/-
+The value of the 2nd breakpoint B_2 is 2 + sqrt(5).
+-/
+lemma stepBreakpoint_two : stepBreakpoint 2 = 2 + Real.sqrt 5 := by
+  norm_num [ stepBreakpoint ];
+  grind
+
+/-
+The value of the 3rd breakpoint B_3 is 9.
+-/
+lemma stepBreakpoint_three : stepBreakpoint 3 = 9 := by
+  -- By definition of stepBreakpoint, we have stepBreakpoint 3 = (2 * cos(π/6))^4.
+  simp [stepBreakpoint];
+  grind
+
+/-
+The 0-th term of the difference sum sequence is non-negative.
+-/
+lemma diff_sum_nonneg_zero {s : Strategy} {B R : ℝ} {n : ℕ}
+    (h_strict : StrictMono s.x)
+    (h_n : s.x (n - 1) = B)
+    (h_score : boundedWorstCaseScore s B ≤ ENNReal.ofReal R) :
+    0 ≤ diff_sum s R 0 := by
+      unfold diff_sum;
+      have := recurrence_start h_score ( show 1 ≤ B by linarith [ s.one_le, h_strict.monotone ( show 0 ≤ n - 1 from Nat.zero_le _ ) ] ) ( show s.x 0 ≤ B by linarith [ s.one_le, h_strict.monotone ( show 0 ≤ n - 1 from Nat.zero_le _ ) ] ) ; aesop;
