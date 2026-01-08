@@ -1,4 +1,4 @@
-This is a formalized proof of (part of) [Erdős Problem 678](https://www.erdosproblems.com/forum/thread/678).
+This is a formalized proof of (a tiny part of) [Erdős Problem 678](https://www.erdosproblems.com/forum/thread/678).
 
 It is available for these Mathlib (and Lean) versions:
 
