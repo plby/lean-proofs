@@ -1,6 +1,13 @@
 import Mathlib
 
 set_option linter.style.longLine false
+set_option linter.style.setOption false
+set_option linter.style.openClassical false
+set_option linter.unusedSimpArgs false
+set_option linter.style.induction false
+set_option linter.style.refine false
+set_option linter.style.multiGoal false
+set_option linter.style.commandStart false
 
 set_option maxHeartbeats 0
 
@@ -1116,13 +1123,13 @@ theorem tightPoly_trig_form (θ : ℝ) (hθ : Real.sin θ ≠ 0) (k : ℕ) :
       induction' k using Nat.strong_induction_on with n ih;
       rcases n with ( _ | _ | n ) <;> norm_num [ Nat.succ_eq_add_one, ih ];
       · aesop;
-      · rw [ Real.sin_two_mul ] ; ring;
+      · rw [ Real.sin_two_mul ] ; ring_nf;
         aesop;
       · -- Applying the recurrence relation for tightPoly, we have:
         have h_rec : tightPoly (n + 2) (4 * Real.cos θ ^ 2) = 4 * Real.cos θ ^ 2 * (tightPoly (n + 1) (4 * Real.cos θ ^ 2) - tightPoly n (4 * Real.cos θ ^ 2)) := by
-          exact?;
+          exact rfl;
         rw [ h_rec, ih _ <| Nat.lt_succ_self _, ih _ <| Nat.lt_succ_of_lt <| Nat.lt_succ_self _ ];
-        norm_num [ add_mul, Real.sin_add, Real.cos_add, pow_succ' ] ; ring;
+        norm_num [ add_mul, Real.sin_add, Real.cos_add, pow_succ' ] ; ring_nf;
         rw [ show Real.sin θ ^ 3 = Real.sin θ * Real.sin θ ^ 2 by ring, Real.sin_sq ] ; ring
 
 /-
@@ -1471,7 +1478,7 @@ theorem optimalStrategy_ratio_eq_firstGuess (B : ℝ) (hB : 1 < B) (k : ℕ) (hk
         unfold optimalStrategy;
         unfold optimalStrategy_x; aesop;
       rcases k <;> simp_all +decide [ partialSum ];
-      · exact?;
+      · exact rfl;
       · rw [ Finset.sum_congr rfl fun i hi => h_optimal_x i ( by linarith [ Finset.mem_range.mp hi ] ) ];
         -- By definition of `tightGuess`, we know that `∑ i ∈ Finset.range (n + 2), tightGuess i R = R * tightGuess n R`.
         have h_sum : ∑ i ∈ Finset.range (Nat.succ ‹_› + 1), tightGuess i (firstGuess B) = firstGuess B * tightGuess ‹_› (firstGuess B) := by
@@ -1553,7 +1560,7 @@ theorem optimalStrategy_boundedScore (B : ℝ) (hB : 1 < B) :
       have hR_range : R ∈ Set.Icc (ratioLower n) (ratioUpper n) ∧ tightPoly n R = B := by
         exact ⟨ ⟨ firstGuess_spec hB |>.1, firstGuess_spec hB |>.2.1 ⟩, firstGuess_spec hB |>.2.2 ⟩
       have h_strict : StrictMono (optimalStrategy B).x := by
-        exact?
+        exact optimalStrategy_strictMono B hB
       have h_xn_minus_one : (optimalStrategy B).x (n - 1) = B := by
         convert optimalStrategy_x_at_n_minus_one n R B _ _;
         · unfold optimalStrategy; aesop;
@@ -1598,7 +1605,7 @@ Lemma: The optimal strategy is strictly increasing (renamed to avoid conflict).
 -/
 theorem optimalStrategy_strictMono_proof (B : ℝ) (hB : 1 < B) :
     StrictMono (optimalStrategy B).x := by
-      exact?
+      exact optimalStrategy_strictMono B hB
 
 /-
 Lemma: If the strategy guesses are bounded by the tight polynomials, then the partial sum is bounded by R times the k-th tight polynomial.
@@ -1610,12 +1617,6 @@ theorem dominance_le_tightPoly_sum {s : Strategy} {R : ℝ} {n k : ℕ}
       have h_partialSum : ∑ i ∈ Finset.range (k + 1), s.x i ≤ ∑ i ∈ Finset.range (k + 1), tightPoly (i + 1) R := by
         exact Finset.sum_le_sum fun i hi => h i <| Finset.mem_range_succ_iff.mp hi;
       exact h_partialSum.trans ( by rw [ tight_strategies_sum n R k hk ] )
-
-/-
-The value of the 0-th breakpoint B_0 is 1.
--/
-lemma stepBreakpoint_zero : stepBreakpoint 0 = 1 := by
-  unfold stepBreakpoint; norm_num
 
 /-
 The value of the 1st breakpoint B_1 is 2.
