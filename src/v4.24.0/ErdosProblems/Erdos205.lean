@@ -13,6 +13,10 @@ Later, Terence Tao suggested that the log log m could be replaced with
 file is a formal proof of THAT bound, produced with ChatGPT and
 Aristotle.
 
+We assume a statement of the Prime Number Theorem taken from the
+PrimeNumberTheoremAnd project, but admitted as an axiom:
+nth_prime_asymp.
+
 
 The proof is verified by Lean.  The following version numbers were
 used:
@@ -497,21 +501,37 @@ Infinitely many counterexamples, in the PNT-scale form:
 -/
 theorem infinitely_many_counterexamples :
     ∃ c : ℝ, 0 < c ∧ {n : ℕ | is_counterexample c n}.Infinite := by
-  -- By the main inequality, there exists a constant $c > 0$ such that for all sufficiently large $E$, $n_E$ is a counterexample.
-  obtain ⟨c, hc_pos, hc⟩ : ∃ c : ℝ, 0 < c ∧ (∀ᶠ E in atTop, ∀ hE : E ≥ 10, is_counterexample c (n_E E hE)) := by
+  -- By the main_inequality_eventually theorem, there exists a constant c > 0 such that for sufficiently large E, the n_E values satisfy the counterexample property.
+  obtain ⟨c, hc_pos, hc⟩ : ∃ c : ℝ, 0 < c ∧ (∀ᶠ E in Filter.atTop, ∀ hE : E ≥ 10, is_counterexample c (n_E E hE)) := by
     exact main_inequality_eventually;
-  norm_num +zetaDelta at *;
-  exact ⟨ c, hc_pos, Set.infinite_of_forall_exists_gt fun n => by rcases hc with ⟨ a, ha ⟩ ; exact ⟨ n_E ( n + a + 10 ) ( by linarith ), ha _ ( by linarith ) ( by linarith ), by linarith [ show n_E ( n + a + 10 ) ( by linarith ) > n + a + 10 from by
-                                                                                                                                                                                              have := n_E_is_solution ( n + a + 10 ) ( by linarith );
-                                                                                                                                                                                              have := this.1.symm.dvd;
-                                                                                                                                                                                              norm_num at *;
-                                                                                                                                                                                              norm_cast at this;
-                                                                                                                                                                                              refine' lt_of_lt_of_le _ ( Nat.le_of_dvd ( Nat.pos_of_ne_zero _ ) this );
-                                                                                                                                                                                              · exact
-                                                                                                                                                                                                Nat.lt_two_pow_self;
-                                                                                                                                                                                              · intro h; simp_all +decide [ is_solution ] ;
-                                                                                                                                                                                                have := this.2 0; norm_num [ Nat.modEq_iff_dvd' ] at this;
-                                                                                                                                                                                                exact absurd this ( by exact ne_of_gt <| lt_of_lt_of_le ( by norm_num ) <| Finset.prod_le_prod' fun _ _ => p_kj_ge_5 _ _ _ ) ] ⟩ ⟩
+  use c, hc_pos;
+  rw [ Filter.eventually_atTop ] at hc;
+  obtain ⟨ a, ha ⟩ := hc;
+  refine Set.infinite_of_forall_exists_gt ?_;
+  intro n;
+  -- Choose $b$ such that $b \geq \max(a, 10, n + 1)$.
+  use n_E (max a (max 10 (n + 1))) (by
+  norm_num)
+  generalize_proofs at *;
+  refine' ⟨ ha _ ( le_max_left _ _ ) _, _ ⟩;
+  -- By definition of $n_E$, we know that $n_E (max a (max 10 (n + 1)))$ is a solution to the system of congruences.
+  have h_sol : n_E (max a (max 10 (n + 1))) (by
+  assumption) ≡ 0 [MOD 2^(max a (max 10 (n + 1)))] ∧ n_E (max a (max 10 (n + 1))) (by
+  assumption) ≡ 0 [MOD 3] ∧ ∀ k < max a (max 10 (n + 1)), n_E (max a (max 10 (n + 1))) (by
+  assumption) ≡ 2^k [MOD Q_k (max a (max 10 (n + 1))) k] := by
+    exact n_E_is_solution _ _
+  generalize_proofs at *;
+  -- Since $n_E (max a (max 10 (n + 1)))$ is a solution to the system of congruences, it must be divisible by $2^{max a (max 10 (n + 1))}$.
+  have h_div : 2^(max a (max 10 (n + 1))) ∣ n_E (max a (max 10 (n + 1))) (by
+  (expose_names; exact pf)) := by
+    exact Nat.dvd_of_mod_eq_zero h_sol.1
+  generalize_proofs at *;
+  refine' lt_of_lt_of_le _ ( Nat.le_of_dvd ( Nat.pos_of_ne_zero _ ) h_div );
+  · exact lt_of_lt_of_le ( Nat.lt_of_succ_le ( le_max_right _ _ ) ) ( le_max_right _ _ ) |> lt_of_lt_of_le <| Nat.le_of_lt <| Nat.recOn ( Max.max a ( Max.max 10 ( n + 1 ) ) ) ( by norm_num ) fun n ihn => by rw [ pow_succ' ] ; linarith [ Nat.one_le_pow n 2 zero_lt_two ] ;
+  · intro H; specialize ha ( Max.max a ( Max.max 10 ( n + 1 ) ) ) ( by aesop ) ( by aesop ) ; simp_all +decide [ Nat.ModEq ] ;
+    specialize h_sol 0 ; norm_num at h_sol;
+    unfold Q_k at h_sol; simp_all +decide [ Finset.prod_eq_zero_iff ] ;
+    exact absurd ( h_sol 1 ( by norm_num ) ( by norm_num ) ) ( Nat.Prime.ne_one ( Nat.prime_nth_prime _ ) )
                                                                                                                                                       
 #print axioms infinitely_many_counterexamples
 -- 'infinitely_many_counterexamples' depends on axioms: [nth_prime_asymp, propext, Classical.choice, Quot.sound]
