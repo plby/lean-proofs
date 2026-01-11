@@ -530,7 +530,7 @@ theorem infinitely_many_counterexamples :
   · exact lt_of_lt_of_le ( Nat.lt_of_succ_le ( le_max_right _ _ ) ) ( le_max_right _ _ ) |> lt_of_lt_of_le <| Nat.le_of_lt <| Nat.recOn ( Max.max a ( Max.max 10 ( n + 1 ) ) ) ( by norm_num ) fun n ihn => by rw [ pow_succ' ] ; linarith [ Nat.one_le_pow n 2 zero_lt_two ] ;
   · intro H; specialize ha ( Max.max a ( Max.max 10 ( n + 1 ) ) ) ( by aesop ) ( by aesop ) ; simp_all +decide [ Nat.ModEq ] ;
     specialize h_sol 0 ; norm_num at h_sol;
-    unfold Q_k at h_sol; simp_all +decide [ Finset.prod_eq_zero_iff ] ;
+    unfold Q_k at h_sol; simp_all
     exact absurd ( h_sol 1 ( by norm_num ) ( by norm_num ) ) ( Nat.Prime.ne_one ( Nat.prime_nth_prime _ ) )
                                                                                                                                                       
 #print axioms infinitely_many_counterexamples
