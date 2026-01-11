@@ -18,15 +18,11 @@ import Mathlib
 set_option linter.style.longLine false
 set_option linter.style.refine false
 set_option linter.style.induction false
-set_option linter.style.multiGoal false
 set_option linter.style.openClassical false
 set_option linter.style.commandStart false
-set_option linter.style.cdot false
-set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
 
-open Classical
-open scoped BigOperators
+open scoped Classical
 
 /-
 A Lean 4 formalization of the game:
@@ -347,7 +343,8 @@ lemma tightPoly_strictMonoOn {n : ℕ} (hn : 1 ≤ n) :
         have := tightPoly_trig_strictAntiOn hn;
         exact this hθ2.1 hθ1.1 hθ1θ2;
       convert hfθ1θ2 using 1;
-      · rw [ hθ1.2, tightPoly_eq_trig ] ; aesop;
+      · rw [ hθ1.2, tightPoly_eq_trig ]
+        · aesop
         exact ne_of_gt ( Real.sin_pos_of_pos_of_lt_pi ( lt_of_lt_of_le ( by positivity ) hθ1.1.1 ) ( lt_of_le_of_lt hθ1.1.2 ( by rw [ div_lt_iff₀ ] <;> nlinarith [ Real.pi_pos ] ) ) );
       · rw [ hθ2.2, tightPoly_eq_trig ];
         · norm_cast;
@@ -378,13 +375,11 @@ noncomputable def firstGuess (B : ℝ) : ℝ :=
 by
   classical
   by_cases hB : 1 < B
-  ·
-    let n : ℕ := nSteps B
+  · let n : ℕ := nSteps B
     have hn : 1 ≤ n := (nSteps_spec (B := B) hB).1
     have hBn : InStepRange B n := (nSteps_spec (B := B) hB).2
     exact Classical.choose (existsUnique_ratio_of_inStepRange (B := B) (n := n) hn hBn)
-  ·
-    exact 1
+  · exact 1
 
 /-- The “growth base” associated to the optimal step count: `B^(1/n(B))`. -/
 noncomputable def growthBase (B : ℝ) : ℝ :=
@@ -800,10 +795,10 @@ lemma bounded_boundary_reduction_ge {s : Strategy} {B : ℝ} {n : ℕ}
     boundedWorstCaseScore s B ≥ ⨆ k ∈ Finset.range (n + 1), ENNReal.ofReal (partialSum s k / if k = 0 then 1 else s.x (k - 1)) := by
       refine' iSup₂_le _;
       intro i hi;
-      by_cases hi0 : i = 0 <;> simp_all +decide [ Finset.mem_range_succ_iff ];
+      by_cases hi0 : i = 0 <;> simp_all
       · refine' le_trans _ ( le_ciSup _ ⟨ 1, _ ⟩ ) <;> norm_num [ partialSum ];
         all_goals norm_num [ boundedScore, score ];
-        exact ENNReal.ofReal_le_ofReal ( by exact le_trans ( by norm_num ) ( Finset.single_le_sum ( fun a _ => s.nonneg a ) ( Finset.mem_range.mpr ( Nat.succ_pos _ ) ) ) );
+        · exact ENNReal.ofReal_le_ofReal ( by exact le_trans ( by norm_num ) ( Finset.single_le_sum ( fun a _ => s.nonneg a ) ( Finset.mem_range.mpr ( Nat.succ_pos _ ) ) ) );
         linarith [ s.one_le, h_strict.monotone ( Nat.zero_le n ) ];
       · -- Consider the sequence $y_m \downarrow x_{i-1}$ with $y_m \in (x_{i-1}, x_i]$.
         obtain ⟨y_m, hy_m⟩ : ∃ y_m : ℕ → ℝ, (∀ m, y_m m ∈ Set.Ioc (s.x (i - 1)) (s.x i)) ∧ Filter.Tendsto y_m Filter.atTop (nhds (s.x (i - 1))) := by
@@ -838,7 +833,8 @@ lemma term_mono_of_eq {s : Strategy} {k : ℕ} (h_eq : s.x (k - 1) = s.x k) (hk 
       unfold partialSum;
       rw [ ENNReal.ofReal_le_ofReal_iff ] <;> norm_num [ Finset.sum_range_succ, h_eq ];
       · rw [ if_neg hk.ne' ];
-        gcongr ; linarith [ s.nonneg k, s.nonneg ( k + 1 ) ];
+        gcongr
+        · linarith [ s.nonneg k, s.nonneg ( k + 1 ) ];
         · exact le_add_of_nonneg_right ( s.nonneg _ );
         · exact s.mono ( Nat.le_succ _ );
       · exact div_nonneg ( add_nonneg ( add_nonneg ( Finset.sum_nonneg fun _ _ => s.nonneg _ ) ( s.nonneg _ ) ) ( s.nonneg _ ) ) ( s.nonneg _ )
@@ -890,7 +886,7 @@ lemma exists_strict_ge {s : Strategy} {n k : ℕ} (hk : k < n) (h_n : s.x (n - 1
           have h_score_term_le : scoreTerm s k ≤ scoreTerm s (k + 1) := by
             apply scoreTerm_mono_of_eq; exact h_eq.left; exact h_eq.right;
           obtain ⟨ m, hm₁, hm₂, hm₃, hm₄ ⟩ := ih ( show k + 1 < n from lt_of_le_of_ne hk ( by aesop_cat ) ) ( by omega ) ; exact ⟨ m, by linarith, by linarith, hm₃, h_score_term_le.trans hm₄ ⟩;
-        · by_cases hk0 : k = 0 <;> simp_all +decide [ Nat.sub_eq_iff_eq_add ];
+        · by_cases hk0 : k = 0 <;> simp_all
           · exact ⟨ 0, Nat.zero_lt_succ _, Or.inl rfl, le_rfl ⟩;
           · exact ⟨ k, le_rfl, hk, by cases lt_or_gt_of_ne h_eq <;> [ exact Or.inr ‹_› ; exact Or.inl <| by linarith! [ s.mono <| Nat.sub_le k 1 ] ], le_rfl ⟩
 
@@ -933,7 +929,7 @@ lemma recurrence_strict {s : Strategy} {B R : ℝ} {n : ℕ}
           rw [ ENNReal.ofReal_le_ofReal_iff ] at h_partialSum;
           · rwa [ div_le_iff₀ ( show 0 < s.x ( k - 1 ) from lt_of_lt_of_le zero_lt_one ( s.one_le.trans ( s.mono ( Nat.zero_le _ ) ) ) ) ] at h_partialSum;
           · contrapose! h_partialSum;
-            simp [ENNReal.ofReal, h_partialSum];
+            simp [ENNReal.ofReal];
             exact ⟨ lt_of_lt_of_le h_partialSum <| div_nonneg ( Finset.sum_nonneg fun _ _ => s.nonneg _ ) <| s.nonneg _, div_pos ( Finset.sum_pos ( fun _ _ => lt_of_lt_of_le zero_lt_one <| s.one_le.trans <| s.mono <| Nat.zero_le _ ) <| by norm_num ) <| lt_of_lt_of_le zero_lt_one <| s.one_le.trans <| s.mono <| Nat.zero_le _ ⟩;
         rcases k <;> simp_all +decide [ Finset.sum_range_succ, partialSum ];
         linarith
@@ -1094,7 +1090,7 @@ lemma strategy_recurrence_correct {s : Strategy} {B R : ℝ} {n : ℕ}
         have h_recurrence : s.x k ≤ R * s.x (k - 1) - partialSum s (k - 1) := by
           have := recurrence_strict h_strict h_n h_score;
           exact this.2 k ( by linarith ) ( by linarith );
-        rcases k with ( _ | _ | k ) <;> simp_all +decide [ Finset.sum_range_succ ];
+        rcases k with ( _ | _ | k ) <;> simp_all
         unfold partialSum at *; norm_num [ Finset.sum_range_succ ] at *; linarith;
 
 /-
@@ -1441,7 +1437,7 @@ theorem optimalStrategy_x_mono (n : ℕ) (R B : ℝ)
             · exact Continuous.continuousOn ( Real.continuous_cos.pow 2 );
             · constructor <;> push_cast at * <;> linarith;
           exact ⟨ θ, lt_of_lt_of_le ( by positivity ) hθ.1.1, hθ.1.2, by linarith ⟩;
-        split_ifs <;> simp_all +decide [ tightPoly_diff_sign ];
+        split_ifs <;> simp_all
         · have h_sin_nonneg : Real.sin ((k + 4) * θ) ≥ 0 := by
             exact Real.sin_nonneg_of_nonneg_of_le_pi ( by nlinarith ) ( by rw [ le_div_iff₀ ( by positivity ) ] at *; nlinarith [ Real.pi_pos, show ( k : ℝ ) + 1 + 1 ≤ n by norm_cast ] );
           have h_sin_nonneg : tightPoly (k + 2) (4 * Real.cos θ ^ 2) - tightPoly (k + 1) (4 * Real.cos θ ^ 2) = (2 * Real.cos θ) ^ (k + 1) * Real.sin ((k + 4) * θ) / Real.sin θ := by
@@ -1600,7 +1596,7 @@ theorem optimalStrategy_boundedScore (B : ℝ) (hB : 1 < B) :
       · rw [ Nat.sub_add_cancel ( show 1 ≤ n from ( nSteps_spec hB ).1 ) ];
       · assumption;
       · exact h_xn_minus_one;
-      · rcases n with ( _ | _ | n ) <;> simp_all +decide [ Nat.sub_sub ];
+      · rcases n with ( _ | _ | n ) <;> simp_all
         linarith [ h_strict ( Nat.lt_succ_self n ) ]
 
 /-
@@ -1711,10 +1707,11 @@ lemma formula_x_recurrence {s : Strategy} {R : ℝ} (hR : R ≠ 0) (k : ℕ) (hk
       rcases k with ( _ | _ | k ) <;> simp_all +decide [ Finset.sum_range_succ ];
       have h_recurrence : ∀ k, tightPoly (k + 2) R = R * (tightPoly (k + 1) R - tightPoly k R) := by
         exact fun k ↦ rfl;
-      simp_all +decide [ sub_eq_iff_eq_add, Finset.sum_add_distrib, Finset.mul_sum _ _ _, Finset.sum_mul _ _ _, mul_assoc, mul_left_comm, mul_div_cancel₀ ];
+      simp_all [ sub_eq_iff_eq_add ];
       rw [ show tightPoly ( k + 1 + 1 - k + 1 ) R = tightPoly 3 R by rw [ show k + 1 + 1 - k = 2 by rw [ Nat.sub_eq_of_eq_add ] ; ring ] ] ; rw [ show tightPoly 3 R = R * ( tightPoly 2 R - tightPoly 1 R ) by exact h_recurrence 1 ] ; rw [ show tightPoly 2 R = R * ( tightPoly 1 R - tightPoly 0 R ) by exact h_recurrence 0 ] ; norm_num [ Finset.sum_range_succ', hR ] ; ring_nf;
       rw [ show tightPoly 1 R = R by rfl, show tightPoly 0 R = 1 by rfl ] ; norm_num [ hR, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _ ] ; ring_nf;
-      rw [ show ( Finset.range k ).sum ( fun x => R * slack s R x * R⁻¹ * tightPoly ( 1 + ( 1 + k - x ) ) R ) = ( Finset.range k ).sum ( fun x => R * R⁻¹ * slack s R x * tightPoly ( 1 + ( k - x ) ) R ) + ( Finset.range k ).sum ( fun x => R⁻¹ * slack s R x * tightPoly ( 1 + ( 2 + k - x ) ) R ) from ?_ ] ; ring;
+      rw [ show ( Finset.range k ).sum ( fun x => R * slack s R x * R⁻¹ * tightPoly ( 1 + ( 1 + k - x ) ) R ) = ( Finset.range k ).sum ( fun x => R * R⁻¹ * slack s R x * tightPoly ( 1 + ( k - x ) ) R ) + ( Finset.range k ).sum ( fun x => R⁻¹ * slack s R x * tightPoly ( 1 + ( 2 + k - x ) ) R ) from ?_ ]
+      · ring
       rw [ ← Finset.sum_add_distrib ] ; refine' Finset.sum_congr rfl fun x hx => _ ; rw [ show 1 + ( 1 + k - x ) = 1 + ( k - x ) + 1 by linarith [ Nat.sub_add_cancel ( show x ≤ k from Finset.mem_range_le hx ), Nat.sub_add_cancel ( show x ≤ 1 + k from by linarith [ Finset.mem_range_le hx ] ) ] ] ; rw [ show 1 + ( 2 + k - x ) = 1 + ( k - x ) + 2 by linarith [ Nat.sub_add_cancel ( show x ≤ k from Finset.mem_range_le hx ), Nat.sub_add_cancel ( show x ≤ 2 + k from by linarith [ Finset.mem_range_le hx ] ) ] ] ; ring_nf;
       rw [ show 3 + ( k - x ) = 2 + ( k - x ) + 1 by ring, show 2 + ( k - x ) = 1 + ( k - x ) + 1 by ring ] ; rw [ h_recurrence ] ; ring;
 
@@ -1856,7 +1853,7 @@ The sum of the first k+1 tight polynomials is equal to R times the k-th tight po
 -/
 lemma tightPoly_sum_identity (R : ℝ) (k : ℕ) :
     ∑ i ∈ Finset.range (k + 1), tightPoly (i + 1) R = R * tightPoly k R := by
-      induction k <;> simp_all +decide [ Finset.sum_range_succ, pow_succ' ];
+      induction k <;> simp_all +decide [ Finset.sum_range_succ ];
       · exact show R = R * 1 by ring;
       · rw [ show tightPoly ( _ + 1 + 1 ) R = R * ( tightPoly ( _ + 1 ) R - tightPoly _ R ) by exact
         rfl ] ; ring
@@ -1913,7 +1910,7 @@ lemma C_seq_recurrence {R : ℝ} (hR : R ≠ 0) (k : ℕ) (hk : k ≥ 2) :
       -- By definition of $C_seq$, we know that $C_seq R k = tightPoly (k + 1) R / R$.
       have h_def : ∀ k, C_seq R k = tightPoly (k + 1) R / R := by
         exact fun k ↦ rfl;
-      rcases k with ( _ | _ | k ) <;> simp_all +decide [ Nat.succ_eq_add_one, mul_add ];
+      rcases k with ( _ | _ | k ) <;> simp_all
       field_simp;
       exact rfl
 
@@ -1928,7 +1925,7 @@ lemma impulseSeq_recurrence {R : ℝ} (k : ℕ) (hk : k ≥ 2) :
       -- We'll use induction to prove that the impulse sequence satisfies the given recurrence relation.
       induction' k with k ih;
       · contradiction;
-      · rcases k with ( _ | _ | k ) <;> simp_all +decide [ Nat.succ_eq_add_one ];
+      · rcases k with ( _ | _ | k ) <;> simp_all
         · -- By definition of impulseSeq, we have:
           simp [impulseSeq];
         · rw [ ← ih, impulseSeq ];
@@ -1957,9 +1954,10 @@ lemma tightPoly_dominance_identity {R : ℝ} {k : ℕ} (hk : 1 ≤ k) :
       -- By definition of `tightPoly`, we know that `tightPoly (k + 2) R = R * tightPoly (k + 1) R - R * tightPoly k R`.
       have h_rec : tightPoly (k + 2) R = R * tightPoly (k + 1) R - R * tightPoly k R := by
         exact tightPoly_recurrence_values R k;
-      rcases k with ( _ | _ | k ) <;> simp_all +decide [ Nat.succ_eq_add_one ];
+      rcases k with ( _ | _ | k ) <;> simp_all
       · rw [ show tightPoly 2 R = R * ( tightPoly 1 R - tightPoly 0 R ) by rfl, show tightPoly 1 R = R by rfl, show tightPoly 0 R = 1 by rfl ] ; ring;
-      · rw [ show tightPoly ( k + 2 + 1 ) R = R * tightPoly ( k + 2 ) R - R * tightPoly ( k + 1 ) R from ?_ ] ; ring;
+      · rw [ show tightPoly ( k + 2 + 1 ) R = R * tightPoly ( k + 2 ) R - R * tightPoly ( k + 1 ) R from ?_ ]
+        · ring;
         exact tightPoly_recurrence_values R (k + 1)
 
 /-
@@ -2035,7 +2033,7 @@ lemma impulseResponse_recurrence {R : ℝ} (hR : R ≠ 0) (k : ℕ) (hk : 1 ≤ 
     impulseResponse R k = R * impulseResponse R (k - 1) - ∑ j ∈ Finset.range k, impulseResponse R j := by
       have h_identity : ∑ i ∈ Finset.range k, impulseResponse R i = tightPoly (k - 1) R := by
         unfold impulseResponse;
-        have := tightPoly_sum_eq_R_mul_prev R ( k - 1 ) ; cases k <;> simp_all +decide [ Finset.sum_range_succ, div_eq_iff ] ;
+        have := tightPoly_sum_eq_R_mul_prev R ( k - 1 ) ; cases k <;> simp_all +decide [ Finset.sum_range_succ ] ;
         rw [ ← Finset.sum_div, ← add_div, this, mul_div_cancel_left₀ _ hR ];
       rcases k with ( _ | _ | k ) <;> simp_all +decide [ Finset.sum_range_succ, impulseResponse ];
       · rw [ show tightPoly 2 R = R * ( tightPoly 1 R - tightPoly 0 R ) by rfl, show tightPoly 1 R = R by rfl, show tightPoly 0 R = 1 by rfl ] ; ring_nf;
@@ -2063,7 +2061,7 @@ lemma convolution_recurrence_identity {R : ℝ} {e : ℕ → ℝ} (hR : R ≠ 0)
           simp +decide [ Finset.mul_sum _ _ _, mul_comm, Finset.sum_Ico_eq_sum_range ];
         have h_swap : ∑ j ∈ Finset.range k, impulseResponse R (k - j) * e j = ∑ j ∈ Finset.range k, e j * (R * impulseResponse R (k - j - 1) - ∑ i ∈ Finset.range (k - j), impulseResponse R i) := by
           exact Finset.sum_congr rfl fun x hx => by rw [ ← h_impulse _ ( Nat.sub_pos_of_lt ( Finset.mem_range.mp hx ) ) ] ; ring;
-        simp_all +decide [ mul_sub, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _, Finset.sum_mul ];
+        simp_all +decide [ mul_sub,mul_comm, mul_left_comm, Finset.mul_sum _ _ _ ];
         simp +decide only [tsub_right_comm, add_comm];
       cases k <;> aesop
 
@@ -2372,7 +2370,7 @@ noncomputable def dominance_aux_seq (delta1 R : ℝ) (k : ℕ) : ℝ :=
 lemma dominance_aux_seq_recurrence {delta1 R : ℝ} {k : ℕ} (hk : 2 ≤ k) :
     dominance_aux_seq delta1 R k = R * (dominance_aux_seq delta1 R (k - 1) - dominance_aux_seq delta1 R (k - 2)) := by
       rcases k with ( _ | _ | k ) <;> norm_num [ Nat.succ_eq_add_one, dominance_aux_seq ] at * ; ring_nf;
-      rcases k with ( _ | k ) <;> simp +decide [ Nat.add_comm 2, Nat.add_comm 1, Nat.add_sub_assoc, tightPoly ] ; ring
+      rcases k with ( _ | k ) <;> simp +decide [ Nat.add_comm 2, Nat.add_comm 1, tightPoly ] ; ring
 
 /-
 Reconstruction of a sequence from its recurrence errors using convolution with tight polynomials.
@@ -2401,7 +2399,8 @@ lemma recurrence_reconstruction {u : ℕ → ℝ} {R : ℝ} (k : ℕ) :
           exact Or.inl <| ih k <| Nat.lt_succ_of_lt <| Nat.lt_succ_self _;
         rcases k with ( _ | _ | k ) <;> simp_all +decide [ Finset.sum_range_succ ];
         norm_num [ add_assoc, add_tsub_assoc_of_le, Finset.sum_add_distrib, mul_add, mul_sub, sub_mul, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _, Finset.sum_mul, tightPoly ];
-        rw [ show ∑ i ∈ Finset.range k, R * ( recurrence_error u R i * tightPoly ( k + 1 - i ) R ) = ∑ i ∈ Finset.range k, ( recurrence_error u R i * tightPoly ( k + 2 - i ) R ) + ∑ i ∈ Finset.range k, R * ( recurrence_error u R i * tightPoly ( k - i ) R ) from ?_ ] ; ring;
+        rw [ show ∑ i ∈ Finset.range k, R * ( recurrence_error u R i * tightPoly ( k + 1 - i ) R ) = ∑ i ∈ Finset.range k, ( recurrence_error u R i * tightPoly ( k + 2 - i ) R ) + ∑ i ∈ Finset.range k, R * ( recurrence_error u R i * tightPoly ( k - i ) R ) from ?_ ]
+        · ring
         rw [ ← Finset.sum_add_distrib ] ; refine' Finset.sum_congr rfl fun i hi => _ ; rw [ show k + 2 - i = k + 1 - i + 1 from by rw [ tsub_add_eq_add_tsub ( by linarith [ Finset.mem_range.mp hi ] ) ] ] ; rw [ show k + 1 - i = k - i + 1 from by rw [ tsub_add_eq_add_tsub ( by linarith [ Finset.mem_range.mp hi ] ) ] ] ; norm_num [ tightPoly ] ; ring;
 
 /-
@@ -2606,8 +2605,7 @@ lemma tightPoly_max_first_lobe {n : ℕ} {R : ℝ} (hn : 1 ≤ n)
       by_cases hk : k ≤ n + 2;
       · by_cases hk_le_n_plus_1 : k ≤ n + 1
         · exact tightPoly_le_max_upto_n_plus_one hn hR k (by linarith)
-        ·
-          norm_num [ show k = n + 2 by linarith ] at *;
+        · norm_num [ show k = n + 2 by linarith ] at *;
           exact le_trans ( tightPoly_step_limit n hn R hR |>.2 ) ( by linarith [ h_pos n ( by linarith ) ] );
       · -- If $k \ge n+3$, then $p_{n+3}(R) \ge 0 \implies p_{n+3}=0 \implies p_{n+1}=0$.
         have h_p_n_plus_3_zero : tightPoly (n + 3) R = 0 := by
@@ -2861,7 +2859,7 @@ lemma tightPoly_nonneg_of_strict_strategy {s : Strategy} {B R : ℝ} {n : ℕ}
         have h_split_sum : s.x (k + 1) = tightPoly (k + 2) R * (s.x 0 / R) - ∑ j ∈ Finset.range (k + 1), (tightPoly (k + 1 - j) R / R) * slack s R (j + 1) := by
           have h_x_eq_split : s.x (k + 1) = tightPoly (k + 2) R - (tightPoly (k + 2) R / R) * slack s R 0 - ∑ j ∈ Finset.range (k + 1), (tightPoly (k + 1 - j) R / R) * slack s R (j + 1) := by
             rw [ h_x_eq _ ( by linarith ), Finset.sum_range_succ' ] ; norm_num ; ring_nf;
-            simp +decide [ add_tsub_add_eq_tsub_left, mul_assoc, mul_comm, mul_left_comm ];
+            simp +decide [ add_tsub_add_eq_tsub_left, mul_comm, mul_left_comm ];
             exact Finset.sum_congr rfl fun x hx => by rw [ Nat.add_sub_assoc ( by linarith [ Finset.mem_range.mp hx ] ) ] ;
           convert h_x_eq_split using 1 ; unfold slack ; norm_num ; ring_nf;
           unfold partialSum; norm_num; ring_nf;
@@ -3122,7 +3120,7 @@ noncomputable def strictifyStrategy (s : Strategy) (N : ℕ) : Strategy :=
     hits := by
       intro y hy
       use Nat.ceil (y - L_unique.getLast hL_unique) + M;
-      simp [hM];
+      simp
       linarith [ Nat.le_ceil ( y - L_unique.getLast hL_unique ) ] }
 
 /-
@@ -3132,7 +3130,7 @@ lemma strictifyStrategy_strictMono {s : Strategy} {N : ℕ} :
     StrictMono (strictifyStrategy s N).x := by
       unfold strictifyStrategy;
       refine' strictMono_nat_of_lt_succ _;
-      intro k; by_cases hk : k < List.length ( List.map s.x ( List.range ( N + 1 ) ) |> List.dedup ) <;> by_cases hk' : k + 1 < List.length ( List.map s.x ( List.range ( N + 1 ) ) |> List.dedup ) <;> simp_all +decide [ List.get ] ;
+      intro k; by_cases hk : k < List.length ( List.map s.x ( List.range ( N + 1 ) ) |> List.dedup ) <;> by_cases hk' : k + 1 < List.length ( List.map s.x ( List.range ( N + 1 ) ) |> List.dedup ) <;> simp_all
       · have h_sorted : List.Sorted (· < ·) (List.map s.x (List.range (N + 1))).dedup := by
           have h_sorted : List.Sorted (· ≤ ·) (List.map s.x (List.range (N + 1))) := by
             have h_monotone : ∀ i j : ℕ, i ≤ j → s.x i ≤ s.x j := by
@@ -3217,7 +3215,7 @@ The sum of a deduplicated list of non-negative numbers is less than or equal to 
 -/
 lemma List_dedup_sum_le_sum {L : List ℝ} (h_nonneg : ∀ x ∈ L, 0 ≤ x) :
     L.dedup.sum ≤ L.sum := by
-      induction' L with a L ih <;> simp_all +decide [ List.dedup_cons_of_mem ];
+      induction' L with a L ih <;> simp_all
       by_cases ha : a ∈ L <;> simp_all +decide [ List.dedup_cons_of_mem ];
       linarith
 
@@ -3375,8 +3373,8 @@ lemma strictifyStrategy_hit_value_eq {s : Strategy} {B : ℝ} (hB : 1 ≤ B) {y 
           · exact ⟨ truncateIndex s B hB, by linarith, s_x_ge_B_at_truncateIndex ⟩;
           · exact ⟨ truncateIndex s B hB, by linarith, Nat.find_spec ( s.hits hB ) ⟩;
       apply IsLeast_ge_eq_of_inter_le_eq;
-      exact h_eq;
-      exact y.2.2;
+      · exact h_eq;
+      · exact y.2.2;
       · tauto;
       · tauto;
       · obtain ⟨ n, hn ⟩ := strictStrategy_ends_at_B_valid hB;
@@ -3455,11 +3453,11 @@ lemma List_take_eq_filter_lt_of_sorted {L : List ℝ} (h_sorted : List.Sorted (�
           · norm_num;
           · rw [ List.take_succ ];
             rw [ List.filter_append, ih ( Nat.le_of_succ_le hi_le_k ) ];
-            by_cases hi : i < L.length <;> simp_all +decide [ List.getElem?_eq_none ];
+            by_cases hi : i < L.length <;> simp_all
             grind;
         specialize @h_take_eq_filter L k hk_le_L h_sorted h_k_lt h_k_ge k le_rfl;
         rw [ h_take_eq_filter, ← List.take_append_drop k L, List.filter_append ];
-        simp +decide [ List.take_append_of_le_length, hk_le_L ];
+        simp
         intro a ha; rw [ List.mem_iff_get ] at ha; obtain ⟨ j, hj ⟩ := ha; aesop;
       specialize @h_take_eq_filter L k ( Nat.le_of_lt hk_lt ) h_sorted;
       simp_all only [List.get_eq_getElem, ge_iff_le, List.getElem!_eq_getElem?_getD, getElem!_pos]
@@ -3630,7 +3628,7 @@ lemma strictStrategy_sum_lt_le_sum_trunc_lt {s : Strategy} {B : ℝ} (hB : 1 ≤
         · exact (truncateStrategyAux s B hB).mono;
         · refine' Nat.find_min' _ _;
           exact le_trans y.2.2 ( truncateStrategyAux_at_N_eq_B hB |> fun h => h.symm ▸ le_rfl );
-      simp_all +decide [ List.sum_map_mul_left ];
+      simp_all
       apply List_dedup_filter_sum_le;
       intro x hx; rw [ List.mem_map ] at hx; obtain ⟨ k, _, rfl ⟩ := hx; exact ( truncateStrategyAux s B hB ).nonneg k;
 
@@ -3702,11 +3700,14 @@ theorem value_B_le_2 {B : ℝ} (hB1 : 1 ≤ B) (hB2 : B ≤ 2) :
           · norm_num [ partialSum ];
             norm_num [ show a = 1 by linarith, doublingStrategy ];
           · unfold hitIndex; aesop;
-        · intro s; refine' le_trans _ ( le_ciSup _ ⟨ 1, by norm_num ⟩ ) ; norm_num [ boundedScore ] ;
-          · -- By definition of score, we know that score s ⟨1, by norm_num⟩ = s.x (hitIndex s ⟨1, by norm_num⟩) / 1.
-            simp [score];
-            exact le_trans ( s.one_le ) ( Finset.single_le_sum ( fun a _ => s.nonneg a ) ( Finset.mem_range.mpr ( Nat.succ_pos _ ) ) );
-          · bound;
+        · intro s
+          refine' le_trans _ ( le_ciSup _ ⟨ 1, by norm_num ⟩ )
+          · norm_num [boundedScore]
+            · simp [score]
+              exact le_trans s.one_le
+                (Finset.single_le_sum (fun a _ => s.nonneg a)
+                  (Finset.mem_range.mpr (Nat.succ_pos _)))
+          · bound
       · have h_eq : boundedGameValue B = ENNReal.ofReal (firstGuess B) := by
           exact boundedGameValue_eq_firstGuess ( lt_of_le_of_ne hB1 ( Ne.symm hB3 ) );
         -- Since $nSteps B = 1$ for $1 < B \leq 2$, we can apply the lemma firstGuess_eq_B_of_n_eq_one.
