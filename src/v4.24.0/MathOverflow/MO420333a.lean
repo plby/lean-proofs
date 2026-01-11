@@ -1,10 +1,15 @@
 import Mathlib
 
+
 set_option linter.style.longLine false
+set_option linter.style.commandStart false
+set_option linter.style.openClassical false
+set_option linter.style.refine false
+set_option linter.style.multiGoal false
+set_option linter.style.induction false
+set_option linter.unusedVariables false
 
-set_option maxHeartbeats 0
-
-open Classical
+open scoped Classical
 
 /-
 A Lean 4 formalization of the game:
@@ -425,7 +430,7 @@ lemma boundedWorstCaseScore_ge_one_plus_x1_div_x0 (s : Strategy) (B : ℝ) (hB :
           · linarith [ h_y.1 ];
           · refine' Finset.sum_le_sum_of_subset_of_nonneg ( Finset.range_mono ( Nat.succ_le_succ _ ) ) fun _ _ _ => s.nonneg _;
             unfold hitIndex; aesop;
-        · exact?;
+        · exact OrderTop.bddAbove (Set.range fun y ↦ boundedScore s B y);
       -- Taking the limit as $\epsilon$ approaches $0$ from the right, we get the desired inequality.
       have h_limit : Filter.Tendsto (fun ε => ENNReal.ofReal ((∑ i ∈ Finset.range (1 + 1), s.x i) / (s.x 0 + ε))) (nhdsWithin 0 (Set.Ioi 0)) (nhds (ENNReal.ofReal (1 + s.x 1 / s.x 0))) := by
         convert ENNReal.tendsto_ofReal ( Filter.Tendsto.div ( tendsto_const_nhds ) ( tendsto_const_nhds.add ( Filter.tendsto_id.mono_left inf_le_left ) ) _ ) using 2 <;> norm_num [ Finset.sum_range_succ ];
@@ -541,7 +546,7 @@ lemma x2_ge_B_imp_score_ge (s : Strategy) (B : ℝ) (hB : 2 ≤ B) (hB' : B ≤ 
             · exact ⟨ 2, by norm_num, by linarith [ hy.2 ] ⟩;
             · intro m hm; interval_cases m <;> linarith [ hy.1, hy.2, s.mono ( show 0 ≤ 1 by norm_num ), s.mono ( show 1 ≤ 2 by norm_num ) ] ;
           generalize_proofs at *;
-          simp_all +decide [ Finset.sum_range_succ ];
+          simp_all
           rw [ ENNReal.ofReal_le_ofReal_iff ] at h_score <;> norm_num [ Finset.sum_range_succ, partialSum ] at * <;> nlinarith [ mul_div_cancel₀ ( s.x 0 + s.x 1 + s.x 2 ) ( by linarith : y ≠ 0 ) ];
         have hW_ge_x0_plus_x1_plus_x2_div_x1 : Filter.Tendsto (fun y => (s.x 0 + s.x 1 + s.x 2) / y) (nhdsWithin (s.x 1) (Set.Ioi (s.x 1))) (nhds ((s.x 0 + s.x 1 + s.x 2) / s.x 1)) := by
           exact tendsto_const_nhds.div ( Filter.tendsto_id.mono_left inf_le_left ) ( by linarith [ show 0 < s.x 1 from lt_of_lt_of_le ( show 0 < s.x 0 from lt_of_lt_of_le zero_lt_one ( s.one_le ) ) ( s.mono ( by norm_num ) ) ] );
@@ -732,11 +737,11 @@ theorem boundedGameValue_eq_twoStep
     boundedGameValue B = ENNReal.ofReal (twoStepFirst B) := by
   refine' le_antisymm _ _;
   · refine' le_trans ( ciInf_le _ _ ) _;
-    exact?;
+    exact OrderBot.bddBelow (Set.range fun s ↦ boundedWorstCaseScore s B);
     exact twoStepStrategy B hB.le;
-    exact?;
+    exact twoStepStrategy_le (LT.lt.le hB);
   · refine' le_iInf fun s => _;
-    exact?
+    exact boundedWorstCaseScore_ge_twoStep hB hB' s
 
 /-- When `2 < B ≤ 2 + √5`, an optimal strategy can pick `(1 + √(1 + 4B))/2` then `B`. -/
 theorem exists_optimalStrategy_twoStep
@@ -873,10 +878,13 @@ noncomputable def MaxReach (W : ℝ) : ℕ → ℝ
 | (n + 2) => W * MaxReach W (n + 1) - W * MaxReach W n
 
 lemma MaxReach_0 (W : ℝ) : MaxReach W 0 = W := rfl
+
 lemma MaxReach_1 (W : ℝ) : MaxReach W 1 = W^2 - W := rfl
+
 lemma MaxReach_2 (W : ℝ) : MaxReach W 2 = W^3 - 2*W^2 := by
   rw [MaxReach, MaxReach_1, MaxReach_0]
   ring
+
 lemma MaxReach_3 (W : ℝ) : MaxReach W 3 = W^4 - 3*W^3 + W^2 := by
   rw [MaxReach, MaxReach_2, MaxReach_1]
   ring
@@ -965,7 +973,7 @@ lemma partialSum_le_x_mul_xk {s : Strategy} {B x : ℝ} {k : ℕ}
       simp +zetaDelta at *;
       rw [ ENNReal.ofReal_lt_ofReal_iff ] <;> nlinarith [ mul_div_cancel₀ ( partialSum s ( k + 1 ) - x * s.x k ) hx.ne', mul_div_cancel₀ ( partialSum s ( k + 1 ) ) ( by linarith : y ≠ 0 ) ];
     simp +zetaDelta at *;
-    exact False.elim <| h_sup.not_le <| le_trans h_score_gt_x.le <| le_trans h_score_ge <| le_iSup_of_le ⟨ y, by linarith, by linarith ⟩ <| by aesop;
+    exact False.elim <| h_sup.not_ge <| le_trans h_score_gt_x.le <| le_trans h_score_ge <| le_iSup_of_le ⟨ y, by linarith, by linarith ⟩ <| by aesop;
   · -- If x * s.x k >= partialSum s (k + 1), then we are done.
     push_neg at h_cond
     linarith
@@ -1035,11 +1043,15 @@ noncomputable def P (x : ℝ) : ℕ → ℝ
 | n + 2 => x * P x (n + 1) - x * P x n
 
 lemma P_0 (x : ℝ) : P x 0 = 1 := rfl
+
 lemma P_1 (x : ℝ) : P x 1 = x - 1 := rfl
+
 lemma P_2 (x : ℝ) : P x 2 = x^2 - 2*x := by
   rw [P, P_1, P_0]; ring
+
 lemma P_3 (x : ℝ) : P x 3 = x^3 - 3*x^2 + x := by
   rw [P, P_2, P_1]; ring
+
 lemma P_4 (x : ℝ) : P x 4 = x^4 - 4*x^3 + 3*x^2 := by
   rw [P, P_3, P_2]; ring
 
@@ -1145,7 +1157,7 @@ lemma s_x_4_le_P_4_mul_x0 {s : Strategy} {B x : ℝ}
             have h_contra : s.x 4 ≤ (x^3 - 3*x^2 + x) * s.x 1 - (x^2 - x) * s.x 0 := by
               convert s_x_4_upper_bound h_sup hx hB h_x0 h_x1 h_x2 h_x3 using 1;
             exact h_contra.trans ( by nlinarith [ s.nonneg 0, s.nonneg 1, s.nonneg 2, s.nonneg 3, s.nonneg 4, mul_le_mul_of_nonneg_left ‹x ≤ 3› ( show 0 ≤ s.x 0 by linarith [ s.nonneg 0 ] ), mul_le_mul_of_nonneg_left ‹x ≤ 3› ( show 0 ≤ s.x 1 by linarith [ s.nonneg 1 ] ) ] );
-          exact h_contra.not_lt <| lt_of_lt_of_le ( show 0 < s.x 0 from lt_of_lt_of_le zero_lt_one <| s.one_le ) <| s.mono <| by norm_num;
+          exact h_contra.not_gt <| lt_of_lt_of_le ( show 0 < s.x 0 from lt_of_lt_of_le zero_lt_one <| s.one_le ) <| s.mono <| by norm_num;
         exact h_pos.trans_le ( by rw [ show P x 3 = x ^ 3 - 3 * x ^ 2 + x by exact P_3 x ] );
       have := s_x_4_upper_bound h_sup hx hB h_x0 h_x1 h_x2 h_x3;
       -- Substitute the upper bound for $s.x_1$ into the inequality.
@@ -1153,7 +1165,7 @@ lemma s_x_4_le_P_4_mul_x0 {s : Strategy} {B x : ℝ}
         refine le_trans this ?_;
         gcongr;
         · by_contra h_neg;
-          exact hp3_pos.not_le ( by rw [ show P x 3 = x^3 - 3*x^2 + x by exact P_3 x ] ; nlinarith );
+          exact hp3_pos.not_ge ( by rw [ show P x 3 = x^3 - 3*x^2 + x by exact P_3 x ] ; nlinarith );
         · exact s_x_1_le h_sup hx hB h_x0;
       convert h_sub using 1 ; rw [ show P x 4 = x ^ 4 - 4 * x ^ 3 + 3 * x ^ 2 by exact P_4 x ] ; ring
 
@@ -1482,6 +1494,7 @@ lemma continuous_tightPoly (n : ℕ) : Continuous (tightPoly n) := by
   · exact continuous_id;
   · exact Continuous.mul ( continuous_id' ) ( Continuous.sub ( ih _ <| Nat.lt_succ_self _ ) ( ih _ <| Nat.lt_succ_of_lt <| Nat.lt_succ_self _ ) )
 
+set_option maxHeartbeats 0 in
 /-
 The trigonometric function `f(θ) = (2 cos θ)^n * sin((n+1)θ) / sin θ` is strictly decreasing on the interval `[π/(n+3), π/(n+2)]` for `n ≥ 1`.
 Proof idea:
@@ -1534,6 +1547,7 @@ lemma tightPoly_trig_strictAntiOn {n : ℕ} (hn : 1 ≤ n) :
         norm_num +zetaDelta at *;
         exact ⟨ ContinuousOn.mul ( ContinuousOn.pow ( continuousOn_const.mul ( Real.continuousOn_cos ) ) _ ) ( ContinuousOn.div ( Continuous.continuousOn ( Real.continuous_sin.comp ( by continuity ) ) ) ( Real.continuousOn_sin ) fun θ hθ => ne_of_gt ( Real.sin_pos_of_pos_of_lt_pi ( by linarith [ Real.pi_pos, hθ.1, show 0 < θ from by linarith [ Real.pi_pos, hθ.1, show 0 < Real.pi / ( n + 3 ) from by positivity ] ] ) ( by linarith [ Real.pi_pos, hθ.2, show θ < Real.pi from by linarith [ Real.pi_pos, hθ.2, show Real.pi / ( n + 2 ) < Real.pi from by rw [ div_lt_iff₀ ( by positivity ) ] ; nlinarith [ Real.pi_pos ] ] ] ) ) ), fun θ hθ => DifferentiableAt.differentiableWithinAt ( by exact DifferentiableAt.mul ( DifferentiableAt.pow ( DifferentiableAt.mul ( differentiableAt_const _ ) ( Real.differentiableAt_cos ) ) _ ) ( DifferentiableAt.div ( DifferentiableAt.sin ( differentiableAt_id.const_mul _ ) ) ( Real.differentiableAt_sin ) ( ne_of_gt ( Real.sin_pos_of_pos_of_lt_pi ( by linarith [ Real.pi_pos, hθ.1, show 0 < θ from by linarith [ Real.pi_pos, hθ.1, show 0 < Real.pi / ( n + 3 ) from by positivity ] ] ) ( by linarith [ Real.pi_pos, hθ.2, show θ < Real.pi from by linarith [ Real.pi_pos, hθ.2, show Real.pi / ( n + 2 ) < Real.pi from by rw [ div_lt_iff₀ ( by positivity ) ] ; nlinarith [ Real.pi_pos ] ] ] ) ) ) ) ), fun θ hθ₁ hθ₂ => by rw [ eq_div_iff ] <;> nlinarith [ h_deriv_neg θ ( by linarith ) ( by linarith ) ] ⟩
 
+set_option maxHeartbeats 0 in
 /-
 The tight polynomial `p_n(R)` is strictly monotonic (increasing) on the interval `[R_{n,lower}, R_{n,upper}]`.
 Proof:
@@ -1601,6 +1615,7 @@ theorem existsUnique_ratio_of_inStepRange
 ## Optimal value and optimal strategy in the `n`-step regime
 -/
 
+/- Aristotle failed to find a proof. -/
 /-- In the `n`-step regime, the bounded game value equals `R`, where `R` is the (bracketed) root
 of `tightPoly n R = B`. -/
 theorem boundedGameValue_eq_of_inStepRange
@@ -1846,13 +1861,11 @@ noncomputable def firstGuess (B : ℝ) : ℝ :=
 by
   classical
   by_cases hB : 1 < B
-  ·
-    let n : ℕ := nSteps B
+  · let n : ℕ := nSteps B
     have hn : 1 ≤ n := (nSteps_spec (B := B) hB).1
     have hBn : InStepRange B n := (nSteps_spec (B := B) hB).2
     exact Classical.choose (existsUnique_ratio_of_inStepRange (B := B) (n := n) hn hBn)
-  ·
-    exact 1
+  · exact 1
 
 /-- The “growth base” associated to the optimal step count: `B^(1/n(B))`. -/
 noncomputable def growthBase (B : ℝ) : ℝ :=
@@ -1926,6 +1939,7 @@ theorem tendsto_growthBase_atTop :
     exact fun ε ε_pos => by rcases Metric.tendsto_atTop.mp h_squeeze ε ε_pos with ⟨ B, hB ⟩ ; exact ⟨ B, fun B' hB' => by simpa [ growthBase ] using hB B' hB' ⟩ ;
   exact Metric.tendsto_atTop.mpr h_eps_delta
 
+/- Aristotle took a wrong turn (reason code: 9). Please try again. -/
 /-- `lim_{B→∞} x(B) = 4`. -/
 theorem tendsto_firstGuess_atTop :
     Filter.Tendsto firstGuess Filter.atTop (𝓝 (4 : ℝ)) := by
