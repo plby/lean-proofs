@@ -18,9 +18,10 @@ says:
 > These theorems are not yet formalized in Lean. Currently there are
   17 of them. Among these, 0 have their statement formalized.
 
-This is not correct.  I attempted to correct the information over on
-the [mathlib
-GitHub](https://github.com/leanprover-community/mathlib4/pull/33388).
+This is not correct.  I
+[attempted](https://github.com/leanprover-community/mathlib4/pull/33388)
+to correct the information over on the [mathlib4
+GitHub](https://github.com/leanprover-community/mathlib4/).
 Eventually I realized it's just easier to do it here.  Below, I
 collect some information that is known to me regarding the true state
 of affairs.  I do not promise that the information below is
