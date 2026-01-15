@@ -7,7 +7,8 @@ This is a Lean formalization of
 following John Horton Conway's elementary proof.
 
 
-This was proven by Aristotle.
+This was proven formally by Aristotle (from Harmonic), given an
+informal proof by ChatGPT-5.2 Pro (from OpenAI).
 
 Lean version: leanprover/lean4:v4.24.0
 Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7
