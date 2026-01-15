@@ -92,6 +92,8 @@ with Euclidean versions only then following as a special case".
 
 ## 29: Feuerbach’s Theorem
 
+Maybe the statement has been [formalized](https://meetings.ams.org/math/jmm2026/meetingapp.cgi/Paper/56671)?
+
 ## 31. Ramsey’s Theorem
 
 This is **not** listed as missing, but maybe is only
@@ -99,6 +101,9 @@ This is **not** listed as missing, but maybe is only
 in Lean 3.  Presumably it would be easy to do in Lean 4.
 
 ## 32: The Four Color Problem
+
+This has only been done in Rocq?  But Mathlib is also missing some
+basic definitions.
 
 ## 33: Fermat’s Last Theorem
 
@@ -217,7 +222,26 @@ See also
 
 # Summary
 
-Maybe 9 theorems or so are not yet formalized in Lean.  At least 1 of
-these has its statement formalized.
+Maybe 9 theorems or so are not yet formalized in Lean:
 
-At least 3 theorems not listed as missing are only available in Lean 3.
+* 12: The Independence of the Parallel Postulate
+* 13: Polyhedron Formula
+* 21: Green’s Theorem
+* 29: Feuerbach’s Theorem
+* 32: The Four Color Problem
+* 33: Fermat’s Last Theorem
+* 41: Puiseux’s Theorem
+* 50: The Number of Platonic Solids
+* 92: Pick’s Theorem
+
+Maybe 1 or 2 of these have their statements formalized:
+
+* 29: Feuerbach’s Theorem
+* 33: Fermat’s Last Theorem
+
+At least 3 theorems not listed as missing are only available in Lean
+3:
+
+* 24. The Independence of the Continuum Hypothesis
+* 31. Ramsey’s Theorem
+* 36. Brouwer Fixed Point Theorem
