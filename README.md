@@ -45,8 +45,8 @@ This repository collects Lean proofs for various mathematical statements:
 	* [Sum-of-guesses-minimization problem](MathOverflow/MO420333.md)
 
 * [Freek Wiedijk's list of 100 Theorems](https://www.cs.ru.nl/~freek/100/)
-	* [8: The Impossibility of Trisecting the Angle and Doubling the Cube](100Theorems/8.md)
-	* [28: Pascal’s Hexagon Theorem](100Theorems/28.md)
-	* [61: Theorem of Ceva](100Theorems/61.md)
-	* [84: Morley’s Theorem](100Theorems/84.md)
-	* [87: Desargues’s Theorem](100Theorems/87.md)
+	* [8: The Impossibility of Trisecting the Angle and Doubling the Cube](HundredTheorems/Theorem8.md)
+	* [28: Pascal’s Hexagon Theorem](HundredTheorems/Theorem28.md)
+	* [61: Theorem of Ceva](HundredTheorems/Theorem61.md)
+	* [84: Morley’s Theorem](HundredTheorems/Theorem84.md)
+	* [87: Desargues’s Theorem](HundredTheorems/Theorem87.md)
