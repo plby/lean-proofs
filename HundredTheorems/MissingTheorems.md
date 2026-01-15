@@ -106,6 +106,9 @@ This has only been done in Rocq?  But Mathlib is also missing some
 basic definitions, like [planar
 graphs](https://leanprover.zulipchat.com/#narrow/channel/217875-Is-there-code-for-X.3F/topic/planar.20graphs/with/565743420)!
 
+See also
+[this](https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/Four.20Color.20Theorem/with/409795324).
+
 ## 33: Fermat’s Last Theorem
 
 This is indeed not yet proven, though the [Fermat's Last Theorem
