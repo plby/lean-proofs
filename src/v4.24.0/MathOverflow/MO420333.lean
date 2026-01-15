@@ -1,4 +1,29 @@
 /-
+
+This is a Lean formalization of a solution to MathOverflow question
+420333:
+
+https://mathoverflow.net/questions/420333/sum-of-guesses-minimization-problem-also-does-this-problem-already-exist-in-the
+
+The original question was asked by Vipul Naik.
+
+The solution here is by ChatGPT-5.2 Pro (from OpenAI).
+
+
+The proof was formalized by a combination of Aristotle (from Harmonic)
+and ChatGPT.
+
+
+The proof is verified by Lean.  The following version numbers were
+used:
+
+Lean Toolchain version: leanprover/lean4:v4.24.0
+Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
+
+-/
+
+
+/-
 This module formalizes the "High-low guessing game" described in the user's LaTeX document.
 It defines strategies, scores, and the value of the game in both bounded and unbounded settings.
 It proves that the value of the unbounded game is 4.
