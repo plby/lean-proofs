@@ -53,6 +53,13 @@ Grothendieck group.
 
 ## 21: Green’s Theorem
 
+## 24. The Independence of the Continuum Hypothesis
+
+This is **not** listed as missing, but is only
+[available](https://github.com/flypitch/flypitch/blob/master/src/summary.lean)
+in Lean 3.  This was known as the
+[Flypitch](https://flypitch.github.io/) project.
+
 ## 28: Pascal’s Hexagon Theorem
 
 This has been proven [in this repository](Theorem28.md) by Aristotle
@@ -68,6 +75,12 @@ statement](https://mizar.uwb.edu.pl/100/#28) is for a conic section.
 
 ## 29: Feuerbach’s Theorem
 
+## 31. Ramsey’s Theorem
+
+This is **not** listed as missing, but maybe is only
+[available](https://github.com/b-mehta/combinatorics/blob/extras/src/inf_ramsey.lean)
+in Lean 3.  Presumably it would be easy to do in Lean 4.
+
 ## 32: The Four Color Problem
 
 ## 33: Fermat’s Last Theorem
@@ -80,6 +93,12 @@ However, it is definitely incorrect to say that the statement has not
 been formalized.  In fact, it's [in
 mathlib](https://github.com/leanprover-community/mathlib4/blob/d4fd214aa75c2dd7572612411560f3060c743a0d/Mathlib/NumberTheory/FLT/Basic.lean#L58-L64)
 as `FermatLastTheorem`.
+
+## 36. Brouwer Fixed Point Theorem
+
+This is **not** listed as missing, but maybe is only
+[available](https://github.com/Shamrock-Frost/BrouwerFixedPoint/blob/master/src/brouwer_fixed_point.lean)
+in Lean 3.
 
 ## 41: Puiseux’s Theorem
 
@@ -108,6 +127,18 @@ that has been in process since [August 22,
 2023](https://github.com/leanprover-community/mathlib4/pull/6718).  In
 particular, it has been formalized in Lean.
 
+## 67. e is Transcendental
+
+This is **not** listed as missing, but the version
+[linked](https://github.com/jjaassoonn/transcendental/blob/master/src/e_transcendental.lean)
+is in Lean 3.
+
+This is in a [PR to
+mathlib](https://github.com/leanprover-community/mathlib4/pull/28013),
+which unfortunately has been in process since [August 22,
+2023](https://github.com/leanprover-community/mathlib4/pull/6718).
+But in particular, it has been formalized in Lean 4.
+
 ## 84: Morley’s Theorem
 
 This has been proven [in this repository](Theorem84.md) by Aristotle
@@ -132,3 +163,5 @@ working on Pick's theorem.
 
 Maybe 11 theorems or so are not yet formalized in Lean.  At least 1 of
 these has its statement formalized.
+
+At least 3 theorems not listed as missing are only available in Lean 3.
