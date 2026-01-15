@@ -103,7 +103,8 @@ in Lean 3.  Presumably it would be easy to do in Lean 4.
 ## 32: The Four Color Problem
 
 This has only been done in Rocq?  But Mathlib is also missing some
-basic definitions.
+basic definitions, like [planar
+graphs](https://leanprover.zulipchat.com/#narrow/channel/217875-Is-there-code-for-X.3F/topic/planar.20graphs/with/565743420)!
 
 ## 33: Fermat’s Last Theorem
 
