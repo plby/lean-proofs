@@ -239,8 +239,7 @@ Maybe 1 or 2 of these have their statements formalized:
 * 29: Feuerbach’s Theorem
 * 33: Fermat’s Last Theorem
 
-At least 3 theorems not listed as missing are only available in Lean
-3:
+At least 3 theorems not listed as missing are only available in Lean 3:
 
 * 24. The Independence of the Continuum Hypothesis
 * 31. Ramsey’s Theorem
