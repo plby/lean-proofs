@@ -46,7 +46,8 @@ This has been proven [in this repository](Theorem28.md) by Aristotle
 to a general conic section.
 
 The [HOL Light statement](https://www.cs.ru.nl/~freek/100/hol.html#28)
-linked by Freek Wiedijk is only for a circle.  The [Rocq
+linked by Freek Wiedijk is only for a circle (which informed the
+choice of formalization here).  The [Rocq
 statement](https://madiot.fr/rocq100/#28) is for the case of two
 lines, which is usually known as Pappus's theorem.  The [Mizar
 statement](https://mizar.uwb.edu.pl/100/#28) is for a conic section.
@@ -56,6 +57,15 @@ statement](https://mizar.uwb.edu.pl/100/#28) is for a conic section.
 ## 32: The Four Color Problem
 
 ## 33: Fermat’s Last Theorem
+
+This is indeed not yet proven, though the [Fermat's Last Theorem
+project](https://github.com/ImperialCollegeLondon/FLT) is working on
+it.
+
+However, it is definitely incorrect to say that the statement has not
+been formalized.  In fact, it's [in
+mathlib](https://github.com/leanprover-community/mathlib4/blob/d4fd214aa75c2dd7572612411560f3060c743a0d/Mathlib/NumberTheory/FLT/Basic.lean#L58-L64)
+as `FermatLastTheorem`.
 
 ## 41: Puiseux’s Theorem
 
