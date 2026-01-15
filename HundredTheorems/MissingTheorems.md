@@ -13,10 +13,15 @@ As of the time of writing (2026/01/15), the page says:
 > These theorems are not yet formalized in Lean. Currently there are
   17 of them. Among these, 0 have their statement formalized.
 
-This is not correct.  Below, I organize some information about the
-true state of affairs.
+This is not correct.  Below, I collect some information that is known
+to me regarding the true state of affairs.
 
 * 8: The Impossibility of Trisecting the Angle and Doubling the Cube
+
+This has been proven [in this repository](Theorem8.md) by Aristotle
+(and ChatGPT).  The theorem is proven both as an algebraic statement
+about constructible (algebraic) numbers, and as statements about ruler
+and compass constructions in Euclidean geometry.
 
 * 12: The Independence of the Parallel Postulate
 
@@ -25,6 +30,16 @@ true state of affairs.
 * 21: Green’s Theorem
 
 * 28: Pascal’s Hexagon Theorem
+
+This has been proven [in this repository](Theorem28.md) by Aristotle
+(and ChatGPT).  The theorem is proven solely for a circle, as opposed
+to a general conic section.
+
+The [HOL Light statement](https://www.cs.ru.nl/~freek/100/hol.html#28)
+linked by Freek Wiedijk is only for a circle.  The [Rocq
+statement](https://madiot.fr/rocq100/#28) is for the case of two
+lines, which is usually known as Pappus's theorem.  The [Mizar
+statement](https://mizar.uwb.edu.pl/100/#28) is for a conic section.
 
 * 29: Feuerbach’s Theorem
 
@@ -46,6 +61,12 @@ true state of affairs.
 
 * 84: Morley’s Theorem
 
+This has been proven [in this repository](Theorem84.md) by Aristotle
+(and ChatGPT).  The proof follows Conway's elementary proof.
+
 * 87: Desargues’s Theorem
+
+This has been proven [in this repository](Theorem87.md) by Aristotle
+(and ChatGPT).  The setting is the Euclidean geometry of the plane.
 
 * 92: Pick’s Theorem
