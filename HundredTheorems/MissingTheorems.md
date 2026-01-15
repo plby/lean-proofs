@@ -8,13 +8,19 @@ Both are based off of [Freek Wiedijk](https://www.cs.ru.nl/~freek/)'s
 list of [100 theorems](https://www.cs.ru.nl/~freek/100/), which has
 served as a benchmark for theorem provers.
 
-As of the time of writing (2026/01/15), the page says:
+As of the time of writing (2026/01/15), the "Missing theorems" page
+says:
 
 > These theorems are not yet formalized in Lean. Currently there are
   17 of them. Among these, 0 have their statement formalized.
 
-This is not correct.  Below, I collect some information that is known
-to me regarding the true state of affairs.
+This is not correct.  I attempted to correct the information over on
+the [mathlib
+GitHub](https://github.com/leanprover-community/mathlib4/pull/33388).
+Eventually I realized it's just easier to do it here.  Below, I
+collect some information that is known to me regarding the true state
+of affairs.  I do not promise that the information below is
+up-to-date, but the mathlib page isn't either.
 
 * 8: The Impossibility of Trisecting the Angle and Doubling the Cube
 
