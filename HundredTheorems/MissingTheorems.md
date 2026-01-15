@@ -48,8 +48,8 @@ for mathlib with their version of the polyhedron formula, but ended up
 closing the PR.  One amusing (to me)
 [discussion](https://leanprover.zulipchat.com/#narrow/channel/144837-PR-reviews/topic/.2329639/near/539974949)
 topic raised was that in order to have greater generality, one could
-use the universal map from an abelian category to its Grothendieck
-group.
+work with the universal map from an abelian category to its
+Grothendieck group.
 
 ## 21: Green’s Theorem
 
@@ -89,9 +89,24 @@ as `FermatLastTheorem`.
 
 ## 50: The Number of Platonic Solids
 
+Mathlib doesn't have
+[polyhedra](https://leanprover.zulipchat.com/#narrow/channel/116395-maths/topic/Polyhedra.20in.20mathlib/with/566539482).
+
 ## 53: Pi is Transcendental
 
+This is in a [PR to
+mathlib](https://github.com/leanprover-community/mathlib4/pull/28013)
+that has been in process since [August 22,
+2023](https://github.com/leanprover-community/mathlib4/pull/6718).  In
+particular, it has been formalized in Lean.
+
 ## 56: The Hermite-Lindemann Transcendence Theorem
+
+This is in a [PR to
+mathlib](https://github.com/leanprover-community/mathlib4/pull/28013)
+that has been in process since [August 22,
+2023](https://github.com/leanprover-community/mathlib4/pull/6718).  In
+particular, it has been formalized in Lean.
 
 ## 84: Morley’s Theorem
 
