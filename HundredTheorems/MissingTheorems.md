@@ -39,6 +39,18 @@ and compass constructions in Euclidean geometry.
 
 ## 13: Polyhedron Formula
 
+Mathlib doesn't have
+[polyhedra](https://leanprover.zulipchat.com/#narrow/channel/116395-maths/topic/Polyhedra.20in.20mathlib/with/566539482).
+
+One person [opened a
+PR](https://jessealama.net/articles/towards-euler-polyhedron-formula-for-mathlib/)
+for mathlib with their version of the polyhedron formula, but ended up
+closing the PR.  One amusing (to me)
+[discussion](https://leanprover.zulipchat.com/#narrow/channel/144837-PR-reviews/topic/.2329639/near/539974949)
+topic raised was that in order to have greater generality, one could
+use the universal map from an abelian category to its Grothendieck
+group.
+
 ## 21: Green’s Theorem
 
 ## 28: Pascal’s Hexagon Theorem
@@ -92,3 +104,8 @@ This has been proven [in this repository](Theorem87.md) by Aristotle
 (and ChatGPT).  The setting is the Euclidean geometry of the plane.
 
 ## 92: Pick’s Theorem
+
+# Summary
+
+Maybe 11 theorems or so are not yet formalized in Lean.  At least 1 of
+these has its statement formalized.
