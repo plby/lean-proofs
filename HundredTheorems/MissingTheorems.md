@@ -104,6 +104,14 @@ in Lean 3.
 
 ## 43: The Isoperimetric Theorem
 
+This is proven [here](https://github.com/hojonathanho/isoperimetric/)
+and discussed on Zulip
+[here](https://github.com/hojonathanho/isoperimetric/).
+
+See also
+[this](https://github.com/Brunn-Minkowski-in-Lean/BrunnMinkowski),
+which hasn't had any updates in a while.
+
 ## 47: The Central Limit Theorem
 
 ## 50: The Number of Platonic Solids
@@ -161,7 +169,7 @@ working on Pick's theorem.
 
 # Summary
 
-Maybe 11 theorems or so are not yet formalized in Lean.  At least 1 of
+Maybe 10 theorems or so are not yet formalized in Lean.  At least 1 of
 these has its statement formalized.
 
 At least 3 theorems not listed as missing are only available in Lean 3.
