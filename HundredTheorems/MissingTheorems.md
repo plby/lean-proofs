@@ -120,6 +120,14 @@ This has been proven [in this repository](Theorem87.md) by Aristotle
 
 ## 92: Pick’s Theorem
 
+Mathlib doesn't have
+[polyhedra](https://leanprover.zulipchat.com/#narrow/channel/116395-maths/topic/Polyhedra.20in.20mathlib/with/566539482),
+or even polygons in the plane.
+
+At least one person is [thinking
+about](https://leanprover.zulipchat.com/#narrow/channel/217875-Is-there-code-for-X.3F/topic/Pick's.20Theorem)
+working on Pick's theorem.
+
 # Summary
 
 Maybe 11 theorems or so are not yet formalized in Lean.  At least 1 of
