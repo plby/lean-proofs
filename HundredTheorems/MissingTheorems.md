@@ -41,6 +41,8 @@ version a couple years ago.
 
 ## 12: The Independence of the Parallel Postulate
 
+Perhaps geometry has not been axiomatized.
+
 ## 13: Polyhedron Formula
 
 Mathlib doesn't have
@@ -82,6 +84,12 @@ statement](https://madiot.fr/rocq100/#28) is for the case of two
 lines, which is usually known as Pappus's theorem.  The [Mizar
 statement](https://mizar.uwb.edu.pl/100/#28) is for a conic section.
 
+For Mathlib, one person
+[says](https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/Remaining.20100.20theorems/near/482189960)
+"should be done first for projective spaces over arbitrary fields
+(don't know if any complications arise for conics in characteristic 2)
+with Euclidean versions only then following as a special case".
+
 ## 29: Feuerbach’s Theorem
 
 ## 31. Ramsey’s Theorem
@@ -110,6 +118,12 @@ This is **not** listed as missing, but maybe is only
 in Lean 3.
 
 ## 41: Puiseux’s Theorem
+
+[Quote](https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/Remaining.20100.20theorems/near/484400866):
+
+> If you want it for power series, you'd better have mathlib being able of computing with them (Maria-Ines and I have a bunch of PR in this direction which are stuck by a redefinition of ring topologies…).
+> You can have it for convergent series too, and then you need the inverse function theorem in the analytic category.
+> Whatever point if view, some arguments require basics of Newton polygons."
 
 ## 43: The Isoperimetric Theorem
 
@@ -140,7 +154,10 @@ This is in a [PR to
 mathlib](https://github.com/leanprover-community/mathlib4/pull/28013)
 that has been in process since [August 22,
 2023](https://github.com/leanprover-community/mathlib4/pull/6718).  In
-particular, it has been formalized in Lean.
+particular, it has been formalized in Lean.  Apparently it was not
+added to the completed list years ago because a PR number is not a
+["stable
+reference"](https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/Remaining.20100.20theorems/near/483043532).
 
 ## 56: The Hermite-Lindemann Transcendence Theorem
 
@@ -148,7 +165,10 @@ This is in a [PR to
 mathlib](https://github.com/leanprover-community/mathlib4/pull/28013)
 that has been in process since [August 22,
 2023](https://github.com/leanprover-community/mathlib4/pull/6718).  In
-particular, it has been formalized in Lean.
+particular, it has been formalized in Lean.  Apparently it was not
+added to the completed list years ago because a PR number is not a
+["stable
+reference"](https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/Remaining.20100.20theorems/near/483043532).
 
 ## 67. e is Transcendental
 
@@ -171,6 +191,16 @@ This has been proven [in this repository](Theorem84.md) by Aristotle
 
 This has been proven [in this repository](Theorem87.md) by Aristotle
 (and ChatGPT).  The setting is the Euclidean geometry of the plane.
+
+Someone else [ran
+Aristotle](https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/Remaining.20100.20theorems/near/558907897),
+too, but in a more general setting.
+
+For Mathlib, one person
+[says](https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/Remaining.20100.20theorems/near/482189960)
+"should be done first for projective spaces over arbitrary fields
+(don't know if any complications arise for conics in characteristic 2)
+with Euclidean versions only then following as a special case".
 
 ## 92: Pick’s Theorem
 
