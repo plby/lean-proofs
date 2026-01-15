@@ -24,7 +24,8 @@ to correct the information over on the [mathlib4
 GitHub](https://github.com/leanprover-community/mathlib4/).
 Eventually I realized it's just easier to do it here.  Below, I
 collect some information that is known to me regarding the true state
-of affairs.  I do not promise that the information below is
+of affairs.  For theorems that I indeed cannot find, I comment on why
+they might be missing.  I do not promise that the information below is
 up-to-date, but the mathlib page isn't either.
 
 ## 8: The Impossibility of Trisecting the Angle and Doubling the Cube
