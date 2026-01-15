@@ -1,3 +1,7 @@
+# Missing theorems from Freek Wiedijk's list of 100 theorems
+
+## Background
+
 The Lean community / mathlib site features a page called [Missing
 theorems from Freek Wiedijk's list of 100
 theorems](https://leanprover-community.github.io/100-missing.html), as
@@ -22,20 +26,20 @@ collect some information that is known to me regarding the true state
 of affairs.  I do not promise that the information below is
 up-to-date, but the mathlib page isn't either.
 
-* 8: The Impossibility of Trisecting the Angle and Doubling the Cube
+## 8: The Impossibility of Trisecting the Angle and Doubling the Cube
 
 This has been proven [in this repository](Theorem8.md) by Aristotle
 (and ChatGPT).  The theorem is proven both as an algebraic statement
 about constructible (algebraic) numbers, and as statements about ruler
 and compass constructions in Euclidean geometry.
 
-* 12: The Independence of the Parallel Postulate
+## 12: The Independence of the Parallel Postulate
 
-* 13: Polyhedron Formula
+## 13: Polyhedron Formula
 
-* 21: Green’s Theorem
+## 21: Green’s Theorem
 
-* 28: Pascal’s Hexagon Theorem
+## 28: Pascal’s Hexagon Theorem
 
 This has been proven [in this repository](Theorem28.md) by Aristotle
 (and ChatGPT).  The theorem is proven solely for a circle, as opposed
@@ -47,32 +51,32 @@ statement](https://madiot.fr/rocq100/#28) is for the case of two
 lines, which is usually known as Pappus's theorem.  The [Mizar
 statement](https://mizar.uwb.edu.pl/100/#28) is for a conic section.
 
-* 29: Feuerbach’s Theorem
+## 29: Feuerbach’s Theorem
 
-* 32: The Four Color Problem
+## 32: The Four Color Problem
 
-* 33: Fermat’s Last Theorem
+## 33: Fermat’s Last Theorem
 
-* 41: Puiseux’s Theorem
+## 41: Puiseux’s Theorem
 
-* 43: The Isoperimetric Theorem
+## 43: The Isoperimetric Theorem
 
-* 47: The Central Limit Theorem
+## 47: The Central Limit Theorem
 
-* 50: The Number of Platonic Solids
+## 50: The Number of Platonic Solids
 
-* 53: Pi is Transcendental
+## 53: Pi is Transcendental
 
-* 56: The Hermite-Lindemann Transcendence Theorem
+## 56: The Hermite-Lindemann Transcendence Theorem
 
-* 84: Morley’s Theorem
+## 84: Morley’s Theorem
 
 This has been proven [in this repository](Theorem84.md) by Aristotle
 (and ChatGPT).  The proof follows Conway's elementary proof.
 
-* 87: Desargues’s Theorem
+## 87: Desargues’s Theorem
 
 This has been proven [in this repository](Theorem87.md) by Aristotle
 (and ChatGPT).  The setting is the Euclidean geometry of the plane.
 
-* 92: Pick’s Theorem
+## 92: Pick’s Theorem
