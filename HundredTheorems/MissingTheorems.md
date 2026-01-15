@@ -64,7 +64,7 @@ This was done for a [rectangular box](https://drops.dagstuhl.de/entities/documen
 A more general version is lacking because mathlib doesn't have
 differential forms.
 
-## 24. The Independence of the Continuum Hypothesis
+## 24: The Independence of the Continuum Hypothesis
 
 This is **not** listed as missing, but is only
 [available](https://github.com/flypitch/flypitch/blob/master/src/summary.lean)
@@ -94,7 +94,7 @@ with Euclidean versions only then following as a special case".
 
 Maybe the statement has been [formalized](https://meetings.ams.org/math/jmm2026/meetingapp.cgi/Paper/56671)?
 
-## 31. Ramsey’s Theorem
+## 31: Ramsey’s Theorem
 
 This is **not** listed as missing, but maybe is only
 [available](https://github.com/b-mehta/combinatorics/blob/extras/src/inf_ramsey.lean)
@@ -116,7 +116,7 @@ been formalized.  In fact, it's [in
 mathlib](https://github.com/leanprover-community/mathlib4/blob/d4fd214aa75c2dd7572612411560f3060c743a0d/Mathlib/NumberTheory/FLT/Basic.lean#L58-L64)
 as `FermatLastTheorem`.
 
-## 36. Brouwer Fixed Point Theorem
+## 36: Brouwer Fixed Point Theorem
 
 This is **not** listed as missing, but maybe is only
 [available](https://github.com/Shamrock-Frost/BrouwerFixedPoint/blob/master/src/brouwer_fixed_point.lean)
@@ -241,6 +241,6 @@ Maybe 1 or 2 of these have their statements formalized:
 
 At least 3 theorems not listed as missing are only available in Lean 3:
 
-* 24. The Independence of the Continuum Hypothesis
-* 31. Ramsey’s Theorem
-* 36. Brouwer Fixed Point Theorem
+* 24: The Independence of the Continuum Hypothesis
+* 31: Ramsey’s Theorem
+* 36: Brouwer Fixed Point Theorem
