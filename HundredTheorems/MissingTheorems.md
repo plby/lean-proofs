@@ -105,12 +105,15 @@ in Lean 3.
 ## 43: The Isoperimetric Theorem
 
 This is proven [here](https://github.com/hojonathanho/isoperimetric/)
-and discussed on Zulip
+by Jonathan Ho.  It is discussed on Zulip
 [here](https://github.com/hojonathanho/isoperimetric/).
 
 See also
 [this](https://github.com/Brunn-Minkowski-in-Lean/BrunnMinkowski),
-which hasn't had any updates in a while.
+which hasn't had any updates in a while.  Other people tried working
+on this back in
+[2022](https://leanprover.zulipchat.com/#narrow/channel/116395-maths/topic/Isoperimetric.20Inequality/with/560665680),
+motivated by the 100 Theorems list.
 
 ## 47: The Central Limit Theorem
 
