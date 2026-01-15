@@ -35,6 +35,10 @@ This has been proven [in this repository](Theorem8.md) by Aristotle
 about constructible (algebraic) numbers, and as statements about ruler
 and compass constructions in Euclidean geometry.
 
+Someone else tried the [constructible
+numbers](https://github.com/Louis-Le-Grand/Formalisation-of-constructable-numbers)
+version a couple years ago.
+
 ## 12: The Independence of the Parallel Postulate
 
 ## 13: Polyhedron Formula
@@ -52,6 +56,11 @@ work with the universal map from an abelian category to its
 Grothendieck group.
 
 ## 21: Green’s Theorem
+
+This was done for a [rectangular box](https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ITP.2022.23).
+
+A more general version is lacking because mathlib doesn't have
+differential forms.
 
 ## 24. The Independence of the Continuum Hypothesis
 
@@ -117,6 +126,9 @@ motivated by the 100 Theorems list.
 
 ## 47: The Central Limit Theorem
 
+This has been [done](https://github.com/RemyDegenne/CLT) "for real
+random variables".
+
 ## 50: The Number of Platonic Solids
 
 Mathlib doesn't have
@@ -170,9 +182,12 @@ At least one person is [thinking
 about](https://leanprover.zulipchat.com/#narrow/channel/217875-Is-there-code-for-X.3F/topic/Pick's.20Theorem)
 working on Pick's theorem.
 
+See also
+[this](https://firsching.ch/FormalBook/blueprint/sect0013.html#pick_theorem).
+
 # Summary
 
-Maybe 10 theorems or so are not yet formalized in Lean.  At least 1 of
+Maybe 9 theorems or so are not yet formalized in Lean.  At least 1 of
 these has its statement formalized.
 
 At least 3 theorems not listed as missing are only available in Lean 3.
