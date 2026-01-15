@@ -179,7 +179,22 @@ added to the completed list years ago because a PR number is not a
 ["stable
 reference"](https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/Remaining.20100.20theorems/near/483043532).
 
-## 67. e is Transcendental
+## 61: Theorem of Ceva
+
+This has been proven [in this repository](Theorem61.md) by Aristotle
+(and ChatGPT).  The setting is a point inside a triangle in the
+Euclidean plane.
+
+Apparently this was proven multiple times before already, including
+all the way [back in
+2021](https://github.com/leanprover-community/mathlib3/pull/10632) (in
+Lean 3).
+
+But finally, in 2026 it was
+[added](https://github.com/leanprover-community/mathlib4/blob/2f3db78bffe7143c23aa5509847896a5d6137e79/docs/100.yaml#L244-L247)
+to 100.yaml!  Yay!
+
+## 67: e is Transcendental
 
 This is **not** listed as missing, but the version
 [linked](https://github.com/jjaassoonn/transcendental/blob/master/src/e_transcendental.lean)
