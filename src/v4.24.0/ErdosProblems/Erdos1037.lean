@@ -1589,5 +1589,62 @@ theorem Theorem_Main :
       · have := log_inequality ( 4 * m ) ( by linarith ) ; norm_num [ Real.logb, Real.log_mul, show m ≠ 0 by linarith ] at * ; linarith;
       · have := log_inequality ( 4 * m ) ( by linarith ) ; norm_num [ Real.logb ] at * ; linarith;
 
-#print axioms Theorem_Main
--- 'Theorem_Main' depends on axioms: [propext, Classical.choice, Quot.sound]
+theorem not_erdos_1037 :
+  ¬(
+    ∀ ε : ℝ, 0 < ε →
+    ∀ C : ℝ, 0 < C →
+    ∃ n₀ : ℕ, ∀ n ≥ n₀,
+      ∀ G : SimpleGraph (Fin n),
+        (NumDistinctDegrees G : ℝ) ≥ (1/2 + ε) * n →
+        (C * Real.log n ≤ (G.cliqueNum : ℝ) ∨
+         C * Real.log n ≤ (G.indepNum : ℝ))
+  ) := by
+  rcases Theorem_Main with ⟨C0, hC0⟩
+  intro h
+  have hεpos : (0 : ℝ) < (1/8 : ℝ) := by
+    norm_num
+  have hεlt : (1/8 : ℝ) < (1/4 : ℝ) := by
+    norm_num
+  let C1 : ℝ := |C0| + 1
+  have hC1pos : 0 < C1 := by
+    have : 0 ≤ |C0| := abs_nonneg C0
+    linarith
+  have hC0_lt_C1 : C0 < C1 := by
+    have : C0 ≤ |C0| := le_abs_self C0
+    linarith
+  rcases h (1/8) hεpos C1 hC1pos with ⟨n0, hn0⟩
+  rcases hC0 (1/8) hεpos hεlt with ⟨n1, hn1⟩
+  let n : ℕ := 4 * (Nat.max n0 n1 + 1)
+  have hn_ge_n0 : n0 ≤ n := by
+    have hx : Nat.max n0 n1 + 1 ≤ 4 * (Nat.max n0 n1 + 1) := by
+      have : (1 : ℕ) * (Nat.max n0 n1 + 1) ≤ 4 * (Nat.max n0 n1 + 1) :=
+        Nat.mul_le_mul_right (Nat.max n0 n1 + 1) (by decide : (1 : ℕ) ≤ 4)
+      simp
+    simpa [n] using le_trans (le_trans (le_max_left _ _) (Nat.le_succ _)) hx
+  have hn_ge_n1 : n1 ≤ n := by
+    have hx : Nat.max n0 n1 + 1 ≤ 4 * (Nat.max n0 n1 + 1) := by
+      have : (1 : ℕ) * (Nat.max n0 n1 + 1) ≤ 4 * (Nat.max n0 n1 + 1) :=
+        Nat.mul_le_mul_right (Nat.max n0 n1 + 1) (by decide : (1 : ℕ) ≤ 4)
+      simp
+    simpa [n] using le_trans (le_trans (le_max_right _ _) (Nat.le_succ _)) hx
+  have h4 : 4 ∣ n := by
+    refine ⟨Nat.max n0 n1 + 1, by simp [n]⟩
+  rcases hn1 n hn_ge_n1 h4 with ⟨H, hDegTwice, hNDeg, hClique_le, hIndep_le⟩
+  have hNDeg' : (NumDistinctDegrees H : ℝ) ≥ (1/2 + (1/8 : ℝ)) * n := by
+    exact le_of_lt hNDeg
+  have hn_ge4 : 4 ≤ n := by
+    simp_all only [one_div, ge_iff_le, gt_iff_lt, inv_pos, Nat.ofNat_pos, dvd_mul_right, Nat.cast_mul, Nat.cast_ofNat,
+      Nat.cast_add, Nat.cast_max, Nat.cast_one, le_mul_iff_one_le_right, le_add_iff_nonneg_left, le_sup_iff, zero_le,
+      or_self, C1, n]
+  have hn_gt1_real : (1 : ℝ) < (n : ℝ) := by
+    exact_mod_cast (lt_of_lt_of_le (by decide : (1 : ℕ) < 4) hn_ge4)
+  have hlogpos : 0 < Real.log (n : ℝ) := by
+    simpa using Real.log_pos hn_gt1_real
+  have hmul_lt : C0 * Real.log (n : ℝ) < C1 * Real.log (n : ℝ) := by
+    exact mul_lt_mul_of_pos_right hC0_lt_C1 hlogpos
+  rcases (hn0 n hn_ge_n0 H hNDeg') with hbigClique | hbigIndep
+  · exact (not_le_of_gt (lt_of_le_of_lt hClique_le hmul_lt)) hbigClique
+  · exact (not_le_of_gt (lt_of_le_of_lt hIndep_le hmul_lt)) hbigIndep
+
+#print axioms not_erdos_1037
+-- 'not_erdos_1037' depends on axioms: [propext, Classical.choice, Quot.sound]
