@@ -1,0 +1,692 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+\newcommand{\prob}[1]{\par\medskip\noindent\textbf{#1}\ }
+
+\title{\textsc{Some of Paul's Favorite Problems}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{center}
+Booklet circulated during the conference ``Paul Erd\H{o}s and his mathematics'' held in Budapest in July 1999.
+\end{center}
+
+\section*{Handwritten note}
+We started the following problem.  Denote by
+\[
+r_k(n)=\max \ell,\qquad 1\le a_1<\cdots<a_\ell\le n
+\]
+the largest set of integers which does not contain an arithmetic progression of $k$ terms.
+We conjectured $r_k(n)=o(n)$---this far reaching generalization of the famous theorem of van der Waerden was finally proved by Szemer\'edi a few years ago. Many unsolved problems remain presumably
+\[
+r_k(n)=o\!\left(\frac{n}{(\log n)^p}\right)\quad\text{for every }p.
+\]
+To obtain an asymptotic formula or even a good two sided inequality for $r_k(n)$ or even $r_3(n)$ would be an outstanding achievement.
+
+\section*{Introduction}
+How could one survey the work of Paul Erd\H{o}s without his problems? Of course, many of his conjectures will be mentioned in the talks, and perhaps solutions to some will be presented. But it will contribute to the right spirit of an Erd\H{o}s conference to have this small collection of his most famous problems and conjectures in hand.
+
+Many of us will have heard some of these problems, especially the problems in our own field; the most fortunate of us heard them from Paul Erd\H{o}s himself. But it should be interesting for all of us to see the breathtaking breadth of topics and ideas in these conjectures.
+
+Paul Erd\H{o}s presented his problems in his lectures in charming disorder and so does this collection. We are, however, working on the collected and annotated problems of Erd\H{o}s.
+
+Perhaps some of these problems will be solved during the meeting\ldots
+
+\section{Number theory}
+
+\subsection*{1.1 Primes}
+Let $p_k$ denote the $k$'th prime and let $D(x)=\max_{p_k<x}(p_{k+1}-p_k)$.
+
+\prob{1.1}
+Is $\lim D(x)/f(x)=\infty$, where
+\[
+f(x)=(\log x)(\log\log x)(\log\log\log x)^{-2}(\log\log\log\log x)?
+\]
+
+\prob{1.2}
+Is it true that
+\[
+\max_{p_k<x}{(p_{k+1}-p_k)(p_k-p_{k-1})}/{D(x)^2}\to 0?
+\]
+
+\prob{1.3}
+Let $x/2<y<x$. Is it true that
+\[
+\pi\bigl(y+(1+c)D(x)\bigr)-\pi(y)=(1+o(1))\frac{(1+c)D(x)}{\log y}\ ?
+\]
+
+\prob{1.4}
+Let $u_1<u_2<\cdots$ be the sequence of those numbers that have at most two prime factors. Is it true that
+\[
+\overline{\lim}\,\frac{u_{k+1}-u_k}{\log k}=\infty\ ?
+\]
+
+\prob{1.5}
+Do there exist infinitely many $n$ such that $n-2x^2$ is prime for every $x$ for which $n>2x^2$? (The largest seems to be 199.)
+
+\prob{1.6}
+If $(n,k)=1$ and $n=968$ then $n-k^2$ is prime whenever positive. Is 968 the largest number with this property?
+
+\prob{1.7}
+The number 105 has the property that $105-2^n$ is prime whenever it is positive. Is 105 the largest number with this property?
+
+\prob{1.8 (Erd\H{o}s, Selfridge)}
+Let $p_1<\cdots<p_u$ be primes, and take an interval of length $\alpha p_u$. How many multiples must these primes have in this interval at least? If $\alpha>2$, then Erd\H{o}s and Selfridge found for $2<\alpha<3$ the exact bound; it is $\sqrt{u}/2$ if $u$ is of the form $2m^2$. If $\alpha>3$, then very little is known.
+
+\prob{1.9 (Additive completion of primes)}
+Let $A$ be such a set that every sufficiently large integer is of the form $a+p$, $a\in A$, $p$ prime. How small can $A(n)=|A\cap[1,n]|$ be? Erd\H{o}s showed that $A(n)\ll (\log n)^2$ is possible and we have trivially $A(n)\gg \log n$. Improve these bounds.
+
+\prob{1.10}
+Denote by $P(n)$ the greatest prime factor of $n$. Is it true that the density of the integers for which $P(n+1)>P(n)$ is $1/2$?
+
+\prob{1.11}
+Let, for the sequence of primes $p$, $f(p)$ be independent random variables taking the values $f(p)=\pm 1$ each with probability $1/2$ and let us extend the sequence $f(p)$ to a completely multiplicative arithmetic function $f(n)$ by
+\[
+f(n)=f(p_1)^{\alpha_1}\cdots f(p_r)^{\alpha_r}
+\]
+for $n$ having the prime factorization $n=p_1^{\alpha_1}\cdots p_r^{\alpha_r}$. Is it true that
+\[
+\limsup_{N\to\infty}\frac{\left|\sum_{n=1}^N f(n)\right|}{\sqrt{N}}=\infty
+\]
+with probability 1?
+
+\prob{1.12}
+Let $a_1<a_2<\cdots$ be a sequence of positive integers such that there are no $i,j$ with $i<j$, $a_i\mid a_j$. Conjecture: the sum $\sum_i {1}/{a_i\log a_i}$ is maximal if $a_1,a_2,\ldots$ is the sequence of primes.
+
+\subsection*{1.2 Egyptian fractions}
+
+\prob{1.13 (Erd\H{o}s, Straus)}
+Prove that for every $n>1$
+\[
+\frac{4}{n}=\frac{1}{x}+\frac{1}{y}+\frac{1}{z}
+\]
+is solvable in integers $x,y,z$.
+
+\prob{1.14}
+What is the maximum number of integers $a_1<a_2<\cdots<a_k\le n$ that no sum $\sum \epsilon_i/a_i$, $(\epsilon_i=0,1)$ equals 1? Can $k$ be $n-o(n)$?
+
+\prob{1.15}
+If $a_1<a_2<\cdots<a_n$ are positive integers and $\sum 1/a_i=1$, then $\max_i(a_{i+1}-a_i)>2$.
+
+\subsection*{1.3 Additive number theory}
+
+\prob{1.16}
+Let $A$ be a set of nonnegative integers, and let $r(n)$ denote the number of pairs $a,a'$ satisfying $a+a'=n$, $a,a'\in A$, $a\le a'$. Suppose $r(n)\ge 1$ for large $n$, that is, $A$ is a basis of order 2. Can $r(n)$ be bounded? Can it be $o(\log n)$? Can $r(n)/\log n$ tend to a finite nonzero limit?
+
+\prob{1.17 (Erd\H{o}s, S\'ark\"ozy)}
+Let $a_1<a_2<\cdots$ and $b_1<b_2<\cdots$ be two infinite sequences for which $a_n/b_n\to 1$, and let $g(n)$ denote the number of solutions of $n=a_i+b_j$. If $g(n)>0$ for all $n$, then $\limsup_n g(n)=\infty$.
+
+\prob{1.18 (Sidon sets)}
+Let $A$ and $r(n)$ be as above. Suppose now that $r(n)\le 1$ for all $n$, that is, $A$ is a Sidon set.
+\begin{enumerate}[label=(\alph*),leftmargin=*]
+\item Write $s(n)=\max\{|A|:A\subset [1,n]\}$. Is $s(n)=\sqrt{n}+O(1)$? (Numerical evidence and heuristic reasoning suggests that $s(n)-\sqrt{n}\to \infty$.)
+\item Is there an infinite $A=\{a_1<a_2<\cdots\}$ satisfying $a_n=O(n^{2+\epsilon})$? (Current record is $\sqrt{2}+1$.) Is it possible that $\liminf a_n/n^2=1$? (Smallest known value is 2.)
+\end{enumerate}
+
+\prob{1.19 (Essential components)}
+Is the set $B=\{2^m3^n\}$ an essential component, that is, does $\underline{d}(A+B)>\underline{d}(A)$ hold for every set $A$ with $0<\underline{d}(A)<1$?
+
+\prob{1.20 (Subset sums)}
+How many can be selected from the first $n$ natural numbers so that all their subset sums are distinct (like powers of 2)? Is this number $\log_2 n+O(1)$?
+
+\prob{1.21}
+Let $\alpha$ be an irrational number, say $\sqrt{2}$ and $n_1<n_2<\cdots$ the sequence of integers for which $n_i^2\alpha$ is closer to an integer than $1/\log n_i$. Is it true that every large integer is the sum of two $n_i$'s?
+
+\prob{1.22}
+We have a set $A$ of $n$ integers and we want to select a subset $B\subset A$, $|B|=k$ as large as possible, with certain properties. The question is to estimate the maximal $k$.
+\begin{enumerate}[label=(\alph*),leftmargin=*]
+\item Avoid $b_1+b_2=b_3$, $b_i\in B$. The maximum of $k$ is somewhere between $n/3$ and $n/2$.
+\item Avoid $b_2=b_2+b_3+\cdots+b_n$ for any number of distinct $b_i\in B$. Is $k>cn$ always possible?
+\item Avoid $b_1+b_2=a$, $b_i\in B$, $a\in A$. No decent estimates.
+\item Find $B$ so that all $2^k$ subset sums are distinct. Maximum is between $\log_3 n$ and $\log_2 n$.
+\end{enumerate}
+
+\prob{1.23}
+Let $a_1<a_2<\cdots$ be an infinite sequence for which all the triple sums
+$a_i+a_j+a_k$ are distinct. Is it then true that
+\[
+\limsup_{n\to\infty}\frac{a_n}{n^2}=\infty?
+\]
+
+\prob{1.24}
+Let $a_1<a_2<\cdots$ be a sequence of integers with $a_n/a_{n+1}\to1$.
+Suppose that for every $d$, every residue $(\bmod\, d)$ is representable as the
+sum of distinct $a$'s. Is it true that at most a finite number of integers are
+not representable as the sum of distinct $a$'s?
+
+\prob{1.25}
+Is every sufficiently large number $n$ of the form $x^2+y^2-z^2$ with
+$x^2\le n$, $y^2\le n$, $z^2\le n$? (6563 cannot be so expressed, then every
+number up to 1000000 can. Becomes obvious if we relax the bound to
+$n+2\sqrt{n}$.)
+
+\prob{1.26}
+(Erd\H{o}s, Szemer\'edi) If $a_1<\cdots<a_n$ are positive integers, then the
+total number of distinct integers of form $a_i+a_j$ and $a_i a_j$ is greater
+than $n^{2-\epsilon}$.
+
+\subsection*{1.4 Arithmetic progressions}
+
+\prob{1.27}
+(Erd\H{o}s, Tur\'an) Let $r_k(n)$ denote the maximum size of a subset of
+$\{1,2,\ldots,n\}$ not containing an arithmetic progression of length $k$.
+Find the order of magnitude of $r_k(n)$. [It was proved by Roth for $k=3$ and
+by Szemer\'edi for all $k$ that $r_k(n)=o(n)$.]
+
+\prob{1.28}
+Let $a_1<a_2<\cdots$ be a sequence of integers satisfying
+$\sum_{k=1}^\infty \frac1{a_k}=\infty$. Then the $a_k$'s contain arbitrarily
+long arithmetic progressions.
+
+\prob{1.29}
+(Erd\H{o}s, Stein) What is the maximum number $k=k(x)$ of nonoverlapping
+arithmetic progressions $a_i\pmod{n_i}$,
+\[
+1<n_1<n_2<\cdots<n_k\le x.
+\]
+Is $k=o(n)$?
+
+\prob{1.30}
+\emph{(Discrepancy of arithmetic progressions)} Does there exist a sequence
+$\{\epsilon_i\}$ of plus and minus ones such that $\sum_{i=1}^n \epsilon_{ik}$
+is bounded for every $k$? Perhaps
+\[
+\max_{\substack{d\\ \ell<n/d}}\left|\sum_{k=1}^{\ell}\epsilon_{kd}\right|
+>c\log n.
+\]
+
+\prob{1.31}
+\textbf{A system of congruences.} \\
+$a_i\pmod{n_i}$, $n_1<n_2<\cdots<n_k$, is called a covering system if every
+integer satisfies at least one of the congruences. Is it true that for every
+$c$ one can find a covering system all of whose moduli are larger than $c$?
+
+\prob{1.32}
+Is it true that the product of four or more integers in an arithmetic
+progression is never a power?
+
+\subsection*{1.5 More Number Theory}
+
+\prob{1.33}
+$\lim(a_{n+1}-a_n)=\infty$ implies $\sum \frac{a_n}{2^{a_n}}$ irrational.
+
+\prob{1.34}
+(Moser, Lambeck, Erd\H{o}s) If $\alpha>0$, and $\alpha$ is not an integer, then
+the density of $n$ for which $\gcd(n,[n^\alpha])=1$ is $6/\pi^2$.
+
+\section{Analysis}
+
+\subsection*{2.1 Polynomials and interpolation}
+
+\prob{2.35}
+Let $p(z)$ be a monic polynomial of degree $n$ with complex coefficients.
+Prove that the length of the boundary of the set
+\[
+E_n(p)=\{z\in\mathbb{C}:\ |p(z)|\le 1\}
+\]
+is $2n+O(1)$. [The best upper bounds so far are $74n^2$ (Pommerenke) and $O(n)$
+(P.\ Borwein).]
+
+\prob{2.36}
+Is there an absolute constant $\epsilon>0$ such that the maximum norm on the
+unit circle of any polynomial of degree $n$ with coefficients $\pm1$ is at
+least $(1+\epsilon)\sqrt{n}$?
+
+\prob{2.37}
+Does there exist for every $n$ a polynomial $p_n(z)=\sum_{k=1}^n \epsilon_k z^k$
+with coefficients $\epsilon_k=\pm1$ such that $c_1\sqrt{n}<|p_n(z)|<c_2\sqrt{n}$
+($|z|=1$) on the unit circle, where $c_1$ and $c_2$ are positive absolute
+constants?
+
+\prob{2.38}
+Let $\{z_k\}_{k=1}^\infty$ be a sequence of unimodular complex numbers, and let
+\[
+A_n=\max_{|z|=1}\prod_{k=1}^n |z-z_k|.
+\]
+Is it true that $A_n>n^c$ or $\sum_{k=1}^n A_n>n^{1+c}$ happens for infinitely
+many $n$ (with an absolute constant $c>0$)? [Wagner proved that
+$\limsup_{n\to\infty}A_n=\infty$.]
+
+\prob{2.39}
+Can one find an absolute constant $q<1$ and for every $n$ complex numbers
+$z_i$, $|z_i|\ge1$ $(i=1,\ldots,n)$ such that their power sums satisfy
+\[
+\max_{2\le k\le n+1}\left|\sum_{i=1}^n z_i^k\right|<q^n?
+\]
+
+\prob{2.40}
+Let $f$ be a continuous function on the interval $[-1,1]$,
+$X_n=\{x_{k,n}\}_{k=1}^n$ a set of $n$ distinct nodes in this interval,
+\[
+L(f,X_n,x)=\sum_{k=1}^n f(x_{k,n})\,\ell_k(X_n,x)
+\]
+the corresponding Lagrange interpolation polynomial (where $\ell_k(X_n,x)$ are
+the so-called fundamental polynomials of interpolation), and
+\[
+\lambda(X_n,x)=\sum_{k=1}^n |\ell_k(X_n,x)|
+\]
+the Lebesgue function of interpolation. Is there a point group $X_n$ for which
+for every continuous function $f$ there is at least one $x_0$ for which
+$\limsup_{n\to\infty}\lambda(X_n,x_0)=\infty$ holds, but
+$\lim_{n\to\infty}L(f,X_n,x_0)=f(x_0)$? In other words, Lagrange interpolation
+cannot be completely ``bad'', i.e.\ it cannot diverge simultaneously at all
+points where divergence is possible. [The classical results of Gr\"unwald and
+Marcinkiewicz show that the Chebyshev roots do not have this property.]
+
+\prob{2.41}
+Let $X_n$ be the set of Chebyshev nodes. Prove that to any closed set
+$A\subset[-1,1]$ there exists a continuous function $f$ such that the set of
+limit points of $L(f,X_n,x)$ is exactly $A$. [Erd\H{o}s proved that if
+$x_0=\cos(\pi p/q)$, $p\equiv q\equiv1\pmod{2}$, then there is a continuous
+function $f$ such that $\lim_{n\to\infty}L(f,X_n,x_0)=\infty$.]
+
+\prob{2.42}
+Let $X_n$ be an arbitrary point group, and let $\epsilon_n\to0$ as slowly as
+we please. Is it true that there always exists a continuous $f$ for which if
+$p_n$ is a polynomial of degree $<n(1+\epsilon_n)$ which satisfies
+$p_n(x_{k,n})=f(x_{k,n})$, $k=1,\ldots,n$, then $p_n$ will diverge almost
+everywhere? [A recent result of Erd\H{o}s, Kro\'o and Szabados shows that with
+a fixed $\epsilon>0$ instead of $\epsilon_n$, convergent sequences of $p_n$ can
+be constructed.]
+
+\prob{2.43}
+Let $X_n$ be an arbitrary point group. Is it true that for almost all
+$x\in[-1,1]$ $\limsup_{n\to\infty}\lambda(X_n,x)>\frac{2}{\pi}\log n-c$ holds
+with some absolute constant $c$?
+
+\prob{2.44}
+Let $X_n$ be an arbitrary point group. Prove that for any $-1\le a<b\le1$,
+\[
+\max_{a\le x\le b}\lambda(X_n,x)>\left[\frac{2}{\pi}+o(1)\right]\log n.
+\]
+
+\prob{2.45}
+Characterize the point group $X_n$ for which
+\[
+\int_{-1}^1 \sum_{k=1}^n \ell_k(X_n,x)^2\,dx
+\]
+is minimal. [Erd\H{o}s conjectured that the minimum is attained for the roots
+of the integral of the Legendre polynomials, but this was disproved by
+Szabados.]
+
+\subsection*{2.2 Measure Theory}
+
+\prob{2.46}
+Is it true that for every infinite set $H\subset\mathbb{R}$ there exists a
+measurable set $A\subset\mathbb{R}$ of positive measure such that $A$ does not
+contain a similar copy of $H$? (We may assume that $H$ is a convergent
+sequence.)
+
+\prob{2.47}
+Is it true that there is an absolute constant $C$ so that if a set
+$S\subset\mathbb{R}^2$ has planar measure greater than $C$ then $S$ contains
+the vertices of a triangle of area $1$? Is $C=4\pi 3^{-3/2}$ true? (This is
+the area of the circle of radius $2\cdot 3^{-3/4}$.)
+
+\prob{2.48}
+Is it true that for every $0\le\alpha\le1$ there is a ring or field of
+Hausdorff dimension $\alpha$? [Erd\H{o}s and Volkmann proved the existence of a
+group of real numbers of Hausdorff dimension $\alpha$.]
+
+\section{Graphs and hypergraphs}
+
+\subsection*{3.1 Ramsey theory}
+
+Let $r(u,v)$ be the smallest integer for which every graph on $r(u,v)$ vertices
+contains either an independent set on $u$ vertices or a complete graph on $v$
+vertices. Let $R(n)=r(n,n)$. Erd\H{o}s and Szekeres proved that
+\[
+c\,n\,2^{n/2}<R(n)\le \binom{2n-2}{n-1}.
+\]
+
+\prob{3.49}
+Find a constructive proof of $R(n)>(1+c)^n$.
+
+\prob{3.50}
+Prove that $\lim_{n\to\infty} R(n)^{1/n}=c$ exists.
+
+\prob{3.51}
+Prove $r(4,n)>n^{3-\epsilon}$.
+
+\prob{3.52}
+(Erd\H{o}s, Hajnal) If $H$ is any graph and $G$ is a graph of $n$ vertices which
+does not contain $H$ as an induced subgraph, then it must contain a complete
+subgraph or independent set of size $n^\epsilon$, where $\epsilon$ depends on
+$H$ only.
+
+\prob{3.53}
+(Erd\H{o}s, R\'enyi) Let $G(n)$ be a graph that does not contain a complete
+subgraph or independent set of size $c_1\log n$ vertices. Then $G$ contains
+$2^{cn}$ induced subgraphs no two of which are isomorphic.
+
+\prob{3.54}
+(Erd\H{o}s, Faudree, Ordman) Let $f(n)$ be the smallest integer for which if we
+color the edges of $K(n)$ by two colors there are at least $f(n)$ edge disjoint
+monochromatic triangles. Is it true that
+\[
+f(n)=(1+o(1))\frac{n^2}{12}\,?
+\]
+
+\subsection*{3.2 Extremal problems}
+
+\prob{3.55}
+(Erd\H{o}s, T.\ S\'os) Let $T$ be a tree on $k$ vertices. If a graph $G$ on $n$
+vertices contains no copy of $T$ then
+\[
+e(G_n)\le \frac{k-2}{2}\,n.
+\]
+
+Let $G$ be a connected graph, and $T(n;G)$ be the smallest integer for which
+every graph of $n$ vertices and $T(n;G)$ edges contains $G$ as a subgraph.
+$T(n;G)$ is called the Tur\'an number of $G$, in memory of Tur\'an who started
+this subject.
+
+\prob{3.56}
+Let $G$ bipartite and $n$ be large. How many graphs on $n$ vertices are there
+which do not contain a copy of $G$? Denote this number by $f(n;G)$. Conjecture:
+\[
+f(n,G)=2^{(1+o(1))T(n;G)}.
+\]
+In particular, is it true that for $G=C_4$,
+\[
+f(n;C_4)=2^{(1/2+o(1))\,n^{3/2}}\,?
+\]
+
+\subsection*{3.3 Coloring problems}
+
+\prob{3.57}
+(Erd\H{o}s, Faber, Lov\'asz) If $G$ is the edge disjoint union of $n$ complete
+graphs of size $n$, then $G$ has chromatic number $n$. [J.\ Kahn proved that
+the chromatic number of $G$ is less than $(1+o(1))n$.] F\"{u}redi and Erd\H{o}s
+conjectured the following generalization: Let $G$ be the union of $n$ complete
+graphs of size $n$ every two of which have at most $k$ vertices in common. Then
+the chromatic number of $G$ is at most $kn$.
+
+\prob{3.58}
+(Erd\H{o}s, Hajnal) If $G$ has infinite chromatic number and if $2r_i+1$
+$(i=1,2,\ldots)$ are the sizes of the odd circuits occurring in $G$, then
+$\sum 1/r_i=\infty$ and perhaps the $r_i$ have positive upper density.
+
+\prob{3.59}
+(Erd\H{o}s, Hajnal) Given natural numbers $k$ and $g$, for some $f(k,g)$ every
+graph of chromatic number at least $f(k,g)$ contains a graph of girth at least
+$g$ and chromatic number $k$.
+
+\prob{3.60}
+If $G$ is a critically $4$-chromatic graph on $n$ vertices, then the minimum
+degree of $G$ is $o(n)$?
+
+\subsection*{3.4 Random structures}
+
+\prob{3.61}
+(Bollob\'as, Erd\H{o}s) Let us start from a complete graph and delete edges as
+follows. Choose a random triangle in the graph, delete its edges, choose a
+random triangle in the remaining graph, delete its edges (at each step each
+triangle is chosen with the same probability) and iterate this. Stop when
+there are no triangles in the graph. Describe the typical parameters
+(structure) of the graph. This problem was motivated by the task of generating
+a random triangle-free graph.
+
+\prob{3.62}
+It is known that the chromatic number of almost every random graph
+$G_{n,1/2}$ is $(1+o(1))$ and that the concentration is considerably higher
+than this. Somewhat surprisingly, it is not known that the chromatic number of
+almost every $G_{n,1/2}$ is not concentrated on two values, say. In fact, it
+seems unlikely that for some constant $c$ the chromatic number of a random
+graph $G_{n,1/2}$ is concentrated on at most $c$ values. Perhaps it is also
+true that if $\omega(n)\to\infty$ sufficiently slowly then for every function
+$k(n)$ we have
+\[
+P\bigl(|\chi(G_{n,1/2})-k(n)|<\omega n\bigr)>\frac12
+\]
+if $n$ is sufficiently large.
+
+\subsection*{3.5 Set-systems}
+
+\prob{3.63}
+(Erd\H{o}s, Rado) Sets $A_i$, $1\le i\le t$ form a (strong) $\Delta$-system if
+the sets $A_i\cap A_j$ are all identical. Denote by $g_r(n)$ the smallest
+integer for which every family of $g_r(n)$ sets of size $n$ contains $r$ sets
+which form a $\Delta$-system. Erd\H{o}s and Rado proved that
+\[
+2^n<g_3^{(s)}(n)<2^n n!.
+\]
+They conjectured that $g_r(n)<C_r^n$.
+
+\prob{3.64}
+Find the maximum number of edges in a $t$-uniform hypergraph in which every $k$
+vertices span at most $r$ edges. It is a particular case of this problem to
+decide if for given $k>4$, and $n$ large, there exists a family of triples with
+the property that among any $k$ elements there are at most $4$ triples. Such a
+family would have about $n^2$ triples. There exist some families with
+$n^{2-o(1)}$ triples; this is a theorem of Ruzsa and Szemer\'edi.
+
+\prob{3.65}
+Find a matching lower bound for the hypergraph version of the
+K\H{o}v\'ari--T.\ S\'os--Tur\'an Theorem. Let $\mathrm{ex}_t(n,r)$ denote the
+maximum number of edges in a $t$-partite $t$-uniform hypergraph that does not
+contain a complete $t$-partite subhypergraph with $r$ vertices in each class.
+What is
+\[
+\lim_{n\to\infty}\frac{\log \mathrm{ex}_t(n,r)}{\log n}\,?
+\]
+Is the 1962 bound $t-1/r^{t-1}$?
+
+\section{Geometry}
+
+\prob{4.66}
+(Erd\H{o}s, Szekeres) Determine the minimum $f(k)$ such that in any set of
+$f(k)$ points in the plane (no three on a line) one can find $k$ in a convex
+position. The conjectured value is $f(k)=2^{k-2}+1$. There is a construction
+showing $f(k)\ge 2^{k-2}$.
+
+\prob{4.67}
+For an arbitrary set $S$ of $n$ points in the plane, the number of unit
+distances between the points of $S$ is $O(n^{1+\epsilon})$.
+
+\prob{4.68}
+(Erd\H{o}s--Moser) If $S$ is the set of vertices of a convex $n$-gon, then the
+number of unit distances between points of $S$ is $O(n)$.
+
+\prob{4.69}
+Let $S$ be a set of $n$ points in the plane; let $N(S)$ denote the number of
+different distances between points of $S$, and let $f(n)$ be the least value
+that $N(S)$ can have. Conjecture: $f(n)>cn^{1-\epsilon}$; furthermore, there
+exists a point $p\in S$ such that more than $cn^{1-\epsilon}$ different values
+occur among the distances $pq$, $q\in S$.
+
+\prob{4.70}
+Let $P$ be a finite projective plane. Does it contain a set $S$ of points such
+that $1\le |S\cap L|\le 1000$ for every line $L$?
+
+\section{Algebra}
+
+\prob{5.71}
+Denote by $g(n)$ the number of groups of order $n$. Conjecture: If $n\le 2^m$
+then $g(n)\le g(2^m)$.
+
+\prob{5.72}
+(Erd\H{o}s, Tur\'an) If $f_k(n)$ denotes the number of elements $P$ of $S_n$ for
+which $O(P)=k$, for which values of $k$ will $f_k(n)$ be maximal?
+
+\prob{5.73}
+(Erd\H{o}s, Tur\'an) Determine the number of all subgroups of $S_n$ at least
+asymptotically. Is there a statistical theorem on their order?
+
+\prob{5.74}
+(Erd\H{o}s, Tur\'an) Describe (by statistical means) the arithmetic structure
+of the orders of subgroups of $S_n$.
+
+\prob{5.75}
+Let $G$ be a group. Assume that it has at most $n$ elements which do not
+commute pairwise. Denote by $h(n)$ the smallest integer for which $G$ can be
+covered by $h(n)$ Abelian groups. Determine or estimate $h(n)$ as well as
+possible. [Pyber and Isaacs proved that $2^{(n-1)/2}<h(n)<c^n$ for some large
+constant $c$.]
+
+\section{Probability}
+
+\subsection*{6.1 Random walk}
+
+Let $\{S_n,\ n=0,1,2,\ldots\}$ be a random walk on $\mathbb{Z}^2$ and let
+\[
+\xi(x,n)=\#\{k:\ 0\le k\le n,\ S_k=x\}.
+\]
+
+\prob{6.76}
+(Erd\H{o}s, Taylor) Let $R_n$ be the largest integer for which
+\[
+\xi(x,n)>0 \quad\text{for each}\quad \|x\|\le R_n \quad (x\in\mathbb{Z}^2).
+\]
+Conjecture: $R_n$ is about $\exp((\log n)^{1/2})$. Kesten formulated the
+following stronger conjecture:
+\[
+\lim_{n\to\infty} P\left\{\frac{(\log R_n)^2}{\log n}<x\right\}
+=1-e^{-\lambda x}\qquad (\lambda>0,\ x\ge0).
+\]
+
+\prob{6.77}
+(Erd\H{o}s and R\'ev\'esz) A point $x_n\in\mathbb{Z}^2$ is called a favorite
+value at the moment $n$ if the particle visits $x_n$ most often during the
+first $n$ steps, i.e.\
+\[
+\xi(x_n,n)=\max_{y\in\mathbb{Z}^2}\xi(y,n).
+\]
+Let
+\[
+F_n=\{x:\ \xi(x,n)=\max_{y\in\mathbb{Z}^2}\xi(y,n)\}.
+\]
+Find $P\{|F_n|=r\ \mathrm{i.o.}\}$ $(r=3,4,\ldots)$.
+
+\prob{6.78}
+(Erd\H{o}s, R\'ev\'esz) What can be said on
+\[
+\alpha(n)=\left|\bigcup_{k=1}^n F_k\right|?
+\]
+The conjecture is that $\alpha(n)\le (\log n)^c$ for some $c>0$ a.s.\ for all
+but finitely many $n$.
+
+\section{Set theory}
+
+\prob{7.79}
+(Erd\H{o}s, Hajnal, Rado) If $r\ge2$ is finite, $\lambda$ is an infinite
+cardinal, and $\kappa_\alpha$ are cardinals for $\alpha<\gamma$, then
+\[
+\lambda\nrightarrow(\kappa_\alpha)_{\alpha<\gamma}^r
+\quad\text{implies}\quad
+2^\lambda\nrightarrow(\kappa_\alpha+1)_{\alpha<\gamma}^{r+1}.
+\]
+(here $+$ means cardinal addition, that is, $\kappa_\alpha+1=\kappa_\alpha$ if
+$\kappa_\alpha$ is infinite).
+
+\prob{7.80}
+(Erd\H{o}s, Hajnal, Rado) $\aleph_{\omega+1}\nrightarrow(\aleph_{\omega+1},
+(3)_{\aleph_0})^2$ without the assumption of GCH.
+
+\prob{7.81}
+Is it consistent that $2^{\aleph_0}\rightarrow[\aleph_1]^2_3$ and
+$2^{\aleph_0}=\aleph_2$. [The consistency of $2^{\aleph_0}\rightarrow
+[\aleph_1]^2_3$ was established by Shelah, however, in his model $2^{\aleph_0}$
+is a weakly inaccessible cardinal.]
+
+\prob{7.82}
+Describe when $\alpha\rightarrow(r,n)^2$ holds for $\alpha<\omega_1$ and $n$
+finite. The simplest unsolved problem is if
+\[
+\omega^{\omega^1}\rightarrow(\omega^{\omega^3},3)^2
+\]
+holds.
+
+\prob{7.83}
+(Erd\H{o}s, Rado) Prove that $\omega_1\rightarrow(\alpha,n)^3$ holds for
+$\alpha<\omega_1$ and $n$ finite.
+
+\prob{7.84}
+Is it true that $\omega_1^2\rightarrow(\omega_1\omega,(3)_k)^2$ for every
+$k<\omega$?
+
+\prob{7.85}
+(Erd\H{o}s, Hajnal) Is it true that
+$\omega_1^2\nrightarrow(\omega_1^2,3)^2$? [Hajnal showed that this follows from CH.]
+
+\prob{7.86}
+Is it consistent that $\omega_2\rightarrow(\alpha)^2_2$ holds for every
+$\alpha<\omega_2$? [Laver showed the consistency of
+$\omega_2\rightarrow(\omega_1 2+1,\alpha)^2$ for all $\alpha<\omega_2$ and more
+recently Foreman and Hajnal showed the consistency of
+$\omega_2\rightarrow(\omega_1^2+1,\alpha)^2$ for all $\alpha<\omega_2$.]
+
+\prob{7.87}
+(Erd\H{o}s, Hajnal) One formulation of the Erd\H{o}s--Rado partition theorem
+(for exponent 2) is that $(2^\kappa)^+\rightarrow(\kappa^++1)^2_\kappa$ holds
+for every infinite cardinal $\kappa$. The simplest unsolved related problems are (under
+GCH): $\omega_3\rightarrow(\omega_2, \omega_1+2)^2$,
+$\omega_3\rightarrow(\omega_2+\omega_1,\omega_2+\omega)^2$,
+$\omega_2\rightarrow(\omega_1^{\omega+2}+2,\omega_1+2)^2$, and (from CH)
+$\omega_2\rightarrow(\omega_1+\omega)^2_2$.
+
+\prob{7.88}
+(Erd\H{o}s, Hajnal) Assume GCH and that $f$ is a set mapping on~$\omega_{\omega+1}$ with
+$|f(\alpha)\cap f(\beta)|<\aleph_\omega$ for $\alpha\ne\beta$. Is it true that
+there is a free set of cardinal $\aleph_{\omega+1}$?
+
+\prob{7.89}
+Is it true that any two uncountably chromatic graphs have a common
+$4$-chromatic subgraph?
+
+\prob{7.90}
+(Erd\H{o}s, Hajnal) Prove that every uncountably chromatic graph contains an
+$\aleph_0$-connected subgraph.
+
+\prob{7.91}
+(Erd\H{o}s, Hajnal) Is there a $K_4$-free graph $X$ such that every edge
+coloring of $X$ with countably many colors contains a monochromed triangle? Is
+there a $K_{\aleph_1}$-free graph $X$ such that every edge coloring of $X$ with
+countably many colors contains a monochromed $K_{\aleph_0}$? [Shelah proved
+that a graph with either property can consistently exist.]
+
+\prob{7.92}
+(Erd\H{o}s, Hajnal) Does there exist for every uncountable cardinal $\kappa$
+another cardinal $\lambda$ such that every $\lambda$-chromatic graph contains a
+$\kappa$-chromatic triangle-free graph? [Shelah proved that a negative answer
+is consistent for $\kappa=\lambda=\aleph_1$.]
+
+\prob{7.93}
+(Erd\H{o}s, Galvin, Hajnal) Let $X$ be an $\aleph_1$-chromatic graph. Is it
+true that one can color the edges with $\aleph_1$ colors such that whenever the
+vertices are decomposed into countably many classes, then there is a class
+spanning all colors. [The consistency of this was shown by Hajnal and
+Komj\'ath.]
+
+\prob{7.94}
+(Erd\H{o}s, Hajnal)
+\begin{enumerate}[label=(\alph*),leftmargin=*]
+\item Is it consistent (relative to ZFC) that if $G$ is an uncountably
+  chromatic graph, then there are disjoint subgraphs $G_i$ $(i<\omega)$ such
+  that $\chi(G_i)=\aleph_1$?
+\item Is it consistent that for some fixed $n$, every uncountably chromatic
+  graph contains a subgraph of chromatic number $\aleph_1$ and girth at least
+  $n$?
+\item Let $G$ be a graph with chromatic number $\aleph_2$. Must it have a
+  subgraph with chromatic number $\aleph_1$?
+\end{enumerate}
+
+\medskip
+\noindent\emph{Collected by B.\ Bollob\'as, Z.\ F\"{u}redi, A.\ Hajnal,
+G.\ Hal\'asz, G.O.H.\ Katona, P.\ Komj\'ath, M.\ Laczkovich, L.\ Lov\'asz,
+L.\ Pyber, P.\ R\'ev\'esz, I.Z.\ Ruzsa, \'{A}.\ S\'{a}rk\"{o}zy,
+M.\ Simonovits, V.T.\ S\'os, J.\ Szabados, T.\ Sz\H{o}nyi, K.\ Vesztergombi,
+P.\ V\'{e}rtesi.}
+
+\end{document}
