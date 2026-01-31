@@ -537,3 +537,6 @@ theorem erdos_419 : {x : ℝ | MapClusterPt x Filter.atTop u} = S := by
   · rintro x ( rfl | ⟨ k, hk, rfl ⟩ );
     · exact one_is_cluster_point;
     · convert cluster_point_of_k k hk using 1
+
+#print axioms erdos_419
+-- 'erdos_419' depends on axioms: [propext, Classical.choice, Quot.sound]
