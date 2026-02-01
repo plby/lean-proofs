@@ -23,6 +23,7 @@ This repository collects Lean proofs for various mathematical statements:
 	* [Erdős Problem 370](ErdosProblems/Erdos370.md)
 	* [Erdős Problem 418](ErdosProblems/Erdos418.md)
 	* [Erdős Problem 419](ErdosProblems/Erdos419.md)
+	* [Erdős Problem 453](ErdosProblems/Erdos453.md)
 	* [Erdős Problem 476](ErdosProblems/Erdos476.md)
 	* a [misformalization](ErdosProblems/Erdos480x.md) of Erdős Problem 480
 	* the former statement of [Erdős Problem 488](ErdosProblems/Erdos488b.md)
