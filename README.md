@@ -29,6 +29,7 @@ This repository collects Lean proofs for various mathematical statements:
 	* a [misformalization](ErdosProblems/Erdos480x.md) of Erdős Problem 480
 	* the former statement of [Erdős Problem 488](ErdosProblems/Erdos488b.md)
 	* [Erdős Problem 493](ErdosProblems/Erdos493.md)
+	* [Erdős Problem 497](ErdosProblems/Erdos497.md)
 	* [Erdős Problem 499](ErdosProblems/Erdos499.md)
 	* [Erdős Problem 505](ErdosProblems/Erdos505.md)
 	* [Erdős Problem 541](ErdosProblems/Erdos541.md)
