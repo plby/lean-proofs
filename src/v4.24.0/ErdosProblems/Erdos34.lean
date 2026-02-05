@@ -58,15 +58,6 @@ lemma pair_sum_odd (n k : ℕ) (hk : 2 * k + 2 ≤ n) :
   unfold construction; norm_num [ Nat.add_mod, Nat.mod_two_of_bodd ] ; omega;
 
 /-
-The sum of $a_{2k}$ and $a_{2k+1}$ is $n+2$.
--/
-lemma pair_sum_even (n k : ℕ) (hk : 2 * k + 1 ≤ n) (hk' : 1 ≤ 2 * k) :
-    construction n (2 * k) + construction n (2 * k + 1) = n + 2 := by
-  unfold construction
-  simp +arith +decide
-  omega
-
-/-
 If a segment has odd length and starts at an odd index, its sum is $\frac{j-i}{2}(n+1) + a_j$.
 -/
 lemma sum_odd_length_odd_start (n i j : ℕ) (hij : i ≤ j) (hjn : j ≤ n)
@@ -407,3 +398,6 @@ theorem not_erdos_34 : ¬ erdos_34 := by
   have hp_lt : (perm_consecutive_sums N p).card < c * (N : ℝ)^2 := by
     exact hN N (le_rfl) p
   exact (not_lt_of_ge hp_ge) hp_lt
+
+#print axioms not_erdos_34
+-- 'not_erdos_34' depends on axioms: [propext, Classical.choice, Quot.sound]
