@@ -3,6 +3,7 @@ This repository collects Lean proofs for various mathematical statements:
 * [Erdős problems](https://www.erdosproblems.com/)
 	* [Erdős Problem 26](ErdosProblems/Erdos26.md)
 	* [Erdős Problem 31](ErdosProblems/Erdos31.md)
+	* [Erdős Problem 34](ErdosProblems/Erdos34.md)
 	* [Erdős Problem 56](ErdosProblems/Erdos56.md), as well as an earlier [misformalization](ErdosProblems/Erdos56x.md) thereof
 	* [Erdős Problem 105](ErdosProblems/Erdos105.md)
 	* the former statement of [Erdős Problem 124](ErdosProblems/Erdos124b.md)
