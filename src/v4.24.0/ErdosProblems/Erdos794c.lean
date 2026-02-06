@@ -6,24 +6,6 @@ We prove that this construction satisfies all the required properties.
 
 import Mathlib
 
-set_option linter.mathlibStandardSet false
-
-open scoped BigOperators
-open scoped Real
-open scoped Nat
-open scoped Classical
-open scoped Pointwise
-
-set_option maxHeartbeats 0
-set_option maxRecDepth 4000
-set_option synthInstance.maxHeartbeats 20000
-set_option synthInstance.maxSize 128
-
-set_option relaxedAutoImplicit false
-set_option autoImplicit false
-
-noncomputable section
-
 /-
 Basic definitions for hypergraphs: uniformity, induced edges, and dense subgraphs.
 -/
@@ -79,6 +61,7 @@ lemma tripartite_card (n : ℕ) : (tripartite_edges n).card = n^3 := by
   · intro x y hxy; simp_all +decide [ Finset.Subset.antisymm_iff, Finset.subset_iff ] ;
     grind
 
+set_option maxHeartbeats 0 in
 /-
 The number of edges in the tripartite graph induced by a set of vertices $S$ is the product of the number of vertices in $S$ from each of the three parts.
 -/
