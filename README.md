@@ -34,6 +34,7 @@ This repository collects Lean proofs for various mathematical statements:
 	* [Erdős Problem 497](ErdosProblems/Erdos497.md)
 	* [Erdős Problem 499](ErdosProblems/Erdos499.md)
 	* [Erdős Problem 505](ErdosProblems/Erdos505.md)
+	* [Erdős Problem 537](ErdosProblems/Erdos537.md)
 	* [Erdős Problem 541](ErdosProblems/Erdos541.md)
 	* [Erdős Problem 582](ErdosProblems/Erdos582.md)
 	* [Erdős Problem 645](ErdosProblems/Erdos645.md)
