@@ -16,3 +16,12 @@ rev = "f897ebcf72cd16f89ab4577d0c826cd14afaafc7"
 
 [[lean_lib]]
 name = "B"
+
+[[lean_lib]]
+name = "ErdosProblems"
+
+[[lean_lib]]
+name = "HundredTheorems"
+
+[[lean_lib]]
+name = "MathOverflow"
