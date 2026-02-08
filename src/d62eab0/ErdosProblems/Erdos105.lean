@@ -24,6 +24,8 @@ Mathlib version: d62eab0cc36ea522904895389c301cf8d844fd69 (May 9, 2025)
 
 import Mathlib
 
+namespace Erdos105
+
 set_option maxHeartbeats 0
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
@@ -213,3 +215,5 @@ theorem not_erdos_105 : ¬erdos_105 := by
   obtain ⟨p, q, hpA, hqA, hpq, hline⟩ := h_apply;
   obtain ⟨b, hbB, hbline⟩ := neg_last_condition_sets p q hpA hqA hpq;
   aesop
+
+end Erdos105

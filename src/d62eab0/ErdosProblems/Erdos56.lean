@@ -26,6 +26,8 @@ Mathlib version: d62eab0cc36ea522904895389c301cf8d844fd69 (May 9, 2025)
 -/
 import Mathlib
 
+namespace Erdos56
+
 open scoped BigOperators
 open scoped Real
 open scoped Nat
@@ -1308,3 +1310,6 @@ theorem erdos_56 :
     · tauto;
   linarith
  
+end
+
+end Erdos56

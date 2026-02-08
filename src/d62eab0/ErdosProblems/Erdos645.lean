@@ -25,6 +25,8 @@ Mathlib version: d62eab0cc36ea522904895389c301cf8d844fd69 (May 9, 2025)
 -/
 import Mathlib
 
+namespace Erdos645
+
 open scoped BigOperators
 open scoped Real
 open scoped Nat
@@ -164,3 +166,7 @@ theorem erdos_645 (c : ℕ → Bool) : ∃ x d, 0 < x ∧ x < d ∧ (∃ C, c x 
   use x, hx_pos, d, hd_gt_x;
   -- By combining the equalities from `h_eq`, we can conclude that `c (x + d) = c x` and `c (x + 2 * d) = c x`.
   simp [h_eq]
+
+end
+
+end Erdos645

@@ -25,6 +25,8 @@ Mathlib version: d62eab0cc36ea522904895389c301cf8d844fd69 (May 9, 2025)
 -/
 import Mathlib
 
+namespace Erdos370
+
 open scoped BigOperators
 open scoped Real
 open scoped Nat
@@ -144,21 +146,18 @@ theorem infinitely_many_n : Set.Infinite { n : ℕ | (P n : ℝ) < Real.sqrt n �
       · exact ⟨ by linarith [ Nat.self_le_factorial k ], by rw [ show k.factorial + 3 + 1 = 2 * ( k.factorial / 2 + 2 ) by linarith [ Nat.div_mul_cancel ( show 2 ∣ k.factorial from Nat.dvd_factorial ( by linarith ) ( by linarith ) ) ] ] ; exact Nat.not_prime_mul ( by linarith ) ( by linarith [ Nat.div_add_mod ( k.factorial ) 2, Nat.mod_lt ( k.factorial ) two_pos ] ) ⟩;
   rw [ Set.infinite_iff_exists_gt ];
   refine' fun a => ⟨ _, h_infinite ( a + 3 ) <| by linarith, lt_tsub_iff_right.mpr <| by nlinarith [ Nat.self_le_factorial ( a + 3 ) ] ⟩
-namespace Nat
 
 noncomputable def maxPrimeFac (n : ℕ) : ℕ := sSup {p : ℕ | p.Prime ∧ p ∣ n}
 
-end Nat
-
 theorem erdos_370 :
-  { n | Nat.maxPrimeFac n < √n ∧ Nat.maxPrimeFac (n + 1) < √(n + 1) }.Infinite ↔ True := by
+  { n | maxPrimeFac n < √n ∧ maxPrimeFac (n + 1) < √(n + 1) }.Infinite ↔ True := by
   refine iff_of_true ?_ trivial;
   -- Apply the fact that the set is infinite to conclude the proof.
   apply Set.Infinite.mono (by
   unfold P; aesop;
   · -- Since `Option.getD a.primeFactors.max 1` is the same as `a.maxPrimeFac`, we can rewrite the goal.
     convert a_1 using 1;
-    unfold Nat.maxPrimeFac; aesop;
+    unfold maxPrimeFac; aesop;
     -- Since the prime factors of a are finite, their maximum exists and is equal to the supremum.
     have h_max_prime_factors : ∀ {S : Finset ℕ}, S.Nonempty → sSup {p : ℕ | p ∈ S} = S.max.getD 1 := by
       intro S hS; rw [ @csSup_eq_of_forall_le_of_forall_lt_exists_gt ] <;> aesop;
@@ -176,8 +175,8 @@ theorem erdos_370 :
       · contradiction;
       · contradiction;
   · -- Since $a$ is composite, its maximum prime factor is less than $\sqrt{a}$.
-    have h_max_prime_factor : ∀ {n : ℕ}, 1 < n → n.maxPrimeFac = (Nat.primeFactors n).max.getD 1 := by
-      unfold Nat.maxPrimeFac; aesop;
+    have h_max_prime_factor : ∀ {n : ℕ}, 1 < n → maxPrimeFac n = (Nat.primeFactors n).max.getD 1 := by
+      unfold maxPrimeFac; aesop;
       -- The maximum element of a finite set is equal to its supremum.
       have h_max_eq_sup : ∀ {S : Finset ℕ}, S.Nonempty → (S.max.getD 1) = sSup S := by
         intros S hS_nonempty; exact (by
@@ -192,4 +191,8 @@ theorem erdos_370 :
       rw [ h_max_eq_sup ];
       · congr with p ; aesop;
       · exact Finset.nonempty_of_ne_empty ( by aesop );
-    rcases a with ( _ | _ | a ) <;> simp_all +arith +decide [ Nat.maxPrimeFac ]) (infinitely_many_n)
+    rcases a with ( _ | _ | a ) <;> simp_all +arith +decide [ maxPrimeFac ]) (infinitely_many_n)
+
+end
+
+end Erdos370

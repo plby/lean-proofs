@@ -21,6 +21,8 @@ Mathlib version: d62eab0cc36ea522904895389c301cf8d844fd69 (May 9, 2025)
 
 import Mathlib
 
+namespace Erdos56x
+
 /--
 Say a set of natural numbers is `k`-weakly divisible if any `k+1` elements
 of `A` are not relatively prime.
@@ -63,3 +65,5 @@ theorem misformalized_erdos_56 : (∀ᵉ (N ≥ 2) (k > 0), (MaxWeaklyDivisible 
     · exact ⟨ _, fun n hn => hn.choose_spec.2.2 ▸ Finset.card_le_card hn.choose_spec.1 ⟩;
     · simp +decide [ WeaklyDivisible ];
   · norm_num +zetaDelta at *
+
+end Erdos56x

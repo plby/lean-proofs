@@ -29,6 +29,8 @@ Mathlib version: d62eab0cc36ea522904895389c301cf8d844fd69 (May 9, 2025)
 -/
 import Mathlib
 
+namespace Erdos31
+
 open scoped BigOperators
 open scoped Real
 open scoped Nat
@@ -852,3 +854,7 @@ theorem erdos_31 (A : Set ℕ) (hA : A.Infinite) :
     simpa [ add_div ] using h_diff.add ( tendsto_one_div_add_atTop_nhds_zero_nat );
   · refine' squeeze_zero_norm' _ a;
     filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn using by rw [ Real.norm_of_nonneg ( by positivity ) ] ; gcongr ; linarith;
+
+end
+
+end Erdos31

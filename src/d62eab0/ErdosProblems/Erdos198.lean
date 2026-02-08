@@ -27,6 +27,8 @@ Mathlib version: d62eab0cc36ea522904895389c301cf8d844fd69 (May 9, 2025)
 -/
 import Mathlib
 
+namespace Erdos198
+
 open scoped BigOperators
 open scoped Real
 open scoped Nat
@@ -144,3 +146,7 @@ theorem erdos_198 : (∀ A : Set ℕ, IsSidon A → (∃ Y, IsAPOfLength Y ⊤ �
     exact hY.2 hyY hyA;
   · -- Since we have a contradiction, we can use the `contradiction` tactic to close the goal.
     contradiction
+
+end
+
+end Erdos198

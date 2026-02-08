@@ -26,6 +26,8 @@ Mathlib version: d62eab0cc36ea522904895389c301cf8d844fd69 (May 9, 2025)
 
 import Mathlib
 
+namespace Erdos418
+
 
 def IsCototient (m : ℕ) : Prop := ∃ n, m = n - n.totient
 
@@ -542,3 +544,5 @@ theorem erdos_418 : { (n - n.totient : ℕ) | n }ᶜ.Infinite := by
     intros k hk
     apply browkin_schinzel k hk;
   exact h_infinite.mono fun x hx => by obtain ⟨ k, hk, rfl ⟩ := hx; exact fun h => h_noncototient k hk <| by obtain ⟨ n, hn ⟩ := h; exact ⟨ n, hn.symm ⟩ ;
+
+end Erdos418

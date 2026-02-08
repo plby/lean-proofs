@@ -68,6 +68,8 @@ $$ \prod_{n_{j_t} \leq m < n_{j_t}+3} B_2(m) \geq n_{j_t} (n_{j_t}+1) 5^t \gg n_
 
 import Mathlib
 
+namespace Erdos367
+
 set_option maxHeartbeats 0
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
@@ -504,3 +506,5 @@ theorem disproof_367 : ¬ erdos_367 := by
   specialize h_contra 3 (by norm_num);
   -- Apply the negation of the conjecture for k=3 to obtain the required result.
   apply neg_powerfulPart_bound_k3; exact h_contra
+
+end Erdos367

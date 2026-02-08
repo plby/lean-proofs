@@ -25,6 +25,8 @@ Mathlib version: d62eab0cc36ea522904895389c301cf8d844fd69 (May 9, 2025)
 -/
 import Mathlib
 
+namespace Erdos350
+
 open scoped BigOperators
 open scoped Real
 open scoped Nat
@@ -208,3 +210,7 @@ theorem erdos_350 (A : Finset ℕ) (hA : DecidableDistinctSubsetSums A) :
   have h_eq : (∑ n in A, (1 : ℚ) / n) = (∑ n in A, (1 : ℝ) / n) := by
     bound;
   exact h_eq ▸ mod_cast h_reciprocal_sum
+
+end
+
+end Erdos350

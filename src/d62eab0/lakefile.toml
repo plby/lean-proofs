@@ -1,7 +1,7 @@
-name = "B"
+name = "lean-proofs-d62eab0"
 version = "0.1.0"
 keywords = ["math"]
-defaultTargets = ["B"]
+defaultTargets = ["All"]
 
 [leanOptions]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`
@@ -15,4 +15,7 @@ scope = "leanprover-community"
 rev = "d62eab0cc36ea522904895389c301cf8d844fd69"
 
 [[lean_lib]]
-name = "B"
+name = "All"
+
+[[lean_lib]]
+name = "ErdosProblems"
