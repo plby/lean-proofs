@@ -15,6 +15,8 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7
 
 import Mathlib
 
+namespace Theorem87
+
 
 open scoped EuclideanGeometry
 
@@ -199,7 +201,10 @@ lemma not_parallel_of_unique_intersection {A B A' B' P : Plane}
       use ( r₃ - r₁ ) / ( r₂ - r₁ );
       rw [ ← h_parallel ] ; ext ; norm_num ; ring;
       grind;
-    aesop;
+    intro t_1
+    subst ht
+    simp_all only [ne_eq]
+    obtain ⟨left, right⟩ := h_distinct
     exact ⟨ s + ( t_1 - t ) * k, by ext ; have := congr_fun hs ‹_› ; norm_num at * ; linarith ⟩;
   have h_parallel_lines : ∀ t : ℝ, A' + t • (B' - A') ∈ {x : Plane | Collinear ℝ ({A, B, x} : Set Plane)} := by
     intro t; obtain ⟨ s, hs ⟩ := h_parallel_lines t; simp +decide [ hs, collinear_pair ] ;

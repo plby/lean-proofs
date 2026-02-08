@@ -8,6 +8,8 @@ We prove that each component has diameter at most $0.2$, which is less than $2 -
 
 import Mathlib
 
+namespace Erdos1048b
+
 set_option linter.mathlibStandardSet false
 
 open scoped BigOperators

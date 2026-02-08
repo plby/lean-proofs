@@ -32,6 +32,8 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
+namespace Erdos678b
+
 open Real
 open Filter
 

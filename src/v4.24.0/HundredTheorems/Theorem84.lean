@@ -21,6 +21,8 @@ Formalization of Morley's Trisector Theorem using Conway's proof. We prove that 
 
 import Mathlib
 
+namespace Theorem84
+
 set_option linter.mathlibStandardSet false
 set_option linter.unusedSectionVars false
 set_option linter.unusedSimpArgs false

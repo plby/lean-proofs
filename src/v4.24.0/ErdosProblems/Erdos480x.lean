@@ -21,6 +21,8 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
+namespace Erdos480x
+
 theorem misformalized_erdos_480 :
   (∀ (x : ℕ → ℝ), (∀ n, x n ∈ Set.Icc 0 1) →
     {(m, n) | (m) (n) (_ : m ≠ 0) (_ : |x (m + n) - x m| ≤ 1 / (√5 * n))}.Infinite) := by

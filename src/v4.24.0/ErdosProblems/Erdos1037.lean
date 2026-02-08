@@ -33,6 +33,8 @@ The proof uses a probabilistic construction based on random graphs (Lemma `Lemma
 
 import Mathlib
 
+namespace Erdos1037
+
 set_option linter.mathlibStandardSet false
 
 set_option maxHeartbeats 0

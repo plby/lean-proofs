@@ -31,6 +31,8 @@ We do this by constructing a counterexample hypergraph for any $t \ge 2$ which i
 
 import Mathlib
 
+namespace Erdos1022
+
 set_option linter.mathlibStandardSet false
 
 open scoped Classical

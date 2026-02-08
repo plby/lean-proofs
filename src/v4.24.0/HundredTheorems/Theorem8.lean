@@ -19,6 +19,8 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7
 
 import Mathlib
 
+namespace Theorem8
+
 
 /-- `Constructible x` means: the real number `x` can be obtained from rational
 numbers by a finite sequence of field operations and extraction of square

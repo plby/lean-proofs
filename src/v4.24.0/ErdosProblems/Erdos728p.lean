@@ -7,6 +7,8 @@ The final theorems are `theorem_1_1` and `theorem_1_2`.
 
 import Mathlib
 
+namespace Erdos728p
+
 set_option linter.mathlibStandardSet false
 set_option linter.unusedSimpArgs false
 set_option linter.unnecessarySimpa false

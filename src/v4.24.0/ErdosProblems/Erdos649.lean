@@ -37,6 +37,8 @@ This allows us to construct infinitely many strange pairs of the form $\{2, q\}$
 
 import Mathlib
 
+namespace Erdos649
+
 /-
 Let $P(n)$ denote the greatest prime factor of $n$.
 -/

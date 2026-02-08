@@ -12,6 +12,8 @@ Finally, `K33_no_unit_distance_embedding` combines these to show a contradiction
 
 import Mathlib
 
+namespace Erdos1007b
+
 set_option linter.mathlibStandardSet false
 
 open scoped BigOperators

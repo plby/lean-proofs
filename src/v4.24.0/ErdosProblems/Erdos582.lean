@@ -32,6 +32,8 @@ Finally, we combined these results to prove the main theorem `erdos_582`.
 
 import Mathlib
 
+namespace Erdos582
+
 --set_option linter.mathlibStandardSet false
 set_option linter.unusedSectionVars false
 set_option linter.unusedVariables false

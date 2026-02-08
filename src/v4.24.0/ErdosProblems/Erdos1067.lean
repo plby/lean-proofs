@@ -43,6 +43,8 @@ The main theorem combines these two results.
 
 import Mathlib
 
+namespace Erdos1067
+
 set_option linter.mathlibStandardSet false
 
 open scoped Classical

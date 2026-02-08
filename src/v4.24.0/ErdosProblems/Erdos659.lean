@@ -43,6 +43,8 @@ I have proved Perucca's classification theorem (`PeruccaClassificationStatement_
 
 import Mathlib
 
+namespace Erdos659
+
 
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false

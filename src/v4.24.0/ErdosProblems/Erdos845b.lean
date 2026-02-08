@@ -35,6 +35,8 @@ We have formally proven the main result of the paper: for every odd integer p > 
 
 import Mathlib
 
+namespace Erdos845b
+
 set_option linter.mathlibStandardSet false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false

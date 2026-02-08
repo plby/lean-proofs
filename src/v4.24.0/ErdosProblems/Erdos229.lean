@@ -41,6 +41,7 @@ The proof follows the inductive construction described in the provided LaTeX tex
 
 import Mathlib
 
+namespace Erdos229
 
 set_option linter.mathlibStandardSet false
 

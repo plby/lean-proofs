@@ -40,6 +40,8 @@ The formalization follows the structure of the paper, defining `M`, `m`, `good_x
 
 import Mathlib
 
+namespace Erdos678
+
 set_option linter.mathlibStandardSet false
 
 open scoped BigOperators

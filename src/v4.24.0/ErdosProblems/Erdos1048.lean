@@ -28,6 +28,8 @@ We define the function $f(z) = z^n - r^n$ and the set $S = \{z \in \mathbb{C} : 
 
 import Mathlib
 
+namespace Erdos1048
+
 /-
 Define f(z) = z^n - r^n and S = {z : |f(z)| <= 1}.
 -/

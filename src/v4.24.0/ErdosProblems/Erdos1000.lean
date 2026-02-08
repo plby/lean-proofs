@@ -32,6 +32,8 @@ Helper lemmas `n_seq_phi_bound_correct`, `block_sum_bound`, `inv_r_seq_le_A_val`
 
 import Mathlib
 
+namespace Erdos1000
+
 
 set_option linter.mathlibStandardSet false
 

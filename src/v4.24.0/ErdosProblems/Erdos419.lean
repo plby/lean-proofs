@@ -35,6 +35,8 @@ We use `limit_points_subset_S` (provided in the context) to show there are no ot
 
 import Mathlib
 
+namespace Erdos419
+
 open scoped Classical
 
 set_option maxHeartbeats 0

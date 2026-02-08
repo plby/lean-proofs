@@ -30,6 +30,8 @@ The proof utilizes the graph container method and supersaturation results for co
 
 import Mathlib
 
+namespace Erdos497
+
 open scoped Classical
 
 open Equiv

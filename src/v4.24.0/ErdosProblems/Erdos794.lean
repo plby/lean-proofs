@@ -27,6 +27,8 @@ We verify computationally that this hypergraph does not contain any subgraph on 
 
 import Mathlib
 
+namespace Erdos794
+
 /-
 The hypergraph on 9 vertices with edges defined by a tripartite construction plus one extra edge is a counterexample to the claim. Specifically, it has 28 edges but contains no subgraph on 4 vertices with 3 edges and no subgraph on 5 vertices with 7 edges.
 -/

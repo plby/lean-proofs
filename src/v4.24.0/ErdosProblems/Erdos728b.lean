@@ -4,6 +4,8 @@ We formalize the positive answer to Erdos problem #728. We prove the main theore
 
 import Mathlib
 
+namespace Erdos728b
+
 
 open Real
 

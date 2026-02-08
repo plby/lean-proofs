@@ -17,6 +17,8 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7
 
 import Mathlib
 
+namespace Theorem28
+
 
 open scoped Real
 

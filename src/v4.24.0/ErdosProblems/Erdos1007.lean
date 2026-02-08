@@ -59,6 +59,8 @@ The following results were available but removed during simplification:
 
 import Mathlib
 
+namespace Erdos1007
+
 set_option linter.mathlibStandardSet false
 
 open scoped Classical

@@ -30,6 +30,8 @@ We formalized the main theorem of the paper, proving that for any sequence of po
 
 import Mathlib
 
+namespace Erdos315
+
 
 /-
 Definition of the generalized Sylvester sequence s_i(n). Note that we use 0-based indexing where index 0 corresponds to s_1 in the paper.

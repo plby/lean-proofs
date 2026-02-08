@@ -13,6 +13,8 @@ Helper lemmas include bounds on the prime counting function (Chebyshev), bounds 
 
 import Mathlib
 
+namespace Erdos392b
+
 set_option linter.mathlibStandardSet false
 
 open scoped Nat

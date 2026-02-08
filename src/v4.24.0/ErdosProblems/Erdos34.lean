@@ -38,6 +38,8 @@ We define a specific permutation of `1, ..., n` (represented as `construction` m
 
 import Mathlib
 
+namespace Erdos34
+
 /-
 The sequence $a_i$ is defined by $a_i = (i+1)/2$ if $i$ is odd, and $a_i = n+1 - i/2$ if $i$ is even.
 -/

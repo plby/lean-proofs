@@ -30,6 +30,7 @@ We prove that there exists a sequence $(b_k)_{k=1}^{\infty}$ with values in $\{1
 
 import Mathlib
 
+namespace Erdos264b
 
 set_option linter.mathlibStandardSet false
 

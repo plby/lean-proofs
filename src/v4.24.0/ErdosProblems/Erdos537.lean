@@ -20,6 +20,8 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
+namespace Erdos537
+
 open scoped Classical
 
 /-
@@ -33,9 +35,9 @@ If a list of naturals is sorted and satisfies the chain condition $2p < q$ for a
 lemma List.IsChain_spread {l : List ℕ} (h_sorted : l.Sorted (· ≤ ·)) (h_chain : l.IsChain (fun p q => 2 * p < q))
   {p q : ℕ} (hp : p ∈ l) (hq : q ∈ l) (hlt : p < q) : 2 * p < q := by
     obtain ⟨i, hi⟩ : ∃ i : Fin l.length, l.get i = p := by
-      exact mem_iff_get.mp hp
+      exact List.mem_iff_get.mp hp
     obtain ⟨j, hj⟩ : ∃ j : Fin l.length, l.get j = q := by
-      exact mem_iff_get.mp hq
+      exact List.mem_iff_get.mp hq
     have h_chain' : ∀ i j : Fin l.length, i < j → 2 * l.get i < l.get j := by
       intro i j hij;
       induction' j with j hj generalizing i;

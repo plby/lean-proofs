@@ -33,6 +33,8 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
+namespace Erdos303
+
 theorem algebraic_identity_for_N_div_candidates (N u v : ℕ)
   (hu : u ≥ 1)
   (hu_dvd_N : u ∣ N)

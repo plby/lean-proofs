@@ -31,6 +31,8 @@ We define the hypercube graph Q_n and a partition of its edges into four subgrap
 
 import Mathlib
 
+namespace Erdos666
+
 open scoped Classical
 open SimpleGraph
 

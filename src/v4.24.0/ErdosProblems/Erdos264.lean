@@ -20,6 +20,8 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
+namespace Erdos264
+
 /--
 A sequence $a_n$ of integers is called an irrationality sequence if for every bounded sequence of integers $b_n$ with $a_n + b_n \neq 0$ and
 $b_n \neq 0$ for all $n$, the sum

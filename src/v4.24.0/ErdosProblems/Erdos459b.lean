@@ -1,5 +1,7 @@
 import Mathlib
 
+namespace Erdos459b
+
 
 /-
 f(u) is the smallest number v > u such that all prime factors of v are factors of u.

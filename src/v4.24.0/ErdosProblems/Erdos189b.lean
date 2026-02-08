@@ -1,5 +1,7 @@
 import Mathlib
 
+namespace Erdos189b
+
 notation "ℝ²" => EuclideanSpace ℝ (Fin 2)
 
 variable {V P : Type*} {n : ℕ}
@@ -11,7 +13,7 @@ variable [Module.Oriented ℝ V (Fin 2)] [Fact (Module.finrank ℝ V = 2)] {p : 
 Note: this can't blindly be added to mathlib as it creates an "instance diamond"
 with an instance for modules satisfying `is_empty`. -/
 noncomputable instance Module.orientedEuclideanSpaceFinTwo : Module.Oriented ℝ ℝ² (Fin 2) :=
-  ⟨Basis.orientation <| Pi.basisFun _ _⟩
+  ⟨Module.Basis.orientation <| Pi.basisFun _ _⟩
 
 /-- Two dimensional euclidean space is two-dimensional. -/
 instance fact_finrank_euclideanSpace_fin_two : Fact (Module.finrank ℝ ℝ² = 2) :=

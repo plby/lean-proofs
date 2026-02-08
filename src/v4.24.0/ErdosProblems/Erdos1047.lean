@@ -32,6 +32,8 @@ We construct a polynomial $f(z) = z^6 - z$ and choose $c = 0.582$. We show that 
 
 import Mathlib
 
+namespace Erdos1047
+
 /-
 Let $f(z) = z^6 - z$.
 -/

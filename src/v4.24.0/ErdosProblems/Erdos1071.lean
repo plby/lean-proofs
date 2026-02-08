@@ -27,6 +27,8 @@ We have proved Corollary 3, establishing the existence of a countable maximal di
 
 import Mathlib
 
+namespace Erdos1071
+
 set_option linter.style.openClassical false
 set_option linter.style.setOption false
 set_option linter.style.longLine false

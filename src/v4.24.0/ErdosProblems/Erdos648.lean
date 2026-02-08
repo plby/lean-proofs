@@ -28,6 +28,8 @@ The bounds use the PNT.
 
 import Mathlib
 
+namespace Erdos648
+
 open Asymptotics Filter Nat Real
 
 /-

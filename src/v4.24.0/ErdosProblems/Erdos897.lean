@@ -44,6 +44,8 @@ These results answer negatively the question of Erdős asking whether an additiv
 
 import Mathlib
 
+namespace Erdos897
+
 
 set_option linter.mathlibStandardSet false
 

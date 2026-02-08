@@ -28,6 +28,8 @@ We formalized the definitions of $C_4$, edge count, and $C_4$ count. We proved L
 
 import Mathlib
 
+namespace Erdos1008
+
 set_option linter.mathlibStandardSet false
 
 set_option maxHeartbeats 0

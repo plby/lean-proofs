@@ -1,5 +1,7 @@
 import Mathlib
 
+namespace Erdos1008c
+
 set_option maxHeartbeats 0
 
 /-

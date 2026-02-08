@@ -21,6 +21,8 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
+namespace Erdos56x
+
 /--
 Say a set of natural numbers is `k`-weakly divisible if any `k+1` elements
 of `A` are not relatively prime.

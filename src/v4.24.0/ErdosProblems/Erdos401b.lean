@@ -6,6 +6,8 @@ The proof follows the strategy outlined in the paper, using a primewise reductio
 
 import Mathlib
 
+namespace Erdos401b
+
 set_option linter.mathlibStandardSet false
 
 open scoped Classical

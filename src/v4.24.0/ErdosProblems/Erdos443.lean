@@ -36,6 +36,8 @@ The proofs follow the arguments in the paper, using elementary number theory and
 
 import Mathlib
 
+namespace Erdos443
+
 
 open scoped Classical
 

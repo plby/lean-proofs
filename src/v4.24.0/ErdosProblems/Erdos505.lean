@@ -29,6 +29,8 @@ This file formalizes a counterexample to Borsuk's conjecture in dimension 946, f
 
 import Mathlib
 
+namespace Erdos505
+
 open scoped Classical
 open scoped Pointwise
 

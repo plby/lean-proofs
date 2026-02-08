@@ -22,6 +22,8 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
+namespace Erdos124b
+
 /-
 An algebraic inequality derived from the sum of reciprocals condition: any lower bound `m` of `y` is less than or equal to `1 + \sum (y_i - 1)/(d_i - 1)`.
 -/

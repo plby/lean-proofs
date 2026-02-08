@@ -6,6 +6,8 @@ We prove that this construction satisfies all the required properties.
 
 import Mathlib
 
+namespace Erdos794c
+
 /-
 Basic definitions for hypergraphs: uniformity, induced edges, and dense subgraphs.
 -/

@@ -4,6 +4,8 @@ We proved that every graph with $m$ edges contains a $C_4$-free subgraph with at
 
 import Mathlib
 
+namespace Erdos1008b
+
 set_option linter.mathlibStandardSet false
 
 open scoped BigOperators

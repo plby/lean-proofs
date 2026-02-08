@@ -26,6 +26,7 @@ We define the Ruzsa sequence $n_\ell$ using the Chinese Remainder Theorem to sat
 
 import Mathlib
 
+namespace Erdos26
 
 open scoped Classical
 
@@ -484,5 +485,5 @@ theorem erdos_26.variants.rusza : ∃ A : ℕ → ℕ,
         exact h_sum_lt_one.trans_le ( by ring_nf; rw [ tsum_mul_right, tsum_geometric_of_lt_one ] <;> norm_num );
       exact fun h => h_sum_lt_one.not_le <| h_upper_density.trans' <| by linarith [ isBehrend_implies_upperDensity_eq_one h ] ;
 
-#print axioms erdos_26.variants.rusza 
+#print axioms erdos_26.variants.rusza
 -- 'erdos_26.variants.rusza' depends on axioms: [propext, Classical.choice, Quot.sound]

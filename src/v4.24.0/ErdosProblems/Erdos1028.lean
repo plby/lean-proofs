@@ -33,6 +33,8 @@ The main results are `thm_upper` giving the upper bound O(n^(3/2)) and `thm_lowe
 
 import Mathlib
 
+namespace Erdos1028
+
 set_option linter.mathlibStandardSet false
 
 open scoped Classical

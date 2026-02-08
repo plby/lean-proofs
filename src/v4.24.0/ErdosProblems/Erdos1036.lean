@@ -236,6 +236,7 @@ elab (name := generalizeProofsElab'') "generalize_proofs" config?:(Parser.Tactic
 
 end Harmonic
 
+namespace Erdos1036
 
 set_option linter.mathlibStandardSet false
 

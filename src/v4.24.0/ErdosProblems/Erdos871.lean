@@ -32,6 +32,8 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
+namespace Erdos871
+
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.unusedSimpArgs false
@@ -1642,7 +1644,7 @@ lemma indexInStage_valid (k : ℕ) (hk : k ≥ 1) :
       grind
 
 lemma F_card_prop (k : ℕ) (hk : k ≥ 1) : (F k).card = stageAssign k := by
-  unfold _root_.F;
+  unfold F;
   split_ifs;
   · grind;
   · rw [ Finset.card_image_of_injective ];
@@ -1653,7 +1655,7 @@ lemma F_card_prop (k : ℕ) (hk : k ≥ 1) : (F k).card = stageAssign k := by
 lemma F_subset_prop (k : ℕ) (hk : k ≥ 1) (x : ℕ) (hx : x ∈ F k) :
     ∃ i, 1 ≤ i ∧ i ≤ simpleH (stageAssign k) ∧ enumerateB i = x := by
   have h_subset : x ∈ (nthSubsetOfIcc (simpleH (stageAssign k)) (stageAssign k) (indexInStage k)).image enumerateB := by
-    unfold _root_.F at hx; aesop;
+    unfold F at hx; aesop;
   obtain ⟨ i, hi, rfl ⟩ := Finset.mem_image.mp h_subset;
   have h_bounds : ∀ x ∈ nthSubsetOfIcc (simpleH (stageAssign k)) (stageAssign k) (indexInStage k), 1 ≤ x ∧ x ≤ simpleH (stageAssign k) := by
     apply nthSubsetOfIcc_subset;
@@ -1709,7 +1711,7 @@ lemma exhaustive_prop (m : ℕ) (hm : m ≥ 1) (S : Finset ℕ)
     norm_num +zetaDelta at *;
     rw [ Nat.find_eq_iff ];
     exact ⟨ h_stage, fun n hn => fun h => by linarith [ show K n ≤ K m from K_mono_le <| by linarith, show K ( n + 1 ) ≤ K m from K_mono_le <| by linarith ] ⟩;
-  unfold _root_.F at h_contra;
+  unfold F at h_contra;
   simp_all +decide [ indexInStage ];
   specialize h_contra k hk.2 ; simp_all +decide [ Nat.sub_sub ];
   exact h_contra rfl
@@ -1717,7 +1719,7 @@ lemma exhaustive_prop (m : ℕ) (hm : m ≥ 1) (S : Finset ℕ)
 lemma F_lt_N_prev_prop (k : ℕ) (hk : k ≥ 2) (x : ℕ) (hx : x ∈ F k) : x < concreteSeq.N (k - 1) := by
   by_contra h_contra;
   obtain ⟨i, hi⟩ : ∃ i, i ∈ nthSubsetOfIcc (simpleH (stageAssign k)) (stageAssign k) (indexInStage k) ∧ enumerateB i = x := by
-    unfold _root_.F at hx; aesop;
+    unfold F at hx; aesop;
   have h_enum_le : enumerateB i ≤ 200 * 8^(stageAssign k) := by
     apply enumerateB_exp_bound;
     · exact stageAssign_pos k ( by linarith );

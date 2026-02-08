@@ -1,5 +1,7 @@
 import Mathlib
 
+namespace Erdos707
+
 /-- A Sidon set `A` is a set where all pairwise sums `i + j` are unique,
 up to swapping the addends. -/
 def IsSidon {α : Type*} [AddCommMonoid α] (A : Set α) : Prop :=

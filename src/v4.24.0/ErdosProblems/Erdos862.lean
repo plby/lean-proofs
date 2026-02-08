@@ -45,6 +45,8 @@ In `eventually_lower_bound`, we avoid issues with `liminf` in `Real` for potenti
 
 import Mathlib
 
+namespace Erdos862
+
 
 set_option maxHeartbeats 0
 

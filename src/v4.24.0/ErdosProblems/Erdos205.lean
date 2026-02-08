@@ -28,6 +28,8 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
+namespace Erdos205
+
 open Real Filter Asymptotics
 
 /-
@@ -532,6 +534,6 @@ theorem infinitely_many_counterexamples :
     specialize h_sol 0 ; norm_num at h_sol;
     unfold Q_k at h_sol; simp_all
     exact absurd ( h_sol 1 ( by norm_num ) ( by norm_num ) ) ( Nat.Prime.ne_one ( Nat.prime_nth_prime _ ) )
-                                                                                                                                                      
+
 #print axioms infinitely_many_counterexamples
 -- 'infinitely_many_counterexamples' depends on axioms: [nth_prime_asymp, propext, Classical.choice, Quot.sound]

@@ -29,6 +29,8 @@ We prove that for a natural number $n$ which is not a prime power, the largest i
 
 import Mathlib
 
+namespace Erdos435
+
 
 /-
 The set of generators consists of binomial coefficients $\binom{n}{i}$ for $1 \le i < n$.

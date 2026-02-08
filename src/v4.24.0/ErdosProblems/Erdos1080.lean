@@ -44,6 +44,8 @@ The algebraic identities required for the proofs are established in `algebraic_i
 
 import Mathlib
 
+namespace Erdos1080
+
 
 set_option linter.mathlibStandardSet false
 

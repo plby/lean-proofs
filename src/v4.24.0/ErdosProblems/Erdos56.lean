@@ -3,9 +3,9 @@
 This is a Lean formalization of a solution to Erdős Problem 56.
 https://www.erdosproblems.com/56
 
-The original human proof was found by: Rudolf Ahlswede and Levon H. Khachatrian 
+The original human proof was found by: Rudolf Ahlswede and Levon H. Khachatrian
 
-Ahlswede, Rudolf; Khachatrian, Levon H. On extremal sets without coprimes. Acta Arithmetica 66(1): 89–99 (1994). 
+Ahlswede, Rudolf; Khachatrian, Levon H. On extremal sets without coprimes. Acta Arithmetica 66(1): 89–99 (1994).
 
 ChatGPT from OpenAI explained some proof of this result (not
 necessarily the original human proof, instead prioritizing clarity).
@@ -26,6 +26,8 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 -/
 
 import Mathlib
+
+namespace Erdos56
 
 open scoped BigOperators
 open scoped Real

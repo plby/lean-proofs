@@ -28,6 +28,8 @@ We have proven that there are infinitely many $n$ such that $p_n^2 > p_{n-i}p_{n
 
 import Mathlib
 
+namespace Erdos453
+
 
 open Asymptotics
 
@@ -408,12 +410,13 @@ $\pi(p_n) = n + 1$.
 -/
 lemma Nat.primeCounting_nth_eq (n : ℕ) : Nat.primeCounting (Nat.nth Nat.Prime n) = n + 1 := by
   -- By definition of $p_n$, we know that there are exactly $n$ primes less than or equal to $p_n$.
-  have h_prime_counting : Nat.count Prime (Nat.nth Prime n) = n := by
-    rw [ Nat.count_nth ];
-    exact fun h => False.elim <| Nat.infinite_setOf_prime <| h.subset fun x hx => Nat.prime_iff.mp hx |> fun hx' => by simpa [ ← Nat.prime_iff ] using hx';
-  rw [ Nat.primeCounting ];
-  rw [ Nat.primeCounting', Nat.count_eq_card_filter_range ] at *;
-  rw [ Finset.range_add_one, Finset.filter_insert ] ; aesop
+  have h_prime_counting : Nat.count Nat.Prime (Nat.nth Nat.Prime n) = n := by
+    rw [ Nat.count_nth ]
+    exact fun h => False.elim <| Nat.infinite_setOf_prime <| h.subset fun x hx => Nat.prime_iff.mp hx |> fun hx' => by simpa [ ← Nat.prime_iff ] using hx'
+  rw [ Nat.primeCounting ]
+  rw [ Nat.primeCounting', Nat.count_eq_card_filter_range ] at *
+  rw [ Finset.range_add_one, Finset.filter_insert ]
+  aesop
 
 /-
 There exists $c > 0$ such that for sufficiently large $n$, $p_n / \log p_n \le (n+1)/c$.

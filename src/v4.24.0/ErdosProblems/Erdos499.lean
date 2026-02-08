@@ -24,6 +24,8 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
+namespace Erdos499
+
 
 /--
 Let $M$ be a real $n \times n$ doubly stochastic matrix. Does there exist some $σ \in S_n$ such that

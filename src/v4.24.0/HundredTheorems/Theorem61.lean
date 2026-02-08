@@ -25,6 +25,8 @@ utilizing helper lemmas to translate between geometric incidence and algebraic c
 
 import Mathlib
 
+namespace Theorem61
+
 set_option linter.mathlibStandardSet false
 
 open scoped BigOperators
