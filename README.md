@@ -48,6 +48,7 @@ This repository collects Lean proofs for various mathematical statements:
 	* [Erdős Problem 666](ErdosProblems/Erdos666.md)
 	* [Erdős Problem 678](ErdosProblems/Erdos678.md) (and a separate [tiny part](ErdosProblems/Erdos678b.md))
 	* [Erdős Problem 707](ErdosProblems/Erdos707.md)
+	* [Erdős Problem 762](ErdosProblems/Erdos762.md)
 	* [Erdős Problem 794](ErdosProblems/Erdos794.md)
 	* [Erdős Problem 845](ErdosProblems/Erdos845.md)
 	* [Erdős Problem 862](ErdosProblems/Erdos862.md)
