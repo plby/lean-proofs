@@ -1,5 +1,7 @@
 import ErdosProblems.Erdos134
 
+namespace Erdos618
+
 open scoped Classical
 
 /-- The maximum degree of a graph on `Fin n` (as a natural number). -/
@@ -92,3 +94,5 @@ theorem erdos_618
 
 #print axioms erdos_618
 -- 'erdos_618' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos618

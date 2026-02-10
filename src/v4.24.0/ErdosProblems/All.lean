@@ -28,6 +28,7 @@ import ErdosProblems.Erdos418
 import ErdosProblems.Erdos419
 import ErdosProblems.Erdos435
 import ErdosProblems.Erdos443
+import ErdosProblems.Erdos447
 import ErdosProblems.Erdos453
 import ErdosProblems.Erdos459b
 import ErdosProblems.Erdos476
@@ -52,6 +53,7 @@ import ErdosProblems.Erdos678b
 import ErdosProblems.Erdos707
 import ErdosProblems.Erdos728b
 import ErdosProblems.Erdos728p
+import ErdosProblems.Erdos762
 import ErdosProblems.Erdos794
 import ErdosProblems.Erdos794b
 import ErdosProblems.Erdos794c
@@ -68,6 +70,7 @@ import ErdosProblems.Erdos1008
 import ErdosProblems.Erdos1008b
 import ErdosProblems.Erdos1008c
 import ErdosProblems.Erdos1022
+import ErdosProblems.Erdos1023
 import ErdosProblems.Erdos1026
 import ErdosProblems.Erdos1028
 import ErdosProblems.Erdos1034
