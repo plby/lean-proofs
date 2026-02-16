@@ -16,13 +16,6 @@ def s := { k : ℕ | ∃ blue : Set ℂ,
     ¬ (∃ bs ⊆ blue, (∃ s, IsAPOfLengthWith bs k s 1)) }
 
 /-
-T is 1/sqrt(2). is_red(z) is true if z lies on a line x - y = 2k and the segment index floor(y/T) + k is even.
--/
-noncomputable def T : ℝ := 1 / Real.sqrt 2
-
-def is_red (z : ℂ) : Prop := ∃ k : ℤ, z.re - z.im = 2 * k ∧ Even (Int.floor (z.im / T) + k)
-
-/-
 P_val is 100 * sqrt(2).
 -/
 noncomputable def P_val : ℝ := 100 * Real.sqrt 2
@@ -42,12 +35,6 @@ A point z is red if its real part falls into one of the intervals [f(y) + nP, f(
 -/
 def is_red_point (z : ℂ) : Prop :=
   ∃ n : ℤ, 0 ≤ z.re - (f_map z.im + P_val * n) ∧ z.re - (f_map z.im + P_val * n) ≤ w_val
-
-lemma P_val_irrational : Irrational P_val := by
-  -- Since $\sqrt{2}$ is irrational, $100 \cdot \sqrt{2}$ is also irrational.
-  have h_sqrt2_irr : Irrational (Real.sqrt 2) := by
-    exact irrational_sqrt_two
-  exact h_sqrt2_irr.ratCast_mul ( by norm_num )
 
 set_option maxHeartbeats 0 in
 lemma red_dist_ne_one : {z : ℂ | is_red_point z}.Pairwise (fun c₁ c₂ => dist c₁ c₂ ≠ 1) := by
@@ -87,77 +74,10 @@ lemma red_dist_ne_one : {z : ℂ | is_red_point z}.Pairwise (fun c₁ c₂ => di
     exact show ( 100 * Real.sqrt 2 - 6 - 0.5 : ℝ ) > 1 by norm_num; nlinarith only [ Real.sqrt_nonneg 2, Real.sq_sqrt zero_le_two ] ;
   cases abs_cases ( z1.re - z2.re ) <;> nlinarith
 
-lemma small_step_dense (δ : ℝ) (w : ℝ) (hδ_ne : δ ≠ 0) (hδ_small : |δ| < w) :
-    ∃ M : ℕ, ∀ y : ℝ, ∃ t ≤ M, ∃ m : ℤ, |t * δ - m - y| < w := by
-      -- Let $M = \lceil 1/|\delta| \rceil$.
-      use Nat.ceil (1 / |δ|);
-      intro y
-      set target := y - Int.floor y with htarget_def
-      set t := Nat.floor (target / δ) with ht_def;
-      -- For δ positive, t = ⌊target/δ⌋ works. For δ negative, t = ⌈target/δ⌉ works.
-      by_cases hδ_pos : 0 < δ;
-      · refine' ⟨ t, _, _ ⟩
-        · simp_all only [ne_eq, Int.self_sub_floor, one_div, target, t]
-          exact Nat.le_of_lt_succ <| by rw [ Nat.floor_lt', div_lt_iff₀ ] <;> norm_num <;> nlinarith [ Nat.le_ceil ( |δ|⁻¹ ), abs_of_pos hδ_pos, mul_inv_cancel₀ ( ne_of_gt <| abs_pos.mpr hδ_ne ), Int.fract_nonneg y, Int.fract_lt_one y, abs_of_pos hδ_pos, mul_div_cancel₀ ( Int.fract y ) hδ_ne ] ;
-        · simp_all only [ne_eq, Int.self_sub_floor, target, t]
-          refine' ⟨ ⌊Int.fract y / δ⌋₊ * 0 - ⌊y⌋, _ ⟩
-          simp_all only [mul_zero, zero_sub, Int.cast_neg, sub_neg_eq_add]
-          rw [ abs_lt ] at * ; constructor <;> nlinarith [ Nat.floor_le ( show 0 ≤ Int.fract y / δ by exact div_nonneg ( Int.fract_nonneg y ) hδ_pos.le ), Nat.lt_floor_add_one ( Int.fract y / δ ), Int.fract_add_floor y, mul_div_cancel₀ ( Int.fract y ) hδ_ne ] ;
-      · by_cases hδ_neg : δ < 0;
-        · refine' ⟨ Nat.floor ( ( 1 - target ) / ( -δ ) ), _, _ ⟩;
-          · refine' Nat.floor_le_ceil _ |> le_trans <| _;
-            exact Nat.ceil_mono <| by rw [ abs_of_neg hδ_neg ] ; rw [ div_le_div_iff₀ ] <;> nlinarith [ Int.floor_le y, Int.lt_floor_add_one y, mul_div_cancel₀ ( 1 - ( y - ⌊y⌋ ) ) ( neg_ne_zero.mpr hδ_ne ) ] ;
-          · refine' ⟨ -⌊y⌋ - 1, _ ⟩
-            simp_all only [ne_eq, Int.self_sub_floor, not_lt, Int.cast_sub, Int.cast_neg, Int.cast_one, target, t]
-            rw [ abs_lt ] at *;
-            constructor <;> nlinarith [ Nat.floor_le ( show 0 ≤ ( 1 - Int.fract y ) / -δ by exact div_nonneg ( sub_nonneg.2 <| Int.fract_lt_one y |> le_of_lt ) <| neg_nonneg.2 hδ_pos ), Nat.lt_floor_add_one ( ( 1 - Int.fract y ) / -δ ), mul_div_cancel₀ ( 1 - Int.fract y ) hδ_ne, Int.fract_add_floor y, Int.fract_nonneg y, Int.fract_lt_one y ];
-        · cases lt_or_gt_of_ne hδ_ne <;> contradiction
-
-lemma exists_k_dense (α : ℝ) (hα : Irrational α) (w : ℝ) (hw : 0 < w) :
-    ∃ k : ℕ, ∀ y : ℝ, ∃ n < k, ∃ m : ℤ, |n * α - m - y| < w := by
-      -- Let's choose `k_bound = M * q.natAbs + 1` where `M` is obtained from `small_step_dense` and `q` is the positive integer from `Real.exists_int_int_abs_mul_sub_le`.
-      obtain ⟨N, hN⟩ : ∃ N : ℕ, 0 < N ∧ 1 / (N + 1 : ℝ) < w := by
-        exact ⟨ ⌊w⁻¹⌋₊ + 1, Nat.succ_pos _, by simpa using inv_lt_of_inv_lt₀ hw <| by linarith [ Nat.lt_floor_add_one <| w⁻¹ ] ⟩;
-      -- Use `Real.exists_int_int_abs_mul_sub_le` with `α` and `N` to find integers `j, q` such that `0 < q <= N` and `|qα - j| <= 1/(N+1) < w`.
-      obtain ⟨j, q, hq_pos, hq_bound, hq_diff⟩ : ∃ j : ℤ, ∃ q : ℕ, 0 < q ∧ q ≤ N ∧ |(q : ℝ) * α - j| ≤ 1 / (N + 1 : ℝ) := by
-        have := Real.exists_int_int_abs_mul_sub_le α hN.1;
-        obtain ⟨ j, k, hk₁, hk₂, hk₃ ⟩ := this; exact ⟨ j, k.natAbs, by positivity, by linarith [ abs_of_pos hk₁ ], by simpa [ abs_of_pos hk₁ ] using hk₃ ⟩ ;
-      obtain ⟨M, hM_dense⟩ : ∃ M : ℕ, ∀ y : ℝ, ∃ t ≤ M, ∃ m' : ℤ, |t * (q * α - j) - m' - y| < w := by
-        have hδ_ne : (q * α - j : ℝ) ≠ 0 := by
-          exact sub_ne_zero_of_ne <| mod_cast hα.ratCast_mul ( Nat.cast_ne_zero.mpr hq_pos.ne' ) |> fun hr => hr.ne_rat _;
-        have := small_step_dense ( q * α - j ) w hδ_ne ( by linarith [ abs_le.mp hq_diff ] );
-        exact this;
-      use M * q + 1; intros y; obtain ⟨ t, ht₁, m', hm' ⟩ := hM_dense y
-      use t * q
-      simp_all only [one_div, Nat.cast_mul]
-      obtain ⟨left, right⟩ := hN
-      apply And.intro
-      · nlinarith;
-      · exact ⟨ m' + t * j, by convert hm' using 1; push_cast; ring_nf ⟩
-
 /-
 BlueSet is the complement of the set of red points.
 -/
 def BlueSet : Set ℂ := { z | ¬ is_red_point z }
-
-lemma exists_k_of_irrational (P : ℝ) (w : ℝ) (hP : Irrational P) (hP_pos : 0 < P) (hw : 0 < w) :
-    ∃ k : ℕ, ∀ x : ℝ, ∃ n < k, ∃ m : ℤ, 0 ≤ x + n - m * P ∧ x + n - m * P ≤ w := by
-      have h_k_dense : ∃ k : ℕ, ∀ y : ℝ, ∃ n < k, ∃ m : ℤ, |n * (1 / P) - m - y| < w / (2 * P) := by
-        apply exists_k_dense (1 / P) (by
-        simpa using hP.inv) (w / (2 * P)) (by
-        positivity);
-      -- Given x, set y = -x/P + w/(2P). Then, by h_k_dense, there's n < k and m such that |n*(1/P) - m - y| < w/(2P).
-      obtain ⟨k, hk⟩ := h_k_dense;
-      use k;
-      intro x;
-      set y := -x / P + w / (2 * P);
-      obtain ⟨n, hn₁, m, hm⟩ := hk y;
-      use n, hn₁, m;
-      -- Now, we need to show that 0 ≤ x + n - m * P ≤ w.
-      have h_bounds : |n - m * P - y * P| < w / 2 := by
-        rw [ abs_lt ] at hm ⊢;
-        constructor <;> nlinarith [ mul_div_cancel₀ w ( by positivity : ( 2 * P ) ≠ 0 ), mul_div_cancel₀ ( 1 : ℝ ) hP_pos.ne', mul_div_cancel₀ ( w : ℝ ) ( by positivity : ( 2 * P ) ≠ 0 ), mul_div_cancel₀ ( -x : ℝ ) hP_pos.ne' ];
-      constructor <;> nlinarith [ abs_lt.mp h_bounds, mul_div_cancel₀ ( -x ) hP_pos.ne', mul_div_cancel₀ ( w ) ( mul_ne_zero two_ne_zero hP_pos.ne' ) ] ;
 
 /-- The explicit value of `k` produced by the parameter choices in this file. -/
 def k_val : ℕ := 254701
@@ -171,74 +91,6 @@ lemma one_div_P_val :
     exact ne_of_gt this
   field_simp [hs]
   nlinarith [Real.sq_sqrt (by norm_num : (0 : ℝ) ≤ (2 : ℝ))]
-
-/-- `w_val / (2 * P_val)` simplifies to `sqrt 2 / 800`. -/
-lemma w_val_div_twoP_val :
-    (w_val / (2 * P_val) : ℝ) = Real.sqrt 2 / 800 := by
-  unfold w_val P_val
-  have hs : (Real.sqrt 2) ≠ 0 := by
-    have : (0 : ℝ) < Real.sqrt 2 := Real.sqrt_pos.2 (by norm_num)
-    exact ne_of_gt this
-  field_simp [hs]
-  nlinarith [Real.sq_sqrt (by norm_num : (0 : ℝ) ≤ (2 : ℝ))]
-
-/-- A convenient upper rational bound: `sqrt 2 < 99/70`. -/
-lemma sqrt2_lt_99_70 : Real.sqrt 2 < (99 : ℝ) / 70 := by
-  have hs0 : 0 ≤ Real.sqrt 2 := Real.sqrt_nonneg 2
-  have hs2 : (Real.sqrt 2)^2 = (2 : ℝ) := by
-    simp
-  have h : (2 : ℝ) < ((99 : ℝ) / 70)^2 := by norm_num
-  nlinarith [hs0, hs2, h]
-
-/-- A convenient lower rational bound: `3602/2547 < sqrt 2`. -/
-lemma sqrt2_gt_3602_2547 : (3602 : ℝ) / 2547 < Real.sqrt 2 := by
-  have hs0 : 0 ≤ Real.sqrt 2 := Real.sqrt_nonneg 2
-  have hs2 : (Real.sqrt 2)^2 = (2 : ℝ) := by
-    simp_all only [Real.sqrt_nonneg, Nat.ofNat_nonneg, Real.sq_sqrt]
-  have h : ((3602 : ℝ) / 2547)^2 < (2 : ℝ) := by norm_num
-  nlinarith [hs0, hs2, h]
-
-def check_convergents : List (Nat × Nat × Float) := Id.run do
-  let mut res := []
-  let val := Float.sqrt 2 / 200.0
-  let mut a := val.floor.toUInt64.toNat
-  let mut x := val
-  -- p_n = a_n * p_{n-1} + p_{n-2}
-  -- q_n = a_n * q_{n-1} + q_{n-2}
-  -- Initial: p_{-2}=0, q_{-2}=1, p_{-1}=1, q_{-1}=0
-  -- Wait, standard recurrence:
-  -- p_{-1}=1, q_{-1}=0
-  -- p_{-2}=0, q_{-2}=1
-  -- p_0 = a_0, q_0 = 1
-  -- p_1 = a_1 p_0 + p_{-1}, q_1 = a_1 q_0 + q_{-1}
-  
-  -- Let's just iterate
-  -- x_0 = val
-  -- a_0 = floor(x_0)
-  -- p_0 = a_0, q_0 = 1
-  -- x_1 = 1/(x_0 - a_0)
-  
-  let mut p_prev := 1; let mut q_prev := 0
-  let mut p_curr := a; let mut q_curr := 1
-  
-  res := res.append [(p_curr, q_curr, (val * q_curr.toFloat - p_curr.toFloat).abs)]
-  
-  for _ in [0:20] do
-    let frac := x - x.floor
-    if frac < 1e-10 then break
-    x := 1.0 / frac
-    a := x.floor.toUInt64.toNat
-    
-    let p_next := a * p_curr + p_prev
-    let q_next := a * q_curr + q_prev
-    
-    p_prev := p_curr; q_prev := q_curr
-    p_curr := p_next; q_curr := q_next
-    
-    let err := (val * q_curr.toFloat - p_curr.toFloat).abs
-    res := res.append [(p_curr, q_curr, err)]
-    if q_curr > 300000 then break
-  res
 
 /-
 If $p/q$ is a rational approximation to $\alpha$ with error less than $\delta/q$, then the multiples $n\alpha$ for $n < q$ are $(1/q + \delta)$-dense modulo 1.
