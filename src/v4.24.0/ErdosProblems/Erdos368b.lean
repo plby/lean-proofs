@@ -38,7 +38,7 @@ The definitions and lemmas provided in the initial workspace (Lemma 1 and parts 
 
 import Mathlib
 
-namespace Erdos368
+namespace Erdos368b
 
 /-
 For an integer m >= 1 define P^+(m) by P^+(1)=1, and for m >= 2 let P^+(m) be the largest prime divisor of m.
@@ -807,4 +807,4 @@ theorem n_n_plus_one_inf : Filter.Tendsto (fun n => P_plus (n * (n + 1))) Filter
 #print axioms n_n_plus_one_inf
 -- 'Erdos368.n_n_plus_one_inf' depends on axioms: [propext, Classical.choice, Quot.sound]
 
-end Erdos368
+end Erdos368b
