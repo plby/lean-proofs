@@ -24,6 +24,7 @@ This repository collects Lean proofs for various mathematical statements:
 	* [Erdős Problem 350](ErdosProblems/Erdos350.md)
 	* a [misformalization](ErdosProblems/Erdos354x.md) of Erdős Problem 354
 	* (part of) [Erdős Problem 367](ErdosProblems/Erdos367.md)
+	* [Erdős Problem 368](ErdosProblems/Erdos368.md)
 	* [Erdős Problem 370](ErdosProblems/Erdos370.md)
 	* [Erdős Problem 418](ErdosProblems/Erdos418.md)
 	* [Erdős Problem 419](ErdosProblems/Erdos419.md)
