@@ -78,6 +78,7 @@ This repository collects Lean proofs for various mathematical statements:
 
 * [MathOverflow](https://mathoverflow.net/)
 	* [Sum-of-guesses-minimization problem](MathOverflow/MO420333.md)
+	* [A two player stochastic game - fight or draw?](MathOverflow/MO508681.md)
 
 * [Freek Wiedijk's list of 100 Theorems](https://www.cs.ru.nl/~freek/100/)
 	* [Which of the 100 theorems haven't been proven in Lean?](HundredTheorems/MissingTheorems.md)
