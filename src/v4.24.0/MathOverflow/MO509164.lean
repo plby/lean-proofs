@@ -13,8 +13,6 @@ Main results:
 
 import Mathlib
 
---set_option linter.mathlibStandardSet false
-
 open scoped Nat
 open scoped Classical
 
