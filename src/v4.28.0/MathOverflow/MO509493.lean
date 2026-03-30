@@ -1,10 +1,29 @@
 /-
+
+This is a Lean formalization of a solution to MathOverflow question
+509493:
+
+https://mathoverflow.net/questions/509493/question-on-power-nonnegative-matrix
+
+The solution here is by a combination of ChatGPT-5.2 Pro (from OpenAI)
+and Aristotle (from Harmonic).
+
+
+The proof is verified by Lean.  The following version numbers were
+used:
+
+Lean Toolchain version: leanprover/lean4:v4.28.0
+Mathlib version: v4.28.0
+
+-/
+
+
+/-
   Formalization of results from MO509493a.tex
 
-  Given real n×n orthogonal projection matrices P₁, P₂ (i.e., P² = P = Pᵀ)
-  of the same rank (hence unitarily equivalent), define
-    A := (P₁P₂) ∘ (P₂P₁)
-  where ∘ denotes the Hadamard (entrywise) product.
+  Given real n×n orthogonal projection matrices P₁, P₂ (i.e., P² = P =
+  Pᵀ) which are furthermore unitarily equivalent, define A := (P₁P₂) ∘
+  (P₂P₁) where ∘ denotes the Hadamard (entrywise) product.
 
   We formalize several results about the power-nonnegativity of A,
   an explicit counterexample for n=4, k=3, and minimality results.
