@@ -13,6 +13,8 @@ Main results:
 
 import Mathlib
 
+namespace MO509164
+
 open scoped Nat
 open scoped Classical
 
@@ -1219,13 +1221,13 @@ lemma mu_I_word (r : ℝ) (hr : 0 < r ∧ r < 1/2) (u : List (Fin 2)) :
     mu r (I_word u r) = (1 / 2 : ENNReal) ^ u.length := by
       convert MeasureTheory.Measure.map_apply _ _ using 1;
       · -- The preimage of $I_u$ under $\pi_r$ is the set of sequences $\omega$ such that $\pi_r(\omega) \in I_u$.
-        have h_preimage : _root_.pi r ⁻¹' I_word u r = {ω : ℕ → Fin 2 | take_word u.length ω = u} := by
+        have h_preimage : pi r ⁻¹' I_word u r = {ω : ℕ → Fin 2 | take_word u.length ω = u} := by
           ext ω;
           constructor;
           · intro hω
-            have h_unique : ∀ v ∈ Sigma_n u.length, _root_.pi r ω ∈ I_word v r → v = u := by
+            have h_unique : ∀ v ∈ Sigma_n u.length, pi r ω ∈ I_word v r → v = u := by
               intros v hv hvω
-              have h_unique : _root_.pi r ω ∈ I_word v r ∧ _root_.pi r ω ∈ I_word u r := by
+              have h_unique : pi r ω ∈ I_word v r ∧ pi r ω ∈ I_word u r := by
                 aesop;
               have h_unique : Disjoint (I_word v r) (I_word u r) ∨ v = u := by
                 exact Classical.or_iff_not_imp_right.2 fun h => disjoint_I_word r hr u.length v u hv ( by aesop ) h;
@@ -1882,24 +1884,24 @@ If omega starts with 0 and is not eventually 1, then pi(omega) is in C_plus.
 lemma mem_C_plus_of_not_eventually_one (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (ω : ℕ → Fin 2) (h0 : ω 0 = 0) (h_not_ev_one : ∀ n, ∃ k ≥ n, ω k ≠ 1) :
     pi rho ω ∈ C_plus rho := by
       -- Let $x = \pi_\rho(\omega)$.
-      set x := _root_.pi rho ω;
+      set x := pi rho ω;
       by_cases hx : x = 0;
       · convert endpoints_mem_C_plus rho hrho |>.1 using 1;
       · -- Choose $s \in (\max(0, \rho - \epsilon), \rho)$.
         have h_eps : ∀ ε > 0, ε < rho → ∃ s ∈ Set.Ioo (max 0 (rho - ε)) rho, ∃ n : ℕ, ∃ r ∈ Set.Ioo s rho, x = R_word (take_word n ω) r := by
           intro ε hε_pos hε_lt_rho
-          obtain ⟨s, hs⟩ : ∃ s ∈ Set.Ioo (max 0 (rho - ε)) rho, _root_.pi s ω < x := by
-            have h_pi_strictly_increasing : StrictMonoOn (fun r => _root_.pi r ω) (Set.Ico 0 (1 / 2)) := by
+          obtain ⟨s, hs⟩ : ∃ s ∈ Set.Ioo (max 0 (rho - ε)) rho, pi s ω < x := by
+            have h_pi_strictly_increasing : StrictMonoOn (fun r => pi r ω) (Set.Ico 0 (1 / 2)) := by
               apply_rules [ pi_strictly_increasing ];
               contrapose! hx;
               simp +zetaDelta at *;
-              unfold _root_.pi; aesop;
+              unfold pi; aesop;
             exact ⟨ ( rho + max 0 ( rho - ε ) ) / 2, ⟨ by cases max_cases 0 ( rho - ε ) <;> linarith, by cases max_cases 0 ( rho - ε ) <;> linarith ⟩, h_pi_strictly_increasing ⟨ by cases max_cases 0 ( rho - ε ) <;> linarith, by cases max_cases 0 ( rho - ε ) <;> linarith ⟩ ⟨ by cases max_cases 0 ( rho - ε ) <;> linarith, by cases max_cases 0 ( rho - ε ) <;> linarith ⟩ ( by cases max_cases 0 ( rho - ε ) <;> linarith ) ⟩;
           -- Let $u_n = \omega|_n$.
           obtain ⟨n, hn⟩ : ∃ n : ℕ, R_word (take_word n ω) s < x ∧ x < R_word (take_word n ω) rho := by
             -- Since $R_{u_n}(s) \to \pi_s(\omega)$ and $x < R_{u_n}(\rho)$ for all $n$, we can choose $n$ such that $R_{u_n}(s) < x$.
             obtain ⟨n, hn⟩ : ∃ n : ℕ, R_word (take_word n ω) s < x := by
-              have h_lim : Filter.Tendsto (fun n => R_word (take_word n ω) s) Filter.atTop (nhds (_root_.pi s ω)) := by
+              have h_lim : Filter.Tendsto (fun n => R_word (take_word n ω) s) Filter.atTop (nhds (pi s ω)) := by
                 convert tendsto_R_word s ⟨ by linarith [ hs.1.1, le_max_left 0 ( rho - ε ) ], by linarith [ hs.1.2, le_max_right 0 ( rho - ε ) ] ⟩ ω using 1;
               exact ( h_lim.eventually ( gt_mem_nhds hs.2 ) ) |> fun h => h.exists;
             exact ⟨ n, hn, by simpa using pi_lt_R_word_of_not_eventually_one rho hrho ω h_not_ev_one n ⟩;
@@ -1929,10 +1931,10 @@ If omega starts with 1 and is not eventually 0, then pi(omega) is in C_plus.
 lemma mem_C_plus_of_not_eventually_zero (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (ω : ℕ → Fin 2) (h1 : ω 0 = 1) (h_not_ev_zero : ∀ n, ∃ k ≥ n, ω k ≠ 0) :
     pi rho ω ∈ C_plus rho := by
       -- Let $x = \pi_\rho(\omega)$. If $x = 1$, then $x \in C_+$.
-      by_cases hx1 : _root_.pi rho ω = 1;
+      by_cases hx1 : pi rho ω = 1;
       · convert endpoints_mem_C_plus rho hrho |>.2 using 1;
       · -- Let $x = \pi_\rho(\omega)$. Since $x \neq 1$, we have $x < 1$.
-        set x := _root_.pi rho ω
+        set x := pi rho ω
         have hx_lt_1 : x < 1 := by
           refine lt_of_le_of_ne ?_ hx1
           generalize_proofs at *;
@@ -1944,21 +1946,21 @@ lemma mem_C_plus_of_not_eventually_zero (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/
           · rw [ abs_of_pos ] <;> linarith;
           · rw [ tsum_geometric_of_lt_one ] <;> nlinarith [ mul_inv_cancel₀ ( by linarith : ( 1 - rho ) ≠ 0 ) ];
         -- Let $\epsilon > 0$. Choose $s \in (\max(0, \rho - \epsilon), \rho)$.
-        have h_eps : ∀ ε > 0, ∃ s ∈ Set.Ioo (max 0 (rho - ε)) rho, ∃ n : ℕ, ∃ r ∈ Set.Ioo s rho, _root_.pi r (append_zeros (take_word n ω)) = x := by
+        have h_eps : ∀ ε > 0, ∃ s ∈ Set.Ioo (max 0 (rho - ε)) rho, ∃ n : ℕ, ∃ r ∈ Set.Ioo s rho, pi r (append_zeros (take_word n ω)) = x := by
           -- Let $\epsilon > 0$. Choose $s \in (\max(0, \rho - \epsilon), \rho)$ such that $pi_s(\omega) > x$.
           intro ε hε_pos
-          obtain ⟨s, hs₁, hs₂⟩ : ∃ s ∈ Set.Ioo (max 0 (rho - ε)) rho, _root_.pi s ω > x := by
-            have h_strict_anti : StrictAntiOn (fun r => _root_.pi r ω) (Set.Ico 0 (1 / 2)) := by
+          obtain ⟨s, hs₁, hs₂⟩ : ∃ s ∈ Set.Ioo (max 0 (rho - ε)) rho, pi s ω > x := by
+            have h_strict_anti : StrictAntiOn (fun r => pi r ω) (Set.Ico 0 (1 / 2)) := by
               apply_rules [ pi_strictly_decreasing ];
               contrapose! hx1;
               simp +zetaDelta at *;
-              unfold _root_.pi; norm_num [ hx1, tsum_mul_left, tsum_geometric_of_lt_one, hrho ] ;
+              unfold pi; norm_num [ hx1, tsum_mul_left, tsum_geometric_of_lt_one, hrho ] ;
               rw [ tsum_geometric_of_lt_one ] <;> norm_num at * <;> nlinarith [ mul_inv_cancel₀ ( by linarith : ( 1 - rho ) ≠ 0 ) ];
             exact ⟨ ( rho + max 0 ( rho - ε ) ) / 2, ⟨ by linarith [ show max 0 ( rho - ε ) < rho by cases max_cases 0 ( rho - ε ) <;> linarith ], by linarith [ show max 0 ( rho - ε ) < rho by cases max_cases 0 ( rho - ε ) <;> linarith ] ⟩, h_strict_anti ⟨ by cases max_cases 0 ( rho - ε ) <;> linarith, by cases max_cases 0 ( rho - ε ) <;> linarith ⟩ ⟨ by cases max_cases 0 ( rho - ε ) <;> linarith, by cases max_cases 0 ( rho - ε ) <;> linarith ⟩ ( by cases max_cases 0 ( rho - ε ) <;> linarith ) ⟩;
           -- Let $u_n = \text{take\_word } n \omega$. Then $L_{u_n}(s) \to \pi_s(\omega) > x$.
-          obtain ⟨n, hn⟩ : ∃ n : ℕ, _root_.pi s (append_zeros (take_word n ω)) > x := by
-            have h_lim : Filter.Tendsto (fun n => _root_.pi s (append_zeros (take_word n ω))) Filter.atTop (nhds (_root_.pi s ω)) := by
-              have h_lim : ∀ n, _root_.pi s (append_zeros (take_word n ω)) = (1 - s) * ∑ k ∈ Finset.range n, (ω k : ℝ) * s ^ k := by
+          obtain ⟨n, hn⟩ : ∃ n : ℕ, pi s (append_zeros (take_word n ω)) > x := by
+            have h_lim : Filter.Tendsto (fun n => pi s (append_zeros (take_word n ω))) Filter.atTop (nhds (pi s ω)) := by
+              have h_lim : ∀ n, pi s (append_zeros (take_word n ω)) = (1 - s) * ∑ k ∈ Finset.range n, (ω k : ℝ) * s ^ k := by
                 intro n
                 simp [take_word];
                 convert pi_append_zeros s ( List.ofFn fun i : Fin n => ω i ) using 1;
@@ -1969,7 +1971,7 @@ lemma mem_C_plus_of_not_eventually_zero (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/
               convert h_lim using 2 ; aesop;
             exact ( h_lim.eventually ( lt_mem_nhds hs₂ ) ) |> fun h => h.exists;
           -- By the intermediate value theorem, since $L_{u_n}(s) > x$ and $L_{u_n}(\rho) < x$, there exists $r \in (s, \rho)$ such that $L_{u_n}(r) = x$.
-          obtain ⟨r, hr₁, hr₂⟩ : ∃ r ∈ Set.Ioo s rho, _root_.pi r (append_zeros (take_word n ω)) = x := by
+          obtain ⟨r, hr₁, hr₂⟩ : ∃ r ∈ Set.Ioo s rho, pi r (append_zeros (take_word n ω)) = x := by
             apply_rules [ intermediate_value_Ioo' ];
             · linarith [ hs₁.2 ];
             ·
@@ -2003,19 +2005,19 @@ If u starts with 0 and contains a 1, then L_u(rho) is not in C_minus.
 -/
 theorem not_mem_C_minus_of_L_u (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (u : List (Fin 2)) (hu : u ≠ []) (h0 : u.head! = 0) (h_contains_one : (1 : Fin 2) ∈ u) :
     pi rho (append_zeros u) ∉ C_minus rho := by
-      have h_not_mem_C_n : ∀ᶠ r in nhdsWithin rho (Set.Ioi rho), _root_.pi rho (append_zeros u) ∉ C_n r u.length := by
-        have h_not_mem_C_n : ∀ᶠ r in nhdsWithin rho (Set.Ioi rho), ∀ v ∈ Sigma_n u.length, v ≠ u → _root_.pi rho (append_zeros u) ∉ I_word v r := by
-          have h_not_mem_I_word_of_ne_zeros : ∀ v ∈ Sigma_n u.length, v ≠ u → ∀ᶠ r in nhds rho, _root_.pi rho (append_zeros u) ∉ I_word v r := by
+      have h_not_mem_C_n : ∀ᶠ r in nhdsWithin rho (Set.Ioi rho), pi rho (append_zeros u) ∉ C_n r u.length := by
+        have h_not_mem_C_n : ∀ᶠ r in nhdsWithin rho (Set.Ioi rho), ∀ v ∈ Sigma_n u.length, v ≠ u → pi rho (append_zeros u) ∉ I_word v r := by
+          have h_not_mem_I_word_of_ne_zeros : ∀ v ∈ Sigma_n u.length, v ≠ u → ∀ᶠ r in nhds rho, pi rho (append_zeros u) ∉ I_word v r := by
             exact fun v a a_1 => not_mem_I_word_of_ne_zeros rho hrho u v a a_1;
           have h_finite : Set.Finite {v ∈ Sigma_n u.length | v ≠ u} := by
             exact Set.Finite.subset ( finite_Sigma_n u.length ) fun v hv => hv.1;
-          have h_finite : ∀ᶠ r in nhds rho, ∀ v ∈ {v ∈ Sigma_n u.length | v ≠ u}, _root_.pi rho (append_zeros u) ∉ I_word v r := by
-            have h_finite : ∀ v ∈ {v ∈ Sigma_n u.length | v ≠ u}, ∀ᶠ r in nhds rho, _root_.pi rho (append_zeros u) ∉ I_word v r := by
+          have h_finite : ∀ᶠ r in nhds rho, ∀ v ∈ {v ∈ Sigma_n u.length | v ≠ u}, pi rho (append_zeros u) ∉ I_word v r := by
+            have h_finite : ∀ v ∈ {v ∈ Sigma_n u.length | v ≠ u}, ∀ᶠ r in nhds rho, pi rho (append_zeros u) ∉ I_word v r := by
               aesop;
             (expose_names; exact eventually_subset_of_finite h_finite_1 h_finite);
           exact h_finite.filter_mono nhdsWithin_le_nhds |> fun h => h.mono fun r hr v hv hv' => hr v ⟨ hv, hv' ⟩;
-        have h_not_mem_C_n : ∀ᶠ r in nhdsWithin rho (Set.Ioi rho), _root_.pi rho (append_zeros u) ∉ I_word u r := by
-          have h_not_mem_C_n : ∀ᶠ r in nhdsWithin rho (Set.Ioi rho), _root_.pi rho (append_zeros u) < L_word u r := by
+        have h_not_mem_C_n : ∀ᶠ r in nhdsWithin rho (Set.Ioi rho), pi rho (append_zeros u) ∉ I_word u r := by
+          have h_not_mem_C_n : ∀ᶠ r in nhdsWithin rho (Set.Ioi rho), pi rho (append_zeros u) < L_word u r := by
             have h_not_mem_C_n : StrictMonoOn (fun r => L_word u r) (Set.Ico 0 (1 / 2)) := by
               convert pi_strictly_increasing ( append_zeros u ) _ _ using 1 <;> norm_num [ h0, h_contains_one ];
               · cases u <;> aesop;
@@ -2023,10 +2025,10 @@ theorem not_mem_C_minus_of_L_u (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (u : L
                 aesop;
             filter_upwards [ Ioo_mem_nhdsGT hrho.2 ] with r hr using h_not_mem_C_n ⟨ by linarith, by linarith ⟩ ⟨ by linarith [ hr.1 ], by linarith [ hr.2 ] ⟩ hr.1;
           filter_upwards [ h_not_mem_C_n, mem_nhdsWithin_of_mem_nhds ( Ioo_mem_nhds hrho.1 hrho.2 ) ] with r hr₁ hr₂;
-          have h_not_mem_C_n : _root_.pi rho (append_zeros u) < pi r (append_zeros u) := by
+          have h_not_mem_C_n : pi rho (append_zeros u) < pi r (append_zeros u) := by
             exact hr₁;
           exact fun h => h_not_mem_C_n.not_ge <| by linarith [ Set.mem_Icc.mp <| prop_symbolic_3_interval r hr₂ u ▸ h ] ;
-        filter_upwards [ h_not_mem_C_n, ‹∀ᶠ r in nhdsWithin rho ( Set.Ioi rho ), ∀ v ∈ Sigma_n u.length, v ≠ u → _root_.pi rho ( append_zeros u ) ∉ I_word v r› ] with r hr₁ hr₂;
+        filter_upwards [ h_not_mem_C_n, ‹∀ᶠ r in nhdsWithin rho ( Set.Ioi rho ), ∀ v ∈ Sigma_n u.length, v ≠ u → pi rho ( append_zeros u ) ∉ I_word v r› ] with r hr₁ hr₂;
         simp_all +decide [ C_n ];
         exact fun v hv => if hv' : v = u then hv'.symm ▸ hr₁ else hr₂ v hv hv';
       simp_all +decide [ C_minus ];
@@ -2042,8 +2044,8 @@ theorem not_mem_C_minus_of_R_u (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (u : L
     pi rho (append_ones u) ∉ C_minus rho := by
       unfold C_minus;
       -- For $r$ close to $\rho$, $x$ is not in $I_u(r)$ because $R_u(r) < x$.
-      have h_not_in_I : ∀ᶠ r in nhdsWithin rho (Set.Ioi rho), _root_.pi rho (append_ones u) ∉ I_word u r := by
-        have h_not_in_I : ∀ᶠ r in nhdsWithin rho (Set.Ioi rho), _root_.pi rho (append_ones u) > R_word u r := by
+      have h_not_in_I : ∀ᶠ r in nhdsWithin rho (Set.Ioi rho), pi rho (append_ones u) ∉ I_word u r := by
+        have h_not_in_I : ∀ᶠ r in nhdsWithin rho (Set.Ioi rho), pi rho (append_ones u) > R_word u r := by
           have h_not_in_I : StrictAntiOn (fun r => R_word u r) (Set.Ico 0 (1 / 2)) := by
             apply_rules [ pi_strictly_decreasing ];
             · cases u <;> aesop;
@@ -2052,8 +2054,8 @@ theorem not_mem_C_minus_of_R_u (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (u : L
         filter_upwards [ h_not_in_I, Ioo_mem_nhdsGT hrho.2 ] with r hr₁ hr₂;
         have := prop_symbolic_3_interval r ⟨ by linarith [ hr₂.1 ], by linarith [ hr₂.2 ] ⟩ u; aesop;
       -- For $v \neq u$ of the same length, $I_v(r)$ is far from $I_u(r)$, so $x \notin I_v(r)$ by continuity.
-      have h_not_in_I_v : ∀ᶠ r in nhdsWithin rho (Set.Ioi rho), ∀ v ∈ Sigma_n u.length, v ≠ u → _root_.pi rho (append_ones u) ∉ I_word v r := by
-        have h_dist : ∀ v ∈ Sigma_n u.length, v ≠ u → ∀ᶠ r in nhds rho, _root_.pi rho (append_ones u) ∉ I_word v r := by
+      have h_not_in_I_v : ∀ᶠ r in nhdsWithin rho (Set.Ioi rho), ∀ v ∈ Sigma_n u.length, v ≠ u → pi rho (append_ones u) ∉ I_word v r := by
+        have h_dist : ∀ v ∈ Sigma_n u.length, v ≠ u → ∀ᶠ r in nhds rho, pi rho (append_ones u) ∉ I_word v r := by
           intros v hv hv_ne_u
           apply not_mem_I_word_of_ne rho hrho u v hv hv_ne_u;
         have h_finite : Set.Finite {v : List (Fin 2) | v ∈ Sigma_n u.length ∧ v ≠ u} := by
@@ -2061,7 +2063,7 @@ theorem not_mem_C_minus_of_R_u (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (u : L
         rw [ eventually_nhdsWithin_iff ];
         filter_upwards [ h_finite.eventually_all.mpr fun v hv => h_dist v hv.1 hv.2 ] with x hx hx' v hv hv' using hx v ⟨ hv, hv' ⟩;
       -- Therefore, for $r$ close to $\rho$, $x$ is not in $C_{1-2r}$.
-      have h_not_in_C : ∀ᶠ r in nhdsWithin rho (Set.Ioi rho), _root_.pi rho (append_ones u) ∉ C_n r u.length := by
+      have h_not_in_C : ∀ᶠ r in nhdsWithin rho (Set.Ioi rho), pi rho (append_ones u) ∉ C_n r u.length := by
         filter_upwards [ h_not_in_I, h_not_in_I_v ] with r hr₁ hr₂;
         contrapose! hr₂; unfold C_n at *; aesop;
       simp +zetaDelta at *;
@@ -2074,18 +2076,18 @@ If omega starts with 0 and is not eventually 0, then pi(omega) is in C_minus.
 theorem mem_C_minus_of_not_eventually_zero (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (ω : ℕ → Fin 2) (h0 : ω 0 = 0) (h_not_ev_zero : ∀ n, ∃ k ≥ n, ω k ≠ 0) :
     pi rho ω ∈ C_minus rho := by
       -- Since $\pi_\rho(\omega)$ is strictly increasing on $[0, 1/2)$ and $\pi_\rho(\omega) > L_{u_n}(\rho)$ for all $n$, we can find $r \in (\rho, \min(\rho+\varepsilon, 1/2))$ such that $L_{u_n}(r) = \pi_\rho(\omega)$.
-      have h_ivt : ∀ ε > 0, ∃ r ∈ Set.Ioo rho (min (rho + ε) (1 / 2)), ∃ n, L_word (take_word n ω) r = _root_.pi rho ω := by
+      have h_ivt : ∀ ε > 0, ∃ r ∈ Set.Ioo rho (min (rho + ε) (1 / 2)), ∃ n, L_word (take_word n ω) r = pi rho ω := by
         -- Fix an arbitrary $\epsilon > 0$.
         intro ε hε_pos
-        obtain ⟨s, hs⟩ : ∃ s ∈ Set.Ioo rho (min (rho + ε) (1 / 2)), _root_.pi s ω > _root_.pi rho ω := by
-          have h_strict_mono : StrictMonoOn (fun r => _root_.pi r ω) (Set.Ico 0 (1 / 2)) := by
+        obtain ⟨s, hs⟩ : ∃ s ∈ Set.Ioo rho (min (rho + ε) (1 / 2)), pi s ω > pi rho ω := by
+          have h_strict_mono : StrictMonoOn (fun r => pi r ω) (Set.Ico 0 (1 / 2)) := by
             apply_rules [ pi_strictly_increasing ];
             exact Exists.elim ( h_not_ev_zero 0 ) fun n hn => ⟨ n, hn.2 ⟩;
           exact ⟨ rho + ( Min.min ( rho + ε ) ( 1 / 2 ) - rho ) / 2, ⟨ by linarith [ lt_min ( show rho + ε > rho by linarith ) ( show 1 / 2 > rho by linarith ) ], by linarith [ lt_min ( show rho + ε > rho by linarith ) ( show 1 / 2 > rho by linarith ), min_le_left ( rho + ε ) ( 1 / 2 ), min_le_right ( rho + ε ) ( 1 / 2 ) ] ⟩, h_strict_mono ⟨ by linarith [ lt_min ( show rho + ε > rho by linarith ) ( show 1 / 2 > rho by linarith ) ], by linarith [ lt_min ( show rho + ε > rho by linarith ) ( show 1 / 2 > rho by linarith ), min_le_left ( rho + ε ) ( 1 / 2 ), min_le_right ( rho + ε ) ( 1 / 2 ) ] ⟩ ⟨ by linarith [ lt_min ( show rho + ε > rho by linarith ) ( show 1 / 2 > rho by linarith ) ], by linarith [ lt_min ( show rho + ε > rho by linarith ) ( show 1 / 2 > rho by linarith ), min_le_left ( rho + ε ) ( 1 / 2 ), min_le_right ( rho + ε ) ( 1 / 2 ) ] ⟩ ( by linarith [ lt_min ( show rho + ε > rho by linarith ) ( show 1 / 2 > rho by linarith ), min_le_left ( rho + ε ) ( 1 / 2 ), min_le_right ( rho + ε ) ( 1 / 2 ) ] ) ⟩;
         -- Since $\pi_s(\omega) > \pi_\rho(\omega)$, there exists $n$ such that $L_{u_n}(s) > \pi_\rho(\omega)$.
-        obtain ⟨n, hn⟩ : ∃ n, L_word (take_word n ω) s > _root_.pi rho ω := by
-          have h_lim : Filter.Tendsto (fun n => L_word (take_word n ω) s) Filter.atTop (nhds (_root_.pi s ω)) := by
-            have h_lim : Filter.Tendsto (fun n => R_word (take_word n ω) s) Filter.atTop (nhds (_root_.pi s ω)) := by
+        obtain ⟨n, hn⟩ : ∃ n, L_word (take_word n ω) s > pi rho ω := by
+          have h_lim : Filter.Tendsto (fun n => L_word (take_word n ω) s) Filter.atTop (nhds (pi s ω)) := by
+            have h_lim : Filter.Tendsto (fun n => R_word (take_word n ω) s) Filter.atTop (nhds (pi s ω)) := by
               convert tendsto_R_word s ⟨ by linarith [ hs.1.1 ], by linarith [ hs.1.2, min_le_right ( rho + ε ) ( 1 / 2 ) ] ⟩ ω using 1;
             have h_lim : ∀ n, L_word (take_word n ω) s = R_word (take_word n ω) s - s ^ n := by
               intro n
@@ -2093,11 +2095,11 @@ theorem mem_C_minus_of_not_eventually_zero (rho : ℝ) (hrho : 0 < rho ∧ rho <
               rw [ pi_append_zeros, pi_append_ones ];
               · unfold take_word; aesop;
               · constructor <;> linarith [ hs.1.1, hs.1.2, min_le_left ( rho + ε ) ( 1 / 2 ), min_le_right ( rho + ε ) ( 1 / 2 ) ];
-            convert ‹Tendsto ( fun n => R_word ( take_word n ω ) s ) Filter.atTop ( nhds ( _root_.pi s ω ) ) ›.sub ( tendsto_pow_atTop_nhds_zero_of_lt_one ( show 0 ≤ s by linarith [ hs.1.1 ] ) ( show s < 1 by linarith [ hs.1.2, min_le_left ( rho + ε ) ( 1 / 2 ), min_le_right ( rho + ε ) ( 1 / 2 ) ] ) ) using 2 ; aesop;
+            convert ‹Tendsto ( fun n => R_word ( take_word n ω ) s ) Filter.atTop ( nhds ( pi s ω ) ) ›.sub ( tendsto_pow_atTop_nhds_zero_of_lt_one ( show 0 ≤ s by linarith [ hs.1.1 ] ) ( show s < 1 by linarith [ hs.1.2, min_le_left ( rho + ε ) ( 1 / 2 ), min_le_right ( rho + ε ) ( 1 / 2 ) ] ) ) using 2 ; aesop;
             ring;
           exact ( h_lim.eventually ( lt_mem_nhds hs.2 ) ) |> fun h => h.exists;
         -- By the Intermediate Value Theorem, since $L_{u_n}(r)$ is continuous and $L_{u_n}(s) > \pi_\rho(\omega)$, there exists $r \in (\rho, s)$ such that $L_{u_n}(r) = \pi_\rho(\omega)$.
-        have h_ivt : ∃ r ∈ Set.Ioo rho s, L_word (take_word n ω) r = _root_.pi rho ω := by
+        have h_ivt : ∃ r ∈ Set.Ioo rho s, L_word (take_word n ω) r = pi rho ω := by
           apply_rules [ intermediate_value_Ioo ] <;> norm_num [ hs.1.1, hs.1.2 ];
           · linarith [ hs.1.1 ];
           · refine' ContinuousOn.congr _ _;
@@ -2121,27 +2123,27 @@ theorem mem_C_minus_of_not_eventually_one (rho : ℝ) (hrho : 0 < rho ∧ rho < 
       -- Let's choose any $\epsilon > 0$.
       by_contra h_not_in_C_minus;
       -- Let's choose any $\epsilon > 0$ and derive a contradiction.
-      obtain ⟨ε, hε⟩ : ∃ ε > 0, ∀ r ∈ Set.Ioo rho (rho + ε), _root_.pi rho ω ∉ C r := by
+      obtain ⟨ε, hε⟩ : ∃ ε > 0, ∀ r ∈ Set.Ioo rho (rho + ε), pi rho ω ∉ C r := by
         unfold C_minus at h_not_in_C_minus; aesop;
       -- Choose $s \in (\rho, \min(\rho+\varepsilon, 1/2))$.
       obtain ⟨s, hs⟩ : ∃ s ∈ Set.Ioo rho (min (rho + ε) (1 / 2)), True := by
         exact ⟨ rho + ( Min.min ( rho + ε ) ( 1 / 2 ) - rho ) / 2, ⟨ by linarith [ lt_min ( show rho + ε > rho by linarith ) ( show 1 / 2 > rho by linarith ) ], by linarith [ lt_min ( show rho + ε > rho by linarith ) ( show 1 / 2 > rho by linarith ), min_le_left ( rho + ε ) ( 1 / 2 ), min_le_right ( rho + ε ) ( 1 / 2 ) ] ⟩, trivial ⟩;
       -- Since $\omega$ starts with 1 and is not $1^\infty$, $\pi_r(\omega)$ is strictly decreasing on $[0, 1/2)$.
-      have h_pi_decreasing : StrictAntiOn (fun r => _root_.pi r ω) (Set.Ico 0 (1 / 2)) := by
+      have h_pi_decreasing : StrictAntiOn (fun r => pi r ω) (Set.Ico 0 (1 / 2)) := by
         apply_rules [ pi_strictly_decreasing ];
         exact Exists.elim ( h_not_ev_one 0 ) fun n hn => ⟨ n, hn.2 ⟩;
       -- Since $\pi_s(\omega) < \pi_\rho(\omega) = x$, for large enough $n$, $R_{u_n}(s) < x$.
-      obtain ⟨n, hn⟩ : ∃ n : ℕ, R_word (take_word n ω) s < _root_.pi rho ω ∧ _root_.pi rho ω < R_word (take_word n ω) rho := by
-        have h_pi_s_lt_pi_rho : _root_.pi s ω < _root_.pi rho ω := by
+      obtain ⟨n, hn⟩ : ∃ n : ℕ, R_word (take_word n ω) s < pi rho ω ∧ pi rho ω < R_word (take_word n ω) rho := by
+        have h_pi_s_lt_pi_rho : pi s ω < pi rho ω := by
           exact h_pi_decreasing ⟨ by linarith [ hs.1.1 ], by linarith [ hs.1.2, min_le_left ( rho + ε ) ( 1 / 2 ), min_le_right ( rho + ε ) ( 1 / 2 ) ] ⟩ ⟨ by linarith [ hs.1.1 ], by linarith [ hs.1.2, min_le_left ( rho + ε ) ( 1 / 2 ), min_le_right ( rho + ε ) ( 1 / 2 ) ] ⟩ hs.1.1;
         -- Since $\pi_s(\omega) < \pi_\rho(\omega)$, there exists $N$ such that for all $n \geq N$, $R_{u_n}(s) < \pi_\rho(\omega)$.
-        obtain ⟨N, hN⟩ : ∃ N : ℕ, ∀ n ≥ N, R_word (take_word n ω) s < _root_.pi rho ω := by
-          have h_pi_s_lt_pi_rho : Filter.Tendsto (fun n => R_word (take_word n ω) s) Filter.atTop (nhds (_root_.pi s ω)) := by
+        obtain ⟨N, hN⟩ : ∃ N : ℕ, ∀ n ≥ N, R_word (take_word n ω) s < pi rho ω := by
+          have h_pi_s_lt_pi_rho : Filter.Tendsto (fun n => R_word (take_word n ω) s) Filter.atTop (nhds (pi s ω)) := by
             convert tendsto_R_word s ⟨ by linarith [ hs.1.1 ], by linarith [ hs.1.2, min_le_right ( rho + ε ) ( 1 / 2 ) ] ⟩ ω using 1;
           exact Filter.eventually_atTop.mp ( h_pi_s_lt_pi_rho.eventually ( gt_mem_nhds ‹_› ) );
         exact ⟨ N, hN N le_rfl, by simpa using pi_lt_R_word_of_not_eventually_one rho hrho ω h_not_ev_one N ⟩;
       -- By the Intermediate Value Theorem, there exists $r \in (\rho, s)$ such that $R_{u_n}(r) = x$.
-      obtain ⟨r, hr⟩ : ∃ r ∈ Set.Ioo rho s, R_word (take_word n ω) r = _root_.pi rho ω := by
+      obtain ⟨r, hr⟩ : ∃ r ∈ Set.Ioo rho s, R_word (take_word n ω) r = pi rho ω := by
         apply_rules [ intermediate_value_Ioo' ];
         · linarith [ hs.1.1 ];
         · refine' ContinuousOn.congr _ _;
@@ -2176,11 +2178,11 @@ theorem theorem_minus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) :
           exact tendsto_iff_dist_tendsto_zero.mpr <| squeeze_zero ( fun _ => abs_nonneg _ ) ( fun n => abs_le.mpr ⟨ by linarith [ Classical.choose_spec ( hx ( 1 / ( n + 1 ) ) ( by positivity ) ) ], by linarith [ Classical.choose_spec ( hx ( 1 / ( n + 1 ) ) ( by positivity ) ) ] ⟩ ) <| tendsto_one_div_add_atTop_nhds_zero_nat) x (by
           exact fun n => Classical.choose_spec ( hx ( 1 / ( n + 1 ) ) ( by positivity ) ) |>.2);
         · intro u hu h0 h1 hx_eq
-          have h_not_in_C_minus : _root_.pi rho (append_zeros u) ∉ C_minus rho := by
+          have h_not_in_C_minus : pi rho (append_zeros u) ∉ C_minus rho := by
             apply not_mem_C_minus_of_L_u rho hrho u hu h0 h1;
           exact h_not_in_C_minus <| hx_eq ▸ Set.mem_iInter₂.mpr fun r hr => by aesop;
         · intro u hu h1 h0 hx_eq
-          have h_not_in_C_minus : _root_.pi rho (append_ones u) ∉ C_minus rho := by
+          have h_not_in_C_minus : pi rho (append_ones u) ∉ C_minus rho := by
             apply not_mem_C_minus_of_R_u rho hrho u hu h1 h0;
           exact h_not_in_C_minus <| hx_eq ▸ by
             unfold C_minus; aesop;
@@ -2207,13 +2209,13 @@ theorem theorem_minus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) :
           · exact ⟨ rho + i / 2, ⟨ by linarith, by linarith ⟩, by cases hx0 <;> [ exact h_endpoints ( rho + i / 2 ) ⟨ by linarith, by linarith ⟩ |>.1 |> fun h => by aesop; ; exact h_endpoints ( rho + i / 2 ) ⟨ by linarith, by linarith ⟩ |>.2 |> fun h => by aesop ] ⟩;
           · exact ⟨ rho + ( 1 / 2 - rho ) / 2, ⟨ by linarith, by linarith ⟩, by rcases hx0 with ( rfl | rfl ) <;> [ exact h_endpoints _ ⟨ by linarith, by linarith ⟩ |>.1; exact h_endpoints _ ⟨ by linarith, by linarith ⟩ |>.2 ] ⟩;
         · -- Since $x \neq 0$ and $x \neq 1$, we can find a sequence $\omega$ such that $x = \pi_\rho(\omega)$.
-          obtain ⟨ω, hω⟩ : ∃ ω : ℕ → Fin 2, x = _root_.pi rho ω := by
+          obtain ⟨ω, hω⟩ : ∃ ω : ℕ → Fin 2, x = pi rho ω := by
             have := pi_code_of_mem_C rho hrho x hx.1;
             exact ⟨ _, this.symm ⟩;
           -- Since $\omega$ is not eventually constant, we can apply the lemma `mem_C_minus_of_not_eventually_zero` or `mem_C_minus_of_not_eventually_one`.
           by_cases hω0 : ω 0 = 0;
           · by_cases hω_not_ev_zero : ∀ n, ∃ k ≥ n, ω k ≠ 0;
-            · have hω_mem_C_minus : _root_.pi rho ω ∈ C_minus rho := by
+            · have hω_mem_C_minus : pi rho ω ∈ C_minus rho := by
                 apply mem_C_minus_of_not_eventually_zero rho hrho ω hω0 hω_not_ev_zero;
               unfold C_minus at *; aesop;
             · -- Since $\omega$ is eventually zero, we can write $\omega = u0^\infty$ for some $u$.
@@ -2222,7 +2224,7 @@ theorem theorem_minus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) :
                 obtain ⟨ n, hn ⟩ := hω_not_ev_zero; use List.map ω (List.range n); ext m; aesop;
               -- Since $u$ is non-empty and starts with $0$, we have $1 \in u$.
               have hu1 : 1 ∈ u := by
-                by_cases hu1 : 1 ∈ u <;> simp_all +decide [ _root_.pi ];
+                by_cases hu1 : 1 ∈ u <;> simp_all +decide [ pi ];
                 -- Since $u$ contains no $1$s, we have $u = 0^k$ for some $k$.
                 obtain ⟨k, hk⟩ : ∃ k : ℕ, u = List.replicate k 0 := by
                   exact ⟨ u.length, List.eq_replicate_of_mem fun x hx => by have := Fin.exists_fin_two.mp ⟨ x, rfl ⟩ ; aesop ⟩;
@@ -2230,11 +2232,11 @@ theorem theorem_minus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) :
               contrapose! hx;
               intro hx1 hx2; specialize hx2 u; simp_all +decide
               cases u <;> simp_all +decide
-              unfold append_zeros at hx2; simp_all +decide [ _root_.pi ] ;
+              unfold append_zeros at hx2; simp_all +decide [ pi ] ;
               grind;
           · by_cases hω1 : ω 0 = 1;
             · by_cases hω1 : ∀ n, ∃ k ≥ n, ω k ≠ 1;
-              · have hω1 : _root_.pi rho ω ∈ C_minus rho := by
+              · have hω1 : pi rho ω ∈ C_minus rho := by
                   apply mem_C_minus_of_not_eventually_one rho hrho ω ‹_› hω1;
                 unfold C_minus at hω1; aesop;
               · -- Since $\omega$ is eventually constant, we can write $\omega = u1^\infty$ for some $u$.
@@ -2246,8 +2248,8 @@ theorem theorem_minus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) :
                   by_cases hu0 : ∀ n < u.length, u[n]! = 1;
                   · have hω_const : ω = fun _ => 1 := by
                       grind;
-                    have hω_const : _root_.pi rho ω = 1 := by
-                      unfold _root_.pi; norm_num [ hω_const ] ;
+                    have hω_const : pi rho ω = 1 := by
+                      unfold pi; norm_num [ hω_const ] ;
                       rw [ tsum_geometric_of_lt_one ] <;> try linarith;
                       exact mul_inv_cancel₀ ( by linarith );
                     grind +ring;
@@ -2305,16 +2307,16 @@ E_plus is a countable set.
 -/
 lemma countable_E_plus (rho : ℝ) : Set.Countable (E_plus rho) := by
   refine' Set.Countable.union _ _;
-  · refine' Set.Countable.mono _ ( Set.countable_range ( fun u : List ( Fin 2 ) => _root_.pi rho ( append_ones u ) ) ) ; aesop_cat;
-  · convert Set.countable_range ( fun u : List ( Fin 2 ) => _root_.pi rho ( append_zeros u ) ) |> Set.Countable.mono _ using 1 ; aesop_cat;
+  · refine' Set.Countable.mono _ ( Set.countable_range ( fun u : List ( Fin 2 ) => pi rho ( append_ones u ) ) ) ; aesop_cat;
+  · convert Set.countable_range ( fun u : List ( Fin 2 ) => pi rho ( append_zeros u ) ) |> Set.Countable.mono _ using 1 ; aesop_cat;
 
 /-
 E_minus is a countable set.
 -/
 lemma countable_E_minus (rho : ℝ) : Set.Countable (E_minus rho) := by
   apply Set.Countable.union;
-  · convert Set.countable_range ( fun u : List ( Fin 2 ) => _root_.pi rho ( append_zeros u ) ) |> Set.Countable.mono _ using 1 ; aesop_cat;
-  · refine Set.Countable.mono ?_ ( Set.countable_range ( fun u : List ( Fin 2 ) => _root_.pi rho ( append_ones u ) ) ) ; aesop_cat;
+  · convert Set.countable_range ( fun u : List ( Fin 2 ) => pi rho ( append_zeros u ) ) |> Set.Countable.mono _ using 1 ; aesop_cat;
+  · refine Set.Countable.mono ?_ ( Set.countable_range ( fun u : List ( Fin 2 ) => pi rho ( append_ones u ) ) ) ; aesop_cat;
 
 /-
 The closure of C_plus is C.
@@ -2469,10 +2471,12 @@ theorem corollary_dimensions_limsup (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) :
         have := theorem_dimension_Ca rho hrho; aesop;
 
 #print axioms theorem_plus
--- 'theorem_plus' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'MO509164.theorem_plus' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 #print axioms theorem_minus
--- 'theorem_minus' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'MO509164.theorem_minus' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 #print axioms corollary_dimensions_limsup
--- 'corollary_dimensions_limsup' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'MO509164.corollary_dimensions_limsup' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end MO509164

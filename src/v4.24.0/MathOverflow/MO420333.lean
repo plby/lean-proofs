@@ -40,6 +40,8 @@ Key theorems include:
 
 import Mathlib
 
+namespace MO420333
+
 set_option linter.style.longLine false
 set_option linter.style.refine false
 set_option linter.style.induction false
@@ -1735,10 +1737,16 @@ lemma formula_x_recurrence {s : Strategy} {R : ℝ} (hR : R ≠ 0) (k : ℕ) (hk
       simp_all [ sub_eq_iff_eq_add ];
       rw [ show tightPoly ( k + 1 + 1 - k + 1 ) R = tightPoly 3 R by rw [ show k + 1 + 1 - k = 2 by rw [ Nat.sub_eq_of_eq_add ] ; ring ] ] ; rw [ show tightPoly 3 R = R * ( tightPoly 2 R - tightPoly 1 R ) by exact h_recurrence 1 ] ; rw [ show tightPoly 2 R = R * ( tightPoly 1 R - tightPoly 0 R ) by exact h_recurrence 0 ] ; norm_num [ Finset.sum_range_succ', hR ] ; ring_nf;
       rw [ show tightPoly 1 R = R by rfl, show tightPoly 0 R = 1 by rfl ] ; norm_num [ hR, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _ ] ; ring_nf;
-      rw [ show ( Finset.range k ).sum ( fun x => R * slack s R x * R⁻¹ * tightPoly ( 1 + ( 1 + k - x ) ) R ) = ( Finset.range k ).sum ( fun x => R * R⁻¹ * slack s R x * tightPoly ( 1 + ( k - x ) ) R ) + ( Finset.range k ).sum ( fun x => R⁻¹ * slack s R x * tightPoly ( 1 + ( 2 + k - x ) ) R ) from ?_ ]
-      · ring
+      rw [ show ( Finset.range k ).sum ( fun x => slack s R x * tightPoly ( 1 + ( 1 + k - x ) ) R ) = ( Finset.range k ).sum ( fun x => R * R⁻¹ * slack s R x * tightPoly ( 1 + ( k - x ) ) R ) + ( Finset.range k ).sum ( fun x => R⁻¹ * slack s R x * tightPoly ( 1 + ( 2 + k - x ) ) R ) from ?_ ]
+      have hRRinv : R * R⁻¹ = 1 := by
+        field_simp [hR]
+      · simp [hRRinv]
+        ring
       rw [ ← Finset.sum_add_distrib ] ; refine' Finset.sum_congr rfl fun x hx => _ ; rw [ show 1 + ( 1 + k - x ) = 1 + ( k - x ) + 1 by linarith [ Nat.sub_add_cancel ( show x ≤ k from Finset.mem_range_le hx ), Nat.sub_add_cancel ( show x ≤ 1 + k from by linarith [ Finset.mem_range_le hx ] ) ] ] ; rw [ show 1 + ( 2 + k - x ) = 1 + ( k - x ) + 2 by linarith [ Nat.sub_add_cancel ( show x ≤ k from Finset.mem_range_le hx ), Nat.sub_add_cancel ( show x ≤ 2 + k from by linarith [ Finset.mem_range_le hx ] ) ] ] ; ring_nf;
-      rw [ show 3 + ( k - x ) = 2 + ( k - x ) + 1 by ring, show 2 + ( k - x ) = 1 + ( k - x ) + 1 by ring ] ; rw [ h_recurrence ] ; ring;
+      rw [ show 3 + ( k - x ) = 2 + ( k - x ) + 1 by ring, show 2 + ( k - x ) = 1 + ( k - x ) + 1 by ring ]
+      rw [ h_recurrence ]
+      field_simp [hR]
+      ring
 
 /-
 $x_k$ satisfies the recurrence $x_k = R x_{k-1} - R x_{k-2} + \epsilon_{k-1} - \epsilon_k$.
@@ -3804,3 +3812,5 @@ theorem firstGuess_limit : Tendsto firstGuess atTop (𝓝 4) := by
     have := firstGuess_tendsto_four_proof
     exact this;
   exact h_tendsto
+
+end MO420333

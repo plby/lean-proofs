@@ -35,6 +35,8 @@ We define `game_value` as the integral of `w` over [0, 1] and prove it equals `3
 
 import Mathlib
 
+namespace MO508681
+
 /-
 Definitions of constants r and c from the text.
 -/
@@ -257,3 +259,5 @@ theorem game_value_eq : game_value = 3 - 2 * Real.sqrt 2 := by
       exact if_neg ( by rw [ Set.uIcc_of_le ( show r ≤ 1 by rw [ show r = Real.sqrt 2 - 1 by rfl ] ; nlinarith [ Real.sqrt_nonneg 2, Real.sq_sqrt zero_le_two ] ) ] at hx; exact hx.1.not_gt );
   convert h_integral.trans h_eval using 1 ; norm_num [ mul_comm ] ; ring_nf;
   unfold c r; nlinarith [ Real.sqrt_nonneg 2, Real.sq_sqrt zero_le_two ] ;
+
+end MO508681
