@@ -2,6 +2,14 @@ import Mathlib
 
 namespace Erdos1008c
 
+set_option linter.style.induction false
+set_option linter.style.lambdaSyntax false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.openClassical false
+set_option linter.style.refine false
+set_option linter.style.setOption false
+
 set_option maxHeartbeats 0
 
 /-
@@ -299,3 +307,5 @@ theorem exists_C4_free_subgraph_with_many_edges {V : Type} [Fintype V] [Decidabl
       · rw [ show ( 2 / 3 : ℝ ) = -1 / 3 + 1 by norm_num, Real.rpow_add' ] <;> norm_num ; ring_nf ; norm_num;
         norm_num [ sq, mul_assoc, ne_of_gt ( show 0 < ( Finset.card ( Finset.filter ( Membership.mem G.edgeSet ) Finset.univ ) : ℝ ) from Nat.cast_pos.mpr <| Finset.card_pos.mpr ⟨ h.choose, Finset.mem_filter.mpr ⟨ Finset.mem_univ _, h.choose_spec ⟩ ⟩ ) ] ; ring_nf ; norm_num;
       · exact ⟨ h.choose, Finset.mem_filter.mpr ⟨ Finset.mem_univ _, h.choose_spec ⟩ ⟩
+
+end Erdos1008c

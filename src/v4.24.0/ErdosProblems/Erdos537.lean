@@ -20,6 +20,14 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
+set_option linter.style.cases false
+set_option linter.style.commandStart false
+set_option linter.style.induction false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.openClassical false
+set_option linter.style.refine false
+
 namespace Erdos537
 
 open scoped Classical
@@ -1233,3 +1241,5 @@ theorem erdos_537 : ¬(∀ ε > 0, ∃ N₀, ∀ N ≥ N₀, ∀ A, A ⊆ Finset
 
 #print axioms erdos_537
 -- 'erdos_537' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos537

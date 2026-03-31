@@ -37,6 +37,12 @@ open scoped Classical
 open SimpleGraph
 
 set_option maxHeartbeats 0
+set_option linter.style.induction false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.openClassical false
+set_option linter.style.refine false
+set_option linter.style.setOption false
 
 /-
 Definition of the hypercube graph Q_n and the property of containing a cycle of length k.
@@ -755,3 +761,5 @@ theorem not_erdos_666 :
 
 #print axioms not_erdos_666
 -- 'not_erdos_666' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos666

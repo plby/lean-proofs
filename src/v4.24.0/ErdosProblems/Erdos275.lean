@@ -32,6 +32,12 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
+set_option linter.style.induction false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.openClassical false
+set_option linter.style.refine false
+
 namespace Erdos275
 
 open scoped Classical
@@ -568,3 +574,5 @@ theorem erdos_275 (r : ℕ) (a : Fin r → ℤ) (n : Fin r → ℕ)
 
 #print axioms erdos_275
 -- 'erdos_275' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos275

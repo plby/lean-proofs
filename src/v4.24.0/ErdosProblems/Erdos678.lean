@@ -43,6 +43,7 @@ import Mathlib
 namespace Erdos678
 
 set_option linter.mathlibStandardSet false
+set_option linter.unusedTactic false
 
 open scoped BigOperators
 open scoped Nat
@@ -2399,3 +2400,7 @@ theorem erdos_678_kmn_infinite :
 
 #print axioms erdos_678
 -- 'erdos_678' depends on axioms: [pi_alt, propext, Classical.choice, Quot.sound]
+
+end
+
+end Erdos678

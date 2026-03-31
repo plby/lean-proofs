@@ -17,13 +17,22 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
-namespace Erdos337
+set_option maxHeartbeats 0
+set_option linter.style.commandStart false
+set_option linter.style.induction false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.openClassical false
+set_option linter.style.refine false
+set_option linter.style.setOption false
+set_option linter.unusedSimpArgs false
+set_option linter.unusedTactic false
+set_option linter.unusedVariables false
 
+namespace Erdos337
 
 open scoped Classical
 open scoped Pointwise
-
-set_option maxHeartbeats 0
 
 noncomputable section
 
@@ -1238,3 +1247,7 @@ theorem not_erdos_337 : ¬ erdos_337 := by
   convert hA_ratio A ⟨ h, hA_basis ⟩ hA_density using 1;
   simp +zetaDelta at *;
   norm_num [ iterated_sumset ]
+
+end
+
+end Erdos337

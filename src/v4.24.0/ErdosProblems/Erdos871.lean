@@ -1838,3 +1838,5 @@ theorem not_erdos_871 :
 
 #print axioms not_erdos_871
 -- 'not_erdos_871' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos871

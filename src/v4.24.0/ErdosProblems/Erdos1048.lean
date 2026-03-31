@@ -28,6 +28,13 @@ We define the function $f(z) = z^n - r^n$ and the set $S = \{z \in \mathbb{C} : 
 
 import Mathlib
 
+set_option linter.style.cases false
+set_option linter.style.commandStart false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+set_option linter.style.show false
+
 namespace Erdos1048
 
 /-
@@ -617,3 +624,5 @@ theorem not_erdos_1048 : ¬ erdos_1048 := by
 
 #print axioms not_erdos_1048
 -- 'not_erdos_1048' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos1048

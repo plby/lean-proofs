@@ -19,6 +19,15 @@ open scoped Nat
 open scoped Classical
 
 set_option maxHeartbeats 0
+set_option linter.style.cases false
+set_option linter.style.cdot false
+set_option linter.style.commandStart false
+set_option linter.style.induction false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.openClassical false
+set_option linter.style.refine false
+set_option linter.style.setOption false
 
 /-
 The contraction maps f_0 and f_1 for the middle-a Cantor set construction.

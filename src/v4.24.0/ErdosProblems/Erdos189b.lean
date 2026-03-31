@@ -39,3 +39,5 @@ theorem erdos_189 :
         line[ℝ, c, d].direction ⟂ line[ℝ, d, a].direction)
       (fun a b c d ↦ dist a b * dist b c) ↔ False := by
   sorry
+
+end Erdos189b

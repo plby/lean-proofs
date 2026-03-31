@@ -38,6 +38,11 @@ We define a specific permutation of `1, ..., n` (represented as `construction` m
 
 import Mathlib
 
+set_option linter.style.induction false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+
 namespace Erdos34
 
 /-
@@ -403,3 +408,5 @@ theorem not_erdos_34 : ¬ erdos_34 := by
 
 #print axioms not_erdos_34
 -- 'not_erdos_34' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos34

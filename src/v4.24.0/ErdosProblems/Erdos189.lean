@@ -33,7 +33,8 @@ import Mathlib
 
 namespace Erdos189
 
-
+set_option linter.unusedSimpArgs false
+set_option linter.unusedVariables false
 set_option linter.mathlibStandardSet false
 
 open scoped BigOperators
@@ -600,3 +601,7 @@ theorem erdos_189 :
   have h_rect : IsRectangleArea1 {toComplex a, toComplex b, toComplex c, toComplex d} := by
     apply is_rectangle_of_erdos a b c d h₂ h₄.left h₄.right.left h₄.right.right h₃;
   exact hf n ⟨ _, by simpa [ Set.subset_def ] using h₁, h_rect ⟩
+
+end
+
+end Erdos189

@@ -15,8 +15,14 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7
 
 import Mathlib
 
-namespace Theorem87
+set_option linter.style.longLine false
+set_option linter.style.maxHeartbeats false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+set_option linter.unusedSimpArgs false
+set_option linter.unusedTactic false
 
+namespace Theorem87
 
 open scoped EuclideanGeometry
 
@@ -409,3 +415,5 @@ by
     have := hPca.1.2; simp_all +decide [ collinear_iff_exists_forall_eq_smul_vadd ] ;
     exact ⟨ this.choose, this.choose_spec.choose, this.choose_spec.choose_spec.2.1, this.choose_spec.choose_spec.1, this.choose_spec.choose_spec.2.2 ⟩;
   · convert desargues_plane_A_eq_O ( Classical.not_not.mp hAO ) hO_BB' hO_CC' hPab hPbc hPca using 1
+
+end Theorem87

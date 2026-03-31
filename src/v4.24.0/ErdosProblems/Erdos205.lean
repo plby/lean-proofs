@@ -28,6 +28,10 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
+set_option linter.style.commandStart false
+set_option linter.style.longLine false
+set_option linter.style.refine false
+
 namespace Erdos205
 
 open Real Filter Asymptotics
@@ -537,3 +541,5 @@ theorem infinitely_many_counterexamples :
 
 #print axioms infinitely_many_counterexamples
 -- 'infinitely_many_counterexamples' depends on axioms: [nth_prime_asymp, propext, Classical.choice, Quot.sound]
+
+end Erdos205

@@ -27,6 +27,8 @@ We verify computationally that this hypergraph does not contain any subgraph on 
 
 import Mathlib
 
+set_option linter.style.longLine false
+
 namespace Erdos794
 
 /-
@@ -76,3 +78,5 @@ theorem not_erdos_794 : ¬erdos_794 := by
 
 #print axioms not_erdos_794
 -- 'not_erdos_794' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos794

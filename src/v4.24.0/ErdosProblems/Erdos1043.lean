@@ -26,6 +26,10 @@ import Mathlib
 
 namespace Erdos1043
 
+set_option linter.style.longLine false
+set_option linter.style.refine false
+set_option linter.style.setOption false
+
 set_option maxHeartbeats 0
 
 open MeasureTheory
@@ -217,3 +221,5 @@ theorem erdos_1043 :
 
 #print axioms erdos_1043
 -- 'erdos_1043' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos1043

@@ -29,8 +29,12 @@ We prove that for a natural number $n$ which is not a prime power, the largest i
 
 import Mathlib
 
-namespace Erdos435
+set_option linter.style.induction false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
 
+namespace Erdos435
 
 /-
 The set of generators consists of binomial coefficients $\binom{n}{i}$ for $1 \le i < n$.
@@ -2072,3 +2076,5 @@ theorem erdos_435 (n : ℕ)
 
 #print axioms erdos_435
 -- 'erdos_435' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos435

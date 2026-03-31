@@ -29,6 +29,14 @@ import Mathlib
 
 namespace Erdos1034
 
+set_option linter.style.commandStart false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+set_option linter.style.setOption false
+set_option linter.unnecessarySimpa false
+set_option linter.unusedSimpArgs false
+set_option linter.unusedVariables false
 
 set_option maxHeartbeats 0
 
@@ -994,3 +1002,7 @@ theorem not_erdos_1034 : ¬ erdos_1034 := by
     exact ⟨ _, le_max_left _ _, this.choose_spec _ ( le_max_right _ _ ) ⟩;
   refine' ⟨ n, hn.1, _, _, hn.2.1, fun T hT => _ ⟩;
   exact le_trans ( hn.2.2 T hT ) ( by nlinarith only [ Real.sqrt_nonneg ( 5 / 2 ), Real.sq_sqrt ( show 0 ≤ 5 / 2 by norm_num ) ] )
+
+end
+
+end Erdos1034

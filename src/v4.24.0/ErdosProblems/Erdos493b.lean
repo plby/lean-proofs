@@ -36,3 +36,5 @@ theorem erdos_493 :
   · -- Compute `∏ aᵢ - ∑ aᵢ` on `Fin 2`.
     simp [a, Fin.prod_univ_two, Fin.sum_univ_two]
     ring
+
+end Erdos493b

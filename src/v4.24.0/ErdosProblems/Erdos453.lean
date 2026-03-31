@@ -28,6 +28,11 @@ We have proven that there are infinitely many $n$ such that $p_n^2 > p_{n-i}p_{n
 
 import Mathlib
 
+set_option linter.style.induction false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+
 namespace Erdos453
 
 
@@ -509,3 +514,5 @@ theorem not_erdos_453 : ¬ erdos_453 := by
 
 #print axioms not_erdos_453
 -- 'not_erdos_453' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos453

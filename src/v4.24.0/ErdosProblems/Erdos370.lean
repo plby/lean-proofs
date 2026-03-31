@@ -37,6 +37,11 @@ set_option maxHeartbeats 0
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.openClassical false
+set_option linter.style.refine false
+set_option linter.style.setOption false
 
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
@@ -179,3 +184,7 @@ theorem erdos_370 :
 
 #print axioms erdos_370
 -- 'Erdos370.erdos_370' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end
+
+end Erdos370

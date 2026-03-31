@@ -28,6 +28,8 @@ import Mathlib
 namespace Theorem61
 
 set_option linter.mathlibStandardSet false
+set_option linter.unusedSimpArgs false
+set_option linter.unusedVariables false
 
 open scoped BigOperators
 open scoped Real
@@ -589,3 +591,7 @@ theorem ceva_theorem
       constructor;
       · apply_rules [ ceva_forward ];
       · exact?
+
+end
+
+end Theorem61

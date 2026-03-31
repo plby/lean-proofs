@@ -779,3 +779,5 @@ theorem erdos_1008 {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V) [
 
 #print axioms erdos_1008
 -- 'erdos_1008' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos1008

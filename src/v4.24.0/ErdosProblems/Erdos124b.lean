@@ -22,6 +22,13 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
+set_option linter.style.cases false
+set_option linter.style.induction false
+set_option linter.style.longLine false
+set_option linter.style.maxHeartbeats false
+set_option linter.style.refine false
+set_option linter.unusedSimpArgs false
+
 namespace Erdos124b
 
 /-
@@ -396,3 +403,5 @@ theorem formal_conjectures_erdos_124_corrected : (∀ k, ∀ d : Fin k → ℕ,
     -- By choosing $a = 0$, we can use the hypothesis `this` to find the required $c$ and $a$ for any $b \geq 0$.
     use 0;
     intro n hn; obtain ⟨ a, ha₁, ha₂ ⟩ := this n; use fun _ => 1; aesop;
+
+end Erdos124b

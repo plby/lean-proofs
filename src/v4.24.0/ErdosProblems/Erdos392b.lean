@@ -16,6 +16,8 @@ import Mathlib
 namespace Erdos392b
 
 set_option linter.mathlibStandardSet false
+set_option linter.unusedSimpArgs false
+set_option linter.unusedVariables false
 
 open scoped Nat
 open scoped Classical
@@ -1207,3 +1209,7 @@ theorem A_asymptotic (hRef : RefinementProperty) (hCheb : ChebyshevUpperBound) :
         filter_upwards [ Filter.eventually_gt_atTop 1 ] with n hn using by rw [ mul_div_cancel_right₀ _ ( ne_of_gt ( Real.log_pos ( Nat.one_lt_cast.mpr hn ) ) ) ] ;
     rw [ Asymptotics.isLittleO_iff ] at *;
     intro c hc; filter_upwards [ h_diff_bound.1 hc, h_diff_bound.2.def hc, Filter.eventually_ge_atTop 2 ] with n hn hn' hn''; rw [ Real.norm_eq_abs, abs_le ] ; constructor <;> linarith [ abs_le.mp hn, abs_le.mp hn', h_A_le_G n hn'', h_A_ge_log n hn'' ] ;
+
+end
+
+end Erdos392b

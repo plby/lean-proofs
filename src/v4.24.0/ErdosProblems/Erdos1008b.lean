@@ -7,6 +7,7 @@ import Mathlib
 namespace Erdos1008b
 
 set_option linter.mathlibStandardSet false
+set_option linter.unusedSimpArgs false
 
 open scoped BigOperators
 open scoped Real
@@ -1013,3 +1014,7 @@ theorem exists_C4_free_subgraph_with_many_edges {V : Type} [Fintype V] [Decidabl
       · rw [ show ( Finset.image f ( { s ∈ C4s G | s ⊆ S } ) ∩ S ) = Finset.image f ( { s ∈ C4s G | s ⊆ S } ) from Finset.inter_eq_left.mpr <| Finset.image_subset_iff.mpr fun x hx => hf x hx |>.2 ] ; linarith [ show ( Finset.card ( Finset.image f ( { s ∈ C4s G | s ⊆ S } ) ) : ℝ ) ≤ Finset.card ( { s ∈ C4s G | s ⊆ S } ) from mod_cast Finset.card_image_le ];
       · exact Finset.card_le_card fun x hx => by aesop;
     exact not_lt_of_ge hS'_card <| h S' ( Finset.sdiff_subset.trans hS.1 ) hS'_free
+
+end
+
+end Erdos1008b

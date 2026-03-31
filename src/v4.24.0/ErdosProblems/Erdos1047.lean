@@ -32,6 +32,14 @@ We construct a polynomial $f(z) = z^6 - z$ and choose $c = 0.582$. We show that 
 
 import Mathlib
 
+set_option linter.style.commandStart false
+set_option linter.style.induction false
+set_option linter.style.longLine false
+set_option linter.style.maxHeartbeats false
+set_option linter.style.multiGoal false
+set_option linter.style.openClassical false
+set_option linter.style.refine false
+
 namespace Erdos1047
 
 /-
@@ -669,3 +677,5 @@ theorem erdos_1047 :
 
 #print axioms erdos_1047
 -- 'erdos_1047' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos1047

@@ -24,6 +24,11 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
+set_option linter.style.cdot false
+set_option linter.style.longLine false
+set_option linter.style.refine false
+set_option linter.unusedSimpArgs false
+
 namespace Erdos105
 
 /-- The ambient plane. -/
@@ -218,3 +223,5 @@ theorem not_erdos_105 : ¬erdos_105 := by
   obtain ⟨p, q, hpA, hqA, hpq, hline⟩ := h_apply;
   obtain ⟨b, hbB, hbline⟩ := neg_last_condition_sets p q hpA hqA hpq;
   aesop
+
+end Erdos105

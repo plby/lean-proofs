@@ -1,4 +1,4 @@
-Please note that the directory `src/v4.24.0` is a Lean project that (last I checked) builds as a whole.  However, be aware that it might take many hours to finish.
+Please note that the subdirectories of `src` (such as `src/v4.24.0`) are Lean projects that (last I checked) build as a whole.  However, be aware that it might take many hours to finish.
 
 This repository collects Lean proofs for various mathematical statements from multiple sources:
 

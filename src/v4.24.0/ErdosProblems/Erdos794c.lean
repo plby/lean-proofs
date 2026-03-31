@@ -6,6 +6,10 @@ We prove that this construction satisfies all the required properties.
 
 import Mathlib
 
+set_option linter.style.lambdaSyntax false
+set_option linter.style.longLine false
+set_option linter.style.refine false
+
 namespace Erdos794c
 
 /-
@@ -190,3 +194,5 @@ theorem construction_properties (n : ℕ) (h : 3 ≤ n) :
 
 #print axioms construction_properties
 -- 'construction_properties' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos794c

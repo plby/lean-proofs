@@ -29,6 +29,13 @@ We also proved the necessary lemmas regarding the independence number and the ex
 
 import Mathlib
 
+set_option linter.style.commandStart false
+set_option linter.style.induction false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.openClassical false
+set_option linter.style.refine false
+
 open scoped Classical
 
 /-

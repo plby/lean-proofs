@@ -32,6 +32,10 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 -/
 import Mathlib
 
+set_option linter.style.longLine false
+set_option linter.style.openClassical false
+set_option linter.style.setOption false
+
 namespace Erdos198
 
 open scoped BigOperators
@@ -151,3 +155,7 @@ theorem erdos_198 : (∀ A : Set ℕ, IsSidon A → (∃ Y, IsAPOfLength Y ⊤ �
     exact hY.2 hyY hyA;
   · -- Since we have a contradiction, we can use the `contradiction` tactic to close the goal.
     contradiction
+
+end
+
+end Erdos198

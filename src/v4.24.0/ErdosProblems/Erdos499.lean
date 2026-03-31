@@ -24,8 +24,13 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
-namespace Erdos499
+set_option linter.style.longLine false
+set_option linter.style.maxHeartbeats false
+set_option linter.style.refine false
+set_option linter.unnecessarySimpa false
+set_option linter.unusedSimpArgs false
 
+namespace Erdos499
 
 /--
 Let $M$ be a real $n \times n$ doubly stochastic matrix. Does there exist some $σ \in S_n$ such that
@@ -116,3 +121,5 @@ theorem erdos_499 :
     rw [ hw_eq ];
     simp +decide [ Finset.sum_apply, Matrix.sum_apply ];
     exact lt_of_lt_of_le ( by simpa [ hσ_pos ] ) ( Finset.single_le_sum ( fun x _ => by split_ifs <;> linarith [ hw_nonneg x ] ) ( Finset.mem_univ σ ) )
+
+end Erdos499

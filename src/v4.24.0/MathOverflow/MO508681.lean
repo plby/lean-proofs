@@ -35,6 +35,11 @@ We define `game_value` as the integral of `w` over [0, 1] and prove it equals `3
 
 import Mathlib
 
+set_option linter.style.induction false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+
 namespace MO508681
 
 /-

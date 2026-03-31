@@ -1,5 +1,9 @@
 import ErdosProblems.Erdos134
 
+set_option linter.style.longLine false
+set_option linter.style.openClassical false
+set_option linter.style.refine false
+
 namespace Erdos618
 
 open scoped Classical

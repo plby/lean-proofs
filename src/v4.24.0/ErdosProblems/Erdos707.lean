@@ -6355,3 +6355,5 @@ theorem not_erdos_707AM : ¬ erdos_707 :=
     counterexampleAM_finite
     counterexampleAM_Sidon
     counterexampleAM_noExt
+
+end Erdos707

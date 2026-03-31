@@ -31,6 +31,8 @@ import Mathlib
 namespace Erdos246
 
 set_option linter.mathlibStandardSet false
+set_option linter.unusedSimpArgs false
+set_option linter.unusedVariables false
 
 open scoped Classical
 
@@ -1074,3 +1076,5 @@ theorem erdos_246 (a b : ℕ) (ha : 2 ≤ a) (hb : 2 ≤ b) (h_coprime : Nat.Cop
 
 #print axioms erdos_246
 -- 'erdos_246' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos246

@@ -31,6 +31,14 @@ namespace Erdos26
 open scoped Classical
 
 set_option maxHeartbeats 0
+set_option linter.style.docString false
+set_option linter.style.induction false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.openClassical false
+set_option linter.style.refine false
+set_option linter.style.setOption false
+set_option linter.unusedVariables false
 
 variable {β : Type*} [Preorder β]
 
@@ -487,3 +495,5 @@ theorem erdos_26.variants.rusza : ∃ A : ℕ → ℕ,
 
 #print axioms erdos_26.variants.rusza
 -- 'erdos_26.variants.rusza' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos26

@@ -32,6 +32,8 @@ import Mathlib
 
 import Mathlib.Tactic.GeneralizeProofs
 
+set_option linter.style.longLine false
+
 namespace Harmonic.GeneralizeProofs
 -- Harmonic `generalize_proofs` tactic
 
@@ -2461,3 +2463,7 @@ theorem erdos_1036 (c : ℝ) (hc : c > 0) :
 
 #print axioms erdos_1036
 -- 'erdos_1036' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end
+
+end Erdos1036

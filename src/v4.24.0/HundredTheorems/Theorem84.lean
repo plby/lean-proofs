@@ -2596,3 +2596,7 @@ theorem morley_theorem (A B C : P) (h_nd : NondegenerateTriangle A B C) :
 
 #print axioms morley_theorem
 -- 'morley_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end
+
+end Theorem84

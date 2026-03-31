@@ -3075,3 +3075,5 @@ theorem Corollary_3 : ∃ S, IsMaximalDisjointCollection S UnitSquare ∧ Set.Co
 
 #print axioms Corollary_3
 -- 'Corollary_3' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos1071

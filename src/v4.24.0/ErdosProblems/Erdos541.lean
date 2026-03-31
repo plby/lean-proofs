@@ -44,8 +44,10 @@ import Mathlib
 
 namespace Erdos541
 
-
 set_option linter.mathlibStandardSet false
+set_option linter.unnecessarySimpa false
+set_option linter.unusedSimpArgs false
+set_option linter.unusedVariables false
 
 open scoped Classical
 open scoped Pointwise
@@ -3064,3 +3066,7 @@ theorem erdos_541 : ∀ p, Fact p.Prime → ∀ (a : Fin p → ZMod p),
 
 #print axioms erdos_541
 -- 'erdos_541' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end
+
+end Erdos541

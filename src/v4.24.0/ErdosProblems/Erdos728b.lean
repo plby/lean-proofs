@@ -12,6 +12,13 @@ open Real
 open scoped Classical Nat Topology
 
 set_option maxHeartbeats 0
+set_option linter.style.commandStart false
+set_option linter.style.induction false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.openClassical false
+set_option linter.style.refine false
+set_option linter.style.setOption false
 
 /-
 Definitions of W and kappa. W_p(m) is the p-adic valuation of the product of m+1 to m+k. kappa_p(m) is the p-adic valuation of binom(2m, m).
@@ -1411,3 +1418,5 @@ theorem erdos_728_fc :
 
 #print axioms erdos_728_fc
 -- 'erdos_728_fc' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos728b

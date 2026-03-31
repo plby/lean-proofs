@@ -7172,3 +7172,5 @@ theorem van_doorn_everts_asymptotic_inexact :
 
 #print axioms van_doorn_everts_asymptotic_inexact
 -- 'van_doorn_everts_asymptotic_inexact' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos845b

@@ -34,6 +34,18 @@ import Mathlib
 
 namespace Erdos1026
 
+set_option linter.style.commandStart false
+set_option linter.style.induction false
+set_option linter.style.longLine false
+set_option linter.style.maxHeartbeats false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+set_option linter.style.setOption false
+set_option linter.unnecessarySimpa false
+set_option linter.unreachableTactic false
+set_option linter.unusedSimpArgs false
+set_option linter.unusedTactic false
+set_option linter.unusedVariables false
 
 set_option maxHeartbeats 0
 
@@ -3642,3 +3654,5 @@ theorem c_opt_eq_k_div_sq_add_a
         refine' ⟨ _, ⟨ fun i => i + 1, _, _, rfl ⟩ ⟩ <;> norm_num [ Function.Injective ];
         · exact fun i => Nat.cast_add_one_pos _;
         · exact fun i j h => Fin.ext h
+
+end Erdos1026

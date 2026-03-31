@@ -44,6 +44,9 @@ import Mathlib
 namespace Erdos229
 
 set_option linter.mathlibStandardSet false
+set_option linter.unnecessarySimpa false
+set_option linter.unusedSimpArgs false
+set_option linter.unusedVariables false
 
 open scoped Classical
 
@@ -1596,3 +1599,5 @@ theorem erdos_229 :
 
 #print axioms erdos_229
 -- 'erdos_229' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos229

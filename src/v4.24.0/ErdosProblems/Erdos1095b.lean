@@ -27,8 +27,12 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
-namespace Erdos1095b
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.openClassical false
+set_option linter.style.refine false
 
+namespace Erdos1095b
 
 open Classical Filter Real
 
@@ -222,3 +226,5 @@ theorem erdos_1095_weaker_upper_bound :
 
 #print axioms erdos_1095_weaker_upper_bound
 -- 'erdos_1095_weaker_upper_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos1095b

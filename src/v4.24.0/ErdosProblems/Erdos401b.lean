@@ -1433,3 +1433,5 @@ theorem theorem_1 (r : ℕ) (hr : r ≥ 1) :
 
 #print axioms theorem_1
 -- 'theorem_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos401b

@@ -15,6 +15,7 @@ import Mathlib
 namespace Erdos1007b
 
 set_option linter.mathlibStandardSet false
+set_option linter.unusedSimpArgs false
 
 open scoped BigOperators
 open scoped Real
@@ -297,3 +298,7 @@ theorem K33_no_unit_distance_embedding : ¬ Nonempty (UnitDistanceEmbedding (com
       exact ⟨ hf.ne <| by decide, hf.ne <| by decide, hf.ne <| by decide ⟩;
     simp_all +decide [ Set.subset_def ];
     cases h y1 ( hL.2.subset ⟨ h_bisector_planes.1.1, h_bisector_planes.1.2 ⟩ ) ( by simpa [ dist_eq_norm ] using h_sphere.1 ) <;> cases h y2 ( hL.2.subset ⟨ h_bisector_planes.2.1.1, h_bisector_planes.2.1.2 ⟩ ) ( by simpa [ dist_eq_norm ] using h_sphere.2.1 ) <;> cases h y3 ( hL.2.subset ⟨ h_bisector_planes.2.2.1, h_bisector_planes.2.2.2 ⟩ ) ( by simpa [ dist_eq_norm ] using h_sphere.2.2 ) <;> aesop
+
+end
+
+end Erdos1007b

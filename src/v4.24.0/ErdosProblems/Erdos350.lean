@@ -39,6 +39,13 @@ set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
+set_option linter.style.cdot false
+set_option linter.style.docString false
+set_option linter.style.longLine false
+set_option linter.style.openClassical false
+set_option linter.style.refine false
+set_option linter.style.setOption false
+set_option linter.unusedSimpArgs false
 
 noncomputable section
 
@@ -226,3 +233,7 @@ theorem erdos_350 (A : Finset ℕ) (hA : DecidableDistinctSubsetSums A) :
   have h_eq : (∑ n ∈ A, (1 : ℚ) / n) = (∑ n ∈ A, (1 : ℝ) / n) := by
     bound;
   exact h_eq ▸ mod_cast h_reciprocal_sum
+
+end
+
+end Erdos350

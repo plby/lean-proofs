@@ -42,6 +42,17 @@ set_option maxHeartbeats 0
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
+set_option linter.style.cases false
+set_option linter.style.commandStart false
+set_option linter.style.induction false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.openClassical false
+set_option linter.style.refine false
+set_option linter.style.setOption false
+set_option linter.unnecessarySimpa false
+set_option linter.unusedSimpArgs false
+set_option linter.unusedVariables false
 
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
@@ -880,3 +891,7 @@ theorem erdos_31 (A : Set ℕ) (hA : A.Infinite) :
     simpa [ add_div ] using h_diff.add ( tendsto_one_div_add_atTop_nhds_zero_nat );
   · refine' squeeze_zero_norm' _ a;
     filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn using by rw [ Real.norm_of_nonneg ( by positivity ) ] ; gcongr ; linarith;
+
+end
+
+end Erdos31

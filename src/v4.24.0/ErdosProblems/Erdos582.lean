@@ -37,6 +37,13 @@ namespace Erdos582
 --set_option linter.mathlibStandardSet false
 set_option linter.unusedSectionVars false
 set_option linter.unusedVariables false
+set_option linter.style.cases false
+set_option linter.style.induction false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.openClassical false
+set_option linter.style.refine false
+set_option linter.style.setOption false
 
 open scoped Classical
 open SimpleGraph
@@ -1728,3 +1735,5 @@ theorem erdos_582 : ∃ (V : Type) (_ : Fintype V) (_ : DecidableEq V) (G : Simp
 
 #print axioms erdos_582
 -- 'erdos_582' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos582

@@ -21,6 +21,9 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
+set_option linter.style.longLine false
+set_option linter.style.refine false
+
 namespace Erdos56x
 
 /--
@@ -65,3 +68,5 @@ theorem misformalized_erdos_56 : (∀ᵉ (N ≥ 2) (k > 0), (MaxWeaklyDivisible 
     · exact ⟨ _, fun n hn => hn.choose_spec.2.2 ▸ Finset.card_le_card hn.choose_spec.1 ⟩;
     · simp +decide [ WeaklyDivisible ];
   · norm_num +zetaDelta at *
+
+end Erdos56x

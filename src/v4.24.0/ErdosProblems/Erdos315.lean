@@ -30,6 +30,12 @@ We formalized the main theorem of the paper, proving that for any sequence of po
 
 import Mathlib
 
+set_option linter.style.commandStart false
+set_option linter.style.induction false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+
 namespace Erdos315
 
 
@@ -1397,3 +1403,5 @@ theorem erdos_315 (a : ℕ → ℕ)
 
 #print axioms erdos_315
 -- 'erdos_315' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos315

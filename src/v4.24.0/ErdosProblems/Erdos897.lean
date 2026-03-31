@@ -48,6 +48,7 @@ namespace Erdos897
 
 
 set_option linter.mathlibStandardSet false
+set_option linter.unusedVariables false
 
 open scoped Classical
 
@@ -942,3 +943,5 @@ theorem erdos_897.parts.ii : (∀ (f : ℕ → ℝ),
 
 #print axioms erdos_897.parts.ii
 -- 'erdos_897.parts.ii' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos897

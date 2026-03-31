@@ -25,12 +25,13 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
-namespace Erdos226
-
-
 set_option linter.mathlibStandardSet false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
+set_option linter.unnecessarySimpa false
+set_option linter.unusedTactic false
+
+namespace Erdos226
 
 open scoped Classical
 
@@ -2391,3 +2392,7 @@ theorem erdos_226 : ∃ F : ℂ → ℂ, Differentiable ℂ F ∧ (∀ x : ℝ, 
 
 #print axioms erdos_226
 -- 'erdos_226' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end
+
+end Erdos226

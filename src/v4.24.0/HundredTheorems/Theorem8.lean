@@ -19,8 +19,18 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7
 
 import Mathlib
 
-namespace Theorem8
+set_option linter.dupNamespace false
+set_option linter.style.cases false
+set_option linter.style.commandStart false
+set_option linter.style.induction false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+set_option linter.unnecessarySimpa false
+set_option linter.unusedSimpArgs false
+set_option linter.unusedTactic false
 
+namespace Theorem8
 
 /-- `Constructible x` means: the real number `x` can be obtained from rational
 numbers by a finite sequence of field operations and extraction of square
@@ -1314,3 +1324,5 @@ theorem freek_08_plane (cfg : RCBase) :
 end RulerCompass
 
 end
+
+end Theorem8

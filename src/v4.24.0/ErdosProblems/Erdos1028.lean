@@ -1468,3 +1468,5 @@ theorem erdos_1028 : ∃ c C : ℝ, 0 < c ∧ c < C ∧ ∀ᶠ n : ℕ in atTop,
 
 #print axioms erdos_1028
 -- 'erdos_1028' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos1028

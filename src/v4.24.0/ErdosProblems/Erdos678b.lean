@@ -32,6 +32,9 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
+set_option linter.style.longLine false
+set_option linter.style.show false
+
 namespace Erdos678b
 
 open Real
@@ -213,3 +216,5 @@ theorem not_erdos_678 : ¬ (∀ k ≥ 3, {(m, n) | n + k ≤ m ∧ lcmInterval m
 
 #print axioms not_erdos_678
 -- 'not_erdos_678' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos678b

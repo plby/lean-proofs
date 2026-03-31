@@ -950,3 +950,5 @@ theorem erdos_1007 : IsLeast {n : ℕ | ∃ (V : Type) (_ : Fintype V) (_ : Deci
 
 #print axioms erdos_1007
 -- 'erdos_1007' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos1007

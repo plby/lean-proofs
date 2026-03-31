@@ -49,6 +49,12 @@ namespace Erdos862
 
 
 set_option maxHeartbeats 0
+set_option linter.style.commandStart false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.openClassical false
+set_option linter.style.refine false
+set_option linter.style.setOption false
 
 open scoped BigOperators
 
@@ -1336,3 +1342,7 @@ theorem erdos_862 :
 
 #print axioms erdos_862
 -- 'erdos_862' depends on axioms: [prime_between, propext, Classical.choice, Quot.sound]
+
+end
+
+end Erdos862

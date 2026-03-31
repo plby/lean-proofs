@@ -48,6 +48,12 @@ namespace Erdos659
 
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
+set_option linter.style.cases false
+set_option linter.style.commandStart false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+set_option linter.style.setOption false
 
 set_option maxHeartbeats 0
 
@@ -1922,3 +1928,5 @@ theorem erdos_659 : ∃ A : ℕ → Finset ℝ²,
 
 #print axioms erdos_659
 -- 'erdos_659' depends on axioms: [bernays, propext, Classical.choice, Quot.sound]
+
+end Erdos659

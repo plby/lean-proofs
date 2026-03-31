@@ -31,3 +31,5 @@ theorem erdos_493 :
   use ![n + 2, 2];
   norm_num [ Fin.forall_fin_two ];
   exact ⟨ hn, by ring ⟩
+
+end Erdos493

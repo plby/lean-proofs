@@ -33,6 +33,13 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
+set_option linter.style.induction false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+set_option linter.unusedSimpArgs false
+set_option linter.unusedVariables false
+
 namespace Erdos303
 
 theorem algebraic_identity_for_N_div_candidates (N u v : ℕ)
@@ -471,3 +478,5 @@ theorem erdos_303 :
   refine' ⟨ k * y * z, k * z * ( y + z ), k * y * ( y + z ), _, _, _ ⟩ <;> simp_all +decide [ Set.Subsingleton ];
   · exact ⟨ ⟨ by nlinarith [ mul_pos ( by positivity : 0 < k ) ( by positivity : 0 < y ), mul_pos ( by positivity : 0 < k ) ( by positivity : 0 < z ) ], ⟨ by positivity, by positivity, by positivity ⟩, ⟨ by positivity, by positivity ⟩, by positivity ⟩, ⟨ ⟨ ⟨ by tauto, by positivity ⟩, by positivity ⟩, ⟨ by positivity, by positivity ⟩, by positivity ⟩, ⟨ by positivity, by positivity ⟩, by positivity ⟩;
   · field_simp
+
+end Erdos303

@@ -51,6 +51,8 @@ def has_subgraph (E : Finset (Finset ℕ)) (v_count e_count : ℕ) : Prop :=
   ∃ s, s ⊆ V_set ∧ s.card = v_count ∧ (E.filter (fun e => e ⊆ s)).card ≥ e_count
 
 set_option maxRecDepth 4000 in
+set_option linter.style.longLine false
+set_option linter.style.nativeDecide false
 theorem counterexample_disproves_conjecture :
   (∀ e ∈ counterexample_edges, e.card = 3) ∧
   counterexample_edges.card ≥ n_val^3 + 1 ∧
@@ -76,3 +78,5 @@ theorem not_erdos_794 : ¬erdos_794 := by
 
 #print axioms not_erdos_794
 -- 'not_erdos_794' depends on axioms: [propext, Classical.choice, Lean.ofReduceBool, Lean.trustCompiler, Quot.sound]
+
+end Erdos794b

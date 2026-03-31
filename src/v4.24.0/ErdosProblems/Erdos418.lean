@@ -26,6 +26,15 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
+set_option linter.style.cdot false
+set_option linter.style.commandStart false
+set_option linter.style.induction false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.nativeDecide false
+set_option linter.style.refine false
+set_option linter.unusedSimpArgs false
+
 namespace Erdos418
 
 
@@ -547,3 +556,5 @@ theorem erdos_418 : { (n - n.totient : ℕ) | n }ᶜ.Infinite := by
     intros k hk
     apply browkin_schinzel k hk;
   exact h_infinite.mono fun x hx => by obtain ⟨ k, hk, rfl ⟩ := hx; exact fun h => h_noncototient k hk <| by obtain ⟨ n, hn ⟩ := h; exact ⟨ n, hn.symm ⟩ ;
+
+end Erdos418

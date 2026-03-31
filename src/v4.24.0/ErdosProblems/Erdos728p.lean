@@ -6296,3 +6296,5 @@ theorem theorem_1_2 :
           intros c hc; filter_upwards [ this hc, Filter.eventually_ge_atTop 1 ] with x hx₁ hx₂; exact le_trans ( by simpa [ abs_of_nonneg ( show 0 ≤ ( bad_set_intrinsic_1_2 x |> Finset.card : ℝ ) by positivity ), abs_of_nonneg ( show 0 ≤ ( bad_set_thm_1_2_small x |> Finset.card : ℝ ) by positivity ) ] using h_subset x hx₂ ) hx₁;
         · exact Filter.tendsto_id;
       convert h_subset using 1
+
+end Erdos728p

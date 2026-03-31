@@ -20,6 +20,10 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
+set_option linter.style.cases false
+set_option linter.style.longLine false
+set_option linter.style.refine false
+
 namespace Erdos354x
 
 open Filter Set Topology
@@ -138,3 +142,5 @@ theorem erdos_354.parts.i : (∀ᵉ (α > 0) (β > 0), Irrational (α / β) →
     · omega;
   · rw [ Filter.frequently_atTop ] at *;
     exact fun n => by obtain ⟨ m, hm₁, hm₂ ⟩ := h_gaps n; exact ⟨ 2 * m + 1, by linarith, hm₂ ⟩ ;
+
+end Erdos354x

@@ -13,6 +13,9 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
+set_option linter.style.longLine false
+set_option linter.style.refine false
+
 namespace Erdos958
 
 
@@ -175,3 +178,5 @@ theorem not_erdos_958 : ¬erdos_958 := by
 
 #print axioms not_erdos_958
 -- 'not_erdos_958' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos958

@@ -239,3 +239,7 @@ theorem erdos_264.parts.i : ¬IsIrrationalitySequence (2 ^ ·) := by
     exact ⟨ 5, Set.forall_mem_range.mpr fun k => by rcases left k with ( h | h | h | h | h ) <;> norm_num [ h ] ⟩;
   specialize a h_bdd ( fun x => by cases left x <;> aesop ) ; erw [ Summable.tsum_eq_zero_add ] at a <;> norm_num at * ; aesop;
   exact Summable.of_nonneg_of_le ( fun n => inv_nonneg.2 ( by positivity ) ) ( fun n => inv_anti₀ ( by positivity ) ( show ( 2 ^ n + ( b n : ℝ ) ) ≥ 2 ^ n by exact le_add_of_nonneg_right ( Nat.cast_nonneg _ ) ) ) ( by simpa using summable_geometric_two )
+
+end
+
+end Erdos264b

@@ -20,6 +20,15 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
+set_option linter.style.cases false
+set_option linter.style.commandStart false
+set_option linter.style.induction false
+set_option linter.style.longLine false
+set_option linter.style.maxHeartbeats false
+set_option linter.style.refine false
+set_option linter.unusedSimpArgs false
+set_option linter.unusedVariables false
+
 namespace Erdos264
 
 /--
@@ -604,3 +613,5 @@ theorem erdos_264.variants.example : IsIrrationalitySequence (fun n ↦ 2 ^ (2 ^
   exact hb) (by
   aesop) (by
   aesop)
+
+end Erdos264

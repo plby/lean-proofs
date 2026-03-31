@@ -47,6 +47,9 @@ import Mathlib
 namespace Erdos762
 
 set_option linter.mathlibStandardSet false
+set_option linter.unusedSimpArgs false
+set_option linter.unusedTactic false
+set_option linter.unusedVariables false
 
 set_option maxHeartbeats 0
 

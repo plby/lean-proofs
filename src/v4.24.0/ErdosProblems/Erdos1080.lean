@@ -46,7 +46,10 @@ import Mathlib
 
 namespace Erdos1080
 
-
+set_option linter.unusedSectionVars false
+set_option linter.unusedSimpArgs false
+set_option linter.unusedTactic false
+set_option linter.unusedVariables false
 set_option linter.mathlibStandardSet false
 
 open scoped Classical
@@ -1382,3 +1385,5 @@ def not_erdos_1080 : ¬erdos_1080 := by
 
 #print axioms not_erdos_1080
 -- 'not_erdos_1080' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos1080

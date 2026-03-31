@@ -38,6 +38,11 @@ The definitions and lemmas provided in the initial workspace (Lemma 1 and parts 
 
 import Mathlib
 
+set_option linter.style.induction false
+set_option linter.style.longLine false
+set_option linter.style.maxHeartbeats false
+set_option linter.style.refine false
+
 namespace Erdos368b
 
 /-

@@ -17,14 +17,16 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7
 
 import Mathlib
 
-namespace Theorem28
+set_option linter.style.longLine false
+set_option linter.style.maxHeartbeats false
+set_option linter.style.refine false
+set_option linter.unusedSimpArgs false
 
+namespace Theorem28
 
 open scoped Real
 
 open EuclideanGeometry
-
-noncomputable section AristotleLemmas
 
 /-
 Define a conversion from Euclidean space to Complex numbers and show it preserves distances (isometry).
@@ -35,7 +37,7 @@ lemma toComplex_isometry (x y : EuclideanSpace ℝ (Fin 2)) :
   dist x y = ‖toComplex x - toComplex y‖ := by
     norm_num [ EuclideanSpace.dist_eq ];
     norm_num [ Real.dist_eq, Complex.normSq, Complex.norm_def ];
-    ring!
+    ring_nf!
 
 /-
 A set of points in the Euclidean plane is collinear if and only if their corresponding complex numbers are collinear (over the reals).
@@ -89,7 +91,7 @@ lemma chord_equation (z u v : ℂ) (hu : ‖u‖ = 1) (hv : ‖v‖ = 1) (huv : 
 /-
 Define the intersection point of two chords (z1, z2) and (z3, z4) on the unit circle and prove that this point lies on both lines.
 -/
-def chord_intersection (z₁ z₂ z₃ z₄ : ℂ) : ℂ :=
+noncomputable def chord_intersection (z₁ z₂ z₃ z₄ : ℂ) : ℂ :=
   (z₃ * z₄ * (z₁ + z₂) - z₁ * z₂ * (z₃ + z₄)) / (z₃ * z₄ - z₁ * z₂)
 
 lemma chord_intersection_is_intersection (z₁ z₂ z₃ z₄ : ℂ)
@@ -126,9 +128,9 @@ lemma chord_intersection_is_intersection (z₁ z₂ z₃ z₄ : ℂ)
         unfold chord_intersection;
         rw [ div_add', div_eq_iff ] <;> simp_all +decide [ sub_eq_iff_eq_add ];
         rw [ mul_div, div_mul_eq_mul_div, add_div', div_eq_iff ];
-        · rw [ show starRingEnd ℂ z₁ = z₁⁻¹ from by rw [ Complex.inv_def ] ; simp +decide [ Complex.normSq_eq_norm_sq, h₁ ] ] ; rw [ show starRingEnd ℂ z₂ = z₂⁻¹ from by rw [ Complex.inv_def ] ; simp +decide [ Complex.normSq_eq_norm_sq, h₂ ] ] ; rw [ show starRingEnd ℂ z₃ = z₃⁻¹ from by rw [ Complex.inv_def ] ; simp +decide [ Complex.normSq_eq_norm_sq, h₃ ] ] ; rw [ show starRingEnd ℂ z₄ = z₄⁻¹ from by rw [ Complex.inv_def ] ; simp +decide [ Complex.normSq_eq_norm_sq, h₄ ] ] ; ring;
-          by_cases h₃ : z₃ = 0 <;> by_cases h₄ : z₄ = 0 <;> simp_all +decide [ sq, mul_assoc, mul_comm, mul_left_comm ] ; ring;
-          by_cases h₁ : z₁ = 0 <;> by_cases h₂ : z₂ = 0 <;> simp_all +decide [ sq, mul_assoc, mul_left_comm ] ; ring;
+        · rw [ show starRingEnd ℂ z₁ = z₁⁻¹ from by rw [ Complex.inv_def ] ; simp +decide [ Complex.normSq_eq_norm_sq, h₁ ] ] ; rw [ show starRingEnd ℂ z₂ = z₂⁻¹ from by rw [ Complex.inv_def ] ; simp +decide [ Complex.normSq_eq_norm_sq, h₂ ] ] ; rw [ show starRingEnd ℂ z₃ = z₃⁻¹ from by rw [ Complex.inv_def ] ; simp +decide [ Complex.normSq_eq_norm_sq, h₃ ] ] ; rw [ show starRingEnd ℂ z₄ = z₄⁻¹ from by rw [ Complex.inv_def ] ; simp +decide [ Complex.normSq_eq_norm_sq, h₄ ] ] ; ring_nf;
+          by_cases h₃ : z₃ = 0 <;> by_cases h₄ : z₄ = 0 <;> simp_all +decide [ sq, mul_assoc, mul_comm, mul_left_comm ] ; ring_nf;
+          by_cases h₁ : z₁ = 0 <;> by_cases h₂ : z₂ = 0 <;> simp_all +decide [ sq, mul_assoc, mul_left_comm ] ; ring_nf;
           grind;
         · exact sub_ne_zero_of_ne <| by intro h; exact h_denom <| by simpa [ Complex.ext_iff ] using congr_arg Star.star h;
         · simp_all +decide [ Complex.ext_iff, sub_eq_iff_eq_add ];
@@ -241,7 +243,7 @@ lemma chord_intersection_unique (z z₁ z₂ z₃ z₄ : ℂ)
 /-
 Define a mapping from the Euclidean plane to the complex plane that maps the circle of radius r centered at c to the unit circle. Prove that this mapping preserves the unit circle property.
 -/
-def complex_map (c : EuclideanSpace ℝ (Fin 2)) (r : ℝ) (p : EuclideanSpace ℝ (Fin 2)) : ℂ :=
+noncomputable def complex_map (c : EuclideanSpace ℝ (Fin 2)) (r : ℝ) (p : EuclideanSpace ℝ (Fin 2)) : ℂ :=
   (toComplex p - toComplex c) / r
 
 lemma complex_map_unit (c p : EuclideanSpace ℝ (Fin 2)) (r : ℝ) (h : dist c p = r) (hr : r ≠ 0) :
@@ -250,7 +252,7 @@ lemma complex_map_unit (c p : EuclideanSpace ℝ (Fin 2)) (r : ℝ) (h : dist c 
     norm_num [ dist_eq_norm', EuclideanSpace.norm_eq ];
     rw [ div_eq_iff ];
     · norm_num [ Complex.normSq, Complex.norm_def ];
-      ring!;
+      ring_nf!;
     · exact ne_of_gt <| Real.sqrt_pos.mpr <| not_le.mp fun h => hr <| by ext i; fin_cases i <;> nlinarith!
 
 /-
@@ -261,12 +263,12 @@ lemma complex_map_collinear (c p q s : EuclideanSpace ℝ (Fin 2)) (r : ℝ) (hr
     norm_num [ collinear_iff_exists_forall_eq_smul_vadd ];
     constructor <;> rintro ⟨ p₀, v, hp₀, hv ⟩;
     · rcases hp₀ with ⟨ r₁, rfl ⟩ ; rcases hv with ⟨ ⟨ r₂, rfl ⟩, ⟨ r₃, rfl ⟩ ⟩;
-      refine' ⟨ ( toComplex p₀ - toComplex c ) / r, ( toComplex v ) / r, _, _, _ ⟩ <;> ring;
-      · unfold complex_map; ring;
-        unfold toComplex; norm_num [ Complex.ext_iff ] ; ring;
+      refine' ⟨ ( toComplex p₀ - toComplex c ) / r, ( toComplex v ) / r, _, _, _ ⟩ <;> ring_nf;
+      · unfold complex_map; ring_nf;
+        unfold toComplex; norm_num [ Complex.ext_iff ] ; ring_nf;
         exact ⟨ r₁, by ring, by ring ⟩;
       · unfold complex_map;
-        unfold toComplex; norm_num [ Complex.ext_iff ] ; ring;
+        unfold toComplex; norm_num [ Complex.ext_iff ] ; ring_nf;
         exact ⟨ r₂, by ring, by ring ⟩;
       · unfold complex_map; ring_nf; aesop;
         unfold toComplex; norm_num [ Complex.ext_iff ] ; ring_nf ; aesop;
@@ -297,7 +299,7 @@ lemma collinear_on_circle_implies_mem (z₁ z₂ z₃ : ℂ)
     z₃ = z₁ ∨ z₃ = z₂ := by
       -- Apply the algebraic collinearity condition from Exercise 3 for the unit circle.
       have h_cond : (z₂ - z₁) * star (z₃ - z₁) = star (z₂ - z₁) * (z₃ - z₁) := by
-        exact?;
+        exact (complex_collinear_iff z₁ z₂ z₃).mp h_col;
       norm_num [ Complex.normSq, Complex.norm_def ] at *;
       norm_num [ Complex.ext_iff ] at *;
       grind
@@ -334,8 +336,6 @@ lemma denom_ne_zero_of_intersection (z₁ z₂ z₃ z₄ p : ℂ)
     z₃ * z₄ ≠ z₁ * z₂ := by
       have := chord_equation p z₁ z₂ h₁ h₂ h_distinct_12; have := chord_equation p z₃ z₄ h₃ h₄ h_distinct_34; aesop;
       grind
-
-end AristotleLemmas
 
 set_option maxHeartbeats 0 in
 /--
@@ -435,3 +435,5 @@ by
     aesop;
   convert h_collinear_real using 1;
   convert complex_map_collinear c x₇ x₈ x₉ r hr using 1
+
+end Theorem28

@@ -28,6 +28,12 @@ The bounds use the PNT.
 
 import Mathlib
 
+set_option linter.style.induction false
+set_option linter.style.longLine false
+set_option linter.style.maxHeartbeats false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+
 namespace Erdos648
 
 open Asymptotics Filter Nat Real
@@ -1161,3 +1167,5 @@ theorem erdos_648 :
 
 #print axioms erdos_648
 -- 'erdos_648' depends on axioms: [pi_alt, propext, Classical.choice, Quot.sound]
+
+end Erdos648

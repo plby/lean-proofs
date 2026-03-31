@@ -1,5 +1,9 @@
 import Mathlib
 
+set_option linter.style.induction false
+set_option linter.style.longLine false
+set_option linter.style.refine false
+
 namespace Erdos459b
 
 
@@ -135,3 +139,5 @@ There are infinitely many u such that f(u) = u^2.
 -/
 theorem infinite_setOf_f_eq_sq : Set.Infinite {u | f u = u ^ 2} := by
   exact Nat.infinite_setOf_prime.mono ( fun p hp ↦ by simpa [ hp.ne_zero ] using f_prime hp ) |> Set.Infinite.mono fun u hu ↦ by aesop;
+
+end Erdos459b

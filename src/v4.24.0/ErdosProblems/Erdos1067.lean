@@ -2506,3 +2506,5 @@ theorem not_erdos_1067: ¬erdos_1067.{1} := by
 
 #print axioms not_erdos_1067
 -- 'not_erdos_1067' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos1067

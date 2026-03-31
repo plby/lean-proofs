@@ -34,8 +34,8 @@ import Mathlib
 
 namespace Erdos1000
 
-
 set_option linter.mathlibStandardSet false
+set_option linter.unusedVariables false
 
 open scoped Classical
 
@@ -1023,3 +1023,5 @@ theorem erdos_1000_true :
         by_cases h : ‹_› = 0 <;> simp +decide [ h, mul_assoc, mul_comm ] ; ring;
       simpa using Filter.Tendsto.congr' ( by filter_upwards [ Filter.eventually_ge_atTop 1 ] with N hN; aesop ) ( h_a0.add h_shift );
     exact h_shift.congr fun N => by simp +decide [ cesaroPhi ] ;
+
+end Erdos1000

@@ -11,6 +11,8 @@ import Mathlib
 namespace Erdos1048b
 
 set_option linter.mathlibStandardSet false
+set_option linter.unusedSimpArgs false
+set_option linter.unusedTactic false
 
 open scoped BigOperators
 open scoped Real
@@ -487,3 +489,7 @@ theorem my_U_diam (k : ℕ) : EMetric.diam (my_U k) = EMetric.diam (my_g '' my_D
     · unfold my_U; aesop;
     · simp +decide [ edist_dist, Complex.norm_exp ];
       norm_num [ ← mul_sub, Complex.dist_eq, Complex.norm_exp ]
+
+end
+
+end Erdos1048b

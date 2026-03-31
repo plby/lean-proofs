@@ -21,6 +21,8 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
+set_option linter.style.longLine false
+
 namespace Erdos480x
 
 theorem misformalized_erdos_480 :
@@ -29,3 +31,5 @@ theorem misformalized_erdos_480 :
   -- Let's choose any $x \in \ell^\infty$.
   intro x hx;
   refine Set.infinite_of_injective_forall_mem ( fun m n hmn => by aesop ) fun m => ⟨ m + 1, 0, ?_, ?_, rfl ⟩ <;> norm_num
+
+end Erdos480x

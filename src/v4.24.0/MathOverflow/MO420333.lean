@@ -48,6 +48,7 @@ set_option linter.style.induction false
 set_option linter.style.openClassical false
 set_option linter.style.commandStart false
 set_option linter.unusedVariables false
+set_option linter.style.multiGoal false
 
 open scoped Classical
 

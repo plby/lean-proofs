@@ -37,6 +37,10 @@ set_option maxHeartbeats 0
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
+set_option linter.style.cases false
+set_option linter.style.longLine false
+set_option linter.style.openClassical false
+set_option linter.style.setOption false
 
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
@@ -162,3 +166,7 @@ theorem erdos_645 (c : ℕ → Bool) : ∃ x d, 0 < x ∧ x < d ∧ (∃ C, c x 
   use x, hx_pos, d, hd_gt_x;
   -- By combining the equalities from `h_eq`, we can conclude that `c (x + d) = c x` and `c (x + 2 * d) = c x`.
   simp [h_eq]
+
+end
+
+end Erdos645
