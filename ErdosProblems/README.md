@@ -55,6 +55,7 @@
 * [Erdős Problem 871](Erdos871.md)
 * [Erdős Problem 897](Erdos897.md)
 * [Erdős Problem 958](Erdos958.md)
+* [Erdős Problem 990](Erdos990.md)
 * [Erdős Problem 1000](Erdos1000.md)
 * [Erdős Problem 1007](Erdos1007.md)
 * [Erdős Problem 1008](Erdos1008.md)
