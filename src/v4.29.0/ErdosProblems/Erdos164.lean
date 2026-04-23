@@ -4748,19 +4748,6 @@ noncomputable def series (n : ℕ) : ℝ :=
 noncomputable def kernel (n : ℕ) (t : ℝ) : ℝ :=
   ((n : ℝ) ^ (-t)) * (1 - (2 : ℝ) ^ (-t)) / Real.log (2 : ℝ)
 
-lemma analyticSeries_bound_shift {t : ℝ} (ht : 0 < t) :
-    analyticSeries (1 + t) ≤
-      1 / t - Real.log (2 : ℝ) / Real.rpow (2 : ℝ) (1 + t) := by
-  have hs : 1 < 1 + t := by linarith
-  have h :=
-    analyticSeries_add_log_term_le (s := 1 + t) hs Nat.prime_two
-  have h' :
-      analyticSeries (1 + t) +
-          Real.log (2 : ℝ) / Real.rpow (2 : ℝ) (1 + t) ≤
-        1 / t := by
-    simpa using h
-  linarith
-
 lemma kernel_nonneg {n : ℕ} (hn : 1 ≤ n) {t : ℝ} (ht : 0 < t) :
     0 ≤ kernel n t := by
   have hn_pos_nat : 0 < n := lt_of_lt_of_le Nat.zero_lt_one hn
@@ -4777,12 +4764,6 @@ lemma kernel_nonneg {n : ℕ} (hn : 1 ≤ n) {t : ℝ} (ht : 0 < t) :
     exact mul_nonneg hn_factor_nonneg hshift_nonneg
   exact div_nonneg hnum_nonneg hlog2.le
 
-lemma kernel_mul_analyticSeries_le
-    {n : ℕ} (hn : 1 ≤ n) {t : ℝ} (ht : 0 < t) :
-    kernel n t * analyticSeries (1 + t) ≤
-      kernel n t * (1 / t - Real.log (2 : ℝ) / Real.rpow (2 : ℝ) (1 + t)) := by
-  exact mul_le_mul_of_nonneg_left (analyticSeries_bound_shift ht) (kernel_nonneg hn ht)
-
 lemma analyticSeries_nonneg_shift (t : ℝ) :
     0 ≤ analyticSeries (1 + t) := by
   rw [analyticSeries]
@@ -4792,121 +4773,6 @@ lemma analyticSeries_nonneg_shift (t : ℝ) :
         Real.rpow_pos_of_pos (by
           have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
           exact_mod_cast hqnatpos) _
-
-lemma aux_bracket_nonneg {t : ℝ} (ht : 0 < t) :
-    0 ≤ 1 / t - Real.log (2 : ℝ) / Real.rpow (2 : ℝ) (1 + t) := by
-  exact (analyticSeries_nonneg_shift t).trans (analyticSeries_bound_shift ht)
-
-lemma aux_integrand_integrable {n : ℕ} (hn : 1 < n) :
-    MeasureTheory.IntegrableOn
-      (fun t : ℝ =>
-        kernel n t * (1 / t - Real.log (2 : ℝ) / Real.rpow (2 : ℝ) (1 + t)))
-      (Set.Ioi (0 : ℝ)) := by
-  let μ := MeasureTheory.volume.restrict (Set.Ioi (0 : ℝ))
-  have hn1 : 1 ≤ n := le_of_lt hn
-  have hn_pos_nat : 0 < n := lt_trans Nat.zero_lt_one hn
-  have hn_pos : 0 < (n : ℝ) := by
-    exact_mod_cast hn_pos_nat
-  have hn_cast : (1 : ℝ) < n := by
-    exact_mod_cast hn
-  have hlogn_pos : 0 < Real.log (n : ℝ) := Real.log_pos hn_cast
-  have h_exp_int :
-      MeasureTheory.Integrable
-        (fun t : ℝ => Real.exp (-(Real.log (n : ℝ)) * t)) μ := by
-    simpa [μ, MeasureTheory.IntegrableOn] using
-      (exp_neg_integrableOn_Ioi (a := (0 : ℝ)) hlogn_pos)
-  have h_meas :
-      AEMeasurable
-        (fun t : ℝ =>
-          kernel n t * (1 / t - Real.log (2 : ℝ) / Real.rpow (2 : ℝ) (1 + t))) μ := by
-    have hn0 : (n : ℝ) ≠ 0 := by
-      exact_mod_cast (Nat.ne_of_gt hn_pos_nat)
-    have hpow_n_meas : Measurable (fun t : ℝ => (n : ℝ) ^ (-t)) :=
-      ((Real.continuous_const_rpow hn0).comp (continuous_neg.comp continuous_id)).measurable
-    have hpow2_neg_meas : Measurable (fun t : ℝ => (2 : ℝ) ^ (-t)) :=
-      ((Real.continuous_const_rpow (by norm_num : (2 : ℝ) ≠ 0)).comp
-        (continuous_neg.comp continuous_id)).measurable
-    have hkernel_meas : Measurable (fun t : ℝ => kernel n t) := by
-      simpa [kernel, div_eq_mul_inv, mul_assoc, mul_left_comm, mul_comm] using
-        (hpow_n_meas.mul (measurable_const.sub hpow2_neg_meas)).mul_const
-          ((Real.log (2 : ℝ))⁻¹)
-    have hpow2_shift_meas : Measurable (fun t : ℝ => Real.rpow (2 : ℝ) (1 + t)) :=
-      ((Real.continuous_const_rpow (by norm_num : (2 : ℝ) ≠ 0)).comp
-        (continuous_const.add continuous_id)).measurable
-    have hbracket_meas :
-        Measurable
-          (fun t : ℝ => 1 / t - Real.log (2 : ℝ) / Real.rpow (2 : ℝ) (1 + t)) := by
-      exact (measurable_const.div measurable_id).sub
-        (measurable_const.div hpow2_shift_meas)
-    exact (hkernel_meas.mul hbracket_meas).aemeasurable
-  have h_bound :
-      ∀ᵐ t : ℝ ∂μ,
-        ‖kernel n t * (1 / t - Real.log (2 : ℝ) / Real.rpow (2 : ℝ) (1 + t))‖ ≤
-          Real.exp (-(Real.log (n : ℝ)) * t) := by
-    filter_upwards [show ∀ᵐ t : ℝ ∂MeasureTheory.volume.restrict (Set.Ioi (0 : ℝ)),
-        t ∈ Set.Ioi (0 : ℝ) from
-          MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
-    have ht0 : 0 < t := ht
-    have hlog2 : 0 < Real.log (2 : ℝ) := Real.log_pos (by norm_num)
-    have hcorr_nonneg :
-        0 ≤ Real.log (2 : ℝ) / Real.rpow (2 : ℝ) (1 + t) := by
-      exact div_nonneg hlog2.le
-        (le_of_lt (Real.rpow_pos_of_pos (by norm_num) (1 + t)))
-    have hB_nonneg :
-        0 ≤ 1 / t - Real.log (2 : ℝ) / Real.rpow (2 : ℝ) (1 + t) :=
-      aux_bracket_nonneg ht0
-    have h_integrand_nonneg :
-        0 ≤ kernel n t * (1 / t - Real.log (2 : ℝ) / Real.rpow (2 : ℝ) (1 + t)) := by
-      exact mul_nonneg (kernel_nonneg hn1 ht0) hB_nonneg
-    have hB_le : 1 / t - Real.log (2 : ℝ) / Real.rpow (2 : ℝ) (1 + t) ≤ 1 / t := by
-      linarith
-    have hkernel_le :
-        kernel n t * (1 / t) ≤ Real.exp (-(Real.log (n : ℝ)) * t) := by
-      have hn_factor_nonneg : 0 ≤ (n : ℝ) ^ (-t) := by
-        exact (Real.rpow_pos_of_pos hn_pos _).le
-      have hpow_pos : 0 < (2 : ℝ) ^ t := Real.rpow_pos_of_pos (by norm_num) t
-      have hcoeff_le :
-          (1 - (2 : ℝ) ^ (-t)) / Real.log (2 : ℝ) ≤ t := by
-        have hlog :
-            1 - ((2 : ℝ) ^ t)⁻¹ ≤ Real.log ((2 : ℝ) ^ t) := by
-          exact Real.one_sub_inv_le_log_of_pos hpow_pos
-        have hneg : (2 : ℝ) ^ (-t) = ((2 : ℝ) ^ t)⁻¹ := by
-          rw [Real.rpow_neg (by norm_num : 0 ≤ (2 : ℝ))]
-        have haux : 1 - (2 : ℝ) ^ (-t) ≤ t * Real.log (2 : ℝ) := by
-          simpa [hneg, Real.log_rpow (by norm_num : 0 < (2 : ℝ)), mul_comm] using hlog
-        rw [div_le_iff₀ hlog2]
-        simpa [mul_comm, mul_left_comm, mul_assoc] using haux
-      have hcoeff_mul_le_one :
-          ((1 - (2 : ℝ) ^ (-t)) / Real.log (2 : ℝ)) * (1 / t) ≤ 1 := by
-        calc
-          ((1 - (2 : ℝ) ^ (-t)) / Real.log (2 : ℝ)) * (1 / t) ≤ t * (1 / t) := by
-            gcongr
-          _ = 1 := by
-            field_simp [ht0.ne']
-      calc
-        kernel n t * (1 / t)
-            = (n : ℝ) ^ (-t) * (((1 - (2 : ℝ) ^ (-t)) / Real.log (2 : ℝ)) * (1 / t)) := by
-                dsimp [kernel]
-                ring
-        _ ≤ (n : ℝ) ^ (-t) * 1 := by
-              gcongr
-        _ = (n : ℝ) ^ (-t) := by ring
-        _ = Real.exp (-(Real.log (n : ℝ)) * t) := by
-              rw [Real.rpow_def_of_pos hn_pos]
-              congr 1
-              ring
-    rw [Real.norm_eq_abs, abs_of_nonneg h_integrand_nonneg]
-    calc
-      kernel n t * (1 / t - Real.log (2 : ℝ) / Real.rpow (2 : ℝ) (1 + t))
-          ≤ kernel n t * (1 / t) := by
-            exact mul_le_mul_of_nonneg_left hB_le (kernel_nonneg hn1 ht0)
-      _ ≤ Real.exp (-(Real.log (n : ℝ)) * t) := hkernel_le
-  have h_int :
-      MeasureTheory.Integrable
-        (fun t : ℝ =>
-          kernel n t * (1 / t - Real.log (2 : ℝ) / Real.rpow (2 : ℝ) (1 + t))) μ :=
-    h_exp_int.mono' h_meas.aestronglyMeasurable h_bound
-  simpa [μ, MeasureTheory.IntegrableOn] using h_int
 
 /-- Step 1: rewrite the original series as an integral against
 `analyticSeries (1 + t)`. -/
@@ -5271,32 +5137,6 @@ lemma series_eq_integral {n : ℕ} (hn : 1 ≤ n) :
       exact MeasureTheory.integral_congr_ae h_tsum_eq
     _ = ∫ t in Set.Ioi (0 : ℝ), kernel n t * analyticSeries (1 + t) := by
       rfl
-
-/-- Step 2: insert the existing `analyticSeries` estimate from
-`B/lean` under the integral sign. -/
-lemma series_integral_le_aux {n : ℕ} (hn : 1 < n) :
-    series n ≤
-      ∫ t in Set.Ioi (0 : ℝ),
-        kernel n t * (1 / t - Real.log (2 : ℝ) / Real.rpow (2 : ℝ) (1 + t)) := by
-  let μ := MeasureTheory.volume.restrict (Set.Ioi (0 : ℝ))
-  have hn1 : 1 ≤ n := le_of_lt hn
-  have h_nonneg :
-      0 ≤ᵐ[μ] fun t : ℝ => kernel n t * analyticSeries (1 + t) := by
-    filter_upwards [show ∀ᵐ t : ℝ ∂MeasureTheory.volume.restrict (Set.Ioi (0 : ℝ)),
-        t ∈ Set.Ioi (0 : ℝ) from
-          MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
-    exact mul_nonneg (kernel_nonneg hn1 ht) (analyticSeries_nonneg_shift t)
-  have h_le :
-      (fun t : ℝ => kernel n t * analyticSeries (1 + t)) ≤ᵐ[μ]
-        (fun t : ℝ =>
-          kernel n t * (1 / t - Real.log (2 : ℝ) / Real.rpow (2 : ℝ) (1 + t))) := by
-    filter_upwards [show ∀ᵐ t : ℝ ∂MeasureTheory.volume.restrict (Set.Ioi (0 : ℝ)),
-        t ∈ Set.Ioi (0 : ℝ) from
-          MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
-    exact kernel_mul_analyticSeries_le hn1 ht
-  rw [series_eq_integral hn1]
-  simpa [μ] using
-    MeasureTheory.integral_mono_of_nonneg h_nonneg (aux_integrand_integrable hn) h_le
 
 /-- The majorant uses the positive denominator `2^t - 1`. -/
 lemma two_rpow_sub_one_pos {t : ℝ} (ht : 0 < t) :
@@ -5763,19 +5603,6 @@ lemma etaSeries_hasDerivAt {s : ℝ} (hs : 1 < s) :
             norm_num [Nat.cast_add, Nat.cast_mul, mul_comm]
             rw [add_comm]
 
-lemma hasDerivAt_log_const_div_rpow (a u : ℝ) (ha : 0 < a) :
-    HasDerivAt (fun s : ℝ => Real.log a / a ^ s) (-(Real.log a) ^ 2 / a ^ u) u := by
-  have hpow :
-      HasDerivAt (fun s : ℝ => a ^ (-s)) (-(Real.log a * a ^ (-u))) u := by
-    simpa [mul_assoc, mul_left_comm, mul_comm] using
-      ((hasDerivAt_id u).neg.const_rpow ha)
-  have h := hpow.const_mul (Real.log a)
-  convert h using 1
-  · ext s
-    rw [div_eq_mul_inv, Real.rpow_neg ha.le]
-  · rw [div_eq_mul_inv, Real.rpow_neg ha.le]
-    ring
-
 lemma first_eta_deriv_block_nonneg {s : ℝ} (hs : 1 < s) :
     0 ≤
       Real.log (2 : ℝ) / ((2 : ℝ) ^ s) - Real.log (3 : ℝ) / ((3 : ℝ) ^ s) +
@@ -6223,298 +6050,6 @@ theorem main_bound_of_one_lt {n : ℕ} (hn : 1 < n) :
           rfl
     _ = 1 / Real.log ((2 * n : ℕ) : ℝ) := integral_two_n_eq (le_of_lt hn)
 
-lemma series_one_eq_prime_pow_tsum :
-    series 1 =
-      ∑' p : {p : ℕ // p.Prime}, ∑' k : ℕ,
-        1 /
-          ((((k : ℝ) + 1) * (p.1 : ℝ) ^ (k + 1) *
-            Real.log ((2 * p.1 ^ (k + 1) : ℕ) : ℝ))) := by
-  classical
-  let S : Set {q : ℕ // 2 ≤ q} := {q | IsPrimePow q.1}
-  let e : (Σ p : {p : ℕ // p.Prime}, ℕ) → S := fun a =>
-    ⟨⟨a.1.1 ^ (a.2 + 1), by
-        exact Nat.succ_le_of_lt (one_lt_pow' a.1.2.one_lt (Nat.succ_ne_zero _))⟩,
-      (isPrimePow_pow_iff (show a.2 + 1 ≠ 0 by omega)).2 a.1.2.isPrimePow⟩
-  let f : {q : ℕ // 2 ≤ q} → ℝ := fun q =>
-    ArithmeticFunction.vonMangoldt q.1 /
-      ((q.1 : ℝ) * Real.log q.1 * Real.log ((2 * q.1 : ℕ) : ℝ))
-  let g : (Σ p : {p : ℕ // p.Prime}, ℕ) → ℝ := fun a =>
-    1 /
-      ((((a.2 : ℝ) + 1) * (a.1.1 : ℝ) ^ (a.2 + 1) *
-        Real.log ((2 * a.1.1 ^ (a.2 + 1) : ℕ) : ℝ)))
-  let g' : (Σ p : {p : ℕ // p.Prime}, ℕ) → ℝ := fun a =>
-    erdosWeight a.1.1 * (((a.2 : ℝ) + 1) ^ (-2 : ℝ))
-  have he : Function.Injective e := by
-    intro a b hab
-    cases a with
-    | mk ap aj =>
-      cases b with
-      | mk bp bj =>
-          have hpow : ap.1 ^ (aj + 1) = bp.1 ^ (bj + 1) := by
-            simpa [e] using congrArg (fun q : S => q.1.1) hab
-          rcases ap.2.pow_inj' bp.2 (by omega) (by omega) hpow with ⟨hp, hj⟩
-          have hapbp : ap = bp := by
-            apply Subtype.ext
-            simpa using hp
-          subst hapbp
-          have hajbj : aj = bj := by omega
-          subst hajbj
-          rfl
-  have he_surj : Function.Surjective e := by
-    intro q
-    obtain ⟨p, k, hp, hk, hq⟩ := (isPrimePow_nat_iff q.1.1).mp q.2
-    refine ⟨⟨⟨p, hp⟩, k - 1⟩, ?_⟩
-    apply Subtype.ext
-    apply Subtype.ext
-    simp [e, hq, show k - 1 + 1 = k by omega]
-  let eqv : (Σ p : {p : ℕ // p.Prime}, ℕ) ≃ S := Equiv.ofBijective e ⟨he, he_surj⟩
-  have hsupport : Function.support f ⊆ S := by
-    intro q hq
-    have hqpp : IsPrimePow q.1 := by
-      by_contra hnot
-      apply hq
-      have hvm : ArithmeticFunction.vonMangoldt q.1 = 0 := by
-        rw [ArithmeticFunction.vonMangoldt_eq_zero_iff]
-        exact hnot
-      simp [f, hvm]
-    simpa [S] using hqpp
-  have hg'_nonneg : ∀ a, 0 ≤ g' a := by
-    intro a
-    dsimp [g']
-    have hweight_nonneg : 0 ≤ erdosWeight a.1.1 := by
-      rw [erdosWeight]
-      positivity
-    positivity
-  have hinner' : ∀ p : {p : ℕ // p.Prime}, Summable (fun k : ℕ => g' ⟨p, k⟩) := by
-    intro p
-    simpa [g', mul_assoc, mul_left_comm, mul_comm] using
-      (Summable.mul_left (erdosWeight p.1) summable_shift_rpow_neg_two)
-  have houter' : Summable (fun p : {p : ℕ // p.Prime} => ∑' k : ℕ, g' ⟨p, k⟩) := by
-    let C : ℝ := ∑' k : ℕ, (((k : ℝ) + 1) ^ (-2 : ℝ))
-    have hC : Summable (fun p : {p : ℕ // p.Prime} => C * erdosWeight p.1) := by
-      simpa [mul_assoc, mul_left_comm, mul_comm] using
-        (Summable.mul_left C summable_primeWeights)
-    refine hC.congr ?_
-    intro p
-    have htsum :
-        (∑' k : ℕ, g' ⟨p, k⟩) = C * erdosWeight p.1 := by
-      simpa [g', C, mul_assoc, mul_left_comm, mul_comm] using
-        (summable_shift_rpow_neg_two.tsum_mul_left (erdosWeight p.1))
-    rw [htsum]
-  have hg'_summable : Summable g' := by
-    exact (summable_sigma_of_nonneg hg'_nonneg).2 ⟨hinner', houter'⟩
-  have hg_nonneg : ∀ a, 0 ≤ g a := by
-    intro a
-    dsimp [g]
-    have hpow_nat_pos : 0 < a.1.1 ^ (a.2 + 1) := pow_pos a.1.2.pos _
-    have hlog_pos : 0 < Real.log ((2 * a.1.1 ^ (a.2 + 1) : ℕ) : ℝ) := by
-      have hlt : 1 < ((2 * a.1.1 ^ (a.2 + 1) : ℕ) : ℝ) := by
-        exact_mod_cast
-          (lt_of_lt_of_le Nat.one_lt_two (Nat.le_mul_of_pos_right 2 hpow_nat_pos))
-      exact Real.log_pos hlt
-    exact div_nonneg zero_le_one <| by positivity
-  have hbound : ∀ a, g a ≤ g' a := by
-    intro a
-    cases a with
-    | mk p k =>
-        dsimp [g, g']
-        have hp_pos : 0 < (p.1 : ℝ) := by
-          exact_mod_cast p.2.pos
-        have hpow_le : (p.1 : ℝ) ≤ (p.1 : ℝ) ^ (k + 1) := by
-          exact_mod_cast (Nat.le_self_pow (show k + 1 ≠ 0 by omega) p.1)
-        have hpow0 : (((p.1 ^ (k + 1) : ℕ) : ℝ)) ≠ 0 := by
-          exact_mod_cast (pow_pos p.2.pos _).ne'
-        have hlogpow :
-            Real.log (((p.1 ^ (k + 1) : ℕ) : ℝ)) = (((k : ℝ) + 1) * Real.log p.1) := by
-          rw [Nat.cast_pow, ← Real.rpow_natCast, Real.log_rpow]
-          · norm_num
-          · exact hp_pos
-        have hlog_ge :
-            (((k : ℝ) + 1) * Real.log p.1) ≤ Real.log ((2 * p.1 ^ (k + 1) : ℕ) : ℝ) := by
-          have hlogmul := Real.log_mul (by norm_num : (2 : ℝ) ≠ 0) hpow0
-          rw [show Real.log ((2 * p.1 ^ (k + 1) : ℕ) : ℝ) =
-              Real.log (2 : ℝ) + Real.log (((p.1 ^ (k + 1) : ℕ) : ℝ)) by
-            simpa [Nat.cast_mul] using hlogmul]
-          rw [hlogpow]
-          have hlog2 : 0 < Real.log (2 : ℝ) := Real.log_pos (by norm_num)
-          linarith
-        have hj_nonneg : 0 ≤ (k : ℝ) + 1 := by positivity
-        have hprod_le :
-            (p.1 : ℝ) * (((k : ℝ) + 1) * Real.log p.1) ≤
-              (p.1 : ℝ) ^ (k + 1) * Real.log ((2 * p.1 ^ (k + 1) : ℕ) : ℝ) := by
-          exact mul_le_mul hpow_le hlog_ge (by positivity) (by positivity)
-        have hden_le :
-            (p.1 : ℝ) * Real.log p.1 * (((k : ℝ) + 1) ^ 2) ≤
-              (((k : ℝ) + 1) * (p.1 : ℝ) ^ (k + 1) *
-                Real.log ((2 * p.1 ^ (k + 1) : ℕ) : ℝ)) := by
-          calc
-            (p.1 : ℝ) * Real.log p.1 * (((k : ℝ) + 1) ^ 2)
-                = ((k : ℝ) + 1) * ((p.1 : ℝ) * (((k : ℝ) + 1) * Real.log p.1)) := by
-                    ring
-            _ ≤ ((k : ℝ) + 1) *
-                  ((p.1 : ℝ) ^ (k + 1) * Real.log ((2 * p.1 ^ (k + 1) : ℕ) : ℝ)) := by
-                    exact mul_le_mul_of_nonneg_left hprod_le hj_nonneg
-            _ = (((k : ℝ) + 1) * (p.1 : ℝ) ^ (k + 1) *
-                  Real.log ((2 * p.1 ^ (k + 1) : ℕ) : ℝ)) := by ring
-        have hlogp_pos : 0 < Real.log p.1 := Real.log_pos (by exact_mod_cast p.2.one_lt)
-        have hden_pos : 0 < (p.1 : ℝ) * Real.log p.1 * (((k : ℝ) + 1) ^ 2) := by
-          positivity
-        calc
-          1 / ((((k : ℝ) + 1) * (p.1 : ℝ) ^ (k + 1) *
-              Real.log ((2 * p.1 ^ (k + 1) : ℕ) : ℝ)))
-              ≤ 1 / ((p.1 : ℝ) * Real.log p.1 * (((k : ℝ) + 1) ^ 2)) := by
-                  exact div_le_div_of_nonneg_left zero_le_one hden_pos hden_le
-          _ = erdosWeight p.1 * (((k : ℝ) + 1) ^ (-2 : ℝ)) := by
-                rw [erdosWeight]
-                have hrpow :
-                    (((k : ℝ) + 1) ^ (-2 : ℝ)) = ((((k : ℝ) + 1) ^ 2))⁻¹ := by
-                  rw [show (-2 : ℝ) = -(2 : ℝ) by norm_num, Real.rpow_neg (by positivity) 2]
-                  norm_num
-                rw [hrpow]
-                have hp0 : (p.1 : ℝ) ≠ 0 := by exact_mod_cast p.2.ne_zero
-                field_simp [hp0, hlogp_pos.ne']
-  have hg_summable : Summable g :=
-    Summable.of_nonneg_of_le hg_nonneg hbound hg'_summable
-  have hinner : ∀ p : {p : ℕ // p.Prime}, Summable (fun k : ℕ => g ⟨p, k⟩) :=
-    (summable_sigma_of_nonneg hg_nonneg).1 hg_summable |>.1
-  have hterm_eq (p : {p : ℕ // p.Prime}) (k : ℕ) :
-      f ⟨p.1 ^ (k + 1), by
-        exact Nat.succ_le_of_lt (one_lt_pow' p.2.one_lt (Nat.succ_ne_zero _))⟩ = g ⟨p, k⟩ := by
-    dsimp [f, g]
-    rw [ArithmeticFunction.vonMangoldt_apply_pow (Nat.succ_ne_zero _),
-      ArithmeticFunction.vonMangoldt_apply_prime p.2, Nat.cast_pow]
-    have hp_pos : 0 < (p.1 : ℝ) := by
-      exact_mod_cast p.2.pos
-    have hlogpow :
-        Real.log ((p.1 : ℝ) ^ (k + 1)) = (((k : ℝ) + 1) * Real.log p.1) := by
-      rw [← Real.rpow_natCast, Real.log_rpow]
-      · norm_num
-      · exact hp_pos
-    rw [hlogpow]
-    have hp0 : (p.1 : ℝ) ≠ 0 := by exact_mod_cast p.2.ne_zero
-    have hpow0 : (p.1 : ℝ) ^ (k + 1) ≠ 0 := by positivity
-    have hk0 : ((k : ℝ) + 1) ≠ 0 := by positivity
-    have hlogp_pos : 0 < Real.log p.1 := Real.log_pos (by exact_mod_cast p.2.one_lt)
-    have htarget_pos : 0 < Real.log ((2 * p.1 ^ (k + 1) : ℕ) : ℝ) := by
-      have hlt : 1 < ((2 * p.1 ^ (k + 1) : ℕ) : ℝ) := by
-        exact_mod_cast
-          (lt_of_lt_of_le Nat.one_lt_two (Nat.le_mul_of_pos_right 2 (pow_pos p.2.pos _)))
-      exact Real.log_pos hlt
-    field_simp [hp0, hpow0, hk0, hlogp_pos.ne', htarget_pos.ne']
-  calc
-    series 1 = ∑' q : S, f q.1 := by
-      unfold series
-      simpa [S, f] using (tsum_subtype_eq_of_support_subset hsupport).symm
-    _ = ∑' a : (Σ p : {p : ℕ // p.Prime}, ℕ), f (e a).1 := by
-      simpa [eqv] using (Equiv.tsum_eq eqv (fun q : S => f q.1)).symm
-    _ = ∑' a : (Σ p : {p : ℕ // p.Prime}, ℕ), g a := by
-      apply tsum_congr
-      intro a
-      cases a with
-      | mk p k =>
-          simpa [e] using hterm_eq p k
-    _ = ∑' p : {p : ℕ // p.Prime}, ∑' k : ℕ, g ⟨p, k⟩ := by
-      exact hg_summable.tsum_sigma' hinner
-    _ = ∑' p : {p : ℕ // p.Prime}, ∑' k : ℕ,
-          1 /
-            ((((k : ℝ) + 1) * (p.1 : ℝ) ^ (k + 1) *
-              Real.log ((2 * p.1 ^ (k + 1) : ℕ) : ℝ))) := by
-          rfl
-
-/-- The elementary Laplace identity for a genuine prime power. -/
-lemma prime_pow_laplace_identity {p k : ℕ} (hp : p.Prime) (hk : k ≠ 0) :
-    1 / Real.log ((2 * p ^ k : ℕ) : ℝ) =
-      ∫ t in Set.Ioi (0 : ℝ), (((2 * p ^ k : ℕ) : ℝ) ^ (-t)) := by
-  have hpk : 1 < p ^ k := one_lt_pow₀ hp.one_lt hk
-  simpa using (integral_two_n_eq (n := p ^ k) hpk.le).symm
-
-/-- The first estimate from `B/Erdos164b.tex`: the zeta tail at `1 + t`
-is bounded by the corresponding integral. -/
-lemma zetaSeries_one_add_le_one_add_inv {t : ℝ} (ht : 0 < t) :
-    zetaSeries (1 + t) ≤ 1 + 1 / t := by
-  let f : ℕ → ℝ := fun n => 1 / Real.rpow (((n + 1 : ℕ) : ℝ)) (1 + t)
-  let g : ℝ → ℝ := fun x => x ^ (-(1 + t))
-  have hs : 1 < 1 + t := by linarith
-  have hsum : Summable f := by
-    simpa [f] using zetaSeries_term_summable hs
-  have hsplit :
-      zetaSeries (1 + t) = 1 + ∑' n : ℕ, 1 / Real.rpow (((n + 2 : ℕ) : ℝ)) (1 + t) := by
-    calc
-      zetaSeries (1 + t) = ∑' n : ℕ, f n := by simp [zetaSeries, f]
-      _ = f 0 + ∑' n : ℕ, f (n + 1) := by
-            simpa using (hsum.sum_add_tsum_nat_add 1).symm
-      _ = 1 + ∑' n : ℕ, 1 / Real.rpow (((n + 2 : ℕ) : ℝ)) (1 + t) := by
-            congr 1
-            simp [f]
-  have hpartial :
-      ∀ N : ℕ,
-        ∑ n ∈ Finset.range N, 1 / Real.rpow (((n + 2 : ℕ) : ℝ)) (1 + t) ≤ 1 / t := by
-    intro N
-    have hanti : AntitoneOn g (Set.Icc (1 : ℝ) (1 + N)) := by
-      refine (Real.antitoneOn_rpow_Ioi_of_exponent_nonpos ?_).mono ?_
-      · linarith
-      · intro x hx
-        exact lt_of_lt_of_le zero_lt_one hx.1
-    have hsum_le :
-        (∑ n ∈ Finset.range N, g (1 + (n + 1 : ℕ))) ≤
-          ∫ x in (1 : ℝ)..(1 + N), g x := by
-      simpa [g] using hanti.sum_le_integral (x₀ := (1 : ℝ)) (a := N)
-    have hintegral_eq :
-        ∫ x in (1 : ℝ)..(1 + N), g x =
-          (1 - ((1 + N : ℝ) ^ (-t))) / t := by
-      calc
-        ∫ x in (1 : ℝ)..(1 + N), g x
-            = (((1 + N : ℝ) ^ (-t)) - 1) / (-t) := by
-                simpa [g, show -(1 + t) + 1 = -t by ring] using
-                  (integral_rpow (a := (1 : ℝ)) (b := (1 + N : ℝ)) (r := -(1 + t))
-                    (Or.inr ⟨by linarith, by simp⟩))
-        _ = (1 - ((1 + N : ℝ) ^ (-t))) / t := by
-              field_simp [ht.ne']
-              ring_nf
-    have hpow_nonneg : 0 ≤ ((1 + N : ℝ) ^ (-t)) := by positivity
-    calc
-      ∑ n ∈ Finset.range N, 1 / Real.rpow (((n + 2 : ℕ) : ℝ)) (1 + t)
-          = ∑ n ∈ Finset.range N, g (1 + (n + 1 : ℕ)) := by
-              refine Finset.sum_congr rfl ?_
-              intro n hn
-              calc
-                1 / Real.rpow (((n + 2 : ℕ) : ℝ)) (1 + t)
-                    = (((n + 2 : ℕ) : ℝ) ^ (-(1 + t))) := by
-                        symm
-                        simpa [one_div] using
-                          (Real.rpow_neg (show 0 ≤ (((n + 2 : ℕ) : ℝ)) by positivity) (1 + t))
-                _ = ((1 + (n + 1 : ℕ) : ℝ) ^ (-(1 + t))) := by
-                      have hbase : (((n + 2 : ℕ) : ℝ)) = (1 + (n + 1 : ℕ) : ℝ) := by
-                        norm_num [Nat.cast_add, add_assoc, add_comm, add_left_comm]
-                      rw [hbase]
-                _ = g (1 + (n + 1 : ℕ)) := by
-                      simp [g]
-      _ ≤ ∫ x in (1 : ℝ)..(1 + N), g x := hsum_le
-      _ = (1 - ((1 + N : ℝ) ^ (-t))) / t := hintegral_eq
-      _ ≤ 1 / t := by
-            exact div_le_div_of_nonneg_right (by linarith) ht.le
-  have htail_nonneg :
-      ∀ n : ℕ, 0 ≤ 1 / Real.rpow (((n + 2 : ℕ) : ℝ)) (1 + t) := by
-    intro n
-    exact one_div_nonneg.mpr (le_of_lt (Real.rpow_pos_of_pos (by positivity) _))
-  have htail_le :
-      (∑' n : ℕ, 1 / Real.rpow (((n + 2 : ℕ) : ℝ)) (1 + t)) ≤ 1 / t := by
-    exact Real.tsum_le_of_sum_range_le htail_nonneg hpartial
-  calc
-    zetaSeries (1 + t)
-        = 1 + ∑' n : ℕ, 1 / Real.rpow (((n + 2 : ℕ) : ℝ)) (1 + t) := hsplit
-    _ ≤ 1 + 1 / t := by linarith
-
-lemma log_zetaSeries_one_add_le_log_one_add_inv {t : ℝ} (ht : 0 < t) :
-    Real.log (zetaSeries (1 + t)) ≤ Real.log (1 + 1 / t) := by
-  have hs : 1 < 1 + t := by linarith
-  have hzeta_pos : 0 < zetaSeries (1 + t) := by
-    have hzeta_bound : 1 / t + (1 / 2 : ℝ) ≤ zetaSeries (1 + t) := by
-      simpa using zetaSeries_ge_one_div_sub_add_one_half hs
-    have : 0 < 1 / t + (1 / 2 : ℝ) := by positivity
-    exact lt_of_lt_of_le this hzeta_bound
-  exact Real.log_le_log hzeta_pos (zetaSeries_one_add_le_one_add_inv ht)
-
 theorem main_bound_of_eq_one {n : ℕ} (hn : n = 1) :
     series n ≤ 1 / Real.log ((2 * n : ℕ) : ℝ) := by
   subst hn
@@ -6559,10 +6094,1079 @@ theorem main_bound {n : ℕ} (hn : 1 ≤ n) :
   · exact main_bound_of_eq_one h.symm
   · exact main_bound_of_one_lt h
 
+noncomputable def twoWeight (n : ℕ) : ℝ :=
+  1 / ((n : ℝ) * Real.log ((2 * n : ℕ) : ℝ))
+
+noncomputable def twoFlow (m n : ℕ) : ℝ :=
+  if 0 < n then
+    if n ∣ m then
+      let q := m / n
+      if 2 ≤ q then
+        ArithmeticFunction.vonMangoldt q /
+          ((m : ℝ) * Real.log m * Real.log ((2 * m : ℕ) : ℝ))
+      else
+        0
+    else
+      0
+  else
+    0
+
+lemma twoFlow_nonneg (m n : ℕ) : 0 ≤ twoFlow m n := by
+  unfold twoFlow
+  by_cases hn : 0 < n
+  · by_cases hdiv : n ∣ m
+    · by_cases hq : 2 ≤ m / n
+      · rcases hdiv with ⟨q, rfl⟩
+        have hq' : 2 ≤ q := by simpa [Nat.mul_div_right _ hn] using hq
+        have hm_gt_one : 1 < n * q := by
+          exact lt_of_lt_of_le (by omega : 1 < q) (Nat.le_mul_of_pos_left q hn)
+        have hm_pos_nat : 0 < n * q := Nat.mul_pos hn (by omega)
+        have hm_pos : 0 < ((n * q : ℕ) : ℝ) := by
+          exact_mod_cast hm_pos_nat
+        have hm_mul_pos : 0 < (n : ℝ) * q := by
+          exact_mod_cast hm_pos_nat
+        have hlogm_pos : 0 < Real.log ((n * q : ℕ) : ℝ) := by
+          exact Real.log_pos (by exact_mod_cast hm_gt_one)
+        have hlogm_mul_pos : 0 < Real.log ((n : ℝ) * q) := by
+          simpa [Nat.cast_mul] using hlogm_pos
+        have hlog2m_pos : 0 < Real.log ((2 * (n * q) : ℕ) : ℝ) := by
+          exact Real.log_pos (by exact_mod_cast (show 1 < 2 * (n * q) by omega))
+        have hlog2m_mul_pos : 0 < Real.log (2 * ((n : ℝ) * q)) := by
+          simpa [Nat.cast_mul, mul_assoc, mul_left_comm, mul_comm] using hlog2m_pos
+        suffices
+            0 ≤
+              ArithmeticFunction.vonMangoldt q /
+                (((n : ℝ) * q) * Real.log ((n : ℝ) * q) * Real.log (2 * ((n : ℝ) * q))) by
+          simpa only [twoFlow, hn, dvd_mul_right, Nat.mul_div_right _ hn, hq', ↓reduceIte,
+            Nat.cast_mul, Nat.cast_ofNat, ge_iff_le]
+        exact div_nonneg ArithmeticFunction.vonMangoldt_nonneg <|
+          le_of_lt <| mul_pos (mul_pos hm_mul_pos hlogm_mul_pos) hlog2m_mul_pos
+      · simp [hn, hdiv, hq]
+    · simp [hn, hdiv]
+  · simp [hn]
+
+lemma twoFlow_eq_zero_of_not_dvd_lt {m n : ℕ}
+    (h : ¬ (n ∣ m ∧ n < m)) : twoFlow m n = 0 := by
+  unfold twoFlow
+  by_cases hn : 0 < n
+  · by_cases hdiv : n ∣ m
+    · by_cases hq : 2 ≤ m / n
+      · exfalso
+        apply h
+        rcases hdiv with ⟨q, rfl⟩
+        have hq' : 2 ≤ q := by simpa [Nat.mul_div_right _ hn] using hq
+        refine ⟨dvd_mul_right n q, ?_⟩
+        simpa using (Nat.mul_lt_mul_of_pos_left (show 1 < q by omega) hn)
+      · simp [hn, hdiv, hq]
+    · simp [hn, hdiv]
+  · simp [hn]
+
+lemma summable_twoFlow_row (m : ℕ) : Summable (fun n : ℕ => twoFlow m n) := by
+  classical
+  refine summable_of_ne_finset_zero (s := m.divisors) ?_
+  intro n hn
+  apply twoFlow_eq_zero_of_not_dvd_lt
+  intro h
+  have hm0 : m ≠ 0 := by omega
+  exact hn (Nat.mem_divisors.mpr ⟨h.1, hm0⟩)
+
+lemma twoFlow_mul_right_eq {n q : ℕ} (hn : 1 ≤ n) (hq : 2 ≤ q) :
+    twoFlow (n * q) n =
+      ArithmeticFunction.vonMangoldt q /
+        ((((n * q : ℕ) : ℝ)) * Real.log ((n * q : ℕ) : ℝ) *
+          Real.log ((2 * n * q : ℕ) : ℝ)) := by
+  have hn_pos : 0 < n := lt_of_lt_of_le Nat.zero_lt_one hn
+  simp [twoFlow, hn_pos, show n ∣ n * q by exact dvd_mul_right n q,
+    Nat.mul_div_right q hn_pos, hq, Nat.mul_assoc]
+
+lemma twoFlow_mul_le_baseFlow {n : ℕ} (hn : 1 ≤ n) (q : {q : ℕ // 2 ≤ q}) :
+    twoFlow (n * q.1) n ≤ baseFlow (n * q.1) n := by
+  have hn_pos : 0 < n := lt_of_lt_of_le Nat.zero_lt_one hn
+  have hq_pos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+  have hlogA_pos : 0 < Real.log ((n * q.1 : ℕ) : ℝ) := by
+    exact Real.log_pos (by exact_mod_cast (show 1 < n * q.1 by
+      exact lt_of_lt_of_le (by omega : 1 < q.1) (Nat.le_mul_of_pos_left q.1 hn_pos)))
+  have hlogB_ge :
+      Real.log ((n * q.1 : ℕ) : ℝ) ≤ Real.log ((2 * n * q.1 : ℕ) : ℝ) := by
+    have hA_pos : 0 < ((n * q.1 : ℕ) : ℝ) := by
+      exact_mod_cast (Nat.mul_pos hn_pos hq_pos)
+    apply Real.log_le_log hA_pos
+    exact_mod_cast (show n * q.1 ≤ 2 * n * q.1 by
+      have hle : n * q.1 ≤ 2 * (n * q.1) := Nat.le_mul_of_pos_left (n * q.1) (by omega)
+      simpa [Nat.mul_assoc, Nat.mul_left_comm, Nat.mul_comm] using hle)
+  by_cases hqpp : IsPrimePow q.1
+  · have hbase :
+      baseFlow (n * q.1) n =
+        ArithmeticFunction.vonMangoldt q.1 /
+          ((((n * q.1 : ℕ) : ℝ)) * Real.log ((n * q.1 : ℕ) : ℝ) ^ 2) := by
+      have hgt : 1 < n * q.1 := by
+        exact lt_of_lt_of_le (by omega : 1 < q.1) (Nat.le_mul_of_pos_left q.1 hn_pos)
+      simp [baseFlow, hgt, show n ∣ n * q.1 by exact dvd_mul_right n q.1,
+        Nat.mul_div_right q.1 hn_pos, hqpp]
+    rw [twoFlow_mul_right_eq hn q.2, hbase]
+    have hnum_nonneg : 0 ≤ ArithmeticFunction.vonMangoldt q.1 :=
+      ArithmeticFunction.vonMangoldt_nonneg
+    have hden :
+        (((n * q.1 : ℕ) : ℝ)) * Real.log ((n * q.1 : ℕ) : ℝ) ^ 2 ≤
+          (((n * q.1 : ℕ) : ℝ)) * Real.log ((n * q.1 : ℕ) : ℝ) *
+            Real.log ((2 * n * q.1 : ℕ) : ℝ) := by
+      have hlogA_nonneg : 0 ≤ Real.log ((n * q.1 : ℕ) : ℝ) := hlogA_pos.le
+      calc
+        (((n * q.1 : ℕ) : ℝ)) * Real.log ((n * q.1 : ℕ) : ℝ) ^ 2
+            = (((n * q.1 : ℕ) : ℝ)) * Real.log ((n * q.1 : ℕ) : ℝ) *
+                Real.log ((n * q.1 : ℕ) : ℝ) := by ring
+        _ ≤ (((n * q.1 : ℕ) : ℝ)) * Real.log ((n * q.1 : ℕ) : ℝ) *
+              Real.log ((2 * n * q.1 : ℕ) : ℝ) := by
+              gcongr
+    have hden_pos :
+        0 < (((n * q.1 : ℕ) : ℝ)) * Real.log ((n * q.1 : ℕ) : ℝ) ^ 2 := by
+      refine mul_pos ?_ ?_
+      · exact_mod_cast (Nat.mul_pos hn_pos hq_pos)
+      · exact sq_pos_of_pos hlogA_pos
+    exact div_le_div_of_nonneg_left hnum_nonneg hden_pos hden
+  · have hvm : ArithmeticFunction.vonMangoldt q.1 = 0 := by
+      rw [ArithmeticFunction.vonMangoldt_eq_zero_iff]
+      exact hqpp
+    rw [twoFlow_mul_right_eq hn q.2, hvm]
+    simp [baseFlow, show 1 < n * q.1 by
+      exact lt_of_lt_of_le (by omega : 1 < q.1) (Nat.le_mul_of_pos_left q.1 hn_pos),
+      show n ∣ n * q.1 by exact dvd_mul_right n q.1,
+      Nat.mul_div_right q.1 hn_pos, hqpp]
+
+lemma summable_twoFlow_col {n : ℕ} (hn : 1 ≤ n) :
+    Summable (fun K : ℕ => twoFlow K n) := by
+  classical
+  have hn_pos : 0 < n := lt_of_lt_of_le Nat.zero_lt_one hn
+  let e : {q : ℕ // 2 ≤ q} → ℕ := fun q => n * q.1
+  have he : Function.Injective e := by
+    intro a b h
+    apply Subtype.ext
+    exact Nat.eq_of_mul_eq_mul_left hn_pos h
+  have hzero : ∀ K : ℕ, K ∉ Set.range e → twoFlow K n = 0 := by
+    intro K hK
+    apply twoFlow_eq_zero_of_not_dvd_lt
+    intro h
+    rcases h with ⟨hdiv, hlt⟩
+    rcases hdiv with ⟨q, rfl⟩
+    have hq : 2 ≤ q := by
+      by_contra hq'
+      have hq1 : q = 0 ∨ q = 1 := by omega
+      rcases hq1 with rfl | rfl
+      · simp at hlt
+      · omega
+    exact hK ⟨⟨q, hq⟩, by simp [e]⟩
+  have hsub :
+      Summable (fun q : {q : ℕ // 2 ≤ q} => twoFlow (n * q.1) n) := by
+    have hbase_summable :
+        Summable (fun q : {q : ℕ // 2 ≤ q} => baseFlow (n * q.1) n) := by
+      simpa [e, Function.comp] using (summable_baseFlow_col n).comp_injective he
+    exact Summable.of_nonneg_of_le
+      (fun q => twoFlow_nonneg _ _)
+      (fun q => twoFlow_mul_le_baseFlow hn q)
+      hbase_summable
+  exact
+    (Function.Injective.summable_iff (f := fun K => twoFlow K n) (g := e) he hzero).1 hsub
+
+lemma inflow_twoFlow_eq_one_div_mul_series {n : ℕ} (hn : 1 ≤ n) :
+    inflow twoFlow n = (1 / (n : ℝ)) * series n := by
+  classical
+  have hn_pos : 0 < n := lt_of_lt_of_le Nat.zero_lt_one hn
+  have hn0 : (n : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr (Nat.ne_of_gt hn_pos)
+  let e : {q : ℕ // 2 ≤ q} → ℕ := fun q => n * q.1
+  have he : Function.Injective e := by
+    intro a b h
+    apply Subtype.ext
+    exact Nat.eq_of_mul_eq_mul_left hn_pos h
+  have hzero : ∀ K : ℕ, K ∉ Set.range e → twoFlow K n = 0 := by
+    intro K hK
+    apply twoFlow_eq_zero_of_not_dvd_lt
+    intro h
+    rcases h with ⟨hdiv, hlt⟩
+    rcases hdiv with ⟨q, rfl⟩
+    have hq : 2 ≤ q := by
+      by_contra hq'
+      have hq1 : q = 0 ∨ q = 1 := by omega
+      rcases hq1 with rfl | rfl
+      · simp at hlt
+      · omega
+    exact hK ⟨⟨q, hq⟩, by simp [e]⟩
+  have hsub_summable :
+      Summable (fun q : {q : ℕ // 2 ≤ q} => twoFlow (n * q.1) n) := by
+    have hbase_summable :
+        Summable (fun q : {q : ℕ // 2 ≤ q} => baseFlow (n * q.1) n) := by
+      simpa [e, Function.comp] using (summable_baseFlow_col n).comp_injective he
+    exact Summable.of_nonneg_of_le
+      (fun q => twoFlow_nonneg _ _)
+      (fun q => twoFlow_mul_le_baseFlow hn q)
+      hbase_summable
+  have hsub_has :
+      HasSum (fun q : {q : ℕ // 2 ≤ q} => twoFlow (n * q.1) n)
+        ((1 / (n : ℝ)) * series n) := by
+    let g : {q : ℕ // 2 ≤ q} → ℝ := fun q =>
+      ArithmeticFunction.vonMangoldt q.1 /
+        ((q.1 : ℝ) * Real.log ((n * q.1 : ℕ) : ℝ) *
+          Real.log ((2 * n * q.1 : ℕ) : ℝ))
+    have hg_summable : Summable g := by
+      refine (hsub_summable.mul_left (n : ℝ)).congr ?_
+      intro q
+      have hq0 : (q.1 : ℝ) ≠ 0 := by
+        exact_mod_cast (show q.1 ≠ 0 by omega)
+      rw [twoFlow_mul_right_eq hn q.2]
+      dsimp [g]
+      rw [Nat.cast_mul]
+      field_simp [hn0, hq0]
+    have hconst :
+        HasSum (fun q : {q : ℕ // 2 ≤ q} => (1 / (n : ℝ)) * g q)
+          ((1 / (n : ℝ)) * series n) := by
+      simpa [g, series, mul_assoc] using hg_summable.hasSum.mul_left (1 / (n : ℝ))
+    have hterm :
+        ∀ q : {q : ℕ // 2 ≤ q},
+          twoFlow (n * q.1) n = (1 / (n : ℝ)) * g q := by
+      intro q
+      have hq0 : (q.1 : ℝ) ≠ 0 := by
+        exact_mod_cast (show q.1 ≠ 0 by omega)
+      rw [twoFlow_mul_right_eq hn q.2]
+      dsimp [g]
+      rw [Nat.cast_mul]
+      field_simp [hn0, hq0]
+    exact hconst.congr_fun hterm
+  have hfull_has :
+      HasSum (fun K : ℕ => twoFlow K n) ((1 / (n : ℝ)) * series n) :=
+    (Function.Injective.hasSum_iff (f := fun K => twoFlow K n) (g := e) he hzero).mp hsub_has
+  simpa [inflow] using hfull_has.tsum_eq
+
+theorem outflow_twoFlow_eq_twoWeight {n : ℕ} (hn : 1 < n) :
+    outflow twoFlow n = twoWeight n := by
+  have hn0_nat : n ≠ 0 := ne_of_gt (lt_trans Nat.zero_lt_one hn)
+  have hn_cast : (1 : ℝ) < n := by
+    exact_mod_cast hn
+  have hlogn_pos : 0 < Real.log n := Real.log_pos hn_cast
+  have hlog2n_pos : 0 < Real.log ((2 * n : ℕ) : ℝ) := by
+    exact Real.log_pos (by exact_mod_cast (show 1 < 2 * n by omega))
+  have hsupport : ∀ m ∉ n.divisors, twoFlow n m = 0 := by
+    intro m hm
+    apply twoFlow_eq_zero_of_not_dvd_lt
+    intro h
+    exact hm (Nat.mem_divisors.mpr ⟨h.1, hn0_nat⟩)
+  rw [outflow, tsum_eq_sum (s := n.divisors) hsupport]
+  calc
+    ∑ m ∈ n.divisors, twoFlow n m
+        = ∑ m ∈ n.divisors,
+            ArithmeticFunction.vonMangoldt (n / m) /
+              ((n : ℝ) * Real.log n * Real.log ((2 * n : ℕ) : ℝ)) := by
+                apply Finset.sum_congr rfl
+                intro m hm
+                have hdiv : m ∣ n := Nat.dvd_of_mem_divisors hm
+                have hm_pos : 0 < m := Nat.pos_of_dvd_of_pos hdiv (lt_trans Nat.zero_lt_one hn)
+                by_cases hq : 2 ≤ n / m
+                · simp [twoFlow, hm_pos, hdiv, hq]
+                · have hnotpp : ¬ IsPrimePow (n / m) := by
+                    intro hpp
+                    exact hq (Nat.succ_le_of_lt (IsPrimePow.one_lt hpp))
+                  have hvm : ArithmeticFunction.vonMangoldt (n / m) = 0 := by
+                    rw [ArithmeticFunction.vonMangoldt_eq_zero_iff]
+                    exact hnotpp
+                  simp [twoFlow, hm_pos, hdiv, hq, hvm]
+    _ = ∑ d ∈ n.divisors,
+          ArithmeticFunction.vonMangoldt d /
+            ((n : ℝ) * Real.log n * Real.log ((2 * n : ℕ) : ℝ)) := by
+              simpa using
+                (Nat.sum_div_divisors n
+                  (fun d : ℕ =>
+                    ArithmeticFunction.vonMangoldt d /
+                      ((n : ℝ) * Real.log n * Real.log ((2 * n : ℕ) : ℝ))))
+    _ = (∑ d ∈ n.divisors, ArithmeticFunction.vonMangoldt d) /
+          ((n : ℝ) * Real.log n * Real.log ((2 * n : ℕ) : ℝ)) := by
+            rw [Finset.sum_div]
+    _ = Real.log n / ((n : ℝ) * Real.log n * Real.log ((2 * n : ℕ) : ℝ)) := by
+          rw [ArithmeticFunction.vonMangoldt_sum]
+    _ = twoWeight n := by
+          rw [twoWeight]
+          field_simp [Nat.cast_ne_zero.mpr hn0_nat, hlogn_pos.ne', hlog2n_pos.ne']
+
+theorem outflow_twoFlow_ge_inflow_twoFlow {n : ℕ} (hn : 1 < n) :
+    inflow twoFlow n ≤ outflow twoFlow n := by
+  have hn1 : 1 ≤ n := le_of_lt hn
+  have hmain := main_bound (n := n) hn1
+  have hn_pos : 0 < (n : ℝ) := by
+    exact_mod_cast (lt_trans Nat.zero_lt_one hn)
+  calc
+    inflow twoFlow n = (1 / (n : ℝ)) * series n := inflow_twoFlow_eq_one_div_mul_series hn1
+    _ ≤ (1 / (n : ℝ)) * (1 / Real.log ((2 * n : ℕ) : ℝ)) := by
+          gcongr
+    _ = twoWeight n := by
+          rw [twoWeight]
+          ring
+    _ = outflow twoFlow n := (outflow_twoFlow_eq_twoWeight hn).symm
+
+noncomputable def twoWeightSum (A : Set ℕ) : ℝ :=
+  ∑' a : A, twoWeight (a : ℕ)
+
+lemma outflow_twoFlow_eq_sum_finset_add_compl (s : Finset ℕ) (m : ℕ) :
+    outflow twoFlow m =
+      (∑ n ∈ s, twoFlow m n) +
+        ∑' n : { n // n ∉ s }, twoFlow m n := by
+  simpa [outflow] using ((summable_twoFlow_row m).sum_add_tsum_subtype_compl s).symm
+
+lemma inflow_twoFlow_eq_sum_finset_add_compl (s : Finset ℕ) {n : ℕ} (hn : 1 ≤ n) :
+    inflow twoFlow n =
+      (∑ m ∈ s, twoFlow m n) +
+        ∑' m : { m // m ∉ s }, twoFlow m n := by
+  simpa [inflow] using ((summable_twoFlow_col hn).sum_add_tsum_subtype_compl s).symm
+
+lemma boundaryOutflow_eq_sum_compl_twoFlow (s : Finset ℕ) :
+    boundaryOutflow twoFlow (↑s : Set ℕ) =
+      ∑ r ∈ s, ∑' n : { n // n ∉ s }, twoFlow r n := by
+  classical
+  let e : boundaryOutPairs (↑s : Set ℕ) ≃
+      Σ r : {r // r ∈ s}, {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1} :=
+    { toFun := fun mn =>
+        ⟨⟨mn.1.1, mn.2.1⟩, ⟨mn.1.2, mn.2.2.1, mn.2.2.2⟩⟩
+      invFun := fun rn =>
+        ⟨(rn.1.1, rn.2.1), rn.1.2, rn.2.2.1, rn.2.2.2⟩
+      left_inv := by
+        intro mn
+        cases mn
+        rfl
+      right_inv := by
+        intro rn
+        cases rn
+        rfl }
+  have hinner :
+      ∀ r : {r // r ∈ s},
+        Summable (fun n : {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1} => twoFlow r.1 n.1) := by
+    intro r
+    simpa using
+      (summable_twoFlow_row r.1).subtype {n : ℕ | n ∉ s ∧ n ∣ r.1 ∧ n < r.1}
+  have houter :
+      Summable (fun r : {r // r ∈ s} =>
+        ∑' n : {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1}, twoFlow r.1 n.1) := by
+    exact Summable.of_finite
+  have hsigma :
+      Summable (fun z : Σ r : {r // r ∈ s}, {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1} =>
+        twoFlow z.1.1 z.2.1) := by
+    refine (summable_sigma_of_nonneg (fun z => twoFlow_nonneg _ _)).2 ?_
+    exact ⟨hinner, houter⟩
+  have hprecise :
+      ∀ r : {r // r ∈ s},
+        (∑' n : {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1}, twoFlow r.1 n.1) =
+          ∑' n : {n // n ∉ s}, twoFlow r.1 n.1 := by
+    intro r
+    have hsupport :
+        Function.support (fun n : {n // n ∉ s} => twoFlow r.1 n.1) ⊆
+          {n | n.1 ∣ r.1 ∧ n.1 < r.1} := by
+      intro n hn
+      by_contra hbad
+      exact hn <| by
+        apply twoFlow_eq_zero_of_not_dvd_lt
+        simpa [Set.mem_setOf_eq] using hbad
+    let e' :
+        {x : {n // n ∉ s} // x.1 ∣ r.1 ∧ x.1 < r.1} ≃
+          {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1} :=
+      { toFun := fun n => ⟨n.1.1, n.1.2, n.2.1, n.2.2⟩
+        invFun := fun n => ⟨⟨n.1, n.2.1⟩, n.2.2.1, n.2.2.2⟩
+        left_inv := by intro n; cases n; rfl
+        right_inv := by intro n; cases n; rfl }
+    have hsub :
+        (∑' x : {x : {n // n ∉ s} // x.1 ∣ r.1 ∧ x.1 < r.1}, twoFlow r.1 x.1.1) =
+          ∑' n : {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1}, twoFlow r.1 n.1 := by
+      simpa [e'] using
+        (Equiv.tsum_eq e' (fun n : {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1} => twoFlow r.1 n.1))
+    exact hsub.symm.trans (tsum_subtype_eq_of_support_subset hsupport)
+  calc
+    boundaryOutflow twoFlow (↑s : Set ℕ)
+      = ∑' z : Σ r : {r // r ∈ s}, {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1},
+          twoFlow z.1.1 z.2.1 := by
+            simpa [boundaryOutflow, e] using
+              (Equiv.tsum_eq e (fun z : Σ r : {r // r ∈ s},
+                  {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1} =>
+                twoFlow z.1.1 z.2.1))
+    _ = ∑' r : {r // r ∈ s},
+          ∑' n : {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1}, twoFlow r.1 n.1 := by
+            exact hsigma.tsum_sigma' hinner
+    _ = ∑' r : {r // r ∈ s}, ∑' n : {n // n ∉ s}, twoFlow r.1 n.1 := by
+          congr
+          ext r
+          exact hprecise r
+    _ = ∑ r ∈ s, ∑' n : {n // n ∉ s}, twoFlow r n := by
+          simpa using
+            (Finset.tsum_subtype' s (fun r => ∑' n : {n // n ∉ s}, twoFlow r n))
+
+lemma boundaryInflow_eq_sum_compl_twoFlow (s : Finset ℕ)
+    (hs_ge_one : ∀ {n : ℕ}, n ∈ s → 1 ≤ n) :
+    boundaryInflow twoFlow (↑s : Set ℕ) =
+      ∑ n ∈ s, ∑' m : { m // m ∉ s }, twoFlow m n := by
+  classical
+  let e : boundaryInPairs (↑s : Set ℕ) ≃
+      Σ n : {n // n ∈ s}, {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m} :=
+    { toFun := fun mn =>
+        ⟨⟨mn.1.2, mn.2.2.1⟩, ⟨mn.1.1, mn.2.1, mn.2.2.2.1, mn.2.2.2.2⟩⟩
+      invFun := fun nm =>
+        ⟨(nm.2.1, nm.1.1), nm.2.2.1, nm.1.2, nm.2.2.2.1, nm.2.2.2.2⟩
+      left_inv := by
+        intro mn
+        cases mn
+        rfl
+      right_inv := by
+        intro nm
+        cases nm
+        rfl }
+  have hinner :
+      ∀ n : {n // n ∈ s},
+        Summable (fun m : {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m} => twoFlow m.1 n.1) := by
+    intro n
+    simpa using
+      (summable_twoFlow_col (hs_ge_one n.2)).subtype {m : ℕ | m ∉ s ∧ n.1 ∣ m ∧ n.1 < m}
+  have houter :
+      Summable (fun n : {n // n ∈ s} =>
+        ∑' m : {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m}, twoFlow m.1 n.1) := by
+    exact Summable.of_finite
+  have hsigma :
+      Summable (fun z : Σ n : {n // n ∈ s}, {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m} =>
+        twoFlow z.2.1 z.1.1) := by
+    refine (summable_sigma_of_nonneg (fun z => twoFlow_nonneg _ _)).2 ?_
+    exact ⟨hinner, houter⟩
+  have hprecise :
+      ∀ n : {n // n ∈ s},
+        (∑' m : {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m}, twoFlow m.1 n.1) =
+          ∑' m : {m // m ∉ s}, twoFlow m.1 n.1 := by
+    intro n
+    have hsupport :
+        Function.support (fun m : {m // m ∉ s} => twoFlow m.1 n.1) ⊆
+          {m | n.1 ∣ m.1 ∧ n.1 < m.1} := by
+      intro m hm
+      by_contra hbad
+      exact hm <| by
+        apply twoFlow_eq_zero_of_not_dvd_lt
+        simpa [Set.mem_setOf_eq] using hbad
+    let e' :
+        {x : {m // m ∉ s} // n.1 ∣ x.1 ∧ n.1 < x.1} ≃
+          {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m} :=
+      { toFun := fun m => ⟨m.1.1, m.1.2, m.2.1, m.2.2⟩
+        invFun := fun m => ⟨⟨m.1, m.2.1⟩, m.2.2.1, m.2.2.2⟩
+        left_inv := by intro m; cases m; rfl
+        right_inv := by intro m; cases m; rfl }
+    have hsub :
+        (∑' x : {x : {m // m ∉ s} // n.1 ∣ x.1 ∧ n.1 < x.1}, twoFlow x.1.1 n.1) =
+          ∑' m : {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m}, twoFlow m.1 n.1 := by
+      simpa [e'] using
+        (Equiv.tsum_eq e' (fun m : {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m} =>
+          twoFlow m.1 n.1))
+    exact hsub.symm.trans (tsum_subtype_eq_of_support_subset hsupport)
+  calc
+    boundaryInflow twoFlow (↑s : Set ℕ)
+      = ∑' z : Σ n : {n // n ∈ s}, {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m},
+          twoFlow z.2.1 z.1.1 := by
+            simpa [boundaryInflow, e] using
+              (Equiv.tsum_eq e (fun z : Σ n : {n // n ∈ s},
+                  {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m} =>
+                twoFlow z.2.1 z.1.1))
+    _ = ∑' n : {n // n ∈ s},
+          ∑' m : {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m}, twoFlow m.1 n.1 := by
+            exact hsigma.tsum_sigma' hinner
+    _ = ∑' n : {n // n ∈ s}, ∑' m : {m // m ∉ s}, twoFlow m.1 n.1 := by
+          congr
+          ext n
+          exact hprecise n
+    _ = ∑ n ∈ s, ∑' m : {m // m ∉ s}, twoFlow m n := by
+          simpa using
+            (Finset.tsum_subtype' s (fun n => ∑' m : {m // m ∉ s}, twoFlow m n))
+
+lemma tsum_outflow_sub_inflow_eq_boundaryOutflow_sub_boundaryInflow_twoFlow {Ω : Set ℕ}
+    (hΩfin : Ω.Finite) (hΩ_ge_one : ∀ {r : ℕ}, r ∈ Ω → 1 ≤ r) :
+    (∑' r : Ω, (outflow twoFlow (r : ℕ) - inflow twoFlow (r : ℕ))) =
+      boundaryOutflow twoFlow Ω - boundaryInflow twoFlow Ω := by
+  classical
+  let s : Finset ℕ := hΩfin.toFinset
+  have hsΩ : (↑s : Set ℕ) = Ω := hΩfin.coe_toFinset
+  rw [← hsΩ]
+  have hout :
+      ∑ r ∈ s, outflow twoFlow r =
+        (∑ r ∈ s, ∑ n ∈ s, twoFlow r n) +
+          ∑ r ∈ s, ∑' n : {n // n ∉ s}, twoFlow r n := by
+    calc
+      ∑ r ∈ s, outflow twoFlow r
+        = ∑ r ∈ s, ((∑ n ∈ s, twoFlow r n) +
+            ∑' n : {n // n ∉ s}, twoFlow r n) := by
+              refine Finset.sum_congr rfl ?_
+              intro r hr
+              rw [outflow_twoFlow_eq_sum_finset_add_compl s r]
+      _ = (∑ r ∈ s, ∑ n ∈ s, twoFlow r n) +
+            ∑ r ∈ s, ∑' n : {n // n ∉ s}, twoFlow r n := by
+              rw [Finset.sum_add_distrib]
+  have hin :
+      ∑ r ∈ s, inflow twoFlow r =
+        (∑ r ∈ s, ∑ m ∈ s, twoFlow m r) +
+          ∑ r ∈ s, ∑' m : {m // m ∉ s}, twoFlow m r := by
+    calc
+      ∑ r ∈ s, inflow twoFlow r
+        = ∑ r ∈ s, ((∑ m ∈ s, twoFlow m r) +
+            ∑' m : {m // m ∉ s}, twoFlow m r) := by
+              refine Finset.sum_congr rfl ?_
+              intro r hr
+              have hrΩ : r ∈ Ω := by
+                simpa [hsΩ] using (show r ∈ (↑s : Set ℕ) from hr)
+              rw [inflow_twoFlow_eq_sum_finset_add_compl s (hΩ_ge_one hrΩ)]
+      _ = (∑ r ∈ s, ∑ m ∈ s, twoFlow m r) +
+            ∑ r ∈ s, ∑' m : {m // m ∉ s}, twoFlow m r := by
+              rw [Finset.sum_add_distrib]
+  have hinternal :
+      ∑ r ∈ s, ∑ n ∈ s, twoFlow r n =
+        ∑ r ∈ s, ∑ m ∈ s, twoFlow m r := by
+    simpa using (Finset.sum_comm (s := s) (t := s) (f := fun r n => twoFlow r n))
+  calc
+    (∑' r : (↑s : Set ℕ), (outflow twoFlow (r : ℕ) - inflow twoFlow (r : ℕ)))
+      = ∑ r ∈ s, (outflow twoFlow r - inflow twoFlow r) := by
+          simpa using
+            (Finset.tsum_subtype' s
+              (fun r => outflow twoFlow r - inflow twoFlow r))
+    _ = (∑ r ∈ s, outflow twoFlow r) - ∑ r ∈ s, inflow twoFlow r := by
+          rw [Finset.sum_sub_distrib]
+    _ =
+        ((∑ r ∈ s, ∑ n ∈ s, twoFlow r n) +
+          ∑ r ∈ s, ∑' n : {n // n ∉ s}, twoFlow r n) -
+        ((∑ r ∈ s, ∑ m ∈ s, twoFlow m r) +
+          ∑ r ∈ s, ∑' m : {m // m ∉ s}, twoFlow m r) := by
+            rw [hout, hin]
+    _ = (∑ r ∈ s, ∑' n : {n // n ∉ s}, twoFlow r n) -
+          ∑ r ∈ s, ∑' m : {m // m ∉ s}, twoFlow m r := by
+            rw [hinternal]
+            ring
+    _ = boundaryOutflow twoFlow (↑s : Set ℕ) -
+          boundaryInflow twoFlow (↑s : Set ℕ) := by
+            rw [boundaryOutflow_eq_sum_compl_twoFlow,
+              boundaryInflow_eq_sum_compl_twoFlow s (fun {n} hn =>
+                hΩ_ge_one (by simpa [hsΩ] using (show n ∈ (↑s : Set ℕ) from hn)))]
+
+lemma boundaryOutflow_le_series_one_of_downwardClosed {Ω : Set ℕ}
+    (hΩ_ge_two : ∀ {d : ℕ}, d ∈ Ω → 2 ≤ d)
+    (hΩdown : ∀ {d e : ℕ}, d ∈ Ω → 2 ≤ e → e ∣ d → e ∈ Ω) :
+    boundaryOutflow twoFlow Ω ≤ series 1 := by
+  classical
+  have hone_not_mem : 1 ∉ Ω := by
+    intro h1
+    have h := hΩ_ge_two h1
+    omega
+  have hboundary_target_eq_one : ∀ mn : boundaryOutPairs Ω, mn.1.2 = 1 := by
+    intro mn
+    rcases mn with ⟨⟨m, n⟩, hmn⟩
+    rcases hmn with ⟨hmΩ, hnΩ, hdiv, _⟩
+    have hm2 : 2 ≤ m := hΩ_ge_two hmΩ
+    have hmpos : 0 < m := by omega
+    have hnpos : 0 < n := Nat.pos_of_dvd_of_pos hdiv hmpos
+    have hnle : n ≤ 1 := by
+      by_contra hgt
+      have hn2 : 2 ≤ n := by omega
+      exact hnΩ (hΩdown hmΩ hn2 hdiv)
+    have hpred : n.pred = 0 := by
+      rw [Nat.pred_eq_sub_one, Nat.sub_eq_zero_of_le hnle]
+    have hsucc : n.pred.succ = n := Nat.succ_pred_eq_of_pos hnpos
+    rw [hpred] at hsucc
+    simpa using hsucc.symm
+  let eBoundaryFun : boundaryOutPairs Ω → Ω := fun mn => ⟨mn.1.1, mn.2.1⟩
+  have heBoundary_bij : Function.Bijective eBoundaryFun := by
+    constructor
+    · intro a b h
+      apply Subtype.ext
+      apply Prod.ext
+      · simpa [eBoundaryFun] using congrArg Subtype.val h
+      · simp [hboundary_target_eq_one a, hboundary_target_eq_one b]
+    · intro m
+      refine ⟨⟨(m.1, 1), ?_⟩, ?_⟩
+      · refine ⟨m.2, hone_not_mem, one_dvd _, ?_⟩
+        have hm2 : 2 ≤ m.1 := hΩ_ge_two m.2
+        exact lt_of_lt_of_le Nat.one_lt_two hm2
+      · rfl
+  let eBoundary : boundaryOutPairs Ω ≃ Ω := Equiv.ofBijective eBoundaryFun heBoundary_bij
+  have hboundary_eq :
+      boundaryOutflow twoFlow Ω = ∑' m : Ω, twoFlow m.1 1 := by
+    unfold boundaryOutflow
+    calc
+      ∑' mn : boundaryOutPairs Ω, twoFlow mn.1.1 mn.1.2
+          = ∑' mn : boundaryOutPairs Ω, twoFlow mn.1.1 1 := by
+              apply tsum_congr
+              intro mn
+              simp [hboundary_target_eq_one mn]
+      _ = ∑' m : Ω, twoFlow m.1 1 := by
+            simpa [eBoundary] using (Equiv.tsum_eq eBoundary (fun m : Ω => twoFlow m.1 1))
+  have hnonneg : ∀ n : ℕ, 0 ≤ twoFlow n 1 := by
+    intro n
+    exact twoFlow_nonneg _ _
+  calc
+    boundaryOutflow twoFlow Ω = ∑' m : Ω, twoFlow m.1 1 := hboundary_eq
+    _ ≤ ∑' n : ℕ, twoFlow n 1 := by
+          exact Summable.tsum_subtype_le (fun n : ℕ => twoFlow n 1)
+            Ω hnonneg (summable_twoFlow_col le_rfl)
+    _ = inflow twoFlow 1 := by rw [inflow]
+    _ = series 1 := by simpa using inflow_twoFlow_eq_one_div_mul_series (n := 1) le_rfl
+
+lemma boundaryOutflow_ge_boundaryInflow_add_tsum_divergence_of_subset_twoFlow
+    {A Ω : Set ℕ} (hΩfin : Ω.Finite)
+    (hΩ_ge_two : ∀ {r : ℕ}, r ∈ Ω → 2 ≤ r) (hAΩ : A ⊆ Ω) :
+    boundaryInflow twoFlow Ω +
+      (∑' a : A, (outflow twoFlow (a : ℕ) - inflow twoFlow (a : ℕ))) ≤
+        boundaryOutflow twoFlow Ω := by
+  classical
+  let f : ℕ → ℝ := fun r => outflow twoFlow r - inflow twoFlow r
+  have hnonneg : ∀ r ∈ Ω, 0 ≤ f r := by
+    intro r hr
+    exact sub_nonneg.mpr <|
+      outflow_twoFlow_ge_inflow_twoFlow
+        (lt_of_lt_of_le Nat.one_lt_two (hΩ_ge_two hr))
+  have hAfin : A.Finite := hΩfin.subset hAΩ
+  letI := hΩfin.fintype
+  letI := hAfin.fintype
+  let e : A ≃ {r : Ω // (r : ℕ) ∈ A} :=
+    { toFun := fun a => ⟨⟨a.1, hAΩ a.2⟩, a.2⟩
+      invFun := fun r => ⟨r.1.1, r.2⟩
+      left_inv := by
+        intro a
+        cases a
+        rfl
+      right_inv := by
+        intro r
+        apply Subtype.ext
+        apply Subtype.ext
+        rfl }
+  have hAeq :
+      (∑' a : A, f (a : ℕ)) = ∑' r : {s : Ω // (s : ℕ) ∈ A}, f (r : ℕ) := by
+    rw [tsum_fintype, tsum_fintype]
+    exact Fintype.sum_equiv e (fun a : A => f (a : ℕ))
+      (fun r : {s : Ω // (s : ℕ) ∈ A} => f (r : ℕ)) (by intro a; rfl)
+  have hsplit :
+      (∑' r : {s : Ω // (s : ℕ) ∈ A}, f (r : ℕ)) +
+          (∑' r : {s : Ω // (s : ℕ) ∉ A}, f (r : ℕ)) =
+        ∑' r : Ω, f (r : ℕ) := by
+    rw [tsum_fintype, tsum_fintype, tsum_fintype]
+    simpa using
+      (Fintype.sum_subtype_add_sum_subtype (fun r : Ω => (r : ℕ) ∈ A)
+        (fun r : Ω => f (r : ℕ)))
+  have hcompl_nonneg : 0 ≤ ∑' r : {s : Ω // (s : ℕ) ∉ A}, f (r : ℕ) := by
+    rw [tsum_fintype]
+    exact Finset.sum_nonneg fun r _ => by
+      simpa using hnonneg (r : ℕ) r.1.2
+  have hA_le_Ω :
+      (∑' a : A, f (a : ℕ)) ≤ ∑' r : Ω, f (r : ℕ) := by
+    calc
+      ∑' a : A, f (a : ℕ) = ∑' r : {s : Ω // (s : ℕ) ∈ A}, f (r : ℕ) := hAeq
+      _ ≤ (∑' r : {s : Ω // (s : ℕ) ∈ A}, f (r : ℕ)) +
+            (∑' r : {s : Ω // (s : ℕ) ∉ A}, f (r : ℕ)) := by
+              linarith
+      _ = ∑' r : Ω, f (r : ℕ) := hsplit
+  have hΩboundary :
+      (∑' r : Ω, f (r : ℕ)) =
+        boundaryOutflow twoFlow Ω - boundaryInflow twoFlow Ω := by
+    simpa [f] using
+      tsum_outflow_sub_inflow_eq_boundaryOutflow_sub_boundaryInflow_twoFlow
+        (Ω := Ω) hΩfin (fun {r} hr => le_trans (by decide : 1 ≤ 2) (hΩ_ge_two hr))
+  have hmain :
+      (∑' a : A, f (a : ℕ)) ≤
+        boundaryOutflow twoFlow Ω - boundaryInflow twoFlow Ω := by
+    calc
+      ∑' a : A, f (a : ℕ) ≤ ∑' r : Ω, f (r : ℕ) := hA_le_Ω
+      _ = boundaryOutflow twoFlow Ω - boundaryInflow twoFlow Ω := hΩboundary
+  linarith
+
+lemma flow_into_primitive_member_from_outside_divisorClosure_twoFlow {A : Set ℕ}
+    (hA : PrimitiveSet A) {a m : ℕ} (ha : a ∈ A)
+    (hflow : twoFlow m a ≠ 0) :
+    m ∉ primitiveDivisorClosure A := by
+  intro hm
+  rcases hm with ⟨hm_ge_two, b, hb, hm_dvd_b⟩
+  have hdiv_lt : a ∣ m ∧ a < m := by
+    by_contra hnot
+    exact hflow (twoFlow_eq_zero_of_not_dvd_lt hnot)
+  have ha_dvd_m : a ∣ m := hdiv_lt.1
+  have ha_lt_m : a < m := hdiv_lt.2
+  have ha_dvd_b : a ∣ b := dvd_trans ha_dvd_m hm_dvd_b
+  have hab_eq : a = b := hA.2 ha hb ha_dvd_b
+  have hm_dvd_a : m ∣ a := hab_eq ▸ hm_dvd_b
+  have ha_pos : 0 < a := lt_of_lt_of_le Nat.zero_lt_two (hA.1 ha)
+  have hm_le_a : m ≤ a := Nat.le_of_dvd ha_pos hm_dvd_a
+  exact (not_le_of_gt ha_lt_m) hm_le_a
+
+lemma twoWeightSum_le_series_one_of_finite {A : Set ℕ}
+    (hA : PrimitiveSet A) (hfin : A.Finite) :
+    twoWeightSum A ≤ series 1 := by
+  classical
+  let Ω := primitiveDivisorClosure A
+  have hΩspec := primitiveDivisorClosure_spec_of_finite hA hfin
+  rcases hΩspec with ⟨hΩfin, hAΩ, hΩdown⟩
+  have hΩ_ge_two : ∀ {d : ℕ}, d ∈ primitiveDivisorClosure A → 2 ≤ d := by
+    intro d hd
+    have hd' : 2 ≤ d ∧ ∃ a ∈ A, d ∣ a := by
+      simpa [primitiveDivisorClosure] using hd
+    exact hd'.1
+  have hOut : boundaryOutflow twoFlow (primitiveDivisorClosure A) ≤ series 1 := by
+    exact boundaryOutflow_le_series_one_of_downwardClosed hΩ_ge_two hΩdown
+  have hBoundary :
+      boundaryInflow twoFlow Ω +
+        (∑' a : A, (outflow twoFlow (a : ℕ) - inflow twoFlow (a : ℕ))) ≤
+          boundaryOutflow twoFlow Ω := by
+    exact
+      boundaryOutflow_ge_boundaryInflow_add_tsum_divergence_of_subset_twoFlow
+        hΩfin hΩ_ge_two hAΩ
+  have hIn :
+      ∀ {a m : ℕ}, a ∈ A → twoFlow m a ≠ 0 → m ∉ Ω := by
+    intro a m ha hflow
+    exact flow_into_primitive_member_from_outside_divisorClosure_twoFlow hA ha hflow
+  have hcol_summable :
+      ∀ {N : ℕ}, 1 ≤ N → Summable (fun K : ℕ => twoFlow K N) := by
+    intro N hN
+    exact summable_twoFlow_col hN
+  have hOut_eq :
+      ∀ a : A, outflow twoFlow (a : ℕ) = twoWeight (a : ℕ) := by
+    intro a
+    exact outflow_twoFlow_eq_twoWeight (lt_of_lt_of_le Nat.one_lt_two (hA.1 a.2))
+  have hWeight :
+      twoWeightSum A = ∑' a : A, outflow twoFlow (a : ℕ) := by
+    unfold twoWeightSum
+    apply tsum_congr
+    intro a
+    simpa using (hOut_eq a).symm
+  have hIn_nonneg : ∀ a : A, 0 ≤ inflow twoFlow (a : ℕ) := by
+    intro a
+    unfold inflow
+    exact tsum_nonneg fun m => twoFlow_nonneg m a
+  have hIn_le :
+      (∑' a : A, inflow twoFlow (a : ℕ)) ≤ boundaryInflow twoFlow Ω := by
+    let G : boundaryInPairs Ω → ℝ := fun mn => twoFlow mn.1.1 mn.1.2
+    let T : A → Set (boundaryInPairs Ω) := fun a => { mn | mn.1.2 = (a : ℕ) }
+    have hfiber :
+        ∀ a : A, inflow twoFlow (a : ℕ) = ∑' mn : T a, G mn := by
+      intro a
+      let S : Set {m : ℕ // m ∉ Ω} := { m | (a : ℕ) ∣ m.1 ∧ (a : ℕ) < m.1 }
+      have hOutside :
+          inflow twoFlow (a : ℕ) =
+            ∑' m : {m : ℕ // m ∉ Ω}, twoFlow m.1 (a : ℕ) := by
+        have hsupport :
+            Function.support (fun m : ℕ => twoFlow m (a : ℕ)) ⊆ { m | m ∉ Ω } := by
+          intro m hm
+          exact hIn a.2 hm
+        symm
+        simpa [inflow, Ω] using (tsum_subtype_eq_of_support_subset hsupport)
+      have hSupportS :
+          Function.support (fun m : {m : ℕ // m ∉ Ω} => twoFlow m.1 (a : ℕ)) ⊆ S := by
+        intro m hm
+        change (a : ℕ) ∣ m.1 ∧ (a : ℕ) < m.1
+        by_contra hnot
+        exact hm (by
+          apply twoFlow_eq_zero_of_not_dvd_lt
+          exact hnot)
+      have hS :
+          (∑' m : {m : ℕ // m ∉ Ω}, twoFlow m.1 (a : ℕ)) =
+            ∑' m : S, twoFlow m.1.1 (a : ℕ) := by
+        symm
+        simpa [S] using (tsum_subtype_eq_of_support_subset hSupportS)
+      let f : S → T a := fun m =>
+        ⟨⟨(m.1.1, a.1), by
+          exact ⟨m.1.2, hAΩ a.2, m.2.1, m.2.2⟩⟩, rfl⟩
+      have hf_inj : Function.Injective f := by
+        intro m₁ m₂ h
+        apply Subtype.ext
+        apply Subtype.ext
+        simpa using congrArg (fun z : T a => z.1.1.1) h
+      have hf_surj : Function.Surjective f := by
+        intro mn
+        rcases mn with ⟨⟨⟨m, n⟩, hmn⟩, hna⟩
+        rcases hmn with ⟨hm, _, hdiv, hlt⟩
+        cases hna
+        refine ⟨⟨⟨m, hm⟩, ?_⟩, ?_⟩
+        · simpa [S] using And.intro hdiv hlt
+        · apply Subtype.ext
+          apply Subtype.ext
+          rfl
+      let e : S ≃ T a := Equiv.ofBijective f ⟨hf_inj, hf_surj⟩
+      have hT :
+          (∑' m : S, twoFlow m.1.1 (a : ℕ)) =
+            ∑' mn : T a, G mn := by
+        simpa [e, G] using
+          (Equiv.tsum_eq e (fun mn : T a => G mn))
+      exact hOutside.trans (hS.trans hT)
+    have hnonnegT : ∀ a : A, 0 ≤ ∑' mn : T a, G mn := by
+      intro a
+      rw [← hfiber a]
+      exact hIn_nonneg a
+    have hpairwise : Set.PairwiseDisjoint (Set.univ : Set A) T := by
+      intro a _ b _ hab
+      refine Set.disjoint_left.2 ?_
+      intro mn hma hmb
+      exact hab <| Subtype.ext (hma.symm.trans hmb)
+    have hunion :
+        (∑' mn : ⋃ a : A, T a, ENNReal.ofReal (G mn)) =
+          ∑' a : A, ∑' mn : T a, ENNReal.ofReal (G mn) := by
+      simpa using (ENNReal.tsum_biUnion hpairwise (f := fun mn => ENNReal.ofReal (G mn)))
+    have hsub :
+        (∑' mn : ⋃ a : A, T a, ENNReal.ofReal (G mn)) ≤
+          ∑' mn : boundaryInPairs Ω, ENNReal.ofReal (G mn) := by
+      simpa using
+        (ENNReal.tsum_comp_le_tsum_of_injective
+          (f := (Subtype.val : (⋃ a : A, T a) → boundaryInPairs Ω))
+          Subtype.val_injective
+          (fun mn : boundaryInPairs Ω => ENNReal.ofReal (G mn)))
+    have hfiberENN :
+        ∀ a : A, ENNReal.ofReal (inflow twoFlow (a : ℕ)) =
+          ∑' mn : T a, ENNReal.ofReal (G mn) := by
+      intro a
+      rw [hfiber a]
+      refine ENNReal.ofReal_tsum_of_nonneg ?_ ?_
+      · intro mn
+        exact twoFlow_nonneg mn.1.1.1 mn.1.1.2
+      · have hscol := hcol_summable (le_trans (by decide : 1 ≤ 2) (hA.1 a.2))
+        have hsource_inj :
+            Function.Injective (fun mn : T a => mn.1.1.1) := by
+          intro x y hxy
+          apply Subtype.ext
+          apply Subtype.ext
+          apply Prod.ext
+          · exact hxy
+          · exact x.2.trans y.2.symm
+        have hscol' : Summable (fun mn : T a => twoFlow mn.1.1.1 (a : ℕ)) := by
+          simpa using hscol.comp_injective hsource_inj
+        have hEq :
+            (fun mn : T a => twoFlow mn.1.1.1 (a : ℕ)) =
+              fun mn : T a => twoFlow mn.1.1.1 mn.1.1.2 := by
+          funext mn
+          rcases mn with ⟨⟨⟨m, n⟩, hmn⟩, hna⟩
+          cases hna
+          rfl
+        exact hEq ▸ hscol'
+    have hleft :
+        ENNReal.ofReal (∑' a : A, inflow twoFlow (a : ℕ)) ≤
+          ∑' mn : boundaryInPairs Ω, ENNReal.ofReal (G mn) := by
+      calc
+        ENNReal.ofReal (∑' a : A, inflow twoFlow (a : ℕ))
+            = ∑' a : A, ENNReal.ofReal (inflow twoFlow (a : ℕ)) := by
+                refine ENNReal.ofReal_tsum_of_nonneg ?_ ?_
+                · intro a
+                  exact hIn_nonneg a
+                · letI := hfin.fintype
+                  apply Summable.of_finite
+        _ = ∑' a : A, ∑' mn : T a, ENNReal.ofReal (G mn) := by
+              apply tsum_congr
+              intro a
+              exact hfiberENN a
+        _ = ∑' mn : ⋃ a : A, T a, ENNReal.ofReal (G mn) := by
+              rw [hunion]
+        _ ≤ ∑' mn : boundaryInPairs Ω, ENNReal.ofReal (G mn) := hsub
+    have hright :
+        ∑' mn : boundaryInPairs Ω, ENNReal.ofReal (G mn) =
+          ENNReal.ofReal (boundaryInflow twoFlow Ω) := by
+      unfold boundaryInflow G
+      refine (ENNReal.ofReal_tsum_of_nonneg ?_ ?_).symm
+      · intro mn
+        exact twoFlow_nonneg mn.1.1 mn.1.2
+      · let U : Ω → Set (boundaryInPairs Ω) := fun r => { mn | mn.1.2 = (r : ℕ) }
+        have hpart : ∀ mn : boundaryInPairs Ω, ∃! r : Ω, mn ∈ U r := by
+          intro mn
+          refine ⟨⟨mn.1.2, ?_⟩, by simp [U], ?_⟩
+          · rcases mn.2 with ⟨_, hn, _, _⟩
+            exact hn
+          · intro r hr
+            apply Subtype.ext
+            simpa [U] using hr.symm
+        have hU_summable : ∀ r : Ω, Summable (fun mn : U r => twoFlow mn.1.1.1 mn.1.1.2) := by
+          intro r
+          have hscol := hcol_summable (le_trans (by decide : 1 ≤ 2) (hΩ_ge_two r.2))
+          have hsource_inj :
+              Function.Injective (fun mn : U r => mn.1.1.1) := by
+            intro x y hxy
+            apply Subtype.ext
+            apply Subtype.ext
+            apply Prod.ext
+            · exact hxy
+            · exact x.2.trans y.2.symm
+          have hscol' : Summable (fun mn : U r => twoFlow mn.1.1.1 (r : ℕ)) := by
+            simpa using hscol.comp_injective hsource_inj
+          have hEq :
+              (fun mn : U r => twoFlow mn.1.1.1 (r : ℕ)) =
+                fun mn : U r => twoFlow mn.1.1.1 mn.1.1.2 := by
+            funext mn
+            rcases mn with ⟨⟨⟨m, n⟩, hmn⟩, hnr⟩
+            cases hnr
+            rfl
+          exact hEq ▸ hscol'
+        have houter :
+            Summable (fun r : Ω => ∑' mn : U r, twoFlow mn.1.1.1 mn.1.1.2) := by
+          letI := hΩfin.fintype
+          apply Summable.of_finite
+        exact
+          (summable_partition
+            (f := fun mn : boundaryInPairs Ω => twoFlow mn.1.1 mn.1.2)
+            (hf := fun mn => twoFlow_nonneg mn.1.1 mn.1.2)
+            (s := U) hpart).2 ⟨hU_summable, houter⟩
+    have hleft' := hleft.trans_eq hright
+    have hboundary_nonneg : 0 ≤ boundaryInflow twoFlow Ω := by
+      unfold boundaryInflow
+      exact tsum_nonneg fun mn => twoFlow_nonneg mn.1.1 mn.1.2
+    exact (ENNReal.ofReal_le_ofReal_iff hboundary_nonneg).mp hleft'
+  have hmain :
+      twoWeightSum A ≤ boundaryInflow twoFlow Ω +
+        (∑' a : A, (outflow twoFlow (a : ℕ) - inflow twoFlow (a : ℕ))) := by
+    letI := hfin.fintype
+    have hIn_le' : ∑ a : A, inflow twoFlow (a : ℕ) ≤ boundaryInflow twoFlow Ω := by
+      simpa [tsum_fintype] using hIn_le
+    rw [hWeight, tsum_fintype, tsum_fintype]
+    calc
+      ∑ a : A, outflow twoFlow (a : ℕ)
+          = ∑ a : A, inflow twoFlow (a : ℕ) +
+              ∑ a : A, (outflow twoFlow (a : ℕ) - inflow twoFlow (a : ℕ)) := by
+                calc
+                  ∑ a : A, outflow twoFlow (a : ℕ)
+                      = ∑ a : A,
+                          (inflow twoFlow (a : ℕ) +
+                            (outflow twoFlow (a : ℕ) - inflow twoFlow (a : ℕ))) := by
+                              apply Finset.sum_congr rfl
+                              intro a ha
+                              ring
+                  _ = _ := by rw [Finset.sum_add_distrib]
+      _ ≤ boundaryInflow twoFlow Ω +
+            ∑ a : A, (outflow twoFlow (a : ℕ) - inflow twoFlow (a : ℕ)) := by
+              gcongr
+  calc
+    twoWeightSum A
+        ≤ boundaryInflow twoFlow Ω +
+            (∑' a : A, (outflow twoFlow (a : ℕ) - inflow twoFlow (a : ℕ))) := hmain
+    _ ≤ boundaryOutflow twoFlow Ω := hBoundary
+    _ ≤ series 1 := hOut
+
+lemma twoWeightSum_le_series_one_of_finite_subsets {A : Set ℕ}
+    (hfinite :
+      ∀ A₀ : Set ℕ, A₀ ⊆ A → A₀.Finite → twoWeightSum A₀ ≤ series 1) :
+    twoWeightSum A ≤ series 1 := by
+  classical
+  have htsum : ∑' a : A, twoWeight (a : ℕ) ≤ series 1 := by
+    refine Real.tsum_le_of_sum_le ?_ ?_
+    · intro a
+      by_cases ha0 : (a : ℕ) = 0
+      · simp [twoWeight, ha0]
+      · have ha1 : 1 ≤ (a : ℕ) := Nat.succ_le_of_lt (Nat.pos_of_ne_zero ha0)
+        have hlog : 0 < Real.log ((2 * (a : ℕ) : ℕ) : ℝ) := by
+          exact Real.log_pos (by exact_mod_cast (show 1 < 2 * (a : ℕ) by omega))
+        have hden : 0 ≤ ((a : ℕ) : ℝ) * Real.log ((2 * (a : ℕ) : ℕ) : ℝ) := by
+          positivity
+        simpa [twoWeight] using one_div_nonneg.mpr hden
+    · intro u
+      let s : Finset ℕ := u.image (fun a : A => (a : ℕ))
+      have hs_subset : (↑s : Set ℕ) ⊆ A := by
+        intro n hn
+        rcases Finset.mem_image.mp hn with ⟨a, ha, rfl⟩
+        exact a.2
+      have hs_eq :
+          twoWeightSum (↑s : Set ℕ) = ∑ n ∈ s, twoWeight n := by
+        simpa [twoWeightSum, s] using (Finset.tsum_subtype' s twoWeight)
+      have hu_eq : ∑ n ∈ s, twoWeight n = ∑ a ∈ u, twoWeight (a : ℕ) := by
+        dsimp [s]
+        exact
+          Finset.sum_image
+            (s := u)
+            (g := fun a : A => (a : ℕ))
+            (f := twoWeight)
+            Subtype.val_injective.injOn
+      calc
+        ∑ a ∈ u, twoWeight (a : ℕ) = twoWeightSum (↑s : Set ℕ) := by
+          rw [← hu_eq, ← hs_eq]
+        _ ≤ series 1 := hfinite (↑s : Set ℕ) hs_subset s.finite_toSet
+  simpa [twoWeightSum] using htsum
+
+theorem twoWeightSum_le_series_one {A : Set ℕ} (hA : PrimitiveSet A) :
+    twoWeightSum A ≤ series 1 := by
+  refine twoWeightSum_le_series_one_of_finite_subsets ?_
+  intro A₀ hA₀ hA₀fin
+  have hA₀_primitive : PrimitiveSet A₀ := by
+    refine ⟨?_, ?_⟩
+    · intro a ha
+      exact hA.1 (hA₀ ha)
+    · intro a b ha hb hab
+      exact hA.2 (hA₀ ha) (hA₀ hb) hab
+  exact twoWeightSum_le_series_one_of_finite hA₀_primitive hA₀fin
+
+def erdos_strong (n : ℕ) : Prop :=
+  ∀ ⦃A : Set ℕ⦄, PrimitiveSet A → A ⊆ {m : ℕ | n ∣ m} →
+    primitiveWeightSum A ≤ erdosWeight n
+
+theorem erdos_strong_two : erdos_strong 2 := by
+  intro A hA hTwoDvd
+  have hEven : A ⊆ {n : ℕ | Even n} := by
+    intro a ha
+    exact even_iff_two_dvd.mpr (hTwoDvd ha)
+  by_cases h2 : 2 ∈ A
+  · have hAeq : A = {2} := by
+      ext a
+      constructor
+      · intro ha
+        have h2dvd : 2 ∣ a := even_iff_two_dvd.mp (hEven ha)
+        have hEq : 2 = a := hA.2 h2 ha h2dvd
+        simp [hEq]
+      · intro ha
+        simp at ha
+        simp [ha, h2]
+    rw [hAeq, primitiveWeightSum]
+    simp [erdosWeight]
+  · let B : Set ℕ := {n : ℕ | 2 * n ∈ A}
+    have hB_primitive : PrimitiveSet B := by
+      refine ⟨?_, ?_⟩
+      · intro b hb
+        by_cases hb1 : b = 1
+        · exact False.elim <| h2 (by simpa [B, hb1] using hb)
+        · have hb_pos : 0 < b := by
+            have hAelt : 2 ≤ 2 * b := hA.1 hb
+            omega
+          have : 1 < b := by omega
+          exact Nat.succ_le_of_lt this
+      · intro a b ha hb hab
+        have hEq : 2 * a = 2 * b := hA.2 ha hb (Nat.mul_dvd_mul_left 2 hab)
+        exact Nat.eq_of_mul_eq_mul_left (by omega) hEq
+    let e : B ≃ A :=
+      { toFun := fun b => ⟨2 * b.1, b.2⟩
+        invFun := fun a => ⟨a.1 / 2, by
+          have htwo_dvd : 2 ∣ a.1 := even_iff_two_dvd.mp (hEven a.2)
+          have hEq : 2 * (a.1 / 2) = a.1 := Nat.mul_div_cancel' htwo_dvd
+          simp [B, hEq, a.2]⟩
+        left_inv := by
+          intro b
+          apply Subtype.ext
+          simp
+        right_inv := by
+          intro a
+          apply Subtype.ext
+          exact Nat.mul_div_cancel' (even_iff_two_dvd.mp (hEven a.2)) }
+    have hWeight :
+        primitiveWeightSum A = (1 / (2 : ℝ)) * twoWeightSum B := by
+      calc
+        primitiveWeightSum A = ∑' b : B, erdosWeight (2 * (b : ℕ)) := by
+          unfold primitiveWeightSum
+          simpa [e] using (Equiv.tsum_eq e (fun a : A => erdosWeight a.1)).symm
+        _ = ∑' b : B, (1 / (2 : ℝ)) * twoWeight (b : ℕ) := by
+              apply tsum_congr
+              intro b
+              have hb_pos : 0 < (b : ℕ) := lt_of_lt_of_le Nat.zero_lt_two (hB_primitive.1 b.2)
+              have hb0 : ((b : ℕ) : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr (Nat.ne_of_gt hb_pos)
+              have hlog : 0 < Real.log ((2 * (b : ℕ) : ℕ) : ℝ) := by
+                exact Real.log_pos (by exact_mod_cast (show 1 < 2 * (b : ℕ) by
+                  have : 1 < (b : ℕ) := lt_of_lt_of_le Nat.one_lt_two (hB_primitive.1 b.2)
+                  omega))
+              rw [erdosWeight, twoWeight, Nat.cast_mul]
+              field_simp [hb0, hlog.ne']
+              ring
+        _ = (1 / (2 : ℝ)) * twoWeightSum B := by
+              rw [twoWeightSum, tsum_mul_left]
+    have hB_bound : twoWeightSum B ≤ series 1 := twoWeightSum_le_series_one hB_primitive
+    have hseries : series 1 ≤ 1 / Real.log ((2 * 1 : ℕ) : ℝ) := main_bound le_rfl
+    calc
+      primitiveWeightSum A = (1 / (2 : ℝ)) * twoWeightSum B := hWeight
+      _ ≤ (1 / (2 : ℝ)) * series 1 := by
+            gcongr
+      _ ≤ (1 / (2 : ℝ)) * (1 / Real.log ((2 * 1 : ℕ) : ℝ)) := by
+            gcongr
+      _ = erdosWeight 2 := by
+            rw [erdosWeight]
+            ring
+
 #print axioms erdos164
 -- 'Erdos164.erdos164' depends on axioms: [propext, Classical.choice, Quot.sound]
 
-#print axioms main_bound
--- 'Erdos164.main_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+#print axioms erdos_strong_two
+-- 'Erdos164.erdos_strong_two' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos164
