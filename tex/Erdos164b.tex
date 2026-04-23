@@ -1,0 +1,380 @@
+\documentclass{amsart}
+
+\usepackage{amsmath,amssymb}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+
+\DeclareMathOperator{\Cov}{Cov}
+
+\begin{document}
+
+\begin{lemma}
+For \(s>1\), the Dirichlet eta function
+\[
+\eta(s):=(1-2^{1-s})\zeta(s)
+\]
+is nondecreasing.
+\end{lemma}
+
+\begin{proof}
+For \(s>1\),
+\[
+\eta(s)
+=
+\frac{1}{\Gamma(s)}
+\int_0^\infty \frac{x^{s-1}}{e^x+1}\,dx.
+\]
+Let \(X_s\) have the gamma distribution with density
+\[
+\frac{x^{s-1}e^{-x}}{\Gamma(s)}
+\qquad (x>0),
+\]
+and put
+\[
+h(x):=\frac{1}{1+e^{-x}}.
+\]
+Then
+\[
+\eta(s)=\mathbb E[h(X_s)].
+\]
+Differentiating under the integral sign gives
+\[
+\eta'(s)
+=
+\Cov\bigl(h(X_s),\log X_s\bigr).
+\]
+Since both \(h(x)\) and \(\log x\) are increasing functions of \(x\),
+\[
+\Cov\bigl(h(X_s),\log X_s\bigr)
+=
+\frac12
+\mathbb E\Bigl[
+\bigl(h(X_s)-h(Y_s)\bigr)
+\bigl(\log X_s-\log Y_s\bigr)
+\Bigr]
+\ge 0,
+\]
+where \(Y_s\) is an independent copy of \(X_s\). Hence \(\eta'(s)\ge 0\).
+\end{proof}
+
+\begin{lemma}
+For every \(r>0\),
+\[
+-\frac{\zeta'}{\zeta}(1+r)
+\le
+\frac{\log 2}{2^r-1}.
+\]
+\end{lemma}
+
+\begin{proof}
+For \(s>1\),
+\[
+\frac{\eta'}{\eta}(s)
+=
+\frac{\zeta'}{\zeta}(s)
++
+\frac{\log 2}{2^{s-1}-1}.
+\]
+By the previous lemma, \(\eta'(s)\ge 0\), and since \(\eta(s)>0\), we have
+\(\eta'(s)/\eta(s)\ge 0\). Therefore
+\[
+-\frac{\zeta'}{\zeta}(s)
+\le
+\frac{\log 2}{2^{s-1}-1}.
+\]
+Taking \(s=1+r\) gives the claim.
+\end{proof}
+
+\begin{theorem}
+Let \(\Lambda\) denote the von Mangoldt function. For every \(n\ge 1\),
+\[
+\sum_{q\ge 1}
+\frac{\Lambda(q)}{q\log(nq)\log(2nq)}
+\le
+\frac{1}{\log(2n)}.
+\]
+Equivalently, since \(\Lambda(1)=0\), the sum may be read as a sum over
+\(q\ge 2\).
+\end{theorem}
+
+\begin{proof}
+For \(x>1\),
+\[
+\frac{1}{\log x}
+=
+\int_0^\infty x^{-u}\,du.
+\]
+Using Tonelli's theorem and the identity
+\[
+-\frac{\zeta'}{\zeta}(s)
+=
+\sum_{q\ge 1}\frac{\Lambda(q)}{q^s}
+\qquad (s>1),
+\]
+we obtain
+\[
+\begin{aligned}
+\sum_{q\ge 1}
+\frac{\Lambda(q)}{q\log(nq)\log(2nq)}
+&=
+\int_0^\infty\int_0^\infty
+n^{-u-v}2^{-v}
+\sum_{q\ge 1}\frac{\Lambda(q)}{q^{1+u+v}}
+\,du\,dv  \\
+&=
+\int_0^\infty\int_0^\infty
+n^{-u-v}2^{-v}
+\left(-\frac{\zeta'}{\zeta}(1+u+v)\right)
+\,du\,dv .
+\end{aligned}
+\]
+Put \(r=u+v\). Then \(0\le v\le r\), and
+\[
+\int_0^r 2^{-v}\,dv
+=
+\frac{1-2^{-r}}{\log 2}.
+\]
+Hence
+\[
+\sum_{q\ge 1}
+\frac{\Lambda(q)}{q\log(nq)\log(2nq)}
+=
+\frac{1}{\log 2}
+\int_0^\infty
+n^{-r}(1-2^{-r})
+\left(-\frac{\zeta'}{\zeta}(1+r)\right)
+\,dr .
+\]
+By the previous lemma,
+\[
+-\frac{\zeta'}{\zeta}(1+r)
+\le
+\frac{\log 2}{2^r-1}.
+\]
+Therefore
+\[
+\begin{aligned}
+\sum_{q\ge 1}
+\frac{\Lambda(q)}{q\log(nq)\log(2nq)}
+&\le
+\frac{1}{\log 2}
+\int_0^\infty
+n^{-r}(1-2^{-r})
+\frac{\log 2}{2^r-1}
+\,dr  \\
+&=
+\int_0^\infty
+n^{-r}\frac{1-2^{-r}}{2^r-1}
+\,dr  \\
+&=
+\int_0^\infty
+n^{-r}2^{-r}\,dr  \\
+&=
+\int_0^\infty
+(2n)^{-r}\,dr  \\
+&=
+\frac{1}{\log(2n)}.
+\end{aligned}
+\]
+This proves the theorem.
+\end{proof}
+
+\begin{proposition}
+Let \(A\subseteq 2\mathbb N\) be primitive, meaning that no two distinct
+elements of \(A\) divide one another. Then
+\[
+\sum_{a\in A}\frac{1}{a\log a}
+\le
+\frac{1}{2\log 2}.
+\]
+Consequently, \(2\) is Erd\H{o}s-strong.
+\end{proposition}
+
+\begin{proof}
+Let
+\[
+V:=\{1\}\cup 2\mathbb N.
+\]
+Define a downward weighted directed graph on \(V\) as follows. First put one
+special edge
+\[
+2\longrightarrow 1
+\]
+of weight
+\[
+w(2\to 1):=\frac{1}{2\log 2}.
+\]
+For every \(n\ge 1\) and every \(q\ge 2\), put an edge
+\[
+2nq\longrightarrow 2n
+\]
+of weight
+\[
+w(2nq\to 2n)
+:=
+\frac{\Lambda(q)}
+{2nq\,\log(nq)\,\log(2nq)}.
+\]
+
+For \(x\in V\), let \(O(x)\) be the total weight of the edges leaving \(x\),
+and let \(I(x)\) be the total weight of the edges entering \(x\).
+
+We first compute \(O(2n)\). If \(n=1\), the only outgoing edge from \(2\) is
+\(2\to 1\), so
+\[
+O(2)=\frac{1}{2\log 2}.
+\]
+If \(n>1\), then the outgoing edges from \(2n\) are obtained by writing
+\(2n=2(n/d)d\), where \(d\mid n\) and \(d\ge 2\). Therefore, using
+\[
+\sum_{d\mid n}\Lambda(d)=\log n
+\]
+and \(\Lambda(1)=0\), we get
+\[
+\begin{aligned}
+O(2n)
+&=
+\sum_{\substack{d\mid n\\ d\ge 2}}
+\frac{\Lambda(d)}
+{2n\,\log n\,\log(2n)}  \\
+&=
+\frac{1}{2n\,\log n\,\log(2n)}
+\sum_{d\mid n}\Lambda(d)  \\
+&=
+\frac{1}{2n\log(2n)}.
+\end{aligned}
+\]
+Thus, for every \(n\ge 1\),
+\[
+O(2n)=\frac{1}{2n\log(2n)}.
+\]
+
+Next compute \(I(2n)\). The incoming edges are
+\[
+2nq\longrightarrow 2n
+\qquad(q\ge 2),
+\]
+so
+\[
+\begin{aligned}
+I(2n)
+&=
+\sum_{q\ge 2}
+\frac{\Lambda(q)}
+{2nq\,\log(nq)\,\log(2nq)}  \\
+&=
+\frac{1}{2n}
+\sum_{q\ge 2}
+\frac{\Lambda(q)}
+{q\log(nq)\log(2nq)}.
+\end{aligned}
+\]
+By the theorem,
+\[
+I(2n)
+\le
+\frac{1}{2n\log(2n)}
+=
+O(2n).
+\]
+
+Now reverse the edges and define a sub-Markov chain. Put
+\[
+C:=O(2)=\frac{1}{2\log 2}.
+\]
+The chain starts at \(1\), then moves deterministically from \(1\) to \(2\).
+From a vertex \(2n\), it moves to \(2nq\), where \(q\ge 2\), with probability
+\[
+\mathbb P(2n\to 2nq)
+:=
+\frac{w(2nq\to 2n)}{O(2n)}.
+\]
+The total probability of leaving \(2n\) is
+\[
+\sum_{q\ge 2}\mathbb P(2n\to 2nq)
+=
+\frac{I(2n)}{O(2n)}
+\le 1.
+\]
+The remaining probability is interpreted as killing the chain.
+
+Let \(P(2n)\) be the probability that the chain ever visits \(2n\). We claim
+that
+\[
+P(2n)=\frac{O(2n)}{C}
+\qquad(n\ge 1).
+\]
+For \(n=1\), this is immediate, because the chain moves from \(1\) to \(2\)
+with probability \(1\), and \(O(2)=C\).
+
+Assume \(n>1\), and suppose the identity has been proved for all proper
+divisors of \(n\). The immediate predecessors of \(2n\) in the reversed graph
+are the vertices \(2n/d\), where \(d\mid n\) and \(d\ge 2\). Hence
+\[
+\begin{aligned}
+P(2n)
+&=
+\sum_{\substack{d\mid n\\ d\ge 2}}
+P(2n/d)\,
+\mathbb P(2n/d\to 2n)  \\
+&=
+\sum_{\substack{d\mid n\\ d\ge 2}}
+\frac{O(2n/d)}{C}\,
+\frac{w(2n\to 2n/d)}{O(2n/d)}  \\
+&=
+\frac{1}{C}
+\sum_{\substack{d\mid n\\ d\ge 2}}
+w(2n\to 2n/d)  \\
+&=
+\frac{O(2n)}{C}.
+\end{aligned}
+\]
+This proves the claim by induction.
+
+Let \(B\subseteq A\) be finite. Along every non-killed path of the reversed
+chain, the current integer strictly increases by divisibility:
+\[
+2n\longmapsto 2nq
+\qquad(q\ge 2).
+\]
+Since \(A\) is primitive, such a path can visit at most one element of \(A\).
+Therefore the events
+\[
+\{\text{the chain visits } b\},
+\qquad b\in B,
+\]
+are pairwise disjoint. Using the formula for \(P(2n)\), we get
+\[
+\sum_{b\in B}\frac{O(b)}{C}
+=
+\sum_{b\in B}P(b)
+\le 1.
+\]
+Thus
+\[
+\sum_{b\in B}O(b)\le C.
+\]
+Since \(b\in 2\mathbb N\), the outflow formula gives
+\[
+O(b)=\frac{1}{b\log b}.
+\]
+Hence
+\[
+\sum_{b\in B}\frac{1}{b\log b}
+\le
+\frac{1}{2\log 2}.
+\]
+Taking the supremum over all finite subsets \(B\subseteq A\), equivalently
+applying monotone convergence, yields
+\[
+\sum_{a\in A}\frac{1}{a\log a}
+\le
+\frac{1}{2\log 2}.
+\]
+Equality is attained by the primitive set \(A=\{2\}\). Therefore \(2\) is
+Erd\H{o}s-strong.
+\end{proof}
+
+\end{document}
