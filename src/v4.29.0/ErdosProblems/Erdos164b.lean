@@ -1491,4 +1491,7 @@ theorem main_bound {n : ℕ} (hn : 1 < n) :
           rfl
     _ = 1 / Real.log ((2 * n : ℕ) : ℝ) := integral_two_n_eq hn
 
+#print axioms main_bound
+-- 'Strong2.main_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+
 end Strong2
