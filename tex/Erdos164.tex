@@ -1,0 +1,623 @@
+\documentclass{amsart}
+
+\usepackage{amsmath,amssymb}
+
+\newtheorem{claim}{Claim}
+\newtheorem{lemma}{Lemma}
+\newtheorem{conjecture}{Conjecture}
+\newtheorem{theorem}{Theorem}
+
+\newcommand{\N}{\mathbb N}
+\newcommand{\Pp}{\mathcal P}
+
+\begin{document}
+
+All logarithms are natural.
+
+Define the von Mangoldt function \(\Lambda\) by
+\[
+\Lambda(q)=
+\begin{cases}
+\log p, & q=p^k \text{ for some prime } p \text{ and integer } k\geq 1,\\
+0, & \text{otherwise.}
+\end{cases}
+\]
+
+For \(N,M\in\mathbb Z_{>0}\), define \(v(N,M)\) as follows.  If \(N>1\), \(q\) is a prime-power divisor of \(N\), and
+\[
+M=\frac{N}{q},
+\]
+then
+\[
+v(N,M)=\frac{\Lambda(q)}{N\log^2 N}.
+\]
+In all other cases, set
+\[
+v(N,M)=0.
+\]
+
+Define \(w(N,M)\) by modifying \(v(N,M)\) only in the following cases.  For every prime \(p\) and every integer \(k\geq 2\), set
+\[
+w(p^k,1)=0
+\]
+and
+\[
+w(p^k,p^{k-1})
+=
+v(p^k,p^{k-1})+v(p^k,1).
+\]
+For all other pairs \((N,M)\), set
+\[
+w(N,M)=v(N,M).
+\]
+
+For \(N\geq 1\), define
+\[
+\operatorname{Out}(N)=\sum_{M\geq 1} w(N,M)
+\]
+and
+\[
+\operatorname{In}(N)=\sum_{K\geq 1} w(K,N).
+\]
+
+\begin{claim}
+For every \(N>1\),
+\[
+\operatorname{Out}(N)=\frac{1}{N\log N}.
+\]
+\end{claim}
+
+\begin{proof}
+Fix \(N>1\).  The passage from \(v\) to \(w\) only moves mass within a fixed row \(N\).  If \(N\) is not of the form \(p^k\) with \(p\) prime and \(k\geq 2\), then
+\[
+w(N,M)=v(N,M)
+\]
+for every \(M\).  If \(N=p^k\) with \(k\geq 2\), then the only changed entries in row \(N\) are \(M=1\) and \(M=p^{k-1}\), and
+\[
+w(p^k,1)+w(p^k,p^{k-1})
+=
+0+\bigl(v(p^k,p^{k-1})+v(p^k,1)\bigr).
+\]
+Thus in every case,
+\[
+\sum_{M\geq 1}w(N,M)=\sum_{M\geq 1}v(N,M).
+\]
+
+Now compute the row sum of \(v\).  By definition,
+\[
+\sum_{M\geq 1}v(N,M)
+=
+\sum_{\substack{q\mid N\\ q\text{ prime power}}}
+\frac{\Lambda(q)}{N\log^2 N}.
+\]
+Since \(\Lambda(q)=0\) unless \(q\) is a prime power,
+\[
+\sum_{M\geq 1}v(N,M)
+=
+\frac{1}{N\log^2 N}\sum_{q\mid N}\Lambda(q).
+\]
+If
+\[
+N=\prod_{i=1}^r p_i^{a_i},
+\]
+then the prime-power divisors contributing to \(\sum_{q\mid N}\Lambda(q)\) are
+\[
+p_i,p_i^2,\dots,p_i^{a_i},
+\]
+and each contributes \(\log p_i\).  Therefore
+\[
+\sum_{q\mid N}\Lambda(q)
+=
+\sum_{i=1}^r\sum_{j=1}^{a_i}\log p_i
+=
+\sum_{i=1}^r a_i\log p_i
+=
+\log N.
+\]
+Hence
+\[
+\operatorname{Out}(N)
+=
+\sum_{M\geq 1}w(N,M)
+=
+\sum_{M\geq 1}v(N,M)
+=
+\frac{\log N}{N\log^2 N}
+=
+\frac{1}{N\log N}.
+\]
+\end{proof}
+
+\begin{lemma}\label{lem:analytic-estimate}
+For \(s>1\), define
+\[
+A(s)=\sum_{q\geq 2}\frac{\Lambda(q)}{q^s}.
+\]
+Then, for every prime \(p\),
+\[
+A(s)+\frac{\log p}{p^s}
+\leq
+\frac{1}{s-1}.
+\]
+\end{lemma}
+
+\begin{proof}
+For \(s>1\),
+\[
+A(s)=-\frac{\zeta'(s)}{\zeta(s)},
+\]
+where
+\[
+\zeta(s)=\sum_{n=1}^{\infty}\frac{1}{n^s}.
+\]
+Use the standard estimates
+\[
+-\zeta'(s)
+=
+\sum_{n=2}^{\infty}\frac{\log n}{n^s}
+\leq
+\int_1^\infty \frac{\log x}{x^s}\,dx
+=
+\frac{1}{(s-1)^2}
+\]
+and
+\[
+\zeta(s)\geq \frac{1}{s-1}+\frac12.
+\]
+The second estimate follows from the convexity of \(x^{-s}\): for each integer \(n\geq 1\),
+\[
+\int_n^{n+1} x^{-s}\,dx
+\leq
+\frac{n^{-s}+(n+1)^{-s}}{2},
+\]
+and summing over \(n\geq 1\) gives
+\[
+\frac{1}{s-1}
+=
+\int_1^\infty x^{-s}\,dx
+\leq
+\zeta(s)-\frac12.
+\]
+
+Therefore
+\[
+A(s)
+=
+-\frac{\zeta'(s)}{\zeta(s)}
+\leq
+\frac{\frac{1}{(s-1)^2}}{\frac{1}{s-1}+\frac12}
+=
+\frac{2}{s^2-1}.
+\]
+Also, for every prime \(p\),
+\[
+\frac{\log p}{p^s}
+\leq
+\max_{x>1}\frac{\log x}{x^s}
+=
+\frac{1}{es}
+\leq
+\frac{1}{s+1}.
+\]
+Hence
+\[
+A(s)+\frac{\log p}{p^s}
+\leq
+\frac{2}{s^2-1}+\frac{1}{s+1}
+=
+\frac{1}{s-1}.
+\]
+\end{proof}
+
+\begin{claim}
+For every \(N>1\),
+\[
+\operatorname{Out}(N)\geq \operatorname{In}(N).
+\]
+\end{claim}
+
+\begin{proof}
+Fix \(N>1\), and write
+\[
+L=\log N.
+\]
+Then \(L>0\).
+
+A nonzero \(v\)-flow into \(N\) comes from a source \(Nq\), where \(q\geq 2\).  For every \(q\geq 2\),
+\[
+v(Nq,N)=\frac{\Lambda(q)}{Nq\log^2(Nq)}.
+\]
+Thus the \(v\)-contribution to the inflow into \(N\) is
+\[
+\sum_{q\geq 2}\frac{\Lambda(q)}{Nq\log^2(Nq)}.
+\]
+
+The modification from \(v\) to \(w\) can add extra inflow into \(N>1\) only when \(N\) is a prime power.  If \(N\) is not a prime power, then
+\[
+N\operatorname{In}(N)
+=
+\sum_{q\geq 2}
+\frac{\Lambda(q)}{q(L+\log q)^2}.
+\]
+If
+\[
+N=p^a
+\]
+with \(p\) prime and \(a\geq 1\), then the extra inflow into \(N\) comes from the modified flow
+\[
+p^{a+1}\longrightarrow p^a.
+\]
+The extra amount is
+\[
+v(p^{a+1},1)
+=
+\frac{\log p}{p^{a+1}\log^2(p^{a+1})}.
+\]
+Multiplying by \(N=p^a\), this extra contribution becomes
+\[
+N v(p^{a+1},1)
+=
+\frac{\log p}{p(L+\log p)^2}.
+\]
+Therefore, when \(N=p^a\),
+\[
+N\operatorname{In}(N)
+=
+\sum_{q\geq 2}
+\frac{\Lambda(q)}{q(L+\log q)^2}
++
+\frac{\log p}{p(L+\log p)^2}.
+\]
+
+Use the identity
+\[
+\frac{1}{Y^2}
+=
+\int_0^\infty t e^{-tY}\,dt
+\qquad (Y>0).
+\]
+If \(N=p^a\), then
+\[
+\begin{aligned}
+N\operatorname{In}(N)
+&=
+\int_0^\infty
+t e^{-Lt}
+\left(
+\sum_{q\geq 2}\frac{\Lambda(q)}{q^{1+t}}
++
+\frac{\log p}{p^{1+t}}
+\right)
+\,dt.
+\end{aligned}
+\]
+By Lemma \ref{lem:analytic-estimate}, with \(s=1+t\),
+\[
+\sum_{q\geq 2}\frac{\Lambda(q)}{q^{1+t}}
++
+\frac{\log p}{p^{1+t}}
+\leq
+\frac{1}{t}.
+\]
+Thus
+\[
+N\operatorname{In}(N)
+\leq
+\int_0^\infty t e^{-Lt}\cdot \frac{1}{t}\,dt
+=
+\int_0^\infty e^{-Lt}\,dt
+=
+\frac{1}{L}.
+\]
+Hence
+\[
+\operatorname{In}(N)\leq \frac{1}{N\log N}.
+\]
+
+If \(N\) is not a prime power, the same argument applies without the extra term, using
+\[
+\sum_{q\geq 2}\frac{\Lambda(q)}{q^{1+t}}
+\leq
+\frac{1}{t}.
+\]
+Therefore again
+\[
+\operatorname{In}(N)\leq \frac{1}{N\log N}.
+\]
+
+By Claim \(1\),
+\[
+\operatorname{Out}(N)=\frac{1}{N\log N}.
+\]
+Therefore
+\[
+\operatorname{Out}(N)\geq \operatorname{In}(N).
+\]
+\end{proof}
+
+\begin{claim}
+For every \(N>1\),
+\[
+w(N,1)>0
+\quad\Longleftrightarrow\quad
+N \text{ is prime}.
+\]
+\end{claim}
+
+\begin{proof}
+A nonzero \(v\)-flow from \(N\) to \(1\) can occur only if
+\[
+1=\frac{N}{q},
+\]
+so
+\[
+q=N.
+\]
+Thus, for \(N>1\),
+\[
+v(N,1)=\frac{\Lambda(N)}{N\log^2 N},
+\]
+and this is nonzero exactly when \(N\) is a prime power.
+
+If \(N\) is not a prime power, then
+\[
+\Lambda(N)=0,
+\]
+so
+\[
+v(N,1)=0.
+\]
+No exceptional modification applies, and therefore
+\[
+w(N,1)=0.
+\]
+
+If \(N=p^k\) with \(p\) prime and \(k\geq 2\), then \(v(N,1)>0\), but this is exactly one of the exceptional cases in the definition of \(w\).  Hence
+\[
+w(p^k,1)=0.
+\]
+
+Finally, if \(N=p\) is prime, then no exceptional modification applies, so
+\[
+w(p,1)=v(p,1)
+=
+\frac{\Lambda(p)}{p\log^2 p}
+=
+\frac{\log p}{p\log^2 p}
+=
+\frac{1}{p\log p}
+>
+0.
+\]
+Therefore
+\[
+w(N,1)>0
+\quad\Longleftrightarrow\quad
+N \text{ is prime}.
+\]
+\end{proof}
+
+Let
+\[
+\N_{\geq 2}:=\{2,3,4,\dots\},
+\]
+and let \(\Pp\) denote the set of primes.  A set
+\[
+A\subseteq \N_{\geq 2}
+\]
+is called \emph{primitive} if no two distinct elements of \(A\) divide one another.
+
+A \emph{divisibility flow} is a nonnegative function \(W(m,n)\) on pairs of positive integers such that
+\[
+W(m,n)=0
+\]
+unless
+\[
+n\mid m
+\qquad\text{and}\qquad
+n<m.
+\]
+
+\begin{conjecture}\label{conj:flow}
+There exists a divisibility flow \(w\) such that, for every \(r\geq 2\),
+\[
+\operatorname{Out}(r)\geq \frac{1}{r\log r},
+\]
+with equality whenever \(r\) is prime;
+\[
+\operatorname{Out}(r)\geq \operatorname{In}(r);
+\]
+and the only nonzero flows into \(1\) are those coming from primes:
+\[
+w(m,1)=0
+\qquad
+\text{whenever } m\geq 2 \text{ is composite}.
+\]
+\end{conjecture}
+
+\begin{proof}
+The function \(w\) defined above is nonnegative and is zero unless \(M\mid N\) and \(M<N\).  Thus it is a divisibility flow.
+
+Claim \(1\) gives
+\[
+\operatorname{Out}(r)=\frac{1}{r\log r}
+\]
+for every \(r\geq 2\).  In particular,
+\[
+\operatorname{Out}(r)\geq \frac{1}{r\log r},
+\]
+with equality whenever \(r\) is prime.
+
+Claim \(2\) gives
+\[
+\operatorname{Out}(r)\geq \operatorname{In}(r)
+\]
+for every \(r\geq 2\).
+
+Claim \(3\) gives
+\[
+w(m,1)=0
+\]
+for every composite \(m\geq 2\).  Hence all three asserted properties hold.
+\end{proof}
+
+\begin{theorem}[Main result]
+For every primitive set \(A\subseteq \N_{\geq 2}\),
+\[
+\sum_{a\in A}\frac{1}{a\log a}
+\leq
+\sum_{p\in\Pp}\frac{1}{p\log p}.
+\]
+Consequently,
+\[
+\sum_{n\in A}\frac{1}{n\log n}
+\]
+is maximized over primitive sets \(A\subseteq \N_{\geq 2}\) by taking \(A=\Pp\).
+\end{theorem}
+
+\begin{proof}
+First suppose that \(A\) is finite.  Define
+\[
+\Omega
+:=
+\{d\geq 2:\ d\mid a \text{ for some } a\in A\}.
+\]
+Then \(\Omega\) is finite, \(A\subseteq \Omega\), and \(\Omega\) is downward closed above \(1\): if \(d\in\Omega\), \(e\mid d\), and \(e\geq 2\), then \(e\in\Omega\).
+
+For this finite set \(\Omega\), define
+\[
+\operatorname{Out}(\Omega)
+:=
+\sum_{\substack{m\in\Omega,\ n\notin\Omega\\ n\mid m,\ n<m}}
+w(m,n)
+\]
+and
+\[
+\operatorname{In}(\Omega)
+:=
+\sum_{\substack{m\notin\Omega,\ n\in\Omega\\ n\mid m,\ n<m}}
+w(m,n).
+\]
+The finite divergence identity is
+\[
+\sum_{r\in\Omega}
+\bigl(\operatorname{Out}(r)-\operatorname{In}(r)\bigr)
+=
+\operatorname{Out}(\Omega)-\operatorname{In}(\Omega).
+\]
+Indeed, after expanding the left-hand side, every term \(w(m,n)\) with both \(m,n\in\Omega\) occurs once with a positive sign and once with a negative sign.  Terms leaving \(\Omega\) occur once with a positive sign, and terms entering \(\Omega\) occur once with a negative sign.
+
+We first compute the possible nonzero terms in \(\operatorname{Out}(\Omega)\).  Let \(m\in\Omega\), and suppose \(n\notin\Omega\), \(n\mid m\), and \(n<m\).  If \(n\geq 2\), then the downward closure of \(\Omega\) gives \(n\in\Omega\), a contradiction.  Hence \(n=1\).  By Conjecture \ref{conj:flow}, the only nonzero flows into \(1\) come from primes.  Therefore
+\[
+\operatorname{Out}(\Omega)
+=
+\sum_{\substack{p\in\Omega\\ p\text{ prime}}}
+w(p,1).
+\]
+If \(p\) is prime, then its only proper divisor is \(1\), so
+\[
+w(p,1)=\operatorname{Out}(p).
+\]
+By Conjecture \ref{conj:flow},
+\[
+\operatorname{Out}(p)=\frac{1}{p\log p}.
+\]
+Thus
+\[
+\operatorname{Out}(\Omega)
+=
+\sum_{\substack{p\in\Omega\\ p\text{ prime}}}
+\frac{1}{p\log p}
+\leq
+\sum_{p\in\Pp}\frac{1}{p\log p}.
+\]
+
+Next, the finite divergence identity gives
+\[
+\operatorname{Out}(\Omega)
+=
+\operatorname{In}(\Omega)
++
+\sum_{r\in\Omega}
+\bigl(\operatorname{Out}(r)-\operatorname{In}(r)\bigr).
+\]
+By Conjecture \ref{conj:flow},
+\[
+\operatorname{Out}(r)-\operatorname{In}(r)\geq 0
+\]
+for every \(r\geq 2\).  Since \(A\subseteq\Omega\),
+\[
+\operatorname{Out}(\Omega)
+\geq
+\operatorname{In}(\Omega)
++
+\sum_{a\in A}
+\bigl(\operatorname{Out}(a)-\operatorname{In}(a)\bigr).
+\]
+
+We claim that every nonzero flow entering a point \(a\in A\) enters \(\Omega\) from outside \(\Omega\).  Such a flow has the form
+\[
+m\longrightarrow a
+\]
+with
+\[
+a\mid m
+\qquad\text{and}\qquad
+m>a.
+\]
+If \(m\in\Omega\), then \(m\mid b\) for some \(b\in A\).  Hence
+\[
+a\mid m\mid b.
+\]
+Since \(A\) is primitive and \(a,b\in A\), this forces \(a=b\).  Then \(m\mid a\), contradicting \(m>a\).  Therefore \(m\notin\Omega\).
+
+It follows that the full inflow into every \(a\in A\) is counted in \(\operatorname{In}(\Omega)\).  Hence
+\[
+\operatorname{In}(\Omega)
+\geq
+\sum_{a\in A}\operatorname{In}(a).
+\]
+Combining this with the preceding inequality gives
+\[
+\operatorname{Out}(\Omega)
+\geq
+\sum_{a\in A}\operatorname{In}(a)
++
+\sum_{a\in A}
+\bigl(\operatorname{Out}(a)-\operatorname{In}(a)\bigr)
+=
+\sum_{a\in A}\operatorname{Out}(a).
+\]
+By Conjecture \ref{conj:flow},
+\[
+\operatorname{Out}(a)\geq \frac{1}{a\log a}
+\]
+for every \(a\in A\).  Therefore
+\[
+\sum_{a\in A}\frac{1}{a\log a}
+\leq
+\sum_{a\in A}\operatorname{Out}(a)
+\leq
+\operatorname{Out}(\Omega)
+\leq
+\sum_{p\in\Pp}\frac{1}{p\log p}.
+\]
+This proves the desired inequality when \(A\) is finite.
+
+Now let \(A\subseteq\N_{\geq 2}\) be an arbitrary primitive set.  For every finite subset \(A_0\subseteq A\), the finite case gives
+\[
+\sum_{a\in A_0}\frac{1}{a\log a}
+\leq
+\sum_{p\in\Pp}\frac{1}{p\log p}.
+\]
+Taking the supremum over all finite subsets \(A_0\subseteq A\) gives
+\[
+\sum_{a\in A}\frac{1}{a\log a}
+\leq
+\sum_{p\in\Pp}\frac{1}{p\log p}.
+\]
+
+The set of primes \(\Pp\) is primitive, and for \(A=\Pp\) the left-hand side is equal to the right-hand side.  Hence the maximum over primitive sets is attained by the set of primes.
+\end{proof}
+
+\end{document}
