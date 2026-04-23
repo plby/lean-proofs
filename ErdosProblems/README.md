@@ -59,6 +59,7 @@
 * [Erdős Problem 1000](Erdos1000.md)
 * [Erdős Problem 1007](Erdos1007.md)
 * [Erdős Problem 1008](Erdos1008.md)
+* [Erdős Problem 1014](Erdos1014.md)
 * [Erdős Problem 1022](Erdos1022.md)
 * [Erdős Problem 1023](Erdos1023.md)
 * [Erdős Problem 1026](Erdos1026.md)
