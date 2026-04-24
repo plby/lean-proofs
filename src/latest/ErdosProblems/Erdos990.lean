@@ -685,7 +685,7 @@ theorem counterexamplePolynomial_support_eq_image
   constructor
   · intro hcoeff
     by_contra hnot
-    push_neg at hnot
+    push Not at hnot
     refine hcoeff ?_
     unfold counterexamplePolynomial
     rw [Polynomial.finset_sum_coeff]
