@@ -1,2 +1,23 @@
 - key: ErdosProblems.Erdos990
+  author:
+    informal:
+      AI: an internal model at OpenAI
+      human:
+        - Boris Alexeev
+        - Moe Putterman
+        - Mehtaab Sawhney
+        - Mark Sellke
+        - Gregory Valiant
+    formal:
+      AI: Codex
+      human: Boris Alexeev
+  arxiv: https://arxiv.org/abs/2604.06609
   url: https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos990.md
+- key: ErdosProblems.Erdos990b
+  author:
+    formal:
+      AI: GPT-5.4 Pro
+      human: YutaOriike
+  url:
+    - https://www.erdosproblems.com/forum/thread/990#post-5312
+    - https://github.com/yuta0x89/ErdosProblems/blob/main/Erdos990.lean
