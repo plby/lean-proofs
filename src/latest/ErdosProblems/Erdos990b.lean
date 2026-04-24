@@ -33,7 +33,7 @@ open Polynomial
 
 noncomputable section
 
-namespace Erdos990
+namespace Erdos990b
 
 /-! ### Basic numerical invariants -/
 
@@ -1998,6 +1998,6 @@ theorem erdos990_no_absolute_constant_sparseErdosTuran :
   nlinarith [hdisc_lower, hub', htarget]
 
 #print axioms erdos990_no_absolute_constant_sparseErdosTuran
--- 'erdos990_no_absolute_constant_sparseErdosTuran' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos990b.erdos990_no_absolute_constant_sparseErdosTuran' depends on axioms: [propext, Classical.choice, Quot.sound]
 
-end Erdos990
+end Erdos990b
