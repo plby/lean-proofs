@@ -1,0 +1,18 @@
+name = "lean-proofs-latest"
+version = "0.1.0"
+keywords = ["math"]
+defaultTargets = ["All"]
+
+[leanOptions]
+pp.unicode.fun = true # pretty-prints `fun a => b`
+relaxedAutoImplicit = false
+weak.linter.mathlibStandardSet = true
+maxSynthPendingDepth = 3
+
+[[require]]
+name = "mathlib"
+git = "https://github.com/leanprover-community/mathlib4.git"
+rev = "v4.29.1"
+
+[[lean_lib]]
+name = "All"
