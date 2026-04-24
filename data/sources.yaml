@@ -1,3 +1,11 @@
+- key: ErdosProblems.Erdos164
+  author:
+    formal:
+      AI: Codex
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/164
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos164.md
 - key: ErdosProblems.Erdos990
   author:
     informal:
@@ -21,11 +29,14 @@
   url:
     - https://www.erdosproblems.com/forum/thread/990#post-5312
     - https://github.com/yuta0x89/ErdosProblems/blob/main/Erdos990.lean
-- key: ErdosProblems.Erdos164
+- key: ErdosProblems.Erdos1014
   author:
+    informal:
+      AI: an internal model at OpenAI
     formal:
       AI: Codex
       human: Boris Alexeev
   url:
-    - https://www.erdosproblems.com/forum/thread/164
-    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos164.md
+    - https://openai.com/index/introducing-gpt-5-5/
+    - https://cdn.openai.com/pdf/6dc7175d-d9e7-4b8d-96b8-48fe5798cd5b/Ramsey.pdf
+    - https://www.erdosproblems.com/forum/thread/1014#post-5749
