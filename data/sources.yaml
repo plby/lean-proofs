@@ -21,3 +21,11 @@
   url:
     - https://www.erdosproblems.com/forum/thread/990#post-5312
     - https://github.com/yuta0x89/ErdosProblems/blob/main/Erdos990.lean
+- key: ErdosProblems.Erdos164
+  author:
+    formal:
+      AI: Codex
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/164
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos164.md
