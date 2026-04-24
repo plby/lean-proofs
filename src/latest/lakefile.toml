@@ -19,3 +19,6 @@ name = "All"
 
 [[lean_lib]]
 name = "ErdosProblems"
+
+[[lean_lib]]
+name = "MathOverflow"

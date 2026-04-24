@@ -40,3 +40,11 @@
     - https://openai.com/index/introducing-gpt-5-5/
     - https://cdn.openai.com/pdf/6dc7175d-d9e7-4b8d-96b8-48fe5798cd5b/Ramsey.pdf
     - https://www.erdosproblems.com/forum/thread/1014#post-5749
+- key: MathOverflow.MO509493
+  author:
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://mathoverflow.net/a/509513/588588
+    - https://github.com/plby/lean-proofs/blob/main/MathOverflow/MO509493.md
