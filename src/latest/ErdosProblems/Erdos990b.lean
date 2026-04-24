@@ -290,7 +290,7 @@ theorem exponent_middle (N K : ℕ) (i : Fin N) :
         exact lt_trans i.succ.is_lt (Nat.lt_succ_self (N + 1)))) = K ^ (i : ℕ) := by
   change exponent N K
       ⟨i.1 + 1, by
-        show i.1 + 1 < N + 2
+        change i.1 + 1 < N + 2
         omega⟩ = K ^ (i : ℕ)
   have hi : (i : ℕ) ≠ N := Nat.ne_of_lt i.is_lt
   simp [exponent, hi]
@@ -507,7 +507,10 @@ theorem expPoly_order_at_tau
     analyticOrderAt (expPoly N K) (tau N K : ℂ) = m := by simpa using hm.symm
     _ = N + 1 := by exact_mod_cast hm_eq
 
-/-- Near the positive point `x₀`, the sparse polynomial is obtained by the logarithmic substitution. -/
+/--
+Near the positive point `x₀`, the sparse polynomial is obtained by the logarithmic
+substitution.
+-/
 theorem sparsePoly_eq_expPoly_clog_eventually (N K : ℕ) (hK : 2 ≤ K) :
     ∀ᶠ z in 𝓝 (x0 N K : ℂ),
       (sparsePoly N K).eval z = expPoly N K ((d N K : ℂ) * Complex.log z) := by
@@ -616,7 +619,7 @@ theorem sparsePoly_rootMultiplicity_at_x0
           exact hj ((exponent_injective N K hK) (by simpa [exponent_zero] using h.symm))
         · simp
     intro hs
-    simpa [hs] using hcoeff0
+    simp [hs] at hcoeff0
   have hg : AnalyticAt ℂ (fun z : ℂ => (d N K : ℂ) * Complex.log z) (x0 N K : ℂ) := by
     have hlog : AnalyticAt ℂ Complex.log (x0 N K : ℂ) :=
       analyticAt_clog (x0_mem_slitPlane N K)
@@ -651,7 +654,8 @@ theorem sparsePoly_rootMultiplicity_at_x0
           = analyticOrderAt (fun z : ℂ => (sparsePoly N K).eval z) (x0 N K : ℂ) := by
               symm
               exact analyticOrderAt_eval_eq_rootMultiplicity_of_ne_zero hsp (x0 N K : ℂ)
-      _ = analyticOrderAt (expPoly N K ∘ fun z : ℂ => (d N K : ℂ) * Complex.log z) (x0 N K : ℂ) := by
+      _ = analyticOrderAt (expPoly N K ∘ fun z : ℂ => (d N K : ℂ) * Complex.log z)
+          (x0 N K : ℂ) := by
             exact analyticOrderAt_congr (sparsePoly_eq_expPoly_clog_eventually N K hK)
       _ = analyticOrderAt (expPoly N K) ((d N K : ℂ) * Complex.log (x0 N K : ℂ)) := hcomp
       _ = analyticOrderAt (expPoly N K) (tau N K : ℂ) := by rw [hx0eval]
@@ -685,7 +689,7 @@ theorem expectedRootCount_crowdingInterval (N K : ℕ) (hK : 2 ≤ K) :
 /-- Middle indices `1, …, N` inside `Fin (N+2)`. -/
 private def midIdx {N : ℕ} (i : Fin N) : Fin (s N) :=
   Fin.castLT i.succ (by
-    simpa [s] using lt_trans i.succ.is_lt (Nat.lt_succ_self (N + 1)))
+    simp [s])
 
 /-- The auxiliary coefficients `A_j = sqrt (Δ₁ Δ_s) / Δ_j` from the paper. -/
 private def Acoeff (N K : ℕ) (i : Fin (s N)) : ℝ :=
@@ -722,7 +726,8 @@ private theorem sparsePoly_support_eq_image (N K : ℕ) (hK : 2 ≤ K) :
   · intro hn
     rw [mem_support_iff]
     rcases Finset.mem_image.mp hn with ⟨i, hi, rfl⟩
-    rw [sparsePoly, finset_sum_coeff, Finset.sum_eq_single_of_mem i hi, coeff_C_mul_X_pow, if_pos rfl]
+    rw [sparsePoly, finset_sum_coeff, Finset.sum_eq_single_of_mem i hi,
+      coeff_C_mul_X_pow, if_pos rfl]
     · exact cCoeff_ne_zero N K hK i
     · intro j _ hij
       rw [coeff_C_mul_X_pow]
@@ -748,7 +753,7 @@ private theorem coeffL1_sparsePoly_eq_sum (N K : ℕ) (hK : 2 ≤ K) :
   rw [sparsePoly_support_eq_image N K hK, Finset.sum_image]
   · refine Finset.sum_congr rfl ?_
     intro i hi
-    simpa using congrArg norm (coeff_sparsePoly_exponent N K hK i)
+    exact congrArg norm (coeff_sparsePoly_exponent N K hK i)
   · intro i _ j _ hij
     exact exponent_injective N K hK hij
 
@@ -774,14 +779,16 @@ private theorem natDegree_sparsePoly (N K : ℕ) (hK : 2 ≤ K) :
     by_cases h0 : cCoeff N K i = 0
     · simp [h0]
     · by_cases hi0 : i.1 = 0
-      · exact (Polynomial.natDegree_C_mul_X_pow_le (cCoeff N K i) (exponent N K i)).trans <| by
+      · exact
+          (Polynomial.natDegree_C_mul_X_pow_le (cCoeff N K i) (exponent N K i)).trans <| by
           simp [exponent, hi0, d]
       · by_cases hilast : i.1 = N + 1
-        · exact (Polynomial.natDegree_C_mul_X_pow_le (cCoeff N K i) (exponent N K i)).trans <| by
+        · exact
+            (Polynomial.natDegree_C_mul_X_pow_le (cCoeff N K i) (exponent N K i)).trans <| by
             simp [exponent, hilast, d]
         · have hi_le : i.1 - 1 ≤ N := by
             have hi_lt : i.1 < N + 2 := by
-              simpa [s] using i.is_lt
+              exact i.is_lt
             have hi' : i.1 ≤ N := by
               omega
             omega
@@ -986,7 +993,7 @@ private theorem Delta_last_eq_prod (N K : ℕ) (hK : 2 ≤ K) :
     refine Finset.prod_congr rfl ?_
     intro m hm
     have hm' : m < N := Finset.mem_range.mp hm
-    simp [hm']
+    simp only [hm', ↓reduceDIte, Fin.castSucc_mk, Fin.succ_mk, inv_pow]
     have hpow :
         exponent N K ((⟨m, hm'⟩ : Fin N).castSucc.succ) = K ^ m := by
       simpa [midIdx, s] using exponent_middle N K (⟨m, hm'⟩ : Fin N)
@@ -1073,7 +1080,7 @@ private theorem Rcoeff_eq_main_term (N K : ℕ) (hK : 2 ≤ K) (i : Fin N) :
     rw [show (Finset.univ.erase (0 : Fin (N + 2)) : Finset (Fin (N + 2))) =
         Finset.univ.map ⟨Fin.succ, Fin.succ_injective (n := N + 1)⟩ by
           simp [Fin.univ_succ (N + 1)]]
-    simp [lambda_zero]
+    simp only [Finset.prod_map, Function.Embedding.coeFn_mk, lambda_zero, zero_sub, abs_neg]
     refine Fintype.prod_congr (fun x : Fin (N + 1) => |lambda N K x.succ|)
       (fun x : Fin (N + 1) => lambda N K x.succ) ?_
     intro x
@@ -1085,7 +1092,8 @@ private theorem Rcoeff_eq_main_term (N K : ℕ) (hK : 2 ≤ K) (i : Fin N) :
   have hmid :
       (∏ j ∈ (Finset.univ.erase (i.castSucc.succ) : Finset (Fin (N + 2))),
         |lambda N K i.castSucc.succ - lambda N K j|)
-        = ∏ x : Fin (N + 1), |lambda N K i.castSucc.succ - lambda N K (i.castSucc.succ.succAbove x)| := by
+        = ∏ x : Fin (N + 1),
+            |lambda N K i.castSucc.succ - lambda N K (i.castSucc.succ.succAbove x)| := by
     rw [show (Finset.univ.erase (i.castSucc.succ) : Finset (Fin (N + 2))) =
         Finset.univ.map (Fin.succAboveEmb i.castSucc.succ) by
           simp [Fin.univ_succAbove (N + 1) i.castSucc.succ]]
@@ -1096,7 +1104,8 @@ private theorem Rcoeff_eq_main_term (N K : ℕ) (hK : 2 ≤ K) (i : Fin N) :
         ∏ j ∈ (Finset.univ.erase (i.castSucc.succ) : Finset (Fin (N + 2))),
           |lambda N K i.castSucc.succ - lambda N K j|
       = (∏ x : Fin (N + 1), lambda N K x.succ) /
-          ∏ x : Fin (N + 1), |lambda N K i.castSucc.succ - lambda N K (i.castSucc.succ.succAbove x)| := by
+          ∏ x : Fin (N + 1),
+            |lambda N K i.castSucc.succ - lambda N K (i.castSucc.succ.succAbove x)| := by
             rw [h0, hmid]
     _ = (((K : ℝ) ^ (i.1 * (i.1 + 1) / 2))⁻¹) /
           (((1 - (((K : ℝ) ^ (N - i.1))⁻¹))
@@ -1106,13 +1115,14 @@ private theorem Rcoeff_eq_main_term (N K : ℕ) (hK : 2 ≤ K) (i : Fin N) :
             have hfirst : lambda N K (Fin.succ (0 : Fin (N + 1))) = ε ^ N := by
               simpa [ε] using lambda_succ_eq_inv_pow N K hK (0 : Fin (N + 1))
             have hzeroDen :
-                |lambda N K i.castSucc.succ - lambda N K (i.castSucc.succ.succAbove 0)| = ε ^ (N - i.1) := by
+                |lambda N K i.castSucc.succ -
+                    lambda N K (i.castSucc.succ.succAbove 0)| = ε ^ (N - i.1) := by
               have hz : lambda N K (i.castSucc.succ.succAbove 0) = 0 := by
                 rw [Fin.succ_succAbove_zero]
                 exact lambda_zero N K
               rw [hz, hli]
               have hnonneg : 0 ≤ ε ^ (N - i.1) := by positivity
-              simpa [abs_of_nonneg hnonneg]
+              simp [abs_of_nonneg hnonneg]
             have hnumTail :
                 (∏ x : Fin N, lambda N K x.succ.succ)
                   = (∏ m ∈ Finset.range N, ε ^ (N - (m + 1))) := by
@@ -1151,7 +1161,7 @@ private theorem Rcoeff_eq_main_term (N K : ℕ) (hK : 2 ≤ K) (i : Fin N) :
                                 have hm' : m < i.1 := Finset.mem_range.mp hm
                                 have hsub : i.1 - (m + 1) = i.1 - 1 - m := by
                                   omega
-                                simpa [hsub]
+                                simp [hsub]
                         _ = ∏ m ∈ Finset.range i.1, ε ^ m := by
                               simpa using
                                 (Finset.prod_range_reflect (fun m => ε ^ m) i.1)
@@ -1199,7 +1209,7 @@ private theorem Rcoeff_eq_main_term (N K : ℕ) (hK : 2 ≤ K) (i : Fin N) :
                 have hlt : (⟨m, hmN⟩ : Fin N) < i := by
                   change m < i.1
                   exact hm'
-                simp [hmN]
+                simp only [hmN, ↓reduceDIte, Fin.succ_mk]
                 have hidx :
                     i.castSucc.succ.succAbove ((⟨m, hmN⟩ : Fin N).succ)
                       = (((⟨m, hmN⟩ : Fin N).castSucc).succ) := by
@@ -1223,7 +1233,8 @@ private theorem Rcoeff_eq_main_term (N K : ℕ) (hK : 2 ≤ K) (i : Fin N) :
                 have hsub : N - m = N - i.1 + (i.1 - m) := by
                   omega
                 calc
-                  |ε ^ (N - i.1) - ε ^ (N - m)| = |ε ^ (N - i.1) - ε ^ (N - i.1) * ε ^ (i.1 - m)| := by
+                  |ε ^ (N - i.1) - ε ^ (N - m)|
+                      = |ε ^ (N - i.1) - ε ^ (N - i.1) * ε ^ (i.1 - m)| := by
                     rw [hsub, pow_add]
                   _ = |ε ^ (N - i.1) * (1 - ε ^ (i.1 - m))| := by ring_nf
                   _ = ε ^ (N - i.1) * (1 - ε ^ (i.1 - m)) := by
@@ -1238,7 +1249,7 @@ private theorem Rcoeff_eq_main_term (N K : ℕ) (hK : 2 ≤ K) (i : Fin N) :
                 have hle : i ≤ (⟨i.1 + m, hmN⟩ : Fin N) := by
                   change i.1 ≤ i.1 + m
                   omega
-                simp [hmN]
+                simp only [hmN, ↓reduceDIte, Fin.succ_mk]
                 have hidx :
                     i.castSucc.succ.succAbove ((⟨i.1 + m, hmN⟩ : Fin N).succ)
                       = ((⟨i.1 + m, hmN⟩ : Fin N).succ).succ := by
@@ -1302,9 +1313,10 @@ private theorem Rcoeff_eq_main_term (N K : ℕ) (hK : 2 ≤ K) (i : Fin N) :
                       congr 1
                       refine Finset.prod_congr rfl ?_
                       intro m hm
-                      have hsubexp : N - (i.1 + (m + 1)) = N - i.1 - (m + 1) := by
+                      have hsubexp :
+                          N - (i.1 + (m + 1)) = N - i.1 - (m + 1) := by
                         omega
-                      simpa [hsubexp]
+                      simp [hsubexp]
             rw [hsplitNum, hleftNum]
             have hrightProd :
                 (∏ m ∈ Finset.range (N - i.1),
@@ -1336,7 +1348,7 @@ private theorem Rcoeff_eq_main_term (N K : ℕ) (hK : 2 ≤ K) (i : Fin N) :
                                 have hm' : m < i.1 := Finset.mem_range.mp hm
                                 have hsub : i.1 - m = i.1 - 1 - m + 1 := by
                                   omega
-                                simpa [hsub]
+                                simp [hsub]
                         _ = ∏ m ∈ Finset.range i.1, (1 - ε ^ (m + 1)) := by
                               simpa using
                                 (Finset.prod_range_reflect (fun m => 1 - ε ^ (m + 1)) i.1)
@@ -1416,7 +1428,7 @@ private theorem Rcoeff_eq_main_term (N K : ℕ) (hK : 2 ≤ K) (i : Fin N) :
                   N + i.1 * (i.1 - 1) / 2 = N - i.1 + i.1 * (i.1 + 1) / 2 := by
                 rw [htri]
                 omega
-              simpa [hexp]
+              simp [hexp]
             calc
               ε ^ N *
                   ((ε ^ (N - i.1)) ^ i.1 * ε ^ (i.1 * (i.1 - 1) / 2) *
@@ -1471,7 +1483,8 @@ private theorem Delta_zero_eq_inv_pow (N K : ℕ) (hK : 2 ≤ K) :
   rw [show (Finset.univ.erase (0 : Fin (N + 2)) : Finset (Fin (N + 2))) =
       Finset.univ.map ⟨Fin.succ, Fin.succ_injective (n := N + 1)⟩ by
         simp [Fin.univ_succ (N + 1)]]
-  simp [lambda_zero]
+  simp only [Finset.prod_map, Function.Embedding.coeFn_mk, lambda_zero, zero_sub, abs_neg,
+    inv_pow]
   have habs :
       (∏ x : Fin (N + 1), |lambda N K x.succ|) = ∏ x : Fin (N + 1), lambda N K x.succ := by
     refine Fintype.prod_congr (fun x : Fin (N + 1) => |lambda N K x.succ|)
@@ -1493,7 +1506,7 @@ private theorem Delta_zero_eq_inv_pow (N K : ℕ) (hK : 2 ≤ K) :
     refine Finset.prod_congr rfl ?_
     intro m hm
     have hm' : m < N := Finset.mem_range.mp hm
-    simp [hm']
+    simp only [hm', ↓reduceDIte, Fin.succ_mk]
     simpa [ε] using lambda_succ_eq_inv_pow N K hK (Fin.succ ⟨m, hm'⟩)
   have hreflect :
       (∏ m ∈ Finset.range N, ε ^ (N - (m + 1)))
@@ -1505,7 +1518,7 @@ private theorem Delta_zero_eq_inv_pow (N K : ℕ) (hK : 2 ≤ K) :
               intro m hm
               have hm' : m < N := Finset.mem_range.mp hm
               have hsub : N - (m + 1) = N - 1 - m := by omega
-              simpa [hsub]
+              simp [hsub]
       _ = ∏ m ∈ Finset.range N, ε ^ m := by
             simpa using (Finset.prod_range_reflect (fun m => ε ^ m) N)
   have hsum :
@@ -1514,7 +1527,8 @@ private theorem Delta_zero_eq_inv_pow (N K : ℕ) (hK : 2 ≤ K) :
       (Finset.prod_pow_eq_pow_sum (Finset.range N) (fun m => m) ε)
   rw [hfirst, htail, hreflect, hsum, ← pow_add]
   have htri : N + N * (N - 1) / 2 = N * (N + 1) / 2 := by
-    simpa [add_comm, Nat.mul_comm, Nat.mul_left_comm, Nat.mul_assoc] using (Nat.triangle_succ N).symm
+    simpa [add_comm, Nat.mul_comm, Nat.mul_left_comm, Nat.mul_assoc] using
+      (Nat.triangle_succ N).symm
   rw [htri]
   simp [ε, inv_pow]
 
@@ -1748,14 +1762,18 @@ theorem M_tendsto_two_sqrt_two (N : ℕ) (hN : 1 ≤ N) :
       have htail :
           (∑ i : Fin (N + 1), F i.succ)
             = (∑ i : Fin N, F (midIdx i)) + F (Fin.last (N + 1)) := by
-        simpa [midIdx, F] using (Fin.sum_univ_castSucc (f := fun j : Fin (N + 1) => F j.succ))
+        simpa [midIdx, F] using
+          (Fin.sum_univ_castSucc (f := fun j : Fin (N + 1) => F j.succ))
       calc
         (∑ j : Fin (s N), F j) = F 0 + ∑ i : Fin (N + 1), F i.succ := hsucc
-        _ = F 0 + ((∑ i : Fin N, F (midIdx i)) + F (Fin.last (N + 1))) := by rw [htail]
-        _ = F 0 + (∑ i : Fin N, F (midIdx i)) + F (Fin.last (N + 1)) := by ring
+        _ = F 0 + ((∑ i : Fin N, F (midIdx i)) + F (Fin.last (N + 1))) := by
+          rw [htail]
+        _ = F 0 + (∑ i : Fin N, F (midIdx i)) + F (Fin.last (N + 1)) := by
+          ring_nf
     dsimp [F] at hsplit
     rw [lambda_zero, lambda_last N K hK] at hsplit
-    convert hsplit using 1 <;> ring
+    convert hsplit using 1
+    ring_nf
   exact (Filter.tendsto_congr' hmain).mpr <| by
     have hfirst :
       Filter.Tendsto (fun K : ℕ => Acoeff N K 0 * Real.exp (tau N K / 2))
@@ -1948,14 +1966,16 @@ theorem erdos990_no_absolute_constant_sparseErdosTuran :
         ∀ i : Fin (s N), 0 ≤ Acoeff N K i * Real.exp ((1 / 2 - lambda N K i) * tau N K) := by
       intro i
       have hΔ0 : 0 < Delta N K 0 := Delta_pos N K hK 0
-      have hΔs : 0 < Delta N K (Fin.last (N + 1)) := Delta_pos N K hK (Fin.last (N + 1))
+      have hΔs : 0 < Delta N K (Fin.last (N + 1)) :=
+        Delta_pos N K hK (Fin.last (N + 1))
       have hΔi : 0 < Delta N K i := Delta_pos N K hK i
       unfold Acoeff
       positivity
     have hterm0eq :
         Acoeff N K 0 * Real.exp ((1 / 2 - lambda N K 0) * tau N K) = 1 / Real.sqrt 2 := by
       rw [lambda_zero]
-      convert Acoeff_zero_mul_exp_tau_half N K hK using 1 <;> ring
+      convert Acoeff_zero_mul_exp_tau_half N K hK using 1
+      ring_nf
     have hterm0pos : 0 < Acoeff N K 0 * Real.exp ((1 / 2 - lambda N K 0) * tau N K) := by
       rw [hterm0eq]
       positivity
@@ -1998,6 +2018,7 @@ theorem erdos990_no_absolute_constant_sparseErdosTuran :
   nlinarith [hdisc_lower, hub', htarget]
 
 #print axioms erdos990_no_absolute_constant_sparseErdosTuran
--- 'Erdos990b.erdos990_no_absolute_constant_sparseErdosTuran' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos990b.erdos990_no_absolute_constant_sparseErdosTuran' depends on axioms:
+-- [propext, Classical.choice, Quot.sound]
 
 end Erdos990b
