@@ -31,6 +31,12 @@ Mathlib version: v4.28.0
 
 import Mathlib
 
+set_option linter.style.longLine false
+set_option linter.style.refine false
+set_option linter.style.maxHeartbeats false
+set_option linter.style.setOption false
+set_option linter.flexible false
+
 namespace MO509493
 
 open Matrix Finset BigOperators
