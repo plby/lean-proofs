@@ -1081,10 +1081,10 @@ lemma psd_poly_ineq
     rw [ show ( 1 - a 0 * a 0 ) = a 1 * a 1 + a 2 * a 2 by linarith, show ( 1 - a 1 * a 1 ) = a 0 * a 0 + a 2 * a 2 by linarith, show ( 1 - a 2 * a 2 ) = a 0 * a 0 + a 1 * a 1 by linarith ] ; ring_nf ; norm_num;
     nlinarith only [ sq_nonneg ( v 0 * a 1 ^ 2 + v 1 * a 0 ^ 2 ), sq_nonneg ( v 0 * a 2 ^ 2 + v 2 * a 0 ^ 2 ), sq_nonneg ( v 1 * a 2 ^ 2 + v 2 * a 1 ^ 2 ), sq_nonneg ( a 0 * a 1 ), sq_nonneg ( a 0 * a 2 ), sq_nonneg ( a 1 * a 2 ), ha ]
   · -- Case 2: a and b are not parallel — use the extracted lemma
-    push_neg at hpar
+    push Not at hpar
     have hcross : 0 < (a 1 * b 2 - a 2 * b 1) ^ 2 +
         (a 2 * b 0 - a 0 * b 2) ^ 2 + (a 0 * b 1 - a 1 * b 0) ^ 2 := by
-      by_contra hle; push_neg at hle
+      by_contra hle; push Not at hle
       have hd0 : a 1 * b 2 = a 2 * b 1 := by nlinarith [sq_nonneg (a 1*b 2-a 2*b 1), sq_nonneg (a 2*b 0-a 0*b 2), sq_nonneg (a 0*b 1-a 1*b 0)]
       have hd1 : a 2 * b 0 = a 0 * b 2 := by nlinarith [sq_nonneg (a 1*b 2-a 2*b 1), sq_nonneg (a 2*b 0-a 0*b 2), sq_nonneg (a 0*b 1-a 1*b 0)]
       have hd2 : a 0 * b 1 = a 1 * b 0 := by nlinarith [sq_nonneg (a 1*b 2-a 2*b 1), sq_nonneg (a 2*b 0-a 0*b 2), sq_nonneg (a 0*b 1-a 1*b 0)]
