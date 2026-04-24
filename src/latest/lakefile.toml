@@ -16,3 +16,6 @@ rev = "v4.29.1"
 
 [[lean_lib]]
 name = "All"
+
+[[lean_lib]]
+name = "ErdosProblems"
