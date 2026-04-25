@@ -681,7 +681,7 @@ def baseAngle (cfg : RCBase) (P : Point) : ℝ :=
 
 /-- A real angle `θ` is (plane) constructible if there is a ruler-and-compass
 constructible point whose base angle equals `θ`. -/
-def ConstructibleAngle (cfg : RCBase) (θ : ℝ) : Prop :=
+def RCConstructibleAngle (cfg : RCBase) (θ : ℝ) : Prop :=
   ∃ P : Point, RCPoint cfg P ∧ baseAngle cfg P = θ
 
 noncomputable section AristotleLemmas
@@ -1205,8 +1205,8 @@ theorem doubling_the_cube_impossible_plane (cfg : RCBase) :
 that for every constructible angle `θ`, the angle `θ / 3` is also constructible. -/
 theorem angle_trisection_impossible_plane (cfg : RCBase) :
     ¬ (∀ θ : ℝ,
-          ConstructibleAngle cfg θ →
-          ConstructibleAngle cfg (θ / 3)) := by
+          RCConstructibleAngle cfg θ →
+          RCConstructibleAngle cfg (θ / 3)) := by
   intro h
   obtain ⟨P, hP⟩ : ∃ P : Point, RCPoint cfg P ∧ Real.cos (baseAngle cfg P) = Real.cos (Real.pi / 9) := by
     have hP : ∃ P : Point, RulerCompass.RCPoint cfg P ∧ RulerCompass.baseAngle cfg P = Real.pi / 3 := by
@@ -1316,8 +1316,8 @@ trisecting the angle and doubling the cube by ruler-and-compass constructions
 in the Euclidean plane. -/
 theorem freek_08_plane (cfg : RCBase) :
     (¬ (∀ θ : ℝ,
-          ConstructibleAngle cfg θ →
-          ConstructibleAngle cfg (θ / 3))) ∧
+          RCConstructibleAngle cfg θ →
+          RCConstructibleAngle cfg (θ / 3))) ∧
     (¬ ∃ P : Point, RCPoint cfg P ∧ (segmentLength cfg P) ^ 3 = (2 : ℝ)) := by
   exact ⟨ angle_trisection_impossible_plane cfg, fun ⟨ P, hP₁, hP₂ ⟩ ↦ doubling_the_cube_impossible_plane cfg ⟨ P, hP₁, hP₂ ⟩ ⟩
 
