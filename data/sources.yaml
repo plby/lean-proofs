@@ -60,6 +60,16 @@
   url:
     - https://mathoverflow.net/questions/508681/a-two-player-stochastic-game-fight-or-draw
     - https://github.com/plby/lean-proofs/blob/main/MathOverflow/MO508681.md
+- key: MathOverflow.MO509164
+  author:
+    informal:
+      AI: ChatGPT 5.4 Pro
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://mathoverflow.net/questions/509164/limsup-of-cantor-sets
+    - https://github.com/plby/lean-proofs/blob/main/MathOverflow/MO509164.md
 - key: MathOverflow.MO509493
   author:
     informal:
