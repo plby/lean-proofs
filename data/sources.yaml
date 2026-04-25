@@ -48,8 +48,18 @@
       AI: Aristotle
       human: Boris Alexeev
   url:
-    - https://mathoverflow.net/a/506769/588588
+    - https://mathoverflow.net/questions/420333/sum-of-guesses-minimization-problem-also-does-this-problem-already-exist-in-the/506769#506769
     - https://github.com/plby/lean-proofs/blob/main/MathOverflow/MO420333.md
+- key: MathOverflow.MO508681
+  author:
+    informal:
+      AI: ChatGPT 5.4 Pro
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://mathoverflow.net/questions/508681/a-two-player-stochastic-game-fight-or-draw
+    - https://github.com/plby/lean-proofs/blob/main/MathOverflow/MO508681.md
 - key: MathOverflow.MO509493
   author:
     informal:
@@ -58,5 +68,5 @@
       AI: Aristotle
       human: Boris Alexeev
   url:
-    - https://mathoverflow.net/a/509513/588588
+    - https://mathoverflow.net/questions/509493/question-on-power-nonnegative-matrix/509513#509513
     - https://github.com/plby/lean-proofs/blob/main/MathOverflow/MO509493.md

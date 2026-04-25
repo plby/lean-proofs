@@ -80,7 +80,7 @@ lemma integral_affine (a b A B : ℝ) :
   · exact (Continuous.mul continuous_const continuous_id).intervalIntegrable a b
   · exact continuous_const.intervalIntegrable a b
 
-lemma C_r_w_left (x : ℝ) (hx0 : 0 ≤ x) (hxr : x < r) :
+lemma C_r_w_left (x : ℝ) (hxr : x < r) :
     C_r w x = c := by
   have hr_le_one : r ≤ 1 := by unfold r; nlinarith [Real.sqrt_nonneg 2, Real.sq_sqrt (by norm_num : (0:ℝ) ≤ 2)]
   have h1r : 1 - r ≠ 0 := by unfold r; nlinarith [Real.sqrt_nonneg 2, Real.sq_sqrt (by norm_num : (0:ℝ) ≤ 2)]
@@ -119,10 +119,8 @@ lemma C_r_w_left (x : ℝ) (hx0 : 0 ≤ x) (hxr : x < r) :
   rw [show (fun u => (1 - r) * g u + r * w u) = F by rfl]
   rw [hsplit, hleft, hright]
   rw [intervalIntegral.integral_const, integral_affine]
-  simp [smul_eq_mul]
-  unfold w g c
-  simp [hxr]
-  unfold r
+  simp only [mul_neg, mul_one, neg_sub, smul_eq_mul, one_pow]
+  rw [w, g, c, if_pos hxr, if_pos hxr, r]
   ring_nf
   nlinarith [Real.sqrt_nonneg 2, Real.sq_sqrt (by norm_num : (0:ℝ) ≤ 2)]
 
@@ -143,9 +141,7 @@ lemma C_r_w_right_le (x : ℝ) (hrx : r ≤ x) (hx1 : x ≤ 1) :
   unfold C_r
   rw [show (fun u => (1 - r) * g u + r * w u) = F by rfl, hF]
   rw [integral_affine]
-  unfold w g c
-  simp [not_lt_of_ge hrx]
-  unfold r
+  rw [w, g, c, if_neg (not_lt_of_ge hrx), if_neg (not_lt_of_ge hrx), r]
   field_simp [show 1 - (Real.sqrt 2 - 1) ≠ 0 by nlinarith [Real.sqrt_nonneg 2, Real.sq_sqrt (by norm_num : (0:ℝ) ≤ 2)]]
   ring_nf
   have hfac : 2 * x - 1 - (1 + x ^ 2 * Real.sqrt 2 - Real.sqrt 2) = Real.sqrt 2 * (1 - x) * (x - (Real.sqrt 2 - 1)) := by
@@ -167,9 +163,10 @@ lemma D_le_c_left (k : ℕ) (x : ℝ) (hx0 : 0 ≤ x) (hxr : x < r) :
   have hmul : x * (x ^ k / r ^ k) ≤ r := by
     have h1 := mul_le_mul_of_nonneg_left hdiv hx0
     linarith
-  unfold D c
-  simp [hxr]
-  rw [pow_succ']
+  rw [D, c, if_pos hxr]
+  have hxpow : x ^ (k + 1) = x * x ^ k := by
+    rw [pow_succ']
+  rw [hxpow]
   have hrpow_ne : r ^ k ≠ 0 := ne_of_gt hrpow_pos
   field_simp [hrpow_ne]
   nlinarith
@@ -178,7 +175,7 @@ lemma intervalIntegrable_g_any (a b : ℝ) : IntervalIntegrable g MeasureTheory.
   apply_rules [Monotone.intervalIntegrable]
   intro x y hxy
   unfold g
-  split_ifs <;> try linarith [Real.sqrt_nonneg 2, Real.sq_sqrt (by norm_num : (0:ℝ) ≤ 2)] <;> ring_nf
+  split_ifs <;> try linarith [Real.sqrt_nonneg 2, Real.sq_sqrt (by norm_num : (0:ℝ) ≤ 2)]
   · have hy_ge_r : r ≤ y := le_of_not_gt ‹¬y < r›
     have hden : 0 < 1 - r := by unfold r; nlinarith [Real.sqrt_nonneg 2, Real.sq_sqrt (by norm_num : (0:ℝ) ≤ 2)]
     have hnum : -(1 - r) ≤ 2 * y - 1 - r := by nlinarith
@@ -190,7 +187,7 @@ lemma intervalIntegrable_g_any (a b : ℝ) : IntervalIntegrable g MeasureTheory.
 theorem lemma_candidate (k : Nat) (x : Real) (hx : 0 ≤ x ∧ x ≤ 1) :
   w x = max (D k x) (C_r w x) := by
   by_cases hxr : x < r
-  · have hC := C_r_w_left x hx.1 hxr
+  · have hC := C_r_w_left x hxr
     have hD := D_le_c_left k x hx.1 hxr
     rw [show w x = c by simp [w, hxr], hC]
     exact (max_eq_right hD).symm
@@ -309,17 +306,16 @@ The function w is uniformly bounded.
 theorem w_is_uniformly_bounded : is_uniformly_bounded (fun _ => w) := by
   -- Choose M = 1 which bounds the absolute value of any x in [0,1] since w(x) = c if x < r, and 2x - 1 if r <= x <= 1.
   use 1
-  simp [w];
-  -- Since $c = 2r - 1$ and $r = \sqrt{2} - 1$, we have $c = 2(\sqrt{2} - 1) - 1 = 2\sqrt{2} - 3$.
-  have hc : c = 2 * Real.sqrt 2 - 3 := by
-    unfold c r; ring;
-  have hc_abs : |c| ≤ 1 := by
-    exact abs_le.mpr ⟨ by nlinarith [ Real.sqrt_nonneg 2, Real.sq_sqrt zero_le_two ], by nlinarith [ Real.sqrt_nonneg 2, Real.sq_sqrt zero_le_two ] ⟩
-  have hr_abs : ∀ x ∈ Set.Icc 0 1, x ≥ r → |2 * x - 1| ≤ 1 := by
-    exact fun x hx hx' => abs_le.mpr ⟨ by linarith [ hx.1, hx.2 ], by linarith [ hx.1, hx.2 ] ⟩
-  have hw_abs : ∀ x ∈ Set.Icc 0 1, |w x| ≤ 1 := by
-    unfold w; aesop;
-  aesop
+  intro k x hx
+  by_cases hx_lt : x < r
+  · change |if x < r then c else 2 * x - 1| ≤ 1
+    rw [if_pos hx_lt, c, r]
+    exact abs_le.mpr
+      ⟨by nlinarith [Real.sqrt_nonneg 2, Real.sq_sqrt zero_le_two],
+       by nlinarith [Real.sqrt_nonneg 2, Real.sq_sqrt zero_le_two]⟩
+  · change |if x < r then c else 2 * x - 1| ≤ 1
+    rw [if_neg hx_lt]
+    exact abs_le.mpr ⟨by linarith [hx.1, hx.2], by linarith [hx.1, hx.2]⟩
 
 /-
 Theorem: W_star (defined as w for all k) is the unique uniformly bounded solution to the Bellman equation.
@@ -371,5 +367,8 @@ theorem game_value_eq : game_value = 3 - 2 * Real.sqrt 2 := by
       exact if_neg ( by rw [ Set.uIcc_of_le ( show r ≤ 1 by rw [ show r = Real.sqrt 2 - 1 by rfl ] ; nlinarith [ Real.sqrt_nonneg 2, Real.sq_sqrt zero_le_two ] ) ] at hx; exact hx.1.not_gt );
   convert h_integral.trans h_eval using 1 ; norm_num [ mul_comm ] ; ring_nf;
   unfold c r; nlinarith [ Real.sqrt_nonneg 2, Real.sq_sqrt zero_le_two ] ;
+
+#print axioms game_value_eq
+-- 'MO508681.game_value_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end MO508681
