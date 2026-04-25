@@ -33,8 +33,13 @@ import Mathlib
 
 set_option linter.style.longLine false
 set_option linter.style.refine false
-set_option linter.style.maxHeartbeats false
 set_option linter.style.setOption false
+set_option linter.style.maxHeartbeats false
+set_option linter.style.cases false
+set_option linter.style.induction false
+set_option linter.style.multiGoal false
+set_option linter.unusedDecidableInType false
+set_option linter.unusedFintypeInType false
 set_option linter.flexible false
 
 namespace MO509493
