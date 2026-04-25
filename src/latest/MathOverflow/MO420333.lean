@@ -42,13 +42,22 @@ import Mathlib
 
 namespace MO420333
 
-set_option linter.style.longLine false
+set_option linter.style.setOption false
+--
+set_option linter.deprecated false
+set_option linter.flexible false
+set_option linter.style.cases false
+set_option linter.style.commandStart false
 set_option linter.style.refine false
 set_option linter.style.induction false
-set_option linter.style.openClassical false
-set_option linter.style.commandStart false
-set_option linter.unusedVariables false
+set_option linter.style.longLine false
+set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
+set_option linter.style.openClassical false
+set_option linter.style.whitespace false
+set_option linter.unusedDecidableInType false
+set_option linter.unusedFintypeInType false
+set_option linter.unusedVariables false
 
 open scoped Classical
 
@@ -275,6 +284,166 @@ lemma continuous_tightPoly (n : ℕ) : Continuous (tightPoly n) := by
   · exact continuous_id;
   · exact Continuous.mul ( continuous_id' ) ( Continuous.sub ( ih _ <| Nat.lt_succ_self _ ) ( ih _ <| Nat.lt_succ_of_lt <| Nat.lt_succ_self _ ) )
 
+set_option maxHeartbeats 0 in
+/-
+The trigonometric function `f(θ) = (2 cos θ)^n * sin((n+1)θ) / sin θ`
+is strictly decreasing on `[π/(n+3), π/(n+2)]` for `n ≥ 1`.
+-/
+lemma tightPoly_trig_strictAntiOn {n : ℕ} (hn : 1 ≤ n) :
+    StrictAntiOn (fun θ => (2 * Real.cos θ) ^ n * (Real.sin ((n + 1) * θ) / Real.sin θ))
+      (Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2))) := by
+  let f : ℝ → ℝ := fun θ =>
+    (2 * Real.cos θ) ^ n * (Real.sin ((n + 1) * θ) / Real.sin θ)
+  have h_deriv :
+      ∀ θ ∈ Set.Ioo (Real.pi / (n + 3)) (Real.pi / (n + 2)),
+        deriv f θ =
+          (2 * Real.cos θ) ^ n * (Real.sin ((n + 1) * θ) / Real.sin θ) *
+            (-(n : ℝ) * Real.tan θ +
+              (n + 1 : ℝ) * Real.cos ((n + 1) * θ) / Real.sin ((n + 1) * θ) -
+                Real.cos θ / Real.sin θ) := by
+    intro θ hθ
+    have hsin : Real.sin θ ≠ 0 := by
+      exact ne_of_gt (Real.sin_pos_of_pos_of_lt_pi (lt_trans (by positivity) hθ.1)
+        (hθ.2.trans_le (div_le_self Real.pi_pos.le (by linarith))))
+    have hcos : Real.cos θ ≠ 0 := by
+      exact ne_of_gt (Real.cos_pos_of_mem_Ioo ⟨by
+        linarith [Real.pi_pos, hθ.1, show 0 < Real.pi / (n + 3 : ℝ) by positivity]
+      , by
+        exact hθ.2.trans_le (by
+          rw [div_le_iff₀] <;>
+            nlinarith [Real.pi_pos, show (n : ℝ) ≥ 1 by norm_cast])⟩)
+    have hsin2 : Real.sin ((n + 1) * θ) ≠ 0 := by
+      exact ne_of_gt (Real.sin_pos_of_pos_of_lt_pi
+        (mul_pos (by positivity) (lt_trans (by positivity) hθ.1))
+        (by
+          have hmul :
+              ((n : ℝ) + 1) * θ <
+                ((n : ℝ) + 1) * (Real.pi / (n + 2 : ℝ)) :=
+            mul_lt_mul_of_pos_left hθ.2 (by positivity)
+          have hbound : ((n : ℝ) + 1) * (Real.pi / (n + 2 : ℝ)) < Real.pi := by
+            field_simp
+            nlinarith [Real.pi_pos]
+          exact hmul.trans hbound))
+    dsimp [f]
+    change deriv
+        (fun x => ((2 * Real.cos x) ^ n) *
+          (Real.sin ((n + 1) * x) / Real.sin x)) θ = _
+    change deriv
+        ((fun x => (2 * Real.cos x) ^ n) *
+          (fun x => Real.sin ((n + 1) * x) / Real.sin x)) θ = _
+    rw [deriv_mul]
+    · rw [show deriv (fun x => (2 * Real.cos x) ^ n) θ =
+          n * (2 * Real.cos θ) ^ (n - 1) * (2 * (-Real.sin θ)) by
+        change deriv ((fun x => 2 * Real.cos x) ^ n) θ = _
+        rw [deriv_pow]
+        rw [show deriv (fun x => 2 * Real.cos x) θ = 2 * (-Real.sin θ) by
+          rw [deriv_const_mul, deriv_cos] <;> simp]
+        simp]
+      rw [show deriv (fun x => Real.sin ((n + 1) * x) / Real.sin x) θ =
+          (deriv (fun x => Real.sin ((n + 1) * x)) θ * Real.sin θ -
+            Real.sin ((n + 1) * θ) * deriv (fun x => Real.sin x) θ) /
+              Real.sin θ ^ 2 by
+        change deriv ((fun x => Real.sin ((n + 1) * x)) / fun x => Real.sin x) θ = _
+        rw [deriv_div (by fun_prop) (by fun_prop) hsin]]
+      rw [show deriv (fun x => Real.sin ((n + 1) * x)) θ =
+          Real.cos ((n + 1) * θ) * (n + 1) by
+        rw [deriv_sin]
+        · rw [show deriv (fun x : ℝ => (n + 1 : ℝ) * x) θ = (n + 1 : ℝ) by
+            rw [deriv_const_mul_field]
+            simp]
+        · fun_prop]
+      rw [show deriv (fun x => Real.sin x) θ = Real.cos θ by simp]
+      simp [Real.tan_eq_sin_div_cos]
+      field_simp [hsin, hcos, hsin2]
+      rcases n with _ | n
+      · norm_num at hn
+      · simp [pow_succ, Nat.cast_add]
+        ring_nf
+    · fun_prop
+    · exact DifferentiableAt.div (by fun_prop) (by fun_prop) hsin
+  refine strictAntiOn_of_deriv_neg (convex_Icc _ _) ?_ ?_
+  · dsimp [f]
+    refine ContinuousOn.mul ?_ ?_
+    · exact ContinuousOn.pow (continuousOn_const.mul Real.continuousOn_cos) n
+    · refine ContinuousOn.div ?_ Real.continuousOn_sin ?_
+      · exact Continuous.continuousOn (Real.continuous_sin.comp (by continuity))
+      · intro θ hθ
+        exact ne_of_gt (Real.sin_pos_of_pos_of_lt_pi
+          (lt_of_lt_of_le (by positivity) hθ.1)
+          (lt_of_le_of_lt hθ.2 (by
+            rw [div_lt_iff₀ (by positivity)]
+            nlinarith [Real.pi_pos])))
+  · intro θ hθ
+    rw [interior_Icc] at hθ
+    rw [h_deriv θ hθ]
+    have h_tan_pos : 0 < Real.tan θ := by
+      exact Real.tan_pos_of_pos_of_lt_pi_div_two (lt_trans (by positivity) hθ.1)
+        (lt_of_lt_of_le hθ.2 (by
+          rw [div_le_iff₀]
+          · nlinarith [Real.pi_pos, show (n : ℝ) ≥ 1 by norm_cast]
+          · positivity))
+    have h_cot_pos : 0 < Real.cos θ / Real.sin θ := by
+      exact div_pos
+        (Real.cos_pos_of_mem_Ioo ⟨by
+          linarith [Real.pi_pos, hθ.1, show (Real.pi : ℝ) / (n + 3) > 0 by positivity]
+        , by
+          linarith [Real.pi_pos, hθ.2,
+            show (Real.pi : ℝ) / (n + 2) < Real.pi / 2 by
+              rw [div_lt_iff₀] <;>
+                nlinarith [Real.pi_pos, show (n : ℝ) ≥ 1 by norm_cast]]⟩)
+        (Real.sin_pos_of_mem_Ioo ⟨by
+          linarith [Real.pi_pos, hθ.1, show (Real.pi : ℝ) / (n + 3) > 0 by positivity]
+        , by
+          linarith [Real.pi_pos, hθ.2,
+            show (Real.pi : ℝ) / (n + 2) < Real.pi by
+              rw [div_lt_iff₀] <;>
+                nlinarith [Real.pi_pos, show (n : ℝ) ≥ 1 by norm_cast]]⟩)
+    have h_cot_neg : Real.cos ((n + 1) * θ) / Real.sin ((n + 1) * θ) < 0 := by
+      refine div_neg_of_neg_of_pos (Real.cos_neg_of_pi_div_two_lt_of_lt ?_ ?_)
+        (Real.sin_pos_of_pos_of_lt_pi ?_ ?_)
+      · have hmul :
+            ((n : ℝ) + 1) * (Real.pi / (n + 3 : ℝ)) <
+              ((n : ℝ) + 1) * θ :=
+          mul_lt_mul_of_pos_left hθ.1 (by positivity)
+        have hbound : Real.pi / 2 ≤ ((n : ℝ) + 1) * (Real.pi / (n + 3 : ℝ)) := by
+          field_simp
+          nlinarith [Real.pi_pos, show (n : ℝ) ≥ 1 by norm_cast]
+        exact lt_of_le_of_lt hbound hmul
+      · nlinarith [hθ.1, hθ.2, Real.pi_pos, show (n : ℝ) ≥ 1 by norm_cast,
+          mul_div_cancel₀ Real.pi (by positivity : (n : ℝ) + 3 ≠ 0),
+          mul_div_cancel₀ Real.pi (by positivity : (n : ℝ) + 2 ≠ 0)]
+      · exact mul_pos (by positivity) (lt_trans (by positivity) hθ.1)
+      · nlinarith [hθ.1, hθ.2, Real.pi_pos,
+          mul_div_cancel₀ Real.pi (by positivity : (n : ℝ) + 3 ≠ 0),
+          mul_div_cancel₀ Real.pi (by positivity : (n : ℝ) + 2 ≠ 0)]
+    have h_term_neg :
+        -(n : ℝ) * Real.tan θ +
+            (n + 1 : ℝ) * Real.cos ((n + 1) * θ) / Real.sin ((n + 1) * θ) -
+          Real.cos θ / Real.sin θ < 0 := by
+      ring_nf at *
+      nlinarith
+    exact mul_neg_of_pos_of_neg
+      (mul_pos
+        (pow_pos (mul_pos zero_lt_two (Real.cos_pos_of_mem_Ioo ⟨by
+          linarith [Real.pi_pos, hθ.1,
+            div_nonneg Real.pi_pos.le (by positivity : 0 ≤ (n : ℝ) + 3)]
+        , by
+          exact hθ.2.trans_le (by
+            rw [div_le_iff₀] <;>
+              nlinarith [Real.pi_pos, show (n : ℝ) ≥ 1 by norm_cast])⟩)) n)
+        (div_pos
+          (Real.sin_pos_of_mem_Ioo ⟨by
+            exact mul_pos (by positivity) (lt_trans (by positivity) hθ.1)
+          , by
+            nlinarith [hθ.1, hθ.2, Real.pi_pos,
+              mul_div_cancel₀ Real.pi (by positivity : (n : ℝ) + 3 ≠ 0),
+              mul_div_cancel₀ Real.pi (by positivity : (n : ℝ) + 2 ≠ 0)]⟩)
+          (Real.sin_pos_of_mem_Ioo ⟨by
+            exact lt_trans (by positivity) hθ.1
+          , by
+            exact hθ.2.trans_le (div_le_self Real.pi_pos.le (by linarith))⟩)))
+      h_term_neg
+
 /-
 The tight polynomial `p_n(R)` is strictly monotonic (increasing) on the interval `[R_{n,lower}, R_{n,upper}]`.
 Proof:
@@ -290,7 +459,34 @@ Thus `tightPoly n y1 < tightPoly n y2`.
 -/
 lemma tightPoly_strictMonoOn {n : ℕ} (hn : 1 ≤ n) :
     StrictMonoOn (tightPoly n) (Set.Icc (ratioLower n) (ratioUpper n)) := by
-      sorry
+      intro y1 hy1 y2 hy2 hlt;
+      obtain ⟨θ1, hθ1⟩ : ∃ θ1 ∈ Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2)), y1 = 4 * (Real.cos θ1) ^ 2 := by
+        have h_cos_sq : ∃ θ1 ∈ Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2)), 4 * (Real.cos θ1) ^ 2 = y1 := by
+          apply_rules [ intermediate_value_Icc' ] <;> norm_num [ ratioLower, ratioUpper ] at *;
+          · gcongr ; linarith;
+          · exact Continuous.continuousOn ( by continuity );
+          · tauto;
+        aesop
+      obtain ⟨θ2, hθ2⟩ : ∃ θ2 ∈ Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2)), y2 = 4 * (Real.cos θ2) ^ 2 := by
+        have hθ2_exists : ∃ θ2 ∈ Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2)), Real.cos θ2 ^ 2 = y2 / 4 := by
+          apply_rules [ intermediate_value_Icc' ];
+          · grind;
+          · exact Continuous.continuousOn ( Real.continuous_cos.pow 2 );
+          · constructor <;> norm_num [ ratioLower, ratioUpper ] at * <;> linarith;
+        exact ⟨ hθ2_exists.choose, hθ2_exists.choose_spec.1, by linarith [ hθ2_exists.choose_spec.2 ] ⟩
+      have hθ1θ2 : θ1 > θ2 := by
+        contrapose! hlt;
+        exact hθ2.2.symm ▸ hθ1.2.symm ▸ mul_le_mul_of_nonneg_left ( pow_le_pow_left₀ ( Real.cos_nonneg_of_mem_Icc ⟨ by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, div_mul_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 3 ≠ 0 ), div_mul_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 2 ≠ 0 ), hθ2.1.1 ], by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, div_mul_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 3 ≠ 0 ), div_mul_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 2 ≠ 0 ), hθ2.1.2 ] ⟩ ) ( Real.cos_le_cos_of_nonneg_of_le_pi ( by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, div_mul_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 3 ≠ 0 ), div_mul_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 2 ≠ 0 ), hθ1.1.1 ] ) ( by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, div_mul_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 3 ≠ 0 ), div_mul_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 2 ≠ 0 ), hθ2.1.2 ] ) hlt ) 2 ) zero_le_four;
+      have hfθ1θ2 : (2 * Real.cos θ1) ^ n * (Real.sin ((n + 1) * θ1) / Real.sin θ1) < (2 * Real.cos θ2) ^ n * (Real.sin ((n + 1) * θ2) / Real.sin θ2) := by
+        have := tightPoly_trig_strictAntiOn hn;
+        exact this hθ2.1 hθ1.1 hθ1θ2;
+      convert hfθ1θ2 using 1;
+      · rw [ hθ1.2, tightPoly_eq_trig ]
+        · aesop
+        exact ne_of_gt ( Real.sin_pos_of_pos_of_lt_pi ( lt_of_lt_of_le ( by positivity ) hθ1.1.1 ) ( lt_of_le_of_lt hθ1.1.2 ( by rw [ div_lt_iff₀ ] <;> nlinarith [ Real.pi_pos ] ) ) );
+      · rw [ hθ2.2, tightPoly_eq_trig ];
+        · norm_cast;
+        · exact ne_of_gt ( Real.sin_pos_of_pos_of_lt_pi ( by exact lt_of_lt_of_le ( by positivity ) hθ2.1.1 ) ( by exact lt_of_le_of_lt hθ2.1.2 ( by rw [ div_lt_iff₀ ] <;> nlinarith [ Real.pi_pos ] ) ) )
 
 set_option maxHeartbeats 0 in
 /-
@@ -303,7 +499,7 @@ Proof idea:
 4. Conclude `f'(θ) < 0` on the open interval.
 5. Use the mean value theorem or standard calculus lemmas to deduce strict monotonicity on the closed interval.
 -/
-lemma tightPoly_trig_strictAntiOn {n : ℕ} (hn : 1 ≤ n) :
+lemma tightPoly_trig_strictAntiOn2 {n : ℕ} (hn : 1 ≤ n) :
     StrictAntiOn (fun θ => (2 * Real.cos θ) ^ n * (Real.sin ((n + 1) * θ) / Real.sin θ))
       (Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2))) := by
   intro x hx y hy hxy
@@ -3354,7 +3550,7 @@ lemma mem_strictifyStrategy_range {s : Strategy} {N : ℕ} (v : ℝ) :
             v ∈ ((List.range (N + 1)).map s.x).dedup := by
           rw [← hk_eq]
           unfold strictifyStrategy
-          simpa [hk] using List.get_mem (((List.range (N + 1)).map s.x).dedup) ⟨k, hk⟩
+          simp [hk]
         have h_mem : v ∈ (List.range (N + 1)).map s.x := List.mem_dedup.mp h_mem_dedup
         obtain ⟨j, hj, hjv⟩ := List.mem_map.mp h_mem
         exact ⟨j, Nat.le_of_lt_succ (List.mem_range.mp hj), hjv⟩
@@ -3395,7 +3591,7 @@ lemma strictifyStrategy_range_le_last {s : Strategy} {N : ℕ} :
               v ∈ ((List.range (N + 1)).map s.x).dedup := by
             rw [← hk_eq]
             unfold strictifyStrategy
-            simpa [hk] using List.get_mem (((List.range (N + 1)).map s.x).dedup) ⟨k, hk⟩
+            simp [hk]
           exact List.mem_dedup.mp h_mem_dedup
         · have h_sorted : List.Sorted (· ≤ ·) ((List.range (N + 1)).map s.x) := by
             rw [List.Sorted, List.pairwise_map, List.pairwise_iff_get]
@@ -3423,7 +3619,18 @@ lemma strictifyStrategy_range_le_last {s : Strategy} {N : ℕ} :
                 0 ≤
                   ((k - (((List.range (N + 1)).map s.x).dedup.length - 1) : ℕ) : ℝ) := by
               positivity
-            linarith
+            have hk_ge_nat :
+                (List.map s.x (List.range (N + 1))).dedup.length ≤ k := by
+              exact not_lt.mp hk
+            have hk_ge_real :
+                ((List.map s.x (List.range (N + 1))).dedup.length : ℝ) ≤ (k : ℝ) := by
+              exact_mod_cast hk_ge_nat
+            have htail_nonneg :
+                0 ≤
+                  ((k : ℝ) -
+                    (((List.map s.x (List.range (N + 1))).dedup.length : ℝ) - 1)) := by
+              linarith
+            linarith [hv_eq', hv_le, htail_nonneg]
           rw [hv_eq_last]
           exact List.mem_map.mpr ⟨N, List.mem_range.mpr (Nat.lt_succ_self N), rfl⟩
       · intro hv
@@ -3556,8 +3763,7 @@ lemma List_filter_lt_eq_take_of_sorted {L : List ℝ} (h_sorted : List.Sorted (�
             exact not_lt.mpr (h_drop x hx)
           have h_filter_nil : (a :: L).filter (fun x => decide (x < y)) = [] := by
             apply List.filter_eq_nil_iff.mpr
-            intro x hx
-            intro hdec
+            intro x hx hdec
             exact h_not x hx (of_decide_eq_true hdec)
           simpa using h_filter_nil
         · have ha : a < y := h_take a (by simp)

@@ -48,3 +48,13 @@
   url:
     - https://mathoverflow.net/a/509513/588588
     - https://github.com/plby/lean-proofs/blob/main/MathOverflow/MO509493.md
+- key: MathOverflow.MO420333
+  author:
+    informal:
+      AI: ChatGPT 5.2 Pro
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://mathoverflow.net/a/506769/588588
+    - https://github.com/plby/lean-proofs/blob/main/MathOverflow/MO420333.md
