@@ -21,4 +21,7 @@ name = "All"
 name = "ErdosProblems"
 
 [[lean_lib]]
+name = "HundredTheorems"
+
+[[lean_lib]]
 name = "MathOverflow"

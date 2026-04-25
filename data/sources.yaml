@@ -40,6 +40,14 @@
     - https://openai.com/index/introducing-gpt-5-5/
     - https://cdn.openai.com/pdf/6dc7175d-d9e7-4b8d-96b8-48fe5798cd5b/Ramsey.pdf
     - https://www.erdosproblems.com/forum/thread/1014#post-5749
+- key: HundredTheorems.Theorem8
+  author:
+    informal:
+      AI: ChatGPT-5.2 Pro
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url: https://github.com/plby/lean-proofs/blob/main/HundredTheorems/Theorem8.md
 - key: MathOverflow.MO420333
   author:
     informal:
