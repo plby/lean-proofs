@@ -53,6 +53,7 @@ set_option linter.style.show false
 set_option linter.style.longLine false
 set_option linter.unusedDecidableInType false
 set_option linter.unusedFintypeInType false
+set_option maxHeartbeats 0
 
 open Finset Function SimpleGraph Fintype Nat Matrix
 
@@ -62,85 +63,183 @@ attribute [local instance] Classical.propDecidable
 ## § 1. Certificate Matrices and PSD Verification
 
 Three certificate matrices P (8×8), Q (6×6), R (5×5) from the flag algebra proof,
-verified positive semidefinite via explicit LDLᵀ decompositions checked by `native_decide`.
+verified positive semidefinite via explicit LDLᵀ decompositions checked by rational arithmetic.
 -/
 
 /-- Certificate matrix P (8×8) for type σ₀, scaled by 625. -/
-def P_cert : Matrix (Fin 8) (Fin 8) ℚ := !![
-  24, -36, -36, 24, -36, 24, 24, -36;
-  -36, 277, 97, -79, 97, -79, -259, 54;
-  -36, 97, 277, -79, 97, -259, -79, 54;
-  24, -79, -79, 247, -259, 67, 67, -36;
-  -36, 97, 97, -259, 277, -79, -79, 54;
-  24, -79, -259, 67, -79, 247, 67, -36;
-  24, -259, -79, 67, -79, 67, 247, -36;
-  -36, 54, 54, -36, 54, -36, -36, 54]
+def P_cert : Matrix (Fin 8) (Fin 8) ℚ := fun i j =>
+  match i.val, j.val with
+  | 0, 0 => 24 | 0, 1 => -36 | 0, 2 => -36 | 0, 3 => 24
+  | 0, 4 => -36 | 0, 5 => 24 | 0, 6 => 24 | 0, 7 => -36
+  | 1, 0 => -36 | 1, 1 => 277 | 1, 2 => 97 | 1, 3 => -79
+  | 1, 4 => 97 | 1, 5 => -79 | 1, 6 => -259 | 1, 7 => 54
+  | 2, 0 => -36 | 2, 1 => 97 | 2, 2 => 277 | 2, 3 => -79
+  | 2, 4 => 97 | 2, 5 => -259 | 2, 6 => -79 | 2, 7 => 54
+  | 3, 0 => 24 | 3, 1 => -79 | 3, 2 => -79 | 3, 3 => 247
+  | 3, 4 => -259 | 3, 5 => 67 | 3, 6 => 67 | 3, 7 => -36
+  | 4, 0 => -36 | 4, 1 => 97 | 4, 2 => 97 | 4, 3 => -259
+  | 4, 4 => 277 | 4, 5 => -79 | 4, 6 => -79 | 4, 7 => 54
+  | 5, 0 => 24 | 5, 1 => -79 | 5, 2 => -259 | 5, 3 => 67
+  | 5, 4 => -79 | 5, 5 => 247 | 5, 6 => 67 | 5, 7 => -36
+  | 6, 0 => 24 | 6, 1 => -259 | 6, 2 => -79 | 6, 3 => 67
+  | 6, 4 => -79 | 6, 5 => 67 | 6, 6 => 247 | 6, 7 => -36
+  | 7, 0 => -36 | 7, 1 => 54 | 7, 2 => 54 | 7, 3 => -36
+  | 7, 4 => 54 | 7, 5 => -36 | 7, 6 => -36 | 7, 7 => 54
+  | _, _ => 0
 
 /-- Certificate matrix Q (6×6) for type σ₁, scaled by 2500. -/
-def Q_cert : Matrix (Fin 6) (Fin 6) ℚ := !![
-  1728, -1551, -1551, -1308, 687, 687;
-  -1551, 2336, 742, 908, 2557, -4084;
-  -1551, 742, 2336, 908, -4084, 2557;
-  -1308, 908, 908, 1728, -254, -254;
-  687, 2557, -4084, -254, 15264, -14424;
-  687, -4084, 2557, -254, -14424, 15264]
+def Q_cert : Matrix (Fin 6) (Fin 6) ℚ := fun i j =>
+  match i.val, j.val with
+  | 0, 0 => 1728 | 0, 1 => -1551 | 0, 2 => -1551 | 0, 3 => -1308
+  | 0, 4 => 687 | 0, 5 => 687
+  | 1, 0 => -1551 | 1, 1 => 2336 | 1, 2 => 742 | 1, 3 => 908
+  | 1, 4 => 2557 | 1, 5 => -4084
+  | 2, 0 => -1551 | 2, 1 => 742 | 2, 2 => 2336 | 2, 3 => 908
+  | 2, 4 => -4084 | 2, 5 => 2557
+  | 3, 0 => -1308 | 3, 1 => 908 | 3, 2 => 908 | 3, 3 => 1728
+  | 3, 4 => -254 | 3, 5 => -254
+  | 4, 0 => 687 | 4, 1 => 2557 | 4, 2 => -4084 | 4, 3 => -254
+  | 4, 4 => 15264 | 4, 5 => -14424
+  | 5, 0 => 687 | 5, 1 => -4084 | 5, 2 => 2557 | 5, 3 => -254
+  | 5, 4 => -14424 | 5, 5 => 15264
+  | _, _ => 0
 
 /-- Certificate matrix R (5×5) for type σ₂, scaled by 625. -/
-def R_cert : Matrix (Fin 5) (Fin 5) ℚ := !![
-  1512, 568, -380, 568, -376;
-  568, 475, -191, 0, -93;
-  -380, -191, 192, -191, -2;
-  568, 0, -191, 475, -93;
-  -376, -93, -2, -93, 190]
+def R_cert : Matrix (Fin 5) (Fin 5) ℚ := fun i j =>
+  match i.val, j.val with
+  | 0, 0 => 1512 | 0, 1 => 568 | 0, 2 => -380 | 0, 3 => 568 | 0, 4 => -376
+  | 1, 0 => 568 | 1, 1 => 475 | 1, 2 => -191 | 1, 3 => 0 | 1, 4 => -93
+  | 2, 0 => -380 | 2, 1 => -191 | 2, 2 => 192 | 2, 3 => -191 | 2, 4 => -2
+  | 3, 0 => 568 | 3, 1 => 0 | 3, 2 => -191 | 3, 3 => 475 | 3, 4 => -93
+  | 4, 0 => -376 | 4, 1 => -93 | 4, 2 => -2 | 4, 3 => -93 | 4, 4 => 190
+  | _, _ => 0
 
-private def L_P : Matrix (Fin 8) (Fin 8) ℚ := !![
-  1, 0, 0, 0, 0, 0, 0, 0;
-  -3/2, 1, 0, 0, 0, 0, 0, 0;
-  -3/2, 43/223, 1, 0, 0, 0, 0, 0;
-  1, -43/223, -43/266, 1, 0, 0, 0, 0;
-  -3/2, 43/223, 43/266, -1, 1, 0, 0, 0;
-  1, -43/223, -1, 0, 0, 1, 0, 0;
-  1, -1, 0, 0, 0, 0, 1, 0;
-  -3/2, 0, 0, 0, 0, 0, 0, 1]
+private def L_P : Matrix (Fin 8) (Fin 8) ℚ
+  | 0, 0 => 1
+  | 1, 0 => -3 / 2
+  | 1, 1 => 1
+  | 2, 0 => -3 / 2
+  | 2, 1 => 43 / 223
+  | 2, 2 => 1
+  | 3, 0 => 1
+  | 3, 1 => -43 / 223
+  | 3, 2 => -43 / 266
+  | 3, 3 => 1
+  | 4, 0 => -3 / 2
+  | 4, 1 => 43 / 223
+  | 4, 2 => 43 / 266
+  | 4, 3 => -1
+  | 4, 4 => 1
+  | 5, 0 => 1
+  | 5, 1 => -43 / 223
+  | 5, 2 => -1
+  | 5, 5 => 1
+  | 6, 0 => 1
+  | 6, 1 => -1
+  | 6, 6 => 1
+  | 7, 0 => -3 / 2
+  | 7, 7 => 1
+  | _, _ => 0
 
-private def D_P_vec : Fin 8 → ℚ :=
-  ![24, 223, 47880/223, 27810/133, 0, 0, 0, 0]
+private def D_P_vec : Fin 8 → ℚ
+  | 0 => 24
+  | 1 => 223
+  | 2 => 47880 / 223
+  | 3 => 27810 / 133
+  | _ => 0
 
-private def L_Q : Matrix (Fin 6) (Fin 6) ℚ := !![
-  1, 0, 0, 0, 0, 0;
-  -517/576, 1, 0, 0, 0, 0;
-  -517/576, -124825/181223, 1, 0, 0, 0;
-  -109/144, -51076/181223, -25538/28199, 1, 0, 0;
-  229/576, 609337/181223, -8235/3188, 0, 1, 0;
-  229/576, -95105/25889, 5047/3188, 0, -1, 1]
+private def L_Q : Matrix (Fin 6) (Fin 6) ℚ := fun i j =>
+  match i.val, j.val with
+  | 0, 0 => 1
+  | 1, 0 => -517 / 576
+  | 1, 1 => 1
+  | 2, 0 => -517 / 576
+  | 2, 1 => -124825 / 181223
+  | 2, 2 => 1
+  | 3, 0 => -109 / 144
+  | 3, 1 => -51076 / 181223
+  | 3, 2 => -25538 / 28199
+  | 3, 3 => 1
+  | 4, 0 => 229 / 576
+  | 4, 1 => 609337 / 181223
+  | 4, 2 => -8235 / 3188
+  | 4, 4 => 1
+  | 5, 0 => 229 / 576
+  | 5, 1 => -95105 / 25889
+  | 5, 2 => 5047 / 3188
+  | 5, 4 => -1
+  | 5, 5 => 1
+  | _, _ => 0
 
-private def D_Q_vec : Fin 6 → ℚ :=
-  ![1728, 181223/192, 89898412/181223, 7221232/28199, 3219791/3188, 0]
+private def D_Q_vec : Fin 6 → ℚ := fun i =>
+  match i.val with
+  | 0 => 1728
+  | 1 => 181223 / 192
+  | 2 => 89898412 / 181223
+  | 3 => 7221232 / 28199
+  | 4 => 3219791 / 3188
+  | 5 => 0
+  | _ => 0
 
-private def L_R : Matrix (Fin 5) (Fin 5) ℚ := !![
-  1, 0, 0, 0, 0;
-  71/189, 1, 0, 0, 0;
-  -95/378, -9119/49447, 1, 0, 0;
-  71/189, -40328/49447, -1, 1, 0;
-  -47/189, 9119/49447, -1, 0, 1]
+private def L_R : Matrix (Fin 5) (Fin 5) ℚ := fun i j =>
+  match i.val, j.val with
+  | 0, 0 => 1
+  | 1, 0 => 71 / 189
+  | 1, 1 => 1
+  | 2, 0 => -95 / 378
+  | 2, 1 => -9119 / 49447
+  | 2, 2 => 1
+  | 3, 0 => 71 / 189
+  | 3, 1 => -40328 / 49447
+  | 3, 2 => -1
+  | 3, 3 => 1
+  | 4, 0 => -47 / 189
+  | 4, 1 => 9119 / 49447
+  | 4, 2 => -1
+  | 4, 4 => 1
+  | _, _ => 0
 
-private def D_R_vec : Fin 5 → ℚ :=
-  ![1512, 49447/189, 4331525/49447, 0, 0]
+private def D_R_vec : Fin 5 → ℚ := fun i =>
+  match i.val with
+  | 0 => 1512
+  | 1 => 49447 / 189
+  | 2 => 4331525 / 49447
+  | 3 => 0
+  | 4 => 0
+  | _ => 0
 
 private lemma P_ldlt : P_cert = L_P * Matrix.diagonal D_P_vec * L_P.transpose := by
-  native_decide
+  ext i j
+  rw [Matrix.mul_apply]
+  simp only [Matrix.mul_diagonal, Matrix.transpose_apply]
+  fin_cases i <;> fin_cases j <;>
+    norm_num [P_cert, L_P, D_P_vec, Fin.sum_univ_eight]
 
 private lemma Q_ldlt : Q_cert = L_Q * Matrix.diagonal D_Q_vec * L_Q.transpose := by
-  native_decide
+  ext i j
+  rw [Matrix.mul_apply]
+  simp only [Matrix.mul_diagonal, Matrix.transpose_apply]
+  fin_cases i <;> fin_cases j <;>
+    norm_num [Q_cert, L_Q, D_Q_vec, Fin.sum_univ_six]
 
 private lemma R_ldlt : R_cert = L_R * Matrix.diagonal D_R_vec * L_R.transpose := by
-  native_decide
+  ext i j
+  rw [Matrix.mul_apply]
+  simp only [Matrix.mul_diagonal, Matrix.transpose_apply]
+  fin_cases i <;> fin_cases j <;>
+    norm_num [R_cert, L_R, D_R_vec, Fin.sum_univ_five]
 
-private lemma D_P_nonneg : ∀ i : Fin 8, 0 ≤ D_P_vec i := by native_decide
+private lemma D_P_nonneg : ∀ i : Fin 8, 0 ≤ D_P_vec i := by
+  intro i
+  fin_cases i <;> norm_num [D_P_vec]
 
-private lemma D_Q_nonneg : ∀ i : Fin 6, 0 ≤ D_Q_vec i := by native_decide
+private lemma D_Q_nonneg : ∀ i : Fin 6, 0 ≤ D_Q_vec i := by
+  intro i
+  fin_cases i <;> norm_num [D_Q_vec]
 
-private lemma D_R_nonneg : ∀ i : Fin 5, 0 ≤ D_R_vec i := by native_decide
+private lemma D_R_nonneg : ∀ i : Fin 5, 0 ≤ D_R_vec i := by
+  intro i
+  fin_cases i <;> norm_num [D_R_vec]
 
 /-- If `M = L * diag(d) * Lᵀ` with `d ≥ 0`, then `M` is positive semidefinite. -/
 lemma psd_of_ldlt {n : ℕ} (M L : Matrix (Fin n) (Fin n) ℚ) (d : Fin n → ℚ)
@@ -230,7 +329,7 @@ def mkAdj5 (e : Fin 10 → Bool) : Fin 5 → Fin 5 → Bool := fun i j =>
 
 /-- For every triangle-free graph on `Fin 5`,
 `totalFlagContrib ≤ 576/125 = 120 · (24/625)`.
-Checked over all `2^10 = 1024` possible edge configurations by `native_decide`. -/
+Checked over all `2^10 = 1024` possible edge configurations by kernel reduction. -/
 theorem flag_bound_all_graphs : ∀ e : Fin 10 → Bool,
     (∀ a b c : Fin 5,
       ¬(mkAdj5 e a b = true ∧ mkAdj5 e b c = true ∧ mkAdj5 e a c = true)) →
@@ -488,7 +587,12 @@ lemma quadForm_nonneg {V : Type*} [Fintype V]
 /-- Every `quintContrib` value is ≤ 7 (verified computationally). -/
 theorem quintContrib_le_seven :
     ∀ (e : Fin 10 → Bool), quintContrib (mkAdj5 e) (Equiv.refl _) ≤ 7 := by
-  native_decide
+  intro e
+  cases h0 : e 0 <;> cases h1 : e 1 <;> cases h2 : e 2 <;> cases h3 : e 3 <;>
+    cases h4 : e 4 <;> cases h5 : e 5 <;> cases h6 : e 6 <;> cases h7 : e 7 <;>
+    cases h8 : e 8 <;> cases h9 : e 9 <;>
+    norm_num [quintContrib, mkAdj5, P_cert, Q_cert, R_cert, σ₀FlagIdx, σ₁FlagIdx, σ₂FlagIdx,
+      h0, h1, h2, h3, h4, h5, h6, h7, h8, h9]
 
 /-- `quintContrib` is bounded by 7 for any `graphAdj5`. -/
 lemma quintContrib_le_for_graphAdj {V : Type*} (G : SimpleGraph V) (f : Fin 5 → V) :
@@ -541,7 +645,13 @@ lemma non_injective_count_le {V : Type*} [Fintype V] :
         ⟨fun i => e.symm (b i), ⟨x, y, by simpa using hxy, hne⟩, by simp +decide⟩
   intro n
   by_cases hn : n ≤ 4
-  · interval_cases n <;> native_decide
+  · calc
+      ((Finset.univ : Finset (Fin 5 → Fin n)).filter fun f => ¬f.Injective).card
+          ≤ (Finset.univ : Finset (Fin 5 → Fin n)).card := Finset.card_filter_le _ _
+      _ = n ^ 5 := by simp
+      _ ≤ 10 * n ^ 4 := by
+        rw [pow_succ, mul_comm 10 (n ^ 4)]
+        exact Nat.mul_le_mul_left (n ^ 4) (by omega : n ≤ 10)
   · have h_count :
         (Finset.univ.filter fun f : Fin 5 → Fin n => Injective f).card =
           Nat.descFactorial n 5 := by
@@ -1128,7 +1238,7 @@ lemma nat_le_of_real_le_add_half (c n : ℕ) (h : (c : ℝ) ≤ (n : ℝ) ^ 5 + 
 /-- **Erdős Pentagon Conjecture** (settled affirmatively by Grzesik, 2012).
   Statement in terms of `SimpleGraph.numC5Copies`. See `erdos_pentagon_conjecture` for
   a statement in terms of `SimpleGraph.numC5`. See Section §11 for a discussion on the
-  differences between the two. 
+  differences between the two.
 
 Every triangle-free graph on `5n` vertices contains at most `n⁵` copies of `C₅`.
 
@@ -1315,7 +1425,7 @@ lemma labeledC5_fiber_card {V : Type*} [Fintype V] [DecidableEq V]
         convert Finset.card_image_of_injective _ ( show Function.Injective ( fun σ : Equiv.Perm ( Fin 5 ) => fun i => f₀ ( σ i ) ) from ?_ ) using 1;
         any_goals exact Finset.filter ( fun σ : Equiv.Perm ( Fin 5 ) => ∀ i : Fin 5, σ ( i + 1 ) = σ i + 1 ∨ σ i = σ ( i + 1 ) + 1 ) Finset.univ;
         · exact congr_arg Finset.card ( Finset.ext fun x => by simpa using h_bij x );
-        · native_decide;
+        · decide
         · intro σ τ hστ; have := hf₀.1.1; simp_all +decide [ funext_iff, Fin.forall_fin_succ ] ;
           exact Equiv.Perm.ext fun x => this <| by fin_cases x <;> tauto;
 
@@ -1361,20 +1471,7 @@ theorem erdos_pentagon_conjecture (n : ℕ) (G : SimpleGraph (Fin (5 * n))) (hG 
 --  Classical.choice,
 --  Quot.sound,
 --  flag_bound_all_graphs._native.native_decide.ax_1_1,
---  flag_bound_with_c5._native.native_decide.ax_1_1,
---  labeledC5_fiber_card._native.native_decide.ax_1_12,
---  non_injective_count_le._native.native_decide.ax_1_1,
---  non_injective_count_le._native.native_decide.ax_1_2,
---  non_injective_count_le._native.native_decide.ax_1_3,
---  non_injective_count_le._native.native_decide.ax_1_4,
---  non_injective_count_le._native.native_decide.ax_1_5,
---  quintContrib_le_seven._native.native_decide.ax_1_1,
---  D_P_nonneg._native.native_decide.ax_1_1,
---  D_Q_nonneg._native.native_decide.ax_1_1,
---  D_R_nonneg._native.native_decide.ax_1_1,
---  P_ldlt._native.native_decide.ax_1_1,
---  Q_ldlt._native.native_decide.ax_1_1,
---  R_ldlt._native.native_decide.ax_1_1]
+--  flag_bound_with_c5._native.native_decide.ax_1_1]
 
 end
 
