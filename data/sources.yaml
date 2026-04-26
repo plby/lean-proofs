@@ -56,6 +56,14 @@
       AI: Aristotle
       human: Boris Alexeev
   url: https://github.com/plby/lean-proofs/blob/main/HundredTheorems/Theorem28.md
+- key: HundredTheorems.Theorem61
+  author:
+    informal:
+      AI: ChatGPT-5.2 Pro
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url: https://github.com/plby/lean-proofs/blob/main/HundredTheorems/Theorem61.md
 - key: HundredTheorems.Theorem87
   author:
     informal:
