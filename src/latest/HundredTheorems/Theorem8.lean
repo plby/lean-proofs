@@ -103,11 +103,11 @@ lemma degree_adjoin_sq (K : IntermediateField ℚ ℝ) (x : ℝ) (hx : x^2 ∈ K
     convert ( IntermediateField.adjoin.finrank _ );
     refine' ⟨ Polynomial.X ^ 2 - Polynomial.C ( ⟨ x ^ 2, hx ⟩ : K ), _, _ ⟩;
     · rw [ Polynomial.Monic, Polynomial.leadingCoeff_X_pow_sub_C ] ; norm_num;
-    · aesop?;
+    · aesop;
   have h_deg_pos : 0 < (minpoly K x).natDegree := by
     by_cases h : minpoly K x = 0;
-    · have := minpoly.ne_zero ( show IsIntegral K x from ?_ ) ; aesop?;
-      exact ⟨ Polynomial.X ^ 2 - Polynomial.C ( ⟨ x ^ 2, hx ⟩ : K ), Polynomial.monic_X_pow_sub_C _ two_ne_zero, by aesop? ⟩;
+    · have := minpoly.ne_zero ( show IsIntegral K x from ?_ ) ; aesop;
+      exact ⟨ Polynomial.X ^ 2 - Polynomial.C ( ⟨ x ^ 2, hx ⟩ : K ), Polynomial.monic_X_pow_sub_C _ two_ne_zero, by aesop ⟩;
     · exact Polynomial.natDegree_pos_iff_degree_pos.mpr ( Polynomial.degree_pos_of_irreducible ( minpoly.irreducible ( show IsIntegral K x from by exact ( show IsIntegral K x from by exact ( by by_contra h; simp_all +decide [ minpoly.eq_zero ] ) ) ) ) );
   have := Polynomial.natDegree_le_of_degree_le h_min_deg; interval_cases ( minpoly K x |> Polynomial.natDegree ) <;> simp_all +decide ;
 
@@ -173,21 +173,21 @@ lemma hasQuadTower_finrank (K : IntermediateField ℚ ℝ) (h : HasQuadTower K) 
     intro i hi;
     induction' i with i ih;
     · use 0;
-      aesop?;
+      aesop;
     · simp +zetaDelta at *;
       obtain ⟨ x, hx₁, hx₂ ⟩ := hF₃ i ( Nat.lt_of_succ_le hi );
       have := finrank_adjoin_sq hx₁;
       convert this ( ih ( Nat.le_of_succ_le hi ) ) using 1;
       rw [ hx₂, Set.union_comm ];
       rfl;
-  cases k <;> aesop?
+  cases k <;> aesop
 
 /-
 The field of rational numbers (bottom field) has a quadratic tower.
 Proof: The tower of length 0 consisting just of the bottom field works.
 -/
 lemma hasQuadTower_bot : HasQuadTower ⊥ := by
-  exact ⟨ 0, fun _ => ⊥, rfl, rfl, by intros; aesop? ⟩
+  exact ⟨ 0, fun _ => ⊥, rfl, rfl, by intros; aesop ⟩
 
 /-
 If K has a quadratic tower and x is in K, then K(sqrt(x)) has a quadratic tower.
@@ -258,25 +258,30 @@ lemma hasQuadTower_sup {K L : IntermediateField ℚ ℝ} (hK : HasQuadTower K) (
   obtain ⟨hG0, hGm, hG_step⟩ := hG;
   use k + m; (
   refine' ⟨ fun i => if i < k then F i else if i = k then K else IntermediateField.adjoin ℚ ( ( F k : Set ℝ ) ∪ ( G ( i - k ) : Set ℝ ) ), _, _, _ ⟩ <;> simp_all +decide;
-  · aesop?;
-  · aesop?;
+  · aesop;
+  · aesop;
   · intro i hi;
     split_ifs <;> simp_all +decide [ Nat.lt_succ_iff ];
     any_goals omega;
     · grind;
-    · rcases hG_step 0 hi with ⟨ x, hx, hx' ⟩ ; use x ; aesop?;
+    · rcases hG_step 0 hi with ⟨ x, hx, hx' ⟩
+      use x
+      rename_i h
+      subst hFk hGm h
+      simp_all only [zero_add]
+      apply And.intro
       · induction' i with i ih;
-        · aesop?;
+        · aesop;
         · exact hF_step i ( Nat.lt_succ_self i ) |> fun ⟨ y, hy, hy' ⟩ => hy'.symm ▸ IntermediateField.subset_adjoin ℚ _ ( Set.mem_insert_of_mem _ ( ih fun j hj => hF_step j ( Nat.lt_succ_of_lt hj ) ) );
       · refine' le_antisymm _ _ <;> simp_all +decide [ IntermediateField.adjoin_le_iff, Set.insert_subset_iff ];
-        · exact ⟨ fun y hy => IntermediateField.subset_adjoin ℚ _ <| Set.mem_insert_of_mem _ <| by aesop?, IntermediateField.subset_adjoin ℚ _ <| Set.mem_insert _ _ ⟩;
+        · exact ⟨ fun y hy => IntermediateField.subset_adjoin ℚ _ <| Set.mem_insert_of_mem _ <| by aesop, IntermediateField.subset_adjoin ℚ _ <| Set.mem_insert _ _ ⟩;
         · exact ⟨ IntermediateField.subset_adjoin _ _ <| Set.mem_union_right _ <| IntermediateField.subset_adjoin _ _ <| Set.mem_insert _ _, fun y hy => IntermediateField.subset_adjoin _ _ <| Set.mem_union_left _ hy ⟩;
     · obtain ⟨ x, hx₁, hx₂ ⟩ := hG_step ( i - k ) ( by omega );
       refine' ⟨ x, _, _ ⟩;
       · exact IntermediateField.subset_adjoin _ _ ( Set.mem_union_right _ hx₁ );
       · rw [ show i + 1 - k = i - k + 1 by omega, hx₂ ];
         refine' le_antisymm _ _ <;> simp_all +decide [ IntermediateField.adjoin_le_iff, Set.insert_subset_iff ];
-        · exact ⟨ fun y hy => IntermediateField.subset_adjoin _ _ <| by aesop?, IntermediateField.subset_adjoin _ _ <| by aesop?, fun y hy => IntermediateField.subset_adjoin _ _ <| by aesop? ⟩;
+        · exact ⟨ fun y hy => IntermediateField.subset_adjoin _ _ <| by aesop, IntermediateField.subset_adjoin _ _ <| by aesop, fun y hy => IntermediateField.subset_adjoin _ _ <| by aesop ⟩;
         · refine' ⟨ _, _, _ ⟩;
           · exact IntermediateField.subset_adjoin _ _ ( Set.mem_union_right _ ( IntermediateField.subset_adjoin _ _ ( Set.mem_insert _ _ ) ) );
           · exact fun x hx => IntermediateField.subset_adjoin _ _ ( Set.mem_union_left _ hx );
@@ -300,17 +305,27 @@ lemma constructible_implies_hasQuadTower (x : ℝ) (hx : Constructible x) :
   obtain ⟨K, hK⟩ : ∃ K : IntermediateField ℚ ℝ, x ∈ K ∧ K ∈ {K : IntermediateField ℚ ℝ | HasQuadTower K} := by
     -- We proceed by induction on the construction of x.
     induction' hx with x hx ih;
-    exact ⟨ ⊥, by aesop?, hasQuadTower_bot ⟩;
-    · aesop?;
+    exact ⟨ ⊥, by simp_all only [SubfieldClass.ratCast_mem], hasQuadTower_bot ⟩;
+    · rename_i hx_ih hy_ih
+      simp_all only [Set.mem_setOf_eq]
+      obtain ⟨w, h⟩ := hx_ih
+      obtain ⟨w_1, h_1⟩ := hy_ih
+      obtain ⟨left, right⟩ := h
+      obtain ⟨left_1, right_1⟩ := h_1
       exact ⟨ _, add_mem ( IntermediateField.subset_adjoin ℚ _ <| Set.mem_union_left _ left ) ( IntermediateField.subset_adjoin ℚ _ <| Set.mem_union_right _ left_1 ), hasQuadTower_sup right right_1 ⟩;
-    · aesop?;
-    · aesop?;
+    · simp_all only [Set.mem_setOf_eq, neg_mem_iff]
+    · rename_i hx_ih hy_ih
+      simp_all only [Set.mem_setOf_eq]
+      obtain ⟨w, h⟩ := hx_ih
+      obtain ⟨w_1, h_1⟩ := hy_ih
+      obtain ⟨left, right⟩ := h
+      obtain ⟨left_1, right_1⟩ := h_1
       use w ⊔ w_1;
-      exact ⟨ Subalgebra.mul_mem _ ( IntermediateField.subset_adjoin _ _ ( by aesop? ) ) ( IntermediateField.subset_adjoin _ _ ( by aesop? ) ), hasQuadTower_sup right right_1 ⟩;
-    · aesop?;
+      exact ⟨ Subalgebra.mul_mem _ ( IntermediateField.subset_adjoin _ _ ( by aesop ) ) ( IntermediateField.subset_adjoin _ _ ( by aesop ) ), hasQuadTower_sup right right_1 ⟩;
+    · aesop;
     · rcases ‹_› with ⟨ K, hK₁, hK₂ ⟩;
       exact ⟨ K ⊔ IntermediateField.adjoin ℚ { Real.sqrt ‹_› }, by aesop_cat, hasQuadTower_adjoin_sqrt hK₂ hK₁ ⟩;
-  aesop?
+  aesop
 
 /-
 If x is constructible, then the degree of Q(x) over Q is a power of 2.
@@ -348,7 +363,10 @@ lemma minpoly_degree_of_cube_root_two {x : ℝ} (h : x ^ 3 = 2) :
     · -- We'll use that $x^3 - 2$ is irreducible over $\mathbb{Q}$ because it has no rational roots and its degree is 3.
       have h_irred : Irreducible (Polynomial.X^3 - 2 : Polynomial ℚ) := by
         have h_no_rational_roots : ¬∃ (q : ℚ), q^3 = 2 := by
-          aesop?;
+          simp_all only [not_exists]
+          intro x_1
+          apply Aesop.BuiltinRules.not_intro
+          intro a
           -- If $x_1^3 = 2$, then $x_1$ must be of the form $p/q$ where $p^3 = 2q^3$.
           obtain ⟨p, q, hpq, h_coprime⟩ : ∃ p q : ℤ, Int.gcd p q = 1 ∧ x_1 = p / q ∧ p^3 = 2 * q^3 := by
             exact ⟨ x_1.num, x_1.den, x_1.reduced, x_1.num_div_den.symm, by simp ( config := { decide := Bool.true } ) [ ← @Int.cast_inj ℚ, ← a, ← mul_pow, Rat.num_div_den ] ⟩;
@@ -384,14 +402,15 @@ lemma minpoly_degree_of_cube_root_two {x : ℝ} (h : x ^ 3 = 2) :
             obtain ⟨r, hr⟩ : ∃ r : ℚ, q.eval r = 0 := by
               exact Polynomial.exists_root_of_degree_eq_one h_deg_q;
             replace h_factor := congr_arg ( Polynomial.eval r ) h_factor; norm_num [ hr ] at h_factor; exact h_no_rational_roots ⟨ r, by linarith ⟩ ;
-        constructor <;> contrapose! h_irred <;> aesop?;
+        constructor <;> contrapose! h_irred <;> aesop (config := {warnOnNonterminal := false});
         · exact absurd ( Polynomial.degree_eq_zero_of_isUnit h_irred ) ( by erw [ Polynomial.degree_X_pow_sub_C ] <;> norm_num );
-        · exact ⟨ w, not_le.mp fun h => left_1 <| Polynomial.isUnit_iff_degree_eq_zero.mpr <| le_antisymm h <| le_of_not_gt fun h' => by apply_fun Polynomial.eval 0 at left; aesop?, w_1, not_le.mp fun h => right <| Polynomial.isUnit_iff_degree_eq_zero.mpr <| le_antisymm h <| le_of_not_gt fun h' => by apply_fun Polynomial.eval 0 at left; aesop?, rfl ⟩;
+        · exact ⟨ w, not_le.mp fun h => left_1 <| Polynomial.isUnit_iff_degree_eq_zero.mpr <| le_antisymm h <| le_of_not_gt fun h' => by apply_fun Polynomial.eval 0 at left; aesop, w_1, not_le.mp fun h => right <| Polynomial.isUnit_iff_degree_eq_zero.mpr <| le_antisymm h <| le_of_not_gt fun h' => by apply_fun Polynomial.eval 0 at left; aesop, rfl ⟩;
       exact h_irred;
-    · aesop?;
+    · simp_all only [Polynomial.aeval_sub, map_pow, Polynomial.aeval_X]
       erw [ Polynomial.aeval_C ] ; norm_num;
     · erw [ Polynomial.Monic, Polynomial.leadingCoeff_X_pow_sub_C ] ; norm_num;
-  have := IntermediateField.adjoin.finrank ( show IsIntegral ℚ x from by exact ( show IsIntegral ℚ x from by exact ( by exact ( by exact ( by exact ( by exact ( by exact ⟨ Polynomial.X ^ 3 - 2, Polynomial.monic_X_pow_sub_C _ ( by norm_num ), by aesop? ⟩ ) ) ) ) ) ) ) ; aesop?;
+  have := IntermediateField.adjoin.finrank ( show IsIntegral ℚ x from by exact ( show IsIntegral ℚ x from by exact ( by exact ( by exact ( by exact ( by exact ( by exact ⟨ Polynomial.X ^ 3 - 2, Polynomial.monic_X_pow_sub_C _ ( by norm_num ), by aesop ⟩ ) ) ) ) ) ) )
+  simp_all only
   erw [ Polynomial.natDegree_X_pow_sub_C ]
 
 end AristotleLemmas
@@ -471,7 +490,7 @@ lemma degree_adjoin_sq' (K : IntermediateField ℚ ℝ) (x : ℝ) (hx : x^2 ∈ 
       set L : IntermediateField K ℝ := IntermediateField.adjoin K {x};
       have h_deg : (minpoly K x).degree ≤ 2 := by
         have h_deg : minpoly K x ∣ Polynomial.X^2 - Polynomial.C (⟨x^2, hx⟩ : K) := by
-          exact minpoly.dvd K x ( by aesop? );
+          exact minpoly.dvd K x ( by aesop );
         exact le_trans ( Polynomial.degree_le_of_dvd h_deg <| by exact ne_of_apply_ne Polynomial.degree <| by erw [ Polynomial.degree_X_pow_sub_C ] <;> norm_num ) <| by erw [ Polynomial.degree_X_pow_sub_C ] <;> norm_num;
       have h_deg : Module.finrank K L = (minpoly K x).natDegree := by
         convert ( IntermediateField.adjoin.finrank <| show IsIntegral K x from ?_ );
@@ -479,9 +498,10 @@ lemma degree_adjoin_sq' (K : IntermediateField ℚ ℝ) (x : ℝ) (hx : x^2 ∈ 
         erw [ Polynomial.Monic, Polynomial.leadingCoeff_X_pow_sub_C ] ; norm_num;
       have h_deg_pos : 0 < (minpoly K x).natDegree := by
         apply minpoly.natDegree_pos;
-        refine' ⟨ Polynomial.X ^ 2 - Polynomial.C ( ⟨ x ^ 2, hx ⟩ : K ), _, _ ⟩ <;> aesop?;
-        erw [ Polynomial.Monic, Polynomial.leadingCoeff_X_pow_sub_C ] ; norm_num;
-      have := Polynomial.natDegree_le_of_degree_le ‹_›; interval_cases _ : Polynomial.natDegree ( minpoly K x ) <;> aesop?;
+        refine' ⟨ Polynomial.X ^ 2 - Polynomial.C ( ⟨ x ^ 2, hx ⟩ : K ), _, _ ⟩
+        · erw [ Polynomial.Monic, Polynomial.leadingCoeff_X_pow_sub_C ] ; norm_num
+        · simp_all only [eval₂_sub, eval₂_X_pow, eval₂_C, IntermediateField.algebraMap_apply, sub_self, L]
+      have := Polynomial.natDegree_le_of_degree_le ‹_›; interval_cases _ : Polynomial.natDegree ( minpoly K x ) <;> aesop;
 
 /-
 Define `DyadicExtension` as a field obtained by a sequence of square root adjunctions.
@@ -515,11 +535,21 @@ open IntermediateField
 
 lemma dyadic_sup (K L : IntermediateField ℚ ℝ) (hK : DyadicExtension K) (hL : DyadicExtension L) :
     ∃ M : IntermediateField ℚ ℝ, DyadicExtension M ∧ K ≤ M ∧ L ≤ M := by
-      induction' hL with L' L' hL' x hx hM' ; aesop?;
-      obtain ⟨ M, hM₁, hM₂, hM₃ ⟩ := hx; use M ⊔ IntermediateField.adjoin ℚ { L' } ; aesop?;
-      · exact DyadicExtension.step hM₁ ( by simpa using hM₃ x );
-      · exact le_trans hM₂ le_sup_left;
-      · exact le_sup_of_le_left hM₃
+      induction' hL with L' L' hL' x hx hM'
+      · simp_all only [bot_le, and_true]
+        apply Exists.intro
+        · apply And.intro
+          on_goal 2 => { rfl
+          }
+          · simp_all only
+      · obtain ⟨ M, hM₁, hM₂, hM₃ ⟩ := hx
+        use M ⊔ IntermediateField.adjoin ℚ { L' }
+        simp_all only [sup_le_iff, le_sup_right, and_true]
+        apply And.intro
+        · exact DyadicExtension.step hM₁ ( by simpa using hM₃ x );
+        · apply And.intro
+          · exact le_trans hM₂ le_sup_left;
+          · exact le_sup_of_le_left hM₃
 
 /-
 Every constructible number is contained in some dyadic extension field.
@@ -1124,10 +1154,10 @@ lemma RulerCompass.RC_coords_constructible (cfg : RCBase) (P : Point) (h : RCPoi
           norm_num [ Fin.sum_univ_succ, inner_sub_left, inner_sub_right ] ; ring_nf;
           norm_num [Fin.sum_univ_two, inner]
           ring
-      · aesop?;
+      · aesop (config := {warnOnNonterminal := false});
         apply RulerCompass.line_line_coords_constructible hA_ih hB_ih hC_ih hD_ih hAB hCD hLines hP₁ hP₂;
       · unfold RulerCompass.IsConstructibleCoords;
-        aesop?;
+        aesop (config := {warnOnNonterminal := false});
         · have hP₁_const : ∃ a b c : ℝ, Constructible a ∧ Constructible b ∧ Constructible c ∧ a * (RulerCompass.RC_coords cfg P_1).1 + b * (RulerCompass.RC_coords cfg P_1).2 = c ∧ (a ≠ 0 ∨ b ≠ 0) := by
             use (RulerCompass.RC_coords cfg A).2 - (RulerCompass.RC_coords cfg B).2, (RulerCompass.RC_coords cfg B).1 - (RulerCompass.RC_coords cfg A).1, (RulerCompass.RC_coords cfg B).1 * (RulerCompass.RC_coords cfg A).2 - (RulerCompass.RC_coords cfg B).2 * (RulerCompass.RC_coords cfg A).1;
             simp_all only [ne_eq]
@@ -1433,7 +1463,7 @@ theorem angle_trisection_impossible_plane (cfg : RCBase) :
             ring_nf
             nlinarith [Real.sq_sqrt (show 0 ≤ (3 : ℝ) by norm_num)]
         use P;
-        aesop?;
+        aesop (config := {warnOnNonterminal := false});
         · -- By definition of $P$, we know that $P$ is the intersection of the circles centered at $O$ and $E$ with radius $OE$.
           have hP : RulerCompass.RCPoint cfg P := by
             have h_circle_O : RulerCompass.RCPoint cfg cfg.O := by
@@ -1444,19 +1474,19 @@ theorem angle_trisection_impossible_plane (cfg : RCBase) :
             · exact cfg.hOE;
             · exact cfg.hOE.symm;
             · unfold RulerCompass.circleThrough;
-              unfold RulerCompass.circle; aesop?;
-              rw [ Set.ext_iff ] at a ; specialize a cfg.O ; aesop?;
+              unfold RulerCompass.circle; aesop (config := {warnOnNonterminal := false});
+              rw [ Set.ext_iff ] at a ; specialize a cfg.O ; aesop (config := {warnOnNonterminal := false});
               exact cfg.hOE ( a.mpr ( dist_comm _ _ ) );
             · assumption;
             · assumption;
           exact hP;
         · rw [ dist_comm, left, cfg.unit ];
         · unfold RulerCompass.circleThrough at *;
-          unfold RulerCompass.circle at * ; aesop?;
+          unfold RulerCompass.circle at * ; aesop (config := {warnOnNonterminal := false});
           simp_all +decide [ dist_comm ];
           exact cfg.unit;
       use P;
-      aesop?;
+      aesop (config := {warnOnNonterminal := false});
       -- Since $OP = OE = EP = 1$, triangle $OPE$ is equilateral, and thus $\angle POE = 60^\circ$.
       have h_eq : dist cfg.O P = 1 ∧ dist cfg.E P = 1 ∧ dist cfg.O cfg.E = 1 := by
         exact ⟨ left_1, right, cfg.unit ⟩;
@@ -1466,7 +1496,7 @@ theorem angle_trisection_impossible_plane (cfg : RCBase) :
         rw [ InnerProductGeometry.angle ];
         norm_num [ EuclideanSpace.norm_eq, dist_eq_norm ];
         norm_num [ Real.sq_sqrt ( add_nonneg ( sq_nonneg _ ) ( sq_nonneg _ ) ), inner ] ; ring_nf;
-      aesop?;
+      aesop (config := {warnOnNonterminal := false});
       exact h_eq_triangle.trans ( by rw [ show ( 2⁻¹ : ℝ ) = Real.cos ( Real.pi / 3 ) by norm_num, Real.arccos_cos ] <;> linarith [ Real.pi_pos ] );
     obtain ⟨ P, hP₁, hP₂ ⟩ := hP;
     obtain ⟨ Q, hQ₁, hQ₂ ⟩ := h ( Real.pi / 3 ) ⟨ P, hP₁, hP₂ ⟩;
@@ -1483,7 +1513,7 @@ theorem angle_trisection_impossible_plane (cfg : RCBase) :
     -- Since the inner product of (P - O) and (E - O) is equal to the distance from O to P times the cosine of the angle between them, we can write:
     have h_cos_eq : inner (𝕜 := ℝ) (cfg.E - cfg.O) (P - cfg.O) = (dist (RulerCompass.RCBase.O cfg) P) * Real.cos (baseAngle cfg P) := by
       unfold RulerCompass.baseAngle; simp +decide [ dist_eq_norm, EuclideanGeometry.angle ] ;
-      rw [ InnerProductGeometry.cos_angle ] ; ring_nf ; aesop?;
+      rw [ InnerProductGeometry.cos_angle ] ; ring_nf ; aesop (config := {warnOnNonterminal := false});
       simp +decide [ norm_sub_rev, mul_assoc, mul_comm, mul_left_comm, cfg.unit ];
       by_cases h : ‖P - cfg.O‖ = 0 <;> by_cases h' : ‖cfg.O - cfg.E‖ = 0 <;> simp_all +decide [ sub_eq_zero ];
       rw [ show ‖cfg.O - cfg.E‖ = 1 by simpa [ dist_eq_norm ] using cfg.unit ] ; ring;
@@ -1492,12 +1522,12 @@ theorem angle_trisection_impossible_plane (cfg : RCBase) :
         exact h_cos_eq ▸ h_x_coord;
       have h_cos_eq : Constructible ((dist (RulerCompass.RCBase.O cfg) P)⁻¹ * ((dist (RulerCompass.RCBase.O cfg) P) * Real.cos (baseAngle cfg P))) := by
         apply_rules [ Constructible.mul, Constructible.inv ];
-        aesop?;
+        aesop (config := {warnOnNonterminal := false});
         unfold RulerCompass.baseAngle at right ; norm_num at right;
         exact ne_of_lt ( Real.cos_pos_of_mem_Ioo ⟨ by linarith [ Real.pi_pos ], by linarith [ Real.pi_pos ] ⟩ ) right;
-      by_cases h : Dist.dist cfg.O P = 0 <;> aesop?;
-      unfold RulerCompass.baseAngle at right ; aesop?;
-    aesop?;
+      by_cases h : Dist.dist cfg.O P = 0 <;> aesop (config := {warnOnNonterminal := false});
+      unfold RulerCompass.baseAngle at right ; aesop (config := {warnOnNonterminal := false});
+    aesop (config := {warnOnNonterminal := false});
     exact Constructible.mul ( Constructible.rat 2 ) h_cos_eq;
   -- By the lemma, $2 \cos(\pi / 9)$ is a root of the polynomial $X^3 - 3X - 1$.
   have h_root : Polynomial.eval (2 * Real.cos (Real.pi / 9)) (Polynomial.X^3 - 3 * Polynomial.X - 1 : Polynomial ℝ) = 0 := by
@@ -1512,13 +1542,15 @@ theorem angle_trisection_impossible_plane (cfg : RCBase) :
       have h_deg : minpoly ℚ x = Polynomial.X^3 - 3 * Polynomial.X - 1 := by
         refine' Eq.symm ( minpoly.eq_of_irreducible_of_monic _ _ _ );
         · exact h_irreducible;
-        · aesop?;
+        · simp_all only [Polynomial.eval_sub, Polynomial.eval_pow, Polynomial.eval_X, Polynomial.eval_mul,
+            Polynomial.eval_ofNat, Polynomial.eval_one, Polynomial.aeval_sub, map_pow, Polynomial.aeval_X, map_mul, map_one]
+          obtain ⟨left, right⟩ := hP
           erw [ Polynomial.aeval_C ] ; norm_num ; linarith;
         · erw [ Polynomial.Monic, Polynomial.leadingCoeff, Polynomial.natDegree_sub_eq_left_of_natDegree_lt ] <;> erw [ Polynomial.natDegree_sub_eq_left_of_natDegree_lt ] <;> norm_num;
           norm_num [ Polynomial.coeff_one, Polynomial.coeff_X ];
       rw [ IntermediateField.adjoin.finrank ];
       · erw [ h_deg, Polynomial.natDegree_sub_eq_left_of_natDegree_lt ] <;> erw [ Polynomial.natDegree_sub_eq_left_of_natDegree_lt ] <;> norm_num;
-      · exact ⟨ Polynomial.X ^ 3 - 3 * Polynomial.X - 1, by exact Polynomial.Monic.def.mpr <| by erw [ Polynomial.leadingCoeff ] ; erw [ Polynomial.natDegree_sub_eq_left_of_natDegree_lt ] <;> erw [ Polynomial.natDegree_sub_eq_left_of_natDegree_lt ] <;> norm_num [ Polynomial.coeff_one, Polynomial.coeff_X ], by aesop? ⟩;
+      · exact ⟨ Polynomial.X ^ 3 - 3 * Polynomial.X - 1, by exact Polynomial.Monic.def.mpr <| by erw [ Polynomial.leadingCoeff ] ; erw [ Polynomial.natDegree_sub_eq_left_of_natDegree_lt ] <;> erw [ Polynomial.natDegree_sub_eq_left_of_natDegree_lt ] <;> norm_num [ Polynomial.coeff_one, Polynomial.coeff_X ], by aesop ⟩;
     have := degree_of_constructible x hx;
     rcases this with ⟨ n, hn ⟩ ; linarith [ Nat.pow_le_pow_right ( show 1 ≤ 2 by norm_num ) ( show n ≥ 2 by contrapose! hn; interval_cases n <;> linarith ) ] ;
   exact h_contradiction h_two_cos_pi_div_nine h_root
@@ -1532,6 +1564,12 @@ theorem freek_08_plane (cfg : RCBase) :
           RCConstructibleAngle cfg (θ / 3))) ∧
     (¬ ∃ P : Point, RCPoint cfg P ∧ (segmentLength cfg P) ^ 3 = (2 : ℝ)) := by
   exact ⟨ angle_trisection_impossible_plane cfg, fun ⟨ P, hP₁, hP₂ ⟩ ↦ doubling_the_cube_impossible_plane cfg ⟨ P, hP₁, hP₂ ⟩ ⟩
+
+#print axioms freek_08
+-- 'Theorem8.RulerCompass.freek_08' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+#print axioms freek_08_plane
+-- 'Theorem8.RulerCompass.freek_08_plane' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end RulerCompass
 
