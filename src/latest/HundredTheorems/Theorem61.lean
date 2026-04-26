@@ -30,6 +30,7 @@ namespace Theorem61
 set_option linter.mathlibStandardSet false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
+set_option aesop.warn.nonterminal false
 
 open scoped BigOperators
 open scoped Real
@@ -50,16 +51,6 @@ noncomputable section
 open EuclideanGeometry Affine AffineSubspace Set
 
 variable {V : Type*} {P : Type*} [NormedAddCommGroup V] [InnerProductSpace ℝ V] [MetricSpace P] [NormedAddTorsor V P]
-
-#check AffineIndependent
-#check ![ (1 : ℕ), 2, 3 ]
-
-#check AffineSpace
-
-#check segment
-#check Wbtw
-
-#print AffineBasis
 
 /-
 A point `p` lies on the affine segment between the second and third points of an affine basis `b` (indexed by `Fin 3`) if and only if its first barycentric coordinate is 0 and the other two are non-negative.
@@ -129,7 +120,7 @@ lemma mem_line_iff_barycentric_proportional
       obtain ⟨t, ht⟩ : ∃ t : ℝ, v = t • (A₁ -ᵥ b 0) := by
         rw [ vectorSpan_pair ] at hv;
         rw [ Submodule.mem_span_singleton ] at hv;
-        aesop?
+        aesop
         exact ⟨ -w, by rw [ neg_smul, ← smul_neg, neg_vsub_eq_vsub_rev ] ⟩;
       -- Substitute $v = t \cdot (A₁ - b 0)$ into the coordinates.
       have h_coords : b.coord 1 (v +ᵥ A₁) = b.coord 1 A₁ + t * (b.coord 1 A₁ - b.coord 1 (b 0)) ∧ b.coord 2 (v +ᵥ A₁) = b.coord 2 A₁ + t * (b.coord 2 A₁ - b.coord 2 (b 0)) := by
@@ -152,7 +143,7 @@ lemma mem_line_iff_barycentric_proportional
       have h_comb : ∃ c : ℝ, (b.coord 1 O) = c * (b.coord 1 (b 0) - b.coord 1 A₁) + b.coord 1 A₁ ∧ (b.coord 2 O) = c * (b.coord 2 (b 0) - b.coord 2 A₁) + b.coord 2 A₁ := by
         by_cases h₁ : b.coord 1 (b 0) - b.coord 1 A₁ = 0 <;> by_cases h₂ : b.coord 2 (b 0) - b.coord 2 A₁ = 0 <;> simp_all +decide [ sub_eq_iff_eq_add ];
         · have h_comb : ∑ i : Fin 3, b.coord i A₁ = 1 := by
-            exact?;
+            exact AffineBasis.sum_coord_apply_eq_one b A₁
           rw [ Fin.sum_univ_three ] at h_comb ; aesop;
         · exact ⟨ ( b.coord 2 A₁ - b.coord 2 O ) / b.coord 2 A₁, by rw [ div_mul_cancel₀ _ h₂ ] ; ring ⟩;
         · exact ⟨ ( b.coord 1 A₁ - b.coord 1 O ) / b.coord 1 A₁, by rw [ div_mul_cancel₀ _ h₁ ] ; ring ⟩;
@@ -201,7 +192,7 @@ lemma dist_mul_coord_eq_dist_mul_coord
     · simp +decide [ AffineMap.lineMap_apply, hij ];
       -- By definition of barycentric coordinates, we know that $(b.coord j) (b i) = 0$ since $i \neq j$.
       have h_bcoord_j_i : (b.coord j) (b i) = 0 := by
-        exact?;
+        exact AffineBasis.coord_apply_ne b fun a ↦ hij (id (Eq.symm a))
       rw [ h_bcoord_j_i ] ; ring;
   simp +decide [ *, dist_eq_norm_vsub ];
   rw [ norm_smul, norm_smul, Real.norm_of_nonneg ha.1, Real.norm_of_nonneg ( sub_nonneg.2 ha.2 ) ] ; ring
@@ -222,7 +213,7 @@ noncomputable def triangleBasis
     generalize_proofs at *;
     rw [ affineIndependent_iff_linearIndependent_vsub, affineIndependent_iff_linearIndependent_vsub ];
     rotate_left;
-    exact?;
+    exact Fin.last 2
     exact 2;
     simp +decide [ linearIndependent_iff', Subtype.ext_iff ])
     (by
@@ -268,7 +259,7 @@ lemma ceva_dist_eq_iff_coord_eq
     (hC₁ : C₁ ∈ affineSegment ℝ (b 0) (b 1)) :
     dist (b 1) A₁ * dist (b 2) B₁ * dist (b 0) C₁ = dist A₁ (b 2) * dist B₁ (b 0) * dist C₁ (b 1) ↔
     b.coord 2 A₁ * b.coord 0 B₁ * b.coord 1 C₁ = b.coord 1 A₁ * b.coord 2 B₁ * b.coord 0 C₁ := by
-  aesop?
+  aesop
   · have h_prod_eq : dist (b 1) A₁ * b.coord 1 A₁ = dist A₁ (b 2) * b.coord 2 A₁ := by
       apply dist_mul_coord_eq_dist_mul_coord;
       · exact hA₁;
@@ -523,7 +514,7 @@ lemma ceva_reverse
           exact ⟨ b.coord 0 B₁, b.coord 2 B₁, hB₁_coords.2.1, hB₁_coords.2.2, by rw [ Fin.sum_univ_three ] at this; linarith, rfl, hB₁_coords.1, rfl ⟩
         obtain ⟨x_C, y_C, hx_C, hy_C, hC⟩ : ∃ x_C y_C : ℝ, 0 ≤ x_C ∧ 0 ≤ y_C ∧ x_C + y_C = 1 ∧ b.coord 0 C₁ = x_C ∧ b.coord 1 C₁ = y_C ∧ b.coord 2 C₁ = 0 := by
           have h_coords_C₁ : b.coord 2 C₁ = 0 := by
-            aesop?
+            aesop
             have := mem_affineSegment_iff_barycentric_coords_zero b C₁;
             have := mem_affineSegment_iff_barycentric_coords_zero ( b.reindex ( Equiv.swap 0 2 ) ) C₁; simp_all +decide [ affineSegment_comm ] ;
             exact this.mp ( by simpa using hC₁ ) |>.1;
@@ -589,7 +580,7 @@ theorem ceva_theorem
     dist (b 1) A₁ * dist (b 2) B₁ * dist (b 0) C₁ = dist A₁ (b 2) * dist B₁ (b 0) * dist C₁ (b 1) := by
       constructor;
       · apply_rules [ ceva_forward ];
-      · exact?
+      · exact fun a ↦ ceva_reverse b A₁ B₁ C₁ hA₁ hB₁ hC₁ hA₁_ne_B hA₁_ne_C hB₁_ne_C hB₁_ne_A hC₁_ne_A hC₁_ne_B a
 
 #print axioms ceva_theorem
 -- 'Theorem61.ceva_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
