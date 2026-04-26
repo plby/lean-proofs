@@ -11,6 +11,17 @@
   url:
     - https://github.com/danielchin/proofs/blob/main/Proofs/ErdosProblems/Erdos16.lean
     - https://www.erdosproblems.com/forum/thread/16#post-4464
+- key: ErdosProblems.Erdos24
+  author:
+    informal:
+      human: Andrzej Grzesik
+    formal:
+      AI: Aristotle
+      human: Matteo Del Vecchio
+  arxiv: https://arxiv.org/abs/1102.0962
+  url:
+    - https://www.erdosproblems.com/forum/thread/24#post-5732
+    - https://gist.githubusercontent.com/madeve-unipi/683739094ab7a5079a2bc2647c47743b/raw/6164255a2f1ed85df3f01b75d2f8b35a1330aacb/Erdos24.lean
 - key: ErdosProblems.Erdos164
   author:
     formal:
