@@ -22,6 +22,22 @@
   url:
     - https://www.erdosproblems.com/forum/thread/24#post-5732
     - https://gist.githubusercontent.com/madeve-unipi/683739094ab7a5079a2bc2647c47743b/raw/6164255a2f1ed85df3f01b75d2f8b35a1330aacb/Erdos24.lean
+- key: ErdosProblems.Erdos26
+  author:
+    informal:
+      human: Imre Ruzsa
+    statement:
+      - Formal Conjectures authors
+      - Salvatore Mercuri
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/26
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos26.md
+  todo:
+    - Google DeepMind's proof
+    - Wouter van Doorn's comment
 - key: ErdosProblems.Erdos164
   author:
     formal:
