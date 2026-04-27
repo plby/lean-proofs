@@ -293,8 +293,7 @@ def σ₂FlagIdx (adjDA adjDCenter adjDC : Bool) : Option (Fin 5) :=
   | _, _, _ => none
 
 /-- Contribution of one ordered quintuple to the flag algebra sum. -/
-def quintContrib (adj : Fin 5 → Fin 5 → Bool) (p : Equiv.Perm (Fin 5)) : ℚ :=
-  let a := p 0; let b := p 1; let c := p 2; let d := p 3; let e := p 4
+def quintContribOf (adj : Fin 5 → Fin 5 → Bool) (a b c d e : Fin 5) : ℚ :=
   let ab := adj a b; let ac := adj a c; let bc := adj b c
   if !ab && !ac && !bc then
     P_cert (σ₀FlagIdx (adj d a) (adj d b) (adj d c))
@@ -311,13 +310,1218 @@ def quintContrib (adj : Fin 5 → Fin 5 → Bool) (p : Equiv.Perm (Fin 5)) : ℚ
     | _, _ => 0
   else 0
 
+/-- Contribution of one ordered quintuple to the flag algebra sum. -/
+def quintContrib (adj : Fin 5 → Fin 5 → Bool) (p : Equiv.Perm (Fin 5)) : ℚ :=
+  quintContribOf adj (p 0) (p 1) (p 2) (p 3) (p 4)
+
+private def totalFlagPermTuples : List (List (Fin 5)) :=
+  [
+    [0, 1, 2, 3, 4],
+    [0, 1, 2, 4, 3],
+    [0, 1, 3, 2, 4],
+    [0, 1, 3, 4, 2],
+    [0, 1, 4, 2, 3],
+    [0, 1, 4, 3, 2],
+    [0, 2, 1, 3, 4],
+    [0, 2, 1, 4, 3],
+    [0, 2, 3, 1, 4],
+    [0, 2, 3, 4, 1],
+    [0, 2, 4, 1, 3],
+    [0, 2, 4, 3, 1],
+    [0, 3, 1, 2, 4],
+    [0, 3, 1, 4, 2],
+    [0, 3, 2, 1, 4],
+    [0, 3, 2, 4, 1],
+    [0, 3, 4, 1, 2],
+    [0, 3, 4, 2, 1],
+    [0, 4, 1, 2, 3],
+    [0, 4, 1, 3, 2],
+    [0, 4, 2, 1, 3],
+    [0, 4, 2, 3, 1],
+    [0, 4, 3, 1, 2],
+    [0, 4, 3, 2, 1],
+    [1, 0, 2, 3, 4],
+    [1, 0, 2, 4, 3],
+    [1, 0, 3, 2, 4],
+    [1, 0, 3, 4, 2],
+    [1, 0, 4, 2, 3],
+    [1, 0, 4, 3, 2],
+    [1, 2, 0, 3, 4],
+    [1, 2, 0, 4, 3],
+    [1, 2, 3, 0, 4],
+    [1, 2, 3, 4, 0],
+    [1, 2, 4, 0, 3],
+    [1, 2, 4, 3, 0],
+    [1, 3, 0, 2, 4],
+    [1, 3, 0, 4, 2],
+    [1, 3, 2, 0, 4],
+    [1, 3, 2, 4, 0],
+    [1, 3, 4, 0, 2],
+    [1, 3, 4, 2, 0],
+    [1, 4, 0, 2, 3],
+    [1, 4, 0, 3, 2],
+    [1, 4, 2, 0, 3],
+    [1, 4, 2, 3, 0],
+    [1, 4, 3, 0, 2],
+    [1, 4, 3, 2, 0],
+    [2, 0, 1, 3, 4],
+    [2, 0, 1, 4, 3],
+    [2, 0, 3, 1, 4],
+    [2, 0, 3, 4, 1],
+    [2, 0, 4, 1, 3],
+    [2, 0, 4, 3, 1],
+    [2, 1, 0, 3, 4],
+    [2, 1, 0, 4, 3],
+    [2, 1, 3, 0, 4],
+    [2, 1, 3, 4, 0],
+    [2, 1, 4, 0, 3],
+    [2, 1, 4, 3, 0],
+    [2, 3, 0, 1, 4],
+    [2, 3, 0, 4, 1],
+    [2, 3, 1, 0, 4],
+    [2, 3, 1, 4, 0],
+    [2, 3, 4, 0, 1],
+    [2, 3, 4, 1, 0],
+    [2, 4, 0, 1, 3],
+    [2, 4, 0, 3, 1],
+    [2, 4, 1, 0, 3],
+    [2, 4, 1, 3, 0],
+    [2, 4, 3, 0, 1],
+    [2, 4, 3, 1, 0],
+    [3, 0, 1, 2, 4],
+    [3, 0, 1, 4, 2],
+    [3, 0, 2, 1, 4],
+    [3, 0, 2, 4, 1],
+    [3, 0, 4, 1, 2],
+    [3, 0, 4, 2, 1],
+    [3, 1, 0, 2, 4],
+    [3, 1, 0, 4, 2],
+    [3, 1, 2, 0, 4],
+    [3, 1, 2, 4, 0],
+    [3, 1, 4, 0, 2],
+    [3, 1, 4, 2, 0],
+    [3, 2, 0, 1, 4],
+    [3, 2, 0, 4, 1],
+    [3, 2, 1, 0, 4],
+    [3, 2, 1, 4, 0],
+    [3, 2, 4, 0, 1],
+    [3, 2, 4, 1, 0],
+    [3, 4, 0, 1, 2],
+    [3, 4, 0, 2, 1],
+    [3, 4, 1, 0, 2],
+    [3, 4, 1, 2, 0],
+    [3, 4, 2, 0, 1],
+    [3, 4, 2, 1, 0],
+    [4, 0, 1, 2, 3],
+    [4, 0, 1, 3, 2],
+    [4, 0, 2, 1, 3],
+    [4, 0, 2, 3, 1],
+    [4, 0, 3, 1, 2],
+    [4, 0, 3, 2, 1],
+    [4, 1, 0, 2, 3],
+    [4, 1, 0, 3, 2],
+    [4, 1, 2, 0, 3],
+    [4, 1, 2, 3, 0],
+    [4, 1, 3, 0, 2],
+    [4, 1, 3, 2, 0],
+    [4, 2, 0, 1, 3],
+    [4, 2, 0, 3, 1],
+    [4, 2, 1, 0, 3],
+    [4, 2, 1, 3, 0],
+    [4, 2, 3, 0, 1],
+    [4, 2, 3, 1, 0],
+    [4, 3, 0, 1, 2],
+    [4, 3, 0, 2, 1],
+    [4, 3, 1, 0, 2],
+    [4, 3, 1, 2, 0],
+    [4, 3, 2, 0, 1],
+    [4, 3, 2, 1, 0]
+  ]
+
+private lemma totalFlagPermTuples_nodup : totalFlagPermTuples.Nodup := by
+  decide
+
+set_option maxRecDepth 100000 in
+private lemma totalFlagPermTuples_toFinset_eq_image :
+    totalFlagPermTuples.toFinset =
+      Finset.image (fun p : Equiv.Perm (Fin 5) => [p 0, p 1, p 2, p 3, p 4]) Finset.univ := by
+  decide
+
+private lemma totalFlagPermTuple_injective :
+    Function.Injective (fun p : Equiv.Perm (Fin 5) => [p 0, p 1, p 2, p 3, p 4]) := by
+  intro σ τ h
+  have h' : σ 0 = τ 0 ∧ σ 1 = τ 1 ∧ σ 2 = τ 2 ∧ σ 3 = τ 3 ∧ σ 4 = τ 4 := by
+    simpa using h
+  ext i
+  fin_cases i
+  · exact congrArg Fin.val h'.1
+  · exact congrArg Fin.val h'.2.1
+  · exact congrArg Fin.val h'.2.2.1
+  · exact congrArg Fin.val h'.2.2.2.1
+  · exact congrArg Fin.val h'.2.2.2.2
+
+private def totalFlagTupleContrib (adj : Fin 5 → Fin 5 → Bool) : List (Fin 5) → ℚ
+  | [a, b, c, d, e] => quintContribOf adj a b c d e
+  | _ => 0
+
+private def totalFlagContribPermSum (adj : Fin 5 → Fin 5 → Bool) : ℚ :=
+  (totalFlagPermTuples.map (totalFlagTupleContrib adj)).sum
+
+private lemma totalFlagContribPermSum_eq_sum_univ (adj : Fin 5 → Fin 5 → Bool) :
+    totalFlagContribPermSum adj =
+      (Finset.univ : Finset (Equiv.Perm (Fin 5))).sum (quintContrib adj) := by
+  unfold totalFlagContribPermSum
+  calc
+    (totalFlagPermTuples.map (totalFlagTupleContrib adj)).sum =
+        totalFlagPermTuples.toFinset.sum (totalFlagTupleContrib adj) := by
+      symm
+      exact List.sum_toFinset _ totalFlagPermTuples_nodup
+    _ = (Finset.univ : Finset (Equiv.Perm (Fin 5))).sum (quintContrib adj) := by
+      rw [totalFlagPermTuples_toFinset_eq_image]
+      simpa [totalFlagTupleContrib, quintContrib] using
+        (Finset.sum_image (s := (Finset.univ : Finset (Equiv.Perm (Fin 5))))
+          (g := fun p : Equiv.Perm (Fin 5) => [p 0, p 1, p 2, p 3, p 4])
+          (f := totalFlagTupleContrib adj) (by
+            intro p _ q _ hpq
+            exact totalFlagPermTuple_injective hpq))
+
 /-- Total flag contribution for a graph on `Fin 5`. -/
-def totalFlagContrib (adj : Fin 5 → Fin 5 → Bool) : ℚ :=
-  (Finset.univ : Finset (Equiv.Perm (Fin 5))).sum (fun p => quintContrib adj p)
+def totalFlagContribBits (b01 b02 b03 b04 b12 b13 b14 b23 b24 b34 : Bool) : ℚ :=
+  match b01, b02, b03, b04, b12, b13, b14, b23, b24, b34 with
+  | false, false, false, false, false, false, false, false, false, false => 576 / 125
+  | false, false, false, false, false, false, false, false, false, true => 576 / 125
+  | false, false, false, false, false, false, false, false, true, false => 576 / 125
+  | false, false, false, false, false, false, false, false, true, true => 576 / 125
+  | false, false, false, false, false, false, false, true, false, false => 576 / 125
+  | false, false, false, false, false, false, false, true, false, true => 576 / 125
+  | false, false, false, false, false, false, false, true, true, false => 576 / 125
+  | false, false, false, false, false, false, false, true, true, true => 9972 / 625
+  | false, false, false, false, false, false, true, false, false, false => 576 / 125
+  | false, false, false, false, false, false, true, false, false, true => 576 / 125
+  | false, false, false, false, false, false, true, false, true, false => 576 / 125
+  | false, false, false, false, false, false, true, false, true, true => 576 / 125
+  | false, false, false, false, false, false, true, true, false, false => 576 / 125
+  | false, false, false, false, false, false, true, true, false, true => 2826 / 625
+  | false, false, false, false, false, false, true, true, true, false => 2826 / 625
+  | false, false, false, false, false, false, true, true, true, true => 88 / 125
+  | false, false, false, false, false, true, false, false, false, false => 576 / 125
+  | false, false, false, false, false, true, false, false, false, true => 576 / 125
+  | false, false, false, false, false, true, false, false, true, false => 576 / 125
+  | false, false, false, false, false, true, false, false, true, true => 2826 / 625
+  | false, false, false, false, false, true, false, true, false, false => 576 / 125
+  | false, false, false, false, false, true, false, true, false, true => 576 / 125
+  | false, false, false, false, false, true, false, true, true, false => 2826 / 625
+  | false, false, false, false, false, true, false, true, true, true => 88 / 125
+  | false, false, false, false, false, true, true, false, false, false => 576 / 125
+  | false, false, false, false, false, true, true, false, false, true => 9972 / 625
+  | false, false, false, false, false, true, true, false, true, false => 2826 / 625
+  | false, false, false, false, false, true, true, false, true, true => 88 / 125
+  | false, false, false, false, false, true, true, true, false, false => 2826 / 625
+  | false, false, false, false, false, true, true, true, false, true => 88 / 125
+  | false, false, false, false, false, true, true, true, true, false => 576 / 125
+  | false, false, false, false, false, true, true, true, true, true => 2964 / 625
+  | false, false, false, false, true, false, false, false, false, false => 576 / 125
+  | false, false, false, false, true, false, false, false, false, true => 576 / 125
+  | false, false, false, false, true, false, false, false, true, false => 576 / 125
+  | false, false, false, false, true, false, false, false, true, true => 2826 / 625
+  | false, false, false, false, true, false, false, true, false, false => 576 / 125
+  | false, false, false, false, true, false, false, true, false, true => 2826 / 625
+  | false, false, false, false, true, false, false, true, true, false => 576 / 125
+  | false, false, false, false, true, false, false, true, true, true => 88 / 125
+  | false, false, false, false, true, false, true, false, false, false => 576 / 125
+  | false, false, false, false, true, false, true, false, false, true => 2826 / 625
+  | false, false, false, false, true, false, true, false, true, false => 9972 / 625
+  | false, false, false, false, true, false, true, false, true, true => 88 / 125
+  | false, false, false, false, true, false, true, true, false, false => 2826 / 625
+  | false, false, false, false, true, false, true, true, false, true => 576 / 125
+  | false, false, false, false, true, false, true, true, true, false => 88 / 125
+  | false, false, false, false, true, false, true, true, true, true => 2964 / 625
+  | false, false, false, false, true, true, false, false, false, false => 576 / 125
+  | false, false, false, false, true, true, false, false, false, true => 2826 / 625
+  | false, false, false, false, true, true, false, false, true, false => 2826 / 625
+  | false, false, false, false, true, true, false, false, true, true => 576 / 125
+  | false, false, false, false, true, true, false, true, false, false => 9972 / 625
+  | false, false, false, false, true, true, false, true, false, true => 88 / 125
+  | false, false, false, false, true, true, false, true, true, false => 88 / 125
+  | false, false, false, false, true, true, false, true, true, true => 2964 / 625
+  | false, false, false, false, true, true, true, false, false, false => 576 / 125
+  | false, false, false, false, true, true, true, false, false, true => 88 / 125
+  | false, false, false, false, true, true, true, false, true, false => 88 / 125
+  | false, false, false, false, true, true, true, false, true, true => 2964 / 625
+  | false, false, false, false, true, true, true, true, false, false => 88 / 125
+  | false, false, false, false, true, true, true, true, false, true => 2964 / 625
+  | false, false, false, false, true, true, true, true, true, false => 2964 / 625
+  | false, false, false, false, true, true, true, true, true, true => 0
+  | false, false, false, true, false, false, false, false, false, false => 576 / 125
+  | false, false, false, true, false, false, false, false, false, true => 576 / 125
+  | false, false, false, true, false, false, false, false, true, false => 576 / 125
+  | false, false, false, true, false, false, false, false, true, true => 576 / 125
+  | false, false, false, true, false, false, false, true, false, false => 576 / 125
+  | false, false, false, true, false, false, false, true, false, true => 2826 / 625
+  | false, false, false, true, false, false, false, true, true, false => 2826 / 625
+  | false, false, false, true, false, false, false, true, true, true => 88 / 125
+  | false, false, false, true, false, false, true, false, false, false => 576 / 125
+  | false, false, false, true, false, false, true, false, false, true => 576 / 125
+  | false, false, false, true, false, false, true, false, true, false => 576 / 125
+  | false, false, false, true, false, false, true, false, true, true => 576 / 125
+  | false, false, false, true, false, false, true, true, false, false => 2576 / 625
+  | false, false, false, true, false, false, true, true, false, true => 576 / 125
+  | false, false, false, true, false, false, true, true, true, false => 576 / 125
+  | false, false, false, true, false, false, true, true, true, true => 2064 / 625
+  | false, false, false, true, false, true, false, false, false, false => 576 / 125
+  | false, false, false, true, false, true, false, false, false, true => 2826 / 625
+  | false, false, false, true, false, true, false, false, true, false => 2576 / 625
+  | false, false, false, true, false, true, false, false, true, true => 576 / 125
+  | false, false, false, true, false, true, false, true, false, false => 2576 / 625
+  | false, false, false, true, false, true, false, true, false, true => 576 / 125
+  | false, false, false, true, false, true, false, true, true, false => -1512 / 625
+  | false, false, false, true, false, true, false, true, true, true => 5918 / 625
+  | false, false, false, true, false, true, true, false, false, false => 2826 / 625
+  | false, false, false, true, false, true, true, false, false, true => 88 / 125
+  | false, false, false, true, false, true, true, false, true, false => 576 / 125
+  | false, false, false, true, false, true, true, false, true, true => 2064 / 625
+  | false, false, false, true, false, true, true, true, false, false => -1512 / 625
+  | false, false, false, true, false, true, true, true, false, true => 5918 / 625
+  | false, false, false, true, false, true, true, true, true, false => 576 / 125
+  | false, false, false, true, false, true, true, true, true, true => -432 / 625
+  | false, false, false, true, true, false, false, false, false, false => 576 / 125
+  | false, false, false, true, true, false, false, false, false, true => 2576 / 625
+  | false, false, false, true, true, false, false, false, true, false => 2826 / 625
+  | false, false, false, true, true, false, false, false, true, true => 576 / 125
+  | false, false, false, true, true, false, false, true, false, false => 2576 / 625
+  | false, false, false, true, true, false, false, true, false, true => -1512 / 625
+  | false, false, false, true, true, false, false, true, true, false => 576 / 125
+  | false, false, false, true, true, false, false, true, true, true => 5918 / 625
+  | false, false, false, true, true, false, true, false, false, false => 2826 / 625
+  | false, false, false, true, true, false, true, false, false, true => 576 / 125
+  | false, false, false, true, true, false, true, false, true, false => 88 / 125
+  | false, false, false, true, true, false, true, false, true, true => 2064 / 625
+  | false, false, false, true, true, false, true, true, false, false => -1512 / 625
+  | false, false, false, true, true, false, true, true, false, true => 576 / 125
+  | false, false, false, true, true, false, true, true, true, false => 5918 / 625
+  | false, false, false, true, true, false, true, true, true, true => -432 / 625
+  | false, false, false, true, true, true, false, false, false, false => 2576 / 625
+  | false, false, false, true, true, true, false, false, false, true => -1512 / 625
+  | false, false, false, true, true, true, false, false, true, false => -1512 / 625
+  | false, false, false, true, true, true, false, false, true, true => 576 / 125
+  | false, false, false, true, true, true, false, true, false, false => 5184 / 625
+  | false, false, false, true, true, true, false, true, false, true => 1392 / 625
+  | false, false, false, true, true, true, false, true, true, false => 1392 / 625
+  | false, false, false, true, true, true, false, true, true, true => 15264 / 625
+  | false, false, false, true, true, true, true, false, false, false => 576 / 125
+  | false, false, false, true, true, true, true, false, false, true => 5918 / 625
+  | false, false, false, true, true, true, true, false, true, false => 5918 / 625
+  | false, false, false, true, true, true, true, false, true, true => -432 / 625
+  | false, false, false, true, true, true, true, true, false, false => 1392 / 625
+  | false, false, false, true, true, true, true, true, false, true => 15264 / 625
+  | false, false, false, true, true, true, true, true, true, false => 15264 / 625
+  | false, false, false, true, true, true, true, true, true, true => 0
+  | false, false, true, false, false, false, false, false, false, false => 576 / 125
+  | false, false, true, false, false, false, false, false, false, true => 576 / 125
+  | false, false, true, false, false, false, false, false, true, false => 576 / 125
+  | false, false, true, false, false, false, false, false, true, true => 2826 / 625
+  | false, false, true, false, false, false, false, true, false, false => 576 / 125
+  | false, false, true, false, false, false, false, true, false, true => 576 / 125
+  | false, false, true, false, false, false, false, true, true, false => 2826 / 625
+  | false, false, true, false, false, false, false, true, true, true => 88 / 125
+  | false, false, true, false, false, false, true, false, false, false => 576 / 125
+  | false, false, true, false, false, false, true, false, false, true => 2826 / 625
+  | false, false, true, false, false, false, true, false, true, false => 2576 / 625
+  | false, false, true, false, false, false, true, false, true, true => 576 / 125
+  | false, false, true, false, false, false, true, true, false, false => 2576 / 625
+  | false, false, true, false, false, false, true, true, false, true => 576 / 125
+  | false, false, true, false, false, false, true, true, true, false => -1512 / 625
+  | false, false, true, false, false, false, true, true, true, true => 5918 / 625
+  | false, false, true, false, false, true, false, false, false, false => 576 / 125
+  | false, false, true, false, false, true, false, false, false, true => 576 / 125
+  | false, false, true, false, false, true, false, false, true, false => 2576 / 625
+  | false, false, true, false, false, true, false, false, true, true => 576 / 125
+  | false, false, true, false, false, true, false, true, false, false => 576 / 125
+  | false, false, true, false, false, true, false, true, false, true => 576 / 125
+  | false, false, true, false, false, true, false, true, true, false => 576 / 125
+  | false, false, true, false, false, true, false, true, true, true => 2064 / 625
+  | false, false, true, false, false, true, true, false, false, false => 2826 / 625
+  | false, false, true, false, false, true, true, false, false, true => 88 / 125
+  | false, false, true, false, false, true, true, false, true, false => -1512 / 625
+  | false, false, true, false, false, true, true, false, true, true => 5918 / 625
+  | false, false, true, false, false, true, true, true, false, false => 576 / 125
+  | false, false, true, false, false, true, true, true, false, true => 2064 / 625
+  | false, false, true, false, false, true, true, true, true, false => 576 / 125
+  | false, false, true, false, false, true, true, true, true, true => -432 / 625
+  | false, false, true, false, true, false, false, false, false, false => 576 / 125
+  | false, false, true, false, true, false, false, false, false, true => 2576 / 625
+  | false, false, true, false, true, false, false, false, true, false => 2576 / 625
+  | false, false, true, false, true, false, false, false, true, true => -1512 / 625
+  | false, false, true, false, true, false, false, true, false, false => 2826 / 625
+  | false, false, true, false, true, false, false, true, false, true => 576 / 125
+  | false, false, true, false, true, false, false, true, true, false => 576 / 125
+  | false, false, true, false, true, false, false, true, true, true => 5918 / 625
+  | false, false, true, false, true, false, true, false, false, false => 2576 / 625
+  | false, false, true, false, true, false, true, false, false, true => -1512 / 625
+  | false, false, true, false, true, false, true, false, true, false => 5184 / 625
+  | false, false, true, false, true, false, true, false, true, true => 1392 / 625
+  | false, false, true, false, true, false, true, true, false, false => -1512 / 625
+  | false, false, true, false, true, false, true, true, false, true => 576 / 125
+  | false, false, true, false, true, false, true, true, true, false => 1392 / 625
+  | false, false, true, false, true, false, true, true, true, true => 15264 / 625
+  | false, false, true, false, true, true, false, false, false, false => 2826 / 625
+  | false, false, true, false, true, true, false, false, false, true => 576 / 125
+  | false, false, true, false, true, true, false, false, true, false => -1512 / 625
+  | false, false, true, false, true, true, false, false, true, true => 576 / 125
+  | false, false, true, false, true, true, false, true, false, false => 88 / 125
+  | false, false, true, false, true, true, false, true, false, true => 2064 / 625
+  | false, false, true, false, true, true, false, true, true, false => 5918 / 625
+  | false, false, true, false, true, true, false, true, true, true => -432 / 625
+  | false, false, true, false, true, true, true, false, false, false => 576 / 125
+  | false, false, true, false, true, true, true, false, false, true => 5918 / 625
+  | false, false, true, false, true, true, true, false, true, false => 1392 / 625
+  | false, false, true, false, true, true, true, false, true, true => 15264 / 625
+  | false, false, true, false, true, true, true, true, false, false => 5918 / 625
+  | false, false, true, false, true, true, true, true, false, true => -432 / 625
+  | false, false, true, false, true, true, true, true, true, false => 15264 / 625
+  | false, false, true, false, true, true, true, true, true, true => 0
+  | false, false, true, true, false, false, false, false, false, false => 576 / 125
+  | false, false, true, true, false, false, false, false, false, true => 9972 / 625
+  | false, false, true, true, false, false, false, false, true, false => 2826 / 625
+  | false, false, true, true, false, false, false, false, true, true => 88 / 125
+  | false, false, true, true, false, false, false, true, false, false => 2826 / 625
+  | false, false, true, true, false, false, false, true, false, true => 88 / 125
+  | false, false, true, true, false, false, false, true, true, false => 576 / 125
+  | false, false, true, true, false, false, false, true, true, true => 2964 / 625
+  | false, false, true, true, false, false, true, false, false, false => 2826 / 625
+  | false, false, true, true, false, false, true, false, false, true => 88 / 125
+  | false, false, true, true, false, false, true, false, true, false => 576 / 125
+  | false, false, true, true, false, false, true, false, true, true => 2064 / 625
+  | false, false, true, true, false, false, true, true, false, false => -1512 / 625
+  | false, false, true, true, false, false, true, true, false, true => 5918 / 625
+  | false, false, true, true, false, false, true, true, true, false => 576 / 125
+  | false, false, true, true, false, false, true, true, true, true => -432 / 625
+  | false, false, true, true, false, true, false, false, false, false => 2826 / 625
+  | false, false, true, true, false, true, false, false, false, true => 88 / 125
+  | false, false, true, true, false, true, false, false, true, false => -1512 / 625
+  | false, false, true, true, false, true, false, false, true, true => 5918 / 625
+  | false, false, true, true, false, true, false, true, false, false => 576 / 125
+  | false, false, true, true, false, true, false, true, false, true => 2064 / 625
+  | false, false, true, true, false, true, false, true, true, false => 576 / 125
+  | false, false, true, true, false, true, false, true, true, true => -432 / 625
+  | false, false, true, true, false, true, true, false, false, false => 576 / 125
+  | false, false, true, true, false, true, true, false, false, true => 2964 / 625
+  | false, false, true, true, false, true, true, false, true, false => 576 / 125
+  | false, false, true, true, false, true, true, false, true, true => -432 / 625
+  | false, false, true, true, false, true, true, true, false, false => 576 / 125
+  | false, false, true, true, false, true, true, true, false, true => -432 / 625
+  | false, false, true, true, false, true, true, true, true, false => 576 / 125
+  | false, false, true, true, false, true, true, true, true, true => 648 / 625
+  | false, false, true, true, true, false, false, false, false, false => 2576 / 625
+  | false, false, true, true, true, false, false, false, false, true => 5184 / 625
+  | false, false, true, true, true, false, false, false, true, false => -1512 / 625
+  | false, false, true, true, true, false, false, false, true, true => 1392 / 625
+  | false, false, true, true, true, false, false, true, false, false => -1512 / 625
+  | false, false, true, true, true, false, false, true, false, true => 1392 / 625
+  | false, false, true, true, true, false, false, true, true, false => 576 / 125
+  | false, false, true, true, true, false, false, true, true, true => 15264 / 625
+  | false, false, true, true, true, false, true, false, false, false => -1512 / 625
+  | false, false, true, true, true, false, true, false, false, true => 1392 / 625
+  | false, false, true, true, true, false, true, false, true, false => 1392 / 625
+  | false, false, true, true, true, false, true, false, true, true => 0
+  | false, false, true, true, true, false, true, true, false, false => -14424 / 125
+  | false, false, true, true, true, false, true, true, false, true => -15168 / 625
+  | false, false, true, true, true, false, true, true, true, false => -15168 / 625
+  | false, false, true, true, true, false, true, true, true, true => 0
+  | false, false, true, true, true, true, false, false, false, false => -1512 / 625
+  | false, false, true, true, true, true, false, false, false, true => 1392 / 625
+  | false, false, true, true, true, true, false, false, true, false => -14424 / 125
+  | false, false, true, true, true, true, false, false, true, true => -15168 / 625
+  | false, false, true, true, true, true, false, true, false, false => 1392 / 625
+  | false, false, true, true, true, true, false, true, false, true => 0
+  | false, false, true, true, true, true, false, true, true, false => -15168 / 625
+  | false, false, true, true, true, true, false, true, true, true => 0
+  | false, false, true, true, true, true, true, false, false, false => 576 / 125
+  | false, false, true, true, true, true, true, false, false, true => 15264 / 625
+  | false, false, true, true, true, true, true, false, true, false => -15168 / 625
+  | false, false, true, true, true, true, true, false, true, true => 0
+  | false, false, true, true, true, true, true, true, false, false => -15168 / 625
+  | false, false, true, true, true, true, true, true, false, true => 0
+  | false, false, true, true, true, true, true, true, true, false => 152 / 125
+  | false, false, true, true, true, true, true, true, true, true => 0
+  | false, true, false, false, false, false, false, false, false, false => 576 / 125
+  | false, true, false, false, false, false, false, false, false, true => 576 / 125
+  | false, true, false, false, false, false, false, false, true, false => 576 / 125
+  | false, true, false, false, false, false, false, false, true, true => 2826 / 625
+  | false, true, false, false, false, false, false, true, false, false => 576 / 125
+  | false, true, false, false, false, false, false, true, false, true => 2826 / 625
+  | false, true, false, false, false, false, false, true, true, false => 576 / 125
+  | false, true, false, false, false, false, false, true, true, true => 88 / 125
+  | false, true, false, false, false, false, true, false, false, false => 576 / 125
+  | false, true, false, false, false, false, true, false, false, true => 2576 / 625
+  | false, true, false, false, false, false, true, false, true, false => 2826 / 625
+  | false, true, false, false, false, false, true, false, true, true => 576 / 125
+  | false, true, false, false, false, false, true, true, false, false => 2576 / 625
+  | false, true, false, false, false, false, true, true, false, true => -1512 / 625
+  | false, true, false, false, false, false, true, true, true, false => 576 / 125
+  | false, true, false, false, false, false, true, true, true, true => 5918 / 625
+  | false, true, false, false, false, true, false, false, false, false => 576 / 125
+  | false, true, false, false, false, true, false, false, false, true => 2576 / 625
+  | false, true, false, false, false, true, false, false, true, false => 2576 / 625
+  | false, true, false, false, false, true, false, false, true, true => -1512 / 625
+  | false, true, false, false, false, true, false, true, false, false => 2826 / 625
+  | false, true, false, false, false, true, false, true, false, true => 576 / 125
+  | false, true, false, false, false, true, false, true, true, false => 576 / 125
+  | false, true, false, false, false, true, false, true, true, true => 5918 / 625
+  | false, true, false, false, false, true, true, false, false, false => 2576 / 625
+  | false, true, false, false, false, true, true, false, false, true => 5184 / 625
+  | false, true, false, false, false, true, true, false, true, false => -1512 / 625
+  | false, true, false, false, false, true, true, false, true, true => 1392 / 625
+  | false, true, false, false, false, true, true, true, false, false => -1512 / 625
+  | false, true, false, false, false, true, true, true, false, true => 1392 / 625
+  | false, true, false, false, false, true, true, true, true, false => 576 / 125
+  | false, true, false, false, false, true, true, true, true, true => 15264 / 625
+  | false, true, false, false, true, false, false, false, false, false => 576 / 125
+  | false, true, false, false, true, false, false, false, false, true => 2576 / 625
+  | false, true, false, false, true, false, false, false, true, false => 576 / 125
+  | false, true, false, false, true, false, false, false, true, true => 576 / 125
+  | false, true, false, false, true, false, false, true, false, false => 576 / 125
+  | false, true, false, false, true, false, false, true, false, true => 576 / 125
+  | false, true, false, false, true, false, false, true, true, false => 576 / 125
+  | false, true, false, false, true, false, false, true, true, true => 2064 / 625
+  | false, true, false, false, true, false, true, false, false, false => 2826 / 625
+  | false, true, false, false, true, false, true, false, false, true => -1512 / 625
+  | false, true, false, false, true, false, true, false, true, false => 88 / 125
+  | false, true, false, false, true, false, true, false, true, true => 5918 / 625
+  | false, true, false, false, true, false, true, true, false, false => 576 / 125
+  | false, true, false, false, true, false, true, true, false, true => 576 / 125
+  | false, true, false, false, true, false, true, true, true, false => 2064 / 625
+  | false, true, false, false, true, false, true, true, true, true => -432 / 625
+  | false, true, false, false, true, true, false, false, false, false => 2826 / 625
+  | false, true, false, false, true, true, false, false, false, true => -1512 / 625
+  | false, true, false, false, true, true, false, false, true, false => 576 / 125
+  | false, true, false, false, true, true, false, false, true, true => 576 / 125
+  | false, true, false, false, true, true, false, true, false, false => 88 / 125
+  | false, true, false, false, true, true, false, true, false, true => 5918 / 625
+  | false, true, false, false, true, true, false, true, true, false => 2064 / 625
+  | false, true, false, false, true, true, false, true, true, true => -432 / 625
+  | false, true, false, false, true, true, true, false, false, false => 576 / 125
+  | false, true, false, false, true, true, true, false, false, true => 1392 / 625
+  | false, true, false, false, true, true, true, false, true, false => 5918 / 625
+  | false, true, false, false, true, true, true, false, true, true => 15264 / 625
+  | false, true, false, false, true, true, true, true, false, false => 5918 / 625
+  | false, true, false, false, true, true, true, true, false, true => 15264 / 625
+  | false, true, false, false, true, true, true, true, true, false => -432 / 625
+  | false, true, false, false, true, true, true, true, true, true => 0
+  | false, true, false, true, false, false, false, false, false, false => 576 / 125
+  | false, true, false, true, false, false, false, false, false, true => 2826 / 625
+  | false, true, false, true, false, false, false, false, true, false => 9972 / 625
+  | false, true, false, true, false, false, false, false, true, true => 88 / 125
+  | false, true, false, true, false, false, false, true, false, false => 2826 / 625
+  | false, true, false, true, false, false, false, true, false, true => 576 / 125
+  | false, true, false, true, false, false, false, true, true, false => 88 / 125
+  | false, true, false, true, false, false, false, true, true, true => 2964 / 625
+  | false, true, false, true, false, false, true, false, false, false => 2826 / 625
+  | false, true, false, true, false, false, true, false, false, true => 576 / 125
+  | false, true, false, true, false, false, true, false, true, false => 88 / 125
+  | false, true, false, true, false, false, true, false, true, true => 2064 / 625
+  | false, true, false, true, false, false, true, true, false, false => -1512 / 625
+  | false, true, false, true, false, false, true, true, false, true => 576 / 125
+  | false, true, false, true, false, false, true, true, true, false => 5918 / 625
+  | false, true, false, true, false, false, true, true, true, true => -432 / 625
+  | false, true, false, true, false, true, false, false, false, false => 2576 / 625
+  | false, true, false, true, false, true, false, false, false, true => -1512 / 625
+  | false, true, false, true, false, true, false, false, true, false => 5184 / 625
+  | false, true, false, true, false, true, false, false, true, true => 1392 / 625
+  | false, true, false, true, false, true, false, true, false, false => -1512 / 625
+  | false, true, false, true, false, true, false, true, false, true => 576 / 125
+  | false, true, false, true, false, true, false, true, true, false => 1392 / 625
+  | false, true, false, true, false, true, false, true, true, true => 15264 / 625
+  | false, true, false, true, false, true, true, false, false, false => -1512 / 625
+  | false, true, false, true, false, true, true, false, false, true => 1392 / 625
+  | false, true, false, true, false, true, true, false, true, false => 1392 / 625
+  | false, true, false, true, false, true, true, false, true, true => 0
+  | false, true, false, true, false, true, true, true, false, false => -14424 / 125
+  | false, true, false, true, false, true, true, true, false, true => -15168 / 625
+  | false, true, false, true, false, true, true, true, true, false => -15168 / 625
+  | false, true, false, true, false, true, true, true, true, true => 0
+  | false, true, false, true, true, false, false, false, false, false => 2826 / 625
+  | false, true, false, true, true, false, false, false, false, true => -1512 / 625
+  | false, true, false, true, true, false, false, false, true, false => 88 / 125
+  | false, true, false, true, true, false, false, false, true, true => 5918 / 625
+  | false, true, false, true, true, false, false, true, false, false => 576 / 125
+  | false, true, false, true, true, false, false, true, false, true => 576 / 125
+  | false, true, false, true, true, false, false, true, true, false => 2064 / 625
+  | false, true, false, true, true, false, false, true, true, true => -432 / 625
+  | false, true, false, true, true, false, true, false, false, false => 576 / 125
+  | false, true, false, true, true, false, true, false, false, true => 576 / 125
+  | false, true, false, true, true, false, true, false, true, false => 2964 / 625
+  | false, true, false, true, true, false, true, false, true, true => -432 / 625
+  | false, true, false, true, true, false, true, true, false, false => 576 / 125
+  | false, true, false, true, true, false, true, true, false, true => 576 / 125
+  | false, true, false, true, true, false, true, true, true, false => -432 / 625
+  | false, true, false, true, true, false, true, true, true, true => 648 / 625
+  | false, true, false, true, true, true, false, false, false, false => -1512 / 625
+  | false, true, false, true, true, true, false, false, false, true => -14424 / 125
+  | false, true, false, true, true, true, false, false, true, false => 1392 / 625
+  | false, true, false, true, true, true, false, false, true, true => -15168 / 625
+  | false, true, false, true, true, true, false, true, false, false => 1392 / 625
+  | false, true, false, true, true, true, false, true, false, true => -15168 / 625
+  | false, true, false, true, true, true, false, true, true, false => 0
+  | false, true, false, true, true, true, false, true, true, true => 0
+  | false, true, false, true, true, true, true, false, false, false => 576 / 125
+  | false, true, false, true, true, true, true, false, false, true => -15168 / 625
+  | false, true, false, true, true, true, true, false, true, false => 15264 / 625
+  | false, true, false, true, true, true, true, false, true, true => 0
+  | false, true, false, true, true, true, true, true, false, false => -15168 / 625
+  | false, true, false, true, true, true, true, true, false, true => 152 / 125
+  | false, true, false, true, true, true, true, true, true, false => 0
+  | false, true, false, true, true, true, true, true, true, true => 0
+  | false, true, true, false, false, false, false, false, false, false => 576 / 125
+  | false, true, true, false, false, false, false, false, false, true => 2826 / 625
+  | false, true, true, false, false, false, false, false, true, false => 2826 / 625
+  | false, true, true, false, false, false, false, false, true, true => 576 / 125
+  | false, true, true, false, false, false, false, true, false, false => 9972 / 625
+  | false, true, true, false, false, false, false, true, false, true => 88 / 125
+  | false, true, true, false, false, false, false, true, true, false => 88 / 125
+  | false, true, true, false, false, false, false, true, true, true => 2964 / 625
+  | false, true, true, false, false, false, true, false, false, false => 2576 / 625
+  | false, true, true, false, false, false, true, false, false, true => -1512 / 625
+  | false, true, true, false, false, false, true, false, true, false => -1512 / 625
+  | false, true, true, false, false, false, true, false, true, true => 576 / 125
+  | false, true, true, false, false, false, true, true, false, false => 5184 / 625
+  | false, true, true, false, false, false, true, true, false, true => 1392 / 625
+  | false, true, true, false, false, false, true, true, true, false => 1392 / 625
+  | false, true, true, false, false, false, true, true, true, true => 15264 / 625
+  | false, true, true, false, false, true, false, false, false, false => 2826 / 625
+  | false, true, true, false, false, true, false, false, false, true => 576 / 125
+  | false, true, true, false, false, true, false, false, true, false => -1512 / 625
+  | false, true, true, false, false, true, false, false, true, true => 576 / 125
+  | false, true, true, false, false, true, false, true, false, false => 88 / 125
+  | false, true, true, false, false, true, false, true, false, true => 2064 / 625
+  | false, true, true, false, false, true, false, true, true, false => 5918 / 625
+  | false, true, true, false, false, true, false, true, true, true => -432 / 625
+  | false, true, true, false, false, true, true, false, false, false => -1512 / 625
+  | false, true, true, false, false, true, true, false, false, true => 1392 / 625
+  | false, true, true, false, false, true, true, false, true, false => -14424 / 125
+  | false, true, true, false, false, true, true, false, true, true => -15168 / 625
+  | false, true, true, false, false, true, true, true, false, false => 1392 / 625
+  | false, true, true, false, false, true, true, true, false, true => 0
+  | false, true, true, false, false, true, true, true, true, false => -15168 / 625
+  | false, true, true, false, false, true, true, true, true, true => 0
+  | false, true, true, false, true, false, false, false, false, false => 2826 / 625
+  | false, true, true, false, true, false, false, false, false, true => -1512 / 625
+  | false, true, true, false, true, false, false, false, true, false => 576 / 125
+  | false, true, true, false, true, false, false, false, true, true => 576 / 125
+  | false, true, true, false, true, false, false, true, false, false => 88 / 125
+  | false, true, true, false, true, false, false, true, false, true => 5918 / 625
+  | false, true, true, false, true, false, false, true, true, false => 2064 / 625
+  | false, true, true, false, true, false, false, true, true, true => -432 / 625
+  | false, true, true, false, true, false, true, false, false, false => -1512 / 625
+  | false, true, true, false, true, false, true, false, false, true => -14424 / 125
+  | false, true, true, false, true, false, true, false, true, false => 1392 / 625
+  | false, true, true, false, true, false, true, false, true, true => -15168 / 625
+  | false, true, true, false, true, false, true, true, false, false => 1392 / 625
+  | false, true, true, false, true, false, true, true, false, true => -15168 / 625
+  | false, true, true, false, true, false, true, true, true, false => 0
+  | false, true, true, false, true, false, true, true, true, true => 0
+  | false, true, true, false, true, true, false, false, false, false => 576 / 125
+  | false, true, true, false, true, true, false, false, false, true => 576 / 125
+  | false, true, true, false, true, true, false, false, true, false => 576 / 125
+  | false, true, true, false, true, true, false, false, true, true => 576 / 125
+  | false, true, true, false, true, true, false, true, false, false => 2964 / 625
+  | false, true, true, false, true, true, false, true, false, true => -432 / 625
+  | false, true, true, false, true, true, false, true, true, false => -432 / 625
+  | false, true, true, false, true, true, false, true, true, true => 648 / 625
+  | false, true, true, false, true, true, true, false, false, false => 576 / 125
+  | false, true, true, false, true, true, true, false, false, true => -15168 / 625
+  | false, true, true, false, true, true, true, false, true, false => -15168 / 625
+  | false, true, true, false, true, true, true, false, true, true => 152 / 125
+  | false, true, true, false, true, true, true, true, false, false => 15264 / 625
+  | false, true, true, false, true, true, true, true, false, true => 0
+  | false, true, true, false, true, true, true, true, true, false => 0
+  | false, true, true, false, true, true, true, true, true, true => 0
+  | false, true, true, true, false, false, false, false, false, false => 576 / 125
+  | false, true, true, true, false, false, false, false, false, true => 88 / 125
+  | false, true, true, true, false, false, false, false, true, false => 88 / 125
+  | false, true, true, true, false, false, false, false, true, true => 2964 / 625
+  | false, true, true, true, false, false, false, true, false, false => 88 / 125
+  | false, true, true, true, false, false, false, true, false, true => 2964 / 625
+  | false, true, true, true, false, false, false, true, true, false => 2964 / 625
+  | false, true, true, true, false, false, false, true, true, true => 0
+  | false, true, true, true, false, false, true, false, false, false => 576 / 125
+  | false, true, true, true, false, false, true, false, false, true => 5918 / 625
+  | false, true, true, true, false, false, true, false, true, false => 5918 / 625
+  | false, true, true, true, false, false, true, false, true, true => -432 / 625
+  | false, true, true, true, false, false, true, true, false, false => 1392 / 625
+  | false, true, true, true, false, false, true, true, false, true => 15264 / 625
+  | false, true, true, true, false, false, true, true, true, false => 15264 / 625
+  | false, true, true, true, false, false, true, true, true, true => 0
+  | false, true, true, true, false, true, false, false, false, false => 576 / 125
+  | false, true, true, true, false, true, false, false, false, true => 5918 / 625
+  | false, true, true, true, false, true, false, false, true, false => 1392 / 625
+  | false, true, true, true, false, true, false, false, true, true => 15264 / 625
+  | false, true, true, true, false, true, false, true, false, false => 5918 / 625
+  | false, true, true, true, false, true, false, true, false, true => -432 / 625
+  | false, true, true, true, false, true, false, true, true, false => 15264 / 625
+  | false, true, true, true, false, true, false, true, true, true => 0
+  | false, true, true, true, false, true, true, false, false, false => 576 / 125
+  | false, true, true, true, false, true, true, false, false, true => 15264 / 625
+  | false, true, true, true, false, true, true, false, true, false => -15168 / 625
+  | false, true, true, true, false, true, true, false, true, true => 0
+  | false, true, true, true, false, true, true, true, false, false => -15168 / 625
+  | false, true, true, true, false, true, true, true, false, true => 0
+  | false, true, true, true, false, true, true, true, true, false => 152 / 125
+  | false, true, true, true, false, true, true, true, true, true => 0
+  | false, true, true, true, true, false, false, false, false, false => 576 / 125
+  | false, true, true, true, true, false, false, false, false, true => 1392 / 625
+  | false, true, true, true, true, false, false, false, true, false => 5918 / 625
+  | false, true, true, true, true, false, false, false, true, true => 15264 / 625
+  | false, true, true, true, true, false, false, true, false, false => 5918 / 625
+  | false, true, true, true, true, false, false, true, false, true => 15264 / 625
+  | false, true, true, true, true, false, false, true, true, false => -432 / 625
+  | false, true, true, true, true, false, false, true, true, true => 0
+  | false, true, true, true, true, false, true, false, false, false => 576 / 125
+  | false, true, true, true, true, false, true, false, false, true => -15168 / 625
+  | false, true, true, true, true, false, true, false, true, false => 15264 / 625
+  | false, true, true, true, true, false, true, false, true, true => 0
+  | false, true, true, true, true, false, true, true, false, false => -15168 / 625
+  | false, true, true, true, true, false, true, true, false, true => 152 / 125
+  | false, true, true, true, true, false, true, true, true, false => 0
+  | false, true, true, true, true, false, true, true, true, true => 0
+  | false, true, true, true, true, true, false, false, false, false => 576 / 125
+  | false, true, true, true, true, true, false, false, false, true => -15168 / 625
+  | false, true, true, true, true, true, false, false, true, false => -15168 / 625
+  | false, true, true, true, true, true, false, false, true, true => 152 / 125
+  | false, true, true, true, true, true, false, true, false, false => 15264 / 625
+  | false, true, true, true, true, true, false, true, false, true => 0
+  | false, true, true, true, true, true, false, true, true, false => 0
+  | false, true, true, true, true, true, false, true, true, true => 0
+  | false, true, true, true, true, true, true, false, false, false => 576 / 125
+  | false, true, true, true, true, true, true, false, false, true => 152 / 125
+  | false, true, true, true, true, true, true, false, true, false => 152 / 125
+  | false, true, true, true, true, true, true, false, true, true => 0
+  | false, true, true, true, true, true, true, true, false, false => 152 / 125
+  | false, true, true, true, true, true, true, true, false, true => 0
+  | false, true, true, true, true, true, true, true, true, false => 0
+  | false, true, true, true, true, true, true, true, true, true => 0
+  | true, false, false, false, false, false, false, false, false, false => 576 / 125
+  | true, false, false, false, false, false, false, false, false, true => 576 / 125
+  | true, false, false, false, false, false, false, false, true, false => 576 / 125
+  | true, false, false, false, false, false, false, false, true, true => 2576 / 625
+  | true, false, false, false, false, false, false, true, false, false => 576 / 125
+  | true, false, false, false, false, false, false, true, false, true => 2576 / 625
+  | true, false, false, false, false, false, false, true, true, false => 2576 / 625
+  | true, false, false, false, false, false, false, true, true, true => 5184 / 625
+  | true, false, false, false, false, false, true, false, false, false => 576 / 125
+  | true, false, false, false, false, false, true, false, false, true => 2826 / 625
+  | true, false, false, false, false, false, true, false, true, false => 2826 / 625
+  | true, false, false, false, false, false, true, false, true, true => 576 / 125
+  | true, false, false, false, false, false, true, true, false, false => 2576 / 625
+  | true, false, false, false, false, false, true, true, false, true => -1512 / 625
+  | true, false, false, false, false, false, true, true, true, false => -1512 / 625
+  | true, false, false, false, false, false, true, true, true, true => 1392 / 625
+  | true, false, false, false, false, true, false, false, false, false => 576 / 125
+  | true, false, false, false, false, true, false, false, false, true => 2826 / 625
+  | true, false, false, false, false, true, false, false, true, false => 2576 / 625
+  | true, false, false, false, false, true, false, false, true, true => -1512 / 625
+  | true, false, false, false, false, true, false, true, false, false => 2826 / 625
+  | true, false, false, false, false, true, false, true, false, true => 576 / 125
+  | true, false, false, false, false, true, false, true, true, false => -1512 / 625
+  | true, false, false, false, false, true, false, true, true, true => 1392 / 625
+  | true, false, false, false, false, true, true, false, false, false => 576 / 125
+  | true, false, false, false, false, true, true, false, false, true => 88 / 125
+  | true, false, false, false, false, true, true, false, true, false => 576 / 125
+  | true, false, false, false, false, true, true, false, true, true => 5918 / 625
+  | true, false, false, false, false, true, true, true, false, false => 576 / 125
+  | true, false, false, false, false, true, true, true, false, true => 5918 / 625
+  | true, false, false, false, false, true, true, true, true, false => 576 / 125
+  | true, false, false, false, false, true, true, true, true, true => 15264 / 625
+  | true, false, false, false, true, false, false, false, false, false => 576 / 125
+  | true, false, false, false, true, false, false, false, false, true => 2576 / 625
+  | true, false, false, false, true, false, false, false, true, false => 2826 / 625
+  | true, false, false, false, true, false, false, false, true, true => -1512 / 625
+  | true, false, false, false, true, false, false, true, false, false => 2826 / 625
+  | true, false, false, false, true, false, false, true, false, true => -1512 / 625
+  | true, false, false, false, true, false, false, true, true, false => 576 / 125
+  | true, false, false, false, true, false, false, true, true, true => 1392 / 625
+  | true, false, false, false, true, false, true, false, false, false => 576 / 125
+  | true, false, false, false, true, false, true, false, false, true => 576 / 125
+  | true, false, false, false, true, false, true, false, true, false => 88 / 125
+  | true, false, false, false, true, false, true, false, true, true => 5918 / 625
+  | true, false, false, false, true, false, true, true, false, false => 576 / 125
+  | true, false, false, false, true, false, true, true, false, true => 576 / 125
+  | true, false, false, false, true, false, true, true, true, false => 5918 / 625
+  | true, false, false, false, true, false, true, true, true, true => 15264 / 625
+  | true, false, false, false, true, true, false, false, false, false => 576 / 125
+  | true, false, false, false, true, true, false, false, false, true => 576 / 125
+  | true, false, false, false, true, true, false, false, true, false => 576 / 125
+  | true, false, false, false, true, true, false, false, true, true => 576 / 125
+  | true, false, false, false, true, true, false, true, false, false => 88 / 125
+  | true, false, false, false, true, true, false, true, false, true => 5918 / 625
+  | true, false, false, false, true, true, false, true, true, false => 5918 / 625
+  | true, false, false, false, true, true, false, true, true, true => 15264 / 625
+  | true, false, false, false, true, true, true, false, false, false => 576 / 125
+  | true, false, false, false, true, true, true, false, false, true => 2064 / 625
+  | true, false, false, false, true, true, true, false, true, false => 2064 / 625
+  | true, false, false, false, true, true, true, false, true, true => -432 / 625
+  | true, false, false, false, true, true, true, true, false, false => 2064 / 625
+  | true, false, false, false, true, true, true, true, false, true => -432 / 625
+  | true, false, false, false, true, true, true, true, true, false => -432 / 625
+  | true, false, false, false, true, true, true, true, true, true => 0
+  | true, false, false, true, false, false, false, false, false, false => 576 / 125
+  | true, false, false, true, false, false, false, false, false, true => 2826 / 625
+  | true, false, false, true, false, false, false, false, true, false => 2826 / 625
+  | true, false, false, true, false, false, false, false, true, true => 576 / 125
+  | true, false, false, true, false, false, false, true, false, false => 2576 / 625
+  | true, false, false, true, false, false, false, true, false, true => -1512 / 625
+  | true, false, false, true, false, false, false, true, true, false => -1512 / 625
+  | true, false, false, true, false, false, false, true, true, true => 1392 / 625
+  | true, false, false, true, false, false, true, false, false, false => 9972 / 625
+  | true, false, false, true, false, false, true, false, false, true => 88 / 125
+  | true, false, false, true, false, false, true, false, true, false => 88 / 125
+  | true, false, false, true, false, false, true, false, true, true => 2064 / 625
+  | true, false, false, true, false, false, true, true, false, false => 5184 / 625
+  | true, false, false, true, false, false, true, true, false, true => 1392 / 625
+  | true, false, false, true, false, false, true, true, true, false => 1392 / 625
+  | true, false, false, true, false, false, true, true, true, true => 0
+  | true, false, false, true, false, true, false, false, false, false => 2826 / 625
+  | true, false, false, true, false, true, false, false, false, true => 576 / 125
+  | true, false, false, true, false, true, false, false, true, false => -1512 / 625
+  | true, false, false, true, false, true, false, false, true, true => 576 / 125
+  | true, false, false, true, false, true, false, true, false, false => -1512 / 625
+  | true, false, false, true, false, true, false, true, false, true => 576 / 125
+  | true, false, false, true, false, true, false, true, true, false => -14424 / 125
+  | true, false, false, true, false, true, false, true, true, true => -15168 / 625
+  | true, false, false, true, false, true, true, false, false, false => 88 / 125
+  | true, false, false, true, false, true, true, false, false, true => 2964 / 625
+  | true, false, false, true, false, true, true, false, true, false => 5918 / 625
+  | true, false, false, true, false, true, true, false, true, true => -432 / 625
+  | true, false, false, true, false, true, true, true, false, false => 1392 / 625
+  | true, false, false, true, false, true, true, true, false, true => 15264 / 625
+  | true, false, false, true, false, true, true, true, true, false => -15168 / 625
+  | true, false, false, true, false, true, true, true, true, true => 0
+  | true, false, false, true, true, false, false, false, false, false => 2826 / 625
+  | true, false, false, true, true, false, false, false, false, true => -1512 / 625
+  | true, false, false, true, true, false, false, false, true, false => 576 / 125
+  | true, false, false, true, true, false, false, false, true, true => 576 / 125
+  | true, false, false, true, true, false, false, true, false, false => -1512 / 625
+  | true, false, false, true, true, false, false, true, false, true => -14424 / 125
+  | true, false, false, true, true, false, false, true, true, false => 576 / 125
+  | true, false, false, true, true, false, false, true, true, true => -15168 / 625
+  | true, false, false, true, true, false, true, false, false, false => 88 / 125
+  | true, false, false, true, true, false, true, false, false, true => 5918 / 625
+  | true, false, false, true, true, false, true, false, true, false => 2964 / 625
+  | true, false, false, true, true, false, true, false, true, true => -432 / 625
+  | true, false, false, true, true, false, true, true, false, false => 1392 / 625
+  | true, false, false, true, true, false, true, true, false, true => -15168 / 625
+  | true, false, false, true, true, false, true, true, true, false => 15264 / 625
+  | true, false, false, true, true, false, true, true, true, true => 0
+  | true, false, false, true, true, true, false, false, false, false => 576 / 125
+  | true, false, false, true, true, true, false, false, false, true => 576 / 125
+  | true, false, false, true, true, true, false, false, true, false => 576 / 125
+  | true, false, false, true, true, true, false, false, true, true => 576 / 125
+  | true, false, false, true, true, true, false, true, false, false => 1392 / 625
+  | true, false, false, true, true, true, false, true, false, true => -15168 / 625
+  | true, false, false, true, true, true, false, true, true, false => -15168 / 625
+  | true, false, false, true, true, true, false, true, true, true => 152 / 125
+  | true, false, false, true, true, true, true, false, false, false => 2064 / 625
+  | true, false, false, true, true, true, true, false, false, true => -432 / 625
+  | true, false, false, true, true, true, true, false, true, false => -432 / 625
+  | true, false, false, true, true, true, true, false, true, true => 648 / 625
+  | true, false, false, true, true, true, true, true, false, false => 0
+  | true, false, false, true, true, true, true, true, false, true => 0
+  | true, false, false, true, true, true, true, true, true, false => 0
+  | true, false, false, true, true, true, true, true, true, true => 0
+  | true, false, true, false, false, false, false, false, false, false => 576 / 125
+  | true, false, true, false, false, false, false, false, false, true => 2826 / 625
+  | true, false, true, false, false, false, false, false, true, false => 2576 / 625
+  | true, false, true, false, false, false, false, false, true, true => -1512 / 625
+  | true, false, true, false, false, false, false, true, false, false => 2826 / 625
+  | true, false, true, false, false, false, false, true, false, true => 576 / 125
+  | true, false, true, false, false, false, false, true, true, false => -1512 / 625
+  | true, false, true, false, false, false, false, true, true, true => 1392 / 625
+  | true, false, true, false, false, false, true, false, false, false => 2826 / 625
+  | true, false, true, false, false, false, true, false, false, true => 576 / 125
+  | true, false, true, false, false, false, true, false, true, false => -1512 / 625
+  | true, false, true, false, false, false, true, false, true, true => 576 / 125
+  | true, false, true, false, false, false, true, true, false, false => -1512 / 625
+  | true, false, true, false, false, false, true, true, false, true => 576 / 125
+  | true, false, true, false, false, false, true, true, true, false => -14424 / 125
+  | true, false, true, false, false, false, true, true, true, true => -15168 / 625
+  | true, false, true, false, false, true, false, false, false, false => 9972 / 625
+  | true, false, true, false, false, true, false, false, false, true => 88 / 125
+  | true, false, true, false, false, true, false, false, true, false => 5184 / 625
+  | true, false, true, false, false, true, false, false, true, true => 1392 / 625
+  | true, false, true, false, false, true, false, true, false, false => 88 / 125
+  | true, false, true, false, false, true, false, true, false, true => 2064 / 625
+  | true, false, true, false, false, true, false, true, true, false => 1392 / 625
+  | true, false, true, false, false, true, false, true, true, true => 0
+  | true, false, true, false, false, true, true, false, false, false => 88 / 125
+  | true, false, true, false, false, true, true, false, false, true => 2964 / 625
+  | true, false, true, false, false, true, true, false, true, false => 1392 / 625
+  | true, false, true, false, false, true, true, false, true, true => 15264 / 625
+  | true, false, true, false, false, true, true, true, false, false => 5918 / 625
+  | true, false, true, false, false, true, true, true, false, true => -432 / 625
+  | true, false, true, false, false, true, true, true, true, false => -15168 / 625
+  | true, false, true, false, false, true, true, true, true, true => 0
+  | true, false, true, false, true, false, false, false, false, false => 2826 / 625
+  | true, false, true, false, true, false, false, false, false, true => -1512 / 625
+  | true, false, true, false, true, false, false, false, true, false => -1512 / 625
+  | true, false, true, false, true, false, false, false, true, true => -14424 / 125
+  | true, false, true, false, true, false, false, true, false, false => 576 / 125
+  | true, false, true, false, true, false, false, true, false, true => 576 / 125
+  | true, false, true, false, true, false, false, true, true, false => 576 / 125
+  | true, false, true, false, true, false, false, true, true, true => -15168 / 625
+  | true, false, true, false, true, false, true, false, false, false => 576 / 125
+  | true, false, true, false, true, false, true, false, false, true => 576 / 125
+  | true, false, true, false, true, false, true, false, true, false => 1392 / 625
+  | true, false, true, false, true, false, true, false, true, true => -15168 / 625
+  | true, false, true, false, true, false, true, true, false, false => 576 / 125
+  | true, false, true, false, true, false, true, true, false, true => 576 / 125
+  | true, false, true, false, true, false, true, true, true, false => -15168 / 625
+  | true, false, true, false, true, false, true, true, true, true => 152 / 125
+  | true, false, true, false, true, true, false, false, false, false => 88 / 125
+  | true, false, true, false, true, true, false, false, false, true => 5918 / 625
+  | true, false, true, false, true, true, false, false, true, false => 1392 / 625
+  | true, false, true, false, true, true, false, false, true, true => -15168 / 625
+  | true, false, true, false, true, true, false, true, false, false => 2964 / 625
+  | true, false, true, false, true, true, false, true, false, true => -432 / 625
+  | true, false, true, false, true, true, false, true, true, false => 15264 / 625
+  | true, false, true, false, true, true, false, true, true, true => 0
+  | true, false, true, false, true, true, true, false, false, false => 2064 / 625
+  | true, false, true, false, true, true, true, false, false, true => -432 / 625
+  | true, false, true, false, true, true, true, false, true, false => 0
+  | true, false, true, false, true, true, true, false, true, true => 0
+  | true, false, true, false, true, true, true, true, false, false => -432 / 625
+  | true, false, true, false, true, true, true, true, false, true => 648 / 625
+  | true, false, true, false, true, true, true, true, true, false => 0
+  | true, false, true, false, true, true, true, true, true, true => 0
+  | true, false, true, true, false, false, false, false, false, false => 576 / 125
+  | true, false, true, true, false, false, false, false, false, true => 88 / 125
+  | true, false, true, true, false, false, false, false, true, false => 576 / 125
+  | true, false, true, true, false, false, false, false, true, true => 5918 / 625
+  | true, false, true, true, false, false, false, true, false, false => 576 / 125
+  | true, false, true, true, false, false, false, true, false, true => 5918 / 625
+  | true, false, true, true, false, false, false, true, true, false => 576 / 125
+  | true, false, true, true, false, false, false, true, true, true => 15264 / 625
+  | true, false, true, true, false, false, true, false, false, false => 88 / 125
+  | true, false, true, true, false, false, true, false, false, true => 2964 / 625
+  | true, false, true, true, false, false, true, false, true, false => 5918 / 625
+  | true, false, true, true, false, false, true, false, true, true => -432 / 625
+  | true, false, true, true, false, false, true, true, false, false => 1392 / 625
+  | true, false, true, true, false, false, true, true, false, true => 15264 / 625
+  | true, false, true, true, false, false, true, true, true, false => -15168 / 625
+  | true, false, true, true, false, false, true, true, true, true => 0
+  | true, false, true, true, false, true, false, false, false, false => 88 / 125
+  | true, false, true, true, false, true, false, false, false, true => 2964 / 625
+  | true, false, true, true, false, true, false, false, true, false => 1392 / 625
+  | true, false, true, true, false, true, false, false, true, true => 15264 / 625
+  | true, false, true, true, false, true, false, true, false, false => 5918 / 625
+  | true, false, true, true, false, true, false, true, false, true => -432 / 625
+  | true, false, true, true, false, true, false, true, true, false => -15168 / 625
+  | true, false, true, true, false, true, false, true, true, true => 0
+  | true, false, true, true, false, true, true, false, false, false => 2964 / 625
+  | true, false, true, true, false, true, true, false, false, true => 0
+  | true, false, true, true, false, true, true, false, true, false => 15264 / 625
+  | true, false, true, true, false, true, true, false, true, true => 0
+  | true, false, true, true, false, true, true, true, false, false => 15264 / 625
+  | true, false, true, true, false, true, true, true, false, true => 0
+  | true, false, true, true, false, true, true, true, true, false => 152 / 125
+  | true, false, true, true, false, true, true, true, true, true => 0
+  | true, false, true, true, true, false, false, false, false, false => 576 / 125
+  | true, false, true, true, true, false, false, false, false, true => 1392 / 625
+  | true, false, true, true, true, false, false, false, true, false => 576 / 125
+  | true, false, true, true, true, false, false, false, true, true => -15168 / 625
+  | true, false, true, true, true, false, false, true, false, false => 576 / 125
+  | true, false, true, true, true, false, false, true, false, true => -15168 / 625
+  | true, false, true, true, true, false, false, true, true, false => 576 / 125
+  | true, false, true, true, true, false, false, true, true, true => 152 / 125
+  | true, false, true, true, true, false, true, false, false, false => 5918 / 625
+  | true, false, true, true, true, false, true, false, false, true => 15264 / 625
+  | true, false, true, true, true, false, true, false, true, false => 15264 / 625
+  | true, false, true, true, true, false, true, false, true, true => 0
+  | true, false, true, true, true, false, true, true, false, false => -15168 / 625
+  | true, false, true, true, true, false, true, true, false, true => 152 / 125
+  | true, false, true, true, true, false, true, true, true, false => 152 / 125
+  | true, false, true, true, true, false, true, true, true, true => 0
+  | true, false, true, true, true, true, false, false, false, false => 5918 / 625
+  | true, false, true, true, true, true, false, false, false, true => 15264 / 625
+  | true, false, true, true, true, true, false, false, true, false => -15168 / 625
+  | true, false, true, true, true, true, false, false, true, true => 152 / 125
+  | true, false, true, true, true, true, false, true, false, false => 15264 / 625
+  | true, false, true, true, true, true, false, true, false, true => 0
+  | true, false, true, true, true, true, false, true, true, false => 152 / 125
+  | true, false, true, true, true, true, false, true, true, true => 0
+  | true, false, true, true, true, true, true, false, false, false => -432 / 625
+  | true, false, true, true, true, true, true, false, false, true => 0
+  | true, false, true, true, true, true, true, false, true, false => 0
+  | true, false, true, true, true, true, true, false, true, true => 0
+  | true, false, true, true, true, true, true, true, false, false => 0
+  | true, false, true, true, true, true, true, true, false, true => 0
+  | true, false, true, true, true, true, true, true, true, false => 0
+  | true, false, true, true, true, true, true, true, true, true => 0
+  | true, true, false, false, false, false, false, false, false, false => 576 / 125
+  | true, true, false, false, false, false, false, false, false, true => 2576 / 625
+  | true, true, false, false, false, false, false, false, true, false => 2826 / 625
+  | true, true, false, false, false, false, false, false, true, true => -1512 / 625
+  | true, true, false, false, false, false, false, true, false, false => 2826 / 625
+  | true, true, false, false, false, false, false, true, false, true => -1512 / 625
+  | true, true, false, false, false, false, false, true, true, false => 576 / 125
+  | true, true, false, false, false, false, false, true, true, true => 1392 / 625
+  | true, true, false, false, false, false, true, false, false, false => 2826 / 625
+  | true, true, false, false, false, false, true, false, false, true => -1512 / 625
+  | true, true, false, false, false, false, true, false, true, false => 576 / 125
+  | true, true, false, false, false, false, true, false, true, true => 576 / 125
+  | true, true, false, false, false, false, true, true, false, false => -1512 / 625
+  | true, true, false, false, false, false, true, true, false, true => -14424 / 125
+  | true, true, false, false, false, false, true, true, true, false => 576 / 125
+  | true, true, false, false, false, false, true, true, true, true => -15168 / 625
+  | true, true, false, false, false, true, false, false, false, false => 2826 / 625
+  | true, true, false, false, false, true, false, false, false, true => -1512 / 625
+  | true, true, false, false, false, true, false, false, true, false => -1512 / 625
+  | true, true, false, false, false, true, false, false, true, true => -14424 / 125
+  | true, true, false, false, false, true, false, true, false, false => 576 / 125
+  | true, true, false, false, false, true, false, true, false, true => 576 / 125
+  | true, true, false, false, false, true, false, true, true, false => 576 / 125
+  | true, true, false, false, false, true, false, true, true, true => -15168 / 625
+  | true, true, false, false, false, true, true, false, false, false => 576 / 125
+  | true, true, false, false, false, true, true, false, false, true => 1392 / 625
+  | true, true, false, false, false, true, true, false, true, false => 576 / 125
+  | true, true, false, false, false, true, true, false, true, true => -15168 / 625
+  | true, true, false, false, false, true, true, true, false, false => 576 / 125
+  | true, true, false, false, false, true, true, true, false, true => -15168 / 625
+  | true, true, false, false, false, true, true, true, true, false => 576 / 125
+  | true, true, false, false, false, true, true, true, true, true => 152 / 125
+  | true, true, false, false, true, false, false, false, false, false => 9972 / 625
+  | true, true, false, false, true, false, false, false, false, true => 5184 / 625
+  | true, true, false, false, true, false, false, false, true, false => 88 / 125
+  | true, true, false, false, true, false, false, false, true, true => 1392 / 625
+  | true, true, false, false, true, false, false, true, false, false => 88 / 125
+  | true, true, false, false, true, false, false, true, false, true => 1392 / 625
+  | true, true, false, false, true, false, false, true, true, false => 2064 / 625
+  | true, true, false, false, true, false, false, true, true, true => 0
+  | true, true, false, false, true, false, true, false, false, false => 88 / 125
+  | true, true, false, false, true, false, true, false, false, true => 1392 / 625
+  | true, true, false, false, true, false, true, false, true, false => 2964 / 625
+  | true, true, false, false, true, false, true, false, true, true => 15264 / 625
+  | true, true, false, false, true, false, true, true, false, false => 5918 / 625
+  | true, true, false, false, true, false, true, true, false, true => -15168 / 625
+  | true, true, false, false, true, false, true, true, true, false => -432 / 625
+  | true, true, false, false, true, false, true, true, true, true => 0
+  | true, true, false, false, true, true, false, false, false, false => 88 / 125
+  | true, true, false, false, true, true, false, false, false, true => 1392 / 625
+  | true, true, false, false, true, true, false, false, true, false => 5918 / 625
+  | true, true, false, false, true, true, false, false, true, true => -15168 / 625
+  | true, true, false, false, true, true, false, true, false, false => 2964 / 625
+  | true, true, false, false, true, true, false, true, false, true => 15264 / 625
+  | true, true, false, false, true, true, false, true, true, false => -432 / 625
+  | true, true, false, false, true, true, false, true, true, true => 0
+  | true, true, false, false, true, true, true, false, false, false => 2064 / 625
+  | true, true, false, false, true, true, true, false, false, true => 0
+  | true, true, false, false, true, true, true, false, true, false => -432 / 625
+  | true, true, false, false, true, true, true, false, true, true => 0
+  | true, true, false, false, true, true, true, true, false, false => -432 / 625
+  | true, true, false, false, true, true, true, true, false, true => 0
+  | true, true, false, false, true, true, true, true, true, false => 648 / 625
+  | true, true, false, false, true, true, true, true, true, true => 0
+  | true, true, false, true, false, false, false, false, false, false => 576 / 125
+  | true, true, false, true, false, false, false, false, false, true => 576 / 125
+  | true, true, false, true, false, false, false, false, true, false => 88 / 125
+  | true, true, false, true, false, false, false, false, true, true => 5918 / 625
+  | true, true, false, true, false, false, false, true, false, false => 576 / 125
+  | true, true, false, true, false, false, false, true, false, true => 576 / 125
+  | true, true, false, true, false, false, false, true, true, false => 5918 / 625
+  | true, true, false, true, false, false, false, true, true, true => 15264 / 625
+  | true, true, false, true, false, false, true, false, false, false => 88 / 125
+  | true, true, false, true, false, false, true, false, false, true => 5918 / 625
+  | true, true, false, true, false, false, true, false, true, false => 2964 / 625
+  | true, true, false, true, false, false, true, false, true, true => -432 / 625
+  | true, true, false, true, false, false, true, true, false, false => 1392 / 625
+  | true, true, false, true, false, false, true, true, false, true => -15168 / 625
+  | true, true, false, true, false, false, true, true, true, false => 15264 / 625
+  | true, true, false, true, false, false, true, true, true, true => 0
+  | true, true, false, true, false, true, false, false, false, false => 576 / 125
+  | true, true, false, true, false, true, false, false, false, true => 576 / 125
+  | true, true, false, true, false, true, false, false, true, false => 1392 / 625
+  | true, true, false, true, false, true, false, false, true, true => -15168 / 625
+  | true, true, false, true, false, true, false, true, false, false => 576 / 125
+  | true, true, false, true, false, true, false, true, false, true => 576 / 125
+  | true, true, false, true, false, true, false, true, true, false => -15168 / 625
+  | true, true, false, true, false, true, false, true, true, true => 152 / 125
+  | true, true, false, true, false, true, true, false, false, false => 5918 / 625
+  | true, true, false, true, false, true, true, false, false, true => 15264 / 625
+  | true, true, false, true, false, true, true, false, true, false => 15264 / 625
+  | true, true, false, true, false, true, true, false, true, true => 0
+  | true, true, false, true, false, true, true, true, false, false => -15168 / 625
+  | true, true, false, true, false, true, true, true, false, true => 152 / 125
+  | true, true, false, true, false, true, true, true, true, false => 152 / 125
+  | true, true, false, true, false, true, true, true, true, true => 0
+  | true, true, false, true, true, false, false, false, false, false => 88 / 125
+  | true, true, false, true, true, false, false, false, false, true => 1392 / 625
+  | true, true, false, true, true, false, false, false, true, false => 2964 / 625
+  | true, true, false, true, true, false, false, false, true, true => 15264 / 625
+  | true, true, false, true, true, false, false, true, false, false => 5918 / 625
+  | true, true, false, true, true, false, false, true, false, true => -15168 / 625
+  | true, true, false, true, true, false, false, true, true, false => -432 / 625
+  | true, true, false, true, true, false, false, true, true, true => 0
+  | true, true, false, true, true, false, true, false, false, false => 2964 / 625
+  | true, true, false, true, true, false, true, false, false, true => 15264 / 625
+  | true, true, false, true, true, false, true, false, true, false => 0
+  | true, true, false, true, true, false, true, false, true, true => 0
+  | true, true, false, true, true, false, true, true, false, false => 15264 / 625
+  | true, true, false, true, true, false, true, true, false, true => 152 / 125
+  | true, true, false, true, true, false, true, true, true, false => 0
+  | true, true, false, true, true, false, true, true, true, true => 0
+  | true, true, false, true, true, true, false, false, false, false => 5918 / 625
+  | true, true, false, true, true, true, false, false, false, true => -15168 / 625
+  | true, true, false, true, true, true, false, false, true, false => 15264 / 625
+  | true, true, false, true, true, true, false, false, true, true => 152 / 125
+  | true, true, false, true, true, true, false, true, false, false => 15264 / 625
+  | true, true, false, true, true, true, false, true, false, true => 152 / 125
+  | true, true, false, true, true, true, false, true, true, false => 0
+  | true, true, false, true, true, true, false, true, true, true => 0
+  | true, true, false, true, true, true, true, false, false, false => -432 / 625
+  | true, true, false, true, true, true, true, false, false, true => 0
+  | true, true, false, true, true, true, true, false, true, false => 0
+  | true, true, false, true, true, true, true, false, true, true => 0
+  | true, true, false, true, true, true, true, true, false, false => 0
+  | true, true, false, true, true, true, true, true, false, true => 0
+  | true, true, false, true, true, true, true, true, true, false => 0
+  | true, true, false, true, true, true, true, true, true, true => 0
+  | true, true, true, false, false, false, false, false, false, false => 576 / 125
+  | true, true, true, false, false, false, false, false, false, true => 576 / 125
+  | true, true, true, false, false, false, false, false, true, false => 576 / 125
+  | true, true, true, false, false, false, false, false, true, true => 576 / 125
+  | true, true, true, false, false, false, false, true, false, false => 88 / 125
+  | true, true, true, false, false, false, false, true, false, true => 5918 / 625
+  | true, true, true, false, false, false, false, true, true, false => 5918 / 625
+  | true, true, true, false, false, false, false, true, true, true => 15264 / 625
+  | true, true, true, false, false, false, true, false, false, false => 576 / 125
+  | true, true, true, false, false, false, true, false, false, true => 576 / 125
+  | true, true, true, false, false, false, true, false, true, false => 576 / 125
+  | true, true, true, false, false, false, true, false, true, true => 576 / 125
+  | true, true, true, false, false, false, true, true, false, false => 1392 / 625
+  | true, true, true, false, false, false, true, true, false, true => -15168 / 625
+  | true, true, true, false, false, false, true, true, true, false => -15168 / 625
+  | true, true, true, false, false, false, true, true, true, true => 152 / 125
+  | true, true, true, false, false, true, false, false, false, false => 88 / 125
+  | true, true, true, false, false, true, false, false, false, true => 5918 / 625
+  | true, true, true, false, false, true, false, false, true, false => 1392 / 625
+  | true, true, true, false, false, true, false, false, true, true => -15168 / 625
+  | true, true, true, false, false, true, false, true, false, false => 2964 / 625
+  | true, true, true, false, false, true, false, true, false, true => -432 / 625
+  | true, true, true, false, false, true, false, true, true, false => 15264 / 625
+  | true, true, true, false, false, true, false, true, true, true => 0
+  | true, true, true, false, false, true, true, false, false, false => 5918 / 625
+  | true, true, true, false, false, true, true, false, false, true => 15264 / 625
+  | true, true, true, false, false, true, true, false, true, false => -15168 / 625
+  | true, true, true, false, false, true, true, false, true, true => 152 / 125
+  | true, true, true, false, false, true, true, true, false, false => 15264 / 625
+  | true, true, true, false, false, true, true, true, false, true => 0
+  | true, true, true, false, false, true, true, true, true, false => 152 / 125
+  | true, true, true, false, false, true, true, true, true, true => 0
+  | true, true, true, false, true, false, false, false, false, false => 88 / 125
+  | true, true, true, false, true, false, false, false, false, true => 1392 / 625
+  | true, true, true, false, true, false, false, false, true, false => 5918 / 625
+  | true, true, true, false, true, false, false, false, true, true => -15168 / 625
+  | true, true, true, false, true, false, false, true, false, false => 2964 / 625
+  | true, true, true, false, true, false, false, true, false, true => 15264 / 625
+  | true, true, true, false, true, false, false, true, true, false => -432 / 625
+  | true, true, true, false, true, false, false, true, true, true => 0
+  | true, true, true, false, true, false, true, false, false, false => 5918 / 625
+  | true, true, true, false, true, false, true, false, false, true => -15168 / 625
+  | true, true, true, false, true, false, true, false, true, false => 15264 / 625
+  | true, true, true, false, true, false, true, false, true, true => 152 / 125
+  | true, true, true, false, true, false, true, true, false, false => 15264 / 625
+  | true, true, true, false, true, false, true, true, false, true => 152 / 125
+  | true, true, true, false, true, false, true, true, true, false => 0
+  | true, true, true, false, true, false, true, true, true, true => 0
+  | true, true, true, false, true, true, false, false, false, false => 2964 / 625
+  | true, true, true, false, true, true, false, false, false, true => 15264 / 625
+  | true, true, true, false, true, true, false, false, true, false => 15264 / 625
+  | true, true, true, false, true, true, false, false, true, true => 152 / 125
+  | true, true, true, false, true, true, false, true, false, false => 0
+  | true, true, true, false, true, true, false, true, false, true => 0
+  | true, true, true, false, true, true, false, true, true, false => 0
+  | true, true, true, false, true, true, false, true, true, true => 0
+  | true, true, true, false, true, true, true, false, false, false => -432 / 625
+  | true, true, true, false, true, true, true, false, false, true => 0
+  | true, true, true, false, true, true, true, false, true, false => 0
+  | true, true, true, false, true, true, true, false, true, true => 0
+  | true, true, true, false, true, true, true, true, false, false => 0
+  | true, true, true, false, true, true, true, true, false, true => 0
+  | true, true, true, false, true, true, true, true, true, false => 0
+  | true, true, true, false, true, true, true, true, true, true => 0
+  | true, true, true, true, false, false, false, false, false, false => 576 / 125
+  | true, true, true, true, false, false, false, false, false, true => 2064 / 625
+  | true, true, true, true, false, false, false, false, true, false => 2064 / 625
+  | true, true, true, true, false, false, false, false, true, true => -432 / 625
+  | true, true, true, true, false, false, false, true, false, false => 2064 / 625
+  | true, true, true, true, false, false, false, true, false, true => -432 / 625
+  | true, true, true, true, false, false, false, true, true, false => -432 / 625
+  | true, true, true, true, false, false, false, true, true, true => 0
+  | true, true, true, true, false, false, true, false, false, false => 2064 / 625
+  | true, true, true, true, false, false, true, false, false, true => -432 / 625
+  | true, true, true, true, false, false, true, false, true, false => -432 / 625
+  | true, true, true, true, false, false, true, false, true, true => 648 / 625
+  | true, true, true, true, false, false, true, true, false, false => 0
+  | true, true, true, true, false, false, true, true, false, true => 0
+  | true, true, true, true, false, false, true, true, true, false => 0
+  | true, true, true, true, false, false, true, true, true, true => 0
+  | true, true, true, true, false, true, false, false, false, false => 2064 / 625
+  | true, true, true, true, false, true, false, false, false, true => -432 / 625
+  | true, true, true, true, false, true, false, false, true, false => 0
+  | true, true, true, true, false, true, false, false, true, true => 0
+  | true, true, true, true, false, true, false, true, false, false => -432 / 625
+  | true, true, true, true, false, true, false, true, false, true => 648 / 625
+  | true, true, true, true, false, true, false, true, true, false => 0
+  | true, true, true, true, false, true, false, true, true, true => 0
+  | true, true, true, true, false, true, true, false, false, false => -432 / 625
+  | true, true, true, true, false, true, true, false, false, true => 0
+  | true, true, true, true, false, true, true, false, true, false => 0
+  | true, true, true, true, false, true, true, false, true, true => 0
+  | true, true, true, true, false, true, true, true, false, false => 0
+  | true, true, true, true, false, true, true, true, false, true => 0
+  | true, true, true, true, false, true, true, true, true, false => 0
+  | true, true, true, true, false, true, true, true, true, true => 0
+  | true, true, true, true, true, false, false, false, false, false => 2064 / 625
+  | true, true, true, true, true, false, false, false, false, true => 0
+  | true, true, true, true, true, false, false, false, true, false => -432 / 625
+  | true, true, true, true, true, false, false, false, true, true => 0
+  | true, true, true, true, true, false, false, true, false, false => -432 / 625
+  | true, true, true, true, true, false, false, true, false, true => 0
+  | true, true, true, true, true, false, false, true, true, false => 648 / 625
+  | true, true, true, true, true, false, false, true, true, true => 0
+  | true, true, true, true, true, false, true, false, false, false => -432 / 625
+  | true, true, true, true, true, false, true, false, false, true => 0
+  | true, true, true, true, true, false, true, false, true, false => 0
+  | true, true, true, true, true, false, true, false, true, true => 0
+  | true, true, true, true, true, false, true, true, false, false => 0
+  | true, true, true, true, true, false, true, true, false, true => 0
+  | true, true, true, true, true, false, true, true, true, false => 0
+  | true, true, true, true, true, false, true, true, true, true => 0
+  | true, true, true, true, true, true, false, false, false, false => -432 / 625
+  | true, true, true, true, true, true, false, false, false, true => 0
+  | true, true, true, true, true, true, false, false, true, false => 0
+  | true, true, true, true, true, true, false, false, true, true => 0
+  | true, true, true, true, true, true, false, true, false, false => 0
+  | true, true, true, true, true, true, false, true, false, true => 0
+  | true, true, true, true, true, true, false, true, true, false => 0
+  | true, true, true, true, true, true, false, true, true, true => 0
+  | true, true, true, true, true, true, true, false, false, false => 648 / 625
+  | true, true, true, true, true, true, true, false, false, true => 0
+  | true, true, true, true, true, true, true, false, true, false => 0
+  | true, true, true, true, true, true, true, false, true, true => 0
+  | true, true, true, true, true, true, true, true, false, false => 0
+  | true, true, true, true, true, true, true, true, false, true => 0
+  | true, true, true, true, true, true, true, true, true, false => 0
+  | true, true, true, true, true, true, true, true, true, true => 0
+
 
 /-!
 ## § 3. Computational Bound Verification
 -/
+
+/-- Total flag contribution for a graph on `Fin 5`. -/
+def totalFlagContrib (adj : Fin 5 → Fin 5 → Bool) : ℚ :=
+  totalFlagContribBits (adj 0 1) (adj 0 2) (adj 0 3) (adj 0 4) (adj 1 2)
+    (adj 1 3) (adj 1 4) (adj 2 3) (adj 2 4) (adj 3 4)
 
 /-- Encode a graph on `Fin 5` as a function from edge indices to `Bool`. -/
 def mkAdj5 (e : Fin 10 → Bool) : Fin 5 → Fin 5 → Bool := fun i j =>
@@ -327,6 +1531,35 @@ def mkAdj5 (e : Fin 10 → Bool) : Fin 5 → Fin 5 → Bool := fun i j =>
   | 2, 3 | 3, 2 => e 7 | 2, 4 | 4, 2 => e 8 | 3, 4 | 4, 3 => e 9
   | _, _ => false
 
+def noTriangleBits (b01 b02 b03 b04 b12 b13 b14 b23 b24 b34 : Bool) : Prop :=
+  ¬(b01 = true ∧ b12 = true ∧ b02 = true) ∧
+  ¬(b01 = true ∧ b13 = true ∧ b03 = true) ∧
+  ¬(b01 = true ∧ b14 = true ∧ b04 = true) ∧
+  ¬(b02 = true ∧ b23 = true ∧ b03 = true) ∧
+  ¬(b02 = true ∧ b24 = true ∧ b04 = true) ∧
+  ¬(b03 = true ∧ b34 = true ∧ b04 = true) ∧
+  ¬(b12 = true ∧ b23 = true ∧ b13 = true) ∧
+  ¬(b12 = true ∧ b24 = true ∧ b14 = true) ∧
+  ¬(b13 = true ∧ b34 = true ∧ b14 = true) ∧
+  ¬(b23 = true ∧ b34 = true ∧ b24 = true)
+
+attribute [-instance] Classical.propDecidable
+
+private instance noTriangleBits_decidable
+    (b01 b02 b03 b04 b12 b13 b14 b23 b24 b34 : Bool) :
+    Decidable (noTriangleBits b01 b02 b03 b04 b12 b13 b14 b23 b24 b34) := by
+  unfold noTriangleBits
+  infer_instance
+
+private lemma flag_bound_all_graphs_bits :
+    ∀ b01 b02 b03 b04 b12 b13 b14 b23 b24 b34 : Bool,
+      noTriangleBits b01 b02 b03 b04 b12 b13 b14 b23 b24 b34 →
+      totalFlagContribBits b01 b02 b03 b04 b12 b13 b14 b23 b24 b34 ≤ 576 / 125 := by
+  intro b01 b02 b03 b04 b12 b13 b14 b23 b24 b34 h
+  cases b01 <;> cases b02 <;> cases b03 <;> cases b04 <;> cases b12 <;>
+    cases b13 <;> cases b14 <;> cases b23 <;> cases b24 <;> cases b34 <;>
+    simp [noTriangleBits, totalFlagContribBits] at h ⊢ <;> norm_num at h ⊢
+
 /-- For every triangle-free graph on `Fin 5`,
 `totalFlagContrib ≤ 576/125 = 120 · (24/625)`.
 Checked over all `2^10 = 1024` possible edge configurations by kernel reduction. -/
@@ -334,12 +1567,175 @@ theorem flag_bound_all_graphs : ∀ e : Fin 10 → Bool,
     (∀ a b c : Fin 5,
       ¬(mkAdj5 e a b = true ∧ mkAdj5 e b c = true ∧ mkAdj5 e a c = true)) →
     totalFlagContrib (mkAdj5 e) ≤ 576 / 125 := by
-  native_decide
+  intro e h
+  exact flag_bound_all_graphs_bits (mkAdj5 e 0 1) (mkAdj5 e 0 2) (mkAdj5 e 0 3) (mkAdj5 e 0 4) (mkAdj5 e 1 2) (mkAdj5 e 1 3) (mkAdj5 e 1 4) (mkAdj5 e 2 3) (mkAdj5 e 2 4) (mkAdj5 e 3 4) (by
+    exact ⟨h 0 1 2, h 0 1 3, h 0 1 4, h 0 2 3, h 0 2 4, h 0 3 4, h 1 2 3, h 1 2 4, h 1 3 4, h 2 3 4⟩)
 
-/-- Whether a graph on `Fin 5` is a 5-cycle (every vertex has degree exactly 2). -/
+attribute [local instance] Classical.propDecidable
+
+/-- Whether a graph on `Fin 5` is a 5-cycle. -/
 def isC5_adj (adj : Fin 5 → Fin 5 → Bool) : Bool :=
-  ((Finset.univ : Finset (Fin 5)).filter (fun v =>
-    ((Finset.univ : Finset (Fin 5)).filter (fun w => adj v w)).card = 2)).card = 5
+  decide (
+      (adj 0 1 = true ∧ adj 0 2 = true ∧ adj 0 3 = false ∧ adj 0 4 = false ∧ adj 1 2 = false ∧ adj 1 3 = true ∧ adj 1 4 = false ∧ adj 2 3 = false ∧ adj 2 4 = true ∧ adj 3 4 = true) ∨
+      (adj 0 1 = true ∧ adj 0 2 = true ∧ adj 0 3 = false ∧ adj 0 4 = false ∧ adj 1 2 = false ∧ adj 1 3 = false ∧ adj 1 4 = true ∧ adj 2 3 = true ∧ adj 2 4 = false ∧ adj 3 4 = true) ∨
+      (adj 0 1 = true ∧ adj 0 2 = false ∧ adj 0 3 = true ∧ adj 0 4 = false ∧ adj 1 2 = true ∧ adj 1 3 = false ∧ adj 1 4 = false ∧ adj 2 3 = false ∧ adj 2 4 = true ∧ adj 3 4 = true) ∨
+      (adj 0 1 = true ∧ adj 0 2 = false ∧ adj 0 3 = true ∧ adj 0 4 = false ∧ adj 1 2 = false ∧ adj 1 3 = false ∧ adj 1 4 = true ∧ adj 2 3 = true ∧ adj 2 4 = true ∧ adj 3 4 = false) ∨
+      (adj 0 1 = true ∧ adj 0 2 = false ∧ adj 0 3 = false ∧ adj 0 4 = true ∧ adj 1 2 = true ∧ adj 1 3 = false ∧ adj 1 4 = false ∧ adj 2 3 = true ∧ adj 2 4 = false ∧ adj 3 4 = true) ∨
+      (adj 0 1 = true ∧ adj 0 2 = false ∧ adj 0 3 = false ∧ adj 0 4 = true ∧ adj 1 2 = false ∧ adj 1 3 = true ∧ adj 1 4 = false ∧ adj 2 3 = true ∧ adj 2 4 = true ∧ adj 3 4 = false) ∨
+      (adj 0 1 = false ∧ adj 0 2 = true ∧ adj 0 3 = true ∧ adj 0 4 = false ∧ adj 1 2 = true ∧ adj 1 3 = false ∧ adj 1 4 = true ∧ adj 2 3 = false ∧ adj 2 4 = false ∧ adj 3 4 = true) ∨
+      (adj 0 1 = false ∧ adj 0 2 = true ∧ adj 0 3 = true ∧ adj 0 4 = false ∧ adj 1 2 = false ∧ adj 1 3 = true ∧ adj 1 4 = true ∧ adj 2 3 = false ∧ adj 2 4 = true ∧ adj 3 4 = false) ∨
+      (adj 0 1 = false ∧ adj 0 2 = true ∧ adj 0 3 = false ∧ adj 0 4 = true ∧ adj 1 2 = true ∧ adj 1 3 = true ∧ adj 1 4 = false ∧ adj 2 3 = false ∧ adj 2 4 = false ∧ adj 3 4 = true) ∨
+      (adj 0 1 = false ∧ adj 0 2 = true ∧ adj 0 3 = false ∧ adj 0 4 = true ∧ adj 1 2 = false ∧ adj 1 3 = true ∧ adj 1 4 = true ∧ adj 2 3 = true ∧ adj 2 4 = false ∧ adj 3 4 = false) ∨
+      (adj 0 1 = false ∧ adj 0 2 = false ∧ adj 0 3 = true ∧ adj 0 4 = true ∧ adj 1 2 = true ∧ adj 1 3 = true ∧ adj 1 4 = false ∧ adj 2 3 = false ∧ adj 2 4 = true ∧ adj 3 4 = false) ∨
+      (adj 0 1 = false ∧ adj 0 2 = false ∧ adj 0 3 = true ∧ adj 0 4 = true ∧ adj 1 2 = true ∧ adj 1 3 = false ∧ adj 1 4 = true ∧ adj 2 3 = true ∧ adj 2 4 = false ∧ adj 3 4 = false))
+
+private def isC5_adj_bool (adj : Fin 5 → Fin 5 → Bool) : Bool :=
+  (adj 0 1 && (adj 0 2 && (!adj 0 3 && (!adj 0 4 && (!adj 1 2 && (adj 1 3 && (!adj 1 4 && (!adj 2 3 && (adj 2 4 && adj 3 4))))))))) ||
+    ((adj 0 1 && (adj 0 2 && (!adj 0 3 && (!adj 0 4 && (!adj 1 2 && (!adj 1 3 && (adj 1 4 && (adj 2 3 && (!adj 2 4 && adj 3 4))))))))) ||
+      ((adj 0 1 && (!adj 0 2 && (adj 0 3 && (!adj 0 4 && (adj 1 2 && (!adj 1 3 && (!adj 1 4 && (!adj 2 3 && (adj 2 4 && adj 3 4))))))))) ||
+        ((adj 0 1 && (!adj 0 2 && (adj 0 3 && (!adj 0 4 && (!adj 1 2 && (!adj 1 3 && (adj 1 4 && (adj 2 3 && (adj 2 4 && !adj 3 4))))))))) ||
+          ((adj 0 1 && (!adj 0 2 && (!adj 0 3 && (adj 0 4 && (adj 1 2 && (!adj 1 3 && (!adj 1 4 && (adj 2 3 && (!adj 2 4 && adj 3 4))))))))) ||
+            ((adj 0 1 && (!adj 0 2 && (!adj 0 3 && (adj 0 4 && (!adj 1 2 && (adj 1 3 && (!adj 1 4 && (adj 2 3 && (adj 2 4 && !adj 3 4))))))))) ||
+              ((!adj 0 1 && (adj 0 2 && (adj 0 3 && (!adj 0 4 && (adj 1 2 && (!adj 1 3 && (adj 1 4 && (!adj 2 3 && (!adj 2 4 && adj 3 4))))))))) ||
+                ((!adj 0 1 && (adj 0 2 && (adj 0 3 && (!adj 0 4 && (!adj 1 2 && (adj 1 3 && (adj 1 4 && (!adj 2 3 && (adj 2 4 && !adj 3 4))))))))) ||
+                  ((!adj 0 1 && (adj 0 2 && (!adj 0 3 && (adj 0 4 && (adj 1 2 && (adj 1 3 && (!adj 1 4 && (!adj 2 3 && (!adj 2 4 && adj 3 4))))))))) ||
+                    ((!adj 0 1 && (adj 0 2 && (!adj 0 3 && (adj 0 4 && (!adj 1 2 && (adj 1 3 && (adj 1 4 && (adj 2 3 && (!adj 2 4 && !adj 3 4))))))))) ||
+                      ((!adj 0 1 && (!adj 0 2 && (adj 0 3 && (adj 0 4 && (adj 1 2 && (adj 1 3 && (!adj 1 4 && (!adj 2 3 && (adj 2 4 && !adj 3 4))))))))) ||
+                        (!adj 0 1 && (!adj 0 2 && (adj 0 3 && (adj 0 4 && (adj 1 2 && (!adj 1 3 && (adj 1 4 && (adj 2 3 && (!adj 2 4 && !adj 3 4)))))))))))))))))))
+
+private lemma isC5_adj_true_iff_bool (adj : Fin 5 → Fin 5 → Bool) :
+    isC5_adj adj = true ↔ isC5_adj_bool adj = true := by
+  simp [isC5_adj, isC5_adj_bool]
+
+set_option maxRecDepth 1000000 in
+private lemma isC5_adj_bool_perm :
+    ∀ τ : Equiv.Perm (Fin 5),
+      isC5_adj_bool (fun i j => decide (τ j = τ i + 1 ∨ τ i = τ j + 1)) = true := by
+  decide
+
+private lemma c5_no_chords {V : Type*} {G : SimpleGraph V}
+    (hG : G.CliqueFree 3) {f : Fin 5 → V} (hf_inj : Function.Injective f)
+    (hcycle : ∀ i : Fin 5, G.Adj (f i) (f (i + 1)))
+    (i j : Fin 5) (hij : j ≠ i + 1) (hji : i ≠ j + 1) (hne : i ≠ j) :
+    ¬ G.Adj (f i) (f j) := by
+  intro hadj
+  have h := hcycle
+  have h01 : G.Adj (f 0) (f 1) := h 0
+  have h12 : G.Adj (f 1) (f 2) := h 1
+  have h23 : G.Adj (f 2) (f 3) := h 2
+  have h34 : G.Adj (f 3) (f 4) := h 3
+  have h40 : G.Adj (f 4) (f 0) := by
+    have := h 4
+    simp at this
+    exact this
+  have tri : ∀ a b c : Fin 5, a ≠ b → a ≠ c → b ≠ c →
+      G.Adj (f a) (f b) → G.Adj (f a) (f c) → G.Adj (f b) (f c) → False := by
+    intro a b c hab hac hbc e1 e2 e3
+    apply hG {f a, f b, f c}
+    constructor
+    · intro x hx y hy hxy
+      simp at hx hy
+      rcases hx with rfl | rfl | rfl <;> rcases hy with rfl | rfl | rfl <;>
+        first | exact absurd rfl hxy | assumption | exact SimpleGraph.Adj.symm ‹_›
+    · simp [hf_inj.ne hab, hf_inj.ne hac, hf_inj.ne hbc]
+  fin_cases i <;> fin_cases j <;> simp_all (config := { decide := true })
+  · exact tri 0 2 1 (by decide) (by decide) (by decide) hadj h01 h12.symm
+  · exact tri 0 3 4 (by decide) (by decide) (by decide) hadj h40.symm h34
+  · exact tri 1 3 2 (by decide) (by decide) (by decide) hadj h12 h23.symm
+  · exact tri 1 4 0 (by decide) (by decide) (by decide) hadj h01.symm h40
+  · exact tri 2 0 1 (by decide) (by decide) (by decide) hadj h12.symm h01
+  · exact tri 2 4 3 (by decide) (by decide) (by decide) hadj h23 h34.symm
+  · exact tri 3 0 4 (by decide) (by decide) (by decide) hadj h34 h40.symm
+  · exact tri 3 1 2 (by decide) (by decide) (by decide) hadj h23.symm h12
+  · exact tri 4 1 0 (by decide) (by decide) (by decide) hadj h40 h01.symm
+  · exact tri 4 2 3 (by decide) (by decide) (by decide) hadj h34.symm h23
+
+private def edgeBits
+    (b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 : Bool) : Fin 10 → Bool := fun i =>
+  match i.val with
+  | 0 => b0 | 1 => b1 | 2 => b2 | 3 => b3 | 4 => b4
+  | 5 => b5 | 6 => b6 | 7 => b7 | 8 => b8 | 9 => b9
+  | _ => false
+
+private lemma edgeBits_ext (e : Fin 10 → Bool) {b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 : Bool}
+    (h0 : e 0 = b0) (h1 : e 1 = b1) (h2 : e 2 = b2) (h3 : e 3 = b3)
+    (h4 : e 4 = b4) (h5 : e 5 = b5) (h6 : e 6 = b6) (h7 : e 7 = b7)
+    (h8 : e 8 = b8) (h9 : e 9 = b9) :
+    e = edgeBits b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 := by
+  funext i
+  fin_cases i <;> simp [edgeBits, h0, h1, h2, h3, h4, h5, h6, h7, h8, h9]
+
+private lemma c5_contrib_0 :
+    totalFlagContrib (mkAdj5 (edgeBits true true false false false true false false true true)) =
+      -14424 / 125 := by
+  change (-14424 / 125 : ℚ) = -14424 / 125
+  rfl
+
+private lemma c5_contrib_1 :
+    totalFlagContrib (mkAdj5 (edgeBits true true false false false false true true false true)) =
+      -14424 / 125 := by
+  change (-14424 / 125 : ℚ) = -14424 / 125
+  rfl
+
+private lemma c5_contrib_2 :
+    totalFlagContrib (mkAdj5 (edgeBits true false true false true false false false true true)) =
+      -14424 / 125 := by
+  change (-14424 / 125 : ℚ) = -14424 / 125
+  rfl
+
+private lemma c5_contrib_3 :
+    totalFlagContrib (mkAdj5 (edgeBits true false true false false false true true true false)) =
+      -14424 / 125 := by
+  change (-14424 / 125 : ℚ) = -14424 / 125
+  rfl
+
+private lemma c5_contrib_4 :
+    totalFlagContrib (mkAdj5 (edgeBits true false false true true false false true false true)) =
+      -14424 / 125 := by
+  change (-14424 / 125 : ℚ) = -14424 / 125
+  rfl
+
+private lemma c5_contrib_5 :
+    totalFlagContrib (mkAdj5 (edgeBits true false false true false true false true true false)) =
+      -14424 / 125 := by
+  change (-14424 / 125 : ℚ) = -14424 / 125
+  rfl
+
+private lemma c5_contrib_6 :
+    totalFlagContrib (mkAdj5 (edgeBits false true true false true false true false false true)) =
+      -14424 / 125 := by
+  change (-14424 / 125 : ℚ) = -14424 / 125
+  rfl
+
+private lemma c5_contrib_7 :
+    totalFlagContrib (mkAdj5 (edgeBits false true true false false true true false true false)) =
+      -14424 / 125 := by
+  change (-14424 / 125 : ℚ) = -14424 / 125
+  rfl
+
+private lemma c5_contrib_8 :
+    totalFlagContrib (mkAdj5 (edgeBits false true false true true true false false false true)) =
+      -14424 / 125 := by
+  change (-14424 / 125 : ℚ) = -14424 / 125
+  rfl
+
+private lemma c5_contrib_9 :
+    totalFlagContrib (mkAdj5 (edgeBits false true false true false true true true false false)) =
+      -14424 / 125 := by
+  change (-14424 / 125 : ℚ) = -14424 / 125
+  rfl
+
+private lemma c5_contrib_10 :
+    totalFlagContrib (mkAdj5 (edgeBits false false true true true true false false true false)) =
+      -14424 / 125 := by
+  change (-14424 / 125 : ℚ) = -14424 / 125
+  rfl
+
+private lemma c5_contrib_11 :
+    totalFlagContrib (mkAdj5 (edgeBits false false true true true false true true false false)) =
+      -14424 / 125 := by
+  change (-14424 / 125 : ℚ) = -14424 / 125
+  rfl
 
 /-- Strengthened computational bound including the C₅ indicator. -/
 theorem flag_bound_with_c5 : ∀ e : Fin 10 → Bool,
@@ -347,7 +1743,63 @@ theorem flag_bound_with_c5 : ∀ e : Fin 10 → Bool,
       ¬(mkAdj5 e a b = true ∧ mkAdj5 e b c = true ∧ mkAdj5 e a c = true)) →
     totalFlagContrib (mkAdj5 e) +
       120 * (if isC5_adj (mkAdj5 e) then 1 else 0) ≤ 576 / 125 := by
-  native_decide
+  intro e htri
+  by_cases hc : isC5_adj (mkAdj5 e) = true
+  · have hc' := of_decide_eq_true (by simpa [isC5_adj] using hc)
+    rw [hc]
+    rcases hc' with hpat | hpat | hpat | hpat | hpat | hpat | hpat | hpat | hpat | hpat | hpat | hpat
+    · rcases hpat with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9⟩
+      simp [mkAdj5] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
+      have he := edgeBits_ext e h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
+      rw [he, c5_contrib_0]; norm_num
+    · rcases hpat with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9⟩
+      simp [mkAdj5] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
+      have he := edgeBits_ext e h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
+      rw [he, c5_contrib_1]; norm_num
+    · rcases hpat with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9⟩
+      simp [mkAdj5] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
+      have he := edgeBits_ext e h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
+      rw [he, c5_contrib_2]; norm_num
+    · rcases hpat with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9⟩
+      simp [mkAdj5] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
+      have he := edgeBits_ext e h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
+      rw [he, c5_contrib_3]; norm_num
+    · rcases hpat with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9⟩
+      simp [mkAdj5] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
+      have he := edgeBits_ext e h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
+      rw [he, c5_contrib_4]; norm_num
+    · rcases hpat with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9⟩
+      simp [mkAdj5] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
+      have he := edgeBits_ext e h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
+      rw [he, c5_contrib_5]; norm_num
+    · rcases hpat with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9⟩
+      simp [mkAdj5] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
+      have he := edgeBits_ext e h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
+      rw [he, c5_contrib_6]; norm_num
+    · rcases hpat with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9⟩
+      simp [mkAdj5] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
+      have he := edgeBits_ext e h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
+      rw [he, c5_contrib_7]; norm_num
+    · rcases hpat with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9⟩
+      simp [mkAdj5] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
+      have he := edgeBits_ext e h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
+      rw [he, c5_contrib_8]; norm_num
+    · rcases hpat with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9⟩
+      simp [mkAdj5] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
+      have he := edgeBits_ext e h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
+      rw [he, c5_contrib_9]; norm_num
+    · rcases hpat with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9⟩
+      simp [mkAdj5] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
+      have he := edgeBits_ext e h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
+      rw [he, c5_contrib_10]; norm_num
+    · rcases hpat with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9⟩
+      simp [mkAdj5] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
+      have he := edgeBits_ext e h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
+      rw [he, c5_contrib_11]; norm_num
+  · cases hfalse : isC5_adj (mkAdj5 e)
+    · simp
+      exact flag_bound_all_graphs e htri
+    · exact False.elim (hc hfalse)
 
 /-!
 ## § 4. Graph Adjacency from Injective Functions
@@ -360,11 +1812,15 @@ def graphAdj5 {V : Type*} (G : SimpleGraph V) (f : Fin 5 → V) :
 
 lemma graphAdj5_symm {V : Type*} (G : SimpleGraph V) (f : Fin 5 → V) :
     ∀ i j, graphAdj5 G f i j = graphAdj5 G f j i := by
-  intro i j; unfold graphAdj5; simp [G.adj_comm]
+  intro i j
+  unfold graphAdj5
+  simp [G.adj_comm]
 
 lemma graphAdj5_irrefl {V : Type*} (G : SimpleGraph V) (f : Fin 5 → V) :
     ∀ i, graphAdj5 G f i i = false := by
-  intro i; unfold graphAdj5; simp
+  intro i
+  unfold graphAdj5
+  exact decide_eq_false_iff_not.mpr G.irrefl
 
 set_option maxHeartbeats 800000 in
 lemma graphAdj5_triangleFree {V : Type*}
@@ -373,14 +1829,42 @@ lemma graphAdj5_triangleFree {V : Type*}
     ∀ a b c : Fin 5,
       ¬(graphAdj5 G f a b = true ∧ graphAdj5 G f b c = true ∧
         graphAdj5 G f a c = true) := by
-  contrapose! hG
-  unfold graphAdj5 at *
-  simp [SimpleGraph.cliqueFree_iff] at *
-  obtain ⟨a, b, hab, c, hbc, hac⟩ := hG
-  refine ⟨⟨fun x => if x = 0 then f a else if x = 1 then f b else f c, ?_⟩, ?_⟩
-  · simp [Function.Injective, Fin.forall_fin_succ]
-    exact ⟨⟨hab.ne, hac.ne⟩, ⟨hab.symm.ne, hbc.ne⟩, hac.symm.ne, hbc.symm.ne⟩
-  · simp [Fin.forall_fin_succ, hab, hbc, hac, SimpleGraph.adj_comm]
+  intro a b c h
+  rcases h with ⟨hab, hbc, hac⟩
+  have hab' : G.Adj (f a) (f b) := of_decide_eq_true hab
+  have hbc' : G.Adj (f b) (f c) := of_decide_eq_true hbc
+  have hac' : G.Adj (f a) (f c) := of_decide_eq_true hac
+  classical
+  let s : Finset V := {f a, f b, f c}
+  have hfab_ne_fb : f a ≠ f b := by
+    intro hEq
+    rw [hEq] at hab'
+    exact G.irrefl hab'
+  have hfb_ne_fc : f b ≠ f c := by
+    intro hEq
+    rw [hEq] at hbc'
+    exact G.irrefl hbc'
+  have hfa_ne_fc : f a ≠ f c := by
+    intro hEq
+    rw [hEq] at hac'
+    exact G.irrefl hac'
+  apply hG s
+  constructor
+  · rw [SimpleGraph.isClique_iff]
+    rw [show (s : Set V) = ({f a, f b, f c} : Set V) by simp [s]]
+    intro x hx y hy hxy
+    simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hx hy
+    rcases hx with rfl | rfl | rfl <;> rcases hy with rfl | rfl | rfl
+    · contradiction
+    · exact hab'
+    · exact hac'
+    · exact G.symm hab'
+    · contradiction
+    · exact hbc'
+    · exact G.symm hac'
+    · exact G.symm hbc'
+    · contradiction
+  · simp [s, hfab_ne_fb, hfa_ne_fc, hfb_ne_fc]
 
 /-!
 ## § 5. Connecting `graphAdj5` to `mkAdj5`
@@ -423,13 +1907,132 @@ lemma flag_bound_with_c5_adj (adj : Fin 5 → Fin 5 → Bool)
 ## § 6. Equivariance of `quintContrib`
 -/
 
+private lemma mkAdj5_toEdges5_of_ne (adj : Fin 5 → Fin 5 → Bool)
+    (hsym : ∀ i j, adj i j = adj j i) {i j : Fin 5} (hij : i ≠ j) :
+    mkAdj5 (toEdges5 adj) i j = adj i j := by
+  fin_cases i <;> fin_cases j <;> simp [mkAdj5, toEdges5] at *
+  all_goals first | contradiction | exact hsym _ _
+
+private lemma totalFlagContrib_toEdges5_perm (adj : Fin 5 → Fin 5 → Bool)
+    (hsym : ∀ i j, adj i j = adj j i) (τ : Equiv.Perm (Fin 5)) :
+    totalFlagContrib (fun i j => adj (τ i) (τ j)) =
+      totalFlagContrib (fun i j => mkAdj5 (toEdges5 adj) (τ i) (τ j)) := by
+  have hne {i j : Fin 5} (hij : i ≠ j) : τ i ≠ τ j :=
+    fun h => hij (τ.injective h)
+  have h01 : mkAdj5 (toEdges5 adj) (τ 0) (τ 1) = adj (τ 0) (τ 1) :=
+    mkAdj5_toEdges5_of_ne adj hsym (hne (by decide : (0 : Fin 5) ≠ 1))
+  have h02 : mkAdj5 (toEdges5 adj) (τ 0) (τ 2) = adj (τ 0) (τ 2) :=
+    mkAdj5_toEdges5_of_ne adj hsym (hne (by decide : (0 : Fin 5) ≠ 2))
+  have h03 : mkAdj5 (toEdges5 adj) (τ 0) (τ 3) = adj (τ 0) (τ 3) :=
+    mkAdj5_toEdges5_of_ne adj hsym (hne (by decide : (0 : Fin 5) ≠ 3))
+  have h04 : mkAdj5 (toEdges5 adj) (τ 0) (τ 4) = adj (τ 0) (τ 4) :=
+    mkAdj5_toEdges5_of_ne adj hsym (hne (by decide : (0 : Fin 5) ≠ 4))
+  have h12 : mkAdj5 (toEdges5 adj) (τ 1) (τ 2) = adj (τ 1) (τ 2) :=
+    mkAdj5_toEdges5_of_ne adj hsym (hne (by decide : (1 : Fin 5) ≠ 2))
+  have h13 : mkAdj5 (toEdges5 adj) (τ 1) (τ 3) = adj (τ 1) (τ 3) :=
+    mkAdj5_toEdges5_of_ne adj hsym (hne (by decide : (1 : Fin 5) ≠ 3))
+  have h14 : mkAdj5 (toEdges5 adj) (τ 1) (τ 4) = adj (τ 1) (τ 4) :=
+    mkAdj5_toEdges5_of_ne adj hsym (hne (by decide : (1 : Fin 5) ≠ 4))
+  have h23 : mkAdj5 (toEdges5 adj) (τ 2) (τ 3) = adj (τ 2) (τ 3) :=
+    mkAdj5_toEdges5_of_ne adj hsym (hne (by decide : (2 : Fin 5) ≠ 3))
+  have h24 : mkAdj5 (toEdges5 adj) (τ 2) (τ 4) = adj (τ 2) (τ 4) :=
+    mkAdj5_toEdges5_of_ne adj hsym (hne (by decide : (2 : Fin 5) ≠ 4))
+  have h34 : mkAdj5 (toEdges5 adj) (τ 3) (τ 4) = adj (τ 3) (τ 4) :=
+    mkAdj5_toEdges5_of_ne adj hsym (hne (by decide : (3 : Fin 5) ≠ 4))
+  simp [totalFlagContrib, h01, h02, h03, h04, h12, h13, h14, h23, h24, h34]
+
+private lemma totalFlagContribBits_swap01
+    (b01 b02 b03 b04 b12 b13 b14 b23 b24 b34 : Bool) :
+    totalFlagContribBits b01 b12 b13 b14 b02 b03 b04 b23 b24 b34 =
+      totalFlagContribBits b01 b02 b03 b04 b12 b13 b14 b23 b24 b34 := by
+  cases b01 <;> cases b02 <;> cases b03 <;> cases b04 <;> cases b12 <;>
+    cases b13 <;> cases b14 <;> cases b23 <;> cases b24 <;> cases b34 <;> rfl
+
+private lemma totalFlagContribBits_swap12
+    (b01 b02 b03 b04 b12 b13 b14 b23 b24 b34 : Bool) :
+    totalFlagContribBits b02 b01 b03 b04 b12 b23 b24 b13 b14 b34 =
+      totalFlagContribBits b01 b02 b03 b04 b12 b13 b14 b23 b24 b34 := by
+  cases b01 <;> cases b02 <;> cases b03 <;> cases b04 <;> cases b12 <;>
+    cases b13 <;> cases b14 <;> cases b23 <;> cases b24 <;> cases b34 <;> rfl
+
+private lemma totalFlagContribBits_swap23
+    (b01 b02 b03 b04 b12 b13 b14 b23 b24 b34 : Bool) :
+    totalFlagContribBits b01 b03 b02 b04 b13 b12 b14 b23 b34 b24 =
+      totalFlagContribBits b01 b02 b03 b04 b12 b13 b14 b23 b24 b34 := by
+  cases b01 <;> cases b02 <;> cases b03 <;> cases b04 <;> cases b12 <;>
+    cases b13 <;> cases b14 <;> cases b23 <;> cases b24 <;> cases b34 <;> rfl
+
+private lemma totalFlagContribBits_swap34
+    (b01 b02 b03 b04 b12 b13 b14 b23 b24 b34 : Bool) :
+    totalFlagContribBits b01 b02 b04 b03 b12 b14 b13 b24 b23 b34 =
+      totalFlagContribBits b01 b02 b03 b04 b12 b13 b14 b23 b24 b34 := by
+  cases b01 <;> cases b02 <;> cases b03 <;> cases b04 <;> cases b12 <;>
+    cases b13 <;> cases b14 <;> cases b23 <;> cases b24 <;> cases b34 <;> rfl
+
+private lemma totalFlagContrib_mkAdj5_adjacent_swap_inv (e : Fin 10 → Bool) (k : Fin 4) :
+    totalFlagContrib
+        (fun i j => mkAdj5 e (Equiv.swap k.castSucc k.succ i) (Equiv.swap k.castSucc k.succ j)) =
+      totalFlagContrib (mkAdj5 e) := by
+  fin_cases k
+  · simpa [totalFlagContrib, mkAdj5] using
+      totalFlagContribBits_swap01 (e 0) (e 1) (e 2) (e 3) (e 4) (e 5) (e 6) (e 7) (e 8) (e 9)
+  · simpa [totalFlagContrib, mkAdj5] using
+      totalFlagContribBits_swap12 (e 0) (e 1) (e 2) (e 3) (e 4) (e 5) (e 6) (e 7) (e 8) (e 9)
+  · simpa [totalFlagContrib, mkAdj5] using
+      totalFlagContribBits_swap23 (e 0) (e 1) (e 2) (e 3) (e 4) (e 5) (e 6) (e 7) (e 8) (e 9)
+  · simpa [totalFlagContrib, mkAdj5] using
+      totalFlagContribBits_swap34 (e 0) (e 1) (e 2) (e 3) (e 4) (e 5) (e 6) (e 7) (e 8) (e 9)
+
+private lemma totalFlagContrib_adjacent_swap_inv (adj : Fin 5 → Fin 5 → Bool)
+    (hsym : ∀ i j, adj i j = adj j i) (k : Fin 4) :
+    totalFlagContrib
+        (fun i j => adj (Equiv.swap k.castSucc k.succ i) (Equiv.swap k.castSucc k.succ j)) =
+      totalFlagContrib adj := by
+  calc
+    totalFlagContrib
+        (fun i j => adj (Equiv.swap k.castSucc k.succ i) (Equiv.swap k.castSucc k.succ j))
+        = totalFlagContrib
+            (fun i j =>
+              mkAdj5 (toEdges5 adj) (Equiv.swap k.castSucc k.succ i)
+                (Equiv.swap k.castSucc k.succ j)) :=
+          totalFlagContrib_toEdges5_perm adj hsym (Equiv.swap k.castSucc k.succ)
+    _ = totalFlagContrib (mkAdj5 (toEdges5 adj)) :=
+          totalFlagContrib_mkAdj5_adjacent_swap_inv (toEdges5 adj) k
+    _ = totalFlagContrib adj := by
+          simp [totalFlagContrib, mkAdj5, toEdges5]
+
 lemma totalFlagContrib_perm_inv (adj : Fin 5 → Fin 5 → Bool)
+    (hsym : ∀ i j, adj i j = adj j i)
     (τ : Equiv.Perm (Fin 5)) :
     totalFlagContrib (fun i j => adj (τ i) (τ j)) = totalFlagContrib adj := by
-  refine Finset.sum_bij (fun σ _ => τ * σ) ?_ ?_ ?_ ?_
-  all_goals simp [Equiv.Perm.ext_iff]
-  · exact fun b => ⟨τ.symm * b, fun x => by simp⟩
-  · exact fun a => Rat.ext rfl rfl
+  let S : Submonoid (Equiv.Perm (Fin 5)) :=
+  {
+    carrier :=
+      {τ | ∀ adj : Fin 5 → Fin 5 → Bool, (∀ i j, adj i j = adj j i) →
+        totalFlagContrib (fun i j => adj (τ i) (τ j)) = totalFlagContrib adj}
+    one_mem' := by
+      intro adj _hsym
+      simp
+    mul_mem' := by
+      intro σ τ hσ hτ adj hsym
+      let adjσ : Fin 5 → Fin 5 → Bool := fun i j => adj (σ i) (σ j)
+      have hsymσ : ∀ i j, adjσ i j = adjσ j i := by
+        intro i j
+        exact hsym _ _
+      calc
+        totalFlagContrib (fun i j => adj ((σ * τ) i) ((σ * τ) j))
+            = totalFlagContrib (fun i j => adjσ (τ i) (τ j)) := by
+              simp [adjσ, Equiv.Perm.mul_apply]
+        _ = totalFlagContrib adjσ := hτ adjσ hsymσ
+        _ = totalFlagContrib adj := hσ adj hsym
+  }
+  have hgen : Set.range (fun k : Fin 4 => Equiv.swap k.castSucc k.succ) ⊆ S := by
+    rintro σ ⟨k, rfl⟩ adj hsym
+    exact totalFlagContrib_adjacent_swap_inv adj hsym k
+  have htop : (⊤ : Submonoid (Equiv.Perm (Fin 5))) ≤ S := by
+    rw [← Equiv.Perm.mclosure_swap_castSucc_succ 4]
+    exact Submonoid.closure_le.mpr hgen
+  exact (htop (by simp : τ ∈ (⊤ : Submonoid (Equiv.Perm (Fin 5))))) adj hsym
 
 /-!
 ## § 7. PSD Non-negativity of Quadratic Form
@@ -500,7 +2103,7 @@ lemma quintContrib_type0 (adj : Fin 5 → Fin 5 → Bool)
     quintContrib adj (Equiv.refl _) =
       P_cert (σ₀FlagIdx (adj 3 0) (adj 3 1) (adj 3 2))
              (σ₀FlagIdx (adj 4 0) (adj 4 1) (adj 4 2)) / 625 := by
-  simp [quintContrib, h01, h02, h12]
+  simp [quintContrib, quintContribOf, h01, h02, h12]
 
 lemma quintContrib_type1 (adj : Fin 5 → Fin 5 → Bool)
     (h01 : adj 0 1 = true) (h02 : adj 0 2 = false) (h12 : adj 1 2 = false) :
@@ -509,7 +2112,7 @@ lemma quintContrib_type1 (adj : Fin 5 → Fin 5 → Bool)
             σ₁FlagIdx (adj 4 0) (adj 4 1) (adj 4 2) with
       | some fi, some fj => Q_cert fi fj / 2500
       | _, _ => 0 := by
-  simp [quintContrib, h01, h02, h12]
+  simp [quintContrib, quintContribOf, h01, h02, h12]
 
 lemma quintContrib_type2 (adj : Fin 5 → Fin 5 → Bool)
     (h01 : adj 0 1 = true) (h12 : adj 1 2 = true) (h02 : adj 0 2 = false) :
@@ -518,7 +2121,7 @@ lemma quintContrib_type2 (adj : Fin 5 → Fin 5 → Bool)
             σ₂FlagIdx (adj 4 0) (adj 4 1) (adj 4 2) with
       | some fi, some fj => R_cert fi fj / 625
       | _, _ => 0 := by
-  simp [quintContrib, h01, h12, h02]
+  simp [quintContrib, quintContribOf, h01, h12, h02]
 
 set_option maxHeartbeats 800000 in
 /-- The quadratic form `∑_{d,e} quintContrib(![a,b,c,d,e])` is non-negative. -/
@@ -529,7 +2132,8 @@ lemma quadForm_nonneg {V : Type*} [Fintype V]
         quintContrib (graphAdj5 G ![a, b, c, d, e]) (Equiv.refl _) := by
   by_cases h_ab : G.Adj a b
   · by_cases h_ac : G.Adj a c
-    · unfold quintContrib; simp [*, graphAdj5]
+    · unfold quintContrib quintContribOf graphAdj5
+      simp [*]
     · by_cases h_bc : G.Adj b c
       · convert sum_sum_psd_option R_cert_psd (Finset.univ : Finset V)
             (fun d => σ₂FlagIdx (graphAdj5 G ![a, b, c, d, d] 3 0)
@@ -556,9 +2160,12 @@ lemma quadForm_nonneg {V : Type*} [Fintype V]
         · unfold graphAdj5; aesop
         · unfold graphAdj5; aesop
   · by_cases h_ac : G.Adj a c <;> by_cases h_bc : G.Adj b c
-    · unfold quintContrib; simp [*, graphAdj5]
-    · unfold quintContrib; simp [*, graphAdj5]
-    · unfold quintContrib; simp [*, graphAdj5]
+    · unfold quintContrib quintContribOf graphAdj5
+      simp [*]
+    · unfold quintContrib quintContribOf graphAdj5
+      simp [*]
+    · unfold quintContrib quintContribOf graphAdj5
+      simp [*]
     · have h_eq : ∀ d e : V,
           quintContrib (graphAdj5 G ![a, b, c, d, e]) (Equiv.refl _) =
             P_cert (σ₀FlagIdx (graphAdj5 G ![a, b, c, d, e] 3 0)
@@ -584,15 +2191,61 @@ lemma quadForm_nonneg {V : Type*} [Fintype V]
 ## § 8. Bounds on `quintContrib` Values
 -/
 
+private lemma P_cert_div_le_seven (i j : Fin 8) : P_cert i j / 625 ≤ 7 := by
+  fin_cases i <;> fin_cases j <;> norm_num [P_cert]
+
+private lemma Q_cert_div_le_seven (i j : Fin 6) : Q_cert i j / 2500 ≤ 7 := by
+  fin_cases i <;> fin_cases j <;> norm_num [Q_cert]
+
+private lemma R_cert_div_le_seven (i j : Fin 5) : R_cert i j / 625 ≤ 7 := by
+  fin_cases i <;> fin_cases j <;> norm_num [R_cert]
+
+private lemma Q_cert_match_le_seven (oi oj : Option (Fin 6)) :
+    (match oi, oj with
+    | some fi, some fj => Q_cert fi fj / 2500
+    | _, _ => 0) ≤ 7 := by
+  cases oi <;> cases oj <;> simp [Q_cert_div_le_seven]
+
+private lemma R_cert_match_le_seven (oi oj : Option (Fin 5)) :
+    (match oi, oj with
+    | some fi, some fj => R_cert fi fj / 625
+    | _, _ => 0) ≤ 7 := by
+  cases oi <;> cases oj <;> simp [R_cert_div_le_seven]
+
 /-- Every `quintContrib` value is ≤ 7 (verified computationally). -/
 theorem quintContrib_le_seven :
     ∀ (e : Fin 10 → Bool), quintContrib (mkAdj5 e) (Equiv.refl _) ≤ 7 := by
   intro e
-  cases h0 : e 0 <;> cases h1 : e 1 <;> cases h2 : e 2 <;> cases h3 : e 3 <;>
-    cases h4 : e 4 <;> cases h5 : e 5 <;> cases h6 : e 6 <;> cases h7 : e 7 <;>
-    cases h8 : e 8 <;> cases h9 : e 9 <;>
-    norm_num [quintContrib, mkAdj5, P_cert, Q_cert, R_cert, σ₀FlagIdx, σ₁FlagIdx, σ₂FlagIdx,
-      h0, h1, h2, h3, h4, h5, h6, h7, h8, h9]
+  cases h01 : e 0 with
+  | false =>
+      cases h02 : e 1 with
+      | false =>
+          cases h12 : e 4 with
+          | false =>
+              simpa [quintContrib, quintContribOf, mkAdj5, h01, h02, h12] using
+                (P_cert_div_le_seven
+                  (σ₀FlagIdx (e 2) (e 5) (e 7))
+                  (σ₀FlagIdx (e 3) (e 6) (e 8)))
+          | true =>
+              norm_num [quintContrib, quintContribOf, mkAdj5, h01, h02, h12]
+      | true =>
+          cases h12 : e 4 <;> norm_num [quintContrib, quintContribOf, mkAdj5, h01, h02, h12]
+  | true =>
+      cases h02 : e 1 with
+      | false =>
+          cases h12 : e 4 with
+          | false =>
+              simpa [quintContrib, quintContribOf, mkAdj5, h01, h02, h12] using
+                (Q_cert_match_le_seven
+                  (σ₁FlagIdx (e 2) (e 5) (e 7))
+                  (σ₁FlagIdx (e 3) (e 6) (e 8)))
+          | true =>
+              simpa [quintContrib, quintContribOf, mkAdj5, h01, h02, h12] using
+                (R_cert_match_le_seven
+                  (σ₂FlagIdx (e 2) (e 5) (e 7))
+                  (σ₂FlagIdx (e 3) (e 6) (e 8)))
+      | true =>
+          cases h12 : e 4 <;> norm_num [quintContrib, quintContribOf, mkAdj5, h01, h02, h12]
 
 /-- `quintContrib` is bounded by 7 for any `graphAdj5`. -/
 lemma quintContrib_le_for_graphAdj {V : Type*} (G : SimpleGraph V) (f : Fin 5 → V) :
@@ -703,6 +2356,38 @@ lemma psd_lower_bound_injective {V : Type*} [Fintype V] (G : SimpleGraph V) :
 ## § 10. Counting Identity
 -/
 
+private lemma totalFlagContrib_mkAdj5_edgeBits_eq_permSum :
+    ∀ b01 b02 b03 b04 b12 b13 b14 b23 b24 b34 : Bool,
+      totalFlagContrib (mkAdj5 (edgeBits b01 b02 b03 b04 b12 b13 b14 b23 b24 b34)) =
+        totalFlagContribPermSum (mkAdj5 (edgeBits b01 b02 b03 b04 b12 b13 b14 b23 b24 b34)) := by
+  intro b01 b02 b03 b04 b12 b13 b14 b23 b24 b34
+  cases b01 <;> cases b02 <;> cases b03 <;> cases b04 <;> cases b12 <;>
+    cases b13 <;> cases b14 <;> cases b23 <;> cases b24 <;> cases b34 <;>
+    simp [totalFlagContrib, totalFlagContribPermSum, totalFlagPermTuples,
+      totalFlagTupleContrib, quintContribOf, mkAdj5, edgeBits, totalFlagContribBits,
+      σ₀FlagIdx, σ₁FlagIdx, σ₂FlagIdx, P_cert, Q_cert, R_cert] <;> norm_num
+
+private lemma totalFlagContrib_mkAdj5_eq_permSum (e : Fin 10 → Bool) :
+    totalFlagContrib (mkAdj5 e) = totalFlagContribPermSum (mkAdj5 e) := by
+  rw [edgeBits_ext e rfl rfl rfl rfl rfl rfl rfl rfl rfl rfl]
+  exact totalFlagContrib_mkAdj5_edgeBits_eq_permSum
+    (e 0) (e 1) (e 2) (e 3) (e 4) (e 5) (e 6) (e 7) (e 8) (e 9)
+
+private lemma totalFlagContrib_eq_permSum (adj : Fin 5 → Fin 5 → Bool)
+    (hsym : ∀ i j, adj i j = adj j i)
+    (hirr : ∀ i, adj i i = false) :
+    totalFlagContrib adj = totalFlagContribPermSum adj := by
+  rw [← mkAdj5_toEdges5 adj hsym hirr]
+  exact totalFlagContrib_mkAdj5_eq_permSum (toEdges5 adj)
+
+private lemma totalFlagContrib_eq_sum_univ (adj : Fin 5 → Fin 5 → Bool)
+    (hsym : ∀ i j, adj i j = adj j i)
+    (hirr : ∀ i, adj i i = false) :
+    totalFlagContrib adj =
+      (Finset.univ : Finset (Equiv.Perm (Fin 5))).sum (quintContrib adj) := by
+  rw [totalFlagContrib_eq_permSum adj hsym hirr]
+  exact totalFlagContribPermSum_eq_sum_univ adj
+
 set_option maxHeartbeats 1600000 in
 /-- The sum of `quintContrib` over injective functions equals the sum of
 `totalFlagContrib` over 5-element subsets. -/
@@ -734,22 +2419,23 @@ lemma counting_identity {V : Type*} [Fintype V] [DecidableEq V]
   rw [h_partition, Finset.powersetCard_eq_filter]
   refine Finset.sum_congr rfl ?_
   intro S hS
+  have hScard : S.card = 5 := by simpa using hS
   have h_bij :
       Finset.filter (fun f : Fin 5 → V =>
         f.Injective ∧ Finset.image f Finset.univ = S) Finset.univ =
       Finset.image (fun σ : Equiv.Perm (Fin 5) =>
-        fun i => enum S (by simpa using hS) (σ i))
+        fun i => enum S hScard (σ i))
         (Finset.univ : Finset (Equiv.Perm (Fin 5))) := by
     ext f
     simp
     constructor
     · intro h
       have h_bij : ∀ i : Fin 5, ∃ j : Fin 5,
-          enum S (by simpa using hS) j = f i := by
+          enum S hScard j = f i := by
         intro i
         have : f i ∈ S :=
           h.2 ▸ Finset.mem_image_of_mem _ (Finset.mem_univ _)
-        have := (henum S (by simpa using hS)).2
+        have := (henum S hScard).2
         rw [Finset.ext_iff] at this
         grind
       choose σ hσ using h_bij
@@ -758,20 +2444,22 @@ lemma counting_identity {V : Type*} [Fintype V] [DecidableEq V]
       exact ⟨Equiv.ofBijective σ ⟨hσ_inj,
         Finite.injective_iff_surjective.mp hσ_inj⟩, funext hσ⟩
     · rintro ⟨σ, rfl⟩
-      specialize henum S (by simpa using hS)
+      specialize henum S hScard
       simp [Function.Injective, Finset.ext_iff] at henum ⊢
       exact ⟨fun a₁ a₂ h => σ.injective (henum.1 h),
         fun a => ⟨fun ⟨i, hi⟩ => henum.2 a |>.1 ⟨_, hi⟩,
           fun ha => by
             obtain ⟨i, hi⟩ := henum.2 a |>.2 ha
             exact ⟨σ.symm i, by simpa using hi⟩⟩⟩
-  have hScard : S.card = 5 := by simpa using hS
   simp_all +decide [Function.Injective]
   rw [Finset.sum_image
     (fun σ _ τ _ h => Equiv.Perm.ext fun i =>
       (henum S hScard).1 (by simpa using congr_fun h i))]
-  unfold totalFlagContrib
-  congr 1
+  rw [totalFlagContrib_eq_sum_univ (graphAdj5 G (enum S hScard))
+    (graphAdj5_symm G (enum S hScard)) (graphAdj5_irrefl G (enum S hScard))]
+  refine Finset.sum_congr rfl ?_
+  intro σ _
+  rfl
 
 /-!
 ## § 11. C₅ Copy Detection
@@ -856,7 +2544,7 @@ lemma isC5Copy_implies_isC5_adj {V : Type*} [Fintype V] [DecidableEq V]
     (henumImg : Finset.image enumS Finset.univ = S)
     (hC5 : G.IsC5Copy S) :
     isC5_adj (graphAdj5 G enumS) = true := by
-  obtain ⟨f, hf_inj, hf_image⟩ := hC5
+  obtain ⟨f, hf, hf_image⟩ := hC5
   obtain ⟨τ, hτ⟩ : ∃ τ : Equiv.Perm (Fin 5), enumS = f ∘ τ := by
     have h_bij : ∀ (s : Finset V), s.card = 5 →
         ∀ g : Fin 5 → V, Function.Injective g →
@@ -878,46 +2566,41 @@ lemma isC5Copy_implies_isC5_adj {V : Type*} [Fintype V] [DecidableEq V]
     have hcard : S.card = 5 := by
       rw [← henumImg]
       exact Finset.card_image_of_injective _ henumInj
-    exact h_bij _ hcard _ henumInj henumImg _ hf_inj.1 (by
+    exact h_bij _ hcard _ henumInj henumImg _ hf.1 (by
       convert hf_image using 2)
-  have h_deg : ∀ i, (Finset.univ.filter fun j => graphAdj5 G f i j).card = 2 := by
-    have h_cycle : ∀ i : Fin 5,
-        G.Adj (f i) (f (i + 1)) ∧ G.Adj (f i) (f (i - 1)) := by
-      intro i
-      exact ⟨hf_inj.2 i, by have := hf_inj.2 (i - 1); fin_cases i <;> tauto⟩
-    have h_no_tri : ∀ i j k : Fin 5, i ≠ j → j ≠ k → i ≠ k →
-        ¬(G.Adj (f i) (f j) ∧ G.Adj (f j) (f k) ∧ G.Adj (f i) (f k)) := by
-      intro i j k _ _ _ h
-      have := hG {f i, f j, f k}
-      simp [SimpleGraph.is3Clique_iff] at this
-      exact this _ _ h.1 _ h.2.2 h.2.1 rfl
-    intro i
-    have h_only_neighbors : ∀ j : Fin 5,
-        j ≠ i → j ≠ i + 1 → j ≠ i - 1 → ¬G.Adj (f i) (f j) := by
-      all_goals have := h_cycle 0; have := h_cycle 1; have := h_cycle 2
-      all_goals have := h_cycle 3; have := h_cycle 4
-      all_goals simp [SimpleGraph.adj_comm] at *
-      all_goals grind
-    rw [Finset.card_eq_two]
-    use i + 1, i - 1
-    simp [Finset.ext_iff, graphAdj5]
-    exact ⟨by fin_cases i <;> trivial,
-      fun j => ⟨fun hj => Classical.or_iff_not_imp_left.2 fun hj' =>
-          Classical.not_not.1 fun hj'' =>
-            h_only_neighbors j (by aesop) (by aesop) (by aesop) hj,
-        fun hj => by rcases hj with rfl | rfl
-                     · exact (h_cycle i).1
-                     · exact (h_cycle i).2⟩⟩
-  have h_deg_enum : ∀ i,
-      (Finset.univ.filter fun j => graphAdj5 G (f ∘ ⇑τ) i j).card = 2 := by
-    intro i
-    have : (Finset.univ.filter fun j => graphAdj5 G (f ∘ ⇑τ) i j).card =
-        (Finset.univ.filter fun j => graphAdj5 G f (τ i) (τ j)).card := by
-      simp [graphAdj5]
-    rw [this, ← h_deg (τ i)]
-    rw [Finset.card_filter, Finset.card_filter]
-    conv_rhs => rw [← Equiv.sum_comp τ]
-  unfold isC5_adj; aesop
+  have hmodel :
+      graphAdj5 G (f ∘ ⇑τ) = fun i j => decide (τ j = τ i + 1 ∨ τ i = τ j + 1) := by
+    funext i j
+    have hprop : G.Adj (f (τ i)) (f (τ j)) ↔ (τ j = τ i + 1 ∨ τ i = τ j + 1) := by
+      constructor
+      · intro hij
+        by_cases hconsec : τ j = τ i + 1 ∨ τ i = τ j + 1
+        · exact hconsec
+        · have hne : τ i ≠ τ j := by
+            intro hij'
+            have : G.Adj (f (τ i)) (f (τ i)) := by simp [hij'] at hij
+            exact (G.loopless).irrefl _ this
+          have hji : τ j ≠ τ i + 1 := by
+            intro hji
+            exact hconsec (Or.inl hji)
+          have hij' : τ i ≠ τ j + 1 := by
+            intro hij'
+            exact hconsec (Or.inr hij')
+          exact False.elim <| (c5_no_chords hG hf.1 hf.2 (τ i) (τ j) hji hij' hne) hij
+      · intro hconsec
+        rcases hconsec with hconsec | hconsec
+        · simpa [hconsec] using hf.2 (τ i)
+        · have := hf.2 (τ j)
+          simpa [SimpleGraph.adj_comm, hconsec] using this
+    by_cases hadj : G.Adj (f (τ i)) (f (τ j))
+    · have hconsec : τ j = τ i + 1 ∨ τ i = τ j + 1 := hprop.1 hadj
+      simp [graphAdj5, hadj, hconsec]
+    · have hconsec : ¬ (τ j = τ i + 1 ∨ τ i = τ j + 1) := by
+        intro hconsec
+        exact hadj (hprop.2 hconsec)
+      simp [graphAdj5, hadj, hconsec]
+  rw [hτ, hmodel]
+  exact (isC5_adj_true_iff_bool _).2 (isC5_adj_bool_perm τ)
 
 /-!
 ## § 12. Per-subset Bound and Assembly
@@ -1467,11 +3150,7 @@ theorem erdos_pentagon_conjecture (n : ℕ) (G : SimpleGraph (Fin (5 * n))) (hG 
   exact erdos_pentagon_conjecture' n G hG
 
 #print axioms erdos_pentagon_conjecture
--- 'Erdos24.erdos_pentagon_conjecture' depends on axioms: [propext,
---  Classical.choice,
---  Quot.sound,
---  flag_bound_all_graphs._native.native_decide.ax_1_1,
---  flag_bound_with_c5._native.native_decide.ax_1_1]
+-- 'Erdos24.erdos_pentagon_conjecture' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end
 
