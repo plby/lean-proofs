@@ -200,6 +200,17 @@
   url:
     - https://www.erdosproblems.com/forum/thread/150#post-5145
     - https://gist.githubusercontent.com/pitmonticone/d8558d3361ad2d673b5405239ea30700/raw/c966009555b83985762dac9faaf705aad3f48199/Erdos150.lean
+- key: ErdosProblems.Erdos154
+  author:
+    informal:
+      human: Bernt Lindström
+      AI: ChatGPT
+    formal:
+      AI: Aristotle
+      human: Wouter van Doorn
+  url:
+    - https://www.erdosproblems.com/forum/thread/154#post-4218
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem154.lean
 - key: ErdosProblems.Erdos164
   author:
     formal:
