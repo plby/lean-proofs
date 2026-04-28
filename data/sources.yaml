@@ -426,6 +426,7 @@
     - https://gist.githubusercontent.com/ster-oc/2b7adcf9d753cf6e29d782f7374cc57e/raw/689a8483895cbe147634dfbf2d7b1db93a3b5b5f/Erdos258.lean
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/258.lean
   conditional: tao_teravainen
+  todo: See whether Tao-Teräväinen (Erdos248) can be formalized.
 - key: ErdosProblems.Erdos298
   author:
     informal:
