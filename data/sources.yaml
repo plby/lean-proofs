@@ -476,6 +476,16 @@
     - https://link.springer.com/article/10.1007/s10474-019-00980-z
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos275.md
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/275.lean
+- key: ErdosProblems.Erdos280
+  author:
+    informal:
+      human: Stijn Cambie
+    formal:
+      AI: Aristotle
+      human: Lorenzo Luccioli
+  url:
+    - https://www.erdosproblems.com/forum/thread/280#post-5595
+    - https://gist.githubusercontent.com/LorenzoLuccioli/2dda92a192c15c24263c8a258979e7e3/raw/b9f4c664a42977075e361da17759bd0f71998ff8/Erdos280.lean
 - key: ErdosProblems.Erdos298
   author:
     informal:
