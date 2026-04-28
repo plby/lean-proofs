@@ -7,11 +7,15 @@ import ErdosProblems.Erdos56
 import ErdosProblems.Erdos93
 import ErdosProblems.Erdos94
 import ErdosProblems.Erdos105
+import ErdosProblems.Erdos115
 import ErdosProblems.Erdos134
 import ErdosProblems.Erdos150
 import ErdosProblems.Erdos154
 import ErdosProblems.Erdos164
 import ErdosProblems.Erdos189
+import ErdosProblems.Erdos194
+import ErdosProblems.Erdos198
+import ErdosProblems.Erdos204
 import ErdosProblems.Erdos990
 import ErdosProblems.Erdos990b
 import ErdosProblems.Erdos1014
