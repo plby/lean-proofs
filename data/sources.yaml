@@ -149,6 +149,46 @@
   url:
     - https://www.erdosproblems.com/forum/thread/105#post-1430
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos105.md
+- key: ErdosProblems.Erdos115
+  author:
+    informal:
+      human:
+        - Alexandre Eremenko
+        - Laszlo Lempert
+    formal:
+      AI:
+        - Gemini 3.0 Flash
+        - Gemini 3.1 Pro
+        - Claude Sonnet 4.6
+        - Claude Opus 4.6
+        - Aristotle
+        - ulam.ai scaffold
+      human: JoshuaB
+  url: https://www.erdosproblems.com/forum/thread/115#post-4555
+  url_ref: JoshuaB_115
+- key: ErdosProblems.Erdos125
+  author:
+    informal:
+      AI: a DeepMind prover agent
+    formal:
+      AI: a DeepMind prover agent
+      human: George Tsoukalas
+  url:
+    - https://www.erdosproblems.com/forum/thread/125#post-4448
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/125.lean
+    - https://github.com/google-deepmind/formal-conjectures/blob/300bf771bdbef43d7b9aa2521e633a50fd54dd28/FormalConjectures/ErdosProblems/125.lean
+  todo: Import this proof.
+- key: ErdosProblems.Erdos134
+  author:
+    informal:
+      human: Noga Alon
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/134
+    - https://web.math.princeton.edu/~nalon/PDFS/remark1901.pdf
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos134.md
 - key: ErdosProblems.Erdos164
   author:
     formal:
