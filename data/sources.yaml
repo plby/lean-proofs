@@ -454,6 +454,28 @@
     - https://www.erdosproblems.com/forum/thread/268#post-5359
     - https://gist.githubusercontent.com/madeve-unipi/62a8f68cdb4864b85b81a6752dcb0aa4/raw/5793aaa51089c25c37d8d63f60540367f6abe506/Erdos268.lean
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/268.lean
+- key: ErdosProblems.Erdos275
+  author:
+    informal:
+      human:
+        - John Selfridge
+        - Richard B. Crittenden
+        - Charles Vanden Eynden
+        - Paul Balister
+        - Béla Bollobás
+        - Robert Morris
+        - Julian Sahasrabudhe
+        - Marius Tiba
+    statement: Formal Conjectures authors
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/275
+    - https://www.ams.org/journals/proc/1970-024-03/S0002-9939-1970-0258719-2/home.html
+    - https://link.springer.com/article/10.1007/s10474-019-00980-z
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos275.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/275.lean
 - key: ErdosProblems.Erdos298
   author:
     informal:
