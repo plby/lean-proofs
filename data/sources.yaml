@@ -280,6 +280,19 @@
       human: JoshuaB
   url: https://www.erdosproblems.com/forum/thread/199#post-4442
   url_ref: JoshuaB_199
+- key: ErdosProblems.Erdos204
+  author:
+    informal:
+      human: Sarosh Adenwalla
+    statement: Formal Conjectures authors
+    formal:
+      AI: Aristotle
+      human: Wouter van Doorn
+  arxiv: https://arxiv.org/abs/2501.15170
+  url:
+    - https://www.erdosproblems.com/forum/thread/204#post-4790
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem204.lean
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/204.lean
 - key: ErdosProblems.Erdos298
   author:
     informal:
