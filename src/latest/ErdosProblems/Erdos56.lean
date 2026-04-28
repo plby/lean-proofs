@@ -2824,6 +2824,7 @@ theorem erdos_56 :
   linarith
 
 #print axioms erdos_56
+-- 'Erdos56.erdos_56' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end
 
