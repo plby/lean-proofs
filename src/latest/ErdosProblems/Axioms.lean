@@ -27,3 +27,14 @@ axiom maynard_tao (m : ℕ) (hm : 2 ≤ m) (B : Finset ℤ)
 axiom mertens_third_theorem (n : ℕ) (hn : 3 ≤ n) :
     1 / (3 * Real.log n) ≤
       ∏ p ∈ (Finset.range (n + 1)).filter Prime, (1 - 1 / (p : ℝ))
+
+/-- **Tao–Teräväinen theorem** (Theorem 1.1 of Tao–Teräväinen, 2025).
+
+This is a deep theorem from analytic number theory and is stated here
+without proof. It shows `ω (N + k) ≤ Ω(N + k) ≤ C·k` for some absolute
+constant `C > 0` and infinitely many `N`. -/
+axiom tao_teravainen : ∃ C : ℝ, 0 < C ∧
+    (∃ᶠ N in atTop, ∀ k : ℕ, 0 < k →
+      (N + k).factorization.support.card ≤
+          (N + k).factorization.sum (fun _ k => k) ∧
+        (N + k).factorization.sum (fun _ k => k) ≤ C * k)

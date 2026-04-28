@@ -1,3 +1,4 @@
+import ErdosProblems.Axioms
 import Mathlib.Analysis.SpecificLimits.Normed
 import Mathlib.NumberTheory.Divisors
 import Mathlib.NumberTheory.Real.Irrational
@@ -409,17 +410,6 @@ lemma divisors_card_le_two_pow_omega (n : ℕ) (hn : n ≠ 0) :
   exact Finset.prod_le_prod' fun p hp => by
     induction n.factorization p <;> simp_all +decide [Nat.pow_succ']
     nlinarith
-
-/-- **Tao–Teräväinen theorem** (Theorem 1.1 of Tao–Teräväinen, 2025).
-
-This is a deep theorem from analytic number theory and is stated here
-without proof. It shows ` ω (N + k) ≤ Ω(N + k) ≤ C·k` for some
-absolute constant `C > 0` and infinitely many `N`.
--/
-axiom tao_teravainen : ∃ C : ℝ, 0 < C ∧
-    (∃ᶠ N in atTop, ∀ k : ℕ, 0 < k →
-      (N + k).factorization.support.card ≤ (N + k).factorization.sum (fun _ k => k) ∧
-        (N + k).factorization.sum (fun _ k => k) ≤  C * k)
 
 /-- There exists `Λ > 1` such that for infinitely many `N`,
 `τ(N + k) ≤ Λ^k` for all `k ≥ 1`. -/
