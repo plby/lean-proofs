@@ -38,6 +38,37 @@
   todo:
     - Google DeepMind's proof
     - Wouter van Doorn's comment
+- key: ErdosProblems.Erdos31
+  author:
+    informal:
+      human:
+        - G. G. Lorentz
+        - Wouter van Doorn
+      AI: ChatGPT 5.1 Pro
+    statement:
+      human:
+        - Formal Conjectures authors
+        - Boris Alexeev
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/31
+    - https://www.erdosproblems.com/forum/thread/31#post-1779
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos31.md
+- key: ErdosProblems.Erdos34
+  author:
+    informal:
+      human:
+        - N. Hegyvári
+        - J. Konieczny
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  arxiv: https://arxiv.org/abs/1504.07156
+  url:
+    - https://www.erdosproblems.com/forum/thread/34
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos34.md
 - key: ErdosProblems.Erdos164
   author:
     formal:
