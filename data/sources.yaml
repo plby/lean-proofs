@@ -69,6 +69,30 @@
   url:
     - https://www.erdosproblems.com/forum/thread/34
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos34.md
+- key: ErdosProblems.Erdos46
+  author:
+    informal:
+      human: Ernest S. Croot III
+    formal:
+      human:
+        - Bhavik Mehta
+        - Thomas Bloom
+  arxiv: https://arxiv.org/abs/math/0311421
+  url: https://github.com/b-mehta/unit-fractions
+  latest_version: "3.42.1"
+  todo: Convert from Lean3.
+- key: ErdosProblems.Erdos47
+  author:
+    informal:
+      human: Thomas Bloom
+    formal:
+      human:
+        - Bhavik Mehta
+        - Thomas Bloom
+  arxiv: https://arxiv.org/abs/2112.03726
+  url: https://github.com/b-mehta/unit-fractions
+  latest_version: "3.42.1"
+  todo: Convert from Lean3.
 - key: ErdosProblems.Erdos164
   author:
     formal:
@@ -77,6 +101,30 @@
   url:
     - https://www.erdosproblems.com/forum/thread/164
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos164.md
+- key: ErdosProblems.Erdos298
+  author:
+    informal:
+      human: Thomas Bloom
+    formal:
+      human:
+        - Bhavik Mehta
+        - Thomas Bloom
+  arxiv: https://arxiv.org/abs/2112.03726
+  url: https://github.com/b-mehta/unit-fractions
+  latest_version: "3.42.1"
+  todo: Convert from Lean3.
+- key: ErdosProblems.Erdos299
+  author:
+    informal:
+      human: Thomas Bloom
+    formal:
+      human:
+        - Bhavik Mehta
+        - Thomas Bloom
+  arxiv: https://arxiv.org/abs/2112.03726
+  url: https://github.com/b-mehta/unit-fractions
+  latest_version: "3.42.1"
+  todo: Convert from Lean3.
 - key: ErdosProblems.Erdos990
   author:
     informal:
