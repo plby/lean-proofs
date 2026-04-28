@@ -24,7 +24,8 @@ set_option maxHeartbeats 2000000
 
 open Real Metric Set InnerProductSpace Complex EuclideanGeometry
 open scoped Classical InnerProductSpace Pointwise Complex EuclideanGeometry
-noncomputable section Erdos93
+namespace Erdos93
+noncomputable section
 
 variable {V : Type*} [NormedAddCommGroup V] [InnerProductSpace ℝ V]
 variable [FiniteDimensional ℝ V]
@@ -6646,4 +6647,5 @@ theorem altman_erdos (s : Finset V) (n : ℕ)
 #print axioms altman_erdos
 -- 'Erdos93.altman_erdos' depends on axioms: [propext, Classical.choice, Quot.sound]
 
+end
 end Erdos93
