@@ -1,5 +1,11 @@
 import Mathlib
 
+set_option linter.deprecated false
+set_option linter.style.setOption false
+set_option linter.flexible false
+set_option linter.style.longLine false
+set_option linter.unusedSimpArgs false
+
 open scoped BigOperators
 open Finset
 
