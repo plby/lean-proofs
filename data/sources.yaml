@@ -500,6 +500,19 @@
     - https://www.erdosproblems.com/forum/thread/281#post-3445
     - https://chatgpt.com/share/696ac45b-70d8-8003-9ca4-320151e0816e
   url_ref: JakeMallen_281
+- key: ErdosProblems.Erdos290
+  author:
+    informal:
+      human: Wouter van Doorn
+    formal:
+      AI: Aristotle
+      human:
+        - Wouter van Doorn
+        - Boris Alexeev
+  arxiv: https://arxiv.org/abs/2411.03073
+  url:
+    - https://www.erdosproblems.com/forum/thread/290#post-3180
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem290.lean
 - key: ErdosProblems.Erdos298
   author:
     informal:
