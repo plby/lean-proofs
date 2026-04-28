@@ -137,6 +137,18 @@
         - Codex
       human: Li Ding
   url: https://github.com/SpringSense-Innovation-Institute/ai-for-math-lean/blob/main/erdos-problems/erdos94/erdos94.lean
+- key: ErdosProblems.Erdos105
+  author:
+    informal:
+      human: Wu Xichuan
+    formal:
+      AI:
+        - ChatGPT Pro (Thinking)
+        - Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/105#post-1430
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos105.md
 - key: ErdosProblems.Erdos164
   author:
     formal:
