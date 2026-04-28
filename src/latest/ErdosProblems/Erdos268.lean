@@ -15,7 +15,6 @@ import Mathlib.Topology.Separation.CompletelyRegular
 import Mathlib.CategoryTheory.Category.Basic
 
 set_option linter.style.setOption false
-set_option linter.style.nativeDecide false
 set_option linter.flexible false
 set_option linter.style.longLine false
 set_option linter.style.refine false
@@ -84,6 +83,15 @@ lemma M_mat_mul_inv : M_mat * M_inv = 1 := by
 lemma c_coeff_pos : ∀ j : Fin 3, 0 < c_coeff j := by
   intro j; fin_cases j <;> simp [c_coeff]
 
+lemma primeFactors_union_dvd_m_const :
+    ∀ a ∈ S₁ ∪ T₁ ∪ S₂ ∪ T₂ ∪ S₃ ∪ T₃,
+      ∀ p ∈ Nat.primeFactors a, p ∣ m_const := by
+  intro a ha p hp
+  have ha_dvd : a ∣ m_const ^ 5 := by
+    fin_cases ha <;> norm_num [m_const]
+  exact (Nat.prime_of_mem_primeFactors hp).dvd_of_dvd_pow
+    ((Nat.dvd_of_mem_primeFactors hp).trans ha_dvd)
+
 /-- Every positive integer has at most one representation as `a * (k² * m + 1)`
   for `a ∈ U` and `k ∈ ℕ`, because all prime factors of `a` divide `m`,
   hence `gcd(a, k² * m + 1) = 1`. -/
@@ -101,9 +109,7 @@ lemma unique_representation (a₁ a₂ k₁ k₂ : ℕ)
         intro p hp hpa
         have : p ∈ Nat.primeFactors a :=
           Nat.mem_primeFactors.mpr ⟨hp, hpa, by fin_cases ha <;> trivial⟩
-        have : ∀ a ∈ S₁ ∪ T₁ ∪ S₂ ∪ T₂ ∪ S₃ ∪ T₃,
-            ∀ p ∈ Nat.primeFactors a, p ∣ m_const := by native_decide
-        exact this a ha p ‹_›
+        exact primeFactors_union_dvd_m_const a ha p ‹_›
       exact Nat.coprime_of_dvd' fun p pp dp dk => by
         simpa [Nat.dvd_add_right (dvd_mul_of_dvd_right (hpf p pp dp) _)] using dk
     exact ⟨h a₁ ha₁ k₂, h a₂ ha₂ k₁⟩
