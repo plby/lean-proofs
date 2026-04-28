@@ -93,6 +93,23 @@
   url: https://github.com/b-mehta/unit-fractions
   latest_version: "3.42.1"
   todo: Convert from Lean3.
+- key: ErdosProblems.Erdos56
+  author:
+    informal:
+      human:
+        - Rudolf Ahlswede
+        - Levon H. Khachatrian
+      AI: ChatGPT
+    statement:
+      human:
+        - Formal Conjectures authors
+        - Boris Alexeev
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/56
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos56.md
 - key: ErdosProblems.Erdos164
   author:
     formal:
