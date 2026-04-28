@@ -36,6 +36,7 @@ set_option linter.style.whitespace false
 set_option linter.flexible false
 set_option linter.unusedDecidableInType false
 set_option linter.unnecessarySeqFocus false
+set_option aesop.warn.nonterminal false
 
 namespace Erdos31
 
@@ -65,17 +66,11 @@ set_option autoImplicit false
 
 noncomputable section
 
-#check Real.log_zero
-#check div_zero
-
 noncomputable def counting_function (A : Set ℕ) (x : ℝ) : ℕ :=
   ((Finset.Icc 1 (Nat.floor x)).filter (· ∈ A)).card
 
 def has_density_zero (B : Set ℕ) : Prop :=
   Filter.Tendsto (fun n : ℕ ↦ (counting_function B n : ℝ) / n) Filter.atTop (nhds 0)
-
-#check harmonic
-#check harmonic_le_one_add_log
 
 open scoped Pointwise
 
@@ -676,7 +671,7 @@ lemma eventually_counting_ge_3 {A : Set ℕ} (hA : A.Infinite) :
     ∀ᶠ l in Filter.atTop, 3 ≤ counting_function A (2^(l-1)) := by
   -- Since $A$ is infinite, the counting function $counting\_function A$ tends to infinity.
   have h_count_inf : Filter.Tendsto (counting_function A) Filter.atTop Filter.atTop := by
-    exact?;
+    exact counting_function_tendsto_atTop hA
   simp +zetaDelta at *;
   -- Since the counting function tends to infinity, there exists some $M$ such that for all $m \geq M$, $counting\_function A m \geq 3$.
   obtain ⟨M, hM⟩ : ∃ M, ∀ m ≥ M, 3 ≤ counting_function A m := by
@@ -728,7 +723,7 @@ lemma dyadic_sum_bound {A : Set ℕ} (hA : A.Infinite) :
     ∑ k ∈ Finset.Ico (2^(l-1) : ℕ) (2^l : ℕ), Real.log (counting_function A k) / (counting_function A k : ℝ) := by
   -- Apply the dyadic_term_bound to each term in the sum.
   have h_sum_bound : ∀ᶠ l in Filter.atTop, ∀ k ∈ Finset.Ico (2^(l-1) : ℕ) (2^l : ℕ), Real.log (counting_function A (k : ℝ)) / (counting_function A (k : ℝ) : ℝ) ≥ Real.log (counting_function A (2^l : ℝ)) / (counting_function A (2^l : ℝ) : ℝ) := by
-    exact?;
+    exact dyadic_term_bound hA
   filter_upwards [ h_sum_bound, Filter.eventually_gt_atTop 0 ] with l hl hl';
   convert Finset.sum_le_sum hl ; aesop
 
@@ -870,9 +865,6 @@ lemma counting_union_bound {B : ℕ → Finset ℕ} {L : ℕ}
   exact_mod_cast le_trans ( Finset.card_le_card h_subset ) ( Finset.card_biUnion_le )
 
 
-#check Lorentz_theorem
-#check counting_union_bound
-
 open scoped Pointwise
 
 theorem Lorentz_theorem_proven (A : Set ℕ) (hA : A.Infinite) :
@@ -916,7 +908,7 @@ theorem Erdos_Straus_conjecture (A : Set ℕ) (hA : A.Infinite) :
     have h_A_inf : Filter.Tendsto (fun k : ℕ => (counting_function A k : ℝ)) Filter.atTop Filter.atTop := by
       have h_A_inf : Filter.Tendsto (fun k : ℕ => (counting_function A k : ℝ)) Filter.atTop Filter.atTop := by
         have h_A_inf_aux : Filter.Tendsto (counting_function A) Filter.atTop Filter.atTop := by
-          exact?
+          exact counting_function_tendsto_atTop hA
         rw [ Filter.tendsto_atTop_atTop ] at *;
         exact fun x => by rcases h_A_inf_aux ⌈x⌉₊ with ⟨ i, hi ⟩ ; exact ⟨ ⌈i⌉₊, fun n hin => le_trans ( Nat.le_ceil _ ) ( mod_cast hi n ( Nat.le_of_ceil_le hin ) ) ⟩ ;
       convert h_A_inf using 1;
@@ -942,9 +934,6 @@ theorem Erdos_Straus_conjecture (A : Set ℕ) (hA : A.Infinite) :
           -- Applying the triangle inequality to the sum of the second part, we get |∑ k ∈ Finset.Ico N n, u (k + 1)| ≤ ∑ k ∈ Finset.Ico N n, |u (k + 1)|.
           have h_triangle : |∑ k ∈ Finset.Ico N n, u (k + 1)| ≤ ∑ k ∈ Finset.Ico N n, |u (k + 1)| := by
             exact Finset.abs_sum_le_sum_abs _ _;
-          -- Applying the triangle inequality to the sum of the two parts, we get |∑ k ∈ Finset.range N, u (k + 1) + ∑ k ∈ Finset.Ico N n, u (k + 1)| ≤ |∑ k ∈ Finset.range N, u (k + 1)| + |∑ k ∈ Finset.Ico N n, u (k + 1)|.
-          have h_triangle : |∑ k ∈ Finset.range N, u (k + 1) + ∑ k ∈ Finset.Ico N n, u (k + 1)| ≤ |∑ k ∈ Finset.range N, u (k + 1)| + |∑ k ∈ Finset.Ico N n, u (k + 1)| := by
-            exact?;
           grind
         refine' ⟨ N + ⌈ ( |∑ k ∈ Finset.range N, u ( k + 1)| + 1 ) / ( ε / 2 ) ⌉₊ + 1, fun n hn => _ ⟩ ; rw [ div_lt_iff₀ ] <;> nlinarith [ Nat.le_ceil ( ( |∑ k ∈ Finset.range N, u ( k + 1)| + 1 ) / ( ε / 2 ) ), mul_div_cancel₀ ( |∑ k ∈ Finset.range N, u ( k + 1)| + 1 ) ( by linarith : ( ε / 2 ) ≠ 0 ), show ( n : ℝ ) ≥ N + ⌈ ( |∑ k ∈ Finset.range N, u ( k + 1)| + 1 ) / ( ε / 2 ) ⌉₊ + 1 by exact_mod_cast hn, h_split_sum n ( by linarith ), show ( ∑ k ∈ Finset.Ico N n, |u ( k + 1 )| ) ≤ ( n - N ) * ( ε / 2 ) by exact le_trans ( Finset.sum_le_sum fun i hi => le_of_lt ( hN _ ( by linarith [ Finset.mem_Ico.mp hi ] ) ) ) ( by simp +decide [ Nat.cast_sub ( show N ≤ n by linarith ) ] ) ];
       convert h_avg_zero h_log_A_inf using 2 ; erw [ Finset.sum_Ico_eq_sub _ _ ] <;> norm_num [ Finset.sum_range_succ' ];
@@ -1022,6 +1011,9 @@ theorem erdos_31 (A : Set ℕ) (hA : A.Infinite) :
     simpa [ add_div ] using h_diff.add ( tendsto_one_div_add_atTop_nhds_zero_nat );
   · refine' squeeze_zero_norm' _ a;
     filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn using by rw [ Real.norm_of_nonneg ( by positivity ) ] ; gcongr ; linarith;
+
+#print axioms erdos_31
+-- 'Erdos31.erdos_31' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end
 
