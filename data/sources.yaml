@@ -513,6 +513,23 @@
   url:
     - https://www.erdosproblems.com/forum/thread/290#post-3180
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem290.lean
+- key: ErdosProblems.Erdos296
+  author:
+    informal:
+      human:
+        - Thomas Bloom
+        - Zachary Hunter
+        - Mehtaab Sawhney
+    formal:
+      AI: Aristotle
+      human: John Jennings
+  arxiv: https://arxiv.org/abs/2112.03726
+  url:
+    - https://www.erdosproblems.com/forum/thread/296#post-5713
+    - https://gist.githubusercontent.com/JohnEdwardJennings/d1ba8d7b8c63cc7eade1243e19e2eb35/raw/7402a8e36283841cbc7e0588760d701a4e84c3a2/Erdos296.lean
+    - https://github.com/b-mehta/unit-fractions/blob/master/src/final_results.lean
+  conditional: unit_fractions_upper_log_density
+  todo: Import Bloom-Mehta unit-fractions project.
 - key: ErdosProblems.Erdos298
   author:
     informal:
