@@ -408,6 +408,24 @@
   url:
     - https://www.erdosproblems.com/forum/thread/246
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos246.md
+- key: ErdosProblems.Erdos258
+  author:
+    informal:
+      AI: GPT-5.4 Pro
+      human: Przemek Chojecki
+    statement: Formal Conjectures authors
+    formal:
+      AI: Aristotle
+      human:
+        - Przemek Chojecki
+        - Stefano Rocca
+  url:
+    - https://www.erdosproblems.com/forum/thread/258
+    - https://www.ulam.ai/research/erdos258.pdf
+    - https://www.ulam.ai/research/erdos258.tar.gz
+    - https://gist.githubusercontent.com/ster-oc/2b7adcf9d753cf6e29d782f7374cc57e/raw/689a8483895cbe147634dfbf2d7b1db93a3b5b5f/Erdos258.lean
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/258.lean
+  conditional: tao_teravainen
 - key: ErdosProblems.Erdos298
   author:
     informal:
