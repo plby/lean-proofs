@@ -395,6 +395,19 @@
     - maynard_tao
     - mertens_third_theorem
   todo: Import Wouter's Mertens3 proof.
+- key: ErdosProblems.Erdos246
+  author:
+    informal:
+      human: Bryan John Birch
+      AI: ChatGPT
+    statement:
+      AI: Aristotle
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/246
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos246.md
 - key: ErdosProblems.Erdos298
   author:
     informal:
