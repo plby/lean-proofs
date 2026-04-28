@@ -11,6 +11,7 @@ import ErdosProblems.Erdos134
 import ErdosProblems.Erdos150
 import ErdosProblems.Erdos154
 import ErdosProblems.Erdos164
+import ErdosProblems.Erdos189
 import ErdosProblems.Erdos990
 import ErdosProblems.Erdos990b
 import ErdosProblems.Erdos1014
