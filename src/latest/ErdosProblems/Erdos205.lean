@@ -27,6 +27,7 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 -/
 
 import Mathlib
+import ErdosProblems.Axioms
 
 set_option linter.style.whitespace false
 set_option linter.style.longLine false
@@ -42,11 +43,12 @@ open Real Filter Asymptotics
 /-
 We assume we have the Prime Number Theorem in the (asymptotic) form
   nth_prime n ~ n * log n  as n → ∞.
--/
+
 noncomputable abbrev nth_prime (n : ℕ) : ℕ := Nat.nth Nat.Prime n
 
 axiom nth_prime_asymp :
     (fun n ↦ ((nth_prime n) : ℝ)) ~[atTop] (fun n ↦ (n : ℝ) * Real.log (n : ℝ))
+-/
 
 /-
 Let Omega(m) be the number of prime factors of m counted with multiplicity.
