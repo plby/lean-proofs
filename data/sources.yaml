@@ -441,6 +441,19 @@
     - https://www.erdosproblems.com/forum/thread/259#post-5683
     - https://gist.githubusercontent.com/ster-oc/c7429943f6b3a634797dc8b2a3b01f2d/raw/8c6b5b7f08021f0aed2312542dd2e9ee7beaa6d6/Erdos259.lean
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/259.lean
+- key: ErdosProblems.Erdos268
+  author:
+    informal:
+      human: Vjekoslav Kovač
+    statement: Formal Conjectures authors
+    formal:
+      AI: Aristotle
+      human: Matteo Del Vecchio
+  arxiv: https://arxiv.org/abs/2405.07681
+  url:
+    - https://www.erdosproblems.com/forum/thread/268#post-5359
+    - https://gist.githubusercontent.com/madeve-unipi/62a8f68cdb4864b85b81a6752dcb0aa4/raw/5793aaa51089c25c37d8d63f60540367f6abe506/Erdos268.lean
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/268.lean
 - key: ErdosProblems.Erdos298
   author:
     informal:
