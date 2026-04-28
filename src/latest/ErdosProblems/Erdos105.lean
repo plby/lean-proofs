@@ -212,4 +212,7 @@ theorem not_erdos_105 : ¬erdos_105 := by
   obtain ⟨b, hbB, hbline⟩ := neg_last_condition_sets p q hpA hqA hpq;
   aesop
 
+#print axioms not_erdos_105
+--
+
 end Erdos105
