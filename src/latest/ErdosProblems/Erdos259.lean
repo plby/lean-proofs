@@ -33,6 +33,13 @@ open ArithmeticFunction
 
 noncomputable section
 
+set_option linter.style.setOption false
+set_option linter.style.maxHeartbeats false
+set_option linter.flexible false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+set_option linter.style.whitespace false
+
 
 /-! # Chapter 1: Definitions -/
 
