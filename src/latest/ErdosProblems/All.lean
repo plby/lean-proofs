@@ -4,6 +4,7 @@ import ErdosProblems.Erdos26
 import ErdosProblems.Erdos31
 import ErdosProblems.Erdos34
 import ErdosProblems.Erdos56
+import ErdosProblems.Erdos93
 import ErdosProblems.Erdos164
 import ErdosProblems.Erdos990
 import ErdosProblems.Erdos990b
