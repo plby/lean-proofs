@@ -554,6 +554,24 @@
   url: https://github.com/b-mehta/unit-fractions
   latest_version: "3.42.1"
   todo: Convert from Lean3.
+- key: ErdosProblems.Erdos303
+  author:
+    informal:
+      human:
+        - Tom C. Brown
+        - Vojtěch Rödl
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Seed-Prover
+        - Aristotle
+      human:
+        - Zheng Yuan
+        - Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/330#post-2334
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos303.md
+  url_ref: Zheng_Yuan_303
 - key: ErdosProblems.Erdos990
   author:
     informal:
