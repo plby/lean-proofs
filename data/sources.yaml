@@ -309,6 +309,8 @@
   url:
     - https://www.erdosproblems.com/forum/thread/205
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos205.md
+  conditional: nth_prime_asymp
+  todo: Import PNT+ project.
 - key: ErdosProblems.Erdos214
   author:
     informal:
