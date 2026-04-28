@@ -572,6 +572,19 @@
     - https://www.erdosproblems.com/forum/thread/330#post-2334
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos303.md
   url_ref: Zheng_Yuan_303
+- key: ErdosProblems.Erdos314
+  author:
+    informal:
+      human:
+        - Jeck Lim
+        - Stefan Steinerberger
+    formal:
+      AI: Aristotle
+      human: Wouter van Doorn
+  arxiv: https://arxiv.org/abs/2405.11354
+  url:
+    - https://www.erdosproblems.com/forum/thread/314#post-5193
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem314.lean
 - key: ErdosProblems.Erdos990
   author:
     informal:
