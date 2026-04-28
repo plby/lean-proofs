@@ -22,6 +22,7 @@ import ErdosProblems.Erdos205
 import ErdosProblems.Erdos221
 import ErdosProblems.Erdos224
 import ErdosProblems.Erdos226
+import ErdosProblems.Erdos229
 import ErdosProblems.Erdos237
 import ErdosProblems.Erdos246
 import ErdosProblems.Erdos258
