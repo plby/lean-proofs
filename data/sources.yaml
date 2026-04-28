@@ -219,6 +219,67 @@
   url:
     - https://www.erdosproblems.com/forum/thread/164
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos164.md
+- key: ErdosProblems.Erdos178
+  author:
+    informal:
+      human: József Beck
+    formal:
+      AI: Aristotle
+      human: Matteo Del Vecchio
+  url:
+    - https://www.erdosproblems.com/forum/thread/178#post-5685
+    - https://gist.githubusercontent.com/madeve-unipi/ca9c3d1f94fe124c15726d836e1cd623/raw/a272de656847d3956e1c228c833ff3c591dc4872/Erdos178.lean
+- key: ErdosProblems.Erdos189
+  author:
+    informal:
+      human: Vjekoslav Kovač
+    statement: Formal Conjectures authors
+    formal:
+      AI: Aristotle
+      human: Vjekoslav Kovač
+  arxiv: https://arxiv.org/abs/2309.09973
+  url:
+    - https://www.erdosproblems.com/forum/thread/189
+    - https://web.math.pmf.unizg.hr/~vjekovac/EP/EP189/Erdos189_blueprint.tex
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos189.md
+- key: ErdosProblems.Erdos194
+  author:
+    informal:
+      human:
+        - Hayri Ardal
+        - Tom Brown
+        - Veselin Jungić
+    statement: Formal Conjectures authors
+    formal:
+      AI: Aristotle
+      human: Stefano Rocca
+  url:
+    - https://www.erdosproblems.com/forum/thread/194#post-5430
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/194.lean
+    - https://gist.githubusercontent.com/ster-oc/ffe9e4fa1b813111f40c0e417bbe8be0/raw/6f748a76e55d47e24ca319a9c00fd20ab79422bb/Erdos194.lean
+- key: ErdosProblems.Erdos198
+  author:
+    informal:
+      human: James E. Baumgartner
+      AI:
+        - ChatGPT 5.1 Pro
+        - AlphaProof
+    statement: Formal Conjectures authors
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/198
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos198.md
+- key: ErdosProblems.Erdos199
+  author:
+    informal:
+      human: James E. Baumgartner
+    formal:
+      AI: Aristotle
+      human: JoshuaB
+  url: https://www.erdosproblems.com/forum/thread/199#post-4442
+  url_ref: JoshuaB_199
 - key: ErdosProblems.Erdos298
   author:
     informal:
