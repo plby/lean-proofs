@@ -347,6 +347,35 @@
   url:
     - https://www.erdosproblems.com/forum/thread/224#post-3157
     - https://github.com/SpringSense-Innovation-Institute/ai-for-math-lean/blob/main/erdos-problems/erdos224/Erdos224.lean
+- key: ErdosProblems.Erdos226
+  author:
+    informal:
+      human:
+        - K. F. Barth
+        - W. J. Schneider
+      AI: ChatGPT
+    statement:
+      AI: Aristotle
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/226
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos226.md
+- key: ErdosProblems.Erdos229
+  author:
+    informal:
+      human:
+        - K. F. Barth
+        - W. J. Schneider
+      AI: ChatGPT
+    statement: Formal Conjectures authors
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/229
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos229.md
 - key: ErdosProblems.Erdos298
   author:
     informal:
