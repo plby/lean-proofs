@@ -486,6 +486,20 @@
   url:
     - https://www.erdosproblems.com/forum/thread/280#post-5595
     - https://gist.githubusercontent.com/LorenzoLuccioli/2dda92a192c15c24263c8a258979e7e3/raw/b9f4c664a42977075e361da17759bd0f71998ff8/Erdos280.lean
+- key: ErdosProblems.Erdos281
+  author:
+    informal:
+      human: Neel Somani
+      AI: GPT-5.2 Pro
+    formal:
+      AI:
+        - Aristotle
+        - Gemini 3.0 Flash
+      human: JakeMallen
+  url:
+    - https://www.erdosproblems.com/forum/thread/281#post-3445
+    - https://chatgpt.com/share/696ac45b-70d8-8003-9ca4-320151e0816e
+  url_ref: JakeMallen_281
 - key: ErdosProblems.Erdos298
   author:
     informal:
