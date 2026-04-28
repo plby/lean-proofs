@@ -49,7 +49,6 @@ set_option linter.style.cases false
 set_option linter.style.cdot false
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
-set_option linter.style.nativeDecide false
 set_option linter.style.openClassical false
 set_option linter.style.refine false
 set_option linter.style.setOption false
