@@ -65,6 +65,1448 @@ set_option autoImplicit false
 
 noncomputable section
 
+section PrimeCertificates
+
+private lemma not_prime_of_divisor {d n : ℕ} (hdvd : d ∣ n) (hd : 2 ≤ d) (hdn : d < n) :
+    ¬ Nat.Prime n :=
+  Nat.not_prime_of_dvd_of_lt hdvd hd hdn
+
+private lemma prime_of_no_small_divisors {n : ℕ}
+    (hn : 2 ≤ n)
+    (h : ∀ d, 2 ≤ d → d ≤ Nat.sqrt n → ¬ d ∣ n) :
+    Nat.Prime n :=
+  Nat.prime_def_le_sqrt.mpr ⟨hn, h⟩
+
+syntax "prime_cert " num : command
+macro_rules
+  | `(prime_cert $n:num) => do
+    let name := Lean.mkIdent <| Lean.Name.mkSimple s!"prime_{n.getNat}"
+    `(@[local simp] lemma $name : Nat.Prime $n :=
+        prime_of_no_small_divisors (by norm_num) (by
+          intro d hd hds
+          interval_cases d <;> norm_num))
+
+syntax "not_prime_cert " num " divisor " num : command
+macro_rules
+  | `(not_prime_cert $n:num divisor $d:num) => do
+    let name := Lean.mkIdent <| Lean.Name.mkSimple s!"not_prime_{n.getNat}"
+    `(@[local simp] lemma $name : ¬ Nat.Prime $n :=
+        not_prime_of_divisor (d := $d) (by norm_num) (by norm_num) (by norm_num))
+
+@[local simp] lemma not_prime_0 : ¬ Nat.Prime 0 := Nat.not_prime_zero
+@[local simp] lemma not_prime_1 : ¬ Nat.Prime 1 := Nat.not_prime_one
+
+not_prime_cert 4 divisor 2
+not_prime_cert 6 divisor 2
+not_prime_cert 8 divisor 2
+not_prime_cert 9 divisor 3
+not_prime_cert 10 divisor 2
+not_prime_cert 12 divisor 2
+not_prime_cert 14 divisor 2
+not_prime_cert 15 divisor 3
+not_prime_cert 16 divisor 2
+not_prime_cert 18 divisor 2
+not_prime_cert 20 divisor 2
+not_prime_cert 21 divisor 3
+not_prime_cert 22 divisor 2
+not_prime_cert 24 divisor 2
+not_prime_cert 25 divisor 5
+not_prime_cert 26 divisor 2
+not_prime_cert 27 divisor 3
+not_prime_cert 28 divisor 2
+not_prime_cert 30 divisor 2
+not_prime_cert 32 divisor 2
+not_prime_cert 33 divisor 3
+not_prime_cert 34 divisor 2
+not_prime_cert 35 divisor 5
+not_prime_cert 36 divisor 2
+not_prime_cert 38 divisor 2
+not_prime_cert 39 divisor 3
+not_prime_cert 40 divisor 2
+not_prime_cert 42 divisor 2
+not_prime_cert 44 divisor 2
+not_prime_cert 45 divisor 3
+not_prime_cert 46 divisor 2
+not_prime_cert 48 divisor 2
+not_prime_cert 49 divisor 7
+not_prime_cert 50 divisor 2
+not_prime_cert 51 divisor 3
+not_prime_cert 52 divisor 2
+not_prime_cert 54 divisor 2
+not_prime_cert 55 divisor 5
+not_prime_cert 56 divisor 2
+not_prime_cert 57 divisor 3
+not_prime_cert 58 divisor 2
+not_prime_cert 60 divisor 2
+not_prime_cert 62 divisor 2
+not_prime_cert 63 divisor 3
+not_prime_cert 64 divisor 2
+not_prime_cert 65 divisor 5
+not_prime_cert 66 divisor 2
+not_prime_cert 68 divisor 2
+not_prime_cert 69 divisor 3
+not_prime_cert 70 divisor 2
+not_prime_cert 72 divisor 2
+not_prime_cert 74 divisor 2
+not_prime_cert 75 divisor 3
+not_prime_cert 76 divisor 2
+not_prime_cert 77 divisor 7
+not_prime_cert 78 divisor 2
+not_prime_cert 80 divisor 2
+not_prime_cert 81 divisor 3
+not_prime_cert 82 divisor 2
+not_prime_cert 84 divisor 2
+not_prime_cert 85 divisor 5
+not_prime_cert 86 divisor 2
+not_prime_cert 87 divisor 3
+not_prime_cert 88 divisor 2
+not_prime_cert 90 divisor 2
+not_prime_cert 91 divisor 7
+not_prime_cert 92 divisor 2
+not_prime_cert 93 divisor 3
+not_prime_cert 94 divisor 2
+not_prime_cert 95 divisor 5
+not_prime_cert 96 divisor 2
+not_prime_cert 98 divisor 2
+not_prime_cert 99 divisor 3
+not_prime_cert 100 divisor 2
+not_prime_cert 102 divisor 2
+not_prime_cert 104 divisor 2
+not_prime_cert 105 divisor 3
+not_prime_cert 106 divisor 2
+not_prime_cert 108 divisor 2
+not_prime_cert 110 divisor 2
+not_prime_cert 111 divisor 3
+not_prime_cert 112 divisor 2
+not_prime_cert 114 divisor 2
+not_prime_cert 115 divisor 5
+not_prime_cert 116 divisor 2
+not_prime_cert 117 divisor 3
+not_prime_cert 118 divisor 2
+not_prime_cert 119 divisor 7
+not_prime_cert 120 divisor 2
+not_prime_cert 121 divisor 11
+not_prime_cert 122 divisor 2
+not_prime_cert 123 divisor 3
+not_prime_cert 124 divisor 2
+not_prime_cert 125 divisor 5
+not_prime_cert 126 divisor 2
+not_prime_cert 128 divisor 2
+not_prime_cert 129 divisor 3
+not_prime_cert 130 divisor 2
+not_prime_cert 132 divisor 2
+not_prime_cert 133 divisor 7
+not_prime_cert 134 divisor 2
+not_prime_cert 135 divisor 3
+not_prime_cert 136 divisor 2
+not_prime_cert 138 divisor 2
+not_prime_cert 140 divisor 2
+not_prime_cert 141 divisor 3
+not_prime_cert 142 divisor 2
+not_prime_cert 143 divisor 11
+not_prime_cert 144 divisor 2
+not_prime_cert 145 divisor 5
+not_prime_cert 146 divisor 2
+not_prime_cert 147 divisor 3
+not_prime_cert 148 divisor 2
+not_prime_cert 150 divisor 2
+not_prime_cert 152 divisor 2
+not_prime_cert 153 divisor 3
+not_prime_cert 154 divisor 2
+not_prime_cert 155 divisor 5
+not_prime_cert 156 divisor 2
+not_prime_cert 158 divisor 2
+not_prime_cert 159 divisor 3
+not_prime_cert 160 divisor 2
+not_prime_cert 161 divisor 7
+not_prime_cert 162 divisor 2
+not_prime_cert 164 divisor 2
+not_prime_cert 165 divisor 3
+not_prime_cert 166 divisor 2
+not_prime_cert 168 divisor 2
+not_prime_cert 169 divisor 13
+not_prime_cert 170 divisor 2
+not_prime_cert 171 divisor 3
+not_prime_cert 172 divisor 2
+not_prime_cert 174 divisor 2
+not_prime_cert 175 divisor 5
+not_prime_cert 176 divisor 2
+not_prime_cert 177 divisor 3
+not_prime_cert 178 divisor 2
+not_prime_cert 180 divisor 2
+not_prime_cert 182 divisor 2
+not_prime_cert 183 divisor 3
+not_prime_cert 184 divisor 2
+not_prime_cert 185 divisor 5
+not_prime_cert 186 divisor 2
+not_prime_cert 187 divisor 11
+not_prime_cert 188 divisor 2
+not_prime_cert 189 divisor 3
+not_prime_cert 190 divisor 2
+not_prime_cert 192 divisor 2
+not_prime_cert 194 divisor 2
+not_prime_cert 195 divisor 3
+not_prime_cert 196 divisor 2
+not_prime_cert 198 divisor 2
+not_prime_cert 200 divisor 2
+not_prime_cert 201 divisor 3
+not_prime_cert 202 divisor 2
+not_prime_cert 203 divisor 7
+not_prime_cert 204 divisor 2
+not_prime_cert 205 divisor 5
+not_prime_cert 206 divisor 2
+not_prime_cert 207 divisor 3
+not_prime_cert 208 divisor 2
+not_prime_cert 209 divisor 11
+not_prime_cert 210 divisor 2
+not_prime_cert 212 divisor 2
+not_prime_cert 213 divisor 3
+not_prime_cert 214 divisor 2
+not_prime_cert 215 divisor 5
+not_prime_cert 216 divisor 2
+not_prime_cert 217 divisor 7
+not_prime_cert 218 divisor 2
+not_prime_cert 219 divisor 3
+not_prime_cert 220 divisor 2
+not_prime_cert 221 divisor 13
+not_prime_cert 222 divisor 2
+not_prime_cert 224 divisor 2
+not_prime_cert 225 divisor 3
+not_prime_cert 226 divisor 2
+not_prime_cert 228 divisor 2
+not_prime_cert 230 divisor 2
+not_prime_cert 231 divisor 3
+not_prime_cert 232 divisor 2
+not_prime_cert 234 divisor 2
+not_prime_cert 235 divisor 5
+not_prime_cert 236 divisor 2
+not_prime_cert 237 divisor 3
+not_prime_cert 238 divisor 2
+not_prime_cert 240 divisor 2
+not_prime_cert 242 divisor 2
+not_prime_cert 243 divisor 3
+not_prime_cert 244 divisor 2
+not_prime_cert 245 divisor 5
+not_prime_cert 246 divisor 2
+not_prime_cert 247 divisor 13
+not_prime_cert 248 divisor 2
+not_prime_cert 249 divisor 3
+not_prime_cert 250 divisor 2
+not_prime_cert 252 divisor 2
+not_prime_cert 253 divisor 11
+not_prime_cert 254 divisor 2
+not_prime_cert 255 divisor 3
+not_prime_cert 256 divisor 2
+not_prime_cert 258 divisor 2
+not_prime_cert 259 divisor 7
+not_prime_cert 260 divisor 2
+not_prime_cert 261 divisor 3
+not_prime_cert 262 divisor 2
+not_prime_cert 264 divisor 2
+not_prime_cert 265 divisor 5
+not_prime_cert 266 divisor 2
+not_prime_cert 267 divisor 3
+not_prime_cert 268 divisor 2
+not_prime_cert 270 divisor 2
+not_prime_cert 272 divisor 2
+not_prime_cert 273 divisor 3
+not_prime_cert 274 divisor 2
+not_prime_cert 275 divisor 5
+not_prime_cert 276 divisor 2
+not_prime_cert 278 divisor 2
+not_prime_cert 279 divisor 3
+not_prime_cert 280 divisor 2
+not_prime_cert 282 divisor 2
+not_prime_cert 284 divisor 2
+not_prime_cert 285 divisor 3
+not_prime_cert 286 divisor 2
+not_prime_cert 287 divisor 7
+not_prime_cert 288 divisor 2
+not_prime_cert 289 divisor 17
+not_prime_cert 290 divisor 2
+not_prime_cert 291 divisor 3
+not_prime_cert 292 divisor 2
+not_prime_cert 294 divisor 2
+not_prime_cert 295 divisor 5
+not_prime_cert 296 divisor 2
+not_prime_cert 297 divisor 3
+not_prime_cert 298 divisor 2
+not_prime_cert 299 divisor 13
+not_prime_cert 300 divisor 2
+not_prime_cert 301 divisor 7
+not_prime_cert 302 divisor 2
+not_prime_cert 303 divisor 3
+not_prime_cert 304 divisor 2
+not_prime_cert 305 divisor 5
+not_prime_cert 306 divisor 2
+not_prime_cert 308 divisor 2
+not_prime_cert 309 divisor 3
+not_prime_cert 310 divisor 2
+not_prime_cert 312 divisor 2
+not_prime_cert 314 divisor 2
+not_prime_cert 315 divisor 3
+not_prime_cert 316 divisor 2
+not_prime_cert 318 divisor 2
+not_prime_cert 319 divisor 11
+not_prime_cert 320 divisor 2
+not_prime_cert 321 divisor 3
+not_prime_cert 322 divisor 2
+not_prime_cert 323 divisor 17
+not_prime_cert 324 divisor 2
+not_prime_cert 325 divisor 5
+not_prime_cert 326 divisor 2
+not_prime_cert 327 divisor 3
+not_prime_cert 328 divisor 2
+not_prime_cert 329 divisor 7
+not_prime_cert 330 divisor 2
+not_prime_cert 332 divisor 2
+not_prime_cert 333 divisor 3
+not_prime_cert 334 divisor 2
+not_prime_cert 335 divisor 5
+not_prime_cert 336 divisor 2
+not_prime_cert 338 divisor 2
+not_prime_cert 339 divisor 3
+not_prime_cert 340 divisor 2
+not_prime_cert 341 divisor 11
+not_prime_cert 342 divisor 2
+not_prime_cert 343 divisor 7
+not_prime_cert 344 divisor 2
+not_prime_cert 345 divisor 3
+not_prime_cert 346 divisor 2
+not_prime_cert 348 divisor 2
+not_prime_cert 350 divisor 2
+not_prime_cert 351 divisor 3
+not_prime_cert 352 divisor 2
+not_prime_cert 354 divisor 2
+not_prime_cert 355 divisor 5
+not_prime_cert 356 divisor 2
+not_prime_cert 357 divisor 3
+not_prime_cert 358 divisor 2
+not_prime_cert 360 divisor 2
+not_prime_cert 361 divisor 19
+not_prime_cert 362 divisor 2
+not_prime_cert 363 divisor 3
+not_prime_cert 364 divisor 2
+not_prime_cert 365 divisor 5
+not_prime_cert 366 divisor 2
+not_prime_cert 368 divisor 2
+not_prime_cert 369 divisor 3
+not_prime_cert 370 divisor 2
+not_prime_cert 371 divisor 7
+not_prime_cert 372 divisor 2
+not_prime_cert 374 divisor 2
+not_prime_cert 375 divisor 3
+not_prime_cert 376 divisor 2
+not_prime_cert 377 divisor 13
+not_prime_cert 378 divisor 2
+not_prime_cert 380 divisor 2
+not_prime_cert 381 divisor 3
+not_prime_cert 382 divisor 2
+not_prime_cert 384 divisor 2
+not_prime_cert 385 divisor 5
+not_prime_cert 386 divisor 2
+not_prime_cert 387 divisor 3
+not_prime_cert 388 divisor 2
+not_prime_cert 390 divisor 2
+not_prime_cert 391 divisor 17
+not_prime_cert 392 divisor 2
+not_prime_cert 393 divisor 3
+not_prime_cert 394 divisor 2
+not_prime_cert 395 divisor 5
+not_prime_cert 396 divisor 2
+not_prime_cert 398 divisor 2
+not_prime_cert 399 divisor 3
+not_prime_cert 400 divisor 2
+not_prime_cert 402 divisor 2
+not_prime_cert 403 divisor 13
+not_prime_cert 404 divisor 2
+not_prime_cert 405 divisor 3
+not_prime_cert 406 divisor 2
+not_prime_cert 407 divisor 11
+not_prime_cert 408 divisor 2
+not_prime_cert 410 divisor 2
+not_prime_cert 411 divisor 3
+not_prime_cert 412 divisor 2
+not_prime_cert 413 divisor 7
+not_prime_cert 414 divisor 2
+not_prime_cert 415 divisor 5
+not_prime_cert 416 divisor 2
+not_prime_cert 417 divisor 3
+not_prime_cert 418 divisor 2
+not_prime_cert 420 divisor 2
+not_prime_cert 422 divisor 2
+not_prime_cert 423 divisor 3
+not_prime_cert 424 divisor 2
+not_prime_cert 425 divisor 5
+not_prime_cert 426 divisor 2
+not_prime_cert 427 divisor 7
+not_prime_cert 428 divisor 2
+not_prime_cert 429 divisor 3
+not_prime_cert 430 divisor 2
+not_prime_cert 432 divisor 2
+not_prime_cert 434 divisor 2
+not_prime_cert 435 divisor 3
+not_prime_cert 436 divisor 2
+not_prime_cert 437 divisor 19
+not_prime_cert 438 divisor 2
+not_prime_cert 440 divisor 2
+not_prime_cert 441 divisor 3
+not_prime_cert 442 divisor 2
+not_prime_cert 444 divisor 2
+not_prime_cert 445 divisor 5
+not_prime_cert 446 divisor 2
+not_prime_cert 447 divisor 3
+not_prime_cert 448 divisor 2
+not_prime_cert 450 divisor 2
+not_prime_cert 451 divisor 11
+not_prime_cert 452 divisor 2
+not_prime_cert 453 divisor 3
+not_prime_cert 454 divisor 2
+not_prime_cert 455 divisor 5
+not_prime_cert 456 divisor 2
+not_prime_cert 458 divisor 2
+not_prime_cert 459 divisor 3
+not_prime_cert 460 divisor 2
+not_prime_cert 462 divisor 2
+not_prime_cert 464 divisor 2
+not_prime_cert 465 divisor 3
+not_prime_cert 466 divisor 2
+not_prime_cert 468 divisor 2
+not_prime_cert 469 divisor 7
+not_prime_cert 470 divisor 2
+not_prime_cert 471 divisor 3
+not_prime_cert 472 divisor 2
+not_prime_cert 473 divisor 11
+not_prime_cert 474 divisor 2
+not_prime_cert 475 divisor 5
+not_prime_cert 476 divisor 2
+not_prime_cert 477 divisor 3
+not_prime_cert 478 divisor 2
+not_prime_cert 480 divisor 2
+not_prime_cert 481 divisor 13
+not_prime_cert 482 divisor 2
+not_prime_cert 483 divisor 3
+not_prime_cert 484 divisor 2
+not_prime_cert 485 divisor 5
+not_prime_cert 486 divisor 2
+not_prime_cert 488 divisor 2
+not_prime_cert 489 divisor 3
+not_prime_cert 490 divisor 2
+not_prime_cert 492 divisor 2
+not_prime_cert 493 divisor 17
+not_prime_cert 494 divisor 2
+not_prime_cert 495 divisor 3
+not_prime_cert 496 divisor 2
+not_prime_cert 497 divisor 7
+not_prime_cert 498 divisor 2
+not_prime_cert 500 divisor 2
+not_prime_cert 501 divisor 3
+not_prime_cert 502 divisor 2
+not_prime_cert 504 divisor 2
+not_prime_cert 505 divisor 5
+not_prime_cert 506 divisor 2
+not_prime_cert 507 divisor 3
+not_prime_cert 508 divisor 2
+not_prime_cert 510 divisor 2
+not_prime_cert 511 divisor 7
+not_prime_cert 512 divisor 2
+not_prime_cert 513 divisor 3
+not_prime_cert 514 divisor 2
+not_prime_cert 515 divisor 5
+not_prime_cert 516 divisor 2
+not_prime_cert 517 divisor 11
+not_prime_cert 518 divisor 2
+not_prime_cert 519 divisor 3
+not_prime_cert 520 divisor 2
+not_prime_cert 522 divisor 2
+not_prime_cert 524 divisor 2
+not_prime_cert 525 divisor 3
+not_prime_cert 526 divisor 2
+not_prime_cert 527 divisor 17
+not_prime_cert 528 divisor 2
+not_prime_cert 529 divisor 23
+not_prime_cert 530 divisor 2
+not_prime_cert 531 divisor 3
+not_prime_cert 532 divisor 2
+not_prime_cert 533 divisor 13
+not_prime_cert 534 divisor 2
+not_prime_cert 535 divisor 5
+not_prime_cert 536 divisor 2
+not_prime_cert 537 divisor 3
+not_prime_cert 538 divisor 2
+not_prime_cert 539 divisor 7
+not_prime_cert 540 divisor 2
+not_prime_cert 542 divisor 2
+not_prime_cert 543 divisor 3
+not_prime_cert 544 divisor 2
+not_prime_cert 545 divisor 5
+not_prime_cert 546 divisor 2
+not_prime_cert 548 divisor 2
+not_prime_cert 549 divisor 3
+not_prime_cert 550 divisor 2
+not_prime_cert 551 divisor 19
+not_prime_cert 552 divisor 2
+not_prime_cert 553 divisor 7
+not_prime_cert 554 divisor 2
+not_prime_cert 555 divisor 3
+not_prime_cert 556 divisor 2
+not_prime_cert 558 divisor 2
+not_prime_cert 559 divisor 13
+not_prime_cert 560 divisor 2
+not_prime_cert 561 divisor 3
+not_prime_cert 562 divisor 2
+not_prime_cert 564 divisor 2
+not_prime_cert 565 divisor 5
+not_prime_cert 566 divisor 2
+not_prime_cert 567 divisor 3
+not_prime_cert 568 divisor 2
+not_prime_cert 570 divisor 2
+not_prime_cert 572 divisor 2
+not_prime_cert 573 divisor 3
+not_prime_cert 574 divisor 2
+not_prime_cert 575 divisor 5
+not_prime_cert 576 divisor 2
+not_prime_cert 578 divisor 2
+not_prime_cert 579 divisor 3
+not_prime_cert 580 divisor 2
+not_prime_cert 581 divisor 7
+not_prime_cert 582 divisor 2
+not_prime_cert 583 divisor 11
+not_prime_cert 584 divisor 2
+not_prime_cert 585 divisor 3
+not_prime_cert 586 divisor 2
+not_prime_cert 588 divisor 2
+not_prime_cert 589 divisor 19
+not_prime_cert 590 divisor 2
+not_prime_cert 591 divisor 3
+not_prime_cert 592 divisor 2
+not_prime_cert 594 divisor 2
+not_prime_cert 595 divisor 5
+not_prime_cert 596 divisor 2
+not_prime_cert 597 divisor 3
+not_prime_cert 598 divisor 2
+not_prime_cert 600 divisor 2
+not_prime_cert 602 divisor 2
+not_prime_cert 603 divisor 3
+not_prime_cert 604 divisor 2
+not_prime_cert 605 divisor 5
+not_prime_cert 606 divisor 2
+not_prime_cert 608 divisor 2
+not_prime_cert 609 divisor 3
+not_prime_cert 610 divisor 2
+not_prime_cert 611 divisor 13
+not_prime_cert 612 divisor 2
+not_prime_cert 614 divisor 2
+not_prime_cert 615 divisor 3
+not_prime_cert 616 divisor 2
+not_prime_cert 618 divisor 2
+not_prime_cert 620 divisor 2
+not_prime_cert 621 divisor 3
+not_prime_cert 622 divisor 2
+not_prime_cert 623 divisor 7
+not_prime_cert 624 divisor 2
+not_prime_cert 625 divisor 5
+not_prime_cert 626 divisor 2
+not_prime_cert 627 divisor 3
+not_prime_cert 628 divisor 2
+not_prime_cert 629 divisor 17
+not_prime_cert 630 divisor 2
+not_prime_cert 632 divisor 2
+not_prime_cert 633 divisor 3
+not_prime_cert 634 divisor 2
+not_prime_cert 635 divisor 5
+not_prime_cert 636 divisor 2
+not_prime_cert 637 divisor 7
+not_prime_cert 638 divisor 2
+not_prime_cert 639 divisor 3
+not_prime_cert 640 divisor 2
+not_prime_cert 642 divisor 2
+not_prime_cert 644 divisor 2
+not_prime_cert 645 divisor 3
+not_prime_cert 646 divisor 2
+not_prime_cert 648 divisor 2
+not_prime_cert 649 divisor 11
+not_prime_cert 650 divisor 2
+not_prime_cert 651 divisor 3
+not_prime_cert 652 divisor 2
+not_prime_cert 654 divisor 2
+not_prime_cert 655 divisor 5
+not_prime_cert 656 divisor 2
+not_prime_cert 657 divisor 3
+not_prime_cert 658 divisor 2
+not_prime_cert 660 divisor 2
+not_prime_cert 662 divisor 2
+not_prime_cert 663 divisor 3
+not_prime_cert 664 divisor 2
+not_prime_cert 665 divisor 5
+not_prime_cert 666 divisor 2
+not_prime_cert 667 divisor 23
+not_prime_cert 668 divisor 2
+not_prime_cert 669 divisor 3
+not_prime_cert 670 divisor 2
+not_prime_cert 671 divisor 11
+not_prime_cert 672 divisor 2
+not_prime_cert 674 divisor 2
+not_prime_cert 675 divisor 3
+not_prime_cert 676 divisor 2
+not_prime_cert 678 divisor 2
+not_prime_cert 679 divisor 7
+not_prime_cert 680 divisor 2
+not_prime_cert 681 divisor 3
+not_prime_cert 682 divisor 2
+not_prime_cert 684 divisor 2
+not_prime_cert 685 divisor 5
+not_prime_cert 686 divisor 2
+not_prime_cert 687 divisor 3
+not_prime_cert 688 divisor 2
+not_prime_cert 689 divisor 13
+not_prime_cert 690 divisor 2
+not_prime_cert 692 divisor 2
+not_prime_cert 693 divisor 3
+not_prime_cert 694 divisor 2
+not_prime_cert 695 divisor 5
+not_prime_cert 696 divisor 2
+not_prime_cert 697 divisor 17
+not_prime_cert 698 divisor 2
+not_prime_cert 699 divisor 3
+not_prime_cert 700 divisor 2
+not_prime_cert 702 divisor 2
+not_prime_cert 703 divisor 19
+not_prime_cert 704 divisor 2
+not_prime_cert 705 divisor 3
+not_prime_cert 706 divisor 2
+not_prime_cert 707 divisor 7
+not_prime_cert 708 divisor 2
+not_prime_cert 710 divisor 2
+not_prime_cert 711 divisor 3
+not_prime_cert 712 divisor 2
+not_prime_cert 713 divisor 23
+not_prime_cert 714 divisor 2
+not_prime_cert 715 divisor 5
+not_prime_cert 716 divisor 2
+not_prime_cert 717 divisor 3
+not_prime_cert 718 divisor 2
+not_prime_cert 720 divisor 2
+not_prime_cert 721 divisor 7
+not_prime_cert 722 divisor 2
+not_prime_cert 723 divisor 3
+not_prime_cert 724 divisor 2
+not_prime_cert 725 divisor 5
+not_prime_cert 726 divisor 2
+not_prime_cert 728 divisor 2
+not_prime_cert 729 divisor 3
+not_prime_cert 730 divisor 2
+not_prime_cert 731 divisor 17
+not_prime_cert 732 divisor 2
+not_prime_cert 734 divisor 2
+not_prime_cert 735 divisor 3
+not_prime_cert 736 divisor 2
+not_prime_cert 737 divisor 11
+not_prime_cert 738 divisor 2
+not_prime_cert 740 divisor 2
+not_prime_cert 741 divisor 3
+not_prime_cert 742 divisor 2
+not_prime_cert 744 divisor 2
+not_prime_cert 745 divisor 5
+not_prime_cert 746 divisor 2
+not_prime_cert 747 divisor 3
+not_prime_cert 748 divisor 2
+not_prime_cert 749 divisor 7
+not_prime_cert 750 divisor 2
+not_prime_cert 752 divisor 2
+not_prime_cert 753 divisor 3
+not_prime_cert 754 divisor 2
+not_prime_cert 755 divisor 5
+not_prime_cert 756 divisor 2
+not_prime_cert 758 divisor 2
+not_prime_cert 759 divisor 3
+not_prime_cert 760 divisor 2
+not_prime_cert 762 divisor 2
+not_prime_cert 763 divisor 7
+not_prime_cert 764 divisor 2
+not_prime_cert 765 divisor 3
+not_prime_cert 766 divisor 2
+not_prime_cert 767 divisor 13
+not_prime_cert 768 divisor 2
+not_prime_cert 770 divisor 2
+not_prime_cert 771 divisor 3
+not_prime_cert 772 divisor 2
+not_prime_cert 774 divisor 2
+not_prime_cert 775 divisor 5
+not_prime_cert 776 divisor 2
+not_prime_cert 777 divisor 3
+not_prime_cert 778 divisor 2
+not_prime_cert 779 divisor 19
+not_prime_cert 780 divisor 2
+not_prime_cert 781 divisor 11
+not_prime_cert 782 divisor 2
+not_prime_cert 783 divisor 3
+not_prime_cert 784 divisor 2
+not_prime_cert 785 divisor 5
+not_prime_cert 786 divisor 2
+not_prime_cert 788 divisor 2
+not_prime_cert 789 divisor 3
+not_prime_cert 790 divisor 2
+not_prime_cert 791 divisor 7
+not_prime_cert 792 divisor 2
+not_prime_cert 793 divisor 13
+not_prime_cert 794 divisor 2
+not_prime_cert 795 divisor 3
+not_prime_cert 796 divisor 2
+not_prime_cert 798 divisor 2
+not_prime_cert 799 divisor 17
+not_prime_cert 800 divisor 2
+not_prime_cert 801 divisor 3
+not_prime_cert 802 divisor 2
+not_prime_cert 803 divisor 11
+not_prime_cert 804 divisor 2
+not_prime_cert 805 divisor 5
+not_prime_cert 806 divisor 2
+not_prime_cert 807 divisor 3
+not_prime_cert 808 divisor 2
+not_prime_cert 810 divisor 2
+not_prime_cert 812 divisor 2
+not_prime_cert 813 divisor 3
+not_prime_cert 814 divisor 2
+not_prime_cert 815 divisor 5
+not_prime_cert 816 divisor 2
+not_prime_cert 817 divisor 19
+not_prime_cert 818 divisor 2
+not_prime_cert 819 divisor 3
+not_prime_cert 820 divisor 2
+not_prime_cert 822 divisor 2
+not_prime_cert 824 divisor 2
+not_prime_cert 825 divisor 3
+not_prime_cert 826 divisor 2
+not_prime_cert 828 divisor 2
+not_prime_cert 830 divisor 2
+not_prime_cert 831 divisor 3
+not_prime_cert 832 divisor 2
+not_prime_cert 833 divisor 7
+not_prime_cert 834 divisor 2
+not_prime_cert 835 divisor 5
+not_prime_cert 836 divisor 2
+not_prime_cert 837 divisor 3
+not_prime_cert 838 divisor 2
+not_prime_cert 840 divisor 2
+not_prime_cert 841 divisor 29
+not_prime_cert 842 divisor 2
+not_prime_cert 843 divisor 3
+not_prime_cert 844 divisor 2
+not_prime_cert 845 divisor 5
+not_prime_cert 846 divisor 2
+not_prime_cert 847 divisor 7
+not_prime_cert 848 divisor 2
+not_prime_cert 849 divisor 3
+not_prime_cert 850 divisor 2
+not_prime_cert 851 divisor 23
+not_prime_cert 852 divisor 2
+not_prime_cert 854 divisor 2
+not_prime_cert 855 divisor 3
+not_prime_cert 856 divisor 2
+not_prime_cert 858 divisor 2
+not_prime_cert 860 divisor 2
+not_prime_cert 861 divisor 3
+not_prime_cert 862 divisor 2
+not_prime_cert 864 divisor 2
+not_prime_cert 865 divisor 5
+not_prime_cert 866 divisor 2
+not_prime_cert 867 divisor 3
+not_prime_cert 868 divisor 2
+not_prime_cert 869 divisor 11
+not_prime_cert 870 divisor 2
+not_prime_cert 871 divisor 13
+not_prime_cert 872 divisor 2
+not_prime_cert 873 divisor 3
+not_prime_cert 874 divisor 2
+not_prime_cert 875 divisor 5
+not_prime_cert 876 divisor 2
+not_prime_cert 878 divisor 2
+not_prime_cert 879 divisor 3
+not_prime_cert 880 divisor 2
+not_prime_cert 882 divisor 2
+not_prime_cert 884 divisor 2
+not_prime_cert 885 divisor 3
+not_prime_cert 886 divisor 2
+not_prime_cert 888 divisor 2
+not_prime_cert 889 divisor 7
+not_prime_cert 890 divisor 2
+not_prime_cert 891 divisor 3
+not_prime_cert 892 divisor 2
+not_prime_cert 893 divisor 19
+not_prime_cert 894 divisor 2
+not_prime_cert 895 divisor 5
+not_prime_cert 896 divisor 2
+not_prime_cert 897 divisor 3
+not_prime_cert 898 divisor 2
+not_prime_cert 899 divisor 29
+not_prime_cert 900 divisor 2
+not_prime_cert 901 divisor 17
+not_prime_cert 902 divisor 2
+not_prime_cert 903 divisor 3
+not_prime_cert 904 divisor 2
+not_prime_cert 905 divisor 5
+not_prime_cert 906 divisor 2
+not_prime_cert 908 divisor 2
+not_prime_cert 909 divisor 3
+not_prime_cert 910 divisor 2
+not_prime_cert 912 divisor 2
+not_prime_cert 913 divisor 11
+not_prime_cert 914 divisor 2
+not_prime_cert 915 divisor 3
+not_prime_cert 916 divisor 2
+not_prime_cert 917 divisor 7
+not_prime_cert 918 divisor 2
+not_prime_cert 920 divisor 2
+not_prime_cert 921 divisor 3
+not_prime_cert 922 divisor 2
+not_prime_cert 923 divisor 13
+not_prime_cert 924 divisor 2
+not_prime_cert 925 divisor 5
+not_prime_cert 926 divisor 2
+not_prime_cert 927 divisor 3
+not_prime_cert 928 divisor 2
+not_prime_cert 930 divisor 2
+not_prime_cert 931 divisor 7
+not_prime_cert 932 divisor 2
+not_prime_cert 933 divisor 3
+not_prime_cert 934 divisor 2
+not_prime_cert 935 divisor 5
+not_prime_cert 936 divisor 2
+not_prime_cert 938 divisor 2
+not_prime_cert 939 divisor 3
+not_prime_cert 940 divisor 2
+not_prime_cert 942 divisor 2
+not_prime_cert 943 divisor 23
+not_prime_cert 944 divisor 2
+not_prime_cert 945 divisor 3
+not_prime_cert 946 divisor 2
+not_prime_cert 948 divisor 2
+not_prime_cert 949 divisor 13
+not_prime_cert 950 divisor 2
+not_prime_cert 951 divisor 3
+not_prime_cert 952 divisor 2
+not_prime_cert 954 divisor 2
+not_prime_cert 955 divisor 5
+not_prime_cert 956 divisor 2
+not_prime_cert 957 divisor 3
+not_prime_cert 958 divisor 2
+not_prime_cert 959 divisor 7
+not_prime_cert 960 divisor 2
+not_prime_cert 961 divisor 31
+not_prime_cert 962 divisor 2
+not_prime_cert 963 divisor 3
+not_prime_cert 964 divisor 2
+not_prime_cert 965 divisor 5
+not_prime_cert 966 divisor 2
+not_prime_cert 968 divisor 2
+not_prime_cert 969 divisor 3
+not_prime_cert 970 divisor 2
+not_prime_cert 972 divisor 2
+not_prime_cert 973 divisor 7
+not_prime_cert 974 divisor 2
+not_prime_cert 975 divisor 3
+not_prime_cert 976 divisor 2
+not_prime_cert 978 divisor 2
+not_prime_cert 979 divisor 11
+not_prime_cert 980 divisor 2
+not_prime_cert 981 divisor 3
+not_prime_cert 982 divisor 2
+not_prime_cert 984 divisor 2
+not_prime_cert 985 divisor 5
+not_prime_cert 986 divisor 2
+not_prime_cert 987 divisor 3
+not_prime_cert 988 divisor 2
+not_prime_cert 989 divisor 23
+not_prime_cert 990 divisor 2
+not_prime_cert 992 divisor 2
+not_prime_cert 993 divisor 3
+not_prime_cert 994 divisor 2
+not_prime_cert 995 divisor 5
+not_prime_cert 996 divisor 2
+not_prime_cert 998 divisor 2
+not_prime_cert 999 divisor 3
+not_prime_cert 1000 divisor 2
+not_prime_cert 1001 divisor 7
+not_prime_cert 1002 divisor 2
+not_prime_cert 1003 divisor 17
+not_prime_cert 1004 divisor 2
+not_prime_cert 1005 divisor 3
+not_prime_cert 1006 divisor 2
+not_prime_cert 1007 divisor 19
+not_prime_cert 1008 divisor 2
+not_prime_cert 1010 divisor 2
+not_prime_cert 1011 divisor 3
+not_prime_cert 1012 divisor 2
+not_prime_cert 1014 divisor 2
+not_prime_cert 1015 divisor 5
+not_prime_cert 1016 divisor 2
+not_prime_cert 1017 divisor 3
+not_prime_cert 1018 divisor 2
+not_prime_cert 1020 divisor 2
+not_prime_cert 1022 divisor 2
+not_prime_cert 1023 divisor 3
+not_prime_cert 1024 divisor 2
+not_prime_cert 1025 divisor 5
+not_prime_cert 1026 divisor 2
+not_prime_cert 1027 divisor 13
+not_prime_cert 1028 divisor 2
+not_prime_cert 1029 divisor 3
+not_prime_cert 1030 divisor 2
+not_prime_cert 1032 divisor 2
+not_prime_cert 1034 divisor 2
+not_prime_cert 1035 divisor 3
+not_prime_cert 1036 divisor 2
+not_prime_cert 1037 divisor 17
+not_prime_cert 1038 divisor 2
+not_prime_cert 1040 divisor 2
+not_prime_cert 1041 divisor 3
+not_prime_cert 1042 divisor 2
+not_prime_cert 1043 divisor 7
+not_prime_cert 1044 divisor 2
+not_prime_cert 1045 divisor 5
+not_prime_cert 1046 divisor 2
+not_prime_cert 1047 divisor 3
+not_prime_cert 1048 divisor 2
+not_prime_cert 1050 divisor 2
+not_prime_cert 1052 divisor 2
+not_prime_cert 1053 divisor 3
+not_prime_cert 1054 divisor 2
+not_prime_cert 1055 divisor 5
+not_prime_cert 1056 divisor 2
+not_prime_cert 1057 divisor 7
+not_prime_cert 1058 divisor 2
+not_prime_cert 1059 divisor 3
+not_prime_cert 1060 divisor 2
+not_prime_cert 1062 divisor 2
+not_prime_cert 1064 divisor 2
+not_prime_cert 1065 divisor 3
+not_prime_cert 1066 divisor 2
+not_prime_cert 1067 divisor 11
+not_prime_cert 1068 divisor 2
+not_prime_cert 1070 divisor 2
+not_prime_cert 1071 divisor 3
+not_prime_cert 1072 divisor 2
+not_prime_cert 1073 divisor 29
+not_prime_cert 1074 divisor 2
+not_prime_cert 1075 divisor 5
+not_prime_cert 1076 divisor 2
+not_prime_cert 1077 divisor 3
+not_prime_cert 1078 divisor 2
+not_prime_cert 1079 divisor 13
+not_prime_cert 1080 divisor 2
+not_prime_cert 1081 divisor 23
+not_prime_cert 1082 divisor 2
+not_prime_cert 1083 divisor 3
+not_prime_cert 1084 divisor 2
+not_prime_cert 1085 divisor 5
+not_prime_cert 1086 divisor 2
+not_prime_cert 1088 divisor 2
+not_prime_cert 1089 divisor 3
+not_prime_cert 1090 divisor 2
+not_prime_cert 1092 divisor 2
+not_prime_cert 1094 divisor 2
+not_prime_cert 1095 divisor 3
+not_prime_cert 1096 divisor 2
+not_prime_cert 1098 divisor 2
+not_prime_cert 1099 divisor 7
+not_prime_cert 1100 divisor 2
+not_prime_cert 1101 divisor 3
+not_prime_cert 1102 divisor 2
+not_prime_cert 1104 divisor 2
+not_prime_cert 1105 divisor 5
+not_prime_cert 1106 divisor 2
+not_prime_cert 1107 divisor 3
+not_prime_cert 1108 divisor 2
+not_prime_cert 1110 divisor 2
+not_prime_cert 1111 divisor 11
+not_prime_cert 1112 divisor 2
+not_prime_cert 1113 divisor 3
+not_prime_cert 1114 divisor 2
+not_prime_cert 1115 divisor 5
+not_prime_cert 1116 divisor 2
+not_prime_cert 1118 divisor 2
+not_prime_cert 1119 divisor 3
+not_prime_cert 1120 divisor 2
+not_prime_cert 1121 divisor 19
+not_prime_cert 1122 divisor 2
+not_prime_cert 1124 divisor 2
+not_prime_cert 1125 divisor 3
+not_prime_cert 1126 divisor 2
+not_prime_cert 1127 divisor 7
+not_prime_cert 1128 divisor 2
+not_prime_cert 1130 divisor 2
+not_prime_cert 1131 divisor 3
+not_prime_cert 1132 divisor 2
+not_prime_cert 1133 divisor 11
+not_prime_cert 1134 divisor 2
+not_prime_cert 1135 divisor 5
+not_prime_cert 1136 divisor 2
+not_prime_cert 1137 divisor 3
+not_prime_cert 1138 divisor 2
+not_prime_cert 1139 divisor 17
+not_prime_cert 1140 divisor 2
+not_prime_cert 1141 divisor 7
+not_prime_cert 1142 divisor 2
+not_prime_cert 1143 divisor 3
+not_prime_cert 1144 divisor 2
+not_prime_cert 1145 divisor 5
+not_prime_cert 1146 divisor 2
+not_prime_cert 1147 divisor 31
+not_prime_cert 1148 divisor 2
+not_prime_cert 1149 divisor 3
+not_prime_cert 1150 divisor 2
+not_prime_cert 1152 divisor 2
+not_prime_cert 1154 divisor 2
+not_prime_cert 1155 divisor 3
+not_prime_cert 1156 divisor 2
+not_prime_cert 1157 divisor 13
+not_prime_cert 1158 divisor 2
+not_prime_cert 1159 divisor 19
+not_prime_cert 1160 divisor 2
+not_prime_cert 1161 divisor 3
+not_prime_cert 1162 divisor 2
+not_prime_cert 1164 divisor 2
+not_prime_cert 1165 divisor 5
+not_prime_cert 1166 divisor 2
+not_prime_cert 1167 divisor 3
+not_prime_cert 1168 divisor 2
+not_prime_cert 1169 divisor 7
+not_prime_cert 1170 divisor 2
+not_prime_cert 1172 divisor 2
+not_prime_cert 1173 divisor 3
+not_prime_cert 1174 divisor 2
+not_prime_cert 1175 divisor 5
+not_prime_cert 1176 divisor 2
+not_prime_cert 1177 divisor 11
+not_prime_cert 1178 divisor 2
+not_prime_cert 1179 divisor 3
+not_prime_cert 1180 divisor 2
+not_prime_cert 1182 divisor 2
+not_prime_cert 1183 divisor 7
+not_prime_cert 1184 divisor 2
+not_prime_cert 1185 divisor 3
+not_prime_cert 1186 divisor 2
+not_prime_cert 1188 divisor 2
+not_prime_cert 1189 divisor 29
+not_prime_cert 1190 divisor 2
+not_prime_cert 1191 divisor 3
+not_prime_cert 1192 divisor 2
+not_prime_cert 1194 divisor 2
+not_prime_cert 1195 divisor 5
+not_prime_cert 1196 divisor 2
+not_prime_cert 1197 divisor 3
+not_prime_cert 1198 divisor 2
+not_prime_cert 1199 divisor 11
+not_prime_cert 1200 divisor 2
+not_prime_cert 1202 divisor 2
+not_prime_cert 1203 divisor 3
+not_prime_cert 1204 divisor 2
+not_prime_cert 1205 divisor 5
+not_prime_cert 1206 divisor 2
+not_prime_cert 1207 divisor 17
+not_prime_cert 1208 divisor 2
+not_prime_cert 1209 divisor 3
+not_prime_cert 1210 divisor 2
+not_prime_cert 1211 divisor 7
+not_prime_cert 1212 divisor 2
+not_prime_cert 1214 divisor 2
+not_prime_cert 1215 divisor 3
+not_prime_cert 1216 divisor 2
+not_prime_cert 1218 divisor 2
+not_prime_cert 1219 divisor 23
+not_prime_cert 1220 divisor 2
+not_prime_cert 1221 divisor 3
+not_prime_cert 1222 divisor 2
+not_prime_cert 1224 divisor 2
+not_prime_cert 1225 divisor 5
+not_prime_cert 1226 divisor 2
+not_prime_cert 1227 divisor 3
+not_prime_cert 1228 divisor 2
+not_prime_cert 1230 divisor 2
+not_prime_cert 1232 divisor 2
+not_prime_cert 1233 divisor 3
+not_prime_cert 1234 divisor 2
+not_prime_cert 1235 divisor 5
+not_prime_cert 1236 divisor 2
+not_prime_cert 1238 divisor 2
+not_prime_cert 1239 divisor 3
+not_prime_cert 1240 divisor 2
+not_prime_cert 1241 divisor 17
+not_prime_cert 1242 divisor 2
+not_prime_cert 1243 divisor 11
+not_prime_cert 1244 divisor 2
+not_prime_cert 1245 divisor 3
+not_prime_cert 1246 divisor 2
+not_prime_cert 1247 divisor 29
+not_prime_cert 1248 divisor 2
+not_prime_cert 1250 divisor 2
+not_prime_cert 1251 divisor 3
+not_prime_cert 1252 divisor 2
+not_prime_cert 1253 divisor 7
+not_prime_cert 1254 divisor 2
+not_prime_cert 1255 divisor 5
+not_prime_cert 1256 divisor 2
+not_prime_cert 1257 divisor 3
+not_prime_cert 1258 divisor 2
+not_prime_cert 1260 divisor 2
+not_prime_cert 1261 divisor 13
+not_prime_cert 1262 divisor 2
+not_prime_cert 1263 divisor 3
+not_prime_cert 1264 divisor 2
+not_prime_cert 1265 divisor 5
+not_prime_cert 1266 divisor 2
+not_prime_cert 1267 divisor 7
+not_prime_cert 1268 divisor 2
+not_prime_cert 1269 divisor 3
+not_prime_cert 1270 divisor 2
+not_prime_cert 1271 divisor 31
+not_prime_cert 1272 divisor 2
+not_prime_cert 1273 divisor 19
+not_prime_cert 1274 divisor 2
+not_prime_cert 1275 divisor 3
+not_prime_cert 1276 divisor 2
+not_prime_cert 1278 divisor 2
+not_prime_cert 1280 divisor 2
+not_prime_cert 1281 divisor 3
+not_prime_cert 1282 divisor 2
+not_prime_cert 1284 divisor 2
+not_prime_cert 1285 divisor 5
+not_prime_cert 1286 divisor 2
+not_prime_cert 1287 divisor 3
+not_prime_cert 1288 divisor 2
+not_prime_cert 1290 divisor 2
+not_prime_cert 1292 divisor 2
+not_prime_cert 1293 divisor 3
+not_prime_cert 1294 divisor 2
+not_prime_cert 1295 divisor 5
+not_prime_cert 1296 divisor 2
+not_prime_cert 1298 divisor 2
+not_prime_cert 1299 divisor 3
+not_prime_cert 1300 divisor 2
+not_prime_cert 1302 divisor 2
+not_prime_cert 1304 divisor 2
+not_prime_cert 1305 divisor 3
+not_prime_cert 1306 divisor 2
+not_prime_cert 1308 divisor 2
+not_prime_cert 1309 divisor 7
+not_prime_cert 1310 divisor 2
+not_prime_cert 1311 divisor 3
+not_prime_cert 1312 divisor 2
+not_prime_cert 1313 divisor 13
+not_prime_cert 1314 divisor 2
+not_prime_cert 1315 divisor 5
+not_prime_cert 1316 divisor 2
+not_prime_cert 1317 divisor 3
+not_prime_cert 1318 divisor 2
+not_prime_cert 1320 divisor 2
+not_prime_cert 1322 divisor 2
+not_prime_cert 1323 divisor 3
+not_prime_cert 1324 divisor 2
+not_prime_cert 1325 divisor 5
+not_prime_cert 1326 divisor 2
+not_prime_cert 1328 divisor 2
+not_prime_cert 1329 divisor 3
+not_prime_cert 1330 divisor 2
+not_prime_cert 1331 divisor 11
+not_prime_cert 1332 divisor 2
+not_prime_cert 1333 divisor 31
+not_prime_cert 1334 divisor 2
+not_prime_cert 1335 divisor 3
+not_prime_cert 1336 divisor 2
+not_prime_cert 1337 divisor 7
+not_prime_cert 1338 divisor 2
+not_prime_cert 1339 divisor 13
+not_prime_cert 1340 divisor 2
+not_prime_cert 1341 divisor 3
+not_prime_cert 1342 divisor 2
+not_prime_cert 1343 divisor 17
+not_prime_cert 1344 divisor 2
+not_prime_cert 1345 divisor 5
+not_prime_cert 1346 divisor 2
+not_prime_cert 1347 divisor 3
+not_prime_cert 1348 divisor 2
+not_prime_cert 1349 divisor 19
+not_prime_cert 1350 divisor 2
+not_prime_cert 1351 divisor 7
+not_prime_cert 1352 divisor 2
+not_prime_cert 1353 divisor 3
+not_prime_cert 1354 divisor 2
+not_prime_cert 1355 divisor 5
+not_prime_cert 1356 divisor 2
+not_prime_cert 1357 divisor 23
+not_prime_cert 1358 divisor 2
+not_prime_cert 1359 divisor 3
+not_prime_cert 1360 divisor 2
+
+prime_cert 2
+prime_cert 3
+prime_cert 5
+prime_cert 7
+prime_cert 11
+prime_cert 13
+prime_cert 17
+prime_cert 19
+prime_cert 23
+prime_cert 29
+prime_cert 31
+prime_cert 37
+prime_cert 41
+prime_cert 43
+prime_cert 47
+prime_cert 53
+prime_cert 59
+prime_cert 61
+prime_cert 67
+prime_cert 71
+prime_cert 73
+prime_cert 79
+prime_cert 83
+prime_cert 89
+prime_cert 97
+prime_cert 101
+prime_cert 103
+prime_cert 107
+prime_cert 109
+prime_cert 113
+prime_cert 127
+prime_cert 131
+prime_cert 137
+prime_cert 139
+prime_cert 149
+prime_cert 151
+prime_cert 157
+prime_cert 163
+prime_cert 167
+prime_cert 173
+prime_cert 179
+prime_cert 181
+prime_cert 191
+prime_cert 193
+prime_cert 197
+prime_cert 199
+prime_cert 211
+prime_cert 223
+prime_cert 227
+prime_cert 229
+prime_cert 233
+prime_cert 239
+prime_cert 241
+prime_cert 251
+prime_cert 257
+prime_cert 263
+prime_cert 269
+prime_cert 271
+prime_cert 277
+prime_cert 281
+prime_cert 283
+prime_cert 293
+prime_cert 307
+prime_cert 311
+prime_cert 313
+prime_cert 317
+prime_cert 331
+prime_cert 337
+prime_cert 347
+prime_cert 349
+prime_cert 353
+prime_cert 359
+prime_cert 367
+prime_cert 373
+prime_cert 379
+prime_cert 383
+prime_cert 389
+prime_cert 397
+prime_cert 401
+prime_cert 409
+prime_cert 419
+prime_cert 421
+prime_cert 431
+prime_cert 433
+prime_cert 439
+prime_cert 443
+prime_cert 449
+prime_cert 457
+prime_cert 461
+prime_cert 463
+prime_cert 467
+prime_cert 479
+prime_cert 487
+prime_cert 491
+prime_cert 499
+prime_cert 503
+prime_cert 509
+prime_cert 521
+prime_cert 523
+prime_cert 541
+prime_cert 547
+prime_cert 557
+prime_cert 563
+prime_cert 569
+prime_cert 571
+prime_cert 577
+prime_cert 587
+prime_cert 593
+prime_cert 599
+prime_cert 601
+prime_cert 607
+prime_cert 613
+prime_cert 617
+prime_cert 619
+prime_cert 631
+prime_cert 641
+prime_cert 643
+prime_cert 647
+prime_cert 653
+prime_cert 659
+prime_cert 661
+prime_cert 673
+prime_cert 677
+prime_cert 683
+prime_cert 691
+prime_cert 701
+prime_cert 709
+prime_cert 719
+prime_cert 727
+prime_cert 733
+prime_cert 739
+prime_cert 743
+prime_cert 751
+prime_cert 757
+prime_cert 761
+prime_cert 769
+prime_cert 773
+prime_cert 787
+prime_cert 797
+prime_cert 809
+prime_cert 811
+prime_cert 821
+prime_cert 823
+prime_cert 827
+prime_cert 829
+prime_cert 839
+prime_cert 853
+prime_cert 857
+prime_cert 859
+prime_cert 863
+prime_cert 877
+prime_cert 881
+prime_cert 883
+prime_cert 887
+prime_cert 907
+prime_cert 911
+prime_cert 919
+prime_cert 929
+prime_cert 937
+prime_cert 941
+prime_cert 947
+prime_cert 953
+prime_cert 967
+prime_cert 971
+prime_cert 977
+prime_cert 983
+prime_cert 991
+prime_cert 997
+prime_cert 1009
+prime_cert 1013
+prime_cert 1019
+prime_cert 1021
+prime_cert 1031
+prime_cert 1033
+prime_cert 1039
+prime_cert 1049
+prime_cert 1051
+prime_cert 1061
+prime_cert 1063
+prime_cert 1069
+prime_cert 1087
+prime_cert 1091
+prime_cert 1093
+prime_cert 1097
+prime_cert 1103
+prime_cert 1109
+prime_cert 1117
+prime_cert 1123
+prime_cert 1129
+prime_cert 1151
+prime_cert 1153
+prime_cert 1163
+prime_cert 1171
+prime_cert 1181
+prime_cert 1187
+prime_cert 1193
+prime_cert 1201
+prime_cert 1213
+prime_cert 1217
+prime_cert 1223
+prime_cert 1229
+prime_cert 1231
+prime_cert 1237
+prime_cert 1249
+prime_cert 1259
+prime_cert 1277
+prime_cert 1279
+prime_cert 1283
+prime_cert 1289
+prime_cert 1291
+prime_cert 1297
+prime_cert 1301
+prime_cert 1303
+prime_cert 1307
+prime_cert 1319
+prime_cert 1321
+prime_cert 1327
+prime_cert 1361
+
+set_option maxRecDepth 12000 in
+lemma count_prime_1289 : Nat.count Nat.Prime 1289 = 208 := by
+  simp [Nat.count_succ]
+
+set_option maxRecDepth 12000 in
+lemma count_prime_1291 : Nat.count Nat.Prime 1291 = 209 := by
+  simp [Nat.count_succ]
+
+set_option maxRecDepth 12000 in
+lemma count_prime_1297 : Nat.count Nat.Prime 1297 = 210 := by
+  simp [Nat.count_succ]
+
+set_option maxRecDepth 12000 in
+lemma count_prime_1301 : Nat.count Nat.Prime 1301 = 211 := by
+  simp [Nat.count_succ]
+
+set_option maxRecDepth 12000 in
+lemma count_prime_1303 : Nat.count Nat.Prime 1303 = 212 := by
+  simp [Nat.count_succ]
+
+set_option maxRecDepth 12000 in
+lemma count_prime_1307 : Nat.count Nat.Prime 1307 = 213 := by
+  simp [Nat.count_succ]
+
+set_option maxRecDepth 12000 in
+lemma count_prime_1319 : Nat.count Nat.Prime 1319 = 214 := by
+  simp [Nat.count_succ]
+
+set_option maxRecDepth 12000 in
+lemma count_prime_1321 : Nat.count Nat.Prime 1321 = 215 := by
+  simp [Nat.count_succ]
+
+set_option maxRecDepth 12000 in
+lemma count_prime_1327 : Nat.count Nat.Prime 1327 = 216 := by
+  simp [Nat.count_succ]
+
+set_option maxRecDepth 12000 in
+lemma count_prime_1361 : Nat.count Nat.Prime 1361 = 217 := by
+  simp [Nat.count_succ]
+
+set_option maxRecDepth 12000 in
+lemma count_prime_1362 : Nat.count Nat.Prime 1362 = 218 := by
+  simp [Nat.count_succ]
+
+lemma count_prime_1362_gt_217 : 217 < Nat.count Nat.Prime 1362 := by
+  rw [count_prime_1362]
+  norm_num
+
+end PrimeCertificates
 def P (k : ℕ) : ℕ := ∏ i ∈ Finset.range k, Nat.nth Nat.Prime i
 
 def E (n k : ℕ) : Finset ℕ := (Finset.Icc 1 n).filter (fun m => m.gcd (P k) > 1)
@@ -495,7 +1937,7 @@ lemma card_C_eq_36 (t : ℕ) (ht : t ≥ 1) : (C t).card = 36 := by
   -- Since $C t$ is the image of the set of pairs $(i, j)$ with $0 \leq i < j \leq 8$ under the injective map $(i, j) \mapsto p (t + i) * p (t + j)$, it must have the same cardinality as the domain.
   have h_card_eq : (Finset.image (fun x => p (t + x.1) * p (t + x.2)) (Finset.filter (fun x => x.1 < x.2) (Finset.product (Finset.range 9) (Finset.range 9)))).card = 36 := by
     rw [ Finset.card_image_of_injOn ];
-    · native_decide;
+    · decide;
     · intros x hx y hy hxy;
       have := C_map_injective_new t ht x.1 x.2 y.1 y.2 ; aesop;
       · exact this ( by linarith ) ( by linarith ) |>.1;
@@ -507,7 +1949,6 @@ lemma card_C_eq_36 (t : ℕ) (ht : t ≥ 1) : (C t).card = 36 := by
     ext; simp [C];
     exact ⟨ fun ⟨ a, b, h, h' ⟩ => ⟨ ⟨ a, b, ⟨ h.1, h' ⟩ ⟩, ⟨ a, b, h.2, by linarith, h'.symm ⟩ ⟩, fun ⟨ ⟨ a, b, ⟨ h₁, h₂ ⟩ ⟩, ⟨ i, j, h₃, h₄, h₅ ⟩ ⟩ => ⟨ i, j, ⟨ ⟨ by linarith, by linarith ⟩, h₃ ⟩, h₅.symm ⟩ ⟩;
   grind
-
 
 lemma has_no_k_plus_1_coprime_union (B C : Finset ℕ) (k_B k_C : ℕ)
   (h_disjoint : Disjoint B C)
@@ -529,7 +1970,6 @@ lemma has_no_k_plus_1_coprime_union (B C : Finset ℕ) (k_B k_C : ℕ)
 lemma A_no_k_plus_1_final (t n : ℕ) (h_H : satisfies_H t) (h_disjoint : Disjoint (B t n) (C t)) :
   has_no_k_plus_1_coprime (A t n) (t + 3) := by
     exact A_no_k_plus_1 t n h_H
-
 
 def D_primes (t : ℕ) : Finset ℕ := (Finset.range 4).image (fun i => p (t + i))
 def D_squares (t : ℕ) : Finset ℕ := (Finset.range 4).image (fun i => p (t + i) ^ 2)
@@ -920,24 +2360,24 @@ lemma satisfies_H_209 : satisfies_H 209 := by
   -- We'll use that $p_{209} = 1289$, $p_{210} = 1291$, ..., $p_{218} = 1361$, and $p_{219} = 1373$.
   have h_p_values : Nat.nth Nat.Prime 208 = 1289 ∧ Nat.nth Nat.Prime 209 = 1291 ∧ Nat.nth Nat.Prime 210 = 1297 ∧ Nat.nth Nat.Prime 211 = 1301 ∧ Nat.nth Nat.Prime 212 = 1303 ∧ Nat.nth Nat.Prime 213 = 1307 ∧ Nat.nth Nat.Prime 214 = 1319 ∧ Nat.nth Nat.Prime 215 = 1321 ∧ Nat.nth Nat.Prime 216 = 1327 ∧ Nat.nth Nat.Prime 217 = 1361 := by
     constructor
-    · exact nth_prime_eq_of_count _ _ (by norm_num) (by native_decide)
+    · exact nth_prime_eq_of_count _ _ (by norm_num) count_prime_1289
     constructor
-    · exact nth_prime_eq_of_count _ _ (by norm_num) (by native_decide)
+    · exact nth_prime_eq_of_count _ _ (by norm_num) count_prime_1291
     constructor
-    · exact nth_prime_eq_of_count _ _ (by norm_num) (by native_decide)
+    · exact nth_prime_eq_of_count _ _ (by norm_num) count_prime_1297
     constructor
-    · exact nth_prime_eq_of_count _ _ (by norm_num) (by native_decide)
+    · exact nth_prime_eq_of_count _ _ (by norm_num) count_prime_1301
     constructor
-    · exact nth_prime_eq_of_count _ _ (by norm_num) (by native_decide)
+    · exact nth_prime_eq_of_count _ _ (by norm_num) count_prime_1303
     constructor
-    · exact nth_prime_eq_of_count _ _ (by norm_num) (by native_decide)
+    · exact nth_prime_eq_of_count _ _ (by norm_num) count_prime_1307
     constructor
-    · exact nth_prime_eq_of_count _ _ (by norm_num) (by native_decide)
+    · exact nth_prime_eq_of_count _ _ (by norm_num) count_prime_1319
     constructor
-    · exact nth_prime_eq_of_count _ _ (by norm_num) (by native_decide)
+    · exact nth_prime_eq_of_count _ _ (by norm_num) count_prime_1321
     constructor
-    · exact nth_prime_eq_of_count _ _ (by norm_num) (by native_decide)
-    · exact nth_prime_eq_of_count _ _ (by norm_num) (by native_decide)
+    · exact nth_prime_eq_of_count _ _ (by norm_num) count_prime_1327
+    · exact nth_prime_eq_of_count _ _ (by norm_num) count_prime_1361
   unfold satisfies_H; norm_num [ h_p_values ] ;
   unfold p; norm_num [ h_p_values ] ;
 
@@ -963,7 +2403,7 @@ lemma m_structure (t : ℕ) (m : ℕ) (h_t : t = 209) (hm_le : m ≤ p (t + 9)) 
           -- We can use the fact that the nth prime is the nth element in the list of primes.
           have h_prime_list : Nat.nth Nat.Prime 208 = 1289 := by
             have h_prime_list : Nat.nth Nat.Prime 208 = Nat.nth Nat.Prime (Nat.count Nat.Prime 1289) := by
-              rw [ show Nat.count Nat.Prime 1289 = 208 by native_decide ]
+              rw [ count_prime_1289 ]
             rw [ h_prime_list, Nat.nth_count ];
             norm_num;
           exact h_prime_list;
@@ -979,7 +2419,7 @@ lemma m_structure (t : ℕ) (m : ℕ) (h_t : t = 209) (hm_le : m ≤ p (t + 9)) 
     -- Since $p (t + 9)$ is the 218th prime, we have $p (t + 9) \leq 1361$.
     have h_pt9_le_1361 : p (t + 9) ≤ 1361 := by
       subst h_t;
-      exact Nat.le_of_lt_succ ( Nat.nth_lt_of_lt_count ( by native_decide ) );
+      exact Nat.le_of_lt_succ ( Nat.nth_lt_of_lt_count count_prime_1362_gt_217 );
     nlinarith only [ ha_ge_pt, hb_ge_pt, h_pt_ge_1289, h_pt9_le_1361, hm_le, hm ];
   · rcases m with ( _ | _ | m ) <;> simp_all +decide [ Nat.prime_def_lt' ];
     · contrapose! hm_factors;
@@ -998,16 +2438,16 @@ lemma p_t_sq_gt_p_t_plus_9_v3 (t : ℕ) (h_t : t = 209) : p t ^ 2 > p (t + 9) :=
     have h_prime_209 : Nat.nth Nat.Prime 208 = 1289 := by
       have h_prime_list : Nat.nth Nat.Prime 208 = 1289 := by
         have h_prime_count : Nat.count Nat.Prime 1289 = 208 := by
-          native_decide
+          exact count_prime_1289
         rw [ ← h_prime_count, Nat.nth_count ];
-        native_decide +revert
+        exact prime_1289
       exact h_prime_list;
     exact h_prime_209
   have h_p218 : p 218 = 1361 := by
     -- We'll use the fact that $p_{218}$ is the $218$-th prime number.
     have h_prime_218 : Nat.nth Nat.Prime 217 = 1361 := by
       have : Nat.count (Nat.Prime) 1361 = 217 := by
-        native_decide
+        exact count_prime_1361
       rw [ ← this, Nat.nth_count ];
       norm_num;
     exact h_prime_218;
