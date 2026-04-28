@@ -110,6 +110,19 @@
   url:
     - https://www.erdosproblems.com/forum/thread/56
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos56.md
+- key: ErdosProblems.Erdos93
+  author:
+    informal:
+      human: E. Altman
+    formal:
+      AI:
+        - Gemini 3.0 Flash/Pro
+        - Claude Opus 4.5/4.6
+        - Numina Lean Agent
+        - Aristotle
+      human: JoshuaB
+  url: https://www.erdosproblems.com/forum/thread/93#post-4346
+  url_ref: JoshuaB_93
 - key: ErdosProblems.Erdos164
   author:
     formal:
