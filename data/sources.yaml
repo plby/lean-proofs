@@ -293,6 +293,33 @@
     - https://www.erdosproblems.com/forum/thread/204#post-4790
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem204.lean
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/204.lean
+- key: ErdosProblems.Erdos205
+  author:
+    informal:
+      human:
+        - Wouter van Doorn
+        - Terence Tao
+	- Boris Alexeev
+      AI: ChatGPT
+    formal:
+      AI:
+        - ChatGPT
+        - Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/205
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos205.md
+- key: ErdosProblems.Erdos214
+  author:
+    informal:
+      human: Rozália Juhász
+    formal:
+      AI: Aristotle
+      human: Wouter van Doorn
+  url:
+    - https://www.erdosproblems.com/forum/thread/214#post-4547
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem214FourPoints.lean
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem214TwelvePoints.lean
 - key: ErdosProblems.Erdos298
   author:
     informal:
