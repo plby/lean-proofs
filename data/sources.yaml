@@ -299,7 +299,7 @@
       human:
         - Wouter van Doorn
         - Terence Tao
-	- Boris Alexeev
+        - Boris Alexeev
       AI: ChatGPT
     formal:
       AI:
@@ -320,6 +320,33 @@
     - https://www.erdosproblems.com/forum/thread/214#post-4547
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem214FourPoints.lean
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem214TwelvePoints.lean
+- key: ErdosProblems.Erdos221
+  author:
+    informal:
+      human:
+        - Imre Ruzsa
+        - Wouter van Doorn
+    formal:
+      AI: Aristotle
+      human: Wouter van Doorn
+  url:
+    - https://www.erdosproblems.com/forum/thread/221#post-3991
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem221.lean
+    - https://www.cambridge.org/core/services/aop-cambridge-core/content/view/802ABD868A907C2ADB78C580C73C86FC/S0008439500061348a.pdf/on-a-problem-of-p-erdos.pdf
+- key: ErdosProblems.Erdos224
+  author:
+    informal:
+      human:
+        - Ludwig Danzer
+        - Branko Grünbaum
+    formal:
+      AI:
+        - GPT-5.2 Thinking
+        - Codex
+      human: Coder-Osman
+  url:
+    - https://www.erdosproblems.com/forum/thread/224#post-3157
+    - https://github.com/SpringSense-Innovation-Institute/ai-for-math-lean/blob/main/erdos-problems/erdos224/Erdos224.lean
 - key: ErdosProblems.Erdos298
   author:
     informal:
