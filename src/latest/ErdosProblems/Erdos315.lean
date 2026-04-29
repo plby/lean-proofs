@@ -497,7 +497,7 @@ lemma u_prod_eq_syl_prod (n : ℕ) (k : ℕ) (hk : k ≥ 2) :
 /-
 Inductive step equation for u_seq.
 -/
-lemma u_inductive_step_eq (n : ℕ) (hn : 2 ≤ n) (k : ℕ) (hk : k ≥ 2) :
+lemma u_inductive_step_eq (n : ℕ) (k : ℕ) (hk : k ≥ 2) :
   u_seq n k / (1 - u_seq n k) = (1 / (n : ℝ)) * ∏ i ∈ Finset.range k, u_seq n i := by
     -- Substitute the value of $u_k$ and simplify the left-hand side.
     have h_lhs : u_seq n k / (1 - u_seq n k) = 1 / (generalized_sylvester (l_val n) (k - 2) - 1 : ℝ) := by
