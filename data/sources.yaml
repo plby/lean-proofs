@@ -621,6 +621,23 @@
     - https://www.erdosproblems.com/forum/thread/331#post-4019
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem331.lean
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/331.lean
+- key: ErdosProblems.Erdos333
+  author:
+    informal:
+      human:
+        - Paul Erdős
+        - Donald J. Newman
+      AI: GPT-5.2 Pro
+    formal:
+      AI: Claude Opus 4.5
+      human:
+        - Liam Price
+        - Kevin Barreto
+  url:
+    - https://www.erdosproblems.com/forum/thread/333#post-2403
+    - https://chatgpt.com/s/t_69467152e8808191b9140d006994f284
+    - https://chatgpt.com/s/t_694c90df3c908191a192f6233c2b14b9
+  url_ref: KevinBarreto_333
 - key: ErdosProblems.Erdos990
   author:
     informal:
