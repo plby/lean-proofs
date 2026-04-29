@@ -913,6 +913,9 @@ The size of the digit set B_n is 2^{k_n} - 1.
 -/
 def B_card (n : ℕ) : ℕ := (B_finset n).card
 
+lemma B_card_zero_pos : 0 < B_card 0 := by
+  decide
+
 lemma B_card_eq (n : ℕ) : B_card n = 2^(k n) - 1 := by
   -- The cardinality of the first set is $2^{k_n - 1}$ and the cardinality of the second set is $2^{k_n} - 2 - 2^{k_n - 1} + 1 = 2^{k_n - 1} - 1$.
   have h_card_first : (Finset.range (2^(k n - 1))).card = 2^(k n - 1) := by
@@ -1085,7 +1088,7 @@ lemma sum_inv_B_card_diverges (n_0 : ℕ) :
       convert h_harmonic.const_mul_atTop ( show 0 < ( C : ℝ ) ⁻¹ from inv_pos.mpr <| ?_ ) using 2 ; norm_num [ div_eq_mul_inv, Finset.mul_sum _ _ _ ];
       · grind;
       · have := hC 0; norm_num at this;
-        exact lt_of_not_ge fun h => by nlinarith [ show ( B_card 0 : ℝ ) > 0 from mod_cast by native_decide, Real.log_pos ( show 16 > 1 by norm_num ) ] ;
+        exact lt_of_not_ge fun h => by nlinarith [ show ( B_card 0 : ℝ ) > 0 from mod_cast B_card_zero_pos, Real.log_pos ( show 16 > 1 by norm_num ) ] ;
     refine' Filter.tendsto_atTop_mono' _ _ h_diverge;
     filter_upwards [ Filter.eventually_ge_atTop n_0 ] with N hN;
     exact Finset.sum_le_sum fun i hi => one_div_le_one_div_of_le ( Nat.cast_pos.mpr <| Finset.card_pos.mpr ⟨ 0, by unfold B_finset; aesop ⟩ ) <| hC i
@@ -1517,6 +1520,9 @@ lemma density_ratio_bound (n_0 : ℕ) :
 /-
 We prove a lower bound on a_n.
 -/
+lemma nat_log2_fifteen_pos : 0 < Nat.log2 15 := by
+  decide
+
 lemma a_seq_ge_62 (n : ℕ) : a_seq n ≥ 62 := by
   -- We'll use that $k_n \geq 6$ to show that $a_n \geq 62$.
   have h_k_ge_6 : ∀ n, 6 ≤ k n := by
@@ -1525,7 +1531,7 @@ lemma a_seq_ge_62 (n : ℕ) : a_seq n ≥ 62 := by
     unfold k
     simp [clog2];
     split_ifs <;> simp_all +arith +decide;
-    · exact absurd ‹_› ( by exact Nat.ne_of_gt ( Nat.recOn n ( by native_decide ) fun n ihn => by cases n <;> trivial ) );
+    · exact absurd ‹_› ( by exact Nat.ne_of_gt ( Nat.recOn n ( by simpa using nat_log2_fifteen_pos ) fun n ihn => by cases n <;> trivial ) );
     · rw [ Nat.le_log2 ] <;> norm_num;
       · rw [ Nat.le_log2 ] <;> norm_num;
       · assumption;
@@ -2197,11 +2203,7 @@ theorem answer_is_yes : ∃ A : ℕ → ℕ, Monotone A ∧ (Filter.Tendsto (fun
   exact main_theorem S hS
 
 #print axioms answer_is_yes
--- 'Erdos347.answer_is_yes' depends on axioms: [propext,
--- Classical.choice,
--- Quot.sound,
--- a_seq_ge_62._native.native_decide.ax_1_2,
--- sum_inv_B_card_diverges._native.native_decide.ax_1_5]
+-- 'Erdos347.answer_is_yes' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end
 
