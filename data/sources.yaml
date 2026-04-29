@@ -601,6 +601,15 @@
   url:
     - https://www.erdosproblems.com/forum/thread/315
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos315.md
+- key: ErdosProblems.Erdos316
+  author:
+    informal:
+      human:
+        - Csaba Sándor
+        - Tom Stobart
+    formal:
+      human: Bhavik Mehta
+  url: https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/316.lean
 - key: ErdosProblems.Erdos990
   author:
     informal:
