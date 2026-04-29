@@ -20,6 +20,10 @@ import Mathlib
 namespace Erdos347
 
 set_option linter.mathlibStandardSet false
+set_option linter.deprecated false
+set_option linter.unnecessarySimpa false
+set_option linter.unusedSimpArgs false
+set_option linter.unusedVariables false
 
 open scoped BigOperators
 open scoped Real
@@ -840,7 +844,7 @@ lemma sum_of_subset_sums_mem_P_T (n_0 : ℕ) (L : List ℕ)
           exact T_seq_block_eq n_0 i j ( Finset.mem_range.mp ( hs₁ i ( Finset.mem_range.mp hi ) hj ) );
         · intro j hj j' hj' h_eq; have := map_index_injective n_0 i j i j' ( Finset.mem_range.mp ( hs₁ i ( Finset.mem_range.mp hi ) hj ) ) ( Finset.mem_range.mp ( hs₁ i ( Finset.mem_range.mp hi ) hj' ) ) h_eq; aesop;
       · intros i hi j hj hij; simp_all +decide [ Finset.disjoint_left ] ;
-        intro a ha x hx; intro H; have := map_index_injective n_0 i a j x; simp_all +decide ;
+        intro a ha x hx H; have := map_index_injective n_0 i a j x; simp_all +decide ;
         exact not_lt_of_ge ( this ( Finset.mem_range.mp ( hs₁ i hi ha ) ) ) ( Finset.mem_range.mp ( hs₁ j hj hx ) );
     obtain ⟨ S, hS ⟩ := h_subset_sum;
     use S;
@@ -1877,7 +1881,7 @@ lemma N_of_spec (m : ℕ) : m ≤ M (N_of m + 1) := Nat.find_spec (exists_N_of m
 
 lemma N_of_min (m k : ℕ) (h : k < N_of m) : M (k + 1) < m := by
   have := Nat.find_min (exists_N_of m) h
-  push_neg at this
+  push Not at this
   exact this
 
 /-
@@ -1912,7 +1916,7 @@ lemma N_of_tendsto_atTop_proven : Filter.Tendsto N_of Filter.atTop Filter.atTop 
   use M (b + 1) + 1
   intro n hn
   by_contra h_lt
-  push_neg at h_lt
+  push Not at h_lt
   have h_le : N_of n + 1 ≤ b := Nat.succ_le_of_lt h_lt
   have h_M_le : M (N_of n + 1) ≤ M b := M_mono h_le
   have h_n_le : n ≤ M (N_of n + 1) := N_of_spec n
