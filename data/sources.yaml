@@ -638,6 +638,18 @@
     - https://chatgpt.com/s/t_69467152e8808191b9140d006994f284
     - https://chatgpt.com/s/t_694c90df3c908191a192f6233c2b14b9
   url_ref: KevinBarreto_333
+- key: ErdosProblems.Erdos337
+  author:
+    informal:
+      human:
+        - Imre Ruzsa
+        - Sándor Turjányi
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/337
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos337.md
 - key: ErdosProblems.Erdos990
   author:
     informal:
