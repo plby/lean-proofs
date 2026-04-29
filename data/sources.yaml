@@ -948,6 +948,8 @@
 - key: ErdosProblems.Erdos618
   epc: https://www.erdosproblems.com/618
   author:
+    informal:
+      human: Noga Alon
     formal:
       AI: Aristotle
       human: Boris Alexeev
