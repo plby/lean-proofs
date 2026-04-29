@@ -6,9 +6,6 @@ Ruzsa, Jr., I., On a problem of P. Erdős. Canad. Math. Bull. (1972), 309-310. A
 I rewrote his proof to make it slightly more explicit, which Aristotle from Harmonic (aristotle-harmonic@harmonic.fun) then formalized, the result of which can be found below.
 
 Boris Alexeev was kind enough to slightly alter the proof in order to get rid of all the warnings on unused variables. Thankyou!
-
-Lean version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7
 -/
 
 import Mathlib

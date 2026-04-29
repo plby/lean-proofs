@@ -18,11 +18,7 @@ PrimeNumberTheoremAnd project, but admitted as an axiom:
 nth_prime_asymp.
 
 
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.29.1
-Mathlib version: v4.29.1
+The proof is verified by Lean.
 
 -/
 

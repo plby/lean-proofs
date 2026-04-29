@@ -4,9 +4,6 @@ For positive integers $a$ and $b$, let $u_{a,b}$ and $v_{a,b}$ be the coprime po
 W. van Doorn, On the non-monotonicity of the denominator of generalized harmonic sums. arXiv:2411.03073 (2024).
 
 I fed this simplified version into Aristotle from Harmonic (aristotle-harmonic@harmonic.fun) to get it formalized. Boris Alexeev then used the output from Aristotle to completely finish the Lean proof, cleaning it all up in the process. I owe him a huge thanks :)
-
-Lean version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7
 -/
 
 import Mathlib

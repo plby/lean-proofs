@@ -17,11 +17,7 @@ The final theorem statement is from the Formal Conjectures project
 organized by Google DeepMind.  (Note: it was modified slightly by
 hand, because Aristotle found that it was missing a condition!)
 
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.29.1
-Mathlib version: v4.29.1
+The proof is verified by Lean.
 
 -/
 

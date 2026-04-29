@@ -16,11 +16,7 @@ auto-formalized by Aristotle (from Harmonic).
 permutations. arXiv:1504.07156 (2015).
 
 
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.29.1
-Mathlib version: v4.29.1
+The proof is verified by Lean.
 
 -/
 

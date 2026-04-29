@@ -10,9 +10,6 @@ Below you can find a Lean formalization of the proof, which was obtained by Aris
 At the very end of the file you can find the statement of Erdős Problem #204 taken from the Formal Conjectures project by Google DeepMind, which we also prove.
 
 https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/204.lean
-
-Lean version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7
 -/
 
 import Mathlib

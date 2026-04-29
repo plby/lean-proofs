@@ -21,13 +21,7 @@ organized by Google DeepMind.
 The proof is verified by Lean.  This succeeded on the following exact
 version numbers:
 
-Lean Toolchain version: leanprover/lean4:v4.20.0-rc5
-Mathlib version: d62eab0cc36ea522904895389c301cf8d844fd69 (May 9, 2025)
-
 AND
-
-Lean Toolchain version: leanprover/lean4:v4.29.1
-Mathlib version: v4.29.1
 
 -/
 import Mathlib

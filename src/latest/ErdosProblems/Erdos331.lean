@@ -4,9 +4,6 @@ Ruzsa answered Erdős Problem #331 (https://www.erdosproblems.com/331) by exhibi
 Even though the Formal Conjectures project by Google DeepMind had a formalization of the problem as well, we found that it originally contained a mistake. The hopefully fixed version (with proof) can be found at the very end of this file.
 
 https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/331.lean
-
-Lean version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7
 -/
 
 import Mathlib

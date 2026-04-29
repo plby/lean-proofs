@@ -9,11 +9,7 @@ The solution here is by a combination of ChatGPT-5.2 Pro (from OpenAI)
 and Aristotle (from Harmonic).
 
 
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.28.0
-Mathlib version: v4.28.0
+The proof is verified by Lean.
 
 -/
 

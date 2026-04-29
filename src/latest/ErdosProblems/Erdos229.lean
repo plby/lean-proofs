@@ -15,11 +15,7 @@ Harmonic).  The final theorem statement was available at the Formal
 Conjectures project (organized by Google DeepMind).
 
 
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.29.1
-Mathlib version: v4.29.1
+The proof is verified by Lean.
 
 -/
 

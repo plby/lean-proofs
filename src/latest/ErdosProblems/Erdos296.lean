@@ -34,7 +34,6 @@ Solution attribution:
     extraction.
 
 Autoformalization: Aristotle (Harmonic)
-Lean toolchain: leanprover/lean4:v4.28.0
 -/
 
 /-! # Erdős Problem 296

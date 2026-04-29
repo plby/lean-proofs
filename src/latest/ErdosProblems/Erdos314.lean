@@ -5,9 +5,6 @@ Solving Erdős Problem #314 (https://www.erdosproblems.com/314), Lim and Steiner
 J. Lim  and S. Steinerberger, On differences of two harmonic numbers. Mathematika 71 (2025).
 
 Aristotle from Harmonic (aristotle-harmonic@harmonic.fun) managed to formalize their proof, and you can find the result below.
-
-Lean version: leanprover/lean4:v4.28.0
-Mathlib version: 8f9d9cff6bd728b17a24e163c9402775d9e6a365
 -/
 import Mathlib
 

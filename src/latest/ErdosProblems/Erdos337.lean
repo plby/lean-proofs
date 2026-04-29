@@ -7,11 +7,7 @@ https://www.erdosproblems.com/337
 Aristotle auto-formalized the proof by Ruzsa and Turjányi.
 
 
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.29.1
-Mathlib version: v4.29.1
+The proof is verified by Lean.
 
 -/
 

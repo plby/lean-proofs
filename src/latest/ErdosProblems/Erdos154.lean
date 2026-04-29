@@ -6,9 +6,6 @@ Lindström, Bernt, Well distribution of Sidon sets in residue classes. J. Number
 This solves Erdős Problem #154 (https://www.erdosproblems.com/154).
 
 I asked ChatGPT to write up Lindström's proof in a TeX-file, which Aristotle from Harmonic (aristotle-harmonic@harmonic.fun) subsequently formalized into Lean, the result of which you can find below. Thanks go to Borix Alexeev for cleaning up the code in order to get rid of all the warnings <3 Thank you!
-
-Lean version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7
 -/
 
 import Mathlib

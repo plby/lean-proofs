@@ -15,11 +15,7 @@ the Sylvester's sequence. arXiv:2503.12277 (2025).
 Kamio's proof was auto-formalized by Aristotle (from Harmonic).
 
 
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.29.1
-Mathlib version: v4.29.1
+The proof is verified by Lean.
 
 -/
 
