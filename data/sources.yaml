@@ -1,4 +1,5 @@
 - key: ErdosProblems.Erdos16
+  epc: https://www.erdosproblems.com/16
   author:
     informal:
       human: Yong-Gao Chen
@@ -12,6 +13,7 @@
     - https://github.com/danielchin/proofs/blob/main/Proofs/ErdosProblems/Erdos16.lean
     - https://www.erdosproblems.com/forum/thread/16#post-4464
 - key: ErdosProblems.Erdos24
+  epc: https://www.erdosproblems.com/24
   author:
     informal:
       human: Andrzej Grzesik
@@ -23,6 +25,7 @@
     - https://www.erdosproblems.com/forum/thread/24#post-5732
     - https://gist.githubusercontent.com/madeve-unipi/683739094ab7a5079a2bc2647c47743b/raw/6164255a2f1ed85df3f01b75d2f8b35a1330aacb/Erdos24.lean
 - key: ErdosProblems.Erdos26
+  epc: https://www.erdosproblems.com/26
   author:
     informal:
       human: Imre Ruzsa
@@ -39,6 +42,7 @@
     - Google DeepMind's proof
     - Wouter van Doorn's comment
 - key: ErdosProblems.Erdos31
+  epc: https://www.erdosproblems.com/31
   author:
     informal:
       human:
@@ -57,6 +61,7 @@
     - https://www.erdosproblems.com/forum/thread/31#post-1779
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos31.md
 - key: ErdosProblems.Erdos34
+  epc: https://www.erdosproblems.com/34
   author:
     informal:
       human:
@@ -70,6 +75,7 @@
     - https://www.erdosproblems.com/forum/thread/34
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos34.md
 - key: ErdosProblems.Erdos46
+  epc: https://www.erdosproblems.com/46
   author:
     informal:
       human: Ernest S. Croot III
@@ -82,6 +88,7 @@
   latest_version: "3.42.1"
   todo: Convert from Lean3.
 - key: ErdosProblems.Erdos47
+  epc: https://www.erdosproblems.com/47
   author:
     informal:
       human: Thomas Bloom
@@ -94,6 +101,7 @@
   latest_version: "3.42.1"
   todo: Convert from Lean3.
 - key: ErdosProblems.Erdos56
+  epc: https://www.erdosproblems.com/56
   author:
     informal:
       human:
@@ -111,6 +119,7 @@
     - https://www.erdosproblems.com/forum/thread/56
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos56.md
 - key: ErdosProblems.Erdos93
+  epc: https://www.erdosproblems.com/93
   author:
     informal:
       human: E. Altman
@@ -124,6 +133,7 @@
   url: https://www.erdosproblems.com/forum/thread/93#post-4346
   url_ref: JoshuaB_93
 - key: ErdosProblems.Erdos94
+  epc: https://www.erdosproblems.com/94
   author:
     informal:
       human:
@@ -138,6 +148,7 @@
       human: Li Ding
   url: https://github.com/SpringSense-Innovation-Institute/ai-for-math-lean/blob/main/erdos-problems/erdos94/erdos94.lean
 - key: ErdosProblems.Erdos105
+  epc: https://www.erdosproblems.com/105
   author:
     informal:
       human: Wu Xichuan
@@ -150,6 +161,7 @@
     - https://www.erdosproblems.com/forum/thread/105#post-1430
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos105.md
 - key: ErdosProblems.Erdos115
+  epc: https://www.erdosproblems.com/115
   author:
     informal:
       human:
@@ -167,6 +179,7 @@
   url: https://www.erdosproblems.com/forum/thread/115#post-4555
   url_ref: JoshuaB_115
 - key: ErdosProblems.Erdos125
+  epc: https://www.erdosproblems.com/125
   author:
     informal:
       AI: a DeepMind prover agent
@@ -179,6 +192,7 @@
     - https://github.com/google-deepmind/formal-conjectures/blob/300bf771bdbef43d7b9aa2521e633a50fd54dd28/FormalConjectures/ErdosProblems/125.lean
   todo: Import this proof.
 - key: ErdosProblems.Erdos134
+  epc: https://www.erdosproblems.com/134
   author:
     informal:
       human: Noga Alon
@@ -190,6 +204,7 @@
     - https://web.math.princeton.edu/~nalon/PDFS/remark1901.pdf
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos134.md
 - key: ErdosProblems.Erdos150
+  epc: https://www.erdosproblems.com/150
   author:
     informal:
       human: Domagoj Bradač
@@ -201,6 +216,7 @@
     - https://www.erdosproblems.com/forum/thread/150#post-5145
     - https://gist.githubusercontent.com/pitmonticone/d8558d3361ad2d673b5405239ea30700/raw/c966009555b83985762dac9faaf705aad3f48199/Erdos150.lean
 - key: ErdosProblems.Erdos154
+  epc: https://www.erdosproblems.com/154
   author:
     informal:
       human: Bernt Lindström
@@ -212,6 +228,7 @@
     - https://www.erdosproblems.com/forum/thread/154#post-4218
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem154.lean
 - key: ErdosProblems.Erdos164
+  epc: https://www.erdosproblems.com/164
   author:
     formal:
       AI: Codex
@@ -220,6 +237,7 @@
     - https://www.erdosproblems.com/forum/thread/164
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos164.md
 - key: ErdosProblems.Erdos178
+  epc: https://www.erdosproblems.com/178
   author:
     informal:
       human: József Beck
@@ -230,6 +248,7 @@
     - https://www.erdosproblems.com/forum/thread/178#post-5685
     - https://gist.githubusercontent.com/madeve-unipi/ca9c3d1f94fe124c15726d836e1cd623/raw/a272de656847d3956e1c228c833ff3c591dc4872/Erdos178.lean
 - key: ErdosProblems.Erdos189
+  epc: https://www.erdosproblems.com/189
   author:
     informal:
       human: Vjekoslav Kovač
@@ -243,6 +262,7 @@
     - https://web.math.pmf.unizg.hr/~vjekovac/EP/EP189/Erdos189_blueprint.tex
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos189.md
 - key: ErdosProblems.Erdos194
+  epc: https://www.erdosproblems.com/194
   author:
     informal:
       human:
@@ -258,6 +278,7 @@
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/194.lean
     - https://gist.githubusercontent.com/ster-oc/ffe9e4fa1b813111f40c0e417bbe8be0/raw/6f748a76e55d47e24ca319a9c00fd20ab79422bb/Erdos194.lean
 - key: ErdosProblems.Erdos198
+  epc: https://www.erdosproblems.com/198
   author:
     informal:
       human: James E. Baumgartner
@@ -272,6 +293,7 @@
     - https://www.erdosproblems.com/forum/thread/198
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos198.md
 - key: ErdosProblems.Erdos199
+  epc: https://www.erdosproblems.com/199
   author:
     informal:
       human: James E. Baumgartner
@@ -281,6 +303,7 @@
   url: https://www.erdosproblems.com/forum/thread/199#post-4442
   url_ref: JoshuaB_199
 - key: ErdosProblems.Erdos204
+  epc: https://www.erdosproblems.com/204
   author:
     informal:
       human: Sarosh Adenwalla
@@ -294,6 +317,7 @@
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem204.lean
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/204.lean
 - key: ErdosProblems.Erdos205
+  epc: https://www.erdosproblems.com/205
   author:
     informal:
       human:
@@ -312,6 +336,7 @@
   conditional: nth_prime_asymp
   todo: Import PNT+ project.
 - key: ErdosProblems.Erdos214
+  epc: https://www.erdosproblems.com/214
   author:
     informal:
       human: Rozália Juhász
@@ -323,6 +348,7 @@
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem214FourPoints.lean
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem214TwelvePoints.lean
 - key: ErdosProblems.Erdos221
+  epc: https://www.erdosproblems.com/221
   author:
     informal:
       human:
@@ -336,6 +362,7 @@
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem221.lean
     - https://www.cambridge.org/core/services/aop-cambridge-core/content/view/802ABD868A907C2ADB78C580C73C86FC/S0008439500061348a.pdf/on-a-problem-of-p-erdos.pdf
 - key: ErdosProblems.Erdos224
+  epc: https://www.erdosproblems.com/224
   author:
     informal:
       human:
@@ -350,6 +377,7 @@
     - https://www.erdosproblems.com/forum/thread/224#post-3157
     - https://github.com/SpringSense-Innovation-Institute/ai-for-math-lean/blob/main/erdos-problems/erdos224/Erdos224.lean
 - key: ErdosProblems.Erdos226
+  epc: https://www.erdosproblems.com/226
   author:
     informal:
       human:
@@ -365,6 +393,7 @@
     - https://www.erdosproblems.com/226
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos226.md
 - key: ErdosProblems.Erdos229
+  epc: https://www.erdosproblems.com/229
   author:
     informal:
       human:
@@ -379,6 +408,7 @@
     - https://www.erdosproblems.com/forum/thread/229
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos229.md
 - key: ErdosProblems.Erdos237
+  epc: https://www.erdosproblems.com/237
   author:
     informal:
       human:
@@ -396,6 +426,7 @@
     - mertens_third_theorem
   todo: Import Wouter's Mertens3 proof.
 - key: ErdosProblems.Erdos246
+  epc: https://www.erdosproblems.com/246
   author:
     informal:
       human: Bryan John Birch
@@ -409,6 +440,7 @@
     - https://www.erdosproblems.com/forum/thread/246
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos246.md
 - key: ErdosProblems.Erdos258
+  epc: https://www.erdosproblems.com/258
   author:
     informal:
       AI: GPT-5.4 Pro
@@ -428,6 +460,7 @@
   conditional: tao_teravainen
   todo: See whether Tao-Teräväinen (Erdos248) can be formalized.
 - key: ErdosProblems.Erdos259
+  epc: https://www.erdosproblems.com/259
   author:
     informal:
       human:
@@ -442,6 +475,7 @@
     - https://gist.githubusercontent.com/ster-oc/c7429943f6b3a634797dc8b2a3b01f2d/raw/8c6b5b7f08021f0aed2312542dd2e9ee7beaa6d6/Erdos259.lean
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/259.lean
 - key: ErdosProblems.Erdos268
+  epc: https://www.erdosproblems.com/268
   author:
     informal:
       human: Vjekoslav Kovač
@@ -455,6 +489,7 @@
     - https://gist.githubusercontent.com/madeve-unipi/62a8f68cdb4864b85b81a6752dcb0aa4/raw/5793aaa51089c25c37d8d63f60540367f6abe506/Erdos268.lean
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/268.lean
 - key: ErdosProblems.Erdos275
+  epc: https://www.erdosproblems.com/275
   author:
     informal:
       human:
@@ -477,6 +512,7 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos275.md
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/275.lean
 - key: ErdosProblems.Erdos280
+  epc: https://www.erdosproblems.com/280
   author:
     informal:
       human: Stijn Cambie
@@ -487,6 +523,7 @@
     - https://www.erdosproblems.com/forum/thread/280#post-5595
     - https://gist.githubusercontent.com/LorenzoLuccioli/2dda92a192c15c24263c8a258979e7e3/raw/b9f4c664a42977075e361da17759bd0f71998ff8/Erdos280.lean
 - key: ErdosProblems.Erdos281
+  epc: https://www.erdosproblems.com/281
   author:
     informal:
       human: Neel Somani
@@ -501,6 +538,7 @@
     - https://chatgpt.com/share/696ac45b-70d8-8003-9ca4-320151e0816e
   url_ref: JakeMallen_281
 - key: ErdosProblems.Erdos290
+  epc: https://www.erdosproblems.com/290
   author:
     informal:
       human: Wouter van Doorn
@@ -514,6 +552,7 @@
     - https://www.erdosproblems.com/forum/thread/290#post-3180
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem290.lean
 - key: ErdosProblems.Erdos296
+  epc: https://www.erdosproblems.com/296
   author:
     informal:
       human:
@@ -531,6 +570,7 @@
   conditional: unit_fractions_upper_log_density
   todo: Import Bloom-Mehta unit-fractions project.
 - key: ErdosProblems.Erdos298
+  epc: https://www.erdosproblems.com/298
   author:
     informal:
       human: Thomas Bloom
@@ -543,6 +583,7 @@
   latest_version: "3.42.1"
   todo: Convert from Lean3.
 - key: ErdosProblems.Erdos299
+  epc: https://www.erdosproblems.com/299
   author:
     informal:
       human: Thomas Bloom
@@ -555,6 +596,7 @@
   latest_version: "3.42.1"
   todo: Convert from Lean3.
 - key: ErdosProblems.Erdos303
+  epc: https://www.erdosproblems.com/303
   author:
     informal:
       human:
@@ -573,6 +615,7 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos303.md
   url_ref: Zheng_Yuan_303
 - key: ErdosProblems.Erdos314
+  epc: https://www.erdosproblems.com/314
   author:
     informal:
       human:
@@ -586,6 +629,7 @@
     - https://www.erdosproblems.com/forum/thread/314#post-5193
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem314.lean
 - key: ErdosProblems.Erdos315
+  epc: https://www.erdosproblems.com/315
   author:
     informal:
       human:
@@ -602,6 +646,7 @@
     - https://www.erdosproblems.com/forum/thread/315
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos315.md
 - key: ErdosProblems.Erdos316
+  epc: https://www.erdosproblems.com/316
   author:
     informal:
       human:
@@ -611,6 +656,7 @@
       human: Bhavik Mehta
   url: https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/316.lean
 - key: ErdosProblems.Erdos331
+  epc: https://www.erdosproblems.com/331
   author:
     informal:
       human: Imre Ruzsa
@@ -622,6 +668,7 @@
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem331.lean
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/331.lean
 - key: ErdosProblems.Erdos333
+  epc: https://www.erdosproblems.com/333
   author:
     informal:
       human:
@@ -639,6 +686,7 @@
     - https://chatgpt.com/s/t_694c90df3c908191a192f6233c2b14b9
   url_ref: KevinBarreto_333
 - key: ErdosProblems.Erdos337
+  epc: https://www.erdosproblems.com/337
   author:
     informal:
       human:
@@ -651,6 +699,7 @@
     - https://www.erdosproblems.com/forum/thread/337
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos337.md
 - key: ErdosProblems.Erdos347
+  epc: https://www.erdosproblems.com/347
   author:
     informal:
       human: Enrique Barschkis
@@ -664,6 +713,7 @@
     - https://github.com/ebarschkis/ErdosProblem/blob/main/Problem347/note.tex
     - https://github.com/ebarschkis/ErdosProblem/blob/main/Problem347/Formalization.lean
 - key: ErdosProblems.Erdos990
+  epc: https://www.erdosproblems.com/990
   author:
     informal:
       AI: an internal model at OpenAI
@@ -679,6 +729,7 @@
   arxiv: https://arxiv.org/abs/2604.06609
   url: https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos990.md
 - key: ErdosProblems.Erdos990b
+  epc: https://www.erdosproblems.com/990
   author:
     formal:
       AI: GPT-5.4 Pro
@@ -687,6 +738,7 @@
     - https://www.erdosproblems.com/forum/thread/990#post-5312
     - https://github.com/yuta0x89/ErdosProblems/blob/main/Erdos990.lean
 - key: ErdosProblems.Erdos1014
+  epc: https://www.erdosproblems.com/1014
   author:
     informal:
       AI: an internal model at OpenAI
@@ -697,84 +749,3 @@
     - https://openai.com/index/introducing-gpt-5-5/
     - https://cdn.openai.com/pdf/6dc7175d-d9e7-4b8d-96b8-48fe5798cd5b/Ramsey.pdf
     - https://www.erdosproblems.com/forum/thread/1014#post-5749
-- key: HundredTheorems.Theorem8
-  author:
-    informal:
-      AI: ChatGPT-5.2 Pro
-    formal:
-      AI: Aristotle
-      human: Boris Alexeev
-  url: https://github.com/plby/lean-proofs/blob/main/HundredTheorems/Theorem8.md
-- key: HundredTheorems.Theorem28
-  author:
-    informal:
-      AI: ChatGPT-5.2 Pro
-    formal:
-      AI: Aristotle
-      human: Boris Alexeev
-  url: https://github.com/plby/lean-proofs/blob/main/HundredTheorems/Theorem28.md
-- key: HundredTheorems.Theorem61
-  author:
-    informal:
-      AI: ChatGPT-5.2 Pro
-    formal:
-      AI: Aristotle
-      human: Boris Alexeev
-  url: https://github.com/plby/lean-proofs/blob/main/HundredTheorems/Theorem61.md
-- key: HundredTheorems.Theorem84
-  author:
-    informal:
-      human: John Horton Conway
-      AI: ChatGPT-5.2 Pro
-    formal:
-      AI: Aristotle
-      human: Boris Alexeev
-  url: https://github.com/plby/lean-proofs/blob/main/HundredTheorems/Theorem84.md
-- key: HundredTheorems.Theorem87
-  author:
-    informal:
-      AI: ChatGPT-5.2 Pro
-    formal:
-      AI: Aristotle
-      human: Boris Alexeev
-  url: https://github.com/plby/lean-proofs/blob/main/HundredTheorems/Theorem87.md
-- key: MathOverflow.MO420333
-  author:
-    informal:
-      AI: ChatGPT 5.2 Pro
-    formal:
-      AI: Aristotle
-      human: Boris Alexeev
-  url:
-    - https://mathoverflow.net/questions/420333/sum-of-guesses-minimization-problem-also-does-this-problem-already-exist-in-the/506769#506769
-    - https://github.com/plby/lean-proofs/blob/main/MathOverflow/MO420333.md
-- key: MathOverflow.MO508681
-  author:
-    informal:
-      AI: ChatGPT 5.4 Pro
-    formal:
-      AI: Aristotle
-      human: Boris Alexeev
-  url:
-    - https://mathoverflow.net/questions/508681/a-two-player-stochastic-game-fight-or-draw
-    - https://github.com/plby/lean-proofs/blob/main/MathOverflow/MO508681.md
-- key: MathOverflow.MO509164
-  author:
-    informal:
-      AI: ChatGPT 5.4 Pro
-    formal:
-      AI: Aristotle
-      human: Boris Alexeev
-  url:
-    - https://mathoverflow.net/questions/509164/limsup-of-cantor-sets
-    - https://github.com/plby/lean-proofs/blob/main/MathOverflow/MO509164.md
-- key: MathOverflow.MO509493
-  author:
-    informal:
-      AI: ChatGPT 5.4 Pro
-    formal:
-      AI: Aristotle
-      human: Boris Alexeev
-  url:
-    - https://mathoverflow.net/questions/509493/question-on-power-nonnegative-matrix/509513#509513
-    - https://github.com/plby/lean-proofs/blob/main/MathOverflow/MO509493.md

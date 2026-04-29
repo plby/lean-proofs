@@ -1,0 +1,81 @@
+- key: HundredTheorems.Theorem8
+  author:
+    informal:
+      AI: ChatGPT-5.2 Pro
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url: https://github.com/plby/lean-proofs/blob/main/HundredTheorems/Theorem8.md
+- key: HundredTheorems.Theorem28
+  author:
+    informal:
+      AI: ChatGPT-5.2 Pro
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url: https://github.com/plby/lean-proofs/blob/main/HundredTheorems/Theorem28.md
+- key: HundredTheorems.Theorem61
+  author:
+    informal:
+      AI: ChatGPT-5.2 Pro
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url: https://github.com/plby/lean-proofs/blob/main/HundredTheorems/Theorem61.md
+- key: HundredTheorems.Theorem84
+  author:
+    informal:
+      human: John Horton Conway
+      AI: ChatGPT-5.2 Pro
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url: https://github.com/plby/lean-proofs/blob/main/HundredTheorems/Theorem84.md
+- key: HundredTheorems.Theorem87
+  author:
+    informal:
+      AI: ChatGPT-5.2 Pro
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url: https://github.com/plby/lean-proofs/blob/main/HundredTheorems/Theorem87.md
+- key: MathOverflow.MO420333
+  author:
+    informal:
+      AI: ChatGPT 5.2 Pro
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://mathoverflow.net/questions/420333/sum-of-guesses-minimization-problem-also-does-this-problem-already-exist-in-the/506769#506769
+    - https://github.com/plby/lean-proofs/blob/main/MathOverflow/MO420333.md
+- key: MathOverflow.MO508681
+  author:
+    informal:
+      AI: ChatGPT 5.4 Pro
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://mathoverflow.net/questions/508681/a-two-player-stochastic-game-fight-or-draw
+    - https://github.com/plby/lean-proofs/blob/main/MathOverflow/MO508681.md
+- key: MathOverflow.MO509164
+  author:
+    informal:
+      AI: ChatGPT 5.4 Pro
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://mathoverflow.net/questions/509164/limsup-of-cantor-sets
+    - https://github.com/plby/lean-proofs/blob/main/MathOverflow/MO509164.md
+- key: MathOverflow.MO509493
+  author:
+    informal:
+      AI: ChatGPT 5.4 Pro
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://mathoverflow.net/questions/509493/question-on-power-nonnegative-matrix/509513#509513
+    - https://github.com/plby/lean-proofs/blob/main/MathOverflow/MO509493.md
