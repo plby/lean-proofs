@@ -482,7 +482,7 @@ lemma u_prod_init_eq_inv_l (n : ℕ) :
 /-
 Helper lemma: Product of u_seq terms relates to Sylvester sequence product.
 -/
-lemma u_prod_eq_syl_prod (n : ℕ) (hn : 0 < n) (k : ℕ) (hk : k ≥ 2) :
+lemma u_prod_eq_syl_prod (n : ℕ) (k : ℕ) (hk : k ≥ 2) :
   (1 / (n : ℝ)) * ∏ i ∈ Finset.range k, u_seq n i = 1 / (l_val n * ∏ j ∈ Finset.range (k - 2), (generalized_sylvester (l_val n) j : ℝ)) := by
     -- We split the product into the initial part (i=0, 1) and the rest (i >= 2).
     have h_split : (∏ i ∈ Finset.range k, u_seq n i) = (u_seq n 0) * (u_seq n 1) * (∏ j ∈ Finset.range (k - 2), (1 / (generalized_sylvester (l_val n) j : ℝ))) := by
@@ -505,7 +505,7 @@ lemma u_inductive_step_eq (n : ℕ) (hn : 2 ≤ n) (k : ℕ) (hk : k ≥ 2) :
       rw [ inv_eq_one_div, div_div, mul_sub, mul_one, mul_div_cancel₀ _ ( Nat.cast_ne_zero.mpr <| ne_of_gt <| generalized_sylvester_pos _ _ ) ] ; ring;
     -- Using `u_prod_eq_syl_prod` with index k (range k), RHS = 1 / (l * prod_{j=0}^{k-3} s_j(l)).
     have h_rhs : (1 / (n : ℝ)) * ∏ i ∈ Finset.range k, u_seq n i = 1 / (l_val n * ∏ j ∈ Finset.range (k - 2), (generalized_sylvester (l_val n) j : ℝ)) := by
-      convert u_prod_eq_syl_prod n ( by linarith ) k hk using 1;
+      convert u_prod_eq_syl_prod n k hk using 1;
     -- Using `prop_syl_2` applied to n=l and j=k-2, we get s_{k-2}(l) - 1 = l * prod_{j=0}^{k-3} s_j(l).
     have h_syl_prod : (generalized_sylvester (l_val n) (k - 2) : ℝ) - 1 = (l_val n : ℝ) * ∏ j ∈ Finset.range (k - 2), (generalized_sylvester (l_val n) j : ℝ) := by
       convert congr_arg ( ( ↑ ) : ℕ → ℝ ) ( prop_syl_2 ( l_val n ) ( k - 2 ) ) using 1;
