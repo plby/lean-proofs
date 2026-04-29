@@ -7,6 +7,26 @@ noncomputable abbrev nth_prime (n : ℕ) : ℕ := Nat.nth Nat.Prime n
 axiom nth_prime_asymp :
     (fun n ↦ ((nth_prime n) : ℝ)) ~[atTop] (fun n ↦ (n : ℝ) * Real.log (n : ℝ))
 
+/-! ## Axioms from unit fractions -/
+
+/-- **Bloom–Mehta formalized statement (Theorem 3).**
+This is the statement at line 2042 of
+`https://github.com/b-mehta/unit-fractions/blob/master/src/final_results.lean`,
+translated from Lean 3 / mathlib3 into Lean 4 / Mathlib4.
+
+The Bloom–Mehta formalization is in Lean 3, and there is currently no
+automated way to import Lean 3 projects into a Lean 4 build.
+Consequently we state this theorem here with `axiom` as a trusted
+external result. Should a Lean 4 port of the `unit-fractions`
+repository become available, this `axiom` can be replaced by `theorem`
+proved by an import. -/
+axiom unit_fractions_upper_log_density :
+    ∃ C : ℝ, ∀ᶠ (N : ℕ) in atTop, ∀ A ⊆ Icc 1 N,
+      C * (Real.log (Real.log (Real.log N)) /
+        Real.log (Real.log N)) * Real.log N
+        ≤ ∑ n ∈ A, (1 : ℝ) / n →
+      ∃ S ⊆ A, ∑ n ∈ S, (1 / n : ℚ) = 1
+
 /-- A set `B` of integers is *admissible* if for every prime `p`, the
 residues of `B` modulo `p` do not cover all of `ZMod p`. -/
 def Admissible (B : Finset ℤ) : Prop :=
