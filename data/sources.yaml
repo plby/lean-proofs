@@ -738,6 +738,426 @@
   url:
     - https://www.erdosproblems.com/forum/thread/370
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos370.md
+- key: ErdosProblems.Erdos418
+  epc: https://www.erdosproblems.com/418
+  author:
+    informal:
+      human:
+        - Jerzy Browkin
+        - Andrzej Schinzel
+      AI: ChatGPT 5.1 Pro
+    statement:
+      human:
+        - Formal Conjectures authors
+        - Salvatore Mercuri
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/418
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos418.md
+- key: ErdosProblems.Erdos419
+  epc: https://www.erdosproblems.com/419
+  author:
+    informal:
+      human:
+        - Paul Erdős
+        - S. W. Graham
+        - Aleksandar Ivić
+        - Carl Pomerance
+        - Mehtaab Sawhney
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/419
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos419.md
+- key: ErdosProblems.Erdos435
+  epc: https://www.erdosproblems.com/435
+  author:
+    informal:
+      human:
+        - W. Hwang
+        - K. Song
+        - Peake
+        - Stijn Cambie
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  arxiv: https://arxiv.org/abs/2412.17882
+  url:
+    - https://www.erdosproblems.com/forum/thread/435
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos435.md
+- key: ErdosProblems.Erdos443
+  epc: https://www.erdosproblems.com/443
+  author:
+    informal:
+      human:
+        - N. Hegyvári
+        - Stijn Cambie
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  arxiv: https://arxiv.org/abs/2503.24201
+  url:
+    - https://www.erdosproblems.com/forum/thread/443
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos443.md
+- key: ErdosProblems.Erdos447
+  epc: https://www.erdosproblems.com/447
+  author:
+    informal:
+      human: Daniel Kleitman
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/447
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos447.md
+- key: ErdosProblems.Erdos453
+  epc: https://www.erdosproblems.com/453
+  author:
+    informal:
+      human: Carl Pomerance
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/453
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos453.md
+- key: ErdosProblems.Erdos476
+  epc: https://www.erdosproblems.com/476
+  author:
+    informal:
+      human:
+        - J. A. Dias da Silva
+        - Yahya Ould Hamidoune
+        - Noga Alon
+        - Melvyn B. Nathanson
+        - Imre Z. Ruzsa
+      AI: ChatGPT
+    statement:
+      AI: Aristotle
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/476
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos476.md
+- key: ErdosProblems.Erdos487
+  epc: https://www.erdosproblems.com/487
+  author:
+    informal:
+      human: Daniel Kleitman
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/487
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos487.md
+- key: ErdosProblems.Erdos493
+  epc: https://www.erdosproblems.com/493
+  author:
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/493
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos493.md
+- key: ErdosProblems.Erdos497
+  epc: https://www.erdosproblems.com/497
+  author:
+    informal:
+      human: Daniel Kleitman
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/497
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos497.md
+- key: ErdosProblems.Erdos499
+  epc: https://www.erdosproblems.com/499
+  author:
+    informal:
+      human:
+        - Marvin Marcus
+        - Henryk Minc
+    statement: Formal Conjectures authors
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/499
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos499.md
+- key: ErdosProblems.Erdos505
+  epc: https://www.erdosproblems.com/505
+  author:
+    informal:
+      human:
+        - Jeff Kahn
+        - Gil Kalai
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/505
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos505.md
+- key: ErdosProblems.Erdos537
+  epc: https://www.erdosproblems.com/537
+  author:
+    informal:
+      human: Imre Z. Ruzsa
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/537
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos537.md
+- key: ErdosProblems.Erdos541
+  epc: https://www.erdosproblems.com/541
+  author:
+    informal:
+      human:
+        - Paul Erdős
+        - Endre Szemerédi
+        - Weidong Gao
+        - Yahya Ould Hamidoune
+        - Guoqing Wang
+        - David J. Grynkiewicz
+      AI: ChatGPT
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Aristotle
+        - ChatGPT
+      human: Boris Alexeev
+  arxiv: https://arxiv.org/abs/0903.3200
+  url:
+    - https://www.erdosproblems.com/forum/thread/541
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos541.md
+- key: ErdosProblems.Erdos582
+  epc: https://www.erdosproblems.com/582
+  author:
+    informal:
+      human: Jon Folkman
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/582
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos582.md
+- key: ErdosProblems.Erdos618
+  epc: https://www.erdosproblems.com/618
+  author:
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/618
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos618.md
+- key: ErdosProblems.Erdos645
+  epc: https://www.erdosproblems.com/645
+  author:
+    informal:
+      human:
+        - Tom C. Brown
+        - Bruce M. Landman
+        - Ryan Alweiss
+      AI: ChatGPT 5.1 Pro
+    statement: Formal Conjectures authors
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/645
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos645.md
+- key: ErdosProblems.Erdos648
+  epc: https://www.erdosproblems.com/648
+  author:
+    informal:
+      human: Stijn Cambie
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  arxiv: https://arxiv.org/abs/2503.22691
+  url:
+    - https://www.erdosproblems.com/forum/thread/648
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos648.md
+- key: ErdosProblems.Erdos649
+  epc: https://www.erdosproblems.com/649
+  author:
+    formal:
+      AI:
+        - ChatGPT
+        - Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/649
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos649.md
+- key: ErdosProblems.Erdos659
+  epc: https://www.erdosproblems.com/659
+  author:
+    informal:
+      human:
+        - Benjamin Grayzel
+        - Adam Sheffer
+        - Pieter Moree
+        - Robert Osburn
+        - Desmond Weisenberg
+      AI: Gemini
+    statement: Formal Conjectures authors
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  arxiv: https://arxiv.org/abs/math/0604163
+  url:
+    - https://www.erdosproblems.com/forum/thread/659
+    - https://adamsheffer.wordpress.com/2014/07/16/point-sets-with-few-distinct-distances/
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos659.md
+- key: ErdosProblems.Erdos666
+  epc: https://www.erdosproblems.com/666
+  author:
+    informal:
+      human:
+        - Fan R. K. Chung
+        - A. E. Brouwer
+        - I. J. Dejter
+        - Carsten Thomassen
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/666
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos666.md
+- key: ErdosProblems.Erdos678
+  epc: https://www.erdosproblems.com/678
+  author:
+    informal:
+      human: Stijn Cambie
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  arxiv: https://arxiv.org/abs/2410.09138
+  url:
+    - https://www.erdosproblems.com/forum/thread/678
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos678.md
+- key: ErdosProblems.Erdos707
+  epc: https://www.erdosproblems.com/707
+  author:
+    informal:
+      human:
+        - Boris Alexeev
+        - Dustin G. Mixon
+      AI: ChatGPT
+    formal:
+      AI: ChatGPT
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/707
+    - https://borisalexeev.com/papers/erdos707.html
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos707.md
+- key: ErdosProblems.Erdos762
+  epc: https://www.erdosproblems.com/762
+  author:
+    informal:
+      human: R. Steiner
+    formal:
+      AI:
+        - Aristotle
+        - ChatGPT
+      human: Boris Alexeev
+  arxiv: https://arxiv.org/abs/2408.02400
+  url:
+    - https://www.erdosproblems.com/forum/thread/762
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos762.md
+- key: ErdosProblems.Erdos794
+  epc: https://www.erdosproblems.com/794
+  author:
+    informal:
+      human: Phillip Harris
+    formal:
+      AI:
+        - Aristotle
+        - ChatGPT
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/794
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos794.md
+- key: ErdosProblems.Erdos845
+  epc: https://www.erdosproblems.com/845
+  author:
+    informal:
+      human:
+        - Wouter van Doorn
+        - Anneroos R. F. Everts
+    statement: Formal Conjectures authors
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  arxiv: https://arxiv.org/abs/2511.04585
+  url:
+    - https://www.erdosproblems.com/forum/thread/845
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos845.md
+- key: ErdosProblems.Erdos862
+  epc: https://www.erdosproblems.com/862
+  author:
+    informal:
+      human:
+        - David Saxton
+        - Andrew Thomason
+      AI: ChatGPT
+    statement:
+      AI: Aristotle
+    formal:
+      AI: Aristotle
+      human:
+        - Boris Alexeev
+        - Kevin Barreto
+  url:
+    - https://www.erdosproblems.com/forum/thread/862
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos862.md
+- key: ErdosProblems.Erdos871
+  epc: https://www.erdosproblems.com/871
+  author:
+    informal:
+      human:
+        - Paul Erdős
+        - Melvyn B. Nathanson
+        - Daniel Larsen
+      AI: Claude Opus 4.5
+    formal:
+      AI:
+        - Claude Opus 4.5
+        - Gemini 3 Pro
+        - Aristotle
+      human:
+        - Daniel Larsen
+        - Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/871
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos871.md
+- key: ErdosProblems.Erdos897
+  epc: https://www.erdosproblems.com/897
+  author:
+    informal:
+      human: Eduard Wirsing
+      AI: Archivara Math Research Agent
+    statement: Formal Conjectures authors
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/897
+    - https://archivara.org/paper/df04f023-6ef0-4c52-bd12-18cdaa8f0741
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos897.md
+- key: ErdosProblems.Erdos958
+  epc: https://www.erdosproblems.com/958
+  author:
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/958
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos958.md
 - key: ErdosProblems.Erdos990
   epc: https://www.erdosproblems.com/990
   author:
@@ -763,6 +1183,55 @@
   url:
     - https://www.erdosproblems.com/forum/thread/990#post-5312
     - https://github.com/yuta0x89/ErdosProblems/blob/main/Erdos990.lean
+- key: ErdosProblems.Erdos1000
+  epc: https://www.erdosproblems.com/1000
+  author:
+    informal:
+      human: J. A. Haight
+      AI: ChatGPT
+    statement:
+      AI: ChatGPT
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/1000
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1000.md
+- key: ErdosProblems.Erdos1007
+  epc: https://www.erdosproblems.com/1007
+  author:
+    informal:
+      human:
+        - Roger F. House
+        - Joe Chaffee
+        - Matt Noble
+    statement:
+      AI: Aristotle
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/1007
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1007.md
+- key: ErdosProblems.Erdos1008
+  epc: https://www.erdosproblems.com/1008
+  author:
+    informal:
+      human:
+        - David Conlon
+        - Jacob Fox
+        - Benny Sudakov
+        - Zach Hunter
+      AI: ChatGPT
+    statement:
+      AI: Aristotle
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  arxiv: https://arxiv.org/abs/1401.6711
+  url:
+    - https://www.erdosproblems.com/forum/thread/1008
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1008.md
 - key: ErdosProblems.Erdos1014
   epc: https://www.erdosproblems.com/1014
   author:
@@ -775,3 +1244,206 @@
     - https://openai.com/index/introducing-gpt-5-5/
     - https://cdn.openai.com/pdf/6dc7175d-d9e7-4b8d-96b8-48fe5798cd5b/Ramsey.pdf
     - https://www.erdosproblems.com/forum/thread/1014#post-5749
+- key: ErdosProblems.Erdos1022
+  epc: https://www.erdosproblems.com/1022
+  author:
+    informal:
+      human: KoishiChan
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/1022
+    - https://www.erdosproblems.com/forum/thread/1022#post-2004
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1022.md
+- key: ErdosProblems.Erdos1023
+  epc: https://www.erdosproblems.com/1023
+  author:
+    informal:
+      human:
+        - Daniel Kleitman
+        - Zach Hunter
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/1023
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1023.md
+- key: ErdosProblems.Erdos1026
+  epc: https://www.erdosproblems.com/1026
+  author:
+    informal:
+      human:
+        - Desmond Weisenberg
+        - Stijn Cambie
+        - Wouter van Doorn
+        - Thomas Bloom
+        - Boris Alexeev
+        - KoishiChan
+        - Terence Tao
+        - Lawrence Wu
+        - Jineon Baek
+        - Junnosuke Koizumi
+        - Takahiro Ueoro
+        - Iwan Praton
+        - Adam Zsolt Wagner
+        - J. Michael Steele
+        - Abraham Seidenberg
+      AI:
+        - Aristotle
+        - AlphaEvolve
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/1026
+    - https://terrytao.wordpress.com/2025/12/08/the-story-of-erdos-problem-126/
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1026.md
+- key: ErdosProblems.Erdos1028
+  epc: https://www.erdosproblems.com/1028
+  author:
+    informal:
+      human:
+        - Paul Erdős
+        - Joel Spencer
+      AI: ChatGPT
+    statement:
+      AI: Aristotle
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/1028
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1028.md
+- key: ErdosProblems.Erdos1034
+  epc: https://www.erdosproblems.com/1034
+  author:
+    informal:
+      human:
+        - Jie Ma
+        - Quanyu Tang
+      AI: ChatGPT
+    statement:
+      human: Boris Alexeev
+    formal:
+      AI: Aristotle
+      human:
+        - Namrata Anand
+        - Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/1034
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1034.md
+- key: ErdosProblems.Erdos1036
+  epc: https://www.erdosproblems.com/1036
+  author:
+    informal:
+      human: Saharon Shelah
+    statement:
+      AI: Aristotle
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/1036
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1036.md
+- key: ErdosProblems.Erdos1037
+  epc: https://www.erdosproblems.com/1037
+  author:
+    informal:
+      human:
+        - Stijn Cambie
+        - Zach Hunter
+        - KoishiChan
+    statement:
+      AI: Aristotle
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/1037
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1037.md
+- key: ErdosProblems.Erdos1043
+  epc: https://www.erdosproblems.com/1043
+  author:
+    informal:
+      human: Christian Pommerenke
+    statement: Formal Conjectures authors
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/1043
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1043.md
+- key: ErdosProblems.Erdos1047
+  epc: https://www.erdosproblems.com/1047
+  author:
+    informal:
+      human:
+        - Christian Pommerenke
+        - A. W. Goodman
+        - referee
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/1047
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1047.md
+- key: ErdosProblems.Erdos1048
+  epc: https://www.erdosproblems.com/1048
+  author:
+    informal:
+      human: Christian Pommerenke
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/1048
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1048.md
+- key: ErdosProblems.Erdos1067
+  epc: https://www.erdosproblems.com/1067
+  author:
+    informal:
+      human:
+        - Péter Komjáth
+        - Dániel T. Soukup
+        - Nathan Bowler
+        - Max Pitz
+    statement:
+      AI: ChatGPT
+    formal:
+      AI:
+        - Aristotle
+        - Aleph Prover
+      human: Boris Alexeev
+  arxiv: https://arxiv.org/abs/2402.05984
+  url:
+    - https://www.erdosproblems.com/forum/thread/1067
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1067.md
+- key: ErdosProblems.Erdos1071
+  epc: https://www.erdosproblems.com/1071
+  author:
+    informal:
+      human: Boris Alexeev
+    formal:
+      AI:
+        - Aristotle
+        - ChatGPT
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/1071
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1071.md
+- key: ErdosProblems.Erdos1080
+  epc: https://www.erdosproblems.com/1080
+  author:
+    informal:
+      human:
+        - D. de Caen
+        - L. A. Székely
+      AI: ChatGPT
+    statement: Formal Conjectures authors
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/1080
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1080.md
