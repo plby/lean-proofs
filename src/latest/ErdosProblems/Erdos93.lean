@@ -1,9 +1,5 @@
 import Mathlib
 
-open Lean.Parser.Tactic in
-macro "push_neg" cfg:optConfig loc:(location)? : tactic =>
-  `(tactic| push $cfg:optConfig Not $[$loc]?)
-
 set_option linter.style.openClassical false
 set_option linter.style.setOption false
 set_option linter.style.longLine false
@@ -228,7 +224,7 @@ lemma not_convexIndependent_of_finrank_affineSpan_lt_two
             simp +decide [ ← add_smul,] ; ring_nf;
             grind;
           rw [ convexIndependent_iff_notMem_convexHull_diff ];
-          push_neg;
+          push Not;
           refine' ⟨ j, { i, k }, _ ⟩;
           rw [ convexHull_eq ];
           refine' ⟨ Fin 2, { 0, 1 }, fun x => if x = 0 then 1 - ( t j - t i ) / ( t k - t i ) else ( t j - t i ) / ( t k - t i ), fun x => if x = 0 then pts i else pts k, _, _, _, _ ⟩ <;> simp +decide [ Finset.centerMass ];
@@ -1688,7 +1684,7 @@ lemma chain_vertices_one_side_of_closing_line {n : ℕ} [NeZero n] {A : Fin n �
     · -- Case: LinearDependent.
       have hf'_lin_nz : f'.linear ≠ 0 := hf'_lin
       rw [LinearIndependent.pair_iff' hf'_lin_nz] at h_ind_fg
-      push_neg at h_ind_fg
+      push Not at h_ind_fg
       obtain ⟨c, hc⟩ := h_ind_fg
       have h_f_g : ∀ v, g v = c * f' v := by
         intro v
@@ -3846,7 +3842,7 @@ lemma altman_lemma_1_strict {A : ℕ → V} {n : ℕ}
   · have hy_lt_x : y < x := lt_of_le_of_ne hy_x (Ne.symm h_xy)
     -- Assuming negation leads to contradiction via crossing angle logic
     by_contra h_contra
-    push_neg at h_contra
+    push Not at h_contra
     obtain ⟨h_px, h_qy⟩ := h_contra
     exact altman_crossing_angle_logic_ge h_convex h_max hp hp_y hy_lt_x hx_q hq_n1 h_px h_qy
 
@@ -4103,7 +4099,7 @@ lemma altman_lemma_2_strong {A : ℕ → V} {n : ℕ}
     · rcases h_end with ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩
       · rfl
       · rw [dist_comm]
-    · push_neg at h_end
+    · push Not at h_end
       replace h_end : (i ≠ 0 ∨ j ≠ n - 1) ∧ (i ≠ n - 1 ∨ j ≠ 0) := by tauto
       exact le_of_lt (h_max_strict i j hi hj h_end.1 h_end.2)
 
@@ -4254,7 +4250,7 @@ lemma maximal_diagonal_not_side {A : ℕ → V} {n : ℕ} {p q : ℕ}
   constructor
   · -- Show 2 ≤ q - p
     by_contra h_lt
-    push_neg at h_lt
+    push Not at h_lt
     -- q - p ∈ {0, 1}
     rcases Nat.eq_zero_or_pos (q - p) with h0 | hpos
     · -- q - p = 0 means p = q (since p ≤ q), so dist(A p, A q) = 0
@@ -4271,7 +4267,7 @@ lemma maximal_diagonal_not_side {A : ℕ → V} {n : ℕ} {p q : ℕ}
       exact lt_irrefl _ h_side
   · -- Show q - p ≤ n - 2
     by_contra h_gt
-    push_neg at h_gt
+    push Not at h_gt
     -- q - p ≥ n - 1, but q - p ≤ q < n, so q - p ≤ n - 1, meaning q - p = n - 1
     have h_eq : q - p = n - 1 := by omega
     have hp_eq : p = 0 := by omega
@@ -5289,7 +5285,7 @@ lemma convex_polygon_supporting_line_property {n : ℕ} {s : Finset V} {A : ℕ 
       rw [hc_eq]; simp [vadd_eq_add, sub_smul, smul_sub]; abel
     rw [openSegment_eq_image]; use c
     refine ⟨⟨?_ , ?_⟩, hP_comb.symm⟩
-    · by_contra hc0; push_neg at hc0 -- c <= 0
+    · by_contra hc0; push Not at hc0 -- c <= 0
       if h0 : c = 0 then
         have h_eq : P = A i := by rw [h0] at hP_comb; simp at hP_comb; exact hP_comb
         have hAi_fr := convexIndependent_subset_frontier h_conv (by rw [← h_img]; apply Finset.mem_image_of_mem; exact Finset.mem_range.mpr i.is_lt)
@@ -5307,7 +5303,7 @@ lemma convex_polygon_supporting_line_property {n : ℕ} {s : Finset V} {A : ℕ 
           openSegment_subset_interior_convex_hull hP_int (subset_convexHull ℝ (s : Set V) (by rw [← h_img]; apply Finset.mem_image_of_mem; exact Finset.mem_range.mpr j.is_lt)) hw_seg
         have hAi_front := convexIndependent_subset_frontier h_conv (by rw [← h_img]; apply Finset.mem_image_of_mem; exact Finset.mem_range.mpr i.is_lt)
         exact hAi_front.2 hAi_int
-    · by_contra hc1; push_neg at hc1 -- c >= 1
+    · by_contra hc1; push Not at hc1 -- c >= 1
       if h1 : c = 1 then
         have h_eq : P = A j := by rw [h1] at hP_comb; simp at hP_comb; exact hP_comb
         have hAj_fr := convexIndependent_subset_frontier h_conv (by rw [← h_img]; apply Finset.mem_image_of_mem; exact Finset.mem_range.mpr j.is_lt)
@@ -5442,7 +5438,7 @@ lemma convex_polygon_supporting_line_property {n : ℕ} {s : Finset V} {A : ℕ 
           constructor
           · -- Prove π < arg z1 + arg (z2 / z1)
             by_contra h_le_pi
-            push_neg at h_le_pi
+            push Not at h_le_pi
             have h_mem' : arg z1 + arg (z2 / z1) ∈ Set.Ioc (-π) π := by
               constructor
               · linarith [neg_pi_lt_arg z1, h_arg_pos.1]
@@ -5473,7 +5469,7 @@ lemma convex_polygon_supporting_line_property {n : ℕ} {s : Finset V} {A : ℕ 
             rw [h_angle, ← Real.Angle.coe_add, Real.Angle.toReal_coe_eq_self_sub_two_pi_iff]
             rw [Set.mem_Ioc]
             constructor
-            · push_neg at h_wrap; exact h_wrap
+            · push Not at h_wrap; exact h_wrap
             · linarith [arg_le_pi z1, h_ratio_arg.2]
           rw [h_eq]
           have h1 : arg (z / z1) < arg (z2 / z1) := h_ratio_arg.2
@@ -5512,7 +5508,7 @@ lemma convex_polygon_supporting_line_property {n : ℕ} {s : Finset V} {A : ℕ 
       · rw [if_pos h_ordered] at h_between; exact h_between.1
       · rw [if_pos h_ordered] at h_between; exact h_between.2
     · right; constructor
-      · push_neg at h_ordered; refine' lt_of_le_of_ne h_ordered (by
+      · push Not at h_ordered; refine' lt_of_le_of_ne h_ordered (by
           intro h_eq
           -- This means arg z1 = arg z2.
           -- Since z1, z2 ≠ 0, this implies z1 and z2 are on the same ray from the origin.
@@ -5685,7 +5681,7 @@ lemma exists_supporting_line_of_angular_sorted {n : ℕ} {s : Finset V} (h_n : 3
         have h_zi_v_nz : zi_v ≠ 0 := by
           intro h_z; exact h_zi_nz (Complex.ext (congr_fun h_z 0) (congr_fun h_z 1))
         rw [LinearIndependent.pair_iff' h_zi_v_nz] at h_dep
-        push_neg at h_dep
+        push Not at h_dep
         obtain ⟨k, hk⟩ := h_dep
         use k
         have h_k_nz : k ≠ 0 := by
@@ -6129,7 +6125,7 @@ lemma segment_subset_frontier_of_angular_order {n : ℕ} {s : Finset V}
     -- exists v s.t. f.linear v > 0
     have : ∃ v, f.linear v > 0 := by
       by_contra h_all_le
-      push_neg at h_all_le
+      push Not at h_all_le
       apply hf_non_trivial
       ext v
       exact le_antisymm (h_all_le v) (by simpa using h_all_le (-v))
@@ -6585,7 +6581,7 @@ theorem altman_erdos (s : Finset V) (n : ℕ)
       omega
 
   · -- Case 2: No side is maximal.
-    push_neg at h_side_max
+    push Not at h_side_max
 
     have h_strict : ∃ p q, p < n ∧ q < n ∧ ∀ i, i < n → dist (A i) (A ((i + 1) % n)) < dist (A p) (A q) := by
       let all_pairs := (Finset.range n).product (Finset.range n)
