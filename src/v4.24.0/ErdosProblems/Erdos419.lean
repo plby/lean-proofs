@@ -1,7 +1,7 @@
 /-
 
-This is a Lean formalization of a solution to Erdős Problem 415.
-https://www.erdosproblems.com/forum/thread/415
+This is a Lean formalization of a solution to Erdős Problem 419.
+https://www.erdosproblems.com/forum/thread/419
 
 The original proof was found by: Erdős, Graham, Ivić, and Pomerance.
 
