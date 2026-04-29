@@ -650,6 +650,19 @@
   url:
     - https://www.erdosproblems.com/forum/thread/337
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos337.md
+- key: ErdosProblems.Erdos347
+  author:
+    informal:
+      human: Enrique Barschkis
+      AI: GPT Codex
+    formal:
+      AI: Aristotle
+      human: Enrique Barschkis
+  url:
+    - https://www.erdosproblems.com/forum/thread/347#post-3606
+    - https://github.com/ebarschkis/ErdosProblem/blob/main/Problem347/347.pdf
+    - https://github.com/ebarschkis/ErdosProblem/blob/main/Problem347/note.tex
+    - https://github.com/ebarschkis/ErdosProblem/blob/main/Problem347/Formalization.lean
 - key: ErdosProblems.Erdos990
   author:
     informal:
