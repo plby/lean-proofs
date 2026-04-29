@@ -725,6 +725,19 @@
   url:
     - https://www.erdosproblems.com/forum/thread/350
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos350.md
+- key: ErdosProblems.Erdos370
+  epc: https://www.erdosproblems.com/370
+  author:
+    informal:
+      human: Stefan Steinerberger
+      AI: ChatGPT 5.1 Pro
+    statement: Formal Conjectures authors
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/370
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos370.md
 - key: ErdosProblems.Erdos990
   epc: https://www.erdosproblems.com/990
   author:
