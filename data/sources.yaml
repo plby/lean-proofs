@@ -712,6 +712,19 @@
     - https://github.com/ebarschkis/ErdosProblem/blob/main/Problem347/347.pdf
     - https://github.com/ebarschkis/ErdosProblem/blob/main/Problem347/note.tex
     - https://github.com/ebarschkis/ErdosProblem/blob/main/Problem347/Formalization.lean
+- key: ErdosProblems.Erdos350
+  epc: https://www.erdosproblems.com/350
+  author:
+    informal:
+      human: Charles Albert Ryavec
+      AI: ChatGPT
+    statement: Formal Conjectures authors
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/350
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos350.md
 - key: ErdosProblems.Erdos990
   epc: https://www.erdosproblems.com/990
   author:
