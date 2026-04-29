@@ -610,6 +610,17 @@
     formal:
       human: Bhavik Mehta
   url: https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/316.lean
+- key: ErdosProblems.Erdos331
+  author:
+    informal:
+      human: Imre Ruzsa
+    formal:
+      AI: Aristotle
+      human: Wouter van Doorn
+  url:
+    - https://www.erdosproblems.com/forum/thread/331#post-4019
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem331.lean
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/331.lean
 - key: ErdosProblems.Erdos990
   author:
     informal:
