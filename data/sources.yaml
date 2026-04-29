@@ -585,6 +585,22 @@
   url:
     - https://www.erdosproblems.com/forum/thread/314#post-5193
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem314.lean
+- key: ErdosProblems.Erdos315
+  author:
+    informal:
+      human:
+        - Yuhi Kamio
+        - Zheng Li
+        - Quanyu Tang
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  arxiv:
+    - https://arxiv.org/abs/2503.02317
+    - https://arxiv.org/abs/2503.12277
+  url:
+    - https://www.erdosproblems.com/forum/thread/315
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos315.md
 - key: ErdosProblems.Erdos990
   author:
     informal:
