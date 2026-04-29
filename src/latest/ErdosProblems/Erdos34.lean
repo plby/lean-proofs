@@ -19,8 +19,8 @@ permutations. arXiv:1504.07156 (2015).
 The proof is verified by Lean.  The following version numbers were
 used:
 
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
+Lean Toolchain version: leanprover/lean4:v4.29.1
+Mathlib version: v4.29.1
 
 -/
 
