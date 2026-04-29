@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 For positive integers $a$ and $b$, let $u_{a,b}$ and $v_{a,b}$ be the coprime positive integers with $\frac{u_{a,b}}{v_{a,b}} = \sum_{i=a}^b \frac{1}{i}$. That is, $v_{a,b}$ is the denominator of the partial harmonic sum from $a$ to $b$. Below you can find a Lean formalization of a proof that for every positive integer $a$, there exists a positive integer $b$ with $a < b \le 6a$ such that $v_{a,b} < v_{a,b-1}$. This provides a solution to Erdős problem #290; https://www.erdosproblems.com/290. The mathematical content was written by me and consisted of a highly simplified version of my 2024 paper on the subject.
 

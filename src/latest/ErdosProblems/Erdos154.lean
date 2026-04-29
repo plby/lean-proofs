@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 Below you can find a Lean formalization of a proof by Lindström that for any positive integers $m, i$ and any Sidon set $A$ (sets for which $a+b = c+d$ with $a,b,c,d \in A$ imply $\{a, b\} = \{c, d\}$) with $\lvert A\rvert\sim N^{1/2}$ we have that the density of elements of $A$ that are congruent to $i \pmod{m}$ converges to $\frac{1}{m}$.
 

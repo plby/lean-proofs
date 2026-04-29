@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 This is a Lean formalization of a negative answer to Erdos Problem 189.
 https://www.erdosproblems.com/189

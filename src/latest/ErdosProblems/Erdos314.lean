@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 Solving Erdős Problem #314 (https://www.erdosproblems.com/314), Lim and Steinerberger proved that for every c > 0, there exist infinitely many pairs (n, m) of positive integers such that
 1 ≤ ∑_{ℓ=n}^{m} 1/ℓ − 1 ≤ c/n².

@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 Proven by GPT-5.2 Pro and formalised by Claude Opus 4.5
 -/

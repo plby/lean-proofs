@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 Let $n_1 < n_2 < \cdots$ be an infinite sequence such that, for
 any choice of congruence classes $a_i\pmod{n_i}$, the set of

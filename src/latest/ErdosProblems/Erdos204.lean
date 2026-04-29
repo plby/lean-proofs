@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 We say that a positive integer $n$ is CD covering if for every divisor $d > 1$ of $n$ there exists an integer $a_d$ such that the set of congruences $\{a_d \pmod{d} \}$ is a covering system with the property that if $x$ is such that $x \equiv a_d \pmod{d}$ and $x \equiv a_{d'} \pmod{d'}$, then $\gcd(d, d') = 1$.
 

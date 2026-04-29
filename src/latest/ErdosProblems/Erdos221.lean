@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 Answering Erdos Problem #221 (https://www.erdosproblems.com/221), Ruzsa proved that there exists a set $A$ with $|\{a \in A : a \le x\}| \le \frac{cx}{\log x}$ for all large enough $x$ and an absolute constant $c$, such that every large enough integer can be written as $2^k + a$ for some $k \ge 0$ and $a \in A$.
 

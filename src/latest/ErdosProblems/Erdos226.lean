@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 
 This is a Lean formalization of a solution to Erdős Problem 226.

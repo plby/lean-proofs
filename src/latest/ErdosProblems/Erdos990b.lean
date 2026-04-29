@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 - https://www.erdosproblems.com/forum/thread/990#post-5312
 - https://github.com/yuta0x89/ErdosProblems/blob/main/Erdos990.lean
