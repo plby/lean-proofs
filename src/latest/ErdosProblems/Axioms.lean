@@ -59,3 +59,10 @@ axiom tao_teravainen : ∃ C : ℝ, 0 < C ∧
       (N + k).factorization.support.card ≤
           (N + k).factorization.sum (fun _ k => k) ∧
         (N + k).factorization.sum (fun _ k => k) ≤ C * k)
+
+/-! ## Axioms from cototient theory -/
+
+/-- **Browkin-Schinzel noncototient theorem.** For every `k ≥ 1`,
+`2^k * 509203` is not of the form `n - phi(n)`. -/
+axiom browkin_schinzel_noncototient (k : ℕ) (hk : 1 ≤ k) :
+    ¬ ∃ n : ℕ, 2 ^ k * 509203 = n - n.totient
