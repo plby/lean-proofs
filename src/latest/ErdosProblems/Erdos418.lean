@@ -25,6 +25,7 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 -/
 
 import Mathlib
+import ErdosProblems.Axioms
 
 set_option linter.style.cdot false
 set_option linter.style.whitespace false
@@ -537,7 +538,9 @@ theorem browkin_schinzel (k : ℕ) (hk : 1 ≤ k) : IsNoncototient (2^k * m_BS) 
 
 -/
 
-axiom browkin_schinzel (k : ℕ) (hk : 1 ≤ k) : IsNoncototient (2^k * m_BS)
+theorem browkin_schinzel (k : ℕ) (hk : 1 ≤ k) : IsNoncototient (2^k * m_BS) := by
+  simpa [IsNoncototient, IsCototient, m_BS] using
+    _root_.browkin_schinzel_noncototient k hk
 
 /--
 Are there infinitely many integers not of the form $n - \phi(n)$?
@@ -555,7 +558,7 @@ theorem erdos_418 : { (n - n.totient : ℕ) | n }ᶜ.Infinite := by
       -- To prove injectivity, assume $2^a * m_BS = 2^b * m_BS$. Since $m_BS$ is non-zero, we can divide both sides by $m_BS$, yielding $2^a = 2^b$. The exponential function with base 2 is injective, so $a = b$.
       intro a b hab
       have h_exp : 2^a = 2^b := by
-        exact mul_right_cancel₀ ( show m_BS ≠ 0 by native_decide ) hab;
+        exact mul_right_cancel₀ ( show m_BS ≠ 0 by decide ) hab;
       -- Since the exponential function with base 2 is injective, if $2^a = 2^b$, then $a = b$.
       apply Nat.pow_right_injective (by norm_num) h_exp;
     exact Set.infinite_of_injective_forall_mem ( fun a b h => by simpa using h_inj h ) fun k => ⟨ k + 1, by linarith, rfl ⟩;
@@ -567,10 +570,6 @@ theorem erdos_418 : { (n - n.totient : ℕ) | n }ᶜ.Infinite := by
   exact h_infinite.mono fun x hx => by obtain ⟨ k, hk, rfl ⟩ := hx; exact fun h => h_noncototient k hk <| by obtain ⟨ n, hn ⟩ := h; exact ⟨ n, hn.symm ⟩ ;
 
 #print axioms erdos_418
--- 'Erdos418.erdos_418' depends on axioms: [propext,
--- Classical.choice,
--- browkin_schinzel,
--- Quot.sound,
--- erdos_418._native.native_decide.ax_1_1]
+-- 'Erdos418.erdos_418' depends on axioms: [browkin_schinzel_noncototient, propext, Classical.choice, Quot.sound]
 
 end Erdos418
