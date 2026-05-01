@@ -56,7 +56,6 @@ set_option linter.unusedSectionVars false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedTactic false
 set_option linter.unusedVariables false
-set_option warn.sorry false
 
 open scoped Nat
 open scoped Classical
@@ -704,7 +703,29 @@ def embeddings_equiv_split {n : ℕ} (A : Finset (Fin n)) (D : Finset (Fin n)) (
     embeddings_with_range D k × embeddings_with_range (A \ D) (j - k) :=
   by
     classical
-    sorry
+    refine
+      { toFun := embeddings_split_fwd A D j k hk hDA
+        invFun := embeddings_split_inv A D j k hk hDA
+        left_inv := ?_
+        right_inv := ?_ }
+    · intro f
+      ext i
+      simp [embeddings_split_fwd, embeddings_split_inv, combine_embeddings_general, Fin.addCases]
+      split_ifs with hi
+      · rfl
+      · have hidx : ∀ hlt : k + ((i : ℕ) - k) < j,
+            (⟨k + ((i : ℕ) - k), hlt⟩ : Fin j) = i := by
+          intro hlt
+          ext
+          simp
+          omega
+        exact congrArg Fin.val (congrArg (fun x : Fin j => (f : Fin j ↪ Fin n) x) (hidx _))
+    · intro pair
+      ext i
+      simp [embeddings_split_fwd, embeddings_split_inv, combine_embeddings_general, Fin.addCases]
+      · rfl
+      · dsimp [embeddings_split_fwd, embeddings_split_inv, combine_embeddings_general, Fin.addCases]
+        simp [Fin.natAdd, Fin.subNat]
 
 /-
 The number of embeddings with subrange condition is k! * (j-k)!.
@@ -937,7 +958,25 @@ noncomputable def OPT (n : ℕ) : ℝ :=
 If F is union-free, then |F| is at most the optimal value of the linear program.
 -/
 lemma LP_upper_bound {n : ℕ} (F : Finset (Finset (Fin n))) (hF : UnionFree F) : (F.card : ℝ) ≤ OPT n := by
-  sorry
+  -- By definition of $x_j$, we know that $F.card = \sum_{j=0}^n x_j$.
+  have h_sum : (F.card : ℝ) = ∑ j ∈ Finset.range (n + 1), (x_j F j : ℝ) := by
+    rw_mod_cast [ show F = Finset.biUnion ( Finset.range ( n + 1 ) ) ( fun j => F.filter ( fun A => A.card = j ) ) from ?_, Finset.card_biUnion ];
+    · refine' Finset.sum_congr rfl fun j hj => _;
+      exact congr_arg Finset.card ( Finset.ext fun x => by aesop );
+    · exact fun i hi j hj hij => Finset.disjoint_left.mpr fun x hx₁ hx₂ => hij <| by aesop;
+    · ext A; simp [Finset.mem_biUnion];
+      exact fun _ => by simpa using Finset.card_le_univ A
+  refine' h_sum ▸ le_csSup _ _;
+  · exact ⟨ ∑ j ∈ Finset.range ( n + 1 ), n.choose j, by rintro s ⟨ x, hx, rfl ⟩ ; exact Finset.sum_le_sum fun i hi => hx.1 i ( Nat.zero_le i ) ( Nat.le_of_lt_succ ( Finset.mem_range.mp hi ) ) |>.2 ⟩;
+  · refine' ⟨ _, _, rfl ⟩;
+    -- By definition of $x_j$, we know that $0 \leq x_j \leq \binom{n}{j}$ for all $j$.
+    have h_bounds : ∀ j, 0 ≤ j → j ≤ n → 0 ≤ (x_j F j : ℝ) ∧ (x_j F j : ℝ) ≤ n.choose j := by
+      intros j hj_nonneg hj_le_n
+      simp [x_j];
+      exact le_trans ( Finset.card_le_card ( show Finset.filter ( fun A => Finset.card A = j ) F ⊆ Finset.powersetCard j ( Finset.univ : Finset ( Fin n ) ) from fun x hx => Finset.mem_powersetCard.mpr ⟨ Finset.subset_univ _, by aesop ⟩ ) ) ( by simp +decide [ Finset.card_univ ] );
+    refine' ⟨ fun j hj₁ hj₂ => h_bounds j hj₁ hj₂, fun k hk₁ hk₂ => _ ⟩;
+    have := kleitman_inequality F hF k hk₁;
+    rwa [ le_div_iff₀' ( by positivity ) ]
 
 /-
 Definition of dual feasibility for the linear program.
@@ -2122,7 +2161,9 @@ lemma binom_ineq_range {n m j : ℕ} (hm : m ≥ 200) (hn : n = 2 * m) (hj1 : m 
             rw [ h_binom_ge_7m10, ge_iff_le, le_div_iff₀ ] <;> norm_num [ hn ];
             · exact mul_le_mul_of_nonneg_left ( by rw [ le_sub_iff_add_le ] ; norm_cast; omega ) ( Nat.cast_nonneg _ );
             · positivity;
-          sorry
+          induction' hk1 with k hk ih
+          · exact le_rfl
+          · exact le_trans (ih (by omega)) (h_binom_ge_7m10 k hk (by omega))
         exact h_binom_ge_7m10 _ ( by omega ) ( by omega );
       nlinarith [ ( by norm_cast : ( 200 : ℝ ) ≤ m ) ]
 
@@ -2583,7 +2624,31 @@ Bound for the sum of Z variables.
 -/
 lemma sum_Z_final_bound {n m : ℕ} (hm : m ≥ 1) (hn : n = 2 * m) :
     ∑ j ∈ Finset.range (n + 1), Z_final n j ≤ 1 + n.choose (m / 2) := by
-      sorry
+      -- The sum of Y variables at m/2 for steps where m is even.
+      have h_sum_Y_m_div_2 : ∀ j, j ∈ Finset.range (n + 1) → Z_final n j ≤ if j = m + 1 ∧ m % 2 = 0 then Y_sol n (m / 2) / (m + 1) else if j = 0 then 1 else 0 := by
+        intro j hj; unfold Z_final; split_ifs <;> norm_num;
+        · omega;
+        · rw [ show n / 4 = m / 2 by omega ] ; rw [ show ( n : ℝ ) / 2 = m by norm_num [ hn, mul_div_cancel_left₀ ] ] ;
+        · grind +ring;
+        · grind;
+      refine le_trans ( Finset.sum_le_sum h_sum_Y_m_div_2 ) ?_;
+      by_cases he : m % 2 = 0 <;> simp +decide [ Finset.sum_ite, Finset.filter_eq', Finset.filter_ne', he ];
+      split_ifs <;> norm_num [ hn ];
+      rw [ add_comm ];
+      have hY := Y_sol_upper_bound (2 * m) (m / 2)
+      have hm_even_nat : 2 * (m / 2) = m := by
+        have h := Nat.mod_add_div m 2
+        omega
+      have hY' : Y_sol (2 * m) (m / 2) ≤ (m : ℝ) * ((2 * m).choose (m / 2) : ℝ) := by
+        convert hY using 1
+        rw [← hm_even_nat]
+        norm_num
+      have hfrac :
+          Y_sol (2 * m) (m / 2) / ((m : ℝ) + 1) ≤ ((2 * m).choose (m / 2) : ℝ) := by
+        rw [div_le_iff₀ (by positivity : 0 < (m : ℝ) + 1)]
+        refine le_trans hY' ?_
+        nlinarith [show 0 ≤ ((2 * m).choose (m / 2) : ℝ) by positivity]
+      nlinarith
 
 /-
 Project a set of Fin (n+1) to a set of Fin n by keeping elements less than n.
