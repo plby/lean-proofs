@@ -79,3 +79,4 @@
   url:
     - https://mathoverflow.net/questions/509493/question-on-power-nonnegative-matrix/509513#509513
     - https://github.com/plby/lean-proofs/blob/main/MathOverflow/MO509493.md
+  version: "4.28.0"
