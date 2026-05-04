@@ -662,6 +662,20 @@
   url_ref: JakeMallen_281
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos283
+  epc: https://www.erdosproblems.com/283
+  author:
+    informal:
+      human: Wouter van Doorn
+    formal:
+      AI: Aristotle
+      human: Wouter van Doorn
+  url:
+    - https://www.erdosproblems.com/forum/thread/283#post-260
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem283.lean
+    - https://github.com/Woett/A-normal-paper-is-probably-fine/blob/main/The%20binomial%20case%20of%20Graham's%20conjecture%20on%20polynomial%20representations%20with%20prescribed%20sum%20of%20reciprocals.pdf
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos290
   epc: https://www.erdosproblems.com/290
   author:
@@ -677,6 +691,23 @@
     - https://www.erdosproblems.com/forum/thread/290#post-3180
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem290.lean
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos291
+  epc: https://www.erdosproblems.com/291
+  author:
+    informal:
+      human: Wouter van Doorn
+    formal:
+      AI: Aristotle
+      human: Wouter van Doorn
+  arxiv: https://arxiv.org/abs/2411.03073
+  url:
+    - https://www.erdosproblems.com/forum/thread/291#post-4219
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem291.lean
+    - https://github.com/Woett/Miscellaneous/blob/main/Generalized%20harmonic%20sums%20have%20arbitrarily%20large%20prime%20factors.pdf
+    - https://github.com/AlexKontorovich/PrimeNumberTheoremAnd
+  version: "4.24.0"
+  conditional: prime_number_theorem
 
 - key: ErdosProblems.Erdos296
   epc: https://www.erdosproblems.com/296
@@ -876,6 +907,51 @@
     - "4.20.0-rc5"
     - "4.24.0"
 
+- key: ErdosProblems.Erdos355
+  epc: https://www.erdosproblems.com/355
+  author:
+    informal:
+      human:
+        - Wouter van Doorn
+        - Vjekoslav Kovač
+    statement: Formal Conjectures authors
+    formal:
+      AI: Aristotle
+      human: Wouter van Doorn
+  arxiv: https://arxiv.org/abs/2509.24971
+  url:
+    - https://www.erdosproblems.com/forum/thread/355#post-4741
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem355.lean
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/355.lean
+  version: "4.24.0"
+
+- key: ErdosProblems.Erdos363
+  epc: https://www.erdosproblems.com/363
+  author:
+    informal:
+      human: Maciej Ulas
+    formal:
+      AI: Aristotle
+      human: Wouter van Doorn
+  url:
+    - https://www.erdosproblems.com/forum/thread/363#post-4709
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem363.lean
+  version: "4.24.0"
+
+- key: ErdosProblems.Erdos369
+  epc: https://www.erdosproblems.com/369
+  author:
+    informal:
+      human: Sky Yang
+    formal:
+      AI: Aristotle
+      human: Wouter van Doorn
+  url:
+    - https://www.erdosproblems.com/forum/thread/369#post-5058
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem369.lean
+    - https://drive.google.com/file/d/1MxgrA2haXKv_NKSa7sqUI2hZYyZ5JmfP/view
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos370
   epc: https://www.erdosproblems.com/370
   author:
@@ -931,6 +1007,20 @@
   url:
     - https://www.erdosproblems.com/forum/thread/419
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos419.md
+  version: "4.24.0"
+
+- key: ErdosProblems.Erdos429
+  epc: https://www.erdosproblems.com/429
+  author:
+    informal:
+      human: Desmond Weisenberg
+    formal:
+      AI: Aristotle
+      human: Wouter van Doorn
+  url:
+    - https://www.erdosproblems.com/forum/thread/429#post-3910
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem429.lean
+    - https://math.colgate.edu/~integers/y89/y89.pdf
   version: "4.24.0"
 
 - key: ErdosProblems.Erdos435
@@ -993,6 +1083,37 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos453.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos457
+  epc: https://www.erdosproblems.com/457
+  author:
+    informal:
+      AI: GPT-5.2 Pro
+      human: Kevin Barreto
+    statement: Formal Conjectures authors
+    formal:
+      AI: Aristotle
+      human: Wouter van Doorn
+  url:
+    - https://www.erdosproblems.com/forum/thread/457#post-4668
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem457.lean
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/457.lean
+  version: "4.24.0"
+
+- key: ErdosProblems.Erdos459
+  epc: https://www.erdosproblems.com/459
+  author:
+    informal:
+      human: Stijn Cambie
+    formal:
+      AI: Aristotle
+      human:
+        - Boris Alexeev
+        - Wouter van Doorn
+  url:
+    - https://www.erdosproblems.com/forum/thread/459#post-4716
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem459.lean
+  version: "4.24.0"
+
 - key: ErdosProblems.Erdos476
   epc: https://www.erdosproblems.com/476
   author:
@@ -1013,6 +1134,19 @@
     - https://www.erdosproblems.com/forum/thread/476
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos476.md
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos485
+  epc: https://www.erdosproblems.com/485
+  author:
+    informal:
+      human: W. Verdenius
+    formal:
+      AI: Aristotle
+      human: Wouter van Doorn
+  url:
+    - https://www.erdosproblems.com/forum/thread/485#post-4030
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem485.lean
+  version: "4.28.0"
 
 - key: ErdosProblems.Erdos487
   epc: https://www.erdosproblems.com/487
@@ -1205,6 +1339,25 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos649.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos650
+  epc: https://www.erdosproblems.com/650
+  author:
+    informal:
+      AI: GPT-5.4 Pro
+      human:
+        - Wouter van Doorn
+        - Yixin He
+        - Yanyang Li
+        - Quanyu Tang
+    formal:
+      AI: Aristotle
+      human: Wouter van Doorn
+  arxiv: https://arxiv.org/abs/2603.28636
+  url:
+    - https://www.erdosproblems.com/forum/thread/650#post-4683
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem650.lean
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos659
   epc: https://www.erdosproblems.com/659
   author:
@@ -1258,6 +1411,19 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos678.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos698
+  epc: https://www.erdosproblems.com/698
+  author:
+    informal:
+      human: George M. Bergman
+    formal:
+      AI: Aristotle
+      human: Wouter van Doorn
+  url:
+    - https://www.erdosproblems.com/forum/thread/698#post-3276
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem698.lean
+  version: "4.24.0"
+
 - key: ErdosProblems.Erdos707
   epc: https://www.erdosproblems.com/707
   author:
@@ -1287,6 +1453,20 @@
     - https://www.erdosproblems.com/forum/thread/753#post-5373
     - https://gist.githubusercontent.com/madeve-unipi/80eaf8008c7c798b4f7b5baeb8c1812b/raw/70704b54755e9012597c99bab7db153786abfa8a/Erdos753.lean
   version: "4.28.0"
+
+- key: ErdosProblems.Erdos756
+  epc: https://www.erdosproblems.com/756
+  author:
+    informal:
+      human: K. Bhowmick
+    formal:
+      AI: Aristotle
+      human: Wouter van Doorn
+  arxiv: https://arxiv.org/abs/2407.01174
+  url:
+    - https://www.erdosproblems.com/forum/thread/756#post-4792
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem756.lean
+  version: "4.24.0"
 
 - key: ErdosProblems.Erdos760
   epc: https://www.erdosproblems.com/760
@@ -1318,6 +1498,24 @@
   url:
     - https://www.erdosproblems.com/forum/thread/762
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos762.md
+  version: "4.24.0"
+
+- key: ErdosProblems.Erdos785
+  epc: https://www.erdosproblems.com/785
+  author:
+    informal:
+      human:
+        - András Sárközy
+        - Endre Szemerédi
+        - Władysław Narkiewicz
+        - Imre Z. Ruzsa
+    formal:
+      AI: Aristotle
+      human: Wouter van Doorn
+  arxiv: https://arxiv.org/abs/1510.00812
+  url:
+    - https://www.erdosproblems.com/forum/thread/785#post-4642
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem785.lean
   version: "4.24.0"
 
 - key: ErdosProblems.Erdos794
@@ -1372,6 +1570,21 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos862.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos866
+  epc: https://www.erdosproblems.com/866
+  author:
+    informal:
+      human: Wouter van Doorn
+      AI: ChatGPT
+    formal:
+      AI: Aristotle
+      human: Wouter van Doorn
+  arxiv: https://arxiv.org/abs/2605.00040
+  url:
+    - https://www.erdosproblems.com/forum/thread/866#post-6229
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem866.lean
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos871
   epc: https://www.erdosproblems.com/871
   author:
@@ -1408,6 +1621,35 @@
     - https://www.erdosproblems.com/forum/thread/897
     - https://archivara.org/paper/df04f023-6ef0-4c52-bd12-18cdaa8f0741
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos897.md
+  version: "4.24.0"
+
+- key: ErdosProblems.Erdos914
+  epc: https://www.erdosproblems.com/914
+  author:
+    informal:
+      human:
+        - H. A. Kierstead
+        - A. V. Kostochka
+    formal:
+      AI: Aristotle
+      human: Wouter van Doorn
+  url:
+    - https://www.erdosproblems.com/forum/thread/914#post-5403
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem914.lean
+  version: "4.28.0"
+
+- key: ErdosProblems.Erdos947
+  epc: https://www.erdosproblems.com/947
+  author:
+    informal:
+      AI: ChatGPT
+      human: Wouter van Doorn
+    formal:
+      AI: Aristotle
+      human: Wouter van Doorn
+  url:
+    - https://www.erdosproblems.com/forum/thread/947#post-4068
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem947.lean
   version: "4.24.0"
 
 - key: ErdosProblems.Erdos958
@@ -1747,3 +1989,35 @@
     - https://www.erdosproblems.com/forum/thread/1080
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1080.md
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos1100
+  epc: https://www.erdosproblems.com/1100
+  author:
+    informal:
+      human:
+        - Paul Erdős
+        - R. R. Hall
+        - Wouter van Doorn
+    formal:
+      AI: Aristotle
+      human: Wouter van Doorn
+  url:
+    - https://www.erdosproblems.com/forum/thread/1100#post-1659
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem1100.lean
+  version: "4.24.0"
+  conditional: prime_number_theorem
+
+- key: ErdosProblems.Erdos1136
+  epc: https://www.erdosproblems.com/1136
+  author:
+    informal:
+      human: Helmut Müller
+    formal:
+      AI: Aristotle
+      human:
+        - Lorenzo Luccioli
+        - Wouter van Doorn
+  url:
+    - https://www.erdosproblems.com/forum/thread/1136#post-5688
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem1136.lean
+  version: "4.28.0"
