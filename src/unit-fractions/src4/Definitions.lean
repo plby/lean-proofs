@@ -14,6 +14,10 @@ def partial_density (N : ℕ) : ℝ := ((range N).filter fun n ↦ n ∈ A).card
 
 def upper_density : ℝ := limsup (partial_density A) atTop
 
+def lower_density : ℝ := liminf (partial_density A) atTop
+
+def has_density (d : ℝ) : Prop := upper_density A = d ∧ lower_density A = d
+
 variable {A}
 
 lemma partial_density_sdiff_finset (N : ℕ) (S : Finset ℕ) :

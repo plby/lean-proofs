@@ -1,7 +1,7 @@
 name = "src4"
 version = "0.1.0"
 keywords = ["math"]
-defaultTargets = ["FinalResults"]
+defaultTargets = ["FinalResults", "ErdosProblems"]
 
 [leanOptions]
 pp.unicode.fun = true
@@ -28,6 +28,9 @@ name = "MainResults"
 
 [[lean_lib]]
 name = "FinalResults"
+
+[[lean_lib]]
+name = "ErdosProblems"
 
 [[lean_lib]]
 name = "ForMathlib"
