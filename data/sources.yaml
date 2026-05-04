@@ -986,6 +986,27 @@
   version: "4.22.0"
   url_ref: Zheng_Yuan_379
 
+- key: ErdosProblems.Erdos392
+  epc: https://www.erdosproblems.com/392
+  author:
+    informal:
+      human:
+        - Stijn Cambie
+        - Terence Tao
+    formal:
+      AI: Aristotle
+      human:
+        - Terence Tao
+        - Pietro Monticone
+        - Alex Kontorovich
+  arxiv: https://arxiv.org/abs/2503.20170
+  url:
+    - https://www.erdosproblems.com/forum/thread/392#post-4410
+    - https://github.com/AlexKontorovich/PrimeNumberTheoremAnd/blob/main/PrimeNumberTheoremAnd/Erdos392.lean
+    - https://alexkontorovich.github.io/PrimeNumberTheoremAnd/blueprint/sect0009.html#a0000000039
+  version: "4.28.0"
+  todo: Import PNT+ project.
+
 - key: ErdosProblems.Erdos418
   epc: https://www.erdosproblems.com/418
   author:
