@@ -74,6 +74,19 @@
   url:
     - https://www.erdosproblems.com/forum/thread/34
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos34.md
+- key: ErdosProblems.Erdos45
+  epc: https://www.erdosproblems.com/45
+  author:
+    informal:
+      human: Ernest S. Croot III
+    formal:
+      human:
+        - Bhavik Mehta
+        - Thomas Bloom
+  arxiv: https://arxiv.org/abs/math/0311421
+  url: https://github.com/b-mehta/unit-fractions
+  latest_version: "3.42.1"
+  todo: Convert from Lean3.
 - key: ErdosProblems.Erdos46
   epc: https://www.erdosproblems.com/46
   author:
