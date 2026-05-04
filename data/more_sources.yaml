@@ -7,6 +7,7 @@
       human: Boris Alexeev
   url: https://github.com/plby/lean-proofs/blob/main/HundredTheorems/Theorem8.md
   version: "4.24.0"
+
 - key: HundredTheorems.Theorem28
   author:
     informal:
@@ -16,6 +17,7 @@
       human: Boris Alexeev
   url: https://github.com/plby/lean-proofs/blob/main/HundredTheorems/Theorem28.md
   version: "4.24.0"
+
 - key: HundredTheorems.Theorem61
   author:
     informal:
@@ -25,6 +27,7 @@
       human: Boris Alexeev
   url: https://github.com/plby/lean-proofs/blob/main/HundredTheorems/Theorem61.md
   version: "4.24.0"
+
 - key: HundredTheorems.Theorem84
   author:
     informal:
@@ -35,6 +38,7 @@
       human: Boris Alexeev
   url: https://github.com/plby/lean-proofs/blob/main/HundredTheorems/Theorem84.md
   version: "4.24.0"
+
 - key: HundredTheorems.Theorem87
   author:
     informal:
@@ -44,6 +48,7 @@
       human: Boris Alexeev
   url: https://github.com/plby/lean-proofs/blob/main/HundredTheorems/Theorem87.md
   version: "4.24.0"
+
 - key: MathOverflow.MO420333
   author:
     informal:
@@ -55,6 +60,7 @@
     - https://mathoverflow.net/questions/420333/sum-of-guesses-minimization-problem-also-does-this-problem-already-exist-in-the/506769#506769
     - https://github.com/plby/lean-proofs/blob/main/MathOverflow/MO420333.md
   version: "4.24.0"
+
 - key: MathOverflow.MO508681
   author:
     informal:
@@ -66,6 +72,7 @@
     - https://mathoverflow.net/questions/508681/a-two-player-stochastic-game-fight-or-draw
     - https://github.com/plby/lean-proofs/blob/main/MathOverflow/MO508681.md
   version: "4.24.0"
+
 - key: MathOverflow.MO509164
   author:
     informal:
@@ -77,6 +84,7 @@
     - https://mathoverflow.net/questions/509164/limsup-of-cantor-sets
     - https://github.com/plby/lean-proofs/blob/main/MathOverflow/MO509164.md
   version: "4.24.0"
+
 - key: MathOverflow.MO509493
   author:
     informal:

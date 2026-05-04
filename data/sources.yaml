@@ -13,6 +13,7 @@
     - https://github.com/danielchin/proofs/blob/main/Proofs/ErdosProblems/Erdos16.lean
     - https://www.erdosproblems.com/forum/thread/16#post-4464
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos24
   epc: https://www.erdosproblems.com/24
   author:
@@ -26,6 +27,7 @@
     - https://www.erdosproblems.com/forum/thread/24#post-5732
     - https://gist.githubusercontent.com/madeve-unipi/683739094ab7a5079a2bc2647c47743b/raw/6164255a2f1ed85df3f01b75d2f8b35a1330aacb/Erdos24.lean
   version: "4.28.0"
+
 - key: ErdosProblems.Erdos26
   epc: https://www.erdosproblems.com/26
   author:
@@ -44,6 +46,7 @@
   todo:
     - Google DeepMind's proof
     - Wouter van Doorn's comment
+
 - key: ErdosProblems.Erdos31
   epc: https://www.erdosproblems.com/31
   author:
@@ -66,6 +69,7 @@
   version:
     - "4.20.0-rc5"
     - "4.24.0"
+
 - key: ErdosProblems.Erdos34
   epc: https://www.erdosproblems.com/34
   author:
@@ -81,6 +85,7 @@
     - https://www.erdosproblems.com/forum/thread/34
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos34.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos45
   epc: https://www.erdosproblems.com/45
   author:
@@ -94,6 +99,7 @@
   url: https://github.com/b-mehta/unit-fractions
   version: "3.42.1"
   todo: Convert from Lean3.
+
 - key: ErdosProblems.Erdos46
   epc: https://www.erdosproblems.com/46
   author:
@@ -107,6 +113,7 @@
   url: https://github.com/b-mehta/unit-fractions
   version: "3.42.1"
   todo: Convert from Lean3.
+
 - key: ErdosProblems.Erdos47
   epc: https://www.erdosproblems.com/47
   author:
@@ -120,6 +127,7 @@
   url: https://github.com/b-mehta/unit-fractions
   version: "3.42.1"
   todo: Convert from Lean3.
+
 - key: ErdosProblems.Erdos56
   epc: https://www.erdosproblems.com/56
   author:
@@ -141,6 +149,7 @@
   version:
     - "4.20.0-rc5"
     - "4.24.0"
+
 - key: ErdosProblems.Erdos93
   epc: https://www.erdosproblems.com/93
   author:
@@ -156,6 +165,7 @@
   url: https://www.erdosproblems.com/forum/thread/93#post-4346
   url_ref: JoshuaB_93
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos94
   epc: https://www.erdosproblems.com/94
   author:
@@ -175,6 +185,7 @@
     - https://github.com/SpringSense-Innovation-Institute/ai-for-math-lean/blob/main/erdos-problems/erdos94/erdos94.lean
   version: "4.21.0"
   todo: Add Erdos94b with the SeedProver proof.
+
 - key: ErdosProblems.Erdos105
   epc: https://www.erdosproblems.com/105
   author:
@@ -191,6 +202,7 @@
   version:
     - "4.20.0-rc5"
     - "4.24.0"
+
 - key: ErdosProblems.Erdos115
   epc: https://www.erdosproblems.com/115
   author:
@@ -210,6 +222,7 @@
   url: https://www.erdosproblems.com/forum/thread/115#post-4555
   url_ref: JoshuaB_115
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos125
   epc: https://www.erdosproblems.com/125
   author:
@@ -224,6 +237,7 @@
     - https://github.com/google-deepmind/formal-conjectures/blob/300bf771bdbef43d7b9aa2521e633a50fd54dd28/FormalConjectures/ErdosProblems/125.lean
   version: "4.22.0"
   todo: Import this proof.
+
 - key: ErdosProblems.Erdos134
   epc: https://www.erdosproblems.com/134
   author:
@@ -237,6 +251,7 @@
     - https://web.math.princeton.edu/~nalon/PDFS/remark1901.pdf
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos134.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos150
   epc: https://www.erdosproblems.com/150
   author:
@@ -250,6 +265,7 @@
     - https://www.erdosproblems.com/forum/thread/150#post-5145
     - https://gist.githubusercontent.com/pitmonticone/d8558d3361ad2d673b5405239ea30700/raw/c966009555b83985762dac9faaf705aad3f48199/Erdos150.lean
   version: "4.28.0"
+
 - key: ErdosProblems.Erdos154
   epc: https://www.erdosproblems.com/154
   author:
@@ -263,6 +279,7 @@
     - https://www.erdosproblems.com/forum/thread/154#post-4218
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem154.lean
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos164
   epc: https://www.erdosproblems.com/164
   author:
@@ -273,6 +290,7 @@
     - https://www.erdosproblems.com/forum/thread/164
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos164.md
   version: "4.29.0"
+
 - key: ErdosProblems.Erdos178
   epc: https://www.erdosproblems.com/178
   author:
@@ -285,6 +303,7 @@
     - https://www.erdosproblems.com/forum/thread/178#post-5685
     - https://gist.githubusercontent.com/madeve-unipi/ca9c3d1f94fe124c15726d836e1cd623/raw/a272de656847d3956e1c228c833ff3c591dc4872/Erdos178.lean
   version: "4.28.0"
+
 - key: ErdosProblems.Erdos189
   epc: https://www.erdosproblems.com/189
   author:
@@ -300,6 +319,7 @@
     - https://web.math.pmf.unizg.hr/~vjekovac/EP/EP189/Erdos189_blueprint.tex
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos189.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos194
   epc: https://www.erdosproblems.com/194
   author:
@@ -317,6 +337,7 @@
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/194.lean
     - https://gist.githubusercontent.com/ster-oc/ffe9e4fa1b813111f40c0e417bbe8be0/raw/6f748a76e55d47e24ca319a9c00fd20ab79422bb/Erdos194.lean
   version: "4.28.0"
+
 - key: ErdosProblems.Erdos198
   epc: https://www.erdosproblems.com/198
   author:
@@ -335,6 +356,7 @@
   version:
     - "4.20.0-rc5"
     - "4.24.0"
+
 - key: ErdosProblems.Erdos199
   epc: https://www.erdosproblems.com/199
   author:
@@ -346,6 +368,7 @@
   url: https://www.erdosproblems.com/forum/thread/199#post-4442
   url_ref: JoshuaB_199
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos204
   epc: https://www.erdosproblems.com/204
   author:
@@ -361,6 +384,7 @@
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem204.lean
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/204.lean
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos205
   epc: https://www.erdosproblems.com/205
   author:
@@ -381,6 +405,7 @@
   version: "4.24.0"
   conditional: nth_prime_asymp
   todo: Import PNT+ project.
+
 - key: ErdosProblems.Erdos214
   epc: https://www.erdosproblems.com/214
   author:
@@ -394,6 +419,7 @@
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem214FourPoints.lean
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem214TwelvePoints.lean
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos221
   epc: https://www.erdosproblems.com/221
   author:
@@ -409,6 +435,7 @@
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem221.lean
     - https://www.cambridge.org/core/services/aop-cambridge-core/content/view/802ABD868A907C2ADB78C580C73C86FC/S0008439500061348a.pdf/on-a-problem-of-p-erdos.pdf
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos224
   epc: https://www.erdosproblems.com/224
   author:
@@ -425,6 +452,7 @@
     - https://www.erdosproblems.com/forum/thread/224#post-3157
     - https://github.com/SpringSense-Innovation-Institute/ai-for-math-lean/blob/main/erdos-problems/erdos224/Erdos224.lean
   version: "4.25.0"
+
 - key: ErdosProblems.Erdos226
   epc: https://www.erdosproblems.com/226
   author:
@@ -442,6 +470,7 @@
     - https://www.erdosproblems.com/226
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos226.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos229
   epc: https://www.erdosproblems.com/229
   author:
@@ -458,6 +487,7 @@
     - https://www.erdosproblems.com/forum/thread/229
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos229.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos237
   epc: https://www.erdosproblems.com/237
   author:
@@ -477,6 +507,7 @@
     - mertens_third_theorem
   version: "4.28.0"
   todo: Import Wouter's Mertens3 proof.
+
 - key: ErdosProblems.Erdos246
   epc: https://www.erdosproblems.com/246
   author:
@@ -492,6 +523,7 @@
     - https://www.erdosproblems.com/forum/thread/246
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos246.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos258
   epc: https://www.erdosproblems.com/258
   author:
@@ -513,6 +545,7 @@
   conditional: tao_teravainen
   todo: See whether Tao-Teräväinen (Erdos248) can be formalized.
   version: "4.28.0"
+
 - key: ErdosProblems.Erdos259
   epc: https://www.erdosproblems.com/259
   author:
@@ -529,6 +562,7 @@
     - https://gist.githubusercontent.com/ster-oc/c7429943f6b3a634797dc8b2a3b01f2d/raw/8c6b5b7f08021f0aed2312542dd2e9ee7beaa6d6/Erdos259.lean
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/259.lean
   version: "4.28.0"
+
 - key: ErdosProblems.Erdos268
   epc: https://www.erdosproblems.com/268
   author:
@@ -544,6 +578,7 @@
     - https://gist.githubusercontent.com/madeve-unipi/62a8f68cdb4864b85b81a6752dcb0aa4/raw/5793aaa51089c25c37d8d63f60540367f6abe506/Erdos268.lean
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/268.lean
   version: "4.28.0"
+
 - key: ErdosProblems.Erdos275
   epc: https://www.erdosproblems.com/275
   author:
@@ -568,6 +603,7 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos275.md
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/275.lean
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos280
   epc: https://www.erdosproblems.com/280
   author:
@@ -580,6 +616,7 @@
     - https://www.erdosproblems.com/forum/thread/280#post-5595
     - https://gist.githubusercontent.com/LorenzoLuccioli/2dda92a192c15c24263c8a258979e7e3/raw/b9f4c664a42977075e361da17759bd0f71998ff8/Erdos280.lean
   version: "4.28.0"
+
 - key: ErdosProblems.Erdos281
   epc: https://www.erdosproblems.com/281
   author:
@@ -596,6 +633,7 @@
     - https://chatgpt.com/share/696ac45b-70d8-8003-9ca4-320151e0816e
   url_ref: JakeMallen_281
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos290
   epc: https://www.erdosproblems.com/290
   author:
@@ -611,6 +649,7 @@
     - https://www.erdosproblems.com/forum/thread/290#post-3180
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem290.lean
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos296
   epc: https://www.erdosproblems.com/296
   author:
@@ -630,6 +669,7 @@
   conditional: unit_fractions_upper_log_density
   todo: Import Bloom-Mehta unit-fractions project.
   version: "4.28.0"
+
 - key: ErdosProblems.Erdos298
   epc: https://www.erdosproblems.com/298
   author:
@@ -643,6 +683,7 @@
   url: https://github.com/b-mehta/unit-fractions
   version: "3.42.1"
   todo: Convert from Lean3.
+
 - key: ErdosProblems.Erdos299
   epc: https://www.erdosproblems.com/299
   author:
@@ -656,6 +697,7 @@
   url: https://github.com/b-mehta/unit-fractions
   version: "3.42.1"
   todo: Convert from Lean3.
+
 - key: ErdosProblems.Erdos303
   epc: https://www.erdosproblems.com/303
   author:
@@ -676,6 +718,7 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos303.md
   version: "4.24.0"
   url_ref: Zheng_Yuan_303
+
 - key: ErdosProblems.Erdos314
   epc: https://www.erdosproblems.com/314
   author:
@@ -691,6 +734,7 @@
     - https://www.erdosproblems.com/forum/thread/314#post-5193
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem314.lean
   version: "4.28.0"
+
 - key: ErdosProblems.Erdos315
   epc: https://www.erdosproblems.com/315
   author:
@@ -709,6 +753,7 @@
     - https://www.erdosproblems.com/forum/thread/315
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos315.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos316
   epc: https://www.erdosproblems.com/316
   author:
@@ -720,6 +765,7 @@
       human: Bhavik Mehta
   url: https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/316.lean
   version: "4.27.0"
+
 - key: ErdosProblems.Erdos331
   epc: https://www.erdosproblems.com/331
   author:
@@ -733,6 +779,7 @@
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem331.lean
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/331.lean
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos333
   epc: https://www.erdosproblems.com/333
   author:
@@ -752,6 +799,7 @@
     - https://chatgpt.com/s/t_694c90df3c908191a192f6233c2b14b9
   url_ref: KevinBarreto_333
   version: "4.29.1"
+
 - key: ErdosProblems.Erdos337
   epc: https://www.erdosproblems.com/337
   author:
@@ -766,6 +814,7 @@
     - https://www.erdosproblems.com/forum/thread/337
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos337.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos347
   epc: https://www.erdosproblems.com/347
   author:
@@ -781,6 +830,7 @@
     - https://github.com/ebarschkis/ErdosProblem/blob/main/Problem347/note.tex
     - https://github.com/ebarschkis/ErdosProblem/blob/main/Problem347/Formalization.lean
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos350
   epc: https://www.erdosproblems.com/350
   author:
@@ -797,6 +847,7 @@
   version:
     - "4.20.0-rc5"
     - "4.24.0"
+
 - key: ErdosProblems.Erdos370
   epc: https://www.erdosproblems.com/370
   author:
@@ -813,6 +864,7 @@
   version:
     - "4.20.0-rc5"
     - "4.24.0"
+
 - key: ErdosProblems.Erdos418
   epc: https://www.erdosproblems.com/418
   author:
@@ -834,6 +886,7 @@
   version:
     - "4.20.0-rc5"
     - "4.24.0"
+
 - key: ErdosProblems.Erdos419
   epc: https://www.erdosproblems.com/419
   author:
@@ -851,6 +904,7 @@
     - https://www.erdosproblems.com/forum/thread/419
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos419.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos435
   epc: https://www.erdosproblems.com/435
   author:
@@ -868,6 +922,7 @@
     - https://www.erdosproblems.com/forum/thread/435
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos435.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos443
   epc: https://www.erdosproblems.com/443
   author:
@@ -883,6 +938,7 @@
     - https://www.erdosproblems.com/forum/thread/443
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos443.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos447
   epc: https://www.erdosproblems.com/447
   author:
@@ -895,6 +951,7 @@
     - https://www.erdosproblems.com/forum/thread/447
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos447.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos453
   epc: https://www.erdosproblems.com/453
   author:
@@ -907,6 +964,7 @@
     - https://www.erdosproblems.com/forum/thread/453
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos453.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos476
   epc: https://www.erdosproblems.com/476
   author:
@@ -927,6 +985,7 @@
     - https://www.erdosproblems.com/forum/thread/476
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos476.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos487
   epc: https://www.erdosproblems.com/487
   author:
@@ -939,6 +998,7 @@
     - https://www.erdosproblems.com/forum/thread/487
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos487.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos493
   epc: https://www.erdosproblems.com/493
   author:
@@ -949,6 +1009,7 @@
     - https://www.erdosproblems.com/forum/thread/493
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos493.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos497
   epc: https://www.erdosproblems.com/497
   author:
@@ -961,6 +1022,7 @@
     - https://www.erdosproblems.com/forum/thread/497
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos497.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos499
   epc: https://www.erdosproblems.com/499
   author:
@@ -976,6 +1038,7 @@
     - https://www.erdosproblems.com/forum/thread/499
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos499.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos505
   epc: https://www.erdosproblems.com/505
   author:
@@ -990,6 +1053,7 @@
     - https://www.erdosproblems.com/forum/thread/505
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos505.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos537
   epc: https://www.erdosproblems.com/537
   author:
@@ -1002,6 +1066,7 @@
     - https://www.erdosproblems.com/forum/thread/537
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos537.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos541
   epc: https://www.erdosproblems.com/541
   author:
@@ -1025,6 +1090,7 @@
     - https://www.erdosproblems.com/forum/thread/541
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos541.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos582
   epc: https://www.erdosproblems.com/582
   author:
@@ -1037,6 +1103,7 @@
     - https://www.erdosproblems.com/forum/thread/582
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos582.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos618
   epc: https://www.erdosproblems.com/618
   author:
@@ -1049,6 +1116,7 @@
     - https://www.erdosproblems.com/forum/thread/618
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos618.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos645
   epc: https://www.erdosproblems.com/645
   author:
@@ -1068,6 +1136,7 @@
   version:
     - "4.20.0-rc5"
     - "4.24.0"
+
 - key: ErdosProblems.Erdos648
   epc: https://www.erdosproblems.com/648
   author:
@@ -1081,6 +1150,7 @@
     - https://www.erdosproblems.com/forum/thread/648
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos648.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos649
   epc: https://www.erdosproblems.com/649
   author:
@@ -1093,6 +1163,7 @@
     - https://www.erdosproblems.com/forum/thread/649
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos649.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos659
   epc: https://www.erdosproblems.com/659
   author:
@@ -1114,6 +1185,7 @@
     - https://adamsheffer.wordpress.com/2014/07/16/point-sets-with-few-distinct-distances/
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos659.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos666
   epc: https://www.erdosproblems.com/666
   author:
@@ -1130,6 +1202,7 @@
     - https://www.erdosproblems.com/forum/thread/666
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos666.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos678
   epc: https://www.erdosproblems.com/678
   author:
@@ -1143,6 +1216,7 @@
     - https://www.erdosproblems.com/forum/thread/678
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos678.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos707
   epc: https://www.erdosproblems.com/707
   author:
@@ -1159,6 +1233,7 @@
     - https://borisalexeev.com/papers/erdos707.html
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos707.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos762
   epc: https://www.erdosproblems.com/762
   author:
@@ -1174,6 +1249,7 @@
     - https://www.erdosproblems.com/forum/thread/762
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos762.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos794
   epc: https://www.erdosproblems.com/794
   author:
@@ -1188,6 +1264,7 @@
     - https://www.erdosproblems.com/forum/thread/794
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos794.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos845
   epc: https://www.erdosproblems.com/845
   author:
@@ -1204,6 +1281,7 @@
     - https://www.erdosproblems.com/forum/thread/845
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos845.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos862
   epc: https://www.erdosproblems.com/862
   author:
@@ -1223,6 +1301,7 @@
     - https://www.erdosproblems.com/forum/thread/862
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos862.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos871
   epc: https://www.erdosproblems.com/871
   author:
@@ -1244,6 +1323,7 @@
     - https://www.erdosproblems.com/forum/thread/871
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos871.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos897
   epc: https://www.erdosproblems.com/897
   author:
@@ -1259,6 +1339,7 @@
     - https://archivara.org/paper/df04f023-6ef0-4c52-bd12-18cdaa8f0741
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos897.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos958
   epc: https://www.erdosproblems.com/958
   author:
@@ -1269,6 +1350,7 @@
     - https://www.erdosproblems.com/forum/thread/958
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos958.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos990
   epc: https://www.erdosproblems.com/990
   author:
@@ -1286,6 +1368,7 @@
   arxiv: https://arxiv.org/abs/2604.06609
   url: https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos990.md
   version: "4.29.0"
+
 - key: ErdosProblems.Erdos990b
   epc: https://www.erdosproblems.com/990
   author:
@@ -1296,6 +1379,7 @@
     - https://www.erdosproblems.com/forum/thread/990#post-5312
     - https://github.com/yuta0x89/ErdosProblems/blob/main/Erdos990.lean
   version: "4.28.0"
+
 - key: ErdosProblems.Erdos1000
   epc: https://www.erdosproblems.com/1000
   author:
@@ -1311,6 +1395,7 @@
     - https://www.erdosproblems.com/forum/thread/1000
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1000.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos1007
   epc: https://www.erdosproblems.com/1007
   author:
@@ -1328,6 +1413,7 @@
     - https://www.erdosproblems.com/forum/thread/1007
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1007.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos1008
   epc: https://www.erdosproblems.com/1008
   author:
@@ -1348,6 +1434,7 @@
     - https://www.erdosproblems.com/forum/thread/1008
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1008.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos1014
   epc: https://www.erdosproblems.com/1014
   author:
@@ -1361,6 +1448,7 @@
     - https://cdn.openai.com/pdf/6dc7175d-d9e7-4b8d-96b8-48fe5798cd5b/Ramsey.pdf
     - https://www.erdosproblems.com/forum/thread/1014#post-5749
   version: "4.29.0"
+
 - key: ErdosProblems.Erdos1022
   epc: https://www.erdosproblems.com/1022
   author:
@@ -1374,6 +1462,7 @@
     - https://www.erdosproblems.com/forum/thread/1022#post-2004
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1022.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos1023
   epc: https://www.erdosproblems.com/1023
   author:
@@ -1388,6 +1477,7 @@
     - https://www.erdosproblems.com/forum/thread/1023
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1023.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos1026
   epc: https://www.erdosproblems.com/1026
   author:
@@ -1419,6 +1509,7 @@
     - https://terrytao.wordpress.com/2025/12/08/the-story-of-erdos-problem-126/
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1026.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos1028
   epc: https://www.erdosproblems.com/1028
   author:
@@ -1436,6 +1527,7 @@
     - https://www.erdosproblems.com/forum/thread/1028
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1028.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos1034
   epc: https://www.erdosproblems.com/1034
   author:
@@ -1455,6 +1547,7 @@
     - https://www.erdosproblems.com/forum/thread/1034
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1034.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos1036
   epc: https://www.erdosproblems.com/1036
   author:
@@ -1469,6 +1562,7 @@
     - https://www.erdosproblems.com/forum/thread/1036
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1036.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos1037
   epc: https://www.erdosproblems.com/1037
   author:
@@ -1486,6 +1580,7 @@
     - https://www.erdosproblems.com/forum/thread/1037
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1037.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos1043
   epc: https://www.erdosproblems.com/1043
   author:
@@ -1499,6 +1594,7 @@
     - https://www.erdosproblems.com/forum/thread/1043
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1043.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos1047
   epc: https://www.erdosproblems.com/1047
   author:
@@ -1514,6 +1610,7 @@
     - https://www.erdosproblems.com/forum/thread/1047
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1047.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos1048
   epc: https://www.erdosproblems.com/1048
   author:
@@ -1526,6 +1623,7 @@
     - https://www.erdosproblems.com/forum/thread/1048
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1048.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos1067
   epc: https://www.erdosproblems.com/1067
   author:
@@ -1547,6 +1645,7 @@
     - https://www.erdosproblems.com/forum/thread/1067
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1067.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos1071
   epc: https://www.erdosproblems.com/1071
   author:
@@ -1561,6 +1660,7 @@
     - https://www.erdosproblems.com/forum/thread/1071
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1071.md
   version: "4.24.0"
+
 - key: ErdosProblems.Erdos1080
   epc: https://www.erdosproblems.com/1080
   author:
