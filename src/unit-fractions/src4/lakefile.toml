@@ -1,0 +1,33 @@
+name = "src4"
+version = "0.1.0"
+keywords = ["math"]
+defaultTargets = ["FinalResults"]
+
+[leanOptions]
+pp.unicode.fun = true
+relaxedAutoImplicit = false
+weak.linter.mathlibStandardSet = true
+maxSynthPendingDepth = 3
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.29.1"
+
+[[lean_lib]]
+name = "Definitions"
+
+[[lean_lib]]
+name = "AuxiliaryLemmas"
+
+[[lean_lib]]
+name = "Fourier"
+
+[[lean_lib]]
+name = "MainResults"
+
+[[lean_lib]]
+name = "FinalResults"
+
+[[lean_lib]]
+name = "ForMathlib"
