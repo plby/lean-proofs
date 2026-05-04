@@ -61,7 +61,9 @@
     - https://www.erdosproblems.com/forum/thread/31
     - https://www.erdosproblems.com/forum/thread/31#post-1779
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos31.md
-  version: "4.24.0"
+  version:
+    - "4.20.0-rc5"
+    - "4.24.0"
 - key: ErdosProblems.Erdos34
   epc: https://www.erdosproblems.com/34
   author:
@@ -134,7 +136,9 @@
   url:
     - https://www.erdosproblems.com/forum/thread/56
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos56.md
-  version: "4.24.0"
+  version:
+    - "4.20.0-rc5"
+    - "4.24.0"
 - key: ErdosProblems.Erdos93
   epc: https://www.erdosproblems.com/93
   author:
@@ -177,7 +181,9 @@
   url:
     - https://www.erdosproblems.com/forum/thread/105#post-1430
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos105.md
-  version: "4.24.0"
+  version:
+    - "4.20.0-rc5"
+    - "4.24.0"
 - key: ErdosProblems.Erdos115
   epc: https://www.erdosproblems.com/115
   author:
@@ -313,7 +319,9 @@
   url:
     - https://www.erdosproblems.com/forum/thread/198
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos198.md
-  version: "4.24.0"
+  version:
+    - "4.20.0-rc5"
+    - "4.24.0"
 - key: ErdosProblems.Erdos199
   epc: https://www.erdosproblems.com/199
   author:
@@ -755,7 +763,9 @@
   url:
     - https://www.erdosproblems.com/forum/thread/350
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos350.md
-  version: "4.24.0"
+  version:
+    - "4.20.0-rc5"
+    - "4.24.0"
 - key: ErdosProblems.Erdos370
   epc: https://www.erdosproblems.com/370
   author:
@@ -769,7 +779,9 @@
   url:
     - https://www.erdosproblems.com/forum/thread/370
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos370.md
-  version: "4.24.0"
+  version:
+    - "4.20.0-rc5"
+    - "4.24.0"
 - key: ErdosProblems.Erdos418
   epc: https://www.erdosproblems.com/418
   author:
@@ -788,7 +800,9 @@
   url:
     - https://www.erdosproblems.com/forum/thread/418
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos418.md
-  version: "4.24.0"
+  version:
+    - "4.20.0-rc5"
+    - "4.24.0"
 - key: ErdosProblems.Erdos419
   epc: https://www.erdosproblems.com/419
   author:
@@ -1020,7 +1034,9 @@
   url:
     - https://www.erdosproblems.com/forum/thread/645
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos645.md
-  version: "4.24.0"
+  version:
+    - "4.20.0-rc5"
+    - "4.24.0"
 - key: ErdosProblems.Erdos648
   epc: https://www.erdosproblems.com/648
   author:
