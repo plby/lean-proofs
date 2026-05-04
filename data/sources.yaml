@@ -663,6 +663,7 @@
   version: "4.24.0"
 
 - key: ErdosProblems.Erdos283
+  partial: yes
   epc: https://www.erdosproblems.com/283
   author:
     informal:
@@ -693,6 +694,7 @@
   version: "4.24.0"
 
 - key: ErdosProblems.Erdos291
+  partial: yes
   epc: https://www.erdosproblems.com/291
   author:
     informal:
@@ -1136,6 +1138,7 @@
   version: "4.24.0"
 
 - key: ErdosProblems.Erdos485
+  partial: yes
   epc: https://www.erdosproblems.com/485
   author:
     informal:
@@ -1571,6 +1574,7 @@
   version: "4.24.0"
 
 - key: ErdosProblems.Erdos866
+  partial: yes
   epc: https://www.erdosproblems.com/866
   author:
     informal:
@@ -1991,6 +1995,7 @@
   version: "4.24.0"
 
 - key: ErdosProblems.Erdos1100
+  partial: yes
   epc: https://www.erdosproblems.com/1100
   author:
     informal:
