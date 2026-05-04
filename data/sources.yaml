@@ -12,6 +12,7 @@
   url:
     - https://github.com/danielchin/proofs/blob/main/Proofs/ErdosProblems/Erdos16.lean
     - https://www.erdosproblems.com/forum/thread/16#post-4464
+  version: "4.24.0"
 - key: ErdosProblems.Erdos24
   epc: https://www.erdosproblems.com/24
   author:
@@ -24,6 +25,7 @@
   url:
     - https://www.erdosproblems.com/forum/thread/24#post-5732
     - https://gist.githubusercontent.com/madeve-unipi/683739094ab7a5079a2bc2647c47743b/raw/6164255a2f1ed85df3f01b75d2f8b35a1330aacb/Erdos24.lean
+  version: "4.28.0"
 - key: ErdosProblems.Erdos26
   epc: https://www.erdosproblems.com/26
   author:
@@ -153,6 +155,7 @@
       human: JoshuaB
   url: https://www.erdosproblems.com/forum/thread/93#post-4346
   url_ref: JoshuaB_93
+  version: "4.24.0"
 - key: ErdosProblems.Erdos94
   epc: https://www.erdosproblems.com/94
   author:
