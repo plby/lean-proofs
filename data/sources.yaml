@@ -209,6 +209,7 @@
       human: JoshuaB
   url: https://www.erdosproblems.com/forum/thread/115#post-4555
   url_ref: JoshuaB_115
+  version: "4.24.0"
 - key: ErdosProblems.Erdos125
   epc: https://www.erdosproblems.com/125
   author:
@@ -221,6 +222,7 @@
     - https://www.erdosproblems.com/forum/thread/125#post-4448
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/125.lean
     - https://github.com/google-deepmind/formal-conjectures/blob/300bf771bdbef43d7b9aa2521e633a50fd54dd28/FormalConjectures/ErdosProblems/125.lean
+  version: "4.22.0"
   todo: Import this proof.
 - key: ErdosProblems.Erdos134
   epc: https://www.erdosproblems.com/134
@@ -339,6 +341,7 @@
       human: JoshuaB
   url: https://www.erdosproblems.com/forum/thread/199#post-4442
   url_ref: JoshuaB_199
+  version: "4.24.0"
 - key: ErdosProblems.Erdos204
   epc: https://www.erdosproblems.com/204
   author:
