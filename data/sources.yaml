@@ -86,6 +86,20 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos34.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos38
+  epc: https://www.erdosproblems.com/38
+  author:
+    informal:
+      AI: GPT-5.5 Pro
+      human: gebyjaff
+    formal:
+      AI: Aristotle
+      human: Matteo Del Vecchio
+  url:
+    - https://www.erdosproblems.com/forum/thread/38#post-6131
+    - https://gist.githubusercontent.com/madeve-unipi/690d2bd8f6e8304ba8b456f9db559747/raw/481e3c35de8dce7af70ec440e4e121f084a61860/Erdos38.lean
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos45
   epc: https://www.erdosproblems.com/45
   author:
@@ -405,6 +419,20 @@
   version: "4.24.0"
   conditional: nth_prime_asymp
   todo: Import PNT+ project.
+
+- key: ErdosProblems.Erdos206
+  epc: https://www.erdosproblems.com/206
+  author:
+    informal:
+      human: Vjekoslav Kovač
+    formal:
+      AI: Aristotle
+      human: Matteo Del Vecchio
+  arxiv: https://arxiv.org/abs/2406.07218
+  url:
+    - https://www.erdosproblems.com/forum/thread/206#post-5989
+    - https://gist.githubusercontent.com/madeve-unipi/0920783513a1a00af4a14660852df60e/raw/522569070c2ec3a0fc7d8dfd7f95f3de2b2e3103/Erdos206.lean
+  version: "4.28.0"
 
 - key: ErdosProblems.Erdos214
   epc: https://www.erdosproblems.com/214
@@ -1067,6 +1095,19 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos537.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos540
+  epc: https://www.erdosproblems.com/540
+  author:
+    informal:
+      human: Endre Szemerédi
+    formal:
+      AI: Aristotle
+      human: Matteo Del Vecchio
+  url:
+    - https://www.erdosproblems.com/forum/thread/540#post-5410
+    - https://gist.githubusercontent.com/madeve-unipi/e5b448ddfb84f4c5427d22555f19b1e6/raw/77b2c8499a2e858e84832d72dcbe8a2e04b6a451/Erdos540.lean
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos541
   epc: https://www.erdosproblems.com/541
   author:
@@ -1233,6 +1274,35 @@
     - https://borisalexeev.com/papers/erdos707.html
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos707.md
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos753
+  epc: https://www.erdosproblems.com/753
+  author:
+    informal:
+      human: Noga Alon
+    formal:
+      AI: Aristotle
+      human: Matteo Del Vecchio
+  url:
+    - https://www.erdosproblems.com/forum/thread/753#post-5373
+    - https://gist.githubusercontent.com/madeve-unipi/80eaf8008c7c798b4f7b5baeb8c1812b/raw/70704b54755e9012597c99bab7db153786abfa8a/Erdos753.lean
+  version: "4.28.0"
+
+- key: ErdosProblems.Erdos760
+  epc: https://www.erdosproblems.com/760
+  author:
+    informal:
+      human:
+        - Noga Alon
+        - Michael Krivelevich
+        - Benny Sudakov
+    formal:
+      AI: Aristotle
+      human: Matteo Del Vecchio
+  url:
+    - https://www.erdosproblems.com/forum/thread/760#post-5727
+    - https://gist.githubusercontent.com/madeve-unipi/a7ae50d445f95e73c360f442c3c84143/raw/e85a4b6a72e797488822bb5cbdfe68d9834e835c/Erdos760.lean
+  version: "4.28.0"
 
 - key: ErdosProblems.Erdos762
   epc: https://www.erdosproblems.com/762
