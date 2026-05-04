@@ -284,6 +284,7 @@
   url:
     - https://www.erdosproblems.com/forum/thread/178#post-5685
     - https://gist.githubusercontent.com/madeve-unipi/ca9c3d1f94fe124c15726d836e1cd623/raw/a272de656847d3956e1c228c833ff3c591dc4872/Erdos178.lean
+  version: "4.28.0"
 - key: ErdosProblems.Erdos189
   epc: https://www.erdosproblems.com/189
   author:
@@ -315,6 +316,7 @@
     - https://www.erdosproblems.com/forum/thread/194#post-5430
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/194.lean
     - https://gist.githubusercontent.com/ster-oc/ffe9e4fa1b813111f40c0e417bbe8be0/raw/6f748a76e55d47e24ca319a9c00fd20ab79422bb/Erdos194.lean
+  version: "4.28.0"
 - key: ErdosProblems.Erdos198
   epc: https://www.erdosproblems.com/198
   author:
@@ -422,6 +424,7 @@
   url:
     - https://www.erdosproblems.com/forum/thread/224#post-3157
     - https://github.com/SpringSense-Innovation-Institute/ai-for-math-lean/blob/main/erdos-problems/erdos224/Erdos224.lean
+  version: "4.25.0"
 - key: ErdosProblems.Erdos226
   epc: https://www.erdosproblems.com/226
   author:
@@ -509,6 +512,7 @@
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/258.lean
   conditional: tao_teravainen
   todo: See whether Tao-Teräväinen (Erdos248) can be formalized.
+  version: "4.28.0"
 - key: ErdosProblems.Erdos259
   epc: https://www.erdosproblems.com/259
   author:
@@ -524,6 +528,7 @@
     - https://www.erdosproblems.com/forum/thread/259#post-5683
     - https://gist.githubusercontent.com/ster-oc/c7429943f6b3a634797dc8b2a3b01f2d/raw/8c6b5b7f08021f0aed2312542dd2e9ee7beaa6d6/Erdos259.lean
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/259.lean
+  version: "4.28.0"
 - key: ErdosProblems.Erdos268
   epc: https://www.erdosproblems.com/268
   author:
@@ -538,6 +543,7 @@
     - https://www.erdosproblems.com/forum/thread/268#post-5359
     - https://gist.githubusercontent.com/madeve-unipi/62a8f68cdb4864b85b81a6752dcb0aa4/raw/5793aaa51089c25c37d8d63f60540367f6abe506/Erdos268.lean
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/268.lean
+  version: "4.28.0"
 - key: ErdosProblems.Erdos275
   epc: https://www.erdosproblems.com/275
   author:
@@ -589,6 +595,7 @@
     - https://www.erdosproblems.com/forum/thread/281#post-3445
     - https://chatgpt.com/share/696ac45b-70d8-8003-9ca4-320151e0816e
   url_ref: JakeMallen_281
+  version: "4.24.0"
 - key: ErdosProblems.Erdos290
   epc: https://www.erdosproblems.com/290
   author:
@@ -622,6 +629,7 @@
     - https://github.com/b-mehta/unit-fractions/blob/master/src/final_results.lean
   conditional: unit_fractions_upper_log_density
   todo: Import Bloom-Mehta unit-fractions project.
+  version: "4.28.0"
 - key: ErdosProblems.Erdos298
   epc: https://www.erdosproblems.com/298
   author:
@@ -711,6 +719,7 @@
     formal:
       human: Bhavik Mehta
   url: https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/316.lean
+  version: "4.27.0"
 - key: ErdosProblems.Erdos331
   epc: https://www.erdosproblems.com/331
   author:
@@ -742,6 +751,7 @@
     - https://chatgpt.com/s/t_69467152e8808191b9140d006994f284
     - https://chatgpt.com/s/t_694c90df3c908191a192f6233c2b14b9
   url_ref: KevinBarreto_333
+  version: "4.29.1"
 - key: ErdosProblems.Erdos337
   epc: https://www.erdosproblems.com/337
   author:
@@ -770,6 +780,7 @@
     - https://github.com/ebarschkis/ErdosProblem/blob/main/Problem347/347.pdf
     - https://github.com/ebarschkis/ErdosProblem/blob/main/Problem347/note.tex
     - https://github.com/ebarschkis/ErdosProblem/blob/main/Problem347/Formalization.lean
+  version: "4.24.0"
 - key: ErdosProblems.Erdos350
   epc: https://www.erdosproblems.com/350
   author:
@@ -1284,6 +1295,7 @@
   url:
     - https://www.erdosproblems.com/forum/thread/990#post-5312
     - https://github.com/yuta0x89/ErdosProblems/blob/main/Erdos990.lean
+  version: "4.28.0"
 - key: ErdosProblems.Erdos1000
   epc: https://www.erdosproblems.com/1000
   author:
