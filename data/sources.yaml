@@ -249,6 +249,7 @@
   url:
     - https://www.erdosproblems.com/forum/thread/150#post-5145
     - https://gist.githubusercontent.com/pitmonticone/d8558d3361ad2d673b5405239ea30700/raw/c966009555b83985762dac9faaf705aad3f48199/Erdos150.lean
+  version: "4.28.0"
 - key: ErdosProblems.Erdos154
   epc: https://www.erdosproblems.com/154
   author:
@@ -261,6 +262,7 @@
   url:
     - https://www.erdosproblems.com/forum/thread/154#post-4218
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem154.lean
+  version: "4.24.0"
 - key: ErdosProblems.Erdos164
   epc: https://www.erdosproblems.com/164
   author:
@@ -356,6 +358,7 @@
     - https://www.erdosproblems.com/forum/thread/204#post-4790
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem204.lean
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/204.lean
+  version: "4.24.0"
 - key: ErdosProblems.Erdos205
   epc: https://www.erdosproblems.com/205
   author:
@@ -388,6 +391,7 @@
     - https://www.erdosproblems.com/forum/thread/214#post-4547
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem214FourPoints.lean
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem214TwelvePoints.lean
+  version: "4.24.0"
 - key: ErdosProblems.Erdos221
   epc: https://www.erdosproblems.com/221
   author:
@@ -402,6 +406,7 @@
     - https://www.erdosproblems.com/forum/thread/221#post-3991
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem221.lean
     - https://www.cambridge.org/core/services/aop-cambridge-core/content/view/802ABD868A907C2ADB78C580C73C86FC/S0008439500061348a.pdf/on-a-problem-of-p-erdos.pdf
+  version: "4.24.0"
 - key: ErdosProblems.Erdos224
   epc: https://www.erdosproblems.com/224
   author:
@@ -467,6 +472,7 @@
   conditional:
     - maynard_tao
     - mertens_third_theorem
+  version: "4.28.0"
   todo: Import Wouter's Mertens3 proof.
 - key: ErdosProblems.Erdos246
   epc: https://www.erdosproblems.com/246
@@ -567,6 +573,7 @@
   url:
     - https://www.erdosproblems.com/forum/thread/280#post-5595
     - https://gist.githubusercontent.com/LorenzoLuccioli/2dda92a192c15c24263c8a258979e7e3/raw/b9f4c664a42977075e361da17759bd0f71998ff8/Erdos280.lean
+  version: "4.28.0"
 - key: ErdosProblems.Erdos281
   epc: https://www.erdosproblems.com/281
   author:
@@ -596,6 +603,7 @@
   url:
     - https://www.erdosproblems.com/forum/thread/290#post-3180
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem290.lean
+  version: "4.24.0"
 - key: ErdosProblems.Erdos296
   epc: https://www.erdosproblems.com/296
   author:
@@ -674,6 +682,7 @@
   url:
     - https://www.erdosproblems.com/forum/thread/314#post-5193
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem314.lean
+  version: "4.28.0"
 - key: ErdosProblems.Erdos315
   epc: https://www.erdosproblems.com/315
   author:
@@ -714,6 +723,7 @@
     - https://www.erdosproblems.com/forum/thread/331#post-4019
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem331.lean
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/331.lean
+  version: "4.24.0"
 - key: ErdosProblems.Erdos333
   epc: https://www.erdosproblems.com/333
   author:
