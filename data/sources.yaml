@@ -971,6 +971,21 @@
     - "4.20.0-rc5"
     - "4.24.0"
 
+- key: ErdosProblems.Erdos379
+  epc: https://www.erdosproblems.com/379
+  author:
+    informal:
+      human:
+        - Stijn Cambie
+        - Vjekoslav Kovač
+        - Terence Tao
+    formal:
+      AI: Seed-Prover 1.5
+      human: Zheng Yuan
+  url: https://www.erdosproblems.com/forum/thread/379#post-2350
+  version: "4.22.0"
+  url_ref: Zheng_Yuan_379
+
 - key: ErdosProblems.Erdos418
   epc: https://www.erdosproblems.com/418
   author:
