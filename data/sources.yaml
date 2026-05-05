@@ -1022,6 +1022,17 @@
     - https://gist.githubusercontent.com/llllvvuu/40d68cfa9de9f43eece07ff4fdc3b0ef/raw/966750065320fe126fbe5a8a7ea50439d7519c6c/397.lean
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos399
+  epc: https://www.erdosproblems.com/399
+  author:
+    informal:
+      human: Jonas Barfield
+    formal:
+      AI: Codex
+      human: Cong Lu
+  url: https://github.com/google-deepmind/formal-conjectures/commit/ce390075c49403db77b955a3f3a8bf4c4de99cbe
+  version: "4.22.0"
+
 - key: ErdosProblems.Erdos418
   epc: https://www.erdosproblems.com/418
   author:
