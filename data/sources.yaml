@@ -1715,6 +1715,20 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos678.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos692
+  epc: https://www.erdosproblems.com/692
+  author:
+    informal:
+      human: Stijn Cambie
+    formal:
+      AI: Aristotle
+      human: Pietro Monticone
+  arxiv: https://arxiv.org/abs/2501.10333
+  url:
+    - https://www.erdosproblems.com/forum/thread/692#post-5204
+    - https://gist.githubusercontent.com/pitmonticone/96516af9100a37a1da81908dc0b0410c/raw/a1d6ca7f3835c58b257e5e715c8fdf3a224e1bd0/Erdos692.lean
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos698
   epc: https://www.erdosproblems.com/698
   author:
@@ -1932,6 +1946,19 @@
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem866.lean
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos867
+  epc: https://www.erdosproblems.com/867
+  author:
+    informal:
+      human: R. Freud
+    formal:
+      AI: Aristotle
+      human: Pietro Monticone
+  url:
+    - https://www.erdosproblems.com/forum/thread/867#post-5279
+    - https://gist.githubusercontent.com/pitmonticone/5c1b173e3140f869d7425d8f1003ac70/raw/2ae361451c92d1b033d144bc50212dc8e76abdc9/Erdos867.lean
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos871
   epc: https://www.erdosproblems.com/871
   author:
@@ -1986,6 +2013,19 @@
   url: https://www.erdosproblems.com/forum/thread/898#post-3882
   url_ref: JoshuaB_898
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos907
+  epc: https://www.erdosproblems.com/907
+  author:
+    informal:
+      human: N. G. de Bruijn
+    formal:
+      AI: Aristotle
+      human: Pietro Monticone
+  url:
+    - https://www.erdosproblems.com/forum/thread/907#post-5277
+    - https://gist.githubusercontent.com/pitmonticone/f419ac0a78259498f93fd60d49c0b3ea/raw/959cb0ef93596d9ade256e3cd0f4141e66176e04/Erdos907.lean
+  version: "4.28.0"
 
 - key: ErdosProblems.Erdos914
   epc: https://www.erdosproblems.com/914
@@ -2067,6 +2107,27 @@
   url:
     - https://www.erdosproblems.com/forum/thread/990#post-5312
     - https://github.com/yuta0x89/ErdosProblems/blob/main/Erdos990.lean
+  version: "4.28.0"
+
+- key: ErdosProblems.Erdos997
+  epc: https://www.erdosproblems.com/997
+  author:
+    informal:
+      AI: an internal model at OpenAI
+      human:
+        - Boris Alexeev
+        - Moe Putterman
+        - Mehtaab Sawhney
+        - Mark Sellke
+        - Gregory Valiant
+    formal:
+      AI: Aristotle
+      human: Pietro Monticone
+  arxiv: https://arxiv.org/abs/2603.29961
+  url:
+    - https://www.erdosproblems.com/forum/thread/997#post-5189
+    - https://gist.githubusercontent.com/pitmonticone/016f2ed66b4cd1c4c4b9998095170e60/raw/b7dfc05c525ae385b5835f89f1ada721443e4305/Erdos997.lean
+  conditional: maynard_tao_bft
   version: "4.28.0"
 
 - key: ErdosProblems.Erdos1000
@@ -2483,4 +2544,15 @@
   url:
     - https://www.erdosproblems.com/forum/thread/1138#post-6243
     - https://gist.githubusercontent.com/LorenzoLuccioli/c7fbdd9809a616974b5587ee526c163b/raw
+  version: "4.28.0"
+
+- key: ErdosProblems.Erdos1193
+  epc: https://www.erdosproblems.com/1193
+  author:
+    formal:
+      AI: Aristotle
+      human: Pietro Monticone
+  url:
+    - https://www.erdosproblems.com/forum/thread/1193#post-5360
+    - https://gist.githubusercontent.com/pitmonticone/c2658d464f8f5ca0e7fa40ed6fb78a5d/raw/793317d6a959dca24f5f313364c49c4c75fc5c01/Erdos1193.lean
   version: "4.28.0"
