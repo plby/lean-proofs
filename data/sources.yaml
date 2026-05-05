@@ -1288,6 +1288,33 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos476.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos481
+  epc: https://www.erdosproblems.com/481
+  author:
+    informal:
+      human: Kevin Barreto
+    formal:
+      AI: Claude Opus 4.5
+      human: Kevin Barreto
+  url: https://www.erdosproblems.com/forum/thread/481#post-1930
+  url_ref: KevinBarreto_481
+  version: "4.29.1"
+
+- key: ErdosProblems.Erdos484
+  epc: https://www.erdosproblems.com/484
+  author:
+    informal:
+      human:
+        - Paul Erdős
+        - András Sárközy
+        - Vera T. Sós
+    formal:
+      AI: Aristotle
+      human: tomaz1502
+  url: https://www.erdosproblems.com/forum/thread/484#post-5448
+  url_ref: tomaz1502_484
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos485
   partial: yes
   epc: https://www.erdosproblems.com/485
@@ -1788,6 +1815,19 @@
     - https://www.erdosproblems.com/forum/thread/794
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos794.md
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos818
+  epc: https://www.erdosproblems.com/818
+  author:
+    informal:
+      human: József Solymosi
+    formal:
+      AI: Aristotle
+      human: tomaz1502
+  url:
+    - https://www.erdosproblems.com/forum/thread/818#post-5890
+    - https://gist.githubusercontent.com/tomaz1502/d8f3632157bae289e5d0ed68ccdc9433/raw/fa7570f83d63ead268ebe5478670f6c06142edcd/Erdos_818.lean
+  version: "4.28.0"
 
 - key: ErdosProblems.Erdos844
   epc: https://www.erdosproblems.com/844
