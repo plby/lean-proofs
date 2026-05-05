@@ -13,7 +13,7 @@ import Mathlib
 
 set_option linter.mathlibStandardSet false
 
-section Erdos221
+namespace Erdos221
 
 open scoped BigOperators
 open scoped Real
