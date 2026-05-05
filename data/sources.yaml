@@ -1759,6 +1759,37 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos707.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos728
+  epc: https://www.erdosproblems.com/728
+  author:
+    informal:
+      AI: ChatGPT-5.2
+      human: Kevin Barreto
+    formal:
+      AI: Aristotle
+      human:
+        - Kevin Barreto
+        - Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/728#post-2828
+    - https://github.com/plby/lean-proofs/blob/main/src/v4.24.0/ErdosProblems/Erdos728b.lean
+    - https://www.erdosproblems.com/forum/thread/728#post-2783
+  version: "4.24.0"
+
+- key: ErdosProblems.Erdos729
+  epc: https://www.erdosproblems.com/729
+  author:
+    informal:
+      AI: GPT-5.2 Pro
+      human:
+        - Kevin Barreto
+        - Liam Price
+    formal:
+      AI: Aristotle
+      human: Kevin Barreto
+  url: https://www.erdosproblems.com/forum/thread/729#post-2899
+  version: "4.24.0"
+
 - key: ErdosProblems.Erdos741
   epc: https://www.erdosproblems.com/741
   author:
@@ -2804,6 +2835,22 @@
     - https://www.erdosproblems.com/forum/thread/1193#post-5360
     - https://gist.githubusercontent.com/pitmonticone/c2658d464f8f5ca0e7fa40ed6fb78a5d/raw/793317d6a959dca24f5f313364c49c4c75fc5c01/Erdos1193.lean
   version: "4.28.0"
+
+- key: ErdosProblems.Erdos1196
+  epc: https://www.erdosproblems.com/1196
+  author:
+    informal:
+      AI: GPT-5.4 Pro
+      human: Liam Price
+    formal:
+      AI: gauss-math-inc
+      human: Math, Inc.
+  url:
+    - https://www.erdosproblems.com/forum/thread/1196#post-5469
+    - https://github.com/math-inc/Erdos1196/tree/02fba13be7487cc51315f68d8fa7ef277633d3c8
+    - https://github.com/math-inc/Erdos1196/blob/02fba13be7487cc51315f68d8fa7ef277633d3c8/PrimitiveSetsAboveX/FormalConjecturesErdos1196.lean
+    - https://github.com/math-inc/Erdos1196/blob/02fba13be7487cc51315f68d8fa7ef277633d3c8/source.tex
+  version: "4.30.0-rc1"
 
 - key: ErdosProblems.Erdos1197
   epc: https://www.erdosproblems.com/1197
