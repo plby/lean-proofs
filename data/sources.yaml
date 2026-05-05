@@ -1759,6 +1759,39 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos707.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos741
+  epc: https://www.erdosproblems.com/741
+  author:
+    informal:
+      AI: a DeepMind prover agent
+    formal:
+      AI: a DeepMind prover agent
+      human: Moritz Firsching
+  url:
+    - https://www.erdosproblems.com/forum/thread/741#post-5135
+    - https://github.com/mo271/formal-conjectures/blob/486bc8afae062b6711cd16d3466d651ee2880a52/FormalConjectures/ErdosProblems/741.lean#L1449
+    - https://github.com/mo271/formal-conjectures/blob/486bc8afae062b6711cd16d3466d651ee2880a52/FormalConjectures/ErdosProblems/741.lean#L1629
+  version: "4.27.0"
+
+- key: ErdosProblems.Erdos751
+  epc: https://www.erdosproblems.com/751
+  author:
+    informal:
+      human:
+        - J. A. Bondy
+        - A. Vince
+      AI: ChatGPT 5.2 Thinking
+    formal:
+      AI:
+        - ChatGPT 5.2 Thinking
+        - GPT-5.2 Codex
+      human: scp020
+  url:
+    - https://www.erdosproblems.com/forum/thread/751#post-3835
+    - https://people.clas.ufl.edu/avince/files/Cycles.pdf
+    - https://github.com/SpringSense-Innovation-Institute/ai-for-math-lean/tree/main/erdos-problems/erdos751
+  version: "4.23.0"
+
 - key: ErdosProblems.Erdos753
   epc: https://www.erdosproblems.com/753
   author:
@@ -1910,6 +1943,21 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos845.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos846
+  epc: https://www.erdosproblems.com/846
+  author:
+    informal:
+      AI: a DeepMind prover agent
+    statement: Formal Conjectures authors
+    formal:
+      AI: a DeepMind prover agent
+      human: George Tsoukalas
+  url:
+    - https://www.erdosproblems.com/forum/thread/846#post-4447
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/846.lean
+    - https://github.com/google-deepmind/formal-conjectures/blob/2404258180688283e5141021c75464dc2acfb798/FormalConjectures/ErdosProblems/846.lean
+  version: "4.22.0"
+
 - key: ErdosProblems.Erdos862
   epc: https://www.erdosproblems.com/862
   author:
@@ -2014,6 +2062,36 @@
   url_ref: JoshuaB_898
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos904
+  epc: https://www.erdosproblems.com/904
+  author:
+    informal:
+      human:
+        - Béla Bollobás
+        - Vladimir Nikiforov
+    formal:
+      AI: Aristotle
+      human: Parcly Taxel
+  url:
+    - https://www.erdosproblems.com/forum/thread/904#post-5573
+    - https://gist.githubusercontent.com/Parcly-Taxel/876d4eadd49a0d29db91ed2e790db733/raw/f33e0451100317b6eda0dd48c971e8105ff8ea75/E904.lean
+  version: "4.28.0"
+
+- key: ErdosProblems.Erdos905
+  epc: https://www.erdosproblems.com/905
+  author:
+    informal:
+      human:
+        - N. G. Khadzhiivanov
+        - S. V. Nikiforov
+    formal:
+      AI:
+        - Aristotle
+        - GPT 5.4
+      human: andresg535
+  url: https://www.erdosproblems.com/forum/thread/905#post-5276
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos907
   epc: https://www.erdosproblems.com/907
   author:
@@ -2042,6 +2120,19 @@
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem914.lean
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos923
+  epc: https://www.erdosproblems.com/923
+  author:
+    informal:
+      human: Vojtěch Rödl
+    formal:
+      AI: Aristotle
+      human: Parcly Taxel
+  url:
+    - https://www.erdosproblems.com/forum/thread/923#post-5628
+    - https://gist.githubusercontent.com/Parcly-Taxel/28b95db1e5d3e77077d30c07afc55992/raw/8069e58aa1abcbcff57e1c99addfbdeb8f32f302/E923-aristotle.lean
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos947
   epc: https://www.erdosproblems.com/947
   author:
@@ -2067,6 +2158,24 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos958.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos964
+  epc: https://www.erdosproblems.com/964
+  author:
+    informal:
+      human: Sean Eberhard
+    formal:
+      AI:
+        - Aristotle
+        - Gemini
+        - Antigravity
+      human: DanielChin
+  arxiv: https://arxiv.org/abs/2505.00727
+  url:
+    - https://www.erdosproblems.com/forum/thread/964#post-4280
+    - https://raw.githubusercontent.com/danielchin/proofs/refs/heads/main/Proofs/ErdosProblems/Erdos964.lean
+  conditional: goldston_graham_pintz_yildirim
+  version: "4.24.0"
+
 - key: ErdosProblems.Erdos966
   epc: https://www.erdosproblems.com/966
   author:
@@ -2079,6 +2188,36 @@
   url: https://www.erdosproblems.com/forum/thread/966#post-4472
   url_ref: JoshuaB_966
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos967
+  epc: https://www.erdosproblems.com/967
+  author:
+    informal:
+      human: Fredy Yip
+    formal:
+      AI: Aristotle
+      human: Lawrence Wu
+  arxiv: https://arxiv.org/abs/2512.16528
+  url:
+    - https://www.erdosproblems.com/forum/thread/967#post-2303
+    - https://gist.githubusercontent.com/llllvvuu/d25f037d1f1000bdabd6ca928c74c9bb/raw/50871c3840af1e49c4e5acabefac6604c9b65c65/967.lean
+  version: "4.24.0"
+
+- key: ErdosProblems.Erdos974
+  epc: https://www.erdosproblems.com/974
+  author:
+    informal:
+      human:
+        - Robert Tijdeman
+        - Quanyu Tang
+    formal:
+      AI: Aristotle
+      human: Parcly Taxel
+  url:
+    - https://www.erdosproblems.com/forum/thread/974#post-5944
+    - https://www.erdosproblems.com/forum/thread/974#post-640
+    - https://gist.githubusercontent.com/Parcly-Taxel/a44cbf9a214a5358bf584d05265aec4c/raw/40bea6d343e4563e8f1c3d17b423deb72b3f8265/Erdos974.lean
+  version: "4.28.0"
 
 - key: ErdosProblems.Erdos990
   epc: https://www.erdosproblems.com/990
