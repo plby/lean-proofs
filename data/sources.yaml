@@ -1007,6 +1007,21 @@
   version: "4.28.0"
   todo: Import PNT+ project.
 
+- key: ErdosProblems.Erdos397
+  epc: https://www.erdosproblems.com/397
+  author:
+    informal:
+      AI: GPT-5.2 Pro
+      human: Neel Somani
+    formal:
+      AI: Aristotle
+      human: Lawrence Wu
+  url:
+    - https://www.erdosproblems.com/forum/thread/397#post-2940
+    - https://www.erdosproblems.com/forum/thread/397#post-2936
+    - https://gist.githubusercontent.com/llllvvuu/40d68cfa9de9f43eece07ff4fdc3b0ef/raw/966750065320fe126fbe5a8a7ea50439d7519c6c/397.lean
+  version: "4.24.0"
+
 - key: ErdosProblems.Erdos418
   epc: https://www.erdosproblems.com/418
   author:
