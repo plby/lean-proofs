@@ -33,6 +33,7 @@ import ErdosProblems.Erdos268
 import ErdosProblems.Erdos275
 import ErdosProblems.Erdos280
 import ErdosProblems.Erdos281
+import ErdosProblems.Erdos283
 import ErdosProblems.Erdos290
 import ErdosProblems.Erdos296
 import ErdosProblems.Erdos303
