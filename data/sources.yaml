@@ -1094,6 +1094,23 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos419.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos426
+  epc: https://www.erdosproblems.com/426
+  author:
+    informal:
+      human:
+        - Domagoj Bradač
+        - Micha Christoph
+    formal:
+      AI: Aristotle
+      human: Lorenzo Luccioli
+  url:
+    - https://www.erdosproblems.com/forum/thread/426#post-5643
+    - https://www.erdosproblems.com/forum/thread/426#post-5775
+    - https://gist.githubusercontent.com/LorenzoLuccioli/7c10c6803e56a3271ca6ebfc9cfb89ad/raw/9aa347c235591c53684d9ac06050c18b183aea23/Erdos426.lean
+    - https://gist.githubusercontent.com/LorenzoLuccioli/6740274ef8c8bd77a6c966887a72b198/raw/656e1c8330a75a6fd003efef2a8bcae1966482df/Erdos426.lean
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos429
   epc: https://www.erdosproblems.com/429
   author:
@@ -1378,6 +1395,21 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos618.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos621
+  epc: https://www.erdosproblems.com/621
+  author:
+    informal:
+      human:
+        - Sergey Norin
+        - Yue Ru Sun
+    formal:
+      AI: Aristotle
+      human: Lorenzo Luccioli
+  url:
+    - https://www.erdosproblems.com/forum/thread/621#post-5605
+    - https://gist.githubusercontent.com/LorenzoLuccioli/71247a0c86fa35cb1e000160baef0bba/raw/eff1f49238af6ae9119b879ee91ff36ec6ee6b31/Erdos621.lean
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos645
   epc: https://www.erdosproblems.com/645
   author:
@@ -1585,6 +1617,19 @@
     - https://www.erdosproblems.com/forum/thread/762
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos762.md
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos775
+  epc: https://www.erdosproblems.com/775
+  author:
+    informal:
+      human: Jun Gao
+    formal:
+      AI: Aristotle
+      human: Lorenzo Luccioli
+  url:
+    - https://www.erdosproblems.com/forum/thread/775#post-5619
+    - https://gist.githubusercontent.com/LorenzoLuccioli/dc7dac92dff47aac05b50f2562dbe8c1/raw/2c53e497b3d685bc4883c0a2394b5f10ecb367a0/Erdos775.lean
+  version: "4.28.0"
 
 - key: ErdosProblems.Erdos785
   epc: https://www.erdosproblems.com/785
@@ -1994,6 +2039,20 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1043.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos1044
+  epc: https://www.erdosproblems.com/1044
+  author:
+    informal:
+      human: Quanyu Tang
+    formal:
+      AI: Aristotle
+      human: Lorenzo Luccioli
+  url:
+    - https://www.erdosproblems.com/forum/thread/1044#post-6012
+    - https://github.com/QuanyuTang/erdos-problem-1044/blob/main/On_Erd%C5%91s_Problem_1044.pdf
+    - https://gist.githubusercontent.com/LorenzoLuccioli/c3ace69881872112109a6c31b7a87cfc/raw
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos1047
   epc: https://www.erdosproblems.com/1047
   author:
@@ -2021,6 +2080,21 @@
   url:
     - https://www.erdosproblems.com/forum/thread/1048
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1048.md
+  version: "4.24.0"
+
+- key: ErdosProblems.Erdos1056
+  partial: yes
+  epc: https://www.erdosproblems.com/1056
+  author:
+    informal:
+      AI: Aristotle
+      human: Lorenzo Luccioli
+    formal:
+      AI: Aristotle
+      human: Lorenzo Luccioli
+  url:
+    - https://www.erdosproblems.com/forum/thread/1056#post-2713
+    - https://gist.githubusercontent.com/LorenzoLuccioli/62c1534cff0ae0268f4e5fb92f3f5ae2/raw/b5f2abd33e6a90bbd7693089f14babbddbefcdb7/1056_aristotle.lean
   version: "4.24.0"
 
 - key: ErdosProblems.Erdos1067
@@ -2108,4 +2182,21 @@
   url:
     - https://www.erdosproblems.com/forum/thread/1136#post-5688
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem1136.lean
+  version: "4.28.0"
+
+- key: ErdosProblems.Erdos1138
+  partial: yes
+  epc: https://www.erdosproblems.com/1138
+  author:
+    informal:
+      human:
+        - Hrishi Sunder
+        - Sourish Kumrawat
+        - Kireet Cheri
+    formal:
+      AI: Aristotle
+      human: Lorenzo Luccioli
+  url:
+    - https://www.erdosproblems.com/forum/thread/1138#post-6243
+    - https://gist.githubusercontent.com/LorenzoLuccioli/c7fbdd9809a616974b5587ee526c163b/raw
   version: "4.28.0"
