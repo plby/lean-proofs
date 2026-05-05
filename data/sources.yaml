@@ -1141,6 +1141,41 @@
     - https://math.colgate.edu/~integers/y89/y89.pdf
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos433
+  epc: https://www.erdosproblems.com/433
+  author:
+    informal:
+      human: Jacques Dixmier
+    formal:
+      AI:
+        - Gemini 3.1 Pro
+        - Gemini 3.0 Flash
+        - Claude Sonnet 4.6
+        - Project Numina
+        - Aristotle
+        - ulam.ai cli harness
+      human: JoshuaB
+  url:
+    - https://www.erdosproblems.com/forum/thread/433#post-4436
+    - https://github.com/YaelDillies/MiscYD/blob/master/MiscYD/AddCombi/Kneser/Kneser.lean
+  url_ref: JoshuaB_433
+  version: "4.24.0"
+  conditional: knesers_addition_theorem
+
+- key: ErdosProblems.Erdos434
+  epc: https://www.erdosproblems.com/434
+  author:
+    informal:
+      human:
+        - Jacques Dixmier
+        - G. Kiss
+    formal:
+      AI: Aristotle
+      human: JoshuaB
+  url: https://www.erdosproblems.com/forum/thread/434#post-4437
+  url_ref: JoshuaB_434
+  version: "4.24.0"
+
 - key: ErdosProblems.Erdos435
   epc: https://www.erdosproblems.com/435
   author:
@@ -1304,6 +1339,22 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos497.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos498
+  epc: https://www.erdosproblems.com/498
+  author:
+    informal:
+      human: Daniel J. Kleitman
+    formal:
+      AI:
+        - Gemini Flash
+        - Gemini Pro
+        - Claude Opus
+        - Aristotle
+      human: JoshuaB
+  url: https://www.erdosproblems.com/forum/thread/498#post-3844
+  url_ref: JoshuaB_498
+  version: "4.24.0"
+
 - key: ErdosProblems.Erdos499
   epc: https://www.erdosproblems.com/499
   author:
@@ -1318,6 +1369,20 @@
   url:
     - https://www.erdosproblems.com/forum/thread/499
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos499.md
+  version: "4.24.0"
+
+- key: ErdosProblems.Erdos502
+  epc: https://www.erdosproblems.com/502
+  author:
+    informal:
+      human:
+        - Fedor Petrov
+        - Cosmin Pohoata
+    formal:
+      AI: Aristotle
+      human: JoshuaB
+  url: https://www.erdosproblems.com/forum/thread/502#post-4106
+  url_ref: JoshuaB_502
   version: "4.24.0"
 
 - key: ErdosProblems.Erdos505
@@ -1458,6 +1523,18 @@
   version:
     - "4.20.0-rc5"
     - "4.24.0"
+
+- key: ErdosProblems.Erdos646
+  epc: https://www.erdosproblems.com/646
+  author:
+    informal:
+      human: Daniel Berend
+    formal:
+      AI: Aristotle
+      human: JoshuaB
+  url: https://www.erdosproblems.com/forum/thread/646#post-4507
+  url_ref: JoshuaB_646
+  version: "4.24.0"
 
 - key: ErdosProblems.Erdos648
   epc: https://www.erdosproblems.com/648
@@ -1819,6 +1896,23 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos897.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos898
+  epc: https://www.erdosproblems.com/898
+  author:
+    informal:
+      human: Louis J. Mordell
+      AI:
+        - Gemini 3.0 Flash
+        - Aristotle
+    formal:
+      AI:
+        - Gemini 3.0 Flash
+        - Aristotle
+      human: JoshuaB
+  url: https://www.erdosproblems.com/forum/thread/898#post-3882
+  url_ref: JoshuaB_898
+  version: "4.24.0"
+
 - key: ErdosProblems.Erdos914
   epc: https://www.erdosproblems.com/914
   author:
@@ -1857,6 +1951,19 @@
   url:
     - https://www.erdosproblems.com/forum/thread/958
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos958.md
+  version: "4.24.0"
+
+- key: ErdosProblems.Erdos966
+  epc: https://www.erdosproblems.com/966
+  author:
+    informal:
+      human: Joel Spencer
+      AI: Aristotle
+    formal:
+      AI: Aristotle
+      human: JoshuaB
+  url: https://www.erdosproblems.com/forum/thread/966#post-4472
+  url_ref: JoshuaB_966
   version: "4.24.0"
 
 - key: ErdosProblems.Erdos990
@@ -2215,6 +2322,20 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1080.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos1090
+  epc: https://www.erdosproblems.com/1090
+  author:
+    informal:
+      human: Hunter
+    formal:
+      AI:
+        - Aristotle
+        - Gemini 3.0 Flash
+      human: JoshuaB
+  url: https://www.erdosproblems.com/forum/thread/1090#post-4523
+  url_ref: JoshuaB_1090
+  version: "4.24.0"
+
 - key: ErdosProblems.Erdos1098
   epc: https://www.erdosproblems.com/1098
   author:
@@ -2245,6 +2366,18 @@
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem1100.lean
   version: "4.24.0"
   conditional: prime_number_theorem
+
+- key: ErdosProblems.Erdos1126
+  epc: https://www.erdosproblems.com/1126
+  author:
+    informal:
+      human: N. G. de Bruijn
+    formal:
+      AI: Aristotle
+      human: JoshuaB
+  url: https://www.erdosproblems.com/forum/thread/1126#post-4524
+  url_ref: JoshuaB_1126
+  version: "4.24.0"
 
 - key: ErdosProblems.Erdos1136
   epc: https://www.erdosproblems.com/1136
