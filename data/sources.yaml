@@ -2527,6 +2527,25 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1048.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos1051
+  epc: https://www.erdosproblems.com/1051
+  author:
+    informal:
+      AI: Gemini Deep Think
+      human:
+        - Kevin Barreto
+        - J. Kang
+        - S. Kim
+        - V. Kovac
+        - S. Zhang
+    formal:
+      human: Kevin Barreto
+  arxiv: https://arxiv.org/abs/2601.21442
+  url:
+    - https://www.erdosproblems.com/forum/thread/1051#post-3931
+    - https://arxiv.org/abs/2601.21442
+  version: "4.27.0"
+
 - key: ErdosProblems.Erdos1056
   partial: yes
   epc: https://www.erdosproblems.com/1056
@@ -2641,6 +2660,52 @@
   version: "4.24.0"
   conditional: prime_number_theorem
 
+- key: ErdosProblems.Erdos1102
+  epc: https://www.erdosproblems.com/1102
+  author:
+    informal:
+      human:
+        - Wouter van Doorn
+        - Terence Tao
+    formal:
+      AI: Aristotle
+      human: Wouter van Doorn
+  arxiv: https://arxiv.org/abs/2512.01087
+  url:
+    - https://www.erdosproblems.com/forum/thread/1102#post-4415
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem1102PropertyP.lean
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem1102PropertyQDensity.lean
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem1102PropertyOverP.lean
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem1102PropertyQFastGrowing.lean
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/1102.lean
+  version: "4.28.0"
+
+- key: ErdosProblems.Erdos1121
+  epc: https://www.erdosproblems.com/1121
+  author:
+    informal:
+      human:
+        - A. W. Goodman
+        - R. E. Goodman
+    formal:
+      AI: Aristotle
+      human: parabamoghv
+  url: https://www.erdosproblems.com/forum/thread/1121#post-5504
+  version: "4.28.0"
+
+- key: ErdosProblems.Erdos1125
+  epc: https://www.erdosproblems.com/1125
+  author:
+    informal:
+      human: Miklós Laczkovich
+    formal:
+      AI: Aristotle
+      human: Stefano Rocca
+  url:
+    - https://www.erdosproblems.com/forum/thread/1125#post-5332
+    - https://gist.githubusercontent.com/ster-oc/18384e6202ffe054cbc76ff2d0b1afde/raw/4d89f4dce1b6ae4aedde501bfbcbc4f9f81a8549/Erdos1125.lean
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos1126
   epc: https://www.erdosproblems.com/1126
   author:
@@ -2685,6 +2750,50 @@
     - https://gist.githubusercontent.com/LorenzoLuccioli/c7fbdd9809a616974b5587ee526c163b/raw
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos1141
+  epc: https://www.erdosproblems.com/1141
+  author:
+    informal:
+      AI: an internal model at OpenAI
+      human:
+        - Boris Alexeev
+        - Moe Putterman
+        - Mehtaab Sawhney
+        - Mark Sellke
+        - Gregory Valiant
+    formal:
+      AI: GPT-5.4 Pro
+      human: YutaOriike
+  arxiv: https://arxiv.org/abs/2604.06609
+  url:
+    - https://www.erdosproblems.com/forum/thread/1141#post-5335
+    - https://github.com/yuta0x89/ErdosProblems/blob/a1319f732cdee5140faf47d984e2c451c1184803/Erdos1141.lean
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/1141.lean
+  conditional:
+    - pollack_theorem_1_3
+    - mertens_third_theorem
+  version: "4.28.0"
+
+- key: ErdosProblems.Erdos1148
+  epc: https://www.erdosproblems.com/1148
+  author:
+    informal:
+      AI: GPT-5.4 Pro
+      human: Przemek Chojecki
+    formal:
+      AI:
+        - Gemini 3.1
+        - Claude Opus 4.6
+        - GPT-5.4 Pro
+        - UlamAI Prover
+      human: Przemek Chojecki
+  url:
+    - https://www.erdosproblems.com/forum/thread/1148#post-4849
+    - https://www.ulam.ai/research/erdos1148-full.pdf
+    - https://github.com/ulamai/ulamai
+  conditional: duke_theorem
+  version: "4.27.0"
+
 - key: ErdosProblems.Erdos1193
   epc: https://www.erdosproblems.com/1193
   author:
@@ -2695,3 +2804,28 @@
     - https://www.erdosproblems.com/forum/thread/1193#post-5360
     - https://gist.githubusercontent.com/pitmonticone/c2658d464f8f5ca0e7fa40ed6fb78a5d/raw/793317d6a959dca24f5f313364c49c4c75fc5c01/Erdos1193.lean
   version: "4.28.0"
+
+- key: ErdosProblems.Erdos1197
+  epc: https://www.erdosproblems.com/1197
+  author:
+    informal:
+      AI: GPT Pro
+      human: Enrique Barschkis
+    formal:
+      AI:
+        - Aristotle
+        - GPT-5.4 Pro
+      human:
+        - Enrique Barschkis
+        - Tomodovodoo
+  url:
+    - https://www.erdosproblems.com/forum/thread/1197#post-5362
+    - https://github.com/ebarschkis/ErdosProblem/blob/main/Problem1197/Solution.pdf
+    - https://github.com/ebarschkis/ErdosProblem/blob/main/Problem1197/Solution.tex
+    - https://github.com/ebarschkis/ErdosProblem/blob/main/Problem1197/Formalization.lean
+    - https://github.com/Tomodovodoo/Erdos_1197
+  version: "4.28.0"
+  conditional:
+    - pnt_plus_chebyshev_asymptotic
+    - pnt_plus_prime_in_interval
+  todo: Import PNT+ project.
