@@ -1111,6 +1111,22 @@
     - https://gist.githubusercontent.com/LorenzoLuccioli/6740274ef8c8bd77a6c966887a72b198/raw/656e1c8330a75a6fd003efef2a8bcae1966482df/Erdos426.lean
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos427
+  epc: https://www.erdosproblems.com/427
+  author:
+    informal:
+      human:
+        - Cedric Pilatte
+        - D. K. L. Shiu
+    formal:
+      AI: Aristotle
+      human: John Jennings
+  url:
+    - https://www.erdosproblems.com/forum/thread/427#post-5920
+    - https://gist.githubusercontent.com/JohnEdwardJennings/e2c6ef0daab55857b7cc9d340de7af84/raw/8ff97800e38582c71246a238e7541a9d69488cbd/Erdos427.lean
+  version: "4.28.0"
+  conditional: shiu_consecutive_primes
+
 - key: ErdosProblems.Erdos429
   epc: https://www.erdosproblems.com/429
   author:
@@ -1319,6 +1335,19 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos505.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos519
+  epc: https://www.erdosproblems.com/519
+  author:
+    informal:
+      human: F. V. Atkinson
+    formal:
+      AI: Aristotle
+      human: John Jennings
+  url:
+    - https://www.erdosproblems.com/forum/thread/519#post-5599
+    - https://gist.githubusercontent.com/JohnEdwardJennings/db1e0cb00b7d6866193c12f1c70a1813/raw/e629fcf1976d5b241d628c0b65e2b1e3701f51a6/Erdos519.lean
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos537
   epc: https://www.erdosproblems.com/537
   author:
@@ -1475,6 +1504,25 @@
     - https://www.erdosproblems.com/forum/thread/650#post-4683
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem650.lean
   version: "4.28.0"
+
+- key: ErdosProblems.Erdos658
+  epc: https://www.erdosproblems.com/658
+  author:
+    informal:
+      human:
+        - József Solymosi
+        - Peter Frankl
+        - Vojtěch Rödl
+    formal:
+      AI: Aristotle
+      human: John Jennings
+  url:
+    - https://www.erdosproblems.com/forum/thread/658#post-5654
+    - https://www.erdosproblems.com/forum/thread/658#post-5677
+    - https://gist.githubusercontent.com/JohnEdwardJennings/ca7d49761fb51d28613bafc956742fbc/raw/c326fd7918276292e641af92c32d3ecbe3c31ee0/Erdos658.lean
+    - https://gist.githubusercontent.com/JohnEdwardJennings/ca7d49761fb51d28613bafc956742fbc/raw/93dbf493e26aa377f7e78390903be146745fa7ec/Erdos658.lean
+  version: "4.28.0"
+  conditional: frankl_roedl_theorem
 
 - key: ErdosProblems.Erdos659
   epc: https://www.erdosproblems.com/659
@@ -1663,6 +1711,22 @@
     - https://www.erdosproblems.com/forum/thread/794
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos794.md
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos844
+  epc: https://www.erdosproblems.com/844
+  author:
+    informal:
+      human:
+        - Desmond Weisenberg
+        - Václav Chvátal
+    formal:
+      AI: Aristotle
+      human: John Jennings
+  url:
+    - https://www.erdosproblems.com/forum/thread/844#post-5919
+    - https://users.encs.concordia.ca/~chvatal/conjecture.pdf
+    - https://gist.githubusercontent.com/JohnEdwardJennings/e32f2c412b0225091e7519d60741bd2d/raw/7d811ea413e2f7c0c0442749958aaac421eb6807/Erdos844.lean
+  version: "4.28.0"
 
 - key: ErdosProblems.Erdos845
   epc: https://www.erdosproblems.com/845
@@ -2150,6 +2214,19 @@
     - https://www.erdosproblems.com/forum/thread/1080
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1080.md
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos1098
+  epc: https://www.erdosproblems.com/1098
+  author:
+    informal:
+      human: B. H. Neumann
+    formal:
+      AI: Aristotle
+      human: John Jennings
+  url:
+    - https://www.erdosproblems.com/forum/thread/1098#post-5863
+    - https://gist.githubusercontent.com/JohnEdwardJennings/783dce98df9fa6c333c24617ef07403b/raw/4963c590ee551175a3734014a8f08e8b86674e76/Erdos1098.lean
+  version: "4.28.0"
 
 - key: ErdosProblems.Erdos1100
   partial: yes
