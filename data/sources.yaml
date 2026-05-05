@@ -1033,6 +1033,27 @@
   url: https://github.com/google-deepmind/formal-conjectures/commit/ce390075c49403db77b955a3f3a8bf4c4de99cbe
   version: "4.22.0"
 
+- key: ErdosProblems.Erdos401
+  epc: https://www.erdosproblems.com/401
+  author:
+    informal:
+      AI: GPT-5.2 Pro
+      human:
+        - Kevin Barreto
+        - Liam Price
+    formal:
+      AI: Aristotle
+      human:
+        - Kevin Barreto
+        - Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/401#post-2977
+    - https://www.erdosproblems.com/forum/thread/401#post-3002
+    - https://chatgpt.com/s/t_6963cf5fca208191a220cf21965a12e8
+    - https://drive.google.com/file/d/1SY_LjPToevYaFl5eNl-rUxJrjrP5u4RC/view
+    - https://github.com/plby/lean-proofs/blob/main/src/v4.24.0/ErdosProblems/Erdos401b.lean
+  version: "4.24.0"
+
 - key: ErdosProblems.Erdos418
   epc: https://www.erdosproblems.com/418
   author:
