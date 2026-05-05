@@ -1440,6 +1440,19 @@
     - https://gist.githubusercontent.com/JohnEdwardJennings/db1e0cb00b7d6866193c12f1c70a1813/raw/e629fcf1976d5b241d628c0b65e2b1e3701f51a6/Erdos519.lean
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos532
+  epc: https://www.erdosproblems.com/532
+  author:
+    informal:
+      human: Neil Hindman
+    formal:
+      human: David Wärn
+  url:
+    - https://www.erdosproblems.com/forum/thread/532#post-4004
+    - https://leanprover-community.github.io/mathlib4_docs/Mathlib/Combinatorics/Hindman.html
+    - https://github.com/leanprover-community/mathlib4/blob/20c3a51ac9205f8eeb30886a4f1744a22e981ebe/Mathlib/Combinatorics/Hindman.lean
+  version: "4.29.1"
+
 - key: ErdosProblems.Erdos537
   epc: https://www.erdosproblems.com/537
   author:
@@ -1502,6 +1515,18 @@
     - https://www.erdosproblems.com/forum/thread/582
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos582.md
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos613
+  epc: https://www.erdosproblems.com/613
+  author:
+    informal:
+      human: Oleg Pikhurko
+    formal:
+      human: Terence Tao
+  url:
+    - https://www.erdosproblems.com/forum/thread/613#post-1678
+    - https://github.com/teorth/analysis/blob/main/Analysis/Misc/erdos_613.lean
+  version: "4.29.0-rc8"
 
 - key: ErdosProblems.Erdos618
   epc: https://www.erdosproblems.com/618
@@ -1666,6 +1691,15 @@
     - https://www.erdosproblems.com/forum/thread/666
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos666.md
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos674
+  epc: https://www.erdosproblems.com/674
+  author:
+    formal:
+      human: Bhavik Mehta
+  url: https://www.erdosproblems.com/forum/thread/674#post-2118
+  url_ref: BhavikMehta_674
+  version: "4.29.0"
 
 - key: ErdosProblems.Erdos678
   epc: https://www.erdosproblems.com/678
