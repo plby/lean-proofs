@@ -1668,5 +1668,8 @@ theorem littlewood_offord_complex_bound (n : ℕ) (z : Fin n → ℂ) (hz : ∀ 
   exact bound
 
 #print axioms littlewood_offord_complex_bound
+-- 'Erdos498.littlewood_offord_complex_bound' depends on axioms: [propext,
+-- Classical.choice,
+-- Quot.sound]
 
 end Erdos498

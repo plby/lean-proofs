@@ -1433,9 +1433,9 @@ theorem erdos_728_fc :
   · linarith [ show ( k_val ( ( C + C' ) / 2 ) M : ℝ ) < C' * Real.log ( 2 * m ) by exact lt_of_lt_of_le hM.2.2.1 ( mul_le_mul_of_nonneg_left ( Real.log_le_log ( by norm_cast; linarith ) ( by norm_cast; linarith ) ) ( by linarith ) ) ]
 
 #print axioms erdos_728
--- 'erdos_728' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos728b.erdos_728' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 #print axioms erdos_728_fc
--- 'erdos_728_fc' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos728b.erdos_728_fc' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos728b

@@ -1564,7 +1564,7 @@ theorem freek_08_plane (cfg : RCBase) :
   exact ⟨ angle_trisection_impossible_plane cfg, fun ⟨ P, hP₁, hP₂ ⟩ ↦ doubling_the_cube_impossible_plane cfg ⟨ P, hP₁, hP₂ ⟩ ⟩
 
 #print axioms freek_08
--- 'Theorem8.RulerCompass.freek_08' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Theorem8.freek_08' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 #print axioms freek_08_plane
 -- 'Theorem8.RulerCompass.freek_08_plane' depends on axioms: [propext, Classical.choice, Quot.sound]

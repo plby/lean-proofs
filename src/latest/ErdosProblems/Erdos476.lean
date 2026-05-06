@@ -533,6 +533,6 @@ theorem erdos_476 (p : ℕ) [Fact p.Prime] (A : Finset (ZMod p)) :
         · omega
 
 #print axioms erdos_476
--- 'erdos_476' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos476.erdos_476' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos476

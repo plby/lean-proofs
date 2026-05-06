@@ -520,5 +520,6 @@ theorem erdos_753_negation :
   exact not_lt.mpr hG (hN n hn_ge G)
 
 #print axioms erdos_753_negation
+-- 'erdos_753_negation' depends on axioms: [propext, choice, Quot.sound]
 
 end

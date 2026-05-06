@@ -3420,7 +3420,7 @@ theorem erdos_541 : ∀ p, Fact p.Prime → ∀ (a : Fin p → ZMod p),
   convert this using 2 ; ext ; simp +decide [ List.ofFn_eq_map ]
 
 #print axioms erdos_541
--- 'erdos_541' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos541.erdos_541' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end
 

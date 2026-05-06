@@ -1431,7 +1431,7 @@ theorem main_theorem (c : ℝ) (hc : c > 0) :
   · rw [harmonicPartialSum_eq_diff (by omega) hn_le_m]; linarith
 
 #print axioms main_theorem
---
+-- 'Erdos314.main_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end
 end Erdos314

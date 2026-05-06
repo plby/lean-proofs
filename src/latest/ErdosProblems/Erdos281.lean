@@ -1064,6 +1064,6 @@ theorem Erdos_281 (n : ℕ → ℕ) (hmono : StrictMono n) (hnpos : ∀ i, 0 < n
   simpa [fk] using hk
 
 #print axioms Erdos_281
--- 'Erdos_281' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos281.Erdos_281' depends on axioms: [propext, choice, Quot.sound]
 
 end Erdos281

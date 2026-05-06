@@ -616,4 +616,6 @@ theorem general_theorem
   · exact bdd_below_poly_threshold a ha (b + j) d hd α
 
 #print axioms meta_theorem
+-- 'meta_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
 #print axioms general_theorem
+-- 'general_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]

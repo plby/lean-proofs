@@ -497,6 +497,6 @@ theorem erdos_26.variants.rusza : ∃ A : ℕ → ℕ,
       exact fun h => (not_le_of_gt h_sum_lt_one) <| h_upper_density.trans' <| by linarith [ isBehrend_implies_upperDensity_eq_one h ] ;
 
 #print axioms erdos_26.variants.rusza
--- 'erdos_26.variants.rusza' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos26.erdos_26.variants.rusza' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos26

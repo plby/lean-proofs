@@ -97,3 +97,4 @@ theorem erdos_1126 (f : ℝ → ℝ) (h : ∀ᵐ (p : ℝ × ℝ) ∂(volume.pro
     exact ⟨ c, h_unique, by filter_upwards [ MeasureTheory.measure_eq_zero_iff_ae_notMem.mp hM.2.1 ] with x hx using Eq.symm ( h_eq_f x hx ) ⟩
 
 #print axioms erdos_1126
+-- 'erdos_1126' depends on axioms: [propext, Classical.choice, Quot.sound]

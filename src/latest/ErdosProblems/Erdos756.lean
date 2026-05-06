@@ -479,3 +479,4 @@ theorem erdos756 (n : ℕ) :
             · exact ⟨ { 0, 1, 2 }, by norm_num ⟩
 
 #print axioms erdos756
+-- 'erdos756' depends on axioms: [propext, Classical.choice, Quot.sound]

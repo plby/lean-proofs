@@ -49,5 +49,8 @@ theorem erdos_convolution_counterexample :
   simp [conv_ind]
 
 #print axioms erdos_convolution_counterexample
+-- 'Erdos1193.erdos_convolution_counterexample' depends on axioms: [propext,
+-- Classical.choice,
+-- Quot.sound]
 
 end Erdos1193

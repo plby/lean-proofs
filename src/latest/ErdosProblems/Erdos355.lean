@@ -3885,9 +3885,14 @@ theorem erdos_355 :
         exact fun q hq₁ hq₂ => by obtain ⟨ A', hA₁, hA₂ ⟩ := hA.2 q hq₁.le ( mod_cast hq₂.le ) ; exact ⟨ A', fun x hx => hA₁ x hx, by simpa using hA₂ ⟩ ;
 
 #print axioms Theorem_1
+-- 'Erdos355.Theorem_1' depends on axioms: [propext, Classical.choice, Quot.sound]
 #print axioms Theorem_2
+-- 'Erdos355.Theorem_2' depends on axioms: [propext, Classical.choice, Quot.sound]
 #print axioms Theorem_3
+-- 'Erdos355.Theorem_3' depends on axioms: [propext, Classical.choice, Quot.sound]
 #print axioms Theorem_4
+-- 'Erdos355.Theorem_4' depends on axioms: [propext, Classical.choice, Quot.sound]
 #print axioms erdos_355
+-- 'Erdos355.erdos_355' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos355

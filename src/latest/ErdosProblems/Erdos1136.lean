@@ -335,6 +335,7 @@ theorem main_result :
   ⟨⟨A, A_sumfree, A_density_half⟩, fun S hS => sumfree_upperDensity_le_half S hS⟩
 
 #print axioms main_result
+-- 'Erdos1136.main_result' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 -- ============================================================================
 -- More general upper bound
@@ -438,6 +439,7 @@ theorem general_upper_bound (s : ℕ → ℕ) (hs_pos : ∀ k, 0 < s k)
         exact h_contra ⟨ k + 1, by aesop ⟩
 
 #print axioms general_upper_bound
+-- 'Erdos1136.general_upper_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 -- ============================================================================
 -- Corollary: A+A hits S infinitely often when upper density > 1/2
@@ -523,5 +525,8 @@ theorem general_upper_bound_infinite
   exact (not_lt_of_ge hsi_le) hi
 
 #print axioms general_upper_bound_infinite
+-- 'Erdos1136.general_upper_bound_infinite' depends on axioms: [propext,
+-- Classical.choice,
+-- Quot.sound]
 
 end Erdos1136

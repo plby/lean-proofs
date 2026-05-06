@@ -1422,5 +1422,6 @@ theorem erdos_206 : volume {x : ℝ | EventuallyGreedy x} = 0 := by
         exact X_set_iInter_measure_zero'
 
 #print axioms erdos_206
+-- 'EgyptianFractions.erdos_206' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end EgyptianFractions

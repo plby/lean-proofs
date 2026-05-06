@@ -1500,5 +1500,6 @@ theorem theorem_1 (r : ℕ) (hr : r ≥ 1) :
   exact ⟨ ⟨ m + k_param r ( a + M0 + 1 ), by linarith, m, by linarith, by push_cast; linarith, hm.2.1 ⟩, by linarith ⟩
 
 #print axioms theorem_1
+-- 'Erdos401b.theorem_1' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos401b

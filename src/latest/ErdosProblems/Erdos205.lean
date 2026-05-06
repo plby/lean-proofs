@@ -542,6 +542,9 @@ theorem infinitely_many_counterexamples :
     exact absurd ( h_sol 1 ( by norm_num ) ( by norm_num ) ) ( Nat.Prime.ne_one ( Nat.prime_nth_prime _ ) )
 
 #print axioms infinitely_many_counterexamples
--- 'infinitely_many_counterexamples' depends on axioms: [nth_prime_asymp, propext, Classical.choice, Quot.sound]
+-- 'Erdos205.infinitely_many_counterexamples' depends on axioms: [nth_prime_asymp,
+-- propext,
+-- Classical.choice,
+-- Quot.sound]
 
 end Erdos205

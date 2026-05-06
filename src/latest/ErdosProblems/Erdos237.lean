@@ -278,7 +278,10 @@ theorem erdos_237 (A : Set ℕ) (hA : A.Infinite) :
   exact ⟨n, (lt_of_succ_le hn).trans_le (repCount_mono hS₁ n)⟩
 
 #print axioms erdos_237
--- 'Erdos237.erdos_237' depends on axioms:
--- [propext, Classical.choice, maynard_tao, mertens_third_theorem, Quot.sound]
+-- 'Erdos237.erdos_237' depends on axioms: [maynard_tao,
+-- mertens_third_theorem,
+-- propext,
+-- Classical.choice,
+-- Quot.sound]
 
 end Erdos237

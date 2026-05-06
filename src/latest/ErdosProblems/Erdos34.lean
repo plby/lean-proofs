@@ -401,6 +401,6 @@ theorem not_erdos_34 : ¬ erdos_34 := by
   exact (not_lt_of_ge hp_ge) hp_lt
 
 #print axioms not_erdos_34
--- 'not_erdos_34' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos34.not_erdos_34' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos34

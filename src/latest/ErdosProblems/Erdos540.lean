@@ -928,7 +928,7 @@ theorem erdos_540 : ∃ C : ℝ, 0 < C ∧
       exact erdos_540_generalized h0 hAcard hAlt
 
 #print axioms erdos_540
---
+-- 'Erdos540.erdos_540' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end
 

@@ -590,6 +590,6 @@ theorem erdos_275 (r : ℕ) (a : Fin r → ℤ) (n : Fin r → ℕ)
     obtain ⟨ i, hi, y, hy ⟩ := this; specialize ‹∀ x_1 : Fin r, ¬x ≡ a x_1 [ZMOD ( n x_1 : ℤ ) ] › i; simp_all +decide [ Int.ModEq ] ;
 
 #print axioms erdos_275
--- 'erdos_275' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos275.erdos_275' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos275

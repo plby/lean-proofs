@@ -2473,5 +2473,7 @@ theorem generalErdos291 (r : ℕ → ℤ) (t : ℕ) (ht : t > 0) (h_per : Functi
       · exact ne_of_gt <| Nat.pos_of_ne_zero <| mt Finset.lcm_eq_zero_iff.mp <| by aesop;
 
 #print axioms ohyeah1
+-- 'ohyeah1' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 #print axioms generalErdos291
+-- 'generalErdos291' depends on axioms: [propext, Classical.choice, Quot.sound]

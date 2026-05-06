@@ -677,3 +677,8 @@ theorem infinitely_many_even_factorial_exponents (k : ℕ) (p : Fin k → ℕ) (
           simp_all +decide [ add_assoc ];
         simp_all +decide [ funext_iff ];
     exact Set.infinite_of_forall_exists_gt fun N => by obtain ⟨ n, hn₁, hn₂ ⟩ := h_seq N; exact ⟨ n, hn₂, hn₁ ⟩ ;
+
+#print axioms infinitely_many_even_factorial_exponents
+-- 'infinitely_many_even_factorial_exponents' depends on axioms: [propext,
+-- Classical.choice,
+-- Quot.sound]

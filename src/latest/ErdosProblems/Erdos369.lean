@@ -843,3 +843,4 @@ theorem erdos_problem_369 (ε : ℝ) (hε : 0 < ε) (k : ℕ) (hk : 2 ≤ k) :
   · convert erdos_369_eps_lt_one k hk ε hε using 1
 
 #print axioms erdos_problem_369
+-- 'erdos_problem_369' depends on axioms: [propext, Classical.choice, Quot.sound]

@@ -340,4 +340,6 @@ theorem erdos_457 : ∃ ε > (0 : ℝ),
   intros p hp hprime; exact hF_def ▸ hn p hprime (by linarith)))
 
 #print axioms thm_main
+-- 'thm_main' depends on axioms: [propext, Classical.choice, Quot.sound]
 #print axioms erdos_457
+-- 'erdos_457' depends on axioms: [propext, Classical.choice, Quot.sound]

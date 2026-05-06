@@ -1249,6 +1249,6 @@ theorem not_erdos_505 : ¬ BorsukConjecture := by
   exact fun h => by linarith [h 946 (by norm_num)] ;
 
 #print axioms not_erdos_505
--- 'not_erdos_505' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos505.not_erdos_505' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos505

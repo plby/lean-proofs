@@ -759,7 +759,9 @@ theorem exists_obtuse_of_card_succ_pow_two
   exact ⟨x, y, z, hx, hy, hz, hxy, hxz, hyz, h⟩
 
 #print axioms exists_obtuse_of_card_succ_pow_two
---'Erdos224.exists_obtuse_of_card_succ_pow_two' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos224.exists_obtuse_of_card_succ_pow_two' depends on axioms: [propext,
+-- Classical.choice,
+-- Quot.sound]
 
 end
 

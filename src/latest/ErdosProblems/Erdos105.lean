@@ -210,6 +210,6 @@ theorem not_erdos_105 : ¬erdos_105 := by
   aesop
 
 #print axioms not_erdos_105
---
+-- 'Erdos105.not_erdos_105' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos105

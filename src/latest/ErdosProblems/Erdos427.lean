@@ -94,3 +94,4 @@ theorem erdos427 (n d : ℕ) (hd : 1 ≤ d) :
   exact ⟨ Nat.one_le_iff_ne_zero.mpr ( by omega ), by rw [ ← Nat.mod_add_div S d ] ; aesop ⟩
 
 #print axioms erdos427
+-- 'erdos427' depends on axioms: [propext, shiu_consecutive_primes, Classical.choice, Quot.sound]

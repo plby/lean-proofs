@@ -1277,3 +1277,4 @@ theorem main_theorem (hPNT : PNT_statement) :
       exact ⟨ _, hx.2.2, hN0 x hx.1 ⟩
 
 #print axioms main_theorem
+-- 'main_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]

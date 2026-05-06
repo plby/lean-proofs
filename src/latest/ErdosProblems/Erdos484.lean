@@ -489,3 +489,4 @@ theorem monochromatic_sums_linear :
   exact le_trans (nat_floor_eighth N) (mono_card_ge_of_bad_small N k f hBlt hN8)
 
 #print axioms monochromatic_sums_linear
+-- 'monochromatic_sums_linear' depends on axioms: [propext, choice, Quot.sound]

@@ -578,3 +578,4 @@ theorem bannai_bannai_stanton (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)))
   exact le_trans h_thm_1_2.1 h_dim_bound
 
 #print axioms bannai_bannai_stanton
+-- 'bannai_bannai_stanton' depends on axioms: [propext, Classical.choice, Quot.sound]

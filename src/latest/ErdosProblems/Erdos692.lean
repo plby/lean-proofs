@@ -125,4 +125,7 @@ theorem delta1_not_unimodal :
     delta1 3 7 < delta1 3 6 ∧ delta1 3 7 < delta1 3 8 :=
   ⟨delta1_3_7_lt_3_6, delta1_3_7_lt_3_8⟩
 
+#print axioms delta1_not_unimodal
+-- 'Erdos692.delta1_not_unimodal' depends on axioms: [propext, Classical.choice, Quot.sound]
+
 end Erdos692

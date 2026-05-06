@@ -63,3 +63,6 @@ theorem erdos_674_infinite : solutionSet.Infinite := by
   · simp +contextual only [Set.MapsTo, Set.mem_Ici, solutionSet, Set.mem_setOf_eq, h, and_true]
     intro n hn
     exact ⟨by grind, by grind, by grind⟩
+
+#print axioms erdos_674_infinite
+-- 'erdos_674_infinite' depends on axioms: [propext, Classical.choice, Quot.sound]

@@ -568,7 +568,7 @@ theorem thm_main : ∃ A : Set ℕ,
 
 
 #print axioms thm_main
--- 'thm_main' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos221.thm_main' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end
 end Erdos221

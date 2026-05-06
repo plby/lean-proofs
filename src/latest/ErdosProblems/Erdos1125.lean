@@ -887,3 +887,4 @@ theorem erdos_1125 {f : ℝ → ℝ}
     · exact fun x hx h hh hx' hx'' ↦ by convert hf (a + (b - a) * x) ((b - a) * h) (mul_pos (lt_of_le_of_ne (sub_nonneg.mpr hab) (Ne.symm h_cases)) hh) using 1; ring_nf
 
 #print axioms erdos_1125
+-- 'erdos_1125' depends on axioms: [propext, Classical.choice, Quot.sound]

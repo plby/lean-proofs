@@ -1686,6 +1686,6 @@ theorem erdos_229 :
     exact fun ⟨ p, hp ⟩ => hf.1 ⟨ p, funext fun z => by simpa using hp z ⟩⟩
 
 #print axioms erdos_229
--- 'erdos_229' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos229.erdos_229' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos229

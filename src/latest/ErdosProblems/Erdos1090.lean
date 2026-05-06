@@ -495,3 +495,6 @@ theorem exists_set_with_strict_monochromatic_line_property (k : ℕ) (hk : 3 ≤
     exact hl_mono t
 
 #print axioms exists_set_with_strict_monochromatic_line_property
+-- 'exists_set_with_strict_monochromatic_line_property' depends on axioms: [propext,
+-- Classical.choice,
+-- Quot.sound]

@@ -2373,9 +2373,9 @@ theorem erdos_443_part_two (ε : ℝ) (hε : 0 < ε) :
   use Max.max N1 N2 + 1; intros m n hn hm; specialize hN1 m n ( by linarith [ Nat.le_max_left N1 N2 ] ) hm; specialize hN2 m ( by linarith [ Nat.le_max_right N1 N2 ] ) ; rw [ Real.mul_rpow ( by positivity ) ( by positivity ) ] ; exact lt_of_lt_of_le hN1 ( le_trans hN2.le <| le_mul_of_one_le_right ( by positivity ) <| Real.one_le_rpow ( by norm_cast; linarith [ Nat.le_max_left N1 N2, Nat.le_max_right N1 N2 ] ) <| by positivity ) ;
 
 #print axioms erdos_443_part_one
--- 'erdos_443_part_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos443.erdos_443_part_one' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 #print axioms erdos_443_part_two
--- 'erdos_443_part_two' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos443.erdos_443_part_two' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos443

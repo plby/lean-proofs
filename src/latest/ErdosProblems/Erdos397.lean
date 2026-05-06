@@ -113,3 +113,4 @@ theorem infinite_solutions : Set.Infinite { s : List ℕ × List ℕ | is_soluti
   exact h_infinite.mono fun s hs => by obtain ⟨ a, ha, rfl ⟩ := hs; exact sol_family_is_solution a ha;
 
 #print axioms infinite_solutions
+-- 'infinite_solutions' depends on axioms: [propext, Classical.choice, Quot.sound]

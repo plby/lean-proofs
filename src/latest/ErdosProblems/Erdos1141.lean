@@ -1569,7 +1569,11 @@ theorem erdos_1141_variant : Set.Finite {n : ℕ | Pa 1 n} := by
   simpa using erdos_1141_variant_general 1 (by decide : 1 ≤ 1)
 
 #print axioms erdos_1141_variant
--- 'erdos_1141_variant' depends on axioms: [propext, Classical.choice, Erdos1141.mertens_third_theorem, Pollack17.theorem_1_3, Quot.sound]
+-- 'Erdos1141.erdos_1141_variant' depends on axioms: [propext,
+-- Classical.choice,
+-- mertens_third_theorem,
+-- Pollack17.theorem_1_3,
+-- Quot.sound]
 
 /-! ## Block Copied from Formal Conjectures -/
 
@@ -1635,6 +1639,10 @@ example : Erdos1141Prop 1722 := by
   decide +native
 
 #print axioms erdos_1141
--- 'erdos_1141' depends on axioms: [propext, Classical.choice, Erdos1141.mertens_third_theorem, Pollack17.theorem_1_3, Quot.sound]
+-- 'Erdos1141.erdos_1141' depends on axioms: [propext,
+-- Classical.choice,
+-- mertens_third_theorem,
+-- Pollack17.theorem_1_3,
+-- Quot.sound]
 
 end Erdos1141

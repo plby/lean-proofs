@@ -1400,6 +1400,6 @@ theorem erdos_315 (a : ℕ → ℕ)
   · aesop
 
 #print axioms erdos_315
--- 'erdos_315' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos315.erdos_315' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos315

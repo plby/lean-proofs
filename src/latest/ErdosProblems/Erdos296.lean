@@ -365,8 +365,10 @@ theorem erdos296 :
     simp only [one_div] at this ⊢; convert this using 2; ring_nf⟩
 
 #print axioms erdos296
---'Erdos296.erdos296' depends on axioms: [propext, Classical.choice,
--- unit_fractions_upper_log_density, Quot.sound]
+-- 'Erdos296.erdos296' depends on axioms: [propext,
+-- unit_fractions_upper_log_density,
+-- Classical.choice,
+-- Quot.sound]
 
 end
 end Erdos296

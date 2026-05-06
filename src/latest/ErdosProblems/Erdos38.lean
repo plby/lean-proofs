@@ -1862,5 +1862,6 @@ theorem erdos_problem_38 :
     exact density_increment d A N hN hα0 hα1
 
 #print axioms erdos_problem_38
+-- 'erdos_problem_38' depends on axioms: [propext, choice, Quot.sound]
 
 end

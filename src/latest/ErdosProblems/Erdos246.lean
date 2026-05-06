@@ -1073,6 +1073,6 @@ theorem erdos_246 (a b : ℕ) (ha : 2 ≤ a) (hb : 2 ≤ b) (h_coprime : Nat.Cop
     exact prop_AP a b ha hb h_coprime
 
 #print axioms erdos_246
--- 'erdos_246' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos246.erdos_246' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos246

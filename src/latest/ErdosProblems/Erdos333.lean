@@ -1383,6 +1383,6 @@ theorem main_obstruction :
 end
 
 #print axioms main_obstruction
---
+-- 'Erdos333.main_obstruction' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos333

@@ -829,3 +829,4 @@ theorem erdos_379 : atTop.limsup (fun n => (S n : ℕ∞)) = ⊤ := by
   exact h5
 
 #print axioms erdos_379
+-- 'erdos_379' depends on axioms: [propext, Classical.choice, Quot.sound]

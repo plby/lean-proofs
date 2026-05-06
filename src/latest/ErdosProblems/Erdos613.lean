@@ -1140,8 +1140,8 @@ theorem main : Pikhurko_n5_statement := by
   have := red_triangle_of_no_blue_star color
   grind
 
-#print axioms Pikhurko_n5_statement
---
+#print axioms main
+-- 'Erdos613.PikhurkoN5.main' depends on axioms: [propext, choice, Quot.sound]
 
 end PikhurkoN5
 

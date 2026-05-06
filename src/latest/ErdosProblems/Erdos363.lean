@@ -149,3 +149,4 @@ theorem erdos_363 : ¬ Set.Finite { S | is_valid_collection S } := by
   exact Set.infinite_of_injective_forall_mem h_inj fun n => collection_is_valid _ ( by linarith )
 
 #print axioms erdos_363
+-- 'erdos_363' depends on axioms: [propext, Classical.choice, Quot.sound]

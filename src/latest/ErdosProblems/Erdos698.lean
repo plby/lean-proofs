@@ -291,4 +291,7 @@ theorem binomial_gcd_lower_bound (n i j : ℕ) (h2 : 2 ≤ i) (hij : i < j) (hjn
         · exact mul_pos ( by positivity ) ( Real.sqrt_pos.mpr ( by norm_num; linarith ) );
       · exact mul_pos ( by positivity ) ( Real.sqrt_pos.mpr ( Nat.cast_pos.mpr ( by linarith [ Nat.div_mul_le_self n 2 ] ) ) )
 
+#print axioms binomial_gcd_lower_bound
+-- 'Erdos698.binomial_gcd_lower_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+
 end Erdos698

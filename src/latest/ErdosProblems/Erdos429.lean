@@ -838,5 +838,6 @@ theorem main_theorem (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.atTop Filte
 
 
 #print axioms main_theorem
+-- 'Erdos429.main_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos429

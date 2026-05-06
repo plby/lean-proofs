@@ -340,6 +340,6 @@ theorem ErdosProblem16 : ¬ ∃ m_0 a_0 : ℕ, m_0 > 0 ∧ ∃ W : Set ℕ, dens
     exact hx_not_in_U hx_in_U
 
 #print axioms ErdosProblem16
--- 'Erdos16.ErdosProblem16' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos16.ErdosProblem16' depends on axioms: [propext, choice, Quot.sound]
 
 end Erdos16
