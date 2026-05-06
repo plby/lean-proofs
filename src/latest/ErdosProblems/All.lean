@@ -76,8 +76,17 @@ import ErdosProblems.Erdos498
 import ErdosProblems.Erdos499
 import ErdosProblems.Erdos502
 import ErdosProblems.Erdos505
+import ErdosProblems.Erdos540
 import ErdosProblems.Erdos541
+import ErdosProblems.Erdos613
+import ErdosProblems.Erdos646
 import ErdosProblems.Erdos650
+import ErdosProblems.Erdos674
+import ErdosProblems.Erdos692
+import ErdosProblems.Erdos698
+import ErdosProblems.Erdos728
+import ErdosProblems.Erdos753
+import ErdosProblems.Erdos756
 import ErdosProblems.Erdos990
 import ErdosProblems.Erdos990b
 import ErdosProblems.Erdos1014
