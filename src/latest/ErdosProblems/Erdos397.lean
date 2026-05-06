@@ -111,3 +111,5 @@ theorem infinite_solutions : Set.Infinite { s : List ℕ × List ℕ | is_soluti
   have h_infinite : Set.Infinite {s | ∃ a ≥ 2, s = (sol_family a)} := by
     exact Set.infinite_of_injective_forall_mem ( fun a b h => by cases h; aesop ) fun n => ⟨ n + 2, by linarith, rfl ⟩;
   exact h_infinite.mono fun s hs => by obtain ⟨ a, ha, rfl ⟩ := hs; exact sol_family_is_solution a ha;
+
+#print axioms infinite_solutions

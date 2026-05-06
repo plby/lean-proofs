@@ -904,3 +904,5 @@ theorem erdos_1102.exists_sequence_with_P
   · intro j; by_cases hj : 1 ≤ j <;> simp_all +decide ;
     field_simp;
     exact_mod_cast le_trans ( a_seq_upper_bound f h_inf j hj ) ( mul_le_mul_of_nonneg_left ( W_k_le_f f h_inf ( fun n => Nat.pos_of_ne_zero ( h_pos n ) ) j ) ( Nat.cast_nonneg _ ) )
+
+#print axioms erdos_1102.exists_sequence_with_P

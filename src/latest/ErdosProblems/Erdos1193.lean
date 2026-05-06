@@ -48,4 +48,6 @@ theorem erdos_convolution_counterexample :
     ∀ n : ℕ, conv_ind Set.univ n = n + 1 := by
   simp [conv_ind]
 
+#print axioms erdos_convolution_counterexample
+
 end Erdos1193

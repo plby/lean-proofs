@@ -396,4 +396,6 @@ theorem erdos1138_corollary : ¬(∀ C : ℝ, 1 < C → AsymptoticA C) := by
   exact erdos1138_theorem 2 (9/4) (by norm_num) (by norm_num) (by norm_num)
     ⟨h 2 (by norm_num), h (9/4) (by norm_num)⟩
 
+#print axioms erdos1138_corollary
+
 end

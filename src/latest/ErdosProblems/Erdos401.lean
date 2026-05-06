@@ -1499,4 +1499,6 @@ theorem theorem_1 (r : ℕ) (hr : r ≥ 1) :
   use 2 * m;
   exact ⟨ ⟨ m + k_param r ( a + M0 + 1 ), by linarith, m, by linarith, by push_cast; linarith, hm.2.1 ⟩, by linarith ⟩
 
+#print axioms theorem_1
+
 end Erdos401b

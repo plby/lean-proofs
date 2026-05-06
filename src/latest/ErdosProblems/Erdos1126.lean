@@ -95,3 +95,5 @@ theorem erdos_1126 (f : ℝ → ℝ) (h : ∀ᵐ (p : ℝ × ℝ) ∂(volume.pro
       intro x hx; specialize hc x; specialize hM; have := hM.2.2 x hx; simp_all +decide [ sub_eq_iff_eq_add' ] ;
       have := hc.and ( hM.2.2 x hx ) ; obtain ⟨ y, hy₁, hy₂ ⟩ := this.exists; linarith;
     exact ⟨ c, h_unique, by filter_upwards [ MeasureTheory.measure_eq_zero_iff_ae_notMem.mp hM.2.1 ] with x hx using Eq.symm ( h_eq_f x hx ) ⟩
+
+#print axioms erdos_1126

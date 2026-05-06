@@ -92,3 +92,5 @@ theorem erdos427 (n d : ℕ) (hd : 1 ≤ d) :
   rw [ ← ZMod.natCast_eq_zero_iff ] ;
   simp_all +decide [ Nat.cast_sub ( show r ≤ d from Nat.le_of_lt <| Nat.mod_lt _ hd ) ] ;
   exact ⟨ Nat.one_le_iff_ne_zero.mpr ( by omega ), by rw [ ← Nat.mod_add_div S d ] ; aesop ⟩
+
+#print axioms erdos427

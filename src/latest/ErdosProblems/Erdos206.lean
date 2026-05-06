@@ -1421,4 +1421,6 @@ theorem erdos_206 : volume {x : ℝ | EventuallyGreedy x} = 0 := by
         apply ENNReal.tsum_eq_zero.mpr
         exact X_set_iInter_measure_zero'
 
+#print axioms erdos_206
+
 end EgyptianFractions

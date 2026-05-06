@@ -743,4 +743,6 @@ theorem main_theorem (ε δ : ℝ) (hε : 0 < ε) (hδ : 0 < δ) :
       have := hx₀ ⌊x⌋₊ ( Nat.le_floor <| by linarith ) ; have := hx₁ ⌊x⌋₊ ( Nat.le_floor <| by linarith ) ; norm_num at *;
       nlinarith [ Nat.le_ceil ( δ⁻¹ * 4 ), mul_inv_cancel₀ ( ne_of_gt hδ ), Nat.floor_le ( show 0 ≤ x by linarith ), Nat.lt_floor_add_one x, show ( Finset.card ( Finset.filter ( fun n : ℕ => 2 ≤ { p ∈ n.primeFactors | p < M }.card ) ( Finset.range ( ⌊x⌋₊ + 1 ) ) ) : ℝ ) ≤ Finset.card ( Finset.filter ( fun n : ℕ => ( f n : ℝ ) < ( 1 + ε ) * n ) ( Finset.range ( ⌊x⌋₊ + 1 ) ) ) + Finset.card ( Finset.filter ( fun n : ℕ => 2 ≤ { p ∈ n.primeFactors | p < M }.card ∧ n < K ) ( Finset.range ( ⌊x⌋₊ + 1 ) ) ) by exact_mod_cast h_card ]
 
+#print axioms main_theorem
+
 end Erdos459

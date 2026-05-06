@@ -1666,4 +1666,7 @@ theorem littlewood_offord_complex_bound (n : ℕ) (z : Fin n → ℂ) (hz : ∀ 
   rw [card_eq]
   simp only [Fintype.card_fin] at bound
   exact bound
+
+#print axioms littlewood_offord_complex_bound
+
 end Erdos498

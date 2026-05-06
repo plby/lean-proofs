@@ -528,4 +528,6 @@ theorem erdos1098 (G : Type*) [Group G]
     exacts [ fun x => x, by rintro ⟨ x, hx ⟩ ⟨ y, hy ⟩ hxy; exact Subtype.ext hxy ];
   rw [ Nat.card_range_of_injective ] at h_card_quotient <;> aesop
 
+#print axioms erdos1098
+
 end

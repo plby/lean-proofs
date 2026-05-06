@@ -576,3 +576,5 @@ theorem bannai_bannai_stanton (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)))
   have h_dim_bound := dim_s_le_binom d s A
   rw [← h_r_plus]
   exact le_trans h_thm_1_2.1 h_dim_bound
+
+#print axioms bannai_bannai_stanton

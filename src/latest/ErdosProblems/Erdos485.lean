@@ -1486,3 +1486,5 @@ theorem exists_complete_poly_with_sparse_square_improved (n : ℕ) (hn : 0 < n) 
         ≤ ↑(6 * a * ((8 ^ (N + 1) - 1) / 7) + 3) := by exact_mod_cast hf_supp
       _ < (1 / 7 : ℝ) * (170 * (n : ℝ) ^ (Real.log 8 / Real.log 13) - 14) :=
           arithmetic_bound_improved n N a ha1 ha12 haN⟩
+
+#print axioms exists_complete_poly_with_sparse_square_improved

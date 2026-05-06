@@ -493,3 +493,5 @@ theorem exists_set_with_strict_monochromatic_line_property (k : ℕ) (hk : 3 ≤
     intro x hx
     obtain ⟨t, _, rfl⟩ := Finset.mem_image.mp hx
     exact hl_mono t
+
+#print axioms exists_set_with_strict_monochromatic_line_property

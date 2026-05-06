@@ -1861,4 +1861,6 @@ theorem erdos_problem_38 :
   · intro A hα0 hα1 N hN
     exact density_increment d A N hN hα0 hα1
 
+#print axioms erdos_problem_38
+
 end

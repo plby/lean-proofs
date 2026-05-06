@@ -827,3 +827,5 @@ theorem erdos_379 : atTop.limsup (fun n => (S n : ℕ∞)) = ⊤ := by
   have h4 := depth_0_lemma_4.S_unbounded_from_lemmas h1 h2 h3
   have h5 := depth_0_lemma_5.limsup_from_unbounded_lemma (S) h4
   exact h5
+
+#print axioms erdos_379
