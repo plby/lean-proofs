@@ -21,6 +21,8 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7
 
 import Mathlib
 
+namespace Erdos291b
+
 set_option linter.mathlibStandardSet false
 
 open scoped BigOperators
@@ -108,7 +110,7 @@ lemma exists_good_p (r : ℕ → ℤ) (m : ℕ) (hm : 4 ≤ m) (h_r_nz : ∀ i, 
         generalize_proofs at *; (
         linarith [ Finset.mem_Ico.mp hw, Nat.sub_add_cancel ( show m ^ ( 2 * z m - 1 ) ≤ tilde_m from by linarith [ pow_le_pow_right₀ ( by linarith : 1 ≤ m ) ( show 2 * z m - 1 ≤ 2 * z m from Nat.sub_le _ _ ) ] ), pow_le_pow_right₀ ( by linarith : 1 ≤ m ) ( show 2 * z m ≥ 2 * z m - 1 from Nat.sub_le _ _ ) ])
       generalize_proofs at *; exact h_bla0_global (w + k) h_wk_ge_100;)
-      
+
 /-
 The sum $\sum_{i=w+1}^{w+k} \frac{r_i}{i}$ is non-zero.
 -/
@@ -2473,7 +2475,11 @@ theorem generalErdos291 (r : ℕ → ℤ) (t : ℕ) (ht : t > 0) (h_per : Functi
       · exact ne_of_gt <| Nat.pos_of_ne_zero <| mt Finset.lcm_eq_zero_iff.mp <| by aesop;
 
 #print axioms ohyeah1
--- 'ohyeah1' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos291b.ohyeah1' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 #print axioms generalErdos291
--- 'generalErdos291' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos291b.generalErdos291' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end
+
+end Erdos291b
