@@ -1,4 +1,5 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Matteo Del Vecchio, Aristotle (Harmonic)
