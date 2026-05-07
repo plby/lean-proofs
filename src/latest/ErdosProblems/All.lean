@@ -110,6 +110,7 @@ import ErdosProblems.Erdos1000
 import ErdosProblems.Erdos1008
 import ErdosProblems.Erdos1014
 import ErdosProblems.Erdos1022
+import ErdosProblems.Erdos1023
 import ErdosProblems.Erdos1044
 import ErdosProblems.Erdos1090
 import ErdosProblems.Erdos1098
