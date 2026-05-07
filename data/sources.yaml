@@ -662,7 +662,7 @@
   url_ref: JakeMallen_281
   version: "4.24.0"
 
-- key: ErdosProblems.Erdos283
+- key: ErdosProblems.Erdos283b
   partial: yes
   epc: https://www.erdosproblems.com/283
   author:
@@ -693,7 +693,7 @@
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem290.lean
   version: "4.24.0"
 
-- key: ErdosProblems.Erdos291
+- key: ErdosProblems.Erdos291b
   partial: yes
   epc: https://www.erdosproblems.com/291
   author:
@@ -1315,7 +1315,7 @@
   url_ref: tomaz1502_484
   version: "4.28.0"
 
-- key: ErdosProblems.Erdos485
+- key: ErdosProblems.Erdos485b
   partial: yes
   epc: https://www.erdosproblems.com/485
   author:
@@ -2009,7 +2009,7 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos862.md
   version: "4.24.0"
 
-- key: ErdosProblems.Erdos866
+- key: ErdosProblems.Erdos866b
   partial: yes
   epc: https://www.erdosproblems.com/866
   author:
@@ -2577,7 +2577,7 @@
     - https://arxiv.org/abs/2601.21442
   version: "4.27.0"
 
-- key: ErdosProblems.Erdos1056
+- key: ErdosProblems.Erdos1056b
   partial: yes
   epc: https://www.erdosproblems.com/1056
   author:
@@ -2673,7 +2673,7 @@
     - https://gist.githubusercontent.com/JohnEdwardJennings/783dce98df9fa6c333c24617ef07403b/raw/4963c590ee551175a3734014a8f08e8b86674e76/Erdos1098.lean
   version: "4.28.0"
 
-- key: ErdosProblems.Erdos1100
+- key: ErdosProblems.Erdos1100b
   partial: yes
   epc: https://www.erdosproblems.com/1100
   author:
