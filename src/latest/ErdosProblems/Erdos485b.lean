@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 import Mathlib
 
 namespace Erdos485b
@@ -26,8 +27,6 @@ degree `n` with all nonzero real coefficients such that `f(x)²` has fewer than
 W. Verdenius, On the number of terms of the square and the cube of polynomials,
 Indag. Math. 11 (1949), 546–565.
 
-Lean version: leanprover/lean4:v4.28.0
-Mathlib version: 8f9d9cff6bd728b17a24e163c9402775d9e6a365
 -/
 
 open Polynomial Finset

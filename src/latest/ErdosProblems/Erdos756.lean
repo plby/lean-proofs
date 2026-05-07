@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 Bhowmick managed to construct a set of $n$ points in $\mathbb{R}^2$ such that $\lfloor \frac{n}{4} \rfloor$ distances occur at least $n+1$ times.
 
@@ -5,8 +6,6 @@ K. Bhowmick, A problem of Erdős about rich distances. arXiv:2407.01174 (2024).
 
 He thereby solved Erdős Problem #756 (https://www.erdosproblems.com/756). Aristotle from Harmonic (aristotle-harmonic@harmonic.fun) managed to formalize his proof, and the result can be found below.
 
-Lean version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7
 -/
 
 import Mathlib

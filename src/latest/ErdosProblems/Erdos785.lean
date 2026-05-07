@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 For a set $S$ of positive integers define $S(x) = |S \cap [1, x]|$. We then say that sets of positive integers $A$ and $B$ are exact additive complements if every large enough integer can be written as $a+b$ with $a \in A$, $b \in B$ and such that $\frac{A(x) B(x)}{x}$ converges to $1$ if $x$ goes to infinity. Erdős and Danzer conjectured that $A(x) B(x) - x$ goes to infinity with $x$ for any two exact additive complements $A$ and $B$ that are both infinite (see https://www.erdosproblems.com/785), and this was proven by Sárközy and Szemerédi.
 
@@ -17,8 +18,6 @@ Władysław Narkiewicz, Remarks on a conjecture of Hanani in additive number the
 
 Below you can find a formalization of Ruzsa's proof, obtained by Aristotle from Harmonic (aristotle-harmonic@harmonic.fun). The formalization also includes Narkiewicz's dichotomoy theorem.
 
-Lean version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7
 -/
 
 import Mathlib

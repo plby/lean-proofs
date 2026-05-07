@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 Solving Erdős problem 1136 (https://www.erdosproblems.com/1136), Helmut Müller
 proved that the set A of positive integers whose odd part is congruent to 3 (mod
@@ -30,8 +31,6 @@ holds for all k. Then for any positive integer n and any set A ⊆ ℕ satisfyin
 we have (A+A) ∩ S ≠ ∅. In particular, if A has upper density larger than 1/2,
 then A+A contains infinitely many elements of S.
 
-Lean version: leanprover/lean4:v4.28.0 Mathlib version:
-8f9d9cff6bd728b17a24e163c9402775d9e6a365
 -/
 
 import Mathlib

@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 We say that a sequence of positive integers $A$ has:
 
@@ -30,8 +31,6 @@ which we also prove.
 
 https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/1102.lean
 
-Lean version: leanprover/lean4:v4.28.0
-Mathlib version: 8f9d9cff6bd728b17a24e163c9402775d9e6a365
 -/
 
 import Mathlib

@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 
 This is a Lean formalization of a solution to Erdős Problem 476.
@@ -24,11 +25,8 @@ final theorem statement was written by Aristotle, but looks very
 straightforward.
 
 
-The proof is verified by Lean.  The following version numbers were
-used:
+The proof is verified by Lean.
 
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 -/
 

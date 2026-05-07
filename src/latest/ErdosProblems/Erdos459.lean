@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 For a positive integer $u$, we define $f(u)$ to be the largest integer $v > u$ such that every integer $m$ with $u < m < v$ has a prime divisor that does not divide $uv$. Equivalently, $f(u)$ is the smallest number $v > u$ such that all prime factors of $v$ divide $u$. With this definition, estimating $f(u)$ is Erdős Problem #459 (https://www.erdosproblems.com/459).
 
@@ -7,8 +8,6 @@ For almost all $n$ we have $f(n) = (1 + o(1))n$. That is, for every $\delta > 0$
 
 Finishing what Boris started, Aristotle from Harmonic (aristotle-harmonic@harmonic.fun) managed to formalize the above result, and below you can find the union of Boris' and Aristotle's fruits of labor.
 
-Lean version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7
 -/
 
 import Mathlib

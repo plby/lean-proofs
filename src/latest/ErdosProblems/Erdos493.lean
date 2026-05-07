@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 
 This is a Lean formalization of a solution to Erdős Problem 493.
@@ -6,8 +7,6 @@ https://www.erdosproblems.com/493
 This proof was written by Aristotle.  It found the proof given only
 the formal statement.
 
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 -/
 

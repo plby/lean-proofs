@@ -1,8 +1,7 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 I asked ChatGPT to write a TeX-file explaining the proof of a result by Mirsky-Newman and Davenport-Rado, which states that no exact covering system exists with distinct moduli (except for the trivial case of a single congruence class). They thereby solved Erdos Problem #947 (https://www.erdosproblems.com/947). This TeX-file was given to Aristotle from Harmonic (aristotle-harmonic@harmonic.fun), which managed to formalize it into Lean, the result of which can be found below.
 
-Lean version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7
 -/
 
 import Mathlib

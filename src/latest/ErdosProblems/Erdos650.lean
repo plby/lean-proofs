@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 Prompted by Yixin He, Yanyang Li and Quanyu Tang, ChatGPT 5.4 Pro proved that for every positive integer $m$ there exists a set $A = \{a_1 < a_2 < \cdots < a_m \}$ of $m$ positive integers and an interval $I = (x, x + 2a_m)$ such that the maximum number of fully disjoint pairs $(a, b)$ with $a \in A$, $b \in I$ and $a | b$ is at most $\lceil 2 \sqrt{m} \rceil$. Moreover, this bound is essentially tight. More precisely, for every set of positive integers $A = \{a_1 < a_2 < \cdots < a_m \}$ and every interval $I = (x, x + 2a_m)$ one can find at least $\min(m, \lceil 2 \sqrt{m} \rceil)$ fully disjoint pairs $(a, b)$ with $a \in A$, $b \in I$ and $a | b$. This latter proof was obtained in joint work by ChatGPT and Aristotle from Harmonic (aristotle-harmonic@harmonic.fun).
 
@@ -7,8 +8,6 @@ W. van Doorn, Y. Li, and Q. Tang, Optimal bounds for an Erdős problem on matchi
 
 Below you can find a formalization of the result in Lean, which is also due to Aristotle.
 
-Lean version: leanprover/lean4:v4.28.0
-Mathlib version: 8f9d9cff6bd728b17a24e163c9402775d9e6a365
 -/
 
 import Mathlib

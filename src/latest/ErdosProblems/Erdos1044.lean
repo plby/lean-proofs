@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
   Formalization of Erdős Problem #1044 in a single file.
 

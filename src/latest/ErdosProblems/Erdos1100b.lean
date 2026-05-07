@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 If $1 = d_1 < \cdots < d_{\tau(n)} = n$ are the divisors of $n$, then define $\tau_\perp(n)$ to be the number of $i$ for which $d_i$ and $d_{i+1}$ are coprime. Erdős and Hall proved that there are infinitely many $n$ with $\tau_\perp(n) > \exp( (\log \log n)^{2 - o(1)} )$.
 
@@ -7,8 +8,6 @@ I noticed that the $o(1)$-term in the exponent can be made explicit, which gives
 
 See https://www.erdosproblems.com/1100 for more information.
 
-Lean version: leanprover/lean4:v4.24.0 (I think)
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (I think)
 -/
 
 import Mathlib

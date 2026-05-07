@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 Solving Erdős Problem #363 (https://www.erdosproblems.com/363) in the negative, Ulas proved that there are infinitely many collections of disjoint intervals $I_1, \ldots, I_n$ of fixed size $\ge 4$ such that the product of all elements in the intervals is a square.
 
@@ -5,8 +6,6 @@ Ulas, Maciej, On products of disjoint blocks of consecutive integers. Enseign. M
 
 Below you can find a formalization of this result, obtained by Aristotle from Harmonic (aristotle-harmonic@harmonic.fun).
 
-Lean version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7
 -/
 
 import Mathlib

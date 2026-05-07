@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 The Hajnal-Szemerédi theorem states that any graph with maximum degree Δ has an equitable colouring with Δ + 1 colours. Equivalently, every graph with $rm$ vertices and minimum degree at least $m(r-1)$ contains $m$ vertex disjoint copies of $K_r$.
 
@@ -12,8 +13,6 @@ Kierstead, H. A. and Kostochka, A. V., A Short Proof of the Hajnal–Szemerédi 
 It is the latter proof Aristotle from Harmonic (aristotle-harmonic@harmonic.fun)
 managed to formalize, the result of which you can find below.
 
-Lean version: leanprover/lean4:v4.28.0
-Mathlib version: 8f9d9cff6bd728b17a24e163c9402775d9e6a365
 -/
 
 import Mathlib

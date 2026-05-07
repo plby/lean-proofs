@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 The most difficult (and, in my opinion, most sensible) interpretation of Erdős Problem #369 (https://www.erdosproblems.com/369) reads:
 
@@ -13,8 +14,6 @@ https://drive.google.com/file/d/1MxgrA2haXKv_NKSa7sqUI2hZYyZ5JmfP/view
 
 Aristotle from Harmonic (aristotle-harmonic@harmonic.fun) managed to formalize their proof, which can be found below.
 
-Lean version: leanprover/lean4:v4.28.0
-Mathlib version: 8f9d9cff6bd728b17a24e163c9402775d9e6a365
 -/
 
 import Mathlib

@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 Proven and formalised (with assistance from Claude Opus 4.5) by Kevin Barreto
 -/
