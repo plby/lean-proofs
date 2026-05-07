@@ -18,6 +18,8 @@ Mathlib version: 8f9d9cff6bd728b17a24e163c9402775d9e6a365
 
 import Mathlib
 
+namespace Erdos914
+
 set_option linter.style.setOption false
 set_option linter.style.openClassical false
 set_option linter.style.induction false
@@ -3483,5 +3485,8 @@ theorem hajnal_szemeredi_clique_cover (G : SimpleGraph V) [DecidableRel G.Adj]
   · exact fun i j hij => Finset.disjoint_filter.2 fun v => by aesop
 
 #print axioms hajnal_szemeredi_clique_cover
+-- 'Erdos914.HajnalSzemeredi.hajnal_szemeredi_clique_cover' depends on axioms: [propext, choice, Quot.sound]
 
 end HajnalSzemeredi
+
+end Erdos914
