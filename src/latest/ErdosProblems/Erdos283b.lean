@@ -11,6 +11,8 @@ Mathlib version: 8f9d9cff6bd728b17a24e163c9402775d9e6a365
 
 import Mathlib
 
+namespace Erdos283b
+
 set_option linter.style.setOption false
 set_option linter.deprecated false
 set_option linter.flexible false
@@ -616,6 +618,8 @@ theorem general_theorem
   · exact bdd_below_poly_threshold a ha (b + j) d hd α
 
 #print axioms meta_theorem
--- 'meta_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos283b.meta_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
 #print axioms general_theorem
--- 'general_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos283b.general_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos283b
