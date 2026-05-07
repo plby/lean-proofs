@@ -1,5 +1,7 @@
 import Mathlib
 
+namespace Erdos674
+
 open Nat
 
 def solutionSet : Set (ℕ × ℕ × ℕ) :=
@@ -64,5 +66,7 @@ theorem erdos_674_infinite : solutionSet.Infinite := by
     intro n hn
     exact ⟨by grind, by grind, by grind⟩
 
-#print axioms erdos_674_infinite
--- 'erdos_674_infinite' depends on axioms: [propext, Classical.choice, Quot.sound]
+end Erdos674
+
+#print axioms Erdos674.erdos_674_infinite
+-- 'Erdos674.erdos_674_infinite' depends on axioms: [propext, Classical.choice, Quot.sound]

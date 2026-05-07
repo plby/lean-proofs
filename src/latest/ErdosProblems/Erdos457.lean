@@ -13,6 +13,8 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7
 
 import Mathlib
 
+namespace Erdos457
+
 set_option linter.mathlibStandardSet false
 
 open scoped BigOperators
@@ -339,7 +341,11 @@ theorem erdos_457 : ∃ ε > (0 : ℝ),
   -- By combining the results from hn and hF_def, we can conclude that for any prime p ≤ 2.1 * log n, p divides the product of (n + i) for i in the specified range.
   intros p hp hprime; exact hF_def ▸ hn p hprime (by linarith)))
 
-#print axioms thm_main
--- 'thm_main' depends on axioms: [propext, Classical.choice, Quot.sound]
-#print axioms erdos_457
--- 'erdos_457' depends on axioms: [propext, Classical.choice, Quot.sound]
+end
+
+end Erdos457
+
+#print axioms Erdos457.thm_main
+-- 'Erdos457.thm_main' depends on axioms: [propext, Classical.choice, Quot.sound]
+#print axioms Erdos457.erdos_457
+-- 'Erdos457.erdos_457' depends on axioms: [propext, Classical.choice, Quot.sound]

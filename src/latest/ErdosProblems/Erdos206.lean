@@ -5,6 +5,8 @@ Released under Apache 2.0 license.
 
 import Mathlib
 
+namespace Erdos206
+
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.induction false
@@ -22,10 +24,10 @@ underapproximations has Lebesgue measure zero.
 
 ## Main result
 
-* `EgyptianFractions.erdos_206`: The set of positive reals with eventually greedy best Egyptian
-  underapproximations has Lebesgue measure zero. This answers a question of Erdős and Graham
-  [EG80, p. 31] in the negative, and was formulated as Problem #206 on Bloom's website
-  *Erdős problems*.
+* `Erdos206.EgyptianFractions.erdos_206`: The set of positive reals with eventually greedy
+  best Egyptian underapproximations has Lebesgue measure zero. This answers a question of Erdős
+  and Graham [EG80, p. 31] in the negative, and was formulated as Problem #206 on Bloom's
+  website *Erdős problems*.
 
 ## Proof overview
 
@@ -1422,6 +1424,10 @@ theorem erdos_206 : volume {x : ℝ | EventuallyGreedy x} = 0 := by
         exact X_set_iInter_measure_zero'
 
 #print axioms erdos_206
--- 'EgyptianFractions.erdos_206' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos206.EgyptianFractions.erdos_206' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end EgyptianFractions
+
+end
+
+end Erdos206

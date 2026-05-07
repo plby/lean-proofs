@@ -22,6 +22,8 @@ Key definitions and theorems:
 
 import Mathlib
 
+namespace Erdos502
+
 set_option linter.mathlibStandardSet false
 
 open scoped BigOperators
@@ -577,5 +579,9 @@ theorem bannai_bannai_stanton (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)))
   rw [← h_r_plus]
   exact le_trans h_thm_1_2.1 h_dim_bound
 
-#print axioms bannai_bannai_stanton
--- 'bannai_bannai_stanton' depends on axioms: [propext, Classical.choice, Quot.sound]
+end
+
+end Erdos502
+
+#print axioms Erdos502.bannai_bannai_stanton
+-- 'Erdos502.bannai_bannai_stanton' depends on axioms: [propext, Classical.choice, Quot.sound]

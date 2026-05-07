@@ -12,6 +12,8 @@ We define the central binomial coefficient and the problem statement. We then fo
 
 import Mathlib
 
+namespace Erdos397
+
 set_option linter.mathlibStandardSet false
 
 open scoped BigOperators
@@ -112,5 +114,9 @@ theorem infinite_solutions : Set.Infinite { s : List ℕ × List ℕ | is_soluti
     exact Set.infinite_of_injective_forall_mem ( fun a b h => by cases h; aesop ) fun n => ⟨ n + 2, by linarith, rfl ⟩;
   exact h_infinite.mono fun s hs => by obtain ⟨ a, ha, rfl ⟩ := hs; exact sol_family_is_solution a ha;
 
+end
+
 #print axioms infinite_solutions
--- 'infinite_solutions' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos397.infinite_solutions' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos397

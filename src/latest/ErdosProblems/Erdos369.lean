@@ -31,6 +31,8 @@ set_option linter.style.refine false
 
 open Finset Nat BigOperators
 
+namespace Erdos369
+
 noncomputable section
 
 /-- The largest prime factor of a natural number n.
@@ -38,12 +40,12 @@ noncomputable section
 def Nat.largestPrimeFactor (n : ℕ) : ℕ :=
   if n ≤ 1 then 0 else n.primeFactors.sup id
 
-lemma Nat.largestPrimeFactor_le (n : ℕ) : n.largestPrimeFactor ≤ n := by
+lemma Nat.largestPrimeFactor_le (n : ℕ) : Nat.largestPrimeFactor n ≤ n := by
   unfold Nat.largestPrimeFactor; rcases n with ( _ | _ | n ) <;> simp +arith +decide;
   exact fun p pp dp => Nat.le_of_dvd ( Nat.succ_pos _ ) dp
 
 lemma Nat.le_largestPrimeFactor {n p : ℕ} (hp : p ∈ n.primeFactors) :
-    p ≤ n.largestPrimeFactor := by
+    p ≤ Nat.largestPrimeFactor n := by
   unfold Nat.largestPrimeFactor;
   split_ifs <;> simp_all +decide;
   · interval_cases n <;> aesop;
@@ -842,5 +844,9 @@ theorem erdos_problem_369 (ε : ℝ) (hε : 0 < ε) (k : ℕ) (hk : 2 ≤ k) :
   · exact erdos_369_eps_ge_one k hk ε hε1;
   · convert erdos_369_eps_lt_one k hk ε hε using 1
 
-#print axioms erdos_problem_369
--- 'erdos_problem_369' depends on axioms: [propext, Classical.choice, Quot.sound]
+end
+
+end Erdos369
+
+#print axioms Erdos369.erdos_problem_369
+-- 'Erdos369.erdos_problem_369' depends on axioms: [propext, Classical.choice, Quot.sound]

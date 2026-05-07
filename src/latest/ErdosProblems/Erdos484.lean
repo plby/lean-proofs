@@ -1,5 +1,7 @@
 import Mathlib
 
+namespace Erdos484
+
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.induction false
@@ -488,5 +490,7 @@ theorem monochromatic_sums_linear :
   -- Conclude: monoSet.card ≥ N/8 ≥ ⌊(1/8)*N⌋₊
   exact le_trans (nat_floor_eighth N) (mono_card_ge_of_bad_small N k f hBlt hN8)
 
-#print axioms monochromatic_sums_linear
--- 'monochromatic_sums_linear' depends on axioms: [propext, choice, Quot.sound]
+end Erdos484
+
+#print axioms Erdos484.monochromatic_sums_linear
+-- 'Erdos484.monochromatic_sums_linear' depends on axioms: [propext, Classical.choice, Quot.sound]

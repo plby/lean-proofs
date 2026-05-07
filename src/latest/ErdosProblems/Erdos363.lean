@@ -16,6 +16,8 @@ set_option linter.style.refine false
 set_option linter.style.setOption false
 set_option linter.flexible false
 
+namespace Erdos363
+
 /-
 Definitions of the starting points of the four intervals.
 -/
@@ -148,5 +150,7 @@ theorem erdos_363 : ¬ Set.Finite { S | is_valid_collection S } := by
     exact collection_injective;
   exact Set.infinite_of_injective_forall_mem h_inj fun n => collection_is_valid _ ( by linarith )
 
-#print axioms erdos_363
--- 'erdos_363' depends on axioms: [propext, Classical.choice, Quot.sound]
+end Erdos363
+
+#print axioms Erdos363.erdos_363
+-- 'Erdos363.erdos_363' depends on axioms: [propext, Classical.choice, Quot.sound]

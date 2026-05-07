@@ -24,6 +24,8 @@ the residue.
 -/
 import Mathlib
 
+namespace Erdos427
+
 set_option linter.style.longLine false
 
 private noncomputable abbrev nthPrime (n : ℕ) : ℕ := Nat.nth Nat.Prime n
@@ -93,5 +95,8 @@ theorem erdos427 (n d : ℕ) (hd : 1 ≤ d) :
   simp_all +decide [ Nat.cast_sub ( show r ≤ d from Nat.le_of_lt <| Nat.mod_lt _ hd ) ] ;
   exact ⟨ Nat.one_le_iff_ne_zero.mpr ( by omega ), by rw [ ← Nat.mod_add_div S d ] ; aesop ⟩
 
-#print axioms erdos427
--- 'erdos427' depends on axioms: [propext, shiu_consecutive_primes, Classical.choice, Quot.sound]
+end Erdos427
+
+#print axioms Erdos427.erdos427
+-- 'Erdos427.erdos427' depends on axioms:
+-- [propext, Classical.choice, Erdos427.shiu_consecutive_primes, Quot.sound]

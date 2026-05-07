@@ -13,6 +13,12 @@ noticed #351 follows) — see proof.pdf.
 
 import Mathlib
 
+set_option linter.style.setOption false
+set_option linter.flexible false
+set_option linter.unusedFintypeInType false
+set_option linter.style.longLine false
+set_option linter.style.show false
+set_option linter.style.whitespace false
 
 /-! =============================================================
     Section from: Erdos/P283/RSG/CompleteSequences.lean
@@ -2178,7 +2184,7 @@ lemma Delta_eval_integer_mem_signedFS
 have evaluation ratio tending to `1` at `+∞`.
 
 This is a small wrapper around Mathlib's
-`Polynomial.div_tendsto_leadingCoeff_div_of_degree_eq`, recorded here because it
+`Polynomial.div_tendsto_atTop_leadingCoeff_div_of_degree_eq`, recorded here because it
 is the analytic input needed to turn Graham's odd tail into a Sigma-sequence. -/
 lemma polynomial_eval_ratio_tendsto_one_of_degree_eq_of_leadingCoeff_eq
     (P Q : ℚ[X])
@@ -2186,7 +2192,7 @@ lemma polynomial_eval_ratio_tendsto_one_of_degree_eq_of_leadingCoeff_eq
     (hlead : P.leadingCoeff = Q.leadingCoeff)
     (hQ : Q.leadingCoeff ≠ 0) :
     Tendsto (fun x : ℚ => P.eval x / Q.eval x) atTop (nhds (1 : ℚ)) := by
-  have h := Polynomial.div_tendsto_leadingCoeff_div_of_degree_eq P Q hdeg
+  have h := Polynomial.div_tendsto_atTop_leadingCoeff_div_of_degree_eq P Q hdeg
   simpa [hlead, div_self hQ] using h
 
 /-- Ratio limit for one polynomial evaluated along two affine-linear arguments
@@ -3596,7 +3602,7 @@ private lemma greedy_num_decrease_aux (R : ℚ) (hR : 0 < R)
   have h_lt' : R.num * q - R.den < R.num := by linarith
   have h_diff_pos : 0 < R.num * q - R.den := by
     by_contra h_neg
-    push_neg at h_neg
+    push Not at h_neg
     have h_eq : R.num * q - R.den = 0 := by omega
     have hq_pos_q : (0 : ℚ) < q := by exact_mod_cast hq_pos
     have h_R_eq : R = 1/(q : ℚ) := by
@@ -3694,7 +3700,7 @@ private lemma greedy_residual_aux (n : ℕ) :
       -- Step 1: S⁻¹ > q - 1 (since q = ⌈S⁻¹⌉₊).
       have hSinv_gt : (q : ℚ) - 1 < S⁻¹ := by
         by_contra h_neg
-        push_neg at h_neg
+        push Not at h_neg
         -- S⁻¹ ≤ q - 1, so ⌈S⁻¹⌉₊ ≤ ⌈q - 1⌉₊ = q - 1, contradicting q = ⌈S⁻¹⌉₊.
         have h_ceil_le : ⌈(S⁻¹ : ℚ)⌉₊ ≤ ⌈((q : ℚ) - 1)⌉₊ := Nat.ceil_le_ceil h_neg
         have h_eq_cast : ((q : ℚ) - 1) = ((q - 1 : ℕ) : ℚ) := by
@@ -3774,7 +3780,7 @@ lemma egyptian_expansion_exists (R : ℚ) (hR : 0 < R) (L : ℕ) :
   -- The harmonicTail to N-1 is < R (otherwise N is not minimal).
   have hN_minus_one_lt : ∑ j ∈ Finset.Ioc L' (N - 1), (1 : ℚ) / j < R := by
     by_contra h_neg
-    push_neg at h_neg
+    push Not at h_neg
     have hN_minus_pos : N - 1 < N := by omega
     have hLeN : L' ≤ N - 1 := by omega
     apply hN_min (N - 1) hN_minus_pos
@@ -3893,7 +3899,7 @@ private lemma splitAtMax_card (E : Finset ℕ) (hne : E.Nonempty)
   -- y+1 ∉ insert (y*(y+1)) (E.erase y).
   have h_yp1_notin_full : (y + 1) ∉ insert (y * (y + 1)) (E.erase y) := by
     rw [Finset.mem_insert]
-    push_neg
+    push Not
     exact ⟨h_yp1_ne_yyp1, h_yp1_notin⟩
   -- Compute card.
   rw [Finset.card_insert_of_notMem h_yp1_notin_full,
@@ -3935,7 +3941,7 @@ private lemma splitAtMax_sum (E : Finset ℕ) (hne : E.Nonempty)
     omega
   have h_yp1_notin_full : (y + 1) ∉ insert (y * (y + 1)) (E.erase y) := by
     rw [Finset.mem_insert]
-    push_neg
+    push Not
     exact ⟨h_yp1_ne_yyp1, h_yp1_notin⟩
   -- Sum on the LHS.
   rw [Finset.sum_insert h_yp1_notin_full,
@@ -6031,7 +6037,7 @@ theorem exists_large_correction_denominator
         rw [h_intEval_eq]; exact h_pos_q
       exact_mod_cast h_pos_int
     · -- Q has degree ≤ 0. Then Q is constant, equal to its leading coefficient.
-      push_neg at hd
+      push Not at hd
       have hQr_ne : Qr ≠ 0 := by
         intro h0; rw [h0] at hQr_lc; simp at hQr_lc
       have hQr_natDeg : Qr.natDegree = 0 := by
@@ -6084,7 +6090,7 @@ theorem exists_large_correction_denominator
     by_cases h : ∀ e ∈ EE, e * c ∉ forbiddenFinite
     · exact Or.inl h
     · right
-      push_neg at h
+      push Not at h
       obtain ⟨e, heE, hfE⟩ := h
       rw [hbadFinSet_def]
       refine Finset.mem_biUnion.mpr ⟨e, heE, ?_⟩
@@ -6238,7 +6244,7 @@ theorem exists_large_correction_denominator
         omega
       have hj_lt : j < Jbound := by
         by_contra hj_ge
-        push_neg at hj_ge
+        push Not at hj_ge
         exact absurd (hD_big j hj_ge) (not_lt.mpr hD_bound)
       -- Step 2: k ∈ badK_finset.
       rw [hbadK_def]
@@ -6887,7 +6893,7 @@ lemma chooseMainGCDData {α : ℚ} {L : ℕ} (p : ℚ[X]) (hp : IntValued p)
     intro ℓ hℓ
     -- We argue by contradiction: assume ℓ divides every quotient (qPoly).eval(t).
     by_contra h_no
-    push_neg at h_no
+    push Not at h_no
     -- After negating ∃ t, ∃ z', ..., we get ∀ t ≥ 1, ∀ z', if (z' = ...) then ℓ ∣ z'.
     have hℓ_dvd_quot : ∀ t : ℕ, 1 ≤ t → ∀ z' : ℤ,
         (z' : ℚ) = (qPoly p md.J g).eval (t : ℚ) → (ℓ : ℤ) ∣ z' := h_no
@@ -7958,7 +7964,7 @@ lemma polynomial_eventually_le_const_mul_pow (R : ℚ[X]) {d : ℕ} {c : ℚ}
   have ht :
       Tendsto (fun x : ℚ => R.eval x / Xd.eval x) atTop
         (nhds (R.leadingCoeff / Xd.leadingCoeff)) :=
-    Polynomial.div_tendsto_leadingCoeff_div_of_degree_eq R Xd hdeg_degree
+    Polynomial.div_tendsto_atTop_leadingCoeff_div_of_degree_eq R Xd hdeg_degree
   have hlead_ratio : R.leadingCoeff / Xd.leadingCoeff = R.leadingCoeff := by
     dsimp [Xd]
     rw [Polynomial.leadingCoeff_X_pow]
@@ -8035,7 +8041,7 @@ lemma shifted_power_eventually_mul_lt (J d : ℕ) {β c : ℚ}
   have ht :
       Tendsto (fun x : ℚ => A.eval x / Xd.eval x) atTop
         (nhds (A.leadingCoeff / Xd.leadingCoeff)) :=
-    Polynomial.div_tendsto_leadingCoeff_div_of_degree_eq A Xd hdeg_degree
+    Polynomial.div_tendsto_atTop_leadingCoeff_div_of_degree_eq A Xd hdeg_degree
   have hlead_ratio : A.leadingCoeff / Xd.leadingCoeff = 1 := by
     have hA_lc : A.leadingCoeff = 1 := hA_monic.leadingCoeff
     dsimp [Xd]
@@ -9681,7 +9687,7 @@ lemma integer_intervals_cover_tail (lo hi : ℕ → ℤ) (N₀ : ℕ)
     have hnotK : ¬ P K := Nat.find_min hP hK_lt
     have hhiK_lt : hi K < m := by
       by_contra hle
-      push_neg at hle
+      push Not at hle
       exact hnotK ⟨hK_ge, hle⟩
     have hloN : lo N ≤ hi K + 1 := by
       rw [← hK_succ]
@@ -10168,7 +10174,7 @@ private lemma intValued_dvd_extends_to_int (q : ℚ[X]) (hq_int : IntValued q)
         rw [show (-(m : ℤ) + ((k : ℤ) + 1) : ℤ) = (n : ℤ) from hn.symm]
         exact hdvd_pos n hn_pos
       · -- Argument ≤ 0: write as -(j : ℤ) for some j < m.
-        push_neg at h_pos
+        push Not at h_pos
         let j : ℕ := ((m : ℤ) - ((k : ℤ) + 1)).toNat
         have h_nonneg : 0 ≤ ((m : ℤ) - ((k : ℤ) + 1)) := by linarith
         have hj_cast : (j : ℤ) = (m : ℤ) - ((k : ℤ) + 1) :=
@@ -10192,7 +10198,7 @@ private lemma intValued_dvd_extends_to_int (q : ℚ[X]) (hq_int : IntValued q)
     rw [show w = (n : ℤ) from hn.symm]
     exact hdvd_pos n hn_pos
   · -- w ≤ 0: use h_neg.
-    push_neg at hw_pos
+    push Not at hw_pos
     let m : ℕ := (-w).toNat
     have hm : (m : ℤ) = -w := Int.toNat_of_nonneg (by linarith)
     have hw_eq : w = -(m : ℤ) := by linarith
@@ -10953,7 +10959,7 @@ theorem not_strongly_complete_of_neg_leadingCoeff
         simp only [S, Finset.mem_image, Finset.mem_range]
         exact ⟨n, hn_lt, hn_eq⟩
       · right
-        push_neg at hn_lt
+        push Not at hn_lt
         have := hN₀ n hn_lt
         simp only at hn_eq
         linarith

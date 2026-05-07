@@ -11,6 +11,8 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7
 
 import Mathlib
 
+namespace Erdos756
+
 set_option linter.mathlibStandardSet false
 
 open scoped BigOperators
@@ -478,5 +480,9 @@ theorem erdos756 (n : ℕ) :
             · exact ⟨ { 0 }, by norm_num ⟩;
             · exact ⟨ { 0, 1, 2 }, by norm_num ⟩
 
-#print axioms erdos756
--- 'erdos756' depends on axioms: [propext, Classical.choice, Quot.sound]
+end
+
+end Erdos756
+
+#print axioms Erdos756.erdos756
+-- 'Erdos756.erdos756' depends on axioms: [propext, Classical.choice, Quot.sound]

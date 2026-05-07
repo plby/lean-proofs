@@ -63,6 +63,8 @@ please submit the same prompt, and add this .lean file in "Optional: Attach a Le
 
 import Mathlib
 
+namespace Erdos646
+
 set_option linter.mathlibStandardSet false
 set_option linter.unusedVariables false
 
@@ -678,7 +680,11 @@ theorem infinitely_many_even_factorial_exponents (k : ℕ) (p : Fin k → ℕ) (
         simp_all +decide [ funext_iff ];
     exact Set.infinite_of_forall_exists_gt fun N => by obtain ⟨ n, hn₁, hn₂ ⟩ := h_seq N; exact ⟨ n, hn₂, hn₁ ⟩ ;
 
+end
+
 #print axioms infinitely_many_even_factorial_exponents
--- 'infinitely_many_even_factorial_exponents' depends on axioms: [propext,
+-- 'Erdos646.infinitely_many_even_factorial_exponents' depends on axioms: [propext,
 -- Classical.choice,
 -- Quot.sound]
+
+end Erdos646

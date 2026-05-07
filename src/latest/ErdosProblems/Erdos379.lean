@@ -1,5 +1,8 @@
 import Mathlib
 import Aesop
+
+namespace Erdos379
+
 set_option linter.style.setOption false
 set_option linter.deprecated false
 set_option linter.unusedVariables false
@@ -828,5 +831,7 @@ theorem erdos_379 : atTop.limsup (fun n => (S n : ℕ∞)) = ⊤ := by
   have h5 := depth_0_lemma_5.limsup_from_unbounded_lemma (S) h4
   exact h5
 
-#print axioms erdos_379
--- 'erdos_379' depends on axioms: [propext, Classical.choice, Quot.sound]
+end Erdos379
+
+#print axioms Erdos379.erdos_379
+-- 'Erdos379.erdos_379' depends on axioms: [propext, Classical.choice, Quot.sound]

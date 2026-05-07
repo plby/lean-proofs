@@ -4,6 +4,8 @@ We formalize the positive answer to Erdos problem #728. We prove the main theore
 
 import Mathlib
 
+namespace Erdos728
+
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.openClassical false
@@ -1010,7 +1012,7 @@ lemma lemma_sum_spike_term2_bound (M : ℕ) (c : ℝ) :
   have h_prime : ∀ i : ℕ, Nat.Prime i → (k_val c M : ℝ) / (i : ℝ) ^ (J_p i (k_val c M) + t_val M) ≤ (i : ℝ) / (i : ℝ) ^ t_val M := by
     exact fun i a => lemma_spike_term_bound i (k_val c M) (t_val M) a;
   split_ifs <;> simp_all +decide [ div_eq_mul_inv, mul_comm, mul_left_comm ];
-  convert mul_le_mul_of_nonneg_left ( h_prime _ ‹_› ) ( Nat.cast_nonneg M ) using 1
+  simpa [ div_eq_mul_inv, mul_assoc ] using mul_le_mul_of_nonneg_left ( h_prime _ ‹_› ) ( Nat.cast_nonneg M )
 
 /-
 sum_spike_term2 / M tends to 0 as M tends to infinity.
@@ -1433,9 +1435,11 @@ theorem erdos_728_fc :
   · linarith [ show ( k_val ( ( C + C' ) / 2 ) M : ℝ ) < C' * Real.log ( 2 * m ) by exact lt_of_lt_of_le hM.2.2.1 ( mul_le_mul_of_nonneg_left ( Real.log_le_log ( by norm_cast; linarith ) ( by norm_cast; linarith ) ) ( by linarith ) ) ]
 
 #print axioms erdos_728
--- 'Erdos728b.erdos_728' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos728.Erdos728b.erdos_728' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 #print axioms erdos_728_fc
--- 'Erdos728b.erdos_728_fc' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos728.Erdos728b.erdos_728_fc' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos728b
+
+end Erdos728

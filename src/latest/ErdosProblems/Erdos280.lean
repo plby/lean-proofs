@@ -1,6 +1,8 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 import Mathlib
 
+namespace Erdos280
+
 section Erdos280
 
 open Nat
@@ -235,7 +237,9 @@ theorem erdos_280_counterexample :
         norm_num⟩)
       tendsto_one_div_atTop_nhds_zero_nat
 
-#print axioms erdos_280_counterexample
--- 'erdos_280_counterexample' depends on axioms: [propext, Classical.choice, Quot.sound]
+#print axioms Erdos280.erdos_280_counterexample
+-- 'Erdos280.erdos_280_counterexample' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos280
 
 end Erdos280

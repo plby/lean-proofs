@@ -23,6 +23,8 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7
 
 import Mathlib
 
+namespace Erdos785
+
 set_option linter.mathlibStandardSet false
 
 open scoped BigOperators
@@ -2379,5 +2381,9 @@ theorem corollary_erdos_785 (A B : Set ℕ) (h_inf_A : A.Infinite) (h_inf_B : B.
           obtain ⟨ C, hC ⟩ := h_r_bound; exact squeeze_zero_norm' ( Filter.eventually_atTop.mpr ⟨ 1, fun x hx => by simpa [ abs_div, abs_of_nonneg ( show 0 ≤ x by positivity ) ] using div_le_div_of_nonneg_right ( Nat.cast_le.mpr ( hC x ) ) ( show 0 ≤ x by positivity ) ⟩ ) ( tendsto_const_nhds.div_atTop Filter.tendsto_abs_atTop_atTop ) ;);
         · convert lemma_r_mul_A_div_t_tendsto_zero B A h_inf_B h_inf_A ( lemma_exact_complements_symm A B h_hyp ) using 1
 
-#print axioms corollary_erdos_785
+end
 
+end Erdos785
+
+#print axioms Erdos785.corollary_erdos_785
+-- 'Erdos785.corollary_erdos_785' depends on axioms: [propext, Classical.choice, Quot.sound]

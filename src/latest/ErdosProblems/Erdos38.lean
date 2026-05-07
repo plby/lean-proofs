@@ -7,6 +7,8 @@ Formalized from a solution by Liam Price and GPT 5.5 Pro
 
 import Mathlib
 
+namespace Erdos38
+
 set_option linter.style.openClassical false
 set_option linter.style.setOption false
 set_option linter.style.docString false
@@ -1862,6 +1864,8 @@ theorem erdos_problem_38 :
     exact density_increment d A N hN hα0 hα1
 
 #print axioms erdos_problem_38
--- 'erdos_problem_38' depends on axioms: [propext, choice, Quot.sound]
+-- 'Erdos38.erdos_problem_38' depends on axioms: [propext, choice, Quot.sound]
 
 end
+
+end Erdos38

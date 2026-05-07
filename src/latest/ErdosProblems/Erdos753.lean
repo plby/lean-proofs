@@ -11,6 +11,8 @@ import Mathlib.Combinatorics.SimpleGraph.Coloring
 import Mathlib.Data.Int.Star
 import Mathlib.Data.Real.StarOrdered
 
+namespace Erdos753
+
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.longLine false
@@ -520,6 +522,8 @@ theorem erdos_753_negation :
   exact not_lt.mpr hG (hN n hn_ge G)
 
 #print axioms erdos_753_negation
--- 'erdos_753_negation' depends on axioms: [propext, choice, Quot.sound]
+-- 'Erdos753.erdos_753_negation' depends on axioms: [propext, choice, Quot.sound]
 
 end
+
+end Erdos753

@@ -6,6 +6,8 @@ import Mathlib.NumberTheory.Real.Irrational
 import Mathlib.NumberTheory.ArithmeticFunction.Misc
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 
+namespace Erdos258
+
 /-!
 # Erdős Problem 258 (original formalization by Przemek Chojecki)
 
@@ -452,7 +454,9 @@ theorem erdos_258 (a : ℕ → ℕ) (ha : ∀ n, 0 < a (n + 1))
   obtain ⟨Λ, hΛ, hbound⟩ := tao_teravainen_divisors_le
   exact tail_irrationality_lemma a ha ha_tendsto Λ hΛ hbound
 
-#print axioms erdos_258
--- 'erdos_258' depends on axioms: [propext, tao_teravainen, Classical.choice, Quot.sound]
+#print axioms Erdos258.erdos_258
+-- 'Erdos258.erdos_258' depends on axioms: [propext, tao_teravainen, Classical.choice, Quot.sound]
 
 end
+
+end Erdos258
