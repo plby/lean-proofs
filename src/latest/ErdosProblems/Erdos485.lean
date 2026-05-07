@@ -1,5 +1,7 @@
 import Mathlib
 
+namespace Erdos485b
+
 set_option linter.style.setOption false
 set_option linter.style.maxHeartbeats false
 set_option linter.flexible false
@@ -1115,6 +1117,7 @@ lemma step_support_containment_13 (f : ℝ[X]) (R : Finset ℕ) (d : ℕ) (lam :
 Construction step
 ============================================================
 -/
+set_option maxHeartbeats 6400000 in
 lemma pow13_construction_step (N : ℕ)
     (f : ℝ[X]) (R : Finset ℕ)
     (hf_deg : f.natDegree = 13 ^ N)
@@ -1487,7 +1490,16 @@ theorem exists_complete_poly_with_sparse_square_improved (n : ℕ) (hn : 0 < n) 
       _ < (1 / 7 : ℝ) * (170 * (n : ℝ) ^ (Real.log 8 / Real.log 13) - 14) :=
           arithmetic_bound_improved n N a ha1 ha12 haN⟩
 
-#print axioms exists_complete_poly_with_sparse_square_improved
--- 'exists_complete_poly_with_sparse_square_improved' depends on axioms: [propext,
+#print axioms exists_complete_poly_with_sparse_square
+-- 'Erdos485.exists_complete_poly_with_sparse_square' depends on axioms: [propext,
 -- Classical.choice,
 -- Quot.sound]
+
+#print axioms exists_complete_poly_with_sparse_square_improved
+-- 'Erdos485.exists_complete_poly_with_sparse_square_improved' depends on axioms: [propext,
+-- Classical.choice,
+-- Quot.sound]
+
+end
+
+end Erdos485b
