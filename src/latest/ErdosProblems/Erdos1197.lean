@@ -19,6 +19,8 @@ without proof (`disjoint_shells`). Everything else is proved from this single in
 * Z. Buczolich, R. D. Mauldin, *On the convergence of ∑ f(nx) for measurable functions*
 -/
 
+namespace Erdos1197
+
 open MeasureTheory Set
 open scoped ENNReal
 
@@ -224,7 +226,7 @@ lemma thin_set_measure_bound (q : ℕ) (hq : 0 < q) (k : ℕ) (hk : 7 ≤ k) :
     use fun m => ENNReal.ofReal ( 4 / ( q * 2 ^ k ) );
     · rw [ Real.volume_Ioo ];
       refine' ENNReal.ofReal_le_ofReal _;
-      convert rpow_interval_width _ _ _ _ _ using 1 <;> ring <;> norm_num;
+      convert rpow_interval_width _ _ _ _ _ using 1 <;> ring_nf <;> norm_num;
       · exact mul_nonpos_of_nonpos_of_nonneg ( Int.cast_nonpos.mpr ( Finset.mem_Icc.mp ‹_› |>.2 ) ) ( by positivity );
       · field_simp;
         exact le_trans ( mul_le_mul_of_nonneg_left ( pow_le_pow_of_le_one ( by norm_num ) ( by norm_num ) hk ) zero_le_two ) ( by norm_num; linarith [ show ( q : ℝ ) ≥ 1 by norm_cast ] );
@@ -232,9 +234,9 @@ lemma thin_set_measure_bound (q : ℕ) (hq : 0 < q) (k : ℕ) (hk : 7 ≤ k) :
   -- The number of nonzero terms is at most $q * \log_2(9/8) + 2 / 2^k + 1$.
   have h_card : Finset.card (Finset.Icc (⌈(q : ℝ) * (Real.logb 2 (8 / 9) - 2 / ((q : ℝ) * 2 ^ k))⌉ : ℤ) 0) ≤ (q : ℝ) * Real.logb 2 (9 / 8) + 2 / 2 ^ k + 1 := by
     rw [ show ( 9 / 8 : ℝ ) = ( 8 / 9 ) ⁻¹ by norm_num, Real.logb_inv ] ; norm_num;
-    rw [ show ( 2 : ℝ ) / 2 ^ k = 2 / ( 2 ^ k : ℝ ) by ring, mul_sub, mul_div_assoc' ];
+    rw [ show ( 2 : ℝ ) / 2 ^ k = 2 / ( 2 ^ k : ℝ ) by ring_nf, mul_sub, mul_div_assoc' ];
     norm_num [ mul_div_mul_left, hq.ne' ];
-    rw [ show ( 1 - ⌈ ( q : ℝ ) * Real.logb 2 ( 8 / 9 ) - 2 / 2 ^ k⌉ : ℤ ) = -⌈ ( q : ℝ ) * Real.logb 2 ( 8 / 9 ) - 2 / 2 ^ k⌉ + 1 by ring ] ; norm_num;
+    rw [ show ( 1 - ⌈ ( q : ℝ ) * Real.logb 2 ( 8 / 9 ) - 2 / 2 ^ k⌉ : ℤ ) = -⌈ ( q : ℝ ) * Real.logb 2 ( 8 / 9 ) - 2 / 2 ^ k⌉ + 1 by ring_nf ] ; norm_num;
     rcases n : -⌈ ( q : ℝ ) * Real.logb 2 ( 8 / 9 ) - 2 / 2 ^ k⌉ + 1 with ( _ | n ) <;> norm_num [ n ];
     · norm_num [ ← @Int.cast_inj ℝ ] at * ; linarith [ Int.le_ceil ( ( q : ℝ ) * Real.logb 2 ( 8 / 9 ) - 2 / 2 ^ k ) ];
     · nlinarith [ show ( q : ℝ ) ≥ 1 by norm_cast, show ( 2 : ℝ ) ^ k ≥ 1 by exact one_le_pow₀ ( by norm_num ), show ( Real.logb 2 ( 8 / 9 ) ) ≤ 0 by rw [ Real.logb_nonpos_iff ] <;> norm_num, div_nonneg zero_le_two ( show ( 0 : ℝ ) ≤ 2 ^ k by positivity ) ];
@@ -250,7 +252,7 @@ lemma thin_set_measure_bound (q : ℕ) (hq : 0 < q) (k : ℕ) (hk : 7 ≤ k) :
     · exact ENNReal.mul_ne_top ( by norm_num ) ( ENNReal.ofReal_ne_top );
     · exact mul_nonneg ( add_nonneg ( add_nonneg ( mul_nonneg ( Nat.cast_nonneg _ ) ( Real.logb_nonneg ( by norm_num ) ( by norm_num ) ) ) ( by positivity ) ) zero_le_one ) ( by positivity );
   refine lt_of_le_of_lt h_final ?_;
-  rw [ ENNReal.ofReal_lt_ofReal_iff ] <;> ring <;> norm_num [ hq.ne', hk ];
+  rw [ ENNReal.ofReal_lt_ofReal_iff ] <;> ring_nf <;> norm_num [ hq.ne', hk ];
   norm_num [ pow_mul, mul_assoc, mul_comm, mul_left_comm, hq.ne' ];
   have := logb_nine_eighth_lt;
   nlinarith [ show ( q : ℝ ) ≥ 1 by norm_cast, inv_pos.mpr ( by positivity : 0 < ( q : ℝ ) ), mul_inv_cancel₀ ( by positivity : ( q : ℝ ) ≠ 0 ), pow_pos ( by positivity : 0 < ( 1 / 2 : ℝ ) ) k, pow_le_pow_of_le_one ( by positivity : 0 ≤ ( 1 / 2 : ℝ ) ) ( by norm_num ) hk, mul_le_mul_of_nonneg_left this.le ( by positivity : 0 ≤ ( 1 / 2 : ℝ ) ^ k ) ]
@@ -345,8 +347,8 @@ lemma tsum_geometric_lt_I_F {K : ℕ} (hK : 7 ≤ K)
         rw [ ← Summable.sum_add_tsum_nat_add K ];
         · rw [ Finset.sum_eq_zero ] <;> aesop;
         · exact Summable.of_nonneg_of_le ( fun n => by positivity ) ( fun n => by split_ifs <;> norm_num ) ( summable_geometric_two.mul_left 5 );
-      convert h_geo_sum using 1 ; ring;
-      rw [ tsum_mul_right, tsum_mul_left, tsum_geometric_of_lt_one ] <;> ring <;> norm_num;
+      convert h_geo_sum using 1 ; ring_nf;
+      rw [ tsum_mul_right, tsum_mul_left, tsum_geometric_of_lt_one ] <;> ring_nf <;> norm_num;
     rw [ ← h_geo_sum, ENNReal.ofReal_tsum_of_nonneg ];
     · exact tsum_congr fun n => by split_ifs <;> norm_num;
     · intro n; split_ifs <;> positivity;
@@ -574,5 +576,8 @@ theorem negative_answer :
       (Set.not_disjoint_iff_nonempty_inter.mpr ⟨_, hn_F, by simpa [E] using h_contra⟩)
 
 #print axioms negative_answer
+-- 'Erdos1197.negative_answer' depends on axioms: [propext, Classical.choice, bm_approx_data, Quot.sound]
 
 end
+
+end Erdos1197
