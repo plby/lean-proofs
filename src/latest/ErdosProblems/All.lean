@@ -99,6 +99,7 @@ import ErdosProblems.Erdos914
 import ErdosProblems.Erdos923
 import ErdosProblems.Erdos947
 import ErdosProblems.Erdos964
+import ErdosProblems.Erdos966
 import ErdosProblems.Erdos990
 import ErdosProblems.Erdos990b
 import ErdosProblems.Erdos1014
