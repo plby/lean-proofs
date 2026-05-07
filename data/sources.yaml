@@ -237,6 +237,18 @@
   url_ref: JoshuaB_115
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos124b
+  partial: yes
+  epc: https://www.erdosproblems.com/124
+  author:
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/124
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos124b.md
+  version: "4.24.0"
+
 - key: ErdosProblems.Erdos125
   epc: https://www.erdosproblems.com/125
   author:
