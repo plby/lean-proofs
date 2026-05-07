@@ -1,5 +1,7 @@
 import Mathlib
 
+namespace Erdos818
+
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.openClassical false
@@ -877,5 +879,8 @@ theorem erdos_problem_818_general
   · nlinarith
 
 #print axioms erdos_problem_818_general
+-- 'Erdos818.erdos_problem_818_general' depends on axioms: [propext, choice, Quot.sound]
 
 end
+
+end Erdos818

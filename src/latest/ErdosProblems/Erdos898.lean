@@ -17,6 +17,8 @@ The following was proved by Aristotle:
 
 import Mathlib
 
+namespace Erdos898
+
 open EuclideanGeometry Metric RealInnerProductSpace
 
 set_option linter.style.setOption false
@@ -551,5 +553,7 @@ theorem erdos_mordell {A B C P : V} (h_triangle : ¬ Collinear ℝ ({A, B, C} : 
 
 end
 
-#print axioms erdos_mordell
--- 'erdos_mordell' depends on axioms: [propext, Classical.choice, Quot.sound]
+end Erdos898
+
+#print axioms Erdos898.erdos_mordell
+-- 'Erdos898.erdos_mordell' depends on axioms: [propext, Classical.choice, Quot.sound]

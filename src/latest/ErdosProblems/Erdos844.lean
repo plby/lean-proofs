@@ -6,6 +6,8 @@ Authors: John Jennings, Aristotle (Harmonic)
 
 import Mathlib
 
+namespace Erdos844
+
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.cases false
@@ -771,17 +773,15 @@ private lemma dominated_image_rankFun {S Y X : Finset ℕ} (hY : Y ⊆ S) (hX : 
   use fun k => rankFun S ( f ( unrankFun S k ) );
   refine' ⟨ _, _, _ ⟩;
   · intro k hk l hl hkl;
-    obtain ⟨y, hyY, rfl⟩ :
-        ∃ y ∈ Y, k = rankFun S y := by
-      aesop
-    obtain ⟨z, hzY, rfl⟩ : ∃ z ∈ Y, l = rankFun S z := by
-      grind +qlia;
-    have h_inj : ∀ x y : ℕ, x ∈ S → y ∈ S → rankFun S x = rankFun S y → x = y := by
-      intros x y hx hy hxy;
-      have := unrankFun_rankFun hx; have := unrankFun_rankFun hy; aesop;
-    have h_inj : f y = f z := by
-      grind +suggestions;
-    have := hf.1 hyY hzY h_inj; aesop;
+    obtain ⟨y, hyY, rfl⟩ := Finset.mem_image.mp hk
+    obtain ⟨z, hzY, rfl⟩ := Finset.mem_image.mp hl
+    change rankFun S (f (unrankFun S (rankFun S y))) =
+      rankFun S (f (unrankFun S (rankFun S z))) at hkl
+    rw [unrankFun_rankFun (hY hyY), unrankFun_rankFun (hY hzY)] at hkl
+    have hf_eq : f y = f z :=
+      (rankFun_strictMonoOn S).injOn
+        (hX (hf.2.1 y hyY)) (hX (hf.2.1 z hzY)) hkl
+    exact congrArg (rankFun S) (hf.1 hyY hzY hf_eq)
   · simp +zetaDelta at *;
     intro y hy;
     rw [ unrankFun_rankFun ] ; aesop;
@@ -1197,4 +1197,7 @@ theorem erdos_sarkozy (N : ℕ) (A : Finset ℕ)
     tauto
     exact Finset.disjoint_filter.mpr (by tauto)
 
-#print axioms erdos_sarkozy
+end Erdos844
+
+#print axioms Erdos844.erdos_sarkozy
+-- 'Erdos844.erdos_sarkozy' depends on axioms: [propext, Classical.choice, Quot.sound]
