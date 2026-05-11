@@ -112,6 +112,14 @@ import ErdosProblems.Erdos1008
 import ErdosProblems.Erdos1014
 import ErdosProblems.Erdos1022
 import ErdosProblems.Erdos1023
+import ErdosProblems.Erdos1026
+import ErdosProblems.Erdos1034
+import ErdosProblems.Erdos1036
+import ErdosProblems.Erdos1037
+import ErdosProblems.Erdos1043
+import ErdosProblems.Erdos1047
+import ErdosProblems.Erdos1048
+import ErdosProblems.Erdos1048b
 import ErdosProblems.Erdos1028
 import ErdosProblems.Erdos1044
 import ErdosProblems.Erdos1090

@@ -366,7 +366,7 @@ theorem es_seq_sum_eq (k : ℕ) (hk : 0 < k) :
         nlinarith [ Nat.mod_lt ( i : ℕ ) hk, Nat.sub_le ( k - 1 ) ( ( i : ℕ ) / k ), Nat.div_mul_le_self ( i : ℕ ) k, Nat.sub_add_cancel hk ];
       · -- Since `es_seq k` is injective, the image of `es_seq k` over `Finset.univ` has cardinality `k^2`.
         have h_inj : Function.Injective (es_seq k) := by
-          exact?;
+          exact es_seq_injective k hk;
         rw [ Finset.card_image_of_injective _ h_inj, Finset.card_fin ];
         norm_num;
     -- Since `es_seq` is a permutation of the numbers from `0` to `k^2 - 1`, their sum is the same as the sum of the first `k^2` natural numbers, which is `k^2 * (k^2 - 1) / 2`.
@@ -1478,7 +1478,7 @@ theorem M_inc_of_es_part_block_eq_sum (num_blocks block_size : ℕ) (base_val : 
     have hB_pos : ∀ x ∈ B, 0 < x := by
       unfold es_part_blocks at hB; aesop;
       positivity;
-    exact?
+    exact M_inc_sorted hB_sorted hB_pos
 
 /-
 M_inc of es_part is the maximum of the sums of its blocks.
@@ -1489,7 +1489,7 @@ theorem M_inc_es_part_eq_max_sum (num_blocks block_size : ℕ) (base_val : ℝ) 
     rw [ es_part_eq_join ];
     rw [ M_inc_flatten_of_pairwise_decreasing ];
     · rw [ List.map_congr_left ];
-      exact?;
+      exact fun a a_1 ↦ M_inc_of_es_part_block_eq_sum num_blocks block_size base_val start_idx eps h_eps h_base a a_1;
     · aesop;
       convert es_part_blocks_decreasing num_blocks block_size base_val start_idx eps h_eps i j a _ x _ y _ using 1;
       · exact lt_of_lt_of_le a_1 ( by simp +decide [ es_part_blocks ] );
@@ -1504,8 +1504,8 @@ theorem map_M_inc_eq_map_sum (num_blocks block_size : ℕ) (base_val : ℝ) (sta
   (es_part_blocks num_blocks block_size base_val start_idx eps).map List.sum := by
     -- Apply the equality of M_inc and sum to each block in the blocks list.
     have h_eq_blocks : ∀ B ∈ es_part_blocks num_blocks block_size base_val start_idx eps, M_inc B = B.sum := by
-      exact?;
-    exact?
+      exact fun B a ↦ M_inc_of_es_part_block_eq_sum num_blocks block_size base_val start_idx eps h_eps h_base B a;
+    exact List.map_eq_map_iff.mpr h_eq_blocks
 
 /-
 M_inc of es_part is the maximum of the sums of its blocks.
@@ -1513,7 +1513,7 @@ M_inc of es_part is the maximum of the sums of its blocks.
 theorem M_inc_es_part_eq_max_sum_v2 (num_blocks block_size : ℕ) (base_val : ℝ) (start_idx : ℕ) (eps : ℝ) (h_eps : 0 < eps) (h_base : 0 < base_val) :
   M_inc (es_part num_blocks block_size base_val start_idx eps) =
   ((es_part_blocks num_blocks block_size base_val start_idx eps).map List.sum).maximum.getD 0 := by
-    exact?
+    exact M_inc_es_part_eq_max_sum num_blocks block_size base_val start_idx eps h_eps h_base
 
 /-
 M_dec of es_part is the sum of the maximums of its blocks.
@@ -1531,7 +1531,7 @@ theorem M_dec_es_part_eq_sum_max (num_blocks block_size : ℕ) (base_val : ℝ) 
     have h_M_dec_block : ∀ B ∈ es_part_blocks num_blocks block_size base_val start_idx eps, M_dec B = B.maximum.getD 0 := by
       intros B hB;
       apply M_dec_sorted;
-      · exact?;
+      · exact es_part_blocks_sorted num_blocks block_size base_val start_idx eps h_eps B hB;
       · unfold es_part_blocks at hB; aesop;
         positivity;
     rw [ h_M_dec_flatten, List.map_congr_left h_M_dec_block ]
@@ -1568,7 +1568,7 @@ def seq_of_data (d : SeqData) : List ℝ := part1 d ++ part2 d ++ part3 d
 
 theorem seq_eps_eq_seq_of_data (k : ℤ) (a : ℤ) (eps : ℝ) :
   seq_eps k a eps = seq_of_data { k := k, a := a, eps := eps } := by
-                                    exact?
+                                    exact List.toList_toArray
 
 /-
 Elements in es_part are bounded by base_val + start_idx * eps and base_val + (start_idx + len - 1) * eps.
@@ -1605,7 +1605,7 @@ theorem part3_lt_part2 (k : ℤ) (a : ℤ) (eps : ℝ) (h_eps_pos : 0 < eps) (h_
     aesop;
     -- By definition of part3 and part2, we know that their elements are constructed with different base values and start indices.
     have h_base3 : x ∈ es_part (k.toNat - Int.natAbs a) (k.toNat) (Int.natAbs (a + 1)) 0 eps := by
-      exact?
+      exact Multiset.mem_coe.mp a_1
     have h_base2 : y ∈ es_part (Int.natAbs (a + 1)) (Int.natAbs (a + 1)) (Int.natAbs a) (k.toNat * (k.toNat - Int.natAbs a)) eps := by
       simpa only [ mul_comm ] using a_2;
     have h_base3_lt_base2 : x < (Int.natAbs a : ℝ) + (k.toNat * (k.toNat - Int.natAbs a)) * eps := by
@@ -1638,14 +1638,14 @@ theorem part1_lt_part2 (k : ℤ) (a : ℤ) (eps : ℝ) (h_eps_pos : 0 < eps) (h_
     -- By definition of `es_part`, we know that `x` is in the range `[d.blue + (d.start1) * eps, d.blue + (d.start1 + d.len1 - 1) * eps]` and `y` is in the range `[d.red + (d.start2) * eps, d.red + (d.start2 + d.len2 - 1) * eps]`.
     have hx_range : d.blue + (d.start1) * eps ≤ x ∧ x ≤ d.blue + (d.start1 + d.len1 - 1) * eps := by
       apply es_part_bounds;
-      · exact?;
+      · exact RCLike.ofReal_pos.mp h_eps_pos;
       · omega;
       · contrapose! hd; aesop;
         unfold es_part at hx hy; aesop;
       · exact hx
     have hy_range : d.red + (d.start2) * eps ≤ y ∧ y ≤ d.red + (d.start2 + d.len2 - 1) * eps := by
       apply es_part_bounds;
-      · exact?;
+      · exact RCLike.ofReal_pos.mp h_eps_pos;
       · omega;
       · omega;
       · exact hy;
@@ -1663,7 +1663,7 @@ theorem M_inc_seq_decomposition (d : SeqData)
     unfold seq_of_data;
     -- Apply the lemma about maximum sums of concatenated lists.
     have hM_inc_append : M_inc (part1 d ++ part2 d) = M_inc (part1 d) + M_inc (part2 d) := by
-      exact?;
+      exact M_inc_append_of_lt h12;
     rw [ ← hM_inc_append, M_inc_append_of_gt ];
     grind
 
@@ -1694,7 +1694,7 @@ theorem sum_es_part_eq (num_blocks block_size : ℕ) (base_val : ℝ) (start_idx
     norm_num [ List.flatMap ];
     -- Let's simplify the expression for the sum of the elements in each block.
     have h_block_sum : ∀ b < num_blocks, List.sum (List.map (fun i : ℕ => base_val + ((start_idx : ℝ) + ((num_blocks - 1 - b) * block_size + i)) * eps) (List.range block_size)) = block_size * base_val + eps * (block_size * start_idx + (num_blocks - 1 - b) * block_size^2 + block_size * (block_size - 1) / 2) := by
-      intro b hb; induction' block_size with block_size ih <;> simp_all +decide [ List.range_succ ] ; ring;
+      intro b hb; induction' block_size with block_size ih <;> simp_all +decide [ List.range_succ ] ; ring_nf;
       norm_num [ List.sum_map_add, List.sum_range_succ' ] at * ; ring_nf at * ; aesop;
       linarith;
     convert Finset.sum_congr rfl fun b hb => h_block_sum b ( Finset.mem_range.mp hb ) using 1;
@@ -1703,7 +1703,7 @@ theorem sum_es_part_eq (num_blocks block_size : ℕ) (base_val : ℝ) (start_idx
     · norm_num [ Finset.sum_add_distrib, Finset.mul_sum _ _ _, Finset.sum_mul ];
       norm_num [ ← Finset.mul_sum _ _ _, ← Finset.sum_mul ];
       norm_num [ Finset.sum_add_distrib, Finset.mul_sum _ _ _, Finset.sum_mul ];
-      norm_num [ ← Finset.sum_mul _ _ _ ] ; ring;
+      norm_num [ ← Finset.sum_mul _ _ _ ] ; ring_nf;
       exact Nat.recOn num_blocks ( by norm_num ) fun n ih => by norm_num [ Finset.sum_range_succ ] at * ; linarith;
 
 /-
@@ -1919,12 +1919,12 @@ theorem limit_values_eq (k : ℤ) (a : ℤ) (h_k : k ≥ 1) (h_a_le : -k ≤ a) 
       rw [ max_eq_right ] <;> norm_cast;
       · rw [ Int.toNat_of_nonneg ( by linarith ) ];
       · cases abs_cases ( a + 1 ) <;> cases abs_cases a <;> nlinarith [ Int.toNat_of_nonneg ( by linarith : 0 ≤ k ), Nat.sub_add_cancel ( show a.natAbs ≤ k.toNat from by omega ) ];
-    · cases abs_cases ( a + 1 : ℝ ) <;> cases abs_cases ( a : ℝ ) <;> simp +decide [ * ] <;> ring;
+    · cases abs_cases ( a + 1 : ℝ ) <;> cases abs_cases ( a : ℝ ) <;> simp +decide [ * ] <;> ring_nf;
       · linarith [ ( by norm_cast : ( a : ℝ ) < -1 ) ];
       · linarith [ ( by norm_cast : ( a : ℝ ) < -1 ) ];
       · linarith [ ( by norm_cast : ( a : ℝ ) < -1 ) ];
       · rw [ Nat.cast_sub ] <;> norm_cast;
-        · rw [ Int.subNatNat_eq_coe ] ; norm_num ; ring;
+        · rw [ Int.subNatNat_eq_coe ] ; norm_num ; ring_nf;
           rw [ max_eq_left ] <;> cases abs_cases a <;> nlinarith;
         · grind;
     · simp +zetaDelta at *;
@@ -1950,7 +1950,7 @@ theorem limit_sum_correct (k : ℤ) (a : ℤ) (h_k : k ≥ 1) (h_a_le : -k ≤ a
       simp +decide [ List.flatMap, List.map ];
       fun_prop;
     convert h_cont.tendsto 0 using 1 ; norm_num [ limit_sum ];
-    rw [ seq_eps_eq_seq_of_data ] ; norm_num [ part1, part2, part3, sum_es_part_eq ] ; ring;
+    rw [ seq_eps_eq_seq_of_data ] ; norm_num [ part1, part2, part3, sum_es_part_eq ] ; ring_nf;
     unfold seq_of_data; norm_num [ part1, part2, part3, sum_es_part_eq ] ; ring;
 
 /-
@@ -2121,7 +2121,7 @@ theorem limit_M_dec_es_part (num_blocks block_size : ℕ) (base_val : ℝ) (star
   Filter.Tendsto (fun eps => M_dec (es_part num_blocks block_size base_val start_idx eps)) (nhdsWithin 0 (Set.Ioi 0)) (nhds ((num_blocks : ℝ) * base_val)) := by
     -- By definition of $M_dec$, we know that it is a linear function of $\epsilon$.
     have h_M_dec_linear : ∀ eps : ℝ, 0 < eps → M_dec (es_part num_blocks block_size base_val start_idx eps) = (num_blocks : ℝ) * base_val + eps * ((num_blocks : ℝ) * start_idx + block_size * (num_blocks * (num_blocks - 1) / 2) + num_blocks * (block_size - 1)) := by
-      exact?;
+      exact fun eps a ↦ M_dec_es_part_value num_blocks block_size base_val start_idx eps a h_base h_blocks h_size;
     exact Filter.Tendsto.congr' ( Filter.eventuallyEq_of_mem self_mem_nhdsWithin fun x hx => by rw [ h_M_dec_linear x hx ] ) ( tendsto_nhdsWithin_of_tendsto_nhds ( Continuous.tendsto' ( by continuity ) _ _ <| by norm_num ) )
 
 /-
@@ -2355,9 +2355,9 @@ theorem thm_main (k : ℤ) (a : ℤ) (h_k : k ≥ 1) (h_a_le : -k ≤ a) (h_a_lt
     -- Let's choose any $\epsilon > 0$ and show that $c(n.toNat) \leq k / (k^2 + a)$.
     apply c_le_of_limit;
     case f => exact fun eps => seq_eps k a eps;
-    · exact?;
-    · exact?;
-    · exact?
+    · exact fun eps ↦ seq_eps_length k a eps h_k h_a_le h_a_lt;
+    · exact seq_eps_eventually_valid k a h_k h_a_le h_a_lt;
+    · exact limit_ratio_correct k a h_k h_a_le h_a_lt
 
 /-
 If a sequence of valid lists has ratios converging to target, then c(n) <= target.
@@ -2599,7 +2599,7 @@ lemma construction_nodup (k a : ℕ) (eps : ℝ) (h_eps_pos : 0 < eps) (h_eps_sm
           unfold es_block at *; aesop;
           norm_cast at h;
           rw [ Int.subNatNat_eq_coe ] at h ; push_cast at h ; nlinarith [ Nat.sub_add_cancel ( show a ≤ k from le_of_lt ( Nat.lt_of_sub_pos ( by linarith ) ) ) ];
-        · exact?
+        · exact List.pairwise_lt_range
     have h_part2p_nodup : (es_partp a (a * (k - a)) (a + 1) (a + 1) eps).Nodup := by
       erw [ List.nodup_flatMap ];
       unfold es_block; aesop;
@@ -2707,7 +2707,7 @@ lemma es_block_decreasing (base : ℝ) (start_idx : ℕ) (size : ℕ) (eps : ℝ
     refine' List.pairwise_iff_get.mpr _ ; aesop;
     -- The flatMap of the range size is just the list of natural numbers from 0 to size-1.
     have h_flatMap : List.flatMap (fun (a : ℕ) => [(↑a : ℝ)]) (List.range size) = List.map (fun (a : ℕ) => ↑a) (List.range size) := by
-      exact?;
+      exact Eq.symm List.map_eq_flatMap;
     aesop
 
 /-
@@ -2845,7 +2845,7 @@ lemma es_partp_dec_sum_le (base : ℝ) (start_idx : ℕ) (num_blocks size : ℕ)
     intro s hs_sub hs_sorted
     have h_length : s.length ≤ size := by
       by_cases heps_pos : 0 < eps;
-      · exact?;
+      · exact es_partp_dec_length_le base start_idx num_blocks size eps heps_pos s hs_sub hs_sorted;
       · cases eq_or_lt_of_le heps <;> aesop;
         unfold es_partp at hs_sub;
         unfold es_block at hs_sub; aesop;
@@ -3168,8 +3168,8 @@ lemma max_inc_sum_construction (k a : ℕ) (eps : ℝ) (hak : a ≤ k) (heps_pos
   max_inc_sum (construction k a eps) = max (max_inc_sum (part1p k a eps)) (max_inc_sum (part2p k a eps)) + max_inc_sum (part3p k a eps) := by
     rw [ construction_eq_parts ];
     rw [ max_inc_sum_append_of_lt, max_inc_sum_append_of_gt ];
-    · exact?;
-    · exact?
+    · exact fun x a_1 y a_2 ↦ part1p_gt_part2p k a eps hak heps_pos heps_small x a_1 y a_2;
+    · exact fun x a_1 y a_2 ↦ part1p_part2p_lt_part3p k a eps hak heps_pos heps_small x a_1 y a_2
 
 /-
 Decomposition of max_dec_sum for the construction.
@@ -3196,7 +3196,7 @@ lemma M_construction_le (k a : ℕ) (eps : ℝ) (hak : a ≤ k) (heps_pos : 0 < 
         unfold max_inc_sum; aesop;
         unfold Option.getD; aesop;
         · have := List.maximum_mem heq; aesop;
-          convert this_1 w left right_1 using 1 ; unfold es_partp_max_val ; ring;
+          convert this_1 w left right_1 using 1 ; unfold es_partp_max_val ; ring_nf;
           rw [ Nat.cast_sub ] <;> linarith;
         · exact mul_nonneg ( Nat.cast_nonneg _ ) ( add_nonneg ( add_nonneg ( Nat.cast_nonneg _ ) zero_le_one ) ( mul_nonneg ( mul_nonneg ( Nat.cast_nonneg _ ) ( sub_nonneg.mpr ( Nat.cast_le.mpr hak ) ) ) heps_pos.le ) )
       have h_part2p : max_inc_sum (part2p k a eps) ≤ (a + 1 : ℝ) * (a + (a * (k - a) + (a + 1) * (a + 1)) * eps) := by
@@ -3211,7 +3211,7 @@ lemma M_construction_le (k a : ℕ) (eps : ℝ) (hak : a ≤ k) (heps_pos : 0 < 
       have h_part3p : max_inc_sum (part3p k a eps) ≤ (k - a : ℝ) * ((a + 1) + (a * (k - a) + (a + 1) * (a + 1) + (k - a) * k) * eps) := by
         have h_part3p : ∀ s : List ℝ, s.Sublist (part3p k a eps) → s.Sorted (· < ·) → s.sum ≤ (k - a : ℝ) * ((a + 1) + (a * (k - a) + (a + 1) * (a + 1) + (k - a) * k) * eps) := by
           intro s hs hs'; have := es_partp_inc_sum_le ( a + 1 ) ( a * ( k - a ) + ( a + 1 ) * ( a + 1 ) ) ( k - a ) k eps ( by positivity ) ( by positivity ) s hs hs'; aesop;
-          convert this using 2 ; ring;
+          convert this using 2 ; ring_nf;
           unfold es_partp_max_val; norm_num [ hak ] ; ring;
         unfold max_inc_sum;
         unfold Option.getD; aesop;
@@ -3257,7 +3257,7 @@ lemma M_construction_le (k a : ℕ) (eps : ℝ) (hak : a ≤ k) (heps_pos : 0 < 
             · positivity;
             · positivity;
             · exact hs_sub;
-            · exact?;
+            · exact ((fun a ↦ hs_sorted) ∘ fun a ↦ k) k;
           unfold max_dec_sum;
           unfold Option.getD; aesop;
           · have := List.maximum_mem heq; aesop;
@@ -3268,8 +3268,8 @@ lemma M_construction_le (k a : ℕ) (eps : ℝ) (hak : a ≤ k) (heps_pos : 0 < 
       rw [ max_dec_sum_construction ];
       · exact max_le h_max_dec h_max_dec_part3p;
       · bound;
-      · exact?;
-      · exact?;
+      · exact RCLike.ofReal_pos.mp heps_pos;
+      · exact RCLike.ofReal_lt_ofReal.mp heps_small;
     aesop
 
 /-
@@ -3378,7 +3378,7 @@ theorem main_theorem (k a : ℕ) (hk : 1 ≤ k) (hak : a ≤ k) :
     have h_limit : Filter.Tendsto (fun (ε' : ℝ) => (k * (a + 1) + ε' * ((k^2 + 2*a + 1 : ℕ) : ℝ)^3 + ((k^2 + 2*a + 1 : ℕ) : ℝ) * ε') / (((a : ℝ) + 1) * ((k : ℝ)^2 + (a : ℝ)) + ε' * ((k^2 + 2*a + 1 : ℕ) : ℝ) * (((k^2 + 2*a + 1 : ℕ) : ℝ) - 1) / 2)) (nhdsWithin 0 (Set.Ioi 0)) (nhds (k / ((k^2 + a : ℝ)))) := by
       refine' tendsto_nhdsWithin_of_tendsto_nhds _;
       convert Filter.Tendsto.div ( Continuous.tendsto _ _ ) ( Continuous.tendsto _ _ ) _ using 2 <;> norm_num;
-      exacts [ by rw [ div_eq_div_iff ] <;> ring <;> positivity, by infer_instance, by infer_instance, by continuity, by continuity, ⟨ by positivity, by positivity ⟩ ];
+      exacts [ by rw [ div_eq_div_iff ] <;> ring_nf <;> positivity, by infer_instance, by infer_instance, by continuity, by continuity, ⟨ by positivity, by positivity ⟩ ];
     refine' le_of_tendsto_of_tendsto tendsto_const_nhds h_limit _;
     rw [ Filter.EventuallyLE, eventually_nhdsWithin_iff ];
     filter_upwards [ gt_mem_nhds <| show 0 < 1 / ( ( k^2 + 2*a + 1 : ℝ ) ) from by positivity ] with x hx₁ hx₂ ; aesop;
@@ -4010,8 +4010,8 @@ theorem exists_monotone_subseq_sum_ge_general
     · exact ⟨ P, hP_valid, rfl ⟩
   have hg_le_k_plus_a_div_k : g n ≤ k + a / k := by
     have := baek_koizumi_ueoro k a;
-    convert this ( by positivity ) ( by nlinarith ) using 1 ; norm_cast ; ring;
-    exact hn ▸ by ring;
+    convert this ( by positivity ) ( by nlinarith ) using 1 ; norm_cast ; ring_nf;
+    exact hn ▸ by ring_nf;
 
   have h_one_div_target : 1 / (k / (k^2 + a : ℝ)) = k + a / k := by
     field_simp;
@@ -4515,7 +4515,7 @@ theorem exists_seq_with_monotone_subseq_sum_le_general_range
       convert exists_seq_with_monotone_subseq_sum_le_minus_one k (k ^ 2 - 1) _ _ _ _ using 1;
       any_goals trivial;
       rw [ show n = k ^ 2 - 1 by exact eq_tsub_of_add_eq <| by linarith ] ; norm_num [ Nat.cast_sub <| show 1 ≤ k ^ 2 from by nlinarith ] ;
-      ring;
+      ring_nf;
     · apply_rules [ exists_seq_with_monotone_subseq_sum_le_general_neg ];
       linarith;
     · convert exists_seq_with_monotone_subseq_sum_le_general_nonneg k n ( Int.toNat a ) hk ( by linarith [ Int.toNat_of_nonneg ha₁ ] ) _ using 1;
