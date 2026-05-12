@@ -163,6 +163,7 @@ import ErdosProblems.Erdos1051
 import ErdosProblems.Erdos1056b
 import ErdosProblems.Erdos1067
 import ErdosProblems.Erdos1071
+import ErdosProblems.Erdos1071b
 import ErdosProblems.Erdos1080
 import ErdosProblems.Erdos1090
 import ErdosProblems.Erdos1095b
