@@ -114,6 +114,7 @@ import ErdosProblems.Erdos785
 import ErdosProblems.Erdos794
 import ErdosProblems.Erdos794b
 import ErdosProblems.Erdos794c
+import ErdosProblems.Erdos798
 import ErdosProblems.Erdos818
 import ErdosProblems.Erdos844
 import ErdosProblems.Erdos862
