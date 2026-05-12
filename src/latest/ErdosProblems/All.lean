@@ -98,6 +98,7 @@ import ErdosProblems.Erdos621
 import ErdosProblems.Erdos639
 import ErdosProblems.Erdos645
 import ErdosProblems.Erdos646
+import ErdosProblems.Erdos649
 import ErdosProblems.Erdos650
 import ErdosProblems.Erdos674
 import ErdosProblems.Erdos678b
@@ -124,6 +125,7 @@ import ErdosProblems.Erdos871
 import ErdosProblems.Erdos897
 import ErdosProblems.Erdos898
 import ErdosProblems.Erdos904
+import ErdosProblems.Erdos905
 import ErdosProblems.Erdos907
 import ErdosProblems.Erdos914
 import ErdosProblems.Erdos923
