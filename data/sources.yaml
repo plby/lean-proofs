@@ -100,6 +100,25 @@
     - https://gist.githubusercontent.com/madeve-unipi/690d2bd8f6e8304ba8b456f9db559747/raw/481e3c35de8dce7af70ec440e4e121f084a61860/Erdos38.lean
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos42
+  epc: https://www.erdosproblems.com/42
+  author:
+    informal:
+      AI: GPT-5.5 Pro
+      human: Harjas Sandhu
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex 5.5
+        - GPT-5.5 Pro
+      human: paws
+  url:
+    - https://www.erdosproblems.com/forum/thread/42#post-6370
+    - https://github.com/Shashi456/erdos-formalizations/blob/main/Erdos/P42/CompactCayley/Proof.lean
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/42.lean
+    - https://live.lean-lang.org/#project=mathlib-v4.28.0&url=https%3A%2F%2Fraw.githubusercontent.com%2FShashi456%2Ferdos-formalizations%2Frefs%2Fheads%2Fmain%2FErdos%2FP42%2FCompactCayley%2FProof.lean
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos45
   epc: https://www.erdosproblems.com/45
   author:
@@ -1568,6 +1587,22 @@
     - https://gist.githubusercontent.com/LorenzoLuccioli/71247a0c86fa35cb1e000160baef0bba/raw/eff1f49238af6ae9119b879ee91ff36ec6ee6b31/Erdos621.lean
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos639
+  epc: https://www.erdosproblems.com/639
+  author:
+    informal:
+      human:
+        - Peter Keevash
+        - Benny Sudakov
+    formal:
+      AI: Aristotle
+      human: Parcly Taxel
+  url:
+    - https://www.erdosproblems.com/forum/thread/639#post-6189
+    - https://gist.githubusercontent.com/Parcly-Taxel/f9a6a963d1057880633e4034294aa98e/raw/885ce8aa2d80d8ac598b98126de3321b5b8842ff/Erdos639.lean
+    - https://live.lean-lang.org/#url=https%3A%2F%2Fgist.githubusercontent.com%2FParcly-Taxel%2Ff9a6a963d1057880633e4034294aa98e%2Fraw%2F885ce8aa2d80d8ac598b98126de3321b5b8842ff%2FErdos639.lean&project=mathlib-v4.28.0
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos645
   epc: https://www.erdosproblems.com/645
   author:
@@ -1739,6 +1774,27 @@
   url:
     - https://www.erdosproblems.com/forum/thread/692#post-5204
     - https://gist.githubusercontent.com/pitmonticone/96516af9100a37a1da81908dc0b0410c/raw/a1d6ca7f3835c58b257e5e715c8fdf3a224e1bd0/Erdos692.lean
+  version: "4.28.0"
+
+- key: ErdosProblems.Erdos694
+  epc: https://www.erdosproblems.com/694
+  author:
+    informal:
+      AI: GPT-5.5 Pro
+      human: Liam Price
+    formal:
+      AI:
+        - Claude Code 4.7
+        - GPT-5.5 Pro
+      human: paws
+  url:
+    - https://www.erdosproblems.com/forum/thread/694#post-6202
+    - https://www.overleaf.com/read/fgmhvywvdjkt#54ca5d
+    - https://github.com/Shashi456/erdos-formalizations/blob/main/Erdos/P694/Proof.lean
+    - https://live.lean-lang.org/#project=mathlib-v4.28.0&url=https%3A%2F%2Fraw.githubusercontent.com%2FShashi456%2Ferdos-formalizations%2Frefs%2Fheads%2Fmain%2FErdos%2FP694%2FProof.lean
+  conditional:
+    - mertens_product
+    - linnik_dvd
   version: "4.28.0"
 
 - key: ErdosProblems.Erdos698
@@ -1939,6 +1995,20 @@
     - https://www.erdosproblems.com/forum/thread/794
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos794.md
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos798
+  epc: https://www.erdosproblems.com/798
+  author:
+    informal:
+      human: Noga Alon
+    formal:
+      AI: Aristotle
+      human: Parcly Taxel
+  url:
+    - https://www.erdosproblems.com/forum/thread/798#post-6329
+    - https://gist.githubusercontent.com/Parcly-Taxel/757ca8323d74784da1a776795b9c90a9/raw/3a9724b1f6cd2504b809cf3c66f843b89d375e8b/Erdos798.lean
+    - https://live.lean-lang.org/#project=mathlib-v4.28.0&url=https%3A%2F%2Fgist.githubusercontent.com%2FParcly-Taxel%2F757ca8323d74784da1a776795b9c90a9%2Fraw%2F3a9724b1f6cd2504b809cf3c66f843b89d375e8b%2FErdos798.lean
+  version: "4.28.0"
 
 - key: ErdosProblems.Erdos818
   epc: https://www.erdosproblems.com/818
@@ -2834,6 +2904,7 @@
     - https://www.erdosproblems.com/forum/thread/1148#post-4849
     - https://www.ulam.ai/research/erdos1148-full.pdf
     - https://github.com/ulamai/ulamai
+  url_ref: PrzemekChojecki_1148
   conditional: duke_theorem
   version: "4.27.0"
 
