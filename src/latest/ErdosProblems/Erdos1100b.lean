@@ -12,6 +12,8 @@ See https://www.erdosproblems.com/1100 for more information.
 
 import Mathlib
 
+namespace Erdos1100b
+
 set_option linter.mathlibStandardSet false
 
 open scoped BigOperators
@@ -1277,3 +1279,7 @@ theorem main_theorem (hPNT : PNT_statement) :
 
 #print axioms main_theorem
 -- 'main_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end
+
+end Erdos1100b

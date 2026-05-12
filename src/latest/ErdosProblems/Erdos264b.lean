@@ -124,7 +124,7 @@ theorem recursive_step (n : ℕ) (current_sum : ℝ) (x : ℝ)
           -- By definition of $beta$, we can split the sum into the first term and the rest.
           have h_beta_split : beta n = 1 / ((2 : ℝ)^(n + 1) + 1) + beta (n + 1) := by
             unfold beta; aesop;
-            rw [ Summable.tsum_eq_zero_add ] ; norm_num [ pow_add ] ; ring; (
+            rw [ Summable.tsum_eq_zero_add ] ; norm_num [ pow_add ] ; ring_nf; (
             exact Summable.of_nonneg_of_le ( fun _ => by positivity ) ( fun k => by simpa using inv_anti₀ ( by positivity ) ( show ( 2 ^ ( n + 1 + k ) + 1 : ℝ ) ≥ 2 ^ ( n + 1 + k ) by linarith ) ) ( by simpa using summable_geometric_two.comp_injective ( by aesop_cat ) ));
           linarith;
         exact ⟨ Finset.max' ( Finset.filter ( fun c : ℕ => x ≤ current_sum + 1 / ( 2 ^ ( n + 1 ) + c : ℝ ) + beta ( n + 1 ) ) ( Finset.Icc 1 5 ) ) ⟨ 1, by norm_num; aesop ⟩, Finset.mem_filter.mp ( Finset.max'_mem ( Finset.filter ( fun c : ℕ => x ≤ current_sum + 1 / ( 2 ^ ( n + 1 ) + c : ℝ ) + beta ( n + 1 ) ) ( Finset.Icc 1 5 ) ) ⟨ 1, by norm_num; aesop ⟩ ) |>.1, Finset.mem_filter.mp ( Finset.max'_mem ( Finset.filter ( fun c : ℕ => x ≤ current_sum + 1 / ( 2 ^ ( n + 1 ) + c : ℝ ) + beta ( n + 1 ) ) ( Finset.Icc 1 5 ) ) ⟨ 1, by norm_num; aesop ⟩ ) |>.2, fun c hc hbc hxc => not_lt_of_ge ( Finset.le_max' _ _ <| by aesop ) hbc ⟩;
@@ -133,9 +133,9 @@ theorem recursive_step (n : ℕ) (current_sum : ℝ) (x : ℝ)
       · use 5; aesop;
         -- By definition of $alpha$, we know that
         have h_alpha : alpha n = 1 / ((2 : ℝ)^(n + 1) + 5) + alpha (n + 1) := by
-          unfold alpha; rw [ Summable.tsum_eq_zero_add ] ; norm_num; ring;
+          unfold alpha; rw [ Summable.tsum_eq_zero_add ] ; norm_num; ring_nf;
           norm_num [ pow_add ];
-          exact Summable.of_nonneg_of_le ( fun _ => by positivity ) ( fun k => by rw [ inv_le_comm₀ ] <;> norm_num <;> ring <;> nlinarith [ pow_le_pow_right₀ ( by norm_num : ( 1 : ℝ ) ≤ 2 ) n.zero_le, pow_le_pow_right₀ ( by norm_num : ( 1 : ℝ ) ≤ 2 ) k.zero_le ] ) ( summable_geometric_two );
+          exact Summable.of_nonneg_of_le ( fun _ => by positivity ) ( fun k => by rw [ inv_le_comm₀ ] <;> norm_num <;> ring_nf <;> nlinarith [ pow_le_pow_right₀ ( by norm_num : ( 1 : ℝ ) ≤ 2 ) n.zero_le, pow_le_pow_right₀ ( by norm_num : ( 1 : ℝ ) ≤ 2 ) k.zero_le ] ) ( summable_geometric_two );
         norm_num at * ; linarith;
       · -- Otherwise, if $b_{n+1}\in\{1,2,3,4\}$, then the maximality from its definition gives
         -- \[ x > \sum_{k=1}^{n} \frac{1}{2^k+b_k} + \frac{1}{2^{n+1}+b_{n+1}+1} + \beta_{n+1}, \]
@@ -143,7 +143,7 @@ theorem recursive_step (n : ℕ) (current_sum : ℝ) (x : ℝ)
           exact lt_of_not_ge ( hb_next_def.2.2 ( b_next + 1 ) ( Finset.mem_Icc.mpr ⟨ by linarith [ Finset.mem_Icc.mp hb_next_def.1 ], by linarith [ Finset.mem_Icc.mp hb_next_def.1, Nat.lt_of_le_of_ne ( Finset.mem_Icc.mp hb_next_def.1 |>.2 ) hb_next_eq_5 ] ⟩ ) ( by linarith [ Finset.mem_Icc.mp hb_next_def.1 ] ) );
         -- Using Lemma 2, we have $\beta_{n+1} \geq \alpha_{n+1} + \frac{1}{(2^{n+1}+1)(2^{n+1}+2)}$.
         have h_beta_alpha : beta (n + 1) ≥ alpha (n + 1) + 1 / ((2^(n + 1) + 1) * (2^(n + 1) + 2) : ℝ) := by
-          exact?;
+          exact lemma2 n
         -- Using the inequality $\frac{1}{(2^{n+1}+b_{n+1})(2^{n+1}+b_{n+1}+1)} \leq \frac{1}{(2^{n+1}+1)(2^{n+1}+2)}$, we get
         have h_ineq : 1 / ((2^(n + 1) + (b_next : ℕ)) * (2^(n + 1) + (b_next + 1) : ℕ) : ℝ) ≤ 1 / ((2^(n + 1) + 1) * (2^(n + 1) + 2) : ℝ) := by
           gcongr <;> norm_cast <;> aesop;
@@ -159,7 +159,7 @@ theorem main_theorem : ∃ b : ℕ → ℕ, (∀ k, b k ∈ ({1, 2, 3, 4, 5} : S
   obtain ⟨x, hx_bounds⟩ : ∃ x : ℚ, (alpha 0 : ℝ) ≤ x ∧ x ≤ (beta 0 : ℝ) := by
     -- By Lemma 1, we know that $\alpha_0 < \beta_0$.
     have h_alpha_beta : alpha 0 < beta 0 := by
-      exact?;
+      exact lemma1 0
     exact mod_cast exists_rat_btwn h_alpha_beta |> fun ⟨ x, hx₁, hx₂ ⟩ => ⟨ x, hx₁.le, hx₂.le ⟩;
   -- By the recursive step, we can construct the sequence $b_k$ such that the partial sums converge to $x$.
   obtain ⟨b, hb⟩ : ∃ b : ℕ → ℕ, (∀ k, (b k ∈ ({1, 2, 3, 4, 5} : Set ℕ))) ∧ ∀ n, (∑ k ∈ Finset.range n, (1 / ((2 : ℝ)^(k + 1) + (b (k + 1))))) + (alpha n : ℝ) ≤ x ∧ x ≤ (∑ k ∈ Finset.range n, (1 / ((2 : ℝ)^(k + 1) + (b (k + 1))))) + (beta n : ℝ) := by
@@ -218,8 +218,8 @@ theorem main_theorem : ∃ b : ℕ → ℕ, (∀ k, b k ∈ ({1, 2, 3, 4, 5} : S
           intro n; exact Summable.tsum_le_tsum ( fun k => by gcongr ; norm_num ) ( by exact Summable.of_nonneg_of_le ( fun _ => by positivity ) ( fun k => by simpa using inv_anti₀ ( by positivity ) ( show ( 2 : ℝ ) ^ ( n + 1 + k ) + 1 ≥ 2 ^ ( n + 1 + k ) by norm_num ) ) ( by simpa using summable_geometric_two.comp_injective ( by aesop_cat ) ) ) ( by simpa using summable_geometric_two.comp_injective ( by aesop_cat ) ) ;
         -- The series $\sum_{k=n+1}^{\infty} \frac{1}{2^k}$ is a geometric series with sum $\frac{1}{2^n}$.
         have h_geo_series : ∀ n, ∑' k : ℕ, (1 / ((2 : ℝ)^(n + 1 + k))) = (1 / ((2 : ℝ)^(n + 1))) / (1 - 1 / 2) := by
-          intro n; ring;
-          rw [ tsum_mul_right, tsum_mul_left, tsum_geometric_of_lt_one ] <;> ring <;> norm_num;
+          intro n; ring_nf;
+          rw [ tsum_mul_right, tsum_mul_left, tsum_geometric_of_lt_one ] <;> ring_nf <;> norm_num;
         aesop;
         exact squeeze_zero ( fun n => tsum_nonneg fun _ => by positivity ) h_beta_le ( by exact le_trans ( Filter.Tendsto.div_const ( tendsto_inv_atTop_zero.comp ( tendsto_pow_atTop_atTop_of_one_lt one_lt_two |> Filter.Tendsto.comp <| Filter.tendsto_add_atTop_nat _ ) ) _ ) <| by norm_num );
     rw [ Metric.tendsto_nhds ] at *;

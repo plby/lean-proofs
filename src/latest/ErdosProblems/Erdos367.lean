@@ -109,11 +109,11 @@ theorem n_real_is_nat (j : ℕ) : ∃ k : ℕ, n_real j = k := by
       aesop;
       · -- Now use the induction hypothesis to simplify the expression.
         have h_expand : (3 + Real.sqrt 8) ^ (2 * (j + 1)) = (a + b * Real.sqrt 8) * (17 + 6 * Real.sqrt 8) := by
-          rw [ ← ha ] ; ring ; norm_num ; ring;
-        exact h_expand.trans ( by ring_nf; norm_num ; ring );
-      · convert congr_arg ( fun x : ℝ => x / ( 3 + Real.sqrt 8 ) ^ 2 ) hb using 1 <;> ring;
-        · rw [ ← mul_inv ] ; norm_cast ; ring;
-        · rw [ show ( Real.sqrt 8 ) ^ 2 = 8 by norm_num ] ; ring;
+          rw [ ← ha ] ; ring_nf ; norm_num ; ring_nf;
+        exact h_expand.trans ( by ring_nf; norm_num ; ring_nf );
+      · convert congr_arg ( fun x : ℝ => x / ( 3 + Real.sqrt 8 ) ^ 2 ) hb using 1 <;> ring_nf;
+        · rw [ ← mul_inv ] ; norm_cast ; ring_nf;
+        · rw [ show ( Real.sqrt 8 ) ^ 2 = 8 by norm_num ] ; ring_nf;
           nlinarith [ Real.sqrt_nonneg 8, Real.sq_sqrt ( show 0 ≤ 8 by norm_num ), inv_mul_cancel_left₀ ( show ( 17 + Real.sqrt 8 * 6 ) ≠ 0 by positivity ) ( a : ℝ ), inv_mul_cancel_left₀ ( show ( 17 + Real.sqrt 8 * 6 ) ≠ 0 by positivity ) ( b : ℝ ) ];
   -- Substitute the expressions for α^(2j) and α^(-2j) into the formula for n_j.
   obtain ⟨a, b, ha, hb⟩ := h_alpha_pow
@@ -125,7 +125,7 @@ theorem n_real_is_nat (j : ℕ) : ∃ k : ℕ, n_real j = k := by
       rw [ha, hb];
     -- Combine like terms in the numerator and simplify the expression.
     rw [h_n_j]
-    ring;
+    ring_nf;
   -- Since $a$ is odd, $(a - 1)$ is even, and thus $(a - 1) / 2$ is a natural number.
   have h_a_odd : Odd a := by
     -- From the equation $a^2 - 8b^2 = 1$, we know that $a$ must be odd.
@@ -135,7 +135,7 @@ theorem n_real_is_nat (j : ℕ) : ∃ k : ℕ, n_real j = k := by
         exact mul_inv_cancel₀ ( by positivity );
       exact_mod_cast ( by ring_nf at h_eq; norm_num at h_eq; linarith : ( a : ℝ ) ^ 2 = 8 * b ^ 2 + 1 );
     simpa [ parity_simps ] using congr_arg Even h_a_odd;
-  obtain ⟨ k, rfl ⟩ := h_a_odd; exact ⟨ k, by push_cast [ h_n_j ] ; ring ⟩ ;
+  obtain ⟨ k, rfl ⟩ := h_a_odd; exact ⟨ k, by push_cast [ h_n_j ] ; ring_nf ⟩ ;
 
 noncomputable def n_nat (j : ℕ) : ℕ := (n_real_is_nat j).choose
 
@@ -149,8 +149,8 @@ theorem n_nat_eq_8_y_sq (j : ℕ) : n_nat j = 8 * (y_j j)^2 := by
   have h_n_real : n_real j = ((3 + Real.sqrt 8) ^ (2 * j) - 2 + (3 - Real.sqrt 8) ^ (2 * j)) / 4 := by
     unfold n_real;
     simp +zetaDelta at *;
-    unfold alpha; norm_cast; ring; norm_num; ring;
-    rw [ inv_eq_of_mul_eq_one_right ] ; ring ; norm_num;
+    unfold alpha; norm_cast; ring_nf; norm_num; ring_nf;
+    rw [ inv_eq_of_mul_eq_one_right ] ; ring_nf ; norm_num;
   -- By definition of $n_real$, we know that $n_real j = 8 * y_j j^2$.
   have h_n_real_eq : n_real j = 8 * y_j j ^ 2 := by
     -- By definition of $x_j$ and $y_j$, we know that $(3 + \sqrt{8})^j = x_j + y_j \sqrt{8}$.
@@ -163,18 +163,18 @@ theorem n_nat_eq_8_y_sq (j : ℕ) : n_nat j = 8 * (y_j j)^2 := by
         · unfold x_j y_j; norm_num [ Pell.xn_succ, Pell.yn_succ ] ; ring_nf ; norm_num;
           exact Or.inl rfl;
     aesop;
-    rw [ pow_mul', pow_mul' ] ; rw [ left, right ] ; ring_nf ; norm_num ; ring;
+    rw [ pow_mul', pow_mul' ] ; rw [ left, right ] ; ring_nf ; norm_num ; ring_nf;
     -- By definition of $x_j$ and $y_j$, we know that $x_j^2 - 8y_j^2 = 1$.
     have h_pell : (x_j j : ℝ)^2 - 8 * (y_j j : ℝ)^2 = 1 := by
       have h_pell : (x_j j : ℝ)^2 - 8 * (y_j j : ℝ)^2 = ((3 + Real.sqrt 8) ^ j) * ((3 - Real.sqrt 8) ^ j) := by
-        rw [ left, right ] ; ring ; norm_num;
-      rw [ h_pell, ← mul_pow ] ; ring ; norm_num;
+        rw [ left, right ] ; ring_nf ; norm_num;
+      rw [ h_pell, ← mul_pow ] ; ring_nf ; norm_num;
     linarith;
   -- Since $n_real j = 8 * y_j j^2$ and $n_nat j$ is the natural number corresponding to $n_real j$, we can conclude that $n_nat j = 8 * y_j j^2$.
   have h_n_nat_eq : n_nat j = Nat.floor (n_real j) := by
     have h_n_nat_eq : n_nat j = Nat.floor (n_real j) := by
       have h_eq : (n_nat j : ℝ) = n_real j := by
-        exact?
+        exact n_nat_eq_n_real j
       rw [ ← h_eq, Nat.floor_natCast ];
     exact h_n_nat_eq;
   norm_num [ h_n_nat_eq, h_n_real_eq ];
@@ -237,7 +237,7 @@ theorem alpha_pow_K_t (t : ℕ) (ht : t ≥ 1) :
       norm_num;
       constructor <;> nlinarith [ Real.sqrt_nonneg 8, Real.sq_sqrt ( show 0 ≤ 8 by norm_num ) ];
     · rcases ih with ⟨ a, b, ha, hb, ha', hb' ⟩ ; rcases t with ( _ | t ) <;> simp_all +decide [ pow_succ, pow_mul ] ; ring_nf at * ; norm_cast at * ; aesop;
-      rw [ show ( Real.sqrt 8 ) ^ 4 = ( Real.sqrt 8 ^ 2 ) ^ 2 by ring, show ( Real.sqrt 8 ) ^ 5 = ( Real.sqrt 8 ^ 2 ) ^ 2 * Real.sqrt 8 by ring, show ( Real.sqrt 8 ) ^ 3 = ( Real.sqrt 8 ^ 2 ) * Real.sqrt 8 by ring, Real.sq_sqrt <| by norm_num ] ; ring_nf at * ; norm_cast at * ; aesop;
+      rw [ show ( Real.sqrt 8 ) ^ 4 = ( Real.sqrt 8 ^ 2 ) ^ 2 by ring_nf, show ( Real.sqrt 8 ) ^ 5 = ( Real.sqrt 8 ^ 2 ) ^ 2 * Real.sqrt 8 by ring_nf, show ( Real.sqrt 8 ) ^ 3 = ( Real.sqrt 8 ^ 2 ) * Real.sqrt 8 by ring_nf, Real.sq_sqrt <| by norm_num ] ; ring_nf at * ; norm_cast at * ; aesop;
       refine' ⟨ a ^ 5 + a ^ 3 * b ^ 2 * 80 + a * b ^ 4 * 320, a ^ 4 * b * 5 + a ^ 2 * b ^ 3 * 80 + b ^ 5 * 64, _, _, _, _ ⟩ <;> push_cast <;> ring_nf at * <;> norm_num at * <;> norm_cast at * <;> aesop;
       · rw [ Int.modEq_comm, Int.modEq_iff_dvd ] at *;
         obtain ⟨ k, hk ⟩ := ha'; obtain ⟨ l, hl ⟩ := hb'; norm_num [ show a = -1 + k * ( 5 ^ t * 5 ) by linarith, show b = l * ( 5 ^ t * 5 ) by linarith ] ; ring_nf;
@@ -248,10 +248,10 @@ theorem alpha_pow_K_t (t : ℕ) (ht : t ≥ 1) :
             k ^ 2 * l ^ 2 * 5 ^ (t * 3) * 6000 +
             k ^ 3 * l ^ 2 * 5 ^ (t * 4) * 10000 -
             l ^ 4 * 5 ^ (t * 3) * 8000 +
-            k * l ^ 4 * 5 ^ (t * 4) * 40000, by ring ⟩;
+            k * l ^ 4 * 5 ^ (t * 4) * 40000, by ring_nf ⟩;
       · rw [ Int.modEq_zero_iff_dvd ] at *;
         rcases hb' with ⟨ k, rfl ⟩ ; ring_nf ; norm_num [ pow_succ, mul_assoc, dvd_mul_of_dvd_right ] ; aesop;
-        exact ⟨ a ^ 2 * k ^ 3 * 5 ^ ( t * 2 ) * 400 + a ^ 4 * k + k ^ 5 * 5 ^ ( t * 4 ) * 8000, by ring ⟩;
+        exact ⟨ a ^ 2 * k ^ 3 * 5 ^ ( t * 2 ) * 400 + a ^ 4 * k + k ^ 5 * 5 ^ ( t * 4 ) * 8000, by ring_nf ⟩;
   obtain ⟨ a, b, ha, hb, ha', hb' ⟩ := h_recurrence t ht;
   obtain ⟨ k, hk ⟩ := ha'.symm.dvd; obtain ⟨ l, hl ⟩ := hb'.symm.dvd; use k, l; aesop;
   · unfold alpha; norm_num [ show a = 5 ^ t * k - 1 by linarith ] at *; linarith;
@@ -262,12 +262,12 @@ theorem five_pow_t_dvd_n_jt_plus_two (t : ℕ) (ht : t ≥ 1) :
     -- Using the identity $4(n_j + 2) = \alpha^{2j} + 6 + \alpha^{-2j}$, we substitute $j = j_t$.
     have h_identity : 4 * (n_nat (j_t t) + 2) = (alpha ^ (2 * j_t t) + 6 + alpha ^ (-(2 * j_t t) : ℤ)) := by
       rw [ n_nat_eq_n_real ];
-      unfold n_real; ring;
+      unfold n_real; ring_nf;
     -- Since $2j_t = 3 \cdot 5^{t-1} - 1 = K_t - 1$, we can rewrite the identity as $4(n_{j_t} + 2) = \alpha^{K_t - 1} + 6 + \alpha^{-(K_t - 1)}$.
     have h_rewrite : 4 * (n_nat (j_t t) + 2) = (alpha ^ (j_t t + j_t t + 1) + 6 * alpha + alpha ^ (-(j_t t + j_t t + 1) : ℤ) * alpha ^ 2) / alpha := by
       -- Factor out $\alpha$ from the numerator.
       have h_factor : alpha ^ (j_t t + j_t t + 1) + 6 * alpha + alpha ^ (-(j_t t + j_t t + 1) : ℤ) * alpha ^ 2 = alpha * (alpha ^ (2 * j_t t) + 6 + alpha ^ (-(2 * j_t t) : ℤ)) := by
-        norm_cast ; norm_num ; ring;
+        norm_cast ; norm_num ; ring_nf;
         norm_cast ; norm_num [ sq, mul_assoc, ne_of_gt ( show 0 < alpha from by exact add_pos_of_pos_of_nonneg zero_lt_three <| Real.sqrt_nonneg _ ) ];
       rw [ h_factor, mul_div_cancel_left₀ _ ( by rw [ show alpha = 3 + Real.sqrt 8 by rfl ] ; positivity ) ] ; aesop;
     -- Using the result from `alpha_pow_K_t`, we know that $\alpha^{K_t} = -1 + 5^t(a + b\sqrt{8})$.
@@ -275,7 +275,7 @@ theorem five_pow_t_dvd_n_jt_plus_two (t : ℕ) (ht : t ≥ 1) :
       have := alpha_pow_K_t t ht; aesop;
       -- Since $j_t t = \frac{3 \cdot 5^{t-1} - 1}{2}$, we have $j_t t + j_t t + 1 = 3 \cdot 5^{t-1}$.
       have h_exp : j_t t + j_t t + 1 = 3 * 5 ^ (t - 1) := by
-        unfold j_t; ring;
+        unfold j_t; ring_nf;
         rw [ Nat.div_mul_cancel ( even_iff_two_dvd.mp ( by simp +decide [ Nat.one_le_iff_ne_zero, parity_simps ] ) ), add_tsub_cancel_of_le ( Nat.one_le_iff_ne_zero.mpr <| by positivity ) ];
       use w, w_1; aesop;
       convert right using 1;
@@ -284,8 +284,8 @@ theorem five_pow_t_dvd_n_jt_plus_two (t : ℕ) (ht : t ≥ 1) :
     -- Substitute $\alpha^{K_t}$ and $\alpha^{-K_t}$ into the rewritten identity.
     have h_subst : 4 * (n_nat (j_t t) + 2) = (5 ^ t * (6 * a - 16 * b)) / 1 := by
       rw [ ← @Int.cast_inj ℝ ] ; aesop;
-      rw [ ← h_identity ] ; rw [ show ( alpha : ℝ ) = 3 + Real.sqrt 8 by rfl ] ; ring;
-      norm_num [ pow_three ] ; ring;
+      rw [ ← h_identity ] ; rw [ show ( alpha : ℝ ) = 3 + Real.sqrt 8 by rfl ] ; ring_nf;
+      norm_num [ pow_three ] ; ring_nf;
       nlinarith [ Real.sqrt_nonneg 8, Real.sq_sqrt ( show 0 ≤ 8 by norm_num ), inv_mul_cancel_left₀ ( show ( 3 + Real.sqrt 8 ) ≠ 0 by positivity ) ( ( a : ℝ ) * 5 ^ t ), inv_mul_cancel_left₀ ( show ( 3 + Real.sqrt 8 ) ≠ 0 by positivity ) ( ( b : ℝ ) * 5 ^ t ) ];
     norm_num at *;
     exact_mod_cast Int.dvd_of_dvd_mul_right_of_gcd_one ( h_subst.symm ▸ dvd_mul_right _ _ ) ( by cases t <;> norm_num [ Int.gcd, Int.natAbs_pow ] at * )
@@ -347,7 +347,7 @@ theorem neg_powerfulPart_bound_k3 :
     linarith
   have h_contradiction : ∀ t ≥ 2, (8 * y_j (j_t t)) ^ 2 * (8 * y_j (j_t t)) ^ 2 * 5 ^ t ≤ C * (8 * y_j (j_t t)) ^ 4 := by
     have h_contradiction : ∀ t ≥ 2, (n_nat (j_t t)) = 8 * (y_j (j_t t)) ^ 2 := by
-      exact?;
+      exact fun t a ↦ n_nat_eq_8_y_sq (j_t t)
     -- Substitute h_contradiction into h_final_ineq and simplify.
     intros t ht
     specialize h_final_ineq t ht

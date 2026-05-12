@@ -22,10 +22,14 @@ Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 import Mathlib
 
+set_option linter.style.setOption false
+set_option aesop.warn.nonterminal false
+set_option linter.flexible false
 set_option linter.style.cases false
 set_option linter.style.induction false
 set_option linter.style.longLine false
 set_option linter.style.maxHeartbeats false
+set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.unusedSimpArgs false
 
@@ -187,7 +191,7 @@ lemma u_seq_gap {k : ℕ} {d : Fin k → ℕ} (hk : k ≠ 0) (h_ge : ∀ i, 2 �
     · exact Classical.choose_spec ( Finset.exists_min_image Finset.univ ( fun i => d i ^ e_seq d ( n + 1 ) i ) ⟨ i, Finset.mem_univ i ⟩ ) |>.2 _ ( Finset.mem_univ _ ) |> le_trans <| by aesop;
     · exact hi _
   have h_sum_u : ∑ j ∈ Finset.range (n + 1), u_seq d j = ∑ j ∈ Finset.univ, (d j ^ e_seq d (n + 1) j - 1) / (d j - 1) := by
-    exact?
+    exact sum_u_seq_eq hk h_ge (n + 1)
   have h_gap : d i ^ e_seq d (n + 1) i ≤ 1 + ∑ j ∈ Finset.univ, (d j ^ e_seq d (n + 1) j - 1) / (d j - 1) := by
     have h_gap : d i ^ e_seq d (n + 1) i ≤ 1 + ∑ j ∈ Finset.univ, ((d j ^ e_seq d (n + 1) j - 1) / (d j - 1) : ℚ) := by
       have h_lower_bound : ∑ j ∈ Finset.univ, ((d j ^ e_seq d (n + 1) j - 1) / (d j - 1) : ℚ) ≥ ∑ j ∈ Finset.univ, ((d i ^ e_seq d (n + 1) i - 1) / (d j - 1) : ℚ) := by
@@ -273,8 +277,8 @@ lemma digits_of_subset_sum_u_seq {k : ℕ} {d : Fin k → ℕ} (hk : k ≠ 0) (h
         simp +decide [ Finset.sum_ite ];
         rw [ Finset.inter_eq_right.mpr fun x hx => Finset.mem_range_succ_iff.mpr ( Finset.le_sup ( f := id ) hx ) ];
       have h_shift : ∀ (n : ℕ) (f : ℕ → ℕ), (∑ e ∈ Finset.range n, f e * d i ^ e) = Nat.ofDigits (d i) (List.map f (List.range n)) := by
-        intro n f; induction' n with n ih <;> simp_all +decide [ Nat.ofDigits, Finset.sum_range_succ ] ; ring;
-        rw [ add_comm 1 n, List.range_succ ] ; simp +decide [ Nat.ofDigits_append, List.map_append ] ; ring;
+        intro n f; induction' n with n ih <;> simp_all +decide [ Nat.ofDigits, Finset.sum_range_succ ] ; ring_nf;
+        rw [ add_comm 1 n, List.range_succ ] ; simp +decide [ Nat.ofDigits_append, List.map_append ] ; ring_nf;
       convert h_shift ( E.sup id + 1 ) ( fun e => if e ∈ E then 1 else 0 ) using 1 ; aesop;
     rw [ h_shift ];
     intro x hx; rw [ Nat.digits_ofDigits ] at hx <;> norm_num at *;
@@ -288,7 +292,7 @@ lemma digits_of_subset_sum_u_seq {k : ℕ} {d : Fin k → ℕ} (hk : k ≠ 0) (h
     have h_double_sum : ∑ j ∈ S, u_seq d j = ∑ i, ∑ j ∈ Finset.filter (fun j => chosen_index d j hk = i) S, d i ^ (chosen_exponent d j hk) := by
       simp +decide only [Finset.sum_filter];
       rw [ Finset.sum_comm, Finset.sum_congr rfl ] ; aesop;
-      exact?;
+      exact u_seq_eq_power hk x;
     rw [ h_double_sum, Finset.sum_congr rfl ] ; aesop;
     rw [ Finset.sum_image ] ; aesop;
     exact fun a ha b hb hab => Classical.not_not.1 fun h => h <| by have := chosen_pair_injective hk ( show ( chosen_index d a hk, chosen_exponent d a hk ) = ( chosen_index d b hk, chosen_exponent d b hk ) from by aesop ) ; aesop;
@@ -322,7 +326,7 @@ theorem erdos_conjecture_true (k : ℕ) (d : Fin k → ℕ)
       · -- Apply the lemma that states if the sum of reciprocals is at least 1, then k cannot be zero.
         apply k_ne_zero_of_sum_eq_one; assumption;
       · exact fun i => le_trans ( by norm_num ) ( h_ge i );
-    · exact?;
+    · exact u_seq_zero;
     · apply_rules [ u_seq_gap ];
       · aesop;
         norm_num at h_sum;
@@ -385,8 +389,7 @@ theorem formal_conjectures_erdos_124 : (∀ k, ∀ d : Fin k → ℕ,
   constructor
   · intro
     trivial
-  · intro
-    intro k d h_ge _ h_sum
+  · intro _ k d h_ge _ h_sum
     have h_erdos : ∀ n : ℕ, ∃ a : Fin k → ℕ,
         (∀ i, ((d i).digits (a i)).toFinset ⊆ {0, 1}) ∧ n = ∑ i, a i := by
       exact erdos_conjecture_true k d (fun i => by linarith [h_ge i]) (by rw [h_sum])
