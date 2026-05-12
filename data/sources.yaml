@@ -2640,6 +2640,20 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1048.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos1048b
+  epc: https://www.erdosproblems.com/1048
+  author:
+    informal:
+      AI: Aristotle
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/1048#post-3891
+    - https://github.com/plby/lean-proofs/blob/main/src/v4.24.0/ErdosProblems/Erdos1048b.lean
+    - https://live.lean-lang.org/#project=mathlib-v4.24.0&url=https%3A%2F%2Fraw.githubusercontent.com%2Fplby%2Flean-proofs%2Frefs%2Fheads%2Fmain%2Fsrc%2Fv4.24.0%2FErdosProblems%2FErdos1048b.lean
+  version: "4.24.0"
+
 - key: ErdosProblems.Erdos1051
   epc: https://www.erdosproblems.com/1051
   author:
