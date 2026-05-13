@@ -2983,6 +2983,21 @@
   conditional: duke_theorem
   version: "4.27.0"
 
+- key: ErdosProblems.Erdos1187b
+  partial: yes
+  epc: https://www.erdosproblems.com/1187
+  author:
+    formal:
+      AI:
+        - Codex
+        - GPT-5.5 xhigh
+      human: Kenta Kitamura
+  url:
+    - https://www.erdosproblems.com/forum/thread/1187#post-6429
+    - https://github.com/KitaKen1/erdos-1187-lean
+    - https://github.com/KitaKen1/erdos-1187-lean/blob/main/SecondSolution.lean
+  version: "4.29.1"
+
 - key: ErdosProblems.Erdos1193
   epc: https://www.erdosproblems.com/1193
   author:
