@@ -84,7 +84,6 @@ import ErdosProblems.Erdos447
 import ErdosProblems.Erdos453
 import ErdosProblems.Erdos457
 import ErdosProblems.Erdos459
-import ErdosProblems.Erdos459b
 import ErdosProblems.Erdos476
 import ErdosProblems.Erdos481
 import ErdosProblems.Erdos484
@@ -143,6 +142,7 @@ import ErdosProblems.Erdos798
 import ErdosProblems.Erdos818
 import ErdosProblems.Erdos844
 import ErdosProblems.Erdos845
+import ErdosProblems.Erdos846
 import ErdosProblems.Erdos862
 import ErdosProblems.Erdos866b
 import ErdosProblems.Erdos867
