@@ -2882,7 +2882,9 @@
   epc: https://www.erdosproblems.com/1071
   author:
     informal:
-      human: Boris Alexeev
+      human:
+        - Everett Howe
+        - Boris Alexeev
     formal:
       AI:
         - Aristotle
@@ -2890,6 +2892,8 @@
       human: Boris Alexeev
   url:
     - https://www.erdosproblems.com/forum/thread/1071
+    - https://www.erdosproblems.com/forum/thread/1071#post-4258
+    - https://bsky.app/profile/ewhowe.com/post/3mbktyzvyak2e
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1071.md
   version: "4.24.0"
 
