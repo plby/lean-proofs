@@ -128,6 +128,7 @@ import ErdosProblems.Erdos707
 import ErdosProblems.Erdos728
 import ErdosProblems.Erdos728b
 import ErdosProblems.Erdos728p
+import ErdosProblems.Erdos729
 import ErdosProblems.Erdos753
 import ErdosProblems.Erdos756
 import ErdosProblems.Erdos760
