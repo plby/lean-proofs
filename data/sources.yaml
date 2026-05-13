@@ -622,6 +622,43 @@
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/259.lean
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos264
+  partial: yes
+  epc: https://www.erdosproblems.com/264
+  author:
+    statement: Formal Conjectures authors
+    formal:
+      AI: Aristotle
+      human: Pietro Monticone
+  url:
+    - https://www.erdosproblems.com/forum/thread/264#post-2258
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos264.md
+    - https://github.com/plby/lean-proofs/blob/main/src/v4.24.0/ErdosProblems/Erdos264.lean
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/264.lean
+  version: "4.24.0"
+
+- key: ErdosProblems.Erdos264b
+  partial: yes
+  epc: https://www.erdosproblems.com/264
+  author:
+    informal:
+      human:
+        - Vjekoslav Kovač
+        - Terence Tao
+    statement: Formal Conjectures authors
+    formal:
+      AI: Aristotle
+      human: Vjekoslav Kovač
+  arxiv: https://arxiv.org/abs/2406.17593
+  url:
+    - https://www.erdosproblems.com/forum/thread/264#post-2236
+    - https://web.math.pmf.unizg.hr/~vjekovac/EP/EP264/Erdos264_blueprint.tex
+    - https://web.math.pmf.unizg.hr/~vjekovac/EP/EP264/Erdos264_converted.pdf
+    - https://github.com/VjekoKovac/erdosproblems/blob/main/Erdos264.lean
+    - https://github.com/plby/lean-proofs/blob/main/src/v4.24.0/ErdosProblems/Erdos264b.lean
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/264.lean
+  version: "4.24.0"
+
 - key: ErdosProblems.Erdos268
   epc: https://www.erdosproblems.com/268
   author:
@@ -1036,6 +1073,22 @@
     - https://www.erdosproblems.com/forum/thread/367#post-1776
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos367.md
     - https://github.com/plby/lean-proofs/blob/main/src/v4.24.0/ErdosProblems/Erdos367.lean
+  version: "4.24.0"
+
+- key: ErdosProblems.Erdos368b
+  partial: yes
+  epc: https://www.erdosproblems.com/368
+  author:
+    informal:
+      human: Georg Pólya
+      AI: ChatGPT
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/368#post-4335
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos368.md
+    - https://github.com/plby/lean-proofs/blob/main/src/v4.24.0/ErdosProblems/Erdos368b.lean
   version: "4.24.0"
 
 - key: ErdosProblems.Erdos369
@@ -2836,6 +2889,29 @@
       human: JoshuaB
   url: https://www.erdosproblems.com/forum/thread/1090#post-4523
   url_ref: JoshuaB_1090
+  version: "4.24.0"
+
+- key: ErdosProblems.Erdos1095b
+  partial: yes
+  epc: https://www.erdosproblems.com/1095
+  author:
+    informal:
+      human:
+        - E. F. Ecklund Jr.
+        - Paul Erdős
+        - J. L. Selfridge
+    statement:
+      human:
+        - Formal Conjectures authors
+        - Boris Alexeev
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/1095#post-2605
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1095.md
+    - https://github.com/plby/lean-proofs/blob/main/src/v4.24.0/ErdosProblems/Erdos1095b.lean
+    - https://github.com/google-deepmind/formal-conjectures/blob/3d6dc14ba924f82ab5200288f6c6ee1be1326a2d/FormalConjectures/ErdosProblems/1095.lean
   version: "4.24.0"
 
 - key: ErdosProblems.Erdos1098
