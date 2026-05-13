@@ -713,4 +713,10 @@ theorem csf_exceeds_half_plus_constant :
   obtain ⟨S, hS⟩ := hC' (36 * (C + C' + 1) + 144) (by linarith)
   exact ⟨_, S, hS.1, hS.2.1, by linarith⟩
 
+#print axioms construction_19_36
+-- 'Erdos867.construction_19_36' depends on axioms: [propext, Classical.choice, Quot.sound]
+#print axioms csf_exceeds_half_plus_constant
+-- 'Erdos867.csf_exceeds_half_plus_constant' depends on axioms: [propext, Classical.choice,
+-- Quot.sound]
+
 end Erdos867

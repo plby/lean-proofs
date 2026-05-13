@@ -266,4 +266,7 @@ theorem noll_simmons (h1056 : erdos_1056) :
   intro k hk
   apply noll_simmons_aux h1056 k hk
 
+#print axioms noll_simmons
+-- 'Erdos1056b.noll_simmons' depends on axioms: [propext, Classical.choice, Quot.sound]
+
 end Erdos1056b

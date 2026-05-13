@@ -133,5 +133,6 @@ theorem not_erdos299 :
   exact hnosum I hrecI
 
 #print axioms not_erdos299
+-- 'Erdos299.not_erdos299' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos299

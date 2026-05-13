@@ -35,6 +35,9 @@ The genericity ensures that the image of the combinatorial line contains exactly
 
 import Mathlib
 
+namespace Erdos1090
+
+
 set_option linter.mathlibStandardSet false
 
 open scoped BigOperators
@@ -512,3 +515,7 @@ theorem exists_set_with_strict_monochromatic_line_property (k : ℕ) (hk : 3 ≤
 -- 'exists_set_with_strict_monochromatic_line_property' depends on axioms: [propext,
 -- Classical.choice,
 -- Quot.sound]
+
+end
+
+end Erdos1090

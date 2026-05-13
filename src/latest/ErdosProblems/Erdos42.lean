@@ -14921,7 +14921,15 @@ end Erdos42
 /-! ## Axiom audit -/
 
 #print axioms Erdos42.CompactCayley.compact_cayley_clique
+-- 'Erdos42.CompactCayley.compact_cayley_clique' depends on axioms: [propext, Classical.choice,
+-- Quot.sound]
 #print axioms Erdos42.CompactCayley.theorem_1_1_from_compact_cayley
+-- 'Erdos42.CompactCayley.theorem_1_1_from_compact_cayley' depends on axioms: [propext,
+-- Classical.choice, Quot.sound]
 #print axioms Erdos42.theorem_1_1_via_cayley
+-- 'Erdos42.theorem_1_1_via_cayley' depends on axioms: [propext, Classical.choice, Quot.sound]
 #print axioms Erdos42.erdos_42_via_cayley
+-- 'Erdos42.erdos_42_via_cayley' depends on axioms: [propext, Classical.choice, Quot.sound]
 #print axioms Erdos42.FormalConjecturesShape.erdos_42_via_cayley
+-- 'Erdos42.FormalConjecturesShape.erdos_42_via_cayley' depends on axioms: [propext,
+-- Classical.choice, Quot.sound]

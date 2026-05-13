@@ -761,7 +761,8 @@ theorem erdos_125.variants.positive_lower_density :
 
 
 #print axioms erdos_125.variants.positive_lower_density
--- 'Erdos125.erdos_125.variants.positive_lower_density' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos125.erdos_125.variants.positive_lower_density' depends on axioms: [propext,
+-- Classical.choice, Quot.sound]
 #print axioms erdos_125
 -- 'Erdos125.erdos_125' depends on axioms: [propext, Classical.choice, Quot.sound]
 

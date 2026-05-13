@@ -2187,6 +2187,7 @@ theorem erdos_problem_775 (C : ℕ) :
   main_theorem 3 (by omega) C
 
 #print axioms erdos_problem_775
+-- 'Erdos775.erdos_problem_775' depends on axioms: [propext, choice, Quot.sound]
 
 end
 

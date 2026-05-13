@@ -1153,6 +1153,7 @@ theorem main_theorem (C : ℝ) (hC : C > 0) :
       exact Or.inr ⟨ by linarith, Or.inl ⟨ by linarith, by linarith ⟩ ⟩
 
 #print axioms main_theorem
+-- 'Erdos729.main_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end
 end Erdos729

@@ -27,6 +27,9 @@ _Proceedings of the AMS_ Volume 64, Number 2, pp. 370-371.
 -/
 import Mathlib
 
+namespace Erdos923
+
+
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.longLine false
@@ -510,3 +513,6 @@ theorem erdos923 {V : Type*} (n : ℕ) :
     exact ⟨H, hle, hchi, hcf⟩
 
 #print axioms erdos923
+-- 'Erdos923.erdos923' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos923

@@ -6375,4 +6375,13 @@ theorem not_erdos_707AM : ¬ erdos_707 :=
     counterexampleAM_Sidon
     counterexampleAM_noExt
 
+#print axioms not_erdos_707P
+-- 'Erdos707.not_erdos_707P' depends on axioms: [propext, Classical.choice, Quot.sound]
+#print axioms not_erdos_707H
+-- 'Erdos707.not_erdos_707H' depends on axioms: [propext, Classical.choice, Quot.sound]
+#print axioms not_erdos_707H2
+-- 'Erdos707.not_erdos_707H2' depends on axioms: [propext, Classical.choice, Quot.sound]
+#print axioms not_erdos_707AM
+-- 'Erdos707.not_erdos_707AM' depends on axioms: [propext, Classical.choice, Quot.sound]
+
 end Erdos707

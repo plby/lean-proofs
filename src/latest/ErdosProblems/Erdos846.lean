@@ -1120,5 +1120,6 @@ theorem erdos_846 : (False) ↔ ∀ᵉ (A : Set ℝ²) (ε > 0), A.Infinite → 
     exact hnotweak (h A ε hε hinf htril)
 
 #print axioms erdos_846
+-- 'Erdos846.erdos_846' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos846

@@ -414,4 +414,7 @@ theorem disproof_367 : ¬ erdos_367 := by
   -- Apply the negation of the conjecture for k=3 to obtain the required result.
   apply neg_powerfulPart_bound_k3; exact h_contra
 
+#print axioms disproof_367
+-- 'Erdos367b.disproof_367' depends on axioms: [propext, Classical.choice, Quot.sound]
+
 end Erdos367b

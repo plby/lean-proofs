@@ -32,6 +32,9 @@ All proofs depend only on standard Lean axioms
 -/
 import Mathlib
 
+namespace Erdos621
+
+
 set_option linter.deprecated false
 set_option linter.style.setOption false
 set_option linter.flexible false
@@ -938,8 +941,23 @@ private lemma pairwise_bound (G : Trigraph V) (u₀ v₀ w x : V)
          2 * (G.c w x + G.s w x) * wZ * xZ * (if χ₁w = χ₁x then 1 else 0) -
          2 * G.s w x * wZ * xZ) ≤
     G.f2 u₀ v₀ w x + G.f2 u₀ v₀ x w - 2 * (wZ * xZ) := by
-  simp [Trigraph.f2] at *
-  grind +suggestions
+  have hdis_w : G.s v₀ w = 1 → G.s u₀ w = 0 := G.s_nbrs_disjoint u₀ v₀ huv w
+  have hdis_x : G.s v₀ x = 1 → G.s u₀ x = 0 := G.s_nbrs_disjoint u₀ v₀ huv x
+  have hno_v : G.s v₀ w = 1 → G.s v₀ x = 1 → G.c w x = 0 ∧ G.s w x = 0 :=
+    fun hw hx => G.no_edges_in_S_nbrs v₀ w x hw hx
+  have hno_u : G.s u₀ w = 1 → G.s u₀ x = 1 → G.c w x = 0 ∧ G.s w x = 0 :=
+    fun hw hx => G.no_edges_in_S_nbrs u₀ w x hw hx
+  rcases G.s_eq_zero_or_one v₀ w with hsw₀ | hsw₀ <;>
+  rcases G.s_eq_zero_or_one u₀ w with hsu₀ | hsu₀ <;>
+  rcases G.s_eq_zero_or_one v₀ x with hsx₀ | hsx₀ <;>
+  rcases G.s_eq_zero_or_one u₀ x with hsx₁ | hsx₁ <;>
+  rcases G.c_eq_zero_or_one w x with hcw | hcw <;>
+  rcases G.s_eq_zero_or_one w x with hswx | hswx <;>
+  cases a <;>
+  cases b
+  all_goals
+    simp [Trigraph.f2, huv, hsw₀, hsu₀, hsx₀, hsx₁, hcw, hswx, G.c_symm, G.s_symm] at *
+    try omega
 
 /-
 Unfolding the restricted edgesWithin + S_total as a sum over the subtype.
@@ -1388,8 +1406,12 @@ theorem erdos_conjecture (G : SimpleGraph V) [DecidableRel G.Adj] :
     _ ≤ (Fintype.card V) ^ 2 := h1
 
 #print axioms erdos_conjecture
+-- 'Erdos621.TriangleIndep.erdos_conjecture' depends on axioms: [propext, Classical.choice,
+-- Quot.sound]
 
 end TriangleIndep
 
 
 end
+
+end Erdos621

@@ -33,6 +33,9 @@ Finally, we use the Hales-Jewett theorem to guarantee the existence of a monochr
 
 import Mathlib
 
+namespace Erdos966
+
+
 set_option linter.mathlibStandardSet false
 set_option linter.unreachableTactic false
 set_option linter.unusedTactic false
@@ -274,3 +277,9 @@ theorem existence_of_AP_free_Ramsey_set :
       exact ⟨ hd, fun i => ⟨ _, h i ⟩, by obtain ⟨ y, hy ⟩ := hL; exact ⟨ y, fun i => by simpa [ h ] using hy i ⟩ ⟩
 
 #print axioms existence_of_AP_free_Ramsey_set
+-- 'Erdos966.existence_of_AP_free_Ramsey_set' depends on axioms: [propext, Classical.choice,
+-- Quot.sound]
+
+end
+
+end Erdos966

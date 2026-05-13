@@ -515,6 +515,9 @@ theorem my_U_diam (k : ℕ) : EMetric.diam (my_U k) = EMetric.diam (my_g '' my_D
     · simp +decide [ edist_dist, Complex.norm_exp ];
       norm_num [ ← mul_sub, Complex.dist_eq, Complex.norm_exp ]
 
+#print axioms components_small_final
+-- 'Erdos1048b.components_small_final' depends on axioms: [propext, Classical.choice, Quot.sound]
+
 end
 
 end Erdos1048b

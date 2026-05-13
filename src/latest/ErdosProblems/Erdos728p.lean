@@ -6627,4 +6627,9 @@ theorem theorem_1_2 :
         · exact Filter.tendsto_id;
       convert h_subset using 1
 
+#print axioms theorem_1_1
+-- 'Erdos728p.theorem_1_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+#print axioms theorem_1_2
+-- 'Erdos728p.theorem_1_2' depends on axioms: [propext, Classical.choice, Quot.sound]
+
 end Erdos728p

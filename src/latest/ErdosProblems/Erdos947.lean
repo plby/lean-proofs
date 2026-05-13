@@ -22,6 +22,9 @@ I asked ChatGPT to write a TeX-file explaining the proof of a result by Mirsky-N
 
 import Mathlib
 
+namespace Erdos947
+
+
 set_option linter.mathlibStandardSet false
 
 open scoped BigOperators
@@ -252,3 +255,11 @@ theorem exact_covering_system_distinct_moduli_impossible (l : List (ℤ × ℕ))
   rw [ Finset.sum_eq_single k ] at h_P_zero <;> simp_all +decide;
   intro j hj; rw [ ← Finset.mul_prod_erase _ _ ( Finset.mem_univ j ) ] ; simp +decide ;
   exact Or.inr <| Finset.prod_eq_zero ( Finset.mem_erase_of_ne_of_mem ( Ne.symm hj ) <| Finset.mem_univ _ ) <| sub_eq_zero.mpr <| by simp +decide [ hk.1, hζ.pow_eq_one ] ;
+
+#print axioms exact_covering_system_distinct_moduli_impossible
+-- 'Erdos947.exact_covering_system_distinct_moduli_impossible' depends on axioms: [propext,
+-- Classical.choice, Quot.sound]
+
+end
+
+end Erdos947

@@ -34,6 +34,9 @@ The proof follows the steps outlined in the provided text:
 
 import Mathlib
 
+namespace Erdos1126
+
+
 set_option linter.mathlibStandardSet false
 
 open scoped BigOperators
@@ -111,3 +114,7 @@ theorem erdos_1126 (f : ℝ → ℝ) (h : ∀ᵐ (p : ℝ × ℝ) ∂(volume.pro
 
 #print axioms erdos_1126
 -- 'erdos_1126' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end
+
+end Erdos1126

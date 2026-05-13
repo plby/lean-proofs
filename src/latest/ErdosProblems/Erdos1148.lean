@@ -24,6 +24,9 @@ URLs:
 -/
 import Mathlib
 
+namespace Erdos1148
+
+
 set_option linter.mathlibStandardSet false
 
 open scoped BigOperators
@@ -243,4 +246,9 @@ theorem erdos_problem_1148 (h_duke : DukeTheoremStatement) :
 
   exact max_le hx_bound (max_le hy_bound hz_bound)
 
+#print axioms erdos_problem_1148
+-- 'Erdos1148.erdos_problem_1148' depends on axioms: [propext, Classical.choice, Quot.sound]
+
 end
+
+end Erdos1148

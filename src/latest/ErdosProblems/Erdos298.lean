@@ -32,6 +32,8 @@ theorem erdos298_density (A : Set ℕ) (d : ℝ) (hA : has_density A d) (hd : 0 
   exact erdos298 A hA'
 
 #print axioms erdos298
+-- 'Erdos298.erdos298' depends on axioms: [propext, Classical.choice, Quot.sound]
 #print axioms erdos298_density
+-- 'Erdos298.erdos298_density' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos298

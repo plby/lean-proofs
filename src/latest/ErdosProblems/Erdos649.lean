@@ -808,4 +808,8 @@ theorem infinite_strange_pairs : { q | StrangePair 2 q }.Infinite := by
     omega
   exact fun a => by obtain ⟨ p, hp₁, hp₂ ⟩ := h_infinite_primes_gt_5 a; obtain ⟨ q, hq₁, hq₂, hq₃ ⟩ := h_exists_q p hp₁.left hp₁.right; exact ⟨ q, hq₁, by linarith ⟩ ;
 
+#print axioms infinite_strange_pairs
+-- 'Erdos649.infinite_strange_pairs' depends on axioms: [propext, Classical.choice, Quot.sound,
+-- case2_impossible._native.native_decide.ax_1_5]
+
 end Erdos649

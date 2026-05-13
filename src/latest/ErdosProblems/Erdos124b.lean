@@ -412,4 +412,10 @@ theorem formal_conjectures_erdos_124_corrected : (∀ k, ∀ d : Fin k → ℕ,
     use 0;
     intro n hn; obtain ⟨ a, ha₁, ha₂ ⟩ := this n; use fun _ => 1; aesop;
 
+#print axioms erdos_124
+-- 'Erdos124b.erdos_124' depends on axioms: [propext, Classical.choice, Quot.sound]
+#print axioms formal_conjectures_erdos_124_corrected
+-- 'Erdos124b.formal_conjectures_erdos_124_corrected' depends on axioms: [propext, Classical.choice,
+-- Quot.sound]
+
 end Erdos124b

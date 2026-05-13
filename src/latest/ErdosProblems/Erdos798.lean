@@ -17,6 +17,9 @@ URLs:
 -/
 import Mathlib
 
+namespace Erdos798
+
+
 noncomputable section
 
 open Finset Int Real Filter Topology
@@ -834,3 +837,10 @@ theorem erdos798 : (fun n ↦ (minCoverSize 2 n : ℝ)) =O[atTop] fun n ↦ n ^ 
   convert isBigO_minCoverSize using 4
   · norm_num [K]
   · infer_instance
+
+end
+
+#print axioms erdos798
+-- 'Erdos798.erdos798' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end Erdos798

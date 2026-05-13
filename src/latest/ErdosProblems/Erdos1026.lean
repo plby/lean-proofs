@@ -4611,4 +4611,7 @@ theorem c_opt_eq_k_div_sq_add_a
         · exact fun i => Nat.cast_add_one_pos _;
         · exact fun i j h => Fin.ext h
 
+#print axioms c_opt_eq_k_div_sq_add_a
+-- 'Erdos1026.c_opt_eq_k_div_sq_add_a' depends on axioms: [propext, Classical.choice, Quot.sound]
+
 end Erdos1026

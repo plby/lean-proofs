@@ -3493,5 +3493,8 @@ theorem erdos_751_strong
   refine ⟨C1, C2, ?_⟩
   simpa [hlen1, hlen2] using hdist
 
+#print axioms erdos_751_strong
+-- 'Erdos751.Main.erdos_751_strong' depends on axioms: [propext, choice, Quot.sound]
+
 end Main
 end Erdos751

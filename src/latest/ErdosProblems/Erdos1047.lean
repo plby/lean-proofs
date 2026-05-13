@@ -659,4 +659,9 @@ theorem erdos_1047 :
     (h f c m hfMonic hfNodup hcard hcpos himgcard) K hKmem
   exact hKnotConvex hKconv
 
+#print axioms main_result
+-- 'Erdos1047.main_result' depends on axioms: [propext, choice, Quot.sound]
+#print axioms erdos_1047
+-- 'Erdos1047.erdos_1047' depends on axioms: [propext, choice, Quot.sound]
+
 end Erdos1047

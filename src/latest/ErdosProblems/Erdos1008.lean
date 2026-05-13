@@ -365,6 +365,7 @@ theorem exists_C4_free_subgraph_with_many_edges {V : Type} [Fintype V] [Decidabl
       exact le_refl (m ^ ((-1 : ℝ) / 3) * m)
 
 #print axioms exists_C4_free_subgraph_with_many_edges
--- 'Erdos1008.exists_C4_free_subgraph_with_many_edges' depends on axioms: [propext, choice, Quot.sound]
+-- 'Erdos1008.exists_C4_free_subgraph_with_many_edges' depends on axioms: [propext, choice,
+-- Quot.sound]
 
 end Erdos1008

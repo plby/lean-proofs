@@ -17,6 +17,9 @@ URLs:
 -/
 import Mathlib
 
+namespace Erdos905
+
+
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.longLine false
@@ -837,4 +840,10 @@ theorem erdos_905 (G : SimpleGraph V) [DecidableRel G.Adj]
   exact ⟨e, heE, hmax ▸
     card_div_six_le_maxTriangleDegree_of_quarter_sq_lt_edges G h⟩
 
+#print axioms erdos_905
+-- 'Erdos905.ErdosProblems.P905.erdos_905' depends on axioms: [propext, Classical.choice,
+-- Quot.sound]
+
 end ErdosProblems.P905
+
+end Erdos905

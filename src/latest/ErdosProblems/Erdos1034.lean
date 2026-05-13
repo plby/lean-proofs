@@ -1041,6 +1041,11 @@ theorem not_erdos_1034 : ¬ erdos_1034 := by
   refine' ⟨ n, hn.1, _, _, hn.2.1, fun T hT => _ ⟩;
   exact le_trans ( hn.2.2 T hT ) ( by nlinarith only [ Real.sqrt_nonneg ( 5 / 2 ), Real.sq_sqrt ( show 0 ≤ 5 / 2 by norm_num ) ] )
 
+#print axioms MaTang_main
+-- 'Erdos1034.MaTang_main' depends on axioms: [propext, Classical.choice, Quot.sound]
+#print axioms not_erdos_1034
+-- 'Erdos1034.not_erdos_1034' depends on axioms: [propext, Classical.choice, Quot.sound]
+
 end
 
 end Erdos1034

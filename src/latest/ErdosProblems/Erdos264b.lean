@@ -272,4 +272,9 @@ theorem erdos_264.parts.i : ¬IsIrrationalitySequence (2 ^ ·) := by
 
 end
 
+#print axioms main_theorem
+-- 'Erdos264b.main_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
+#print axioms erdos_264.parts.i
+-- 'Erdos264b.erdos_264.parts.i' depends on axioms: [propext, Classical.choice, Quot.sound]
+
 end Erdos264b

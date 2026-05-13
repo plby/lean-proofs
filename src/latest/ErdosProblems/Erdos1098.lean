@@ -35,6 +35,9 @@ J. Austral. Math. Soc. 21 (Series A) (1976), 467-472.
 -/
 import Mathlib
 
+namespace Erdos1098
+
+
 set_option linter.style.setOption false
 set_option linter.style.openClassical false
 set_option linter.style.maxHeartbeats false
@@ -51,7 +54,7 @@ noncomputable section
 
 /-! ## Infinite Ramsey Theorem for Pairs -/
 
-theorem Set.Infinite.exists_infinite_partition {α : Type*} {S : Set α}
+theorem _root_.Set.Infinite.exists_infinite_partition {α : Type*} {S : Set α}
     (hS : S.Infinite) (P : α → Prop) :
     (S ∩ {x | P x}).Infinite ∨ (S ∩ {x | ¬P x}).Infinite := by
   exact Classical.or_iff_not_imp_left.2 fun h => by
@@ -144,7 +147,7 @@ theorem ramsey_infinite_pairs (r : ℕ → ℕ → Prop) (hr : Symmetric r) :
 
 variable {G : Type*} [Group G]
 
-def Set.PairwiseNonCommuting (S : Set G) : Prop :=
+def _root_.Set.PairwiseNonCommuting (S : Set G) : Prop :=
   S.Pairwise fun x y => x * y ≠ y * x
 
 def IsPEGroup (G : Type*) [Group G] : Prop :=
@@ -549,3 +552,5 @@ theorem erdos1098 (G : Type*) [Group G]
 -- 'erdos1098' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end
+
+end Erdos1098

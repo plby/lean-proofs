@@ -1835,4 +1835,7 @@ theorem erdos_741.variants.upper : (True) ↔ ∀ A : Set ℕ, 0 < upperDensity 
   · intro _
     trivial
 
+#print axioms erdos_741.variants.upper
+-- 'Erdos741.erdos_741.variants.upper' depends on axioms: [propext, Classical.choice, Quot.sound]
+
 end Erdos741

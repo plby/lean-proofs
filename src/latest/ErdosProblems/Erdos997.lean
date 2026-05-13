@@ -247,5 +247,6 @@ theorem erdos997 (α : ℝ) : ¬IsWellDistributed (fracSeq α) :=
   not_wellDistributed_of_clustering (fracSeq_hasClustering α)
 
 #print axioms erdos997
+-- 'Erdos997.erdos997' depends on axioms: [propext, Classical.choice, maynardTaoBFT, Quot.sound]
 
 end Erdos997

@@ -600,5 +600,6 @@ theorem erdos907 (f : ℝ → ℝ)
   erdos907_of_all_h f <| hasContinuousDifferences_of_pos f hf
 
 #print axioms erdos907
+-- 'Erdos907.erdos907' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos907

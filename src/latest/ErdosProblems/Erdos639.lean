@@ -18,6 +18,9 @@ URLs:
 -/
 import Mathlib.Combinatorics.SimpleGraph.Extremal.Turan
 
+namespace Erdos639
+
+
 lemma Nat.sq_even_div_four {n : ℕ} : (2 * n) ^ 2 / 4 = n ^ 2 := by grind
 lemma Nat.sq_odd_div_four {n : ℕ} : (2 * n + 1) ^ 2 / 4 = n * (n + 1) := by grind
 
@@ -136,6 +139,8 @@ open Finset
 
 namespace SimpleGraph
 
+open _root_.SimpleGraph
+
 variable (C) in
 /-- The graph consisting of all `NIMT` edges with respect to the given edge 2-colouring. -/
 def nimt : SimpleGraph V where
@@ -176,7 +181,8 @@ variable (V) in
 abbrev n : ℕ := Fintype.card V
 
 /-- **Mantel's theorem**, Turán's theorem specialised to triangles. -/
-lemma CliqueFree.card_edgeFinset_le_3 (cf : G.CliqueFree 3) : #G.edgeFinset ≤ n V ^ 2 / 4 := by
+lemma _root_.SimpleGraph.CliqueFree.card_edgeFinset_le_3
+    (cf : G.CliqueFree 3) : #G.edgeFinset ≤ n V ^ 2 / 4 := by
   have key : _ ≤ (n V ^ 2 - (n V % 2) ^ 2) * (2 - 1) / (2 * 2) + (n V % 2).choose 2 :=
     cf.card_edgeFinset_le
   rw [← card_edgeFinset_turanGraph] at key
@@ -455,4 +461,9 @@ theorem erdos639 (hn : 10 ≤ n V) : #(nimt C).edgeFinset ≤ n V ^ 2 / 4 := by
   obtain ⟨A⟩ := nonempty_aframe_of_card_edgeFinset_gt he
   grind [erdos639_pre hn A]
 
+#print axioms erdos639
+-- 'Erdos639.SimpleGraph.erdos639' depends on axioms: [propext, Classical.choice, Quot.sound]
+
 end SimpleGraph
+
+end Erdos639

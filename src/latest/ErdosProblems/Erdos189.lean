@@ -641,6 +641,7 @@ theorem erdos_189 :
   exact hf n ⟨ _, by simpa [ Set.subset_def ] using h₁, h_rect ⟩
 
 #print axioms erdos_189
+-- 'Erdos189.erdos_189' depends on axioms: [propext, Classical.choice, Quot.sound]
 --'Erdos189.erdos_189' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end

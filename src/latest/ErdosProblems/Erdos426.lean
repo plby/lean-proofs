@@ -19,6 +19,9 @@ URLs:
 -/
 import Mathlib
 
+namespace Erdos426
+
+
 set_option linter.style.setOption false
 set_option maxHeartbeats 2000000
 set_option maxRecDepth 20000
@@ -4872,5 +4875,11 @@ theorem f_tendsto_zero : Filter.Tendsto fSeq Filter.atTop (nhds 0) := by
     exact fun H _ => hn₀ n hn H⟩
 
 #print axioms f_tendsto_zero
+-- 'Erdos426.UniqueSubgraphs.f_tendsto_zero' depends on axioms: [propext, Classical.choice,
+-- Quot.sound]
 
 end UniqueSubgraphs
+
+end
+
+end Erdos426

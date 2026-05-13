@@ -26,6 +26,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Mathlib
 
+namespace Erdos1138
+
+
 /-!
 # Erdős Problem #1138
 
@@ -422,3 +425,5 @@ theorem erdos1138_corollary : ¬(∀ C : ℝ, 1 < C → AsymptoticA C) := by
 -- 'erdos1138_corollary' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end
+
+end Erdos1138

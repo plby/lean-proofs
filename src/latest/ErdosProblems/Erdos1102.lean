@@ -55,6 +55,9 @@ https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjecture
 
 import Mathlib
 
+namespace Erdos1102
+
+
 open Squarefree Set Order Filter Topology
 
 set_option linter.mathlibStandardSet false
@@ -926,3 +929,7 @@ theorem erdos_1102.exists_sequence_with_P
 
 #print axioms erdos_1102.exists_sequence_with_P
 -- 'erdos_1102.exists_sequence_with_P' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end
+
+end Erdos1102

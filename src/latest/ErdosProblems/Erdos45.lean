@@ -94,5 +94,6 @@ theorem erdos45 :
       (le_trans hdIcc.2 (Nat.le_add_right N 2)), Nat.factorial_ne_zero _⟩
 
 #print axioms erdos45
+-- 'Erdos45.erdos45' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos45

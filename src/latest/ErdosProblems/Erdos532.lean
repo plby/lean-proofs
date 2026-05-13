@@ -222,4 +222,7 @@ theorem erdos532 (c : ℕ → Fin 2) :
   rw [hsum, ← hpval]
   exact hmono hp_a
 
+#print axioms erdos532
+-- 'Erdos532.erdos532' depends on axioms: [propext, Classical.choice, Quot.sound]
+
 end Erdos532

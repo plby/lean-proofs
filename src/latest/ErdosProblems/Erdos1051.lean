@@ -20,6 +20,9 @@ URLs:
 -/
 import Mathlib
 
+namespace Erdos1051
+
+
 set_option linter.style.setOption false
 set_option linter.flexible false
 
@@ -824,3 +827,8 @@ lemma erdos_1051_sum_tail_rational
         Rat.cast_def] using hS_shifted⟩
 
 #print axioms erdos_1051_irrational
+-- 'Erdos1051.erdos_1051_irrational' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+end
+
+end Erdos1051

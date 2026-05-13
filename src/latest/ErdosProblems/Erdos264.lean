@@ -674,4 +674,9 @@ theorem erdos_264.variants.example : IsIrrationalitySequence (fun n ↦ 2 ^ (2 ^
   aesop) (by
   aesop)
 
+#print axioms erdos_264.parts.i
+-- 'Erdos264.erdos_264.parts.i' depends on axioms: [propext, Classical.choice, Quot.sound]
+#print axioms erdos_264.variants.example
+-- 'Erdos264.erdos_264.variants.example' depends on axioms: [propext, Classical.choice, Quot.sound]
+
 end Erdos264

@@ -2965,6 +2965,6 @@ theorem Solution_2 (ε : ℝ) (hε : ε > 0) :
       (List.get_mem ..), ht_bound⟩
 
 #print axioms Solution_2
---
+-- 'Erdos392.Solution_2' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos392

@@ -3500,7 +3500,8 @@ theorem hajnal_szemeredi_clique_cover (G : SimpleGraph V) [DecidableRel G.Adj]
   · exact fun i j hij => Finset.disjoint_filter.2 fun v => by aesop
 
 #print axioms hajnal_szemeredi_clique_cover
--- 'Erdos914.HajnalSzemeredi.hajnal_szemeredi_clique_cover' depends on axioms: [propext, choice, Quot.sound]
+-- 'Erdos914.HajnalSzemeredi.hajnal_szemeredi_clique_cover' depends on axioms: [propext, choice,
+-- Quot.sound]
 
 end HajnalSzemeredi
 

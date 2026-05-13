@@ -601,7 +601,8 @@ theorem negative_answer :
       (Set.not_disjoint_iff_nonempty_inter.mpr ⟨_, hn_F, by simpa [E] using h_contra⟩)
 
 #print axioms negative_answer
--- 'Erdos1197.negative_answer' depends on axioms: [propext, Classical.choice, bm_approx_data, Quot.sound]
+-- 'Erdos1197.negative_answer' depends on axioms: [propext, Classical.choice, bm_approx_data,
+-- Quot.sound]
 
 end
 

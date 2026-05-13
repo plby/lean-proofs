@@ -29,6 +29,9 @@ Authors: John Jennings, Aristotle (Harmonic)
 -/
 import Mathlib
 
+namespace Erdos658
+
+
 set_option linter.all false
 
 /-!
@@ -1437,3 +1440,13 @@ theorem erdos658 :
   Theorem_1_1 frankl_roedl_theorem
 
 end
+
+#print axioms Theorem_1_1
+-- 'Erdos658.Theorem_1_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+#print axioms Theorem_1_2
+-- 'Erdos658.Theorem_1_2' depends on axioms: [propext, Classical.choice, Quot.sound]
+#print axioms erdos658
+-- 'Erdos658.erdos658' depends on axioms: [propext, Classical.choice, frankl_roedl_theorem,
+-- Quot.sound]
+
+end Erdos658

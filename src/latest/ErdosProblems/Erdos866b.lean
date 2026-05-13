@@ -237,6 +237,7 @@ theorem g3 (n : ℕ) (hn : 3 ≤ n) : gFun 3 n = 1 := by
     exact ⟨A, hAsub, by omega, hAneg⟩
 
 #print axioms g3
+-- 'Erdos866b.g3' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 /-! ## Remark g3small: g₃(1) = 2 and g₃(2) = 2 -/
 
@@ -617,6 +618,7 @@ theorem h3 (n : ℕ) (hn : 4 ≤ n) : hFun 3 n = 2 := by
   exact sInf_eq_of_mem_of_forall_lt_not_mem (h3_upper n hn) (h3_lower n hn)
 
 #print axioms h3
+-- 'Erdos866b.h3' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 /-! ## Theorem g4: g₄(n) = 3 for all n ≥ 2 -/
 
@@ -717,6 +719,7 @@ theorem g4 (n : ℕ) (hn : 2 ≤ n) : gFun 4 n = 3 := by
     · exact ⟨A, hAsub, hAcard, hAneg⟩
 
 #print axioms g4
+-- 'Erdos866b.g4' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 /-! # Weak Sidon Sets -/
 
@@ -1551,6 +1554,7 @@ theorem h4upper (n : ℕ) (hn : 0 < n) : hFun 4 n ≤ 2270 := by
     exact has_pps_of_large A n (by omega) hA hcard
 
 #print axioms h4upper
+-- 'Erdos866b.h4upper' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 /-! ## Theorem h5lower: h₅(n) > ⌊log₂ n⌋ -/
 
@@ -3060,6 +3064,7 @@ theorem g5upper (n : ℕ) : gFun 5 n < 120000000 := by
   exact lt_of_le_of_lt (Nat.sInf_le hmem) (by norm_num)
 
 #print axioms g5upper
+-- 'Erdos866b.g5upper' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 
 /-! ## h_k(n) ≤ 4n^{1-1/2^{k-2}} for all large enough n -/
@@ -3533,6 +3538,6 @@ theorem generalupper (k : ℕ) (hk : 3 ≤ k) :
         grind
 
 #print axioms generalupper
---
+-- 'Erdos866b.generalupper' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos866b

@@ -1564,8 +1564,9 @@ theorem erdos741_strict_density_counterexample :
 end
 
 #print axioms erdos741_upper_density
---
+-- 'Erdos741b.erdos741_upper_density' depends on axioms: [propext, Classical.choice, Quot.sound]
 #print axioms erdos741_strict_density_counterexample
---
+-- 'Erdos741b.erdos741_strict_density_counterexample' depends on axioms: [propext, Classical.choice,
+-- Quot.sound]
 
 end Erdos741b

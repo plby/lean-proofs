@@ -2795,6 +2795,7 @@ theorem infinitely_many_collisions (a b : ℕ) (hb : 1 ≤ b) (hgt : b < a)
 /- Sanity check: verify Proposition 3.1's permanence step relies only on Mathlib axioms,
 not our local analytic axioms. Uncomment to inspect:
 #print axioms permanence_step
+-- 'Erdos694.permanence_step' depends on axioms: [propext, Classical.choice, Quot.sound]
 -/
 
 
@@ -2830,13 +2831,32 @@ Expected results, where `core` denotes Mathlib's
   `core + mertens_product + linnik_dvd`.
 -/
 #print axioms Erdos694.totient_sq_ge_half
+-- 'Erdos694.totient_sq_ge_half' depends on axioms: [propext, Classical.choice, Quot.sound]
 #print axioms Erdos694.permanence_step
+-- 'Erdos694.permanence_step' depends on axioms: [propext, Classical.choice, Quot.sound]
 #print axioms Erdos694.infinitely_many_collisions
+-- 'Erdos694.infinitely_many_collisions' depends on axioms: [propext, Classical.choice, Quot.sound]
 #print axioms Erdos694.LowerConstruction.totient_a_eq_totient_b
+-- 'Erdos694.LowerConstruction.totient_a_eq_totient_b' depends on axioms: [propext,
+-- Classical.choice, Quot.sound]
 #print axioms Erdos694.landau_max_ratio
+-- 'Erdos694.landau_max_ratio' depends on axioms: [propext, Classical.choice,
+-- Erdos694.mertens_product, Quot.sound]
 #print axioms Erdos694.R_upper_bound
+-- 'Erdos694.R_upper_bound' depends on axioms: [propext, Classical.choice, Erdos694.mertens_product,
+-- Quot.sound]
 #print axioms Erdos694.collision_at_height
+-- 'Erdos694.collision_at_height' depends on axioms: [propext, Classical.choice,
+-- Erdos694.mertens_product, Quot.sound]
 #print axioms Erdos694.totient_collision_construction
+-- 'Erdos694.totient_collision_construction' depends on axioms: [propext, Classical.choice,
+-- Erdos694.linnik_dvd, Erdos694.mertens_product, Quot.sound]
 #print axioms Erdos694.R_lower_bound
+-- 'Erdos694.R_lower_bound' depends on axioms: [propext, Classical.choice, Erdos694.linnik_dvd,
+-- Erdos694.mertens_product, Quot.sound]
 #print axioms Erdos694.totient_fibre_extremes
+-- 'Erdos694.totient_fibre_extremes' depends on axioms: [propext, Classical.choice,
+-- Erdos694.linnik_dvd, Erdos694.mertens_product, Quot.sound]
 #print axioms Erdos694.erdos_694_asymptotic
+-- 'Erdos694.erdos_694_asymptotic' depends on axioms: [propext, Classical.choice,
+-- Erdos694.linnik_dvd, Erdos694.mertens_product, Quot.sound]

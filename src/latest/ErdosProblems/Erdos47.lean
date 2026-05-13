@@ -540,6 +540,8 @@ theorem erdos47 :
   exact lt_of_le_of_lt (hN₂ N hN₂') hsum
 
 #print axioms erdos47_bloom
+-- 'Erdos47.erdos47_bloom' depends on axioms: [propext, Classical.choice, Quot.sound]
 #print axioms erdos47
+-- 'Erdos47.erdos47' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos47

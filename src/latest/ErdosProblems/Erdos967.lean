@@ -586,4 +586,9 @@ theorem disproof_of_question_1_1 : ¬ question_1_1_statement := by
   specialize h_contra S hS.1 hS.2.1 ; aesop;
   exact h_contra 1 ( by norm_num [ right ] )
 
+#print axioms main_theorem
+-- 'Erdos967.main_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
+#print axioms disproof_of_question_1_1
+-- 'Erdos967.disproof_of_question_1_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+
 end Erdos967

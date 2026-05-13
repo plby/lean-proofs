@@ -42,4 +42,7 @@ by
     with_unfolding_all eq_refl
   · tauto
 
+#print axioms erdos_488
+-- 'Erdos488b.erdos_488' depends on axioms: [propext, Classical.choice, Quot.sound]
+
 end Erdos488b

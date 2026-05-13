@@ -18,6 +18,9 @@ URLs:
 -/
 import Mathlib
 
+namespace Erdos974
+
+
 /-- Data associated with the problem. -/
 structure ProblemData (n : ℕ) [NeZero n] where
   /-- The tuple of complex numbers `z` -/
@@ -47,7 +50,7 @@ lemma sum_zpow_ne_zero_exponent {z : Fin n → ℂ} {m : ℤ} {k : ℕ} (hsum : 
   simp_all
 
 omit [NeZero n] in
-lemma Complex.triangle_eq
+lemma _root_.Complex.triangle_eq
     {f : Fin n → ℂ} (hf₁ : ∀ i, ‖f i‖ = 1) (hf₂ : ‖∑ i, f i‖ = n) {i j : Fin n} : f i = f j := by
   contrapose! hf₂
   apply ne_of_lt
@@ -72,6 +75,7 @@ lemma Complex.triangle_eq
 section Esymm
 
 open ComplexConjugate
+open _root_.MvPolynomial
 
 variable {ι : Type*} [Fintype ι] {z : ι → ℂ} (hz : ∀ i, ‖z i‖ = 1)
 
@@ -83,7 +87,7 @@ lemma prod_eq_prod_univ_mul_conj_compl {S : Finset ι} :
   rw [← prod_mul_prod_compl S, mul_assoc, map_prod, ← prod_mul_distrib]
   simp [Complex.mul_conj, Complex.normSq_eq_norm_sq, hz]
 
-lemma MvPolynomial.esymm_sub_eq {k : ℕ} (hk : k ≤ Fintype.card ι) :
+lemma _root_.MvPolynomial.esymm_sub_eq {k : ℕ} (hk : k ≤ Fintype.card ι) :
     (esymm _ _ (Fintype.card ι - k)).eval z =
     (esymm _ _ (Fintype.card ι)).eval z * conj ((esymm _ _ k).eval z) := by
   simp_rw [esymm, map_sum, map_prod, eval_X, sum_mul]
@@ -815,5 +819,8 @@ theorem erdos974_even : univ.image PD.z = Polynomial.nthRootsFinset n 1 ∪
     ← exists_or, ← or_and_right, ← mem_union, union_evenIndices_oddIndices, mem_univ, true_and]
 
 #print axioms erdos974_even
+-- 'Erdos974.ProblemData.erdos974_even' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end ProblemData
+
+end Erdos974

@@ -108,5 +108,6 @@ theorem erdos46 :
     simpa [B, Acol, Set.mem_insert_iff] using hnB.1
 
 #print axioms erdos46
+-- 'Erdos46.erdos46' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos46

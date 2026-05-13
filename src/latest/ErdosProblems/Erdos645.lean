@@ -171,4 +171,7 @@ theorem erdos_645 (c : ℕ → Bool) : ∃ x d, 0 < x ∧ x < d ∧ (∃ C, c x 
 
 end
 
+#print axioms erdos_645
+-- 'Erdos645.erdos_645' depends on axioms: [propext, Classical.choice, Quot.sound]
+
 end Erdos645
