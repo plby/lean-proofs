@@ -199,4 +199,5 @@ import ErdosProblems.Erdos1138
 import ErdosProblems.Erdos1141
 import ErdosProblems.Erdos1148
 import ErdosProblems.Erdos1193
+import ErdosProblems.Erdos1196
 import ErdosProblems.Erdos1197
