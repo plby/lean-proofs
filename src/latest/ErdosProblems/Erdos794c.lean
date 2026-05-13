@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 We construct a 3-uniform hypergraph on $3n$ vertices with at least $n^3+1$ edges that contains no subgraph on 4 vertices with 3 edges and no subgraph on 5 vertices with 7 edges.
 The construction consists of a complete tripartite hypergraph plus one extra edge inside one of the parts.

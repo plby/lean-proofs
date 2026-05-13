@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 import Mathlib.Combinatorics.SimpleGraph.Extremal.Turan
 
 lemma Nat.sq_even_div_four {n : ℕ} : (2 * n) ^ 2 / 4 = n ^ 2 := by grind

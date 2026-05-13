@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 We have proved the existence of finite maximal disjoint collections of unit segments in both the open unit square and the closed unit square.
 

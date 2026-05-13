@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 # Erdős Problem 1121 — Goodman's Circle Covering Theorem
 

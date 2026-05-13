@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 Formalization of the greedy prime-packing decomposition of n! and the asymptotic behavior of A(n) and G(n).
 

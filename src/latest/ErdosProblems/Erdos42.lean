@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 **STANDALONE FLAT BUNDLE** of Erdős Problem #42 — compact-Cayley route.
 

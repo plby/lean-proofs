@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
 We define a real number $r = 2^{1/10}$ and a polynomial $f(z) = z^{10} - 2$.
 We prove that $0 < r < 2$, $f$ is monic and nonconstant, and all roots of $f$ satisfy $|z| \le r$.

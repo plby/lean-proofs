@@ -1,3 +1,4 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 import ErdosProblems.Erdos46
 import Mathlib.Combinatorics.Compactness
 
