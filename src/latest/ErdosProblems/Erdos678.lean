@@ -23,12 +23,6 @@ The formalization follows the structure of the paper, defining `M`, `m`, `good_x
 
 import Mathlib
 
-namespace List
-
-def get! {α : Type*} [Inhabited α] (l : List α) (n : ℕ) : α := l.getD n default
-
-end List
-
 namespace Erdos678
 
 set_option linter.mathlibStandardSet false
@@ -69,13 +63,13 @@ Claim: Let $p_1 < p_2 <  \ldots < p_r$ be primes and $w_1, w_2, \ldots, w_r$ be 
     If $\eps(p_1+p_2+\ldots+p_r)< n \le p_1,$ among every $n$ consecutive integers there is at least one which equals $\sum_{i} c_i w_i$ modulo $P$ where $c_i \in B_i$ for every $1 \le i \le r$.
 -/
 theorem claim_approx (p : List ℕ) (w : List ℤ) (hp_prime : ∀ x ∈ p, x.Prime) (hp_sorted : p.Sorted (· < ·))
-    (h_cover : ∀ r : ℤ, ∃ c : List ℤ, c.length = p.length ∧ (∀ i, 0 < c.get! i ∧ c.get! i ≤ p.get! i) ∧
+    (h_cover : ∀ r : ℤ, ∃ c : List ℤ, c.length = p.length ∧ (∀ i, 0 < (c.getD i 0) ∧ (c.getD i 0) ≤ (p.getD i 0)) ∧
       (List.sum (List.zipWith (fun x y => x * y) c w)) ≡ r [ZMOD p.prod])
-    (ε : ℝ) (B : List (Set ℤ)) (hB_subset : ∀ i, B.get! i ⊆ Set.Icc 1 (p.get! i))
-    (hB_size : ∀ i, (B.get! i).ncard ≥ (1 - ε) * (p.get! i : ℝ))
+    (ε : ℝ) (B : List (Set ℤ)) (hB_subset : ∀ i, (B.getD i {}) ⊆ Set.Icc 1 (p.getD i 0))
+    (hB_size : ∀ i, (B.getD i 0).ncard ≥ (1 - ε) * (p.getD i 0 : ℝ))
     (n : ℕ) (hn : ε * (p.sum : ℝ) < n) (hn_le : n ≤ p.head!) :
     ∀ start : ℤ, ∃ z ∈ Set.Icc start (start + n - 1),
-      ∃ c : List ℤ, c.length = p.length ∧ (∀ i, c.get! i ∈ B.get! i) ∧
+      ∃ c : List ℤ, c.length = p.length ∧ (∀ i, (c.getD i 0) ∈ (B.getD i {})) ∧
       z ≡ (List.sum (List.zipWith (fun x y => x * y) c w)) [ZMOD p.prod] := by
         contrapose! hB_size;
         revert hB_size hn hn_le hB_subset hB_size hp_prime hp_sorted h_cover;
@@ -85,7 +79,7 @@ theorem claim_approx (p : List ℕ) (w : List ℤ) (hp_prime : ∀ x ∈ p, x.Pr
         use List.length ‹_› + 1;
         obtain ⟨ c, hc₁, hc₂, hc₃ ⟩ := hcover x;
         have hcpos := (hc₂ (List.length ‹_› + 1)).1
-        simp [List.get!, hc₁] at hcpos
+        simp [List.getD, hc₁] at hcpos
 
 /-
 The hypothesis that for any $\epsilon > 0$, for sufficiently large $k$, there exist two distinct primes in $(k/2, (1+\epsilon)k/2)$ and three distinct primes in $((1-\epsilon)k, k)$.
