@@ -214,12 +214,14 @@ theorem bound_N (p D B : ℕ) [Fact p.Prime] (hD : D ≥ 2) :
           have h_digits_len : (Nat.digits p x).length ≤ D := by
             have := @Nat.digits_len p x;
             exact if hx₃ : x = 0 then by simp +decide [ hx₃ ] else by rw [ this ( Nat.Prime.one_lt Fact.out ) hx₃ ] ; exact Nat.log_lt_of_lt_pow ( by positivity ) hx₁;
-          use fun i => ⟨ (Nat.digits p x ++ List.replicate ((D - (Nat.digits p x).length) 0).getD i 0), by
+          use fun i => ⟨ (Nat.digits p x ++ List.replicate (D - (Nat.digits p x).length) 0).getD i 0, by
             by_cases hi : i.val < (Nat.digits p x).length <;> simp_all +decide
             · exact Nat.digits_lt_base ( Fact.out : p.Prime ).one_lt ( List.getElem_mem _ );
             · exact Nat.Prime.pos Fact.out ⟩
-          generalize_proofs at *;
-          refine' List.ext_get _ _ <;> aesop;
+          apply List.ext_get
+          · simp [List.length_append, h_digits_len]
+          · intro n hn₁ hn₂
+            simp [List.getD_eq_getElem, List.length_append, h_digits_len]
         -- By definition of $a$, we know that the number of large digits in $x$ is equal to the number of indices $i$ such that $(a i).val \geq L$.
         have h_large_digits : count_large_digits p x = (Finset.univ.filter (fun i => (a i).val ≥ L)).card := by
           have h_large_digits : count_large_digits p x = List.length (List.filter (fun d => p ≤ 2 * d) (Nat.digits p x ++ List.replicate (D - (Nat.digits p x).length) 0)) := by
@@ -229,7 +231,15 @@ theorem bound_N (p D B : ℕ) [Fact p.Prime] (hD : D ≥ 2) :
           simp +zetaDelta at *;
           field_simp;
           norm_cast;
-        aesop;
+        refine ⟨a, ?_, ha⟩
+        have h_count : (Finset.univ.filter (fun i => L ≤ (a i).val)).card ≤ B := by
+          simpa [h_large_digits] using hx₂
+        rw [show (Finset.univ.filter (fun i => ((p : ℝ) / 2) ≤ ((a i).val : ℝ))).card =
+            (Finset.univ.filter (fun i => L ≤ (a i).val)).card by
+          congr 1
+          ext i
+          simp [L]]
+        exact h_count
       have := Finset.card_mono h_digit_rep;
       rwa [ Finset.card_image_of_injOn, Finset.card_image_of_injOn ] at this;
       · intro f hf g hg; aesop;
