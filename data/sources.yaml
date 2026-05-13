@@ -7,7 +7,7 @@
       AI:
         - Gemini 3.1 Pro
         - Antigravity
-      human: DanielChin
+      human: Daniel Chin
   arxiv: https://arxiv.org/abs/2312.04120
   url:
     - https://github.com/danielchin/proofs/blob/main/Proofs/ErdosProblems/Erdos16.lean
@@ -1387,7 +1387,7 @@
         - Vera T. Sós
     formal:
       AI: Aristotle
-      human: tomaz1502
+      human: Tomaz Mascarenhas
   url: https://www.erdosproblems.com/forum/thread/484#post-5448
   url_ref: tomaz1502_484
   version: "4.28.0"
@@ -2078,7 +2078,7 @@
       human: József Solymosi
     formal:
       AI: Aristotle
-      human: tomaz1502
+      human: Tomaz Mascarenhas
   url:
     - https://www.erdosproblems.com/forum/thread/818#post-5890
     - https://gist.githubusercontent.com/tomaz1502/d8f3632157bae289e5d0ed68ccdc9433/raw/fa7570f83d63ead268ebe5478670f6c06142edcd/Erdos_818.lean
@@ -2262,7 +2262,7 @@
       AI:
         - Aristotle
         - GPT 5.4
-      human: andresg535
+      human: Andres Gutierrez
   url: https://www.erdosproblems.com/forum/thread/905#post-5276
   version: "4.28.0"
 
@@ -2342,7 +2342,7 @@
         - Aristotle
         - Gemini
         - Antigravity
-      human: DanielChin
+      human: Daniel Chin
   arxiv: https://arxiv.org/abs/2505.00727
   url:
     - https://www.erdosproblems.com/forum/thread/964#post-4280
@@ -2416,7 +2416,7 @@
   author:
     formal:
       AI: GPT-5.4 Pro
-      human: YutaOriike
+      human: Yuta Oriike
   url:
     - https://www.erdosproblems.com/forum/thread/990#post-5312
     - https://github.com/yuta0x89/ErdosProblems/blob/main/Erdos990.lean
@@ -2877,7 +2877,7 @@
         - R. E. Goodman
     formal:
       AI: Aristotle
-      human: parabamoghv
+      human: Amogh Parab
   url: https://www.erdosproblems.com/forum/thread/1121#post-5504
   version: "4.28.0"
 
@@ -2951,7 +2951,7 @@
         - Gregory Valiant
     formal:
       AI: GPT-5.4 Pro
-      human: YutaOriike
+      human: Yuta Oriike
   arxiv: https://arxiv.org/abs/2604.06609
   url:
     - https://www.erdosproblems.com/forum/thread/1141#post-5335
@@ -3022,7 +3022,7 @@
         - GPT-5.4 Pro
       human:
         - Enrique Barschkis
-        - Tomodovodoo
+        - Tom de Groot
   url:
     - https://www.erdosproblems.com/forum/thread/1197#post-5362
     - https://github.com/ebarschkis/ErdosProblem/blob/main/Problem1197/Solution.pdf
