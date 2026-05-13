@@ -111,7 +111,7 @@
       AI:
         - Codex 5.5
         - GPT-5.5 Pro
-      human: paws
+      human: Pawan Sasanka Ammanamanchi
   url:
     - https://www.erdosproblems.com/forum/thread/42#post-6370
     - https://github.com/Shashi456/erdos-formalizations/blob/main/Erdos/P42/CompactCayley/Proof.lean
@@ -693,6 +693,28 @@
   url_ref: JakeMallen_281
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos283
+  epc: https://www.erdosproblems.com/283
+  author:
+    informal:
+      AI: GPT-5.5 Pro
+      human: Liam Price
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Opus 4.7
+        - GPT-5.5 Pro
+      human: Pawan Sasanka Ammanamanchi
+  url:
+    - https://www.erdosproblems.com/forum/thread/283#post-6290
+    - https://www.overleaf.com/read/gdmnffbshxsq#ef2000
+    - https://github.com/Shashi456/erdos-formalizations/blob/main/Erdos/P283/Proof_flat.lean
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/283.lean
+    - https://live.lean-lang.org/#project=mathlib-v4.27.0&url=https%3A%2F%2Fraw.githubusercontent.com%2FShashi456%2Ferdos-formalizations%2Frefs%2Fheads%2Fmain%2FErdos%2FP283%2FProof_flat.lean
+  version:
+    - "4.27.0"
+    - "4.28.0"
+
 - key: ErdosProblems.Erdos283b
   partial: yes
   epc: https://www.erdosproblems.com/283
@@ -939,6 +961,30 @@
   version:
     - "4.20.0-rc5"
     - "4.24.0"
+
+- key: ErdosProblems.Erdos351
+  epc: https://www.erdosproblems.com/351
+  author:
+    informal:
+      AI: GPT-5.5 Pro
+      human:
+        - Liam Price
+        - Kevin Barreto
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Opus 4.7
+        - GPT-5.5 Pro
+      human: Pawan Sasanka Ammanamanchi
+  url:
+    - https://www.erdosproblems.com/forum/thread/283#post-6290
+    - https://www.overleaf.com/read/gdmnffbshxsq#ef2000
+    - https://github.com/Shashi456/erdos-formalizations/blob/main/Erdos/P283/Proof_flat.lean
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/351.lean
+    - https://live.lean-lang.org/#project=mathlib-v4.27.0&url=https%3A%2F%2Fraw.githubusercontent.com%2FShashi456%2Ferdos-formalizations%2Frefs%2Fheads%2Fmain%2FErdos%2FP283%2FProof_flat.lean
+  version:
+    - "4.27.0"
+    - "4.28.0"
 
 - key: ErdosProblems.Erdos355
   epc: https://www.erdosproblems.com/355
@@ -1786,7 +1832,7 @@
       AI:
         - Claude Code 4.7
         - GPT-5.5 Pro
-      human: paws
+      human: Pawan Sasanka Ammanamanchi
   url:
     - https://www.erdosproblems.com/forum/thread/694#post-6202
     - https://www.overleaf.com/read/fgmhvywvdjkt#54ca5d
