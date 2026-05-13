@@ -16,7 +16,7 @@ URLs:
 - https://github.com/KitaKen1/erdos-1187-lean
 - https://github.com/KitaKen1/erdos-1187-lean/blob/main/SecondSolution.lean
 -/
-namespace Erdos1187
+namespace Erdos1187b
 
 def Prime (p : Nat) : Prop :=
   2 ≤ p ∧ ∀ d : Nat, d ∣ p → d = 1 ∨ d = p
@@ -148,6 +148,6 @@ theorem second_question_general_statement_is_false :
   exact no_mono_prime_step_ap_color4 a p 3 hp (by decide) hmono
 
 #print axioms second_question_general_statement_is_false
--- 'Erdos1187.second_question_general_statement_is_false' depends on axioms: [propext]
+-- 'Erdos1187b.second_question_general_statement_is_false' depends on axioms: [propext]
 
-end Erdos1187
+end Erdos1187b
