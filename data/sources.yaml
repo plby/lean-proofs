@@ -1513,8 +1513,11 @@
   epc: https://www.erdosproblems.com/493
   author:
     formal:
-      AI: Aristotle
-      human: Boris Alexeev
+      AI:
+        - Seed-Prover 1.5
+        - Aristotle
+        - ChatGPT
+      human: Zheng Yuan
   url:
     - https://www.erdosproblems.com/forum/thread/493
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos493.md
