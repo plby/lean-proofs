@@ -3800,7 +3800,8 @@ theorem mainTheorem :
     chain hxTwo hA hBpos hHitSummable hHit (hNorm hxNorm)
 
 #print axioms PrimitiveSetsAboveX.mainTheorem
--- 'Erdos1196.PrimitiveSetsAboveX.mainTheorem' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos1196.PrimitiveSetsAboveX.mainTheorem' depends on axioms:
+-- [propext, Classical.choice, Quot.sound]
 
 end PrimitiveSetsAboveX
 
