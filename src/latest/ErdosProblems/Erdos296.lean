@@ -5,7 +5,7 @@ This is a Lean formalization of a solution to Erdős Problem 296.
 https://www.erdosproblems.com/forum/thread/296
 
 Formalization status:
-- Conditional on: unit_fractions_upper_log_density
+- Uses the proved `UnitFractions.unit_fractions_upper_log_density` theorem.
 
 Informal authors:
 - Thomas Bloom
@@ -30,7 +30,7 @@ Copyright (c) 2026 John Jennings. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: John Jennings, Aristotle (Harmonic)
 -/
-import ErdosProblems.Axioms
+import UnitFractions.ErdosProblems
 import Mathlib
 
 namespace Erdos296
@@ -128,11 +128,11 @@ theorem erdos296_upper_bound (N k : ℕ)
         · intro n _ _; positivity
 
 -- ================================================================
--- § 2. Bloom's theorem (a deep result, stated axiomatically)
+-- § 2. Bloom's theorem (imported from `UnitFractions`)
 -- ================================================================
 
--- The Bloom–Mehta Lean 3 formalization (Theorem 3) is imported from
--- `ErdosProblems.Axioms` as `unit_fractions_upper_log_density`.
+-- The Bloom–Mehta theorem is proved in this repository as
+-- `UnitFractions.unit_fractions_upper_log_density`.
 
 /-- The ℝ-cast of `recipSum` equals the real-valued reciprocal sum. -/
 lemma recipSum_cast_real (A : Finset ℕ) :
@@ -163,7 +163,7 @@ theorem bloom_quantitative :
           Real.log (Real.log N) * Real.log N
           ≤ ↑(recipSum A) →
         ∃ S ⊆ A, recipSum S = 1 := by
-  obtain ⟨C, hC⟩ := unit_fractions_upper_log_density
+  obtain ⟨C, _hC_pos, hC⟩ := UnitFractions.unit_fractions_upper_log_density
   refine ⟨max C 1, lt_of_lt_of_le zero_lt_one (le_max_right C 1), ?_⟩
   have h_nonneg : ∀ᶠ b : ℕ in atTop,
       0 ≤ Real.log (Real.log (Real.log b)) / Real.log (Real.log b) ∧
@@ -198,8 +198,10 @@ theorem bloom_quantitative :
       (mul_le_mul_of_nonneg_right
         (mul_le_mul_of_nonneg_right (le_max_left C 1) hb_nonneg.1)
         hb_nonneg.2)
-  obtain ⟨S, hS_sub, hS_sum⟩ := hbloom A hA h_real_sum
-  exact ⟨S, hS_sub, by simpa only [sum_one_div_eq_recipSum] using hS_sum⟩
+  obtain ⟨S, hS_sub, hS_sum⟩ := hbloom A hA (by
+    simpa [UnitFractions.rec_sum, recipSum, Rat.cast_sum, Rat.cast_div,
+      Rat.cast_one, Rat.cast_natCast, mul_assoc] using h_real_sum)
+  exact ⟨S, hS_sub, by simpa [UnitFractions.rec_sum, recipSum] using hS_sum⟩
 
 -- ================================================================
 -- § 3. Helper lemmas for the greedy extraction
@@ -387,8 +389,7 @@ theorem erdos296 :
     simp only [one_div] at this ⊢; convert this using 2; ring_nf⟩
 
 #print axioms erdos296
--- 'Erdos296.erdos296' depends on axioms: [propext, unit_fractions_upper_log_density,
--- Classical.choice, Quot.sound]
+-- 'Erdos296.erdos296' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end
 end Erdos296
