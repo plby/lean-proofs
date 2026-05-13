@@ -1017,6 +1017,27 @@
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem363.lean
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos367b
+  partial: yes
+  epc: https://www.erdosproblems.com/367
+  author:
+    informal:
+      human:
+        - Wouter van Doorn
+        - Terence Tao
+      AI: Gemini Deepthink
+    statement:
+      human: Boris Alexeev
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/367#post-1766
+    - https://www.erdosproblems.com/forum/thread/367#post-1776
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos367.md
+    - https://github.com/plby/lean-proofs/blob/main/src/v4.24.0/ErdosProblems/Erdos367.lean
+  version: "4.24.0"
+
 - key: ErdosProblems.Erdos369
   epc: https://www.erdosproblems.com/369
   author:
