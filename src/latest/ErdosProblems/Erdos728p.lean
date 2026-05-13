@@ -8,13 +8,6 @@ The final theorems are `theorem_1_1` and `theorem_1_2`.
 
 import Mathlib
 
-namespace List
-
-@[simp]
-def get! [Inhabited α] (l : List α) (n : ℕ) : α := l[n]!
-
-end List
-
 namespace Erdos728p
 
 set_option linter.mathlibStandardSet false
@@ -86,15 +79,15 @@ def count_large_digits (p m : ℕ) : ℕ :=
 theorem valuation_ge_large_digits (p m : ℕ) [Fact p.Prime] :
     padicValNat p (Nat.choose (2 * m) m) ≥ count_large_digits p m := by
   -- We need to show that the number of large digits in $m$ is at most the number of carries when adding $m$ and $m$ in base $p$.
-  have h_carries : ∀ k ∈ Finset.range (Nat.digits p m).length, (2 * (Nat.digits p m).get! k ≥ p) → padicValNat p (Nat.choose (2 * m) m) ≥ Finset.card (Finset.filter (fun k => 2 * (Nat.digits p m).get! k ≥ p) (Finset.range (Nat.digits p m).length)) := by
+  have h_carries : ∀ k ∈ Finset.range (Nat.digits p m).length, (2 * ((Nat.digits p m).getD k 0) ≥ p) → padicValNat p (Nat.choose (2 * m) m) ≥ Finset.card (Finset.filter (fun k => 2 * ((Nat.digits p m).getD k 0) ≥ p) (Finset.range (Nat.digits p m).length)) := by
     -- By definition of $v_p$, we know that $v_p(\binom{2m}{m})$ is the number of carries when adding $m$ and $m$ in base $p$.
     have h_carries : padicValNat p (Nat.choose (2 * m) m) = Finset.card (Finset.filter (fun i => 2 * (m % p ^ i) ≥ p ^ i) (Finset.Ico 1 (Nat.log p (2 * m) + 1))) := by
       rw [ padicValNat_choose ];
       any_goals exact Nat.lt_succ_self _;
       · norm_num [ two_mul ];
       · linarith;
-    -- If $2 * (Nat.digits p m).get! k ≥ p$, then $2 * (m % p^{k+1}) ≥ p^{k+1}$.
-    have h_large_digit_carries : ∀ k ∈ Finset.range (Nat.digits p m).length, (2 * (Nat.digits p m).get! k ≥ p) → 2 * (m % p ^ (k + 1)) ≥ p ^ (k + 1) := by
+    -- If $2 * (Nat.digits p m)[k]! ≥ p$, then $2 * (m % p^{k+1}) ≥ p^{k+1}$.
+    have h_large_digit_carries : ∀ k ∈ Finset.range (Nat.digits p m).length, (2 * ((Nat.digits p m).getD k 0) ≥ p) → 2 * (m % p ^ (k + 1)) ≥ p ^ (k + 1) := by
       intro k hk h_large_digit
       have h_mod : m % p ^ (k + 1) = (Nat.ofDigits p (List.take (k + 1) (Nat.digits p m))) := by
         conv_lhs => rw [ ← Nat.ofDigits_digits p m ];
@@ -105,9 +98,9 @@ theorem valuation_ge_large_digits (p m : ℕ) [Fact p.Prime] :
           · exact Nat.Prime.one_lt Fact.out;
           · exact fun x hx => Nat.digits_lt_base ( Fact.out : Nat.Prime p ).one_lt <| List.mem_of_mem_take hx;
         · linarith;
-      -- Since $2 * (Nat.digits p m).get! k ≥ p$, we have $2 * (Nat.ofDigits p (List.take (k + 1) (Nat.digits p m))) ≥ p^{k+1}$.
+      -- Since $2 * (Nat.digits p m)[k]! ≥ p$, we have $2 * (Nat.ofDigits p (List.take (k + 1) (Nat.digits p m))) ≥ p^{k+1}$.
       have h_ofDigits : 2 * (Nat.ofDigits p (List.take (k + 1) (Nat.digits p m))) ≥ p ^ (k + 1) := by
-        have h_digit : (Nat.ofDigits p (List.take (k + 1) (Nat.digits p m))) = (Nat.ofDigits p (List.take k (Nat.digits p m))) + (Nat.digits p m).get! k * p ^ k := by
+        have h_digit : (Nat.ofDigits p (List.take (k + 1) (Nat.digits p m))) = (Nat.ofDigits p (List.take k (Nat.digits p m))) + ((Nat.digits p m).getD k 0) * p ^ k := by
           rw [ List.take_succ ];
           simp +decide [ Nat.ofDigits_append, mul_comm ];
           rw [ min_eq_left ( Finset.mem_range_le hk ) ] ; aesop
@@ -116,7 +109,7 @@ theorem valuation_ge_large_digits (p m : ℕ) [Fact p.Prime] :
       aesop;
     -- Therefore, the number of large digits in $m$ is at most the number of carries when adding $m$ and $m$ in base $p$.
     intros k hk h_large_digit
-    have h_carries_count : Finset.card (Finset.filter (fun i => 2 * (m % p ^ i) ≥ p ^ i) (Finset.Ico 1 (Nat.log p (2 * m) + 1))) ≥ Finset.card (Finset.image (fun k => k + 1) (Finset.filter (fun k => 2 * (Nat.digits p m).get! k ≥ p) (Finset.range (Nat.digits p m).length))) := by
+    have h_carries_count : Finset.card (Finset.filter (fun i => 2 * (m % p ^ i) ≥ p ^ i) (Finset.Ico 1 (Nat.log p (2 * m) + 1))) ≥ Finset.card (Finset.image (fun k => k + 1) (Finset.filter (fun k => 2 * ((Nat.digits p m).getD k 0) ≥ p) (Finset.range (Nat.digits p m).length))) := by
       refine Finset.card_le_card ?_;
       simp_all +decide [ Finset.subset_iff ];
       rintro _ k hk₁ hk₂ rfl
@@ -125,13 +118,13 @@ theorem valuation_ge_large_digits (p m : ℕ) [Fact p.Prime] :
       exact ⟨ ⟨ Nat.succ_pos _, Nat.le_log_of_pow_le ( Fact.out ( p := p.Prime ) |> Nat.Prime.one_lt ) hpow_le ⟩, h_large_digit_carries _ hk₁ hk₂ ⟩
     rw [ Finset.card_image_of_injective _ Nat.succ_injective ] at h_carries_count ; aesop;
   unfold count_large_digits;
-  have h_filter_eq : List.filter (fun d => p ≤ 2 * d) (Nat.digits p m) = List.map (fun k => (Nat.digits p m).get! k) (List.filter (fun k => p ≤ 2 * (Nat.digits p m).get! k) (List.range (Nat.digits p m).length)) := by
+  have h_filter_eq : List.filter (fun d => p ≤ 2 * d) (Nat.digits p m) = List.map (fun k => ((Nat.digits p m).getD k 0)) (List.filter (fun k => p ≤ 2 * ((Nat.digits p m).getD k 0)) (List.range (Nat.digits p m).length)) := by
     induction ( Nat.digits p m ) <;> simp_all +decide [ List.range_succ_eq_map ];
     by_cases h : p ≤ 2 * ‹_› <;> simp_all +decide
     · rw [ List.filter_map ] ; aesop;
     · simp +decide [ List.filter_map, List.map_map ];
       exact rfl;
-  by_cases h_empty : (List.filter (fun k => p ≤ 2 * (Nat.digits p m).get! k) (List.range (Nat.digits p m).length)).length = 0;
+  by_cases h_empty : (List.filter (fun k => p ≤ 2 * ((Nat.digits p m).getD k 0)) (List.range (Nat.digits p m).length)).length = 0;
   · grind;
   · obtain ⟨ k, hk ⟩ := List.length_pos_iff_exists_mem.mp ( Nat.pos_of_ne_zero h_empty ) ; aesop;
 
@@ -221,7 +214,7 @@ theorem bound_N (p D B : ℕ) [Fact p.Prime] (hD : D ≥ 2) :
           have h_digits_len : (Nat.digits p x).length ≤ D := by
             have := @Nat.digits_len p x;
             exact if hx₃ : x = 0 then by simp +decide [ hx₃ ] else by rw [ this ( Nat.Prime.one_lt Fact.out ) hx₃ ] ; exact Nat.log_lt_of_lt_pow ( by positivity ) hx₁;
-          use fun i => ⟨ (Nat.digits p x ++ List.replicate (D - (Nat.digits p x).length) 0)[i]!, by
+          use fun i => ⟨ (Nat.digits p x ++ List.replicate ((D - (Nat.digits p x).length) 0).getD i 0), by
             by_cases hi : i.val < (Nat.digits p x).length <;> simp_all +decide
             · exact Nat.digits_lt_base ( Fact.out : p.Prime ).one_lt ( List.getElem_mem _ );
             · exact Nat.Prime.pos Fact.out ⟩
@@ -1822,7 +1815,7 @@ theorem weighted_sum_eq_sum_components (p D : ℕ) (z : ℝ) [Fact p.Prime] :
           · exact Nat.Prime.one_lt Fact.out;
           · grind;
         · ext i; simp +decide [ List.ofFn_eq_map ] ;
-          have h_digit : ∀ (L : List ℕ), (∀ d ∈ L, d < p) → ∀ i < List.length L, (Nat.ofDigits p L / p ^ i) % p = L.get! i := by
+          have h_digit : ∀ (L : List ℕ), (∀ d ∈ L, d < p) → ∀ i < List.length L, (Nat.ofDigits p L / p ^ i) % p = (L.getD i 0) := by
             intros L hL i hi;
             induction' L with d L ih generalizing i <;> simp_all +decide [ Nat.ofDigits ];
             rcases i with ( _ | i ) <;> simp_all +decide [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ];
@@ -2167,7 +2160,7 @@ theorem deriv_lambda_plus_at_one (p : ℕ) (hp : p ≥ 2) :
                     ↑k ^ 2 - ↑k ^ 2 * x * 2 + ↑k ^ 2 * x ^ 2 + x * ↑k ^ 2 * 4)
                   1 = 4 * (k : ℝ) ^ 2 by
               convert deriv_quadratic_at_one
-                ((k : ℝ) ^ 2) (2 * (k : ℝ) ^ 2) ((k : ℝ) ^ 2) using 1 <;> ring]
+                ((k : ℝ) ^ 2) (2 * (k : ℝ) ^ 2) ((k : ℝ) ^ 2) using 1 <;> ring_nf]
             have hk : (k : ℝ) ≠ 0 := by
               norm_cast
               omega
@@ -2183,7 +2176,7 @@ theorem deriv_lambda_plus_at_one (p : ℕ) (hp : p ≥ 2) :
               convert deriv_quadratic_at_one
                 (((k : ℝ) + 1) ^ 2)
                 (-2 * ((k : ℝ) + 1) ^ 2 + 4 * (k : ℝ) ^ 2)
-                (((k : ℝ) + 1) ^ 2) using 1 <;> ring]
+                (((k : ℝ) + 1) ^ 2) using 1 <;> ring_nf]
             have hk : (k : ℝ) ≠ 0 := by
               norm_cast
               omega
@@ -4517,7 +4510,7 @@ theorem rho_v2_le_c_mul_p_gen' (alpha : ℝ) (halpha : alpha < 1/2) (halpha_pos 
     ∃ c < 1, ∀ p ≥ 2, rho_v2 p alpha ≤ c * p := by
   have h_conv : Filter.Tendsto (fun p => rho_v2 p alpha / p) Filter.atTop (nhds (limit_ratio alpha)) :=
     rho_v2_div_p_converges alpha halpha halpha_pos
-  
+
   have h_lt : ∀ p ≥ 2, rho_v2 p alpha / p < 1 := by
     intro p hp
     have h_rho : rho_v2 p alpha < p := (z_final_prop p alpha hp halpha halpha_pos).2
@@ -4528,7 +4521,7 @@ theorem rho_v2_le_c_mul_p_gen' (alpha : ℝ) (halpha : alpha < 1/2) (halpha_pos 
   have h_lim : limit_ratio alpha < 1 := limit_ratio_lt_one_gen alpha halpha_pos halpha
 
   obtain ⟨c, hc_lt_1, hc_bound⟩ := bounded_of_convergent_lt_one (fun p => rho_v2 p alpha / p) (limit_ratio alpha) h_conv h_lt h_lim
-  
+
   use c, hc_lt_1
   intro p hp
   specialize hc_bound p hp
@@ -5139,7 +5132,7 @@ theorem card_filter_digits_eq_card_filter_seqs (p D B : ℕ) [Fact p.Prime] :
           · unfold digits_of;
             ext i; simp +decide [ Nat.ofDigits_digits, Nat.mod_eq_of_lt ] ;
             -- By definition of `Nat.ofDigits`, the i-th digit of the number formed by the list of f's values is exactly f i.
-            have h_digit : ∀ (l : List ℕ), (∀ d ∈ l, d < p) → ∀ i < l.length, (Nat.ofDigits p l / p ^ i) % p = l.get! i := by
+            have h_digit : ∀ (l : List ℕ), (∀ d ∈ l, d < p) → ∀ i < l.length, (Nat.ofDigits p l / p ^ i) % p = (l.getD i 0) := by
               intro l hl i hi; induction' l with d l ih generalizing i <;> simp_all +decide [ Nat.ofDigits ] ;
               rcases i <;> simp_all +decide [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ];
               · exact Nat.mod_eq_of_lt hl.1;
@@ -5154,7 +5147,7 @@ theorem card_filter_digits_eq_card_filter_seqs (p D B : ℕ) [Fact p.Prime] :
           -- By definition of `Nat.ofDigits`, the i-th digit of `Nat.ofDigits p (List.ofFn fun i => f i)` is `f i`.
           have h_digit : (Nat.ofDigits p (List.ofFn fun i => f i)) / p ^ (i : ℕ) % p = f i := by
             -- By definition of `Nat.ofDigits`, the i-th digit of the number formed by the list of f's values is exactly f i.
-            have h_digit : ∀ (l : List ℕ), (∀ d ∈ l, d < p) → ∀ i < l.length, (Nat.ofDigits p l / p ^ i) % p = l.get! i := by
+            have h_digit : ∀ (l : List ℕ), (∀ d ∈ l, d < p) → ∀ i < l.length, (Nat.ofDigits p l / p ^ i) % p = (l.getD i 0) := by
               intro l hl i hi; induction' l with d l ih generalizing i <;> simp_all +decide [ Nat.ofDigits ] ;
               rcases i <;> simp_all +decide [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ];
               · exact Nat.mod_eq_of_lt hl.1;
