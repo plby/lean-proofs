@@ -380,7 +380,7 @@ theorem sum_fixedBy_eq_sum_autFinset (n : ℕ) :
   any_goals exact ‹SimpleGraph ( Fin n ) ›;
   · rw [ Finset.card_filter ];
     congr! 2;
-    exact?;
+    expose_names; exact mem_fixedBy_iff_mem_autFinset x_1 x;
   · simp +decide [ Fintype.card_subtype ]
 
 /-
@@ -698,7 +698,7 @@ lemma switch_pair_count_lower {n : ℕ} (Hc : SimpleGraph (Fin n)) (u v : Fin n)
           · intro hG; use Finset.filter ( fun e => e ∈ G.edgeSet ) ( Finset.univ.filter ( fun e => ¬e.IsDiag ) \ S ) ; simp_all +decide [ Finset.subset_iff ] ;
             ext v w; simp +decide [ SimpleGraph.fromEdgeSet ] ;
             by_cases hvw : v = w <;> by_cases h : s(v, w) ∈ S <;> simp_all +decide [ SimpleGraph.adj_comm ];
-            exact?;
+            exact (mem_edgeSet G).mp (hG s(v, w) h);
           · rintro ⟨ T, hT, rfl ⟩ e he; simp_all +decide [ Finset.subset_iff ] ;
         rw [ h_edges, Finset.card_image_of_injOn, Finset.card_powerset ];
         · simp +decide [ Finset.ext_iff ];
@@ -1272,9 +1272,9 @@ lemma pruning_ratio_bound (C : ℕ) (hC : C ≥ 1) :
     -- Simplify the right-hand side of the inequality.
     have h_simplify : ((n : ℝ) / (4 * (Real.log n) ^ (6 ^ i))) ^ 2 / ((n : ℝ) / (Real.log n) ^ (6 ^ (i + 1))) = (n : ℝ) * (Real.log n) ^ (4 * 6 ^ i) / 16 := by
       field_simp
-      ring
+      ring_nf
       generalize_proofs at *; (
-      by_cases h : Real.log n = 0 <;> simp_all +decide [ pow_mul', mul_assoc, mul_comm, mul_left_comm ] ; ring;
+      by_cases h : Real.log n = 0 <;> simp_all +decide [ pow_mul', mul_assoc, mul_comm, mul_left_comm ] ; ring_nf;
       · norm_cast at * ; aesop ( simp_config := { decide := true } ) ;
       · exact div_eq_iff ( pow_ne_zero _ <| pow_ne_zero _ <| ne_of_gt <| Real.log_pos <| Nat.one_lt_cast.mpr <| lt_of_le_of_ne ( Nat.succ_le_of_lt <| Nat.pos_of_ne_zero h.1 ) <| Ne.symm h.2.1 ) |>.2 <| by ring;)
     generalize_proofs at *; (
@@ -1534,10 +1534,10 @@ lemma count_perm_with_P_pair (P : Finset (Fin N) → Prop) [DecidablePred P]
       · rintro ⟨ S₀, ⟨ hS₀₁, hS₀₂ ⟩, ⟨ hS₀₃, hS₀₄ ⟩, hS₀₅ ⟩;
         have h_chainPrefix_m : chainPrefix σ m = S₀ := by
           have h_chainPrefix_m : chainPrefix σ (m + 1) = insert (σ ⟨m, hm'⟩) (chainPrefix σ m) := by
-            exact?;
+            exact chainPrefix_succ σ hm';
           rw [ Finset.ext_iff ] at h_chainPrefix_m;
           ext x; specialize h_chainPrefix_m x; by_cases hx : x = σ ⟨ m, hm' ⟩ <;> simp_all +decide ;
-          exact?;
+          exact chainPrefix_new_not_mem σ hm';
         grind;
     rw [ h_count, Finset.card_biUnion, Finset.sum_congr rfl ];
     · intro S₀ hS₀;
@@ -1601,7 +1601,7 @@ theorem transition_sum_le_one
         · exact Finset.disjoint_left.mpr ( by aesop );
       convert h_card using 2;
       · convert count_perm_with_P P m ( Finset.mem_range_succ_iff.mp hm ) |> Eq.symm using 1;
-        rw [ ← @Nat.cast_inj ℝ ] ; push_cast ; rw [ hR ] ; ring;
+        rw [ ← @Nat.cast_inj ℝ ] ; push_cast ; rw [ hR ] ; ring_nf;
       · split_ifs <;> simp_all +decide [ mul_assoc, mul_comm, mul_left_comm ];
         have := count_perm_with_P_pair P m ( Nat.pos_of_ne_zero ‹_› ) hm ext_val h_ext; simp_all +decide [ mul_assoc, mul_comm, mul_left_comm ] ;
     split_ifs at * <;> simp_all +decide [ Nat.cast_choose, mul_sub ];
@@ -2070,7 +2070,7 @@ theorem remainder_tendsto_zero :
       rw [ Finset.sum_ite ];
       simpa using Finset.sum_le_sum fun x hx => h_card_bound x <| Finset.mem_filter.mp hx |>.2;
     refine le_trans h_card_bound ?_;
-    convert mul_le_mul_of_nonneg_right ( Nat.cast_le.mpr ( count_perms_moving_m_le ( n := n ) ( m := m ) ) ) ( by positivity : ( 0 : ℝ ) ≤ 1 / 2 ^ ( m * ( n - 2 ) / 4 ) ) using 1 ; ring;
+    convert mul_le_mul_of_nonneg_right ( Nat.cast_le.mpr ( count_perms_moving_m_le ( n := n ) ( m := m ) ) ) ( by positivity : ( 0 : ℝ ) ≤ 1 / 2 ^ ( m * ( n - 2 ) / 4 ) ) using 1 ; ring_nf;
     norm_num [ mul_comm ];
   -- Let $r_n = \frac{n}{2^{(n-2)/4}}$. By ratio_tendsto_zero, $r_n \to 0$ as $n \to \infty$.
   set r : ℕ → ℝ := fun n => (n : ℝ) / (2 : ℝ) ^ ((n - 2) / 4 : ℕ)
@@ -2210,14 +2210,14 @@ lemma upper_tail_bound (N : ℕ) (t : ℝ) (ht : t ≥ 0) :
       · -- Use exp_markov_count with lam₀ = 4*t/N, which is ≥ 0 since t ≥ 0 and N > 0.
         have h_exp_markov : ((Finset.univ.filter (fun f : Fin N → Bool => (boolCount f : ℝ) ≥ N / 2 + t)).card : ℝ) ≤
             Real.exp (-4 * t / N * (N / 2 + t)) * (∑ f : Fin N → Bool, Real.exp (4 * t / N * (boolCount f : ℝ))) := by
-              convert exp_markov_count N ( 4 * t / N ) ( N / 2 + t ) ( by positivity ) using 1 ; ring;
+              convert exp_markov_count N ( 4 * t / N ) ( N / 2 + t ) ( by positivity ) using 1 ; ring_nf;
         -- Now bound (1 + exp lam₀)^N: (1 + exp lam₀) = 2 * ((1 + exp lam₀)/2) ≤ 2 * exp(lam₀/2 + lam₀²/8) (by one_plus_exp_half_bound)
         have h_bound : (∑ f : Fin N → Bool, Real.exp (4 * t / N * (boolCount f : ℝ))) ≤ 2 ^ N * Real.exp (N * (4 * t / N / 2 + (4 * t / N) ^ 2 / 8)) := by
           rw [ mgf_factorization ];
           have := one_plus_exp_half_bound ( 4 * t / N );
           rw [ ← div_le_iff₀' ( by positivity ) ];
           simpa only [ ← div_pow, ← Real.exp_nat_mul ] using pow_le_pow_left₀ ( by positivity ) this _;
-        convert h_exp_markov.trans ( mul_le_mul_of_nonneg_left h_bound <| Real.exp_nonneg _ ) using 1 ; ring;
+        convert h_exp_markov.trans ( mul_le_mul_of_nonneg_left h_bound <| Real.exp_nonneg _ ) using 1 ; ring_nf;
         rw [ ← Real.exp_add ] ; norm_num [ sq, mul_assoc, hN ] ; ring;
 
 /-! ## Step 5: Bit-flipping symmetry -/
@@ -2442,10 +2442,10 @@ theorem exp_moment_bound (n : ℕ) (f : (Fin n → Bool) → ℝ) (b : Fin n →
       intro y
       set d := (f (Fin.cons true y) - f (Fin.cons false y)) / 2
       have h_exp : Real.exp (lam * (μ - f (Fin.cons false y))) + Real.exp (lam * (μ - f (Fin.cons true y))) ≤ 2 * Real.exp (lam * (μ_g - g y) + lam ^ 2 * d ^ 2 / 2) := by
-        convert avg_exp_le ( lam * ( μ_g - g y ) ) ( lam * d ) using 1 <;> ring;
+        convert avg_exp_le ( lam * ( μ_g - g y ) ) ( lam * d ) using 1 <;> ring_nf;
         simp +zetaDelta at *;
-        rw [ hμ_g ] ; ring;
-        unfold avgFn; ring;
+        rw [ hμ_g ] ; ring_nf;
+        unfold avgFn; ring_nf;
       -- By cons_diff_bound, |f(cons true y) - f(cons false y)| ≤ b 0, so d² ≤ (b 0)² / 4.
       have h_d_bound : d ^ 2 ≤ (b 0) ^ 2 / 4 := by
         simp +zetaDelta at *;
@@ -2462,8 +2462,8 @@ theorem exp_moment_bound (n : ℕ) (f : (Fin n → Bool) → ℝ) (b : Fin n →
         rw [ Finset.sum_comm ];
         exact Finset.sum_congr rfl fun _ _ => by rw [ Finset.sum_eq_add ( false ) ( true ) ] <;> simp +decide ;
       · norm_num [ Real.exp_add, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _ ];
-    convert h_combined.trans ( mul_le_mul_of_nonneg_left h_ind <| by positivity ) using 1 ; ring;
-    rw [ ← Real.exp_add ] ; norm_num [ Fin.sum_univ_succ ] ; ring
+    convert h_combined.trans ( mul_le_mul_of_nonneg_left h_ind <| by positivity ) using 1 ; ring_nf;
+    rw [ ← Real.exp_add ] ; norm_num [ Fin.sum_univ_succ ] ; ring_nf
 
 /-! ## Part 5: Counting Markov's inequality -/
 
@@ -2616,11 +2616,11 @@ theorem almost_all_trivial_aut :
   have upper_bound : ∀ n, ((Finset.univ.filter (fun G : SimpleGraph (Fin n) => (autFinset G).card ≠ 1)).card : ℝ) / (2 ^ n.choose 2 : ℝ) ≤ (numIsoClasses n : ℝ) * (Nat.factorial n : ℝ) / (2 ^ n.choose 2 : ℝ) - 1 := by
     intro n;
     rw [ div_sub_one, div_le_div_iff_of_pos_right ] <;> norm_num;
-    exact?;
+    exact nontrivial_aut_bound n;
   -- By the squeeze theorem, if the upper bound tends to 0, then the original fraction tends to 0.
   have squeeze_theorem : Filter.Tendsto (fun n => (numIsoClasses n : ℝ) * (Nat.factorial n : ℝ) / (2 ^ n.choose 2 : ℝ) - 1) Filter.atTop (nhds 0) := by
-    convert ( polya_wright_theorem.sub_const 1 ) using 2 <;> ring!;
-    unfold paperDenom; ring;
+    convert ( polya_wright_theorem.sub_const 1 ) using 2 <;> ring_nf!;
+    unfold paperDenom; ring_nf;
     norm_num;
   exact squeeze_zero ( fun n => by positivity ) upper_bound squeeze_theorem
 
@@ -2635,7 +2635,7 @@ theorem uniquelyEmbeds_iff_uniqueSub_trivialAut {n : ℕ} (G H : SimpleGraph (Fi
   · intro h;
     constructor;
     · obtain ⟨φ, hφ⟩ : ∃! φ : Equiv.Perm (Fin n), IsEmbedding G H φ := by
-        exact?;
+        exact (Fintype.existsUnique_iff_card_one (IsEmbedding G H)).mpr h;
       use ⟨ Set.univ, fun u v => G.Adj ( φ⁻¹ u ) ( φ⁻¹ v ), by
         exact fun { v w } h => by simpa using hφ.1 ( φ⁻¹ v ) ( φ⁻¹ w ) h;, by
         exact fun _ => Set.mem_univ _, by
@@ -2643,7 +2643,7 @@ theorem uniquelyEmbeds_iff_uniqueSub_trivialAut {n : ℕ} (G H : SimpleGraph (Fi
       generalize_proofs at *;
       constructor;
       · refine' ⟨ _, _ ⟩;
-        · exact?;
+        · exact Subgraph.isSpanning_iff.mpr rfl;
         · refine' ⟨ _, _ ⟩;
           exacts [ φ⁻¹, by simp +decide [ SimpleGraph.spanningCoe ] ];
       · rintro ⟨ S, hS ⟩ ⟨ hS₁, ⟨ f ⟩ ⟩;
@@ -2655,7 +2655,7 @@ theorem uniquelyEmbeds_iff_uniqueSub_trivialAut {n : ℕ} (G H : SimpleGraph (Fi
           apply hφ.right;
           intro u v huv; specialize hψ u v; aesop;
         congr! 1;
-        · exact?;
+        · exact Set.eq_univ_of_univ_subset fun ⦃a⦄ a_1 ↦ hS₁ a;
         · ext u v; specialize hψ ( φ⁻¹ u ) ( φ⁻¹ v ) ; aesop;
     · rw [ Finset.card_eq_one ];
       obtain ⟨ φ, hφ ⟩ := Finset.card_eq_one.mp h;
@@ -2678,7 +2678,7 @@ theorem uniquelyEmbeds_iff_uniqueSub_trivialAut {n : ℕ} (G H : SimpleGraph (Fi
             exact fun u v h => G.symm h⟩
           generalize_proofs at *;
           refine' ⟨ _, _, _ ⟩;
-          · exact?;
+          · exact Subgraph.isSpanning_iff.mpr rfl;
           · refine' ⟨ _, _ ⟩;
             exact φ⁻¹;
             aesop;
@@ -2759,7 +2759,7 @@ lemma factorial_dvd_numUniquelyEmbedding {n : ℕ} (H : SimpleGraph (Fin n)) :
       simp +decide [ ← ha₂, mul_assoc ];
   -- Since each orbit has size $n!$, the cardinality of $S$ is the sum of the cardinalities of these orbits.
   have h_card_S : S.card = ∑ G ∈ Finset.image (fun G => MulAction.orbit (Equiv.Perm (Fin n)) G) S, (Finset.filter (fun G' => MulAction.orbit (Equiv.Perm (Fin n)) G' = G) S).card := by
-    exact?;
+    exact card_eq_sum_card_image (fun G ↦ MulAction.orbit (Equiv.Perm (Fin n)) G) S;
   -- Since each orbit has size $n!$, the cardinality of each orbit is $n!$.
   have h_orbit_card : ∀ G ∈ S, (Finset.filter (fun G' => MulAction.orbit (Equiv.Perm (Fin n)) G' = MulAction.orbit (Equiv.Perm (Fin n)) G) S).card = Nat.factorial n := by
     intros G hG
@@ -2969,7 +2969,7 @@ theorem reduction_to_random :
     fH H ≥ δ → probUniqueEmb H ≥ δ / 2 := by
   -- By Lemma 2.1, fH H ≤ probUniqueEmb H + error(n) where error(n) = numIsoClasses(n) * n! / 2^N - 1 → 0 by Pólya-Wright.
   have h_lemma21 : Filter.Tendsto (fun n => ((numIsoClasses n : ℝ) * (Nat.factorial n : ℝ) / (2 ^ n.choose 2 : ℝ) - 1)) Filter.atTop (nhds 0) := by
-    convert Filter.Tendsto.sub_const ( polya_wright_theorem.mul_const ( 1 : ℝ ) ) 1 using 2 ; norm_num [ paperDenom ] ; ring;
+    convert Filter.Tendsto.sub_const ( polya_wright_theorem.mul_const ( 1 : ℝ ) ) 1 using 2 ; norm_num [ paperDenom ] ; ring_nf;
     · norm_num ; ring;
     · norm_num;
   intro δ hδ_pos
@@ -3576,7 +3576,7 @@ private lemma UEPred_ext_count {n : ℕ} (hn : 2 ≤ n) (H : SimpleGraph (Fin n)
     · intro G' hG' hG'_card hG'_UE
       have hG'_edgeFinset : G'.edgeFinset.card ≤ H.edgeFinset.card := by
         obtain ⟨ σ, hσ ⟩ := Finset.card_pos.mp ( show 0 < Finset.card ( Finset.filter ( fun σ : Equiv.Perm ( Fin n ) => IsEmbedding G' H σ ) Finset.univ ) from by
-                                                  exact? );
+                                                  exact Nat.lt_of_sub_eq_succ hG'_UE );
         have hG'_edgeFinset : G'.edgeFinset.image (fun e => Sym2.map (fun v => σ v) e) ⊆ H.edgeFinset := by
           simp_all +decide [ Finset.subset_iff, IsEmbedding ];
           rintro ⟨ u, v ⟩ huv; specialize hσ u v; aesop;
@@ -3683,10 +3683,10 @@ lemma sum_z_refined_le_one {n : ℕ} (hn : 2 ≤ n) (H : SimpleGraph (Fin n)) :
                                                                                                                                                                     simp +decide [ Finset.subset_iff, SimpleGraph.edgeSet ];
                                                                                                                                                                     rintro ⟨ u, v ⟩ huv; simp_all +decide [ edgeSetEmbedding ] ;
                                                                                                                                                                     exact hσ.1 |> fun h => by simpa using Finset.mem_filter.mp h |>.2 u v huv; ] ;
-  · exact?;
-  · exact?;
+  · exact fun S₁ S₂ S₃ a a_1 a_2 a_3 ↦ UEPred_interval H S₁ S₂ S₃ a a_1 a_2 a_3;
+  · exact UEPred_empty hn H;
   · convert UEPred_ext_count hn H using 1;
-  · exact?
+  · exact fun m ↦ UEPred_countP H m
 
 /-
 **Process inequality** (key combinatorial bound from the random graph process).
@@ -3808,7 +3808,7 @@ lemma ue_implies_many_edges (δ : ℝ) (hδ : 0 < δ) :
     probUniqueEmb H ≥ δ → n ≤ H.edgeFinset.card := by
   -- Use probUniqueEmb_le_factorial_div which gives probUniqueEmb H ≤ n!/2^{N-eH}.
   have h_prob_le : ∀ n : ℕ, ∀ H : SimpleGraph (Fin n), probUniqueEmb H ≤ (Nat.factorial n : ℝ) / 2 ^ (n.choose 2 - H.edgeFinset.card) := by
-    exact?;
+    exact fun n H ↦ probUniqueEmb_le_factorial_div H;
   -- For n large enough: n!/2^{n(n-3)/2} < δ. This gives a contradiction with probUniqueEmb H ≥ δ.
   have h_contradiction : ∃ n₀ : ℕ, ∀ n ≥ n₀, (Nat.factorial n : ℝ) / 2 ^ (n.choose 2 - n) < δ := by
     -- We'll use that $n! / 2^{n(n-3)/2}$ tends to $0$ as $n$ tends to infinity.
@@ -3820,8 +3820,8 @@ lemma ue_implies_many_edges (δ : ℝ) (hδ : 0 < δ) :
           exact mod_cast Nat.recOn n ( by norm_num ) fun n ih => by rw [ pow_succ' ] ; exact le_trans ( Nat.mul_le_mul_left _ ih ) ( by gcongr ; linarith ) ;
         have h_exp_bound : (2 : ℝ) ^ (n * (n - 3) / 2) = (2 ^ ((n - 3) / 2 : ℝ)) ^ n := by
           rw [ ← Real.rpow_natCast _ n, ← Real.rpow_natCast _ ( n * ( n - 3 ) / 2 ), ← Real.rpow_mul ] <;> norm_num;
-          rw [ ← Real.rpow_natCast ] ; rw [ Nat.cast_div ] <;> norm_num ; ring;
-          · rw [ Nat.cast_sub ( by linarith ) ] ; ring;
+          rw [ ← Real.rpow_natCast ] ; rw [ Nat.cast_div ] <;> norm_num ; ring_nf;
+          · rw [ Nat.cast_sub ( by linarith ) ] ; ring_nf;
           · rcases n with ( _ | _ | _ | _ | n ) <;> simp_all +arith +decide [ ← even_iff_two_dvd, mul_add, parity_simps ]
         rw [div_pow]
         field_simp [h_exp_bound];
@@ -3836,7 +3836,7 @@ lemma ue_implies_many_edges (δ : ℝ) (hδ : 0 < δ) :
             suffices h_lim_y : Filter.Tendsto (fun y : ℝ => 4 * y / Real.exp y) Filter.atTop (nhds 0) by
               have h_subst : Filter.Tendsto (fun n : ℕ => 4 * (n * Real.log 2 / 4) / Real.exp (n * Real.log 2 / 4)) Filter.atTop (nhds 0) := by
                 exact h_lim_y.comp <| Filter.Tendsto.atTop_div_const ( by positivity ) <| tendsto_natCast_atTop_atTop.atTop_mul_const ( by positivity );
-              convert h_subst.div_const ( Real.log 2 ) using 2 <;> ring;
+              convert h_subst.div_const ( Real.log 2 ) using 2 <;> ring_nf;
               norm_num [ mul_assoc, mul_comm, mul_left_comm ];
             simpa [ mul_div_assoc, Real.exp_neg ] using tendsto_const_nhds.mul ( Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 1 );
           refine' squeeze_zero_norm' _ h_lim_zero;
@@ -3958,7 +3958,7 @@ lemma reduction_to_dense_large_n :
     rwa [ one_sub_div ( Nat.cast_ne_zero.mpr <| ne_of_gt <| hn₀ n ( le_trans ( le_max_left _ _ ) hn ) H hH |>.1 ), div_le_iff₀' <| Nat.cast_pos.mpr <| hn₀ n ( le_trans ( le_max_left _ _ ) hn ) H hH |>.1 ] at h_bound;
   have h_bound : (n.choose 2 : ℝ) - H.edgeFinset.card ≤ 32 * (n : ℝ) * (-Real.log α) / δ := by
     refine le_trans h_bound ?_;
-    convert mul_le_mul_of_nonneg_right ( hn₁ n ( le_trans ( le_max_right _ _ ) hn ) |>.2 ) ( neg_nonneg.mpr ( Real.log_nonpos hα_pos.le ( show α ≤ 1 from _ ) ) ) using 1 <;> ring;
+    convert mul_le_mul_of_nonneg_right ( hn₁ n ( le_trans ( le_max_right _ _ ) hn ) |>.2 ) ( neg_nonneg.mpr ( Real.log_nonpos hα_pos.le ( show α ≤ 1 from _ ) ) ) using 1 <;> ring_nf;
     exact le_trans ( hn₀ n ( le_trans ( le_max_left _ _ ) hn ) H hH |>.2 ) ( pow_le_one₀ ( by positivity ) ( div_le_one_of_le₀ ( mod_cast by
       convert H.card_edgeFinset_le_card_choose_two using 1;
       norm_num ) ( by positivity ) ) );
