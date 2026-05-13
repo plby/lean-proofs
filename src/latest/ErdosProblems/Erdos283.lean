@@ -11031,21 +11031,18 @@ end PolynomialEgyptianSums
     ============================================================= -/
 
 /-
-Erdős Problems 283 + 351 — `formal-conjectures` upstream wrappers.
+Erdős Problems 283 — `formal-conjectures` upstream wrapper.
 
-This file lives in *separate* namespaces (`Erdos283`, `Erdos351`) from the core
-proof in `PolynomialEgyptianSums`, to avoid future name collisions when
-`formal-conjectures` is imported alongside.
+This file lives in namespace `Erdos283`, separate from the core proof in
+`PolynomialEgyptianSums`, to avoid future name collisions when
+`formal-conjectures` is imported alongside. The #351 wrapper is in
+`ErdosProblems.Erdos351`.
 
 Bridges between our internal forms and FC's literal syntax:
 
   * `Erdos283.Condition`           — FC's per-polynomial condition (sentinel
                                       `n 0 = 0`, sums over `Finset.Icc 1 (Fin.last k)`).
   * `Erdos283.erdos_283`           — `True ↔ ∀ p : ℤ[X], Condition p`
-                                      under `answer := True`.
-  * `Erdos351.HasCompleteImage`    — strong completeness of `imageSet`.
-  * `Erdos351.erdos_351`           — `True ↔ ∀ P : ℚ[X], 0 < P.natDegree →
-                                      0 < P.leadingCoeff → HasCompleteImage P`
                                       under `answer := True`.
 -/
 
@@ -11213,30 +11210,3 @@ theorem erdos_283 :
 -- 'Erdos283.erdos_283' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos283
-
-/-! ## #351 wrapper -/
-
-namespace Erdos351
-
-open Polynomial
-
-/-- FC-named alias for `imageSet`. -/
-def imageSet (P : ℚ[X]) : Set ℚ := PolynomialEgyptianSums.imageSet P
-
-/-- FC-named alias for `IsStronglyComplete (imageSet P)`. -/
-def HasCompleteImage (P : ℚ[X]) : Prop :=
-  PolynomialEgyptianSums.IsStronglyComplete (imageSet P)
-
-/-- **`formal-conjectures` upstream form for #351** under `answer := True`.
-
-Direct from `PolynomialEgyptianSums.corollary_7_pos_leading`. -/
-theorem erdos_351 :
-    True ↔ ∀ P : ℚ[X], 0 < P.natDegree → 0 < P.leadingCoeff →
-      HasCompleteImage P := by
-  refine ⟨fun _ P _ hlc => ?_, fun _ => trivial⟩
-  exact PolynomialEgyptianSums.corollary_7_pos_leading P hlc
-
-#print axioms erdos_351
--- 'Erdos351.erdos_351' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end Erdos351
