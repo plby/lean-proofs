@@ -116,7 +116,7 @@
     - https://www.erdosproblems.com/forum/thread/42#post-6370
     - https://github.com/Shashi456/erdos-formalizations/blob/main/Erdos/P42/CompactCayley/Proof.lean
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/42.lean
-    - https://live.lean-lang.org/#project=mathlib-v4.28.0&url=https%3A%2F%2Fraw.githubusercontent.com%2FShashi456%2Ferdos-formalizations%2Frefs%2Fheads%2Fmain%2FErdos%2FP42%2FCompactCayley%2FProof.lean
+    - https://raw.githubusercontent.com/Shashi456/erdos-formalizations/refs/heads/main/Erdos/P42/CompactCayley/Proof.lean
   version: "4.28.0"
 
 - key: ErdosProblems.Erdos45
@@ -747,7 +747,7 @@
     - https://www.overleaf.com/read/gdmnffbshxsq#ef2000
     - https://github.com/Shashi456/erdos-formalizations/blob/main/Erdos/P283/Proof_flat.lean
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/283.lean
-    - https://live.lean-lang.org/#project=mathlib-v4.27.0&url=https%3A%2F%2Fraw.githubusercontent.com%2FShashi456%2Ferdos-formalizations%2Frefs%2Fheads%2Fmain%2FErdos%2FP283%2FProof_flat.lean
+    - https://raw.githubusercontent.com/Shashi456/erdos-formalizations/refs/heads/main/Erdos/P283/Proof_flat.lean
   version:
     - "4.27.0"
     - "4.28.0"
@@ -1018,7 +1018,7 @@
     - https://www.overleaf.com/read/gdmnffbshxsq#ef2000
     - https://github.com/Shashi456/erdos-formalizations/blob/main/Erdos/P283/Proof_flat.lean
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/351.lean
-    - https://live.lean-lang.org/#project=mathlib-v4.27.0&url=https%3A%2F%2Fraw.githubusercontent.com%2FShashi456%2Ferdos-formalizations%2Frefs%2Fheads%2Fmain%2FErdos%2FP283%2FProof_flat.lean
+    - https://raw.githubusercontent.com/Shashi456/erdos-formalizations/refs/heads/main/Erdos/P283/Proof_flat.lean
   version:
     - "4.27.0"
     - "4.28.0"
@@ -1739,7 +1739,7 @@
   url:
     - https://www.erdosproblems.com/forum/thread/639#post-6189
     - https://gist.githubusercontent.com/Parcly-Taxel/f9a6a963d1057880633e4034294aa98e/raw/885ce8aa2d80d8ac598b98126de3321b5b8842ff/Erdos639.lean
-    - https://live.lean-lang.org/#url=https%3A%2F%2Fgist.githubusercontent.com%2FParcly-Taxel%2Ff9a6a963d1057880633e4034294aa98e%2Fraw%2F885ce8aa2d80d8ac598b98126de3321b5b8842ff%2FErdos639.lean&project=mathlib-v4.28.0
+    - https://gist.githubusercontent.com/Parcly-Taxel/f9a6a963d1057880633e4034294aa98e/raw/885ce8aa2d80d8ac598b98126de3321b5b8842ff/Erdos639.lean
   version: "4.28.0"
 
 - key: ErdosProblems.Erdos645
@@ -1930,7 +1930,7 @@
     - https://www.erdosproblems.com/forum/thread/694#post-6202
     - https://www.overleaf.com/read/fgmhvywvdjkt#54ca5d
     - https://github.com/Shashi456/erdos-formalizations/blob/main/Erdos/P694/Proof.lean
-    - https://live.lean-lang.org/#project=mathlib-v4.28.0&url=https%3A%2F%2Fraw.githubusercontent.com%2FShashi456%2Ferdos-formalizations%2Frefs%2Fheads%2Fmain%2FErdos%2FP694%2FProof.lean
+    - https://raw.githubusercontent.com/Shashi456/erdos-formalizations/refs/heads/main/Erdos/P694/Proof.lean
   conditional:
     - mertens_product
     - linnik_dvd
@@ -1994,7 +1994,7 @@
   url:
     - https://www.erdosproblems.com/forum/thread/728#post-3652
     - https://math.dartmouth.edu/~carlp/binom.pdf
-    - https://live.lean-lang.org/#project=mathlib-v4.24.0&url=https%3A%2F%2Fraw.githubusercontent.com%2Fplby%2Flean-proofs%2Frefs%2Fheads%2Fmain%2Fsrc%2Fv4.24.0%2FErdosProblems%2FErdos728p.lean
+    - https://raw.githubusercontent.com/plby/lean-proofs/refs/heads/main/src/v4.24.0/ErdosProblems/Erdos728p.lean
   version: "4.24.0"
 
 - key: ErdosProblems.Erdos729
@@ -2175,7 +2175,7 @@
   url:
     - https://www.erdosproblems.com/forum/thread/798#post-6329
     - https://gist.githubusercontent.com/Parcly-Taxel/757ca8323d74784da1a776795b9c90a9/raw/3a9724b1f6cd2504b809cf3c66f843b89d375e8b/Erdos798.lean
-    - https://live.lean-lang.org/#project=mathlib-v4.28.0&url=https%3A%2F%2Fgist.githubusercontent.com%2FParcly-Taxel%2F757ca8323d74784da1a776795b9c90a9%2Fraw%2F3a9724b1f6cd2504b809cf3c66f843b89d375e8b%2FErdos798.lean
+    - https://gist.githubusercontent.com/Parcly-Taxel/757ca8323d74784da1a776795b9c90a9/raw/3a9724b1f6cd2504b809cf3c66f843b89d375e8b/Erdos798.lean
   version: "4.28.0"
 
 - key: ErdosProblems.Erdos818
@@ -2819,7 +2819,7 @@
   url:
     - https://www.erdosproblems.com/forum/thread/1048#post-3891
     - https://github.com/plby/lean-proofs/blob/main/src/v4.24.0/ErdosProblems/Erdos1048b.lean
-    - https://live.lean-lang.org/#project=mathlib-v4.24.0&url=https%3A%2F%2Fraw.githubusercontent.com%2Fplby%2Flean-proofs%2Frefs%2Fheads%2Fmain%2Fsrc%2Fv4.24.0%2FErdosProblems%2FErdos1048b.lean
+    - https://raw.githubusercontent.com/plby/lean-proofs/refs/heads/main/src/v4.24.0/ErdosProblems/Erdos1048b.lean
   version: "4.24.0"
 
 - key: ErdosProblems.Erdos1051
