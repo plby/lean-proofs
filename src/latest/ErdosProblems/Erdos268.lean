@@ -1340,8 +1340,7 @@ theorem harmonicSubseriesSet_interior_nonempty :
     Subset.refl _, Metric.isOpen_ball, Metric.mem_ball_self hr⟩)⟩
 
 #print axioms harmonicSubseriesSet_interior_nonempty
--- 'Erdos268.harmonicSubseriesSet_interior_nonempty' depends on axioms: [propext,
--- Classical.choice,
+-- 'Erdos268.harmonicSubseriesSet_interior_nonempty' depends on axioms: [propext, Classical.choice,
 -- Quot.sound]
 
 end

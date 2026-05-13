@@ -838,6 +838,6 @@ theorem n_n_plus_one_inf : Filter.Tendsto (fun n => P_plus (n * (n + 1))) Filter
   exact Exists.elim ( Set.Finite.bddAbove ( h_eq B ) ) fun N hN => ⟨ N + 1, fun n hn => not_lt.1 fun contra => not_lt_of_ge ( hN ⟨ by linarith, contra.le ⟩ ) hn ⟩
 
 #print axioms n_n_plus_one_inf
--- 'Erdos368.n_n_plus_one_inf' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos368b.n_n_plus_one_inf' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos368b

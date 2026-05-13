@@ -1079,6 +1079,6 @@ theorem erdos_1007 : IsLeast {n : ℕ | ∃ (V : Type) (_ : Fintype V) (_ : Deci
     exact ne_of_lt ( lt_of_le_of_lt ( Nat.sInf_le h_embedding ) ( Nat.lt_succ_self _ ) )
 
 #print axioms erdos_1007
--- 'erdos_1007' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos1007.erdos_1007' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos1007

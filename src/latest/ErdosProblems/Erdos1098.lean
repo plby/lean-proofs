@@ -549,7 +549,7 @@ theorem erdos1098 (G : Type*) [Group G]
   rw [ Nat.card_range_of_injective ] at h_card_quotient <;> aesop
 
 #print axioms erdos1098
--- 'erdos1098' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos1098.erdos1098' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end
 

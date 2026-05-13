@@ -2216,6 +2216,6 @@ theorem erdos_497 :
       · filter_upwards [ h_log_A, Filter.eventually_gt_atTop 0 ] with n hn hn' using div_le_div_of_nonneg_right hn.2 <| Nat.cast_nonneg _
 
 #print axioms erdos_497
--- 'erdos_497' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos497.erdos_497' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos497

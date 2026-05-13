@@ -1032,9 +1032,7 @@ theorem erdos_1000_true :
     exact h_shift.congr fun N => by simp +decide [ cesaroPhi ] ;
 
 #print axioms erdos_1000_true
--- 'Erdos1000.erdos_1000_true' depends on axioms: [propext,
--- Classical.choice,
--- Quot.sound,
+-- 'Erdos1000.erdos_1000_true' depends on axioms: [propext, Classical.choice, Quot.sound,
 -- n_seq_block_transition._native.native_decide.ax_1_1]
 
 end Erdos1000

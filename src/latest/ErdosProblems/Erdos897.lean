@@ -930,9 +930,9 @@ theorem erdos_897.parts.ii : (∀ (f : ℕ → ℝ),
     · exact EReal.coe_lt_top _
 
 #print axioms erdos_897.parts.i
--- 'erdos_897.parts.i' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos897.erdos_897.parts.i' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 #print axioms erdos_897.parts.ii
--- 'erdos_897.parts.ii' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos897.erdos_897.parts.ii' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos897

@@ -3025,9 +3025,10 @@ theorem van_doorn_everts_asymptotic_inexact :
   · exact ⟨ ∅, by aesop ⟩
 
 #print axioms erdos_845
--- 'erdos_845' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos845.erdos_845' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 #print axioms van_doorn_everts_asymptotic_inexact
--- 'van_doorn_everts_asymptotic_inexact' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos845.van_doorn_everts_asymptotic_inexact' depends on axioms: [propext, Classical.choice,
+-- Quot.sound]
 
 end Erdos845

@@ -230,6 +230,6 @@ theorem erdos_1095_weaker_upper_bound :
     · exact Real.exp_le_exp.mpr ( Real.rpow_le_rpow_of_exponent_le ( by norm_cast; linarith ) ( by norm_num ) )
 
 #print axioms erdos_1095_weaker_upper_bound
--- 'erdos_1095_weaker_upper_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos1095b.erdos_1095_weaker_upper_bound' depends on axioms: [propext, choice, Quot.sound]
 
 end Erdos1095b

@@ -119,5 +119,5 @@ theorem erdos427 (n d : ℕ) (hd : 1 ≤ d) :
 end Erdos427
 
 #print axioms Erdos427.erdos427
--- 'Erdos427.erdos427' depends on axioms:
--- [propext, Classical.choice, Erdos427.shiu_consecutive_primes, Quot.sound]
+-- 'Erdos427.erdos427' depends on axioms: [propext, Classical.choice,
+-- Erdos427.shiu_consecutive_primes, Quot.sound]

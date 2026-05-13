@@ -1206,6 +1206,6 @@ theorem erdos_648 :
       exact ⟨ 1, by filter_upwards [ ‹∀ᶠ n in Filter.atTop, ( safe_primes n |> List.length : ℝ ) ≤ g n› ] with n hn; rw [ Real.norm_of_nonneg ( Nat.cast_nonneg _ ), Real.norm_of_nonneg ( Nat.cast_nonneg _ ) ] ; linarith ⟩
 
 #print axioms erdos_648
--- 'erdos_648' depends on axioms: [pi_alt, propext, Classical.choice, Quot.sound]
+-- 'Erdos648.erdos_648' depends on axioms: [propext, Classical.choice, pi_alt, Quot.sound]
 
 end Erdos648

@@ -660,6 +660,6 @@ theorem not_erdos_1048 : ¬ erdos_1048 := by
   exact not_lt_of_ge (le_trans hx hC) hsmall
 
 #print axioms not_erdos_1048
--- 'not_erdos_1048' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos1048.not_erdos_1048' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos1048

@@ -1333,7 +1333,7 @@ theorem erdos_862 :
   exact sqrt_asymptotic
 
 #print axioms erdos_862
--- 'erdos_862' depends on axioms: [prime_between, propext, Classical.choice, Quot.sound]
+-- 'Erdos862.erdos_862' depends on axioms: [propext, choice, prime_between, Quot.sound]
 
 end
 

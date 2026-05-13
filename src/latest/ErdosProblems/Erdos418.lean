@@ -561,9 +561,7 @@ theorem erdos_418 : { (n - n.totient : ℕ) | n }ᶜ.Infinite := by
   exact h_infinite.mono fun x hx => by obtain ⟨ k, hk, rfl ⟩ := hx; exact fun h => h_noncototient k hk <| by obtain ⟨ n, hn ⟩ := h; exact ⟨ n, hn.symm ⟩ ;
 
 #print axioms erdos_418
--- 'Erdos418.erdos_418' depends on axioms: [browkin_schinzel_noncototient,
--- propext,
--- Classical.choice,
--- Quot.sound]
+-- 'Erdos418.erdos_418' depends on axioms: [browkin_schinzel_noncototient, propext,
+-- Classical.choice, Quot.sound]
 
 end Erdos418

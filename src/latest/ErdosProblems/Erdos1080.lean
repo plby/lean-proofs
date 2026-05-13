@@ -1495,6 +1495,6 @@ def not_erdos_1080 : ¬erdos_1080 := by
   exact hc ( fun u v huv => by have := hA₁ u v; have := hA₂ u v; by_cases hu : u ∈ A <;> by_cases hv : v ∈ A <;> simp_all +decide [ SimpleGraph.adj_comm ] ) ( by simpa [ Set.ncard_eq_toFinset_card' ] using h2 )
 
 #print axioms not_erdos_1080
--- 'not_erdos_1080' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos1080.not_erdos_1080' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos1080

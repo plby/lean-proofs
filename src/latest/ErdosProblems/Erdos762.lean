@@ -1444,7 +1444,8 @@ theorem not_erdos_762 : ¬ erdos_762 := by
   exact this hcontra
 
 #print axioms not_erdos_762
--- 'Erdos762.not_erdos_762' depends on axioms: [propext, Classical.choice, Lean.ofReduceBool,
--- Lean.trustCompiler, Quot.sound]
+-- 'Erdos762.not_erdos_762' depends on axioms: [propext, Classical.choice, Quot.sound,
+-- lemma_obs_obvious_lifted._native.native_decide.ax_1_2,
+-- lemma_obs_obvious_lifted_B._native.native_decide.ax_1_2]
 
 end Erdos762

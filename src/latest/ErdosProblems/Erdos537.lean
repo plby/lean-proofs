@@ -1265,6 +1265,6 @@ theorem erdos_537 : ¬(∀ ε > 0, ∃ N₀, ∀ N ≥ N₀, ∀ A, A ⊆ Finset
   · exact h_contra
 
 #print axioms erdos_537
--- 'erdos_537' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos537.erdos_537' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos537

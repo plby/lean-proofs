@@ -113,6 +113,6 @@ theorem erdos_618
   exact le_trans ( Nat.cast_le.mpr h2_le_k ) ( le_trans ( Nat.cast_le.mpr ( Finset.card_le_card ( Finset.sdiff_subset ) ) ) ( by nlinarith [ min_le_left ( 1 / 10 ) ( c / 3 ), min_le_right ( 1 / 10 ) ( c / 3 ) ] ) )
 
 #print axioms erdos_618
--- 'erdos_618' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos618.erdos_618' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos618

@@ -691,7 +691,6 @@ end
 
 #print axioms infinitely_many_even_factorial_exponents
 -- 'Erdos646.infinitely_many_even_factorial_exponents' depends on axioms: [propext,
--- Classical.choice,
--- Quot.sound]
+-- Classical.choice, Quot.sound]
 
 end Erdos646

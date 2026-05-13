@@ -1472,6 +1472,6 @@ theorem erdos_1028 : ∃ c C : ℝ, 0 < c ∧ c < C ∧ ∀ᶠ n : ℕ in atTop,
   exact ⟨ c, hc₀, C + c, by linarith, Max.max a 2, fun n hn => ⟨ ha n ( le_trans ( le_max_left _ _ ) hn ), hC n ( le_trans ( le_max_right _ _ ) hn ) |> le_trans <| mul_le_mul_of_nonneg_right ( by linarith ) <| by positivity ⟩ ⟩
 
 #print axioms erdos_1028
--- 'erdos_1028' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos1028.erdos_1028' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos1028

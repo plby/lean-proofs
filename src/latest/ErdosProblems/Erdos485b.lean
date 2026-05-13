@@ -1508,14 +1508,12 @@ theorem exists_complete_poly_with_sparse_square_improved (n : ℕ) (hn : 0 < n) 
           arithmetic_bound_improved n N a ha1 ha12 haN⟩
 
 #print axioms exists_complete_poly_with_sparse_square
--- 'Erdos485.exists_complete_poly_with_sparse_square' depends on axioms: [propext,
--- Classical.choice,
--- Quot.sound]
+-- 'Erdos485b.exists_complete_poly_with_sparse_square' depends on axioms: [propext,
+-- Classical.choice, Quot.sound]
 
 #print axioms exists_complete_poly_with_sparse_square_improved
--- 'Erdos485.exists_complete_poly_with_sparse_square_improved' depends on axioms: [propext,
--- Classical.choice,
--- Quot.sound]
+-- 'Erdos485b.exists_complete_poly_with_sparse_square_improved' depends on axioms: [propext,
+-- Classical.choice, Quot.sound]
 
 end
 

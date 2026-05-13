@@ -183,6 +183,6 @@ theorem not_erdos_958 : ¬erdos_958 := by
   exact fun h => by have := h counterexample_set; aesop;
 
 #print axioms not_erdos_958
--- 'not_erdos_958' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos958.not_erdos_958' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos958

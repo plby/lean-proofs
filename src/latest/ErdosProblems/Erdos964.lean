@@ -1614,7 +1614,7 @@ theorem ErdosProblem964 (hGPY : GoldstonGrahamPintzYildirimStatement) :
       Set.image_mono ( divisor_ratios_contains_all_pos_rats hGPY );
     exact Set.Subset.trans ( pos_rats_dense_in_pos_reals ) ( closure_mono h_image_subset )
 
--- #print axioms ErdosProblem964
+#print axioms ErdosProblem964
 -- 'Erdos964.ErdosProblem964' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos964

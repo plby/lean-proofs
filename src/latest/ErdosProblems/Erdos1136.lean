@@ -540,8 +540,7 @@ theorem general_upper_bound_infinite
   exact (not_lt_of_ge hsi_le) hi
 
 #print axioms general_upper_bound_infinite
--- 'Erdos1136.general_upper_bound_infinite' depends on axioms: [propext,
--- Classical.choice,
+-- 'Erdos1136.general_upper_bound_infinite' depends on axioms: [propext, Classical.choice,
 -- Quot.sound]
 
 end Erdos1136

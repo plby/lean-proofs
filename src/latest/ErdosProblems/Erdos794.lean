@@ -73,6 +73,6 @@ theorem not_erdos_794 : ¬erdos_794 := by
   simp_all only [ge_iff_le, or_self]
 
 #print axioms not_erdos_794
--- 'not_erdos_794' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos794.not_erdos_794' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos794

@@ -2671,7 +2671,7 @@ theorem erdos_1036 (c : ℝ) (hc : c > 0) :
   ⟨shelah_epsilon c, shelah_epsilon_pos c, shelah_n0 c hc, fun n hn _ _ _ G _ hV h_hom => shelah_contrapositive c hc n hn G hV h_hom⟩
 
 #print axioms erdos_1036
--- 'erdos_1036' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos1036.erdos_1036' depends on axioms: [propext, choice, Quot.sound]
 
 end
 

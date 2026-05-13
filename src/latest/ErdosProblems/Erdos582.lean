@@ -2014,6 +2014,6 @@ theorem erdos_582 : ∃ (V : Type) (_ : Fintype V) (_ : DecidableEq V) (G : Simp
   exact ⟨GraphG_cliqueNum_eq_three, folkman_theorem⟩
 
 #print axioms erdos_582
--- 'erdos_582' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos582.erdos_582' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos582

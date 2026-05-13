@@ -255,6 +255,6 @@ theorem erdos_1043 :
     · exact levelSet_starConvex
 
 #print axioms erdos_1043
--- 'erdos_1043' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos1043.erdos_1043' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos1043

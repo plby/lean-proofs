@@ -1077,9 +1077,7 @@ theorem erdos_760 : ∃ C : ℕ, 0 < C ∧
   ⟨32, by omega, erdos_760_explicit⟩
 
 #print axioms erdos_760
--- 'Erdos760.SimpleGraph.erdos_760' depends on axioms: [propext,
--- Classical.choice,
--- Quot.sound,
+-- 'Erdos760.SimpleGraph.erdos_760' depends on axioms: [propext, Classical.choice, Quot.sound,
 -- clique_bad_total_bound._native.native_decide.ax_1_5]
 
 end SimpleGraph

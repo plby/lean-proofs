@@ -404,9 +404,7 @@ theorem main_theorem_final (n k : ℕ) (hk : k ≤ n) (hk_ge_2 : k ≥ 2) :
   linarith
 
 #print axioms main_theorem_final
--- 'Erdos434.main_theorem_final' depends on axioms: [propext,
--- Classical.choice,
--- theorem_2,
+-- 'Erdos434.main_theorem_final' depends on axioms: [propext, Classical.choice, theorem_2,
 -- Quot.sound]
 
 end

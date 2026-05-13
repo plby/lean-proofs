@@ -779,6 +779,6 @@ theorem not_erdos_666 :
     exact absurd ( hN N le_rfl _ ( partitionGraph_le_hypercube N ab ) hab ) ( by simpa using partitionGraph_C6_free N ab )
 
 #print axioms not_erdos_666
--- 'not_erdos_666' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos666.not_erdos_666' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos666

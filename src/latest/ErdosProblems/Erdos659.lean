@@ -2220,7 +2220,7 @@ theorem erdos_659 : ∃ A : ℕ → Finset ℝ²,
       exact hdist
   · simpa [distinctDistances_image_toEuclideanPoint] using hP_bigO
 
--- #print axioms erdos_659
--- 'erdos_659' depends on axioms: [bernays, propext, Classical.choice, Quot.sound]
+#print axioms erdos_659
+-- 'Erdos659.erdos_659' depends on axioms: [propext, Classical.choice, bernays, Quot.sound]
 
 end Erdos659
