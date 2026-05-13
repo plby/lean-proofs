@@ -2,7 +2,10 @@ import UnitFractions.Definitions
 import UnitFractions.FinalResults
 import Mathlib.Combinatorics.Compactness
 
+namespace UnitFractions
+
 open Filter Finset Real
+open _root_.Finset
 open scoped ArithmeticFunction.omega BigOperators
 
 theorem unit_fractions_upper_log_density :
@@ -526,7 +529,7 @@ theorem erdos298 (A : Set ℕ) (hA : 0 < upper_density A) :
     ∃ S : Finset ℕ, (S : Set ℕ) ⊆ A ∧ rec_sum S = 1 := by
   simpa [rec_sum] using unit_fractions_upper_density A hA
 
-theorem erdos298_density (A : Set ℕ) (d : ℝ) (hA : _root_.has_density A d) (hd : 0 < d) :
+theorem erdos298_density (A : Set ℕ) (d : ℝ) (hA : has_density A d) (hd : 0 < d) :
     ∃ S : Finset ℕ, (S : Set ℕ) ⊆ A ∧ rec_sum S = 1 := by
   have hA' : 0 < upper_density A := by
     rw [hA.1]
@@ -804,3 +807,5 @@ theorem erdos45 :
   · exact ne_of_gt (lt_of_lt_of_le one_lt_two hdIcc.1)
   · exact ⟨Nat.dvd_factorial (lt_of_lt_of_le zero_lt_two hdIcc.1)
       (le_trans hdIcc.2 (Nat.le_add_right N 2)), Nat.factorial_ne_zero _⟩
+
+end UnitFractions

@@ -43,7 +43,8 @@ end Int
 
 namespace Finset
 
-lemma Icc_subset_range_add_one {x y : ℕ} : Icc x y ⊆ range (y + 1) := by
+lemma Icc_subset_range_add_one {x y : ℕ} :
+    Icc x y ⊆ range (y + 1) := by
   rw [Finset.range_eq_Ico, Finset.Ico_add_one_right_eq_Icc]
   exact Finset.Icc_subset_Icc_left (b := y) (Nat.zero_le x)
 

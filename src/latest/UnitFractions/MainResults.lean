@@ -5,8 +5,11 @@ import UnitFractions.Fourier
 import UnitFractions.ForMathlib.BasicEstimates
 import UnitFractions.ForMathlib.Misc
 
+namespace UnitFractions
+
 open scoped ArithmeticFunction.omega BigOperators
 open Filter Finset Real
+open _root_.Finset
 
 noncomputable section
 
@@ -103,7 +106,7 @@ lemma explicit_mertens2 :
     hmain.trans
       (show log (log N) + b + 1 ≤ (501 / 500 : ℝ) * log (log N) by
         linarith) using 2
-  rw [range_eq_Ico, Finset.Ico_add_one_right_eq_Icc]
+  rw [Finset.range_eq_Ico, Finset.Ico_add_one_right_eq_Icc]
   ext n
   simpa only
     [Finset.mem_filter, and_congr_left_iff, Finset.mem_Icc, zero_le', iff_and_self, true_and]
@@ -143,9 +146,9 @@ lemma rec_sum_split (A B C E : Finset ℕ) (h : 0 ∉ B)
           (((ppowers_in_set A) \ E).sum fun x => (local_part B x).sum fun x₁ => (1 : ℚ) / x₁) =
             (((ppowers_in_set A) \ E).sum fun q =>
               (local_part B q).sum fun i => (q : ℚ) / i / q) := by
-        rw [sum_congr rfl]
+        rw [Finset.sum_congr rfl]
         intro x hx
-        rw [sum_congr rfl]
+        rw [Finset.sum_congr rfl]
         intro x₁ hx₁
         rw [local_part, Finset.mem_filter] at hx₁
         have hx0 : (x : ℚ) ≠ 0 := by
@@ -1560,7 +1563,7 @@ lemma pruning_lemma_two_ind :
         · intro q hq
           by_cases hxq : q ∣ x ∧ Nat.Coprime q (x / q)
           · have hlocalpart : local_part A_i' q = (local_part A_i q).erase x := by
-              exact filter_erase _ _ _
+              exact Finset.filter_erase _ _ _
             have hlocal : rec_sum_local A_i q = rec_sum_local A_i' q + q / x := by
               rw [rec_sum_local, rec_sum_local, hlocalpart, Finset.sum_erase_add]
               rw [local_part, Finset.mem_filter]
@@ -3488,3 +3491,7 @@ theorem corollary_one :
       exact nonempty_of_rec_sum_recip (hd'₁ s hs) (hd'₃ s hs)
     have : k + 1 ≤ k := Nat.le_findGreatest hk_bound hPk1
     exact Nat.not_succ_le_self _ this
+
+end
+
+end UnitFractions

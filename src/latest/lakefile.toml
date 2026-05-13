@@ -25,3 +25,6 @@ name = "HundredTheorems"
 
 [[lean_lib]]
 name = "MathOverflow"
+
+[[lean_lib]]
+name = "UnitFractions"

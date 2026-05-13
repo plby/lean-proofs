@@ -4,7 +4,10 @@ import UnitFractions.Definitions
 import UnitFractions.ForMathlib.BasicEstimates
 import UnitFractions.ForMathlib.Misc
 
+namespace UnitFractions
+
 open Filter Finset Real
+open _root_.Finset
 open scoped ArithmeticFunction.omega ArithmeticFunction.Omega BigOperators Nat.Prime Topology
 
 noncomputable section
@@ -4709,3 +4712,7 @@ theorem find_good_x :
         ((ppowers_in_set A).filter (fun n : ℕ ↦ (n : ℤ) ∣ x)).sum (fun r ↦ (1 / r : ℝ)) := by
     exact find_good_x_hfinal (N := N) (A := A) (A_I'' := A_I'') (x := x) hsum hpp
   exact ⟨x, hxI, hqx, hfinal⟩
+
+end
+
+end UnitFractions

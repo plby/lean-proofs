@@ -3,6 +3,7 @@ import UnitFractions.FinalResults
 
 namespace Erdos47
 
+open UnitFractions
 open Filter Finset Real
 open scoped ArithmeticFunction.omega BigOperators
 

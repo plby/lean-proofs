@@ -4,8 +4,11 @@ import UnitFractions.AuxiliaryLemmas
 import UnitFractions.ForMathlib.BasicEstimates
 import UnitFractions.ForMathlib.Misc
 
+namespace UnitFractions
+
 open scoped BigOperators
 open Real Finset
+open _root_.Finset
 
 noncomputable section
 attribute [local instance] Classical.propDecidable
@@ -990,13 +993,15 @@ lemma majorarcs_disjoint {A : Finset ℕ} {k : ℕ} {K : ℝ} (hk : k ≠ 0) (hA
     simp at hh
   · intro h hh₁ hh₂
     have hK' : 0 ≤ K := le_of_not_gt hK
-    have hh : h ∈ major_arc_at A k K t₁ ∧ h ∈ major_arc_at A k K t₂ := ⟨hh₁, hh₂⟩
-    simp only [mem_major_arc_at' hk, and_and_and_comm, and_self] at hh
+    have hh₁' :=
+      (mem_major_arc_at' (A := A) (k := k) (K := K) (t := t₁) hk h).1 hh₁
+    have hh₂' :=
+      (mem_major_arc_at' (A := A) (k := k) (K := K) (t := t₂) hk h).1 hh₂
     have hbound : |((t₁ : ℝ) - t₂) * (lcmA A : ℝ)| ≤ K := by
       rw [sub_mul]
       refine le_trans (abs_sub_le _ ((h : ℝ) * k) _) ?_
       rw [abs_sub_comm]
-      refine le_trans (add_le_add hh.2.1 hh.2.2) ?_
+      refine le_trans (add_le_add hh₁'.2 hh₂'.2) ?_
       nlinarith
     have hLnonneg : 0 ≤ (lcmA A : ℝ) := by positivity
     have hbound' : (|t₁ - t₂| : ℝ) * (lcmA A : ℝ) ≤ K := by
@@ -1415,7 +1420,7 @@ lemma Function.Antiperiodic.abs_periodic {f : ℝ → ℝ} {c : ℝ}
   simp [Function.comp, h x, abs_neg]
 
 lemma abs_cos_periodic : Function.Periodic (fun i => |cos i|) π := by
-  exact Real.cos_antiperiodic.abs_periodic
+  exact Function.Antiperiodic.abs_periodic Real.cos_antiperiodic
 
 lemma abs_cos_period {x y n : ℤ} (h : x % n = y % n) :
     |cos (π * (x / n))| = |cos (π * (y / n))| := by
@@ -1906,7 +1911,7 @@ lemma Finset.cast_lcm {x : Finset ℕ} : ((x.lcm id : ℕ) : ℤ) = x.lcm (fun n
   · simp
   · intro a s ha hs
     simpa only [Finset.lcm_insert, id_eq] using
-      hs ▸ (_root_.cast_lcm (x := a) (y := s.lcm id))
+      hs ▸ (UnitFractions.cast_lcm (x := a) (y := s.lcm id))
 
 lemma cast_lcm_dvd {x : Finset ℕ} {z : ℤ} (h : ∀ i ∈ x, ↑i ∣ z) :
     ↑(lcmA x) ∣ z := by
@@ -2558,3 +2563,7 @@ theorem circle_method_prop2 :
           ≤ 8⁻¹ + 8⁻¹ := add_le_add hm2' hm1'
       _ < 1 / 2 := by norm_num
   exact (not_lt_of_ge hminorl') hupper
+
+end
+
+end UnitFractions

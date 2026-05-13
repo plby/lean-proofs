@@ -1,7 +1,10 @@
 import Mathlib
 
+namespace UnitFractions
+
 open scoped BigOperators ArithmeticFunction.omega
 open Filter Real Finset Nat
+open _root_.Finset
 
 noncomputable section
 attribute [local instance] Classical.propDecidable
@@ -385,3 +388,7 @@ def good_condition (A : Finset ℕ) (K T L : ℝ) : Prop :=
   ∀ (t : ℝ) (I : Finset ℤ), I = Finset.Icc ⌈t - K / 2⌉ ⌊t + K / 2⌋ →
     T ≤ (A.filter fun n ↦ ∀ x ∈ I, ¬ (n : ℤ) ∣ x).card ∨
       ∃ x ∈ I, ∀ q ∈ interval_rare_ppowers I A L, (q : ℤ) ∣ x
+
+end
+
+end UnitFractions

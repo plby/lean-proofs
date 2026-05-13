@@ -6,8 +6,11 @@ import UnitFractions.MainResults
 import UnitFractions.ForMathlib.BasicEstimates
 import UnitFractions.ForMathlib.Misc
 
+namespace UnitFractions
+
 open scoped ArithmeticFunction.omega BigOperators
 open Filter Finset Real
+open _root_.Finset
 
 noncomputable section
 attribute [local instance] Classical.propDecidable
@@ -3868,3 +3871,7 @@ lemma harmonic_filter_smooth :
           intro q hq
           exact hNqrec' q hq
     _ ≤ C * log N / log (log N) ^ 2 := htail
+
+end
+
+end UnitFractions
