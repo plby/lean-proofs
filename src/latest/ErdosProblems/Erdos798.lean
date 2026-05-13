@@ -13,7 +13,6 @@ Formal authors:
 URLs:
 - https://www.erdosproblems.com/forum/thread/798#post-6329
 - https://gist.githubusercontent.com/Parcly-Taxel/757ca8323d74784da1a776795b9c90a9/raw/3a9724b1f6cd2504b809cf3c66f843b89d375e8b/Erdos798.lean
-- https://live.lean-lang.org/#project=mathlib-v4.28.0&url=https%3A%2F%2Fgist.githubusercontent.com%2FParcly-Taxel%2F757ca8323d74784da1a776795b9c90a9%2Fraw%2F3a9724b1f6cd2504b809cf3c66f843b89d375e8b%2FErdos798.lean
 -/
 import Mathlib
 

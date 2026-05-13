@@ -4,8 +4,8 @@ This is a Lean formalization of a solution to Erdős Problem 947.
 https://www.erdosproblems.com/forum/thread/947
 
 Informal authors:
-- Wouter van Doorn
 - ChatGPT
+- Wouter van Doorn
 
 Formal authors:
 - Aristotle

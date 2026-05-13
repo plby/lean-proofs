@@ -1,5 +1,25 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 488.
+https://www.erdosproblems.com/forum/thread/488
+
+Formalization status:
+- Partial
+
+Informal authors:
+- GPT-5.4
+- Przemek Chojecki
+
+Formal authors:
+- Aristotle
+- Przemek Chojecki
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/488#post-4909
+- https://www.ulam.ai/research/erdos488.pdf
+- https://www.ulam.ai/research/erdos488.tar.gz
+-/
+/-
 
 This is a Lean formalization of a solution to (the former statement
 of) Erdős Problem 488.
@@ -18,7 +38,6 @@ Lean Toolchain version: leanprover/lean4:v4.24.0
 Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 -/
-
 import Mathlib
 
 set_option linter.style.refine false

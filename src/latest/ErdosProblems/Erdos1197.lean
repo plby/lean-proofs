@@ -7,8 +7,8 @@ Formalization status:
 - Conditional on: pnt_plus_chebyshev_asymptotic, pnt_plus_prime_in_interval
 
 Informal authors:
-- Enrique Barschkis
 - GPT Pro
+- Enrique Barschkis
 
 Formal authors:
 - Aristotle

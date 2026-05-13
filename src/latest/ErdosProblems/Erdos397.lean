@@ -4,8 +4,8 @@ This is a Lean formalization of a solution to Erdős Problem 397.
 https://www.erdosproblems.com/forum/thread/397
 
 Informal authors:
-- Neel Somani
 - GPT-5.2 Pro
+- Neel Somani
 
 Formal authors:
 - Aristotle

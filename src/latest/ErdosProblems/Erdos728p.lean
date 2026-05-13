@@ -1,5 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 728.
+https://www.erdosproblems.com/forum/thread/728
+
+Informal authors:
+- Carl Pomerance
+
+Formal authors:
+- Aristotle
+- Boris Alexeev
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/728#post-3652
+- https://math.dartmouth.edu/~carlp/binom.pdf
+- https://raw.githubusercontent.com/plby/lean-proofs/refs/heads/main/src/v4.24.0/ErdosProblems/Erdos728p.lean
+-/
+/-
 We have formalized the main results of the paper "A Remark on the Middle Binomial Coefficient" by Carl Pomerance.
 Specifically, we have defined the properties and bad sets for Theorems 1.1 and 1.2, and stated the density results.
 We have also formalized the intermediate lemmas and bounds required for the proofs.

@@ -7,8 +7,8 @@ Formalization status:
 - Conditional on: duke_theorem
 
 Informal authors:
-- Przemek Chojecki
 - GPT-5.4 Pro
+- Przemek Chojecki
 
 Formal authors:
 - Gemini 3.1

@@ -8,12 +8,12 @@ Formalization status:
 - Conditional on: maynard_tao_bft
 
 Informal authors:
+- an internal model at OpenAI
 - Boris Alexeev
 - Moe Putterman
 - Mehtaab Sawhney
 - Mark Sellke
 - Gregory Valiant
-- an internal model at OpenAI
 
 Formal authors:
 - Aristotle

@@ -4,8 +4,8 @@ This is a Lean formalization of a solution to Erdős Problem 42.
 https://www.erdosproblems.com/forum/thread/42
 
 Informal authors:
-- Harjas Sandhu
 - GPT-5.5 Pro
+- Harjas Sandhu
 
 Formal authors:
 - Codex 5.5
@@ -16,7 +16,7 @@ URLs:
 - https://www.erdosproblems.com/forum/thread/42#post-6370
 - https://github.com/Shashi456/erdos-formalizations/blob/main/Erdos/P42/CompactCayley/Proof.lean
 - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/42.lean
-- https://live.lean-lang.org/#project=mathlib-v4.28.0&url=https%3A%2F%2Fraw.githubusercontent.com%2FShashi456%2Ferdos-formalizations%2Frefs%2Fheads%2Fmain%2FErdos%2FP42%2FCompactCayley%2FProof.lean
+- https://raw.githubusercontent.com/Shashi456/erdos-formalizations/refs/heads/main/Erdos/P42/CompactCayley/Proof.lean
 -/
 /-
 **STANDALONE FLAT BUNDLE** of Erdős Problem #42 — compact-Cayley route.

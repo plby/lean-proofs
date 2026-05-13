@@ -4,12 +4,12 @@ This is a Lean formalization of a solution to Erdős Problem 1051.
 https://www.erdosproblems.com/forum/thread/1051
 
 Informal authors:
+- Gemini Deep Think
 - Kevin Barreto
 - J. Kang
 - S. Kim
 - V. Kovac
 - S. Zhang
-- Gemini Deep Think
 
 Formal authors:
 - Kevin Barreto

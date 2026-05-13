@@ -4,9 +4,6 @@
 This is a Lean formalization of a solution to Erdős Problem 296.
 https://www.erdosproblems.com/forum/thread/296
 
-Formalization status:
-- Uses the proved `UnitFractions.unit_fractions_upper_log_density` theorem.
-
 Informal authors:
 - Thomas Bloom
 - Zachary Hunter

@@ -1,5 +1,22 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 264.
+https://www.erdosproblems.com/forum/thread/264
+
+Formalization status:
+- Partial
+
+Formal authors:
+- Aristotle
+- Pietro Monticone
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/264#post-2258
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos264.md
+- https://github.com/plby/lean-proofs/blob/main/src/v4.24.0/ErdosProblems/Erdos264.lean
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/264.lean
+-/
+/-
 
 This is a Lean formalization of a solution to parts of Erdős Problem
 264.
@@ -18,7 +35,6 @@ Lean Toolchain version: leanprover/lean4:v4.24.0
 Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
 
 -/
-
 import Mathlib
 
 set_option linter.style.setOption false

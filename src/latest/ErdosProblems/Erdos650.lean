@@ -4,11 +4,11 @@ This is a Lean formalization of a solution to Erdős Problem 650.
 https://www.erdosproblems.com/forum/thread/650
 
 Informal authors:
+- GPT-5.4 Pro
 - Wouter van Doorn
 - Yixin He
 - Yanyang Li
 - Quanyu Tang
-- GPT-5.4 Pro
 
 Formal authors:
 - Aristotle

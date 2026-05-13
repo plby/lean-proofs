@@ -7,8 +7,8 @@ Formalization status:
 - Conditional on: mertens_product, linnik_dvd
 
 Informal authors:
-- Liam Price
 - GPT-5.5 Pro
+- Liam Price
 
 Formal authors:
 - Claude Code 4.7
@@ -19,7 +19,7 @@ URLs:
 - https://www.erdosproblems.com/forum/thread/694#post-6202
 - https://www.overleaf.com/read/fgmhvywvdjkt#54ca5d
 - https://github.com/Shashi456/erdos-formalizations/blob/main/Erdos/P694/Proof.lean
-- https://live.lean-lang.org/#project=mathlib-v4.28.0&url=https%3A%2F%2Fraw.githubusercontent.com%2FShashi456%2Ferdos-formalizations%2Frefs%2Fheads%2Fmain%2FErdos%2FP694%2FProof.lean
+- https://raw.githubusercontent.com/Shashi456/erdos-formalizations/refs/heads/main/Erdos/P694/Proof.lean
 -/
 /-
 STANDALONE VERSION of Erdős Problem #694 — TOTIENT FIBRE EXTREMES.

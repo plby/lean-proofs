@@ -4,6 +4,7 @@ This is a Lean formalization of a solution to Erdős Problem 1071.
 https://www.erdosproblems.com/forum/thread/1071
 
 Informal authors:
+- Everett Howe
 - Boris Alexeev
 
 Formal authors:
@@ -12,9 +13,10 @@ Formal authors:
 - Boris Alexeev
 
 URLs:
+- https://www.erdosproblems.com/forum/thread/1071#post-4258
+- https://bsky.app/profile/ewhowe.com/post/3mbktyzvyak2e
 - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1071.md
 -/
-
 /-
 We have proved Corollary 3, establishing the existence of a countable
 maximal disjoint collection of unit segments in the closed unit square

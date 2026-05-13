@@ -4,8 +4,8 @@ This is a Lean formalization of a solution to Erdős Problem 1196.
 https://www.erdosproblems.com/forum/thread/1196
 
 Informal authors:
-- Liam Price
 - GPT-5.4 Pro
+- Liam Price
 
 Formal authors:
 - gauss-math-inc

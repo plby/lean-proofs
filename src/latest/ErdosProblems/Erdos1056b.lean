@@ -8,8 +8,8 @@ Formalization status:
 - Partial
 
 Informal authors:
-- Lorenzo Luccioli
 - Aristotle
+- Lorenzo Luccioli
 
 Formal authors:
 - Aristotle

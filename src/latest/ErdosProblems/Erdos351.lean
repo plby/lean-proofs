@@ -4,9 +4,9 @@ This is a Lean formalization of a solution to Erdős Problem 351.
 https://www.erdosproblems.com/forum/thread/351
 
 Informal authors:
+- GPT-5.5 Pro
 - Liam Price
 - Kevin Barreto
-- GPT-5.5 Pro
 
 Formal authors:
 - Opus 4.7
@@ -18,7 +18,7 @@ URLs:
 - https://www.overleaf.com/read/gdmnffbshxsq#ef2000
 - https://github.com/Shashi456/erdos-formalizations/blob/main/Erdos/P283/Proof_flat.lean
 - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/351.lean
-- https://live.lean-lang.org/#project=mathlib-v4.27.0&url=https%3A%2F%2Fraw.githubusercontent.com%2FShashi456%2Ferdos-formalizations%2Frefs%2Fheads%2Fmain%2FErdos%2FP283%2FProof_flat.lean
+- https://raw.githubusercontent.com/Shashi456/erdos-formalizations/refs/heads/main/Erdos/P283/Proof_flat.lean
 -/
 import ErdosProblems.Erdos283
 

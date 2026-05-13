@@ -4,12 +4,12 @@ This is a Lean formalization of a solution to Erdős Problem 990.
 https://www.erdosproblems.com/forum/thread/990
 
 Informal authors:
+- an internal model at OpenAI
 - Boris Alexeev
 - Moe Putterman
 - Mehtaab Sawhney
 - Mark Sellke
 - Gregory Valiant
-- an internal model at OpenAI
 
 Formal authors:
 - Codex

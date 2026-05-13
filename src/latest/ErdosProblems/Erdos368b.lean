@@ -1,27 +1,23 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
-This is a Lean formalization of a solution to a small/weak part of
-Erdős Problem 368.
-
+This is a Lean formalization of a solution to Erdős Problem 368.
 https://www.erdosproblems.com/forum/thread/368
 
-The original proof was found by: Pólya
+Formalization status:
+- Partial
 
-[Po18] Pólya, Georg, Zur arithmetischen {U}ntersuchung der
-{P}olynome. Math. Z. (1918), 143--148.
+Informal authors:
+- Georg Pólya
+- ChatGPT
 
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-A proof of ChatGPT's choice was auto-formalized by Aristotle (from
-Harmonic).
-
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://www.erdosproblems.com/forum/thread/368#post-4335
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos368.md
+- https://github.com/plby/lean-proofs/blob/main/src/v4.24.0/ErdosProblems/Erdos368b.lean
 -/
 /-
 I have formalized the main results of the provided paper.

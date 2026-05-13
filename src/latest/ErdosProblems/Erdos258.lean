@@ -7,8 +7,8 @@ Formalization status:
 - Conditional on: tao_teravainen
 
 Informal authors:
-- Przemek Chojecki
 - GPT-5.4 Pro
+- Przemek Chojecki
 
 Formal authors:
 - Aristotle

@@ -5,8 +5,8 @@ This is a Lean formalization of a solution to Erdős Problem 38.
 https://www.erdosproblems.com/forum/thread/38
 
 Informal authors:
-- gebyjaff
 - GPT-5.5 Pro
+- gebyjaff
 
 Formal authors:
 - Aristotle

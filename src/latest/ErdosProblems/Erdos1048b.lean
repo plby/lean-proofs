@@ -13,7 +13,7 @@ Formal authors:
 URLs:
 - https://www.erdosproblems.com/forum/thread/1048#post-3891
 - https://github.com/plby/lean-proofs/blob/main/src/v4.24.0/ErdosProblems/Erdos1048b.lean
-- https://live.lean-lang.org/#project=mathlib-v4.24.0&url=https%3A%2F%2Fraw.githubusercontent.com%2Fplby%2Flean-proofs%2Frefs%2Fheads%2Fmain%2Fsrc%2Fv4.24.0%2FErdosProblems%2FErdos1048b.lean
+- https://raw.githubusercontent.com/plby/lean-proofs/refs/heads/main/src/v4.24.0/ErdosProblems/Erdos1048b.lean
 -/
 /-
 We define a real number $r = 2^{1/10}$ and a polynomial $f(z) = z^{10} - 2$.

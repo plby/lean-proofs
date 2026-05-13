@@ -7,12 +7,12 @@ Formalization status:
 - Conditional on: pollack_theorem_1_3, mertens_third_theorem
 
 Informal authors:
+- an internal model at OpenAI
 - Boris Alexeev
 - Moe Putterman
 - Mehtaab Sawhney
 - Mark Sellke
 - Gregory Valiant
-- an internal model at OpenAI
 
 Formal authors:
 - GPT-5.4 Pro

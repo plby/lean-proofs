@@ -1,5 +1,20 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 189.
+https://www.erdosproblems.com/forum/thread/189
+
+Informal authors:
+- Vjekoslav Kovač
+
+Formal authors:
+- Aristotle
+- Vjekoslav Kovač
+
+URLs:
+- https://web.math.pmf.unizg.hr/~vjekovac/EP/EP189/Erdos189_blueprint.tex
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos189.md
+-/
+/-
 This is a Lean formalization of a negative answer to Erdos Problem 189.
 https://www.erdosproblems.com/189
 

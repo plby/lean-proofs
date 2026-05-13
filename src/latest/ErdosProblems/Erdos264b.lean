@@ -1,5 +1,28 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 264.
+https://www.erdosproblems.com/forum/thread/264
+
+Formalization status:
+- Partial
+
+Informal authors:
+- Vjekoslav Kovač
+- Terence Tao
+
+Formal authors:
+- Aristotle
+- Vjekoslav Kovač
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/264#post-2236
+- https://web.math.pmf.unizg.hr/~vjekovac/EP/EP264/Erdos264_blueprint.tex
+- https://web.math.pmf.unizg.hr/~vjekovac/EP/EP264/Erdos264_converted.pdf
+- https://github.com/VjekoKovac/erdosproblems/blob/main/Erdos264.lean
+- https://github.com/plby/lean-proofs/blob/main/src/v4.24.0/ErdosProblems/Erdos264b.lean
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/264.lean
+-/
+/-
 This is a Lean formalization of a negative answer to the first half of Erdos Problem 264.
 https://www.erdosproblems.com/264
 

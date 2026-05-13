@@ -21,7 +21,6 @@ URLs:
 - https://github.com/plby/lean-proofs/blob/main/src/v4.24.0/ErdosProblems/Erdos1095b.lean
 - https://github.com/google-deepmind/formal-conjectures/blob/3d6dc14ba924f82ab5200288f6c6ee1be1326a2d/FormalConjectures/ErdosProblems/1095.lean
 -/
-
 import Mathlib
 
 set_option linter.style.longLine false

@@ -4,9 +4,9 @@ This is a Lean formalization of a solution to Erdős Problem 401.
 https://www.erdosproblems.com/forum/thread/401
 
 Informal authors:
+- GPT-5.2 Pro
 - Kevin Barreto
 - Liam Price
-- GPT-5.2 Pro
 
 Formal authors:
 - Aristotle

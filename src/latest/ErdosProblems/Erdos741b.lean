@@ -4,8 +4,8 @@ This is a Lean formalization of a solution to Erdős Problem 741.
 https://www.erdosproblems.com/forum/thread/741
 
 Informal authors:
-- Przemek Chojecki
 - GPT-5.4 Pro
+- Przemek Chojecki
 
 Formal authors:
 - Aristotle

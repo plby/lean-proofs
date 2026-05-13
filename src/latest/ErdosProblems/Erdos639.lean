@@ -14,7 +14,6 @@ Formal authors:
 URLs:
 - https://www.erdosproblems.com/forum/thread/639#post-6189
 - https://gist.githubusercontent.com/Parcly-Taxel/f9a6a963d1057880633e4034294aa98e/raw/885ce8aa2d80d8ac598b98126de3321b5b8842ff/Erdos639.lean
-- https://live.lean-lang.org/#url=https%3A%2F%2Fgist.githubusercontent.com%2FParcly-Taxel%2Ff9a6a963d1057880633e4034294aa98e%2Fraw%2F885ce8aa2d80d8ac598b98126de3321b5b8842ff%2FErdos639.lean&project=mathlib-v4.28.0
 -/
 import Mathlib.Combinatorics.SimpleGraph.Extremal.Turan
 
