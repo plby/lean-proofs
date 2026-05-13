@@ -1983,6 +1983,20 @@
     - https://www.erdosproblems.com/forum/thread/728#post-2783
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos728p
+  epc: https://www.erdosproblems.com/728
+  author:
+    informal:
+      human: Carl Pomerance
+    formal:
+      AI: Aristotle
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/728#post-3652
+    - https://math.dartmouth.edu/~carlp/binom.pdf
+    - https://live.lean-lang.org/#project=mathlib-v4.24.0&url=https%3A%2F%2Fraw.githubusercontent.com%2Fplby%2Flean-proofs%2Frefs%2Fheads%2Fmain%2Fsrc%2Fv4.24.0%2FErdosProblems%2FErdos728p.lean
+  version: "4.24.0"
+
 - key: ErdosProblems.Erdos729
   epc: https://www.erdosproblems.com/729
   author:
