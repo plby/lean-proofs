@@ -1918,6 +1918,21 @@
     - https://github.com/mo271/formal-conjectures/blob/486bc8afae062b6711cd16d3466d651ee2880a52/FormalConjectures/ErdosProblems/741.lean#L1629
   version: "4.27.0"
 
+- key: ErdosProblems.Erdos741b
+  epc: https://www.erdosproblems.com/741
+  author:
+    informal:
+      AI: GPT-5.4 Pro
+      human: Przemek Chojecki
+    formal:
+      AI: Aristotle
+      human: Przemek Chojecki
+  url:
+    - https://www.erdosproblems.com/forum/thread/741#post-5771
+    - https://www.ulam.ai/research/erdos741.pdf
+    - https://www.ulam.ai/research/erdos741.lean
+  version: "4.29.1"
+
 - key: ErdosProblems.Erdos751
   epc: https://www.erdosproblems.com/751
   author:
