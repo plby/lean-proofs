@@ -1,5 +1,23 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 728.
+https://www.erdosproblems.com/forum/thread/728
+
+Informal authors:
+- Kevin Barreto
+- ChatGPT-5.2
+
+Formal authors:
+- Aristotle
+- Kevin Barreto
+- Boris Alexeev
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/728#post-2828
+- https://github.com/plby/lean-proofs/blob/main/src/v4.24.0/ErdosProblems/Erdos728b.lean
+- https://www.erdosproblems.com/forum/thread/728#post-2783
+-/
+/-
 We formalize the positive answer to Erdos problem #728. We prove the main theorem of the paper 'Factorial Divisibility Beyond the Logarithmic Barrier'. We show that for any fixed $0<\varepsilon<1/2$ and $C>0$, there are infinitely many triples $(a,b,n)$ satisfying the divisibility $a!b! \mid n!(a+b-n)!$ with range constraints and $a+b > n + C \log n$. The proof follows the probabilistic method outlined in the paper, using Kummer's theorem and estimates on carry counts.
 -/
 

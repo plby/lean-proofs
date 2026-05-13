@@ -1,5 +1,20 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 363.
+https://www.erdosproblems.com/forum/thread/363
+
+Informal authors:
+- Maciej Ulas
+
+Formal authors:
+- Aristotle
+- Wouter van Doorn
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/363#post-4709
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem363.lean
+-/
+/-
 Solving Erdős Problem #363 (https://www.erdosproblems.com/363) in the negative, Ulas proved that there are infinitely many collections of disjoint intervals $I_1, \ldots, I_n$ of fixed size $\ge 4$ such that the product of all elements in the intervals is a square.
 
 Ulas, Maciej, On products of disjoint blocks of consecutive integers. Enseign. Math. (2) (2005), 331-334.

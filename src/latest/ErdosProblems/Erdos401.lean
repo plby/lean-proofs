@@ -1,5 +1,26 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 401.
+https://www.erdosproblems.com/forum/thread/401
+
+Informal authors:
+- Kevin Barreto
+- Liam Price
+- GPT-5.2 Pro
+
+Formal authors:
+- Aristotle
+- Kevin Barreto
+- Boris Alexeev
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/401#post-2977
+- https://www.erdosproblems.com/forum/thread/401#post-3002
+- https://chatgpt.com/s/t_6963cf5fca208191a220cf21965a12e8
+- https://drive.google.com/file/d/1SY_LjPToevYaFl5eNl-rUxJrjrP5u4RC/view
+- https://github.com/plby/lean-proofs/blob/main/src/v4.24.0/ErdosProblems/Erdos401b.lean
+-/
+/-
 We prove Theorem 1 from the paper "Factorial divisibility with bounded primes beyond the logarithmic barrier: an infinitely-many n result of Erdős type".
 The main result is `theorem_1`, which states that for any $r \ge 1$, there are infinitely many $n$ such that there exist $a_1, a_2 > 0$ with $a_1 + a_2 > n + \omega(r) \log n$ and $a_1! a_2! \mid n! P_r^n$.
 The proof follows the strategy outlined in the paper, using a primewise reduction, Kummer's theorem, and probabilistic arguments to control the valuations of primes in a short interval.

@@ -1,24 +1,20 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 105.
-https://www.erdosproblems.com/105
+https://www.erdosproblems.com/forum/thread/105
 
-The original human proof was found by Wu Xichuan and posted at
-https://www.erdosproblems.com/forum/thread/105#post-1430
+Informal authors:
+- Wu Xichuan
 
-The configuration included points at infinity, so a projective transformation
-was applied that brought all points into the finite (affine) plane, with
-integer coordinates for extra convenience.
+Formal authors:
+- ChatGPT Pro (Thinking)
+- Aristotle
+- Boris Alexeev
 
-ChatGPT Pro (Thinking) from OpenAI generated the lemma statements.
-
-Aristotle from Harmonic generated the proofs.
-
-The proof is verified by Lean.
-
+URLs:
+- https://www.erdosproblems.com/forum/thread/105#post-1430
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos105.md
 -/
-
 import Mathlib
 
 set_option linter.style.setOption false

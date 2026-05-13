@@ -1,6 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 753.
+https://www.erdosproblems.com/forum/thread/753
+
+Informal authors:
+- Noga Alon
+
+Formal authors:
+- Aristotle
+- Matteo Del Vecchio
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/753#post-5373
+- https://gist.githubusercontent.com/madeve-unipi/80eaf8008c7c798b4f7b5baeb8c1812b/raw/70704b54755e9012597c99bab7db153786abfa8a/Erdos753.lean
+-/
+/-
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Matteo Del Vecchio, Aristotle (Harmonic)
 -/

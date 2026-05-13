@@ -1,26 +1,20 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 1037.
 https://www.erdosproblems.com/forum/thread/1037
 
-The original proof was found by: Stijn Cambie, Zach Hunter, and
-KoishiChan.  (See link above.)
+Informal authors:
+- Stijn Cambie
+- Zach Hunter
+- KoishiChan
 
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-This proof was auto-formalized by Aristotle (from Harmonic).  The
-final theorem statement was written by Aristotle.
-
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1037.md
 -/
-
-
 /-
 Formalization of a theorem stating the existence of graphs with many distinct degrees and small clique/independence numbers.
 

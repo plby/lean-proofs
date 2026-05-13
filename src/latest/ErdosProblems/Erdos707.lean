@@ -1,4 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 707.
+https://www.erdosproblems.com/forum/thread/707
+
+Informal authors:
+- Boris Alexeev
+- Dustin G. Mixon
+- ChatGPT
+
+Formal authors:
+- ChatGPT
+- Boris Alexeev
+
+URLs:
+- https://borisalexeev.com/papers/erdos707.html
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos707.md
+-/
 import Mathlib
 
 set_option linter.deprecated false

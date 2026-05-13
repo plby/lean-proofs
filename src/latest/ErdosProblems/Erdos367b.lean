@@ -1,29 +1,26 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 367.
-https://www.erdosproblems.com/367
+https://www.erdosproblems.com/forum/thread/367
 
-The original human proof was found by Wouter van Doorn and posted at
-https://www.erdosproblems.com/forum/thread/367#post-1766
+Formalization status:
+- Partial
 
-This proof follows an elaboration of the argument given by Terence
-Tao with the assistance of Gemini Deepthink from Google DeepMind.
+Informal authors:
+- Wouter van Doorn
+- Terence Tao
+- Gemini Deepthink
 
-Aristotle from Harmonic auto-formalized the result from the LaTeX
-source given in the next comment block.  Afterwards, the statement of
-the Erdős problem was written, somewhat by hand, and Aristotle was
-asked to finish off the proof.  This process was operated by Boris
-Alexeev.
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://www.erdosproblems.com/forum/thread/367#post-1766
+- https://www.erdosproblems.com/forum/thread/367#post-1776
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos367.md
+- https://github.com/plby/lean-proofs/blob/main/src/v4.24.0/ErdosProblems/Erdos367.lean
 -/
-
 /-
 
 \documentclass{amsart}

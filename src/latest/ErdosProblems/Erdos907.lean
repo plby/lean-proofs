@@ -1,6 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 907.
+https://www.erdosproblems.com/forum/thread/907
+
+Informal authors:
+- N. G. de Bruijn
+
+Formal authors:
+- Aristotle
+- Pietro Monticone
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/907#post-5277
+- https://gist.githubusercontent.com/pitmonticone/f419ac0a78259498f93fd60d49c0b3ea/raw/959cb0ef93596d9ade256e3cd0f4141e66176e04/Erdos907.lean
+-/
+/-
 Copyright (c) 2026 Pietro Monticone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Pietro Monticone, Aristotle (Harmonic)

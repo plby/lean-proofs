@@ -1,26 +1,19 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 505.
 https://www.erdosproblems.com/forum/thread/505
 
-(This is Borsuk's conjecture.)
+Informal authors:
+- Jeff Kahn
+- Gil Kalai
 
-The original proof was found by: Jeff Kahn and Gil Kalai
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-[KaKa93] Kahn, Jeff and Kalai, Gil, A counterexample to Borsuk's
-conjecture. Bull. Amer. Math. Soc. (N.S.) (1993), 60-62.
-
-
-The proof was auto-formalized by Aristotle (from Harmonic).
-
-
-The proof is verified by Lean.
-
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos505.md
 -/
-
-
 /-
 This file formalizes a counterexample to Borsuk's conjecture in dimension 946, following the paper "A self-contained Kahn--Kalai type counterexample to Borsuk's conjecture". It defines the Borsuk number, constructs the specific finite set in dimension 946, and proves that its Borsuk number is at least 1650, contradicting the conjecture that f(d) = d + 1.
 -/

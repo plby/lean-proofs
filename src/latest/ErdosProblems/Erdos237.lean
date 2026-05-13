@@ -1,6 +1,25 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 237.
+https://www.erdosproblems.com/forum/thread/237
+
+Formalization status:
+- Conditional on: maynard_tao, mertens_third_theorem
+
+Informal authors:
+- Yong-Gao Chen
+- Yuchen Ding
+
+Formal authors:
+- Aristotle
+- Pietro Monticone
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/237#post-5240
+- https://gist.githubusercontent.com/pitmonticone/8ea0d1cdb963b6213ac639b11d33f811/raw/98a5824d16da14313f65d77eeab5563dd874613a/Erdos237.lean
+-/
+/-
 Note: this file has been modified.
 -/
 

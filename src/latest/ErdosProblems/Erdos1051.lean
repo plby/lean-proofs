@@ -1,4 +1,23 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 1051.
+https://www.erdosproblems.com/forum/thread/1051
+
+Informal authors:
+- Kevin Barreto
+- J. Kang
+- S. Kim
+- V. Kovac
+- S. Zhang
+- Gemini Deep Think
+
+Formal authors:
+- Kevin Barreto
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/1051#post-3931
+- https://arxiv.org/abs/2601.21442
+-/
 import Mathlib
 
 set_option linter.style.setOption false

@@ -1,4 +1,18 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 316.
+https://www.erdosproblems.com/forum/thread/316
+
+Informal authors:
+- Csaba Sándor
+- Tom Stobart
+
+Formal authors:
+- Bhavik Mehta
+
+URLs:
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/316.lean
+-/
 import Mathlib
 
 namespace Erdos316

@@ -1,5 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 429.
+https://www.erdosproblems.com/forum/thread/429
+
+Informal authors:
+- Desmond Weisenberg
+
+Formal authors:
+- Aristotle
+- Wouter van Doorn
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/429#post-3910
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem429.lean
+- https://math.colgate.edu/~integers/y89/y89.pdf
+-/
+/-
 We prove that for every function $f$ on the positive integers that goes to infinity, there exists an infinite set $B$ of positive integers omitting a residue class modulo every prime, whose counting function increases more slowly than $f$ does, and which has the property that for every integer $n$, the set $B+n$ contains a composite number. This formalization (which was obtained by Aristotle from Harmonic (aristotle-harmonic@harmonic.fun)) follows the second proof in 
 
 D. Weisenberg, Sparse Admissible Sets and a Problem of Erdős and Graham. Integers (2024)

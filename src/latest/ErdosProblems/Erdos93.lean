@@ -1,4 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 93.
+https://www.erdosproblems.com/forum/thread/93
+
+Informal authors:
+- E. Altman
+
+Formal authors:
+- Gemini 3.0 Flash/Pro
+- Claude Opus 4.5/4.6
+- Numina Lean Agent
+- Aristotle
+- JoshuaB
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/93#post-4346
+-/
 import Mathlib
 
 set_option linter.style.openClassical false

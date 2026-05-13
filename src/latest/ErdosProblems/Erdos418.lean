@@ -1,27 +1,20 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 418.
-https://www.erdosproblems.com/418
+https://www.erdosproblems.com/forum/thread/418
 
-The original human proof was found by Browkin and Schinzel:
-[BrSc95] Browkin, J. and Schinzel, A., _On integers not of the form {$n-\phi(n)$}_.
-Colloq. Math. (1995), 55-58.
+Informal authors:
+- Jerzy Browkin
+- Andrzej Schinzel
+- ChatGPT 5.1 Pro
 
-Their proof was explained by ChatGPT 5.1 Pro from OpenAI.
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-The LaTeX file output from the previous step was auto-formalized into
-Lean by Aristotle from Harmonic.
-
-The final theorem statement is from the Formal Conjectures project
-organized by Google DeepMind, with this statement originally written
-by Salvatore Mercuri.
-
-The proof is verified by Lean.
-
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos418.md
 -/
-
 import Mathlib
 import ErdosProblems.Axioms
 

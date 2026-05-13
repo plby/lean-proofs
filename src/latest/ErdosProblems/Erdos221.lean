@@ -1,5 +1,22 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 221.
+https://www.erdosproblems.com/forum/thread/221
+
+Informal authors:
+- Imre Ruzsa
+- Wouter van Doorn
+
+Formal authors:
+- Aristotle
+- Wouter van Doorn
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/221#post-3991
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem221.lean
+- https://www.cambridge.org/core/services/aop-cambridge-core/content/view/802ABD868A907C2ADB78C580C73C86FC/S0008439500061348a.pdf/on-a-problem-of-p-erdos.pdf
+-/
+/-
 Answering Erdos Problem #221 (https://www.erdosproblems.com/221), Ruzsa proved that there exists a set $A$ with $|\{a \in A : a \le x\}| \le \frac{cx}{\log x}$ for all large enough $x$ and an absolute constant $c$, such that every large enough integer can be written as $2^k + a$ for some $k \ge 0$ and $a \in A$.
 
 Ruzsa, Jr., I., On a problem of P. Erdős. Canad. Math. Bull. (1972), 309-310. Available here: https://www.cambridge.org/core/services/aop-cambridge-core/content/view/802ABD868A907C2ADB78C580C73C86FC/S0008439500061348a.pdf/on-a-problem-of-p-erdos.pdf.

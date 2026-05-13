@@ -1,4 +1,19 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 775.
+https://www.erdosproblems.com/forum/thread/775
+
+Informal authors:
+- Jun Gao
+
+Formal authors:
+- Aristotle
+- Lorenzo Luccioli
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/775#post-5619
+- https://gist.githubusercontent.com/LorenzoLuccioli/dc7dac92dff47aac05b50f2562dbe8c1/raw/2c53e497b3d685bc4883c0a2394b5f10ecb367a0/Erdos775.lean
+-/
 import Mathlib
 
 namespace Erdos775

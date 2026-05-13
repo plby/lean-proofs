@@ -1,28 +1,18 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 1043.
 https://www.erdosproblems.com/forum/thread/1043
 
-The original proof was found by: Christian Pommerenke
+Informal authors:
+- Christian Pommerenke
 
-[Po61] Pommerenke, Ch., On metric properties of complex
-polynomials. Michigan Math. J. (1961), 97-115.
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-
-This proof was found by Aristotle (from Harmonic) starting only with
-the final theorem statement from the Formal Conjectures project
-(organized by Google DeepMind).
-
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1043.md
 -/
-
 import Mathlib
 
 namespace Erdos1043

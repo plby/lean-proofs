@@ -1,6 +1,22 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 125.
+https://www.erdosproblems.com/forum/thread/125
+
+Informal authors:
+- a DeepMind prover agent
+
+Formal authors:
+- a DeepMind prover agent
+- George Tsoukalas
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/125#post-4448
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/125.lean
+- https://github.com/google-deepmind/formal-conjectures/blob/300bf771bdbef43d7b9aa2521e633a50fd54dd28/FormalConjectures/ErdosProblems/125.lean
+-/
+/-
 Copyright 2025 The Formal Conjectures Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");

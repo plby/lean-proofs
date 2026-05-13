@@ -1,4 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 224.
+https://www.erdosproblems.com/forum/thread/224
+
+Informal authors:
+- Ludwig Danzer
+- Branko Grünbaum
+
+Formal authors:
+- GPT-5.2 Thinking
+- Codex
+- Coder-Osman
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/224#post-3157
+- https://github.com/SpringSense-Innovation-Institute/ai-for-math-lean/blob/main/erdos-problems/erdos224/Erdos224.lean
+-/
 import Mathlib.Analysis.InnerProductSpace.PiL2
 import Mathlib.Analysis.Convex.Hull
 import Mathlib.Analysis.Convex.Topology

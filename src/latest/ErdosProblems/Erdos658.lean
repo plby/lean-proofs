@@ -1,6 +1,28 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 658.
+https://www.erdosproblems.com/forum/thread/658
+
+Formalization status:
+- Conditional on: frankl_roedl_theorem
+
+Informal authors:
+- József Solymosi
+- Peter Frankl
+- Vojtěch Rödl
+
+Formal authors:
+- Aristotle
+- John Jennings
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/658#post-5654
+- https://www.erdosproblems.com/forum/thread/658#post-5677
+- https://gist.githubusercontent.com/JohnEdwardJennings/ca7d49761fb51d28613bafc956742fbc/raw/c326fd7918276292e641af92c32d3ecbe3c31ee0/Erdos658.lean
+- https://gist.githubusercontent.com/JohnEdwardJennings/ca7d49761fb51d28613bafc956742fbc/raw/93dbf493e26aa377f7e78390903be146745fa7ec/Erdos658.lean
+-/
+/-
 Copyright (c) 2026 John Jennings. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: John Jennings, Aristotle (Harmonic)

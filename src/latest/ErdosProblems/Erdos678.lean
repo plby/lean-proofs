@@ -1,36 +1,18 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
-This is a Lean formalization of part of Erdős Problem 678.
+This is a Lean formalization of a solution to Erdős Problem 678.
 https://www.erdosproblems.com/forum/thread/678
 
-The actual problem was solved positively by: Stijn Cambie
+Informal authors:
+- Stijn Cambie
 
-[Ca24] S. Cambie, Resolution of an Erdős' problem on least common
-multiples. arXiv:2410.09138 (2024).
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-
-Cambie's paper from the arxiv was auto-formalized by Aristotle (from
-Harmonic).  It actually auto-formalized the entire paper, but below we
-only include the portion necessary to solve the problem (Theorem 1).
-
-This file includes a statement of the Prime Number Theorem as an
-axiom, `pi_alt`.  It is lifted directly from the PrimeNumberTheoremAnd
-project.
-
-The final statements are from a mixture of sources.
-
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos678.md
 -/
-
-
-
 /-
 We have formalized the first main result of the paper "Resolution of an Erdős' problem on least common multiples".
 

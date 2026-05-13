@@ -1,4 +1,27 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 1148.
+https://www.erdosproblems.com/forum/thread/1148
+
+Formalization status:
+- Conditional on: duke_theorem
+
+Informal authors:
+- Przemek Chojecki
+- GPT-5.4 Pro
+
+Formal authors:
+- Gemini 3.1
+- Claude Opus 4.6
+- GPT-5.4 Pro
+- UlamAI Prover
+- Przemek Chojecki
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/1148#post-4849
+- https://www.ulam.ai/research/erdos1148-full.pdf
+- https://github.com/ulamai/ulamai
+-/
 import Mathlib
 
 set_option linter.mathlibStandardSet false

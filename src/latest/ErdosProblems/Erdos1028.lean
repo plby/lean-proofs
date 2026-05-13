@@ -1,28 +1,20 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 1028.
 https://www.erdosproblems.com/forum/thread/1028
 
-The original proof was found by: Paul Erdős & Joel Spencer
+Informal authors:
+- Paul Erdős
+- Joel Spencer
+- ChatGPT
 
-[Er63d] Erdős, P\'al, On combinatorial questions connected with a
-theorem of {R}amsey and van der {W}aerden. Mat. Lapok (1963), 29--37.
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-[ErSp71] Erdős, P. and Spencer, J., Imbalances in
-{$k$}-colorations. Networks (1971/72), 379--385.
-
-
-A proof of ChatGPT's choice was auto-formalized by Aristotle (from
-Harmonic).  The final theorem statement was written by Aristotle.
-
-
-The proof is verified by Lean.
-
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1028.md
 -/
-
-
 /-
 We have formalized the definition of H(n) and proved that H(n) = Θ(n^(3/2)).
 This involved proving Hoeffding's inequality for Rademacher sums, a Paley-Zygmund consequence for the first absolute moment of Rademacher sums, and relating bilinear forms to rectangle sums and induced sums.

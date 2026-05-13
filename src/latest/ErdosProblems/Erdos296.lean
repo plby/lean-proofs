@@ -1,6 +1,27 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 296.
+https://www.erdosproblems.com/forum/thread/296
+
+Formalization status:
+- Conditional on: unit_fractions_upper_log_density
+
+Informal authors:
+- Thomas Bloom
+- Zachary Hunter
+- Mehtaab Sawhney
+
+Formal authors:
+- Aristotle
+- John Jennings
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/296#post-5713
+- https://gist.githubusercontent.com/JohnEdwardJennings/d1ba8d7b8c63cc7eade1243e19e2eb35/raw/7402a8e36283841cbc7e0588760d701a4e84c3a2/Erdos296.lean
+- https://github.com/b-mehta/unit-fractions/blob/master/src/final_results.lean
+-/
+/-
 Note: this file has been modified.
 -/
 

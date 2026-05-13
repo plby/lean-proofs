@@ -1,4 +1,20 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 379.
+https://www.erdosproblems.com/forum/thread/379
+
+Informal authors:
+- Stijn Cambie
+- Vjekoslav Kovač
+- Terence Tao
+
+Formal authors:
+- Seed-Prover 1.5
+- Zheng Yuan
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/379#post-2350
+-/
 import Mathlib
 import Aesop
 

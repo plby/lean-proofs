@@ -1,5 +1,20 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 967.
+https://www.erdosproblems.com/forum/thread/967
+
+Informal authors:
+- Fredy Yip
+
+Formal authors:
+- Aristotle
+- Lawrence Wu
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/967#post-2303
+- https://gist.githubusercontent.com/llllvvuu/d25f037d1f1000bdabd6ca928c74c9bb/raw/50871c3840af1e49c4e5acabefac6604c9b65c65/967.lean
+-/
+/-
 Note from poster (@llllvvuu):
 Aristotle was run on the main.tex file from the "TeX Source" link
 at https://arxiv.org/abs/2512.16528,

@@ -1,4 +1,22 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 1196.
+https://www.erdosproblems.com/forum/thread/1196
+
+Informal authors:
+- Liam Price
+- GPT-5.4 Pro
+
+Formal authors:
+- gauss-math-inc
+- Math, Inc.
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/1196#post-5469
+- https://github.com/math-inc/Erdos1196/tree/02fba13be7487cc51315f68d8fa7ef277633d3c8
+- https://github.com/math-inc/Erdos1196/blob/02fba13be7487cc51315f68d8fa7ef277633d3c8/PrimitiveSetsAboveX/FormalConjecturesErdos1196.lean
+- https://github.com/math-inc/Erdos1196/blob/02fba13be7487cc51315f68d8fa7ef277633d3c8/source.tex
+-/
 import Mathlib
 
 namespace Erdos1196

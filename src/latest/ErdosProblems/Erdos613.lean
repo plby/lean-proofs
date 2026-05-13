@@ -1,4 +1,18 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 613.
+https://www.erdosproblems.com/forum/thread/613
+
+Informal authors:
+- Oleg Pikhurko
+
+Formal authors:
+- Terence Tao
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/613#post-1678
+- https://github.com/teorth/analysis/blob/main/Analysis/Misc/erdos_613.lean
+-/
 import Mathlib
 
 set_option linter.style.openClassical false

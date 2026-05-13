@@ -1,30 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 31.
-https://www.erdosproblems.com/31
+https://www.erdosproblems.com/forum/thread/31
 
-The original human proof was found by: G. G. Lorentz
+Informal authors:
+- G. G. Lorentz
+- Wouter van Doorn
+- ChatGPT 5.1 Pro
 
-G. G. Lorentz, On a problem of additive number theory. Proc. Amer. Math. Soc. 5 (1954), 838-841.
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-Wouter van Doorn posted a nice explanation of this proof at
-https://www.erdosproblems.com/forum/thread/31#post-1779
-
-ChatGPT 5.1 Pro from OpenAI explained this proof in more detail,
-resulting in a 9-page LaTeX file.
-
-The LaTeX file output from the previous step was auto-formalized into
-Lean by Aristotle from Harmonic.
-
-The final theorem statement was written by hand by Boris Alexeev, but
-using primitives from the Formal Conjectures project organized by
-Google DeepMind.
-
-The proof is verified by Lean.
-
+URLs:
+- https://www.erdosproblems.com/forum/thread/31#post-1779
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos31.md
 -/
-
 import Mathlib
 
 set_option linter.style.setOption false

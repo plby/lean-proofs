@@ -1,5 +1,23 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 785.
+https://www.erdosproblems.com/forum/thread/785
+
+Informal authors:
+- András Sárközy
+- Endre Szemerédi
+- Władysław Narkiewicz
+- Imre Z. Ruzsa
+
+Formal authors:
+- Aristotle
+- Wouter van Doorn
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/785#post-4642
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem785.lean
+-/
+/-
 For a set $S$ of positive integers define $S(x) = |S \cap [1, x]|$. We then say that sets of positive integers $A$ and $B$ are exact additive complements if every large enough integer can be written as $a+b$ with $a \in A$, $b \in B$ and such that $\frac{A(x) B(x)}{x}$ converges to $1$ if $x$ goes to infinity. Erdős and Danzer conjectured that $A(x) B(x) - x$ goes to infinity with $x$ for any two exact additive complements $A$ and $B$ that are both infinite (see https://www.erdosproblems.com/785), and this was proven by Sárközy and Szemerédi.
 
 András Sárközy and Endre Szemerédi, On a problem in additive number theory. Acta Math. Hungar. (1994), 237-245.

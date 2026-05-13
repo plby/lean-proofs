@@ -1,6 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 1098.
+https://www.erdosproblems.com/forum/thread/1098
+
+Informal authors:
+- B. H. Neumann
+
+Formal authors:
+- Aristotle
+- John Jennings
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/1098#post-5863
+- https://gist.githubusercontent.com/JohnEdwardJennings/783dce98df9fa6c333c24617ef07403b/raw/4963c590ee551175a3734014a8f08e8b86674e76/Erdos1098.lean
+-/
+/-
 Copyright (c) 2026 John Jennings. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: John Jennings, Aristotle (Harmonic)

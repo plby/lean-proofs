@@ -1,5 +1,26 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 291.
+https://www.erdosproblems.com/forum/thread/291
+
+Formalization status:
+- Partial
+- Conditional on: prime_number_theorem
+
+Informal authors:
+- Wouter van Doorn
+
+Formal authors:
+- Aristotle
+- Wouter van Doorn
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/291#post-4219
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem291.lean
+- https://github.com/Woett/Miscellaneous/blob/main/Generalized%20harmonic%20sums%20have%20arbitrarily%20large%20prime%20factors.pdf
+- https://github.com/AlexKontorovich/PrimeNumberTheoremAnd
+-/
+/-
 Let $r_1, r_2, \ldots$ be a bounded sequence of non-zero integers, let $L_n$ be the least common multiple of $1, 2, \ldots, n$ and let $X_n$ be such that $\frac{X_n}{L_n} = \sum_{i=1}^n \frac{r_i}{i}$. Below you can find a conditional Lean proof that $X_n$ has arbitrarily large prime divisors. From this fact one can conclude that, if the $r_i$ are periodic, then $\limsup \gcd(X_n, L_n) = \infty$. In particular, there are infinitely many $n$ for which $\gcd(X_n, L_n) > 1$, settling a generalization of the second part of Erdős Problem #291 (https://www.erdosproblems.com/291). The Lean proof was formalized by Aristotle from Harmonic (aristotle-harmonic@harmonic.fun) based on the following note:
 
 https://github.com/Woett/Miscellaneous/blob/main/Generalized%20harmonic%20sums%20have%20arbitrarily%20large%20prime%20factors.pdf

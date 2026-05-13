@@ -1,5 +1,22 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 355.
+https://www.erdosproblems.com/forum/thread/355
+
+Informal authors:
+- Wouter van Doorn
+- Vjekoslav Kovač
+
+Formal authors:
+- Aristotle
+- Wouter van Doorn
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/355#post-4741
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem355.lean
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/355.lean
+-/
+/-
 Solving Erdős Problem #355 (https://www.erdosproblems.com/355), Vjekoslav Kovač and I proved that there exists a lacunary sequence of positive integers whose reciprocal sums represent all rational numbers in an interval.
 
 W. van Doorn and V. Kovač, Lacunary sequences whose reciprocal sums represent all rationals in an interval. arXiv:2509.24971 (2025).

@@ -1,4 +1,23 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 94.
+https://www.erdosproblems.com/forum/thread/94
+
+Informal authors:
+- Peter C. Fishburn
+- Hanno Lefmann
+- Torsten Thiele
+- ChatGPT 5.2 Thinking
+
+Formal authors:
+- ChatGPT 5.2 Thinking
+- Codex
+- Li Ding
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/94#post-3208
+- https://github.com/SpringSense-Innovation-Institute/ai-for-math-lean/blob/main/erdos-problems/erdos94/erdos94.lean
+-/
 import Mathlib
 
 set_option linter.deprecated false

@@ -1,34 +1,20 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 1007.
 https://www.erdosproblems.com/forum/thread/1007
 
-The original proof was found by: Roger House
+Informal authors:
+- Roger F. House
+- Joe Chaffee
+- Matt Noble
 
-[Ho13] House, Roger F., A 4-dimensional graph has at least 9
-edges. Discrete Math. (2013), 1783--1789.
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-[ChNo16] Chaffee, Joe and Noble, Matt, Dimension 4 and dimension 5
-graphs with minimum edge set. Australas. J. Combin. (2016), 327--333.
-
-
-The proof was auto-formalized by Aristotle (from Harmonic).  Aristotle
-was supplied with a proof that K_{3,3} does not embed into R^3.
-Aristotle was not supplied with a proof that smaller graphs do.
-
-The final theorem statement was written by Aristotle.
-
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1007.md
 -/
-
-
 /-
 We proved that the complete bipartite graph K_{3,3} has 9 edges.
 We proved that any graph with fewer than 9 edges has a unit-distance embedding in R^3.

@@ -1,5 +1,20 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 1121.
+https://www.erdosproblems.com/forum/thread/1121
+
+Informal authors:
+- A. W. Goodman
+- R. E. Goodman
+
+Formal authors:
+- Aristotle
+- Amogh Parab
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/1121#post-5504
+-/
+/-
 # Erdős Problem 1121 — Goodman's Circle Covering Theorem
 
 ## Problem Statement (content.tex)

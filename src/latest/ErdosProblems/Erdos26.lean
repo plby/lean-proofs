@@ -1,22 +1,18 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 26.
 https://www.erdosproblems.com/forum/thread/26
 
-The original proof was found by: Imre Ruzsa
+Informal authors:
+- Imre Ruzsa
 
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-Ruzsa's counterexample was auto-formalized by Aristotle (from
-Harmonic).  The final theorem statement was available at the Formal
-Conjectures project (organized by Google DeepMind).
-
-
-The proof is verified by Lean.
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos26.md
 -/
-
-
 /-
 We define the Ruzsa sequence $n_\ell$ using the Chinese Remainder Theorem to satisfy $n_\ell \equiv -(j-1) \pmod{p_j}$ for $1 \le j \le \ell$. We then define the set $A = \{n_\ell \mid \ell \ge 1\}$. We prove that for any $k \ge 1$, the set of multiples of $A+k$, denoted $\mathcal{M}(A, k)$, does not have density 1. Specifically, we construct an arithmetic progression $S_k$ which is disjoint from $\mathcal{M}(A, k)$ and has positive natural density $1/m_k$. This implies that the lower density of the complement $\mathbb{N} \setminus \mathcal{M}(A, k)$ is at least $1/m_k > 0$. This provides a counterexample to the conjecture that for any infinite set $A$, there exists $k$ such that almost all integers have a divisor of the form $a+k$ with $a \in A$.
 -/

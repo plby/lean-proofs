@@ -1,5 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 204.
+https://www.erdosproblems.com/forum/thread/204
+
+Informal authors:
+- Sarosh Adenwalla
+
+Formal authors:
+- Aristotle
+- Wouter van Doorn
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/204#post-4790
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem204.lean
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/204.lean
+-/
+/-
 We say that a positive integer $n$ is CD covering if for every divisor $d > 1$ of $n$ there exists an integer $a_d$ such that the set of congruences $\{a_d \pmod{d} \}$ is a covering system with the property that if $x$ is such that $x \equiv a_d \pmod{d}$ and $x \equiv a_{d'} \pmod{d'}$, then $\gcd(d, d') = 1$.
 
 Sarosh Adenwalla solved Erdős Problem #204 (https://www.erdosproblems.com/204) by showing that no such $n$ exists.

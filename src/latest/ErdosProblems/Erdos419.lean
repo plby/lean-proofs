@@ -1,26 +1,22 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 419.
 https://www.erdosproblems.com/forum/thread/419
 
-The original proof was found by: Erdős, Graham, Ivić, and Pomerance.
+Informal authors:
+- Paul Erdős
+- S. W. Graham
+- Aleksandar Ivić
+- Carl Pomerance
+- Mehtaab Sawhney
 
-[EGIP96] Erdős, Paul and Graham, S. W. and Ivi\'c, Aleksandar and
-Pomerance, Carl, On the number of divisors of {$n!$}. (1996),
-337--355.
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-
-Aristotle auto-formalized a proof of the same result by Mehtaab
-Sawhney (see the forum link above).
-
-
-The proof is verified by Lean.
-
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos419.md
 -/
-
-
 /-
 We define `u n` as the ratio $\tau((n+1)!)/\tau(n!)$. We define the set $S = \{1\} \cup \{1 + 1/k \mid k \in \mathbb{N}, k \ge 1\}$.
 We prove that the set of cluster points of the sequence $u$ is exactly $S$.

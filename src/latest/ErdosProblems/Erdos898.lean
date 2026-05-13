@@ -1,5 +1,22 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 898.
+https://www.erdosproblems.com/forum/thread/898
+
+Informal authors:
+- Louis J. Mordell
+- Gemini 3.0 Flash
+- Aristotle
+
+Formal authors:
+- Gemini 3.0 Flash
+- Aristotle
+- JoshuaB
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/898#post-3882
+-/
+/-
 This file was edited by Aristotle.
 
 This project request had uuid: 9bfd1506-a97b-4882-a9c0-69353ce590be

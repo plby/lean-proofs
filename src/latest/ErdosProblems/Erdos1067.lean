@@ -1,38 +1,22 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 1067.
 https://www.erdosproblems.com/forum/thread/1067
 
-The original proof was found by: Komjáth and Soukup
+Informal authors:
+- Péter Komjáth
+- Dániel T. Soukup
+- Nathan Bowler
+- Max Pitz
 
-[Ko13] Komj\'ath, Péter, A note on chromatic number and connectivity
-of infinite graphs. Israel J. Math. (2013), 499--506.
+Formal authors:
+- Aristotle
+- Aleph Prover
+- Boris Alexeev
 
-[So15] Soukup, D\'aniel T., Trees, ladders and
-graphs. J. Combin. Theory Ser. B (2015), 96--116.
-
-[BoPi24] N. Bowler and M. Pitz, A note on uncountably chromatic
-graphs. arXiv:2402.05984 (2024).
-
-
-The paper by Bowler and Pitz, which features a "simpler elementary
-example", was auto-formalized by Aristotle (from Harmonic).
-
-The final theorem statement was written by ChatGPT (from OpenAI).  The
-final theorem proof was written by Aleph Prover (from Logical
-Intelligence).
-
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1067.md
 -/
-
-
 /-
 We have formalized the construction of the graph G and proved that it is uncountably chromatic and has the finite adhesion property.
 The construction of G is based on the set T of co-infinite injective sequences from countable ordinals to natural numbers.

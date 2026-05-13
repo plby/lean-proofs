@@ -1,5 +1,25 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 964.
+https://www.erdosproblems.com/forum/thread/964
+
+Formalization status:
+- Conditional on: goldston_graham_pintz_yildirim
+
+Informal authors:
+- Sean Eberhard
+
+Formal authors:
+- Aristotle
+- Gemini
+- Antigravity
+- Daniel Chin
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/964#post-4280
+- https://raw.githubusercontent.com/danielchin/proofs/refs/heads/main/Proofs/ErdosProblems/Erdos964.lean
+-/
+/-
 
 Formalizes original paper:
 - [Eb25] S. Eberhard, Ratios of consecutive values of the divisor function. arXiv:2505.00727 (2025).

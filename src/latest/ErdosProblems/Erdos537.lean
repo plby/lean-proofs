@@ -1,24 +1,18 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 537.
 https://www.erdosproblems.com/forum/thread/537
 
-The original proof was found by: Ruzsa
+Informal authors:
+- Imre Z. Ruzsa
 
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-A proof was auto-formalized by Aristotle (from Harmonic).
-
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos537.md
 -/
-
-
 import Mathlib
 
 set_option linter.style.cases false

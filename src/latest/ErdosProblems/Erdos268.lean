@@ -1,6 +1,22 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 268.
+https://www.erdosproblems.com/forum/thread/268
+
+Informal authors:
+- Vjekoslav Kovač
+
+Formal authors:
+- Aristotle
+- Matteo Del Vecchio
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/268#post-5359
+- https://gist.githubusercontent.com/madeve-unipi/62a8f68cdb4864b85b81a6752dcb0aa4/raw/5793aaa51089c25c37d8d63f60540367f6abe506/Erdos268.lean
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/268.lean
+-/
+/-
 Released under Apache 2.0 license.
 Authors: Matteo Del Vecchio, Aristotle (Harmonic)
 -/

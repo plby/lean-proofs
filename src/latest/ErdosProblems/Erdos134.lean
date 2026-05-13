@@ -1,22 +1,19 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 134.
 https://www.erdosproblems.com/forum/thread/134
 
-The original proof was found by: Noga Alon
+Informal authors:
+- Noga Alon
 
-https://web.math.princeton.edu/~nalon/PDFS/remark1901.pdf
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-
-This paper was auto-formalized by Aristotle (from Harmonic).
-
-
-The proof is verified by Lean.
-
+URLs:
+- https://web.math.princeton.edu/~nalon/PDFS/remark1901.pdf
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos134.md
 -/
-
-
 /-
 We have formalized and proved Theorem 1.2 from the paper "Triangle-free graphs of diameter 2" by Noga Alon.
 The main result `theorem_1_2` states that for a triangle-free graph $G$ on $n$ vertices with maximum degree at most $c\sqrt{n}$ (where $c$ satisfies certain bounds), there exists a supergraph $G'$ of $G$ which is triangle-free, has diameter 2, and has at most $2.5cn^2$ edges.

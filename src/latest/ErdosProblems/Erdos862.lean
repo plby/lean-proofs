@@ -1,34 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 862.
 https://www.erdosproblems.com/forum/thread/862
 
-The original proof was found by: Saxton & Thomason
+Informal authors:
+- David Saxton
+- Andrew Thomason
+- ChatGPT
 
- [SaTh15] Saxton, David and Thomason, Andrew, Hypergraph
- containers. Invent. Math. (2015), 925--992.
+Formal authors:
+- Aristotle
+- Boris Alexeev
+- Kevin Barreto
 
-
-A proof of ChatGPT's choice was auto-formalized by Aristotle (from
-Harmonic).  The final theorem statement was written by Aristotle.
-
-Some results were taken from Kevin Barreto's proof for Erdős Problem
-43 (but they were proven by Aristotle also).
-
-The proof assumes a consequence of the Prime Number Theorem as an
-axiom ("no multiplicative gaps").  That statement was taken directly
-from the PrimeNumberTheoremAnd project.
-
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos862.md
 -/
-
 /-
 We formalized the proof that there are many maximal Sidon subsets of an interval.
 Key results include:

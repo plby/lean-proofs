@@ -1,15 +1,15 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 493.
-https://www.erdosproblems.com/493
+https://www.erdosproblems.com/forum/thread/493
 
-This proof was written by Aristotle.  It found the proof given only
-the formal statement.
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos493.md
 -/
-
 import Mathlib
 
 namespace Erdos493

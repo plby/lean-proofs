@@ -1,4 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 259.
+https://www.erdosproblems.com/forum/thread/259
+
+Informal authors:
+- Yong-Gao Chen
+- Imre Z. Ruzsa
+
+Formal authors:
+- Aristotle
+- Stefano Rocca
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/259#post-5683
+- https://gist.githubusercontent.com/ster-oc/c7429943f6b3a634797dc8b2a3b01f2d/raw/8c6b5b7f08021f0aed2312542dd2e9ee7beaa6d6/Erdos259.lean
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/259.lean
+-/
 import Mathlib
 
 namespace Erdos259

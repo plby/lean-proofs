@@ -1,28 +1,18 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 1036.
 https://www.erdosproblems.com/forum/thread/1036
 
-The original proof was found by: Saharon Shelah
+Informal authors:
+- Saharon Shelah
 
-[Sh98] Shelah, Saharon, Erdős and {R}ényi
-conjecture. J. Combin. Theory Ser. A (1998), 179--185.
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-
-A proof was auto-formalized by Aristotle (from Harmonic).  The final
-theorem statement was written by Aristotle.
-
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1036.md
 -/
-
-
 /-
 Formalized the main theorem of the provided paper as `erdos_1036`.
 The proof utilizes the helper lemmas and definitions provided in the assumptions, specifically `shelah_epsilon`, `shelah_n0`, `shelah_epsilon_pos`, and `shelah_contrapositive`.

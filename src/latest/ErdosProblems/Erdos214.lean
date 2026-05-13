@@ -1,5 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 214.
+https://www.erdosproblems.com/forum/thread/214
+
+Informal authors:
+- Rozália Juhász
+
+Formal authors:
+- Aristotle
+- Wouter van Doorn
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/214#post-4547
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem214FourPoints.lean
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem214TwelvePoints.lean
+-/
+/-
 Define a red/blue-colouring of $\mathbb{R}^2$ to be unit-distance-avoiding if no two blue points are distance $1$ apart. Solving Erdős Problem #214 (https://www.erdosproblems.com/214), Juhász proved that for any unit-distance-avoiding two-colouring, there must be four red points forming a unit square. More generally, she proved that for any configuration $K$ of four points and any unit-distance-avoiding two-colouring, there must be a red congruent copy of $K$.
 
 R. Juhász, Ramsey type theorems in the plane. J. Combin. Theory Ser. A (1979), 152-160.

@@ -1,28 +1,25 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 205.
 https://www.erdosproblems.com/forum/thread/205
 
-Please see the thread above for the history.
+Formalization status:
+- Conditional on: nth_prime_asymp
 
-Roughly speaking, Wouter van Doorn suggested an approach, ChatGPT made
-it into a full proof informally, and Aristotle formalized it.
+Informal authors:
+- Wouter van Doorn
+- Terence Tao
+- Boris Alexeev
+- ChatGPT
 
-Later, Terence Tao suggested that the log log m could be replaced with
->>sqrt(log m / log log m), which was independently verified.  This
-file is a formal proof of THAT bound, produced with ChatGPT and
-Aristotle.
+Formal authors:
+- ChatGPT
+- Aristotle
+- Boris Alexeev
 
-We assume a statement of the Prime Number Theorem taken from the
-PrimeNumberTheoremAnd project, but admitted as an axiom:
-nth_prime_asymp.
-
-
-The proof is verified by Lean.
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos205.md
 -/
-
 import Mathlib
 import ErdosProblems.Axioms
 

@@ -1,5 +1,17 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 990.
+https://www.erdosproblems.com/forum/thread/990
+
+Formal authors:
+- GPT-5.4 Pro
+- Yuta Oriike
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/990#post-5312
+- https://github.com/yuta0x89/ErdosProblems/blob/main/Erdos990.lean
+-/
+/-
 - https://www.erdosproblems.com/forum/thread/990#post-5312
 - https://github.com/yuta0x89/ErdosProblems/blob/main/Erdos990.lean
 -/

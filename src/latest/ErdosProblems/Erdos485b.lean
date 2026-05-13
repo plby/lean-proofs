@@ -1,4 +1,22 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 485.
+https://www.erdosproblems.com/forum/thread/485
+
+Formalization status:
+- Partial
+
+Informal authors:
+- W. Verdenius
+
+Formal authors:
+- Aristotle
+- Wouter van Doorn
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/485#post-4030
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem485.lean
+-/
 import Mathlib
 
 namespace Erdos485b

@@ -1,31 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 666.
 https://www.erdosproblems.com/forum/thread/666
 
-The original proof was found by: Chung and Brouwer & Dejter &
-Thomassen
+Informal authors:
+- Fan R. K. Chung
+- A. E. Brouwer
+- I. J. Dejter
+- Carsten Thomassen
 
-[Ch92] Chung, Fan R. K., Subgraphs of a hypercube containing no small
-even cycles. J. Graph Theory (1992), 273-286.
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-[BDT93] Brouwer, A. E. and Dejter, I. J. and Thomassen, C., Highly
-symmetric subgraphs of hypercubes. J. Algebraic Combin. (1993), 25-29.
-
-
-A proof was auto-formalized by Aristotle (from Harmonic).
-
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos666.md
 -/
-
-
 /-
 We define the hypercube graph Q_n and a partition of its edges into four subgraphs G_ab. We prove that each G_ab is C_6-free. As a corollary, we show that for any epsilon > 0, there exists a subgraph of Q_n with at least epsilon |E(Q_n)| edges that is C_6-free, disproving a density conjecture.
 -/

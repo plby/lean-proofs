@@ -1,32 +1,20 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 1047.
 https://www.erdosproblems.com/forum/thread/1047
 
-The original proof was found by: Pommerenke; also Goodman; also a
-referee
+Informal authors:
+- Christian Pommerenke
+- A. W. Goodman
+- referee
 
-[Po61] Pommerenke, Ch., On metric properties of complex
-polynomials. Michigan Math. J. (1961), 97-115.
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-[Go66] Goodman, A. W., On the convexity of the level curves of a
-polynomial. Proc. Amer. Math. Soc. (1966), 358--361.
-
-
-Aristotle gave this proof given only the *statement* of the result
-(informally).
-
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1047.md
 -/
-
-
 /-
 We construct a polynomial $f(z) = z^6 - z$ and choose $c = 0.582$. We show that $f$ is monic, has 6 distinct roots, and the sublevel set $\{z : |f(z)| \le c\}$ has 6 distinct connected components, one for each root. We further show that the component containing 0 is not convex. This confirms the existence of such a polynomial and constant.
 -/

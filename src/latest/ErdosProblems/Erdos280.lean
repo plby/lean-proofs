@@ -1,4 +1,19 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 280.
+https://www.erdosproblems.com/forum/thread/280
+
+Informal authors:
+- Stijn Cambie
+
+Formal authors:
+- Aristotle
+- Lorenzo Luccioli
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/280#post-5595
+- https://gist.githubusercontent.com/LorenzoLuccioli/2dda92a192c15c24263c8a258979e7e3/raw/b9f4c664a42977075e361da17759bd0f71998ff8/Erdos280.lean
+-/
 import Mathlib
 
 namespace Erdos280

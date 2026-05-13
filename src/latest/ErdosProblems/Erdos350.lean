@@ -1,24 +1,18 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 350.
-https://www.erdosproblems.com/350
+https://www.erdosproblems.com/forum/thread/350
 
-The original human proof was found by: Ryavec
+Informal authors:
+- Charles Albert Ryavec
+- ChatGPT
 
-Benkoski, S. J., and Erdős, P. On weird and pseudoperfect numbers. Math. Comput. 28 (1974), 617–623.
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-ChatGPT from OpenAI explained some proof of this result (not
-necessarily the original human proof, instead prioritizing clarity).
-
-The LaTeX file output from the previous step was auto-formalized into
-Lean by Aristotle from Harmonic.
-
-The final theorem statement is from the Formal Conjectures project
-organized by Google DeepMind.
-
-The proof is verified by Lean.
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos350.md
 -/
 import Mathlib
 

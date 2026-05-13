@@ -1,5 +1,22 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 281.
+https://www.erdosproblems.com/forum/thread/281
+
+Informal authors:
+- Neel Somani
+- GPT-5.2 Pro
+
+Formal authors:
+- Aristotle
+- Gemini 3.0 Flash
+- JakeMallen
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/281#post-3445
+- https://chatgpt.com/share/696ac45b-70d8-8003-9ca4-320151e0816e
+-/
+/-
 Let $n_1 < n_2 < \cdots$ be an infinite sequence such that, for
 any choice of congruence classes $a_i\pmod{n_i}$, the set of
 integers not satisfying any of the congruences $a_i\pmod{n_i}$

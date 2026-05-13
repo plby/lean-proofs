@@ -1,27 +1,19 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 1071.
 https://www.erdosproblems.com/forum/thread/1071
 
-The original proof was found by: Boris Alexeev
-(see comment thread above)
-(but I doubt this is actually original)
+Informal authors:
+- Boris Alexeev
 
+Formal authors:
+- Aristotle
+- ChatGPT
+- Boris Alexeev
 
-This proof was formalized by Aristotle (from Harmonic), ChatGPT (from
-Open AI), and the original human author.
-
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1071.md
 -/
-
-
 /-
 We have proved Corollary 3, establishing the existence of a countable maximal disjoint collection of unit segments in the closed unit square [0,1] x [0,1]. This was achieved by defining the collection `S_cor3` as the union of `S_cor2` (from Corollary 2) and the four sides of the square, and proving that this collection is disjoint, contained in the square, and blocking (maximal).
 -/

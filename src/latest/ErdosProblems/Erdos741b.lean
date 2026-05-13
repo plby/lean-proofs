@@ -1,5 +1,22 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 741.
+https://www.erdosproblems.com/forum/thread/741
+
+Informal authors:
+- Przemek Chojecki
+- GPT-5.4 Pro
+
+Formal authors:
+- Aristotle
+- Przemek Chojecki
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/741#post-5771
+- https://www.ulam.ai/research/erdos741.pdf
+- https://www.ulam.ai/research/erdos741.lean
+-/
+/-
 # Erdős Problem 741
 
 We formalize three results about Erdős problem #741:

@@ -1,5 +1,20 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 756.
+https://www.erdosproblems.com/forum/thread/756
+
+Informal authors:
+- K. Bhowmick
+
+Formal authors:
+- Aristotle
+- Wouter van Doorn
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/756#post-4792
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem756.lean
+-/
+/-
 Bhowmick managed to construct a set of $n$ points in $\mathbb{R}^2$ such that $\lfloor \frac{n}{4} \rfloor$ distances occur at least $n+1$ times.
 
 K. Bhowmick, A problem of Erdős about rich distances. arXiv:2407.01174 (2024).

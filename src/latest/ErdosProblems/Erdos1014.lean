@@ -1,4 +1,20 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 1014.
+https://www.erdosproblems.com/forum/thread/1014
+
+Informal authors:
+- an internal model at OpenAI
+
+Formal authors:
+- Codex
+- Boris Alexeev
+
+URLs:
+- https://openai.com/index/introducing-gpt-5-5/
+- https://cdn.openai.com/pdf/6dc7175d-d9e7-4b8d-96b8-48fe5798cd5b/Ramsey.pdf
+- https://www.erdosproblems.com/forum/thread/1014#post-5749
+-/
 import Mathlib
 
 open Filter

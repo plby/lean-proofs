@@ -1,5 +1,20 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 698.
+https://www.erdosproblems.com/forum/thread/698
+
+Informal authors:
+- George M. Bergman
+
+Formal authors:
+- Aristotle
+- Wouter van Doorn
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/698#post-3276
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem698.lean
+-/
+/-
 For integers $2 ≤ i < j ≤ n/2$ we aim to show that the greatest common divisor of $\binom{n}{i}$ and $\binom{n}{j}$ is strictly greater than $\frac{2^i\sqrt{n}}{4i\sqrt{i-1}}$, solving Erdős problem #698 (see https://www.erdosproblems.com/698). The proof of this lower bound (with a slightly worse constant) was found by Bergman;
 
 Bergman, George M., On common divisors of multinomial coefficients. Bull. Aust. Math. Soc. (2011), 138--157

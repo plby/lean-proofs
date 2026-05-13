@@ -1,27 +1,20 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 56.
-https://www.erdosproblems.com/56
+https://www.erdosproblems.com/forum/thread/56
 
-The original human proof was found by: Rudolf Ahlswede and Levon H. Khachatrian
+Informal authors:
+- Rudolf Ahlswede
+- Levon H. Khachatrian
+- ChatGPT
 
-Ahlswede, Rudolf; Khachatrian, Levon H. On extremal sets without coprimes. Acta Arithmetica 66(1): 89–99 (1994).
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-ChatGPT from OpenAI explained some proof of this result (not
-necessarily the original human proof, instead prioritizing clarity).
-
-The LaTeX file output from the previous step was auto-formalized into
-Lean by Aristotle from Harmonic.
-
-The final theorem statement is from the Formal Conjectures project
-organized by Google DeepMind.  (Note: it was modified slightly by
-hand, because Aristotle found that it was missing a condition!)
-
-The proof is verified by Lean.
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos56.md
 -/
-
 import Mathlib
 
 set_option linter.style.openClassical false

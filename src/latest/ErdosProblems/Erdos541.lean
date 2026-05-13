@@ -1,39 +1,25 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 541.
 https://www.erdosproblems.com/forum/thread/541
 
-The result was proven for sufficiently large primes by Erdős and
-Szemerédi and by Gao, Hamidoune, and Wang for all moduli (not
-necessarily prime).
+Informal authors:
+- Paul Erdős
+- Endre Szemerédi
+- Weidong Gao
+- Yahya Ould Hamidoune
+- Guoqing Wang
+- David J. Grynkiewicz
+- ChatGPT
 
-[ErSz76] Erdős, E. and Szemerédi, E., On a problem of
-Graham. Publ. Math. Debrecen (1976), 123--127.
+Formal authors:
+- Aristotle
+- ChatGPT
+- Boris Alexeev
 
-[GHW10] Gao, Weidong and Hamidoune, Yahya Ould and Wang, Guoqing,
-Distinct length modular zero-sum subsequences: a proof of Graham's
-conjecture. J. Number Theory (2010), 1425--1431.
-
-
-Apparently ChatGPT chose to explain a proof closer to one by David
-J. Grynkiewicz.
-
-David J. Grynkiewicz, Note on a Conjecture of Graham, arXiv:0903.3200
-(2009), later published in European Journal of Combinatorics (2011).
-
-
-The proof was auto-formalized by Aristotle (from Harmonic), except one
-lemma which was proven by ChatGPT.  The final theorem statement was
-available from the Formal Conjectures project.
-
-
-The proof is verified by Lean.
-
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos541.md
 -/
-
-
 /-
 We have formalized and proved the main theorem `thm_main` stating that if a sequence of length `p` in `Z/pZ` has a unique zero-sum length `r`, then it takes at most 2 distinct values. The proof follows the provided outline, utilizing lemmas such as `lem_max_multiplicity`, `lem_find_h`, and auxiliary claims about the structure of the sequence.
 -/

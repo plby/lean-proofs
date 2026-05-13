@@ -1,4 +1,18 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 399.
+https://www.erdosproblems.com/forum/thread/399
+
+Informal authors:
+- Jonas Barfield
+
+Formal authors:
+- Codex
+- Cong Lu
+
+URLs:
+- https://github.com/google-deepmind/formal-conjectures/commit/ce390075c49403db77b955a3f3a8bf4c4de99cbe
+-/
 import Mathlib
 
 theorem erdos_399 : False ↔

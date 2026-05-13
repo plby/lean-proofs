@@ -1,4 +1,20 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 904.
+https://www.erdosproblems.com/forum/thread/904
+
+Informal authors:
+- Béla Bollobás
+- Vladimir Nikiforov
+
+Formal authors:
+- Aristotle
+- Parcly Taxel
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/904#post-5573
+- https://gist.githubusercontent.com/Parcly-Taxel/876d4eadd49a0d29db91ed2e790db733/raw/f33e0451100317b6eda0dd48c971e8105ff8ea75/E904.lean
+-/
 import Mathlib.Algebra.Order.Chebyshev
 import Mathlib.Data.Set.Finite.List
 import Mathlib.Combinatorics.SimpleGraph.Extremal.Turan

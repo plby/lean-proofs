@@ -1,6 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 150.
+https://www.erdosproblems.com/forum/thread/150
+
+Informal authors:
+- Domagoj Bradač
+
+Formal authors:
+- Aristotle
+- Pietro Monticone
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/150#post-5145
+- https://gist.githubusercontent.com/pitmonticone/d8558d3361ad2d673b5405239ea30700/raw/c966009555b83985762dac9faaf705aad3f48199/Erdos150.lean
+-/
+/-
 Note: this file was modified from its original form.
 -/
 

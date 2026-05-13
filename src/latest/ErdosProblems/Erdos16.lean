@@ -1,4 +1,20 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 16.
+https://www.erdosproblems.com/forum/thread/16
+
+Informal authors:
+- Yong-Gao Chen
+
+Formal authors:
+- Gemini 3.1 Pro
+- Antigravity
+- Daniel Chin
+
+URLs:
+- https://github.com/danielchin/proofs/blob/main/Proofs/ErdosProblems/Erdos16.lean
+- https://www.erdosproblems.com/forum/thread/16#post-4464
+-/
 import Mathlib
 
 namespace Erdos16

@@ -1,29 +1,19 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 198.
-https://www.erdosproblems.com/198
+https://www.erdosproblems.com/forum/thread/198
 
-The original human proof was found by: James E. Baumgartner
+Informal authors:
+- James E. Baumgartner
+- ChatGPT 5.1 Pro
+- AlphaProof
 
-Baumgartner, James E. Canonical partition relations. Journal of Symbolic Logic, 40(4):541–554, 1975
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-ChatGPT 5.1 Pro from OpenAI explained some proof of this result (not
-necessarily the original human proof, instead prioritizing clarity).
-
-[In this case, the proof used was actually due to AlphaProof!]
-
-The LaTeX file output from the previous step was auto-formalized into
-Lean by Aristotle from Harmonic.
-
-The final theorem statement is from the Formal Conjectures project
-organized by Google DeepMind.
-
-The proof is verified by Lean.  This succeeded on the following exact
-version numbers:
-
-AND
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos198.md
 -/
 import Mathlib
 

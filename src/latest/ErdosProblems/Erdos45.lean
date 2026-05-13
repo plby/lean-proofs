@@ -1,4 +1,18 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 45.
+https://www.erdosproblems.com/forum/thread/45
+
+Informal authors:
+- Ernest S. Croot III
+
+Formal authors:
+- Bhavik Mehta
+- Thomas Bloom
+
+URLs:
+- https://github.com/b-mehta/unit-fractions
+-/
 import ErdosProblems.Erdos46
 import Mathlib.Combinatorics.Compactness
 

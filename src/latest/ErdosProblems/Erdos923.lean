@@ -1,5 +1,20 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 923.
+https://www.erdosproblems.com/forum/thread/923
+
+Informal authors:
+- Vojtěch Rödl
+
+Formal authors:
+- Aristotle
+- Parcly Taxel
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/923#post-5628
+- https://gist.githubusercontent.com/Parcly-Taxel/28b95db1e5d3e77077d30c07afc55992/raw/8069e58aa1abcbcff57e1c99addfbdeb8f32f302/E923-aristotle.lean
+-/
+/-
 # Erdős Problem 923
 
 For every `n` there exists `f(n)` such that any graph `G` with `χ(G) ≥ f(n)`

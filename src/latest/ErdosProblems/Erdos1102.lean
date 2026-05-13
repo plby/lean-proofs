@@ -1,5 +1,25 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 1102.
+https://www.erdosproblems.com/forum/thread/1102
+
+Informal authors:
+- Wouter van Doorn
+- Terence Tao
+
+Formal authors:
+- Aristotle
+- Wouter van Doorn
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/1102#post-4415
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem1102PropertyP.lean
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem1102PropertyQDensity.lean
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem1102PropertyOverP.lean
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem1102PropertyQFastGrowing.lean
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/1102.lean
+-/
+/-
 We say that a sequence of positive integers $A$ has:
 
 - property $P$ if, for all positive integers $n$, there are only finitely many

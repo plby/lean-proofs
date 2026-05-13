@@ -1,28 +1,18 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 1048.
 https://www.erdosproblems.com/forum/thread/1048
 
-The original proof was found by: Pommerenke
+Informal authors:
+- Christian Pommerenke
 
-[Po61] Pommerenke, Ch., On metric properties of complex
-polynomials. Michigan Math. J. (1961), 97-115.
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-
-The STATEMENT of Pommerenke's result was given to Aristotle (no proof
-provided), and it auto-formalized the proof.
-
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1048.md
 -/
-
-
 /-
 We define the function $f(z) = z^n - r^n$ and the set $S = \{z \in \mathbb{C} : |f(z)| \le 1\}$. We prove that for $r > 1$, $S$ has exactly $n$ connected components. This is done by constructing $n$ disjoint branches of the inverse function (n-th root) mapping the disk $D(r^n, 1)$ into $S$, and showing that their images are the connected components. We then prove that the diameter of these components tends to 0 as $n \to \infty$ by bounding the derivative of the branch functions and applying the Mean Value Inequality. The main result is `main_result`.
 -/

@@ -1,5 +1,24 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 333.
+https://www.erdosproblems.com/forum/thread/333
+
+Informal authors:
+- Paul Erdős
+- Donald J. Newman
+- GPT-5.2 Pro
+
+Formal authors:
+- Claude Opus 4.5
+- Liam Price
+- Kevin Barreto
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/333#post-2403
+- https://chatgpt.com/s/t_69467152e8808191b9140d006994f284
+- https://chatgpt.com/s/t_694c90df3c908191a192f6233c2b14b9
+-/
+/-
 Proven by GPT-5.2 Pro and formalised by Claude Opus 4.5
 -/
 

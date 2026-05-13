@@ -1,23 +1,16 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 649.
-https://www.erdosproblems.com/649
+https://www.erdosproblems.com/forum/thread/649
 
+Formal authors:
+- ChatGPT
+- Aristotle
+- Boris Alexeev
 
-The results from the link above were auto-formalized by ChatGPT (from
-OpenAI) and Aristotle (from Harmonic).
-
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos649.md
 -/
-
-
 /-
 We have formalized and proved the following results regarding the greatest prime factor function P(n):
 1. The conjecture that for any primes p, q there exists n such that P(n)=p and P(n+1)=q is false. Specifically, we proved `conjecture_false` for p=2, q=7.

@@ -1,36 +1,35 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 1026.
-https://www.erdosproblems.com/1026
+https://www.erdosproblems.com/forum/thread/1026
 
-See the following blog post for the story behind this solution:
-https://terrytao.wordpress.com/2025/12/08/the-story-of-erdos-problem-126/
+Informal authors:
+- Desmond Weisenberg
+- Stijn Cambie
+- Wouter van Doorn
+- Thomas Bloom
+- Boris Alexeev
+- KoishiChan
+- Terence Tao
+- Lawrence Wu
+- Jineon Baek
+- Junnosuke Koizumi
+- Takahiro Ueoro
+- Iwan Praton
+- Adam Zsolt Wagner
+- J. Michael Steele
+- Abraham Seidenberg
+- Aristotle
+- AlphaEvolve
 
-The original problem of Erdős was unclear.  A collaborative process of
-Desmond Weisenberg, Stijn Cambie, and Wouter van Doorn clarified the
-question and was accepted by Thomas Bloom on erdosproblems.com.
-Later, this statement was found in a survey of J. Michael Steele.
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-A later collaborative process of Boris Alexeev, Aristotle (from
-Harmonic), KoishiChan, Terence Tao, AlphaEvolve (from Google
-DeepMind), and Lawrence Wu together with prior literature of Jineon
-Baek, Junnosuke Koizumi, and Takahiro Ueoro (and Iwan Praton and Adam
-Zsolt Wagner) solved the problem.
-
-The problem is a generalization of the Erdős–Szekeres theorem,
-especially of its proof by Abraham Seidenberg.
-
-Aristotle from Harmonic generated all of the formal proofs.
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://terrytao.wordpress.com/2025/12/08/the-story-of-erdos-problem-126/
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1026.md
 -/
-
 import Mathlib
 
 namespace Erdos1026

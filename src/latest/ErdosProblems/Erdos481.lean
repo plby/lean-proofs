@@ -1,5 +1,19 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 481.
+https://www.erdosproblems.com/forum/thread/481
+
+Informal authors:
+- Kevin Barreto
+
+Formal authors:
+- Claude Opus 4.5
+- Kevin Barreto
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/481#post-1930
+-/
+/-
 Proven and formalised (with assistance from Claude Opus 4.5) by Kevin Barreto
 -/
 

@@ -1,25 +1,18 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 453.
 https://www.erdosproblems.com/forum/thread/453
 
-The original proof was found by: Pomerance
+Informal authors:
+- Carl Pomerance
 
-[Po79] Pomerance, Carl, The prime number graph. Math. Comp. (1979),
-399-408.
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-
-Pomerance's proof, as described on the page linked above, was
-auto-formalized by Aristotle (from Harmonic).
-
-
-The proof is verified by Lean.
-
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos453.md
 -/
-
-
 /-
 We have proven that there are infinitely many $n$ such that $p_n^2 > p_{n-i}p_{n+i}$ for all $0 < i \le n$. This answers the user's question in the negative. The proof relies on the fact that the sequence $\log p_n$ is concave on the vertices of its upper convex hull, and that there are infinitely many such vertices because $\log p_n = o(n)$ and $\log p_n \to \infty$.
 -/

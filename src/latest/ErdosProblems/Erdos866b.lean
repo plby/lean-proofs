@@ -1,5 +1,24 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 866.
+https://www.erdosproblems.com/forum/thread/866
+
+Formalization status:
+- Partial
+
+Informal authors:
+- Wouter van Doorn
+- ChatGPT
+
+Formal authors:
+- Aristotle
+- Wouter van Doorn
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/866#post-6229
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem866.lean
+-/
+/-
 For an integer $k ≥ 3$ we define $g_k(n)$ as the smallest integer such that for any set $A ⊆ {1, 2, …, 2n}$ with $|A| ≥ n + g_k(n)$ there exist distinct integers $b_1, b_2, …, b_k$ such that all $\binom{k}{2}$ pairwise sums are in $A$. We further let $h_k(n)$ be the analogous function where we require the $b_i$ to be positive integers. We note that the $b_i$ in these definitions need not be in $A$ themselves.
 
 Since at most one of the $b_i$ can be non-positive (as otherwise we have a negative sum), we note that, in general,

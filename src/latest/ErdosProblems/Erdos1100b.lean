@@ -1,5 +1,26 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 1100.
+https://www.erdosproblems.com/forum/thread/1100
+
+Formalization status:
+- Partial
+- Conditional on: prime_number_theorem
+
+Informal authors:
+- Paul Erdős
+- R. R. Hall
+- Wouter van Doorn
+
+Formal authors:
+- Aristotle
+- Wouter van Doorn
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/1100#post-1659
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem1100.lean
+-/
+/-
 If $1 = d_1 < \cdots < d_{\tau(n)} = n$ are the divisors of $n$, then define $\tau_\perp(n)$ to be the number of $i$ for which $d_i$ and $d_{i+1}$ are coprime. Erdős and Hall proved that there are infinitely many $n$ with $\tau_\perp(n) > \exp( (\log \log n)^{2 - o(1)} )$.
 
 Erdős, P. and Hall, R. R., On some unconventional problems on the divisors of integers. J. Austral. Math. Soc. Ser. A (1978), 479--485.

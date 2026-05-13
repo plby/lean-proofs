@@ -1,4 +1,19 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 532.
+https://www.erdosproblems.com/forum/thread/532
+
+Informal authors:
+- Neil Hindman
+
+Formal authors:
+- David Wärn
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/532#post-4004
+- https://leanprover-community.github.io/mathlib4_docs/Mathlib/Combinatorics/Hindman.html
+- https://github.com/leanprover-community/mathlib4/blob/20c3a51ac9205f8eeb30886a4f1744a22e981ebe/Mathlib/Combinatorics/Hindman.lean
+-/
 import Mathlib
 
 namespace Erdos532

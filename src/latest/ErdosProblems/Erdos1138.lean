@@ -1,6 +1,26 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 1138.
+https://www.erdosproblems.com/forum/thread/1138
+
+Formalization status:
+- Partial
+
+Informal authors:
+- Hrishi Sunder
+- Sourish Kumrawat
+- Kireet Cheri
+
+Formal authors:
+- Aristotle
+- Lorenzo Luccioli
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/1138#post-6243
+- https://gist.githubusercontent.com/LorenzoLuccioli/c7fbdd9809a616974b5587ee526c163b/raw
+-/
+/-
 Copyright (c) 2026. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/

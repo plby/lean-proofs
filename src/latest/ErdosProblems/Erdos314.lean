@@ -1,5 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 314.
+https://www.erdosproblems.com/forum/thread/314
+
+Informal authors:
+- Jeck Lim
+- Stefan Steinerberger
+
+Formal authors:
+- Aristotle
+- Wouter van Doorn
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/314#post-5193
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem314.lean
+-/
+/-
 Solving Erdős Problem #314 (https://www.erdosproblems.com/314), Lim and Steinerberger proved that for every c > 0, there exist infinitely many pairs (n, m) of positive integers such that
 1 ≤ ∑_{ℓ=n}^{m} 1/ℓ − 1 ≤ c/n².
 

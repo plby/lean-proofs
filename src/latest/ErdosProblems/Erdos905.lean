@@ -1,4 +1,20 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 905.
+https://www.erdosproblems.com/forum/thread/905
+
+Informal authors:
+- N. G. Khadzhiivanov
+- S. V. Nikiforov
+
+Formal authors:
+- Aristotle
+- GPT 5.4
+- Andres Gutierrez
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/905#post-5276
+-/
 import Mathlib
 
 set_option linter.style.setOption false

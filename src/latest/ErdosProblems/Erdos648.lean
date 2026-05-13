@@ -1,26 +1,18 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 648.
 https://www.erdosproblems.com/forum/thread/648
 
-The original proof was found by: Stijn Cambie
+Informal authors:
+- Stijn Cambie
 
-[Ca25b] S. Cambie, On Erdős problem #648. arXiv:2503.22691 (2025).
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-
-Cambie's paper was auto-formalized by Aristotle (from Harmonic).
-
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos648.md
 -/
-
-
 /-
 We have formalized the main result of the paper "On Erdős problem # 648" by Stijn Cambie.
 This is achieved by proving the upper bound `g_upper_bound_asymptotic` and the lower bound `g_lower_bound_asymptotic` separately.

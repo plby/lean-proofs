@@ -1,6 +1,23 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 760.
+https://www.erdosproblems.com/forum/thread/760
+
+Informal authors:
+- Noga Alon
+- Michael Krivelevich
+- Benny Sudakov
+
+Formal authors:
+- Aristotle
+- Matteo Del Vecchio
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/760#post-5727
+- https://gist.githubusercontent.com/madeve-unipi/a7ae50d445f95e73c360f442c3c84143/raw/e85a4b6a72e797488822bb5cbdfe68d9834e835c/Erdos760.lean
+-/
+/-
 Authors: Matteo Del Vecchio, Aristotle (Harmonic)
 Released under Apache 2.0 license.
 -/

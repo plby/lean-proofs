@@ -1,33 +1,22 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 303.
 https://www.erdosproblems.com/forum/thread/303
 
-The original human proof was found by:  Tom C. Brown and Voijtech Rödl
+Informal authors:
+- Tom C. Brown
+- Vojtěch Rödl
 
-[BrRo91] Brown, Tom C. and Rödl, Voijtech, Monochromatic solutions to
-equations with unit fractions. Bull. Austral. Math. Soc. (1991),
-387-392.
+Formal authors:
+- Seed-Prover
+- Aristotle
+- Zheng Yuan
+- Boris Alexeev
 
-
-Zheng Yuan from Seed-Prover / ByteDance Seed AI4Math posted a proof at
-https://www.erdosproblems.com/forum/thread/330#post-2334
-
-
-The theorems of this proof were given to Aristotle (from Harmonic) to
-reprove, and the results were re-organized in an attempt to shorten
-the proof.
-
-
-The final theorem statement is from the Formal Conjectures project
-organized by Google DeepMind.
-
-
-The proof is verified by Lean.
-
+URLs:
+- https://www.erdosproblems.com/forum/thread/330#post-2334
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos303.md
 -/
-
 import Mathlib
 
 set_option linter.style.induction false

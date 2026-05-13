@@ -1,6 +1,23 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 844.
+https://www.erdosproblems.com/forum/thread/844
+
+Informal authors:
+- Desmond Weisenberg
+- Václav Chvátal
+
+Formal authors:
+- Aristotle
+- John Jennings
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/844#post-5919
+- https://users.encs.concordia.ca/~chvatal/conjecture.pdf
+- https://gist.githubusercontent.com/JohnEdwardJennings/e32f2c412b0225091e7519d60741bd2d/raw/7d811ea413e2f7c0c0442749958aaac421eb6807/Erdos844.lean
+-/
+/-
 Copyright (c) 2026 John Jennings. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: John Jennings, Aristotle (Harmonic)

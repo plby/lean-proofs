@@ -1,6 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 24.
+https://www.erdosproblems.com/forum/thread/24
+
+Informal authors:
+- Andrzej Grzesik
+
+Formal authors:
+- Aristotle
+- Matteo Del Vecchio
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/24#post-5732
+- https://gist.githubusercontent.com/madeve-unipi/683739094ab7a5079a2bc2647c47743b/raw/6164255a2f1ed85df3f01b75d2f8b35a1330aacb/Erdos24.lean
+-/
+/-
 Released under Apache 2.0 license.
 Authors: Matteo Del Vecchio, Aristotle (Harmonic)
 -/

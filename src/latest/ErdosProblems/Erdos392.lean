@@ -1,4 +1,23 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 392.
+https://www.erdosproblems.com/forum/thread/392
+
+Informal authors:
+- Stijn Cambie
+- Terence Tao
+
+Formal authors:
+- Aristotle
+- Terence Tao
+- Pietro Monticone
+- Alex Kontorovich
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/392#post-4410
+- https://github.com/AlexKontorovich/PrimeNumberTheoremAnd/blob/main/PrimeNumberTheoremAnd/Erdos392.lean
+- https://alexkontorovich.github.io/PrimeNumberTheoremAnd/blueprint/sect0009.html#a0000000039
+-/
 import Mathlib.Analysis.Complex.ExponentialBounds
 import Mathlib.Analysis.SpecialFunctions.Stirling
 import Mathlib.NumberTheory.Bertrand
@@ -2946,5 +2965,6 @@ theorem Solution_2 (ε : ℝ) (hε : ε > 0) :
       (List.get_mem ..), ht_bound⟩
 
 #print axioms Solution_2
+--
 
 end Erdos392

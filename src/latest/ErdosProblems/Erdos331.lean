@@ -1,5 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 331.
+https://www.erdosproblems.com/forum/thread/331
+
+Informal authors:
+- Imre Ruzsa
+
+Formal authors:
+- Aristotle
+- Wouter van Doorn
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/331#post-4019
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem331.lean
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/331.lean
+-/
+/-
 Ruzsa answered Erdős Problem #331 (https://www.erdosproblems.com/331) by exhibiting two sets of positive integers $A$ and $B$ such that both $|\{a \in A : a \le x\}| \gg \sqrt{x}$ and $|\{b \in B : b \le x\}| \gg \sqrt{x}$ for large enough $x$ and such that $a_1 - a_2 = b_1 - b_2$ implies $a_1 = a_2$ and $b_1 = b_2$. Indeed, take $A$ and $B$ to be the sets of positive integers whose binary representation only have non-zero digits in even and odd places respectively. A formalization of this result, obtained with the help of Aristotle from Harmonic (aristotle-harmonic@harmonic.fun), can be found below.
 
 Even though the Formal Conjectures project by Google DeepMind had a formalization of the problem as well, we found that it originally contained a mistake. The hopefully fixed version (with proof) can be found at the very end of this file.

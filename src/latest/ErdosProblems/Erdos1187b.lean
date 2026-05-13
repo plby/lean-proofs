@@ -1,3 +1,21 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 1187.
+https://www.erdosproblems.com/forum/thread/1187
+
+Formalization status:
+- Partial
+
+Formal authors:
+- Codex
+- GPT-5.5 xhigh
+- Kenta Kitamura
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/1187#post-6429
+- https://github.com/KitaKen1/erdos-1187-lean
+- https://github.com/KitaKen1/erdos-1187-lean/blob/main/SecondSolution.lean
+-/
 namespace Erdos1187
 
 def Prime (p : Nat) : Prop :=

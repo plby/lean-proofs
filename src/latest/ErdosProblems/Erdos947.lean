@@ -1,5 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 947.
+https://www.erdosproblems.com/forum/thread/947
+
+Informal authors:
+- Wouter van Doorn
+- ChatGPT
+
+Formal authors:
+- Aristotle
+- Wouter van Doorn
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/947#post-4068
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem947.lean
+-/
+/-
 I asked ChatGPT to write a TeX-file explaining the proof of a result by Mirsky-Newman and Davenport-Rado, which states that no exact covering system exists with distinct moduli (except for the trivial case of a single congruence class). They thereby solved Erdos Problem #947 (https://www.erdosproblems.com/947). This TeX-file was given to Aristotle from Harmonic (aristotle-harmonic@harmonic.fun), which managed to formalize it into Lean, the result of which can be found below.
 
 -/

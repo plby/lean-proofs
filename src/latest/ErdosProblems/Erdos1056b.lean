@@ -1,6 +1,25 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 1056.
+https://www.erdosproblems.com/forum/thread/1056
+
+Formalization status:
+- Partial
+
+Informal authors:
+- Lorenzo Luccioli
+- Aristotle
+
+Formal authors:
+- Aristotle
+- Lorenzo Luccioli
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/1056#post-2713
+- https://gist.githubusercontent.com/LorenzoLuccioli/62c1534cff0ae0268f4e5fb92f3f5ae2/raw/b5f2abd33e6a90bbd7693089f14babbddbefcdb7/1056_aristotle.lean
+-/
+/-
 This file was edited by Aristotle.
 
 Lean version: leanprover/lean4:v4.24.0

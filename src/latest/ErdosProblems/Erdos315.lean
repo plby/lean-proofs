@@ -1,26 +1,20 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 315.
 https://www.erdosproblems.com/forum/thread/315
 
-The original proof was found by: Kamio and Li & Tang
+Informal authors:
+- Yuhi Kamio
+- Zheng Li
+- Quanyu Tang
 
-[Ka25] Y. Kamio, Asymptotic analysis of infinite decompositions of a
-unit fraction into unit fractions. arXiv:2503.02317 (2025).
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-[LiTa25] Z. Li and Q. Tang, On a conjecture of Erdős and Graham about
-the Sylvester's sequence. arXiv:2503.12277 (2025).
-
-
-Kamio's proof was auto-formalized by Aristotle (from Harmonic).
-
-
-The proof is verified by Lean.
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos315.md
 -/
-
-
 /-
 We formalized the main theorem of the paper, proving that for any sequence of positive integers $a_i$ summing to $1/n$ and distinct from the generalized Sylvester sequence, the limit inferior of $a_i^{2^{-i}}$ is strictly less than the constant $c_n$. We utilized a shifting argument to reduce the general case to the case where the first term differs from the Sylvester sequence, and handled the limit inferior properties carefully.
 -/

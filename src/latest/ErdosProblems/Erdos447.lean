@@ -1,24 +1,18 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 447.
 https://www.erdosproblems.com/forum/thread/447
 
-The original proof was found by: Kleitman
+Informal authors:
+- Daniel Kleitman
 
-[Kl71] Kleitman, Daniel, Collections of subsets containing no two sets
-and their union. Proceedings of the LA Meeting AMS (1971), 153-155.
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-
-Kleitman's proof was auto-formalized by Aristotle (from Harmonic).
-
-
-The proof is verified by Lean.
-
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos447.md
 -/
-
-
 /-
 Formalized the definitions and theorems from the paper "Union-free families and Kleitman's asymptotic bound", including the main result `kleitman_asymptotic` which establishes that the size of a union-free family is asymptotically bounded by the central binomial coefficient. The formalization covers the Erdős-Ko-Rado lemma, Kleitman's chain inequality, the linear programming bound, weak duality, and the construction of the dual feasible solution.
 -/

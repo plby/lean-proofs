@@ -1,37 +1,24 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 659.
 https://www.erdosproblems.com/forum/thread/659
 
-This proof was found by Benjamin Grayzel using Gemini.
+Informal authors:
+- Benjamin Grayzel
+- Adam Sheffer
+- Pieter Moree
+- Robert Osburn
+- Desmond Weisenberg
+- Gemini
 
-A similar result was given by Sheffer and Moree & Osburn:
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-https://adamsheffer.wordpress.com/2014/07/16/point-sets-with-few-distinct-distances/
-
-https://arxiv.org/abs/math/0604163
-
-
-Grayzel's proof was auto-formalized by Aristotle (from Harmonic).  The
-proof used "Perucca's classification theorem" (also given by Desmond
-Weisenberg at the forum link above), which Aristotle proved by itself.
-
-The final theorem statement was available from the Formal Conjectures
-project (from Google DeepMind).
-
-FYI: The proof assumes Bernay's theorem as an axiom!
-
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://adamsheffer.wordpress.com/2014/07/16/point-sets-with-few-distinct-distances/
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos659.md
 -/
-
-
 /-
 We formalized the solution to the Erdős problem concerning distances and points.
 We defined the lattice `L` and the point sets `P_m`.

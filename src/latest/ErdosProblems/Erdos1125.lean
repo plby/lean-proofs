@@ -1,6 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 1125.
+https://www.erdosproblems.com/forum/thread/1125
+
+Informal authors:
+- Miklós Laczkovich
+
+Formal authors:
+- Aristotle
+- Stefano Rocca
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/1125#post-5332
+- https://gist.githubusercontent.com/ster-oc/18384e6202ffe054cbc76ff2d0b1afde/raw/4d89f4dce1b6ae4aedde501bfbcbc4f9f81a8549/Erdos1125.lean
+-/
+/-
 Copyright (c) 2026 Harmonic. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Stefano Rocca, Aristotle (Harmonic)

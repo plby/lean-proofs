@@ -1,4 +1,22 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 1008.
+https://www.erdosproblems.com/forum/thread/1008
+
+Informal authors:
+- David Conlon
+- Jacob Fox
+- Benny Sudakov
+- Zach Hunter
+- ChatGPT
+
+Formal authors:
+- Aristotle
+- Boris Alexeev
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1008.md
+-/
 import Mathlib
 
 namespace Erdos1008

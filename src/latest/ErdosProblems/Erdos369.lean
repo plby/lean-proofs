@@ -1,5 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 369.
+https://www.erdosproblems.com/forum/thread/369
+
+Informal authors:
+- Sky Yang
+
+Formal authors:
+- Aristotle
+- Wouter van Doorn
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/369#post-5058
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem369.lean
+- https://drive.google.com/file/d/1MxgrA2haXKv_NKSa7sqUI2hZYyZ5JmfP/view
+-/
+/-
 The most difficult (and, in my opinion, most sensible) interpretation of Erdős Problem #369 (https://www.erdosproblems.com/369) reads:
 
 For every ε > 0 and k ≥ 2, there exists N₀ such that for every N ≥ N₀, there exist k consecutive integers a-k+1, ..., a in [N/2, N] with P⁺(m) ≤ m^ε for each m in {a-k+1, ..., a}, where P⁺(m) denotes the largest prime factor of m.

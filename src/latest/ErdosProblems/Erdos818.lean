@@ -1,4 +1,19 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 818.
+https://www.erdosproblems.com/forum/thread/818
+
+Informal authors:
+- József Solymosi
+
+Formal authors:
+- Aristotle
+- Tomaz Mascarenhas
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/818#post-5890
+- https://gist.githubusercontent.com/tomaz1502/d8f3632157bae289e5d0ed68ccdc9433/raw/fa7570f83d63ead268ebe5478670f6c06142edcd/Erdos_818.lean
+-/
 import Mathlib
 
 namespace Erdos818

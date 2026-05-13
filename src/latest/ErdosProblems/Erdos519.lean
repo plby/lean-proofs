@@ -1,6 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 519.
+https://www.erdosproblems.com/forum/thread/519
+
+Informal authors:
+- F. V. Atkinson
+
+Formal authors:
+- Aristotle
+- John Jennings
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/519#post-5599
+- https://gist.githubusercontent.com/JohnEdwardJennings/db1e0cb00b7d6866193c12f1c70a1813/raw/e629fcf1976d5b241d628c0b65e2b1e3701f51a6/Erdos519.lean
+-/
+/-
 Copyright (c) 2026 John Jennings. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: John Jennings, Aristotle (Harmonic)

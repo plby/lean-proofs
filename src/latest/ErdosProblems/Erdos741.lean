@@ -1,6 +1,22 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 741.
+https://www.erdosproblems.com/forum/thread/741
+
+Informal authors:
+- a DeepMind prover agent
+
+Formal authors:
+- a DeepMind prover agent
+- Moritz Firsching
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/741#post-5135
+- https://github.com/mo271/formal-conjectures/blob/486bc8afae062b6711cd16d3466d651ee2880a52/FormalConjectures/ErdosProblems/741.lean#L1449
+- https://github.com/mo271/formal-conjectures/blob/486bc8afae062b6711cd16d3466d651ee2880a52/FormalConjectures/ErdosProblems/741.lean#L1629
+-/
+/-
 Copyright 2026 The Formal Conjectures Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");

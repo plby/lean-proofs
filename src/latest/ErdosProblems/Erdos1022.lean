@@ -1,23 +1,19 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 1022.
 https://www.erdosproblems.com/forum/thread/1022
 
-The original proof was found by: KoishiChan
+Informal authors:
+- KoishiChan
 
-https://www.erdosproblems.com/forum/thread/1022#post-2004
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-
-The proof was auto-formalized by Aristotle (from Harmonic).
-
-
-The proof is verified by Lean.
-
-
+URLs:
+- https://www.erdosproblems.com/forum/thread/1022#post-2004
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1022.md
 -/
-
-
 /-
 Formalized the Erdős problem 1022 as `erdos_1022` and proved its negation `not_erdos_1022`. The proof relies on the helper lemma `c_t_le_two` which establishes that any such constant must be bounded by 2, contradicting the requirement that it tends to infinity.
 -/

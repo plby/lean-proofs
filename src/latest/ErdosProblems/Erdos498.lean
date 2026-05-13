@@ -1,5 +1,22 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 498.
+https://www.erdosproblems.com/forum/thread/498
+
+Informal authors:
+- Daniel J. Kleitman
+
+Formal authors:
+- Gemini Flash
+- Gemini Pro
+- Claude Opus
+- Aristotle
+- JoshuaB
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/498#post-3844
+-/
+/-
 This file was edited by Aristotle.
 
 This project request had uuid: e07f279d-17a1-4ca1-89e7-6994f503a77e

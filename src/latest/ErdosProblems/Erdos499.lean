@@ -1,25 +1,19 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 499.
-https://www.erdosproblems.com/499
+https://www.erdosproblems.com/forum/thread/499
 
-The original human proof was found by: Marcus, M.; Minc, H.
+Informal authors:
+- Marvin Marcus
+- Henryk Minc
 
-Marcus, Marvin and Minc, Henryk, Some results on doubly stochastic matrices. Proc. Amer. Math. Soc. (1962), 571-579.
-Marcus, Marvin and Minc, Henryk, Inequalities for the permanent function. Ann. Math. 75 (1962), 47-62.
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-
-The formal proof was written by Aristotle from Harmonic.
-
-The final theorem statement is from the Formal Conjectures project
-organized by Google DeepMind.
-
-The proof is verified by Lean.
-
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos499.md
 -/
-
 import Mathlib
 
 set_option linter.style.setOption false

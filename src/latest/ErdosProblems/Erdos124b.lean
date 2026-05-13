@@ -1,26 +1,18 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 124.
+https://www.erdosproblems.com/forum/thread/124
 
-This is a Lean formalization of a solution to (the former statement
-of) Erdős Problem 124.
+Formalization status:
+- Partial
 
-https://www.erdosproblems.com/124
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-The proof was found by Aristotle from Harmonic, all by itself working
-only from the formal statement!
-
-
-There are multiple final statements available, derived from the Formal
-Conjectures project.
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos124b.md
 -/
-
 import Mathlib
 
 set_option linter.style.setOption false

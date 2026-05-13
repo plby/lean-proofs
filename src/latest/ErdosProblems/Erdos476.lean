@@ -1,36 +1,23 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 476.
 https://www.erdosproblems.com/forum/thread/476
 
-The original proof was found by: Dias da Silva and Hamidoune.
+Informal authors:
+- J. A. Dias da Silva
+- Yahya Ould Hamidoune
+- Noga Alon
+- Melvyn B. Nathanson
+- Imre Z. Ruzsa
+- ChatGPT
 
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-[dSHa94] Dias da Silva, J. A. and Hamidoune, Y. O., Cyclic spaces for
-Grassmann derivatives and additive theory. Bull. London
-Math. Soc. (1994), 140-146.
-
-
-ChatGPT explained a different proof using the polynomial method /
-Combinatorial Nullstellensatz due to Alon–Nathanson–Ruzsa.
-
-N. Alon, M. B. Nathanson, I. Z. Ruzsa, “Adding Distinct Congruence
-Classes Modulo a Prime,” The American Mathematical Monthly 102 (1995),
-250–255.
-
-
-This proof was auto-formalized by Aristotle (from Harmonic).  The
-final theorem statement was written by Aristotle, but looks very
-straightforward.
-
-
-The proof is verified by Lean.
-
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos476.md
 -/
-
-
 /-
 We proved the Erdős-Heilbronn inequality in $\mathbb F_p$.
 The main theorem is `erdos_heilbronn`.

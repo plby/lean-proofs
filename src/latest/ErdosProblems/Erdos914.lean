@@ -1,5 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 914.
+https://www.erdosproblems.com/forum/thread/914
+
+Informal authors:
+- H. A. Kierstead
+- A. V. Kostochka
+
+Formal authors:
+- Aristotle
+- Wouter van Doorn
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/914#post-5403
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem914.lean
+-/
+/-
 The Hajnal-Szemerédi theorem states that any graph with maximum degree Δ has an equitable colouring with Δ + 1 colours. Equivalently, every graph with $rm$ vertices and minimum degree at least $m(r-1)$ contains $m$ vertex disjoint copies of $K_r$.
 
 Hajnal, A. and Szemerédi, E., Proof of a conjecture of P. Erdős. In Combinatorial Theory and Its Applications, Vol. 2 (1970), 601--623.

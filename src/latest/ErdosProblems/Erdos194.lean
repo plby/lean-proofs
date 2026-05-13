@@ -1,4 +1,22 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 194.
+https://www.erdosproblems.com/forum/thread/194
+
+Informal authors:
+- Hayri Ardal
+- Tom Brown
+- Veselin Jungić
+
+Formal authors:
+- Aristotle
+- Stefano Rocca
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/194#post-5430
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/194.lean
+- https://gist.githubusercontent.com/ster-oc/ffe9e4fa1b813111f40c0e417bbe8be0/raw/6f748a76e55d47e24ca319a9c00fd20ab79422bb/Erdos194.lean
+-/
 import Mathlib.Order.KonigLemma
 import Mathlib.SetTheory.Cardinal.Order
 import Mathlib.Logic.Denumerable

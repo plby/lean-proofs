@@ -1,4 +1,23 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 751.
+https://www.erdosproblems.com/forum/thread/751
+
+Informal authors:
+- J. A. Bondy
+- A. Vince
+- ChatGPT 5.2 Thinking
+
+Formal authors:
+- ChatGPT 5.2 Thinking
+- GPT-5.2 Codex
+- scp020
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/751#post-3835
+- https://people.clas.ufl.edu/avince/files/Cycles.pdf
+- https://github.com/SpringSense-Innovation-Institute/ai-for-math-lean/tree/main/erdos-problems/erdos751
+-/
 import Mathlib.Combinatorics.SimpleGraph.Paths
 import Mathlib.Combinatorics.SimpleGraph.Connectivity.Connected
 import Mathlib.Combinatorics.SimpleGraph.Connectivity.Subgraph

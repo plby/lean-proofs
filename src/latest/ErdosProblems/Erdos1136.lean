@@ -1,5 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 1136.
+https://www.erdosproblems.com/forum/thread/1136
+
+Informal authors:
+- Helmut Müller
+
+Formal authors:
+- Aristotle
+- Lorenzo Luccioli
+- Wouter van Doorn
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/1136#post-5688
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem1136.lean
+-/
+/-
 Solving Erdős problem 1136 (https://www.erdosproblems.com/1136), Helmut Müller
 proved that the set A of positive integers whose odd part is congruent to 3 (mod
 4) has the property that no two elements (possibly equal) sum to a power of two,

@@ -1,4 +1,20 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 484.
+https://www.erdosproblems.com/forum/thread/484
+
+Informal authors:
+- Paul Erdős
+- András Sárközy
+- Vera T. Sós
+
+Formal authors:
+- Aristotle
+- Tomaz Mascarenhas
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/484#post-5448
+-/
 import Mathlib
 
 namespace Erdos484

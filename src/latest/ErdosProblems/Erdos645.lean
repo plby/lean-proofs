@@ -1,28 +1,20 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 645.
-https://www.erdosproblems.com/645
-
-The original human proof was found by: Brown, Tom C. and Landman, Bruce M.
-
-Brown, Tom C.; Landman, Bruce M. Monochromatic arithmetic progressions with large differences. Bulletin of the Australian Mathematical Society, 60(1): 21–35, 1999.
-
-An alternate proof by Ryan Alweiss was explained by ChatGPT 5.1 Pro from OpenAI.  See the text below the problem at
 https://www.erdosproblems.com/forum/thread/645
 
-The LaTeX file output from the previous step was auto-formalized into
-Lean by Aristotle from Harmonic.
+Informal authors:
+- Tom C. Brown
+- Bruce M. Landman
+- Ryan Alweiss
+- ChatGPT 5.1 Pro
 
-The final theorem statement is from the Formal Conjectures project
-organized by Google DeepMind.
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos645.md
 -/
 import Mathlib
 

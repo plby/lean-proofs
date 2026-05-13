@@ -1,26 +1,20 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 229.
 https://www.erdosproblems.com/forum/thread/229
 
-The original proof was found by: Barth and Schneider
+Informal authors:
+- K. F. Barth
+- W. J. Schneider
+- ChatGPT
 
-[BaSc72] Barth, K. F. and Schneider, W. J., On a problem of Erdős
-concerning the zeros of the derivatives of an entire
-function. Proc. Amer. Math. Soc. (1972), 229--232.
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-
-A proof of ChatGPT's choice was auto-formalized by Aristotle (from
-Harmonic).  The final theorem statement was available at the Formal
-Conjectures project (organized by Google DeepMind).
-
-
-The proof is verified by Lean.
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos229.md
 -/
-
-
 /-
 Formalization of a theorem by Polya (or similar) about the existence of a transcendental entire function with prescribed zeros of derivatives on a sequence of discrete sets.
 

@@ -1,5 +1,22 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 457.
+https://www.erdosproblems.com/forum/thread/457
+
+Informal authors:
+- Kevin Barreto
+- GPT-5.2 Pro
+
+Formal authors:
+- Aristotle
+- Wouter van Doorn
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/457#post-4668
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem457.lean
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/457.lean
+-/
+/-
 Prompted by Kevin Barreto, GPT-5.2 Pro managed to solve Erdős Problem #457 (https://www.erdosproblems.com/457) by exhibiting infinitely many $n$ such that $\prod_{1 \le i \le \log n} n+i$ is divisible by all primes smaller than $2.1 \log n$.
 
 Aristotle from Harmonic (https://aristotle.harmonic.fun) already formalized the solution, but the proof had not yet been connected to the statement from Google DeepMind's Formal Conjectures Project. 

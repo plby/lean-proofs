@@ -1,5 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 154.
+https://www.erdosproblems.com/forum/thread/154
+
+Informal authors:
+- Bernt Lindström
+- ChatGPT
+
+Formal authors:
+- Aristotle
+- Wouter van Doorn
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/154#post-4218
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem154.lean
+-/
+/-
 Below you can find a Lean formalization of a proof by Lindström that for any positive integers $m, i$ and any Sidon set $A$ (sets for which $a+b = c+d$ with $a,b,c,d \in A$ imply $\{a, b\} = \{c, d\}$) with $\lvert A\rvert\sim N^{1/2}$ we have that the density of elements of $A$ that are congruent to $i \pmod{m}$ converges to $\frac{1}{m}$.
 
 Lindström, Bernt, Well distribution of Sidon sets in residue classes. J. Number Theory (1998), 197-200.

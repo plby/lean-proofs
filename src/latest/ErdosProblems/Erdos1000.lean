@@ -1,25 +1,19 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 1000.
 https://www.erdosproblems.com/forum/thread/1000
 
-The original proof was found by: J. A. Haight
+Informal authors:
+- J. A. Haight
+- ChatGPT
 
-[Ha] Haight, J. A., Metric Diophantine approximation and related
-topics. PhD thesis
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-
-A proof of ChatGPT's choice was auto-formalized by Aristotle (from
-Harmonic).  The final theorem statement was written by ChatGPT.
-
-
-The proof is verified by Lean.
-
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1000.md
 -/
-
-
 /-
 We prove the main theorem `thm_main` which states that there exists a strictly increasing sequence A such that the Cesaro average of phi_A(k)/n_k tends to 0.
 The proof constructs the sequence `n_seq` by concatenating blocks of multiples of a large prime `r_t` with divisors of `Q_t` (product of first t primes).

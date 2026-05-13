@@ -1,4 +1,27 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 433.
+https://www.erdosproblems.com/forum/thread/433
+
+Formalization status:
+- Conditional on: knesers_addition_theorem
+
+Informal authors:
+- Jacques Dixmier
+
+Formal authors:
+- Gemini 3.1 Pro
+- Gemini 3.0 Flash
+- Claude Sonnet 4.6
+- Project Numina
+- Aristotle
+- ulam.ai cli harness
+- JoshuaB
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/433#post-4436
+- https://github.com/YaelDillies/MiscYD/blob/master/MiscYD/AddCombi/Kneser/Kneser.lean
+-/
 import Mathlib
 
 set_option linter.mathlibStandardSet false

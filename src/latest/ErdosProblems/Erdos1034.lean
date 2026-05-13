@@ -1,31 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 1034.
-https://www.erdosproblems.com/1034
+https://www.erdosproblems.com/forum/thread/1034
 
-The original human proof was found by: Jie Ma and Quanyu Tang
+Informal authors:
+- Jie Ma
+- Quanyu Tang
+- ChatGPT
 
-Jie Ma; Quanyu Tang. Erdős Problem 1034. Unpublished note, University
-of Science and Technology of China, Hefei, China, 2025
+Formal authors:
+- Aristotle
+- Namrata Anand
+- Boris Alexeev
 
-
-Namrata Anand worked with Aristotle to formalize this proof.
-
-
-ChatGPT from OpenAI explained the proof.  The LaTeX file output from
-the previous step was auto-formalized into Lean by Aristotle from
-Harmonic.  The final theorem statement was written by hand by Boris
-Alexeev.
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1034.md
 -/
-
 import Mathlib
 
 namespace Erdos1034

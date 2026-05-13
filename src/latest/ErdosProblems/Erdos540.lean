@@ -1,6 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 540.
+https://www.erdosproblems.com/forum/thread/540
+
+Informal authors:
+- Endre Szemerédi
+
+Formal authors:
+- Aristotle
+- Matteo Del Vecchio
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/540#post-5410
+- https://gist.githubusercontent.com/madeve-unipi/e5b448ddfb84f4c5427d22555f19b1e6/raw/77b2c8499a2e858e84832d72dcbe8a2e04b6a451/Erdos540.lean
+-/
+/-
 Released under Apache 2.0 license.
 Authors: Matteo Del Vecchio, Aristotle (Harmonic)
 -/

@@ -1,32 +1,28 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 275.
 https://www.erdosproblems.com/forum/thread/275
 
-The original proof was found by: Selfridge and Crittenden & Vanden
-Eynden.
+Informal authors:
+- John Selfridge
+- Richard B. Crittenden
+- Charles Vanden Eynden
+- Paul Balister
+- Béla Bollobás
+- Robert Morris
+- Julian Sahasrabudhe
+- Marius Tiba
 
-[CrVE70] Crittenden, R. B. and Vanden Eynden, C. L., Any $n$
-arithmetic progressions covering the first $2^n$ integers cover all
-integers. Proc. Amer. Math. Soc. (1970), 475-481.
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-This file follows the proof by P. Balister, B. Bollobas, R. Morris,
-J. Sahasrabudhe & M. Tiba:
-
-https://link.springer.com/article/10.1007/s10474-019-00980-z
-
-
-That proof was auto-formalized by Aristotle (from Harmonic).  The
-final theorem statement was available from the Formal Conjectures
-project.
-
-
-The proof is verified by Lean.
-
+URLs:
+- https://www.ams.org/journals/proc/1970-024-03/S0002-9939-1970-0258719-2/home.html
+- https://link.springer.com/article/10.1007/s10474-019-00980-z
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos275.md
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/275.lean
 -/
-
-
 import Mathlib
 
 set_option linter.style.induction false

@@ -1,5 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 459.
+https://www.erdosproblems.com/forum/thread/459
+
+Informal authors:
+- Stijn Cambie
+
+Formal authors:
+- Aristotle
+- Boris Alexeev
+- Wouter van Doorn
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/459#post-4716
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem459.lean
+-/
+/-
 For a positive integer $u$, we define $f(u)$ to be the largest integer $v > u$ such that every integer $m$ with $u < m < v$ has a prime divisor that does not divide $uv$. Equivalently, $f(u)$ is the smallest number $v > u$ such that all prime factors of $v$ divide $u$. With this definition, estimating $f(u)$ is Erdős Problem #459 (https://www.erdosproblems.com/459).
 
 One can observe that we have $u+2 \le f(u) \le u^2$ for all $u \in \mathbb{N}$. Furthermore, the upper bound is exact whenever $u$ is prime, while the lower bound is tight for all $u = 2^k-2$ with $k \ge 2$. In February 2026 Boris Alexeev managed to formalize these results in Lean. He didn't consider his formalization fully finished however, as it was still missing the following result from Stijn Cambie:

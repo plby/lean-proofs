@@ -1,24 +1,18 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
-This is a Lean formalization of a solution to Erdős Problem 487
+This is a Lean formalization of a solution to Erdős Problem 487.
 https://www.erdosproblems.com/forum/thread/487
 
-The original proof was found by: Kleitman
+Informal authors:
+- Daniel Kleitman
 
-[Kl71] Kleitman, Daniel, Collections of subsets containing no two sets
-and their union. Proceedings of the LA Meeting AMS (1971), 153-155.
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-
-Kleitman's proof was auto-formalized by Aristotle (from Harmonic).
-
-
-The proof is verified by Lean.
-
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos487.md
 -/
-
-
 /-
 We have formally proved the main theorem of the paper: any subset of the natural numbers with positive lower asymptotic density contains a distinct triple $\{a, b, c\}$ such that $\text{lcm}(a, b) = c$.
 

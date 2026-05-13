@@ -1,6 +1,22 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 38.
+https://www.erdosproblems.com/forum/thread/38
+
+Informal authors:
+- gebyjaff
+- GPT-5.5 Pro
+
+Formal authors:
+- Aristotle
+- Matteo Del Vecchio
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/38#post-6131
+- https://gist.githubusercontent.com/madeve-unipi/690d2bd8f6e8304ba8b456f9db559747/raw/481e3c35de8dce7af70ec440e4e121f084a61860/Erdos38.lean
+-/
+/-
 Authors: Matteo Del Vecchio, Aristotle (Harmonic)
 Released under Apache 2.0 license.
 

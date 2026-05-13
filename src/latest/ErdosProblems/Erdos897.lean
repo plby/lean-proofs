@@ -1,38 +1,20 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 897.
 https://www.erdosproblems.com/forum/thread/897
 
-The original proof was found by: Eduard Wirsing
+Informal authors:
+- Eduard Wirsing
+- Archivara Math Research Agent
 
-Eduard Wirsing. Additive and completely additive functions with
-restricted growth. Recent progress in analytic number theory, Vol. 2
-(Durham, 1979), pp. 231–280.  (See pp. 235 - 236.)
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-
-THIS proof was found by: Archivara Math Research Agent
-
-An Additive Counterexample: Erdos Problem 897
-https://archivara.org/paper/df04f023-6ef0-4c52-bd12-18cdaa8f0741
-
-
-The proof by Archivara-Agent was auto-formalized into Lean by
-Aristotle from Harmonic.
-
-The final theorem statement is from the Formal Conjectures project
-organized by Google DeepMind.
-
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://archivara.org/paper/df04f023-6ef0-4c52-bd12-18cdaa8f0741
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos897.md
 -/
-
-
 /-
 We have constructed an additive function $f$ and proven the following properties:
 1. `lemma1`: $\limsup_{p, k} \frac{f(p^k)}{\log(p^k)} = \infty$.

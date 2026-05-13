@@ -1,4 +1,26 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 258.
+https://www.erdosproblems.com/forum/thread/258
+
+Formalization status:
+- Conditional on: tao_teravainen
+
+Informal authors:
+- Przemek Chojecki
+- GPT-5.4 Pro
+
+Formal authors:
+- Aristotle
+- Przemek Chojecki
+- Stefano Rocca
+
+URLs:
+- https://www.ulam.ai/research/erdos258.pdf
+- https://www.ulam.ai/research/erdos258.tar.gz
+- https://gist.githubusercontent.com/ster-oc/2b7adcf9d753cf6e29d782f7374cc57e/raw/689a8483895cbe147634dfbf2d7b1db93a3b5b5f/Erdos258.lean
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/258.lean
+-/
 import ErdosProblems.Axioms
 import Mathlib.Analysis.SpecificLimits.Normed
 import Mathlib.NumberTheory.Divisors

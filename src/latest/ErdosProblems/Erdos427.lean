@@ -1,6 +1,25 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 427.
+https://www.erdosproblems.com/forum/thread/427
+
+Formalization status:
+- Conditional on: shiu_consecutive_primes
+
+Informal authors:
+- Cedric Pilatte
+- D. K. L. Shiu
+
+Formal authors:
+- Aristotle
+- John Jennings
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/427#post-5920
+- https://gist.githubusercontent.com/JohnEdwardJennings/e2c6ef0daab55857b7cc9d340de7af84/raw/8ff97800e38582c71246a238e7541a9d69488cbd/Erdos427.lean
+-/
+/-
 Copyright (c) 2026 John Jennings. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: John Jennings, Aristotle (Harmonic)

@@ -1,5 +1,24 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 283.
+https://www.erdosproblems.com/forum/thread/283
+
+Formalization status:
+- Partial
+
+Informal authors:
+- Wouter van Doorn
+
+Formal authors:
+- Aristotle
+- Wouter van Doorn
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/283#post-260
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem283.lean
+- https://github.com/Woett/A-normal-paper-is-probably-fine/blob/main/The%20binomial%20case%20of%20Graham's%20conjecture%20on%20polynomial%20representations%20with%20prescribed%20sum%20of%20reciprocals.pdf
+-/
+/-
 Below you can find a formalization of the first two theorems in my paper 'The binomial case of Graham's conjecture on polynomial representations with prescribed sum of reciprocals'. The paper can be found on my GitHub;
 
 https://github.com/Woett/A-normal-paper-is-probably-fine/blob/main/The%20binomial%20case%20of%20Graham's%20conjecture%20on%20polynomial%20representations%20with%20prescribed%20sum%20of%20reciprocals.pdf

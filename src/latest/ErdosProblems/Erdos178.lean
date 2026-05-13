@@ -1,6 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 178.
+https://www.erdosproblems.com/forum/thread/178
+
+Informal authors:
+- József Beck
+
+Formal authors:
+- Aristotle
+- Matteo Del Vecchio
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/178#post-5685
+- https://gist.githubusercontent.com/madeve-unipi/ca9c3d1f94fe124c15726d836e1cd623/raw/a272de656847d3956e1c228c833ff3c591dc4872/Erdos178.lean
+-/
+/-
 Note: this file has been modified.
 -/
 

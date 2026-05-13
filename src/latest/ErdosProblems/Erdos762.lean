@@ -1,28 +1,19 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 762.
 https://www.erdosproblems.com/forum/thread/762
 
-The original proof was found by: Steiner
+Informal authors:
+- R. Steiner
 
-[St24b] R. Steiner, On the difference between the chromatic and
-cochromatic number. arXiv:2408.02400 (2024).
+Formal authors:
+- Aristotle
+- ChatGPT
+- Boris Alexeev
 
-
-The proof was auto-formalized by Aristotle (from Harmonic) and ChatGPT
-(from OpenAI).
-
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos762.md
 -/
-
-
 /-
 We have formally proven that the graph G constructed from H satisfies the following properties:
 1. The clique number of G is less than 5 (ω(G) < 5).

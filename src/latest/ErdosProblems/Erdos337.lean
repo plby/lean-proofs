@@ -1,17 +1,19 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 337.
-https://www.erdosproblems.com/337
+https://www.erdosproblems.com/forum/thread/337
 
+Informal authors:
+- Imre Ruzsa
+- Sándor Turjányi
 
-Aristotle auto-formalized the proof by Ruzsa and Turjányi.
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-
-The proof is verified by Lean.
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos337.md
 -/
-
 import Mathlib
 
 set_option linter.style.setOption false

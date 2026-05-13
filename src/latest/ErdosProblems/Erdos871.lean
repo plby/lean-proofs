@@ -1,36 +1,24 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 871.
 https://www.erdosproblems.com/forum/thread/871
 
-Daniel Larsen operated the following process (please see the forum
-above for details):
+Informal authors:
+- Paul Erdős
+- Melvyn B. Nathanson
+- Daniel Larsen
+- Claude Opus 4.5
 
-A multiagent system built on Claude Opus 4.5 (from Anthropic) and
-Gemini 3 Pro (from Google DeepMind) formalized Lemmas 3 and 4 from
-[ErNa89].  Daniel Larsen wondered what the obstacle was in extending
-that to a solution to the problem, and Claude Opus 4.5 was able to
-solve the problem.
+Formal authors:
+- Claude Opus 4.5
+- Gemini 3 Pro
+- Aristotle
+- Daniel Larsen
+- Boris Alexeev
 
-"Additive bases with many representations" Paul Erdős and Melvyn
-B. Nathanson Acta Arithmetica LII (1989), pp. 399–406.
-
-
-Separately from Larsen's work above, the theorems of that proof were
-given to Aristotle (from Harmonic) to reprove, and the results were
-re-organized in an attempt to shorten the proof.  This is an
-experiment in simplification &c.
-
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos871.md
 -/
-
 import Mathlib
 
 namespace Erdos871

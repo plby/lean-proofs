@@ -1,27 +1,18 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 582.
 https://www.erdosproblems.com/forum/thread/582
 
-The original proof was found by: Folkman
+Informal authors:
+- Jon Folkman
 
-[Fo70] Folkman, Jon, Graphs with monochromatic complete subgraphs in
-every edge coloring. SIAM J. Appl. Math. (1970), 19-24.
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-
-A proof was auto-formalized by Aristotle (from Harmonic).
-
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos582.md
 -/
-
-
 /-
 We have constructed a graph $G$ that is $K_4$-free (clique number 3) and edge-Ramsey for triangles ($G \to (K_3, K_3)$).
 The graph $G$ is constructed based on the Folkman graph construction.

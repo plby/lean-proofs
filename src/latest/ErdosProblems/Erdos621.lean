@@ -1,5 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 621.
+https://www.erdosproblems.com/forum/thread/621
+
+Informal authors:
+- Sergey Norin
+- Yue Ru Sun
+
+Formal authors:
+- Aristotle
+- Lorenzo Luccioli
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/621#post-5605
+- https://gist.githubusercontent.com/LorenzoLuccioli/71247a0c86fa35cb1e000160baef0bba/raw/eff1f49238af6ae9119b879ee91ff36ec6ee6b31/Erdos621.lean
+-/
+/-
 # Triangle-independent sets vs. cuts (Norin–Sun)
 
 Consolidated formalization of the main result from:

@@ -1,4 +1,28 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 1197.
+https://www.erdosproblems.com/forum/thread/1197
+
+Formalization status:
+- Conditional on: pnt_plus_chebyshev_asymptotic, pnt_plus_prime_in_interval
+
+Informal authors:
+- Enrique Barschkis
+- GPT Pro
+
+Formal authors:
+- Aristotle
+- GPT-5.4 Pro
+- Enrique Barschkis
+- Tom de Groot
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/1197#post-5362
+- https://github.com/ebarschkis/ErdosProblem/blob/main/Problem1197/Solution.pdf
+- https://github.com/ebarschkis/ErdosProblem/blob/main/Problem1197/Solution.tex
+- https://github.com/ebarschkis/ErdosProblem/blob/main/Problem1197/Formalization.lean
+- https://github.com/Tomodovodoo/Erdos_1197
+-/
 import Mathlib
 
 /-!

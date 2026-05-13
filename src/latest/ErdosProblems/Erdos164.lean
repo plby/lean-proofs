@@ -1,4 +1,15 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 164.
+https://www.erdosproblems.com/forum/thread/164
+
+Formal authors:
+- Codex
+- Boris Alexeev
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos164.md
+-/
 import Mathlib
 
 open scoped Topology

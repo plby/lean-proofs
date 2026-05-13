@@ -1,4 +1,23 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 990.
+https://www.erdosproblems.com/forum/thread/990
+
+Informal authors:
+- Boris Alexeev
+- Moe Putterman
+- Mehtaab Sawhney
+- Mark Sellke
+- Gregory Valiant
+- an internal model at OpenAI
+
+Formal authors:
+- Codex
+- Boris Alexeev
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos990.md
+-/
 import Mathlib
 
 open BigOperators Polynomial

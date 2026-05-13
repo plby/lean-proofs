@@ -1,4 +1,22 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 426.
+https://www.erdosproblems.com/forum/thread/426
+
+Informal authors:
+- Domagoj Bradač
+- Micha Christoph
+
+Formal authors:
+- Aristotle
+- Lorenzo Luccioli
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/426#post-5643
+- https://www.erdosproblems.com/forum/thread/426#post-5775
+- https://gist.githubusercontent.com/LorenzoLuccioli/7c10c6803e56a3271ca6ebfc9cfb89ad/raw/9aa347c235591c53684d9ac06050c18b183aea23/Erdos426.lean
+- https://gist.githubusercontent.com/LorenzoLuccioli/6740274ef8c8bd77a6c966887a72b198/raw/656e1c8330a75a6fd003efef2a8bcae1966482df/Erdos426.lean
+-/
 import Mathlib
 
 set_option linter.style.setOption false

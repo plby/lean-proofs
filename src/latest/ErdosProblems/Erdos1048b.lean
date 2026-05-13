@@ -1,5 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 1048.
+https://www.erdosproblems.com/forum/thread/1048
+
+Informal authors:
+- Aristotle
+
+Formal authors:
+- Aristotle
+- Boris Alexeev
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/1048#post-3891
+- https://github.com/plby/lean-proofs/blob/main/src/v4.24.0/ErdosProblems/Erdos1048b.lean
+- https://live.lean-lang.org/#project=mathlib-v4.24.0&url=https%3A%2F%2Fraw.githubusercontent.com%2Fplby%2Flean-proofs%2Frefs%2Fheads%2Fmain%2Fsrc%2Fv4.24.0%2FErdosProblems%2FErdos1048b.lean
+-/
+/-
 We define a real number $r = 2^{1/10}$ and a polynomial $f(z) = z^{10} - 2$.
 We prove that $0 < r < 2$, $f$ is monic and nonconstant, and all roots of $f$ satisfy $|z| \le r$.
 We define the set $S = \{z \in \mathbb{C} : |f(z)| < 1\}$.

@@ -1,30 +1,20 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 1080.
 https://www.erdosproblems.com/forum/thread/1080
 
-The original proof was found by: de Caen and Székely
+Informal authors:
+- D. de Caen
+- L. A. Székely
+- ChatGPT
 
-[DeSz92] de Caen, D. and Sz\'ekely, L. A., The maximum size of {$4$}-
-and {$6$}-cycle free bipartite graphs on {$m,n$} vertices. (1992),
-135--142.
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-
-A proof of ChatGPT's choice was auto-formalized by Aristotle (from
-Harmonic).  The final theorem statement was available at the Formal
-Conjectures project (organized by Google DeepMind).
-
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1080.md
 -/
-
-
 /-
 We define the Lazebnik-Ustimenko-Woldar graph $B(q)$ and its induced subgraph $B_S(q)$. We prove that these graphs are $C_6$-free. We then construct a family of bipartite graphs $G$ by deleting lines from $B_S(q)$, and prove that for any $c > 0$, there exists a graph in this family with parts of size $n^{2/3}$ and $n - n^{2/3}$ and at least $cn$ edges, which is $C_6$-free. This proves `thm_counterexamples`.
 -/

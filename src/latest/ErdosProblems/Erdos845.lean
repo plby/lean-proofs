@@ -1,35 +1,19 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 845.
 https://www.erdosproblems.com/forum/thread/845
 
-The original proof was found by: Wouter van Doorn, Anneroos
-R.F. Everts
+Informal authors:
+- Wouter van Doorn
+- Anneroos R. F. Everts
 
-[vDEv25] W. van Doorn and A. Everts, Smooth sums with small
-spacings. arXiv:2511.04585 (2025).
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-
-This paper was auto-formalized by Aristotle (from Harmonic).  The
-final theorem statement is from the Formal Conjectures project (from
-Google DeepMind).
-
-The nice "C=6" result was not successfully formalized, but the
-solution to the Erdős Problem 845 still was.
-
-
-This is a smaller file, trimmed from the raw output from Aristotle.
-
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos845.md
 -/
-
 /-
 We have formally proven the main result of the paper: for every odd integer p > 1, there exists a constant C such that every positive integer n can be written as a sum of distinct elements of A_p (integers of the form 2^x * p^y) where the ratio between the largest and smallest summand is bounded by C. This confirms the conjecture by Erdős regarding the existence of such a constant for 3-smooth integers (and generally for p-smooth integers where p is odd). The proof constructs the sum explicitly using the algorithm described in the paper, involving the decomposition of coefficients into sums of elements from a specific set S_p and powers of 2.
 -/

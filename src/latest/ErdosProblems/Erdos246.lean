@@ -1,24 +1,19 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 246.
 https://www.erdosproblems.com/forum/thread/246
 
-The original proof was found by: B. J. Birch
+Informal authors:
+- Bryan John Birch
+- ChatGPT
 
-[Bi59] Birch, B. J., Note on a problem of Erdős. Proc. Cambridge
-Philos. Soc. (1959), 370-373.
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-
-A proof of ChatGPT's choice was auto-formalized by Aristotle (from
-Harmonic).  The final theorem statement is from Aristotle itself.
-
-
-The proof is verified by Lean.
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos246.md
 -/
-
-
 /-
 We prove that for coprime a, b >= 2, the set Gamma(a,b) = {a^k b^l} is complete, meaning its set of finite subset sums has finite complement in N. We follow the provided proof outline: establishing irrationality of log a / log b, density of fractional parts, bounded gaps in the subset sums, constructing an arithmetic progression in the subset sums, and finally using the arithmetic progression to prove completeness.
 -/

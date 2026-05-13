@@ -1,6 +1,29 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 997.
+https://www.erdosproblems.com/forum/thread/997
+
+Formalization status:
+- Conditional on: maynard_tao_bft
+
+Informal authors:
+- Boris Alexeev
+- Moe Putterman
+- Mehtaab Sawhney
+- Mark Sellke
+- Gregory Valiant
+- an internal model at OpenAI
+
+Formal authors:
+- Aristotle
+- Pietro Monticone
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/997#post-5189
+- https://gist.githubusercontent.com/pitmonticone/016f2ed66b4cd1c4c4b9998095170e60/raw/b7dfc05c525ae385b5835f89f1ada721443e4305/Erdos997.lean
+-/
+/-
 Copyright (c) 2026 Pietro Monticone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Pietro Monticone, Aristotle (Harmonic)

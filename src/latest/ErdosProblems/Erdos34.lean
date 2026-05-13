@@ -1,27 +1,19 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 34.
 https://www.erdosproblems.com/forum/thread/34
 
-The original proof was found by: Hegyvári
+Informal authors:
+- N. Hegyvári
+- J. Konieczny
 
-[He86] Hegyv\'ari, N., On consecutive sums in sequences. Acta
-Math. Hungar. (1986), 193--200.
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-
-Instead, a different explicit construction by Konieczny was
-auto-formalized by Aristotle (from Harmonic).
-
-[Ko15] Konieczny, J., On consecutive sums in
-permutations. arXiv:1504.07156 (2015).
-
-
-The proof is verified by Lean.
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos34.md
 -/
-
-
 /-
 Here was the full prompt used for this proof:
 

@@ -1,25 +1,20 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 226.
-https://www.erdosproblems.com/226
+https://www.erdosproblems.com/forum/thread/226
 
-The original proof was found by: Barth and Schneider
+Informal authors:
+- K. F. Barth
+- W. J. Schneider
+- ChatGPT
 
-[BaSc70] Barth, K. F. and Schneider, W. J., Entire functions mapping
-countable dense subsets of the reals onto each other
-monotonically. J. London Math. Soc. (2) (1970), 620--626.
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-
-A proof chosen and explained by ChatGPT (from OpenAI) was
-auto-formalized by Aristotle (from Harmonic).  The final theorem
-statement is from Aristotle.
-
-
-The proof is verified by Lean.
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos226.md
 -/
-
 import Mathlib
 
 namespace List

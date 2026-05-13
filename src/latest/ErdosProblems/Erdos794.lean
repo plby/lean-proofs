@@ -1,24 +1,19 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
 This is a Lean formalization of a solution to Erdős Problem 794.
 https://www.erdosproblems.com/forum/thread/794
 
-It seems likely that the problem was mis-stated.  This file formalizes
-a simple explicit counterexample due to Phillip Harris.
+Informal authors:
+- Phillip Harris
 
-Aristotle and ChatGPT were used.
+Formal authors:
+- Aristotle
+- ChatGPT
+- Boris Alexeev
 
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos794.md
 -/
-
-
 /-
 We construct a counterexample to the conjecture that every 3-uniform hypergraph on $3n$ vertices with at least $n^3+1$ edges contains a subgraph on 4 vertices with 3 edges or on 5 vertices with 7 edges.
 For $n=3$, we consider a hypergraph on 9 vertices partitioned into three sets $S_1, S_2, S_3$ of size 3. The edges are all triples with exactly one vertex in each $S_i$, plus one additional edge contained entirely in $S_1$.

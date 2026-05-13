@@ -1,29 +1,25 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
-
-This is a Lean formalization of a solution to a previously-known part
-of Erdős Problem 1095.
+This is a Lean formalization of a solution to Erdős Problem 1095.
 https://www.erdosproblems.com/forum/thread/1095
 
-The original proof was found by: Ecklund, Erdős, and Selfridge
+Formalization status:
+- Partial
 
-[EES74] Ecklund, Jr., E. F. and Erd\"os, P. and Selfridge, J. L., A
-new function associated with the prime factors of
-{$(\sp{n}\sb{k})$}. Math. Comp. (1974), 647--649.
+Informal authors:
+- E. F. Ecklund Jr.
+- Paul Erdős
+- J. L. Selfridge
 
+Formal authors:
+- Aristotle
+- Boris Alexeev
 
-Aristotle found this proof by itself, directly from the formalized
-statement.  The statement was originally taken from the Formal
-Conjectures project, but then mostly rewritten because it was
-misformalized there.
-
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
+URLs:
+- https://www.erdosproblems.com/forum/thread/1095#post-2605
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1095.md
+- https://github.com/plby/lean-proofs/blob/main/src/v4.24.0/ErdosProblems/Erdos1095b.lean
+- https://github.com/google-deepmind/formal-conjectures/blob/3d6dc14ba924f82ab5200288f6c6ee1be1326a2d/FormalConjectures/ErdosProblems/1095.lean
 -/
 
 import Mathlib

@@ -1,5 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 1044.
+https://www.erdosproblems.com/forum/thread/1044
+
+Informal authors:
+- Quanyu Tang
+
+Formal authors:
+- Aristotle
+- Lorenzo Luccioli
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/1044#post-6012
+- https://github.com/QuanyuTang/erdos-problem-1044/blob/main/On_Erd%C5%91s_Problem_1044.pdf
+- https://gist.githubusercontent.com/LorenzoLuccioli/c3ace69881872112109a6c31b7a87cfc/raw
+-/
+/-
   Formalization of Erdős Problem #1044 in a single file.
 
   This file is the packaged proof development for the main result

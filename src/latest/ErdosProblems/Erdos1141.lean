@@ -1,4 +1,28 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 1141.
+https://www.erdosproblems.com/forum/thread/1141
+
+Formalization status:
+- Conditional on: pollack_theorem_1_3, mertens_third_theorem
+
+Informal authors:
+- Boris Alexeev
+- Moe Putterman
+- Mehtaab Sawhney
+- Mark Sellke
+- Gregory Valiant
+- an internal model at OpenAI
+
+Formal authors:
+- GPT-5.4 Pro
+- Yuta Oriike
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/1141#post-5335
+- https://github.com/yuta0x89/ErdosProblems/blob/a1319f732cdee5140faf47d984e2c451c1184803/Erdos1141.lean
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/1141.lean
+-/
 import Mathlib
 
 set_option linter.style.emptyLine false

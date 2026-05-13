@@ -1,4 +1,21 @@
 /- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 974.
+https://www.erdosproblems.com/forum/thread/974
+
+Informal authors:
+- Robert Tijdeman
+- Quanyu Tang
+
+Formal authors:
+- Aristotle
+- Parcly Taxel
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/974#post-5944
+- https://www.erdosproblems.com/forum/thread/974#post-640
+- https://gist.githubusercontent.com/Parcly-Taxel/a44cbf9a214a5358bf584d05265aec4c/raw/40bea6d343e4563e8f1c3d17b423deb72b3f8265/Erdos974.lean
+-/
 import Mathlib
 
 /-- Data associated with the problem. -/
