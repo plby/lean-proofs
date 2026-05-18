@@ -107,6 +107,11 @@ theorem erdos_1056_k3 :
   unfold AllModProdEqualsOne
   decide
 
+private lemma noll_simmons_k3_factorials :
+    ∀ i j : Fin 3, (![0, 1, 5] i)! ≡ (![0, 1, 5] j)! [MOD 7] := by
+  intro i j
+  fin_cases i <;> fin_cases j <;> norm_num [Nat.ModEq]
+
 /-
 There exists a prime $p$ and a strictly increasing sequence $Q$ of length 3 with elements less than $p$ such that their factorials are congruent modulo $p$.
 -/
@@ -117,7 +122,7 @@ theorem noll_simmons_k3 :
     norm_num, ![0, 1, 5], by
     decide, by
     decide +kernel, by
-    native_decide +revert⟩
+    exact noll_simmons_k3_factorials⟩
 
 /-
 If an interval $[a, b)$ contains no multiple of $p$, then it is contained in some interval $[mp, (m+1)p]$.
