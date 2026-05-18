@@ -131,7 +131,6 @@
   arxiv: https://arxiv.org/abs/math/0311421
   url: https://github.com/b-mehta/unit-fractions
   version: "3.42.1"
-  todo: Convert from Lean3.
 
 - key: ErdosProblems.Erdos46
   epc: https://www.erdosproblems.com/46
@@ -145,7 +144,6 @@
   arxiv: https://arxiv.org/abs/math/0311421
   url: https://github.com/b-mehta/unit-fractions
   version: "3.42.1"
-  todo: Convert from Lean3.
 
 - key: ErdosProblems.Erdos47
   epc: https://www.erdosproblems.com/47
@@ -159,7 +157,6 @@
   arxiv: https://arxiv.org/abs/2112.03726
   url: https://github.com/b-mehta/unit-fractions
   version: "3.42.1"
-  todo: Convert from Lean3.
 
 - key: ErdosProblems.Erdos56
   epc: https://www.erdosproblems.com/56
@@ -831,7 +828,6 @@
   arxiv: https://arxiv.org/abs/2112.03726
   url: https://github.com/b-mehta/unit-fractions
   version: "3.42.1"
-  todo: Convert from Lean3.
 
 - key: ErdosProblems.Erdos299
   epc: https://www.erdosproblems.com/299
@@ -845,7 +841,6 @@
   arxiv: https://arxiv.org/abs/2112.03726
   url: https://github.com/b-mehta/unit-fractions
   version: "3.42.1"
-  todo: Convert from Lean3.
 
 - key: ErdosProblems.Erdos303
   epc: https://www.erdosproblems.com/303
