@@ -1488,7 +1488,7 @@ Part 1: Same counterexample as in min_counterexample_exp. Use n=4, the same real
 
 Part 2: Use power_nonneg_dim_le_three directly.
 
-For the first conjunct, use the same matrices as in min_counterexample_exp: use Matrix.of (fun i j => (P₁_example i j : ℝ)) and Matrix.of (fun i j => (P₂_example i j : ℝ)). Prove IsOrthProj by ext/fin_cases/norm_num as in min_counterexample_exp. Prove rank equality using the rank_eq_trace argument from min_counterexample_exp. For ¬ IsPowerNonneg, introduce h and apply h 3 to get 0 ≤ tr(A³), then compute the trace using norm_num/norm_cast/native_decide to derive a contradiction (since tr(A³) < 0 by counterexample_trace_cube_neg).
+For the first conjunct, use the same matrices as in min_counterexample_exp: use Matrix.of (fun i j => (P₁_example i j : ℝ)) and Matrix.of (fun i j => (P₂_example i j : ℝ)). Prove IsOrthProj by ext/fin_cases/norm_num as in min_counterexample_exp. Prove rank equality using the rank_eq_trace argument from min_counterexample_exp. For ¬ IsPowerNonneg, introduce h and apply h 3 to get 0 ≤ tr(A³), then compute the trace using norm_num/norm_cast to derive a contradiction (since tr(A³) < 0 by counterexample_trace_cube_neg).
 -/
 set_option maxHeartbeats 1600000 in
 theorem min_counterexample_dim :
@@ -1592,7 +1592,7 @@ Use algebraMap ℚ ℝ as a ring homomorphism. Then:
 
 For rank equality: both have rank 2. Since P₁_example and P₂_example have equal traces (both = 2), and for orthogonal projections rank = trace, the real versions have equal rank.
 
-This may be complex. An alternative: directly define P₁_real and P₂_real with the same entries as ℝ values and use norm_num / native_decide to verify them.
+This may be complex. An alternative: directly define P₁_real and P₂_real with the same entries as ℝ values and use norm_num to verify them.
 -/
 set_option maxHeartbeats 1600000 in
 theorem min_counterexample_exp :
@@ -1677,7 +1677,7 @@ For rank equality: use the same rank_eq_trace argument from min_counterexample_d
 
 For A = hadamardSquare P₁ P₂: use rfl.
 
-For ¬ (0 ≤ (A ^ 3).trace): unfold hadamardSquare, then norm_num/norm_cast/native_decide to show the trace is negative.
+For ¬ (0 ≤ (A ^ 3).trace): unfold hadamardSquare, then norm_num/norm_cast to show the trace is negative.
 
 The proof structure should be: refine ⟨_, _, ?_, ?_, ?_, rfl, ?_⟩ then prove each goal. Use the same proof approach that min_counterexample_exp uses for the IsOrthProj, rank equality, and trace negativity parts.
 -/
