@@ -15,9 +15,6 @@ URLs:
 - https://www.erdosproblems.com/forum/thread/178#post-5685
 - https://gist.githubusercontent.com/madeve-unipi/ca9c3d1f94fe124c15726d836e1cd623/raw/a272de656847d3956e1c228c833ff3c591dc4872/Erdos178.lean
 -/
-/-
-Note: this file has been modified.
--/
 
 /-
 Authors: Matteo Del Vecchio, Aristotle (Harmonic)

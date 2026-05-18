@@ -18,9 +18,6 @@ URLs:
 - https://gist.githubusercontent.com/JohnEdwardJennings/d1ba8d7b8c63cc7eade1243e19e2eb35/raw/7402a8e36283841cbc7e0588760d701a4e84c3a2/Erdos296.lean
 - https://github.com/b-mehta/unit-fractions/blob/master/src/final_results.lean
 -/
-/-
-Note: this file has been modified.
--/
 
 /-
 Copyright (c) 2026 John Jennings. All rights reserved.

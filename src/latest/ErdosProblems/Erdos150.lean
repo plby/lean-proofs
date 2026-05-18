@@ -15,9 +15,6 @@ URLs:
 - https://www.erdosproblems.com/forum/thread/150#post-5145
 - https://gist.githubusercontent.com/pitmonticone/d8558d3361ad2d673b5405239ea30700/raw/c966009555b83985762dac9faaf705aad3f48199/Erdos150.lean
 -/
-/-
-Note: this file was modified from its original form.
--/
 
 /-
 Copyright (c) 2026 Pietro Monticone. All rights reserved.
