@@ -29,7 +29,6 @@ set_option linter.style.emptyLine false
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.longLine false
-set_option linter.style.nativeDecide false
 set_option linter.unnecessarySeqFocus false
 set_option linter.unnecessarySimpa false
 set_option linter.unusedDecidableInType false

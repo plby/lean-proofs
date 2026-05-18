@@ -38,7 +38,6 @@ set_option linter.flexible false
 set_option linter.style.induction false
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
-set_option linter.style.nativeDecide false
 set_option linter.style.refine false
 set_option linter.style.whitespace false
 set_option linter.unnecessarySimpa false
