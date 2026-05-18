@@ -327,6 +327,18 @@ def tong_question : Prop := ∀ q, q.Prime → q % 2 = 1 → {p | p.Prime ∧ ¬
 /-
 $P(m)=2$ if and only if $m$ is a power of 2 (greater than 1).
 -/
+private lemma P_one_ne_two : P 1 ≠ 2 := by
+  unfold P
+  norm_num
+  change (0 : ℕ) ≠ 2
+  norm_num
+
+private lemma P_zero_eq_zero : P 0 = 0 := by
+  unfold P
+  norm_num
+  change (0 : ℕ) = 0
+  rfl
+
 lemma P_eq_two_iff_pow_two {m : ℕ} (hm : m ≠ 0) : P m = 2 ↔ ∃ k > 0, m = 2 ^ k := by
   constructor <;> intro h;
   · -- If $P(m)=2$, then the greatest prime factor of $m$ is 2. This means all prime factors of $m$ are $\le 2$. Since 2 is the smallest prime, all prime factors must be 2. Thus $m$ is a power of 2. Let $m = 2^k$ for some $k \geq 0$.
@@ -339,7 +351,7 @@ lemma P_eq_two_iff_pow_two {m : ℕ} (hm : m ≠ 0) : P m = 2 ↔ ∃ k > 0, m =
         cases h' : Finset.max m.primeFactors <;> aesop;
       rw [ ← Nat.prod_primeFactorsList hm ] ; rw [ List.prod_eq_pow_single 2 ] ; aesop;
       intro p hp hprime; have := h_prime_factors p ( by aesop ) ; interval_cases p <;> simp_all +decide ;
-    exact ⟨ k, Nat.pos_of_ne_zero ( by rintro rfl; exact absurd h ( by native_decide ) ), rfl ⟩;
+    exact ⟨ k, Nat.pos_of_ne_zero ( by rintro rfl; exact P_one_ne_two h ), rfl ⟩;
   · unfold P;
     rcases h with ⟨ k, hk, rfl ⟩ ; rcases k with ( _ | _ | k ) <;> simp_all +decide [ Nat.primeFactors_pow ] ;
 
@@ -541,7 +553,7 @@ lemma case2_impossible {q1 q2 n : ℕ} (hq1 : q1.Prime) (hq2 : q2.Prime)
     have h_Pn_ge_q2 : P n ≥ q2 := by
       have h_Pn_ge_q2 : q2 ∈ n.primeFactors := by
         rcases n with ( _ | _ | n ) <;> simp_all +decide
-        cases hPn.symm.trans ( by native_decide : P 0 = 0 );
+        cases hPn.symm.trans P_zero_eq_zero;
         contradiction;
       have h_Pn_ge_q2 : ∀ {S : Finset ℕ}, q2 ∈ S → S.max.getD 0 ≥ q2 := by
         intros S hS; exact (by
@@ -809,7 +821,6 @@ theorem infinite_strange_pairs : { q | StrangePair 2 q }.Infinite := by
   exact fun a => by obtain ⟨ p, hp₁, hp₂ ⟩ := h_infinite_primes_gt_5 a; obtain ⟨ q, hq₁, hq₂, hq₃ ⟩ := h_exists_q p hp₁.left hp₁.right; exact ⟨ q, hq₁, by linarith ⟩ ;
 
 #print axioms infinite_strange_pairs
--- 'Erdos649.infinite_strange_pairs' depends on axioms: [propext, Classical.choice, Quot.sound,
--- case2_impossible._native.native_decide.ax_1_5]
+-- 'Erdos649.infinite_strange_pairs' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos649
