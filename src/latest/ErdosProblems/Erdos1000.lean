@@ -408,6 +408,11 @@ lemma n_seq_block_mono (t : ℕ) (k : ℕ)
 /-
 The last element of block t is strictly less than the first element of block t+1.
 -/
+private lemma sorted_divisors_two_first_ne_zero :
+    ((Nat.divisors 2).sort fun x₁ x₂ => x₁ ≤ x₂)[0] ≠ 0 := by
+  exact Nat.ne_of_gt <| Nat.pos_of_mem_divisors <|
+    Finset.mem_sort (α := ℕ) (· ≤ ·) |>.1 (List.getElem_mem _)
+
 lemma n_seq_block_transition (t : ℕ) :
     n_seq (2^(t+1) - 2) < n_seq (2^(t+1) - 1) := by
   unfold n_seq;
@@ -420,7 +425,9 @@ lemma n_seq_block_transition (t : ℕ) :
   rcases n : 2 ^ t with ( _ | _ | k ) <;> simp_all +decide [ Nat.pow_succ' ];
   · norm_num [ ← h_indices.1 ] at *;
     unfold Q; simp +arith +decide
-    exact le_trans ( by decide ) ( Nat.mul_le_mul ( Nat.Prime.two_le ( r_seq_spec 0 |>.2 ) ) ( Nat.one_le_iff_ne_zero.mpr <| by native_decide ) );
+    exact le_trans ( by decide )
+      (Nat.mul_le_mul (Nat.Prime.two_le (r_seq_spec 0 |>.2))
+        (Nat.one_le_iff_ne_zero.mpr sorted_divisors_two_first_ne_zero))
   · simp +arith +decide [ Nat.mul_succ ];
     refine' lt_of_le_of_lt _ ( mul_lt_mul_of_pos_right ( r_seq_spec t |>.1 ) _ );
     · refine' le_trans _ ( Nat.mul_le_mul_right _ <| le_max_left _ _ );
@@ -1032,7 +1039,6 @@ theorem erdos_1000_true :
     exact h_shift.congr fun N => by simp +decide [ cesaroPhi ] ;
 
 #print axioms erdos_1000_true
--- 'Erdos1000.erdos_1000_true' depends on axioms: [propext, Classical.choice, Quot.sound,
--- n_seq_block_transition._native.native_decide.ax_1_1]
+-- 'Erdos1000.erdos_1000_true' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos1000
