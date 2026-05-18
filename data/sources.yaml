@@ -411,6 +411,22 @@
   url_ref: JoshuaB_199
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos202
+  epc: https://www.erdosproblems.com/202
+  author:
+    informal:
+      AI: GPT-5.4 Pro
+      human: Boon Suan Ho
+    formal:
+      AI: Claude
+      human: Pawan Sasanka Ammanamanchi
+  url:
+    - https://www.erdosproblems.com/forum/thread/202#post-6456
+    - https://boonsuan.github.io/erdos202.pdf
+    - https://github.com/Shashi456/erdos-formalizations/blob/main/Erdos/P202/Proof.lean
+    - https://raw.githubusercontent.com/Shashi456/erdos-formalizations/refs/heads/main/Erdos/P202/Proof.lean
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos204
   epc: https://www.erdosproblems.com/204
   author:
@@ -3124,6 +3140,21 @@
     - https://github.com/KitaKen1/erdos-1187-lean
     - https://github.com/KitaKen1/erdos-1187-lean/blob/main/SecondSolution.lean
   version: "4.29.1"
+
+- key: ErdosProblems.Erdos1190
+  epc: https://www.erdosproblems.com/1190
+  author:
+    informal:
+      AI: ChatGPT 5.5
+      human: MalekZ
+    formal:
+      AI: Claude
+      human: Pawan Sasanka Ammanamanchi
+  url:
+    - https://www.erdosproblems.com/forum/thread/1190#post-5988
+    - https://github.com/Shashi456/erdos-formalizations/blob/main/Erdos/P1190/Proof.lean
+    - https://raw.githubusercontent.com/Shashi456/erdos-formalizations/refs/heads/main/Erdos/P1190/Proof.lean
+  version: "4.27.0"
 
 - key: ErdosProblems.Erdos1193
   epc: https://www.erdosproblems.com/1193
