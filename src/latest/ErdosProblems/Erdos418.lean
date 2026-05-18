@@ -16,8 +16,8 @@ URLs:
 - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos418.md
 -/
 import Mathlib
-import ErdosProblems.Axioms
 
+set_option linter.style.setOption false
 set_option linter.style.cdot false
 set_option linter.style.whitespace false
 set_option linter.style.induction false
@@ -25,7 +25,10 @@ set_option linter.style.longLine false
 set_option linter.style.multiGoal false
 set_option linter.style.nativeDecide false
 set_option linter.style.refine false
+set_option linter.flexible false
+set_option linter.deprecated false
 set_option linter.unusedSimpArgs false
+set_option aesop.warn.nonterminal false
 
 namespace Erdos418
 
@@ -38,19 +41,41 @@ def m_BS : ℕ := 509203
 
 def Composite (n : ℕ) : Prop := ∃ a b, 1 < a ∧ 1 < b ∧ n = a * b
 
-/-
-The generated proof attempt below is retained as source context, but it
-does not currently elaborate against Mathlib 4.24.  The final exported
-theorem is proved from the Browkin-Schinzel noncototient statement below.
+lemma prime_of_no_small_divisors {n : ℕ}
+    (hn : 2 ≤ n)
+    (h : ∀ d, 2 ≤ d → d ≤ Nat.sqrt n → ¬ d ∣ n) :
+    Nat.Prime n :=
+  Nat.prime_def_le_sqrt.mpr ⟨hn, h⟩
+
+set_option maxHeartbeats 0 in
+-- Exhaustive divisor certificate for the prime 509203.
+@[local simp] lemma prime_509203 : Nat.Prime 509203 :=
+  prime_of_no_small_divisors (by norm_num) (by
+    intro d hd hds
+    interval_cases d <;> norm_num)
+
+set_option maxHeartbeats 0 in
+-- Exhaustive divisor certificate for the prime 127301.
+@[local simp] lemma prime_127301 : Nat.Prime 127301 :=
+  prime_of_no_small_divisors (by norm_num) (by
+    intro d hd hds
+    interval_cases d <;> norm_num)
 
 theorem riesel_number (k : ℕ) (hk : 1 ≤ k) : Composite (2^k * m_BS - 1) := by
   -- By definition of $m_BS$, we know that $2^k * m_BS - 1$ is divisible by at least one prime from the set {3, 5, 7, 13, 17, 241}.
   have h_div : ∃ p ∈ ({3, 5, 7, 13, 17, 241} : Finset ℕ), p ∣ (2^k * m_BS - 1) := by
     -- For each prime q in the set {3, 5, 7, 13, 17, 241}, we find an integer a such that 509203 ≡ 2^a (mod q).
     have h_cong : ∀ k ≥ 1, (∃ q ∈ ({3, 5, 7, 13, 17, 241} : Finset ℕ), 2 ^ k * m_BS ≡ 1 [MOD q]) := by
-      aesop;
+      intro k_1 a
+      simp_all only [ge_iff_le, Finset.mem_insert, Finset.mem_singleton, exists_eq_or_imp, ↓existsAndEq, true_and]
       rw [ ← Nat.mod_add_div k_1 24 ] ; norm_num [ Nat.ModEq, Nat.mul_mod, Nat.pow_add, Nat.pow_mul, Nat.pow_mod ] ; have := Nat.mod_lt k_1 ( by decide : 0 < 24 ) ; interval_cases k_1 % 24 <;> native_decide;
-    obtain ⟨ q, hq₁, hq₂ ⟩ := h_cong k hk; use q; erw [ ← Nat.modEq_zero_iff_dvd ] ; simp_all +decide [ ← ZMod.eq_iff_modEq_nat, Nat.cast_sub ( show 0 < 2 ^ k * m_BS from mul_pos ( pow_pos ( by decide ) _ ) ( by decide ) ) ] ;
+    obtain ⟨ q, hq₁, hq₂ ⟩ := h_cong k hk
+    refine ⟨q, hq₁, ?_⟩
+    rw [← Nat.modEq_zero_iff_dvd]
+    have hle : 1 ≤ 2 ^ k * m_BS := by
+      exact Nat.succ_le_of_lt
+        (mul_pos (pow_pos (by decide : 0 < 2) _) (by norm_num [m_BS]))
+    simpa using hq₂.sub hle (by norm_num) (Nat.ModEq.refl 1)
   -- Since $p$ is a prime and $p \leq 241$, it follows that $2^k * m_BS - 1$ is composite.
   obtain ⟨p, hp_prime, hp_div⟩ := h_div
   have h_gt : 1 < 2^k * m_BS - 1 := by
@@ -79,8 +104,11 @@ lemma phi_mod_4_eq_2_iff_of_even (n : ℕ) (h_even : Even n) (h_gt : 4 < n) :
       -- By definition of prime factorization, every integer can be expressed as $2^a \cdot m$ where $m$ is odd.
       use Nat.factorization n 2, n / 2^Nat.factorization n 2;
       exact ⟨ Eq.symm ( Nat.mul_div_cancel' ( Nat.ordProj_dvd _ _ ) ), Nat.odd_iff.mpr ( Nat.mod_two_ne_zero.mp fun h₃ => absurd ( Nat.dvd_of_mod_eq_zero h₃ ) ( Nat.not_dvd_ordCompl ( by norm_num ) ( by linarith ) ) ) ⟩;
-    bound;
-    · rcases a with ( _ | _ | a ) <;> simp_all +decide [ Nat.totient_mul, Nat.totient_prime_pow ];
+    subst ha
+    simp_all only [exists_and_left]
+    apply Iff.intro
+    · intro a_1
+      rcases a with ( _ | _ | a ) <;> simp_all +decide [ Nat.totient_mul, Nat.totient_prime_pow ];
       · -- Since $m$ is both even and odd, this is a contradiction.
         exfalso; exact absurd h_even (by simpa using hm);
       · -- Since $m$ is odd and its totient is $2 \mod 4$, $m$ must have exactly one prime factor $p$.
@@ -112,11 +140,17 @@ lemma phi_mod_4_eq_2_iff_of_even (n : ℕ) (h_even : Even n) (h_gt : 4 < n) :
         have h_phi_m_even : 2 ∣ Nat.totient m := by
           exact even_iff_two_dvd.mp ( Nat.totient_even <| Nat.le_of_not_lt fun contra => by interval_cases m ; contradiction );
         grind;
-    · -- Since $m$ is odd and $2^a * m = 2 * w^{w_1}$, we must have $a = 1$.
+    · intro a_1
+      obtain ⟨w, h⟩ := a_1
+      obtain ⟨left, right⟩ := h
+      obtain ⟨left_1, right⟩ := right
+      obtain ⟨w_1, h⟩ := right
+      simp_all only [even_two, Even.mul_right]
+      -- Since $m$ is odd and $2^a * m = 2 * w^{w_1}$, we must have $a = 1$.
       have ha_one : a = 1 := by
         rcases a with ( _ | _ | a ) <;> simp_all +decide [ Nat.pow_succ', mul_assoc ];
         · exact absurd hm ( by norm_num );
-        · have := congr_arg ( · % 2 ) right; norm_num [ Nat.mul_mod, Nat.pow_mod, left.eq_two_or_odd.resolve_left ( by aesop_cat ) ] at this;
+        · have := congr_arg ( · % 2 ) h; norm_num [ Nat.mul_mod, Nat.pow_mod, left.eq_two_or_odd.resolve_left ( by aesop_cat ) ] at this;
       simp_all +decide [ Nat.totient_mul, Nat.totient_prime_pow ];
       rw [ Nat.totient_prime_pow left ];
       · rw [ ← Nat.mod_add_div w 4, left_1 ] ; norm_num [ Nat.add_mod, Nat.mul_mod, Nat.pow_mod ] ;
@@ -125,7 +159,7 @@ lemma phi_mod_4_eq_2_iff_of_even (n : ℕ) (h_even : Even n) (h_gt : 4 < n) :
 
 
 lemma m_BS_prime : m_BS.Prime := by
-  native_decide
+  simp [m_BS]
 
 lemma m_BS_plus_one_not_power_of_two (k : ℕ) : 2^k ≠ m_BS + 1 := by
   intro h;
@@ -191,14 +225,14 @@ lemma inductive_step (k : ℕ) (hk : 2 ≤ k) (h_ind : IsNoncototient (2^(k-1) *
         exact Or.resolve_left ( hp_prime.dvd_mul.mp hp_div_m_BS ) ( by intro t; have := Nat.Prime.dvd_of_dvd_pow hp_prime t; simp_all +decide [ Nat.prime_dvd_prime_iff_eq ] );
       -- Since $p$ is prime and $p \mid m_BS$, we have $p = m_BS$.
       have hp_eq_m_BS : p = m_BS := by
-        have := Nat.prime_dvd_prime_iff_eq hp_prime ( show Nat.Prime m_BS from by native_decide ) ; aesop;
+        have := Nat.prime_dvd_prime_iff_eq hp_prime m_BS_prime ; aesop;
       -- Substitute $p = m_BS$ into the equation $2^k * m_BS = p^(a-1) * (p + 1)$ and simplify.
       have h_eq_simplified : 2^k = m_BS^(a-2) * (m_BS + 1) := by
         -- Substitute $p = m_BS$ into the equation $2^k * m_BS = p^(a-1) * (p + 1)$ and simplify by dividing both sides by $m_BS$.
         rw [hp_eq_m_BS] at h_eq;
         rcases a with ( _ | _ | a ) <;> simp +decide [ pow_succ' ] at *;
         · grind;
-        · nlinarith [ show 0 < m_BS by native_decide ];
+        · nlinarith [ Nat.Prime.pos m_BS_prime ];
       -- Since $m_BS$ is prime and $m_BS + 1$ is not a power of 2, we have a contradiction.
       have h_contradiction : ¬∃ k, m_BS + 1 = 2^k := by
         exact fun ⟨ k, hk ⟩ => by have := m_BS_plus_one_not_power_of_two k; aesop;
@@ -296,11 +330,13 @@ lemma base_case_reduction : IsCototient (2 * m_BS) ↔ ∃ m, Odd m ∧ 2 * m - 
     rw [ ← right, Nat.totient_mul ] <;> aesop
 
 
-lemma m_BS_is_prime : Nat.Prime m_BS := by native_decide
+lemma m_BS_is_prime : Nat.Prime m_BS := by
+  simp [m_BS]
 
 lemma m_BS_plus_one_div_four : (m_BS + 1) / 4 = 127301 := by native_decide
 
-lemma p_127301_prime : Nat.Prime 127301 := by native_decide
+lemma p_127301_prime : Nat.Prime 127301 := by
+  exact prime_127301
 
 def IsSolution (m : ℕ) : Prop := Odd m ∧ 2 * m - m.totient = 2 * m_BS
 
@@ -375,7 +411,7 @@ lemma totient_mod_3_of_squarefree_not_dvd_3 (n : ℕ) (h_sq : Squarefree n) (h_n
     intro p hp; specialize h_prime_factors p hp; omega;
   -- If there exists a prime factor $p$ such that $(p - 1) \equiv 0 \pmod{3}$, then the product is $0 \pmod{3}$.
   by_cases h_zero : ∃ p ∈ Nat.primeFactors n, (p - 1) % 3 = 0;
-  · obtain ⟨ p, hp₁, hp₂ ⟩ := h_zero; rw [ h_phi_factors, Finset.prod_eq_mul_prod_diff_singleton hp₁ ] ; norm_num [ Nat.mul_mod, hp₂ ] ;
+  · obtain ⟨ p, hp₁, hp₂ ⟩ := h_zero; rw [ h_phi_factors, Finset.prod_eq_mul_prod_diff_singleton_of_mem hp₁ ] ; norm_num [ Nat.mul_mod, hp₂ ] ;
   · rw [ h_phi_factors, Finset.prod_nat_mod ];
     rw [ Finset.prod_congr rfl fun x hx => Or.resolve_left ( h_prod_mod x hx ) fun hx' => h_zero ⟨ x, hx, hx' ⟩ ] ; norm_num
 
@@ -396,7 +432,7 @@ lemma n_not_div_3 (m : ℕ) (h : IsSolution m) : ¬ 3 ∣ 2 * m := by
       have h_k_squarefree : Squarefree k := by
         have := solution_squarefree ( 3 * k ) h;
         rw [ Nat.squarefree_mul_iff ] at this ; aesop;
-      exact?;
+      exact totient_mod_3_of_squarefree_not_dvd_3 k h_k_squarefree h_k_not_div_3;
     unfold IsSolution at h;
     rw [ Nat.totient_mul ] at h <;> simp_all +arith +decide [ Nat.totient_prime ];
     · unfold m_BS at h; omega;
@@ -436,7 +472,7 @@ lemma n_mod_12_eq_2 (m : ℕ) (h : IsSolution m) : 2 * m % 12 = 2 := by
         have h_squarefree : Squarefree m := by
           have h_solution : IsSolution m := by
             exact ⟨ h.1, by omega ⟩
-          exact?;
+          exact solution_squarefree m h_solution;
         exact absurd ( totient_mod_3_of_squarefree_not_dvd_3 m h_squarefree ( by omega ) ) ( by norm_num [ h_phi_mod3 ] );
       · exact le_trans ( Nat.totient_le m ) ( by linarith );
     rcases Nat.even_or_odd' m with ⟨ k, rfl | rfl ⟩ <;> ring_nf at *;
@@ -475,7 +511,7 @@ lemma m_mod_6_eq_1 (m : ℕ) (h : IsSolution m) : m % 6 = 1 := by
         have h_squarefree : Squarefree m := by
           have h_solution : IsSolution m := by
             exact ⟨ h.1, by omega ⟩
-          exact?;
+          exact solution_squarefree m h_solution;
         exact absurd ( totient_mod_3_of_squarefree_not_dvd_3 m h_squarefree ( by omega ) ) ( by norm_num [ h_phi_mod3 ] );
       · exact le_trans ( Nat.totient_le m ) ( by linarith );
     rcases Nat.even_or_odd' m with ⟨ k, rfl | rfl ⟩ <;> ring_nf at *;
@@ -526,12 +562,6 @@ theorem browkin_schinzel (k : ℕ) (hk : 1 ≤ k) : IsNoncototient (2^k * m_BS) 
     apply base_case;
   · -- Apply the inductive step to $k+1$.
     apply inductive_step (k + 1) (by linarith [Nat.succ_le_iff.mp ih]) (by assumption)
-
--/
-
-theorem browkin_schinzel (k : ℕ) (hk : 1 ≤ k) : IsNoncototient (2^k * m_BS) := by
-  simpa [IsNoncototient, IsCototient, m_BS] using
-    _root_.browkin_schinzel_noncototient k hk
 
 /--
 Are there infinitely many integers not of the form $n - \phi(n)$?
