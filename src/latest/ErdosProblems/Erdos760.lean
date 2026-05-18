@@ -459,6 +459,9 @@ theorem exists_good_edge_subset_of_few_edges {V : Type*} [Fintype V] [DecidableE
     have hfilt := Finset.card_filter_le G.edgeFinset (fun e => ∀ v ∈ e, v ∈ S)
     nlinarith
 
+private lemma one_le_clog_two_two : 1 ≤ Nat.clog 2 2 := by
+  norm_num [Nat.clog]
+
 /-- The total bad-clique count, times 6, is `≤ 2^m`. -/
 theorem clique_bad_total_bound {V : Type*} [Fintype V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj] (hn : 2 ≤ Fintype.card V) :
@@ -478,7 +481,7 @@ theorem clique_bad_total_bound {V : Type*} [Fintype V] [DecidableEq V]
       have h_exp : 6 * Nat.choose (Fintype.card V) (4 * Nat.clog 2 (Fintype.card V) + 1) ≤ 2 ^ ((4 * Nat.clog 2 (Fintype.card V) + 1).choose 2) := by
         apply six_choose_le_pow_choose2';
         · exact Nat.le_pow_clog ( by decide ) _;
-        · exact Nat.le_trans ( by native_decide ) ( Nat.clog_mono_right _ hn );
+        · exact Nat.le_trans one_le_clog_two_two ( Nat.clog_mono_right _ hn );
       by_cases h₂ : (4 * Nat.clog 2 (Fintype.card V) + 1).choose 2 ≤ G.edgeFinset.card;
       · rw [ ← mul_assoc ];
         refine' le_trans ( Nat.mul_le_mul_right _ ( Nat.mul_le_mul_left _ h_card ) ) _;
@@ -1077,8 +1080,7 @@ theorem erdos_760 : ∃ C : ℕ, 0 < C ∧
   ⟨32, by omega, erdos_760_explicit⟩
 
 #print axioms erdos_760
--- 'Erdos760.SimpleGraph.erdos_760' depends on axioms: [propext, Classical.choice, Quot.sound,
--- clique_bad_total_bound._native.native_decide.ax_1_5]
+-- 'Erdos760.SimpleGraph.erdos_760' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end SimpleGraph
 
