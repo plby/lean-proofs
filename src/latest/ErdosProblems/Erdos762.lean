@@ -227,6 +227,96 @@ def A_Finset : Finset H_V := Finset.image H_V.a Finset.univ
 def B_Finset : Finset H_V := Finset.image H_V.b Finset.univ
 
 /-
+In any proper coloring of `C_5` whose image has exactly three colors, removing the
+color of any vertex leaves the colors of two non-adjacent vertices.
+-/
+lemma pair_colors_eq_erase_of_card_three {c : Fin 5 → Fin 6} {k u v : Fin 5}
+    (hcard : (Finset.image c (Finset.univ : Finset (Fin 5))).card = 3)
+    (hu : c u ≠ c k) (hv : c v ≠ c k) (huv : c u ≠ c v) :
+    {c u, c v} = (Finset.image c (Finset.univ : Finset (Fin 5))).erase (c k) := by
+  classical
+  refine Finset.eq_of_subset_of_card_le ?_ ?_
+  · intro x hx
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hx
+    rcases hx with rfl | rfl
+    · exact Finset.mem_erase.mpr
+        ⟨hu, Finset.mem_image.mpr ⟨u, Finset.mem_univ _, rfl⟩⟩
+    · exact Finset.mem_erase.mpr
+        ⟨hv, Finset.mem_image.mpr ⟨v, Finset.mem_univ _, rfl⟩⟩
+  · have hk : c k ∈ Finset.image c (Finset.univ : Finset (Fin 5)) :=
+      Finset.mem_image.mpr ⟨k, Finset.mem_univ _, rfl⟩
+    rw [Finset.card_erase_of_mem hk, hcard, Finset.card_pair huv]
+
+theorem cycle5_three_color_erase_pair :
+    ∀ (c : Fin 5 → Fin 6),
+      (∀ i j, (SimpleGraph.cycleGraph 5).Adj i j → c i ≠ c j) →
+      (Finset.image c (Finset.univ : Finset (Fin 5))).card = 3 →
+      ∀ k : Fin 5, ∃ v w : Fin 5, v ≠ w ∧
+        ¬(SimpleGraph.cycleGraph 5).Adj v w ∧
+        {c v, c w} =
+          (Finset.image c (Finset.univ : Finset (Fin 5))).erase (c k) := by
+  intro c hproper hcard k
+  let p1 : Fin 5 := k + 1
+  let p2 : Fin 5 := k + 2
+  let p3 : Fin 5 := k + 3
+  let m1 : Fin 5 := k + 4
+  have hk_p1 : (SimpleGraph.cycleGraph 5).Adj k p1 := by
+    dsimp [p1]
+    fin_cases k <;> simp +decide [SimpleGraph.cycleGraph]
+  have hk_m1 : (SimpleGraph.cycleGraph 5).Adj k m1 := by
+    dsimp [m1]
+    fin_cases k <;> simp +decide [SimpleGraph.cycleGraph]
+  have hp1_p2 : (SimpleGraph.cycleGraph 5).Adj p1 p2 := by
+    dsimp [p1, p2]
+    fin_cases k <;> simp +decide [SimpleGraph.cycleGraph]
+  have hp2_p3 : (SimpleGraph.cycleGraph 5).Adj p2 p3 := by
+    dsimp [p2, p3]
+    fin_cases k <;> simp +decide [SimpleGraph.cycleGraph]
+  have hp3_m1 : (SimpleGraph.cycleGraph 5).Adj p3 m1 := by
+    dsimp [p3, m1]
+    fin_cases k <;> simp +decide [SimpleGraph.cycleGraph]
+  have hp1_ne_m1 : p1 ≠ m1 := by
+    dsimp [p1, m1]
+    fin_cases k <;> decide
+  have hp2_ne_m1 : p2 ≠ m1 := by
+    dsimp [p2, m1]
+    fin_cases k <;> decide
+  have hp1_ne_p3 : p1 ≠ p3 := by
+    dsimp [p1, p3]
+    fin_cases k <;> decide
+  have hnot_p1_m1 : ¬(SimpleGraph.cycleGraph 5).Adj p1 m1 := by
+    dsimp [p1, m1]
+    fin_cases k <;> simp +decide [SimpleGraph.cycleGraph]
+  have hnot_p2_m1 : ¬(SimpleGraph.cycleGraph 5).Adj p2 m1 := by
+    dsimp [p2, m1]
+    fin_cases k <;> simp +decide [SimpleGraph.cycleGraph]
+  have hnot_p1_p3 : ¬(SimpleGraph.cycleGraph 5).Adj p1 p3 := by
+    dsimp [p1, p3]
+    fin_cases k <;> simp +decide [SimpleGraph.cycleGraph]
+  have hp1_ne_k : c p1 ≠ c k := (hproper k p1 hk_p1).symm
+  have hm1_ne_k : c m1 ≠ c k := (hproper k m1 hk_m1).symm
+  have hp1_ne_p2_color : c p1 ≠ c p2 := hproper p1 p2 hp1_p2
+  have hp2_ne_p3_color : c p2 ≠ c p3 := hproper p2 p3 hp2_p3
+  have hp3_ne_m1_color : c p3 ≠ c m1 := hproper p3 m1 hp3_m1
+  by_cases hsame : c p1 = c m1
+  · by_cases hp2_eq_k : c p2 = c k
+    · have hp3_ne_k : c p3 ≠ c k := by
+        intro hp3_eq_k
+        exact hp2_ne_p3_color (hp2_eq_k.trans hp3_eq_k.symm)
+      have hp1_ne_p3_color : c p1 ≠ c p3 := by
+        intro hp1_eq_p3
+        exact hp3_ne_m1_color (hp1_eq_p3.symm.trans hsame)
+      exact ⟨p1, p3, hp1_ne_p3, hnot_p1_p3,
+        pair_colors_eq_erase_of_card_three hcard hp1_ne_k hp3_ne_k hp1_ne_p3_color⟩
+    · have hp2_ne_m1_color : c p2 ≠ c m1 := by
+        intro hp2_eq_m1
+        exact hp1_ne_p2_color (hsame.trans hp2_eq_m1.symm)
+      exact ⟨p2, m1, hp2_ne_m1, hnot_p2_m1,
+        pair_colors_eq_erase_of_card_three hcard hp2_eq_k hm1_ne_k hp2_ne_m1_color⟩
+  · exact ⟨p1, m1, hp1_ne_m1, hnot_p1_m1,
+      pair_colors_eq_erase_of_card_three hcard hp1_ne_k hm1_ne_k hsame⟩
+
+/-
 Lifted observation for A.
 -/
 theorem lemma_obs_obvious_lifted (col : H.Coloring (Fin 6))
@@ -251,7 +341,7 @@ theorem lemma_obs_obvious_lifted (col : H.Coloring (Fin 6))
           ∀ (k : Fin 5), ∃ v' w' : Fin 5, v' ≠ w' ∧
             ¬(SimpleGraph.cycleGraph 5).Adj v' w' ∧
             {c v', c w'} = (Finset.image c (Finset.univ : Finset (Fin 5))).erase (c k) := by
-      native_decide
+      exact cycle5_three_color_erase_pair
     apply h_obs;
     · intro i j hij
       have := col.valid (show H.Adj (H_V.a i) (H_V.a j) from ?_)
@@ -303,7 +393,7 @@ theorem lemma_obs_obvious_lifted_B (col : H.Coloring (Fin 6))
       -- By the observation, there exist two non-adjacent vertices $v'$ and $w'$ in $C_5$ such that $\{c(v'), c(w')\} = \{1, 2, 3\} \setminus \{c(u')\}$.
       obtain ⟨v', w', hv', hw', h_adj⟩ : ∃ v' w' : Fin 5, v' ≠ w' ∧ ¬(SimpleGraph.cycleGraph 5).Adj v' w' ∧ {col (H_V.b v'), col (H_V.b w')} = (Finset.image (fun i => col (H_V.b i)) (Finset.univ : Finset (Fin 5))).erase (col (H_V.b u')) := by
         have h_obs : ∀ (c : Fin 5 → Fin 6), (∀ i j, (SimpleGraph.cycleGraph 5).Adj i j → c i ≠ c j) → (Finset.image c (Finset.univ : Finset (Fin 5))).card = 3 → ∀ (k : Fin 5), ∃ v' w' : Fin 5, v' ≠ w' ∧ ¬(SimpleGraph.cycleGraph 5).Adj v' w' ∧ {c v', c w'} = (Finset.image c (Finset.univ : Finset (Fin 5))).erase (c k) := by
-          native_decide
+          exact cycle5_three_color_erase_pair
         apply h_obs;
         · intro i j hij; have := col.valid ( show H.Adj ( H_V.b i ) ( H_V.b j ) from ?_ ) ; aesop;
           fin_cases i <;> fin_cases j <;> simp +decide at hij ⊢;
@@ -1444,8 +1534,6 @@ theorem not_erdos_762 : ¬ erdos_762 := by
   exact this hcontra
 
 #print axioms not_erdos_762
--- 'Erdos762.not_erdos_762' depends on axioms: [propext, Classical.choice, Quot.sound,
--- lemma_obs_obvious_lifted._native.native_decide.ax_1_2,
--- lemma_obs_obvious_lifted_B._native.native_decide.ax_1_2]
+-- 'Erdos762.not_erdos_762' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos762
