@@ -61,14 +61,22 @@ set_option maxHeartbeats 0 in
     intro d hd hds
     interval_cases d <;> norm_num)
 
+private lemma riesel_covering_congruence (k : ℕ) (_hk : 1 ≤ k) :
+    ∃ q ∈ ({3, 5, 7, 13, 17, 241} : Finset ℕ), 2 ^ k * m_BS ≡ 1 [MOD q] := by
+  rw [← Nat.mod_add_div k 24]
+  norm_num [Nat.ModEq, Nat.mul_mod, Nat.pow_add, Nat.pow_mul, Nat.pow_mod, m_BS]
+  have hkmod := Nat.mod_lt k (by norm_num : 0 < 24)
+  interval_cases k % 24 <;> norm_num [Nat.ModEq, Nat.mul_mod, Nat.pow_mod, m_BS]
+
+private lemma m_BS_gt_241 : 241 < m_BS := by
+  norm_num [m_BS]
+
 theorem riesel_number (k : ℕ) (hk : 1 ≤ k) : Composite (2^k * m_BS - 1) := by
   -- By definition of $m_BS$, we know that $2^k * m_BS - 1$ is divisible by at least one prime from the set {3, 5, 7, 13, 17, 241}.
   have h_div : ∃ p ∈ ({3, 5, 7, 13, 17, 241} : Finset ℕ), p ∣ (2^k * m_BS - 1) := by
     -- For each prime q in the set {3, 5, 7, 13, 17, 241}, we find an integer a such that 509203 ≡ 2^a (mod q).
-    have h_cong : ∀ k ≥ 1, (∃ q ∈ ({3, 5, 7, 13, 17, 241} : Finset ℕ), 2 ^ k * m_BS ≡ 1 [MOD q]) := by
-      intro k_1 a
-      simp_all only [ge_iff_le, Finset.mem_insert, Finset.mem_singleton, exists_eq_or_imp, ↓existsAndEq, true_and]
-      rw [ ← Nat.mod_add_div k_1 24 ] ; norm_num [ Nat.ModEq, Nat.mul_mod, Nat.pow_add, Nat.pow_mul, Nat.pow_mod ] ; have := Nat.mod_lt k_1 ( by decide : 0 < 24 ) ; interval_cases k_1 % 24 <;> native_decide;
+    have h_cong : ∀ k ≥ 1, (∃ q ∈ ({3, 5, 7, 13, 17, 241} : Finset ℕ), 2 ^ k * m_BS ≡ 1 [MOD q]) :=
+      riesel_covering_congruence
     obtain ⟨ q, hq₁, hq₂ ⟩ := h_cong k hk
     refine ⟨q, hq₁, ?_⟩
     rw [← Nat.modEq_zero_iff_dvd]
@@ -82,7 +90,7 @@ theorem riesel_number (k : ℕ) (hk : 1 ≤ k) : Composite (2^k * m_BS - 1) := b
     exact lt_tsub_iff_left.mpr ( by nlinarith [ Nat.pow_le_pow_right two_pos hk, show m_BS > 1 from by decide ] );
   -- Since $p$ divides $2^k * m_BS - 1$ and $2^k * m_BS - 1 > p$, it follows that $2^k * m_BS - 1$ is composite.
   have h_composite : p < 2^k * m_BS - 1 := by
-    exact lt_of_le_of_lt ( Finset.mem_insert.mp hp_prime |> fun x => by aesop_cat ) ( show 241 < 2 ^ k * m_BS - 1 from lt_tsub_iff_left.mpr <| by nlinarith [ Nat.pow_le_pow_right ( show 1 ≤ 2 by decide ) hk, show m_BS > 241 by native_decide ] );
+    exact lt_of_le_of_lt ( Finset.mem_insert.mp hp_prime |> fun x => by aesop_cat ) ( show 241 < 2 ^ k * m_BS - 1 from lt_tsub_iff_left.mpr <| by nlinarith [ Nat.pow_le_pow_right ( show 1 ≤ 2 by decide ) hk, m_BS_gt_241 ] );
   exact ⟨ p, ( 2 ^ k * m_BS - 1 ) / p, by aesop, by nlinarith [ Nat.div_mul_cancel hp_div ], by rw [ Nat.mul_div_cancel' hp_div ] ⟩
 
 
@@ -161,9 +169,15 @@ lemma phi_mod_4_eq_2_iff_of_even (n : ℕ) (h_even : Even n) (h_gt : 4 < n) :
 lemma m_BS_prime : m_BS.Prime := by
   simp [m_BS]
 
+private lemma two_pow_ne_m_BS_plus_one_of_lt_23 (k : ℕ) (hk : k < 23) :
+    2 ^ k ≠ m_BS + 1 := by
+  interval_cases k <;> norm_num [m_BS]
+
 lemma m_BS_plus_one_not_power_of_two (k : ℕ) : 2^k ≠ m_BS + 1 := by
   intro h;
-  exact absurd ( h.symm ▸ pow_dvd_pow _ ( show k ≥ 23 by contrapose! h; interval_cases k <;> native_decide ) ) ( by decide )
+  exact absurd ( h.symm ▸ pow_dvd_pow _ ( show k ≥ 23 by
+    contrapose! h
+    exact two_pow_ne_m_BS_plus_one_of_lt_23 k h ) ) ( by decide )
 
 lemma composite_implies_not_prime {n : ℕ} (h : Composite n) : ¬ n.Prime := by
   obtain ⟨ a, b, ha, hb, rfl ⟩ := h; exact Nat.not_prime_mul ( by linarith ) ( by linarith ) ;
@@ -280,6 +294,8 @@ lemma n_le_four_m (n : ℕ) (h : n - n.totient = 2 * m_BS) : n ≤ 4 * m_BS := b
       exact congr_arg Finset.card ( Finset.filter_congr fun x hx => by rw [ Nat.gcd_comm ] );
     omega
 
+private lemma not_four_dvd_two_mul_m_BS : ¬ 4 ∣ 2 * m_BS := by
+  norm_num [m_BS]
 
 lemma not_dvd_four (n : ℕ) (h : n - n.totient = 2 * m_BS) : ¬ 4 ∣ n := by
   -- Assume for contradiction that 4 divides n.
@@ -298,7 +314,7 @@ lemma not_dvd_four (n : ℕ) (h : n - n.totient = 2 * m_BS) : ¬ 4 ∣ n := by
   -- Since $4 \mid n$ and $4 \mid n.totient$, their difference $n - n.totient$ must also be divisible by 4.
   have h_diff_div4 : 4 ∣ (n - n.totient) := by
     exact Nat.dvd_sub h_div4 h_phi_div4;
-  exact absurd h_diff_div4 ( by rw [ h ] ; native_decide )
+  exact not_four_dvd_two_mul_m_BS (h ▸ h_diff_div4)
 
 
 lemma base_case_reduction : IsCototient (2 * m_BS) ↔ ∃ m, Odd m ∧ 2 * m - m.totient = 2 * m_BS := by
@@ -333,7 +349,7 @@ lemma base_case_reduction : IsCototient (2 * m_BS) ↔ ∃ m, Odd m ∧ 2 * m - 
 lemma m_BS_is_prime : Nat.Prime m_BS := by
   simp [m_BS]
 
-lemma m_BS_plus_one_div_four : (m_BS + 1) / 4 = 127301 := by native_decide
+lemma m_BS_plus_one_div_four : (m_BS + 1) / 4 = 127301 := by decide
 
 lemma p_127301_prime : Nat.Prime 127301 := by
   exact prime_127301
@@ -519,7 +535,7 @@ lemma m_mod_6_eq_1 (m : ℕ) (h : IsSolution m) : m % 6 = 1 := by
     · omega
 
 
-lemma m_BS_mod_3 : m_BS % 3 = 1 := by native_decide
+lemma m_BS_mod_3 : m_BS % 3 = 1 := by decide
 
 lemma phi_k_mod_3_contra (k : ℕ) (h_sq : Squarefree k) (h_nd : ¬ 3 ∣ k) (h_eq : 3 * k - k.totient = m_BS) : False := by
   have h_mod3 : k.totient % 3 = 2 := by
@@ -527,6 +543,11 @@ lemma phi_k_mod_3_contra (k : ℕ) (h_sq : Squarefree k) (h_nd : ¬ 3 ∣ k) (h_
     · have := congr_arg ( · % 3 ) h_eq; norm_num [ Nat.add_mod, Nat.mul_mod ] at this ⊢; have := Nat.mod_lt k.totient zero_lt_three; interval_cases k.totient % 3 <;> trivial;
     · exact le_trans ( Nat.totient_le _ ) ( by linarith );
   exact absurd h_mod3 ( by have := totient_mod_3_of_squarefree_not_dvd_3 k h_sq h_nd; aesop )
+
+private lemma computation_lemma_check :
+    ∀ m ∈ Finset.Ico (m_BS + 1) (2 * m_BS), Odd m → Squarefree m → ¬(3 ∣ m) →
+      2 * m - m * (∏ p ∈ Nat.primeFactors m, (1 - 1 / p : ℚ)) ≠ 2 * m_BS := by
+  native_decide +revert
 
 
 lemma computation_lemma : ¬ ∃ m, IsSolution m := by
@@ -537,8 +558,7 @@ lemma computation_lemma : ¬ ∃ m, IsSolution m := by
       intro m hm hm_odd hm_sq hm_not_div3
       have h_phi : Nat.totient m = m * (∏ p ∈ Nat.primeFactors m, (1 - 1 / p : ℚ)) := by
         have := @Nat.totient_eq_mul_prod_factors m; aesop;
-      have h_check : ∀ m ∈ Finset.Ico (m_BS + 1) (2 * m_BS), Odd m → Squarefree m → ¬(3 ∣ m) → 2 * m - m * (∏ p ∈ Nat.primeFactors m, (1 - 1 / p : ℚ)) ≠ 2 * m_BS := by
-        native_decide +revert;
+      have h_check := computation_lemma_check
       contrapose! h_check;
       use m; aesop; norm_cast;
       rw [ ← h_check, Nat.cast_sub ] <;> norm_num [ h_phi ] ; omega;
@@ -594,55 +614,6 @@ theorem erdos_418 : { (n - n.totient : ℕ) | n }ᶜ.Infinite := by
 -- 'Erdos418.erdos_418' depends on axioms: [propext,
 -- Classical.choice,
 -- Quot.sound,
--- computation_lemma._native.native_decide.ax_1_2,
--- m_BS_plus_one_not_power_of_two._native.native_decide.ax_1_1,
--- m_BS_plus_one_not_power_of_two._native.native_decide.ax_1_10,
--- m_BS_plus_one_not_power_of_two._native.native_decide.ax_1_11,
--- m_BS_plus_one_not_power_of_two._native.native_decide.ax_1_12,
--- m_BS_plus_one_not_power_of_two._native.native_decide.ax_1_13,
--- m_BS_plus_one_not_power_of_two._native.native_decide.ax_1_14,
--- m_BS_plus_one_not_power_of_two._native.native_decide.ax_1_15,
--- m_BS_plus_one_not_power_of_two._native.native_decide.ax_1_16,
--- m_BS_plus_one_not_power_of_two._native.native_decide.ax_1_17,
--- m_BS_plus_one_not_power_of_two._native.native_decide.ax_1_18,
--- m_BS_plus_one_not_power_of_two._native.native_decide.ax_1_19,
--- m_BS_plus_one_not_power_of_two._native.native_decide.ax_1_2,
--- m_BS_plus_one_not_power_of_two._native.native_decide.ax_1_20,
--- m_BS_plus_one_not_power_of_two._native.native_decide.ax_1_21,
--- m_BS_plus_one_not_power_of_two._native.native_decide.ax_1_22,
--- m_BS_plus_one_not_power_of_two._native.native_decide.ax_1_23,
--- m_BS_plus_one_not_power_of_two._native.native_decide.ax_1_3,
--- m_BS_plus_one_not_power_of_two._native.native_decide.ax_1_4,
--- m_BS_plus_one_not_power_of_two._native.native_decide.ax_1_5,
--- m_BS_plus_one_not_power_of_two._native.native_decide.ax_1_6,
--- m_BS_plus_one_not_power_of_two._native.native_decide.ax_1_7,
--- m_BS_plus_one_not_power_of_two._native.native_decide.ax_1_8,
--- m_BS_plus_one_not_power_of_two._native.native_decide.ax_1_9,
--- not_dvd_four._native.native_decide.ax_1_1,
--- riesel_number._native.native_decide.ax_1_10,
--- riesel_number._native.native_decide.ax_1_11,
--- riesel_number._native.native_decide.ax_1_12,
--- riesel_number._native.native_decide.ax_1_13,
--- riesel_number._native.native_decide.ax_1_14,
--- riesel_number._native.native_decide.ax_1_15,
--- riesel_number._native.native_decide.ax_1_16,
--- riesel_number._native.native_decide.ax_1_17,
--- riesel_number._native.native_decide.ax_1_18,
--- riesel_number._native.native_decide.ax_1_19,
--- riesel_number._native.native_decide.ax_1_20,
--- riesel_number._native.native_decide.ax_1_21,
--- riesel_number._native.native_decide.ax_1_22,
--- riesel_number._native.native_decide.ax_1_23,
--- riesel_number._native.native_decide.ax_1_24,
--- riesel_number._native.native_decide.ax_1_25,
--- riesel_number._native.native_decide.ax_1_26,
--- riesel_number._native.native_decide.ax_1_27,
--- riesel_number._native.native_decide.ax_1_28,
--- riesel_number._native.native_decide.ax_1_30,
--- riesel_number._native.native_decide.ax_1_5,
--- riesel_number._native.native_decide.ax_1_6,
--- riesel_number._native.native_decide.ax_1_7,
--- riesel_number._native.native_decide.ax_1_8,
--- riesel_number._native.native_decide.ax_1_9]
+-- computation_lemma_check._native.native_decide.ax_1_1]
 
 end Erdos418
