@@ -1518,6 +1518,20 @@
     - https://www.ulam.ai/research/erdos488.tar.gz
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos490
+  epc: https://www.erdosproblems.com/490
+  author:
+    informal:
+      human: Endre Szemerédi
+      AI: ChatGPT 5.5 Pro
+    formal:
+      AI: Aristotle
+      human: Wouter van Doorn
+  url:
+    - https://www.erdosproblems.com/forum/thread/490#post-6497
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem490.lean
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos493
   epc: https://www.erdosproblems.com/493
   author:
