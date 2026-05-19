@@ -30,6 +30,7 @@ I have proved Perucca's classification theorem (`PeruccaClassificationStatement_
 -/
 
 import Mathlib
+import ErdosProblems.Axioms
 
 namespace Erdos659
 
@@ -52,63 +53,6 @@ open scoped Real
 open Filter
 
 open Asymptotics
-
-/-- An (integral) binary quadratic form `f(X,Y) = a X^2 + b X Y + c Y^2`. -/
-structure BinQuadForm where
-  a : ℤ
-  b : ℤ
-  c : ℤ
-
-namespace BinQuadForm
-
-/-- Evaluate the form on integer inputs. -/
-def eval (f : BinQuadForm) (x y : ℤ) : ℤ :=
-  f.a * x * x + f.b * x * y + f.c * y * y
-
-/-- Discriminant `Δ = b^2 - 4ac`. -/
-def discr (f : BinQuadForm) : ℤ :=
-  f.b * f.b - 4 * f.a * f.c
-
-/-- `f` is primitive if `gcd(a,b,c) = 1`. -/
-def Primitive (f : BinQuadForm) : Prop :=
-  Int.gcd f.a (Int.gcd f.b f.c) = 1
-
-/--
-A convenient (sufficient) positive-definiteness condition for integral binary quadratic forms:
-`a > 0` and discriminant is negative.
-(For integer forms this is equivalent to positive definiteness over `ℝ`.)
--/
-def PosDef (f : BinQuadForm) : Prop :=
-  0 < f.a ∧ f.discr < 0
-
-/--
-Counting function `B_f(x)`: number of *natural numbers* `n ≤ x` represented by `f`.
-(Here “represented” means `∃ u v : ℤ, f(u,v) = n`.)
--/
-noncomputable def B (f : BinQuadForm) (x : ℝ) : ℕ :=
-  Nat.card {n : ℕ | (n : ℝ) ≤ x ∧ ∃ u v : ℤ, f.eval u v = (n : ℤ)}
-
-end BinQuadForm
-
-/--
-**Bernays' theorem (assumed as an axiom).**
-
-Let `f(X,Y)=aX^2+bXY+cY^2` be a primitive positive definite binary quadratic form
-with non-square discriminant `Δ`. Then there exists a constant `C_Δ > 0` such that
-`B_f(x) ~ C_Δ * x / sqrt(log x)` as `x → ∞`.
-
-We phrase this so that `C_Δ` depends only on `Δ` (and works for every `f` of that discriminant).
--/
-axiom bernays
-    (Δ : ℤ) (hΔnonsq : ¬ ∃ z : ℤ, z * z = Δ) :
-    ∃ CΔ : ℝ, 0 < CΔ ∧
-      ∀ f : BinQuadForm,
-        f.Primitive →
-        f.PosDef →
-        f.discr = Δ →
-        (fun x : ℝ => (f.B x : ℝ))
-          ~[Filter.atTop]
-          (fun x : ℝ => CΔ * x / Real.sqrt (Real.log x))
 
 /-
 Define the set of points P_m as the image of the m x m grid under the lattice map (x, y) -> (x, sqrt(2)y).

@@ -45,6 +45,7 @@ please submit the same prompt, and add this .lean file in "Optional: Attach a Le
 -/
 
 import Mathlib
+import ErdosProblems.Erdos433
 
 set_option linter.mathlibStandardSet false
 
@@ -74,10 +75,12 @@ def non_representable_count (A : Set ℕ) : ℕ := (Set.univ \ (S A : Set ℕ)).
 
 def A_opt (n k : ℕ) : Finset ℕ := Finset.Icc (n - k + 1) n
 
--- see Erdos433 for proof
-axiom theorem_2 (a b : ℕ) (E : Finset ℕ) (hE_sub : (E : Set ℕ) ⊆ Set.Icc 1 a)
+/-- Theorem 2 from Erdos433, re-exported in the local notation of this file. -/
+theorem theorem_2 (a b : ℕ) (E : Finset ℕ) (hE_sub : (E : Set ℕ) ⊆ Set.Icc 1 a)
   (hE_card : E.card = b) (hE_gcd : Finset.gcd E id = 1) (k : ℕ) (hk : k ≥ 1) :
-  (S_k a (S E : Set ℕ) k).ncard ≥ min a (k * b - k + 1)
+  (S_k a (S E : Set ℕ) k).ncard ≥ min a (k * b - k + 1) := by
+  simpa [S_k, S, Erdos433.S_k, Erdos433.S] using
+    Erdos433.theorem_2 a b E hE_sub hE_card hE_gcd k hk
 
 lemma mem_closure_iff_exists_sum {A : Set ℕ} {x : ℕ} :
   x ∈ AddSubsemigroup.closure A ↔ ∃ j : ℕ, j ≥ 1 ∧ ∃ (f : Fin j → ℕ), (∀ i, f i ∈ A) ∧ ∑ i, f i = x := by
@@ -404,8 +407,8 @@ theorem main_theorem_final (n k : ℕ) (hk : k ≤ n) (hk_ge_2 : k ≥ 2) :
   linarith
 
 #print axioms main_theorem_final
--- 'Erdos434.main_theorem_final' depends on axioms: [propext, Classical.choice, theorem_2,
--- Quot.sound]
+-- 'Erdos434.main_theorem_final' depends on axioms: [propext, Classical.choice,
+-- Finset.add_kneser, Quot.sound]
 
 end
 

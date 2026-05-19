@@ -23,6 +23,7 @@ URLs:
 - https://github.com/YaelDillies/MiscYD/blob/master/MiscYD/AddCombi/Kneser/Kneser.lean
 -/
 import Mathlib
+import ErdosProblems.Axioms
 
 set_option linter.mathlibStandardSet false
 set_option linter.deprecated false
@@ -48,7 +49,7 @@ noncomputable section
 
 local notation:max "#" s:max => Finset.card s
 
-/--
+/-
 per Gemini 3.0 Flash, the correspondence between Diximier and the Lean is as Follows
 Lemma 2.1	 --> lemma_2_1_general
 Lemma 2.2	 --> lemma_2_2_full
@@ -59,15 +60,6 @@ Lemma 2.6  --> lemma_2_6
 Lemma 3.1  --> lemma_3_1
 Lemma 3.2  --> lemma_3_2
 -/
-
-
-def Finset.addStab {α : Type*} [AddGroup α] [DecidableEq α] (s : Finset α) : Finset α := {a ∈ s - s | a +ᵥ s = s}
-
-
--- from https://github.com/YaelDillies/MiscYD/blob/master/MiscYD/AddCombi/Kneser/Kneser.lean
-/-- **Kneser's addition theorem**: A lower bound on the size of `s + t` in terms of its stabilizer. -/
-axiom Finset.add_kneser {α : Type*} [AddCommGroup α] [DecidableEq α] (s t : Finset α) :
-  #(s + (s + t).addStab) + #(t + (s + t).addStab) ≤ #(s + t) + #(s + t).addStab
 
 namespace Erdos433
 

@@ -28,6 +28,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: John Jennings, Aristotle (Harmonic)
 -/
 import Mathlib
+import ErdosProblems.Axioms
 
 namespace Erdos658
 
@@ -97,29 +98,9 @@ def ContainsQuadruple (S : Finset (ℤ × ℤ × ℤ)) : Prop :=
 
 /-! ## §3. Statements of Theorem 2.2 and Conjecture 2.1
 
-Theorem 2.2 (Frankl–Rödl) is stated as a `Prop`; it is
+Theorem 2.2 (Frankl–Rödl) is imported from `ErdosProblems.Axioms` and is
 taken as a hypothesis in the proofs that follow.
 Conjecture 2.1 is its generalization. -/
-
-/-- **Theorem 2.2** (Frankl–Rödl, 2002):
-If `G` is a 3-uniform hypergraph such that every edge belongs to exactly one
-complete subgraph (clique of size ≥ 4), then `|E(G)| = o(|V(G)|³)`.
-
-Formally: for every `ε > 0` there exists `n₀` such that for any finite vertex-set
-`V` with `|V| ≥ n₀` and any edge-set `E` of 3-element subsets of `V` satisfying the
-unique-clique property, `|E| < ε |V|³`.
-See [Solymosi, *A Note on a Question of Erdős and Graham*, Theorem 2.2]. -/
-def Theorem_2_2 : Prop :=
-  ∀ ε : ℝ, ε > 0 → ∃ n₀ : ℕ,
-    ∀ (V : Finset ℕ) (E : Finset (Finset ℕ)),
-    V.card ≥ n₀ →
-    (∀ e ∈ E, e.card = 3 ∧ e ⊆ V) →
-    (∀ e ∈ E, ∃! K, K ⊆ V ∧ K.card ≥ 4 ∧
-      (∀ t ⊆ K, t.card = 3 → t ∈ E) ∧ e ⊆ K) →
-    (E.card : ℝ) < ε * (V.card : ℝ) ^ 3
-
-/-- **Theorem 2.2** (Frankl–Rödl, 2002). -/
-axiom frankl_roedl_theorem : Theorem_2_2
 
 /-- **Conjecture 2.1** (Frankl–Rödl conjecture):
 For any integer `k ≥ 2`, if `G` is a `k`-uniform hypergraph such that every edge

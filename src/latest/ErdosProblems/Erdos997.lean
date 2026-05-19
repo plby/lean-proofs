@@ -35,6 +35,7 @@ import Mathlib.Data.Int.Star
 import Mathlib.Data.Nat.Nth
 import Mathlib.Data.Real.StarOrdered
 import Mathlib.NumberTheory.DiophantineApproximation.Basic
+import ErdosProblems.Axioms
 
 set_option linter.style.setOption false
 set_option linter.flexible false
@@ -51,8 +52,8 @@ in arithmetic progressions (specifically the Banks–Freiberg–Turnage-Butterba
 For every `α ∈ ℝ`, the sequence `{α pₙ}` of fractional parts is not well-distributed in the sense of
 Hlawka–Petersen.
 
-The Maynard–Tao–BFT theorem (a deep result not in Mathlib) is taken as an axiom.
-Everything else is proved formally.
+The Maynard–Tao–BFT theorem (a deep result not in Mathlib) is imported from
+`ErdosProblems.Axioms`. Everything else is proved formally.
 
 ## References
 
@@ -107,19 +108,6 @@ theorem not_wellDistributed_of_clustering {x : ℕ → ℝ} (hc : HasClustering 
   specialize hK (K + 1) (by linarith) n a b ha hb hab
   norm_num at *
   nlinarith [abs_lt.mp hK]
-
-/-! ## Step 2: The Maynard–Tao–BFT hypothesis -/
-
-/-- The **Maynard–Tao theorem** (Banks–Freiberg–Turnage-Butterbaugh corollary): for every
-`m ≥ 1`, there exists `Cₘ ≥ 1` such that for every coprime residue class `a mod q` (with `q ≥ 1`),
-there are infinitely many index-runs of `m` consecutive primes in that class with total
-gap `≤ q · Cₘ`.
-
-This is a deep result not in Mathlib; we take it as an axiom. -/
-axiom maynardTaoBFT :
-  ∀ m : ℕ, 0 < m → ∃ C : ℕ, 0 < C ∧ ∀ q : ℕ, 0 < q → ∀ a : ℤ, Int.gcd a (q : ℤ) = 1 →
-    ∀ N : ℕ, ∃ r : ℕ, N ≤ r ∧ (∀ j, j < m → (nthPrime (r + j) : ℤ) ≡ a [ZMOD (q : ℤ)]) ∧
-      nthPrime (r + m - 1) - nthPrime r ≤ q * C
 
 /-! ## Step 3: Helper lemmas for the clustering proof -/
 

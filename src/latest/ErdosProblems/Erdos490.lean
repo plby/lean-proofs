@@ -18,6 +18,7 @@ Lean version: leanprover/lean4:v4.28.0
 -/
 
 import Mathlib
+import ErdosProblems.Axioms
 
 set_option linter.style.setOption false
 set_option linter.flexible false
@@ -41,31 +42,6 @@ def γ : ℝ := Real.eulerMascheroniConstant
 def chebyshevPsi (x : ℝ) : ℝ :=
   ∑ n ∈ Finset.range (⌊x⌋₊ + 1), ArithmeticFunction.vonMangoldt n
 
-/-! ## Dusart's Mertens product estimate (Theorem 5.1) -/
-
-/-- For x ≥ 2278382, |∏_{p≤x}(1-1/p) - 1/(e^γ log x)| ≤ 1/(5 e^γ log⁴ x) -/
-axiom dusart_mertens_product (x : ℝ) (hx : x ≥ 2278382) :
-    |∏ p ∈ primesUpTo x, (1 - 1 / (p : ℝ)) - 1 / (Real.exp γ * Real.log x)| ≤
-      1 / (5 * Real.exp γ * Real.log x ^ 4)
-
-/-! ## Dusart's prime counting estimates (Theorem 5.2) -/
-
-/-- For x ≥ 88789, π(x) ≥ x/log x + x/log²x + 2x/log³x -/
-axiom dusart_pi_lower (x : ℝ) (hx : x ≥ 88789) :
-    x / Real.log x + x / Real.log x ^ 2 + 2 * x / Real.log x ^ 3 ≤
-      ((primesUpTo x).card : ℝ)
-
-/-- For x > 1, π(x) ≤ x/log x + x/log²x + 2.53816·x/log³x -/
-axiom dusart_pi_upper (x : ℝ) (hx : x > 1) :
-    ((primesUpTo x).card : ℝ) ≤
-      x / Real.log x + x / Real.log x ^ 2 + 2.53816 * x / Real.log x ^ 3
-
-/-! ## Dusart's Chebyshev estimate (Theorem 5.3) -/
-
-/-- For x ≥ 2, |ψ(x) - x| < 1.66·x/log²x -/
-axiom dusart_chebyshev (x : ℝ) (hx : x ≥ 2) :
-    |chebyshevPsi x - x| < 1.66 * x / Real.log x ^ 2
-
 open Finset BigOperators Nat Real
 
 /-- S[p] = {s ∈ S : p ∣ s} -/
@@ -75,7 +51,7 @@ def sdiv (S : Finset ℕ) (p : ℕ) : Finset ℕ := S.filter (p ∣ ·)
 def sinv (S : Finset ℕ) (p : ℕ) : Finset ℕ := (sdiv S p).image (· / p)
 
 /-- A pair (A,B) is n-admissible if A,B ⊆ [n] and (a,b) ↦ ab is injective on A × B -/
-def Admissible (n : ℕ) (A B : Finset ℕ) : Prop :=
+def ProductAdmissible (n : ℕ) (A B : Finset ℕ) : Prop :=
   A ⊆ Finset.Icc 1 n ∧ B ⊆ Finset.Icc 1 n ∧
   ∀ a₁ ∈ A, ∀ b₁ ∈ B, ∀ a₂ ∈ A, ∀ b₂ ∈ B,
     a₁ * b₁ = a₂ * b₂ → a₁ = a₂ ∧ b₁ = b₂
@@ -409,7 +385,7 @@ theorem division_lemma (S : Finset ℕ) (p : ℕ) (_hp : Nat.Prime p) :
 Collision Lemma
 -/
 theorem collision_lemma (n : ℕ) (A B : Finset ℕ) (p q : ℕ)
-    (hadm : Admissible n A B) (_hp : Nat.Prime p) (_hq : Nat.Prime q) (hpq : p ≠ q)
+    (hadm : ProductAdmissible n A B) (_hp : Nat.Prime p) (_hq : Nat.Prime q) (hpq : p ≠ q)
     (hinter : (sinv A p ∩ sinv A q).Nonempty) :
     sinv B p ∩ sinv B q = ∅ := by
   obtain ⟨x, hx⟩ := hinter
@@ -445,8 +421,8 @@ theorem collision_lemma (n : ℕ) (A B : Finset ℕ) (p q : ℕ)
 Admissibility is inherited by subsets
 -/
 theorem admissible_subset {n : ℕ} {A B A' B' : Finset ℕ}
-    (hadm : Admissible n A B) (hA : A' ⊆ A) (hB : B' ⊆ B) :
-    Admissible n A' B' := by
+    (hadm : ProductAdmissible n A B) (hA : A' ⊆ A) (hB : B' ⊆ B) :
+    ProductAdmissible n A' B' := by
   exact ⟨hA.trans hadm.1, hB.trans hadm.2.1,
     fun a₁ ha₁ b₁ hb₁ a₂ ha₂ b₂ hb₂ h =>
       hadm.2.2 a₁ (hA ha₁) b₁ (hB hb₁) a₂ (hA ha₂) b₂ (hB hb₂) h⟩
@@ -618,9 +594,9 @@ Weighted Regular Reduction
 -/
 theorem weighted_regular_reduction (n : ℕ) (lam : ℝ) (m : ℕ → ℕ) (g : ℕ → ℝ)
     (hadmT : AdmissibleTriple lam m g) (A B : Finset ℕ)
-    (hadm : Admissible n A B) :
+    (hadm : ProductAdmissible n A B) :
     ∃ A' B' : Finset ℕ, A' ⊆ A ∧ B' ⊆ B ∧
-      Admissible n A' B' ∧ Regular lam m g A' ∧ Regular lam m g B' ∧
+      ProductAdmissible n A' B' ∧ Regular lam m g A' ∧ Regular lam m g B' ∧
       ((A'.card : ℝ) * B'.card ≥
         (1 - Omega_val lam m g) ^ 2 * (A.card * B.card)) := by
   cases' lt_or_ge ( 1 - Omega_val lam m g ) 0 with h h;
@@ -641,7 +617,14 @@ theorem mertens_product (ε : ℝ) (hε : ε > 0) :
         Real.exp (-γ) / Real.log x| ≤ ε / Real.log x := by
   -- By Dusart's theorem, we have for x ≥ 2278382:
   have h_dusart : ∀ x : ℝ, x ≥ 2278382 → |∏ p ∈ primesUpTo x, (1 - 1 / (p : ℝ)) - Real.exp (-γ) / Real.log x| ≤ 1 / (5 * Real.exp γ * Real.log x ^ 4) := by
-    intro x hx; convert dusart_mertens_product x hx using 2 ; norm_num [ Real.exp_neg ] ; ring;
+    intro x hx
+    have h0 : |∏ p ∈ primesUpTo x, (1 - 1 / (p : ℝ)) -
+        1 / (Real.exp γ * Real.log x)| ≤
+        1 / (5 * Real.exp γ * Real.log x ^ 4) := by
+      simpa [primesUpTo, γ] using dusart_mertens_product x hx
+    convert h0 using 2
+    norm_num [ Real.exp_neg ]
+    ring
   -- Since 1/(5 e^γ log⁴ x) = o(1/log x), for large enough x this is ≤ ε/log x.
   obtain ⟨X₀, hX₀⟩ : ∃ X₀ : ℝ, ∀ x ≥ X₀, 1 / (5 * Real.exp γ * Real.log x ^ 4) ≤ ε / Real.log x := by
     -- We can choose $X₀$ such that for all $x ≥ X₀$, $\frac{1}{5e^\gamma \log^3 x} ≤ \epsilon$.
@@ -1447,7 +1430,7 @@ theorem weighted_small_alternative (ε : ℝ) (hε : ε > 0)
     (lam : ℝ) (m : ℕ → ℕ) (g : ℕ → ℝ)
     (hadm : AdmissibleTriple lam m g) :
     ∃ N₀ : ℕ, ∀ n : ℕ, N₀ ≤ n →
-      ∀ A B : Finset ℕ, Admissible n A B →
+      ∀ A B : Finset ℕ, ProductAdmissible n A B →
         ∀ k : ℕ, (∀ j, k < j → (L_common lam j A B).card ≤ m j) →
           ((A.card : ℝ) < (Real.exp γ + ε) * M_layer lam k / g k * n *
             Pi_sieve n lam k A ∨
@@ -1462,7 +1445,7 @@ theorem weighted_small_alternative (ε : ℝ) (hε : ε > 0)
       exact tendsto_nhdsWithin_of_tendsto_nhds ( Continuous.tendsto' ( by continuity ) _ _ ( by norm_num ) );
     have := h_cont.eventually ( gt_mem_nhds <| show ( Real.exp γ + ε ) * Real.exp γ * Real.exp ( -γ ) / ( ( Real.exp γ + 2 * ε ) * Real.exp γ * Real.exp ( -γ ) ) < 1 from by rw [ div_lt_iff₀ <| by positivity ] ; nlinarith [ Real.exp_pos γ, Real.exp_pos ( -γ ), mul_pos ( Real.exp_pos γ ) ( Real.exp_pos ( -γ ) ) ] ) ; have := this.and self_mem_nhdsWithin; obtain ⟨ ε₁, hε₁₁, hε₁₂ ⟩ := this.exists; exact ⟨ ε₁, hε₁₂, by rw [ div_lt_iff₀ <| by positivity ] at hε₁₁; linarith ⟩ ;
   -- Choose N₀ such that for all n ≥ N₀, the inequalities from sifted_bound_set, high_product, and weighted_interval_product hold.
-  obtain ⟨N₀₁, hN₀₁⟩ : ∃ N₀₁ : ℕ, ∀ n : ℕ, N₀₁ ≤ n → ∀ A B : Finset ℕ, Admissible n A B → ∀ k : ℕ, (∀ j, k < j → (L_common lam j A B).card ≤ m j) → ((A.card : ℝ) ≤ (Real.exp γ + ε₁) * n * Pi_sieve n lam k A ∧ (B.card : ℝ) ≤ (Real.exp γ + ε₁) * n * Pi_sieve n lam k B) := by
+  obtain ⟨N₀₁, hN₀₁⟩ : ∃ N₀₁ : ℕ, ∀ n : ℕ, N₀₁ ≤ n → ∀ A B : Finset ℕ, ProductAdmissible n A B → ∀ k : ℕ, (∀ j, k < j → (L_common lam j A B).card ≤ m j) → ((A.card : ℝ) ≤ (Real.exp γ + ε₁) * n * Pi_sieve n lam k A ∧ (B.card : ℝ) ≤ (Real.exp γ + ε₁) * n * Pi_sieve n lam k B) := by
     have := @sifted_bound_set;
     exact Exists.elim ( this ε₁ hε₁_pos lam hadm.1 ) fun N₀ hN₀ => ⟨ N₀, fun n hn A B hAB k hk => ⟨ hN₀ n hn k A hAB.1, hN₀ n hn k B hAB.2.1 ⟩ ⟩;
   obtain ⟨N₀₂, hN₀₂⟩ : ∃ N₀₂ : ℕ, ∀ n : ℕ, N₀₂ ≤ n → ∀ k : ℕ, M_layer lam k / g k * ∏ p ∈ ((Finset.Ioc ⌊Y_val lam (k+1)⌋₊ ⌊(n : ℝ) / Y_val lam k⌋₊).filter Nat.Prime), (1 - 1 / (p : ℝ)) ≤ (Real.exp (-γ) + ε₁) / Real.log n := by
@@ -1669,7 +1652,7 @@ theorem large_interval_contradiction (ε : ℝ) (hε : ε > 0)
     (lam : ℝ) (hlam : 1 < lam) (m : ℕ → ℕ) (g : ℕ → ℝ)
     (hg1 : ∀ k, 1 ≤ g k) :
     ∃ N₀ : ℕ, ∀ n : ℕ, N₀ ≤ n →
-      ∀ A B : Finset ℕ, Admissible n A B →
+      ∀ A B : Finset ℕ, ProductAdmissible n A B →
         Regular lam m g A → Regular lam m g B →
         ∀ k : ℕ, m k < (L_common lam k A B).card →
           ((A.card : ℝ) ≥ (Real.exp γ + ε) * M_layer lam k / g k * n *
@@ -1705,7 +1688,7 @@ theorem weighted_large_interval (ε : ℝ) (hε : ε > 0)
     (lam : ℝ) (m : ℕ → ℕ) (g : ℕ → ℝ)
     (hadm : AdmissibleTriple lam m g) :
     ∃ N₀ : ℕ, ∀ n : ℕ, N₀ ≤ n →
-      ∀ A B : Finset ℕ, Admissible n A B →
+      ∀ A B : Finset ℕ, ProductAdmissible n A B →
         Regular lam m g A → Regular lam m g B →
         ∀ k : ℕ, m k < (L_common lam k A B).card →
           (∀ j, k < j → (L_common lam j A B).card ≤ m j) →
@@ -1713,7 +1696,7 @@ theorem weighted_large_interval (ε : ℝ) (hε : ε > 0)
             (Real.exp γ + 2 * ε) * D_val lam m * n ^ 2 / Real.log n) := by
   -- Extract N₁ from weighted_small_alternative.
   obtain ⟨N₁, hN₁⟩ := weighted_small_alternative ε hε lam m g hadm;
-  obtain ⟨N₂, hN₂⟩ : ∃ N₂ : ℕ, ∀ n : ℕ, N₂ ≤ n → ∀ A B : Finset ℕ, Admissible n A B → Regular lam m g A → Regular lam m g B → ∀ k : ℕ, m k < (L_common lam k A B).card → ¬((A.card : ℝ) ≥ (Real.exp γ + ε) * M_layer lam k / g k * n * Pi_sieve n lam k A ∧ (B.card : ℝ) ≥ (Real.exp γ + ε) * M_layer lam k / g k * n * Pi_sieve n lam k B) := by
+  obtain ⟨N₂, hN₂⟩ : ∃ N₂ : ℕ, ∀ n : ℕ, N₂ ≤ n → ∀ A B : Finset ℕ, ProductAdmissible n A B → Regular lam m g A → Regular lam m g B → ∀ k : ℕ, m k < (L_common lam k A B).card → ¬((A.card : ℝ) ≥ (Real.exp γ + ε) * M_layer lam k / g k * n * Pi_sieve n lam k A ∧ (B.card : ℝ) ≥ (Real.exp γ + ε) * M_layer lam k / g k * n * Pi_sieve n lam k B) := by
     convert large_interval_contradiction ε hε lam hadm.1 m g hadm.2.2.2.2.2.1 using 1;
     grind;
   exact ⟨ Max.max N₁ N₂, fun n hn A B hAB hA hB k hk₁ hk₂ => hN₁ n ( le_trans ( le_max_left _ _ ) hn ) A B hAB k hk₂ <| by specialize hN₂ n ( le_trans ( le_max_right _ _ ) hn ) A B hAB hA hB k hk₁; contrapose! hN₂; aesop ⟩
@@ -1729,7 +1712,7 @@ theorem small_interval_case (ε : ℝ) (hε : ε > 0)
     (hlam : 1 < lam)
     (hsumm : Summable (fun k => Real.log (E_val lam k (m k)))) :
     ∃ N₀ : ℕ, ∀ n : ℕ, N₀ ≤ n →
-      ∀ A B : Finset ℕ, Admissible n A B →
+      ∀ A B : Finset ℕ, ProductAdmissible n A B →
         (∀ k, (L_common lam k A B).card ≤ m k) →
         ((A.card : ℝ) * B.card ≤
           (Real.exp γ + ε) * D_val lam m * n ^ 2 / Real.log n) := by
@@ -1796,7 +1779,7 @@ theorem layer_weighted_bound (lam : ℝ) (m : ℕ → ℕ) (g : ℕ → ℝ)
     (hadm : AdmissibleTriple lam m g) (C : ℝ)
     (hC : C > Real.exp γ * D_val lam m / (1 - Omega_val lam m g) ^ 2) :
     ∃ N₀ : ℕ, ∀ n : ℕ, N₀ ≤ n →
-      ∀ A B : Finset ℕ, Admissible n A B →
+      ∀ A B : Finset ℕ, ProductAdmissible n A B →
         (A.card : ℝ) * B.card < C * n ^ 2 / Real.log n := by
   obtain ⟨ε, hε⟩ : ∃ ε > 0, Real.exp γ * D_val lam m / (1 - Omega_val lam m g) ^ 2 < (Real.exp γ + 2 * ε) * D_val lam m / (1 - Omega_val lam m g) ^ 2 ∧ (Real.exp γ + 2 * ε) * D_val lam m / (1 - Omega_val lam m g) ^ 2 < C := by
     -- We can choose ε small enough such that (Real.exp γ + 2 * ε) * D_val lam m / (1 - Omega_val lam m g) ^ 2 < C.
@@ -1879,7 +1862,11 @@ theorem dusart_mertens_lower (x : ℝ) (hx : x ≥ 2278382) :
     Real.exp (-γ) / Real.log x * (1 - 0.2 / Real.log x ^ 3) ≤
       ∏ p ∈ primesUpTo x, (1 - 1 / (p : ℝ)) := by
   have h_mertens_bound : ∏ p ∈ primesUpTo x, (1 - 1 / (p : ℝ)) ≥ 1 / (Real.exp γ * Real.log x) - 1 / (5 * Real.exp γ * Real.log x ^ 4) := by
-    linarith [ abs_le.mp ( dusart_mertens_product x hx ) ];
+    have h0 : |∏ p ∈ primesUpTo x, (1 - 1 / (p : ℝ)) -
+        1 / (Real.exp γ * Real.log x)| ≤
+        1 / (5 * Real.exp γ * Real.log x ^ 4) := by
+      simpa [primesUpTo, γ] using dusart_mertens_product x hx
+    linarith [ abs_le.mp h0 ];
   convert h_mertens_bound.le using 1 ; norm_num [ Real.exp_neg ] ; ring
 
 /-- For k ≤ 24, mSeq k = N_layer lam0 k, so s_val(k, mSeq k) = 0 -/

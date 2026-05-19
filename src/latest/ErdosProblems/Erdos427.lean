@@ -44,6 +44,7 @@ adding `(d − r) mod d` of the Shiu primes (each contributing 1 mod d) clears
 the residue.
 -/
 import Mathlib
+import ErdosProblems.Axioms
 
 namespace Erdos427
 
@@ -57,13 +58,6 @@ runs of `l` consecutive primes all congruent to `a` modulo `q`.
 
 *D. K. L. Shiu, "Strings of Congruent Primes", J. London Math. Soc. 61 (2000), 359–373.*
 -/
-
-/-- Shiu's theorem: for any positive length `l`, any modulus `q ≥ 1`, and any
-`a` coprime to `q`, there are arbitrarily late runs of `l` consecutive primes
-each congruent to `a` modulo `q`. -/
-axiom shiu_consecutive_primes
-    (l : ℕ) (hl : 1 ≤ l) (a q : ℕ) (hq : 1 ≤ q) (haq : Nat.Coprime a q) (N : ℕ) :
-    ∃ m, N ≤ m ∧ ∀ i, i < l → nthPrime (m + i) ≡ a [MOD q]
 
 /-! ## Helper lemmas -/
 
@@ -119,5 +113,5 @@ theorem erdos427 (n d : ℕ) (hd : 1 ≤ d) :
 end Erdos427
 
 #print axioms Erdos427.erdos427
--- 'Erdos427.erdos427' depends on axioms: [propext, Classical.choice,
--- Erdos427.shiu_consecutive_primes, Quot.sound]
+-- 'Erdos427.erdos427' depends on axioms: [propext, shiu_consecutive_primes,
+-- Classical.choice, Quot.sound]
