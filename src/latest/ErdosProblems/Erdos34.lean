@@ -185,7 +185,7 @@ theorem distinct_odd_sums (n : ℕ) {i j k l : ℕ}
           (l - k) / 2 * (n + 1) + construction n l := by
       rw [
         ← sum_odd_length_odd_start n i j hij hjn h_odd_1 hi_odd,
-        ← sum_odd_length_odd_start n k l hkl hln h_odd_2 hk_odd] <;>
+        ← sum_odd_length_odd_start n k l hkl hln h_odd_2 hk_odd] ;
         aesop
     -- The residual terms are bounded by $n+1$, so the paired coefficients agree.
     have h_eq_odd_simplified :
@@ -425,7 +425,7 @@ theorem num_distinct_sums_ge (n : ℕ) :
                   (Finset.range k).sum (fun x => k - x - 1) from
               Finset.sum_congr rfl fun x hx => ?_]
           · exact Nat.recOn k (by norm_num) fun n ih => by
-              cases n <;> simp +decide [Finset.sum_range_succ'] at * <;>
+              cases n <;> simp +decide [Finset.sum_range_succ'] at * ;
                 linarith
           · omega;
           · grind;
