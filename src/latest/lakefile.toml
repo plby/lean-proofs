@@ -27,4 +27,7 @@ name = "HundredTheorems"
 name = "MathOverflow"
 
 [[lean_lib]]
+name = "PrimeNumberTheoremAnd"
+
+[[lean_lib]]
 name = "UnitFractions"
