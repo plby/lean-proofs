@@ -305,9 +305,9 @@ theorem alpha_pow_K_t (t : ℕ) (ht : t ≥ 1) :
         Real.sq_sqrt (show 0 ≤ 8 by norm_num) ];
     · rcases ih with ⟨ a, b, ha, hb, ha', hb' ⟩
       rcases t with ( _ | t ) <;>
-        simp_all +decide [ pow_succ, pow_mul ] <;>
-        ring_nf at * <;>
-        norm_cast at * <;>
+        simp_all +decide [ pow_succ, pow_mul ] ;
+        ring_nf at * ;
+        norm_cast at * ;
         aesop;
       rw [
         show (Real.sqrt 8) ^ 4 = (Real.sqrt 8 ^ 2) ^ 2 by ring_nf,
