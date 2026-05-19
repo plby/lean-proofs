@@ -506,37 +506,149 @@ theorem binomial_gcd_lower_bound (n i j : ℕ) (h2 : 2 ≤ i) (hij : i < j)
               ring;
             refine le_trans ‹_› ?_;
             rw [ h_sqrt ];
-            convert mul_le_mul_of_nonneg_right ‹ ( j.choose ( i - 2 ) : ℝ ) ^ 2 ≤ ( n.choose ( i - 2 ) : ℝ ) ^ 2 / 2 ^ ( 2 * i - 4 ) › ( show ( 0 :ℝ ) ≤ ( n.choose j :ℝ ) ^ 2 * ( ( j - i + 2 ) * ( n - j ) * ( n - i + 1 ) ) / ( i - 1 ) by exact div_nonneg ( mul_nonneg ( sq_nonneg _ ) ( mul_nonneg ( mul_nonneg ( by linarith [ show ( i :ℝ ) < j by norm_cast ] ) ( by linarith [ show ( j :ℝ ) ≤ n / 2 by exact le_div_iff₀' ( by positivity ) |>.2 <| by norm_cast; linarith [ Nat.div_mul_le_self n 2 ] ] ) ) ( by linarith [ show ( i :ℝ ) < j by norm_cast, show ( j :ℝ ) ≤ n / 2 by exact le_div_iff₀' ( by positivity ) |>.2 <| by norm_cast; linarith [ Nat.div_mul_le_self n 2 ] ] ) ) ) ( by linarith [ show ( i :ℝ ) ≥ 2 by norm_cast ] ) ) using 1 ; ring;
+            have hjn_real : ( j : ℝ ) ≤ n / 2 := by
+              exact le_div_iff₀' ( by positivity ) |>.2 <| by
+                norm_cast;
+                linarith [ Nat.div_mul_le_self n 2 ]
+            have h_nonneg :
+                ( 0 : ℝ ) ≤
+                  ( n.choose j : ℝ ) ^ 2 *
+                      ( ( j - i + 2 ) * ( n - j ) * ( n - i + 1 ) ) /
+                    ( i - 1 ) := by
+              exact div_nonneg
+                (mul_nonneg
+                  (sq_nonneg _)
+                  (mul_nonneg
+                    (mul_nonneg
+                      (by linarith [ show ( i : ℝ ) < j by norm_cast ])
+                      (by linarith [ hjn_real ]))
+                    (by linarith [
+                      show ( i : ℝ ) < j by norm_cast,
+                      hjn_real
+                    ])))
+                (by linarith [ show ( i : ℝ ) ≥ 2 by norm_cast ])
+            convert mul_le_mul_of_nonneg_right
+              (‹( j.choose ( i - 2 ) : ℝ ) ^ 2 ≤
+                  ( n.choose ( i - 2 ) : ℝ ) ^ 2 / 2 ^ ( 2 * i - 4 )›)
+              h_nonneg using 1 ;
+            ring;
             field_simp;
-            rw [ div_eq_div_iff ] <;> nlinarith only [ show ( i : ℝ ) ≥ 2 by norm_cast, show ( j : ℝ ) ≥ i + 1 by norm_cast, show ( n : ℝ ) ≥ j * 2 by norm_cast; linarith [ Nat.div_mul_le_self n 2 ] ];
+            rw [ div_eq_div_iff ] <;>
+              nlinarith only [
+                show ( i : ℝ ) ≥ 2 by norm_cast,
+                show ( j : ℝ ) ≥ i + 1 by norm_cast,
+                show ( n : ℝ ) ≥ j * 2 by
+                  norm_cast;
+                  linarith [ Nat.div_mul_le_self n 2 ]
+              ];
           -- Using the inequality from algebraic_inequality, we get:
-          have h_ineq : (j - i + 2) * (n - j) < (n - i + 2) ^ 2 * (n - i + 1) / (n : ℝ) := by
-            have h_ineq : ((j - i + 2) * (n - j) * n : ℝ) < (n - i + 2) ^ 2 * (n - i + 1) := by
+          have h_ineq :
+              (j - i + 2) * (n - j) <
+                (n - i + 2) ^ 2 * (n - i + 1) / (n : ℝ) := by
+            have h_ineq :
+                ((j - i + 2) * (n - j) * n : ℝ) <
+                  (n - i + 2) ^ 2 * (n - i + 1) := by
               exact algebraic_inequality n i j h2 hij hjn;
-            rw [ lt_div_iff₀ ] <;> norm_cast at * ; nlinarith [ Nat.div_mul_le_self n 2 ];
+            rw [ lt_div_iff₀ ] <;>
+              norm_cast at * <;>
+              nlinarith [ Nat.div_mul_le_self n 2 ];
           refine lt_of_le_of_lt h_sqrt ?_;
           rw [ lt_div_iff₀ ] at *;
           · rw [ div_mul_eq_mul_div, div_lt_iff₀ ];
-            · rcases i with ( _ | _ | _ | i ) <;> norm_num [ Nat.mul_succ, pow_succ' ] at *;
-              · nlinarith [ show 0 < ( Nat.choose n j : ℝ ) * ( Nat.choose n j : ℝ ) * ( Nat.choose n 2 * Nat.choose n 2 : ℝ ) by exact mul_pos ( mul_pos ( Nat.cast_pos.mpr <| Nat.choose_pos <| by linarith [ Nat.div_mul_le_self n 2 ] ) ( Nat.cast_pos.mpr <| Nat.choose_pos <| by linarith [ Nat.div_mul_le_self n 2 ] ) ) ( mul_pos ( Nat.cast_pos.mpr <| Nat.choose_pos <| by linarith [ Nat.div_mul_le_self n 2 ] ) ( Nat.cast_pos.mpr <| Nat.choose_pos <| by linarith [ Nat.div_mul_le_self n 2 ] ) ) ];
-              · convert mul_lt_mul_of_pos_left h_ineq ( show 0 < ( n.choose j : ℝ ) * ( n.choose j : ℝ ) * ( ( n.choose ( i + 1 + 1 + 1 ) : ℝ ) * ( n.choose ( i + 1 + 1 + 1 ) : ℝ ) ) * ( ( i + 1 + 1 + 1 ) * ( i + 1 + 1 + 1 ) * ( i + 1 + 1 ) ) * ( 2 * ( 2 * ( 2 * ( 2 * ( 2 * ( 2 * 2 ^ ( 2 * i ) ) ) ) ) ) ) by exact mul_pos ( mul_pos ( mul_pos ( mul_pos ( Nat.cast_pos.mpr <| Nat.choose_pos <| by linarith [ Nat.div_mul_le_self n 2 ] ) <| Nat.cast_pos.mpr <| Nat.choose_pos <| by linarith [ Nat.div_mul_le_self n 2 ] ) <| mul_pos ( Nat.cast_pos.mpr <| Nat.choose_pos <| by linarith [ Nat.div_mul_le_self n 2 ] ) <| Nat.cast_pos.mpr <| Nat.choose_pos <| by linarith [ Nat.div_mul_le_self n 2 ] ) <| by positivity ) <| by positivity ) using 1 ; ring;
+            · rcases i with ( _ | _ | _ | i ) <;>
+                norm_num [ Nat.mul_succ, pow_succ' ] at *;
+              · nlinarith [
+                  show 0 <
+                      ( Nat.choose n j : ℝ ) * ( Nat.choose n j : ℝ ) *
+                        ( Nat.choose n 2 * Nat.choose n 2 : ℝ ) by
+                    exact mul_pos
+                      (mul_pos
+                        (Nat.cast_pos.mpr <| Nat.choose_pos <| by
+                          linarith [ Nat.div_mul_le_self n 2 ])
+                        (Nat.cast_pos.mpr <| Nat.choose_pos <| by
+                          linarith [ Nat.div_mul_le_self n 2 ]))
+                      (mul_pos
+                        (Nat.cast_pos.mpr <| Nat.choose_pos <| by
+                          linarith [ Nat.div_mul_le_self n 2 ])
+                        (Nat.cast_pos.mpr <| Nat.choose_pos <| by
+                          linarith [ Nat.div_mul_le_self n 2 ]))
+                ];
+              · have h_pos :
+                    0 <
+                      ( n.choose j : ℝ ) * ( n.choose j : ℝ ) *
+                        ( ( n.choose ( i + 1 + 1 + 1 ) : ℝ ) *
+                            ( n.choose ( i + 1 + 1 + 1 ) : ℝ ) ) *
+                          ( ( i + 1 + 1 + 1 ) * ( i + 1 + 1 + 1 ) *
+                            ( i + 1 + 1 ) ) *
+                            ( 2 * ( 2 * ( 2 * ( 2 * ( 2 * ( 2 * 2 ^ ( 2 * i ) ) ) ) ) ) ) := by
+                  exact mul_pos
+                    (mul_pos
+                      (mul_pos
+                        (mul_pos
+                          (Nat.cast_pos.mpr <| Nat.choose_pos <| by
+                            linarith [ Nat.div_mul_le_self n 2 ])
+                          (Nat.cast_pos.mpr <| Nat.choose_pos <| by
+                            linarith [ Nat.div_mul_le_self n 2 ]))
+                        (mul_pos
+                          (Nat.cast_pos.mpr <| Nat.choose_pos <| by
+                            linarith [ Nat.div_mul_le_self n 2 ])
+                          (Nat.cast_pos.mpr <| Nat.choose_pos <| by
+                            linarith [ Nat.div_mul_le_self n 2 ])))
+                      (by positivity))
+                    (by positivity)
+                convert mul_lt_mul_of_pos_left h_ineq h_pos using 1 ;
+                ring;
                 grind;
-            · exact mul_pos ( mul_pos ( pow_pos ( by norm_num ) _ ) ( sq_pos_of_pos ( by linarith [ show ( i : ℝ ) < j by norm_cast, show ( j : ℝ ) ≤ n / 2 by exact le_div_iff₀' ( by norm_num ) |>.2 ( by norm_cast; linarith [ Nat.div_mul_le_self n 2 ] ) ] ) ) ) ( by linarith [ show ( i : ℝ ) < j by norm_cast, show ( j : ℝ ) ≤ n / 2 by exact le_div_iff₀' ( by norm_num ) |>.2 ( by norm_cast; linarith [ Nat.div_mul_le_self n 2 ] ) ] );
+            · exact mul_pos
+                (mul_pos
+                  (pow_pos ( by norm_num ) _)
+                  (sq_pos_of_pos ( by
+                    linarith [
+                      show ( i : ℝ ) < j by norm_cast,
+                      show ( j : ℝ ) ≤ n / 2 by
+                        exact le_div_iff₀' ( by norm_num ) |>.2 ( by
+                          norm_cast;
+                          linarith [ Nat.div_mul_le_self n 2 ] )
+                    ])))
+                (by
+                  linarith [
+                    show ( i : ℝ ) < j by norm_cast,
+                    show ( j : ℝ ) ≤ n / 2 by
+                      exact le_div_iff₀' ( by norm_num ) |>.2 ( by
+                        norm_cast;
+                        linarith [ Nat.div_mul_le_self n 2 ] )
+                  ]);
           · norm_cast ; linarith [ Nat.div_mul_le_self n 2 ];
-          · exact mul_pos ( pow_pos ( by norm_num ) _ ) ( Nat.cast_pos.mpr ( by linarith [ Nat.div_mul_le_self n 2 ] ) );
+          · exact mul_pos
+              (pow_pos ( by norm_num ) _)
+              (Nat.cast_pos.mpr ( by linarith [ Nat.div_mul_le_self n 2 ] ));
         convert Real.lt_sqrt_of_sq_lt h_ineq using 1;
         rw [ eq_comm, Real.sqrt_eq_iff_mul_self_eq ] <;> try positivity;
         · ring_nf;
-          rw [ Real.sq_sqrt ( by linarith [ show ( i : ℝ ) ≥ 2 by norm_cast ] ) ] ; norm_num ; ring;
-        · exact div_nonneg ( mul_nonneg ( mul_nonneg ( sq_nonneg _ ) ( sq_nonneg _ ) ) ( mul_nonneg ( by positivity ) ( sub_nonneg.mpr ( by norm_cast; linarith ) ) ) ) ( by positivity );
+          rw [ Real.sq_sqrt ( by linarith [ show ( i : ℝ ) ≥ 2 by norm_cast ] ) ] ;
+          norm_num ;
+          ring;
+        · exact div_nonneg
+            (mul_nonneg
+              (mul_nonneg ( sq_nonneg _ ) ( sq_nonneg _ ))
+              (mul_nonneg
+                (by positivity)
+                (sub_nonneg.mpr ( by
+                  norm_cast;
+                  linarith ))))
+            (by positivity);
       rw [ lt_div_iff₀ ] at *;
       · rw [ gt_iff_lt, div_lt_iff₀ ];
         · contrapose! h_sqrt;
-          convert mul_le_mul_of_nonneg_left h_sqrt ( Nat.cast_nonneg ( Nat.lcm ( Nat.choose n i ) ( Nat.choose n j ) ) ) using 1;
+          convert mul_le_mul_of_nonneg_left h_sqrt
+            (Nat.cast_nonneg ( Nat.lcm ( Nat.choose n i ) ( Nat.choose n j ) )) using 1;
           norm_num [ ← mul_assoc, ← Nat.cast_mul, Nat.gcd_mul_lcm ];
           exact Or.inl <| Or.inl <| mul_comm _ _;
         · exact mul_pos ( by positivity ) ( Real.sqrt_pos.mpr ( by norm_num; linarith ) );
-      · exact mul_pos ( by positivity ) ( Real.sqrt_pos.mpr ( Nat.cast_pos.mpr ( by linarith [ Nat.div_mul_le_self n 2 ] ) ) )
+      · exact mul_pos
+          (by positivity)
+          (Real.sqrt_pos.mpr
+            (Nat.cast_pos.mpr ( by linarith [ Nat.div_mul_le_self n 2 ] )))
 
 #print axioms binomial_gcd_lower_bound
 -- 'Erdos698.binomial_gcd_lower_bound' depends on axioms: [propext, Classical.choice, Quot.sound]

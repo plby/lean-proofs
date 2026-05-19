@@ -31,7 +31,6 @@ set_option linter.style.openClassical false
 set_option linter.style.setOption false
 set_option linter.style.docString false
 set_option linter.style.induction false
-set_option linter.style.longLine false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.style.whitespace false
@@ -217,14 +216,24 @@ noncomputable section
 lemma hoeffding_lemma (M : ℕ) (f : Fin M → ℝ)
     (hf : ∀ i, |f i| ≤ 1) (hf_mean : ∑ i, f i = 0) (t : ℝ) :
     ∑ i : Fin M, exp (t * f i) ≤ M * exp (t ^ 2 / 2) := by
-  -- By convexity of exp, for x ∈ [-1,1]: exp(t*x) ≤ ((1+x)/2)*exp(t) + ((1-x)/2)*exp(-t).
-  have h_convex : ∀ i, Real.exp (t * f i) ≤ ((1 + f i) / 2) * Real.exp t + ((1 - f i) / 2) * Real.exp (-t) := by
+  -- By convexity of exp, for x ∈ [-1,1]:
+  -- exp(t*x) ≤ ((1+x)/2)*exp(t) + ((1-x)/2)*exp(-t).
+  have h_convex :
+      ∀ i,
+        Real.exp (t * f i) ≤
+          ((1 + f i) / 2) * Real.exp t + ((1 - f i) / 2) * Real.exp (-t) := by
     -- Apply the convexity of the exponential function to each term in the sum.
-    have h_convex : ∀ i, Real.exp (t * f i) ≤ ((1 + f i) / 2) * Real.exp t + ((1 - f i) / 2) * Real.exp (-t) := by
+    have h_convex :
+        ∀ i,
+          Real.exp (t * f i) ≤
+            ((1 + f i) / 2) * Real.exp t + ((1 - f i) / 2) * Real.exp (-t) := by
       intro i
       have h_convexity : ConvexOn ℝ (Set.univ : Set ℝ) Real.exp := by
         exact convexOn_exp
-      convert h_convexity.2 ( Set.mem_univ t ) ( Set.mem_univ ( -t ) ) _ _ _ using 1 <;> norm_num <;> ring_nf <;> nlinarith [ abs_le.mp ( hf i ) ]
+      convert h_convexity.2 (Set.mem_univ t) (Set.mem_univ (-t)) _ _ _ using 1 <;>
+        norm_num <;>
+        ring_nf <;>
+        nlinarith [abs_le.mp (hf i)]
     assumption
   refine le_trans ( Finset.sum_le_sum fun i _ => h_convex i ) ?_
   norm_num [ Finset.sum_add_distrib, ← Finset.sum_div _ _ _, ← Finset.sum_mul, hf_mean ]
@@ -255,13 +264,20 @@ lemma hoeffding_upper_tail (M L : ℕ) (_hM : 0 < M) (f : Fin M → ℝ)
     ((univ.filter (fun ω : Fin L → Fin M => (ε : ℝ) * L ≤ ∑ j, f (ω j))).card : ℝ) ≤
     (M : ℝ) ^ L * exp (-(ε ^ 2 * ↑L / 2)) := by
   -- Apply counting_markov with the exponential bound from hoeffding_lemma.
-  have h_markov : (∑ ω : Fin L → Fin M, Real.exp (ε * (∑ j, f (ω j) - ε * L))) ≤ M ^ L * Real.exp (-(ε ^ 2 * L / 2)) := by
+  have h_markov :
+      (∑ ω : Fin L → Fin M, Real.exp (ε * (∑ j, f (ω j) - ε * L))) ≤
+        M ^ L * Real.exp (-(ε ^ 2 * L / 2)) := by
     -- Apply Hoeffding's lemma to the sum of exponentials.
-    have h_sum_exp : ∑ ω : Fin L → Fin M, Real.exp (ε * (∑ j, f (ω j))) ≤ (M * Real.exp (ε ^ 2 / 2)) ^ L := by
+    have h_sum_exp :
+        ∑ ω : Fin L → Fin M, Real.exp (ε * (∑ j, f (ω j))) ≤
+          (M * Real.exp (ε ^ 2 / 2)) ^ L := by
       convert pow_le_pow_left₀ ( by positivity ) ( hoeffding_lemma M f hf hf_mean ε ) L using 1
       convert product_sum M L ( fun i => Real.exp ( ε * f i ) ) using 1
       simp +decide only [Finset.mul_sum _ _ _, ← exp_sum]
-    convert mul_le_mul_of_nonneg_right h_sum_exp ( Real.exp_nonneg ( - ( ε ^ 2 * L ) ) ) using 1 <;> ring_nf
+    convert
+      mul_le_mul_of_nonneg_right h_sum_exp (Real.exp_nonneg (-(ε ^ 2 * L)))
+      using 1 <;>
+      ring_nf
     · rw [ Finset.sum_mul _ _ _ ]
       exact Finset.sum_congr rfl fun _ _ => by rw [ ← Real.exp_add ] ; ring_nf
     · rw [ ← Real.exp_nat_mul ]
@@ -270,7 +286,10 @@ lemma hoeffding_upper_tail (M L : ℕ) (_hM : 0 < M) (f : Fin M → ℝ)
   refine le_trans ?_ h_markov
   rw [ Finset.card_filter ]
   push_cast
-  exact Finset.sum_le_sum fun x hx => by split_ifs <;> [ exact Real.one_le_exp ( by nlinarith ) ; exact Real.exp_nonneg _ ]
+  exact Finset.sum_le_sum fun x hx => by
+    split_ifs
+    · exact Real.one_le_exp (by nlinarith)
+    · exact Real.exp_nonneg _
 
 /-- Combined two-sided Hoeffding bound.-/
 lemma hoeffding_two_sided (M L : ℕ) (hM : 0 < M) (f : Fin M → ℝ)
@@ -278,15 +297,29 @@ lemma hoeffding_two_sided (M L : ℕ) (hM : 0 < M) (f : Fin M → ℝ)
     ((univ.filter (fun ω : Fin L → Fin M => (ε : ℝ) * L ≤ |∑ j, f (ω j)|)).card : ℝ) ≤
     2 * (M : ℝ) ^ L * exp (-(ε ^ 2 * ↑L / 2)) := by
   -- Apply Hoeffding's inequality to the upper and lower tails separately.
-  have h_upper : ((univ.filter (fun ω : Fin L → Fin M => (ε : ℝ) * L ≤ ∑ j, f (ω j))).card : ℝ) ≤ (M : ℝ) ^ L * Real.exp (-(ε ^ 2 * L / 2)) := by
+  have h_upper :
+      ((univ.filter (fun ω : Fin L → Fin M =>
+        (ε : ℝ) * L ≤ ∑ j, f (ω j))).card : ℝ) ≤
+        (M : ℝ) ^ L * Real.exp (-(ε ^ 2 * L / 2)) := by
     exact hoeffding_upper_tail M L hM f hf hf_mean ε hε
-  have h_lower : ((univ.filter (fun ω : Fin L → Fin M => ∑ j, f (ω j) ≤ -(ε : ℝ) * L)).card : ℝ) ≤ (M : ℝ) ^ L * Real.exp (-(ε ^ 2 * L / 2)) := by
-    convert hoeffding_upper_tail M L hM ( fun i => -f i ) ( fun i => ?_ ) ?_ ε hε using 1 <;> norm_num [ * ]
+  have h_lower :
+      ((univ.filter (fun ω : Fin L → Fin M =>
+        ∑ j, f (ω j) ≤ -(ε : ℝ) * L)).card : ℝ) ≤
+        (M : ℝ) ^ L * Real.exp (-(ε ^ 2 * L / 2)) := by
+    convert hoeffding_upper_tail M L hM (fun i => -f i) (fun i => ?_) ?_ ε hε
+      using 1 <;>
+      norm_num [*]
     exact congr_arg _ ( by ext; simp +decide [ le_neg ] )
   refine' le_trans _ ( add_le_add h_upper h_lower ) |> le_trans <| by ring_nf ; norm_num
   norm_cast
   rw [ ← Finset.card_union_add_card_inter ]
-  exact le_add_right ( Finset.card_le_card fun x hx => by norm_num at *; cases abs_cases ( ∑ j, f ( x j ) ) <;> first | left; linarith | right; linarith )
+  exact le_add_right <|
+    Finset.card_le_card fun x hx => by
+      norm_num at *
+      cases abs_cases (∑ j, f (x j)) <;>
+        first
+        | left; linarith
+        | right; linarith
 
 end
 
@@ -313,12 +346,26 @@ lemma root_sum_zero (M : ℕ) (hM : 2 ≤ M) (k : ℕ) (hk0 : 0 < k) (hk : k < M
     ∑ l ∈ range M, (omegaPrim M) ^ (k * l) = 0 := by
   norm_num [ pow_mul ]
   rw [ geom_sum_eq ] <;> norm_num [ omegaPrim ]
-  · rw [ ← pow_mul, Nat.mul_comm, pow_mul, ← Complex.exp_nat_mul, mul_comm, div_mul_cancel₀ ] <;> norm_num [ show M ≠ 0 by positivity ]
+  · rw [← pow_mul, Nat.mul_comm, pow_mul, ← Complex.exp_nat_mul, mul_comm,
+      div_mul_cancel₀] <;>
+      norm_num [show M ≠ 0 by positivity]
   · rw [ ← Complex.exp_nat_mul, mul_comm, Complex.exp_eq_one_iff ]
     norm_num [ Complex.ext_iff, div_mul_eq_mul_div ]
     intro x hx
     rw [ div_eq_iff ( by positivity ) ] at hx
-    exact False.elim ( by exact absurd hx ( by { exact fun hx' => by exact absurd ( Int.le_of_dvd ( by positivity ) <| show ( M : ℤ ) ∣ k from ⟨ x, by rw [ ← @Int.cast_inj ℝ ] ; push_cast; nlinarith [ Real.pi_pos ] ⟩ ) ( by norm_cast; linarith ) } ) )
+    exact False.elim <|
+      absurd hx <| by
+        exact fun hx' => by
+          exact absurd
+            (Int.le_of_dvd (by positivity) <|
+              show (M : ℤ) ∣ k from
+                ⟨x, by
+                  rw [← @Int.cast_inj ℝ]
+                  push_cast
+                  nlinarith [Real.pi_pos]⟩)
+            (by
+              norm_cast
+              linarith)
 
 /-- Full orthogonality: ∑_{l<M} ω^{kl} = M if M | k, 0 otherwise. -/
 lemma root_orthogonality (M : ℕ) (hM : 0 < M) (k : ℤ) :
@@ -330,7 +377,11 @@ lemma root_orthogonality (M : ℕ) (hM : 0 < M) (k : ℤ) :
     norm_num [ ← Complex.exp_nat_mul, mul_div_cancel₀, hM.ne' ]
   · -- If $M \nmid k$, then $k$ can be written as $Mq + r$ where $0 < r < M$.
     obtain ⟨q, r, hr⟩ : ∃ q r : ℤ, 0 < r ∧ r < M ∧ k = M * q + r := by
-      exact ⟨ k / M, k % M, lt_of_le_of_ne ( Int.emod_nonneg _ ( by positivity ) ) ( Ne.symm ( by aesop ) ), Int.emod_lt_of_pos _ ( by positivity ), by rw [ Int.mul_ediv_add_emod ] ⟩
+      exact
+        ⟨ k / M, k % M,
+          lt_of_le_of_ne (Int.emod_nonneg _ (by positivity)) (Ne.symm (by aesop)),
+          Int.emod_lt_of_pos _ (by positivity),
+          by rw [Int.mul_ediv_add_emod] ⟩
     -- Since $\omega^M = 1$, we have $\omega^{kl} = \omega^{rl}$.
     have h_exp : ∀ l : ℕ, (omegaPrim M) ^ (k * l) = (omegaPrim M) ^ (r * l) := by
       intro l
@@ -595,29 +646,74 @@ lemma vn_bridge (m : ℕ) (_hm : 0 < m) (L : ℕ) (hL : 0 < L)
       (((Icc 1 (2^m)).sum (fun t => hitCount (E : Set ℕ) C t) : ℝ) / 2^m
        - (Real.sqrt (E.card * C.card)) / m
        ≤ hitCount (E : Set ℕ) C (ω j)) := by
-  have h_shift : |∑ s ∈ Icc 1 (2 ^ m), ((if s ∈ Icc 1 (2 ^ m) then (univ.filter (fun j => ω j = s)).card / L - 1 / 2 ^ m else 0) : ℝ) * hitCount (E : Set ℕ) C s| ≤ (1 / m : ℝ) * Real.sqrt (E.card * C.card) := by
-    have := von_neumann_indicator ( 2 ^ ( m + 1 ) ) N ( 2 ^ m ) ( by positivity ) ( by ring_nf; linarith ) ( by ring_nf; norm_num ) ( fun s => if s ∈ Icc 1 ( 2 ^ m ) then ( Finset.card ( Finset.filter ( fun j => ω j = s ) Finset.univ ) : ℝ ) / L - 1 / 2 ^ m else 0 ) E C hE hC
-    convert this.trans ( mul_le_mul_of_nonneg_right ( mul_le_mul_of_nonneg_right h_poly <| Real.sqrt_nonneg _ ) <| Real.sqrt_nonneg _ ) using 1
+  have h_shift :
+      |∑ s ∈ Icc 1 (2 ^ m),
+        ((if s ∈ Icc 1 (2 ^ m) then
+            (univ.filter (fun j => ω j = s)).card / L - 1 / 2 ^ m
+          else 0) : ℝ) * hitCount (E : Set ℕ) C s| ≤
+        (1 / m : ℝ) * Real.sqrt (E.card * C.card) := by
+    have :=
+      von_neumann_indicator (2 ^ (m + 1)) N (2 ^ m)
+        (by positivity) (by ring_nf; linarith) (by ring_nf; norm_num)
+        (fun s =>
+          if s ∈ Icc 1 (2 ^ m) then
+            (Finset.card (Finset.filter (fun j => ω j = s) Finset.univ) : ℝ) / L -
+              1 / 2 ^ m
+          else 0)
+        E C hE hC
+    convert
+      this.trans
+        (mul_le_mul_of_nonneg_right
+          (mul_le_mul_of_nonneg_right h_poly <| Real.sqrt_nonneg _)
+          <| Real.sqrt_nonneg _)
+      using 1
     norm_num [ shiftBilinForm ]
     · unfold hitCount
       aesop
     · rw [ Real.sqrt_mul ( Nat.cast_nonneg _ ), mul_assoc ]
-  have h_sum : ∑ s ∈ Icc 1 (2 ^ m), ((if s ∈ Icc 1 (2 ^ m) then (univ.filter (fun j => ω j = s)).card / L - 1 / 2 ^ m else 0) : ℝ) * hitCount (E : Set ℕ) C s = (1 / L : ℝ) * ∑ j, hitCount (E : Set ℕ) C (ω j) - (∑ t ∈ Icc 1 (2 ^ m), hitCount (E : Set ℕ) C t) / 2 ^ m := by
-    have h_split : ∑ s ∈ Icc 1 (2 ^ m), ((if s ∈ Icc 1 (2 ^ m) then (univ.filter (fun j => ω j = s)).card / L else 0) : ℝ) * hitCount (E : Set ℕ) C s = (1 / L : ℝ) * ∑ j, hitCount (E : Set ℕ) C (ω j) := by
-      have h_split : ∑ s ∈ Icc 1 (2 ^ m), ((univ.filter (fun j => ω j = s)).card : ℝ) * hitCount (E : Set ℕ) C s = ∑ j, hitCount (E : Set ℕ) C (ω j) := by
+  have h_sum :
+      ∑ s ∈ Icc 1 (2 ^ m),
+          ((if s ∈ Icc 1 (2 ^ m) then
+              (univ.filter (fun j => ω j = s)).card / L - 1 / 2 ^ m
+            else 0) : ℝ) * hitCount (E : Set ℕ) C s =
+        (1 / L : ℝ) * ∑ j, hitCount (E : Set ℕ) C (ω j) -
+          (∑ t ∈ Icc 1 (2 ^ m), hitCount (E : Set ℕ) C t) / 2 ^ m := by
+    have h_split :
+        ∑ s ∈ Icc 1 (2 ^ m),
+            ((if s ∈ Icc 1 (2 ^ m) then
+                (univ.filter (fun j => ω j = s)).card / L
+              else 0) : ℝ) * hitCount (E : Set ℕ) C s =
+          (1 / L : ℝ) * ∑ j, hitCount (E : Set ℕ) C (ω j) := by
+      have h_split :
+          ∑ s ∈ Icc 1 (2 ^ m),
+              ((univ.filter (fun j => ω j = s)).card : ℝ) *
+                hitCount (E : Set ℕ) C s =
+            ∑ j, hitCount (E : Set ℕ) C (ω j) := by
         push_cast [ Finset.card_filter ]
         simp +decide only [Finset.sum_mul _ _ _]
         rw [ Finset.sum_comm ]
         aesop
       rw [ ← h_split, Finset.mul_sum _ _ _ ]
-      exact Finset.sum_congr rfl fun x hx => by rw [ if_pos hx ] ; ring
+      exact Finset.sum_congr rfl fun x hx => by
+        rw [ if_pos hx ]
+        ring
     simp_all +decide [ sub_mul ]
     rw [ Finset.sum_div _ _ _ ]
     exact Finset.sum_congr rfl fun _ _ => by ring
-  have h_pigeonhole : ∃ j : Fin L, (hitCount (E : Set ℕ) C (ω j) : ℝ) ≥ (∑ j : Fin L, hitCount (E : Set ℕ) C (ω j)) / L := by
-    have := Finset.exists_max_image Finset.univ ( fun j => hitCount ( E : Set ℕ ) C ( ω j ) ) ⟨ ⟨ 0, hL ⟩, Finset.mem_univ _ ⟩
+  have h_pigeonhole :
+      ∃ j : Fin L,
+        (hitCount (E : Set ℕ) C (ω j) : ℝ) ≥
+          (∑ j : Fin L, hitCount (E : Set ℕ) C (ω j)) / L := by
+    have :=
+      Finset.exists_max_image Finset.univ
+        (fun j => hitCount (E : Set ℕ) C (ω j))
+        ⟨⟨0, hL⟩, Finset.mem_univ _⟩
     obtain ⟨ j, hj₁, hj₂ ⟩ := this
-    exact ⟨ j, by rw [ ge_iff_le, div_le_iff₀ ( by positivity ) ] ; exact mod_cast by simpa [ mul_comm ] using Finset.sum_le_sum fun i ( hi : i ∈ Finset.univ ) => hj₂ i hi ⟩
+    exact ⟨ j, by
+      rw [ ge_iff_le, div_le_iff₀ (by positivity) ]
+      exact mod_cast by
+        simpa [ mul_comm ] using
+          Finset.sum_le_sum fun i (hi : i ∈ Finset.univ) => hj₂ i hi ⟩
   obtain ⟨ j, hj ⟩ := h_pigeonhole
   use j
   norm_num at *
@@ -631,33 +727,75 @@ maxPolyOnGrid is bounded by the max of |Re| + |Im| over the DFT grid.
 -/
 lemma max_poly_le_from_re_im (a : ℕ → ℝ) (d M : ℕ) (hM : 0 < M)
     (δ : ℝ) (hδ : 0 ≤ δ)
-    (h_re : ∀ l ∈ range M, |∑ s ∈ Icc 1 d, a s * ((omegaPrim M ^ (s * l) : ℂ).re)| ≤ δ)
-    (h_im : ∀ l ∈ range M, |∑ s ∈ Icc 1 d, a s * ((omegaPrim M ^ (s * l) : ℂ).im)| ≤ δ) :
+    (h_re :
+      ∀ l ∈ range M,
+        |∑ s ∈ Icc 1 d, a s * ((omegaPrim M ^ (s * l) : ℂ).re)| ≤ δ)
+    (h_im :
+      ∀ l ∈ range M,
+        |∑ s ∈ Icc 1 d, a s * ((omegaPrim M ^ (s * l) : ℂ).im)| ≤ δ) :
     maxPolyOnGrid a d M hM ≤ 2 * δ := by
   unfold maxPolyOnGrid
   simp_all +decide [ Complex.norm_def, Complex.normSq ]
-  exact fun l hl => Real.sqrt_le_iff.mpr ⟨ by positivity, by nlinarith only [ abs_le.mp ( h_re l hl ), abs_le.mp ( h_im l hl ) ] ⟩
+  exact fun l hl =>
+    Real.sqrt_le_iff.mpr
+      ⟨by positivity,
+        by nlinarith only [abs_le.mp (h_re l hl), abs_le.mp (h_im l hl)]⟩
 
 /-- Count of tuples with a small element is less than half the total. -/
 lemma bad_min_count_lt (m : ℕ) (_hm : 20 ≤ m) :
     2 * (univ.filter (fun ω : Fin (shiftL m) → Fin (2 ^ m) =>
       ∃ j, ¬(2 ^ m < ((ω j : ℕ) + 1) * (2 * shiftL m + 2)))).card <
     Fintype.card (Fin (shiftL m) → Fin (2 ^ m)) := by
-  -- For each $j$, the number of bad values $t \in \text{Fin } M$ with $(t : ℕ) < M / (2L + 2)$ is $\leq M / (2L + 2)$.
-  have h_bad_count : ∀ j : Fin (shiftL m), (Finset.univ.filter (fun t : Fin (2 ^ m) => (t : ℕ) + 1 ≤ 2 ^ m / (2 * shiftL m + 2))).card ≤ 2 ^ m / (2 * shiftL m + 2) := by
+  -- For each $j$, the number of bad values $t \in \text{Fin } M$ with
+  -- $(t : ℕ) < M / (2L + 2)$ is $\leq M / (2L + 2)$.
+  have h_bad_count :
+      ∀ j : Fin (shiftL m),
+        (Finset.univ.filter (fun t : Fin (2 ^ m) =>
+          (t : ℕ) + 1 ≤ 2 ^ m / (2 * shiftL m + 2))).card ≤
+        2 ^ m / (2 * shiftL m + 2) := by
     intro j
     rw [ Finset.card_eq_of_bijective ]
     use fun i hi => ⟨ i, by linarith [ Nat.div_le_self ( 2 ^ m ) ( 2 * shiftL m + 2 ) ] ⟩
     · aesop
     · aesop
     · aesop
-  -- By union bound, the number of bad tuples is at most the sum of the number of bad values for each $j$.
-  have h_union_bound : (Finset.univ.filter (fun ω : Fin (shiftL m) → Fin (2 ^ m) => ∃ j, (ω j : ℕ) + 1 ≤ 2 ^ m / (2 * shiftL m + 2))).card ≤ shiftL m * (2 ^ m / (2 * shiftL m + 2)) * (2 ^ m) ^ (shiftL m - 1) := by
-    have h_union_bound : (Finset.univ.filter (fun ω : Fin (shiftL m) → Fin (2 ^ m) => ∃ j, (ω j : ℕ) + 1 ≤ 2 ^ m / (2 * shiftL m + 2))).card ≤ ∑ j : Fin (shiftL m), (Finset.univ.filter (fun t : Fin (2 ^ m) => (t : ℕ) + 1 ≤ 2 ^ m / (2 * shiftL m + 2))).card * (2 ^ m) ^ (shiftL m - 1) := by
-      have h_union_bound : ∀ j : Fin (shiftL m), (Finset.univ.filter (fun ω : Fin (shiftL m) → Fin (2 ^ m) => (ω j : ℕ) + 1 ≤ 2 ^ m / (2 * shiftL m + 2))).card ≤ (Finset.univ.filter (fun t : Fin (2 ^ m) => (t : ℕ) + 1 ≤ 2 ^ m / (2 * shiftL m + 2))).card * (2 ^ m) ^ (shiftL m - 1) := by
+  -- By union bound, the number of bad tuples is at most the sum of the
+  -- number of bad values for each $j$.
+  have h_union_bound :
+      (Finset.univ.filter (fun ω : Fin (shiftL m) → Fin (2 ^ m) =>
+        ∃ j, (ω j : ℕ) + 1 ≤ 2 ^ m / (2 * shiftL m + 2))).card ≤
+      shiftL m * (2 ^ m / (2 * shiftL m + 2)) *
+        (2 ^ m) ^ (shiftL m - 1) := by
+    have h_union_bound :
+        (Finset.univ.filter (fun ω : Fin (shiftL m) → Fin (2 ^ m) =>
+          ∃ j, (ω j : ℕ) + 1 ≤ 2 ^ m / (2 * shiftL m + 2))).card ≤
+        ∑ j : Fin (shiftL m),
+          (Finset.univ.filter (fun t : Fin (2 ^ m) =>
+            (t : ℕ) + 1 ≤ 2 ^ m / (2 * shiftL m + 2))).card *
+            (2 ^ m) ^ (shiftL m - 1) := by
+      have h_union_bound :
+          ∀ j : Fin (shiftL m),
+            (Finset.univ.filter (fun ω : Fin (shiftL m) → Fin (2 ^ m) =>
+              (ω j : ℕ) + 1 ≤ 2 ^ m / (2 * shiftL m + 2))).card ≤
+            (Finset.univ.filter (fun t : Fin (2 ^ m) =>
+              (t : ℕ) + 1 ≤ 2 ^ m / (2 * shiftL m + 2))).card *
+              (2 ^ m) ^ (shiftL m - 1) := by
         intro j
-        have h_card_filter_j : (Finset.univ.filter (fun ω : Fin (shiftL m) → Fin (2 ^ m) => (ω j : ℕ) + 1 ≤ 2 ^ m / (2 * shiftL m + 2))).card ≤ (Finset.univ.filter (fun t : Fin (2 ^ m) => (t : ℕ) + 1 ≤ 2 ^ m / (2 * shiftL m + 2))).card * (2 ^ m) ^ (shiftL m - 1) := by
-          have h_card_filter_j : Finset.univ.filter (fun ω : Fin (shiftL m) → Fin (2 ^ m) => (ω j : ℕ) + 1 ≤ 2 ^ m / (2 * shiftL m + 2)) ⊆ Finset.image (fun (p : Fin (2 ^ m) × (Fin (shiftL m - 1) → Fin (2 ^ m))) => Fin.insertNth j p.1 p.2) (Finset.univ.filter (fun t : Fin (2 ^ m) => (t : ℕ) + 1 ≤ 2 ^ m / (2 * shiftL m + 2)) ×ˢ Finset.univ) := by
+        have h_card_filter_j :
+            (Finset.univ.filter (fun ω : Fin (shiftL m) → Fin (2 ^ m) =>
+              (ω j : ℕ) + 1 ≤ 2 ^ m / (2 * shiftL m + 2))).card ≤
+            (Finset.univ.filter (fun t : Fin (2 ^ m) =>
+              (t : ℕ) + 1 ≤ 2 ^ m / (2 * shiftL m + 2))).card *
+              (2 ^ m) ^ (shiftL m - 1) := by
+          have h_card_filter_j :
+              Finset.univ.filter (fun ω : Fin (shiftL m) → Fin (2 ^ m) =>
+                  (ω j : ℕ) + 1 ≤ 2 ^ m / (2 * shiftL m + 2)) ⊆
+                Finset.image
+                  (fun (p : Fin (2 ^ m) × (Fin (shiftL m - 1) → Fin (2 ^ m))) =>
+                    Fin.insertNth j p.1 p.2)
+                  (Finset.univ.filter (fun t : Fin (2 ^ m) =>
+                    (t : ℕ) + 1 ≤ 2 ^ m / (2 * shiftL m + 2)) ×ˢ
+                    Finset.univ) := by
             intro ω hω
             simp_all +decide
             refine' ⟨ ω j, hω, Fin.removeNth j ω, _ ⟩
@@ -667,7 +805,16 @@ lemma bad_min_count_lt (m : ℕ) (_hm : 20 ≤ m) :
           norm_num [ Finset.card_univ ]
         convert h_card_filter_j using 1
       refine' le_trans _ ( Finset.sum_le_sum fun j _ => h_union_bound j )
-      rw [ show ( Finset.univ.filter fun ω : Fin ( shiftL m ) → Fin ( 2 ^ m ) => ∃ j : Fin ( shiftL m ), ( ω j : ℕ ) + 1 ≤ 2 ^ m / ( 2 * shiftL m + 2 ) ) = Finset.biUnion Finset.univ fun j => Finset.univ.filter fun ω : Fin ( shiftL m ) → Fin ( 2 ^ m ) => ( ω j : ℕ ) + 1 ≤ 2 ^ m / ( 2 * shiftL m + 2 ) by ext; aesop ]
+      rw [
+        show
+          (Finset.univ.filter fun ω : Fin (shiftL m) → Fin (2 ^ m) =>
+            ∃ j : Fin (shiftL m),
+              (ω j : ℕ) + 1 ≤ 2 ^ m / (2 * shiftL m + 2)) =
+            Finset.biUnion Finset.univ fun j =>
+              Finset.univ.filter fun ω : Fin (shiftL m) → Fin (2 ^ m) =>
+                (ω j : ℕ) + 1 ≤ 2 ^ m / (2 * shiftL m + 2) by
+          ext
+          aesop]
       exact Finset.card_biUnion_le
     refine le_trans h_union_bound ?_
     rw [ ← Finset.sum_mul _ _ _ ]
@@ -675,10 +822,22 @@ lemma bad_min_count_lt (m : ℕ) (_hm : 20 ≤ m) :
     convert Finset.sum_le_sum fun i ( hi : i ∈ Finset.univ ) => h_bad_count i
     norm_num
   -- Simplify the right-hand side of the inequality.
-  have h_simplify : 2 * shiftL m * (2 ^ m / (2 * shiftL m + 2)) * (2 ^ m) ^ (shiftL m - 1) < (2 ^ m) ^ shiftL m := by
-    have h_simplify : 2 * shiftL m * (2 ^ m / (2 * shiftL m + 2)) < 2 ^ m := by
-      nlinarith [ Nat.div_mul_le_self ( 2 ^ m ) ( 2 * shiftL m + 2 ), Nat.one_le_pow m 2 zero_lt_two, show shiftL m > 0 from by { unfold shiftL; positivity } ]
-    convert mul_lt_mul_of_pos_right h_simplify ( pow_pos ( pow_pos ( zero_lt_two' ℕ ) m ) ( shiftL m - 1 ) ) using 1
+  have h_simplify :
+      2 * shiftL m * (2 ^ m / (2 * shiftL m + 2)) *
+          (2 ^ m) ^ (shiftL m - 1) <
+        (2 ^ m) ^ shiftL m := by
+    have h_simplify :
+        2 * shiftL m * (2 ^ m / (2 * shiftL m + 2)) < 2 ^ m := by
+      nlinarith [
+        Nat.div_mul_le_self (2 ^ m) (2 * shiftL m + 2),
+        Nat.one_le_pow m 2 zero_lt_two,
+        show shiftL m > 0 from by
+          unfold shiftL
+          positivity]
+    convert
+      mul_lt_mul_of_pos_right h_simplify
+        (pow_pos (pow_pos (zero_lt_two' ℕ) m) (shiftL m - 1))
+      using 1
     rw [ ← pow_succ', Nat.sub_add_cancel ( show 1 ≤ shiftL m from Nat.succ_pos _ ) ]
   convert lt_of_le_of_lt ( Nat.mul_le_mul_left 2 h_union_bound ) _ using 1
   · norm_num [ Nat.le_div_iff_mul_le ( by positivity : 0 < ( 2 * shiftL m + 2 ) ) ]
@@ -787,7 +946,10 @@ lemma bad_approx_count_lt (m : ℕ) (hm : 20 ≤ m) :
             norm_num [Finset.sum_range, Fin.sum_univ_succ]
         simp_all +decide [Finset.sum_div _ _ _]
         norm_num [← Finset.sum_div _ _ _, ← Finset.sum_mul] ; ring_nf
-        rw [mul_inv_cancel₀ (by norm_cast; exact Nat.ne_of_gt (show 0 < shiftL m from Nat.succ_pos _))]
+        rw [mul_inv_cancel₀
+          (by
+            norm_cast
+            exact Nat.ne_of_gt (show 0 < shiftL m from Nat.succ_pos _))]
         ring_nf
       rw [h_centered, abs_mul, abs_of_nonneg (by positivity)] ; ring
     -- Apply Hoeffding's inequality for bounded, zero-mean sums.
@@ -1152,14 +1314,20 @@ theorem per_m_good_shifts_hard (m : ℕ) (hm : 20 ≤ m) :
     ∀ (N : ℕ) (_ : N ≤ 2 ^ m)
       (E C : Finset ℕ) (_ : E ⊆ Icc 1 N) (_ : C ⊆ Icc 1 N) (_ : Disjoint E C),
       ∃ s ∈ S,
-        (((Icc 1 (2^m)).sum (fun t => hitCount (E : Set ℕ) C t) : ℝ) / 2^m - (Real.sqrt (E.card * C.card)) / ↑m
-         ≤ ↑(hitCount (E : Set ℕ) C s)) := by
+        (((Icc 1 (2^m)).sum (fun t => hitCount (E : Set ℕ) C t) : ℝ) / 2^m -
+          (Real.sqrt (E.card * C.card)) / ↑m ≤
+          ↑(hitCount (E : Set ℕ) C s)) := by
   have := @vn_bridge
   contrapose! this
   obtain ⟨ω, hω⟩ := good_tuple_exists m hm
-  obtain ⟨N, hN⟩ := this (Finset.image (fun j => (ω j : ℕ) + 1) Finset.univ) 
-    (Finset.image_subset_iff.mpr fun j _ => Finset.mem_Icc.mpr ⟨Nat.succ_pos _, Nat.succ_le_of_lt <| Fin.is_lt _ ⟩)  
-    ⟨_, Finset.mem_image_of_mem _ (Finset.mem_univ ⟨0, by linarith [show 0 < shiftL m from Nat.succ_pos _ ] ⟩)⟩ 
+  obtain ⟨N, hN⟩ :=
+    this (Finset.image (fun j => (ω j : ℕ) + 1) Finset.univ)
+      (Finset.image_subset_iff.mpr fun j _ =>
+        Finset.mem_Icc.mpr
+          ⟨Nat.succ_pos _, Nat.succ_le_of_lt <| Fin.is_lt _⟩)
+      ⟨_, Finset.mem_image_of_mem _
+        (Finset.mem_univ ⟨0, by
+          linarith [show 0 < shiftL m from Nat.succ_pos _]⟩)⟩
     (Finset.card_image_le.trans_eq ( Finset.card_fin _ )) (by grind)
   refine' ⟨ m, by linarith, shiftL m, _, fun j => ( ω j : ℕ ) + 1, _, N, hN.1, _, _ ⟩ <;> norm_num
   · exact Nat.succ_pos _
@@ -1204,13 +1372,23 @@ structure ShiftApproxData where
 lemma full_shifts_approx (m : ℕ) (hm : 0 < m) (N : ℕ) (_hN : N ≤ 2 ^ m)
 (E C : Finset ℕ) (_hE : E ⊆ Icc 1 N) (_hC : C ⊆ Icc 1 N) (_hEC : Disjoint E C) :
 ∃ s ∈ Icc 1 (2 ^ m),
-(((Icc 1 (2^m)).sum (fun t => hitCount (E : Set ℕ) C t) : ℝ) / 2^m
-  - (Real.sqrt (E.card * C.card)) / m
+(((Icc 1 (2^m)).sum (fun t => hitCount (E : Set ℕ) C t) : ℝ) / 2^m -
+  (Real.sqrt (E.card * C.card)) / m
   ≤ hitCount (E : Set ℕ) C s) := by
   by_contra! h_contra
-  have := Finset.sum_lt_sum_of_nonempty ( by norm_num; linarith [ Nat.one_le_pow m 2 zero_lt_two ] ) h_contra
+  have :=
+    Finset.sum_lt_sum_of_nonempty
+      (by
+        norm_num
+        linarith [ Nat.one_le_pow m 2 zero_lt_two ])
+      h_contra
   norm_num at this
-  rw [ mul_div_cancel₀ ] at this <;> first | positivity | linarith [ show ( 0 : ℝ ) ≤ 2 ^ m * ( Real.sqrt E.card * Real.sqrt C.card / m ) by positivity ]
+  rw [ mul_div_cancel₀ ] at this <;>
+    first
+    | positivity
+    | linarith [
+        show (0 : ℝ) ≤ 2 ^ m * (Real.sqrt E.card * Real.sqrt C.card / m) by
+          positivity]
 
 /-! ## Key numerical bounds -/
 
@@ -1272,28 +1450,62 @@ lemma sparse_of_polylog_count (shifts : ℕ → Finset ℕ)
 (fun N => ((Icc 1 N).filter (fun n => ∃ m, 0 < m ∧ n ∈ shifts m)).card ^ h / (N : ℝ))
 Filter.atTop (nhds 0) := by
   intro h
-  have h_log_div_N_zero : ∀ k : ℕ, Filter.Tendsto (fun N : ℕ => ((Nat.log 2 N : ℝ) ^ k) / N) Filter.atTop (nhds 0) := by
+  have h_log_div_N_zero :
+      ∀ k : ℕ,
+        Filter.Tendsto (fun N : ℕ => ((Nat.log 2 N : ℝ) ^ k) / N)
+          Filter.atTop (nhds 0) := by
     intro k
-    suffices h_log : Filter.Tendsto (fun x : ℕ => (x : ℝ) ^ k / 2 ^ x) Filter.atTop (nhds 0) by
-      have h_log : Filter.Tendsto (fun N : ℕ => (Nat.log 2 N : ℝ) ^ k / 2 ^ (Nat.log 2 N)) Filter.atTop (nhds 0) := by
-        exact h_log.comp ( Filter.tendsto_atTop_atTop.mpr fun x => ⟨ 2 ^ x, fun n hn => Nat.le_log_of_pow_le ( by norm_num ) hn ⟩ )
+    suffices h_log :
+        Filter.Tendsto (fun x : ℕ => (x : ℝ) ^ k / 2 ^ x) Filter.atTop (nhds 0) by
+      have h_log :
+          Filter.Tendsto
+            (fun N : ℕ => (Nat.log 2 N : ℝ) ^ k / 2 ^ (Nat.log 2 N))
+            Filter.atTop (nhds 0) := by
+        exact h_log.comp <|
+          Filter.tendsto_atTop_atTop.mpr fun x =>
+            ⟨2 ^ x, fun n hn => Nat.le_log_of_pow_le (by norm_num) hn⟩
       refine' squeeze_zero_norm' _ h_log
-      filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn using by rw [ Real.norm_of_nonneg ( by positivity ) ] ; gcongr ; norm_cast ; exact Nat.pow_log_le_self 2 hn.ne'
-    suffices h_log : Filter.Tendsto (fun y : ℝ => (y / Real.log 2) ^ k / Real.exp y) Filter.atTop (nhds 0) by
-      convert h_log.comp ( tendsto_natCast_atTop_atTop.atTop_mul_const ( Real.log_pos one_lt_two ) ) using 2
+      filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn using by
+        rw [ Real.norm_of_nonneg (by positivity) ]
+        gcongr
+        norm_cast
+        exact Nat.pow_log_le_self 2 hn.ne'
+    suffices h_log :
+        Filter.Tendsto (fun y : ℝ => (y / Real.log 2) ^ k / Real.exp y)
+          Filter.atTop (nhds 0) by
+      convert
+        h_log.comp
+          (tendsto_natCast_atTop_atTop.atTop_mul_const (Real.log_pos one_lt_two))
+        using 2
       norm_num [ Real.exp_nat_mul, Real.exp_log ]
     have := Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero k
-    convert this.div_const ( Real.log 2 ^ k ) using 2 <;> norm_num [ Real.exp_neg, div_eq_mul_inv, mul_pow, mul_assoc, mul_comm, mul_left_comm ]
-  have h_poly_div_N : ∃ P : Polynomial ℝ, ∀ N : ℕ, N ≥ 1 → ((Finset.filter (fun n => ∃ m, 0 < m ∧ n ∈ shifts m) (Finset.Icc 1 N)).card : ℝ) ^ h / N ≤ P.eval (Nat.log 2 N : ℝ) / N := by
+    convert this.div_const (Real.log 2 ^ k) using 2 <;>
+      norm_num [ Real.exp_neg, div_eq_mul_inv, mul_pow, mul_assoc, mul_comm,
+        mul_left_comm ]
+  have h_poly_div_N :
+      ∃ P : Polynomial ℝ,
+        ∀ N : ℕ,
+          N ≥ 1 →
+            ((Finset.filter (fun n => ∃ m, 0 < m ∧ n ∈ shifts m)
+              (Finset.Icc 1 N)).card : ℝ) ^ h / N ≤
+              P.eval (Nat.log 2 N : ℝ) / N := by
     use (Polynomial.C C₀ + Polynomial.C C₁ * (Polynomial.X + 2) ^ 4) ^ h
     intro N hN
     gcongr
     simpa using pow_le_pow_left₀ ( Nat.cast_nonneg _ ) ( hbound N ) h
   obtain ⟨ P, hP ⟩ := h_poly_div_N
-  have h_poly_div_N_zero : Filter.Tendsto (fun N : ℕ => P.eval (Nat.log 2 N : ℝ) / N) Filter.atTop (nhds 0) := by
+  have h_poly_div_N_zero :
+      Filter.Tendsto (fun N : ℕ => P.eval (Nat.log 2 N : ℝ) / N)
+        Filter.atTop (nhds 0) := by
     simp_all +decide [ Polynomial.eval_eq_sum_range ]
-    simpa [ Finset.sum_div _ _ _, mul_div_assoc ] using tendsto_finset_sum _ fun i hi => Filter.Tendsto.const_mul ( P.coeff i ) ( h_log_div_N_zero i )
-  exact squeeze_zero_norm' ( Filter.eventually_atTop.mpr ⟨ 1, fun N hN => by rw [ Real.norm_of_nonneg ( by positivity ) ] ; exact hP N hN ⟩ ) h_poly_div_N_zero
+    simpa [ Finset.sum_div _ _ _, mul_div_assoc ] using
+      tendsto_finset_sum _ fun i hi =>
+        Filter.Tendsto.const_mul ( P.coeff i ) ( h_log_div_N_zero i )
+  exact squeeze_zero_norm'
+    (Filter.eventually_atTop.mpr ⟨ 1, fun N hN => by
+      rw [ Real.norm_of_nonneg (by positivity) ]
+      exact hP N hN ⟩)
+    h_poly_div_N_zero
 
 /-! ## Count bound from min-bound property -/
 
@@ -1316,33 +1528,69 @@ lemma count_bound_from_min_shifts (shifts : ℕ → Finset ℕ)
       ((Icc 1 N).filter (fun n => ∃ m, 0 < m ∧ n ∈ shifts m)).card ≤
       (0 : ℝ) + (10 : ℝ)^10 * (Nat.log 2 N + 2) ^ 4 := by
   intro N
-  have h_filter : ((Icc 1 N).filter (fun n => ∃ m, 0 < m ∧ n ∈ shifts m)) ⊆ Finset.biUnion (Finset.Icc 1 (4 * (Nat.log 2 N) + 68)) shifts := by
+  have h_filter :
+      ((Icc 1 N).filter (fun n => ∃ m, 0 < m ∧ n ∈ shifts m)) ⊆
+        Finset.biUnion (Finset.Icc 1 (4 * (Nat.log 2 N) + 68)) shifts := by
     intro n hn
     obtain ⟨ m, hm₁, hm₂ ⟩ := ( Finset.mem_filter.mp hn ).2
-    -- If $m \geq 4 * \log_2 N + 69$, then $2^m \geq N * (256 * m^3 + 4)$, so no element of shifts m can be ≤ N.
+    -- If $m \geq 4 * \log_2 N + 69$, then
+    -- $2^m \geq N * (256 * m^3 + 4)$, so no element of shifts m can be ≤ N.
     by_cases hm : m ≥ 4 * Nat.log 2 N + 69
     · have h_contradiction : 2 ^ m ≥ N * (256 * m ^ 3 + 4) := by
         have h_contradiction : ∀ m ≥ 4 * Nat.log 2 N + 69, 2 ^ m ≥ N * (256 * m ^ 3 + 4) := by
           intro m hm
           induction' hm with m ih
-          · have h_contradiction : 2 ^ (4 * Nat.log 2 N + 69) ≥ 2 ^ (Nat.log 2 N + 1) * (256 * (4 * Nat.log 2 N + 69) ^ 3 + 4) := by
+          · have h_contradiction :
+                2 ^ (4 * Nat.log 2 N + 69) ≥
+                  2 ^ (Nat.log 2 N + 1) *
+                    (256 * (4 * Nat.log 2 N + 69) ^ 3 + 4) := by
               induction' Nat.log 2 N with k ih <;> norm_num [ Nat.pow_succ', Nat.pow_mul ] at *
-              nlinarith [ pow_pos ( zero_lt_two' ℕ ) k, pow_nonneg ( Nat.zero_le k ) 2, pow_nonneg ( Nat.zero_le k ) 3 ]
-            exact le_trans ( Nat.mul_le_mul_right _ ( Nat.le_of_lt ( Nat.lt_pow_succ_log_self ( by decide ) _ ) ) ) h_contradiction
+              nlinarith [
+                pow_pos ( zero_lt_two' ℕ ) k,
+                pow_nonneg ( Nat.zero_le k ) 2,
+                pow_nonneg ( Nat.zero_le k ) 3 ]
+            exact
+              le_trans
+                (Nat.mul_le_mul_right _
+                  (Nat.le_of_lt (Nat.lt_pow_succ_log_self (by decide) _)))
+                h_contradiction
           · norm_num [ pow_succ' ] at *
-            nlinarith [ Nat.zero_le ( N * m ), Nat.zero_le ( N * m ^ 2 ), Nat.zero_le ( N * m ^ 3 ), Nat.zero_le ( N * m ^ 4 ), Nat.zero_le ( N * m ^ 5 ), Nat.zero_le ( N * m ^ 6 ), Nat.zero_le ( N * m ^ 7 ), Nat.zero_le ( N * m ^ 8 ), Nat.zero_le ( N * m ^ 9 ), Nat.zero_le ( N * m ^ 10 ) ]
+            nlinarith [
+              Nat.zero_le ( N * m ),
+              Nat.zero_le ( N * m ^ 2 ),
+              Nat.zero_le ( N * m ^ 3 ),
+              Nat.zero_le ( N * m ^ 4 ),
+              Nat.zero_le ( N * m ^ 5 ),
+              Nat.zero_le ( N * m ^ 6 ),
+              Nat.zero_le ( N * m ^ 7 ),
+              Nat.zero_le ( N * m ^ 8 ),
+              Nat.zero_le ( N * m ^ 9 ),
+              Nat.zero_le ( N * m ^ 10 ) ]
         exact h_contradiction m hm
       contrapose! h_min
-      exact ⟨ m, hm₁, n, hm₂, by rw [ show shiftL m = 128 * m ^ 3 + 1 by rfl ] ; nlinarith [ Finset.mem_Icc.mp ( h_range m hm₁ hm₂ ), show n ≤ N from Finset.mem_Icc.mp ( Finset.mem_filter.mp hn |>.1 ) |>.2 ] ⟩
+      exact ⟨ m, hm₁, n, hm₂, by
+        rw [ show shiftL m = 128 * m ^ 3 + 1 by rfl ]
+        nlinarith [
+          Finset.mem_Icc.mp ( h_range m hm₁ hm₂ ),
+          show n ≤ N from Finset.mem_Icc.mp ( Finset.mem_filter.mp hn |>.1 ) |>.2 ] ⟩
     · exact Finset.mem_biUnion.mpr ⟨ m, Finset.mem_Icc.mpr ⟨ hm₁, by linarith ⟩, hm₂ ⟩
   -- The cardinality of the biUnion is at most the sum of the cardinalities of the shifts.
-  have h_biUnion_card : ((Finset.biUnion (Finset.Icc 1 (4 * (Nat.log 2 N) + 68)) shifts).card : ℝ) ≤ ∑ m ∈ Finset.Icc 1 (4 * (Nat.log 2 N) + 68), (shiftL m : ℝ) := by
-    exact_mod_cast le_trans ( Finset.card_biUnion_le ) ( Finset.sum_le_sum fun m hm => h_card m <| Finset.mem_Icc.mp hm |>.1 )
+  have h_biUnion_card :
+      ((Finset.biUnion (Finset.Icc 1 (4 * (Nat.log 2 N) + 68)) shifts).card : ℝ) ≤
+        ∑ m ∈ Finset.Icc 1 (4 * (Nat.log 2 N) + 68), (shiftL m : ℝ) := by
+    exact_mod_cast
+      le_trans ( Finset.card_biUnion_le )
+        ( Finset.sum_le_sum fun m hm => h_card m <| Finset.mem_Icc.mp hm |>.1 )
   refine le_trans ?_ ( h_biUnion_card.trans ?_ )
   · exact_mod_cast Finset.card_le_card h_filter
   · unfold shiftL
     erw [ Finset.sum_Ico_eq_sum_range ]
-    exact mod_cast Nat.recOn ( Nat.log 2 N ) ( by norm_num ) fun n ihn => by norm_num [ Nat.mul_succ, Finset.sum_range_succ ] at ihn ⊢ ; nlinarith only [ ihn, pow_nonneg ( Nat.zero_le n ) 2, pow_nonneg ( Nat.zero_le n ) 3 ]
+    exact mod_cast Nat.recOn ( Nat.log 2 N ) ( by norm_num ) fun n ihn => by
+      norm_num [ Nat.mul_succ, Finset.sum_range_succ ] at ihn ⊢
+      nlinarith only [
+        ihn,
+        pow_nonneg ( Nat.zero_le n ) 2,
+        pow_nonneg ( Nat.zero_le n ) 3 ]
 
 /-! ## Assembly -/
 
@@ -1404,15 +1652,30 @@ lemma not_basis_of_sparse {B : Set ℕ}
     obtain ⟨N₀, hN₀⟩ : ∃ N₀, ∀ n ≥ N₀, n ∈ hSumset h B := by
       aesop
     refine' Filter.eventually_atTop.mpr ⟨ 2 * N₀ + 2, fun N hN => _ ⟩
-    refine' le_trans _ ( Finset.card_mono <| show Finset.Icc ( N₀ + 1 ) N ⊆ Finset.filter ( fun x => x ∈ hSumset h B ) ( Finset.Ioc 0 N ) from fun x hx => Finset.mem_filter.mpr ⟨ Finset.mem_Ioc.mpr ⟨ by linarith [ Finset.mem_Icc.mp hx ], by linarith [ Finset.mem_Icc.mp hx ] ⟩, hN₀ x <| by linarith [ Finset.mem_Icc.mp hx ] ⟩ )
+    refine' le_trans _ (Finset.card_mono <| show
+      Finset.Icc (N₀ + 1) N ⊆
+        Finset.filter (fun x => x ∈ hSumset h B) (Finset.Ioc 0 N) from
+      fun x hx =>
+        Finset.mem_filter.mpr
+          ⟨Finset.mem_Ioc.mpr
+              ⟨by linarith [Finset.mem_Icc.mp hx],
+                by linarith [Finset.mem_Icc.mp hx]⟩,
+            hN₀ x <| by linarith [Finset.mem_Icc.mp hx]⟩)
     simp +arith +decide [ Nat.div_le_iff_le_mul_add_pred ]
     omega
   have h_sums_bound : ∀ᶠ N in Filter.atTop, countIn (hSumset h B) N ≤ (countIn B N + 1) ^ h := by
     have h_sums_bound : ∀ᶠ N in Filter.atTop, countIn (hSumset h B) N ≤ (countIn B N + 1) ^ h := by
-      have h_sums_bound_aux : ∀ n ∈ hSumset h B, ∀ N, n ≤ N → n ∈ Finset.image (fun f : Fin h → ℕ => ∑ i, f i) (Finset.Icc (fun _ => 0) (fun _ => N) |>.filter (fun f => ∀ i, f i ∈ B ∪ {0})) := by
+      have h_sums_bound_aux :
+          ∀ n ∈ hSumset h B, ∀ N, n ≤ N →
+            n ∈ Finset.image (fun f : Fin h → ℕ => ∑ i, f i)
+              (Finset.Icc (fun _ => 0) (fun _ => N) |>.filter
+                (fun f => ∀ i, f i ∈ B ∪ {0})) := by
         intro n hn N hN
         obtain ⟨f, hf⟩ : ∃ f : Fin h → ℕ, (∀ i, f i ∈ B ∪ {0}) ∧ (∑ i, f i = n) := by
-          have h_sums_bound_aux : ∀ h : ℕ, ∀ n ∈ hSumset h B, ∃ f : Fin h → ℕ, (∀ i, f i ∈ B ∪ {0}) ∧ (∑ i, f i = n) := by
+          have h_sums_bound_aux :
+              ∀ h : ℕ, ∀ n ∈ hSumset h B,
+                ∃ f : Fin h → ℕ,
+                  (∀ i, f i ∈ B ∪ {0}) ∧ (∑ i, f i = n) := by
             intro h n hn
             induction' h with h ih generalizing n <;> simp_all +decide [ hSumset ]
             rcases hn with ⟨ x, hx, y, hy, rfl ⟩
@@ -1421,51 +1684,144 @@ lemma not_basis_of_sparse {B : Set ℕ}
             simp_all +decide [ Fin.sum_univ_castSucc ]
             exact fun i => by cases i using Fin.lastCases <;> simp +decide [ * ]
           exact h_sums_bound_aux h n hn
-        exact Finset.mem_image.mpr ⟨ f, Finset.mem_filter.mpr ⟨ Finset.mem_Icc.mpr ⟨ fun _ => Nat.zero_le _, fun _ => hf.2 ▸ Finset.single_le_sum ( fun a _ => Nat.zero_le ( f a ) ) ( Finset.mem_univ _ ) |> le_trans <| hN ⟩, hf.1 ⟩, hf.2 ⟩
-      have h_sums_bound_aux : ∀ N, countIn (hSumset h B) N ≤ Finset.card (Finset.image (fun f : Fin h → ℕ => ∑ i, f i) (Finset.Icc (fun _ => 0) (fun _ => N) |>.filter (fun f => ∀ i, f i ∈ B ∪ {0}))) := by
+        exact
+          Finset.mem_image.mpr
+            ⟨f,
+              Finset.mem_filter.mpr
+                ⟨Finset.mem_Icc.mpr
+                    ⟨fun _ => Nat.zero_le _,
+                      fun i =>
+                        hf.2 ▸
+                          Finset.single_le_sum (fun a _ => Nat.zero_le (f a))
+                            (Finset.mem_univ i) |>
+                            le_trans <| hN⟩,
+                  hf.1⟩,
+              hf.2⟩
+      have h_sums_bound_aux :
+          ∀ N,
+            countIn (hSumset h B) N ≤
+              Finset.card
+                (Finset.image (fun f : Fin h → ℕ => ∑ i, f i)
+                  (Finset.Icc (fun _ => 0) (fun _ => N) |>.filter
+                    (fun f => ∀ i, f i ∈ B ∪ {0}))) := by
         intro N
         exact (by refine' Finset.card_le_card _ ; grind)
-      have h_sums_bound_aux : ∀ N, Finset.card (Finset.filter (fun f : Fin h → ℕ => ∀ i, f i ∈ B ∪ {0}) (Finset.Icc (fun _ => 0) (fun _ => N))) ≤ (countIn B N + 1) ^ h := by
+      have h_sums_bound_aux :
+          ∀ N,
+            Finset.card
+              (Finset.filter (fun f : Fin h → ℕ => ∀ i, f i ∈ B ∪ {0})
+                (Finset.Icc (fun _ => 0) (fun _ => N))) ≤
+              (countIn B N + 1) ^ h := by
         intro N
-        have h_sums_bound_aux : Finset.card (Finset.filter (fun f : Fin h → ℕ => ∀ i, f i ∈ B ∪ {0}) (Finset.Icc (fun _ => 0) (fun _ => N))) ≤ Finset.card (Finset.pi Finset.univ fun _ : Fin h => Finset.filter (fun x => x ∈ B ∪ {0}) (Finset.Icc 0 N)) := by
+        have h_sums_bound_aux :
+            Finset.card
+              (Finset.filter (fun f : Fin h → ℕ => ∀ i, f i ∈ B ∪ {0})
+                (Finset.Icc (fun _ => 0) (fun _ => N))) ≤
+            Finset.card
+              (Finset.pi Finset.univ fun _ : Fin h =>
+                Finset.filter (fun x => x ∈ B ∪ {0}) (Finset.Icc 0 N)) := by
           refine' le_of_eq _
-          refine' Finset.card_bij ( fun f hf => fun i _ => f i ) _ _ _ <;> simp +decide [ funext_iff ]
+          refine' Finset.card_bij (fun f hf => fun i _ => f i) _ _ _ <;>
+            simp +decide [funext_iff]
           · exact fun a ha₁ ha₂ ha₃ i => ⟨ ha₂ i, ha₃ i ⟩
-          · exact fun b hb => ⟨ fun i => b i ( Finset.mem_univ i ), ⟨ ⟨ fun i => Nat.zero_le _, fun i => hb i |>.1 ⟩, fun i => hb i |>.2 ⟩, fun i => rfl ⟩
+          · exact fun b hb =>
+              ⟨fun i => b i (Finset.mem_univ i),
+                ⟨⟨fun i => Nat.zero_le _, fun i => hb i |>.1⟩,
+                  fun i => hb i |>.2⟩,
+                fun i => rfl⟩
         refine le_trans h_sums_bound_aux ?_
         simp +decide [ countIn ]
-        rw [ show ( Finset.filter ( fun x => x = 0 ∨ x ∈ B ) ( Finset.Icc 0 N ) ) = Finset.filter ( fun x => x ∈ B ) ( Finset.Ioc 0 N ) ∪ { 0 } from ?_, Finset.card_union ] <;> norm_num
+        rw [
+          show
+            Finset.filter (fun x => x = 0 ∨ x ∈ B) (Finset.Icc 0 N) =
+              Finset.filter (fun x => x ∈ B) (Finset.Ioc 0 N) ∪ {0} from ?_,
+          Finset.card_union] <;>
+          norm_num
         ext ( _ | x ) <;> simp +decide
-      exact Filter.Eventually.of_forall fun N => le_trans ( by solve_by_elim ) ( Finset.card_image_le.trans ( h_sums_bound_aux N ) )
+      exact Filter.Eventually.of_forall fun N =>
+        le_trans (by solve_by_elim)
+          (Finset.card_image_le.trans (h_sums_bound_aux N))
     convert h_sums_bound using 1
-  have h_contradiction : Filter.Tendsto (fun N => ((countIn B N + 1) ^ h : ℝ) / N) Filter.atTop (nhds 0) := by
-    have h_contradiction : Filter.Tendsto (fun N => ((countIn B N : ℝ) ^ h + 1) / N) Filter.atTop (nhds 0) := by
+  have h_contradiction :
+      Filter.Tendsto (fun N => ((countIn B N + 1) ^ h : ℝ) / N)
+        Filter.atTop (nhds 0) := by
+    have h_contradiction :
+        Filter.Tendsto (fun N => ((countIn B N : ℝ) ^ h + 1) / N)
+          Filter.atTop (nhds 0) := by
       simpa [ add_div ] using Filter.Tendsto.add ( hsparse h ) ( tendsto_inv_atTop_nhds_zero_nat )
-    have h_contradiction : ∀ᶠ N in Filter.atTop, ((countIn B N + 1) ^ h : ℝ) ≤ 2 ^ h * ((countIn B N : ℝ) ^ h + 1) := by
+    have h_contradiction :
+        ∀ᶠ N in Filter.atTop,
+          ((countIn B N + 1) ^ h : ℝ) ≤
+            2 ^ h * ((countIn B N : ℝ) ^ h + 1) := by
       filter_upwards [ Filter.eventually_gt_atTop 0 ] with N hN
       rcases le_or_gt ( countIn B N : ℝ ) 1 with h | h <;> norm_cast at * <;> simp_all +decide
       · interval_cases countIn B N <;> norm_num
         grind
-      · exact le_trans ( pow_le_pow_left₀ ( by positivity ) ( show countIn B N + 1 ≤ 2 * countIn B N by linarith ) _ ) ( by rw [ mul_pow ] ; exact mul_le_mul_of_nonneg_left ( le_add_of_nonneg_right zero_le_one ) ( by positivity ) )
-    have h_contradiction : Filter.Tendsto (fun N => (2 ^ h * ((countIn B N : ℝ) ^ h + 1)) / N) Filter.atTop (nhds 0) := by
-      convert ‹Tendsto ( fun N : ℕ => ( countIn B N ^ h + 1 : ℝ ) / N ) Filter.atTop ( nhds 0 ) ›.const_mul ( 2 ^ h ) using 2 <;> ring
+      · exact
+          le_trans
+            (pow_le_pow_left₀ (by positivity)
+              (show countIn B N + 1 ≤ 2 * countIn B N by linarith) _)
+            (by
+              rw [mul_pow]
+              exact mul_le_mul_of_nonneg_left
+                (le_add_of_nonneg_right zero_le_one) (by positivity))
+    have h_contradiction :
+        Filter.Tendsto (fun N => (2 ^ h * ((countIn B N : ℝ) ^ h + 1)) / N)
+          Filter.atTop (nhds 0) := by
+      convert
+        (‹Tendsto
+            (fun N : ℕ => (countIn B N ^ h + 1 : ℝ) / N)
+            Filter.atTop (nhds 0)›.const_mul (2 ^ h))
+        using 2 <;>
+        ring
     refine' squeeze_zero_norm' _ h_contradiction
-    filter_upwards [ ‹∀ᶠ N in atTop, ( countIn B N + 1 : ℝ ) ^ h ≤ 2 ^ h * ( countIn B N ^ h + 1 ) › ] with N hN using by rw [ Real.norm_of_nonneg ( by positivity ) ] ; gcongr
-  have h_contradiction : Filter.Tendsto (fun N => (countIn (hSumset h B) N : ℝ) / N) Filter.atTop (nhds 0) := by
+    filter_upwards [
+      ‹∀ᶠ N in atTop,
+        (countIn B N + 1 : ℝ) ^ h ≤ 2 ^ h * (countIn B N ^ h + 1)›
+    ] with N hN using by
+      rw [Real.norm_of_nonneg (by positivity)]
+      gcongr
+  have h_contradiction :
+      Filter.Tendsto (fun N => (countIn (hSumset h B) N : ℝ) / N)
+        Filter.atTop (nhds 0) := by
     refine' squeeze_zero_norm' _ h_contradiction
-    filter_upwards [ h_sums_bound ] with N hN using by rw [ Real.norm_of_nonneg ( by positivity ) ] ; gcongr ; norm_cast
+    filter_upwards [ h_sums_bound ] with N hN using by
+      rw [Real.norm_of_nonneg (by positivity)]
+      gcongr
+      norm_cast
   have := h_contradiction.eventually ( gt_mem_nhds <| show 0 < 1 / 4 by norm_num )
   simp_all +decide [ division_def ]
   obtain ⟨ a, ha ⟩ := this
   obtain ⟨ b, hb ⟩ := h_sums
-  use absurd ( ha ( 2 * ( a + b + 1 ) ) ( by linarith ) ) ( by rw [ ← div_eq_mul_inv ] ; rw [ div_lt_iff₀ ] <;> norm_num <;> linarith [ hb ( 2 * ( a + b + 1 ) ) ( by linarith ), Nat.div_add_mod ( 2 * ( a + b + 1 ) ) 2, Nat.mod_lt ( 2 * ( a + b + 1 ) ) two_pos, show ( countIn ( hSumset h B ) ( 2 * ( a + b + 1 ) ) : ℝ ) ≥ ( 2 * ( a + b + 1 ) ) / 2 from by exact le_trans ( by norm_num ) ( Nat.cast_le.mpr ( hb ( 2 * ( a + b + 1 ) ) ( by linarith ) ) ) ] )
+  use
+    absurd
+      (ha (2 * (a + b + 1)) (by linarith))
+      (by
+        rw [← div_eq_mul_inv]
+        rw [div_lt_iff₀]
+        · norm_num
+          linarith [
+            hb (2 * (a + b + 1)) (by linarith),
+            Nat.div_add_mod (2 * (a + b + 1)) 2,
+            Nat.mod_lt (2 * (a + b + 1)) two_pos,
+            show
+              (countIn (hSumset h B) (2 * (a + b + 1)) : ℝ) ≥
+                (2 * (a + b + 1)) / 2 from by
+              exact
+                le_trans (by norm_num)
+                  (Nat.cast_le.mpr (hb (2 * (a + b + 1)) (by linarith)))
+          ]
+        · positivity)
 
 /-- The constructed B is not an additive basis. -/
 theorem constructB_not_basis (d : ShiftApproxData) : ¬IsAdditiveBasis (constructB d) := by
   -- To establish sparsity of B, we set A = {n | ∃ m, 0 < m ∧ n ∈ d.shifts m}.
   set A := {n | ∃ m, 0 < m ∧ n ∈ d.shifts m} with hA_def
   -- By definition of $A$, we know that for any $h$, $(countIn A N)^h / N \to 0$ as $N \to \infty$.
-  have hA_sparse : ∀ h : ℕ, Filter.Tendsto (fun N => (countIn A N : ℝ) ^ h / N) Filter.atTop (nhds 0) := by
+  have hA_sparse :
+      ∀ h : ℕ,
+        Filter.Tendsto (fun N => (countIn A N : ℝ) ^ h / N)
+          Filter.atTop (nhds 0) := by
     intro h
     have := d.sparse h
     simp_all +decide [ countIn ]
@@ -1473,16 +1829,27 @@ theorem constructB_not_basis (d : ShiftApproxData) : ¬IsAdditiveBasis (construc
   -- Since $B = \{1\} \cup A$, we have $countIn B N \leq 1 + countIn A N$.
   have hB_count : ∀ N : ℕ, countIn (constructB d) N ≤ 1 + countIn A N := by
     intro N
-    exact le_trans 
-      (Finset.card_le_card 
-        (show _ ⊆ { 1 } ∪ Finset.filter (fun a => a ∈ A) (Finset.Ioc 0 N) from fun x hx => by aesop))
+    exact le_trans
+      (Finset.card_le_card
+        (show _ ⊆ {1} ∪ Finset.filter (fun a => a ∈ A) (Finset.Ioc 0 N) from
+          fun x hx => by aesop))
       (Finset.card_union_le _ _)
   -- Using the sparsity of A, we can show that $(1 + countIn A N)^h / N \to 0$ as $N \to \infty$.
-  have hB_sparse : ∀ h : ℕ, Filter.Tendsto (fun N => (1 + countIn A N : ℝ) ^ h / N) Filter.atTop (nhds 0) := by
+  have hB_sparse :
+      ∀ h : ℕ,
+        Filter.Tendsto (fun N => (1 + countIn A N : ℝ) ^ h / N)
+          Filter.atTop (nhds 0) := by
     intro h
-    have h_expand : Filter.Tendsto (fun N => (∑ i ∈ Finset.range (h + 1), Nat.choose h i * (countIn A N : ℝ) ^ i) / N) Filter.atTop (nhds 0) := by
+    have h_expand :
+        Filter.Tendsto
+          (fun N =>
+            (∑ i ∈ Finset.range (h + 1),
+              Nat.choose h i * (countIn A N : ℝ) ^ i) / N)
+          Filter.atTop (nhds 0) := by
       simp_all +decide [ Finset.sum_div _ _ _ ]
-      simpa [ mul_div_assoc ] using tendsto_finset_sum _ fun i hi => Filter.Tendsto.const_mul _ ( hA_sparse i )
+      simpa [ mul_div_assoc ] using
+        tendsto_finset_sum _ fun i hi =>
+          Filter.Tendsto.const_mul _ (hA_sparse i)
     convert h_expand using 2
     rw [ add_comm, add_pow ]
     norm_num [ mul_comm ]
@@ -1515,7 +1882,11 @@ lemma double_counting (A : Set ℕ) (C : Finset ℕ) (M : ℕ)
     (Icc 1 M).sum (fun s => hitCount A C s) =
     C.sum (fun c => countIn A (c - 1)) := by
   -- By interchanging the order of summation, we can rewrite the left-hand side of the equation.
-  have h_interchange : ∑ s ∈ Icc 1 M, ∑ c ∈ C, (if s < c ∧ c - s ∈ A then 1 else 0) = ∑ c ∈ C, ∑ s ∈ Icc 1 M, (if s < c ∧ c - s ∈ A then 1 else 0) := by
+  have h_interchange :
+      (∑ s ∈ Icc 1 M, ∑ c ∈ C,
+        (if s < c ∧ c - s ∈ A then 1 else 0)) =
+        ∑ c ∈ C, ∑ s ∈ Icc 1 M,
+          (if s < c ∧ c - s ∈ A then 1 else 0) := by
     exact Finset.sum_comm
   convert h_interchange using 2
   · unfold hitCount
@@ -1523,10 +1894,20 @@ lemma double_counting (A : Set ℕ) (C : Finset ℕ) (M : ℕ)
   · rename_i c hc
     rcases c with ( _ | c ) <;> simp_all +decide [ countIn ]
     refine' Finset.card_bij ( fun x hx => c + 1 - x ) _ _ _ <;> simp_all +decide
-    · exact fun a ha₁ ha₂ ha₃ => ⟨ ⟨ Nat.sub_pos_of_lt ( by linarith ), by linarith [ hC _ hc ] ⟩, ha₁, by simpa [ Nat.sub_sub_self ( by linarith : a ≤ c + 1 ) ] using ha₃ ⟩
+    · exact fun a ha₁ ha₂ ha₃ =>
+        ⟨⟨Nat.sub_pos_of_lt (by linarith),
+            by linarith [hC _ hc]⟩,
+          ha₁,
+          by
+            simpa [Nat.sub_sub_self (by linarith : a ≤ c + 1)] using ha₃⟩
     · intros
       omega
-    · exact fun b hb₁ hb₂ hb₃ hb₄ => ⟨ c + 1 - b, ⟨ ⟨ Nat.sub_pos_of_lt ( by linarith ), Nat.sub_le_of_le_add ( by linarith ) ⟩, hb₄ ⟩, Nat.sub_sub_self ( by linarith ) ⟩
+    · exact fun b hb₁ hb₂ hb₃ hb₄ =>
+        ⟨c + 1 - b,
+          ⟨⟨Nat.sub_pos_of_lt (by linarith),
+              Nat.sub_le_of_le_add (by linarith)⟩,
+            hb₄⟩,
+          Nat.sub_sub_self (by linarith)⟩
 
 /-
 ============ Key counting argument ============
@@ -1544,7 +1925,8 @@ Sum of elements in a finset of distinct positive integers with q elements is ≥
 -/
 lemma sum_ge_triangular (C : Finset ℕ) (hC : ∀ c ∈ C, c ≥ 1) :
     C.card * (C.card + 1) / 2 ≤ C.sum id := by
-  -- Since $C$ is a finite set of distinct positive integers, we can order its elements as $c_1 < c_2 < \cdots < c_q$.
+  -- Since $C$ is a finite set of distinct positive integers, we can order its
+  -- elements as $c_1 < c_2 < \cdots < c_q$.
   have h_order : ∃ f : Fin C.card → ℕ, StrictMono f ∧ ∀ i, f i ∈ C := by
     exact ⟨ fun i => C.orderEmbOfFin rfl i, by aesop_cat, by aesop_cat ⟩
   -- Since $f$ is strictly monotone, we have $f i ≥ i + 1$ for all $i$.
@@ -1559,8 +1941,16 @@ lemma sum_ge_triangular (C : Finset ℕ) (hC : ∀ c ∈ C, c ≥ 1) :
     rw [ Finset.sum_range ]
     exact Finset.sum_le_sum fun i _ => h_f_ge i
   convert h_sum_ge.le using 1
-  · exact Nat.div_eq_of_eq_mul_left zero_lt_two ( Nat.recOn ( Finset.card C ) ( by norm_num ) fun n ih => by norm_num [ Finset.sum_range_succ ] at * ; linarith )
-  · rw [ Finset.eq_of_subset_of_card_le ( Finset.image_subset_iff.mpr fun i _ => hf_mem i ) ( by rw [ Finset.card_image_of_injective _ hf_mono.injective, Finset.card_fin ] ) ]
+  · exact
+      Nat.div_eq_of_eq_mul_left zero_lt_two
+        (Nat.recOn (Finset.card C) (by norm_num) fun n ih => by
+          norm_num [Finset.sum_range_succ] at *
+          linarith)
+  · rw [
+      Finset.eq_of_subset_of_card_le
+        (Finset.image_subset_iff.mpr fun i _ => hf_mem i)
+        (by
+          rw [Finset.card_image_of_injective _ hf_mono.injective, Finset.card_fin])]
     rfl
 
 /-- Lower bound on the full average of hit counts when C ⊆ [N] \ A, |C| = q.
@@ -1866,9 +2256,15 @@ noncomputable section
     Schnirelmann density α and every N ≥ 1, there exists b ∈ B with
     |(A ∪ (A+b)) ∩ {1,...,N}| ≥ (α + f(α))N. -/
 theorem erdos_problem_38 :
-    ∃ (B : Set ℕ) (f : ℝ → ℝ), ¬IsAdditiveBasis B ∧ (∀ α : ℝ, 0 < α → α < 1 → 0 < f α) ∧
-      ∀ (A : Set ℕ), 0 < schnirelmannDensity A → schnirelmannDensity A < 1 → ∀ (N : ℕ), 0 < N → ∃ b ∈ B, 
-        (schnirelmannDensity A + f (schnirelmannDensity A)) * ↑N ≤ (unionTranslateCount A b N : ℝ) := by
+    ∃ (B : Set ℕ) (f : ℝ → ℝ),
+      ¬IsAdditiveBasis B ∧
+        (∀ α : ℝ, 0 < α → α < 1 → 0 < f α) ∧
+          ∀ (A : Set ℕ),
+            0 < schnirelmannDensity A →
+            schnirelmannDensity A < 1 →
+            ∀ (N : ℕ), 0 < N → ∃ b ∈ B,
+              (schnirelmannDensity A + f (schnirelmannDensity A)) * ↑N ≤
+                (unionTranslateCount A b N : ℝ) := by
   -- Get the shift approximation data
   obtain ⟨d⟩ := shift_approx_exists
   -- Use the constructed B and erdos_f

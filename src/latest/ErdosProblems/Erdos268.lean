@@ -34,7 +34,6 @@ import Mathlib.CategoryTheory.Category.Basic
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.longLine false
 set_option linter.style.refine false
 set_option linter.style.multiGoal false
 set_option linter.style.maxHeartbeats false
@@ -162,7 +161,11 @@ lemma constructA_pos (K : ℕ) (ε : ℕ → Fin 3 → Bool) :
     n ∈ if ε k j then ↑((Ssets j).image (· * (k ^ 2 * m_const + 1)))
     else ↑((Tsets j).image (· * (k ^ 2 * m_const + 1))) := by
     unfold constructA at hn; aesop;
-  split_ifs at hj <;> obtain ⟨ x, hx, rfl ⟩ := Finset.mem_image.mp hj <;> fin_cases j <;> fin_cases hx <;> norm_num [ m_const ]
+  split_ifs at hj <;>
+    obtain ⟨ x, hx, rfl ⟩ := Finset.mem_image.mp hj <;>
+    fin_cases j <;>
+    fin_cases hx <;>
+    norm_num [ m_const ]
 
 /-- The set `constructA` is infinite (since each k contributes at least 2 elements,
 and different k's give different elements by unique representation). -/
@@ -171,16 +174,23 @@ lemma constructA_infinite (K : ℕ) (ε : ℕ → Fin 3 → Bool) :
   refine Set.infinite_of_forall_exists_gt ?_;
   intro a
   obtain ⟨k, hk⟩ : ∃ k ≥ K, a < k^2 * m_const + 1 :=
-    ⟨ a + K + 1, by linarith, by nlinarith [ Nat.mul_le_mul_left ( a + K + 1 ) ( show m_const ≥ 1 by decide )]⟩;
+    ⟨ a + K + 1, by linarith, by
+      nlinarith [
+        Nat.mul_le_mul_left ( a + K + 1 ) ( show m_const ≥ 1 by decide )]⟩;
   -- Choose $j$ such that $a < k^2 * m_const + 1$.
   obtain ⟨j, hj⟩ : ∃ j : Fin 3, a < (if ε k j then (Ssets j).min' (by
   fin_cases j <;> decide) else (Tsets j).min' (by
   fin_cases j <;> decide)) * (k ^ 2 * m_const + 1) := by
     use 0; split_ifs <;> simp_all +decide [ Finset.min' ] ;
-    · exact lt_of_le_of_lt hk.2
-        ( by nlinarith [ show ( Ssets 0 |> Finset.inf' ) ( by decide ) ( fun x => x ) > 0 from by decide ] );
-    · exact lt_of_le_of_lt hk.2
-        ( by nlinarith [ show 0 < ( Tsets 0 |> Finset.inf' ) ( Finset.nonempty_of_ne_empty ( by decide ) ) fun x => x from by decide ] )
+    · have hS : ( Ssets 0 |> Finset.inf' ) ( by decide ) ( fun x => x ) > 0 := by
+        decide
+      exact lt_of_le_of_lt hk.2 ( by nlinarith [ hS ] );
+    · have hT :
+          0 <
+            ( Tsets 0 |> Finset.inf' )
+              ( Finset.nonempty_of_ne_empty ( by decide ) ) fun x => x := by
+        decide
+      exact lt_of_le_of_lt hk.2 ( by nlinarith [ hT ] )
   generalize_proofs at *;
   refine ⟨ _, ?_, hj ⟩
   refine Set.mem_iUnion₂.mpr ⟨ k, hk.1, Set.mem_iUnion.mpr ⟨ j, ?_ ⟩ ⟩
@@ -194,20 +204,37 @@ lemma constructA_summable (K : ℕ) (ε : ℕ → Fin 3 → Bool) :
   /- Let's choose any $n \in \text{constructA } K \epsilon$. By definition, there exists $k \geq K$
     and $j$ such that $n = a * (k^2 * m_const + 1)$ where $a \in S_j$ or $a \in T_j$.-/
   have h_bound :
-    ∀ n ∈ constructA K ε, ∃ k ≥ K, ∃ a ∈ S₁ ∪ T₁ ∪ S₂ ∪ T₂ ∪ S₃ ∪ T₃, n = a * (k^2 * m_const + 1) := by
+      ∀ n ∈ constructA K ε,
+        ∃ k ≥ K, ∃ a ∈ S₁ ∪ T₁ ∪ S₂ ∪ T₂ ∪ S₃ ∪ T₃,
+          n = a * (k^2 * m_const + 1) := by
     intro n hn; unfold constructA at hn; simp_all +decide;
     rcases hn with ⟨ k, hk, j, hj ⟩ ; split_ifs at hj <;> simp_all +decide [ Ssets, Tsets ] ;
     · fin_cases j <;> aesop;
     · fin_cases j <;> aesop;
-  -- By comparison, it suffices to show that the series $\sum_{k=K}^{\infty} \sum_{a \in U} \frac{1}{a(k^2 m + 1)}$ converges.
-  suffices h_summable : Summable (fun (p : ℕ × ℕ) => if p.1 ≥ K ∧ p.2 ∈ S₁ ∪ T₁ ∪ S₂ ∪ T₂ ∪ S₃ ∪ T₃ then (1 : ℝ) / (p.2 * (p.1^2 * m_const + 1)) else 0) by
-    refine summable_of_sum_le (c := ∑' p : ℕ × ℕ, if p.1 ≥ K ∧ p.2 ∈ S₁ ∪ T₁ ∪ S₂ ∪ T₂ ∪ S₃ ∪ T₃ then ( 1 : ℝ ) / ( p.2 * ( p.1 ^ 2 * m_const + 1 ) ) else 0) ?_ ?_;
+  -- By comparison, it suffices to show that the corresponding double series converges.
+  suffices h_summable :
+      Summable (fun (p : ℕ × ℕ) =>
+        if p.1 ≥ K ∧ p.2 ∈ S₁ ∪ T₁ ∪ S₂ ∪ T₂ ∪ S₃ ∪ T₃ then
+          (1 : ℝ) / (p.2 * (p.1^2 * m_const + 1))
+        else 0) by
+    refine summable_of_sum_le
+      (c := ∑' p : ℕ × ℕ,
+        if p.1 ≥ K ∧ p.2 ∈ S₁ ∪ T₁ ∪ S₂ ∪ T₂ ∪ S₃ ∪ T₃ then
+          ( 1 : ℝ ) / ( p.2 * ( p.1 ^ 2 * m_const + 1 ) )
+        else 0) ?_ ?_
     · exact fun _ => by positivity;
     · intro u;
-      -- By definition of $u$, we can map each element $n \in u$ to a pair $(k, a)$ such that $n = a * (k^2 * m_const + 1)$.
-      have h_map : ∃ v : Finset (ℕ × ℕ), (∀ p ∈ v, p.1 ≥ K ∧ p.2 ∈ S₁ ∪ T₁ ∪ S₂ ∪ T₂ ∪ S₃ ∪ T₃) ∧ (∑ x ∈ u, (1 : ℝ) / x) ≤ (∑ p ∈ v, (1 : ℝ) / (p.2 * (p.1^2 * m_const + 1))) := by
+      -- Map each element `n ∈ u` to a pair `(k, a)` with the represented value.
+      have h_map :
+          ∃ v : Finset (ℕ × ℕ),
+            (∀ p ∈ v, p.1 ≥ K ∧ p.2 ∈ S₁ ∪ T₁ ∪ S₂ ∪ T₂ ∪ S₃ ∪ T₃) ∧
+              (∑ x ∈ u, (1 : ℝ) / x) ≤
+                (∑ p ∈ v, (1 : ℝ) / (p.2 * (p.1^2 * m_const + 1))) := by
         choose! k hk a ha h using h_bound;
-        refine ⟨ Finset.image ( fun x : ↑ ( constructA K ε ) => ( k x, a x ) ) u, ?_, ?_ ⟩ <;> norm_num;
+        refine ⟨
+          Finset.image ( fun x : ↑ ( constructA K ε ) => ( k x, a x ) ) u,
+          ?_, ?_ ⟩ <;>
+          norm_num;
         · grind;
         · rw [ Finset.sum_image ];
           · gcongr;
@@ -224,16 +251,38 @@ lemma constructA_summable (K : ℕ) (ε : ℕ → Fin 3 → Bool) :
       · exact Finset.sum_le_sum fun p hp => by specialize hv₁ p hp; aesop
       · exact fun _ _ => by positivity
   -- We can bound the sum by considering the sum over $k$ and the sum over $a$ separately.
-  have h_bound : ∀ k ≥ K, ∑' a : ℕ, (if a ∈ S₁ ∪ T₁ ∪ S₂ ∪ T₂ ∪ S₃ ∪ T₃ then (1 : ℝ) / (a * (k^2 * m_const + 1)) else 0) ≤ (∑' a : ℕ, (if a ∈ S₁ ∪ T₁ ∪ S₂ ∪ T₂ ∪ S₃ ∪ T₃ then (1 : ℝ) / a else 0)) / (k^2 * m_const + 1) := by
+  have h_bound :
+      ∀ k ≥ K,
+        (∑' a : ℕ,
+          if a ∈ S₁ ∪ T₁ ∪ S₂ ∪ T₂ ∪ S₃ ∪ T₃ then
+            (1 : ℝ) / (a * (k^2 * m_const + 1))
+          else 0) ≤
+        (∑' a : ℕ,
+          if a ∈ S₁ ∪ T₁ ∪ S₂ ∪ T₂ ∪ S₃ ∪ T₃ then (1 : ℝ) / a else 0) /
+          (k^2 * m_const + 1) := by
     intro k hk; rw [ ← tsum_div_const ] ; refine Summable.tsum_le_tsum ?_ ?_ ?_;
     · intro i; split_ifs <;> norm_num [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm ] ;
     · exact summable_of_ne_finset_zero (s := S₁ ∪ T₁ ∪ S₂ ∪ T₂ ∪ S₃ ∪ T₃) fun b hb => if_neg hb
     · exact Summable.mul_right _ (summable_of_ne_finset_zero
         (s := S₁ ∪ T₁ ∪ S₂ ∪ T₂ ∪ S₃ ∪ T₃) fun n hn => if_neg hn)
-  have h_summable : Summable (fun k : ℕ => (∑' a : ℕ, (if a ∈ S₁ ∪ T₁ ∪ S₂ ∪ T₂ ∪ S₃ ∪ T₃ then (1 : ℝ) / a else 0)) / (k^2 * m_const + 1)) := by
+  have h_summable :
+      Summable (fun k : ℕ =>
+        (∑' a : ℕ,
+          if a ∈ S₁ ∪ T₁ ∪ S₂ ∪ T₂ ∪ S₃ ∪ T₃ then (1 : ℝ) / a else 0) /
+          (k^2 * m_const + 1)) := by
     refine Summable.mul_left _ ?_;
     rw [ ← summable_nat_add_iff 1 ];
-    exact Summable.of_nonneg_of_le ( fun n => by positivity ) ( fun n => by rw [ inv_le_comm₀ ] <;> norm_num <;> ring_nf <;> nlinarith [ show ( m_const : ℝ ) ≥ 1 by exact_mod_cast Nat.one_le_iff_ne_zero.mpr <| by decide ] ) <| summable_nat_add_iff 1 |>.2 <| Real.summable_one_div_nat_pow.2 one_lt_two;
+    exact Summable.of_nonneg_of_le
+      ( fun n => by positivity )
+      ( fun n => by
+        rw [ inv_le_comm₀ ] <;>
+          norm_num <;>
+          ring_nf <;>
+          nlinarith [
+            show ( m_const : ℝ ) ≥ 1 by
+              exact_mod_cast Nat.one_le_iff_ne_zero.mpr <| by decide ] )
+      <| summable_nat_add_iff 1 |>.2
+      <| Real.summable_one_div_nat_pow.2 one_lt_two;
   rw [ summable_prod_of_nonneg ];
   · constructor
     · exact fun k => summable_of_ne_finset_zero
@@ -267,7 +316,11 @@ lemma image_open_contains_ball
       · use M_mat.mulVec ‹_›;
         simp_all +decide [ M_inv_mul_mat ]
     · fun_prop;
-  exact Exists.elim ( hQ_ne ) fun x hx => by rcases Metric.mem_nhds_iff.1 ( hQ_image_open.mem_nhds ( Set.mem_image_of_mem _ hx ) ) with ⟨ ε, εpos, hε ⟩ ; exact ⟨ _, ε, εpos, hε.trans ( Set.image_subset_iff.2 hQ_sub ) ⟩ ;
+  exact Exists.elim ( hQ_ne ) fun x hx => by
+    rcases Metric.mem_nhds_iff.1
+        ( hQ_image_open.mem_nhds ( Set.mem_image_of_mem _ hx ) ) with
+      ⟨ ε, εpos, hε ⟩
+    exact ⟨ _, ε, εpos, hε.trans ( Set.image_subset_iff.2 hQ_sub ) ⟩ ;
 
 end
 
@@ -426,17 +479,32 @@ lemma game_infinitely_many_inclusions
     (δ : ℕ → ℝ) (hδ : ∀ k, |δ k| ≤ e k) :
     {k | aliceChoice a q δ x₀ k}.Infinite := by
   by_contra h_contra;
-  -- Step 1: Show ∃ L, aliceChoice at L. If not, by gameSeq_no_include, gameSeq(k) = x₀ + ∑ δ. The limit of (x₀ + ∑δ + 3a(k)) = x₀ + ∑'δ ≥ q (since each term > q by ¬aliceChoice). But |∑'δ| ≤ ∑'|δ| ≤ ∑'e < a(0), so x₀ + a(0) > q, contradicting hq_lo.
+  -- Step 1: show there is some `L` where Alice includes.
+  -- Otherwise `gameSeq(k) = x₀ + ∑ δ`, whose limiting inequalities contradict `hq_lo`.
   obtain ⟨L, hL⟩ : ∃ L, aliceChoice a q δ x₀ L := by
     by_cases h_no_choice : ∀ k, ¬aliceChoice a q δ x₀ k;
-    · have h_limit : Filter.Tendsto (fun k => gameSeq a q δ x₀ k + 3 * a k) Filter.atTop (nhds (x₀ + ∑' k, δ k)) := by
-        have h_limit : Filter.Tendsto (fun k => gameSeq a q δ x₀ k) Filter.atTop (nhds (x₀ + ∑' k, δ k)) := by
-          have h_limit : Filter.Tendsto (fun k => x₀ + ∑ i ∈ Finset.range k, δ i) Filter.atTop (nhds (x₀ + ∑' k, δ k)) := by
-            exact tendsto_const_nhds.add ( Summable.hasSum ( show Summable δ from Summable.of_norm <| by exact Summable.of_nonneg_of_le ( fun k => abs_nonneg _ ) ( fun k => hδ k ) h_summ_e ) |> HasSum.tendsto_sum_nat );
+    · have h_limit :
+          Filter.Tendsto (fun k => gameSeq a q δ x₀ k + 3 * a k)
+            Filter.atTop (nhds (x₀ + ∑' k, δ k)) := by
+        have h_limit :
+            Filter.Tendsto (fun k => gameSeq a q δ x₀ k)
+              Filter.atTop (nhds (x₀ + ∑' k, δ k)) := by
+          have h_limit :
+              Filter.Tendsto (fun k => x₀ + ∑ i ∈ Finset.range k, δ i)
+                Filter.atTop (nhds (x₀ + ∑' k, δ k)) := by
+            exact tendsto_const_nhds.add
+              ( Summable.hasSum ( show Summable δ from
+                  Summable.of_norm <| by
+                    exact Summable.of_nonneg_of_le
+                      ( fun k => abs_nonneg _ ) ( fun k => hδ k ) h_summ_e )
+                |> HasSum.tendsto_sum_nat );
           exact h_limit.congr fun k => by rw [ gameSeq_no_include a q δ x₀ h_no_choice ] ;
         simpa using h_limit.add ( tendsto_const_nhds.mul h_summ_a.tendsto_atTop_zero );
       have h_limit_ge_q : x₀ + ∑' k, δ k ≥ q := by
-        exact le_of_tendsto_of_tendsto' tendsto_const_nhds h_limit fun k => le_of_not_gt fun hk => h_no_choice k <| by unfold aliceChoice; linarith;
+        exact le_of_tendsto_of_tendsto' tendsto_const_nhds h_limit fun k =>
+          le_of_not_gt fun hk => h_no_choice k <| by
+            unfold aliceChoice
+            linarith;
       have h_abs_sum_le_sum_e : |∑' k, δ k| ≤ ∑' k, e k := by
         calc |∑' k, δ k| = ‖∑' k, δ k‖ := (Real.norm_eq_abs _).symm
         _ ≤ ∑' k, ‖δ k‖ := norm_tsum_le_tsum_norm
@@ -448,7 +516,15 @@ lemma game_infinitely_many_inclusions
     · exact not_forall_not.mp h_no_choice;
   -- Let $L$ be the largest index where Alice includes.
   obtain ⟨L, hL⟩ : ∃ L, (∀ k > L, ¬aliceChoice a q δ x₀ k) ∧ aliceChoice a q δ x₀ L := by
-    exact ⟨ Finset.max' ( Set.Finite.toFinset ( Classical.not_not.mp h_contra ) ) ⟨ L, by simpa using hL ⟩, fun k hk => fun hk' => not_lt_of_ge ( Finset.le_max' _ _ <| by simpa using hk' ) hk, by simpa using Finset.max'_mem ( Set.Finite.toFinset ( Classical.not_not.mp h_contra ) ) ⟨ L, by simpa using hL ⟩ ⟩;
+    exact ⟨
+      Finset.max' ( Set.Finite.toFinset ( Classical.not_not.mp h_contra ) )
+        ⟨ L, by simpa using hL ⟩,
+      fun k hk => fun hk' =>
+        not_lt_of_ge ( Finset.le_max' _ _ <| by simpa using hk' ) hk,
+      by
+        simpa using Finset.max'_mem
+          ( Set.Finite.toFinset ( Classical.not_not.mp h_contra ) )
+          ⟨ L, by simpa using hL ⟩ ⟩;
   -- For n > L, the sequence is determined by perturbations alone.
   have h_gameSeq_after_last_include := gameSeq_after_last_include a q δ x₀ L hL.1
   -- Step 3: gameSeq(L+1) ≤ q - 2a(L) + e(L) (Alice included at L, |δ L| ≤ e L).
@@ -461,7 +537,9 @@ lemma game_infinitely_many_inclusions
     have h_lim_zero : Filter.Tendsto (fun n => 3 * a n) Filter.atTop (nhds 0) := by
       simpa using h_summ_a.tendsto_atTop_zero.const_mul 3;
     have := h_lim_zero.eventually ( gt_mem_nhds <| show 0 < a L - ∑' l, e ( L + l + 1 ) from ?_ );
-    · rw [ Filter.eventually_atTop ] at this; rcases this with ⟨ N, hN ⟩ ; exact ⟨ N + L + 1, by linarith, hN _ <| by linarith ⟩ ;
+    · rw [ Filter.eventually_atTop ] at this
+      rcases this with ⟨ N, hN ⟩
+      exact ⟨ N + L + 1, by linarith, hN _ <| by linarith ⟩ ;
     · have := h_error_dom L;
       rw [ Summable.tsum_eq_zero_add ] at this;
       · linarith! [ he_nonneg L ];
@@ -478,7 +556,13 @@ lemma game_infinitely_many_inclusions
           (h_summ_e.comp_injective (by intros m n h; simpa using h))
   -- Therefore, gameSeq(N) + 3a(N) ≤ q, meaning aliceChoice at N holds, contradiction.
   have h_contradiction : gameSeq a q δ x₀ N + 3 * a N ≤ q := by
-    linarith [ h_gameSeq_after_last_include N hN.1, abs_le.mp h_sum_delta_bound, show ∑' l : ℕ, e ( L + l ) = e L + ∑' l : ℕ, e ( L + l + 1 ) from error_tail_split e h_summ_e L, h_error_dom L ];
+    linarith [
+      h_gameSeq_after_last_include N hN.1,
+      abs_le.mp h_sum_delta_bound,
+      show ∑' l : ℕ, e ( L + l ) =
+          e L + ∑' l : ℕ, e ( L + l + 1 ) from
+        error_tail_split e h_summ_e L,
+      h_error_dom L ];
   exact hL.1 N hN.1 h_contradiction
 
 /-- If Alice always includes from step `L+1` onward (and skipped at `L`), the game
@@ -529,22 +613,40 @@ lemma game_infinitely_many_skips
         -- x₀ + 3a(0) ≤ q but q ≤ x₀ + 2a(0), contradicting a(0) > 0.
         simp only [aliceChoice, gameSeq_zero] at h0; linarith [ha_pos 0]
       · exact Set.nonempty_iff_ne_empty.mpr h_empty;
-    exact ⟨ Finset.max' ( h_finite.toFinset ) ⟨ L, h_finite.mem_toFinset.mpr hL ⟩, h_finite.mem_toFinset.mp ( Finset.max'_mem _ _ ), fun k hk => Classical.not_not.1 fun hk' => not_lt_of_ge ( Finset.le_max' _ _ ( h_finite.mem_toFinset.mpr hk' ) ) hk ⟩;
-  -- By definition of $L$, we have $gameSeq a q δ x₀ (L + 1) = gameSeq a q δ x₀ L + δ L + ∑_{k=0}^{N-L-2} (a (L + 1 + k) + δ (L + 1 + k))$ for all $N > L$.
-  have h_seq_eq : ∀ N > L, gameSeq a q δ x₀ N = gameSeq a q δ x₀ L + δ L + ∑ k ∈ Finset.range (N - L - 1), (a (L + 1 + k) + δ (L + 1 + k)) := by
+    exact ⟨
+      Finset.max' ( h_finite.toFinset ) ⟨ L, h_finite.mem_toFinset.mpr hL ⟩,
+      h_finite.mem_toFinset.mp ( Finset.max'_mem _ _ ),
+      fun k hk => Classical.not_not.1 fun hk' =>
+        not_lt_of_ge
+          ( Finset.le_max' _ _ ( h_finite.mem_toFinset.mpr hk' ) ) hk ⟩;
+  -- By definition of `L`, the sequence is a tail sum for all `N > L`.
+  have h_seq_eq :
+      ∀ N > L,
+        gameSeq a q δ x₀ N =
+          gameSeq a q δ x₀ L + δ L +
+            ∑ k ∈ Finset.range (N - L - 1),
+              (a (L + 1 + k) + δ (L + 1 + k)) := by
     intros N hN;
     apply gameSeq_include_run;
     · tauto;
     · exact hL_skip.2;
     · linarith;
-  -- Taking the limit as $N \to \infty$, we get $q \geq gameSeq a q δ x₀ L + δ L + \sum_{k=0}^{\infty} (a (L + 1 + k) + δ (L + 1 + k))$.
-  have h_lim_ge : q ≥ gameSeq a q δ x₀ L + δ L + ∑' k, (a (L + 1 + k) + δ (L + 1 + k)) := by
-    have h_lim_ge : Filter.Tendsto (fun N => gameSeq a q δ x₀ N) Filter.atTop (nhds (gameSeq a q δ x₀ L + δ L + ∑' k, (a (L + 1 + k) + δ (L + 1 + k)))) := by
-      rw [ Filter.tendsto_congr' ( Filter.eventuallyEq_of_mem ( Filter.Ioi_mem_atTop L ) h_seq_eq ) ];
+  -- Taking the limit as `N → ∞` gives the corresponding upper bound by `q`.
+  have h_lim_ge :
+      q ≥ gameSeq a q δ x₀ L + δ L +
+        ∑' k, (a (L + 1 + k) + δ (L + 1 + k)) := by
+    have h_lim_ge :
+        Filter.Tendsto (fun N => gameSeq a q δ x₀ N) Filter.atTop
+          (nhds (gameSeq a q δ x₀ L + δ L +
+            ∑' k, (a (L + 1 + k) + δ (L + 1 + k)))) := by
+      rw [ Filter.tendsto_congr'
+        ( Filter.eventuallyEq_of_mem ( Filter.Ioi_mem_atTop L ) h_seq_eq ) ];
       have hδ_summable : Summable fun k => δ (L + 1 + k) :=
         .of_norm_bounded (g := fun k => e (L + 1 + k))
           (h_summ_e.comp_injective (add_right_injective (L + 1))) fun _ => hδ _
-      have ha_summable := h_summ_a.comp_injective (add_right_injective (L + 1) : Function.Injective (L + 1 + ·))
+      have ha_summable :=
+        h_summ_a.comp_injective
+          (add_right_injective (L + 1) : Function.Injective (L + 1 + ·))
       refine tendsto_const_nhds.add ((ha_summable.add hδ_summable).hasSum.tendsto_sum_nat
         |>.comp (Filter.tendsto_sub_atTop_nat _) |>.comp (Filter.tendsto_sub_atTop_nat _))
     refine le_of_tendsto h_lim_ge ?_
@@ -554,7 +656,7 @@ lemma game_infinitely_many_skips
   -- By definition of $L$, we have $gameSeq a q δ x₀ L + 3 * a L > q$.
   have h_gameSeq_L : gameSeq a q δ x₀ L + 3 * a L > q := by
     exact not_le.mp hL_skip.1;
-  -- By definition of $L$, we have $\sum_{k=0}^{\infty} (a (L + 1 + k) + δ (L + 1 + k)) \geq \sum_{k=0}^{\infty} a (L + 1 + k) - \sum_{k=0}^{\infty} e (L + 1 + k)$.
+  -- The tail perturbation is bounded below by subtracting the error tail.
   have h_delta_summable : Summable fun k => δ (L + 1 + k) :=
     .of_norm_bounded (g := fun k => e (L + 1 + k))
       (h_summ_e.comp_injective (add_right_injective (L + 1))) fun _ => hδ _
@@ -612,30 +714,67 @@ theorem game_converges_to_target
     (hq_hi : q ≤ x₀ + 2 * a 0)
     (δ : ℕ → ℝ) (hδ : ∀ k, |δ k| ≤ e k) :
     Tendsto (gameSeq a q δ x₀) atTop (nhds q) := by
-  obtain ⟨ L, hL ⟩ := gameSeq_convergent a e q x₀ ( fun k => by linarith [ ha_pos k ] ) h_summ_a h_summ_e δ hδ;
+  obtain ⟨ L, hL ⟩ :=
+    gameSeq_convergent a e q x₀
+      ( fun k => by linarith [ ha_pos k ] ) h_summ_a h_summ_e δ hδ;
   -- By Claim 1, there are infinitely many inclusion steps, so $L \leq q$.
   have hL_le_q : L ≤ q := by
-    -- By Claim 1, Alice includes infinitely often, so there exists a subsequence $\{k_n\}$ such that $gameSeq a q δ x₀ k_n + 3 * a k_n ≤ q$.
-    obtain ⟨k_n, hk_n_infinite, hk_n_subseq⟩ : ∃ k_n : ℕ → ℕ, StrictMono k_n ∧ ∀ n, gameSeq a q δ x₀ (k_n n) + 3 * a (k_n n) ≤ q := by
-      have := game_infinitely_many_inclusions a e q x₀ h_summ_a h_summ_e he_nonneg h_error_dom hq_lo δ hδ;
-      exact ⟨ fun n => Nat.recOn n ( Nat.find <| this.nonempty ) fun n ih => Nat.find <| this.exists_gt ih, strictMono_nat_of_lt_succ fun n => Nat.find_spec ( this.exists_gt _ ) |>.2, fun n => Nat.recOn n ( Nat.find_spec <| this.nonempty ) fun n ih => Nat.find_spec ( this.exists_gt _ ) |>.1 ⟩;
+    -- Claim 1 gives a subsequence of inclusion steps.
+    obtain ⟨k_n, hk_n_infinite, hk_n_subseq⟩ :
+        ∃ k_n : ℕ → ℕ, StrictMono k_n ∧
+          ∀ n, gameSeq a q δ x₀ (k_n n) + 3 * a (k_n n) ≤ q := by
+      have :=
+        game_infinitely_many_inclusions
+          a e q x₀ h_summ_a h_summ_e he_nonneg h_error_dom hq_lo δ hδ;
+      exact ⟨
+        (fun n =>
+          Nat.recOn n ( Nat.find <| this.nonempty ) fun n ih =>
+            Nat.find <| this.exists_gt ih),
+        strictMono_nat_of_lt_succ fun n =>
+          Nat.find_spec ( this.exists_gt _ ) |>.2,
+        fun n =>
+          Nat.recOn n ( Nat.find_spec <| this.nonempty ) fun n ih =>
+            Nat.find_spec ( this.exists_gt _ ) |>.1 ⟩;
     -- Since $a(k_n) \to 0$ as $n \to \infty$, we have $L \leq q$.
-    have hL_le_q_subseq : Filter.Tendsto (fun n => gameSeq a q δ x₀ (k_n n) + 3 * a (k_n n)) Filter.atTop (nhds (L + 0)) := by
-      simpa using Filter.Tendsto.add ( hL.comp hk_n_infinite.tendsto_atTop ) ( tendsto_const_nhds.mul ( h_summ_a.tendsto_atTop_zero.comp hk_n_infinite.tendsto_atTop ) );
+    have hL_le_q_subseq :
+        Filter.Tendsto (fun n => gameSeq a q δ x₀ (k_n n) + 3 * a (k_n n))
+          Filter.atTop (nhds (L + 0)) := by
+      simpa using Filter.Tendsto.add
+        ( hL.comp hk_n_infinite.tendsto_atTop )
+        ( tendsto_const_nhds.mul
+          ( h_summ_a.tendsto_atTop_zero.comp hk_n_infinite.tendsto_atTop ) );
     simpa using le_of_tendsto_of_tendsto' hL_le_q_subseq tendsto_const_nhds hk_n_subseq;
   -- By Claim 2, there are infinitely many skip steps, so $L \geq q$.
   have hL_ge_q : q ≤ L := by
-    -- By Claim 2, there are infinitely many skip steps, so we can find a subsequence where Alice skips infinitely often.
-    obtain ⟨subseq, hsubseq⟩ : ∃ subseq : ℕ → ℕ, StrictMono subseq ∧ ∀ k, ¬aliceChoice a q δ x₀ (subseq k) := by
-      have := game_infinitely_many_skips a e q x₀ ha_pos h_summ_a h_summ_e h_error_dom h_tail_dom hq_hi δ hδ;
-      exact ⟨ fun k => Nat.recOn k ( Nat.find <| this.nonempty ) fun k ih => Nat.find <| this.exists_gt ih, strictMono_nat_of_lt_succ fun k => Nat.find_spec ( this.exists_gt _ ) |>.2, fun k => Nat.recOn k ( Nat.find_spec <| this.nonempty ) fun k ih => Nat.find_spec ( this.exists_gt _ ) |>.1 ⟩;
-    -- By definition of $aliceChoice$, if $¬aliceChoice a q δ x₀ (subseq k)$, then $gameSeq a q δ x₀ (subseq k) + 3 * a (subseq k) > q$.
+    -- Claim 2 gives a subsequence of skip steps.
+    obtain ⟨subseq, hsubseq⟩ :
+        ∃ subseq : ℕ → ℕ, StrictMono subseq ∧
+          ∀ k, ¬aliceChoice a q δ x₀ (subseq k) := by
+      have :=
+        game_infinitely_many_skips
+          a e q x₀ ha_pos h_summ_a h_summ_e h_error_dom h_tail_dom hq_hi δ hδ;
+      exact ⟨
+        (fun k =>
+          Nat.recOn k ( Nat.find <| this.nonempty ) fun k ih =>
+            Nat.find <| this.exists_gt ih),
+        strictMono_nat_of_lt_succ fun k =>
+          Nat.find_spec ( this.exists_gt _ ) |>.2,
+        fun k =>
+          Nat.recOn k ( Nat.find_spec <| this.nonempty ) fun k ih =>
+            Nat.find_spec ( this.exists_gt _ ) |>.1 ⟩;
+    -- At each skip step, the cautious condition fails.
     have h_skip : ∀ k, gameSeq a q δ x₀ (subseq k) + 3 * a (subseq k) > q := by
       exact fun k => not_le.mp fun hk => hsubseq.2 k hk;
     -- Since $a (subseq k) \to 0$ as $k \to \infty$, we have $3 * a (subseq k) \to 0$.
     have h_a_zero : Filter.Tendsto (fun k => 3 * a (subseq k)) Filter.atTop (nhds 0) := by
-      simpa using tendsto_const_nhds.mul ( h_summ_a.tendsto_atTop_zero.comp hsubseq.1.tendsto_atTop );
-    exact le_of_tendsto_of_tendsto' tendsto_const_nhds ( by simpa using hL.comp hsubseq.1.tendsto_atTop |> Filter.Tendsto.add <| h_a_zero ) fun k => le_of_lt <| h_skip k;
+      simpa using tendsto_const_nhds.mul
+        ( h_summ_a.tendsto_atTop_zero.comp hsubseq.1.tendsto_atTop );
+    exact le_of_tendsto_of_tendsto'
+      tendsto_const_nhds
+      ( by
+        simpa using
+          ( hL.comp hsubseq.1.tendsto_atTop |> Filter.Tendsto.add <| h_a_zero ) )
+      fun k => le_of_lt <| h_skip k;
   exact le_antisymm hL_le_q hL_ge_q ▸ hL
 
 end
@@ -694,18 +833,34 @@ lemma aGameSeq_summable (j : Fin 3) (K : ℕ) : Summable (aGameSeq j K) := by
   · exact fun n => le_of_lt ( aGameSeq_pos j K n );
   · intro n; rw [ aGameSeq ] ; gcongr ; norm_cast ;
     · fin_cases j <;> norm_num [ c_coeff ];
-    · refine' le_trans ?_ ( pow_le_pow_right₀ ?_ ( show ( j : ℕ ) + 1 ≥ 1 by linarith ) ) ; norm_cast ; ring_nf;
-      · exact Nat.le_of_lt_succ <| by { rw [ show nScale ( n + K ) = ( n + K ) ^ 2 * 2310 + 1 by rfl ] ; nlinarith };
+    · refine' le_trans ?_
+        ( pow_le_pow_right₀ ?_ ( show ( j : ℕ ) + 1 ≥ 1 by linarith ) ) <;>
+        norm_cast <;>
+        ring_nf
+      · exact Nat.le_of_lt_succ <| by
+          rw [ show nScale ( n + K ) = ( n + K ) ^ 2 * 2310 + 1 by rfl ]
+          nlinarith
       · exact_mod_cast nScale_pos _;
-  · exact Summable.mul_left _ <| by exact_mod_cast summable_nat_add_iff ( K + 1 ) |>.2 <| Real.summable_nat_pow_inv.2 one_lt_two;
+  · exact Summable.mul_left _ <| by
+      exact_mod_cast summable_nat_add_iff ( K + 1 ) |>.2
+        <| Real.summable_nat_pow_inv.2 one_lt_two;
 
 lemma eGameSeq_summable (K : ℕ) : Summable (eGameSeq K) := by
   unfold eGameSeq;
   -- We can compare our series to the convergent p-series $\sum_{n=1}^{\infty} \frac{1}{n^4}$.
   have h_comparison : ∀ n : ℕ, (1 : ℝ) / (nScale (K + n))^4 ≤ 1 / (n + 1)^4 := by
     intro n; gcongr; norm_cast;
-    exact Nat.succ_le_of_lt ( by exact lt_add_of_le_of_pos ( Nat.le_trans ( Nat.le_add_left _ _ ) ( Nat.le_trans ( Nat.le_self_pow ( by norm_num ) _ ) ( Nat.le_mul_of_pos_right _ ( by decide ) ) ) ) ( by decide ) );
-  exact Summable.of_nonneg_of_le ( fun n => by positivity ) h_comparison ( by simpa using summable_nat_add_iff 1 |>.2 <| Real.summable_one_div_nat_pow.2 <| by norm_num )
+    exact Nat.succ_le_of_lt ( by
+      exact lt_add_of_le_of_pos
+        ( Nat.le_trans ( Nat.le_add_left _ _ )
+          ( Nat.le_trans ( Nat.le_self_pow ( by norm_num ) _ )
+            ( Nat.le_mul_of_pos_right _ ( by decide ) ) ) )
+        ( by decide ) );
+  exact Summable.of_nonneg_of_le
+    ( fun n => by positivity ) h_comparison
+    ( by
+      simpa using summable_nat_add_iff 1 |>.2
+        <| Real.summable_one_div_nat_pow.2 <| by norm_num )
 
 /-! ## Error domination and tail domination -/
 
@@ -719,41 +874,94 @@ compared to Alice's moves. The proof bounds the error tail by an integral. -/
 lemma error_domination (j : Fin 3) (k : ℕ) :
     ∑' l, eGameSeq K₀ (k + l) < aGameSeq j K₀ k := by
   -- We'll use the fact that the sum of a geometric series is less than the first term.
-  have h_geo_sum : ∑' l, (1 : ℝ) / ((nScale (K₀ + k + l))^4) < (1 : ℝ) / ((nScale (K₀ + k))^3) * (1 / 1029000) := by
-    -- We'll use the fact that $\sum_{l=0}^{\infty} \frac{1}{(nScale(K₀ + k + l))^4}$ is a geometric series with the first term $\frac{1}{(nScale(K₀ + k))^4}$ and common ratio $\frac{1}{(nScale(K₀ + k + 1))^4}$.
-    have h_geo_series : ∑' l : ℕ, (1 : ℝ) / ((nScale (K₀ + k + l))^4) ≤ (1 : ℝ) / ((nScale (K₀ + k))^4) + ∑' l : ℕ, (1 : ℝ) / ((nScale (K₀ + k + l + 1))^4) := by
+  have h_geo_sum :
+      (∑' l, (1 : ℝ) / ((nScale (K₀ + k + l))^4)) <
+        (1 : ℝ) / ((nScale (K₀ + k))^3) * (1 / 1029000) := by
+    -- Split off the first term of the tail.
+    have h_geo_series :
+        (∑' l : ℕ, (1 : ℝ) / ((nScale (K₀ + k + l))^4)) ≤
+          (1 : ℝ) / ((nScale (K₀ + k))^4) +
+            ∑' l : ℕ, (1 : ℝ) / ((nScale (K₀ + k + l + 1))^4) := by
       rw [ Summable.tsum_eq_zero_add ];
       · norm_num [ add_assoc ];
-      · refine' Summable.of_nonneg_of_le ( fun l => by positivity ) ( fun l => ?_ ) ( summable_nat_add_iff 1 |>.2 <| Real.summable_one_div_nat_pow.2 one_lt_two );
+      · refine' Summable.of_nonneg_of_le
+          ( fun l => by positivity ) ( fun l => ?_ )
+          ( summable_nat_add_iff 1 |>.2
+            <| Real.summable_one_div_nat_pow.2 one_lt_two );
         gcongr;
-        exact_mod_cast Nat.le_trans ( Nat.pow_le_pow_left ( show l + 1 ≤ nScale ( K₀ + k + l ) from by { unfold nScale; nlinarith [ show K₀ + k ≥ 0 by positivity, show m_const ≥ 1 by decide ] } ) 2 ) ( Nat.pow_le_pow_right ( by { unfold nScale; nlinarith [ show K₀ + k ≥ 0 by positivity, show m_const ≥ 1 by decide ] } ) ( show 2 ≤ 4 by decide ) );
-    -- We'll use the fact that $\sum_{l=1}^{\infty} \frac{1}{(nScale(K₀ + k + l))^4}$ is a geometric series with the first term $\frac{1}{(nScale(K₀ + k + 1))^4}$ and common ratio $\frac{1}{(nScale(K₀ + k + 2))^4}$.
-    have h_geo_series_tail : ∑' l : ℕ, (1 : ℝ) / ((nScale (K₀ + k + l + 1))^4) ≤ ∑' l : ℕ, (1 : ℝ) / ((K₀ + k + l + 1)^8 * m_const^4) := by
+        exact_mod_cast Nat.le_trans
+          ( Nat.pow_le_pow_left
+            ( show l + 1 ≤ nScale ( K₀ + k + l ) from by
+              unfold nScale
+              nlinarith [
+                show K₀ + k ≥ 0 by positivity,
+                show m_const ≥ 1 by decide ] ) 2 )
+          ( Nat.pow_le_pow_right
+            ( by
+              unfold nScale
+              nlinarith [
+                show K₀ + k ≥ 0 by positivity,
+                show m_const ≥ 1 by decide ] )
+            ( show 2 ≤ 4 by decide ) );
+    -- Compare the tail against a p-series.
+    have h_geo_series_tail :
+        (∑' l : ℕ, (1 : ℝ) / ((nScale (K₀ + k + l + 1))^4)) ≤
+          ∑' l : ℕ, (1 : ℝ) / ((K₀ + k + l + 1)^8 * m_const^4) := by
       refine' Summable.tsum_le_tsum ?_ ?_ ?_;
       · intro l; rw [ div_le_div_iff₀ ] <;> norm_cast <;> norm_num [ nScale ];
         · calc _ = ((500 + k + l + 1) ^ 2 * m_const) ^ 4 := by ring
             _ ≤ _ := Nat.pow_le_pow_left (Nat.le_succ _) 4
         · norm_num [m_const]
-      · have h_geo_series_tail : Summable (fun l : ℕ => (1 : ℝ) / ((K₀ + k + l + 1)^8 * m_const^4)) := by
+      · have h_geo_series_tail :
+            Summable (fun l : ℕ =>
+              (1 : ℝ) / ((K₀ + k + l + 1)^8 * m_const^4)) := by
           norm_num +zetaDelta at *;
-          exact Summable.mul_left _ <| by exact_mod_cast Summable.comp_injective ( Real.summable_nat_pow_inv.2 <| by norm_num ) fun a b h => by simpa using h;
+          exact Summable.mul_left _ <| by
+            exact_mod_cast Summable.comp_injective
+              ( Real.summable_nat_pow_inv.2 <| by norm_num )
+              fun a b h => by simpa using h;
         refine' h_geo_series_tail.of_nonneg_of_le ( fun l => by positivity ) ( fun l => ?_ );
         rw [ div_le_div_iff₀ ] <;> norm_cast <;> norm_num [ nScale ];
         · calc _ = ((500 + k + l + 1) ^ 2 * m_const) ^ 4 := by ring
             _ ≤ _ := Nat.pow_le_pow_left (Nat.le_succ _) 4
         · norm_num [m_const]
       · norm_num +zetaDelta at *;
-        exact Summable.mul_left _ <| by exact_mod_cast Summable.comp_injective ( Real.summable_nat_pow_inv.2 <| by norm_num ) fun a b h => by simpa using h;
-    -- We'll use the fact that $\sum_{l=1}^{\infty} \frac{1}{(K₀ + k + l)^8}$ is a convergent p-series with $p = 8$.
-    have h_pseries : ∑' l : ℕ, (1 : ℝ) / ((K₀ + k + l + 1)^8) ≤ ∫ x in Set.Ioi (K₀ + k : ℝ), (1 : ℝ) / x^8 := by
-      have h_pseries : ∀ l : ℕ, (1 : ℝ) / ((K₀ + k + l + 1)^8) ≤ ∫ x in (K₀ + k + l : ℝ).. (K₀ + k + l + 1 : ℝ), (1 : ℝ) / x^8 := by
+        exact Summable.mul_left _ <| by
+          exact_mod_cast Summable.comp_injective
+            ( Real.summable_nat_pow_inv.2 <| by norm_num )
+            fun a b h => by simpa using h;
+    -- Bound the p-series tail by an improper integral.
+    have h_pseries :
+        (∑' l : ℕ, (1 : ℝ) / ((K₀ + k + l + 1)^8)) ≤
+          ∫ x in Set.Ioi (K₀ + k : ℝ), (1 : ℝ) / x^8 := by
+      have h_pseries :
+          ∀ l : ℕ,
+            (1 : ℝ) / ((K₀ + k + l + 1)^8) ≤
+              ∫ x in (K₀ + k + l : ℝ).. (K₀ + k + l + 1 : ℝ),
+                (1 : ℝ) / x^8 := by
         intro l
-        have h_integral_bound : ∫ x in (K₀ + k + l : ℝ).. (K₀ + k + l + 1 : ℝ), (1 : ℝ) / x^8 ≥ ∫ x in (K₀ + k + l : ℝ).. (K₀ + k + l + 1 : ℝ), (1 : ℝ) / ((K₀ + k + l + 1 : ℝ)^8) := by
+        have h_integral_bound :
+            (∫ x in (K₀ + k + l : ℝ).. (K₀ + k + l + 1 : ℝ),
+              (1 : ℝ) / x^8) ≥
+              ∫ x in (K₀ + k + l : ℝ).. (K₀ + k + l + 1 : ℝ),
+                (1 : ℝ) / ((K₀ + k + l + 1 : ℝ)^8) := by
           refine' intervalIntegral.integral_mono_on ?_ ?_ ?_ ?_ <;> norm_num;
-          · exact ContinuousOn.intervalIntegrable ( by exact continuousOn_of_forall_continuousAt fun x hx => ContinuousAt.inv₀ ( continuousAt_id.pow 8 ) ( pow_ne_zero _ <| by linarith [ Set.mem_Icc.mp <| by norm_num [ add_assoc ] at hx; exact hx ] ) ) ..;
-          · exact fun x hx₁ hx₂ => inv_anti₀ ( pow_pos ( by linarith ) _ ) ( pow_le_pow_left₀ ( by linarith ) ( by linarith ) _ );
+          · exact ContinuousOn.intervalIntegrable ( by
+              exact continuousOn_of_forall_continuousAt fun x hx =>
+                ContinuousAt.inv₀ ( continuousAt_id.pow 8 )
+                  ( pow_ne_zero _ <| by
+                    linarith [
+                      Set.mem_Icc.mp <| by
+                        norm_num [ add_assoc ] at hx
+                        exact hx ] ) ) ..;
+          · exact fun x hx₁ hx₂ =>
+              inv_anti₀ ( pow_pos ( by linarith ) _ )
+                ( pow_le_pow_left₀ ( by linarith ) ( by linarith ) _ );
         aesop;
-      have h_pseries_sum : ∀ N : ℕ, ∑ l ∈ Finset.range N, (1 : ℝ) / ((K₀ + k + l + 1)^8) ≤ ∫ x in (K₀ + k : ℝ).. (K₀ + k + N : ℝ), (1 : ℝ) / x^8 := by
+      have h_pseries_sum :
+          ∀ N : ℕ,
+            ∑ l ∈ Finset.range N, (1 : ℝ) / ((K₀ + k + l + 1)^8) ≤
+              ∫ x in (K₀ + k : ℝ).. (K₀ + k + N : ℝ), (1 : ℝ) / x^8 := by
         intro N
         induction N with
         | zero => norm_num [add_assoc, Finset.sum_range_succ]
@@ -765,34 +973,65 @@ lemma error_domination (j : Fin 3) (k : ℕ) :
             exact continuousOn_of_forall_continuousAt fun x hx =>
               ContinuousAt.inv₀ (continuousAt_id.pow _)
                 (pow_ne_zero _ <| by linarith [Set.mem_Icc.mp <| by simpa [add_assoc] using hx])
-      have h_pseries_sum : Filter.Tendsto (fun N : ℕ => ∫ x in (K₀ + k : ℝ).. (K₀ + k + N : ℝ), (1 : ℝ) / x^8) Filter.atTop (nhds (∫ x in Set.Ioi (K₀ + k : ℝ), (1 : ℝ) / x^8)) := by
+      have h_pseries_sum :
+          Filter.Tendsto
+            (fun N : ℕ =>
+              ∫ x in (K₀ + k : ℝ).. (K₀ + k + N : ℝ), (1 : ℝ) / x^8)
+            Filter.atTop
+            (nhds (∫ x in Set.Ioi (K₀ + k : ℝ), (1 : ℝ) / x^8)) := by
         apply_rules [ MeasureTheory.intervalIntegral_tendsto_integral_Ioi ];
-        · have h_integrable : MeasureTheory.IntegrableOn (fun x : ℝ => x ^ (-8 : ℝ)) (Set.Ioi (K₀ + k : ℝ)) := by
-            rw [ integrableOn_Ioi_rpow_iff ] <;> norm_num ; linarith [ show ( K₀ : ℝ ) ≥ 200 by norm_cast ];
+        · have h_integrable :
+              MeasureTheory.IntegrableOn
+                (fun x : ℝ => x ^ (-8 : ℝ)) (Set.Ioi (K₀ + k : ℝ)) := by
+            rw [ integrableOn_Ioi_rpow_iff ] <;>
+              norm_num
+            linarith [ show ( K₀ : ℝ ) ≥ 200 by norm_cast ];
           norm_cast at * ; aesop;
         · exact Filter.tendsto_atTop_add_const_left _ _ tendsto_natCast_atTop_atTop;
-      exact le_of_tendsto_of_tendsto' ( Summable.hasSum ( by exact_mod_cast Summable.comp_injective ( Real.summable_one_div_nat_pow.2 <| by norm_num ) <| by intros a b; aesop ) |> HasSum.tendsto_sum_nat ) h_pseries_sum fun N => by aesop;
+      exact le_of_tendsto_of_tendsto'
+        ( Summable.hasSum ( by
+          exact_mod_cast Summable.comp_injective
+            ( Real.summable_one_div_nat_pow.2 <| by norm_num )
+            <| by intros a b; aesop )
+          |> HasSum.tendsto_sum_nat )
+        h_pseries_sum
+        fun N => by aesop;
     -- Evaluate the integral $\int_{K₀ + k}^{\infty} \frac{1}{x^8} \, dx$.
     have h_integral : ∫ x in Set.Ioi (K₀ + k : ℝ), (1 : ℝ) / x^8 = 1 / (7 * (K₀ + k : ℝ)^7) := by
-      have h_integral : ∫ x in Set.Ioi (K₀ + k : ℝ), (1 : ℝ) / x^8 = ∫ x in Set.Ioi (K₀ + k : ℝ), x^(-8 : ℝ) := by
+      have h_integral :
+          (∫ x in Set.Ioi (K₀ + k : ℝ), (1 : ℝ) / x^8) =
+            ∫ x in Set.Ioi (K₀ + k : ℝ), x^(-8 : ℝ) := by
         exact MeasureTheory.setIntegral_congr_fun measurableSet_Ioi fun x hx => by norm_cast; aesop;
       rw [ h_integral, integral_Ioi_rpow_of_lt ] <;> norm_num;
       · norm_cast ; ring;
       · positivity;
     -- Combine the inequalities to conclude the proof.
-    have h_final : (1 : ℝ) / ((nScale (K₀ + k))^4) + (1 : ℝ) / (7 * (K₀ + k : ℝ)^7) * (1 / m_const^4) < (1 : ℝ) / ((nScale (K₀ + k))^3) * (1 / 1029000) := by
+    have h_final :
+        (1 : ℝ) / ((nScale (K₀ + k))^4) +
+            (1 : ℝ) / (7 * (K₀ + k : ℝ)^7) * (1 / m_const^4) <
+          (1 : ℝ) / ((nScale (K₀ + k))^3) * (1 / 1029000) := by
       norm_num [ nScale, m_const ];
       field_simp;
       exact lt_of_sub_pos ( by ring_nf; positivity );
     simp_all +decide;
-    exact h_geo_series.trans_lt ( by rw [ tsum_mul_left ] at *; nlinarith [ inv_pos.mpr ( show 0 < ( m_const : ℝ ) ^ 4 by norm_num [ m_const ] ) ] );
+    exact h_geo_series.trans_lt ( by
+      rw [ tsum_mul_left ] at *
+      nlinarith [
+        inv_pos.mpr ( show 0 < ( m_const : ℝ ) ^ 4 by norm_num [ m_const ] ) ] );
   refine' lt_of_le_of_lt ?_ ( h_geo_sum.trans_le ?_ ) <;> norm_num [ Fin.forall_fin_succ ] at *;
   · unfold eGameSeq; norm_num [ add_comm, add_left_comm, add_assoc ] ;
   · fin_cases j <;> norm_num [ aGameSeq ];
-    · rw [ inv_mul_eq_div, div_le_div_iff₀ ] <;> norm_num [ c_coeff ] <;> norm_cast <;> norm_num [ nScale ];
-      exact mul_le_mul ( by norm_num ) ( mod_cast Nat.le_self_pow ( by norm_num ) _ ) ( by positivity ) ( by positivity );
+    · rw [ inv_mul_eq_div, div_le_div_iff₀ ] <;>
+        norm_num [ c_coeff ] <;>
+        norm_cast <;>
+        norm_num [ nScale ];
+      exact mul_le_mul
+        ( by norm_num )
+        ( mod_cast Nat.le_self_pow ( by norm_num ) _ )
+        ( by positivity ) ( by positivity );
     · unfold c_coeff; norm_num [ nScale ] ; ring_nf; norm_num;
-      rw [ inv_mul_eq_div, inv_mul_eq_div, div_le_div_iff₀ ] <;> first | positivity | exact le_of_sub_nonneg ( by ring_nf; positivity ) ;
+      rw [ inv_mul_eq_div, inv_mul_eq_div, div_le_div_iff₀ ] <;>
+        first | positivity | exact le_of_sub_nonneg ( by ring_nf; positivity ) ;
     · unfold c_coeff; norm_num [ div_eq_mul_inv, mul_comm ] ;
 
 /-
@@ -804,25 +1043,81 @@ This ensures Alice has enough "room" for future moves, which is needed
 to show she eventually skips (Claim 2). Proved by comparing against 100 explicit terms. -/
 lemma tail_domination (j : Fin 3) (k : ℕ) :
     4 * aGameSeq j K₀ k < ∑' l, aGameSeq j K₀ (k + 1 + l) := by
-  refine' lt_of_lt_of_le ?_ ( Summable.sum_le_tsum ( Finset.range 100 ) ( fun _ _ => ?_ ) ?_ );
+  refine'
+    lt_of_lt_of_le ?_
+      (Summable.sum_le_tsum (Finset.range 100) (fun _ _ => ?_) ?_)
   · fin_cases j <;> norm_num [ aGameSeq ];
     · norm_num [ nScale ];
       norm_num [ m_const, c_coeff ];
       rw [ Finset.sum_range_succ ];
       refine' lt_add_of_le_of_pos ?_ ?_;
-      · refine' le_trans ?_ ( Finset.sum_le_sum fun i hi => mul_le_mul_of_nonneg_left ( inv_anti₀ ( by positivity ) <| show ( 500 + ( k + 1 + i ) : ℝ ) ^ 2 * 2310 + 1 ≤ ( 500 + k ) ^ 2 * 2310 + 1 + 99 * 2 * ( 500 + k ) * 2310 + 99 ^ 2 * 2310 by nlinarith only [ show ( i : ℝ ) ≤ 98 by norm_cast; linarith [ Finset.mem_range.mp hi ] ] ) <| by positivity ) ; norm_num;
+      · refine'
+          le_trans ?_
+            (Finset.sum_le_sum fun i hi =>
+              mul_le_mul_of_nonneg_left
+                (inv_anti₀ (by positivity) <|
+                  show
+                    (500 + (k + 1 + i) : ℝ) ^ 2 * 2310 + 1 ≤
+                      (500 + k) ^ 2 * 2310 + 1 +
+                        99 * 2 * (500 + k) * 2310 + 99 ^ 2 * 2310 by
+                    nlinarith only [
+                      show (i : ℝ) ≤ 98 by
+                        norm_cast
+                        linarith [Finset.mem_range.mp hi]])
+                (by positivity))
+        norm_num
         field_simp;
         nlinarith;
       · positivity;
     · unfold c_coeff nScale;
       norm_num [ m_const ];
-      refine' lt_of_lt_of_le ?_ ( Finset.sum_le_sum fun i hi => mul_le_mul_of_nonneg_left ( inv_anti₀ ( by positivity ) <| pow_le_pow_left₀ ( by positivity ) ( show ( 500 + ( k + 1 + i ) : ℝ ) ^ 2 * 2310 + 1 ≤ ( 500 + k ) ^ 2 * 2310 + 1 + 100 * 2 * ( 500 + k ) * 2310 + 100 ^ 2 * 2310 by ring_nf; nlinarith [ show ( i : ℝ ) ≤ 99 by norm_cast; linarith [ Finset.mem_range.mp hi ] ] ) 2 ) <| by positivity ) ; norm_num;
+      refine'
+        lt_of_lt_of_le ?_
+          (Finset.sum_le_sum fun i hi =>
+            mul_le_mul_of_nonneg_left
+              (inv_anti₀ (by positivity) <|
+                pow_le_pow_left₀ (by positivity)
+                  (show
+                    (500 + (k + 1 + i) : ℝ) ^ 2 * 2310 + 1 ≤
+                      (500 + k) ^ 2 * 2310 + 1 +
+                        100 * 2 * (500 + k) * 2310 + 100 ^ 2 * 2310 by
+                    ring_nf
+                    nlinarith [
+                      show (i : ℝ) ≤ 99 by
+                        norm_cast
+                        linarith [Finset.mem_range.mp hi]])
+                  2)
+              (by positivity))
+      norm_num
       field_simp;
       nlinarith [ sq ( k : ℝ ) ];
     · unfold nScale c_coeff;
       norm_num [ m_const ];
-      refine' lt_of_lt_of_le ?_ ( Finset.sum_le_sum fun i hi => mul_le_mul_of_nonneg_left ( inv_anti₀ ( by positivity ) <| pow_le_pow_left₀ ( by positivity ) ( show ( 500 + ( k + 1 + i ) : ℝ ) ^ 2 * 2310 + 1 ≤ ( 500 + k ) ^ 2 * 2310 + 1 + 100 * 2 * ( 500 + k ) * 2310 + 100 ^ 2 * 2310 by ring_nf; nlinarith only [ show ( i : ℝ ) ≤ 99 by norm_cast; linarith [ Finset.mem_range.mp hi ] ] ) 3 ) <| by positivity ) ; norm_num ; ring_nf ; norm_num;
-      rw [ inv_mul_eq_div, inv_mul_eq_div, div_lt_div_iff₀ ] <;> first | positivity | nlinarith [ pow_nonneg ( Nat.cast_nonneg k : ( 0 : ℝ ) ≤ k ) 3, pow_nonneg ( Nat.cast_nonneg k : ( 0 : ℝ ) ≤ k ) 4 ] ;
+      refine'
+        lt_of_lt_of_le ?_
+          (Finset.sum_le_sum fun i hi =>
+            mul_le_mul_of_nonneg_left
+              (inv_anti₀ (by positivity) <|
+                pow_le_pow_left₀ (by positivity)
+                  (show
+                    (500 + (k + 1 + i) : ℝ) ^ 2 * 2310 + 1 ≤
+                      (500 + k) ^ 2 * 2310 + 1 +
+                        100 * 2 * (500 + k) * 2310 + 100 ^ 2 * 2310 by
+                    ring_nf
+                    nlinarith only [
+                      show (i : ℝ) ≤ 99 by
+                        norm_cast
+                        linarith [Finset.mem_range.mp hi]])
+                  3)
+              (by positivity))
+      norm_num
+      ring_nf
+      norm_num
+      rw [inv_mul_eq_div, inv_mul_eq_div, div_lt_div_iff₀] <;> first
+        | positivity
+        | nlinarith [
+            pow_nonneg (Nat.cast_nonneg k : (0 : ℝ) ≤ k) 3,
+            pow_nonneg (Nat.cast_nonneg k : (0 : ℝ) ≤ k) 4]
   · exact le_of_lt ( aGameSeq_pos _ _ _ );
   · exact aGameSeq_summable j K₀ |> Summable.comp_injective <| by aesop_cat;
 
@@ -851,46 +1146,88 @@ lemma error_domination_3x (j : Fin 3) (k : ℕ) :
     unfold aGameSeq;
     unfold c_coeff; norm_num; ring_nf; norm_num;
     erw [ Matrix.cons_val_succ' ] ; norm_num ; ring_nf ; norm_num;
-    exact mul_le_mul ( inv_anti₀ ( by norm_cast; exact nScale_pos _ ) ( mod_cast Nat.le_self_pow ( by norm_num ) _ ) ) ( by norm_num ) ( by norm_num ) ( by positivity );
+    exact
+      mul_le_mul
+        (inv_anti₀ (by norm_cast; exact nScale_pos _)
+          (mod_cast Nat.le_self_pow (by norm_num) _))
+        (by norm_num) (by norm_num) (by positivity)
   · refine' lt_of_lt_of_le ( mul_lt_mul_of_pos_left ( error_domination 2 k ) zero_lt_three ) ?_;
     unfold aGameSeq;
     unfold c_coeff nScale; norm_num; ring_nf;
     unfold m_const; norm_num; ring_nf;
     erw [ Matrix.cons_val_succ' ] ; norm_num ; ring_nf;
-    rw [ inv_mul_eq_div, inv_mul_eq_div, div_le_div_iff₀ ] <;> first | positivity | nlinarith [ sq ( ( k : ℝ ) ^ 2 ), sq ( ( k : ℝ ) ^ 3 ) ] ;
+    rw [inv_mul_eq_div, inv_mul_eq_div, div_le_div_iff₀] <;> first
+      | positivity
+      | nlinarith [sq ((k : ℝ) ^ 2), sq ((k : ℝ) ^ 3)]
   · -- We'll use that $\sum_{l=0}^{\infty} \frac{1}{(nScale (K₀ + k + l))^4}$ is bounded above.
-    have h_bound : ∑' l, (1 : ℝ) / (nScale (500 + k + l)) ^ 4 ≤ 1 / (nScale (500 + k)) ^ 4 + 1 / (7 * (500 + k) ^ 7 * 2310 ^ 4) := by
-      -- We'll use the fact that $\sum_{l=0}^{\infty} \frac{1}{(nScale (K₀ + k + l))^4}$ is bounded above by $\frac{1}{(nScale (K₀ + k))^4} + \int_{K₀ + k}^{\infty} \frac{1}{x^8} \, dx$.
-      have h_integral_bound : ∑' l, (1 : ℝ) / (nScale (500 + k + l)) ^ 4 ≤ 1 / (nScale (500 + k)) ^ 4 + ∑' l : ℕ, (1 : ℝ) / ((500 + k + l + 1) ^ 8 * 2310 ^ 4) := by
+    have h_bound :
+        ∑' l, (1 : ℝ) / (nScale (500 + k + l)) ^ 4 ≤
+          1 / (nScale (500 + k)) ^ 4 +
+            1 / (7 * (500 + k) ^ 7 * 2310 ^ 4) := by
+      -- The tail of `1 / nScale ^ 4` is controlled by the first term and an integral.
+      have h_integral_bound :
+          ∑' l, (1 : ℝ) / (nScale (500 + k + l)) ^ 4 ≤
+            1 / (nScale (500 + k)) ^ 4 +
+              ∑' l : ℕ, (1 : ℝ) / ((500 + k + l + 1) ^ 8 * 2310 ^ 4) := by
         rw [ Summable.tsum_eq_zero_add ];
         · refine' add_le_add le_rfl ( Summable.tsum_le_tsum ?_ ?_ ?_ );
           · intro i; rw [ div_le_div_iff₀ ] <;> norm_cast <;> norm_num [ nScale ];
             norm_num [ m_const ] ; ring_nf;
             lia;
-          · refine' Summable.of_nonneg_of_le ( fun _ => by positivity ) ( fun n => ?_ ) ( summable_nat_add_iff 1 |>.2 <| Real.summable_one_div_nat_pow.2 one_lt_two );
+          · refine'
+              Summable.of_nonneg_of_le (fun _ => by positivity) (fun n => ?_)
+                (summable_nat_add_iff 1 |>.2 <|
+                  Real.summable_one_div_nat_pow.2 one_lt_two)
             gcongr;
             norm_cast ; ring_nf;
             unfold nScale;
             unfold m_const; ring_nf;
             lia
           · norm_num +zetaDelta at *;
-            exact Summable.mul_left _ <| by exact_mod_cast Summable.comp_injective ( Real.summable_nat_pow_inv.2 <| by norm_num ) fun x y h => by simpa using h;
-        · refine' Summable.of_nonneg_of_le ( fun _ => by positivity ) ( fun l => ?_ ) ( summable_nat_add_iff 1 |>.2 <| Real.summable_one_div_nat_pow.2 one_lt_two );
+            exact
+              Summable.mul_left _ <| by
+                exact_mod_cast
+                  Summable.comp_injective
+                    (Real.summable_nat_pow_inv.2 <| by norm_num)
+                    fun x y h => by simpa using h
+        · refine'
+            Summable.of_nonneg_of_le (fun _ => by positivity) (fun l => ?_)
+              (summable_nat_add_iff 1 |>.2 <|
+                Real.summable_one_div_nat_pow.2 one_lt_two)
           gcongr ; norm_cast ; ring_nf;
           unfold nScale m_const; ring_nf;
           lia
-      -- We'll use the fact that $\sum_{l=0}^{\infty} \frac{1}{(x+l+1)^8}$ is bounded above by $\frac{1}{7x^7}$.
-      have h_sum_bound : ∀ x : ℝ, 0 < x → ∑' l : ℕ, (1 : ℝ) / ((x + l + 1) ^ 8) ≤ 1 / (7 * x ^ 7) := by
+      -- The tail of `1 / (x + l + 1) ^ 8` is bounded by `1 / (7 * x ^ 7)`.
+      have h_sum_bound :
+          ∀ x : ℝ, 0 < x →
+            ∑' l : ℕ, (1 : ℝ) / ((x + l + 1) ^ 8) ≤ 1 / (7 * x ^ 7) := by
         intros x hx_pos
-        have h_integral_bound : ∀ l : ℕ, (1 : ℝ) / ((x + l + 1) ^ 8) ≤ ∫ t in (x + l).. (x + l + 1), (1 : ℝ) / t ^ 8 := by
+        have h_integral_bound :
+            ∀ l : ℕ,
+              (1 : ℝ) / ((x + l + 1) ^ 8) ≤
+                ∫ t in (x + l).. (x + l + 1), (1 : ℝ) / t ^ 8 := by
           intros l
-          have h_integral_bound : ∫ t in (x + l).. (x + l + 1), (1 : ℝ) / t ^ 8 ≥ ∫ t in (x + l).. (x + l + 1), (1 : ℝ) / ((x + l + 1) ^ 8) := by
+          have h_integral_bound :
+              ∫ t in (x + l).. (x + l + 1), (1 : ℝ) / t ^ 8 ≥
+                ∫ t in (x + l).. (x + l + 1),
+                  (1 : ℝ) / ((x + l + 1) ^ 8) := by
             refine' intervalIntegral.integral_mono_on ?_ ?_ ?_ ?_ <;> norm_num;
-            · exact ContinuousOn.intervalIntegrable ( by exact continuousOn_of_forall_continuousAt fun t ht => ContinuousAt.inv₀ ( continuousAt_id.pow 8 ) ( pow_ne_zero _ <| by linarith [ Set.mem_Icc.mp <| by simpa using ht ] ) ) ..;
-            · exact fun y hy₁ hy₂ => inv_anti₀ ( pow_pos ( by linarith ) _ ) ( pow_le_pow_left₀ ( by linarith ) ( by linarith ) _ );
+            · exact
+                ContinuousOn.intervalIntegrable
+                  (by
+                    exact continuousOn_of_forall_continuousAt fun t ht =>
+                      ContinuousAt.inv₀ (continuousAt_id.pow 8)
+                        (pow_ne_zero _ <| by
+                          linarith [Set.mem_Icc.mp <| by simpa using ht])) ..
+            · exact fun y hy₁ hy₂ =>
+                inv_anti₀ (pow_pos (by linarith) _)
+                  (pow_le_pow_left₀ (by linarith) (by linarith) _)
           aesop;
         -- By summing the integral bounds, we get the desired inequality.
-        have h_sum_integral_bound : ∀ N : ℕ, ∑ l ∈ Finset.range N, (1 : ℝ) / ((x + l + 1) ^ 8) ≤ ∫ t in (x).. (x + N), (1 : ℝ) / t ^ 8 := by
+        have h_sum_integral_bound :
+            ∀ N : ℕ,
+              ∑ l ∈ Finset.range N, (1 : ℝ) / ((x + l + 1) ^ 8) ≤
+                ∫ t in (x).. (x + N), (1 : ℝ) / t ^ 8 := by
           intro N;
           induction N with
           | zero => norm_num [add_assoc, Finset.sum_range_succ]
@@ -902,26 +1239,74 @@ lemma error_domination_3x (j : Fin 3) (k : ℕ) :
               exact continuousOn_of_forall_continuousAt fun t ht =>
                 ContinuousAt.inv₀ (continuousAt_id.pow 8)
                   (pow_ne_zero _ <| by cases Set.mem_uIcc.mp ht <;> linarith)
-        -- Taking the limit of the integral bound as $N$ approaches infinity, we get the desired inequality.
-        have h_limit_integral_bound : Filter.Tendsto (fun N : ℕ => ∫ t in (x).. (x + N), (1 : ℝ) / t ^ 8) Filter.atTop (nhds (1 / (7 * x ^ 7))) := by
+        -- Taking the limit of the integral bound gives the desired inequality.
+        have h_limit_integral_bound :
+            Filter.Tendsto
+              (fun N : ℕ => ∫ t in (x).. (x + N), (1 : ℝ) / t ^ 8)
+              Filter.atTop
+              (nhds (1 / (7 * x ^ 7))) := by
           -- Evaluate the integral $\int_{x}^{x+N} \frac{1}{t^8} \, dt$.
-          have h_integral_eval : ∀ N : ℕ, ∫ t in (x).. (x + N), (1 : ℝ) / t ^ 8 = (1 / 7) * (1 / x ^ 7 - 1 / (x + N) ^ 7) := by
+          have h_integral_eval :
+              ∀ N : ℕ,
+                ∫ t in (x).. (x + N), (1 : ℝ) / t ^ 8 =
+                  (1 / 7) * (1 / x ^ 7 - 1 / (x + N) ^ 7) := by
             intro N; group
             rw [integral_zpow (by right; exact ⟨by norm_num, fun h => by simp at h; linarith⟩)]
             norm_num; field_simp; ring
           simp_all +decide [ mul_comm ];
-          exact le_trans ( Filter.Tendsto.mul ( tendsto_const_nhds.sub <| tendsto_inv_atTop_zero.comp <| Filter.tendsto_pow_atTop ( by positivity ) |> Filter.Tendsto.comp <| Filter.tendsto_atTop_add_const_left _ _ tendsto_natCast_atTop_atTop ) tendsto_const_nhds ) ( by norm_num );
-        exact le_of_tendsto_of_tendsto' ( Summable.hasSum ( by exact_mod_cast Summable.of_nonneg_of_le ( fun _ => by positivity ) ( fun n => by simpa using inv_anti₀ ( by positivity ) <| pow_le_pow_left₀ ( by positivity ) ( show x + n + 1 ≥ n + 1 by linarith ) _ ) <| summable_nat_add_iff 1 |>.2 <| Real.summable_one_div_nat_pow.2 <| by norm_num ) |> HasSum.tendsto_sum_nat ) h_limit_integral_bound h_sum_integral_bound;
+          exact
+            le_trans
+              (Filter.Tendsto.mul
+                (tendsto_const_nhds.sub <|
+                  tendsto_inv_atTop_zero.comp <|
+                    Filter.tendsto_pow_atTop (by positivity) |>
+                      Filter.Tendsto.comp <|
+                        Filter.tendsto_atTop_add_const_left _ _
+                          tendsto_natCast_atTop_atTop)
+                tendsto_const_nhds)
+              (by norm_num)
+        exact
+          le_of_tendsto_of_tendsto'
+            ((Summable.hasSum
+              (by
+                exact_mod_cast
+                  Summable.of_nonneg_of_le
+                    (fun _ => by positivity)
+                    (fun n => by
+                      simpa using
+                        inv_anti₀ (by positivity) <|
+                          pow_le_pow_left₀ (by positivity)
+                            (show x + n + 1 ≥ n + 1 by linarith) _)
+                    (summable_nat_add_iff 1 |>.2 <|
+                      Real.summable_one_div_nat_pow.2 <| by norm_num))) |>
+              HasSum.tendsto_sum_nat)
+            h_limit_integral_bound
+            h_sum_integral_bound
       refine' le_trans h_integral_bound ?_;
       norm_num [ tsum_mul_right ];
-      rw [ tsum_mul_left ] ; specialize h_sum_bound ( 500 + k ) ( by positivity ) ; norm_num at * ; ring_nf at * ; aesop;
-    -- We'll use that $\frac{3}{(nScale (500 + k))^4} + \frac{3}{7(500 + k)^7 \cdot 2310^4} < \frac{1}{1029000(nScale (500 + k))^3}$.
-    have h_ineq : 3 / (nScale (500 + k) : ℝ) ^ 4 + 3 / (7 * (500 + k) ^ 7 * 2310 ^ 4) < 1 / (1029000 * (nScale (500 + k)) ^ 3) := by
+      rw [tsum_mul_left]
+      specialize h_sum_bound (500 + k) (by positivity)
+      norm_num at *
+      ring_nf at *
+      aesop
+    -- This numerical bound compares the total future error with the current main term.
+    have h_ineq :
+        3 / (nScale (500 + k) : ℝ) ^ 4 +
+            3 / (7 * (500 + k) ^ 7 * 2310 ^ 4) <
+          1 / (1029000 * (nScale (500 + k)) ^ 3) := by
       rw [ div_add_div, div_lt_div_iff₀ ] <;> norm_cast <;> norm_num [ nScale ];
       unfold m_const;
       exact error_dom_3x_aux k
     unfold eGameSeq aGameSeq;
-    convert lt_of_le_of_lt ( mul_le_mul_of_nonneg_left ( show ∑' l : ℕ, ( 1 : ℝ ) / ( nScale ( 500 + ( k + l ) ) ) ^ 4 ≤ 1 / ( nScale ( 500 + k ) : ℝ ) ^ 4 + 1 / ( 7 * ( 500 + k ) ^ 7 * 2310 ^ 4 ) from ?_ ) zero_le_three ) _ using 1;
+    convert
+      lt_of_le_of_lt
+        (mul_le_mul_of_nonneg_left
+          (show
+            ∑' l : ℕ, (1 : ℝ) / (nScale (500 + (k + l))) ^ 4 ≤
+              1 / (nScale (500 + k) : ℝ) ^ 4 +
+                1 / (7 * (500 + k) ^ 7 * 2310 ^ 4) from ?_)
+          zero_le_three)
+        _ using 1
     · simpa only [ add_assoc ] using h_bound;
     · convert h_ineq using 1 ; ring!;
       unfold c_coeff; norm_num; ring;
@@ -1036,9 +1421,15 @@ lemma structEmbed_mem_constructA (K : ℕ) (ε : ℕ → Fin 3 → Bool)
 
 lemma constructA_subset_range (K : ℕ) (ε : ℕ → Fin 3 → Bool) :
     constructA K ε ⊆ Set.range (structEmbed K ε) := by
-  -- Take any element m in constructA K ε. By definition, there exists k ≥ K and j such that m is in the image of ActiveSet ε k j under nScale(k).
+  -- Expand membership in `constructA` into a structured index.
   intro m hm
-  obtain ⟨k, hk, j, hj⟩ : ∃ k ≥ K, ∃ j : Fin 3, m ∈ (if ε k j then (Ssets j).image (· * nScale k) else (Tsets j).image (· * nScale k)) := by
+  obtain ⟨k, hk, j, hj⟩ :
+      ∃ k ≥ K, ∃ j : Fin 3,
+        m ∈
+          (if ε k j then
+            (Ssets j).image (· * nScale k)
+          else
+            (Tsets j).image (· * nScale k)) := by
     unfold constructA at hm
     simp only [Set.mem_iUnion] at hm
     obtain ⟨k, hk, j, hj⟩ := hm
@@ -1078,12 +1469,17 @@ lemma tsum_constructA_eq (ε : ℕ → Fin 3 → Bool) (f : ℕ → ℝ)
     (hf : Summable (fun m : ↑(constructA K₀ ε) => f m)) :
     ∑' (m : ↑(constructA K₀ ε)), f m =
     ∑' n, ∑ j : Fin 3, ∑ a ∈ ActiveSet ε (K₀ + n) j, f (a * nScale (K₀ + n)) := by
-  have h_tsum_range : (∑' m : (Set.range (structEmbed K₀ ε)), f m) = ∑' p : (Σ n, Σ j, ↑(ActiveSet ε (K₀ + n) j)), f (structEmbed K₀ ε p) := by
+  have h_tsum_range :
+      (∑' m : (Set.range (structEmbed K₀ ε)), f m) =
+        ∑' p : (Σ n, Σ j, ↑(ActiveSet ε (K₀ + n) j)),
+          f (structEmbed K₀ ε p) := by
     rw [ ← Equiv.tsum_eq ( Equiv.ofInjective _ ( structEmbed_injective K₀ ε ) ) ];
     rfl;
   convert h_tsum_range using 1;
   · rw [ show constructA K₀ ε = Set.range ( structEmbed K₀ ε ) from ?_ ];
-    exact Set.Subset.antisymm ( constructA_subset_range K₀ ε ) ( Set.range_subset_iff.mpr fun p => structEmbed_mem_constructA K₀ ε p );
+    exact
+      Set.Subset.antisymm (constructA_subset_range K₀ ε)
+        (Set.range_subset_iff.mpr fun p => structEmbed_mem_constructA K₀ ε p)
   · erw [ Summable.tsum_sigma ];
     · refine' tsum_congr fun n => ?_;
       erw [ tsum_fintype ];
@@ -1108,36 +1504,85 @@ lemma structured_sum_eq_base_plus_swap (ε : ℕ → Fin 3 → Bool) (i : Fin 3)
     basePointM K₀ i +
     ∑' n, ∑ j : Fin 3, if ε (K₀ + n) j then swapContribM K₀ n j i else 0 := by
   unfold ActiveSet swapContribM basePointM;
-  rw [ ← Summable.tsum_add ] ; congr ; ext n ; rw [ ← Finset.sum_add_distrib ] ; congr ; ext j ; split_ifs <;> norm_num;
+  rw [← Summable.tsum_add]
+  congr
+  ext n
+  rw [← Finset.sum_add_distrib]
+  congr
+  ext j
+  split_ifs <;> norm_num
   · refine' summable_sum fun j _ => ?_;
-    -- Each term in the sum is a product of a constant and a term that decays like 1/n^2, so the sum is summable.
+    -- Each term is a fixed multiple of a summable sequence.
     have h_summable : Summable (fun n : ℕ => (1 : ℝ) / (nScale (K₀ + n) : ℝ)) := by
       norm_num [ nScale ];
-      exact Summable.of_nonneg_of_le ( fun n => by positivity ) ( fun n => by rw [ inv_le_comm₀ ] <;> norm_num <;> ring_nf <;> nlinarith [ show ( m_const : ℝ ) ≥ 1 by exact_mod_cast by decide ] ) ( summable_nat_add_iff 1 |>.2 <| Real.summable_one_div_nat_pow.2 one_lt_two );
+      exact
+        Summable.of_nonneg_of_le
+          (fun n => by positivity)
+          (fun n => by
+            rw [inv_le_comm₀] <;> norm_num <;> ring_nf <;>
+              nlinarith [
+                show (m_const : ℝ) ≥ 1 by
+                  exact_mod_cast by decide])
+          (summable_nat_add_iff 1 |>.2 <|
+            Real.summable_one_div_nat_pow.2 one_lt_two)
     refine' summable_sum fun a ha => ?_;
     simp_all +decide [ Matrix.mulVec, dotProduct ];
     refine' summable_sum fun x _ => ?_;
     refine' Summable.mul_left ?_ ?_;
-    refine' Summable.of_nonneg_of_le ( fun n => inv_nonneg.2 <| by positivity ) ( fun n => ?_ ) h_summable;
+    refine'
+      Summable.of_nonneg_of_le
+        (fun n => inv_nonneg.2 <| by positivity) (fun n => ?_) h_summable
     gcongr;
     · exact Nat.cast_pos.mpr ( nScale_pos _ );
-    · exact le_add_of_le_of_nonneg ( le_mul_of_one_le_left ( Nat.cast_nonneg _ ) ( mod_cast Nat.one_le_iff_ne_zero.mpr <| by fin_cases j <;> fin_cases ha <;> trivial ) ) ( Nat.cast_nonneg _ );
-  · have h_summable : Summable (fun n => ∑ j : Fin 3, |if ε (K₀ + n) j then swapContribM K₀ n j i else 0|) := by
+    · exact
+        le_add_of_le_of_nonneg
+          (le_mul_of_one_le_left (Nat.cast_nonneg _)
+            (mod_cast Nat.one_le_iff_ne_zero.mpr <|
+              by fin_cases j <;> fin_cases ha <;> trivial))
+          (Nat.cast_nonneg _)
+  · have h_summable :
+        Summable
+          (fun n =>
+            ∑ j : Fin 3,
+              |if ε (K₀ + n) j then swapContribM K₀ n j i else 0|) := by
       have h_summable : Summable (fun n => ∑ j : Fin 3, |swapContribM K₀ n j i|) := by
-        have h_summable : ∀ n, ∑ j : Fin 3, |swapContribM K₀ n j i| ≤ 3 * eGameSeq K₀ n + ∑ j : Fin 3, |aGameSeq j K₀ n| := by
+        have h_summable :
+            ∀ n,
+              ∑ j : Fin 3, |swapContribM K₀ n j i| ≤
+                3 * eGameSeq K₀ n + ∑ j : Fin 3, |aGameSeq j K₀ n| := by
           intro n
           have h_summable : ∀ j, |swapContribM K₀ n j i| ≤ eGameSeq K₀ n + |aGameSeq j K₀ n| := by
             intros j
-            have h_swap_bound : |swapContribM K₀ n j i - if i = j then aGameSeq j K₀ n else 0| ≤ eGameSeq K₀ n := by
+            have h_swap_bound :
+                |swapContribM K₀ n j i -
+                    if i = j then aGameSeq j K₀ n else 0| ≤
+                  eGameSeq K₀ n := by
               convert swapContrib_bound n j i using 1;
-            split_ifs at h_swap_bound <;> exact abs_le.mpr ⟨ by cases abs_cases ( aGameSeq j K₀ n ) <;> linarith [ abs_le.mp h_swap_bound ], by cases abs_cases ( aGameSeq j K₀ n ) <;> linarith [ abs_le.mp h_swap_bound ] ⟩ ;
+            split_ifs at h_swap_bound <;>
+              exact abs_le.mpr
+                ⟨ by
+                    cases abs_cases (aGameSeq j K₀ n) <;>
+                      linarith [abs_le.mp h_swap_bound],
+                  by
+                    cases abs_cases (aGameSeq j K₀ n) <;>
+                      linarith [abs_le.mp h_swap_bound] ⟩
           generalize_proofs at *; (
-          exact le_trans ( Finset.sum_le_sum fun _ _ => h_summable _ ) ( by simp +decide [ Finset.sum_add_distrib ] ));
-        refine' Summable.of_nonneg_of_le ( fun n => Finset.sum_nonneg fun _ _ => abs_nonneg ?_ ) ( fun n => h_summable n ) ?_;
+          exact
+            le_trans
+              (Finset.sum_le_sum fun _ _ => h_summable _)
+              (by simp +decide [Finset.sum_add_distrib]));
+        refine'
+          Summable.of_nonneg_of_le
+            (fun n => Finset.sum_nonneg fun _ _ => abs_nonneg ?_)
+            (fun n => h_summable n) ?_
         refine' Summable.add ?_ ?_;
         · exact Summable.mul_left _ ( eGameSeq_summable K₀ );
         · exact summable_sum fun j _ => Summable.abs ( aGameSeq_summable j K₀ );
-      exact Summable.of_nonneg_of_le ( fun n => Finset.sum_nonneg fun _ _ => abs_nonneg _ ) ( fun n => Finset.sum_le_sum fun _ _ => by split_ifs <;> norm_num ) h_summable;
+      exact
+        Summable.of_nonneg_of_le
+          (fun n => Finset.sum_nonneg fun _ _ => abs_nonneg _)
+          (fun n => Finset.sum_le_sum fun _ _ => by split_ifs <;> norm_num)
+          h_summable
     refine' .of_norm ?_;
     exact h_summable.of_nonneg_of_le ( fun n => norm_nonneg _ ) fun n => norm_sum_le _ _
 
@@ -1150,32 +1595,71 @@ lemma MHarmonicSums_decompose (ε : ℕ → Fin 3 → Bool) (i : Fin 3) :
       ∑' (m : constructA K₀ ε), 1 / (((m : ℕ) : ℝ) + ((l : ℕ) : ℝ)))) i =
     basePointM K₀ i +
     ∑' n, ∑ j : Fin 3, if ε (K₀ + n) j then swapContribM K₀ n j i else 0 := by
-  have h_sum : ∑ l : Fin 3, M_mat i l * ∑' m : ↑(constructA K₀ ε), 1 / ((m : ℝ) + l) = ∑' m : ↑(constructA K₀ ε), ∑ l : Fin 3, M_mat i l / ((m : ℝ) + l) := by
+  have h_sum :
+      ∑ l : Fin 3,
+        M_mat i l * ∑' m : ↑(constructA K₀ ε), 1 / ((m : ℝ) + l) =
+      ∑' m : ↑(constructA K₀ ε),
+        ∑ l : Fin 3, M_mat i l / ((m : ℝ) + l) := by
     have h_sum : ∀ l : Fin 3, Summable (fun m : ↑(constructA K₀ ε) => (1 : ℝ) / ((m : ℝ) + l)) := by
       intro l
       have h_summable : Summable (fun m : ↑(constructA K₀ ε) => (1 : ℝ) / (m : ℝ)) := by
         convert constructA_summable K₀ ε using 1
       have h_summable_l : Summable (fun m : ↑(constructA K₀ ε) => (1 : ℝ) / ((m : ℝ) + l)) := by
-        exact Summable.of_nonneg_of_le ( fun m => by positivity ) ( fun m => by simpa using inv_anti₀ ( by exact Nat.cast_pos.mpr <| constructA_pos K₀ ε m m.2 ) <| by linarith [ show ( m : ℝ ) ≥ 1 from Nat.one_le_cast.mpr <| constructA_pos K₀ ε m m.2 ] ) h_summable
+        exact
+          Summable.of_nonneg_of_le
+            (fun m => by positivity)
+            (fun m => by
+              simpa using
+                inv_anti₀
+                  (by exact Nat.cast_pos.mpr <| constructA_pos K₀ ε m m.2) <|
+                    by
+                      linarith [
+                        show (m : ℝ) ≥ 1 from
+                          Nat.one_le_cast.mpr <| constructA_pos K₀ ε m m.2])
+            h_summable
       exact h_summable_l;
-    have h_sum : ∀ {f : Fin 3 → (constructA K₀ ε) → ℝ}, (∀ l, Summable (f l)) → ∑ l, ∑' m, f l m = ∑' m, ∑ l, f l m :=
+    have h_sum :
+        ∀ {f : Fin 3 → (constructA K₀ ε) → ℝ},
+          (∀ l, Summable (f l)) →
+            ∑ l, ∑' m, f l m = ∑' m, ∑ l, f l m :=
       fun {f} a => (Summable.tsum_finsetSum fun i _ => a i).symm
     convert h_sum _ using 3;
     · simp +decide [ div_eq_mul_inv, tsum_mul_left ];
-    · exact fun l => Summable.mul_left _ ( by simpa using ‹∀ l : Fin 3, Summable fun m : ↑ ( constructA K₀ ε ) => 1 / ( m + l : ℝ ) › l );
+    · exact fun l =>
+        Summable.mul_left _
+          (by
+            simpa using
+              ‹∀ l : Fin 3,
+                Summable fun m : ↑(constructA K₀ ε) => 1 / (m + l : ℝ)› l)
   convert tsum_constructA_eq ε ( fun m => ∑ l : Fin 3, M_mat i l / ( m + l : ℝ ) ) ?_ using 1;
   · rw [ ← structured_sum_eq_base_plus_swap ];
     simp +decide [ div_eq_mul_inv, Matrix.mulVec, dotProduct ];
   · have h_summable : Summable (fun m : ↑(constructA K₀ ε) => (1 : ℝ) / (m : ℝ)) := by
       convert constructA_summable K₀ ε using 1;
-    have h_summable : ∀ l : Fin 3, Summable (fun m : ↑(constructA K₀ ε) => (1 : ℝ) / ((m : ℝ) + l)) := by
+    have h_summable :
+        ∀ l : Fin 3,
+          Summable (fun m : ↑(constructA K₀ ε) => (1 : ℝ) / ((m : ℝ) + l)) := by
       intro l
       have h_summable : Summable (fun m : ↑(constructA K₀ ε) => (1 : ℝ) / (m : ℝ)) := by
         convert h_summable using 1
       have h_summable : Summable (fun m : ↑(constructA K₀ ε) => (1 : ℝ) / ((m : ℝ) + l)) := by
-        exact Summable.of_nonneg_of_le ( fun m => by positivity ) ( fun m => by simpa using inv_anti₀ ( by norm_cast; linarith [ constructA_pos K₀ ε m m.2 ] ) ( by linarith [ show ( m : ℝ ) ≥ 1 from mod_cast constructA_pos K₀ ε m m.2 ] ) ) h_summable
+        exact
+          Summable.of_nonneg_of_le
+            (fun m => by positivity)
+            (fun m => by
+              simpa using
+                inv_anti₀
+                  (by
+                    norm_cast
+                    linarith [constructA_pos K₀ ε m m.2])
+                  (by
+                    linarith [
+                      show (m : ℝ) ≥ 1 from
+                        mod_cast constructA_pos K₀ ε m m.2]))
+            h_summable
       exact h_summable;
-    exact summable_sum fun l _ => by simpa [ div_eq_mul_inv ] using h_summable l |> Summable.mul_left _;
+    exact summable_sum fun l _ => by
+      simpa [div_eq_mul_inv] using h_summable l |> Summable.mul_left _
 
 /-! ## Target box -/
 
@@ -1221,18 +1705,49 @@ def gameDelta (q : Fin 3 → ℝ) (j : Fin 3) (n : ℕ) : ℝ :=
 lemma gameDelta_bound (q : Fin 3 → ℝ) (j : Fin 3) (n : ℕ) :
     |gameDelta q j n| ≤ 3 * eGameSeq K₀ n := by
   -- By definition of `gameDelta`, we have:
-  have h_gameDelta_def : gameDelta q j n = ∑ l : Fin 3, (if game3D q n l + 3 * aGameSeq l K₀ n ≤ q l - basePointM K₀ l then swapContribM K₀ n l j else 0) - (if game3D q n j + 3 * aGameSeq j K₀ n ≤ q j - basePointM K₀ j then aGameSeq j K₀ n else 0) := by
+  have h_gameDelta_def :
+      gameDelta q j n =
+        ∑ l : Fin 3,
+          (if game3D q n l + 3 * aGameSeq l K₀ n ≤ q l - basePointM K₀ l then
+            swapContribM K₀ n l j
+          else
+            0) -
+        (if game3D q n j + 3 * aGameSeq j K₀ n ≤ q j - basePointM K₀ j then
+          aGameSeq j K₀ n
+        else
+          0) := by
     unfold gameDelta;
-    rw [ show game3D q ( n + 1 ) = fun i => game3D q n i + ∑ l : Fin 3, ( if game3D q n l + 3 * aGameSeq l K₀ n ≤ q l - basePointM K₀ l then swapContribM K₀ n l i else 0 ) from rfl ] ; norm_num;
+    rw [
+      show game3D q (n + 1) =
+          fun i =>
+            game3D q n i + ∑ l : Fin 3,
+              (if game3D q n l + 3 * aGameSeq l K₀ n ≤ q l - basePointM K₀ l then
+                swapContribM K₀ n l i
+              else
+                0) from rfl]
+    norm_num
   -- By definition of `swapContribM`, we have:
-  have h_swapContribM_bound : ∀ l : Fin 3, ∀ j : Fin 3, |swapContribM K₀ n l j - if l = j then aGameSeq j K₀ n else 0| ≤ eGameSeq K₀ n := by
+  have h_swapContribM_bound :
+      ∀ l : Fin 3, ∀ j : Fin 3,
+        |swapContribM K₀ n l j -
+          if l = j then aGameSeq j K₀ n else 0| ≤ eGameSeq K₀ n := by
     intro l i
     have := swapContrib_bound n l i
     rwa [show (if l = i then aGameSeq i K₀ n else 0) =
          (if i = l then aGameSeq l K₀ n else 0) from by
       by_cases h : l = i <;> simp only [h, ite_true, ite_false, eq_comm] at *]
   rw [ h_gameDelta_def ];
-  refine' le_trans ( ?_ : ?_ ≤ ?_ ) ( le_trans ( Finset.sum_le_sum fun i _ => show |if game3D q n i + 3 * aGameSeq i K₀ n ≤ q i - basePointM K₀ i then swapContribM K₀ n i j - if i = j then aGameSeq j K₀ n else 0 else 0| ≤ eGameSeq K₀ n from ?_ ) ?_ );
+  refine'
+    le_trans (?_ : ?_ ≤ ?_)
+      (le_trans
+        (Finset.sum_le_sum fun i _ =>
+          show
+            |if game3D q n i + 3 * aGameSeq i K₀ n ≤ q i - basePointM K₀ i then
+                swapContribM K₀ n i j -
+                  if i = j then aGameSeq j K₀ n else 0
+              else
+                0| ≤ eGameSeq K₀ n from ?_)
+        ?_)
   nontriviality;
   convert Finset.abs_sum_le_sum_abs _ _ using 2;
   any_goals exact Finset.univ;
@@ -1248,7 +1763,13 @@ lemma game3D_eq_gameSeq (q : Fin 3 → ℝ) (j : Fin 3) (n : ℕ) :
     game3D q n j = gameSeq (aGameSeq j K₀) (q j - basePointM K₀ j)
       (gameDelta q j) 0 n := by
   -- By definition of gameDelta, we have:
-  have h_delta : ∀ n, game3D q (n + 1) j - game3D q n j - (if game3D q n j + 3 * aGameSeq j K₀ n ≤ q j - basePointM K₀ j then aGameSeq j K₀ n else 0) = gameDelta q j n :=
+  have h_delta : ∀ n,
+      game3D q (n + 1) j - game3D q n j -
+          (if game3D q n j + 3 * aGameSeq j K₀ n ≤ q j - basePointM K₀ j then
+            aGameSeq j K₀ n
+          else
+            0) =
+        gameDelta q j n :=
     fun n => Real.ext_cauchy rfl
   induction n with
   | zero => rfl
@@ -1259,7 +1780,12 @@ lemma game3D_eq_gameSeq (q : Fin 3 → ℝ) (j : Fin 3) (n : ℕ) :
 
 lemma game3D_converges (q : Fin 3 → ℝ) (hq : q ∈ targetBoxM K₀) (j : Fin 3) :
     Tendsto (fun n => game3D q n j) atTop (nhds (q j - basePointM K₀ j)) := by
-  rw [ show ( fun n => game3D q n j ) = fun n => gameSeq ( aGameSeq j K₀ ) ( q j - basePointM K₀ j ) ( gameDelta q j ) 0 n from funext fun n => game3D_eq_gameSeq q j n ];
+  rw [
+    show (fun n => game3D q n j) =
+        fun n =>
+          gameSeq (aGameSeq j K₀) (q j - basePointM K₀ j)
+            (gameDelta q j) 0 n from
+      funext fun n => game3D_eq_gameSeq q j n]
   apply_rules [ game_converges_to_target ];
   any_goals intro k; exact mul_nonneg zero_le_three ( eGameSeq_nonneg K₀ k );
   any_goals intro k; exact aGameSeq_pos j K₀ k;
@@ -1275,8 +1801,17 @@ lemma game3D_limit_eq_tsum (q : Fin 3 → ℝ) (hq : q ∈ targetBoxM K₀) (i :
     (∑' n, ∑ j : Fin 3,
       if gameEpsilon q (K₀ + n) j = true then swapContribM K₀ n j i else 0) =
     q i - basePointM K₀ i := by
-  -- By definition of `game3D`, we have that `game3D q N i = ∑ n ∈ Finset.range N, (fun n => ∑ j, if gameEpsilon q (K₀+n) j = true then swapContribM K₀ n j i else 0) n`.
-  have h_game3D_sum : ∀ N, game3D q N i = ∑ n ∈ Finset.range N, (fun n => ∑ j, if gameEpsilon q (K₀+n) j = true then swapContribM K₀ n j i else 0) n := by
+  -- Expand `game3D` as the partial sums of the chosen swap contributions.
+  have h_game3D_sum :
+      ∀ N,
+        game3D q N i =
+          ∑ n ∈ Finset.range N,
+            (fun n =>
+              ∑ j,
+                if gameEpsilon q (K₀ + n) j = true then
+                  swapContribM K₀ n j i
+                else
+                  0) n := by
     intro N;
     induction N <;> simp_all +decide [ Finset.sum_range_succ ];
     · rfl;
@@ -1285,14 +1820,39 @@ lemma game3D_limit_eq_tsum (q : Fin 3 → ℝ) (hq : q ∈ targetBoxM K₀) (i :
   refine' HasSum.tsum_eq ?_;
   rw [ hasSum_iff_tendsto_nat_of_summable_norm ];
   · simpa only [ ← h_game3D_sum ] using game3D_converges q hq i;
-  · -- By definition of `swapContribM`, we know that `|swapContribM K₀ n j i| ≤ aGameSeq j K₀ n + eGameSeq K₀ n`.
-    have h_swapContribM_bound : ∀ n j i, |swapContribM K₀ n j i| ≤ aGameSeq j K₀ n + eGameSeq K₀ n := by
+  · -- Bound each chosen swap contribution by a summable majorant.
+    have h_swapContribM_bound :
+        ∀ n j i,
+          |swapContribM K₀ n j i| ≤ aGameSeq j K₀ n + eGameSeq K₀ n := by
       intro n j i;
       have := swapContrib_bound n j i;
-      split_ifs at this <;> exact abs_le.mpr ⟨ by linarith [ abs_le.mp this, show 0 ≤ aGameSeq j K₀ n from div_nonneg ( show 0 ≤ c_coeff j from by fin_cases j <;> norm_num [ c_coeff ] ) ( pow_nonneg ( Nat.cast_nonneg _ ) _ ) ], by linarith [ abs_le.mp this, show 0 ≤ aGameSeq j K₀ n from div_nonneg ( show 0 ≤ c_coeff j from by fin_cases j <;> norm_num [ c_coeff ] ) ( pow_nonneg ( Nat.cast_nonneg _ ) _ ) ] ⟩;
-    refine' Summable.of_nonneg_of_le ( fun n => norm_nonneg ?_ ) ( fun n => ?_ ) ( show Summable fun n => ∑ j : Fin 3, aGameSeq j K₀ n + ∑ j : Fin 3, eGameSeq K₀ n from ?_ );
-    · exact le_trans ( norm_sum_le _ _ ) ( le_trans ( Finset.sum_le_sum fun _ _ => by aesop ) ( by simpa only [ Finset.sum_add_distrib ] using Finset.sum_le_sum fun _ _ => h_swapContribM_bound _ _ _ ) );
-    · exact Summable.add ( summable_sum fun j _ => aGameSeq_summable j K₀ ) ( summable_sum fun j _ => eGameSeq_summable K₀ )
+      have h_nonneg : 0 ≤ aGameSeq j K₀ n := by
+        exact
+          div_nonneg
+            (show 0 ≤ c_coeff j from by
+              fin_cases j <;> norm_num [c_coeff])
+            (pow_nonneg (Nat.cast_nonneg _) _)
+      split_ifs at this <;>
+        exact abs_le.mpr
+          ⟨by linarith [abs_le.mp this, h_nonneg],
+           by linarith [abs_le.mp this, h_nonneg]⟩
+    refine'
+      Summable.of_nonneg_of_le
+        (fun n => norm_nonneg ?_) (fun n => ?_)
+        (show
+          Summable fun n =>
+            ∑ j : Fin 3, aGameSeq j K₀ n + ∑ j : Fin 3, eGameSeq K₀ n from ?_)
+    · exact
+        le_trans (norm_sum_le _ _)
+          (le_trans
+            (Finset.sum_le_sum fun _ _ => by aesop)
+            (by
+              simpa only [Finset.sum_add_distrib] using
+                Finset.sum_le_sum fun _ _ => h_swapContribM_bound _ _ _))
+    · exact
+        Summable.add
+          (summable_sum fun j _ => aGameSeq_summable j K₀)
+          (summable_sum fun j _ => eGameSeq_summable K₀)
 
 /-- The box is covered: for each point in the target box, the game produces
 choices that converge to that point. -/

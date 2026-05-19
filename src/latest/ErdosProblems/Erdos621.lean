@@ -38,7 +38,6 @@ namespace Erdos621
 set_option linter.deprecated false
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.longLine false
 set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
 set_option linter.style.openClassical false
@@ -251,9 +250,23 @@ lemma sos_eq_2D_sub_2A (G : Trigraph V) :
   simp +decide only [sum_sub_distrib, pow_two, mul_sub, sub_mul];
   simp +decide only [mul_comm, Finset.mul_sum _ _ _, mul_left_comm];
   simp +decide only [mul_assoc, mul_left_comm, D, mul_comm, crossTermA];
-  rw [ show ∑ x : V, ∑ x_1 : V, ∑ x_2 : V, ∑ x_3 : V, G.n x x_2 * ( G.n x x_3 * ( ( G.n x x_1 + G.c x x_1 ) * ( G.s x_1 x_2 * G.s x_1 x_3 ) ) ) = ∑ x : V, ∑ x_1 : V, ∑ x_2 : V, ∑ x_3 : V, G.n x_1 x_2 * ( G.n x_1 x_3 * ( ( G.n x x_1 + G.c x x_1 ) * ( G.s x x_2 * G.s x x_3 ) ) ) from ?_ ] ; ring_nf;
+  rw [
+    show
+      ∑ x : V, ∑ x_1 : V, ∑ x_2 : V, ∑ x_3 : V,
+        G.n x x_2 *
+          (G.n x x_3 *
+            ((G.n x x_1 + G.c x x_1) * (G.s x_1 x_2 * G.s x_1 x_3))) =
+      ∑ x : V, ∑ x_1 : V, ∑ x_2 : V, ∑ x_3 : V,
+        G.n x_1 x_2 *
+          (G.n x_1 x_3 *
+            ((G.n x x_1 + G.c x x_1) * (G.s x x_2 * G.s x x_3)))
+      from ?_
+  ];
+  ring_nf;
   · congr! 3;
-    exact Finset.sum_congr rfl fun _ _ => Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by ring_nf );
+    exact Finset.sum_congr rfl fun _ _ =>
+      Finset.sum_comm.trans (Finset.sum_congr rfl fun _ _ =>
+        Finset.sum_congr rfl fun _ _ => by ring_nf);
   · rw [ Finset.sum_comm ];
     simp +decide only [n_symm, c_symm]
 
@@ -277,7 +290,10 @@ lemma P4_le_crossTermA (G : Trigraph V) : G.P4 ≤ G.crossTermA := by
     (G.n u v + G.c u v) * G.s u w * G.n v w * G.s v x * G.n u x * G.s x w;
   -- We need to show that $B \leq \text{crossTermA}$.
   have h_B_le_crossTermA : B ≤ G.crossTermA := by
-    refine' Finset.sum_le_sum fun u hu => Finset.sum_le_sum fun v hv => Finset.sum_le_sum fun w hw => Finset.sum_le_sum fun x hx => _;
+    refine' Finset.sum_le_sum fun u hu =>
+      Finset.sum_le_sum fun v hv =>
+      Finset.sum_le_sum fun w hw =>
+      Finset.sum_le_sum fun x hx => _;
     refine' mul_le_of_le_one_right _ _;
     · apply_rules [ mul_nonneg, n_nonneg, c_nonneg, s_nonneg ];
       exact add_nonneg ( n_nonneg G u v ) ( c_nonneg G u v );
@@ -285,7 +301,9 @@ lemma P4_le_crossTermA (G : Trigraph V) : G.P4 ≤ G.crossTermA := by
   -- Using the triangle-free condition, we can simplify the expression for $B$.
   have h_B_simplified : B = ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
     (G.n u v + G.c u v) * G.s u w * G.s v x * G.s x w := by
-      have h_B_simplified : ∀ u v w x : V, G.s v x * G.s x w * G.n v w = G.s v x * G.s x w := by
+      have h_B_simplified :
+          ∀ u v w x : V,
+            G.s v x * G.s x w * G.n v w = G.s v x * G.s x w := by
         intro u v w x
         have h_triangle_free : G.s v x * G.s x w * (G.c v w + G.s v w) = 0 := by
           exact G.triangle_free x v w ▸ by simp +decide [ G.s_symm ] ;
@@ -293,14 +311,18 @@ lemma P4_le_crossTermA (G : Trigraph V) : G.P4 ≤ G.crossTermA := by
           simp_all +decide [ Trigraph.n ];
           grind
         exact h_simplify;
-      refine' Finset.sum_congr rfl fun u hu => Finset.sum_congr rfl fun v hv => Finset.sum_congr rfl fun w hw => Finset.sum_congr rfl fun x hx => _;
+      refine' Finset.sum_congr rfl fun u hu =>
+        Finset.sum_congr rfl fun v hv =>
+        Finset.sum_congr rfl fun w hw =>
+        Finset.sum_congr rfl fun x hx => _;
       grind +suggestions;
   convert h_B_le_crossTermA using 1;
   rw [ h_B_simplified ];
   unfold Trigraph.P4;
   simp +decide only [mul_comm];
   simp +decide only [← sum_product'];
-  apply Finset.sum_bij (fun x _ => (x.2.2.2, x.1, x.2.2.1, x.2.1)) _ _ _ _ <;> simp +decide [ mul_assoc, mul_comm, mul_left_comm ];
+  apply Finset.sum_bij (fun x _ => (x.2.2.2, x.1, x.2.2.1, x.2.1)) _ _ _ _
+    <;> simp +decide [ mul_assoc, mul_comm, mul_left_comm ];
   exact fun u v w x => Or.inl <| Or.inl <| Or.inl <| G.s_symm _ _
 
 /-- **Lemma 2.2, part 2:** P₄(G) ≤ D(G). -/
@@ -349,21 +371,58 @@ lemma K13_minus_P4_C4_eq_half_sos (G : Trigraph V) :
       ∑ u : V, ∑ v : V, G.s u v *
         (∑ w : V, (G.s u w - G.s v w)) ^ 2 := by
   -- proved by subagent
-  have h_expand : ∑ u : V, ∑ v : V, G.s u v * (∑ w : V, (G.s u w - G.s v w))^2 = ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, G.s u v * (G.s u w - G.s v w) * (G.s u x - G.s v x) := by
+  have h_expand :
+      ∑ u : V, ∑ v : V, G.s u v *
+        (∑ w : V, (G.s u w - G.s v w))^2 =
+      ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+        G.s u v * (G.s u w - G.s v w) * (G.s u x - G.s v x) := by
     simp +decide only [pow_two, Finset.mul_sum _ _ _, mul_comm, mul_assoc]
-  have h_expand_further : ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, G.s u v * (G.s u w - G.s v w) * (G.s u x - G.s v x) = ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, (G.s u v * G.s u w * G.s u x + G.s u v * G.s v w * G.s v x - G.s u v * G.s u w * G.s v x - G.s u v * G.s v w * G.s u x) := by
-    exact Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by ring_nf
-  have h_simplify : ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, (G.s u v * G.s u w * G.s u x + G.s u v * G.s v w * G.s v x - G.s u v * G.s u w * G.s v x - G.s u v * G.s v w * G.s u x) = 2 * ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, G.s u v * G.s u w * G.s u x - 2 * ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, G.s u v * G.s u w * G.s v x := by
-    have h_simplify : ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, G.s u v * G.s v w * G.s v x = ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, G.s u v * G.s u w * G.s u x := by
+  have h_expand_further :
+      ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+        G.s u v * (G.s u w - G.s v w) * (G.s u x - G.s v x) =
+      ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+        (G.s u v * G.s u w * G.s u x + G.s u v * G.s v w * G.s v x -
+          G.s u v * G.s u w * G.s v x - G.s u v * G.s v w * G.s u x) := by
+    exact Finset.sum_congr rfl fun _ _ =>
+      Finset.sum_congr rfl fun _ _ =>
+      Finset.sum_congr rfl fun _ _ =>
+      Finset.sum_congr rfl fun _ _ => by ring_nf
+  have h_simplify :
+      ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+        (G.s u v * G.s u w * G.s u x + G.s u v * G.s v w * G.s v x -
+          G.s u v * G.s u w * G.s v x - G.s u v * G.s v w * G.s u x) =
+      2 * ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+        G.s u v * G.s u w * G.s u x -
+      2 * ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+        G.s u v * G.s u w * G.s v x := by
+    have h_simplify :
+        ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+          G.s u v * G.s v w * G.s v x =
+        ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+          G.s u v * G.s u w * G.s u x := by
       rw [ Finset.sum_comm ]
       simp +decide only [s_symm]
-    have h_simplify2 : ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, G.s u v * G.s v w * G.s u x = ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, G.s u v * G.s u w * G.s v x := by
-      exact Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by ring_nf )
+    have h_simplify2 :
+        ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+          G.s u v * G.s v w * G.s u x =
+        ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+          G.s u v * G.s u w * G.s v x := by
+      exact Finset.sum_congr rfl fun _ _ =>
+        Finset.sum_congr rfl fun _ _ =>
+        Finset.sum_comm.trans (Finset.sum_congr rfl fun _ _ =>
+          Finset.sum_congr rfl fun _ _ => by ring_nf)
     simp +decide [ Finset.sum_add_distrib, Finset.sum_sub_distrib, two_mul, * ]
     linarith
-  have h_combine : ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, G.s u v * G.s u w * G.s u x = G.K13 ∧ ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, G.s u v * G.s u w * G.s v x = G.P4 + G.C4 := by
+  have h_combine :
+      ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+        G.s u v * G.s u w * G.s u x = G.K13 ∧
+      ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+        G.s u v * G.s u w * G.s v x = G.P4 + G.C4 := by
     constructor
-    · exact Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by ring_nf
+    · exact Finset.sum_congr rfl fun _ _ =>
+        Finset.sum_congr rfl fun _ _ =>
+        Finset.sum_congr rfl fun _ _ =>
+        Finset.sum_congr rfl fun _ _ => by ring_nf
     · rw [ P4_add_C4_eq ]
       simp +decide only [← sum_product']
       apply Finset.sum_bij (fun x _ => (x.2.2.1, x.1, x.2.1, x.2.2.2))
@@ -426,7 +485,16 @@ lemma fbound4 (G : Trigraph V) :
         (G.n w x + G.s w x + G.c w x * G.s u x + G.c w x * G.s v x) := by
   rw [ ← Finset.sum_sub_distrib ];
   refine' Finset.sum_congr rfl fun u hu => _;
-  rw [ ← Finset.sum_sub_distrib ] ; congr ; ext v ; rw [ ← Finset.sum_sub_distrib ] ; congr ; ext w ; rw [ ← Finset.sum_sub_distrib ] ; congr ; ext x ; ring_nf;
+  rw [ ← Finset.sum_sub_distrib ];
+  congr;
+  ext v;
+  rw [ ← Finset.sum_sub_distrib ];
+  congr;
+  ext w;
+  rw [ ← Finset.sum_sub_distrib ];
+  congr;
+  ext x;
+  ring_nf;
   unfold Trigraph.n; ring_nf;
 
 /-
@@ -457,11 +525,18 @@ lemma symmetrize_aux2 (G : Trigraph V) :
   have h_vanish : ∀ u w x, G.s u w * G.s u x * G.c w x = 0 := by
     exact fun u w x => G.c_s_s_vanish u w x;
   -- Apply the c_s_s_vanish lemma to each term in the sum to simplify it.
-  have h_simp : ∀ u v w x, G.s u v * (G.s u w + G.s v w) * (G.n w x + G.c w x * G.s u x + G.c w x * G.s v x) = G.s u v * G.s u w * (G.n w x + G.c w x * G.s v x) + G.s u v * G.s v w * (G.n w x + G.c w x * G.s u x) := by
+  have h_simp :
+      ∀ u v w x,
+        G.s u v * (G.s u w + G.s v w) *
+            (G.n w x + G.c w x * G.s u x + G.c w x * G.s v x) =
+          G.s u v * G.s u w * (G.n w x + G.c w x * G.s v x) +
+            G.s u v * G.s v w * (G.n w x + G.c w x * G.s u x) := by
     grind;
   simp +decide only [h_simp, sum_add_distrib, two_mul];
   simp +decide only [← sum_product'];
-  refine' congr rfl ( Finset.sum_bij ( fun x _ => ( x.2.1, x.1, x.2.2.1, x.2.2.2 ) ) _ _ _ _ ) <;> simp +decide;
+  refine' congr rfl
+    (Finset.sum_bij (fun x _ => (x.2.1, x.1, x.2.2.1, x.2.2.2)) _ _ _ _)
+    <;> simp +decide;
   exact fun u v w x => Or.inl <| Or.inl <| G.s_symm u v
 
 /-
@@ -472,8 +547,13 @@ lemma sum_svx_one_sub_swx_eq_P4 (G : Trigraph V) :
     ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
       G.s u v * G.s u w * G.s v x * (1 - G.s w x) = G.P4 := by
   -- By definition of $P₄$, we know that
-  have hP4 : G.P4 = ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, G.s u v * G.s v w * G.s w x * (1 - G.s x u) := by
-    refine' Finset.sum_congr rfl fun u hu => Finset.sum_congr rfl fun v hv => Finset.sum_congr rfl fun w hw => Finset.sum_congr rfl fun x hx => _;
+  have hP4 :
+      G.P4 = ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+        G.s u v * G.s v w * G.s w x * (1 - G.s x u) := by
+    refine' Finset.sum_congr rfl fun u hu =>
+      Finset.sum_congr rfl fun v hv =>
+      Finset.sum_congr rfl fun w hw =>
+      Finset.sum_congr rfl fun x hx => _;
     unfold Trigraph.n; ring_nf;
   simp +decide only [mul_sub, mul_one, hP4];
   simp +decide only [← sum_product'];
@@ -488,15 +568,21 @@ Part (b) of aux2 splitting: Σ s(uv)s(uw)n(vx)n(wx) = K₁,₃ + D.
     Uses triangle-free and relabeling v↔x.
 -/
 lemma sum_nvx_nwx_eq_K13_D (G : Trigraph V) :
-    ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+  ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
       G.s u v * G.s u w * G.n v x * G.n w x = G.K13 + G.D := by
   unfold K13 D;
-  -- Let's simplify the expression by factoring out common terms and using the definitions of $K13$ and $D$.
-  have h_simp : ∀ (u v w x : V), G.s u v * G.s u w * G.n v x * G.n w x = G.s u v * G.s u w * G.s u x + G.s u v * G.s u w * (G.n u x + G.c u x) * G.n v x * G.n w x := by
+  -- Factor out common terms and use the definitions of $K13$ and $D$.
+  have h_simp :
+      ∀ (u v w x : V),
+        G.s u v * G.s u w * G.n v x * G.n w x =
+          G.s u v * G.s u w * G.s u x +
+            G.s u v * G.s u w * (G.n u x + G.c u x) * G.n v x * G.n w x := by
     grind +suggestions;
   simp +decide only [h_simp, sum_add_distrib];
   simp +decide only [← sum_product'];
-  refine' congr rfl ( Finset.sum_bij ( fun x _ => ( x.1, x.2.2.2, x.2.2.1, x.2.1 ) ) _ _ _ _ ) <;> simp +decide;
+  refine' congr rfl
+    (Finset.sum_bij (fun x _ => (x.1, x.2.2.2, x.2.2.1, x.2.1)) _ _ _ _)
+    <;> simp +decide;
   simp +decide [ mul_assoc, mul_comm, mul_left_comm, Trigraph.n_symm ]
 
 /-
@@ -523,7 +609,10 @@ lemma aux2_combined (G : Trigraph V) :
   -- = s(vx)(1-s(wx)) + n(vx)n(wx) + c(vx)n(wx)
   convert congr_arg₂ ( · + · ) ( congr_arg₂ ( · + · ) h2 h1 ) h3 using 1;
   · simp +decide [ ← mul_assoc, ← Finset.sum_add_distrib, n ];
-    refine' Finset.sum_congr rfl fun u hu => Finset.sum_congr rfl fun v hv => Finset.sum_congr rfl fun w hw => Finset.sum_congr rfl fun x hx => _;
+    refine' Finset.sum_congr rfl fun u hu =>
+      Finset.sum_congr rfl fun v hv =>
+      Finset.sum_congr rfl fun w hw =>
+      Finset.sum_congr rfl fun x hx => _;
     ring_nf;
   · grind
 
@@ -558,11 +647,23 @@ lemma B_expansion (G : Trigraph V) :
     - 2 * (∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, G.s u v * (G.s u w + G.s v w))
     + (∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
         G.s u v * (G.s u w + G.s v w) * (G.s u x + G.s v x)) := by
-  have h_expand : ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, G.s u v * (1 - G.s u w - G.s v w) * (1 - G.s u x - G.s v x) = ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, (G.s u v - G.s u v * G.s u w - G.s u v * G.s v w - G.s u v * G.s u x - G.s u v * G.s v x + G.s u v * G.s u w * G.s u x + G.s u v * G.s u w * G.s v x + G.s u v * G.s v w * G.s u x + G.s u v * G.s v w * G.s v x) := by
-    exact Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by ring_nf;
+  have h_expand :
+      ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+        G.s u v * (1 - G.s u w - G.s v w) * (1 - G.s u x - G.s v x) =
+      ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+        (G.s u v - G.s u v * G.s u w - G.s u v * G.s v w -
+          G.s u v * G.s u x - G.s u v * G.s v x +
+          G.s u v * G.s u w * G.s u x + G.s u v * G.s u w * G.s v x +
+          G.s u v * G.s v w * G.s u x + G.s u v * G.s v w * G.s v x) := by
+    exact Finset.sum_congr rfl fun _ _ =>
+      Finset.sum_congr rfl fun _ _ =>
+      Finset.sum_congr rfl fun _ _ =>
+      Finset.sum_congr rfl fun _ _ => by ring_nf;
   simp +decide only [h_expand, sum_add_distrib, sum_sub_distrib];
   simp +decide only [mul_add, sum_add_distrib];
-  simp +decide only [sum_const, card_univ, nsmul_eq_mul, mul_assoc, S_total', add_mul, sum_add_distrib];
+  simp +decide only [
+    sum_const, card_univ, nsmul_eq_mul, mul_assoc, S_total', add_mul,
+    sum_add_distrib]
   simp +decide only [← Finset.mul_sum _ _ _, ← sum_mul] ; ring_nf
 
 /-- The third piece = 2·K₁,₃ + 2·(P₄+C₄) -/
@@ -571,9 +672,13 @@ lemma third_piece_eq (G : Trigraph V) :
       G.s u v * (G.s u w + G.s v w) * (G.s u x + G.s v x) =
     2 * G.K13 + 2 * (G.P4 + G.C4) := by
   simp +decide only [mul_add, add_mul, sum_add_distrib];
-  have hP4_C4 : ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, G.s u v * G.s v w * G.s w x = G.P4 + G.C4 := by
+  have hP4_C4 :
+      ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+        G.s u v * G.s v w * G.s w x = G.P4 + G.C4 := by
     convert P4_add_C4_eq G |> Eq.symm using 1;
-  have hP4_C4' : ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, G.s u v * G.s v w * G.s u x = G.P4 + G.C4 := by
+  have hP4_C4' :
+      ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+        G.s u v * G.s v w * G.s u x = G.P4 + G.C4 := by
     rw [ ← hP4_C4 ];
     simp +decide only [sum_sigma'];
     apply Finset.sum_bij (fun x _ => ⟨x.snd.snd.fst, x.snd.fst, x.fst, x.snd.snd.snd⟩);
@@ -581,13 +686,28 @@ lemma third_piece_eq (G : Trigraph V) :
     · grind;
     · aesop;
     · simp +decide [ mul_assoc, mul_comm, mul_left_comm, Trigraph.s_symm ];
-  have hP4_C4'' : ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, G.s u v * G.s u w * G.s u x = G.K13 := by
-    exact Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by ring_nf;
-  have hP4_C4''' : ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, G.s u v * G.s u w * G.s v x = G.P4 + G.C4 := by
+  have hP4_C4'' :
+      ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+        G.s u v * G.s u w * G.s u x = G.K13 := by
+    exact Finset.sum_congr rfl fun _ _ =>
+      Finset.sum_congr rfl fun _ _ =>
+      Finset.sum_congr rfl fun _ _ =>
+      Finset.sum_congr rfl fun _ _ => by ring_nf;
+  have hP4_C4''' :
+      ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+        G.s u v * G.s u w * G.s v x = G.P4 + G.C4 := by
     convert hP4_C4' using 1;
-    exact Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by ring_nf );
-  have hP4_C4'''' : ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, G.s u v * G.s v w * G.s v x = G.K13 := by
-    exact Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by rw [ G.s_symm, G.s_symm ] );
+    exact Finset.sum_congr rfl fun _ _ =>
+      Finset.sum_congr rfl fun _ _ =>
+      Finset.sum_comm.trans (Finset.sum_congr rfl fun _ _ =>
+        Finset.sum_congr rfl fun _ _ => by ring_nf);
+  have hP4_C4'''' :
+      ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+        G.s u v * G.s v w * G.s v x = G.K13 := by
+    exact Finset.sum_comm.trans (Finset.sum_congr rfl fun _ _ =>
+      Finset.sum_congr rfl fun _ _ =>
+      Finset.sum_congr rfl fun _ _ =>
+      Finset.sum_congr rfl fun _ _ => by rw [ G.s_symm, G.s_symm ]);
   grind
 
 /-- Equation (e:aux1): Σ s(uv)·(s(uw)+s(vw))·s(wx) = 2·(P₄+C₄) -/
@@ -686,38 +806,72 @@ lemma fbound1 (G : Trigraph V) :
       G.s u v * G.s w x * (G.s u w + G.s v w) * (1 - G.s u x - G.s v x) =
     2 * G.P4 := by
   -- By definition of $P4$, we can expand the left-hand side.
-  have h_expand : ∑ u, ∑ v, ∑ w, ∑ x, G.s u v * G.s w x * (G.s u w + G.s v w) * (1 - G.s u x - G.s v x) = ∑ u, ∑ v, ∑ w, ∑ x, G.s u v * G.s u w * G.s w x * (1 - G.s v x) + ∑ u, ∑ v, ∑ w, ∑ x, G.s u v * G.s v w * G.s w x * (1 - G.s u x) := by
-    simp +decide only [mul_comm, mul_left_comm, add_mul, mul_add, sub_mul, mul_sub, mul_assoc, ← sum_add_distrib];
-    refine' Finset.sum_congr rfl fun u hu => Finset.sum_congr rfl fun v hv => Finset.sum_congr rfl fun w hw => Finset.sum_congr rfl fun x hx => _;
+  have h_expand :
+      ∑ u, ∑ v, ∑ w, ∑ x,
+        G.s u v * G.s w x * (G.s u w + G.s v w) * (1 - G.s u x - G.s v x) =
+      ∑ u, ∑ v, ∑ w, ∑ x,
+        G.s u v * G.s u w * G.s w x * (1 - G.s v x) +
+      ∑ u, ∑ v, ∑ w, ∑ x,
+        G.s u v * G.s v w * G.s w x * (1 - G.s u x) := by
+    simp +decide only [
+      mul_comm, mul_left_comm, add_mul, mul_add, sub_mul, mul_sub, mul_assoc,
+      ← sum_add_distrib];
+    refine' Finset.sum_congr rfl fun u hu =>
+      Finset.sum_congr rfl fun v hv =>
+      Finset.sum_congr rfl fun w hw =>
+      Finset.sum_congr rfl fun x hx => _;
     have := G.triangle_free u w x; simp_all +decide [ mul_assoc, mul_comm, mul_left_comm ] ;
-    rcases this with ( h | h | h ) <;> simp_all +decide [ add_eq_zero_iff_of_nonneg, G.c_nonneg, G.s_nonneg ];
+    rcases this with ( h | h | h ) <;>
+      simp_all +decide [add_eq_zero_iff_of_nonneg, G.c_nonneg, G.s_nonneg];
     · have := G.triangle_free v u w; simp_all +decide [ mul_assoc, mul_comm, mul_left_comm ] ;
       rcases this with ( h' | h' | h' ) <;> have := G.c_add_s_add_n u w <;> simp_all +decide;
       · have := G.triangle_free v w x; simp_all +decide [ mul_assoc, mul_comm, mul_left_comm ] ;
-        rcases this with ( h'' | h'' | h'' ) <;> simp_all +decide [ add_eq_zero_iff_of_nonneg, G.c_nonneg, G.s_nonneg ];
+        rcases this with ( h'' | h'' | h'' ) <;>
+          simp_all +decide [add_eq_zero_iff_of_nonneg, G.c_nonneg, G.s_nonneg];
       · have := G.s_symm u v; aesop;
     · have := G.triangle_free v u x; simp_all +decide [ mul_assoc, mul_comm, mul_left_comm ] ;
       have := G.triangle_free v w x; simp_all +decide [ mul_assoc, mul_comm, mul_left_comm ] ;
-      rcases this with ( h | h | h ) <;> simp_all +decide [ add_eq_zero_iff_of_nonneg, G.c_nonneg, G.s_nonneg ];
-  have h_sum1 : ∑ u, ∑ v, ∑ w, ∑ x, G.s u v * G.s u w * G.s w x * (1 - G.s v x) = ∑ u, ∑ v, ∑ w, ∑ x, G.s u v * G.s v w * G.s w x * (1 - G.s u x) := by
+      rcases this with ( h | h | h ) <;>
+        simp_all +decide [add_eq_zero_iff_of_nonneg, G.c_nonneg, G.s_nonneg];
+  have h_sum1 :
+      ∑ u, ∑ v, ∑ w, ∑ x,
+        G.s u v * G.s u w * G.s w x * (1 - G.s v x) =
+      ∑ u, ∑ v, ∑ w, ∑ x,
+        G.s u v * G.s v w * G.s w x * (1 - G.s u x) := by
     simp +decide only [sum_sigma'];
-    apply Finset.sum_bij (fun x _ => ⟨x.snd.fst, x.fst, x.snd.snd.fst, x.snd.snd.snd⟩) _ _ _ _ <;> simp +decide [ Trigraph.s_symm ];
+    apply Finset.sum_bij
+        (fun x _ => ⟨x.snd.fst, x.fst, x.snd.snd.fst, x.snd.snd.snd⟩) _ _ _ _
+      <;> simp +decide [ Trigraph.s_symm ];
     · grind;
     · exact fun b => ⟨ b.2.1, b.1, b.2.2.1, b.2.2.2, rfl ⟩;
-  have h_sum2 : ∑ u, ∑ v, ∑ w, ∑ x, G.s u v * G.s v w * G.s w x * (1 - G.s u x) = G.P4 := by
-    refine' Finset.sum_congr rfl fun u hu => Finset.sum_congr rfl fun v hv => Finset.sum_congr rfl fun w hw => Finset.sum_congr rfl fun x hx => _;
+  have h_sum2 :
+      ∑ u, ∑ v, ∑ w, ∑ x,
+        G.s u v * G.s v w * G.s w x * (1 - G.s u x) = G.P4 := by
+    refine' Finset.sum_congr rfl fun u hu =>
+      Finset.sum_congr rfl fun v hv =>
+      Finset.sum_congr rfl fun w hw =>
+      Finset.sum_congr rfl fun x hx => _;
     simp +decide [ Trigraph.n, G.c_symm, G.s_symm ];
     exact Or.inl ( by ring_nf );
   grind
 
 /-- The sum Σ s(uv)·s(wx)·s(uw)·s(vx) equals C₄ -/
 lemma sum_s_s_s_s_eq_C4 (G : Trigraph V) :
-    ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+  ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
       G.s u v * G.s w x * G.s u w * G.s v x = G.C4 := by
-  have h_comm : ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, G.s u v * G.s w x * G.s u w * G.s v x = ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, G.s v u * G.s w x * G.s v w * G.s u x := by
+  have h_comm :
+      ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+        G.s u v * G.s w x * G.s u w * G.s v x =
+      ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+        G.s v u * G.s w x * G.s v w * G.s u x := by
     rw [ Finset.sum_comm ];
   convert h_comm using 1;
-  exact Finset.sum_congr rfl fun u hu => Finset.sum_congr rfl fun v hv => Finset.sum_congr rfl fun w hw => Finset.sum_congr rfl fun x hx => by rw [ G.s_symm u v, G.s_symm u x ] ; ring_nf;
+  exact Finset.sum_congr rfl fun u hu =>
+    Finset.sum_congr rfl fun v hv =>
+    Finset.sum_congr rfl fun w hw =>
+    Finset.sum_congr rfl fun x hx => by
+      rw [ G.s_symm u v, G.s_symm u x ];
+      ring_nf;
 
 /-- Lemma 2.3: follows from BigSum.lean's bigsum_identity' -/
 lemma bigsum_identity (G : Trigraph V) :
@@ -736,7 +890,9 @@ lemma R_nonneg (G : Trigraph V) : 0 ≤ G.R := by
   apply Finset.sum_nonneg; intro v _
   apply Finset.sum_nonneg; intro w _
   apply Finset.sum_nonneg; intro x _
-  exact mul_nonneg (mul_nonneg (mul_nonneg (G.s_nonneg u v) (G.s_nonneg u w)) (G.n_nonneg w x)) (G.c_nonneg v x)
+  exact mul_nonneg
+    (mul_nonneg (mul_nonneg (G.s_nonneg u v) (G.s_nonneg u w)) (G.n_nonneg w x))
+    (G.c_nonneg v x)
 
 /-
 F₂ expressed in terms of the counting quantities
@@ -747,16 +903,66 @@ lemma F2_eq (G : Trigraph V) :
     + 4 * (G.P4 - G.D)
     - 4 * G.R := by
   -- Apply the definitions of `A`, `B`, and `C` from the provided solution.
-  have h_F2_decomp : G.F2 = ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, 2 * G.s u v * (3 * G.s w x + G.c w x) * (G.s u w + G.s v w) * (1 - G.s u x - G.s v x) + ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, G.s u v * (1 - G.s u w - G.s v w) * (1 - G.s u x - G.s v x) + ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, 4 * G.s u v * G.s w x * G.s u w * G.s v x := by
-    simpa only [ ← sum_add_distrib ] using Finset.sum_congr rfl fun u hu => Finset.sum_congr rfl fun v hv => Finset.sum_congr rfl fun w hw => Finset.sum_congr rfl fun x hx => by unfold Trigraph.f2; ring_nf;
-  have h_A : ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, 2 * G.s u v * (3 * G.s w x + G.c w x) * (G.s u w + G.s v w) * (1 - G.s u x - G.s v x) = 12 * G.P4 + 2 * ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, G.s u v * G.c w x * (G.s u w + G.s v w) * (1 - G.s u x - G.s v x) := by
-    have h_A : ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, 2 * G.s u v * (3 * G.s w x) * (G.s u w + G.s v w) * (1 - G.s u x - G.s v x) = 12 * G.P4 := by
+  have h_F2_decomp :
+      G.F2 =
+        ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+          2 * G.s u v * (3 * G.s w x + G.c w x) * (G.s u w + G.s v w) *
+            (1 - G.s u x - G.s v x) +
+        ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+          G.s u v * (1 - G.s u w - G.s v w) *
+            (1 - G.s u x - G.s v x) +
+        ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+          4 * G.s u v * G.s w x * G.s u w * G.s v x := by
+    simpa only [ ← sum_add_distrib ] using
+      Finset.sum_congr rfl fun u hu =>
+      Finset.sum_congr rfl fun v hv =>
+      Finset.sum_congr rfl fun w hw =>
+      Finset.sum_congr rfl fun x hx => by
+        unfold Trigraph.f2;
+        ring_nf;
+  have h_A :
+      ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+        2 * G.s u v * (3 * G.s w x + G.c w x) * (G.s u w + G.s v w) *
+          (1 - G.s u x - G.s v x) =
+      12 * G.P4 +
+        2 * ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+          G.s u v * G.c w x * (G.s u w + G.s v w) *
+            (1 - G.s u x - G.s v x) := by
+    have h_A :
+        ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+          2 * G.s u v * (3 * G.s w x) * (G.s u w + G.s v w) *
+            (1 - G.s u x - G.s v x) =
+        12 * G.P4 := by
       convert congr_arg ( · * 6 ) ( fbound1 G ) using 1 ; ring_nf;
-      · simp +decide only [Finset.sum_mul _ _ _] ; congr ; ext ; congr ; ext ; congr ; ext ; congr ; ext ; ring_nf;
+      · simp +decide only [Finset.sum_mul _ _ _];
+        congr;
+        ext;
+        congr;
+        ext;
+        congr;
+        ext;
+        congr;
+        ext;
+        ring_nf;
       · ring_nf;
     simp +decide only [mul_add, mul_left_comm, mul_assoc, Finset.mul_sum _ _ _];
-    rw [ ← h_A ] ; rw [ ← Finset.sum_add_distrib ] ; congr ; ext ; rw [ ← Finset.sum_add_distrib ] ; congr ; ext ; rw [ ← Finset.sum_add_distrib ] ; congr ; ext ; rw [ ← Finset.sum_add_distrib ] ; congr ; ext ; ring_nf;
-  have h_C : ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, 4 * G.s u v * G.s w x * G.s u w * G.s v x = 4 * G.C4 := by
+    rw [ ← h_A ];
+    rw [ ← Finset.sum_add_distrib ];
+    congr;
+    ext;
+    rw [ ← Finset.sum_add_distrib ];
+    congr;
+    ext;
+    rw [ ← Finset.sum_add_distrib ];
+    congr;
+    ext;
+    rw [ ← Finset.sum_add_distrib ];
+    congr;
+    ext;
+    ring_nf;
+  have h_C :
+      ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+        4 * G.s u v * G.s w x * G.s u w * G.s v x = 4 * G.C4 := by
     simp +decide only [← mul_assoc, ← sum_s_s_s_s_eq_C4];
     simp +decide only [mul_assoc, Finset.mul_sum _ _ _];
   linarith [ bigsum_identity G ]
@@ -797,23 +1003,40 @@ lemma exists_bipartition_edgesWithin_le (G : Trigraph V) :
     ∃ χ : V → Bool,
       2 * G.edgesWithin χ ≤
       ∑ u : V, ∑ v : V, (G.c u v + G.s u v) := by
-  have h_sum : ∑ χ : V → Bool, 2 * G.edgesWithin χ = ∑ u : V, ∑ v : V, (G.c u v + G.s u v) * (Finset.card (Finset.univ : Finset (V → Bool))) := by
-    have h_sum : ∑ χ : V → Bool, 2 * G.edgesWithin χ = ∑ u : V, ∑ v : V, (G.c u v + G.s u v) * (∑ χ : V → Bool, if χ u = χ v then 2 else 0) := by
-      simp +decide [ Trigraph.edgesWithin, Finset.mul_sum _ _ _, mul_assoc, mul_comm, mul_left_comm, Finset.sum_mul ];
+  have h_sum :
+      ∑ χ : V → Bool, 2 * G.edgesWithin χ =
+      ∑ u : V, ∑ v : V,
+        (G.c u v + G.s u v) * (Finset.card (Finset.univ : Finset (V → Bool))) := by
+    have h_sum :
+        ∑ χ : V → Bool, 2 * G.edgesWithin χ =
+        ∑ u : V, ∑ v : V,
+          (G.c u v + G.s u v) *
+            (∑ χ : V → Bool, if χ u = χ v then 2 else 0) := by
+      simp +decide [
+        Trigraph.edgesWithin, Finset.mul_sum _ _ _, mul_assoc, mul_comm,
+        mul_left_comm, Finset.sum_mul];
       exact Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_comm );
     convert h_sum using 3;
     rename_i u _ v _;
     by_cases huv : u = v <;> simp +decide [ huv ];
     · rw [ G.c_self, G.s_self, add_zero ];
-    · have h_sum : ∑ χ : V → Bool, (if χ u = χ v then 2 else 0) = ∑ χ : V → Bool, (if χ u ≠ χ v then 2 else 0) := by
+    · have h_sum :
+          ∑ χ : V → Bool, (if χ u = χ v then 2 else 0) =
+          ∑ χ : V → Bool, (if χ u ≠ χ v then 2 else 0) := by
         rw [ ← Equiv.sum_comp ( Equiv.addRight ( Pi.single v Bool.true ) ) ] ; simp +decide [ huv ];
         exact Finset.sum_congr rfl fun x hx => by cases x u <;> cases x v <;> simp +decide ;
-      have h_sum : ∑ χ : V → Bool, (if χ u = χ v then 2 else 0) + ∑ χ : V → Bool, (if χ u ≠ χ v then 2 else 0) = ∑ χ : V → Bool, 2 := by
+      have h_sum :
+          ∑ χ : V → Bool, (if χ u = χ v then 2 else 0) +
+            ∑ χ : V → Bool, (if χ u ≠ χ v then 2 else 0) =
+          ∑ χ : V → Bool, 2 := by
         rw [ ← Finset.sum_add_distrib, Finset.sum_congr rfl ] ; aesop;
       simp_all +decide [ Finset.card_univ ];
       exact Or.inl ( by linarith );
   contrapose! h_sum;
-  refine' ne_of_gt ( lt_of_le_of_lt _ ( Finset.sum_lt_sum_of_nonempty ( Finset.univ_nonempty ) fun χ _ => h_sum χ ) ) ; simp +decide [ ← Finset.mul_sum _ _ _, ← Finset.sum_mul ];
+  refine' ne_of_gt
+    (lt_of_le_of_lt _
+      (Finset.sum_lt_sum_of_nonempty (Finset.univ_nonempty) fun χ _ => h_sum χ));
+  simp +decide [ ← Finset.mul_sum _ _ _, ← Finset.sum_mul ];
   rw [ mul_comm ]
 
 lemma total_edges_le_sq (G : Trigraph V) :
@@ -868,7 +1091,11 @@ lemma f2_nonneg (G : Trigraph V) (u v w x : V) (huv : G.s u v = 1) :
     0 ≤ G.f2 u v w x := by
       have h_s_values : ∀ u v, G.s u v = 0 ∨ G.s u v = 1 := by
         grind +suggestions;
-      cases h_s_values u w <;> cases h_s_values v w <;> cases h_s_values u x <;> cases h_s_values v x <;> simp_all +decide only [f2];
+      cases h_s_values u w <;>
+        cases h_s_values v w <;>
+        cases h_s_values u x <;>
+        cases h_s_values v x <;>
+        simp_all +decide only [f2];
       all_goals have := G.triangle_free u v w; have := G.triangle_free u v x; simp_all +decide ;
       any_goals linarith [ G.c_nonneg v w, G.c_le_one v w, G.c_nonneg v x, G.c_le_one v x ];
       · linarith [ G.c_nonneg w x, G.s_nonneg w x ];
@@ -879,23 +1106,42 @@ lemma exists_small_f2_sum (G : Trigraph V) (hS : 0 < G.S_total) :
     ∃ u₀ v₀, G.s u₀ v₀ = 1 ∧
     (∑ w : V, ∑ x : V, G.f2 u₀ v₀ w x) ≤ (Fintype.card V : ℤ) ^ 2 := by
       by_contra! h;
-      have h_sum : ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, G.f2 u v w x > (Fintype.card V) ^ 2 * ∑ u : V, ∑ v : V, G.s u v := by
-        have h_sum : ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, G.f2 u v w x > ∑ u : V, ∑ v : V, (G.s u v * (Fintype.card V) ^ 2) := by
+      have h_sum :
+          ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, G.f2 u v w x >
+          (Fintype.card V) ^ 2 * ∑ u : V, ∑ v : V, G.s u v := by
+        have h_sum :
+            ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, G.f2 u v w x >
+            ∑ u : V, ∑ v : V, (G.s u v * (Fintype.card V) ^ 2) := by
           refine' Finset.sum_lt_sum _ _;
-          · intro u hu; refine' Finset.sum_le_sum fun v hv => _; by_cases huv : G.s u v = 1 <;> simp_all +decide [ mul_comm ] ;
+          · intro u hu;
+            refine' Finset.sum_le_sum fun v hv => _;
+            by_cases huv : G.s u v = 1 <;> simp_all +decide [ mul_comm ] ;
             · exact le_of_lt ( h u v huv );
-            · rw [ show G.s u v = 0 by exact Or.resolve_right ( s_eq_zero_or_one G u v ) huv ] ; simp +decide [ Trigraph.f2 ];
-              rw [ show G.s u v = 0 by exact Or.resolve_right ( s_eq_zero_or_one G u v ) huv ] ; simp +decide;
+            · have huv0 : G.s u v = 0 :=
+                Or.resolve_right (s_eq_zero_or_one G u v) huv
+              rw [huv0];
+              simp +decide [ Trigraph.f2 ];
+              rw [huv0];
+              simp +decide;
           · obtain ⟨u₀, v₀, huv⟩ : ∃ u₀ v₀ : V, G.s u₀ v₀ = 1 := by
               by_cases h_zero : ∀ u v : V, G.s u v = 0;
-              · exact False.elim ( hS.ne' ( Finset.sum_eq_zero fun u hu => Finset.sum_eq_zero fun v hv => h_zero u v ) );
-              · exact by push Not at h_zero; obtain ⟨ u, v, h ⟩ := h_zero; exact ⟨ u, v, Or.resolve_left ( G.s_eq_zero_or_one u v ) h ⟩ ;
+              · exact False.elim
+                  (hS.ne'
+                    (Finset.sum_eq_zero fun u hu =>
+                      Finset.sum_eq_zero fun v hv => h_zero u v));
+              · exact by
+                  push Not at h_zero
+                  obtain ⟨ u, v, h ⟩ := h_zero
+                  exact ⟨ u, v, Or.resolve_left (G.s_eq_zero_or_one u v) h ⟩
             refine' ⟨ u₀, Finset.mem_univ _, _ ⟩;
             refine' Finset.sum_lt_sum _ _;
             · intro i hi;
               by_cases hi' : G.s u₀ i = 1 <;> simp_all +decide [ Trigraph.f2 ];
               · exact le_of_lt ( h u₀ i hi' );
-              · rw [ show G.s u₀ i = 0 by exact Or.resolve_right ( s_eq_zero_or_one G u₀ i ) hi' ] ; norm_num;
+              · have hi0 : G.s u₀ i = 0 :=
+                  Or.resolve_right (s_eq_zero_or_one G u₀ i) hi'
+                rw [hi0];
+                norm_num;
             · exact ⟨ v₀, Finset.mem_univ _, by simpa [ huv ] using h u₀ v₀ huv ⟩;
         simpa only [ mul_comm, Finset.mul_sum _ _ _ ] using h_sum;
       convert F2_le G using 1;
@@ -979,7 +1225,7 @@ Convert a sum over a subtype to a sum over V with indicator functions.
 private lemma sum_subtype_eq_sum_indicator (Z : Finset V) (f : V → V → ℤ) :
     ∑ w : ↥Z, ∑ x : ↥Z, f w.val x.val =
     ∑ w : V, ∑ x : V, f w x * (if w ∈ Z then 1 else 0) * (if x ∈ Z then 1 else 0) := by
-  -- By definition of Finset.sum_coe_sort, we can rewrite the left-hand side as a sum over V with an indicator function for Z.
+  -- Rewrite the left-hand side as a sum over V with an indicator function for Z.
   have h_sum_coe_sort : ∑ w : ↥Z, ∑ x : ↥Z, f w.val x.val = ∑ w ∈ Z, ∑ x ∈ Z, f w x := by
     refine' Finset.sum_bij ( fun x _ => x.val ) _ _ _ _ <;> simp +decide;
     exact fun x hx => by conv_rhs => rw [ ← Finset.sum_attach ] ;
@@ -1015,7 +1261,9 @@ private lemma partition_from_sum_bound (G : Trigraph V) (u₀ v₀ : V)
          ∑ w : V, ∑ x : V, G.f2 u₀ v₀ w x) :
     ∃ χ : V → Bool,
       2 * (G.edgesWithin χ + G.S_total) ≤ ∑ w : V, ∑ x : V, G.f2 u₀ v₀ w x := by
-  by_cases h₁ : G.edgesWithin χ₁ ≤ G.edgesWithin χ₂ <;> [ exact ⟨ χ₁, by linarith ⟩ ; exact ⟨ χ₂, by linarith ⟩ ]
+  by_cases h₁ : G.edgesWithin χ₁ ≤ G.edgesWithin χ₂
+  · exact ⟨ χ₁, by linarith ⟩
+  · exact ⟨ χ₂, by linarith ⟩
 
 /-
 Key identity: the sum of indicator-restricted terms equals the restricted trigraph sum.
@@ -1062,25 +1310,64 @@ private lemma two_coloring_sum_le (G : Trigraph V) (u₀ v₀ : V) (huv : G.s u�
     ∑ w : V, ∑ x : V, G.f2 u₀ v₀ w x := by
   revert hχ₂_on_Z hχ_off_Z hχ₁_A hχ₁_B;
   intro hχ₂_on_Z hχ_off_Z hχ₁_A hχ₁_B
-  have h_sum : ∑ w : V, ∑ x : V, (2 * ((G.c w x + G.s w x) * (if χ₁ w = χ₁ x then 1 else 0) + (G.c w x + G.s w x) * (if χ₂ w = χ₂ x then 1 else 0) + 2 * G.s w x - 2 * (if w ∈ Z then 1 else 0) * (if x ∈ Z then 1 else 0) * ((G.c w x + G.s w x) * (if χ₁ w = χ₁ x then 1 else 0) + G.s w x))) ≤ ∑ w : V, ∑ x : V, G.f2 u₀ v₀ w x + ∑ w : V, ∑ x : V, G.f2 u₀ v₀ x w - 2 * (Z.card : ℤ) ^ 2 := by
-    have h_sum : ∑ w : V, ∑ x : V, (2 * ((G.c w x + G.s w x) * (if χ₁ w = χ₁ x then 1 else 0) + (G.c w x + G.s w x) * (if χ₂ w = χ₂ x then 1 else 0) + 2 * G.s w x - 2 * (if w ∈ Z then 1 else 0) * (if x ∈ Z then 1 else 0) * ((G.c w x + G.s w x) * (if χ₁ w = χ₁ x then 1 else 0) + G.s w x))) ≤ ∑ w : V, ∑ x : V, (G.f2 u₀ v₀ w x + G.f2 u₀ v₀ x w - 2 * (if w ∈ Z then 1 else 0) * (if x ∈ Z then 1 else 0)) := by
+  have h_sum :
+      ∑ w : V, ∑ x : V,
+        (2 * ((G.c w x + G.s w x) * (if χ₁ w = χ₁ x then 1 else 0) +
+          (G.c w x + G.s w x) * (if χ₂ w = χ₂ x then 1 else 0) +
+          2 * G.s w x -
+          2 * (if w ∈ Z then 1 else 0) * (if x ∈ Z then 1 else 0) *
+            ((G.c w x + G.s w x) * (if χ₁ w = χ₁ x then 1 else 0) +
+              G.s w x))) ≤
+      ∑ w : V, ∑ x : V, G.f2 u₀ v₀ w x +
+        ∑ w : V, ∑ x : V, G.f2 u₀ v₀ x w - 2 * (Z.card : ℤ) ^ 2 := by
+    have h_sum :
+        ∑ w : V, ∑ x : V,
+          (2 * ((G.c w x + G.s w x) * (if χ₁ w = χ₁ x then 1 else 0) +
+            (G.c w x + G.s w x) * (if χ₂ w = χ₂ x then 1 else 0) +
+            2 * G.s w x -
+            2 * (if w ∈ Z then 1 else 0) * (if x ∈ Z then 1 else 0) *
+              ((G.c w x + G.s w x) * (if χ₁ w = χ₁ x then 1 else 0) +
+                G.s w x))) ≤
+        ∑ w : V, ∑ x : V,
+          (G.f2 u₀ v₀ w x + G.f2 u₀ v₀ x w -
+            2 * (if w ∈ Z then 1 else 0) * (if x ∈ Z then 1 else 0)) := by
       refine' Finset.sum_le_sum fun w hw => Finset.sum_le_sum fun x hx => _;
       have := pairwise_bound G u₀ v₀ w x huv (χ₁ w) (χ₁ x);
       grind +suggestions;
     convert h_sum using 1;
     simp +decide [ Finset.sum_add_distrib, sum_f2_swap ];
     ring_nf;
-  have h_sum : 4 * ∑ w : V, ∑ x : V, (if w ∈ Z then 1 else 0) * (if x ∈ Z then 1 else 0) * ((G.c w x + G.s w x) * (if χ₁ w = χ₁ x then 1 else 0) + G.s w x) ≤ 2 * (Z.card : ℤ) ^ 2 := by
-    have h_sum : 2 * (∑ w : V, ∑ x : V, ((G.c w x + G.s w x) * (if χ₁ w = χ₁ x then 1 else 0) + G.s w x) * (if w ∈ Z then 1 else 0) * (if x ∈ Z then 1 else 0)) ≤ (Z.card : ℤ) ^ 2 := by
+  have h_sum :
+      4 * ∑ w : V, ∑ x : V,
+        (if w ∈ Z then 1 else 0) * (if x ∈ Z then 1 else 0) *
+          ((G.c w x + G.s w x) * (if χ₁ w = χ₁ x then 1 else 0) + G.s w x) ≤
+      2 * (Z.card : ℤ) ^ 2 := by
+    have h_sum :
+        2 * (∑ w : V, ∑ x : V,
+          ((G.c w x + G.s w x) * (if χ₁ w = χ₁ x then 1 else 0) + G.s w x) *
+            (if w ∈ Z then 1 else 0) * (if x ∈ Z then 1 else 0)) ≤
+        (Z.card : ℤ) ^ 2 := by
       convert IH_as_indicator_bound G u₀ v₀ huv Z hZ χ_Z hIH χ₁ hχ₁_on_Z using 1;
     convert mul_le_mul_of_nonneg_left h_sum zero_le_two using 1 ; ring_nf;
-    exact congrArg₂ _ ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by split_ifs <;> ring_nf ) rfl;
-  have h_sum : ∑ w : V, ∑ x : V, (2 * ((G.c w x + G.s w x) * (if χ₁ w = χ₁ x then 1 else 0) + (G.c w x + G.s w x) * (if χ₂ w = χ₂ x then 1 else 0) + 2 * G.s w x)) = 2 * (G.edgesWithin χ₁ + G.edgesWithin χ₂) + 4 * G.S_total := by
+    exact congrArg₂ _
+      (Finset.sum_congr rfl fun _ _ =>
+        Finset.sum_congr rfl fun _ _ => by split_ifs <;> ring_nf)
+      rfl;
+  have h_sum :
+      ∑ w : V, ∑ x : V,
+        (2 * ((G.c w x + G.s w x) * (if χ₁ w = χ₁ x then 1 else 0) +
+          (G.c w x + G.s w x) * (if χ₂ w = χ₂ x then 1 else 0) +
+          2 * G.s w x)) =
+      2 * (G.edgesWithin χ₁ + G.edgesWithin χ₂) + 4 * G.S_total := by
     simp +decide [ Finset.mul_sum _ _ _, Trigraph.edgesWithin, Trigraph.S_total ] ; ring_nf;
     simp +decide only [sum_add_distrib, sum_mul _ _ _] ; ring_nf;
   norm_num [ Finset.mul_sum _ _ _, mul_assoc ] at *;
   norm_num [ ← Finset.mul_sum _ _ _, ← Finset.sum_mul ] at *;
-  linarith [ show ∑ w : V, ∑ x : V, G.f2 u₀ v₀ x w = ∑ w : V, ∑ x : V, G.f2 u₀ v₀ w x from sum_f2_swap G u₀ v₀ ]
+  linarith [
+    show
+      ∑ w : V, ∑ x : V, G.f2 u₀ v₀ x w =
+        ∑ w : V, ∑ x : V, G.f2 u₀ v₀ w x
+      from sum_f2_swap G u₀ v₀]
 
 set_option maxHeartbeats 3200000 in
 theorem partition_construction_bound (G : Trigraph V) (u₀ v₀ : V)
@@ -1097,8 +1384,18 @@ theorem partition_construction_bound (G : Trigraph V) (u₀ v₀ : V)
       2 * (G.edgesWithin χ + G.S_total) ≤ ∑ w : V, ∑ x : V, G.f2 u₀ v₀ w x := by
   convert two_coloring_sum_le G u₀ v₀ huv _ rfl χ_Z hIH _ _ _ _ _ using 1;
   rotate_left;
-  exact fun w => if hw : w ∈ Finset.univ \ ( Finset.filter ( fun w => G.s v₀ w = 1 ) Finset.univ ∪ Finset.filter ( fun w => G.s u₀ w = 1 ) Finset.univ ) then χ_Z ⟨ w, hw ⟩ else if G.s v₀ w = 1 then Bool.false else Bool.true;
-  use fun w => if hw : w ∈ Finset.univ \ ( Finset.filter ( fun w => G.s v₀ w = 1 ) Finset.univ ∪ Finset.filter ( fun w => G.s u₀ w = 1 ) Finset.univ ) then !χ_Z ⟨ w, hw ⟩ else if G.s v₀ w = 1 then false else true;
+  exact fun w =>
+    if hw :
+        w ∈ Finset.univ \ (Finset.filter (fun w => G.s v₀ w = 1) Finset.univ ∪
+          Finset.filter (fun w => G.s u₀ w = 1) Finset.univ) then
+      χ_Z ⟨ w, hw ⟩
+    else if G.s v₀ w = 1 then Bool.false else Bool.true;
+  use fun w =>
+    if hw :
+        w ∈ Finset.univ \ (Finset.filter (fun w => G.s v₀ w = 1) Finset.univ ∪
+          Finset.filter (fun w => G.s u₀ w = 1) Finset.univ) then
+      !χ_Z ⟨ w, hw ⟩
+    else if G.s v₀ w = 1 then false else true;
   · aesop;
   · aesop;
   · aesop;
@@ -1223,11 +1520,17 @@ lemma mkTrigraph_edgesWithin (G : SimpleGraph V) [DecidableRel G.Adj]
     (mkTrigraph G S hS hTI).edgesWithin χ =
     ∑ u : V, ∑ v : V,
       if G.Adj u v ∧ χ u = χ v then 1 else 0 := by
-  have h_edgesWithin : ∀ u v, (mkTrigraph G S hS hTI).c u v + (mkTrigraph G S hS hTI).s u v = if G.Adj u v then 1 else 0 := by
+  have h_edgesWithin :
+      ∀ u v,
+        (mkTrigraph G S hS hTI).c u v + (mkTrigraph G S hS hTI).s u v =
+          if G.Adj u v then 1 else 0 := by
     intro u v; split_ifs <;> simp_all +decide [ mkTrigraph ] ;
     · split_ifs <;> norm_num;
     · exact fun h => by have := hS h; simp_all +decide [ SimpleGraph.mem_edgeSet ] ;
-  exact Finset.sum_congr rfl fun u hu => Finset.sum_congr rfl fun v hv => by specialize h_edgesWithin u v; aesop;
+  exact Finset.sum_congr rfl fun u hu =>
+    Finset.sum_congr rfl fun v hv => by
+      specialize h_edgesWithin u v;
+      aesop;
 
 /-
 The S_total of the constructed trigraph.
@@ -1237,9 +1540,12 @@ lemma mkTrigraph_S_total (G : SimpleGraph V) [DecidableRel G.Adj]
     (hTI : IsTriangleIndependent G S) :
     (mkTrigraph G S hS hTI).S_total = 2 * (S.card : ℤ) := by
   unfold Trigraph.S_total mkTrigraph;
-  -- Since $s(u, v) = 1$ if and only if $s(u, v) \in S$, the sum counts the number of edges in $S$.
-  have h_count_edges : ∑ u : V, ∑ v : V, (if s(u, v) ∈ S then 1 else 0) = ∑ e ∈ S, 2 := by
-    have h_count_edges : ∑ e ∈ S, 2 = ∑ e ∈ S, ∑ u : V, ∑ v : V, (if e = s(u, v) then 1 else 0) := by
+  -- The sum counts the ordered endpoints of edges in $S$.
+  have h_count_edges :
+      ∑ u : V, ∑ v : V, (if s(u, v) ∈ S then 1 else 0) = ∑ e ∈ S, 2 := by
+    have h_count_edges :
+        ∑ e ∈ S, 2 =
+        ∑ e ∈ S, ∑ u : V, ∑ v : V, (if e = s(u, v) then 1 else 0) := by
       refine' Finset.sum_congr rfl fun e he => _;
       rcases e with ⟨ u, v ⟩ ; simp +decide ;
       rw [ Finset.sum_eq_add ( u ) ( v ) ] <;> simp +decide [ Finset.filter_eq, Finset.filter_or ];
@@ -1301,21 +1607,54 @@ variable {V : Type*} [Fintype V] [DecidableEq V]
 set_option maxHeartbeats 1600000 in
 theorem main_inequality (G : SimpleGraph V) [DecidableRel G.Adj] :
     4 * (alpha1 G + tauB G) ≤ (Fintype.card V) ^ 2 := by
-  -- By definition of $alpha1$, there exists a triangle-independent set $S$ such that $|S| \geq alpha1 G$.
-  obtain ⟨S, hS⟩ : ∃ S : Finset (Sym2 V), S ⊆ G.edgeFinset ∧ IsTriangleIndependent G S ∧ S.card ≥ alpha1 G := by
-    have := Finset.exists_max_image ( Finset.filter ( IsTriangleIndependent G ) ( G.edgeFinset.powerset ) ) Finset.card ⟨ ∅, by simp +decide [ IsTriangleIndependent ] ⟩;
+  -- By definition of $alpha1$, choose a maximizing triangle-independent set $S$.
+  obtain ⟨S, hS⟩ :
+      ∃ S : Finset (Sym2 V),
+        S ⊆ G.edgeFinset ∧ IsTriangleIndependent G S ∧ S.card ≥ alpha1 G := by
+    have := Finset.exists_max_image
+      (Finset.filter (IsTriangleIndependent G) (G.edgeFinset.powerset))
+      Finset.card
+      ⟨ ∅, by simp +decide [ IsTriangleIndependent ] ⟩;
     obtain ⟨ S, hS₁, hS₂ ⟩ := this; use S; simp_all +decide [ alpha1 ] ;
-  -- By definition of $tauB$, there exists a bipartition $\chi$ such that $tauB G \leq (G.edgeFinset.filter (fun e => Sym2.lift ⟨fun u v => χ u = χ v, by intros; simp [eq_comm]⟩ e)).card$.
-  obtain ⟨χ, hχ⟩ : ∃ χ : V → Bool, 2 * ((∑ u : V, ∑ v : V, (if G.Adj u v ∧ χ u = χ v then 1 else 0)) + 2 * S.card) ≤ (Fintype.card V) ^ 2 := by
+  -- The trigraph partition theorem gives the needed bipartition $\chi$.
+  obtain ⟨χ, hχ⟩ :
+      ∃ χ : V → Bool,
+        2 * ((∑ u : V, ∑ v : V,
+          (if G.Adj u v ∧ χ u = χ v then 1 else 0)) + 2 * S.card) ≤
+        (Fintype.card V) ^ 2 := by
     have := Trigraph.trigraph_partition_exists (TriangleIndep.mkTrigraph G S hS.1 hS.2.1);
     convert this using 4;
     rw [ TriangleIndep.mkTrigraph_edgesWithin, TriangleIndep.mkTrigraph_S_total ] ; norm_cast;
-  have h_tauB : tauB G ≤ (G.edgeFinset.filter (fun e => Sym2.lift ⟨fun u v => χ u = χ v, by intros; simp [eq_comm]⟩ e)).card := by
+  have h_tauB :
+      tauB G ≤
+        (G.edgeFinset.filter (fun e =>
+          Sym2.lift ⟨fun u v => χ u = χ v, by intros; simp [eq_comm]⟩ e)).card := by
     apply TriangleIndep.tauB_le_noncut;
-  have h_card_filter : (G.edgeFinset.filter (fun e => Sym2.lift ⟨fun u v => χ u = χ v, by intros; simp [eq_comm]⟩ e)).card ≤ (∑ u : V, ∑ v : V, (if G.Adj u v ∧ χ u = χ v then 1 else 0)) / 2 := by
-    have h_card_filter : (G.edgeFinset.filter (fun e => Sym2.lift ⟨fun u v => χ u = χ v, by intros; simp [eq_comm]⟩ e)).card * 2 ≤ (∑ u : V, ∑ v : V, (if G.Adj u v ∧ χ u = χ v then 1 else 0)) := by
-      have h_card_filter : (G.edgeFinset.filter (fun e => Sym2.lift ⟨fun u v => χ u = χ v, by intros; simp [eq_comm]⟩ e)).card * 2 ≤ Finset.card (Finset.filter (fun (uv : V × V) => G.Adj uv.1 uv.2 ∧ χ uv.1 = χ uv.2) (Finset.univ : Finset (V × V))) := by
-        have h_card_filter : Finset.card (Finset.filter (fun (uv : V × V) => G.Adj uv.1 uv.2 ∧ χ uv.1 = χ uv.2) (Finset.univ : Finset (V × V))) ≥ Finset.card (Finset.biUnion (Finset.filter (fun e => Sym2.lift ⟨fun u v => χ u = χ v, by intros; simp [eq_comm]⟩ e) G.edgeFinset) (fun e => Finset.filter (fun (uv : V × V) => Sym2.mk uv.1 uv.2 = e) (Finset.univ : Finset (V × V)))) := by
+  have h_card_filter :
+      (G.edgeFinset.filter (fun e =>
+        Sym2.lift ⟨fun u v => χ u = χ v, by intros; simp [eq_comm]⟩ e)).card ≤
+      (∑ u : V, ∑ v : V, (if G.Adj u v ∧ χ u = χ v then 1 else 0)) / 2 := by
+    have h_card_filter :
+        (G.edgeFinset.filter (fun e =>
+          Sym2.lift ⟨fun u v => χ u = χ v, by intros; simp [eq_comm]⟩ e)).card * 2 ≤
+        (∑ u : V, ∑ v : V, (if G.Adj u v ∧ χ u = χ v then 1 else 0)) := by
+      have h_card_filter :
+          (G.edgeFinset.filter (fun e =>
+            Sym2.lift ⟨fun u v => χ u = χ v, by intros; simp [eq_comm]⟩ e)).card * 2 ≤
+          Finset.card (Finset.filter (fun (uv : V × V) =>
+            G.Adj uv.1 uv.2 ∧ χ uv.1 = χ uv.2) (Finset.univ : Finset (V × V))) := by
+        have h_card_filter :
+            Finset.card (Finset.filter (fun (uv : V × V) =>
+              G.Adj uv.1 uv.2 ∧ χ uv.1 = χ uv.2)
+              (Finset.univ : Finset (V × V))) ≥
+            Finset.card (Finset.biUnion
+              (Finset.filter (fun e =>
+                Sym2.lift
+                  ⟨fun u v => χ u = χ v, by intros; simp [eq_comm]⟩ e)
+                G.edgeFinset)
+              (fun e =>
+                Finset.filter (fun (uv : V × V) => Sym2.mk uv.1 uv.2 = e)
+                  (Finset.univ : Finset (V × V)))) := by
           refine Finset.card_le_card ?_;
           simp +decide [ Finset.subset_iff ];
         refine' le_trans _ h_card_filter;
@@ -1327,7 +1666,8 @@ theorem main_inequality (G : SimpleGraph V) [DecidableRel G.Adj] :
         · intro e he f hf hne; simp_all +decide [ Finset.disjoint_left ] ;
       convert h_card_filter using 1;
       rw [ Finset.card_filter ];
-      exact Eq.symm (Fintype.sum_prod_type fun x => if G.Adj x.1 x.2 ∧ χ x.1 = χ x.2 then 1 else 0);
+      exact Eq.symm (Fintype.sum_prod_type fun x =>
+        if G.Adj x.1 x.2 ∧ χ x.1 = χ x.2 then 1 else 0);
     exact Nat.le_div_iff_mul_le zero_lt_two |>.2 h_card_filter;
   grind
 
@@ -1361,7 +1701,8 @@ variable {V : Type*} [Fintype V] [DecidableEq V]
 def IsTriangleFree (G : SimpleGraph V) [DecidableRel G.Adj] : Prop :=
   ∀ u v w : V, G.Adj u v → G.Adj v w → G.Adj u w → False
 
-/-- `tau1 G` is τ₁(G), the minimum number of edges to delete to make G triangle-free. -/
+/-- `tau1 G` is τ₁(G), the minimum number of edges to delete to make
+    G triangle-free. -/
 noncomputable def tau1 (G : SimpleGraph V) [DecidableRel G.Adj] : ℕ :=
   sInf ((fun F => F.card) ''
     {F : Finset (Sym2 V) | F ⊆ G.edgeFinset ∧
@@ -1376,7 +1717,14 @@ omit [Fintype V] [DecidableEq V] in
 lemma IsBipartite.isTriangleFree (G : SimpleGraph V) [DecidableRel G.Adj]
     (hG : G.IsBipartite) : IsTriangleFree G := by
   obtain ⟨ A, hA ⟩ := hG;
-  intro u v w hu hv hw; have := hA hu; have := hA hv; have := hA hw; ( have := Fin.exists_fin_two.mp ⟨ A u, rfl ⟩ ; ( have := Fin.exists_fin_two.mp ⟨ A v, rfl ⟩ ; ( have := Fin.exists_fin_two.mp ⟨ A w, rfl ⟩ ; aesop; ) ) )
+  intro u v w hu hv hw
+  have huA := hA hu
+  have hvA := hA hv
+  have hwA := hA hw
+  have huFin := Fin.exists_fin_two.mp ⟨ A u, rfl ⟩
+  have hvFin := Fin.exists_fin_two.mp ⟨ A v, rfl ⟩
+  have hwFin := Fin.exists_fin_two.mp ⟨ A w, rfl ⟩
+  aesop
 
 /-
 τ₁(G) ≤ τ_B(G): Making G bipartite also makes it triangle-free.
