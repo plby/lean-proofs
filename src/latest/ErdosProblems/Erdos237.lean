@@ -5,7 +5,7 @@ This is a Lean formalization of a solution to Erdős Problem 237.
 https://www.erdosproblems.com/forum/thread/237
 
 Formalization status:
-- Conditional on: maynard_tao, mertens_third_theorem
+- Conditional on: maynard_tao
 
 Informal authors:
 - Yong-Gao Chen
@@ -31,6 +31,7 @@ import Mathlib.Data.Int.Star
 import Mathlib.Data.Real.StarOrdered
 import Mathlib.Tactic.Cases
 import ErdosProblems.Axioms
+import Util.MertensThird
 
 /-!
 # Erdős Problem 237
@@ -49,7 +50,7 @@ The assumption that `A` is infinite suffices.
 
 The proof chain is:
 1. `maynard_tao` (axiom): admissible tuples yield many primes.
-2. `mertens_third_theorem` (axiom): `∏_{p ≤ n} (1 - 1/p) ≥ 1/(3 log n)`.
+2. `mertens_third_theorem`: `∏_{p ≤ n} (1 - 1/p) ≥ 1/(3 log n)`.
 3. `sieving_lemma` (proved): large sets contain admissible subsets meeting the Maynard–Tao
     threshold, via iterated residue class removal + Mertens.
 4. `chen_ding_theorem` (proved): reduction to Maynard–Tao via ℤ embedding.
@@ -295,7 +296,6 @@ theorem erdos_237 (A : Set ℕ) (hA : A.Infinite) :
   exact ⟨n, (lt_of_succ_le hn).trans_le (repCount_mono hS₁ n)⟩
 
 #print axioms erdos_237
--- 'Erdos237.erdos_237' depends on axioms: [maynard_tao, mertens_third_theorem, propext,
--- Classical.choice, Quot.sound]
+-- 'Erdos237.erdos_237' depends on axioms: [maynard_tao, propext, Classical.choice, Quot.sound]
 
 end Erdos237

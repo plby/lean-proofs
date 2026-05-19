@@ -4,7 +4,7 @@ This is a Lean formalization of a solution to Erdős Problem 1141.
 https://www.erdosproblems.com/forum/thread/1141
 
 Formalization status:
-- Conditional on: pollack_theorem_1_3, mertens_third_theorem
+- Conditional on: pollack_theorem_1_3
 
 Informal authors:
 - an internal model at OpenAI
@@ -24,6 +24,7 @@ URLs:
 - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/1141.lean
 -/
 import Mathlib
+import Util.MertensThird
 
 set_option linter.style.emptyLine false
 set_option linter.style.setOption false
@@ -61,8 +62,7 @@ The main development intentionally mirrors the style of Pietro Monticone's
    `DirichletCharacter`-based form from Pollack's paper
    <https://www.ams.org/journals/proc/2017-145-07/
    S0002-9939-2016-13432-1/S0002-9939-2016-13432-1.pdf>.
-2. `mertens_third_theorem` (axiom): the same axiomized form as in Pietro Monticone's
-   `Erdos237.lean`.
+2. `mertens_third_theorem`: the same product bound used in Pietro Monticone's `Erdos237.lean`.
 
 ## Proof structure
 
@@ -86,7 +86,7 @@ Given `n`, write `a*n = u^2*d` with `d` squarefree.
     is also a square, say `n = m^2`.  Then `k = 1` already gives
     `n - a = m^2 - v^2 = (m-v)(m+v)`, which is composite for all sufficiently large `n`.
 
-Thus the only deep inputs remain Pollack Theorem 1.3 and Mertens' third theorem.
+Thus the only remaining axiomatized deep input is Pollack Theorem 1.3.
 -/
 
 
@@ -305,11 +305,6 @@ lemma QuadraticCharacterMod.eq_one_of_toDirichletCharacterComplex_apply_nat_eq_o
   · exfalso
     rw [χ.map_non_coprime hcop] at hχ'
     norm_num at hχ'
-
-/-- **Mertens' third theorem**, in exactly the same axiomized form as in
-Pietro Monticone's `Erdos237.lean`. -/
-axiom mertens_third_theorem (n : ℕ) (hn : 3 ≤ n) :
-    1 / (3 * Real.log n) ≤ ∏ p ∈ (Finset.range (n + 1)).filter Prime, (1 - 1 / (p : ℝ))
 
 /-! ## Elementary setup -/
 
@@ -1059,16 +1054,16 @@ private lemma root_class_good_count_lower_bound
 private lemma mertens_primeFactors_lower_bound {n : ℕ} (hn3 : 3 ≤ n) :
     1 / (3 * Real.log n)
       ≤ ∏ q ∈ n.primeFactors, (1 - 1 / (q : ℝ)) := by
-  let t : Finset ℕ := (Finset.range (n + 1)).filter Prime
+  let t : Finset ℕ := (Finset.range (n + 1)).filter Nat.Prime
   let f : ℕ → ℝ := fun q ↦ 1 - 1 / (q : ℝ)
   have hsubset : n.primeFactors ⊆ t := by
     intro q hq
     rw [Finset.mem_filter]
     exact ⟨Finset.mem_range.mpr (Nat.lt_succ_of_le (Nat.le_of_mem_primeFactors hq)),
-      Nat.prime_iff.mp (Nat.prime_of_mem_primeFactors hq)⟩
+      Nat.prime_of_mem_primeFactors hq⟩
   have hfactor_nonneg : ∀ q ∈ t, 0 ≤ f q := by
     intro q hq
-    have hqprime : q.Prime := Nat.prime_iff.mpr (Finset.mem_filter.mp hq).2
+    have hqprime : Nat.Prime q := (Finset.mem_filter.mp hq).2
     have hq_pos : (0 : ℝ) < q := by exact_mod_cast hqprime.pos
     have hq_ge1 : (1 : ℝ) ≤ q := by exact_mod_cast hqprime.one_le
     have hdiv_le : 1 / (q : ℝ) ≤ 1 :=
@@ -1598,7 +1593,7 @@ theorem erdos_1141_variant : Set.Finite {n : ℕ | Pa 1 n} := by
 
 #print axioms erdos_1141_variant
 -- 'Erdos1141.erdos_1141_variant' depends on axioms: [propext, Classical.choice,
--- mertens_third_theorem, Pollack17.theorem_1_3, Quot.sound]
+-- Pollack17.theorem_1_3, Quot.sound]
 
 /-! ## Block Copied from Formal Conjectures -/
 
@@ -1659,7 +1654,7 @@ theorem erdos_1141 :
   simpa [Set.not_infinite] using (erdos_1141_variant.subset hsubset)
 
 #print axioms erdos_1141
--- 'Erdos1141.erdos_1141' depends on axioms: [propext, Classical.choice, mertens_third_theorem,
--- Pollack17.theorem_1_3, Quot.sound]
+-- 'Erdos1141.erdos_1141' depends on axioms: [propext, Classical.choice, Pollack17.theorem_1_3,
+-- Quot.sound]
 
 end Erdos1141

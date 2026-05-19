@@ -38,12 +38,6 @@ axiom maynard_tao (m : ℕ) (hm : 2 ≤ m) (B : Finset ℤ)
     ∀ N : ℕ, ∃ n : ℤ, N < n ∧
       m ≤ (B.filter (fun b ↦ (n + b).natAbs.Prime)).card
 
-/-- **Mertens' third theorem** (1874). For `n ≥ 3`, the product
-`∏_{p prime, p ≤ n} (1 - 1/p) ≥ 1/(3 log n)`. -/
-axiom mertens_third_theorem (n : ℕ) (hn : 3 ≤ n) :
-    1 / (3 * Real.log n) ≤
-      ∏ p ∈ (Finset.range (n + 1)).filter Prime, (1 - 1 / (p : ℝ))
-
 /-- **Tao–Teräväinen theorem** (Theorem 1.1 of Tao–Teräväinen, 2025).
 
 This is a deep theorem from analytic number theory and is stated here
