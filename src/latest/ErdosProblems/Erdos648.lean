@@ -20,6 +20,7 @@ The bounds use the PNT.
 -/
 
 import Mathlib
+import PrimeNumberTheoremAnd.Consequences
 
 set_option linter.style.setOption false
 set_option linter.deprecated false
@@ -693,8 +694,9 @@ theorem g_upper_bound_asymptotic :
     rw [ Asymptotics.isBigO_iff ];
     exact ⟨ 1, by filter_upwards [ h_g_le_upper_bound ] with n hn; rw [ Real.norm_of_nonneg ( by positivity ), Real.norm_of_nonneg ( by exact le_trans ( by positivity ) hn ) ] ; linarith ⟩
 
-axiom pi_alt : ∃ c : ℝ → ℝ, c =o[atTop] (fun _ ↦ (1 : ℝ)) ∧
-    ∀ x : ℝ, Nat.primeCounting ⌊x⌋₊ = (1 + c x) * x / log x
+theorem pi_alt : ∃ c : ℝ → ℝ, c =o[atTop] (fun _ ↦ (1 : ℝ)) ∧
+    ∀ x : ℝ, Nat.primeCounting ⌊x⌋₊ = (1 + c x) * x / log x := by
+  exact _root_.pi_alt
 
 lemma pi_asymp_lemma : (fun x : ℝ => (Nat.primeCounting (Nat.floor x) : ℝ)) ~[atTop] (fun x => x / Real.log x) := by
   have := pi_alt;
@@ -1206,6 +1208,6 @@ theorem erdos_648 :
       exact ⟨ 1, by filter_upwards [ ‹∀ᶠ n in Filter.atTop, ( safe_primes n |> List.length : ℝ ) ≤ g n› ] with n hn; rw [ Real.norm_of_nonneg ( Nat.cast_nonneg _ ), Real.norm_of_nonneg ( Nat.cast_nonneg _ ) ] ; linarith ⟩
 
 #print axioms erdos_648
--- 'Erdos648.erdos_648' depends on axioms: [propext, Classical.choice, pi_alt, Quot.sound]
+-- 'Erdos648.erdos_648' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos648

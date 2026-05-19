@@ -22,6 +22,7 @@ The formalization follows the structure of the paper, defining `M`, `m`, `good_x
 -/
 
 import Mathlib
+import PrimeNumberTheoremAnd.Consequences
 
 namespace Erdos678
 
@@ -46,8 +47,9 @@ open Real
 open Filter
 
 /-- A statement of the Prime Number Theorem -/
-axiom pi_alt : ∃ c : ℝ → ℝ, c =o[atTop] (fun _ ↦ (1 : ℝ)) ∧
-    ∀ x : ℝ, Nat.primeCounting ⌊x⌋₊ = (1 + c x) * x / log x
+theorem pi_alt : ∃ c : ℝ → ℝ, c =o[atTop] (fun _ ↦ (1 : ℝ)) ∧
+    ∀ x : ℝ, Nat.primeCounting ⌊x⌋₊ = (1 + c x) * x / log x := by
+  exact _root_.pi_alt
 
 /-
 Definitions of M and m as in the proof. M is the LCM of 1 to k. m is the product of prime powers p^a dividing M such that p <= sqrt(k).
@@ -2494,11 +2496,10 @@ theorem erdos_678_kmn_infinite :
   obtain ⟨ k, hk₁, n, m, hnm, hkm ⟩ := h_contradiction; exact (not_le_of_gt hkm) <| hK k hk₁ n m hnm;
 
 #print axioms main_theorem_expanded
--- 'Erdos678.main_theorem_expanded' depends on axioms: [propext, Classical.choice, pi_alt,
--- Quot.sound]
+-- 'Erdos678.main_theorem_expanded' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 #print axioms erdos_678_kmn_infinite
--- 'Erdos678.erdos_678_kmn_infinite' depends on axioms: [propext, Classical.choice, pi_alt,
+-- 'Erdos678.erdos_678_kmn_infinite' depends on axioms: [propext, Classical.choice,
 -- Quot.sound]
 
 #print axioms not_erdos_678_fc
@@ -2508,7 +2509,7 @@ theorem erdos_678_kmn_infinite :
 -- 'Erdos678.not_erdos_678_other' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 #print axioms erdos_678
--- 'Erdos678.erdos_678' depends on axioms: [propext, Classical.choice, pi_alt, Quot.sound]
+-- 'Erdos678.erdos_678' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end
 

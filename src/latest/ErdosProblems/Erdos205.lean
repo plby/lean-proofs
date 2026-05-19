@@ -3,9 +3,6 @@
 This is a Lean formalization of a solution to Erdős Problem 205.
 https://www.erdosproblems.com/forum/thread/205
 
-Formalization status:
-- Conditional on: nth_prime_asymp
-
 Informal authors:
 - Wouter van Doorn
 - Terence Tao
@@ -21,7 +18,7 @@ URLs:
 - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos205.md
 -/
 import Mathlib
-import ErdosProblems.Axioms
+import PrimeNumberTheoremAnd.Consequences
 
 set_option linter.style.whitespace false
 set_option linter.style.longLine false
@@ -35,13 +32,8 @@ namespace Erdos205
 open Real Filter Asymptotics
 
 /-
-We assume we have the Prime Number Theorem in the (asymptotic) form
+We use the Prime Number Theorem in the (asymptotic) form
   nth_prime n ~ n * log n  as n → ∞.
-
-noncomputable abbrev nth_prime (n : ℕ) : ℕ := Nat.nth Nat.Prime n
-
-axiom nth_prime_asymp :
-    (fun n ↦ ((nth_prime n) : ℝ)) ~[atTop] (fun n ↦ (n : ℝ) * Real.log (n : ℝ))
 -/
 
 /-
@@ -539,7 +531,7 @@ theorem infinitely_many_counterexamples :
     exact absurd ( h_sol 1 ( by norm_num ) ( by norm_num ) ) ( Nat.Prime.ne_one ( Nat.prime_nth_prime _ ) )
 
 #print axioms infinitely_many_counterexamples
--- 'Erdos205.infinitely_many_counterexamples' depends on axioms: [nth_prime_asymp, propext,
--- Classical.choice, Quot.sound]
+-- 'Erdos205.infinitely_many_counterexamples' depends on axioms: [propext, Classical.choice,
+-- Quot.sound]
 
 end Erdos205

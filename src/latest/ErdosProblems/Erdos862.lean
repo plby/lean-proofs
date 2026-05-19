@@ -32,6 +32,7 @@ In `eventually_lower_bound`, we avoid issues with `liminf` in `Real` for potenti
 -/
 
 import Mathlib
+import PrimeNumberTheoremAnd.Consequences
 
 set_option linter.deprecated false
 set_option linter.style.setOption false
@@ -55,8 +56,9 @@ noncomputable section
 
 open Real Filter Asymptotics
 
-axiom prime_between {ε : ℝ} (hε : 0 < ε) :
-    ∀ᶠ x : ℝ in atTop, ∃ p : ℕ, Nat.Prime p ∧ x < p ∧ p < (1 + ε) * x
+theorem prime_between {ε : ℝ} (hε : 0 < ε) :
+    ∀ᶠ x : ℝ in atTop, ∃ p : ℕ, Nat.Prime p ∧ x < p ∧ p < (1 + ε) * x := by
+  exact _root_.prime_between hε
 
 /-- A Sidon set: any equation a+b=c+d with all terms in S forces {a,b}={c,d}. -/
 def Sidon {α : Type} [AddCommMonoid α] (S : Set α) : Prop :=
@@ -1333,7 +1335,7 @@ theorem erdos_862 :
   exact sqrt_asymptotic
 
 #print axioms erdos_862
--- 'Erdos862.erdos_862' depends on axioms: [propext, choice, prime_between, Quot.sound]
+-- 'Erdos862.erdos_862' depends on axioms: [propext, choice, Quot.sound]
 
 end
 
