@@ -1321,6 +1321,7 @@
   url_ref: JoshuaB_433
   version: "4.24.0"
   conditional: knesers_addition_theorem
+  todo: Import Yael Dillies's proof of add_kneser.
 
 - key: ErdosProblems.Erdos434
   epc: https://www.erdosproblems.com/434
