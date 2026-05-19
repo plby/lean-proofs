@@ -15,17 +15,20 @@ URLs:
 - https://github.com/Woett/Lean-files/blob/main/ErdosProblem363.lean
 -/
 /-
-Solving Erdős Problem #363 (https://www.erdosproblems.com/363) in the negative, Ulas proved that there are infinitely many collections of disjoint intervals $I_1, \ldots, I_n$ of fixed size $\ge 4$ such that the product of all elements in the intervals is a square.
+Solving Erdős Problem #363 (https://www.erdosproblems.com/363) in the negative, Ulas
+proved that there are infinitely many collections of disjoint intervals $I_1, \ldots, I_n$
+of fixed size $\ge 4$ such that the product of all elements in the intervals is a square.
 
-Ulas, Maciej, On products of disjoint blocks of consecutive integers. Enseign. Math. (2) (2005), 331-334.
+Ulas, Maciej, On products of disjoint blocks of consecutive integers. Enseign. Math. (2)
+(2005), 331-334.
 
-Below you can find a formalization of this result, obtained by Aristotle from Harmonic (aristotle-harmonic@harmonic.fun).
+Below you can find a formalization of this result, obtained by Aristotle from Harmonic
+(aristotle-harmonic@harmonic.fun).
 
 -/
 
 import Mathlib
 
-set_option linter.style.longLine false
 set_option linter.style.refine false
 set_option linter.style.setOption false
 set_option linter.flexible false
@@ -51,7 +54,9 @@ def I₃ (n : ℕ) : Finset ℕ := Icc (x₃ n + 1) (x₃ n + 4)
 def I₄ (n : ℕ) : Finset ℕ := Icc (x₄ n + 1) (x₄ n + 4)
 
 def root_term (n : ℕ) : ℕ :=
-  16 * n * (n + 1) * (2 * n + 1) * (2 * n + 3) * (4 * n + 1) * (4 * n + 3) * (4 * n + 5) * (4 * n + 7) * (4 * n^2 + 7 * n + 1) * (4 * n^2 + 7 * n + 2)
+  16 * n * (n + 1) * (2 * n + 1) * (2 * n + 3) * (4 * n + 1) *
+    (4 * n + 3) * (4 * n + 5) * (4 * n + 7) *
+    (4 * n^2 + 7 * n + 1) * (4 * n^2 + 7 * n + 2)
 
 /-
 Evaluation of the product over the first interval for n > 0.
@@ -67,23 +72,33 @@ theorem prod_I₁ (n : ℕ) (h : n > 0) : ∏ m ∈ I₁ n, m = (4*n) * (4*n+1) 
 /-
 Evaluation of the product over the second interval.
 -/
-theorem prod_I₂ (n : ℕ) : ∏ m ∈ I₂ n, m = (4*n+4) * (4*n+5) * (4*n+6) * (4*n+7) := by
-  erw [ Finset.prod_Ico_succ_top, Finset.prod_Ico_succ_top, Finset.prod_Ico_succ_top ] <;> norm_num [ Finset.prod_Ico_succ_top ] ; ring_nf!;
+theorem prod_I₂ (n : ℕ) :
+    ∏ m ∈ I₂ n, m = (4*n+4) * (4*n+5) * (4*n+6) * (4*n+7) := by
+  erw [Finset.prod_Ico_succ_top, Finset.prod_Ico_succ_top,
+    Finset.prod_Ico_succ_top] <;> norm_num [Finset.prod_Ico_succ_top] ; ring_nf!;
   unfold x₂; ring;
 
 /-
 Evaluation of the product over the third interval for n > 0.
 -/
-theorem prod_I₃ (n : ℕ) (h : n > 0) : ∏ m ∈ I₃ n, m = (4*n^2+7*n) * (4*n^2+7*n+1) * (4*n^2+7*n+2) * (4*n^2+7*n+3) := by
-  erw [ Finset.prod_Ico_succ_top, Finset.prod_Ico_succ_top, Finset.prod_Ico_succ_top ] <;> norm_num [ (Nat.succ_eq_succ ▸ Finset.Icc_succ_left_eq_Ioc), x₃ ] ; ring_nf;
+theorem prod_I₃ (n : ℕ) (h : n > 0) :
+    ∏ m ∈ I₃ n, m =
+      (4*n^2+7*n) * (4*n^2+7*n+1) * (4*n^2+7*n+2) * (4*n^2+7*n+3) := by
+  erw [Finset.prod_Ico_succ_top, Finset.prod_Ico_succ_top,
+    Finset.prod_Ico_succ_top] <;>
+    norm_num [(Nat.succ_eq_succ ▸ Finset.Icc_succ_left_eq_Ioc), x₃] ; ring_nf;
   zify ; ring_nf;
   grind
 
 /-
 Evaluation of the product over the fourth interval.
 -/
-theorem prod_I₄ (n : ℕ) : ∏ m ∈ I₄ n, m = (8*n^2+14*n+2) * (8*n^2+14*n+3) * (8*n^2+14*n+4) * (8*n^2+14*n+5) := by
-  erw [ Finset.prod_Ico_succ_top, Finset.prod_Ico_succ_top, Finset.prod_Ico_succ_top ] <;> norm_num [ Finset.prod_Ico_succ_top ] ; ring_nf;
+theorem prod_I₄ (n : ℕ) :
+    ∏ m ∈ I₄ n, m =
+      (8*n^2+14*n+2) * (8*n^2+14*n+3) *
+        (8*n^2+14*n+4) * (8*n^2+14*n+5) := by
+  erw [Finset.prod_Ico_succ_top, Finset.prod_Ico_succ_top,
+    Finset.prod_Ico_succ_top] <;> norm_num [Finset.prod_Ico_succ_top] ; ring_nf;
   unfold x₄; ring;
 
 /-
@@ -113,7 +128,8 @@ theorem intervals_disjoint (n : ℕ) (h : n > 1) :
       have hpos : 1 ≤ 7 * n + 4 * n ^ 2 := by nlinarith
       nlinarith [Nat.sub_add_cancel hpos]
     omega
-  · constructor <;> intros <;> nlinarith [ Nat.sub_add_cancel ( by nlinarith : 1 ≤ 7 * n + 4 * n ^ 2 ) ]
+  · constructor <;> intros <;>
+      nlinarith [Nat.sub_add_cancel (by nlinarith : 1 ≤ 7 * n + 4 * n ^ 2)]
 
 /-
 Definition of the collection of intervals and the validity property.
@@ -135,7 +151,8 @@ A finset is an interval if it is of the form Icc a b.
 def is_interval (s : Finset ℕ) : Prop := ∃ a b, s = Icc a b
 
 /-
-A collection of intervals is valid if all elements are intervals, they all have the same size k >= 4, they are pairwise disjoint, and the product of all elements in all intervals is a square.
+A collection of intervals is valid if all elements are intervals, they all have the same size
+k >= 4, they are pairwise disjoint, and the product of all elements in all intervals is a square.
 -/
 def is_valid_collection (S : List (Finset ℕ)) : Prop :=
   (∀ I ∈ S, is_interval I) ∧
@@ -154,10 +171,12 @@ theorem collection_is_valid (n : ℕ) (h : n > 1) : is_valid_collection (collect
     · exact ⟨ root_term n, by linarith [ product_is_square n h ] ⟩
 
 /-
-It is not true that there are only finitely many collections of disjoint intervals I_1,...,I_n of size |I_i| >= 4 such that the product of their elements is a square.
+It is not true that there are only finitely many collections of disjoint intervals
+I_1,...,I_n of size |I_i| >= 4 such that the product of their elements is a square.
 -/
 theorem erdos_363 : ¬ Set.Finite { S | is_valid_collection S } := by
-  -- Let's construct the map $f : \mathbb{N} \to \text{Finset } \mathbb{N}$ by $f(n) = \text{collection } (n + 2)$.
+  -- Construct the map $f : \mathbb{N} \to \text{Finset } \mathbb{N}$ by
+  -- $f(n) = \text{collection } (n + 2)$.
   set f : ℕ → List (Finset ℕ) := fun n => collection (n + 2);
   -- We'll use that $f$ is injective to show that the set of valid collections is infinite.
   have h_inj : Function.Injective f := by

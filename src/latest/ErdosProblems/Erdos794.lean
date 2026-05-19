@@ -15,20 +15,27 @@ URLs:
 - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos794.md
 -/
 /-
-We construct a counterexample to the conjecture that every 3-uniform hypergraph on $3n$ vertices with at least $n^3+1$ edges contains a subgraph on 4 vertices with 3 edges or on 5 vertices with 7 edges.
-For $n=3$, we consider a hypergraph on 9 vertices partitioned into three sets $S_1, S_2, S_3$ of size 3. The edges are all triples with exactly one vertex in each $S_i$, plus one additional edge contained entirely in $S_1$.
+We construct a counterexample to the conjecture that every 3-uniform
+hypergraph on $3n$ vertices with at least $n^3+1$ edges contains a subgraph
+on 4 vertices with 3 edges or on 5 vertices with 7 edges.
+For $n=3$, we consider a hypergraph on 9 vertices partitioned into three sets
+$S_1, S_2, S_3$ of size 3. The edges are all triples with exactly one vertex in
+each $S_i$, plus one additional edge contained entirely in $S_1$.
 This hypergraph has $3^3 + 1 = 28$ edges.
-We verify computationally that this hypergraph does not contain any subgraph on 4 vertices with 3 edges, nor any subgraph on 5 vertices with 7 edges.
+We verify computationally that this hypergraph does not contain any subgraph on
+4 vertices with 3 edges, nor any subgraph on 5 vertices with 7 edges.
 -/
 
 import Mathlib
 
-set_option linter.style.longLine false
 
 namespace Erdos794
 
 /-
-The hypergraph on 9 vertices with edges defined by a tripartite construction plus one extra edge is a counterexample to the claim. Specifically, it has 28 edges but contains no subgraph on 4 vertices with 3 edges and no subgraph on 5 vertices with 7 edges.
+The hypergraph on 9 vertices with edges defined by a tripartite construction
+plus one extra edge is a counterexample to the claim. Specifically, it has
+28 edges but contains no subgraph on 4 vertices with 3 edges and no subgraph
+on 5 vertices with 7 edges.
 -/
 def n_val : ℕ := 3
 

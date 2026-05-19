@@ -45,7 +45,6 @@ set_option linter.style.refine false
 set_option linter.style.cases false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
-set_option linter.style.longLine false
 set_option linter.flexible false
 
 open scoped Classical
@@ -185,7 +184,8 @@ theorem IsPEGroup.isFCGroup (h : IsPEGroup G) : IsFCGroup G := by
   by_contra h_not_finite_index
   have h_infinite_conjugates : Set.Infinite {g' : G | ∃ u : G, u⁻¹ * g * u = g'} := by
     contrapose! h_not_finite_index;
-    have h_finite_index : (Subgroup.centralizer {g}).index = Nat.card (MulAction.orbit (ConjAct G) g) := by
+    have h_finite_index :
+        (Subgroup.centralizer {g}).index = Nat.card (MulAction.orbit (ConjAct G) g) := by
       rw [ Nat.card_congr ( MulAction.orbitEquivQuotientStabilizer ( ConjAct G ) g ) ];
       congr;
       ext; simp +decide [ Subgroup.mem_centralizer_iff ];
@@ -211,13 +211,16 @@ theorem IsPEGroup.isFCGroup (h : IsPEGroup G) : IsFCGroup G := by
     have h_infinite_conjugates : ∃ f : ℕ → G, Function.Injective f ∧
         ∀ i, (f i)⁻¹ * g * (f i) ∈ {g' : G | ∃ u : G, u⁻¹ * g * u = g'} ∧
         ∀ i j, i ≠ j → (f i)⁻¹ * g * (f i) ≠ (f j)⁻¹ * g * (f j) := by
-      have h_infinite_conjugates : Set.Infinite (Set.image (fun u : G => u⁻¹ * g * u) Set.univ) := by
+      have h_infinite_conjugates :
+          Set.Infinite (Set.image (fun u : G => u⁻¹ * g * u) Set.univ) := by
         aesop
       have := h_infinite_conjugates.natEmbedding;
       choose f hf using fun i => this i |>.2;
       refine' ⟨ f, _, _ ⟩ <;> simp_all +decide [ Function.Injective ];
       · grind;
-      · exact fun i => ⟨ ⟨ f i, hf i ⟩, fun i j hij => fun h => hij <| this.injective <| Subtype.ext h ⟩;
+      · exact fun i =>
+          ⟨⟨f i, hf i⟩, fun i j hij => fun h =>
+            hij <| this.injective <| Subtype.ext h⟩;
     exact ⟨ h_infinite_conjugates.choose, h_infinite_conjugates.choose_spec.1,
       fun i j hij => h_infinite_conjugates.choose_spec.2 i |>.2 i j hij ⟩;
   -- Apply ramsey_infinite_pairs to the commuting relation on ℕ.
@@ -234,7 +237,8 @@ theorem IsPEGroup.isFCGroup (h : IsPEGroup G) : IsFCGroup G := by
         grind +suggestions;
     exact h_infinite_noncommuting.1 ( h _ h_infinite_noncommuting.2 );
   · have := h ( Set.range ( fun i => f ( f' i ) ) ) ?_;
-    · exact this.not_infinite <| Set.infinite_range_of_injective <| hf_inj.1.comp hf'_mono.injective;
+    · exact this.not_infinite <|
+        Set.infinite_range_of_injective <| hf_inj.1.comp hf'_mono.injective;
     · exact fun x hx y hy hxy => by
         obtain ⟨ i, rfl ⟩ := hx
         obtain ⟨ j, rfl ⟩ := hy
@@ -247,7 +251,8 @@ theorem IsFCGroup.isFIZGroup_of_abelian_finite_index (hFC : IsFCGroup G)
     IsFIZGroup G := by
   -- Since A has finite index, get finite coset reps g_set.
   obtain ⟨g_set, hg_set⟩ : ∃ g_set : Finset G, ∀ g : G, ∃ g' ∈ g_set, ∃ a ∈ A, g = g' * a := by
-    obtain ⟨g_set, hg_set⟩ : ∃ g_set : Set G, g_set.Finite ∧ ∀ g : G, ∃ g' ∈ g_set, g'⁻¹ * g ∈ A := by
+    obtain ⟨g_set, hg_set⟩ :
+        ∃ g_set : Set G, g_set.Finite ∧ ∀ g : G, ∃ g' ∈ g_set, g'⁻¹ * g ∈ A := by
       refine' ⟨ Set.range ( fun g : G ⧸ A => Quotient.out g ), Set.finite_range _, fun g => _ ⟩;
       simp +decide [ ← QuotientGroup.eq ];
     exact ⟨ hg_set.1.toFinset, fun g => by
@@ -298,7 +303,7 @@ theorem noncommute_prod_of_single {n : ℕ} (a : G) (b : Fin n → G) (i : Fin n
     · simp_all +decide [ ← mul_assoc ];
       intro h;
       -- By the properties of the commutator, we can rewrite the equation as
-      -- $a * b 0 * (List.ofFn fun i => b i.succ).prod = b 0 * a * (List.ofFn fun i => b i.succ).prod$.
+      -- Rewrite to compare the first factor on each side.
       have h_comm : a * b 0 * (List.ofFn fun i => b i.succ).prod
           = b 0 * a * (List.ofFn fun i => b i.succ).prod := by
         rw [ h, mul_assoc ];
@@ -306,7 +311,8 @@ theorem noncommute_prod_of_single {n : ℕ} (a : G) (b : Fin n → G) (i : Fin n
         simp +decide [ List.mem_ofFn, hcomm ];
       exact hnoncomm ( by simpa using h_comm );
     · contrapose! ih;
-      refine' ⟨ fun j => b j.succ, Fin.pred i hi, _, _, _, _ ⟩ <;> simp_all +decide [ List.ofFn_succ ];
+      refine' ⟨ fun j => b j.succ, Fin.pred i hi, _, _, _, _ ⟩ <;>
+        simp_all +decide [ List.ofFn_succ ];
       · grind;
       · simp_all +decide [ ← mul_assoc ];
         simp_all +decide [ mul_assoc, hcomm 0 ( ne_of_lt ( Fin.pos_iff_ne_zero.mpr hi ) ) ]
@@ -401,7 +407,8 @@ private theorem seqG_commute (hFC : IsFCGroup G) (hnFIZ : ¬IsFIZGroup G)
         grind +suggestions;
       exact h_centralizer;
     aesop;
-  rcases lt_trichotomy i j with ( hij | rfl | hij ) <;> simp_all +decide [ Subgroup.mem_centralizer_iff ];
+  rcases lt_trichotomy i j with ( hij | rfl | hij ) <;>
+    simp_all +decide [ Subgroup.mem_centralizer_iff ];
   · exact h_centralizer j _ ( Or.inr ⟨ ⟨ i, hij ⟩, rfl ⟩ ) ▸ rfl;
   · rw [ ← h_centralizer _ _ ( Or.inr ⟨ ⟨ j, hij ⟩, rfl ⟩ ) ]
 
@@ -423,7 +430,10 @@ private theorem seqF_commutes_seqG (hFC : IsFCGroup G) (hnFIZ : ¬IsFIZGroup G)
     rw [ ← mul_assoc, ← this.2.2.1 _ ( Or.inr ⟨ ⟨ j, by omega ⟩, rfl ⟩ ), mul_assoc ];
     rw [ ← commute_list_prod ];
     · rw [ mul_assoc ];
-    · intro y hy; rw [ List.mem_ofFn ] at hy; obtain ⟨ k, rfl ⟩ := hy; exact seqG_commute hFC hnFIZ _ _;
+    · intro y hy
+      rw [List.mem_ofFn] at hy
+      obtain ⟨k, rfl⟩ := hy
+      exact seqG_commute hFC hnFIZ _ _
 
 /-
 f(i) does not commute with g(i).
@@ -434,7 +444,10 @@ private theorem seqF_noncommutes_seqG (hFC : IsFCGroup G) (hnFIZ : ¬IsFIZGroup 
   simp +zetaDelta at *;
   contrapose! this;
   intro h1 h2 h3 h4;
-  convert congr_arg ( fun x => x * ( List.ofFn fun k : Fin i => ( fgAux hFC hnFIZ k ).2 ).prod⁻¹ ) this using
+  convert
+      congr_arg
+        (fun x => x * (List.ofFn fun k : Fin i => (fgAux hFC hnFIZ k).2).prod⁻¹)
+        this using
       1 <;> simp +decide [ mul_assoc ];
   · unfold seqF seqG; simp +decide [ h1, h2, mul_assoc ] ;
     rw [ ← mul_assoc, eq_comm ];
@@ -474,7 +487,8 @@ private theorem seqF_noncommute (hFC : IsFCGroup G) (hnFIZ : ¬IsFIZGroup G)
       ( fun k : Fin j => seqG hFC hnFIZ k ) ⟨ i, hij ⟩ _ _ _ using 1;
     · rw [ hprod_j.2 ];
     · rw [ hprod_j.2 ];
-    · exact fun k hk => seqF_commutes_seqG hFC hnFIZ i k ( by simpa [ Fin.ext_iff ] using Ne.symm hk );
+    · exact fun k hk =>
+        seqF_commutes_seqG hFC hnFIZ i k (by simpa [Fin.ext_iff] using Ne.symm hk);
     · exact seqF_noncommutes_seqG hFC hnFIZ i;
     · exact fun i j => seqG_commute hFC hnFIZ _ _;
   simp_all +decide [ mul_assoc ];
@@ -533,7 +547,9 @@ theorem erdos1098 (G : Type*) [Group G]
   -- Let $n$ be the index of the center of $G$.
   use Nat.card (G ⧸ Subgroup.center G);
   intro S hS
-  have h_quotient : Function.Injective (fun x : S => QuotientGroup.mk x.val : S → G ⧸ Subgroup.center G) := by
+  have h_quotient :
+      Function.Injective
+        (fun x : S => QuotientGroup.mk x.val : S → G ⧸ Subgroup.center G) := by
     intro x y hxy;
     have := hS x.2 y.2; simp_all +decide [ QuotientGroup.eq ] ;
     simp_all +decide [ Subgroup.mem_center_iff, mul_assoc ];

@@ -17,7 +17,6 @@ URLs:
 import Mathlib
 
 set_option linter.style.setOption false
-set_option linter.style.longLine false
 set_option linter.style.maxHeartbeats false
 set_option linter.style.refine false
 set_option linter.style.emptyLine false
@@ -32,13 +31,17 @@ $$
 $$
 This is true, and was proved by Marcus and Minc [MaMi62]
 
-[MaMi62] Marcus, Marvin and Minc, Henryk, Some results on doubly stochastic matrices. Proc. Amer. Math. Soc. (1962), 571-579.
+[MaMi62] Marcus, Marvin and Minc, Henryk, Some results on doubly stochastic
+matrices. Proc. Amer. Math. Soc. (1962), 571-579.
 -/
 
 /-
-The entropy-like function $F(M) = \sum M_{ij} \log M_{ij}$ is minimized at the matrix $J_n$ (all entries $1/n$) over the set of doubly stochastic matrices.
+The entropy-like function $F(M) = \sum M_{ij} \log M_{ij}$ is minimized at the
+matrix $J_n$ (all entries $1/n$) over the set of doubly stochastic matrices.
 -/
-lemma entropy_inequality (n : ℕ) (M : Matrix (Fin n) (Fin n) ℝ) (hM : M ∈ doublyStochastic ℝ (Fin n)) :
+lemma entropy_inequality
+    (n : ℕ) (M : Matrix (Fin n) (Fin n) ℝ)
+    (hM : M ∈ doublyStochastic ℝ (Fin n)) :
     ∑ i, ∑ j, M i j * Real.log (M i j) ≥ n * Real.log (1 / n) := by
   classical
   by_cases hn : n = 0

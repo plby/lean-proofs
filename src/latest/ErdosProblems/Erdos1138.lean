@@ -54,7 +54,6 @@ by Hrishi Sunder, Sourish Kumrawat, and Kireet Cheri (April 2026).
 -/
 
 set_option linter.style.setOption false
-set_option linter.style.longLine false
 set_option linter.flexible false
 set_option linter.style.whitespace false
 
@@ -130,7 +129,9 @@ lemma nthPrime_succ_eq (n : ℕ) : nthPrime (n + 1) = nthPrime n + primeGap n :=
 /-- No natural number strictly between consecutive primes is prime. -/
 lemma not_prime_between_consecutive (n : ℕ) (k : ℕ)
     (hlo : nthPrime n < k) (hhi : k < nthPrime (n + 1)) : ¬Nat.Prime k := by
-  have h_prime_nth : ∀ m, Nat.nth Nat.Prime n < m → m < Nat.nth Nat.Prime (n + 1) → ¬Nat.Prime m := by
+  have h_prime_nth :
+      ∀ m, Nat.nth Nat.Prime n < m → m < Nat.nth Nat.Prime (n + 1) →
+        ¬Nat.Prime m := by
     intros m hm₁ hm₂
     contrapose! hm₂
     rw [Nat.nth_eq_sInf]
@@ -152,7 +153,8 @@ lemma primeCounting'_eq_succ_of_between {n : ℕ} {m : ℕ}
   · rw [Nat.primeCounting', Nat.count_eq_card_filter_range]
     refine le_trans ?_ (Finset.card_mono <| show Finset.image (fun k => Nat.nth Nat.Prime k)
       (Finset.range (n + 1)) ⊆ Finset.filter Nat.Prime (Finset.range m) from ?_)
-    · rw [Finset.card_image_of_injective _ fun a b h => Nat.nth_injective Nat.infinite_setOf_prime h]
+    · rw [Finset.card_image_of_injective _ fun a b h =>
+        Nat.nth_injective Nat.infinite_setOf_prime h]
       norm_num
     · exact Finset.image_subset_iff.mpr fun k hk => Finset.mem_filter.mpr
         ⟨Finset.mem_range.mpr <| lt_of_le_of_lt

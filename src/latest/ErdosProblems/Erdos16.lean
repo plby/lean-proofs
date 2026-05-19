@@ -26,11 +26,11 @@ set_option linter.style.setOption false
 set_option maxHeartbeats 0
 set_option maxRecDepth 4000
 set_option linter.style.openClassical false
-set_option linter.style.longLine false
 
 open Classical
 
-/-- The set of positive odd integers that cannot be represented as the sum of a prime and a power of two. -/
+/-- The set of positive odd integers that cannot be represented as the sum of a
+prime and a power of two. -/
 def U : Set ℕ :=
   { n | Odd n ∧ ¬ ∃ p k : ℕ, p.Prime ∧ 0 < k ∧ n = p + 2^k }
 
@@ -134,16 +134,23 @@ def P : ℕ := 11184810
 def primes_list : List ℕ := [3, 5, 17, 7, 13, 241]
 
 lemma first_ap_cover : ∀ k ∈ List.range 24, ∃ p ∈ primes_list, 992077 % p = (2^k) % p := by decide
-lemma first_ap_no_prime : ∀ p' ∈ primes_list, ∀ k ∈ List.range 24, ∃ q ∈ primes_list, (p' + 2^k) % q ≠ 992077 % q := by decide
+lemma first_ap_no_prime :
+    ∀ p' ∈ primes_list, ∀ k ∈ List.range 24, ∃ q ∈ primes_list,
+      (p' + 2^k) % q ≠ 992077 % q := by
+  decide
 
 lemma second_ap_cover : ∀ k ∈ List.range 24, ∃ p ∈ primes_list, 3292241 % p = (2^k) % p := by decide
-lemma second_ap_no_prime : ∀ p' ∈ primes_list, ∀ k ∈ List.range 24, ∃ q ∈ primes_list, (p' + 2^k) % q ≠ 3292241 % q := by decide
+lemma second_ap_no_prime :
+    ∀ p' ∈ primes_list, ∀ k ∈ List.range 24, ∃ q ∈ primes_list,
+      (p' + 2^k) % q ≠ 3292241 % q := by
+  decide
 
 lemma two_pow_twenty_four_mod (q : ℕ) (hq : q ∈ primes_list) : (2^24) % q = 1 := by
   revert q hq
   decide
 
-lemma two_pow_mod_eq_helper (m r q : ℕ) (hq : q ∈ primes_list) : (2^(m * 24 + r)) % q = (2^r) % q := by
+lemma two_pow_mod_eq_helper (m r q : ℕ) (hq : q ∈ primes_list) :
+    (2^(m * 24 + r)) % q = (2^r) % q := by
   induction m with
   | zero =>
     rw [Nat.zero_mul, zero_add]
@@ -285,7 +292,9 @@ lemma n_lt_two_pow (n : ℕ) : n < 2^n := by
     have h4 : 2^n + 2^n = 2^(n + 1) := by ring
     omega
 
-theorem ErdosProblem16 : ¬ ∃ m_0 a_0 : ℕ, m_0 > 0 ∧ ∃ W : Set ℕ, density_zero W ∧ U = { x | ∃ h, x = m_0 * h + a_0 } ∪ W := by
+theorem ErdosProblem16 :
+    ¬ ∃ m_0 a_0 : ℕ, m_0 > 0 ∧ ∃ W : Set ℕ,
+      density_zero W ∧ U = { x | ∃ h, x = m_0 * h + a_0 } ∪ W := by
   rintro ⟨m_0, a_0, hm0, W, hW, hU⟩
   have h1 := lemma1 hW hU (by decide) hm0 firstap
   have h2 := lemma1 hW hU (by decide) hm0 secondap

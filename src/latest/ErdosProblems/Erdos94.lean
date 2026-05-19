@@ -23,7 +23,6 @@ import Mathlib
 set_option linter.deprecated false
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.longLine false
 set_option linter.unusedSimpArgs false
 
 open scoped BigOperators
@@ -210,7 +209,8 @@ lemma perpBisector_collinear (x y : Point) (hxy : x ≠ y) :
       (AffineSubspace.direction_eq_vectorSpan (s := AffineSubspace.perpBisector x y)).symm
   have hfinrank :
       Module.finrank ℝ
-        (vectorSpan ℝ ((AffineSubspace.perpBisector x y : AffineSubspace ℝ Point) : Set Point)) ≤ 1 := by
+        (vectorSpan ℝ
+          ((AffineSubspace.perpBisector x y : AffineSubspace ℝ Point) : Set Point)) ≤ 1 := by
     simpa [hspan] using (le_of_eq hdir)
   exact (collinear_iff_finrank_le_one).2 hfinrank
 

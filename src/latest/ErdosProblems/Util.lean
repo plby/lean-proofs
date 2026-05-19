@@ -19,7 +19,6 @@ limitations under the License.
 import Mathlib
 
 set_option linter.style.setOption false
-set_option linter.style.longLine false
 set_option linter.style.whitespace false
 set_option linter.style.cdot false
 set_option linter.style.show false

@@ -32,7 +32,6 @@ namespace Erdos753
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.longLine false
 set_option linter.style.multiGoal false
 set_option linter.style.openClassical false
 set_option linter.unusedFintypeInType false
@@ -267,8 +266,14 @@ private lemma fiber_count_for_subset {r : ℕ} {S : Finset ℕ}
     ((Finset.univ : Finset (↥S → Fin r)).filter
       (fun f => ∀ c ∈ T, f c ≠ i)).card =
     (∏ _ ∈ T, (r - 1)) * (∏ _ ∈ Finset.univ \ T, r) := by
-  have h_count : (Finset.univ.filter (fun f : S → Fin r => ∀ c ∈ T, f c ≠ i)).card = (∏ c ∈ T, (Finset.univ.filter (fun j : Fin r => j ≠ i)).card) * (∏ c ∈ Finset.univ \ T, (Finset.univ : Finset (Fin r)).card) := by
-    have h_count : (Finset.univ.filter (fun f : S → Fin r => ∀ c ∈ T, f c ≠ i)).card = (∏ c ∈ Finset.univ, (Finset.univ.filter (fun j : Fin r => j ≠ i ∨ c ∉ T)).card) := by
+  have h_count :
+      (Finset.univ.filter (fun f : S → Fin r => ∀ c ∈ T, f c ≠ i)).card =
+        (∏ c ∈ T, (Finset.univ.filter (fun j : Fin r => j ≠ i)).card) *
+          (∏ c ∈ Finset.univ \ T, (Finset.univ : Finset (Fin r)).card) := by
+    have h_count :
+        (Finset.univ.filter (fun f : S → Fin r => ∀ c ∈ T, f c ≠ i)).card =
+          (∏ c ∈ Finset.univ,
+            (Finset.univ.filter (fun j : Fin r => j ≠ i ∨ c ∉ T)).card) := by
       convert Finset.card_pi _ _ using 2;
       convert rfl;
       fapply Finset.card_bij;
@@ -299,13 +304,17 @@ private lemma fiber_card_bound {r : ℕ} (hr : 1 ≤ r)
     use Finset.subtype (fun x => x ∈ S) T;
     simp_all +decide [ Finset.subset_iff ];
     rw [ Finset.filter_true_of_mem fun x hx => hL_sub ( hT.1 hx ), hT.2 ];
-  have h_filter_T : (((Finset.univ : Finset (↥S → Fin r)).filter
-    (fun f => ∀ c ∈ T, f c ≠ i)).card : ℝ) ≤ (((Finset.univ : Finset (↥S → Fin r)).card : ℝ) * ((r - 1) / r) ^ k) := by
+  have h_filter_T :
+      (((Finset.univ : Finset (↥S → Fin r)).filter
+        (fun f => ∀ c ∈ T, f c ≠ i)).card : ℝ) ≤
+        (((Finset.univ : Finset (↥S → Fin r)).card : ℝ) * ((r - 1) / r) ^ k) := by
       rw [ fiber_count_for_subset ];
       simp_all +decide [ Finset.card_univ, Finset.card_sdiff ];
       rw [ show # ( T ∩ S.attach ) = k from ?_, mul_comm ];
       · rw [ div_pow, mul_div, le_div_iff₀ ] <;> first | positivity | ring_nf ;
-        rw [ ← pow_add, Nat.sub_add_cancel ( show k ≤ #S from hL_ij.trans ( Finset.card_le_card hL_sub ) ) ];
+        rw [← pow_add,
+          Nat.sub_add_cancel
+            (show k ≤ #S from hL_ij.trans (Finset.card_le_card hL_sub))]
       · convert hT.1 using 2 ; ext ; aesop;
   refine le_trans ?_ ( h_filter_T.trans ?_ );
   · exact_mod_cast Finset.card_le_card fun f hf => by aesop;
@@ -384,13 +393,19 @@ when `r ≤ m` and `m ≥ 2`. -/
 lemma union_bound_condition {r m : ℕ} (hr : 2 ≤ r) (hm : 2 ≤ m) (hrm : r ≤ m)
     {k : ℕ} (hk : (3 : ℝ) * r * Real.log m ≤ k) :
     (r * m : ℝ) * ((1 - 1 / (r : ℝ)) ^ k) < 1 := by
-  have h_upper_bound : (r * m : ℝ) * ((1 - 1 / r) ^ k : ℝ) ≤ (r * m : ℝ) * (Real.exp (-3 * r * Real.log m / r) : ℝ) := by
+  have h_upper_bound :
+      (r * m : ℝ) * ((1 - 1 / r) ^ k : ℝ) ≤
+        (r * m : ℝ) * (Real.exp (-3 * r * Real.log m / r) : ℝ) := by
     gcongr;
     have h_exp : (1 - 1 / (r : ℝ)) ^ k ≤ Real.exp (-k / (r : ℝ)) := by
       rw [ ← Real.rpow_natCast, Real.rpow_def_of_pos ] <;> norm_num;
-      · exact le_trans 
-          ( mul_le_mul_of_nonneg_right ( Real.log_le_sub_one_of_pos ( sub_pos.mpr <| inv_lt_one_of_one_lt₀ <| by norm_cast ) ) <| Nat.cast_nonneg _ ) <| 
-          by ring_nf; norm_num;
+      · exact le_trans
+          (mul_le_mul_of_nonneg_right
+            (Real.log_le_sub_one_of_pos
+              (sub_pos.mpr <| inv_lt_one_of_one_lt₀ <| by norm_cast))
+            (Nat.cast_nonneg _)) <| by
+          ring_nf
+          norm_num
       · exact inv_lt_one_of_one_lt₀ <| by norm_cast;
     exact h_exp.trans 
       ( Real.exp_le_exp.mpr <| by rw [ div_le_div_iff_of_pos_right <| by positivity ] ; linarith );
@@ -523,7 +538,8 @@ theorem erdos_753 :
     exact mul_le_mul_of_nonneg_left ( hM m hm_ge_M ) ( Nat.cast_nonneg _ );
   convert le_trans _ ( h_final.trans _ ) using 1;
   · linarith;
-  · rw [Nat.cast_mul, Real.mul_rpow (by positivity) (by positivity), ← Real.rpow_one_add'] <;> norm_num;
+  · rw [Nat.cast_mul, Real.mul_rpow (by positivity) (by positivity),
+      ← Real.rpow_one_add'] <;> norm_num;
     · rw [ ← Real.rpow_add ( by positivity ) ] ; ring_nf;
       exact Real.rpow_le_rpow_of_exponent_le ( by norm_cast; linarith ) ( by linarith );
     · finiteness

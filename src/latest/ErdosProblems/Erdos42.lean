@@ -60,7 +60,6 @@ import Mathlib.Topology.ContinuousMap.SecondCountableSpace
 set_option linter.deprecated false
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.longLine false
 set_option linter.style.openClassical false
 set_option linter.unusedDecidableInType false
 set_option linter.unusedFintypeInType false
@@ -515,7 +514,8 @@ end Erdos42
 /-
 Erdős Problem 42 — shared finite-reduction machinery.
 
-This file contains the route-neutral finite pieces used by both the Fourier-positive Route A and the compact-Cayley Route B:
+This file contains the route-neutral finite pieces used by both the Fourier-positive Route A and
+the compact-Cayley Route B:
 
   1. Greedy Sidon subset lemma: any sufficiently large finite integer set
      contains a Sidon subset of any prescribed size.
@@ -10546,7 +10546,8 @@ theorem continuousCliqueDensity_pos_of_lt_one_or_realHilbertKernelRepresentation
     0 < continuousCliqueDensity μ M (fun x => 1 - g x) := by
   refine continuousCliqueDensity_pos_of_lt_one_or_levelOneSubgroupKernel μ M g hg_cont
     hg_nonneg hg_le hη hmean ?_
-  exact hbranch.imp id (fun hrep => levelOneSubgroupKernel_of_realHilbertKernelRepresentation hrep.some)
+  exact hbranch.imp id fun hrep =>
+    levelOneSubgroupKernel_of_realHilbertKernelRepresentation hrep.some
 
 end Erdos42
 

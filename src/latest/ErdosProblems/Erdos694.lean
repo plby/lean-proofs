@@ -39,7 +39,6 @@ namespace Erdos694
 
 set_option linter.style.openClassical false
 set_option linter.style.show false
-set_option linter.style.longLine false
 
 open Classical Filter Asymptotics Topology
 open scoped BigOperators Nat
@@ -576,7 +575,9 @@ private lemma log_landauY_div_loglog_tendsto :
   -- Easier: log Y / log(log T / log 4) → 1 (since Y / (log T / log 4) → 1).
   -- Then log(log T / log 4) / log log T → 1.
   -- Step 1: log Y - log(log T / log 4) → 0.
-  have h_step1 : Tendsto (fun T : ℝ => Real.log (landauY T : ℝ) - Real.log (Real.log T / Real.log 4))
+  have h_step1 :
+      Tendsto
+        (fun T : ℝ => Real.log (landauY T : ℝ) - Real.log (Real.log T / Real.log 4))
       atTop (𝓝 0) := by
     -- = log (Y / (log T / log 4)). And Y / (log T / log 4) → 1 (since |x - ⌊x⌋| ≤ 1 and x → ∞).
     -- Use: log Y - log x = log (Y/x) → log 1 = 0.
@@ -2440,7 +2441,8 @@ theorem totient_collision_construction :
     -- i.e., (γc - ε/2) M - (γc - ε/2) log(4K). Want this ≥ (γc - ε) M ⇔
     --   (ε/2) M ≥ (γc - ε/2) log(4K). Holds when M ≥ 2(γc - ε/2) log(4K) / ε, i.e., M ≥ MUB
     --   (chosen large enough).
-    -- For γc - ε/2 < 0: use N ≤ M - log(2K) ≤ M + |log(2K)|, so (γc-ε/2) N ≥ (γc-ε/2)(M + |log(2K)|).
+    -- For γc - ε/2 < 0: use N ≤ M - log(2K) ≤ M + |log(2K)|, so
+    -- (γc-ε/2) N ≥ (γc-ε/2)(M + |log(2K)|).
     -- Goal: (γc - ε/2) N ≥ (γc - ε) M.
     have h_abs_le : |γc - ε / 2| * |Real.log (4 * K)| ≤
         (|γc - ε / 2| * |Real.log (4 * K)| + 1) := by linarith

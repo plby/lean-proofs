@@ -36,7 +36,6 @@ set_option linter.style.openClassical false
 set_option linter.unusedDecidableInType false
 set_option linter.flexible false
 set_option linter.style.cdot false
-set_option linter.style.longLine false
 set_option linter.unusedSimpArgs false
 set_option linter.style.maxHeartbeats false
 set_option linter.style.emptyLine false
@@ -1212,7 +1211,8 @@ theorem compression
           SimpleGraph.Walk.length_map (p := Psub)
             (f := (SimpleGraph.Embedding.induce (G := G) (s := W)).toHom)
         have hlen2 :
-            (Psub.map (SimpleGraph.Embedding.induce (G := G) (s := W)).toHom).length = P.length := by
+            (Psub.map (SimpleGraph.Embedding.induce (G := G) (s := W)).toHom).length =
+              P.length := by
           simp [hmap]
         exact hlen1.symm.trans hlen2
       simpa [hlen] using hPcycle.three_le_length
@@ -1480,7 +1480,8 @@ theorem compression
         · simpa [hv] using hzmem_fin
         · exact hsubset_fin hv
       have hcard_insert :
-          (insert z (bridgeSet (G := G) (Cmax (G := G) hch) (Bmax (G := G) hch hne)).toFinset).card =
+          (insert z
+            (bridgeSet (G := G) (Cmax (G := G) hch) (Bmax (G := G) hch hne)).toFinset).card =
             (bridgeSet (G := G) (Cmax (G := G) hch) (Bmax (G := G) hch hne)).toFinset.card + 1 := by
         simp [Finset.card_insert_of_notMem, hznot_fin]
       have := Finset.card_le_card hsubset_insert
@@ -1865,13 +1866,17 @@ theorem BVDelta3_key_core
             -- any neighbor outside the cycle lies in the unique bridge
             have hwB : w ∈ bridgeSet (G := G) C B := by
               -- since B is the only bridge
-              have : (bridgeSet (G := G) C (G.componentComplMk (K := C.vSet (G := G)) hw)) = bridgeSet (G := G) C B := by
+              have :
+                  (bridgeSet (G := G) C (G.componentComplMk (K := C.vSet (G := G)) hw)) =
+                    bridgeSet (G := G) C B := by
                 -- use subsingleton
                 have : (G.componentComplMk (K := C.vSet (G := G)) hw) = B := by
                   exact (Subsingleton.elim _ _)
                 simp [this]
               -- membership in its own component
-              have hw' : w ∈ bridgeSet (G := G) C (G.componentComplMk (K := C.vSet (G := G)) hw) := by
+              have hw' :
+                  w ∈ bridgeSet (G := G) C
+                    (G.componentComplMk (K := C.vSet (G := G)) hw) := by
                 simpa [bridgeSet] using (G.componentComplMk_mem (K := C.vSet (G := G)) hw)
               -- rewrite via the component equality
               simpa [this] using hw'
@@ -2019,7 +2024,8 @@ theorem exists_external_path_in_Bmax
     x ∈ attachSet (G := G) (Cmax (G := G) hch) (Bmax (G := G) hch hne) →
     y ∈ attachSet (G := G) (Cmax (G := G) hch) (Bmax (G := G) hch hne) →
     ∃ p : G.Walk x y, p.IsPath ∧
-      (∀ v : V, v ∈ (p.support.toFinset.erase x |>.erase y) → v ∉ (Cmax (G := G) hch).vSet (G := G)) := by
+      (∀ v : V, v ∈ (p.support.toFinset.erase x |>.erase y) →
+        v ∉ (Cmax (G := G) hch).vSet (G := G)) := by
   classical
   intro hxy hx hy
   let C : Cycle (G := G) := Cmax (G := G) hch

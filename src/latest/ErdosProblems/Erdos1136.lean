@@ -54,7 +54,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.induction false
-set_option linter.style.longLine false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 
@@ -162,7 +161,11 @@ lemma pairing_bound (n l : ℕ) (hl : 2 ^ l ≤ n) (hn : n < 2 ^ (l + 1))
       have h_inj_on : ∀ j₁ ∈ B, ∀ j₂ ∈ B, f j₁ = f j₂ → j₁ = j₂ := by
         grind
       have h_card : Finset.card B ≤ Finset.card (Finset.Icc (2^(l+1) - n) (2^l - 1)) := by
-        exact Finset.card_le_card ( show B.image f ⊆ Finset.Icc ( 2 ^ ( l + 1 ) - n ) ( 2 ^ l - 1 ) from Finset.image_subset_iff.mpr h_inj ) |> le_trans ( by rw [ Finset.card_image_of_injOn h_inj_on ] )
+        exact
+          Finset.card_le_card
+            ( show B.image f ⊆ Finset.Icc ( 2 ^ ( l + 1 ) - n ) ( 2 ^ l - 1 ) from
+              Finset.image_subset_iff.mpr h_inj ) |>
+            le_trans ( by rw [ Finset.card_image_of_injOn h_inj_on ] )
       exact (by
       convert h_card using 1 ; norm_num [ Nat.pow_succ' ] at * ; omega;)
 
@@ -179,7 +182,9 @@ theorem sumfree_card_le : ∀ n : ℕ, ∀ B : Finset ℕ,
       · aesop;
       · -- Let $l = \log_2 n$, so $2^l \le n < 2^{l+1}$.
         obtain ⟨l, hl⟩ : ∃ l, 2^l ≤ n ∧ n < 2^(l+1) := by
-          exact ⟨ Nat.log 2 n, Nat.pow_le_of_le_log ( by positivity ) ( by linarith ), Nat.lt_pow_of_log_lt ( by linarith ) ( by linarith ) ⟩;
+          exact
+            ⟨ Nat.log 2 n, Nat.pow_le_of_le_log ( by positivity ) ( by linarith ),
+              Nat.lt_pow_of_log_lt ( by linarith ) ( by linarith ) ⟩;
         -- Let $P = 2^{l+1}$, $m = P - n - 1$. Note $m < n$ since $P \le 2n$.
         set P := 2^(l+1)
         set m := P - n - 1
@@ -192,15 +197,23 @@ theorem sumfree_card_le : ∀ n : ℕ, ∀ B : Finset ℕ,
         -- By induction (m < n), 2 * B₁.card ≤ m.
         have hB₁ : 2 * B₁.card ≤ m := by
           apply ih m hm_lt_n B₁;
-          · exact fun x hx => Finset.mem_Icc.mpr ⟨ Finset.mem_Icc.mp ( hB ( Finset.mem_filter.mp hx |>.1 ) ) |>.1, Finset.mem_filter.mp hx |>.2 ⟩;
-          · exact fun a ha b hb k => hfree a ( Finset.filter_subset _ _ ha ) b ( Finset.filter_subset _ _ hb ) k;
+          · exact fun x hx =>
+              Finset.mem_Icc.mpr
+                ⟨ Finset.mem_Icc.mp ( hB ( Finset.mem_filter.mp hx |>.1 ) ) |>.1,
+                  Finset.mem_filter.mp hx |>.2 ⟩;
+          · exact fun a ha b hb k =>
+              hfree a ( Finset.filter_subset _ _ ha ) b ( Finset.filter_subset _ _ hb ) k;
         -- By pairing_bound, B₂.card ≤ n - 2^l.
         have hB₂ : B₂.card ≤ n - 2^l := by
           apply pairing_bound n l hl.left hl.right B₂ (by
           simp +zetaDelta at *;
-          exact fun x hx => Finset.mem_Icc.mpr ⟨ Nat.le_of_pred_lt ( Finset.mem_filter.mp hx |>.2 ), Finset.mem_Icc.mp ( hB ( Finset.mem_filter.mp hx |>.1 ) ) |>.2 ⟩) (by
-          exact fun a ha b hb k => hfree a ( Finset.filter_subset _ _ ha ) b ( Finset.filter_subset _ _ hb ) k);
-        -- Combine: 2 * B.card = 2 * B₁.card + 2 * B₂.card ≤ m + 2*(n - 2^l) = (2^{l+1} - n - 1) + 2*(n - 2^l) = n - 1 ≤ n.
+          exact fun x hx =>
+            Finset.mem_Icc.mpr
+              ⟨ Nat.le_of_pred_lt ( Finset.mem_filter.mp hx |>.2 ),
+                Finset.mem_Icc.mp ( hB ( Finset.mem_filter.mp hx |>.1 ) ) |>.2 ⟩) (by
+          exact fun a ha b hb k =>
+            hfree a ( Finset.filter_subset _ _ ha ) b ( Finset.filter_subset _ _ hb ) k);
+        -- Combine the two bounds on `B₁` and `B₂`.
         have h_combined : 2 * B.card = 2 * B₁.card + 2 * B₂.card := by
           rw [ ← mul_add, Finset.card_filter_add_card_filter_not ];
         lia
@@ -217,10 +230,22 @@ lemma not_A_classification (n : ℕ) (hn : 0 < n) (hnA : n ∉ A) :
     (∃ k : ℕ, n = 2 ^ k) ∨ (∃ i q : ℕ, 1 ≤ q ∧ n = 2 ^ i * (4 * q + 1)) := by
   -- Use Nat.exists_eq_pow_mul_and_not_dvd to decompose n = 2^e * m where m is odd (¬2 ∣ m).
   obtain ⟨e, m, hm⟩ : ∃ e m : ℕ, n = 2^e * m ∧ Odd m := by
-    exact ⟨ Nat.factorization n 2, n / 2 ^ Nat.factorization n 2, by rw [ Nat.mul_div_cancel' ( Nat.ordProj_dvd _ _ ) ], by rw [ Nat.odd_iff ] ; exact Nat.mod_two_ne_zero.mp fun con => absurd ( Nat.dvd_of_mod_eq_zero con ) ( Nat.not_dvd_ordCompl ( by norm_num ) ( by aesop ) ) ⟩;
-  -- Since m is odd, m % 4 is either 1 or 3. If m % 4 = 3, write m = 4q + 3, then n = 2^e * (4q + 3) ∈ A, contradicting hnA. So m % 4 = 1.
+    exact
+      ⟨ Nat.factorization n 2, n / 2 ^ Nat.factorization n 2,
+        by rw [ Nat.mul_div_cancel' ( Nat.ordProj_dvd _ _ ) ],
+        by
+          rw [ Nat.odd_iff ]
+          exact Nat.mod_two_ne_zero.mp fun con =>
+            absurd ( Nat.dvd_of_mod_eq_zero con )
+              ( Nat.not_dvd_ordCompl ( by norm_num ) ( by aesop ) ) ⟩;
+  -- If `m % 4 = 3`, then `n ∈ A`, contradicting `hnA`.
   by_cases hm3 : m % 4 = 3;
-  · exact False.elim <| hnA <| by rw [ hm.1 ] ; exact ⟨ e, m / 4, by nlinarith [ Nat.mod_add_div m 4, Nat.pow_le_pow_right two_pos ( show e ≥ 0 by positivity ) ] ⟩ ;
+  · exact False.elim <| hnA <| by
+      rw [ hm.1 ]
+      exact
+        ⟨ e, m / 4, by
+          nlinarith [ Nat.mod_add_div m 4,
+            Nat.pow_le_pow_right two_pos ( show e ≥ 0 by positivity ) ] ⟩ ;
   · -- If m % 4 = 1, then m = 4q + 1 for some q ≥ 0.
     obtain ⟨q, hq⟩ : ∃ q : ℕ, m = 4 * q + 1 := by
       exact ⟨ m / 4, by obtain ⟨ k, rfl ⟩ := hm.2; omega ⟩;
@@ -232,24 +257,47 @@ The lower bound: n ≤ 2 * |A ∩ {1,...,n}| + ⌊log₂ n⌋ + 1.
 -/
 lemma A_count_lower (n : ℕ) :
     n ≤ 2 * countIn A n + Nat.log 2 n + 1 := by
-  -- By definition of A, we know that every positive integer not in A and not a power of 2 is of the form 2^i*(4q+1) with q ≥ 1.
-  have h_not_A : ∀ x ∈ Finset.Icc 1 n, x ∉ A → x ≠ 0 → (∃ k : ℕ, x = 2 ^ k) ∨ (∃ i q : ℕ, 1 ≤ q ∧ x = 2 ^ i * (4 * q + 1)) := by
+  -- Classify positive integers outside `A`.
+  have h_not_A :
+      ∀ x ∈ Finset.Icc 1 n, x ∉ A → x ≠ 0 →
+        (∃ k : ℕ, x = 2 ^ k) ∨
+          (∃ i q : ℕ, 1 ≤ q ∧ x = 2 ^ i * (4 * q + 1)) := by
     exact fun x hx₁ hx₂ hx₃ => not_A_classification x ( Finset.mem_Icc.mp hx₁ |>.1 ) hx₂;
-  -- By definition of $A$, we know that for each $x$ in the set $\{1,...,n\} \setminus A$, there exists a unique $y \in A$ such that $x > y$.
-  have h_inj : (Finset.filter (fun x => x ∉ A) (Finset.Icc 1 n)).card ≤ (Finset.filter (fun x => x ∈ A) (Finset.Icc 1 n)).card + (Nat.log 2 n + 1) := by
-    -- By definition of $A$, we know that for each $x$ in the set $\{1,...,n\} \setminus A$, there exists a unique $y \in A$ such that $x > y$. Hence, we can pair each element in $\{1,...,n\} \setminus A$ with an element in $A$.
-    have h_pair : Finset.filter (fun x => x ∉ A) (Finset.Icc 1 n) ⊆ Finset.image (fun x => 2 ^ (Nat.factorization x 2) * (4 * (Nat.floor ((x / 2 ^ (Nat.factorization x 2) - 1) / 4) + 1) + 1)) (Finset.filter (fun x => x ∈ A) (Finset.Icc 1 n)) ∪ Finset.image (fun k => 2 ^ k) (Finset.range (Nat.log 2 n + 1)) := by
+  have h_inj :
+      (Finset.filter (fun x => x ∉ A) (Finset.Icc 1 n)).card ≤
+        (Finset.filter (fun x => x ∈ A) (Finset.Icc 1 n)).card +
+          (Nat.log 2 n + 1) := by
+    -- Pair most elements outside `A` with nearby elements of `A`.
+    have h_pair :
+        Finset.filter (fun x => x ∉ A) (Finset.Icc 1 n) ⊆
+          Finset.image
+            (fun x =>
+              2 ^ (Nat.factorization x 2) *
+                (4 * (Nat.floor ((x / 2 ^ (Nat.factorization x 2) - 1) / 4) + 1) + 1))
+            (Finset.filter (fun x => x ∈ A) (Finset.Icc 1 n)) ∪
+              Finset.image (fun k => 2 ^ k) (Finset.range (Nat.log 2 n + 1)) := by
       intro x hx;
       simp +zetaDelta at *;
       rcases h_not_A x hx.1.1 hx.1.2 hx.2 ( by linarith ) with ( ⟨ k, rfl ⟩ | ⟨ i, q, hq, rfl ⟩ );
       · exact Or.inr ⟨ k, Nat.le_log_of_pow_le ( by norm_num ) hx.1.2, rfl ⟩;
-      · refine Or.inl ⟨ 2 ^ i * ( 4 * ( q - 1 ) + 3 ), ?_, ?_ ⟩ <;> rcases q with ( _ | q ) <;> simp_all +decide [ Nat.factorization_eq_zero_of_not_dvd, Nat.dvd_iff_mod_eq_zero, Nat.add_mod, Nat.mul_mod ];
-        · exact ⟨ ⟨ Nat.mul_pos ( pow_pos ( by decide ) _ ) ( by linarith ), by nlinarith [ pow_pos ( by decide : 0 < 2 ) i ] ⟩, ⟨ i, q, rfl ⟩ ⟩;
+      · refine Or.inl ⟨ 2 ^ i * ( 4 * ( q - 1 ) + 3 ), ?_, ?_ ⟩ <;>
+          rcases q with ( _ | q ) <;>
+          simp_all +decide [ Nat.factorization_eq_zero_of_not_dvd,
+            Nat.dvd_iff_mod_eq_zero, Nat.add_mod, Nat.mul_mod ];
+        · exact
+            ⟨ ⟨ Nat.mul_pos ( pow_pos ( by decide ) _ ) ( by linarith ),
+                by nlinarith [ pow_pos ( by decide : 0 < 2 ) i ] ⟩,
+              ⟨ i, q, rfl ⟩ ⟩;
         · norm_num [ Nat.add_div ];
     refine le_trans ( Finset.card_le_card h_pair ) ?_;
     grind +revert;
-  convert add_le_add_left h_inj ( Finset.card ( Finset.filter ( fun x => x ∈ A ) ( Finset.Icc 1 n ) ) ) using 1 ; simp +arith +decide [ Finset.filter_not, Finset.card_sdiff ];
-  · rw [ Finset.inter_eq_left.mpr fun x hx => by aesop ] ; rw [ add_tsub_cancel_of_le ] ; exact le_trans ( Finset.card_filter_le _ _ ) ( by simp ) ;
+  convert
+    add_le_add_left h_inj
+      ( Finset.card ( Finset.filter ( fun x => x ∈ A ) ( Finset.Icc 1 n ) ) ) using 1
+  simp +arith +decide [ Finset.filter_not, Finset.card_sdiff ];
+  · rw [ Finset.inter_eq_left.mpr fun x hx => by aesop ]
+    rw [ add_tsub_cancel_of_le ]
+    exact le_trans ( Finset.card_filter_le _ _ ) ( by simp ) ;
   · unfold countIn; ring_nf;
     grind
 
@@ -277,15 +325,25 @@ lemma log_div_tends_zero :
   refine' fun n => ( Real.log n / Real.log 2 + 1 : ℝ ) / n;
   · norm_num [ div_eq_mul_inv ];
     refine' ⟨ 2, fun n hn => _ ⟩ ; rw [ abs_of_nonneg ( by positivity ) ] ; ring_nf ; norm_num;
-    nlinarith [ inv_pos.mpr ( by positivity : 0 < ( n : ℝ ) ), show ( log 2 n : ℝ ) ≤ Real.log n * ( Real.log 2 ) ⁻¹ by rw [ ← div_eq_mul_inv, le_div_iff₀ ( Real.log_pos one_lt_two ) ] ; nth_rw 1 [ ← Real.log_rpow zero_lt_two ] ; exact Real.log_le_log ( by positivity ) ( by norm_cast; exact Nat.pow_log_le_self 2 <| by positivity ) ];
+    nlinarith [ inv_pos.mpr ( by positivity : 0 < ( n : ℝ ) ),
+      show ( log 2 n : ℝ ) ≤ Real.log n * ( Real.log 2 ) ⁻¹ by
+        rw [ ← div_eq_mul_inv, le_div_iff₀ ( Real.log_pos one_lt_two ) ]
+        nth_rw 1 [ ← Real.log_rpow zero_lt_two ]
+        exact Real.log_le_log ( by positivity )
+          ( by norm_cast; exact Nat.pow_log_le_self 2 <| by positivity ) ];
   · -- We'll use the fact that $\frac{\log n}{n}$ tends to $0$ as $n$ tends to infinity.
     have h_log : Filter.Tendsto (fun n : ℕ => (Real.log n : ℝ) / n) Filter.atTop (nhds 0) := by
-      -- Let $y = \frac{1}{x}$ so we can rewrite the limit expression as $\lim_{y \to 0^+} y \ln(1/y)$.
-      suffices h_change_var : Filter.Tendsto (fun y : ℝ => y * Real.log (1 / y)) (Filter.map (fun x => 1 / x) Filter.atTop) (nhds 0) by
-        exact h_change_var.comp ( Filter.map_mono tendsto_natCast_atTop_atTop ) |> fun h => h.congr ( by intros; simp +decide ; ring );
+      -- Change variables to `y = 1 / x`.
+      suffices h_change_var :
+          Filter.Tendsto (fun y : ℝ => y * Real.log (1 / y))
+            (Filter.map (fun x => 1 / x) Filter.atTop) (nhds 0) by
+        exact h_change_var.comp ( Filter.map_mono tendsto_natCast_atTop_atTop ) |>
+          fun h => h.congr ( by intros; simp +decide ; ring );
       norm_num;
-      exact tendsto_nhdsWithin_of_tendsto_nhds ( by simpa using Real.continuous_mul_log.neg.tendsto 0 );
-    convert h_log.div_const ( Real.log 2 ) |> Filter.Tendsto.add <| tendsto_inv_atTop_nhds_zero_nat using 2 <;> ring
+      exact tendsto_nhdsWithin_of_tendsto_nhds
+        ( by simpa using Real.continuous_mul_log.neg.tendsto 0 );
+    convert h_log.div_const ( Real.log 2 ) |> Filter.Tendsto.add <|
+      tendsto_inv_atTop_nhds_zero_nat using 2 <;> ring
 
 /-
 A has natural density 1/2.
@@ -293,16 +351,23 @@ A has natural density 1/2.
 theorem A_density_half :
     Filter.Tendsto (fun n : ℕ => (countIn A n : ℝ) / n)
       Filter.atTop (nhds (1 / 2 : ℝ)) := by
-  -- To prove the both sides are equal, we can use the fact that if the numerator and denominator of a fraction tend to infinity, the fraction tends to the ratio of the limits.
+  -- It is enough to squeeze `2 * countIn A n / n - 1` to zero.
   suffices h_bot : Filter.Tendsto (fun n ↦ (2 * (countIn A n) : ℝ) / n - 1) Filter.atTop (nhds 0) by
     convert h_bot.add_const 1 |> Filter.Tendsto.div_const <| 2 using 2 <;> ring;
-  have log_div_tends_zero : Filter.Tendsto (fun n : ℕ => ((Nat.log 2 n : ℝ) + 1) / n) Filter.atTop (nhds 0) := by
+  have log_div_tends_zero :
+      Filter.Tendsto (fun n : ℕ => ((Nat.log 2 n : ℝ) + 1) / n)
+        Filter.atTop (nhds 0) := by
     convert log_div_tends_zero.const_mul 2 using 2 <;> ring;
   refine' squeeze_zero_norm' _ log_div_tends_zero;
   filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn;
   rw [ Real.norm_eq_abs, abs_le ];
   field_simp;
-  constructor <;> linarith [ show ( countIn A n : ℝ ) ≥ 0 by positivity, show ( countIn A n : ℝ ) ≤ n / 2 by exact le_div_iff₀' ( by positivity ) |>.2 <| mod_cast A_count_upper n, show ( n : ℝ ) ≤ 2 * countIn A n + Nat.log 2 n + 1 by exact mod_cast A_count_lower n ]
+  constructor <;>
+    linarith [ show ( countIn A n : ℝ ) ≥ 0 by positivity,
+      show ( countIn A n : ℝ ) ≤ n / 2 by
+        exact le_div_iff₀' ( by positivity ) |>.2 <| mod_cast A_count_upper n,
+      show ( n : ℝ ) ≤ 2 * countIn A n + Nat.log 2 n + 1 by
+        exact mod_cast A_count_lower n ]
 
 
 -- ============================================================================
@@ -331,7 +396,10 @@ theorem sumfree_upperDensity_le_half (S : Set ℕ) (hS : pow2SumFree S) :
       Filter.atTop ≤ 1 / 2 := by
   refine' csInf_le _ _ <;> norm_num;
   · exact ⟨ 0, by rintro x ⟨ n, hn ⟩ ; exact le_trans ( by positivity ) ( hn _ le_rfl ) ⟩;
-  · exact ⟨ 1, fun n hn => by rw [ div_le_div_iff₀ ] <;> norm_cast ; linarith [ sumfree_countIn_le S hS n ] ⟩
+  · exact
+      ⟨ 1, fun n hn => by
+        rw [ div_le_div_iff₀ ] <;> norm_cast
+        linarith [ sumfree_countIn_le S hS n ] ⟩
 
 -- ============================================================================
 -- Main result
@@ -367,15 +435,29 @@ lemma sum_pair_pigeonhole (S low : ℕ) (hlow : 1 ≤ low) (hSlow : 2 * low ≤ 
   by_contra h_contra;
   -- Consider the set $B = \{S - a \mid a \in A\}$.
   set B : Finset ℕ := Finset.image (fun a => S - a) A;
-  -- Since $A$ and $B$ are disjoint subsets of $\{low, ..., S - low\}$, we have $|A \cup B| = |A| + |B|$.
+  -- `A` and `B` are disjoint subsets of `{low, ..., S - low}`.
   have h_union : (A ∪ B).card = A.card + B.card := by
     apply Finset.card_union_of_disjoint;
-    exact Finset.disjoint_left.mpr fun x hx hx' => h_contra <| by obtain ⟨ y, hy, hy' ⟩ := Finset.mem_image.mp hx'; exact ⟨ y, hy, x, hx, by linarith [ Nat.sub_add_cancel <| show y ≤ S from le_trans ( Finset.mem_Icc.mp ( hA hy ) |>.2 ) ( Nat.sub_le _ _ ) ] ⟩ ;
+    exact Finset.disjoint_left.mpr fun x hx hx' => h_contra <| by
+      obtain ⟨ y, hy, hy' ⟩ := Finset.mem_image.mp hx'
+      exact
+        ⟨ y, hy, x, hx, by
+          linarith [ Nat.sub_add_cancel <|
+            show y ≤ S from le_trans ( Finset.mem_Icc.mp ( hA hy ) |>.2 )
+              ( Nat.sub_le _ _ ) ] ⟩ ;
   -- Since $B$ is a subset of $\{low, ..., S - low\}$, we have $|B| = |A|$.
   have hB_card : B.card = A.card := by
-    exact Finset.card_image_of_injOn fun x hx y hy hxy => by rw [ tsub_right_inj ] at hxy <;> linarith [ Finset.mem_Icc.mp ( hA hx ), Finset.mem_Icc.mp ( hA hy ), Nat.sub_add_cancel ( by linarith : low ≤ S ) ] ;
+    exact Finset.card_image_of_injOn fun x hx y hy hxy => by
+      rw [ tsub_right_inj ] at hxy <;>
+        linarith [ Finset.mem_Icc.mp ( hA hx ), Finset.mem_Icc.mp ( hA hy ),
+          Nat.sub_add_cancel ( by linarith : low ≤ S ) ] ;
   have h_union_subset : A ∪ B ⊆ Finset.Icc low (S - low) := by
-    exact Finset.union_subset hA ( Finset.image_subset_iff.mpr fun x hx => Finset.mem_Icc.mpr ⟨ Nat.le_sub_of_add_le <| by linarith [ Finset.mem_Icc.mp <| hA hx, Nat.sub_add_cancel <| show low ≤ S from by linarith ], Nat.sub_le_sub_left ( by linarith [ Finset.mem_Icc.mp <| hA hx ] ) _ ⟩ );
+    exact Finset.union_subset hA ( Finset.image_subset_iff.mpr fun x hx =>
+      Finset.mem_Icc.mpr
+        ⟨ Nat.le_sub_of_add_le <|
+            by linarith [ Finset.mem_Icc.mp <| hA hx,
+              Nat.sub_add_cancel <| show low ≤ S from by linarith ],
+          Nat.sub_le_sub_left ( by linarith [ Finset.mem_Icc.mp <| hA hx ] ) _ ⟩ );
   have := Finset.card_mono h_union_subset; simp_all +decide ; omega;
 
 /-
@@ -389,7 +471,7 @@ theorem general_upper_bound (s : ℕ → ℕ) (hs_pos : ∀ k, 0 < s k)
     (hA_card : 2 * A.card > n + s 0) :
     ∃ i, ∃ a ∈ A, ∃ b ∈ A, a + b = s i := by
   by_contra h_contra;
-  -- By induction on $n$, we can show that for any $n$, if $2|A| > n + s(0)$, then there exist $a, b \in A$ such that $a + b = s(i)$ for some $i$.
+  -- Induct on `n`.
   induction' n using Nat.strong_induction_on with n ih generalizing A;
   -- Let $k$ be such that $s(k) \leq n < s(k+1)$.
   obtain ⟨k, hk⟩ : ∃ k, s k ≤ n ∧ n < s (k + 1) := by
@@ -397,7 +479,16 @@ theorem general_upper_bound (s : ℕ → ℕ) (hs_pos : ∀ k, 0 < s k)
       have h_unbounded : ∀ M : ℕ, ∃ k, s k > M := by
         exact fun M => ⟨ _, hs_mono.id_le _ ⟩
       contrapose! h_unbounded;
-      exact ⟨ n, fun k => Nat.recOn k ( by linarith [ hs_pos 0, show s 0 ≤ n from le_of_not_gt fun h => by have := Finset.card_le_card hA_sub; norm_num at *; linarith [ hs_pos 0 ] ] ) h_unbounded ⟩;
+      exact
+        ⟨ n, fun k =>
+          Nat.recOn k
+            ( by
+              linarith [ hs_pos 0,
+                show s 0 ≤ n from le_of_not_gt fun h => by
+                  have := Finset.card_le_card hA_sub
+                  norm_num at *
+                  linarith [ hs_pos 0 ] ] )
+            h_unbounded ⟩;
     exact h_seq;
   -- Let $m = s(k+1) - n$. Then $m \geq 1$.
   set m := s (k + 1) - n with hm_def
@@ -426,9 +517,16 @@ theorem general_upper_bound (s : ℕ → ℕ) (hs_pos : ∀ k, 0 < s k)
       have h_pigeonhole : ∃ a ∈ A, ∃ b ∈ A, a + b = s (k + 1) := by
         apply sum_pair_pigeonhole (s (k + 1)) 1 (by norm_num) (by
         grind +splitIndPred) A (by
-        exact fun x hx => Finset.mem_Icc.mpr ⟨ Finset.mem_Icc.mp ( hA_sub hx ) |>.1, Nat.le_sub_one_of_lt ( lt_of_le_of_lt ( Finset.mem_Icc.mp ( hA_sub hx ) |>.2 ) hk.2 ) ⟩) (by
+        exact fun x hx =>
+          Finset.mem_Icc.mpr
+            ⟨ Finset.mem_Icc.mp ( hA_sub hx ) |>.1,
+              Nat.le_sub_one_of_lt
+                ( lt_of_le_of_lt ( Finset.mem_Icc.mp ( hA_sub hx ) |>.2 ) hk.2 ) ⟩) (by
         lia);
-      exact h_contra ⟨ _, _, h_pigeonhole.choose_spec.1, _, h_pigeonhole.choose_spec.2.choose_spec.1, h_pigeonhole.choose_spec.2.choose_spec.2 ⟩;
+      exact h_contra
+        ⟨ _, _, h_pigeonhole.choose_spec.1, _,
+          h_pigeonhole.choose_spec.2.choose_spec.1,
+          h_pigeonhole.choose_spec.2.choose_spec.2 ⟩;
     · -- Let $A_1 = A \cap \{1, \ldots, m-1\}$ and $A_2 = A \cap \{m, \ldots, n\}$.
       set A1 := A.filter (fun x => x ≤ m - 1) with hA1_def
       set A2 := A.filter (fun x => m ≤ x) with hA2_def;
@@ -437,10 +535,15 @@ theorem general_upper_bound (s : ℕ → ℕ) (hs_pos : ∀ k, 0 < s k)
       · specialize ih ( m - 1 ) ?_ ?_ A1 ?_ ?_ ?_ <;> norm_num at *;
         · grind +suggestions;
         · exact lt_of_le_of_ne hm_pos ( Ne.symm h_case2 );
-        · exact fun x hx => Finset.mem_Icc.mpr ⟨ Finset.mem_Icc.mp ( hA_sub ( Finset.mem_filter.mp hx |>.1 ) ) |>.1, Finset.mem_filter.mp hx |>.2 ⟩;
+        · exact fun x hx =>
+            Finset.mem_Icc.mpr
+              ⟨ Finset.mem_Icc.mp ( hA_sub ( Finset.mem_filter.mp hx |>.1 ) ) |>.1,
+                Finset.mem_filter.mp hx |>.2 ⟩;
         · grind;
-        · exact fun x y hy z hz => h_contra x y ( Finset.mem_filter.mp hy |>.1 ) z ( Finset.mem_filter.mp hz |>.1 );
-      · -- Since $2|A_2| + 2m \geq s(k+1) + 2$, we can apply the pigeonhole principle to find $a, b \in A_2$ such that $a + b = s(k+1)$.
+        · exact fun x y hy z hz =>
+            h_contra x y ( Finset.mem_filter.mp hy |>.1 ) z
+              ( Finset.mem_filter.mp hz |>.1 );
+      · -- Apply the pigeonhole principle to `A2`.
         have h_pigeonhole : ∃ a ∈ A2, ∃ b ∈ A2, a + b = s (k + 1) := by
           apply sum_pair_pigeonhole;
           exact hm_pos;
@@ -473,8 +576,8 @@ lemma countIn_sdiff_Icc (A : Set ℕ) (M n : ℕ) (hn : M ≤ n) :
       · simp +contextual [ Finset.disjoint_left ]
 
 /-
-If upper density > 1/2, then for any constant c, there exist
-    arbitrarily large n with 2 * countIn A n > n + c.
+If upper density is greater than `1/2`, then `2 * countIn A n > n + c`
+for some positive `n`.
 -/
 lemma upper_density_exceeds (A : Set ℕ)
     (hA_density : 1 / 2 < Filter.limsup (fun n : ℕ => (countIn A n : ℝ) / ↑n) Filter.atTop)
@@ -483,7 +586,16 @@ lemma upper_density_exceeds (A : Set ℕ)
       refine' le_of_forall_pos_le_add fun ε ε_pos => _;
       refine' csInf_le _ _ <;> norm_num;
       · exact ⟨ 0, by rintro x ⟨ n, hn ⟩ ; exact le_trans ( by positivity ) ( hn _ le_rfl ) ⟩;
-      · exact ⟨ ⌈ε⁻¹ * ( c + 1 ) ⌉₊ + 1, fun n hn => by rw [ div_le_iff₀ ] <;> nlinarith [ Nat.le_ceil ( ε⁻¹ * ( c + 1 ) ), mul_inv_cancel₀ ( ne_of_gt ε_pos ), show ( n : ℝ ) ≥ ⌈ε⁻¹ * ( c + 1 ) ⌉₊ + 1 by exact_mod_cast hn, show ( countIn A n : ℝ ) ≤ ( n + c ) / 2 by exact by rw [ le_div_iff₀ ] <;> norm_cast ; linarith [ hA_density n ( by linarith ) ] ] ⟩
+      · exact
+          ⟨ ⌈ε⁻¹ * ( c + 1 ) ⌉₊ + 1, fun n hn => by
+            rw [ div_le_iff₀ ] <;>
+              nlinarith [ Nat.le_ceil ( ε⁻¹ * ( c + 1 ) ),
+                mul_inv_cancel₀ ( ne_of_gt ε_pos ),
+                show ( n : ℝ ) ≥ ⌈ε⁻¹ * ( c + 1 ) ⌉₊ + 1 by exact_mod_cast hn,
+                show ( countIn A n : ℝ ) ≤ ( n + c ) / 2 by
+                  exact by
+                    rw [ le_div_iff₀ ] <;> norm_cast
+                    linarith [ hA_density n ( by linarith ) ] ] ⟩
 
 theorem general_upper_bound_unbounded
     (s : ℕ → ℕ) (hs_pos : ∀ k, 0 < s k)

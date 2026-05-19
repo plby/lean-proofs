@@ -27,7 +27,6 @@ set_option linter.unreachableTactic false
 set_option linter.unnecessarySeqFocus false
 set_option linter.unusedTactic false
 set_option linter.unusedSimpArgs false
-set_option linter.style.longLine false
 set_option linter.style.refine false
 set_option linter.style.cdot false
 set_option linter.style.whitespace false
@@ -149,8 +148,10 @@ lemma round1_h_goal (q : ℕ) (hq_prime : Nat.Prime q) (hq_odd : q % 2 = 1)
   (q : ℤ) ^ (t + 1) ∣ ((a * (q : ℤ) ^ t - 1) ^ q + 1) := by
   let y : ℤ := (q : ℤ)
   have h₁ : (a * y ^ t - 1) = (-1 : ℤ) + (a * y ^ t) := by ring
-  have h_main₁ : ((a * y ^ t - 1) ^ q)
-    = ∑ i ∈ Finset.range (q + 1), (Nat.choose q i : ℤ) * ((-1 : ℤ) ^ (q - i)) * (a * y ^ t) ^ i := by
+  have h_main₁ :
+      ((a * y ^ t - 1) ^ q)
+        = ∑ i ∈ Finset.range (q + 1),
+          (Nat.choose q i : ℤ) * ((-1 : ℤ) ^ (q - i)) * (a * y ^ t) ^ i := by
     rw [h₁]
     rw [add_comm]
     rw [add_pow]
@@ -160,10 +161,13 @@ lemma round1_h_goal (q : ℕ) (hq_prime : Nat.Prime q) (hq_odd : q % 2 = 1)
     ext x
     simp [Finset.mem_range, Finset.mem_Ico]
     <;> omega
-  have h₃ : ∑ i ∈ Finset.range (q + 1), (Nat.choose q i : ℤ) * ((-1 : ℤ) ^ (q - i)) * (a * y ^ t) ^ i
+  have h₃ :
+      ∑ i ∈ Finset.range (q + 1),
+        (Nat.choose q i : ℤ) * ((-1 : ℤ) ^ (q - i)) * (a * y ^ t) ^ i
     = (Nat.choose q 0 : ℤ) * ((-1 : ℤ) ^ (q - 0)) * (a * y ^ t) ^ 0
       + (Nat.choose q 1 : ℤ) * ((-1 : ℤ) ^ (q - 1)) * (a * y ^ t) ^ 1
-      + ∑ i ∈ Finset.Ico 2 (q + 1), (Nat.choose q i : ℤ) * ((-1 : ℤ) ^ (q - i)) * (a * y ^ t) ^ i := by
+      + ∑ i ∈ Finset.Ico 2 (q + 1),
+        (Nat.choose q i : ℤ) * ((-1 : ℤ) ^ (q - i)) * (a * y ^ t) ^ i := by
     rw [h₂]
     <;> simp [Finset.sum_insert, Finset.sum_Ico_succ_top]
     <;> ring
@@ -186,19 +190,28 @@ lemma round1_h_goal (q : ℕ) (hq_prime : Nat.Prime q) (hq_odd : q % 2 = 1)
     rw [hk]
     <;> simp [pow_add, pow_mul]
     <;> ring
-  set S := ∑ i ∈ Finset.Ico 2 (q + 1), (Nat.choose q i : ℤ) * ((-1 : ℤ) ^ (q - i)) * (a * y ^ t) ^ i with hS
+  set S :=
+    ∑ i ∈ Finset.Ico 2 (q + 1),
+      (Nat.choose q i : ℤ) * ((-1 : ℤ) ^ (q - i)) * (a * y ^ t) ^ i with hS
   have h_term0 : (Nat.choose q 0 : ℤ) * ((-1 : ℤ) ^ (q - 0)) * (a * y ^ t) ^ 0 = (-1 : ℤ) := by
     rw [h₄, pow_zero, mul_one]
     <;> simpa using h₇
-  have h_term1 : (Nat.choose q 1 : ℤ) * ((-1 : ℤ) ^ (q - 1)) * (a * y ^ t) ^ 1 = a * y ^ (t + 1) := by
+  have h_term1 :
+      (Nat.choose q 1 : ℤ) * ((-1 : ℤ) ^ (q - 1)) * (a * y ^ t) ^ 1 =
+        a * y ^ (t + 1) := by
     rw [h₅, pow_one]
     <;> rw [h₉] <;> ring
-  have h₁₀ : ∑ i ∈ Finset.range (q + 1), (Nat.choose q i : ℤ) * ((-1 : ℤ) ^ (q - i)) * (a * y ^ t) ^ i
-    = (-1 : ℤ) + (a * y ^ (t + 1)) + S := by
+  have h₁₀ :
+      ∑ i ∈ Finset.range (q + 1),
+        (Nat.choose q i : ℤ) * ((-1 : ℤ) ^ (q - i)) * (a * y ^ t) ^ i =
+        (-1 : ℤ) + (a * y ^ (t + 1)) + S := by
     rw [h₃, h_term0, h_term1, hS] <;> ring
   have h₁₁ : ((a * y ^ t - 1) ^ q + 1) = a * y ^ (t + 1) + S := by
     linarith [h_main₁, h₁₀]
-  have h₁₂ : ∀ i ∈ Finset.Ico 2 (q + 1), (y ^ (t + 1)) ∣ (Nat.choose q i : ℤ) * ((-1 : ℤ) ^ (q - i)) * (a * y ^ t) ^ i := by
+  have h₁₂ :
+      ∀ i ∈ Finset.Ico 2 (q + 1),
+        (y ^ (t + 1)) ∣
+          (Nat.choose q i : ℤ) * ((-1 : ℤ) ^ (q - i)) * (a * y ^ t) ^ i := by
     intro i hi
     have h₁₃ : 2 ≤ i := Finset.mem_Ico.mp hi |>.1
     have h₁₄ : (a * y ^ t) ^ i = a ^ i * (y ^ t) ^ i := by ring
@@ -207,8 +220,11 @@ lemma round1_h_goal (q : ℕ) (hq_prime : Nat.Prime q) (hq_odd : q % 2 = 1)
     rw [h₁₅]
     have h₁₆ : t + 1 ≤ t * i := by nlinarith
     have h₁₇ : y ^ (t + 1) ∣ y ^ (t * i) := by apply pow_dvd_pow <;> omega
-    have h₁₈ : y ^ (t + 1) ∣ (Nat.choose q i : ℤ) * ((-1 : ℤ) ^ (q - i)) * (a ^ i) * (y ^ (t * i)) := by
-      simpa [mul_assoc, mul_comm, mul_left_comm] using dvd_mul_of_dvd_right h₁₇ ((Nat.choose q i : ℤ) * ((-1 : ℤ) ^ (q - i)) * (a ^ i))
+    have h₁₈ :
+        y ^ (t + 1) ∣
+          (Nat.choose q i : ℤ) * ((-1 : ℤ) ^ (q - i)) * (a ^ i) * (y ^ (t * i)) := by
+      simpa [mul_assoc, mul_comm, mul_left_comm] using
+        dvd_mul_of_dvd_right h₁₇ ((Nat.choose q i : ℤ) * ((-1 : ℤ) ^ (q - i)) * (a ^ i))
     simpa [mul_assoc, mul_comm, mul_left_comm] using h₁₈
   have h₁₉ : (y ^ (t + 1)) ∣ S := by
     rw [hS]
@@ -366,7 +382,10 @@ lemma round1_h1 (q M D : ℕ) (hM1 : 1 ≤ M) (hq : Nat.Prime q)
     linarith
   have h9 : q ^ M - 1 = (t - 1) * q ^ i + (q ^ i - 1) := by
     rw [ht]
-    <;> cases t <;> simp [Nat.mul_sub_left_distrib, Nat.mul_add, Nat.add_mul] <;> ring_nf at * <;> omega
+    <;> cases t
+    <;> simp [Nat.mul_sub_left_distrib, Nat.mul_add, Nat.add_mul]
+    <;> ring_nf at *
+    <;> omega
   have h10 : (q ^ M - 1) % (q ^ i) = q ^ i - 1 := by
     rw [h9]
     <;> simp [Nat.add_mod, Nat.mul_mod, h4]
@@ -382,7 +401,9 @@ lemma subgoal1 (q i j : ℕ) (h1 : 0 < q ^ i) (h2 : 0 < j) (h3 : j < q ^ i) :
       simp [Nat.mul_sub_left_distrib, Nat.mul_add, Nat.add_mul] <;> ring_nf <;> omega
   rw [h4]
   have h5 : (( (j - 1) * (q ^ i) + (q ^ i - j) ) % (q ^ i)) = (q ^ i - j) := by
-    have h6 : (( (j - 1) * (q ^ i) + (q ^ i - j) ) % (q ^ i)) = (((j - 1) * (q ^ i)) % (q ^ i) + (q ^ i - j) % (q ^ i)) % (q ^ i) := by
+    have h6 :
+        (((j - 1) * (q ^ i) + (q ^ i - j)) % (q ^ i)) =
+          (((j - 1) * (q ^ i)) % (q ^ i) + (q ^ i - j) % (q ^ i)) % (q ^ i) := by
       simp [Nat.add_mod]
     rw [h6]
     have h7 : ((j - 1) * (q ^ i)) % (q ^ i) = 0 := by
@@ -462,9 +483,13 @@ theorem kummer_application_lemma :
   have hq_pos : 0 < q := Nat.Prime.pos hq
   have hqM_pos : 0 < q ^ M := by
     apply Nat.pow_pos hq_pos
-  have h_main2 : ∀ (i : ℕ), 1 ≤ i → i ≤ M → q ^ i ≤ (j * D) % (q ^ i) + ((R * D - j * D) % (q ^ i)) :=
+  have h_main2 :
+      ∀ (i : ℕ), 1 ≤ i → i ≤ M →
+        q ^ i ≤ (j * D) % (q ^ i) + ((R * D - j * D) % (q ^ i)) :=
     round1_h2 q M R j D hM1 hq hR hD hj1 hj2 h_q_gt_R hD_mod
-  have h_main3 : ∀ (i : ℕ), i ∈ Finset.Ico 1 (M + 1) → q ^ i ≤ (j * D) % (q ^ i) + ((R * D - j * D) % (q ^ i)) := by
+  have h_main3 :
+      ∀ (i : ℕ), i ∈ Finset.Ico 1 (M + 1) →
+        q ^ i ≤ (j * D) % (q ^ i) + ((R * D - j * D) % (q ^ i)) := by
     intro i hi
     have h9 : 1 ≤ i ∧ i < M + 1 := Finset.mem_Ico.mp hi
     have h10 : 1 ≤ i := h9.1
@@ -494,7 +519,11 @@ theorem kummer_application_lemma :
     nlinarith
   have h_main4 : (Nat.choose (R * D) (j * D)).factorization q ≥ M := by
     haveI : Fact (Nat.Prime q) := ⟨hq⟩
-    have h_eq : (Nat.choose (R * D) (j * D)).factorization q = (Finset.filter (fun i : ℕ => q ^ i ≤ (j * D) % (q ^ i) + ((R * D - j * D) % (q ^ i))) (Finset.Ico 1 b)).card := by
+    have h_eq :
+        (Nat.choose (R * D) (j * D)).factorization q =
+          (Finset.filter
+            (fun i : ℕ => q ^ i ≤ (j * D) % (q ^ i) + ((R * D - j * D) % (q ^ i)))
+            (Finset.Ico 1 b)).card := by
       rw [Nat.factorization_choose hq hkn hnb] <;> rfl
     rw [h_eq]
     have h1b : 1 < b := by
@@ -503,11 +532,19 @@ theorem kummer_application_lemma :
       dsimp only [b] <;> omega
     have h6 : Finset.Ico 1 (M + 1) ⊆ Finset.Ico 1 b := by
       apply Finset.Ico_subset_Ico_right h5
-    have h7 : Finset.Ico 1 (M + 1) ⊆ Finset.filter (fun i : ℕ => q ^ i ≤ (j * D) % (q ^ i) + ((R * D - j * D) % (q ^ i))) (Finset.Ico 1 b) := by
+    have h7 :
+        Finset.Ico 1 (M + 1) ⊆
+          Finset.filter
+            (fun i : ℕ => q ^ i ≤ (j * D) % (q ^ i) + ((R * D - j * D) % (q ^ i)))
+            (Finset.Ico 1 b) := by
       intro x hx
       simp only [Finset.mem_filter] at *
       <;> exact ⟨h6 hx, h_main3 x hx⟩
-    have h9 : (Finset.Ico 1 (M + 1)).card ≤ (Finset.filter (fun i : ℕ => q ^ i ≤ (j * D) % (q ^ i) + ((R * D - j * D) % (q ^ i))) (Finset.Ico 1 b)).card := Finset.card_le_card h7
+    have h9 :
+        (Finset.Ico 1 (M + 1)).card ≤
+          (Finset.filter
+            (fun i : ℕ => q ^ i ≤ (j * D) % (q ^ i) + ((R * D - j * D) % (q ^ i)))
+            (Finset.Ico 1 b)).card := Finset.card_le_card h7
     have h10 : (Finset.Ico 1 (M + 1)).card = M := by
       simp [Finset.Ico_eq_empty_of_le, hM1]
       <;> omega
@@ -517,7 +554,8 @@ theorem kummer_application_lemma :
   have h_ne_zero : Nat.choose (R * D) (j * D) ≠ 0 := by linarith
   have h12 : q ^ M ∣ Nat.choose (R * D) (j * D) := by
     have h13 : M ≤ (Nat.choose (R * D) (j * D)).factorization q := h_main4
-    have h14 : q ^ M ∣ Nat.choose (R * D) (j * D) := (Nat.Prime.pow_dvd_iff_le_factorization hq h_ne_zero).mpr h13
+    have h14 : q ^ M ∣ Nat.choose (R * D) (j * D) :=
+      (Nat.Prime.pow_dvd_iff_le_factorization hq h_ne_zero).mpr h13
     exact h14
   exact h12
 end depth_0_lemma_2
@@ -560,7 +598,9 @@ theorem valuation_2_lemma :
     exact padicValNat_def (hn := h_k_ne_zero)
   have h_key : (2 ^ (N - Nat.factorization k 2)) ∣ ((2 ^ N).choose k) := by
     have h2 : ((k - 1) + 1) = k := by omega
-    have h3 : ∀ (n j : ℕ), j < 2 ^ n → (2 ^ (n - multiplicity 2 (j + 1))) ∣ ((2 ^ n).choose (j + 1)) := by
+    have h3 :
+        ∀ (n j : ℕ), j < 2 ^ n →
+          (2 ^ (n - multiplicity 2 (j + 1))) ∣ ((2 ^ n).choose (j + 1)) := by
       intro n j hj
       exact WittVector.map_frobeniusPoly.key₁ (p := 2) (n := n) (j := j) (hj)
     have h4 := h3 N (k - 1) h1
@@ -595,7 +635,9 @@ lemma round1_h1 : ∀ (x : ℕ), 2 ^ x > x := by
 theorem S_unbounded_from_lemmas
   (dirichlet_type_lemma : ∀ (M : ℕ) (hM : M ≥ 1) (R : ℕ) (hR : R ≥ 1),
     ∃ (q L : ℕ), Nat.Prime q ∧ q > R ∧ L ≥ 1 ∧ (2 ^ L) % (q ^ M) = q ^ M - 1)
-  (kummer_application_lemma : ∀ (q R D M : ℕ) (hq : Nat.Prime q) (hR : R ≥ 1) (hD : D ≥ 1) (hM : M ≥ 1) (h_q_gt_R : q > R)
+  (kummer_application_lemma :
+    ∀ (q R D M : ℕ) (hq : Nat.Prime q) (hR : R ≥ 1) (hD : D ≥ 1)
+      (hM : M ≥ 1) (h_q_gt_R : q > R)
     (hD_mod : D % (q ^ M) = q ^ M - 1),
     ∀ (j : ℕ), 1 ≤ j → j < R → q ^ M ∣ ((R * D).choose (j * D)))
   (valuation_2_lemma : ∀ (M L n k : ℕ) (hM : M ≥ 1) (hL : L ≥ 1) (hn : n = 2 ^ (M + L - 1))
@@ -690,7 +732,10 @@ theorem S_unbounded_from_lemmas
             <;> omega
           exact dvd_trans h₁₁ h₈
         refine ⟨2, by decide, h₉⟩
-    have h₅ : b ∈ {s : ℕ | ∀ (k : ℕ), k ∈ Finset.Ico 1 n → ∃ (p : ℕ), Nat.Prime p ∧ p ^ s ∣ n.choose k } := by
+    have h₅ :
+        b ∈ {s : ℕ |
+          ∀ (k : ℕ), k ∈ Finset.Ico 1 n →
+            ∃ (p : ℕ), Nat.Prime p ∧ p ^ s ∣ n.choose k } := by
       simpa using h₄
     refine ⟨n, ?_⟩
     let A := {s : ℕ | ∀ (k : ℕ), k ∈ Finset.Ico 1 n → ∃ (p : ℕ), Nat.Prime p ∧ p ^ s ∣ n.choose k }
@@ -742,7 +787,8 @@ lemma round1_h8 (n₀ : ℕ) (g' : ℕ → Fin n₀) (n₁ : Fin n₀) (h7 : Set
       intro x hx
       have h14 : m > x := h12 x hx
       exact Finset.mem_range.mpr (by linarith)
-    have h15 : Set.Finite (g' ⁻¹' {n₁}) := Set.Finite.subset (Finset.finite_toSet (Finset.range m)) h13
+    have h15 : Set.Finite (g' ⁻¹' {n₁}) :=
+      Set.Finite.subset (Finset.finite_toSet (Finset.range m)) h13
     exact Set.not_infinite.mpr h15 h10
   rcases h11 with ⟨k, hk1, hk2⟩
   refine ⟨k, hk2, ?_⟩
@@ -758,7 +804,10 @@ lemma round1_h5 (f : ℕ → ℕ)
     exact Option.ne_none_iff_exists'.mp h6
   rcases h8 with ⟨b, hb⟩
   have h9 : ∀ x ∈ (Set.image (fun i => (f i : ℕ∞)) { i : ℕ | i ≥ n₀ }), x ≤ (b : ℕ∞) := by
-    exact sSup_le_iff.mp (show sSup (Set.image (fun i => (f i : ℕ∞)) { i : ℕ | i ≥ n₀ }) ≤ (b : ℕ∞) from by rw [hb])
+    exact sSup_le_iff.mp
+      (show sSup (Set.image (fun i => (f i : ℕ∞)) { i : ℕ | i ≥ n₀ }) ≤
+          (b : ℕ∞) from by
+        rw [hb])
   have h10 : ∀ i : ℕ, i ≥ n₀ → (f i : ℕ∞) ≤ (b : ℕ∞) := by
     intro i hi
     have h111 : i ∈ { i : ℕ | i ≥ n₀ } := by
@@ -832,7 +881,9 @@ theorem limsup_from_unbounded_lemma (f : ℕ → ℕ)
       have h12₆ : (f i' : ℕ∞) ≤ (b : ℕ∞) := h12₄ i' hi'
       exact_mod_cast h12₆
     exact h_main n₀ b h12₅
-  have h11 : atTop.limsup (fun n => (f n : ℕ∞)) = ⨅ n₀ : ℕ, (⨆ (i' : ℕ) (h : i' ≥ n₀), (f i' : ℕ∞)) := by
+  have h11 :
+      atTop.limsup (fun n => (f n : ℕ∞)) =
+        ⨅ n₀ : ℕ, (⨆ (i' : ℕ) (h : i' ≥ n₀), (f i' : ℕ∞)) := by
     simpa using limsup_eq_iInf_iSup_of_nat (u := fun n => (f n : ℕ∞))
   rw [h11]
   have h13 : ∀ n₀ : ℕ, (⨆ (i' : ℕ) (h : i' ≥ n₀), (f i' : ℕ∞)) = ⊤ := h12

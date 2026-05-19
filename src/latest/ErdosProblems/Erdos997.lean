@@ -38,7 +38,6 @@ import Mathlib.NumberTheory.DiophantineApproximation.Basic
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.longLine false
 
 /-!
 # Erdős Problem 997: Fractional parts `{α pₙ}` are not well-distributed
@@ -129,7 +128,8 @@ Circle-clustering: using `maynardTaoBFT`, for any `α` and `m ≥ 1`, there exis
 primes (starting at index `r+1`) whose fractional parts `{αp}` are pairwise within `1/8` on `ℝ/ℤ`.
 -/
 theorem circleCluster (α : ℝ) (m : ℕ) (hm : 0 < m) :
-    ∃ r, ∀ i j, i < m → j < m → ∃ k : ℤ, |fracSeq α (r + 1 + i) - fracSeq α (r + 1 + j) - ↑k| ≤ 1 / 8 := by
+    ∃ r, ∀ i j, i < m → j < m → ∃ k : ℤ,
+      |fracSeq α (r + 1 + i) - fracSeq α (r + 1 + j) - ↑k| ≤ 1 / 8 := by
   obtain ⟨C, hC₀, hC⟩ := maynardTaoBFT m hm
   obtain ⟨q, hq⟩ : ∃ q : ℚ, |α - q| ≤ 1 / ((8 * C + 1) * q.den) ∧ q.den ≤ 8 * C := by
     have := exists_rat_abs_sub_le_and_den_le α (show 0 < 8 * C by positivity); aesop
@@ -169,7 +169,8 @@ theorem circleCluster (α : ℝ) (m : ℕ) (hm : 0 < m) :
         (by norm_cast; exact q.pos.ne')]
       push_cast; ring
   use k - ⌊α * pi⌋ + ⌊α * pj⌋; simp_all +decide [fracSeq]
-  exact abs_le.mpr ⟨by linarith! [abs_le.mp h_diff, fract_add_floor (α * pi), fract_add_floor (α * pj)],
+  exact abs_le.mpr ⟨by
+    linarith! [abs_le.mp h_diff, fract_add_floor (α * pi), fract_add_floor (α * pj)],
     by linarith! [abs_le.mp h_diff, fract_add_floor (α * pi), fract_add_floor (α * pj)]⟩
 
 /-- Pigeonhole: if `m` values in `[0, 1)` are pairwise within `1/8` on `ℝ/ℤ`, then `≥ m/2` lie
@@ -177,7 +178,8 @@ in a single interval `[a, b] ⊆ [0, 1]` of width `≤ 1/4`. -/
 theorem pigeonholeCluster (x : ℕ → ℝ) (n m : ℕ) (hm : 0 < m)
     (hx01 : ∀ j, j < m → 0 ≤ x (n + 1 + j) ∧ x (n + 1 + j) < 1)
     (hclose : ∀ i j, i < m → j < m → ∃ k : ℤ, |x (n + 1 + i) - x (n + 1 + j) - k| ≤ 1 / 8) :
-    ∃ a b : ℝ, 0 ≤ a ∧ a ≤ b ∧ b ≤ 1 ∧ b - a ≤ 1 / 4 ∧ (m : ℝ) / 2 ≤ (countInIcc x a b n m : ℝ) := by
+    ∃ a b : ℝ, 0 ≤ a ∧ a ≤ b ∧ b ≤ 1 ∧ b - a ≤ 1 / 4 ∧
+      (m : ℝ) / 2 ≤ (countInIcc x a b n m : ℝ) := by
   set S_low := (Finset.range m).filter (fun j ↦ x (n + 1 + j) < 1 / 2)
   set S_high := (Finset.range m).filter (fun j ↦ x (n + 1 + j) ≥ 1 / 2)
   obtain ⟨S, hSsub, hScard, hSclose⟩ :
@@ -216,7 +218,9 @@ theorem pigeonholeCluster (x : ℕ → ℝ) (n m : ℕ) (hm : 0 < m)
     · grind
   refine ⟨max a 0, min b 1, ?_, ?_, ?_, ?_, ?_⟩ <;> norm_num
   · obtain ⟨i, hi⟩ := Finset.card_pos.mp (by linarith)
-    exact ⟨⟨hab, by linarith [(habx i hi).1, (habx i hi).2, (hx01 i (Finset.mem_range.mp (hSsub hi))).1]⟩,
+    exact ⟨⟨hab, by
+      linarith [(habx i hi).1, (habx i hi).2,
+        (hx01 i (Finset.mem_range.mp (hSsub hi))).1]⟩,
         by linarith [(habx i hi).1, (habx i hi).2, (hx01 i (Finset.mem_range.mp (hSsub hi))).2]⟩
   · exact Classical.or_iff_not_imp_left.2 fun h ↦ by
       linarith [le_max_left a 0, le_max_right a 0]
@@ -237,7 +241,9 @@ lemma fracSeq_mem_Ico (α : ℝ) (n : ℕ) : 0 ≤ fracSeq α n ∧ fracSeq α n
 theorem fracSeq_hasClustering (α : ℝ) : HasClustering (fracSeq α) := by
   intro m hm
   obtain ⟨r, hr⟩ := circleCluster α m hm
-  exact ⟨r, pigeonholeCluster (fracSeq α) r m hm (fun j _ ↦ fracSeq_mem_Ico α _) (fun i j hi hj ↦ hr i j hi hj)⟩
+  exact
+    ⟨r, pigeonholeCluster (fracSeq α) r m hm (fun j _ ↦ fracSeq_mem_Ico α _)
+      (fun i j hi hj ↦ hr i j hi hj)⟩
 
 /-! ## Main theorem -/
 

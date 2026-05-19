@@ -17,7 +17,6 @@ import Mathlib
 
 set_option linter.style.openClassical false
 set_option linter.style.whitespace false
-set_option linter.style.longLine false
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.cdot false
@@ -44,7 +43,8 @@ def hasMonoStar {V:Type*} (G : SimpleGraph V) (color : Sym2 V → Fin 2)
 
 /--
 {given -show}`a, b, c : V`
-“Color-{name}`col` monochromatic triangle”: there exist {name}`a`, {name}`b`, {name}`c` with all three edges
+“Color-{name}`col` monochromatic triangle”: there exist {name}`a`, {name}`b`, {name}`c`
+with all three edges
 present in {lean}`G` and colored {name}`col`.  (Adjacency already forces distinctness.)
 -/
 def hasMonoTriangle {V:Type*} (G : SimpleGraph V) (color : Sym2 V → Fin 2)
@@ -57,7 +57,8 @@ def hasMonoTriangle {V:Type*} (G : SimpleGraph V) (color : Sym2 V → Fin 2)
 
 /-- **Statement (n = 5 case of Pikhurko’s counterexample).**
 There exists a simple graph on {lean}`16` vertices with exactly {lean}`44` edges such that
-for *every* 2‑coloring of unordered pairs, either color {lean (type := "Fin 2")}`0` contains a $`K_{1,5}`
+for *every* 2‑coloring of unordered pairs, either color {lean (type := "Fin 2")}`0`
+contains a $`K_{1,5}`
 (a 5‑edge star) or color {lean (type := "Fin 2")}`1` contains a $`K₃` (a triangle).
 
 This only *states* the claim (as a {lean}`Prop`).  You can later prove it from the
@@ -440,7 +441,8 @@ lemma exists_subset_card_eq (s : Finset α) {k : ℕ} (hk : k ≤ s.card) :
 
 end Finset
 
-/-- In {lean}`Fin 2`, saying “equals {lean (type := "Fin 2")}`1`” is the same as “not equal to {lean (type := "Fin 2")}`0`”. -/
+/-- In {lean}`Fin 2`, saying “equals {lean (type := "Fin 2")}`1`” is the same
+as “not equal to {lean (type := "Fin 2")}`0`”. -/
 lemma fin2_eq_one_iff_ne_zero (a : Fin 2) : (a = 1) ↔ a ≠ 0 := by
   fin_cases a <;> simp
 
@@ -492,7 +494,8 @@ lemma blueNeighbors_card_le_4
 
   exact hNoBlueStar hstar
 
-/-- If there is no blue `K_{1,5}`, then at least {lean}`11` neighbors of {name}`apex` are red. -/
+/-- If there is no blue `K_{1,5}`, then at least {lean}`11` neighbors of {name}`apex`
+are red. -/
 lemma red_from_apex_at_least_11
     (color : Sym2 V → Fin 2)
     (hNoBlueStar : ¬ hasMonoStar G color 0 5) :
@@ -571,7 +574,8 @@ noncomputable def redBlock1 (color : Sym2 V → Fin 2) : Finset V :=
 /-- Red neighbors of {name}`apex` that lie in the second block {name}`A2`/{name}`B2`.
 
 We implement this as the *complement* of {name}`inBlock1` inside {name}`redNeighbors`.
-Since {name}`apex` is not in {name}`redNeighbors`, this is exactly the {name}`A2`/{name}`B2` part. -/
+Since {name}`apex` is not in {name}`redNeighbors`, this is exactly the
+{name}`A2`/{name}`B2` part. -/
 noncomputable def redBlock2 (color : Sym2 V → Fin 2) : Finset V :=
   (redNeighbors color).filter (fun v => ¬ inBlock1 v)
 
@@ -813,12 +817,16 @@ lemma card_B1Set_le_5 : (B1Set).card ≤ 5 := by
   classical
   -- image has card ≤ card of the domain
   simpa [B1Set, Fintype.card_fin] using
-    (Finset.card_image_le : (Finset.univ.image (fun j : Fin 5 => B1 j)).card ≤ (Finset.univ : Finset (Fin 5)).card)
+    (Finset.card_image_le :
+      (Finset.univ.image (fun j : Fin 5 => B1 j)).card ≤
+        (Finset.univ : Finset (Fin 5)).card)
 
 lemma card_B2Set_le_5 : (B2Set).card ≤ 5 := by
   classical
   simpa [B2Set, Fintype.card_fin] using
-    (Finset.card_image_le : (Finset.univ.image (fun j : Fin 5 => B2 j)).card ≤ (Finset.univ : Finset (Fin 5)).card)
+    (Finset.card_image_le :
+      (Finset.univ.image (fun j : Fin 5 => B2 j)).card ≤
+        (Finset.univ : Finset (Fin 5)).card)
 
 lemma redBlock1B1_card_le_5 (color : Sym2 V → Fin 2) :
   (redBlock1B1 color).card ≤ 5 :=
@@ -830,7 +838,8 @@ lemma redBlock2B2_card_le_5 (color : Sym2 V → Fin 2) :
 
 /-! # Existence of a red neighbor in the clique parts {name}`A1` / {name}`A2` -/
 
-/-- If block 1 receives at least 6 red neighbors from {name}`apex`, then one of them lies in {name}`A1`. -/
+/-- If block 1 receives at least 6 red neighbors from {name}`apex`, then one of them
+lies in {name}`A1`. -/
 lemma exists_red_A1_of_block1_ge6
     (color : Sym2 V → Fin 2)
     (h6 : 6 ≤ (redBlock1 color).card) :
@@ -862,7 +871,8 @@ lemma exists_red_A1_of_block1_ge6
   | B2 _ => cases hA1
   | apex  => cases hA1
 
-/-- If block 2 receives at least 6 red neighbors from {name}`apex`, then one of them lies in {name}`A2`. -/
+/-- If block 2 receives at least 6 red neighbors from {name}`apex`, then one of them
+lies in {name}`A2`. -/
 lemma exists_red_A2_of_block2_ge6
     (color : Sym2 V → Fin 2)
     (h6 : 6 ≤ (redBlock2 color).card) :
@@ -942,8 +952,9 @@ lemma A2_mem_redBlock2_of_red
 
 /-! # Triangle-or-star from Block 1 -/
 
-/-- If Block 1 has at least 6 red apex-neighbors, and one of them is {lean}`A1 i` with a red edge
-from {name}`apex`, then either we have a red triangle, or a blue `K_{1,5}` centered at {lean}`A1 i`. -/
+/-- If Block 1 has at least 6 red apex-neighbors, and one of them is {lean}`A1 i`
+with a red edge from {name}`apex`, then either we have a red triangle, or a blue
+`K_{1,5}` centered at {lean}`A1 i`. -/
 lemma triangle_or_blueStar_from_block1
     (color : Sym2 V → Fin 2)
     (h6 : 6 ≤ (redBlock1 color).card)
@@ -1119,7 +1130,8 @@ lemma triangle_or_blueStar_from_block2
 
 /-! # Final step: no blue `K_{1,5}` ⇒ a red triangle -/
 
-/-- **Main step (n=5):** If there is no blue `K_{1,5}`, then the red color class contains a triangle. -/
+/-- **Main step (n=5):** If there is no blue `K_{1,5}`, then the red color class
+contains a triangle. -/
 theorem red_triangle_of_no_blue_star
     (color : Sym2 V → Fin 2)
     (hNoBlueStar : ¬ hasMonoStar G color 0 5) :

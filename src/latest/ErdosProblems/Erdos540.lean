@@ -30,7 +30,6 @@ set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.unusedDecidableInType false
 set_option linter.style.maxHeartbeats false
-set_option linter.style.longLine false
 set_option linter.style.whitespace false
 
 /-!
@@ -700,7 +699,11 @@ lemma exists_good_D {G : Type*} [DecidableEq G] [AddCommGroup G] [Fintype G]
           · exact le_of_lt ‹_›
           · exact Nat.zero_le _
       rw [Nat.le_div_iff_mul_le] at * <;> norm_num at *
-      nlinarith [ Nat.div_mul_cancel ( show 7 ∣ k.factorial from Nat.dvd_factorial ( by decide ) ( by linarith [ Nat.sqrt_pos.mpr ( show 0 < Fintype.card G from Fintype.card_pos ) ] ) ), Nat.factorial_pos k ]
+      nlinarith [
+        Nat.div_mul_cancel (show 7 ∣ k.factorial from
+          Nat.dvd_factorial (by decide) (by
+            linarith [Nat.sqrt_pos.mpr (show 0 < Fintype.card G from Fintype.card_pos)])),
+        Nat.factorial_pos k]
     have h_pigeonhole_shifted :
         Finset.card (Finset.filter (fun j =>
           (∑ D ∈ A.powersetCard (j - 1),
@@ -717,8 +720,16 @@ lemma exists_good_D {G : Type*} [DecidableEq G] [AddCommGroup G] [Fintype G]
       erw [Finset.sum_Ico_eq_sum_range]
       simp +zetaDelta at *
       let l := 26 * ( Fintype.card G ).sqrt
-      apply le_trans ( b := ((( Finset.range (75 * ( Fintype.card G ).sqrt - l)).filter
-        (fun x => (#A).factorial / 7 < (∑ x ∈ A.powersetCard (l+x), #({ a ∈ A \ x | (Fintype.card G).sqrt < #(subsetSums (insert a x) \ subsetSums x)})) * (l + x).factorial * (#A - (l+x) - 1).factorial)).image (fun x => l+x)).card)
+      apply le_trans
+        (b := (((Finset.range (75 * (Fintype.card G).sqrt - l)).filter
+          (fun x =>
+            (#A).factorial / 7 <
+              (∑ x ∈ A.powersetCard (l+x),
+                #({ a ∈ A \ x |
+                  (Fintype.card G).sqrt <
+                    #(subsetSums (insert a x) \ subsetSums x)})) *
+                (l + x).factorial * (#A - (l+x) - 1).factorial)).image
+          (fun x => l+x)).card)
       · rw [Finset.card_image_of_injective _
           fun x y hxy => by simpa using hxy]
       · apply Finset.card_mono
@@ -802,7 +813,8 @@ lemma exists_good_D {G : Type*} [DecidableEq G] [AddCommGroup G] [Fintype G]
           rw [Nat.sub_add_cancel
             (Nat.sub_pos_of_lt (by linarith))]] at *
         simp_all +decide [Nat.factorial_succ, mul_comm]
-        nlinarith [show 0 < j.factorial * (k - j - 1).factorial by exact mul_pos (Nat.factorial_pos _) (Nat.factorial_pos _)]
+        nlinarith [show 0 < j.factorial * (k - j - 1).factorial by
+          exact mul_pos (Nat.factorial_pos _) (Nat.factorial_pos _)]
       · omega
   have h_bad_rem_bound :
       (∑ D ∈ A.powersetCard j,

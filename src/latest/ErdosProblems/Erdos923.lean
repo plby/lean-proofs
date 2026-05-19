@@ -32,7 +32,6 @@ namespace Erdos923
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.longLine false
 
 namespace Rodl
 
@@ -133,7 +132,10 @@ theorem spanSubgraph_cliqueFree {S : Set V} {H : SimpleGraph S} {k : ℕ}
   rw [isNClique_iff] at hs
   -- Since $s$ is a clique in $spanSubgraph H$, all vertices in $s$ must be in $S$.
   have hs_subset_S (v) (hv : v ∈ s) : v ∈ S := by
-    have := hs.1 hv; rcases Finset.exists_mem_ne (by linarith) v with ⟨w, hw, hne⟩; have := hs.1 hw hv; simp_all [spanSubgraph]
+    have := hs.1 hv
+    rcases Finset.exists_mem_ne (by linarith) v with ⟨w, hw, hne⟩
+    have := hs.1 hw hv
+    simp_all [spanSubgraph]
     tauto
   classical apply hcf (Finset.subtype (· ∈ S) s)
   rw [isNClique_iff, Finset.subtype]
@@ -144,7 +146,7 @@ theorem chromaticNumber_le_spanSubgraph {S : Set V} (H : SimpleGraph S) :
     H.chromaticNumber ≤ (spanSubgraph H).chromaticNumber := by
   refine le_ciInf fun n ↦ ?_
   by_cases hn : n ∈ setOf (spanSubgraph H).Colorable <;> simp_all
-  -- Since $H$ is a subgraph of $spanSubgraph H$, and $spanSubgraph H$ is $n$-colorable, $H$ must also be $n$-colorable.
+  -- Since $H$ is a subgraph of the span, colorability transfers back to $H$.
   have hH_colorable : H.Colorable n := by
     obtain ⟨f, hf⟩ := hn
     exact ⟨(f ·.1), fun {a b} hab ↦ hf ⟨a.2, b.2, hab⟩⟩
@@ -197,7 +199,11 @@ theorem partGraph_cliqueFree_three {G : SimpleGraph V} {k : ℕ}
       col c ⟨b, habc.2.2.2.2, h_adj.2.1⟩ = i := by
     generalize_proofs at *
     have := ht habc.1 habc.2.2.1; have := ht habc.2.1 habc.2.2.1; simp_all [partGraph]
-    exact ⟨Or.resolve_right (‹¬a = c → _› (ne_of_lt (by tauto))) (by rintro ⟨h, _⟩; exact lt_asymm h (by tauto)), Or.resolve_right (‹¬b = c → _› (ne_of_lt (by tauto))) (by rintro ⟨h, _⟩; exact lt_asymm h (by tauto))⟩
+    exact
+      ⟨Or.resolve_right (‹¬a = c → _› (ne_of_lt (by tauto)))
+          (by rintro ⟨h, _⟩; exact lt_asymm h (by tauto)),
+        Or.resolve_right (‹¬b = c → _› (ne_of_lt (by tauto)))
+          (by rintro ⟨h, _⟩; exact lt_asymm h (by tauto))⟩
   generalize_proofs at *
   have := col c |>.valid (show (leftNbhd G c).Adj ⟨a, ‹_›⟩ ⟨b, ‹_›⟩ from by exact h_adj.1)
   aesop
@@ -239,7 +245,7 @@ private theorem rodl_case2 {m n : ℕ} (hm : 2 ≤ m)
     (hχ : ↑(phi (m + 1) n) ≤ G.chromaticNumber)
     (hsmall : ∀ v : V, (leftNbhd G v).chromaticNumber < ↑(phi m n)) :
     ∃ H : SimpleGraph V, H ≤ G ∧ H.CliqueFree 3 ∧ ↑n ≤ H.chromaticNumber := by
-  -- From hsmall, each leftNbhd G v has chromaticNumber < phi m n, so each is (phi m n - 1)-colorable. Set k = phi m n - 1.
+  -- From hsmall, each leftNbhd G v is `(phi m n - 1)`-colorable.
   obtain ⟨k, hk⟩ : ∃ k, phi m n = k + 1 := by
     rcases m with _ | _ | _ | m <;> simp [phi] at *
   have hk_pos : 0 < k := by
@@ -262,7 +268,7 @@ private theorem rodl_case2 {m n : ℕ} (hm : 2 ≤ m)
     exact hcolorable
   -- Choose colorings: for each v, choose c(v) : (leftNbhd G v).Coloring (Fin k) using choice.
   let c (v) : (leftNbhd G v).Coloring (Fin k) := (hcolorable v).some
-  -- By contradiction: if all partGraph i were (n-1)-colorable, then (⊔ i, partGraph i) would be (n-1)^k-colorable (by colorable_iSup_fin). Since G ≤ ⊔ i partGraph i, G is also (n-1)^k-colorable (by Colorable.mono_left). But phi (m+1) n = (n-1)^k + 1, and hχ says chromaticNumber G ≥ (n-1)^k + 1 = phi (m+1) n, meaning G is NOT (n-1)^k-colorable. Contradiction.
+  -- If all parts were `(n-1)`-colorable, their union would be `(n-1)^k`-colorable.
   by_contra h_contra
   have h_union_colorable : G.Colorable ((n - 1) ^ k) := by
     have h_union_colorable (i) : (partGraph G k c i).Colorable (n - 1) := by
@@ -271,14 +277,17 @@ private theorem rodl_case2 {m n : ℕ} (hm : 2 ≤ m)
       · refine (h_contra ⟨partGraph G k c i, partGraph_le, partGraph_cliqueFree_three, ?_⟩).elim
         rcases n with _ | _ | n <;> simp_all [chromaticNumber]
         · intro i hi; rcases i with _ | _ | i <;> simp_all
-        · exact fun x hx ↦ mod_cast Nat.succ_le_of_lt (Nat.lt_of_not_ge fun h ↦ hcolorable_i <| hx.mono h)
+        · exact fun x hx ↦
+            mod_cast Nat.succ_le_of_lt (Nat.lt_of_not_ge fun h ↦ hcolorable_i <| hx.mono h)
     have h_union_colorable : (⨆ i, partGraph G k c i).Colorable ((n - 1) ^ k) :=
       colorable_iSup_fin h_union_colorable
     exact Colorable.mono_left (partGraph_sup hk_pos) h_union_colorable
-  -- But phi (m+1) n = (n-1)^k + 1, and hχ says chromaticNumber G ≥ (n-1)^k + 1 = phi (m+1) n, meaning G is NOT (n-1)^k-colorable. Contradiction.
+  -- But `phi (m+1) n = (n-1)^k + 1`, contradicting `hχ`.
   have h_contradiction : phi (m + 1) n = (n - 1) ^ k + 1 := by
     rcases m with _ | _ | m <;> simp_all [phi_succ]
-  exact not_lt_of_ge hχ ((chromaticNumber_le_iff_colorable.mpr h_union_colorable).trans_lt (WithTop.coe_lt_coe.mpr (by simp [h_contradiction])))
+  exact not_lt_of_ge hχ
+    ((chromaticNumber_le_iff_colorable.mpr h_union_colorable).trans_lt
+      (WithTop.coe_lt_coe.mpr (by simp [h_contradiction])))
 
 /-! ## Main Theorem -/
 
@@ -349,7 +358,8 @@ lemma mycielskian_cliqueFree {V : Type*} {G : SimpleGraph V} (hG : G.CliqueFree 
   classical
   obtain ⟨x, y, z, hxy, hyz, hxz⟩ := Finset.card_eq_three.mp ht.card_eq
   simp_all [isNClique_iff]
-  rcases x with x | x | x <;> rcases y with y | y | y <;> rcases z with z | z | z <;> simp_all [mycielskian]
+  rcases x with x | x | x <;> rcases y with y | y | y <;>
+    rcases z with z | z | z <;> simp_all [mycielskian]
   all_goals unfold mycielskianAdj at ht; simp_all
   · contrapose! hG
     unfold CliqueFree; simp_all [isNClique_iff]
@@ -365,7 +375,8 @@ lemma mycielskian_not_colorable {V : Type*} {G : SimpleGraph V} {k : ℕ}
   -- Let $j = c(\text{inr}(\text{inr}()))$ be the color of the apex vertex.
   set j := c (Sum.inr (Sum.inr ())) with hj
   -- Define $c'$ : V → Fin (k + 1) by $c'(v) = if c(inl v) = j then c(inr (inl v)) else c(inl v)$.
-  set c' : V → Fin (k + 1) := fun v ↦ if c (Sum.inl v) = j then c (Sum.inr (Sum.inl v)) else c (Sum.inl v) with hc'
+  set c' : V → Fin (k + 1) :=
+    fun v ↦ if c (Sum.inl v) = j then c (Sum.inr (Sum.inl v)) else c (Sum.inl v) with hc'
   -- Then $c'$ is a proper coloring of $G$: if $G.Adj v w$, then $c'(v) \neq c'(w)$.
   have hc'_proper {v w} (hvw : G.Adj v w) : c' v ≠ c' w := by
     contrapose! hvw; simp_all [mycielskian]
@@ -374,12 +385,12 @@ lemma mycielskian_not_colorable {V : Type*} {G : SimpleGraph V} {k : ℕ}
     · grind
     · exact fun h ↦ hc.1 v |>.2 w h hvw
     · exact fun h ↦ hc.1 v |>.1 w h hvw
-  -- Since $c'$ avoids color $j$, it takes values in $\text{Fin} (k + 1) \setminus \{j\}$, which has cardinality $k$.
+  -- Since $c'$ avoids color $j`, it takes values in `Fin (k + 1) \ {j}`.
   have hc'_card : Set.range c' ⊆ Finset.univ.erase j := by
     rintro _ ⟨v, rfl⟩; simp [hc']
     split_ifs <;> simp_all [adj_comm]
     exact hc.2.1 v |>.2.2 _ (by tauto)
-  -- Use the fact that there's an embedding/equiv {i : Fin (k + 1) | i ≠ j} ≃ Fin k to convert c' into a Fin k-valued coloring.
+  -- Convert `{i : Fin (k + 1) | i ≠ j}` into a `Fin k`-valued coloring.
   let f : Finset.univ.erase j ≃ Fin k := Fintype.equivOfCardEq (by simp)
   refine hG ⟨fun v ↦ f ⟨c' v, hc'_card ⟨v, rfl⟩⟩, ?_⟩
   exact fun {a b} hab ↦ f.injective.ne (by aesop)
@@ -456,8 +467,11 @@ theorem pushforward_cliqueFree_three (T : SimpleGraph W) (f : W ↪ V)
     apply Finset.card_bij (fun x hx ↦ f x) <;> aesop
   contrapose! hcf
   rw [CliqueFree]
-  obtain ⟨t, ht⟩ := Set.exists_subset_card_eq (show 3 ≤ Set.ncard (Set.range fun v : s ↦ g v v.2) from h_card.ge)
-  obtain ⟨u, hu⟩ := Set.Finite.exists_finset_coe (show Set.Finite t from Set.finite_of_ncard_pos (by lia))
+  obtain ⟨t, ht⟩ :=
+    Set.exists_subset_card_eq
+      (show 3 ≤ Set.ncard (Set.range fun v : s ↦ g v v.2) from h_card.ge)
+  obtain ⟨u, hu⟩ :=
+    Set.Finite.exists_finset_coe (show Set.Finite t from Set.finite_of_ncard_pos (by lia))
   simp_all [isNClique_iff]
   exact ⟨u, by simpa [← hu] using h_clique.subset ht.1, by simpa [← hu] using ht.2⟩
 

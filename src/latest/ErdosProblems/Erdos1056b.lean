@@ -54,7 +54,6 @@ limitations under the License.
 import Mathlib
 
 set_option linter.style.setOption false
-set_option linter.style.longLine false
 set_option linter.style.induction false
 set_option linter.style.refine false
 set_option linter.style.show false
@@ -72,7 +71,8 @@ open Nat
 namespace Erdos1056b
 
 /--
-The proposition that the modular product of a collection of consecutive interval equals $1$ modulo $p$,
+The proposition that the modular product of a collection of consecutive interval equals $1$
+modulo $p$,
 where intervals are defined by a function specifying the consecutive boundaries.
 -/
 def AllModProdEqualsOne (p : ℕ) {k : ℕ} (boundaries : Fin (k + 1) → ℕ) : Prop :=
@@ -112,7 +112,8 @@ private lemma noll_simmons_k3_factorials :
   fin_cases i <;> fin_cases j <;> norm_num [Nat.ModEq]
 
 /-
-There exists a prime $p$ and a strictly increasing sequence $Q$ of length 3 with elements less than $p$ such that their factorials are congruent modulo $p$.
+There exists a prime $p$ and a strictly increasing sequence $Q$ of length 3 with elements
+less than $p$ such that their factorials are congruent modulo $p$.
 -/
 theorem noll_simmons_k3 :
     ∃ (p : ℕ) (_ : p.Prime) (Q : Fin 3 → ℕ) (_ : StrictMono Q) (_ : ∀ i, Q i < p),
@@ -124,16 +125,22 @@ theorem noll_simmons_k3 :
     exact noll_simmons_k3_factorials⟩
 
 /-
-If an interval $[a, b)$ contains no multiple of $p$, then it is contained in some interval $[mp, (m+1)p]$.
+If an interval $[a, b)$ contains no multiple of $p$, then it is contained in some interval
+$[mp, (m+1)p]$.
 -/
 lemma exists_shift_of_no_dvd {a b p : ℕ} (_hab : a < b) (hp : p ≠ 0)
     (h : ∀ n ∈ Finset.Ico a b, ¬ p ∣ n) :
     ∃ m, m * p ≤ a ∧ b ≤ (m + 1) * p := by
       contrapose! h;
-      exact ⟨ ( a / p + 1 ) * p, Finset.mem_Ico.mpr ⟨ by nlinarith [ Nat.div_add_mod a p, Nat.mod_lt a ( Nat.pos_of_ne_zero hp ) ], by nlinarith [ Nat.div_mul_le_self a p, h ( a / p ) ( Nat.div_mul_le_self a p ) ] ⟩, by norm_num ⟩
+      exact
+        ⟨(a / p + 1) * p, Finset.mem_Ico.mpr
+          ⟨by nlinarith [Nat.div_add_mod a p, Nat.mod_lt a (Nat.pos_of_ne_zero hp)],
+            by nlinarith [Nat.div_mul_le_self a p,
+              h (a / p) (Nat.div_mul_le_self a p)]⟩, by norm_num⟩
 
 /-
-If consecutive intervals have product 1 mod p, then there exists a sequence of factorials congruent mod p.
+If consecutive intervals have product 1 mod p, then there exists a sequence of factorials
+congruent mod p.
 -/
 theorem noll_simmons_reduction {k : ℕ} {p : ℕ} {boundaries : Fin (k + 1) → ℕ}
     (hk : k ≠ 0)
@@ -168,10 +175,15 @@ theorem noll_simmons_reduction {k : ℕ} {p : ℕ} {boundaries : Fin (k + 1) →
       rw [Nat.ModEq, Nat.mod_eq_zero_of_dvd h_dvd]
       rfl
     -- Contradiction with product being 1
-    -- If `p` divides `n`, then `n ≡ 0 [MOD p]`, and since `n` is in the interval `[boundaries i, boundaries (i + 1))`, the product of this interval would also be `0` modulo `p`.
-    have h_prod_zero : (∏ n ∈ Finset.Ico (boundaries i.castSucc) (boundaries (i.castSucc + 1)), n) ≡ 0 [MOD p] := by
-      exact Nat.modEq_zero_iff_dvd.mpr ( dvd_trans h_dvd ( Finset.dvd_prod_of_mem _ ( by simpa using h_mem ) ) );
-    exact absurd ( h_prod_zero.symm.trans h_prod_i ) ( by haveI := Fact.mk hp; simp +decide [ ← ZMod.natCast_eq_natCast_iff ] )
+    -- If `p` divides `n`, then the interval product is `0` modulo `p`.
+    have h_prod_zero :
+        (∏ n ∈ Finset.Ico (boundaries i.castSucc) (boundaries (i.castSucc + 1)), n) ≡
+          0 [MOD p] := by
+      exact Nat.modEq_zero_iff_dvd.mpr
+        (dvd_trans h_dvd (Finset.dvd_prod_of_mem _ (by simpa using h_mem)))
+    exact absurd (h_prod_zero.symm.trans h_prod_i) (by
+      haveI := Fact.mk hp
+      simp +decide [← ZMod.natCast_eq_natCast_iff])
   obtain ⟨m, hm_le, hm_gt⟩ := exists_shift_of_no_dvd h_bk_gt (Nat.Prime.ne_zero hp) h_no_dvd
   let Q := fun i => boundaries i - m * p - 1
   use Q
@@ -189,7 +201,14 @@ theorem noll_simmons_reduction {k : ℕ} {p : ℕ} {boundaries : Fin (k + 1) →
       -- Since $boundaries$ is strictly monotonic, we have $boundaries i \geq boundaries 0$.
       have h_boundaries_i_ge_boundaries_0 : boundaries i ≥ boundaries 0 := by
         exact h_mono.monotone ( Nat.zero_le _ );
-      exact Nat.sub_pos_of_lt ( lt_of_le_of_ne ( by linarith ) ( Ne.symm ( by intro t; have := h_no_dvd ( boundaries i ) ( Finset.mem_Ico.mpr ⟨ by linarith, by linarith [ h_mono.monotone ( show i ≤ Fin.last k from Fin.le_last _ ) ] ⟩ ) ; simp_all +decide [ Nat.dvd_iff_mod_eq_zero ] ) ) )
+      exact Nat.sub_pos_of_lt
+        (lt_of_le_of_ne (by linarith) (Ne.symm (by
+          intro t
+          have := h_no_dvd (boundaries i)
+            (Finset.mem_Ico.mpr
+              ⟨by linarith,
+                by linarith [h_mono.monotone (show i ≤ Fin.last k from Fin.le_last _)]⟩)
+          simp_all +decide [Nat.dvd_iff_mod_eq_zero])))
     · apply Nat.sub_lt_sub_right
       · -- m * p <= boundaries i
         trans boundaries 0
@@ -217,29 +236,50 @@ theorem noll_simmons_reduction {k : ℕ} {p : ℕ} {boundaries : Fin (k + 1) →
       simp_all only [ne_eq, Finset.mem_Ico, and_imp, Q]
       induction' i_1 using Fin.inductionOn with i IH;
       · rfl;
-      · -- Since $\prod_{x=Q_i+1}^{Q_{i+1}} x \equiv \prod_{n=b_i}^{b_{i+1}-1} n \pmod p$, we have $(Q_{i+1})! \equiv (Q_i)! \pmod p$.
-        have h_prod_cong : (∏ x ∈ Finset.Ico (boundaries i.castSucc) (boundaries i.succ), x) ≡ (∏ x ∈ Finset.Ico (Q i.castSucc + 1) (Q i.succ + 1), x) [MOD p] := by
-          have h_prod_cong : Finset.Ico (boundaries i.castSucc) (boundaries i.succ) = Finset.image (fun x => x + m * p + 1) (Finset.Ico (Q i.castSucc) (Q i.succ)) := by
+      · -- Compare the boundary interval product with the corresponding `Q` interval product.
+        have h_prod_cong :
+            (∏ x ∈ Finset.Ico (boundaries i.castSucc) (boundaries i.succ), x) ≡
+              (∏ x ∈ Finset.Ico (Q i.castSucc + 1) (Q i.succ + 1), x) [MOD p] := by
+          have h_prod_cong :
+              Finset.Ico (boundaries i.castSucc) (boundaries i.succ) =
+                Finset.image (fun x => x + m * p + 1)
+                  (Finset.Ico (Q i.castSucc) (Q i.succ)) := by
             ext ; aesop <;> try omega;
             refine' ⟨ a - m * p - 1, _, _ ⟩ <;> norm_num [ Nat.sub_sub ];
             · constructor <;> try omega;
-              rw [ tsub_lt_tsub_iff_right ] <;> try linarith [ h_mono.monotone ( show 0 ≤ Fin.castSucc i from Nat.zero_le _ ) ];
+              rw [ tsub_lt_tsub_iff_right ] <;>
+                try linarith [h_mono.monotone (show 0 ≤ Fin.castSucc i from Nat.zero_le _)];
               contrapose! h_no_dvd;
               use m * p;
               aesop;
               · linarith [ h_mono.monotone ( show 0 ≤ Fin.castSucc i from Nat.zero_le _ ) ];
-              · linarith [ h_mono.monotone ( show Fin.last k ≥ Fin.castSucc i from Fin.le_last _ ) ];
-            · linarith [ Nat.sub_add_cancel ( show m * p + 1 ≤ a from by linarith [ show boundaries i.castSucc ≥ m * p + 1 from Nat.succ_le_of_lt ( lt_of_lt_of_le ( show m * p < boundaries 0 from lt_of_le_of_ne hm_le ( Ne.symm <| by intro t; specialize h_no_dvd ( boundaries 0 ) ; simp_all +decide ) ) ( h_mono.monotone <| Nat.zero_le _ ) ) ] ) ];
+              · linarith [h_mono.monotone (show Fin.last k ≥ Fin.castSucc i from Fin.le_last _)];
+            · linarith [Nat.sub_add_cancel (show m * p + 1 ≤ a from by
+                linarith [show boundaries i.castSucc ≥ m * p + 1 from
+                  Nat.succ_le_of_lt
+                    (lt_of_lt_of_le
+                      (show m * p < boundaries 0 from
+                        lt_of_le_of_ne hm_le (Ne.symm <| by
+                          intro t
+                          specialize h_no_dvd (boundaries 0)
+                          simp_all +decide))
+                      (h_mono.monotone <| Nat.zero_le _))])]
           rw [ h_prod_cong, Finset.prod_image ] <;> aesop;
           simp +decide [ ← ZMod.natCast_eq_natCast_iff, Finset.prod_Ico_eq_prod_range ];
           ac_rfl;
-        have h_prod_cong : (∏ x ∈ Finset.Ico (Q i.castSucc + 1) (Q i.succ + 1), x) * (Q i.castSucc)! ≡ (Q i.succ)! [MOD p] := by
-          have h_prod_cong : (∏ x ∈ Finset.Ico (Q i.castSucc + 1) (Q i.succ + 1), x) * (Q i.castSucc)! = (Q i.succ)! := by
+        have h_prod_cong :
+            (∏ x ∈ Finset.Ico (Q i.castSucc + 1) (Q i.succ + 1), x) *
+              (Q i.castSucc)! ≡ (Q i.succ)! [MOD p] := by
+          have h_prod_cong :
+              (∏ x ∈ Finset.Ico (Q i.castSucc + 1) (Q i.succ + 1), x) *
+                (Q i.castSucc)! = (Q i.succ)! := by
             rw [ Finset.prod_Ico_eq_prod_range ];
             rw [ ← Nat.add_sub_of_le ( show Q i.castSucc ≤ Q i.succ from _ ) ];
-            · induction ( Q i.succ - Q i.castSucc ) <;> simp_all +decide [ Nat.factorial, Finset.prod_range_succ ];
+            · induction ( Q i.succ - Q i.castSucc ) <;>
+                simp_all +decide [ Nat.factorial, Finset.prod_range_succ ];
               grind;
-            · exact Nat.sub_le_sub_right ( Nat.sub_le_sub_right ( h_mono.monotone ( Nat.le_succ _ ) ) _ ) _;
+            · exact Nat.sub_le_sub_right
+                (Nat.sub_le_sub_right (h_mono.monotone (Nat.le_succ _)) _) _;
           rw [h_prod_cong];
         have := h_prod i; simp_all +decide [ ← ZMod.natCast_eq_natCast_iff ] ;
         simp_all only [Q]
@@ -254,7 +294,8 @@ theorem noll_simmons_aux (h1056 : erdos_1056) (k : ℕ) (hk : k ≥ 3) :
       have := h1056 ( k - 1 ) ( Nat.le_sub_one_of_lt hk );
       rcases k with ( _ | _ | k ) <;> aesop;
       -- By the Erdős problem 1056, there exists a sequence of factorials congruent modulo p.
-      obtain ⟨Q, hQ_mono, hQ_lt_p, hQ_cong⟩ := noll_simmons_reduction (by linarith) left left_1 right;
+      obtain ⟨Q, hQ_mono, hQ_lt_p, hQ_cong⟩ :=
+        noll_simmons_reduction (by linarith) left left_1 right;
       exact ⟨ w, left, Q, hQ_lt_p, hQ_mono, hQ_cong ⟩
 
 /-

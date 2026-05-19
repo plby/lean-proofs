@@ -35,7 +35,6 @@ import Mathlib.Analysis.Normed.Group.Submodule
 import Mathlib.Analysis.Normed.Affine.Isometry
 
 set_option linter.style.whitespace false
-set_option linter.style.longLine false
 set_option linter.style.cdot false
 
 /-
@@ -315,7 +314,9 @@ lemma interiors_disjoint_of_noObtuse
     have hp_int : p ∈ interior (P (d:=d) A) := by
       have hxApre' :
           p ∈ interior ((AffineMap.homothety a (1 / 2 : ℝ)) ⁻¹' (halfCopy (d:=d) A a)) := by
-        have hxApre : p ∈ (AffineMap.homothety a (1 / 2 : ℝ)) ⁻¹' interior (halfCopy (d:=d) A a) := by
+        have hxApre :
+            p ∈ (AffineMap.homothety a (1 / 2 : ℝ)) ⁻¹'
+              interior (halfCopy (d:=d) A a) := by
           simpa [Set.mem_preimage] using hxA
         exact (preimage_interior_subset_interior_preimage hcont_a') hxApre
       have hpreimg :
@@ -338,7 +339,9 @@ lemma interiors_disjoint_of_noObtuse
         exact hxB'
       have hxBpre' :
           q ∈ interior ((AffineMap.homothety b (1 / 2 : ℝ)) ⁻¹' (halfCopy (d:=d) A b)) := by
-        have hxBpre : q ∈ (AffineMap.homothety b (1 / 2 : ℝ)) ⁻¹' interior (halfCopy (d:=d) A b) := by
+        have hxBpre :
+            q ∈ (AffineMap.homothety b (1 / 2 : ℝ)) ⁻¹'
+              interior (halfCopy (d:=d) A b) := by
           simpa [Set.mem_preimage] using hxB'
         exact (preimage_interior_subset_interior_preimage hcont_b') hxBpre
       have hpreimg :

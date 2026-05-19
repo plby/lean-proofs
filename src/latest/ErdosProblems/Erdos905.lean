@@ -22,7 +22,6 @@ namespace Erdos905
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.longLine false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.style.maxHeartbeats false
@@ -235,7 +234,8 @@ lemma maxTriangleDegree_pos_of_quarter_sq_lt_edges
     intro T hT
     have h_adj : ∀ u v : V, u ∈ T → v ∈ T → u ≠ v → G.Adj u v := by
       exact fun u v hu hv huv => hT.1 hu hv huv
-    have h_triangle_degree_pos : ∀ u v : V, u ∈ T → v ∈ T → u ≠ v → 1 ≤ triangleDegree G s(u, v) := by
+    have h_triangle_degree_pos :
+        ∀ u v : V, u ∈ T → v ∈ T → u ≠ v → 1 ≤ triangleDegree G s(u, v) := by
       intro u v hu hv huv
       have h_common_neighbor : ∃ w : V, w ∈ T ∧ w ≠ u ∧ w ≠ v := by
         have := Finset.two_lt_card.1 (by linarith [hT.2])
@@ -698,7 +698,8 @@ theorem bollobas_nikiforov_of_card_gt
   set β := maxTriangleDegree G with hβ_def
   set S := ∑ e ∈ G.edgeFinset, triangleDegree G e with hS_def
   set D := ∑ v : V, G.degree v ^ 2 with hD_def
-  have h_triangleDegreeSum_le : S ≤ β * m := sum_triangleDegree_le_maxTriangleDegree_mul_edgeFinset G
+  have h_triangleDegreeSum_le : S ≤ β * m :=
+    sum_triangleDegree_le_maxTriangleDegree_mul_edgeFinset G
   have h_beta_pos : 0 < β := maxTriangleDegree_pos_of_quarter_sq_lt_edges G h
   have h_kn_counting : n * S + 3 * β * D ≤ 6 * β * S + 3 * β * n * m :=
     kn_counting_inequality G
@@ -719,7 +720,9 @@ theorem bollobas_nikiforov_of_card_gt
       _ > 0 := h_beta_pos
   suffices h_key : 3 * β * D ≤ β * (6 * m * β + 2 * n * m) by
     exact Nat.le_of_mul_le_mul_left (by linarith) h_beta_pos
-  zify at h_kn_counting h_triangleDegreeSum_le h_beta_pos h_triangleDegreeSum_pos h_turan_gap h_cauchy_sq ⊢
+  have hSle := h_triangleDegreeSum_le
+  have hSpos := h_triangleDegreeSum_pos
+  zify at h_kn_counting hSle h_beta_pos hSpos h_turan_gap h_cauchy_sq ⊢
   have h_beta_large_enough : (n : ℤ) ≤ 6 * β := by
     by_contra h_beta_large_enough
     push Not at h_beta_large_enough

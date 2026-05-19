@@ -47,7 +47,6 @@ import Mathlib
 
 namespace Erdos427
 
-set_option linter.style.longLine false
 
 private noncomputable abbrev nthPrime (n : ℕ) : ℕ := Nat.nth Nat.Prime n
 
@@ -94,7 +93,8 @@ set_option linter.flexible false in
 theorem erdos427 (n d : ℕ) (hd : 1 ≤ d) :
     ∃ k, 1 ≤ k ∧ d ∣ (Finset.range k).sum (fun i => nthPrime (n + i)) := by
   obtain ⟨ m, hm ⟩ := shiu_consecutive_primes d hd 1 d hd ( Nat.coprime_one_left d ) ( n+1 );
-  -- Let `len := m - n`, `S := (Finset.range len).sum (fun i => nthPrime (n + i))`, and `r := S % d`.
+  -- Let `len := m - n`, `S := (Finset.range len).sum (fun i => nthPrime (n + i))`,
+  -- and `r := S % d`.
   set len := m - n
   set S := (Finset.range len).sum (fun i => nthPrime (n + i))
   set r := S % d;

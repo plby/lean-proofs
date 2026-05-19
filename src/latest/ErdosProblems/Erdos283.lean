@@ -37,7 +37,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.unusedFintypeInType false
-set_option linter.style.longLine false
 set_option linter.style.show false
 set_option linter.style.whitespace false
 
@@ -6218,19 +6217,27 @@ theorem exists_large_correction_denominator
       have h1 : (j + 1) * (j + 1) ≤ D j := hD_lower j
       have hj_lower : Nat.sqrt (maxE * UpperC) + 2 ≤ j := by rw [hJbound_def] at hj; exact hj
       -- (Nat.sqrt(maxE*UpperC) + 1)² > maxE * UpperC
-      have h2 : maxE * UpperC < (Nat.sqrt (maxE * UpperC) + 1) * (Nat.sqrt (maxE * UpperC) + 1) := by
+      have h2 :
+          maxE * UpperC <
+            (Nat.sqrt (maxE * UpperC) + 1) * (Nat.sqrt (maxE * UpperC) + 1) := by
         have h := Nat.lt_succ_sqrt (maxE * UpperC)
         -- h : maxE * UpperC < (maxE*UpperC).sqrt.succ * (maxE*UpperC).sqrt.succ
-        show maxE * UpperC < (Nat.sqrt (maxE * UpperC) + 1) * (Nat.sqrt (maxE * UpperC) + 1)
+        show maxE * UpperC <
+          (Nat.sqrt (maxE * UpperC) + 1) * (Nat.sqrt (maxE * UpperC) + 1)
         convert h using 2
-      have h3 : (Nat.sqrt (maxE * UpperC) + 1) * (Nat.sqrt (maxE * UpperC) + 1) ≤ (j + 1) * (j + 1) := by
+      have h3 :
+          (Nat.sqrt (maxE * UpperC) + 1) * (Nat.sqrt (maxE * UpperC) + 1) ≤
+            (j + 1) * (j + 1) := by
         have hjp : Nat.sqrt (maxE * UpperC) + 1 ≤ j + 1 := by omega
         exact Nat.mul_le_mul hjp hjp
       omega
     -- Define the "bad k" finset within our range.
     set badK_finset : Finset ℕ :=
       (Finset.Ico J Jbound).biUnion (fun j =>
-        HE_set.filter (fun he => he.1 * D j ≥ he.2 * aσ ∧ he.2 ∣ (he.1 * D j - he.2 * aσ) ∧ he.2 * Tg ∣ (he.1 * D j - he.2 * aσ))
+        HE_set.filter (fun he =>
+          he.1 * D j ≥ he.2 * aσ ∧
+            he.2 ∣ (he.1 * D j - he.2 * aσ) ∧
+              he.2 * Tg ∣ (he.1 * D j - he.2 * aσ))
           |>.image (fun he => (he.1 * D j - he.2 * aσ) / (he.2 * Tg))) with hbadK_def
     -- Key: any k that is "bad" with some j in the relevant range is in badK_finset.
     -- More precisely: if e*(aσ + k*Tg) = h*D j for j ≥ J, h ∈ HE, e ∈ EE, and k ≤ kStart+N,
@@ -6279,7 +6286,8 @@ theorem exists_large_correction_denominator
         refine ⟨?_, ?_, ?_, ?_⟩
         · rw [hHE_def]; exact Finset.mem_product.mpr ⟨hh, he⟩
         · -- h * D j ≥ e * aσ since h * D j = e * (aσ + k * Tg) ≥ e * aσ.
-          have h0 : e * (aσ + k * Tg) ≥ e * aσ := Nat.mul_le_mul_left e (Nat.le_add_right aσ (k * Tg))
+          have h0 : e * (aσ + k * Tg) ≥ e * aσ :=
+            Nat.mul_le_mul_left e (Nat.le_add_right aσ (k * Tg))
           omega
         · -- e ∣ (h * D j - e * aσ) = e * k * Tg.
           have : h * D j - e * aσ = e * (k * Tg) := by
@@ -6315,7 +6323,10 @@ theorem exists_large_correction_denominator
     have hbadK_card : badK_finset.card ≤ (Jbound - J) * HEcard := by
       rw [hbadK_def]
       calc ((Finset.Ico J Jbound).biUnion (fun j =>
-              HE_set.filter (fun he => he.1 * D j ≥ he.2 * aσ ∧ he.2 ∣ (he.1 * D j - he.2 * aσ) ∧ he.2 * Tg ∣ (he.1 * D j - he.2 * aσ))
+              HE_set.filter (fun he =>
+                he.1 * D j ≥ he.2 * aσ ∧
+                  he.2 ∣ (he.1 * D j - he.2 * aσ) ∧
+                    he.2 * Tg ∣ (he.1 * D j - he.2 * aσ))
                 |>.image (fun he => (he.1 * D j - he.2 * aσ) / (he.2 * Tg)))).card
           ≤ ∑ j ∈ Finset.Ico J Jbound, (HE_set.filter _ |>.image _).card :=
             Finset.card_biUnion_le
@@ -6339,23 +6350,24 @@ theorem exists_large_correction_denominator
       -- Need: badK_finset.card < N + 1.
       have hbk_le : badK_finset.card ≤ Jbound * HEcard :=
         le_trans hbadK_card (Nat.mul_le_mul_right _ (Nat.sub_le _ _))
-      -- Goal: badK_finset.card < N + 1. Since HEcard < Cbig, suffices Jbound * Cbig ≤ N,
-      -- i.e., Nat.sqrt(maxE * UpperC) + 2 ≤ N / Cbig, i.e., Nat.sqrt(maxE * UpperC) * Cbig + 2 * Cbig ≤ N.
+      -- Goal: `badK_finset.card < N + 1`.
+      -- It suffices to show `Nat.sqrt(maxE * UpperC) * Cbig + 2 * Cbig ≤ N`.
       -- Squaring: (Nat.sqrt(maxE * UpperC) * Cbig)² ≤ maxE * UpperC * Cbig² ≤ ?
       -- maxE * UpperC = maxE * baseShift + maxE * Tg * N.
-      -- maxE * UpperC * Cbig² ≤ N²/16 if maxE * baseShift * Cbig² ≤ N²/32 and maxE * Tg * N * Cbig² ≤ N²/32.
+      -- Bound the baseShift and `Tg * N` terms separately.
       -- Second: maxE * Tg * Cbig² ≤ N/32, which holds since N ≥ 16 * Cbig² * maxE * Tg.
-      -- First: maxE * baseShift * Cbig² ≤ N²/32. Since N ≥ 16 * Cbig² * maxE * baseShift, N² ≥ 256 * Cbig⁴ * (maxE*baseShift)².
-      -- Need 256 * Cbig⁴ * (maxE*baseShift)² ≥ 32 * maxE * baseShift * Cbig², i.e., 8 * Cbig² * maxE * baseShift ≥ 1, ✓.
+      -- First: use `N ≥ 16 * Cbig² * maxE * baseShift` and square it.
       -- So Nat.sqrt(maxE * UpperC) * Cbig ≤ N/4 (approximately).
-      -- Then Jbound * Cbig = (Nat.sqrt + 2) * Cbig ≤ N/4 + 2 * Cbig ≤ N/4 + N/8 < N (for N large enough).
-      have hsqUC : Nat.sqrt (maxE * UpperC) * Nat.sqrt (maxE * UpperC) ≤ maxE * UpperC := Nat.sqrt_le _
+      -- Then `(Nat.sqrt + 2) * Cbig ≤ N/4 + 2 * Cbig < N`.
+      have hsqUC :
+          Nat.sqrt (maxE * UpperC) * Nat.sqrt (maxE * UpperC) ≤ maxE * UpperC :=
+        Nat.sqrt_le _
       have hUpperC_eq2 : maxE * UpperC = maxE * baseShift + maxE * Tg * N := by
         rw [hUpperC_eq]; ring
       -- Strategy: prove (Nat.sqrt(maxE * UpperC) + 2) * Cbig ≤ N by squaring.
       -- We use: a ≤ b ↔ a * a ≤ b * b for naturals (when b ≥ 0, which is always).
       -- Actually use: (a ≤ b) follows from (a * a ≤ b * b) when b ≥ a.
-      -- Cleanest: prove via Nat.le_sqrt. We have ((Nat.sqrt(M) + 2) * Cbig)² ≤ ((sqrt(M))*Cbig + 2*Cbig)²
+      -- Cleanest: prove via `Nat.le_sqrt`.
       -- ≤ ((sqrt(M))*Cbig)² + 2*((sqrt(M))*Cbig)*(2*Cbig) + (2*Cbig)²
       -- = SS²*Cbig² + 4*SS*Cbig² + 4*Cbig²
       -- ≤ M*Cbig² + 4*M*Cbig² + 4*Cbig² (using SS ≤ M when M ≥ 1, else SS = 0)
@@ -6365,7 +6377,7 @@ theorem exists_large_correction_denominator
       have hT_ge : 1 ≤ T := by rw [hT_def]; omega
       have hN_def2 : N = 100 * Cbig * Cbig * T + 100 := by
         rw [hN_def, hT_def]
-      -- maxE * UpperC ≤ T * (N + 1). Detailed: maxE * baseShift ≤ T * 1, maxE * Tg ≤ T, so maxE * Tg * N ≤ T * N.
+      -- `maxE * UpperC ≤ T * (N + 1)`.
       have hUpperC_T : maxE * UpperC ≤ T * (N + 1) := by
         rw [hUpperC_eq2, hT_def]
         have h1 : maxE * baseShift ≤ (maxE * baseShift + maxE * Tg + 1) := by omega
@@ -6373,7 +6385,8 @@ theorem exists_large_correction_denominator
         have h3 : maxE * Tg * N ≤ (maxE * baseShift + maxE * Tg + 1) * N :=
           Nat.mul_le_mul_right N h2
         calc maxE * baseShift + maxE * Tg * N
-            ≤ (maxE * baseShift + maxE * Tg + 1) + (maxE * baseShift + maxE * Tg + 1) * N := by omega
+            ≤ (maxE * baseShift + maxE * Tg + 1) +
+                (maxE * baseShift + maxE * Tg + 1) * N := by omega
           _ = (maxE * baseShift + maxE * Tg + 1) * (N + 1) := by ring
       -- Substantial bound: SS² ≤ M ≤ T * (N + 1).
       set SS : ℕ := Nat.sqrt (maxE * UpperC) with hSS_def
@@ -6386,7 +6399,7 @@ theorem exists_large_correction_denominator
       -- Expand: 5 * T * Cbig² * (N+1) + 4 * Cbig² ≤ N².
       -- We have: T * Cbig² ≤ N/100 (since 100 * T * Cbig² ≤ N).
       -- So 5 * T * Cbig² * (N+1) ≤ N/100 * 5 * (N+1) ≤ N² * 5/100 + 5N/100 ≤ N²/20 + N/20.
-      -- And 4 * Cbig² ≤ 4 * Cbig² * T * 100 ≤ N (since 100*Cbig²*T ≤ N), so 4 * Cbig² ≤ N ≤ N²/20 (for N ≥ 20).
+      -- Also `4 * Cbig² ≤ 4 * Cbig² * T * 100 ≤ N`.
       -- Total: ≤ N²/20 + N/20 + N²/20 = 2*N²/20 + N/20 ≤ N²/10 + N/20 ≤ N²/2 ≤ N². ✓
       have hSS_le_TN : SS ≤ T * (N + 1) := by
         rcases Nat.eq_zero_or_pos SS with h0 | hpos
@@ -6439,8 +6452,7 @@ theorem exists_large_correction_denominator
             omega
           -- Final: 5 * T * (N+1) * Cbig² + 4 * Cbig² ≤ N².
           -- Expand: 5 * T * Cbig² * N + 5 * T * Cbig² + 4 * Cbig² ≤ N².
-          -- T * Cbig² ≤ N (from hT_Cbig_N), so 5 * T * Cbig² * N ≤ 5 * N² and 5 * T * Cbig² ≤ 5 * N.
-          -- 4 * Cbig² ≤ 4 * (T * Cbig²) ≤ 4 * N (using T ≥ 1). Wait, 4 * Cbig² ≤ 4 * Cbig² * T = 4 * (T * Cbig²) ≤ 4 * N.
+          -- Use first a coarse bound, then the tighter `100 * T * Cbig² ≤ N`.
           -- Sum: 5N² + 5N + 4N = 5N² + 9N. We need ≤ N². NOPE. So 100 not big enough.
           -- WAIT: I need to use that 100 * T * Cbig² ≤ N, NOT just T * Cbig² ≤ N.
           -- So T * Cbig² ≤ N/100. So 5 * T * Cbig² * N ≤ 5N²/100 = N²/20.
@@ -6480,10 +6492,7 @@ theorem exists_large_correction_denominator
           -- Multiply 100*Y ≤ N by N: 100*Y*N ≤ N*N. So 5*Y*N ≤ N*N/20 ≤ N*N.
           -- Multiply 100*Y ≤ N by 1: 100*Y ≤ N. So 9*Y ≤ 9*N/100 ≤ N (for N ≥ 9*N/100 iff N ≥ 0).
           -- 5*Y*N + 9*Y ≤ ?
-          -- Concrete: 100 * (5*Y*N + 9*Y) = 500*Y*N + 900*Y. And 500*Y*N ≤ 5*N*N (mult both sides by 5N), 900*Y ≤ 9*N.
-          -- So 100 * (5*Y*N + 9*Y) ≤ 5*N*N + 9*N.
-          -- And we want 5*Y*N + 9*Y ≤ N*N. Equivalent to 100*(5*Y*N+9*Y) ≤ 100*N*N.
-          -- Have 100*(5*Y*N+9*Y) ≤ 5*N²+9*N. And 5*N²+9*N ≤ 100*N² iff 95N² ≥ 9N iff N(95N-9) ≥ 0 ✓.
+          -- It remains to compare `100 * (5 * Y * N + 9 * Y)` with `100 * N^2`.
           have hY_bound : 5 * (T * (Cbig * Cbig)) * N + 9 * (T * (Cbig * Cbig)) ≤ N * N := by
             -- 100 * (5*Y*N + 9*Y) ≤ 5*N² + 9*N ≤ 100*N² (for N ≥ 1).
             -- Step 1: 100 * Y * N ≤ N * N (from 100 * Y ≤ N).
@@ -6502,18 +6511,17 @@ theorem exists_large_correction_denominator
                 have : (9 : ℕ) ≤ 100 := by norm_num
                 nlinarith
               linarith
-            -- Step 4: combine. Need 5*Y*N + 9*Y ≤ N². Use step2 + step3, but they're separate bounds.
-            -- 5*Y*N + 9*Y ≤ N*N + N. We need ≤ N*N. Hmm, off by N.
-            -- BUT step2 actually gives 5*Y*N ≤ N²/20, which gives lots of room. Let me use a tighter form.
-            -- Tighter: from 100 * Y ≤ N, we get 5 * Y ≤ N/20. So 5*Y*N + 9*Y = Y * (5N + 9) ≤ ?
-            -- Y * (5N + 9). 100 * Y * (5N + 9) ≤ N * (5N + 9) = 5*N² + 9*N.
-            -- We want Y*(5N+9) ≤ N². Equivalent: 100 * Y * (5N+9) ≤ 100 * N². Have ≤ 5N²+9N. Need ≤ 100 N². ✓.
-            have step4 : 100 * (5 * (T * (Cbig * Cbig)) * N + 9 * (T * (Cbig * Cbig))) ≤ 5 * (N * N) + 9 * N := by
+            -- Step 4: combine with the tighter `100 * Y ≤ N`.
+            have step4 :
+                100 * (5 * (T * (Cbig * Cbig)) * N +
+                    9 * (T * (Cbig * Cbig))) ≤ 5 * (N * N) + 9 * N := by
               -- = 500 * Y * N + 900 * Y. Bound each.
               -- 500 * Y * N = 5 * (100 * Y * N) ≤ 5 * (N * N) = 5*N².
               -- 900 * Y = 9 * (100 * Y) ≤ 9 * N.
               have ha : 500 * (T * (Cbig * Cbig)) * N ≤ 5 * (N * N) := by
-                have : 5 * (100 * (T * (Cbig * Cbig)) * N) = 500 * (T * (Cbig * Cbig)) * N := by ring
+                have :
+                    5 * (100 * (T * (Cbig * Cbig)) * N) =
+                      500 * (T * (Cbig * Cbig)) * N := by ring
                 have h2 := Nat.mul_le_mul_left 5 step1
                 linarith
               have hb : 900 * (T * (Cbig * Cbig)) ≤ 9 * N := by
@@ -6521,7 +6529,9 @@ theorem exists_large_correction_denominator
                 have h2 := Nat.mul_le_mul_left 9 hT_Cbig_N_tight
                 linarith
               -- 100 * (5*Y*N + 9*Y) = 500 * Y * N + 900 * Y ≤ 5*N² + 9*N.
-              have hexpand : 100 * (5 * (T * (Cbig * Cbig)) * N + 9 * (T * (Cbig * Cbig))) =
+              have hexpand :
+                  100 * (5 * (T * (Cbig * Cbig)) * N +
+                      9 * (T * (Cbig * Cbig))) =
                   500 * (T * (Cbig * Cbig)) * N + 900 * (T * (Cbig * Cbig)) := by ring
               linarith
             -- Now 5 * N² + 9 * N ≤ 100 * N² for N ≥ 1.
@@ -6539,14 +6549,17 @@ theorem exists_large_correction_denominator
                 linarith
               linarith
             -- Combine: 100 * (5 Y N + 9 Y) ≤ 5N² + 9N ≤ 100 N², so 5YN + 9Y ≤ N².
-            have h6 : 100 * (5 * (T * (Cbig * Cbig)) * N + 9 * (T * (Cbig * Cbig))) ≤ 100 * (N * N) :=
+            have h6 :
+                100 * (5 * (T * (Cbig * Cbig)) * N +
+                    9 * (T * (Cbig * Cbig))) ≤ 100 * (N * N) :=
               le_trans step4 step5
             exact Nat.le_of_mul_le_mul_left h6 (by norm_num : 0 < 100)
           linarith
         -- Convert ((SS+2)*Cbig)² ≤ N² to (SS+2)*Cbig ≤ N.
         have hh : (SS + 2) * Cbig ≤ N := by
           rw [show N * N = N ^ 2 from by ring,
-              show ((SS + 2) * Cbig) * ((SS + 2) * Cbig) = ((SS + 2) * Cbig) ^ 2 from by ring] at hsq_le
+              show ((SS + 2) * Cbig) * ((SS + 2) * Cbig) =
+                ((SS + 2) * Cbig) ^ 2 from by ring] at hsq_le
           have := (Nat.pow_le_pow_iff_left (n := 2) (by norm_num : (2 : ℕ) ≠ 0)).mp hsq_le
           exact this
         exact hh
@@ -10515,7 +10528,10 @@ theorem corollary_7_pos_leading (p : ℚ[X])
         Polynomial.natDegree_pos_iff_degree_pos.mp hpr_natDeg_pos
       have h_tendsto : Filter.Tendsto (fun x : ℝ => pr.eval x) Filter.atTop Filter.atTop :=
         Polynomial.tendsto_atTop_of_leadingCoeff_nonneg pr hpr_deg_pos hpr_lead.le
-      set Bmax : ℝ := if hB : B.Nonempty then ((B.image fun b : ℚ => (b : ℝ)).max' (Finset.Nonempty.image hB _)) else 0
+      set Bmax : ℝ :=
+        if hB : B.Nonempty then
+          ((B.image fun b : ℚ => (b : ℝ)).max' (Finset.Nonempty.image hB _))
+        else 0
       obtain ⟨N₀, hN₀⟩ := Filter.tendsto_atTop_atTop.mp h_tendsto (Bmax + 2)
       -- Strict monotonicity threshold via derivative bound.
       -- We seek N₁ such that pr.derivative.eval x ≥ pr.leadingCoeff/2 for x ≥ N₁.

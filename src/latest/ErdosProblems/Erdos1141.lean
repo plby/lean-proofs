@@ -28,7 +28,6 @@ import Mathlib
 set_option linter.style.emptyLine false
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.longLine false
 set_option linter.unnecessarySeqFocus false
 set_option linter.unnecessarySimpa false
 set_option linter.unusedDecidableInType false
@@ -48,7 +47,9 @@ Then only finitely many `n` satisfy `Pa a n`.
 The main development intentionally mirrors the style of Pietro Monticone's
 `Erdos237.lean`:
 
-* source: <https://gist.githubusercontent.com/pitmonticone/8ea0d1cdb963b6213ac639b11d33f811/raw/98a5824d16da14313f65d77eeab5563dd874613a/Erdos237.lean>
+* source: <https://gist.githubusercontent.com/pitmonticone/
+  8ea0d1cdb963b6213ac639b11d33f811/raw/
+  98a5824d16da14313f65d77eeab5563dd874613a/Erdos237.lean>
 
 * the two deep external inputs are axiomatized;
 * the rest is organized into helper lemmas matching the paper;
@@ -58,7 +59,8 @@ The main development intentionally mirrors the style of Pietro Monticone's
 
 1. `Pollack17.theorem_1_3` (axiom): Pollack's Theorem 1.3 in the literal
    `DirichletCharacter`-based form from Pollack's paper
-   <https://www.ams.org/journals/proc/2017-145-07/S0002-9939-2016-13432-1/S0002-9939-2016-13432-1.pdf>.
+   <https://www.ams.org/journals/proc/2017-145-07/
+   S0002-9939-2016-13432-1/S0002-9939-2016-13432-1.pdf>.
 2. `mertens_third_theorem` (axiom): the same axiomized form as in Pietro Monticone's
    `Erdos237.lean`.
 
@@ -688,7 +690,8 @@ private lemma factorial_card_le_prod_of_one_le (s : Finset ℕ)
       _ = Nat.factorial s.card := Finset.prod_range_add_one_eq_factorial s.card
   have hright : (∏ i : Fin s.card, f i) = ∏ x ∈ s, x := by
     calc
-      (∏ i : Fin s.card, f i) = ∏ x ∈ Finset.map (s.orderEmbOfFin rfl).toEmbedding Finset.univ, x := by
+      (∏ i : Fin s.card, f i) =
+        ∏ x ∈ Finset.map (s.orderEmbOfFin rfl).toEmbedding Finset.univ, x := by
         symm
         simpa [f] using
           (Finset.prod_map (s := Finset.univ) (e := (s.orderEmbOfFin rfl).toEmbedding)
@@ -1588,7 +1591,8 @@ theorem erdos_1141_variant_general (a : ℕ) (ha : 1 ≤ a) :
   by_contra hlt
   exact hN (n := n) (Nat.le_of_not_lt hlt) hn
 
-/-- Paper-style `Pa` statement for `a = 1`, stronger than the Formal Conjectures statement `erdos_1141` below. -/
+/-- Paper-style `Pa` statement for `a = 1`, stronger than the Formal Conjectures
+statement `erdos_1141` below. -/
 theorem erdos_1141_variant : Set.Finite {n : ℕ | Pa 1 n} := by
   simpa using erdos_1141_variant_general 1 (by decide : 1 ≤ 1)
 
@@ -1600,7 +1604,8 @@ theorem erdos_1141_variant : Set.Finite {n : ℕ | Pa 1 n} := by
 
 /-
 The following block is copied as literally as possible from
-https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/1141.lean
+https://github.com/google-deepmind/formal-conjectures/blob/main/
+FormalConjectures/ErdosProblems/1141.lean
 with only the proof of `erdos_1141` filled in via the stronger theorem `erdos_1141_variant` above.
 -/
 

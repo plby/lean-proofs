@@ -17,7 +17,6 @@ URLs:
 -/
 import Mathlib
 
-set_option linter.style.longLine false
 set_option linter.style.openClassical false
 set_option linter.style.setOption false
 set_option linter.style.emptyLine false
@@ -52,14 +51,17 @@ def A_seq (n : ℕ) : ℕ := (n + 1).factorial + n
 def A : Set ℕ := Set.range A_seq
 
 theorem A_is_Sidon : IsSidon A := by
-  -- Let's assume that $a, b, c, d \in A$ and $a \leq b$, $c \leq d$, and $a + b = c + d$. We need to show that $a = c$ and $b = d$.
+  -- Assume that $a, b, c, d \in A$ with ordered pairs and equal sums.
   intros a ha b hb c hc d hd hab hcd hsum
   obtain ⟨m, hm⟩ := ha
   obtain ⟨n, hn⟩ := hb
   obtain ⟨p, hp⟩ := hc
   obtain ⟨q, hq⟩ := hd;
   -- Without loss of generality, assume $m \leq n$ and $p \leq q$.
-  suffices h_wlog : ∀ {m n p q : ℕ}, m ≤ n → p ≤ q → A_seq m + A_seq n = A_seq p + A_seq q → (m = p ∧ n = q) ∨ (m = q ∧ n = p) by
+  suffices h_wlog :
+      ∀ {m n p q : ℕ}, m ≤ n → p ≤ q →
+        A_seq m + A_seq n = A_seq p + A_seq q →
+        (m = p ∧ n = q) ∨ (m = q ∧ n = p) by
     specialize @h_wlog m n p q ; aesop;
     · by_cases hmn : m ≤ n <;> by_cases hpq : p ≤ q <;> aesop;
       · rw [ le_antisymm hmn hpq ];
@@ -69,17 +71,23 @@ theorem A_is_Sidon : IsSidon A := by
         linarith;
       · exact False.elim <| not_lt_of_ge hab <| by rw [ A_seq, A_seq ] ; gcongr;
       · unfold A_seq at *;
-        linarith [ Nat.factorial_le ( by linarith : m + 1 ≥ n + 1 ), Nat.factorial_le ( by linarith : p + 1 ≥ q + 1 ) ];
+        linarith [Nat.factorial_le (by linarith : m + 1 ≥ n + 1),
+          Nat.factorial_le (by linarith : p + 1 ≥ q + 1)];
     · unfold A_seq at *;
       by_cases hmn : m ≤ n <;> by_cases hpq : p ≤ q <;> aesop;
       · grind;
-      · linarith [ Nat.factorial_le ( by linarith : n + 1 ≥ m + 1 ), Nat.factorial_le ( by linarith : p + 1 ≥ q + 1 ) ];
+      · linarith [Nat.factorial_le (by linarith : n + 1 ≥ m + 1),
+          Nat.factorial_le (by linarith : p + 1 ≥ q + 1)];
       · linarith [ Nat.factorial_le ( by linarith : n + 1 ≤ m + 1 ) ];
-      · linarith [ Nat.factorial_le ( by linarith : n + 1 ≤ m + 1 ), Nat.factorial_le ( by linarith : q + 1 ≤ p + 1 ) ];
+      · linarith [Nat.factorial_le (by linarith : n + 1 ≤ m + 1),
+          Nat.factorial_le (by linarith : q + 1 ≤ p + 1)];
   -- Assume $m \leq n$, $p \leq q$, and $A_seq m + A_seq n = A_seq p + A_seq q$.
   intro m n p q hmn hpq hsum
   -- Without loss of generality, assume $n \geq q$.
-  suffices h_wlog2 : ∀ {m n p q : ℕ}, m ≤ n → p ≤ q → n ≥ q → A_seq m + A_seq n = A_seq p + A_seq q → (m = p ∧ n = q) ∨ (m = q ∧ n = p) by
+  suffices h_wlog2 :
+      ∀ {m n p q : ℕ}, m ≤ n → p ≤ q → n ≥ q →
+        A_seq m + A_seq n = A_seq p + A_seq q →
+        (m = p ∧ n = q) ∨ (m = q ∧ n = p) by
     by_cases hnq : n ≥ q;
     · exact h_wlog2 hmn hpq hnq hsum;
     · specialize @h_wlog2 p q m n hpq hmn ( by linarith ) ( by linarith ) ; aesop;
@@ -93,11 +101,17 @@ theorem A_is_Sidon : IsSidon A := by
     have h_aq1_gt_aq_ap : A_seq (q + 1) > A_seq q + A_seq p := by
       unfold A_seq;
       norm_num [ Nat.factorial_succ ];
-      nlinarith only [ mul_pos ( Nat.succ_pos q ) ( Nat.factorial_pos q ), mul_pos ( Nat.succ_pos p ) ( Nat.factorial_pos p ), hpq, Nat.factorial_le hpq ];
+      nlinarith only [mul_pos (Nat.succ_pos q) (Nat.factorial_pos q),
+        mul_pos (Nat.succ_pos p) (Nat.factorial_pos p), hpq, Nat.factorial_le hpq];
     linarith [ show A_seq m ≥ 0 from Nat.zero_le _ ];
   · norm_num [ show n = q by linarith ] at *;
     unfold A_seq at hsum;
-    exact Or.inl ( le_antisymm ( le_of_not_gt fun h => by linarith [ Nat.factorial_le ( by linarith : m + 1 ≥ p + 1 ) ] ) ( le_of_not_gt fun h => by linarith [ Nat.factorial_le ( by linarith : p + 1 ≥ m + 1 ) ] ) )
+    exact Or.inl
+      (le_antisymm
+        (le_of_not_gt fun h => by
+          linarith [Nat.factorial_le (by linarith : m + 1 ≥ p + 1)])
+        (le_of_not_gt fun h => by
+          linarith [Nat.factorial_le (by linarith : p + 1 ≥ m + 1)]))
 
 theorem A_intersects_every_infinite_AP (P : Set ℕ) (hP : IsInfiniteAP P) : (A ∩ P).Nonempty := by
   obtain ⟨ a, n, hn, h ⟩ := hP ; aesop;
@@ -106,7 +120,11 @@ theorem A_intersects_every_infinite_AP (P : Set ℕ) (hP : IsInfiniteAP P) : (A 
   have hm : (Nat.factorial (m + 1)) + m ∈ A ∧ ∃ t : ℕ, (Nat.factorial (m + 1)) + m = a + t * n := by
     aesop;
     · exact ⟨ _, rfl ⟩;
-    · exact ⟨ ( Nat.factorial ( a + n + 1 ) + n ) / n, by linarith [ Nat.div_mul_cancel ( show n ∣ Nat.factorial ( a + n + 1 ) + n from dvd_add ( Nat.dvd_factorial hn ( by linarith ) ) ( dvd_refl n ) ) ] ⟩
+    · exact
+        ⟨(Nat.factorial (a + n + 1) + n) / n, by
+          linarith [Nat.div_mul_cancel
+            (show n ∣ Nat.factorial (a + n + 1) + n from
+              dvd_add (Nat.dvd_factorial hn (by linarith)) (dvd_refl n))]⟩
   use (Nat.factorial (m + 1)) + m; aesop
 
 theorem complement_A_no_infinite_AP : ¬ ∃ P, IsInfiniteAP P ∧ P ⊆ Aᶜ := by

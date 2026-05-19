@@ -37,7 +37,6 @@ set_option linter.style.induction false
 set_option linter.style.refine false
 set_option linter.style.multiGoal false
 set_option linter.style.maxHeartbeats false
-set_option linter.style.longLine false
 
 namespace Erdos1121
 
@@ -302,14 +301,22 @@ lemma circlesNonseparable_implies_internal {n : ℕ} (circles : Fin n → Circle
   contrapose! hns;
   unfold CirclesNonseparable;
   simp +zetaDelta at *;
-  refine' ⟨ ⟨ c • w, perp2D w, _ ⟩, _, i, j, _ ⟩ <;> simp_all +decide [ Circle2D.disjointFromLine, Circle2D.onDifferentSidesOfLine ];
+  refine' ⟨ ⟨ c • w, perp2D w, _ ⟩, _, i, j, _ ⟩ <;>
+    simp_all +decide [Circle2D.disjointFromLine, Circle2D.onDifferentSidesOfLine];
   · intro i; specialize hc i; simp_all +decide [ Line2D.signedDist ];
     simp_all +decide [ inner_sub_right, inner_smul_right ];
   · cases hns <;> simp_all +decide [ Line2D.onDifferentSides, Line2D.signedDist ];
     · simp_all +decide [ inner_sub_right, inner_smul_right ];
-      exact Or.inr ( lt_of_le_of_ne ( by linarith ) ( by intro H; specialize hc j; norm_num [ H ] at hc; linarith [ ( circles j ).radius_pos ] ) );
+      exact Or.inr (lt_of_le_of_ne (by linarith) (by
+        intro H
+        specialize hc j
+        norm_num [H] at hc
+        linarith [(circles j).radius_pos]));
     · simp_all +decide [ inner_sub_right, inner_smul_right ];
-      exact Or.inl ( lt_of_le_of_ne ( by linarith ) fun h => by have := hc i; norm_num [ h ] at this; linarith [ ( circles i ).radius_pos ] )
+      exact Or.inl (lt_of_le_of_ne (by linarith) fun h => by
+        have := hc i
+        norm_num [h] at this
+        linarith [(circles i).radius_pos])
 
 /-! ## Projection Lemma -/
 
