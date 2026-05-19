@@ -93,9 +93,11 @@ lemma exists_prime_interval_small_euler_product (θ : ℝ) (hθ : 0 < θ) (X₀ 
             (1 / (p : ℝ))) > b := by
             contrapose! h;
             refine' summable_of_sum_le _ _;
-            exacts [ b, fun _ => by positivity, fun u =>
-              by simpa using h ( u.image Subtype.val ) fun p hp => by obtain ⟨ q, hq,
-              rfl ⟩ := Finset.mem_image.mp hp; exact q.2 ];
+            exacts [ b, fun _ => by positivity, fun u => by
+              simpa using
+                h ( u.image Subtype.val ) ( fun p hp => by
+                  obtain ⟨ q, hq, rfl ⟩ := Finset.mem_image.mp hp
+                  exact q.2 ) ];
           exact ⟨ i.sup id + 1, fun n hn => hi.2.le.trans
             <| Finset.sum_le_sum_of_subset_of_nonneg ( fun p hp =>
             Finset.mem_filter.mpr ⟨ Finset.mem_range.mpr
@@ -108,8 +110,9 @@ lemma exists_prime_interval_small_euler_product (θ : ℝ) (hθ : 0 < θ) (X₀ 
         intro X₁ hX₁; erw [ eq_sub_iff_add_eq' ] ; erw [ Finset.sum_filter, Finset.sum_filter,
           Finset.sum_filter ] ; erw [ Finset.sum_Ico_eq_sub _ ] ; aesop;
         linarith;
-      exact Filter.Tendsto.congr' ( by filter_upwards [ Filter.eventually_ge_atTop ( X₀ + 1 ) ] with
-        X₁ hX₁; aesop ) ( h_sum_diverges.comp ( Filter.tendsto_add_atTop_nat 1 )
+      exact Filter.Tendsto.congr' ( by
+        filter_upwards [ Filter.eventually_ge_atTop ( X₀ + 1 ) ] with X₁ hX₁
+        aesop ) ( h_sum_diverges.comp ( Filter.tendsto_add_atTop_nat 1 )
         |> Filter.Tendsto.atTop_add <| tendsto_const_nhds.neg );
     have h_exp_bound : ∀ X₁ : ℕ, ∏ p ∈ Finset.filter Nat.Prime (Finset.Icc (X₀ + 1) X₁),
       (1 - 1 / (p : ℝ)) ≤ Real.exp (-∑ p ∈ Finset.filter Nat.Prime (Finset.Icc (X₀ + 1) X₁),
@@ -136,9 +139,10 @@ lemma irrational_log2_div_log3 : Irrational (Real.log 2 / Real.log 3) := by
       obtain ⟨p, q, hpq⟩ : ∃ p q : ℤ, p > 0 ∧ q > 0 ∧ (Real.log 2) * q = (Real.log 3) * p := by
         obtain ⟨p, q, hpq⟩ : ∃ p q : ℤ, p > 0 ∧ q > 0 ∧ (Real.log 2 / Real.log 3) = p / q := by
           exact ⟨ a.num, a.den,
-            Rat.num_pos.mpr ( show 0 < a by exact_mod_cast ha.symm ▸ div_pos ( Real.log_pos
-            ( by norm_num ) ) ( Real.log_pos ( by norm_num ) ) ), Nat.cast_pos.mpr a.pos,
-            by simpa only [ Rat.cast_def ] using ha.symm ⟩;
+            Rat.num_pos.mpr ( show 0 < a by
+              exact_mod_cast ha.symm ▸ div_pos ( Real.log_pos ( by norm_num ) )
+                ( Real.log_pos ( by norm_num ) ) ),
+            Nat.cast_pos.mpr a.pos, by simpa only [ Rat.cast_def ] using ha.symm ⟩;
         exact ⟨ p, q, hpq.1, hpq.2.1, by rw [ div_eq_div_iff ] at hpq <;> norm_num at *
           <;> linarith ⟩;
       exact ⟨ p, q, hpq.1, hpq.2.1, by rw [ ← Real.rpow_intCast, ← Real.rpow_intCast,
@@ -173,18 +177,30 @@ lemma exists_nat_mul_mod_near (α β : ℝ) (hβ : 0 < β)
         ⌊((u * α - ⌊(u * α) / β⌋ * β) / δ)⌋) (Finset.range (X₀ + 1))) ≤ X₀ := by
         have h_pigeonhole : Finset.image (fun u : ℕ =>
           ⌊((u * α - ⌊(u * α) / β⌋ * β) / δ)⌋) (Finset.range (X₀ + 1)) ⊆ Finset.Ico 0 X₀ := by
-          exact Finset.image_subset_iff.mpr fun u hu => Finset.mem_Ico.mpr ⟨ Int.floor_nonneg.mpr
-            <| div_nonneg ( sub_nonneg.mpr <| by nlinarith [ Int.floor_le ( ( u : ℝ ) * α / β ),
-            mul_div_cancel₀ ( ( u : ℝ ) * α ) hβ.ne' ] ) hδ.le, Int.floor_lt.mpr
-            <| by rw [ div_lt_iff₀ hδ ] ; norm_num; nlinarith [ Nat.le_ceil ( β / δ ),
-            mul_div_cancel₀ β hδ.ne', Int.lt_floor_add_one ( ( u : ℝ ) * α / β ),
-            mul_div_cancel₀ ( ( u : ℝ ) * α ) hβ.ne' ] ⟩;
+          exact Finset.image_subset_iff.mpr fun u hu => Finset.mem_Ico.mpr
+            ⟨ Int.floor_nonneg.mpr <|
+                div_nonneg
+                  ( sub_nonneg.mpr <| by
+                    nlinarith [ Int.floor_le ( ( u : ℝ ) * α / β ),
+                      mul_div_cancel₀ ( ( u : ℝ ) * α ) hβ.ne' ] )
+                  hδ.le,
+              Int.floor_lt.mpr <| by
+                rw [ div_lt_iff₀ hδ ]
+                norm_num
+                nlinarith [ Nat.le_ceil ( β / δ ), mul_div_cancel₀ β hδ.ne',
+                  Int.lt_floor_add_one ( ( u : ℝ ) * α / β ),
+                  mul_div_cancel₀ ( ( u : ℝ ) * α ) hβ.ne' ] ⟩;
         exact le_trans ( Finset.card_le_card h_pigeonhole ) ( by simp );
-      rw [ Finset.card_image_of_injOn fun u hu v hv huv => le_antisymm ( not_lt.mp fun hlt =>
-        h _ _ ( Nat.zero_le _ ) hlt ( by linarith [ Finset.mem_range.mp hu,
-        Finset.mem_range.mp hv ] ) <| by aesop ) ( not_lt.mp fun hlt =>
-        h _ _ ( Nat.zero_le _ ) hlt ( by linarith [ Finset.mem_range.mp hu,
-        Finset.mem_range.mp hv ] ) <| by aesop ) ] at h_pigeonhole ;
+      rw [ Finset.card_image_of_injOn fun u hu v hv huv =>
+        le_antisymm
+          ( not_lt.mp fun hlt =>
+            h _ _ ( Nat.zero_le _ ) hlt
+              ( by linarith [ Finset.mem_range.mp hu, Finset.mem_range.mp hv ] )
+              ( by aesop ) )
+          ( not_lt.mp fun hlt =>
+            h _ _ ( Nat.zero_le _ ) hlt
+              ( by linarith [ Finset.mem_range.mp hu, Finset.mem_range.mp hv ] )
+              ( by aesop ) ) ] at h_pigeonhole ;
         simp +arith +decide at h_pigeonhole;
     obtain ⟨ u₁, u₂, hu₁, hu₂, hu₃, hu₄ ⟩ := h_pigeonhole; use u₁, u₂;
       simp_all +decide [ Int.floor_eq_iff ] ;
@@ -200,7 +216,8 @@ lemma exists_nat_mul_mod_near (α β : ℝ) (hβ : 0 < β)
     have h_eq : (u₂ - u₁) * α = (⌊(u₂ * α) / β⌋ - ⌊(u₁ * α) / β⌋) * β := by
       exact eq_of_sub_eq_zero ( by push Not at hγ_zero; linarith ) ;
     have h_rat : ∃ q : ℚ, α / β = q := by
-      exact ⟨ ( ⌊ ( u₂ : ℝ ) * α / β⌋ - ⌊ ( u₁ : ℝ ) * α / β⌋ ) / ( u₂ - u₁ ), by push_cast;
+      exact ⟨ ( ⌊ ( u₂ : ℝ ) * α / β⌋ - ⌊ ( u₁ : ℝ ) * α / β⌋ ) / ( u₂ - u₁ ), by
+        push_cast
         rw [ div_eq_div_iff ] <;> nlinarith [ show ( u₂ : ℝ ) > u₁ by norm_cast ] ⟩ ;
     exact hirr ⟨h_rat.choose, h_rat.choose_spec.symm⟩
   have hγ_lt_delta : |γ| < δ := by
@@ -220,15 +237,21 @@ lemma exists_nat_mul_mod_near (α β : ℝ) (hβ : 0 < β)
     generalize_proofs at *; (
     -- Let $k$ be the integer such that $k\gamma \leq t < (k+1)\gamma$.
     obtain ⟨k, hk⟩ : ∃ k : ℕ, k * γ ≤ t ∧ t < (k + 1) * γ := by
-      exact ⟨ ⌊t / γ⌋₊, by nlinarith [ Nat.floor_le ( show 0 ≤ t / γ by exact div_nonneg ht₁
-        hγ_pos.le ), mul_div_cancel₀ t hγ_pos.ne' ], by nlinarith [ Nat.lt_floor_add_one ( t / γ ),
-        mul_div_cancel₀ t hγ_pos.ne' ] ⟩
+      exact ⟨ ⌊t / γ⌋₊, by
+        nlinarith [
+          Nat.floor_le ( show 0 ≤ t / γ by exact div_nonneg ht₁ hγ_pos.le ),
+          mul_div_cancel₀ t hγ_pos.ne' ], by
+        nlinarith [ Nat.lt_floor_add_one ( t / γ ), mul_div_cancel₀ t hγ_pos.ne' ] ⟩
     generalize_proofs at *; (
-    use k; left; exact ⟨by
-    exact Nat.le_of_lt_succ <| by rw [ ← @Nat.cast_lt ℝ ] ; push_cast;
-      nlinarith [ Nat.le_ceil ( β / |γ| ), abs_of_pos hγ_pos, mul_div_cancel₀ β ( ne_of_gt
-      <| abs_pos.mpr hγ_ne_zero ) ] ;, by
-      grind⟩;));
+    use k
+    left
+    refine' ⟨ ?_, ?_ ⟩
+    · exact Nat.le_of_lt_succ <| by
+        rw [ ← @Nat.cast_lt ℝ ]
+        push_cast
+        nlinarith [ Nat.le_ceil ( β / |γ| ), abs_of_pos hγ_pos,
+          mul_div_cancel₀ β ( ne_of_gt <| abs_pos.mpr hγ_ne_zero ) ]
+    · grind;));
     -- Since $γ < 0$, we can write $γ = -|γ|$.
     have hγ_neg : γ = -|γ| := by
       rw [ abs_of_nonpos ( le_of_not_gt hγ_pos ), neg_neg ]
@@ -239,12 +262,16 @@ lemma exists_nat_mul_mod_near (α β : ℝ) (hβ : 0 < β)
       generalize_proofs at *; (
       exact Nat.floor_le_ceil _ |> le_trans <| Nat.ceil_mono <| by gcongr ; linarith;);
       rw [ abs_lt ] at * ; constructor
-        <;> nlinarith [ Nat.floor_le ( show 0 ≤ ( β - t ) / |γ| by exact div_nonneg ( by linarith )
-        ( abs_nonneg _ ) ), Nat.lt_floor_add_one ( ( β - t ) / |γ| ),
-        mul_div_cancel₀ ( β - t ) ( ne_of_gt ( abs_pos.mpr hγ_ne_zero ) ) ] ;
+        <;> nlinarith [
+          Nat.floor_le ( show 0 ≤ ( β - t ) / |γ| by
+            exact div_nonneg ( by linarith ) ( abs_nonneg _ ) ),
+          Nat.lt_floor_add_one ( ( β - t ) / |γ| ),
+          mul_div_cancel₀ ( β - t ) ( ne_of_gt ( abs_pos.mpr hγ_ne_zero ) ) ] ;
     generalize_proofs at *; (
-    exact ⟨ k, Or.inr ⟨ k, hk.1, by rw [ hγ_neg ] ;
-      exact abs_lt.mpr ⟨ by linarith [ abs_lt.mp hk.2 ], by linarith [ abs_lt.mp hk.2 ] ⟩ ⟩ ⟩))
+    exact ⟨ k, Or.inr ⟨ k, hk.1, by
+      rw [ hγ_neg ]
+      exact abs_lt.mpr
+        ⟨ by linarith [ abs_lt.mp hk.2 ], by linarith [ abs_lt.mp hk.2 ] ⟩ ⟩ ⟩))
   generalize_proofs at *; (
   use U; intros t ht ht'; obtain ⟨ k, hk ⟩ := h_k_gamma t ht ht'; rcases hk with ( ⟨ hk₁,
     hk₂ ⟩ | ⟨ k, hk₁, hk₂ ⟩ ) <;> [ refine' ⟨ k * ( u₂ - u₁ ), _, _ ⟩ ; refine' ⟨ k * ( u₂ - u₁ ),
@@ -295,29 +322,36 @@ lemma exists_log_combination_in_interval (L : ℕ) (hL : 0 < L) :
     obtain ⟨ U, hU ⟩ := this;
     use U + 1;
     intros t ht_nonneg ht_lt_beta
-    obtain ⟨u, hu_le_U, w, hw⟩ := hU (t - δ / 2 + if t - δ / 2 < 0 then β else 0) (by
-    split_ifs <;> linarith [ show δ ≤ β by exact le_trans ( Real.log_le_log ( by norm_num ) ( show (
-      4 : ℝ ) / 3 ≤ 3 by norm_num ) ) ( le_mul_of_one_le_left ( Real.log_nonneg ( by norm_num ) ) (
-      mod_cast hL ) ) ]) (by
-    grind);
+    have hδ_le_β : δ ≤ β := by
+      exact le_trans
+        ( Real.log_le_log ( by norm_num ) ( show ( 4 : ℝ ) / 3 ≤ 3 by norm_num ) )
+        ( le_mul_of_one_le_left ( Real.log_nonneg ( by norm_num ) ) ( mod_cast hL ) )
+    obtain ⟨u, hu_le_U, w, hw⟩ := hU
+      (t - δ / 2 + if t - δ / 2 < 0 then β else 0)
+      (by split_ifs <;> linarith [ hδ_le_β ])
+      (by grind);
     split_ifs at hw <;> simp_all +decide [ abs_lt ];
     · exact ⟨ u, by linarith, w + 1, by push_cast; linarith, by push_cast; linarith ⟩;
     · exact ⟨ u, by linarith, w, by linarith, by linarith ⟩;
   use β * ( U + 2 ) + δ;
   intro T hT;
-  obtain ⟨ u, hu, w, hw ⟩ := hU ( T - ⌊T / β⌋ * β ) ( by nlinarith [ Int.floor_le ( T / β ),
-    mul_div_cancel₀ T hβ_pos.ne' ] ) ( by nlinarith [ Int.lt_floor_add_one ( T / β ),
-    mul_div_cancel₀ T hβ_pos.ne' ] );
+  obtain ⟨ u, hu, w, hw ⟩ := hU ( T - ⌊T / β⌋ * β ) ( by
+    nlinarith [ Int.floor_le ( T / β ), mul_div_cancel₀ T hβ_pos.ne' ] ) ( by
+    nlinarith [ Int.lt_floor_add_one ( T / β ), mul_div_cancel₀ T hβ_pos.ne' ] );
   refine' ⟨ u, Int.natAbs ( ⌊T / β⌋ - w ), _, _ ⟩ <;> norm_num at *;
   · cases abs_cases ( ( ⌊T / β⌋ : ℝ ) - w ) <;> push_cast [ * ] at *
     <;> nlinarith [ show ( u : ℝ ) ≤ U by norm_cast, show ( L : ℝ ) * Real.log 2 > 0 by positivity,
     show ( L : ℝ ) * Real.log 3 > 0 by positivity ];
   · rw [ abs_of_nonneg ] <;> norm_num at *;
     · nlinarith [hw.2];
-    · exact Int.le_of_lt_add_one ( by rw [ ← @Int.cast_lt ℝ ] ; push_cast;
+    · exact Int.le_of_lt_add_one ( by
+      rw [ ← @Int.cast_lt ℝ ]
+      push_cast
       nlinarith [ show ( u : ℝ ) ≤ U by norm_cast,
-      show ( α : ℝ ) ≤ L * Real.log 3 by exact mul_le_mul_of_nonneg_left ( Real.log_le_log
-      ( by norm_num ) ( by norm_num ) ) ( Nat.cast_nonneg _ ) ] )
+        show ( α : ℝ ) ≤ L * Real.log 3 by
+          exact mul_le_mul_of_nonneg_left
+            ( Real.log_le_log ( by norm_num ) ( by norm_num ) )
+            ( Nat.cast_nonneg _ ) ] )
 
 /-
 For any L > 0, numbers of the form 2^(Lu) · 3^(Lv) are dense enough
@@ -379,8 +413,12 @@ lemma erdos_369_eps_ge_one (k : ℕ) (hk : 2 ≤ k) (ε : ℝ) (hε : 1 ≤ ε) 
   refine' ⟨ _, _, _ ⟩;
   · omega;
   · linarith;
-  · intro j hj; exact le_trans ( Nat.cast_le.mpr ( Nat.largestPrimeFactor_le _ ) ) ( by simpa using
-    Real.rpow_le_rpow_of_exponent_le ( mod_cast Nat.sub_pos_of_lt ( by linarith ) ) hε ) ;
+  · intro j hj
+    exact le_trans ( Nat.cast_le.mpr ( Nat.largestPrimeFactor_le _ ) ) ( by
+      simpa using
+        Real.rpow_le_rpow_of_exponent_le
+          ( mod_cast Nat.sub_pos_of_lt ( by linarith ) )
+          hε ) ;
 
 /-
 For a squarefree number that is a product of a set of primes S,
@@ -500,11 +538,12 @@ lemma exists_coprime_moduli_small_totient (θ : ℝ) (hθ : 0 < θ) (m : ℕ) (h
                   grind +locals;
                 by_cases hS_empty : S = ∅;
                 · simp_all +decide [ Finset.prod_empty ];
-                  exact ⟨ { Nat.find ( Nat.exists_infinite_primes ( X₀ + 1 ) ) },
-                    by simpa using Nat.find_spec ( Nat.exists_infinite_primes ( X₀ + 1 ) ) |>.2,
-                    by simpa using Nat.find_spec ( Nat.exists_infinite_primes ( X₀ + 1 ) ) |>.1,
-                    by simpa using hS₂.trans_le' <| by norm_num, by simpa using Nat.Prime.one_lt
-                    <| Nat.find_spec ( Nat.exists_infinite_primes ( X₀ + 1 ) ) |>.2 ⟩;
+                  let hprime := Nat.exists_infinite_primes ( X₀ + 1 )
+                  exact ⟨ { Nat.find hprime },
+                    by simpa using ( Nat.find_spec hprime ).2,
+                    by simpa using ( Nat.find_spec hprime ).1,
+                    by simpa using hS₂.trans_le' <| by norm_num,
+                    by simpa using Nat.Prime.one_lt ( Nat.find_spec hprime ).2 ⟩;
                 · exact ⟨ S, hS₁, hS₂.1, hS₂.2,
                   lt_of_lt_of_le ( Nat.Prime.one_lt ( hS₁ _ ( Classical.choose_spec (
                   Finset.nonempty_of_ne_empty hS_empty ) ) ) ) ( Nat.le_of_dvd ( Finset.prod_pos fun
@@ -527,9 +566,13 @@ lemma exists_coprime_moduli_small_totient (θ : ℝ) (hθ : 0 < θ) (m : ℕ) (h
       exact h_disjoint m;
     use fun i => ∏ p ∈ T i, p;
     refine' ⟨ hT.2.2.2.1, _, _, _ ⟩;
-    · exact fun i j hij => Nat.Coprime.prod_left fun p hp => Nat.Coprime.prod_right fun q hq =>
-      by have := Nat.coprime_primes ( hT.1 i p hp ) ( hT.1 j q hq ) ; exact this.2 <| by intro t;
-      have := hT.2.2.2.2 i j hij; exact Finset.disjoint_left.mp this hp <| t ▸ hq;
+    · exact fun i j hij =>
+        Nat.Coprime.prod_left fun p hp => Nat.Coprime.prod_right fun q hq => by
+          have := Nat.coprime_primes ( hT.1 i p hp ) ( hT.1 j q hq )
+          exact this.2 <| by
+            intro t
+            have := hT.2.2.2.2 i j hij
+            exact Finset.disjoint_left.mp this hp <| t ▸ hq;
     · intro i;
       convert hT.2.2.1 i using 1;
       convert totient_div_eq_euler_product ( T i ) ( hT.1 i ) using 1;
@@ -624,9 +667,10 @@ lemma exists_crt_multiplier (k : ℕ) (hk : 2 ≤ k) (m : ℕ) (hm : m = k - 1)
       · rw [ Finset.sum_eq_single q ] <;> simp_all +decide;
         · exact he₁ q hq ( Or.inr <| Nat.le_sub_one_of_lt
           <| by linarith [ Nat.le_of_dvd hj₁ hq' ] ) j hj₁ hj₂ i hi;
-        · exact fun h => absurd ( h hq.pos ) ( by rintro ⟨ hq₁, hq₂ ⟩ ;
+        · exact fun h => absurd ( h hq.pos ) ( by
+          rintro ⟨ hq₁, hq₂ ⟩
           linarith [ Nat.le_of_dvd ( by linarith ) hq',
-          Nat.sub_add_cancel ( by linarith : 1 ≤ k ) ] );
+            Nat.sub_add_cancel ( by linarith : 1 ≤ k ) ] );
       · aesop;
     · rw [ ← Nat.factorization_prod_pow_eq_self ( by linarith : j ≠ 0 ) ];
       rw [ ← Finset.prod_sdiff
@@ -634,10 +678,12 @@ lemma exists_crt_multiplier (k : ℕ) (hk : 2 ≤ k) (m : ℕ) (hm : m = k - 1)
         ) ) ) from ?_ ];
       · refine' dvd_mul_of_dvd_right _ _;
         exact Finset.prod_dvd_prod_of_dvd _ _ fun p hp =>
-          pow_dvd_pow p ( show Nat.factorization j p ≤ e p from le_trans ( Finset.le_sup ( f := fun
-          j => Nat.factorization j p ) ( Finset.mem_Ico.mpr ⟨ hj₁,
-          hj₂ ⟩ ) ) ( he₂ p ( Nat.prime_of_mem_primeFactors hp ) ( by exact le_trans (
-          Nat.le_of_mem_primeFactors hp ) ( by omega ) ) ) );
+          pow_dvd_pow p ( show Nat.factorization j p ≤ e p from
+            le_trans
+              ( Finset.le_sup ( f := fun j => Nat.factorization j p )
+                ( Finset.mem_Ico.mpr ⟨ hj₁, hj₂ ⟩ ) )
+              ( he₂ p ( Nat.prime_of_mem_primeFactors hp ) ( by
+                exact le_trans ( Nat.le_of_mem_primeFactors hp ) ( by omega ) ) ) );
       · exact fun p hp =>
         Finset.mem_filter.mpr ⟨ Finset.mem_Icc.mpr ⟨ Nat.pos_of_mem_primeFactors hp,
         le_trans ( Nat.le_of_mem_primeFactors hp ) ( by omega ) ⟩,
@@ -667,9 +713,10 @@ lemma prime_factor_bound_of_perfect_power (a j b R : ℕ)
       -- divide j, it must divide b^R - 1.
       have hp_div_b_pow : p ∣ (b ^ R - 1) := by
         simp_all +decide ;
-        exact Or.resolve_left ( hp.1.dvd_mul.mp ( by convert hp.2.1 using 1;
-          rw [ show j * b ^ R - j = j * ( b ^ R - 1 ) by rw [ Nat.mul_sub_left_distrib,
-          Nat.mul_one ] ] ) ) hpj;
+        exact Or.resolve_left ( hp.1.dvd_mul.mp ( by
+          convert hp.2.1 using 1
+          rw [ show j * b ^ R - j = j * ( b ^ R - 1 ) by
+            rw [ Nat.mul_sub_left_distrib, Nat.mul_one ] ] ) ) hpj;
       have hp_div_cyclotomic : p ∣ (∏ d ∈ Nat.divisors R,
         (Polynomial.eval (b : ℤ) (Polynomial.cyclotomic d ℤ)).natAbs) := by
         have hp_div_cyclotomic : (b ^ R - 1 : ℤ) = ∏ d ∈ Nat.divisors R,
@@ -698,18 +745,26 @@ lemma prime_factor_bound_of_perfect_power (a j b R : ℕ)
         ) ] ; norm_cast;
     -- Since p divides Φ_d(b), we have p ≤ (b + 1)^{φ(d)}.
     have h_p_bound : (p : ℝ) ≤ ((b + 1) : ℝ) ^ (Nat.totient d) := by
-      exact_mod_cast le_trans ( Nat.le_of_dvd ( by exact Int.natAbs_pos.mpr ( show Polynomial.eval (
-        b : ℤ ) ( Polynomial.cyclotomic d ℤ ) ≠ 0 from by { exact ne_of_gt
-        <| by { exact ( by { have := Polynomial.cyclotomic_pos' d ( show ( b : ℤ ) > 1 from mod_cast
-        lt_of_le_of_ne hb <| Ne.symm <| by aesop_cat ) ;
-        aesop_cat } ) } } ) ) hd_prime ) h_cyclotomic_bound;
+      have h_eval_ne_zero :
+          Polynomial.eval ( b : ℤ ) ( Polynomial.cyclotomic d ℤ ) ≠ 0 := by
+        exact ne_of_gt <| by
+          have := Polynomial.cyclotomic_pos' d ( show ( b : ℤ ) > 1 from by
+            exact_mod_cast lt_of_le_of_ne hb <| Ne.symm <| by aesop_cat )
+          aesop_cat
+      exact_mod_cast
+        le_trans ( Nat.le_of_dvd ( by exact Int.natAbs_pos.mpr h_eval_ne_zero ) hd_prime )
+          h_cyclotomic_bound;
     -- Since $b \geq 1$, we have $b + 1 \leq 2b$.
     have h_b_plus_one_le_two_b : (b + 1 : ℝ) ≤ (2 * b : ℝ) := by
       norm_cast ; linarith;
     refine' Or.inr ( le_trans h_p_bound _ );
-    exact_mod_cast le_trans ( pow_le_pow_left₀ ( by positivity ) h_b_plus_one_le_two_b _ ) (
-      pow_le_pow_right₀ ( by norm_cast;
-      linarith ) ( Nat.le_of_dvd ( by positivity ) ( Nat.totient_dvd_of_dvd hd_div ) ) )
+    exact_mod_cast
+      ( le_trans
+        ( pow_le_pow_left₀ ( by positivity ) h_b_plus_one_le_two_b _ )
+        ( pow_le_pow_right₀ ( by
+            norm_cast
+            linarith )
+          ( Nat.le_of_dvd ( by positivity ) ( Nat.totient_dvd_of_dvd hd_div ) ) ) )
 
 /-
 For any L > 1 with φ(L)/L < θ, and a = b^L with b = 2^u · 3^v,
@@ -740,9 +795,11 @@ lemma smooth_pair_exists (θ : ℝ) (hθ : 0 < θ) :
         split_ifs <;> norm_num [ Nat.primeFactors_mul, Nat.primeFactors_pow ] at *;
         rintro b ( ⟨ hb₁, hb₂ ⟩ | ⟨ hb₁, hb₂ ⟩ ) <;> have := Nat.Prime.dvd_of_dvd_pow hb₁ hb₂
           <;> have := Nat.le_of_dvd ( by positivity ) this <;> interval_cases b <;> trivial;
-      exact le_trans ( Nat.cast_le.mpr h_largest_prime_factor_a ) ( by rw [ hK_def ] ;
-        exact le_trans ( by norm_num ) ( le_mul_of_one_le_right ( by positivity ) ( Real.one_le_rpow
-        ( mod_cast by linarith ) ( by positivity ) ) ) );
+      exact le_trans ( Nat.cast_le.mpr h_largest_prime_factor_a ) ( by
+        rw [ hK_def ]
+        exact le_trans ( by norm_num )
+          ( le_mul_of_one_le_right ( by positivity )
+            ( Real.one_le_rpow ( mod_cast by linarith ) ( by positivity ) ) ) );
     · -- By Lemma 2, each prime factor of $a - 1$ is bounded by $(2b)^{\phi(L)} \leq 2^L \cdot
       -- N^\theta$.
       have h_prime_factor_bound : ∀ p : ℕ, p ∈ (2 ^ (L * u) * 3 ^ (L * v) - 1).primeFactors →
@@ -791,10 +848,11 @@ If every prime exponent in the factorization of n is divisible by r, then n is a
 lemma is_perfect_power_of_factorization_dvd (n r : ℕ) (hn : n ≠ 0)
     (h : ∀ p : ℕ, Nat.Prime p → r ∣ n.factorization p) :
     ∃ b : ℕ, n = b ^ r := by
-  exact ⟨ ∏ p ∈ Nat.primeFactors n, p ^ ( n.factorization p / r ),
-    by nth_rw 1 [ ← Nat.factorization_prod_pow_eq_self hn ] ; rw [ ← Finset.prod_pow ] ;
-    exact Finset.prod_congr rfl fun p hp => by rw [ ← pow_mul, Nat.div_mul_cancel <| h p
-    <| Nat.prime_of_mem_primeFactors hp ] ⟩
+  exact ⟨ ∏ p ∈ Nat.primeFactors n, p ^ ( n.factorization p / r ), by
+    nth_rw 1 [ ← Nat.factorization_prod_pow_eq_self hn ]
+    rw [ ← Finset.prod_pow ]
+    exact Finset.prod_congr rfl fun p hp => by
+      rw [ ← pow_mul, Nat.div_mul_cancel <| h p <| Nat.prime_of_mem_primeFactors hp ] ⟩
 
 /-
 The smooth pair result implies smooth_consecutive_exists for k = 2.
@@ -865,12 +923,16 @@ lemma exists_crt_multiplier_strong (k : ℕ) (hk : 2 ≤ k) (m : ℕ) (hm : m = 
         |> Nat.factorization ) q ) ( r i ) ] ; simp +decide [ Nat.add_mod, Nat.mul_mod,
         Finset.prod_eq_prod_diff_singleton_mul ( Finset.mem_univ i ), he_q ] ; ring_nf;
         norm_num [ Nat.add_sub_add_left, ← mul_tsub ];
-      · exact le_add_of_nonneg_of_le ( Nat.zero_le _ ) ( by nlinarith [ show 0 < ∏ i : Fin m,
-        r i from Finset.prod_pos fun _ _ => zero_lt_one.trans ( hr_pos _ ),
-        show ( Nat.factorization ( i.val + 1 ) q ) ≤ ∑ i : Fin m,
-        ( Nat.factorization ( i.val + 1 ) q ) from Finset.single_le_sum ( fun a _ =>
-        Nat.zero_le ( Nat.factorization ( a.val + 1 ) q ) ) ( Finset.mem_univ i ),
-        Nat.zero_le ( ∑ i : Fin m, ( Nat.factorization ( i.val + 1 ) q ) ) ] ) ;)
+      · exact le_add_of_nonneg_of_le ( Nat.zero_le _ ) ( by
+          nlinarith [
+            show 0 < ∏ i : Fin m, r i from
+              Finset.prod_pos fun _ _ => zero_lt_one.trans ( hr_pos _ ),
+            show ( Nat.factorization ( i.val + 1 ) q ) ≤ ∑ i : Fin m,
+                ( Nat.factorization ( i.val + 1 ) q ) from
+              Finset.single_le_sum
+                ( fun a _ => Nat.zero_le ( Nat.factorization ( a.val + 1 ) q ) )
+                ( Finset.mem_univ i ),
+            Nat.zero_le ( ∑ i : Fin m, ( Nat.factorization ( i.val + 1 ) q ) ) ] ) ;)
     generalize_proofs at *; (
     choose! e he using h_choose_e ; exact ⟨ e, fun q hq hq' i => he q hq hq' i ⟩ ;)
   generalize_proofs at *; (
@@ -919,8 +981,8 @@ lemma quotient_is_perfect_power_of_crt (k : ℕ) (hk : 2 ≤ k) (m : ℕ) (hm : 
     (L : ℕ) (hL : L = ∏ i, r i)
     (u v : ℕ) (i : Fin m) :
     ∃ b : ℕ, C * (2 ^ (L * u) * 3 ^ (L * v)) = (i.val + 1) * b ^ (r i) := by
-  obtain ⟨ D, hD ⟩ := hC_div ( i + 1 ) ( by linarith [ Fin.is_lt i ] ) ( by linarith [ Fin.is_lt i,
-    Nat.sub_add_cancel ( by linarith : 1 ≤ k ) ] );
+  obtain ⟨ D, hD ⟩ := hC_div ( i + 1 ) ( by linarith [ Fin.is_lt i ] ) ( by
+    linarith [ Fin.is_lt i, Nat.sub_add_cancel ( by linarith : 1 ≤ k ) ] );
   -- We need to show that $D \cdot 2^{Lu} \cdot 3^{Lv}$ is a perfect $r_i$-th power.
   have h_perfect_power : ∀ q : ℕ, Nat.Prime q →
     r i ∣ (D * 2 ^ (L * u) * 3 ^ (L * v)).factorization q := by
@@ -1100,13 +1162,13 @@ lemma smooth_consecutive_exists (θ : ℝ) (hθ : 0 < θ) (k : ℕ) (hk : 2 ≤ 
       simp +zetaDelta at *;
       refine' ⟨ _, _, _ ⟩;
       · refine' le_trans _ ( le_mul_of_one_le_right _ _ ) <;> norm_num [ hθ.le ];
-        exact Real.one_le_rpow ( mod_cast by nlinarith [ Nat.div_add_mod N C,
-          Nat.mod_lt N hC_pos ] ) hθ.le;
+        exact Real.one_le_rpow ( mod_cast by
+          nlinarith [ Nat.div_add_mod N C, Nat.mod_lt N hC_pos ] ) hθ.le;
       · refine' le_trans _ ( le_mul_of_one_le_right _ _ );
         · exact le_max_of_le_left ( le_max_right _ _ );
         · positivity;
-        · exact Real.one_le_rpow ( mod_cast by nlinarith [ Nat.div_add_mod N C,
-          Nat.mod_lt N hC_pos ] ) hθ.le;
+        · exact Real.one_le_rpow ( mod_cast by
+          nlinarith [ Nat.div_add_mod N C, Nat.mod_lt N hC_pos ] ) hθ.le;
       · exact le_trans h_b_bound ( mul_le_mul_of_nonneg_right ( le_max_right _ _ ) ( by positivity )
         )
 
