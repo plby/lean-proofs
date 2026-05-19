@@ -30,4 +30,7 @@ name = "MathOverflow"
 name = "PrimeNumberTheoremAnd"
 
 [[lean_lib]]
+name = "Util"
+
+[[lean_lib]]
 name = "UnitFractions"
