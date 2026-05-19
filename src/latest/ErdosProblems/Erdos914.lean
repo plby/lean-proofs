@@ -16,15 +16,19 @@ URLs:
 - https://github.com/Woett/Lean-files/blob/main/ErdosProblem914.lean
 -/
 /-
-The Hajnal-Szemerédi theorem states that any graph with maximum degree Δ has an equitable colouring with Δ + 1 colours. Equivalently, every graph with $rm$ vertices and minimum degree at least $m(r-1)$ contains $m$ vertex disjoint copies of $K_r$.
+The Hajnal-Szemerédi theorem states that any graph with maximum degree Δ has an
+equitable colouring with Δ + 1 colours. Equivalently, every graph with $rm$ vertices and
+minimum degree at least $m(r-1)$ contains $m$ vertex disjoint copies of $K_r$.
 
-Hajnal, A. and Szemerédi, E., Proof of a conjecture of P. Erdős. In Combinatorial Theory and Its Applications, Vol. 2 (1970), 601--623.
+Hajnal, A. and Szemerédi, E., Proof of a conjecture of P. Erdős. In Combinatorial Theory
+and Its Applications, Vol. 2 (1970), 601--623.
 
 On Bloom's website this is recorded as Erdős Problem #914; https://www.erdosproblems.com/914.
 
 In 2008, an alternative proof was given by H. A. Kierstead and A. V. Kostochka.
 
-Kierstead, H. A. and Kostochka, A. V., A Short Proof of the Hajnal–Szemerédi Theorem on Equitable Colouring. Combinatorics, Probability and Computing, Vol. 17 (2008), 265--270.
+Kierstead, H. A. and Kostochka, A. V., A Short Proof of the Hajnal–Szemerédi Theorem on
+Equitable Colouring. Combinatorics, Probability and Computing, Vol. 17 (2008), 265--270.
 
 It is the latter proof Aristotle from Harmonic (aristotle-harmonic@harmonic.fun)
 managed to formalize, the result of which you can find below.
@@ -39,7 +43,6 @@ set_option linter.style.setOption false
 set_option linter.style.openClassical false
 set_option linter.style.induction false
 set_option linter.style.refine false
-set_option linter.style.longLine false
 set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
 set_option linter.style.cases false
@@ -74,8 +77,10 @@ lemma exists_nodup_chain'
     (h : Relation.ReflTransGen R a b) (hab : a ≠ b) :
     ∃ l : List α, l.Nodup ∧ l.IsChain R ∧ l.head? = some a ∧
     l.getLast? = some b ∧ 2 ≤ l.length := by
-  obtain ⟨l, hl⟩ : ∃ l : List α, List.IsChain R l ∧ l.head? = some a ∧ l.getLast? = some b := by
-    have h_contradiction : ∀ {x y : α}, Relation.ReflTransGen R x y → ∃ l : List α, List.IsChain R l ∧ l.head? = some x ∧ l.getLast? = some y := by
+  obtain ⟨l, hl⟩ : ∃ l : List α, List.IsChain R l ∧ l.head? = some a ∧ l.getLast? =
+    some b := by
+    have h_contradiction : ∀ {x y : α}, Relation.ReflTransGen R x y → ∃ l : List α,
+      List.IsChain R l ∧ l.head? = some x ∧ l.getLast? = some y := by
       intro x y hxy
       induction' hxy with x y hxy ih;
       · exact ⟨ [ x ], List.isChain_singleton _, rfl, rfl ⟩;
@@ -84,37 +89,48 @@ lemma exists_nodup_chain'
         exact List.isChain_append.mpr ⟨ hl₁, by aesop ⟩;
     exact h_contradiction h;
   -- Let's take the shortest such chain.
-  obtain ⟨l, hl_min⟩ : ∃ l : List α, List.IsChain R l ∧ l.head? = some a ∧ l.getLast? = some b ∧ ∀ l' : List α, List.IsChain R l' → l'.head? = some a → l'.getLast? = some b → l.length ≤ l'.length := by
-    have h_well_founded : WellFounded fun l l' : { l : List α // List.IsChain R l ∧ l.head? = some a ∧ l.getLast? = some b } => l.val.length < l'.val.length := by
+  obtain ⟨l, hl_min⟩ : ∃ l : List α, List.IsChain R l ∧ l.head? = some a ∧ l.getLast? =
+    some b ∧ ∀ l' : List α, List.IsChain R l' → l'.head? = some a → l'.getLast? =
+      some b → l.length ≤ l'.length := by
+    have h_well_founded : WellFounded fun l l' : { l : List α // List.IsChain R l ∧ l.head? =
+      some a ∧ l.getLast? = some b } => l.val.length < l'.val.length := by
       rw [ WellFounded.wellFounded_iff_has_min ];
       intro s hs;
       have h_well_founded : WellFounded fun l l' : ℕ => l < l' := by
         exact wellFounded_lt;
-      have := h_well_founded.has_min ( Set.image ( fun x : { l : List α // List.IsChain R l ∧ l.head? = some a ∧ l.getLast? = some b } => x.val.length ) s ) ⟨ _, Set.mem_image_of_mem _ hs.choose_spec ⟩ ; aesop;
-    have := h_well_founded.has_min { l : { l : List α // List.IsChain R l ∧ l.head? = some a ∧ l.getLast? = some b } | True } ⟨ ⟨ l, hl ⟩, trivial ⟩ ; aesop;
+      have := h_well_founded.has_min ( Set.image ( fun x : { l : List α // List.IsChain R l ∧
+        l.head? = some a ∧ l.getLast? = some b } => x.val.length ) s ) ⟨ _,
+          Set.mem_image_of_mem _ hs.choose_spec ⟩ ; aesop;
+    have := h_well_founded.has_min { l : { l : List α // List.IsChain R l ∧ l.head? = some a ∧
+      l.getLast? = some b } | True } ⟨ ⟨ l, hl ⟩, trivial ⟩ ; aesop;
   -- If $l$ has duplicates, we can remove them to obtain a shorter chain.
   by_cases h_dup : ∃ i j : Fin l.length, i < j ∧ l.get i = l.get j;
   · obtain ⟨ i, j, hij, h_eq ⟩ := h_dup;
-    have h_shorter : ∃ l' : List α, List.IsChain R l' ∧ l'.head? = some a ∧ l'.getLast? = some b ∧ l'.length < l.length := by
+    have h_shorter : ∃ l' : List α, List.IsChain R l' ∧ l'.head? = some a ∧ l'.getLast? =
+      some b ∧ l'.length < l.length := by
       refine' ⟨ l.take i.val ++ l.drop j.val, _, _, _, _ ⟩ <;> simp_all +decide;
       · refine' List.isChain_append.mpr ⟨ _, _, _ ⟩;
         · have := hl_min.1;
           exact List.IsChain.take this ↑i;
         · have := hl_min.1;
           exact List.IsChain.drop this ↑j;
-        · rcases i with ⟨ _ | i, hi ⟩ <;> rcases j with ⟨ _ | j, hj ⟩ <;> simp_all +decide [ List.getLast?_take, List.head?_drop ];
+        · rcases i with ⟨ _ | i, hi ⟩ <;> rcases j with ⟨ _ | j, hj ⟩ <;>
+            simp_all +decide [List.getLast?_take, List.head?_drop];
           have := List.isChain_iff_getElem.mp hl_min.1;
           convert this i (by omega) using 1;
           · rw [ List.getElem?_eq_getElem ] ; aesop;
           · exact h_eq.symm;
-      · rcases i with ⟨ _ | i, hi ⟩ <;> rcases j with ⟨ _ | j, hj ⟩ <;> simp_all +decide [ List.take ];
+      · rcases i with ⟨ _ | i, hi ⟩ <;> rcases j with ⟨ _ | j, hj ⟩ <;>
+          simp_all +decide [List.take];
         · cases l <;> aesop;
         · cases l <;> aesop;
       · rw [ List.getLast?_drop ] ; aesop;
-      · linarith [ show ( i : ℕ ) < j from hij, Nat.sub_add_cancel ( show ( j : ℕ ) ≤ l.length from j.2.le ) ];
+      · linarith [ show ( i : ℕ ) < j from hij, Nat.sub_add_cancel ( show ( j : ℕ ) ≤
+        l.length from j.2.le ) ];
     grind;
   · refine' ⟨ l, _, hl_min.1, hl_min.2.1, hl_min.2.2.1, _ ⟩;
-    · exact List.nodup_iff_injective_get.mpr fun i j hij => le_antisymm ( not_lt.mp fun hi => h_dup ⟨ j, i, hi, hij.symm ⟩ ) ( not_lt.mp fun hj => h_dup ⟨ i, j, hj, hij ⟩ );
+    · exact List.nodup_iff_injective_get.mpr fun i j hij => le_antisymm ( not_lt.mp fun hi =>
+      h_dup ⟨ j, i, hi, hij.symm ⟩ ) ( not_lt.mp fun hj => h_dup ⟨ i, j, hj, hij ⟩ );
     · rcases l with ( _ | ⟨ x, _ | ⟨ y, l ⟩ ⟩ ) <;> simp_all +decide;
       grind
 
@@ -186,40 +202,65 @@ theorem exists_terminal_vertex
       ∀ C : α, Relation.ReflTransGen R C r → C ≠ W →
         Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W) C r := by
   by_contra! h_contra;
-  -- By finiteness, the set of vertices that can reach r is nonempty and finite, so it must have a minimal element with respect to some well-ordering.
-  obtain ⟨W_star, hW_star⟩ : ∃ W_star : α, Relation.ReflTransGen R W_star r ∧ W_star ≠ r ∧ ∀ W' : α, Relation.ReflTransGen R W' r → W' ≠ r → (Nat.card {C : α | Relation.ReflTransGen R C r ∧ C ≠ W' ∧ ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W') C r}) ≥ (Nat.card {C : α | Relation.ReflTransGen R C r ∧ C ≠ W_star ∧ ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W_star) C r}) := by
+  -- By finiteness, the set of vertices that can reach r is nonempty and finite, so it
+  -- must have a minimal element with respect to some well-ordering.
+  obtain ⟨W_star, hW_star⟩ : ∃ W_star : α, Relation.ReflTransGen R W_star r ∧
+    W_star ≠ r ∧ ∀ W' : α, Relation.ReflTransGen R W' r → W' ≠ r →
+      (Nat.card {C : α | Relation.ReflTransGen R C r ∧ C ≠ W' ∧
+        ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W') C r}) ≥
+          (Nat.card {C : α | Relation.ReflTransGen R C r ∧ C ≠ W_star ∧
+            ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W_star) C r}) := by
     have h_finite : Set.Finite {W : α | Relation.ReflTransGen R W r ∧ W ≠ r} := by
       exact Set.toFinite _;
-    have := h_finite.toFinset.exists_min_image ( fun W => Nat.card { C : α | Relation.ReflTransGen R C r ∧ C ≠ W ∧ ¬Relation.ReflTransGen ( fun a b => R a b ∧ a ≠ W ) C r } ) ⟨ W₀, by aesop ⟩ ; aesop;
-  obtain ⟨C, hC⟩ : ∃ C : α, Relation.ReflTransGen R C r ∧ C ≠ W_star ∧ ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W_star) C r := h_contra W_star hW_star.left hW_star.right.left;
+    have := h_finite.toFinset.exists_min_image ( fun W => Nat.card { C :
+      α | Relation.ReflTransGen R C r ∧ C ≠ W ∧ ¬Relation.ReflTransGen ( fun a b =>
+        R a b ∧ a ≠ W ) C r } ) ⟨ W₀, by aesop ⟩ ; aesop;
+  obtain ⟨C, hC⟩ : ∃ C : α, Relation.ReflTransGen R C r ∧ C ≠ W_star ∧
+    ¬Relation.ReflTransGen (fun a b => R a b ∧
+      a ≠ W_star) C r := h_contra W_star hW_star.left hW_star.right.left;
   -- By definition of $block$, we know that $block(C) \subset block(W_star)$.
-  have h_block_subset : ∀ D : α, Relation.ReflTransGen R D r → D ≠ C → ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ C) D r → D ≠ W_star ∧ ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W_star) D r := by
+  have h_block_subset : ∀ D : α, Relation.ReflTransGen R D r → D ≠ C →
+    ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ C) D r → D ≠ W_star ∧
+      ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W_star) D r := by
     intro D hD hD_ne_C hD_not_reach_C
     constructor;
     · rintro rfl;
-      obtain ⟨l, hl_nodup, hl_chain, hl_head, hl_last, hl_length⟩ : ∃ l : List α, l.Nodup ∧ l.IsChain R ∧ l.head? = some D ∧ l.getLast? = some r ∧ 2 ≤ l.length := by
+      obtain ⟨l, hl_nodup, hl_chain, hl_head, hl_last, hl_length⟩ : ∃ l : List α, l.Nodup ∧
+        l.IsChain R ∧ l.head? = some D ∧ l.getLast? = some r ∧ 2 ≤ l.length := by
         apply exists_nodup_chain' hD hW_star.2.1;
       by_cases hC_in_l : C ∈ l;
-      · obtain ⟨l', hl'_chain, hl'_nodup, hl'_head, hl'_last, hl'_length, hl'_not_D⟩ : ∃ l' : List α, l'.IsChain R ∧ l'.Nodup ∧ l'.head? = some C ∧ l'.getLast? = some r ∧ l'.length < l.length ∧ D ∉ l' := by
+      · obtain ⟨l', hl'_chain, hl'_nodup, hl'_head, hl'_last, hl'_length, hl'_not_D⟩ :
+        ∃ l' : List α, l'.IsChain R ∧ l'.Nodup ∧ l'.head? = some C ∧ l'.getLast? =
+          some r ∧ l'.length < l.length ∧ D ∉ l' := by
           apply nodup_chain_suffix hl_chain hl_nodup hl_head hl_last hC_in_l;
           · grobner;
           · rintro rfl; simp_all +decide [ Relation.ReflTransGen.refl ] ;
-        have := chain_to_restricted_reflTransGen hl'_chain hl'_head hl'_last ( Or.inl hl'_not_D ) ; simp_all +decide ;
-      · exact hD_not_reach_C ( chain_to_restricted_reflTransGen hl_chain hl_head hl_last ( Or.inl hC_in_l ) );
+        have := chain_to_restricted_reflTransGen hl'_chain hl'_head hl'_last ( Or.inl hl'_not_D ) ;
+          simp_all +decide ;
+      · exact hD_not_reach_C
+          (chain_to_restricted_reflTransGen hl_chain hl_head hl_last (Or.inl hC_in_l))
     · intro hD_reach_W_star;
-      obtain ⟨l, hl_nodup, hl_chain, hl_head, hl_last, hl_length⟩ : ∃ l : List α, l.Nodup ∧ l.IsChain (fun a b => R a b ∧ a ≠ W_star) ∧ l.head? = some D ∧ l.getLast? = some r ∧ 2 ≤ l.length := by
+      obtain ⟨l, hl_nodup, hl_chain, hl_head, hl_last, hl_length⟩ : ∃ l : List α, l.Nodup ∧
+        l.IsChain (fun a b => R a b ∧ a ≠ W_star) ∧ l.head? = some D ∧ l.getLast? =
+          some r ∧ 2 ≤ l.length := by
         apply exists_nodup_chain' hD_reach_W_star;
         grind +suggestions;
       by_cases hC_in_l : C ∈ l;
-      · obtain ⟨l', hl'_chain, hl'_nodup, hl'_head, hl'_last, hl'_length, hl'_not_in_l⟩ : ∃ l' : List α, l'.IsChain (fun a b => R a b ∧ a ≠ W_star) ∧ l'.Nodup ∧ l'.head? = some C ∧ l'.getLast? = some r ∧ l'.length < l.length ∧ D ∉ l' := by
+      · obtain ⟨l', hl'_chain, hl'_nodup, hl'_head, hl'_last, hl'_length, hl'_not_in_l⟩ :
+        ∃ l' : List α, l'.IsChain (fun a b => R a b ∧ a ≠ W_star) ∧ l'.Nodup ∧ l'.head? =
+          some C ∧ l'.getLast? = some r ∧ l'.length < l.length ∧ D ∉ l' := by
           apply_rules [ nodup_chain_suffix ];
           grind;
         have hC_reach_r : Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W_star) C r := by
           exact chain_to_reflTransGen hl'_chain hl'_head hl'_last;
         exact hC.2.2 hC_reach_r;
       · refine' hD_not_reach_C _;
-        have h_chain_to_restricted_reflTransGen : Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W_star ∧ a ≠ C) D r := by
-          have h_chain_to_restricted_reflTransGen : ∀ {l : List α}, l.Nodup → l.IsChain (fun a b => R a b ∧ a ≠ W_star) → l.head? = some D → l.getLast? = some r → C ∉ l → Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W_star ∧ a ≠ C) D r := by
+        have h_chain_to_restricted_reflTransGen : Relation.ReflTransGen (fun a b => R a b ∧
+          a ≠ W_star ∧ a ≠ C) D r := by
+          have h_chain_to_restricted_reflTransGen : ∀ {l : List α}, l.Nodup →
+            l.IsChain (fun a b => R a b ∧ a ≠ W_star) → l.head? = some D → l.getLast? =
+              some r → C ∉ l → Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W_star ∧
+                a ≠ C) D r := by
             intros l hl_nodup hl_chain hl_head hl_last hC_in_l;
             convert chain_to_restricted_reflTransGen hl_chain hl_head hl_last _ using 1;
             rotate_left;
@@ -228,7 +269,10 @@ theorem exists_terminal_vertex
             · simp +decide only [and_assoc];
           exact h_chain_to_restricted_reflTransGen hl_nodup hl_chain hl_head hl_last hC_in_l;
         exact h_chain_to_restricted_reflTransGen.mono fun a b hab => ⟨ hab.1, hab.2.2 ⟩;
-  have h_block_card_lt : Nat.card {D : α | Relation.ReflTransGen R D r ∧ D ≠ C ∧ ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ C) D r} < Nat.card {D : α | Relation.ReflTransGen R D r ∧ D ≠ W_star ∧ ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W_star) D r} := by
+  have h_block_card_lt : Nat.card {D : α | Relation.ReflTransGen R D r ∧ D ≠ C ∧
+    ¬Relation.ReflTransGen (fun a b => R a b ∧
+      a ≠ C) D r} < Nat.card {D : α | Relation.ReflTransGen R D r ∧ D ≠ W_star ∧
+        ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W_star) D r} := by
     apply_rules [ Set.ncard_lt_ncard ];
     · simp_all +decide [ Set.ssubset_def, Set.subset_def ];
       exact ⟨ C, hC.1, by tauto, hC.2.2, by tauto ⟩;
@@ -258,7 +302,9 @@ lemma weight_sum_lower_bound {ι : Type*} [DecidableEq ι]
   -- By assumption, $s_i \leq c_max$ for all $i \in F$, so $\frac{q}{s_i} \geq \frac{q}{c_max}$.
   have h_term_bound : ∀ i ∈ F, (q : ℚ) / s i ≥ q / c_max := by
     field_simp;
-    exact fun i hi => by rw [ le_div_iff₀ ] <;> norm_cast <;> linarith [ hs_pos i hi, hs_le i hi ] ;
+    exact fun i hi => by
+      rw [le_div_iff₀] <;> norm_cast <;>
+        linarith [hs_pos i hi, hs_le i hi]
   refine' le_trans _ ( Finset.sum_le_sum h_term_bound );
   simp +zetaDelta at *;
   rw [ mul_div, le_div_iff₀ ] <;> norm_cast;
@@ -290,24 +336,36 @@ lemma weight_function_contradiction
     refine' le_trans ( Finset.sum_le_sum _ ) _;
     use fun a => q;
     · intro a ha; by_cases ha' : Solo a = ∅ <;> simp_all +decide ;
-      rw [ mul_div_cancel₀ _ ( Nat.cast_ne_zero.mpr ( Finset.card_ne_zero_of_mem ( Classical.choose_spec ( Finset.nonempty_of_ne_empty ha' ) ) ) ) ];
+      rw [
+        mul_div_cancel₀ _
+          (Nat.cast_ne_zero.mpr
+            (Finset.card_ne_zero_of_mem
+              (Classical.choose_spec (Finset.nonempty_of_ne_empty ha'))))]
     · simp +zetaDelta at *;
       norm_cast ; nlinarith;
-  have mu_lower : ∑ y ∈ B, ∑ z ∈ A, (if y ∈ Solo z then (q : ℚ) / ((Solo z).card : ℚ) else 0) ≥ t * (q * s + 1) := by
-    have mu_lower : ∀ y ∈ B, ∑ z ∈ A, (if y ∈ Solo z then (q : ℚ) / ((Solo z).card : ℚ) else 0) ≥ t := by
+  have mu_lower : ∑ y ∈ B, ∑ z ∈ A, (if y ∈ Solo z then (q : ℚ) / ((Solo z).card : ℚ)
+    else 0) ≥ t * (q * s + 1) := by
+    have mu_lower : ∀ y ∈ B, ∑ z ∈ A, (if y ∈ Solo z then (q : ℚ) /
+      ((Solo z).card : ℚ) else 0) ≥ t := by
       intro y hy
       obtain ⟨c_max, hc1, hcq, hcard, hle, hpos⟩ := h_lower y hy
-      have h_lower_bound : ∑ z ∈ A.filter (fun z => y ∈ Solo z), (q : ℚ) / ((Solo z).card : ℚ) ≥ t := by
+      have h_lower_bound : ∑ z ∈ A.filter (fun z => y ∈ Solo z), (q : ℚ) /
+        ((Solo z).card : ℚ) ≥ t := by
         convert weight_sum_lower_bound _ _ q t c_max hq ht hcard hcq hc1 hpos hle;
       simpa [ Finset.sum_ite ] using h_lower_bound;
     exact le_trans ( by simp [ mul_comm, hB_card ] ) ( Finset.sum_le_sum mu_lower );
   -- By Fubini's theorem, we can interchange the order of summation.
-  have mu_fubini : ∑ y ∈ B, ∑ z ∈ A, (if y ∈ Solo z then (q : ℚ) / ((Solo z).card : ℚ) else 0) = ∑ z ∈ A, ∑ y ∈ B, (if y ∈ Solo z then (q : ℚ) / ((Solo z).card : ℚ) else 0) := by
+  have mu_fubini : ∑ y ∈ B, ∑ z ∈ A, (if y ∈ Solo z then (q : ℚ) / ((Solo z).card : ℚ)
+    else 0) = ∑ z ∈ A, ∑ y ∈ B, (if y ∈ Solo z then (q : ℚ) / ((Solo z).card : ℚ)
+      else 0) := by
     exact Finset.sum_comm;
   -- Simplify the expression inside the sum.
-  have mu_simplified : ∑ z ∈ A, ∑ y ∈ B, (if y ∈ Solo z then (q : ℚ) / ((Solo z).card : ℚ) else 0) = ∑ z ∈ A, ∑ y ∈ Solo z, (q : ℚ) / ((Solo z).card : ℚ) := by
+  have mu_simplified : ∑ z ∈ A, ∑ y ∈ B, (if y ∈ Solo z then (q : ℚ) /
+    ((Solo z).card : ℚ) else 0) = ∑ z ∈ A, ∑ y ∈ Solo z, (q : ℚ) / ((Solo z).card : ℚ)
+      := by
     simp +contextual [Finset.inter_eq_right.mpr (hS_sub _ _)];
-  nlinarith [ ( by norm_cast : ( 1 : ℚ ) ≤ q ), ( by norm_cast : ( q : ℚ ) < t ), ( by norm_cast : ( 1 : ℚ ) ≤ s ) ]
+  nlinarith [ ( by norm_cast : ( 1 : ℚ ) ≤ q ), ( by norm_cast : ( q : ℚ ) < t ),
+    ( by norm_cast : ( 1 : ℚ ) ≤ s ) ]
 
 namespace HajnalSzemeredi
 
@@ -352,13 +410,16 @@ lemma mutual_dependency_impossible {α : Type*} [Fintype α] [DecidableEq α]
     (hW_needs_U : ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ U) W target) :
     False := by
   -- Consider a nodup chain from U to target: U = c₀, c₁, ..., cₖ = target.
-  obtain ⟨l, hl_nodup, hl_chain, hl_head, hl_last⟩ : ∃ l : List α, l.Nodup ∧ l.IsChain R ∧ l.head? = some U ∧ l.getLast? = some target ∧ 2 ≤ l.length := by
+  obtain ⟨l, hl_nodup, hl_chain, hl_head, hl_last⟩ : ∃ l : List α, l.Nodup ∧
+    l.IsChain R ∧ l.head? = some U ∧ l.getLast? = some target ∧ 2 ≤ l.length := by
     by_cases h : U = target <;> simp_all +decide [Relation.ReflTransGen.refl];
     exact TerminalVertex.exists_nodup_chain' hU_acc h;
   -- Since U ≠ W, W must be in the list l.
   have hW_in_l : W ∈ l := by
     grind +suggestions;
-  obtain ⟨l', hl'_chain, hl'_nodup, hl'_head, hl'_last, hl'_length, hl'_not_U⟩ : ∃ l' : List α, l'.IsChain R ∧ l'.Nodup ∧ l'.head? = some W ∧ l'.getLast? = some target ∧ l'.length < l.length ∧ U ∉ l' := by
+  obtain ⟨l', hl'_chain, hl'_nodup, hl'_head, hl'_last, hl'_length, hl'_not_U⟩ :
+    ∃ l' : List α, l'.IsChain R ∧ l'.Nodup ∧ l'.head? = some W ∧ l'.getLast? =
+      some target ∧ l'.length < l.length ∧ U ∉ l' := by
     apply TerminalVertex.nodup_chain_suffix hl_chain hl_nodup hl_head hl_last.left hW_in_l hUW.symm;
     contrapose! hW_needs_U; aesop;
   contrapose! hW_needs_U;
@@ -378,7 +439,8 @@ lemma terminal_set_members_are_terminal {α : Type*} [Fintype α] [DecidableEq �
     (hT_U_def : T_U = acc.filter (fun c => c ≠ U ∧
       ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ U) c target))
     (hT_U_min : ∀ V ∈ acc,
-      (∃ C ∈ acc, C ≠ V ∧ ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ V) C target) →
+      (∃ C ∈ acc, C ≠ V ∧ ¬Relation.ReflTransGen (fun a b => R a b ∧
+        a ≠ V) C target) →
       T_U.card ≤ (acc.filter (fun c => c ≠ V ∧
         ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ V) c target)).card)
     (W : α) (hW : W ∈ T_U) :
@@ -459,7 +521,8 @@ def recolor (f : V → Fin k) (v : V) (c : Fin k) : V → Fin k :=
 omit [DecidableEq V] in
 lemma cClass_card_sum (f : V → Fin k) :
     ∑ c : Fin k, (cClass f c).card = Fintype.card V := by
-  have h_insert : ∑ c : Fin k, Finset.card (Finset.filter (fun v => f v = c) Finset.univ) = Finset.card (Finset.univ : Finset V) := by
+  have h_insert : ∑ c : Fin k, Finset.card (Finset.filter (fun v => f v = c) Finset.univ) =
+    Finset.card (Finset.univ : Finset V) := by
     simp +decide only [card_filter]
     rw [Finset.sum_comm]; aesop
   exact h_insert
@@ -531,33 +594,56 @@ lemma equitable_coloring_of_edgeless (G : SimpleGraph V) [DecidableRel G.Adj]
     (r : ℕ) (hG : G.edgeSet = ∅) :
     HasEquitableColoring G (r + 1) := by
   simp +decide [Set.ext_iff] at hG ⊢
-  have h_eq : ∃ f : V → Fin (r + 1), ∀ c₁ c₂ : Fin (r + 1), ((cClass f c₁).card ≤ (cClass f c₂).card + 1) := by
-    have h_card : ∀ n : ℕ, ∃ f : Fin n → Fin (r + 1), ∀ c₁ c₂ : Fin (r + 1), ((Finset.filter (fun v => f v = c₁) (Finset.univ)).card ≤ (Finset.filter (fun v => f v = c₂) (Finset.univ)).card + 1) := by
+  have h_eq : ∃ f : V → Fin (r + 1), ∀ c₁ c₂ : Fin (r + 1), ((cClass f c₁).card ≤
+    (cClass f c₂).card + 1) := by
+    have h_card : ∀ n : ℕ, ∃ f : Fin n → Fin (r + 1), ∀ c₁ c₂ : Fin (r + 1),
+      ((Finset.filter (fun v => f v = c₁) (Finset.univ)).card ≤ (Finset.filter (fun v => f v =
+        c₂) (Finset.univ)).card + 1) := by
       intro n
       use fun i => ⟨i.val % (r + 1), Nat.mod_lt _ (Nat.succ_pos _)⟩
       intro c₁ c₂
       simp [Finset.card] at *
-      have h_card_classes : ∀ c : Fin (r + 1), (Finset.filter (fun v : Fin n => v.val % (r + 1) = c.val) Finset.univ).card = n / (r + 1) + if c.val < n % (r + 1) then 1 else 0 := by
+      have h_card_classes : ∀ c : Fin (r + 1), (Finset.filter (fun v : Fin n => v.val % (r + 1) =
+        c.val) Finset.univ).card = n / (r + 1) + if c.val < n % (r + 1) then 1 else 0 := by
         intro c
-        have h_card_classes : (Finset.filter (fun v : Fin n => v.val % (r + 1) = c.val) Finset.univ).card = Finset.card (Finset.filter (fun v : ℕ => v % (r + 1) = c.val) (Finset.range n)) := by
+        have h_card_classes : (Finset.filter (fun v : Fin n => v.val % (r + 1) =
+          c.val) Finset.univ).card = Finset.card (Finset.filter (fun v : ℕ => v % (r + 1) =
+            c.val) (Finset.range n)) := by
           refine' Finset.card_bij (fun x hx => x) _ _ _ <;> simp +decide [Fin.ext_iff]
           exact fun b hb hb' => ⟨⟨b, hb⟩, hb', rfl⟩
         simp [h_card_classes] at *
-        have h_set_eq : {v ∈ Finset.range n | v % (r + 1) = c.val} = Finset.image (fun k => k * (r + 1) + c.val) (Finset.range (n / (r + 1) + if c.val < n % (r + 1) then 1 else 0)) := by
+        have h_set_eq : {v ∈ Finset.range n | v % (r + 1) = c.val} = Finset.image (fun k => k *
+          (r + 1) + c.val) (Finset.range (n / (r + 1) + if c.val < n % (r + 1) then 1 else 0)) := by
           ext v; simp [Finset.mem_image] at *
           constructor <;> intro h <;> rcases h with ⟨h₁, h₂⟩ <;> simp_all +decide
-          · exact ⟨v / (r + 1), by split_ifs <;> nlinarith [Nat.mod_add_div v (r + 1), Nat.mod_lt v (Nat.succ_pos r), Nat.mod_add_div n (r + 1), Nat.mod_lt n (Nat.succ_pos r)], by linarith [Nat.mod_add_div v (r + 1)]⟩
-          · split_ifs at h₂ <;> exact ⟨by nlinarith [Nat.div_mul_le_self n (r + 1), Nat.mod_add_div n (r + 1), Fin.is_lt c], by simp +decide [← h₂.2, Nat.add_mod, Nat.mod_eq_of_lt (Fin.is_lt c)]⟩
+          · exact ⟨v / (r + 1), by
+              have hvdiv := Nat.mod_add_div v (r + 1)
+              have hvmod := Nat.mod_lt v (Nat.succ_pos r)
+              have hndiv := Nat.mod_add_div n (r + 1)
+              have hnmod := Nat.mod_lt n (Nat.succ_pos r)
+              split_ifs <;> nlinarith
+            , by linarith [Nat.mod_add_div v (r + 1)]⟩
+          · split_ifs at h₂ <;>
+              exact ⟨by
+                have hdiv := Nat.div_mul_le_self n (r + 1)
+                have hmod := Nat.mod_add_div n (r + 1)
+                have hc_lt := Fin.is_lt c
+                nlinarith, by
+                have hc_lt := Fin.is_lt c
+                simp +decide [← h₂.2, Nat.add_mod, Nat.mod_eq_of_lt hc_lt]⟩
         generalize_proofs at *
         rw [h_set_eq, Finset.card_image_of_injective] <;> simp +decide [Function.Injective, *]
       simp_all +decide [Fin.ext_iff, Finset.card]
       split_ifs <;> simp +arith +decide [*] at *
     obtain ⟨f, hf⟩ := h_card (Fintype.card V)
-    obtain ⟨e, he⟩ : ∃ e : V ≃ Fin (Fintype.card V), True := ⟨Fintype.equivFin V, trivial⟩
+    obtain ⟨e, he⟩ : ∃ e : V ≃ Fin (Fintype.card V), True := ⟨Fintype.equivFin V,
+      trivial⟩
     use fun v => f (e v)
     intro c₁ c₂; convert hf c₁ c₂ using 1; simp +decide [cClass]
     · rw [Finset.card_filter, Finset.card_filter]; conv_rhs => rw [← Equiv.sum_comp e]
-    · rw [show cClass (fun v => f (e v)) c₂ = Finset.image (fun v => e.symm v) (Finset.filter (fun v => f v = c₂) Finset.univ) from ?_, Finset.card_image_of_injective _ e.symm.injective]; aesop
+    · rw [show cClass (fun v => f (e v)) c₂ = Finset.image (fun v =>
+      e.symm v) (Finset.filter (fun v => f v = c₂) Finset.univ) from ?_,
+        Finset.card_image_of_injective _ e.symm.injective]; aesop
   refine ⟨h_eq.choose, ?_, h_eq.choose_spec⟩
   intro v w hvw
   have h_edge : s(v, w) ∈ G.edgeSet := by
@@ -601,22 +687,28 @@ lemma one_step_equitable
     HasEquitableColoring G k := by
   obtain ⟨ v, hv ⟩ := hdirect;
   refine' ⟨ recolor ne.f v ne.small, _, _ ⟩ <;> simp_all +decide [ IsProper, IsEquitable ];
-  · intro u w huw; by_cases hu : u = v <;> by_cases hw : w = v <;> simp_all +decide [ recolor, SimpleGraph.adj_comm ] ;
+  · intro u w huw; by_cases hu : u = v <;> by_cases hw : w = v <;> simp_all +decide [ recolor,
+    SimpleGraph.adj_comm ] ;
     · grind +splitIndPred;
     · contrapose! hv; aesop;
     · exact ne.proper u w huw;
   · -- By definition of recoloring, we know that the sizes of the color classes change as follows:
-    have h_rec : ∀ c, (cClass (recolor ne.f v ne.small) c).card = if c = ne.large then (cClass ne.f ne.large).card - 1 else if c = ne.small then (cClass ne.f ne.small).card + 1 else (cClass ne.f c).card := by
+    have h_rec : ∀ c, (cClass (recolor ne.f v ne.small) c).card = if c = ne.large
+      then (cClass ne.f ne.large).card - 1 else if c = ne.small then (cClass ne.f ne.small).card + 1
+        else (cClass ne.f c).card := by
       intro c; split_ifs <;> simp_all +decide [cClass_recolor_other_card] ;
       · convert cClass_recolor_old_card _ ; aesop;
         · rw [ hv.1 ];
         · infer_instance;
         · exact hv.1.symm ▸ ne.ne_small_large.symm;
       · rw [ cClass_recolor_new_card ] ; aesop;
-    intro c₁ c₂; by_cases hc₁ : c₁ = ne.large <;> by_cases hc₂ : c₂ = ne.large <;> simp +decide [ * ] ;
-    · split_ifs <;> simp_all +decide [NearlyEquitable.card_large, NearlyEquitable.card_small, NearlyEquitable.card_other];
+    intro c₁ c₂; by_cases hc₁ : c₁ = ne.large <;> by_cases hc₂ : c₂ = ne.large <;>
+      simp +decide [ * ] ;
+    · split_ifs <;> simp_all +decide [NearlyEquitable.card_large, NearlyEquitable.card_small,
+      NearlyEquitable.card_other];
     · split_ifs <;> simp_all +decide [ ne.card_small, ne.card_large, ne.card_other ];
-    · by_cases hc₃ : c₁ = ne.small <;> by_cases hc₄ : c₂ = ne.small <;> simp_all +decide [ ne.card_small, ne.card_large, ne.card_other ]
+    · by_cases hc₃ : c₁ = ne.small <;> by_cases hc₄ : c₂ = ne.small <;>
+        simp_all +decide [ne.card_small, ne.card_large, ne.card_other]
 
 omit [Fintype V] in
 lemma auxAdj_preserved_by_recolor
@@ -639,9 +731,13 @@ lemma exists_nodup_chain {α : Type*} [Fintype α] [DecidableEq α]
     ∃ l : List α, l.Nodup ∧ l.IsChain R ∧ l.head? = some a ∧
     l.getLast? = some b ∧ 2 ≤ l.length := by
   -- Let's take the shortest path from `a` to `b` in the reflexive transitive closure.
-  obtain ⟨l, hl⟩ : ∃ l : List α, l.head? = some a ∧ l.getLast? = some b ∧ List.IsChain R l ∧ ¬∃ l' : List α, l'.head? = some a ∧ l'.getLast? = some b ∧ List.IsChain R l' ∧ l'.length < l.length := by
-    have h_shortest : ∃ l : List α, l.head? = some a ∧ l.getLast? = some b ∧ List.IsChain R l := by
-      have h_path : ∀ {a b : α}, Relation.ReflTransGen R a b → ∃ l : List α, l.head? = some a ∧ l.getLast? = some b ∧ List.IsChain R l := by
+  obtain ⟨l, hl⟩ : ∃ l : List α, l.head? = some a ∧ l.getLast? = some b ∧
+    List.IsChain R l ∧ ¬∃ l' : List α, l'.head? = some a ∧ l'.getLast? = some b ∧
+      List.IsChain R l' ∧ l'.length < l.length := by
+    have h_shortest : ∃ l : List α, l.head? = some a ∧ l.getLast? = some b ∧ List.IsChain R l
+      := by
+      have h_path : ∀ {a b : α}, Relation.ReflTransGen R a b → ∃ l : List α, l.head? =
+        some a ∧ l.getLast? = some b ∧ List.IsChain R l := by
         intro a b h
         induction' h with a b h ih;
         · exact ⟨ [ a ], rfl, rfl, List.isChain_singleton _ ⟩;
@@ -652,9 +748,11 @@ lemma exists_nodup_chain {α : Type*} [Fintype α] [DecidableEq α]
       refine' ⟨ fun l => _ ⟩;
       induction' n : l.length using Nat.strong_induction_on with n ih generalizing l;
       exact ⟨ _, fun l' hl' => ih _ ( by linarith ) _ rfl ⟩;
-    have := h_well_founded.has_min { l : List α | l.head? = some a ∧ l.getLast? = some b ∧ List.IsChain R l } ⟨ _, h_shortest.choose_spec ⟩ ; aesop;
+    have := h_well_founded.has_min { l : List α | l.head? = some a ∧ l.getLast? = some b ∧
+      List.IsChain R l } ⟨ _, h_shortest.choose_spec ⟩ ; aesop;
   refine' ⟨ l, _, hl.2.2.1, hl.1, hl.2.1, _ ⟩;
-  · -- If the list had duplicates, we could remove the cycle between the duplicates and create a shorter path, contradicting the assumption that l is the shortest.
+  · -- If the list had duplicates, we could remove the cycle between the duplicates and
+    -- create a shorter path, contradicting the assumption that l is the shortest.
     by_contra h_dup
     obtain ⟨i, j, hij, h_dup⟩ : ∃ i j, i < j ∧ l.get i = l.get j := by
       rw [ List.nodup_iff_injective_get ] at h_dup;
@@ -673,7 +771,8 @@ lemma exists_nodup_chain {α : Type*} [Fintype α] [DecidableEq α]
       · have := hl.2.2.1;
         exact List.IsChain.drop this _;
       · have := List.isChain_iff_getElem.mp hl.2.2.1;
-        rcases i with ⟨ _ | i, hi ⟩ <;> rcases j with ⟨ _ | j, hj ⟩ <;> simp_all +decide [ List.getLast?_take, List.head?_drop ];
+        rcases i with ⟨ _ | i, hi ⟩ <;> rcases j with ⟨ _ | j, hj ⟩ <;>
+          simp_all +decide [List.getLast?_take, List.head?_drop];
         convert this i (by omega) using 1;
         · rw [ List.getElem?_eq_getElem ] ; aesop;
         · exact h_dup.symm;
@@ -712,7 +811,8 @@ lemma step_with_chain_preservation
       (mid :: tail).IsChain (AuxAdj G ne'.f) ∧
       (mid :: tail).head? = some ne'.large ∧
       (mid :: tail).getLast? = some ne'.small := by
-  obtain ⟨ v, hv1, hv2 ⟩ := hedge; use ⟨ recolor ne.f v mid, ?_, ne.small, mid, ?_, ?_, ?_, ?_, ?_ ⟩ <;> simp_all +decide ;
+  obtain ⟨ v, hv1, hv2 ⟩ := hedge; use ⟨ recolor ne.f v mid, ?_, ne.small, mid, ?_, ?_, ?_,
+    ?_, ?_ ⟩ <;> simp_all +decide ;
   any_goals tauto;
   any_goals exact ne.card_total;
   · apply chain_preserved_after_recolor;
@@ -726,7 +826,8 @@ lemma step_with_chain_preservation
     · tauto;
   · convert cClass_recolor_new_card ( show ne.f v ≠ mid from by aesop ) using 1;
     rw [ ne.card_other mid ( by tauto ) ( by tauto ) ];
-  · intro c hc1 hc2; by_cases hc3 : c = ne.large <;> simp_all +decide [ cClass_recolor_other_card ] ;
+  · intro c hc1 hc2; by_cases hc3 : c = ne.large <;>
+    simp_all +decide [cClass_recolor_other_card] ;
     · convert cClass_recolor_old_card ( show ne.f v ≠ mid from by aesop ) using 1;
       · rw [ hv1 ];
       · have := ne.card_large; aesop;
@@ -754,7 +855,9 @@ lemma equitable_from_nodup_chain
           by_cases hmid : mid = ne.small;
           · simp_all +decide [ List.isChain_cons_cons ];
             exact one_step_equitable G k s hs ne hchain.1;
-          · obtain ⟨ne', hne'⟩ : ∃ ne' : NearlyEquitable G k s, ne'.small = ne.small ∧ ne'.large = mid ∧ (mid :: tail).Nodup ∧ (mid :: tail).IsChain (AuxAdj G ne'.f) ∧ (mid :: tail).head? = some ne'.large ∧ (mid :: tail).getLast? = some ne'.small := by
+          · obtain ⟨ne', hne'⟩ : ∃ ne' : NearlyEquitable G k s, ne'.small = ne.small ∧
+            ne'.large = mid ∧ (mid :: tail).Nodup ∧ (mid :: tail).IsChain (AuxAdj G ne'.f) ∧
+              (mid :: tail).head? = some ne'.large ∧ (mid :: tail).getLast? = some ne'.small := by
               apply step_with_chain_preservation;
               all_goals simp_all +decide [ List.isChain_cons_cons ];
               tauto;
@@ -768,11 +871,15 @@ lemma accessible_large_gives_equitable
     (ne : NearlyEquitable G k s)
     (hacc : IsAccessible G ne.f ne.small ne.large) :
     HasEquitableColoring G k := by
-  -- Use the hypothesis `hacc` to obtain a nodup chain from the large class to the small class in the auxiliary digraph.
-  obtain ⟨l, hl⟩ : ∃ l : List (Fin k), l.Nodup ∧ l.IsChain (AuxAdj G ne.f) ∧ l.head? = some ne.large ∧ l.getLast? = some ne.small ∧ 2 ≤ l.length := by
+  -- Use the hypothesis `hacc` to obtain a nodup chain from the large class to the small
+  -- class in the auxiliary digraph.
+  obtain ⟨l, hl⟩ : ∃ l : List (Fin k), l.Nodup ∧ l.IsChain (AuxAdj G ne.f) ∧ l.head? =
+    some ne.large ∧ l.getLast? = some ne.small ∧ 2 ≤ l.length := by
     apply exists_nodup_chain; assumption; exact ne.ne_small_large.symm;
   -- Apply Lemma 2.1 to the chain l.
-  apply equitable_from_nodup_chain G k s ne l hl.left hl.right.left hl.right.right.left hl.right.right.right.left
+  apply
+    equitable_from_nodup_chain G k s ne l hl.left hl.right.left hl.right.right.left
+      hl.right.right.right.left
 
 /-! ## Section 8: Creating a nearly equitable coloring -/
 
@@ -785,14 +892,20 @@ lemma equitable_all_same_size {k s : ℕ}
   have h_sum : ∑ c, (cClass f c).card = k * s := by
     rw [ ← htotal, cClass_card_sum ];
   by_contra h_contra;
-  -- Since there's a class with size less than s, let's denote this class as d. Then (cClass f d).card < s.
+  -- Since there's a class with size less than s, let's denote this class as d. Then
+  -- (cClass f d).card < s.
   obtain ⟨d, hd⟩ : ∃ d, (cClass f d).card < s := by
     by_cases h_all_ge_s : ∀ c, (cClass f c).card ≥ s;
-    · exact absurd ( h_sum ▸ Finset.sum_lt_sum ( fun a _ => h_all_ge_s a ) ⟨ c, Finset.mem_univ c, lt_of_le_of_ne ( h_all_ge_s c ) ( Ne.symm h_contra ) ⟩ ) ( by simp +decide );
+    · exact absurd
+        (h_sum ▸ Finset.sum_lt_sum (fun a _ => h_all_ge_s a)
+          ⟨c, Finset.mem_univ c,
+            lt_of_le_of_ne (h_all_ge_s c) (Ne.symm h_contra)⟩)
+        (by simp +decide);
     · aesop;
   have h_all_le : ∀ c, (cClass f c).card ≤ s := by
     exact fun c => by linarith [ hf c d, hf d c ] ;
-  exact absurd h_sum ( ne_of_lt ( lt_of_lt_of_le ( Finset.sum_lt_sum ( fun x _ => h_all_le x ) ⟨ d, Finset.mem_univ d, hd ⟩ ) ( by simp +decide ) ) )
+  exact absurd h_sum ( ne_of_lt ( lt_of_lt_of_le ( Finset.sum_lt_sum ( fun x _ =>
+    h_all_le x ) ⟨ d, Finset.mem_univ d, hd ⟩ ) ( by simp +decide ) ) )
 
 omit [DecidableEq V] in
 lemma exists_movable_class
@@ -801,11 +914,14 @@ lemma exists_movable_class
     (f : V → Fin (r + 1)) (x : V)
     (hx_neighbor : ∃ w, f w = f x ∧ G.Adj x w) :
     ∃ c : Fin (r + 1), c ≠ f x ∧ ∀ w, f w = c → ¬G.Adj x w := by
-  -- The set of colors used by neighbors of x is S = {f w | G.Adj x w}. Since |neighbors of x| = degree(x) ≤ maxDegree ≤ r, |S| ≤ r.
+  -- The set of colors used by neighbors of x is S = {f w | G.Adj x w}. Since |neighbors
+  -- of x| = degree(x) ≤ maxDegree ≤ r, |S| ≤ r.
   set S := (G.neighborFinset x).image f with hS_def
   have hS_card : S.card ≤ r := by
-    exact le_trans ( Finset.card_image_le ) ( by simpa using G.degree_le_maxDegree x |> le_trans <| hd );
-  -- Since S contains f x and has size ≤ r, the complement Finset.univ \ S has size ≥ r+1 - r = 1.
+    exact le_trans ( Finset.card_image_le ) ( by simpa using G.degree_le_maxDegree x |> le_trans <|
+      hd );
+  -- Since S contains f x and has size ≤ r, the complement Finset.univ \ S has size ≥
+  -- r+1 - r = 1.
   have h_compl_card : (Finset.univ \ S).card ≥ 1 := by
     simp +decide [ Finset.card_sdiff, * ];
     exact Nat.sub_pos_of_lt ( lt_of_le_of_lt hS_card ( Nat.lt_succ_self _ ) );
@@ -829,7 +945,8 @@ lemma induction_step_with_callback
   cases' hIH with f hf
   rcases e with ⟨x, y⟩
   by_cases hxy : f x = f y
-  · obtain ⟨c, hc_ne, hc_movable⟩ : ∃ c : Fin (r + 1), c ≠ f x ∧ ∀ w, f w = c → ¬G.Adj x w := by
+  · obtain ⟨c, hc_ne, hc_movable⟩ : ∃ c : Fin (r + 1), c ≠ f x ∧ ∀ w, f w = c →
+    ¬G.Adj x w := by
       apply exists_movable_class G hd f x ⟨y, by aesop⟩
     set f' : V → Fin (r + 1) := recolor f x c
     have hf'_proper : IsProper G f' := by
@@ -851,7 +968,10 @@ lemma induction_step_with_callback
         · by_cases hc'_eq_c : c' = c <;>
             simp_all +decide
           · rw [cClass_recolor_new_card]; aesop
-          · convert cClass_recolor_other_card (show c' ≠ f x from by aesop) (show c' ≠ c from by aesop) using 1
+          · convert
+              cClass_recolor_other_card (show c' ≠ f x from by aesop)
+                (show c' ≠ c from by aesop)
+              using 1
       have h_card_f : ∀ c' : Fin (r + 1), (cClass f c').card = s := by
         apply equitable_all_same_size hf.2 hs
       aesop
@@ -883,7 +1003,8 @@ lemma non_acc_has_acc_neighbor
     (hnacc_y : ¬IsAccessible G f i_minus (f y)) :
     ∃ w, f w = c ∧ G.Adj y w := by
   by_contra h_contra; push Not at h_contra; (
-  -- By contraposition, if y has no neighbor of color c, then y's color is accessible to i_minus by the definition of AuxAdj.
+  -- By contraposition, if y has no neighbor of color c, then y's color is accessible to
+  -- i_minus by the definition of AuxAdj.
   have h_aux_adj_y : AuxAdj G f (f y) c := by
     exact ⟨ y, rfl, h_contra ⟩;
   exact hnacc_y ( Relation.ReflTransGen.head h_aux_adj_y hacc_c ));
@@ -899,22 +1020,35 @@ lemma acc_has_second_color
     (hacc : ¬IsAccessible G ne.f ne.small ne.large) :
     ∃ W : Fin (r + 1), W ≠ ne.small ∧ W ≠ ne.large ∧ IsAccessible G ne.f ne.small W := by
   by_contra h_contra;
-  -- If there are no vertices of color ne.small that are not adjacent to any vertex of color ne.large, then every vertex of color ne.small is adjacent to at least one vertex of color ne.large.
-  have h_adj_small_large : ∀ y : V, ne.f y ≠ ne.small → ∃ w : V, ne.f w = ne.small ∧ G.Adj y w := by
+  -- If there are no vertices of color ne.small that are not adjacent to any vertex of
+  -- color ne.large, then every vertex of color ne.small is adjacent to at least one
+  -- vertex of color ne.large.
+  have h_adj_small_large : ∀ y : V, ne.f y ≠ ne.small → ∃ w : V, ne.f w = ne.small ∧
+    G.Adj y w := by
     intro y hy_ne_small
     generalize_proofs at *; (
     apply non_acc_has_acc_neighbor G (Relation.ReflTransGen.refl) (by
     by_cases hy_large : ne.f y = ne.large <;> simp_all +decide [ IsAccessible ]))
   generalize_proofs at *; (
-  have h_edges : (Finset.card (Finset.filter (fun v => ne.f v ≠ ne.small) Finset.univ)) ≤ r * (Finset.card (Finset.filter (fun v => ne.f v = ne.small) Finset.univ)) := by
-    have h_edges : (Finset.card (Finset.filter (fun v => ne.f v ≠ ne.small) Finset.univ)) ≤ Finset.sum (Finset.filter (fun v => ne.f v = ne.small) Finset.univ) (fun v => Finset.card (Finset.filter (fun w => ne.f w ≠ ne.small ∧ G.Adj v w) Finset.univ)) := by
-      have h_edges : Finset.filter (fun v => ne.f v ≠ ne.small) Finset.univ ⊆ Finset.biUnion (Finset.filter (fun v => ne.f v = ne.small) Finset.univ) (fun v => Finset.filter (fun w => ne.f w ≠ ne.small ∧ G.Adj v w) Finset.univ) := by
+  have h_edges : (Finset.card (Finset.filter (fun v => ne.f v ≠ ne.small) Finset.univ)) ≤ r *
+    (Finset.card (Finset.filter (fun v => ne.f v = ne.small) Finset.univ)) := by
+    have h_edges : (Finset.card (Finset.filter (fun v => ne.f v ≠ ne.small) Finset.univ)) ≤
+      Finset.sum (Finset.filter (fun v => ne.f v = ne.small) Finset.univ) (fun v =>
+        Finset.card (Finset.filter (fun w => ne.f w ≠ ne.small ∧ G.Adj v w) Finset.univ)) := by
+      have h_edges : Finset.filter (fun v =>
+        ne.f v ≠ ne.small) Finset.univ ⊆ Finset.biUnion (Finset.filter (fun v => ne.f v =
+          ne.small) Finset.univ) (fun v => Finset.filter (fun w => ne.f w ≠ ne.small ∧
+            G.Adj v w) Finset.univ) := by
         intro v hv; specialize h_adj_small_large v; simp_all +decide ;
-        exact ⟨ h_adj_small_large.choose, h_adj_small_large.choose_spec.1, h_adj_small_large.choose_spec.2.symm ⟩
+        exact ⟨ h_adj_small_large.choose, h_adj_small_large.choose_spec.1,
+          h_adj_small_large.choose_spec.2.symm ⟩
       generalize_proofs at *; (
-      exact le_trans ( Finset.card_le_card h_edges ) ( Finset.card_biUnion_le ) |> le_trans <| by simp +decide [ Finset.sum_filter ] ;)
+      exact le_trans ( Finset.card_le_card h_edges ) ( Finset.card_biUnion_le ) |> le_trans <|
+        by simp +decide [ Finset.sum_filter ] ;)
     generalize_proofs at *; (
-    have h_edges : ∀ v ∈ Finset.filter (fun v => ne.f v = ne.small) Finset.univ, Finset.card (Finset.filter (fun w => ne.f w ≠ ne.small ∧ G.Adj v w) Finset.univ) ≤ r := by
+    have h_edges : ∀ v ∈ Finset.filter (fun v => ne.f v = ne.small) Finset.univ,
+      Finset.card (Finset.filter (fun w => ne.f w ≠ ne.small ∧ G.Adj v w) Finset.univ) ≤ r
+        := by
       intro v hv
       have h_deg_v : Finset.card (Finset.filter (fun w => G.Adj v w) Finset.univ) ≤ r := by
         convert (SimpleGraph.degree_le_maxDegree G v).trans hd using 1
@@ -924,7 +1058,8 @@ lemma acc_has_second_color
     generalize_proofs at *; (
     exact le_trans ‹_› ( by simpa [ mul_comm ] using Finset.sum_le_sum h_edges )))
   generalize_proofs at *; (
-  have h_card_small : (Finset.card (Finset.filter (fun v => ne.f v = ne.small) Finset.univ)) = s - 1 := by
+  have h_card_small : (Finset.card (Finset.filter (fun v => ne.f v = ne.small) Finset.univ)) = s - 1
+    := by
     exact ne.card_small ▸ rfl
   generalize_proofs at *; (
   simp_all +decide [ Finset.filter_not, Finset.card_sdiff ];
@@ -984,7 +1119,8 @@ lemma solo_weight_contradiction
   -- Step 3: Key cardinality facts
   have hW₀_card : W₀_class.card = s := ne.card_other W₀ hW₀_ne_small hW₀_ne_large
   have hW₀_mem : W₀ ∈ acc_colors := Finset.mem_filter.mpr ⟨Finset.mem_univ _, hW₀_acc⟩
-  have hsmall_mem : ne.small ∈ acc_colors := Finset.mem_filter.mpr ⟨Finset.mem_univ _, Relation.ReflTransGen.refl⟩
+  have hsmall_mem : ne.small ∈ acc_colors := Finset.mem_filter.mpr ⟨Finset.mem_univ _,
+    Relation.ReflTransGen.refl⟩
   have hlarge_nmem : ne.large ∉ acc_colors := by simp [acc_colors, Finset.mem_filter]; exact hacc
   have hacc_ge_2 : 2 ≤ acc_colors.card := by
     have : {ne.small, W₀} ⊆ acc_colors := by
@@ -995,7 +1131,8 @@ lemma solo_weight_contradiction
       ∀ c, IsAccessible G ne.f ne.small c → ∃ w, ne.f w = c ∧ G.Adj y w := by
     intro y hy c hc; exact non_acc_has_acc_neighbor G hc hy
   -- Step 4: For solo z in W₀, z has neighbor in every accessible class ≠ W₀
-  -- Hence z has ≥ acc_colors.card - 1 accessible neighbors, so ≤ r - (acc_colors.card - 1) non-acc neighbors
+  -- Hence z has ≥ acc_colors.card - 1 accessible neighbors, so ≤ r - (acc_colors.card -
+  -- 1) non-acc neighbors
   -- This is the key degree bound from h_all_bad
   have h_solo_deg_bound : ∀ z : V, ne.f z = W₀ →
       (∃ y₁ : V, ¬IsAccessible G ne.f ne.small (ne.f y₁) ∧
@@ -1003,23 +1140,39 @@ lemma solo_weight_contradiction
       (Finset.univ.filter (fun w => G.Adj z w ∧ ¬IsAccessible G ne.f ne.small (ne.f w))).card
         ≤ r + 1 - acc_colors.card := by
     intro z hz ⟨y₁, hy₁_nacc, hy₁_adj, hy₁_uniq⟩
-    have h_bad := h_all_bad W₀ z y₁ hW₀_acc hW₀_ne_small hW₀_ne_large hz hy₁_nacc hy₁_adj hy₁_uniq
+    have h_bad :=
+      h_all_bad W₀ z y₁ hW₀_acc hW₀_ne_small hW₀_ne_large hz hy₁_nacc hy₁_adj
+        hy₁_uniq
     -- z has a neighbor in every accessible class ≠ W₀
     -- So z has ≥ acc_colors.card - 1 neighbors with accessible colors
-    -- Total degree ≤ r, so non-accessible neighbors ≤ r - (acc_colors.card - 1) = r + 1 - acc_colors.card
-    have h_deg_bound : Finset.card (Finset.filter (fun w => G.Adj z w ∧ IsAccessible G ne.f ne.small (ne.f w)) (Finset.univ : Finset V)) ≥ acc_colors.card - 1 := by
-      have hN_acc_ge : Finset.card (acc_colors.erase W₀) ≤ Finset.card (Finset.image (fun w => ne.f w) (Finset.filter (fun w => G.Adj z w ∧ IsAccessible G ne.f ne.small (ne.f w)) (Finset.univ : Finset V))) := by
+    -- Total degree ≤ r, so non-accessible neighbors ≤ r - (acc_colors.card - 1) = r + 1
+    -- - acc_colors.card
+    have h_deg_bound : Finset.card (Finset.filter (fun w => G.Adj z w ∧
+      IsAccessible G ne.f ne.small (ne.f w)) (Finset.univ : Finset V)) ≥ acc_colors.card - 1 := by
+      have hN_acc_ge : Finset.card (acc_colors.erase W₀) ≤ Finset.card (Finset.image (fun w =>
+        ne.f w) (Finset.filter (fun w => G.Adj z w ∧
+          IsAccessible G ne.f ne.small (ne.f w)) (Finset.univ : Finset V))) := by
         refine Finset.card_le_card ?_;
         grind;
-      exact le_trans ( by rw [ Finset.card_erase_of_mem hW₀_mem ] ) ( hN_acc_ge.trans ( Finset.card_image_le ) );
-    have h_deg_bound : Finset.card (Finset.filter (fun w => G.Adj z w) (Finset.univ : Finset V)) ≤ r := by
+      exact le_trans
+        (by rw [Finset.card_erase_of_mem hW₀_mem])
+        (hN_acc_ge.trans Finset.card_image_le)
+    have h_deg_bound : Finset.card (Finset.filter (fun w => G.Adj z w) (Finset.univ : Finset V)) ≤
+      r := by
       convert (SimpleGraph.degree_le_maxDegree G z).trans hd using 1
       rw [SimpleGraph.degree, SimpleGraph.neighborFinset_eq_filter]
-    have h_deg_bound : Finset.card (Finset.filter (fun w => G.Adj z w ∧ IsAccessible G ne.f ne.small (ne.f w)) (Finset.univ : Finset V)) + Finset.card (Finset.filter (fun w => G.Adj z w ∧ ¬IsAccessible G ne.f ne.small (ne.f w)) (Finset.univ : Finset V)) = Finset.card (Finset.filter (fun w => G.Adj z w) (Finset.univ : Finset V)) := by
-      rw [ Finset.card_filter, Finset.card_filter, Finset.card_filter ] ; rw [ ← Finset.sum_add_distrib ] ; congr ; ext w ; by_cases hw : IsAccessible G ne.f ne.small ( ne.f w ) <;> simp +decide [ hw ] ;
+    have h_deg_bound : Finset.card (Finset.filter (fun w => G.Adj z w ∧
+      IsAccessible G ne.f ne.small (ne.f w)) (Finset.univ : Finset V)) +
+        Finset.card (Finset.filter (fun w => G.Adj z w ∧
+          ¬IsAccessible G ne.f ne.small (ne.f w)) (Finset.univ : Finset V)) =
+            Finset.card (Finset.filter (fun w => G.Adj z w) (Finset.univ : Finset V)) := by
+      rw [ Finset.card_filter, Finset.card_filter, Finset.card_filter ] ;
+        rw [ ← Finset.sum_add_distrib ] ; congr ; ext w ;
+          by_cases hw : IsAccessible G ne.f ne.small ( ne.f w ) <;> simp +decide [ hw ] ;
     omega
   -- Step 5: Compute |B_verts|
-  -- |V| = (r+1)*s. Accessible vertices: ne.small (s-1) + (acc_colors.card - 1) other acc classes (s each).
+  -- |V| = (r+1)*s. Accessible vertices: ne.small (s-1) + (acc_colors.card - 1) other
+  -- acc classes (s each).
   -- |acc vertices| = (s-1) + (acc_colors.card - 1)*s = acc_colors.card * s - 1.
   -- |B_verts| = (r+1)*s - (acc_colors.card * s - 1) = (r+1-acc_colors.card)*s + 1.
   set q := r + 1 - acc_colors.card with hq_def
@@ -1033,28 +1186,46 @@ lemma solo_weight_contradiction
       · rw [ ← Finset.card_compl ];
         congr with v ; simp +decide [ B_verts, acc_colors, cClass ];
       · exact fun x hx y hy hxy => Finset.disjoint_filter.2 fun z => by simp +contextual [ hxy ] ;
-    have hB_card : ∑ c ∈ acc_colors, (cClass ne.f c).card = (acc_colors.card - 1) * s + (s - 1) := by
-      have hB_card : ∑ c ∈ acc_colors, (cClass ne.f c).card = ∑ c ∈ acc_colors.erase ne.small, (cClass ne.f c).card + (cClass ne.f ne.small).card := by
+    have hB_card : ∑ c ∈ acc_colors, (cClass ne.f c).card = (acc_colors.card - 1) * s + (s - 1)
+      := by
+      have hB_card : ∑ c ∈ acc_colors, (cClass ne.f c).card =
+        ∑ c ∈ acc_colors.erase ne.small, (cClass ne.f c).card + (cClass ne.f ne.small).card
+          := by
         rw [ Finset.sum_erase_add _ _ hsmall_mem ];
-      rw [ hB_card, Finset.sum_congr rfl fun x hx => ne.card_other x ?_ ?_ ] <;> simp +decide [ *, Finset.card_erase_of_mem hsmall_mem ];
+      rw [ hB_card, Finset.sum_congr rfl fun x hx => ne.card_other x ?_ ?_ ] <;> simp +decide [ *,
+        Finset.card_erase_of_mem hsmall_mem ];
       · exact ne.card_small;
       · exact Finset.ne_of_mem_erase hx;
       · exact fun h => hlarge_nmem <| h ▸ Finset.mem_of_mem_erase hx;
     rw [ ‹#B_verts = Fintype.card V - ∑ c ∈ acc_colors, #(cClass ne.f c)›, hs, hB_card ];
-    exact Nat.sub_eq_of_eq_add <| by nlinarith only [ Nat.sub_add_cancel hacc_le, Nat.sub_add_cancel ( show 1 ≤ s from hs0 ), Nat.sub_add_cancel ( show 1 ≤ Finset.card acc_colors from by linarith ) ] ;
+    exact Nat.sub_eq_of_eq_add <| by
+      have hs1 : 1 ≤ s := by exact Nat.succ_le_of_lt hs0
+      have hacc_pos : 1 ≤ Finset.card acc_colors := by linarith
+      nlinarith only [Nat.sub_add_cancel hacc_le, Nat.sub_add_cancel hs1,
+        Nat.sub_add_cancel hacc_pos]
   -- Step 5c: Degree bound for non-accessible vertices
   have hB_deg : ∀ y : V, y ∈ B_verts →
       (B_verts.filter (fun w => G.Adj y w)).card ≤ q - 1 := by
     intro y hy; specialize hB_has_nbr y; simp_all +decide ;
-    -- Since $y$ is in $B_verts$, $y$ is not accessible. Therefore, $y$ has at least $acc_colors.card$ neighbors with accessible colors.
-    have h_y_acc_nbr : (Finset.filter (fun w => IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset y)).card ≥ acc_colors.card := by
-      have h_y_acc_nbr : (Finset.image (fun w => ne.f w) (Finset.filter (fun w => IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset y))).card ≥ acc_colors.card := by
+    -- Since $y$ is in $B_verts$, $y$ is not accessible. Therefore, $y$ has at least
+    -- $acc_colors.card$ neighbors with accessible colors.
+    have h_y_acc_nbr : (Finset.filter (fun w =>
+      IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset y)).card ≥ acc_colors.card := by
+      have h_y_acc_nbr : (Finset.image (fun w => ne.f w) (Finset.filter (fun w =>
+        IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset y))).card ≥ acc_colors.card := by
         refine Finset.card_le_card ?_;
-        intro c hc; specialize hB_has_nbr ( Finset.mem_filter.mp hy |>.2 ) c ( Finset.mem_filter.mp hc |>.2 ) ; aesop;
+        intro c hc
+        specialize hB_has_nbr (Finset.mem_filter.mp hy |>.2) c
+          (Finset.mem_filter.mp hc |>.2)
+        aesop
       exact h_y_acc_nbr.trans ( Finset.card_image_le );
-    have h_y_total_nbr : (Finset.filter (fun w => IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset y)).card + (Finset.filter (fun w => ¬IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset y)).card ≤ r := by
-      rw [ Finset.card_filter_add_card_filter_not ] ; exact le_trans ( SimpleGraph.degree_le_maxDegree _ _ ) hd;
-    rw [ show { w ∈ B_verts | G.Adj y w } = { w ∈ G.neighborFinset y | ¬IsAccessible G ne.f ne.small ( ne.f w ) } from ?_ ];
+    have h_y_total_nbr : (Finset.filter (fun w =>
+      IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset y)).card + (Finset.filter (fun w =>
+        ¬IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset y)).card ≤ r := by
+      rw [ Finset.card_filter_add_card_filter_not ] ;
+        exact le_trans ( SimpleGraph.degree_le_maxDegree _ _ ) hd;
+    rw [ show { w ∈ B_verts | G.Adj y w } =
+      { w ∈ G.neighborFinset y | ¬IsAccessible G ne.f ne.small ( ne.f w ) } from ?_ ];
     · omega;
     · ext; simp [B_verts];
       tauto
@@ -1063,58 +1234,116 @@ lemma solo_weight_contradiction
   · -- Case 1: t ≤ q (equivalently acc_colors.card - 1 ≤ r + 1 - acc_colors.card)
     -- Edge counting between W₀_class and B_verts gives contradiction
     -- The edge count between W₀_class and B_verts contradicts the degree bounds.
-    have h_edge_count : 2 * (q * s + 1) - q * Finset.card (Finset.filter (fun z => z ∈ W₀_class ∧ ∃ y, y ∈ B_verts ∧ G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) W₀_class) ≤ q * Finset.card (Finset.filter (fun z => z ∈ W₀_class ∧ ∃ y, y ∈ B_verts ∧ G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) W₀_class) + r * Finset.card (Finset.filter (fun z => z ∈ W₀_class ∧ ¬∃ y, y ∈ B_verts ∧ G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) W₀_class) := by
-      have h_edge_count : ∑ z ∈ W₀_class, (B_verts.filter (fun w => G.Adj z w)).card = ∑ y ∈ B_verts, (W₀_class.filter (fun w => G.Adj y w)).card := by
+    have h_edge_count : 2 * (q * s + 1) - q * Finset.card (Finset.filter (fun z =>
+      z ∈ W₀_class ∧ ∃ y, y ∈ B_verts ∧ G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z →
+        ¬G.Adj y w) W₀_class) ≤ q * Finset.card (Finset.filter (fun z => z ∈ W₀_class ∧
+          ∃ y, y ∈ B_verts ∧ G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z →
+            ¬G.Adj y w) W₀_class) + r * Finset.card (Finset.filter (fun z => z ∈ W₀_class ∧
+              ¬∃ y, y ∈ B_verts ∧ G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z →
+                ¬G.Adj y w) W₀_class) := by
+      have h_edge_count : ∑ z ∈ W₀_class, (B_verts.filter (fun w => G.Adj z w)).card =
+        ∑ y ∈ B_verts, (W₀_class.filter (fun w => G.Adj y w)).card := by
         simp +decide only [card_filter];
-        exact Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by simp +decide [ SimpleGraph.adj_comm ] );
-      have h_edge_count : ∑ y ∈ B_verts, (W₀_class.filter (fun w => G.Adj y w)).card ≥ 2 * (q * s + 1) - q * Finset.card (Finset.filter (fun z => z ∈ W₀_class ∧ ∃ y, y ∈ B_verts ∧ G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) W₀_class) := by
-        have h_edge_count : ∀ y ∈ B_verts, (W₀_class.filter (fun w => G.Adj y w)).card ≥ if ∃ z ∈ W₀_class, G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w then 1 else 2 := by
+        exact Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ =>
+          Finset.sum_congr rfl fun _ _ => by simp +decide [ SimpleGraph.adj_comm ] );
+      have h_edge_count : ∑ y ∈ B_verts, (W₀_class.filter (fun w => G.Adj y w)).card ≥ 2 *
+        (q * s + 1) - q * Finset.card (Finset.filter (fun z => z ∈ W₀_class ∧ ∃ y,
+          y ∈ B_verts ∧ G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) W₀_class)
+            := by
+        have h_edge_count : ∀ y ∈ B_verts, (W₀_class.filter (fun w => G.Adj y w)).card ≥
+          if ∃ z ∈ W₀_class, G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w
+            then 1 else 2 := by
           intro y hy
-          by_cases h_exists_z : ∃ z ∈ W₀_class, G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w;
+          by_cases h_exists_z : ∃ z ∈ W₀_class, G.Adj y z ∧ ∀ w ∈ W₀_class,
+            w ≠ z → ¬G.Adj y w;
           · simp +zetaDelta at *;
-            rw [ if_pos h_exists_z ] ; exact Finset.card_pos.mpr ⟨ h_exists_z.choose, Finset.mem_filter.mpr ⟨ Finset.mem_filter.mpr ⟨ Finset.mem_univ _, h_exists_z.choose_spec.1 ⟩, h_exists_z.choose_spec.2.1 ⟩ ⟩ ;
+            rw [ if_pos h_exists_z ] ; exact Finset.card_pos.mpr ⟨ h_exists_z.choose,
+              Finset.mem_filter.mpr ⟨ Finset.mem_filter.mpr ⟨ Finset.mem_univ _,
+                h_exists_z.choose_spec.1 ⟩, h_exists_z.choose_spec.2.1 ⟩ ⟩ ;
           · obtain ⟨z₁, hz₁⟩ : ∃ z₁ ∈ W₀_class, G.Adj y z₁ := by
               simp +zetaDelta at *;
-              exact Exists.elim ( hB_has_nbr y hy W₀ hW₀_mem ) fun z hz => ⟨ z, hz.1, hz.2 ⟩;
+              exact Exists.elim ( hB_has_nbr y hy W₀ hW₀_mem ) fun z hz => ⟨ z, hz.1,
+                hz.2 ⟩;
             obtain ⟨z₂, hz₂⟩ : ∃ z₂ ∈ W₀_class, G.Adj y z₂ ∧ z₂ ≠ z₁ := by
               grind;
             simp [h_exists_z];
-            refine' Finset.one_lt_card.mpr ⟨ z₁, _, z₂, _, _ ⟩ <;> simp +decide [ hz₁, hz₂ ];
+            refine' Finset.one_lt_card.mpr ⟨ z₁, _, z₂, _, _ ⟩ <;> simp +decide [ hz₁,
+              hz₂ ];
             exact Ne.symm hz₂.2.2;
-        have h_edge_count : ∑ y ∈ B_verts, (if ∃ z ∈ W₀_class, G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w then 1 else 2) ≥ 2 * (q * s + 1) - q * Finset.card (Finset.filter (fun z => z ∈ W₀_class ∧ ∃ y, y ∈ B_verts ∧ G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) W₀_class) := by
-          have h_edge_count : Finset.card (Finset.filter (fun y => ∃ z ∈ W₀_class, G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) B_verts) ≤ q * Finset.card (Finset.filter (fun z => z ∈ W₀_class ∧ ∃ y, y ∈ B_verts ∧ G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) W₀_class) := by
-            have h_edge_count : ∀ z ∈ W₀_class, (Finset.filter (fun y => G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) B_verts).card ≤ q := by
+        have h_edge_count : ∑ y ∈ B_verts, (if ∃ z ∈ W₀_class, G.Adj y z ∧
+          ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w then 1 else 2) ≥ 2 * (q * s + 1) - q *
+            Finset.card (Finset.filter (fun z => z ∈ W₀_class ∧ ∃ y, y ∈ B_verts ∧
+              G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) W₀_class) := by
+          have h_edge_count : Finset.card (Finset.filter (fun y => ∃ z ∈ W₀_class,
+            G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) B_verts) ≤ q *
+              Finset.card (Finset.filter (fun z => z ∈ W₀_class ∧ ∃ y, y ∈ B_verts ∧
+                G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) W₀_class) := by
+            have h_edge_count : ∀ z ∈ W₀_class, (Finset.filter (fun y => G.Adj y z ∧
+              ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) B_verts).card ≤ q := by
               intros z hz
-              by_cases hz_solo : ∃ y₁, y₁ ∈ B_verts ∧ G.Adj y₁ z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y₁ w;
+              by_cases hz_solo : ∃ y₁, y₁ ∈ B_verts ∧ G.Adj y₁ z ∧
+                ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y₁ w;
               · refine' le_trans _ ( h_solo_deg_bound z _ _ );
                 · refine' Finset.card_le_card _;
                   simp +contextual [ Finset.subset_iff, SimpleGraph.adj_comm ];
                   exact fun x hx hx' hx'' => Finset.mem_filter.mp hx |>.2;
                 · exact Finset.mem_filter.mp hz |>.2;
-                · exact ⟨ hz_solo.choose, Finset.mem_filter.mp hz_solo.choose_spec.1 |>.2, hz_solo.choose_spec.2.1, fun w hw hw' => hz_solo.choose_spec.2.2 w ( Finset.mem_filter.mpr ⟨ Finset.mem_univ _, hw ⟩ ) hw' ⟩;
+                · exact ⟨ hz_solo.choose, Finset.mem_filter.mp hz_solo.choose_spec.1 |>.2,
+                  hz_solo.choose_spec.2.1, fun w hw hw' =>
+                    hz_solo.choose_spec.2.2 w ( Finset.mem_filter.mpr ⟨ Finset.mem_univ _,
+                      hw ⟩ ) hw' ⟩;
               · rw [ Finset.card_eq_zero.mpr ] <;> norm_num;
                 grind;
-            have h_edge_count : Finset.card (Finset.filter (fun y => ∃ z ∈ W₀_class, G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) B_verts) ≤ ∑ z ∈ Finset.filter (fun z => z ∈ W₀_class ∧ ∃ y ∈ B_verts, G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) W₀_class, (Finset.filter (fun y => G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) B_verts).card := by
-              have h_edge_count : Finset.filter (fun y => ∃ z ∈ W₀_class, G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) B_verts ⊆ Finset.biUnion (Finset.filter (fun z => z ∈ W₀_class ∧ ∃ y ∈ B_verts, G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) W₀_class) (fun z => Finset.filter (fun y => G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) B_verts) := by
+            have h_edge_count : Finset.card (Finset.filter (fun y => ∃ z ∈ W₀_class,
+              G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) B_verts) ≤
+                ∑ z ∈ Finset.filter (fun z => z ∈ W₀_class ∧ ∃ y ∈ B_verts,
+                  G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) W₀_class,
+                    (Finset.filter (fun y => G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z →
+                      ¬G.Adj y w) B_verts).card := by
+              have h_edge_count : Finset.filter (fun y => ∃ z ∈ W₀_class, G.Adj y z ∧
+                ∀ w ∈ W₀_class, w ≠ z →
+                  ¬G.Adj y w) B_verts ⊆ Finset.biUnion (Finset.filter (fun z =>
+                    z ∈ W₀_class ∧ ∃ y ∈ B_verts, G.Adj y z ∧ ∀ w ∈ W₀_class,
+                      w ≠ z → ¬G.Adj y w) W₀_class) (fun z => Finset.filter (fun y =>
+                        G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) B_verts) := by
                 simp +contextual [ Finset.subset_iff ];
                 exact fun x hx y hy hxy hyx => ⟨ y, ⟨ hy, x, hx, hxy, hyx ⟩, hxy, hyx ⟩;
               exact le_trans ( Finset.card_le_card h_edge_count ) ( Finset.card_biUnion_le );
-            exact h_edge_count.trans ( by simpa [ mul_comm ] using Finset.sum_le_sum fun x hx => ‹∀ z ∈ W₀_class, #({y ∈ B_verts | G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w}) ≤ q› x <| Finset.mem_filter.mp hx |>.1 );
+            exact h_edge_count.trans (by
+              simpa [mul_comm] using
+                Finset.sum_le_sum fun x hx =>
+                  ‹∀ z ∈ W₀_class,
+                      #({y ∈ B_verts | G.Adj y z ∧
+                        ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w}) ≤ q›
+                    x (Finset.mem_filter.mp hx |>.1));
           simp +decide [Finset.sum_ite, *] at *;
-          rw [ show ( Finset.filter ( fun x => ∀ x_1 ∈ W₀_class, G.Adj x x_1 → ∃ x_2 ∈ W₀_class, ¬x_2 = x_1 ∧ G.Adj x x_2 ) B_verts ) = B_verts \ ( Finset.filter ( fun x => ∃ z ∈ W₀_class, G.Adj x z ∧ ∀ w ∈ W₀_class, ¬w = z → ¬G.Adj x w ) B_verts ) from ?_ ];
+          rw [ show ( Finset.filter ( fun x => ∀ x_1 ∈ W₀_class, G.Adj x x_1 →
+            ∃ x_2 ∈ W₀_class, ¬x_2 = x_1 ∧ G.Adj x x_2 ) B_verts ) =
+              B_verts \ ( Finset.filter ( fun x => ∃ z ∈ W₀_class, G.Adj x z ∧
+                ∀ w ∈ W₀_class, ¬w = z → ¬G.Adj x w ) B_verts ) from ?_ ];
           · grind;
           · grind;
         exact h_edge_count.trans ( Finset.sum_le_sum ‹_› );
-      have h_edge_count : ∑ z ∈ W₀_class, (B_verts.filter (fun w => G.Adj z w)).card ≤ q * Finset.card (Finset.filter (fun z => z ∈ W₀_class ∧ ∃ y, y ∈ B_verts ∧ G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) W₀_class) + r * Finset.card (Finset.filter (fun z => z ∈ W₀_class ∧ ¬∃ y, y ∈ B_verts ∧ G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) W₀_class) := by
-        have h_edge_count : ∀ z ∈ W₀_class, (B_verts.filter (fun w => G.Adj z w)).card ≤ if ∃ y ∈ B_verts, G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w then q else r := by
+      have h_edge_count : ∑ z ∈ W₀_class, (B_verts.filter (fun w => G.Adj z w)).card ≤ q *
+        Finset.card (Finset.filter (fun z => z ∈ W₀_class ∧ ∃ y, y ∈ B_verts ∧
+          G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) W₀_class) + r *
+            Finset.card (Finset.filter (fun z => z ∈ W₀_class ∧ ¬∃ y, y ∈ B_verts ∧
+              G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) W₀_class) := by
+        have h_edge_count : ∀ z ∈ W₀_class, (B_verts.filter (fun w => G.Adj z w)).card ≤
+          if ∃ y ∈ B_verts, G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w then q
+            else r := by
           intro z hz;
           split_ifs with h;
           · convert h_solo_deg_bound z ( Finset.mem_filter.mp hz |>.2 ) _ using 1;
             · congr 1 with w ; simp +decide;
-              exact ⟨ fun h => ⟨ h.2, Finset.mem_filter.mp h.1 |>.2 ⟩, fun h => ⟨ Finset.mem_filter.mpr ⟨ Finset.mem_univ _, h.2 ⟩, h.1 ⟩ ⟩;
-            · exact ⟨ h.choose, Finset.mem_filter.mp h.choose_spec.1 |>.2, h.choose_spec.2.1, fun w hw hw' => h.choose_spec.2.2 w ( Finset.mem_filter.mpr ⟨ Finset.mem_univ _, hw ⟩ ) hw' ⟩;
+              exact ⟨ fun h => ⟨ h.2, Finset.mem_filter.mp h.1 |>.2 ⟩, fun h =>
+                ⟨ Finset.mem_filter.mpr ⟨ Finset.mem_univ _, h.2 ⟩, h.1 ⟩ ⟩;
+            · exact ⟨ h.choose, Finset.mem_filter.mp h.choose_spec.1 |>.2, h.choose_spec.2.1,
+              fun w hw hw' => h.choose_spec.2.2 w ( Finset.mem_filter.mpr ⟨ Finset.mem_univ _,
+                hw ⟩ ) hw' ⟩;
           · have h_deg_z : (B_verts.filter (fun w => G.Adj z w)).card ≤ G.degree z := by
-              exact Finset.card_le_card fun x hx => by simpa [ SimpleGraph.adj_comm ] using Finset.mem_filter.mp hx |>.2;
+              exact Finset.card_le_card fun x hx =>
+                by simpa [ SimpleGraph.adj_comm ] using Finset.mem_filter.mp hx |>.2;
             exact le_trans h_deg_z ( le_trans ( SimpleGraph.degree_le_maxDegree _ _ ) hd );
         convert Finset.sum_le_sum h_edge_count using 1;
         simp +decide [ Finset.sum_ite, Finset.filter_and ];
@@ -1122,12 +1351,17 @@ lemma solo_weight_contradiction
         simp +decide [ Finset.inter_filter ];
       linarith;
     -- Since $|S₀| + |D₀| = s$, we have $|S₀| = s - |D₀|$.
-    have hS₀_card : Finset.card (Finset.filter (fun z => z ∈ W₀_class ∧ ∃ y, y ∈ B_verts ∧ G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) W₀_class) + Finset.card (Finset.filter (fun z => z ∈ W₀_class ∧ ¬∃ y, y ∈ B_verts ∧ G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) W₀_class) = s := by
+    have hS₀_card : Finset.card (Finset.filter (fun z => z ∈ W₀_class ∧ ∃ y,
+      y ∈ B_verts ∧ G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) W₀_class) +
+        Finset.card (Finset.filter (fun z => z ∈ W₀_class ∧ ¬∃ y, y ∈ B_verts ∧
+          G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w) W₀_class) = s := by
       rw [ ← hW₀_card, ← Finset.card_union_of_disjoint ];
-      · congr with z ; by_cases h : ∃ y ∈ B_verts, G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w <;> simp +decide [ h ];
+      · congr with z ; by_cases h : ∃ y ∈ B_verts, G.Adj y z ∧ ∀ w ∈ W₀_class,
+        w ≠ z → ¬G.Adj y w <;> simp +decide [ h ];
         grind;
       · simp +contextual [ Finset.disjoint_left ];
-    rw [ tsub_le_iff_right ] at h_edge_count ; nlinarith only [ h_case, hS₀_card, h_edge_count, Nat.sub_add_cancel hacc_le ] ;
+    rw [ tsub_le_iff_right ] at h_edge_count ; nlinarith only [ h_case, hS₀_card, h_edge_count,
+      Nat.sub_add_cancel hacc_le ] ;
   · -- Case 2: t > q, weight function contradiction
     push Not at h_case
     -- Sub-case: q = 0 is impossible
@@ -1146,7 +1380,8 @@ lemma solo_weight_contradiction
       -- A'_colors = accessible colors except ne.small
       set A'_colors := acc_colors.erase ne.small with hA'_def
       have hA'_card : A'_colors.card = t_val := by
-        rw [show A'_colors = acc_colors.erase ne.small from rfl, Finset.card_erase_of_mem hsmall_mem]
+        rw [show A'_colors = acc_colors.erase ne.small from rfl,
+          Finset.card_erase_of_mem hsmall_mem]
       -- A'_verts = vertices whose color is in A'_colors
       set A'_verts := Finset.univ.filter (fun v : V => ne.f v ∈ A'_colors) with hA'_verts_def
       -- Solo(z) = B vertices y where z is y's unique class-neighbor
@@ -1160,7 +1395,9 @@ lemma solo_weight_contradiction
           have : A'_verts.card = ∑ c ∈ A'_colors, (cClass ne.f c).card := by
             rw [← Finset.card_biUnion]
             · congr 1; ext v; simp [A'_verts, A'_colors, cClass]
-            · intro x hx y hy hxy; exact Finset.disjoint_filter.2 fun z => by simp +contextual [hxy]
+            · intro x hx y hy hxy
+              exact Finset.disjoint_filter.2 fun z => by
+                simp +contextual [hxy]
           rw [this, ← hA'_card]
           apply Finset.sum_le_card_nsmul
           intro c hc
@@ -1235,10 +1472,18 @@ lemma solo_weight_contradiction
           refine ⟨dB + 1, by omega, by omega, ?_, ?_, ?_⟩
           · -- |Sy| ≥ t_val - q + dB + 1
             -- Let's count the number of A' colors where y has ≥ 2 neighbors.
-            have h_multi_count : (Finset.filter (fun c => (Finset.filter (fun w => ne.f w = c) (Finset.filter (fun w => G.Adj y w) Finset.univ)).card ≥ 2) A'_colors).card ≤ (G.degree y - 1 - dB) - t_val := by
-              have h_multi_count : (Finset.sum A'_colors (fun c => (Finset.filter (fun w => ne.f w = c) (Finset.filter (fun w => G.Adj y w) Finset.univ)).card)) + 1 + dB ≤ G.degree y := by
-                have h_multi_count : (Finset.sum A'_colors (fun c => (Finset.filter (fun w => ne.f w = c) (Finset.filter (fun w => G.Adj y w) Finset.univ)).card)) + (Finset.filter (fun w => ne.f w = ne.small) (Finset.filter (fun w => G.Adj y w) Finset.univ)).card + dB ≤ G.degree y := by
-                  rw [ ← Finset.card_biUnion, ← Finset.card_union_of_disjoint, ← Finset.card_union_of_disjoint ];
+            have h_multi_count : (Finset.filter (fun c => (Finset.filter (fun w => ne.f w =
+              c) (Finset.filter (fun w => G.Adj y w) Finset.univ)).card ≥ 2) A'_colors).card ≤
+                (G.degree y - 1 - dB) - t_val := by
+              have h_multi_count : (Finset.sum A'_colors (fun c => (Finset.filter (fun w => ne.f w =
+                c) (Finset.filter (fun w => G.Adj y w) Finset.univ)).card)) + 1 + dB ≤ G.degree y
+                  := by
+                have h_multi_count : (Finset.sum A'_colors (fun c => (Finset.filter (fun w =>
+                  ne.f w = c) (Finset.filter (fun w => G.Adj y w) Finset.univ)).card)) +
+                    (Finset.filter (fun w => ne.f w = ne.small) (Finset.filter (fun w =>
+                      G.Adj y w) Finset.univ)).card + dB ≤ G.degree y := by
+                  rw [ ← Finset.card_biUnion, ← Finset.card_union_of_disjoint,
+                    ← Finset.card_union_of_disjoint ];
                   · refine' le_trans ( Finset.card_le_card _ ) _;
                     any_goals exact Finset.filter ( fun w => G.Adj y w ) Finset.univ;
                     · grind;
@@ -1246,21 +1491,45 @@ lemma solo_weight_contradiction
                   · simp +contextual [ Finset.disjoint_left ];
                     grind +ring;
                   · simp +contextual [ Finset.disjoint_left ];
-                    exact fun v hv₁ hv₂ => Finset.ne_of_mem_erase hv₁ |> fun h => by simp [ h ];
-                  · exact fun x hx y hy hxy => Finset.disjoint_left.mpr fun z => by simp +contextual [ hxy ] ;
+                    exact fun v hv₁ hv₂ => Finset.ne_of_mem_erase hv₁ |> fun h =>
+                      by simp [ h ];
+                  · exact fun x hx y hy hxy =>
+                      Finset.disjoint_left.mpr fun z => by
+                        simp +contextual [hxy] ;
                 generalize_proofs at *; (
                 refine' le_trans _ h_multi_count
                 generalize_proofs at *; (
                 simp +zetaDelta at *;
-                exact Exists.elim ( hB_has_nbr y hy ne.small hsmall_mem ) fun w hw => ⟨ w, by aesop ⟩))
+                exact Exists.elim ( hB_has_nbr y hy ne.small hsmall_mem ) fun w hw => ⟨ w,
+                  by aesop ⟩))
               generalize_proofs at *; (
-              have h_multi_count : ∑ c ∈ A'_colors, (Finset.filter (fun w => ne.f w = c) (Finset.filter (fun w => G.Adj y w) Finset.univ)).card ≥ ∑ c ∈ A'_colors, 1 + ∑ c ∈ Finset.filter (fun c => (Finset.filter (fun w => ne.f w = c) (Finset.filter (fun w => G.Adj y w) Finset.univ)).card ≥ 2) A'_colors, 1 := by
-                rw [ Finset.sum_filter ];
-                rw [ ← Finset.sum_add_distrib ] ; exact Finset.sum_le_sum fun x hx => by split_ifs <;> linarith [ show Finset.card ( Finset.filter ( fun w => ne.f w = x ) ( Finset.filter ( fun w => G.Adj y w ) Finset.univ ) ) ≥ 1 from Finset.card_pos.mpr <| by obtain ⟨ w, hw₁, hw₂ ⟩ := h_has_nbr_A' x hx; exact ⟨ w, Finset.mem_filter.mpr ⟨ Finset.mem_filter.mpr ⟨ Finset.mem_univ _, hw₂ ⟩, hw₁ ⟩ ⟩ ] ;
+              have h_multi_count : ∑ c ∈ A'_colors, (Finset.filter (fun w => ne.f w =
+                c) (Finset.filter (fun w => G.Adj y w) Finset.univ)).card ≥ ∑ c ∈ A'_colors,
+                  1 + ∑ c ∈ Finset.filter (fun c => (Finset.filter (fun w => ne.f w =
+                    c) (Finset.filter (fun w => G.Adj y w) Finset.univ)).card ≥ 2) A'_colors, 1
+                      := by
+                rw [Finset.sum_filter]
+                rw [← Finset.sum_add_distrib]
+                exact Finset.sum_le_sum fun x hx => by
+                  have hx_pos :
+                      Finset.card
+                        (Finset.filter (fun w => ne.f w = x)
+                          (Finset.filter (fun w => G.Adj y w) Finset.univ)) ≥ 1 := by
+                    obtain ⟨w, hw₁, hw₂⟩ := h_has_nbr_A' x hx
+                    exact Finset.card_pos.mpr
+                      ⟨w,
+                        Finset.mem_filter.mpr
+                          ⟨Finset.mem_filter.mpr ⟨Finset.mem_univ _, hw₂⟩, hw₁⟩⟩
+                  split_ifs <;> linarith
               generalize_proofs at *; (
               simp +zetaDelta at *; omega;));
-            -- The set of solo vertices in A'_verts for y is exactly the set of vertices z in A'_verts such that y is a solo neighbor of z.
-            have h_solo_set : {z ∈ A'_verts | y ∈ Solo z} = Finset.biUnion (Finset.filter (fun c => (Finset.filter (fun w => ne.f w = c) (Finset.filter (fun w => G.Adj y w) Finset.univ)).card = 1) A'_colors) (fun c => Finset.filter (fun z => ne.f z = c ∧ G.Adj y z ∧ ∀ w, ne.f w = c → w ≠ z → ¬G.Adj y w) A'_verts) := by
+            -- The set of solo vertices in A'_verts for y is exactly the set of vertices
+            -- z in A'_verts such that y is a solo neighbor of z.
+            have h_solo_set : {z ∈ A'_verts | y ∈ Solo z} =
+              Finset.biUnion (Finset.filter (fun c => (Finset.filter (fun w => ne.f w =
+                c) (Finset.filter (fun w => G.Adj y w) Finset.univ)).card = 1) A'_colors) (fun c =>
+                  Finset.filter (fun z => ne.f z = c ∧ G.Adj y z ∧ ∀ w, ne.f w = c →
+                    w ≠ z → ¬G.Adj y w) A'_verts) := by
               ext z; simp [Solo, hA'_verts_def];
               simp +decide [ Finset.card_eq_one, Finset.filter_filter ];
               simp +decide [ Finset.eq_singleton_iff_unique_mem ];
@@ -1268,10 +1537,33 @@ lemma solo_weight_contradiction
             rw [ h_solo_set, Finset.card_biUnion ];
             · refine' le_trans _ ( Finset.sum_le_sum fun c hc => Finset.card_pos.mpr _ );
               · simp +zetaDelta at *;
-                rw [ show ( Finset.filter ( fun c => Finset.card ( Finset.filter ( fun w => ne.f w = c ) ( Finset.filter ( fun w => G.Adj y w ) Finset.univ ) ) = 1 ) ( Finset.erase ( Finset.filter ( fun c => IsAccessible G ne.f ne.small c ) Finset.univ ) ne.small ) ) = Finset.erase ( Finset.filter ( fun c => IsAccessible G ne.f ne.small c ) Finset.univ ) ne.small \ ( Finset.filter ( fun c => 2 ≤ Finset.card ( Finset.filter ( fun w => ne.f w = c ) ( Finset.filter ( fun w => G.Adj y w ) Finset.univ ) ) ) ( Finset.erase ( Finset.filter ( fun c => IsAccessible G ne.f ne.small c ) Finset.univ ) ne.small ) ) from ?_ ];
+                rw [ show ( Finset.filter ( fun c => Finset.card ( Finset.filter ( fun w => ne.f w =
+                  c ) ( Finset.filter ( fun w => G.Adj y w ) Finset.univ ) ) =
+                    1 ) ( Finset.erase ( Finset.filter ( fun c =>
+                      IsAccessible G ne.f ne.small c ) Finset.univ ) ne.small ) ) =
+                        Finset.erase ( Finset.filter ( fun c =>
+                          IsAccessible G ne.f ne.small c ) Finset.univ ) ne.small \
+                            (Finset.filter
+                              (fun c =>
+                                2 ≤ Finset.card
+                                  (Finset.filter
+                                    (fun w => ne.f w = c)
+                                    (Finset.filter (fun w => G.Adj y w) Finset.univ)))
+                              (Finset.erase
+                                (Finset.filter
+                                  (fun c => IsAccessible G ne.f ne.small c) Finset.univ)
+                                ne.small)) from ?_ ];
                 · grind;
                 · ext; simp [Finset.mem_sdiff, Finset.mem_filter];
-                  exact fun _ _ => ⟨ fun h => fun _ _ => by linarith, fun h => by linarith [ h ‹_› ‹_›, show # ( Finset.filter ( fun w => ne.f w = ‹_› ) ( Finset.filter ( fun w => G.Adj y w ) Finset.univ ) ) ≥ 1 from Finset.card_pos.mpr ( by obtain ⟨ w, hw₁, hw₂ ⟩ := h_has_nbr_A' _ ‹_› ‹_›; exact ⟨ w, by aesop ⟩ ) ] ⟩;
+                  exact fun _ _ =>
+                    ⟨fun h => fun _ _ => by linarith,
+                      fun h => by
+                        have h_pos :
+                            # (Finset.filter (fun w => ne.f w = ‹_›)
+                                (Finset.filter (fun w => G.Adj y w) Finset.univ)) ≥ 1 := by
+                          obtain ⟨w, hw₁, hw₂⟩ := h_has_nbr_A' _ ‹_› ‹_›
+                          exact Finset.card_pos.mpr ⟨w, by aesop⟩
+                        linarith [h ‹_› ‹_›, h_pos]⟩;
               · obtain ⟨ z, hz ⟩ := Finset.card_eq_one.mp ( Finset.mem_filter.mp hc |>.2 );
                 use z;
                 simp +decide [ Finset.eq_singleton_iff_unique_mem ] at hz ⊢;
@@ -1384,10 +1676,15 @@ lemma T_vertex_B_degree_bound
       ∃ w, ne.f w = V_out ∧ G.Adj x w)
     (x : V) (W : Fin (r + 1)) (hW_T : W ∈ T) (hx : ne.f x = W) :
     (Finset.univ.filter (fun w => G.Adj x w ∧ ¬IsAccessible G ne.f ne.small (ne.f w))).card
-      ≤ r + 1 - (Finset.univ.filter (fun c : Fin (r + 1) => IsAccessible G ne.f ne.small c)).card + T.card := by
+      ≤ r + 1 - (Finset.univ.filter (fun c : Fin (r + 1) =>
+        IsAccessible G ne.f ne.small c)).card + T.card := by
   -- The number of accessible neighbors of x is at least acc_colors.card - T.card - 1.
-  have h_acc_neighbors : (Finset.filter (fun w => G.Adj x w ∧ IsAccessible G ne.f ne.small (ne.f w)) Finset.univ).card ≥ (Finset.filter (fun c => IsAccessible G ne.f ne.small c) Finset.univ).card - T.card - 1 := by
-    have h_acc_neighbors : (Finset.image (fun w => ne.f w) (Finset.filter (fun w => G.Adj x w ∧ IsAccessible G ne.f ne.small (ne.f w)) Finset.univ)).card ≥ (Finset.filter (fun c => IsAccessible G ne.f ne.small c) Finset.univ \ (T ∪ {U})).card := by
+  have h_acc_neighbors : (Finset.filter (fun w => G.Adj x w ∧
+    IsAccessible G ne.f ne.small (ne.f w)) Finset.univ).card ≥ (Finset.filter (fun c =>
+      IsAccessible G ne.f ne.small c) Finset.univ).card - T.card - 1 := by
+    have h_acc_neighbors : (Finset.image (fun w => ne.f w) (Finset.filter (fun w => G.Adj x w ∧
+      IsAccessible G ne.f ne.small (ne.f w)) Finset.univ)).card ≥ (Finset.filter (fun c =>
+        IsAccessible G ne.f ne.small c) Finset.univ \ (T ∪ {U})).card := by
       refine Finset.card_le_card ?_;
       grind;
     grind +splitImp;
@@ -1395,8 +1692,15 @@ lemma T_vertex_B_degree_bound
   have h_total_neighbors : (Finset.filter (fun w => G.Adj x w) Finset.univ).card ≤ r := by
     convert (SimpleGraph.degree_le_maxDegree G x).trans hd using 1
     rw [SimpleGraph.degree, SimpleGraph.neighborFinset_eq_filter]
-  rw [ show ( Finset.filter ( fun w => G.Adj x w ∧ ¬IsAccessible G ne.f ne.small ( ne.f w ) ) Finset.univ ) = Finset.filter ( fun w => G.Adj x w ) Finset.univ \ Finset.filter ( fun w => G.Adj x w ∧ IsAccessible G ne.f ne.small ( ne.f w ) ) Finset.univ by ext; aesop ] ; rw [ Finset.card_sdiff ] ; simp_all +decide ;
-  rw [ show ( Finset.filter ( fun w => G.Adj x w ∧ IsAccessible G ne.f ne.small ( ne.f w ) ) Finset.univ ∩ Finset.filter ( fun w => G.Adj x w ) Finset.univ ) = Finset.filter ( fun w => G.Adj x w ∧ IsAccessible G ne.f ne.small ( ne.f w ) ) Finset.univ by ext; aesop ] ; omega;
+  rw [ show ( Finset.filter ( fun w => G.Adj x w ∧
+    ¬IsAccessible G ne.f ne.small ( ne.f w ) ) Finset.univ ) = Finset.filter ( fun w =>
+      G.Adj x w ) Finset.univ \ Finset.filter ( fun w => G.Adj x w ∧
+        IsAccessible G ne.f ne.small ( ne.f w ) ) Finset.univ by ext; aesop ] ;
+          rw [ Finset.card_sdiff ] ; simp_all +decide ;
+  rw [ show ( Finset.filter ( fun w => G.Adj x w ∧
+    IsAccessible G ne.f ne.small ( ne.f w ) ) Finset.univ ∩ Finset.filter ( fun w =>
+      G.Adj x w ) Finset.univ ) = Finset.filter ( fun w => G.Adj x w ∧
+        IsAccessible G ne.f ne.small ( ne.f w ) ) Finset.univ by ext; aesop ] ; omega;
 
 set_option maxHeartbeats 1600000 in
 /-- Solo vertex in T-class has at most q non-accessible neighbors.
@@ -1410,16 +1714,27 @@ lemma T_solo_vertex_B_degree_bound
     (z y₁ : V) (W : Fin (r + 1))
     (hz : ne.f z = W) (_hy₁_nacc : ¬IsAccessible G ne.f ne.small (ne.f y₁))
     (_hadj : G.Adj y₁ z) (huniq : ∀ w, ne.f w = W → w ≠ z → ¬G.Adj y₁ w)
-    (h_nbr_all : ∀ X, X ≠ W → IsAccessible G ne.f ne.small X → ∃ w, ne.f w = X ∧ G.Adj z w) :
+    (h_nbr_all : ∀ X, X ≠ W → IsAccessible G ne.f ne.small X → ∃ w, ne.f w = X ∧
+      G.Adj z w) :
     (Finset.univ.filter (fun w => G.Adj z w ∧ ¬IsAccessible G ne.f ne.small (ne.f w))).card
-      ≤ r + 1 - (Finset.univ.filter (fun c : Fin (r + 1) => IsAccessible G ne.f ne.small c)).card := by
-  have h_image : Finset.card (Finset.image (fun w => ne.f w) (Finset.univ.filter (fun w => G.Adj z w ∧ IsAccessible G ne.f ne.small (ne.f w)))) ≥ Finset.card (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c)) - 1 := by
-    refine' le_trans _ ( Finset.card_mono <| show Finset.image ( fun w => ne.f w ) ( Finset.filter ( fun w => G.Adj z w ∧ IsAccessible G ne.f ne.small ( ne.f w ) ) Finset.univ ) ≥ Finset.univ.filter ( fun c => IsAccessible G ne.f ne.small c ) \ { W } from _ );
+      ≤ r + 1 - (Finset.univ.filter (fun c : Fin (r + 1) => IsAccessible G ne.f ne.small c)).card
+        := by
+  have h_image : Finset.card (Finset.image (fun w => ne.f w) (Finset.univ.filter (fun w =>
+    G.Adj z w ∧ IsAccessible G ne.f ne.small (ne.f w)))) ≥
+      Finset.card (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c)) - 1 := by
+    refine' le_trans _ ( Finset.card_mono <| show Finset.image ( fun w =>
+      ne.f w ) ( Finset.filter ( fun w => G.Adj z w ∧
+        IsAccessible G ne.f ne.small ( ne.f w ) ) Finset.univ ) ≥ Finset.univ.filter ( fun c =>
+          IsAccessible G ne.f ne.small c ) \ { W } from _ );
     · grind;
     · intro c hc; specialize h_nbr_all c; aesop;
-  have h_card_le_image : Finset.card (Finset.univ.filter (fun w => G.Adj z w ∧ IsAccessible G ne.f ne.small (ne.f w))) ≥ Finset.card (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c)) - 1 := by
+  have h_card_le_image : Finset.card (Finset.univ.filter (fun w => G.Adj z w ∧
+    IsAccessible G ne.f ne.small (ne.f w))) ≥ Finset.card (Finset.univ.filter (fun c =>
+      IsAccessible G ne.f ne.small c)) - 1 := by
     exact h_image.trans ( Finset.card_image_le );
-  have h_card_le_image : Finset.card (Finset.univ.filter (fun w => G.Adj z w ∧ ¬IsAccessible G ne.f ne.small (ne.f w))) + Finset.card (Finset.univ.filter (fun w => G.Adj z w ∧ IsAccessible G ne.f ne.small (ne.f w))) ≤ G.degree z := by
+  have h_card_le_image : Finset.card (Finset.univ.filter (fun w => G.Adj z w ∧
+    ¬IsAccessible G ne.f ne.small (ne.f w))) + Finset.card (Finset.univ.filter (fun w =>
+      G.Adj z w ∧ IsAccessible G ne.f ne.small (ne.f w))) ≤ G.degree z := by
     rw [ ← Finset.card_union_of_disjoint ];
     · exact Finset.card_le_card fun x hx => by aesop;
     · exact Finset.disjoint_filter.mpr ( by aesop );
@@ -1437,17 +1752,24 @@ lemma B_card_eq_aux
     (ne : NearlyEquitable G (r + 1) s)
     (hacc : ¬IsAccessible G ne.f ne.small ne.large) :
     (Finset.univ.filter (fun v : V => ¬IsAccessible G ne.f ne.small (ne.f v))).card =
-    (r + 1 - (Finset.univ.filter (fun c : Fin (r + 1) => IsAccessible G ne.f ne.small c)).card) * s + 1 := by
-  -- The number of vertices in the union of all accessible color classes is equal to the sum of their sizes.
-  have h_union_accessible_size : ∑ c ∈ Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c), (cClass ne.f c).card = (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c)).sum (fun c => if c = ne.small then s - 1 else s) := by
+    (r + 1 - (Finset.univ.filter (fun c : Fin (r + 1) => IsAccessible G ne.f ne.small c)).card) *
+      s + 1 := by
+  -- The number of vertices in the union of all accessible color classes is equal to the
+  -- sum of their sizes.
+  have h_union_accessible_size : ∑ c ∈ Finset.univ.filter (fun c =>
+    IsAccessible G ne.f ne.small c), (cClass ne.f c).card = (Finset.univ.filter (fun c =>
+      IsAccessible G ne.f ne.small c)).sum (fun c => if c = ne.small then s - 1 else s) := by
     refine' Finset.sum_congr rfl fun c hc => _;
     split_ifs <;> simp_all +decide [ NearlyEquitable.card_small ];
     exact ne.card_other c ‹_› ( by rintro rfl; exact hacc hc );
   -- The total number of vertices is the sum of the sizes of all color classes.
-  have h_total_vertices : (Finset.univ.filter (fun v => ¬IsAccessible G ne.f ne.small (ne.f v))).card + (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c)).sum (fun c => (cClass ne.f c).card) = Fintype.card V := by
+  have h_total_vertices : (Finset.univ.filter (fun v =>
+    ¬IsAccessible G ne.f ne.small (ne.f v))).card + (Finset.univ.filter (fun c =>
+      IsAccessible G ne.f ne.small c)).sum (fun c => (cClass ne.f c).card) = Fintype.card V := by
     rw [ ← Finset.card_biUnion ];
     · rw [ ← Finset.card_union_of_disjoint ];
-      · convert Finset.card_univ using 2 ; ext v ; by_cases hv : IsAccessible G ne.f ne.small ( ne.f v ) <;> simp +decide [ hv ];
+      · convert Finset.card_univ using 2 ; ext v ;
+        by_cases hv : IsAccessible G ne.f ne.small ( ne.f v ) <;> simp +decide [ hv ];
       · simp +contextual [ Finset.disjoint_left ];
     · exact fun x hx y hy hxy => Finset.disjoint_left.mpr fun z hz hz' => hxy <| by aesop;
   simp_all +decide [ Finset.sum_ite, Finset.filter_ne', Finset.filter_eq' ];
@@ -1461,7 +1783,8 @@ lemma B_card_eq_aux
     · linarith;
     · linarith;
     · exact le_trans ( Finset.card_le_univ _ ) ( by simp +decide );
-  · exact False.elim ( ‹¬IsAccessible G ne.f ne.small ne.small› ( Relation.ReflTransGen.refl ) )
+  · exact False.elim
+      (‹¬IsAccessible G ne.f ne.small ne.small› Relation.ReflTransGen.refl)
 
 /-- Solo vertex bound: for z with a solo B-neighbor y₁, the number of B-neighbors of z that
     are solo (unique in W₀-class) is at most q. -/
@@ -1484,8 +1807,9 @@ lemma solo_card_le_q_aux
     (hy₁_adj : G.Adj y₁ z) (hy₁_uniq : ∀ w, ne.f w = W₀ → w ≠ z → ¬G.Adj y₁ w) :
     (Finset.univ.filter (fun w => G.Adj z w ∧ ¬IsAccessible G ne.f ne.small (ne.f w))).card ≤
     r + 1 - (Finset.univ.filter (fun c : Fin (r + 1) => IsAccessible G ne.f ne.small c)).card := by
-  exact T_solo_vertex_B_degree_bound G r s hs hd hs0 ne hacc z y₁ W₀ hz hy₁_nacc hy₁_adj hy₁_uniq
-    ((h_bad W₀ hW₀ z y₁ hz hy₁_nacc hy₁_adj hy₁_uniq).1)
+  exact
+    T_solo_vertex_B_degree_bound G r s hs hd hs0 ne hacc z y₁ W₀ hz hy₁_nacc
+      hy₁_adj hy₁_uniq ((h_bad W₀ hW₀ z y₁ hz hy₁_nacc hy₁_adj hy₁_uniq).1)
 
 set_option maxHeartbeats 3200000 in
 lemma restricted_T_card_gt_q
@@ -1512,17 +1836,26 @@ lemma restricted_T_card_gt_q
       ∀ V_out : Fin (r + 1), IsAccessible G ne.f ne.small V_out →
       V_out ∉ T → V_out ≠ U →
       ∃ w, ne.f w = V_out ∧ G.Adj x w) :
-    (r + 1 - (Finset.univ.filter (fun c : Fin (r + 1) => IsAccessible G ne.f ne.small c)).card) < T.card := by
+    (r + 1 - (Finset.univ.filter (fun c : Fin (r + 1) =>
+      IsAccessible G ne.f ne.small c)).card) < T.card := by
   obtain ⟨W₀, hW₀⟩ : ∃ W₀ ∈ T, True := by
     exact ⟨ hT_nonempty.choose, hT_nonempty.choose_spec, trivial ⟩;
   -- Let $B$ be the set of non-accessible vertices, and $W₀_class$ be the class of $W₀$.
   set B := Finset.univ.filter (fun v => ¬IsAccessible G ne.f ne.small (ne.f v))
   set W₀_class := cClass ne.f W₀;
-  -- Let $p$ be the number of vertices in $W₀_class$ that have at least one non-accessible neighbor.
-  set p := (W₀_class.filter (fun z => ∃ y ∈ B, G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w)).card;
-  -- Upper bound: $\sum_{z \in W₀_class} |B \cap N(z)| \leq p \cdot q + (s - p) \cdot (q + T.card)$.
-  have h_upper_bound : ∑ z ∈ W₀_class, (B.filter (fun y => G.Adj y z)).card ≤ p * (r + 1 - Finset.card (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c))) + (s - p) * (r + 1 - Finset.card (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c)) + T.card) := by
-    have h_upper_bound : ∀ z ∈ W₀_class, (B.filter (fun y => G.Adj y z)).card ≤ if ∃ y ∈ B, G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w then r + 1 - Finset.card (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c)) else r + 1 - Finset.card (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c)) + T.card := by
+  -- Let $p$ be the number of vertices in $W₀_class$ that have at least one
+  -- non-accessible neighbor.
+  set p := (W₀_class.filter (fun z => ∃ y ∈ B, G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z →
+    ¬G.Adj y w)).card;
+  -- Upper bound: $\sum_{z \in W₀_class} |B \cap N(z)| \leq p \cdot q + (s - p) \cdot (q
+  -- + T.card)$.
+  have h_upper_bound : ∑ z ∈ W₀_class, (B.filter (fun y => G.Adj y z)).card ≤ p * (r + 1 -
+    Finset.card (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c))) + (s - p) * (r + 1 -
+      Finset.card (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c)) + T.card) := by
+    have h_upper_bound : ∀ z ∈ W₀_class, (B.filter (fun y => G.Adj y z)).card ≤
+      if ∃ y ∈ B, G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w then r + 1 -
+        Finset.card (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c)) else r + 1 -
+          Finset.card (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c)) + T.card := by
       intro z hz
       by_cases h_solo : ∃ y ∈ B, G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w;
       · rw [ if_pos h_solo ];
@@ -1535,46 +1868,77 @@ lemma restricted_T_card_gt_q
         simp +decide [ SimpleGraph.adj_comm ];
         exact congr_arg Finset.card ( by ext; aesop );
       · rw [ if_neg h_solo ];
-        convert T_vertex_B_degree_bound G r s hs hd hs0 ne hacc T hT_sub U hU_acc hU_not_T h_not_mov_outside z W₀ hW₀.1 ( by aesop ) using 1;
+        convert
+          T_vertex_B_degree_bound G r s hs hd hs0 ne hacc T hT_sub U hU_acc
+            hU_not_T h_not_mov_outside z W₀ hW₀.1 (by aesop)
+          using 1;
         simp +decide [ SimpleGraph.adj_comm ];
         exact congr_arg Finset.card ( by ext; aesop );
     refine' le_trans ( Finset.sum_le_sum h_upper_bound ) _;
     simp +zetaDelta at *;
     simp +decide [ Finset.sum_ite ];
-    rw [ show ( Finset.filter ( fun x => ∀ x_1 : V, ¬IsAccessible G ne.f ne.small ( ne.f x_1 ) → G.Adj x_1 x → ∃ x_2 : V, ne.f x_2 = W₀ ∧ ¬x_2 = x ∧ G.Adj x_1 x_2 ) ( cClass ne.f W₀ ) ) = cClass ne.f W₀ \ ( Finset.filter ( fun x => ∃ y : V, ¬IsAccessible G ne.f ne.small ( ne.f y ) ∧ G.Adj y x ∧ ∀ w : V, ne.f w = W₀ → ¬w = x → ¬G.Adj y w ) ( cClass ne.f W₀ ) ) from ?_ ];
+    rw [ show ( Finset.filter ( fun x => ∀ x_1 : V,
+      ¬IsAccessible G ne.f ne.small ( ne.f x_1 ) → G.Adj x_1 x → ∃ x_2 : V, ne.f x_2 =
+        W₀ ∧ ¬x_2 = x ∧ G.Adj x_1 x_2 ) ( cClass ne.f W₀ ) ) =
+          cClass ne.f W₀ \ ( Finset.filter ( fun x => ∃ y : V,
+            ¬IsAccessible G ne.f ne.small ( ne.f y ) ∧ G.Adj y x ∧ ∀ w : V, ne.f w = W₀ →
+              ¬w = x → ¬G.Adj y w ) ( cClass ne.f W₀ ) ) from ?_ ];
     · rw [ Finset.card_sdiff ] ; norm_num [ ne.card_other W₀ ( by aesop ) ( by aesop ) ];
       simp +decide [ Finset.filter_inter ];
     · grind;
   -- Lower bound: $\sum_{y \in B} |W₀_class \cap N(y)| \geq 2|B| - pq$.
-  have h_lower_bound : ∑ y ∈ B, (W₀_class.filter (fun z => G.Adj y z)).card ≥ 2 * B.card - p * (r + 1 - Finset.card (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c))) := by
+  have h_lower_bound : ∑ y ∈ B, (W₀_class.filter (fun z => G.Adj y z)).card ≥ 2 * B.card -
+    p * (r + 1 - Finset.card (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c))) := by
     -- Each vertex in $B$ has at least one neighbor in $W₀_class$.
     have h_B_neighbor : ∀ y ∈ B, ∃ z ∈ W₀_class, G.Adj y z := by
       intro y hy;
       have := non_acc_has_acc_neighbor G ( hT_sub W₀ hW₀.1 ) ( Finset.mem_filter.mp hy |>.2 );
-      exact ⟨ this.choose, Finset.mem_filter.mpr ⟨ Finset.mem_univ _, this.choose_spec.1 ⟩, this.choose_spec.2 ⟩;
-    -- Each vertex in $B$ that has exactly one neighbor in $W₀_class$ contributes exactly 1 to the sum.
-    have h_B_one_neighbor : ∑ y ∈ B, (if (W₀_class.filter (fun z => G.Adj y z)).card = 1 then 1 else 0) ≤ p * (r + 1 - Finset.card (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c))) := by
-      have h_B_one_neighbor : ∀ z ∈ W₀_class.filter (fun z => ∃ y ∈ B, G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w), (B.filter (fun y => G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w)).card ≤ r + 1 - Finset.card (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c)) := by
+      exact ⟨ this.choose, Finset.mem_filter.mpr ⟨ Finset.mem_univ _, this.choose_spec.1 ⟩,
+        this.choose_spec.2 ⟩;
+    -- Each vertex in $B$ that has exactly one neighbor in $W₀_class$ contributes
+    -- exactly 1 to the sum.
+    have h_B_one_neighbor : ∑ y ∈ B, (if (W₀_class.filter (fun z => G.Adj y z)).card = 1
+      then 1 else 0) ≤ p * (r + 1 - Finset.card (Finset.univ.filter (fun c =>
+        IsAccessible G ne.f ne.small c))) := by
+      have h_B_one_neighbor : ∀ z ∈ W₀_class.filter (fun z => ∃ y ∈ B, G.Adj y z ∧
+        ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w), (B.filter (fun y => G.Adj y z ∧
+          ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w)).card ≤ r + 1 -
+            Finset.card (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c)) := by
         intros z hz
-        have hz_degree : (B.filter (fun y => G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w)).card ≤ r + 1 - Finset.card (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c)) := by
-          have := T_solo_vertex_B_degree_bound G r s hs hd hs0 ne hacc z (Classical.choose (Finset.mem_filter.mp hz).right) W₀ (by
+        have hz_degree : (B.filter (fun y => G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z →
+          ¬G.Adj y w)).card ≤ r + 1 - Finset.card (Finset.univ.filter (fun c =>
+            IsAccessible G ne.f ne.small c)) := by
+          have :=
+            T_solo_vertex_B_degree_bound G r s hs hd hs0 ne hacc z
+              (Classical.choose (Finset.mem_filter.mp hz).right) W₀ (by
           exact Finset.mem_filter.mp ( Finset.mem_filter.mp hz |>.1 ) |>.2) (by
           grind) (by
           exact Classical.choose_spec ( Finset.mem_filter.mp hz |>.2 ) |>.2.1) (by
           have := Classical.choose_spec ( Finset.mem_filter.mp hz |>.2 );
-          exact fun w hw hwz => this.2.2 w ( Finset.mem_filter.mpr ⟨ Finset.mem_univ _, hw ⟩ ) hwz)
+          exact fun w hw hwz => this.2.2 w ( Finset.mem_filter.mpr ⟨ Finset.mem_univ _,
+            hw ⟩ ) hwz)
           refine' le_trans _ ( this _ );
           · refine' Finset.card_le_card _;
             simp +contextual [ Finset.subset_iff, SimpleGraph.adj_comm ];
             exact fun x hx hx' hx'' => Finset.mem_filter.mp hx |>.2;
-          · exact fun X hX₁ hX₂ => h_bad W₀ hW₀.1 z ( Classical.choose ( Finset.mem_filter.mp hz |>.2 ) ) ( by
+          · exact fun X hX₁ hX₂ =>
+            h_bad W₀ hW₀.1 z ( Classical.choose ( Finset.mem_filter.mp hz |>.2 ) ) ( by
               exact Finset.mem_filter.mp ( Finset.mem_filter.mp hz |>.1 ) |>.2 ) ( by
-              exact Classical.choose_spec ( Finset.mem_filter.mp hz |>.2 ) |>.1 |> Finset.mem_filter.mp |>.2 ) ( by
+              exact Classical.choose_spec ( Finset.mem_filter.mp hz |>.2 ) |>.1 |>
+                Finset.mem_filter.mp |>.2 ) ( by
               exact Classical.choose_spec ( Finset.mem_filter.mp hz |>.2 ) |>.2.1 ) ( by
-              exact fun w hw₁ hw₂ => Classical.choose_spec ( Finset.mem_filter.mp hz |>.2 ) |>.2.2 w ( by aesop ) hw₂ ) |>.1 X hX₁ hX₂;
+              exact fun w hw₁ hw₂ =>
+                (Classical.choose_spec (Finset.mem_filter.mp hz |>.2)).2.2 w
+                  (by aesop) hw₂ ) |>.1 X hX₁ hX₂;
         exact hz_degree;
-      have h_B_one_neighbor : ∑ y ∈ B, (if (W₀_class.filter (fun z => G.Adj y z)).card = 1 then 1 else 0) ≤ ∑ z ∈ W₀_class.filter (fun z => ∃ y ∈ B, G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w), (B.filter (fun y => G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w)).card := by
-        have h_B_one_neighbor : ∀ y ∈ B, (if (W₀_class.filter (fun z => G.Adj y z)).card = 1 then 1 else 0) ≤ ∑ z ∈ W₀_class.filter (fun z => ∃ y ∈ B, G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w), (if G.Adj y z ∧ ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w then 1 else 0) := by
+      have h_B_one_neighbor : ∑ y ∈ B, (if (W₀_class.filter (fun z => G.Adj y z)).card = 1
+        then 1 else 0) ≤ ∑ z ∈ W₀_class.filter (fun z => ∃ y ∈ B, G.Adj y z ∧
+          ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w), (B.filter (fun y => G.Adj y z ∧
+            ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w)).card := by
+        have h_B_one_neighbor : ∀ y ∈ B, (if (W₀_class.filter (fun z => G.Adj y z)).card = 1
+          then 1 else 0) ≤ ∑ z ∈ W₀_class.filter (fun z => ∃ y ∈ B, G.Adj y z ∧
+            ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y w), (if G.Adj y z ∧ ∀ w ∈ W₀_class,
+              w ≠ z → ¬G.Adj y w then 1 else 0) := by
           intro y hy
           by_cases h : (W₀_class.filter (fun z => G.Adj y z)).card = 1;
           · obtain ⟨ z, hz ⟩ := Finset.card_eq_one.mp h;
@@ -1582,26 +1946,42 @@ lemma restricted_T_card_gt_q
             simp +zetaDelta at *;
             rw [ if_pos h ];
             refine' Finset.card_pos.mpr ⟨ z, _ ⟩ ; simp +decide [ hz ];
-            exact ⟨ ⟨ y, hy, hz.1.2, fun w hw hw' hw'' => hw' <| hz.2 w hw hw'' ⟩, fun w hw hw' hw'' => hw' <| hz.2 w hw hw'' ⟩;
+            exact ⟨ ⟨ y, hy, hz.1.2, fun w hw hw' hw'' => hw' <| hz.2 w hw hw'' ⟩,
+              fun w hw hw' hw'' => hw' <| hz.2 w hw hw'' ⟩;
           · lia;
         refine' le_trans ( Finset.sum_le_sum h_B_one_neighbor ) _;
         rw [ Finset.sum_comm ];
         simp +decide ;
       exact h_B_one_neighbor.trans ( Finset.sum_le_card_nsmul _ _ _ fun x hx => by solve_by_elim );
-    -- Each vertex in $B$ that has exactly one neighbor in $W₀_class$ contributes exactly 1 to the sum, and each vertex in $B$ that has more than one neighbor in $W₀_class$ contributes at least 2 to the sum.
-    have h_B_contribution : ∑ y ∈ B, (W₀_class.filter (fun z => G.Adj y z)).card ≥ ∑ y ∈ B, (if (W₀_class.filter (fun z => G.Adj y z)).card = 1 then 1 else 2) := by
+    -- Each vertex in $B$ that has exactly one neighbor in $W₀_class$ contributes
+    -- exactly 1 to the sum, and each vertex in $B$ that has more than one neighbor in
+    -- $W₀_class$ contributes at least 2 to the sum.
+    have h_B_contribution : ∑ y ∈ B, (W₀_class.filter (fun z => G.Adj y z)).card ≥
+      ∑ y ∈ B, (if (W₀_class.filter (fun z => G.Adj y z)).card = 1 then 1 else 2) := by
       gcongr;
       split_ifs <;> norm_num;
       · exact Exists.elim ( h_B_neighbor _ ‹_› ) fun x hx => ⟨ x, by aesop ⟩;
-      · exact Nat.lt_of_le_of_ne ( Finset.card_pos.mpr ⟨ Classical.choose ( h_B_neighbor _ ‹_› ), Finset.mem_filter.mpr ⟨ Classical.choose_spec ( h_B_neighbor _ ‹_› ) |>.1, Classical.choose_spec ( h_B_neighbor _ ‹_› ) |>.2 ⟩ ⟩ ) ( Ne.symm ‹_› );
+      · exact Nat.lt_of_le_of_ne
+          (Finset.card_pos.mpr
+            ⟨Classical.choose (h_B_neighbor _ ‹_›),
+              Finset.mem_filter.mpr
+                ⟨Classical.choose_spec (h_B_neighbor _ ‹_›) |>.1,
+                  Classical.choose_spec (h_B_neighbor _ ‹_›) |>.2⟩⟩)
+          (Ne.symm ‹_›)
     simp_all +decide [ Finset.sum_ite ];
-    rw [ show #B = # ( { x ∈ B | # ( { z ∈ W₀_class | G.Adj x z } ) = 1 } ) + # ( { x ∈ B | ¬# ( { z ∈ W₀_class | G.Adj x z } ) = 1 } ) by rw [ Finset.card_filter_add_card_filter_not ] ] ; linarith;
-  -- By Fubini's theorem, we have $\sum_{z \in W₀_class} |B \cap N(z)| = \sum_{y \in B} |W₀_class \cap N(y)|$.
-  have h_fubini : ∑ z ∈ W₀_class, (B.filter (fun y => G.Adj y z)).card = ∑ y ∈ B, (W₀_class.filter (fun z => G.Adj y z)).card := by
+    rw [ show #B = # ( { x ∈ B | # ( { z ∈ W₀_class | G.Adj x z } ) = 1 } ) +
+      # ( { x ∈ B | ¬# ( { z ∈ W₀_class | G.Adj x z } ) =
+        1 } ) by rw [ Finset.card_filter_add_card_filter_not ] ] ; linarith;
+  -- By Fubini's theorem, we have $\sum_{z \in W₀_class} |B \cap N(z)| = \sum_{y \in B}
+  -- |W₀_class \cap N(y)|$.
+  have h_fubini : ∑ z ∈ W₀_class, (B.filter (fun y => G.Adj y z)).card = ∑ y ∈ B,
+    (W₀_class.filter (fun z => G.Adj y z)).card := by
     simp +decide only [card_filter];
-    exact Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by simp +decide );
+    exact Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ =>
+      by simp +decide );
   -- By definition of $B$, we know that $|B| = (r + 1 - \text{acc\_colors.card}) * s + 1$.
-  have hB_card : B.card = (r + 1 - Finset.card (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c))) * s + 1 := by
+  have hB_card : B.card = (r + 1 - Finset.card (Finset.univ.filter (fun c =>
+    IsAccessible G ne.f ne.small c))) * s + 1 := by
     convert B_card_eq_aux G r s hs hs0 ne hacc using 1;
   contrapose! h_lower_bound;
   rw [ Nat.lt_sub_iff_add_lt ];
@@ -1612,7 +1992,10 @@ lemma restricted_T_card_gt_q
     have hp_le_s : W₀_class.card = s := by
       exact ne.card_other W₀ ( hT_ne_small W₀ hW₀.1 ) ( hT_ne_large W₀ hW₀.1 );
     exact le_trans ( Finset.card_filter_le _ _ ) hp_le_s.le;
-  nlinarith only [ Nat.sub_add_cancel hp_le_s, h_lower_bound, hp_le_s, hs0, Nat.sub_add_cancel ( show Finset.card ( Finset.filter ( fun c => IsAccessible G ne.f ne.small c ) Finset.univ ) ≤ r + 1 from le_trans ( Finset.card_le_univ _ ) ( by simp +decide ) ) ]
+  nlinarith only [ Nat.sub_add_cancel hp_le_s, h_lower_bound, hp_le_s, hs0,
+    Nat.sub_add_cancel ( show Finset.card ( Finset.filter ( fun c =>
+      IsAccessible G ne.f ne.small c ) Finset.univ ) ≤ r +
+        1 from le_trans ( Finset.card_le_univ _ ) ( by simp +decide ) ) ]
 
 -- Helper lemma: |Solo z| ≤ q for z in T-class
 set_option maxHeartbeats 1600000 in
@@ -1636,7 +2019,8 @@ lemma restricted_Solo_card_le
     let Solo : V → Finset V := fun z =>
       B_verts.filter (fun y => G.Adj y z ∧ ∀ w, ne.f w = ne.f z → w ≠ z → ¬G.Adj y w)
     let A'_verts := Finset.univ.filter (fun v : V => ne.f v ∈ T)
-    let q := r + 1 - (Finset.univ.filter (fun c : Fin (r + 1) => IsAccessible G ne.f ne.small c)).card
+    let q := r + 1 - (Finset.univ.filter (fun c : Fin (r + 1) =>
+      IsAccessible G ne.f ne.small c)).card
     ∀ z ∈ A'_verts, (Solo z).card ≤ q := by
   intro B_verts Solo A'_verts q z hz
   by_cases h_empty : (Solo z).card = 0
@@ -1645,7 +2029,8 @@ lemma restricted_Solo_card_le
     have hy₁_B : y₁ ∈ B_verts := (Finset.mem_filter.mp hy₁).1
     have hy₁_nacc : ¬IsAccessible G ne.f ne.small (ne.f y₁) := (Finset.mem_filter.mp hy₁_B).2
     have hy₁_adj : G.Adj y₁ z := (Finset.mem_filter.mp hy₁).2.1
-    have hy₁_uniq : ∀ w, ne.f w = ne.f z → w ≠ z → ¬G.Adj y₁ w := (Finset.mem_filter.mp hy₁).2.2
+    have hy₁_uniq : ∀ w, ne.f w = ne.f z → w ≠ z →
+      ¬G.Adj y₁ w := (Finset.mem_filter.mp hy₁).2.2
     have hz_T : ne.f z ∈ T := (Finset.mem_filter.mp hz).2
     have h_nbr_all := (h_bad (ne.f z) hz_T z y₁ rfl hy₁_nacc hy₁_adj hy₁_uniq).1
     have h_deg := T_solo_vertex_B_degree_bound G r s hs hd hs0 ne hacc z y₁ (ne.f z) rfl
@@ -1696,7 +2081,8 @@ lemma sy_card_lower_bound
     (hacc : ¬IsAccessible G ne.f ne.small ne.large)
     (T : Finset (Fin (r + 1)))
     (hT_sub : ∀ c ∈ T, IsAccessible G ne.f ne.small c)
-    (hT_card_gt_q : (r + 1 - (Finset.univ.filter (fun c : Fin (r + 1) => IsAccessible G ne.f ne.small c)).card) < T.card)
+    (hT_card_gt_q : (r + 1 - (Finset.univ.filter (fun c : Fin (r + 1) =>
+      IsAccessible G ne.f ne.small c)).card) < T.card)
     (_h_bad : ∀ (W : Fin (r + 1)), W ∈ T → ∀ (z y₁ : V),
       ne.f z = W → ¬IsAccessible G ne.f ne.small (ne.f y₁) →
       G.Adj y₁ z → (∀ w, ne.f w = W → w ≠ z → ¬G.Adj y₁ w) →
@@ -1709,7 +2095,8 @@ lemma sy_card_lower_bound
       B_verts.filter (fun y => G.Adj y z ∧ ∀ w, ne.f w = ne.f z → w ≠ z → ¬G.Adj y w)
     let A'_verts := Finset.univ.filter (fun v : V => ne.f v ∈ T)
     let dB := (B_verts.filter (fun w => G.Adj y w)).card
-    let q := r + 1 - (Finset.univ.filter (fun c : Fin (r + 1) => IsAccessible G ne.f ne.small c)).card
+    let q := r + 1 - (Finset.univ.filter (fun c : Fin (r + 1) =>
+      IsAccessible G ne.f ne.small c)).card
     (A'_verts.filter (fun z => y ∈ Solo z)).card ≥ T.card - q + (dB + 1) := by
   intro B_verts Solo A'_verts dB q
   have hy_nacc : ¬IsAccessible G ne.f ne.small (ne.f y) := (Finset.mem_filter.mp hy).2
@@ -1722,12 +2109,14 @@ lemma sy_card_lower_bound
   -- Define solo_colors = T-colors where y has unique neighbor
   set S_y := A'_verts.filter (fun z => y ∈ Solo z)
   -- For W ∈ T, the neighbors of y in class W
-  set nbrs_of_y_in := fun W : Fin (r + 1) => Finset.univ.filter (fun w : V => ne.f w = W ∧ G.Adj y w)
+  set nbrs_of_y_in := fun W : Fin (r + 1) => Finset.univ.filter (fun w : V => ne.f w = W ∧
+    G.Adj y w)
   set solo_colors := T.filter (fun W => (nbrs_of_y_in W).card = 1)
   set multi_colors := T.filter (fun W => (nbrs_of_y_in W).card ≥ 2)
   -- Step 1: solo_colors injects into S_y, so |S_y| ≥ |solo_colors|
   have h_solo_inj : solo_colors.card ≤ S_y.card := by
-    -- For each $W \in \text{solo\_colors}$, there exists a unique $z \in S_y$ such that $z$ is the only neighbor of $y$ in class $W$.
+    -- For each $W \in \text{solo\_colors}$, there exists a unique $z \in S_y$ such that
+    -- $z$ is the only neighbor of $y$ in class $W$.
     have h_inj : ∀ W ∈ solo_colors, ∃! z, z ∈ S_y ∧ ne.f z = W := by
       intro W hW;
       obtain ⟨ z, hz ⟩ := Finset.card_eq_one.mp ( Finset.mem_filter.mp hW |>.2 );
@@ -1739,38 +2128,53 @@ lemma sy_card_lower_bound
     have h_inj : Function.Injective (fun W : solo_colors => f W W.2) := by
       intro W₁ W₂ h_eq;
       grind;
-    have := Finset.card_le_card ( show Finset.image ( fun W : solo_colors => f W W.2 ) Finset.univ ⊆ S_y from Finset.image_subset_iff.mpr fun W _ => hf₁ _ _ |>.1 ) ; simp +decide [ Finset.card_image_of_injective _ h_inj ] at this ⊢; linarith;
+    have := Finset.card_le_card ( show Finset.image ( fun W : solo_colors =>
+      f W W.2 ) Finset.univ ⊆ S_y from Finset.image_subset_iff.mpr fun W _ => hf₁ _ _ |>.1 ) ;
+        simp +decide [ Finset.card_image_of_injective _ h_inj ] at this ⊢; linarith;
   -- Step 2: multi_colors.card + dB ≤ q - 1
   have h_multi_dB_bound : multi_colors.card + dB ≤ q - 1 := by
     have h_multi_colors_card : ∑ c ∈ acc_colors, (nbrs_of_y_in c).card ≤ r - dB := by
-      have h_multi_colors_card : (∑ c ∈ acc_colors, (nbrs_of_y_in c).card) + dB ≤ (SimpleGraph.neighborFinset G y).card := by
-        -- The sum of the neighbor counts for each accessible color is the total number of accessible neighbors of y.
-        have h_accessible_neighbors : ∑ c ∈ acc_colors, (nbrs_of_y_in c).card = (Finset.filter (fun w => IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset y)).card := by
+      have h_multi_colors_card : (∑ c ∈ acc_colors, (nbrs_of_y_in c).card) + dB ≤
+        (SimpleGraph.neighborFinset G y).card := by
+        -- The sum of the neighbor counts for each accessible color is the total number
+        -- of accessible neighbors of y.
+        have h_accessible_neighbors : ∑ c ∈ acc_colors, (nbrs_of_y_in c).card =
+          (Finset.filter (fun w => IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset y)).card
+            := by
           rw [ ← Finset.card_biUnion ] ; congr ; ext ; aesop;
           exact fun x hx y hy hxy => Finset.disjoint_left.mpr fun z hz₁ hz₂ => hxy <| by aesop;
         rw [ h_accessible_neighbors, ← Finset.card_union_of_disjoint ];
         · exact Finset.card_le_card fun x hx => by aesop;
         · exact Finset.disjoint_left.mpr fun x hx₁ hx₂ => by aesop;
-      exact le_tsub_of_add_le_right ( h_multi_colors_card.trans ( by simpa using hd.trans' ( G.degree_le_maxDegree y ) ) );
-    have h_multi_colors_card : ∑ c ∈ acc_colors, (nbrs_of_y_in c).card ≥ acc_colors.card + multi_colors.card := by
-      have h_multi_colors_card : ∀ c ∈ acc_colors, (nbrs_of_y_in c).card ≥ 1 + (if c ∈ multi_colors then 1 else 0) := by
+      exact le_tsub_of_add_le_right
+        (h_multi_colors_card.trans (by simpa using hd.trans' (G.degree_le_maxDegree y)))
+    have h_multi_colors_card : ∑ c ∈ acc_colors, (nbrs_of_y_in c).card ≥ acc_colors.card +
+      multi_colors.card := by
+      have h_multi_colors_card : ∀ c ∈ acc_colors, (nbrs_of_y_in c).card ≥ 1 +
+        (if c ∈ multi_colors then 1 else 0) := by
         intro c hc; split_ifs <;> simp_all +decide ;
         · grind;
         · simp +zetaDelta at *;
-          exact non_acc_has_acc_neighbor G hc hy_nacc |> fun ⟨ w, hw₁, hw₂ ⟩ => ⟨ w, by aesop ⟩;
+          exact non_acc_has_acc_neighbor G hc hy_nacc |> fun ⟨ w, hw₁, hw₂ ⟩ => ⟨ w,
+            by aesop ⟩;
       refine' le_trans _ ( Finset.sum_le_sum h_multi_colors_card );
       simp +decide [ Finset.sum_add_distrib ];
-      exact Finset.card_le_card fun x hx => Finset.mem_inter.mpr ⟨ Finset.mem_filter.mpr ⟨ Finset.mem_univ _, by aesop ⟩, hx ⟩;
+      exact Finset.card_le_card fun x hx =>
+        Finset.mem_inter.mpr ⟨ Finset.mem_filter.mpr ⟨ Finset.mem_univ _, by aesop ⟩, hx ⟩;
     rw [ Nat.le_sub_iff_add_le ] at *;
     · grind;
     · have := G.degree_le_maxDegree y;
-      exact le_trans ( Finset.card_le_card ( show Finset.filter ( fun w => G.Adj y w ) B_verts ⊆ G.neighborFinset y from fun x hx => by aesop ) ) ( by simpa using this.trans hd );
+      exact le_trans ( Finset.card_le_card ( show Finset.filter ( fun w =>
+        G.Adj y w ) B_verts ⊆ G.neighborFinset y from fun x hx =>
+          by aesop ) ) ( by simpa using this.trans hd );
     · grind
   -- Step 3: solo_colors + multi_colors = T
   have h_partition : solo_colors.card + multi_colors.card = T.card := by
     rw [ ← Finset.card_union_of_disjoint, Finset.filter_union_right ];
     · refine' congr_arg Finset.card ( Finset.filter_true_of_mem fun x hx => _ );
-      exact Classical.or_iff_not_imp_left.2 fun h => Nat.lt_of_le_of_ne ( Finset.card_pos.2 <| by obtain ⟨ w, hw₁, hw₂ ⟩ := h_has_nbr x hx; exact ⟨ w, by aesop ⟩ ) ( Ne.symm h );
+      exact Classical.or_iff_not_imp_left.2 fun h => Nat.lt_of_le_of_ne ( Finset.card_pos.2 <|
+        by obtain ⟨ w, hw₁, hw₂ ⟩ := h_has_nbr x hx; exact ⟨ w,
+          by aesop ⟩ ) ( Ne.symm h );
     · exact Finset.disjoint_filter.mpr fun _ _ _ _ => by linarith;
   -- Conclude
   have hq_pos : q ≥ 1 := Nat.sub_pos_of_lt (lt_of_lt_of_le (Finset.card_lt_card
@@ -1792,7 +2196,8 @@ lemma restricted_Solo_lower_bound
     (hacc : ¬IsAccessible G ne.f ne.small ne.large)
     (T : Finset (Fin (r + 1)))
     (hT_sub : ∀ c ∈ T, IsAccessible G ne.f ne.small c)
-    (hT_card_gt_q : (r + 1 - (Finset.univ.filter (fun c : Fin (r + 1) => IsAccessible G ne.f ne.small c)).card) < T.card)
+    (hT_card_gt_q : (r + 1 - (Finset.univ.filter (fun c : Fin (r + 1) =>
+      IsAccessible G ne.f ne.small c)).card) < T.card)
     (h_bad : ∀ (W : Fin (r + 1)), W ∈ T → ∀ (z y₁ : V),
       ne.f z = W → ¬IsAccessible G ne.f ne.small (ne.f y₁) →
       G.Adj y₁ z → (∀ w, ne.f w = W → w ≠ z → ¬G.Adj y₁ w) →
@@ -1803,7 +2208,8 @@ lemma restricted_Solo_lower_bound
     let Solo : V → Finset V := fun z =>
       B_verts.filter (fun y => G.Adj y z ∧ ∀ w, ne.f w = ne.f z → w ≠ z → ¬G.Adj y w)
     let A'_verts := Finset.univ.filter (fun v : V => ne.f v ∈ T)
-    let q := r + 1 - (Finset.univ.filter (fun c : Fin (r + 1) => IsAccessible G ne.f ne.small c)).card
+    let q := r + 1 - (Finset.univ.filter (fun c : Fin (r + 1) =>
+      IsAccessible G ne.f ne.small c)).card
     ∀ y ∈ B_verts,
       ∃ c_max : ℕ, 1 ≤ c_max ∧ c_max ≤ q ∧
         (A'_verts.filter (fun z => y ∈ Solo z)).card ≥ T.card - q + c_max ∧
@@ -1823,14 +2229,22 @@ lemma restricted_Solo_lower_bound
     (Finset.filter_ssubset.mpr ⟨ne.large, Finset.mem_univ _, hacc⟩)) (by simp))
   -- dB ≤ q - 1
   have hdB_le : dB ≤ q - 1 := by
-    have h_deg_y_acc : Finset.card (Finset.filter (fun w => IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset y)) ≥ Finset.card acc_colors := by
-      have h_deg_y_acc : Finset.card (Finset.image (fun w => ne.f w) (Finset.filter (fun w => IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset y))) ≥ Finset.card acc_colors := by
+    have h_deg_y_acc : Finset.card (Finset.filter (fun w =>
+      IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset y)) ≥ Finset.card acc_colors := by
+      have h_deg_y_acc : Finset.card (Finset.image (fun w => ne.f w) (Finset.filter (fun w =>
+        IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset y))) ≥ Finset.card acc_colors
+          := by
         refine' Finset.card_le_card _;
-        intro c hc; obtain ⟨ w, rfl, hw ⟩ := h_has_nbr c ( Finset.mem_filter.mp hc |>.2 ) ; aesop;
+        intro c hc; obtain ⟨ w, rfl, hw ⟩ := h_has_nbr c ( Finset.mem_filter.mp hc |>.2 ) ;
+          aesop;
       exact h_deg_y_acc.trans ( Finset.card_image_le );
-    have h_deg_y_nonacc : Finset.card (Finset.filter (fun w => ¬IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset y)) ≥ dB := by
+    have h_deg_y_nonacc : Finset.card (Finset.filter (fun w =>
+      ¬IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset y)) ≥ dB := by
       exact Finset.card_mono fun x hx => by aesop;
-    have h_deg_y_total : Finset.card (Finset.filter (fun w => IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset y)) + Finset.card (Finset.filter (fun w => ¬IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset y)) = G.degree y := by
+    have h_deg_y_total : Finset.card (Finset.filter (fun w =>
+      IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset y)) +
+        Finset.card (Finset.filter (fun w =>
+          ¬IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset y)) = G.degree y := by
       rw [ Finset.card_filter_add_card_filter_not, SimpleGraph.degree ];
     grind
   exact ⟨dB + 1, by omega, by omega,
@@ -1845,23 +2259,43 @@ lemma non_acc_verts_card_q
     (ne : NearlyEquitable G (r + 1) s)
     (hacc : ¬IsAccessible G ne.f ne.small ne.large) :
     (Finset.univ.filter (fun v : V => ¬IsAccessible G ne.f ne.small (ne.f v))).card =
-    (r + 1 - (Finset.univ.filter (fun c : Fin (r + 1) => IsAccessible G ne.f ne.small c)).card) * s + 1 := by
+    (r + 1 - (Finset.univ.filter (fun c : Fin (r + 1) => IsAccessible G ne.f ne.small c)).card) *
+      s + 1 := by
   have := ne.card_total;
   rw [ tsub_mul, mul_comm ];
   rw [ mul_comm, this.symm ];
   rw [ tsub_add_eq_add_tsub ];
   · rw [ Fintype.card_eq_sum_ones ];
     rw [ Finset.sum_const, Finset.card_eq_sum_ones ];
-    rw [ show ( Finset.univ.filter fun v => ¬IsAccessible G ne.f ne.small ( ne.f v ) ) = Finset.biUnion ( Finset.univ.filter fun c => ¬IsAccessible G ne.f ne.small c ) ( fun c => Finset.filter ( fun v => ne.f v = c ) Finset.univ ) from ?_, Finset.sum_biUnion ];
-    · have h_card : ∀ c : Fin (r + 1), (Finset.univ.filter (fun v => ne.f v = c)).card = if c = ne.small then s - 1 else if c = ne.large then s + 1 else s := by
+    rw [ show ( Finset.univ.filter fun v => ¬IsAccessible G ne.f ne.small ( ne.f v ) ) =
+      Finset.biUnion ( Finset.univ.filter fun c => ¬IsAccessible G ne.f ne.small c ) ( fun c =>
+        Finset.filter ( fun v => ne.f v = c ) Finset.univ ) from ?_, Finset.sum_biUnion ];
+    · have h_card : ∀ c : Fin (r + 1), (Finset.univ.filter (fun v => ne.f v = c)).card = if c =
+      ne.small then s - 1 else if c = ne.large then s + 1 else s := by
         have := ne.card_small; have := ne.card_large; have := ne.card_other; aesop;
       simp_all +decide [ Finset.sum_ite ];
       simp +decide [ Finset.filter_eq', Finset.filter_ne' ];
       split_ifs <;> simp_all +decide
-      · rw [ show ( Finset.univ.filter fun c => ¬IsAccessible G ne.f ne.small c ) = Finset.univ \ ( Finset.univ.filter fun c => IsAccessible G ne.f ne.small c ) by ext; simp +decide, Finset.card_sdiff ] ; simp +decide [ Finset.card_univ ];
+      · rw [ show ( Finset.univ.filter fun c => ¬IsAccessible G ne.f ne.small c ) =
+        Finset.univ \ ( Finset.univ.filter fun c => IsAccessible G ne.f ne.small c ) by
+          ext
+          simp +decide, Finset.card_sdiff ] ; simp +decide [ Finset.card_univ ];
         rw [ tsub_tsub, add_comm ];
-        exact eq_tsub_of_add_eq ( by nlinarith only [ Nat.sub_add_cancel ( show ( Finset.card ( Finset.filter ( fun c => IsAccessible G ne.f ne.small c ) Finset.univ ) + 1 ) ≤ r + 1 from Nat.succ_le_of_lt ( lt_of_lt_of_le ( Finset.card_lt_card ( Finset.filter_ssubset.mpr ⟨ ne.large, by aesop ⟩ ) ) ( by simp +decide ) ) ) ] );
-      · exact False.elim ( ‹¬IsAccessible G ne.f ne.small ne.small› ( Relation.ReflTransGen.refl ) );
+        exact eq_tsub_of_add_eq (by
+          nlinarith only [
+            Nat.sub_add_cancel
+              (show
+                (Finset.card
+                    (Finset.filter
+                      (fun c => IsAccessible G ne.f ne.small c) Finset.univ) + 1) ≤
+                  r + 1 from
+                Nat.succ_le_of_lt
+                  (lt_of_lt_of_le
+                    (Finset.card_lt_card
+                      (Finset.filter_ssubset.mpr ⟨ne.large, by aesop⟩))
+                    (by simp +decide)))])
+      · exact False.elim
+          (‹¬IsAccessible G ne.f ne.small ne.small› Relation.ReflTransGen.refl)
       · exact absurd ‹_› ( ne.ne_small_large.symm );
     · exact fun x hx y hy hxy => Finset.disjoint_left.mpr fun v hvx hvy => hxy <| by aesop;
     · ext; aesop;
@@ -1916,11 +2350,14 @@ lemma restricted_solo_weight_contradiction
       hT_nonempty h_bad U hU_acc hU_not_T h_not_mov_outside
   -- Step 4: A'_verts.card ≤ T.card * s
   have hA_card : A'_verts.card ≤ T.card * s := by
-    -- By definition of $A'_verts$, we have $A'_verts = \bigcup_{c \in T} \{v \in V \mid ne.f v = c\}$.
-    have hA'_verts_union : A'_verts = Finset.biUnion T (fun c => Finset.filter (fun v => ne.f v = c) Finset.univ) := by
+    -- By definition of $A'_verts$, we have $A'_verts = \bigcup_{c \in T} \{v \in V \mid
+    -- ne.f v = c\}$.
+    have hA'_verts_union : A'_verts = Finset.biUnion T (fun c => Finset.filter (fun v => ne.f v =
+      c) Finset.univ) := by
       ext v; simp [A'_verts, Finset.mem_biUnion];
     rw [ hA'_verts_union, Finset.card_biUnion ];
-    · refine' le_trans ( Finset.sum_le_sum fun x hx => show Finset.card ( Finset.filter ( fun v => ne.f v = x ) Finset.univ ) ≤ s from _ ) _;
+    · refine' le_trans ( Finset.sum_le_sum fun x hx => show Finset.card ( Finset.filter ( fun v =>
+      ne.f v = x ) Finset.univ ) ≤ s from _ ) _;
       · exact ne.card_other x ( hT_ne_small x hx ) ( hT_ne_large x hx ) |> fun h => h.le;
       · simp +decide;
     · exact fun x hx y hy hxy => Finset.disjoint_left.mpr fun v hvx hvy => hxy <| by aesop;
@@ -1967,7 +2404,8 @@ lemma terminal_weight_contradiction
         Relation.ReflTransGen (fun c d => AuxAdj G ne.f c d ∧ c ≠ W) C ne.small) →
       (∀ X, X ≠ W → IsAccessible G ne.f ne.small X → ∃ w, ne.f w = X ∧ G.Adj z w) ∧
       (∀ y₂, y₂ ≠ y₁ → ¬IsAccessible G ne.f ne.small (ne.f y₂) →
-        G.Adj y₂ z → (∀ w, ne.f w = W → w ≠ z → ¬G.Adj y₂ w) → G.Adj y₁ y₂) := by
+        G.Adj y₂ z → (∀ w, ne.f w = W → w ≠ z → ¬G.Adj y₂ w) → G.Adj y₁ y₂)
+          := by
     intro W z y₁ hW_acc hW_ne_small hW_ne_large hz_color hy₁_nacc hadj huniq hW_term
     have h_not_movable : ∀ X, X ≠ W → IsAccessible G ne.f ne.small X →
         ∃ w, ne.f w = X ∧ G.Adj z w := by
@@ -2054,7 +2492,8 @@ lemma terminal_weight_contradiction
       G.Adj y₁ z → (∀ w, ne.f w = W → w ≠ z → ¬G.Adj y₁ w) →
       (∀ X, X ≠ W → IsAccessible G ne.f ne.small X → ∃ w, ne.f w = X ∧ G.Adj z w) ∧
       (∀ y₂, y₂ ≠ y₁ → ¬IsAccessible G ne.f ne.small (ne.f y₂) →
-        G.Adj y₂ z → (∀ w, ne.f w = W → w ≠ z → ¬G.Adj y₂ w) → G.Adj y₁ y₂) := by
+        G.Adj y₂ z → (∀ w, ne.f w = W → w ≠ z → ¬G.Adj y₂ w) → G.Adj y₁ y₂)
+          := by
     intro W hW z y₁ hz hy₁ hadj huniq
     exact h_bad_from_terminal W z y₁ (hT_sub W hW) (hT_ne_small W hW) (hT_ne_large W hW)
       hz hy₁ hadj huniq (hT_terminal W hW)
@@ -2136,7 +2575,8 @@ lemma no_terminal_good_solo_contradiction
       intro X hXW hXacc
       by_contra h_no
       push Not at h_no
-      exact h_neg ⟨W, z, y₁, hW_acc, hW_ne_small, hW_ne_large, hz_color, hy₁_nacc, hadj, huniq,
+      exact h_neg ⟨W, z, y₁, hW_acc, hW_ne_small, hW_ne_large, hz_color, hy₁_nacc, hadj,
+        huniq,
         hW_term, Or.inl ⟨X, hXW, hXacc, fun w hw => h_no w hw⟩⟩
     refine ⟨h_not_movable, fun y₂ hy₂_ne hy₂_nacc hy₂_adj hy₂_uniq => ?_⟩
     by_contra h_not_adj
@@ -2146,7 +2586,8 @@ lemma no_terminal_good_solo_contradiction
   · -- Some accessible W ≠ small ≠ large is NOT terminal.
     -- Directly apply the weight argument on the proper terminal set.
     push Not at h_all_term
-    obtain ⟨U, hU_acc, hU_ne_small, hU_ne_large, C₀, hC₀_acc, hC₀_ne_U, hC₀_cant⟩ := h_all_term
+    obtain ⟨U, hU_acc, hU_ne_small, hU_ne_large, C₀, hC₀_acc, hC₀_ne_U,
+      hC₀_cant⟩ := h_all_term
     -- Derive False using the proper terminal set construction + weight argument.
     -- This is the content of the paper's Lemma 2.3 restricted to terminal classes.
     exact terminal_weight_contradiction G r s hs hd hs0 ne hacc h_neg
@@ -2197,7 +2638,8 @@ lemma good_solo_vertex_exists_terminal
     apply solo_weight_contradiction G r s hs hd hs0 ne hacc
     intro W' z' y₁' hW'_acc hW'_ne_small hW'_ne_large hz'_color hy₁'_nacc hadj' huniq'
     -- Show bad property for W'
-    have h_bad_part1 : ∀ X, X ≠ W' → IsAccessible G ne.f ne.small X → ∃ w, ne.f w = X ∧ G.Adj z' w := by
+    have h_bad_part1 : ∀ X, X ≠ W' → IsAccessible G ne.f ne.small X → ∃ w, ne.f w = X ∧
+      G.Adj z' w := by
       intro X hXW' hXacc
       by_contra h_no
       -- z' is movable to X, giving Case 1 for W'
@@ -2251,7 +2693,8 @@ lemma combine_disjoint_equitable
     (hfA_equitable : IsEquitable fA)
     (hfB_equitable : IsEquitable fB) :
     HasEquitableColoring G (a + b) := by
-  use fun v => if h : v ∈ A_set then Fin.castAdd b ( fA ⟨ v, h ⟩ ) else Fin.natAdd a ( fB ⟨ v, by simpa using h ⟩ );
+  use fun v => if h : v ∈ A_set then Fin.castAdd b ( fA ⟨ v, h ⟩ )
+    else Fin.natAdd a ( fB ⟨ v, by simpa using h ⟩ );
   refine' ⟨ fun v w hvw => _, fun c₁ c₂ => _ ⟩;
   · by_cases hv : v ∈ A_set <;> by_cases hw : w ∈ A_set <;> simp +decide [ hv, hw ];
     · exact hfA_proper _ _ ( by simpa [ hv, hw ] using hvw );
@@ -2260,21 +2703,29 @@ lemma combine_disjoint_equitable
     · simp +decide [ Fin.ext_iff ];
       grind;
     · exact hfB_proper _ _ ( by simpa [ hv, hw ] using hvw );
-  · -- By definition of $f$, we know that every vertex in $A_set$ is assigned a color from $\{0, 1, ..., a-1\}$ and every vertex in $A_setᶜ$ is assigned a color from $\{a, a+1, ..., a+b-1\}$.
-    have h_classes : ∀ c : Fin (a + b), (cClass (fun v => if h : v ∈ A_set then Fin.castAdd b (fA ⟨v, h⟩) else Fin.natAdd a (fB ⟨v, by simpa using h⟩)) c).card = if h : c.val < a then (cClass fA ⟨c.val, by
+  · -- By definition of $f$, every vertex in $A_set$ is assigned a color from
+    -- `{0, 1, ..., a-1}`, and every vertex in `A_setᶜ` from `{a, ..., a+b-1}`.
+    have h_classes : ∀ c : Fin (a + b), (cClass (fun v => if h : v ∈ A_set
+      then Fin.castAdd b (fA ⟨v, h⟩) else Fin.natAdd a (fB ⟨v, by simpa using h⟩)) c).card =
+        if h : c.val < a then (cClass fA ⟨c.val, by
       exact h⟩).card else (cClass fB ⟨c.val - a, by
       rw [ tsub_lt_iff_left ] <;> linarith [ Fin.is_lt c ]⟩).card := by
       intro c; split_ifs <;> simp_all +decide [ cClass ] ;
-      · refine' Finset.card_bij ( fun v hv => ⟨ v, _ ⟩ ) _ _ _ <;> simp_all +decide [ Fin.ext_iff ];
+      · refine' Finset.card_bij ( fun v hv => ⟨ v, _ ⟩ ) _ _ _ <;>
+        simp_all +decide [Fin.ext_iff];
         grind +locals;
         grind +splitImp;
       · rw [ Finset.card_filter, Finset.card_filter ];
-        rw [ ← Finset.sum_subset ( Finset.subset_univ ( Finset.filter ( fun x => x∉A_set ) Finset.univ ) ) ];
-        · refine' Finset.sum_bij ( fun x hx => ⟨ x, by aesop ⟩ ) _ _ _ _ <;> simp +decide [ Fin.ext_iff ];
+        rw [ ← Finset.sum_subset ( Finset.subset_univ ( Finset.filter ( fun x =>
+          x∉A_set ) Finset.univ ) ) ];
+        · refine' Finset.sum_bij ( fun x hx => ⟨ x, by aesop ⟩ ) _ _ _ _ <;>
+          simp +decide [Fin.ext_iff];
           grind;
         · grind
     generalize_proofs at *;
-    -- By definition of $fA$ and $fB$, we know that every vertex in $A_set$ is assigned a color from $\{0, 1, ..., a-1\}$ and every vertex in $A_setᶜ$ is assigned a color from $\{a, a+1, ..., a+b-1\}$.
+    -- By definition of $fA$ and $fB$, we know that every vertex in $A_set$ is assigned
+    -- a color from $\{0, 1, ..., a-1\}$ and every vertex in $A_setᶜ$ is assigned a
+    -- color from $\{a, a+1, ..., a+b-1\}$.
     have h_classes_fA : ∀ c : Fin a, (cClass fA c).card = s_val := by
       apply equitable_all_same_size hfA_equitable hA_card
     have h_classes_fB : ∀ c : Fin b, (cClass fB c).card = s_val := by
@@ -2291,15 +2742,26 @@ lemma non_acc_verts_card
     (ne : NearlyEquitable G (r + 1) s)
     (hacc : ¬IsAccessible G ne.f ne.small ne.large) :
     (Finset.univ.filter (fun v : V => ¬IsAccessible G ne.f ne.small (ne.f v))).card =
-    (Finset.univ.filter (fun c : Fin (r + 1) => ¬IsAccessible G ne.f ne.small c)).card * s + 1 := by
-  have h_sum : ∑ c ∈ Finset.univ.filter (fun c => ¬IsAccessible G ne.f ne.small c), (cClass ne.f c).card = (Finset.univ.filter (fun c => ¬IsAccessible G ne.f ne.small c)).card * s + 1 := by
-    have h_sum : ∑ c ∈ Finset.univ.filter (fun c => ¬IsAccessible G ne.f ne.small c), (cClass ne.f c).card = ∑ c ∈ Finset.univ.filter (fun c => ¬IsAccessible G ne.f ne.small c), (if c = ne.large then s + 1 else s) := by
+    (Finset.univ.filter (fun c : Fin (r + 1) => ¬IsAccessible G ne.f ne.small c)).card * s + 1
+      := by
+  have h_sum : ∑ c ∈ Finset.univ.filter (fun c => ¬IsAccessible G ne.f ne.small c),
+    (cClass ne.f c).card = (Finset.univ.filter (fun c => ¬IsAccessible G ne.f ne.small c)).card *
+      s + 1 := by
+    have h_sum : ∑ c ∈ Finset.univ.filter (fun c => ¬IsAccessible G ne.f ne.small c),
+      (cClass ne.f c).card = ∑ c ∈ Finset.univ.filter (fun c =>
+        ¬IsAccessible G ne.f ne.small c), (if c = ne.large then s + 1 else s) := by
       refine' Finset.sum_congr rfl fun c hc => _;
       split_ifs <;> simp_all +decide;
       · exact ne.card_large;
-      · exact ne.card_other c ( by rintro rfl; exact hc ( Relation.ReflTransGen.refl ) ) ( by assumption );
+      · exact ne.card_other c
+          (by
+            rintro rfl
+            exact hc Relation.ReflTransGen.refl)
+          (by assumption);
     simp_all +decide [ Finset.sum_ite, Finset.filter_ne', Finset.filter_eq' ];
-    nlinarith only [ Nat.sub_add_cancel ( show 1 ≤ Finset.card ( Finset.filter ( fun c => ¬IsAccessible G ne.f ne.small c ) Finset.univ ) from Finset.card_pos.mpr ⟨ ne.large, Finset.mem_filter.mpr ⟨ Finset.mem_univ _, hacc ⟩ ⟩ ) ];
+    nlinarith only [ Nat.sub_add_cancel ( show 1 ≤ Finset.card ( Finset.filter ( fun c =>
+      ¬IsAccessible G ne.f ne.small c ) Finset.univ ) from Finset.card_pos.mpr ⟨ ne.large,
+        Finset.mem_filter.mpr ⟨ Finset.mem_univ _, hacc ⟩ ⟩ ) ];
   rw [ ← h_sum, eq_comm ];
   rw [ ← Finset.card_biUnion ];
   · congr with v ; aesop;
@@ -2333,21 +2795,33 @@ lemma non_acc_degree_bound
   -- Since v is in S, ne.f v is a non-accessible color.
   have hv_nonacc : ¬IsAccessible G ne.f ne.small (ne.f v) := by
     simpa using hS hv;
-  -- Since v has at least m+1 neighbors with accessible colors, there are at least m+1 vertices in S that are not adjacent to v.
-  have hv_acc_neighbors : Finset.card (Finset.filter (fun w => IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset v)) ≥ (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c)).card := by
-    have hv_acc_neighbors : Finset.card (Finset.image (fun w => ne.f w) (Finset.filter (fun w => IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset v))) ≥ (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c)).card := by
+  -- Since v has at least m+1 neighbors with accessible colors, there are at least m+1
+  -- vertices in S that are not adjacent to v.
+  have hv_acc_neighbors : Finset.card (Finset.filter (fun w =>
+    IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset v)) ≥ (Finset.univ.filter (fun c =>
+      IsAccessible G ne.f ne.small c)).card := by
+    have hv_acc_neighbors : Finset.card (Finset.image (fun w => ne.f w) (Finset.filter (fun w =>
+      IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset v))) ≥
+        (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c)).card := by
       refine Finset.card_le_card ?_;
-      intro c hc; have := non_acc_has_acc_neighbor G ( show IsAccessible G ne.f ne.small c from by simpa using hc ) hv_nonacc; aesop;
+      intro c hc;
+        have h_non_acc := non_acc_has_acc_neighbor G
+          (show IsAccessible G ne.f ne.small c from by simpa using hc) hv_nonacc;
+        aesop
     exact hv_acc_neighbors.trans ( Finset.card_image_le );
-  -- Since v has at least m+1 neighbors with accessible colors, there are at most r - (m+1) neighbors of v in S.
-  have hv_neighbors_S : Finset.card (Finset.filter (fun w => G.Adj v w) S) + Finset.card (Finset.filter (fun w => IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset v)) ≤ G.degree v := by
+  -- Since v has at least m+1 neighbors with accessible colors, there are at most r -
+  -- (m+1) neighbors of v in S.
+  have hv_neighbors_S : Finset.card (Finset.filter (fun w => G.Adj v w) S) +
+    Finset.card (Finset.filter (fun w =>
+      IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset v)) ≤ G.degree v := by
     rw [ ← Finset.card_union_of_disjoint ];
     · exact Finset.card_le_card fun x hx => by aesop;
     · simp_all +decide [ Finset.disjoint_left ];
       exact fun w hw hw' => Finset.mem_filter.mp ( hS hw ) |>.2;
   have hv_deg : G.degree v ≤ r := by
     exact le_trans ( SimpleGraph.degree_le_maxDegree _ _ ) hd;
-  have hv_card : Finset.card (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c)) + Finset.card (Finset.univ.filter (fun c => ¬IsAccessible G ne.f ne.small c)) = r + 1 := by
+  have hv_card : Finset.card (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c)) +
+    Finset.card (Finset.univ.filter (fun c => ¬IsAccessible G ne.f ne.small c)) = r + 1 := by
     rw [ Finset.card_filter_add_card_filter_not, Finset.card_fin ];
   exact le_tsub_of_add_le_left ( by linarith )
 
@@ -2381,9 +2855,12 @@ lemma B_minus_equitable
     have h_ind : (G.induce B_minus).maxDegree ≤ q - 1 := by
       have h_ind : ∀ v : B_minus, (G.induce B_minus).degree v ≤ q - 1 := by
         intro v
-        have h_deg_le : (Finset.univ.filter (fun w => G.Adj v w ∧ w ∈ B_minus)).card ≤ q - 1 := by
-          have h_deg_le : (Finset.univ.filter (fun w => G.Adj v.val w ∧ ¬IsAccessible G ne.f ne.small (ne.f w))).card ≤ q - 1 := by
-            convert non_acc_degree_bound G r s hs hd ne hacc ( Finset.univ.filter fun w => ¬IsAccessible G ne.f ne.small ( ne.f w ) ) _ v.val _ using 1;
+        have h_deg_le : (Finset.univ.filter (fun w => G.Adj v w ∧ w ∈ B_minus)).card ≤ q - 1
+          := by
+          have h_deg_le : (Finset.univ.filter (fun w => G.Adj v.val w ∧
+            ¬IsAccessible G ne.f ne.small (ne.f w))).card ≤ q - 1 := by
+            convert non_acc_degree_bound G r s hs hd ne hacc ( Finset.univ.filter fun w =>
+              ¬IsAccessible G ne.f ne.small ( ne.f w ) ) _ v.val _ using 1;
             · exact congr_arg Finset.card ( by ext; aesop );
             · exact fun x hx => hx;
             · aesop;
@@ -2409,7 +2886,8 @@ lemma B_minus_equitable
       simp +zetaDelta at *;
       grind;
     · have h_card_lt : Fintype.card B_minus < Fintype.card V := by
-        rw [ Fintype.card_subtype ] ; exact Finset.card_lt_card ( Finset.filter_ssubset.mpr ⟨ y₁, by aesop ⟩ ) ;
+        rw [ Fintype.card_subtype ] ;
+          exact Finset.card_lt_card ( Finset.filter_ssubset.mpr ⟨ y₁, by aesop ⟩ ) ;
       have h_dvd : q ∣ Fintype.card B_minus := by
         rw [hB_minus_card]
         exact dvd_mul_right q s
@@ -2593,23 +3071,29 @@ lemma A_plus_equitable
     -- Class φ(c) contains exactly the vertices in A_plus whose g-value is c.
     -- After the swap: each accessible class has size s.
     -- For any color $c$ in the accessible set, the size of the class in $A_plus$ is $s$.
-    have h_class_size : ∀ c : { c : Fin (r + 1) // IsAccessible G ne.f ne.small c }, #(cClass f_A (φ c)) = s := by
+    have h_class_size : ∀ c : { c : Fin (r + 1) // IsAccessible G ne.f ne.small c },
+      #(cClass f_A (φ c)) = s := by
       intro c
       have h_card : #(cClass f_A (φ c)) = #(cClass g (c.val)) := by
         refine' Finset.card_bij ( fun x hx => x.val ) _ _ _ <;> simp +decide [ cClass ];
         · aesop;
         · grind;
-      by_cases hc : c.val = ne.small <;> by_cases hc' : c.val = W_col <;> simp_all +decide [ cClass ];
+      by_cases hc : c.val = ne.small <;> by_cases hc' : c.val = W_col <;>
+        simp_all +decide [cClass];
       · have h_card : #(cClass ne.f ne.small) = s - 1 := by
           exact ne.card_small;
-        rw [ show ( Finset.filter ( fun v => g v = ne.small ) Finset.univ : Finset V ) = Finset.filter ( fun v => ne.f v = ne.small ) Finset.univ ∪ { z } from ?_, Finset.card_union ] <;> simp_all +decide ;
+        rw [ show ( Finset.filter ( fun v => g v = ne.small ) Finset.univ : Finset V ) =
+          Finset.filter ( fun v => ne.f v = ne.small ) Finset.univ ∪ { z } from ?_,
+            Finset.card_union ] <;> simp_all +decide ;
         · exact h_card.symm ▸ Nat.succ_pred_eq_of_pos hs0;
         · ext v; by_cases hv : v = z <;> by_cases hv' : v = y₁ <;> simp +decide [ hv, hv' ] ;
           · grind +revert;
           · grind +ring;
           · grind;
           · grind +ring;
-      · rw [ show ( Finset.filter ( fun v => g v = W_col ) Finset.univ ) = { y₁ } ∪ ( Finset.filter ( fun v => ne.f v = W_col ) Finset.univ \ { z } ) from ?_, Finset.card_union ] <;> simp +decide [ *, Finset.card_sdiff ];
+      · rw [ show ( Finset.filter ( fun v => g v = W_col ) Finset.univ ) =
+        { y₁ } ∪ ( Finset.filter ( fun v => ne.f v = W_col ) Finset.univ \ { z } ) from ?_,
+          Finset.card_union ] <;> simp +decide [ *, Finset.card_sdiff ];
         · rw [ add_tsub_cancel_of_le ];
           · exact ne.card_other _ ( by aesop ) ( by aesop );
           · exact Finset.card_pos.mpr ⟨ z, by aesop ⟩;
@@ -2617,7 +3101,9 @@ lemma A_plus_equitable
       · convert ne.card_other c.val hc ( show c.val ≠ ne.large from ?_ ) using 1;
         · congr with v ; aesop;
         · exact fun h => hacc <| h ▸ c.2;
-    rw [ show cClass f_A c₁ = cClass f_A ( φ ( φ.symm c₁ ) ) by simp +decide, show cClass f_A c₂ = cClass f_A ( φ ( φ.symm c₂ ) ) by simp +decide, h_class_size, h_class_size ] ; linarith
+    rw [ show cClass f_A c₁ = cClass f_A ( φ ( φ.symm c₁ ) ) by simp +decide,
+      show cClass f_A c₂ = cClass f_A ( φ ( φ.symm c₂ ) ) by simp +decide, h_class_size,
+        h_class_size ] ; linarith
   · -- X ≠ ne.small: construct NearlyEquitable and use accessibility
     have hne_small_acc : IsAccessible G ne.f ne.small ne.small := Relation.ReflTransGen.refl
     set small_idx := φ ⟨ne.small, hne_small_acc⟩
@@ -2632,9 +3118,14 @@ lemma A_plus_equitable
         grind +ring;
       · grind
     have card_large : (cClass f_A large_idx).card = s + 1 := by
-      -- The cardinality of the color class of large_idx in f_A is 1 (for z) plus the cardinality of {v ∈ A_plus | ne.f v = X}, which is s. So the total is 1 + s = s + 1.
-      have card_large : (cClass f_A large_idx).card = 1 + (Finset.univ.filter (fun v => ne.f v = X ∧ v ∈ A_plus)).card := by
-        have card_large : (cClass f_A large_idx).card = (Finset.filter (fun v => v.val = z) (Finset.univ : Finset ↑A_plus)).card + (Finset.filter (fun v => v.val ≠ z ∧ g v.val = X) (Finset.univ : Finset ↑A_plus)).card := by
+      -- The cardinality of the color class of large_idx in f_A is 1 (for z) plus the
+      -- cardinality of {v ∈ A_plus | ne.f v = X}, which is s. So the total is 1 + s = s
+      -- + 1.
+      have card_large : (cClass f_A large_idx).card = 1 + (Finset.univ.filter (fun v => ne.f v =
+        X ∧ v ∈ A_plus)).card := by
+        have card_large : (cClass f_A large_idx).card = (Finset.filter (fun v => v.val =
+          z) (Finset.univ : Finset ↑A_plus)).card + (Finset.filter (fun v => v.val ≠ z ∧
+            g v.val = X) (Finset.univ : Finset ↑A_plus)).card := by
           rw [ ← Finset.card_union_of_disjoint ];
           · refine' congr_arg Finset.card ( Finset.ext fun x => _ );
             simp +decide [ cClass, f_A, large_idx ];
@@ -2646,10 +3137,12 @@ lemma A_plus_equitable
             exact Or.inl ( by simpa [ hz_color ] using hW_acc )⟩
           generalize_proofs at *;
           grind +revert;
-        · rw [ ← Finset.card_image_of_injective _ Subtype.coe_injective ] ; congr ; ext ; simp +decide [ g ] ;
+        · rw [ ← Finset.card_image_of_injective _ Subtype.coe_injective ] ; congr ; ext
+          simp +decide [g] ;
           grind +ring;
       have := ne.card_other X ( by tauto ) ; simp_all +decide ;
-      rw [ add_comm, show ( Finset.univ.filter fun v => ne.f v = X ∧ v ∈ A_plus ) = Finset.univ.filter fun v => ne.f v = X from ?_, Finset.card_filter ] ; simp_all +decide;
+      rw [ add_comm, show ( Finset.univ.filter fun v => ne.f v = X ∧ v ∈ A_plus ) =
+        Finset.univ.filter fun v => ne.f v = X from ?_, Finset.card_filter ] ; simp_all +decide;
       · convert this ( by rintro rfl; exact hacc hXacc ) using 1;
       · grind
     have card_other : ∀ c, c ≠ small_idx → c ≠ large_idx → (cClass f_A c).card = s := by
@@ -2658,18 +3151,27 @@ lemma A_plus_equitable
       obtain ⟨a, ha⟩ : ∃ a : accType, φ a = c := by
         exact φ.surjective c;
       by_cases haW : a.val = W_col;
-      · have h_card_fA_W : (cClass f_A c).card = (Finset.univ.filter (fun v => ne.f v = W_col ∧ v ≠ z ∧ v ≠ y₁)).card + 1 := by
-          have h_card_fA_W : (cClass f_A c).card = (Finset.univ.filter (fun v : A_plus => g v = W_col)).card := by
+      · have h_card_fA_W : (cClass f_A c).card = (Finset.univ.filter (fun v => ne.f v = W_col ∧
+        v ≠ z ∧ v ≠ y₁)).card + 1 := by
+          have h_card_fA_W : (cClass f_A c).card = (Finset.univ.filter (fun v : A_plus => g v =
+            W_col)).card := by
             refine' Finset.card_bij ( fun v hv => v ) _ _ _ <;> simp +decide;
             · intro v hv hv'; have := φ.injective ( hv'.trans ha.symm ) ; aesop;
             · grind;
-          rw [ h_card_fA_W, show ( Finset.filter ( fun v : A_plus => g v = W_col ) Finset.univ ) = Finset.filter ( fun v : A_plus => ne.f v = W_col ∧ v ≠ z ∧ v ≠ y₁ ) Finset.univ ∪ { ⟨ y₁, Or.inr rfl ⟩ } from ?_, Finset.card_union ] <;> simp +decide [ *, Finset.filter_ne', Finset.filter_and ];
-          · rw [ ← Finset.card_image_of_injective _ Subtype.coe_injective ] ; congr ; ext ; simp +decide [ * ] ;
+          rw [ h_card_fA_W, show ( Finset.filter ( fun v : A_plus => g v = W_col ) Finset.univ ) =
+            Finset.filter ( fun v : A_plus => ne.f v = W_col ∧ v ≠ z ∧
+              v ≠ y₁ ) Finset.univ ∪ { ⟨ y₁, Or.inr rfl ⟩ } from ?_,
+                Finset.card_union ] <;> simp +decide [ *, Finset.filter_ne', Finset.filter_and ];
+          · rw [ ← Finset.card_image_of_injective _ Subtype.coe_injective ] ; congr ; ext ;
+            simp +decide [ * ] ;
             exact fun _ _ _ => Or.inl <| by aesop;
           · ext ⟨v, hv⟩; simp [g];
             grind +ring;
-        have h_card_fA_W : (Finset.univ.filter (fun v => ne.f v = W_col ∧ v ≠ z ∧ v ≠ y₁)).card = (Finset.univ.filter (fun v => ne.f v = W_col)).card - 1 := by
-          rw [ show ( Finset.filter ( fun v => ne.f v = W_col ∧ v ≠ z ∧ v ≠ y₁ ) Finset.univ ) = Finset.filter ( fun v => ne.f v = W_col ) Finset.univ \ { z } from ?_, Finset.card_sdiff ] <;> simp +decide [ * ];
+        have h_card_fA_W : (Finset.univ.filter (fun v => ne.f v = W_col ∧ v ≠ z ∧
+          v ≠ y₁)).card = (Finset.univ.filter (fun v => ne.f v = W_col)).card - 1 := by
+          rw [ show ( Finset.filter ( fun v => ne.f v = W_col ∧ v ≠ z ∧
+            v ≠ y₁ ) Finset.univ ) = Finset.filter ( fun v => ne.f v =
+              W_col ) Finset.univ \ { z } from ?_, Finset.card_sdiff ] <;> simp +decide [ * ];
           grind;
         have := ne.card_other W_col hW_ne_small hW_ne_large; simp_all +decide [ cClass ] ;
         rw [ Nat.sub_add_cancel hs0 ];
@@ -2680,14 +3182,26 @@ lemma A_plus_equitable
         · grind;
         · exact fun h => hacc <| h ▸ a.2
     have card_total : Fintype.card ↥A_plus = m1 * s := by
-      have hA_plus_card : (Finset.univ.filter (fun v => IsAccessible G ne.f ne.small (ne.f v))).card = m1 * s - 1 := by
-        have hA_plus_card : (Finset.univ.filter (fun v => IsAccessible G ne.f ne.small (ne.f v))).card = (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c)).card * s - 1 := by
+      have hA_plus_card : (Finset.univ.filter (fun v =>
+        IsAccessible G ne.f ne.small (ne.f v))).card = m1 * s - 1 := by
+        have hA_plus_card : (Finset.univ.filter (fun v =>
+          IsAccessible G ne.f ne.small (ne.f v))).card = (Finset.univ.filter (fun c =>
+            IsAccessible G ne.f ne.small c)).card * s - 1 := by
           have := non_acc_verts_card G r s hs ne hacc
           simp_all +decide [ Finset.filter_not, Finset.card_sdiff ];
-          exact eq_tsub_of_add_eq ( by nlinarith only [ this, Nat.sub_add_cancel ( show ( r + 1 ) * s ≥ Finset.card ( Finset.filter ( fun v => IsAccessible G ne.f ne.small ( ne.f v ) ) Finset.univ ) from Finset.card_le_univ _ |> le_trans <| by simp +decide [ hs ] ), Nat.sub_add_cancel ( show ( r + 1 ) ≥ Finset.card ( Finset.filter ( fun c => IsAccessible G ne.f ne.small c ) Finset.univ ) from Finset.card_le_univ _ |> le_trans <| by simp +decide ) ] );
+          exact eq_tsub_of_add_eq ( by nlinarith only [ this, Nat.sub_add_cancel ( show ( r + 1 ) *
+            s ≥ Finset.card ( Finset.filter ( fun v =>
+              IsAccessible G ne.f ne.small ( ne.f v ) ) Finset.univ ) from Finset.card_le_univ _ |>
+                le_trans <| by simp +decide [ hs ] ), Nat.sub_add_cancel ( show ( r + 1 ) ≥
+                  Finset.card ( Finset.filter ( fun c =>
+                    IsAccessible G ne.f ne.small c ) Finset.univ ) from Finset.card_le_univ _ |>
+                      le_trans <| by simp +decide ) ] );
         exact hA_plus_card;
       rw [ Fintype.card_subtype ];
-      rw [ show ( Finset.filter ( Membership.mem A_plus ) Finset.univ : Finset V ) = Finset.filter ( fun v => IsAccessible G ne.f ne.small ( ne.f v ) ) Finset.univ ∪ { y₁ } from ?_, Finset.card_union ] <;> simp +decide [ * ];
+      rw [ show ( Finset.filter ( Membership.mem A_plus ) Finset.univ : Finset V ) =
+        Finset.filter ( fun v =>
+          IsAccessible G ne.f ne.small ( ne.f v ) ) Finset.univ ∪ { y₁ } from ?_,
+            Finset.card_union ] <;> simp +decide [ * ];
       · have hm1_pos : 0 < m1 := by
           dsimp [m1]
           exact Finset.card_pos.mpr ⟨ne.small,
@@ -2696,25 +3210,47 @@ lemma A_plus_equitable
       · ext v; simp [A_plus];
         grind
     set ne_A : NearlyEquitable (G.induce A_plus) m1 s :=
-      ⟨f_A, hproper, small_idx, large_idx, hne_sl, card_small, card_large, card_other, card_total⟩
+      ⟨f_A, hproper, small_idx, large_idx, hne_sl, card_small, card_large, card_other,
+        card_total⟩
     -- Prove accessibility by transferring the chain from the original graph
     -- Key: use nodup chain + auxadj_transfer_step
     have h_transfer : ∀ c : Fin (r + 1),
         (hc_acc : IsAccessible G ne.f ne.small c) →
         c ≠ W_col →
-        Relation.ReflTransGen (fun c d => AuxAdj G ne.f c d ∧ c ≠ W_col ∧ d ≠ X) c ne.small →
+        Relation.ReflTransGen (fun c d => AuxAdj G ne.f c d ∧ c ≠ W_col ∧
+          d ≠ X) c ne.small →
         Relation.ReflTransGen (AuxAdj (G.induce A_plus) f_A) (φ ⟨c, hc_acc⟩) small_idx := by
-      have h_ind : ∀ (c d : Fin (r + 1)) (hc_acc : IsAccessible G ne.f ne.small c) (hd_acc : IsAccessible G ne.f ne.small d) (hc_ne_W : c ≠ W_col) (hd_ne_W : d ≠ W_col) (hd_ne_X : d ≠ X) (hadj_cd : AuxAdj G ne.f c d), AuxAdj (induce A_plus G) f_A (φ ⟨c, hc_acc⟩) (φ ⟨d, hd_acc⟩) := by
+      have h_ind :
+          ∀ (c d : Fin (r + 1))
+            (hc_acc : IsAccessible G ne.f ne.small c)
+            (hd_acc : IsAccessible G ne.f ne.small d)
+            (hc_ne_W : c ≠ W_col) (hd_ne_W : d ≠ W_col)
+            (hd_ne_X : d ≠ X) (hadj_cd : AuxAdj G ne.f c d),
+            AuxAdj (induce A_plus G) f_A (φ ⟨c, hc_acc⟩) (φ ⟨d, hd_acc⟩) := by
         intros c d hc_acc hd_acc hc_ne_W hd_ne_W hd_ne_X hadj_cd
-        apply auxadj_transfer_step G r ne W_col z y₁ X hz_color hy₁_nacc hXW A_plus rfl g rfl φ hg_acc f_A rfl c d hc_acc hd_acc hc_ne_W hd_ne_W hd_ne_X hadj_cd;
-      have h_ind : ∀ (c d : Fin (r + 1)) (hc_acc : IsAccessible G ne.f ne.small c) (hd_acc : IsAccessible G ne.f ne.small d) (hc_ne_W : c ≠ W_col) (hd_ne_W : d ≠ W_col) (hd_ne_X : d ≠ X), Relation.ReflTransGen (fun c d => AuxAdj G ne.f c d ∧ c ≠ W_col ∧ d ≠ X) c d → Relation.ReflTransGen (AuxAdj (induce A_plus G) f_A) (φ ⟨c, hc_acc⟩) (φ ⟨d, hd_acc⟩) := by
+        apply
+          auxadj_transfer_step G r ne W_col z y₁ X hz_color hy₁_nacc hXW A_plus rfl
+            g rfl φ hg_acc f_A rfl c d hc_acc hd_acc hc_ne_W hd_ne_W hd_ne_X
+            hadj_cd
+      have h_ind :
+          ∀ (c d : Fin (r + 1))
+            (hc_acc : IsAccessible G ne.f ne.small c)
+            (hd_acc : IsAccessible G ne.f ne.small d)
+            (hc_ne_W : c ≠ W_col) (hd_ne_W : d ≠ W_col) (hd_ne_X : d ≠ X),
+            Relation.ReflTransGen
+              (fun c d => AuxAdj G ne.f c d ∧ c ≠ W_col ∧ d ≠ X) c d →
+              Relation.ReflTransGen (AuxAdj (induce A_plus G) f_A)
+                (φ ⟨c, hc_acc⟩) (φ ⟨d, hd_acc⟩) := by
         intros c d hc_acc hd_acc hc_ne_W hd_ne_W hd_ne_X hc_chain
         induction' hc_chain with c d hc hd ih
         all_goals generalize_proofs at *;
         · exact Relation.ReflTransGen.refl;
         · have h_ind : Relation.ReflTransGen (AuxAdj (induce A_plus G) f_A) (φ ⟨c, by
             contrapose! h_ind; simp_all +decide [ IsAccessible ] ;
-            exact False.elim ( h_ind ( by exact Relation.ReflTransGen.head hd.1 ( by tauto ) ) )⟩) (φ ⟨d, hd_acc⟩) := by
+            exact False.elim
+              (h_ind (by
+                exact Relation.ReflTransGen.head hd.1 (by tauto)))⟩)
+            (φ ⟨d, hd_acc⟩) := by
             all_goals generalize_proofs at *;
             exact .single ( h_ind c d ‹_› ‹_› hd.2.1 hd_ne_W hd_ne_X hd.1 )
           generalize_proofs at *; (
@@ -2772,7 +3308,8 @@ lemma non_accessible_case1
     HasEquitableColoring G (r + 1) := by
   set A_plus := {v : V | IsAccessible G ne.f ne.small (ne.f v) ∨ v = y₁}
   set B_minus := {v : V | ¬IsAccessible G ne.f ne.small (ne.f v) ∧ v ≠ y₁};
-  have hA_plus_card : Fintype.card A_plus = (Finset.univ.filter (fun c : Fin (r + 1) => IsAccessible G ne.f ne.small c)).card * s := by
+  have hA_plus_card : Fintype.card A_plus = (Finset.univ.filter (fun c : Fin (r + 1) =>
+    IsAccessible G ne.f ne.small c)).card * s := by
     have hA_plus_card : Fintype.card A_plus = Fintype.card V - Fintype.card B_minus := by
       rw [ Fintype.card_subtype, Fintype.card_subtype ];
       rw [ tsub_eq_of_eq_add_rev ];
@@ -2809,17 +3346,26 @@ lemma non_accessible_case1
               ¬IsAccessible G ne.f ne.small c)).card * s := by
           rw [Nat.add_mul]
     rw [hA_plus_card, hs, hB_minus_card', hmul, Nat.add_sub_cancel_right]
-  have hB_minus_card : Fintype.card B_minus = (Finset.univ.filter (fun c : Fin (r + 1) => ¬IsAccessible G ne.f ne.small c)).card * s := by
+  have hB_minus_card : Fintype.card B_minus = (Finset.univ.filter (fun c : Fin (r + 1) =>
+    ¬IsAccessible G ne.f ne.small c)).card * s := by
     convert non_acc_verts_minus_one_card G r s hs ne hacc y₁ hy₁_nacc using 1;
     rw [ Fintype.card_of_subtype ] ; aesop;
-  have hA_plus_equitable : HasEquitableColoring (G.induce A_plus) (Finset.card (Finset.univ.filter (fun c : Fin (r + 1) => IsAccessible G ne.f ne.small c))) := by
+  have hA_plus_equitable :
+    HasEquitableColoring (G.induce A_plus) (Finset.card (Finset.univ.filter (fun c : Fin (r + 1) =>
+      IsAccessible G ne.f ne.small c))) := by
     apply_rules [ A_plus_equitable ]
-  have hB_minus_equitable : HasEquitableColoring (G.induce B_minus) (Finset.card (Finset.univ.filter (fun c : Fin (r + 1) => ¬IsAccessible G ne.f ne.small c))) := by
+  have hB_minus_equitable :
+    HasEquitableColoring (G.induce B_minus) (Finset.card (Finset.univ.filter (fun c : Fin (r + 1) =>
+      ¬IsAccessible G ne.f ne.small c))) := by
     apply B_minus_equitable G r s hs hd hs0 ne hacc ih_primary y₁ hy₁_nacc;
-  have h_card_sum : (Finset.card (Finset.univ.filter (fun c : Fin (r + 1) => IsAccessible G ne.f ne.small c))) + (Finset.card (Finset.univ.filter (fun c : Fin (r + 1) => ¬IsAccessible G ne.f ne.small c))) = r + 1 := by
+  have h_card_sum : (Finset.card (Finset.univ.filter (fun c : Fin (r + 1) =>
+    IsAccessible G ne.f ne.small c))) + (Finset.card (Finset.univ.filter (fun c : Fin (r + 1) =>
+      ¬IsAccessible G ne.f ne.small c))) = r + 1 := by
     rw [ Finset.card_filter_add_card_filter_not, Finset.card_fin ];
   have := @combine_disjoint_equitable V _ G;
-  specialize this A_plus (Finset.card (Finset.univ.filter (fun c : Fin (r + 1) => IsAccessible G ne.f ne.small c))) (Finset.card (Finset.univ.filter (fun c : Fin (r + 1) => ¬IsAccessible G ne.f ne.small c))) s hA_plus_card ?_;
+  specialize this A_plus (Finset.card (Finset.univ.filter (fun c : Fin (r + 1) =>
+    IsAccessible G ne.f ne.small c))) (Finset.card (Finset.univ.filter (fun c : Fin (r + 1) =>
+      ¬IsAccessible G ne.f ne.small c))) s hA_plus_card ?_;
   · simpa [Set.compl_setOf, A_plus, B_minus] using hB_minus_card
   · obtain ⟨ fA, hfA_proper, hfA_equitable ⟩ := hA_plus_equitable
     obtain ⟨ fB, hfB_proper, hfB_equitable ⟩ := hB_minus_equitable
@@ -2848,7 +3394,8 @@ lemma transGen_exists_ne_first_step {α : Type*} {r : α → α → Prop} {a b :
   · exact ⟨ a, Ne.symm hne, b, by rfl ⟩;
   · by_cases hac : a = c <;> simp_all +decide;
     · grind;
-    · obtain ⟨ d, hd₁, hd₂, hd₃ ⟩ := ‹∃ d, ¬d = a ∧ r a d ∧ Relation.ReflTransGen r d c›; exact ⟨ d, hd₁, hd₂, hd₃.tail ‹_› ⟩ ;
+    · obtain ⟨ d, hd₁, hd₂, hd₃ ⟩ := ‹∃ d, ¬d = a ∧ r a d ∧
+      Relation.ReflTransGen r d c›; exact ⟨ d, hd₁, hd₂, hd₃.tail ‹_› ⟩ ;
 
 set_option maxHeartbeats 6400000 in
 /-- **Paper's Case 2**: When z is not movable to any accessible class and has
@@ -2906,9 +3453,11 @@ lemma non_accessible_case2_paper
     with nacc_colors_def
   set q_nacc := nacc_colors.card with hq_nacc_def
   -- B_minus as a Set V (matching B_minus_equitable's definition)
-  set B_minus_set : Set V := {v | ¬IsAccessible G ne.f ne.small (ne.f v) ∧ v ≠ y₁} with hBms_def
+  set B_minus_set : Set V := {v | ¬IsAccessible G ne.f ne.small (ne.f v) ∧
+    v ≠ y₁} with hBms_def
   -- B_minus as a Finset V (for counting)
-  let B_minus := Finset.univ.filter (fun v : V => ¬IsAccessible G ne.f ne.small (ne.f v) ∧ v ≠ y₁)
+  let B_minus := Finset.univ.filter (fun v : V => ¬IsAccessible G ne.f ne.small (ne.f v) ∧
+    v ≠ y₁)
   -- === Step 2: Get equitable q-coloring of G[B⁻] via existing lemma ===
   obtain ⟨g, hg_proper, hg_equitable⟩ : HasEquitableColoring (G.induce B_minus_set) q_nacc :=
     B_minus_equitable G r s hs hd hs0 ne hacc ih_primary y₁ hy₁_nacc
@@ -2932,25 +3481,43 @@ lemma non_accessible_case2_paper
   -- z has ≥ acc_colors.card neighbors in A⁺ = A ∪ {y₁}
   -- (m from hnotmov + 1 from y₁), so ≤ q-1 in B⁻
   have hz_B_deg : (B_minus.filter (fun w => G.Adj z w)).card ≤ q_nacc - 1 := by
-    have hzacc_adj : Finset.card (Finset.filter (fun w => G.Adj z w) (Finset.univ.filter (fun w => IsAccessible G ne.f ne.small (ne.f w)))) ≥ Finset.card (Finset.filter (fun c => IsAccessible G ne.f ne.small c) Finset.univ) - 1 := by
-      have hzacc_adj : Finset.card (Finset.image ne.f (Finset.filter (fun w => G.Adj z w) (Finset.univ.filter (fun w => IsAccessible G ne.f ne.small (ne.f w))))) ≥ Finset.card (Finset.filter (fun c => IsAccessible G ne.f ne.small c) Finset.univ) - 1 := by
-        have hzacc_adj : Finset.image ne.f (Finset.filter (fun w => G.Adj z w) (Finset.univ.filter (fun w => IsAccessible G ne.f ne.small (ne.f w)))) ⊇ Finset.filter (fun c => IsAccessible G ne.f ne.small c) Finset.univ \ {W} := by
+    have hzacc_adj : Finset.card (Finset.filter (fun w => G.Adj z w) (Finset.univ.filter (fun w =>
+      IsAccessible G ne.f ne.small (ne.f w)))) ≥ Finset.card (Finset.filter (fun c =>
+        IsAccessible G ne.f ne.small c) Finset.univ) - 1 := by
+      have hzacc_adj : Finset.card (Finset.image ne.f (Finset.filter (fun w =>
+        G.Adj z w) (Finset.univ.filter (fun w => IsAccessible G ne.f ne.small (ne.f w))))) ≥
+          Finset.card (Finset.filter (fun c => IsAccessible G ne.f ne.small c) Finset.univ) - 1
+            := by
+        have hzacc_adj : Finset.image ne.f (Finset.filter (fun w =>
+          G.Adj z w) (Finset.univ.filter (fun w =>
+            IsAccessible G ne.f ne.small (ne.f w)))) ⊇ Finset.filter (fun c =>
+              IsAccessible G ne.f ne.small c) Finset.univ \ {W} := by
           grind;
         exact le_trans ( by rw [ Finset.card_sdiff ] ; aesop ) ( Finset.card_mono hzacc_adj );
       exact hzacc_adj.trans ( Finset.card_image_le );
-    have hzacc_adj : Finset.card (Finset.filter (fun w => G.Adj z w) (Finset.univ.filter (fun w => IsAccessible G ne.f ne.small (ne.f w)))) + Finset.card (Finset.filter (fun w => G.Adj z w) (Finset.univ.filter (fun w => ¬IsAccessible G ne.f ne.small (ne.f w)))) ≤ r := by
+    have hzacc_adj : Finset.card (Finset.filter (fun w => G.Adj z w) (Finset.univ.filter (fun w =>
+      IsAccessible G ne.f ne.small (ne.f w)))) + Finset.card (Finset.filter (fun w =>
+        G.Adj z w) (Finset.univ.filter (fun w => ¬IsAccessible G ne.f ne.small (ne.f w)))) ≤ r
+          := by
       rw [ ← Finset.card_union_of_disjoint ];
       · have hzacc_adj : Finset.card (Finset.filter (fun w => G.Adj z w) Finset.univ) ≤ r := by
           convert hd.trans' ( G.degree_le_maxDegree z ) using 1;
           exact congr_arg Finset.card ( by ext; simp +decide );
-        convert hzacc_adj using 2 ; ext w ; by_cases hw : IsAccessible G ne.f ne.small ( ne.f w ) <;> simp +decide [ hw ];
+        convert hzacc_adj using 2 ; ext w ;
+          by_cases hw : IsAccessible G ne.f ne.small ( ne.f w ) <;> simp +decide [ hw ];
       · exact Finset.disjoint_left.mpr ( by aesop );
-    have hzacc_adj : Finset.card (Finset.filter (fun c => IsAccessible G ne.f ne.small c) Finset.univ) + Finset.card (Finset.filter (fun c => ¬IsAccessible G ne.f ne.small c) Finset.univ) = r + 1 := by
+    have hzacc_adj : Finset.card (Finset.filter (fun c =>
+      IsAccessible G ne.f ne.small c) Finset.univ) + Finset.card (Finset.filter (fun c =>
+        ¬IsAccessible G ne.f ne.small c) Finset.univ) = r + 1 := by
       rw [ Finset.card_filter_add_card_filter_not, Finset.card_fin ];
-    have hzacc_adj : Finset.card (Finset.filter (fun w => G.Adj z w) (Finset.univ.filter (fun w => ¬IsAccessible G ne.f ne.small (ne.f w)))) ≥ Finset.card (Finset.filter (fun w => G.Adj z w) (Finset.univ.filter (fun w => ¬IsAccessible G ne.f ne.small (ne.f w) ∧ w ≠ y₁))) + 1 := by
+    have hzacc_adj : Finset.card (Finset.filter (fun w => G.Adj z w) (Finset.univ.filter (fun w =>
+      ¬IsAccessible G ne.f ne.small (ne.f w)))) ≥ Finset.card (Finset.filter (fun w =>
+        G.Adj z w) (Finset.univ.filter (fun w => ¬IsAccessible G ne.f ne.small (ne.f w) ∧
+          w ≠ y₁))) + 1 := by
       refine' Finset.card_lt_card _;
       simp +decide [ Finset.ssubset_def, Finset.subset_iff ];
-      exact ⟨ fun x hx₁ hx₂ hx₃ => ⟨ hx₁, hx₃ ⟩, y₁, hy₁_nacc, hadj_y₁_z.symm, by tauto ⟩;
+      exact ⟨ fun x hx₁ hx₂ hx₃ => ⟨ hx₁, hx₃ ⟩, y₁, hy₁_nacc, hadj_y₁_z.symm,
+        by tauto ⟩;
     grind
   -- Pigeonhole: z can join some class Y of g
   have ⟨Y, hY_no_z_nbr⟩ : ∃ Y : Fin q_nacc,
@@ -2959,7 +3526,8 @@ lemma non_accessible_case2_paper
     choose f hf using hz_B_deg;
     refine' lt_of_lt_of_le _ ( Finset.card_le_card _ );
     any_goals exact Finset.image ( fun Y => ( f Y : V ) ) Finset.univ;
-    · rw [ Finset.card_image_of_injective _ fun x y hxy => _ ] <;> simp_all +decide [ Fin.ext_iff ];
+    · rw [ Finset.card_image_of_injective _ fun x y hxy => _ ] <;>
+      simp_all +decide [Fin.ext_iff];
       grind;
     · simp +decide [ Finset.subset_iff, hf ];
       exact fun Y => Finset.mem_filter.mpr ⟨ Finset.mem_univ _, f Y |>.2 ⟩
@@ -2987,7 +3555,8 @@ lemma non_accessible_case2_paper
     · simp +zetaDelta at *;
       split_ifs <;> simp_all +decide;
       (expose_names; exact Ne.intro fun a => huniq_y₁ u a h_1 (id (adj_symm G huv)));
-    · by_cases huB : u ∈ B_minus_set <;> by_cases hvB : v ∈ B_minus_set <;> simp +decide [ huB, hvB, f' ] at huv ⊢;
+    · by_cases huB : u ∈ B_minus_set <;> by_cases hvB : v ∈ B_minus_set <;> simp +decide [ huB,
+      hvB, f' ] at huv ⊢;
       · have := hg_proper ⟨ u, huB ⟩ ⟨ v, hvB ⟩ ; simp_all +decide [ IsProper ] ;
         exact hφ_inj.ne this;
       · split_ifs <;> simp_all +decide [ IsProper ];
@@ -2997,7 +3566,8 @@ lemma non_accessible_case2_paper
       · split_ifs <;> simp_all +decide [ IsProper ];
         · exact hφ_inj.ne ( by specialize hY_no_z_nbr v hvB.1 hvB.2; aesop );
         · exact fun h => hφ_nacc _ ( h ▸ huB );
-      · by_cases huZ : u = z <;> by_cases hvZ : v = z <;> simp +decide [ hu, hv, huZ, hvZ ] at huB hvB ⊢;
+      · by_cases huZ : u = z <;> by_cases hvZ : v = z <;> simp +decide [ hu, hv, huZ,
+        hvZ ] at huB hvB ⊢;
         · exact huv.ne ( huZ.trans hvZ.symm );
         · grind +revert;
         · split_ifs <;> simp_all +decide [ SimpleGraph.adj_comm ];
@@ -3012,7 +3582,8 @@ lemma non_accessible_case2_paper
     have := ne.card_small; simp_all +decide [ Finset.card_sdiff ] ;
     by_cases hy₁ : ne.f y₁ = ne.small <;> simp_all +decide [ cClass ]
   have hf'_large : (cClass f' (φ Y)).card = s + 1 := by
-    have hf'_phi_Y : cClass f' (φ Y) = Finset.image (fun w : B_minus_set => w.val) (cClass g Y) ∪ {z} := by
+    have hf'_phi_Y : cClass f' (φ Y) = Finset.image (fun w : B_minus_set =>
+      w.val) (cClass g Y) ∪ {z} := by
       ext v;
       simp +decide [ cClass ];
       simp +zetaDelta at *;
@@ -3020,13 +3591,15 @@ lemma non_accessible_case2_paper
       · grind;
       · grind;
       · grind +splitIndPred;
-    rw [ hf'_phi_Y, Finset.card_union ] ; simp +decide [ *, Finset.card_image_of_injective, Function.Injective ]
+    rw [ hf'_phi_Y, Finset.card_union ] ; simp +decide [ *, Finset.card_image_of_injective,
+      Function.Injective ]
   have hf'_other : ∀ c, c ≠ ne.small → c ≠ φ Y → (cClass f' c).card = s := by
     intro c hc_ne_small hc_ne_Y
     by_cases hc_acc : IsAccessible G ne.f ne.small c;
     · by_cases hc_eq_W : c = W;
       · subst hc_eq_W;
-        -- Since $c$ is accessible, the color class of $c$ in $f'$ is the same as in $ne.f$, which has size $s$.
+        -- Since $c$ is accessible, the color class of $c$ in $f'$ is the same as in
+        -- $ne.f$, which has size $s$.
         have h_color_class_c : cClass f' c = {y₁} ∪ (cClass ne.f c \ {z}) := by
           ext v; simp [f', cClass];
           by_cases hv : v = z <;> simp +decide [ hv, hz_color ];
@@ -3034,9 +3607,11 @@ lemma non_accessible_case2_paper
           · by_cases hv : v ∈ B_minus_set <;> simp +decide [ hv, hφ_ne_W ];
             · exact fun h => False.elim ( hv.1 ( h ▸ hc_acc ) );
             · grind +ring;
-        rw [ h_color_class_c, Finset.card_union_of_disjoint ] <;> simp +decide [ *, Finset.disjoint_singleton_left ];
+        rw [ h_color_class_c, Finset.card_union_of_disjoint ] <;> simp +decide [ *,
+          Finset.disjoint_singleton_left ];
         · rw [ Finset.card_sdiff ] ; simp +decide [ * ];
-          rw [ ne.card_other _ hW_ne_small hW_ne_large, add_tsub_cancel_of_le ( Nat.succ_le_of_lt hs0 ) ];
+          rw [ ne.card_other _ hW_ne_small hW_ne_large,
+            add_tsub_cancel_of_le ( Nat.succ_le_of_lt hs0 ) ];
         · grind +ring;
       · convert ne.card_other c hc_ne_small ( show c ≠ ne.large from _ ) using 1;
         · refine' Finset.card_bij ( fun v hv => v ) _ _ _ <;> simp +decide [ * ];
@@ -3046,15 +3621,18 @@ lemma non_accessible_case2_paper
     · -- Since $c$ is not accessible, there exists $i$ such that $\phi(i) = c$.
       obtain ⟨i, hi⟩ : ∃ i : Fin q_nacc, φ i = c := by
         exact ⟨ φ_equiv ⟨ c, by aesop ⟩, by aesop ⟩;
-      -- Since $c = \phi(i)$, the color class of $c$ under $f'$ is the same as the color class of $i$ under $g$.
-      have hc_class_eq : cClass f' c = Finset.image (fun w : B_minus_set => w.val) (cClass g i) := by
+      -- Since $c = \phi(i)$, the color class of $c$ under $f'$ is the same as the color
+      -- class of $i$ under $g$.
+      have hc_class_eq : cClass f' c = Finset.image (fun w : B_minus_set => w.val) (cClass g i)
+        := by
         ext v; simp [f'];
         split_ifs <;> simp +decide [ ← hi, hφ_inj.eq_iff ];
         · exact iff_of_false ( Ne.symm ( hφ_ne_W i ) ) ( by aesop );
         · exact ⟨ fun h => ⟨ by assumption, h ⟩, fun ⟨ _, h ⟩ => h ⟩;
         · grind;
         · contrapose! hc_acc; aesop;
-      rw [ hc_class_eq, Finset.card_image_of_injective _ fun x y hxy => by simpa [ Subtype.ext_iff ] using hxy, hg_class_size ]
+      rw [ hc_class_eq, Finset.card_image_of_injective _ fun x y hxy =>
+        by simpa [ Subtype.ext_iff ] using hxy, hg_class_size ]
   have hf'_small_ne_large : ne.small ≠ φ Y :=
     Ne.symm (fun h => hφ_nacc Y (h ▸ hsmall_acc))
   -- === Step 9: Build NearlyEquitable and apply secondary IH ===
@@ -3067,7 +3645,8 @@ lemma non_accessible_case2_paper
   -- Helper: f' agrees with ne.f for accessible-colored vertices not y₁ or z
   have hf'_eq_acc : ∀ v, IsAccessible G ne.f ne.small (ne.f v) → v ≠ y₁ → v ≠ z →
       f' v = ne.f v := by
-    -- Since v is accessible, it cannot be in B_minus_set, so the second condition (hv : v ∈ B_minus_set) is false.
+    -- Since v is accessible, it cannot be in B_minus_set, so the second condition (hv :
+    -- v ∈ B_minus_set) is false.
     intros v hv_acc hv_ne_y₁ hv_ne_z
     simp [f', hv_ne_y₁, hv_ne_z];
     exact fun h => False.elim <| h.1 hv_acc
@@ -3101,14 +3680,19 @@ lemma non_accessible_case2_paper
     intro c hc hcW
     have h_path : Relation.ReflTransGen (fun c d => AuxAdj G ne.f c d ∧ c ≠ W) c ne.small := by
       exact hW_terminal c hc hcW;
-    have h_path_f' : ∀ c d, Relation.ReflTransGen (fun c d => AuxAdj G ne.f c d ∧ c ≠ W) c d → IsAccessible G ne.f ne.small c → IsAccessible G ne.f ne.small d → d ≠ W → Relation.ReflTransGen (AuxAdj G f') c d := by
+    have h_path_f' : ∀ c d, Relation.ReflTransGen (fun c d => AuxAdj G ne.f c d ∧
+      c ≠ W) c d → IsAccessible G ne.f ne.small c → IsAccessible G ne.f ne.small d →
+        d ≠ W → Relation.ReflTransGen (AuxAdj G f') c d := by
       intros c d h_path hc hd hdW
       induction' h_path with c d hcd ih;
       · exact Relation.ReflTransGen.refl;
       · rename_i h;
-        exact Relation.ReflTransGen.trans ( h ( by
-          exact Relation.ReflTransGen.head ( ih.1 ) ( by tauto ) ) ih.2 ) ( Relation.ReflTransGen.single ( hAuxAdj_pres2 _ _ ih.1 ( by
-          exact Relation.ReflTransGen.head ( ih.1 ) ( by tauto ) ) hd hdW ) );
+        exact Relation.ReflTransGen.trans
+          (h (by
+            exact Relation.ReflTransGen.head ih.1 (by tauto)) ih.2)
+          (Relation.ReflTransGen.single
+            (hAuxAdj_pres2 _ _ ih.1 (by
+              exact Relation.ReflTransGen.head ih.1 (by tauto)) hd hdW))
     exact h_path_f' c ne.small h_path hc ( by exact Relation.ReflTransGen.refl ) ( by tauto )
   -- W accessible under f'
   have hacc_W : IsAccessible G f' ne.small W := by
@@ -3194,7 +3778,8 @@ lemma non_accessible_case
       obtain ⟨W, z, y₁, hW_acc, hW_ne_small, hW_ne_large, hz_color, hy₁_nacc,
         hadj_y₁_z, huniq_y₁, hW_terminal, hcases⟩ :=
         good_solo_vertex_exists_terminal G r s hs hd hs0 ne' hacc'
-      rcases hcases with ⟨X, hXW, hXacc, hXmov⟩ | ⟨y₂, hy₂ne, hy₂nacc, hy₂adj, hy₂uniq, hnonadj, hnotmov⟩
+      rcases hcases with ⟨X, hXW, hXacc, hXmov⟩ | ⟨y₂, hy₂ne, hy₂nacc, hy₂adj,
+        hy₂uniq, hnonadj, hnotmov⟩
       · exact non_accessible_case1 G r s hs hd hs0 ne' hacc' ih_primary
           q_val W z y₁ hW_acc hW_ne_small hW_ne_large hz_color hy₁_nacc
           hadj_y₁_z huniq_y₁ X hXW hXacc hXmov hW_terminal
@@ -3361,7 +3946,8 @@ lemma equitable_classes_equal_of_dvd {W : Type*} [Fintype W] [DecidableEq W]
     (cClass f c).card = Fintype.card W / k := by
   obtain ⟨m, hm⟩ := hdvd
   have h_sum : ∑ c : Fin k, (cClass f c).card = Fintype.card W := by
-    simp +decide only [cClass, Finset.card_eq_sum_ones, Finset.sum_fiberwise (Finset.univ : Finset W)]
+    simp +decide only [cClass, Finset.card_eq_sum_ones,
+      Finset.sum_fiberwise (Finset.univ : Finset W)]
     rw [Fintype.card_eq_sum_ones]
   have h_min : ∀ c : Fin k, m ≤ (cClass f c).card := by
     contrapose! h_sum
@@ -3397,7 +3983,8 @@ lemma paddedGraph_equitable_restrict (G : SimpleGraph V) [DecidableRel G.Adj] (p
     IsEquitable (f ∘ Sum.inl) := by
   have h_eq_classes : ∀ c : Fin k, (cClass f c).card = (Fintype.card (V ⊕ Fin p)) / k :=
     fun c => equitable_classes_equal_of_dvd f hf_equitable hdvd c
-  have h_inj_classes : ∀ c : Fin k, ((cClass f c).card - (cClass (f ∘ Sum.inl) c).card) ≤ 1 := by
+  have h_inj_classes : ∀ c : Fin k, ((cClass f c).card - (cClass (f ∘ Sum.inl) c).card) ≤ 1
+    := by
     intro c
     have h_inj_classes_aux :
         ((Finset.univ.filter (fun i : Fin p => f (Sum.inr i) = c)).card) ≤ 1 := by
