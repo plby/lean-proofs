@@ -33,7 +33,7 @@ limitations under the License.
 -/
 
 import Mathlib
-import ErdosProblems.Util
+import Util
 
 set_option linter.style.setOption false
 set_option linter.style.whitespace false

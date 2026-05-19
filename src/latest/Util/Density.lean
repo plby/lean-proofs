@@ -32,9 +32,6 @@ open scoped Topology
 
 namespace Set
 
-def interIio {β : Type*} [Preorder β] (A : Set β) (b : β) : Set β :=
-  A ∩ Iio b
-
 /--
 Given a set `S` and an element `b` in an order `β`, where all intervals bounded above are finite,
 we define the partial density of `S` (relative to a set `A`) to be the proportion of elements in
