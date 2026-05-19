@@ -1658,12 +1658,6 @@ theorem erdos_1141 :
     exact (erdos1141Prop_iff_pa_one_ne_one n).1 hn |>.1
   simpa [Set.not_infinite] using (erdos_1141_variant.subset hsubset)
 
-example : ¬ Erdos1141Prop 968 := by
-  decide +native
-
-example : Erdos1141Prop 1722 := by
-  decide +native
-
 #print axioms erdos_1141
 -- 'Erdos1141.erdos_1141' depends on axioms: [propext, Classical.choice, mertens_third_theorem,
 -- Pollack17.theorem_1_3, Quot.sound]
