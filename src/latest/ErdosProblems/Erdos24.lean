@@ -66,7 +66,6 @@ set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.style.show false
-set_option linter.style.longLine false
 set_option linter.unusedDecidableInType false
 set_option linter.unusedFintypeInType false
 set_option maxHeartbeats 0
@@ -1584,40 +1583,104 @@ theorem flag_bound_all_graphs : ∀ e : Fin 10 → Bool,
       ¬(mkAdj5 e a b = true ∧ mkAdj5 e b c = true ∧ mkAdj5 e a c = true)) →
     totalFlagContrib (mkAdj5 e) ≤ 576 / 125 := by
   intro e h
-  exact flag_bound_all_graphs_bits (mkAdj5 e 0 1) (mkAdj5 e 0 2) (mkAdj5 e 0 3) (mkAdj5 e 0 4) (mkAdj5 e 1 2) (mkAdj5 e 1 3) (mkAdj5 e 1 4) (mkAdj5 e 2 3) (mkAdj5 e 2 4) (mkAdj5 e 3 4) (by
-    exact ⟨h 0 1 2, h 0 1 3, h 0 1 4, h 0 2 3, h 0 2 4, h 0 3 4, h 1 2 3, h 1 2 4, h 1 3 4, h 2 3 4⟩)
+  exact flag_bound_all_graphs_bits
+    (mkAdj5 e 0 1) (mkAdj5 e 0 2) (mkAdj5 e 0 3) (mkAdj5 e 0 4)
+    (mkAdj5 e 1 2) (mkAdj5 e 1 3) (mkAdj5 e 1 4) (mkAdj5 e 2 3)
+    (mkAdj5 e 2 4) (mkAdj5 e 3 4) (by
+      exact ⟨h 0 1 2, h 0 1 3, h 0 1 4, h 0 2 3, h 0 2 4,
+        h 0 3 4, h 1 2 3, h 1 2 4, h 1 3 4, h 2 3 4⟩)
 
 attribute [local instance] Classical.propDecidable
 
 /-- Whether a graph on `Fin 5` is a 5-cycle. -/
 def isC5_adj (adj : Fin 5 → Fin 5 → Bool) : Bool :=
   decide (
-      (adj 0 1 = true ∧ adj 0 2 = true ∧ adj 0 3 = false ∧ adj 0 4 = false ∧ adj 1 2 = false ∧ adj 1 3 = true ∧ adj 1 4 = false ∧ adj 2 3 = false ∧ adj 2 4 = true ∧ adj 3 4 = true) ∨
-      (adj 0 1 = true ∧ adj 0 2 = true ∧ adj 0 3 = false ∧ adj 0 4 = false ∧ adj 1 2 = false ∧ adj 1 3 = false ∧ adj 1 4 = true ∧ adj 2 3 = true ∧ adj 2 4 = false ∧ adj 3 4 = true) ∨
-      (adj 0 1 = true ∧ adj 0 2 = false ∧ adj 0 3 = true ∧ adj 0 4 = false ∧ adj 1 2 = true ∧ adj 1 3 = false ∧ adj 1 4 = false ∧ adj 2 3 = false ∧ adj 2 4 = true ∧ adj 3 4 = true) ∨
-      (adj 0 1 = true ∧ adj 0 2 = false ∧ adj 0 3 = true ∧ adj 0 4 = false ∧ adj 1 2 = false ∧ adj 1 3 = false ∧ adj 1 4 = true ∧ adj 2 3 = true ∧ adj 2 4 = true ∧ adj 3 4 = false) ∨
-      (adj 0 1 = true ∧ adj 0 2 = false ∧ adj 0 3 = false ∧ adj 0 4 = true ∧ adj 1 2 = true ∧ adj 1 3 = false ∧ adj 1 4 = false ∧ adj 2 3 = true ∧ adj 2 4 = false ∧ adj 3 4 = true) ∨
-      (adj 0 1 = true ∧ adj 0 2 = false ∧ adj 0 3 = false ∧ adj 0 4 = true ∧ adj 1 2 = false ∧ adj 1 3 = true ∧ adj 1 4 = false ∧ adj 2 3 = true ∧ adj 2 4 = true ∧ adj 3 4 = false) ∨
-      (adj 0 1 = false ∧ adj 0 2 = true ∧ adj 0 3 = true ∧ adj 0 4 = false ∧ adj 1 2 = true ∧ adj 1 3 = false ∧ adj 1 4 = true ∧ adj 2 3 = false ∧ adj 2 4 = false ∧ adj 3 4 = true) ∨
-      (adj 0 1 = false ∧ adj 0 2 = true ∧ adj 0 3 = true ∧ adj 0 4 = false ∧ adj 1 2 = false ∧ adj 1 3 = true ∧ adj 1 4 = true ∧ adj 2 3 = false ∧ adj 2 4 = true ∧ adj 3 4 = false) ∨
-      (adj 0 1 = false ∧ adj 0 2 = true ∧ adj 0 3 = false ∧ adj 0 4 = true ∧ adj 1 2 = true ∧ adj 1 3 = true ∧ adj 1 4 = false ∧ adj 2 3 = false ∧ adj 2 4 = false ∧ adj 3 4 = true) ∨
-      (adj 0 1 = false ∧ adj 0 2 = true ∧ adj 0 3 = false ∧ adj 0 4 = true ∧ adj 1 2 = false ∧ adj 1 3 = true ∧ adj 1 4 = true ∧ adj 2 3 = true ∧ adj 2 4 = false ∧ adj 3 4 = false) ∨
-      (adj 0 1 = false ∧ adj 0 2 = false ∧ adj 0 3 = true ∧ adj 0 4 = true ∧ adj 1 2 = true ∧ adj 1 3 = true ∧ adj 1 4 = false ∧ adj 2 3 = false ∧ adj 2 4 = true ∧ adj 3 4 = false) ∨
-      (adj 0 1 = false ∧ adj 0 2 = false ∧ adj 0 3 = true ∧ adj 0 4 = true ∧ adj 1 2 = true ∧ adj 1 3 = false ∧ adj 1 4 = true ∧ adj 2 3 = true ∧ adj 2 4 = false ∧ adj 3 4 = false))
+      (adj 0 1 = true ∧ adj 0 2 = true ∧ adj 0 3 = false ∧
+        adj 0 4 = false ∧ adj 1 2 = false ∧ adj 1 3 = true ∧
+        adj 1 4 = false ∧ adj 2 3 = false ∧ adj 2 4 = true ∧
+        adj 3 4 = true) ∨
+      (adj 0 1 = true ∧ adj 0 2 = true ∧ adj 0 3 = false ∧
+        adj 0 4 = false ∧ adj 1 2 = false ∧ adj 1 3 = false ∧
+        adj 1 4 = true ∧ adj 2 3 = true ∧ adj 2 4 = false ∧
+        adj 3 4 = true) ∨
+      (adj 0 1 = true ∧ adj 0 2 = false ∧ adj 0 3 = true ∧
+        adj 0 4 = false ∧ adj 1 2 = true ∧ adj 1 3 = false ∧
+        adj 1 4 = false ∧ adj 2 3 = false ∧ adj 2 4 = true ∧
+        adj 3 4 = true) ∨
+      (adj 0 1 = true ∧ adj 0 2 = false ∧ adj 0 3 = true ∧
+        adj 0 4 = false ∧ adj 1 2 = false ∧ adj 1 3 = false ∧
+        adj 1 4 = true ∧ adj 2 3 = true ∧ adj 2 4 = true ∧
+        adj 3 4 = false) ∨
+      (adj 0 1 = true ∧ adj 0 2 = false ∧ adj 0 3 = false ∧
+        adj 0 4 = true ∧ adj 1 2 = true ∧ adj 1 3 = false ∧
+        adj 1 4 = false ∧ adj 2 3 = true ∧ adj 2 4 = false ∧
+        adj 3 4 = true) ∨
+      (adj 0 1 = true ∧ adj 0 2 = false ∧ adj 0 3 = false ∧
+        adj 0 4 = true ∧ adj 1 2 = false ∧ adj 1 3 = true ∧
+        adj 1 4 = false ∧ adj 2 3 = true ∧ adj 2 4 = true ∧
+        adj 3 4 = false) ∨
+      (adj 0 1 = false ∧ adj 0 2 = true ∧ adj 0 3 = true ∧
+        adj 0 4 = false ∧ adj 1 2 = true ∧ adj 1 3 = false ∧
+        adj 1 4 = true ∧ adj 2 3 = false ∧ adj 2 4 = false ∧
+        adj 3 4 = true) ∨
+      (adj 0 1 = false ∧ adj 0 2 = true ∧ adj 0 3 = true ∧
+        adj 0 4 = false ∧ adj 1 2 = false ∧ adj 1 3 = true ∧
+        adj 1 4 = true ∧ adj 2 3 = false ∧ adj 2 4 = true ∧
+        adj 3 4 = false) ∨
+      (adj 0 1 = false ∧ adj 0 2 = true ∧ adj 0 3 = false ∧
+        adj 0 4 = true ∧ adj 1 2 = true ∧ adj 1 3 = true ∧
+        adj 1 4 = false ∧ adj 2 3 = false ∧ adj 2 4 = false ∧
+        adj 3 4 = true) ∨
+      (adj 0 1 = false ∧ adj 0 2 = true ∧ adj 0 3 = false ∧
+        adj 0 4 = true ∧ adj 1 2 = false ∧ adj 1 3 = true ∧
+        adj 1 4 = true ∧ adj 2 3 = true ∧ adj 2 4 = false ∧
+        adj 3 4 = false) ∨
+      (adj 0 1 = false ∧ adj 0 2 = false ∧ adj 0 3 = true ∧
+        adj 0 4 = true ∧ adj 1 2 = true ∧ adj 1 3 = true ∧
+        adj 1 4 = false ∧ adj 2 3 = false ∧ adj 2 4 = true ∧
+        adj 3 4 = false) ∨
+      (adj 0 1 = false ∧ adj 0 2 = false ∧ adj 0 3 = true ∧
+        adj 0 4 = true ∧ adj 1 2 = true ∧ adj 1 3 = false ∧
+        adj 1 4 = true ∧ adj 2 3 = true ∧ adj 2 4 = false ∧
+        adj 3 4 = false))
 
 private def isC5_adj_bool (adj : Fin 5 → Fin 5 → Bool) : Bool :=
-  (adj 0 1 && (adj 0 2 && (!adj 0 3 && (!adj 0 4 && (!adj 1 2 && (adj 1 3 && (!adj 1 4 && (!adj 2 3 && (adj 2 4 && adj 3 4))))))))) ||
-    ((adj 0 1 && (adj 0 2 && (!adj 0 3 && (!adj 0 4 && (!adj 1 2 && (!adj 1 3 && (adj 1 4 && (adj 2 3 && (!adj 2 4 && adj 3 4))))))))) ||
-      ((adj 0 1 && (!adj 0 2 && (adj 0 3 && (!adj 0 4 && (adj 1 2 && (!adj 1 3 && (!adj 1 4 && (!adj 2 3 && (adj 2 4 && adj 3 4))))))))) ||
-        ((adj 0 1 && (!adj 0 2 && (adj 0 3 && (!adj 0 4 && (!adj 1 2 && (!adj 1 3 && (adj 1 4 && (adj 2 3 && (adj 2 4 && !adj 3 4))))))))) ||
-          ((adj 0 1 && (!adj 0 2 && (!adj 0 3 && (adj 0 4 && (adj 1 2 && (!adj 1 3 && (!adj 1 4 && (adj 2 3 && (!adj 2 4 && adj 3 4))))))))) ||
-            ((adj 0 1 && (!adj 0 2 && (!adj 0 3 && (adj 0 4 && (!adj 1 2 && (adj 1 3 && (!adj 1 4 && (adj 2 3 && (adj 2 4 && !adj 3 4))))))))) ||
-              ((!adj 0 1 && (adj 0 2 && (adj 0 3 && (!adj 0 4 && (adj 1 2 && (!adj 1 3 && (adj 1 4 && (!adj 2 3 && (!adj 2 4 && adj 3 4))))))))) ||
-                ((!adj 0 1 && (adj 0 2 && (adj 0 3 && (!adj 0 4 && (!adj 1 2 && (adj 1 3 && (adj 1 4 && (!adj 2 3 && (adj 2 4 && !adj 3 4))))))))) ||
-                  ((!adj 0 1 && (adj 0 2 && (!adj 0 3 && (adj 0 4 && (adj 1 2 && (adj 1 3 && (!adj 1 4 && (!adj 2 3 && (!adj 2 4 && adj 3 4))))))))) ||
-                    ((!adj 0 1 && (adj 0 2 && (!adj 0 3 && (adj 0 4 && (!adj 1 2 && (adj 1 3 && (adj 1 4 && (adj 2 3 && (!adj 2 4 && !adj 3 4))))))))) ||
-                      ((!adj 0 1 && (!adj 0 2 && (adj 0 3 && (adj 0 4 && (adj 1 2 && (adj 1 3 && (!adj 1 4 && (!adj 2 3 && (adj 2 4 && !adj 3 4))))))))) ||
-                        (!adj 0 1 && (!adj 0 2 && (adj 0 3 && (adj 0 4 && (adj 1 2 && (!adj 1 3 && (adj 1 4 && (adj 2 3 && (!adj 2 4 && !adj 3 4)))))))))))))))))))
+  (adj 0 1 && (adj 0 2 && (!adj 0 3 && (!adj 0 4 &&
+    (!adj 1 2 && (adj 1 3 && (!adj 1 4 && (!adj 2 3 &&
+    (adj 2 4 && adj 3 4))))))))) ||
+    ((adj 0 1 && (adj 0 2 && (!adj 0 3 && (!adj 0 4 &&
+      (!adj 1 2 && (!adj 1 3 && (adj 1 4 && (adj 2 3 &&
+      (!adj 2 4 && adj 3 4))))))))) ||
+      ((adj 0 1 && (!adj 0 2 && (adj 0 3 && (!adj 0 4 &&
+        (adj 1 2 && (!adj 1 3 && (!adj 1 4 && (!adj 2 3 &&
+        (adj 2 4 && adj 3 4))))))))) ||
+        ((adj 0 1 && (!adj 0 2 && (adj 0 3 && (!adj 0 4 &&
+          (!adj 1 2 && (!adj 1 3 && (adj 1 4 && (adj 2 3 &&
+          (adj 2 4 && !adj 3 4))))))))) ||
+          ((adj 0 1 && (!adj 0 2 && (!adj 0 3 && (adj 0 4 &&
+            (adj 1 2 && (!adj 1 3 && (!adj 1 4 && (adj 2 3 &&
+            (!adj 2 4 && adj 3 4))))))))) ||
+            ((adj 0 1 && (!adj 0 2 && (!adj 0 3 && (adj 0 4 &&
+              (!adj 1 2 && (adj 1 3 && (!adj 1 4 && (adj 2 3 &&
+              (adj 2 4 && !adj 3 4))))))))) ||
+              ((!adj 0 1 && (adj 0 2 && (adj 0 3 && (!adj 0 4 &&
+                (adj 1 2 && (!adj 1 3 && (adj 1 4 && (!adj 2 3 &&
+                (!adj 2 4 && adj 3 4))))))))) ||
+                ((!adj 0 1 && (adj 0 2 && (adj 0 3 && (!adj 0 4 &&
+                  (!adj 1 2 && (adj 1 3 && (adj 1 4 && (!adj 2 3 &&
+                  (adj 2 4 && !adj 3 4))))))))) ||
+                  ((!adj 0 1 && (adj 0 2 && (!adj 0 3 && (adj 0 4 &&
+                    (adj 1 2 && (adj 1 3 && (!adj 1 4 && (!adj 2 3 &&
+                    (!adj 2 4 && adj 3 4))))))))) ||
+                    ((!adj 0 1 && (adj 0 2 && (!adj 0 3 && (adj 0 4 &&
+                      (!adj 1 2 && (adj 1 3 && (adj 1 4 && (adj 2 3 &&
+                      (!adj 2 4 && !adj 3 4))))))))) ||
+                      ((!adj 0 1 && (!adj 0 2 && (adj 0 3 && (adj 0 4 &&
+                        (adj 1 2 && (adj 1 3 && (!adj 1 4 && (!adj 2 3 &&
+                        (adj 2 4 && !adj 3 4))))))))) ||
+                        (!adj 0 1 && (!adj 0 2 && (adj 0 3 && (adj 0 4 &&
+                          (adj 1 2 && (!adj 1 3 && (adj 1 4 &&
+                          (adj 2 3 && (!adj 2 4 && !adj 3 4)))))))))))))))))))
 
 private lemma isC5_adj_true_iff_bool (adj : Fin 5 → Fin 5 → Bool) :
     isC5_adj adj = true ↔ isC5_adj_bool adj = true := by
@@ -1763,7 +1826,9 @@ theorem flag_bound_with_c5 : ∀ e : Fin 10 → Bool,
   by_cases hc : isC5_adj (mkAdj5 e) = true
   · have hc' := of_decide_eq_true (by simpa [isC5_adj] using hc)
     rw [hc]
-    rcases hc' with hpat | hpat | hpat | hpat | hpat | hpat | hpat | hpat | hpat | hpat | hpat | hpat
+    rcases hc' with
+      hpat | hpat | hpat | hpat | hpat | hpat |
+      hpat | hpat | hpat | hpat | hpat | hpat
     · rcases hpat with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9⟩
       simp [mkAdj5] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
       have he := edgeBits_ext e h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
@@ -3100,8 +3165,16 @@ lemma labeledC5_fiber_card {V : Type*} [Fintype V] [DecidableEq V]
             exact triangleFree_C5_no_chords hG hf₀.1 i j ( by tauto ) ( by tauto ) ( by aesop ) hij;
           · rintro ( rfl | rfl ) <;> simp_all +decide [ SimpleGraph.IsLabeledC5 ];
             simpa [ SimpleGraph.adj_comm ] using hf₀.1.2 j;
-        -- We need to show that the set of labeled 5-cycles on $S$ is in bijection with the set of dihedral permutations of $\{0, 1, 2, 3, 4\}$.
-        have h_bij : {f : Fin 5 → V | G.IsLabeledC5 f ∧ Finset.image f Finset.univ = S} = Finset.image (fun σ : Equiv.Perm (Fin 5) => fun i => f₀ (σ i)) (Finset.filter (fun σ : Equiv.Perm (Fin 5) => ∀ i, σ (i + 1) = σ i + 1 ∨ σ i = σ (i + 1) + 1) (Finset.univ : Finset (Equiv.Perm (Fin 5)))) := by
+        -- We need to show that the set of labeled 5-cycles on $S$ is in bijection with the set
+        -- of dihedral permutations of $\{0, 1, 2, 3, 4\}$.
+        have h_bij :
+            {f : Fin 5 → V | G.IsLabeledC5 f ∧ Finset.image f Finset.univ = S} =
+              Finset.image
+                (fun σ : Equiv.Perm (Fin 5) => fun i => f₀ (σ i))
+                (Finset.filter
+                  (fun σ : Equiv.Perm (Fin 5) =>
+                    ∀ i, σ (i + 1) = σ i + 1 ∨ σ i = σ (i + 1) + 1)
+                  (Finset.univ : Finset (Equiv.Perm (Fin 5)))) := by
           ext f; simp;
           constructor;
           · intro hf
@@ -3114,15 +3187,30 @@ lemma labeledC5_fiber_card {V : Type*} [Fintype V] [DecidableEq V]
               choose σ hσ using h_bij;
               have hσ_inj : Function.Injective σ := by
                 intro i j hij; have := hf.1.1; have := hf₀.1.1; aesop;
-              exact ⟨ Equiv.ofBijective σ ⟨ hσ_inj, Finite.injective_iff_surjective.mp hσ_inj ⟩, hσ ⟩;
+              exact ⟨
+                Equiv.ofBijective σ
+                  ⟨hσ_inj, Finite.injective_iff_surjective.mp hσ_inj⟩,
+                hσ⟩;
             use σ;
             simp_all +decide [ funext_iff, SimpleGraph.IsLabeledC5 ];
           · rintro ⟨ σ, hσ, rfl ⟩ ; simp_all +decide [ SimpleGraph.IsLabeledC5 ] ;
             simp_all +decide [ Finset.ext_iff, Function.Injective ];
-            exact ⟨ fun i j hij => σ.injective ( hf₀.1 hij ), fun a => by rw [ ← hf₀.2 a ] ; exact ⟨ fun ⟨ i, hi ⟩ => ⟨ σ i, hi ⟩, fun ⟨ i, hi ⟩ => ⟨ σ.symm i, by simpa using hi ⟩ ⟩ ⟩;
+            exact ⟨
+              fun i j hij => σ.injective (hf₀.1 hij),
+              fun a => by
+                rw [← hf₀.2 a]
+                exact ⟨
+                  fun ⟨i, hi⟩ => ⟨σ i, hi⟩,
+                  fun ⟨i, hi⟩ => ⟨σ.symm i, by simpa using hi⟩⟩⟩;
         rw [ Set.ext_iff ] at h_bij;
-        convert Finset.card_image_of_injective _ ( show Function.Injective ( fun σ : Equiv.Perm ( Fin 5 ) => fun i => f₀ ( σ i ) ) from ?_ ) using 1;
-        any_goals exact Finset.filter ( fun σ : Equiv.Perm ( Fin 5 ) => ∀ i : Fin 5, σ ( i + 1 ) = σ i + 1 ∨ σ i = σ ( i + 1 ) + 1 ) Finset.univ;
+        convert Finset.card_image_of_injective _
+          (show Function.Injective
+              (fun σ : Equiv.Perm (Fin 5) => fun i => f₀ (σ i)) from ?_) using 1;
+        any_goals
+          exact Finset.filter
+            (fun σ : Equiv.Perm (Fin 5) =>
+              ∀ i : Fin 5, σ (i + 1) = σ i + 1 ∨ σ i = σ (i + 1) + 1)
+            Finset.univ;
         · exact congr_arg Finset.card ( Finset.ext fun x => by simpa using h_bij x );
         · decide
         · intro σ τ hστ; have := hf₀.1.1; simp_all +decide [ funext_iff, Fin.forall_fin_succ ] ;
