@@ -2,6 +2,7 @@
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 427.
+https://www.erdosproblems.com/427
 https://www.erdosproblems.com/forum/thread/427
 
 Formalization status:
@@ -18,6 +19,9 @@ Formal authors:
 URLs:
 - https://www.erdosproblems.com/forum/thread/427#post-5920
 - https://gist.githubusercontent.com/JohnEdwardJennings/e2c6ef0daab55857b7cc9d340de7af84/raw/8ff97800e38582c71246a238e7541a9d69488cbd/Erdos427.lean
+
+Source Lean versions:
+- 4.28.0
 -/
 /-
 Copyright (c) 2026 John Jennings. All rights reserved.
