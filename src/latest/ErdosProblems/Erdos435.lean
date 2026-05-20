@@ -26,6 +26,7 @@ $target(n) = \sum_{p|n} \sum_{j=1}^{v_p(n)} (p-1)\binom{n}{p^j} - n$.
 import Mathlib
 
 set_option linter.style.setOption false
+set_option linter.style.longLine false
 set_option linter.flexible false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
