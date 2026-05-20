@@ -1418,7 +1418,7 @@ theorem erdos658 :
     ∀ δ : ℝ, δ > 0 → ∃ N₀ : ℕ, ∀ N : ℕ, N₀ < N →
       ∀ S : Finset (ℤ × ℤ), S ⊆ grid2 N →
         δ * (↑N) ^ 2 ≤ ↑S.card → ContainsSquare S :=
-  Theorem_1_1 frankl_roedl_theorem
+  Theorem_1_1 _root_.frankl_roedl_theorem
 
 end
 
@@ -1427,7 +1427,7 @@ end
 #print axioms Theorem_1_2
 -- 'Erdos658.Theorem_1_2' depends on axioms: [propext, Classical.choice, Quot.sound]
 #print axioms erdos658
--- 'Erdos658.erdos658' depends on axioms: [propext, Classical.choice, frankl_roedl_theorem,
+-- 'Erdos658.erdos658' depends on axioms: [frankl_roedl_theorem, propext, Classical.choice,
 -- Quot.sound]
 
 end Erdos658

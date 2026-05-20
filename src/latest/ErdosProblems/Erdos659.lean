@@ -2803,7 +2803,7 @@ theorem erdos_659 : ∃ A : ℕ → Finset ℝ²,
     (fun n ↦ distinctDistances (A n)) ≪ fun n ↦ n / sqrt (log n) := by
   obtain ⟨P, hP_card, hP_local, hP_bigO⟩ :=
     main_theorem PeruccaClassificationStatement_proof
-      (by intro Δ hΔ; exact bernays Δ hΔ)
+      (by intro Δ hΔ; exact _root_.bernays Δ hΔ)
   refine ⟨fun n => (P n).image toEuclideanPoint, ?_, ?_⟩
   · intro n
     constructor
@@ -2838,6 +2838,6 @@ theorem erdos_659 : ∃ A : ℕ → Finset ℝ²,
   · simpa [distinctDistances_image_toEuclideanPoint] using hP_bigO
 
 #print axioms erdos_659
--- 'Erdos659.erdos_659' depends on axioms: [propext, Classical.choice, bernays, Quot.sound]
+-- 'Erdos659.erdos_659' depends on axioms: [bernays, propext, Classical.choice, Quot.sound]
 
 end Erdos659

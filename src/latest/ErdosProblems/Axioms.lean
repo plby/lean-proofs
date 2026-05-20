@@ -39,8 +39,6 @@ axiom maynard_tao (m : ℕ) (hm : 2 ≤ m) (B : Finset ℤ)
     ∀ N : ℕ, ∃ n : ℤ, N < n ∧
       m ≤ (B.filter (fun b ↦ (n + b).natAbs.Prime)).card
 
-namespace Erdos997
-
 /-- The Maynard–Tao theorem (Banks–Freiberg–Turnage-Butterbaugh corollary): for every
 `m ≥ 1`, there exists `Cₘ ≥ 1` such that for every coprime residue class `a mod q`
 (with `q ≥ 1`), there are infinitely many index-runs of `m` consecutive primes in
@@ -52,8 +50,6 @@ axiom maynardTaoBFT :
       (∀ j, j < m → (Nat.nth Nat.Prime (r + j) : ℤ) ≡ a [ZMOD (q : ℤ)]) ∧
       Nat.nth Nat.Prime (r + m - 1) - Nat.nth Nat.Prime r ≤ q * C
 
-end Erdos997
-
 /-- **Tao–Teräväinen theorem** (Theorem 1.1 of Tao–Teräväinen, 2025).
 
 This is a deep theorem from analytic number theory and is stated here
@@ -64,8 +60,6 @@ axiom tao_teravainen : ∃ C : ℝ, 0 < C ∧
       (N + k).factorization.support.card ≤
           (N + k).factorization.sum (fun _ k => k) ∧
         (N + k).factorization.sum (fun _ k => k) ≤ C * k)
-
-namespace Erdos659
 
 /-- An (integral) binary quadratic form `f(X,Y) = a X^2 + b X Y + c Y^2`. -/
 structure BinQuadForm where
@@ -124,8 +118,6 @@ axiom bernays
           ~[Filter.atTop]
           (fun x : ℝ => CΔ * x / Real.sqrt (Real.log x))
 
-end Erdos659
-
 /-- **Dusart's Mertens product estimate** (Theorem 5.1): for `x ≥ 2278382`,
 `|∏_{p≤x}(1-1/p) - 1/(e^γ log x)| ≤ 1/(5 e^γ log⁴ x)`. -/
 axiom dusart_mertens_product (x : ℝ) (hx : x ≥ 2278382) :
@@ -173,8 +165,6 @@ axiom Finset.add_kneser {α : Type*} [AddCommGroup α] [DecidableEq α] (s t : F
     (s + (s + t).addStab).card + (t + (s + t).addStab).card ≤
       (s + t).card + ((s + t).addStab).card
 
-namespace Erdos658
-
 /-- **Theorem 2.2** (Frankl–Rödl, 2002):
 If `G` is a 3-uniform hypergraph such that every edge belongs to exactly one
 complete subgraph (clique of size ≥ 4), then `|E(G)| = o(|V(G)|³)`.
@@ -194,10 +184,6 @@ def Theorem_2_2 : Prop :=
 
 /-- **Theorem 2.2** (Frankl–Rödl, 2002). -/
 axiom frankl_roedl_theorem : Theorem_2_2
-
-end Erdos658
-
-namespace Erdos694
 
 /-- **Mertens' product theorem.**
 `∏_{p ≤ y, p prime} (1 - 1/p)^{-1}` is asymptotic to `e^γ · log y` as `y → ∞`.
@@ -220,5 +206,3 @@ axiom linnik_dvd :
   ∃ C : ℝ, ∃ L : ℕ, 1 ≤ C ∧ 1 ≤ L ∧
     ∀ M : ℕ, 1 ≤ M →
       ∃ ℓ : ℕ, Nat.Prime ℓ ∧ M ∣ ℓ - 1 ∧ (ℓ : ℝ) ≤ C * (M : ℝ) ^ L
-
-end Erdos694

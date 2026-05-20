@@ -726,7 +726,7 @@ theorem landau_max_ratio :
     -- Compose with y = (Y T : ℝ). Then ⌊(Y T : ℝ)⌋₊ = Y T (since Y T : ℕ).
     have h_yT_to_inf : Tendsto (fun T : ℝ => ((Y T : ℕ) : ℝ)) atTop atTop :=
       tendsto_natCast_atTop_atTop.comp landauY_tendsto
-    have h := mertens_product.comp h_yT_to_inf
+    have h := _root_.mertens_product.comp h_yT_to_inf
     -- This gives: (∏_{p ∈ filter Prime (Icc 1 ⌊(Y T : ℝ)⌋₊)} ...) / (γc * log (Y T : ℝ)) → 1.
     -- Need to convert to L T / (γc * log Y T).
     have h_eq : ∀ᶠ T : ℝ in atTop,
@@ -1757,7 +1757,7 @@ private lemma mertens_product_nat :
       atTop (𝓝 1) := by
   have h_yT_to_inf : Tendsto (fun Y : ℕ => ((Y : ℕ) : ℝ)) atTop atTop :=
     tendsto_natCast_atTop_atTop
-  have h := mertens_product.comp h_yT_to_inf
+  have h := _root_.mertens_product.comp h_yT_to_inf
   have h_eq : ∀ᶠ Y : ℕ in atTop,
       (∏ p ∈ Finset.filter Nat.Prime (Finset.Icc 1 ⌊((Y : ℕ) : ℝ)⌋₊),
             ((p : ℝ) / (p - 1))) /
@@ -2238,7 +2238,7 @@ theorem totient_collision_construction :
         (b : ℝ) / a ≥ (Real.exp Real.eulerMascheroniConstant - ε) * Real.log (Real.log x) := by
   intro ε hε
   -- Extract Linnik constants.
-  obtain ⟨C, L, hC, hL, hLinnik⟩ := linnik_dvd
+  obtain ⟨C, L, hC, hL, hLinnik⟩ := _root_.linnik_dvd
   -- Apply the height-level theorem with halved tolerance ε/2.
   have hε2 : 0 < ε / 2 := by linarith
   obtain ⟨K, hK_pos, hY⟩ := collision_at_height C L hC hL hLinnik (ε / 2) hε2
@@ -2778,7 +2778,7 @@ theorem infinitely_many_collisions (a b : ℕ) (hb : 1 ≤ b) (hgt : b < a)
 
 PDF Theorem 2.1 in the natural `Tendsto` shape an asymptotic result requires.
 
-Trust boundary: `Erdos694.mertens_product` + `Erdos694.linnik_dvd` plus
+Trust boundary: `mertens_product` + `linnik_dvd` plus
 Mathlib core. There are no `sorry`s in this file. -/
 theorem erdos_694_asymptotic :
     Tendsto
@@ -2818,35 +2818,23 @@ Expected results, where `core` denotes Mathlib's
 -- 'Erdos694.LowerConstruction.totient_a_eq_totient_b' depends on axioms: [propext,
 -- Classical.choice, Quot.sound]
 #print axioms Erdos694.landau_max_ratio
--- 'Erdos694.landau_max_ratio' depends on axioms: [propext, Classical.choice,
--- Erdos694.mertens_product, Quot.sound]
+-- 'Erdos694.landau_max_ratio' depends on axioms: [mertens_product, propext,
+-- Classical.choice, Quot.sound]
 #print axioms Erdos694.R_upper_bound
--- 'Erdos694.R_upper_bound' depends on axioms: [propext, Classical.choice,
--- Erdos694.mertens_product, Quot.sound]
+-- 'Erdos694.R_upper_bound' depends on axioms: [mertens_product, propext, Classical.choice,
+-- Quot.sound]
 #print axioms Erdos694.collision_at_height
--- 'Erdos694.collision_at_height' depends on axioms: [propext, Classical.choice,
--- Erdos694.mertens_product, Quot.sound]
+-- 'Erdos694.collision_at_height' depends on axioms: [mertens_product, propext,
+-- Classical.choice, Quot.sound]
 #print axioms Erdos694.totient_collision_construction
--- 'Erdos694.totient_collision_construction' depends on axioms: [propext,
---  Classical.choice,
---  Erdos694.linnik_dvd,
---  Erdos694.mertens_product,
---  Quot.sound]
+-- 'Erdos694.totient_collision_construction' depends on axioms: [linnik_dvd,
+-- mertens_product, propext, Classical.choice, Quot.sound]
 #print axioms Erdos694.R_lower_bound
--- 'Erdos694.R_lower_bound' depends on axioms: [propext,
---  Classical.choice,
---  Erdos694.linnik_dvd,
---  Erdos694.mertens_product,
---  Quot.sound]
+-- 'Erdos694.R_lower_bound' depends on axioms: [linnik_dvd, mertens_product, propext,
+-- Classical.choice, Quot.sound]
 #print axioms Erdos694.totient_fibre_extremes
--- 'Erdos694.totient_fibre_extremes' depends on axioms: [propext,
---  Classical.choice,
---  Erdos694.linnik_dvd,
---  Erdos694.mertens_product,
---  Quot.sound]
+-- 'Erdos694.totient_fibre_extremes' depends on axioms: [linnik_dvd,
+-- mertens_product, propext, Classical.choice, Quot.sound]
 #print axioms Erdos694.erdos_694_asymptotic
--- 'Erdos694.erdos_694_asymptotic' depends on axioms: [propext,
---  Classical.choice,
---  Erdos694.linnik_dvd,
---  Erdos694.mertens_product,
---  Quot.sound]
+-- 'Erdos694.erdos_694_asymptotic' depends on axioms: [linnik_dvd, mertens_product, propext,
+-- Classical.choice, Quot.sound]

@@ -118,7 +118,7 @@ primes (starting at index `r+1`) whose fractional parts `{αp}` are pairwise wit
 theorem circleCluster (α : ℝ) (m : ℕ) (hm : 0 < m) :
     ∃ r, ∀ i j, i < m → j < m → ∃ k : ℤ,
       |fracSeq α (r + 1 + i) - fracSeq α (r + 1 + j) - ↑k| ≤ 1 / 8 := by
-  obtain ⟨C, hC₀, hC⟩ := maynardTaoBFT m hm
+  obtain ⟨C, hC₀, hC⟩ := _root_.maynardTaoBFT m hm
   obtain ⟨q, hq⟩ : ∃ q : ℚ, |α - q| ≤ 1 / ((8 * C + 1) * q.den) ∧ q.den ≤ 8 * C := by
     have := exists_rat_abs_sub_le_and_den_le α (show 0 < 8 * C by positivity); aesop
   obtain ⟨r, hr⟩ : ∃ r : ℕ, ∀ i < m, (nth Nat.Prime (r + 1 + i) : ℤ) ≡ q.num [ZMOD q.den] ∧
@@ -241,6 +241,7 @@ theorem erdos997 (α : ℝ) : ¬IsWellDistributed (fracSeq α) :=
   not_wellDistributed_of_clustering (fracSeq_hasClustering α)
 
 #print axioms erdos997
--- 'Erdos997.erdos997' depends on axioms: [propext, Classical.choice, maynardTaoBFT, Quot.sound]
+-- 'Erdos997.erdos997' depends on axioms: [maynardTaoBFT, propext, Classical.choice,
+-- Quot.sound]
 
 end Erdos997
