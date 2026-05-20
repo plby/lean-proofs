@@ -28,7 +28,6 @@ We verify computationally that this hypergraph does not contain any subgraph on
 
 import Mathlib
 
-
 namespace Erdos794
 
 /-
@@ -57,21 +56,21 @@ def has_subgraph (E : Finset (Finset ℕ)) (v_count e_count : ℕ) : Prop :=
 
 set_option maxRecDepth 4000 in
 theorem counterexample_disproves_conjecture :
-  (∀ e ∈ counterexample_edges, e.card = 3) ∧
-  counterexample_edges.card ≥ n_val^3 + 1 ∧
-  ¬ has_subgraph counterexample_edges 4 3 ∧
-  ¬ has_subgraph counterexample_edges 5 7 := by
-    unfold has_subgraph;
-    decide
+    (∀ e ∈ counterexample_edges, e.card = 3) ∧
+    counterexample_edges.card ≥ n_val ^ 3 + 1 ∧
+    ¬ has_subgraph counterexample_edges 4 3 ∧
+    ¬ has_subgraph counterexample_edges 5 7 := by
+  unfold has_subgraph
+  decide
 
 def erdos_794 : Prop :=
   ∀ (n : ℕ) (V : Finset ℕ) (E : Finset (Finset ℕ)),
     V.card = 3 * n →
     (∀ e ∈ E, e.card = 3) →
-    E.card ≥ n^3 + 1 →
-      has_subgraph E 4 3 ∨ has_subgraph E 5 7
+    E.card ≥ n ^ 3 + 1 →
+    has_subgraph E 4 3 ∨ has_subgraph E 5 7
 
-theorem not_erdos_794 : ¬erdos_794 := by
+theorem not_erdos_794 : ¬ erdos_794 := by
   intro h
   have hce := counterexample_disproves_conjecture
   have hinst :
@@ -79,7 +78,7 @@ theorem not_erdos_794 : ¬erdos_794 := by
     h n_val (Finset.range (3 * n_val)) counterexample_edges (by simp) hce.1 hce.2.1
   simp_all only [ge_iff_le, or_self]
 
-#print axioms not_erdos_794
--- 'Erdos794.not_erdos_794' depends on axioms: [propext, Classical.choice, Quot.sound]
-
 end Erdos794
+
+#print axioms Erdos794.not_erdos_794
+-- 'Erdos794.not_erdos_794' depends on axioms: [propext, Classical.choice, Quot.sound]
