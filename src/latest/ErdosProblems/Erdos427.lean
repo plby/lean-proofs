@@ -113,7 +113,8 @@ theorem erdos427 (n d : ℕ) (hd : 1 ≤ d) :
     Nat.cast_add, Nat.cast_sum]
   exact ⟨Nat.one_le_iff_ne_zero.mpr (by omega), by
     rw [← Nat.mod_add_div S d]
-    aesop⟩
+    simp_all only [CharP.cast_eq_zero, ZMod.natCast_mod, Nat.cast_sum, zero_sub, Nat.cast_add,
+      Nat.cast_mul, zero_mul, add_zero, add_neg_cancel, len, r, S]⟩
 
 end Erdos427
 
