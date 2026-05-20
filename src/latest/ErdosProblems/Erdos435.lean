@@ -17,7 +17,10 @@ URLs:
 - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos435.md
 -/
 /-
-We prove that for a natural number $n$ which is not a prime power, the largest integer not representable as a non-negative integer linear combination of binomial coefficients $\binom{n}{i}$ ($1 \le i < n$) is $target(n) = \sum_{p|n} \sum_{j=1}^{v_p(n)} (p-1)\binom{n}{p^j} - n$.
+We prove that for a natural number $n$ which is not a prime power, the largest integer
+not representable as a non-negative integer linear combination of binomial coefficients
+$\binom{n}{i}$ ($1 \le i < n$) is
+$target(n) = \sum_{p|n} \sum_{j=1}^{v_p(n)} (p-1)\binom{n}{p^j} - n$.
 -/
 
 import Mathlib
@@ -25,7 +28,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.induction false
-set_option linter.style.longLine false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.deprecated false
@@ -41,99 +43,227 @@ def generators (n : ℕ) : Set ℕ :=
   { m | ∃ i, 1 ≤ i ∧ i < n ∧ m = Nat.choose n i }
 
 /-
-The target integer is defined as $\sum_k \left( \sum_{1\leq d\leq a_k}\binom{n}{p_k^d}\right)(p_k-1)-n$ where $n=\prod p_k^{a_k}$.
+The target integer is defined as
+$\sum_k \left( \sum_{1\leq d\leq a_k}\binom{n}{p_k^d}\right)(p_k-1)-n$
+where $n=\prod p_k^{a_k}$.
 -/
 noncomputable def target (n : ℕ) : ℤ :=
   (Finset.sum n.factorization.support fun p =>
-    (Finset.sum (Finset.Icc 1 (n.factorization p)) fun d => (Nat.choose n (p ^ d) : ℤ)) * (p - 1)) - n
+    (Finset.sum (Finset.Icc 1 (n.factorization p)) fun d =>
+      (Nat.choose n (p ^ d) : ℤ)) * (p - 1)) - n
 
 set_option maxHeartbeats 0 in
 /-
 Helper lemma for Lemma 2 Part 1: A product inequality involving factorials/ranges.
 -/
 lemma lemma2_part1_bound (y : ℕ) (hy : y ≥ 5) :
-  ∏ i ∈ Finset.Icc (2 * y + 1) (3 * y), i ≥ 2 * y * ∏ i ∈ Finset.Icc (y + 1) (2 * y), i := by
+    ∏ i ∈ Finset.Icc (2 * y + 1) (3 * y), i ≥
+      2 * y * ∏ i ∈ Finset.Icc (y + 1) (2 * y), i := by
     -- By induction on $y$, we can show that the inequality holds for all $y \geq 5$.
     induction' y, Nat.succ_le.mpr hy using Nat.le_induction with y ih;
     · decide +kernel;
     · -- Let's simplify the goal using the induction hypothesis.
-      have h_simp : (∏ i ∈ Finset.Icc (2 * y + 3) (3 * y + 3), i) = (∏ i ∈ Finset.Icc (2 * y + 1) (3 * y), i) * ((3 * y + 1) * (3 * y + 2) * (3 * y + 3)) / ((2 * y + 1) * (2 * y + 2)) := by
-        have h_simp : (∏ i ∈ Finset.Icc (2 * y + 3) (3 * y + 3), i) = (∏ i ∈ Finset.Icc (2 * y + 1) (3 * y + 3), i) / ((2 * y + 1) * (2 * y + 2)) := by
+      have h_simp :
+          (∏ i ∈ Finset.Icc (2 * y + 3) (3 * y + 3), i) =
+            (∏ i ∈ Finset.Icc (2 * y + 1) (3 * y), i) *
+              ((3 * y + 1) * (3 * y + 2) * (3 * y + 3)) /
+                ((2 * y + 1) * (2 * y + 2)) := by
+        have h_simp :
+            (∏ i ∈ Finset.Icc (2 * y + 3) (3 * y + 3), i) =
+              (∏ i ∈ Finset.Icc (2 * y + 1) (3 * y + 3), i) /
+                ((2 * y + 1) * (2 * y + 2)) := by
           erw [ Finset.prod_Ico_eq_prod_range, Finset.prod_Ico_eq_prod_range ];
           rw [ Nat.div_eq_of_eq_mul_left ];
           · positivity;
-          · rw [ show 3 * y + 3 + 1 - ( 2 * y + 1 ) = ( 3 * y + 3 + 1 - ( 2 * y + 3 ) ) + 2 by omega, Finset.prod_range_succ', Finset.prod_range_succ' ] ; norm_num ; ring_nf;
+          · rw [
+              show
+                  3 * y + 3 + 1 - (2 * y + 1) =
+                    (3 * y + 3 + 1 - (2 * y + 3)) + 2 by
+                omega,
+              Finset.prod_range_succ', Finset.prod_range_succ']
+            norm_num
+            ring_nf
         rw [ h_simp ];
-        erw [ Finset.prod_Ico_eq_prod_range, Finset.prod_Ico_eq_prod_range ] ; norm_num [ add_assoc, mul_assoc, Finset.prod_range_succ ] ; ring_nf;
-        rw [ show 4 + y * 3 - ( 1 + y * 2 ) = ( 1 + y * 3 - ( 1 + y * 2 ) ) + 3 by rw [ Nat.sub_eq_of_eq_add ] ; linarith [ Nat.sub_add_cancel ( by linarith : 1 + y * 3 ≥ 1 + y * 2 ) ] ] ; norm_num [ Finset.prod_range_succ ] ; ring_nf;
-        rw [ show 1 + y * 3 - ( 1 + y * 2 ) = y by rw [ Nat.sub_eq_of_eq_add ] ; ring ] ; ring_nf;
+        erw [ Finset.prod_Ico_eq_prod_range, Finset.prod_Ico_eq_prod_range ]
+        norm_num [ add_assoc, mul_assoc, Finset.prod_range_succ ]
+        ring_nf
+        rw [
+          show
+              4 + y * 3 - (1 + y * 2) =
+                (1 + y * 3 - (1 + y * 2)) + 3 by
+            rw [Nat.sub_eq_of_eq_add]
+            linarith [
+              Nat.sub_add_cancel
+                (by linarith : 1 + y * 3 ≥ 1 + y * 2)]]
+        norm_num [Finset.prod_range_succ]
+        ring_nf
+        rw [
+          show 1 + y * 3 - (1 + y * 2) = y by
+            rw [Nat.sub_eq_of_eq_add]
+            ring]
+        ring_nf
       -- Let's simplify the right-hand side of the inequality.
-      have h_rhs : (∏ i ∈ Finset.Icc (y + 2) (2 * y + 2), i) = (∏ i ∈ Finset.Icc (y + 1) (2 * y), i) * ((2 * y + 1) * (2 * y + 2)) / (y + 1) := by
+      have h_rhs :
+          (∏ i ∈ Finset.Icc (y + 2) (2 * y + 2), i) =
+            (∏ i ∈ Finset.Icc (y + 1) (2 * y), i) *
+              ((2 * y + 1) * (2 * y + 2)) / (y + 1) := by
         erw [ Finset.prod_Ico_eq_prod_range, Finset.prod_Ico_eq_prod_range ];
-        rw [ show 2 * y + 2 + 1 - ( y + 2 ) = y + 1 by rw [ Nat.sub_eq_of_eq_add ] ; ring, show 2 * y + 1 - ( y + 1 ) = y by rw [ Nat.sub_eq_of_eq_add ] ; ring ] ; norm_num [ Finset.prod_range_succ ] ; ring_nf;
+        rw [
+          show 2 * y + 2 + 1 - (y + 2) = y + 1 by
+            rw [Nat.sub_eq_of_eq_add]
+            ring,
+          show 2 * y + 1 - (y + 1) = y by
+            rw [Nat.sub_eq_of_eq_add]
+            ring]
+        norm_num [Finset.prod_range_succ]
+        ring_nf
         rw [ Nat.div_eq_of_eq_mul_left ] <;> try linarith;
-        have := Finset.prod_range_succ' ( fun x => 1 + y + x ) y; have := Finset.prod_range_succ' ( fun x => 2 + y + x ) y; norm_num [ add_comm, add_left_comm, add_assoc, Finset.prod_range_succ ] at * ; nlinarith;
+        have := Finset.prod_range_succ' (fun x => 1 + y + x) y
+        have := Finset.prod_range_succ' (fun x => 2 + y + x) y
+        norm_num [add_comm, add_left_comm, add_assoc, Finset.prod_range_succ] at *
+        nlinarith
       -- Substitute the simplified forms into the inequality.
-      have h_subst : (∏ i ∈ Finset.Icc (2 * y + 1) (3 * y), i) * ((3 * y + 1) * (3 * y + 2) * (3 * y + 3)) / ((2 * y + 1) * (2 * y + 2)) ≥ 2 * (y + 1) * ((∏ i ∈ Finset.Icc (y + 1) (2 * y), i) * ((2 * y + 1) * (2 * y + 2)) / (y + 1)) := by
+      have h_subst :
+          (∏ i ∈ Finset.Icc (2 * y + 1) (3 * y), i) *
+                ((3 * y + 1) * (3 * y + 2) * (3 * y + 3)) /
+              ((2 * y + 1) * (2 * y + 2)) ≥
+            2 * (y + 1) *
+              ((∏ i ∈ Finset.Icc (y + 1) (2 * y), i) *
+                  ((2 * y + 1) * (2 * y + 2)) / (y + 1)) := by
         refine Nat.le_div_iff_mul_le ( by positivity ) |>.2 ?_;
         rw [ ← Nat.mul_div_assoc ];
-        · rw [ show 2 * ( y + 1 ) * ( ( ∏ i ∈ Finset.Icc ( y + 1 ) ( 2 * y ), i ) * ( ( 2 * y + 1 ) * ( 2 * y + 2 ) ) ) / ( y + 1 ) = 2 * ( ( ∏ i ∈ Finset.Icc ( y + 1 ) ( 2 * y ), i ) * ( ( 2 * y + 1 ) * ( 2 * y + 2 ) ) ) by rw [ Nat.div_eq_of_eq_mul_left ] <;> linarith ];
-          have := ‹y ≥ 5 → ∏ i ∈ Finset.Icc ( 2 * y + 1 ) ( 3 * y ), i ≥ 2 * y * ∏ i ∈ Finset.Icc ( y + 1 ) ( 2 * y ), i› ih;
-          nlinarith [ Nat.zero_le ( ∏ i ∈ Finset.Icc ( y + 1 ) ( 2 * y ), i ), Nat.zero_le ( ( 2 * y + 1 ) * ( 2 * y + 2 ) ), Nat.zero_le ( ( 3 * y + 1 ) * ( 3 * y + 2 ) * ( 3 * y + 3 ) ), mul_le_mul_left' ih ( ∏ i ∈ Finset.Icc ( y + 1 ) ( 2 * y ), i ), mul_le_mul_left' ih ( ( 2 * y + 1 ) * ( 2 * y + 2 ) ), mul_le_mul_left' ih ( ( 3 * y + 1 ) * ( 3 * y + 2 ) * ( 3 * y + 3 ) ) ];
-        · exact dvd_mul_of_dvd_left ( Finset.dvd_prod_of_mem _ ( Finset.mem_Icc.mpr ⟨ by linarith, by linarith ⟩ ) ) _;
-      convert h_subst using 1 ; ring_nf at * ; aesop;
+        · have h_div_cancel :
+              2 * (y + 1) *
+                    ((∏ i ∈ Finset.Icc (y + 1) (2 * y), i) *
+                      ((2 * y + 1) * (2 * y + 2))) / (y + 1) =
+                2 *
+                  ((∏ i ∈ Finset.Icc (y + 1) (2 * y), i) *
+                    ((2 * y + 1) * (2 * y + 2))) := by
+            rw [Nat.div_eq_of_eq_mul_left] <;> linarith
+          rw [h_div_cancel]
+          have hih :
+              ∏ i ∈ Finset.Icc (2 * y + 1) (3 * y), i ≥
+                2 * y * ∏ i ∈ Finset.Icc (y + 1) (2 * y), i :=
+            ‹y ≥ 5 →
+              ∏ i ∈ Finset.Icc (2 * y + 1) (3 * y), i ≥
+                2 * y * ∏ i ∈ Finset.Icc (y + 1) (2 * y), i› ih
+          nlinarith [
+            Nat.zero_le (∏ i ∈ Finset.Icc (y + 1) (2 * y), i),
+            Nat.zero_le ((2 * y + 1) * (2 * y + 2)),
+            Nat.zero_le ((3 * y + 1) * (3 * y + 2) * (3 * y + 3)),
+            mul_le_mul_left' ih (∏ i ∈ Finset.Icc (y + 1) (2 * y), i),
+            mul_le_mul_left' ih ((2 * y + 1) * (2 * y + 2)),
+            mul_le_mul_left' ih ((3 * y + 1) * (3 * y + 2) * (3 * y + 3))]
+        · exact
+            dvd_mul_of_dvd_left
+              (Finset.dvd_prod_of_mem _
+                (Finset.mem_Icc.mpr ⟨by linarith, by linarith⟩))
+              _
+      convert h_subst using 1
+      ring_nf at *
+      aesop
 
 /-
 Lemma 2 Part 1: For $y \ge 5$ and $n \ge 4y$, $\binom{n}{2y} \ge 2y \binom{n}{y}$.
 -/
 lemma lemma2_part1 (n y : ℕ) (hy : y ≥ 5) (hn : n ≥ 4 * y) :
     Nat.choose n (2 * y) ≥ 2 * y * Nat.choose n y := by
-      -- We expand the binomial coefficients: $\binom{n}{2y} = \frac{n!}{(2y)!(n-2y)!}$ and $\binom{n}{y} = \frac{n!}{y!(n-y)!}$.
-      have h_expand : Nat.choose n (2 * y) = Nat.choose n y * (∏ i ∈ Finset.range y, (n - y - i)) / (∏ i ∈ Finset.range y, (y + i + 1)) := by
-        have h_expand : Nat.choose n (2 * y) = Nat.choose n y * (∏ i ∈ Finset.range y, (n - y - i)) / (∏ i ∈ Finset.range y, (y + i + 1)) := by
-          have h_binom : Nat.choose n (2 * y) * (∏ i ∈ Finset.range y, (y + i + 1)) = Nat.choose n y * (∏ i ∈ Finset.range y, (n - y - i)) := by
-            have h_binom : Nat.choose n (2 * y) * Nat.factorial (2 * y) = Nat.choose n y * Nat.factorial y * (∏ i ∈ Finset.range y, (n - y - i)) := by
-              have h_binom : Nat.descFactorial n (2 * y) = Nat.descFactorial n y * (∏ i ∈ Finset.range y, (n - y - i)) := by
+      -- We expand the binomial coefficients and cancel the common factorial terms.
+      have h_expand :
+          Nat.choose n (2 * y) =
+            Nat.choose n y * (∏ i ∈ Finset.range y, (n - y - i)) /
+              (∏ i ∈ Finset.range y, (y + i + 1)) := by
+        have h_expand :
+            Nat.choose n (2 * y) =
+              Nat.choose n y * (∏ i ∈ Finset.range y, (n - y - i)) /
+                (∏ i ∈ Finset.range y, (y + i + 1)) := by
+          have h_binom :
+              Nat.choose n (2 * y) * (∏ i ∈ Finset.range y, (y + i + 1)) =
+                Nat.choose n y * (∏ i ∈ Finset.range y, (n - y - i)) := by
+            have h_binom :
+                Nat.choose n (2 * y) * Nat.factorial (2 * y) =
+                  Nat.choose n y * Nat.factorial y *
+                    (∏ i ∈ Finset.range y, (n - y - i)) := by
+              have h_binom :
+                  Nat.descFactorial n (2 * y) =
+                    Nat.descFactorial n y *
+                      (∏ i ∈ Finset.range y, (n - y - i)) := by
                 rw [ Nat.descFactorial_eq_prod_range, Nat.descFactorial_eq_prod_range ];
                 convert Finset.prod_range_add _ _ y using 3 <;> ring_nf;
                 rw [ Nat.sub_sub ];
-              rw [ Nat.descFactorial_eq_factorial_mul_choose, Nat.descFactorial_eq_factorial_mul_choose ] at h_binom ; nlinarith [ Nat.factorial_pos y, Nat.factorial_pos ( 2 * y ) ] ;
-            have h_factorial : Nat.factorial (2 * y) = Nat.factorial y * (∏ i ∈ Finset.range y, (y + i + 1)) := by
-              have h_factorial_step : ∀ k : ℕ, Nat.factorial (y + k) = Nat.factorial y * (∏ i ∈ Finset.range k, (y + i + 1)) := by
-                exact fun k => Nat.recOn k ( by norm_num ) fun k ih => by rw [ Nat.add_succ, Nat.factorial_succ, ih, Finset.prod_range_succ ] ; ring;
+              rw [
+                Nat.descFactorial_eq_factorial_mul_choose,
+                Nat.descFactorial_eq_factorial_mul_choose] at h_binom
+              nlinarith [Nat.factorial_pos y, Nat.factorial_pos (2 * y)]
+            have h_factorial :
+                Nat.factorial (2 * y) =
+                  Nat.factorial y * (∏ i ∈ Finset.range y, (y + i + 1)) := by
+              have h_factorial_step :
+                  ∀ k : ℕ,
+                    Nat.factorial (y + k) =
+                      Nat.factorial y * (∏ i ∈ Finset.range k, (y + i + 1)) := by
+                exact fun k =>
+                  Nat.recOn k (by norm_num) fun k ih => by
+                    rw [Nat.add_succ, Nat.factorial_succ, ih, Finset.prod_range_succ]
+                    ring
               rw [ two_mul, h_factorial_step ];
             nlinarith [ Nat.factorial_pos y ]
           rw [ ← h_binom, Nat.mul_div_cancel _ ( Finset.prod_pos fun _ _ => Nat.succ_pos _ ) ];
         grind;
-      -- Canceling $n!$ and rearranging, we need $\frac{(n-y)!}{(n-2y)!} \ge 2y \frac{(2y)!}{y!}$.
-      have h_cancel : (∏ i ∈ Finset.range y, (n - y - i)) ≥ 2 * y * (∏ i ∈ Finset.range y, (y + i + 1)) := by
-        -- From `lemma2_part1_bound`, we know $\prod_{i=2y+1}^{3y} i \ge 2y \prod_{i=y+1}^{2y} i$.
-        have h_prod_bound : (∏ i ∈ Finset.range y, (3 * y - i)) ≥ 2 * y * (∏ i ∈ Finset.range y, (y + i + 1)) := by
+      -- Canceling $n!$ and rearranging gives a product inequality.
+      have h_cancel :
+          (∏ i ∈ Finset.range y, (n - y - i)) ≥
+            2 * y * (∏ i ∈ Finset.range y, (y + i + 1)) := by
+        -- Use the product bound from `lemma2_part1_bound`.
+        have h_prod_bound :
+            (∏ i ∈ Finset.range y, (3 * y - i)) ≥
+              2 * y * (∏ i ∈ Finset.range y, (y + i + 1)) := by
           -- By simplifying, we can see that both sides of the inequality are equal.
-          have h_simp : (∏ i ∈ Finset.range y, (3 * y - i)) = (∏ i ∈ Finset.Icc (2 * y + 1) (3 * y), i) ∧ (∏ i ∈ Finset.range y, (y + i + 1)) = (∏ i ∈ Finset.Icc (y + 1) (2 * y), i) := by
-            constructor <;> erw [ Finset.prod_Ico_eq_prod_range ] <;> norm_num [ two_mul, add_assoc ];
-            · rw [ show 3 * y + 1 - ( y + ( y + 1 ) ) = y by rw [ Nat.sub_eq_of_eq_add ] ; ring ] ; rw [ ← Finset.prod_range_reflect ] ; norm_num [ add_comm, add_left_comm, add_assoc ] ;
-              exact Finset.prod_congr rfl fun x hx => by cases y <;> norm_num at * ; omega;
+          have h_simp :
+              (∏ i ∈ Finset.range y, (3 * y - i)) =
+                  (∏ i ∈ Finset.Icc (2 * y + 1) (3 * y), i) ∧
+                (∏ i ∈ Finset.range y, (y + i + 1)) =
+                  (∏ i ∈ Finset.Icc (y + 1) (2 * y), i) := by
+            constructor <;> erw [Finset.prod_Ico_eq_prod_range] <;>
+              norm_num [two_mul, add_assoc]
+            · rw [
+                show 3 * y + 1 - (y + (y + 1)) = y by
+                  rw [Nat.sub_eq_of_eq_add]
+                  ring]
+              rw [← Finset.prod_range_reflect]
+              norm_num [add_comm, add_left_comm, add_assoc]
+              exact Finset.prod_congr rfl fun x hx => by
+                cases y <;> norm_num at *
+                omega
             · ac_rfl;
           exact h_simp.left.symm ▸ h_simp.right.symm ▸ lemma2_part1_bound y hy;
         refine le_trans h_prod_bound ?_;
         exact Finset.prod_le_prod' fun i hi => by omega;
-      rw [ h_expand, ge_iff_le, Nat.le_div_iff_mul_le ] <;> nlinarith [ Nat.choose_pos ( show y ≤ n by linarith ), show 0 < ∏ i ∈ Finset.range y, ( y + i + 1 ) from Finset.prod_pos fun _ _ => Nat.succ_pos _ ] ;
+      rw [h_expand, ge_iff_le, Nat.le_div_iff_mul_le] <;>
+        nlinarith [
+          Nat.choose_pos (show y ≤ n by linarith),
+          show 0 < ∏ i ∈ Finset.range y, (y + i + 1) from
+            Finset.prod_pos fun _ _ => Nat.succ_pos _]
 
 /-
 Lemma 2 Step 1: $\binom{n}{xy} \ge \binom{n}{2y}$.
 -/
 lemma lemma2_step1 (n x y : ℕ) (hx : x ≥ 2) (hy : y ≥ 1) (hn : n ≥ 2 * x * y) :
     Nat.choose n (x * y) ≥ Nat.choose n (2 * y) := by
-      -- Since $x \geq 2$, $xy \geq 2y$. Because $n \ge 2xy$, $xy \le n/2$, so $\binom{n}{xy} \ge \binom{n}{2y}$ by the properties of binomial coefficients.
+      -- Since $x \geq 2$, $xy \geq 2y$ and $xy \le n/2$.
       have h_xy_le_n_div_2 : x * y ≤ n / 2 := by
         rw [ Nat.le_div_iff_mul_le ] <;> linarith;
-      -- By the properties of binomial coefficients, $\binom{n}{k}$ is increasing for $k \le n/2$.
-      have h_binom_inc : ∀ k l : ℕ, 0 ≤ k → k ≤ l → l ≤ n / 2 → Nat.choose n k ≤ Nat.choose n l := by
+      -- The binomial coefficients increase while the index is at most `n / 2`.
+      have h_binom_inc :
+          ∀ k l : ℕ, 0 ≤ k → k ≤ l → l ≤ n / 2 → Nat.choose n k ≤ Nat.choose n l := by
         intros k l hk hl hn_div_2
         induction' hl with l hl ih;
         · rfl;
-        · exact le_trans ( ih ( Nat.le_of_succ_le hn_div_2 ) ) ( Nat.choose_le_succ_of_lt_half_left ( by linarith [ Nat.div_mul_le_self n 2 ] ) );
+        · exact
+            le_trans
+              (ih (Nat.le_of_succ_le hn_div_2))
+              (Nat.choose_le_succ_of_lt_half_left
+                (by linarith [Nat.div_mul_le_self n 2]))
       exact h_binom_inc _ _ ( by positivity ) ( by nlinarith ) h_xy_le_n_div_2
 
 /-
@@ -141,33 +271,43 @@ Lemma 2 Step 3: $y \binom{n}{y} \ge x \binom{n}{x}$ for $1 \le x \le y$ and $n \
 -/
 lemma lemma2_step3 (n x y : ℕ) (hy : y ≥ x) (hn : n ≥ 2 * y) :
     y * Nat.choose n y ≥ x * Nat.choose n x := by
-      -- By induction on $y - x$, we can show that $y \binom{n}{y} \ge x \binom{n}{x}$ for all $x \leq y$.
+      -- Induct on the index between `x` and `y`.
       have h_ind : ∀ k : ℕ, x ≤ k → k ≤ y → k * Nat.choose n k ≥ x * Nat.choose n x := by
         -- We proceed by induction on $k$.
         intro k hkx hky
         induction' hkx with k hk ih;
         · rfl;
-        · -- By the properties of binomial coefficients, we have $\frac{(k+1)\binom{n}{k+1}}{k\binom{n}{k}} = \frac{n-k}{k} \ge 1$.
+        · -- Compare consecutive weighted binomial coefficients.
           have h_ratio : (k + 1) * Nat.choose n (k + 1) ≥ k * Nat.choose n k := by
-            nlinarith [ Nat.succ_mul_choose_eq n k, Nat.choose_succ_succ n k, show n ≥ 2 * ( k + 1 ) by linarith ];
+            nlinarith [
+              Nat.succ_mul_choose_eq n k,
+              Nat.choose_succ_succ n k,
+              show n ≥ 2 * (k + 1) by linarith]
           exact le_trans ( ih ( Nat.le_of_succ_le hky ) ) h_ratio;
       exact h_ind y hy le_rfl
 
 /-
 Lemma 2 (Large y): If $y \ge 5$, then $\binom{n}{xy} \ge x \binom{n}{x} + y\binom{n}{y}.$
 -/
-lemma lemma2_large_y (n x y : ℕ) (hx : x ≥ 2) (hy : y ≥ x) (hn : n ≥ 2 * x * y) (hy5 : y ≥ 5) :
+lemma lemma2_large_y (n x y : ℕ) (hx : x ≥ 2) (hy : y ≥ x)
+    (hn : n ≥ 2 * x * y) (hy5 : y ≥ 5) :
     Nat.choose n (x * y) ≥ x * Nat.choose n x + y * Nat.choose n y := by
   have hn4y : n ≥ 4 * y := by
     calc n ≥ 2 * x * y := hn
          _ ≥ 2 * 2 * y := by gcongr
          _ = 4 * y := by ring
-  have h1 : Nat.choose n (x * y) ≥ Nat.choose n (2 * y) := lemma2_step1 n x y hx (by linarith) hn
-  have h2 : Nat.choose n (2 * y) ≥ 2 * y * Nat.choose n y := lemma2_part1 n y hy5 hn4y
-  have h3 : y * Nat.choose n y ≥ x * Nat.choose n x := lemma2_step3 n x y (by linarith) (by linarith)
+  have h1 : Nat.choose n (x * y) ≥ Nat.choose n (2 * y) :=
+    lemma2_step1 n x y hx (by linarith) hn
+  have h2 : Nat.choose n (2 * y) ≥ 2 * y * Nat.choose n y :=
+    lemma2_part1 n y hy5 hn4y
+  have h3 : y * Nat.choose n y ≥ x * Nat.choose n x :=
+    lemma2_step3 n x y (by linarith) (by linarith)
   have h4 : 2 * y * Nat.choose n y = y * Nat.choose n y + y * Nat.choose n y := by ring
   rw [h4] at h2
-  have h5 : y * Nat.choose n y + y * Nat.choose n y ≥ x * Nat.choose n x + y * Nat.choose n y := by gcongr
+  have h5 :
+      y * Nat.choose n y + y * Nat.choose n y ≥
+        x * Nat.choose n x + y * Nat.choose n y := by
+    gcongr
   exact le_trans (le_trans h5 h2) h1
 
 /-
@@ -185,8 +325,30 @@ Lemma 2 Case (3,3): For $n \ge 18$, $\binom{n}{9} \ge 6\binom{n}{3}$.
 -/
 lemma lemma2_case_3_3 (n : ℕ) (hn : n ≥ 18) :
     Nat.choose n 9 ≥ 6 * Nat.choose n 3 := by
-      rcases n with ( _ | _ | _ | _ | _ | _ | _ | _ | _ | _ | n ) <;> simp_all +arith +decide [ Nat.choose ];
-      exact le_add_of_le_of_nonneg ( le_add_of_le_of_nonneg ( le_add_of_le_of_nonneg ( le_add_of_le_of_nonneg ( le_add_of_le_of_nonneg ( le_add_of_le_of_nonneg ( by exact Nat.le_induction ( by decide ) ( fun k hk ih ↦ by norm_num [ Nat.choose ] at * ; linarith ) _ hn ) ( by norm_num ) ) ( by norm_num ) ) ( by norm_num ) ) ( by norm_num ) ) ( by norm_num ) ) ( by norm_num )
+      rcases n with ( _ | _ | _ | _ | _ | _ | _ | _ | _ | _ | n ) <;>
+        simp_all +arith +decide [ Nat.choose ];
+      exact
+        le_add_of_le_of_nonneg
+          (le_add_of_le_of_nonneg
+            (le_add_of_le_of_nonneg
+              (le_add_of_le_of_nonneg
+                (le_add_of_le_of_nonneg
+                  (le_add_of_le_of_nonneg
+                    (by
+                      exact
+                        Nat.le_induction
+                          (by decide)
+                          (fun k hk ih ↦ by
+                            norm_num [Nat.choose] at *
+                            linarith)
+                          _
+                          hn)
+                    (by norm_num))
+                  (by norm_num))
+                (by norm_num))
+              (by norm_num))
+            (by norm_num))
+          (by norm_num)
 
 /-
 Lemma 2 Case (2,4): For $n \ge 16$, $\binom{n}{8} \ge 2\binom{n}{2} + 4\binom{n}{4}$.
@@ -204,7 +366,8 @@ lemma lemma2_case_3_4 (n : ℕ) (hn : n ≥ 24) :
     Nat.choose n 12 ≥ 3 * Nat.choose n 3 + 4 * Nat.choose n 4 := by
       induction' hn with k hk;
       · decide +revert;
-      · rcases k with ( _ | _ | _ | _ | _ | _ | _ | _ | _ | k ) <;> simp +arith +decide [ Nat.choose ] at *;
+      · rcases k with ( _ | _ | _ | _ | _ | _ | _ | _ | _ | k ) <;>
+          simp +arith +decide [ Nat.choose ] at *;
         rcases k with ( _ | _ | _ | _ | _ | _ | _ | k ) <;> simp +arith +decide [ Nat.choose ] at *;
         grind
 
@@ -215,17 +378,25 @@ lemma lemma2_case_4_4 (n : ℕ) (hn : n ≥ 32) :
     Nat.choose n 16 ≥ 8 * Nat.choose n 4 := by
       induction' hn with k hk ih48;
       · decide +revert;
-      · have := Nat.succ_mul_choose_eq k 3; have := Nat.succ_mul_choose_eq k 4; have := Nat.succ_mul_choose_eq k 14; have := Nat.succ_mul_choose_eq k 15; norm_num [ Nat.choose ] at * ; nlinarith;
+      · have := Nat.succ_mul_choose_eq k 3
+        have := Nat.succ_mul_choose_eq k 4
+        have := Nat.succ_mul_choose_eq k 14
+        have := Nat.succ_mul_choose_eq k 15
+        norm_num [Nat.choose] at *
+        nlinarith
 
 /-
-Lemma 2 (Small y): If $y < 5$, then $\binom{n}{xy} \ge x \binom{n}{x} + y\binom{n}{y}$ with the given exceptions.
+Lemma 2 (Small y): If $y < 5$, then
+$\binom{n}{xy} \ge x \binom{n}{x} + y\binom{n}{y}$ with the given exceptions.
 -/
 lemma lemma2_small_y (n x y : ℕ) (hx : x ≥ 2) (hy : y ≥ x) (hn : n ≥ 2 * x * y)
   (h_not_prime_pow : ∀ p k, Nat.Prime p → n ≠ p ^ k) (hy_lt_5 : y < 5) :
   Nat.choose n (x * y) ≥ x * Nat.choose n x + y * Nat.choose n y := by
     interval_cases y <;> interval_cases x <;> simp_all +arith +decide only;
-    · rcases n with ( _ | _ | _ | _ | _ | _ | _ | _ | n ) <;> simp +arith +decide [ Nat.choose ] at *;
-      rcases n with ( _ | _ | _ | _ | _ | _ | _ | _ | n ) <;> simp +arith +decide [ Nat.choose ] at *;
+    · rcases n with ( _ | _ | _ | _ | _ | _ | _ | _ | n ) <;>
+        simp +arith +decide [ Nat.choose ] at *;
+      rcases n with ( _ | _ | _ | _ | _ | _ | _ | _ | n ) <;>
+        simp +arith +decide [ Nat.choose ] at *;
       · exact h_not_prime_pow 2 3 Nat.prime_two rfl;
       · exact h_not_prime_pow 3 2 ( by norm_num ) rfl;
     · exact lemma2_case_2_3 n hn;
@@ -235,7 +406,9 @@ lemma lemma2_small_y (n x y : ℕ) (hx : x ≥ 2) (hy : y ≥ x) (hn : n ≥ 2 *
     · exact lemma2_case_4_4 n hn
 
 /-
-Lemma 2: If $y\ge x \ge 2$, and $n \ge 2xy$, then with the exceptions from $x=y=2$ and $n \in\{8,9\}$, $\binom{n}{xy} \ge x \binom{n}{x} + y\binom{n}{y}.$
+Lemma 2: If $y\ge x \ge 2$, and $n \ge 2xy$, then with the exceptions from
+$x=y=2$ and $n \in\{8,9\}$,
+$\binom{n}{xy} \ge x \binom{n}{x} + y\binom{n}{y}.$
 -/
 lemma lemma2 (n x y : ℕ) (hx : x ≥ 2) (hy : y ≥ x) (hn : n ≥ 2 * x * y)
   (h_not_prime_pow : ∀ p k, Nat.Prime p → n ≠ p ^ k) :
@@ -250,14 +423,16 @@ Define K(n) as the sum used in the target formula.
 -/
 noncomputable def K (n : ℕ) : ℕ :=
   Finset.sum n.factorization.support fun p =>
-    (Finset.sum (Finset.Icc 1 (n.factorization p)) fun d => Nat.choose n (p ^ d)) * (p - 1)
+    (Finset.sum (Finset.Icc 1 (n.factorization p)) fun d =>
+      Nat.choose n (p ^ d)) * (p - 1)
 
 /-
 Lemma 1 Lucas Step: If $v_p(n) \ge j$, then $v_p(\binom{n-1}{p^j-1}) = 0$.
 -/
-lemma lemma1_lucas_step (n j p : ℕ) (hp : p.Prime) (hj : j ≥ 1) (hjn : j ≤ padicValNat p n) :
+lemma lemma1_lucas_step (n j p : ℕ) (hp : p.Prime) (hj : j ≥ 1)
+    (hjn : j ≤ padicValNat p n) :
     padicValNat p (Nat.choose (n - 1) (p ^ j - 1)) = 0 := by
-  -- We use Lucas's Theorem: choose n k ≡ ∏ i ∈ range a, choose (n / p ^ i % p) (k / p ^ i % p) [ZMOD p]
+  -- Use Lucas's theorem on the base-p digits of `n - 1`.
   -- Here, we want to show that choose (n - 1) (p ^ j - 1) is not divisible by p.
   -- This is equivalent to showing choose (n - 1) (p ^ j - 1) ≡ 1 [MOD p] or at least non-zero.
   -- Let a = j. Since p^j | n, n = m * p^j.
@@ -272,40 +447,92 @@ lemma lemma1_lucas_step (n j p : ℕ) (hp : p.Prime) (hj : j ≥ 1) (hjn : j ≤
     obtain ⟨m, hm⟩ : ∃ m, n = p ^ j * m := by
       refine' Nat.dvd_trans ( pow_dvd_pow _ hjn ) _;
       exact pow_padicValNat_dvd;
-    -- Since $p^j \mid n$, we have $(p^j * m - 1) / p^k = p^{j-k} * m - 1 / p^k$.
-    have h_div : ∀ k ∈ Finset.range j, (p ^ j * m - 1) / p ^ k = p ^ (j - k) * m - 1 := by
-      intro k hk; rw [ show p ^ j * m = p ^ k * ( p ^ ( j - k ) * m ) by rw [ ← mul_assoc, ← pow_add, add_tsub_cancel_of_le ( Finset.mem_range_le hk ) ] ] ;
+    -- Since $p^j \mid n`, divide `(p^j * m - 1)` by powers of `p`.
+    have h_div :
+        ∀ k ∈ Finset.range j, (p ^ j * m - 1) / p ^ k =
+          p ^ (j - k) * m - 1 := by
+      intro k hk
+      rw [
+        show p ^ j * m = p ^ k * (p ^ (j - k) * m) by
+          rw [← mul_assoc, ← pow_add,
+            add_tsub_cancel_of_le (Finset.mem_range_le hk)]]
       cases h : p ^ ( j - k ) * m <;> simp_all +decide [ Nat.mul_succ ];
-      exact Nat.le_antisymm ( Nat.le_of_lt_succ <| Nat.div_lt_of_lt_mul <| by rw [ tsub_lt_iff_left ] <;> nlinarith [ pow_pos hp.pos k ] ) ( Nat.le_div_iff_mul_le ( pow_pos hp.pos k ) |>.2 <| Nat.le_sub_one_of_lt <| by nlinarith [ pow_pos hp.pos k ] );
+      exact
+        Nat.le_antisymm
+          (Nat.le_of_lt_succ <|
+            Nat.div_lt_of_lt_mul <| by
+              rw [tsub_lt_iff_left] <;> nlinarith [pow_pos hp.pos k])
+          (Nat.le_div_iff_mul_le (pow_pos hp.pos k) |>.2 <|
+            Nat.le_sub_one_of_lt <| by
+              nlinarith [pow_pos hp.pos k])
     rcases p with ( _ | _ | p ) <;> simp_all +decide [ ← ZMod.val_natCast ];
-    intro k hk; rw [ Nat.cast_sub <| Nat.one_le_iff_ne_zero.mpr <| mul_ne_zero ( pow_ne_zero _ <| Nat.succ_ne_zero _ ) <| by aesop_cat ] ; simp +decide [ Nat.succ_eq_add_one ] ;
+    intro k hk
+    rw [
+      Nat.cast_sub <|
+        Nat.one_le_iff_ne_zero.mpr <|
+          mul_ne_zero (pow_ne_zero _ <| Nat.succ_ne_zero _) <| by
+            aesop_cat]
+    simp +decide [Nat.succ_eq_add_one]
     norm_num [ zero_pow ( Nat.sub_ne_zero_of_lt hk ) ];
-  -- By Lucas's Theorem, $\binom{n-1}{p^j-1} \equiv \prod_{k=0}^{j-1} \binom{p-1}{p-1} \pmod p$.
+  -- Lucas's theorem reduces the binomial coefficient modulo `p` to digit choices.
   have h_lucas : Nat.choose (n - 1) (p ^ j - 1) ≡ 1 [MOD p] := by
-    have h_lucas : ∀ (a b : ℕ), a ≤ n - 1 → b ≤ p ^ j - 1 → Nat.choose a b ≡ Nat.choose (a % p) (b % p) * Nat.choose (a / p) (b / p) [MOD p] := by
+    have h_lucas :
+        ∀ (a b : ℕ), a ≤ n - 1 → b ≤ p ^ j - 1 →
+          Nat.choose a b ≡
+            Nat.choose (a % p) (b % p) * Nat.choose (a / p) (b / p)
+              [MOD p] := by
       haveI := Fact.mk hp; simp +decide [ ← ZMod.natCast_eq_natCast_iff ] ;
       -- Apply Lucas's Theorem to conclude the proof.
-      have h_lucas : ∀ (a b : ℕ), Nat.choose a b ≡ Nat.choose (a % p) (b % p) * Nat.choose (a / p) (b / p) [MOD p] := by
+      have h_lucas :
+          ∀ (a b : ℕ),
+            Nat.choose a b ≡
+              Nat.choose (a % p) (b % p) * Nat.choose (a / p) (b / p)
+                [MOD p] := by
         exact fun a b => Choose.choose_modEq_choose_mod_mul_choose_div_nat;
       exact fun a b ha hb => by simpa [ ← ZMod.natCast_eq_natCast_iff ] using h_lucas a b;
-    -- Applying Lucas's Theorem iteratively, we can reduce the problem to showing that $\binom{p-1}{p-1} \equiv 1 \pmod{p}$ for each $k$.
-    have h_lucas_iter : ∀ k ∈ Finset.range j, Nat.choose ((n - 1) / p ^ k) (p ^ (j - k) - 1) ≡ Nat.choose ((n - 1) / p ^ (k + 1)) (p ^ (j - k - 1) - 1) [MOD p] := by
+    -- Iterate Lucas's theorem across the first `j` base-p digits.
+    have h_lucas_iter :
+        ∀ k ∈ Finset.range j,
+          Nat.choose ((n - 1) / p ^ k) (p ^ (j - k) - 1) ≡
+            Nat.choose ((n - 1) / p ^ (k + 1)) (p ^ (j - k - 1) - 1)
+              [MOD p] := by
       intros k hk
-      have h_lucas_iter_step : Nat.choose ((n - 1) / p ^ k) (p ^ (j - k) - 1) ≡ Nat.choose ((n - 1) / p ^ k % p) (p - 1) * Nat.choose ((n - 1) / p ^ (k + 1)) (p ^ (j - k - 1) - 1) [MOD p] := by
+      have h_lucas_iter_step :
+          Nat.choose ((n - 1) / p ^ k) (p ^ (j - k) - 1) ≡
+            Nat.choose ((n - 1) / p ^ k % p) (p - 1) *
+              Nat.choose ((n - 1) / p ^ (k + 1)) (p ^ (j - k - 1) - 1)
+                [MOD p] := by
         convert h_lucas _ _ _ _ using 1;
-        · rw [ show p ^ ( j - k ) - 1 = p * ( p ^ ( j - k - 1 ) - 1 ) + ( p - 1 ) from ?_, Nat.add_div ] <;> norm_num [ hp.pos ];
+        · rw [
+            show p ^ (j - k) - 1 =
+                p * (p ^ (j - k - 1) - 1) + (p - 1) from ?_,
+            Nat.add_div] <;>
+            norm_num [hp.pos]
           · rcases p with ( _ | _ | p ) <;> simp_all +decide [ Nat.div_div_eq_div_mul, pow_succ' ];
             norm_num [ Nat.div_eq_of_lt, mul_comm ];
-          · rw [ Nat.mul_sub_left_distrib, mul_one, ← pow_succ', Nat.sub_add_cancel ( Nat.sub_pos_of_lt ( Finset.mem_range.mp hk ) ) ];
-            rw [ tsub_add_tsub_cancel ( Nat.le_self_pow ( Nat.sub_ne_zero_of_lt ( Finset.mem_range.mp hk ) ) _ ) hp.pos ];
+          · rw [Nat.mul_sub_left_distrib, mul_one, ← pow_succ',
+              Nat.sub_add_cancel (Nat.sub_pos_of_lt (Finset.mem_range.mp hk))]
+            rw [
+              tsub_add_tsub_cancel
+                (Nat.le_self_pow
+                  (Nat.sub_ne_zero_of_lt (Finset.mem_range.mp hk)) _)
+                hp.pos]
         · exact Nat.div_le_self _ _;
         · exact Nat.sub_le_sub_right ( pow_le_pow_right₀ hp.one_lt.le ( Nat.sub_le _ _ ) ) _;
       simp_all +decide [ ← ZMod.natCast_eq_natCast_iff ];
-    have h_lucas_iter_start : ∀ k ∈ Finset.range j, Nat.choose ((n - 1) / p ^ 0) (p ^ j - 1) ≡ Nat.choose ((n - 1) / p ^ (k + 1)) (p ^ (j - k - 1) - 1) [MOD p] := by
+    have h_lucas_iter_start :
+        ∀ k ∈ Finset.range j,
+          Nat.choose ((n - 1) / p ^ 0) (p ^ j - 1) ≡
+            Nat.choose ((n - 1) / p ^ (k + 1)) (p ^ (j - k - 1) - 1)
+              [MOD p] := by
       intro k hk;
       induction' k with k ih;
       · simpa using h_lucas_iter 0 hk;
-      · exact Eq.trans ( ih ( Finset.mem_range.mpr ( Nat.lt_of_succ_lt ( Finset.mem_range.mp hk ) ) ) ) ( h_lucas_iter ( k + 1 ) hk ) |> Eq.trans <| by simp +decide [ Nat.sub_sub ] ;
+      · exact
+          Eq.trans
+            (ih (Finset.mem_range.mpr (Nat.lt_of_succ_lt (Finset.mem_range.mp hk))))
+            (h_lucas_iter (k + 1) hk) |> Eq.trans <| by
+              simp +decide [Nat.sub_sub]
     specialize h_lucas_iter_start ( j - 1 ) ; rcases j <;> aesop;
   haveI := Fact.mk hp; simp_all +decide [ ← ZMod.natCast_eq_natCast_iff ] ;
   exact Or.inr <| Or.inr <| by rw [ ← ZMod.natCast_eq_zero_iff ] ; aesop;
@@ -313,13 +540,20 @@ lemma lemma1_lucas_step (n j p : ℕ) (hp : p.Prime) (hj : j ≥ 1) (hjn : j ≤
 /-
 Lemma 1 Equality: If $v_p(n) \ge j$, then $v_p(\binom{n}{p^j}) = v_p(n) - j$.
 -/
-lemma lemma1_equality (n j p : ℕ) (hp : p.Prime) (hj : j ≥ 1) (hjn : j ≤ padicValNat p n) :
+lemma lemma1_equality (n j p : ℕ) (hp : p.Prime) (hj : j ≥ 1)
+    (hjn : j ≤ padicValNat p n) :
     padicValNat p (Nat.choose n (p ^ j)) = padicValNat p n - j := by
-      have h_div : padicValNat p (Nat.choose n (p ^ j)) = padicValNat p (n / (p ^ j) * Nat.choose (n - 1) (p ^ j - 1)) := by
-        have h_div : Nat.choose n (p ^ j) * (p ^ j) = n * Nat.choose (n - 1) (p ^ j - 1) := by
+      have h_div :
+          padicValNat p (Nat.choose n (p ^ j)) =
+            padicValNat p (n / (p ^ j) * Nat.choose (n - 1) (p ^ j - 1)) := by
+        have h_div :
+            Nat.choose n (p ^ j) * (p ^ j) =
+              n * Nat.choose (n - 1) (p ^ j - 1) := by
           cases n <;> cases p <;> cases j <;> simp_all +decide [ Nat.succ_mul_choose_eq ];
           rw [ Nat.sub_add_cancel ( Nat.one_le_pow _ _ ( Nat.succ_pos _ ) ) ];
-        have h_div : Nat.choose n (p ^ j) = (n / p ^ j) * Nat.choose (n - 1) (p ^ j - 1) := by
+        have h_div :
+            Nat.choose n (p ^ j) =
+              (n / p ^ j) * Nat.choose (n - 1) (p ^ j - 1) := by
           have h_div : p ^ j ∣ n := by
             have h_div : p ^ (padicValNat p n) ∣ n := by
               convert Nat.ordProj_dvd n p using 1;
@@ -327,7 +561,10 @@ lemma lemma1_equality (n j p : ℕ) (hp : p.Prime) (hj : j ≥ 1) (hjn : j ≤ p
             exact dvd_trans ( pow_dvd_pow _ ‹_› ) h_div;
           nlinarith [ Nat.div_mul_cancel h_div, pow_pos hp.pos j ];
         rw [h_div];
-      have h_div : padicValNat p (n / p ^ j * Nat.choose (n - 1) (p ^ j - 1)) = padicValNat p (n / p ^ j) + padicValNat p (Nat.choose (n - 1) (p ^ j - 1)) := by
+      have h_div :
+          padicValNat p (n / p ^ j * Nat.choose (n - 1) (p ^ j - 1)) =
+            padicValNat p (n / p ^ j) +
+              padicValNat p (Nat.choose (n - 1) (p ^ j - 1)) := by
         convert padicValNat.mul _ _ using 1;
         · exact ⟨ hp ⟩;
         · refine' Nat.ne_of_gt ( Nat.div_pos _ ( pow_pos hp.pos _ ) );
@@ -340,7 +577,17 @@ lemma lemma1_equality (n j p : ℕ) (hp : p.Prime) (hj : j ≥ 1) (hjn : j ≤ p
         · refine' Nat.ne_of_gt ( Nat.choose_pos _ );
           gcongr;
           have := Nat.ordProj_dvd n p;
-          exact Nat.le_of_dvd ( Nat.pos_of_ne_zero ( by aesop_cat ) ) ( dvd_trans ( pow_dvd_pow _ ( by linarith! [ show n.factorization p = padicValNat p n from by rw [ Nat.factorization_def ] ; aesop_cat ] ) ) this );
+          exact
+            Nat.le_of_dvd
+              (Nat.pos_of_ne_zero (by aesop_cat))
+              (dvd_trans
+                (pow_dvd_pow _
+                  (by
+                    linarith! [
+                      show n.factorization p = padicValNat p n from by
+                        rw [Nat.factorization_def]
+                        aesop_cat]))
+                this)
       have h_div : padicValNat p (n / p ^ j) = padicValNat p n - j := by
         have h_div : padicValNat p (n / p ^ j) = padicValNat p n - padicValNat p (p ^ j) := by
           have h_div : padicValNat p (n / p ^ j) = padicValNat p n - padicValNat p (p ^ j) := by
@@ -352,7 +599,9 @@ lemma lemma1_equality (n j p : ℕ) (hp : p.Prime) (hj : j ≥ 1) (hjn : j ≤ p
             have h_div : padicValNat p (n / p ^ j) = padicValNat p n - padicValNat p (p ^ j) := by
               have h_div : n = p ^ j * (n / p ^ j) := by
                 rw [ Nat.mul_div_cancel' h_div ]
-              have h_div : padicValNat p (p ^ j * (n / p ^ j)) = padicValNat p (p ^ j) + padicValNat p (n / p ^ j) := by
+              have h_div :
+                  padicValNat p (p ^ j * (n / p ^ j)) =
+                    padicValNat p (p ^ j) + padicValNat p (n / p ^ j) := by
                 convert padicValNat.mul _ _ using 1
                 generalize_proofs at *; (
                 exact ⟨ hp ⟩);
@@ -371,8 +620,10 @@ lemma lemma1_equality (n j p : ℕ) (hp : p.Prime) (hj : j ≥ 1) (hjn : j ≤ p
       linarith [ Nat.sub_add_cancel hjn ]
 
 /-
-We define the set of generators as the binomial coefficients $\binom{n}{i}$ for $1 \le i < n$, cast to integers.
-We define `Representable` as the additive submonoid generated by these integers (i.e., all non-negative integer linear combinations).
+We define the set of generators as the binomial coefficients $\binom{n}{i}$ for
+$1 \le i < n$, cast to integers.
+We define `Representable` as the additive submonoid generated by these integers
+(i.e., all non-negative integer linear combinations).
 -/
 def generators_int (n : ℕ) : Set ℤ :=
   Int.ofNat '' (generators n)
@@ -384,15 +635,22 @@ lemma lemma_super_increasing (n : ℕ) (p : ℕ) (j : ℕ)
     (hp : p ∈ n.factorization.support)
     (hj : 1 ≤ j) (hj_lt : j < n.factorization p)
     (h_not_prime_pow : ∀ q k, Nat.Prime q → n ≠ q ^ k) :
-    (Nat.choose n (p ^ (j + 1)) : ℤ) > (p - 1) * ∑ k ∈ Finset.Icc 1 j, (Nat.choose n (p ^ k) : ℤ) := by
+    (Nat.choose n (p ^ (j + 1)) : ℤ) >
+      (p - 1) * ∑ k ∈ Finset.Icc 1 j, (Nat.choose n (p ^ k) : ℤ) := by
       -- By induction on $j$, we can show that the inequality holds for all $j$.
-      have h_ind : ∀ j : ℕ, 1 ≤ j → j < Nat.factorization n p → (Nat.choose n (p ^ (j + 1)) : ℤ) > (p - 1) * (∑ k ∈ Finset.Icc 1 j, (Nat.choose n (p ^ k) : ℤ)) := by
+      have h_ind :
+          ∀ j : ℕ, 1 ≤ j → j < Nat.factorization n p →
+            (Nat.choose n (p ^ (j + 1)) : ℤ) >
+              (p - 1) * (∑ k ∈ Finset.Icc 1 j, (Nat.choose n (p ^ k) : ℤ)) := by
         intro j hj hj_lt
         induction' hj with j hj ih;
         · -- By Lemma 2, we have $\binom{n}{p^2} \ge p \binom{n}{p}$.
           have h_lemma2 : (Nat.choose n (p ^ 2) : ℤ) ≥ p * (Nat.choose n p : ℤ) := by
             have h_lemma2 : (Nat.choose n (p ^ 2) : ℤ) ≥ p * (Nat.choose n p : ℤ) := by
-              have h_lemma2_step : ∀ x y : ℕ, 2 ≤ x → x ≤ y → 2 * x * y ≤ n → (Nat.choose n (x * y) : ℤ) ≥ x * (Nat.choose n x : ℤ) + y * (Nat.choose n y : ℤ) := by
+              have h_lemma2_step :
+                  ∀ x y : ℕ, 2 ≤ x → x ≤ y → 2 * x * y ≤ n →
+                    (Nat.choose n (x * y) : ℤ) ≥
+                      x * (Nat.choose n x : ℤ) + y * (Nat.choose n y : ℤ) := by
                 intros x y hx hy hn
                 apply Int.ofNat_le.mpr
                 apply lemma2 n x y hx hy hn
@@ -411,13 +669,27 @@ lemma lemma_super_increasing (n : ℕ) (p : ℕ) (j : ℕ)
               · interval_cases p <;> simp_all +decide
             exact h_lemma2;
           rcases p with ( _ | _ | p ) <;> norm_num at *;
-          nlinarith [ Nat.choose_pos ( show p + 1 + 1 ≤ n from Nat.le_of_dvd ( Nat.pos_of_ne_zero hp.2.2 ) hp.2.1 ) ];
-        · -- By Lemma 2, we have $\binom{n}{p^{j+1}} \ge (p-1)\binom{n}{p^j} + \binom{n}{p^{j+1}}$.
-          have h_lemma2 : (Nat.choose n (p ^ (j + 2)) : ℤ) ≥ (p - 1) * (Nat.choose n (p ^ (j + 1)) : ℤ) + (Nat.choose n (p ^ (j + 1)) : ℤ) := by
+          nlinarith [
+            Nat.choose_pos
+              (show p + 1 + 1 ≤ n from
+                Nat.le_of_dvd (Nat.pos_of_ne_zero hp.2.2) hp.2.1)]
+        · -- Apply Lemma 2 to the next power of `p`.
+          have h_lemma2 :
+              (Nat.choose n (p ^ (j + 2)) : ℤ) ≥
+                (p - 1) * (Nat.choose n (p ^ (j + 1)) : ℤ) +
+                  (Nat.choose n (p ^ (j + 1)) : ℤ) := by
             -- Since $p^{j+1} \geq 5$, we can apply Lemma 2 with $x = p$ and $y = p^{j+1}$.
-            have h_lemma2 : (Nat.choose n (p * p ^ (j + 1)) : ℤ) ≥ p * (Nat.choose n p : ℤ) + p ^ (j + 1) * (Nat.choose n (p ^ (j + 1)) : ℤ) := by
-              have h_lemma2 : ∀ x y : ℕ, 2 ≤ x → x ≤ y → 2 * x * y ≤ n → (Nat.choose n (x * y) : ℤ) ≥ x * (Nat.choose n x : ℤ) + y * (Nat.choose n y : ℤ) := by
-                intros x y hx hy hn; exact_mod_cast lemma2 n x y hx hy hn ( fun q k hq => h_not_prime_pow q k hq ) ;
+            have h_lemma2 :
+                (Nat.choose n (p * p ^ (j + 1)) : ℤ) ≥
+                  p * (Nat.choose n p : ℤ) +
+                    p ^ (j + 1) * (Nat.choose n (p ^ (j + 1)) : ℤ) := by
+              have h_lemma2 :
+                  ∀ x y : ℕ, 2 ≤ x → x ≤ y → 2 * x * y ≤ n →
+                    (Nat.choose n (x * y) : ℤ) ≥
+                      x * (Nat.choose n x : ℤ) + y * (Nat.choose n y : ℤ) := by
+                intros x y hx hy hn
+                exact_mod_cast lemma2 n x y hx hy hn
+                  (fun q k hq => h_not_prime_pow q k hq)
               convert h_lemma2 p ( p ^ ( j + 1 ) ) _ _ _ using 1 <;> norm_num;
               · exact Nat.Prime.two_le ( Nat.prime_of_mem_primeFactors hp );
               · exact Nat.le_self_pow ( by linarith ) _;
@@ -428,8 +700,17 @@ lemma lemma_super_increasing (n : ℕ) (p : ℕ) (j : ℕ)
                 · exact False.elim ( h_not_prime_pow p ( j + 2 ) hp.1 ( by ring ) );
                 · grind;
             simp_all +decide [ pow_succ' ];
-            nlinarith [ Nat.Prime.one_lt hp.1, pow_le_pow_right₀ hp.1.one_lt.le hj, pow_pos hp.1.pos j, pow_pos hp.1.pos ( j + 1 ), Nat.choose_pos ( show p ≤ n from Nat.le_of_dvd ( Nat.pos_of_ne_zero hp.2.2 ) hp.2.1 ) ];
-          simp_all +decide [ Finset.sum_Ioc_succ_top, (Nat.succ_eq_succ ▸ Finset.Icc_succ_left_eq_Ioc) ];
+            nlinarith [
+              Nat.Prime.one_lt hp.1,
+              pow_le_pow_right₀ hp.1.one_lt.le hj,
+              pow_pos hp.1.pos j,
+              pow_pos hp.1.pos (j + 1),
+              Nat.choose_pos
+                (show p ≤ n from
+                  Nat.le_of_dvd (Nat.pos_of_ne_zero hp.2.2) hp.2.1)]
+          simp_all +decide [
+            Finset.sum_Ioc_succ_top,
+            (Nat.succ_eq_succ ▸ Finset.Icc_succ_left_eq_Ioc)]
           grind;
       -- Apply the induction hypothesis with the given j.
       apply h_ind j hj hj_lt
@@ -437,7 +718,8 @@ lemma lemma_super_increasing (n : ℕ) (p : ℕ) (j : ℕ)
 /-
 If the valuation of an integer $n$ is $k+1$, then the valuation of $n/p$ is $k$.
 -/
-lemma lemma_val_div_int (p : ℕ) (n : ℤ) (k : ℕ) (hp : p.Prime) (h_val : padicValNat p n.toNat = k + 1) :
+lemma lemma_val_div_int (p : ℕ) (n : ℤ) (k : ℕ) (hp : p.Prime)
+    (h_val : padicValNat p n.toNat = k + 1) :
     padicValNat p (n / p).toNat = k := by
       have h_div : Int.toNat (n / p) = Int.toNat n / p := by
         cases n <;> aesop;
