@@ -1516,6 +1516,11 @@
     - https://www.erdosproblems.com/forum/thread/490#post-6497
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem490.lean
   version: "4.28.0"
+  conditional:
+    - dusart_mertens_product
+    - dusart_pi_lower
+    - dusart_pi_upper
+    - dusart_chebyshev
 
 - key: ErdosProblems.Erdos493
   epc: https://www.erdosproblems.com/493
@@ -1868,6 +1873,7 @@
     - https://adamsheffer.wordpress.com/2014/07/16/point-sets-with-few-distinct-distances/
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos659.md
   version: "4.24.0"
+  conditional: bernays
 
 - key: ErdosProblems.Erdos666
   epc: https://www.erdosproblems.com/666

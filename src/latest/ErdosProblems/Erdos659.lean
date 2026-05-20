@@ -3,6 +3,9 @@
 This is a Lean formalization of a solution to Erdős Problem 659.
 https://www.erdosproblems.com/forum/thread/659
 
+Formalization status:
+- Conditional on: bernays
+
 Informal authors:
 - Benjamin Grayzel
 - Adam Sheffer

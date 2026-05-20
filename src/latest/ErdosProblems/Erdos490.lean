@@ -1,3 +1,26 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 490.
+https://www.erdosproblems.com/forum/thread/490
+
+Formalization status:
+- Conditional on: dusart_mertens_product
+- Conditional on: dusart_pi_lower
+- Conditional on: dusart_pi_upper
+- Conditional on: dusart_chebyshev
+
+Informal authors:
+- Endre Szemerédi
+- ChatGPT 5.5 Pro
+
+Formal authors:
+- Aristotle
+- Wouter van Doorn
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/490#post-6497
+- https://github.com/Woett/Lean-files/blob/main/ErdosProblem490.lean
+-/
 /-
 Solving Erdős Problem #490 (https://www.erdosproblems.com/490), Szemerédi proved
 that there exists an absolute constant C such if A, B ⊆ {1,...,n} has all
@@ -611,7 +634,7 @@ set_option maxHeartbeats 800000
 /-
 As x → ∞, ∏_{p≤x}(1-1/p) = (e^{-γ} + o(1))/log x.
 -/
-theorem mertens_product (ε : ℝ) (hε : ε > 0) :
+theorem mertens_product_estimate (ε : ℝ) (hε : ε > 0) :
     ∃ X₀ : ℝ, ∀ x : ℝ, x ≥ X₀ →
       |∏ p ∈ primesUpTo x, (1 - 1 / (p : ℝ)) -
         Real.exp (-γ) / Real.log x| ≤ ε / Real.log x := by
@@ -1032,7 +1055,7 @@ theorem sieve_bound (ε : ℝ) (hε : ε > 0) :
   -- By Mertens' product theorem, there exists $X₂$ such that for all $X ≥ X₂$, $\prod_{p ≤ X} (1 - 1/p)^{-1} ≤ (e^γ + ε/2) \log X$.
   obtain ⟨ X₂, hX₂ ⟩ : ∃ X₂ : ℝ, ∀ X ≥ X₂, (∏ p ∈ primesUpTo X, (1 - 1 / (p : ℝ))⁻¹) ≤ (Real.exp γ + ε / 2) * Real.log X := by
     have h_mertens : Filter.Tendsto (fun X : ℝ => (∏ p ∈ primesUpTo X, (1 - 1 / (p : ℝ))) * Real.log X) Filter.atTop (nhds (Real.exp (-γ))) := by
-      have := mertens_product;
+      have := mertens_product_estimate;
       rw [ Metric.tendsto_nhds ];
       intro ε hε; rcases this ( ε / 2 ) ( half_pos hε ) with ⟨ X₀, HX₀ ⟩ ; filter_upwards [ Filter.eventually_ge_atTop X₀, Filter.eventually_gt_atTop 1 ] with x hx₁ hx₂; specialize HX₀ x hx₁; rw [ dist_eq_norm ] ; rw [ Real.norm_eq_abs ] ; rw [ abs_lt ] ; constructor <;> nlinarith [ abs_le.mp HX₀, Real.log_pos hx₂, mul_div_cancel₀ ( ε / 2 ) ( ne_of_gt ( Real.log_pos hx₂ ) ), mul_div_cancel₀ ( Real.exp ( -γ ) ) ( ne_of_gt ( Real.log_pos hx₂ ) ) ] ;
     have h_mertens_inv : Filter.Tendsto (fun X : ℝ => (∏ p ∈ primesUpTo X, (1 - 1 / (p : ℝ))⁻¹) / Real.log X) Filter.atTop (nhds (Real.exp γ)) := by
@@ -1186,7 +1209,7 @@ lemma wip_finitely_many (lam : ℝ) (hlam : 1 < lam)
     have h_case1 : ∀ k ≤ K, ∃ N₁ : ℕ, ∀ n ≥ N₁, M_layer lam k * (∏ p ∈ Finset.filter Nat.Prime (Finset.Ioc ⌊Y_val lam (k + 1)⌋₊ ⌊(n : ℝ) / Y_val lam k⌋₊), (1 - 1 / (p : ℝ))) ≤ (Real.exp (-γ) + ε / 2) / Real.log (⌊(n : ℝ) / Y_val lam k⌋₊) := by
       intro k hk
       obtain ⟨N₁, hN₁⟩ : ∃ N₁ : ℕ, ∀ n : ℕ, n ≥ N₁ → (∏ p ∈ primesUpTo (⌊(n : ℝ) / Y_val lam k⌋₊), (1 - 1 / (p : ℝ))) ≤ (Real.exp (-γ) + ε / 2) / Real.log (⌊(n : ℝ) / Y_val lam k⌋₊) := by
-        have := mertens_product ( ε / 4 ) ( by positivity );
+        have := mertens_product_estimate ( ε / 4 ) ( by positivity );
         obtain ⟨ X₀, hX₀ ⟩ := this;
         -- Choose N₁ such that for all n ≥ N₁, ⌊n/Y_k⌋ ≥ X₀.
         obtain ⟨N₁, hN₁⟩ : ∃ N₁ : ℕ, ∀ n ≥ N₁, ⌊(n : ℝ) / Y_val lam k⌋₊ ≥ X₀ := by
@@ -1253,7 +1276,7 @@ lemma wip_mertens_bound (lam : ℝ) (hlam : 1 < lam)
         ∏ p ∈ ((Finset.Ioc ⌊Y_val lam (k+1)⌋₊ ⌊(n : ℝ) / Y_val lam k⌋₊).filter Nat.Prime),
           (1 - 1 / (p : ℝ)) ≤
         2 * (Real.exp (-γ) + δ) / Real.log n := by
-  have := @mertens_product;
+  have := @mertens_product_estimate;
   obtain ⟨ X₀, hX₀ ⟩ := this ( δ / 2 ) ( half_pos hδ );
   refine' ⟨ ⌈X₀⌉₊ ^ 2 + ⌈lam ^ 2⌉₊ ^ 2 + 2, fun n hn k => _ ⟩;
   -- Let $x = \max(Y_{k+1}, n/Y_k)$.
@@ -1725,7 +1748,7 @@ theorem small_interval_case (ε : ℝ) (hε : ε > 0)
     obtain ⟨ X₀, hX₀ ⟩ := sieve_bound ε₁ hε₁_pos;
     exact ⟨ ⌈X₀⌉₊, fun n hn P hP => by simpa using hX₀ n ( Nat.le_of_ceil_le hn ) P fun p hp => ⟨ hP p hp |>.1, mod_cast hP p hp |>.2 ⟩ ⟩;
   obtain ⟨N₂, hN₂⟩ : ∃ N₂ : ℕ, ∀ n : ℕ, N₂ ≤ n → |∏ p ∈ primesUpTo n, (1 - 1 / (p : ℝ)) - Real.exp (-γ) / Real.log n| ≤ ε₁ / Real.log n := by
-    have := mertens_product ε₁ hε₁_pos;
+    have := mertens_product_estimate ε₁ hε₁_pos;
     exact ⟨ ⌈this.choose⌉₊ + 1, fun n hn => this.choose_spec n <| le_of_lt <| Nat.lt_of_ceil_lt hn ⟩;
   use Max.max N₁ N₂ + 2;
   intro n hn A B hadm hL
