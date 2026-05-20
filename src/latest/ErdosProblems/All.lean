@@ -90,7 +90,6 @@ import ErdosProblems.Erdos481
 import ErdosProblems.Erdos484
 import ErdosProblems.Erdos485b
 import ErdosProblems.Erdos487
-import ErdosProblems.Erdos488b
 import ErdosProblems.Erdos493
 import ErdosProblems.Erdos497
 import ErdosProblems.Erdos498
