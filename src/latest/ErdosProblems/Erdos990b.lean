@@ -44,8 +44,6 @@ set_option autoImplicit false
 open scoped BigOperators Topology
 open Polynomial
 
-noncomputable section
-
 namespace Erdos990b
 
 /-! ### Basic numerical invariants -/
@@ -55,29 +53,29 @@ def nu (f : ℂ[X]) : ℕ :=
   f.support.card
 
 /-- The `ℓ¹`-sum of the coefficients. -/
-def coeffL1 (f : ℂ[X]) : ℝ :=
+noncomputable def coeffL1 (f : ℂ[X]) : ℝ :=
   f.support.sum fun n => ‖f.coeff n‖
 
 /-- The coefficient-growth parameter used in the paper. -/
-def M (f : ℂ[X]) : ℝ :=
+noncomputable def M (f : ℂ[X]) : ℝ :=
   coeffL1 f / Real.sqrt (‖f.coeff 0‖ * ‖f.leadingCoeff‖)
 
 /-- Principal argument, normalized to the interval `[0, 2π)`. -/
-def principalArg (z : ℂ) : ℝ :=
+noncomputable def principalArg (z : ℂ) : ℝ :=
   if Complex.arg z < 0 then Complex.arg z + 2 * Real.pi else Complex.arg z
 
 /-- Number of roots (counted with multiplicity) whose principal argument belongs to `I`. -/
-def argRootCount (f : ℂ[X]) (I : Set ℝ) : ℕ :=
+noncomputable def argRootCount (f : ℂ[X]) (I : Set ℝ) : ℕ :=
   by
     classical
     exact f.roots.countP (fun z : ℂ => principalArg z ∈ I)
 
 /-- The uniform prediction for the number of roots of degree `d` inside `[α, β)`. -/
-def expectedRootCount (d : ℕ) (α β : ℝ) : ℝ :=
+noncomputable def expectedRootCount (d : ℕ) (α β : ℝ) : ℝ :=
   ((β - α) / (2 * Real.pi)) * (d : ℝ)
 
 /-- The angular discrepancy appearing in the Erdős--Turán bound. -/
-def angularDiscrepancy (f : ℂ[X]) (α β : ℝ) : ℝ :=
+noncomputable def angularDiscrepancy (f : ℂ[X]) (α β : ℝ) : ℝ :=
   |(argRootCount f (Set.Ico α β) : ℝ) - expectedRootCount f.natDegree α β|
 
 /-- The sparse Erdős--Turán type statement disproved in the paper. -/
@@ -200,27 +198,27 @@ def exponent (N K : ℕ) (i : Fin (s N)) : ℕ :=
   else K ^ (i.1 - 1)
 
 /-- The normalized frequencies `λ_j = m_j / d`. -/
-def lambda (N K : ℕ) (i : Fin (s N)) : ℝ :=
+noncomputable def lambda (N K : ℕ) (i : Fin (s N)) : ℝ :=
   (exponent N K i : ℝ) / (d N K : ℝ)
 
 /-- The unsigned Vandermonde factors `Δ_j`. -/
-def Delta (N K : ℕ) (i : Fin (s N)) : ℝ :=
+noncomputable def Delta (N K : ℕ) (i : Fin (s N)) : ℝ :=
   (Finset.univ.erase i).prod fun j => |lambda N K i - lambda N K j|
 
 /-- The signed Vandermonde product `∏_{ℓ ≠ j} (λ_j - λ_ℓ)`. -/
-def signedWeight (N K : ℕ) (i : Fin (s N)) : ℝ :=
+noncomputable def signedWeight (N K : ℕ) (i : Fin (s N)) : ℝ :=
   (Finset.univ.erase i).prod fun j => (lambda N K i - lambda N K j)
 
 /-- The paper's `A₁ = sqrt (Δ_s / Δ_1)`. -/
-def A1 (N K : ℕ) : ℝ :=
+noncomputable def A1 (N K : ℕ) : ℝ :=
   Real.sqrt (Delta N K (Fin.last (N + 1)) / Delta N K (0 : Fin (s N)))
 
 /-- The paper's `T = (sqrt 2 * A₁)⁻¹`. -/
-def T (N K : ℕ) : ℝ :=
+noncomputable def T (N K : ℕ) : ℝ :=
   1 / (Real.sqrt 2 * A1 N K)
 
 /-- The paper's `τ = 2 log T`. -/
-def tau (N K : ℕ) : ℝ :=
+noncomputable def tau (N K : ℕ) : ℝ :=
   2 * Real.log (T N K)
 
 /--
@@ -230,20 +228,20 @@ the paper.
 Here `signedWeight` absorbs the paper's factor `(-1)^(s-j) / Δ_j` into the denominator
 `∏_{ℓ ≠ j} (λ_j - λ_ℓ)`.
 -/
-def cCoeff (N K : ℕ) (i : Fin (s N)) : ℂ :=
+noncomputable def cCoeff (N K : ℕ) (i : Fin (s N)) : ℂ :=
   Complex.exp ((-(lambda N K i * tau N K)) : ℂ) /
     (signedWeight N K i : ℂ)
 
 /-- The lacunary polynomial `f_{N,K}(z)`. -/
-def sparsePoly (N K : ℕ) : ℂ[X] :=
+noncomputable def sparsePoly (N K : ℕ) : ℂ[X] :=
   ∑ i : Fin (s N), C (cCoeff N K i) * X ^ exponent N K i
 
 /-- The exponential polynomial `F_{N,K}(u)`. -/
-def expPoly (N K : ℕ) (u : ℂ) : ℂ :=
+noncomputable def expPoly (N K : ℕ) (u : ℂ) : ℂ :=
   ∑ i : Fin (s N), cCoeff N K i * Complex.exp ((lambda N K i : ℂ) * u)
 
 /-- The positive real root `x₀ = exp (τ / d)`. -/
-def x0 (N K : ℕ) : ℝ :=
+noncomputable def x0 (N K : ℕ) : ℝ :=
   Real.exp (tau N K / (d N K : ℝ))
 
 /-- The crowding interval `I_N = [0, π / d)`. -/
@@ -705,11 +703,11 @@ private def midIdx {N : ℕ} (i : Fin N) : Fin (s N) :=
     simp [s])
 
 /-- The auxiliary coefficients `A_j = sqrt (Δ₁ Δ_s) / Δ_j` from the paper. -/
-private def Acoeff (N K : ℕ) (i : Fin (s N)) : ℝ :=
+private noncomputable def Acoeff (N K : ℕ) (i : Fin (s N)) : ℝ :=
   Real.sqrt (Delta N K 0 * Delta N K (Fin.last (N + 1))) / Delta N K i
 
 /-- The middle ratios `R_i = Δ₁ / Δ_{i+1}` from the paper. -/
-private def Rcoeff (N K : ℕ) (i : Fin N) : ℝ :=
+private noncomputable def Rcoeff (N K : ℕ) (i : Fin N) : ℝ :=
   Delta N K 0 / Delta N K (midIdx i)
 
 private theorem midIdx_eq_succ_castSucc {N : ℕ} (i : Fin N) :
@@ -756,7 +754,9 @@ private theorem coeff_sparsePoly_exponent (N K : ℕ) (hK : 2 ≤ K) (i : Fin (s
   rw [Finset.sum_eq_single_of_mem i (Finset.mem_univ _)]
   · simp
   · intro j _ hij
-    simp [if_neg (by intro h; exact hij.symm (exponent_injective N K hK h))]
+    simp [if_neg (by
+      intro h
+      exact hij.symm (exponent_injective N K hK h))]
 
 /-- Exact `ℓ¹`-formula for the sparse family. -/
 private theorem coeffL1_sparsePoly_eq_sum (N K : ℕ) (hK : 2 ≤ K) :
