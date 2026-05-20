@@ -1503,22 +1503,6 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos487.md
   version: "4.24.0"
 
-- key: ErdosProblems.Erdos488b
-  partial: yes
-  epc: https://www.erdosproblems.com/488
-  author:
-    informal:
-      AI: GPT-5.4
-      human: Przemek Chojecki
-    formal:
-      AI: Aristotle
-      human: Przemek Chojecki
-  url:
-    - https://www.erdosproblems.com/forum/thread/488#post-4909
-    - https://www.ulam.ai/research/erdos488.pdf
-    - https://www.ulam.ai/research/erdos488.tar.gz
-  version: "4.28.0"
-
 - key: ErdosProblems.Erdos490
   epc: https://www.erdosproblems.com/490
   author:
