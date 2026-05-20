@@ -10480,7 +10480,7 @@ Erdős Problem 202 — Mertens / Euler-product estimate.
 This file proves the consumer-shaped weighted-sum bound used by the BFV
 omega-tail proof in `Erdos/P202/BFV/OmegaTail.lean`.
 
-# Relation to P694's `Erdos694.mertens_product`
+# Relation to P694's `mertens_product`
 
 The repo's `Erdos/P694/Proof.lean:417` axiomatizes **Mertens' third theorem**
 (the product form `∏_{p ≤ y} p/(p-1) ~ e^γ · log y`). P202 only needs a weak
