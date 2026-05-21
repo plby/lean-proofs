@@ -39,8 +39,6 @@ The statements are arranged to follow the paper closely while exposing
 intermediate lemmas in a form convenient for Mathlib.
 -/
 
-set_option autoImplicit false
-
 open scoped BigOperators Topology
 open Polynomial
 
