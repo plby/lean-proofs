@@ -37,9 +37,6 @@ import Mathlib.Data.Real.StarOrdered
 import Mathlib.NumberTheory.DiophantineApproximation.Basic
 import ErdosProblems.Axioms
 
-set_option linter.style.setOption false
-set_option linter.flexible false
-
 /-!
 # Erdős Problem 997: Fractional parts `{α pₙ}` are not well-distributed
 
@@ -62,8 +59,6 @@ The Maynard–Tao–BFT theorem (a deep result not in Mathlib) is imported from
   [arXiv:2603.29961](https://arxiv.org/abs/2603.29961) (2026).
 * [Erdős Problem #997](https://www.erdosproblems.com/997).
 -/
-
-noncomputable section
 open Finset Int Nat Real
 
 namespace Erdos997
@@ -71,13 +66,13 @@ namespace Erdos997
 /-! ## Core definitions -/
 
 /-- The `n`-th prime (0-indexed). -/
-abbrev nthPrime (n : ℕ) : ℕ := nth Nat.Prime n
+noncomputable abbrev nthPrime (n : ℕ) : ℕ := nth Nat.Prime n
 
 /-- The fractional-part sequence `n ↦ fract(α · pₙ)`. -/
-def fracSeq (α : ℝ) (n : ℕ) : ℝ := fract (α * (nthPrime n : ℝ))
+noncomputable def fracSeq (α : ℝ) (n : ℕ) : ℝ := fract (α * (nthPrime n : ℝ))
 
 /-- Number of indices `i ∈ (n, n + k]` with `x i ∈ [a, b]`. -/
-def countInIcc (x : ℕ → ℝ) (a b : ℝ) (n k : ℕ) : ℕ :=
+noncomputable def countInIcc (x : ℕ → ℝ) (a b : ℝ) (n k : ℕ) : ℕ :=
   ((Ioc n (n + k)).filter fun i ↦ a ≤ x i ∧ x i ≤ b).card
 
 /-- A sequence `x : ℕ → ℝ` is **well-distributed** (Hlawka–Petersen) if the
@@ -120,27 +115,34 @@ theorem circleCluster (α : ℝ) (m : ℕ) (hm : 0 < m) :
       |fracSeq α (r + 1 + i) - fracSeq α (r + 1 + j) - ↑k| ≤ 1 / 8 := by
   obtain ⟨C, hC₀, hC⟩ := _root_.maynardTaoBFT m hm
   obtain ⟨q, hq⟩ : ∃ q : ℚ, |α - q| ≤ 1 / ((8 * C + 1) * q.den) ∧ q.den ≤ 8 * C := by
-    have := exists_rat_abs_sub_le_and_den_le α (show 0 < 8 * C by positivity); aesop
+    have := exists_rat_abs_sub_le_and_den_le α (show 0 < 8 * C by positivity)
+    simp_all only [tsub_le_iff_right, Nat.cast_mul, Nat.cast_ofNat, one_div, mul_inv_rev]
   obtain ⟨r, hr⟩ : ∃ r : ℕ, ∀ i < m, (nth Nat.Prime (r + 1 + i) : ℤ) ≡ q.num [ZMOD q.den] ∧
         nth Nat.Prime (r + m) - nth Nat.Prime (r + 1) ≤ q.den * C := by
     obtain ⟨r, hr₁, hr₂, hr₃⟩ :=
       hC q.den (cast_pos.mpr q.pos) q.num (by simpa [Int.gcd, natAbs_neg] using q.reduced) 1
     refine ⟨r - 1, fun i hi ↦ ⟨?_, ?_⟩⟩ <;>
       rcases r with (_ | r) <;> simp_all +decide [succ_add]
-  use r; intro i j hi hj
+  use r
+  intro i j hi hj
   set pi := nth Nat.Prime (r + 1 + i)
   set pj := nth Nat.Prime (r + 1 + j)
   have h_mono := nth_monotone infinite_setOf_prime
   have h_diff : |α * (pi - pj) - (q.num * ((pi - pj) / q.den))| ≤ 1 / 8 := by
     have h1 : |α * (pi - pj) - (q.num * ((pi - pj) / q.den))| ≤
         |α - q| * |(pi - pj : ℝ)| := by
-      rw [← abs_mul]; ring_nf; rw [Rat.cast_def]; ring_nf; norm_num
+      rw [← abs_mul]
+      ring_nf
+      rw [Rat.cast_def]
+      ring_nf
+      norm_num
     have h2 : |(pi - pj : ℝ)| ≤ q.den * C := by
       have := h_mono (show r + 1 + i ≤ r + m by linarith)
       have := h_mono (show r + 1 + j ≤ r + m by linarith)
       have := h_mono (show r + 1 ≤ r + 1 + i by linarith)
       have := h_mono (show r + 1 ≤ r + 1 + j by linarith)
-      norm_cast; grind
+      norm_cast
+      grind
     calc _ ≤ |α - q| * |(pi - pj : ℝ)| := h1
       _ ≤ 1 / ((8 * C + 1) * q.den) * (q.den * C) := by
           exact mul_le_mul_of_nonneg_right hq.1 (abs_nonneg _) |>.trans
@@ -151,12 +153,22 @@ theorem circleCluster (α : ℝ) (m : ℕ) (hm : 0 < m) :
               show (C : ℝ) ≥ 1 by exact_mod_cast hC₀]
   obtain ⟨k, hk⟩ : ∃ k : ℤ, q.num * ((pi - pj) / q.den : ℝ) = k := by
     use q.num * ((pi - pj) / q.den : ℤ)
-    have := hr i hi; have := hr j hj; simp_all +decide [Int.ModEq]
+    have := hr i hi
+    have := hr j hj
+    simp_all +decide only [Int.ModEq, Int.cast_mul, _root_.mul_eq_mul_left_iff,
+      Int.cast_eq_zero, Rat.num_eq_zero]
     exact Or.inl <| by
-      rw [Int.cast_div (dvd_of_emod_eq_zero <| by rw [sub_emod, hr i hi, hr j hj]; norm_num)
-        (by norm_cast; exact q.pos.ne')]
-      push_cast; ring
-  use k - ⌊α * pi⌋ + ⌊α * pj⌋; simp_all +decide [fracSeq]
+      rw [Int.cast_div
+        (dvd_of_emod_eq_zero <| by
+          rw [sub_emod, (hr i hi).1, (hr j hj).1]
+          norm_num)
+        (by
+          norm_cast
+          exact q.pos.ne')]
+      push_cast
+      ring
+  use k - ⌊α * pi⌋ + ⌊α * pj⌋
+  simp_all +decide only [Int.cast_add, Int.cast_sub, one_div]
   exact abs_le.mpr ⟨by
     linarith! [abs_le.mp h_diff, fract_add_floor (α * pi), fract_add_floor (α * pj)],
     by linarith! [abs_le.mp h_diff, fract_add_floor (α * pi), fract_add_floor (α * pj)]⟩
@@ -187,7 +199,8 @@ theorem pigeonholeCluster (x : ℕ → ℝ) (n m : ℕ) (hm : 0 < m)
     · refine ⟨S_high, Finset.filter_subset _ _, ?_, ?_⟩
       · have : S_low.card + S_high.card = m := by
           have := (Finset.range m).card_filter_add_card_filter_not (fun j ↦ x (n + 1 + j) < 1 / 2)
-          simp only [Finset.card_range, not_lt] at this; exact this
+          simp only [Finset.card_range, not_lt] at this
+          exact this
         linarith
       · intro i hi j hj
         have hi' := Finset.mem_range.mp (Finset.mem_filter.mp hi).1
@@ -217,7 +230,8 @@ theorem pigeonholeCluster (x : ℕ → ℝ) (n m : ℕ) (hm : 0 < m)
           (Finset.Ioc n (n + m)).filter (fun i ↦ max a 0 ≤ x i ∧ x i ≤ min b 1) from ?_)
       · rw [Finset.card_image_of_injective _ fun i j hij ↦ by simpa using hij]
       · grind
-    rw [div_le_iff₀] <;> norm_cast; linarith
+    rw [div_le_iff₀] <;> norm_cast
+    linarith
 
 /-! ## Step 4: Assembly -/
 
