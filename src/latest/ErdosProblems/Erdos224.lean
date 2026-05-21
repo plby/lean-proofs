@@ -34,15 +34,12 @@ import Mathlib.Analysis.Normed.Group.AddTorsor
 import Mathlib.Analysis.Normed.Group.Submodule
 import Mathlib.Analysis.Normed.Affine.Isometry
 
-set_option linter.style.whitespace false
-set_option linter.style.cdot false
-
 /-
 Danzer–Grünbaum (Lean4 + mathlib)
 
 Core route (contrapositive):
-  NoObtuse(A) → card(A) ≤ 2^d
-So if card(A) = 2^d + 1 then ¬NoObtuse(A), i.e. there exists an obtuse triple.
+  NoObtuse(A) → card(A) ≤ 2 ^ d
+So if card(A) = 2 ^ d + 1 then ¬NoObtuse(A), i.e. there exists an obtuse triple.
 
 from SpringSense Innovation Institute
 -/
@@ -76,23 +73,24 @@ def ObtuseAt {d : ℕ} (x y z : E d) : Prop :=
 def NoObtuse {d : ℕ} (A : Finset (E d)) : Prop :=
   ∀ ⦃x y z : E d⦄, x ∈ A → y ∈ A → z ∈ A →
     x ≠ y → x ≠ z → y ≠ z →
-    ¬ ObtuseAt (d:=d) x y z
+    ¬ ObtuseAt (d := d) x y z
 
 /-
-========== Key bound: NoObtuse(A) → card(A) ≤ 2^d ==========
-This is the Danzer–Grünbaum core: a no-obtuse set has at most 2^d points.
+========== Key bound: NoObtuse(A) → card(A) ≤ 2 ^ d ==========
+This is the Danzer–Grünbaum core: a no-obtuse set has at most 2 ^ d points.
 You can split it into three layers:
   (1) NoObtuse → slab/antipodal property
   (2) Use convex hull P = conv(A) and define half-size copies P_a ⊆ P
-  (3) Show interiors are pairwise disjoint; volume counting gives |A| ≤ 2^d
+  (3) Show interiors are pairwise disjoint, and volume counting gives
+      |A| ≤ 2 ^ d
 -/
 
--- (1) NoObtuse → slab property: for x ≠ y, projections along v=y-x lie between endpoints
+-- (1) NoObtuse → slab property: for x ≠ y, projections along v=y-x lie
+-- between endpoints.
 lemma slab_property_of_noObtuse
-  (A : Finset (E d)) (hNo : NoObtuse (d:=d) A) :
+  (A : Finset (E d)) (hNo : NoObtuse (d := d) A) :
   ∀ ⦃x y z : E d⦄, x ∈ A → y ∈ A → z ∈ A → x ≠ y →
-    let v : E d := y - x;
-    (⟪v, z⟫ ≥ ⟪v, x⟫) ∧ (⟪v, z⟫ ≤ ⟪v, y⟫) := by
+    (⟪y - x, z⟫ ≥ ⟪y - x, x⟫) ∧ (⟪y - x, z⟫ ≤ ⟪y - x, y⟫) := by
   classical
   intro x y z hx hy hz hxy
   -- Use hNo to exclude obtuse angles at x and at y:
@@ -146,7 +144,7 @@ def P (A : Finset (E d)) : Set (E d) :=
 
 -- Difference body P - P (written as P + (-P))
 def Pminus (A : Finset (E d)) : Set (E d) :=
-  P (d:=d) A + (-P (d:=d) A)
+  P (d := d) A + (-P (d := d) A)
 
 lemma exists_pos_smul_add_mem_of_mem_interior
   {s : Set (E d)} {x v : E d} (hx : x ∈ interior s) (hv : v ≠ 0) :
@@ -182,23 +180,24 @@ lemma exists_pos_smul_add_mem_of_mem_interior
 -- (2) For each a∈A, define the 1/2-scaled copy of P centered at a.
 -- Standard: AffineMap.homothety a (1/2) '' P
 def halfCopy (A : Finset (E d)) (a : E d) : Set (E d) :=
-  (AffineMap.homothety a (1/2 : ℝ)) '' (P (d:=d) A)
+  (AffineMap.homothety a (1/2 : ℝ)) '' (P (d := d) A)
 
 -- halfCopy ⊆ P
 lemma halfCopy_subset_P
   (A : Finset (E d)) {a : E d} (ha : a ∈ A) :
-  halfCopy (d:=d) A a ⊆ P (d:=d) A := by
+  halfCopy (d := d) A a ⊆ P (d := d) A := by
   classical
-  -- Points of the homothety lie on the segment a–p; convexity keeps the segment in P.
+  -- Points of the homothety lie on the segment a–p, and convexity keeps the
+  -- segment in P.
   -- Use convexity of convexHull and expand `AffineMap.homothety_apply`.
   intro x hx
   rcases hx with ⟨p, hp, rfl⟩
-  have hconv : Convex ℝ (P (d:=d) A) := by
+  have hconv : Convex ℝ (P (d := d) A) := by
     simpa [P] using (convex_convexHull ℝ (A : Set (E d)))
-  have haP : a ∈ P (d:=d) A := by
+  have haP : a ∈ P (d := d) A := by
     exact subset_convexHull ℝ (A : Set (E d)) ha
-  have hpP : p ∈ P (d:=d) A := hp
-  have hmem : (1 / 2 : ℝ) • p + (1 - (1 / 2 : ℝ)) • a ∈ P (d:=d) A := by
+  have hpP : p ∈ P (d := d) A := hp
+  have hmem : (1 / 2 : ℝ) • p + (1 - (1 / 2 : ℝ)) • a ∈ P (d := d) A := by
     refine hconv hpP haP ?_ ?_ ?_
     · nlinarith
     · nlinarith
@@ -223,26 +222,28 @@ lemma halfCopy_subset_P
               simp [sub_eq_add_neg, add_assoc]
       _ = (1 / 2 : ℝ) • (p - a) + a := by
               simp [smul_sub]
-  have hmem' : (1 / 2 : ℝ) • (p - a) + a ∈ P (d:=d) A := by
+  have hmem' : (1 / 2 : ℝ) • (p - a) + a ∈ P (d := d) A := by
     have hmem' := hmem
     rw [hrew] at hmem'
     exact hmem'
   simpa [AffineMap.homothety_apply, vsub_eq_sub, vadd_eq_add] using hmem'
 
--- (3) Interiors are pairwise disjoint: a≠b ⇒ interior(halfCopy a) ∩ interior(halfCopy b) = ∅.
+-- (3) Interiors are pairwise disjoint:
+-- a≠b ⇒ interior(halfCopy a) ∩ interior(halfCopy b) = ∅.
 -- Key idea: translate to P - P and show the same point is interior and boundary.
 lemma interiors_disjoint_of_noObtuse
-  (A : Finset (E d)) (hNo : NoObtuse (d:=d) A) :
+  (A : Finset (E d)) (hNo : NoObtuse (d := d) A) :
   ∀ ⦃a b : E d⦄, a ∈ A → b ∈ A → a ≠ b →
-    (interior (halfCopy (d:=d) A a)) ∩ (interior (halfCopy (d:=d) A b)) = (∅ : Set (E d)) := by
+    (interior (halfCopy (d := d) A a)) ∩
+      (interior (halfCopy (d := d) A b)) = (∅ : Set (E d)) := by
   classical
   intro a b ha hb hne
   apply Set.eq_empty_iff_forall_notMem.mpr
   intro x hx
   rcases hx with ⟨hxA, hxB⟩
-  have hxA' : x ∈ halfCopy (d:=d) A a := by
+  have hxA' : x ∈ halfCopy (d := d) A a := by
     exact interior_subset hxA
-  have hxB' : x ∈ halfCopy (d:=d) A b := by
+  have hxB' : x ∈ halfCopy (d := d) A b := by
     exact interior_subset hxB
   rcases hxA' with ⟨p, hp, rfl⟩
   rcases hxB' with ⟨q, hq, hxq⟩
@@ -268,17 +269,17 @@ lemma interiors_disjoint_of_noObtuse
     exact hsum'''.symm
   -- With hdiff, use the slab property to force a-b onto the boundary of P-P.
   -- This is the geometric core of the disjointness argument.
-  have hPminus_mem : a - b ∈ Pminus (d:=d) A := by
+  have hPminus_mem : a - b ∈ Pminus (d := d) A := by
     -- `a - b` is in P - P because a,b ∈ P.
-    have haP : a ∈ P (d:=d) A := by
+    have haP : a ∈ P (d := d) A := by
       exact subset_convexHull ℝ (A : Set (E d)) ha
-    have hbP : b ∈ P (d:=d) A := by
+    have hbP : b ∈ P (d := d) A := by
       exact subset_convexHull ℝ (A : Set (E d)) hb
-    have hbneg : -b ∈ -P (d:=d) A := by
+    have hbneg : -b ∈ -P (d := d) A := by
       simpa using hbP
     refine (Set.mem_add).2 ?_
     refine ⟨a, haP, -b, hbneg, by simp [sub_eq_add_neg]⟩
-  have hPminus_int : a - b ∈ interior (Pminus (d:=d) A) := by
+  have hPminus_int : a - b ∈ interior (Pminus (d := d) A) := by
     -- From x in both interiors of halfCopy, show a-b in interior(P-P).
     have hhalf_ne : (1 / 2 : ℝ) ≠ 0 := by norm_num
     have hcont_a :
@@ -311,16 +312,18 @@ lemma interiors_disjoint_of_noObtuse
       have hsub : x - b = y - b := (hunit.smul_left_cancel).1 hxy'
       have hsub' := congrArg (fun z => z + b) hsub
       simpa [sub_eq_add_neg, add_assoc, add_left_comm, add_comm] using hsub'
-    have hp_int : p ∈ interior (P (d:=d) A) := by
+    have hp_int : p ∈ interior (P (d := d) A) := by
       have hxApre' :
-          p ∈ interior ((AffineMap.homothety a (1 / 2 : ℝ)) ⁻¹' (halfCopy (d:=d) A a)) := by
+          p ∈ interior
+            ((AffineMap.homothety a (1 / 2 : ℝ)) ⁻¹'
+              (halfCopy (d := d) A a)) := by
         have hxApre :
             p ∈ (AffineMap.homothety a (1 / 2 : ℝ)) ⁻¹'
-              interior (halfCopy (d:=d) A a) := by
+              interior (halfCopy (d := d) A a) := by
           simpa [Set.mem_preimage] using hxA
         exact (preimage_interior_subset_interior_preimage hcont_a') hxApre
       have hpreimg :
-          (AffineMap.homothety a (1 / 2 : ℝ)) ⁻¹' (halfCopy (d:=d) A a) = P (d:=d) A := by
+          (AffineMap.homothety a (1 / 2 : ℝ)) ⁻¹' (halfCopy (d := d) A a) = P (d := d) A := by
         ext x
         constructor
         · intro hx
@@ -332,20 +335,22 @@ lemma interiors_disjoint_of_noObtuse
       have hxApre'' := hxApre'
       rw [hpreimg] at hxApre''
       simpa using hxApre''
-    have hq_int : q ∈ interior (P (d:=d) A) := by
-      have hxB' : (AffineMap.homothety b (1 / 2 : ℝ)) q ∈ interior (halfCopy (d:=d) A b) := by
+    have hq_int : q ∈ interior (P (d := d) A) := by
+      have hxB' : (AffineMap.homothety b (1 / 2 : ℝ)) q ∈ interior (halfCopy (d := d) A b) := by
         have hxB' := hxB
         rw [hxq.symm] at hxB'
         exact hxB'
       have hxBpre' :
-          q ∈ interior ((AffineMap.homothety b (1 / 2 : ℝ)) ⁻¹' (halfCopy (d:=d) A b)) := by
+          q ∈ interior
+            ((AffineMap.homothety b (1 / 2 : ℝ)) ⁻¹'
+              (halfCopy (d := d) A b)) := by
         have hxBpre :
             q ∈ (AffineMap.homothety b (1 / 2 : ℝ)) ⁻¹'
-              interior (halfCopy (d:=d) A b) := by
+              interior (halfCopy (d := d) A b) := by
           simpa [Set.mem_preimage] using hxB'
         exact (preimage_interior_subset_interior_preimage hcont_b') hxBpre
       have hpreimg :
-          (AffineMap.homothety b (1 / 2 : ℝ)) ⁻¹' (halfCopy (d:=d) A b) = P (d:=d) A := by
+          (AffineMap.homothety b (1 / 2 : ℝ)) ⁻¹' (halfCopy (d := d) A b) = P (d := d) A := by
         ext x
         constructor
         · intro hx
@@ -357,27 +362,27 @@ lemma interiors_disjoint_of_noObtuse
       have hxBpre'' := hxBpre'
       rw [hpreimg] at hxBpre''
       simpa using hxBpre''
-    have hnegp_int : -p ∈ interior (-P (d:=d) A) := by
-      have hmem : -p ∈ (Homeomorph.neg (E d)) '' interior (P (d:=d) A) := by
+    have hnegp_int : -p ∈ interior (-P (d := d) A) := by
+      have hmem : -p ∈ (Homeomorph.neg (E d)) '' interior (P (d := d) A) := by
         refine ⟨p, hp_int, ?_⟩
         simp
       have himg :
-          (Homeomorph.neg (E d)) '' interior (P (d:=d) A) =
-            interior ((Homeomorph.neg (E d)) '' P (d:=d) A) := by
-        simpa using (Homeomorph.image_interior (Homeomorph.neg (E d)) (P (d:=d) A))
+          (Homeomorph.neg (E d)) '' interior (P (d := d) A) =
+            interior ((Homeomorph.neg (E d)) '' P (d := d) A) := by
+        simpa using (Homeomorph.image_interior (Homeomorph.neg (E d)) (P (d := d) A))
       have hmem' := hmem
       rw [himg] at hmem'
       -- rewrite the image under negation to `-P`
       simpa [Set.image_neg_eq_neg] using hmem'
-    have hsum_mem : q + (-p) ∈ interior (P (d:=d) A) + interior (-P (d:=d) A) :=
+    have hsum_mem : q + (-p) ∈ interior (P (d := d) A) + interior (-P (d := d) A) :=
       Set.add_mem_add hq_int hnegp_int
     have hsum_int :
-        q + (-p) ∈ interior (P (d:=d) A + -P (d:=d) A) := by
+        q + (-p) ∈ interior (P (d := d) A + -P (d := d) A) := by
       exact (subset_interior_add hsum_mem)
-    have hsum_int' : q - p ∈ interior (Pminus (d:=d) A) := by
+    have hsum_int' : q - p ∈ interior (Pminus (d := d) A) := by
       simpa [Pminus, sub_eq_add_neg] using hsum_int
     simpa [hdiff] using hsum_int'
-  have hPminus_bd : a - b ∈ frontier (Pminus (d:=d) A) := by
+  have hPminus_bd : a - b ∈ frontier (Pminus (d := d) A) := by
     -- Antipodal/slab property implies extreme direction lies on boundary.
     -- Set up the linear functional f(z) = ⟪v, z⟫ with v = a - b.
     let v : E d := a - b
@@ -399,37 +404,37 @@ lemma interiors_disjoint_of_noObtuse
     -- All points of A are between the hyperplanes through b and a.
     have hA_le : ∀ z ∈ (A : Set (E d)), f z ≤ f a := by
       intro z hz
-      have hslab := slab_property_of_noObtuse (d:=d) A hNo hb ha hz hne.symm
+      have hslab := slab_property_of_noObtuse (d := d) A hNo hb ha hz hne.symm
       simpa [v, f] using hslab.2
     have hA_ge : ∀ z ∈ (A : Set (E d)), f b ≤ f z := by
       intro z hz
-      have hslab := slab_property_of_noObtuse (d:=d) A hNo hb ha hz hne.symm
+      have hslab := slab_property_of_noObtuse (d := d) A hNo hb ha hz hne.symm
       simpa [v, f] using hslab.1
     -- Extend the bounds to all of P = convexHull A.
-    have hP_le : ∀ z ∈ P (d:=d) A, f z ≤ f a := by
+    have hP_le : ∀ z ∈ P (d := d) A, f z ≤ f a := by
       have hconv : Convex ℝ {z | f z ≤ f a} := convex_halfSpace_le hlin _
       have hsubset : (A : Set (E d)) ⊆ {z | f z ≤ f a} := by
         intro z hz
         exact hA_le z hz
-      have hPsubset : P (d:=d) A ⊆ {z | f z ≤ f a} := by
+      have hPsubset : P (d := d) A ⊆ {z | f z ≤ f a} := by
         exact convexHull_min hsubset hconv
       intro z hz
       exact (hPsubset hz)
-    have hP_ge : ∀ z ∈ P (d:=d) A, f b ≤ f z := by
+    have hP_ge : ∀ z ∈ P (d := d) A, f b ≤ f z := by
       have hconv : Convex ℝ {z | f b ≤ f z} := convex_halfSpace_ge hlin _
       have hsubset : (A : Set (E d)) ⊆ {z | f b ≤ f z} := by
         intro z hz
         exact hA_ge z hz
-      have hPsubset : P (d:=d) A ⊆ {z | f b ≤ f z} := by
+      have hPsubset : P (d := d) A ⊆ {z | f b ≤ f z} := by
         exact convexHull_min hsubset hconv
       intro z hz
       exact (hPsubset hz)
     -- Hence `a - b` maximizes `f` on `P - P`.
-    have hmax : ∀ y ∈ Pminus (d:=d) A, f y ≤ f (a - b) := by
+    have hmax : ∀ y ∈ Pminus (d := d) A, f y ≤ f (a - b) := by
       intro y hy
       rcases (Set.mem_add).1 hy with ⟨p, hp, q, hq, rfl⟩
       have hp_le : f p ≤ f a := hP_le p hp
-      have hq' : -q ∈ P (d:=d) A := by
+      have hq' : -q ∈ P (d := d) A := by
         simpa using hq
       have hq_ge : f b ≤ f (-q) := hP_ge (-q) hq'
       have hq_le : f q ≤ -f b := by
@@ -448,11 +453,11 @@ lemma interiors_disjoint_of_noObtuse
         simpa [hf_ab] using hf_le
       simpa using hf_le'
     -- If `a-b` were interior, we could move slightly in direction `v`.
-    have hcl : a - b ∈ closure (Pminus (d:=d) A) := by
+    have hcl : a - b ∈ closure (Pminus (d := d) A) := by
       exact subset_closure hPminus_mem
-    have hnot_int : a - b ∉ interior (Pminus (d:=d) A) := by
+    have hnot_int : a - b ∉ interior (Pminus (d := d) A) := by
       intro hInt
-      rcases exists_pos_smul_add_mem_of_mem_interior (s:=Pminus (d:=d) A) (x:=a - b) (v:=v)
+      rcases exists_pos_smul_add_mem_of_mem_interior (s:=Pminus (d := d) A) (x:=a - b) (v:=v)
         hInt hv_ne with ⟨t, htpos, hmem_set⟩
       have hf_strict : f ((a - b) + t • v) > f (a - b) := by
         have hvpos : 0 < ⟪v, v⟫ := by
@@ -468,134 +473,136 @@ lemma interiors_disjoint_of_noObtuse
     exact by
       -- frontier = closure \ interior
       exact ⟨hcl, hnot_int⟩
-  have hdisj : Disjoint (interior (Pminus (d:=d) A)) (frontier (Pminus (d:=d) A)) :=
+  have hdisj : Disjoint (interior (Pminus (d := d) A)) (frontier (Pminus (d := d) A)) :=
     disjoint_interior_frontier
   exact (Set.disjoint_left.1 hdisj) hPminus_int hPminus_bd
 
--- (4) Volume scaling: vol(halfCopy a) = vol(P)/2^d
+-- (4) Volume scaling: vol(halfCopy a) = vol(P)/2 ^ d
 lemma volume_halfCopy
   (A : Finset (E d)) (a : E d) :
-  volume (halfCopy (d:=d) A a) =
-    ENNReal.ofReal (abs ((1 / 2 : ℝ) ^ d)) * volume (P (d:=d) A) := by
+  volume (halfCopy (d := d) A a) =
+    ENNReal.ofReal (abs ((1 / 2 : ℝ) ^ d)) * volume (P (d := d) A) := by
   classical
   -- Volume scales by |r|^d under homothety (Haar measure fact).
   simp [halfCopy, finrank_euclideanSpace]
--- Turn (subset + disjoint interiors + volume scaling) into card ≤ 2^d
+-- Turn (subset + disjoint interiors + volume scaling) into card ≤ 2 ^ d
 theorem card_le_pow_two_of_noObtuse_of_span
-  (A : Finset (E d)) (hNo : NoObtuse (d:=d) A)
+  (A : Finset (E d)) (hNo : NoObtuse (d := d) A)
   (hspan : affineSpan ℝ (A : Set (E d)) = ⊤) :
-  A.card ≤ 2^d := by
+  A.card ≤ 2 ^ d := by
   classical
   -- Structure:
   -- 1) P := conv(A)
   -- 2) For each a∈A, halfCopy a ⊆ P
   -- 3) Interiors are pairwise disjoint
-  -- 4) Each halfCopy has volume vol(P)/2^d
+  -- 4) Each halfCopy has volume vol(P)/2 ^ d
   -- 5) Additivity: ∑ vol(halfCopy a) ≤ vol(P)
-  -- 6) Simplify to |A| ≤ 2^d
+  -- 6) Simplify to |A| ≤ 2 ^ d
   --
   -- In Lean, step (5) uses "pairwise disjoint measurable sets ⇒ measure of union = sum"
   -- (or a finite sum over `A.attach`).
   --
   -- Below is the volume-counting proof.
-  have hconvP : Convex ℝ (P (d:=d) A) := by
+  have hconvP : Convex ℝ (P (d := d) A) := by
     simpa [P] using (convex_convexHull ℝ (A : Set (E d)))
-  have hPint : (interior (P (d:=d) A)).Nonempty := by
-    have hspan' : affineSpan ℝ (P (d:=d) A) = ⊤ := by
+  have hPint : (interior (P (d := d) A)).Nonempty := by
+    have hspan' : affineSpan ℝ (P (d := d) A) = ⊤ := by
       simpa [P, affineSpan_convexHull] using hspan
     simpa [hspan'] using (hconvP.interior_nonempty_iff_affineSpan_eq_top)
-  have hvol_pos : 0 < volume (P (d:=d) A) := by
-    have hpos : 0 < volume (interior (P (d:=d) A)) := by
+  have hvol_pos : 0 < volume (P (d := d) A) := by
+    have hpos : 0 < volume (interior (P (d := d) A)) := by
       simpa using (isOpen_interior.measure_pos (μ:=volume) hPint)
     exact hpos.trans_le (measure_mono interior_subset)
-  have hvol_ne_top : volume (P (d:=d) A) ≠ ⊤ := by
-    have hcompact : IsCompact (P (d:=d) A) := by
+  have hvol_ne_top : volume (P (d := d) A) ≠ ⊤ := by
+    have hcompact : IsCompact (P (d := d) A) := by
       simpa [P] using (A.finite_toSet.isCompact_convexHull ℝ)
     exact (ne_of_lt hcompact.measure_lt_top)
   let c : ENNReal := ENNReal.ofReal (abs ((1 / 2 : ℝ) ^ d))
-  have hsum_le : Finset.sum A (fun a => volume (halfCopy (d:=d) A a)) ≤ volume (P (d:=d) A) := by
+  have hsum_le :
+      Finset.sum A (fun a => volume (halfCopy (d := d) A a)) ≤
+        volume (P (d := d) A) := by
     -- Use disjoint interiors and null frontier of convex sets.
     have hpair :
         Set.Pairwise (A : Set (E d))
           (fun a b =>
-            Disjoint (interior (halfCopy (d:=d) A a)) (interior (halfCopy (d:=d) A b))) := by
+            Disjoint (interior (halfCopy (d := d) A a)) (interior (halfCopy (d := d) A b))) := by
       intro a ha b hb hne
       refine Set.disjoint_iff_inter_eq_empty.mpr ?_
-      exact interiors_disjoint_of_noObtuse (d:=d) A hNo ha hb hne
-    have hmeas : ∀ a ∈ A, MeasurableSet (interior (halfCopy (d:=d) A a)) := by
+      exact interiors_disjoint_of_noObtuse (d := d) A hNo ha hb hne
+    have hmeas : ∀ a ∈ A, MeasurableSet (interior (halfCopy (d := d) A a)) := by
       intro a ha
       simpa using (isOpen_interior.measurableSet)
     have hunion :
-        volume (⋃ a ∈ (A : Set (E d)), interior (halfCopy (d:=d) A a)) =
-          Finset.sum A (fun a => volume (interior (halfCopy (d:=d) A a))) := by
+        volume (⋃ a ∈ (A : Set (E d)), interior (halfCopy (d := d) A a)) =
+          Finset.sum A (fun a => volume (interior (halfCopy (d := d) A a))) := by
       simpa using
-        (measure_biUnion_finset (μ:=volume) (s:=A) (f:=fun a => interior (halfCopy (d:=d) A a))
+        (measure_biUnion_finset (μ:=volume) (s:=A) (f:=fun a => interior (halfCopy (d := d) A a))
           hpair hmeas)
     have hsubset :
-        (⋃ a ∈ (A : Set (E d)), interior (halfCopy (d:=d) A a)) ⊆ P (d:=d) A := by
+        (⋃ a ∈ (A : Set (E d)), interior (halfCopy (d := d) A a)) ⊆ P (d := d) A := by
       intro x hx
       rcases Set.mem_iUnion.1 hx with ⟨a, hx⟩
       rcases Set.mem_iUnion.1 hx with ⟨ha, hx⟩
-      have hx' : x ∈ halfCopy (d:=d) A a := interior_subset hx
-      exact (halfCopy_subset_P (d:=d) A ha) hx'
-    have hle : volume (⋃ a ∈ (A : Set (E d)), interior (halfCopy (d:=d) A a))
-        ≤ volume (P (d:=d) A) := by
+      have hx' : x ∈ halfCopy (d := d) A a := interior_subset hx
+      exact (halfCopy_subset_P (d := d) A ha) hx'
+    have hle : volume (⋃ a ∈ (A : Set (E d)), interior (halfCopy (d := d) A a))
+        ≤ volume (P (d := d) A) := by
       exact measure_mono hsubset
     -- Replace interior volumes by full volumes using null frontier of convex sets.
     have hsum_eq :
-        Finset.sum A (fun a => volume (interior (halfCopy (d:=d) A a))) =
-          Finset.sum A (fun a => volume (halfCopy (d:=d) A a)) := by
+        Finset.sum A (fun a => volume (interior (halfCopy (d := d) A a))) =
+          Finset.sum A (fun a => volume (halfCopy (d := d) A a)) := by
       refine Finset.sum_congr rfl ?_
       intro a ha
-      have hconv : Convex ℝ (halfCopy (d:=d) A a) := by
+      have hconv : Convex ℝ (halfCopy (d := d) A a) := by
         simpa [halfCopy] using (hconvP.affine_image (AffineMap.homothety a (1 / 2 : ℝ)))
-      have hfront : volume (frontier (halfCopy (d:=d) A a)) = 0 := by
-        simpa using (Convex.addHaar_frontier (μ:=volume) (s:=halfCopy (d:=d) A a) hconv)
+      have hfront : volume (frontier (halfCopy (d := d) A a)) = 0 := by
+        simpa using (Convex.addHaar_frontier (μ:=volume) (s:=halfCopy (d := d) A a) hconv)
       have hvol :
-          volume (interior (halfCopy (d:=d) A a)) = volume (halfCopy (d:=d) A a) := by
-        have := measure_diff_null (μ:=volume) (s:=halfCopy (d:=d) A a)
-          (t:=frontier (halfCopy (d:=d) A a)) hfront
+          volume (interior (halfCopy (d := d) A a)) = volume (halfCopy (d := d) A a) := by
+        have := measure_diff_null (μ:=volume) (s:=halfCopy (d := d) A a)
+          (t:=frontier (halfCopy (d := d) A a)) hfront
         simpa [self_diff_frontier] using this
       simp [hvol]
-    have : volume (⋃ a ∈ (A : Set (E d)), interior (halfCopy (d:=d) A a))
-        = Finset.sum A (fun a => volume (halfCopy (d:=d) A a)) := by
+    have : volume (⋃ a ∈ (A : Set (E d)), interior (halfCopy (d := d) A a))
+        = Finset.sum A (fun a => volume (halfCopy (d := d) A a)) := by
       simpa [hsum_eq] using hunion
     exact this ▸ hle
   -- Convert the volume inequality to a cardinality bound.
   have hsum_eval :
-      Finset.sum A (fun a => volume (halfCopy (d:=d) A a)) =
-        (A.card : ENNReal) * (c * volume (P (d:=d) A)) := by
-    have hconst : ∀ a ∈ A, volume (halfCopy (d:=d) A a) = c * volume (P (d:=d) A) := by
+      Finset.sum A (fun a => volume (halfCopy (d := d) A a)) =
+        (A.card : ENNReal) * (c * volume (P (d := d) A)) := by
+    have hconst : ∀ a ∈ A, volume (halfCopy (d := d) A a) = c * volume (P (d := d) A) := by
       intro a ha
       simpa [c, mul_comm, mul_left_comm, mul_assoc] using
-        (volume_halfCopy (d:=d) A a)
+        (volume_halfCopy (d := d) A a)
     calc
-      Finset.sum A (fun a => volume (halfCopy (d:=d) A a))
-          = Finset.sum A (fun a => c * volume (P (d:=d) A)) := by
+      Finset.sum A (fun a => volume (halfCopy (d := d) A a))
+          = Finset.sum A (fun a => c * volume (P (d := d) A)) := by
               refine Finset.sum_congr rfl ?_
               intro a ha
               exact hconst a ha
-      _ = (A.card : ENNReal) * (c * volume (P (d:=d) A)) := by
+      _ = (A.card : ENNReal) * (c * volume (P (d := d) A)) := by
               simp [Finset.sum_const, nsmul_eq_mul, mul_left_comm]
-  have hle : (A.card : ENNReal) * (c * volume (P (d:=d) A)) ≤ volume (P (d:=d) A) := by
+  have hle : (A.card : ENNReal) * (c * volume (P (d := d) A)) ≤ volume (P (d := d) A) := by
     simpa [hsum_eval] using hsum_le
   -- Move to ℝ and cancel volume(P).
-  have hle_real : (A.card : ℝ) * (ENNReal.toReal c) * ENNReal.toReal (volume (P (d:=d) A))
-      ≤ ENNReal.toReal (volume (P (d:=d) A)) := by
+  have hle_real : (A.card : ℝ) * (ENNReal.toReal c) * ENNReal.toReal (volume (P (d := d) A))
+      ≤ ENNReal.toReal (volume (P (d := d) A)) := by
     have hcard : (A.card : ENNReal) ≠ ⊤ := by simp
     have hc : c ≠ ⊤ := by simp [c]
-    have hcv : c * volume (P (d:=d) A) ≠ ⊤ := ENNReal.mul_ne_top hc hvol_ne_top
-    have hfin : (A.card : ENNReal) * (c * volume (P (d:=d) A)) ≠ ⊤ :=
+    have hcv : c * volume (P (d := d) A) ≠ ⊤ := ENNReal.mul_ne_top hc hvol_ne_top
+    have hfin : (A.card : ENNReal) * (c * volume (P (d := d) A)) ≠ ⊤ :=
       ENNReal.mul_ne_top hcard hcv
-    have hfin' : volume (P (d:=d) A) ≠ ⊤ := hvol_ne_top
+    have hfin' : volume (P (d := d) A) ≠ ⊤ := hvol_ne_top
     have h := (ENNReal.toReal_le_toReal hfin hfin').2 hle
     simpa [ENNReal.toReal_mul, hvol_ne_top, hfin', mul_assoc] using h
-  have hVpos : 0 < ENNReal.toReal (volume (P (d:=d) A)) := by
+  have hVpos : 0 < ENNReal.toReal (volume (P (d := d) A)) := by
     exact ENNReal.toReal_pos (ne_of_gt hvol_pos) hvol_ne_top
   have hle_real' : (A.card : ℝ) * (ENNReal.toReal c) ≤ 1 := by
     have h :
-        ENNReal.toReal (volume (P (d:=d) A)) * ((A.card : ℝ) * ENNReal.toReal c) ≤
-          ENNReal.toReal (volume (P (d:=d) A)) * 1 := by
+        ENNReal.toReal (volume (P (d := d) A)) * ((A.card : ℝ) * ENNReal.toReal c) ≤
+          ENNReal.toReal (volume (P (d := d) A)) * 1 := by
       simpa [mul_assoc, mul_comm, mul_left_comm] using hle_real
     exact (mul_le_mul_iff_right₀ hVpos).1 h
   have hc : ENNReal.toReal c = (1 / 2 : ℝ) ^ d := by
@@ -616,8 +623,8 @@ theorem card_le_pow_two_of_noObtuse_of_span
 
 -- Reduce to the full-span case by working inside the affine span.
 theorem card_le_pow_two_of_noObtuse
-  (A : Finset (E d)) (hNo : NoObtuse (d:=d) A) :
-  A.card ≤ 2^d := by
+  (A : Finset (E d)) (hNo : NoObtuse (d := d) A) :
+  A.card ≤ 2 ^ d := by
   classical
   by_cases hA : A.Nonempty
   · obtain ⟨a0, ha0⟩ := hA
@@ -738,39 +745,38 @@ theorem card_le_pow_two_of_noObtuse
         have hinj : Set.InjOn f (A' : Set S) := fun _ _ _ _ h => f.injective h
         simpa [A''] using (Finset.card_image_iff.mpr hinj)
       simpa [hcardA'] using hcardA''
-    have hle' : A''.card ≤ 2^k :=
+    have hle' : A''.card ≤ 2 ^ k :=
       card_le_pow_two_of_noObtuse_of_span (d:=k) A'' hNo'' hspanA''
-    have hpow : 2^k ≤ 2^d := by
+    have hpow : 2 ^ k ≤ 2 ^ d := by
       exact Nat.pow_le_pow_right (by decide) hk
-    have hle : A.card ≤ 2^d := by
-      have : A.card ≤ 2^k := by
+    have hle : A.card ≤ 2 ^ d := by
+      have : A.card ≤ 2 ^ k := by
         simpa [hcardA''] using hle'
       exact this.trans hpow
     exact hle
-  ·
-    have hA' : A = ∅ := by
+  · have hA' : A = ∅ := by
       simpa [Finset.not_nonempty_iff_eq_empty] using hA
     simp [hA']
 
 -- Final existence result ("some three points give an obtuse angle")
 theorem exists_obtuse_of_card_succ_pow_two
   (A : Finset (E d))
-  (hcard : A.card = (2^d) + 1) :
+  (hcard : A.card = (2 ^ d) + 1) :
   ∃ x y z : E d, x ∈ A ∧ y ∈ A ∧ z ∈ A ∧
     x ≠ y ∧ x ≠ z ∧ y ≠ z ∧
-    ObtuseAt (d:=d) x y z := by
+    ObtuseAt (d := d) x y z := by
   classical
   -- Contrapositive: if no obtuse triple exists, then NoObtuse A
-  have : ¬ NoObtuse (d:=d) A := by
-    -- From card = 2^d + 1, conclude ¬NoObtuse via the key bound:
-    --   NoObtuse A → A.card ≤ 2^d
+  have : ¬ NoObtuse (d := d) A := by
+    -- From card = 2 ^ d + 1, conclude ¬NoObtuse via the key bound:
+    --   NoObtuse A → A.card ≤ 2 ^ d
     intro hNo
-    have hle : A.card ≤ 2^d := card_le_pow_two_of_noObtuse (d:=d) A hNo
+    have hle : A.card ≤ 2 ^ d := card_le_pow_two_of_noObtuse (d := d) A hNo
     -- Contradiction with hcard
-    have hle' : (2^d + 1) ≤ 2^d := by
+    have hle' : (2 ^ d + 1) ≤ 2 ^ d := by
       have hle' := hle
       simp [hcard] at hle'
-    exact Nat.not_succ_le_self (2^d) hle'
+    exact Nat.not_succ_le_self (2 ^ d) hle'
   -- Unfold ¬NoObtuse to get an obtuse triple
   have h' := this
   unfold NoObtuse at h'
