@@ -4,7 +4,8 @@ This is a Lean formalization of a solution to Erdős Problem 694.
 https://www.erdosproblems.com/forum/thread/694
 
 Formalization status:
-- Conditional on: mertens_product, linnik_dvd
+- Conditional on: mertens_product
+- Conditional on: linnik_dvd
 
 Informal authors:
 - GPT-5.5 Pro
@@ -38,10 +39,7 @@ import ErdosProblems.Axioms
 
 namespace Erdos694
 
-set_option linter.style.openClassical false
-set_option linter.style.show false
-
-open Classical Filter Asymptotics Topology
+open Filter Asymptotics Topology
 open scoped BigOperators Nat
 
 /-! ## Scratch helpers (totient ratio bookkeeping) -/
@@ -325,12 +323,13 @@ private lemma totient_sq_ge_half_pow_two (k : ℕ) (hk : 0 < k) :
   rcases Nat.exists_eq_succ_of_ne_zero hk.ne' with ⟨j, rfl⟩
   rw [Nat.totient_prime_pow_succ Nat.prime_two]
   -- Goal: 2 ^ (j+1) ≤ 2 * (2 ^ j * (2 - 1)) ^ 2 = 2 * (2^j)^2 = 2^(2j+1)
-  show 2 ^ (j + 1) ≤ 2 * (2 ^ j * (2 - 1)) ^ 2
+  change 2 ^ (j + 1) ≤ 2 * (2 ^ j * (2 - 1)) ^ 2
   have heq : 2 * (2 ^ j * (2 - 1 : ℕ)) ^ 2 = 2 ^ (2 * j + 1) := by
     have h21 : (2 - 1 : ℕ) = 1 := rfl
     rw [h21, mul_one]
     rw [show (2 : ℕ) * (2 ^ j) ^ 2 = 2 ^ (2 * j + 1) from by
-      rw [pow_succ]; ring]
+      rw [pow_succ]
+      ring]
   rw [heq]
   apply Nat.pow_le_pow_right (by norm_num : 1 ≤ 2)
   omega
@@ -349,14 +348,17 @@ theorem totient_sq_ge_half (m : ℕ) (_hm : 1 ≤ m) : m ≤ 2 * (Nat.totient m)
       exfalso
       have heven : Even (2 ^ k) := by
         rcases Nat.exists_eq_succ_of_ne_zero hk.ne' with ⟨j, rfl⟩
-        exact ⟨2 ^ j, by rw [pow_succ]; ring⟩
+        exact ⟨2 ^ j, by
+          rw [pow_succ]
+          ring⟩
       exact (Nat.not_odd_iff_even.mpr heven) hodd
     · have hp_odd : Odd p := hp.odd_of_ne_two hp2
       have hge : p ^ k ≤ (Nat.totient (p ^ k)) ^ 2 :=
         totient_sq_ge_odd_prime_pow p k hp hp_odd hk
       refine ⟨?_, fun _ => hge⟩
       have hle : (Nat.totient (p ^ k)) ^ 2 ≤ 2 * (Nat.totient (p ^ k)) ^ 2 := by
-        have := Nat.zero_le ((Nat.totient (p ^ k)) ^ 2); omega
+        have := Nat.zero_le ((Nat.totient (p ^ k)) ^ 2)
+        omega
       exact hge.trans hle
   | zero =>
     refine ⟨?_, ?_⟩
@@ -367,8 +369,10 @@ theorem totient_sq_ge_half (m : ℕ) (_hm : 1 ≤ m) : m ≤ 2 * (Nat.totient m)
   | one =>
     refine ⟨?_, fun _ => ?_⟩
     · -- 1 ≤ 2 * φ(1)^2 = 2 * 1 = 2
-      rw [Nat.totient_one]; norm_num
-    · rw [Nat.totient_one]; norm_num
+      rw [Nat.totient_one]
+      norm_num
+    · rw [Nat.totient_one]
+      norm_num
   | coprime a b ha hb hcop iha ihb =>
     obtain ⟨iha1, iha2⟩ := iha
     obtain ⟨ihb1, ihb2⟩ := ihb
@@ -410,7 +414,8 @@ theorem totient_sq_ge_half (m : ℕ) (_hm : 1 ≤ m) : m ≤ 2 * (Nat.totient m)
 /-- Corollary: if `φ(m) = n`, then `m ≤ 2 n²`. -/
 theorem totient_preimage_bound {m n : ℕ} (hm : 1 ≤ m) (h : Nat.totient m = n) :
     m ≤ 2 * n ^ 2 := by
-  rw [← h]; exact totient_sq_ge_half m hm
+  rw [← h]
+  exact totient_sq_ge_half m hm
 
 /-! ### Shared trusted prerequisites
 
@@ -504,7 +509,8 @@ private lemma four_pow_landauY_le (T : ℝ) (hT : 1 ≤ T) :
     rw [Real.log_pow]
   have h4_pos : (0 : ℝ) < (4 : ℝ) ^ landauY T := by positivity
   have h2 : Real.log ((4 : ℝ) ^ landauY T) ≤ Real.log T := by
-    rw [h1]; exact hY_le
+    rw [h1]
+    exact hY_le
   exact (Real.log_le_log_iff h4_pos hT_pos).mp h2
 
 /-- Primorial Y has prime factors exactly {primes ≤ Y}, so its m/φ(m) ratio equals
@@ -518,10 +524,11 @@ private lemma ratio_totient_primorial (Y : ℕ) (_hY : 1 ≤ Y) :
   have hm_ne : m ≠ 0 := hm_pos.ne'
   -- primeFactors(m) = (Finset.range (Y+1)).filter Nat.Prime
   have hfacts : m.primeFactors = (Finset.range (Y + 1)).filter Nat.Prime := by
-    show (∏ p ∈ (Finset.range (Y + 1)).filter Nat.Prime, p).primeFactors =
+    change (∏ p ∈ (Finset.range (Y + 1)).filter Nat.Prime, p).primeFactors =
         (Finset.range (Y + 1)).filter Nat.Prime
     apply Nat.primeFactors_prod
-    intro p hp; exact (Finset.mem_filter.mp hp).2
+    intro p hp
+    exact (Finset.mem_filter.mp hp).2
   rw [ratio_totient_eq_prod_primeFactors_real m hm_ne]
   rw [hfacts]
   unfold primeEulerProdNat
@@ -600,8 +607,11 @@ private lemma log_landauY_div_loglog_tendsto :
         have h_inv : Tendsto (fun T : ℝ => 1 / (Real.log T / Real.log 4)) atTop (𝓝 0) := by
           have hi := h_inner.inv_tendsto_atTop
           have : (fun T : ℝ => 1 / (Real.log T / Real.log 4)) =
-              (fun T : ℝ => (Real.log T / Real.log 4)⁻¹) := by ext T; rw [one_div]
-          rw [this]; exact hi
+              (fun T : ℝ => (Real.log T / Real.log 4)⁻¹) := by
+            ext T
+            rw [one_div]
+          rw [this]
+          exact hi
         have : Tendsto (fun T : ℝ => 1 - 1 / (Real.log T / Real.log 4)) atTop (𝓝 (1 - 0)) :=
           tendsto_const_nhds.sub h_inv
         simpa using this
@@ -755,7 +765,7 @@ theorem landau_max_ratio :
       have hY_pos : (0 : ℝ) < (Y T : ℝ) := by exact_mod_cast (by linarith : 0 < Y T)
       have hY_gt_one : (1 : ℝ) < (Y T : ℝ) := by exact_mod_cast (by linarith : 1 < Y T)
       have h_logY_pos : 0 < Real.log (Y T : ℝ) := Real.log_pos hY_gt_one
-      show (L T / (γc * Real.log (Y T : ℝ))) *
+      change (L T / (γc * Real.log (Y T : ℝ))) *
           (Real.log (Y T : ℝ) / Real.log (Real.log T)) = L T / D T
       rw [hD_def]
       simp only
@@ -779,7 +789,7 @@ theorem landau_max_ratio :
       filter_upwards [landauY_ge_one_eventually] with T hY1
       have hY_pos : (0 : ℝ) < (Y T : ℝ) := by exact_mod_cast (by linarith : 0 < Y T)
       have hbase_pos : 0 < ((Y T : ℝ) + 1) / (Y T : ℝ) := by positivity
-      show Real.log ((((Y T : ℝ) + 1) / (Y T : ℝ)) ^
+      change Real.log ((((Y T : ℝ) + 1) / (Y T : ℝ)) ^
         (Real.log T / Real.log ((Y T : ℝ) + 1))) = _
       rw [Real.log_rpow hbase_pos]
     -- Bound: 0 ≤ log F ≤ log T / (Y · log(Y+1)).
@@ -895,7 +905,8 @@ theorem landau_max_ratio :
               tendsto_natCast_atTop_atTop.comp landauY_tendsto
             have := hYTend.inv_tendsto_atTop
             have : (fun T : ℝ => 1 / (Y T : ℝ)) = fun T : ℝ => ((Y T : ℝ))⁻¹ := by
-              ext T; rw [one_div]
+              ext T
+              rw [one_div]
             rw [this]
             exact hYTend.inv_tendsto_atTop
           exact h_inv
@@ -952,21 +963,24 @@ theorem landau_max_ratio :
     have hY_pos : (0 : ℝ) < (Y T : ℝ) := by exact_mod_cast (by linarith : 0 < Y T)
     have hYp1_pos : (0 : ℝ) < (Y T : ℝ) + 1 := by linarith
     have hbase_ge_one : 1 ≤ ((Y T : ℝ) + 1) / (Y T : ℝ) := by
-      rw [le_div_iff₀ hY_pos]; linarith
+      rw [le_div_iff₀ hY_pos]
+      linarith
     have hbase_pos : 0 < ((Y T : ℝ) + 1) / (Y T : ℝ) := by positivity
     have hT_pos : 0 < T := by linarith
     have hlogT_nn : 0 ≤ Real.log T := Real.log_nonneg hT1
     have h_floor_T_pos : 1 ≤ ⌊T⌋₊ := Nat.le_floor (by exact_mod_cast hT1)
     -- L T ≥ 1 (it's a product of factors ≥ 1).
     have hL_ge_one : 1 ≤ L T := by
-      show 1 ≤ primeEulerProdNat (Y T)
+      change 1 ≤ primeEulerProdNat (Y T)
       unfold primeEulerProdNat
       -- Use a generic helper: prove for any finset of primes, product of p/(p-1) ≥ 1.
       have aux : ∀ s : Finset ℕ, (∀ p ∈ s, Nat.Prime p) →
           (1 : ℝ) ≤ ∏ p ∈ s, (p : ℝ) / (p - 1) := by
         intro s
         induction s using Finset.induction_on with
-        | empty => intro _; simp
+        | empty =>
+            intro _
+            simp
         | insert p s' hps ih =>
             intro hpp
             rw [Finset.prod_insert hps]
@@ -1008,7 +1022,8 @@ theorem landau_max_ratio :
           have hm_pos_R : (0 : ℝ) < (m : ℝ) := by exact_mod_cast (by omega : 0 < m)
           exact Real.log_le_log hm_pos_R hm_le_T
         have hlogYp1_pos : 0 < Real.log ((Y T : ℝ) + 1) := by
-          apply Real.log_pos; linarith
+          apply Real.log_pos
+          linarith
         have hexp_le : Real.log m / Real.log ((Y T : ℝ) + 1) ≤
             Real.log T / Real.log ((Y T : ℝ) + 1) := by
           exact div_le_div_of_nonneg_right hlog_le hlogYp1_pos.le
@@ -1030,7 +1045,7 @@ theorem landau_max_ratio :
               (Real.log T / Real.log ((Y T : ℝ) + 1)) := by
           calc (m : ℝ) / Nat.totient m ≤ _ := h_split'
             _ ≤ L T * _ := mul_le_mul_of_nonneg_left h_pow_le hL_pos.le
-        show (m : ℝ) / Nat.totient m ≤ L T * F T
+        change (m : ℝ) / Nat.totient m ≤ L T * F T
         exact h_chain
       · rw [ciSup_neg hm, Real.sSup_empty]
         have : 0 ≤ L T * F T := by
@@ -1040,7 +1055,7 @@ theorem landau_max_ratio :
         exact this
     -- Now S T ≤ L T * F T.
     have hS_le_LF : S T ≤ L T * F T := by
-      show (⨆ m ∈ Set.Icc 1 ⌊T⌋₊, (m : ℝ) / Nat.totient m) ≤ L T * F T
+      change (⨆ m ∈ Set.Icc 1 ⌊T⌋₊, (m : ℝ) / Nat.totient m) ≤ L T * F T
       apply ciSup_le
       intro m
       by_cases hm : m ∈ Set.Icc 1 ⌊T⌋₊
@@ -1057,7 +1072,8 @@ theorem landau_max_ratio :
         have hm_pos_R : (0 : ℝ) < (m : ℝ) := by exact_mod_cast (by omega : 0 < m)
         have hlog_le : Real.log m ≤ Real.log T := Real.log_le_log hm_pos_R hm_le_T
         have hlogYp1_pos : 0 < Real.log ((Y T : ℝ) + 1) := by
-          apply Real.log_pos; linarith
+          apply Real.log_pos
+          linarith
         have hexp_le : Real.log m / Real.log ((Y T : ℝ) + 1) ≤
             Real.log T / Real.log ((Y T : ℝ) + 1) :=
           div_le_div_of_nonneg_right hlog_le hlogYp1_pos.le
@@ -1089,7 +1105,7 @@ theorem landau_max_ratio :
       set m := primorial (Y T) with hm_def
       have hm_pos : 1 ≤ m := primorial_pos (Y T)
       have hm_ratio_eq : (m : ℝ) / Nat.totient m = L T := by
-        show (m : ℝ) / Nat.totient m = primeEulerProdNat (Y T)
+        change (m : ℝ) / Nat.totient m = primeEulerProdNat (Y T)
         exact ratio_totient_primorial (Y T) hY1
       -- m ≤ 4^Y ≤ T.
       have hm_le_4Y : (m : ℝ) ≤ ((4 : ℝ) ^ (Y T)) := by
@@ -1099,7 +1115,7 @@ theorem landau_max_ratio :
       have hm_le_floor : m ≤ ⌊T⌋₊ := Nat.le_floor hm_le_T
       have hm_in : m ∈ Set.Icc 1 ⌊T⌋₊ := ⟨hm_pos, hm_le_floor⟩
       have : (m : ℝ) / Nat.totient m ≤ S T := by
-        show (m : ℝ) / Nat.totient m ≤ ⨆ m' ∈ Set.Icc 1 ⌊T⌋₊, (m' : ℝ) / Nat.totient m'
+        change (m : ℝ) / Nat.totient m ≤ ⨆ m' ∈ Set.Icc 1 ⌊T⌋₊, (m' : ℝ) / Nat.totient m'
         have h_inner_eq :
             (⨆ (_ : m ∈ Set.Icc 1 ⌊T⌋₊),
                 (m : ℝ) / Nat.totient m) = (m : ℝ) / Nat.totient m :=
@@ -1192,14 +1208,16 @@ theorem R_upper_bound :
     have hlog2_le_logx : Real.log 2 ≤ Real.log x := Real.log_le_log (by norm_num) hx_ge_2
     have heq1 : Real.log ((2 : ℝ) * (x : ℝ)^2) = Real.log 2 + 2 * Real.log x := by
       rw [Real.log_mul (by norm_num) (by positivity), Real.log_pow]
-      push_cast; ring
+      push_cast
+      ring
     have hlogargs : Real.log 2 + 2 * Real.log x ≤ 4 * Real.log x := by linarith
     have hlog_inner_pos : 0 < Real.log 2 + 2 * Real.log x := by linarith
     have h_le_log : Real.log (Real.log 2 + 2 * Real.log x) ≤ Real.log (4 * Real.log x) :=
       Real.log_le_log hlog_inner_pos hlogargs
     have heq2 : Real.log (4 * Real.log x) = Real.log 4 + Real.log (Real.log x) := by
       rw [Real.log_mul (by norm_num) hlogx_pos.ne']
-    rw [heq1]; linarith
+    rw [heq1]
+    linarith
   -- Step 4: log log x → ∞ as ℕ → ∞.
   have h_loglog_to_inf : Tendsto (fun x : ℕ => Real.log (Real.log x)) atTop atTop := by
     have h1 : Tendsto (fun x : ℕ => ((x : ℝ))) atTop atTop := tendsto_natCast_atTop_atTop
@@ -1215,7 +1233,7 @@ theorem R_upper_bound :
     filter_upwards [hK_eventually] with x hxK
     have hε_pos' : (0 : ℝ) < ε := hε_pos
     have hKeq : (γc + ε/2) * Real.log 4 = (ε / 2) * K := by
-      show (γc + ε/2) * Real.log 4 = (ε / 2) * ((γc + ε/2) * Real.log 4 * 2 / ε)
+      change (γc + ε/2) * Real.log 4 = (ε / 2) * ((γc + ε/2) * Real.log 4 * 2 / ε)
       field_simp
     rw [hKeq]
     have hε_half_pos : (0 : ℝ) < ε / 2 := hε2_pos
@@ -1259,11 +1277,12 @@ theorem R_upper_bound :
       have h1_term : (1 : ℝ) / Nat.totient 1 = 1 := by simp
       have h_ge : (1 : ℝ) ≤ S2x := by
         rw [hS2x_def]
-        calc (1 : ℝ) = (1 : ℝ) / Nat.totient 1 := h1_term.symm
+        calc
+          (1 : ℝ) = (1 : ℝ) / Nat.totient 1 := h1_term.symm
           _ ≤ ⨆ (_ : (1 : ℕ) ∈ Set.Icc 1 ⌊(2 : ℝ) * (x : ℝ)^2⌋₊),
-                ((1 : ℕ) : ℝ) / Nat.totient 1 := by
-              rw [ciSup_pos h1mem]
-              push_cast; rfl
+              ((1 : ℕ) : ℝ) / Nat.totient 1 := by
+            rw [ciSup_pos h1mem]
+            norm_num
           _ ≤ _ := le_ciSup hbdd_inner 1
       linarith
     -- Now R x = iSup over n of inner. Apply ciSup_le for outer (Nonempty ℕ).
@@ -1282,7 +1301,8 @@ theorem R_upper_bound :
       -- m_wit ∈ A. m_wit ≥ 1 since φ m_wit = n ≥ 1 implies m_wit ≥ 1.
       have hm_wit_pos : 1 ≤ m_wit := by
         rcases Nat.eq_zero_or_pos m_wit with h0 | hpos
-        · rw [h0, Nat.totient_zero] at hφm; omega
+        · rw [h0, Nat.totient_zero] at hφm
+          omega
         · exact hpos
       -- A is nonempty.
       have hA_ne : A.Nonempty := ⟨m_wit, hφm⟩
@@ -1293,7 +1313,8 @@ theorem R_upper_bound :
         have hm_pos : 1 ≤ m := by
           rcases Nat.eq_zero_or_pos m with h0 | hpos
           · have hm' : Nat.totient m = n := hm
-            rw [h0, Nat.totient_zero] at hm'; omega
+            rw [h0, Nat.totient_zero] at hm'
+            omega
           · exact hpos
         exact totient_preimage_bound hm_pos hm
       -- mmax := sSup A is in A by Nat.sSup_mem.
@@ -1302,7 +1323,8 @@ theorem R_upper_bound :
       have hφmmax : Nat.totient mmax = n := hmmax_in
       have hmmax_pos : 1 ≤ mmax := by
         rcases Nat.eq_zero_or_pos mmax with h0 | hpos
-        · rw [h0, Nat.totient_zero] at hφmmax; omega
+        · rw [h0, Nat.totient_zero] at hφmmax
+          omega
         · exact hpos
       -- mmax ≤ 2n² ≤ 2x².
       have hmmax_le_2nsq : mmax ≤ 2 * n ^ 2 := totient_preimage_bound hmmax_pos hφmmax
@@ -1322,13 +1344,16 @@ theorem R_upper_bound :
       have hφmmin : Nat.totient mmin = n := hmmin_in
       have hmmin_pos : 1 ≤ mmin := by
         rcases Nat.eq_zero_or_pos mmin with h0 | hpos
-        · rw [h0, Nat.totient_zero] at hφmmin; omega
+        · rw [h0, Nat.totient_zero] at hφmmin
+          omega
         · exact hpos
       -- mmin ≥ n (since n = φ mmin ≤ mmin).
       have hmmin_ge_n : n ≤ mmin := by
-        have := Nat.totient_le mmin; rw [hφmmin] at this; exact this
+        have := Nat.totient_le mmin
+        rw [hφmmin] at this
+        exact this
       -- (mmax:ℝ)/mmin ≤ (mmax:ℝ)/n = (mmax:ℝ)/φ(mmax) ≤ S2x.
-      show (mmax : ℝ) / mmin ≤ S2x
+      change (mmax : ℝ) / mmin ≤ S2x
       have hn_pos_R : (0 : ℝ) < n := by exact_mod_cast hn_pos
       have hmmin_pos_R : (0 : ℝ) < mmin := by exact_mod_cast hmmin_pos
       have hmmax_nn_R : (0 : ℝ) ≤ mmax := by exact_mod_cast Nat.zero_le _
@@ -1353,7 +1378,8 @@ theorem R_upper_bound :
     filter_upwards [Filter.eventually_ge_atTop 3] with x hx
     have hx3 : (3 : ℝ) ≤ (x : ℝ) := by exact_mod_cast hx
     have hexp_lt_three : Real.exp 1 < 3 := by
-      have := Real.exp_one_lt_d9; linarith
+      have := Real.exp_one_lt_d9
+      linarith
     have hlog3_lt_logx : Real.log 3 ≤ Real.log x := Real.log_le_log (by norm_num) hx3
     have h1 : 1 < Real.log 3 := by
       have h := Real.log_lt_log (Real.exp_pos _) hexp_lt_three
@@ -1408,7 +1434,7 @@ the end of the namespace consumes both shared inputs.
 
 namespace LowerConstruction
 
-open Classical Filter
+open Filter
 open scoped BigOperators Nat
 
 /-- Primes up to `Y`. -/
@@ -1478,7 +1504,8 @@ lemma P_eq_primorial (Y : ℕ) : P Y = primorial Y := by
     · rintro ⟨hpY, hpprime⟩
       have h1 : 1 ≤ p := hpprime.one_le
       exact ⟨⟨h1, by omega⟩, hpprime⟩
-  · intros; rfl
+  · intros
+    rfl
 
 lemma P_le_four_pow (Y : ℕ) : P Y ≤ 4 ^ Y := by
   rw [P_eq_primorial]
@@ -1663,7 +1690,8 @@ lemma totient_b_eq_under_construction (Y U ℓ : ℕ) (_hℓ : Nat.Prime ℓ)
   have hcancel :
       Nat.totient (P Y * U * Q Y U) * (P Y * Q Y U) =
         (A Y * U * ∏ q ∈ largeFactors Y U, (q - 1)) * (P Y * Q Y U) := by
-    rw [hkey]; ring
+    rw [hkey]
+    ring
   exact Nat.eq_of_mul_eq_mul_right hPQ_pos hcancel
 
 /-- The crucial collision: `φ(ℓ · Q) = φ(P_Y · U · Q)` for the construction. -/
@@ -1690,7 +1718,8 @@ lemma collision_ratio (Y U ℓ : ℕ) (hℓ : Nat.Prime ℓ) (hU_pos : 0 < U)
   -- Cast (ℓ - 1) using the Nat subtraction-vs-ℝ bridge.
   have hℓ_one : 1 ≤ ℓ := hℓ.one_le
   have hℓm1_cast : ((ℓ - 1 : ℕ) : ℝ) = (ℓ : ℝ) - 1 := by
-    rw [Nat.cast_sub hℓ_one]; norm_num
+    rw [Nat.cast_sub hℓ_one]
+    norm_num
   -- (P Y * U * Q Y U : ℝ) / (ℓ * Q Y U : ℝ) = (P Y * U) / ℓ.
   push_cast
   have step1 : ((P Y : ℝ) * U * Q Y U) / ((ℓ : ℝ) * Q Y U) =
@@ -1987,10 +2016,12 @@ theorem collision_at_height :
     have hP_pos : 0 < LowerConstruction.P Y := LowerConstruction.P_pos Y
     set U : ℕ := (ℓ - 1) / LowerConstruction.A Y with hU_def
     have hAU : LowerConstruction.A Y * U = ℓ - 1 := by
-      rw [hU_def]; exact Nat.mul_div_cancel' hA_dvd
+      rw [hU_def]
+      exact Nat.mul_div_cancel' hA_dvd
     have hP_dvd_U : LowerConstruction.P Y ∣ U := by
       have h1 : LowerConstruction.A Y * LowerConstruction.P Y ∣ LowerConstruction.A Y * U := by
-        rw [hAU]; exact hℓ_dvd
+        rw [hAU]
+        exact hℓ_dvd
       exact (Nat.mul_dvd_mul_iff_left hA_pos).mp h1
     have hU_pos : 0 < U := Nat.pos_of_ne_zero fun h => by
       have hℓm1_zero : ℓ - 1 = 0 := by rw [← hAU, h, Nat.mul_zero]
@@ -2037,7 +2068,8 @@ theorem collision_at_height :
     -- From Mertens: primeEulerProdNat Y ≥ (γc - ε/2) log Y eventually.
     -- Strategy: ratio (ppN / γc·logY) → 1, so eventually ratio ≥ (γc - ε/2) / γc.
     have h_thresh1_lt : (γc - ε / 2) / γc < 1 := by
-      rw [div_lt_one hγc_pos]; linarith
+      rw [div_lt_one hγc_pos]
+      linarith
     have h_mertens_ge :
         ∀ᶠ Y : ℕ in atTop,
           (γc - ε / 2) / γc ≤
@@ -2072,7 +2104,8 @@ theorem collision_at_height :
     -- Now bound (ℓ-1)/ℓ ≥ rat := (γc - ε)/(γc - ε/2). For this we need ℓ ≥ M₀.
     set rat : ℝ := (γc - ε) / (γc - ε / 2) with hrat_def
     have hrat_lt_one : rat < 1 := by
-      rw [hrat_def, div_lt_one hγc_eps2_pos]; linarith
+      rw [hrat_def, div_lt_one hγc_eps2_pos]
+      linarith
     have hrat_pos : 0 < rat := div_pos hγc_eps_pos hγc_eps2_pos
     have h1mr_pos : 0 < 1 - rat := by linarith
     set M₀ : ℕ := ⌈(1 - rat)⁻¹⌉₊ + 1 with hM₀_def
@@ -2086,12 +2119,16 @@ theorem collision_at_height :
       have hℓ_one : 1 ≤ ℓ := hℓ_pos
       have hℓR_pos : 0 < (ℓ : ℝ) := by exact_mod_cast hℓ_pos
       have hℓm1_cast : ((ℓ - 1 : ℕ) : ℝ) = (ℓ : ℝ) - 1 := by
-        rw [Nat.cast_sub hℓ_one]; push_cast; ring
+        rw [Nat.cast_sub hℓ_one]
+        push_cast
+        ring
       rw [hℓm1_cast, le_div_iff₀ hℓR_pos]
       -- Want rat * ℓ ≤ ℓ - 1, i.e., (1 - rat) * ℓ ≥ 1.
       have h_ge_inv : (1 - rat)⁻¹ ≤ (ℓ : ℝ) := by
         have h1 : ((⌈(1 - rat)⁻¹⌉₊ : ℕ) : ℝ) ≤ (ℓ : ℝ) := by
-          have : ⌈(1 - rat)⁻¹⌉₊ ≤ ℓ := by rw [hM₀_def] at hℓM₀; omega
+          have : ⌈(1 - rat)⁻¹⌉₊ ≤ ℓ := by
+            rw [hM₀_def] at hℓM₀
+            omega
           exact_mod_cast this
         exact (Nat.le_ceil _).trans h1
       have h_one_le : 1 ≤ (1 - rat) * (ℓ : ℝ) := by
@@ -2133,10 +2170,12 @@ theorem collision_at_height :
       omega
     set U : ℕ := (ℓ - 1) / LowerConstruction.A Y with hU_def
     have hAU : LowerConstruction.A Y * U = ℓ - 1 := by
-      rw [hU_def]; exact Nat.mul_div_cancel' hA_dvd
+      rw [hU_def]
+      exact Nat.mul_div_cancel' hA_dvd
     have hP_dvd_U : LowerConstruction.P Y ∣ U := by
       have h1 : LowerConstruction.A Y * LowerConstruction.P Y ∣ LowerConstruction.A Y * U := by
-        rw [hAU]; exact hℓ_dvd
+        rw [hAU]
+        exact hℓ_dvd
       exact (Nat.mul_dvd_mul_iff_left hA_pos).mp h1
     have hU_pos : 0 < U := Nat.pos_of_ne_zero fun h => by
       have hℓm1_zero : ℓ - 1 = 0 := by rw [← hAU, h, Nat.mul_zero]
@@ -2168,7 +2207,9 @@ theorem collision_at_height :
       -- Cast (ℓ - 1 : ℕ) = (ℓ : ℝ) - 1.
       have hℓ_one : 1 ≤ ℓ := hℓ_prime.one_le
       have hℓm1_cast : ((ℓ - 1 : ℕ) : ℝ) = (ℓ : ℝ) - 1 := by
-        rw [Nat.cast_sub hℓ_one]; push_cast; ring
+        rw [Nat.cast_sub hℓ_one]
+        push_cast
+        ring
       have h_rat_le : rat ≤ ((ℓ : ℝ) - 1) / (ℓ : ℝ) := by
         rw [← hℓm1_cast]
         exact h_ratio_bound ℓ hM₀_le_ℓ
@@ -2297,7 +2338,8 @@ theorem totient_collision_construction :
       -- exp(log x / 2) = sqrt x ≤ x for x ≥ 1.
       have hexp_eq : Real.exp (Real.log (x : ℝ) / 2) =
           Real.exp (Real.log (x : ℝ)) ^ ((1 : ℝ) / 2) := by
-        rw [← Real.exp_mul]; ring_nf
+        rw [← Real.exp_mul]
+        ring_nf
       rw [hexp_eq, Real.exp_log hxR_pos]
       -- x^(1/2) ≤ x for x ≥ 1: x^(1/2) = x^(1/2) and x = x^1, so use Real.rpow_le_rpow_left.
       have h_rpow_le : (x : ℝ) ^ ((1 : ℝ) / 2) ≤ (x : ℝ) ^ (1 : ℝ) := by
@@ -2375,20 +2417,26 @@ theorem totient_collision_construction :
     have h_Yx_pos_R : (0 : ℝ) < (Yx x : ℝ) := by exact_mod_cast hx_Yx1
     have h_floor_lb : (Real.log (x : ℝ) / (2 * K) - 1 : ℝ) ≤ (Yx x : ℝ) := by
       have h := Nat.sub_one_lt_floor (a := Real.log (x : ℝ) / (2 * K))
-      simp only [Yx]; linarith
+      simp only [Yx]
+      linarith
     have h_floor_ub : ((Yx x : ℝ)) ≤ Real.log (x : ℝ) / (2 * K) := by
       simpa [Yx] using Nat.floor_le (a := Real.log (x : ℝ) / (2 * K)) (by positivity)
     -- log x / (2K) ≥ 4, so log x / (2K) - 1 ≥ log x / (4K) ≥ 2.
     have h_logx_div_2K_ge4 : Real.log (x : ℝ) / (2 * K) ≥ 4 := by
-      rw [ge_iff_le, le_div_iff₀ h2K_pos]; linarith
+      rw [ge_iff_le, le_div_iff₀ h2K_pos]
+      linarith
     have h_logx_div_4K_pos : (0 : ℝ) < Real.log (x : ℝ) / (4 * K) := by
       positivity
     have h_subtraction_id : Real.log (x : ℝ) / (2 * K) - Real.log (x : ℝ) / (4 * K) =
-        Real.log (x : ℝ) / (4 * K) := by field_simp; ring
+        Real.log (x : ℝ) / (4 * K) := by
+      field_simp
+      ring
     have h_logx_div_4K_ge2 : Real.log (x : ℝ) / (4 * K) ≥ 2 := by
       have : Real.log (x : ℝ) / (4 * K) = (Real.log (x : ℝ) / (2 * K)) / 2 := by
-        field_simp; ring
-      rw [this]; linarith
+        field_simp
+        ring
+      rw [this]
+      linarith
     have h_lower_lb : (Real.log (x : ℝ) / (4 * K)) ≤ Real.log (x : ℝ) / (2 * K) - 1 := by
       linarith
     have h_Yx_ge_4K : (Yx x : ℝ) ≥ Real.log (x : ℝ) / (4 * K) := by linarith
@@ -2401,7 +2449,8 @@ theorem totient_collision_construction :
       rw [Real.log_div h_logx_pos.ne' h_4K_pos'.ne']
     have h_log_Yx_lb : Real.log (Yx x : ℝ) ≥
         Real.log (Real.log (x : ℝ)) - Real.log (4 * K) := by
-      rw [← h_log_div_4K]; exact h_log_Yx_ge
+      rw [← h_log_div_4K]
+      exact h_log_Yx_ge
     -- log (Yx x) ≤ log (log x / (2K)) = log log x - log(2K).
     have h_logx_div_2K_pos : (0 : ℝ) < Real.log (x : ℝ) / (2 * K) := by positivity
     have h_log_Yx_ub : Real.log (Yx x : ℝ) ≤ Real.log (Real.log (x : ℝ) / (2 * K)) :=
@@ -2411,7 +2460,8 @@ theorem totient_collision_construction :
       rw [Real.log_div h_logx_pos.ne' h2K_pos.ne']
     have h_log_Yx_ub2 : Real.log (Yx x : ℝ) ≤
         Real.log (Real.log (x : ℝ)) - Real.log (2 * K) := by
-      rw [← h_log_div_2K_id]; exact h_log_Yx_ub
+      rw [← h_log_div_2K_id]
+      exact h_log_Yx_ub
     -- Set abbreviations.
     set M : ℝ := Real.log (Real.log (x : ℝ)) with hM_def
     set N : ℝ := Real.log (Yx x : ℝ) with hN_def
@@ -2428,7 +2478,8 @@ theorem totient_collision_construction :
         (|γc - ε / 2| * |Real.log (4 * K)| + 1) := by linarith
     have hMUB_M : M ≥ MUB := hx_loglog
     have h_M_pos : 0 < M := by
-      rw [hM_def]; exact Real.log_pos (by linarith [Real.exp_one_gt_d9])
+      rw [hM_def]
+      exact Real.log_pos (by linarith [Real.exp_one_gt_d9])
     -- nlinarith handles the bound with the right hints.
     -- Common bookkeeping for both cases:
     -- (γc - ε/2) · log(4K) ≤ |γc - ε/2| · (|log(4K)| + |log(2K)|).
@@ -2526,7 +2577,8 @@ private lemma R_ge_of_totient_collision {x a b n : ℕ}
     have hm_pos : 1 ≤ m := by
       rcases Nat.eq_zero_or_pos m with h0 | hpos
       · have hm' : Nat.totient m = n := hm
-        rw [h0, Nat.totient_zero] at hm'; omega
+        rw [h0, Nat.totient_zero] at hm'
+        omega
       · exact hpos
     exact totient_preimage_bound hm_pos hm
   set mmax : ℕ := sSup A with hmmax_def
@@ -2541,7 +2593,8 @@ private lemma R_ge_of_totient_collision {x a b n : ℕ}
   have hmmin_pos : 1 ≤ mmin := by
     rcases Nat.eq_zero_or_pos mmin with h0 | hpos
     · have : Nat.totient mmin = n := hmmin_in
-      rw [h0, Nat.totient_zero] at this; omega
+      rw [h0, Nat.totient_zero] at this
+      omega
     · exact hpos
   have hmmax_pos : 1 ≤ mmax := le_trans hb hb_le_mmax
   -- (mmax : ℝ)/mmin ≥ b/a.
@@ -2578,7 +2631,8 @@ private lemma R_ge_of_totient_collision {x a b n : ℕ}
       obtain ⟨⟨hn'_pos, hn'_le_x⟩, m_w, hφm_w⟩ := hn'mem
       have hm_w_pos : 1 ≤ m_w := by
         rcases Nat.eq_zero_or_pos m_w with h0 | hpos
-        · rw [h0, Nat.totient_zero] at hφm_w; omega
+        · rw [h0, Nat.totient_zero] at hφm_w
+          omega
         · exact hpos
       set A' : Set ℕ := {m | Nat.totient m = n'} with hA'_def
       have hA'_ne : A'.Nonempty := ⟨m_w, hφm_w⟩
@@ -2588,7 +2642,8 @@ private lemma R_ge_of_totient_collision {x a b n : ℕ}
         have hm_pos : 1 ≤ m := by
           rcases Nat.eq_zero_or_pos m with h0 | hpos
           · have : Nat.totient m = n' := hm
-            rw [h0, Nat.totient_zero] at this; omega
+            rw [h0, Nat.totient_zero] at this
+            omega
           · exact hpos
         exact totient_preimage_bound hm_pos hm
       set mmax' : ℕ := sSup A' with hmmax'_def
@@ -2599,11 +2654,13 @@ private lemma R_ge_of_totient_collision {x a b n : ℕ}
       have hφmmin' : Nat.totient mmin' = n' := hmmin'_in
       have hmmax'_pos : 1 ≤ mmax' := by
         rcases Nat.eq_zero_or_pos mmax' with h0 | hpos
-        · rw [h0, Nat.totient_zero] at hφmmax'; omega
+        · rw [h0, Nat.totient_zero] at hφmmax'
+          omega
         · exact hpos
       have hmmin'_pos : 1 ≤ mmin' := by
         rcases Nat.eq_zero_or_pos mmin' with h0 | hpos
-        · rw [h0, Nat.totient_zero] at hφmmin'; omega
+        · rw [h0, Nat.totient_zero] at hφmmin'
+          omega
         · exact hpos
       have hmmax'_le : mmax' ≤ 2 * n' ^ 2 := totient_preimage_bound hmmax'_pos hφmmax'
       have hmmax'_le_2xsq : mmax' ≤ 2 * x ^ 2 := by
@@ -2741,7 +2798,8 @@ theorem infinitely_many_collisions (a b : ℕ) (hb : 1 ≤ b) (hgt : b < a)
   -- The set of primes coprime to a*b is infinite (primes infinite, divisors finite).
   have h_inf_good : {r : ℕ | r.Prime ∧ ¬ r ∣ (a * b)}.Infinite := by
     apply Set.Infinite.mono (s := {r | r.Prime} \ {r | r ∣ (a * b)})
-    · intro r hr; exact ⟨hr.1, hr.2⟩
+    · intro r hr
+      exact ⟨hr.1, hr.2⟩
     · refine Set.Infinite.diff Nat.infinite_setOf_prime ?_
       exact Set.Finite.subset (Set.finite_Icc 0 (a * b)) (fun r hr =>
         Set.mem_Icc.mpr ⟨Nat.zero_le _, Nat.le_of_dvd (Nat.mul_pos ha hb) hr⟩)
