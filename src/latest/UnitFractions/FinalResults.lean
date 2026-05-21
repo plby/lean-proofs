@@ -12,7 +12,6 @@ open scoped ArithmeticFunction.omega BigOperators
 open Filter Finset Real
 open _root_.Finset
 
-noncomputable section
 attribute [local instance] Classical.propDecidable
 
 /-!
@@ -299,7 +298,12 @@ lemma filter_sdiff {ι : Type*} (p : ι → Prop) [DecidableEq ι] [DecidablePre
     (s t : Finset ι) :
     (s \ t).filter p = s.filter p \ t.filter p := by
   ext x
-  by_cases hs : x ∈ s <;> by_cases ht : x ∈ t <;> by_cases hp : p x <;>
+  by_cases hs : x ∈ s
+  all_goals
+    by_cases ht : x ∈ t
+  all_goals
+    by_cases hp : p x
+  all_goals
     simp [hs, ht, hp, Finset.mem_sdiff, Finset.mem_filter]
 
 lemma product_of_primes_factors {s : Finset ℕ} (hs : ∀ p ∈ s, Nat.Prime p) :
@@ -454,7 +458,9 @@ lemma sieve_lemma_prec (N : ℕ) (y z : ℝ) (hy : 1 ≤ y) (hzN : z < N) :
       rw [← Int.cast_sum, ← ArithmeticFunction.coe_mul_zeta_apply,
         ArithmeticFunction.moebius_mul_coe_zeta]
       change ((ite ((Nat.gcd n P) = 1) 1 0 : ℤ) : ℝ) = _
-      split_ifs <;> simp
+      split_ifs
+      · simp
+      · simp
     rw [h₁, ← Finset.sum_boole]
     simp only [Nat.Coprime]
     simp_rw [← hmu]
@@ -718,7 +724,9 @@ lemma sieve_lemma_prec' :
       calc
         partial_euler_product ⌊y⌋₊ / partial_euler_product ⌊z⌋₊ ≤
             (((1 / C₁) * C₂) * log y) / log z := hbase'
-        _ = (C / 2) * (log y / log z) := by rw [hC]; ring
+        _ = (C / 2) * (log y / log z) := by
+          rw [hC]
+          ring
     exact mul_le_mul_of_nonneg_right hbase h0N.le
   · have hlogz : 0 < log z := Real.log_pos h1z
     have hmainpow :
@@ -831,7 +839,9 @@ lemma plogp_tail_bound (a : ℝ) (ha : 0 < a) :
       exact (Nat.floor_lt' (Nat.ne_of_gt h0Nnat)).2 (lt_of_not_ge hz)
     rw [hIcc, Finset.filter_empty, Finset.sum_empty]
     refine div_nonneg ?_ hlogN.le
-    exact mul_nonneg (by dsimp [c]; positivity) hz'
+    exact mul_nonneg (by
+      dsimp [c]
+      positivity) hz'
 
 lemma filter_div_aux (a b c d : ℝ) (hb : 0 < b) (hc : 0 < c) :
     ∃ y z w : ℝ,
@@ -2800,7 +2810,9 @@ lemma the_last_large_N : ∀ C : ℝ, 0 < C →
                 2 * C < log (log (log (N : ℝ))) * log (log (N : ℝ)) := by
               exact lt_trans hloglogN'_ineq (lt_mul_of_one_lt_left h0loglogNr h1log3)
             have hscaled := mul_lt_mul_of_pos_right hmain (div_pos h0logN (sq_pos_of_pos h0loglogN))
-            convert hscaled using 1 <;> field_simp [h0loglogNr.ne']
+            convert hscaled using 1
+            all_goals
+              field_simp [h0loglogNr.ne']
         have hsum6 :
             log (log (log (N : ℝ)) / log (log (log (N : ℝ)))) *
                 (2 * log (log (N : ℝ)) *
@@ -2864,7 +2876,9 @@ lemma the_last_large_N : ∀ C : ℝ, 0 < C →
               (log (log (log (N : ℝ))) / log (log (N : ℝ))) * log (N : ℝ) +
                 (log (log (log (N : ℝ))) / log (log (N : ℝ))) * log (N : ℝ) := by
               exact add_lt_add hsum5 hsum6
-        convert hsum using 1 <;> ring_nf
+        convert hsum using 1
+        all_goals
+          ring_nf
       · have hy_nonneg :
             0 ≤ C * (1 / log (log (N : ℝ)) ^ 2) * log (N : ℝ) := by
           positivity
@@ -3871,7 +3885,4 @@ lemma harmonic_filter_smooth :
           intro q hq
           exact hNqrec' q hq
     _ ≤ C * log N / log (log N) ^ 2 := htail
-
-end
-
 end UnitFractions
