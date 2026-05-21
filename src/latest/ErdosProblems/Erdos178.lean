@@ -264,7 +264,6 @@ lemma G_func_shift (M : ℕ) :
 
 /-! ### Buffer decomposition (Beck's Lemma 2, one level) -/
 
-set_option maxHeartbeats 1000000 in
 -- This induction repeatedly normalizes finite-set decompositions and subset goals.
 /-- **Buffer decomposition.** Given `N` elements with integer values bounded
 by `M`, partition `{0,...,N-1}` into K-sets (signed zero-sum subsets) such that
@@ -535,8 +534,7 @@ lemma buffer_decomp (N M : ℕ) (hM : 0 < M)
 
 /-! ### Generalized matrix balancing (Beck's construction) -/
 
-set_option maxHeartbeats 800000 in
--- This induction performs a large amount of generated finite-set simplification.
+set_option maxHeartbeats 800000 in -- finite-set simplification needs more heartbeats
 /-- **Generalized matrix balancing.** For `r` rows and `N` columns with values
 bounded by `M`, there exists a ±1 signing whose weighted prefix sums along each
 row `k` are bounded by `G_func M (k+1) - M`.
