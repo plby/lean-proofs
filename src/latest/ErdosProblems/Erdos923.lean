@@ -29,10 +29,6 @@ import Mathlib
 
 namespace Erdos923
 
-
-set_option linter.style.setOption false
-set_option linter.flexible false
-
 namespace Rodl
 
 open SimpleGraph
@@ -59,10 +55,16 @@ theorem colorable_iSup_fin {V : Type*} {c : ℕ} :
   | zero => exact ⟨fun _ ↦ 0, by simp⟩
   | succ k ih =>
     convert colorable_sup (hG (Fin.last k)) (ih fun i ↦ hG (Fin.castSucc i)) using 1
-    · ext v w; simp [Fin.exists_iff]
-      exact ⟨fun ⟨i, hi, h⟩ ↦
-        if hi' : i = k then Or.inl (by simpa [hi'] using h) else Or.inr ⟨i, hi.lt_of_ne hi', h⟩,
-        fun h ↦ h.elim (fun h ↦ ⟨k, le_rfl, h⟩) fun ⟨i, hi, h⟩ ↦ ⟨i, hi.le, h⟩⟩
+    · ext v w
+      simp only [iSup_adj, sup_adj]
+      constructor
+      · rintro ⟨i, h⟩
+        by_cases hi : i = Fin.last k
+        · exact Or.inl (by simpa [hi] using h)
+        · refine Or.inr ?_
+          have hik : i.1 < k := (Nat.lt_succ_iff.mp i.2).lt_of_ne fun hik ↦ hi (Fin.ext hik)
+          exact ⟨⟨i.1, hik⟩, by simpa using h⟩
+      · exact fun h ↦ h.elim (fun h ↦ ⟨Fin.last k, h⟩) fun ⟨i, h⟩ ↦ ⟨Fin.castSucc i, h⟩
     · rw [pow_succ']
 
 /-! ## Definition of φ(m,n)
@@ -102,10 +104,30 @@ theorem leftNbhd_cliqueFree {G : SimpleGraph V} {v : V} {m : ℕ}
     (hcf : G.CliqueFree (m + 1)) :
     (leftNbhd G v).CliqueFree m := fun T hT ↦ by
   apply hcf (Finset.image Subtype.val T ∪ {v})
-  simp_all [isNClique_iff, adj_comm]
-  refine ⟨fun x hx y hy hxy ↦ ?_, ?_⟩
-  · obtain ⟨u, hu, rfl⟩ := hx; obtain ⟨v, hv, rfl⟩ := hy; exact hT.1 hu hv (by aesop)
-  · rw [Finset.card_image_of_injective _ Subtype.coe_injective, hT.2]
+  rw [isNClique_iff] at hT ⊢
+  constructor
+  · intro x hx y hy hxy
+    simp only [Finset.mem_coe, Finset.mem_union, Finset.mem_singleton] at hx hy
+    rcases hx with hx | rfl
+    · rcases hy with hy | rfl
+      · rw [Finset.mem_image] at hx hy
+        obtain ⟨u, hu, rfl⟩ := hx
+        obtain ⟨w, hw, rfl⟩ := hy
+        exact hT.1 hu hw (fun huw ↦ hxy (congrArg Subtype.val huw))
+      · rw [Finset.mem_image] at hx
+        obtain ⟨u, _, rfl⟩ := hx
+        exact u.2.2
+    · rcases hy with hy | rfl
+      · rw [Finset.mem_image] at hy
+        obtain ⟨w, _, rfl⟩ := hy
+        exact w.2.2.symm
+      · exact (hxy rfl).elim
+  · rw [Finset.union_singleton, Finset.card_insert_of_notMem]
+    · rw [Finset.card_image_of_injective _ Subtype.coe_injective, hT.2]
+    · intro hv
+      rw [Finset.mem_image] at hv
+      obtain ⟨u, _, huv⟩ := hv
+      exact (ne_of_lt u.2.1) huv
 
 end LeftNeighborhood
 
@@ -120,12 +142,18 @@ variable {V : Type*}
 /-- Lift a graph on a subtype to a graph on the full type. -/
 def spanSubgraph {S : Set V} (H : SimpleGraph S) : SimpleGraph V where
   Adj a b := ∃ (ha : a ∈ S) (hb : b ∈ S), H.Adj ⟨a, ha⟩ ⟨b, hb⟩
-  symm a b := by rintro ⟨ha, hb, hab⟩; exact ⟨hb, ha, hab.symm⟩
-  loopless := ⟨fun a ↦ by rintro ⟨ha, _, hab⟩; exact hab.ne rfl⟩
+  symm a b := by
+    rintro ⟨ha, hb, hab⟩
+    exact ⟨hb, ha, hab.symm⟩
+  loopless := ⟨fun a ↦ by
+    rintro ⟨ha, _, hab⟩
+    exact hab.ne rfl⟩
 
 theorem spanSubgraph_le_of_induce {S : Set V} {H : SimpleGraph S} {G : SimpleGraph V}
     (hle : H ≤ G.induce S) : spanSubgraph H ≤ G := fun a b h ↦ by
-  obtain ⟨ha, hb, hab⟩ := h; have := hle hab; aesop
+  obtain ⟨ha, hb, hab⟩ := h
+  have := hle hab
+  aesop
 
 theorem spanSubgraph_cliqueFree {S : Set V} {H : SimpleGraph S} {k : ℕ}
     (hk : 2 ≤ k) (hcf : H.CliqueFree k) : (spanSubgraph H).CliqueFree k := fun s hs ↦ by
@@ -140,17 +168,15 @@ theorem spanSubgraph_cliqueFree {S : Set V} {H : SimpleGraph S} {k : ℕ}
   classical apply hcf (Finset.subtype (· ∈ S) s)
   rw [isNClique_iff, Finset.subtype]
   simp_all [Set.Pairwise, Finset.filter_true_of_mem]
-  unfold spanSubgraph at hs; aesop
+  unfold spanSubgraph at hs
+  aesop
 
 theorem chromaticNumber_le_spanSubgraph {S : Set V} (H : SimpleGraph S) :
     H.chromaticNumber ≤ (spanSubgraph H).chromaticNumber := by
-  refine le_ciInf fun n ↦ ?_
-  by_cases hn : n ∈ setOf (spanSubgraph H).Colorable <;> simp_all
+  refine chromaticNumber_le_of_forall_imp fun n hn ↦ ?_
   -- Since $H$ is a subgraph of the span, colorability transfers back to $H$.
-  have hH_colorable : H.Colorable n := by
-    obtain ⟨f, hf⟩ := hn
-    exact ⟨(f ·.1), fun {a b} hab ↦ hf ⟨a.2, b.2, hab⟩⟩
-  exact hH_colorable.chromaticNumber_le
+  obtain ⟨f, hf⟩ := hn
+  exact ⟨(f ·.1), fun {a b} hab ↦ hf ⟨a.2, b.2, hab⟩⟩
 
 end Lifting
 
@@ -186,24 +212,30 @@ theorem partGraph_sup {G : SimpleGraph V} {k : ℕ}
 
 theorem partGraph_cliqueFree_three {G : SimpleGraph V} {k : ℕ}
     {col : (v : V) → (leftNbhd G v).Coloring (Fin k)} {i : Fin k} :
-    (partGraph G k col i).CliqueFree 3 := by
-  simp [CliqueFree]
-  intro t ht; have := ht.card_eq; simp_all [isNClique_iff]
+    (partGraph G k col i).CliqueFree 3 := fun t ht ↦ by
+  have hcard := ht.card_eq
+  rw [isNClique_iff] at ht
   obtain ⟨a, b, c, habc⟩ : ∃ a b c, a ∈ t ∧ b ∈ t ∧ c ∈ t ∧ a < b ∧ b < c := by
-    rcases Finset.card_eq_three.mp this with ⟨a, b, c, ha, hb, hc, hab, hbc, hac⟩
+    rcases Finset.card_eq_three.mp hcard with ⟨a, b, c, ha, hb, hc, hab, hbc, hac⟩
     cases lt_trichotomy a b <;> cases lt_trichotomy b c <;> cases lt_trichotomy a c <;> simp_all
   have h_adj : G.Adj a b ∧ G.Adj b c ∧ G.Adj a c :=
-    ⟨(ht habc.1 habc.2.1 habc.2.2.2.1.ne).1, (ht habc.2.1 habc.2.2.1 habc.2.2.2.2.ne).1,
-      ((ht habc.1 habc.2.2.1) (habc.2.2.2.1.trans habc.2.2.2.2).ne).1⟩
+    ⟨(ht.1 habc.1 habc.2.1 habc.2.2.2.1.ne).1,
+      (ht.1 habc.2.1 habc.2.2.1 habc.2.2.2.2.ne).1,
+      ((ht.1 habc.1 habc.2.2.1) (habc.2.2.2.1.trans habc.2.2.2.2).ne).1⟩
   have h_color : col c ⟨a, habc.2.2.2.1.trans habc.2.2.2.2, h_adj.2.2⟩ = i ∧
       col c ⟨b, habc.2.2.2.2, h_adj.2.1⟩ = i := by
-    generalize_proofs at *
-    have := ht habc.1 habc.2.2.1; have := ht habc.2.1 habc.2.2.1; simp_all [partGraph]
-    exact
-      ⟨Or.resolve_right (‹¬a = c → _› (ne_of_lt (by tauto)))
-          (by rintro ⟨h, _⟩; exact lt_asymm h (by tauto)),
-        Or.resolve_right (‹¬b = c → _› (ne_of_lt (by tauto)))
-          (by rintro ⟨h, _⟩; exact lt_asymm h (by tauto))⟩
+    have hac_part := ht.1 habc.1 habc.2.2.1
+      (ne_of_lt (habc.2.2.2.1.trans habc.2.2.2.2))
+    have hbc_part := ht.1 habc.2.1 habc.2.2.1 (ne_of_lt habc.2.2.2.2)
+    constructor
+    · obtain ⟨_, hac_color⟩ := hac_part
+      rcases hac_color with ⟨_, hac_color⟩ | ⟨hca, _⟩
+      · simpa using hac_color
+      · exact (lt_asymm hca (habc.2.2.2.1.trans habc.2.2.2.2)).elim
+    · obtain ⟨_, hbc_color⟩ := hbc_part
+      rcases hbc_color with ⟨_, hbc_color⟩ | ⟨hcb, _⟩
+      · simpa using hbc_color
+      · exact (lt_asymm hcb habc.2.2.2.2).elim
   generalize_proofs at *
   have := col c |>.valid (show (leftNbhd G c).Adj ⟨a, ‹_›⟩ ⟨b, ‹_›⟩ from by exact h_adj.1)
   aesop
@@ -214,7 +246,9 @@ end Partition
 
 theorem not_colorable_of_le_chromaticNumber {V : Type*} {G : SimpleGraph V} {n : ℕ}
     (h : ↑(n + 1) ≤ G.chromaticNumber) : ¬G.Colorable n := fun hc ↦
-  absurd (h.trans hc.chromaticNumber_le) (by push Not; exact_mod_cast Nat.lt_succ_of_le le_rfl)
+  absurd (h.trans hc.chromaticNumber_le) (by
+    push Not
+    exact_mod_cast Nat.lt_succ_of_le le_rfl)
 
 theorem le_chromaticNumber_of_not_colorable {V : Type*} {G : SimpleGraph V} {n : ℕ}
     (h : ¬G.Colorable n) : ↑(n + 1) ≤ G.chromaticNumber := by
@@ -228,14 +262,12 @@ theorem le_chromaticNumber_of_not_colorable {V : Type*} {G : SimpleGraph V} {n :
 private theorem rodl_base (n : ℕ) (V : Type*) (G : SimpleGraph V)
     (hχ : ↑(phi 2 n) ≤ G.chromaticNumber) :
     ¬G.CliqueFree 2 := by
-  contrapose! hχ; simp_all [CliqueFree]
+  contrapose! hχ
   -- Since G is edgeless, it is 1-colorable.
   have h_one_colorable : G.Colorable 1 := by
-    classical
-    refine ⟨fun _ ↦ 0, fun {v w} h ↦ ?_⟩
-    specialize hχ {v, w}
-    simp_all [isNClique_iff]
-    exact hχ (Finset.card_pair h.ne)
+    rw [cliqueFree_two] at hχ
+    rw [hχ]
+    exact ⟨fun _ ↦ 0, by simp⟩
   exact (chromaticNumber_le_iff_colorable.mpr h_one_colorable).trans_lt (by norm_num)
 
 /-- Case 2 of the inductive step: all left neighborhoods have small chromatic number.
@@ -249,17 +281,34 @@ private theorem rodl_case2 {m n : ℕ} (hm : 2 ≤ m)
   obtain ⟨k, hk⟩ : ∃ k, phi m n = k + 1 := by
     rcases m with _ | _ | _ | m <;> simp [phi] at *
   have hk_pos : 0 < k := by
-    contrapose! hsmall; rcases m with _ | _ | m <;> simp_all [phi_succ]
+    contrapose! hsmall
+    have hk_zero : k = 0 := le_antisymm hsmall (Nat.zero_le k)
+    have hphi_one : phi m n = 1 := by simpa [hk_zero] using hk
+    suffices ∃ v : V, (1 : ℕ∞) ≤ (leftNbhd G v).chromaticNumber by
+      simpa [hphi_one] using this
+    have hphi_succ_two : phi (m + 1) n = 2 := by
+      rw [phi_succ m n hm, hphi_one]
+      simp
+    have hχ_two : (2 : ℕ∞) ≤ G.chromaticNumber := by
+      simpa [hphi_succ_two] using hχ
     -- Since $G$ has chromatic number at least 2, there must be at least one edge in $G$.
     obtain ⟨v, w, hvw⟩ : ∃ v w, G.Adj v w := by
-      grind +suggestions
+      by_contra h_no_edge
+      have h_one_colorable : G.Colorable 1 :=
+        ⟨fun _ ↦ 0, fun {v w} h ↦ (h_no_edge ⟨v, w, h⟩).elim⟩
+      exact (not_colorable_of_le_chromaticNumber hχ_two) h_one_colorable
     -- Without loss of generality, assume $v < w$.
     wlog hlt : v < w generalizing v w
     · exact this w v hvw.symm (by grind [hvw.ne])
-    · refine ⟨w, le_csInf ?_ ?_⟩ <;> norm_num
+    · refine ⟨w, le_csInf ?_ ?_⟩
       · exact ⟨_, ⟨2, rfl⟩⟩
-      · rintro (_ | _ | a) <;> simp_all [leftNbhd]
-        exact ⟨v, hlt, hvw⟩
+      · norm_num
+        rintro (_ | _ | a)
+        · simp only [colorable_zero_iff, nonpos_iff_eq_zero, one_ne_zero, imp_false,
+            not_isEmpty_iff, nonempty_subtype]
+          exact ⟨v, hlt, hvw⟩
+        · norm_num
+        · norm_num
   have hcolorable (v : V) : (leftNbhd G v).Colorable k := by
     specialize hsmall v
     have hcolorable : (leftNbhd G v).Colorable k := by
@@ -275,10 +324,10 @@ private theorem rodl_case2 {m n : ℕ} (hm : 2 ≤ m)
       by_cases hcolorable_i : (partGraph G k c i).Colorable (n - 1)
       · exact hcolorable_i
       · refine (h_contra ⟨partGraph G k c i, partGraph_le, partGraph_cliqueFree_three, ?_⟩).elim
-        rcases n with _ | _ | n <;> simp_all [chromaticNumber]
-        · intro i hi; rcases i with _ | _ | i <;> simp_all
-        · exact fun x hx ↦
-            mod_cast Nat.succ_le_of_lt (Nat.lt_of_not_ge fun h ↦ hcolorable_i <| hx.mono h)
+        rcases n with _ | _ | n
+        · exact zero_le _
+        · exact le_chromaticNumber_of_not_colorable (by simpa using hcolorable_i)
+        · exact le_chromaticNumber_of_not_colorable (by simpa using hcolorable_i)
     have h_union_colorable : (⨆ i, partGraph G k c i).Colorable ((n - 1) ^ k) :=
       colorable_iSup_fin h_union_colorable
     exact Colorable.mono_left (partGraph_sup hk_pos) h_union_colorable
@@ -357,16 +406,33 @@ lemma mycielskian_cliqueFree {V : Type*} {G : SimpleGraph V} (hG : G.CliqueFree 
     (mycielskian G).CliqueFree 3 := fun t ht ↦ by
   classical
   obtain ⟨x, y, z, hxy, hyz, hxz⟩ := Finset.card_eq_three.mp ht.card_eq
-  simp_all [isNClique_iff]
+  rw [isNClique_iff] at ht
   rcases x with x | x | x <;> rcases y with y | y | y <;>
-    rcases z with z | z | z <;> simp_all [mycielskian]
-  all_goals unfold mycielskianAdj at ht; simp_all
-  · contrapose! hG
-    unfold CliqueFree; simp_all [isNClique_iff]
-    use {x, y, z}; aesop
+    rcases z with z | z | z <;>
+      simp_all only [mycielskian, Finset.coe_insert, Finset.coe_singleton, isClique_insert,
+        Set.pairwise_singleton, Set.mem_singleton_iff, ne_eq, not_false_eq_true, forall_const,
+        forall_eq, true_and, Set.mem_insert_iff, forall_eq_or_imp, Finset.mem_insert,
+        Finset.mem_singleton, or_self, Finset.card_insert_of_notMem, Finset.card_singleton,
+        Nat.reduceAdd, and_true, Sum.inl.injEq, reduceCtorEq, Sum.inr.injEq,
+        Finset.insert_eq_of_mem, Nat.reduceEqDiff, and_false, or_true, or_false,
+        OfNat.one_ne_ofNat]
   all_goals
-    have := hG {x, y, z}; simp_all [isNClique_iff]
-    rw [Finset.card_insert_of_notMem, Finset.card_insert_of_notMem] at this <;> aesop
+    unfold mycielskianAdj at ht
+    simp_all only [and_false, and_self, false_and, and_true, true_and]
+  · contrapose! hG
+    unfold CliqueFree
+    simp_all only [not_forall, Decidable.not_not]
+    use {x, y, z}
+    rw [isNClique_iff]
+    constructor
+    · intro a ha b hb hab
+      aesop (add simp [adj_comm])
+    · simp_all
+  all_goals
+    have := hG {x, y, z}
+    simp_all [isNClique_iff]
+    rw [Finset.card_insert_of_notMem, Finset.card_insert_of_notMem] at this
+    all_goals aesop
 
 /-- If G is not k-colorable, then the Mycielskian of G is not (k+1)-colorable. -/
 lemma mycielskian_not_colorable {V : Type*} {G : SimpleGraph V} {k : ℕ}
@@ -379,17 +445,37 @@ lemma mycielskian_not_colorable {V : Type*} {G : SimpleGraph V} {k : ℕ}
     fun v ↦ if c (Sum.inl v) = j then c (Sum.inr (Sum.inl v)) else c (Sum.inl v) with hc'
   -- Then $c'$ is a proper coloring of $G$: if $G.Adj v w$, then $c'(v) \neq c'(w)$.
   have hc'_proper {v w} (hvw : G.Adj v w) : c' v ≠ c' w := by
-    contrapose! hvw; simp_all [mycielskian]
-    split_ifs at hvw <;> simp_all [mycielskianAdj]
-    · exact fun h ↦ hc.1 v |>.1 w h (by aesop)
-    · grind
-    · exact fun h ↦ hc.1 v |>.2 w h hvw
-    · exact fun h ↦ hc.1 v |>.1 w h hvw
+    contrapose! hvw
+    change (if c (Sum.inl v) = j then c (Sum.inr (Sum.inl v)) else c (Sum.inl v)) =
+      (if c (Sum.inl w) = j then c (Sum.inr (Sum.inl w)) else c (Sum.inl w)) at hvw
+    split_ifs at hvw with hv hw
+    · intro h
+      exact
+        (hc (show (mycielskian G).Adj (Sum.inl v) (Sum.inl w) from by
+          simpa [mycielskian, mycielskianAdj] using h)) (by rw [hv, hw])
+    · intro h
+      exact
+        (hc (show (mycielskian G).Adj (Sum.inr (Sum.inl v)) (Sum.inl w) from by
+          simpa [mycielskian, mycielskianAdj] using h)) hvw
+    · intro h
+      exact
+        (hc (show (mycielskian G).Adj (Sum.inl v) (Sum.inr (Sum.inl w)) from by
+          simpa [mycielskian, mycielskianAdj] using h)) hvw
+    · intro h
+      exact
+        (hc (show (mycielskian G).Adj (Sum.inl v) (Sum.inl w) from by
+          simpa [mycielskian, mycielskianAdj] using h)) hvw
   -- Since $c'$ avoids color $j`, it takes values in `Fin (k + 1) \ {j}`.
   have hc'_card : Set.range c' ⊆ Finset.univ.erase j := by
-    rintro _ ⟨v, rfl⟩; simp [hc']
-    split_ifs <;> simp_all [adj_comm]
-    exact hc.2.1 v |>.2.2 _ (by tauto)
+    rintro _ ⟨v, rfl⟩
+    rw [hc']
+    simp only [Finset.coe_erase, Finset.coe_univ, Set.mem_diff, Set.mem_univ,
+      Set.mem_singleton_iff, true_and]
+    split_ifs with h
+    · simpa [hj] using
+        (hc (show (mycielskian G).Adj (Sum.inr (Sum.inl v)) (Sum.inr (Sum.inr ())) from by
+          simp [mycielskian, mycielskianAdj]))
+    · exact h
   -- Convert `{i : Fin (k + 1) | i ≠ j}` into a `Fin k`-valued coloring.
   let f : Finset.univ.erase j ≃ Fin k := Fintype.equivOfCardEq (by simp)
   refine hG ⟨fun v ↦ f ⟨c' v, hc'_card ⟨v, rfl⟩⟩, ?_⟩
@@ -408,7 +494,10 @@ lemma completeGraph_fin2_not_colorable_one : ¬(completeGraph (Fin 2)).Colorable
 theorem exists_triangle_free_large_chromatic (k : ℕ) :
     ∃ (V : Type) (G : SimpleGraph V), G.CliqueFree 3 ∧ ¬G.Colorable k := by
   induction k with
-  | zero => refine ⟨PUnit, ⊤, ?_, ?_⟩ <;> simp +decide [CliqueFree]
+  | zero =>
+    refine ⟨PUnit, ⊤, ?_, ?_⟩
+    · simp +decide [CliqueFree]
+    · simp +decide
   | succ k ih =>
     obtain ⟨V, G, hG₁, hG₂⟩ := ih
     -- Let's choose the Mycielskian of G as our new graph.
@@ -439,13 +528,17 @@ variable {W V : Type*}
 /-- Push-forward of a graph along an injection: edges of `T` are mapped via `f`. -/
 def pushforward (T : SimpleGraph W) (f : W ↪ V) : SimpleGraph V where
   Adj a b := ∃ (i j : W), f i = a ∧ f j = b ∧ T.Adj i j
-  symm a b := by rintro ⟨i, j, hi, hj, h⟩; exact ⟨j, i, hj, hi, h.symm⟩
+  symm a b := by
+    rintro ⟨i, j, hi, hj, h⟩
+    exact ⟨j, i, hj, hi, h.symm⟩
   loopless := ⟨fun a ⟨i, j, hi, hj, h⟩ ↦ h.ne (f.injective (hi ▸ hj.symm))⟩
 
 theorem pushforward_le_of_isClique_range (T : SimpleGraph W) (f : W ↪ V)
     (G : SimpleGraph V) (hclique : G.IsClique (Set.range f)) :
     pushforward T f ≤ G := by
-  intro a b hab; cases hab; aesop
+  intro a b hab
+  cases hab
+  aesop
 
 theorem pushforward_cliqueFree_three (T : SimpleGraph W) (f : W ↪ V)
     (hcf : T.CliqueFree 3) : (pushforward T f).CliqueFree 3 := by
@@ -454,26 +547,33 @@ theorem pushforward_cliqueFree_three (T : SimpleGraph W) (f : W ↪ V)
   -- Since $s$ is a clique in the pushforward, all vertices in $s$ must be in the range of $f$.
   have h_range (v) (hv : v ∈ s) : ∃ w, f w = v := by
     obtain ⟨w, hw⟩ := Finset.exists_mem_ne (by linarith) v
-    have := s' hv hw.1 hw.2.symm; unfold pushforward at this; aesop
+    have := s' hv hw.1 hw.2.symm
+    unfold pushforward at this
+    aesop
   choose g hg using h_range
   -- Since $s$ is a clique in the pushforward, the image of $s$ under $g$ must be a clique in $T$.
   have h_clique : T.IsClique (Set.range (fun v : s ↦ g v v.2)) := by
-    intro v hv w hw hne; obtain ⟨x, hx⟩ := hv; obtain ⟨y, hy⟩ := hw; simp_all [IsClique]
-    have := s' x.2 y.2; simp_all [pushforward]
+    intro v hv w hw hne
+    obtain ⟨x, hx⟩ := hv
+    obtain ⟨y, hy⟩ := hw
+    simp_all [IsClique]
+    have := s' x.2 y.2
+    simp_all [pushforward]
     grind +splitImp
   have h_card : (Set.range (fun v : s ↦ g v v.2)).ncard = 3 := by
     rw [Set.ncard_eq_toFinset_card _]
     convert hs' using 1
-    apply Finset.card_bij (fun x hx ↦ f x) <;> aesop
-  contrapose! hcf
-  rw [CliqueFree]
+    apply Finset.card_bij (fun x hx ↦ f x)
+    all_goals aesop
   obtain ⟨t, ht⟩ :=
     Set.exists_subset_card_eq
       (show 3 ≤ Set.ncard (Set.range fun v : s ↦ g v v.2) from h_card.ge)
   obtain ⟨u, hu⟩ :=
     Set.Finite.exists_finset_coe (show Set.Finite t from Set.finite_of_ncard_pos (by lia))
-  simp_all [isNClique_iff]
-  exact ⟨u, by simpa [← hu] using h_clique.subset ht.1, by simpa [← hu] using ht.2⟩
+  exact hcf u
+    (by
+      rw [isNClique_iff]
+      exact ⟨by simpa [← hu] using h_clique.subset ht.1, by simpa [← hu] using ht.2⟩)
 
 theorem not_colorable_pushforward (T : SimpleGraph W) (f : W ↪ V) {n : ℕ}
     (h : ¬T.Colorable n) : ¬(pushforward T f).Colorable n :=
@@ -496,7 +596,8 @@ theorem erdos923 {V : Type*} (n : ℕ) :
   -- Obtain a triangle-free graph on a finite type that is not n-colorable.
   obtain ⟨W, hfin, hdeq, T, hT_cf, hT_nc⟩ :=
     TriangleFreeChromatic.exists_triangle_free_large_chromatic_fintype n
-  haveI := hfin; haveI := hdeq
+  haveI := hfin
+  haveI := hdeq
   -- Set m = Fintype.card W + 2 (ensuring m ≥ 2).
   set m := Fintype.card W + 2
   -- The witness: k = φ(m, n).
@@ -507,7 +608,9 @@ theorem erdos923 {V : Type*} (n : ℕ) :
     rw [not_cliqueFree_iff] at h_not_cf
     obtain ⟨e⟩ := h_not_cf
     -- Get injection W ↪ Fin m (since card W ≤ m).
-    have hcard : Fintype.card W ≤ Fintype.card (Fin m) := by simp; omega
+    have hcard : Fintype.card W ≤ Fintype.card (Fin m) := by
+      simp
+      omega
     obtain ⟨g⟩ := Function.Embedding.nonempty_of_card_le hcard
     -- Compose to get f : W ↪ V.
     set f : W ↪ V := g.trans e.toEmbedding
@@ -515,7 +618,8 @@ theorem erdos923 {V : Type*} (n : ℕ) :
     have hclique_e := isClique_range_completeGraph_embedding e
     -- range f ⊆ range e, so G.IsClique (range f).
     have hrange : Set.range f ⊆ Set.range e := by
-      rintro _ ⟨w, rfl⟩; exact ⟨g w, rfl⟩
+      rintro _ ⟨w, rfl⟩
+      exact ⟨g w, rfl⟩
     have hclique_f : G.IsClique (Set.range f) := Set.Pairwise.mono hrange hclique_e
     -- Construct the pushforward and verify properties.
     refine ⟨pushforward T f, pushforward_le_of_isClique_range T f G hclique_f,
