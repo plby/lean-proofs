@@ -3009,7 +3009,7 @@ private lemma technical_prop_hrecB
     exact le_trans hmulA hrecB'
   exact le_of_mul_le_mul_left hmulB (show 0 < (3 : ℝ) by norm_num)
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 1000000 in
 -- The translated Lean 4 proof is long enough that it needs more heartbeats to elaborate.
 theorem technical_prop :
     ∀ᶠ N : ℕ in atTop, ∀ A ⊆ Finset.range (N + 1), ∀ y z : ℝ,
