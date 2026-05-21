@@ -11,8 +11,6 @@ open scoped ArithmeticFunction.omega BigOperators
 open Filter Finset Real
 open _root_.Finset
 
-noncomputable section
-
 /-!
 This file ports the front compatibility surface of `src/main_results.lean`.
 
@@ -24,7 +22,7 @@ file. The main reusable Mathlib-backed ingredients come indirectly from the earl
 * `ForMathlib.BasicEstimates` for the Chebyshev and prime-power infrastructure already upstream
 
 The full declaration surface from the Lean 3 file is mirrored here. A couple of lemmas below have
-already been ported with proofs; for the remaining declarations, the Lean 4 statements are present
+already been ported with proofs. For the remaining declarations, the Lean 4 statements are present
 so downstream files can target the right API shape while the proof transport continues.
 -/
 
@@ -418,7 +416,9 @@ private lemma force_good_properties_two_values_case
           and_left_comm, and_right_comm, and_assoc, add_comm, add_left_comm, add_assoc] using h
       have hunion_subset : P1 ∪ P2 ⊆ ppowers_in_set A := by
         intro q hq
-        rcases Finset.mem_union.mp hq with hq | hq <;> exact (Finset.mem_of_mem_filter _ hq)
+        rcases Finset.mem_union.mp hq with hq | hq
+        · exact Finset.mem_of_mem_filter _ hq
+        · exact Finset.mem_of_mem_filter _ hq
       calc
         P1.sum (fun q : ℕ => (1 : ℝ) / q) + P2.sum (fun q : ℕ => (1 : ℝ) / q) =
             (P1 ∪ P2).sum (fun q : ℕ => (1 : ℝ) / q) + P12.sum (fun q : ℕ => (1 : ℝ) / q) := hunion
@@ -442,7 +442,9 @@ private lemma force_good_properties_two_values_case
                 rw [Finset.mem_range]
                 exact lt_of_le_of_lt
                   (Nat.le_of_dvd (Nat.pos_of_ne_zero hmq.1.2) hmq.1.1)
-                  (by rw [← Finset.mem_range]; exact hA hmA)
+                  (by
+                    rw [← Finset.mem_range]
+                    exact hA hmA)
               · intro i _ _
                 rw [one_div_nonneg]
                 exact Nat.cast_nonneg i
@@ -691,7 +693,9 @@ private lemma force_good_properties_two_values_case
           rw [Finset.mem_filter, hA_I, Finset.mem_filter] at hn
           rcases hn.2.1.2 with ⟨x, hx1, hx2⟩
           rw [Finset.mem_biUnion]
-          exact ⟨x, hx1, by rw [Finset.mem_filter]; exact ⟨hn', hx2⟩⟩
+          exact ⟨x, hx1, by
+            rw [Finset.mem_filter]
+            exact ⟨hn', hx2⟩⟩
         · intro hn
           rw [Finset.mem_biUnion] at hn
           rcases hn with ⟨x, hx1, hx2⟩
@@ -913,10 +917,12 @@ private lemma force_good_properties_three_values_case
         rcases hr.1.1 with ⟨m, hmA, hmq⟩
         rw [Finset.mem_filter, Nat.mem_divisors] at hmq
         exact ⟨by
-          rw [Finset.mem_range]
-          exact lt_of_le_of_lt
-            (Nat.le_of_dvd (Nat.pos_of_ne_zero hmq.1.2) hmq.1.1)
-            (by rw [← Finset.mem_range]; exact hA hmA),
+            rw [Finset.mem_range]
+            exact lt_of_le_of_lt
+              (Nat.le_of_dvd (Nat.pos_of_ne_zero hmq.1.2) hmq.1.1)
+              (by
+                rw [← Finset.mem_range]
+                exact hA hmA),
           hmq.2.1, hr.2.2, hr.1.2⟩
       · intro i hi1 hi2
         rw [one_div_nonneg]
@@ -933,10 +939,12 @@ private lemma force_good_properties_three_values_case
         rcases hr.1.1 with ⟨m, hmA, hmq⟩
         rw [Finset.mem_filter, Nat.mem_divisors] at hmq
         exact ⟨by
-          rw [Finset.mem_range]
-          exact lt_of_le_of_lt
-            (Nat.le_of_dvd (Nat.pos_of_ne_zero hmq.1.2) hmq.1.1)
-            (by rw [← Finset.mem_range]; exact hA hmA),
+            rw [Finset.mem_range]
+            exact lt_of_le_of_lt
+              (Nat.le_of_dvd (Nat.pos_of_ne_zero hmq.1.2) hmq.1.1)
+              (by
+                rw [← Finset.mem_range]
+                exact hA hmA),
           hmq.2.1, hr.2.2, hr.1.2⟩
       · intro i hi1 hi2
         rw [one_div_nonneg]
@@ -953,10 +961,12 @@ private lemma force_good_properties_three_values_case
         rcases hr.1.1 with ⟨m, hmA, hmq⟩
         rw [Finset.mem_filter, Nat.mem_divisors] at hmq
         exact ⟨by
-          rw [Finset.mem_range]
-          exact lt_of_le_of_lt
-            (Nat.le_of_dvd (Nat.pos_of_ne_zero hmq.1.2) hmq.1.1)
-            (by rw [← Finset.mem_range]; exact hA hmA),
+            rw [Finset.mem_range]
+            exact lt_of_le_of_lt
+              (Nat.le_of_dvd (Nat.pos_of_ne_zero hmq.1.2) hmq.1.1)
+              (by
+                rw [← Finset.mem_range]
+                exact hA hmA),
           hmq.2.1, hr.2.2, hr.1.2⟩
       · intro i hi1 hi2
         rw [one_div_nonneg]
@@ -1144,7 +1154,9 @@ theorem force_good_properties :
         rcases hr with ⟨a, ha, hr⟩
         rw [Finset.mem_filter] at hr
         refine ⟨?_, hr.2.1⟩
-        exact lt_of_le_of_lt (Nat.divisor_le hr.1) (by rw [← Finset.mem_range]; exact hA ha)
+        exact lt_of_le_of_lt (Nat.divisor_le hr.1) (by
+          rw [← Finset.mem_range]
+          exact hA ha)
       · intro i _ _
         rw [one_div_nonneg]
         exact Nat.cast_nonneg i
@@ -1171,7 +1183,11 @@ theorem force_good_properties :
           ((ppowers_in_set A).filter fun n => (n : ℤ) ∣ f x3).sum (fun r => (1 : ℝ) / r)
         exact
           force_good_properties_three_values_case
-            N c A x1 x2 x3 f hA hlarge3 (by dsimp [c]; norm_num1) hrecN hsum4 hf.2.2
+            N c A x1 x2 x3 f hA hlarge3
+            (by
+              dsimp [c]
+              norm_num1)
+            hrecN hsum4 hf.2.2
             hfcopy2.2.2 hfcopy3.2.2 htwoxs hx3.2.2 hx3.2.1
             (hclose x2 (hDE hx2) x1 (hDE hx1)) (hclose x3 hx3.1 x2 (hDE hx2))
             (hclose x3 hx3.1 x1 (hDE hx1))
@@ -1370,7 +1386,9 @@ theorem force_good_properties2 :
         rw [Finset.mem_filter]
         refine ⟨?_, hm2.2.1, hr.2⟩
         rw [Finset.mem_range]
-        exact lt_of_le_of_lt (Nat.divisor_le hm2.1) (by rw [← Finset.mem_range]; exact hA hm1)
+        exact lt_of_le_of_lt (Nat.divisor_le hm2.1) (by
+          rw [← Finset.mem_range]
+          exact hA hm1)
       · intro i _ _
         exact div_nonneg zero_le_one (Nat.cast_nonneg i)
   · have hIne : I.Nonempty := by
@@ -1977,8 +1995,17 @@ private lemma large_enough_Naux1_hreduce
     simp_rw [Real.log_rpow hN6]
     have hlog32 : Real.log (2 * 16 : ℝ) = Real.log 2 + Real.log 16 := by
       rw [Real.log_mul (show (2 : ℝ) ≠ 0 by norm_num) (show (16 : ℝ) ≠ 0 by norm_num)]
-    constructor <;> intro h <;> rw [hlog32] at * <;>
-      field_simp [hN7.ne'] at h ⊢ <;> ring_nf at h ⊢ <;> linarith
+    constructor
+    · intro h
+      rw [hlog32] at *
+      field_simp [hN7.ne'] at h ⊢
+      ring_nf at h ⊢
+      linarith
+    · intro h
+      rw [hlog32] at *
+      field_simp [hN7.ne'] at h ⊢
+      ring_nf at h ⊢
+      linarith
   have hBiff :
       (2 * 16 : ℝ) * log N ^ (2 + 1 / 100 : ℝ) ≤ (N : ℝ) ^ (1 / log (log N)) ↔
         log (2 * 16) + (2 + 1 / 100 : ℝ) * log (log N) ≤ log N / log (log N) := by
@@ -1988,7 +2015,10 @@ private lemma large_enough_Naux1_hreduce
     rw [Real.log_mul (show (2 * 16 : ℝ) ≠ 0 by norm_num)
       (Real.rpow_pos_of_pos hN8 _).ne']
     rw [Real.log_rpow hN8, Real.log_rpow hN6]
-    constructor <;> intro h <;>
+    constructor
+    · intro h
+      simpa [div_eq_mul_inv, mul_comm, mul_left_comm, mul_assoc] using h
+    · intro h
       simpa [div_eq_mul_inv, mul_comm, mul_left_comm, mul_assoc] using h
   exact hAiff.trans hBiff.symm
 
@@ -2438,7 +2468,9 @@ private lemma large_enough_N_hT1
     _ = 2 * ((log N) ^ (-(1 / 100 : ℝ)) * (log N) ^ (3 / 500 : ℝ)) := by ring
     _ = 2 * (log N) ^ ((-(1 / 100 : ℝ)) + 3 / 500) := by
       rw [← Real.rpow_add hN8]
-    _ = 2 * (log N) ^ (-(1 / 250 : ℝ)) := by congr 2; norm_num
+    _ = 2 * (log N) ^ (-(1 / 250 : ℝ)) := by
+      congr 2
+      norm_num
     _ = 2 / ((log N) ^ (1 / 500 : ℝ)) ^ 2 := by
       rw [div_eq_mul_inv]
       congr 1
@@ -2490,7 +2522,9 @@ private lemma large_enough_N_hT3
       _ = (4 / 9 : ℝ) * ((log N) ^ (3 / 500 : ℝ) * (log N) ^ (3 / 500 : ℝ)) := by ring
       _ = (4 / 9 : ℝ) * (log N) ^ ((3 / 500 : ℝ) + 3 / 500) := by
         rw [← Real.rpow_add hN8]
-      _ = (4 / 9 : ℝ) * (log N) ^ (3 / 250 : ℝ) := by congr 2; norm_num
+      _ = (4 / 9 : ℝ) * (log N) ^ (3 / 250 : ℝ) := by
+        congr 2
+        norm_num
       _ ≤ (4 / 9 : ℝ) * log N := by
         refine mul_le_mul_of_nonneg_left ?_ (by positivity)
         have hexp : (3 / 250 : ℝ) ≤ 1 := by norm_num
@@ -3491,7 +3525,4 @@ theorem corollary_one :
       exact nonempty_of_rec_sum_recip (hd'₁ s hs) (hd'₃ s hs)
     have : k + 1 ≤ k := Nat.le_findGreatest hk_bound hPk1
     exact Nat.not_succ_le_self _ this
-
-end
-
 end UnitFractions
