@@ -12,10 +12,7 @@ URLs:
 -/
 import Mathlib
 
-set_option linter.style.refine false
-
 namespace Erdos958
-
 
 /-- The Euclidean plane `ℝ²`. -/
 abbrev Point : Type := EuclideanSpace ℝ (Fin 2)
@@ -94,71 +91,100 @@ noncomputable def counterexample_set : Finset Point :=
 /-
 The counterexample set satisfies the profile condition.
 -/
-set_option linter.flexible false in
 lemma counterexample_has_profile : HasProfile counterexample_set := by
-  unfold HasProfile;
+  unfold HasProfile
   -- Let's calculate the set of distances and their multiplicities.
   have h_dist : distances counterexample_set = {1, Real.sqrt 2, 2} := by
-    unfold distances counterexample_set;
+    unfold distances counterexample_set
     -- Let's calculate the distances between the points in the counterexample set.
     ext d
-    simp [pairDist, unorderedPairs];
-    constructor <;> intro h;
+    simp only [pairDist, unorderedPairs, Finset.mem_image, Finset.mem_filter,
+      Finset.mem_insert, Finset.mem_singleton]
+    constructor <;> intro h
     · rcases h with ⟨ a, ⟨ ha₁, ha₂ ⟩, rfl ⟩
       rcases a with ⟨ p, q ⟩
-      simp_all +decide [q₀, q₁, q₂, q₃, dist_eq_norm, EuclideanSpace.norm_eq]
-      rcases ha₁ with ⟨ rfl | rfl | rfl | rfl, rfl | rfl | rfl | rfl ⟩ <;>
-        norm_num [q₀, q₁, q₂, q₃, Real.sqrt_eq_iff_mul_self_eq_of_pos]
-      · contradiction;
-      · contradiction;
-      · contradiction;
-      · contradiction;
-    · rcases h with ( rfl | rfl | rfl );
-      · refine' ⟨ s(q₀, q₁), _, _ ⟩ <;> norm_num [q₀, q₁, dist_eq_norm, EuclideanSpace.norm_eq ];
-      · refine' ⟨ s(q₂, q₁), _, _ ⟩ <;> norm_num [q₂, q₁, dist_eq_norm, EuclideanSpace.norm_eq ];
-      · refine' ⟨ s(q₂, q₃), _, _ ⟩ <;> norm_num [q₂, q₃, dist_eq_norm, EuclideanSpace.norm_eq ];
+      have hp : p ∈ counterexample_set := (Finset.mk_mem_sym2_iff.mp ha₁).1
+      have hq : q ∈ counterexample_set := (Finset.mk_mem_sym2_iff.mp ha₁).2
+      simp only [counterexample_set, Finset.mem_insert, Finset.mem_singleton] at hp hq
+      rcases hp with rfl | rfl | rfl | rfl <;>
+        rcases hq with rfl | rfl | rfl | rfl <;>
+        norm_num [q₀, q₁, q₂, q₃, Sym2.lift_mk, dist_eq_norm, EuclideanSpace.norm_eq,
+          Real.sqrt_eq_iff_mul_self_eq_of_pos] at *
+    · rcases h with (rfl | rfl | rfl)
+      · refine ⟨s(q₀, q₁), ?_, ?_⟩ <;>
+          norm_num [counterexample_set, pairDist, unorderedPairs, q₀, q₁, dist_eq_norm,
+            EuclideanSpace.norm_eq]
+      · refine ⟨s(q₂, q₁), ?_, ?_⟩ <;>
+          norm_num [counterexample_set, pairDist, unorderedPairs, q₂, q₁, dist_eq_norm,
+            EuclideanSpace.norm_eq]
+      · refine ⟨s(q₂, q₃), ?_, ?_⟩ <;>
+          norm_num [counterexample_set, pairDist, unorderedPairs, q₂, q₃, dist_eq_norm,
+            EuclideanSpace.norm_eq]
   -- Let's calculate the multiplicities of the distances.
   have h_mult :
       distMultiplicity counterexample_set 1 = 3 ∧
       distMultiplicity counterexample_set (Real.sqrt 2) = 2 ∧
       distMultiplicity counterexample_set 2 = 1 := by
-    unfold distMultiplicity;
+    unfold distMultiplicity
     erw [ show unorderedPairs counterexample_set =
         {s(q₀, q₁), s(q₀, q₂), s(q₀, q₃), s(q₁, q₂), s(q₁, q₃), s(q₂, q₃)}
-        from ?_ ];
-    · unfold pairDist;
+        from ?_]
+    · unfold pairDist
       norm_num [q₀, q₁, q₂, q₃, Finset.filter_insert, Finset.filter_singleton,
-        dist_eq_norm, EuclideanSpace.norm_eq];
+        dist_eq_norm, EuclideanSpace.norm_eq]
       rw [if_neg (by nlinarith [Real.sq_sqrt (show 0 ≤ 2 by norm_num)]),
         if_neg (by nlinarith [Real.sq_sqrt (show 0 ≤ 2 by norm_num)]),
         if_neg (by nlinarith [Real.sq_sqrt (show 0 ≤ 2 by norm_num)]),
-        if_neg (by nlinarith [Real.sq_sqrt (show 0 ≤ 2 by norm_num)])] ; norm_num;
-    · unfold counterexample_set unorderedPairs; simp +decide [q₀, q₁, q₂, q₃, Finset.ext_iff] ;
-      intro a
-      constructor <;> intro ha <;> rcases a with ⟨ x, y ⟩ <;>
-        simp_all +decide [ Sym2.eq_swap ]
-      · grind;
+        if_neg (by nlinarith [Real.sq_sqrt (show 0 ≤ 2 by norm_num)])]
+      norm_num
+    · unfold counterexample_set unorderedPairs
+      ext a
+      rcases a with ⟨ x, y ⟩
+      simp +decide only [Finset.mem_filter, Finset.mem_sym2_iff, Finset.mem_insert,
+        Finset.mem_singleton, Sym2.mem_iff, forall_eq_or_imp, forall_eq,
+        Sym2.mk_isDiag_iff, Sym2.eq_iff]
+      constructor <;> intro ha
+      · grind
       · rcases ha with
           ((⟨ rfl, rfl ⟩ | ⟨ rfl, rfl ⟩) | (⟨ rfl, rfl ⟩ | ⟨ rfl, rfl ⟩) |
             (⟨ rfl, rfl ⟩ | ⟨ rfl, rfl ⟩) | (⟨ rfl, rfl ⟩ | ⟨ rfl, rfl ⟩) |
             (⟨ rfl, rfl ⟩ | ⟨ rfl, rfl ⟩) | ⟨ rfl, rfl ⟩ | ⟨ rfl, rfl ⟩) <;>
-            norm_num [← List.ofFn_inj]
+            norm_num [q₀, q₁, q₂, q₃, ← List.ofFn_inj]
   -- Let's calculate the cardinality of the set of distances.
   have h_card : (distances counterexample_set).card = 3 := by
     rw [h_dist, Finset.card_insert_of_notMem, Finset.card_insert_of_notMem,
-      Finset.card_singleton] <;> aesop;
-  simp_all +decide [ Finset.ext_iff ];
-  erw [Finset.card_insert_of_notMem, Finset.card_insert_of_notMem,
-    Finset.card_insert_of_notMem] <;> norm_num [q₀, q₁, q₂, q₃, ← List.ofFn_inj]
-  exact fun a =>
-    ⟨by rintro ( rfl | rfl | rfl ) <;> decide,
-      by rintro ⟨ ha₁, ha₂ ⟩ ; interval_cases a <;> trivial⟩
+      Finset.card_singleton]
+    · norm_num
+    · simp only [Finset.mem_insert, Finset.mem_singleton, not_or]
+      constructor
+      · intro h
+        nlinarith [Real.sq_sqrt (show 0 ≤ 2 by norm_num)]
+      · norm_num
+  have h_counter_card : counterexample_set.card = 4 := by
+    norm_num [counterexample_set, q₀, q₁, q₂, q₃, ← List.ofFn_inj]
+  constructor
+  · rw [h_card, h_counter_card]
+  · rw [h_dist, h_counter_card]
+    simp only [Finset.image_insert, Finset.image_singleton, Nat.add_one_sub_one]
+    ext a
+    simp only [Finset.mem_insert, Finset.mem_singleton, Finset.mem_Icc]
+    constructor
+    · rintro (rfl | rfl | rfl)
+      · rw [h_mult.1]
+        norm_num
+      · rw [h_mult.2.1]
+        norm_num
+      · rw [h_mult.2.2]
+        norm_num
+    · rintro ⟨ ha₁, ha₂ ⟩
+      interval_cases a <;>
+        simp [h_mult.1, h_mult.2.1, h_mult.2.2]
 
 /-
 The counterexample set is not equally spaced on a line.
 -/
 lemma counterexample_not_line : ¬ EquallySpacedOnLine counterexample_set := by
-  rintro ⟨ p₀, v, hv, h ⟩;
+  rintro ⟨ p₀, v, hv, h ⟩
   -- The four named points are in `counterexample_set`.
   have h_points :
       q₀ ∈ counterexample_set ∧ q₁ ∈ counterexample_set ∧
@@ -167,9 +193,9 @@ lemma counterexample_not_line : ¬ EquallySpacedOnLine counterexample_set := by
       ⟨Finset.mem_insert_self _ _, Finset.mem_insert_of_mem (Finset.mem_insert_self _ _),
         Finset.mem_insert_of_mem (Finset.mem_insert_of_mem (Finset.mem_insert_self _ _)),
         Finset.mem_insert_of_mem
-          (Finset.mem_insert_of_mem (Finset.mem_insert_of_mem (Finset.mem_singleton_self _)))⟩;
-  simp_all +decide [ Finset.ext_iff ];
-  obtain ⟨ ⟨ a, ha, ha' ⟩, ⟨ b, hb, hb' ⟩, ⟨ c, hc, hc' ⟩, _ ⟩ := h_points;
+          (Finset.mem_insert_of_mem (Finset.mem_insert_of_mem (Finset.mem_singleton_self _)))⟩
+  simp_all +decide [ Finset.ext_iff ]
+  obtain ⟨ ⟨ a, ha, ha' ⟩, ⟨ b, hb, hb' ⟩, ⟨ c, hc, hc' ⟩, _ ⟩ := h_points
   have ha0 := congr_arg (fun x : Point => x 0) ha'
   have ha1 := congr_arg (fun x : Point => x 1) ha'
   have hb0 := congr_arg (fun x : Point => x 0) hb'
@@ -183,7 +209,7 @@ lemma counterexample_not_line : ¬ EquallySpacedOnLine counterexample_set := by
 The counterexample set is not equally spaced on a circle.
 -/
 lemma counterexample_not_circle : ¬ EquallySpacedOnCircle counterexample_set := by
-  rintro ⟨ c, r, θ₀, Δθ, hr, ha ⟩;
+  rintro ⟨ c, r, θ₀, Δθ, hr, ha ⟩
   -- The four named points must lie on the circle with center `c` and radius `r`.
   have h_points_on_circle : ∀ p ∈ ({q₀, q₁, q₂, q₃} : Finset Point), dist p c = r := by
     intro p hp
@@ -191,13 +217,14 @@ lemma counterexample_not_circle : ¬ EquallySpacedOnCircle counterexample_set :=
         p ∈ Finset.image
           (fun i : ℕ => c + r • unitCircle (θ₀ + (i : ℝ) * Δθ))
           (Finset.range counterexample_set.card) := by
-      exact ha ▸ by simpa [ counterexample_set ] using hp;
+      exact ha ▸ by simpa [ counterexample_set ] using hp
     rw [ Finset.mem_image ] at h_eq
     obtain ⟨ i, hi, rfl ⟩ := h_eq
     simp +decide [dist_eq_norm, norm_smul, abs_of_pos hr]
-    norm_num [ EuclideanSpace.norm_eq, unitCircle ];
-  norm_num [q₀, q₁, q₂, q₃, dist_eq_norm, EuclideanSpace.norm_eq ] at h_points_on_circle;
-  norm_num [ Real.sqrt_eq_iff_mul_self_eq_of_pos hr ] at h_points_on_circle ; nlinarith
+    norm_num [ EuclideanSpace.norm_eq, unitCircle ]
+  norm_num [q₀, q₁, q₂, q₃, dist_eq_norm, EuclideanSpace.norm_eq ] at h_points_on_circle
+  norm_num [ Real.sqrt_eq_iff_mul_self_eq_of_pos hr ] at h_points_on_circle
+  nlinarith
 
 
 /-- The question as a `Prop`. -/
@@ -212,7 +239,9 @@ theorem not_erdos_958 : ¬erdos_958 := by
     exact counterexample_not_circle
   have h_has_profile : HasProfile counterexample_set := by
     exact counterexample_has_profile
-  exact fun h => by have := h counterexample_set; aesop;
+  exact fun h => by
+    have := h counterexample_set
+    simp_all only [or_self]
 
 #print axioms not_erdos_958
 -- 'Erdos958.not_erdos_958' depends on axioms: [propext, Classical.choice, Quot.sound]
