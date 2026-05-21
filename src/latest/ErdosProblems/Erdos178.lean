@@ -15,7 +15,6 @@ URLs:
 - https://www.erdosproblems.com/forum/thread/178#post-5685
 - https://gist.githubusercontent.com/madeve-unipi/ca9c3d1f94fe124c15726d836e1cd623/raw/a272de656847d3956e1c228c833ff3c591dc4872/Erdos178.lean
 -/
-
 /-
 Authors: Matteo Del Vecchio, Aristotle (Harmonic)
 Copyright (c) 2026. All rights reserved.
@@ -134,7 +133,8 @@ lemma signed_zero_sum {T : ℕ} {M : ℕ}
     exact absurd (card_le_card h_sums) (by
       rw [card_image_of_injective _ fun I J hij =>
         not_imp_not.mp (h I J) hij]
-      norm_num; nlinarith)
+      norm_num
+      nlinarith)
   -- Step 2: Build the signed subset from I Δ J
   set H := (I \ J) ∪ (J \ I) with hH_def
   refine ⟨H, fun i =>
@@ -158,9 +158,12 @@ lemma signed_zero_sum {T : ℕ} {M : ℕ}
       zero_add, sum_neg_distrib]
     simp_all +decide only [sum_filter, ite_not, sum_ite_mem,
       add_zero]
-    rw [show (I \ J ∪ J \ I) ∩ I = I \ J by ext; aesop,
+    rw [show (I \ J ∪ J \ I) ∩ I = I \ J by
+        ext
+        aesop,
       show {x ∈ I \ J ∪ J \ I | x ∉ I} ∩ J = J \ I by
-        ext; aesop]
+        ext
+        aesop]
     simp_all +decide only [sum_ite, sum_const_zero, zero_add]
     rw [Finset.filter_true_of_mem fun x hx =>
       Finset.mem_sdiff.mp hx |>.2]
@@ -168,12 +171,16 @@ lemma signed_zero_sum {T : ℕ} {M : ℕ}
         ∑ i ∈ I \ J, a i + ∑ i ∈ I ∩ J, a i := by
       rw [← Finset.sum_union
         (Finset.disjoint_right.mpr fun x hx => by aesop)]
-      congr; ext x; by_cases hx : x ∈ J <;> aesop
+      congr
+      ext x
+      by_cases hx : x ∈ J <;> aesop
     have hJ_split : ∑ i ∈ J, a i =
         ∑ i ∈ J \ I, a i + ∑ i ∈ I ∩ J, a i := by
       rw [← Finset.sum_union
         (Finset.disjoint_right.mpr fun x hx => by aesop)]
-      congr; ext x; by_cases hx : x ∈ I <;> aesop
+      congr
+      ext x
+      by_cases hx : x ∈ I <;> aesop
     linarith [hI_split, hJ_split]
 
 /-- For any `M`, there exists a threshold `T` satisfying
@@ -209,7 +216,8 @@ noncomputable def t_prod : ℕ → ℕ
   | n + 1 => t_prod n * Q (t_prod n)
 
 lemma t_prod_pos : ∀ n, 0 < t_prod n := by
-  intro n; induction n with
+  intro n
+  induction n with
   | zero => simp [t_prod]
   | succ n ih => exact Nat.mul_pos ih (Q_pos _)
 
@@ -235,7 +243,8 @@ lemma G_func_succ (M n : ℕ) :
     G_func M (n + 1) = G_func M n * Q (G_func M n) := rfl
 
 lemma G_func_one_eq_t_prod : ∀ n, G_func 1 n = t_prod n := by
-  intro n; induction n with
+  intro n
+  induction n with
   | zero => simp [t_prod]
   | succ n ih => simp [t_prod, ih]
 
@@ -286,7 +295,9 @@ lemma buffer_decomp (N M : ℕ) (hM : 0 < M)
     exact ⟨0, fun _ => ∅, fun _ => 1,
       by norm_num, by norm_num, by norm_num, by norm_num,
       by norm_num, by norm_num, by norm_num,
-      by norm_num; linarith [Q_pos M]⟩
+      by
+        norm_num
+        linarith [Q_pos M]⟩
   | succ N ih =>
     obtain ⟨s, kset, delta, hs, hkset, hkset', hkset'',
       hdelta, hdelta', hdelta'', hdelta'''⟩ := ih M hM val hval
@@ -544,7 +555,9 @@ lemma beck_matrix (r N M : ℕ) (hM : 0 < M)
   induction r generalizing N M V with
   | zero =>
     exact ⟨fun _ => 1, fun _ => Or.inl rfl,
-      by intros; contradiction⟩
+      by
+        intros
+        contradiction⟩
   | succ r ih =>
     obtain ⟨s, kset, delta, hs_le_N, hkset_subset,
         hkset_nonempty, hkset_disjoint, hdelta,
@@ -660,7 +673,8 @@ lemma beck_matrix (r N M : ℕ) (hM : 0 < M)
         simp only [zero_add, G_func_succ, G_func_zero]
         exact h_combined.trans (by
           rw [Nat.cast_sub (by nlinarith [Q_pos M])]
-          push_cast; nlinarith)
+          push_cast
+          nlinarith)
       · -- Row k > 0: split into K-set + buffer
         obtain ⟨p, hp_le_s, hp_subset, hp_buffer⟩ :=
           h_buffer m hm
