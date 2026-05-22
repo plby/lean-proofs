@@ -109,7 +109,8 @@ lemma degree_adjoin_sq (K : IntermediateField ℚ ℝ) (x : ℝ) (hx : x^2 ∈ K
     · exact Polynomial.natDegree_pos_iff_degree_pos.mpr ( Polynomial.degree_pos_of_irreducible ( minpoly.irreducible ( show IsIntegral K x from by exact ( show IsIntegral K x from by exact ( by by_contra h; simp_all +decide [ minpoly.eq_zero ] ) ) ) ) );
   have := Polynomial.natDegree_le_of_degree_le h_min_deg; interval_cases ( minpoly K x |> Polynomial.natDegree ) <;> simp_all +decide ;
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 8000000 in
+-- The adjoining-square-root degree argument needs an expanded heartbeat budget.
 /-
 If K has degree 2^n over Q and x^2 is in K, then K(x) has degree a power of 2 over Q.
 Proof:
@@ -229,7 +230,8 @@ lemma hasQuadTower_adjoin_sqrt {K : IntermediateField ℚ ℝ} (hK : HasQuadTowe
                 ext y
                 simp [or_comm]
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 8000000 in
+-- Combining two quadratic towers produces a large generated field-inclusion proof.
 /-
 If K and L have quadratic towers, then their compositum K ⊔ L has a quadratic tower.
 Proof:
@@ -808,7 +810,8 @@ lemma RulerCompass.line_equation {cfg : RCBase} {A B P : Point} (h : P ∈ line 
   simp [inner_add_right, inner_smul_right, sub_eq_add_neg]
   ring
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 8000000 in
+-- The determinant-zero line proof expands several coordinate algebra cases.
 /-
 If the determinant of the direction vectors of two lines is zero, and the lines intersect, then the lines are identical.
 -/
@@ -1126,7 +1129,8 @@ lemma Constructible.coords_of_circle_circle_inter {x1 y1 r1sq x2 y2 r2sq x y : �
       · exact h_circle1;
       · grind
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 8000000 in
+-- The induction over ruler-compass constructions uses many generated algebraic cases.
 /-
 If a point is constructible, its coordinates are constructible numbers.
 -/
