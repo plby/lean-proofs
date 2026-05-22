@@ -3,6 +3,9 @@
 This is a Lean formalization of a solution to Erdős Problem 205.
 https://www.erdosproblems.com/forum/thread/205
 
+Formalization status:
+- Conditional on: nth_prime_asymp
+
 Informal authors:
 - Wouter van Doorn
 - Terence Tao
@@ -20,11 +23,8 @@ URLs:
 import Mathlib
 import PrimeNumberTheoremAnd.Consequences
 
-set_option linter.style.whitespace false
-set_option linter.style.refine false
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 
 namespace Erdos205
 
@@ -62,9 +62,9 @@ theorem nth_prime_le_const_mul_log_eventually :
         Filter.Tendsto
           (fun n : ℕ => (nth_prime n : ℝ) / (n * Real.log n))
           Filter.atTop (nhds 1) := by
-      have := nth_prime_asymp;
-      rw [ Asymptotics.IsEquivalent ] at this;
-      rw [ Asymptotics.isLittleO_iff_tendsto' ] at this;
+      have := nth_prime_asymp
+      rw [ Asymptotics.IsEquivalent ] at this
+      rw [ Asymptotics.isLittleO_iff_tendsto' ] at this
       · simpa using this.add_const 1 |> Filter.Tendsto.congr' (by
           filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx using by
             rw [ Pi.sub_apply, sub_div,
@@ -76,8 +76,8 @@ theorem nth_prime_le_const_mul_log_eventually :
         exact absurd h <| ne_of_gt <|
           mul_pos ( Nat.cast_pos.mpr <| pos_of_gt hn ) <|
             Real.log_pos <| Nat.one_lt_cast.mpr hn
-    simpa using h_ratio.eventually ( gt_mem_nhds one_lt_two );
-  refine' ⟨ 2, zero_lt_two, _ ⟩;
+    simpa using h_ratio.eventually ( gt_mem_nhds one_lt_two )
+  refine ⟨ 2, zero_lt_two, ?_ ⟩
   filter_upwards [ Filter.eventually_ge_atTop N, Filter.eventually_gt_atTop 1 ]
     with n hn hn' using by
       have := hN n hn
@@ -112,7 +112,7 @@ def is_solution (E n : ℕ) : Prop :=
 p_{k,j} >= 5 for all valid indices.
 -/
 theorem p_kj_ge_5 (E k j : ℕ) : p_kj E k j ≥ 5 := by
-  refine' le_trans _ ( Nat.nth_monotone _ <| Nat.le_add_left _ _ );
+  refine le_trans ?_ ( Nat.nth_monotone ?_ <| Nat.le_add_left _ _ )
   · bound;
   · exact Nat.infinite_setOf_prime
 
@@ -123,14 +123,14 @@ theorem p_kj_injective (E : ℕ) :
   ∀ k1 < E, ∀ j1 ∈ Finset.Icc 1 E,
   ∀ k2 < E, ∀ j2 ∈ Finset.Icc 1 E,
   p_kj E k1 j1 = p_kj E k2 j2 → k1 = k2 ∧ j1 = j2 := by
-    intros k1 hk1 j1 hj1 k2 hk2 j2 hj2 h_eq;
+    intros k1 hk1 j1 hj1 k2 hk2 j2 hj2 h_eq
     -- Equality of nth primes implies equality of their indices.
     have h_inj : k1 * E + (j1 - 1) + 2 = k2 * E + (j2 - 1) + 2 := by
-      apply Nat.nth_injective ( Nat.infinite_setOf_prime ) h_eq;
+      apply Nat.nth_injective ( Nat.infinite_setOf_prime ) h_eq
     have h_inj : k1 = k2 := by
       nlinarith [ Nat.sub_add_cancel ( Finset.mem_Icc.mp hj1 |>.1 ),
         Nat.sub_add_cancel ( Finset.mem_Icc.mp hj2 |>.1 ),
-        Finset.mem_Icc.mp hj1 |>.2, Finset.mem_Icc.mp hj2 |>.2 ];
+        Finset.mem_Icc.mp hj1 |>.2, Finset.mem_Icc.mp hj2 |>.2 ]
     cases j1 <;> cases j2 <;> aesop
 
 /-
@@ -144,8 +144,9 @@ theorem Q_k_props (E k : ℕ) (hk : k < E) :
       have h_distinct :
           ∀ j1 j2 : ℕ, j1 ∈ Finset.Icc 1 E → j2 ∈ Finset.Icc 1 E →
             j1 ≠ j2 → p_kj E k j1 ≠ p_kj E k j2 := by
-        intros j1 j2 hj1 hj2 hne;
-        have := p_kj_injective E k hk j1 hj1 k hk j2 hj2; aesop;
+        intros j1 j2 hj1 hj2 hne
+        have := p_kj_injective E k hk j1 hj1 k hk j2 hj2
+        aesop
       -- Since the primes p_{k,j} are distinct, their product is squarefree by definition.
       have h_squarefree :
           ∀ {s : Finset ℕ}, (∀ j ∈ s, Nat.Prime (p_kj E k j)) →
@@ -153,14 +154,19 @@ theorem Q_k_props (E k : ℕ) (hk : k < E) :
               p_kj E k j1 ≠ p_kj E k j2) →
             Squarefree (∏ j ∈ s, p_kj E k j) := by
         intros s hs_prime hs_distinct
-        induction s using Finset.induction <;>
-          simp_all +decide [ Nat.squarefree_mul_iff ]
-        exact ⟨
-          Nat.Coprime.prod_right fun x hx =>
-            hs_prime.1.coprime_iff_not_dvd.mpr fun h =>
-              hs_distinct.1 x hx ( by aesop ) <|
-                Nat.prime_dvd_prime_iff_eq hs_prime.1 ( hs_prime.2 x hx ) |>.1 h,
-          hs_prime.1.squarefree ⟩
+        induction s using Finset.induction
+        · simp_all +decide only [Finset.mem_Icc, ne_eq, and_imp, Finset.notMem_empty,
+            IsEmpty.forall_iff, implies_true, not_isEmpty_of_nonempty,
+            Finset.prod_empty, isUnit_iff_eq_one, IsUnit.squarefree]
+        · simp_all +decide only [Finset.mem_Icc, ne_eq, and_imp, Finset.mem_insert,
+            or_true, implies_true, not_false_eq_true, forall_const, forall_eq_or_imp,
+            not_true_eq_false, true_and, Finset.prod_insert, Nat.squarefree_mul_iff, and_true]
+          exact ⟨
+            Nat.Coprime.prod_right fun x hx =>
+              hs_prime.1.coprime_iff_not_dvd.mpr fun h =>
+                hs_distinct.1 x hx ( by aesop ) <|
+                  Nat.prime_dvd_prime_iff_eq hs_prime.1 ( hs_prime.2 x hx ) |>.1 h,
+            hs_prime.1.squarefree ⟩
       exact h_squarefree
         ( fun j hj => Nat.prime_nth_prime _ )
         ( fun j1 hj1 j2 hj2 hij => h_distinct j1 j2 hj1 hj2 hij )
@@ -190,13 +196,14 @@ theorem Q_k_props (E k : ℕ) (hk : k < E) :
               Finset.dvd_prod_of_mem _ ( Finset.mem_Icc.mpr ⟨ ha₁, ha₂ ⟩ ),
               Finset.prod_ne_zero_iff.mpr fun x hx =>
                 Nat.Prime.ne_zero ( h_prime x hx ) ⟩
-        rw [ ← h_prime_factors_length, List.toFinset_card_of_nodup ];
-        exact Squarefree.nodup_primeFactorsList h_sqfree;
+        rw [ ← h_prime_factors_length, List.toFinset_card_of_nodup ]
+        exact Squarefree.nodup_primeFactorsList h_sqfree
       rw [ h_prime_factors_length,
         Finset.card_image_of_injOn fun i hi j hj hij => ?_,
-        Nat.card_Icc ] ; aesop;
+        Nat.card_Icc ]
+      · aesop
       have := p_kj_injective E k ( by aesop ) i hi k ( by aesop ) j hj
-      aesop;
+      aesop
     exact ⟨ h_sqfree, h_prime_factors ⟩
 
 /-
@@ -206,7 +213,7 @@ theorem moduli_properties (E : ℕ) :
   (∀ k < E, Nat.Coprime (Q_k E k) 2) ∧
   (∀ k < E, Nat.Coprime (Q_k E k) 3) ∧
   (∀ k1 < E, ∀ k2 < E, k1 ≠ k2 → Nat.Coprime (Q_k E k1) (Q_k E k2)) := by
-    refine' ⟨ _, _, _ ⟩;
+    refine ⟨ ?_, ?_, ?_ ⟩
     · intro k hk
       have h_odd : ∀ j ∈ Finset.Icc 1 E, Odd (p_kj E k j) := by
         intro j hj
@@ -216,21 +223,22 @@ theorem moduli_properties (E : ℕ) :
         Nat.Coprime.symm <|
           Nat.prime_two.coprime_iff_not_dvd.mpr <| by
             simpa [ ← even_iff_two_dvd ] using h_odd j hj
-    · intro k hk;
-      refine' Nat.Coprime.prod_left fun i hi => _;
+    · intro k hk
+      refine Nat.Coprime.prod_left fun i hi => ?_
       -- Since $p_{k,i}$ is a prime number greater than or equal to 5, it is coprime with 3.
       have h_coprime : Nat.Prime (p_kj E k i) ∧ p_kj E k i ≥ 5 := by
-        exact ⟨ Nat.prime_nth_prime _, p_kj_ge_5 E k i ⟩;
+        exact ⟨ Nat.prime_nth_prime _, p_kj_ge_5 E k i ⟩
       exact h_coprime.1.coprime_iff_not_dvd.mpr fun h => by
         have := Nat.le_of_dvd ( by decide ) h
         linarith
-    · intro k1 hk1 k2 hk2 hne;
+    · intro k1 hk1 k2 hk2 hne
       -- Since the primes in $Q_{k1}$ and $Q_{k2}$ are distinct, their product is coprime.
       have h_coprime_primes :
           ∀ j1 ∈ Finset.Icc 1 E, ∀ j2 ∈ Finset.Icc 1 E,
             p_kj E k1 j1 ≠ p_kj E k2 j2 := by
-        intros j1 hj1 j2 hj2 h_eq;
-        have := p_kj_injective E k1 hk1 j1 hj1 k2 hk2 j2 hj2 h_eq; aesop;
+        intros j1 hj1 j2 hj2 h_eq
+        have := p_kj_injective E k1 hk1 j1 hj1 k2 hk2 j2 hj2 h_eq
+        aesop
       exact Nat.Coprime.prod_left fun i hi =>
         Nat.Coprime.prod_right fun j hj => by
           have := Nat.coprime_primes
@@ -238,7 +246,7 @@ theorem moduli_properties (E : ℕ) :
               exact Nat.prime_nth_prime _ )
             ( show Nat.Prime ( p_kj E k2 j ) from by
               exact Nat.prime_nth_prime _ )
-          aesop;
+          aesop
 
 /-
 Define the modulus and remainder maps for the CRT system.
@@ -268,7 +276,7 @@ def remainders_list (E : ℕ) : List ℕ := (indices E).map (remainder_map)
 theorem moduli_pairwise_coprime (E : ℕ) (hE : E ≥ 10) :
   (moduli_list E).Pairwise Nat.Coprime := by
     -- By definition of moduli_list, it consists of 2^E, 3, and the Q_k's.
-    simp [moduli_list];
+    simp only [moduli_list]
     unfold indices modulus_map;
     -- Since $2^E$, $3$, and each $Q_k$ are pairwise coprime, the entire list is pairwise coprime.
     have h_coprime :
@@ -304,7 +312,7 @@ theorem n_E_is_solution (E : ℕ) (hE : E ≥ 10) : is_solution E (n_E E hE) := 
   have h_cong : ∀ i ∈ indices E, n_E E hE ≡ remainder_map i [MOD modulus_map E i] := by
     unfold n_E;
     grind;
-  refine' ⟨ _, _, _ ⟩;
+  refine ⟨ ?_, ?_, ?_ ⟩
   · exact h_cong 0 ( by simp +decide [ indices ] );
   · convert h_cong 1 _ using 1 ; norm_num [ indices ];
   · intro k hk;
@@ -373,11 +381,11 @@ If k < E, then Omega(n(E) - 2^k) >= E.
 -/
 theorem Omega_lower_bound_case1
     (E : ℕ) (hE : E ≥ 10) (k : ℕ) (hk : k < E)
-    (h_le : 2^k ≤ n_E E hE) :
-  Omega (n_E E hE - 2^k) ≥ E := by
+    (h_le : 2 ^ k ≤ n_E E hE) :
+  Omega (n_E E hE - 2 ^ k) ≥ E := by
     -- Use the divisor $Q_k$ and monotonicity of Omega under divisibility.
     have h_Qk_div : Q_k E k ∣ n_E E hE - 2 ^ k := by
-      have h_mod : n_E E hE ≡ 2^k [MOD Q_k E k] := by
+      have h_mod : n_E E hE ≡ 2 ^ k [MOD Q_k E k] := by
         convert n_E_is_solution E hE |>.2.2 k hk;
       rw [ ← Nat.modEq_zero_iff_dvd ];
       cases le_iff_exists_add'.mp h_le ; simp_all +decide [ ← ZMod.natCast_eq_natCast_iff ];
@@ -392,26 +400,27 @@ If k >= E, then Omega(n(E) - 2^k) >= E.
 -/
 theorem Omega_lower_bound_case2
     (E : ℕ) (hE : E ≥ 10) (k : ℕ) (hk : k ≥ E)
-    (h_le : 2^k ≤ n_E E hE) :
-  Omega (n_E E hE - 2^k) ≥ E := by
+    (h_le : 2 ^ k ≤ n_E E hE) :
+  Omega (n_E E hE - 2 ^ k) ≥ E := by
     -- Since $2^E$ divides $n_E$, we have $2^E \mid (n_E - 2^k)$.
-    have h_div : 2^E ∣ (n_E E (by linarith) - 2^k) := by
+    have h_div : 2 ^ E ∣ (n_E E (by linarith) - 2 ^ k) := by
       -- By definition of $n_E$, we know that $n_E$ is a solution to the system of congruences.
-      have h_n_E_sol : n_E E hE ≡ 0 [MOD 2^E] := by
-        exact n_E_is_solution E hE |>.1;
-      exact Nat.dvd_sub ( Nat.dvd_of_mod_eq_zero h_n_E_sol ) ( pow_dvd_pow _ hk );
-    by_cases h : n_E E ( by linarith ) - 2 ^ k = 0 <;> simp_all +decide [ Nat.dvd_iff_mod_eq_zero ];
+      have h_n_E_sol : n_E E hE ≡ 0 [MOD 2 ^ E] := by
+        exact n_E_is_solution E hE |>.1
+      exact Nat.dvd_sub ( Nat.dvd_of_mod_eq_zero h_n_E_sol ) ( pow_dvd_pow _ hk )
+    by_cases h : n_E E ( by linarith ) - 2 ^ k = 0 <;>
+      simp_all +decide only [ge_iff_le]
     · rw [ Nat.sub_eq_iff_eq_add ] at h <;> try linarith;
       exact absurd ( n_E_not_pow_two E ( by linarith ) k ) ( by aesop );
-    · have h_omega_ge_E : Omega (2^E) ≤ Omega (n_E E hE - 2^k) := by
-        exact Omega_dvd_le ( Nat.dvd_of_mod_eq_zero h_div ) h;
+    · have h_omega_ge_E : Omega (2 ^ E) ≤ Omega (n_E E hE - 2 ^ k) := by
+        exact Omega_dvd_le h_div h
       exact le_trans ( by rw [ Omega_pow_two ] ) h_omega_ge_E
 
 /-
 Omega(n(E) - 2^k) >= E for all valid k.
 -/
-theorem Omega_lower_bound (E : ℕ) (hE : E ≥ 10) (k : ℕ) (hk : 2^k ≤ n_E E hE) :
-  Omega (n_E E hE - 2^k) ≥ E := by
+theorem Omega_lower_bound (E : ℕ) (hE : E ≥ 10) (k : ℕ) (hk : 2 ^ k ≤ n_E E hE) :
+  Omega (n_E E hE - 2 ^ k) ≥ E := by
     by_cases hk : k < E;
     · (expose_names; exact Omega_lower_bound_case1 E hE k hk hk_1);
     · exact Omega_lower_bound_case2 E hE k ( le_of_not_gt hk ) ‹_›
@@ -443,7 +452,7 @@ theorem p_kj_bound_eventually :
         ∀ᶠ E in Filter.atTop, ∀ k < E, ∀ j ∈ Finset.Icc 1 E,
           p_kj E k j ≤ nth_prime (E^2 + E + 1) := by
       refine Filter.Eventually.of_forall fun E k hk j hj => ?_;
-      refine' Nat.nth_monotone _ _;
+      refine Nat.nth_monotone ?_ ?_
       · exact Nat.infinite_setOf_prime;
       · nlinarith [ Finset.mem_Icc.mp hj,
           Nat.sub_add_cancel ( by linarith [ Finset.mem_Icc.mp hj ] : 1 ≤ j ) ];
@@ -516,7 +525,8 @@ theorem log_Q_k_bound_eventually :
     filter_upwards [ hC ] with E hE
     intro k hk
     specialize hE k hk
-    simp_all +decide [ Q_k ]
+    simp_all +decide only [gt_iff_lt, Finset.mem_Icc, and_imp, eventually_atTop, ge_iff_le,
+      Q_k, Nat.cast_prod]
     rw [ Real.log_prod fun i hi =>
       Nat.cast_ne_zero.mpr <| Nat.Prime.ne_zero <| by
         unfold p_kj
@@ -602,8 +612,8 @@ theorem log_M_bound_eventually :
           by
             norm_num
             nlinarith
-  simp +zetaDelta at *;
-  refine' ⟨ by positivity, _ ⟩;
+  simp +zetaDelta at *
+  refine ⟨ by positivity, ?_ ⟩
   obtain ⟨ a, ha ⟩ := h_sum_bound
   use Max.max a 10
   intro b hb
@@ -639,7 +649,7 @@ theorem n_E_lt_M (E : ℕ) (hE : E ≥ 10) : n_E E hE < M E := by
     apply Nat.chineseRemainderOfList_lt_prod; norm_num [ indices ];
     -- Each modulus is positive.
     intros i hi
-    simp [modulus_map];
+    simp only [modulus_map]
     split_ifs <;> norm_num [ Nat.Prime.ne_zero ];
     exact Finset.prod_ne_zero_iff.mpr fun j hj => Nat.Prime.ne_zero <| Nat.prime_nth_prime _;
   convert h_n_E_lt_M using 1;
@@ -671,7 +681,7 @@ theorem pntRate_n_E_le_const_mul_E_eventually :
         exact Nat.cast_pos.mpr <| Nat.pos_of_ne_zero <| by
           intro h
           have := n_E_is_solution E hE'
-          simp_all
+          simp_all only [eventually_atTop, ge_iff_le]
           have := this.2.2 0 ( by linarith )
           norm_num [ Nat.modEq_iff_dvd ] at this
           norm_cast at this
@@ -685,7 +695,7 @@ theorem pntRate_n_E_le_const_mul_E_eventually :
       have hle : (n_E E hE' : ℝ) ≤ M E := by
         exact Nat.cast_le.mpr ( le_of_lt ( n_E_lt_M E hE' ) )
       exact le_trans ( Real.log_le_log hpos hle ) hE ⟩;
-  refine' ⟨ Real.sqrt ( C * 2 ), _, _ ⟩ <;> norm_num [ Real.sqrt_lt', hC_pos ];
+  refine ⟨ Real.sqrt ( C * 2 ), ?_, ?_ ⟩ <;> norm_num [ Real.sqrt_lt', hC_pos ];
   -- Eventually, `log log n_E` is bounded below by a multiple of `log E`.
   have h_log_log_bound :
       ∀ᶠ E in Filter.atTop, ∀ (hE : E ≥ 10),
@@ -696,13 +706,13 @@ theorem pntRate_n_E_le_const_mul_E_eventually :
           Real.log (n_E E hE) ≥ E * Real.log 2 := by
       -- Since $n_E \geq 2^E$, we have $\log n_E \geq \log (2^E) = E \log 2$.
       have h_log_n_E_ge_E_log_2 :
-          ∀ᶠ E in Filter.atTop, ∀ (hE : E ≥ 10), n_E E hE ≥ 2^E := by
+          ∀ᶠ E in Filter.atTop, ∀ (hE : E ≥ 10), n_E E hE ≥ 2 ^ E := by
         filter_upwards [ Filter.eventually_gt_atTop 10 ] with E hE hE' using
           Nat.le_of_dvd
             ( Nat.pos_of_ne_zero ( by
               intro h
               have := n_E_is_solution E hE'
-              simp_all
+              simp_all only [ge_iff_le, eventually_atTop]
               have := this.2.2 0 ( by linarith )
               simp_all [ Nat.modEq_iff_dvd' ]
               unfold Q_k at this
@@ -722,7 +732,7 @@ theorem pntRate_n_E_le_const_mul_E_eventually :
     filter_upwards [ h_log_n_E_ge_E_log_2, Filter.eventually_gt_atTop 10 ]
       with E hE₁ hE₂ hE₃
     rw [ ← Real.log_rpow, Real.log_le_log_iff ] <;> norm_num <;> try positivity;
-    · refine' le_trans _ ( pow_le_pow_left₀ ( by positivity ) ( hE₁ hE₃ ) 2 );
+    · refine le_trans ?_ ( pow_le_pow_left₀ ( by positivity ) ( hE₁ hE₃ ) 2 )
       have := Real.log_two_gt_d9
       norm_num at *
       nlinarith [
@@ -734,7 +744,7 @@ theorem pntRate_n_E_le_const_mul_E_eventually :
     · exact sq_pos_of_pos ( lt_of_lt_of_le ( by positivity ) ( hE₁ hE₃ ) );
     · exact lt_of_lt_of_le ( by positivity ) ( hE₁ hE₃ );
   obtain ⟨ N, hN ⟩ := Filter.eventually_atTop.mp ( hC_bound.and h_log_log_bound );
-  refine' ⟨ N + 10, fun b hb hE => Real.sqrt_le_iff.mpr ⟨ _, _ ⟩ ⟩;
+  refine ⟨ N + 10, fun b hb hE => Real.sqrt_le_iff.mpr ⟨ ?_, ?_ ⟩ ⟩
   · positivity;
   · rw [ div_le_iff₀ ] <;> norm_num [ mul_pow ];
     · rw [ Real.sq_sqrt hC_pos.le ]
@@ -763,11 +773,11 @@ theorem main_inequality_eventually :
     ∃ c : ℝ, 0 < c ∧
       (∀ᶠ E in atTop,
         ∀ hE : E ≥ 10,
-          ∀ k, 2^k ≤ n_E E hE →
-            (Omega (n_E E hE - 2^k) : ℝ) ≥ c * pntRate (n_E E hE)) := by
-  simp +zetaDelta at *;
+          ∀ k, 2 ^ k ≤ n_E E hE →
+            (Omega (n_E E hE - 2 ^ k) : ℝ) ≥ c * pntRate (n_E E hE)) := by
+  simp +zetaDelta only [ge_iff_le, eventually_atTop] at *
   obtain ⟨ C, hC₀, hC ⟩ := pntRate_n_E_le_const_mul_E_eventually;
-  refine' ⟨ 1 / C, by positivity, _ ⟩;
+  refine ⟨ 1 / C, by positivity, ?_ ⟩
   obtain ⟨ a, ha ⟩ := Filter.eventually_atTop.mp hC;
   field_simp;
   exact ⟨ a + 10, fun b hb hE k hk => by
@@ -804,26 +814,26 @@ theorem infinitely_many_counterexamples :
   use n_E (max a (max 10 (n + 1))) (by
   norm_num)
   generalize_proofs at *;
-  refine' ⟨ ha _ ( le_max_left _ _ ) _, _ ⟩;
+  refine ⟨ ha _ ( le_max_left _ _ ) _, ?_ ⟩
   -- The chosen `n_E` satisfies the CRT congruences.
   have h_sol :
       n_E (max a (max 10 (n + 1))) (by
-        assumption) ≡ 0 [MOD 2^(max a (max 10 (n + 1)))] ∧
+        assumption) ≡ 0 [MOD 2 ^ (max a (max 10 (n + 1)))] ∧
         n_E (max a (max 10 (n + 1))) (by
           assumption) ≡ 0 [MOD 3] ∧
           ∀ k < max a (max 10 (n + 1)),
             n_E (max a (max 10 (n + 1))) (by
-              assumption) ≡ 2^k [MOD Q_k (max a (max 10 (n + 1))) k] := by
+              assumption) ≡ 2 ^ k [MOD Q_k (max a (max 10 (n + 1))) k] := by
     exact n_E_is_solution _ _
   generalize_proofs at *;
   -- It is divisible by the corresponding power of 2.
   have h_div :
-      2^(max a (max 10 (n + 1))) ∣
+      2 ^ (max a (max 10 (n + 1))) ∣
         n_E (max a (max 10 (n + 1))) (by
           (expose_names; exact pf)) := by
     exact Nat.dvd_of_mod_eq_zero h_sol.1
   generalize_proofs at *;
-  refine' lt_of_lt_of_le _ ( Nat.le_of_dvd ( Nat.pos_of_ne_zero _ ) h_div );
+  refine lt_of_lt_of_le ?_ ( Nat.le_of_dvd ( Nat.pos_of_ne_zero ?_ ) h_div )
   · exact
       lt_of_lt_of_le
         ( Nat.lt_of_succ_le ( le_max_right _ _ ) )
@@ -838,7 +848,8 @@ theorem infinitely_many_counterexamples :
   · intro H
     specialize ha ( Max.max a ( Max.max 10 ( n + 1 ) ) )
       ( by aesop ) ( by aesop )
-    simp_all +decide [ Nat.ModEq ]
+    simp_all +decide only [Nat.ModEq, Nat.zero_mod, lt_sup_iff, Order.lt_add_one_iff,
+      true_and, dvd_zero]
     specialize h_sol 0 ; norm_num at h_sol;
     unfold Q_k at h_sol; simp_all
     exact absurd
