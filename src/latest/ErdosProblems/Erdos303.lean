@@ -24,9 +24,6 @@ set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.unnecessarySimpa false
-set_option linter.unusedSimpArgs false
-set_option linter.unusedVariables false
 
 namespace Erdos303
 
@@ -158,9 +155,9 @@ theorem pigeonhole_partition_of_neighbors (R1 R2 S : ℕ)
         fun i j hij => by simpa using hij,
         fun i => hg.1 ( by aesop ) |>.2 ⟩
 
-theorem construct_induced_coloring_from_g (s t : ℕ)
+theorem construct_induced_coloring_from_g (_s _t : ℕ)
   (R1 : ℕ)
-  (S : ℕ)
+  (_S : ℕ)
   (edge_color : ℕ → ℕ → ℤ)
   (c1 c2 : ℤ)
   (h_c1_ne_c2 : c1 ≠ c2)
@@ -180,12 +177,12 @@ theorem construct_induced_coloring_from_g (s t : ℕ)
       c1;
   aesop
 
-lemma f_map_properties (s t : ℕ)
+lemma f_map_properties (s _t : ℕ)
   (hs_gt_one : s > 1)
   (R1 : ℕ)
   (S : ℕ)
   (edge_color : ℕ → ℕ → ℤ)
-  (c1 c2 : ℤ)
+  (c1 _c2 : ℤ)
   (g : Fin (R1 + 1) → ℕ)
   (hg1 : ∀ (i : Fin (R1 + 1)), 0 < g i ∧ g i ≤ S)
   (hg2 : ∀ (i j : Fin (R1 + 1)), i < j → g i < g j)
@@ -335,8 +332,8 @@ lemma ramsey_clique_reduction (k : ℕ) (hk : k ≥ 1) (R_k : ℕ) (S : ℕ) (ed
 lemma ramsey_existence_step (s t : ℕ) (hs : s > 1) (ht : t > 1)
   (R1 : ℕ)
   (hR1 : ∀ S ≥ R1, ∀ (edge_color : ℕ → ℕ → ℤ) (c1 c2 : ℤ)
-    (hc_ne : c1 ≠ c2)
-    (h_edges : ∀ u v, u < v → edge_color u v = c1 ∨ edge_color u v = c2),
+    (_hc_ne : c1 ≠ c2)
+    (_h_edges : ∀ u v, u < v → edge_color u v = c1 ∨ edge_color u v = c2),
     (∃ (clique : Fin (s - 1) → ℕ),
       (∀ i, clique i ≤ S) ∧
       (∀ i j, i < j → clique i < clique j) ∧
@@ -347,8 +344,8 @@ lemma ramsey_existence_step (s t : ℕ) (hs : s > 1) (ht : t > 1)
       (∀ i j, i < j → edge_color (clique i) (clique j) = c2)))
   (R2 : ℕ)
   (hR2 : ∀ S ≥ R2, ∀ (edge_color : ℕ → ℕ → ℤ) (c1 c2 : ℤ)
-    (hc_ne : c1 ≠ c2)
-    (h_edges : ∀ u v, u < v → edge_color u v = c1 ∨ edge_color u v = c2),
+    (_hc_ne : c1 ≠ c2)
+    (_h_edges : ∀ u v, u < v → edge_color u v = c1 ∨ edge_color u v = c2),
     (∃ (clique : Fin s → ℕ),
       (∀ i, clique i ≤ S) ∧
       (∀ i j, i < j → clique i < clique j) ∧
@@ -358,8 +355,8 @@ lemma ramsey_existence_step (s t : ℕ) (hs : s > 1) (ht : t > 1)
       (∀ i j, i < j → clique i < clique j) ∧
       (∀ i j, i < j → edge_color (clique i) (clique j) = c2))) :
   ∃ R, ∀ S ≥ R, ∀ (edge_color : ℕ → ℕ → ℤ) (c1 c2 : ℤ)
-    (hc_ne : c1 ≠ c2)
-    (h_edges : ∀ u v, u < v → edge_color u v = c1 ∨ edge_color u v = c2),
+    (_hc_ne : c1 ≠ c2)
+    (_h_edges : ∀ u v, u < v → edge_color u v = c1 ∨ edge_color u v = c2),
     (∃ (clique : Fin s → ℕ),
       (∀ i, clique i ≤ S) ∧
       (∀ i j, i < j → clique i < clique j) ∧
@@ -418,7 +415,7 @@ lemma ramsey_existence_step (s t : ℕ) (hs : s > 1) (ht : t > 1)
           · intro i
             cases i using Fin.cases with
             | zero =>
-                simpa using Nat.zero_le S
+                simp
             | succ i =>
                 simpa using (hh.1 ⟨clique i, by linarith [hclique₁ i]⟩).2
           · intro i j hij
@@ -458,8 +455,8 @@ lemma ramsey_existence_step (s t : ℕ) (hs : s > 1) (ht : t > 1)
 
 theorem ramsey_two_color (s t : ℕ) (hs : s ≥ 1) (ht : t ≥ 1) :
   ∃ R, ∀ S ≥ R, ∀ (edge_color : ℕ → ℕ → ℤ) (c1 c2 : ℤ)
-  (hc_ne : c1 ≠ c2)
-  (h_edges : ∀ u v, u < v → edge_color u v = c1 ∨ edge_color u v = c2),
+  (_hc_ne : c1 ≠ c2)
+  (_h_edges : ∀ u v, u < v → edge_color u v = c1 ∨ edge_color u v = c2),
   (∃ (clique : Fin s → ℕ),
     (∀ i, clique i ≤ S) ∧
     (∀ i j, i < j → clique i < clique j) ∧
