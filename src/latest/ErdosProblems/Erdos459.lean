@@ -44,12 +44,10 @@ import Mathlib
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.cases false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.openClassical false
 set_option linter.style.refine false
-set_option linter.unusedSimpArgs false
 
 namespace Erdos459
 
@@ -825,7 +823,7 @@ lemma density_at_most_one_prime (M : ℕ) :
           intro n hn; rw [ Finset.card_eq_zero.mpr ] <;> aesop;
         exact (by
         convert h_union using 1;
-        exact Set.ext fun x => by simp +decide [ le_iff_lt_or_eq, Nat.lt_succ_iff ] ;);
+        exact Set.ext fun x => by simp +decide [ le_iff_lt_or_eq ] ;);
       convert h_density ( Finset.filter Nat.Prime ( Finset.range M ) )
         ( fun p hp => Finset.mem_filter.mp hp |>.2 ) using 1;
       exact congr_arg _ ( by ext; congr! 2; aesop )
@@ -1014,7 +1012,7 @@ lemma exists_nat_mul_sub_nat_small (α : ℝ) (hα_pos : 0 < α)
               abs_lt.mp h_sub.2.2,
               Int.fract_add_floor ( ( l : ℝ ) * α ),
               Int.fract_add_floor ( ( k : ℝ ) * α )]
-    cases' hnm with hnm hnm;
+    rcases hnm with hnm | hnm
     · use n, m.natAbs;
       simp +zetaDelta at *;
       exact ⟨
