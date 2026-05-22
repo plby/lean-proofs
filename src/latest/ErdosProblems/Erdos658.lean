@@ -33,7 +33,12 @@ import ErdosProblems.Axioms
 namespace Erdos658
 
 
-set_option linter.all false
+-- This generated proof file still relies on automated proof scripts whose warnings
+-- are too interdependent to remove locally without changing the proof structure.
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.flexible false
+set_option linter.style.multiGoal false
 
 /-!
 # Erdős Problem 658: Squares in Dense Lattice Subsets
@@ -937,8 +942,8 @@ lemma fourth_vertex_013 {N : ℕ} (hN : N ≥ 1)
   use a, c - k, c, b - (c - k)
   grind +locals
 
--- Complex family analysis requires extra heartbeats
 set_option maxHeartbeats 800000 in
+-- Complex family analysis requires extra heartbeats.
 /-- The fourth vertex of a clique containing {v0, v2, v3} equals v1. -/
 lemma fourth_vertex_023 {N : ℕ} (hN : N ≥ 1)
     {S : Finset (ℤ × ℤ × ℤ)} (hS : S ⊆ grid3 N)
@@ -1099,8 +1104,8 @@ lemma fourth_vertex_023 {N : ℕ} (hN : N ≥ 1)
     use c - j, b, c, j - (-a + c)
     lia
 
--- Complex family analysis requires extra heartbeats
 set_option maxHeartbeats 800000 in
+-- Complex family analysis requires extra heartbeats.
 /-- The fourth vertex of a clique containing {v1, v2, v3} equals v0. -/
 lemma fourth_vertex_123 {N : ℕ} (hN : N ≥ 1)
     {S : Finset (ℤ × ℤ × ℤ)} (hS : S ⊆ grid3 N)
