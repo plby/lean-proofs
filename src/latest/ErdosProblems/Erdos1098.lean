@@ -40,7 +40,6 @@ namespace Erdos1098
 
 set_option linter.style.setOption false
 set_option linter.style.openClassical false
-set_option linter.style.maxHeartbeats false
 set_option linter.style.refine false
 set_option linter.style.cases false
 set_option linter.style.induction false
@@ -72,7 +71,6 @@ theorem ramsey_step (S : Set ℕ) (hS : S.Infinite) (r : ℕ → ℕ → Prop) :
       fun h => ⟨_, Set.inter_subset_left, h, Or.inr fun t ht => ht.2⟩
   exact ⟨x, hx.1, T, fun t ht => hT.1 ht |>.1, hT.2.1, fun t ht => hT.1 ht |>.2, hT.2.2⟩
 
-set_option maxHeartbeats 400000 in
 theorem ramsey_sequence (r : ℕ → ℕ → Prop) :
     ∃ (x : ℕ → ℕ) (S : ℕ → Set ℕ) (c : ℕ → Bool),
       StrictMono x ∧
