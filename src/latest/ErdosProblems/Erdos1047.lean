@@ -28,7 +28,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.style.whitespace false
 set_option linter.style.induction false
-set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
 set_option linter.style.openClassical false
 set_option linter.style.refine false
@@ -116,7 +115,6 @@ The midpoint `m_test` is not in the sublevel set `sublevelSet'`.
 noncomputable def m_test : ℂ :=
   (r_test * (1 + Complex.exp (Complex.I * (2 * Real.pi / 5))) / 2)
 
-set_option maxHeartbeats 0 in
 lemma m_test_not_in_sublevelSet' : m_test ∉ sublevelSet' := by
   unfold m_test sublevelSet'
   unfold f c' r_test
