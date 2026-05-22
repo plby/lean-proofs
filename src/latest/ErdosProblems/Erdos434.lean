@@ -47,18 +47,20 @@ please submit the same prompt, and add this .lean file in "Optional: Attach a Le
 import Mathlib
 import ErdosProblems.Erdos433
 
-set_option linter.mathlibStandardSet false
+set_option linter.style.setOption false
+set_option linter.style.openClassical false
+set_option linter.style.longLine false
+set_option linter.flexible false
+set_option linter.style.multiGoal false
+set_option linter.unusedSimpArgs false
+set_option linter.style.induction false
+set_option linter.style.refine false
 
 open scoped BigOperators
 open scoped Real
 open scoped Nat
 open scoped Classical
 open scoped Pointwise
-
-set_option maxHeartbeats 0
-set_option maxRecDepth 4000
-set_option synthInstance.maxHeartbeats 20000
-set_option synthInstance.maxSize 128
 
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
@@ -95,7 +97,9 @@ lemma mem_closure_iff_exists_sum {A : Set ℕ} {x : ℕ} :
         exact fun S a =>
           AddSubsemigroup.add_mem S (a (hf 0)) (a_ih (fun i => f i.succ) (fun i => hf i.succ) S a)
 
-lemma S_A_opt_eq_Union (n k : ℕ)  :
+set_option maxHeartbeats 1000000 in
+-- The finite-interval representation proof needs extra heartbeats for arithmetic normalization.
+lemma S_A_opt_eq_Union (n k : ℕ) :
   (S (A_opt n k : Set ℕ) : Set ℕ) = ⋃ (j : ℕ) (_hj : j ≥ 1), Set.Icc (j * (n - k + 1)) (j * n) := by
     -- By definition of $S_k$, we know that $S(A_{\text{opt}})$ is the set of all sums of elements from $A_{\text{opt}}$.
     have hS_eq : S (A_opt n k) = {x | ∃ j : ℕ, j ≥ 1 ∧ ∃ (f : Fin j → ℕ), (∀ i, f i ∈ A_opt n k) ∧ ∑ i, f i = x} := by
@@ -121,6 +125,8 @@ lemma S_A_opt_eq_Union (n k : ℕ)  :
           · grind;
           · grind
 
+set_option maxHeartbeats 1000000 in
+-- The cardinality computation uses several interval normalizations.
 lemma card_S_k_A_opt (n k m : ℕ) (hk : 1 ≤ k) (hn : k ≤ n) (hm : m ≥ 1) :
   (S_k n (S (A_opt n k : Set ℕ)) m).ncard = min n (m * (k - 1) + 1) := by
     -- By definition of $S_k$, we know that $S_k n (S (A_opt n k)) m = \{x \in \mathbb{N} \mid (m-1)n + 1 \leq x \leq mn\}$.
