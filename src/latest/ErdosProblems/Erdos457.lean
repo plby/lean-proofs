@@ -31,18 +31,18 @@ import Mathlib
 
 namespace Erdos457
 
-set_option linter.mathlibStandardSet false
+set_option linter.style.setOption false
+set_option linter.style.openClassical false
+set_option linter.style.longLine false
+set_option linter.flexible false
+set_option linter.style.refine false
+set_option linter.style.multiGoal false
 
 open scoped BigOperators
 open scoped Real
 open scoped Nat
 open scoped Classical
 open scoped Pointwise
-
-set_option maxHeartbeats 0
-set_option maxRecDepth 4000
-set_option synthInstance.maxHeartbeats 20000
-set_option synthInstance.maxSize 128
 
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
@@ -105,7 +105,6 @@ lemma lemma_simultaneous_approximation (A : ℕ) (Q : Finset ℕ) (hQ : ∀ q �
     -- Let $t = |Q|$. Consider the $6^t+1$ points $x_r = (\{rA/q\})_{q \in Q} \in [0,1)^t$ for $r \in \{0, \dots, 6^t\}$.
     let t := Q.card
     let points := fun r : ℕ => fun q : Q => (r * A : ℝ) / q.val - ⌊(r * A : ℝ) / q.val⌋
-
     -- Partition $[0,1)^t$ into $6^t$ subcubes of side length $1/6$. By PHP, two points $x_r, x_s$ with $r > s$ fall in the same subcube.
     obtain ⟨r, s, hrs⟩ : ∃ r s : ℕ, r ∈ Finset.Icc 0 (6 ^ t) ∧ s ∈ Finset.Icc 0 (6 ^ t) ∧ r > s ∧ ∀ q : Q, abs ((points r q) - (points s q)) < 1 / 6 := by
       have h_pigeonhole : Finset.card (Finset.image (fun r : ℕ => fun q : Q => ⌊(points r q) * 6⌋) (Finset.Icc 0 (6 ^ t))) ≤ 6 ^ t := by
@@ -217,6 +216,8 @@ lemma lemma_divisibility (m : ℕ) (hm : m ≥ 100) (k : ℕ) (hk_pos : k ≥ 1)
         obtain ⟨ i, hi₁, hi₂, hi₃ ⟩ := hi_exists;
         exact dvd_trans ( Int.natCast_dvd_natCast.mp ( Int.dvd_of_emod_eq_zero hi₃ ) ) ( Finset.dvd_prod_of_mem _ ( Finset.mem_Icc.mpr ⟨ hi₁, hi₂ ⟩ ) )
 
+set_option maxHeartbeats 1000000 in
+-- The asymptotic construction proof exceeds the default heartbeat limit.
 theorem thm_main : Set.Infinite { n : ℕ | ∀ p : ℕ, p.Prime → p ≤ 2.1 * Real.log n → p ∣ F n } := by
   -- To prove the infiniteness, we show that for any natural number $a$, there exists an $n$ in the set such that $n > a$.
   have h_infinite : ∀ a : ℕ, ∃ n > a, ∀ p : ℕ, Nat.Prime p → (p : ℝ) ≤ 2.1 * Real.log n → p ∣ F n := by
