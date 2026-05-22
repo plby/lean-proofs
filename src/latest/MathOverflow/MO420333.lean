@@ -48,7 +48,6 @@ set_option linter.style.commandStart false
 set_option linter.style.refine false
 set_option linter.style.induction false
 set_option linter.style.longLine false
-set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
 set_option linter.style.openClassical false
 set_option linter.style.whitespace false
@@ -281,7 +280,8 @@ lemma continuous_tightPoly (n : ℕ) : Continuous (tightPoly n) := by
   · exact continuous_id;
   · exact Continuous.mul ( continuous_id' ) ( Continuous.sub ( ih _ <| Nat.lt_succ_self _ ) ( ih _ <| Nat.lt_succ_of_lt <| Nat.lt_succ_self _ ) )
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 20000000 in
+-- The trigonometric monotonicity proof expands several generated derivative estimates.
 /-
 The trigonometric function `f(θ) = (2 cos θ)^n * sin((n+1)θ) / sin θ`
 is strictly decreasing on `[π/(n+3), π/(n+2)]` for `n ≥ 1`.
@@ -485,7 +485,8 @@ lemma tightPoly_strictMonoOn {n : ℕ} (hn : 1 ≤ n) :
         · norm_cast;
         · exact ne_of_gt ( Real.sin_pos_of_pos_of_lt_pi ( by exact lt_of_lt_of_le ( by positivity ) hθ2.1.1 ) ( by exact lt_of_le_of_lt hθ2.1.2 ( by rw [ div_lt_iff₀ ] <;> nlinarith [ Real.pi_pos ] ) ) )
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 20000000 in
+-- The existence proof combines continuity, IVT, and trigonometric endpoint algebra.
 /-
 The trigonometric function `f(θ) = (2 cos θ)^n * sin((n+1)θ) / sin θ` is strictly decreasing on the interval `[π/(n+3), π/(n+2)]` for `n ≥ 1`.
 Proof idea:
@@ -1442,7 +1443,8 @@ theorem tightPoly_endpoints (n : ℕ) (hn : 1 ≤ n) :
         · rw [ eq_div_iff ( ne_of_gt ( Real.sin_pos_of_pos_of_lt_pi ( by positivity ) ( by rw [ div_lt_iff₀ ( by positivity ) ] ; nlinarith [ Real.pi_pos ] ) ) ) ] ; rw [ show ( n + 1 : ℝ ) * ( Real.pi / ( n + 3 ) ) = Real.pi - 2 * ( Real.pi / ( n + 3 ) ) by linarith [ Real.pi_pos, mul_div_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 3 ≠ 0 ) ] ] ; rw [ Real.sin_pi_sub, Real.sin_two_mul ] ; ring;
         · exact ne_of_gt ( Real.sin_pos_of_pos_of_lt_pi ( by positivity ) ( by rw [ div_lt_iff₀ ( by positivity ) ] ; nlinarith [ Real.pi_pos ] ) )
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 20000000 in
+-- The bracket monotonicity proof normalizes the tight-polynomial trigonometric form.
 /-
 Lemma 6: Strict monotonicity of p_n on the bracket [rho_{n-1}, rho_n].
 -/
