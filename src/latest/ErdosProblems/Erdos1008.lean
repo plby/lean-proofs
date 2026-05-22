@@ -30,7 +30,8 @@ set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.unusedSimpArgs false
 
-set_option maxHeartbeats 0
+set_option maxHeartbeats 1000000
+-- Multiple generated C4-counting proofs time out at the default heartbeat limit.
 
 /-
 A set of edges forms a C4 if it has size 4 and the graph formed by these edges contains a C4.
