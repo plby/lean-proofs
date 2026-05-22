@@ -49,21 +49,17 @@ irrationality, Möbius function, squarefree, Erdős
 open scoped BigOperators
 open ArithmeticFunction
 
-noncomputable section
-
 set_option linter.style.setOption false
-set_option linter.style.maxHeartbeats false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
-set_option linter.style.whitespace false
 
 
 /-! # Chapter 1: Definitions -/
 
 /-- Definition 1.1: The increasing enumeration of squarefree natural numbers,
 defined via `Nat.nth` applied to the predicate `Squarefree`. -/
-def squarefreeSeq : ℕ → ℕ := Nat.nth (fun n => Squarefree n)
+noncomputable def squarefreeSeq : ℕ → ℕ := Nat.nth (fun n => Squarefree n)
 
 /-- A natural number is `r`-free if no perfect `r`-th power greater than 1 divides it. -/
 def IsRFree (r : ℕ) (n : ℕ) : Prop := ∀ d : ℕ, d ^ r ∣ n → IsUnit d
@@ -362,7 +358,7 @@ theorem ChenRusza_Lemma1 (l : ℕ) (hl : l ≥ 2) (a : ℕ → ℕ) (ha_inj : Fu
 /- Lemma 2.2 (Chen–Ruzsa Lemma 3). For nonneg integers `a, b, r` and
 a prime `q` not dividing `l`, there exists `n_r` with
 `a * l^{n_r} + n_r + b ≡ 0 (mod q^r)` and `n_r ≡ 0 (mod q-1)`. -/
-theorem ChenRusza_Lemma3 (l : ℕ)  (a b r : ℕ) (q : ℕ) (hq : q.Prime) (hql : ¬(q ∣ l)) :
+theorem ChenRusza_Lemma3 (l : ℕ) (a b r : ℕ) (q : ℕ) (hq : q.Prime) (hql : ¬(q ∣ l)) :
     ∃ nr : ℕ, (a * l ^ nr + nr + b) % (q ^ r) = 0 ∧ nr % (q - 1) = 0 := by
   induction r with
   | zero => exact ⟨ 0, Nat.mod_one _, Nat.zero_mod _ ⟩
@@ -681,6 +677,7 @@ private lemma consecutive_non_rfree_non_squarefull (r : ℕ) (N : ℕ) :
         exact Nat.ne_of_gt <| Nat.Prime.pos <| hs.1 _)
 
 set_option maxHeartbeats 600000 in
+-- Needed for the generated Chen-Ruzsa interval construction proof.
 /-- Helper: For any k ≥ 1, there exist h > 0 and M > 0 such that for any m divisible by M,
 all numbers in (h·l^m, h·l^m + k] are neither r-free nor squarefull.
 Uses CRT + Euler's theorem. -/
@@ -1032,6 +1029,7 @@ private lemma multi_crt (nn : ℕ) (mods targets : Fin nn → ℕ) (L : ℕ) (_ 
     h_exists.choose_spec.1⟩
 
 set_option maxHeartbeats 600000 in
+-- Needed for the generated CRT step in the second interval construction.
 /-- Given `h > 0` and `M > 0`, there exists `m` divisible by `M` such that
 all numbers in `(h·l^m + m, h·l^m + m + k + h]` are neither `r`-free nor
 squarefull. Uses `ChenRusza_Lemma3` and CRT. -/
@@ -1703,7 +1701,5 @@ theorem erdos_259 :
 
 #print axioms erdos_259
 -- 'Erdos259.erdos_259' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end
 
 end Erdos259
