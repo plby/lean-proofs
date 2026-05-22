@@ -24,19 +24,19 @@ import Mathlib
 
 namespace Erdos947
 
-
-set_option linter.mathlibStandardSet false
+set_option linter.style.setOption false
+set_option linter.style.openClassical false
+set_option linter.style.longLine false
+set_option linter.flexible false
+set_option linter.style.multiGoal false
+set_option linter.style.induction false
+set_option linter.style.refine false
 
 open scoped BigOperators
 open scoped Real
 open scoped Nat
 open scoped Classical
 open scoped Pointwise
-
-set_option maxHeartbeats 0
-set_option maxRecDepth 4000
-set_option synthInstance.maxHeartbeats 20000
-set_option synthInstance.maxSize 128
 
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
@@ -205,6 +205,8 @@ There is no exact covering system with distinct moduli (and at least 2 classes).
 -/
 open Polynomial
 
+set_option maxHeartbeats 1000000 in
+-- The root-of-unity contradiction proof needs extra heartbeats for polynomial simplification.
 theorem exact_covering_system_distinct_moduli_impossible (l : List (ℤ × ℕ)) (h_exact : IsExactCoveringSystem l) (h_distinct : l.Pairwise (fun p q => p.2 ≠ q.2)) (h_len : l.length ≥ 2) : False := by
   -- Let $N = \max_i n_i$. Since $l$ has length $\ge 2$ and moduli are distinct, $N > 1$.
   obtain ⟨N, hN⟩ : ∃ N ∈ List.map (fun p => p.2) l, ∀ n ∈ List.map (fun p => p.2) l, n ≤ N := by
