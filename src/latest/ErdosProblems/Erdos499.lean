@@ -16,12 +16,6 @@ URLs:
 -/
 import Mathlib
 
-set_option linter.style.setOption false
-set_option linter.style.maxHeartbeats false
-set_option linter.style.refine false
-set_option linter.style.emptyLine false
-set_option linter.unnecessarySimpa false
-
 namespace Erdos499
 
 /--
@@ -34,7 +28,6 @@ This is true, and was proved by Marcus and Minc [MaMi62]
 [MaMi62] Marcus, Marvin and Minc, Henryk, Some results on doubly stochastic
 matrices. Proc. Amer. Math. Soc. (1962), 571-579.
 -/
-
 /-
 The entropy-like function $F(M) = \sum M_{ij} \log M_{ij}$ is minimized at the
 matrix $J_n$ (all entries $1/n$) over the set of doubly stochastic matrices.
@@ -90,7 +83,8 @@ lemma entropy_inequality
     ring
   exact hconst ▸ hsum_rows
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 8000000 in
+-- The main entropy argument needs a larger concrete heartbeat budget.
 theorem erdos_499 :
     (∀ n, ∀ M ∈ doublyStochastic ℝ (Fin n), ∃ σ : Equiv.Perm (Fin n),
       n ^ (- n : ℤ) ≤ ∏ i, M i (σ i)) := by
