@@ -23,7 +23,7 @@ set_option linter.style.setOption false
 open scoped Nat
 open scoped Classical
 
-set_option maxHeartbeats 0
+set_option maxHeartbeats 50000000
 set_option linter.flexible false
 set_option linter.style.cases false
 set_option linter.style.cdot false
