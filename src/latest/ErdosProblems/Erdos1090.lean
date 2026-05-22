@@ -38,18 +38,20 @@ import Mathlib
 namespace Erdos1090
 
 
-set_option linter.mathlibStandardSet false
+set_option linter.style.setOption false
+set_option linter.style.openClassical false
+set_option linter.style.longLine false
+set_option linter.flexible false
+set_option linter.style.refine false
+set_option linter.style.cases false
+set_option linter.unusedFintypeInType false
+set_option linter.style.multiGoal false
 
 open scoped BigOperators
 open scoped Real
 open scoped Nat
 open scoped Classical
 open scoped Pointwise
-
-set_option maxHeartbeats 0
-set_option maxRecDepth 4000
-set_option synthInstance.maxHeartbeats 20000
-set_option synthInstance.maxSize 128
 
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
@@ -365,6 +367,8 @@ lemma collinearity_poly_ne_zero {ι : Type*} [Fintype ι] (k : ℕ) (hk : 3 ≤ 
 /-
 There exists a generic projection from the hypercube to the plane.
 -/
+set_option maxHeartbeats 1000000 in
+-- The generic projection argument needs extra heartbeats for polynomial evaluation simplification.
 lemma exists_generic_proj {ι : Type*} [Fintype ι] (k : ℕ) (hk : 3 ≤ k) : ∃ v : ι → Fin 2 → ℝ, IsGenericProj k v := by
   by_contra h_contra;
   -- Apply `exists_not_root_of_finite_product` to find such a point `v_raw`.
@@ -391,8 +395,7 @@ lemma exists_generic_proj {ι : Type*} [Fintype ι] (k : ℕ) (hk : 3 ≤ k) : �
   · intro l x hx
     by_cases hx_range : x ∈ Set.range l
     · exact hx_range
-    ·
-      have h_det_nonzero : (Proj k (fun i j => v_raw (i, j)) (l ⟨1, by linarith⟩) 0 - Proj k (fun i j => v_raw (i, j)) (l ⟨0, by linarith⟩) 0) * (Proj k (fun i j => v_raw (i, j)) x 1 - Proj k (fun i j => v_raw (i, j)) (l ⟨0, by linarith⟩) 1) - (Proj k (fun i j => v_raw (i, j)) (l ⟨1, by linarith⟩) 1 - Proj k (fun i j => v_raw (i, j)) (l ⟨0, by linarith⟩) 1) * (Proj k (fun i j => v_raw (i, j)) x 0 - Proj k (fun i j => v_raw (i, j)) (l ⟨0, by linarith⟩) 0) ≠ 0 := by
+    · have h_det_nonzero : (Proj k (fun i j => v_raw (i, j)) (l ⟨1, by linarith⟩) 0 - Proj k (fun i j => v_raw (i, j)) (l ⟨0, by linarith⟩) 0) * (Proj k (fun i j => v_raw (i, j)) x 1 - Proj k (fun i j => v_raw (i, j)) (l ⟨0, by linarith⟩) 1) - (Proj k (fun i j => v_raw (i, j)) (l ⟨1, by linarith⟩) 1 - Proj k (fun i j => v_raw (i, j)) (l ⟨0, by linarith⟩) 1) * (Proj k (fun i j => v_raw (i, j)) x 0 - Proj k (fun i j => v_raw (i, j)) (l ⟨0, by linarith⟩) 0) ≠ 0 := by
         convert hv_raw.2 l x hx_range using 1;
         convert eval_collinearity_poly k hk l x ( fun i j => v_raw ( i, j ) ) |> Eq.symm using 1;
       -- Since the determinant is non-zero, the points are affinely independent, and thus $x$ cannot be in the affine span of the image of $l$.
