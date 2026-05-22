@@ -29,15 +29,20 @@ We prove that for any $C>0$, there exists a constant $K$ such that there are inf
 
 import Mathlib
 
-set_option linter.mathlibStandardSet false
+set_option linter.style.setOption false
+set_option linter.style.openClassical false
+set_option linter.style.longLine false
+set_option linter.style.induction false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+set_option linter.flexible false
 set_option linter.unusedSimpArgs false
 set_option linter.unnecessarySimpa false
 set_option linter.unusedVariables false
 set_option linter.unusedTactic false
-set_option maxHeartbeats 0
-set_option maxRecDepth 4000
-set_option synthInstance.maxHeartbeats 20000
-set_option synthInstance.maxSize 128
+
+set_option maxHeartbeats 1000000
+-- Several generated carry-counting estimates time out at the default heartbeat limit.
 
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
