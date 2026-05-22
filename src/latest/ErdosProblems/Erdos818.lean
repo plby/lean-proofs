@@ -18,17 +18,15 @@ import Mathlib
 
 namespace Erdos818
 
-noncomputable section
-
 open Finset
 open scoped Pointwise BigOperators
 
 /-! ## Geometric helpers -/
 
-def slopeSet (A : Finset ℝ) (s : ℝ) : Finset ℝ :=
+noncomputable def slopeSet (A : Finset ℝ) (s : ℝ) : Finset ℝ :=
   A.filter (fun a => s * a ∈ A)
 
-def sumImage
+noncomputable def sumImage
     (A : Finset ℝ) (s t : ℝ) : Finset (ℝ × ℝ) :=
   (slopeSet A s ×ˢ slopeSet A t).image
     (fun p => (p.1 + p.2, s * p.1 + t * p.2))
@@ -105,7 +103,7 @@ lemma sumImage_disjoint
   have := sumImage_slope_range A hpos h34 hb
   linarith
 
-def extraImage
+noncomputable def extraImage
     (A : Finset ℝ) (hA : A.Nonempty) (sm : ℝ) :
     Finset (ℝ × ℝ) :=
   (slopeSet A sm ×ˢ slopeSet A sm).image
@@ -174,8 +172,6 @@ lemma extraImage_disjoint_sumImage
   have := extraImage_slope_ge A hA hpos hsm hp₂
   linarith
 
-end
-
 /-!
 # Solymosi's Sum-Product Bound (2009)
 
@@ -184,20 +180,16 @@ reals,
   `|A|⁴ ≤ 4⌈log₂|A|⌉ · |A·A| · |A+A|²`
 -/
 
-noncomputable section
-
 open Finset
 open scoped Pointwise BigOperators
-set_option linter.style.openClassical false in
-open Classical
 
 /-! ## Definitions -/
 
-def mulRep (A : Finset ℝ) (p : ℝ) : ℕ :=
+noncomputable def mulRep (A : Finset ℝ) (p : ℝ) : ℕ :=
   ((A ×ˢ A).filter
     (fun ab => ab.1 * ab.2 = p)).card
 
-def ratioRep (A : Finset ℝ) (s : ℝ) : ℕ :=
+noncomputable def ratioRep (A : Finset ℝ) (s : ℝ) : ℕ :=
   (A.filter (fun a => s * a ∈ A)).card
 
 /-! ## Part 1: Cauchy-Schwarz bound -/
@@ -699,8 +691,6 @@ theorem solymosi_corollary
       (Nat.mul_le_mul_left _
         (by nlinarith))
 
-end
-
 /-!
 # Erdős Problem 818 (with C = 1)
 
@@ -714,10 +704,6 @@ for some constant C > 0?
 
 open Finset
 open scoped Pointwise BigOperators
-set_option linter.style.openClassical false in
-open Classical
-
-noncomputable section
 
 theorem erdos_problem_818
     (A : Finset ℝ)
@@ -744,11 +730,11 @@ theorem erdos_problem_818
 
 /-! ## General version -/
 
-private def posFilter (A : Finset ℝ) :
+private noncomputable def posFilter (A : Finset ℝ) :
     Finset ℝ :=
   A.filter (fun a => 0 < a)
 
-private def negFilter (A : Finset ℝ) :
+private noncomputable def negFilter (A : Finset ℝ) :
     Finset ℝ :=
   A.filter (fun a => a < 0)
 
@@ -907,7 +893,5 @@ theorem erdos_problem_818_general
 
 #print axioms erdos_problem_818_general
 -- 'Erdos818.erdos_problem_818_general' depends on axioms: [propext, choice, Quot.sound]
-
-end
 
 end Erdos818
