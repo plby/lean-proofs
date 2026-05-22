@@ -22,13 +22,6 @@ namespace Erdos16
 open scoped Nat
 open scoped Pointwise
 
-set_option linter.style.setOption false
-set_option maxHeartbeats 0
-set_option maxRecDepth 4000
-set_option linter.style.openClassical false
-
-open Classical
-
 /-- The set of positive odd integers that cannot be represented as the sum of a
 prime and a power of two. -/
 def U : Set ℕ :=
@@ -172,6 +165,8 @@ lemma mod_q_eq_of_in_ap (s a q : ℕ) (hq : q ∈ primes_list) : (P * s + a) % q
     rw [Nat.mul_mod, P_mod_q_eq_zero q hq, Nat.zero_mul, Nat.zero_mod]
   rw [Nat.add_mod, h1, zero_add, Nat.mod_mod]
 
+set_option maxRecDepth 4000 in
+-- The finite prime-membership decision needs extra recursion depth.
 lemma q_prime (q : ℕ) (hq : q ∈ primes_list) : q.Prime := by
   revert q hq
   decide
@@ -183,6 +178,8 @@ lemma prime_eq_of_dvd {p q : ℕ} (hp : p.Prime) (hq : q.Prime) (h : q ∣ p) : 
     exact Nat.Prime.ne_one hq rfl
   · rfl
 
+set_option maxRecDepth 4000 in
+-- The finite modular case split in this proof needs extra recursion depth.
 lemma firstap : {x | ∃ s, x = 11184810 * s + 992077} ⊆ U := by
   rintro n ⟨s, rfl⟩
   have h_odd : Odd (11184810 * s + 992077) := by
