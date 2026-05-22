@@ -165,7 +165,7 @@ lemma sum_odd_length_even_start (n i j : ℕ) (hi : 1 ≤ i) (hij : i ≤ j)
     grind;
   simp_all +decide
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 2000000 in
 /-
 If two odd-length segments have the same sum, they must be the same segment.
 -/
@@ -298,7 +298,7 @@ theorem distinct_odd_sums (n : ℕ) {i j k l : ℕ}
       simp_all +decide [ Nat.add_comm ];
       rw [ tsub_right_inj ] at h_sum2 <;> omega;
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 2000000 in
 /-
 The number of distinct consecutive sums is at least $n^2/4$.
 -/
