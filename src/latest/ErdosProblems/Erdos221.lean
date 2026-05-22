@@ -29,26 +29,18 @@ Boris Alexeev was kind enough to slightly alter the proof in order to get rid of
 import Mathlib
 
 set_option linter.style.setOption false
-set_option linter.style.openClassical false
 set_option linter.style.longLine false
 set_option linter.flexible false
 set_option linter.style.induction false
 set_option linter.style.refine false
 set_option linter.style.multiGoal false
-set_option linter.style.cases false
 
 namespace Erdos221
 
 open scoped BigOperators
 open scoped Real
 open scoped Nat
-open scoped Classical
 open scoped Pointwise
-
-set_option relaxedAutoImplicit false
-set_option autoImplicit false
-
-noncomputable section
 
 /-
 For each integer n >= 1, A_n is the set of numbers of the form 5^n * m or 5^n * m + 1 where 1 <= m < 2^(5^(n+1)). A is the union of all A_n for n >= 1.
@@ -327,7 +319,16 @@ lemma lem_choose_n_k_m (N : ℕ) (hN : N ≥ 32) :
         rw [ Real.logb_lt_iff_lt_rpow ] at * <;> norm_cast at * ; linarith;
         linarith;
       cases hm <;> nlinarith [ Nat.sub_le N ( 2 ^ k ), pow_pos ( show 0 < 5 by decide ) n ] ;
-    exact ⟨ n, k, m, hn2.2, hn1, hn2.1, hk1, hk2.1, hm_ge_1, hm_lt_2_pow_5_pow_succ, by cases' hm with hm hm <;> [ left; right ] <;> linarith [ Nat.sub_add_cancel ( show 2 ^ k ≤ N from le_of_lt ( Nat.lt_of_sub_ne_zero ( by aesop ) ) ) ] ⟩
+    exact ⟨ n, k, m, hn2.2, hn1, hn2.1, hk1, hk2.1, hm_ge_1, hm_lt_2_pow_5_pow_succ, by
+      rcases hm with hm | hm
+      · left
+        linarith [
+          Nat.sub_add_cancel
+            (show 2 ^ k ≤ N from le_of_lt (Nat.lt_of_sub_ne_zero (by aesop)))]
+      · right
+        linarith [
+          Nat.sub_add_cancel
+            (show 2 ^ k ≤ N from le_of_lt (Nat.lt_of_sub_ne_zero (by aesop)))]⟩
 
 /-
 For every integer N >= 32, there exist integers k >= 1 and a in A such that N = 2^k + a.
@@ -337,7 +338,7 @@ theorem thm_covering_explicit (N : ℕ) (hN : N ≥ 32) :
     -- By Lemma~\ref{lem:choose_n_k_m}, there exist $n$, $k$, $m$ such that $n \ge 1$, $5^n \le \log_2(N) < 5^{n+1}$, $1 \le k < 5^n$, $1 \le m < 2^{5^{n+1}}$, and $N - 2^k$ is either $5^n * m$ or $5^n * m + 1$.
     obtain ⟨n, k, m, hn, hlogn, hk, hm⟩ : ∃ n k m : ℕ, n ≥ 1 ∧ 5^n ≤ Real.logb 2 N ∧ Real.logb 2 N < 5^(n+1) ∧ 1 ≤ k ∧ k < 5^n ∧ m ≥ 1 ∧ m < 2^(5^(n+1)) ∧ (N = 2^k + 5^n * m ∨ N = 2^k + 5^n * m + 1) := by
       convert lem_choose_n_k_m N ( mod_cast hN ) using 1;
-    cases' hm.2.2.2.2 with h h;
+    rcases hm.2.2.2.2 with h | h
     · use k, 5^n * m;
       exact ⟨ hm.1, Set.mem_iUnion.2 ⟨ n, Set.mem_iUnion.2 ⟨ hn, ⟨ m, hm.2.2.1, hm.2.2.2.1, Or.inl rfl ⟩ ⟩ ⟩, h ⟩;
     · use k, 5^n * m + 1;
@@ -589,5 +590,4 @@ theorem thm_main : ∃ A : Set ℕ,
 #print axioms thm_main
 -- 'Erdos221.thm_main' depends on axioms: [propext, Classical.choice, Quot.sound]
 
-end
 end Erdos221
