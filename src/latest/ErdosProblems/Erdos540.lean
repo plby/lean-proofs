@@ -29,8 +29,6 @@ namespace Erdos540
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.unusedDecidableInType false
-set_option linter.style.maxHeartbeats false
-set_option linter.style.whitespace false
 
 /-!
 # Erdős Problem 540
@@ -487,6 +485,7 @@ lemma seven_n_le_49_sqrt (n : ℕ) :
   nlinarith [Nat.lt_succ_sqrt n]
 
 set_option maxHeartbeats 400000 in
+-- The averaging estimate in this lemma exceeds the default heartbeat limit.
 /-- At a good level, the Markov + union bound finds a `D` good for both additions and
 removals. -/
 lemma exists_D_at_level {G : Type*} [DecidableEq G] [AddCommGroup G] [Fintype G]
@@ -627,6 +626,7 @@ lemma exists_D_at_level {G : Type*} [DecidableEq G] [AddCommGroup G] [Fintype G]
     Nat.choose_pos hjA]
 
 set_option maxHeartbeats 400000 in
+-- This assembly step reuses the good-level estimate and exceeds the default heartbeat limit.
 /-- **Existence of good D**: There exists `D ⊆ A` with many good additions
 and removals. -/
 lemma exists_good_D {G : Type*} [DecidableEq G] [AddCommGroup G] [Fintype G]
