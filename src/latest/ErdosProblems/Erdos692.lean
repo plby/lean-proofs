@@ -95,14 +95,12 @@ theorem lcm_Ioo_3_6 : (Ioo 3 6).lcm id = 20 := by
 theorem lcm_Ioo_3_7 : (Ioo 3 7).lcm id = 60 := by
   decide
 
-set_option maxRecDepth 100 in
 theorem lcm_Ioo_3_8 : (Ioo 3 8).lcm id = 420 := by
   decide
 
 theorem count_3_6 : countWithOneDivisor 3 6 20 = 7 := by
   decide
 
-set_option maxRecDepth 256 in
 theorem count_3_7 : countWithOneDivisor 3 7 60 = 20 := by
   decide
 
