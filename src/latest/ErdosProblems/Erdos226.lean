@@ -35,7 +35,13 @@ theorem get?_eq_some_iff {α : Type*} {i : ℕ} {a : α} {l : List α} :
 
 end List
 
-set_option linter.mathlibStandardSet false
+set_option linter.style.openClassical false
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.flexible false
+set_option linter.style.refine false
+set_option linter.style.multiGoal false
+set_option linter.style.induction false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
 set_option linter.unnecessarySimpa false
@@ -44,8 +50,6 @@ set_option linter.unusedTactic false
 namespace Erdos226
 
 open scoped Classical
-
-set_option maxHeartbeats 0
 
 noncomputable section
 
@@ -658,7 +662,6 @@ noncomputable def next_step' (n : ℕ) (hist : List (ℚ × ℚ × ℝ)) : ℚ �
     let used_beta := beta_set hist
     let h_alpha_finite := alpha_set_finite hist
     let h_beta_finite := beta_set_finite hist
-
     if h_eta : eta > 0 then
       if n % 2 == 0 then
         -- Step B (Force domain)
