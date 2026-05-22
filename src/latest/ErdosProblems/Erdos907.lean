@@ -33,7 +33,6 @@ import Mathlib.Topology.UniformSpace.Uniformizable
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
 set_option linter.style.show false
 
@@ -133,6 +132,7 @@ lemma equicont_sets_cover (φ : ℝ → ℝ → ℝ)
         linarith [Nat.le_ceil (δ⁻¹)]⟩
 
 set_option maxHeartbeats 800000 in
+-- The Baire-category continuity argument needs a larger heartbeat budget.
 /-- From equicontinuity on a set with nonempty interior, derive
 the existence of a joint continuity point. -/
 lemma joint_continuity_from_equicont (φ : ℝ → ℝ → ℝ)
