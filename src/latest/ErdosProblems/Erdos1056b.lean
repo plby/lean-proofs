@@ -53,12 +53,10 @@ limitations under the License.
 
 import Mathlib
 
+-- The remaining generated proof style uses old induction/refine syntax.
 set_option linter.style.setOption false
 set_option linter.style.induction false
 set_option linter.style.refine false
-set_option linter.style.show false
-set_option maxHeartbeats 0
-set_option aesop.warn.nonterminal false
 
 open Nat
 
@@ -142,6 +140,8 @@ lemma exists_shift_of_no_dvd {a b p : ℕ} (_hab : a < b) (hp : p ≠ 0)
 If consecutive intervals have product 1 mod p, then there exists a sequence of factorials
 congruent mod p.
 -/
+-- The generated proof uses nonterminal `aesop` calls as proof-state simplifiers.
+set_option aesop.warn.nonterminal false in
 theorem noll_simmons_reduction {k : ℕ} {p : ℕ} {boundaries : Fin (k + 1) → ℕ}
     (hk : k ≠ 0)
     (hp : p.Prime) (h_mono : StrictMono boundaries)
@@ -149,7 +149,7 @@ theorem noll_simmons_reduction {k : ℕ} {p : ℕ} {boundaries : Fin (k + 1) →
     ∃ Q : Fin (k + 1) → ℕ, StrictMono Q ∧ (∀ i, Q i < p) ∧ ∀ i j, (Q i)! ≡ (Q j)! [MOD p] := by
   have h_bk_gt : boundaries 0 < boundaries (Fin.last k) := by
     apply h_mono
-    show (0 : Fin (k+1)) < Fin.last k
+    change (0 : Fin (k + 1)) < Fin.last k
     rw [Fin.lt_def]
     simp [Nat.pos_of_ne_zero hk]
   have h_no_dvd : ∀ n ∈ Finset.Ico (boundaries 0) (boundaries (Fin.last k)), ¬ p ∣ n := by
@@ -288,6 +288,8 @@ theorem noll_simmons_reduction {k : ℕ} {p : ℕ} {boundaries : Fin (k + 1) →
 /-
 For any $k \ge 3$, there exists a solution to the Noll-Simmons problem of length $k$.
 -/
+-- The generated reduction proof uses `aesop` to discard impossible small cases.
+set_option aesop.warn.nonterminal false in
 theorem noll_simmons_aux (h1056 : erdos_1056) (k : ℕ) (hk : k ≥ 3) :
     ∃ (p : ℕ) (_ : p.Prime) (Q : Fin k → ℕ) (_ : StrictMono Q) (_ : ∀ i, Q i < p),
     ∀ i j : Fin k, (Q i)! ≡ (Q j)! [MOD p] := by
