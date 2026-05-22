@@ -30,12 +30,6 @@ import Mathlib.Data.Real.StarOrdered
 
 namespace Erdos753
 
-set_option linter.style.setOption false
-set_option linter.flexible false
-set_option linter.style.multiGoal false
-set_option linter.style.openClassical false
-set_option linter.unusedFintypeInType false
-
 /-!
 # Erdős Problem 753: List Chromatic Numbers of Complementary Graphs
 
@@ -68,7 +62,7 @@ The construction uses the **complete equipartite graph** `K_{m×r}` (the complet
 
 noncomputable section
 
-open Classical Real Finset
+open Real Finset
 
 /-! ### Definition of List Chromatic Number -/
 
@@ -125,6 +119,8 @@ lemma isKChoosable_card {V : Type*} [Fintype V] (G : SimpleGraph V) :
     (Finset.all_card_le_biUnion_card_iff_exists_injective (fun v => L v)).mp hall
   exact ⟨SimpleGraph.Coloring.mk f (fun hadj => hf_inj.ne hadj.ne), hf_mem⟩
 
+set_option linter.unusedFintypeInType false in
+-- Keep the finite-graph API statement even though the proof only needs nonemptiness.
 lemma choosable_set_nonempty {V : Type*} [Fintype V] (G : SimpleGraph V) :
     {k : ℕ | IsKChoosable G k}.Nonempty :=
   ⟨_, isKChoosable_card G⟩
@@ -207,6 +203,8 @@ lemma compl_comap_equiv {V W : Type*} (e : V ≃ W) (G : SimpleGraph V) :
   ext u v
   simp [SimpleGraph.compl_adj, SimpleGraph.comap_adj, e.symm.injective.ne_iff]
 
+-- Keep the finite-graph API statement aligned with nearby list-chromatic lemmas.
+set_option linter.unusedFintypeInType false in
 /-- The list chromatic number is preserved (up to ≤) under graph isomorphism. -/
 lemma listChromaticNumber_comap_equiv_le {V W : Type*} [Fintype V]
     (e : V ≃ W) (G : SimpleGraph V) :
@@ -258,6 +256,8 @@ The probabilistic method / counting argument. For large enough lists,
 a partition function exists. The proof uses the union bound: if each vertex has
 ≥ k colors and `r · m · (1 - 1/r)^k < 1`, then a good partition function exists. -/
 
+-- The bijection proof intentionally works several generated goals in sequence.
+set_option linter.style.multiGoal false in
 /-- Counting functions avoiding a given color on a subset: if `T` has at least `k`
 elements, the number of functions `S → Fin r` with `f(c) ≠ i` for all `c ∈ T` is at most
 `|Fin r|^|S| · ((r-1)/r)^|T|`. -/
@@ -290,6 +290,8 @@ private lemma fiber_count_for_subset {r : ℕ} {S : Finset ℕ}
       ( Finset.prod_congr rfl fun x hx => by aesop );
   simp_all +decide [ Finset.filter_ne' ]
 
+-- The generated cardinality estimate relies on broad simplification of finite functions.
+set_option linter.flexible false in
 /-- Each fiber of functions avoiding color `i` on `L_ij` has the expected cardinality
 bound relative to the total function space. -/
 private lemma fiber_card_bound {r : ℕ} (hr : 1 ≤ r)
@@ -347,6 +349,8 @@ private lemma sum_fiber_bound {r m : ℕ} (hr : 1 ≤ r)
     (Finset.card_biUnion_le.trans
       (Finset.sum_le_sum fun i _ => Finset.card_biUnion_le))
 
+-- The probabilistic counting bound uses generated finite-function cardinality simplification.
+set_option linter.flexible false in
 /-- The core counting argument: if `r · m · (1 - 1/r)^k < 1` and every vertex has
 at least `k` colors in its list, then a good partition function `f : ℕ → Fin r` exists
 such that every vertex gets at least one color mapped to its group. -/
