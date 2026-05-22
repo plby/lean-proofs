@@ -56,7 +56,13 @@ import Mathlib
 
 namespace Erdos264b
 
-set_option linter.mathlibStandardSet false
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+set_option linter.style.whitespace false
+set_option linter.flexible false
+set_option linter.unusedSimpArgs false
 set_option aesop.warn.nonterminal false
 
 open scoped BigOperators
@@ -65,11 +71,9 @@ open scoped Real
 
 open scoped Nat
 
-open scoped Classical
-
 open scoped Pointwise
 
-set_option maxHeartbeats 0
+set_option maxHeartbeats 20000000
 
 set_option maxRecDepth 4000
 
@@ -80,8 +84,6 @@ set_option synthInstance.maxSize 128
 set_option relaxedAutoImplicit false
 
 set_option autoImplicit false
-
-noncomputable section
 
 /-
 Definition of alpha_n as the sum from k=n+1 to infinity of 1/(2^k + 5).
@@ -189,9 +191,11 @@ theorem main_theorem : ∃ b : ℕ → ℕ, (∀ k, b k ∈ ({1, 2, 3, 4, 5} : S
   obtain ⟨b, hb⟩ : ∃ b : ℕ → ℕ, (∀ k, (b k ∈ ({1, 2, 3, 4, 5} : Set ℕ))) ∧ ∀ n, (∑ k ∈ Finset.range n, (1 / ((2 : ℝ)^(k + 1) + (b (k + 1))))) + (alpha n : ℝ) ≤ x ∧ x ≤ (∑ k ∈ Finset.range n, (1 / ((2 : ℝ)^(k + 1) + (b (k + 1))))) + (beta n : ℝ) := by
     have h_seq : ∀ n, ∃ b : ℕ → ℕ, (∀ k, (b k ∈ ({1, 2, 3, 4, 5} : Set ℕ))) ∧ ∀ m ≤ n, (∑ k ∈ Finset.range m, (1 / ((2 : ℝ)^(k + 1) + (b (k + 1))))) + (alpha m : ℝ) ≤ x ∧ x ≤ (∑ k ∈ Finset.range m, (1 / ((2 : ℝ)^(k + 1) + (b (k + 1))))) + (beta m : ℝ) := by
       intro n
-      induction' n with n ih;
-      · aesop;
-      · obtain ⟨ b, hb₁, hb₂ ⟩ := ih;
+      induction n with
+      | zero =>
+        aesop
+      | succ n ih =>
+        obtain ⟨ b, hb₁, hb₂ ⟩ := ih;
         -- By the recursive step, there exists a $b_{n+1} \in \{1, 2, 3, 4, 5\}$ such that the bounds hold for $n+1$.
         obtain ⟨ b_next, hb_next ⟩ : ∃ b_next ∈ ({1, 2, 3, 4, 5} : Set ℕ), (∑ k ∈ Finset.range n, (1 / ((2 : ℝ)^(k + 1) + (b (k + 1))))) + (1 / ((2 : ℝ)^(n + 1) + (b_next : ℝ))) + (alpha (n + 1) : ℝ) ≤ x ∧ x ≤ (∑ k ∈ Finset.range n, (1 / ((2 : ℝ)^(k + 1) + (b (k + 1))))) + (1 / ((2 : ℝ)^(n + 1) + (b_next : ℝ))) + (beta (n + 1) : ℝ) := by
           convert recursive_step n _ _ _ using 1;
@@ -292,8 +296,6 @@ theorem erdos_264.parts.i : ¬IsIrrationalitySequence (2 ^ ·) := by
       simpa [b'] using hq
     · exact h_summable
   exact h_irr ⟨(1 / 2 : ℚ) + q, by simpa using h_sum.symm⟩
-
-end
 
 #print axioms main_theorem
 -- 'Erdos264b.main_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
