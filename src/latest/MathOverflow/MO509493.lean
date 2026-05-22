@@ -31,7 +31,6 @@ import Mathlib
 set_option linter.style.longLine false
 set_option linter.style.refine false
 set_option linter.style.setOption false
-set_option linter.style.maxHeartbeats false
 set_option linter.style.cases false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
@@ -98,6 +97,7 @@ Forward direction: If P₂ = Q P₁ Qᵀ with Q orthogonal, then rank(P₂) = ra
 Backward direction: If rank(P₁) = rank(P₂) = r, use the spectral theorem for real symmetric idempotent matrices. Since P is symmetric and P² = P, all eigenvalues are 0 or 1, and the eigenvalue 1 has multiplicity r. So there exist orthogonal Q₁, Q₂ with Q₁ᵀ P₁ Q₁ = diag(I_r, 0) = Q₂ᵀ P₂ Q₂. Then P₂ = (Q₂Q₁ᵀ) P₁ (Q₂Q₁ᵀ)ᵀ. This is very involved in Lean/Mathlib.
 -/
 set_option maxHeartbeats 800000 in
+-- The rank-equivalence proof unfolds spectral decompositions of projections.
 theorem orthProj_equiv_iff_rank {n : Type*} [Fintype n] [DecidableEq n]
     (P₁ P₂ : Matrix n n ℝ) (h₁ : IsOrthProj P₁) (h₂ : IsOrthProj P₂) :
     P₁.rank = P₂.rank ↔ IsOrthEquiv P₁ P₂ := by
@@ -219,6 +219,7 @@ theorem orthProj_equiv_iff_rank {n : Type*} [Fintype n] [DecidableEq n]
     · exact Matrix.rank_mul_le_right _ _ |> le_trans <| Matrix.rank_mul_le_left _ _
 
 set_option maxHeartbeats 800000 in
+-- The unitary-equivalence variant reuses the rank-equivalence spectral argument.
 /-- Two orthogonal projections are unitarily equivalent if and only if they have
     the same rank. This is the unitary-equivalence version of `orthProj_equiv_iff_rank`. -/
 theorem orthProj_unitEquiv_iff_rank {n : Type*} [Fintype n] [DecidableEq n]
@@ -689,6 +690,7 @@ Step 3: Show P = I - of(n ⊗ n). For any vector w:
 Step 4: Convert from the operator equation to the matrix equation. Use ext to show P i j = (1 - of(n ⊗ n)) i j by applying the operator to standard basis vectors (Pi.single j 1).
 -/
 set_option maxHeartbeats 400000 in
+-- The rank-two projection decomposition uses several finite-dimensional range calculations.
 lemma proj_rank_two_eq_id_sub_outer
     (P : Matrix (Fin 3) (Fin 3) ℝ)
     (hP_sym : P.transpose = P)
@@ -916,6 +918,7 @@ Verification:
 Key issue: β = √(1-α²), all dot products involve sums over Fin 3. Use nlinarith to handle the algebraic identities. For Q Q^T = I, use the fact that for a square matrix, if Q^T Q = I then Q Q^T = I (use mul_right_eq_of_mul_eq_one or Matrix.mul_eq_one_comm).
 -/
 set_option maxHeartbeats 800000 in
+-- The adapted-basis construction performs explicit three-dimensional coordinate algebra.
 private lemma adapted_basis_exists (a b : Fin 3 → ℝ)
     (ha : ∑ i, a i ^ 2 = 1) (hb : ∑ i, b i ^ 2 = 1)
     (hcross : 0 < (a 1 * b 2 - a 2 * b 1) ^ 2 +
@@ -1030,6 +1033,7 @@ private lemma trace_reduction (a b v : Fin 3 → ℝ)
   norm_num [ Matrix.mul_assoc, hQ1, hQ2 ]
 
 set_option maxHeartbeats 800000 in
+-- The nonparallel polynomial inequality expands the adapted-basis trace calculation.
 /-- The core polynomial inequality for the non-parallel case: when `a` and `b` are unit
 vectors with nonzero cross product, the Hadamard-square quadratic form plus `(1/8)I` is
 positive semi-definite. -/
@@ -1062,6 +1066,7 @@ lemma psd_poly_ineq_nonparallel
   exact matrix_psd_rotated E hE_symm s β hαβ
 
 set_option maxHeartbeats 6400000 in
+-- The full polynomial inequality splits parallel and nonparallel coordinate cases.
 /-- The core polynomial inequality: this is the algebraic content of psd_shift_from_normals. -/
 lemma psd_poly_ineq
     (a b v : Fin 3 → ℝ) (ha : ∑ i, a i ^ 2 = 1) (hb : ∑ i, b i ^ 2 = 1) :
@@ -1100,6 +1105,7 @@ lemma psd_poly_ineq
     exact psd_poly_ineq_nonparallel a b v ha hb hcross
 
 set_option maxHeartbeats 3200000 in
+-- The PSD shift proof combines the polynomial inequality with matrix-vector normalization.
 set_option maxRecDepth 2048 in
 lemma psd_shift_from_normals
     (a b v : Fin 3 → ℝ) (ha : ∑ i, a i ^ 2 = 1) (hb : ∑ i, b i ^ 2 = 1) :
@@ -1491,6 +1497,7 @@ Part 2: Use power_nonneg_dim_le_three directly.
 For the first conjunct, use the same matrices as in min_counterexample_exp: use Matrix.of (fun i j => (P₁_example i j : ℝ)) and Matrix.of (fun i j => (P₂_example i j : ℝ)). Prove IsOrthProj by ext/fin_cases/norm_num as in min_counterexample_exp. Prove rank equality using the rank_eq_trace argument from min_counterexample_exp. For ¬ IsPowerNonneg, introduce h and apply h 3 to get 0 ≤ tr(A³), then compute the trace using norm_num/norm_cast to derive a contradiction (since tr(A³) < 0 by counterexample_trace_cube_neg).
 -/
 set_option maxHeartbeats 1600000 in
+-- The minimal-dimension proof includes explicit four-by-four matrix verification.
 theorem min_counterexample_dim :
     (∃ (P₁ P₂ : Matrix (Fin 4) (Fin 4) ℝ),
       IsOrthProj P₁ ∧ IsOrthProj P₂ ∧ P₁.rank = P₂.rank ∧
@@ -1595,6 +1602,7 @@ For rank equality: both have rank 2. Since P₁_example and P₂_example have eq
 This may be complex. An alternative: directly define P₁_real and P₂_real with the same entries as ℝ values and use norm_num to verify them.
 -/
 set_option maxHeartbeats 1600000 in
+-- The minimal-exponent proof reuses the explicit counterexample and low-exponent bounds.
 theorem min_counterexample_exp :
     (∃ (n : ℕ) (P₁ P₂ : Matrix (Fin n) (Fin n) ℝ),
       IsOrthProj P₁ ∧ IsOrthProj P₂ ∧ P₁.rank = P₂.rank ∧
@@ -1661,7 +1669,6 @@ theorem min_counterexample_exp :
 /-! ## Counterexample theorems using IsCounterexample -/
 
 section counterexample_CE
-set_option maxHeartbeats 3200000
 
 /-
 PROBLEM
@@ -1681,6 +1688,8 @@ For ¬ (0 ≤ (A ^ 3).trace): unfold hadamardSquare, then norm_num/norm_cast to 
 
 The proof structure should be: refine ⟨_, _, ?_, ?_, ?_, rfl, ?_⟩ then prove each goal. Use the same proof approach that min_counterexample_exp uses for the IsOrthProj, rank equality, and trace negativity parts.
 -/
+set_option maxHeartbeats 3200000 in
+-- The CE wrapper repeats the explicit rank and trace checks for the concrete matrices.
 theorem A_example_isCounterexample :
     IsCounterexample 4 3 (hadamardSquare
       (Matrix.of (fun i j => (P₁_example i j : ℝ)))
