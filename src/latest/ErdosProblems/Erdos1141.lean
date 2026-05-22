@@ -5,6 +5,7 @@ https://www.erdosproblems.com/forum/thread/1141
 
 Formalization status:
 - Conditional on: pollack_theorem_1_3
+- Conditional on: mertens_third_theorem
 
 Informal authors:
 - an internal model at OpenAI
@@ -29,11 +30,7 @@ import Util.MertensThird
 set_option linter.style.emptyLine false
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.unnecessarySeqFocus false
 set_option linter.unnecessarySimpa false
-set_option linter.unusedDecidableInType false
-set_option linter.unusedSimpArgs false
-set_option linter.unusedVariables false
 
 /-!
 # Erdős Problem 1141
@@ -90,12 +87,10 @@ Thus the only remaining axiomatized deep input is Pollack Theorem 1.3.
 -/
 
 
-noncomputable section
-
 namespace Pollack17
 
 /-- The analytic cutoff `m^(1/4 + ε)` appearing in Theorem 1.3. -/
-def residuePrimeUpperBound (m : ℕ) (ε : ℝ) : ℝ :=
+noncomputable def residuePrimeUpperBound (m : ℕ) (ε : ℝ) : ℝ :=
   Real.rpow (m : ℝ) ((1 / 4 : ℝ) + ε)
 
 /--
@@ -104,7 +99,7 @@ The finite set of primes `ℓ` with `ℓ ≤ m^(1/4 + ε)` and `χ(ℓ) = 1`.
 This definition does **not** assume `χ` is quadratic; the quadraticity hypothesis
 belongs only to `theorem_1_3`, matching the statement of the paper.
 -/
-def residuePrimesUpTo (m : ℕ) (χ : DirichletCharacter ℂ m) (ε : ℝ) : Finset ℕ := by
+noncomputable def residuePrimesUpTo (m : ℕ) (χ : DirichletCharacter ℂ m) (ε : ℝ) : Finset ℕ := by
   classical
   exact
     ((Finset.range (Nat.ceil (residuePrimeUpperBound m ε) + 1)).filter fun ℓ =>
@@ -125,8 +120,6 @@ axiom theorem_1_3
             ((residuePrimesUpTo m χ ε).card : ℝ)
 
 end Pollack17
-
-end
 
 namespace Erdos1141
 
@@ -550,7 +543,7 @@ lemma exists_small_prime_from_pollack :
     simpa [χ] using attachedQuadraticCharacter_spec (d := d) (m := m) (p := p) hdvd hpp hχp
   rcases hspec with ⟨hp2, hpndvd, hres⟩
   refine ⟨p, hpp, hp2, hpndvd, ?_, hres⟩
-  convert hpbound using 1 <;> norm_num
+  convert hpbound using 1; norm_num
 
 /-! ## Turning quadratic residuosity into solvability of `a*x^2 ≡ n [MOD p]` -/
 
@@ -792,17 +785,18 @@ private lemma nat_rpow_sixteenth_div_log_eventually_large (N : ℝ) :
   intro n hn
   exact hN0 n (le_trans (le_max_left _ _) hn)
 
-private lemma mem_finset_inf_iff {ι α : Type*} [DecidableEq ι] [Fintype α] [DecidableEq α]
+private lemma mem_finset_inf_iff {ι α : Type*} [Fintype α] [DecidableEq α]
     {s : Finset ι} {f : ι → Finset α} {a : α} :
     a ∈ s.inf f ↔ ∀ i ∈ s, a ∈ f i := by
+  classical
   induction s using Finset.induction_on with
   | empty =>
       simp
   | @insert b s hb ih =>
-      simp [Finset.inf_insert, hb, ih]
+      simp [Finset.inf_insert, ih]
 
 private lemma count_root_class_with_divisors
-    {n p r K : ℕ} (hp : p.Prime) (hn0 : n ≠ 0) (hpn : ¬ p ∣ n)
+    {n p r K : ℕ} (hp : p.Prime) (_hn0 : n ≠ 0) (hpn : ¬ p ∣ n)
     (t : Finset ℕ) (ht : t ⊆ n.primeFactors) :
     ∃ v : ℕ,
       #{k ∈ (Finset.range K) | Nat.ModEq p k r ∧ ∀ q ∈ t, q ∣ k}
@@ -857,12 +851,12 @@ private lemma count_root_class_with_divisors
 
 private lemma root_class_good_count_lower_bound
     {a n p r K : ℕ}
-    (ha : 1 ≤ a)
+    (_ha : 1 ≤ a)
     (hn3 : 3 ≤ n)
     (hp : p.Prime)
     (hpndvd : ¬ p ∣ a * n)
-    (hroot : Nat.ModEq p (a * r ^ 2) n)
-    (hK : K = Nat.sqrt ((n - 1) / a) + 1) :
+    (_hroot : Nat.ModEq p (a * r ^ 2) n)
+    (_hK : K = Nat.sqrt ((n - 1) / a) + 1) :
     let U : Finset ℕ := ((Finset.range K).filter fun k ↦ Nat.ModEq p k r)
     let α := {k : ℕ // k ∈ U}
     let emb : α ↪ ℕ := ⟨Subtype.val, by intro x y h; exact Subtype.ext h⟩
@@ -1413,7 +1407,7 @@ private lemma n_is_square_of_square_case_and_square_coeff
   have hmain : v ^ 2 * m ^ 2 = v ^ 2 * n := by
     calc
       v ^ 2 * m ^ 2 = (v * m) ^ 2 := by
-        simp [pow_two, Nat.mul_assoc, Nat.mul_left_comm, Nat.mul_comm]
+        simp [pow_two, Nat.mul_left_comm, Nat.mul_comm]
       _ = u ^ 2 := by
         simpa [hm]
       _ = v ^ 2 * n := by
