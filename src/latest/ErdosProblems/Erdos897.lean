@@ -27,12 +27,20 @@ These results answer negatively the question of Erdős asking whether an additiv
 
 import Mathlib
 
+-- This generated proof file still relies on automated proof scripts whose warnings
+-- are too interdependent to remove locally without changing the proof structure.
+set_option linter.style.setOption false
 set_option linter.deprecated false
 
 namespace Erdos897
 
 
-set_option linter.mathlibStandardSet false
+set_option linter.style.openClassical false
+set_option linter.style.longLine false
+set_option linter.style.refine false
+set_option linter.style.induction false
+set_option linter.flexible false
+set_option linter.style.multiGoal false
 set_option linter.unusedVariables false
 
 open scoped Classical
@@ -835,7 +843,8 @@ lemma f_additive {a b : ℕ} (ha : a ≠ 0) (hb : b ≠ 0) (h : a.Coprime b) : f
     · exact Finset.sum_congr rfl fun p hp => by rw [ Nat.factorization_eq_zero_of_not_dvd ( fun h => Finset.disjoint_left.mp h_disjoint ( Nat.mem_primeFactors.mpr ⟨ Nat.prime_of_mem_primeFactors hp, h, by aesop ⟩ ) hp ) ] ; ring_nf;
   · rw [ Finsupp.support_add_eq ] <;> aesop
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 800000 in
+-- The limsup argument needs extra heartbeats for filter and EReal elaboration.
 lemma f_limsup_condition : ((Filter.atTop ⊓ Filter.principal {(p, k) : ℕ × ℕ | p.Prime}).limsup
       (fun (p, k) => (f (p^k) / (p^k : ℝ).log : EReal)) = ⊤) := by
         -- By definition of $f$, we know that $f(p^k) = \log(p^k) \cdot \log^*(p^k)$.
