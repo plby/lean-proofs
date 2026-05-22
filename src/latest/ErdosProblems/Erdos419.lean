@@ -42,9 +42,6 @@ namespace Erdos419
 
 open scoped Classical
 
-set_option maxHeartbeats 0
-set_option maxRecDepth 4000
-
 noncomputable def tau (n : ℕ) : ℕ := (Nat.divisors n).card
 
 noncomputable def u (n : ℕ) : ℝ := (tau (n + 1).factorial : ℝ) / (tau n.factorial : ℝ)
