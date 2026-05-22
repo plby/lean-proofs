@@ -25,7 +25,6 @@ set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.openClassical false
 set_option linter.style.refine false
-set_option linter.unnecessarySimpa false
 
 /-!
 # Density Hilbert's Lemma
@@ -34,7 +33,8 @@ A density version of Hilbert's lemma: sufficiently dense subsets of [1,M]
 contain combinatorial cubes of any fixed dimension.
 -/
 
-open Finset Classical
+open Finset
+open scoped Classical
 
 /-- A d-dimensional combinatorial cube using a Finset of generators.
   There exists a base u and a set vs of d distinct positive generators
@@ -209,9 +209,10 @@ lemma find_good_shift (M : ℕ) (B excl : Finset ℕ)
     rw [ Finset.inter_eq_left.mpr hexcl_sub ]
     linarith [
       Nat.sub_add_cancel ( by linarith : 1 ≤ M ),
-      show #B ≤ M from le_trans
-        ( Finset.card_le_card hBsub )
-        ( by simpa ) ];
+      show #B ≤ M from
+        le_trans
+          ( Finset.card_le_card hBsub )
+          ( by simp ) ];
   · rcases M with ( _ | _ | M ) <;>
       simp_all +decide [ Nat.succ_mul ];
     rw [ Finset.card_sdiff ]
@@ -352,7 +353,7 @@ The proof uses a density version of Hilbert's lemma (combinatorial cubes in dens
 combined with the pigeonhole principle.
 -/
 
-open Finset Classical
+open Finset
 
 /-- The set of elements of `Finset.Icc 1 N` that are representable as a monochromatic sum
   under a coloring `f : ℕ → Fin k`. An element `n` is a monochromatic sum if there exist
