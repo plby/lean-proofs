@@ -36,7 +36,6 @@ import Mathlib
 namespace Erdos1100b
 
 set_option linter.style.setOption false
-set_option linter.style.openClassical false
 set_option linter.style.longLine false
 set_option linter.flexible false
 set_option linter.style.induction false
@@ -47,13 +46,7 @@ set_option linter.unusedDecidableInType false
 open scoped BigOperators
 open scoped Real
 open scoped Nat
-open scoped Classical
 open scoped Pointwise
-
-set_option relaxedAutoImplicit false
-set_option autoImplicit false
-
-noncomputable section
 
 open Nat
 
@@ -1302,7 +1295,5 @@ theorem main_theorem (hPNT : PNT_statement) :
 
 #print axioms main_theorem
 -- 'Erdos1100b.main_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end
 
 end Erdos1100b
