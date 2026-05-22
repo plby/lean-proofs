@@ -25,11 +25,12 @@ import Mathlib.NumberTheory.Real.Irrational
 import Mathlib.Tactic.Cases
 import Mathlib.Tactic.LinearCombination'
 
+-- These generated proof blocks use old induction syntax, multi-goal tactic
+-- chains, and broad simplification throughout the file.
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.cases false
 
 namespace Erdos1125
 
@@ -1318,7 +1319,7 @@ private lemma sqrt2_has_controlled_approximants : HasControlledIntegerApproximan
         exact add_pos_of_nonneg_of_pos (Nat.cast_nonneg _)
           (mul_pos (Nat.cast_pos.mpr (pellQ_pos _))
             (Real.sqrt_pos.mpr zero_lt_two)))
-    cases' Nat.even_or_odd j with h h <;>
+    rcases Nat.even_or_odd j with h | h <;>
       rw [h.neg_one_pow] at * <;>
       nlinarith [h_inv_pos, h_succ_inv_pos]
 
