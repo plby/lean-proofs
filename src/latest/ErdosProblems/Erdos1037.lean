@@ -30,10 +30,18 @@ import Mathlib
 
 namespace Erdos1037
 
-set_option linter.mathlibStandardSet false
+-- This generated proof file still relies on automated proof scripts whose warnings
+-- are too interdependent to remove locally without changing the proof structure.
+set_option linter.style.setOption false
+set_option linter.style.openClassical false
+set_option linter.style.longLine false
+set_option linter.style.whitespace false
+set_option linter.style.refine false
+set_option linter.flexible false
+set_option linter.style.multiGoal false
+set_option linter.unusedDecidableInType false
+set_option linter.unusedFintypeInType false
 set_option linter.unnecessarySimpa false
-
-set_option maxHeartbeats 0
 
 open scoped Classical
 
@@ -854,6 +862,8 @@ theorem degree_eq_sum_indicators (m : ℕ) (v : Fin m) (G : SimpleGraph (Fin m))
 /-
 The edge indicators incident to a vertex $v$ are independent.
 -/
+set_option maxHeartbeats 800000 in
+-- Expanding independence over all incident edge choices needs extra heartbeats.
 theorem edge_indicators_independent (m : ℕ) (v : Fin m) :
   ProbabilityTheory.iIndepFun (fun u : {x // x ≠ v} => incidentEdgeInd_classical v u) randomGraphMeasure := by
     -- We use `ProbabilityTheory.iIndepFun_iff_measure_inter_preimage_eq_mul`.
@@ -890,6 +900,8 @@ theorem edge_indicators_independent (m : ℕ) (v : Fin m) :
 /-
 Concentration of degree around its mean.
 -/
+set_option maxHeartbeats 800000 in
+-- The Hoeffding specialization and graph-measure conversions need extra heartbeats.
 theorem degree_concentration_at_vertex (m : ℕ) (hm : m > 1) (v : Fin m) (t : ℝ) (ht : t > 0) :
   (randomGraphMeasure { G : SimpleGraph (Fin m) | |(G.degree v : ℝ) - (m - 1 : ℝ) / 2| ≥ t }).toReal ≤ 2 * Real.exp (-2 * t^2 / (m - 1 : ℝ)) := by
     -- Let $N = m-1$, $Y_u = \text{incidentEdgeInd\_classical } v u$, and $X = \sum_{u \ne v} Y_u$.
@@ -1552,6 +1564,8 @@ theorem num_distinct_degrees_ge (m : ℕ) (R : SimpleGraph (Fin m))
 /-
 The clique number of H is at most 4 times the clique number of R.
 -/
+set_option maxHeartbeats 800000 in
+-- The partition argument expands several large finite-set goals.
 theorem cliqueNum_H_le (m : ℕ) (R : SimpleGraph (Fin m))
     (σ_AB : Fin (2 * m) ≃ Fin m ⊕ Fin m)
     (σ_CD : Fin (2 * m) ≃ Fin m ⊕ Fin m) :
