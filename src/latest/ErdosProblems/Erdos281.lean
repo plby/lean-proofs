@@ -37,9 +37,6 @@ set_option linter.style.openClassical false
 set_option linter.flexible false
 set_option linter.style.refine false
 set_option linter.style.multiGoal false
-set_option linter.style.emptyLine false
-set_option maxHeartbeats 800000
-set_option linter.unusedVariables false
 
 open Filter Topology Classical
 
@@ -306,7 +303,7 @@ def C (n : ℕ → ℕ) (hnpos : ∀ i, 0 < n i) (a : Choice n) : Set ZHat :=
 /-
 avoidPrefix is periodic.
 -/
-lemma avoidPrefix_periodic (n : ℕ → ℕ) (hnpos : ∀ i, 0 < n i) (a : Choice n) (k : ℕ) :
+lemma avoidPrefix_periodic (n : ℕ → ℕ) (_hnpos : ∀ i, 0 < n i) (a : Choice n) (k : ℕ) :
   Function.Periodic (fun m : ℤ => m ∈ avoidPrefix n a k) (period n k : ℤ) := by
     intro m; simp +decide [ avoidPrefix ] ;
     -- The period is a multiple of each `n i` for `i < k`.
@@ -1092,7 +1089,6 @@ lemma fk_uniform_convergence (n : ℕ → ℕ) (hmono : StrictMono n) (hnpos : �
       have h_monotone : Antitone (fk n hnpos) := antitone_fk n hnpos
       haveI : CompactSpace (Choice n) := Choice.compactSpace n hnpos
       have h_continuous : ∀ k, Continuous (fk n hnpos k) := fun k => continuous_fk n hnpos k
-
       rw [ Metric.tendstoUniformly_iff ]
       intro ε hε_pos
       have h_open_cover :
@@ -1128,7 +1124,6 @@ theorem Erdos_281 (n : ℕ → ℕ) (hmono : StrictMono n) (hnpos : ∀ i, 0 < n
   have h_unif := (Metric.tendstoUniformly_iff.1 (fk_uniform_convergence n hmono hnpos h)) ε hε
   rw [Filter.eventually_atTop] at h_unif
   obtain ⟨k, hk⟩ := h_unif
-
   use k
   intro a
   -- 2. Use Haar measure of Ck as the density d
