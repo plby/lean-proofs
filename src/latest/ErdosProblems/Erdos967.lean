@@ -34,9 +34,14 @@ Formalization of the disproof of a question by Erdős and Ingham regarding the n
 
 import Mathlib
 
-set_option linter.mathlibStandardSet false
-set_option linter.unusedVariables false
-set_option linter.unnecessarySimpa false
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.style.openClassical false
+set_option linter.style.induction false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+set_option linter.style.whitespace false
+set_option linter.flexible false
 set_option aesop.warn.nonterminal false
 
 open scoped BigOperators
@@ -45,15 +50,10 @@ open scoped Nat
 open scoped Classical
 open scoped Pointwise
 
-set_option maxHeartbeats 0
+set_option maxHeartbeats 50000000
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
-
-set_option relaxedAutoImplicit false
-set_option autoImplicit false
-
-noncomputable section
 
 namespace Erdos967
 
@@ -92,7 +92,7 @@ lemma mvt_estimate (t : ℝ) (x : ℝ) (hx : 0 < x) (n : ℝ) (hn : x ≤ n) :
 /-
 Existence of a real number x >= N such that x^{-it} is parallel to c.
 -/
-lemma exist_x_parallel (t : ℝ) (ht : t ≠ 0) (N : ℝ) (c : ℂ) (hc : c ≠ 0) :
+lemma exist_x_parallel (t : ℝ) (ht : t ≠ 0) (N : ℝ) (c : ℂ) (_hc : c ≠ 0) :
   ∃ x : ℝ, x ≥ N ∧ c = ‖c‖ * (x : ℂ) ^ (-(Complex.I * t)) := by
     -- Let's choose $k$ such that $x = \exp(-(θ + 2 * k * π) / t) \ge N$.
     obtain ⟨k, hk⟩ : ∃ k : ℤ, Real.exp (-(Complex.arg c + 2 * k * Real.pi) / t) ≥ N := by
@@ -116,7 +116,7 @@ lemma exist_x_parallel (t : ℝ) (ht : t ≠ 0) (N : ℝ) (c : ℂ) (hc : c ≠ 
 /-
 Main lemma: existence of a set S' approximating c.
 -/
-lemma lemma_2_1 (t : ℝ) (ht : t ≠ 0) (N : ℕ) (hN : N > 0) (c : ℂ) :
+lemma lemma_2_1 (t : ℝ) (ht : t ≠ 0) (N : ℕ) (_hN : N > 0) (c : ℂ) :
   ∃ S' : Finset ℕ, (∀ n ∈ S', N ≤ n) ∧
   (∑ n ∈ S', (n : ℝ)⁻¹) ≤ ‖c‖ ∧
   ‖c - ∑ n ∈ S', (n : ℂ) ^ (-(1 + Complex.I * (t : ℂ)))‖ ≤ (1 + ‖1 + Complex.I * (t : ℂ)‖) * ‖c‖ ^ 2 := by
@@ -429,7 +429,7 @@ lemma summable_complex_constructed_S (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ)
 /-
 Equivalence between the constructed set and the sigma type of the sequence of sets.
 -/
-def equiv_constructed_S (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
+noncomputable def equiv_constructed_S (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
   {n : ℕ // n ∈ constructed_S t ht lambda_val} ≃ (Σ k : ℕ, {n : ℕ // n ∈ S_seq t ht lambda_val k}) where
   toFun := fun ⟨n, hn⟩ =>
     let k := (Set.mem_iUnion.mp hn).choose
@@ -480,7 +480,7 @@ lemma tsum_constructed_S_eq (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) (f : ℕ
           have hk : pk = qk := by
             by_contra hpqk
             have hqmem : (pn : ℕ) ∈ S_seq t ht lambda_val qk := by
-              simpa [hpq] using qn.2
+              simp [hpq, qn.2]
             exact Finset.disjoint_left.mp (h_disjoint pk qk hpqk) pn.2 hqmem
           cases hk
           congr
@@ -535,7 +535,7 @@ lemma tsum_eq_lambda (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
 /-
 The sequence defined by the target terms is summable.
 -/
-def target_seq (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) (n : ℕ) : ℂ :=
+noncomputable def target_seq (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) (n : ℕ) : ℂ :=
   if n ∈ constructed_S t ht lambda_val then (n : ℂ) ^ (-(1 + Complex.I * (t : ℂ))) else 0
 
 lemma summable_target_seq (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
