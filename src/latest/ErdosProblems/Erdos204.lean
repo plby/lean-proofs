@@ -33,7 +33,13 @@ import Mathlib
 
 namespace Erdos204
 
-set_option linter.mathlibStandardSet false
+set_option linter.style.setOption false
+set_option linter.style.openClassical false
+set_option linter.style.longLine false
+set_option linter.style.induction false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+set_option linter.flexible false
 set_option linter.unusedVariables false
 set_option linter.unusedSimpArgs false
 
@@ -42,11 +48,6 @@ open scoped Real
 open scoped Nat
 open scoped Classical
 open scoped Pointwise
-
-set_option maxHeartbeats 0
-set_option maxRecDepth 4000
-set_option synthInstance.maxHeartbeats 20000
-set_option synthInstance.maxSize 128
 
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
@@ -552,6 +553,8 @@ The number of solutions to a pairwise coprime system of congruences in the range
 def intersection_count (I : Finset Congruence) (m : ℕ) : ℕ :=
   (Finset.range m).filter (fun x => ∀ c ∈ I, x ≡ c.a [ZMOD c.d]) |>.card
 
+set_option maxHeartbeats 1000000 in
+-- The CRT counting proof times out at the default heartbeat limit.
 theorem intersection_count_pairwise_coprime (S : Finset Congruence) (I : Finset Congruence)
     (hI : I ⊆ S) (h_coprime : pairwise_coprime I) :
     let D := S.lcm (fun c => c.d)
@@ -668,6 +671,8 @@ theorem intersection_count_pairwise_coprime (S : Finset Congruence) (I : Finset 
 /-
 Lemma 2.1 (Good): The density of a CD congruence set is given by the inclusion-exclusion formula over pairwise coprime subsets of moduli.
 -/
+set_option maxHeartbeats 1000000 in
+-- The inclusion-exclusion proof times out at the default heartbeat limit.
 theorem lemma_good (S : Finset Congruence) (h_cd : IsCD S) :
     density_val S = density_formula S := by
       -- Let $D = \text{lcm}_{c \in S} c.d$.
@@ -725,6 +730,8 @@ theorem lemma_good (S : Finset Congruence) (h_cd : IsCD S) :
 /-
 If $n=2q^k$ with $q$ an odd prime, the density of any CD congruence set on $n$ is strictly less than 1.
 -/
+set_option maxHeartbeats 1000000 in
+-- The specialized density estimate times out at the default heartbeat limit.
 theorem case_1b_density_lt_one (q k : ℕ) (hq : q.Prime) (hq_odd : Odd q) (hk : k ≥ 1)
     (a : ℕ → ℤ) (h_cd : IsCD (congruences (2 * q ^ k) a)) :
     density_val (congruences (2 * q ^ k) a) < 1 := by
