@@ -16,7 +16,6 @@ URLs:
 import Mathlib
 
 set_option linter.style.cases false
-set_option linter.style.whitespace false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.openClassical false
@@ -291,7 +290,7 @@ lemma lem_dyadicprimecount (hChebyshev : ChebyshevUpperBound) (y : ℝ) (hy : 2 
         exact Finset.sum_nonneg fun _ _ =>
           Real.log_nonneg <| Nat.one_le_cast.2 <| Nat.Prime.pos <| by aesop ]
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 50000000 in
 /-
 Lemma 2: The series $\sum_{p}\frac{1}{p\log p}$ converges.
 -/
@@ -593,7 +592,7 @@ def HasNaturalDensity (E : Set ℕ) : Prop := upperDensity E = lowerDensity E
 
 noncomputable def naturalDensity (E : Set ℕ) : ℝ := upperDensity E
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 50000000 in
 /-
 Lemma 4: The set $\{n\in\N:\ n\equiv a\pmod m\}$ has density $1/m$.
 -/
@@ -1007,7 +1006,7 @@ lemma S_avoid_diff_subset_tail (F : Set ℕ) (T : ℕ) :
       by obtain ⟨ f, hf1, hf2 ⟩ := hn2; exact ⟨ f, ⟨ hf1, not_le.mp fun hf3 => hn1 f hf1 hf3 hf2 ⟩,
       hf2 ⟩ )
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 50000000 in
 /-
 The upper density of a countable union of sets is bounded by the sum of their upper densities,
 provided the sum converges.
@@ -1608,7 +1607,7 @@ The lower density of the safe set (congruent to 1 mod L and not in BadMultiples)
 -/
 lemma lower_density_safe_set_pos (Y : ℕ) (hChebyshev : ChebyshevUpperBound)
   (hY_ge_1 : Y ≥ 1)
-  (hY_sum : (∑' d, if d ∈ TailForbiddenDivisors Y then 1 / (d : ℝ) else 0) < 1/2) :
+  (hY_sum : (∑' d, if d ∈ TailForbiddenDivisors Y then 1 / (d : ℝ) else 0) < 1 / 2) :
   lowerDensity ({n | n ≡ 1 [MOD L_val Y]} \ BadMultiples Y) > 0 := by
     -- By `lower_density_diff_bound`, $\underline{d}(B) \ge d(P) - \overline{d}(P \cap Bad)$.
     have h_lower_density_B : lowerDensity ({n | n ≡ 1 [MOD L_val Y]} \ BadMultiples Y) ≥
