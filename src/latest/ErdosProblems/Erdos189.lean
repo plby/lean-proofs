@@ -46,9 +46,15 @@ import Mathlib
 
 namespace Erdos189
 
+set_option linter.style.setOption false
+set_option linter.style.openClassical false
+set_option linter.style.longLine false
+set_option linter.style.induction false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+set_option linter.flexible false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
-set_option linter.mathlibStandardSet false
 
 open scoped BigOperators
 
@@ -59,14 +65,6 @@ open scoped Nat
 open scoped Classical
 
 open scoped Pointwise
-
-set_option maxHeartbeats 0
-
-set_option maxRecDepth 4000
-
-set_option synthInstance.maxHeartbeats 20000
-
-set_option synthInstance.maxSize 128
 
 set_option relaxedAutoImplicit false
 
@@ -124,6 +122,8 @@ It is possible to partition $\mathbb{R}^2$ into $25$ color classes such that non
 -/
 open Complex
 
+set_option maxHeartbeats 1000000 in
+-- `partition_rectangles` times out at the default heartbeat limit.
 theorem partition_rectangles : ∃ (f : ℂ → Fin 25), ∀ (c : Fin 25), ¬ ∃ (s : Set ℂ), s ⊆ f ⁻¹' {c} ∧ IsRectangleArea1 s := by
   use color
   intro c_color
