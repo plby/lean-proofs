@@ -28,7 +28,6 @@ I asked ChatGPT to write up Lindström's proof in a TeX-file, which Aristotle fr
 import Mathlib
 
 set_option linter.style.setOption false
-set_option linter.style.openClassical false
 set_option linter.style.longLine false
 set_option linter.flexible false
 set_option linter.style.induction false
@@ -39,15 +38,9 @@ set_option maxHeartbeats 1000000
 open scoped BigOperators
 open scoped Real
 open scoped Nat
-open scoped Classical
 open scoped Pointwise
 
-set_option relaxedAutoImplicit false
-set_option autoImplicit false
-
 namespace Erdos154
-
-noncomputable section
 
 /-
 A set A of natural numbers is called a Sidon set if the sums a+b (a, b ∈ A, a ≤ b) are distinct.
@@ -1073,5 +1066,4 @@ theorem sidon_density_limit
 #print axioms sidon_density_limit
 -- 'Erdos154.sidon_density_limit' depends on axioms: [propext, Classical.choice, Quot.sound]
 
-end
 end Erdos154
