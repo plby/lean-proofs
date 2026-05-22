@@ -43,7 +43,15 @@ import Mathlib
 
 namespace Erdos291b
 
-set_option linter.mathlibStandardSet false
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.style.maxHeartbeats false
+set_option linter.style.induction false
+set_option linter.style.multiGoal false
+set_option linter.style.openClassical false
+set_option linter.style.refine false
+set_option linter.style.whitespace false
+set_option linter.flexible false
 
 open scoped BigOperators
 open scoped Real
@@ -51,17 +59,13 @@ open scoped Nat
 open scoped Classical
 open scoped Pointwise
 
-set_option maxHeartbeats 0
+set_option maxHeartbeats 50000000
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
 
-set_option linter.unusedVariables false
-
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
-
-noncomputable section
 
 /-
 Definitions of L_n and X_n as in the problem description.
@@ -352,7 +356,7 @@ theorem bound_step3 (m : ℕ) (hm : 4 ≤ m) (z : ℕ) (hzm : z ≤ m) :
 /-
 Numerical bound step 4: 2z + 4 m^(2z-1) / log 2 > 1 + z / log 2 + 2k / log 2.
 -/
-theorem bound_step4 (m : ℕ) (hm : 4 ≤ m) (z : ℕ) (hz : 2 ≤ z) (k : ℕ) (hk : k < 2 * m^(2*z-1)) :
+theorem bound_step4 (m : ℕ) (_hm : 4 ≤ m) (z : ℕ) (hz : 2 ≤ z) (k : ℕ) (hk : k < 2 * m^(2*z-1)) :
     2 * z + 4 * (m : ℝ)^(2*z-1) / Real.log 2 > 1 + (z : ℝ) / Real.log 2 + 2 * k / Real.log 2 := by
       -- Since $k < 2 m^{2z-1}$, it follows that $\frac{2k}{\log 2} < \frac{4 m^{2z-1}}{\log 2}$, so it suffices to show that $2z > 1 + \frac{z}{\log 2}$.
       have h_step4 : 2 * (z : ℝ) > 1 + (z : ℝ) / Real.log 2 := by
@@ -636,11 +640,11 @@ theorem X_eq_X_int (r : ℕ → ℤ) (n : ℕ) : X r n = (X_int r n : ℚ) := by
 /-
 Definition of I0 and its property.
 -/
-def I0 (p : ProblemParameters) : Finset ℕ :=
+noncomputable def I0 (p : ProblemParameters) : Finset ℕ :=
   if ∀ n ∈ J1' p, |X p.r n| > (n : ℚ)^(z p.m) then J1' p else J2' p
 
 theorem I0_prop (p : ProblemParameters) : ∀ n ∈ I0 p, |X p.r n| > (n : ℚ)^(z p.m) := by
-  cases' xpo p with h h <;> unfold I0 <;> aesop
+  rcases xpo p with h | h <;> unfold I0 <;> aesop
 
 /-
 Definitions of primes_lt_m, p_i, e, and d.
@@ -660,7 +664,7 @@ def d (p : ProblemParameters) (n : ℕ) : ℕ :=
 /-
 Definition of sigma.
 -/
-def sigma (p : ProblemParameters) (n : ℕ) : ℕ :=
+noncomputable def sigma (p : ProblemParameters) (n : ℕ) : ℕ :=
   if h : ∃ i ∈ Finset.Icc 1 (z p.m), (p_i p i) ^ (e p i (X_int p.r n)) > n then
     Nat.find h
   else
@@ -672,7 +676,7 @@ Definitions of k_exp, n_seq, and I_j.
 def k_exp (p : ProblemParameters) (s : ℕ) (j : ℕ) : ℕ :=
   Nat.log (p_i p s) (p.m ^ (2 * z p.m - 2 * j))
 
-def n_seq (p : ProblemParameters) : ℕ → ℕ
+noncomputable def n_seq (p : ProblemParameters) : ℕ → ℕ
 | 0 => 0 -- unused
 | 1 => if h : (I0 p).Nonempty then (I0 p).min' h else 0
 | (j + 1) =>
@@ -803,7 +807,7 @@ theorem valuation_r_bound (p : ProblemParameters) (s : ℕ) (hs : s ∈ Finset.I
 /-
 Bound on the step size power.
 -/
-theorem step_size_bound (p : ProblemParameters) (s : ℕ) (hs : s ∈ Finset.Icc 1 (z p.m)) (k : ℕ) :
+theorem step_size_bound (p : ProblemParameters) (s : ℕ) (_hs : s ∈ Finset.Icc 1 (z p.m)) (k : ℕ) :
     (p_i p s) ^ (k + Nat.log (p_i p s) (p.m - 1)) ≤ (p.m - 1) * (p_i p s) ^ k := by
       rw [ pow_add, mul_comm ];
       exact Nat.mul_le_mul_right _ ( Nat.pow_log_le_self _ ( Nat.sub_ne_zero_of_lt ( by linarith [ p.hm4 ] ) ) )
@@ -1070,7 +1074,7 @@ theorem part1_valuation_v2 (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.
 /-
 Redefinition of the sequence $n_j$ and intervals $I_j$ to ensure the valuation condition $e(n) \ge e(r) + k$ holds.
 -/
-def n_seq_v2 (p : ProblemParameters) : ℕ → ℕ
+noncomputable def n_seq_v2 (p : ProblemParameters) : ℕ → ℕ
 | 0 => 0
 | 1 => if h : (I0 p).Nonempty then (I0 p).min' h else 0
 | (j + 1) =>
@@ -1155,7 +1159,7 @@ theorem n_seq_v2_prop (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Icc 1
 /-
 Redefinition of n_seq and I_j using the stronger condition e(x) >= e(r(x)) + k, which avoids issues when k=0.
 -/
-def n_seq_v4 (p : ProblemParameters) : ℕ → ℕ
+noncomputable def n_seq_v4 (p : ProblemParameters) : ℕ → ℕ
 | 0 => 0
 | 1 => if h : (I0 p).Nonempty then (I0 p).min' h else 0
 | (j + 1) =>
@@ -1167,13 +1171,13 @@ def n_seq_v4 (p : ProblemParameters) : ℕ → ℕ
   else
     n + 1
 
-def I_j_v4 (p : ProblemParameters) (j : ℕ) : Finset ℕ :=
+noncomputable def I_j_v4 (p : ProblemParameters) (j : ℕ) : Finset ℕ :=
   let n_next := n_seq_v4 p (j + 1)
   let s := sigma p (n_seq_v4 p j)
   let k := k_exp p s j
   Finset.Ico n_next (n_next + (p_i p s) ^ k)
 
-def I_set_v4 (p : ProblemParameters) (j : ℕ) : Finset ℕ :=
+noncomputable def I_set_v4 (p : ProblemParameters) (j : ℕ) : Finset ℕ :=
   if j = 0 then I0 p
   else I_j_v4 p j
 
@@ -1546,7 +1550,7 @@ theorem d_terms_coprime (p : ProblemParameters) (n : ℕ) (i j : ℕ)
 /-
 Each prime power factor in $d(n)$ divides $|X_n|$.
 -/
-theorem d_term_dvd_X_int (p : ProblemParameters) (n : ℕ) (i : ℕ) (hi : i ∈ Finset.Icc 1 (z p.m)) :
+theorem d_term_dvd_X_int (p : ProblemParameters) (n : ℕ) (i : ℕ) (_hi : i ∈ Finset.Icc 1 (z p.m)) :
     (p_i p i) ^ (e p i (X_int p.r n)) ∣ Int.natAbs (X_int p.r n) := by
       have h_div : (p_i p i) ^ (padicValNat (p_i p i) (Int.natAbs (X_int p.r n))) ∣ Int.natAbs (X_int p.r n) := by
         exact pow_padicValNat_dvd;
@@ -1647,10 +1651,17 @@ theorem valuation_T_le (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Icc 
 /-
 Decomposition of X_int into four parts.
 -/
-def S1 (p : ProblemParameters) (j : ℕ) (n : ℕ) : ℤ := ∑ i ∈ Finset.Icc 1 (n_seq_v4 p j), p.r i * ((L n) / i : ℕ)
-def S2 (p : ProblemParameters) (j : ℕ) (n : ℕ) : ℤ := ∑ i ∈ Finset.Ioc (n_seq_v4 p j) (n_seq_v4 p (j + 1) - 1), p.r i * ((L n) / i : ℕ)
-def T3 (p : ProblemParameters) (j : ℕ) (n : ℕ) : ℤ := p.r (n_seq_v4 p (j + 1)) * ((L n) / n_seq_v4 p (j + 1) : ℕ)
-def S4 (p : ProblemParameters) (j : ℕ) (n : ℕ) : ℤ := ∑ i ∈ Finset.Ioc (n_seq_v4 p (j + 1)) n, p.r i * ((L n) / i : ℕ)
+noncomputable def S1 (p : ProblemParameters) (j : ℕ) (n : ℕ) : ℤ :=
+  ∑ i ∈ Finset.Icc 1 (n_seq_v4 p j), p.r i * ((L n) / i : ℕ)
+
+noncomputable def S2 (p : ProblemParameters) (j : ℕ) (n : ℕ) : ℤ :=
+  ∑ i ∈ Finset.Ioc (n_seq_v4 p j) (n_seq_v4 p (j + 1) - 1), p.r i * ((L n) / i : ℕ)
+
+noncomputable def T3 (p : ProblemParameters) (j : ℕ) (n : ℕ) : ℤ :=
+  p.r (n_seq_v4 p (j + 1)) * ((L n) / n_seq_v4 p (j + 1) : ℕ)
+
+noncomputable def S4 (p : ProblemParameters) (j : ℕ) (n : ℕ) : ℤ :=
+  ∑ i ∈ Finset.Ioc (n_seq_v4 p (j + 1)) n, p.r i * ((L n) / i : ℕ)
 
 theorem X_int_decomp (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Icc 1 (z p.m)) (n : ℕ) (hn : n ∈ I_set_v4 p j) :
     X_int p.r n = S1 p j n + S2 p j n + T3 p j n + S4 p j n := by
@@ -1782,7 +1793,7 @@ theorem term_divisible (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Icc 
 /-
 If the valuation of x is at least k, then p^k divides |x|.
 -/
-theorem pow_dvd_of_le_valuation (p : ProblemParameters) (s : ℕ) (hs : s ∈ Finset.Icc 1 (z p.m)) (x : ℤ) (k : ℕ) (h : e p s x ≥ k) :
+theorem pow_dvd_of_le_valuation (p : ProblemParameters) (s : ℕ) (_hs : s ∈ Finset.Icc 1 (z p.m)) (x : ℤ) (k : ℕ) (h : e p s x ≥ k) :
     (p_i p s) ^ k ∣ Int.natAbs x := by
       have h_div : (p_i p s) ^ (padicValNat (p_i p s) x.natAbs) ∣ x.natAbs := by
         exact pow_padicValNat_dvd;
@@ -2331,7 +2342,7 @@ lemma periodic_bounded (r : ℕ → ℤ) (t : ℕ) (ht : t > 0) (h_per : Functio
 /-
 For any positive integer $t$, $p^{\varphi(t)}$ divides $L(n p^{\varphi(t)})$.
 -/
-lemma pow_totient_dvd_Lb (n : ℕ) (p : ℕ) (t : ℕ) (hp : p.Prime) (ht : t > 0) (hn : n ≥ 1) :
+lemma pow_totient_dvd_Lb (n : ℕ) (p : ℕ) (t : ℕ) (hp : p.Prime) (_ht : t > 0) (hn : n ≥ 1) :
     p ^ (Nat.totient t) ∣ L (n * p ^ (Nat.totient t)) := by
       -- By definition of $L$, we know that $p^{\varphi(t)}$ is one of the numbers in the range $1$ to $n \cdot p^{\varphi(t)}$.
       have h_p_phi_t_range : p ^ Nat.totient t ∈ Finset.Icc 1 (n * p ^ Nat.totient t) := by
@@ -2499,7 +2510,5 @@ theorem generalErdos291 (r : ℕ → ℤ) (t : ℕ) (ht : t > 0) (h_per : Functi
 
 #print axioms generalErdos291
 -- 'Erdos291b.generalErdos291' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end
 
 end Erdos291b
