@@ -33,12 +33,10 @@ set_option linter.style.setOption false
 open scoped Classical
 open SimpleGraph
 
-set_option maxHeartbeats 0
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.flexible false
-set_option linter.unusedSimpArgs false
 
 /-
 Definition of the hypercube graph Q_n and the property of containing a cycle of length k.
@@ -417,6 +415,8 @@ Lemma: In a Q3 determined by p < q < r, the sum of L values for two edges
 in direction q equals the sum of their p-coordinates, and similarly for R and
 r-coordinates.
 -/
+set_option maxHeartbeats 50000000 in
+-- Needed for the generated coordinate-splitting proof over the Q3 slice.
 theorem L_R_differences_in_Q3 {n : ℕ} {p q r : Fin n} (hpq : p < q) (hqr : q < r)
   (u : Fin n → ZMod 2)
   (x₁ y₁ x₂ y₂ : Fin n → ZMod 2)
