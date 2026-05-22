@@ -27,14 +27,9 @@ is `main_result`.
 
 import Mathlib
 
-set_option linter.style.cases false
-set_option linter.style.whitespace false
-set_option linter.style.multiGoal false
 set_option linter.style.refine false
-set_option linter.style.show false
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.deprecated false
 
 namespace Erdos1048
 
@@ -377,7 +372,7 @@ lemma isComponent_component_subtype {n : ℕ} (hn : n > 0) {r : ℝ}
         rw [Metric.mem_closedBall, dist_self]
         norm_num)⟩
   have hx : x ∈ component_subtype n r k := by
-    show branch n k (r^n) ∈ component n r k
+    change branch n k (r^n) ∈ component n r k
     use r^n
     simp [Metric.mem_closedBall, dist_self]
   have h_conn : IsConnected (component_subtype n r k) := isConnected_subtype_component hn hr k
@@ -541,8 +536,8 @@ lemma deriv_branch {n : ℕ} (k : ℕ) (w : ℂ) (hw : 0 < w.re) :
     ((1 / n : ℂ) * w ^ ((1 / n : ℂ) - 1)) *
       Complex.exp (2 * Real.pi * Complex.I * k / n) := by
     field_simp;
-    convert HasDerivAt.deriv ( HasDerivAt.congr_of_eventuallyEq _ ?_ ) using 1;
-    exact fun z => z ^ ( 1 / ( n : ℂ ) ) * Complex.exp ( 2 * Real.pi * Complex.I * k / n );
+    convert HasDerivAt.deriv ( HasDerivAt.congr_of_eventuallyEq _ ?_ ) using 1
+    · exact fun z => z ^ ( 1 / ( n : ℂ ) ) * Complex.exp ( 2 * Real.pi * Complex.I * k / n );
     · convert
         HasDerivAt.mul (HasDerivAt.cpow_const (hasDerivAt_id w) _)
           (hasDerivAt_const _ _) using 1 <;>
@@ -559,8 +554,8 @@ Bound the norm of the derivative of the branch function. The derivative
 is bounded by (1/n) * (r^n - 1)^(1/n - 1).
 -/
 lemma norm_deriv_branch_le {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1)
-    (k : ℕ) (w : ℂ) (hw : w ∈ Metric.closedBall (r^n : ℂ) 1) :
-  ‖deriv (branch n k) w‖ ≤ (1 / n : ℝ) * (r^n - 1) ^ ((1 / n : ℝ) - 1) := by
+    (k : ℕ) (w : ℂ) (hw : w ∈ Metric.closedBall (r ^ n : ℂ) 1) :
+  ‖deriv (branch n k) w‖ ≤ (1 / n : ℝ) * (r ^ n - 1) ^ ((1 / n : ℝ) - 1) := by
     -- Apply the formula for the derivative of the branch function.
     have h_deriv :
         deriv (branch n k) w =
@@ -610,8 +605,8 @@ The branch function is differentiable on the closed ball D(r^n, 1).
 lemma branch_differentiable_on_disk {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1) (k : ℕ) :
   ∀ w ∈ Metric.closedBall (r^n : ℂ) 1, DifferentiableAt ℂ (branch n k) w := by
     intro w hw;
-    refine' DifferentiableAt.congr_of_eventuallyEq _ _;
-    exact fun z => ( z ^ ( 1 / ( n : ℂ ) ) ) * Complex.exp ( 2 * Real.pi * Complex.I * k / n );
+    refine' DifferentiableAt.congr_of_eventuallyEq _ _
+    · exact fun z => ( z ^ ( 1 / ( n : ℂ ) ) ) * Complex.exp ( 2 * Real.pi * Complex.I * k / n );
     · refine' DifferentiableAt.mul _ _ <;> norm_num;
       refine' DifferentiableAt.cpow _ _ _ <;> norm_num [ hn.ne' ];
       refine' Or.inl _;
@@ -786,7 +781,7 @@ theorem main_result (r : ℝ) (hr : r > 1) :
             norm_num;
         simpa using
           Filter.Tendsto.const_mul 2
-            (Filter.Tendsto.mul tendsto_inverse_atTop_nhds_zero_nat h_factor);
+            (Filter.Tendsto.mul tendsto_inv_atTop_nhds_zero_nat h_factor);
       exact Filter.eventually_atTop.mp (h_lim.eventually (gt_mem_nhds hε)) |>
         fun ⟨N, hN⟩ =>
           ⟨N + 1, fun n hn x =>
@@ -844,22 +839,22 @@ lemma connected_subset_le_diam {S : Set ℂ} (hS : Bornology.IsBounded S)
     (hK_nonempty : K.Nonempty) :
     ∃ x : S,
       Metric.diam K ≤ Metric.diam (Subtype.val '' (connectedComponent x)) := by
-  cases' hK_nonempty with x hxK_nonempty;
+  obtain ⟨x, hxK_nonempty⟩ := hK_nonempty
   refine' ⟨ ⟨ x, hKS hxK_nonempty ⟩, _ ⟩;
   apply_rules [ Metric.diam_mono ];
   · intro y hyKop;
     refine' ⟨ ⟨ y, hKS hyKop ⟩, _, rfl ⟩;
-    refine' ⟨ _, _ ⟩;
-    exact { z : { x : ℂ // x ∈ S } | z.val ∈ K };
-    simp_all +decide [ IsPreconnected, IsConnected ];
-    rintro u v hu hv huv ⟨ z, hz ⟩ ⟨ w, hw ⟩;
-    obtain ⟨u', hu', hu''⟩ := hu;
-    obtain ⟨v', hv', hv''⟩ := hv;
-    simp_all +decide [Set.subset_def];
-    contrapose! hK;
-    refine' fun _ => ⟨ u', v', hu', hv', _, _, _, _ ⟩ <;> simp_all +decide [ Set.ext_iff ];
-    · exact ⟨ _, hz.1, hu'' _ ( hKS _ hz.1 ) |>.2 hz.2 ⟩;
-    · exact ⟨ _, hw.1, hv'' _ _ |>.2 hw.2 ⟩;
+    refine' ⟨ _, _ ⟩
+    · exact { z : { x : ℂ // x ∈ S } | z.val ∈ K };
+    · simp_all +decide [ IsPreconnected, IsConnected ];
+      rintro u v hu hv huv ⟨ z, hz ⟩ ⟨ w, hw ⟩;
+      obtain ⟨u', hu', hu''⟩ := hu;
+      obtain ⟨v', hv', hv''⟩ := hv;
+      simp_all +decide [Set.subset_def];
+      contrapose! hK;
+      refine' fun _ => ⟨ u', v', hu', hv', _, _, _, _ ⟩ <;> simp_all +decide [ Set.ext_iff ];
+      · exact ⟨ _, hz.1, hu'' _ ( hKS _ hz.1 ) |>.2 hz.2 ⟩;
+      · exact ⟨ _, hw.1, hv'' _ _ |>.2 hw.2 ⟩;
   · refine' hS.subset _;
     exact Subtype.coe_image_subset S (connectedComponent ⟨x, hKS hxK_nonempty⟩)
 
