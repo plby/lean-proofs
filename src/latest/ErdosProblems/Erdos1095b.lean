@@ -23,9 +23,8 @@ URLs:
 -/
 import Mathlib
 
-set_option linter.style.multiGoal false
+set_option linter.style.setOption false
 set_option linter.style.openClassical false
-set_option linter.style.refine false
 
 namespace Erdos1095b
 
@@ -39,8 +38,11 @@ def Good (k n : ℕ) : Prop :=
 noncomputable def g (k : ℕ) : ℕ :=
   if h : ∃ n : ℕ, Good k n then Nat.find h else 0
 
+set_option linter.style.refine false in
+set_option linter.style.multiGoal false in
 set_option linter.flexible false in
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 8000000 in
+-- The constructive bound proof needs a larger concrete heartbeat budget.
 /-
 For any $k \ge 2$, there exists $n$ such that $Good(k, n)$ and $n$ is bounded by $(k+1)!^3$.
 -/
@@ -273,6 +275,8 @@ and Selfridge conjectured $g(k)\leq \exp(k^{1+o(1)})$.
 
 [EES74](https://mathscinet.ams.org/mathscinet/relay-station?mr=1199990)
 -/
+set_option linter.style.refine false in
+set_option linter.style.multiGoal false in
 set_option linter.flexible false in
 theorem erdos_1095_weaker_upper_bound :
     ∃ f : ℕ → ℝ, Tendsto f atTop (𝓝 0) ∧ ∀ k, 2 ≤ k → g k ≤ exp (k ^ (1 + f k)) := by
