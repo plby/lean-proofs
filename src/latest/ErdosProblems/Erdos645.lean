@@ -20,26 +20,10 @@ import Mathlib
 
 namespace Erdos645
 
-set_option linter.style.cases false
-set_option linter.style.openClassical false
-set_option linter.style.setOption false
-set_option aesop.warn.nonterminal false
-
 open scoped BigOperators
 open scoped Real
 open scoped Nat
-open scoped Classical
 open scoped Pointwise
-
-set_option maxHeartbeats 0
-set_option maxRecDepth 4000
-set_option synthInstance.maxHeartbeats 20000
-set_option synthInstance.maxSize 128
-
-set_option relaxedAutoImplicit false
-set_option autoImplicit false
-
-noncomputable section
 
 def has_monochromatic_triple_with_d_gt_x (c : ℕ → Bool) : Prop :=
   ∃ x d : ℕ, x > 0 ∧ d > x ∧ c x = c (x + d) ∧ c (x + d) = c (x + 2 * d)
@@ -143,7 +127,7 @@ lemma case_2_impossible (c : ℕ → Bool) (h1 : c 1 = true) (h5 : c 5 = false) 
   -- Split into cases:
   -- Case 2a: There exists n >= 9 such that c(n) = true.
   by_cases h_case2a : ∃ n ≥ 9, c n = true;
-  · cases' h_case2a with n hn;
+  · rcases h_case2a with ⟨n, hn⟩;
     -- By `case_2_inductive`, c(n+2k) = true for all k.
     have h_inductive : ∀ k, c (n + 2 * k) = true := by
       exact case_2_inductive c h_contra h1 h5 n hn.1 hn.2;
@@ -171,23 +155,20 @@ theorem exists_monochromatic_triple_with_d_gt_x (c : ℕ → Bool) :
     have h_c'_implies_c :
         has_monochromatic_triple_with_d_gt_x c' →
           has_monochromatic_triple_with_d_gt_x c := by
-      unfold has_monochromatic_triple_with_d_gt_x; aesop;
-    by_cases h3 : c' 3 = true <;> by_cases h5 : c' 5 = true <;> aesop;
-    · exact h_c'_implies_c ( by exact ⟨ 1, 2, by decide, by decide, by aesop ⟩ );
-    · exact h_c'_implies_c ( case_2_impossible c' ( by aesop ) ( by aesop ) );
-    · exact h_c'_implies_c ( case_1_impossible _ ( by aesop ) ( by aesop ) );
-    · exact h_c'_implies_c <| case_2_impossible c' ( by aesop ) ( by aesop )
+      unfold has_monochromatic_triple_with_d_gt_x
+      aesop
+    by_cases h3 : c' 3 = true
+    · by_cases h5 : c' 5 = true
+      · exact h_c'_implies_c ( by exact ⟨ 1, 2, by decide, by decide, by aesop ⟩ )
+      · exact h_c'_implies_c ( case_2_impossible c' ( by aesop ) ( by aesop ) )
+    · by_cases h5 : c' 5 = true
+      · exact h_c'_implies_c ( case_1_impossible _ ( by aesop ) ( by aesop ) )
+      · exact h_c'_implies_c <| case_2_impossible c' ( by aesop ) ( by aesop )
 theorem erdos_645 (c : ℕ → Bool) :
     ∃ x d, 0 < x ∧ x < d ∧
       (∃ C, c x = C ∧ c (x + d) = C ∧ c (x + 2 * d) = C) := by
-  have := exists_monochromatic_triple_with_d_gt_x c; aesop;
-  -- Apply the hypothesis `this` to obtain the required x and d.
-  obtain ⟨x, d, hx_pos, hd_gt_x, h_eq⟩ := this;
-  use x, hx_pos, d, hd_gt_x;
-  -- Combine the equalities from `h_eq`.
-  simp [h_eq]
-
-end
+  obtain ⟨x, d, hx_pos, hd_gt_x, h_eq⟩ := exists_monochromatic_triple_with_d_gt_x c
+  exact ⟨x, d, hx_pos, hd_gt_x, c x, rfl, h_eq.1.symm, (h_eq.1.trans h_eq.2).symm⟩
 
 #print axioms erdos_645
 -- 'Erdos645.erdos_645' depends on axioms: [propext, Classical.choice, Quot.sound]
