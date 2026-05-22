@@ -40,7 +40,6 @@ set_option linter.deprecated false
 set_option linter.unusedVariables false
 set_option linter.unnecessarySeqFocus false
 set_option linter.style.multiGoal false
-set_option maxHeartbeats 0
 
 namespace Erdos698
 
@@ -439,6 +438,8 @@ For all integers $i, j, n$ with $2 \le i < j \le \frac{n}{2}$ we have
 $$G := \gcd\left(\binom{n}{i}, \binom{n}{j} \right) >
 \frac{2^i\sqrt{n} }{4i\sqrt{i-1}}.$$
 -/
+set_option maxHeartbeats 1000000 in
+-- The final binomial-gcd estimate times out at the default heartbeat limit.
 theorem binomial_gcd_lower_bound (n i j : ℕ) (h2 : 2 ≤ i) (hij : i < j)
     (hjn : j ≤ n / 2) :
     (Nat.gcd (Nat.choose n i) (Nat.choose n j) : ℝ) >
