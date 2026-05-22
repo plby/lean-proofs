@@ -247,7 +247,17 @@ end Harmonic
 
 namespace Erdos1036
 
-set_option linter.mathlibStandardSet false
+set_option linter.style.setOption false
+set_option linter.style.openClassical false
+set_option linter.style.longLine false
+set_option linter.style.induction false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+set_option linter.style.cases false
+set_option linter.flexible false
+set_option linter.unusedDecidableInType false
+set_option linter.unusedFintypeInType false
+set_option linter.style.emptyLine false
 
 open scoped BigOperators
 open scoped Real
@@ -255,7 +265,8 @@ open scoped Nat
 open scoped Classical
 open scoped Pointwise
 
-set_option maxHeartbeats 0
+set_option maxHeartbeats 1000000
+-- Several generated homogeneous-set estimates time out at the default heartbeat limit.
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
