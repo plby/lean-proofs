@@ -16,25 +16,21 @@ URLs:
 import Mathlib
 
 set_option linter.style.openClassical false
-set_option linter.style.whitespace false
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.cdot false
-set_option linter.style.emptyLine false
-set_option linter.style.missingEnd false
 
 open Classical
 open scoped BigOperators
 
 namespace Erdos613
-
 -- 1. Define the main claim
 
 /-- “Color-{name}`col` monochromatic star of size {name}`k`”: there is a center {given}`x` and a set
     {given (type := "Finset V")}`S` of {name}`k` distinct neighbors of {name}`x` such that every
     edge {given -show}`y` {lean}`s(x, y)` with {lean}`y ∈ S` is present in {lean}`G` and colored
     {name}`col`.  (No restriction on edges inside {name}`S`.) -/
-def hasMonoStar {V:Type*} (G : SimpleGraph V) (color : Sym2 V → Fin 2)
+def hasMonoStar {V : Type*} (G : SimpleGraph V) (color : Sym2 V → Fin 2)
     (col : Fin 2) (k : ℕ) : Prop :=
   ∃ (x : V) (S : Finset V),
     S.card = k ∧
@@ -47,7 +43,7 @@ def hasMonoStar {V:Type*} (G : SimpleGraph V) (color : Sym2 V → Fin 2)
 with all three edges
 present in {lean}`G` and colored {name}`col`.  (Adjacency already forces distinctness.)
 -/
-def hasMonoTriangle {V:Type*} (G : SimpleGraph V) (color : Sym2 V → Fin 2)
+def hasMonoTriangle {V : Type*} (G : SimpleGraph V) (color : Sym2 V → Fin 2)
     (col : Fin 2) : Prop :=
   ∃ a b c : V,
     G.Adj a b ∧ G.Adj b c ∧ G.Adj a c ∧
@@ -68,8 +64,6 @@ def Pikhurko_n5_statement : Prop :=
     G.edgeSet.ncard = 44 ∧
     ∀ (color : Sym2 V → Fin 2),
       hasMonoStar G color 0 5 ∨ hasMonoTriangle G color 1
-
-
 -- 2. Construct the graph
 
 namespace PikhurkoN5
@@ -162,8 +156,6 @@ properties about colorings later on.
   simp [G, GAdj]
 
 end PikhurkoN5
-
-
 -- 3.  Count edges
 
 namespace PikhurkoN5
@@ -422,8 +414,6 @@ theorem edge_count_44 : G.edgeSet.ncard = 44 := by
   simp_all [degree_A1, degree_B1, degree_A2, degree_B2, degree_apex]; omega
 
 end PikhurkoN5
-
-
 -- 4. Show red neighbors of apex are ≥ 11 if no blue K_{1,5}
 
 namespace PikhurkoN5
@@ -468,7 +458,6 @@ lemma blueNeighbors_card_le_4
     Nat.succ_le_of_lt (lt_of_not_ge hle)
   obtain ⟨S, hSsubset, hScard⟩ :=
     Finset.exists_subset_card_eq (blueNeighbors color) hge
-
   -- `apex ∉ S` since `apex` is not its own neighbor.
   have hapex_notin : apex ∉ S := by
     have : apex ∉ G.neighborFinset apex := by
@@ -482,7 +471,6 @@ lemma blueNeighbors_card_le_4
           intro v hv
           exact Finset.mem_of_mem_filter _ hv
       exact this hx')
-
   -- All edges from `apex` to `S` are present and blue, so we have a blue K_{1,5}.
   have hstar : hasMonoStar G color 0 5 := by
     refine ⟨apex, S, hScard, hapex_notin, ?_⟩
@@ -491,7 +479,6 @@ lemma blueNeighbors_card_le_4
     have hy_in : y ∈ G.neighborFinset apex ∧ color (s(apex, y)) = 0 := by
       simpa [blueNeighbors] using hy'
     exact ⟨by simpa using hy_in.1, hy_in.2⟩
-
   exact hNoBlueStar hstar
 
 /-- If there is no blue `K_{1,5}`, then at least {lean}`11` neighbors of {name}`apex`
@@ -510,7 +497,6 @@ lemma red_from_apex_at_least_11
       (Finset.card_filter_add_card_filter_not
         (s := G.neighborFinset apex)
         (p := fun v => color (s(apex, v)) = 0))
-
   have hred_is_notblue :
       (G.neighborFinset apex).filter (fun v => ¬ (color (s(apex, v)) = 0))
       =
@@ -519,7 +505,6 @@ lemma red_from_apex_at_least_11
     · -- On neighbors, “not blue” is “red”.
       simp [redNeighbors, hv, fin2_eq_one_iff_ne_zero]
     · simp [redNeighbors, hv]
-
   -- So blue + red = all neighbors = 15 (by `degree_apex`).
   have hsum : (blueNeighbors color).card + (redNeighbors color).card
               = (G.neighborFinset apex).card := by
@@ -528,13 +513,9 @@ lemma red_from_apex_at_least_11
       ext v; grind
     . infer_instance
     simp [redNeighbors]
-
-
   have hdeg : (G.neighborFinset apex).card = 15 := by
     simp [degree_apex]
-
   have hblue_le_4 := blueNeighbors_card_le_4 color hNoBlueStar
-
   -- Turn `blue + red = 15` into `red = 15 - blue`.
   have hred_eq : (redNeighbors color).card
       = 15 - (blueNeighbors color).card := by
@@ -543,17 +524,13 @@ lemma red_from_apex_at_least_11
     have := congrArg (fun t => t - (blueNeighbors color).card) hsum'
     -- `(red + blue) - blue = 15 - blue` ⇒ `red = 15 - blue`.
     simpa [Nat.add_sub_cancel] using this
-
   -- Finally: `blue ≤ 4` ⇒ `15 - blue ≥ 11`.
   have : 11 ≤ 15 - (blueNeighbors color).card :=
     by grind
-
   -- Combine with `red = 15 - blue`.
   simpa [hred_eq] using this
 
 end PikhurkoN5
-
-
 -- 5. Pigeonhole: one block gets ≥ 6 red edges from apex
 namespace PikhurkoN5
 open V
@@ -610,8 +587,6 @@ lemma exists_block_receives_at_least_6_red
   exact (Nat.not_succ_le_self 10) (le_trans h11 hle10)
 
 end PikhurkoN5
-
-
 -- 6. demonstrate a red neighbor in the clique side
 
 namespace PikhurkoN5
@@ -659,7 +634,6 @@ noncomputable instance : DecidablePred inBlock2 := by intro v; cases v <;> infer
   cases v <;> simp [isA2, isB2]
 
 /-! # Splitting the {name}`apex` red neighbors by parts -/
-
 -- These came from the previous step you have:
 -- def redNeighbors (color : Sym2 V → Fin 2) : Finset V := ...
 
@@ -706,7 +680,6 @@ lemma redBlock2_eq_union (color : Sym2 V → Fin 2) :
     have : isA2 v ∨ isB2 v := by
       apply (inBlock2_iff v).1
       cases v <;> simp_all [inBlock1, inBlock2, redNeighbors]
-
     cases this with
     | inl hA2 => exact Finset.mem_union.2 (Or.inl (Finset.mem_filter.2 ⟨hRN, hA2⟩))
     | inr hB2 => exact Finset.mem_union.2 (Or.inr (Finset.mem_filter.2 ⟨hRN, hB2⟩))
@@ -913,8 +886,6 @@ lemma exists_red_clique_neighbor
   · exact Or.inr (exists_red_A2_of_block2_ge6 color h2)
 
 end PikhurkoN5
-
-
 -- 7. triangle-or-star from the clique vertex
 
 namespace PikhurkoN5
@@ -978,7 +949,6 @@ lemma triangle_or_blueStar_from_block1
   -- Pick any 5-element subset `T` of those.
   obtain ⟨T, hTsub, hTcard⟩ :=
     Finset.exists_subset_card_eq ((redBlock1 color).erase (A1 i)) h5
-
   -- Either some `y ∈ T` makes the edge `(A1 i,y)` red (→ triangle), or all are blue (→ star).
   classical
   by_cases hTri : ∃ y ∈ T, color (s(A1 i, y)) = 1
@@ -1071,7 +1041,6 @@ lemma triangle_or_blueStar_from_block2
     exact (Nat.succ_le_succ_iff.mp this)
   obtain ⟨T, hTsub, hTcard⟩ :=
     Finset.exists_subset_card_eq ((redBlock2 color).erase (A2 i)) h5
-
   by_cases hTri : ∃ y ∈ T, color (s(A2 i, y)) = 1
   · rcases hTri with ⟨y, hyT, hyRedA2y⟩
     have hy_erase : y ∈ (redBlock2 color).erase (A2 i) := hTsub hyT
@@ -1154,7 +1123,6 @@ theorem red_triangle_of_no_blue_star
     · exact (hNoBlueStar hStar).elim
 
 end PikhurkoN5
-
 -- Final statement
 
 namespace PikhurkoN5
