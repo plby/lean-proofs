@@ -30,13 +30,19 @@ import Mathlib
 
 namespace Erdos476
 
-set_option linter.all false
-set_option linter.mathlibStandardSet false
+-- This generated proof file still relies on automated proof scripts whose warnings
+-- are too interdependent to remove locally without changing the proof structure.
+set_option linter.style.setOption false
+set_option linter.style.openClassical false
+set_option linter.style.longLine false
+set_option linter.style.refine false
+set_option linter.style.induction false
+set_option linter.flexible false
+set_option linter.style.multiGoal false
+set_option linter.unusedDecidableInType false
 
 open scoped Classical
 open Polynomial Finset
-
-set_option maxHeartbeats 0
 
 /-
 The restricted sumset of A is the set of all sums a+b where a,b are in A and a is not equal to b.
@@ -301,6 +307,7 @@ noncomputable def F_poly {p : ℕ} (C : Finset (ZMod p)) : MvPolynomial (Fin 2) 
 /-
 The polynomial $\prod_{c\in S}(x+y-c) - (x+y)^{|S|}$ has total degree at most $|S|-1$.
 -/
+set_option maxHeartbeats 2000000 in -- polynomial product expansion needs extra heartbeats
 lemma prod_linear_factors_degree_sub_leading {p : ℕ} (S : Finset (ZMod p)) :
     (∏ c ∈ S, (X 0 + X 1 - MvPolynomial.C c) - (X 0 + X 1) ^ S.card).totalDegree ≤ S.card - 1 := by
       -- Let's expand the product $\prod_{c\in S}(x+y-c)$ using the binomial theorem.
@@ -363,6 +370,7 @@ lemma binomial_coeff_computation_zmod {p : ℕ} (n : ℕ) (hn : n ≥ 2) :
 /-
 The coefficient of $x^{n-1}y^{n-2}$ in $F$ is $\binom{2n-4}{n-2} - \binom{2n-4}{n-1}$.
 -/
+set_option maxHeartbeats 2000000 in -- coefficient extraction needs extra heartbeats
 lemma F_poly_coeff {p : ℕ} (C : Finset (ZMod p)) (n : ℕ) (hC : C.card = 2 * n - 4) (hn : n ≥ 2) :
     (F_poly C).coeff (Finsupp.equivFunOnFinite.symm ![n - 1, n - 2]) =
     (Nat.choose (2 * n - 4) (n - 2) - Nat.choose (2 * n - 4) (n - 1) : ZMod p) := by
