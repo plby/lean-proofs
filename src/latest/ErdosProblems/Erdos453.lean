@@ -24,12 +24,6 @@ $\log p_n \to \infty$.
 
 import Mathlib
 
-set_option linter.style.induction false
-set_option linter.style.multiGoal false
-set_option linter.style.refine false
-set_option linter.style.setOption false
-set_option linter.flexible false
-
 namespace Erdos453
 
 
@@ -61,12 +55,14 @@ lemma is_vertex_implies_ge_neighbors {f : ℕ → ℝ} {n : ℕ}
 /-
 For any $n$ and $0 < i \le n$, $p_n^2 \ne p_{n-i} p_{n+i}$.
 -/
+-- The generated proof uses a broad simplification to reduce prime divisibility.
+set_option linter.flexible false in
 lemma prime_sq_ne_neighbors (n i : ℕ) (hi : 0 < i) (hin : i ≤ n) :
     (Nat.nth Nat.Prime n)^2 ≠ Nat.nth Nat.Prime (n - i) * Nat.nth Nat.Prime (n + i) := by
       -- By contradiction, assume $p_n^2 = p_{n-i} p_{n+i}$.
       by_contra h_eq
       have h_div : Nat.nth Nat.Prime (n - i) ∣ Nat.nth Nat.Prime n ^ 2 := by
-        exact h_eq.symm ▸ dvd_mul_right _ _;
+        exact h_eq.symm ▸ dvd_mul_right _ _
       have := Nat.Prime.dvd_of_dvd_pow ( Nat.prime_nth_prime ( n - i ) ) h_div
       simp_all +decide [ Nat.prime_dvd_prime_iff_eq ]
       exact absurd this
@@ -75,12 +71,16 @@ lemma prime_sq_ne_neighbors (n i : ℕ) (hi : 0 < i) (hin : i ≤ n) :
 /-
 $p_n \le 2^{n+1}$.
 -/
+-- `refine'` fills proof holes that plain `refine` leaves in this generated proof.
+set_option linter.style.refine false in
 lemma nth_prime_le_pow_two (n : ℕ) : Nat.nth Nat.Prime n ≤ 2 ^ (n + 1) := by
   -- By induction, we know that $p_n \leq 2^{n+1}$.
-  induction' n with n ih;
-  · norm_num [ Nat.nth_zero ];
-    exact Nat.sInf_le Nat.prime_two;
-  · rw [ Nat.nth_eq_sInf ];
+  induction n with
+  | zero =>
+    norm_num [ Nat.nth_zero ]
+    exact Nat.sInf_le Nat.prime_two
+  | succ n ih =>
+    rw [ Nat.nth_eq_sInf ]
     -- By Bertrand's postulate, there exists a prime $p$ such that
     -- $2^{n+1} < p \leq 2^{n+2}$.
     obtain ⟨p, hp⟩ : ∃ p, Nat.Prime p ∧ 2^(n+1) < p ∧ p ≤ 2^(n+2) := by
@@ -96,6 +96,8 @@ lemma nth_prime_le_pow_two (n : ℕ) : Nat.nth Nat.Prime n ≤ 2 ^ (n + 1) := by
 /-
 $a_n \to \infty$.
 -/
+-- `refine'` keeps the generated tendsto composition proof compact and stable.
+set_option linter.style.refine false in
 lemma a_tendsto_atTop : Filter.Tendsto a Filter.atTop Filter.atTop := by
   refine' Real.tendsto_log_atTop.comp _;
   refine' tendsto_natCast_atTop_atTop.comp
@@ -137,6 +139,8 @@ If $f(n) = o(n)$, then the slope $\frac{f(k) - f(N)}{k - N}$ tends to 0 as $k \t
 -/
 noncomputable def slope_fun (f : ℕ → ℝ) (N k : ℕ) : ℝ := (f k - f N) / ((k : ℝ) - (N : ℝ))
 
+-- The generated proof relies on a broad simplification of the slope definition.
+set_option linter.flexible false in
 lemma slope_tendsto_zero {f : ℕ → ℝ} {N : ℕ} (h_o : IsLittleO Filter.atTop f (fun n => (n : ℝ))) :
     Filter.Tendsto (fun k => slope_fun f N k) Filter.atTop (nhds 0) := by
       -- We can rewrite the slope function as $\frac{f(k)}{k} \cdot
@@ -169,6 +173,8 @@ lemma slope_tendsto_zero {f : ℕ → ℝ} {N : ℕ} (h_o : IsLittleO Filter.atT
 /-
 If $N$ is a vertex and $K > N$ maximizes the slope from $N$, then $K$ is a vertex.
 -/
+-- `refine'` is used here to preserve the generated two-goal line construction.
+set_option linter.style.refine false in
 lemma max_slope_is_vertex {f : ℕ → ℝ} {N K : ℕ} (hN : is_vertex f N) (hK_gt : K > N)
     (h_max : ∀ k > N, slope_fun f N k ≤ slope_fun f N K) : is_vertex f K := by
       -- By definition of $is_vertex$, there exists a line
@@ -294,8 +300,9 @@ lemma infinite_vertices_of_little_o {f : ℕ → ℝ}
     (h_o : IsLittleO Filter.atTop f (fun n => (n : ℝ)))
     (h_inf : Filter.Tendsto f Filter.atTop Filter.atTop) :
     Set.Infinite { n | is_vertex f n } := by
-      convert infinite_vertices _ _ using 1 ; aesop;
-      assumption
+      convert infinite_vertices _ _ using 1
+      · aesop
+      · assumption
 
 /-
 If $f(n) = o(n)$ and $f(n) \to \infty$, then there are infinitely many
@@ -326,8 +333,7 @@ lemma infinite_vertices_final {f : ℕ → ℝ}
   let N := S_fin.max' hS_fin_nonempty
   have hN_vertex : is_vertex f N := by
     have := S_fin.max'_mem hS_fin_nonempty
-    simp [S_fin, S] at this
-    exact this
+    simpa [S_fin, S] using this
   have hN_max : ∀ n, is_vertex f n → n ≤ N := by
     intro n hn
     have := S_fin.le_max' n (by simp [S_fin, S, hn])
@@ -354,8 +360,7 @@ lemma infinite_vertices_corrected {f : ℕ → ℝ}
   let N := S_fin.max' hS_fin_nonempty
   have hN_vertex : is_vertex f N := by
     have := S_fin.max'_mem hS_fin_nonempty
-    simp [S_fin, S] at this
-    exact this
+    simpa [S_fin, S] using this
   have hN_max : ∀ n, is_vertex f n → n ≤ N := by
     intro n hn
     have := S_fin.le_max' n (by simp [S_fin, S, hn])
@@ -369,6 +374,8 @@ lemma infinite_vertices_corrected {f : ℕ → ℝ}
 If $n$ is a vertex of the upper convex hull of $a_n = \log p_n$, then
 $p_n^2 > p_{n-i} p_{n+i}$.
 -/
+-- The conversion below intentionally uses one generated multi-goal tactic block.
+set_option linter.style.multiGoal false in
 lemma log_prime_vertex_implies_strict_ineq (n : ℕ) (h : is_vertex a n) :
     ∀ i, 0 < i → i ≤ n → 2 * a n > a (n - i) + a (n + i) := by
       intros i hi_pos hi_le_n
@@ -419,8 +426,7 @@ lemma infinite_vertices_thm_v2 {f : ℕ → ℝ}
   let N := S_fin.max' hS_fin_nonempty
   have hN_vertex : is_vertex f N := by
     have := S_fin.max'_mem hS_fin_nonempty
-    simp [S_fin, S] at this
-    exact this
+    simpa [S_fin, S] using this
   have hN_max : ∀ n, is_vertex f n → n ≤ N := by
     intro n hn
     have := S_fin.le_max' n (by simp [S_fin, S, hn])
@@ -447,8 +453,7 @@ lemma infinite_vertices_thm_v3 {f : ℕ → ℝ}
   let N := S_fin.max' hS_fin_nonempty
   have hN_vertex : is_vertex f N := by
     have := S_fin.max'_mem hS_fin_nonempty
-    simp [S_fin, S] at this
-    exact this
+    simpa [S_fin, S] using this
   have hN_max : ∀ n, is_vertex f n → n ≤ N := by
     intro n hn
     have := S_fin.le_max' n (by simp [S_fin, S, hn])
@@ -471,6 +476,8 @@ lemma centralBinom_lower_bound (n : ℕ) : 4^n ≤ (2*n + 1) * (2*n).choose n :=
 /-
 $\binom{2n}{n} \le (2n)^{\pi(2n)}$.
 -/
+-- `refine'` avoids brittle explicit term reconstruction in the product bound.
+set_option linter.style.refine false in
 lemma choose_le_pow_primeCounting (n : ℕ) (h : 1 ≤ n) :
     (2 * n).choose n ≤ (2 * n) ^ Nat.primeCounting (2 * n) := by
       -- By definition of binomial coefficients, $\binom{2n}{n}$ is a
@@ -527,6 +534,8 @@ lemma pi_ge_bound (n : ℕ) (h : 1 ≤ n) :
 There exists $c > 0$ such that for sufficiently large $n$,
 $\pi(n) \ge c n / \log n$.
 -/
+-- `refine'` preserves generated eventual-bound proof skeletons here.
+set_option linter.style.refine false in
 lemma pi_lower_bound_asymp :
     ∃ c > 0, ∀ᶠ n : ℕ in Filter.atTop,
       c * (n : ℝ) / Real.log n ≤ Nat.primeCounting n := by
@@ -614,6 +623,8 @@ lemma Nat.primeCounting_nth_eq (n : ℕ) : Nat.primeCounting (Nat.nth Nat.Prime 
 There exists $c > 0$ such that for sufficiently large $n$,
 $p_n / \log p_n \le (n+1)/c$.
 -/
+-- The generated proof needs broad simplification to transfer the eventual bound.
+set_option linter.flexible false in
 lemma prime_div_log_le_linear :
     ∃ c > 0, ∀ᶠ n : ℕ in Filter.atTop,
       (Nat.nth Nat.Prime n : ℝ) / Real.log (Nat.nth Nat.Prime n) ≤
