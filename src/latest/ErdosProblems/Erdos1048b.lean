@@ -27,10 +27,14 @@ import Mathlib
 
 namespace Erdos1048b
 
-set_option linter.mathlibStandardSet false
-set_option linter.unusedSimpArgs false
-set_option linter.unusedTactic false
-set_option linter.deprecated false
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.style.openClassical false
+set_option linter.style.induction false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+set_option linter.style.whitespace false
+set_option linter.flexible false
 
 open scoped BigOperators
 open scoped Real
@@ -38,15 +42,10 @@ open scoped Nat
 open scoped Classical
 open scoped Pointwise
 
-set_option maxHeartbeats 0
+set_option maxHeartbeats 50000000
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
-
-set_option relaxedAutoImplicit false
-set_option autoImplicit false
-
-noncomputable section
 
 /-
 We define the radius $r = 2^{1/10}$.
@@ -121,8 +120,8 @@ theorem my_g_mapsTo : Set.MapsTo my_g my_D my_S := by
 /-
 The diameter of $g(D)$ is at most $0.2$.
 -/
-theorem my_g_diam : EMetric.diam (my_g '' my_D) ≤ ENNReal.ofReal (2/10) := by
-  refine' EMetric.diam_le _;
+theorem my_g_diam : Metric.ediam (my_g '' my_D) ≤ ENNReal.ofReal (2/10) := by
+  refine' Metric.ediam_le _;
   -- By definition of $g$, we know that for any $w \in D$, $g(w) = (w + 2)^{1/10}$.
   intro x hx y hy
   obtain ⟨w1, hw1, rfl⟩ := hx
@@ -289,7 +288,7 @@ theorem S_subset_union_image : my_S ⊆ ⋃ k < 10, (my_g_k k) '' my_D := by
       -- Since $z^{10} = w + 2$, we can write $z$ as $z = (w + 2)^{1/10} e^{i\theta}$ for some $\theta$.
       obtain ⟨θ, hθ⟩ : ∃ θ : ℂ, z = (w + 2) ^ (1 / 10 : ℂ) * Complex.exp (θ * Complex.I) := by
         use ( Complex.log ( z / ( w + 2 ) ^ ( 1 / 10 : ℂ ) ) ) / Complex.I;
-        by_cases h : ( w + 2 ) ^ ( 1 / 10 : ℂ ) = 0 <;> simp_all +decide [ Complex.exp_log ];
+        by_cases h : ( w + 2 ) ^ ( 1 / 10 : ℂ ) = 0 <;> simp_all +decide;
         norm_num [ mul_assoc, Complex.exp_neg, Complex.exp_log ];
         rw [ Complex.exp_log ( div_ne_zero ( by rintro rfl; norm_num at hw; aesop ) ( by aesop ) ), mul_div_cancel₀ _ ( by aesop ) ];
       -- Since $z^{10} = w + 2$, we have $(w + 2)^{1/10} e^{i\theta}^{10} = w + 2$, which simplifies to $e^{i10\theta} = 1$.
@@ -333,7 +332,7 @@ theorem images_disjoint : ∀ k1 k2, k1 < 10 → k2 < 10 → k1 ≠ k2 → Disjo
     -- Since $g$ is non-zero on $D$, we can divide both sides of the equation by $g(w2)$.
     have h_div : Complex.exp (2 * Real.pi * Complex.I * k1 / 10) = Complex.exp (2 * Real.pi * Complex.I * k2 / 10) := by
       have h_g_ne_zero : ∀ w ∈ my_D, my_g w ≠ 0 := by
-        intro w hw; unfold my_g; intro H; simp_all +decide [ Complex.exp_ne_zero ] ;
+        intro w hw; unfold my_g; intro H; simp_all +decide;
         norm_num [ show w = -2 by linear_combination' H ] at hw;
         exact absurd hw ( by rw [ show my_D = Metric.ball 0 1 from rfl ] ; norm_num );
       exact mul_right_cancel₀ ( h_g_ne_zero w2 ( by unfold my_D; simpa using hw2 ) ) h_eq;
@@ -430,23 +429,23 @@ theorem component_subset_image (z : ℂ) (hz : z ∈ my_S) : ∃ k < 10, connect
 All connected components of $S$ have diameter $< 2-r$.
 -/
 theorem components_small :
-  ∀ z ∈ my_S, EMetric.diam (connectedComponentIn my_S z) < ENNReal.ofReal (2 - my_r) := by
+  ∀ z ∈ my_S, Metric.ediam (connectedComponentIn my_S z) < ENNReal.ofReal (2 - my_r) := by
     -- By combining the results, we conclude that the diameter of each connected component is less than $2 - r$. Use the fact that the diameter of $g(D)$ is at most $0.2$.
     intro z hz
     obtain ⟨k, hk_lt, hk_subset⟩ : ∃ k < 10, connectedComponentIn my_S z ⊆ (my_g_k k) '' my_D := component_subset_image z hz;
     -- Since the image of $D$ under $g_k$ is open and connected, its diameter is at most the diameter of $g(D)$.
-    have h_diam_image : EMetric.diam ((my_g_k k) '' my_D) ≤ EMetric.diam (my_g '' my_D) := by
+    have h_diam_image : Metric.ediam ((my_g_k k) '' my_D) ≤ Metric.ediam (my_g '' my_D) := by
       -- Since $my_g_k k$ is a rotation of $my_g$, the image of $D$ under $my_g_k k$ is just a rotated version of the image of $D$ under $my_g$.
       have h_rotate : (my_g_k k) '' my_D = (fun z => Complex.exp (2 * Real.pi * Complex.I * k / 10) * z) '' (my_g '' my_D) := by
         ext; simp [my_g_k];
       rw [ h_rotate ];
-      refine' EMetric.diam_le _;
-      simp +decide [ edist_dist, Complex.norm_exp ];
+      refine' Metric.ediam_le _;
+      simp +decide [ edist_dist ];
       intro a ha b hb; rw [ dist_eq_norm ] ; simp +decide [ ← mul_sub, Complex.norm_exp ] ;
       simpa [edist_eq_enorm_sub] using
         (Metric.edist_le_ediam_of_mem (s := (my_g '' my_D : Set ℂ))
           ( Set.mem_image_of_mem _ ha ) ( Set.mem_image_of_mem _ hb ));
-    refine' lt_of_le_of_lt ( EMetric.diam_mono hk_subset ) ( lt_of_le_of_lt h_diam_image _ );
+    refine' lt_of_le_of_lt ( Metric.ediam_mono hk_subset ) ( lt_of_le_of_lt h_diam_image _ );
     exact lt_of_le_of_lt ( my_g_diam ) ( diam_lt_target )
 
 /-
@@ -493,31 +492,29 @@ theorem component_subset_image_final (z : ℂ) (hz : z ∈ my_S) : ∃ k < 10, c
 All connected components of $S$ have diameter $< 2-r$.
 -/
 theorem components_small_final :
-  ∀ z ∈ my_S, EMetric.diam (connectedComponentIn my_S z) < ENNReal.ofReal (2 - my_r) := by
+  ∀ z ∈ my_S, Metric.ediam (connectedComponentIn my_S z) < ENNReal.ofReal (2 - my_r) := by
     exact fun z a => components_small z a
 
 /-
 The diameter of $U_k$ is equal to the diameter of $g(D)$.
 -/
-theorem my_U_diam (k : ℕ) : EMetric.diam (my_U k) = EMetric.diam (my_g '' my_D) := by
-  refine' le_antisymm ( EMetric.diam_le fun x hx y hy => _ ) ( EMetric.diam_le fun x hx y hy => _ );
+theorem my_U_diam (k : ℕ) : Metric.ediam (my_U k) = Metric.ediam (my_g '' my_D) := by
+  refine' le_antisymm ( Metric.ediam_le fun x hx y hy => _ ) ( Metric.ediam_le fun x hx y hy => _ );
   · obtain ⟨ w, hw, rfl ⟩ := hx; obtain ⟨ w', hw', rfl ⟩ := hy; simp +decide [ edist_dist ] ;
-    refine' le_trans _ ( EMetric.edist_le_diam_of_mem ( Set.mem_image_of_mem _ hw ) ( Set.mem_image_of_mem _ hw' ) );
+    refine' le_trans _ ( Metric.edist_le_ediam_of_mem ( Set.mem_image_of_mem _ hw ) ( Set.mem_image_of_mem _ hw' ) );
     simp +decide [ edist_dist, my_g_k ];
     norm_num [ dist_eq_norm, Complex.norm_exp ];
     rw [ ← mul_sub, norm_mul ] ; norm_num [ Complex.norm_exp ];
-  · refine' le_trans _ ( EMetric.edist_le_diam_of_mem _ _ );
+  · refine' le_trans _ ( Metric.edist_le_ediam_of_mem _ _ );
     rotate_left;
     exact ( Complex.exp ( 2 * Real.pi * Complex.I * k / 10 ) ) * x;
     exact Complex.exp ( 2 * Real.pi * Complex.I * k / 10 ) * y;
     · unfold my_U; aesop;
     · unfold my_U; aesop;
-    · simp +decide [ edist_dist, Complex.norm_exp ];
+    · simp +decide [ edist_dist ];
       norm_num [ ← mul_sub, Complex.dist_eq, Complex.norm_exp ]
 
 #print axioms components_small_final
 -- 'Erdos1048b.components_small_final' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end
 
 end Erdos1048b
