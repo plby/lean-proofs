@@ -67,26 +67,18 @@ please submit the same prompt, and add this .lean file in "Optional: Attach a Le
 import Mathlib
 
 set_option linter.style.setOption false
-set_option linter.style.openClassical false
 set_option linter.style.longLine false
 set_option linter.flexible false
 set_option linter.style.induction false
 set_option linter.style.refine false
 set_option linter.style.multiGoal false
-set_option linter.style.cases false
 
 open scoped BigOperators
 open scoped Real
 open scoped Nat
-open scoped Classical
 open scoped Pointwise
 
-set_option relaxedAutoImplicit false
-set_option autoImplicit false
-
 namespace Erdos199
-
-noncomputable section
 
 /-
 A 3-term arithmetic progression is a set of three distinct numbers a, b, c such that a + c = 2b. An infinite arithmetic progression is a set of the form {a + nb | n ∈ ℕ} with b ≠ 0.
@@ -176,7 +168,7 @@ lemma find_map_sorted {α β : Type*} [LinearOrder α]
 /-
 The index of the first coefficient of v (in the sorted basis order) that is greater than 3T in absolute value.
 -/
-def firstLargeIndex {ι : Type*} [LinearOrder ι] {V : Type*} [AddCommGroup V] [Module ℚ V]
+noncomputable def firstLargeIndex {ι : Type*} [LinearOrder ι] {V : Type*} [AddCommGroup V] [Module ℚ V]
   (b : Module.Basis ι ℚ V) (v : V) (T : ℚ) : Option ι :=
   ((b.repr v).support.sort (· ≤ ·)).find? (fun i => |b.repr v i| > 3 * T)
 
@@ -293,11 +285,11 @@ lemma case3_first_diff {ι : Type*} [LinearOrder ι] {V : Type*} [AddCommGroup V
 /-
 Definitions of suffix and prefix coefficient sequences based on a split index i.
 -/
-def suffixCoeffSeq {ι : Type*} [LinearOrder ι] {V : Type*} [AddCommGroup V] [Module ℚ V]
+noncomputable def suffixCoeffSeq {ι : Type*} [LinearOrder ι] {V : Type*} [AddCommGroup V] [Module ℚ V]
   (b : Module.Basis ι ℚ V) (x : V) (i : ι) : List ℚ :=
   (((b.repr x).support.sort (· ≤ ·)).filter (fun j => i ≤ j)).map (b.repr x)
 
-def prefixCoeffSeq {ι : Type*} [LinearOrder ι] {V : Type*} [AddCommGroup V] [Module ℚ V]
+noncomputable def prefixCoeffSeq {ι : Type*} [LinearOrder ι] {V : Type*} [AddCommGroup V] [Module ℚ V]
   (b : Module.Basis ι ℚ V) (x : V) (i : ι) : List ℚ :=
   (((b.repr x).support.sort (· ≤ ·)).filter (fun j => j < i)).map (b.repr x)
 
@@ -758,7 +750,7 @@ lemma exists_next_pattern {ι : Type*} [LinearOrder ι] {V : Type*} [AddCommGrou
         have h_finite_support : Set.Finite (Set.range (fun j => |(b.repr A_start) j|)) := by
           have h_finite_support : Set.Finite {j | (b.repr A_start) j ≠ 0} := by
             exact Set.Finite.subset ( b.repr A_start |> Finsupp.support |> Finset.finite_toSet ) fun x hx => by aesop;
-          exact Set.Finite.subset ( h_finite_support.image ( fun j => |( b.repr A_start ) j| ) |> Set.Finite.union <| Set.finite_singleton 0 ) fun x hx => by cases' hx with j hj; by_cases hj' : ( b.repr A_start ) j = 0 <;> aesop;
+          exact Set.Finite.subset ( h_finite_support.image ( fun j => |( b.repr A_start ) j| ) |> Set.Finite.union <| Set.finite_singleton 0 ) fun x hx => by rcases hx with ⟨j, hj⟩; by_cases hj' : ( b.repr A_start ) j = 0 <;> aesop;
         generalize_proofs at *;
         have h_finite_prev : Set.Finite (Set.range (fun r => |r|) ∩ {r | ∃ σ ∈ prev_patterns, ∃ r' ∈ σ, r = |r'|}) := by
           refine' Set.Finite.subset ( Set.toFinite ( Finset.image ( fun r : ℚ => |r| ) ( Finset.biUnion ( List.toFinset prev_patterns ) fun σ => List.toFinset σ ) ) ) _ ; intro x ; aesop;
@@ -792,7 +784,7 @@ lemma exists_good_sequence_countable {ι : Type*} [LinearOrder ι] {V : Type*} [
     have h_countable : Set.Countable {S : Set V | IsInfiniteAP_V S} := by
       have h_countable : Countable (Set.range (fun (p : V × V) => {x : V | ∃ n : ℕ, x = p.1 + n • p.2})) := by
         exact Set.countable_coe_iff.mpr ( Set.countable_range _ );
-      exact Set.Countable.mono ( fun x hx => by cases' hx with a b hb; aesop ) h_countable;
+      exact Set.Countable.mono ( fun x hx => by rcases hx with ⟨a, b, hb⟩; aesop ) h_countable;
     have h_enum : ∃ (S : ℕ → Set V), (∀ n, IsInfiniteAP_V (S n)) ∧ (∀ T : Set V, IsInfiniteAP_V T → ∃ n, T = S n) := by
       have := h_countable.exists_eq_range;
       obtain ⟨f, hf⟩ := this (by
@@ -874,7 +866,7 @@ lemma exists_monotone_embedding_from_finite_to_infinite {α : Type*} [LinearOrde
 /-
 Lift a vector by applying a function to the indices of its basis expansion.
 -/
-def liftVector {ι : Type*} [LinearOrder ι] {V : Type*} [AddCommGroup V] [Module ℚ V]
+noncomputable def liftVector {ι : Type*} [LinearOrder ι] {V : Type*} [AddCommGroup V] [Module ℚ V]
   (b : Module.Basis ι ℚ V) (v : V) (f : ι → ι) : V :=
   Finsupp.sum (b.repr v) (fun i c => c • b (f i))
 
@@ -1185,7 +1177,5 @@ theorem disproof_of_conjecture : ¬ Conjecture := by
 
 #print axioms disproof_of_conjecture
 -- 'Erdos199.disproof_of_conjecture' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end
 
 end Erdos199
