@@ -34,7 +34,8 @@ set_option linter.style.cases false
 set_option linter.style.refine false
 set_option linter.style.multiGoal false
 
-set_option maxHeartbeats 0
+set_option maxHeartbeats 1000000
+-- Several generated Nathanson-sequence case proofs time out at the default heartbeat limit.
 
 def shiftedPairs (x y k : ℕ) : Finset (ℕ × ℕ) :=
   Finset.image (fun i => (x - i, y + i)) (Finset.range k)
