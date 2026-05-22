@@ -26,9 +26,17 @@ import PrimeNumberTheoremAnd.Consequences
 
 namespace Erdos678
 
-set_option linter.mathlibStandardSet false
+set_option linter.style.setOption false
+set_option linter.style.openClassical false
+set_option linter.style.longLine false
+set_option linter.flexible false
+set_option linter.style.induction false
+set_option linter.style.refine false
+set_option linter.style.multiGoal false
+set_option linter.style.cases false
 set_option linter.unusedTactic false
 set_option linter.deprecated false
+set_option maxHeartbeats 1000000
 
 open scoped BigOperators
 open scoped Nat
@@ -37,8 +45,6 @@ open scoped Pointwise
 
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
-
-set_option maxHeartbeats 0
 
 noncomputable section
 
@@ -1723,7 +1729,6 @@ lemma good_xy_diff (k x y : ℕ) (hx : good_x k x) (hy : good_y k y) (hxy : x < 
   have hx_mod : x ≡ 1 [MOD m k] := by
     obtain ⟨hx0, hxmod, hx_res⟩ := hx;
     rw [ ← hxmod, Nat.ModEq, Nat.mod_mod ]
-
   -- From good_y, we have y ≡ 0 [MOD m k].
   have hy_mod : y ≡ 0 [MOD m k] := by
     cases hy ; aesop;
@@ -2289,7 +2294,7 @@ lemma lcm_3_upper (n : ℕ) : lcmInterval n 3 ≤ (n + 1) * (n + 2) * (n + 3) :=
   exact Nat.le_of_dvd ( by positivity ) ( Nat.lcm_dvd ( dvd_mul_of_dvd_left ( dvd_mul_right _ _ ) _ ) ( Nat.lcm_dvd ( dvd_mul_of_dvd_left ( dvd_mul_left _ _ ) _ ) ( dvd_mul_left _ _ ) ) )
 
 lemma factorization_24_2_3 : Nat.factorization 24 2 ≥ 3 := by
-  show 3 ≤ (24 : ℕ).factorization 2
+  change 3 ≤ (24 : ℕ).factorization 2
   have hdiv : (2 : ℕ) ^ 3 ∣ 24 := by
     refine ⟨3, by norm_num⟩
   exact
