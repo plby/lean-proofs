@@ -37,16 +37,22 @@ import Mathlib
 
 namespace Erdos1080
 
+set_option linter.style.openClassical false
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.style.whitespace false
+set_option linter.flexible false
+set_option linter.style.refine false
+set_option linter.style.multiGoal false
+set_option linter.unusedDecidableInType false
+set_option linter.unusedFintypeInType false
 set_option linter.unusedSectionVars false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedTactic false
 set_option linter.unusedVariables false
-set_option linter.mathlibStandardSet false
 
 open scoped Classical
 open SimpleGraph Sum
-
-set_option maxHeartbeats 0
 
 /-
 Definition of the Lazebnik-Ustimenko-Woldar bipartite graph B(q).
@@ -692,6 +698,8 @@ theorem card_Line
 /-
 No cycle of length 6 passes through $(0,0,0)$ in $B(q)$.
 -/
+set_option maxHeartbeats 2000000 in
+-- The explicit six-walk case split needs more than the default heartbeat budget.
 theorem B_no_C6_through_zero_cycle
   (hq : q ≠ 0)
   (h_add : ∀ a b : F, (a + b)^q = a^q + b^q)
