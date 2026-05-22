@@ -48,14 +48,22 @@ import Mathlib
 
 namespace Erdos1007
 
-set_option linter.mathlibStandardSet false
+set_option linter.style.openClassical false
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.style.refine false
+set_option linter.flexible false
+set_option linter.unusedFintypeInType false
+set_option linter.unusedDecidableInType false
+set_option linter.style.multiGoal false
+set_option linter.style.induction false
+set_option linter.style.cdot false
 set_option linter.unreachableTactic false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedTactic false
 
 open scoped Classical
 
-set_option maxHeartbeats 0
 set_option maxRecDepth 10000
 
 open SimpleGraph
@@ -99,6 +107,8 @@ lemma exists_embedding {V : Type*} [Fintype V] (G : SimpleGraph V) : ∃ d, HasU
 /-
 Let a,b in R^3 with dist(a,b)=1. Then the intersection of the unit spheres centered at a and b is an infinite set.
 -/
+set_option maxHeartbeats 5000000 in
+-- The generated coordinate construction below needs a larger heartbeat budget.
 lemma sphere_intersection_infinite {a b : EuclideanSpace ℝ (Fin 3)} (h : dist a b = 1) :
     (Metric.sphere a 1 ∩ Metric.sphere b 1).Infinite := by
       norm_num [ dist_eq_norm, EuclideanSpace.norm_eq, Fin.sum_univ_three ] at *;
@@ -169,6 +179,8 @@ lemma sphere_intersection_infinite {a b : EuclideanSpace ℝ (Fin 3)} (h : dist 
 /-
 The intersection of two planes with linearly independent normal vectors in R^3 is a line.
 -/
+set_option maxHeartbeats 5000000 in
+-- The coordinate proof of the linear system is computationally expensive.
 lemma planes_inter_is_line {n1 n2 : EuclideanSpace ℝ (Fin 3)} (h : LinearIndependent ℝ ![n1, n2]) (c1 c2 : ℝ) :
     ∃ p v, v ≠ 0 ∧ {x | inner ℝ n1 x = c1} ∩ {x | inner ℝ n2 x = c2} = {p + t • v | t : ℝ} := by
       -- The intersection of two non-parallel planes in R^3 is a line. Since n1 and n2 are linearly independent, their cross product v = n1 x n2 is non-zero and orthogonal to both.
@@ -650,6 +662,8 @@ lemma dim_le_3_of_card_le_4 {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleG
 /-
 Given three points x, y, z in R^3 forming a regular triangle of side 1, there exists a point p at distance 1 from all of them, distinct from a fourth point u.
 -/
+set_option maxHeartbeats 5000000 in
+-- This generated avoidance argument relies on a large case split.
 lemma regular_triangle_sphere_intersection_avoid {x y z u : EuclideanSpace ℝ (Fin 3)}
     (hxy : Dist.dist x y = 1) (hyz : Dist.dist y z = 1) (hzx : Dist.dist z x = 1) :
     ∃ p, Dist.dist p x = 1 ∧ Dist.dist p y = 1 ∧ Dist.dist p z = 1 ∧ p ≠ u := by
