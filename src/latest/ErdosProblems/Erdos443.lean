@@ -34,7 +34,6 @@ set_option linter.style.openClassical false
 set_option linter.style.setOption false
 set_option linter.style.whitespace false
 set_option linter.flexible false
-set_option linter.unusedVariables false
 
 open scoped Classical
 
@@ -42,7 +41,7 @@ open scoped Pointwise
 
 --set_option linter.mathlibStandardSet false
 
-set_option maxHeartbeats 0
+set_option maxHeartbeats 50000000
 set_option linter.style.cases false
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
@@ -750,7 +749,7 @@ lemma to_T_pair_satisfies_parity (m n k r : ℕ) (hmn : n < m) (hk : 2 * k ≤ n
 /-
 For the constructed m, n, 2m = 2 mod 4 and 2n = 2 mod 4.
 -/
-lemma m_n_mod_4 (s p α : ℕ) (hs : 0 < s) (hp : Odd p) (hα : 1 ≤ α) :
+lemma m_n_mod_4 (s p α : ℕ) (_hs : 0 < s) (hp : Odd p) (hα : 1 ≤ α) :
   let (m, n) := construction_1_3 s p α
   (2 * m) % 4 = 2 ∧ (2 * n) % 4 = 2 := by
     unfold construction_1_3; norm_num; ring_nf;
