@@ -28,8 +28,21 @@ import Mathlib
 
 namespace Erdos541
 
-set_option linter.mathlibStandardSet false
+-- This generated additive-combinatorics proof still has extensive style debt;
+-- use specific suppressions rather than the broad `linter.mathlibStandardSet`.
+set_option linter.style.setOption false
+set_option linter.style.openClassical false
+set_option linter.style.longLine false
+set_option linter.style.refine false
+set_option linter.style.induction false
+set_option linter.style.multiGoal false
+set_option linter.style.whitespace false
+set_option linter.style.cdot false
+set_option linter.style.cases false
+set_option linter.style.docString false
+set_option linter.flexible false
 set_option linter.unnecessarySimpa false
+set_option linter.unusedDecidableInType false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
 
@@ -37,8 +50,6 @@ open scoped Classical
 open scoped Pointwise
 open Multiset
 open Filter
-
-set_option maxHeartbeats 0
 
 noncomputable section
 
@@ -413,6 +424,8 @@ lemma subsums_card_ge_card {G : Type*} [AddCommGroup G] [DecidableEq G] (S : Mul
 Let $p$ be prime and let $S$ be a sequence over $\G$ of length $p-1$ with $0\notin \Sigma_{\ge 1}(S)$.
 Then $|\supp(S)|=1$.
 -/
+set_option maxHeartbeats 8000000 in
+-- This generated zero-sum-free case proof needs a larger heartbeat budget.
 lemma lem_zsfree_p_1 {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p))
     (h_len : S.card = p - 1) (h_zs : 0 ∉ seq_sigma_ge S 1) :
     S.toFinset.card = 1 := by
@@ -1314,6 +1327,8 @@ lemma lem_find_h_case2 {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) (l : ℕ
 /-
 Case 1 of finding h: t is small enough.
 -/
+set_option maxHeartbeats 8000000 in
+-- This generated case proof needs a larger heartbeat budget.
 lemma lem_find_h_case1 {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) (l : ℕ) (T : Multiset (ZMod p))
     (hS : S = Multiset.replicate l 1 + T)
     (hp : S.card = p)
@@ -2407,6 +2422,8 @@ lemma claim_2_uniqueness {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) (l : �
 /-
 The number of representations of 0 in A + B is exactly 1.
 -/
+set_option maxHeartbeats 8000000 in
+-- This generated representation-count proof needs a larger heartbeat budget.
 lemma claim_2_rep_count_eq_one {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) (l : ℕ) (T : Multiset (ZMod p))
     (hS : S = Multiset.replicate l 1 + T)
     (hp : S.card = p)
@@ -2924,6 +2941,8 @@ def IsPiecewiseConstant {α : Type*} (L : List α) : Prop :=
 /-
 If every permutation of a list of length at least 3 is piecewise constant, then the list is constant.
 -/
+set_option maxHeartbeats 8000000 in
+-- This generated list-permutation proof needs a larger heartbeat budget.
 lemma piecewise_constant_perm_implies_constant {α : Type*} [DecidableEq α] (L : List α)
   (h_len : L.length ≥ 3)
   (h_all_perm : ∀ L' : List α, List.Perm L' L → IsPiecewiseConstant L') :
