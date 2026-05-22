@@ -43,7 +43,6 @@ Proposition 1) were assumed to be proved as per instructions.
 import Mathlib
 
 set_option linter.style.setOption false
-set_option linter.deprecated false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
 set_option linter.style.induction false
@@ -86,7 +85,7 @@ def calc_b (M : ℕ) : ℕ :=
 
 theorem M_eq_d_b_sq (M : ℕ) (hM : M > 0) : M = calc_d M * (calc_b M)^2 := by
   unfold calc_d calc_b;
-  conv_lhs => rw [ ← Nat.factorization_prod_pow_eq_self hM.ne' ];
+  conv_lhs => rw [← Nat.prod_factorization_pow_eq_self hM.ne'];
   simp +decide only [Finsupp.prod, ← Finset.prod_pow];
   rw [ ← Finset.prod_mul_distrib ]
   refine' Finset.prod_congr rfl fun p hp => _
@@ -475,7 +474,7 @@ theorem c_p_eq_pow_p (d : ℤ) (hd : d > 1) (fund : Pell.Solution₁ d) (p : ℕ
         · linarith [ hn 2 Nat.prime_two, hn 3 Nat.prime_three ];
         · exact
             ⟨n.factorization p, by
-              nth_rw 1 [← Nat.factorization_prod_pow_eq_self hn_zero]
+              nth_rw 1 [← Nat.prod_factorization_pow_eq_self hn_zero]
               rw [Finsupp.prod]
               aesop⟩
       exact h_prime_factors fun q hq hq' =>
