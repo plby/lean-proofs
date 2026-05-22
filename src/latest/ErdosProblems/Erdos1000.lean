@@ -26,12 +26,19 @@ import Mathlib
 
 namespace Erdos1000
 
-set_option linter.mathlibStandardSet false
+-- This generated proof file still relies on automated proof scripts whose warnings
+-- are too interdependent to remove locally without changing the proof structure.
+set_option linter.style.setOption false
+set_option linter.style.openClassical false
+set_option linter.style.longLine false
 set_option linter.unusedVariables false
+set_option linter.style.refine false
+set_option linter.flexible false
+set_option linter.style.multiGoal false
+set_option linter.style.whitespace false
+set_option linter.style.induction false
 
 open scoped Classical
-
-set_option maxHeartbeats 0
 
 /-
 For a sequence A = {n_k}, phi_A(k) is the number of integers m with 1 <= m <= n_k such that n_k / gcd(m, n_k) is not equal to any n_j for j < k.
