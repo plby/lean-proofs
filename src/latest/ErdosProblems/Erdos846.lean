@@ -35,7 +35,6 @@ limitations under the License.
 import Mathlib
 
 set_option linter.style.openClassical false
-set_option linter.style.whitespace false
 set_option linter.unusedVariables false
 set_option linter.style.cdot false
 set_option linter.unusedFintypeInType false
@@ -359,14 +358,14 @@ lemma kyncl_seq_diff4 (a b c d : ℕ) (h_neq : ({a, b} : Set ℕ) ≠ {c, d}) :
   have h := kyncl_seq_int_diff4 a b c d h_neq
   exact int_diff_ge_one h
 
-lemma case1_bound_helper (X Y Z F M : ℝ) (hM : M ≥ 100) (hF : F ≥ M^4)
-  (hX : |X| ≥ 1) (hY : |Y| ≤ 22 * M^2) (hZ : |Z| ≤ 30 * M^3) :
+lemma case1_bound_helper (X Y Z F M : ℝ) (hM : M ≥ 100) (hF : F ≥ M ^ 4)
+  (hX : |X| ≥ 1) (hY : |Y| ≤ 22 * M ^ 2) (hZ : |Z| ≤ 30 * M ^ 3) :
   - X * F^2 + Y * F + Z ≠ 0 := by
   cases abs_choice X with
-    nlinarith only[hX,hF,pow_three (M-100),pow_three (M^2-100^2),
+    nlinarith only[hX,hF,pow_three (M-100),pow_three (M ^ 2-100^2),
       abs_le.1 hY,abs_le.1 hZ,hM,‹_›]
 
-lemma case1_ineq (A B C D E F M : ℝ) (hM : M ≥ 100) (hF : F ≥ M^4)
+lemma case1_ineq (A B C D E F M : ℝ) (hM : M ≥ 100) (hF : F ≥ M ^ 4)
   (hA : 0 ≤ A) (hAM : A ≤ M) (hB : 0 ≤ B) (hBM : B ≤ M)
   (hC : 0 ≤ C) (hCM : C ≤ M) (hD : 0 ≤ D) (hDM : D ≤ M)
   (hE : 0 ≤ E) (hEM : E ≤ M)
@@ -377,12 +376,12 @@ lemma case1_ineq (A B C D E F M : ℝ) (hM : M ≥ 100) (hF : F ≥ M^4)
       (A + B) * C * D + (C + D) * A * B - E * (A * B - C * D) ≠ 0 := by
   have hY :
       |((A + B - C - D) * (A + B + C + D - E) - A * B + C * D)| ≤
-        22 * M^2 := by
+        22 * M ^ 2 := by
     use abs_le.2 (by
       repeat use (by nlinarith only[hAM,hBM,hCM,hDM,hE,hEM,hA,hB,hD,hC]))
   have hZ :
       |(A + B - C - D) * (C + D - E) * (E - A - B) - (A + B) * C * D +
-          (C + D) * A * B - E * (A * B - C * D)| ≤ 30 * M^3 := by
+          (C + D) * A * B - E * (A * B - C * D)| ≤ 30 * M ^ 3 := by
     simp_rw [abs_le]at*
     constructor
     · nlinarith[mul_nonneg hA hB,mul_nonneg hC hD,
@@ -411,7 +410,7 @@ lemma kyncl_poly_case1 (a b c d e f : ℝ) :
 lemma kyncl_seq_case1_helper (i1 j1 i2 j2 i3 j3 : ℕ)
   (h1 : i1 < j1) (h2 : i2 < j2) (h3 : i3 < j3)
   (h_max1 : j1 < j3) (h_max2 : j2 < j3) :
-  ∃ M : ℝ, M ≥ 100 ∧ kyncl_seq j3 ≥ M^4 ∧
+  ∃ M : ℝ, M ≥ 100 ∧ kyncl_seq j3 ≥ M ^ 4 ∧
     0 ≤ kyncl_seq i1 ∧ kyncl_seq i1 ≤ M ∧
     0 ≤ kyncl_seq j1 ∧ kyncl_seq j1 ≤ M ∧
     0 ≤ kyncl_seq i2 ∧ kyncl_seq i2 ≤ M ∧
@@ -446,7 +445,7 @@ lemma kyncl_seq_case1_eval (i1 j1 i2 j2 i3 j3 : ℕ)
   rw [h_poly]
   exact h_ineq
 
-lemma case2_ineq (A B C E D M : ℝ) (hM : M ≥ 100) (hD : D ≥ M^4)
+lemma case2_ineq (A B C E D M : ℝ) (hM : M ≥ 100) (hD : D ≥ M ^ 4)
   (hA : 0 ≤ A) (hAM : A ≤ M) (hB : 0 ≤ B) (hBM : B ≤ M)
   (hC : 0 ≤ C) (hCM : C ≤ M) (hE : 0 ≤ E) (hEM : E ≤ M)
   (hDiff : |A + B - C - E| ≥ 1) (hCE : C ≠ E) :
@@ -456,7 +455,7 @@ lemma case2_ineq (A B C E D M : ℝ) (hM : M ≥ 100) (hD : D ≥ M^4)
     (ne_of_eq_of_ne (by rw [mul_assoc,←mul_add])
       (mul_ne_zero (sub_ne_zero.2 hCE) (by
         cases le_abs.1 hDiff with
-          nlinarith[pow_three (M-1),pow_three (M^2-1)])))
+          nlinarith[pow_three (M-1),pow_three (M ^ 2-1)])))
 
 lemma kyncl_poly_case2 (a b c d e f : ℝ) (h : d = f) :
   kyncl_poly a b c d e f =
@@ -469,7 +468,7 @@ lemma kyncl_poly_case2 (a b c d e f : ℝ) (h : d = f) :
 lemma kyncl_seq_case2_helper (i1 j1 i2 j2 i3 j3 : ℕ)
   (h1 : i1 < j1) (h2 : i2 < j2) (h3 : i3 < j3)
   (h_eq : j2 = j3) (h_max : j1 < j2) :
-  ∃ M : ℝ, M ≥ 100 ∧ kyncl_seq j2 ≥ M^4 ∧
+  ∃ M : ℝ, M ≥ 100 ∧ kyncl_seq j2 ≥ M ^ 4 ∧
     0 ≤ kyncl_seq i1 ∧ kyncl_seq i1 ≤ M ∧
     0 ≤ kyncl_seq j1 ∧ kyncl_seq j1 ≤ M ∧
     0 ≤ kyncl_seq i2 ∧ kyncl_seq i2 ≤ M ∧
