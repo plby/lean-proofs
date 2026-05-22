@@ -20,11 +20,6 @@ URLs:
 -/
 import Mathlib
 
-set_option linter.deprecated false
-set_option linter.style.setOption false
-set_option linter.flexible false
-set_option linter.unusedSimpArgs false
-
 open scoped BigOperators
 open Finset
 
@@ -179,7 +174,7 @@ lemma perpBisector_collinear (x y : Point) (hxy : x ≠ y) :
     Collinear ℝ ((AffineSubspace.perpBisector x y : AffineSubspace ℝ Point) : Set Point) := by
   classical
   haveI : Fact (Module.finrank ℝ Point = 2) := ⟨by
-    simp [finrank_euclideanSpace_fin]⟩
+    simp⟩
   have hv : (y -ᵥ x : Point) ≠ 0 := by
     intro h
     have hyx : y = x := (vsub_eq_zero_iff_eq).1 h
@@ -307,8 +302,7 @@ lemma sum_m_eq_g (P : Finset Point) (u : ℝ) :
         have hpqmem' : pq ∈ P.offDiag := (Finset.mem_filter.mp hpqmem).1
         have hdist : dist pq.1 pq.2 = u := (Finset.mem_filter.mp hpqmem).2
         have hmem : pq.1 ∈ P ∧ pq.2 ∈ P ∧ pq.1 ≠ pq.2 := by
-          simp [Finset.mem_offDiag] at hpqmem'
-          exact hpqmem'
+          exact Finset.mem_offDiag.mp hpqmem'
         have hqP : pq.2 ∈ P := hmem.2.1
         have hqne : pq.2 ≠ p := by
           have hneq : pq.1 ≠ pq.2 := hmem.2.2
@@ -319,8 +313,7 @@ lemma sum_m_eq_g (P : Finset Point) (u : ℝ) :
           simp [Finset.mem_erase, hqP, hqne]
         have hqA : pq.2 ∈ A := by
           have hdist' : dist p pq.2 = u := by
-            simp [hpqeq] at hdist
-            exact hdist
+            simpa [hpqeq] using hdist
           simp [A, hqerase, hdist']
         cases pq with
         | mk a b =>
@@ -388,7 +381,9 @@ lemma delta_eq_sum_isoPairsAt (P : Finset Point) :
   classical
   let f : (Point × Point × Point) → Point × ℝ := fun t =>
     (t.1, dist t.1 t.2.1)
-  have hmap : (IsoTriples P).toSet.MapsTo f (P.product (DistSet P)) := by
+  have hmap :
+      Set.MapsTo f (IsoTriples P : Set (Point × Point × Point))
+        (P.product (DistSet P) : Set (Point × ℝ)) := by
     intro t ht
     rcases (Finset.mem_filter.mp ht) with ⟨htprod, hpred⟩
     rcases (Finset.mem_product.mp htprod) with ⟨hzP, ht2⟩
@@ -398,7 +393,7 @@ lemma delta_eq_sum_isoPairsAt (P : Finset Point) :
       exact Finset.mem_offDiag.mpr ⟨hzP, hxP, hzx⟩
     have hdist_mem : dist t.1 t.2.1 ∈ DistSet P := by
       exact mem_image_of_mem (fun pq => dist pq.1 pq.2) hmem
-    simp [Finset.mem_product, f, hzP, hdist_mem]
+    simp [f, hzP, hdist_mem]
   have h_fiber :=
     (Finset.card_eq_sum_card_fiberwise (s := IsoTriples P)
       (t := P.product (DistSet P)) (f := f) hmap)
@@ -510,7 +505,7 @@ lemma sum_sq_m_eq (P : Finset Point) :
               intro p hp
               simpa using (Finset.card_erase_of_mem (s := P) (a := p) hp)
       _ = P.card * (P.card - 1) := by
-              simp [Finset.sum_const_nat, Nat.mul_comm]
+              simp
   have h_delta :
       Δ P = ∑ p ∈ P, ∑ u ∈ DistSet P, m P u p * (m P u p - 1) := by
     calc
@@ -535,7 +530,7 @@ lemma sum_sq_m_eq (P : Finset Point) :
     | zero =>
         simp [pow_two]
     | succ k =>
-        simp [pow_two, Nat.mul_add, Nat.add_mul, Nat.mul_comm, Nat.mul_left_comm, Nat.mul_assoc]
+        simp [pow_two, Nat.mul_add, Nat.mul_comm]
   have h_nat :
       ∑ p ∈ P, ∑ u ∈ DistSet P, (m P u p)^2
         = Δ P + P.card * (P.card - 1) := by
@@ -544,7 +539,7 @@ lemma sum_sq_m_eq (P : Finset Point) :
           = ∑ p ∈ P, ∑ u ∈ DistSet P, (m P u p * (m P u p - 1) + m P u p) := h_sq
       _ = (∑ p ∈ P, ∑ u ∈ DistSet P, m P u p * (m P u p - 1))
           + (∑ p ∈ P, ∑ u ∈ DistSet P, m P u p) := by
-            simp [sum_add_distrib, add_comm, add_left_comm, add_assoc]
+            simp [sum_add_distrib, add_comm]
       _ = Δ P + P.card * (P.card - 1) := by
             simp [h_delta, h_sum_m]
   -- Cast the ℕ identity to ℝ.
@@ -581,7 +576,9 @@ lemma Δ_le_two_n_n1 (P : Finset Point) (h : PerpBisectorAtMostTwo P) :
     (Δ P : ℝ) ≤ 2 * ((P.card * (P.card - 1)) : ℝ) := by
   classical
   let g : (Point × Point × Point) → (Point × Point) := fun t => (t.2.1, t.2.2)
-  have hmap : (IsoTriples P).toSet.MapsTo g (P.offDiag) := by
+  have hmap :
+      Set.MapsTo g (IsoTriples P : Set (Point × Point × Point))
+        (P.offDiag : Set (Point × Point)) := by
     intro t ht
     rcases (Finset.mem_filter.mp ht) with ⟨htprod, hpred⟩
     rcases (Finset.mem_product.mp htprod) with ⟨hzP, ht2⟩
@@ -656,7 +653,7 @@ lemma Δ_le_two_n_n1 (P : Finset Point) (h : PerpBisectorAtMostTwo P) :
             intro xy hxy
             exact h_fiber_le xy hxy
       _ = 2 * P.offDiag.card := by
-            simp [Finset.sum_const_nat, Nat.mul_comm]
+            simp [Nat.mul_comm]
   have h_offdiag : P.offDiag.card = P.card * (P.card - 1) := by
     have h' := Finset.offDiag_card (s := P)
     have hm : P.card * (P.card - 1) = P.card * P.card - P.card := by
@@ -790,7 +787,7 @@ lemma g_eq_two_f (P : Finset Point) (u : ℝ) : g P u = 2 * f P u := by
             intro z hz
             exact h_fiber_card z hz
   have hsum : ∑ z ∈ t, 2 = 2 * t.card := by
-    simp [Finset.sum_const_nat, Nat.mul_comm]
+    simp [Nat.mul_comm]
   have hs : g P u = s.card := by rfl
   have ht : f P u = t.card := by rfl
   calc
@@ -841,7 +838,7 @@ theorem erdos94 (P : Finset Point) (h : PerpBisectorAtMostTwo P) :
       _ = (P.card : ℝ) * ∑ p ∈ P, ∑ u ∈ DistSet P, (m P u p : ℝ)^2 := by
             simp [hsum_m2]
       _ = (P.card : ℝ) * ((Δ P : ℝ) + (P.card * (P.card - 1) : ℝ)) := by
-            simp [sum_sq_m_eq, add_assoc, add_left_comm, add_comm]
+            simp [sum_sq_m_eq]
   have hDelta : (Δ P : ℝ) ≤ 2 * ((P.card * (P.card - 1)) : ℝ) :=
     Δ_le_two_n_n1 P h
   have hsumg_final :
@@ -860,7 +857,7 @@ theorem erdos94 (P : Finset Point) (h : PerpBisectorAtMostTwo P) :
   have hS :
       S P = (1 / 4 : ℝ) * ∑ u ∈ DistSet P, (g P u : ℝ)^2 := by
     unfold S
-    simp [hgf, mul_sum, mul_comm, mul_left_comm, mul_assoc]
+    simp [hgf, mul_sum, mul_comm]
   calc
     S P = (1 / 4 : ℝ) * ∑ u ∈ DistSet P, (g P u : ℝ)^2 := hS
     _ ≤ (1 / 4 : ℝ) * (3 * (P.card : ℝ) * (P.card * (P.card - 1) : ℝ)) := by
