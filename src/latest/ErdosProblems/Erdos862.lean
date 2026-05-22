@@ -45,11 +45,11 @@ set_option linter.unusedFintypeInType false
 namespace Erdos862
 
 
-set_option maxHeartbeats 0
+set_option maxHeartbeats 1000000
+-- Several Sidon counting and covering proofs time out at the default heartbeat limit.
 set_option linter.style.multiGoal false
 set_option linter.style.openClassical false
 set_option linter.style.refine false
-set_option linter.style.setOption false
 
 open scoped BigOperators
 
@@ -1056,7 +1056,6 @@ noncomputable def A (N : ℕ) : ℕ :=
 noncomputable def A1 (N : ℕ) : ℕ :=
   ((Finset.range N).powerset.filter (fun S => MaximalSidonSubset (Finset.range N) S)).card
 
-set_option maxHeartbeats 0 in
 /-
 For every N >= 1, A(N) <= A_1(N) * 2^(f(N)).
 -/
