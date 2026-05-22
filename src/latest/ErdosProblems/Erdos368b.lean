@@ -46,7 +46,6 @@ set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
 set_option linter.style.induction false
-set_option linter.style.maxHeartbeats false
 set_option linter.style.refine false
 set_option linter.unusedVariables false
 
@@ -129,6 +128,7 @@ def pell_seq (d : ℤ) (sol : Pell.Solution₁ d) (n : ℕ) : Pell.Solution₁ d
   sol ^ n
 
 set_option maxHeartbeats 1000000 in
+-- The Pell-solution structure proof needs extra heartbeats for generated algebraic casework.
 /-
 Every solution (x,y) in N^2 of x^2 - dy^2 = 1 equals (a_n, b_n) for a unique n >= 1.
 -/
@@ -246,6 +246,7 @@ def binomial_sum_y (n : ℕ) (a b d : ℤ) : ℤ :=
     (Nat.choose n (2*k+1) : ℤ) * a^(n-(2*k+1)) * b^(2*k+1) * d^k
 
 set_option maxHeartbeats 1000000 in
+-- The binomial-expansion proof expands large recursive sums.
 theorem Zsqrtd_pow_im {d : ℤ} (z : Zsqrtd d) (n : ℕ) :
     (z ^ n).im = binomial_sum_y n z.re z.im d := by
       -- By definition of $z^n$, we have $(z^n).im = \sum_{k=0}^{n/2}
@@ -926,6 +927,7 @@ def primes_le_B (B : ℕ) : Finset ℕ :=
   (Finset.range (B + 1)).filter Nat.Prime
 
 set_option maxHeartbeats 1000000 in
+-- The prime-factor support proof needs extra heartbeats for generated divisibility goals.
 theorem calc_d_mem_possible_ds (n : ℕ) (B : ℕ)
     (h : P_plus (n * (n + 1)) ≤ B) (hn : n ≥ 1) :
     calc_d ((2 * n + 1) ^ 2 - 1) ∈ possible_ds (primes_le_B B) := by
@@ -989,6 +991,7 @@ The calculated d is greater than 1.
 def bad_set (B : ℕ) : Set ℕ := {n | n ≥ 1 ∧ P_plus (n * (n + 1)) ≤ B}
 
 set_option maxHeartbeats 1000000 in
+-- The uniqueness proof invokes several generated Pell-equation reductions.
 /-
 For a fixed d, there is at most one n such that calc_d((2n+1)^2-1) = d.
 -/
