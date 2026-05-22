@@ -67,6 +67,7 @@ set_option linter.style.whitespace false
 set_option linter.style.show false
 
 set_option maxHeartbeats 8000000
+-- Several generated Sidon-set and pairwise-sum estimates time out at the default heartbeat limit.
 set_option maxRecDepth 4096
 
 open Finset
