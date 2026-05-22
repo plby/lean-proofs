@@ -38,12 +38,16 @@ import Mathlib
 
 namespace Erdos762
 
-set_option linter.mathlibStandardSet false
+set_option linter.style.setOption false
+set_option linter.style.openClassical false
+set_option linter.style.longLine false
+set_option linter.style.refine false
+set_option linter.flexible false
+set_option linter.style.multiGoal false
+set_option linter.style.cases false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedTactic false
 set_option linter.unusedVariables false
-
-set_option maxHeartbeats 0
 
 open scoped Classical
 
@@ -411,6 +415,8 @@ theorem lemma_sets_eq : A_Finset = A_V.toFinset ∧ B_Finset = B_V.toFinset := b
 /-
 Auxiliary lemma for Case A structure.
 -/
+set_option maxHeartbeats 2000000 in
+-- The finite graph case analysis needs a larger heartbeat budget.
 theorem lemma_clique_free_structure_A_aux (u v w1 w2 w3 : H_V)
     (hu : u ∈ A_Finset) (hv : v ∈ A_Finset)
     (hw1 : w1 ∈ B_Finset) (hw2 : w2 ∈ B_Finset) (hw3 : w3 ∈ B_Finset)
@@ -658,16 +664,16 @@ theorem old_vertices_form_clique_in_H (sizes : X_collection → ℕ) (S : Finset
 /-
 If a clique S contains a new vertex v, then the number of old vertices in S is at most 3.
 -/
+set_option maxHeartbeats 2000000 in
+-- The old-vertex clique count relies on expensive finite-set simplification.
 theorem clique_old_part_size (sizes : X_collection → ℕ) (S : Finset (G_V sizes))
     (hS : (G sizes).IsClique S)
     (v : G_V sizes) (hv : v ∈ S) (hv_new : v.isRight) :
     (S.filter (fun u => u.isLeft)).card ≤ 3 := by
       -- Let S_old = S.filter (fun u => u.isLeft).
       set S_old := S.filter (fun u => u.isLeft);
-
       -- The set of vertices in H corresponding to S_old is S_H = S.preimage Sum.inl.
       set S_H := S.preimage Sum.inl (Set.injOn_of_injective Sum.inl_injective) with hS_H;
-
       -- By `clique_old_vertices_subset_X`, S_H is a subset of X (where v corresponds to X).
       obtain ⟨X, hX⟩ : ∃ X : X_collection, ∀ u ∈ S_H, u ∈ X.val := by
         rcases v with ⟨ u, u ⟩ ; aesop;
