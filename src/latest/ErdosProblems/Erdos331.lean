@@ -27,7 +27,16 @@ import Mathlib
 
 namespace Erdos331
 
-set_option linter.mathlibStandardSet false
+set_option linter.style.setOption false
+set_option linter.flexible false
+set_option linter.style.cases false
+set_option linter.style.induction false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.openClassical false
+set_option linter.style.refine false
+set_option linter.unusedSimpArgs false
+set_option linter.unusedVariables false
 
 open scoped BigOperators
 open scoped Real
@@ -37,15 +46,13 @@ open scoped Pointwise
 open Nat Filter
 open scoped Asymptotics Classical
 
-set_option maxHeartbeats 0
+set_option maxHeartbeats 20000000
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
 
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
-
-noncomputable section
 
 /-
 Define subsets A and B of natural numbers based on their binary expansion. A contains numbers where all odd-indexed bits are 0, and B contains numbers where all even-indexed bits are 0.
@@ -257,9 +264,9 @@ lemma expandB_strict_mono : StrictMono expandB := by
   exact fun a b hab => mul_lt_mul_of_pos_left ( expandA_strict_mono hab ) zero_lt_two
 
 /-
-If n < 2^k, then expandA n < 4^k.
+If n < 2 ^ k, then expandA n < 4 ^ k.
 -/
-lemma expandA_lt {k n : ℕ} (h : n < 2^k) : expandA n < 4^k := by
+lemma expandA_lt {k n : ℕ} (h : n < 2 ^ k) : expandA n < 4 ^ k := by
   -- By definition of expandA, we know that expandA n is less than 4^(k+1) because each step in the recursion multiplies by 4.
   have h_expandA_le : ∀ k, ∀ n < 2 ^ k, expandA n < 4 ^ k := by
     intro k n hn;
@@ -275,9 +282,9 @@ lemma expandA_lt {k n : ℕ} (h : n < 2^k) : expandA n < 4^k := by
   exact h_expandA_le k n h
 
 /-
-If n < 2^((m+1)/2), then expandA n < 2^m.
+If n < 2 ^ ((m + 1) / 2), then expandA n < 2 ^ m.
 -/
-lemma expandA_lt_pow_two {n m : ℕ} (h : n < 2^((m+1)/2)) : expandA n < 2^m := by
+lemma expandA_lt_pow_two {n m : ℕ} (h : n < 2 ^ ((m + 1) / 2)) : expandA n < 2 ^ m := by
   -- Apply the lemma expandA_lt with k = (m+1)/2.
   have h_expandA_lt : expandA n < 4 ^ ((m + 1) / 2) := by
     convert expandA_lt h using 1;
@@ -300,9 +307,9 @@ lemma expandA_lt_pow_two {n m : ℕ} (h : n < 2^((m+1)/2)) : expandA n < 2^m := 
     · exact Nat.div_lt_of_lt_mul <| by ring_nf at *; linarith;
 
 /-
-If n < 2^(m/2), then expandB n < 2^m.
+If n < 2 ^ (m / 2), then expandB n < 2 ^ m.
 -/
-lemma expandB_lt_pow_two {n m : ℕ} (h : n < 2^(m/2)) : expandB n < 2^m := by
+lemma expandB_lt_pow_two {n m : ℕ} (h : n < 2 ^ (m / 2)) : expandB n < 2 ^ m := by
   have h_expandB : expandB n = 2 * expandA n := rfl
   rcases m with ( _ | _ | m )
   · -- m = 0: h : n < 2^(0/2), i.e. n < 1, so n = 0
@@ -319,12 +326,13 @@ lemma expandB_lt_pow_two {n m : ℕ} (h : n < 2^(m/2)) : expandB n < 2^m := by
     rwa [ pow_succ' ] at h_expandA
 
 /-
-If 2^m <= N, then the number of elements of A in {1, ..., N} is at least 2^((m+1)/2) - 1.
+If 2 ^ m <= N, then the number of elements of A in {1, ..., N} is at least
+2 ^ ((m + 1) / 2) - 1.
 -/
-lemma card_A_ge_of_pow {N m : ℕ} (h : 2^m ≤ N) :
-  ((Finset.Icc 1 N).filter (· ∈ A)).card ≥ 2^((m+1)/2) - 1 := by
-    -- By Lemma 24, expandA x is in A and less than or equal to N for all x < 2^((m+1)/2).
-    have h_expandA_subset : Finset.image (fun x => expandA x) (Finset.Ico 1 (2^((m+1)/2))) ⊆ Finset.filter (fun x => x ∈ A) (Finset.Icc 1 N) := by
+lemma card_A_ge_of_pow {N m : ℕ} (h : 2 ^ m ≤ N) :
+  ((Finset.Icc 1 N).filter (· ∈ A)).card ≥ 2 ^ ((m + 1) / 2) - 1 := by
+    -- By Lemma 24, expandA x is in A and less than or equal to N for all x < 2 ^ ((m + 1) / 2).
+    have h_expandA_subset : Finset.image (fun x => expandA x) (Finset.Ico 1 (2 ^ ((m + 1) / 2))) ⊆ Finset.filter (fun x => x ∈ A) (Finset.Icc 1 N) := by
       intro;
       norm_num +zetaDelta at *;
       rintro x hx₁ hx₂ rfl;
@@ -334,18 +342,19 @@ lemma card_A_ge_of_pow {N m : ℕ} (h : 2^m ≤ N) :
           exact expandA_strict_mono;
         exact Nat.ne_zero_of_lt (h_expandA_mono hx₁);
       · -- By Lemma 25, expandA x < 2^m.
-        have h_expandA_lt : expandA x < 2^m := by
+        have h_expandA_lt : expandA x < 2 ^ m := by
           convert expandA_lt_pow_two hx₂ using 1;
         linarith;
     have := Finset.card_mono h_expandA_subset; rw [ Finset.card_image_of_injective _ fun a b h => StrictMono.injective ( expandA_strict_mono ) h ] at this; aesop;
 
 /-
-If 2^m <= N, then the number of elements of B in {1, ..., N} is at least 2^(m/2) - 1.
+If 2 ^ m <= N, then the number of elements of B in {1, ..., N} is at least
+2 ^ (m / 2) - 1.
 -/
-lemma card_B_ge_of_pow {N m : ℕ} (h : 2^m ≤ N) :
-  ((Finset.Icc 1 N).filter (· ∈ B)).card ≥ 2^(m/2) - 1 := by
+lemma card_B_ge_of_pow {N m : ℕ} (h : 2 ^ m ≤ N) :
+  ((Finset.Icc 1 N).filter (· ∈ B)).card ≥ 2 ^ (m / 2) - 1 := by
     -- By definition of $B$, the number of elements in $B$ up to $N$ is at least the number of elements in the set $\{ \text{expandB } n \mid n \in \{1, 2, \ldots, 2^{m/2} - 1\} \}$.
-    have h_B_ge_expandB : ((Finset.Icc 1 N).filter (· ∈ B)).card ≥ Finset.card (Finset.image expandB (Finset.Icc 1 (2^(m/2)-1))) := by
+    have h_B_ge_expandB : ((Finset.Icc 1 N).filter (· ∈ B)).card ≥ Finset.card (Finset.image expandB (Finset.Icc 1 (2 ^ (m / 2)-1))) := by
       refine Finset.card_le_card ?_;
       intro aesop;
       simp +zetaDelta at *;
@@ -455,7 +464,5 @@ theorem erdos_331 :
 
 #print axioms erdos_331
 -- 'Erdos331.erdos_331' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end
 
 end Erdos331
