@@ -25,7 +25,15 @@ The proof (of the existence of a red copy of any arbitrary four-point configurat
 
 import Mathlib
 
-set_option linter.mathlibStandardSet false
+set_option linter.style.setOption false
+set_option linter.style.openClassical false
+set_option linter.style.longLine false
+set_option linter.flexible false
+set_option linter.style.induction false
+set_option linter.style.refine false
+set_option linter.style.multiGoal false
+set_option linter.style.cases false
+set_option maxHeartbeats 1000000
 
 namespace Erdos214
 
@@ -34,11 +42,6 @@ open scoped Real
 open scoped Nat
 open scoped Classical
 open scoped Pointwise
-
-set_option maxHeartbeats 0
-set_option maxRecDepth 4000
-set_option synthInstance.maxHeartbeats 20000
-set_option synthInstance.maxSize 128
 
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
@@ -131,7 +134,7 @@ Explicit construction for lemma2_geom using rotation.
 lemma lemma2_geom_explicit (r t : ℝ) (O P : Point)
   (h_r : r ≥ t / 2)
   (h_t_pos : t ≥ 0)
-  (h_r1 : dist P O = (Real.sqrt (4 * r^2 - t^2) + t * Real.sqrt 3) / 2) :
+  (h_r1 : dist P O = (Real.sqrt (4 * r ^ 2 - t ^ 2) + t * Real.sqrt 3) / 2) :
   ∃ A B : Point, dist A O = r ∧ dist B O = r ∧ dist A B = t ∧ dist P A = t ∧ dist P B = t := by
   by_cases ht0 : t = 0
   · have hr_nonneg : 0 ≤ r := by linarith
@@ -306,7 +309,7 @@ lemma lemma2 (c : Point → Color) (t r : ℝ) (O : Point)
   (h_alt : t_alternating c O r t)
   (h_r : r ≥ t / 2)
   (h_t : t ≥ 0) :
-  let r1 := (Real.sqrt (4 * r^2 - t^2) + t * Real.sqrt 3) / 2
+  let r1 := (Real.sqrt (4 * r ^ 2 - t ^ 2) + t * Real.sqrt 3) / 2
   ∀ P : Point, dist P O = r1 → c P = Color.Red := by
   intro r1 P hP
   obtain ⟨A, B, hA, hB, hAB, hPA, hPB⟩ :=
@@ -544,7 +547,7 @@ lemma blue_pair_implies_red_circle (c : Point → Color) (t : ℝ)
   let u : Point := A - M
   let v : Point := B - M
   have ht_nonneg : 0 ≤ t := le_of_lt h_t
-  have hsqrt3_sq : (Real.sqrt 3)^2 = (3 : ℝ) := by
+  have hsqrt3_sq : (Real.sqrt 3) ^ 2 = (3 : ℝ) := by
     rw [Real.sq_sqrt]
     norm_num
   have hu_norm : ‖u‖ = t := by
@@ -560,15 +563,15 @@ lemma blue_pair_implies_red_circle (c : Point → Color) (t : ℝ)
       simp
     rw [hdiff, ← dist_eq_norm]
     exact h_dist
-  have hinner : inner ℝ u v = -(t^2) / 2 := by
-    have hsq : ‖u - v‖ ^ 2 = (t * Real.sqrt 3)^2 := by
+  have hinner : inner ℝ u v = -(t ^ 2) / 2 := by
+    have hsq : ‖u - v‖ ^ 2 = (t * Real.sqrt 3) ^ 2 := by
       exact congrArg (fun x : ℝ => x^2) huv_dist
     rw [norm_sub_sq_real, hu_norm, hv_norm] at hsq
     rw [mul_pow, hsqrt3_sq] at hsq
     ring_nf at hsq ⊢
     linarith
   have huv_add_norm : ‖u + v‖ = t := by
-    have hsq : ‖u + v‖ ^ 2 = t^2 := by
+    have hsq : ‖u + v‖ ^ 2 = t ^ 2 := by
       rw [norm_add_sq_real, hu_norm, hv_norm, hinner]
       ring
     have habs := (sq_eq_sq_iff_abs_eq_abs ‖u + v‖ t).mp hsq
@@ -602,8 +605,8 @@ lemma blue_pair_implies_red_circle (c : Point → Color) (t : ℝ)
   have halt : t_alternating c M t t := by
     exact (lemma1 c t t M N h_blue hpair (by linarith)).1
   have hred := lemma2 c t t M h_blue halt (by linarith) ht_nonneg
-  have hradius : (Real.sqrt (4 * t^2 - t^2) + t * Real.sqrt 3) / 2 = t * Real.sqrt 3 := by
-    have hrad : 4 * t^2 - t^2 = (t * Real.sqrt 3)^2 := by
+  have hradius : (Real.sqrt (4 * t ^ 2 - t ^ 2) + t * Real.sqrt 3) / 2 = t * Real.sqrt 3 := by
+    have hrad : 4 * t ^ 2 - t ^ 2 = (t * Real.sqrt 3) ^ 2 := by
       rw [mul_pow, hsqrt3_sq]
       ring
     rw [hrad, Real.sqrt_sq_eq_abs, abs_of_nonneg (by positivity)]
@@ -618,7 +621,7 @@ lemma circle_has_chord (R d : ℝ) (O : Point)
   (h_R : R > 0)
   (h_d : 0 ≤ d ∧ d ≤ 2 * R) :
   ∃ X Y : Point, dist X O = R ∧ dist Y O = R ∧ dist X Y = d := by
-  let h : ℝ := Real.sqrt (R^2 - (d / 2)^2)
+  let h : ℝ := Real.sqrt (R^2 - (d / 2) ^ 2)
   let u : Point := WithLp.toLp 2 ![d / 2, h]
   let v : Point := WithLp.toLp 2 ![-d / 2, h]
   refine ⟨O + u, O + v, ?_, ?_, ?_⟩
@@ -629,7 +632,7 @@ lemma circle_has_chord (R d : ℝ) (O : Point)
     rw [hdiff]
     rw [EuclideanSpace.norm_eq]
     simp [Fin.sum_univ_two, u, h]
-    have hrad_nonneg : 0 ≤ R^2 - (d / 2)^2 := by
+    have hrad_nonneg : 0 ≤ R^2 - (d / 2) ^ 2 := by
       nlinarith [h_d.1, h_d.2, h_R]
     rw [Real.sq_sqrt hrad_nonneg]
     ring_nf
@@ -641,7 +644,7 @@ lemma circle_has_chord (R d : ℝ) (O : Point)
     rw [hdiff]
     rw [EuclideanSpace.norm_eq]
     simp [Fin.sum_univ_two, v, h]
-    have hrad_nonneg : 0 ≤ R^2 - (d / 2)^2 := by
+    have hrad_nonneg : 0 ≤ R^2 - (d / 2) ^ 2 := by
       nlinarith [h_d.1, h_d.2, h_R]
     rw [Real.sq_sqrt hrad_nonneg]
     ring_nf
@@ -852,17 +855,17 @@ lemma lemma3_case1_helper (c : Point → Color) (t : ℝ)
   let X : Point := C + ((1 / 6 : ℝ) • v + (Real.sqrt 11 / 6) • w)
   let Y : Point := 2 • C - X
   have hsqrt3_pos : 0 < Real.sqrt 3 := Real.sqrt_pos.mpr (by norm_num)
-  have hsqrt3_sq : (Real.sqrt 3)^2 = (3 : ℝ) := by
+  have hsqrt3_sq : (Real.sqrt 3) ^ 2 = (3 : ℝ) := by
     rw [Real.sq_sqrt]
     norm_num
-  have hsqrt11_sq : (Real.sqrt 11)^2 = (11 : ℝ) := by
+  have hsqrt11_sq : (Real.sqrt 11) ^ 2 = (11 : ℝ) := by
     rw [Real.sq_sqrt]
     norm_num
   have hnorm_v : ‖v‖ = t * Real.sqrt 3 := by
     simpa [v, dist_eq_norm] using h_dist_NC
   have hsum_nonneg : 0 ≤ v 0 ^ 2 + v 1 ^ 2 := by
     nlinarith [sq_nonneg (v 0), sq_nonneg (v 1)]
-  have hv_sq : v 0 ^ 2 + v 1 ^ 2 = (t * Real.sqrt 3)^2 := by
+  have hv_sq : v 0 ^ 2 + v 1 ^ 2 = (t * Real.sqrt 3) ^ 2 := by
     have hsq := congrArg (fun x : ℝ => x^2) hnorm_v
     rw [EuclideanSpace.norm_eq] at hsq
     simp [Fin.sum_univ_two] at hsq
@@ -880,7 +883,7 @@ lemma lemma3_case1_helper (c : Point → Color) (t : ℝ)
     ring_nf
     rw [hsqrt11_sq]
     ring_nf
-    rw [show v 0 ^ 2 * (1 / 3) + v 1 ^ 2 * (1 / 3) = (t : ℝ)^2 by
+    rw [show v 0 ^ 2 * (1 / 3) + v 1 ^ 2 * (1 / 3) = (t : ℝ) ^ 2 by
       nlinarith [hv_sq, hsqrt3_sq]]
     rw [Real.sqrt_sq_eq_abs, abs_of_nonneg ht_nonneg]
   have hX_N : dist X N = t * Real.sqrt 3 := by
@@ -1203,7 +1206,7 @@ lemma lemma_G_blue (t : ℝ) (h_t : t > 0)
   | Blue => rfl
   | Red =>
       exfalso
-      have hsqrt3_sq : (Real.sqrt 3)^2 = (3:ℝ) := by
+      have hsqrt3_sq : (Real.sqrt 3) ^ 2 = (3:ℝ) := by
         rw [Real.sq_sqrt]
         norm_num
       have ht_nonneg : 0 ≤ t := le_of_lt h_t
@@ -1225,7 +1228,7 @@ lemma lemma_G_blue (t : ℝ) (h_t : t > 0)
         ring_nf
         rw [hsqrt3_sq]
         ring_nf
-        rw [show t ^ 2 * 3 = (t * Real.sqrt 3)^2 by rw [mul_pow, hsqrt3_sq]]
+        rw [show t ^ 2 * 3 = (t * Real.sqrt 3) ^ 2 by rw [mul_pow, hsqrt3_sq]]
         rw [Real.sqrt_sq_eq_abs, abs_of_nonneg (by positivity)]
       have hE_red : c E = Color.Red := by
         cases hE_color : c E with
@@ -1281,7 +1284,7 @@ lemma lemma_G_blue (t : ℝ) (h_t : t > 0)
           ring_nf
           rw [hsqrt3_sq]
           ring_nf
-          rw [show t ^ 2 * 3 = (t * Real.sqrt 3)^2 by rw [mul_pow, hsqrt3_sq]]
+          rw [show t ^ 2 * 3 = (t * Real.sqrt 3) ^ 2 by rw [mul_pow, hsqrt3_sq]]
           rw [Real.sqrt_sq_eq_abs, abs_of_nonneg (by positivity)]
       exact h_no_red_rhombus ⟨F, E, G, K_G, h_rhombus, hF_red, hE_red, hG_color, hKG_red⟩
 
@@ -1295,7 +1298,7 @@ lemma lemma_rhombus_OLM1N_aux (t : ℝ) (h_t : t > 0)
   (hM1 : M1 = ![1 * t, t * Real.sqrt 3])
   (hN : N = ![2 * t, t * Real.sqrt 3]) :
   regular_t_rhombus t O L M1 N := by
-  have hsqrt3_sq : (Real.sqrt 3)^2 = (3:ℝ) := by
+  have hsqrt3_sq : (Real.sqrt 3) ^ 2 = (3:ℝ) := by
     rw [Real.sq_sqrt]
     norm_num
   have ht_nonneg : 0 ≤ t := le_of_lt h_t
@@ -1343,7 +1346,7 @@ lemma lemma_rhombus_OLM1N_aux (t : ℝ) (h_t : t > 0)
     ring_nf
     rw [hsqrt3_sq]
     ring_nf
-    rw [show t ^ 2 * 3 = (t * Real.sqrt 3)^2 by rw [mul_pow, hsqrt3_sq]]
+    rw [show t ^ 2 * 3 = (t * Real.sqrt 3) ^ 2 by rw [mul_pow, hsqrt3_sq]]
     rw [Real.sqrt_sq_eq_abs, abs_of_nonneg (by positivity)]
 
 /-
@@ -1367,7 +1370,7 @@ lemma lemma_L_blue (t : ℝ) (h_t : t > 0)
   | Blue => rfl
   | Red =>
       exfalso
-      have hsqrt3_sq : (Real.sqrt 3)^2 = (3:ℝ) := by
+      have hsqrt3_sq : (Real.sqrt 3) ^ 2 = (3:ℝ) := by
         rw [Real.sq_sqrt]
         norm_num
       have ht_nonneg : 0 ≤ t := le_of_lt h_t
@@ -1391,7 +1394,7 @@ lemma lemma_L_blue (t : ℝ) (h_t : t > 0)
         ring_nf
         rw [hsqrt3_sq]
         ring_nf
-        rw [show t ^ 2 * 3 = (t * Real.sqrt 3)^2 by rw [mul_pow, hsqrt3_sq]]
+        rw [show t ^ 2 * 3 = (t * Real.sqrt 3) ^ 2 by rw [mul_pow, hsqrt3_sq]]
         rw [Real.sqrt_sq_eq_abs, abs_of_nonneg (by positivity)]
       have hM1_red : c M1 = Color.Red := by
         cases hM1_color : c M1 with
@@ -1415,7 +1418,7 @@ lemma lemma_rhombus_KNPK_prime_aux (t : ℝ) (h_t : t > 0)
   (hK : K = ![2.5 * t, t * Real.sqrt 3 / 2])
   (hK_prime : K_prime = ![2.5 * t, 1.5 * t * Real.sqrt 3]) :
   regular_t_rhombus t K N P K_prime := by
-  have hsqrt3_sq : (Real.sqrt 3)^2 = (3:ℝ) := by
+  have hsqrt3_sq : (Real.sqrt 3) ^ 2 = (3:ℝ) := by
     rw [Real.sq_sqrt]
     norm_num
   have ht_nonneg : 0 ≤ t := le_of_lt h_t
@@ -1463,7 +1466,7 @@ lemma lemma_rhombus_KNPK_prime_aux (t : ℝ) (h_t : t > 0)
     ring_nf
     rw [hsqrt3_sq]
     ring_nf
-    rw [show t ^ 2 * 3 = (t * Real.sqrt 3)^2 by rw [mul_pow, hsqrt3_sq]]
+    rw [show t ^ 2 * 3 = (t * Real.sqrt 3) ^ 2 by rw [mul_pow, hsqrt3_sq]]
     rw [Real.sqrt_sq_eq_abs, abs_of_nonneg (by positivity)]
 
 /-
@@ -1487,7 +1490,7 @@ lemma lemma_P_blue_aux (t : ℝ) (h_t : t > 0)
   | Blue => rfl
   | Red =>
       exfalso
-      have hsqrt3_sq : (Real.sqrt 3)^2 = (3:ℝ) := by
+      have hsqrt3_sq : (Real.sqrt 3) ^ 2 = (3:ℝ) := by
         rw [Real.sq_sqrt]
         norm_num
       have ht_nonneg : 0 ≤ t := le_of_lt h_t
@@ -1579,7 +1582,7 @@ Definition of the sequence r_n used in the proof of Case 3. Note that r_seq n co
 -/
 def r_seq : ℕ → ℝ
 | 0 => 1
-| (n + 1) => (Real.sqrt (4 * (r_seq n)^2 - 1) + Real.sqrt 3) / 2
+| (n + 1) => (Real.sqrt (4 * (r_seq n) ^ 2 - 1) + Real.sqrt 3) / 2
 
 /-
 Definition of a red circle: all points on the circle are red.
@@ -1591,16 +1594,16 @@ def is_red_circle (c : Point → Color) (O : Point) (r : ℝ) : Prop :=
 The sequence r_n is always at least 1.
 -/
 lemma lemma_r_seq_ge_1 (n : ℕ)
-  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k)^2 - 1) + Real.sqrt 3) / 2) :
+  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k) ^ 2 - 1) + Real.sqrt 3) / 2) :
   r_seq n ≥ 1 := by
   induction n with
   | zero =>
       norm_num [r_seq]
   | succ n ih =>
       rw [h_r_seq_def n]
-      have hnonneg : 0 ≤ 4 * (r_seq n)^2 - 1 := by
+      have hnonneg : 0 ≤ 4 * (r_seq n) ^ 2 - 1 := by
         nlinarith [sq_nonneg (r_seq n), sq_nonneg (r_seq n - 1)]
-      have hrad : 1 ≤ Real.sqrt (4 * (r_seq n)^2 - 1) := by
+      have hrad : 1 ≤ Real.sqrt (4 * (r_seq n) ^ 2 - 1) := by
         rw [Real.le_sqrt (by norm_num) hnonneg]
         nlinarith [sq_nonneg (r_seq n), sq_nonneg (r_seq n - 1)]
       have hs3 : 1 ≤ Real.sqrt 3 := by
@@ -1683,13 +1686,13 @@ lemma lemma_case1_C_red_condition (c : Point → Color) (t : ℝ)
   (hA_blue : c A = Color.Blue)
   (hB_blue : c B = Color.Blue) :
   ∀ X, dist X C = t * Real.sqrt 3 → c X = Color.Red := by
-  have hsqrt3_sq : (Real.sqrt 3)^2 = (3:ℝ) := by
+  have hsqrt3_sq : (Real.sqrt 3) ^ 2 = (3:ℝ) := by
     rw [Real.sq_sqrt]
     norm_num
   have ht_nonneg : 0 ≤ t := le_of_lt h_t
   have hsqrt_t3 (x : ℝ) (hx : x = t ^ 2 * 3) : Real.sqrt x = t * Real.sqrt 3 := by
     rw [hx]
-    rw [show t ^ 2 * 3 = (t * Real.sqrt 3)^2 by rw [mul_pow, hsqrt3_sq]]
+    rw [show t ^ 2 * 3 = (t * Real.sqrt 3) ^ 2 by rw [mul_pow, hsqrt3_sq]]
     rw [Real.sqrt_sq_eq_abs, abs_of_nonneg (by positivity)]
   have hAC : dist A C = t := by
     rw [dist_eq_norm, EuclideanSpace.norm_eq]
@@ -1753,13 +1756,13 @@ lemma lemma_case1_geometry (t : ℝ) (h_t : t > 0)
   dist N L = t ∧ dist N P = t ∧ dist L P = t * Real.sqrt 3 ∧
   N = 2 • C - E ∧
   dist N C = t * Real.sqrt 3 := by
-  have hsqrt3_sq : (Real.sqrt 3)^2 = (3:ℝ) := by
+  have hsqrt3_sq : (Real.sqrt 3) ^ 2 = (3:ℝ) := by
     rw [Real.sq_sqrt]
     norm_num
   have ht_nonneg : 0 ≤ t := le_of_lt h_t
   have hsqrt_t3 (x : ℝ) (hx : x = t ^ 2 * 3) : Real.sqrt x = t * Real.sqrt 3 := by
     rw [hx]
-    rw [show t ^ 2 * 3 = (t * Real.sqrt 3)^2 by rw [mul_pow, hsqrt3_sq]]
+    rw [show t ^ 2 * 3 = (t * Real.sqrt 3) ^ 2 by rw [mul_pow, hsqrt3_sq]]
     rw [Real.sqrt_sq_eq_abs, abs_of_nonneg (by positivity)]
   have hAC : dist A C = t := by
     rw [dist_eq_norm, EuclideanSpace.norm_eq]
@@ -2959,7 +2962,7 @@ lemma lemma_case2_geometry_explicit_theta (a : ℝ) (P Q R S : Point)
 Stronger version of the geometry lemma that explicitly guarantees the distance properties of the rotations.
 -/
 lemma lemma_case2_geometry_strong (a : ℝ) (P Q R S : Point)
-  (h_rhombus : regular_t_rhombus a P Q S R):
+  (h_rhombus : regular_t_rhombus a P Q S R) :
   ∃ (rot1 rot2 : Point ≃ᵃⁱ[ℝ] Point),
     rot1 Q = Q ∧ rot1 P = S ∧
     rot2 S = S ∧ rot2 Q = R ∧
@@ -3345,14 +3348,14 @@ lemma lemma_step_1_gen (c : Point → Color) (P0 Q0 R0 S0 : Point) (k : ℤ) (r 
   (h_no_red_config : ¬ ∃ (p q r s : Point),
     Congruent (fun i : Fin 4 => ![P0, Q0, R0, S0] i) (fun i => ![p, q, r, s] i) ∧
     c p = Color.Red ∧ c q = Color.Red ∧ c r = Color.Red ∧ c s = Color.Red)
-  (_h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k)^2 - 1) + Real.sqrt 3) / 2)
+  (_h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k) ^ 2 - 1) + Real.sqrt 3) / 2)
   (_h_ge_1 : ∀ k, r_seq k ≥ 1)
   (Pk Qk Rk Sk : Point)
   (h_seq_k : (Pk, Qk, Rk, Sk) = sequence_points P0 Q0 R0 S0 k)
   (h_red_Pk : is_red_circle c Pk r)
   (h_red_Qk : is_red_circle c Qk r)
   (h_r_ge_1 : r ≥ 1) :
-  let r_next := (Real.sqrt (4 * r^2 - 1) + Real.sqrt 3) / 2
+  let r_next := (Real.sqrt (4 * r ^ 2 - 1) + Real.sqrt 3) / 2
   is_red_circle c Rk r_next ∧ is_red_circle c Sk r_next := by
   have hseq_congr : Congruent (fun i : Fin 4 => ![Pk, Qk, Rk, Sk] i) (fun i => ![P0, Q0, R0, S0] i) := by
     have hseq_k' : sequence_points P0 Q0 R0 S0 k = (Pk, Qk, Rk, Sk) := h_seq_k.symm
@@ -3497,7 +3500,7 @@ lemma lemma_step_2_gen (c : Point → Color) (P0 Q0 R0 S0 : Point) (k : ℤ) (r 
   (h_no_red_config : ¬ ∃ (p q r s : Point),
     Congruent (fun i : Fin 4 => ![P0, Q0, R0, S0] i) (fun i => ![p, q, r, s] i) ∧
     c p = Color.Red ∧ c q = Color.Red ∧ c r = Color.Red ∧ c s = Color.Red)
-  (_h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k)^2 - 1) + Real.sqrt 3) / 2)
+  (_h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k) ^ 2 - 1) + Real.sqrt 3) / 2)
   (_h_ge_1 : ∀ k, r_seq k ≥ 1)
   (Pk Qk Rk Sk : Point)
   (h_seq_k : (Pk, Qk, Rk, Sk) = sequence_points_v2 P0 Q0 R0 S0 k)
@@ -3506,7 +3509,7 @@ lemma lemma_step_2_gen (c : Point → Color) (P0 Q0 R0 S0 : Point) (k : ℤ) (r 
   (h_red_Rk : is_red_circle c Rk r)
   (h_red_Sk : is_red_circle c Sk r)
   (h_r_ge_1 : r ≥ 1) :
-  let r_next := (Real.sqrt (4 * r^2 - 1) + Real.sqrt 3) / 2
+  let r_next := (Real.sqrt (4 * r ^ 2 - 1) + Real.sqrt 3) / 2
   is_red_circle c Pk_next r_next ∧ is_red_circle c Qk_next r_next := by
   have h_no_current := lemma_step_2_no_red_copy c P0 Q0 R0 S0 k h_no_red_config
     Pk Qk Rk Sk h_seq_k Pk_next Qk_next Rk_next Sk_next h_seq_k_next
@@ -3528,7 +3531,7 @@ lemma lemma_step_2_gen_renamed (c : Point → Color) (P0 Q0 R0 S0 : Point) (k : 
   (h_no_red_config : ¬ ∃ (p q r s : Point),
     Congruent (fun i : Fin 4 => ![P0, Q0, R0, S0] i) (fun i => ![p, q, r, s] i) ∧
     c p = Color.Red ∧ c q = Color.Red ∧ c r = Color.Red ∧ c s = Color.Red)
-  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k)^2 - 1) + Real.sqrt 3) / 2)
+  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k) ^ 2 - 1) + Real.sqrt 3) / 2)
   (h_ge_1 : ∀ k, r_seq k ≥ 1)
   (Pk Qk Rk Sk : Point)
   (h_seq_k : (Pk, Qk, Rk, Sk) = sequence_points_v2 P0 Q0 R0 S0 k)
@@ -3537,7 +3540,7 @@ lemma lemma_step_2_gen_renamed (c : Point → Color) (P0 Q0 R0 S0 : Point) (k : 
   (h_red_Rk : is_red_circle c Rk r)
   (h_red_Sk : is_red_circle c Sk r)
   (h_r_ge_1 : r ≥ 1) :
-  let r_next := (Real.sqrt (4 * r^2 - 1) + Real.sqrt 3) / 2
+  let r_next := (Real.sqrt (4 * r ^ 2 - 1) + Real.sqrt 3) / 2
   is_red_circle c Pk_next r_next ∧ is_red_circle c Qk_next r_next := by
   exact lemma_step_2_gen c P0 Q0 R0 S0 k r h_blue h_no_red_config h_r_seq_def h_ge_1
     Pk Qk Rk Sk h_seq_k Pk_next Qk_next Rk_next Sk_next h_seq_k_next h_red_Rk h_red_Sk h_r_ge_1
@@ -3550,7 +3553,7 @@ lemma lemma_case3_induction (c : Point → Color) (P0 Q0 R0 S0 : Point)
   (h_no_red_config : ¬ ∃ (p q r s : Point),
     Congruent (fun i : Fin 4 => ![P0, Q0, R0, S0] i) (fun i => ![p, q, r, s] i) ∧
     c p = Color.Red ∧ c q = Color.Red ∧ c r = Color.Red ∧ c s = Color.Red)
-  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k)^2 - 1) + Real.sqrt 3) / 2)
+  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k) ^ 2 - 1) + Real.sqrt 3) / 2)
   (h_ge_1 : ∀ k, r_seq k ≥ 1)
   (h_red_0 : is_red_circle c P0 (r_seq 0) ∧ is_red_circle c Q0 (r_seq 0)) :
   ∀ k : ℕ,
@@ -3623,7 +3626,7 @@ lemma lemma_reflected_red_sqrt3 (c : Point → Color) (P0 Q0 R0 S0 : Point)
   (h_no_red_config : ¬ ∃ (p q r s : Point),
     Congruent (fun i : Fin 4 => ![P0, Q0, R0, S0] i) (fun i => ![p, q, r, s] i) ∧
     c p = Color.Red ∧ c q = Color.Red ∧ c r = Color.Red ∧ c s = Color.Red)
-  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k)^2 - 1) + Real.sqrt 3) / 2)
+  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k) ^ 2 - 1) + Real.sqrt 3) / 2)
   (h_ge_1 : ∀ k, r_seq k ≥ 1)
   (h_red_0 : is_red_circle c P0 (r_seq 0) ∧ is_red_circle c Q0 (r_seq 0)) :
   let (_, _, R0', S0') := reflected_points P0 Q0 R0 S0
@@ -3788,17 +3791,17 @@ lemma lemma_circles_intersect (C1 C2 : Point) (r1 r2 : ℝ)
 The step size of the sequence r_{n} (every two steps) is less than sqrt(3).
 -/
 lemma lemma_r_seq_step_bound (n : ℕ)
-  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k)^2 - 1) + Real.sqrt 3) / 2)
+  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k) ^ 2 - 1) + Real.sqrt 3) / 2)
   (h_ge_1 : ∀ k, r_seq k ≥ 1) :
   r_seq (n + 2) - r_seq n < Real.sqrt 3 := by
   have hstep : ∀ m, r_seq (m + 1) - r_seq m < Real.sqrt 3 / 2 := by
     intro m
     rw [h_r_seq_def m]
-    have hrad_nonneg : 0 ≤ 4 * (r_seq m)^2 - 1 := by
+    have hrad_nonneg : 0 ≤ 4 * (r_seq m) ^ 2 - 1 := by
       nlinarith [h_ge_1 m, sq_nonneg (r_seq m - 1)]
     have htwo_nonneg : 0 ≤ 2 * r_seq m := by
       nlinarith [h_ge_1 m]
-    have hsqrt_lt : Real.sqrt (4 * (r_seq m)^2 - 1) < 2 * r_seq m := by
+    have hsqrt_lt : Real.sqrt (4 * (r_seq m) ^ 2 - 1) < 2 * r_seq m := by
       rw [Real.sqrt_lt hrad_nonneg htwo_nonneg]
       nlinarith
     linarith
@@ -3810,7 +3813,7 @@ lemma lemma_r_seq_step_bound (n : ℕ)
 The sequence r_n is unbounded.
 -/
 lemma lemma_r_seq_unbounded
-  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k)^2 - 1) + Real.sqrt 3) / 2) :
+  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k) ^ 2 - 1) + Real.sqrt 3) / 2) :
   ∀ M : ℝ, ∃ n, r_seq n > M := by
   let δ : ℝ := (Real.sqrt 3 - 1) / 2
   have hδ_pos : 0 < δ := by
@@ -3824,11 +3827,11 @@ lemma lemma_r_seq_unbounded
     intro n
     rw [h_r_seq_def n]
     have hr : r_seq n ≥ 1 := h_ge_1 n
-    have hrad_nonneg : 0 ≤ 4 * (r_seq n)^2 - 1 := by
+    have hrad_nonneg : 0 ≤ 4 * (r_seq n) ^ 2 - 1 := by
       nlinarith [sq_nonneg (r_seq n - 1)]
     have hrhs_nonneg : 0 ≤ 2 * r_seq n - 1 := by
       linarith
-    have hsqrt_lower : 2 * r_seq n - 1 ≤ Real.sqrt (4 * (r_seq n)^2 - 1) := by
+    have hsqrt_lower : 2 * r_seq n - 1 ≤ Real.sqrt (4 * (r_seq n) ^ 2 - 1) := by
       rw [Real.le_sqrt hrhs_nonneg hrad_nonneg]
       nlinarith
     dsimp [δ]
@@ -3853,7 +3856,7 @@ lemma lemma_r_seq_unbounded
   linarith [hlinear n]
 
 lemma lemma_circle_intersection_exists_even_constrained (d : ℝ)
-  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k)^2 - 1) + Real.sqrt 3) / 2)
+  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k) ^ 2 - 1) + Real.sqrt 3) / 2)
   (h_ge_1 : ∀ k, r_seq k ≥ 1)
   (h_d_large : d ≥ r_seq 2 - Real.sqrt 3) :
   ∃ k ≥ 1, let r := r_seq (2 * k)
@@ -3924,14 +3927,14 @@ lemma lemma_circle_intersection_exists_even_constrained (d : ℝ)
   exact abs_le.mpr ⟨by linarith, h_lower⟩
 
 lemma lemma_r_seq_triangle (n : ℕ) (O : Point) (P : Point)
-  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k)^2 - 1) + Real.sqrt 3) / 2)
+  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k) ^ 2 - 1) + Real.sqrt 3) / 2)
   (hP : dist P O = r_seq (n + 1)) :
   ∃ Y Z : Point, dist Y O = r_seq n ∧ dist Z O = r_seq n ∧
     regular_triangle_side_1 (fun i => match i with | 0 => P | 1 => Y | 2 => Z) := by
   have h_ge_1 : r_seq n ≥ 1 := lemma_r_seq_ge_1 n h_r_seq_def
   have h_formula :
       dist P O =
-        (Real.sqrt (4 * (r_seq n)^2 - (1:ℝ)^2) + (1:ℝ) * Real.sqrt 3) / 2 := by
+        (Real.sqrt (4 * (r_seq n) ^ 2 - (1:ℝ) ^ 2) + (1:ℝ) * Real.sqrt 3) / 2 := by
     rw [hP, h_r_seq_def n]
     ring_nf
   obtain ⟨Y, Z, hY, hZ, hYZ, hPY, hPZ⟩ :=
@@ -3949,7 +3952,7 @@ If the n-th circle is 1-alternating, then the (n+1)-th circle is red.
 lemma lemma_alt_implies_red_next (c : Point → Color) (O : Point) (n : ℕ)
   (h_blue : ∀ A B : Point, dist A B = 1 → ¬ (c A = Color.Blue ∧ c B = Color.Blue))
   (h_alt : t_alternating c O (r_seq n) 1)
-  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k)^2 - 1) + Real.sqrt 3) / 2) :
+  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k) ^ 2 - 1) + Real.sqrt 3) / 2) :
   is_red_circle c O (r_seq (n + 1)) := by
   intro P hP
   obtain ⟨Y, Z, hY, hZ, htri⟩ := lemma_r_seq_triangle n O P h_r_seq_def hP
@@ -3975,7 +3978,7 @@ lemma lemma_complementary_next (c : Point → Color) (R0 S0 : Point) (n : ℕ)
     (∀ i, c (p i) = Color.Red) ∧
     (∀ i, c (q i) = Color.Red))
   (h_red_n : is_red_circle c R0 (r_seq n) ∧ is_red_circle c S0 (r_seq n))
-  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k)^2 - 1) + Real.sqrt 3) / 2) :
+  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k) ^ 2 - 1) + Real.sqrt 3) / 2) :
   complementary_pair c R0 S0 (r_seq (n + 1)) := by
   let v : Point := S0 - R0
   have htranslate (A : Point) : dist (A + v) S0 = dist A R0 := by
@@ -4058,7 +4061,7 @@ lemma lemma_red_implies_alt_next (c : Point → Color) (_t : ℝ) (R0 S0 : Point
     (∀ i, c (p i) = Color.Red) ∧
     (∀ i, c (q i) = Color.Red))
   (h_red_n : is_red_circle c R0 (r_seq n) ∧ is_red_circle c S0 (r_seq n))
-  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k)^2 - 1) + Real.sqrt 3) / 2) :
+  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k) ^ 2 - 1) + Real.sqrt 3) / 2) :
   t_alternating c R0 (r_seq (n + 1)) 1 ∧ t_alternating c S0 (r_seq (n + 1)) 1 := by
   have hpair := lemma_complementary_next c R0 S0 n h_no_red_pair h_red_n h_r_seq_def
   have hge : r_seq (n + 1) ≥ 1 / 2 := by
@@ -4076,7 +4079,7 @@ lemma lemma_odd_seq_red_from_1 (c : Point → Color) (R0 S0 : Point)
     (∀ i, q i = p i + (S0 - R0)) ∧
     (∀ i, c (p i) = Color.Red) ∧
     (∀ i, c (q i) = Color.Red))
-  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k)^2 - 1) + Real.sqrt 3) / 2)
+  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k) ^ 2 - 1) + Real.sqrt 3) / 2)
   (h_red_1 : is_red_circle c R0 (r_seq 1) ∧ is_red_circle c S0 (r_seq 1)) :
   ∀ k, is_red_circle c R0 (r_seq (2 * k + 1)) ∧ is_red_circle c S0 (r_seq (2 * k + 1)) := by
   intro k
@@ -4104,7 +4107,7 @@ lemma lemma3_case3_contradiction_final_v3_proven (c : Point → Color) (_t : ℝ
     (∀ i, q i = p i + (R0 - S0)) ∧
     (∀ i, c (p i) = Color.Red) ∧
     (∀ i, c (q i) = Color.Red))
-  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k)^2 - 1) + Real.sqrt 3) / 2)
+  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k) ^ 2 - 1) + Real.sqrt 3) / 2)
   (h_ge_1 : ∀ k, r_seq k ≥ 1) :
   False := by
   have h_r_seq_one : r_seq 1 = Real.sqrt 3 := by
@@ -4196,23 +4199,23 @@ lemma lemma_two_circles_contain_triangle_aux_intersection (O1 O2 : Point) (r : �
   (h_dist_ge : dist O1 O2 >= Real.sqrt 3 / 2)
   (h_dist_le : dist O1 O2 <= r)
   (h_r : r >= 2) :
-  ∃ V : Point, dist V O1 = r ∧ dist V O2 = Real.sqrt (r^2 - 1/4) + Real.sqrt 3 / 2 := by
-  let r2 : ℝ := Real.sqrt (r^2 - 1/4) + Real.sqrt 3 / 2
+  ∃ V : Point, dist V O1 = r ∧ dist V O2 = Real.sqrt (r ^ 2 - 1 / 4) + Real.sqrt 3 / 2 := by
+  let r2 : ℝ := Real.sqrt (r ^ 2 - 1 / 4) + Real.sqrt 3 / 2
   have hr_nonneg : 0 ≤ r := by linarith
-  have hsqrt_le_r : Real.sqrt (r^2 - 1/4) ≤ r := by
+  have hsqrt_le_r : Real.sqrt (r ^ 2 - 1 / 4) ≤ r := by
     rw [Real.sqrt_le_iff]
     constructor
     · exact hr_nonneg
     · nlinarith
-  have hrad_nonneg : 0 ≤ r^2 - 1/4 := by nlinarith
-  have hsqrt3_sq : (Real.sqrt 3)^2 = (3 : ℝ) := by
+  have hrad_nonneg : 0 ≤ r ^ 2 - 1 / 4 := by nlinarith
+  have hsqrt3_sq : (Real.sqrt 3) ^ 2 = (3 : ℝ) := by
     rw [Real.sq_sqrt]
     norm_num
   have hsqrt3_le_two : Real.sqrt 3 ≤ 2 := by
     rw [Real.sqrt_le_iff]
     norm_num
   have hsqrt3_nonneg : 0 ≤ Real.sqrt 3 := Real.sqrt_nonneg 3
-  have hsqrt_lower : r - Real.sqrt 3 / 2 ≤ Real.sqrt (r^2 - 1/4) := by
+  have hsqrt_lower : r - Real.sqrt 3 / 2 ≤ Real.sqrt (r ^ 2 - 1 / 4) := by
     have hleft_nonneg : 0 ≤ r - Real.sqrt 3 / 2 := by linarith
     rw [Real.le_sqrt hleft_nonneg hrad_nonneg]
     nlinarith [hsqrt3_sq, h_r, hsqrt3_nonneg]
@@ -4233,21 +4236,21 @@ lemma lemma_two_circles_contain_triangle_aux_intersection (O1 O2 : Point) (r : �
   exact ⟨V, hV1, hV2⟩
 
 lemma lemma_chord_from_midpoint (O : Point) (M : Point) (r : ℝ)
-  (h_dist : dist M O = Real.sqrt (r^2 - 1/4))
+  (h_dist : dist M O = Real.sqrt (r ^ 2 - 1 / 4))
   (h_r : r ≥ 0.5) :
   ∃ B1 B2 : Point, midpoint ℝ B1 B2 = M ∧ dist B1 B2 = 1 ∧ dist B1 O = r ∧ dist B2 O = r := by
   let m : Point := M - O
   have hr_nonneg : 0 ≤ r := by linarith
-  have hrad_nonneg : 0 ≤ r^2 - 1 / 4 := by nlinarith
-  have hm_norm : ‖m‖ = Real.sqrt (r^2 - 1 / 4) := by
+  have hrad_nonneg : 0 ≤ r ^ 2 - 1 / 4 := by nlinarith
+  have hm_norm : ‖m‖ = Real.sqrt (r ^ 2 - 1 / 4) := by
     simpa [m, dist_eq_norm] using h_dist
-  have hm_sq : ‖m‖ ^ 2 = r^2 - 1 / 4 := by
+  have hm_sq : ‖m‖ ^ 2 = r ^ 2 - 1 / 4 := by
     have hsq := congrArg (fun x : ℝ => x^2) hm_norm
     change ‖m‖ ^ 2 = Real.sqrt (r ^ 2 - 1 / 4) ^ 2 at hsq
     rw [Real.sq_sqrt hrad_nonneg] at hsq
     exact hsq
   by_cases hm_zero : m = 0
-  · have hr_sq : r^2 = (1 / 2 : ℝ)^2 := by
+  · have hr_sq : r ^ 2 = (1 / 2 : ℝ) ^ 2 := by
       have hm0 : ‖m‖ ^ 2 = 0 := by simp [hm_zero]
       nlinarith [hm_sq, hm0]
     have hr_abs : |r| = |(1 / 2 : ℝ)| := (sq_eq_sq_iff_abs_eq_abs r (1 / 2)).mp hr_sq
@@ -4318,7 +4321,7 @@ lemma lemma_chord_from_midpoint (O : Point) (M : Point) (r : ℝ)
         simp [m]
         ring
       rw [hdiff]
-      have hsq : ‖m + u‖ ^ 2 = r^2 := by
+      have hsq : ‖m + u‖ ^ 2 = r ^ 2 := by
         rw [norm_add_sq_real, horth, hm_sq, hu_norm]
         ring
       have habs := (sq_eq_sq_iff_abs_eq_abs ‖m + u‖ r).mp hsq
@@ -4329,7 +4332,7 @@ lemma lemma_chord_from_midpoint (O : Point) (M : Point) (r : ℝ)
         simp [m]
         ring
       rw [hdiff]
-      have hsq : ‖m - u‖ ^ 2 = r^2 := by
+      have hsq : ‖m - u‖ ^ 2 = r ^ 2 := by
         rw [norm_sub_sq_real, horth, hm_sq, hu_norm]
         ring
       have habs := (sq_eq_sq_iff_abs_eq_abs ‖m - u‖ r).mp hsq
@@ -4550,7 +4553,7 @@ lemma lemma_backward_red_circles (c : Point → Color) (P0 Q0 R0 S0 : Point)
   (h_no_red_config : ¬ ∃ (p q r s : Point),
     Congruent (fun i : Fin 4 => ![P0, Q0, R0, S0] i) (fun i => ![p, q, r, s] i) ∧
     c p = Color.Red ∧ c q = Color.Red ∧ c r = Color.Red ∧ c s = Color.Red)
-  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k)^2 - 1) + Real.sqrt 3) / 2)
+  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k) ^ 2 - 1) + Real.sqrt 3) / 2)
   (h_ge_1 : ∀ k, r_seq k ≥ 1)
   (h_red_0 : is_red_circle c P0 (r_seq 0) ∧ is_red_circle c Q0 (r_seq 0)) :
   ∀ k : ℕ,
@@ -4617,7 +4620,7 @@ If 2*|v| < sqrt(3), then there exists k such that 2*k*|v| is in [sqrt(3)/2, r_se
 -/
 lemma lemma_large_k_exists_constrained (v : Point) (hv : v ≠ 0)
   (h_v_bound : 2 * ‖v‖ < Real.sqrt 3)
-  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k)^2 - 1) + Real.sqrt 3) / 2)
+  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k) ^ 2 - 1) + Real.sqrt 3) / 2)
   (h_ge_1 : ∀ k, r_seq k ≥ 1) :
   ∃ k : ℕ,
     let d := 2 * (k : ℝ) * ‖v‖
@@ -4727,7 +4730,7 @@ lemma lemma3_case3_contradiction_final_v3_proof (c : Point → Color) (t : ℝ)
     (∀ i, q i = p i + (R0 - S0)) ∧
     (∀ i, c (p i) = Color.Red) ∧
     (∀ i, c (q i) = Color.Red))
-  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k)^2 - 1) + Real.sqrt 3) / 2)
+  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k) ^ 2 - 1) + Real.sqrt 3) / 2)
   (h_ge_1 : ∀ k, r_seq k ≥ 1) :
   False := by
   exact lemma3_case3_contradiction_final_v3_proven c t h_blue R0 S0 R0' S0'
@@ -4742,7 +4745,7 @@ lemma lemma3_case3_small_dist_contradiction (c : Point → Color) (P0 Q0 R0 S0 :
     Congruent (fun i : Fin 4 => ![P0, Q0, R0, S0] i) (fun i => ![p, q, r, s] i) ∧
     c p = Color.Red ∧ c q = Color.Red ∧ c r = Color.Red ∧ c s = Color.Red)
   (h_red_0 : is_red_circle c P0 (r_seq 0) ∧ is_red_circle c Q0 (r_seq 0))
-  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k)^2 - 1) + Real.sqrt 3) / 2)
+  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k) ^ 2 - 1) + Real.sqrt 3) / 2)
   (h_ge_1 : ∀ k, r_seq k ≥ 1)
   (v : Point)
   (hv_def : v = 2 • (midpoint ℝ P0 Q0 - midpoint ℝ R0 S0))
@@ -4884,7 +4887,7 @@ lemma lemma_case3_red_circles_sqrt3 (c : Point → Color) (P0 Q0 R0 S0 : Point)
     c p = Color.Red ∧ c q = Color.Red ∧ c r = Color.Red ∧ c s = Color.Red)
   (h_P0_blue : c P0 = Color.Blue)
   (h_Q0_blue : c Q0 = Color.Blue)
-  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k)^2 - 1) + Real.sqrt 3) / 2)
+  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k) ^ 2 - 1) + Real.sqrt 3) / 2)
   (h_ge_1 : ∀ k, r_seq k ≥ 1)
   (h_r_seq_0 : r_seq 0 = 1)
   (h_r_seq_1 : r_seq 1 = Real.sqrt 3) :
@@ -4932,7 +4935,7 @@ lemma lemma_case3_large_dist_contradiction (c : Point → Color) (P0 Q0 R0 S0 : 
     c p = Color.Red ∧ c q = Color.Red ∧ c r = Color.Red ∧ c s = Color.Red)
   (h_P0_blue : c P0 = Color.Blue)
   (h_Q0_blue : c Q0 = Color.Blue)
-  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k)^2 - 1) + Real.sqrt 3) / 2)
+  (h_r_seq_def : ∀ k, r_seq (k + 1) = (Real.sqrt (4 * (r_seq k) ^ 2 - 1) + Real.sqrt 3) / 2)
   (h_ge_1 : ∀ k, r_seq k ≥ 1)
   (h_r_seq_0 : r_seq 0 = 1)
   (h_r_seq_1 : r_seq 1 = Real.sqrt 3)
@@ -5159,7 +5162,7 @@ lemma lemma_case3 (c : Point → Color) (cfg : Fin 4 → Point)
   have h_r_seq_1 : r_seq 1 = Real.sqrt 3 := by
     norm_num [r_seq]
   have h_r_seq_def_local :
-      ∀ n, r_seq (n + 1) = (Real.sqrt (4 * (r_seq n)^2 - 1) + Real.sqrt 3) / 2 := by
+      ∀ n, r_seq (n + 1) = (Real.sqrt (4 * (r_seq n) ^ 2 - 1) + Real.sqrt 3) / 2 := by
     intro n
     rfl
   by_cases hv_small : 2 * ‖v‖ < Real.sqrt 3
@@ -5358,7 +5361,7 @@ lemma lattice_min_dist (L1 L2 : Point)
     -- Let's express the coordinates of L1 and L2 in terms of the lattice basis vectors.
     obtain ⟨m1, n1, hm1⟩ := h1
     obtain ⟨m2, n2, hm2⟩ := h2
-    have h_dist : dist L1 L2 = 2 * Real.sqrt ((m1 - m2)^2 + (m1 - m2) * (n1 - n2) + (n1 - n2)^2) := by
+    have h_dist : dist L1 L2 = 2 * Real.sqrt ((m1 - m2) ^ 2 + (m1 - m2) * (n1 - n2) + (n1 - n2) ^ 2) := by
       norm_num [ dist_eq_norm, EuclideanSpace.norm_eq, hm1, hm2, lattice_color_basis_1, lattice_color_basis_2 ] ; ring_nf; norm_num; ring_nf;
       rw [ show (m1 : ℝ) * n1 * 4 - m1 * m2 * 8 - m1 * n2 * 4 + m1 ^ 2 * 4 -
             n1 * m2 * 4 - n1 * n2 * 8 + n1 ^ 2 * 4 + m2 * n2 * 4 +
@@ -5367,8 +5370,8 @@ lemma lattice_min_dist (L1 L2 : Point)
               n1 * n2 * 2 + n1 ^ 2 + m2 * n2 + m2 ^ 2 + n2 ^ 2) * 4 by ring_nf,
         Real.sqrt_mul' ] <;> norm_num
     generalize_proofs at *; (
-    -- Since $m1 \neq m2$ or $n1 \neq n2$, we have $(m1 - m2)^2 + (m1 - m2) * (n1 - n2) + (n1 - n2)^2 \geq 1$.
-    have h_ineq : (m1 - m2 : ℝ)^2 + (m1 - m2) * (n1 - n2) + (n1 - n2)^2 ≥ 1 := by
+    -- Since $m1 \neq m2$ or $n1 \neq n2$, we have $(m1 - m2) ^ 2 + (m1 - m2) * (n1 - n2) + (n1 - n2) ^ 2 \geq 1$.
+    have h_ineq : (m1 - m2 : ℝ) ^ 2 + (m1 - m2) * (n1 - n2) + (n1 - n2) ^ 2 ≥ 1 := by
       norm_cast
       generalize_proofs at *; (
       exact int_quadratic_form_ge_1 ( m1 - m2 ) ( n1 - n2 ) ( by contrapose! h_neq; simp_all +decide [ sub_eq_iff_eq_add ] ) |> fun h => by linarith;)
@@ -5539,7 +5542,7 @@ lemma config_X_eq_list : config_X = { p | ∃ c ∈ config_points_list, p = c.1 
     rw [ ← Real.sqrt_sq ( show 0 ≤ Real.sqrt 3 * 2 + 3 * 0.5 by positivity ) ] at hp ; rw [ Real.lt_sqrt ( by positivity ) ] at hp ; ring_nf at hp ; norm_num at hp;
     rw [ Real.sq_sqrt ] at hp <;> ring_nf at hp <;> norm_num at hp ⊢;
     · -- By simplifying, we can see that the inequality holds for the given values of m and n.
-      have h_simplified : (m : ℝ)^2 + m * n + n^2 - m - n ≤ 3 := by
+      have h_simplified : (m : ℝ) ^ 2 + m * n + n^2 - m - n ≤ 3 := by
         by_contra h_contra;
         exact h_contra <| by nlinarith [ Real.sqrt_nonneg 3, Real.sq_sqrt <| show 0 ≤ 3 by norm_num, show ( m : ℝ ) ^ 2 + m * n + n ^ 2 - m - n ≥ 4 by exact_mod_cast Int.le_of_lt_add_one <| by { rw [ ← @Int.cast_lt ℝ ] ; push_cast; nlinarith [ Real.sqrt_nonneg 3, Real.sq_sqrt <| show 0 ≤ 3 by norm_num ] } ] ;
       have h_simplified : m ≤ 2 ∧ m ≥ -2 ∧ n ≤ 2 ∧ n ≥ -2 := by
