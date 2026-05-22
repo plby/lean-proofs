@@ -36,7 +36,6 @@ import Mathlib
 import Util
 
 set_option linter.style.setOption false
-set_option linter.style.whitespace false
 set_option linter.style.cdot false
 set_option linter.style.show false
 set_option linter.deprecated false
@@ -66,8 +65,8 @@ def S3 : Set ℕ := {x : ℕ | (Nat.digits 3 x).toFinset ⊆ {0, 1}}
 def S4 : Set ℕ := {x : ℕ | (Nat.digits 4 x).toFinset ⊆ {0, 1}}
 
 lemma s3_bound
-    (k : ℕ) (x : ℕ) (h : x ∈ S3) (hk : x < 3^k) :
-    x ≤ (3^k - 1) / 2 := by
+    (k : ℕ) (x : ℕ) (h : x ∈ S3) (hk : x < 3 ^ k) :
+    x ≤ (3 ^ k - 1) / 2 := by
   rewrite[Nat.le_div_iff_mul_le (by decide),mul_two,Nat.le_sub_one_iff_lt hk.pos, S3]at *
   induction k generalizing x with|zero =>omega|succ =>_
   use
@@ -80,8 +79,8 @@ lemma s3_bound
             simp_all[(by valid : x > 0), Finset.insert_subset_iff] with valid)
 
 lemma s4_bound
-    (m : ℕ) (y : ℕ) (h : y ∈ S4) (hm : y < 4^m) :
-    y ≤ (4^m - 1) / 3 := by
+    (m : ℕ) (y : ℕ) (h : y ∈ S4) (hm : y < 4 ^ m) :
+    y ≤ (4 ^ m - 1) / 3 := by
   norm_num [←geom_sum_mul_of_one_le, S4] at h
   induction m generalizing y with|zero=>omega| succ=>_
   use
@@ -94,10 +93,10 @@ lemma s4_bound
             simp_all[Finset.insert_subset_iff,and.pos] with valid)
 
 lemma gap_exists
-    (k m : ℕ) (h : (3^k - 1) / 2 + (4^m - 1) / 3 < min (3^k) (4^m)) :
+    (k m : ℕ) (h : (3 ^ k - 1) / 2 + (4 ^ m - 1) / 3 < min (3 ^ k) (4 ^ m)) :
     ∀ x ∈ S3, ∀ y ∈ S4,
-      ¬ ((3^k - 1) / 2 + (4^m - 1) / 3 < x + y ∧
-        x + y < min (3^k) (4^m)) := by
+      ¬ ((3 ^ k - 1) / 2 + (4 ^ m - 1) / 3 < x + y ∧
+        x + y < min (3 ^ k) (4 ^ m)) := by
   have _h := h
   intro x hx y hy h_contra
   have hx_lt : x < 3 ^ k := by
@@ -162,27 +161,27 @@ def KM_seq : ℕ → ℕ × ℕ
 | n + 1 =>
   let K := (KM_seq n).1
   let M := (KM_seq n).2
-  if 3^K ≤ 4^M then (K + 24, M + 19) else (K + 5, M + 4)
+  if 3 ^ K ≤ 4 ^ M then (K + 24, M + 19) else (K + 5, M + 4)
 
 def K_seq (n : ℕ) : ℕ := (KM_seq n).1
 def M_seq (n : ℕ) : ℕ := (KM_seq n).2
 
 lemma KM_seq_step_le
-    (K M : ℕ) (h1 : 15 * 3^K ≤ 17 * 4^M)
-    (h2 : 5 * 4^M ≤ 6 * 3^K) (h3 : 3^K ≤ 4^M) :
+    (K M : ℕ) (h1 : 15 * 3 ^ K ≤ 17 * 4 ^ M)
+    (h2 : 5 * 4 ^ M ≤ 6 * 3 ^ K) (h3 : 3 ^ K ≤ 4 ^ M) :
     15 * 3^(K + 24) ≤ 17 * 4^(M + 19) ∧
       5 * 4^(M + 19) ≤ 6 * 3^(K + 24) := by
-  have e1 : 3^(K + 24) = 282429536481 * 3^K := by ring!
-  have e2 : 4^(M + 19) = 274877906944 * 4^M := by ring
+  have e1 : 3^(K + 24) = 282429536481 * 3 ^ K := by ring!
+  have e2 : 4^(M + 19) = 274877906944 * 4 ^ M := by ring
   omega
 
 lemma KM_seq_step_gt
-    (K M : ℕ) (h1 : 15 * 3^K ≤ 17 * 4^M)
-    (h2 : 5 * 4^M ≤ 6 * 3^K) (h3 : ¬ (3^K ≤ 4^M)) :
+    (K M : ℕ) (h1 : 15 * 3 ^ K ≤ 17 * 4 ^ M)
+    (h2 : 5 * 4 ^ M ≤ 6 * 3 ^ K) (h3 : ¬ (3 ^ K ≤ 4 ^ M)) :
     15 * 3^(K + 5) ≤ 17 * 4^(M + 4) ∧
       5 * 4^(M + 4) ≤ 6 * 3^(K + 5) := by
-  have e1 : 3^(K + 5) = 243 * 3^K := by ring1
-  have e2 : 4^(M + 4) = 256 * 4^M := by ring
+  have e1 : 3^(K + 5) = 243 * 3 ^ K := by ring1
+  have e2 : 4^(M + 4) = 256 * 4 ^ M := by ring
   omega
 
 lemma KM_seq_inv (n : ℕ) :
@@ -209,8 +208,8 @@ lemma a_growth (n : ℕ) : n < (3^(K_seq n) - 1) / 2 + (4^(M_seq n) - 1) / 3 := 
       show _ ≤ Prod.fst (ite _ _ _) by
         bound
 
-lemma gap_ineq (K M : ℕ) (h1 : 15 * 3^K ≤ 17 * 4^M) (h2 : 5 * 4^M ≤ 6 * 3^K) :
-  10 * ((3^K - 1) / 2 + (4^M - 1) / 3) ≤ 9 * min (3^K) (4^M) := by
+lemma gap_ineq (K M : ℕ) (h1 : 15 * 3 ^ K ≤ 17 * 4 ^ M) (h2 : 5 * 4 ^ M ≤ 6 * 3 ^ K) :
+  10 * ((3 ^ K - 1) / 2 + (4 ^ M - 1) / 3) ≤ 9 * min (3 ^ K) (4 ^ M) := by
   omega
 
 noncomputable def density_seq (A : Set ℕ) (n : ℕ) : ℝ :=
@@ -332,8 +331,8 @@ lemma no_pos_density_of_gaps (A : Set ℕ)
   rcases h_pos_den with ⟨α, h_pos, h_den⟩
   exact contradiction_from_limit A α h_pos h_den h
 
-lemma gap_exists_helper (K M : ℕ) (a b : ℕ) (ha : a = (3^K - 1) / 2 + (4^M - 1) / 3)
-  (hb : b = min (3^K) (4^M)) (h_lt : a < b) :
+lemma gap_exists_helper (K M : ℕ) (a b : ℕ) (ha : a = (3 ^ K - 1) / 2 + (4 ^ M - 1) / 3)
+  (hb : b = min (3 ^ K) (4 ^ M)) (h_lt : a < b) :
   ∀ x ∈ S3 + S4, ¬ (a < x ∧ x < b) := by
   intro x hx
   have h_ex : ∃ s3 ∈ S3, ∃ s4 ∈ S4, s3 + s4 = x := hx
@@ -345,8 +344,8 @@ lemma no_pos_density_of_S3_S4_help (N0 : ℕ) :
   ∃ a b, N0 < a ∧ a < b ∧ (∀ x ∈ S3 + S4, ¬ (a < x ∧ x < b)) ∧ 10 * a ≤ 9 * b := by
   let K := K_seq N0
   let M := M_seq N0
-  let a := (3^K - 1) / 2 + (4^M - 1) / 3
-  let b := min (3^K) (4^M)
+  let a := (3 ^ K - 1) / 2 + (4 ^ M - 1) / 3
+  let b := min (3 ^ K) (4 ^ M)
   use a, b
   have h_inv := KM_seq_inv N0
   have h1 : N0 < a := a_growth N0
@@ -482,8 +481,8 @@ lemma log_ratio_approximation (Q : ℕ) (hQ : Q > 0) :
 
 lemma gap_alignment (Q : ℕ) (hQ : Q > 0) :
     ∃ (k m : ℕ), 0 < m ∧ m ≤ Q ∧
-      |(4^m : ℝ) - 3^k| ≤
-        max (3^k : ℝ) (4^m : ℝ) *
+      |(4 ^ m : ℝ) - 3 ^ k| ≤
+        max (3 ^ k : ℝ) (4 ^ m : ℝ) *
           (Real.exp (Real.log 3 / ((Q : ℝ) + 1)) - 1) := by
   have h_log := log_ratio_approximation Q hQ
   rcases h_log with ⟨k, m, hm_pos, hm_le, h_bound⟩
@@ -495,14 +494,14 @@ lemma gap_alignment (Q : ℕ) (hQ : Q > 0) :
     · apply
         (mul_le_mul_of_nonneg_left
           ↑(sub_le_sub_right (Real.add_one_le_exp _) _) (by (positivity))).trans'
-      rcases lt_trichotomy (4^m: ℝ) (3^k) with a | S | S
+      rcases lt_trichotomy (4 ^ m: ℝ) (3 ^ k) with a | S | S
       · norm_num[a,abs_of_neg,a.le]
         have:=Real.log_le_sub_one_of_pos.comp (div_pos (pow_pos four_pos m)) (pow_pos three_pos k)
         linear_combination
           (3)^k*(le_sup_right).trans h_bound +
-          3^k*this.trans' (by
+          3 ^ k*this.trans' (by
             rw [Real.log_div (by positivity) (by positivity), Real.log_pow, Real.log_pow]) +
-          4^m*div_self_le_one (3^k: ℝ)
+          4 ^ m*div_self_le_one (3 ^ k: ℝ)
       · simp_all[h_bound.trans']
       · have := (.log (3 ^k) -Real.log (4 ^m)).add_one_le_exp
         simp_all[
@@ -514,14 +513,14 @@ lemma gap_alignment (Q : ℕ) (hQ : Q > 0) :
             (Real.exp_log three_pos▸Real.exp_log four_pos▸Real.exp_nat_mul _ _▸
               Real.exp_nat_mul _ _▸sub_le_iff_le_add.2 this)
 
-lemma A_card_bound (k : ℕ) : ((A ∩ {x | x < 3^k}).ncard : ℝ) = (2^k : ℝ) := by
+lemma A_card_bound (k : ℕ) : ((A ∩ {x | x < 3 ^ k}).ncard : ℝ) = (2^k : ℝ) := by
   delta and A
   refine
     ((congr_arg _)
       ((congr_arg _)
         ((congr_arg Nat.card (by simp_all![Set.inter_def, and_comm])).trans
           (Nat.card_eq_finsetCard
-            { a ∈ .range (3^k) | (((3:).digits a)).toFinset ⊆ {0,1}})))).trans
+            { a ∈ .range (3 ^ k) | (((3:).digits a)).toFinset ⊆ {0,1}})))).trans
       (mod_cast ? _)
   refine
     show Nat.cast @_=(Nat.cast _) from
@@ -539,13 +538,13 @@ lemma A_card_bound (k : ℕ) : ((A ∩ {x | x < 3^k}).ncard : ℝ) = (2^k : ℝ)
     norm_num[*, mul_two, add_assoc, (3).mul_add_div, Nat.succ_pos _,
       Finset.insert_subset_iff]
 
-lemma B_card_bound (m : ℕ) : ((B ∩ {x | x < 4^m}).ncard : ℝ) = (2^m : ℝ) := by
+lemma B_card_bound (m : ℕ) : ((B ∩ {x | x < 4 ^ m}).ncard : ℝ) = (2^m : ℝ) := by
   delta and B
   refine
     ((congr_arg _).comp (congr_arg _)
       ((congr_arg ↑Nat.card (by simp_all![Set.inter_def, and_comm])).trans
         (Nat.card_eq_finsetCard
-          { a ∈ .range (4^m) | (Nat.digits (↑4) a).toFinset ⊆ {0,1}}))).trans
+          { a ∈ .range (4 ^ m) | (Nat.digits (↑4) a).toFinset ⊆ {0,1}}))).trans
       (mod_cast(?_))
   refine
     show((_: ℕ): ℝ)=(_: ℕ) from
@@ -563,7 +562,7 @@ lemma B_card_bound (m : ℕ) : ((B ∩ {x | x < 4^m}).ncard : ℝ) = (2^m : ℝ)
     norm_num[*, mul_two, add_assoc, Finset.insert_subset_iff, (4).mul_add_div,
       Nat.succ_pos _]
 
-lemma A_max_bound (k : ℕ) (a : ℕ) (ha : a ∈ A) (hak : a < 3^k) : a ≤ (3^k - 1) / 2 := by
+lemma A_max_bound (k : ℕ) (a : ℕ) (ha : a ∈ A) (hak : a < 3 ^ k) : a ≤ (3 ^ k - 1) / 2 := by
   rw [←not_lt, Erdos125.A,Nat.div_lt_iff_lt_mul (by decide)]at*
   use not_lt.2 (Nat.le_sub_one_of_lt (k.rec (by aesop) ?_ a ha hak))
   use fun and A B R M =>
@@ -572,10 +571,10 @@ lemma A_max_bound (k : ℕ) (a : ℕ) (ha : a ∈ A) (hak : a < 3^k) : a ≤ (3^
     | S+1 => by
         cases show (S+1)%3=0 ∨ (S+1)%3=1 by
           simp_all[Finset.insert_subset_iff] with use
-          (by valid ∘ @A ((S+1)/3)) (by
+          (by valid ∘ @A ((S+1) / 3)) (by
             simp_all[Finset.insert_subset_iff])
 
-lemma B_max_bound (m : ℕ) (b : ℕ) (hb : b ∈ B) (hbm : b < 4^m) : b ≤ (4^m - 1) / 3 := by
+lemma B_max_bound (m : ℕ) (b : ℕ) (hb : b ∈ B) (hbm : b < 4 ^ m) : b ≤ (4 ^ m - 1) / 3 := by
   rewrite[B,Nat.le_div_iff_mul_le (by decide),Nat.le_sub_one_iff_lt (by valid)]at*
   induction m generalizing b with|zero=>omega| succ=>_
   use
@@ -587,13 +586,13 @@ lemma B_max_bound (m : ℕ) (b : ℕ) (hb : b ∈ B) (hbm : b < 4^m) : b ≤ (4^
           cases show b % 4 = 0 ∨ b % 4 = 1 by
             simp_all[(by valid : b > 0), Finset.insert_subset_iff] with valid)
 
-lemma A_decomp_div (k a : ℕ) (ha : a ∈ A) : a / 3^k ∈ A := by
+lemma A_decomp_div (k a : ℕ) (ha : a ∈ A) : a / 3 ^ k ∈ A := by
   norm_num [ Erdos125.A]at*
   use k.strongRec (fun A B R M=>match A with|0=> R.div_one.symm▸M | S+1=>? _) a ha
   exact
     (pow_succ' (3) _)▸ R.div_div_eq_div_mul _ _▸
       (B S (by constructor) _) ↑(.trans (by cases R.eq_zero_or_pos with norm_num[*]) M)
-lemma A_decomp_mod (k a : ℕ) (ha : a ∈ A) : a % 3^k ∈ A := by
+lemma A_decomp_mod (k a : ℕ) (ha : a ∈ A) : a % 3 ^ k ∈ A := by
 norm_num[ Erdos125.A]at*
 use k.strongRec ↑?_ a ha
 use fun and A B R =>
@@ -609,7 +608,7 @@ use fun and A B R =>
 · simp_all-contextual[
     mul_add, S|>.lt_succ, B.mod_lt, B.pos_of_ne_zero (a.comp (by rw [.])),
     Finset.insert_subset_iff, Nat.add_mul_div_left, pos_iff_ne_zero.eq]
-lemma B_decomp_div (m b : ℕ) (hb : b ∈ B) : b / 4^m ∈ B := by
+lemma B_decomp_div (m b : ℕ) (hb : b ∈ B) : b / 4 ^ m ∈ B := by
   change b ∈{s |_}at@@hb⊢
   exact
     (Set.mem_setOf.mpr)
@@ -618,7 +617,7 @@ lemma B_decomp_div (m b : ℕ) (hb : b ∈ B) : b / 4^m ∈ B := by
           (b.div_div_eq_div_mul (4^ _) 4▸by
             cases b/_ with cases b with
               norm_num[Finset.insert_subset_insert_iff]))
-lemma B_decomp_mod (m b : ℕ) (hb : b ∈ B) : b % 4^m ∈ B := by
+lemma B_decomp_mod (m b : ℕ) (hb : b ∈ B) : b % 4 ^ m ∈ B := by
   change b ∈{s |_} at hb⊢
   use m.strongRec ?_ b hb.out
   use fun and A B R =>
@@ -637,100 +636,100 @@ lemma B_decomp_mod (m b : ℕ) (hb : b ∈ B) : b % 4^m ∈ B := by
       Nat.add_mul_div_left _, pos_iff_ne_zero.eq]
 
 def sum_c (k m a b : ℕ) : ℕ :=
-  if 3^k ≤ 4^m then
-    (4^m - 3^k) * (b / 4^m) + (a % 3^k) + (b % 4^m)
+  if 3 ^ k ≤ 4 ^ m then
+    (4 ^ m - 3 ^ k) * (b / 4 ^ m) + (a % 3 ^ k) + (b % 4 ^ m)
   else
-    (3^k - 4^m) * (a / 3^k) + (a % 3^k) + (b % 4^m)
+    (3 ^ k - 4 ^ m) * (a / 3 ^ k) + (a % 3 ^ k) + (b % 4 ^ m)
 
 lemma sum_form_eq (k m a b : ℕ) :
-  a + b = min (3^k) (4^m) * (a / 3^k + b / 4^m) + sum_c k m a b := by
+  a + b = min (3 ^ k) (4 ^ m) * (a / 3 ^ k + b / 4 ^ m) + sum_c k m a b := by
   unfold sum_c
-  have ha_eq : 3^k * (a / 3^k) + a % 3^k = a := Nat.div_add_mod a (3^k)
-  have hb_eq : 4^m * (b / 4^m) + b % 4^m = b := Nat.div_add_mod b (4^m)
+  have ha_eq : 3 ^ k * (a / 3 ^ k) + a % 3 ^ k = a := Nat.div_add_mod a (3 ^ k)
+  have hb_eq : 4 ^ m * (b / 4 ^ m) + b % 4 ^ m = b := Nat.div_add_mod b (4 ^ m)
   split_ifs with h_le
-  · have h_min : min (3^k) (4^m) = 3^k := min_eq_left h_le
+  · have h_min : min (3 ^ k) (4 ^ m) = 3 ^ k := min_eq_left h_le
     rw [h_min]
     have h_dist :
-        3^k * (a / 3^k + b / 4^m) =
-          3^k * (a / 3^k) + 3^k * (b / 4^m) := Nat.mul_add (3^k) _ _
+        3 ^ k * (a / 3 ^ k + b / 4 ^ m) =
+          3 ^ k * (a / 3 ^ k) + 3 ^ k * (b / 4 ^ m) := Nat.mul_add (3 ^ k) _ _
     rw [h_dist]
-    have h_diff : 3^k * (b / 4^m) + (4^m - 3^k) * (b / 4^m) = 4^m * (b / 4^m) := by
+    have h_diff : 3 ^ k * (b / 4 ^ m) + (4 ^ m - 3 ^ k) * (b / 4 ^ m) = 4 ^ m * (b / 4 ^ m) := by
       rw [←Nat.add_mul]
-      have h_add : 3^k + (4^m - 3^k) = 4^m := Nat.add_sub_of_le h_le
+      have h_add : 3 ^ k + (4 ^ m - 3 ^ k) = 4 ^ m := Nat.add_sub_of_le h_le
       rw [h_add]
     omega
-  · have h_min : min (3^k) (4^m) = 4^m := min_eq_right (by omega)
+  · have h_min : min (3 ^ k) (4 ^ m) = 4 ^ m := min_eq_right (by omega)
     rw [h_min]
-    have h_le2 : 4^m ≤ 3^k := by omega
+    have h_le2 : 4 ^ m ≤ 3 ^ k := by omega
     have h_dist :
-        4^m * (a / 3^k + b / 4^m) =
-          4^m * (a / 3^k) + 4^m * (b / 4^m) := Nat.mul_add (4^m) _ _
+        4 ^ m * (a / 3 ^ k + b / 4 ^ m) =
+          4 ^ m * (a / 3 ^ k) + 4 ^ m * (b / 4 ^ m) := Nat.mul_add (4 ^ m) _ _
     rw [h_dist]
-    have h_diff : 4^m * (a / 3^k) + (3^k - 4^m) * (a / 3^k) = 3^k * (a / 3^k) := by
+    have h_diff : 4 ^ m * (a / 3 ^ k) + (3 ^ k - 4 ^ m) * (a / 3 ^ k) = 3 ^ k * (a / 3 ^ k) := by
       rw [←Nat.add_mul]
-      have h_add : 4^m + (3^k - 4^m) = 3^k := Nat.add_sub_of_le h_le2
+      have h_add : 4 ^ m + (3 ^ k - 4 ^ m) = 3 ^ k := Nat.add_sub_of_le h_le2
       rw [h_add]
     omega
 
-lemma a_bot_bound (k a : ℕ) (ha : a ∈ A) : a % 3^k ≤ (3^k - 1) / 2 := by
+lemma a_bot_bound (k a : ℕ) (ha : a ∈ A) : a % 3 ^ k ≤ (3 ^ k - 1) / 2 := by
   have h1 := A_decomp_mod k a ha
-  have h2 : a % 3^k < 3^k := Nat.mod_lt _ (by positivity)
-  exact A_max_bound k (a % 3^k) h1 h2
+  have h2 : a % 3 ^ k < 3 ^ k := Nat.mod_lt _ (by positivity)
+  exact A_max_bound k (a % 3 ^ k) h1 h2
 
-lemma b_bot_bound (m b : ℕ) (hb : b ∈ B) : b % 4^m ≤ (4^m - 1) / 3 := by
+lemma b_bot_bound (m b : ℕ) (hb : b ∈ B) : b % 4 ^ m ≤ (4 ^ m - 1) / 3 := by
   have h1 := B_decomp_mod m b hb
-  have h2 : b % 4^m < 4^m := Nat.mod_lt _ (by positivity)
-  exact B_max_bound m (b % 4^m) h1 h2
+  have h2 : b % 4 ^ m < 4 ^ m := Nat.mod_lt _ (by positivity)
+  exact B_max_bound m (b % 4 ^ m) h1 h2
 
-lemma y_lt_N_0 (k m a b N_0 : ℕ) (h_bound : a + b < min (3^k) (4^m) * N_0) :
-  a / 3^k + b / 4^m < N_0 := by
+lemma y_lt_N_0 (k m a b N_0 : ℕ) (h_bound : a + b < min (3 ^ k) (4 ^ m) * N_0) :
+  a / 3 ^ k + b / 4 ^ m < N_0 := by
   have heq := sum_form_eq k m a b
-  have h1 : min (3^k) (4^m) * (a / 3^k + b / 4^m) ≤ a + b := by omega
-  have h2 : min (3^k) (4^m) * (a / 3^k + b / 4^m) < min (3^k) (4^m) * N_0 := by omega
+  have h1 : min (3 ^ k) (4 ^ m) * (a / 3 ^ k + b / 4 ^ m) ≤ a + b := by omega
+  have h2 : min (3 ^ k) (4 ^ m) * (a / 3 ^ k + b / 4 ^ m) < min (3 ^ k) (4 ^ m) * N_0 := by omega
   exact Nat.lt_of_mul_lt_mul_left h2
 
 lemma c_bound (k m a b N_0 : ℕ) (ha : a ∈ A) (hb : b ∈ B)
-  (h_bound : a + b < min (3^k) (4^m) * N_0) :
-  sum_c k m a b ≤ (3^k - 1)/2 + (4^m - 1)/3 + |(3^k : ℤ) - 4^m|.toNat * N_0 := by
+  (h_bound : a + b < min (3 ^ k) (4 ^ m) * N_0) :
+  sum_c k m a b ≤ (3 ^ k - 1) / 2 + (4 ^ m - 1) / 3 + |(3 ^ k : ℤ) - 4 ^ m|.toNat * N_0 := by
   have hy := y_lt_N_0 k m a b N_0 h_bound
   have ha_bot := a_bot_bound k a ha
   have hb_bot := b_bot_bound m b hb
-  have h_a_top_pos : 0 ≤ a / 3^k := Nat.zero_le _
-  have h_b_top_pos : 0 ≤ b / 4^m := Nat.zero_le _
+  have h_a_top_pos : 0 ≤ a / 3 ^ k := Nat.zero_le _
+  have h_b_top_pos : 0 ≤ b / 4 ^ m := Nat.zero_le _
   unfold sum_c
   split_ifs with h_le
-  · have h_abs : |(3^k : ℤ) - 4^m|.toNat = 4^m - 3^k := by
-      have h_le_int : (3^k : ℤ) ≤ (4^m : ℤ) := by exact_mod_cast h_le
+  · have h_abs : |(3 ^ k : ℤ) - 4 ^ m|.toNat = 4 ^ m - 3 ^ k := by
+      have h_le_int : (3 ^ k : ℤ) ≤ (4 ^ m : ℤ) := by exact_mod_cast h_le
       exact
         (.trans
           (by rw [←abs_sub_comm, abs_of_nonneg ↑(sub_nonneg_of_le (mod_cast h_le))])
           (by norm_cast))
     rw [h_abs]
-    have h1 : b / 4^m ≤ a / 3^k + b / 4^m := by omega
-    have h2 : b / 4^m ≤ N_0 := by omega
-    have h_mul : (4^m - 3^k) * (b / 4^m) ≤ (4^m - 3^k) * N_0 := Nat.mul_le_mul_left _ h2
+    have h1 : b / 4 ^ m ≤ a / 3 ^ k + b / 4 ^ m := by omega
+    have h2 : b / 4 ^ m ≤ N_0 := by omega
+    have h_mul : (4 ^ m - 3 ^ k) * (b / 4 ^ m) ≤ (4 ^ m - 3 ^ k) * N_0 := Nat.mul_le_mul_left _ h2
     omega
-  · have h_abs : |(3^k : ℤ) - 4^m|.toNat = 3^k - 4^m := by
+  · have h_abs : |(3 ^ k : ℤ) - 4 ^ m|.toNat = 3 ^ k - 4 ^ m := by
       exact
         (congr_arg _).comp (congr_arg abs (sub_eq_of_eq_add ↑(mod_cast (by valid)))).trans
           (abs_of_nonneg (by constructor)) |>.trans (Int.toNat_natCast _)
     rw [h_abs]
-    have h1 : a / 3^k ≤ a / 3^k + b / 4^m := by omega
-    have h2 : a / 3^k ≤ N_0 := by omega
-    have h_mul : (3^k - 4^m) * (a / 3^k) ≤ (3^k - 4^m) * N_0 := Nat.mul_le_mul_left _ h2
+    have h1 : a / 3 ^ k ≤ a / 3 ^ k + b / 4 ^ m := by omega
+    have h2 : a / 3 ^ k ≤ N_0 := by omega
+    have h_mul : (3 ^ k - 4 ^ m) * (a / 3 ^ k) ≤ (3 ^ k - 4 ^ m) * N_0 := Nat.mul_le_mul_left _ h2
     omega
 
 lemma sum_form (k m a b N_0 : ℕ) (ha : a ∈ A) (hb : b ∈ B)
-  (h_bound : a + b < min (3^k) (4^m) * N_0) :
+  (h_bound : a + b < min (3 ^ k) (4 ^ m) * N_0) :
   ∃ y c, y ∈ A + B ∧ y < N_0 ∧
-  c ≤ (3^k - 1)/2 + (4^m - 1)/3 + |(3^k : ℤ) - 4^m|.toNat * N_0 ∧
-  a + b = min (3^k) (4^m) * y + c := by
-  use a / 3^k + b / 4^m, sum_c k m a b
+  c ≤ (3 ^ k - 1) / 2 + (4 ^ m - 1) / 3 + |(3 ^ k : ℤ) - 4 ^ m|.toNat * N_0 ∧
+  a + b = min (3 ^ k) (4 ^ m) * y + c := by
+  use a / 3 ^ k + b / 4 ^ m, sum_c k m a b
   constructor
-  · use a / 3^k
+  · use a / 3 ^ k
     constructor
     · exact A_decomp_div k a ha
-    · use b / 4^m
+    · use b / 4 ^ m
       constructor
       · exact B_decomp_div m b hb
       · rfl
@@ -740,14 +739,14 @@ lemma sum_form (k m a b N_0 : ℕ) (ha : a ∈ A) (hb : b ∈ B)
       · exact c_bound k m a b N_0 ha hb h_bound
       · exact sum_form_eq k m a b
 
-def sum_map (k m : ℕ) (p : ℕ × ℕ) : ℕ := min (3^k) (4^m) * p.1 + p.2
+def sum_map (k m : ℕ) (p : ℕ × ℕ) : ℕ := min (3 ^ k) (4 ^ m) * p.1 + p.2
 
 lemma subset_image (k m N_0 : ℕ) :
-  (A + B) ∩ {x | x < min (3^k) (4^m) * N_0} ⊆
+  (A + B) ∩ {x | x < min (3 ^ k) (4 ^ m) * N_0} ⊆
     (sum_map k m) ''
       (((A + B) ∩ {x | x < N_0}) ×ˢ
-        {c | c ≤ (3^k - 1)/2 + (4^m - 1)/3 +
-          |(3^k : ℤ) - 4^m|.toNat * N_0}) := by
+        {c | c ≤ (3 ^ k - 1) / 2 + (4 ^ m - 1) / 3 +
+          |(3 ^ k : ℤ) - 4 ^ m|.toNat * N_0}) := by
   intro x hx
   rcases hx with ⟨hx_AB, hx_lt⟩
   rcases hx_AB with ⟨a, ha, b, hb, hab⟩
@@ -761,16 +760,16 @@ lemma subset_image (k m N_0 : ℕ) :
     constructor
     · exact ⟨hy_AB, hy_lt⟩
     · exact hc
-  · have h_sum : sum_map k m (y, c) = min (3^k) (4^m) * y + c := rfl
+  · have h_sum : sum_map k m (y, c) = min (3 ^ k) (4 ^ m) * y + c := rfl
     rw [h_sum, ←hac]
     exact hab_eq
 
 lemma ncard_bound_step (k m N_0 : ℕ) (C : ℕ)
-  (hC : (3^k - 1)/2 + (4^m - 1)/3 + |(3^k : ℤ) - 4^m|.toNat * N_0 ≤ C) :
-    (((A + B) ∩ {x | x < min (3^k) (4^m) * N_0}).ncard : ℝ) ≤
+  (hC : (3 ^ k - 1) / 2 + (4 ^ m - 1) / 3 + |(3 ^ k : ℤ) - 4 ^ m|.toNat * N_0 ≤ C) :
+    (((A + B) ∩ {x | x < min (3 ^ k) (4 ^ m) * N_0}).ncard : ℝ) ≤
       (((A + B) ∩ {x | x < N_0}).ncard : ℝ) * (C + 1 : ℝ) := by
   have h_sub := subset_image k m N_0
-  have h_sub2 : (A + B) ∩ {x | x < min (3^k) (4^m) * N_0} ⊆
+  have h_sub2 : (A + B) ∩ {x | x < min (3 ^ k) (4 ^ m) * N_0} ⊆
     (sum_map k m) '' (((A + B) ∩ {x | x < N_0}) ×ˢ {c : ℕ | c ≤ C}) := by
     intro x hx
     have h_im := h_sub hx
@@ -802,41 +801,41 @@ lemma ncard_bound_step (k m N_0 : ℕ) (C : ℕ)
   exact_mod_cast h_trans
 
 lemma density_multiplier_le (k m N_0 : ℕ) (C : ℕ)
-  (hC : (3^k - 1)/2 + (4^m - 1)/3 + |(3^k : ℤ) - 4^m|.toNat * N_0 ≤ C)
-  (h_frac : (C + 1 : ℝ) / (min (3^k) (4^m) : ℝ) ≤ 14 / 15)
+  (hC : (3 ^ k - 1) / 2 + (4 ^ m - 1) / 3 + |(3 ^ k : ℤ) - 4 ^ m|.toNat * N_0 ≤ C)
+  (h_frac : (C + 1 : ℝ) / (min (3 ^ k) (4 ^ m) : ℝ) ≤ 14 / 15)
   (hN0 : N_0 > 0) :
-    (((A + B) ∩ {x | x < min (3^k) (4^m) * N_0}).ncard : ℝ) /
-      ((min (3^k) (4^m) * N_0 : ℕ) : ℝ) ≤
+    (((A + B) ∩ {x | x < min (3 ^ k) (4 ^ m) * N_0}).ncard : ℝ) /
+      ((min (3 ^ k) (4 ^ m) * N_0 : ℕ) : ℝ) ≤
     (((A + B) ∩ {x | x < N_0}).ncard : ℝ) / (N_0 : ℝ) * (14 / 15) := by
   have h_bound := ncard_bound_step k m N_0 C hC
-  have h_min_pos : min (3^k) (4^m) > 0 := by
-    have h1 : 3^k > 0 := by positivity
-    have h2 : 4^m > 0 := by positivity
+  have h_min_pos : min (3 ^ k) (4 ^ m) > 0 := by
+    have h1 : 3 ^ k > 0 := by positivity
+    have h2 : 4 ^ m > 0 := by positivity
     exact lt_min h1 h2
-  have h_pos : (0 : ℝ) < ((min (3^k) (4^m) * N_0 : ℕ) : ℝ) := by
-    have h_mul : min (3^k) (4^m) * N_0 > 0 := Nat.mul_pos h_min_pos hN0
+  have h_pos : (0 : ℝ) < ((min (3 ^ k) (4 ^ m) * N_0 : ℕ) : ℝ) := by
+    have h_mul : min (3 ^ k) (4 ^ m) * N_0 > 0 := Nat.mul_pos h_min_pos hN0
     exact Nat.cast_pos.mpr h_mul
   have h1 :
-      (((A + B) ∩ {x | x < min (3^k) (4^m) * N_0}).ncard : ℝ) /
-          ((min (3^k) (4^m) * N_0 : ℕ) : ℝ) ≤
+      (((A + B) ∩ {x | x < min (3 ^ k) (4 ^ m) * N_0}).ncard : ℝ) /
+          ((min (3 ^ k) (4 ^ m) * N_0 : ℕ) : ℝ) ≤
         (((A + B) ∩ {x | x < N_0}).ncard : ℝ) * (C + 1 : ℝ) /
-          ((min (3^k) (4^m) * N_0 : ℕ) : ℝ) := by
+          ((min (3 ^ k) (4 ^ m) * N_0 : ℕ) : ℝ) := by
     exact div_le_div_of_nonneg_right h_bound (le_of_lt h_pos)
   have h_cast :
-      ((min (3^k) (4^m) * N_0 : ℕ) : ℝ) =
-        (min (3^k) (4^m) : ℝ) * (N_0 : ℝ) := by
+      ((min (3 ^ k) (4 ^ m) * N_0 : ℕ) : ℝ) =
+        (min (3 ^ k) (4 ^ m) : ℝ) * (N_0 : ℝ) := by
     push_cast
     rfl
   have h2 :
       (((A + B) ∩ {x | x < N_0}).ncard : ℝ) * (C + 1 : ℝ) /
-          ((min (3^k) (4^m) * N_0 : ℕ) : ℝ) =
+          ((min (3 ^ k) (4 ^ m) * N_0 : ℕ) : ℝ) =
         (((A + B) ∩ {x | x < N_0}).ncard : ℝ) / (N_0 : ℝ) *
-          ((C + 1 : ℝ) / (min (3^k) (4^m) : ℝ)) := by
+          ((C + 1 : ℝ) / (min (3 ^ k) (4 ^ m) : ℝ)) := by
     rw [h_cast]
     ring
   have h3 :
       (((A + B) ∩ {x | x < N_0}).ncard : ℝ) / (N_0 : ℝ) *
-          ((C + 1 : ℝ) / (min (3^k) (4^m) : ℝ)) ≤
+          ((C + 1 : ℝ) / (min (3 ^ k) (4 ^ m) : ℝ)) ≤
         (((A + B) ∩ {x | x < N_0}).ncard : ℝ) / (N_0 : ℝ) * (14 / 15) := by
     have h_nonneg :
         (0 : ℝ) ≤ (((A + B) ∩ {x | x < N_0}).ncard : ℝ) / (N_0 : ℝ) := by
@@ -847,7 +846,7 @@ lemma density_multiplier_le (k m N_0 : ℕ) (C : ℕ)
 
 lemma ratio_close_of_log_close (k m : ℕ) (ε : ℝ) (hε : ε > 0)
   (h_gap : |(m : ℝ) * Real.log 4 - (k : ℝ) * Real.log 3| < Real.log (1 + ε)) :
-  |(4^m : ℝ) / (3^k : ℝ) - 1| < ε := by
+  |(4 ^ m : ℝ) / (3 ^ k : ℝ) - 1| < ε := by
   simp_all[
     abs_sub_lt_iff, ←Real.rpow_natCast, sub_lt_iff_lt_add',
     Real.rpow_def_of_pos, add_pos _, ← Real.exp_sub]
@@ -858,8 +857,8 @@ lemma ratio_close_of_log_close (k m : ℕ) (ε : ℝ) (hε : ε > 0)
   use Real.exp_add _ _▸((1+ε).exp_log<|by linarith).symm▸by nlinarith
 
 lemma exists_k_m_ratio_close (ε : ℝ) (hε : ε > 0) :
-    ∃ k m : ℕ, (3^k : ℝ) > 30 ∧ (4^m : ℝ) > 30 ∧
-      |(4^m : ℝ) / (3^k : ℝ) - 1| < ε := by
+    ∃ k m : ℕ, (3 ^ k : ℝ) > 30 ∧ (4 ^ m : ℝ) > 30 ∧
+      |(4 ^ m : ℝ) / (3 ^ k : ℝ) - 1| < ε := by
   have h_eps2 : Real.log (1 + ε) > 0 := by apply Real.log_pos (by(linarith ) )
   have h_Q :
       ∃ Q : ℕ, Q > 0 ∧ Real.log 3 / ((Q : ℝ) + 1) <
@@ -890,34 +889,34 @@ lemma exists_k_m_ratio_close (ε : ℝ) (hε : ε > 0) :
       exact ratio_close_of_log_close (10 * k) (10 * m) ε hε h_gap_10
 
 lemma good_k_m_of_close (N_0 k m : ℕ)
-  (h_M : (3^k : ℝ) > 30) (h_M4 : (4^m : ℝ) > 30)
-  (h_eps : |(4^m : ℝ) / (3^k : ℝ) - 1| < 1 / (30 * N_0 + 30 : ℝ)) :
-  min (3^k) (4^m) > 1 ∧
-    ((((3^k - 1)/2 + (4^m - 1)/3 +
-      |(3^k : ℤ) - 4^m|.toNat * N_0 : ℕ) : ℝ) + 1) /
-        (min (3^k) (4^m) : ℝ) ≤ 14 / 15 := by
-  cases le_total (3^k : ℤ) (4 ^m)
+  (h_M : (3 ^ k : ℝ) > 30) (h_M4 : (4 ^ m : ℝ) > 30)
+  (h_eps : |(4 ^ m : ℝ) / (3 ^ k : ℝ) - 1| < 1 / (30 * N_0 + 30 : ℝ)) :
+  min (3 ^ k) (4 ^ m) > 1 ∧
+    ((((3 ^ k - 1) / 2 + (4 ^ m - 1) / 3 +
+      |(3 ^ k : ℤ) - 4 ^ m|.toNat * N_0 : ℕ) : ℝ) + 1) /
+        (min (3 ^ k) (4 ^ m) : ℝ) ≤ 14 / 15 := by
+  cases le_total (3 ^ k : ℤ) (4 ^m)
   · field_simp at@h_eps⊢
     simp_all[
-      abs_sub_comm (3^k : ℝ), abs_div, abs_of_nonneg,
-      (k.rec _ (by valid):2 ∣3^k-1), (m.rec _ (by valid):3 ∣4^m-1),
+      abs_sub_comm (3 ^ k : ℝ), abs_div, abs_of_nonneg,
+      (k.rec _ (by valid):2 ∣3 ^ k-1), (m.rec _ (by valid):3 ∣4 ^ m-1),
       div_mul_eq_mul_div, div_lt_one]
     norm_cast at*
     simp_all[Int.subNatNat_of_lt,h_M.trans',h_M4.trans']
-    trans((3^k-1)/2+ (4^m-1)/3+ (4^m-3^k) *N_0+1)*15
+    trans((3 ^ k-1) / 2+ (4 ^ m-1) / 3+ (4 ^ m-3 ^ k) *N_0+1)*15
     · exact
         (.trans
           (by rw [←Int.cast_natCast (Int.toNat _), Int.toNat_of_nonneg (abs_nonneg _)])
           ↑(by
-            simp_all[(by assumption_mod_cast : (4: ℝ)^m ≥ 3^ _), abs_of_nonpos]))
+            simp_all[(by assumption_mod_cast : (4: ℝ) ^ m ≥ 3^ _), abs_of_nonpos]))
     · nlinarith[
-        show (4^m-3^k: ℝ)*30*(N_0+1)<3^k by
+        show (4 ^ m-3 ^ k: ℝ)*30*(N_0+1)<3 ^ k by
           simp_all only[←@Nat.cast_lt ℝ, push_cast],
-        (by assumption_mod_cast : (31 : ℝ)≤3^k)]
+        (by assumption_mod_cast : (31 : ℝ)≤3 ^ k)]
   · field_simp at@h_eps⊢
     simp_all[
       abs_sub_comm, abs_div,
-      show((3^k-1)/2+ (4^m-1)/3+ (3^k-4^m) *N_0+1: ℝ)*15≤4^m*14
+      show((3 ^ k-1) / 2+ (4 ^ m-1) / 3+ (3 ^ k-4 ^ m) *N_0+1: ℝ)*15≤4 ^ m*14
         from _]
     simp_all[div_mul_eq_mul_div,←geom_sum_mul_of_one_le]
     norm_cast at*
@@ -930,10 +929,10 @@ lemma good_k_m_of_close (N_0 k m : ℕ)
       Nat.sub_add_cancel (by assumption)]
 
 lemma exists_good_k_m (N_0 : ℕ) :
-  ∃ k m : ℕ, min (3^k) (4^m) > 1 ∧
-    ((((3^k - 1)/2 + (4^m - 1)/3 +
-      |(3^k : ℤ) - 4^m|.toNat * N_0 : ℕ) : ℝ) + 1) /
-        (min (3^k) (4^m) : ℝ) ≤ 14 / 15 := by
+  ∃ k m : ℕ, min (3 ^ k) (4 ^ m) > 1 ∧
+    ((((3 ^ k - 1) / 2 + (4 ^ m - 1) / 3 +
+      |(3 ^ k : ℤ) - 4 ^ m|.toNat * N_0 : ℕ) : ℝ) + 1) /
+        (min (3 ^ k) (4 ^ m) : ℝ) ≤ 14 / 15 := by
   have h_eps_pos : (1 / (30 * (N_0 : ℝ) + 30)) > 0 := by positivity
   rcases exists_k_m_ratio_close (1 / (30 * (N_0 : ℝ) + 30)) h_eps_pos with
     ⟨k, m, h3, h4, he⟩
@@ -948,37 +947,37 @@ lemma card_inter_bound (S : Set ℕ) (N : ℕ) : (S ∩ {x | x < N}).ncard ≤ N
 lemma multiple_gaps_bound_step (r M : ℕ)
   (h_prev :
     ∃ N_0 > M, (((A + B) ∩ {x | x < N_0}).ncard : ℝ) /
-      (N_0 : ℝ) ≤ (14 / 15 : ℝ)^r) :
+      (N_0 : ℝ) ≤ (14 / 15 : ℝ) ^ r) :
   ∃ N > M, (((A + B) ∩ {x | x < N}).ncard : ℝ) /
     (N : ℝ) ≤ (14 / 15 : ℝ)^(r + 1) := by
   rcases h_prev with ⟨N_0, hN_0, h_dens⟩
   have h_good := exists_good_k_m N_0
   rcases h_good with ⟨k, m, h_min, h_frac⟩
-  use min (3^k) (4^m) * N_0
+  use min (3 ^ k) (4 ^ m) * N_0
   constructor
-  · have h1 : min (3^k) (4^m) ≥ 2 := by omega
+  · have h1 : min (3 ^ k) (4 ^ m) ≥ 2 := by omega
     have h2 : N_0 ≥ M + 1 := by omega
-    have h3 : min (3^k) (4^m) * N_0 ≥ 2 * N_0 := Nat.mul_le_mul_right N_0 h1
+    have h3 : min (3 ^ k) (4 ^ m) * N_0 ≥ 2 * N_0 := Nat.mul_le_mul_right N_0 h1
     omega
   · have hN0_pos : N_0 > 0 := by omega
     have h_mult :=
       density_multiplier_le k m N_0
-        ((3^k - 1)/2 + (4^m - 1)/3 + |(3^k : ℤ) - 4^m|.toNat * N_0)
+        ((3 ^ k - 1) / 2 + (4 ^ m - 1) / 3 + |(3 ^ k : ℤ) - 4 ^ m|.toNat * N_0)
         (le_refl _) h_frac hN0_pos
     have h_pow : (14 / 15 : ℝ) * (14 / 15)^r = (14 / 15)^(r + 1) := by
       exact pow_succ' (14 / 15) r |>.symm
     have h_final :
-        (((A + B) ∩ {x | x < min (3^k) (4^m) * N_0}).ncard : ℝ) /
-          ((min (3^k) (4^m) * N_0 : ℕ) : ℝ) ≤ (14 / 15 : ℝ)^(r + 1) := by
+        (((A + B) ∩ {x | x < min (3 ^ k) (4 ^ m) * N_0}).ncard : ℝ) /
+          ((min (3 ^ k) (4 ^ m) * N_0 : ℕ) : ℝ) ≤ (14 / 15 : ℝ)^(r + 1) := by
       have h1 := h_mult
       have h2 :
           (((A + B) ∩ {x | x < N_0}).ncard : ℝ) / (N_0 : ℝ) *
             (14 / 15) ≤ (14 / 15)^r * (14 / 15) := by
         have h_pos : (0 : ℝ) ≤ 14 / 15 := by norm_num
         exact mul_le_mul_of_nonneg_right h_dens h_pos
-      have h3 : (14 / 15 : ℝ)^r * (14 / 15) = (14 / 15)^(r + 1) := by
+      have h3 : (14 / 15 : ℝ) ^ r * (14 / 15) = (14 / 15)^(r + 1) := by
         have h_comm :
-            (14 / 15 : ℝ)^r * (14 / 15) = (14 / 15) * (14 / 15)^r :=
+            (14 / 15 : ℝ) ^ r * (14 / 15) = (14 / 15) * (14 / 15)^r :=
           mul_comm _ _
         rw [h_comm, h_pow]
       rw [h3] at h2
@@ -986,7 +985,7 @@ lemma multiple_gaps_bound_step (r M : ℕ)
     exact h_final
 
 lemma multiple_gaps_bound (r M : ℕ) :
-  ∃ N > M, (((A + B) ∩ {x | x < N}).ncard : ℝ) / (N : ℝ) ≤ (14 / 15 : ℝ)^r := by
+  ∃ N > M, (((A + B) ∩ {x | x < N}).ncard : ℝ) / (N : ℝ) ≤ (14 / 15 : ℝ) ^ r := by
   induction r generalizing M with
   | zero =>
     use M + 1
@@ -1006,15 +1005,15 @@ lemma multiple_gaps_bound (r M : ℕ) :
 
 lemma exists_sparse_scale (ε : ℝ) (hε : ε > 0) (M : ℕ) :
   ∃ N > M, (((A + B) ∩ {x | x < N}).ncard : ℝ) / (N : ℝ) < ε := by
-  have h_r : ∃ r : ℕ, (14 / 15 : ℝ)^r < ε := by
-    have h_lim : Filter.Tendsto (fun r : ℕ => (14 / 15 : ℝ)^r) Filter.atTop (nhds 0) := by
+  have h_r : ∃ r : ℕ, (14 / 15 : ℝ) ^ r < ε := by
+    have h_lim : Filter.Tendsto (fun r : ℕ => (14 / 15 : ℝ) ^ r) Filter.atTop (nhds 0) := by
       exact tendsto_pow_atTop_nhds_zero_of_lt_one (by norm_num) (by norm_num)
     rw [Metric.tendsto_atTop] at h_lim
     rcases h_lim ε hε with ⟨R, hR⟩
     use R
     have h_abs := hR R (le_refl R)
     rw [Real.dist_eq, sub_zero] at h_abs
-    have h_pos : (14 / 15 : ℝ)^R ≥ 0 := by positivity
+    have h_pos : (14 / 15 : ℝ) ^ R ≥ 0 := by positivity
     rw [abs_of_nonneg h_pos] at h_abs
     exact h_abs
   rcases h_r with ⟨r, hr⟩
