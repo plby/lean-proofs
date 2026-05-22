@@ -35,7 +35,6 @@ namespace Erdos26
 
 open scoped Classical
 
-set_option maxHeartbeats 0
 set_option linter.style.docString false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
