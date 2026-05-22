@@ -28,24 +28,29 @@ This provides one solution to Erdős Problem #429 (https://www.erdosproblems.com
 
 import Mathlib
 
-set_option linter.mathlibStandardSet false
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+set_option linter.style.whitespace false
+set_option linter.style.cases false
+set_option linter.style.induction false
+set_option linter.flexible false
+set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
 
 open scoped BigOperators
 open scoped Real
 open scoped Nat
-open scoped Classical
 open scoped Pointwise
 
-set_option maxHeartbeats 0
+set_option maxHeartbeats 50000000
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
 
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
-
-noncomputable section
 
 namespace Erdos429
 
@@ -132,7 +137,7 @@ lemma zigzag_surjective : Function.Surjective zigzag := by
 /-
 The function `min_unconstrained_prime` returns the smallest prime not present in the constraints.
 -/
-def min_unconstrained_prime (constraints : Finset (ℕ × ℕ)) : ℕ :=
+noncomputable def min_unconstrained_prime (constraints : Finset (ℕ × ℕ)) : ℕ :=
   Nat.nth (fun p => Nat.Prime p ∧ ∀ x ∈ constraints, x.1 ≠ p) 0
 
 lemma min_unconstrained_prime_spec (constraints : Finset (ℕ × ℕ)) :
@@ -312,7 +317,6 @@ noncomputable def step_strict (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.at
     let h_b_spec := Classical.choose_spec block_spec
     let q := Classical.choose h_b_spec
     let h_block := Classical.choose_spec h_b_spec
-
     -- Construct state_with_b
     let state_with_b : ConstructionStateV2 := {
       B := gs.state.B ∪ {b}
@@ -332,23 +336,19 @@ noncomputable def step_strict (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.at
       h_prime := gs.state.h_prime
       h_coprime := gs.state.h_coprime
     }
-
     -- 2. Add admissibility constraint for p
     have h_card_new : state_with_b.B.card < p := by
       have h_not_mem : b ∉ gs.state.B := not_mem_of_gt_sup gs.state.B b h_block.2.2.1
       rw [Finset.card_union_of_disjoint (Finset.disjoint_singleton_right.mpr h_not_mem)]
       simp
       exact h_card
-
     let adm_spec := add_admissibility_constraint state_with_b p
       (min_unconstrained_prime_spec gs.state.constraints).1
       (min_unconstrained_prime_spec gs.state.constraints).2.1
       h_card_new
       gs.h_consistent_2
-
     let state_final := Classical.choose adm_spec
     let h_final := Classical.choose_spec adm_spec
-
     exact {
       state := state_final
       h_dens := by
@@ -362,7 +362,7 @@ noncomputable def step_strict (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.at
 /-
 The set of the first k primes.
 -/
-def first_k_primes (k : ℕ) : Finset ℕ :=
+noncomputable def first_k_primes (k : ℕ) : Finset ℕ :=
   Finset.image (Nat.nth Nat.Prime) (Finset.range k)
 
 /-
@@ -468,23 +468,17 @@ noncomputable def step_strict_minimal_state (f : ℕ → ℕ) (hf : Filter.Tends
       gs.state.h_prime gs.state.h_coprime gs.h_consistent_2 n
     let b := Classical.choose block_spec
     let h_block := Classical.choose_spec (Classical.choose_spec block_spec)
-
     let B_new := gs.state.B ∪ {b}
-
     have h_odd_new : ∀ x ∈ B_new, x % 2 = 1 := by
       apply state_with_b_h_odd f gs b h_block.2.2.2.2.2.2.1
-
     have h_card_new : B_new.card < p := by
       have h_not_mem : b ∉ gs.state.B := not_mem_of_gt_sup gs.state.B b h_block.2.2.1
       rw [Finset.card_union_of_disjoint (Finset.disjoint_singleton_right.mpr h_not_mem)]
       simp
       exact h_card
-
     have h_p_prime : Nat.Prime p := (min_unconstrained_prime_spec gs.state.constraints).1
-
     let r_spec := exists_admissible_residue_respecting_2 B_new h_odd_new p h_p_prime h_card_new
     let r := Classical.choose r_spec
-
     exact {
       B := B_new
       constraints := gs.state.constraints ∪ {(p, r.val)}
@@ -600,7 +594,7 @@ noncomputable def seq_strict_v4 (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.
   }
 | k + 1 => step_strict_v4 f hf (zigzag k) (seq_strict_v4 f hf k)
 
-def B_final_v4 (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.atTop Filter.atTop) : Set ℕ :=
+noncomputable def B_final_v4 (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.atTop Filter.atTop) : Set ℕ :=
   ⋃ k, (seq_strict_v4 f hf k).state.B
 
 /-
