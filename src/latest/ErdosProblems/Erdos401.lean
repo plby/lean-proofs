@@ -30,9 +30,16 @@ import Mathlib
 
 namespace Erdos401
 
-set_option linter.mathlibStandardSet false
-set_option maxHeartbeats 0
-set_option maxRecDepth 20000
+-- This generated proof still has extensive style debt; use specific suppressions
+-- rather than the broad `linter.mathlibStandardSet` switch.
+set_option linter.style.setOption false
+set_option linter.style.openClassical false
+set_option linter.style.longLine false
+set_option linter.style.refine false
+set_option linter.style.induction false
+set_option linter.style.multiGoal false
+set_option linter.style.whitespace false
+set_option linter.flexible false
 
 open scoped Classical
 
@@ -630,7 +637,8 @@ lemma X_ZMod_eq_X_vec (p M : ℕ) [Fact p.Prime] (x : ZMod (Q_val p M)) :
     rw [ Finset.sum_range ] ; aesop;
   exact h_digits
   
-set_option maxHeartbeats 0 in
+-- This counting proof needs a larger concrete heartbeat budget.
+set_option maxHeartbeats 8000000 in
 /-
 The number of functions with exactly k large digits is given by the binomial formula.
 -/
@@ -698,7 +706,8 @@ Q_val is non-zero.
 instance Q_val_neZero (p M : ℕ) [hp : Fact p.Prime] : NeZero (Q_val p M) :=
   ⟨ne_of_gt (Q_val_pos p M hp.out)⟩
 
-set_option maxHeartbeats 0 in
+-- The Chernoff estimate proof needs a larger concrete heartbeat budget.
+set_option maxHeartbeats 8000000 in
 /-
 Lemma 6 (Binomial law and Chernoff).
 For a prime p >= 3, let U be uniform on {0, ..., Q_p - 1}. Then X_p(U) follows a Binomial distribution with parameters L_p and theta_p = (p-1)/(2p).
