@@ -32,7 +32,6 @@ set_option linter.unusedDecidableInType false
 set_option linter.unusedFintypeInType false
 set_option linter.style.cases false
 set_option linter.style.induction false
-set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.style.whitespace false
@@ -1084,6 +1083,7 @@ private theorem cliqueNum_ge_two_of_chi_ge_two {V : Type*} [Fintype V] [Decidabl
   omega
 
 set_option maxHeartbeats 400000 in
+-- The combined random-subgraph proof times out at the default heartbeat limit.
 /-- Combined: Lemma 2.1 + random subgraph. -/
 theorem exists_subgraph_large_cochrom_of_small_omega' {V : Type*} [Fintype V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj] (m : ℕ) (hchi : G.chromaticNumber = ↑m)
