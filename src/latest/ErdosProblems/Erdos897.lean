@@ -30,7 +30,6 @@ import Mathlib
 -- This generated proof file still relies on automated proof scripts whose warnings
 -- are too interdependent to remove locally without changing the proof structure.
 set_option linter.style.setOption false
-set_option linter.deprecated false
 
 namespace Erdos897
 
@@ -41,7 +40,6 @@ set_option linter.style.refine false
 set_option linter.style.induction false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
-set_option linter.unusedVariables false
 
 open scoped Classical
 
@@ -126,7 +124,7 @@ lemma lemma2 (n : ℕ) (hn : n ≥ 2) : f n ≤ logStar n * Real.log n := by
     rw [ h_def, Finset.mul_sum _ _ _ ];
     exact Finset.sum_le_sum fun p hp => by rw [ mul_comm ] ; exact mul_le_mul_of_nonneg_right ( mod_cast h_bound p hp ) ( Real.log_nonneg <| one_le_pow₀ <| mod_cast Nat.pos_of_mem_primeFactors hp ) ;
   convert h_factor using 2;
-  conv_lhs => rw [ ← Nat.factorization_prod_pow_eq_self ( by positivity : n ≠ 0 ) ];
+  conv_lhs => rw [ ← Nat.prod_factorization_pow_eq_self ( by positivity : n ≠ 0 ) ];
   rw [ ← Real.log_prod ] <;> norm_cast ; aesop
 
 /-
@@ -453,7 +451,7 @@ lemma sum_B_add_sum_S (n : ℕ) (k : ℕ) (hn : n ≠ 0) :
       unfold sum_B sum_S;
       rw [ ← Finset.sum_union ];
       · rw [ show B_set n k ∪ S_set n k = n.factorization.support from ?_ ];
-        · conv_rhs => rw [ ← Nat.factorization_prod_pow_eq_self hn ];
+        · conv_rhs => rw [ ← Nat.prod_factorization_pow_eq_self hn ];
           norm_num [ Finsupp.prod ];
           rw [ Real.log_prod (fun x hx => by aesop), Finset.sum_congr rfl fun x hx => Real.log_pow _ _ ];
         · ext; simp [B_set, S_set];
@@ -590,7 +588,7 @@ lemma limit_k_div_E_k_minus_2 : Filter.Tendsto (fun k : ℕ => (k : ℝ) / E (k 
   use fun n => ( n : ℝ ) / 2 ^ ( n - 2 );
   · filter_upwards [ Filter.eventually_ge_atTop 4 ] with n hn using by rw [ Real.norm_of_nonneg ( by exact div_nonneg ( Nat.cast_nonneg _ ) ( by exact le_trans ( by positivity ) ( h_E_ge_pow n hn ) ) ) ] ; exact div_le_div_of_nonneg_left ( by positivity ) ( by positivity ) ( h_E_ge_pow n hn ) ;
   · rw [ ← Filter.tendsto_add_atTop_iff_nat 2 ] ; norm_num;
-    refine' squeeze_zero_norm' _ tendsto_inverse_atTop_nhds_zero_nat ; norm_num;
+    refine' squeeze_zero_norm' _ tendsto_inv_atTop_nhds_zero_nat ; norm_num;
     exact ⟨ 8, fun n hn => by rw [ inv_eq_one_div, div_le_div_iff₀ ] <;> norm_cast <;> induction hn <;> norm_num [ Nat.pow_succ ] at * ; nlinarith ⟩
 
 /-
@@ -800,13 +798,13 @@ lemma ratio_bounded : Filter.IsBoundedUnder (· ≤ ·) Filter.atTop (fun n => f
 *Reference:* [erdosproblems.com/897](https://www.erdosproblems.com/897)
 -/
 
-lemma f_hypothesis : ((Filter.atTop ⊓ Filter.principal {(p, k) : ℕ × ℕ | p.Prime}).limsup (fun (p, k) => (f (p^k) / (p^k : ℝ).log : EReal)) = ⊤) := by
+lemma f_hypothesis : ((Filter.atTop ⊓ Filter.principal {(p, _k) : ℕ × ℕ | p.Prime}).limsup (fun (p, k) => (f (p^k) / (p^k : ℝ).log : EReal)) = ⊤) := by
   -- By definition of $f$, we know that $f(p^k) / \log(p^k) = \log^* (p^k)$.
   have h_eq : ∀ p k : ℕ, Nat.Prime p → k ≥ 1 → (f (p ^ k) : ℝ) / Real.log ((p : ℝ) ^ k) = logStar ((p : ℝ) ^ k) := by
     convert lemma1 using 1;
     norm_cast;
   -- Since $\log^*$ tends to infinity, the limit superior of $\log^* (p^k)$ as $p$ and $k$ tend to infinity is also infinity.
-  have h_logStar_inf : Filter.Tendsto (fun p : ℕ × ℕ => logStar ((p.1 : ℝ) ^ p.2)) (Filter.atTop ⊓ Filter.principal {(p, k) : ℕ × ℕ | Nat.Prime p}) Filter.atTop := by
+  have h_logStar_inf : Filter.Tendsto (fun p : ℕ × ℕ => logStar ((p.1 : ℝ) ^ p.2)) (Filter.atTop ⊓ Filter.principal {(p, _k) : ℕ × ℕ | Nat.Prime p}) Filter.atTop := by
     refine' Filter.tendsto_atTop.mpr _;
     intro b;
     -- Since $\log^*$ tends to infinity, for any $b$, there exists $N$ such that for all $n \geq N$, $\log^* n \geq b$.
@@ -816,7 +814,7 @@ lemma f_hypothesis : ((Filter.atTop ⊓ Filter.principal {(p, k) : ℕ × ℕ | 
     rw [ Filter.eventually_atTop ];
     use ( N + 1, 1 );
     intro p hp hp_prime; specialize hN ( p.1 ^ p.2 ) ( by linarith [ show p.1 ^ p.2 ≥ N + 1 from Nat.succ_le_of_lt ( lt_of_lt_of_le ( Nat.lt_of_succ_le hp.1 ) ( Nat.le_self_pow ( by linarith [ hp.2 ] ) _ ) ) ] ) ; aesop;
-  have h_limsup_inf : Filter.Tendsto (fun p : ℕ × ℕ => (logStar ((p.1 : ℝ) ^ p.2) : EReal)) (Filter.atTop ⊓ Filter.principal {(p, k) : ℕ × ℕ | Nat.Prime p}) (nhds ⊤) := by
+  have h_limsup_inf : Filter.Tendsto (fun p : ℕ × ℕ => (logStar ((p.1 : ℝ) ^ p.2) : EReal)) (Filter.atTop ⊓ Filter.principal {(p, _k) : ℕ × ℕ | Nat.Prime p}) (nhds ⊤) := by
     rw [ Filter.tendsto_atTop ] at *;
     rw [ EReal.tendsto_nhds_top_iff_real ];
     intro x; specialize h_logStar_inf ( ⌈x⌉₊ + 1 ) ; filter_upwards [ h_logStar_inf ] with a ha; exact EReal.coe_lt_coe_iff.mpr ( lt_of_le_of_lt ( Nat.le_ceil _ ) ( mod_cast ha ) ) ;
@@ -845,7 +843,7 @@ lemma f_additive {a b : ℕ} (ha : a ≠ 0) (hb : b ≠ 0) (h : a.Coprime b) : f
 
 set_option maxHeartbeats 800000 in
 -- The limsup argument needs extra heartbeats for filter and EReal elaboration.
-lemma f_limsup_condition : ((Filter.atTop ⊓ Filter.principal {(p, k) : ℕ × ℕ | p.Prime}).limsup
+lemma f_limsup_condition : ((Filter.atTop ⊓ Filter.principal {(p, _k) : ℕ × ℕ | p.Prime}).limsup
       (fun (p, k) => (f (p^k) / (p^k : ℝ).log : EReal)) = ⊤) := by
         -- By definition of $f$, we know that $f(p^k) = \log(p^k) \cdot \log^*(p^k)$.
         have h_def : ∀ p k : ℕ, Nat.Prime p → k ≥ 1 → (f (p ^ k) : EReal) / (Real.log ((p : ℝ) ^ k)) = (logStar (p ^ k) : EReal) := by
@@ -859,9 +857,9 @@ lemma f_limsup_condition : ((Filter.atTop ⊓ Filter.principal {(p, k) : ℕ × 
           norm_num [ ← EReal.coe_div, ← EReal.coe_mul ];
           norm_cast;
         -- Since $\log^*(p^k)$ tends to infinity as $(p, k)$ tends to infinity in the filter, the limit superior is also infinity.
-        have h_logStar_inf : Filter.Tendsto (fun (x : ℕ × ℕ) => logStar (x.1 ^ x.2) : ℕ × ℕ → ℝ) (Filter.atTop ⊓ Filter.principal {(p, k) : ℕ × ℕ | Nat.Prime p}) Filter.atTop := by
+        have h_logStar_inf : Filter.Tendsto (fun (x : ℕ × ℕ) => logStar (x.1 ^ x.2) : ℕ × ℕ → ℝ) (Filter.atTop ⊓ Filter.principal {(p, _k) : ℕ × ℕ | Nat.Prime p}) Filter.atTop := by
           -- Since $p$ and $k$ are both going to infinity, their product $p^k$ will also go to infinity.
-          have h_prod_inf : Filter.Tendsto (fun (x : ℕ × ℕ) => (x.1 : ℝ) ^ x.2) (Filter.atTop ⊓ Filter.principal {(p, k) : ℕ × ℕ | Nat.Prime p}) Filter.atTop := by
+          have h_prod_inf : Filter.Tendsto (fun (x : ℕ × ℕ) => (x.1 : ℝ) ^ x.2) (Filter.atTop ⊓ Filter.principal {(p, _k) : ℕ × ℕ | Nat.Prime p}) Filter.atTop := by
             rw [ Filter.tendsto_atTop ];
             norm_num [ Filter.eventually_inf_principal ];
             exact fun x => ⟨ ⌈x⌉₊ + 1, 1, fun p q hp hq hp' => le_trans ( Nat.le_ceil _ ) ( by norm_cast; nlinarith [ Nat.Prime.one_lt hp', Nat.pow_le_pow_right hp'.pos hq ] ) ⟩;
@@ -873,8 +871,8 @@ lemma f_limsup_condition : ((Filter.atTop ⊓ Filter.principal {(p, k) : ℕ × 
             norm_cast;
           · exact tendsto_nat_floor_atTop.comp h_prod_inf;
         -- Since these two functions are equal for sufficiently large $(p, k)$, their limit superiors are also equal.
-        have h_eq : Filter.Tendsto (fun (x : ℕ × ℕ) => (f (x.1 ^ x.2) : EReal) / (Real.log ((x.1 : ℝ) ^ x.2))) (Filter.atTop ⊓ Filter.principal {(p, k) : ℕ × ℕ | Nat.Prime p}) (nhds ⊤) := by
-          have h_eq : Filter.Tendsto (fun (x : ℕ × ℕ) => (logStar (x.1 ^ x.2) : EReal)) (Filter.atTop ⊓ Filter.principal {(p, k) : ℕ × ℕ | Nat.Prime p}) (nhds ⊤) := by
+        have h_eq : Filter.Tendsto (fun (x : ℕ × ℕ) => (f (x.1 ^ x.2) : EReal) / (Real.log ((x.1 : ℝ) ^ x.2))) (Filter.atTop ⊓ Filter.principal {(p, _k) : ℕ × ℕ | Nat.Prime p}) (nhds ⊤) := by
+          have h_eq : Filter.Tendsto (fun (x : ℕ × ℕ) => (logStar (x.1 ^ x.2) : EReal)) (Filter.atTop ⊓ Filter.principal {(p, _k) : ℕ × ℕ | Nat.Prime p}) (nhds ⊤) := by
             norm_num +zetaDelta at *;
             rw [ EReal.tendsto_nhds_top_iff_real ];
             intro x; filter_upwards [ h_logStar_inf.eventually_gt_atTop x ] with y hy; exact_mod_cast hy;
@@ -893,7 +891,7 @@ Is it true that $\limsup_n (f(n+1)−f(n))/ \log n = ∞$?
 -/
 theorem erdos_897.parts.i : (∀ (f : ℕ → ℝ),
     (∀ᵉ (a > 0) (b > 0), a.Coprime b → f (a * b) = f a + f b) →
-    ((Filter.atTop ⊓ Filter.principal {(p, k) : ℕ × ℕ | p.Prime}).limsup
+    ((Filter.atTop ⊓ Filter.principal {(p, _k) : ℕ × ℕ | p.Prime}).limsup
       (fun (p, k) => (f (p^k) / (p^k : ℝ).log : EReal)) = ⊤) →
     Filter.atTop.limsup (fun (n : ℕ) => ((f (n+1) - f n) / (n : ℝ).log : EReal)) = ⊤) ↔
     false := by
@@ -918,7 +916,7 @@ Is it true that $\limsup_n f(n+1)/ f(n) = ∞$?
 -/
 theorem erdos_897.parts.ii : (∀ (f : ℕ → ℝ),
     (∀ᵉ (a > 0) (b > 0), a.Coprime b → f (a * b) = f a + f b) →
-    ((Filter.atTop ⊓ Filter.principal {(p, k) : ℕ × ℕ | p.Prime}).limsup
+    ((Filter.atTop ⊓ Filter.principal {(p, _k) : ℕ × ℕ | p.Prime}).limsup
       (fun (p, k) => (f (p^k) / (p^k : ℝ).log : EReal)) = ⊤) →
     Filter.atTop.limsup (fun (n : ℕ) => (f (n+1) / f n : EReal)) = ⊤) ↔ false := by
   refine' iff_of_false _ ( by decide );
