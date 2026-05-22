@@ -39,7 +39,13 @@ import Mathlib
 
 namespace Erdos964
 
-set_option linter.mathlibStandardSet false
+set_option linter.style.openClassical false
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.style.refine false
+set_option linter.flexible false
+set_option linter.style.induction false
+set_option linter.style.multiGoal false
 set_option linter.unusedVariables false
 
 open scoped BigOperators
@@ -48,9 +54,7 @@ open scoped Nat
 open scoped Classical
 open scoped Pointwise
 
-set_option maxHeartbeats 0
 set_option maxRecDepth 4000
-set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
 
 /-
@@ -383,6 +387,8 @@ Proof sketch:
    - Image of infinite set under injective map is infinite.
 7. Thus the ratio is in `R_set`.
 -/
+set_option maxHeartbeats 5000000 in
+-- The GPY case split and divisor-ratio simplification are computationally heavy.
 lemma R_contains_one_of_three (hGPY : GoldstonGrahamPintzYildirimStatement)
   (a : ℕ) (r : Fin 3 → ℕ)
   (ha : Even a) (ha_pos : 0 < a)
@@ -770,6 +776,8 @@ def R2_val (data_q : List (ℕ × ℕ × ℕ)) : ℕ := (data_q.map (fun (q, _, 
 /-
 There exists a representation of `q` where all exponents `x, y` (and `u, v`) are positive.
 -/
+set_option maxHeartbeats 5000000 in
+-- The generated list-product representation proof needs a larger heartbeat budget.
 lemma exists_representation_clean (q : ℚ) (hq : 0 < q) :
   ∃ data_p data_q : List (ℕ × ℕ × ℕ),
     q = target_val data_p data_q ∧
@@ -821,6 +829,8 @@ lemma two_in_G : Units.mk0 (2 : ℚ) (by norm_num) ∈ G_subgroup_def := by
 /-
 The divisor function of the product of P and R1 is the product of (x+y+1).
 -/
+set_option maxHeartbeats 5000000 in
+-- This generated divisor-count proof repeatedly expands products of prime powers.
 lemma tau_P_mul_R1 (data_p : List (ℕ × ℕ × ℕ))
   (hp : ∀ p ∈ data_p.map (·.1), Nat.Prime p)
   (hd : (data_p.map (·.1)).Pairwise (· ≠ ·)) :
@@ -1009,6 +1019,8 @@ lemma odd_Q_val (data_q : List (ℕ × ℕ × ℕ))
 /-
 Q is coprime to P*R1.
 -/
+set_option maxHeartbeats 5000000 in
+-- The coprimality proof unfolds several generated products.
 lemma coprime_Q_P_mul_R1 (data_p data_q : List (ℕ × ℕ × ℕ))
   (hp_prime : ∀ p ∈ (data_p.map (fun x => x.1)) ++ (data_q.map (fun x => x.1)), Nat.Prime p)
   (hp_distinct : (data_p.map (fun x => x.1) ++ data_q.map (fun x => x.1)).Pairwise (· ≠ ·)) :
@@ -1035,6 +1047,8 @@ lemma coprime_Q_P_mul_R1 (data_p data_q : List (ℕ × ℕ × ℕ))
 /-
 P is coprime to Q*R2.
 -/
+set_option maxHeartbeats 5000000 in
+-- The symmetric coprimality proof has the same generated product expansion.
 lemma coprime_P_Q_mul_R2 (data_p data_q : List (ℕ × ℕ × ℕ))
   (hp_prime : ∀ p ∈ (data_p.map (fun x => x.1)) ++ (data_q.map (fun x => x.1)), Nat.Prime p)
   (hp_distinct : (data_p.map (fun x => x.1) ++ data_q.map (fun x => x.1)).Pairwise (· ≠ ·)) :
