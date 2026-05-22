@@ -25,7 +25,13 @@ import Mathlib
 
 namespace Theorem61
 
-set_option linter.mathlibStandardSet false
+set_option linter.style.setOption false
+set_option linter.flexible false
+set_option linter.style.cases false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.openClassical false
+set_option linter.style.refine false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
 set_option aesop.warn.nonterminal false
@@ -36,15 +42,13 @@ open scoped Nat
 open scoped Classical
 open scoped Pointwise
 
-set_option maxHeartbeats 0
+set_option maxHeartbeats 20000000
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
 
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
-
-noncomputable section
 
 open EuclideanGeometry Affine AffineSubspace Set
 
@@ -582,7 +586,5 @@ theorem ceva_theorem
 
 #print axioms ceva_theorem
 -- 'Theorem61.ceva_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end
 
 end Theorem61
