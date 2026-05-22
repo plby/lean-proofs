@@ -898,7 +898,6 @@ lemma exists_prime_gt_five {n : ℕ} (h_odd : Odd n) (h_not_3 : ¬ 3 ∣ n)
     · exact absurd ( even_iff_two_dvd.mpr hq_div ) ( by simpa using h_odd );
     · exact ⟨ _, hq_prime, hq_div, by linarith ⟩
 
-set_option maxHeartbeats 0 in
 /-
 Let $p>5$ be a prime and set $N=2^{2p}+1$. Then $N$ has at least two distinct prime
 divisors greater than $5$.
