@@ -34,6 +34,7 @@ set_option linter.style.refine false
 set_option linter.style.multiGoal false
 set_option linter.style.cases false
 set_option maxHeartbeats 1000000
+-- Several generated geometric-coloring arguments time out at the default heartbeat limit.
 
 namespace Erdos214
 
