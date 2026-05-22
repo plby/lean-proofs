@@ -53,16 +53,9 @@ by Hrishi Sunder, Sourish Kumrawat, and Kireet Cheri (April 2026).
   This gives a negative answer to Erdős Problem #1138.
 -/
 
-set_option linter.style.setOption false
-set_option linter.flexible false
-set_option linter.style.whitespace false
-
 open Nat Set Filter
 
 noncomputable section
-
-set_option maxHeartbeats 8000000
-set_option maxRecDepth 4000
 
 -- ============================================================================
 -- Section 0: Definitions
@@ -161,6 +154,8 @@ lemma primeCounting'_eq_succ_of_between {n : ℕ} {m : ℕ}
           (Nat.nth_monotone Nat.infinite_setOf_prime <| Finset.mem_range_succ_iff.mp hk) hlo,
          Nat.prime_nth_prime k⟩
 
+set_option linter.flexible false in
+-- This generated proof compares prime-counting filters between consecutive primes.
 /-- `realPi` is constant between consecutive primes. -/
 lemma realPi_eq_of_in_gap {n : ℕ} {s t : ℝ}
     (hlos : (nthPrime n : ℝ) ≤ s) (hhis : s < (nthPrime (n + 1) : ℝ))
@@ -211,6 +206,8 @@ lemma maxPrimeGap_eq_at_record {n : ℕ} (hrec : IsStrictRecordGap n)
 -- Section 4: Unbounded prime gaps and record gap existence
 -- ============================================================================
 
+set_option linter.flexible false in
+-- The factorial construction uses generated simplification of primality divisors.
 /-- Prime gaps are unbounded: for any M, there exists a gap of size ≥ M.
 Proof uses the factorial argument: (M+1)!+2, ..., (M+1)!+M+1 are all composite. -/
 lemma primeGap_unbounded (M : ℕ) : ∃ n : ℕ, M ≤ primeGap n := by
@@ -266,9 +263,11 @@ lemma record_gap_arbitrarily_large (B : ℕ) :
     ∃ n, IsStrictRecordGap n ∧ 0 < n ∧ B ≤ nthPrime n := by
   obtain ⟨n, hn_ge_max, hn_rec⟩ : ∃ n ≥ Nat.max B 1, IsStrictRecordGap n :=
     exists_record_gap_ge (max B 1)
-  simp_all
-  refine ⟨n, hn_rec, hn_ge_max.2, ?_⟩
-  refine le_trans hn_ge_max.1 ?_
+  have hn_ge_B : B ≤ n := le_trans (Nat.le_max_left B 1) hn_ge_max
+  have hn_pos : 0 < n := lt_of_lt_of_le Nat.zero_lt_one
+    (le_trans (Nat.le_max_right B 1) hn_ge_max)
+  refine ⟨n, hn_rec, hn_pos, ?_⟩
+  refine le_trans hn_ge_B ?_
   exact Nat.recOn n (by norm_num [nthPrime]) fun n ihn => by
     exact Nat.succ_le_of_lt (lt_of_le_of_lt ihn
       (Nat.nth_strictMono Nat.infinite_setOf_prime (Nat.lt_succ_self _)))
@@ -297,12 +296,12 @@ private lemma ratio_bound {a b ε : ℝ} (hε : 0 < ε) (hε1 : ε < 1)
 -- ============================================================================
 
 /-- The constructed z < x when η < 1/2. -/
-private lemma construct_z_lt_x {P D η : ℝ} (hD : 0 < D) (hη' : η < 1/2) :
+private lemma construct_z_lt_x {P D η : ℝ} (hD : 0 < D) (hη' : η < 1 / 2) :
     P + (1/2 + η) * D < P + ((3 + 2 * η) / 4) * D := by
   nlinarith
 
 /-- The constructed x < Q = P + D when α < 1. -/
-private lemma construct_x_lt_Q {P D η : ℝ} (hD : 0 < D) (hη' : η < 1/2) :
+private lemma construct_x_lt_Q {P D η : ℝ} (hD : 0 < D) (hη' : η < 1 / 2) :
     P + ((3 + 2 * η) / 4) * D < P + D := by
   nlinarith
 
@@ -310,6 +309,8 @@ private lemma construct_x_lt_Q {P D η : ℝ} (hD : 0 < D) (hη' : η < 1/2) :
 -- Section 7: Main theorem
 -- ============================================================================
 
+set_option linter.flexible false in
+-- The final contradiction proof uses generated simplifications over many local definitions.
 /-- **Theorem 1.2** (Sunder–Kumrawat–Cheri, 2026).
 Let 1 < C₁ < C₂ with C₂ - C₁ < 1/2. Then A(C₁) and A(C₂) cannot both hold.
 
