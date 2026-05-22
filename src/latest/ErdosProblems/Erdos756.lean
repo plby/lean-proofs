@@ -32,7 +32,6 @@ set_option linter.style.openClassical false
 set_option linter.style.longLine false
 set_option linter.flexible false
 set_option linter.style.refine false
-set_option linter.style.multiGoal false
 
 open scoped BigOperators
 open scoped Real
@@ -43,30 +42,28 @@ open scoped Pointwise
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
 
-noncomputable section
-
 /-
 The number of times a distance `d` appears in a set of points `P`. We divide by 2 because `offDiag` counts both `(x, y)` and `(y, x)`.
 -/
-def distance_count (P : Finset ℂ) (d : ℝ) : ℕ :=
+noncomputable def distance_count (P : Finset ℂ) (d : ℝ) : ℕ :=
   (P.offDiag.filter (fun (x, y) => dist x y = d)).card / 2
 
 /-
 The set of vertices of a regular `m`-gon, represented as the `m`-th roots of unity in the complex plane.
 -/
-def regular_polygon (m : ℕ) : Finset ℂ :=
+noncomputable def regular_polygon (m : ℕ) : Finset ℂ :=
   Polynomial.nthRootsFinset m (1 : ℂ)
 
 /-
 The distance between the vertex 1 and the vertex corresponding to the `k`-th root of unity in a regular `m`-gon.
 -/
-def regular_polygon_distance (m k : ℕ) : ℝ :=
+noncomputable def regular_polygon_distance (m k : ℕ) : ℝ :=
   dist 1 (Complex.exp (2 * Real.pi * Complex.I * k / m))
 
 /-
 The primitive `m`-th root of unity `exp(2 * pi * I / m)`.
 -/
-def zeta (m : ℕ) : ℂ := Complex.exp (2 * Real.pi * Complex.I / m)
+noncomputable def zeta (m : ℕ) : ℂ := Complex.exp (2 * Real.pi * Complex.I / m)
 
 /-
 The number of vertices in a regular `m`-gon is `m`.
@@ -123,10 +120,11 @@ lemma neighbors_at_distance_eq (m k : ℕ) (hm : m ≥ 3) (hk2 : k ≤ (m - 1) /
           have := congr_arg Norm.norm ( eq_add_of_sub_eq' hx.2 ) ; norm_num at this ; rw [ pow_eq_one_iff_of_nonneg ] at this <;> aesop;
         · constructor;
           · simp_all +decide [ Polynomial.nthRoots ];
-            rw [ mul_pow, ← Complex.exp_nat_mul, mul_comm, Complex.exp_eq_one_iff.mpr ⟨ ( m - k ), ?_ ⟩ ] ; ring_nf;
-            · linear_combination' hx.2;
-            · rw [ Nat.cast_sub ( by omega ) ] ; simp +decide [mul_comm, mul_left_comm,
-              div_eq_mul_inv, show m ≠ 0 by linarith];
+            rw [ mul_pow, ← Complex.exp_nat_mul, mul_comm, Complex.exp_eq_one_iff.mpr ⟨ ( m - k ), by
+              rw [ Nat.cast_sub ( by omega ) ] ; simp +decide [mul_comm, mul_left_comm,
+                div_eq_mul_inv, show m ≠ 0 by linarith] ⟩ ];
+            ring_nf;
+            linear_combination' hx.2;
           · unfold regular_polygon_distance;
             rw [ Nat.cast_sub ( by omega ) ] ; ring_nf;
             norm_num [ Complex.dist_eq, Complex.norm_exp, mul_assoc, mul_comm, mul_left_comm, ne_of_gt ( zero_lt_three.trans_le hm ) ];
@@ -218,7 +216,8 @@ lemma mgon (m : ℕ) (hm : m ≥ 3) :
 /-
 Rotation of a point `z` around a center `c` by an angle `θ` in the complex plane.
 -/
-def rotate_around (c : ℂ) (θ : ℝ) (z : ℂ) : ℂ := c + (z - c) * Complex.exp (θ * Complex.I)
+noncomputable def rotate_around (c : ℂ) (θ : ℝ) (z : ℂ) : ℂ :=
+  c + (z - c) * Complex.exp (θ * Complex.I)
 
 /-
 Rotation around a point `c` by angle `θ` is an isometry.
@@ -262,7 +261,7 @@ lemma exists_good_rotation (P : Finset ℂ) (c : ℂ) (hc : c ∈ P) :
 /-
 Reflection of a point `z` across the line passing through `a` and `b` in the complex plane.
 -/
-def reflect_over (a b z : ℂ) : ℂ :=
+noncomputable def reflect_over (a b z : ℂ) : ℂ :=
   a + (b - a) * starRingEnd ℂ ((z - a) / (b - a))
 
 /-
@@ -320,13 +319,14 @@ lemma erdos756_odd (m : ℕ) (hm : m ≥ 2) :
           have h_isometry_count : ∀ x y : ℂ, dist (R x) (R y) = dist x y := by
             exact hR.1.dist_eq;
           unfold distance_count;
-          rw [ show ( Finset.image R P0 ).offDiag = Finset.image ( fun x : ℂ × ℂ => ( R x.1, R x.2 ) ) ( P0.offDiag ) from ?_, Finset.card_filter, Finset.card_filter ];
-          · rw [ Finset.sum_image ] ; aesop;
-            exact fun x hx y hy hxy => Prod.ext ( hR.1.injective <| by aesop ) ( hR.1.injective <| by aesop );
-          · ext ⟨x, y⟩; simp [Finset.mem_offDiag, Finset.mem_image];
+          rw [ (show ( Finset.image R P0 ).offDiag = Finset.image ( fun x : ℂ × ℂ => ( R x.1, R x.2 ) ) ( P0.offDiag ) from by
+            ext ⟨x, y⟩; simp [Finset.mem_offDiag, Finset.mem_image];
             constructor;
             · grind;
-            · rintro ⟨ a, b, ⟨ ha, hb, hab ⟩, rfl, rfl ⟩ ; exact ⟨ ⟨ a, ha, rfl ⟩, ⟨ b, hb, rfl ⟩, by intro h; have := hR.1.injective h; aesop ⟩ ;
+            · rintro ⟨ a, b, ⟨ ha, hb, hab ⟩, rfl, rfl ⟩ ; exact ⟨ ⟨ a, ha, rfl ⟩, ⟨ b, hb, rfl ⟩, by intro h; have := hR.1.injective h; aesop ⟩), Finset.card_filter, Finset.card_filter ];
+          rw [ Finset.sum_image ];
+          · aesop;
+          · exact fun x hx y hy hxy => Prod.ext ( hR.1.injective <| by aesop ) ( hR.1.injective <| by aesop );
         refine' ⟨ P, _, S0, _, _, _ ⟩ <;> simp_all +decide [ two_mul ];
         · rw [ Finset.card_union ];
           rw [ Finset.inter_comm, hR.2.2 ] ; norm_num [ regular_polygon_card ] ; ring_nf;
@@ -411,11 +411,13 @@ lemma erdos756_even (m : ℕ) (hm : m ≥ 2) :
         have hP_union_card : (P0 ∪ (P0.image R)).card = 2 * m := by
           have hP_union_card : (P0 ∪ (P0.image R)).card = P0.card + (P0.image R).card - ({u, v} : Finset ℂ).card := by
             grind;
-          rw [ hP_union_card, hP0_card, hR_P0_card, Finset.card_insert_of_notMem, Finset.card_singleton ] <;> norm_num [ Complex.exp_ne_zero ] ; omega;
-          norm_num +zetaDelta at *;
-          unfold zeta; norm_num [ Complex.ext_iff, Complex.exp_re, Complex.exp_im ] ; ring_nf ;
-          norm_num [ Complex.normSq, Complex.exp_re, Complex.exp_im ] ; ring_nf ;
-          exact fun _ => ne_of_gt ( Real.sin_pos_of_pos_of_lt_pi ( by positivity ) ( by nlinarith [ Real.pi_pos, show ( m : ℝ ) ≥ 2 by norm_cast, mul_inv_cancel₀ ( by positivity : ( 1 + m : ℝ ) ≠ 0 ) ] ) )
+          rw [ hP_union_card, hP0_card, hR_P0_card, Finset.card_insert_of_notMem, Finset.card_singleton ];
+          · omega;
+          · norm_num [ Complex.exp_ne_zero ];
+            norm_num +zetaDelta at *;
+            unfold zeta; norm_num [ Complex.ext_iff, Complex.exp_re, Complex.exp_im ] ; ring_nf ;
+            norm_num [ Complex.normSq, Complex.exp_re, Complex.exp_im ] ; ring_nf ;
+            exact fun _ => ne_of_gt ( Real.sin_pos_of_pos_of_lt_pi ( by positivity ) ( by nlinarith [ Real.pi_pos, show ( m : ℝ ) ≥ 2 by norm_cast, mul_inv_cancel₀ ( by positivity : ( 1 + m : ℝ ) ≠ 0 ) ] ) )
         set P := P0 ∪ (P0.image R) with hP_def
         have hP_card : P.card = 2 * m := by
           exact hP_union_card
@@ -442,8 +444,7 @@ lemma erdos756_even (m : ℕ) (hm : m ≥ 2) :
               split_ifs <;> simp_all +decide ;
               · refine le_trans hS0_count_P ?_;
                 simp +zetaDelta at *;
-                refine' le_trans ( Finset.card_le_card _ ) _;
-                exact { ( 1, zeta ( m + 1 ) ), ( zeta ( m + 1 ), 1 ) };
+                refine' le_trans ( Finset.card_le_card (t := ({ ( 1, zeta ( m + 1 ) ), ( zeta ( m + 1 ), 1 ) } : Finset (ℂ × ℂ))) _ ) _;
                 · simp +decide [ Finset.subset_iff ];
                   rintro a b ( rfl | rfl ) ( rfl | rfl ) <;> norm_num [ dist_comm ] at *;
                 · exact Finset.card_insert_le _ _;
@@ -493,8 +494,6 @@ theorem erdos756 (n : ℕ) :
           · interval_cases k <;> simp_all +decide;
             · exact ⟨ { 0 }, by norm_num ⟩;
             · exact ⟨ { 0, 1, 2 }, by norm_num ⟩
-
-end
 
 end Erdos756
 
