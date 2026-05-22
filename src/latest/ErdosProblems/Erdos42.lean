@@ -8968,10 +8968,6 @@ as the continuous endpoint of the U²-regularity / counting argument. Route B
 (Lemma 2.7 of the compact Cayley PDF), which is also a candidate destination
 for `closed_proper_subgroup_haar_null` once we open that black box.
 -/
-
-
-set_option maxHeartbeats 400000
-
 namespace Erdos42
 
 open Filter Set Finset MeasureTheory
