@@ -51,9 +51,8 @@ set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.deprecated false
 
-set_option maxHeartbeats 0
+set_option maxHeartbeats 50000000
 
 open scoped Real
 
@@ -578,14 +577,14 @@ def has_golden_ratio_distances (S : Finset (ℝ × ℝ)) : Prop :=
 /-
 The set of points P_m is a subset of the lattice L.
 -/
-lemma P_subset_L (m : ℕ) : (P m).toSet ⊆ L_set := by
+lemma P_subset_L (m : ℕ) : (P m : Set (ℝ × ℝ)) ⊆ L_set := by
   unfold L_set P;
   intro x hx; aesop
 
 /-
 The lattice L contains no set of points determining distances in the golden ratio.
 -/
-lemma L_no_golden_ratio (S : Finset (ℝ × ℝ)) (hS : S.toSet ⊆ L_set) :
+lemma L_no_golden_ratio (S : Finset (ℝ × ℝ)) (hS : (S : Set (ℝ × ℝ)) ⊆ L_set) :
     ¬ has_golden_ratio_distances S := by
       -- Suppose S has golden ratio distances. Then there exist d1, d2 in distinctDistances'(S) such
       -- that d1 = d2 * phi.
@@ -751,7 +750,7 @@ lemma right_isosceles_euc_implies_rotation (p q r : ℝ × ℝ)
 /-
 The lattice L contains no square (Euclidean version).
 -/
-lemma L_no_square_euc (S : Finset (ℝ × ℝ)) (hS : S.toSet ⊆ L_set) :
+lemma L_no_square_euc (S : Finset (ℝ × ℝ)) (hS : (S : Set (ℝ × ℝ)) ⊆ L_set) :
     ¬ is_square_euc S := by
       rintro ⟨ p, q, r, s, rfl, hpq, hqr, hrs, hsp, h_dist ⟩;
       -- Let u = p - q and v = r - q.
@@ -829,7 +828,7 @@ lemma equilateral_euc_implies_rotation (p q r : ℝ × ℝ)
 /-
 The lattice L contains no equilateral triangle (Euclidean version).
 -/
-lemma L_no_equilateral_euc (S : Finset (ℝ × ℝ)) (hS : S.toSet ⊆ L_set) :
+lemma L_no_equilateral_euc (S : Finset (ℝ × ℝ)) (hS : (S : Set (ℝ × ℝ)) ⊆ L_set) :
     ¬ has_equilateral_triangle_euc S := by
       intro h;
       obtain ⟨ p, q, r, hp, hq, hr, hneq, hdist ⟩ := h;
@@ -867,7 +866,7 @@ lemma L_set_squared_dist_euc_is_int (p q : ℝ × ℝ) (hp : p ∈ L_set) (hq : 
 /-
 The lattice L contains no set of points determining Euclidean distances in the golden ratio.
 -/
-lemma L_no_golden_ratio_euc (S : Finset (ℝ × ℝ)) (hS : S.toSet ⊆ L_set) :
+lemma L_no_golden_ratio_euc (S : Finset (ℝ × ℝ)) (hS : (S : Set (ℝ × ℝ)) ⊆ L_set) :
     ¬ has_golden_ratio_distances_euc S := by
       rintro ⟨ d1, d2, hd1, hd2, h ⟩;
       -- Since S is in L, d1^2 and d2^2 are integers.
