@@ -28,7 +28,6 @@ set_option linter.deprecated false
 set_option linter.flexible false
 set_option linter.unusedVariables false
 set_option linter.style.induction false
-set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 
@@ -1975,7 +1974,6 @@ lemma pi_A_asymp :
   convert h_floor_sqrt using 2 ;
   rw [ Real.log_sqrt ( Nat.cast_nonneg _ ) ] ; ring
 
-set_option maxHeartbeats 0 in
 lemma safe_primes_length_asymp :
     (fun n => ((safe_primes n).length : ℝ)) =Θ[atTop]
       (fun n => Real.sqrt ((n : ℝ) / Real.log (n : ℝ))) := by
