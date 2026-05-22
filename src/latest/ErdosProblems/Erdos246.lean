@@ -22,13 +22,20 @@ import Mathlib
 
 namespace Erdos246
 
-set_option linter.mathlibStandardSet false
+-- This generated proof file still relies on automated proof scripts whose warnings
+-- are too interdependent to remove locally without changing the proof structure.
+set_option linter.style.setOption false
+set_option linter.style.openClassical false
+set_option linter.style.longLine false
+set_option linter.style.refine false
+set_option linter.style.induction false
+set_option linter.flexible false
+set_option linter.style.multiGoal false
+set_option linter.unusedDecidableInType false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
 
 open scoped Classical
-
-set_option maxHeartbeats 0
 
 /-
 Definitions of FS (finite subset sums), IsCompleteSeq (completeness of a set), and Gamma (the set of numbers of the form a^k * b^l).
@@ -314,7 +321,10 @@ lemma Phi_is_nat (p q : ℕ) (S : Finset (ℤ × ℤ)) (hS : (S : Set (ℤ × �
   ∃ n : ℕ, Phi p q S = n := by
     use S.sum (fun x => p ^ x.1.toNat * q ^ x.2.toNat);
     norm_num +zetaDelta at *;
-    exact Finset.sum_congr rfl fun x hx => by cases' hS hx with hx₁ hx₂; erw [ ← Int.toNat_of_nonneg hx₁, ← Int.toNat_of_nonneg hx₂ ] ; norm_cast;
+    exact Finset.sum_congr rfl fun x hx => by
+      rcases hS hx with ⟨hx₁, hx₂⟩
+      erw [ ← Int.toNat_of_nonneg hx₁, ← Int.toNat_of_nonneg hx₂ ]
+      norm_cast
 
 /-
 There exists a finite subset S of Q_set such that the sum of p^u q^v for (u,v) in S is strictly less than 2^|S| - 1.
@@ -527,6 +537,8 @@ lemma Phi_scale (p q : ℕ) (M : ℕ) (hM : M ≠ 0) (S : Finset (ℤ × ℤ)) :
 /-
 There exist sequences of sets E_i, F_i of length k satisfying the unit equation, disjointness from Q, and pairwise disjointness.
 -/
+set_option maxHeartbeats 800000 in
+-- The inductive construction expands large disjointness goals.
 lemma exists_sequence_EF (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) (k : ℕ) :
   ∃ E F : Fin k → Finset (ℤ × ℤ),
     (∀ i, Disjoint (E i) (F i)) ∧
@@ -657,6 +669,8 @@ lemma mem_FS_Gamma_iff_exists_Phi (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) (h_c
 /-
 There exist A, B, R such that m p^A q^B + R is representable by a subset of Q for all m.
 -/
+set_option maxHeartbeats 800000 in
+-- The arithmetic-progression construction needs extra heartbeats.
 theorem prop_AP (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) (h_coprime : Nat.Coprime p q) :
   ∃ A B : ℕ, ∃ R : ℤ, ∀ m : ℕ, ∃ S_m : Finset (ℤ × ℤ),
     (S_m : Set (ℤ × ℤ)) ⊆ Q_set ∧
