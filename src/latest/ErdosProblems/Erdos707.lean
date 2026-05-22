@@ -22,7 +22,6 @@ set_option linter.deprecated false
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.emptyLine false
-set_option linter.unnecessarySimpa false
 set_option linter.unusedDecidableInType false
 set_option linter.unusedFintypeInType false
 
@@ -321,7 +320,7 @@ lemma card_offDiag_of_card
 lemma coe_offDiag_finset
   {α : Type*} [DecidableEq α] (T : Finset α) :
   ((↑T : Set α).offDiag : Set (α × α)) = (↑(T.offDiag) : Set (α × α)) := by
-  simpa using (Finset.coe_offDiag (s := T)).symm
+  simp
 
 /-- If `B` is finite with cardinality `x`, then `B.offDiag` has cardinality `x*x - x`
 (= `x * (x - 1)`). -/
