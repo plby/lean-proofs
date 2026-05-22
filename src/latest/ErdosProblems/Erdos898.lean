@@ -38,33 +38,24 @@ namespace Erdos898
 
 open EuclideanGeometry Metric RealInnerProductSpace
 
-set_option linter.style.setOption false
-set_option linter.unusedSimpArgs false
-set_option linter.style.refine false
-set_option linter.flexible false
-set_option linter.unusedSectionVars false
-set_option linter.style.emptyLine false
-set_option linter.style.whitespace false
-set_option maxHeartbeats 1000000
-
-noncomputable section
-
 variable {V : Type*} [NormedAddCommGroup V] [InnerProductSpace ℝ V] [FiniteDimensional ℝ V]
 
 variable [hV : Fact (Module.finrank ℝ V = 2)]
 
 /-- Distance from a point to a line defined by two points. -/
-def dist_to_line (P A B : V) : ℝ :=
+noncomputable def dist_to_line (P A B : V) : ℝ :=
   dist P (orthogonalProjection (affineSpan ℝ ({A, B} : Set V)) P)
 
 /- Pedal triangle property placeholder. -/
-noncomputable section AristotleLemmas
+section AristotleLemmas
 
 /-
 An algebraic identity for 2D inner product spaces: the squared norm of the difference
 of projections of a vector `w` onto two unit vectors `u` and `v` is
 `‖w‖^2 * (1 - ⟨u, v⟩^2)`.
 -/
+set_option linter.style.refine false in
+set_option linter.flexible false in
 lemma norm_inner_smul_sub_inner_smul_sq_of_dim_two
     {V : Type*} [NormedAddCommGroup V] [InnerProductSpace ℝ V] [FiniteDimensional ℝ V]
     [hV : Fact (Module.finrank ℝ V = 2)]
@@ -109,7 +100,7 @@ lemma norm_inner_smul_sub_inner_smul_sq_of_dim_two
         obtain ⟨c1, c2, hc⟩ : ∃ c1 c2 : ℝ, w = c1 • e1 + c2 • e2 := hw w;
         simp_all +decide [norm_add_sq_real, norm_smul, inner_add_left, inner_add_right,
           inner_smul_left, inner_smul_right];
-        simp_all +decide [ real_inner_comm, real_inner_self_eq_norm_sq ];
+        simp_all +decide [ real_inner_comm ];
         have h_norm_sq : a1^2 + a2^2 = 1 ∧ b1^2 + b2^2 = 1 := by
           have h_norm_sq :
               ‖a1 • e1 + a2 • e2‖^2 = a1^2 + a2^2 ∧
@@ -181,6 +172,7 @@ lemma orthogonalProjection_affineSpan_pair_eq
 
 end AristotleLemmas
 
+set_option linter.flexible false in
 lemma dist_projections_eq_dist_mul_sin {A B C P : V}
     (h_triangle : ¬ Collinear ℝ ({A, B, C} : Set V)) :
     let Pb : V := orthogonalProjection (affineSpan ℝ ({A, C} : Set V)) P
@@ -234,11 +226,12 @@ lemma dist_projections_eq_dist_mul_sin {A B C P : V}
   rw [ norm_sub_rev, h_diff_sq, mul_pow ]
 
 /- Projection inequality: dist(Pb, Pc) ≥ d₂ * sin C + d₃ * sin B. -/
-noncomputable section AristotleLemmas
+section AristotleLemmas
 
 /-
 Trigonometric inequality for the projection lemma.
 -/
+set_option linter.style.refine false in
 lemma trig_ineq_of_sum_pi (A B C α₁ α₂ : ℝ) (h_sum : A + B + C = Real.pi)
     (h_split : α₁ + α₂ = A) (hA : 0 ≤ Real.sin A) :
     Real.sin α₂ * Real.sin C + Real.sin α₁ * Real.sin B ≤ Real.sin A := by
@@ -266,6 +259,7 @@ lemma trig_ineq_of_sum_pi (A B C α₁ α₂ : ℝ) (h_sum : A + B + C = Real.pi
 /-
 Distance from a point to a line is the distance to the reference point times the sine of the angle.
 -/
+omit hV in
 lemma dist_projection_eq_dist_mul_sin {A B P : V} (h : A ≠ B) :
     dist P (orthogonalProjection (affineSpan ℝ ({A, B} : Set V)) P) =
       dist P A * Real.sin (∠ P A B) := by
@@ -432,6 +426,7 @@ lemma dist_projection_eq_dist_mul_sin {A B P : V} (h : A ≠ B) :
 The angle between u and v is the sum of the angle between u and u+v and the
 angle between u+v and v.
 -/
+omit [FiniteDimensional ℝ V] hV in
 lemma angle_add_eq_angle_of_add {u v : V}
     (h_indep : ¬ Collinear ℝ ({0, u, v} : Set V)) :
     InnerProductGeometry.angle u (u + v) + InnerProductGeometry.angle (u + v) v =
@@ -447,6 +442,9 @@ lemma angle_add_eq_angle_of_add {u v : V}
 /-
 If 0, u, v are not collinear and k is non-zero, then 0, u, k*v are not collinear.
 -/
+set_option linter.style.refine false in
+set_option linter.flexible false in
+omit [FiniteDimensional ℝ V] hV in
 lemma not_collinear_smul_right {u v : V}
     (h : ¬ Collinear ℝ ({0, u, v} : Set V)) (k : ℝ) (hk : k ≠ 0) :
     ¬ Collinear ℝ ({0, u, k • v} : Set V) := by
@@ -477,6 +475,7 @@ If w is a positive linear combination of linearly independent vectors u and v, t
 the angle between u and v is the sum of the angle between u and w and the angle
 between w and v.
 -/
+omit [FiniteDimensional ℝ V] hV in
 lemma angle_add_of_positive_linear_combination {u v : V}
     (h_indep : ¬ Collinear ℝ ({0, u, v} : Set V)) (a b : ℝ)
     (ha : 0 < a) (hb : 0 < b) :
@@ -513,6 +512,7 @@ lemma angle_add_of_positive_linear_combination {u v : V}
 If P is in the interior of triangle ABC, then P - A is a positive linear
 combination of B - A and C - A.
 -/
+omit [FiniteDimensional ℝ V] hV in
 lemma exists_pos_linear_combination_of_mem_interior_triangle {A B C P : V}
     (h_triangle : ¬ Collinear ℝ ({A, B, C} : Set V))
     (h_interior : P ∈ interior (convexHull ℝ {A, B, C})) :
@@ -556,6 +556,8 @@ lemma exists_pos_linear_combination_of_mem_interior_triangle {A B C P : V}
 /-
 If P is in the interior of triangle ABC, then angle BAP + angle PAC = angle BAC.
 -/
+set_option linter.flexible false in
+omit [FiniteDimensional ℝ V] hV in
 lemma angle_split_of_interior {A B C P : V}
     (h_triangle : ¬ Collinear ℝ ({A, B, C} : Set V))
     (h_interior : P ∈ interior (convexHull ℝ {A, B, C})) :
@@ -604,12 +606,10 @@ lemma dist_projections_ge_projection_on_side {A B C P : V}
   have h_dist_P_Pb : dist P Pb = dist P A * Real.sin (∠ P A C) := by
     convert dist_projection_eq_dist_mul_sin _ using 2;
     · infer_instance;
-    · exact hV;
     · rintro rfl; simp_all +decide [ collinear_pair ] ;
   have h_dist_P_Pc : dist P Pc = dist P A * Real.sin (∠ P A B) := by
     convert dist_projection_eq_dist_mul_sin _ using 1;
     · infer_instance;
-    · exact hV;
     · rintro rfl; simp_all +decide [ collinear_pair ];
   -- By `angle_split_of_interior`, we have `∠ PAB + ∠ PAC = ∠ BAC`.
   have h_angle_split : ∠ P A B + ∠ P A C = ∠ B A C := by
@@ -673,7 +673,6 @@ lemma erdos_mordell_lemma {A B C P : V}
       ext x
       simp]
     apply collinear_pair
-
   have h_pedal :
       dist Pb Pc = dist P A * Real.sin (∠ B A C) :=
     dist_projections_eq_dist_mul_sin h_triangle
@@ -682,14 +681,12 @@ lemma erdos_mordell_lemma {A B C P : V}
         dist P Pb * Real.sin (∠ A C B) + dist P Pc * Real.sin (∠ A B C) :=
     dist_projections_ge_projection_on_side h_triangle h_interior
   rw [h_pedal] at h_proj
-
   have h_sin_pos : 0 < Real.sin (∠ B A C) :=
     sin_pos_of_not_collinear (by
       rwa [show ({B, A, C} : Set V) = {A, B, C} by
         ext x
         simp
         tauto])
-
   have h_sin_rule_C :
       Real.sin (∠ A C B) = Real.sin (∠ B A C) * dist A B / dist B C := by
     have h :=
@@ -698,7 +695,6 @@ lemma erdos_mordell_lemma {A B C P : V}
     replace h := (div_eq_iff (dist_pos.mpr h_ne_AB.symm).ne').mp h
     rw [h, angle_comm B A C, dist_comm B A, dist_comm C B]
     field_simp [dist_pos.mpr h_ne_BC]
-
   have h_sin_rule_B :
       Real.sin (∠ A B C) = Real.sin (∠ B A C) * dist A C / dist B C := by
     have h :=
@@ -707,7 +703,6 @@ lemma erdos_mordell_lemma {A B C P : V}
     replace h := (div_eq_iff (dist_pos.mpr h_ne_AC.symm).ne').mp h
     rw [h, angle_comm C A B, angle_comm B A C, dist_comm C A, dist_comm B C]
     field_simp [dist_pos.mpr h_ne_BC]
-
   rw [h_sin_rule_C, h_sin_rule_B] at h_proj
   have d₂_eq : dist P Pb = dist_to_line P A C := rfl
   have d₃_eq : dist P Pc = dist_to_line P A B := rfl
@@ -728,9 +723,9 @@ lemma add_div_self_ge_two {x y : ℝ} (hx : 0 < x) (hy : 0 < y) : x / y + y / x 
 lemma erdos_mordell_summation (R₁ R₂ R₃ d₁ d₂ d₃ a b c : ℝ)
     (ha : 0 < a) (hb : 0 < b) (hc : 0 < c)
     (hd1 : 0 ≤ d₁) (hd2 : 0 ≤ d₂) (hd3 : 0 ≤ d₃)
-    (h₁ : R₁ ≥ d₂ * (c/a) + d₃ * (b/a))
-    (h₂ : R₂ ≥ d₃ * (a/b) + d₁ * (c/b))
-    (h₃ : R₃ ≥ d₁ * (b/c) + d₂ * (a/c)) :
+    (h₁ : R₁ ≥ d₂ * (c / a) + d₃ * (b / a))
+    (h₂ : R₂ ≥ d₃ * (a / b) + d₁ * (c / b))
+    (h₃ : R₃ ≥ d₁ * (b / c) + d₂ * (a / c)) :
     R₁ + R₂ + R₃ ≥ 2 * (d₁ + d₂ + d₃) := by
   let S := R₁ + R₂ + R₃
   have h_sum :
@@ -781,7 +776,6 @@ theorem erdos_mordell {A B C P : V}
   have ha : 0 < a := dist_pos.mpr h_ne_BC
   have hb : 0 < b := dist_pos.mpr h_ne_AC
   have hc : 0 < c := dist_pos.mpr h_ne_AB
-
   have h_tri_perm1 : ¬ Collinear ℝ ({B, C, A} : Set V) := by
     rwa [show ({B, C, A} : Set V) = {A, B, C} by
       ext x
@@ -792,7 +786,6 @@ theorem erdos_mordell {A B C P : V}
       ext x
       simp
       tauto]
-
   have h_int_perm1 : P ∈ interior (convexHull ℝ ({B, C, A} : Set V)) := by
     rwa [show ({B, C, A} : Set V) = {A, B, C} by
       ext x
@@ -803,19 +796,15 @@ theorem erdos_mordell {A B C P : V}
       ext x
       simp
       tauto]
-
   have h1 := erdos_mordell_lemma h_triangle h_interior
   have h2 := erdos_mordell_lemma h_tri_perm1 h_int_perm1
   have h3 := erdos_mordell_lemma h_tri_perm2 h_int_perm2
-
   apply erdos_mordell_summation (dist P A) (dist P B) (dist P C)
     (dist_to_line P B C) (dist_to_line P A C) (dist_to_line P A B)
     a b c ha hb hc dist_nonneg dist_nonneg dist_nonneg
   · exact h1
   · convert h2 using 1; simp [a, b, c, dist_to_line, dist_comm, Set.pair_comm]
   · convert h3 using 1; simp [a, b, c, dist_to_line, dist_comm, Set.pair_comm]
-
-end
 
 end Erdos898
 
