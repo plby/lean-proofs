@@ -60,7 +60,6 @@ set_option linter.flexible false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
-set_option linter.style.whitespace false
 set_option maxHeartbeats 800000
 
 /-! ## Definition -/
@@ -88,26 +87,26 @@ instance (S : Finset ℕ) : Decidable (ConsecutiveSumFree S) := by
 /-! ## The 19/36 Construction -/
 
 /-- Block A of Freud's construction: `[2x - 2y, 2x + 2y]`. -/
-noncomputable def setA (x y : ℕ) : Finset ℕ := Finset.Icc (2*x - 2*y) (2*x + 2*y)
+noncomputable def setA (x y : ℕ) : Finset ℕ := Finset.Icc (2 * x - 2 * y) (2 * x + 2 * y)
 
 /-- Block B of Freud's construction: even numbers in `[2x + 2y + 2, 4x]`. -/
 noncomputable def setB (x y : ℕ) : Finset ℕ :=
-  (Finset.Icc (3*x - 3*y + 1) (3*x + 3*y - 1)).filter (fun k => ¬ 3 ∣ k)
+  (Finset.Icc (3 * x - 3 * y + 1) (3 * x + 3 * y - 1)).filter (fun k => ¬ 3 ∣ k)
 
 /-- Block C of Freud's construction: odd numbers in `[4x + 1, 4x + 4y + 1]`. -/
 noncomputable def setC (x y : ℕ) : Finset ℕ :=
-  (Finset.Icc (4*x - 4*y + 2) (4*x + 4*y - 2)).filter (fun k => 2 ∣ k)
+  (Finset.Icc (4 * x - 4 * y + 2) (4 * x + 4 * y - 2)).filter (fun k => 2 ∣ k)
 
 /-- Block D of Freud's construction: `[4x + 4y + 2, 8x + 8y + 4]`. -/
-noncomputable def setD (x y : ℕ) : Finset ℕ := Finset.Icc (4*x + 4*y + 2) (8*x + 8*y + 4)
+noncomputable def setD (x y : ℕ) : Finset ℕ := Finset.Icc (4 * x + 4 * y + 2) (8 * x + 8 * y + 4)
 
 /-- The Freud construction set achieving density 19/36, parametrized by y ≥ 1.
   With x = 17y - 2, we take:
-  - A = {32y-4, ..., 36y-4} (4y+1 consecutive integers)
-  - B = non-multiples of 3 in {48y-5, ..., 54y-7} (4y elements)
-  - C = even numbers in {64y-6, ..., 72y-10} (4y-1 elements)
-  - D = {72y-6, ..., 144y-12} minus deleted elements (64y-7 elements)
-  Total: 76y-7 elements in {1, ..., 144y-12}. -/
+  - A = {32y - 4, ..., 36y - 4} (4y + 1 consecutive integers)
+  - B = non-multiples of 3 in {48y - 5, ..., 54y - 7} (4y elements)
+  - C = even numbers in {64y - 6, ..., 72y - 10} (4y - 1 elements)
+  - D = {72y - 6, ..., 144y - 12} minus deleted elements (64y - 7 elements)
+  Total: 76y - 7 elements in {1, ..., 144y - 12}. -/
 def freudSet (y : ℕ) : Finset ℕ :=
   let A := Finset.Icc (32 * y - 4) (36 * y - 4)
   let B := (Finset.Icc (48 * y - 5) (54 * y - 7)).filter (fun k => ¬(3 ∣ k))
@@ -118,7 +117,7 @@ def freudSet (y : ℕ) : Finset ℕ :=
              ({84 * y - 9, 120 * y - 14, 132 * y - 13, 118 * y - 13, 144 * y - 16} : Finset ℕ)
   A ∪ B ∪ C ∪ (D \ del)
 
-lemma freudSet_subset (y : ℕ) (hy : 1 ≤ y) : freudSet y ⊆ Icc 1 (144*y-12) := by
+lemma freudSet_subset (y : ℕ) (hy : 1 ≤ y) : freudSet y ⊆ Icc 1 (144 * y - 12) := by
   intro x hx; unfold freudSet at hx; simp_all +arith +decide; omega
 
 lemma freudSet_card (y : ℕ) (hy : 1 ≤ y) :
@@ -128,40 +127,47 @@ lemma freudSet_card (y : ℕ) (hy : 1 ≤ y) :
     Finset.card_union_of_disjoint]
   · rw [Finset.card_sdiff, Finset.inter_eq_left.mpr]
     · rw [Finset.card_union_of_disjoint, Finset.card_union_of_disjoint] <;> norm_num
-      · have hA : (Icc (32*y-4) (36*y-4)).card = 4*y+1 := by
+      · have hA : (Icc (32 * y - 4) (36 * y - 4)).card = 4 * y + 1 := by
           rcases y with (_ | _ | y) <;> simp +arith +decide [Nat.mul_succ] at *
           exact Nat.sub_eq_of_eq_add <| by ring
-        have hB : ((Icc (48*y-5) (54*y-7)).filter (fun k => ¬3 ∣ k)).card = 4*y := by
+        have hB : ((Icc (48 * y - 5) (54 * y - 7)).filter (fun k => ¬ 3 ∣ k)).card = 4 * y := by
           rw [Finset.filter_not, Finset.card_sdiff]; norm_num
-          have key : (Icc (48*y-5) (54*y-7)).filter (Dvd.dvd 3) ∩ Icc (48*y-5) (54*y-7) =
-              Finset.image (3 * ·) (Icc ((48*y-5+2)/3) ((54*y-7)/3)) := by
+          have key :
+              (Icc (48 * y - 5) (54 * y - 7)).filter (Dvd.dvd 3) ∩
+                Icc (48 * y - 5) (54 * y - 7) =
+              Finset.image (3 * ·)
+                (Icc ((48 * y - 5 + 2) / 3) ((54 * y - 7) / 3)) := by
             ext; simp +decide [Nat.dvd_iff_mod_eq_zero]
             exact ⟨fun h => ⟨‹_›/3, ⟨by omega, by omega⟩, by omega⟩, by omega⟩
           rw [key, Finset.card_image_of_injective] <;> norm_num [Function.Injective]; lia
-        have hC : ((Icc (64*y-6) (72*y-10)).filter (2 ∣ ·)).card = 4*y-1 := by
-          have key : {k ∈ Icc (64*y-6) (72*y-10) | 2 ∣ k} =
-              Finset.image (2 * ·) (Icc (32*y-3) (36*y-5)) := by
+        have hC : ((Icc (64 * y - 6) (72 * y - 10)).filter (2 ∣ ·)).card = 4 * y - 1 := by
+          have key : {k ∈ Icc (64 * y - 6) (72 * y - 10) | 2 ∣ k} =
+              Finset.image (2 * ·) (Icc (32 * y - 3) (36 * y - 5)) := by
             ext; simp +decide [Nat.dvd_iff_mod_eq_zero]
             exact ⟨fun h => ⟨‹_›/2, ⟨by omega, by omega⟩, by omega⟩,
               by rintro ⟨a, ⟨ha₁, ha₂⟩, rfl⟩; exact ⟨⟨by omega, by omega⟩, by omega⟩⟩
           rw [key, Finset.card_image_of_injective] <;> norm_num [Function.Injective]; omega
-        have hD : (Icc (72*y-6) (144*y-12)).card = 72*y-5 := by
+        have hD : (Icc (72 * y - 6) (144 * y - 12)).card = 72 * y - 5 := by
           simp +zetaDelta at *; omega
-        have hDelI : ((Icc (96*y-9) (108*y-15)).filter (3 ∣ ·)).card = 4*y-1 := by
-          have key : {k ∈ Icc (96*y-9) (108*y-15) | 3 ∣ k} =
-              Finset.image (3 * ·) (Icc (32*y-3) (36*y-5)) := by
+        have hDelI : ((Icc (96 * y - 9) (108 * y - 15)).filter (3 ∣ ·)).card = 4 * y - 1 := by
+          have key : {k ∈ Icc (96 * y - 9) (108 * y - 15) | 3 ∣ k} =
+              Finset.image (3 * ·) (Icc (32 * y - 3) (36 * y - 5)) := by
             ext; simp +zetaDelta at *
             exact ⟨fun h => ⟨‹_›/3, ⟨by omega, by omega⟩, by omega⟩,
               fun ⟨a, ⟨ha₁, ha₂⟩, ha₃⟩ => ⟨⟨by omega, by omega⟩, by omega⟩⟩
           rw [key, Finset.card_image_of_injective] <;> norm_num [Function.Injective]; omega
-        have hDelIII : ((Icc (128*y-10) (144*y-22)).filter (· % 4 = 2)).card = 4*y-2 := by
+        have hDelIII :
+            ((Icc (128 * y - 10) (144 * y - 22)).filter (· % 4 = 2)).card =
+              4 * y - 2 := by
           rw [Finset.card_eq_of_bijective]
-          use fun i _ => 128*y-10 + 4*i
+          use fun i _ => 128 * y - 10 + 4 * i
           · simp +zetaDelta at *
-            exact fun a ha₁ ha₂ ha₃ => ⟨(a-(128*y-10))/4, by omega, by omega⟩
+            exact fun a ha₁ ha₂ ha₃ => ⟨(a - (128 * y - 10))/4, by omega, by omega⟩
           · norm_num +zetaDelta at *; exact fun i hi => ⟨by omega, by omega⟩
           · grind
-        have hDelV : ({84*y-9, 120*y-14, 132*y-13, 118*y-13, 144*y-16} : Finset ℕ).card = 5 := by
+        have hDelV :
+            ({84 * y - 9, 120 * y - 14, 132 * y - 13, 118 * y - 13,
+              144 * y - 16} : Finset ℕ).card = 5 := by
           rcases y with (_ | _ | y) <;> simp +arith +decide [Nat.mul_succ] at *
         omega
       · norm_num [Finset.disjoint_left]; lia
@@ -169,10 +175,10 @@ lemma freudSet_card (y : ℕ) (hy : 1 ≤ y) :
     · intro k hk; simp +zetaDelta at *; omega
   · exact Finset.disjoint_left.mpr fun x hx₁ hx₂ => by
       linarith [Finset.mem_Icc.mp hx₁, Finset.mem_Icc.mp (Finset.mem_filter.mp hx₂ |>.1),
-        Nat.sub_add_cancel (show 4 ≤ 32*y by linarith),
-        Nat.sub_add_cancel (show 4 ≤ 36*y by linarith),
-        Nat.sub_add_cancel (show 5 ≤ 48*y by linarith),
-        Nat.sub_add_cancel (show 7 ≤ 54*y by linarith)]
+        Nat.sub_add_cancel (show 4 ≤ 32 * y by linarith),
+        Nat.sub_add_cancel (show 4 ≤ 36 * y by linarith),
+        Nat.sub_add_cancel (show 5 ≤ 48 * y by linarith),
+        Nat.sub_add_cancel (show 7 ≤ 54 * y by linarith)]
   · norm_num [Finset.disjoint_left]; omega
   · rw [Finset.disjoint_left]; simp +arith +decide [Finset.mem_union, Finset.mem_Icc]; omega
 
@@ -239,7 +245,7 @@ lemma csf_of_no_interval_sum (S : Finset ℕ)
 
 /-- Every element of `freudSet y` is at least `32y - 4`. -/
 lemma freudSet_min_elem (y : ℕ) (_hy : 1 ≤ y) (x : ℕ) (hx : x ∈ freudSet y) :
-    32*y-4 ≤ x := by
+    32 * y - 4 ≤ x := by
   unfold freudSet at hx; simp +zetaDelta at *; omega
 
 /-- Any contiguous subsum of `freudSet y` of length `≥ 2` exceeds `4y + 2`, the maximum of
@@ -262,13 +268,13 @@ lemma freudSet_interval_sum_lb (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
 lemma freudSet_interval_sum_not_in_C (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
     (hcard : ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).card ≥ 2)
     (hs : ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).sum id ∈
-      (Icc (64*y-6) (72*y-10)).filter (2 ∣ ·)) : False := by
-  have hT_subset : {x ∈ freudSet y | a ≤ x ∧ x ≤ b} ⊆ Icc (32*y-4) (36*y-4) := by
+      (Icc (64 * y - 6) (72 * y - 10)).filter (2 ∣ ·)) : False := by
+  have hT_subset : {x ∈ freudSet y | a ≤ x ∧ x ≤ b} ⊆ Icc (32 * y - 4) (36 * y - 4) := by
     intro x hx; simp_all +decide
-    have hT_le : x ≤ 48*y-6 := by
-      have : ∑ x ∈ (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b), x ≥ 32*y-4 + x := by
+    have hT_le : x ≤ 48 * y - 6 := by
+      have : ∑ x ∈ (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b), x ≥ 32 * y - 4 + x := by
         obtain ⟨z, hz₁, hz₂, hz₃⟩ : ∃ z ∈ (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b),
-            z ≠ x ∧ z ≥ 32*y-4 := by
+            z ≠ x ∧ z ≥ 32 * y - 4 := by
           obtain ⟨z, hz⟩ := Finset.exists_mem_ne hcard x
           exact ⟨z, hz.1, hz.2, freudSet_min_elem y hy z (Finset.mem_filter.mp hz.1 |>.1)⟩
         rw [Finset.sum_eq_add_sum_diff_singleton_of_mem hz₁]
@@ -276,21 +282,21 @@ lemma freudSet_interval_sum_not_in_C (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
       omega
     unfold freudSet at hx; simp_all +decide; omega
   by_cases hT_card : ({x ∈ freudSet y | a ≤ x ∧ x ≤ b}).card ≥ 3
-  · have hT_sum_ge : ({x ∈ freudSet y | a ≤ x ∧ x ≤ b}).sum id ≥ 3*(32*y-4) + 3 := by
+  · have hT_sum_ge : ({x ∈ freudSet y | a ≤ x ∧ x ≤ b}).sum id ≥ 3 * (32 * y - 4) + 3 := by
       obtain ⟨x_seq, hx_seq⟩ : ∃ x_seq : Fin ({x ∈ freudSet y | a ≤ x ∧ x ≤ b}).card → ℕ,
           StrictMono x_seq ∧
           ∀ i, x_seq i ∈ (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b) := by
         exact ⟨fun i => Finset.orderEmbOfFin _ (by aesop) i, by aesop_cat,
           fun i => Finset.orderEmbOfFin_mem _ (by aesop) _⟩
-      have hx_seq_ge : ∀ i, x_seq i ≥ 32*y-4 + i := by
+      have hx_seq_ge : ∀ i, x_seq i ≥ 32 * y - 4 + i := by
         intro i; induction' i with i ih; induction' i with i ih
         · exact Finset.mem_Icc.mp (hT_subset (hx_seq.2 _)) |>.1
         · exact lt_of_le_of_lt
             (‹∀ (ih : i < ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).card),
-              x_seq ⟨i, ih⟩ ≥ 32*y-4 + i› (Nat.lt_of_succ_lt ih))
+              x_seq ⟨i, ih⟩ ≥ 32 * y - 4 + i› (Nat.lt_of_succ_lt ih))
             (hx_seq.1 (Nat.lt_succ_self _))
       have hT_sum_ge : ({x ∈ freudSet y | a ≤ x ∧ x ≤ b}).sum id ≥
-          ∑ i ∈ Finset.range ({x ∈ freudSet y | a ≤ x ∧ x ≤ b}).card, (32*y-4 + i) := by
+          ∑ i ∈ Finset.range ({x ∈ freudSet y | a ≤ x ∧ x ≤ b}).card, (32 * y - 4 + i) := by
         have : ({x ∈ freudSet y | a ≤ x ∧ x ≤ b}).sum id ≥
             ∑ i ∈ Finset.univ.image x_seq, i :=
           Finset.sum_le_sum_of_subset (Finset.image_subset_iff.mpr fun i _ => hx_seq.2 i)
@@ -314,78 +320,88 @@ lemma freudSet_interval_sum_not_in_C (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
 /-- If all summands come from block A, the subsum exceeds `4y + 2` and thus cannot land in A. -/
 lemma freudSet_interval_sum_all_in_A (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
     (hcard : ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).card ≥ 2)
-    (hall : ∀ x ∈ (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b), x ≤ 36*y-4)
-    (hs_in_D : ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).sum id ∈ Icc (72*y-6) (144*y-12))
+    (hall : ∀ x ∈ (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b), x ≤ 36 * y - 4)
+    (hs_in_D : ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).sum id ∈
+      Icc (72 * y - 6) (144 * y - 12))
     (hs_not_del : ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).sum id ∉
-      ((Icc (96*y-9) (108*y-15)).filter (3 ∣ ·) ∪
-       (Icc (128*y-10) (144*y-22)).filter (· % 4 = 2) ∪
-       ({84*y-9, 120*y-14, 132*y-13, 118*y-13, 144*y-16} : Finset ℕ))) :
+      ((Icc (96 * y - 9) (108 * y - 15)).filter (3 ∣ ·) ∪
+       (Icc (128 * y - 10) (144 * y - 22)).filter (· % 4 = 2) ∪
+       ({84 * y - 9, 120 * y - 14, 132 * y - 13, 118 * y - 13, 144 * y - 16} : Finset ℕ))) :
     False := by
-  have hT_eq : {x ∈ freudSet y | a ≤ x ∧ x ≤ b} = Icc (max a (32*y-4)) (min b (36*y-4)) := by
+  have hT_eq :
+      {x ∈ freudSet y | a ≤ x ∧ x ≤ b} =
+        Icc (max a (32 * y - 4)) (min b (36 * y - 4)) := by
     ext x; simp [Finset.mem_filter, Finset.mem_Icc]; constructor <;> intro hx
     · exact ⟨⟨hx.2.1, by have := freudSet_min_elem y hy x hx.1; omega⟩, hx.2.2,
         hall x <| by aesop⟩
     · unfold freudSet; simp +decide [hx]
   simp_all +decide
-  have h_sum_formula : ∑ x ∈ Icc (max a (32*y-4)) (min b (36*y-4)), x =
-      (min b (36*y-4) - max a (32*y-4) + 1) * (max a (32*y-4) + min b (36*y-4)) / 2 := by
+  have h_sum_formula :
+      ∑ x ∈ Icc (max a (32 * y - 4)) (min b (36 * y - 4)), x =
+        (min b (36 * y - 4) - max a (32 * y - 4) + 1) *
+          (max a (32 * y - 4) + min b (36 * y - 4)) / 2 := by
     erw [Finset.sum_Ico_eq_sum_range]
     rw [Nat.div_eq_of_eq_mul_left zero_lt_two, Finset.sum_add_distrib]
-    norm_num [Nat.sub_add_comm (show max a (32*y-4) ≤ min b (36*y-4) from
+    norm_num [Nat.sub_add_comm (show max a (32 * y - 4) ≤ min b (36 * y - 4) from
       le_of_lt (Nat.lt_of_sub_pos (by omega)))]
-    nlinarith! only [Finset.sum_range_id_mul_two (min b (36*y-4) - max a (32*y-4) + 1),
-      Nat.sub_add_cancel (show max a (32*y-4) ≤ min b (36*y-4) from
+    nlinarith! only [Finset.sum_range_id_mul_two (min b (36 * y - 4) - max a (32 * y - 4) + 1),
+      Nat.sub_add_cancel (show max a (32 * y - 4) ≤ min b (36 * y - 4) from
         le_of_lt (Nat.lt_of_sub_pos (by omega)))]
-  by_cases hT_card : min b (36*y-4) - max a (32*y-4) + 1 ≤ 4
-  · interval_cases _ : min b (36*y-4) - max a (32*y-4) + 1 <;>
+  by_cases hT_card : min b (36 * y - 4) - max a (32 * y - 4) + 1 ≤ 4
+  · interval_cases _ : min b (36 * y - 4) - max a (32 * y - 4) + 1 <;>
       simp_all +decide only [Nat.mul_comm] <;> omega
-  · have h_sum_ge : ∑ x ∈ Icc (max a (32*y-4)) (min b (36*y-4)), x ≥ 5*(32*y-4) + 10 := by
-      have : ∑ x ∈ Icc (max a (32*y-4)) (min b (36*y-4)), x ≥
-          ∑ x ∈ Finset.range (min b (36*y-4) - max a (32*y-4) + 1), (max a (32*y-4) + x) := by
+  · have h_sum_ge :
+        ∑ x ∈ Icc (max a (32 * y - 4)) (min b (36 * y - 4)), x ≥
+          5 * (32 * y - 4) + 10 := by
+      have :
+          ∑ x ∈ Icc (max a (32 * y - 4)) (min b (36 * y - 4)), x ≥
+            ∑ x ∈ Finset.range
+              (min b (36 * y - 4) - max a (32 * y - 4) + 1),
+              (max a (32 * y - 4) + x) := by
         erw [Finset.sum_Ico_eq_sum_range]; rw [Nat.sub_add_comm (by omega)]
       refine le_trans ?_ this
       refine' le_trans _ (Finset.sum_le_sum_of_subset
-        (Finset.range_mono (show min b (36*y-4) - max a (32*y-4) + 1 ≥ 5 by linarith)))
+        (Finset.range_mono (show min b (36 * y - 4) - max a (32 * y - 4) + 1 ≥ 5 by linarith)))
       simp +arith +decide [Finset.sum]
     omega
 
 /-- Blocks A and B are contiguous in `freudSet y`. -/
 lemma freudSet_no_gap_AB (y : ℕ) (hy : 1 ≤ y) (x : ℕ) (hx : x ∈ freudSet y)
-    (h1 : 36*y-3 ≤ x) (h2 : x ≤ 48*y-6) : False := by
+    (h1 : 36 * y - 3 ≤ x) (h2 : x ≤ 48 * y - 6) : False := by
   unfold freudSet at hx; simp_all +decide; omega
 
 /-- Blocks B and C are contiguous in `freudSet y`. -/
 lemma freudSet_no_gap_BC (y : ℕ) (hy : 1 ≤ y) (x : ℕ) (hx : x ∈ freudSet y)
-    (h1 : 54*y-6 ≤ x) (h2 : x ≤ 64*y-7) : False := by
+    (h1 : 54 * y - 6 ≤ x) (h2 : x ≤ 64 * y - 7) : False := by
   unfold freudSet at hx; simp_all +decide; omega
 
 /-- Blocks C and D are contiguous in `freudSet y`. -/
 lemma freudSet_no_gap_CD (y : ℕ) (hy : 1 ≤ y) (x : ℕ) (hx : x ∈ freudSet y)
-    (h1 : 72*y-9 ≤ x) (h2 : x ≤ 72*y-7) : False := by
+    (h1 : 72 * y - 9 ≤ x) (h2 : x ≤ 72 * y - 7) : False := by
   unfold freudSet at hx; simp_all +decide; omega
 
 /-- `4y + 2` is in block B (the `3·(2y)/6` element). -/
-lemma freudSet_mem_36 (y : ℕ) (hy : 1 ≤ y) : 36*y-4 ∈ freudSet y := by
+lemma freudSet_mem_36 (y : ℕ) (hy : 1 ≤ y) : 36 * y - 4 ∈ freudSet y := by
   unfold freudSet; simp +decide; omega
 
 /-- `4y + 4` is in block D. -/
-lemma freudSet_mem_48 (y : ℕ) (hy : 1 ≤ y) : 48*y-5 ∈ freudSet y := by
+lemma freudSet_mem_48 (y : ℕ) (hy : 1 ≤ y) : 48 * y - 5 ∈ freudSet y := by
   unfold freudSet; simp +decide; omega
 
-/-- `4y + 4` equals `4(y+1)`. -/
-lemma freudSet_mem_48_4 (y : ℕ) (hy : 1 ≤ y) : 48*y-4 ∈ freudSet y := by
+/-- `4y + 4` equals `4(y + 1)`. -/
+lemma freudSet_mem_48_4 (y : ℕ) (hy : 1 ≤ y) : 48 * y - 4 ∈ freudSet y := by
   unfold freudSet; simp +decide; omega
 
 /-- `4y + 3` is not in `freudSet y` (it falls in the gap between C and D). -/
-lemma freudSet_nmem_48_3 (y : ℕ) (hy : 1 ≤ y) : 48*y-3 ∉ freudSet y := by
+lemma freudSet_nmem_48_3 (y : ℕ) (hy : 1 ≤ y) : 48 * y - 3 ∉ freudSet y := by
   unfold freudSet; simp +decide; omega
 
 
 /-- A contiguous subsum of `≥ 3` elements all from D exceeds the maximum of `freudSet y`. -/
 lemma freudSet_all_ge48_card3_sum_gt (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
     (hcard : ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).card ≥ 3)
-    (hall : ∀ x ∈ (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b), 48*y-5 ≤ x) :
-    ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).sum id > 144*y-12 := by
+    (hall : ∀ x ∈ (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b), 48 * y - 5 ≤ x) :
+    ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).sum id > 144 * y - 12 := by
   obtain ⟨x₁, x₂, x₃, hx₁, hx₂, hx₃, hx_distinct⟩ : ∃ x₁ x₂ x₃ : ℕ,
       x₁ ∈ {x ∈ freudSet y | a ≤ x ∧ x ≤ b} ∧ x₂ ∈ {x ∈ freudSet y | a ≤ x ∧ x ≤ b} ∧
       x₃ ∈ {x ∈ freudSet y | a ≤ x ∧ x ≤ b} ∧ x₁ < x₂ ∧ x₂ < x₃ := by
@@ -396,11 +412,11 @@ lemma freudSet_all_ge48_card3_sum_gt (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
       cases lt_trichotomy x₁ x₂ <;> cases lt_trichotomy x₂ x₃ <;>
         cases lt_trichotomy x₁ x₃ <;> aesop
     exact ⟨x₁, x₂, x₃, hs.1 hx₁, hs.1 hx₂, hs.1 hx₃.1, hx₃.2.1, hx₃.2.2⟩
-  have hx1_ge : 48*y-5 ≤ x₁ := hall x₁ hx₁
-  have hx2_ge : 48*y-4 ≤ x₂ := by omega
-  have hx3_ge : 48*y-2 ≤ x₃ := by
+  have hx1_ge : 48 * y - 5 ≤ x₁ := hall x₁ hx₁
+  have hx2_ge : 48 * y - 4 ≤ x₂ := by omega
+  have hx3_ge : 48 * y - 2 ≤ x₃ := by
     by_contra h_contra
-    exact (show x₃ = 48*y-3 by omega).symm ▸ freudSet_nmem_48_3 y hy <|
+    exact (show x₃ = 48 * y - 3 by omega).symm ▸ freudSet_nmem_48_3 y hy <|
       Finset.mem_filter.mp hx₃ |>.1
   have h_sum_ge : ({x ∈ freudSet y | a ≤ x ∧ x ≤ b}).sum id ≥ ({x₁, x₂, x₃} : Finset ℕ).sum id :=
     Finset.sum_le_sum_of_subset (Finset.insert_subset_iff.mpr
@@ -410,20 +426,20 @@ lemma freudSet_all_ge48_card3_sum_gt (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
 /-- A pair of adjacent elements from D sums to a value not in `freudSet y`. -/
 lemma freudSet_adj_pair_ge48_sum (y : ℕ) (hy : 1 ≤ y) (x₁ x₂ : ℕ)
     (hx₁ : x₁ ∈ freudSet y) (hx₂ : x₂ ∈ freudSet y)
-    (hge₁ : 48*y-5 ≤ x₁) (hlt : x₁ < x₂)
+    (hge₁ : 48 * y - 5 ≤ x₁) (hlt : x₁ < x₂)
     (hadj : ∀ z ∈ freudSet y, x₁ < z → z < x₂ → False) :
-    x₁ + x₂ ∈ ((Icc (96*y-9) (108*y-15)).filter (3 ∣ ·) ∪
-      (Icc (128*y-10) (144*y-22)).filter (· % 4 = 2) ∪
-      ({84*y-9, 120*y-14, 132*y-13, 118*y-13, 144*y-16} : Finset ℕ)) ∨
-    x₁ + x₂ > 144*y-12 := by
-  by_cases hx1_B : x₁ ∈ (Icc (48*y-5) (54*y-7)).filter (fun k => ¬(3 ∣ k))
-  · by_cases hx2_le : x₂ ≤ 54*y-7
+    x₁ + x₂ ∈ ((Icc (96 * y - 9) (108 * y - 15)).filter (3 ∣ ·) ∪
+      (Icc (128 * y - 10) (144 * y - 22)).filter (· % 4 = 2) ∪
+      ({84 * y - 9, 120 * y - 14, 132 * y - 13, 118 * y - 13, 144 * y - 16} : Finset ℕ)) ∨
+    x₁ + x₂ > 144 * y - 12 := by
+  by_cases hx1_B : x₁ ∈ (Icc (48 * y - 5) (54 * y - 7)).filter (fun k => ¬(3 ∣ k))
+  · by_cases hx2_le : x₂ ≤ 54 * y - 7
     · have h_sum_div3 : 3 ∣ (x₁ + x₂) := by
         have : ¬(3 ∣ x₁) ∧ ¬(3 ∣ x₂) ∧ x₂ = x₁ + 1 ∨
             ¬(3 ∣ x₁) ∧ ¬(3 ∣ x₂) ∧ x₂ = x₁ + 2 := by
           have h_adj_B : x₂ ≤ x₁ + 2 := by
             contrapose! hadj
-            use if x₁ + 1 ∈ (Icc (48*y-5) (54*y-7)).filter (fun k => ¬3 ∣ k)
+            use if x₁ + 1 ∈ (Icc (48 * y - 5) (54 * y - 7)).filter (fun k => ¬ 3 ∣ k)
               then x₁ + 1 else x₁ + 2
             grind +locals
           cases h_adj_B.eq_or_lt <;> simp_all +arith +decide
@@ -433,46 +449,47 @@ lemma freudSet_adj_pair_ge48_sum (y : ℕ) (hy : 1 ≤ y) (x₁ x₂ : ℕ)
       simp +zetaDelta at *
       exact Or.inl <| Or.inr <| Or.inr <| Or.inr <| Or.inr <| Or.inr <|
         Or.inl ⟨⟨by omega, by omega⟩, h_sum_div3⟩
-    · have hx2_eq : x₂ = 64*y-6 := by
-        contrapose! hadj; use 64*y-6
+    · have hx2_eq : x₂ = 64 * y - 6 := by
+        contrapose! hadj; use 64 * y - 6
         refine' ⟨_, _, _, trivial⟩
         · unfold freudSet; simp +decide [*]; exact Or.inr <| Or.inr <| Or.inl ⟨by omega, by omega⟩
         · simp +zetaDelta at *; omega
         · exact lt_of_le_of_ne (Nat.le_of_not_lt fun h => by
             have := freudSet_no_gap_BC y hy x₂ hx₂ (by omega) (by omega); contradiction)
             (Ne.symm hadj)
-      have hx1_eq : x₁ = 54*y-7 := by
-        contrapose! hadj; use 54*y-7; simp_all +decide [freudSet]; omega
+      have hx1_eq : x₁ = 54 * y - 7 := by
+        contrapose! hadj; use 54 * y - 7; simp_all +decide [freudSet]; omega
       simp_all +decide [Nat.dvd_iff_mod_eq_zero]; omega
-  · by_cases hx1_C : x₁ ∈ (Icc (64*y-6) (72*y-10)).filter (2 ∣ ·)
-    · by_cases hx2_D : x₂ ≥ 72*y-6
-      · by_cases hx2_C : x₂ ≤ 72*y-10
+  · by_cases hx1_C : x₁ ∈ (Icc (64 * y - 6) (72 * y - 10)).filter (2 ∣ ·)
+    · by_cases hx2_D : x₂ ≥ 72 * y - 6
+      · by_cases hx2_C : x₂ ≤ 72 * y - 10
         · omega
-        · have hx2_eq : x₂ = 72*y-6 := by
-            contrapose! hadj; use 72*y-6
+        · have hx2_eq : x₂ = 72 * y - 6 := by
+            contrapose! hadj; use 72 * y - 6
             unfold freudSet; simp_all +decide [Finset.mem_union, Finset.mem_Icc]; omega
-          have hx1_eq : x₁ = 72*y-10 := by
-            contrapose! hadj; use 72*y-10; simp_all +decide [freudSet]; omega
+          have hx1_eq : x₁ = 72 * y - 10 := by
+            contrapose! hadj; use 72 * y - 10; simp_all +decide [freudSet]; omega
           simp_all +decide [Nat.dvd_iff_mod_eq_zero]; omega
-      · have hx2_C : x₂ ∈ (Icc (64*y-6) (72*y-10)).filter (2 ∣ ·) := by
+      · have hx2_C : x₂ ∈ (Icc (64 * y - 6) (72 * y - 10)).filter (2 ∣ ·) := by
           unfold freudSet at hx₂; simp_all +decide; omega
         have hx2_eq_x1_plus_2 : x₂ = x₁ + 2 := by
           simp +zetaDelta at *
           exact le_antisymm (hadj (x₁ + 2)
             (by unfold freudSet; simp +decide [*]; omega) (by linarith)) (by omega)
         simp_all +decide [Nat.dvd_iff_mod_eq_zero]; omega
-    · have hx1_D : x₁ ∈ Icc (72*y-6) (144*y-12) := by grind +locals
+    · have hx1_D : x₁ ∈ Icc (72 * y - 6) (144 * y - 12) := by grind +locals
       exact Or.inr (by norm_num at *; omega)
 
 
 /-- A pair of elements from D sums to a value not in `freudSet y`. -/
 lemma freudSet_all_ge48_card2_sum (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
     (hcard : ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).card = 2)
-    (hall : ∀ x ∈ (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b), 48*y-5 ≤ x) :
+    (hall : ∀ x ∈ (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b), 48 * y - 5 ≤ x) :
     ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).sum id ∈
-      ((Icc (96*y-9) (108*y-15)).filter (3 ∣ ·) ∪ (Icc (128*y-10) (144*y-22)).filter (· % 4 = 2) ∪
-       ({84*y-9, 120*y-14, 132*y-13, 118*y-13, 144*y-16} : Finset ℕ)) ∨
-    ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).sum id > 144*y-12 := by
+      ((Icc (96 * y - 9) (108 * y - 15)).filter (3 ∣ ·) ∪
+        (Icc (128 * y - 10) (144 * y - 22)).filter (· % 4 = 2) ∪
+       ({84 * y - 9, 120 * y - 14, 132 * y - 13, 118 * y - 13, 144 * y - 16} : Finset ℕ)) ∨
+    ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).sum id > 144 * y - 12 := by
   obtain ⟨x₁, x₂, hne, heq⟩ := Finset.card_eq_two.mp hcard
   cases lt_or_gt_of_ne hne <;> simp_all +decide [Finset.Subset.antisymm_iff, Finset.subset_iff]
   · convert freudSet_adj_pair_ge48_sum y hy x₁ x₂ heq.2.1.1 heq.2.2.1
@@ -482,10 +499,10 @@ lemma freudSet_all_ge48_card2_sum (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
     · rw [show (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b) = {x₁, x₂} by aesop]
       simp +decide [*]
     · grind +ring
-  · have h_adj : x₂ + x₁ ∈ ((Icc (96*y-9) (108*y-15)).filter (3 ∣ ·) ∪
-        (Icc (128*y-10) (144*y-22)).filter (· % 4 = 2) ∪
-        ({84*y-9, 120*y-14, 132*y-13, 118*y-13, 144*y-16} : Finset ℕ)) ∨
-        x₂ + x₁ > 144*y-12 := by
+  · have h_adj : x₂ + x₁ ∈ ((Icc (96 * y - 9) (108 * y - 15)).filter (3 ∣ ·) ∪
+        (Icc (128 * y - 10) (144 * y - 22)).filter (· % 4 = 2) ∪
+        ({84 * y - 9, 120 * y - 14, 132 * y - 13, 118 * y - 13, 144 * y - 16} : Finset ℕ)) ∨
+        x₂ + x₁ > 144 * y - 12 := by
       apply freudSet_adj_pair_ge48_sum y hy x₂ x₁ <;> first | tauto | omega | grind
     rw [show (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b) = {x₁, x₂} by ext; aesop]
     simp_all +decide [add_comm]
@@ -494,17 +511,17 @@ lemma freudSet_all_ge48_card2_sum (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
 `freudSet y`. -/
 lemma freudSet_cross_AB_card4_sum_gt (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
     (hcard : ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).card ≥ 4)
-    (h36 : 36*y-4 ∈ (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b))
-    (h48 : 48*y-5 ∈ (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)) :
-    ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).sum id > 144*y-12 := by
-  have h_third : (36*y-5) ∈ {x ∈ freudSet y | a ≤ x ∧ x ≤ b} ∨
-      (48*y-4) ∈ {x ∈ freudSet y | a ≤ x ∧ x ≤ b} := by
+    (h36 : 36 * y - 4 ∈ (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b))
+    (h48 : 48 * y - 5 ∈ (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)) :
+    ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).sum id > 144 * y - 12 := by
+  have h_third : (36 * y - 5) ∈ {x ∈ freudSet y | a ≤ x ∧ x ≤ b} ∨
+      (48 * y - 4) ∈ {x ∈ freudSet y | a ≤ x ∧ x ≤ b} := by
     by_contra h_contra
     obtain ⟨x, hx⟩ : ∃ x ∈ {x ∈ freudSet y | a ≤ x ∧ x ≤ b},
-        x < 36*y-4 ∨ x > 48*y-5 := by
-      by_cases h_cases : ∀ x ∈ {x ∈ freudSet y | a ≤ x ∧ x ≤ b}, x = 36*y-4 ∨ x = 48*y-5
+        x < 36 * y - 4 ∨ x > 48 * y - 5 := by
+      by_cases h_cases : ∀ x ∈ {x ∈ freudSet y | a ≤ x ∧ x ≤ b}, x = 36 * y - 4 ∨ x = 48 * y - 5
       · exact absurd (Finset.card_le_card (show {x ∈ freudSet y | a ≤ x ∧ x ≤ b} ⊆
-            {36*y-4, 48*y-5} by intros x hx; simpa using h_cases x hx))
+            {36 * y - 4, 48 * y - 5} by intros x hx; simpa using h_cases x hx))
           (by rw [Finset.card_insert_of_notMem, Finset.card_singleton] <;> norm_num <;> omega)
       · push Not at h_cases; obtain ⟨x, hx₁, hx₂, hx₃⟩ := h_cases
         use x; simp_all +decide
@@ -517,28 +534,30 @@ lemma freudSet_cross_AB_card4_sum_gt (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
     · exact absurd (h_contra.2 (freudSet_mem_48_4 y hy) (by omega)) (by omega)
   obtain h | h := h_third
   · have h_three_elements : ({x ∈ freudSet y | a ≤ x ∧ x ≤ b}).sum id ≥
-        ({36*y-5, 36*y-4, 48*y-5} : Finset ℕ).sum id + 32*y-4 := by
+        ({36 * y - 5, 36 * y - 4, 48 * y - 5} : Finset ℕ).sum id + 32 * y - 4 := by
       have h_sdiff_ge : ({x ∈ freudSet y | a ≤ x ∧ x ≤ b} \
-          {36*y-5, 36*y-4, 48*y-5}).sum id ≥ 32*y-4 := by
+          {36 * y - 5, 36 * y - 4, 48 * y - 5}).sum id ≥ 32 * y - 4 := by
         have ⟨x, hx, hxge⟩ : ∃ x ∈ {x ∈ freudSet y | a ≤ x ∧ x ≤ b} \
-            {36*y-5, 36*y-4, 48*y-5}, x ≥ 32*y-4 := by
-          have : ({x ∈ freudSet y | a ≤ x ∧ x ≤ b} \ {36*y-5, 36*y-4, 48*y-5}).card ≥ 1 := by
+            {36 * y - 5, 36 * y - 4, 48 * y - 5}, x ≥ 32 * y - 4 := by
+          have :
+              ({x ∈ freudSet y | a ≤ x ∧ x ≤ b} \
+                {36 * y - 5, 36 * y - 4, 48 * y - 5}).card ≥ 1 := by
             grind
           exact Exists.elim (Finset.card_pos.mp this) fun x hx =>
             ⟨x, hx, freudSet_min_elem y hy x (Finset.mem_sdiff.mp hx |>.1 |>
               Finset.mem_filter.mp |>.1)⟩
         exact le_trans hxge (Finset.single_le_sum (fun x _ => Nat.zero_le x) hx)
-      rw [← Finset.sum_sdiff (show {36*y-5, 36*y-4, 48*y-5} ⊆
+      rw [← Finset.sum_sdiff (show {36 * y - 5, 36 * y - 4, 48 * y - 5} ⊆
           {x ∈ freudSet y | a ≤ x ∧ x ≤ b} from by aesop_cat)]
       grind
     grind +qlia
   · obtain ⟨u, hu⟩ : ∃ u ∈ {x ∈ freudSet y | a ≤ x ∧ x ≤ b} \
-        ({36*y-4, 48*y-5, 48*y-4} : Finset ℕ), True := by
+        ({36 * y - 4, 48 * y - 5, 48 * y - 4} : Finset ℕ), True := by
       have : ({x ∈ freudSet y | a ≤ x ∧ x ≤ b} \
-          ({36*y-4, 48*y-5, 48*y-4} : Finset ℕ)).card ≥ 1 := by grind
+          ({36 * y - 4, 48 * y - 5, 48 * y - 4} : Finset ℕ)).card ≥ 1 := by grind
       exact Exists.elim (Finset.card_pos.mp this) fun x hx => ⟨x, hx, trivial⟩
     refine' lt_of_lt_of_le _ (Finset.sum_le_sum_of_subset <|
-      show {36*y-4, 48*y-5, 48*y-4, u} ⊆ {x ∈ freudSet y | a ≤ x ∧ x ≤ b} from _)
+      show {36 * y - 4, 48 * y - 5, 48 * y - 4, u} ⊆ {x ∈ freudSet y | a ≤ x ∧ x ≤ b} from _)
     · rw [Finset.sum_insert, Finset.sum_insert, Finset.sum_insert] <;> simp +arith +decide at *
       · have := freudSet_min_elem y hy u hu.1.1; omega
       · tauto
@@ -550,32 +569,32 @@ lemma freudSet_cross_AB_card4_sum_gt (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
 gap between C and D. -/
 lemma freudSet_cross_AB_card3_sum_in_del (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
     (hcard : ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).card = 3)
-    (h36 : 36*y-4 ∈ (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b))
-    (h48 : 48*y-5 ∈ (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)) :
+    (h36 : 36 * y - 4 ∈ (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b))
+    (h48 : 48 * y - 5 ∈ (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)) :
     ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).sum id ∈
-      ({84*y-9, 120*y-14, 132*y-13, 118*y-13, 144*y-16} : Finset ℕ) := by
+      ({84 * y - 9, 120 * y - 14, 132 * y - 13, 118 * y - 13, 144 * y - 16} : Finset ℕ) := by
   have h_third : ∀ x ∈ (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b),
-      x = 36*y-4 ∨ x = 48*y-5 ∨ x = 36*y-5 ∨ x = 48*y-4 := by
+      x = 36 * y - 4 ∨ x = 48 * y - 5 ∨ x = 36 * y - 5 ∨ x = 48 * y - 4 := by
     intro x hx
-    by_cases hx_lower : x < 36*y-4
-    · by_cases hx_lower : x < 36*y-5
+    by_cases hx_lower : x < 36 * y - 4
+    · by_cases hx_lower : x < 36 * y - 5
       · have h_contradiction :
             ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).card ≥ 4 := by
           refine' le_trans _ (Finset.card_mono <|
-            show {x, 36*y-5, 36*y-4, 48*y-5} ⊆
+            show {x, 36 * y - 5, 36 * y - 4, 48 * y - 5} ⊆
               (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b) from _)
           · grind
           · simp_all +decide [Finset.insert_subset_iff]
             unfold freudSet; simp +decide; omega
         linarith
       · omega
-    · by_cases hx_upper : x > 48*y-5
+    · by_cases hx_upper : x > 48 * y - 5
       · have h_adjacent : ∀ x ∈ (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b),
-            x > 48*y-5 → x = 48*y-4 ∨ x > 48*y-4 := by
+            x > 48 * y - 5 → x = 48 * y - 4 ∨ x > 48 * y - 4 := by
           intros x _ hx_upper; contrapose! hx_upper; omega
         contrapose! hcard
         refine' ne_of_gt (lt_of_lt_of_le _ (Finset.card_mono <|
-          show {36*y-4, 48*y-5, x, 48*y-4} ⊆
+          show {36 * y - 4, 48 * y - 5, x, 48 * y - 4} ⊆
             {x ∈ freudSet y | a ≤ x ∧ x ≤ b} from _))
         · grind
         · simp_all +decide [Finset.insert_subset_iff]
@@ -590,29 +609,29 @@ lemma freudSet_cross_AB_card3_sum_in_del (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
 /-- A cross-block pair from A and B sums to a value not in `freudSet y`. -/
 lemma freudSet_cross_AB_card2_sum_in_del (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
     (hcard : ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).card = 2)
-    (h36 : 36*y-4 ∈ (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b))
-    (h48 : 48*y-5 ∈ (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)) :
+    (h36 : 36 * y - 4 ∈ (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b))
+    (h48 : 48 * y - 5 ∈ (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)) :
     ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).sum id ∈
-      ({84*y-9, 120*y-14, 132*y-13, 118*y-13, 144*y-16} : Finset ℕ) := by
+      ({84 * y - 9, 120 * y - 14, 132 * y - 13, 118 * y - 13, 144 * y - 16} : Finset ℕ) := by
   rw [Finset.card_eq_two] at hcard; grind
 
 /-- Any contiguous subsum whose elements span blocks A–B or lie
 entirely in D does not land in `freudSet y`. -/
 lemma freudSet_interval_sum_cross_AB_or_all_ge_48 (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
     (hcard : ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).card ≥ 2)
-    (hhi : ∃ x ∈ (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b), 48*y-5 ≤ x)
+    (hhi : ∃ x ∈ (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b), 48 * y - 5 ≤ x)
     (hs_in_D : ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).sum id ∈
-      Finset.Icc (72*y-6) (144*y-12))
+      Finset.Icc (72 * y - 6) (144 * y - 12))
     (hs_not_del : ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).sum id ∉
-      ((Finset.Icc (96*y-9) (108*y-15)).filter (fun k => 3 ∣ k) ∪
-       (Finset.Icc (128*y-10) (144*y-22)).filter (fun k => k % 4 = 2) ∪
-       ({84*y-9, 120*y-14, 132*y-13, 118*y-13, 144*y-16} : Finset ℕ))) :
+      ((Finset.Icc (96 * y - 9) (108 * y - 15)).filter (fun k => 3 ∣ k) ∪
+       (Finset.Icc (128 * y - 10) (144 * y - 22)).filter (fun k => k % 4 = 2) ∪
+       ({84 * y - 9, 120 * y - 14, 132 * y - 13, 118 * y - 13, 144 * y - 16} : Finset ℕ))) :
     False := by
   obtain ⟨z, hz, hzge⟩ := hhi
   have hz_mem := Finset.filter_subset _ _ hz
   have hs_le := (Finset.mem_Icc.mp hs_in_D).2
   set T := (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b) with hT
-  by_cases hall : ∀ x ∈ T, 48*y-5 ≤ x
+  by_cases hall : ∀ x ∈ T, 48 * y - 5 ≤ x
   · by_cases h3 : T.card ≥ 3
     · exact absurd hs_le (not_le.mpr (freudSet_all_ge48_card3_sum_gt y hy a b h3 hall))
     · have hcard2 : T.card = 2 := by omega
@@ -621,14 +640,14 @@ lemma freudSet_interval_sum_cross_AB_or_all_ge_48 (y : ℕ) (hy : 1 ≤ y) (a b 
       · exact absurd hs_le (not_le.mpr hgt)
   · push Not at hall; obtain ⟨w, hw, hwlt⟩ := hall
     have hw_mem := Finset.filter_subset _ _ hw
-    have hwle : w ≤ 36*y-4 := by
+    have hwle : w ≤ 36 * y - 4 := by
       by_contra h; push Not at h
       exact freudSet_no_gap_AB y hy w hw_mem (by omega) (by omega)
     have hab_w := (Finset.mem_filter.mp hw).2
     have hab_z := (Finset.mem_filter.mp hz).2
-    have h36 : 36*y-4 ∈ T :=
+    have h36 : 36 * y - 4 ∈ T :=
       Finset.mem_filter.mpr ⟨freudSet_mem_36 y hy, by omega, by omega⟩
-    have h48 : 48*y-5 ∈ T :=
+    have h48 : 48 * y - 5 ∈ T :=
       Finset.mem_filter.mpr ⟨freudSet_mem_48 y hy, by omega, by omega⟩
     by_cases h4 : T.card ≥ 4
     · exact absurd hs_le (not_le.mpr (freudSet_cross_AB_card4_sum_gt y hy a b h4 h36 h48))
@@ -644,17 +663,17 @@ lemma freudSet_interval_sum_cross_AB_or_all_ge_48 (y : ℕ) (hy : 1 ≤ y) (a b 
 lemma freudSet_interval_sum_not_in_D (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
     (hcard : ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).card ≥ 2)
     (hs_in_D : ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).sum id ∈
-      Finset.Icc (72*y-6) (144*y-12))
+      Finset.Icc (72 * y - 6) (144 * y - 12))
     (hs_not_del : ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).sum id ∉
-      ((Finset.Icc (96*y-9) (108*y-15)).filter (fun k => 3 ∣ k) ∪
-       (Finset.Icc (128*y-10) (144*y-22)).filter (fun k => k % 4 = 2) ∪
-       ({84*y-9, 120*y-14, 132*y-13, 118*y-13, 144*y-16} : Finset ℕ))) :
+      ((Finset.Icc (96 * y - 9) (108 * y - 15)).filter (fun k => 3 ∣ k) ∪
+       (Finset.Icc (128 * y - 10) (144 * y - 22)).filter (fun k => k % 4 = 2) ∪
+       ({84 * y - 9, 120 * y - 14, 132 * y - 13, 118 * y - 13, 144 * y - 16} : Finset ℕ))) :
     False := by
   set T := (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)
-  by_cases h : ∀ x ∈ T, x ≤ 36*y-4
+  by_cases h : ∀ x ∈ T, x ≤ 36 * y - 4
   · exact freudSet_interval_sum_all_in_A y hy a b hcard h hs_in_D hs_not_del
   · push Not at h; obtain ⟨z, hz, hzge⟩ := h
-    have hzge' : 48*y-5 ≤ z := by
+    have hzge' : 48 * y - 5 ≤ z := by
       have := (Finset.mem_filter.mp hz).1
       by_contra hlt; push Not at hlt
       exact freudSet_no_gap_AB y hy z this (by omega) (by omega)
@@ -672,11 +691,11 @@ lemma freudSet_no_interval_sum (y : ℕ) (hy : 1 ≤ y) :
   contrapose! hsum_ge; revert hsum_ge; intro hsum_in_set
   have hsum_in_parts :
       ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).sum id ∈
-      Icc (32*y-4) (36*y-4) ∪ (Icc (48*y-5) (54*y-7)).filter (fun k => ¬3 ∣ k) ∪
-      (Icc (64*y-6) (72*y-10)).filter (2 ∣ ·) ∪ (Icc (72*y-6) (144*y-12)) \
-        ((Icc (96*y-9) (108*y-15)).filter (3 ∣ ·) ∪
-         (Icc (128*y-10) (144*y-22)).filter (· % 4 = 2) ∪
-         ({84*y-9, 120*y-14, 132*y-13, 118*y-13, 144*y-16} : Finset ℕ)) :=
+      Icc (32 * y - 4) (36 * y - 4) ∪ (Icc (48 * y - 5) (54 * y - 7)).filter (fun k => ¬ 3 ∣ k) ∪
+      (Icc (64 * y - 6) (72 * y - 10)).filter (2 ∣ ·) ∪ (Icc (72 * y - 6) (144 * y - 12)) \
+        ((Icc (96 * y - 9) (108 * y - 15)).filter (3 ∣ ·) ∪
+         (Icc (128 * y - 10) (144 * y - 22)).filter (· % 4 = 2) ∪
+         ({84 * y - 9, 120 * y - 14, 132 * y - 13, 118 * y - 13, 144 * y - 16} : Finset ℕ)) :=
     mem_def.mpr hsum_in_set
   simp +zetaDelta at *
   rcases hsum_in_parts with h | h | h | h
