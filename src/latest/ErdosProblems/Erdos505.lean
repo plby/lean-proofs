@@ -38,8 +38,6 @@ namespace Erdos505
 open scoped Classical
 open scoped Pointwise
 
-set_option maxHeartbeats 0
-
 /-
 Let $E\subset \RR^d$ be bounded. Its \emph{diameter} is
 $\diam(E)\coloneqq \sup\{\norm{x-y}: x,y\in E\}$.
@@ -752,6 +750,8 @@ Let $k\ge 0$. The $\FF_p$-vector space of multilinear polynomials in
 $z_2,\dots,z_n$ of total degree at most $k$ has dimension
 $\sum_{j=0}^{k} \binom{n-1}{j}$.
 -/
+set_option maxHeartbeats 1000000 in
+-- The finrank computation proof times out at the default heartbeat limit.
 theorem dim_multilinear_polynomials
     (n : ℕ) [NeZero n] (p : ℕ) [Fact (Nat.Prime p)] (hp : n = 4 * p)
     (k : ℕ) :
