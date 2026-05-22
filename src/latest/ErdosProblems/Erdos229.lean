@@ -34,14 +34,24 @@ import Mathlib
 
 namespace Erdos229
 
-set_option linter.mathlibStandardSet false
+-- This generated proof still has extensive style debt; use specific suppressions
+-- rather than the broad `linter.mathlibStandardSet` switch.
+set_option linter.style.setOption false
+set_option linter.style.openClassical false
+set_option linter.style.longLine false
+set_option linter.style.refine false
+set_option linter.style.induction false
+set_option linter.style.multiGoal false
+set_option linter.style.whitespace false
+set_option linter.style.cdot false
+set_option linter.style.cases false
+set_option linter.style.docString false
+set_option linter.flexible false
 set_option linter.unnecessarySimpa false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
 
 open scoped Classical
-
-set_option maxHeartbeats 0
 
 /-
 A set S has no finite limit point if its intersection with every compact set is finite.
@@ -510,6 +520,8 @@ lemma iterate_derivative_add {R : Type*} [CommSemiring R] (f g : Polynomial R) (
 /-
 Inductive step for the construction of the sequence of polynomials.
 -/
+set_option maxHeartbeats 8000000 in
+-- This step construction needs a larger concrete heartbeat budget.
 lemma exists_next_step (m : ℕ) (hm : m > 0)
     (S : ℕ → Set ℂ) (hS : ∀ n, HasNoFiniteLimitPoint (S n))
     (r : ℕ → ℝ) (hr : StrictMono r) (hr_pos : ∀ n, 0 ≤ r n) (hr_gt : ∀ n, n + 1 < r n)
