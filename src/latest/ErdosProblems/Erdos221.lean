@@ -28,7 +28,14 @@ Boris Alexeev was kind enough to slightly alter the proof in order to get rid of
 
 import Mathlib
 
-set_option linter.mathlibStandardSet false
+set_option linter.style.setOption false
+set_option linter.style.openClassical false
+set_option linter.style.longLine false
+set_option linter.flexible false
+set_option linter.style.induction false
+set_option linter.style.refine false
+set_option linter.style.multiGoal false
+set_option linter.style.cases false
 
 namespace Erdos221
 
@@ -37,11 +44,6 @@ open scoped Real
 open scoped Nat
 open scoped Classical
 open scoped Pointwise
-
-set_option maxHeartbeats 0
-set_option maxRecDepth 4000
-set_option synthInstance.maxHeartbeats 20000
-set_option synthInstance.maxSize 128
 
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
@@ -66,8 +68,8 @@ lemma lem_order_mod5 : orderOf (2 : ZMod 5) = 4 := by
 If the multiplicative order of 2 modulo 5^n is 4 * 5^(n-1), then the multiplicative order of 2 modulo 5^(n+1) is 4 * 5^n.
 -/
 theorem lem_order_lift_explicit (n : ℕ) (h : n ≥ 1)
-  (h_ord : orderOf (2 : ZMod (5^n)) = 4 * 5^(n-1)) :
-  orderOf (2 : ZMod (5^(n+1))) = 4 * 5^n := by
+  (h_ord : orderOf (2 : ZMod (5 ^ n)) = 4 * 5 ^ (n - 1)) :
+  orderOf (2 : ZMod (5 ^ (n + 1))) = 4 * 5 ^ n := by
     -- Let $r_{n+1} := ord_{5^{n+1}}(2)$. Reduction modulo 5^n shows $2^{r_{n+1}} ≡ 1 (mod 5^n)$, hence $r_n | r_{n+1}$. Thus there exists $t ∈ Z_{≥1}$ with $r_{n+1} = r_n * t$.
     have h_div : (orderOf (2 : ZMod (5 ^ n))) ∣ (orderOf (2 : ZMod (5 ^ (n + 1)))) := by
       rw [ orderOf_dvd_iff_pow_eq_one ];
@@ -155,8 +157,8 @@ theorem thm_2_is_primitive_root (n : ℕ) (h : n ≥ 1) :
 /-
 For every residue r coprime to 5^n, there exists k with 1 <= k <= 4 * 5^(n-1) such that 2^k is congruent to r modulo 5^n.
 -/
-theorem cor_surject_powers (n : ℕ) (h : n ≥ 1) (r : ZMod (5^n)) (hr : IsUnit r) :
-  ∃ k, 1 ≤ k ∧ k ≤ 4 * 5^(n-1) ∧ 2^k = r := by
+theorem cor_surject_powers (n : ℕ) (h : n ≥ 1) (r : ZMod (5 ^ n)) (hr : IsUnit r) :
+  ∃ k, 1 ≤ k ∧ k ≤ 4 * 5 ^ (n - 1) ∧ 2^k = r := by
     -- By definition of totient function, since r is coprime to 5^n, there exists some integer k such that 2^k ≡ r (mod 5^n).
     have ⟨k, hk⟩ : ∃ k, 0 ≤ k ∧ k < 4 * 5^(n-1) ∧ (2 : ZMod (5^n)) ^ k = r := by
       -- Since $\text{orderOf}(2) = 4 \cdot 5^{n-1}$, the powers of $2$ modulo $5^n$ generate all units modulo $5^n$.
