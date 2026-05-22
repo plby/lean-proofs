@@ -34,10 +34,8 @@ import Mathlib
 namespace Erdos283b
 
 set_option linter.style.setOption false
-set_option linter.deprecated false
 set_option linter.flexible false
 set_option linter.style.induction false
-set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 
@@ -376,6 +374,7 @@ lemma mul_bound_to_T_bound (a L M : ℤ) (m : ℕ) (d : ℕ)
   nlinarith ;
 
 set_option maxHeartbeats 250000 in
+-- Needed for the generated induction proof's nested arithmetic goals.
 lemma induction_lemma
     (a : ℤ) (ha : 0 < a)
     (b : ℤ)
