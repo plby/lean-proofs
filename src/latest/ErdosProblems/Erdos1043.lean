@@ -17,13 +17,6 @@ import Mathlib
 
 namespace Erdos1043
 
-set_option linter.style.refine false
-set_option linter.style.show false
-set_option linter.style.setOption false
-set_option linter.flexible false
-
-set_option maxHeartbeats 0
-
 open MeasureTheory
 open Polynomial
 
@@ -128,8 +121,8 @@ lemma exists_large_proj (u : ℂ) (hu : ‖u‖ = 1) :
       have h_real_part :
           (2 ^ (1 / 16 : ℝ)) *
               Real.cos (2 * Real.pi * k / 16 - Complex.arg u) > 1 := by
-        refine' lt_of_lt_of_le _ ( mul_le_mul_of_nonneg_left hk.2 <| by positivity );
-        exact inequality;
+        exact lt_of_lt_of_le inequality
+          (mul_le_mul_of_nonneg_left hk.2 <| by positivity)
       convert h_real_part.lt using 1;
         norm_num [Complex.exp_re, Complex.exp_im, Complex.cos, Complex.sin];
         ring_nf
@@ -150,6 +143,8 @@ lemma exists_large_proj_aux (u : ℂ) (hu : ‖u‖ = 1) :
       exact exists_large_proj u hu;
     use z
 
+set_option linter.flexible false in
+-- The initial simplification unfolds the generated level-set goal.
 lemma levelSet_starConvex : StarConvex ℝ 0 (levelSet counterexample_poly) := by
   unfold counterexample_poly; norm_num [ StarConvex ] ;
   simp_all +decide [ levelSet ];
@@ -263,7 +258,7 @@ lemma measure_proj_ge (u : ℂ) (hu : ‖u‖ = 1) (S : Set ℂ)
       (inferInstanceAs (MeasurableSpace P))
       hB 0 hfin (0 : P) ‖v‖
     simpa [hfin, ENNReal.ofReal_mul, mul_comm, mul_left_comm, mul_assoc] using h
-  show ENNReal.ofReal (2 * ‖(ℝ ∙ u).orthogonalProjection z‖) ≤
+  change ENNReal.ofReal (2 * ‖(ℝ ∙ u).orthogonalProjection z‖) ≤
     volume ((ℝ ∙ u).orthogonalProjection '' S)
   calc
     ENNReal.ofReal (2 * ‖(ℝ ∙ u).orthogonalProjection z‖)
@@ -284,26 +279,27 @@ Pommerenke [Po61] proved that the answer is no.
 [Po61] Pommerenke, Ch., _On metric properties of complex polynomials._ Michigan Math. J. (1961),
 97-115.
 -/
+set_option linter.flexible false in
+-- The final contradiction proof uses a generated simplification over the negated theorem.
 theorem erdos_1043 :
     ¬ (∀ (f : ℂ[X]), f.Monic → f.degree ≥ 1 →
       ∃ (u : ℂ), ‖u‖ = 1 ∧
       volume ((ℝ ∙ u).orthogonalProjection '' levelSet f) ≤ 2) := by
-  simp +zetaDelta at *;
+  simp +zetaDelta only [ge_iff_le, not_forall, not_exists, not_and, not_le] at *
   use counterexample_poly;
-  refine' ⟨ _, _, _ ⟩;
+  refine ⟨?_, ?_, ?_⟩;
   · exact counterexample_poly_monic;
   · erw [ Polynomial.degree_X_pow_sub_C ] <;> norm_num;
   · intro u hu;
     obtain ⟨ z, hz₁, hz₂ ⟩ := exists_large_proj_aux u hu;
-    refine' lt_of_lt_of_le _ ( measure_proj_ge u hu _ _ _ z hz₁ );
+    refine lt_of_lt_of_le ?_ (measure_proj_ge u hu _
+      (fun z hz => levelSet_symmetric z hz) levelSet_starConvex z hz₁)
     · rw [ ENNReal.lt_ofReal_iff_toReal_lt ] <;> norm_num;
       simp_all +decide [ Submodule.starProjection_singleton ];
       norm_cast
       refine hz₂.trans_le ?_
       simpa [norm_smul, hu, Real.norm_eq_abs] using
         le_abs_self (z.re * u.re + z.im * u.im)
-    · exact fun z a => levelSet_symmetric z a;
-    · exact levelSet_starConvex
 
 #print axioms erdos_1043
 -- 'Erdos1043.erdos_1043' depends on axioms: [propext, Classical.choice, Quot.sound]
