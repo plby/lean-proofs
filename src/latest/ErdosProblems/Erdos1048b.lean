@@ -33,7 +33,6 @@ set_option linter.style.openClassical false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
-set_option linter.style.whitespace false
 set_option linter.flexible false
 
 open scoped BigOperators
