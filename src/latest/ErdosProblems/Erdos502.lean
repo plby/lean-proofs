@@ -39,7 +39,6 @@ import Mathlib
 namespace Erdos502
 
 set_option linter.style.setOption false
-set_option linter.style.openClassical false
 set_option linter.style.longLine false
 set_option linter.flexible false
 set_option linter.style.refine false
@@ -50,13 +49,7 @@ set_option linter.unusedDecidableInType false
 open scoped BigOperators
 open scoped Real
 open scoped Nat
-open scoped Classical
 open scoped Pointwise
-
-set_option relaxedAutoImplicit false
-set_option autoImplicit false
-
-noncomputable section
 
 /-
 A finite subset A in a metric space M is called an s-distance set if there are s positive real numbers such that all pairwise distances determined by the points in M are among these numbers, and each is realized.
@@ -70,7 +63,7 @@ The subspace of polynomials of total degree at most s.
 open MvPolynomial
 
 /-- The subspace of polynomials of total degree at most s. -/
-def polynomials_of_degree_le (d s : ℕ) : Submodule ℝ (MvPolynomial (Fin d) ℝ) :=
+noncomputable def polynomials_of_degree_le (d s : ℕ) : Submodule ℝ (MvPolynomial (Fin d) ℝ) :=
   Submodule.span ℝ {p | p.totalDegree ≤ s}
 
 /-
@@ -79,7 +72,7 @@ The linear map restricting polynomials to A.
 open MvPolynomial
 
 /-- The linear map restricting polynomials to A. -/
-def restriction_map (d : ℕ) (A : Set (EuclideanSpace ℝ (Fin d))) :
+noncomputable def restriction_map (d : ℕ) (A : Set (EuclideanSpace ℝ (Fin d))) :
     MvPolynomial (Fin d) ℝ →ₗ[ℝ] (A → ℝ) where
   toFun p x := eval x p
   map_add' p q := by ext x; simp
@@ -195,11 +188,11 @@ The polynomial p(x, y) = Π (d^2 - ||x - y||^2) for d in S.
 open MvPolynomial
 
 /-- The squared Euclidean distance between x and y as a polynomial in 2d variables. -/
-def dist_sq_poly (d : ℕ) : MvPolynomial (Fin d ⊕ Fin d) ℝ :=
+noncomputable def dist_sq_poly (d : ℕ) : MvPolynomial (Fin d ⊕ Fin d) ℝ :=
   ∑ i : Fin d, (X (Sum.inl i) - X (Sum.inr i)) ^ 2
 
 /-- The polynomial p(x, y) = Π (d^2 - ||x - y||^2) for d in S. -/
-def distance_poly (d : ℕ) (S : Finset ℝ) : MvPolynomial (Fin d ⊕ Fin d) ℝ :=
+noncomputable def distance_poly (d : ℕ) (S : Finset ℝ) : MvPolynomial (Fin d ⊕ Fin d) ℝ :=
   ∏ s ∈ S, (C (s ^ 2) - dist_sq_poly d)
 
 /-
@@ -209,7 +202,7 @@ The matrix M_{p,A} with entries p(a, b).
 open MvPolynomial
 
 /-- Evaluate a polynomial in 2d variables at a pair of points (x, y). -/
-def eval_pair (d : ℕ) (p : MvPolynomial (Fin d ⊕ Fin d) ℝ) (x y : EuclideanSpace ℝ (Fin d)) : ℝ :=
+noncomputable def eval_pair (d : ℕ) (p : MvPolynomial (Fin d ⊕ Fin d) ℝ) (x y : EuclideanSpace ℝ (Fin d)) : ℝ :=
   eval (Sum.elim (x : Fin d → ℝ) (y : Fin d → ℝ)) p
 
 /-- The matrix M_{p,A} with entries p(a, b). -/
@@ -260,7 +253,7 @@ theorem dotProductDualEquiv_apply (α : Type*) [Fintype α] [DecidableEq α] (f 
   simp [Pi.basisFun_repr]
 
 /-- The subspace Omega of functions on A orthogonal to all polynomials of degree at most s. -/
-def Omega (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d))) [Fintype A] [DecidableEq A] : Submodule ℝ (A → ℝ) :=
+noncomputable def Omega (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d))) [Fintype A] [DecidableEq A] : Submodule ℝ (A → ℝ) :=
   (Submodule.dualAnnihilator (Submodule.map (restriction_map d A) (polynomials_of_degree_le d s))).comap
     (dotProductDualEquiv A).toLinearMap
 
@@ -271,7 +264,7 @@ theorem mem_Omega_iff (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d))) [Fintyp
   simp [Omega, Submodule.mem_dualAnnihilator, dotProductDualEquiv_apply]
 
 /-- The bilinear form associated to p and A. -/
-def Phi_p (d : ℕ) (p : MvPolynomial (Fin d ⊕ Fin d) ℝ) (A : Set (EuclideanSpace ℝ (Fin d))) [Fintype A] [DecidableEq A] :
+noncomputable def Phi_p (d : ℕ) (p : MvPolynomial (Fin d ⊕ Fin d) ℝ) (A : Set (EuclideanSpace ℝ (Fin d))) [Fintype A] [DecidableEq A] :
     (A → ℝ) →ₗ[ℝ] (A → ℝ) →ₗ[ℝ] ℝ :=
   Matrix.toBilin' (matrix_p_A d p A)
 
@@ -285,7 +278,7 @@ In either case, the bilinear form sum_{x,y} m(x,y) f(x) g(y) vanishes.
 open Matrix LinearMap MvPolynomial BigOperators
 
 /-- The bilinear form associated to a monomial m. -/
-def Phi_monomial (d : ℕ) (m : Fin d ⊕ Fin d →₀ ℕ) (A : Set (EuclideanSpace ℝ (Fin d))) [Fintype A] [DecidableEq A] :
+noncomputable def Phi_monomial (d : ℕ) (m : Fin d ⊕ Fin d →₀ ℕ) (A : Set (EuclideanSpace ℝ (Fin d))) [Fintype A] [DecidableEq A] :
     (A → ℝ) →ₗ[ℝ] (A → ℝ) →ₗ[ℝ] ℝ :=
   Matrix.toBilin' (matrix_p_A d (monomial m 1) A)
 
@@ -594,8 +587,6 @@ theorem bannai_bannai_stanton (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)))
   have h_dim_bound := dim_s_le_binom d s A
   rw [← h_r_plus]
   exact le_trans h_thm_1_2.1 h_dim_bound
-
-end
 
 end Erdos502
 
