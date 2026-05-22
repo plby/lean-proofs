@@ -2714,7 +2714,7 @@ structure Witness where
 abbrev H (W : Witness (G := G)) : SimpleGraph {v : V // v ∈ W.S} :=
   G.induce (fun v : V => v ∈ W.S)
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 50000000 in
 noncomputable def exists_witness_of_chromaticNumber_ge_4
     (hχ : (4 : ℕ∞) ≤ G.chromaticNumber) :
     Witness (G := G) := by
