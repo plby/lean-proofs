@@ -44,9 +44,7 @@ import Mathlib
 import ErdosProblems.Erdos447
 
 set_option linter.style.setOption false
-set_option linter.style.whitespace false
 set_option linter.style.induction false
-set_option linter.style.lambdaSyntax false
 set_option linter.style.multiGoal false
 set_option linter.style.openClassical false
 set_option linter.style.refine false
@@ -164,14 +162,14 @@ lemma sum_recip_dyadic_bound (A : Set ℕ) (k : ℕ) :
 /-
 Definition of b_k as the number of elements of A in {1, ..., 2^k}.
 -/
-noncomputable def bk (A : Set ℕ) (k : ℕ) : ℕ := ((Finset.Icc 1 (2^k)).filter (· ∈ A)).card
+noncomputable def bk (A : Set ℕ) (k : ℕ) : ℕ := ((Finset.Icc 1 (2 ^ k)).filter (· ∈ A)).card
 
 /-
 Algebraic lemma: lower bound for the sum involving b_k.
 -/
 lemma sum_density_lower_bound (b : ℕ → ℕ) (δ' : ℝ) (k1 K : ℕ) (hk1 : k1 + 1 < K)
-  (h_density : ∀ k, k1 ≤ k → k < K → (b k : ℝ) ≥ δ' * 2^k) :
-  ∑ k ∈ Finset.Icc (k1 + 1) K, ((b k : ℝ) - b (k - 1)) / 2^k ≥
+  (h_density : ∀ k, k1 ≤ k → k < K → (b k : ℝ) ≥ δ' * 2 ^ k) :
+  ∑ k ∈ Finset.Icc (k1 + 1) K, ((b k : ℝ) - b (k - 1)) / 2 ^ k ≥
     (δ' / 2) * (K - k1 - 2) - (b k1 : ℝ) / 2^(k1+1) := by
     -- Applying the summation by parts formula.
     have h_sum_parts :
@@ -1382,7 +1380,7 @@ lemma h_func_le_two_pow_Om (n : ℕ) : h_func n ≤ (2 : ℝ) ^ Om n := by
 The sum of $h(n)$ for $\Omega(n) < L$ is bounded by $(N+1) 2^L$.
 -/
 lemma sum_h_lt_L_bound (N L : ℕ) :
-    ∑ n ∈ (Finset.range (N + 1)).filter (λ n => Odd n ∧ Om n < L),
+    ∑ n ∈ (Finset.range (N + 1)).filter (fun n => Odd n ∧ Om n < L),
       h_func n ≤ (N + 1 : ℝ) * (2 : ℝ) ^ L := by
       refine' le_trans ( Finset.sum_le_sum fun i hi => show h_func i ≤ 2 ^ L from _ ) _;
       · refine' le_trans ( h_func_le_two_pow_Om i ) _;
@@ -1404,7 +1402,7 @@ lemma h_func_le_C_h (n : ℕ) (hn_odd : Odd n) (hn_ge_3 : n ≥ 3) :
 The sum of $h(n)$ for $\Omega(n) \ge L$ is bounded by $\frac{C_h}{\sqrt{L}} \sum f(n)$.
 -/
 lemma sum_h_ge_L_bound (N L : ℕ) (hL : L ≥ 1) :
-    ∑ n ∈ (Finset.range (N + 1)).filter (λ n => Odd n ∧ Om n ≥ L), h_func n ≤
+    ∑ n ∈ (Finset.range (N + 1)).filter (fun n => Odd n ∧ Om n ≥ L), h_func n ≤
     (C_h / Real.sqrt L) * ∑ n ∈ Finset.range (N + 1), f_func n := by
       -- By `h_func_le_C_h`, $h(n) \le C_h \frac{2^{\Omega(n)}}{\sqrt{\Omega(n)}} \le C_h
       -- \frac{2^{\Omega(n)}}{\sqrt{L}}$.
@@ -1612,9 +1610,9 @@ lemma sum_central_binom_odd :
       ∀ N : ℕ,
         (∑ n ∈ Finset.range (N + 1), h_func n) ≤
           (∑ n ∈ (Finset.range (N + 1)).filter
-              (λ n => Odd n ∧ Om n < L_nat N), h_func n) +
+              (fun n => Odd n ∧ Om n < L_nat N), h_func n) +
             (∑ n ∈ (Finset.range (N + 1)).filter
-              (λ n => Odd n ∧ Om n ≥ L_nat N), h_func n) := by
+              (fun n => Odd n ∧ Om n ≥ L_nat N), h_func n) := by
     intro N
     have h_sum_split :
         ∑ n ∈ Finset.range (N + 1), h_func n ≤
