@@ -39,14 +39,12 @@ open Finset
 open Nat
 open Real
 
-set_option maxHeartbeats 0
+set_option maxHeartbeats 50000000
 set_option maxRecDepth 20000
 set_option linter.style.cases false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
-set_option linter.style.openClassical false
 set_option linter.style.refine false
-set_option linter.style.setOption false
 
 /-
 Definitions of PP(n), antichains, and A(n).
