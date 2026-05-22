@@ -1,3 +1,22 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 202.
+https://www.erdosproblems.com/forum/thread/202
+
+Informal authors:
+- GPT-5.4 Pro
+- Boon Suan Ho
+
+Formal authors:
+- Claude
+- Pawan Sasanka Ammanamanchi
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/202#post-6456
+- https://boonsuan.github.io/erdos202.pdf
+- https://github.com/Shashi456/erdos-formalizations/blob/main/Erdos/P202/Proof.lean
+- https://raw.githubusercontent.com/Shashi456/erdos-formalizations/refs/heads/main/Erdos/P202/Proof.lean
+-/
 /-
 **STANDALONE FLAT BUNDLE** of Erdős Problem #202.
 
@@ -21235,8 +21254,8 @@ lemma card_le_of_sigma_lower {η : ℝ} {N Qcard : ℕ}
           congr 1
           ring_nf
 
-set_option maxHeartbeats 2000000
-
+set_option maxHeartbeats 2000000 in
+-- `sigma_lower_bound` times out at the default heartbeat limit.
 /-- **Sigma lower bound** (PDF Section 5). For every `η > 0`, eventually
 any pruned family with cardinality `Qcard` derived from a chain with
 parameters `(c, d) ∈ [0, 3]²` satisfies `1 - η ≤ c σ_N - c² / 4 + η`,
