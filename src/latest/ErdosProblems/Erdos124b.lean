@@ -235,7 +235,7 @@ lemma sum_u_seq_eq {k : ℕ} {d : Fin k → ℕ} (hk : k ≠ 0) (h_ge : ∀ i, 2
 /-
 The constructed sequence `u_seq` satisfies the gap condition required by Brown's criterion.
 -/
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 50000000 in
 lemma u_seq_gap {k : ℕ} {d : Fin k → ℕ} (hk : k ≠ 0) (h_ge : ∀ i, 2 ≤ d i)
     (h_sum : 1 ≤ ∑ i, (1 : ℚ) / (d i - 1)) :
     ∀ n, u_seq d (n + 1) ≤ 1 + ∑ j ∈ Finset.range (n + 1), u_seq d j := by
@@ -357,7 +357,7 @@ lemma chosen_pair_injective {k : ℕ} {d : Fin k → ℕ} (hk : k ≠ 0) :
 A subset sum of `u_seq` can be decomposed into numbers `a_i` with 0/1 digits
 in base `d_i`.
 -/
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 50000000 in
 lemma digits_of_subset_sum_u_seq {k : ℕ} {d : Fin k → ℕ} (hk : k ≠ 0)
     (h_ge : ∀ i, 2 ≤ d i)
     (S : Finset ℕ) :
@@ -554,7 +554,7 @@ theorem formal_conjectures_erdos_124 : (∀ k, ∀ d : Fin k → ℕ,
     refine' ⟨fun _ => 1, a, fun i => ?_⟩
     exact ⟨by simp, fun j => ⟨ha_digits j, by simpa using ha_sum⟩⟩
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 50000000 in
 /--
 This is a modification of the statement of Erdős problem 124 from the
 Formal Conjectures project, correcting the "\geq 1" issue.
