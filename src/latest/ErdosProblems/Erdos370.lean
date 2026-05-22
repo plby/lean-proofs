@@ -31,15 +31,10 @@ open scoped Nat
 open scoped Classical
 open scoped Pointwise
 
-set_option maxHeartbeats 0
+set_option maxHeartbeats 50000000
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
-
-set_option relaxedAutoImplicit false
-set_option autoImplicit false
-
-noncomputable section
 
 def P (n : ℕ) : ℕ := (Nat.primeFactors n).max.getD 1
 
@@ -231,7 +226,5 @@ theorem erdos_370 :
 
 #print axioms erdos_370
 -- 'Erdos370.erdos_370' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end
 
 end Erdos370
