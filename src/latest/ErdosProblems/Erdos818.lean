@@ -18,16 +18,10 @@ import Mathlib
 
 namespace Erdos818
 
-set_option linter.style.setOption false
-set_option linter.flexible false
-set_option linter.style.openClassical false
-set_option linter.style.refine false
-
 noncomputable section
 
 open Finset
 open scoped Pointwise BigOperators
-open Classical
 
 /-! ## Geometric helpers -/
 
@@ -46,7 +40,7 @@ lemma slopeSet_subset
 lemma mul_mem_of_slopeSet
     {A : Finset ℝ} {s a : ℝ}
     (ha : a ∈ slopeSet A s) : s * a ∈ A := by
-  simp [slopeSet, mem_filter] at ha; exact ha.2
+  exact (mem_filter.mp ha).2
 
 lemma sumImage_subset_sumset_sq
     (A : Finset ℝ) (s t : ℝ) :
@@ -118,6 +112,8 @@ def extraImage
     (fun p =>
       (p.1 + A.min' hA, sm * p.1 + sm * p.2))
 
+-- The generated subset proof relies on contextual simplification over products.
+set_option linter.flexible false in
 lemma extraImage_subset
     (A : Finset ℝ) (hA : A.Nonempty) (sm : ℝ) :
     extraImage A hA sm ⊆
@@ -140,6 +136,8 @@ lemma extraImage_card
   · norm_num [sq]
   · intro p hp q hq; aesop
 
+-- The generated slope proof relies on broad simplification after unpacking the image.
+set_option linter.flexible false in
 lemma extraImage_slope_ge
     (A : Finset ℝ) (hA : A.Nonempty)
     (hpos : ∀ a ∈ A, (0 : ℝ) < a)
@@ -190,9 +188,8 @@ noncomputable section
 
 open Finset
 open scoped Pointwise BigOperators
+set_option linter.style.openClassical false in
 open Classical
-
-set_option maxHeartbeats 8000000
 
 /-! ## Definitions -/
 
@@ -244,6 +241,9 @@ lemma sum_pair_injective
 
 /-! ## Part 3: Sub-lemmas for Lemma 2.3 -/
 
+-- The generated energy bijection proof uses broad simplification and `refine'`.
+set_option linter.flexible false in
+set_option linter.style.refine false in
 lemma energy_equiv
     (A : Finset ℝ)
     (hpos : ∀ a ∈ A, (0 : ℝ) < a) :
@@ -489,6 +489,9 @@ lemma slopes_contribution_bound
       hD_nonempty.card_pos]
   · aesop
 
+-- The dyadic decomposition proof uses generated broad simplifications and `refine'`.
+set_option linter.flexible false in
+set_option linter.style.refine false in
 lemma ratio_energy_bound
     (A : Finset ℝ)
     (hpos : ∀ a ∈ A, (0 : ℝ) < a)
@@ -674,6 +677,8 @@ theorem solymosi_bound
           (A * A).card *
           (A + A).card ^ 2 := by ring
 
+-- The final case split uses broad simplification over the selected maximum.
+set_option linter.flexible false in
 theorem solymosi_corollary
     (A : Finset ℝ)
     (hpos : ∀ a ∈ A, (0 : ℝ) < a)
@@ -709,6 +714,7 @@ for some constant C > 0?
 
 open Finset
 open scoped Pointwise BigOperators
+set_option linter.style.openClassical false in
 open Classical
 
 noncomputable section
@@ -749,14 +755,15 @@ private def negFilter (A : Finset ℝ) :
 private lemma posFilter_pos (A : Finset ℝ) :
     ∀ a ∈ posFilter A, (0 : ℝ) < a := by
   intro a ha
-  simp [posFilter, mem_filter] at ha
-  exact ha.2
+  exact (mem_filter.mp ha).2
 
 private lemma neg_negFilter_pos
     (A : Finset ℝ) :
     ∀ a ∈ -(negFilter A), (0 : ℝ) < a := by
   simp +contextual [negFilter]
 
+-- The generated cardinality comparison uses `refine'` to preserve its proof shape.
+set_option linter.style.refine false in
 private lemma card_le_pos_neg_plus_one
     (A : Finset ℝ) :
     A.card ≤
@@ -804,6 +811,8 @@ private lemma prodset_card_mono
     (B * B).card ≤ (A * A).card :=
   card_le_card (mul_subset_mul h h)
 
+-- The generated case proof uses `refine'` to construct the subset witnesses.
+set_option linter.style.refine false in
 private lemma exists_pos_large_subset
     (A : Finset ℝ) (hcard : 5 ≤ A.card) :
     ∃ B : Finset ℝ,
@@ -843,6 +852,8 @@ private lemma exists_pos_large_subset
     · exact prodset_card_mono
         (negFilter_subset A)
 
+-- The subset extraction branch uses broad simplification to assemble hypotheses.
+set_option linter.flexible false in
 theorem erdos_problem_818_general
     (A : Finset ℝ) (hcard : 5 ≤ A.card)
     (c : ℕ)
