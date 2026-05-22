@@ -25,7 +25,6 @@ import Mathlib
 namespace Erdos947
 
 set_option linter.style.setOption false
-set_option linter.style.openClassical false
 set_option linter.style.longLine false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
@@ -35,13 +34,9 @@ set_option linter.style.refine false
 open scoped BigOperators
 open scoped Real
 open scoped Nat
-open scoped Classical
 open scoped Pointwise
 
-set_option relaxedAutoImplicit false
-set_option autoImplicit false
-
-noncomputable section
+set_option maxHeartbeats 50000000
 
 /-
 An exact covering system is a finite collection of congruence classes such that every integer satisfies exactly one of the congruences.
@@ -261,7 +256,5 @@ theorem exact_covering_system_distinct_moduli_impossible (l : List (ℤ × ℕ))
 #print axioms exact_covering_system_distinct_moduli_impossible
 -- 'Erdos947.exact_covering_system_distinct_moduli_impossible' depends on axioms: [propext,
 -- Classical.choice, Quot.sound]
-
-end
 
 end Erdos947
