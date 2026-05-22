@@ -24,7 +24,6 @@ set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
-set_option linter.style.maxHeartbeats false
 set_option linter.unusedDecidableInType false
 set_option linter.unusedFintypeInType false
 set_option linter.unusedSectionVars false
@@ -493,10 +492,10 @@ In the notation
 `β = maxTriangleDegree`, the bound is
 `n * k₃ + β * D ≤ β * n * m + 2 * β * S`.
 -/
+set_option maxHeartbeats 800000 in
 -- This proof contains the main finite-set encoding of the combinatorial
 -- injection. The heartbeat bump avoids timeouts in the large `simp`/`grind`
 -- blocks handling `Sym2` and filtered products.
-set_option maxHeartbeats 800000 in
 lemma injection_counting_bound [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj] :
     (G.cliqueFinset 3).card * Fintype.card V +
