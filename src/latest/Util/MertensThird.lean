@@ -28,10 +28,8 @@ open scoped BigOperators
 set_option maxHeartbeats 800000
 set_option maxRecDepth 4000
 
-noncomputable section
-
 /-- ψ(n) = Σ_{m=1}^{n} Λ(m), the first Chebyshev function. -/
-def chebyshevPsi (n : ℕ) : ℝ :=
+noncomputable def chebyshevPsi (n : ℕ) : ℝ :=
   ∑ m ∈ Finset.range (n + 1), vonMangoldt m
 
 /-- L_n = lcm(1, 2, ..., n). -/
@@ -39,20 +37,16 @@ def lcmRange (n : ℕ) : ℕ :=
   (Finset.Icc 1 n).lcm _root_.id
 
 /-- S(n) = Σ_{m=2}^{n} Λ(m)/m. -/
-def sumS (n : ℕ) : ℝ :=
+noncomputable def sumS (n : ℕ) : ℝ :=
   ∑ m ∈ Finset.Icc 2 n, vonMangoldt m / m
 
 /-- T(n) = Σ_{m=2}^{n} Λ(m)/(m * log m). -/
-def sumT (n : ℕ) : ℝ :=
+noncomputable def sumT (n : ℕ) : ℝ :=
   ∑ m ∈ Finset.Icc 2 n, vonMangoldt m / (m * Real.log m)
 
 /-- P(n) = ∏_{p ≤ n, p prime} (1 - 1/p). -/
-def prodP (n : ℕ) : ℝ :=
+noncomputable def prodP (n : ℕ) : ℝ :=
   ∏ p ∈ (Finset.range (n + 1)).filter Nat.Prime, (1 - 1 / (p : ℝ))
-
-end
-
-noncomputable section
 
 /-! # Lemma: Central Binomial Coefficient Bounds -/
 
@@ -695,5 +689,3 @@ theorem mertens_third_theorem (n : ℕ) (hn : 3 ≤ n) :
     apply mertens_finite_check n hn (by linarith)
 
 #print axioms mertens_third_theorem
-
-end
