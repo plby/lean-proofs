@@ -30,7 +30,6 @@ set_option linter.style.induction false
 set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
-set_option linter.style.whitespace false
 
 /-!
 # Erdős Problem #206: Non-greedy Egyptian Underapproximations
@@ -160,8 +159,8 @@ lemma x_seq_ge (i : ℕ) (k : ℕ)
   rw [le_div_iff₀] <;> nlinarith
 
 lemma good_interval_length (i : ℕ) (k : ℕ) (hi : 2 ≤ i)
-    (hfrac : x_seq i k - ↑(Nat.floor (x_seq i k)) ≥ 1/3)
-    (hbound : x_seq i k < 6/5 * (i : ℝ)^2) :
+    (hfrac : x_seq i k - ↑(Nat.floor (x_seq i k)) ≥ 1 / 3)
+    (hbound : x_seq i k < 6 / 5 * (i : ℝ) ^ 2) :
     1 / ↑(Nat.floor (x_seq i k)) - 1 / x_seq i k ≥ 25 / (108 * (i : ℝ)^4) := by
   by_cases h : ⌊x_seq i k⌋₊ = 0 <;> simp_all +decide [ Nat.floor_eq_zero ]
   · contrapose! h
@@ -206,9 +205,9 @@ lemma x_seq_diff_bounds (i : ℕ) (l : ℕ) (hi : 1000 ≤ i)
         ( by nlinarith [ ( by norm_cast : ( 1000 : ℝ ) ≤ i ) ] )
 
 lemma fractional_part_lower_bound (a b : ℝ) (ha : 0 ≤ a)
-    (h_diff_lower : 4 + 1/3 ≤ b - a)
-    (h_diff_upper : b - a ≤ 4 + 2/3) :
-    a - ↑(Nat.floor a) ≥ 1/3 ∨ b - ↑(Nat.floor b) ≥ 1/3 := by
+    (h_diff_lower : 4 + 1 / 3 ≤ b - a)
+    (h_diff_upper : b - a ≤ 4 + 2 / 3) :
+    a - ↑(Nat.floor a) ≥ 1 / 3 ∨ b - ↑(Nat.floor b) ≥ 1 / 3 := by
   by_contra h_contra
   have h_floor_eq : ⌊b⌋₊ = ⌊a⌋₊ + 4 := by
     exact
@@ -265,9 +264,9 @@ lemma x_seq_diff_gt_one (i : ℕ) (k : ℕ)
 lemma non_greedy_strict_inequality (i : ℕ) (k : ℕ) (hi : 1000 ≤ i)
     (hk : 2 * (k : ℝ) < (i : ℝ) * (i + 1))
     (x : ℝ)
-    (hx_upper : x ≤ (1 : ℝ)/i + 1/↑(⌊x_seq i k⌋₊))
-    (j : ℕ) (hj : 0 < j) (hj'' : (1 : ℝ)/i + 1/j < x) :
-    (1 : ℝ)/i + 1/j < 1/(i+1) + 1/(i*(i+1)/2 + k) := by
+    (hx_upper : x ≤ (1 : ℝ) / i + 1 / ↑(⌊x_seq i k⌋₊))
+    (j : ℕ) (hj : 0 < j) (hj'' : (1 : ℝ) / i + 1 / j < x) :
+    (1 : ℝ) / i + 1 / j < 1 / (i+1) + 1 / (i*(i+1)/2 + k) := by
   contrapose! hj''
   refine le_trans hx_upper ?_
   gcongr
@@ -280,11 +279,11 @@ lemma non_greedy_strict_inequality (i : ℕ) (k : ℕ) (hi : 1000 ≤ i)
 /-- Combined strict version of good interval predicate. -/
 lemma good_interval_predicate_strict (i : ℕ) (k : ℕ) (hi : 1000 ≤ i)
     (hk : 2 * (k : ℝ) < (i : ℝ) * (i + 1))
-    (x : ℝ) (hx_lower : (1 : ℝ)/i + 1/x_seq i k < x)
-    (hx_upper : x ≤ (1 : ℝ)/i + 1/↑(⌊x_seq i k⌋₊)) :
+    (x : ℝ) (hx_lower : (1 : ℝ) / i + 1 / x_seq i k < x)
+    (hx_upper : x ≤ (1 : ℝ) / i + 1 / ↑(⌊x_seq i k⌋₊)) :
     ∃ a b : ℕ, 0 < a ∧ 0 < b ∧ a ≠ b ∧ a ≠ i ∧ b ≠ i ∧
-      (1 : ℝ)/a + 1/b < x ∧
-      ∀ j : ℕ, 0 < j → j ≠ i → (1 : ℝ)/i + 1/j < x →
+      (1 : ℝ) / a + 1 / b < x ∧
+      ∀ j : ℕ, 0 < j → j ≠ i → (1 : ℝ) / i + 1 / j < x →
         (1 : ℝ)/i + 1/j < 1/a + 1/b := by
   refine' ⟨ i + 1, i * ( i + 1 ) / 2 + k, _, _, _, _, _, _ ⟩ <;> norm_num [ Nat.succ_div ]
   · exact Or.inl ( by nlinarith only [ hi ] )
@@ -1154,7 +1153,7 @@ lemma X_fiber_eq_Ioc (s t : ℕ) (ht : s ≤ t)
 
 lemma non_greedy_pair_gt_i (i a b : ℕ) (hi : 1000 ≤ i)
     (ha : 0 < a) (hb : 0 < b) (ha_ne : a ≠ i) (hb_ne : b ≠ i)
-    (hsum : (1 : ℝ)/a + 1/b < 1/((i : ℝ) - 1)) :
+    (hsum : (1 : ℝ) / a + 1 / b < 1 / ((i : ℝ) - 1)) :
     i < a ∧ i < b := by
   constructor <;> contrapose! hsum
   · exact le_add_of_le_of_nonneg (one_div_le_one_div_of_le (by positivity)
@@ -1169,8 +1168,8 @@ lemma non_greedy_contradiction (m : ℕ → ℕ) (hm : StrictMono m) (hm_pos : �
     (hbest_t2 : IsBestNTerm (Finset.image m (Finset.range (t + 2))) (t + 2) x)
     (a b : ℕ) (ha : 0 < a) (hb : 0 < b) (hab : a ≠ b)
     (ha_gt : m t < a) (hb_gt : m t < b)
-    (hsum_lt : egyptianSum (Finset.image m (Finset.range t)) + 1/(a : ℝ) + 1/b < x)
-    (hbetter : 1/(m t : ℝ) + 1/(m (t+1)) < 1/(a : ℝ) + 1/b) :
+    (hsum_lt : egyptianSum (Finset.image m (Finset.range t)) + 1 / (a : ℝ) + 1 / b < x)
+    (hbetter : 1 / (m t : ℝ) + 1 / (m (t + 1)) < 1 / (a : ℝ) + 1 / b) :
     False := by
   have h_contradiction : egyptianSum (Finset.image m (Finset.range (t + 2))) <
       egyptianSum (Finset.image m (Finset.range t) ∪ {a, b}) := by
@@ -1210,9 +1209,9 @@ lemma non_greedy_excludes_X_set_v2
     (δ : ℝ) (hδ : δ = x - egyptianSum (Finset.image m (Finset.range t)))
     (hδ_ub : δ ≤ 1 / ((m t : ℝ) - 1))
     (hδ_in_E : ∃ a b : ℕ, 0 < a ∧ 0 < b ∧ a ≠ b ∧ a ≠ m t ∧ b ≠ m t ∧
-      (1 : ℝ)/a + 1/b < δ ∧
-      ∀ j : ℕ, 0 < j → j ≠ m t → (1 : ℝ)/(m t) + 1/j < δ →
-        (1 : ℝ)/(m t) + 1/j < 1/a + 1/b) :
+      (1 : ℝ) / a + 1 / b < δ ∧
+      ∀ j : ℕ, 0 < j → j ≠ m t → (1 : ℝ) / (m t) + 1 / j < δ →
+        (1 : ℝ) / (m t) + 1 / j < 1 / a + 1 / b) :
     False := by
   obtain ⟨a, b, ha, hb, hab, ha', hb', h₁, h₂⟩ := hδ_in_E
   have h_sum_lt : (1 : ℝ)/a + 1/b < 1/((m t : ℝ) - 1) := by linarith
@@ -1293,9 +1292,9 @@ lemma sub_interval_avoidance
     (hi_gap_ub : x - q ≤ 1 / ((i : ℝ) - 1))
     (E : Set ℝ)
     (hE_nongr : ∀ y ∈ E, ∃ a b : ℕ, 0 < a ∧ 0 < b ∧ a ≠ b ∧ a ≠ i ∧ b ≠ i ∧
-      (1 : ℝ)/a + 1/b < y ∧
-      ∀ j : ℕ, 0 < j → j ≠ i → (1 : ℝ)/i + 1/j < y →
-        (1 : ℝ)/i + 1/j < 1/a + 1/b) :
+      (1 : ℝ) / a + 1 / b < y ∧
+      ∀ j : ℕ, 0 < j → j ≠ i → (1 : ℝ) / i + 1 / j < y →
+        (1 : ℝ) / i + 1 / j < 1 / a + 1 / b) :
     x - q ∉ E := by
   obtain ⟨ m₀, hm₀_mono, hm₀_pos, hm₀_best ⟩ := hx_mem.2.2
   have hm₀_t :=
