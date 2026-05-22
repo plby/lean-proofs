@@ -16,7 +16,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.longLine false
-set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.unusedSimpArgs false
@@ -115,7 +114,7 @@ The "unique intersection" hypotheses rule out the degenerate configurations
 where the corresponding sides coincide (or a triangle collapses to a point or a segment),
 which is exactly what breaks the earlier naive formulation.
 -/
-noncomputable section AristotleLemmas
+section AristotleLemmas
 
 /-
 The sum of the coefficients used in the Desargues algebraic identity is zero.
@@ -282,7 +281,8 @@ lemma unique_intersection_implies_distinct_points {A B A' B' P : Plane}
     unfold IntersectsIn at *;
     have := right ( A + ( B - A ) ) ; simp_all +decide [ collinear_pair ] ;
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 8000000 in
+-- The parallel-lines contradiction uses generated coordinate algebra.
 /-
 If two lines have a unique intersection, their direction vectors cannot be parallel.
 -/
@@ -332,7 +332,8 @@ lemma desargues_scalars_ne {A B A' B' P : Plane} {α β : ℝ}
     intro h; have := not_parallel_of_unique_intersection h_unique; simp_all +decide [ sub_eq_iff_eq_add ] ;
     exact this β ( by ext x; simpa using by ring )
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 8000000 in
+-- Translation invariance expands collinearity through several coordinate normalizations.
 /-
 The property of being a unique intersection point is invariant under translation.
 -/
@@ -420,7 +421,8 @@ lemma desargues_plane_A_eq_O
 
 end AristotleLemmas
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 8000000 in
+-- The main proof combines the affine Desargues reduction with generated algebraic cases.
 theorem desargues_plane
   {A B C A' B' C' O Pab Pbc Pca : Plane}
   -- concurrency at O
