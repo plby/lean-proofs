@@ -41,8 +41,8 @@ noncomputable def g (k : ℕ) : ℕ :=
 set_option linter.style.refine false in
 set_option linter.style.multiGoal false in
 set_option linter.flexible false in
-set_option maxHeartbeats 8000000 in
--- The constructive bound proof needs a larger concrete heartbeat budget.
+set_option maxHeartbeats 1000000 in
+-- The constructive bound proof times out at the default heartbeat limit.
 /-
 For any $k \ge 2$, there exists $n$ such that $Good(k, n)$ and $n$ is bounded by $(k+1)!^3$.
 -/
