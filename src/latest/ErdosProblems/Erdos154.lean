@@ -27,18 +27,20 @@ I asked ChatGPT to write up Lindström's proof in a TeX-file, which Aristotle fr
 
 import Mathlib
 
-set_option linter.mathlibStandardSet false
+set_option linter.style.setOption false
+set_option linter.style.openClassical false
+set_option linter.style.longLine false
+set_option linter.flexible false
+set_option linter.style.induction false
+set_option linter.style.refine false
+set_option linter.style.multiGoal false
+set_option maxHeartbeats 1000000
 
 open scoped BigOperators
 open scoped Real
 open scoped Nat
 open scoped Classical
 open scoped Pointwise
-
-set_option maxHeartbeats 0
-set_option maxRecDepth 4000
-set_option synthInstance.maxHeartbeats 20000
-set_option synthInstance.maxSize 128
 
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
@@ -512,11 +514,11 @@ theorem B_finset_bound (A : Finset ℕ) (m i : ℕ) (n : ℕ) (hA : ∀ x ∈ A,
     exact Nat.div_le_div_right ( Nat.sub_le_of_le_add <| by linarith [ hA a haA, Nat.zero_le i ] )) -- This is a placeholder to allow the proof to proceed. The user should replace it with the actual proof steps.
 
 /-
-If sum rho_i = 1 and m * (sum rho_i^(3/2))^2 <= 1, then rho_i = 1/m.
+If sum rho_i = 1 and m * (sum rho_i^(3/2)) ^ 2 <= 1, then rho_i = 1/m.
 -/
 theorem rho_equality (m : ℕ) (hm : 2 ≤ m) (ρ : ℕ → ℝ) (h_nonneg : ∀ i < m, 0 ≤ ρ i)
   (h_sum : ∑ i ∈ Finset.range m, ρ i = 1)
-  (h_ineq : (m : ℝ) * (∑ i ∈ Finset.range m, (ρ i) ^ (3/2 : ℝ)) ^ 2 ≤ 1) :
+  (h_ineq : (m : ℝ) * (∑ i ∈ Finset.range m, (ρ i) ^ (3 / 2 : ℝ)) ^ 2 ≤ 1) :
   ∀ i < m, ρ i = 1 / m := by
     by_contra h_neq;
     -- By Jensen's inequality, since $f(x) = x^{3/2}$ is strictly convex for $x \geq 0$, we have $\sum_{i=0}^{m-1} \rho_i^{3/2} > m \left(\frac{1}{m}\right)^{3/2}$.
@@ -570,7 +572,7 @@ Version of rho_equality for Fin m.
 -/
 lemma rho_equality_fin (m : ℕ) (hm : 2 ≤ m) (ρ : Fin m → ℝ) (h_nonneg : ∀ i, 0 ≤ ρ i)
   (h_sum : ∑ i, ρ i = 1)
-  (h_ineq : (m : ℝ) * (∑ i, (ρ i) ^ (3/2 : ℝ)) ^ 2 ≤ 1) :
+  (h_ineq : (m : ℝ) * (∑ i, (ρ i) ^ (3 / 2 : ℝ)) ^ 2 ≤ 1) :
   ρ = fun _ => 1 / (m : ℝ) := by
     convert ( rho_equality m hm ( fun i ↦ if hi : i < m then ρ ⟨ i, hi ⟩ else 0 ) _ _ _ ) using 1;
     · exact ⟨ fun h => fun i hi => by simpa [ hi ] using congr_fun h ⟨ i, hi ⟩, fun h => funext fun i => by simpa [ i.2 ] using h i.1 i.2 ⟩;
@@ -585,7 +587,7 @@ lemma cluster_point_is_const_fin (m : ℕ) (hm : 2 ≤ m)
   (v : ℕ → Fin m → ℝ)
   (h_nonneg : ∀ k, ∀ i, 0 ≤ v k i)
   (h_sum : Filter.Tendsto (fun k => ∑ i, v k i) Filter.atTop (nhds 1))
-  (h_ineq : Filter.limsup (fun k => (m : ℝ) * (∑ i, (v k i) ^ (3/2 : ℝ)) ^ 2) Filter.atTop ≤ 1)
+  (h_ineq : Filter.limsup (fun k => (m : ℝ) * (∑ i, (v k i) ^ (3 / 2 : ℝ)) ^ 2) Filter.atTop ≤ 1)
   (ρ : Fin m → ℝ)
   (hρ : MapClusterPt ρ Filter.atTop v) :
   ρ = fun _ => 1 / (m : ℝ) := by
@@ -628,7 +630,7 @@ theorem sequence_convergence_to_constant_fin (m : ℕ) (hm : 2 ≤ m)
   (v : ℕ → Fin m → ℝ)
   (h_nonneg : ∀ k, ∀ i, 0 ≤ v k i)
   (h_sum : Filter.Tendsto (fun k => ∑ i, v k i) Filter.atTop (nhds 1))
-  (h_ineq : Filter.limsup (fun k => (m : ℝ) * (∑ i, (v k i) ^ (3/2 : ℝ)) ^ 2) Filter.atTop ≤ 1)
+  (h_ineq : Filter.limsup (fun k => (m : ℝ) * (∑ i, (v k i) ^ (3 / 2 : ℝ)) ^ 2) Filter.atTop ≤ 1)
   : Filter.Tendsto v Filter.atTop (nhds (fun _ => 1 / (m : ℝ))) := by
     convert tendsto_pi_nhds.mpr _ using 1;
     intro i;
@@ -851,7 +853,7 @@ lemma error_term_tendsto_zero
 Algebraic identity for the term transformation.
 -/
 lemma term_transform (x n : ℝ) (hx : 0 ≤ x) (hn : 0 < n) :
-  x * (Real.sqrt x - 2) / n ^ (3/4 : ℝ) = (x / Real.sqrt n) ^ (3/2 : ℝ) - 2 * x / n ^ (3/4 : ℝ) := by
+  x * (Real.sqrt x - 2) / n ^ (3/4 : ℝ) = (x / Real.sqrt n) ^ (3 / 2 : ℝ) - 2 * x / n ^ (3/4 : ℝ) := by
     rw [ Real.div_rpow ] <;> try positivity;
     rw [ show x ^ ( 3 / 2 : ℝ ) = x * Real.sqrt x by rw [ Real.sqrt_eq_rpow, ← Real.rpow_one_add' hx ] <;> norm_num, show ( Real.sqrt n ) ^ ( 3 / 2 : ℝ ) = n ^ ( 3 / 4 : ℝ ) by rw [ Real.sqrt_eq_rpow, ← Real.rpow_mul hn.le ] ; norm_num ] ; ring;
 
@@ -860,8 +862,8 @@ Algebraic transformation of the inequality.
 -/
 lemma inequality_algebraic_transform (m : ℕ) (r : ℕ → ℝ) (n : ℝ) (C : ℝ) (hn : 0 < n)
   (h_nonneg : ∀ i ∈ Finset.range m, 0 ≤ r i) :
-  (m : ℝ) * (∑ i ∈ Finset.range m, r i * (Real.sqrt (r i) - 2))^2 < C * n →
-  (m : ℝ) * (∑ i ∈ Finset.range m, ((r i / Real.sqrt n) ^ (3/2 : ℝ) - 2 * r i / n ^ (3/4 : ℝ))) ^ 2 < C / Real.sqrt n := by
+  (m : ℝ) * (∑ i ∈ Finset.range m, r i * (Real.sqrt (r i) - 2)) ^ 2 < C * n →
+  (m : ℝ) * (∑ i ∈ Finset.range m, ((r i / Real.sqrt n) ^ (3 / 2 : ℝ) - 2 * r i / n ^ (3/4 : ℝ))) ^ 2 < C / Real.sqrt n := by
     -- Let's multiply both sides of the inequality by $n^{3/2}$ to simplify.
     intro h_ineq
     have h_mul : m * (∑ i ∈ Finset.range m, (r i * (Real.sqrt (r i) - 2)) / n ^ (3 / 4 : ℝ)) ^ 2 < C / Real.sqrt n := by
@@ -876,13 +878,13 @@ lemma inequality_algebraic_transform (m : ℕ) (r : ℕ → ℝ) (n : ℝ) (C : 
     (expose_names; exact Eq.symm (term_transform (r x) n (h_nonneg x h) hn))
 
 /-
-If m(S-E)^2 < Z and E->0, Z->1, then limsup mS^2 <= 1.
+If m(S-E) ^ 2 < Z and E->0, Z->1, then limsup mS^2 <= 1.
 -/
 lemma limsup_le_of_sub_sq_le (m : ℝ) (S E Z : ℕ → ℝ) (hm : 0 < m)
-  (h_ineq : ∀ᶠ k in Filter.atTop, m * (S k - E k)^2 < Z k)
+  (h_ineq : ∀ᶠ k in Filter.atTop, m * (S k - E k) ^ 2 < Z k)
   (hE : Filter.Tendsto E Filter.atTop (nhds 0))
   (hZ : Filter.Tendsto Z Filter.atTop (nhds 1)) :
-  Filter.limsup (fun k => m * (S k)^2) Filter.atTop ≤ 1 := by
+  Filter.limsup (fun k => m * (S k) ^ 2) Filter.atTop ≤ 1 := by
     -- From the inequality, $|S_k - E_k| < \sqrt{Z_k / m}$.
     have h_bound : ∀ᶠ k in Filter.atTop, |S k| < |E k| + Real.sqrt (Z k / m) := by
       filter_upwards [ h_ineq, hZ.eventually ( lt_mem_nhds one_pos ) ] with k hk₁ hk₂;
@@ -890,11 +892,11 @@ lemma limsup_le_of_sub_sq_le (m : ℝ) (S E Z : ℕ → ℝ) (hm : 0 < m)
       have h_sqrt : |S k - E k| < Real.sqrt (Z k / m) := by
         exact Real.lt_sqrt_of_sq_lt ( by rw [ lt_div_iff₀ hm ] ; nlinarith [ abs_mul_abs_self ( S k - E k ) ] );
       cases abs_cases ( S k - E k ) <;> cases abs_cases ( S k ) <;> cases abs_cases ( E k ) <;> linarith;
-    -- Squaring both sides of the inequality $|S_k| < |E_k| + \sqrt{Z_k / m}$, we get $S_k^2 < (|E_k| + \sqrt{Z_k / m})^2$.
-    have h_sq_bound : ∀ᶠ k in Filter.atTop, m * (S k)^2 < m * (|E k| + Real.sqrt (Z k / m))^2 := by
+    -- Squaring both sides of the inequality $|S_k| < |E_k| + \sqrt{Z_k / m}$, we get $S_k^2 < (|E_k| + \sqrt{Z_k / m}) ^ 2$.
+    have h_sq_bound : ∀ᶠ k in Filter.atTop, m * (S k) ^ 2 < m * (|E k| + Real.sqrt (Z k / m)) ^ 2 := by
       filter_upwards [ h_bound ] with k hk using mul_lt_mul_of_pos_left ( by nlinarith only [ abs_lt.mp hk, abs_mul_abs_self ( S k ), abs_mul_abs_self ( E k ), Real.sqrt_nonneg ( Z k / m ) ] ) hm;
-    -- The right-hand side tends to $m * (0 + \sqrt{1/m})^2 = m * (1/m) = 1$.
-    have h_rhs_tendsto : Filter.Tendsto (fun k => m * (|E k| + Real.sqrt (Z k / m))^2) Filter.atTop (nhds 1) := by
+    -- The right-hand side tends to $m * (0 + \sqrt{1/m}) ^ 2 = m * (1/m) = 1$.
+    have h_rhs_tendsto : Filter.Tendsto (fun k => m * (|E k| + Real.sqrt (Z k / m)) ^ 2) Filter.atTop (nhds 1) := by
       convert Filter.Tendsto.mul tendsto_const_nhds ( Filter.Tendsto.pow ( Filter.Tendsto.add ( hE.abs ) ( Filter.Tendsto.sqrt ( hZ.div_const m ) ) ) 2 ) using 2 ; norm_num [ hm.ne' ];
       rw [ Real.sq_sqrt hm.le, mul_inv_cancel₀ hm.ne' ];
     refine' le_trans ( Filter.limsup_le_limsup _ _ _ ) _;
@@ -919,8 +921,8 @@ Algebraic transformation of the inequality by dividing by n^(3/2).
 -/
 lemma inequality_algebraic_transform_v2 (m : ℕ) (r : ℕ → ℝ) (n : ℝ) (C : ℝ) (hn : 0 < n)
   (h_nonneg : ∀ i ∈ Finset.range m, 0 ≤ r i) :
-  (m : ℝ) * (∑ i ∈ Finset.range m, r i * (Real.sqrt (r i) - 2))^2 < C * n →
-  (m : ℝ) * (∑ i ∈ Finset.range m, ((r i / Real.sqrt n) ^ (3/2 : ℝ) - 2 * r i / n ^ (3/4 : ℝ))) ^ 2 < C / Real.sqrt n := by
+  (m : ℝ) * (∑ i ∈ Finset.range m, r i * (Real.sqrt (r i) - 2)) ^ 2 < C * n →
+  (m : ℝ) * (∑ i ∈ Finset.range m, ((r i / Real.sqrt n) ^ (3 / 2 : ℝ) - 2 * r i / n ^ (3/4 : ℝ))) ^ 2 < C / Real.sqrt n := by
     convert inequality_algebraic_transform m r n C hn h_nonneg using 1
 
 /-
@@ -1001,7 +1003,7 @@ lemma inequality_2_6_relaxed (A : Finset ℕ) (m : ℕ) (hm : 2 ≤ m) (s : ℕ 
     nlinarith [ ( by norm_cast : ( 2 : ℝ ) ≤ m ), mul_div_cancel₀ ( n : ℝ ) ( by positivity : ( m : ℝ ) ≠ 0 ) ]
 
 /-
-Eventually, m * (S_k - E_k)^2 < Z_k.
+Eventually, m * (S_k - E_k) ^ 2 < Z_k.
 -/
 lemma transformed_inequality_eventually
   (m : ℕ) (hm : 2 ≤ m)
@@ -1012,7 +1014,7 @@ lemma transformed_inequality_eventually
   (h_card : Filter.Tendsto (fun k => ((A_seq k).card : ℝ) / Real.sqrt (n_seq k)) Filter.atTop (nhds 1)) :
   let v (k : ℕ) (i : Fin m) : ℝ := ((A_seq k).filter (fun a => a % m = i)).card / Real.sqrt (n_seq k)
   let E (k : ℕ) : ℝ := 2 * (A_seq k).card / (n_seq k : ℝ) ^ (3/4 : ℝ)
-  ∀ᶠ k in Filter.atTop, (m : ℝ) * (∑ i, (v k i) ^ (3/2 : ℝ) - E k)^2 < (A_seq k).card / Real.sqrt (n_seq k) := by
+  ∀ᶠ k in Filter.atTop, (m : ℝ) * (∑ i, (v k i) ^ (3 / 2 : ℝ) - E k) ^ 2 < (A_seq k).card / Real.sqrt (n_seq k) := by
     have h_eventually : ∀ᶠ k in Filter.atTop, (total_diffs (A_seq k) m (fun i => calc_s ((B_finset_new (A_seq k) m i).card))).card > 0 ∧ 0 ≤ ∑ i ∈ Finset.range m, ((B_finset_new (A_seq k) m i).card : ℝ) * (Real.sqrt (B_finset_new (A_seq k) m i).card - 2) := by
       convert eventually_inequality_premises n_seq A_seq h_n_tendsto h_card m hm using 1;
     filter_upwards [ h_eventually, h_card.eventually ( Metric.ball_mem_nhds _ zero_lt_one ) ] with k hk₁ hk₂;
@@ -1048,16 +1050,16 @@ theorem sidon_density_limit
       · congr with x ; simp +decide;
         exact fun hx => ⟨ ⟨ x % m, Nat.mod_lt _ ( by linarith ) ⟩, rfl ⟩;
       · exact fun i _ j _ hij => Finset.disjoint_left.mpr fun x hx₁ hx₂ => hij <| Fin.ext <| by aesop;
-    -- By definition of $v_k$, we know that $m * (\sum_{i=1}^{m} v_k(i)^{3/2} - E_k)^2 < Z_k$ eventually.
-    have h_ineq : ∀ᶠ k in Filter.atTop, (m : ℝ) * (∑ i : Fin m, (((A_seq k).filter (fun a => a % m = i)).card / Real.sqrt (n_seq k)) ^ (3/2 : ℝ) - 2 * (A_seq k).card / (n_seq k : ℝ) ^ (3/4 : ℝ)) ^ 2 < (A_seq k).card / Real.sqrt (n_seq k) := by
+    -- By definition of $v_k$, we know that $m * (\sum_{i=1}^{m} v_k(i)^{3/2} - E_k) ^ 2 < Z_k$ eventually.
+    have h_ineq : ∀ᶠ k in Filter.atTop, (m : ℝ) * (∑ i : Fin m, (((A_seq k).filter (fun a => a % m = i)).card / Real.sqrt (n_seq k)) ^ (3 / 2 : ℝ) - 2 * (A_seq k).card / (n_seq k : ℝ) ^ (3/4 : ℝ)) ^ 2 < (A_seq k).card / Real.sqrt (n_seq k) := by
       convert transformed_inequality_eventually m hm n_seq A_seq h_n_tendsto h_subset h_sidon h_card using 1;
     -- By definition of $v_k$, we know that $E_k \to 0$ and $Z_k \to 1$.
     have h_E_zero : Filter.Tendsto (fun k => 2 * (A_seq k).card / (n_seq k : ℝ) ^ (3/4 : ℝ)) Filter.atTop (nhds 0) := by
       convert error_term_tendsto_zero n_seq A_seq h_n_tendsto h_card using 1
     have h_Z_one : Filter.Tendsto (fun k => (A_seq k).card / Real.sqrt (n_seq k)) Filter.atTop (nhds 1) := by
       convert h_card using 1;
-    -- By definition of $v_k$, we know that $\limsup_{k \to \infty} m * (\sum_{i=1}^{m} v_k(i)^{3/2})^2 \leq 1$.
-    have h_limsup : Filter.limsup (fun k => (m : ℝ) * (∑ i : Fin m, (((A_seq k).filter (fun a => a % m = i)).card / Real.sqrt (n_seq k)) ^ (3/2 : ℝ)) ^ 2) Filter.atTop ≤ 1 := by
+    -- By definition of $v_k$, we know that $\limsup_{k \to \infty} m * (\sum_{i=1}^{m} v_k(i)^{3/2}) ^ 2 \leq 1$.
+    have h_limsup : Filter.limsup (fun k => (m : ℝ) * (∑ i : Fin m, (((A_seq k).filter (fun a => a % m = i)).card / Real.sqrt (n_seq k)) ^ (3 / 2 : ℝ)) ^ 2) Filter.atTop ≤ 1 := by
       apply_rules [ limsup_le_of_sub_sq_le ];
       positivity;
     -- By definition of $v_k$, we know that $v_k \to \frac{1}{m}$.
