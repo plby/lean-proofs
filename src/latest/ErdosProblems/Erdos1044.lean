@@ -37,7 +37,6 @@ set_option linter.style.longLine false
 set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
-set_option linter.style.show false
 set_option linter.unusedSimpArgs false
 
 /-! ### From Defs.lean -/
@@ -616,14 +615,14 @@ lemma bottomBdry_disjoint_topBdry {U : Set ℂ} (hU_open : IsOpen U) (hU_bdd : B
   intro z ⟨hb, ht⟩
   have hne : (imSlice U z.re).Nonempty := by
     obtain ⟨w, hw, hrw⟩ := hb.1
-    exact ⟨w.im, by show (⟨z.re, w.im⟩ : ℂ) ∈ U; rwa [← hrw, Complex.eta]⟩
+    exact ⟨w.im, by change (⟨z.re, w.im⟩ : ℂ) ∈ U; rwa [← hrw, Complex.eta]⟩
   linarith [slice_inf_lt_sup hU_open hU_bdd hne, hb.2.2, ht.2.2]
 
 lemma re_surj_bottomBdry {U : Set ℂ} (hU_open : IsOpen U) (hU_bdd : Bornology.IsBounded U) :
     re '' U ⊆ re '' (bottomBdry U) := by
   intro t ⟨z, hz, hzt⟩
   have hne : (imSlice U t).Nonempty :=
-    ⟨z.im, by show (⟨t, z.im⟩ : ℂ) ∈ U; rwa [← hzt, Complex.eta]⟩
+    ⟨z.im, by change (⟨t, z.im⟩ : ℂ) ∈ U; rwa [← hzt, Complex.eta]⟩
   exact ⟨⟨t, sInf (imSlice U t)⟩,
     ⟨⟨z, hz, hzt⟩, slice_inf_mem_frontier hU_open hU_bdd hne, by simp⟩, by simp⟩
 
@@ -631,7 +630,7 @@ lemma re_surj_topBdry {U : Set ℂ} (hU_open : IsOpen U) (hU_bdd : Bornology.IsB
     re '' U ⊆ re '' (topBdry U) := by
   intro t ⟨z, hz, hzt⟩
   have hne : (imSlice U t).Nonempty :=
-    ⟨z.im, by show (⟨t, z.im⟩ : ℂ) ∈ U; rwa [← hzt, Complex.eta]⟩
+    ⟨z.im, by change (⟨t, z.im⟩ : ℂ) ∈ U; rwa [← hzt, Complex.eta]⟩
   exact ⟨⟨t, sSup (imSlice U t)⟩,
     ⟨⟨z, hz, hzt⟩, slice_sup_mem_frontier hU_open hU_bdd hne, by simp⟩, by simp⟩
 
@@ -746,7 +745,7 @@ lemma re_surj_lowerFrontier {U : Set ℂ} (hU_open : IsOpen U) (hU_bdd : Bornolo
     re '' U ⊆ re '' (lowerFrontier U) := by
   intro t ⟨z, hz, hzt⟩
   have hne : (imSlice U t).Nonempty :=
-    ⟨z.im, by show (⟨t, z.im⟩ : ℂ) ∈ U; rwa [← hzt, Complex.eta]⟩
+    ⟨z.im, by change (⟨t, z.im⟩ : ℂ) ∈ U; rwa [← hzt, Complex.eta]⟩
   refine ⟨⟨t, sInf (imSlice U t)⟩, ?_, by simp⟩
   refine ⟨⟨slice_inf_mem_frontier hU_open hU_bdd hne,
     slice_inf_mem_lowSet hne (im_slice_bddBelow hU_bdd t)⟩, ?_⟩
@@ -757,7 +756,7 @@ lemma re_surj_upperFrontier {U : Set ℂ} (hU_open : IsOpen U) (hU_bdd : Bornolo
     re '' U ⊆ re '' (upperFrontier U) := by
   intro t ⟨z, hz, hzt⟩
   have hne : (imSlice U t).Nonempty :=
-    ⟨z.im, by show (⟨t, z.im⟩ : ℂ) ∈ U; rwa [← hzt, Complex.eta]⟩
+    ⟨z.im, by change (⟨t, z.im⟩ : ℂ) ∈ U; rwa [← hzt, Complex.eta]⟩
   refine ⟨⟨t, sSup (imSlice U t)⟩, ?_, by simp⟩
   refine ⟨⟨slice_sup_mem_frontier hU_open hU_bdd hne,
     slice_sup_mem_highSet hne (im_slice_bddAbove hU_bdd t)⟩, ?_⟩
@@ -1805,7 +1804,7 @@ theorem frontier_component_one_eq_lemniscate_arc' (n : ℕ) (hn : n ≥ 1) :
     · exact petal_curve_sub_closure n hn ⟨θ, hθ, hθ_eq⟩
     · rw [← hθ_eq]
       apply subset_closure
-      show lemniscatePetalCurve n θ ∉ connectedComponentIn (OmegaSet (modelPoly n)) 1
+      change lemniscatePetalCurve n θ ∉ connectedComponentIn (OmegaSet (modelPoly n)) 1
       intro hc
       have h1 : lemniscatePetalCurve n θ ∈ OmegaSet (modelPoly n) :=
         connectedComponentIn_subset _ _ hc
@@ -2565,12 +2564,12 @@ lemma omegaSet_modelPoly_rotation (n : ℕ) (ω : ℂ) (hω : ω ^ n = 1) (hω_n
   ext w
   constructor
   · rintro ⟨z, hz, rfl⟩
-    show ‖Polynomial.eval (ω * z) (modelPoly n)‖ < 1
+    change ‖Polynomial.eval (ω * z) (modelPoly n)‖ < 1
     rw [modelPoly_eval_rotation n ω hω]
     exact hz
   · intro hw
     refine ⟨ω⁻¹ * w, ?_, by field_simp⟩
-    show ‖Polynomial.eval (ω⁻¹ * w) (modelPoly n)‖ < 1
+    change ‖Polynomial.eval (ω⁻¹ * w) (modelPoly n)‖ < 1
     have : (ω⁻¹) ^ n = 1 := by rw [inv_pow, hω, inv_one]
     rw [modelPoly_eval_rotation n ω⁻¹ this]
     exact hw
@@ -3085,7 +3084,7 @@ theorem pommerenke_component_diam' (f : Polynomial ℂ) (hf : IsAdmissible f)
   -- Φ has no zeros in U₀
   have hΦ_no_zeros : ∀ z ∈ U₀, Φ z ≠ 0 := by
     intro z hz
-    show (S.map (fun a => 1 - starRingEnd ℂ a * z)).prod *
+    change (S.map (fun a => 1 - starRingEnd ℂ a * z)).prod *
          (T.map (fun b => z - b)).prod ≠ 0
     have hz_lt : ‖z‖ < 1 := by simpa [dist_eq_norm] using hU_sub hz
     exact mul_ne_zero (blaschke_conjugate_prod_ne_zero S hS_norm z hz_lt)
