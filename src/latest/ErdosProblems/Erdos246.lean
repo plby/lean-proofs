@@ -31,7 +31,6 @@ set_option linter.style.refine false
 set_option linter.style.induction false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
-set_option linter.unusedDecidableInType false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
 
@@ -370,8 +369,11 @@ lemma exists_subset_sum_lt_pow_card (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) :
 /-
 Generalized pigeonhole principle for subset sums.
 -/
-lemma pigeonhole_subset_sums_general {α : Type*} [DecidableEq α] (S : Finset α) (f : α → ℕ) (h : ∑ x ∈ S, f x + 1 < 2 ^ S.card) :
-  ∃ U V : Finset α, U ⊆ S ∧ V ⊆ S ∧ U ≠ V ∧ ∑ x ∈ U, f x = ∑ x ∈ V, f x := by
+lemma pigeonhole_subset_sums_general {α : Type*} (S : Finset α) (f : α → ℕ)
+    (h : ∑ x ∈ S, f x + 1 < 2 ^ S.card) :
+    ∃ U V : Finset α,
+      U ⊆ S ∧ V ⊆ S ∧ U ≠ V ∧ ∑ x ∈ U, f x = ∑ x ∈ V, f x := by
+    classical
     by_contra! h';
     exact absurd ( Finset.card_le_card ( show Finset.image ( fun s => ∑ x ∈ s, f x ) ( Finset.powerset S ) ⊆ Finset.Icc ( 0 : ℕ ) ( ∑ x ∈ S, f x ) from Finset.image_subset_iff.2 fun s hs => Finset.mem_Icc.2 ⟨ Nat.zero_le _, Finset.sum_le_sum_of_subset ( Finset.mem_powerset.1 hs ) ⟩ ) ) ( by simp +decide [ Finset.card_image_of_injOn ( fun s hs t ht hst => not_imp_not.1 ( h' s t ( Finset.mem_powerset.1 hs ) ( Finset.mem_powerset.1 ht ) ) hst ) ] ; linarith )
 
