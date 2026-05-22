@@ -54,8 +54,6 @@ V. Kovač, "On the set of points represented by harmonic subseries"
 open Set Filter Topology Matrix
 open scoped BigOperators
 
-noncomputable section
-
 /-! ## Main Definition -/
 
 /-- The set of points representable by harmonic subseries. -/
@@ -70,7 +68,7 @@ def harmonicSubseriesSet : Set (Fin 3 → ℝ) :=
 def M_mat : Matrix (Fin 3) (Fin 3) ℝ := !![1, 0, 0; 3, -4, 1; 1, -2, 1]
 
 /-- The inverse of `M_mat`. -/
-def M_inv : Matrix (Fin 3) (Fin 3) ℝ := !![1, 0, 0; 1, -(1/2), 1/2; 1, -1, 2]
+noncomputable def M_inv : Matrix (Fin 3) (Fin 3) ℝ := !![1, 0, 0; 1, -(1/2), 1/2; 1, -1, 2]
 
 /-- `S_j` sets indexed by `j : Fin 3`. -/
 def S₁ : Finset ℕ := {45, 72, 144, 160, 432, 480}
@@ -85,7 +83,7 @@ def Tsets : Fin 3 → Finset ℕ := ![T₁, T₂, T₃]
 
 def m_const : ℕ := 2310
 
-def c_coeff : Fin 3 → ℝ := ![1/180, 1/348480, 1/1029000]
+noncomputable def c_coeff : Fin 3 → ℝ := ![1/180, 1/348480, 1/1029000]
 
 /-! ### Verified arithmetic properties -/
 
@@ -321,9 +319,6 @@ lemma image_open_contains_ball
         ( hQ_image_open.mem_nhds ( Set.mem_image_of_mem _ hx ) ) with
       ⟨ ε, εpos, hε ⟩
     exact ⟨ _, ε, εpos, hε.trans ( Set.image_subset_iff.2 hQ_sub ) ⟩ ;
-
-end
-
 /-! # One-Dimensional Convergence Game
 
 We formalize the "convergence game" from Kovač's paper (Section 4, Claims 1 and 2) starting
