@@ -57,8 +57,6 @@ set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 
-set_option maxHeartbeats 800000
-
 open Finset Nat
 
 namespace Erdos1136
