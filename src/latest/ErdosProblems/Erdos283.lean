@@ -38,7 +38,6 @@ set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.unusedFintypeInType false
 set_option linter.style.show false
-set_option linter.style.whitespace false
 
 /-! =============================================================
     Section from: Erdos/P283/RSG/CompleteSequences.lean
@@ -3575,8 +3574,8 @@ private lemma sub_one_div_eq_divInt_aux (R : ℚ) (q : ℕ) (hq_pos : 0 < q) :
 
 /-- The greedy step decreases the numerator (in `natAbs`). -/
 private lemma greedy_num_decrease_aux (R : ℚ) (hR : 0 < R)
-    (h_neq : R ≠ 1/(⌈(R⁻¹ : ℚ)⌉₊ : ℚ)) :
-    (R - 1/(⌈(R⁻¹ : ℚ)⌉₊ : ℚ)).num.natAbs < R.num.natAbs := by
+    (h_neq : R ≠ 1 / (⌈(R⁻¹ : ℚ)⌉₊ : ℚ)) :
+    (R - 1 / (⌈(R⁻¹ : ℚ)⌉₊ : ℚ)).num.natAbs < R.num.natAbs := by
   set q : ℕ := ⌈(R⁻¹ : ℚ)⌉₊ with hq_def
   have hq_pos : 0 < q := by
     apply Nat.one_le_iff_ne_zero.mpr
