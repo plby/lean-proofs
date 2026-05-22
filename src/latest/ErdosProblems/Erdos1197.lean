@@ -4,7 +4,8 @@ This is a Lean formalization of a solution to Erdős Problem 1197.
 https://www.erdosproblems.com/forum/thread/1197
 
 Formalization status:
-- Conditional on: pnt_plus_chebyshev_asymptotic, pnt_plus_prime_in_interval
+- Conditional on: pnt_plus_chebyshev_asymptotic
+- Conditional on: pnt_plus_prime_in_interval
 
 Informal authors:
 - GPT Pro
@@ -52,7 +53,6 @@ open scoped ENNReal
 noncomputable section
 
 set_option linter.style.setOption false
-set_option maxHeartbeats 800000
 set_option linter.unusedVariables false
 set_option linter.style.refine false
 set_option linter.flexible false
