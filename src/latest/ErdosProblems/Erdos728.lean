@@ -43,7 +43,6 @@ open Real
 
 open scoped Classical Nat Topology
 
-set_option maxHeartbeats 0
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
