@@ -26,19 +26,16 @@ import Mathlib
 
 namespace Erdos1148
 
-
-set_option linter.mathlibStandardSet false
+set_option linter.style.setOption false
+set_option linter.style.openClassical false
+set_option linter.style.longLine false
+set_option linter.flexible false
 
 open scoped BigOperators
 open scoped Real
 open scoped Nat
 open scoped Classical
 open scoped Pointwise
-
-set_option maxHeartbeats 0
-set_option maxRecDepth 4000
-set_option synthInstance.maxHeartbeats 20000
-set_option synthInstance.maxSize 128
 
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
@@ -50,7 +47,7 @@ Lemma 2.1: Dictionary between ternary representations and discriminant points.
 If b^2 - 4ac = 4n, b is even, and a, c have the same parity, then x=(a-c)/2,
 y=b/2, z=(a+c)/2 are integers satisfying x^2+y^2-z^2=n.
 -/
-lemma lemma_dictionary (n : ℤ) (a b c : ℤ) (h_eq : b^2 - 4 * a * c = 4 * n)
+lemma lemma_dictionary (n : ℤ) (a b c : ℤ) (h_eq : b ^ 2 - 4 * a * c = 4 * n)
     (hb : b % 2 = 0) (hac : a % 2 = c % 2) :
     ((a - c) / 2) ^ 2 + (b / 2) ^ 2 - ((a + c) / 2) ^ 2 = n := by
   have h4 : 4 * (((a - c) / 2) ^ 2 + (b / 2) ^ 2 - ((a + c) / 2) ^ 2) = 4 * n := by
@@ -110,7 +107,7 @@ def DukeTheoremStatement : Prop :=
 
 /-
 Main Theorem: Assuming Duke's Theorem, every sufficiently large integer n
-can be written as x^2 + y^2 - z^2 with max(x^2, y^2, z^2) <= n.
+can be written as x ^ 2 + y ^ 2 - z ^ 2 with max(x ^ 2, y ^ 2, z ^ 2) <= n.
 -/
 theorem erdos_problem_1148 (h_duke : DukeTheoremStatement) :
   ∃ N : ℤ, ∀ n : ℤ, n ≥ N → ∃ x y z : ℤ, n = x^2 + y^2 - z^2 ∧ max (x^2) (max (y^2) (z^2)) ≤ n := by
@@ -121,19 +118,14 @@ theorem erdos_problem_1148 (h_duke : DukeTheoremStatement) :
   have hn1 : n ≥ 1 := le_trans (le_max_right N 1) hn
   have hn_pos : (0 : ℝ) < (n : ℝ) := by exact_mod_cast lt_of_lt_of_le zero_lt_one hn1
   have hn_nonneg : 0 ≤ (n : ℝ) := le_of_lt hn_pos
-
   rcases hN n hnN with ⟨⟨a, b, c⟩, ht_disc, ht_omega, ht_parity⟩
   -- Reduce (a, b, c).1 → a, (a, b, c).2.2 → c, etc. so omega doesn't see extra division terms
   dsimp at ht_disc ht_parity
-
   let x := (a - c) / 2
   let y := b / 2
   let z := (a + c) / 2
-
   use x, y, z
-
   have h_eq : b ^ 2 - 4 * a * c = 4 * n := ht_disc.1
-
   have hb_even : b % 2 = 0 := by
     have h_parity : b % 2 = 0 ∨ b % 2 = 1 := by omega
     rcases h_parity with h0 | h1
@@ -149,7 +141,6 @@ theorem erdos_problem_1148 (h_duke : DukeTheoremStatement) :
           _ = -1 := by ring
       generalize k ^ 2 + k - a * c - n = X at h_eq2
       omega
-
   -- KEY: Prove the 2*w relationships BEFORE h_n, so omega never sees x^2, y^2, z^2
   have hx_rel : a - c = 2 * x := by
     have : (a - c) % 2 = 0 := by omega
@@ -162,54 +153,42 @@ theorem erdos_problem_1148 (h_duke : DukeTheoremStatement) :
     have : (a + c) % 2 = 0 := by omega
     change a + c = 2 * ((a + c) / 2)
     omega
-
   have h_n : x ^ 2 + y ^ 2 - z ^ 2 = n := by
     exact lemma_dictionary n a b c h_eq hb_even ht_parity
-
   refine ⟨h_n.symm, ?_⟩
-
   have hs : Real.sqrt (4 * (n : ℝ)) = 2 * Real.sqrt (n : ℝ) := by
     calc Real.sqrt (4 * (n : ℝ))
         = Real.sqrt 4 * Real.sqrt (n : ℝ) := Real.sqrt_mul (by norm_num : (0 : ℝ) ≤ 4) (n : ℝ)
       _ = 2 * Real.sqrt (n : ℝ) := by norm_num
-
   dsimp [Omega_strict, project_to_hyperboloid] at ht_omega
-
   have h_omega1 : |(a : ℝ) / (2 * Real.sqrt (n : ℝ)) - (c : ℝ) / (2 * Real.sqrt (n : ℝ))| < 1 := by
     have h := ht_omega.2.1
     rwa [hs] at h
-
   have h_omega2 : |(b : ℝ) / (2 * Real.sqrt (n : ℝ))| < 1 := by
     have h := ht_omega.2.2.1
     rwa [hs] at h
-
   have h_omega3 : |(a : ℝ) / (2 * Real.sqrt (n : ℝ)) + (c : ℝ) / (2 * Real.sqrt (n : ℝ))| < 1 := by
     have h := ht_omega.2.2.2
     rwa [hs] at h
-
   have sqrt_pos : 0 < 2 * Real.sqrt (n : ℝ) := by positivity
-
   have h_bound1 : |((a - c : ℤ) : ℝ)| < 2 * Real.sqrt (n : ℝ) := by
     have h_sub : (a : ℝ) / (2 * Real.sqrt (n : ℝ)) - (c : ℝ) / (2 * Real.sqrt (n : ℝ))
         = ((a - c : ℤ) : ℝ) / (2 * Real.sqrt (n : ℝ)) := by push_cast; ring
     have h_omega1' : |((a - c : ℤ) : ℝ) / (2 * Real.sqrt (n : ℝ))| < 1 := by rwa [← h_sub]
     rw [abs_div, abs_of_pos sqrt_pos, div_lt_iff₀ sqrt_pos] at h_omega1'
     linarith
-
   have h_bound2 : |((b : ℤ) : ℝ)| < 2 * Real.sqrt (n : ℝ) := by
     have h_b : (b : ℝ) / (2 * Real.sqrt (n : ℝ))
         = ((b : ℤ) : ℝ) / (2 * Real.sqrt (n : ℝ)) := by rfl
     have h_omega2' : |((b : ℤ) : ℝ) / (2 * Real.sqrt (n : ℝ))| < 1 := by rwa [← h_b]
     rw [abs_div, abs_of_pos sqrt_pos, div_lt_iff₀ sqrt_pos] at h_omega2'
     linarith
-
   have h_bound3 : |((a + c : ℤ) : ℝ)| < 2 * Real.sqrt (n : ℝ) := by
     have h_add : (a : ℝ) / (2 * Real.sqrt (n : ℝ)) + (c : ℝ) / (2 * Real.sqrt (n : ℝ))
         = ((a + c : ℤ) : ℝ) / (2 * Real.sqrt (n : ℝ)) := by push_cast; ring
     have h_omega3' : |((a + c : ℤ) : ℝ) / (2 * Real.sqrt (n : ℝ))| < 1 := by rwa [← h_add]
     rw [abs_div, abs_of_pos sqrt_pos, div_lt_iff₀ sqrt_pos] at h_omega3'
     linarith
-
   have bound_helper : ∀ (w : ℤ), |(2 * w : ℝ)| < 2 * Real.sqrt (n : ℝ) → (w ^ 2 : ℤ) ≤ n := by
     intro w hw
     have hw2 : 2 * |(w : ℝ)| < 2 * Real.sqrt (n : ℝ) := by
@@ -228,22 +207,18 @@ theorem erdos_problem_1148 (h_duke : DukeTheoremStatement) :
     have h2 : |(w : ℝ)| ^ 2 < (Real.sqrt (n : ℝ)) ^ 2 := by linarith
     rw [sq_abs, Real.sq_sqrt hn_nonneg] at h2
     exact_mod_cast le_of_lt h2
-
   have hx_bound : (x ^ 2 : ℤ) ≤ n := by
     apply bound_helper
     have : ((a - c : ℤ) : ℝ) = 2 * (x : ℝ) := by rw [hx_rel]; push_cast; ring
     rwa [this] at h_bound1
-
   have hy_bound : (y ^ 2 : ℤ) ≤ n := by
     apply bound_helper
     have : ((b : ℤ) : ℝ) = 2 * (y : ℝ) := by rw [hy_rel]; push_cast; ring
     rwa [this] at h_bound2
-
   have hz_bound : (z ^ 2 : ℤ) ≤ n := by
     apply bound_helper
     have : ((a + c : ℤ) : ℝ) = 2 * (z : ℝ) := by rw [hz_rel]; push_cast; ring
     rwa [this] at h_bound3
-
   exact max_le hx_bound (max_le hy_bound hz_bound)
 
 #print axioms erdos_problem_1148
