@@ -43,8 +43,6 @@ namespace Erdos1121
 open scoped BigOperators
 open Finset
 
-noncomputable section
-
 /-! ## Geometric Structures -/
 
 /-- A circle in ℝ² with a center and positive radius. -/
@@ -63,7 +61,7 @@ structure Line2D where
 
 /-- 90° counterclockwise rotation of a 2D vector: (a, b) ↦ (-b, a).
     This produces the normal to a direction vector. -/
-def perp2D (v : EuclideanSpace ℝ (Fin 2)) : EuclideanSpace ℝ (Fin 2) :=
+noncomputable def perp2D (v : EuclideanSpace ℝ (Fin 2)) : EuclideanSpace ℝ (Fin 2) :=
   (EuclideanSpace.equiv (Fin 2) ℝ).symm ![-(v 1), v 0]
 
 @[simp] lemma perp2D_norm (v : EuclideanSpace ℝ (Fin 2)) : ‖perp2D v‖ = ‖v‖ := by
@@ -82,7 +80,7 @@ def perp2D (v : EuclideanSpace ℝ (Fin 2)) : EuclideanSpace ℝ (Fin 2) :=
 
 /-- Signed distance from a point to a line, measured using the outward normal
     `perp2D L.direction` (the 90° rotation of the direction). -/
-def Line2D.signedDist (L : Line2D) (x : EuclideanSpace ℝ (Fin 2)) : ℝ :=
+noncomputable def Line2D.signedDist (L : Line2D) (x : EuclideanSpace ℝ (Fin 2)) : ℝ :=
   @inner ℝ _ _ (perp2D L.direction) (x - L.point)
 
 /-- A circle is **disjoint from a line** if every point of the circle is off the line,
@@ -453,7 +451,5 @@ theorem erdos_1121 {n : ℕ} (circles : Fin n → Circle2D)
 
 #print axioms erdos_1121
 -- 'Erdos1121.erdos_1121' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end
 
 end Erdos1121
