@@ -23,8 +23,6 @@ import Mathlib
 namespace Erdos1051
 
 
-noncomputable section
-
 /-
 Definitions of auxiliary sequences and summability lemma.
 -/
@@ -730,7 +728,6 @@ lemma erdos1051_summable
 /-
 If liminf u_n > 1 and k >= 1, then liminf (u_n^k) > 1.
 -/
-set_option linter.flexible false in
 -- The proof unfolds `liminf` and `bddAbove`, then works with the simplified goal.
 lemma liminf_rpow_gt_one
   (u : ℕ → ℝ)
@@ -755,8 +752,15 @@ lemma liminf_rpow_gt_one
     have h_liminf_ge : Filter.liminf (fun n => u n ^ k) Filter.atTop ≥ c ^ k := by
       refine le_csSup ?_ ?_
       · by_contra h_contra
-        simp_all +decide [Filter.liminf_eq, bddAbove_def]
-        obtain ⟨M, hM₁, hM₂⟩ := h_contra
+        have h_contra' :
+            ∀ x : ℝ, ∃ M : ℝ,
+              (∃ N : ℕ, ∀ b : ℕ, N ≤ b → M ≤ u b ^ k) ∧ x < M := by
+          simpa +decide [Filter.liminf_eq, bddAbove_def] using h_contra
+        have h_liminf :
+            1 < SupSet.sSup
+              {a : ℝ | ∃ a_1 : ℕ, ∀ b : ℕ, a_1 ≤ b → a ≤ u b} := by
+          simpa [Filter.liminf_eq] using h_liminf
+        obtain ⟨M, hM₁, hM₂⟩ := h_contra'
           (SupSet.sSup {a : ℝ | ∃ a_1 : ℕ, ∀ b : ℕ, a_1 ≤ b → a ≤ u b} ^ k + 1)
         obtain ⟨N, hN⟩ := hM₁
         have h_liminf_ge : ∀ b ≥ N, u b ≥ M ^ (1 / k) := fun n hn => by
@@ -907,9 +911,7 @@ lemma erdos_1051_sum_tail_rational
         (show 0 ≤ S_shifted by exact_mod_cast hS_shifted ▸ tsum_nonneg fun _ => by positivity)),
         Rat.cast_def] using hS_shifted⟩
 
-#print axioms erdos_1051_irrational
--- 'Erdos1051.erdos_1051_irrational' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end
-
 end Erdos1051
+
+#print axioms Erdos1051.erdos_1051_irrational
+-- 'Erdos1051.erdos_1051_irrational' depends on axioms: [propext, Classical.choice, Quot.sound]
