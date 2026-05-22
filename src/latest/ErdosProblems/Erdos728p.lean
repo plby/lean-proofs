@@ -26,15 +26,21 @@ import Mathlib
 
 namespace Erdos728p
 
-set_option linter.mathlibStandardSet false
 set_option linter.unusedSimpArgs false
 set_option linter.unnecessarySimpa false
 set_option linter.unusedVariables false
 set_option linter.deprecated false
+set_option linter.style.openClassical false
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.style.whitespace false
+set_option linter.style.emptyLine false
+set_option linter.flexible false
+set_option linter.style.refine false
+set_option linter.style.multiGoal false
+set_option linter.style.induction false
 
 open scoped Classical
-
-set_option maxHeartbeats 0
 
 /-
 Legendre's formula for the p-adic valuation of n!.
@@ -147,6 +153,8 @@ theorem valuation_ge_large_digits (p m : ℕ) [Fact p.Prime] :
 /-
 The number of sequences of length D with at most B large digits is bounded by the sum of binomial coefficients times powers of the number of large and small digits.
 -/
+set_option maxHeartbeats 5000000 in
+-- The nested finite-set counting bijections exceed the default heartbeat limit.
 theorem count_sequences_with_large_digits_bound (p D B : ℕ) (L : ℕ) (hL : L ≤ p) :
     let sequences := (Finset.univ : Finset (Fin D → Fin p)).filter (fun f => (Finset.univ.filter (fun i => (f i).val ≥ L)).card ≤ B)
     sequences.card ≤ ∑ j ∈ Finset.range (B + 1), (Nat.choose D j) * (p - L) ^ j * L ^ (D - j) := by
@@ -1779,6 +1787,8 @@ theorem matrix_entries (p : ℕ) [Fact p.Prime] (z : ℝ) (c c_prev : Fin 2) (hp
 /-
 The weighted vector satisfies the matrix recurrence relation.
 -/
+set_option maxHeartbeats 5000000 in
+-- The matrix recurrence proof expands several finite sums and needs a higher heartbeat limit.
 theorem weighted_vector_recurrence (p D : ℕ) (z : ℝ) [Fact p.Prime] (hp : p ≥ 2) :
     weighted_vector p (D + 1) z = Matrix.mulVec (matrix_T p z) (weighted_vector p D z) := by
       unfold weighted_vector matrix_T;
@@ -3306,6 +3316,8 @@ noncomputable def bad_set_lemma_2_2 (x : ℝ) : Finset ℕ :=
       ∃ p ∈ Finset.range (2 * k + 1), p.Prime ∧
         ∃ i ∈ Finset.Icc 1 k, (padicValNat p (m + i) : ℝ) > 3 * Real.log k / Real.log p)
 
+set_option maxHeartbeats 5000000 in
+-- The real-valued bad-set bound proof contains heavy finite-set and logarithm normalization.
 theorem bad_set_lemma_2_2_bound (x : ℝ) (hx : x ≥ 3) :
     ((bad_set_lemma_2_2 x).card : ℝ) ≤
     ∑ k ∈ Finset.Icc (K_min x) (Nat.floor (0.7 * Real.log x)),
@@ -4248,6 +4260,8 @@ theorem bad_set_thm_1_1_subset (x : ℝ) :
 /-
 The set of integers m for which the divisibility property fails has asymptotic density 0.
 -/
+set_option maxHeartbeats 5000000 in
+-- The density argument combines several eventual and little-o bounds and exceeds the default limit.
 theorem theorem_1_1 :
     (fun x => ((bad_set_thm_1_1 x).card : ℝ)) =o[Filter.atTop] (fun x => x) := by
       -- The third set is finite because `property_holds_for_large_m` holds eventually.
