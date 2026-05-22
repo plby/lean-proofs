@@ -72,24 +72,28 @@ import Mathlib
 
 namespace Erdos646
 
-set_option linter.mathlibStandardSet false
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+set_option linter.style.whitespace false
+set_option linter.flexible false
+set_option linter.unusedSimpArgs false
+set_option linter.unusedDecidableInType false
 set_option linter.unusedVariables false
 
 open scoped BigOperators
 open scoped Real
 open scoped Nat
-open scoped Classical
 open scoped Pointwise
 
-set_option maxHeartbeats 0
+set_option maxHeartbeats 20000000
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
 
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
-
-noncomputable section
 
 private lemma zmod_two_eq_zero_or_one (a : ZMod 2) : a = 0 ∨ a = 1 := by
   have hlt : a.val < 2 := ZMod.val_lt a
@@ -428,10 +432,8 @@ lemma lemma_exists_a_case2 (p : ℕ) (hp : p.Prime) (b k0 M' : ℕ) (hb : b > 0)
     -- Choose $a = p^{M'} + p^{M'+1} \cdot b - k0$.
     use p^M' + p^(M'+1) * b - k0
     constructor
-    ·
-      exact Nat.sub_pos_of_lt ( by nlinarith [ pow_pos hp.pos M', pow_pos hp.pos ( M' + 1 ) ] )
-    ·
-      intro r
+    · exact Nat.sub_pos_of_lt ( by nlinarith [ pow_pos hp.pos M', pow_pos hp.pos ( M' + 1 ) ] )
+    · intro r
       have h_factor : p ^ M' + p ^ (M' + 1) * b + r * p ^ (M' + 1) = p ^ M' * (1 + p * b + r * p) := by
         ring;
       have h_val : padicValNat p (p ^ M' * (1 + p * b + r * p)) = M' := by
@@ -658,9 +660,11 @@ For any m, there exists a length L and vectors f_0, ..., f_{m-1} such that any n
 lemma exists_rich_block (k : ℕ) (p : Fin k → ℕ) (hp : ∀ i, (p i).Prime) (N : ℕ) (m : ℕ) :
   ∃ (L : ℕ) (f : Fin m → Fin k → ZMod 2),
     ∀ (S : Finset (Fin m)), S.Nonempty → ∃ (l : ℕ), 0 < l ∧ l ≤ L ∧ ∑ i ∈ Finset.range l, val_vec k p (N + 1 + i) = ∑ i ∈ S, f i := by
-      induction' m with m ih;
-      · exact ⟨ 0, fun _ => 0, by simp +decide ⟩;
-      · exact Exists.elim ih fun L hL => Exists.elim ( rich_block_inductive_step k p hp N m L hL.choose hL.choose_spec ) fun L' hL' => ⟨ L', hL'.choose, hL'.choose_spec ⟩
+      induction m with
+      | zero =>
+        exact ⟨ 0, fun _ => 0, by simp +decide ⟩
+      | succ m ih =>
+        exact Exists.elim ih fun L hL => Exists.elim ( rich_block_inductive_step k p hp N m L hL.choose hL.choose_spec ) fun L' hL' => ⟨ L', hL'.choose, hL'.choose_spec ⟩
 
 /-
 There are infinitely many n such that n! is divisible by an even power of each of the p_i.
@@ -670,9 +674,11 @@ theorem infinitely_many_even_factorial_exponents (k : ℕ) (p : Fin k → ℕ) (
     -- By induction on $N$, we can construct an infinite sequence of such $n$.
     have h_seq : ∀ N : ℕ, ∃ n > N, ∀ i, (partial_sum k p n i) = 0 := by
       intro N
-      induction' N with N ih;
-      · use 1; simp [partial_sum];
-      · obtain ⟨ n, hn₁, hn₂ ⟩ := ih;
+      induction N with
+      | zero =>
+        use 1; simp [partial_sum]
+      | succ N ih =>
+        obtain ⟨ n, hn₁, hn₂ ⟩ := ih;
         obtain ⟨ L, f, hf ⟩ := exists_rich_block k p hp n ( k + 1 );
         obtain ⟨ S, hS₁, hS₂ ⟩ := exists_subset_sum_zero f;
         obtain ⟨ l, hl₁, hl₂, hl₃ ⟩ := hf S hS₁;
@@ -686,8 +692,6 @@ theorem infinitely_many_even_factorial_exponents (k : ℕ) (p : Fin k → ℕ) (
           simp_all +decide [ add_assoc ];
         simp_all +decide [ funext_iff ];
     exact Set.infinite_of_forall_exists_gt fun N => by obtain ⟨ n, hn₁, hn₂ ⟩ := h_seq N; exact ⟨ n, hn₂, hn₁ ⟩ ;
-
-end
 
 #print axioms infinitely_many_even_factorial_exponents
 -- 'Erdos646.infinitely_many_even_factorial_exponents' depends on axioms: [propext,
