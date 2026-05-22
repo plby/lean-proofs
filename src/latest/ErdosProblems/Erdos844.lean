@@ -29,7 +29,6 @@ namespace Erdos844
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.cases false
 set_option linter.style.induction false
 set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
@@ -788,7 +787,7 @@ private lemma unrankFun_monotone {S : Finset ℕ} {a b : ℕ}
 private lemma dominated_image_rankFun {S Y X : Finset ℕ} (hY : Y ⊆ S) (hX : X ⊆ S)
     (h : Dominated Y X) :
     Dominated (Y.image (rankFun S)) (X.image (rankFun S)) := by
-  cases' h with f hf;
+  rcases h with ⟨f, hf⟩;
   use fun k => rankFun S ( f ( unrankFun S k ) );
   refine' ⟨ _, _, _ ⟩;
   · intro k hk l hl hkl;
