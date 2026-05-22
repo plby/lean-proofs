@@ -66,12 +66,6 @@ open scoped Classical
 
 open scoped Pointwise
 
-set_option relaxedAutoImplicit false
-
-set_option autoImplicit false
-
-noncomputable section
-
 open Complex
 
 /-
@@ -88,7 +82,7 @@ The color tuple of a complex number $z$ is a pair of integers modulo 5, derived 
 -/
 open Complex
 
-def color_tuple (z : ℂ) : Fin 5 × Fin 5 :=
+noncomputable def color_tuple (z : ℂ) : Fin 5 × Fin 5 :=
   let u := (3/2 : ℂ) * z^2
   (⟨(Int.floor u.re).emod 5 |>.toNat, by
     -- Since the floor function returns an integer, and modulo 5 gives a remainder between 0 and 4, this should hold.
@@ -107,7 +101,7 @@ The coloring function maps a complex number $z$ to a color in $\{0, \dots, 24\}$
 -/
 open Complex
 
-def color (z : ℂ) : Fin 25 :=
+noncomputable def color (z : ℂ) : Fin 25 :=
   let (j, k) := color_tuple z
   ⟨5 * j.val + k.val, by
     have hj := j.isLt
@@ -658,7 +652,5 @@ theorem erdos_189 :
 #print axioms erdos_189
 -- 'Erdos189.erdos_189' depends on axioms: [propext, Classical.choice, Quot.sound]
 --'Erdos189.erdos_189' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end
 
 end Erdos189
