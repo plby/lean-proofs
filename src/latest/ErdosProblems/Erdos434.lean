@@ -62,18 +62,14 @@ open scoped Nat
 open scoped Classical
 open scoped Pointwise
 
-set_option relaxedAutoImplicit false
-set_option autoImplicit false
-
 namespace Erdos434
-
-noncomputable section
 
 def S (E : Set ℕ) : AddSubsemigroup ℕ := AddSubsemigroup.closure E
 
 def S_k (a : ℕ) (S : Set ℕ) (k : ℕ) : Set ℕ := S ∩ Set.Icc ((k - 1) * a + 1) (k * a)
 
-def non_representable_count (A : Set ℕ) : ℕ := (Set.univ \ (S A : Set ℕ)).ncard
+noncomputable def non_representable_count (A : Set ℕ) : ℕ :=
+  (Set.univ \ (S A : Set ℕ)).ncard
 
 def A_opt (n k : ℕ) : Finset ℕ := Finset.Icc (n - k + 1) n
 
@@ -415,7 +411,5 @@ theorem main_theorem_final (n k : ℕ) (hk : k ≤ n) (hk_ge_2 : k ≥ 2) :
 #print axioms main_theorem_final
 -- 'Erdos434.main_theorem_final' depends on axioms: [propext, Classical.choice,
 -- Finset.add_kneser, Quot.sound]
-
-end
 
 end Erdos434
