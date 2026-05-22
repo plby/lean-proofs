@@ -18,7 +18,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.longLine false
-set_option linter.style.maxHeartbeats false
 set_option linter.style.refine false
 set_option linter.unusedSimpArgs false
 
@@ -291,7 +290,8 @@ lemma intersection_diff_formula_conj (u v a b c d : ℂ)
       rw [ h_conj.left, h_conj.right ];
       grind
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 8000000 in
+-- The explicit chord-intersection algebra below needs a larger heartbeat budget.
 /-
 Proof of Pascal's hexagon theorem for points on the unit circle in the complex plane, using the derived intersection formulas.
 -/
@@ -482,7 +482,8 @@ lemma pascal_polynomial_identity (z₁ z₂ z₃ z₄ z₅ z₆ : ℂ) :
   P98 z₁ z₂ z₃ z₄ z₅ z₆ * Q78 z₁ z₂ z₃ z₄ z₅ z₆ = Q98 z₁ z₂ z₃ z₄ z₅ z₆ * P78 z₁ z₂ z₃ z₄ z₅ z₆ := by
     unfold P98 P78 Q98 Q78; ring;
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 8000000 in
+-- The chord non-parallel proof performs substantial algebraic normalization.
 /-
 If two distinct chords (defined by pairs {z1, z2} and {z3, z4} on the unit circle) intersect at a point p, then the product of the endpoints of one chord is not equal to the product of the endpoints of the other. This condition ensures the chords are not parallel.
 -/
@@ -500,7 +501,8 @@ lemma denom_ne_zero_of_intersection (z₁ z₂ z₃ z₄ p : ℂ)
       simp_all only
       grind
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 8000000 in
+-- The final affine reduction reuses several generated algebraic subproofs.
 /--
 Pascal's hexagon theorem (circle version, cf. HOL Light 28).
 
