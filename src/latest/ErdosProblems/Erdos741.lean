@@ -37,14 +37,12 @@ import Util
 
 set_option linter.style.setOption false
 set_option aesop.warn.nonterminal false
-set_option linter.deprecated false
 set_option linter.dupNamespace false
 set_option linter.flexible false
 set_option linter.style.cdot false
 set_option linter.style.docString false
 set_option linter.style.emptyLine false
 set_option linter.style.show false
-set_option linter.style.whitespace false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
 
@@ -214,7 +212,7 @@ noncomputable def base3_to_base4 (n : ℕ) : ℕ :=
   if h : n = 0 then 0 else (n % 3) + 4 * base3_to_base4 (n / 3)
 termination_by n
 
-lemma base3_to_base4_bound (d : ℕ) (n : ℕ) (hn : n < 3^d) : base3_to_base4 n < 4^d := by
+lemma base3_to_base4_bound (d : ℕ) (n : ℕ) (hn : n < 3 ^ d) : base3_to_base4 n < 4 ^ d := by
   induction d generalizing n with
   | zero =>
     have h0 : n = 0 := by omega
@@ -228,23 +226,23 @@ lemma base3_to_base4_bound (d : ℕ) (n : ℕ) (hn : n < 3^d) : base3_to_base4 n
       simp
     · rw [base3_to_base4]
       simp [h0]
-      have h1 : n / 3 < 3^d := by
-        calc n / 3 ≤ (3 * 3^d - 1) / 3 := Nat.div_le_div_right (by omega)
-          _ < 3^d := by omega
+      have h1 : n / 3 < 3 ^ d := by
+        calc n / 3 ≤ (3 * 3 ^ d - 1) / 3 := Nat.div_le_div_right (by omega)
+          _ < 3 ^ d := by omega
       have h2 := ih (n / 3) h1
       have h3 : n % 3 ≤ 2 := by omega
-      have h4 : 4^d ≥ 1 := by exact Nat.one_le_pow d 4 (by omega)
-      calc n % 3 + 4 * base3_to_base4 (n / 3) ≤ 2 + 4 * (4^d - 1) := by omega
-        _ = 4 * 4^d - 2 := by omega
+      have h4 : 4 ^ d ≥ 1 := by exact Nat.one_le_pow d 4 (by omega)
+      calc n % 3 + 4 * base3_to_base4 (n / 3) ≤ 2 + 4 * (4 ^ d - 1) := by omega
+        _ = 4 * 4 ^ d - 2 := by omega
         _ < 4^(d+1) := by
-          have h_pow : 4^(d+1) = 4 * 4^d := by ring_nf
+          have h_pow : 4^(d+1) = 4 * 4 ^ d := by ring_nf
           omega
 
-lemma base3_to_base4_lt_4_pow (d : ℕ) (n : ℕ) (hn : n < 3^d) :
-    base3_to_base4 n < 4^d :=
+lemma base3_to_base4_lt_4_pow (d : ℕ) (n : ℕ) (hn : n < 3 ^ d) :
+    base3_to_base4 n < 4 ^ d :=
   base3_to_base4_bound d n hn
 
-lemma missing_3_exists_base3 (m : ℕ) (h_miss : ∀ d, (m / 4^d) % 4 ≠ 3) :
+lemma missing_3_exists_base3 (m : ℕ) (h_miss : ∀ d, (m / 4 ^ d) % 4 ≠ 3) :
     ∃ n, m = base3_to_base4 n := by
   induction m using Nat.strongRecOn with
   | ind m ih =>
@@ -1440,7 +1438,7 @@ lemma error_term_tendsto :
       (((summable_geometric_two.mul_left 10).mul_left 2).mul_left 2).tendsto_atTop_zero
   use ((this.add (((tendsto_pow_atTop_nhds_zero_of_lt_one (by norm_num)
       (by norm_num)).const_mul 10).const_mul _)).comp
-      ((Nat.tendsto_pow_atTop_atTop_of_one_lt (by decide)))).trans_eq (by ring_nf)
+      ((tendsto_pow_atTop_atTop_of_one_lt (by decide)))).trans_eq (by ring_nf)
 
 lemma error_term_le_eps (ε : ℝ) (hε : ε > 0) :
       ∃ K0, ∀ k ≥ K0,
@@ -2313,7 +2311,7 @@ lemma exists_N_sparse (A : Set ℕ) (c : ℝ) (hc : 0 < c)
     ⟨_, le_self_add.trans (h.2.trans hf.le_apply),
       (le_inv_mul_iff₀ (by positivity)).1 ?_, h_sum and⟩
   use .trans
-    (mod_cast Nat.card_mono (.of_fintype _) fun and => .imp_left and.lt_succ.2)
+    (mod_cast Nat.card_mono (.of_fintype _) fun and => .imp_left (fun h => Nat.lt_succ_iff.2 h))
     (((div_le_iff₀ (by bound)).1
       ((‹∀ (x _), _› (f and + 1) (by linarith [hf.le_apply.trans' h.2]) :))).trans
         (?_))
@@ -2440,7 +2438,7 @@ lemma case_dense_bounds (A : Set ℕ) (c : ℝ) (hc : 0 < c) (M : ℕ → ℕ)
               Iio (M (2 * a + 1) + 1)
     · exact fun and ⟨A, B⟩ =>
         (lt_or_ge _ _).elim
-          (.inr ⟨⟨A, a, ., B⟩, and.lt_succ.2 B⟩) (.inl ∘ .intro A)
+          (.inr ⟨⟨A, a, ., B⟩, Nat.lt_succ_iff.2 B⟩) (.inl ∘ .intro A)
     use .trans (by rw [Nat.cast_succ]) (not_lt.1 fun and=>? _)
     have := (Set.ncard_le_ncard this).trans (Set.ncard_union_le _ _)
     linarith [
@@ -2594,7 +2592,7 @@ lemma case_sparse_bounds (A : Set ℕ) (c : ℝ) (hc : 0 < c) (M : ℕ → ℕ)
     exact (mt ((le_div_iff₀ (mod_cast (x.1 α).pos)).1 (x.2 _)).trans
       (by linarith!) ∘
         .trans (congr_arg _ ((congr_arg _) ((Set.ext fun and =>
-          and_congr_right' and.lt_succ)))).ge)
+          and_congr_right' Nat.lt_succ_iff)))).ge)
   exact ⟨h_pos1, h_pos2⟩
 
 lemma exists_partition_positive_density (A : Set ℕ) (hA : 0 < upperDensity A) :
