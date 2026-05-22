@@ -22,10 +22,17 @@ import Mathlib
 
 namespace Erdos845
 
-set_option linter.mathlibStandardSet false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
 set_option linter.deprecated false
+set_option linter.style.openClassical false
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.style.whitespace false
+set_option linter.style.induction false
+set_option linter.flexible false
+set_option linter.style.refine false
+set_option linter.style.multiGoal false
 
 open scoped BigOperators
 open scoped Real
@@ -33,7 +40,6 @@ open scoped Nat
 open scoped Classical
 open scoped Pointwise
 
-set_option maxHeartbeats 0
 set_option maxRecDepth 4000
 
 noncomputable section
@@ -860,6 +866,8 @@ theorem coeff_from_binary_eq_zero_of_gt (p : ℕ) (hp : p > 1) (R i : ℕ) (h : 
 /-
 The remainder R is less than M_0 * a_{m-1}.
 -/
+set_option maxHeartbeats 1000000 in
+-- This arithmetic proof needs more than the default heartbeat limit for `nlinarith!`.
 theorem R_lt_M0_am_sub_1 (p n : ℕ) (hp : Odd p ∧ p > 1) (hn : n > 0) :
   R p n hp < M_0 p * a_seq p (m p n hp - 1) := by
     -- By definition of $R$, we have $R = n - M_0 \cdot \text{partial\_sum}(m-1)$.
@@ -1785,7 +1793,7 @@ theorem lemma_card_contributing_le_S_sub_one_final_if_pow2 (p n : ℕ) (hp : Odd
   (h_prev : ∀ j' < j, CoeffBound_final p n hp j')
   (h_pow2 : ∃ r, a_seq p i = 2^r) :
   (contributing_s_final_v2_up_to p n hp j i).card ≤ (S p).card - 1 := by
-    cases' exists_non_pow2_in_S p hp with x hx;
+    obtain ⟨x, hx⟩ := exists_non_pow2_in_S p hp
     -- Since `s` is a power of 2 and `x` is not, `s` cannot be equal to `x`.
     have h_s_ne_x : ∀ s ∈ contributing_s_final_v2_up_to p n hp j i, s ≠ x := by
       intro s hs
