@@ -41,7 +41,15 @@ https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjecture
 
 import Mathlib
 
-set_option linter.mathlibStandardSet false
+set_option linter.style.setOption false
+set_option linter.style.openClassical false
+set_option linter.style.longLine false
+set_option linter.flexible false
+set_option linter.style.induction false
+set_option linter.style.refine false
+set_option linter.style.multiGoal false
+set_option linter.style.cases false
+set_option linter.style.whitespace false
 set_option linter.deprecated false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedTactic false
@@ -52,13 +60,10 @@ open scoped Nat
 open scoped Classical
 open scoped Pointwise
 
-set_option maxHeartbeats 0
+set_option maxHeartbeats 50000000
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
-
-set_option relaxedAutoImplicit false
-set_option autoImplicit false
 
 noncomputable section
 
