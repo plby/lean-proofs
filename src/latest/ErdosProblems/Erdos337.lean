@@ -17,14 +17,14 @@ URLs:
 import Mathlib
 
 set_option linter.style.setOption false
-set_option maxHeartbeats 0
+set_option maxHeartbeats 50000000
+-- Several generated thin-basis estimates time out at the default heartbeat limit.
 set_option linter.style.whitespace false
 set_option linter.flexible false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.openClassical false
 set_option linter.style.refine false
-set_option linter.style.setOption false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedTactic false
 set_option linter.unusedVariables false
