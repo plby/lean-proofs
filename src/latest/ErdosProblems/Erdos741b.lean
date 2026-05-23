@@ -54,6 +54,7 @@ open scoped Classical
 open scoped Pointwise
 
 set_option maxHeartbeats 8000000
+-- Several generated density and sumset arguments time out at the default heartbeat limit.
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
@@ -74,6 +75,7 @@ open Classical in
 attribute [local instance] Classical.propDecidable
 
 set_option maxHeartbeats 800000
+-- The generated early construction lemmas need extra heartbeats.
 
 noncomputable section
 
