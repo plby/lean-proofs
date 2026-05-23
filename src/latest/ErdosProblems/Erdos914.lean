@@ -43,6 +43,7 @@ set_option linter.style.setOption false
 set_option linter.style.openClassical false
 set_option linter.style.induction false
 set_option linter.style.refine false
+-- Local generated proof budgets below exceed the style threshold but are scoped.
 set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
 set_option linter.style.cases false
@@ -194,6 +195,7 @@ In a finite directed graph, if there exists a vertex W₀ ≠ r that can reach r
     then there exists a "terminal" vertex W ≠ r that can reach r, such that every
     other vertex that can reach r can also reach r without passing through W.
 -/
+-- The generated terminal-vertex proof needs extra heartbeats for reachability minimization.
 set_option maxHeartbeats 800000 in
 theorem exists_terminal_vertex
     (R : α → α → Prop) (r : α)
@@ -929,6 +931,7 @@ lemma exists_movable_class
 
 /-! ## Section 9: Induction step -/
 
+-- The generated induction step needs extra heartbeats for coloring bookkeeping.
 set_option maxHeartbeats 800000 in
 /-- Variant of `induction_step` that takes a callback for converting
     nearly equitable colorings, rather than calling `nearly_equitable_to_equitable`
@@ -1087,6 +1090,7 @@ lemma exists_terminal_color
         Relation.ReflTransGen (fun c d => AuxAdj G f c d ∧ c ≠ W) C small :=
   exists_terminal_vertex (AuxAdj G f) small W₀ hW₀ hW₀_ne
 
+-- The generated solo-weight contradiction needs extra heartbeats for finite-set estimates.
 set_option maxHeartbeats 1600000 in
 /-- Under negation of the good solo vertex conclusion (all solo vertices are "bad"),
     derive False. "Bad" means: every solo z in accessible W is not movable to any
@@ -1655,6 +1659,7 @@ lemma good_solo_vertex_exists
 
 /-! ### Helper: T-vertex degree bound in B -/
 
+-- The generated T-class degree bound needs extra heartbeats for filtered-neighborhood counts.
 set_option maxHeartbeats 1600000 in
 /-- Any vertex in a T-class has at most q + t neighbors in B, where q = r+1-|acc_colors|, t = |T|.
     This follows from h_not_mov_outside: such a vertex has a neighbor in every accessible
@@ -1702,6 +1707,7 @@ lemma T_vertex_B_degree_bound
       G.Adj x w ) Finset.univ ) = Finset.filter ( fun w => G.Adj x w ∧
         IsAccessible G ne.f ne.small ( ne.f w ) ) Finset.univ by ext; aesop ] ; omega;
 
+-- The generated T-solo bound needs extra heartbeats for accessible-color counting.
 set_option maxHeartbeats 1600000 in
 /-- Solo vertex in T-class has at most q non-accessible neighbors.
     From h_bad: z has a neighbor in every accessible class ≠ (ne.f z). -/
@@ -1811,6 +1817,7 @@ lemma solo_card_le_q_aux
     T_solo_vertex_B_degree_bound G r s hs hd hs0 ne hacc z y₁ W₀ hz hy₁_nacc
       hy₁_adj hy₁_uniq ((h_bad W₀ hW₀ z y₁ hz hy₁_nacc hy₁_adj hy₁_uniq).1)
 
+-- The generated restricted-cardinality argument needs extra heartbeats for arithmetic bounds.
 set_option maxHeartbeats 3200000 in
 lemma restricted_T_card_gt_q
     (G : SimpleGraph V) [DecidableRel G.Adj]
@@ -1998,6 +2005,7 @@ lemma restricted_T_card_gt_q
         1 from le_trans ( Finset.card_le_univ _ ) ( by simp +decide ) ) ]
 
 -- Helper lemma: |Solo z| ≤ q for z in T-class
+-- The generated solo-cardinality proof needs extra heartbeats for graph-degree estimates.
 set_option maxHeartbeats 1600000 in
 lemma restricted_Solo_card_le
     (G : SimpleGraph V) [DecidableRel G.Adj]
@@ -2043,6 +2051,7 @@ lemma restricted_Solo_card_le
 
 /-! ### Helper lemmas for restricted_Solo_lower_bound -/
 
+-- The generated solo/dB comparison needs extra heartbeats for subset-cardinality reasoning.
 set_option maxHeartbeats 1600000 in
 /-- Solo(z) has at most dB+1 elements, where dB is the B-degree of y. -/
 lemma solo_card_le_dB_plus_one
@@ -2071,6 +2080,7 @@ lemma solo_card_le_dB_plus_one
     grind;
   exact le_trans ( Finset.card_le_card h_erase ) ( Finset.card_insert_le _ _ )
 
+-- The generated Sy lower bound needs extra heartbeats for color-class decompositions.
 set_option maxHeartbeats 1600000 in
 /-- Lower bound on |S^y| (number of solo vertices in T-classes for y). -/
 lemma sy_card_lower_bound
@@ -2187,6 +2197,7 @@ lemma sy_card_lower_bound
 /-
 Helper lemma: lower bound on |S^y| for y ∈ B
 -/
+-- The generated restricted solo lower bound needs extra heartbeats for weight counts.
 set_option maxHeartbeats 1600000 in
 lemma restricted_Solo_lower_bound
     (G : SimpleGraph V) [DecidableRel G.Adj]
@@ -2302,6 +2313,7 @@ lemma non_acc_verts_card_q
   · rw [ this ];
     exact Nat.mul_le_mul_right _ ( le_trans ( Finset.card_le_univ _ ) ( by simp +decide ) )
 
+-- The generated restricted weight contradiction needs extra heartbeats for double-counting.
 set_option maxHeartbeats 3200000 in
 /-- Restricted weight argument: the weight function argument applied to a subset T
     of accessible classes (the terminal set). If every W ∈ T has the "bad property"
@@ -2371,6 +2383,7 @@ lemma restricted_solo_weight_contradiction
     (restricted_Solo_card_le G r s hs hd hs0 ne hacc T hT_sub hT_ne_small hT_ne_large h_bad)
     (restricted_Solo_lower_bound G r s hs hd hs0 ne hacc T hT_sub ht h_bad)
 
+-- The generated terminal-weight argument needs extra heartbeats for terminal-set construction.
 set_option maxHeartbeats 3200000 in
 /-- The weight argument restricted to the proper terminal set.
     When h_neg denies good solo vertices for terminal classes, we construct
@@ -2526,6 +2539,7 @@ lemma terminal_weight_contradiction
   exact restricted_solo_weight_contradiction G r s hs hd hs0 ne hacc
     T hT_sub hT_ne_small hT_ne_large hU_nonterm_T h_T_bad U hU_acc hU_not_T h_not_mov
 
+-- The generated no-terminal-good-solo contradiction needs extra heartbeats for case assembly.
 set_option maxHeartbeats 800000 in
 /-- If there exists a terminal accessible class W_t (≠ small, ≠ large) such that
     no good solo vertex exists for W_t (i.e., h_neg denies the full existential
@@ -2827,6 +2841,7 @@ lemma non_acc_degree_bound
 
 /-! ### Equitable coloring of B⁻ (non-accessible vertices minus y₁) -/
 
+-- The generated B-minus coloring proof needs extra heartbeats for induced-subgraph reindexing.
 set_option maxHeartbeats 6400000 in
 /-- The non-accessible part minus y₁, as a subgraph, has an equitable q-coloring. -/
 lemma B_minus_equitable
@@ -2968,6 +2983,7 @@ lemma auxadj_transfer_step
   · grind;
   · grind
 
+-- The generated A-plus coloring proof needs extra heartbeats for accessible-color reindexing.
 set_option maxHeartbeats 1600000 in
 /-- The accessible part plus y₁, as a subgraph, has an equitable m1-coloring.
     This is the key construction that requires re-indexing colors via a bijection
@@ -3274,6 +3290,7 @@ lemma A_plus_equitable
 
 /-! ### Case 1 and Case 2 helper lemmas -/
 
+-- The generated first non-accessible case needs extra heartbeats for recoloring construction.
 set_option maxHeartbeats 1600000 in
 /-- Case 1: z is movable to accessible class X.
     We add ih (secondary induction) to the hypotheses since we may need it. -/
@@ -3397,6 +3414,7 @@ lemma transGen_exists_ne_first_step {α : Type*} {r : α → α → Prop} {a b :
     · obtain ⟨ d, hd₁, hd₂, hd₃ ⟩ := ‹∃ d, ¬d = a ∧ r a d ∧
       Relation.ReflTransGen r d c›; exact ⟨ d, hd₁, hd₂, hd₃.tail ‹_› ⟩ ;
 
+-- The generated second non-accessible case needs extra heartbeats for split coloring.
 set_option maxHeartbeats 6400000 in
 /-- **Paper's Case 2**: When z is not movable to any accessible class and has
     two nonadjacent solo neighbors y₁, y₂, we construct a new NearlyEquitable
@@ -3823,6 +3841,7 @@ lemma hajnal_szemeredi_edge_induction
         intro he; exact h_edge ⟨e, SimpleGraph.mem_edgeFinset.mpr he⟩)
   exact h_ind G h
 
+-- The generated outer induction proof needs extra heartbeats for recursive specialization.
 set_option maxHeartbeats 400000 in
 /-- Outer induction on vertex count, providing ih_primary. -/
 private theorem hajnal_szemeredi_outer' : ∀ (n : ℕ)
