@@ -27,10 +27,6 @@ is `main_result`.
 
 import Mathlib
 
-set_option linter.style.refine false
-set_option linter.style.setOption false
-set_option linter.flexible false
-
 namespace Erdos1048
 
 /-
@@ -98,6 +94,10 @@ it is a composition of continuous functions (norm, rpow, exp, arg) and
 the argument function is continuous on the right half-plane, where the
 disk lies.
 -/
+-- This generated continuity proof uses proof-sensitive `refine'` placeholders
+-- and context-wide simplification of the slit-plane side condition.
+set_option linter.style.refine false in
+set_option linter.flexible false in
 lemma branch_continuous_on_disk {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1) (k : ℕ) :
   ContinuousOn (branch n k) (Metric.closedBall (r^n : ℂ) 1) := by
     -- The argument function is continuous on the right half-plane, where the disk lies.
@@ -146,6 +146,8 @@ S is contained in the union of the components. If z is in S, then z^n is
 in the disk, so z is an n-th root of a point in the disk, hence in one
 of the components.
 -/
+-- This generated root-enumeration proof relies on one proof-sensitive `refine'`.
+set_option linter.style.refine false in
 lemma S_subset_union_components {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1) :
   S n r ⊆ ⋃ k ∈ Finset.range n, component n r k := by
   intro z hz
@@ -239,6 +241,10 @@ lemma S_subset_union_components {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1) :
 /-
 If two components intersect, their indices must be equal. This is because the branches are distinct.
 -/
+-- This generated disjointness proof uses proof-sensitive `refine'` placeholders
+-- and context-wide simplification of branch equations.
+set_option linter.style.refine false in
+set_option linter.flexible false in
 lemma components_disjoint {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1)
     (k l : ℕ) (hk : k < n) (hl : l < n)
     (h : (component n r k ∩ component n r l).Nonempty) : k = l := by
@@ -311,6 +317,10 @@ lemma component_subtype_isClosed {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1) (
   IsClosed (component_subtype n r k) := by
     exact IsClosed.preimage continuous_subtype_val ( component_isClosed hn hr k )
 
+-- This generated open-set proof uses proof-sensitive `refine'` placeholders
+-- and context-wide simplification of finite unions of components.
+set_option linter.style.refine false in
+set_option linter.flexible false in
 lemma component_subtype_isOpen {n : ℕ} (hn : n > 0) {r : ℝ}
     (hr : r > 1) (k : ℕ) (hk : k < n) :
   IsOpen (component_subtype n r k) := by
@@ -553,6 +563,9 @@ lemma deriv_branch {n : ℕ} (k : ℕ) (w : ℂ) (hw : 0 < w.re) :
 Bound the norm of the derivative of the branch function. The derivative
 is bounded by (1/n) * (r^n - 1)^(1/n - 1).
 -/
+-- This generated derivative estimate uses context-wide simplification of
+-- complex norms and exponentials.
+set_option linter.flexible false in
 lemma norm_deriv_branch_le {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1)
     (k : ℕ) (w : ℂ) (hw : w ∈ Metric.closedBall (r ^ n : ℂ) 1) :
   ‖deriv (branch n k) w‖ ≤ (1 / n : ℝ) * (r ^ n - 1) ^ ((1 / n : ℝ) - 1) := by
@@ -602,6 +615,8 @@ lemma norm_deriv_branch_le {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1)
 /-
 The branch function is differentiable on the closed ball D(r^n, 1).
 -/
+-- This generated differentiability proof uses proof-sensitive `refine'` placeholders.
+set_option linter.style.refine false in
 lemma branch_differentiable_on_disk {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1) (k : ℕ) :
   ∀ w ∈ Metric.closedBall (r^n : ℂ) 1, DifferentiableAt ℂ (branch n k) w := by
     intro w hw;
@@ -651,6 +666,8 @@ lemma diam_image_le_of_convex_norm_deriv_le {f : ℂ → ℂ} {s : Set ℂ}
 Bound the diameter of the component using the helper lemma. The diameter
 is at most 2 times the bound on the derivative.
 -/
+-- This generated diameter estimate uses proof-sensitive `refine'` placeholders.
+set_option linter.style.refine false in
 lemma diam_component_le {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1) (k : ℕ) :
   Metric.diam (component n r k) ≤ 2 * ((1 / n : ℝ) * (r^n - 1) ^ ((1 / n : ℝ) - 1)) := by
     -- Apply the Mean Value Inequality to bound the diameter of the image.
@@ -681,6 +698,8 @@ If r > 1, then for all n > 0, the set S = {z : |z^n - r^n| <= 1}
 has n connected components, and the diameter of these components tends
 to 0 as n tends to infinity.
 -/
+-- This generated assembly proof uses one proof-sensitive `refine'` placeholder.
+set_option linter.style.refine false in
 theorem main_result (r : ℝ) (hr : r > 1) :
   (∀ n > 0, Nat.card (ConnectedComponents (S n r)) = n) ∧
   (∀ ε > 0, ∃ N, ∀ n ≥ N, ∀ x : S n r,
@@ -834,6 +853,10 @@ lemma S_bounded {n : ℕ} (hn : n > 0) {r : ℝ} : Bornology.IsBounded (S n r) :
 If K is a connected subset of a bounded set S, then the diameter of K is
 bounded by the diameter of some connected component of S.
 -/
+-- This generated connected-subset proof uses proof-sensitive `refine'`
+-- placeholders and context-wide simplification of connectedness predicates.
+set_option linter.style.refine false in
+set_option linter.flexible false in
 lemma connected_subset_le_diam {S : Set ℂ} (hS : Bornology.IsBounded S)
     (K : Set ℂ) (hK : IsConnected K) (hKS : K ⊆ S)
     (hK_nonempty : K.Nonempty) :
