@@ -23,9 +23,6 @@ URLs:
 import Mathlib
 import PrimeNumberTheoremAnd.Consequences
 
-set_option linter.style.setOption false
-set_option linter.flexible false
-
 namespace Erdos205
 
 open Real Filter Asymptotics
@@ -136,6 +133,8 @@ theorem p_kj_injective (E : ℕ) :
 /-
 Q_k is squarefree and Omega(Q_k) = E.
 -/
+-- This generated proof uses context-wide simplification in the prime-factor list argument.
+set_option linter.flexible false in
 theorem Q_k_props (E k : ℕ) (hk : k < E) :
   Squarefree (Q_k E k) ∧ Omega (Q_k E k) = E := by
     -- The product defining $Q_k$ is squarefree because it has distinct primes.
@@ -181,8 +180,9 @@ theorem Q_k_props (E k : ℕ) (hk : k < E) :
         have h_prime_factors_length :
             (Q_k E k).primeFactorsList.toFinset =
               Finset.image (fun j => p_kj E k j) (Finset.Icc 1 E) := by
-          ext; simp [Q_k];
-          constructor;
+          ext
+          simp [Q_k]
+          constructor
           · intro h
             have := h.2.1
             simp_all +decide [ Nat.Prime.dvd_iff_not_coprime,
@@ -577,6 +577,8 @@ A PNT-quality bound for M(E), again at the log level:
   log M(E) ≤ C * E^2 * log E  (eventually in E).
 This is the key input for the inversion to the sqrt(log n / log log n) scale.
 -/
+-- This generated asymptotic estimate uses context-wide simplification before arithmetic closure.
+set_option linter.flexible false in
 theorem log_M_bound_eventually :
     ∃ C : ℝ, 0 < C ∧
       (∀ᶠ E in atTop,
@@ -665,6 +667,8 @@ eventually in E.
 
 We state exactly that, with existential constants and eventual quantification.
 -/
+-- This generated inversion proof uses context-wide simplification to unfold CRT constraints.
+set_option linter.flexible false in
 theorem pntRate_n_E_le_const_mul_E_eventually :
     ∃ C : ℝ, 0 < C ∧
       (∀ᶠ E in atTop,
@@ -797,6 +801,8 @@ Infinitely many counterexamples, in the PNT-scale form:
 ∃ c > 0, there are infinitely many n such that
   ∀ k with 2^k ≤ n, Omega(n - 2^k) ≥ c * sqrt(log n / log log n).
 -/
+-- This generated final extraction uses context-wide simplification of the CRT witness.
+set_option linter.flexible false in
 theorem infinitely_many_counterexamples :
     ∃ c : ℝ, 0 < c ∧ {n : ℕ | is_counterexample c n}.Infinite := by
   -- Extract a value that works for all sufficiently large `E`.
