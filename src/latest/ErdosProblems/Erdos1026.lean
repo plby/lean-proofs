@@ -54,7 +54,8 @@ set_option linter.unusedTactic false
 set_option linter.unusedVariables false
 
 set_option aesop.warn.nonterminal false
-set_option maxHeartbeats 0
+set_option maxHeartbeats 50000000
+-- Several generated monotone-subsequence estimates time out at the default heartbeat limit.
 
 theorem sum_sq_gt_one_div_k_sq (k : ℕ) (hk : k ≥ 2) (x : Fin (k^2) → ℝ)
   (h_pos : ∀ i, 0 < x i) (h_inj : Function.Injective x) (h_sum : ∑ i, x i = 1) :
@@ -151,7 +152,8 @@ theorem exists_max_increasing_subseq_sum {n : ℕ} (x : Fin n → ℝ) :
           rw [ Finset.sum_image <| by intros i hi j hj hij; exact left.injective hij ] ; exact Finset.sum_le_sum fun i _ => le_abs_self _;
         · exact ⟨ 0, fun _ => i, by simp +decide [ StrictMono ], by simp +decide [ Monotone ], by simp +decide, by simp +decide ⟩
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 50000000 in
+-- The decreasing-subsequence sum construction needs extra heartbeats.
 theorem exists_max_decreasing_subseq_sum {n : ℕ} (x : Fin n → ℝ) :
   ∃ (T : Fin n → ℝ),
     (∀ i, ∃ (m : ℕ) (s : Fin (m + 1) → Fin n), StrictMono s ∧ Antitone (x ∘ s) ∧ s (Fin.last m) = i ∧ ∑ j, x (s j) = T i) ∧
@@ -188,7 +190,8 @@ theorem exists_max_decreasing_subseq_sum {n : ℕ} (x : Fin n → ℝ) :
         specialize hT₂ ( w_1 ( Fin.last w ) ) 0 ( fun _ => w_1 ( Fin.last w ) ) ; aesop;
         exact hT₂ ( by simp ( config := { decide := Bool.true } ) [ StrictMono ] ) ( by simp ( config := { decide := Bool.true } ) [ Antitone ] )
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 50000000 in
+-- The tight area inequality expands several generated subsequence goals.
 theorem area_inequality_tight {n : ℕ} (hn : n ≠ 0) (x : Fin n → ℝ) (S T : Fin n → ℝ)
   (h_pos : ∀ i, 0 < x i)
   (h_inj : Function.Injective x)
@@ -379,7 +382,8 @@ theorem es_seq_sum_eq (k : ℕ) (hk : 0 < k) :
     cases k <;> norm_num [ Nat.dvd_iff_mod_eq_zero, Nat.mod_two_of_bodd ];
     rw [ Nat.cast_div ] <;> norm_num ; exact even_iff_two_dvd.mp ( Nat.even_mul_pred_self _ )
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 50000000 in
+-- The approximate-sharpness construction needs extra heartbeats for generated bounds.
 /-- Approximate sharpness of the bound `1 / k` from `exists_monotone_subseq_sum_ge`:
 for every `ε > 0`, there exists a sequence `x : Fin (k^2) → ℝ` of `k^2` distinct
 positive real numbers with total sum `1` such that every nonempty monotone
