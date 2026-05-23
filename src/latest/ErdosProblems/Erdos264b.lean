@@ -60,7 +60,6 @@ set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
-set_option linter.style.whitespace false
 set_option linter.flexible false
 set_option linter.unusedSimpArgs false
 set_option aesop.warn.nonterminal false
@@ -80,10 +79,6 @@ set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
 
 set_option synthInstance.maxSize 128
-
-set_option relaxedAutoImplicit false
-
-set_option autoImplicit false
 
 /-
 Definition of alpha_n as the sum from k=n+1 to infinity of 1/(2^k + 5).
