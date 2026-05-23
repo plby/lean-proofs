@@ -50,7 +50,8 @@ open SimpleGraph
 variable {V W : Type*} [Fintype V] [Fintype W] [DecidableEq V] [DecidableEq W]
 variable (G : SimpleGraph V) (v0 : V) (H' : SimpleGraph W)
 
-set_option maxHeartbeats 0
+set_option maxHeartbeats 50000000
+-- Several generated Ramsey-partition arguments time out at the default heartbeat limit.
 set_option maxRecDepth 4000
 
 /-
