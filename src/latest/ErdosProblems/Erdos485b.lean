@@ -50,6 +50,7 @@ open Polynomial Finset
 open Polynomial Finset Pointwise
 
 set_option maxHeartbeats 1600000
+-- Several generated polynomial-coefficient arguments time out at the default heartbeat limit.
 
 noncomputable section
 
@@ -78,6 +79,7 @@ lemma baseP_coeff_ne_zero (i : ℕ) (hi : i ≤ 8) : baseP.coeff i ≠ 0 := by
     norm_num
 
 set_option maxHeartbeats 6400000 in
+-- The base-polynomial square gap proof expands generated coefficient sums.
 lemma baseP_sq_gap (i : ℕ) (hi : i ∈ ({2, 3, 4, 5, 11, 12, 13, 14} : Finset ℕ)) :
     (baseP ^ 2).coeff i = 0 := by
   rw [pow_two, coeff_mul]
@@ -1092,6 +1094,7 @@ private lemma gap21 (β : ℝ) (hβ3 : β ^ 3 = 5) :
 Now the main construction
 -/
 set_option maxHeartbeats 12800000 in
+-- The degree-12 base-polynomial construction needs extra coefficient normalization.
 theorem exists_base_poly_deg12 :
     ∃ P : ℝ[X],
       P.natDegree = 12 ∧
@@ -1442,6 +1445,7 @@ Construction step
 ============================================================
 -/
 set_option maxHeartbeats 6400000 in
+-- The power-13 construction step expands many generated polynomial products.
 lemma pow13_construction_step (N : ℕ)
     (f : ℝ[X]) (R : Finset ℕ)
     (hf_deg : f.natDegree = 13 ^ N)
