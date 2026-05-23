@@ -46,14 +46,14 @@ lemma prime_of_no_small_divisors {n : ℕ}
     Nat.Prime n :=
   Nat.prime_def_le_sqrt.mpr ⟨hn, h⟩
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 5000000 in
 -- Exhaustive divisor certificate for the prime 509203.
 @[local simp] lemma prime_509203 : Nat.Prime 509203 :=
   prime_of_no_small_divisors (by norm_num) (by
     intro d hd hds
     interval_cases d <;> norm_num)
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 5000000 in
 -- Exhaustive divisor certificate for the prime 127301.
 @[local simp] lemma prime_127301 : Nat.Prime 127301 :=
   prime_of_no_small_divisors (by norm_num) (by
