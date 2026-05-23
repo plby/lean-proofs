@@ -45,10 +45,7 @@ namespace Erdos650
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.unusedDecidableInType false
-set_option linter.style.cdot false
-set_option linter.style.docString false
 set_option linter.style.induction false
-set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 
@@ -264,6 +261,7 @@ lemma badPrimes_finite (s t D : ℕ) (hD : s ≤ D) : Set.Finite (badPrimes s t 
               hp.2.2.choose_spec.choose_spec.2.2.1, hp.2.2.choose_spec.choose_spec.2.2.2 ⟩
 
 set_option maxHeartbeats 800000 in
+-- The gcd estimate uses valuation and divisor-case analysis beyond the default heartbeat limit.
 /-- For the construction with α_{i,j} = M + i + jD, where D = lcm(1,...,st),
     we have gcd(α_{i,j}, α_{k,l}) | (i - k). -/
 lemma gcd_claim (s t : ℕ) (hs : 2 ≤ s) (hst : s ≤ t)
@@ -286,8 +284,7 @@ lemma gcd_claim (s t : ℕ) (hs : 2 ≤ s) (hst : s ≤ t)
     -- If $i = k$, then $g | 0$ trivially. Assume $i \neq k$, so $0 < |q| < s$ and $|r| < t$.
     by_cases hq_zero : q = 0
     · simp [hq_zero]
-    ·
-      have h_prime_factors : ∀ p : ℕ, Nat.Prime p → p ∣ g → p ≤ s * t := by
+    · have h_prime_factors : ∀ p : ℕ, Nat.Prime p → p ∣ g → p ≤ s * t := by
         intros p hp hp_div_g
         by_contra hp_gt_st
         have hp_bad : ∃ q r : ℤ, (0 < abs q ∧ abs q < s ∧ abs r < t ∧ (p : ℤ) ∣ (q + r * D)) := by
@@ -573,6 +570,7 @@ lemma construction_crt (s t D M : ℕ) (hs : 2 ≤ s) (hst : s ≤ t)
 
 -- The existence of M avoiding bad residue classes.
 set_option maxHeartbeats 800000 in
+-- The CRT construction over bad prime residue classes is heartbeat-intensive.
 lemma M_exists (s t D : ℕ) (hs : 2 ≤ s) (ht : 2 ≤ t) (_hst : s ≤ t)
     (hD : D = lcm_range (s * t)) :
     ∃ M : ℕ, M > 2 * s + 2 * t * D ∧
@@ -812,6 +810,7 @@ lemma M_exists_large (s t D : ℕ) (hs : 2 ≤ s) (ht : 2 ≤ t) (hst : s ≤ t)
 
 -- For s, t ≥ 2 with s ≤ t, the 3maxA construction.
 set_option maxHeartbeats 800000 in
+-- The interval construction reuses the large residue-avoidance argument.
 lemma Lemma_3maxA_ge2 (s t : ℕ) (hs : 2 ≤ s) (ht : 2 ≤ t) (hst : s ≤ t)
     (ε : ℝ) (hε : 0 < ε) (hε1 : ε < 1) :
     ∃ (A : Finset ℕ), (∀ a ∈ A, 0 < a) ∧ A.card = s * t ∧
@@ -1032,7 +1031,7 @@ lemma deficient_hall {α : Type*} {ι : Type*} [DecidableEq α] [DecidableEq ι]
               have := Classical.choose_spec ( Finset.mem_image.mp ( Finset.mem_filter.mp ( by aesop
                     : i ∈ S ) |>.2 ) ) ; aesop;
 
-/--  min(|A|, |A| − max_{∅ ≠ S ⊆ A}(|S| − |Γ(S)|)). -/
+/-- min(|A|, |A| − max_{∅ ≠ S ⊆ A}(|S| − |Γ(S)|)). -/
 lemma deficientHall {α : Type*} {ι : Type*} [DecidableEq α] [DecidableEq ι] [Fintype ι]
     (t : ι → Finset α) :
     ∃ (S : Finset ι) (f : S → α),
@@ -1303,6 +1302,7 @@ lemma case2_neighborhood_bound (A : Finset ℕ) (amax : ℕ)
           exact_mod_cast him_final
 
 set_option maxHeartbeats 1600000 in
+-- The first lower-bound case combines Hall's theorem with generated case splits.
 lemma lower_bound_case1 (m : ℕ) (hm : 0 < m) (A : Finset ℕ)
     (hA_pos : ∀ a ∈ A, 0 < a) (hA_card : A.card = m)
     (x : ℤ) (hx : ¬ (↑(A.sup id) : ℤ) ∣ x) :
@@ -1354,6 +1354,7 @@ lemma lower_bound_case1 (m : ℕ) (hm : 0 < m) (A : Finset ℕ)
             grind +ring
 
 set_option maxHeartbeats 3200000 in
+-- The second lower-bound case is the most expensive generated proof in this file.
 lemma lower_bound_case2 (m : ℕ) (hm : 0 < m) (A : Finset ℕ)
     (hA_pos : ∀ a ∈ A, 0 < a) (hA_card : A.card = m)
     (x : ℤ) (hx : (↑(A.sup id) : ℤ) ∣ x) :
