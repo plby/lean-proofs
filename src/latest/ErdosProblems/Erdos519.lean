@@ -68,6 +68,7 @@ set_option linter.style.show false
 set_option linter.unnecessarySeqFocus false
 set_option linter.style.maxHeartbeats false
 set_option maxHeartbeats 10000000
+-- Several generated complex-integral estimates time out at the default heartbeat limit.
 
 private lemma two_pi_smul_I :
     (Real.pi * 2) • (I : ℂ) = I * (↑Real.pi * 2) := by
