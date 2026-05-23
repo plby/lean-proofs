@@ -34,9 +34,8 @@ set_option linter.style.induction false
 set_option linter.style.refine false
 set_option linter.style.multiGoal false
 set_option linter.style.cases false
-set_option linter.unusedTactic false
-set_option linter.deprecated false
 set_option maxHeartbeats 1000000
+-- The generated analytic and valuation proofs in this file exceed the default heartbeat limit.
 
 open scoped BigOperators
 open scoped Nat
@@ -70,7 +69,7 @@ def m (k : ℕ) : ℕ :=
 Claim: Let $p_1 < p_2 <  \ldots < p_r$ be primes and $w_1, w_2, \ldots, w_r$ be integers, such that the combinations $\sum_{i} c_i w_i$ over all possible combinations with $0 < c_i \le p_i $ lead to all residues modulo $P=p_1p_2\ldots p_r.$ Let $B_i \subset [p_i]$ be a set of size at least $(1-\eps)p_i$ for every $1 \le i \le r$.
     If $\eps(p_1+p_2+\ldots+p_r)< n \le p_1,$ among every $n$ consecutive integers there is at least one which equals $\sum_{i} c_i w_i$ modulo $P$ where $c_i \in B_i$ for every $1 \le i \le r$.
 -/
-theorem claim_approx (p : List ℕ) (w : List ℤ) (hp_prime : ∀ x ∈ p, x.Prime) (hp_sorted : p.Sorted (· < ·))
+theorem claim_approx (p : List ℕ) (w : List ℤ) (hp_prime : ∀ x ∈ p, x.Prime) (hp_sorted : List.Pairwise (· < ·) p)
     (h_cover : ∀ r : ℤ, ∃ c : List ℤ, c.length = p.length ∧ (∀ i, 0 < (c.getD i 0) ∧ (c.getD i 0) ≤ (p.getD i 0)) ∧
       (List.sum (List.zipWith (fun x y => x * y) c w)) ≡ r [ZMOD p.prod])
     (ε : ℝ) (B : List (Set ℤ)) (hB_subset : ∀ i, (B.getD i {}) ⊆ Set.Icc 1 (p.getD i 0))
@@ -1812,16 +1811,14 @@ lemma construct_xy (C : ℝ) (hC : C ≥ 1) (k : ℕ) (p1 p2 q1 q2 q3 : ℕ)
           exact Nat.div_lt_of_lt_mul <| by rw [ ← @Nat.cast_lt ℝ ] ; push_cast; linarith;, by
           exact_mod_cast ( by nlinarith [ show ( k : ℝ ) ≥ 10 by norm_cast, one_div_mul_cancel ( by positivity : ( 40 * C : ℝ ) ≠ 0 ) ] : ( p1 : ℝ ) ≤ k ) ⟩ ⟨ by
           exact Nat.div_lt_of_lt_mul <| by rw [ ← @Nat.cast_lt ℝ ] ; push_cast; linarith;, by
-          exact_mod_cast ( by nlinarith [ one_div_mul_cancel ( by positivity : ( 40 * C ) ≠ 0 ) ] : ( p2 : ℝ ) ≤ k ) ⟩ (by linarith)).left
-        skip, by
+          exact_mod_cast ( by nlinarith [ one_div_mul_cancel ( by positivity : ( 40 * C ) ≠ 0 ) ] : ( p2 : ℝ ) ≤ k ) ⟩ (by linarith)).left, by
         apply (M_prime_coprime k p1 p2 hp1 hp2 (by
         linarith) ⟨by
         exact Nat.div_lt_of_lt_mul <| by rw [ ← @Nat.cast_lt ℝ ] ; push_cast; linarith;, by
           exact_mod_cast ( by nlinarith [ show ( k : ℝ ) ≥ 10 by norm_cast, one_div_mul_cancel ( by positivity : ( 40 * C : ℝ ) ≠ 0 ) ] : ( p1 : ℝ ) ≤ k )⟩ ⟨by
         exact Nat.div_lt_of_lt_mul <| by rw [ ← @Nat.cast_lt ℝ ] ; push_cast; linarith;, by
           exact_mod_cast ( by nlinarith [ one_div_mul_cancel ( by positivity : ( 40 * C ) ≠ 0 ) ] : ( p2 : ℝ ) ≤ k )⟩ (by
-        grind)).right
-        skip ⟩ ⟨ by
+        grind)).right ⟩ ⟨ by
         have := B_set_density_bound k p1 ( 1 / ( 40 * C ) ) hp1 ( by positivity ) ( by nlinarith [ mul_div_cancel₀ ( 1 : ℝ ) ( by positivity : ( 40 * C ) ≠ 0 ) ] ) ⟨ by linarith, by linarith ⟩ ; norm_num at * ; linarith;, by
         have := B_set_density_bound k p2 ( 1 / ( 40 * C ) ) hp2 ( by positivity ) ( by nlinarith [ one_div_mul_cancel ( by positivity : ( 40 * C : ℝ ) ≠ 0 ) ] ) ⟨ by linarith, by linarith ⟩ ; norm_num at * ; linarith; ⟩
       generalize_proofs at *;
@@ -2301,6 +2298,7 @@ lemma factorization_24_2_3 : Nat.factorization 24 2 ≥ 3 := by
     (Nat.Prime.pow_dvd_iff_le_factorization Nat.prime_two (by decide : 24 ≠ 0)).1 hdiv
 
 set_option maxHeartbeats 1000000 in
+-- The four-term lcm divisibility lemma needs extra heartbeats for normalization.
 /-
 The binomial coefficient `choose (m+4) 4` divides `lcm(m+1, ..., m+4)`.
 -/
