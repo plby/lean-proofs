@@ -33,7 +33,8 @@ set_option linter.unusedVariables false
 set_option linter.deprecated false
 set_option aesop.warn.nonterminal false
 
-set_option maxHeartbeats 0
+set_option maxHeartbeats 50000000
+-- Several generated graph-density estimates time out at the default heartbeat limit.
 
 noncomputable section
 
