@@ -71,6 +71,7 @@ set_option linter.unusedDecidableInType false
 set_option linter.unusedFintypeInType false
 set_option linter.unusedVariables false
 set_option maxHeartbeats 2000000
+-- Several generated Littlewood-Offord estimates time out at the default heartbeat limit.
 
 
 open Complex ArithmeticFunction Int Set Real Filter Topology BigOperators Metric
