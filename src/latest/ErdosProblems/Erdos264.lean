@@ -230,7 +230,8 @@ lemma inductive_step (n : ℕ) (z : ℝ) (hz : z ∈ Set.Icc (min_tail n) (max_t
       by split_ifs <;> push_cast <;> linarith,
       by split_ifs <;> push_cast <;> linarith ⟩
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 50000000 in
+-- The generated interval construction times out at the default heartbeat limit.
 /-
 The set of sums S is an interval (OrdConnected).
 -/
@@ -714,7 +715,8 @@ theorem Kn_constant_implies_recurrence
     exact mul_eq_zero.mp h_mul |>.resolve_left hC_ne_zero
   nlinarith
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 50000000 in
+-- The asymptotic reciprocal-sum proof expands several generated estimates.
 /-
 If $a_n$ grows doubly exponentially and $b_n$ is bounded, then
 $(a_n + b_n) \sum_{k=n}^\infty \frac{1}{a_k + b_k} \to 1$.
@@ -869,7 +871,8 @@ theorem sum_recip_asymptotic
           ( fun n => mul_le_mul_of_nonneg_left ( h_tail_bound n ) ( by positivity ) )
           h_tail_zero )
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 50000000 in
+-- The product-ratio convergence argument needs extra heartbeats for generated bounds.
 /-
 If $a_n$ grows doubly exponentially and $b_n$ is bounded, then the sequence
 $P_n / x_n$ converges to a non-zero limit.
@@ -1126,7 +1129,8 @@ theorem product_ratio_convergence
 
 end AristotleLemmas
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 50000000 in
+-- The concrete powers-of-two example expands the previous generated estimates.
 /--
 One example is $2^{2^n}$.
 -/
