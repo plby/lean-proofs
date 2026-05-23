@@ -88,6 +88,7 @@ open scoped Nat
 open scoped Pointwise
 
 set_option maxHeartbeats 20000000
+-- Several generated finite-set density arguments time out at the default heartbeat limit.
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
