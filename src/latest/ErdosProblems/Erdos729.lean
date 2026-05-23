@@ -37,15 +37,10 @@ set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.flexible false
 set_option linter.unusedSimpArgs false
-set_option linter.unnecessarySimpa false
 set_option linter.unusedVariables false
-set_option linter.unusedTactic false
 
 set_option maxHeartbeats 1000000
 -- Several generated carry-counting estimates time out at the default heartbeat limit.
-
-set_option relaxedAutoImplicit false
-set_option autoImplicit false
 
 namespace Erdos729
 
@@ -258,7 +253,7 @@ lemma mod_uniform (M Q : ℕ) (A : Finset ℕ) (η : ℝ) (hM : M > 0) (hQ : Q >
         · exact fun x hx y hy hxy => Finset.disjoint_left.mpr fun m hm₁ hm₂ => hxy <| by aesop;
       refine le_trans ( Nat.cast_le.mpr h_sum_residue_classes ) ?_;
       refine' le_trans ( Nat.cast_le.mpr ( Finset.sum_le_sum fun x hx => h_residue_classes x ( Finset.mem_range.mpr ( hA x hx ) ) ) ) _ ; norm_num;
-      rw [ div_add', le_div_iff₀ ] <;> norm_cast ; nlinarith [ Nat.div_mul_le_self ( M + 1 ) Q, show A.card ≤ Q from le_trans ( Finset.card_le_card ( show A ⊆ Finset.range Q from fun x hx => Finset.mem_range.mpr ( hA x hx ) ) ) ( by simpa ) ];
+      rw [ div_add', le_div_iff₀ ] <;> norm_cast ; nlinarith [ Nat.div_mul_le_self ( M + 1 ) Q, show A.card ≤ Q from le_trans ( Finset.card_le_card ( show A ⊆ Finset.range Q from fun x hx => Finset.mem_range.mpr ( hA x hx ) ) ) ( by simp ) ];
       linarith;
     rw [ div_add', le_div_iff₀ ] at h_card_bound <;> try positivity;
     -- Using the bound $Q \le M^{1-\eta}$, we get $Q * M^\eta \le M$.
@@ -402,10 +397,11 @@ lemma card_X_p_L_eq (p L k : ℕ) (hp : p.Prime) (hp_ge_3 : p ≥ 3) :
               (Finset.range L)).card := by
           rw [Finset.filter_image]
           rw [Finset.card_image_of_injective _ Nat.succ_injective]
-          congr 1
+          apply congrArg Finset.card
           ext u
           simp only [Finset.mem_filter, Finset.mem_range]
-          congr 1
+          apply and_congr_right
+          intro _
           simp only [← List.getD_eq_getElem?_getD]
           rw [Nat.getD_digits m (u + 1) hp.two_le, Nat.getD_digits (m / p) u hp.two_le]
           rw [Nat.div_div_eq_div_mul, pow_succ]
@@ -600,7 +596,7 @@ lemma V_p_tail (M k t p : ℕ) (η : ℝ) (hM : M > 0) (hp : p.Prime) (ht : t �
     · gcongr;
     · gcongr;
       · exact_mod_cast pow_pos hp.pos _;
-      · exact Finset.card_image_le.trans ( by simpa );
+      · exact Finset.card_image_le.trans ( by simp );
       · norm_cast
 
 /-
