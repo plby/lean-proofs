@@ -53,6 +53,7 @@ All theorems are fully proved (0 sorries). Only standard axioms are used:
 open Finset Classical
 
 set_option maxHeartbeats 12800000
+-- Several generated hypergraph clique-size arguments time out at the default heartbeat limit.
 
 /-! ========== Defs.lean ========== -/
 
