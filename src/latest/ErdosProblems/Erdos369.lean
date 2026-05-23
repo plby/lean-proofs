@@ -42,11 +42,9 @@ can be found below.
 import Mathlib
 
 set_option linter.style.setOption false
-set_option linter.deprecated false
 set_option linter.flexible false
 set_option linter.style.cases false
 set_option linter.style.induction false
-set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 
@@ -157,6 +155,7 @@ For any positive reals α, β with α/β irrational, and any δ > 0,
     u = 0, 1, ..., U, every interval of length δ in [0, β) is hit.
 -/
 set_option maxHeartbeats 800000 in
+-- The quantitative density construction needs extra search beyond the default heartbeat limit.
 lemma exists_nat_mul_mod_near (α β : ℝ) (hβ : 0 < β)
     (hirr : Irrational (α / β)) (δ : ℝ) (hδ : 0 < δ) :
     ∃ U : ℕ, ∀ t : ℝ, 0 ≤ t → t < β →
@@ -443,6 +442,7 @@ Step 1: Building moduli with small totient ratio.
 
 -/
 set_option maxHeartbeats 800000 in
+-- The prime-set construction has several pigeonhole and product estimates.
 lemma exists_coprime_moduli_small_totient (θ : ℝ) (hθ : 0 < θ) (m : ℕ) (hm : 1 ≤ m) :
     ∃ (r : Fin m → ℕ) (X₀ : ℕ),
       (∀ i, 1 < r i) ∧
@@ -590,6 +590,7 @@ Step 2: CRT construction of the multiplier C.
     and C only has prime factors ≤ k-1 (plus 2 and 3).
 -/
 set_option maxHeartbeats 800000 in
+-- The CRT multiplier construction is heartbeat-intensive.
 lemma exists_crt_multiplier (k : ℕ) (hk : 2 ≤ k) (m : ℕ) (hm : m = k - 1)
     (r : Fin m → ℕ) (hr_pos : ∀ i, 1 < r i)
     (hr_coprime : ∀ i j, i ≠ j → Nat.Coprime (r i) (r j))
@@ -650,7 +651,7 @@ lemma exists_crt_multiplier (k : ℕ) (hk : 2 ≤ k) (m : ℕ) (hm : m = k - 1)
   refine' ⟨ ∏ q ∈ Finset.filter Nat.Prime ( Finset.Icc 1 ( Max.max 3 ( k - 1 ) ) ), q ^ e q, _, _,
     _, _ ⟩;
   · exact Finset.prod_pos fun q hq => pow_pos ( Nat.Prime.pos ( Finset.mem_filter.mp hq |>.2 ) ) _;
-  · intro j hj₁ hj₂; rw [ ← Nat.factorization_prod_pow_eq_self ( by linarith : j ≠ 0 ) ] ;
+  · intro j hj₁ hj₂; rw [ ← Nat.prod_factorization_pow_eq_self ( by linarith : j ≠ 0 ) ] ;
     rw [ ← Finset.prod_sdiff
       <| show j.factorization.support ⊆ Finset.filter Nat.Prime ( Finset.Icc 1 ( Max.max 3 ( k - 1 )
       ) ) from ?_ ];
@@ -672,7 +673,7 @@ lemma exists_crt_multiplier (k : ℕ) (hk : 2 ≤ k) (m : ℕ) (hm : m = k - 1)
           linarith [ Nat.le_of_dvd ( by linarith ) hq',
             Nat.sub_add_cancel ( by linarith : 1 ≤ k ) ] );
       · aesop;
-    · rw [ ← Nat.factorization_prod_pow_eq_self ( by linarith : j ≠ 0 ) ];
+    · rw [ ← Nat.prod_factorization_pow_eq_self ( by linarith : j ≠ 0 ) ];
       rw [ ← Finset.prod_sdiff
         <| show j.factorization.support ⊆ Finset.filter Nat.Prime ( Finset.Icc 1 ( Max.max 3 ( k - 1
         ) ) ) from ?_ ];
@@ -849,7 +850,7 @@ lemma is_perfect_power_of_factorization_dvd (n r : ℕ) (hn : n ≠ 0)
     (h : ∀ p : ℕ, Nat.Prime p → r ∣ n.factorization p) :
     ∃ b : ℕ, n = b ^ r := by
   exact ⟨ ∏ p ∈ Nat.primeFactors n, p ^ ( n.factorization p / r ), by
-    nth_rw 1 [ ← Nat.factorization_prod_pow_eq_self hn ]
+    nth_rw 1 [ ← Nat.prod_factorization_pow_eq_self hn ]
     rw [ ← Finset.prod_pow ]
     exact Finset.prod_congr rfl fun p hp => by
       rw [ ← pow_mul, Nat.div_mul_cancel <| h p <| Nat.prime_of_mem_primeFactors hp ] ⟩
@@ -873,6 +874,7 @@ lemma smooth_consecutive_exists_k2 (θ : ℝ) (hθ : 0 < θ) :
 Stronger CRT multiplier with full factorization conditions .
 -/
 set_option maxHeartbeats 800000 in
+-- The stronger CRT multiplier repeats the expensive factorization construction.
 lemma exists_crt_multiplier_strong (k : ℕ) (hk : 2 ≤ k) (m : ℕ) (hm : m = k - 1)
     (r : Fin m → ℕ) (hr_pos : ∀ i, 1 < r i)
     (hr_coprime : ∀ i j, i ≠ j → Nat.Coprime (r i) (r j))
@@ -946,7 +948,7 @@ lemma exists_crt_multiplier_strong (k : ℕ) (hk : 2 ≤ k) (m : ℕ) (hm : m = 
     intros j hj1 hj2
     have h_factorization : j = ∏ q ∈ Finset.filter Nat.Prime (Finset.Iic (max 3 (k - 1))),
       q ^ (Nat.factorization j q) := by
-      conv_lhs => rw [ ← Nat.factorization_prod_pow_eq_self ( by linarith : j ≠ 0 ) ] ;
+      conv_lhs => rw [ ← Nat.prod_factorization_pow_eq_self ( by linarith : j ≠ 0 ) ] ;
       rw [ Finsupp.prod_of_support_subset ] <;> norm_num +zetaDelta at *; (
       exact fun p hp => Finset.mem_filter.mpr ⟨ Finset.mem_Iic.mpr ( le_trans (
         Nat.le_of_mem_primeFactors hp ) ( Nat.le_trans ( Nat.le_sub_one_of_lt hj2 ) (
@@ -968,6 +970,7 @@ lemma exists_crt_multiplier_strong (k : ℕ) (hk : 2 ≤ k) (m : ℕ) (hm : m = 
       by have := Nat.le_of_dvd ( Nat.pos_of_ne_zero hx'.ne_zero ) h; omega;)
 
 set_option maxHeartbeats 800000 in
+-- The perfect-power quotient proof depends on the same CRT data.
 lemma quotient_is_perfect_power_of_crt (k : ℕ) (hk : 2 ≤ k) (m : ℕ) (hm : m = k - 1)
     (r : Fin m → ℕ) (hr_pos : ∀ i, 1 < r i)
     (hr_coprime : ∀ i j, i ≠ j → Nat.Coprime (r i) (r j))
@@ -1063,6 +1066,7 @@ lemma two_mul_rpow_totient_le {b N R L : ℕ} {θ : ℝ}
   gcongr
 
 set_option maxHeartbeats 3200000 in
+-- The final smooth block estimate is the most expensive generated proof in this file.
 lemma smooth_consecutive_exists (θ : ℝ) (hθ : 0 < θ) (k : ℕ) (hk : 2 ≤ k) :
     ∃ K : ℝ, 0 < K ∧
       ∃ N₀ : ℕ, ∀ N : ℕ, N₀ ≤ N →
