@@ -49,9 +49,6 @@ open scoped Nat
 open scoped Classical
 open scoped Pointwise
 
-set_option relaxedAutoImplicit false
-set_option autoImplicit false
-
 noncomputable section
 
 /-
