@@ -148,6 +148,7 @@ theorem recip_one_minus_inv_approx (n : ℕ) (hn : 2 ≤ n) :
   rw [ inv_eq_one_div, div_le_div_iff₀ ] <;> norm_cast <;> linarith
 
 set_option maxHeartbeats 800000 in
+-- The Taylor-error estimate needs extra heartbeats for generated real-field normalization.
 theorem taylor_error_bound (n : ℕ) (hn : 2 ≤ n) (u a : ℝ)
     (ha : 0 < a) (_ha1 : a ≤ 1) (hu : |u| ≤ 1/2) :
     |(Real.log (1 + u) - Real.log (1 - 1/(↑n : ℝ)))
@@ -529,6 +530,7 @@ IBP identity: P(k+1) = -(k+2)·P(k) + 2(k+2)·T(k).
     g'(t) = (k+2)·t^{k+1}(1-t)^{k+1}(1-2t), [fg]₀¹ = 0.
 -/
 set_option maxHeartbeats 800000 in
+-- The Padé integration-by-parts identity expands several integral rewrites.
 lemma padeBound_ibp (k : ℕ) :
     padeBound (k + 1) = -(↑(k + 2) : ℝ) * padeBound k
       + 2 * (↑(k + 2) : ℝ) * mixedBound k := by
@@ -580,6 +582,7 @@ lemma padeBound_ibp (k : ℕ) :
 IBP identity: T(k) = (k+1)·(S(k) - 2·P(k)).
 -/
 set_option maxHeartbeats 800000 in
+-- The mixed-bound integration-by-parts identity expands several integral rewrites.
 lemma mixedBound_ibp (k : ℕ) :
     mixedBound k = (↑(k + 1) : ℝ) * (secBound k - 2 * padeBound k) := by
   -- Apply integration by parts with u(t) = t^(k+1)(1-t)^(k+1) and dv = t e^t dt.
@@ -688,6 +691,7 @@ Main integral identity: the Padé error equals (-1)^k / (k+1)! times the Padé i
     and analogously for the secondary sequences.
 -/
 set_option maxHeartbeats 800000 in
+-- The Padé integral identity needs extra heartbeats for the induction step.
 lemma ePade_integral_identity (k : ℕ) :
     (ePadeNum k : ℝ) - (ePadeDen k : ℝ) * exp 1 =
       (-1 : ℝ) ^ k / ↑(Nat.factorial (k + 1)) * padeBound k ∧
@@ -1505,6 +1509,7 @@ With the corrected parametrization, we have
     f(m) - f(n-1) - x = ((24 e⁻ˣ y + e⁻²ˣ - 1) / 24) · (1/n²) + O(1/n³).
 -/
 set_option maxHeartbeats 800000 in
+-- The second-order expansion proof expands long asymptotic algebraic estimates.
 theorem second_order_expansion (x : ℝ) (hx : x > 0) (M : ℝ) (hM : M > 0) :
     ∃ C : ℝ, C > 0 ∧ ∃ N₀ : ℕ, ∀ n : ℕ, N₀ ≤ n → ∀ y : ℝ, |y| ≤ M →
       let m := Real.exp x * ↑n - Real.exp x / 2 - 1 / 2 + y / ↑n
@@ -1726,6 +1731,7 @@ lemma harmonic_upper_bound_from_coeff
   ring
 
 set_option maxHeartbeats 6400000 in
+-- The main theorem combines the generated expansion and limiting estimates.
 /-- **Main Theorem**: For every c > 0 there exist infinitely many pairs
     (n, m) of positive integers such that 1 ≤ ∑_{ℓ=n}^{m} 1/ℓ ≤ 1 + c/n². -/
 theorem main_theorem (c : ℝ) (hc : c > 0) :
