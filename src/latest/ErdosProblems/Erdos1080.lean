@@ -40,16 +40,12 @@ namespace Erdos1080
 set_option linter.style.openClassical false
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.whitespace false
 set_option linter.flexible false
 set_option linter.style.refine false
 set_option linter.style.multiGoal false
 set_option linter.unusedDecidableInType false
 set_option linter.unusedFintypeInType false
 set_option linter.unusedSectionVars false
-set_option linter.unusedSimpArgs false
-set_option linter.unusedTactic false
-set_option linter.unusedVariables false
 
 open scoped Classical
 open SimpleGraph Sum
@@ -101,7 +97,7 @@ Requires $a \in \F_q$ and the characteristic property $(x+y)^q = x^q + y^q$.
 variable {F : Type*} [Field F] {q : ℕ}
 
 /-- The action of tau0(a) on points. -/
-def tau0_P (a : F) (ha : a^q = a) (h_add : ∀ x y : F, (x + y)^q = x^q + y^q) (p : Point F q) : Point F q :=
+def tau0_P (a : F) (ha : a ^ q = a) (h_add : ∀ x y : F, (x + y)^q = x^q + y^q) (p : Point F q) : Point F q :=
   { p1 := p.p1 + a,
     p2 := p.p2,
     p3 := p.p3,
@@ -114,7 +110,7 @@ Definition of the action of $\tau_0(a)$ on lines $L$.
 $\tau_0(a): [l_1, l_2, l_3] \mapsto [l_1, l_2+l_1a, l_3]$.
 -/
 /-- The action of tau0(a) on lines. -/
-def tau0_L (a : F) (ha : a^q = a) (l : Line F q) : Line F q :=
+def tau0_L (a : F) (_ha : a ^ q = a) (l : Line F q) : Line F q :=
   { l1 := l.l1,
     l2 := l.l2 + l.l1 * a,
     l3 := l.l3,
@@ -153,7 +149,7 @@ $\tau_3(c): (p_1, p_2, p_3) \mapsto (p_1, p_2, p_3+c)$.
 Requires $c \in \F_q$.
 -/
 /-- The action of tau3(c) on points. -/
-def tau3_P (c : F) (hc : c^q = c) (h_add : ∀ x y : F, (x + y)^q = x^q + y^q) (p : Point F q) : Point F q :=
+def tau3_P (c : F) (hc : c ^ q = c) (h_add : ∀ x y : F, (x + y)^q = x^q + y^q) (p : Point F q) : Point F q :=
   { p1 := p.p1,
     p2 := p.p2,
     p3 := p.p3 + c,
@@ -167,7 +163,7 @@ $\tau_3(c): [l_1, l_2, l_3] \mapsto [l_1, l_2, l_3+c]$.
 Requires $c \in \F_q$.
 -/
 /-- The action of tau3(c) on lines. -/
-def tau3_L (c : F) (hc : c^q = c) (h_add : ∀ x y : F, (x + y)^q = x^q + y^q) (l : Line F q) : Line F q :=
+def tau3_L (c : F) (hc : c ^ q = c) (h_add : ∀ x y : F, (x + y)^q = x^q + y^q) (l : Line F q) : Line F q :=
   { l1 := l.l1,
     l2 := l.l2,
     l3 := l.l3 + c,
@@ -180,7 +176,7 @@ $\tau_0(a)$ maps $p \mapsto \tau_0(a)(p)$ and $l \mapsto \tau_0(a)(l)$.
 It preserves the adjacency relation.
 -/
 /-- The automorphism tau0(a). -/
-def tau0 (a : F) (ha : a^q = a) (h_add : ∀ x y : F, (x + y)^q = x^q + y^q) (h_neg : (-a)^q = -a) : (B F q) ≃g (B F q) :=
+def tau0 (a : F) (ha : a ^ q = a) (h_add : ∀ x y : F, (x + y)^q = x^q + y^q) (h_neg : (-a)^q = -a) : (B F q) ≃g (B F q) :=
   { toEquiv := Equiv.sumCongr
       { toFun := tau0_P a ha h_add,
         invFun := tau0_P (-a) h_neg h_add,
@@ -230,7 +226,7 @@ def tau2 (b : F) (h_add : ∀ x y : F, (x + y)^q = x^q + y^q) (h_F : ∀ x : F, 
           -- By definition of tau2_L, we have:
           have h_tau2_L : ∀ l : Line F q, tau2_L (-b) h_add h_F (tau2_L b h_add h_F l) = l := by
             unfold tau2_L;
-            simp +decide [ add_assoc, add_left_comm, add_assoc, sub_eq_add_neg ];
+            simp +decide [ add_assoc, add_left_comm ];
             intro l; congr; ring_nf;
             by_cases hq : Even q <;> simp_all +decide;
             have := h_F ( -1 ) ; simp_all +decide [ pow_mul' ] ;
@@ -244,7 +240,7 @@ def tau2 (b : F) (h_add : ∀ x y : F, (x + y)^q = x^q + y^q) (h_F : ∀ x : F, 
           have := h_F ( -1 ) ; simp_all +decide [ pow_mul' ] ;
           grind },
     map_rel_iff' := by
-      intro a b; induction a <;> induction b <;> simp +decide [ *, is_adjacent ] ;
+      intro a b; induction a <;> induction b <;> simp +decide [ * ] ;
       · unfold B; simp +decide [ tau2_P ] ;
       · unfold B;
         unfold is_adjacent; simp +decide [ * ] ;
@@ -328,7 +324,7 @@ Definition of the point $(p_1)$ in the 3-path parametrization.
 $(p_1) = (y, -xy, 2yx^{q+1})$.
 Requires $y \in \F_q$ and $x \in \F_{q^2}$.
 -/
-def path_P1 (x y : F) (hy : y^q = y) (h_add : ∀ a b : F, (a + b)^q = a^q + b^q) (h_F : ∀ a : F, a^(q*q) = a) (h_mul : ∀ a b : F, (a * b)^q = a^q * b^q) (h_two : (2 : F)^q = 2) : Point F q :=
+def path_P1 (x y : F) (hy : y ^ q = y) (_h_add : ∀ a b : F, (a + b)^q = a^q + b^q) (h_F : ∀ a : F, a^(q*q) = a) (h_mul : ∀ a b : F, (a * b)^q = a^q * b^q) (h_two : (2 : F)^q = 2) : Point F q :=
   { p1 := y,
     p2 := -x*y,
     p3 := 2*y*x^(q+1),
@@ -342,7 +338,7 @@ Definition of the line $[l_2]$ in the 3-path parametrization.
 $[l_2] = [z, y(z-x), 2yx^{q+1} - y(xz^q + x^q z)]$.
 Requires $y \in \F_q$, $x, z \in \F_{q^2}$.
 -/
-def path_L2 (x y z : F) (hy : y^q = y) (h_add : ∀ a b : F, (a + b)^q = a^q + b^q) (h_F : ∀ a : F, a^(q*q) = a) (h_mul : ∀ a b : F, (a * b)^q = a^q * b^q) (h_two : (2 : F)^q = 2) (h_sub : ∀ a b : F, (a - b)^q = a^q - b^q) : Line F q :=
+def path_L2 (x y z : F) (hy : y ^ q = y) (h_add : ∀ a b : F, (a + b)^q = a^q + b^q) (h_F : ∀ a : F, a^(q*q) = a) (h_mul : ∀ a b : F, (a * b)^q = a^q * b^q) (h_two : (2 : F)^q = 2) (h_sub : ∀ a b : F, (a - b)^q = a^q - b^q) : Line F q :=
   { l1 := z,
     l2 := y*(z-x),
     l3 := 2*y*x^(q+1) - y*(x*z^q + x^q*z),
@@ -406,7 +402,7 @@ theorem walk_parametrization
         rw [hp2, hp2q, hp1]
         ring
   unfold path_L1 path_P1 path_L2; simp_all +decide ;
-  simp_all +decide [ mul_sub, sub_mul ];
+  simp_all +decide [ mul_sub ];
   simp_all +decide [ mul_assoc, mul_comm, mul_left_comm, pow_succ' ];
   exact ⟨ by cases l1; aesop, by cases p1; aesop, by cases l2; aesop ⟩
 
@@ -422,7 +418,7 @@ Algebraic step for C6-freeness.
 Derives the condition for `algebraic_identity` from the graph equations.
 -/
 theorem C6_algebraic_step
-  (h_add : ∀ a b : F, (a + b)^q = a^q + b^q)
+  (_h_add : ∀ a b : F, (a + b)^q = a^q + b^q)
   (h_mul : ∀ a b : F, (a * b)^q = a^q * b^q)
   (h_sub : ∀ a b : F, (a - b)^q = a^q - b^q)
   (h_two_ne_zero : (2 : F) ≠ 0)
@@ -436,7 +432,7 @@ theorem C6_algebraic_step
   have h_subst : z * (y - y0) = x * y - x0 * y0 := by
     exact h_eq2;
   have h_subst : z^q * (y - y0) = x^q * y - x0^q * y0 := by
-    have := congr_arg ( fun x => x ^ q ) h_subst; norm_num [ h_mul, h_add, h_sub, hy, hy0 ] at this ⊢; aesop;
+    have := congr_arg ( fun x => x ^ q ) h_subst; norm_num [ h_mul, _h_add, h_sub, hy, hy0 ] at this ⊢; aesop;
   grind
 
 /-
@@ -466,7 +462,7 @@ theorem B_no_C6_through_zero
   (h_simple1 : p1 ≠ zero_Point hq)
   (h_simple2 : l1 ≠ l2)
   (h_simple1' : p1' ≠ zero_Point hq)
-  (h_simple2' : l1' ≠ l2) :
+  (_h_simple2' : l1' ≠ l2) :
   l1 = l1' ∧ p1 = p1' := by
   have h_walk1 : l1 = path_L1 l1.l1 hq ∧ p1 = path_P1 l1.l1 p1.p1 p1.h1 h_add h_F h_mul h_two ∧ l2 = path_L2 l1.l1 p1.p1 l2.l1 p1.h1 h_add h_F h_mul h_two h_sub := by
     exact walk_parametrization hq h_add h_mul h_sub h_F h_two l1 p1 l2 h_adj1 h_adj2 h_adj3;
@@ -475,7 +471,7 @@ theorem B_no_C6_through_zero
   have h_eq : p1.p1 * p1'.p1 * (l1.l1 - l1'.l1) * (l1.l1^q - l1'.l1^q) = 0 := by
     have h_eq : p1.p1 * p1'.p1 * (l1.l1 - l1'.l1) * (l1.l1^q - l1'.l1^q) = 0 := by
       have h_eq2 : l2.l1 * (p1.p1 - p1'.p1) = p1.p1 * l1.l1 - p1'.p1 * l1'.l1 := by
-        unfold path_L2 at *; simp +decide [ mul_comm, mul_assoc, mul_left_comm ] at *;
+        unfold path_L2 at *; simp +decide [ mul_comm, mul_assoc ] at *;
         grind
       have h_eq3 : 2 * p1.p1 * l1.l1^(q+1) - p1.p1 * (l1.l1 * l2.l1^q + l1.l1^q * l2.l1) = 2 * p1'.p1 * l1'.l1^(q+1) - p1'.p1 * (l1'.l1 * l2.l1^q + l1'.l1^q * l2.l1) := by
         have h_eq3 : l2.l3 = 2 * p1.p1 * l1.l1^(q+1) - p1.p1 * (l1.l1 * l2.l1^q + l1.l1^q * l2.l1) := by
@@ -497,7 +493,7 @@ theorem B_no_C6_through_zero
       constructor <;> intro h <;> simp +decide [ h ] at *;
       · unfold path_P1 at h_walk1;
         exact h_simple1 ( by simpa [ ‹p1.p1 = 0› ] using h_walk1.2.1 );
-      · simp +decide [ ‹p1'.p1 = 0›, path_P1 ] at h_walk1';
+      · simp +decide [ path_P1 ] at h_walk1';
         exact h_simple1' ( h_walk1'.2.1.trans ( by rfl ) );
     have h_eq : (l1.l1 - l1'.l1) ^ (q + 1) = 0 := by
       grind;
@@ -602,11 +598,11 @@ theorem unique_neighbor_with_x_coord
   refine' ⟨ ⟨ x, l.l2 - l.l1 * x, l.l3 - ( l.l1 ^ q ) * ( l.l2 - l.l1 * x ) - l.l1 * ( l.l2 - l.l1 * x ) ^ q, h_S x hx, _ ⟩, ⟨ rfl, _ ⟩, _ ⟩;
   all_goals simp_all +decide [ is_adjacent ]
   all_goals generalize_proofs at *;
-  · have := h_F l.l3; have := h_F l.l1; have := h_F l.l2; simp_all +decide [ pow_mul', mul_assoc, mul_comm, mul_left_comm ] ;
+  · have := h_F l.l3; have := h_F l.l1; have := h_F l.l2; simp_all +decide [ pow_mul', mul_comm ] ;
     rw [ l.h3 ] ; ring;
   · ring;
   · simp_all +decide [ sub_eq_iff_eq_add ];
-    simp +decide [ add_assoc, add_sub_assoc ];
+    simp +decide [ add_assoc ];
     exact fun y hy₁ hy₂ hy₃ => by cases y; aesop;
 
 /-
@@ -877,7 +873,7 @@ theorem B_G_edge_count
       · rintro ⟨⟨l, p⟩, hpS, hlD, hadj⟩ -
         apply SimpleGraph.mem_edgeFinset.mpr
         rw [SimpleGraph.mem_edgeSet]
-        simp [B_G, B, V_G, hpS, hlD]
+        simp [B_G, B, V_G]
         exact Or.inl hadj
       · intro x y hx hy hxy
         rcases x with ⟨⟨xl, xp⟩, xprop⟩
@@ -918,14 +914,14 @@ theorem card_P_S
   (S : Set F)
   [DecidablePred (· ∈ S)]
   (h_card_F : Fintype.card F = q * q)
-  (h_card_fixed : Fintype.card { x : F // x^q = x } = q)
-  (h_S : ∀ a ∈ S, a^q = a) :
+  (h_card_fixed : Fintype.card { x : F // x ^ q = x } = q)
+  (h_S : ∀ a ∈ S, a ^ q = a) :
   Fintype.card (P_S (q := q) S) = S.ncard * q^3 := by
     rw [ Set.ncard_eq_toFinset_card' ];
     rw [ Fintype.card_of_subtype ];
     case s => exact Finset.image ( fun x : { x // x ∈ S } × { x // x ^ q = x } × F => ⟨ x.1.val, x.2.2, x.2.1.val, h_S _ x.1.2, x.2.1.2 ⟩ ) ( Finset.univ );
     · rw [ Finset.card_image_of_injective ];
-      · simp +decide [ *, pow_succ', mul_assoc ];
+      · simp +decide [ *, pow_succ' ];
       · intro x y hxy; aesop;
     · simp +decide [ P_S ];
       exact fun x => ⟨ fun ⟨ a, ha, b, hb, c, hc ⟩ => hc ▸ ha, fun hx => ⟨ x.p1, hx, x.p3, x.h3, x.p2, rfl ⟩ ⟩
@@ -933,7 +929,7 @@ theorem card_P_S
 /-
 For any $c > 0$, there exist $q, k, y$ such that $q$ is prime, $y \le q^5$, the partition size condition is met, and the edge density is at least $c$.
 -/
-lemma exists_parameters (c : ℝ) (hc : c > 0) :
+lemma exists_parameters (c : ℝ) (_hc : c > 0) :
   ∃ (q k y : ℕ),
     Nat.Prime q ∧
     y ≤ q^5 ∧
@@ -1073,13 +1069,13 @@ lemma card_fixed_points_of_char_prime
 /-
 There exists a field $F$ of size $q^2$ and characteristic $q$, a subset $S$ of fixed points of size $k$, and a subset $D$ of lines of size $q^5 - y$.
 -/
-lemma exists_field_and_sets (q k y : ℕ) (hq : Nat.Prime q) (hk : k ≤ q) (hy : y ≤ q^5) :
+lemma exists_field_and_sets (q k y : ℕ) (hq : Nat.Prime q) (hk : k ≤ q) (_hy : y ≤ q ^ 5) :
   ∃ (F : Type) (_ : Field F) (_ : Fintype F) (_ : DecidableEq F) (S : Finset F) (D : Finset (Line F q)),
     Fintype.card F = q * q ∧
     CharP F q ∧
-    (∀ x ∈ S, x^q = x) ∧
+    (∀ x ∈ S, x ^ q = x) ∧
     S.card = k ∧
-    D.card = q^5 - y := by
+    D.card = q ^ 5 - y := by
   classical
   haveI : Fact q.Prime := ⟨hq⟩
   let F := GaloisField q 2
@@ -1209,16 +1205,16 @@ lemma exists_field_and_sets (q k y : ℕ) (hq : Nat.Prime q) (hk : k ≤ q) (hy 
 The number of vertices in $B_G(S, D)$ is $k q^3 + y$.
 -/
 lemma B_G_card_V (q k y : ℕ)
-  (hq_prime : Nat.Prime q)
+  (_hq_prime : Nat.Prime q)
   (hk_le_q : k ≤ q)
-  (hy_le_lines : y ≤ q^5)
+  (hy_le_lines : y ≤ q ^ 5)
   (F : Type*) [Field F] [Fintype F] [DecidableEq F]
   (S : Finset F) (D : Finset (Line F q))
   (h_card_F : Fintype.card F = q * q)
-  (h_card_fixed : Fintype.card { x : F // x^q = x } = q)
-  (h_fixed : ∀ x ∈ S, x^q = x)
+  (h_card_fixed : Fintype.card { x : F // x ^ q = x } = q)
+  (h_fixed : ∀ x ∈ S, x ^ q = x)
   (h_card_S : S.card = k)
-  (h_card_D : D.card = q^5 - y) :
+  (h_card_D : D.card = q ^ 5 - y) :
   Fintype.card (V_G (q := q) (S : Set F) (D : Set (Line F q))) = k * q^3 + y := by
     have h_card_V_G : Fintype.card (V_G (↑S : Set F) (↑D : Set (Line F q))) = Fintype.card (P_S (q := q) (↑S : Set F)) + Fintype.card (Set.diff (Set.univ : Set (Line F q)) (D : Set (Line F q))) := by
       rw [ Fintype.card_subtype, Fintype.card_subtype, Fintype.card_subtype ];
@@ -1242,9 +1238,9 @@ If $F$ is a field of size $q^2$ and characteristic $q$, then the number of eleme
 lemma card_fixed_points_of_card_eq_qsq
   (F : Type*) [Field F] [Fintype F] [DecidableEq F]
   (q : ℕ) [Fact q.Prime]
-  (h_card : Fintype.card F = q * q)
+  (_h_card : Fintype.card F = q * q)
   (h_char : CharP F q) :
-  Fintype.card { x : F // x^q = x } = q := by
+  Fintype.card { x : F // x ^ q = x } = q := by
     exact card_fixed_points_of_char_prime F q h_char
 /-
     -- The polynomial $X^q - X$ splits completely in $F$ since $F$ is a finite field of order $q^2$.
@@ -1286,14 +1282,14 @@ lemma B_G_properties (q k y : ℕ)
   (hq_prime : Nat.Prime q)
   (hq_odd : q > 2)
   (hk_le_q : k ≤ q)
-  (hy_le_lines : y ≤ q^5)
+  (hy_le_lines : y ≤ q ^ 5)
   (F : Type*) [Field F] [Fintype F] [DecidableEq F]
   (S : Finset F) (D : Finset (Line F q))
   (h_card_F : Fintype.card F = q * q)
   (h_char : CharP F q)
-  (h_fixed : ∀ x ∈ S, x^q = x)
+  (h_fixed : ∀ x ∈ S, x ^ q = x)
   (h_card_S : S.card = k)
-  (h_card_D : D.card = q^5 - y) :
+  (h_card_D : D.card = q ^ 5 - y) :
   let G := B_G (q := q) (S : Set F) (D : Set (Line F q))
   Fintype.card (V_G (q := q) (S : Set F) (D : Set (Line F q))) = k * q^3 + y ∧
   G.edgeFinset.card = k * y ∧
@@ -1357,7 +1353,7 @@ lemma transfer_to_fin_n {V : Type*} [Fintype V] [DecidableEq V]
       exact Finset.image ( fun x => e x ) A;
       · aesop;
       · simp_all +decide [ Finset.mem_image, SimpleGraph.comap ];
-        exact fun x y hx hy => h_indep_Ac _ _ ( fun h => hx _ h ( by simp +decide [ e.symm_apply_eq ] ) ) ( fun h => hy _ h ( by simp +decide [ e.symm_apply_eq ] ) );
+        exact fun x y hx hy => h_indep_Ac _ _ ( fun h => hx _ h ( by simp +decide ) ) ( fun h => hy _ h ( by simp +decide ) );
       · exact Finset.card_image_of_injective _ e.injective;
       · let iso : G ≃g SimpleGraph.comap (fun x => e.symm x) G :=
           { toEquiv := e,
@@ -1380,15 +1376,15 @@ lemma exists_counterexample_graph (q k y : ℕ)
   (hq_prime : Nat.Prime q)
   (hq_odd : q > 2)
   (hk_le_q : k ≤ q)
-  (hy_le_lines : y ≤ q^5)
+  (hy_le_lines : y ≤ q ^ 5)
   (n : ℕ)
-  (hn : n = k * q^3 + y)
-  (hk_size : k * q^3 = ⌊(n : ℝ) ^ (2/3 : ℝ)⌋₊)
-  (hk_pos : k ≥ 1) :
+  (hn : n = k * q ^ 3 + y)
+  (hk_size : k * q ^ 3 = ⌊(n : ℝ) ^ (2 / 3 : ℝ)⌋₊)
+  (_hk_pos : k ≥ 1) :
   ∃ (G : SimpleGraph (Fin n)) (A : Finset (Fin n)),
     (∀ x y, x ∈ A → y ∈ A → ¬ G.Adj x y) ∧
     (∀ x y, x ∉ A → y ∉ A → ¬ G.Adj x y) ∧
-    A.card = ⌊(n : ℝ) ^ (2/3 : ℝ)⌋₊ ∧
+    A.card = ⌊(n : ℝ) ^ (2 / 3 : ℝ)⌋₊ ∧
     (G.edgeFinset.card : ℝ) = k * y ∧
     (∀ (u : Fin n) (w : G.Walk u u), w.IsCycle → w.length ≠ 6) := by
       have := exists_field_and_sets q k y hq_prime hk_le_q hy_le_lines;
@@ -1406,17 +1402,17 @@ lemma exists_counterexample_graph (q k y : ℕ)
             exact ⟨ 0, 0, 0, by
               rw [ zero_pow hq_prime.ne_zero ], by
               rw [ zero_pow hq_prime.ne_zero ] ⟩
-            skip ) _ _ _ <;> simp +decide [ hA_orig_def ];
+            ) _ _ _ <;> simp +decide [ hA_orig_def ];
           · exact fun a b => b;
           · exact fun p hp => by exact Set.mem_setOf.mpr ( by simpa using hp ) ;
       have := transfer_to_fin_n (B_G (S : Set F) (D : Set (Line F q))) A_orig n (by
       grind) (by
       simp +zetaDelta at *;
-      unfold B_G; simp +decide [ SimpleGraph.fromRel_adj ] ;
-      unfold B; simp +decide [ SimpleGraph.fromRel_adj ] ;) (by
+      unfold B_G; simp +decide ;
+      unfold B; simp +decide ;) (by
       simp +zetaDelta at *;
-      unfold B_G; simp +decide [ SimpleGraph.adj_comm ] ;
-      unfold B; simp +decide [ SimpleGraph.adj_comm ] ;) (by
+      unfold B_G; simp +decide ;
+      unfold B; simp +decide ;) (by
       exact this.2.2.1);
       obtain ⟨ G', A', hA'_indep_A, hA'_indep_Ac, hA'_card, hG'_edgeFinset_card, hG'_C6_free ⟩ := this;
       norm_num +zetaDelta at *;
@@ -1500,7 +1496,7 @@ def not_erdos_1080 : ¬erdos_1080 := by
   obtain ⟨ A, hA₁, hA₂, hA₃ ⟩ := h1;
   specialize hc ( Fin n ) G ( A : Set ( Fin n ) ) ( Aᶜ : Set ( Fin n ) ) ; simp_all +decide [ IsBipartition ];
   simp_all +decide [ Set.disjoint_left ];
-  exact hc ( fun u v huv => by have := hA₁ u v; have := hA₂ u v; by_cases hu : u ∈ A <;> by_cases hv : v ∈ A <;> simp_all +decide [ SimpleGraph.adj_comm ] ) ( by simpa [ Set.ncard_eq_toFinset_card' ] using h2 )
+  exact hc ( fun u v huv => by have := hA₁ u v; have := hA₂ u v; by_cases hu : u ∈ A <;> by_cases hv : v ∈ A <;> simp_all +decide ) ( by simpa [ Set.ncard_eq_toFinset_card' ] using h2 )
 
 #print axioms not_erdos_1080
 -- 'Erdos1080.not_erdos_1080' depends on axioms: [propext, Classical.choice, Quot.sound]
