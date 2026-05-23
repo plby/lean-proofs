@@ -55,26 +55,24 @@ by Hrishi Sunder, Sourish Kumrawat, and Kireet Cheri (April 2026).
 
 open Nat Set Filter
 
-noncomputable section
-
 -- ============================================================================
 -- Section 0: Definitions
 -- ============================================================================
 
 /-- The n-th prime number (0-indexed): p₀ = 2, p₁ = 3, p₂ = 5, … -/
-def nthPrime (n : ℕ) : ℕ := Nat.nth Nat.Prime n
+noncomputable def nthPrime (n : ℕ) : ℕ := Nat.nth Nat.Prime n
 
 /-- The prime gap at index n: gₙ = p_{n+1} - pₙ. -/
-def primeGap (n : ℕ) : ℕ := nthPrime (n + 1) - nthPrime n
+noncomputable def primeGap (n : ℕ) : ℕ := nthPrime (n + 1) - nthPrime n
 
 /-- The real-valued prime counting function: π(t) = #{p ≤ ⌊t⌋₊ : p prime}. -/
-def realPi (t : ℝ) : ℕ := Nat.primeCounting ⌊t⌋₊
+noncomputable def realPi (t : ℝ) : ℕ := Nat.primeCounting ⌊t⌋₊
 
 /-- The maximal prime gap function d(x) = max{gₙ : pₙ < x}.
 
 For real x, the primes pₙ < x correspond to indices n < primeCounting'(⌈x⌉₊),
 so d(x) is the sup of `primeGap` over `Finset.range (primeCounting' ⌈x⌉₊)`. -/
-def maxPrimeGap (x : ℝ) : ℕ :=
+noncomputable def maxPrimeGap (x : ℝ) : ℕ :=
   Finset.sup (Finset.range (Nat.primeCounting' ⌈x⌉₊)) primeGap
 
 /-- A strict record gap at index n: gₙ is strictly larger than all previous gaps. -/
@@ -154,7 +152,6 @@ lemma primeCounting'_eq_succ_of_between {n : ℕ} {m : ℕ}
           (Nat.nth_monotone Nat.infinite_setOf_prime <| Finset.mem_range_succ_iff.mp hk) hlo,
          Nat.prime_nth_prime k⟩
 
-set_option linter.flexible false in
 -- This generated proof compares prime-counting filters between consecutive primes.
 /-- `realPi` is constant between consecutive primes. -/
 lemma realPi_eq_of_in_gap {n : ℕ} {s t : ℝ}
@@ -172,12 +169,13 @@ lemma realPi_eq_of_in_gap {n : ℕ} {s t : ℝ}
         Nat.primeCounting', Nat.count_eq_card_filter_range,
         Nat.count_eq_card_filter_range]
     congr 1 with x
-    simp_all +decide [Finset.mem_range]
+    simp_all +decide only [Finset.mem_filter, Finset.mem_range, Order.lt_add_one_iff,
+      and_congr_left_iff]
     exact fun hx => ⟨fun hx' => le_of_not_gt fun hx'' => by
       have := not_prime_between_consecutive n x hx'' (by linarith)
       contradiction, fun hx' => le_trans hx' hk₁⟩
   unfold realPi
-  aesop
+  simp_all only [Finset.mem_Ico, Std.le_refl]
 
 -- ============================================================================
 -- Section 3: maxPrimeGap at record gaps
@@ -206,21 +204,26 @@ lemma maxPrimeGap_eq_at_record {n : ℕ} (hrec : IsStrictRecordGap n)
 -- Section 4: Unbounded prime gaps and record gap existence
 -- ============================================================================
 
-set_option linter.flexible false in
 -- The factorial construction uses generated simplification of primality divisors.
 /-- Prime gaps are unbounded: for any M, there exists a gap of size ≥ M.
 Proof uses the factorial argument: (M+1)!+2, ..., (M+1)!+M+1 are all composite. -/
 lemma primeGap_unbounded (M : ℕ) : ∃ n : ℕ, M ≤ primeGap n := by
+  have h_small_prime :
+      (Finset.filter Nat.Prime (Finset.Iic ((M + 1)! + 1))).Nonempty := by
+    refine ⟨2, ?_⟩
+    norm_num
+    linarith [Nat.self_le_factorial (M + 1)]
   obtain ⟨p, hp⟩ : ∃ p, Nat.Prime p ∧ p ≤ (M + 1)! + 1 ∧
       ∀ q, Nat.Prime q → q ≤ (M + 1)! + 1 → q ≤ p :=
     ⟨Finset.max' (Finset.filter Nat.Prime (Finset.Iic ((M + 1)! + 1)))
-      ⟨2, by norm_num; linarith [Nat.self_le_factorial (M + 1)]⟩,
+      h_small_prime,
      Finset.mem_filter.mp (Finset.max'_mem (Finset.filter Nat.Prime (Finset.Iic ((M + 1)! + 1)))
-      ⟨2, by norm_num; linarith [Nat.self_le_factorial (M + 1)]⟩) |>.2,
+      h_small_prime) |>.2,
      Finset.mem_Iic.mp (Finset.mem_filter.mp (Finset.max'_mem
       (Finset.filter Nat.Prime (Finset.Iic ((M + 1)! + 1)))
-      ⟨2, by norm_num; linarith [Nat.self_le_factorial (M + 1)]⟩) |>.1),
-     fun q hq hq' => Finset.le_max' _ _ <| by aesop⟩
+      h_small_prime) |>.1),
+     fun q hq hq' => Finset.le_max' _ _ <| by
+       simp_all only [Finset.mem_filter, Finset.mem_Iic, and_self]⟩
   obtain ⟨n, hn⟩ : ∃ n, nthPrime n = p :=
     ⟨Nat.count Nat.Prime p, Nat.nth_count hp.1⟩
   have h_next_prime : ∀ q, Nat.Prime q → q > p → q ≥ (M + 1)! + (M + 2) := by
@@ -229,7 +232,8 @@ lemma primeGap_unbounded (M : ℕ) : ∃ n : ℕ, M ≤ primeGap n := by
     obtain ⟨k, hk⟩ : ∃ k, 2 ≤ k ∧ k ≤ M + 1 ∧ q = (M + 1)! + k := by
       use q - (M + 1)!
       grind
-    simp_all +decide [Nat.prime_def_lt']
+    simp_all +decide only [prime_def_lt', and_imp, gt_iff_lt, ge_iff_le, add_le_add_iff_left,
+      not_le]
     exact hq.2 k hk.1 (by linarith [Nat.self_le_factorial (M + 1)])
       (Nat.dvd_add (Nat.dvd_factorial (by linarith) (by linarith)) (dvd_refl k))
   have h_gap : nthPrime (n + 1) ≥ (M + 1)! + (M + 2) := by
@@ -252,7 +256,9 @@ lemma exists_record_gap_ge (N : ℕ) : ∃ n ≥ N, IsStrictRecordGap n := by
        primeGap n > Finset.sup (Finset.range N) primeGap) |>.1,
      Nat.find_spec (⟨n, hn1, hn2⟩ : ∃ n ≥ N,
        primeGap n > Finset.sup (Finset.range N) primeGap) |>.2,
-     by aesop⟩
+     by
+       intro m a a_1
+       simp_all only [ge_iff_le, gt_iff_lt, lt_find_iff, not_and, not_lt, Std.le_refl]⟩
   exact ⟨n, hn1, fun m mn => lt_of_le_of_lt
     (if hm : m < N then Finset.le_sup (f := primeGap) (Finset.mem_range.mpr hm)
      else hn2.2 m (le_of_not_gt hm) mn)
@@ -309,7 +315,6 @@ private lemma construct_x_lt_Q {P D η : ℝ} (hD : 0 < D) (hη' : η < 1 / 2) :
 -- Section 7: Main theorem
 -- ============================================================================
 
-set_option linter.flexible false in
 -- The final contradiction proof uses generated simplifications over many local definitions.
 /-- **Theorem 1.2** (Sunder–Kumrawat–Cheri, 2026).
 Let 1 < C₁ < C₂ with C₂ - C₁ < 1/2. Then A(C₁) and A(C₂) cannot both hold.
@@ -350,16 +355,17 @@ theorem erdos1138_theorem (C₁ C₂ : ℝ) (hC₁_pos : 1 < C₁) (hlt : C₁ <
     norm_num +zetaDelta at *
     exact le_add_of_le_of_nonneg hn_B.1.1 (mul_nonneg (by linarith) (Nat.cast_nonneg _))
   have hx_ge_X₂ : x ≥ X₂ := by
-    simp +zetaDelta at *
+    norm_num +zetaDelta at *
     exact le_add_of_le_of_nonneg hn_B.1.2 (mul_nonneg (by linarith) (Nat.cast_nonneg _))
   have hy_lt_z : y < z := by
-    simp +zetaDelta at *
-    exact mul_lt_mul_of_pos_right (by linarith) (Nat.cast_pos.mpr (primeGap_pos n))
+    simpa [y, z, η, D] using
+      add_lt_add_left
+        (mul_lt_mul_of_pos_right (by linarith) (Nat.cast_pos.mpr (primeGap_pos n))) P
   have hz_lt_x : z < x :=
     construct_z_lt_x (Nat.cast_pos.mpr (primeGap_pos n)) hη
   have hx_lt_Q : x < Q := by
     have hQ_eq_P_plus_D : Q = P + D := by
-      simp +zetaDelta at *
+      simp +zetaDelta only [ge_iff_le] at *
       exact_mod_cast nthPrime_succ_eq n
     exact hQ_eq_P_plus_D.symm ▸ construct_x_lt_Q (Nat.cast_pos.mpr (primeGap_pos n)) hη
   have hy_gt_1 : 1 < y :=
@@ -426,7 +432,5 @@ theorem erdos1138_corollary : ¬(∀ C : ℝ, 1 < C → AsymptoticA C) := by
 
 #print axioms erdos1138_corollary
 -- 'Erdos1138.erdos1138_corollary' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end
 
 end Erdos1138
