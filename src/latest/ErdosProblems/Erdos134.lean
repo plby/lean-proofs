@@ -32,7 +32,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option maxRecDepth 10000
 set_option maxHeartbeats 800000
-set_option linter.style.whitespace false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.openClassical false
@@ -566,7 +565,7 @@ theorem high_degree_subset_bound {V : Type*} [Fintype V] [DecidableEq V]
   (n : ℕ) (c : ℝ) (U : Finset V)
   (h_le : G₀ ≤ G)
   (h_G₀_max_deg : ∀ v, (G₀.degree v : ℝ) ≤ c * Real.sqrt n)
-  (h_edges_added : (G.edgeFinset \ G₀.edgeFinset).card ≤ Nat.floor (c^2 * n^(3/2 : ℝ)))
+  (h_edges_added : (G.edgeFinset \ G₀.edgeFinset).card ≤ Nat.floor (c ^ 2 * n ^ (3 / 2 : ℝ)))
   (h_c_pos : c > 0)
   (h_n_pos : n > 0) :
   (U.filter (fun v => (G.degree v : ℝ) ≥ 2 * c * Real.sqrt n)).card ≤ 2 * c * n := by
@@ -732,10 +731,10 @@ theorem x_log_en_div_x_increasing {n : ℝ} (hn : n > 0) :
 Binomial coefficient bounded by entropy-like term.
 -/
 theorem binom_entropy_bound (n : ℕ) (c : ℝ) (hc : c > 0) (hc_small : 5 * c * n ≥ 1) (hc_upper :
-  c ≤ 1/10) :
+  c ≤ 1 / 10) :
   (n.choose (Nat.floor (5 * c * n)) : ℝ) ≤ 2 ^ (10 * c * n * Real.log (1 / c)) := by
     -- Let $k = \lfloor 5cn \rfloor$. Since $5cn \geq 1$, we have $k \geq 1$. Also, since $c \leq
-    -- 1/10$, we have $5cn \leq n/2$, so $k < n$.
+    -- 1 / 10$, we have $5cn \leq n/2$, so $k < n$.
     set k := Nat.floor (5 * c * n)
     have hk_ge_1 : 1 ≤ k := by
       exact Nat.floor_pos.mpr hc_small
@@ -1080,7 +1079,7 @@ theorem card_edge_diff_succ {V : Type*} [Fintype V] [DecidableEq V]
       ext ⟨ u, v ⟩ ; aesop;
     grind
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 1000000 in
 /-
 If a state is a next state but not a hit state, it corresponds to adding an eligible edge that is
 not in U.
@@ -1330,7 +1329,7 @@ theorem eligible_pairs_count_lower_bound_ceil {V : Type*} [Fintype V] [Decidable
   (h_U_card : U.card = Nat.floor (5 * c * n))
   (h_G₀_max_deg : ∀ v, (G₀.degree v : ℝ) ≤ c * Real.sqrt n)
   (h_G_max_deg : ∀ v, (G.degree v : ℝ) ≤ Nat.ceil (2 * c * Real.sqrt n))
-  (h_edges_added : (G.edgeFinset \ G₀.edgeFinset).card ≤ Nat.floor (c^2 * n^(3/2 : ℝ)))
+  (h_edges_added : (G.edgeFinset \ G₀.edgeFinset).card ≤ Nat.floor (c ^ 2 * n ^ (3 / 2 : ℝ)))
   (h_c_pos : c > 0)
   (h_n_large : n ≥ 1000)
   (h_c_lower : c * Real.sqrt n ≥ 4) :
@@ -1448,7 +1447,7 @@ theorem hit_ratio_bound_ceil {V : Type*} [Fintype V] [DecidableEq V]
   (h_U_card : U.card = Nat.floor (5 * c * n))
   (h_G₀_max_deg : ∀ v, (G₀.degree v : ℝ) ≤ c * Real.sqrt n)
   (h_G_max_deg : ∀ v, (G.degree v : ℝ) ≤ Nat.ceil (2 * c * Real.sqrt n))
-  (h_edges_added : (G.edgeFinset \ G₀.edgeFinset).card ≤ Nat.floor (c^2 * n^(3/2 : ℝ)))
+  (h_edges_added : (G.edgeFinset \ G₀.edgeFinset).card ≤ Nat.floor (c ^ 2 * n ^ (3 / 2 : ℝ)))
   (h_c_pos : c > 0)
   (h_n_large : n ≥ 1000)
   (h_c_lower : c * Real.sqrt n ≥ 4) :
@@ -1524,10 +1523,10 @@ theorem hit_ratio_bound_ceil {V : Type*} [Fintype V] [DecidableEq V]
 /-
 p_val is at most 1.
 -/
-theorem p_val_le_one (n : ℕ) (c : ℝ) (h_n : n ≥ 1000) (h_c : c ≤ 1/10) (h_c_pos : c > 0) :
+theorem p_val_le_one (n : ℕ) (c : ℝ) (h_n : n ≥ 1000) (h_c : c ≤ 1 / 10) (h_c_pos : c > 0) :
   p_val n c ≤ 1 := by
   -- We have p_val = floor(2c^2n^2) / n.choose 2.
-  -- Since c <= 1/10, 2c^2 <= 2/100 = 1/50.
+  -- Since c <= 1 / 10, 2c^2 <= 2/100 = 1/50.
   -- So numerator <= n^2/50.
   -- Denominator = n(n-1)/2.
   -- Ratio is approx (n^2/50) / (n^2/2) = 1/25 <= 1.
@@ -1553,7 +1552,7 @@ theorem prob_avoid_ratio_condition_lt_m {V : Type} [Fintype V] [DecidableEq V]
   (h_c_pos : c > 0)
   (h_c_lower : c * Real.sqrt n ≥ 4)
   (h_U_card : U.card = Nat.floor (5 * c * n))
-  (h_m : m = Nat.floor (c^2 * n^(3/2 : ℝ)))
+  (h_m : m = Nat.floor (c ^ 2 * n ^ (3 / 2 : ℝ)))
   (h_G₀_max_deg : ∀ v, (G₀.degree v : ℝ) ≤ c * Real.sqrt n)
   (s : ProcessState V)
   (h_inv : MyInvariant G₀ c n m U s)
@@ -1580,10 +1579,10 @@ theorem prob_avoid_ratio_condition {V : Type} [Fintype V] [DecidableEq V]
   (h_n : Fintype.card V = n)
   (h_n_large : n ≥ 1000)
   (h_c_pos : c > 0)
-  (h_c_small : c ≤ 1/10)
+  (h_c_small : c ≤ 1 / 10)
   (h_c_lower : c * Real.sqrt n ≥ 4)
   (h_U_card : U.card = Nat.floor (5 * c * n))
-  (h_m : m = Nat.floor (c^2 * n^(3/2 : ℝ)))
+  (h_m : m = Nat.floor (c ^ 2 * n ^ (3 / 2 : ℝ)))
   (h_G₀_max_deg : ∀ v, (G₀.degree v : ℝ) ≤ c * Real.sqrt n)
   (s : ProcessState V)
   (h_inv : MyInvariant G₀ c n m U s) :
@@ -1609,7 +1608,7 @@ theorem process_progress {V : Type} [Fintype V] [DecidableEq V]
   (h_c_pos : c > 0)
   (h_c_lower : c * Real.sqrt n ≥ 4)
   (h_U_card : U.card = Nat.floor (5 * c * n))
-  (h_m : m = Nat.floor (c^2 * n^(3/2 : ℝ)))
+  (h_m : m = Nat.floor (c ^ 2 * n ^ (3 / 2 : ℝ)))
   (h_G₀_max_deg : ∀ v, (G₀.degree v : ℝ) ≤ c * Real.sqrt n)
   (s : ProcessState V)
   (h_inv : MyInvariant G₀ c n m U s) :
@@ -1655,10 +1654,10 @@ theorem prob_avoid_U_bound {V : Type} [Fintype V] [DecidableEq V]
   (h_inv_start : MyInvariant G₀ c n m U (G₀, 0))
   (h_n_large : n ≥ 1000)
   (h_c_pos : c > 0)
-  (h_c_small : c ≤ 1/10)
+  (h_c_small : c ≤ 1 / 10)
   (h_c_lower : c * Real.sqrt n ≥ 4)
   (h_U_card : U.card = Nat.floor (5 * c * n))
-  (h_m : m = Nat.floor (c^2 * n^(3/2 : ℝ)))
+  (h_m : m = Nat.floor (c ^ 2 * n ^ (3 / 2 : ℝ)))
   (h_G₀_max_deg : ∀ v, (G₀.degree v : ℝ) ≤ c * Real.sqrt n) :
   prob_avoid (TheProcess c n m) (TheHit c n m U) m (G₀, 0) ≤ (1 - p_val n c)^m := by
     apply prob_avoid_bound_with_invariant;
@@ -1679,11 +1678,12 @@ theorem p_val_mul_m_ge (n : ℕ) (c : ℝ) (m : ℕ)
   (h_n : n ≥ 1000)
   (h_c_pos : c > 0)
   (h_c_lower : c * Real.sqrt n ≥ 4)
-  (h_m : m = Nat.floor (c^2 * n^(3/2 : ℝ))) :
+  (h_m : m = Nat.floor (c ^ 2 * n ^ (3 / 2 : ℝ))) :
   p_val n c * m ≥ 3 * c^4 * n^(3/2 : ℝ) := by
     -- By simplifying, we can see that the inequality holds.
     have h_simplify :
-      2 * (2 * c^2 * n^2 - 1) * (c^2 * n^(3/2 : ℝ) - 1) ≥ 3 * c^4 * n^(5/2 : ℝ) * (n - 1) := by
+      2 * (2 * c^2 * n^2 - 1) * (c ^ 2 * n ^ (3 / 2 : ℝ) - 1) ≥
+        3 * c^4 * n^(5/2 : ℝ) * (n - 1) := by
       rw [ show ( 5 / 2 : ℝ ) = 2 + 1 / 2 by norm_num,
         Real.rpow_add ] <;> norm_num <;> try positivity;
       rw [ show ( 3 / 2 : ℝ ) = 1 + 1 / 2 by norm_num,
@@ -1703,7 +1703,7 @@ theorem p_val_mul_m_ge (n : ℕ) (c : ℝ) (m : ℕ)
     -- By multiplying both sides of the inequality from h_simplify by the positive terms, we can
     -- derive the desired result.
     have h_final :
-      (Nat.floor (2 * c^2 * n^2) : ℝ) * ⌊c^2 * n^(3/2 : ℝ)⌋₊ ≥ 3 * c^4 * n^(5/2 : ℝ) * (n - 1)
+      (Nat.floor (2 * c^2 * n^2) : ℝ) * ⌊c ^ 2 * n ^ (3 / 2 : ℝ)⌋₊ ≥ 3 * c^4 * n^(5/2 : ℝ) * (n - 1)
         / 2 := by
       field_simp;
       refine le_trans h_simplify ?_;
@@ -1739,10 +1739,10 @@ theorem prob_avoid_U_bound_explicit {V : Type} [Fintype V] [DecidableEq V]
   (h_inv_start : MyInvariant G₀ c n m U (G₀, 0))
   (h_n_large : n ≥ 1000)
   (h_c_pos : c > 0)
-  (h_c_small : c ≤ 1/10)
+  (h_c_small : c ≤ 1 / 10)
   (h_c_lower : c * Real.sqrt n ≥ 4)
   (h_U_card : U.card = Nat.floor (5 * c * n))
-  (h_m : m = Nat.floor (c^2 * n^(3/2 : ℝ)))
+  (h_m : m = Nat.floor (c ^ 2 * n ^ (3 / 2 : ℝ)))
   (h_G₀_max_deg : ∀ v, (G₀.degree v : ℝ) ≤ c * Real.sqrt n) :
   prob_avoid (TheProcess c n m) (TheHit c n m U) m (G₀, 0) ≤ Real.exp (-3 * c^4 * n^(3/2 : ℝ)) := by
     have h_exp : (1 - p_val n c)^m ≤ Real.exp (-p_val n c * m) := by
@@ -1775,8 +1775,8 @@ The product of the number of independent sets and the failure probability is les
 theorem union_bound_numeric (n : ℕ) (c : ℝ)
   (h_n : n ≥ 1000)
   (h_c_pos : c > 0)
-  (h_c_small : c ≤ 1/10)
-  (h_c_lower_bound : c ≥ 2 * (Real.log n)^(1/3 : ℝ) / n^(1/6 : ℝ))
+  (h_c_small : c ≤ 1 / 10)
+  (h_c_lower_bound : c ≥ 2 * (Real.log n) ^ (1 / 3 : ℝ) / n ^ (1 / 6 : ℝ))
   (h_binom_bound : (n.choose (Nat.floor (5 * c * n)) : ℝ) ≤ 2 ^ (10 * c * n * Real.log (1 / c))) :
   (n.choose (Nat.floor (5 * c * n)) : ℝ) * Real.exp (-3 * c^4 * n^(3/2 : ℝ)) < 1 := by
     have h_num_bound :
@@ -1786,7 +1786,7 @@ theorem union_bound_numeric (n : ℕ) (c : ℝ)
       have h_ineq : 10 * Real.log 2 * Real.log (1 / c) < 3 * c^3 * (n : ℝ)^(1/2 : ℝ) := by
         -- Since $c \geq 2 (\log n)^{1/3} / n^{1/6}$, we have $c^3 \geq 8 \log n / n^{1/2}$.
         have h_cubed : c^3 ≥ 8 * Real.log n / (n : ℝ)^(1/2 : ℝ) := by
-          have h_cubed : c^3 ≥ (2 * (Real.log n)^(1/3 : ℝ) / (n : ℝ)^(1/6 : ℝ))^3 := by
+          have h_cubed : c^3 ≥ (2 * (Real.log n) ^ (1 / 3 : ℝ) / (n : ℝ) ^ (1 / 6 : ℝ))^3 := by
             gcongr;
           convert h_cubed using 1 ; ring_nf;
           field_simp;
@@ -1796,7 +1796,7 @@ theorem union_bound_numeric (n : ℕ) (c : ℝ)
           ring_nf
         -- Since $c \geq 2 (\log n)^{1/3} / n^{1/6}$, we have $\log(1/c) \leq (1/6) \log n$.
         have h_log_bound : Real.log (1 / c) ≤ (1 / 6) * Real.log n := by
-          have h_log_bound : 1 / c ≤ (n : ℝ)^(1/6 : ℝ) := by
+          have h_log_bound : 1 / c ≤ (n : ℝ) ^ (1 / 6 : ℝ) := by
             rw [ div_le_iff₀ ] <;> try positivity;
             rw [ ge_iff_le, div_le_iff₀ ] at h_c_lower_bound <;> try positivity;
             nlinarith [
@@ -2046,7 +2046,7 @@ theorem SafeProcess_eq_NextGraphsState {V : Type} [Fintype V] [DecidableEq V]
   (h_c_pos : c > 0)
   (h_c_lower : c * Real.sqrt n ≥ 4)
   (h_U_card : U.card = Nat.floor (5 * c * n))
-  (h_m : m = Nat.floor (c^2 * n^(3/2 : ℝ)))
+  (h_m : m = Nat.floor (c ^ 2 * n ^ (3 / 2 : ℝ)))
   (h_G₀_max_deg : ∀ v, (G₀.degree v : ℝ) ≤ c * Real.sqrt n)
   (s : ProcessState V)
   (h_inv : MyInvariant G₀ c n m U s)
@@ -2116,7 +2116,7 @@ theorem SafeProcess_eq_TheProcess {V : Type} [Fintype V] [DecidableEq V]
   (h_c_pos : c > 0)
   (h_c_lower : c * Real.sqrt n ≥ 4)
   (h_U_card : U.card = Nat.floor (5 * c * n))
-  (h_m : m = Nat.floor (c^2 * n^(3/2 : ℝ)))
+  (h_m : m = Nat.floor (c ^ 2 * n ^ (3 / 2 : ℝ)))
   (h_G₀_max_deg : ∀ v, (G₀.degree v : ℝ) ≤ c * Real.sqrt n)
   (s : ProcessState V)
   (h_inv : MyInvariant G₀ c n m U s) :
@@ -2142,7 +2142,7 @@ theorem prob_avoid_eq_general {V : Type} [Fintype V] [DecidableEq V]
   (h_c_pos : c > 0)
   (h_c_lower : c * Real.sqrt n ≥ 4)
   (h_U_card : U.card = Nat.floor (5 * c * n))
-  (h_m : m = Nat.floor (c^2 * n^(3/2 : ℝ)))
+  (h_m : m = Nat.floor (c ^ 2 * n ^ (3 / 2 : ℝ)))
   (h_G₀_max_deg : ∀ v, (G₀.degree v : ℝ) ≤ c * Real.sqrt n) :
   ∀ k, ∀ s, MyInvariant G₀ c n m U s → s.2 + k = m →
   prob_avoid (SafeProcess c n m) (SafeHit c n m U) k s = prob_avoid (TheProcess c n m)
@@ -2179,10 +2179,10 @@ theorem prob_avoid_safe_bound {V : Type} [Fintype V] [DecidableEq V]
   (h_inv_start : MyInvariant G₀ c n m U (G₀, 0))
   (h_n_large : n ≥ 1000)
   (h_c_pos : c > 0)
-  (h_c_small : c ≤ 1/10)
+  (h_c_small : c ≤ 1 / 10)
   (h_c_lower : c * Real.sqrt n ≥ 4)
-  (h_c_lower_bound : c ≥ 2 * (Real.log n)^(1/3 : ℝ) / n^(1/6 : ℝ))
-  (h_m : m = Nat.floor (c^2 * n^(3/2 : ℝ)))
+  (h_c_lower_bound : c ≥ 2 * (Real.log n) ^ (1 / 3 : ℝ) / n ^ (1 / 6 : ℝ))
+  (h_m : m = Nat.floor (c ^ 2 * n ^ (3 / 2 : ℝ)))
   (h_G₀_max_deg : ∀ v, (G₀.degree v : ℝ) ≤ c * Real.sqrt n)
   (h_U_mem : U ∈ RelevantUs c n) :
   prob_avoid (SafeProcess c n m) (SafeHit c n m U) m (G₀, 0) ≤ Real.exp (-3 * c^4 * n^(3/2 : ℝ))
@@ -2518,10 +2518,10 @@ theorem sum_relevant_G0_lt_one {V : Type} [Fintype V] [DecidableEq V]
   (h_n : Fintype.card V = n)
   (h_n_large : n ≥ 1000)
   (h_c_pos : c > 0)
-  (h_c_small : c ≤ 1/10)
+  (h_c_small : c ≤ 1 / 10)
   (h_c_lower : c * Real.sqrt n ≥ 4)
-  (h_c_lower_bound : c ≥ 2 * (Real.log n)^(1/3 : ℝ) / n^(1/6 : ℝ))
-  (h_m : m = Nat.floor (c^2 * n^(3/2 : ℝ)))
+  (h_c_lower_bound : c ≥ 2 * (Real.log n) ^ (1 / 3 : ℝ) / n ^ (1 / 6 : ℝ))
+  (h_m : m = Nat.floor (c ^ 2 * n ^ (3 / 2 : ℝ)))
   (h_G₀_max_deg : ∀ v, (G₀.degree v : ℝ) ≤ c * Real.sqrt n)
   (h_clique_free : G₀.CliqueFree 3)
   (h_binom_bound : (n.choose (Nat.floor (5 * c * n)) : ℝ) ≤ 2 ^ (10 * c * n * Real.log (1 / c))) :
@@ -2583,10 +2583,10 @@ theorem exists_good_path_G0 {V : Type} [Fintype V] [DecidableEq V]
   (h_n : Fintype.card V = n)
   (h_n_large : n ≥ 1000)
   (h_c_pos : c > 0)
-  (h_c_small : c ≤ 1/10)
+  (h_c_small : c ≤ 1 / 10)
   (h_c_lower : c * Real.sqrt n ≥ 4)
-  (h_c_lower_bound : c ≥ 2 * (Real.log n)^(1/3 : ℝ) / n^(1/6 : ℝ))
-  (h_m : m = Nat.floor (c^2 * n^(3/2 : ℝ)))
+  (h_c_lower_bound : c ≥ 2 * (Real.log n) ^ (1 / 3 : ℝ) / n ^ (1 / 6 : ℝ))
+  (h_m : m = Nat.floor (c ^ 2 * n ^ (3 / 2 : ℝ)))
   (h_G₀_max_deg : ∀ v, (G₀.degree v : ℝ) ≤ c * Real.sqrt n)
   (h_clique_free : G₀.CliqueFree 3)
   (h_binom_bound : (n.choose (Nat.floor (5 * c * n)) : ℝ) ≤ 2 ^ (10 * c * n * Real.log (1 / c))) :
@@ -2632,9 +2632,9 @@ theorem exists_Gm_bounded_indep {V : Type} [Fintype V] [DecidableEq V]
   (h_n : Fintype.card V = n)
   (h_n_large : n ≥ 1000)
   (h_c_pos : c > 0)
-  (h_c_small : c ≤ 1/10)
+  (h_c_small : c ≤ 1 / 10)
   (h_c_lower : c * Real.sqrt n ≥ 4)
-  (h_c_lower_bound : c ≥ 2 * (Real.log n)^(1/3 : ℝ) / n^(1/6 : ℝ))
+  (h_c_lower_bound : c ≥ 2 * (Real.log n) ^ (1 / 3 : ℝ) / n ^ (1 / 6 : ℝ))
   (h_max_deg : ∀ v, (G.degree v : ℝ) ≤ c * Real.sqrt n)
   (h_clique_free : G.CliqueFree 3)
   (h_binom_bound : (n.choose (Nat.floor (5 * c * n)) : ℝ) ≤ 2 ^ (10 * c * n * Real.log (1 / c))) :
@@ -2653,8 +2653,9 @@ theorem exists_Gm_bounded_indep {V : Type} [Fintype V] [DecidableEq V]
     -- By `IsValidPath_preserves_BaseInvariant`, `G_m` satisfies `BaseInvariant`, which implies `G ≤
     -- G_m` and `G_m.CliqueFree 3`.
     have h_base_invariant :
-      BaseInvariant G c n (Nat.floor (c^2 * n^(3/2 : ℝ))) (path.getLastD (G, 0)) := by
-      apply IsValidPath_preserves_BaseInvariant G c n (Nat.floor (c^2 * n^(3/2 : ℝ))) path h_valid;
+      BaseInvariant G c n (Nat.floor (c ^ 2 * n ^ (3 / 2 : ℝ))) (path.getLastD (G, 0)) := by
+      apply IsValidPath_preserves_BaseInvariant G c n
+        (Nat.floor (c ^ 2 * n ^ (3 / 2 : ℝ))) path h_valid
       refine' ⟨ le_rfl, h_clique_free, _, _, _ ⟩ <;> norm_num;
       exact fun v =>
         Nat.le_of_lt_succ <| by
@@ -2685,9 +2686,9 @@ theorem theorem_1_2 {V : Type} [Fintype V] [DecidableEq V]
   (h_n : Fintype.card V = n)
   (h_n_large : n ≥ 1000)
   (h_c_pos : c > 0)
-  (h_c_small : c ≤ 1/10)
+  (h_c_small : c ≤ 1 / 10)
   (h_c_lower : c * Real.sqrt n ≥ 4)
-  (h_c_lower_bound : c ≥ 2 * (Real.log n)^(1/3 : ℝ) / n^(1/6 : ℝ))
+  (h_c_lower_bound : c ≥ 2 * (Real.log n) ^ (1 / 3 : ℝ) / n ^ (1 / 6 : ℝ))
   (h_max_deg : ∀ v, (G.degree v : ℝ) ≤ c * Real.sqrt n)
   (h_clique_free : G.CliqueFree 3)
   (h_binom_bound : (n.choose (Nat.floor (5 * c * n)) : ℝ) ≤ 2 ^ (10 * c * n * Real.log (1 / c))) :
