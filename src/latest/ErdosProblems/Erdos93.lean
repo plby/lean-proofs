@@ -35,6 +35,7 @@ set_option linter.unusedSectionVars false
 set_option linter.unusedVariables false
 set_option linter.unusedFintypeInType false
 set_option maxHeartbeats 2000000
+-- Several generated convex-geometry arguments time out at the default heartbeat limit.
 
 open Real Metric Set InnerProductSpace Complex EuclideanGeometry
 open scoped Classical InnerProductSpace Pointwise Complex EuclideanGeometry
