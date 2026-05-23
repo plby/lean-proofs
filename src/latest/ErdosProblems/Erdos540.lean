@@ -26,10 +26,6 @@ import Mathlib.Data.Int.Star
 
 namespace Erdos540
 
-set_option linter.style.setOption false
-set_option linter.flexible false
-set_option linter.unusedDecidableInType false
-
 /-!
 # Erdős Problem 540
 
@@ -58,8 +54,6 @@ Szemerédi, E., On a conjecture of Erdős and Heilbronn. Acta Arith. (1970), 227
 -/
 
 open Finset BigOperators
-
-noncomputable section
 
 /-! ## Basic definitions -/
 
@@ -91,6 +85,8 @@ lemma subsetSums_mono {G : Type*} [DecidableEq G] [AddCommMonoid G]
 The core combinatorial argument: given compatible additions and removals
 with controlled sumset growth, we find a zero-sum subset. -/
 
+set_option linter.flexible false in
+-- Generated matrix argument proof uses broad simplification across dependent case splits.
 /-- **Matrix argument**: Given a pivot set `D ⊆ A` with enough compatible additions
 (elements that can be added with small sumset growth) and removals (elements that can
 be removed with small sumset growth), then `A` has a zero-sum subset. -/
@@ -240,16 +236,22 @@ private lemma sum_filter_insert_card {G : Type*} [DecidableEq G]
       ∑ D ∈ A.powersetCard j, ∑ y ∈ A \ D, (if P (insert y D) then 1 else 0) =
       ∑ E ∈ A.powersetCard (j + 1), ∑ x ∈ E, (if P E then 1 else 0) := by
     simp only [sum_sigma']
-    refine Finset.sum_bij (fun x _ => ⟨insert x.snd x.fst, x.snd⟩) ?_ ?_ ?_ ?_ <;>
-      simp +decide
-    · exact fun a ha₁ ha₂ ha₃ ha₄ =>
+    refine Finset.sum_bij (fun x _ => ⟨insert x.snd x.fst, x.snd⟩) ?_ ?_ ?_ ?_
+    · simp +decide only [mem_sigma, mem_powersetCard, mem_sdiff, mem_insert, true_or,
+        and_true, and_imp]
+      exact fun a ha₁ ha₂ ha₃ ha₄ =>
         ⟨Finset.insert_subset ha₃ ha₁, by rw [Finset.card_insert_of_notMem ha₄, ha₂]⟩
-    · intro a₁ ha₁ ha₂ ha₃ ha₄ a₂ ha₅ ha₆ ha₇ ha₈ h₁ h₂
+    · simp +decide only [mem_sigma, mem_powersetCard, mem_sdiff, Sigma.mk.injEq,
+        heq_eq_eq, and_imp]
+      intro a₁ ha₁ ha₂ ha₃ ha₄ a₂ ha₅ ha₆ ha₇ ha₈ h₁ h₂
       ext <;> simp_all +decide [Finset.ext_iff]
       specialize h₁ ‹_›
       aesop
-    · intro b hb₁ hb₂ hb₃
+    · simp +decide only [mem_sigma, mem_powersetCard, mem_sdiff, exists_prop,
+        Sigma.exists, and_imp]
+      intro b hb₁ hb₂ hb₃
       exact ⟨b.fst.erase b.snd, b.snd, by simp_all +decide [Finset.subset_iff]⟩
+    · simp +decide
   convert h_bij using 1
   · exact sum_sigma (A.powersetCard j) (sdiff A) fun x =>
       if P (insert x.snd x.fst) then 1 else 0
@@ -275,7 +277,9 @@ private lemma transition_count_int {G : Type*} [DecidableEq G]
     refine eq_tsub_of_add_eq ?_
     rw [Finset.sum_filter, add_comm, ← Finset.sum_add_distrib]
     congr with D
-    aesop
+    split
+    next h => simp_all only [not_true_eq_false, false_and, filter_false, card_empty, add_zero]
+    next h => simp_all only [not_false_eq_true, true_and, zero_add]
   -- When P(D) holds, monotonicity gives P(insert a D) for all a, so the filter is full.
   have h_mono_filter :
       ∑ D ∈ (A.powersetCard j).filter P,
@@ -291,7 +295,7 @@ private lemma transition_count_int {G : Type*} [DecidableEq G]
     rw [Finset.sum_congr rfl fun x hx =>
       (Finset.mem_powersetCard.mp (Finset.mem_filter.mp hx |>.1)).2]
     simp [mul_comm]
-  simp_all
+  simp_all only [sum_const, smul_eq_mul]
   rw [← Nat.cast_sum, h_split, Nat.cast_sub]
   · simp [mul_comm, Nat.cast_sub hj.le]
   · rw [← h_double_count, ← h_mono_filter]
@@ -392,7 +396,7 @@ lemma weighted_growth_sum_le {G : Type*} [DecidableEq G]
 
 /-- Finset Markov inequality: for a function `f` on a finset, the number of elements
 where `f` exceeds a threshold `t` is at most `(∑ f) / (t + 1)`. -/
-lemma finset_markov_card_le {α : Type*} [DecidableEq α] (S : Finset α) (f : α → ℕ)
+lemma finset_markov_card_le {α : Type*} (S : Finset α) (f : α → ℕ)
     (t : ℕ) :
     (t + 1) * (S.filter fun x => t < f x).card ≤ ∑ x ∈ S, f x := by
   rw [Finset.card_filter, mul_comm]
@@ -470,13 +474,19 @@ lemma bad_rem_sum_eq {G : Type*} [DecidableEq G] [AddCommGroup G] [Fintype G]
   · simp +contextual [Finset.mem_powersetCard, Finset.subset_iff]
   · simp +contextual
     grind +suggestions
-  · simp +decide [Finset.subset_iff]
+  · simp +decide only [mem_sigma, mem_powersetCard, mem_sdiff, exists_prop,
+      Sigma.exists, and_imp]
     exact fun b hb₁ hb₂ hb₃ hb₄ =>
       ⟨Insert.insert b.snd b.fst, b.snd,
         ⟨⟨fun x hx => by aesop,
           by rw [Finset.card_insert_of_notMem hb₄, hb₂]⟩,
-          by aesop⟩,
-        by aesop⟩
+          by
+            subst hb₂
+            simp_all only [mem_insert, or_false]⟩,
+        by
+          subst hb₂
+          simp_all only [erase_insert_eq_erase, not_false_eq_true,
+            erase_eq_of_notMem, Sigma.eta]⟩
   · simp +contextual [Finset.subset_iff]
 
 /-- Key arithmetic: `7n ≤ 49 · √n · (√n + 1)`. -/
@@ -528,7 +538,7 @@ lemma exists_D_at_level {G : Type*} [DecidableEq G] [AddCommGroup G] [Fintype G]
     intro D hD
     contrapose! h_contra
     refine ⟨D, Finset.mem_powersetCard.mp hD |>.1, ?_, ?_⟩ <;>
-      simp_all +decide [Finset.card_sdiff]
+      simp_all +decide only [card_sdiff, mem_powersetCard, tsub_le_iff_right]
     · rw [show (Finset.filter (fun a =>
           #(subsetSums (insert a D)) ≤
             (Fintype.card G).sqrt +
@@ -627,6 +637,8 @@ lemma exists_D_at_level {G : Type*} [DecidableEq G] [AddCommGroup G] [Fintype G]
 
 set_option maxHeartbeats 400000 in
 -- This assembly step reuses the good-level estimate and exceeds the default heartbeat limit.
+set_option linter.flexible false in
+-- Generated averaging proof uses broad simplification in arithmetic case splits.
 /-- **Existence of good D**: There exists `D ⊆ A` with many good additions
 and removals. -/
 lemma exists_good_D {G : Type*} [DecidableEq G] [AddCommGroup G] [Fintype G]
@@ -718,7 +730,8 @@ lemma exists_good_D {G : Type*} [DecidableEq G] [AddCommGroup G] [Fintype G]
       refine le_trans ?_ h_pigeonhole
       rw [Finset.card_filter, Finset.card_filter]
       erw [Finset.sum_Ico_eq_sum_range]
-      simp +zetaDelta at *
+      simp +zetaDelta only [Nat.reduceSubDiff, Nat.succ_add_sub_one, gt_iff_lt, sum_boole,
+        Nat.cast_id] at *
       let l := 26 * ( Fintype.card G ).sqrt
       apply le_trans
         (b := (((Finset.range (75 * (Fintype.card G).sqrt - l)).filter
@@ -958,7 +971,5 @@ theorem erdos_540 : ∃ C : ℝ, 0 < C ∧
 
 #print axioms erdos_540
 -- 'Erdos540.erdos_540' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end
 
 end Erdos540
