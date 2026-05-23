@@ -60,7 +60,17 @@ namespace Erdos1102
 
 open Squarefree Set Order Filter Topology
 
-set_option linter.mathlibStandardSet false
+-- These generated proof sections retain targeted suppressions for copied tactic
+-- scripts; the broad mathlib standard-set suppression is intentionally avoided.
+set_option linter.style.setOption false
+set_option linter.style.openClassical false
+set_option linter.style.refine false
+set_option linter.style.induction false
+set_option linter.style.cases false
+set_option linter.style.multiGoal false
+set_option linter.style.whitespace false
+set_option linter.style.cdot false
+set_option linter.flexible false
 set_option linter.style.longLine false
 
 open scoped BigOperators
@@ -69,7 +79,9 @@ open scoped Nat
 open scoped Classical
 open scoped Pointwise
 
-set_option maxHeartbeats 0
+-- The generated density-P construction needs extended heartbeat, recursion,
+-- and instance-search budgets.
+set_option maxHeartbeats 50000000
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
@@ -982,7 +994,17 @@ Mathlib version: 8f9d9cff6bd728b17a24e163c9402775d9e6a365
 
 open Squarefree Set Order Filter Topology
 
-set_option linter.mathlibStandardSet false
+-- These generated proof sections retain targeted suppressions for copied tactic
+-- scripts; the broad mathlib standard-set suppression is intentionally avoided.
+set_option linter.style.setOption false
+set_option linter.style.openClassical false
+set_option linter.style.refine false
+set_option linter.style.induction false
+set_option linter.style.multiGoal false
+set_option linter.style.emptyLine false
+set_option linter.style.whitespace false
+set_option linter.style.cdot false
+set_option linter.flexible false
 
 open scoped BigOperators
 open scoped Real
@@ -990,7 +1012,9 @@ open scoped Nat
 open scoped Classical
 open scoped Pointwise
 
-set_option maxHeartbeats 0
+-- The generated Q-density proof needs extended heartbeat, recursion, and
+-- instance-search budgets.
+set_option maxHeartbeats 50000000
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
@@ -3792,7 +3816,17 @@ Mathlib version: 8f9d9cff6bd728b17a24e163c9402775d9e6a365
 
 open Squarefree Set Order Filter Topology
 
-set_option linter.mathlibStandardSet false
+-- These generated proof sections retain targeted suppressions for copied tactic
+-- scripts; the broad mathlib standard-set suppression is intentionally avoided.
+set_option linter.style.setOption false
+set_option linter.style.openClassical false
+set_option linter.style.refine false
+set_option linter.style.induction false
+set_option linter.style.multiGoal false
+set_option linter.style.emptyLine false
+set_option linter.style.whitespace false
+set_option linter.style.cdot false
+set_option linter.flexible false
 
 open scoped BigOperators
 open scoped Real
@@ -3800,7 +3834,9 @@ open scoped Nat
 open scoped Classical
 open scoped Pointwise
 
-set_option maxHeartbeats 0
+-- The generated overline-P sieve proof needs extended heartbeat, recursion,
+-- and instance-search budgets.
+set_option maxHeartbeats 50000000
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
@@ -6230,7 +6266,16 @@ Mathlib version: 8f9d9cff6bd728b17a24e163c9402775d9e6a365
 -/
 
 
-set_option linter.mathlibStandardSet false
+-- This generated proof section retains targeted suppressions for copied tactic
+-- scripts; the broad mathlib standard-set suppression is intentionally avoided.
+set_option linter.style.setOption false
+set_option linter.style.openClassical false
+set_option linter.style.refine false
+set_option linter.style.induction false
+set_option linter.style.multiGoal false
+set_option linter.style.whitespace false
+set_option linter.style.cdot false
+set_option linter.flexible false
 
 open scoped BigOperators
 open scoped Real
@@ -6238,7 +6283,9 @@ open scoped Nat
 open scoped Classical
 open scoped Pointwise
 
-set_option maxHeartbeats 0
+-- The generated fast-growing-Q construction needs extended heartbeat,
+-- recursion, and instance-search budgets.
+set_option maxHeartbeats 50000000
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
