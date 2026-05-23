@@ -75,7 +75,8 @@ set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
 set_option aesop.warn.nonterminal false
-set_option maxHeartbeats 0
+set_option maxHeartbeats 50000000
+-- Several generated Pell-equation and divisibility proofs time out at the default heartbeat limit.
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
