@@ -44,7 +44,8 @@ set_option linter.unusedTactic false
 
 open scoped Classical
 
-set_option maxHeartbeats 0
+set_option maxHeartbeats 50000000
+-- Several generated unit-segment blocking arguments time out at the default heartbeat limit.
 
 abbrev Point := EuclideanSpace ℝ (Fin 2)
 
@@ -3161,7 +3162,8 @@ set_option linter.unreachableTactic false
 
 open scoped Classical
 
-set_option maxHeartbeats 0
+set_option maxHeartbeats 50000000
+-- Several generated square-boundary blocking arguments time out at the default heartbeat limit.
 
 abbrev Point := EuclideanSpace ℝ (Fin 2)
 
