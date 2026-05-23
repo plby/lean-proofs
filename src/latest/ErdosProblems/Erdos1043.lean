@@ -29,11 +29,12 @@ noncomputable def counterexample_poly : Polynomial ℂ := Polynomial.X ^ 16 - 1
 
 lemma counterexample_poly_monic : counterexample_poly.Monic := by
   -- The polynomial $X^{16} - 1$ is monic because its leading coefficient is $1$.
-  apply Polynomial.monic_X_pow_sub_C; norm_num
+  apply Polynomial.monic_X_pow_sub_C
+  norm_num
 
 lemma counterexample_poly_degree : counterexample_poly.degree = 16 := by
   -- The degree is `16` because the highest term is `X ^ 16`.
-  apply Polynomial.degree_X_pow_sub_C;
+  apply Polynomial.degree_X_pow_sub_C
   -- The number 16 is clearly positive.
   norm_num
 
@@ -52,17 +53,18 @@ lemma inequality : 1 < 2 ^ (1/16 : ℝ) * Real.cos (Real.pi / 16) := by
   -- Approximate both factors separately.
   have h_approx :
       (2 : ℝ) ^ (1 / 16 : ℝ) > 1.04 ∧ Real.cos (Real.pi / 16) > 0.98 := by
-    constructor;
-    · norm_num [ Real.lt_rpow_iff_log_lt ];
+    constructor
+    · norm_num [ Real.lt_rpow_iff_log_lt ]
       rw [ div_mul_eq_mul_div, lt_div_iff₀' ] <;>
-        norm_num [ ← Real.log_rpow, Real.log_lt_log ];
-    · norm_num;
-      rw [ lt_div_iff₀, Real.lt_sqrt ] <;> norm_num;
+        norm_num [ ← Real.log_rpow, Real.log_lt_log ]
+    · norm_num
+      rw [ lt_div_iff₀, Real.lt_sqrt ] <;> norm_num
       nlinarith [mul_nonneg (Real.sqrt_nonneg 2) (Real.sqrt_nonneg (2 + Real.sqrt 2)),
         Real.sqrt_nonneg 2, Real.sqrt_nonneg (2 + Real.sqrt 2),
         Real.mul_self_sqrt (show 0 ≤ 2 by norm_num),
-        Real.mul_self_sqrt (show 0 ≤ 2 + Real.sqrt 2 by positivity)];
-  norm_num at * ; nlinarith
+        Real.mul_self_sqrt (show 0 ≤ 2 + Real.sqrt 2 by positivity)]
+  norm_num at *
+  nlinarith
 
 lemma exists_large_proj (u : ℂ) (hu : ‖u‖ = 1) :
   ∃ z ∈ levelSet counterexample_poly, 1 < (z * star u).re := by
@@ -76,13 +78,13 @@ lemma exists_large_proj (u : ℂ) (hu : ‖u‖ = 1) :
           ∃ k : ℤ,
             -Real.pi / 16 ≤ 2 * Real.pi * k / 16 - Complex.arg u ∧
               2 * Real.pi * k / 16 - Complex.arg u ≤ Real.pi / 16 := by
-        use Int.floor ((u.arg + Real.pi / 16) / (2 * Real.pi / 16));
+        use Int.floor ((u.arg + Real.pi / 16) / (2 * Real.pi / 16))
         constructor <;>
           nlinarith [Int.floor_le ((u.arg + Real.pi / 16) / (2 * Real.pi / 16)),
             Int.lt_floor_add_one ((u.arg + Real.pi / 16) / (2 * Real.pi / 16)),
             Real.pi_pos,
             mul_div_cancel₀ (u.arg + Real.pi / 16)
-              (by positivity : (2 * Real.pi / 16) ≠ 0)];
+              (by positivity : (2 * Real.pi / 16) ≠ 0)]
       -- Reduce `k` modulo `16`.
       obtain ⟨k', hk'⟩ : ∃ k' : ℕ, k' < 16 ∧ k ≡ k' [ZMOD 16] := by
         exact
@@ -93,13 +95,15 @@ lemma exists_large_proj (u : ℂ) (hu : ‖u‖ = 1) :
             by
               rw [Int.ModEq,
                 Int.toNat_of_nonneg (Int.emod_nonneg k (by decide : (16 : ℤ) ≠ 0))]
-              simp +decide⟩;
+              simp +decide⟩
       have h_cong :
           Real.cos (2 * Real.pi * k / 16 - Complex.arg u) =
             Real.cos (2 * Real.pi * k' / 16 - Complex.arg u) := by
-        rw [ Real.cos_eq_cos_iff ];
-        obtain ⟨ m, hm ⟩ := hk'.2.symm.dvd;
-        exact ⟨ -m, Or.inl <| by push_cast [ sub_eq_iff_eq_add'.mp hm ] ; ring ⟩;
+        rw [ Real.cos_eq_cos_iff ]
+        obtain ⟨ m, hm ⟩ := hk'.2.symm.dvd
+        exact ⟨ -m, Or.inl <| by
+          push_cast [ sub_eq_iff_eq_add'.mp hm ]
+          ring ⟩
       exact
         ⟨k', hk'.1, h_cong ▸ by
           rw [← Real.cos_abs]
@@ -108,23 +112,29 @@ lemma exists_large_proj (u : ℂ) (hu : ‖u‖ = 1) :
               (by linarith [Real.pi_pos])
               (by
                 cases abs_cases (2 * Real.pi * k / 16 - u.arg) <;>
-                  linarith [Real.pi_pos])⟩;
+                  linarith [Real.pi_pos])⟩
     -- Let $z = r \cdot \exp(I \cdot \frac{2\pi k}{16})$.
-    use ((2 : ℂ) ^ (1 / 16 : ℂ)) * Complex.exp (Complex.I * (2 * Real.pi * k / 16));
-    constructor;
-    · unfold levelSet;
-      unfold counterexample_poly; norm_num [ ← Complex.exp_nat_mul, mul_div_cancel₀ ] ;
-      rw [ mul_pow, ← Complex.cpow_nat_mul ] ; norm_num [ mul_div_cancel₀ ];
+    use ((2 : ℂ) ^ (1 / 16 : ℂ)) * Complex.exp (Complex.I * (2 * Real.pi * k / 16))
+    constructor
+    · unfold levelSet
+      unfold counterexample_poly
+      norm_num [ ← Complex.exp_nat_mul, mul_div_cancel₀ ]
+      rw [ mul_pow, ← Complex.cpow_nat_mul ]
+      norm_num [ mul_div_cancel₀ ]
       rw [← Complex.exp_nat_mul, mul_comm,
-        Complex.exp_eq_one_iff.mpr ⟨k, by push_cast; ring⟩] ; norm_num;
+        Complex.exp_eq_one_iff.mpr ⟨k, by
+          push_cast
+          ring⟩]
+      norm_num
     · -- Substitute the real part of the product into the inequality.
       have h_real_part :
           (2 ^ (1 / 16 : ℝ)) *
               Real.cos (2 * Real.pi * k / 16 - Complex.arg u) > 1 := by
         exact lt_of_lt_of_le inequality
           (mul_le_mul_of_nonneg_left hk.2 <| by positivity)
-      convert h_real_part.lt using 1;
-        norm_num [Complex.exp_re, Complex.exp_im, Complex.cos, Complex.sin];
+      convert h_real_part.lt using 1
+      all_goals
+        norm_num [Complex.exp_re, Complex.exp_im, Complex.cos, Complex.sin]
         ring_nf
       norm_num [Real.cos_sub, Real.sin_sub, Complex.exp_re, Complex.exp_im,
           Complex.log_re, Complex.log_im, Complex.cpow_def]
@@ -132,7 +142,7 @@ lemma exists_large_proj (u : ℂ) (hu : ‖u‖ = 1) :
       rw [Real.rpow_def_of_pos (by norm_num)]
       rw [← Complex.norm_mul_cos_arg, ← Complex.norm_mul_sin_arg]
       ring_nf
-      aesop;
+      simp_all only [Real.cos_pi_div_sixteen, ge_iff_le, one_div, gt_iff_lt, mul_one]
 
 variable (u : ℂ)
 
@@ -140,28 +150,29 @@ lemma exists_large_proj_aux (u : ℂ) (hu : ‖u‖ = 1) :
   ∃ z ∈ levelSet counterexample_poly, 1 < (z * star u).re := by
     -- Apply the previous lemma and unpack the witness.
     obtain ⟨z, hz⟩ : ∃ z ∈ levelSet counterexample_poly, 1 < (z * star u).re := by
-      exact exists_large_proj u hu;
+      exact exists_large_proj u hu
     use z
 
-set_option linter.flexible false in
 -- The initial simplification unfolds the generated level-set goal.
 lemma levelSet_starConvex : StarConvex ℝ 0 (levelSet counterexample_poly) := by
-  unfold counterexample_poly; norm_num [ StarConvex ] ;
-  simp_all +decide [ levelSet ];
+  unfold counterexample_poly
+  norm_num [ StarConvex ]
+  simp_all +decide only [levelSet, eval_sub, eval_pow, eval_X, eval_one, Set.mem_setOf_eq]
   -- Use convexity of `fun z => ‖z - 1‖`.
   intros y hy a b ha hb hab
   have h_convex :
       ‖(b * y) ^ 16 - 1‖ ≤
         (1 - b ^ 16) * ‖(0 : ℂ) - 1‖ + b ^ 16 * ‖y ^ 16 - 1‖ := by
     have h_convex : ConvexOn ℝ (Set.univ : Set ℂ) (fun z : ℂ => ‖z - 1‖) := by
-      exact convexOn_norm ( convex_univ ) |> fun h => h.translate_left ( -1 );
-    have := h_convex.2 ( Set.mem_univ 0 ) ( Set.mem_univ ( y ^ 16 ) );
+      exact convexOn_norm ( convex_univ ) |> fun h => h.translate_left ( -1 )
+    have := h_convex.2 ( Set.mem_univ 0 ) ( Set.mem_univ ( y ^ 16 ) )
     convert
       @this (1 - b ^ 16) (b ^ 16) (sub_nonneg.2 <| pow_le_one₀ hb <| by linarith)
         (pow_nonneg hb _) (by ring) using 1
     norm_num
-    ring_nf;
-  norm_num at * ; nlinarith [ pow_nonneg hb 16 ]
+    ring_nf
+  norm_num at *
+  nlinarith [ pow_nonneg hb 16 ]
 
 noncomputable local instance instMeasureSpaceRealSpan (u : ℂ) : MeasureSpace ↥(ℝ ∙ u) :=
   @measureSpaceOfInnerProductSpace (↥(ℝ ∙ u))
@@ -279,23 +290,24 @@ Pommerenke [Po61] proved that the answer is no.
 [Po61] Pommerenke, Ch., _On metric properties of complex polynomials._ Michigan Math. J. (1961),
 97-115.
 -/
-set_option linter.flexible false in
 -- The final contradiction proof uses a generated simplification over the negated theorem.
 theorem erdos_1043 :
     ¬ (∀ (f : ℂ[X]), f.Monic → f.degree ≥ 1 →
       ∃ (u : ℂ), ‖u‖ = 1 ∧
       volume ((ℝ ∙ u).orthogonalProjection '' levelSet f) ≤ 2) := by
   simp +zetaDelta only [ge_iff_le, not_forall, not_exists, not_and, not_le] at *
-  use counterexample_poly;
-  refine ⟨?_, ?_, ?_⟩;
-  · exact counterexample_poly_monic;
-  · erw [ Polynomial.degree_X_pow_sub_C ] <;> norm_num;
-  · intro u hu;
-    obtain ⟨ z, hz₁, hz₂ ⟩ := exists_large_proj_aux u hu;
+  use counterexample_poly
+  refine ⟨?_, ?_, ?_⟩
+  · exact counterexample_poly_monic
+  · erw [ Polynomial.degree_X_pow_sub_C ] <;> norm_num
+  · intro u hu
+    obtain ⟨ z, hz₁, hz₂ ⟩ := exists_large_proj_aux u hu
     refine lt_of_lt_of_le ?_ (measure_proj_ge u hu _
       (fun z hz => levelSet_symmetric z hz) levelSet_starConvex z hz₁)
-    · rw [ ENNReal.lt_ofReal_iff_toReal_lt ] <;> norm_num;
-      simp_all +decide [ Submodule.starProjection_singleton ];
+    · rw [ ENNReal.lt_ofReal_iff_toReal_lt ] <;> norm_num
+      simp_all +decide only [RCLike.star_def, Complex.mul_re, Complex.conj_re, Complex.conj_im,
+        mul_neg, sub_neg_eq_add, Submodule.starProjection_singleton, Complex.inner, one_pow,
+        Real.ringHom_apply, div_one]
       norm_cast
       refine hz₂.trans_le ?_
       simpa [norm_smul, hu, Real.norm_eq_abs] using
