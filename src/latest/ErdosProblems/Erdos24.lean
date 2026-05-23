@@ -68,7 +68,8 @@ set_option linter.style.refine false
 set_option linter.style.show false
 set_option linter.unusedDecidableInType false
 set_option linter.unusedFintypeInType false
-set_option maxHeartbeats 0
+set_option maxHeartbeats 50000000
+-- Several generated pentagon-density arguments time out at the default heartbeat limit.
 
 open Finset Function SimpleGraph Fintype Nat Matrix
 
@@ -457,6 +458,7 @@ private lemma totalFlagPermTuples_nodup : totalFlagPermTuples.Nodup := by
   decide
 
 set_option maxRecDepth 100000 in
+-- The generated permutation table proof needs a deeper recursion budget.
 private lemma totalFlagPermTuples_toFinset_eq_image :
     totalFlagPermTuples.toFinset =
       Finset.image (fun p : Equiv.Perm (Fin 5) => [p 0, p 1, p 2, p 3, p 4]) Finset.univ := by
@@ -1687,6 +1689,7 @@ private lemma isC5_adj_true_iff_bool (adj : Fin 5 → Fin 5 → Bool) :
   simp [isC5_adj, isC5_adj_bool]
 
 set_option maxRecDepth 1000000 in
+-- The generated C5 adjacency permutation proof needs a deeper recursion budget.
 private lemma isC5_adj_bool_perm :
     ∀ τ : Equiv.Perm (Fin 5),
       isC5_adj_bool (fun i j => decide (τ j = τ i + 1 ∨ τ i = τ j + 1)) = true := by
