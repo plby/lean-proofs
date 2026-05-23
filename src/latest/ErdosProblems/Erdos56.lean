@@ -21,7 +21,6 @@ set_option linter.style.openClassical false
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.deprecated false
-set_option aesop.warn.nonterminal false
 
 namespace Erdos56
 
@@ -31,7 +30,9 @@ open scoped Nat
 open scoped Classical
 open scoped Pointwise
 
-set_option maxHeartbeats 0
+-- The generated prime-factor construction needs extended heartbeat, recursion,
+-- and instance-search budgets.
+set_option maxHeartbeats 50000000
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
@@ -46,6 +47,8 @@ set_option linter.deprecated false
 set_option linter.unnecessarySimpa false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
+-- The generated proof script uses many nonterminal `aesop` calls followed by
+-- explicit cleanup tactics.
 set_option aesop.warn.nonterminal false
 
 set_option relaxedAutoImplicit false
@@ -1446,6 +1449,7 @@ prime_cert 1321
 prime_cert 1327
 prime_cert 1361
 
+-- The generated prime-count certificate lemmas need deeper simplifier recursion.
 set_option maxRecDepth 12000 in
 lemma count_prime_1289 : Nat.count Nat.Prime 1289 = 208 := by
   simp [Nat.count_succ]
