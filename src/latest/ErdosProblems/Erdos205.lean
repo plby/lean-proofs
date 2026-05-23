@@ -133,8 +133,6 @@ theorem p_kj_injective (E : ℕ) :
 /-
 Q_k is squarefree and Omega(Q_k) = E.
 -/
--- This generated proof uses context-wide simplification in the prime-factor list argument.
-set_option linter.flexible false in
 theorem Q_k_props (E k : ℕ) (hk : k < E) :
   Squarefree (Q_k E k) ∧ Omega (Q_k E k) = E := by
     -- The product defining $Q_k$ is squarefree because it has distinct primes.
@@ -181,7 +179,8 @@ theorem Q_k_props (E k : ℕ) (hk : k < E) :
             (Q_k E k).primeFactorsList.toFinset =
               Finset.image (fun j => p_kj E k j) (Finset.Icc 1 E) := by
           ext
-          simp [Q_k]
+          simp only [Q_k, Nat.toFinset_factors, Nat.mem_primeFactors, ne_eq,
+            Finset.mem_image, Finset.mem_Icc]
           constructor
           · intro h
             have := h.2.1
@@ -577,8 +576,6 @@ A PNT-quality bound for M(E), again at the log level:
   log M(E) ≤ C * E^2 * log E  (eventually in E).
 This is the key input for the inversion to the sqrt(log n / log log n) scale.
 -/
--- This generated asymptotic estimate uses context-wide simplification before arithmetic closure.
-set_option linter.flexible false in
 theorem log_M_bound_eventually :
     ∃ C : ℝ, 0 < C ∧
       (∀ᶠ E in atTop,
@@ -614,21 +611,22 @@ theorem log_M_bound_eventually :
           by
             norm_num
             nlinarith
-  simp +zetaDelta at *
   refine ⟨ by positivity, ?_ ⟩
-  obtain ⟨ a, ha ⟩ := h_sum_bound
+  rw [Filter.eventually_atTop]
+  obtain ⟨ a, ha ⟩ := Filter.eventually_atTop.mp h_sum_bound
   use Max.max a 10
   intro b hb
   specialize hM_log b ( le_trans ( le_max_right _ _ ) hb )
   specialize ha b ( le_trans ( le_max_left _ _ ) hb )
-  nlinarith [
-    show ( b : ℝ ) ≥ 10 by
-      exact_mod_cast le_trans ( le_max_right _ _ ) hb,
-    show ( Real.log 2 : ℝ ) ≤ 1 by
-      exact Real.log_two_lt_d9.le.trans ( by norm_num ),
-    show ( Real.log 3 : ℝ ) ≤ 2 by
-      exact le_trans ( Real.log_le_sub_one_of_pos ( by norm_num ) ) ( by norm_num ),
-    show ( Real.log b : ℝ ) ≥ 1 by
+  have hlog_two_pow : Real.log ((2 : ℝ) ^ b) = (b : ℝ) * Real.log 2 := by
+    norm_num [Real.log_pow]
+  have hb10 : (b : ℝ) ≥ 10 := by
+    exact_mod_cast le_trans ( le_max_right _ _ ) hb
+  have hlog_two : ( Real.log 2 : ℝ ) ≤ 1 := by
+    exact Real.log_two_lt_d9.le.trans ( by norm_num )
+  have hlog_three : ( Real.log 3 : ℝ ) ≤ 2 := by
+    exact le_trans ( Real.log_le_sub_one_of_pos ( by norm_num ) ) ( by norm_num )
+  have hlog_b : ( Real.log b : ℝ ) ≥ 1 := by
       exact
         Real.le_log_iff_exp_le ( by
           norm_cast
@@ -637,10 +635,23 @@ theorem log_M_bound_eventually :
               norm_num
               linarith [
                 show ( b : ℝ ) ≥ 10 by
-                  exact_mod_cast le_trans ( le_max_right _ _ ) hb ],
-    show ( b : ℝ ) ≥ 10 by
-      exact_mod_cast le_trans ( le_max_right _ _ ) hb,
-    pow_two_nonneg ( b - 10 : ℝ ) ] ;)
+                  exact_mod_cast le_trans ( le_max_right _ _ ) hb ]
+  have h_extra :
+      (b : ℝ) * Real.log 2 + Real.log 3 ≤
+        4 * (b : ℝ)^2 * Real.log (b : ℝ) := by
+    nlinarith [hb10, hlog_two, hlog_three, hlog_b, pow_two_nonneg (b - 10 : ℝ)]
+  rw [hlog_two_pow] at hM_log
+  have h_bound :
+      Real.log (M b) ≤
+        C * (b : ℝ)^2 * Real.log (b : ℝ) +
+          4 * (b : ℝ)^2 * Real.log (b : ℝ) := by
+    nlinarith [hM_log, ha, h_extra]
+  have h_target :
+      C * (b : ℝ)^2 * Real.log (b : ℝ) +
+          4 * (b : ℝ)^2 * Real.log (b : ℝ) =
+        (C + 4) * (b : ℝ)^2 * Real.log (b : ℝ) := by
+    ring
+  nlinarith [h_bound, h_target] ;)
 
 /-
 n(E) < M(E).
@@ -667,8 +678,6 @@ eventually in E.
 
 We state exactly that, with existential constants and eventual quantification.
 -/
--- This generated inversion proof uses context-wide simplification to unfold CRT constraints.
-set_option linter.flexible false in
 theorem pntRate_n_E_le_const_mul_E_eventually :
     ∃ C : ℝ, 0 < C ∧
       (∀ᶠ E in atTop,
@@ -684,18 +693,17 @@ theorem pntRate_n_E_le_const_mul_E_eventually :
       have hpos : 0 < (n_E E hE' : ℝ) := by
         exact Nat.cast_pos.mpr <| Nat.pos_of_ne_zero <| by
           intro h
-          have := n_E_is_solution E hE'
-          simp_all only [eventually_atTop, ge_iff_le]
-          have := this.2.2 0 ( by linarith )
-          norm_num [ Nat.modEq_iff_dvd ] at this
-          norm_cast at this
-          have := Nat.le_of_dvd ( by norm_num ) this
-          simp_all +decide [ Q_k ]
-          exact absurd
-            ( ‹∀ i : ℕ, 1 ≤ i → i ≤ E → p_kj E 0 i = 1›
-              1 ( by norm_num ) ( by linarith ) )
-            ( by
-              exact ne_of_gt ( Nat.Prime.one_lt ( Nat.prime_nth_prime _ ) ) )
+          have h_mod := (n_E_is_solution E hE').2.2 0 (by linarith)
+          rw [h] at h_mod
+          norm_num [Nat.modEq_iff_dvd] at h_mod
+          norm_cast at h_mod
+          have hQ_pos : 0 < Q_k E 0 := Nat.pos_of_dvd_of_pos h_mod zero_lt_one
+          have hQ_le_one : Q_k E 0 ≤ 1 := Nat.le_of_dvd (by norm_num) h_mod
+          have hp_dvd_Q : p_kj E 0 1 ∣ Q_k E 0 := by
+            unfold Q_k
+            exact Finset.dvd_prod_of_mem _ (Finset.mem_Icc.mpr ⟨by norm_num, by linarith⟩)
+          have hp_le_one : p_kj E 0 1 ≤ 1 := le_trans (Nat.le_of_dvd hQ_pos hp_dvd_Q) hQ_le_one
+          exact (Nat.Prime.one_lt (Nat.prime_nth_prime _)).not_ge hp_le_one
       have hle : (n_E E hE' : ℝ) ≤ M E := by
         exact Nat.cast_le.mpr ( le_of_lt ( n_E_lt_M E hE' ) )
       exact le_trans ( Real.log_le_log hpos hle ) hE ⟩;
@@ -715,15 +723,18 @@ theorem pntRate_n_E_le_const_mul_E_eventually :
           Nat.le_of_dvd
             ( Nat.pos_of_ne_zero ( by
               intro h
-              have := n_E_is_solution E hE'
-              simp_all only [ge_iff_le, eventually_atTop]
-              have := this.2.2 0 ( by linarith )
-              simp_all [ Nat.modEq_iff_dvd' ]
-              unfold Q_k at this
-              simp_all
-              exact absurd
-                ( this 1 ( by norm_num ) ( by linarith ) )
-                ( Nat.Prime.ne_one ( Nat.prime_nth_prime _ ) ) ) )
+              have h_mod := (n_E_is_solution E hE').2.2 0 (by linarith)
+              rw [h] at h_mod
+              norm_num [Nat.modEq_iff_dvd] at h_mod
+              norm_cast at h_mod
+              have hQ_pos : 0 < Q_k E 0 := Nat.pos_of_dvd_of_pos h_mod zero_lt_one
+              have hQ_le_one : Q_k E 0 ≤ 1 := Nat.le_of_dvd (by norm_num) h_mod
+              have hp_dvd_Q : p_kj E 0 1 ∣ Q_k E 0 := by
+                unfold Q_k
+                exact Finset.dvd_prod_of_mem _ (Finset.mem_Icc.mpr ⟨by norm_num, by linarith⟩)
+              have hp_le_one : p_kj E 0 1 ≤ 1 :=
+                le_trans (Nat.le_of_dvd hQ_pos hp_dvd_Q) hQ_le_one
+              exact (Nat.Prime.one_lt (Nat.prime_nth_prime _)).not_ge hp_le_one ) )
             ( Nat.dvd_of_mod_eq_zero ( by
               exact Nat.mod_eq_zero_of_dvd <|
                 Nat.dvd_of_mod_eq_zero <| by
@@ -801,8 +812,6 @@ Infinitely many counterexamples, in the PNT-scale form:
 ∃ c > 0, there are infinitely many n such that
   ∀ k with 2^k ≤ n, Omega(n - 2^k) ≥ c * sqrt(log n / log log n).
 -/
--- This generated final extraction uses context-wide simplification of the CRT witness.
-set_option linter.flexible false in
 theorem infinitely_many_counterexamples :
     ∃ c : ℝ, 0 < c ∧ {n : ℕ | is_counterexample c n}.Infinite := by
   -- Extract a value that works for all sufficiently large `E`.
@@ -852,15 +861,21 @@ theorem infinitely_many_counterexamples :
               rw [ pow_succ' ]
               linarith [ Nat.one_le_pow n 2 zero_lt_two ]
   · intro H
-    specialize ha ( Max.max a ( Max.max 10 ( n + 1 ) ) )
-      ( by aesop ) ( by aesop )
-    simp_all +decide only [Nat.ModEq, Nat.zero_mod, lt_sup_iff, Order.lt_add_one_iff,
-      true_and, dvd_zero]
-    specialize h_sol 0 ; norm_num at h_sol;
-    unfold Q_k at h_sol; simp_all
-    exact absurd
-      ( h_sol 1 ( by norm_num ) ( by norm_num ) )
-      ( Nat.Prime.ne_one ( Nat.prime_nth_prime _ ) )
+    have h_mod := h_sol.2.2 0 (by norm_num)
+    rw [H] at h_mod
+    norm_num [Nat.modEq_iff_dvd] at h_mod
+    norm_cast at h_mod
+    have hQ_pos : 0 < Q_k (max a (max 10 (n + 1))) 0 :=
+      Nat.pos_of_dvd_of_pos h_mod zero_lt_one
+    have hQ_le_one : Q_k (max a (max 10 (n + 1))) 0 ≤ 1 :=
+      Nat.le_of_dvd (by norm_num) h_mod
+    have hp_dvd_Q : p_kj (max a (max 10 (n + 1))) 0 1 ∣
+        Q_k (max a (max 10 (n + 1))) 0 := by
+      unfold Q_k
+      exact Finset.dvd_prod_of_mem _ (Finset.mem_Icc.mpr ⟨by norm_num, by norm_num⟩)
+    have hp_le_one : p_kj (max a (max 10 (n + 1))) 0 1 ≤ 1 :=
+      le_trans (Nat.le_of_dvd hQ_pos hp_dvd_Q) hQ_le_one
+    exact (Nat.Prime.one_lt (Nat.prime_nth_prime _)).not_ge hp_le_one
 
 #print axioms infinitely_many_counterexamples
 -- 'Erdos205.infinitely_many_counterexamples' depends on axioms: [propext, Classical.choice,
