@@ -31,7 +31,8 @@ set_option linter.style.refine false
 set_option linter.style.cdot false
 set_option linter.style.whitespace false
 set_option linter.unnecessarySimpa false
-set_option maxHeartbeats 0
+set_option maxHeartbeats 50000000
+-- Several generated binomial-coefficient estimates time out at the default heartbeat limit.
 set_option maxRecDepth 10000
 
 
