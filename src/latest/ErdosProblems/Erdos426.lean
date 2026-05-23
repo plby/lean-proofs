@@ -23,6 +23,8 @@ namespace Erdos426
 
 
 set_option linter.style.setOption false
+-- The generated counting and switching sections need extended heartbeat and
+-- recursion budgets.
 set_option maxHeartbeats 2000000
 set_option maxRecDepth 20000
 set_option linter.deprecated false
@@ -32,6 +34,8 @@ set_option linter.style.cdot false
 set_option linter.style.emptyLine false
 set_option linter.style.induction false
 set_option linter.style.longLine false
+-- Local generated proof budgets below exceed the style threshold but are scoped
+-- where possible.
 set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
 set_option linter.style.openClassical false
@@ -643,6 +647,7 @@ Key results:
 open Finset Function SimpleGraph
 open scoped Classical
 
+-- The generated Azuma-switch infrastructure needs a higher ambient heartbeat budget.
 set_option maxHeartbeats 1600000
 
 namespace UniqueSubgraphs
@@ -1165,6 +1170,7 @@ lemma not_controlled_exists_bad {n : ℕ}
 The multi-level pruning chain terminates within 4C levels, producing
     a controlled T with a size guarantee from the threshold sequence.
 -/
+-- The generated pruning-chain proof needs extra heartbeats for finite-level bookkeeping.
 set_option maxHeartbeats 800000 in
 lemma pruning_chain_produces_controlled {n : ℕ} (C : ℕ) (hC : C ≥ 1)
     (Hc : SimpleGraph (Fin n))
@@ -1212,6 +1218,7 @@ lemma pruning_chain_produces_controlled {n : ℕ} (C : ℕ) (hC : C ≥ 1)
 For large n (depending on C), at any level i ≤ 4C, the ratio
     (a - 1)² / τᵢ ≥ K · n · log n whenever a ≥ the lower bound for that level.
 -/
+-- The generated pruning ratio estimate needs extra heartbeats for asymptotic bounds.
 set_option maxHeartbeats 1600000 in
 lemma pruning_ratio_bound (C : ℕ) (hC : C ≥ 1) :
     ∃ n₀ : ℕ, ∀ n : ℕ, n ≥ n₀ →
@@ -1401,6 +1408,7 @@ lemma chainPrefix_new_not_mem (σ : Equiv.Perm (Fin N)) {m : ℕ} (hm : m < N) :
 
 /-! ## Counting permutations with a given prefix -/
 
+-- The generated permutation prefix count needs extra heartbeats for factorial algebra.
 set_option maxHeartbeats 800000 in
 lemma perm_prefix_fiber_card (m : ℕ) (S : Finset (Fin N)) (hS : S.card = m) (hm : m ≤ N) :
     (Finset.univ.filter (fun σ : Equiv.Perm (Fin N) => chainPrefix σ m = S)).card =
@@ -1447,6 +1455,7 @@ lemma perm_prefix_fiber_card (m : ℕ) (S : Finset (Fin N)) (hS : S.card = m) (h
 
 /-! ## Transition count and interval property -/
 
+-- The generated transition-count proof needs extra heartbeats for interval cases.
 set_option maxHeartbeats 800000 in
 lemma transition_count_le_one
     (P : Finset (Fin N) → Prop) [DecidablePred P]
@@ -1476,6 +1485,7 @@ lemma count_perm_with_P (P : Finset (Fin N) → Prop) [DecidablePred P] (m : ℕ
   rw [ h_card, Finset.sum_congr rfl fun S hS ↦ perm_prefix_fiber_card m S ( by aesop ) hm ];
   simp +decide [ mul_assoc, countP ]
 
+-- The generated paired-permutation count needs extra heartbeats for summation rewrites.
 set_option maxHeartbeats 3200000 in
 lemma count_perm_with_P_pair (P : Finset (Fin N) → Prop) [DecidablePred P]
     (m : ℕ) (hm : 1 ≤ m) (hm' : m ≤ N)
@@ -1576,6 +1586,7 @@ lemma total_transitions_le_factorial
 
 /-! ## Main theorem -/
 
+-- The generated transition-sum theorem needs extra heartbeats for real-valued bounds.
 set_option maxHeartbeats 1600000 in
 theorem transition_sum_le_one
     (R : ℕ → ℕ) (ext_val : ℕ → ℕ)
@@ -1620,6 +1631,7 @@ theorem transition_sum_le_one
 
 /-! ## Generalized version for arbitrary finite types -/
 
+-- The generated finite-type transition theorem needs extra heartbeats for reindexing.
 set_option maxHeartbeats 1600000 in
 /-- Generalized transition sum bound for arbitrary finite types. -/
 theorem transition_sum_le_one_gen
@@ -1844,6 +1856,7 @@ proved by subagent (long proof)
 Bound on the number of edges fixed by σ: at most `s.choose 2 + (n-s)/2`
     where s is the number of vertex fixed points.
 -/
+-- The generated fixed-edge bound needs extra heartbeats for permutation-cycle cases.
 set_option maxHeartbeats 800000 in
 theorem card_fixedPoints_edgePerm_le {n : ℕ} (σ : Equiv.Perm (Fin n)) :
     Fintype.card (Function.fixedPoints (edgePerm σ)) ≤
@@ -2033,6 +2046,7 @@ theorem ratio_tendsto_zero :
 /-
 The remainder from non-identity permutations tends to 0.
 -/
+-- The generated remainder estimate needs extra heartbeats for geometric-series bounds.
 set_option maxHeartbeats 1600000 in
 theorem remainder_tendsto_zero :
     Filter.Tendsto
@@ -3190,6 +3204,7 @@ lemma UE_supergraph_iff {n : ℕ} {G₀ G' H : SimpleGraph (Fin n)}
 The number of (m+k)-edge supergraphs of G₀ that embed via σ
     equals C(e(H) - m, k), where m = e(G₀).
 -/
+-- The generated supergraph count needs extra heartbeats for embedding-set bijections.
 set_option maxHeartbeats 800000 in
 lemma supergraph_UE_count {n : ℕ} (G₀ H : SimpleGraph (Fin n))
     (σ : Equiv.Perm (Fin n)) (k : ℕ)
@@ -3557,6 +3572,7 @@ private lemma UEPred_empty {n : ℕ} (hn : 2 ≤ n) (H : SimpleGraph (Fin n)) :
 /-
 Extension count: for S with UEPred H S, the number of extensions is eH - |S|.
 -/
+-- The generated UE extension count needs extra heartbeats for edge-set encodings.
 set_option maxHeartbeats 1600000 in
 private lemma UEPred_ext_count {n : ℕ} (hn : 2 ≤ n) (H : SimpleGraph (Fin n))
     (S : Finset {e : Sym2 (Fin n) // ¬ e.IsDiag})
@@ -3627,6 +3643,7 @@ private lemma UEPred_ext_count {n : ℕ} (hn : 2 ≤ n) (H : SimpleGraph (Fin n)
 /-
 Counting equivalence: numUEWithEdges matches the edge-subset count.
 -/
+-- The generated UE predicate count needs extra heartbeats for graph/edge-subset conversion.
 set_option maxHeartbeats 800000 in
 private lemma UEPred_countP {n : ℕ} (H : SimpleGraph (Fin n)) (m : ℕ) :
     numUEWithEdges H m =
@@ -3661,6 +3678,7 @@ The z-process sum ≤ 1: key process bound.
     on edge subsets, using ue_chain_interval for the interval property and
     supergraph_UE_count for the extension count.
 -/
+-- The generated z-process sum proof needs extra heartbeats for transition-sum conversion.
 set_option maxHeartbeats 1600000 in
 lemma sum_z_refined_le_one {n : ℕ} (hn : 2 ≤ n) (H : SimpleGraph (Fin n)) :
     ∑ m ∈ Finset.range (n.choose 2 + 1),
@@ -3746,6 +3764,7 @@ Restricted sum lower bound: from probUniqueEmb H ≥ δ, Chernoff concentration,
     and the binomial anticoncentration bound, we get a large restricted sum of
     UE fractions over edge counts near N/2.
 -/
+-- The generated restricted-sum lower bound needs extra heartbeats for concentration estimates.
 set_option maxHeartbeats 800000 in
 lemma restricted_sum_lower_bound {n : ℕ} (hn : 4 ≤ n) (H : SimpleGraph (Fin n))
     (δ : ℝ) (hδ : 0 < δ) (hH : probUniqueEmb H ≥ δ)
@@ -4148,6 +4167,7 @@ The original `no_switch_exponential_bound` counted *all* graphs G where no
 If π embeds Hc into G and {u,v} is an id-switch, then swap(u,v)*π
     also embeds Hc into G.
 -/
+-- The generated switch embedding proof needs extra heartbeats for permutation rewrites.
 set_option maxHeartbeats 800000 in
 lemma switch_gives_second_embedding {n : ℕ}
     {Hc G : SimpleGraph (Fin n)} {π : Equiv.Perm (Fin n)} {u v : Fin n}
@@ -4290,6 +4310,7 @@ The sum of squared bounded-differences constants for switchCount
     For w ∈ T, dT(w) = 0 (T independent), so these contribute 0.
     Total: Σ_e switchBound(e)² = Σ_{w∉T} |T| · 4·dT(w)² = 4|T|·Σ_w dT(w)².
 -/
+-- The generated switch-count square bound needs extra heartbeats for edge-slot sums.
 set_option maxHeartbeats 1600000 in
 lemma switchCount_sum_sq_bound {n : ℕ} (Hc : SimpleGraph (Fin n))
     (T : Finset (Fin n))
@@ -4469,6 +4490,7 @@ Sum of squares of switchBoundTight, restricted to controlled neighborhoods.
     After pruning: for w ∉ T with dT(w) < threshold, the contribution is bounded.
     For w with T ⊆ N_Hc(w), switchBoundTight gives 0 for all edge slots involving w.
 -/
+-- The generated tight switch-count bound needs extra heartbeats for pruning cases.
 set_option maxHeartbeats 3200000 in
 lemma switchCount_sum_sq_tight {n : ℕ} (C : ℕ) (Hc : SimpleGraph (Fin n))
     (T : Finset (Fin n))
@@ -4586,6 +4608,7 @@ lemma azuma_for_switchCount_zero {n : ℕ} (C : ℕ) (Hc : SimpleGraph (Fin n))
 The Azuma exponent is sufficient: given the mean lower bound and sum-of-squares
     upper bound and the ratio from claim 2.4, we have 2μ²/Σb² ≥ n·log n.
 -/
+-- The generated Azuma exponent proof needs extra heartbeats for nonlinear estimates.
 set_option maxHeartbeats 6400000 in
 lemma azuma_exponent_sufficient {n : ℕ} (C : ℕ) (Hc : SimpleGraph (Fin n))
     (T : Finset (Fin n)) (threshold : ℕ)
@@ -4663,6 +4686,7 @@ lemma azuma_exponent_sufficient {n : ℕ} (C : ℕ) (Hc : SimpleGraph (Fin n))
 
 /-! ### Assembly: switchCount_zero_bound -/
 
+-- The generated switch-count zero bound needs extra heartbeats for final assembly.
 set_option maxHeartbeats 6400000 in
 /-- **Azuma bound for switchCount = 0**.
     Combines Claim 2.4 pruning, tight bounded differences, and
