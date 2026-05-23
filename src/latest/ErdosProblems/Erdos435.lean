@@ -53,7 +53,8 @@ noncomputable def target (n : ℕ) : ℤ :=
     (Finset.sum (Finset.Icc 1 (n.factorization p)) fun d =>
       (Nat.choose n (p ^ d) : ℤ)) * (p - 1)) - n
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 50000000 in
+-- This factorial product inequality times out at the default heartbeat limit.
 /-
 Helper lemma for Lemma 2 Part 1: A product inequality involving factorials/ranges.
 -/
@@ -1744,7 +1745,8 @@ lemma lemma_term_wise_bound (n m p : ℕ) (c : ℕ → ℤ)
           exact le_trans h_le_m h_m_le_n_half
       exact le_trans h_sum_bound h_min_bound
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 50000000 in
+-- The canonical-sum comparison expands large prime-factor sums.
 /-
 The canonical sum is bounded by the decomposition sum.
 -/
@@ -1800,7 +1802,8 @@ lemma lemma_canonical_rep_properties (n : ℕ) (x : ℤ)
     x ≡ CanonicalSumValue n x hn h_not_prime_pow [ZMOD n] := by
   exact Classical.choose_spec (lemma_canonical_representation_exists n x hn h_not_prime_pow)
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 50000000 in
+-- The canonical representation bound needs extra heartbeats for generated arithmetic goals.
 /-
 `binom(n, m)` is greater than its canonical sum value.
 -/
@@ -2251,7 +2254,8 @@ lemma lemma_local_sum_ge_target_explicit (n : ℕ) (c : ℕ → ℕ → ℤ) (p 
       · aesop;
       · simp_all +decide
 
-set_option maxHeartbeats 0 in
+set_option maxHeartbeats 50000000 in
+-- The prime-power-sum lower bound expands several generated congruence cases.
 /-
 Any Prime Power Sum congruent to $S_{max}$ modulo $n$ is at least $S_{max}$.
 -/
