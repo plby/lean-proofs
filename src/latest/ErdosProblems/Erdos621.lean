@@ -234,6 +234,7 @@ namespace Trigraph
 variable {V : Type*} [Fintype V] [DecidableEq V]
 
 set_option maxHeartbeats 1600000
+-- The generated trigraph sum expansions time out at the default heartbeat limit.
 
 /-- The cross term A from the expansion of the SOS expression. -/
 def crossTermA (G : Trigraph V) : ℤ :=
@@ -350,6 +351,7 @@ namespace Trigraph
 variable {V : Type*} [Fintype V] [DecidableEq V]
 
 set_option maxHeartbeats 800000
+-- The P4/C4 inequality expands several generated trigraph sums.
 
 /-! ### Part 1: P₄ + C₄ ≤ K₁,₃ -/
 
@@ -471,6 +473,7 @@ namespace Trigraph
 variable {V : Type*} [Fintype V] [DecidableEq V]
 
 set_option maxHeartbeats 1600000
+-- The fbound4 algebraic rewrite needs extra heartbeats.
 
 /-
 (e:fbound4): Algebraic rewriting of the LHS of fbound3.
@@ -635,6 +638,7 @@ namespace Trigraph
 variable {V : Type*} [Fintype V] [DecidableEq V]
 
 set_option maxHeartbeats 1600000
+-- The total signed-edge expansion needs extra heartbeats.
 
 def S_total' (G : Trigraph V) : ℤ :=
   ∑ u : V, ∑ v : V, G.s u v
@@ -783,6 +787,7 @@ namespace Trigraph
 variable {V : Type*} [Fintype V] [DecidableEq V]
 
 set_option maxHeartbeats 1600000
+-- The f2 expansion proof needs extra heartbeats for generated trigraph sums.
 
 /-- 2·f(u,v,w,x) to avoid fractions -/
 def f2 (G : Trigraph V) (u v w x : V) : ℤ :=
