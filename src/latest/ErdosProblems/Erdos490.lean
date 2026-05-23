@@ -188,6 +188,7 @@ def gSeq (k : ℕ) : ℝ :=
   if k ≤ 150 then 1 else ((k : ℝ) - 149) ^ 2
 
 set_option maxHeartbeats 800000
+-- The finite supremum estimate needs extra heartbeats for generated simplification.
 
 /-- E_val is always ≥ 1 (achieved by the empty subset) -/
 lemma E_val_ge_one (lam : ℝ) (k : ℕ) (r : ℕ) : 1 ≤ E_val lam k r := by
@@ -630,6 +631,7 @@ theorem weighted_regular_reduction (n : ℕ) (lam : ℝ) (m : ℕ → ℕ) (g : 
     nlinarith [ mul_le_mul_of_nonneg_left hA'.2.2 h, mul_le_mul_of_nonneg_left hB'.2.2 h ]
 
 set_option maxHeartbeats 800000
+-- The Mertens-product setup needs extra heartbeats for generated product bounds.
 
 /-
 As x → ∞, ∏_{p≤x}(1-1/p) = (e^{-γ} + o(1))/log x.
@@ -1444,6 +1446,7 @@ theorem euler_common_product (lam : ℝ) (hlam : 1 < lam) (m : ℕ → ℕ)
   · apply_rules [ partial_prod_le_D_val ]
 
 set_option maxHeartbeats 1600000
+-- The weighted deletion estimate expands several generated inequalities.
 
 /-
 If either |A| or |B| is small relative to the weighted sieve bound,
