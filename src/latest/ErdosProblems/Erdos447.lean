@@ -22,7 +22,6 @@ import Mathlib
 namespace Erdos447
 
 set_option linter.style.setOption false
-set_option linter.mathlibStandardSet false
 set_option linter.deprecated false
 set_option linter.flexible false
 set_option linter.style.cases false
@@ -31,6 +30,7 @@ set_option linter.style.commandStart false
 set_option linter.style.docString false
 set_option linter.style.emptyLine false
 set_option linter.style.induction false
+set_option linter.style.lambdaSyntax false
 set_option linter.style.longLine false
 set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
@@ -52,7 +52,8 @@ open scoped Nat
 open scoped Classical
 open Asymptotics Filter
 
-set_option maxHeartbeats 0
+set_option maxHeartbeats 50000000
+-- Several generated union-free-family arguments time out at the default heartbeat limit.
 
 /-
 A family F is union-free if there do not exist distinct A, B, C in F with A ∪ B = C.
