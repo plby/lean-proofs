@@ -53,11 +53,6 @@ limitations under the License.
 
 import Mathlib
 
--- The remaining generated proof style uses old induction/refine syntax.
-set_option linter.style.setOption false
-set_option linter.style.induction false
-set_option linter.style.refine false
-
 open Nat
 
 /-!
@@ -107,7 +102,9 @@ theorem erdos_1056_k3 :
 private lemma noll_simmons_k3_factorials :
     ∀ i j : Fin 3, (![0, 1, 5] i)! ≡ (![0, 1, 5] j)! [MOD 7] := by
   intro i j
-  fin_cases i <;> fin_cases j <;> norm_num [Nat.ModEq]
+  fin_cases i
+  all_goals fin_cases j
+  all_goals norm_num [Nat.ModEq]
 
 /-
 There exists a prime $p$ and a strictly increasing sequence $Q$ of length 3 with elements
@@ -129,7 +126,7 @@ $[mp, (m+1)p]$.
 lemma exists_shift_of_no_dvd {a b p : ℕ} (_hab : a < b) (hp : p ≠ 0)
     (h : ∀ n ∈ Finset.Ico a b, ¬ p ∣ n) :
     ∃ m, m * p ≤ a ∧ b ≤ (m + 1) * p := by
-      contrapose! h;
+      contrapose! h
       exact
         ⟨(a / p + 1) * p, Finset.mem_Ico.mpr
           ⟨by nlinarith [Nat.div_add_mod a p, Nat.mod_lt a (Nat.pos_of_ne_zero hp)],
@@ -140,8 +137,6 @@ lemma exists_shift_of_no_dvd {a b p : ℕ} (_hab : a < b) (hp : p ≠ 0)
 If consecutive intervals have product 1 mod p, then there exists a sequence of factorials
 congruent mod p.
 -/
--- The generated proof uses nonterminal `aesop` calls as proof-state simplifiers.
-set_option aesop.warn.nonterminal false in
 theorem noll_simmons_reduction {k : ℕ} {p : ℕ} {boundaries : Fin (k + 1) → ℕ}
     (hk : k ≠ 0)
     (hp : p.Prime) (h_mono : StrictMono boundaries)
@@ -158,10 +153,14 @@ theorem noll_simmons_reduction {k : ℕ} {p : ℕ} {boundaries : Fin (k + 1) →
     -- We claim n falls into some [boundaries i, boundaries (i+1))
     have : ∃ i : Fin k, boundaries (i.castSucc) ≤ n ∧ n < boundaries (i.succ) := by
       -- This is true because boundaries partition the interval
-      contrapose! hn; aesop;
+      contrapose! hn
+      intro h0
       -- By induction on $i$, we can show that $boundaries i \leq n$ for all $i$.
       have h_ind : ∀ i : Fin (k + 1), boundaries i ≤ n := by
-        intro i; induction i using Fin.inductionOn <;> aesop;
+        intro i
+        induction i using Fin.inductionOn with
+        | zero => exact h0
+        | succ i IH => exact hn i IH
       exact h_ind _
     obtain ⟨i, hi_le, hi_lt⟩ := this
     have h_prod_i := h_prod i
@@ -200,7 +199,7 @@ theorem noll_simmons_reduction {k : ℕ} {p : ℕ} {boundaries : Fin (k + 1) →
       -- Thus m * p < boundaries 0.
       -- Since $boundaries$ is strictly monotonic, we have $boundaries i \geq boundaries 0$.
       have h_boundaries_i_ge_boundaries_0 : boundaries i ≥ boundaries 0 := by
-        exact h_mono.monotone ( Nat.zero_le _ );
+        exact h_mono.monotone (Nat.zero_le _)
       exact Nat.sub_pos_of_lt
         (lt_of_le_of_ne (by linarith) (Ne.symm (by
           intro t
@@ -224,7 +223,7 @@ theorem noll_simmons_reduction {k : ℕ} {p : ℕ} {boundaries : Fin (k + 1) →
     -- Q i = boundaries i - mp - 1 <= (m+1)p - mp - 1 = p - 1 < p
     -- Since boundaries are strictly increasing, we have boundaries i ≤ boundaries (Fin.last k).
     have h_boundaries_le_last : boundaries i ≤ boundaries (Fin.last k) := by
-      exact h_mono.monotone ( Fin.le_last _ );
+      exact h_mono.monotone (Fin.le_last _)
     grind
   · -- Factorials congruent
     intro i j
@@ -234,9 +233,10 @@ theorem noll_simmons_reduction {k : ℕ} {p : ℕ} {boundaries : Fin (k + 1) →
     have h_ind : ∀ i : Fin (k + 1), (Q i)! ≡ (Q 0)! [MOD p] := by
       intro i_1
       simp_all only [ne_eq, Finset.mem_Ico, and_imp, Q]
-      induction' i_1 using Fin.inductionOn with i IH;
-      · rfl;
-      · -- Compare the boundary interval product with the corresponding `Q` interval product.
+      induction i_1 using Fin.inductionOn with
+      | zero => rfl
+      | succ i IH =>
+        -- Compare the boundary interval product with the corresponding `Q` interval product.
         have h_prod_cong :
             (∏ x ∈ Finset.Ico (boundaries i.castSucc) (boundaries i.succ), x) ≡
               (∏ x ∈ Finset.Ico (Q i.castSucc + 1) (Q i.succ + 1), x) [MOD p] := by
@@ -244,61 +244,76 @@ theorem noll_simmons_reduction {k : ℕ} {p : ℕ} {boundaries : Fin (k + 1) →
               Finset.Ico (boundaries i.castSucc) (boundaries i.succ) =
                 Finset.image (fun x => x + m * p + 1)
                   (Finset.Ico (Q i.castSucc) (Q i.succ)) := by
-            ext ; aesop <;> try omega;
-            refine' ⟨ a - m * p - 1, _, _ ⟩ <;> norm_num [ Nat.sub_sub ];
-            · constructor <;> try omega;
-              rw [ tsub_lt_tsub_iff_right ] <;>
-                try linarith [h_mono.monotone (show 0 ≤ Fin.castSucc i from Nat.zero_le _)];
-              contrapose! h_no_dvd;
-              use m * p;
-              aesop;
-              · linarith [ h_mono.monotone ( show 0 ≤ Fin.castSucc i from Nat.zero_le _ ) ];
-              · linarith [h_mono.monotone (show Fin.last k ≥ Fin.castSucc i from Fin.le_last _)];
-            · linarith [Nat.sub_add_cancel (show m * p + 1 ≤ a from by
-                linarith [show boundaries i.castSucc ≥ m * p + 1 from
-                  Nat.succ_le_of_lt
-                    (lt_of_lt_of_le
-                      (show m * p < boundaries 0 from
-                        lt_of_le_of_ne hm_le (Ne.symm <| by
-                          intro t
-                          specialize h_no_dvd (boundaries 0)
-                          simp_all +decide))
-                      (h_mono.monotone <| Nat.zero_le _))])]
-          rw [ h_prod_cong, Finset.prod_image ] <;> aesop;
-          simp +decide [ ← ZMod.natCast_eq_natCast_iff, Finset.prod_Ico_eq_prod_range ];
-          ac_rfl;
+            ext a
+            have h_mp_lt_boundaries_0 : m * p < boundaries 0 := by
+              exact lt_of_le_of_ne hm_le (Ne.symm <| by
+                intro t
+                specialize h_no_dvd (boundaries 0)
+                simp_all +decide)
+            have h_mp_succ_le_castSucc : m * p + 1 ≤ boundaries i.castSucc := by
+              exact Nat.succ_le_of_lt
+                (lt_of_lt_of_le h_mp_lt_boundaries_0 (h_mono.monotone <| Nat.zero_le _))
+            constructor
+            · intro ha
+              rw [Finset.mem_Ico] at ha
+              rw [Finset.mem_image]
+              have h_mp_succ_le_a : m * p + 1 ≤ a := le_trans h_mp_succ_le_castSucc ha.1
+              refine ⟨a - m * p - 1, ?_, ?_⟩
+              · rw [Finset.mem_Ico]
+                dsimp [Q]
+                constructor
+                · omega
+                · omega
+              · simpa [Nat.sub_sub, Nat.add_assoc] using Nat.sub_add_cancel h_mp_succ_le_a
+            · intro ha
+              rw [Finset.mem_image] at ha
+              rcases ha with ⟨x, hx, rfl⟩
+              rw [Finset.mem_Ico] at hx ⊢
+              dsimp [Q] at hx
+              have h_mp_succ_le_succ : m * p + 1 ≤ boundaries i.succ :=
+                le_trans h_mp_succ_le_castSucc (h_mono.monotone <| Nat.le_succ _)
+              constructor
+              · omega
+              · omega
+          rw [h_prod_cong, Finset.prod_image]
+          · simp +decide [← ZMod.natCast_eq_natCast_iff, Finset.prod_Ico_eq_prod_range]
+            try ac_rfl
+          · intro x _ y _ hxy
+            exact Nat.add_right_cancel (Nat.succ.inj hxy)
         have h_prod_cong :
             (∏ x ∈ Finset.Ico (Q i.castSucc + 1) (Q i.succ + 1), x) *
               (Q i.castSucc)! ≡ (Q i.succ)! [MOD p] := by
           have h_prod_cong :
               (∏ x ∈ Finset.Ico (Q i.castSucc + 1) (Q i.succ + 1), x) *
                 (Q i.castSucc)! = (Q i.succ)! := by
-            rw [ Finset.prod_Ico_eq_prod_range ];
-            rw [ ← Nat.add_sub_of_le ( show Q i.castSucc ≤ Q i.succ from _ ) ];
-            · induction ( Q i.succ - Q i.castSucc ) <;>
-                simp_all +decide [ Nat.factorial, Finset.prod_range_succ ];
-              grind;
+            rw [Finset.prod_Ico_eq_prod_range]
+            rw [← Nat.add_sub_of_le (show Q i.castSucc ≤ Q i.succ from _)]
+            · induction (Q i.succ - Q i.castSucc)
+              all_goals simp_all +decide [Nat.factorial, Finset.prod_range_succ]
+              grind
             · exact Nat.sub_le_sub_right
-                (Nat.sub_le_sub_right (h_mono.monotone (Nat.le_succ _)) _) _;
-          rw [h_prod_cong];
-        have := h_prod i; simp_all +decide [ ← ZMod.natCast_eq_natCast_iff ] ;
+                (Nat.sub_le_sub_right (h_mono.monotone (Nat.le_succ _)) _) _
+          rw [h_prod_cong]
+        have := h_prod i
+        simp_all +decide [← ZMod.natCast_eq_natCast_iff]
         simp_all only [Q]
-    exact Nat.ModEq.trans ( h_ind i ) ( Nat.ModEq.symm ( h_ind j ) )
+    exact Nat.ModEq.trans (h_ind i) (Nat.ModEq.symm (h_ind j))
 
 /-
 For any $k \ge 3$, there exists a solution to the Noll-Simmons problem of length $k$.
 -/
--- The generated reduction proof uses `aesop` to discard impossible small cases.
-set_option aesop.warn.nonterminal false in
 theorem noll_simmons_aux (h1056 : erdos_1056) (k : ℕ) (hk : k ≥ 3) :
     ∃ (p : ℕ) (_ : p.Prime) (Q : Fin k → ℕ) (_ : StrictMono Q) (_ : ∀ i, Q i < p),
     ∀ i j : Fin k, (Q i)! ≡ (Q j)! [MOD p] := by
-      have := h1056 ( k - 1 ) ( Nat.le_sub_one_of_lt hk );
-      rcases k with ( _ | _ | k ) <;> aesop;
-      -- By the Erdős problem 1056, there exists a sequence of factorials congruent modulo p.
-      obtain ⟨Q, hQ_mono, hQ_lt_p, hQ_cong⟩ :=
-        noll_simmons_reduction (by linarith) left left_1 right;
-      exact ⟨ w, left, Q, hQ_lt_p, hQ_mono, hQ_cong ⟩
+  have h := h1056 (k - 1) (Nat.le_sub_one_of_lt hk)
+  rcases k with _ | _ | k
+  · omega
+  · omega
+  · -- By the Erdős problem 1056, there exists a sequence of factorials congruent modulo p.
+    obtain ⟨p, hp, boundaries, h_boundaries_mono, h_prod⟩ := h
+    obtain ⟨Q, hQ_mono, hQ_lt_p, hQ_cong⟩ :=
+      noll_simmons_reduction (by omega) hp h_boundaries_mono h_prod
+    exact ⟨p, hp, Q, hQ_mono, hQ_lt_p, hQ_cong⟩
 
 /-
 Noll and Simmons asked, more generally, whether there are solutions to
@@ -308,8 +323,8 @@ theorem noll_simmons (h1056 : erdos_1056) :
     (∀ᶠ k in Filter.atTop,
     ∃ (p : ℕ) (_ : p.Prime) (Q : Fin k → ℕ) (_ : StrictMono Q) (_ : ∀ i, Q i < p),
     ∀ i j : Fin k, (Q i)! ≡ (Q j)! [MOD p]) := by
-  refine Filter.eventually_atTop.mpr ?_;
-  use 3;
+  refine Filter.eventually_atTop.mpr ?_
+  use 3
   intro k hk
   apply noll_simmons_aux h1056 k hk
 
