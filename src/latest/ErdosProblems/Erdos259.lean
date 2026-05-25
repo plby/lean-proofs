@@ -54,7 +54,6 @@ set_option linter.flexible false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 
-
 /-! # Chapter 1: Definitions -/
 
 /-- Definition 1.1: The increasing enumeration of squarefree natural numbers,
@@ -1699,7 +1698,7 @@ theorem erdos_259 :
   · exact fun n => Or.inl (squarefreeSeq_terms_are_twoFree n)
   · exact Nat.le_refl 2
 
-#print axioms erdos_259
--- 'Erdos259.erdos_259' depends on axioms: [propext, Classical.choice, Quot.sound]
-
 end Erdos259
+
+#print axioms Erdos259.erdos_259
+-- 'Erdos259.erdos_259' depends on axioms: [propext, Classical.choice, Quot.sound]
