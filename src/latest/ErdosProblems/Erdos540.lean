@@ -85,8 +85,6 @@ lemma subsetSums_mono {G : Type*} [DecidableEq G] [AddCommMonoid G]
 The core combinatorial argument: given compatible additions and removals
 with controlled sumset growth, we find a zero-sum subset. -/
 
-set_option linter.flexible false in
--- Generated matrix argument proof uses broad simplification across dependent case splits.
 /-- **Matrix argument**: Given a pivot set `D ⊆ A` with enough compatible additions
 (elements that can be added with small sumset growth) and removals (elements that can
 be removed with small sumset growth), then `A` has a zero-sum subset. -/
@@ -147,27 +145,28 @@ theorem matrix_argument {G : Type*} [DecidableEq G] [AddCommGroup G] [Fintype G]
           · refine Finset.card_le_card ?_
             intro i hi
             by_cases hi' :
-                D.sum id - i + a ∈ subsetSums D <;>
-              simp_all +decide [Finset.subset_iff]
-            refine Finset.mem_image.mpr
-              ⟨Finset.erase (insert a D) i,
-                ?_, ?_⟩ <;>
-              simp_all +decide [Finset.subset_iff]
-            · exact ⟨a, Finset.mem_insert_self _ _, by
-                obtain ⟨x, hx⟩ :=
-                  Finset.card_pos.mp (by
-                    linarith [Nat.sqrt_pos.mpr
-                      (Fintype.card_pos_iff.mpr ⟨a⟩)] :
-                    0 < Finset.card removes)
-                exact ⟨x,
-                  Finset.mem_insert_of_mem (hRemsD hx),
-                  by rintro rfl
-                     exact Finset.disjoint_left.mp
-                       hAddsDisj ha (hRemsD hx)⟩⟩
-            · rw [Finset.sum_insert
-                (Finset.disjoint_left.mp hAddsDisj ha),
-                add_comm]
-              abel1
+                D.sum id - i + a ∈ subsetSums D
+            · exact Finset.mem_union_left _
+                (Finset.mem_filter.mpr ⟨hi, hi'⟩)
+            · refine Finset.mem_union_right _ (Finset.mem_filter.mpr ⟨hi, ?_⟩)
+              refine Finset.mem_sdiff.mpr ⟨?_, hi'⟩
+              have hiD : i ∈ D := hRemsD hi
+              have haD : a ∉ D :=
+                fun haD => Finset.disjoint_left.mp hAddsDisj ha haD
+              have hai : a ≠ i :=
+                fun hai => Finset.disjoint_left.mp hAddsDisj ha (by simpa [hai] using hiD)
+              refine Finset.mem_image.mpr
+                ⟨Finset.erase (insert a D) i, ?_, ?_⟩
+              · rw [Finset.mem_filter, Finset.mem_powerset]
+                exact ⟨Finset.erase_subset _ _, ⟨a, Finset.mem_erase.mpr
+                  ⟨hai, Finset.mem_insert_self _ _⟩⟩⟩
+              · rw [Finset.erase_insert_of_ne hai, Finset.sum_insert]
+                · rw [show (D.erase i).sum id = D.sum id - i by
+                    rw [eq_sub_iff_add_eq]
+                    exact Finset.sum_erase_add D id hiD]
+                  simp only [id_eq]
+                  abel1
+                · exact fun ha_erase => haD (Finset.mem_of_mem_erase ha_erase)
           · simp +contextual [Finset.disjoint_left]
         exact Nat.sub_le_of_le_add <| by linarith
       have h_row_entries :
@@ -202,12 +201,14 @@ theorem matrix_argument {G : Type*} [DecidableEq G] [AddCommGroup G] [Fintype G]
       (le_trans (Finset.card_mono h_filter)
         (hRemGrowth i₀ hi₀_mem))
   obtain ⟨S, hS₁, hS₂⟩ := Finset.mem_image.mp hq.2
-  refine ⟨(D.erase i₀ \ S) ∪ {q}, ?_, ?_, ?_⟩ <;>
-    simp_all +decide [Finset.subset_iff]
-  rw [Finset.sum_insert] <;>
-    simp_all +decide [Finset.subset_iff]
-  exact fun _ _ =>
-    False.elim (Finset.disjoint_left.mp hAddsDisj hq.1.1 ‹_›)
+  refine ⟨(D.erase i₀ \ S) ∪ {q}, ?_, ?_, ?_⟩
+  · simp_all +decide [Finset.subset_iff]
+  · simp_all +decide [Finset.subset_iff]
+  · rw [union_singleton, Finset.sum_insert]
+    · simp_all +decide [Finset.subset_iff]
+    · exact fun hqmem =>
+        Finset.disjoint_left.mp hAddsDisj (Finset.mem_filter.mp hq.1).1
+          (Finset.mem_of_mem_erase (Finset.mem_sdiff.mp hqmem).1)
 
 /-! ## Existence of compatible sets -/
 
@@ -637,8 +638,6 @@ lemma exists_D_at_level {G : Type*} [DecidableEq G] [AddCommGroup G] [Fintype G]
 
 set_option maxHeartbeats 400000 in
 -- This assembly step reuses the good-level estimate and exceeds the default heartbeat limit.
-set_option linter.flexible false in
--- Generated averaging proof uses broad simplification in arithmetic case splits.
 /-- **Existence of good D**: There exists `D ⊆ A` with many good additions
 and removals. -/
 lemma exists_good_D {G : Type*} [DecidableEq G] [AddCommGroup G] [Fintype G]
@@ -819,9 +818,9 @@ lemma exists_good_D {G : Type*} [DecidableEq G] [AddCommGroup G] [Fintype G]
       rw [Nat.le_div_iff_mul_le] at hj <;> norm_num at *
       rw [← Nat.choose_mul_factorial_mul_factorial
         (show j - 1 ≤ k from ?_)] at *
-      · rcases j with _ | j <;>
-          simp_all +decide [Nat.factorial_succ,
-            mul_assoc, mul_comm, mul_left_comm]
+      · rcases j with _ | j
+        · simp_all +decide [mul_comm, mul_left_comm]
+        simp_all +decide only [add_tsub_cancel_right]
         rw [show k - j = (k - j - 1) + 1 by
           rw [Nat.sub_add_cancel
             (Nat.sub_pos_of_lt (by linarith))]] at *
@@ -844,9 +843,13 @@ lemma exists_good_D {G : Type*} [DecidableEq G] [AddCommGroup G] [Fintype G]
           ((A \ D).filter fun a =>
             Nat.sqrt n <
               (subsetSums (insert a D) \ subsetSums D).card).card) := by
-      rcases j with _ | j <;> simp_all +decide
+      rcases j with _ | j
+      · simp_all +decide
+      simp_all +decide only [add_tsub_cancel_right]
       convert bad_rem_sum_eq A j using 1
-    rcases j with _ | j <;> simp_all +decide [mul_assoc]
+    rcases j with _ | j
+    · simp_all +decide
+    simp_all +decide only [ge_iff_le]
     rw [Nat.mul_comm, Nat.choose_succ_right_eq] at *
     simpa only [mul_comm] using h_bad_add_bound.2
   apply exists_D_at_level
