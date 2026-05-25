@@ -31,11 +31,6 @@ import Mathlib
 set_option linter.style.longLine false
 set_option linter.style.refine false
 set_option linter.style.setOption false
-set_option linter.style.cases false
-set_option linter.style.induction false
-set_option linter.style.multiGoal false
-set_option linter.unusedDecidableInType false
-set_option linter.unusedFintypeInType false
 set_option linter.flexible false
 
 namespace MO509493
@@ -498,7 +493,8 @@ lemma hadamardSquare_posSemidef_rank_le_one_or_full
       choose c hc using hu.2;
       exact ⟨ u, fun j => c ( Pi.single j 1 ), by ext i j; simpa [ mul_comm ] using congr_fun ( hc ( Pi.single j 1 ) ) i ⟩
     obtain ⟨v, f, hv⟩ : ∃ v f : Fin 3 → ℝ, P₂ = Matrix.of (fun i j => v i * f j) := by
-      cases' ‹Module.finrank ℝ ( LinearMap.range P₂.mulVecLin ) ≤ 1›.eq_or_lt with h h <;> simp_all +decide [ Submodule.eq_bot_iff ];
+      rcases ‹Module.finrank ℝ ( LinearMap.range P₂.mulVecLin ) ≤ 1›.eq_or_lt with h | h <;>
+        simp_all +decide [ Submodule.eq_bot_iff ]
       · obtain ⟨ v, hv ⟩ := finrank_eq_one_iff'.mp h;
         -- Since $v$ is a basis vector for the range of $P₂$, we can write $P₂$ as $P₂ = v f^T$ for some vector $f$.
         obtain ⟨f, hf⟩ : ∃ f : Fin 3 → ℝ, ∀ i, P₂.mulVecLin (Pi.single i 1) = f i • v := by
@@ -518,7 +514,7 @@ lemma hadamardSquare_posSemidef_rank_le_one_or_full
       positivity;
   · -- Since P₁ and P₂ are both rank 3, they are both the identity matrix.
     have hP1 : P₁ = 1 := by
-      apply orthProj_rank_full_eq_one; exact h₁; linarith;
+      exact orthProj_rank_full_eq_one P₁ h₁ (by linarith)
     have hP2 : P₂ = 1 := by
       exact orthProj_rank_full_eq_one P₂ h₂ (id (Eq.symm hrank))
     simp [hP1, hP2] at *;
@@ -526,10 +522,6 @@ lemma hadamardSquare_posSemidef_rank_le_one_or_full
     · ext i j ; fin_cases i <;> fin_cases j <;> rfl;
     · simp +decide [ Matrix.one_apply, Finsupp.sum ];
       exact fun x => Finset.sum_nonneg fun i hi => by split_ifs <;> nlinarith;
-
-open Matrix BigOperators Finset
-
-noncomputable section
 
 /-!
 # Power-nonnegativity for the Hadamard square in dimension 3, rank 2
@@ -581,22 +573,32 @@ lemma fin3_sum_pow_nonneg (f : Fin 3 → ℝ)
 
 /-! ## Hadamard product of M and Mᵀ is symmetric -/
 
+-- These helper statements keep the same matrix typeclass hypotheses as nearby lemmas.
+set_option linter.unusedDecidableInType false in
+set_option linter.unusedFintypeInType false in
 /-- The Hadamard product `M ∘ Mᵀ` is symmetric for any square matrix `M`. -/
 lemma hadamard_transpose_isSymm {n : Type*} [Fintype n] [DecidableEq n]
     (M : Matrix n n ℝ) : (M.hadamard M.transpose).IsSymm := by
   ext i j; simp +decide [mul_comm]
 
+-- These helper statements keep the same matrix typeclass hypotheses as nearby lemmas.
+set_option linter.unusedDecidableInType false in
+set_option linter.unusedFintypeInType false in
 /-- Conversion: a symmetric real matrix is Hermitian. -/
 lemma isSymm_to_isHermitian {n : Type*} [Fintype n] [DecidableEq n]
     (M : Matrix n n ℝ) (h : M.IsSymm) : M.IsHermitian := by
   rwa [Matrix.IsHermitian, Matrix.conjTranspose_eq_transpose_of_trivial]
 
+-- This helper statement keeps the same matrix typeclass hypotheses as nearby lemmas.
+set_option linter.unusedDecidableInType false in
 /-- For symmetric P₁, P₂, we have `P₂ * P₁ = (P₁ * P₂)ᵀ`. -/
 lemma transpose_prod_symm {n : Type*} [Fintype n] [DecidableEq n]
     (P₁ P₂ : Matrix n n ℝ) (h1 : P₁.transpose = P₁) (h2 : P₂.transpose = P₂) :
     P₂ * P₁ = (P₁ * P₂).transpose := by
   simp [Matrix.transpose_mul, h1, h2]
 
+-- This helper statement keeps the same matrix typeclass hypotheses as nearby lemmas.
+set_option linter.unusedDecidableInType false in
 /-- The Hadamard product `(P₁P₂) ∘ (P₂P₁)` is symmetric when P₁, P₂ are symmetric. -/
 lemma hadamard_prod_isSymm
     {n : Type*} [Fintype n] [DecidableEq n]
@@ -623,8 +625,12 @@ lemma IsHermitian.trace_pow_eq_sum_eigenvalues_pow {n : Type*} [Fintype n] [Deci
       have := hA.eigenvectorUnitary.2.2
       convert this using 1
   have hA_k : A ^ k = U * D ^ k * U.transpose := by
-    induction' k with k ih <;> simp_all +decide [pow_succ, mul_assoc]
-    simp +decide [← mul_assoc, hU]
+    induction k with
+    | zero =>
+        simp_all +decide [mul_assoc]
+    | succ k ih =>
+        simp_all +decide [pow_succ, mul_assoc]
+        simp +decide [← mul_assoc, hU]
   rw [hA_k, Matrix.trace_mul_comm]
   simp +decide [← mul_assoc, hU, hD.2.1, Matrix.trace]
   simp +decide [Matrix.diagonal_pow]
@@ -956,7 +962,9 @@ private lemma adapted_basis_exists (a b : Fin 3 → ℝ)
         · constructor <;> ring_nf!;
           rw [ Fin.sum_univ_three ] at *;
           rw [ show a 0 ^ 2 = 1 - a 1 ^ 2 - a 2 ^ 2 by linarith ] ; ring;
-      ext i j; fin_cases i <;> fin_cases j <;> simp +decide [ *, Matrix.mul_apply, Fin.sum_univ_three ] ; ring_nf;
+      ext i j
+      fin_cases i <;> fin_cases j <;> simp +decide [ *, Matrix.mul_apply, Fin.sum_univ_three ]
+      all_goals ring_nf
       all_goals simp +decide [ Q ] ; linarith!;
     exact ⟨ hQ_ortho, mul_eq_one_comm.mp hQ_ortho ⟩;
   refine' ⟨ Q, hQ_ortho.1, hQ_ortho.2, _, _ ⟩ <;> simp_all +decide [ ← List.ofFn_inj, Matrix.mulVec ];
@@ -1397,8 +1405,6 @@ theorem power_nonneg_dim_three_rank_two_core
     (max_eigenvalue_lower_bound P₁ P₂ hP₁_sym hP₂_sym hP₁_idem hP₂_idem hP₁_rank hP₂_rank hA_herm)
     k
 
-end
-
 /-- The hard case: rank 2 projections in dimension 3.
     The proof in the paper uses eigenvalue bounds:
     all eigenvalues ≥ -1/8 and max eigenvalue ≥ 1/3,
@@ -1782,13 +1788,13 @@ theorem min_counterexample_exp_CE :
 
 end counterexample_CE
 
-#print axioms min_counterexample_dim_CE
+end MO509493
+
+#print axioms MO509493.min_counterexample_dim_CE
 -- 'MO509493.min_counterexample_dim_CE' depends on axioms: [propext, Classical.choice, Quot.sound]
 
-#print axioms min_counterexample_exp_CE
+#print axioms MO509493.min_counterexample_exp_CE
 -- 'MO509493.min_counterexample_exp_CE' depends on axioms: [propext, Classical.choice, Quot.sound]
 
-#print axioms A_example_isCounterexample
+#print axioms MO509493.A_example_isCounterexample
 -- 'MO509493.A_example_isCounterexample' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end MO509493
