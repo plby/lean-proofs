@@ -31,11 +31,6 @@ import Mathlib.Tactic.NormNum.BigOperators
 import Mathlib.Topology.Baire.LocallyCompactRegular
 import Mathlib.Topology.UniformSpace.Uniformizable
 
-set_option linter.style.setOption false
-set_option linter.flexible false
-set_option linter.style.multiGoal false
-set_option linter.style.show false
-
 /-!
 # Erdős Problem 907
 
@@ -116,7 +111,7 @@ lemma equicont_sets_cover (φ : ℝ → ℝ → ℝ)
       (↑q' : ℝ) ∈ Icc (-1) 1 →
       |(q : ℝ) - q'| ≤ 1 / (m + 1 : ℝ) → |φ x q - φ x q'| ≤ 1} = univ := by
   ext x
-  simp [Set.mem_iUnion];
+  simp only [mem_Icc, one_div, and_imp, mem_iUnion, mem_setOf_eq, mem_univ, iff_true]
   obtain ⟨ δ, hδ_pos, hδ ⟩ :
       ∃ δ > 0, ∀ h h' : ℝ, -1 ≤ h → h ≤ 1 → -1 ≤ h' → h' ≤ 1 →
         |h - h'| < δ → |φ x h - φ x h'| < 1 := by
@@ -131,8 +126,10 @@ lemma equicont_sets_cover (φ : ℝ → ℝ → ℝ)
       lt_of_le_of_lt h <| inv_lt_of_inv_lt₀ hδ_pos <| by
         linarith [Nat.le_ceil (δ⁻¹)]⟩
 
-set_option maxHeartbeats 800000 in
 -- The Baire-category continuity argument needs a larger heartbeat budget.
+set_option maxHeartbeats 800000 in
+-- The nested Baire proof uses generated context simplification with dependent set goals.
+set_option linter.flexible false in
 /-- From equicontinuity on a set with nonempty interior, derive
 the existence of a joint continuity point. -/
 lemma joint_continuity_from_equicont (φ : ℝ → ℝ → ℝ)
@@ -179,7 +176,8 @@ lemma joint_continuity_from_equicont (φ : ℝ → ℝ → ℝ)
             |(q : ℝ) - q'| ≤ 1 / (m + 1) →
             |φ x q - φ x q'| ≤ 1 / (k + 1)} = Set.univ := by
         ext x
-        simp [Set.mem_iUnion];
+        simp only [mem_Icc, Rat.cast_le_natCast, one_div, and_imp, mem_iUnion,
+          mem_setOf_eq, mem_univ, iff_true]
         have h_eq_cont_at_x :
             ∀ ε > 0, ∃ δ > 0, ∀ h h' : ℝ,
               -k ≤ h → h ≤ k → -k ≤ h' → h' ≤ k →
@@ -230,7 +228,7 @@ lemma joint_continuity_from_equicont (φ : ℝ → ℝ → ℝ)
   generalize_proofs at *; (
   obtain ⟨ hx₁₁, hx₁₂ ⟩ := hx₁
   specialize h_contra (x₁, 0)
-  simp_all +decide [ContinuousAt]; (
+  simp_all +decide only [ContinuousAt]; (
   have h_eq_cont :
       ∀ ε > 0, ∃ δ > 0, ∀ x, abs (x - x₁) < δ →
         ∀ h, abs h < δ → abs (φ x h - φ x 0) < ε := by
@@ -424,6 +422,8 @@ noncomputable def buildG (c : ℝ → ℝ) (x : ℝ) : ℝ :=
     else
       -((Finset.range ((-⌊x⌋).toNat)).sum fun k => c (Int.fract x + ↑(⌊x⌋) + ↑k))
 
+-- The integer floor split needs broad simplification of dependent `floor`/`fract` hypotheses.
+set_option linter.flexible false in
 /-- `buildG c` satisfies the telescoping relation
 `buildG c (x + 1) - buildG c x = c x`. -/
 lemma buildG_satisfies (c : ℝ → ℝ) (x : ℝ) :
@@ -444,6 +444,9 @@ lemma buildG_satisfies (c : ℝ → ℝ) (x : ℝ) :
       rw [ ← hx_eq ];
     · exact congr_arg _ ( by linarith )
 
+-- The interval induction proof has generated simplification and a nontrivial `convert` step.
+set_option linter.flexible false in
+set_option linter.style.multiGoal false in
 /-- `buildG c` is continuous whenever `c` is continuous. -/
 lemma buildG_continuous (c : ℝ → ℝ) (hc : Continuous c) :
     Continuous (buildG c) := by
@@ -524,10 +527,10 @@ lemma reduction_to_periodic (f : ℝ → ℝ) (hf : HasContinuousDifferences f) 
   refine ⟨buildG c, buildG_continuous c hc, ?_, ?_⟩
   · intro x
     have h := buildG_satisfies c x
-    show f (x + 1) - buildG c (x + 1) = f x - buildG c x
+    change f (x + 1) - buildG c (x + 1) = f x - buildG c x
     linarith
   · intro h
-    show Continuous fun x => (f (x + h) - buildG c (x + h)) - (f x - buildG c x)
+    change Continuous fun x => (f (x + h) - buildG c (x + h)) - (f x - buildG c x)
     have : (fun x => (f (x + h) - buildG c (x + h)) - (f x - buildG c x)) =
            fun x => (f (x + h) - f x) - (buildG c (x + h) - buildG c x) := by ext x; ring
     rw [this]
@@ -610,6 +613,8 @@ lemma hyers_ulam (f : ℝ → ℝ) (_hf0 : f 0 = 0) (M : ℝ) (hM : 0 ≤ M)
 
 /-! ## Step 6: Bounded periodic functions with continuous differences are continuous -/
 
+-- The boundedness argument uses context simplification after specializing telescope estimates.
+set_option linter.flexible false in
 /-- A bounded periodic function with continuous differences is
 continuous. Uses a telescoping identity + uniform Cauchy difference
 bounds to prove continuity at 0, then propagates everywhere. -/
@@ -656,7 +661,9 @@ lemma bounded_continuous_differences_implies_continuous (f : ℝ → ℝ)
               (Set.mem_image_of_mem _
                 ⟨Int.fract_nonneg _, Int.fract_lt_one _ |> le_of_lt⟩);
         convert h_cauchy_diff using 1 ; unfold cauchyDiff ; ring_nf;
-      induction hn_pos <;> simp_all +decide [ add_mul ];
+      induction hn_pos <;>
+        simp_all +decide only [Nat.succ_eq_add_one, zero_add, Nat.cast_one, one_mul,
+          sub_self, abs_zero, ge_iff_le, Nat.cast_add];
       · exact le_trans ( abs_nonneg _ ) ( h_telescope 0 );
       · exact abs_le.mpr
           ⟨by
@@ -731,7 +738,7 @@ lemma bounded_continuous_differences_implies_continuous (f : ℝ → ℝ)
   rw [ continuous_iff_continuousAt ];
   intro x;
   have := hf x;
-  have := this.tendsto 0; simp_all +decide [ ContinuousAt ] ;
+  have := this.tendsto 0; simp_all +decide only [ContinuousAt];
   convert
       (this.comp
           (show Filter.Tendsto (fun y => y - x) (nhds x) (nhds 0) by
@@ -752,7 +759,7 @@ lemma cauchyDiff_periodic_bounded (f : ℝ → ℝ)
     (hcont : Continuous (Function.uncurry (cauchyDiff f))) :
     ∃ M : ℝ, 0 ≤ M ∧ ∀ x h, |cauchyDiff f x h| ≤ M := by
   have h_periodic : ∀ x h : ℝ, cauchyDiff f x h = cauchyDiff f (x - ⌊x⌋) (h - ⌊h⌋) := by
-    intros x h; unfold cauchyDiff; simp +decide;
+    intros x h; unfold cauchyDiff; simp +decide only [Int.self_sub_floor, add_left_inj];
     have h_periodic_simp : ∀ x : ℝ, f x = f (Int.fract x) := by
       exact fun x => by simpa using Function.Periodic.int_mul hperiodic ⌊x⌋ ( Int.fract x ) ;
     rw [ h_periodic_simp ( x + h ), h_periodic_simp x, h_periodic_simp h ];
@@ -792,21 +799,24 @@ lemma periodic_decomposition (f : ℝ → ℝ)
   have hFM : ∀ x y, |F (x + y) - F x - F y| ≤ M := by
     intro x y
     have : F (x + y) - F x - F y = cauchyDiff f x y := by
-      show f (x + y) - f 0 - (f x - f 0) - (f y - f 0) = _
+      change f (x + y) - f 0 - (f x - f 0) - (f y - f 0) = _
       unfold cauchyDiff; ring
     rw [this]; exact hM x y
   obtain ⟨H, hH_add, hH_bound⟩ := hyers_ulam F hF0 M hM_pos hFM
   refine ⟨fun x => f x - H x, H, ?_, hH_add, fun x => by ring⟩
   have hg_bdd : ∃ M', ∀ x, |f x - H x| ≤ M' := by
     refine ⟨M + |f 0|, fun x => ?_⟩
-    calc |f x - H x| = |(F x - H x) + f 0| := by show _ = |(f x - f 0 - H x) + f 0|; ring_nf
+    have hcalc : |f x - H x| = |(F x - H x) + f 0| := by
+      change |f x - H x| = |(f x - f 0 - H x) + f 0|
+      ring_nf
+    calc |f x - H x| = |(F x - H x) + f 0| := hcalc
       _ ≤ |F x - H x| + |f 0| := abs_add_le _ _
       _ ≤ M + |f 0| := by linarith [hH_bound x]
   have hg_diff : HasContinuousDifferences (fun x => f x - H x) := by
     intro h
     have hHconst : ∀ x, H (x + h) - H x = H h := fun x => by
       have := hH_add x h; linarith
-    show Continuous fun x => (f (x + h) - H (x + h)) - (f x - H x)
+    change Continuous fun x => (f (x + h) - H (x + h)) - (f x - H x)
     have : (fun x => (f (x + h) - H (x + h)) - (f x - H x)) =
            fun x => (f (x + h) - f x) - H h := by
       ext x; have := hHconst x; linarith
@@ -829,7 +839,7 @@ lemma periodic_decomposition (f : ℝ → ℝ)
       | zero => simp only [Nat.cast_zero]; exact hF0
       | succ n ih =>
         have hp := hperiodic (↑n)
-        show f (↑(n + 1)) - f 0 = 0
+        change f (↑(n + 1)) - f 0 = 0
         simp only [Nat.cast_succ]
         linarith [ih]
     have hbound : ∀ n : ℕ, |↑n * H 1| ≤ M := by
@@ -845,7 +855,7 @@ lemma periodic_decomposition (f : ℝ → ℝ)
     linarith
   have hg_periodic : PeriodicMod1 (fun x => f x - H x) := by
     intro x
-    show f (x + 1) - H (x + 1) = f x - H x
+    change f (x + 1) - H (x + 1) = f x - H x
     have := hH_add x 1
     linarith [hperiodic x, hH1]
   exact bounded_continuous_differences_implies_continuous _
