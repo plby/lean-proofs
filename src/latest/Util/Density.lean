@@ -18,14 +18,6 @@ limitations under the License.
 
 import Mathlib
 
-set_option linter.style.setOption false
-set_option linter.style.whitespace false
-set_option linter.style.cdot false
-set_option linter.style.show false
-set_option linter.deprecated false
-set_option linter.unusedSimpArgs false
-set_option linter.flexible false
-
 open Filter
 
 open scoped Topology
