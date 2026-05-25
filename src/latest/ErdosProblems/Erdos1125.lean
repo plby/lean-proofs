@@ -25,13 +25,6 @@ import Mathlib.NumberTheory.Real.Irrational
 import Mathlib.Tactic.Cases
 import Mathlib.Tactic.LinearCombination'
 
--- These generated proof blocks use old induction syntax, multi-goal tactic
--- chains, and broad simplification throughout the file.
-set_option linter.style.induction false
-set_option linter.style.multiGoal false
-set_option linter.style.setOption false
-set_option linter.flexible false
-
 namespace Erdos1125
 
 /-!
@@ -43,7 +36,6 @@ The proof uses dyadic induction, a covering lemma on `I(α)`, interpolation esti
 and Pell sequence approximants for `√2`.
 -/
 
-noncomputable section
 open Filter Topology Set Real
 
 /-! ## Definitions -/
@@ -109,26 +101,33 @@ private lemma dyadic_endpoint_step {k : ℕ} (hk : 2 ≤ k) {f : ℕ → ℝ} {K
 private lemma lemma1_power_of_two {k : ℕ} (hk : 1 ≤ k) {f : ℕ → ℝ} {K : ℝ}
     (hf : IsF (2 ^ k) f) (hbound : ∀ i, i ≤ 2 ^ k → |f i| ≤ K) :
     f 0 ≤ f (2 ^ k) + 2 * K / (2 : ℝ) ^ k := by
-  induction' hk with k ih generalizing f K
-  · linarith [
-      abs_le.mp (hbound 0 (by norm_num)),
-      abs_le.mp (hbound 1 (by norm_num)),
-      abs_le.mp (hbound 2 (by norm_num)),
-      one_step_average hf (by norm_num : 0 + 2 ≤ 2)]
-  · have := dyadic_endpoint_step (show 2 ≤ k.succ from Nat.succ_le_succ ih) hf hbound
-    grind +qlia
+  induction k generalizing f K with
+  | zero =>
+    omega
+  | succ k ih =>
+    cases k with
+    | zero =>
+      linarith [
+        abs_le.mp (hbound 0 (by norm_num)),
+        abs_le.mp (hbound 1 (by norm_num)),
+        abs_le.mp (hbound 2 (by norm_num)),
+        one_step_average hf (by norm_num : 0 + 2 ≤ 2)]
+    | succ k =>
+      have := dyadic_endpoint_step
+        (show 2 ≤ k.succ.succ from by omega)
+        hf
+        hbound
+        (fun g hg hgbound ↦ ih (by omega) hg hgbound)
+      grind +qlia
 
 /-- Shifted dyadic estimate: `f(a) ≤ f(a + 2^k) + 2K/2^k`. -/
 private lemma shifted_dyadic_estimate {k : ℕ} (hk : 1 ≤ k) {n : ℕ} {f : ℕ → ℝ} {K : ℝ}
     (hf : IsF n f) (hbound : ∀ i, i ≤ n → |f i| ≤ K) {a : ℕ} (ha : a + 2 ^ k ≤ n) :
     f a ≤ f (a + 2 ^ k) + 2 * K / (2 : ℝ) ^ k := by
-  convert lemma1_power_of_two hk (hf := ?_) (hbound := ?_) using 1
-  rotate_left; rotate_left
-  exact fun i ↦ f (a + i); exact K
+  convert lemma1_power_of_two hk
+      (f := fun i ↦ f (a + i)) (K := K) (hf := ?_) (hbound := ?_) using 1
   · grind +locals
   · exact fun i hi ↦ hbound _ (by linarith)
-  · norm_num
-  · rfl
 
 /-- Estimate at position 1 for power-of-two-plus-one. -/
 private lemma estimate_at_one_for_power_of_two_plus_one {k : ℕ} (hk : 1 ≤ k)
@@ -136,9 +135,13 @@ private lemma estimate_at_one_for_power_of_two_plus_one {k : ℕ} (hk : 1 ≤ k)
     (hf : IsF (2 ^ k + 1) f) (hbound : ∀ i, i ≤ 2 ^ k + 1 → |f i| ≤ K) :
     f 1 ≤ f (2 ^ k + 1) + 2 * K / (2 : ℝ) ^ k := by
   have h_shifted : f 1 ≤ f (1 + 2^k) + 2 * K / 2^k := by
-    convert shifted_dyadic_estimate hk hf hbound _ using 1; ring_nf; aesop
+    convert shifted_dyadic_estimate hk hf hbound _ using 1
+    omega
   grobner
 
+set_option linter.style.setOption false in
+set_option linter.style.induction false in
+set_option linter.style.multiGoal false in
 /-- Backward propagation from two consecutive bounds. -/
 private lemma backward_propagation_from_two_consecutive_bounds {n : ℕ}
     {f : ℕ → ℝ} (hf : IsF n f)
@@ -175,16 +178,19 @@ private lemma combined_partb_from_parta (k : ℕ) (hk : 1 ≤ k)
     · rw [Nat.sub_add_cancel (by linarith)]
   have h3 : f ((nn : ℕ) - 2^k - 2) ≤ f nn + 4 * K / (2 : ℝ) ^ k := by
     have h3 : 2 * f (nn - 2^k - 2) ≤ f (nn - 2^k - 1) + f (nn - 2^k) := by
-      convert hf (nn - 2 ^ k - 2) 1 (by norm_num) _ using 1; norm_num [Nat.sub_sub]
-      · rw [
+      convert hf (nn - 2 ^ k - 2) 1 (by norm_num) _ using 1
+      · norm_num [Nat.sub_sub]
+        rw [
           show nn - (2 ^ k + 2) + 1 = nn - (2 ^ k + 1) by omega,
           show nn - (2 ^ k + 2) + 2 = nn - 2 ^ k by omega]
-      · omega
+      · norm_num [Nat.sub_sub]
+        omega
     ring_nf at *; linarith
   have h4 : f 0 ≤ f nn + 5 * K / (2 : ℝ) ^ k := by
     by_cases hnn : nn = 2^k + 2
-    · simp_all
-      exact h3.trans (by gcongr; norm_num)
+    · subst nn
+      have hzero : (2 ^ k + 2) - 2 ^ k - 2 = 0 := by omega
+      simpa [hzero] using h3.trans (by gcongr; norm_num)
     · have h4 : f ((nn : ℕ) - 2^k - 3) ≤ f nn + 5 * K / (2 : ℝ) ^ k := by
         have := hf (nn - 2 ^ k - 3) 1; simp_all +decide [Nat.sub_sub]
         rw [
@@ -202,6 +208,9 @@ private lemma combined_partb_from_parta (k : ℕ) (hk : 1 ≤ k)
       exact h5 0 bot_le
   exact h4
 
+set_option linter.style.setOption false in
+set_option linter.style.induction false in
+set_option linter.flexible false in
 /-- Combined bound for `2^k+1` and intermediate `n` by induction on `k` (auxiliary). -/
 private lemma combined_isF_bound (k : ℕ) (hk : 1 ≤ k) :
     (∀ (f : ℕ → ℝ) (K : ℝ), IsF (2 ^ k + 1) f → 0 < K →
@@ -302,6 +311,8 @@ private lemma lemma1_intermediate_range {k : ℕ} (hk : 1 ≤ k) {n : ℕ}
     f 0 ≤ f n + 5 * K / (2 : ℝ) ^ k :=
   (combined_isF_bound k hk).2 n hn1 hn2 f K hf hK hbound
 
+set_option linter.style.setOption false in
+set_option linter.flexible false in
 /-- Lemma 1: `f(0) ≤ f(n) + 10K/n` for `IsF` functions bounded by `K > 0`. -/
 lemma lemma1 {n : ℕ} (hn : 0 < n) {f : ℕ → ℝ} {K : ℝ} (hf : IsF n f) (hK : 0 < K)
     (hbound : ∀ i, i ≤ n → |f i| ≤ K) :
@@ -397,6 +408,8 @@ private lemma seed_set_finite (α : ℝ) (D : ℝ) (N : ℕ) (b : ℝ) :
     (h_pairs_finite.image fun p : ℤ × ℤ ↦ (p.1 : ℝ) * α + p.2)
     fun x hx ↦ by aesop
 
+set_option linter.style.setOption false in
+set_option linter.flexible false in
 /-- Existence and bounds for the largest opposite-sign approximation index. -/
 private lemma largest_opposite_sign_index_exists_and_is_bounded
     {α : ℝ} {C : ℝ} {p : ℕ → ℤ} {q : ℕ → ℕ} {N : ℕ}
@@ -728,6 +741,8 @@ private lemma lemma2_induction_claim
     rw [hml2]
     exact ih m.natAbs hm_lt2 m hm0 rfl (l + k) hm_bound
 
+set_option linter.style.setOption false in
+set_option linter.flexible false in
 /-- Every integer `m ≤ b+1` belongs to `H^(N)` if `H` contains all integers in `[b-N, b+1]`. -/
 private lemma integers_below_are_in_closure {N : ℕ} {b : ℝ}
     {H : Set ℝ} (hH :
@@ -767,6 +782,8 @@ private lemma integers_below_are_in_closure {N : ℕ} {b : ℝ}
       apply HSetPow.step
       exacts [zero_lt_one, fun i hi₁ hi₂ ↦ by simpa using hm₃ i hi₁ hi₂])
 
+set_option linter.style.setOption false in
+set_option linter.flexible false in
 /-- Covering lemma: there exists finite `H ⊆ I(α)` with `H^(N) ⊃ I(α) ∩ (-∞, b]`. -/
 lemma lemma2 (α : ℝ) (hα : HasControlledIntegerApproximants α)
     (N : ℕ) (hN : 2 ≤ N) (b : ℝ) :
@@ -813,12 +830,14 @@ lemma lemma2 (α : ℝ) (hα : HasControlledIntegerApproximants α)
           (by simpa [hn] using hx.out.trans (by linarith))
     · apply lemma2_induction_claim hA_pos hC_gt1 hq_pos hq_tendsto hq_growth
         h_approx h_alt_sign hN hD1 hD2
-      exact fun n' k' hn' hk' hk'' ↦ ⟨ n', k', rfl, hn', hk', hk'' ⟩
+      · exact fun n' k' hn' hk' hk'' ↦ ⟨ n', k', rfl, hn', hk', hk'' ⟩
       · assumption
       · exact le_add_of_le_of_nonneg hx (by positivity)
 
 /-! ## Section 3: Monotonicity on `I(α)` -/
 
+set_option linter.style.setOption false in
+set_option linter.style.induction false in
 /-- If `f ≤ M` on `H` and `f` satisfies the Kemperman inequality on `H^(N)`,
 then `f ≤ M` on `H^(N)`. -/
 private lemma closure_boundedness_principle {N : ℕ} (hN : 2 ≤ N) {H : Set ℝ}
@@ -868,32 +887,38 @@ private lemma bounded_on_left_ray_in_I {α : ℝ} (hα : HasControlledIntegerApp
     · intros x h hx hh hx' hx''
       apply hf x
       · have h_closure_subset_I : ∀ x ∈ HSetPow 2 H, x ∈ I α := by
-          intros x hx; induction hx; aesop
-          rename_i k hk₁ hk₂ hk₃
-          obtain ⟨ n₁, k₁, hn₁ ⟩ := hk₃ 1 (by norm_num) (by norm_num)
-          obtain ⟨ n₂, k₂, hn₂ ⟩ := hk₃ 2 (by norm_num) (by norm_num)
-          exact ⟨ n₁ * 2 - n₂, k₁ * 2 - k₂, by
-            push_cast at *
-            linarith ⟩
+          intros x hx
+          induction hx
+          · aesop
+          · rename_i k hk₁ hk₂ hk₃
+            obtain ⟨ n₁, k₁, hn₁ ⟩ := hk₃ 1 (by norm_num) (by norm_num)
+            obtain ⟨ n₂, k₂, hn₂ ⟩ := hk₃ 2 (by norm_num) (by norm_num)
+            exact ⟨ n₁ * 2 - n₂, k₁ * 2 - k₂, by
+              push_cast at *
+              linarith ⟩
         exact h_closure_subset_I x hx
       · exact hh
       · have h_closure : ∀ x ∈ HSetPow 2 H, x ∈ I α := by
-          intros x hx; induction hx; aesop
-          rename_i k hk₁ hk₂ hk₃
-          obtain ⟨ n₁, k₁, hn₁ ⟩ := hk₃ 1 (by norm_num) (by norm_num)
-          obtain ⟨ n₂, k₂, hn₂ ⟩ := hk₃ 2 (by norm_num) (by norm_num)
-          exact ⟨ n₁ * 2 - n₂, k₁ * 2 - k₂, by
-            push_cast at *
-            linarith ⟩
+          intros x hx
+          induction hx
+          · aesop
+          · rename_i k hk₁ hk₂ hk₃
+            obtain ⟨ n₁, k₁, hn₁ ⟩ := hk₃ 1 (by norm_num) (by norm_num)
+            obtain ⟨ n₂, k₂, hn₂ ⟩ := hk₃ 2 (by norm_num) (by norm_num)
+            exact ⟨ n₁ * 2 - n₂, k₁ * 2 - k₂, by
+              push_cast at *
+              linarith ⟩
         exact h_closure _ hx'
       · have h_closure : ∀ x ∈ HSetPow 2 H, x ∈ I α := by
-          intros x hx; induction hx; aesop
-          rename_i k hk₁ hk₂ hk₃
-          obtain ⟨ n₁, k₁, hn₁ ⟩ := hk₃ 1 (by norm_num) (by norm_num)
-          obtain ⟨ n₂, k₂, hn₂ ⟩ := hk₃ 2 (by norm_num) (by norm_num)
-          exact ⟨ n₁ * 2 - n₂, k₁ * 2 - k₂, by
-            push_cast at *
-            linarith ⟩
+          intros x hx
+          induction hx
+          · aesop
+          · rename_i k hk₁ hk₂ hk₃
+            obtain ⟨ n₁, k₁, hn₁ ⟩ := hk₃ 1 (by norm_num) (by norm_num)
+            obtain ⟨ n₂, k₂, hn₂ ⟩ := hk₃ 2 (by norm_num) (by norm_num)
+            exact ⟨ n₁ * 2 - n₂, k₁ * 2 - k₂, by
+              push_cast at *
+              linarith ⟩
         exact h_closure _ hx''
     · assumption
   exact ⟨ M, Set.forall_mem_image.2 fun x hx ↦ h_closure_bounded x <| hH.2.2 hx ⟩
@@ -1253,6 +1278,8 @@ private lemma pell_sum_ge_q (n : ℕ) :
   have : (0 : ℝ) ≤ (PellQ n : ℝ) * √2 := by positivity
   linarith
 
+set_option linter.style.setOption false in
+set_option linter.flexible false in
 /-- `√2` has controlled integer approximants, using Pell convergents. -/
 private lemma sqrt2_has_controlled_approximants : HasControlledIntegerApproximants (√2) := by
   use 1, 3, fun n ↦ PellP n, fun n ↦ PellQ n
@@ -1349,9 +1376,7 @@ theorem erdos_1125 {f : ℝ → ℝ}
         convert hf (a + (b - a) * x) ((b - a) * h) h_step using 1
         ring_nf
 
-#print axioms erdos_1125
--- 'Erdos1125.erdos_1125' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end
-
 end Erdos1125
+
+#print axioms Erdos1125.erdos_1125
+-- 'Erdos1125.erdos_1125' depends on axioms: [propext, Classical.choice, Quot.sound]
