@@ -16,16 +16,13 @@ Mathlib version: 8f9d9cff6bd728b17a24e163c9402775d9e6a365
 
 import Mathlib
 
-set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.style.refine false
-set_option linter.flexible false
 set_option linter.style.induction false
 
 open Finset ArithmeticFunction Real
 open scoped BigOperators
 
-set_option maxHeartbeats 800000
 set_option maxRecDepth 4000
 
 /-- ψ(n) = Σ_{m=1}^{n} Λ(m), the first Chebyshev function. -/
@@ -72,6 +69,7 @@ lemma lcmRange_dvd_of_le {m n : ℕ} (hm : 1 ≤ m) (hmn : m ≤ n) :
 
 /-! # LCM Divisibility Lemmas -/
 
+set_option linter.flexible false in
 lemma lcmRange_dvd_even (r : ℕ) (hr : 1 ≤ r) :
     lcmRange (2 * r) ∣ lcmRange r * Nat.choose (2 * r) r := by
   -- By definition of lcmRange, we need to show that for every prime power $p^a$ dividing $m \in (1, 2r]$, $p^a$ divides $lcmRange(r) * \binom{2r}{r}$.
@@ -119,6 +117,7 @@ lemma lcmRange_dvd_even (r : ℕ) (hr : 1 ≤ r) :
     rwa [ ← Nat.prod_factorization_pow_eq_self ( by linarith [ Finset.mem_Icc.mp hm ] : m ≠ 0 ) ];
   exact Finset.lcm_dvd h_lcm_div
 
+set_option linter.flexible false in
 lemma lcmRange_dvd_odd (r : ℕ) (hr : 1 ≤ r) :
     lcmRange (2 * r + 1) ∣ lcmRange (r + 1) * Nat.choose (2 * r + 1) r := by
   -- For any prime power $p^a \leq 2r+1$, we need to show that $p^a$ divides $lcmRange(r+1) * (2r+1 choose r)$.
@@ -186,6 +185,7 @@ lemma lcmRange_le_four_pow (n : ℕ) (hn : 1 ≤ n) :
 
 /-! # Chebyshev ψ bound -/
 
+set_option linter.flexible false in
 lemma chebyshevPsi_eq_log_lcmRange (n : ℕ) (hn : 1 ≤ n) :
     chebyshevPsi n = Real.log (lcmRange n) := by
   -- By definition of ψ, we know that ψ(n) = Σ_{m=0}^n Λ(m)
@@ -250,6 +250,7 @@ lemma chebyshevPsi_le (n : ℕ) (hn : 1 ≤ n) :
 /-
 S(n) ≤ (log(n!) + ψ(n)) / n
 -/
+set_option linter.flexible false in
 lemma sumS_le_basic (n : ℕ) (hn : 2 ≤ n) :
     sumS n ≤ (Real.log (n.factorial) + chebyshevPsi n) / n := by
   -- By the properties of logarithms and the definition of S(n), we can rewrite the inequality.
@@ -293,6 +294,7 @@ lemma sumS_le_basic (n : ℕ) (hn : 2 ≤ n) :
 /-
 log(n!) ≤ n*log(n) - n + 1 + log(n)
 -/
+set_option linter.flexible false in
 lemma log_factorial_le (n : ℕ) (hn : 1 ≤ n) :
     Real.log (n.factorial) ≤ n * Real.log n - n + 1 + Real.log n := by
   induction hn <;> simp_all +decide [ Nat.factorial_succ ];
@@ -329,6 +331,9 @@ lemma sumS_le_logn_plus (n : ℕ) (hn : 200 ≤ n) :
 /-
 -log P(n) ≤ T(n) + 1/10 via log series truncation
 -/
+set_option linter.flexible false in
+set_option maxHeartbeats 800000 in
+-- The generated tail-bound proof uses large `norm_num` and summability terms.
 lemma neg_log_prodP_le_sumT_plus (n : ℕ) (hn : 200 ≤ n) :
     -Real.log (prodP n) ≤ sumT n + 1/10 := by
   -- Let's rewrite the sum in terms of the prime number theorem and the bound we have.
@@ -431,6 +436,7 @@ lemma neg_log_prodP_le_sumT_plus (n : ℕ) (hn : 200 ≤ n) :
 
 /-! ### Helper lemmas for sumT_sub_199_bound -/
 
+set_option linter.flexible false in
 private lemma log_factorial_ge' (n : ℕ) (hn : 1 ≤ n) :
     Real.log (n.factorial) ≥ n * Real.log n - n + 1 := by
   induction hn <;> simp_all +decide [ Nat.factorial ]
@@ -440,6 +446,7 @@ private lemma log_factorial_ge' (n : ℕ) (hn : 1 ≤ n) :
     nlinarith [ Real.add_one_le_exp ( 1 / ( m : ℝ ) ), one_div_mul_cancel ( by positivity : ( m : ℝ ) ≠ 0 ) ]
   have := h_log _ ‹_›; norm_num at *; nlinarith [ inv_mul_cancel₀ ( by positivity : ( ( Nat.cast:ℕ →ℝ ) ‹_› ) ≠ 0 ) ]
 
+set_option linter.flexible false in
 private lemma sumS_ge_log_sub_one (n : ℕ) (hn : 2 ≤ n) :
     sumS n ≥ Real.log n - 1 := by
   have h_sum_floor : ∑ m ∈ Finset.Icc 1 n, vonMangoldt m * Nat.floor (n / m) = Real.log (Nat.factorial n) := by
@@ -479,6 +486,7 @@ private lemma div_sub_le_log_sub' {a b : ℝ} (ha : 0 < a) (hab : a ≤ b) :
     rw [ Real.log_div ] at this <;> nlinarith [ mul_div_cancel₀ a ( by linarith : b ≠ 0 ) ]
   rwa [ div_le_iff₀' ( by linarith ) ]
 
+set_option linter.flexible false in
 private lemma sum_log_ratio_le_log_log' (a n : ℕ) (ha : 3 ≤ a) (hn : a ≤ n) :
     ∑ m ∈ Finset.Ico a n,
       (Real.log (↑m + 1) - Real.log m) / Real.log (↑m + 1) ≤
@@ -498,6 +506,7 @@ private lemma log_200_ge' : Real.log 200 ≥ 1418 / 270 := by
   rw [ h_log_200, show ( 5 : ℝ ) = 2 ^ 2 * 1.25 by norm_num, Real.log_mul, Real.log_pow ] <;> ring_nf <;> norm_num
   have := Real.log_two_gt_d9 ; norm_num at * ; have := Real.log_inv ( 5 / 4 ) ; norm_num at * ; linarith [ Real.log_le_sub_one_of_pos ( show 0 < 4 / 5 by norm_num ) ]
 
+set_option linter.flexible false in
 private lemma abel_identity_sumT (n : ℕ) (hn : 200 ≤ n) :
     ∑ m ∈ Finset.Icc 200 n, (Λ m) / (m * Real.log m) = ((sumS n) - (sumS 199)) / Real.log n + ∑ m ∈ Finset.Ico 200 n, ((sumS m) - (sumS 199)) * (1 / Real.log m - 1 / Real.log (m + 1)) := by
   induction' hn with k hk
@@ -555,6 +564,7 @@ lemma sumT_sub_199_bound (n : ℕ) (hn : 200 ≤ n) :
 /-
 Computational upper bound on T(199)
 -/
+set_option linter.flexible false in
 lemma sumT_199_lt : sumT 199 < 23/10 := by
   -- By definition of sumT, we can rewrite the sum as a sum over prime powers.
   have h_sum_prime_powers : ∀ n : ℕ, sumT n = ∑ p ∈ Finset.filter Nat.Prime (Finset.Icc 2 n), ∑ k ∈ Finset.Icc 1 (Nat.log p n), (1 / (p^k * k : ℝ)) := by
