@@ -27,11 +27,6 @@ URLs:
 import Mathlib
 import Util.MertensThird
 
-set_option linter.style.emptyLine false
-set_option linter.style.setOption false
-set_option linter.flexible false
-set_option linter.unnecessarySimpa false
-
 /-!
 # Erdős Problem 1141
 
@@ -173,13 +168,14 @@ instance {m : ℕ} : CoeFun (QuadraticCharacterMod m) (fun _ ↦ ℕ → ℤ) :=
 /-- A quadratic character modulo `m` takes the value `1` at `1`. -/
 lemma QuadraticCharacterMod.map_one {m : ℕ} (χ : QuadraticCharacterMod m) : χ 1 = 1 := by
   have hcop : Nat.Coprime 1 m := by
-    simpa using (Nat.coprime_one_left_iff m).2 trivial
+    simp
   rcases χ.map_coprime hcop with h1 | h1
   · exact h1
   · have : False := by
       have hmul : χ (1 * 1) = χ 1 * χ 1 := χ.map_mul (a := 1) (b := 1) hcop hcop
       have hbad : (-1 : ℤ) = 1 := by
-        simpa [h1] using hmul
+        rw [h1] at hmul
+        norm_num at hmul
       norm_num at hbad
     exact this.elim
 
@@ -204,7 +200,7 @@ def QuadraticCharacterMod.toDirichletCharacterComplex {m : ℕ} [NeZero m]
     have hperiodic : χ ((1 : ZMod m).val) = χ 1 := by
       apply χ.periodic
       rw [← ZMod.natCast_eq_natCast_iff]
-      simpa using (ZMod.natCast_zmod_val (1 : ZMod m))
+      simp
     rw [hperiodic]
     simpa using congrArg (fun z : ℤ => (z : ℂ)) χ.map_one
   map_mul' := by
@@ -218,10 +214,9 @@ def QuadraticCharacterMod.toDirichletCharacterComplex {m : ℕ} [NeZero m]
           rw [← ZMod.natCast_eq_natCast_iff]
           calc
             (((a * b).val : ℕ) : ZMod m) = a * b := by
-              simpa using (ZMod.natCast_zmod_val (a * b))
+              simp
             _ = ((a.val : ZMod m) * (b.val : ZMod m)) := by
-              simpa using congrArg2 (· * ·)
-                (ZMod.natCast_zmod_val a).symm (ZMod.natCast_zmod_val b).symm
+              simp
             _ = ((a.val * b.val : ℕ) : ZMod m) := by simp
         have hperiodicC : (χ ((a * b).val) : ℂ) = (χ (a.val * b.val) : ℂ) :=
           congrArg (fun z : ℤ => (z : ℂ)) hperiodic
@@ -382,7 +377,7 @@ private lemma quadResidueMod_of_isSquare_zmod {d p : ℕ} (h : IsSquare (d : ZMo
         (((x.val ^ 2 : ℕ) : ZMod (p + 1))) = (((x.val : ℕ) : ZMod (p + 1)) ^ 2) := by
           simp
         _ = x ^ 2 := by
-          simpa using congrArg (fun y : ZMod (p + 1) ↦ y ^ 2) (ZMod.natCast_val x)
+          simp
         _ = (d : ZMod (p + 1)) := by
           simpa [pow_two] using hx.symm
 
@@ -439,10 +434,12 @@ def attachedQuadraticCharacter (d m : ℕ) (hdvd : 4 * d ∣ m) :
     have hbOdd : Odd b := (Nat.coprime_two_right).1 hb2
     have ha0 : a ≠ 0 := by
       intro h0
-      simpa [h0] using haOdd
+      rw [h0] at haOdd
+      norm_num at haOdd
     have hb0 : b ≠ 0 := by
       intro h0
-      simpa [h0] using hbOdd
+      rw [h0] at hbOdd
+      norm_num at hbOdd
     split_ifs at * with hab
     · exact jacobiSym.mul_right' (d : ℤ) ha0 hb0
     · exact (hab (Nat.coprime_mul_iff_left.2 ⟨ha, hb⟩)).elim
@@ -471,7 +468,8 @@ private lemma attachedQuadraticCharacter_spec
     have hzero : attachedQuadraticCharacter d m hdvd p = 0 := by
       simp [attachedQuadraticCharacter, hnot]
     have h01 : (0 : ℤ) = 1 := by
-      simpa [hzero] using hχ
+      rw [hzero] at hχ
+      exact hχ
     norm_num at h01
   have hpndvd : ¬ p ∣ m := (hp.coprime_iff_not_dvd).1 hcop
   have hp2 : p ≠ 2 := by
@@ -529,12 +527,15 @@ lemma exists_small_prime_from_pollack :
     have hcard0 : P.card = 0 := Nat.eq_zero_of_not_pos hcard_not
     have hcard_pos_real : (0 : ℝ) < (P.card : ℝ) := lt_of_lt_of_le hlog_pos hcard'
     have : (0 : ℝ) < 0 := by
-      simpa [hcard0] using hcard_pos_real
+      rw [hcard0] at hcard_pos_real
+      norm_num at hcard_pos_real
     exact (lt_irrefl (0 : ℝ)) this
   obtain ⟨p, hpP⟩ := Finset.card_pos.mp hcard_pos
   have hpP' : p ∈ Pollack17.residuePrimesUpTo m χ.toDirichletCharacterComplex ((1 : ℝ) / 8) := by
     simpa [P] using hpP
-  simp [Pollack17.residuePrimesUpTo, Pollack17.residuePrimeUpperBound] at hpP'
+  rw [Pollack17.residuePrimesUpTo] at hpP'
+  simp only [Finset.mem_filter, Finset.mem_range, Nat.lt_succ_iff,
+    Pollack17.residuePrimeUpperBound] at hpP'
   rcases hpP' with ⟨_, hpp, hpbound, hχpComplex⟩
   have hχp : χ p = 1 := by
     exact χ.eq_one_of_toDirichletCharacterComplex_apply_nat_eq_one
@@ -543,7 +544,8 @@ lemma exists_small_prime_from_pollack :
     simpa [χ] using attachedQuadraticCharacter_spec (d := d) (m := m) (p := p) hdvd hpp hχp
   rcases hspec with ⟨hp2, hpndvd, hres⟩
   refine ⟨p, hpp, hp2, hpndvd, ?_, hres⟩
-  convert hpbound using 1; norm_num
+  convert hpbound using 1
+  norm_num
 
 /-! ## Turning quadratic residuosity into solvability of `a*x^2 ≡ n [MOD p]` -/
 
@@ -659,7 +661,7 @@ private lemma factorial_card_le_prod_of_one_le (s : Finset ℕ)
     induction i with
     | zero =>
         have hmem : f ⟨0, hi⟩ ∈ s := by
-          simpa [f] using s.orderEmbOfFin_mem rfl ⟨0, hi⟩
+          simp [f]
         simpa [f] using hs (f ⟨0, hi⟩) hmem
     | succ i ih =>
         have hi' : i < s.card := Nat.lt_of_succ_lt hi
@@ -859,7 +861,10 @@ private lemma root_class_good_count_lower_bound
     (_hK : K = Nat.sqrt ((n - 1) / a) + 1) :
     let U : Finset ℕ := ((Finset.range K).filter fun k ↦ Nat.ModEq p k r)
     let α := {k : ℕ // k ∈ U}
-    let emb : α ↪ ℕ := ⟨Subtype.val, by intro x y h; exact Subtype.ext h⟩
+    let emb : α ↪ ℕ :=
+      ⟨Subtype.val, by
+        intro x y h
+        exact Subtype.ext h⟩
     let S : ℕ → Finset α := fun q ↦ (Finset.univ : Finset α).filter fun k ↦ q ∣ (k : ℕ)
     let good : Finset α := n.primeFactors.inf fun q ↦ (S q)ᶜ
     ((good.map emb).card : ℝ)
@@ -868,7 +873,10 @@ private lemma root_class_good_count_lower_bound
   classical
   let U : Finset ℕ := ((Finset.range K).filter fun k ↦ Nat.ModEq p k r)
   let α := {k : ℕ // k ∈ U}
-  let emb : α ↪ ℕ := ⟨Subtype.val, by intro x y h; exact Subtype.ext h⟩
+  let emb : α ↪ ℕ :=
+    ⟨Subtype.val, by
+      intro x y h
+      exact Subtype.ext h⟩
   let S : ℕ → Finset α := fun q ↦ (Finset.univ : Finset α).filter fun k ↦ q ∣ (k : ℕ)
   let good : Finset α := n.primeFactors.inf fun q ↦ (S q)ᶜ
   change ((good.map emb).card : ℝ)
@@ -878,17 +886,14 @@ private lemma root_class_good_count_lower_bound
   have hpn : ¬ p ∣ n := by
     intro hpn
     exact hpndvd (dvd_mul_of_dvd_right hpn a)
-
   have hIE : ((good.map emb).card : ℤ) =
       ∑ t ∈ n.primeFactors.powerset, (-1 : ℤ) ^ t.card * ((t.inf S).card : ℤ) := by
     rw [Finset.card_map]
     simpa [good] using
       (Finset.inclusion_exclusion_card_inf_compl (s := n.primeFactors) (S := S))
-
   have hIE_real : ((good.map emb).card : ℝ) =
       ∑ t ∈ n.primeFactors.powerset, (-1 : ℝ) ^ t.card * ((t.inf S).card : ℝ) := by
     exact_mod_cast hIE
-
   have hterm :
       ∀ t ∈ n.primeFactors.powerset,
         (-1 : ℝ) ^ t.card * ((K : ℝ) / (p * ∏ q ∈ t, q)) - 1 ≤
@@ -952,10 +957,14 @@ private lemma root_class_good_count_lower_bound
       exact (div_lt_iff₀ hm_posR).2 hlt_real
     have hbit_nonneg :
         (0 : ℝ) ≤ ((if v % m < K % m then 1 else 0 : ℕ) : ℝ) := by
-      split_ifs <;> norm_num
+      by_cases h : v % m < K % m
+      · simp [h]
+      · simp [h]
     have hbit_le_one :
         ((if v % m < K % m then 1 else 0 : ℕ) : ℝ) ≤ 1 := by
-      split_ifs <;> norm_num
+      by_cases h : v % m < K % m
+      · simp [h]
+      · simp [h]
     have hlower : (K : ℝ) / m - 1 ≤ ((t.inf S).card : ℝ) := by
       rw [hcount_formula_real]
       have hq_ge : (K : ℝ) / m - 1 ≤ (K / m : ℝ) := by
@@ -971,19 +980,16 @@ private lemma root_class_good_count_lower_bound
       have hupper' : ((t.inf S).card : ℝ) ≤ (K : ℝ) / (p * ∏ q ∈ t, q) + 1 := by
         simpa [m] using hupper
       linarith
-
   have hsum_lower :
       ∑ t ∈ n.primeFactors.powerset,
         ((-1 : ℝ) ^ t.card * ((K : ℝ) / (p * ∏ q ∈ t, q)) - 1)
         ≤ ∑ t ∈ n.primeFactors.powerset, (-1 : ℝ) ^ t.card * ((t.inf S).card : ℝ) := by
     exact Finset.sum_le_sum (fun t ht ↦ hterm t ht)
-
   have hsum_lower' :
       ∑ t ∈ n.primeFactors.powerset, (-1 : ℝ) ^ t.card * ((K : ℝ) / (p * ∏ q ∈ t, q))
         - ∑ t ∈ n.primeFactors.powerset, (1 : ℝ)
         ≤ ∑ t ∈ n.primeFactors.powerset, (-1 : ℝ) ^ t.card * ((t.inf S).card : ℝ) := by
     simpa [Finset.sum_sub_distrib] using hsum_lower
-
   have hmain_expand :
       ∑ t ∈ n.primeFactors.powerset, (-1 : ℝ) ^ t.card * ((K : ℝ) / (p * ∏ q ∈ t, q))
         = (K : ℝ) / p * ∏ q ∈ n.primeFactors, (1 - 1 / (q : ℝ)) := by
@@ -1030,13 +1036,11 @@ private lemma root_class_good_count_lower_bound
           simpa using
             (Finset.prod_sub (s := n.primeFactors) (f := fun _ : ℕ => (1 : ℝ))
               (g := fun q : ℕ => 1 / (q : ℝ)))
-
   have herror :
       ∑ t ∈ n.primeFactors.powerset, (1 : ℝ) = (2 : ℝ) ^ n.primeFactors.card := by
     calc
       ∑ t ∈ n.primeFactors.powerset, (1 : ℝ) = (n.primeFactors.powerset.card : ℝ) := by simp
       _ = (2 : ℝ) ^ n.primeFactors.card := by simp
-
   calc
     ((good.map emb).card : ℝ)
         = ∑ t ∈ n.primeFactors.powerset, (-1 : ℝ) ^ t.card * ((t.inf S).card : ℝ) := hIE_real
@@ -1136,7 +1140,10 @@ private lemma many_candidates_of_pollack_size
   let K : ℕ := Nat.sqrt ((n - 1) / a) + 1
   let U : Finset ℕ := ((Finset.range K).filter fun k ↦ Nat.ModEq p k r)
   let α := {k : ℕ // k ∈ U}
-  let emb : α ↪ ℕ := ⟨Subtype.val, by intro x y h; exact Subtype.ext h⟩
+  let emb : α ↪ ℕ :=
+    ⟨Subtype.val, by
+      intro x y h
+      exact Subtype.ext h⟩
   let S : ℕ → Finset α := fun q ↦ (Finset.univ : Finset α).filter fun k ↦ q ∣ (k : ℕ)
   let good : Finset α := n.primeFactors.inf fun q ↦ (S q)ᶜ
   have hgood_sub : good.map emb ⊆ candidateKs a n p := by
@@ -1409,7 +1416,7 @@ private lemma n_is_square_of_square_case_and_square_coeff
       v ^ 2 * m ^ 2 = (v * m) ^ 2 := by
         simp [pow_two, Nat.mul_left_comm, Nat.mul_comm]
       _ = u ^ 2 := by
-        simpa [hm]
+        simp [hm]
       _ = v ^ 2 * n := by
         simpa [haSq] using hsq
   have hm2 : m ^ 2 = n := Nat.eq_of_mul_eq_mul_left (pow_pos hv_pos 2) hmain
@@ -1431,15 +1438,15 @@ private lemma not_Pa_of_large_square_difference
     have hsq_lt : v ^ 2 < m ^ 2 := Nat.pow_lt_pow_left hvlt (by decide : (2 : ℕ) ≠ 0)
     simpa [haSq, hnSq] using hsq_lt
   have hprime : Nat.Prime (n - a * 1 ^ 2) :=
-    hPa 1 (by decide) (by simpa using Nat.coprime_one_left n) hlt
+    hPa 1 (by decide) (by simp) hlt
   have hprod : n - a * 1 ^ 2 = (m + v) * (m - v) := by
     calc
       n - a * 1 ^ 2 = m ^ 2 - v ^ 2 := by
-        simpa [haSq, hnSq]
+        simp [haSq, hnSq]
       _ = (m + v) * (m - v) := by
         simpa using Nat.sq_sub_sq m v
   have htwo_le_vaddtwo : 2 ≤ v + 2 := by
-    simpa using Nat.succ_le_succ (Nat.succ_le_succ (Nat.zero_le v))
+    simp
   have hm_ge_two : 2 ≤ m := le_trans htwo_le_vaddtwo hm
   have hmplus_ge_two : 2 ≤ m + v := le_trans hm_ge_two (Nat.le_add_right m v)
   have hmplus_ne_one : m + v ≠ 1 :=
@@ -1621,7 +1628,7 @@ theorem erdos1141Prop_iff_pa_one_ne_one (n : ℕ) :
     · intro k hk hcop hlt
       simpa [one_mul] using h k (by simpa [one_mul] using hlt) hcop.symm
     · intro hn
-      have h0 := h 0 (by simpa [hn]) (by simpa [hn] using Nat.coprime_zero_right.2 rfl)
+      have h0 := h 0 (by simp [hn]) (by simp [hn])
       have h1 : Nat.Prime 1 := by simpa [hn] using h0
       exact Nat.not_prime_one h1
   · rintro ⟨hPa, hn1⟩ k hk hcop
