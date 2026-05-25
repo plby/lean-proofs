@@ -15,12 +15,6 @@ URLs:
 -/
 import Mathlib
 
-set_option linter.style.openClassical false
-set_option linter.style.setOption false
-set_option linter.flexible false
-set_option linter.style.cdot false
-
-open Classical
 open scoped BigOperators
 
 namespace Erdos613
@@ -180,8 +174,10 @@ def VEquiv :
   | Sum.inl (Sum.inl (Sum.inr i))            => A2 i
   | Sum.inl (Sum.inr j)                      => B2 j
   | Sum.inr ()                               => apex
-  left_inv v := by cases v <;> grind
-  right_inv w := by cases w <;> grind
+  left_inv v := by
+    cases v <;> grind
+  right_inv w := by
+    cases w <;> grind
 
 /-- $`|V| = 16`. Useful for quick cardinality arithmetic. -/
 lemma card_V : Fintype.card V = 16 := by
@@ -200,13 +196,15 @@ lemmas from Approach A:
   and the corresponding “no edge” lemmas across blocks.
 -/
 
+open Classical in
 /-- `deg(apex) = 15`. -/
 lemma degree_apex : G.degree apex = 15 := by
   classical
   -- Neighbors of `apex` are exactly all vertices ≠ `apex`.
   have hN :
       G.neighborFinset apex = (Finset.univ.erase apex) := by
-    ext v; constructor
+    ext v
+    constructor
     · intro hv
       have : G.Adj apex v := by simpa using hv
       have hvne : v ≠ apex := by simpa [adj_apex_left] using this
@@ -226,6 +224,8 @@ lemma degree_apex : G.degree apex = 15 := by
   simp at this
   assumption
 
+set_option linter.flexible false in
+open Classical in
 /-- `deg(A1 i) = 7` for each {name}`i`. -/
 lemma degree_A1 (i : Fin 2) : G.degree (A1 i) = 7 := by
   rw [←G.card_neighborFinset_eq_degree, ←Finset.card_image_of_injective _ VEquiv.injective]
@@ -233,7 +233,7 @@ lemma degree_A1 (i : Fin 2) : G.degree (A1 i) = 7 := by
   calc
     _ = 1 + 5 + 0 + 0 + 1 := by
       congr
-      . calc
+      · calc
         _ = Finset.card {j | j ≠ i} := by
           congr; ext; simp
           simp_rw [←Equiv.eq_symm_apply VEquiv]
@@ -241,22 +241,22 @@ lemma degree_A1 (i : Fin 2) : G.degree (A1 i) = 7 := by
           grind
         _ = 1 := by
           fin_cases i <;> simp
-          . convert Finset.card_singleton 1
+          · convert Finset.card_singleton 1
           convert Finset.card_singleton 0
-      . calc
+      · calc
         _ = Finset.card (Finset.univ : Finset (Fin 5)) := by
           congr; ext; simp
           simp_rw [←Equiv.eq_symm_apply VEquiv]
           simp [VEquiv]
         _ = 5 := by simp [Fintype.card_fin]
-      . calc
+      · calc
         _ = Finset.card (∅ : Finset (Fin 3)) := by
           congr; ext; simp [-iff_false]
           simp_rw [←Equiv.eq_symm_apply VEquiv]
           simp [VEquiv]
           aesop
         _ = 0 := by simp
-      . calc
+      · calc
         _ = Finset.card (∅: Finset (Fin 5)) := by
           congr; ext; simp [-iff_false]
           simp_rw [←Equiv.eq_symm_apply VEquiv]
@@ -270,6 +270,8 @@ lemma degree_A1 (i : Fin 2) : G.degree (A1 i) = 7 := by
         _ = 1 := by simp
     _ = _ := by norm_num
 
+set_option linter.flexible false in
+open Classical in
 /-- $`deg(B1 j) = 3` for each $`j`. (Two {name}`A1`s + apex.) -/
 lemma degree_B1 (j : Fin 5) : G.degree (B1 j) = 3 := by
   rw [←G.card_neighborFinset_eq_degree, ←Finset.card_image_of_injective _ VEquiv.injective]
@@ -277,25 +279,25 @@ lemma degree_B1 (j : Fin 5) : G.degree (B1 j) = 3 := by
   calc
     _ = 2 + 0 + 0 + 0 + 1 := by
       congr
-      . calc
+      · calc
           _ = Finset.card (Finset.univ : Finset (Fin 2)) := by
             congr; ext; simp
             simp_rw [←Equiv.eq_symm_apply VEquiv]
             simp [VEquiv]
           _ = _ := by simp
-      . calc
+      · calc
           _ = Finset.card (∅: Finset (Fin 5)) := by
             congr; ext; simp [-iff_false]
             simp_rw [←Equiv.eq_symm_apply VEquiv]
             simp [VEquiv]
           _ = _ := by simp
-      . calc
+      · calc
           _ = Finset.card (∅: Finset (Fin 3)) := by
             congr; ext; simp [-iff_false]
             simp_rw [←Equiv.eq_symm_apply VEquiv]
             simp [VEquiv]
           _ = _ := by simp
-      . calc
+      · calc
           _ = Finset.card (∅: Finset (Fin 5)) := by
             congr; ext; simp [-iff_false]
             simp_rw [←Equiv.eq_symm_apply VEquiv]
@@ -311,6 +313,8 @@ lemma degree_B1 (j : Fin 5) : G.degree (B1 j) = 3 := by
 
 
 
+set_option linter.flexible false in
+open Classical in
 /-- $`deg(A2 i) = 8` for each $`i`. (Two inside {name}`A2` + five in {name}`B2` + apex.) -/
 lemma degree_A2 (i : Fin 3) : G.degree (A2 i) = 8 := by
   rw [←G.card_neighborFinset_eq_degree, ←Finset.card_image_of_injective _ VEquiv.injective]
@@ -318,19 +322,19 @@ lemma degree_A2 (i : Fin 3) : G.degree (A2 i) = 8 := by
   calc
     _ = 0 + 0 + 2 + 5 + 1 := by
       congr
-      . calc
+      · calc
           _ = Finset.card (∅ : Finset (Fin 2)) := by
             congr; ext; simp [-iff_false]
             simp_rw [←Equiv.eq_symm_apply VEquiv]
             simp [VEquiv]
           _ = _ := by simp
-      . calc
+      · calc
           _ = Finset.card (∅: Finset (Fin 5)) := by
             congr; ext; simp [-iff_false]
             simp_rw [←Equiv.eq_symm_apply VEquiv]
             simp [VEquiv]
           _ = _ := by simp
-      . calc
+      · calc
           _ = Finset.card {j | j ≠ i} := by
             congr; ext; simp [-iff_false]
             simp_rw [←Equiv.eq_symm_apply VEquiv]
@@ -339,7 +343,7 @@ lemma degree_A2 (i : Fin 3) : G.degree (A2 i) = 8 := by
           _ = _ := by
             convert Finset.card_erase_of_mem (show i ∈ Finset.univ by simp)
             grind
-      . calc
+      · calc
           _ = Finset.card (Finset.univ: Finset (Fin 5)) := by
             congr; ext; simp
             simp_rw [←Equiv.eq_symm_apply VEquiv]
@@ -354,6 +358,8 @@ lemma degree_A2 (i : Fin 3) : G.degree (A2 i) = 8 := by
     _ = _ := by norm_num
 
 
+set_option linter.flexible false in
+open Classical in
 /-- $`deg(B2 j) = 4` for each $`j`. (Three {name}`A2`s + apex.) -/
 lemma degree_B2 (j : Fin 5) : G.degree (B2 j) = 4 := by
   rw [←G.card_neighborFinset_eq_degree, ←Finset.card_image_of_injective _ VEquiv.injective]
@@ -361,25 +367,25 @@ lemma degree_B2 (j : Fin 5) : G.degree (B2 j) = 4 := by
   calc
     _ = 0 + 0 + 3 + 0 + 1 := by
       congr
-      . calc
+      · calc
           _ = Finset.card (∅ : Finset (Fin 2)) := by
             congr; ext; simp [-iff_false]
             simp_rw [←Equiv.eq_symm_apply VEquiv]
             simp [VEquiv, G, GAdj]
           _ = _ := by simp
-      . calc
+      · calc
           _ = Finset.card (∅: Finset (Fin 5)) := by
             congr; ext; simp [-iff_false]
             simp_rw [←Equiv.eq_symm_apply VEquiv]
             simp [VEquiv, G, GAdj]
           _ = _ := by simp
-      . calc
+      · calc
           _ = Finset.card (Finset.univ : Finset (Fin 3)) := by
             congr; ext; simp [-iff_false]
             simp_rw [←Equiv.eq_symm_apply VEquiv]
             simp [VEquiv, G, GAdj]
           _ = _ := by simp
-      . calc
+      · calc
           _ = Finset.card (∅: Finset (Fin 5)) := by
             congr; ext; simp [-iff_false]
             simp_rw [←Equiv.eq_symm_apply VEquiv]
@@ -411,7 +417,8 @@ theorem edge_count_44 : G.edgeSet.ncard = 44 := by
   have : ∀ i, G.degree (VEquiv.symm (.inl (.inl (.inr i)))) = G.degree (A2 i) := fun _ => rfl
   have : ∀ j, G.degree (VEquiv.symm (.inl (.inr j))) = G.degree (B2 j) := fun _ => rfl
   have : ∀ u, G.degree (VEquiv.symm (.inr u)) = G.degree apex := fun _ => rfl
-  simp_all [degree_A1, degree_B1, degree_A2, degree_B2, degree_apex]; omega
+  simp_all [degree_A1, degree_B1, degree_A2, degree_B2, degree_apex]
+  omega
 
 end PikhurkoN5
 -- 4. Show red neighbors of apex are ≥ 11 if no blue K_{1,5}
@@ -438,10 +445,12 @@ lemma fin2_eq_one_iff_ne_zero (a : Fin 2) : (a = 1) ↔ a ≠ 0 := by
 
 /-! # Red neighbors of the apex are ≥ 11 if there is no blue star `K_{1,5}` -/
 
+open Classical in
 /-- The set of blue neighbors of {name}`apex` in color class {lean (type := "Fin 2")}`0`. -/
 noncomputable def blueNeighbors (color : Sym2 V → Fin 2) : Finset V :=
   (G.neighborFinset apex).filter (fun v => color (s(apex, v)) = 0)
 
+open Classical in
 /-- The set of red neighbors of {name}`apex` in color class {lean (type := "Fin 2")}`1`. -/
 noncomputable def redNeighbors (color : Sym2 V → Fin 2) : Finset V :=
   (G.neighborFinset apex).filter (fun v => color (s(apex, v)) = 1)
@@ -501,7 +510,8 @@ lemma red_from_apex_at_least_11
       (G.neighborFinset apex).filter (fun v => ¬ (color (s(apex, v)) = 0))
       =
       redNeighbors color := by
-    ext v; by_cases hv : v ∈ G.neighborFinset apex
+    ext v
+    by_cases hv : v ∈ G.neighborFinset apex
     · -- On neighbors, “not blue” is “red”.
       simp [redNeighbors, hv, fin2_eq_one_iff_ne_zero]
     · simp [redNeighbors, hv]
@@ -509,9 +519,10 @@ lemma red_from_apex_at_least_11
   have hsum : (blueNeighbors color).card + (redNeighbors color).card
               = (G.neighborFinset apex).card := by
     convert Finset.card_sdiff_add_card_eq_card _
-    . simp only [←hred_is_notblue, blueNeighbors]
-      ext v; grind
-    . infer_instance
+    · simp only [←hred_is_notblue, blueNeighbors]
+      ext v
+      grind
+    · infer_instance
     simp [redNeighbors]
   have hdeg : (G.neighborFinset apex).card = 15 := by
     simp [degree_apex]
@@ -541,13 +552,17 @@ def inBlock1 : V → Prop
 | B1 _ => True
 | _    => False
 
+open Classical in
 noncomputable instance : DecidablePred inBlock1 := by
-  intro v; cases v <;> infer_instance
+  intro v
+  cases v <;> infer_instance
 
+open Classical in
 /-- Red neighbors of {name}`apex` that lie in the first block {name}`A1`/{name}`B1`. -/
 noncomputable def redBlock1 (color : Sym2 V → Fin 2) : Finset V :=
   (redNeighbors color).filter (fun v => inBlock1 v)
 
+open Classical in
 /-- Red neighbors of {name}`apex` that lie in the second block {name}`A2`/{name}`B2`.
 
 We implement this as the *complement* of {name}`inBlock1` inside {name}`redNeighbors`.
@@ -614,12 +629,30 @@ def isB2 : V → Prop
 def inBlock2 : V → Prop
 | A2 _ => True | B2 _ => True | _ => False
 
-noncomputable instance : DecidablePred isA1 := by intro v; cases v <;> infer_instance
-noncomputable instance : DecidablePred isB1 := by intro v; cases v <;> infer_instance
-noncomputable instance : DecidablePred isA2 := by intro v; cases v <;> infer_instance
-noncomputable instance : DecidablePred isB2 := by intro v; cases v <;> infer_instance
-noncomputable instance : DecidablePred inBlock1 := by intro v; cases v <;> infer_instance
-noncomputable instance : DecidablePred inBlock2 := by intro v; cases v <;> infer_instance
+open Classical in
+noncomputable instance : DecidablePred isA1 := by
+  intro v
+  cases v <;> infer_instance
+open Classical in
+noncomputable instance : DecidablePred isB1 := by
+  intro v
+  cases v <;> infer_instance
+open Classical in
+noncomputable instance : DecidablePred isA2 := by
+  intro v
+  cases v <;> infer_instance
+open Classical in
+noncomputable instance : DecidablePred isB2 := by
+  intro v
+  cases v <;> infer_instance
+open Classical in
+noncomputable instance : DecidablePred inBlock1 := by
+  intro v
+  cases v <;> infer_instance
+open Classical in
+noncomputable instance : DecidablePred inBlock2 := by
+  intro v
+  cases v <;> infer_instance
 
 @[simp] lemma inBlock1_iff (v : V) : inBlock1 v ↔ (isA1 v ∨ isB1 v) := by
   cases v <;> simp [inBlock1, isA1, isB1]
@@ -656,7 +689,8 @@ noncomputable def redBlock2B2 (color : Sym2 V → Fin 2) : Finset V :=
 lemma redBlock1_eq_union (color : Sym2 V → Fin 2) :
   redBlock1 color =
     redBlock1A1 color ∪ redBlock1B1 color := by
-  ext v; constructor
+  ext v
+  constructor
   · intro hv
     rcases Finset.mem_filter.1 hv with ⟨hRN, hB⟩
     have : isA1 v ∨ isB1 v := (inBlock1_iff v).1 hB
@@ -674,7 +708,8 @@ lemma redBlock1_eq_union (color : Sym2 V → Fin 2) :
 lemma redBlock2_eq_union (color : Sym2 V → Fin 2) :
   redBlock2 color =
     redBlock2A2 color ∪ redBlock2B2 color := by
-  ext v; constructor
+  ext v
+  constructor
   · intro hv
     rcases Finset.mem_filter.1 hv with ⟨hRN, hB⟩
     have : isA2 v ∨ isB2 v := by
@@ -966,7 +1001,8 @@ lemma triangle_or_blueStar_from_block1
       | A1 j =>
           -- `j ≠ i` because `y ≠ A1 i`
           have hij : j ≠ i := by
-            intro h; exact hy_ne (by simp [h])
+            intro h
+            exact hy_ne (by simp [h])
           -- use `adj_A1A1 : Adj (A1 i) (A1 j) ↔ i ≠ j`
           have : i ≠ j := by simpa [ne_comm] using hij
           simp [adj_A1A1, this]
@@ -987,7 +1023,8 @@ lemma triangle_or_blueStar_from_block1
     have hAllBlue : ∀ {y}, y ∈ T → color (s(A1 i, y)) = 0 := by
       intro y hy
       have h1 : color (s(A1 i, y)) ≠ 1 := by
-        intro contra; exact hTri ⟨y, hy, contra⟩
+        intro contra
+        exact hTri ⟨y, hy, contra⟩
       -- In `Fin 2`, being not `1` is being `0`.
       -- (If you prefer, keep and reuse your earlier lemma `fin2_eq_one_iff_ne_zero`.)
       have : color (s(A1 i, y)) = 0 ∨ color (s(A1 i, y)) = 1 := by
@@ -1008,7 +1045,9 @@ lemma triangle_or_blueStar_from_block1
       -- same case split as above
       cases y with
       | A1 j =>
-          have hij : j ≠ i := by intro h; exact hy_ne (by simp [h])
+          have hij : j ≠ i := by
+            intro h
+            exact hy_ne (by simp [h])
           have : i ≠ j := by simpa [ne_comm] using hij
           simp [adj_A1A1, this]
       | B1 _  => simp [adj_A1B1]
@@ -1051,7 +1090,9 @@ lemma triangle_or_blueStar_from_block2
     have hyAdjA2Y : G.Adj (A2 i) y := by
       cases y with
       | A2 j =>
-          have hij : j ≠ i := by intro h; exact hy_ne (by simp [h])
+          have hij : j ≠ i := by
+            intro h
+            exact hy_ne (by simp [h])
           have : i ≠ j := by simpa [ne_comm] using hij
           simp [adj_A2A2, this]
       | B2 _  => simp [adj_A2B2]
@@ -1066,11 +1107,11 @@ lemma triangle_or_blueStar_from_block2
     · simpa using hRedApexA2
     · exact hyRedA2y
     · simpa using hyRedApexY
-  ·
-    have hAllBlue : ∀ {y}, y ∈ T → color (s(A2 i, y)) = 0 := by
+  · have hAllBlue : ∀ {y}, y ∈ T → color (s(A2 i, y)) = 0 := by
       intro y hy
       have h1 : color (s(A2 i, y)) ≠ 1 := by
-        intro contra; exact hTri ⟨y, hy, contra⟩
+        intro contra
+        exact hTri ⟨y, hy, contra⟩
       have : color (s(A2 i, y)) = 0 ∨ color (s(A2 i, y)) = 1 := by grind
       exact this.resolve_right h1
     have hnotin : A2 i ∉ T := by
@@ -1085,7 +1126,9 @@ lemma triangle_or_blueStar_from_block2
       rcases Finset.mem_filter.1 hy_in with ⟨_, hy_block2⟩
       cases y with
       | A2 j =>
-          have hij : j ≠ i := by intro h; exact hy_ne (by simp [h])
+          have hij : j ≠ i := by
+            intro h
+            exact hy_ne (by simp [h])
           have : i ≠ j := by simpa [ne_comm] using hij
           simp [adj_A2A2, this]
       | B2 _  => simp [adj_A2B2]
@@ -1130,14 +1173,16 @@ namespace PikhurkoN5
 theorem main : Pikhurko_n5_statement := by
   use V, G
   split_ands
-  . exact edge_count_44
+  · exact edge_count_44
   intro color
   have := red_triangle_of_no_blue_star color
   grind
 
-#print axioms main
--- 'Erdos613.PikhurkoN5.main' depends on axioms: [propext, choice, Quot.sound]
-
 end PikhurkoN5
 
 end Erdos613
+
+open Erdos613.PikhurkoN5
+
+#print axioms main
+-- 'Erdos613.PikhurkoN5.main' depends on axioms: [propext, choice, Quot.sound]
