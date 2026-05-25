@@ -126,10 +126,10 @@ lemma equicont_sets_cover (φ : ℝ → ℝ → ℝ)
       lt_of_le_of_lt h <| inv_lt_of_inv_lt₀ hδ_pos <| by
         linarith [Nat.le_ceil (δ⁻¹)]⟩
 
--- The Baire-category continuity argument needs a larger heartbeat budget.
 set_option maxHeartbeats 800000 in
--- The nested Baire proof uses generated context simplification with dependent set goals.
+-- The Baire-category continuity argument needs a larger heartbeat budget.
 set_option linter.flexible false in
+-- The nested Baire proof uses generated context simplification with dependent set goals.
 /-- From equicontinuity on a set with nonempty interior, derive
 the existence of a joint continuity point. -/
 lemma joint_continuity_from_equicont (φ : ℝ → ℝ → ℝ)
@@ -142,12 +142,12 @@ lemma joint_continuity_from_equicont (φ : ℝ → ℝ → ℝ)
     ∃ p : ℝ × ℝ, ContinuousAt (Function.uncurry φ) p := by
   by_contra h_contra
   push Not at h_contra
-  generalize_proofs at *;
+  generalize_proofs at *
   obtain ⟨x₀, hx₀⟩ :
       ∃ x₀, x₀ ∈ interior {x : ℝ | ∀ q q' : ℚ,
         (q : ℝ) ∈ Icc (-1) 1 → (q' : ℝ) ∈ Icc (-1) 1 →
         |(q : ℝ) - q'| ≤ 1 / (m + 1) → |φ x q - φ x q'| ≤ 1} := by
-    use a;
+    use a
   obtain ⟨r, hr⟩ :
       ∃ r > 0, ∀ x, abs (x - x₀) < r → ∀ q q' : ℚ,
         (q : ℝ) ∈ Icc (-1) 1 → (q' : ℝ) ∈ Icc (-1) 1 →
@@ -191,9 +191,9 @@ lemma joint_continuity_from_equicont (φ : ℝ → ℝ → ℝ)
             rcases Metric.uniformContinuousOn_iff.mp h_eq_cont_at_x ε ε_pos with
               ⟨δ, δ_pos, hδ⟩
             exact ⟨δ, δ_pos, fun h h' hh₁ hh₂ hh₃ hh₄ hh₅ =>
-              hδ h ⟨hh₁, hh₂⟩ h' ⟨hh₃, hh₄⟩ hh₅⟩;)
+              hδ h ⟨hh₁, hh₂⟩ h' ⟨hh₃, hh₄⟩ hh₅⟩)
         generalize_proofs at *; (
-        obtain ⟨ δ, hδ_pos, hδ ⟩ := h_eq_cont_at_x ( ( k + 1 : ℝ ) ⁻¹ ) ( by positivity );
+        obtain ⟨ δ, hδ_pos, hδ ⟩ := h_eq_cont_at_x ( ( k + 1 : ℝ ) ⁻¹ ) ( by positivity )
         exact ⟨⌈δ⁻¹⌉₊, fun q q' hq hq' hq'' hq''' hq'''' =>
           le_of_lt <| hδ q q' (mod_cast hq) (mod_cast hq')
             (mod_cast hq'') (mod_cast hq''') <|
@@ -207,7 +207,7 @@ lemma joint_continuity_from_equicont (φ : ℝ → ℝ → ℝ)
             |(q : ℝ) - q'| ≤ 1 / (m + 1) →
             |φ x q - φ x q'| ≤ 1 / (k + 1)} := by
         intro m
-        simp [Set.setOf_forall];
+        simp [Set.setOf_forall]
         refine isClosed_iInter fun q => isClosed_iInter fun q' => isClosed_iInter fun hq =>
           isClosed_iInter fun hq' => isClosed_iInter fun hq'' => isClosed_iInter fun hq''' =>
           isClosed_iInter fun hq'''' => isClosed_le ?_ ?_ <;> continuity
@@ -224,7 +224,7 @@ lemma joint_continuity_from_equicont (φ : ℝ → ℝ → ℝ)
     generalize_proofs at *; (
     have := h_baire.exists_mem_open Metric.isOpen_ball
       ⟨x₀, Metric.mem_ball_self hr.1⟩
-    aesop;))
+    aesop))
   generalize_proofs at *; (
   obtain ⟨ hx₁₁, hx₁₂ ⟩ := hx₁
   specialize h_contra (x₁, 0)
@@ -280,7 +280,7 @@ lemma joint_continuity_from_equicont (φ : ℝ → ℝ → ℝ)
               (show h - Min.min ε ((m + 1 : ℝ)⁻¹ - |h|) < h by
                 linarith [lt_min hε (sub_pos.mpr hh₂)]) |>
             fun ⟨q, hq₁, hq₂⟩ =>
-              ⟨q, abs_lt.mpr ⟨by linarith, by linarith⟩⟩;
+              ⟨q, abs_lt.mpr ⟨by linarith, by linarith⟩⟩
         generalize_proofs at *; (
         exact
           ⟨q, lt_of_lt_of_le hq (min_le_left _ _), by
@@ -317,8 +317,8 @@ lemma joint_continuity_from_equicont (φ : ℝ → ℝ → ℝ)
             [inv_mul_cancel₀ (by linarith : (k : ℝ) + 1 + 1 ≠ 0),
               inv_mul_cancel₀ (by linarith : (k : ℝ) + 1 ≠ 0)]))))))))
   generalize_proofs at *; (
-  refine h_contra ?_;
-  rw [ Metric.tendsto_nhds_nhds ] at *;
+  refine h_contra ?_
+  rw [ Metric.tendsto_nhds_nhds ] at *
   intro ε hε
   rcases h_eq_cont (ε / 2) (half_pos hε) with ⟨δ, hδ, H⟩
   rcases Metric.continuous_iff.mp (hx 0) x₁ (ε / 2) (half_pos hε) with
@@ -330,7 +330,7 @@ lemma joint_continuity_from_equicont (φ : ℝ → ℝ → ℝ)
       ⟨by
         linarith [abs_lt.mp (H a ha b hb), abs_lt.mp (H' a ha')],
        by
-        linarith [abs_lt.mp (H a ha b hb), abs_lt.mp (H' a ha')]⟩;))))
+        linarith [abs_lt.mp (H a ha b hb), abs_lt.mp (H' a ha')]⟩))))
 
 /-- **Baire category theorem for separate continuity.** Every separately
 continuous `φ : ℝ → ℝ → ℝ` has at least one point of joint continuity. -/
@@ -359,7 +359,7 @@ lemma cauchyDiff_continuousAt_everywhere (f : ℝ → ℝ)
           cauchyDiff f (x₀ + (x - u)) (h₀ + (y - v)) +
             (f (x + y) - f (x₀ + h₀ + (x - u) + (y - v))) +
             (f (x₀ + (x - u)) - f x) + (f (h₀ + (y - v)) - f y) := by
-    grind +locals;
+    grind +locals
   intro q
   obtain ⟨u, v⟩ := q
   have h_cont_at :
@@ -369,35 +369,42 @@ lemma cauchyDiff_continuousAt_everywhere (f : ℝ → ℝ)
             (f (x + y) - f (p.1 + p.2 + (x - u) + (y - v))) +
             (f (p.1 + (x - u)) - f x) + (f (p.2 + (y - v)) - f y))
         (u, v) := by
-    refine ContinuousAt.add (ContinuousAt.add (ContinuousAt.add ?_ ?_) ?_) ?_;
+    refine ContinuousAt.add (ContinuousAt.add (ContinuousAt.add ?_ ?_) ?_) ?_
     · convert hp.tendsto.comp
         (show
           Filter.Tendsto
             (fun x : ℝ × ℝ => (p.1 + (x.1 - u), p.2 + (x.2 - v)))
             (nhds (u, v)) (nhds p) from
           Continuous.tendsto' (by continuity) _ _ <| by
-            simp +decide) using 1;
-      norm_num [ ContinuousAt ];
-      rfl;
+            simp +decide) using 1
+      norm_num [ ContinuousAt ]
+      rfl
     · have h_cont_at : ContinuousAt (fun x => f x - f (x + (p.1 + p.2 - u - v))) (u + v) := by
         have h_cont_at : ContinuousAt (fun x => f (x + (p.1 + p.2 - u - v)) - f x) (u + v) := by
-          exact hf _ |> Continuous.continuousAt;
-        simpa using h_cont_at.neg;
+          exact hf _ |> Continuous.continuousAt
+        simpa using h_cont_at.neg
       convert h_cont_at.tendsto.comp
         (show Filter.Tendsto (fun x : ℝ × ℝ => x.1 + x.2)
           (nhds (u, v)) (nhds (u + v)) from
           Continuous.tendsto' (by continuity) _ _ (by norm_num)) using 2
-      ring_nf;
-      norm_num [ ContinuousAt, Function.comp ] ; ring_nf;
-      exact iff_of_eq ( by congr; ext; rw [ Function.comp_apply ] ; ring_nf );
-    · have := hf ( p.1 - u );
-      convert this.continuousAt.comp ( continuousAt_fst ) using 2 ; ring_nf;
-      rw [ Function.comp_apply ] ; ring_nf;
+      ring_nf
+      norm_num [ ContinuousAt, Function.comp ]
+      ring_nf
+      exact iff_of_eq (by
+        congr
+        ext
+        rw [ Function.comp_apply ]
+        ring_nf)
+    · have := hf ( p.1 - u )
+      convert this.continuousAt.comp ( continuousAt_fst ) using 2
+      all_goals ring_nf
+      rw [ Function.comp_apply ]
+      ring_nf
     · convert
         (hf (p.2 - v) |> Continuous.continuousAt |> ContinuousAt.comp <|
-          continuousAt_snd) using 1;
-      grind +splitImp;
-  convert h_cont_at using 1;
+          continuousAt_snd) using 1
+      grind +splitImp
+  convert h_cont_at using 1
   exact funext fun x => h_identity u v p.1 p.2 x.1 x.2
 
 /-- `cauchyDiff f` is jointly continuous whenever `f` has continuous
@@ -433,20 +440,21 @@ lemma buildG_satisfies (c : ℝ → ℝ) (x : ℝ) :
   have hx_fract : Int.fract (x + 1) = Int.fract x := by
     norm_num [ Int.fract_eq_fract ]
   have hx_eq : x = ⌊x⌋ + Int.fract x := by
-    rw [ Int.floor_add_fract ];
-  unfold buildG;
-  rcases n : ⌊x⌋ with ( _ | n ) <;> simp +decide [ n, hx, hx_fract ] at hx_eq ⊢;
-  · rw [ Finset.sum_range_succ ] ; norm_num [ n ] at * ; rw [ hx_eq ] ; ring_nf;
-    grind +qlia;
-  · norm_num [ Finset.sum_range_succ', Int.negSucc_eq ];
-    split_ifs <;> ring_nf at *;
-    · subst_vars; norm_num at *;
-      rw [ ← hx_eq ];
+    rw [ Int.floor_add_fract ]
+  unfold buildG
+  rcases n : ⌊x⌋ with ( _ | n ) <;> simp +decide [ n, hx, hx_fract ] at hx_eq ⊢
+  · rw [ Finset.sum_range_succ ]
+    norm_num [ n ] at *
+    rw [ hx_eq ]
+    ring_nf
+    grind +qlia
+  · norm_num [ Finset.sum_range_succ', Int.negSucc_eq ]
+    split_ifs <;> ring_nf at *
+    · subst_vars
+      norm_num at *
+      rw [ ← hx_eq ]
     · exact congr_arg _ ( by linarith )
 
--- The interval induction proof has generated simplification and a nontrivial `convert` step.
-set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 /-- `buildG c` is continuous whenever `c` is continuous. -/
 lemma buildG_continuous (c : ℝ → ℝ) (hc : Continuous c) :
     Continuous (buildG c) := by
@@ -469,8 +477,10 @@ lemma buildG_continuous (c : ℝ → ℝ) (hc : Continuous c) :
         exact ContinuousOn.add (ih.comp (continuousOn_id.sub continuousOn_const) fun x hx =>
           ⟨by norm_num at *; linarith, by norm_num at *; linarith⟩)
           (hc.comp_continuousOn (continuousOn_id.sub continuousOn_const))
-      convert h_cont_succ using 1 ; norm_num [← h_buildG_succ] ; ring_nf
-      norm_num ; ring_nf
+      convert h_cont_succ using 1
+      · norm_num [← h_buildG_succ]
+      · norm_num
+        ring_nf
     | pred k hk =>
       have h_buildG_succ : ∀ x : ℝ, buildG c (x + 1) = buildG c x + c x := by
         exact fun x => eq_add_of_sub_eq' (buildG_satisfies c x)
@@ -480,39 +490,40 @@ lemma buildG_continuous (c : ℝ → ℝ) (hc : Continuous c) :
         exact ContinuousOn.sub (hk.comp (continuousOn_id.add continuousOn_const) fun x hx =>
           ⟨by norm_num; linarith [hx.1, hx.2], by norm_num; linarith [hx.1, hx.2]⟩)
           (hc.continuousOn)
-      aesop
-  refine continuous_iff_continuousAt.2 fun x => ?_;
-  by_cases hx : ∃ n : ℤ, x = n;
-  · obtain ⟨ n, rfl ⟩ := hx;
+      simp_all only [Int.cast_neg, Int.cast_natCast, add_sub_cancel_right, Int.cast_sub,
+        Int.cast_one, sub_add_cancel]
+  refine continuous_iff_continuousAt.2 fun x => ?_
+  by_cases hx : ∃ n : ℤ, x = n
+  · obtain ⟨ n, rfl ⟩ := hx
     have h_cont_at_int :
         Filter.Tendsto (buildG c) (nhdsWithin (n : ℝ) (Set.Iio n))
             (nhds (buildG c n)) ∧
           Filter.Tendsto (buildG c) (nhdsWithin (n : ℝ) (Set.Ioi n))
             (nhds (buildG c n)) := by
-      constructor;
+      constructor
       · have h_cont_at_int :
             Filter.Tendsto (buildG c) (nhdsWithin (n : ℝ) (Set.Ioo (n - 1) n))
               (nhds (buildG c n)) := by
           have h_cont_at_int : ContinuousOn (buildG c) (Set.Icc (n - 1 : ℝ) n) := by
-            convert h_cont_on_intervals ( n - 1 ) using 1 ; norm_num;
-          have := h_cont_at_int n ( by norm_num );
-          exact this.mono_left ( nhdsWithin_mono _ <| Set.Ioo_subset_Icc_self );
-        simp +zetaDelta at *;
-        convert h_cont_at_int using 1;
-      · have := h_cont_on_intervals n;
+            convert h_cont_on_intervals ( n - 1 ) using 1
+            norm_num
+          have := h_cont_at_int n ( by norm_num )
+          exact this.mono_left ( nhdsWithin_mono _ <| Set.Ioo_subset_Icc_self )
+        simpa +zetaDelta using h_cont_at_int
+      · have := h_cont_on_intervals n
         have := this.continuousWithinAt
-          (show (n : ℝ) ∈ Set.Icc (n : ℝ) (n + 1) by norm_num);
-        convert this.mono_left _ using 2;
-        norm_num [ nhdsWithin, Filter.mem_inf_principal ];
+          (show (n : ℝ) ∈ Set.Icc (n : ℝ) (n + 1) by norm_num)
+        convert this.mono_left _ using 2
+        norm_num [ nhdsWithin, Filter.mem_inf_principal ]
         exact
           Filter.eventually_of_mem
             (Iio_mem_nhds (show (n : ℝ) < n + 1 by norm_num)) fun x hx =>
-            fun hx' => ⟨le_of_lt hx', le_of_lt hx⟩;
-    exact continuousAt_iff_continuous_left'_right'.mpr ⟨ h_cont_at_int.1, h_cont_at_int.2 ⟩;
+            fun hx' => ⟨le_of_lt hx', le_of_lt hx⟩
+    exact continuousAt_iff_continuous_left'_right'.mpr ⟨ h_cont_at_int.1, h_cont_at_int.2 ⟩
   · obtain ⟨n, hn⟩ : ∃ n : ℤ, (n : ℝ) < x ∧ x < (n + 1 : ℝ) := by
       exact
         ⟨⌊x⌋, lt_of_le_of_ne (Int.floor_le x) fun h => hx ⟨_, h.symm⟩,
-          Int.lt_floor_add_one x⟩;
+          Int.lt_floor_add_one x⟩
     exact h_cont_on_intervals n |> ContinuousOn.continuousAt <| Icc_mem_nhds hn.1 hn.2
 
 /-- Any function with continuous differences can be written as `G + F`
@@ -551,21 +562,26 @@ lemma hyers_ulam (f : ℝ → ℝ) (_hf0 : f 0 = 0) (M : ℝ) (hM : 0 ≤ M)
     have h_cauchy_seq_step :
         ∀ n, abs (f (2 ^ (n + 1) * x) / 2 ^ (n + 1) -
           f (2 ^ n * x) / 2 ^ n) ≤ M / 2 ^ (n + 1) := by
-      intro n; specialize hf ( 2 ^ n * x ) ( 2 ^ n * x ) ; ring_nf at *; norm_num at *;
+      intro n
+      specialize hf ( 2 ^ n * x ) ( 2 ^ n * x )
+      ring_nf at *
+      norm_num at *
       exact abs_le.mpr
         ⟨by
           nlinarith [abs_le.mp hf,
             pow_pos (by norm_num : (0 : ℝ) < 1 / 2) n],
          by
           nlinarith [abs_le.mp hf,
-            pow_pos (by norm_num : (0 : ℝ) < 1 / 2) n]⟩;
-    fapply cauchySeq_of_le_geometric;
+            pow_pos (by norm_num : (0 : ℝ) < 1 / 2) n]⟩
+    fapply cauchySeq_of_le_geometric
     exacts
       [1 / 2, M / 2, by norm_num, fun n => by
         rw [dist_comm]
-        exact le_trans (h_cauchy_seq_step n) (by ring_nf; norm_num)];
-  choose H hH using fun x => cauchySeq_tendsto_of_complete ( h_cauchy_seq x );
-  refine ⟨H, ?_, ?_⟩;
+        exact le_trans (h_cauchy_seq_step n) (by
+          ring_nf
+          norm_num)]
+  choose H hH using fun x => cauchySeq_tendsto_of_complete ( h_cauchy_seq x )
+  refine ⟨H, ?_, ?_⟩
   · intros x y
     have h_lim :
         Filter.Tendsto
@@ -586,7 +602,7 @@ lemma hyers_ulam (f : ℝ → ℝ) (_hf0 : f 0 = 0) (M : ℝ) (hM : 0 ≤ M)
       tendsto_nhds_unique (hH (x + y))
         (by
           simpa [sub_div] using
-            h_lim.add (hH x |> Filter.Tendsto.add <| hH y));
+            h_lim.add (hH x |> Filter.Tendsto.add <| hH y))
   · intro x
     have h_abs : ∀ n, |f x - f (2 ^ n * x) / 2 ^ n| ≤ M * (1 - 1 / 2 ^ n) := by
       intro n
@@ -596,15 +612,16 @@ lemma hyers_ulam (f : ℝ → ℝ) (_hf0 : f 0 = 0) (M : ℝ) (hM : 0 ≤ M)
         | zero => simp
         | succ k ih =>
           simp_all +decide [pow_succ', mul_assoc]; ring_nf at *
-          have := hf (x * 2 ^ k) (x * 2 ^ k); ring_nf at *
+          have := hf (x * 2 ^ k) (x * 2 ^ k)
+          ring_nf at *
           exact abs_le.mpr ⟨by linarith [abs_le.mp ih, abs_le.mp this],
             by linarith [abs_le.mp ih, abs_le.mp this]⟩
-      rw [ abs_le ];
+      rw [ abs_le ]
       constructor <;>
         nlinarith [abs_le.mp (h_abs_step n), show (0 : ℝ) < 2 ^ n by positivity,
           div_mul_cancel₀ (f (2 ^ n * x)) (show (2 ^ n : ℝ) ≠ 0 by positivity),
           one_div_mul_cancel (show (2 ^ n : ℝ) ≠ 0 by positivity),
-          pow_pos (zero_lt_two' ℝ) n];
+          pow_pos (zero_lt_two' ℝ) n]
     exact
       le_of_tendsto'
         (Filter.Tendsto.abs (tendsto_const_nhds.sub (hH x))) fun n =>
@@ -613,8 +630,6 @@ lemma hyers_ulam (f : ℝ → ℝ) (_hf0 : f 0 = 0) (M : ℝ) (hM : 0 ≤ M)
 
 /-! ## Step 6: Bounded periodic functions with continuous differences are continuous -/
 
--- The boundedness argument uses context simplification after specializing telescope estimates.
-set_option linter.flexible false in
 /-- A bounded periodic function with continuous differences is
 continuous. Uses a telescoping identity + uniform Cauchy difference
 bounds to prove continuity at 0, then propagates everywhere. -/
@@ -644,11 +659,15 @@ lemma bounded_continuous_differences_implies_continuous (f : ℝ → ℝ)
             |cauchyDiff f (k * h) h| ≤
               sSup (Set.image (fun x => |cauchyDiff f x h|) (Set.Icc 0 1)) := by
           have h_periodic : cauchyDiff f (k * h) h = cauchyDiff f (k * h - ⌊k * h⌋) h := by
-            unfold cauchyDiff;
+            unfold cauchyDiff
             induction ⌊(k : ℝ) * h⌋ using Int.induction_on with
             | zero => simp_all +decide [PeriodicMod1]
-            | succ n ihn => simp_all +decide [PeriodicMod1]; grind
-            | pred n ihn => simp_all +decide [PeriodicMod1]; grind
+            | succ n ihn =>
+              simp_all +decide [PeriodicMod1]
+              grind
+            | pred n ihn =>
+              simp_all +decide [PeriodicMod1]
+              grind
           exact h_periodic.symm ▸
             le_csSup
               (by
@@ -659,24 +678,26 @@ lemma bounded_continuous_differences_implies_continuous (f : ℝ → ℝ)
                         continuous_abs.comp
                           (hcont.comp (continuous_id.prodMk continuous_const)))))
               (Set.mem_image_of_mem _
-                ⟨Int.fract_nonneg _, Int.fract_lt_one _ |> le_of_lt⟩);
-        convert h_cauchy_diff using 1 ; unfold cauchyDiff ; ring_nf;
+                ⟨Int.fract_nonneg _, Int.fract_lt_one _ |> le_of_lt⟩)
+        convert h_cauchy_diff using 1
+        unfold cauchyDiff
+        ring_nf
       induction hn_pos <;>
         simp_all +decide only [Nat.succ_eq_add_one, zero_add, Nat.cast_one, one_mul,
-          sub_self, abs_zero, ge_iff_le, Nat.cast_add];
-      · exact le_trans ( abs_nonneg _ ) ( h_telescope 0 );
+          sub_self, abs_zero, ge_iff_le, Nat.cast_add]
+      · exact le_trans ( abs_nonneg _ ) ( h_telescope 0 )
       · exact abs_le.mpr
           ⟨by
             linarith [abs_le.mp ‹_›, abs_le.mp (h_telescope ‹_›)],
            by
-            linarith [abs_le.mp ‹_›, abs_le.mp (h_telescope ‹_›)]⟩;
+            linarith [abs_le.mp ‹_›, abs_le.mp (h_telescope ‹_›)]⟩
     exact abs_le.mpr
       ⟨by
         linarith [abs_le.mp h_telescope, abs_le.mp (hbdd.choose_spec (n * h)),
           abs_le.mp (hbdd.choose_spec 0)],
        by
         linarith [abs_le.mp h_telescope, abs_le.mp (hbdd.choose_spec (n * h)),
-          abs_le.mp (hbdd.choose_spec 0)]⟩;
+          abs_le.mp (hbdd.choose_spec 0)]⟩
   have h_unif_bound : ∀ ε > 0, ∃ δ > 0, ∀ x h, |h| < δ → |cauchyDiff f x h| < ε := by
     intro ε hε_pos
     obtain ⟨δ, hδ_pos, hδ⟩ : ∃ δ > 0, ∀ x h, |h| < δ → |cauchyDiff f (x - ⌊x⌋) h| < ε := by
@@ -689,9 +710,11 @@ lemma bounded_continuous_differences_implies_continuous (f : ℝ → ℝ)
               (Set.Icc 0 1 ×ˢ Set.Icc (-1) 1) := by
           exact
             (isCompact_Icc.prod CompactIccSpace.isCompact_Icc).uniformContinuousOn_of_continuous
-              hcont.continuousOn;
-        have := Metric.uniformContinuousOn_iff.mp h_unif_bound ε hε_pos;
-        obtain ⟨ δ, hδ_pos, H ⟩ := this; use Min.min δ 1; norm_num [ hδ_pos ];
+              hcont.continuousOn
+        have := Metric.uniformContinuousOn_iff.mp h_unif_bound ε hε_pos
+        obtain ⟨ δ, hδ_pos, H ⟩ := this
+        use Min.min δ 1
+        norm_num [ hδ_pos ]
         intro x h hx₁ hx₂ hx₃ hx₄
         specialize H (x, h)
           ⟨⟨hx₃, hx₄⟩,
@@ -700,45 +723,50 @@ lemma bounded_continuous_differences_implies_continuous (f : ℝ → ℝ)
           ⟨⟨hx₃, hx₄⟩,
             ⟨by linarith [abs_lt.mp hx₂], by linarith [abs_lt.mp hx₂]⟩⟩
         simp_all +decide [Prod.dist_eq]
-        simp_all +decide [ cauchyDiff ];
+        simp_all +decide [ cauchyDiff ]
       exact Exists.elim (h_unif_bound ε hε_pos) fun δ hδ =>
         ⟨δ, hδ.1, fun x h hh =>
-          hδ.2 _ _ hh ⟨Int.fract_nonneg _, Int.fract_lt_one _ |> le_of_lt⟩⟩;
-    use δ, hδ_pos;
-    intro x h hh; convert hδ x h hh using 1; unfold cauchyDiff; ring_nf;
+          hδ.2 _ _ hh ⟨Int.fract_nonneg _, Int.fract_lt_one _ |> le_of_lt⟩⟩
+    use δ, hδ_pos
+    intro x h hh
+    convert hδ x h hh using 1
+    unfold cauchyDiff
+    ring_nf
     rw [show f (x + h) = f (x + (h - ⌊x⌋)) by
           exact Function.Periodic.int_mul hperiodic ⌊x⌋ (x + (h - ⌊x⌋)) ▸ by
             ring_nf,
         show f x = f (x - ⌊x⌋) by
           exact Function.Periodic.int_mul hperiodic ⌊x⌋ (x - ⌊x⌋) ▸ by
             ring_nf]
-    ring_nf;
+    ring_nf
   have h_cont_at_zero : ContinuousAt f 0 := by
     have h_cont_at_zero_aux : ∀ ε > 0, ∃ δ > 0, ∀ h, |h| < δ → |f h - f 0| < ε := by
       intros ε hε_pos
       obtain ⟨δ, hδ_pos, hδ⟩ :
           ∃ δ > 0, ∀ x h, |h| < δ → |cauchyDiff f x h| < ε / 2 :=
-        h_unif_bound (ε / 2) (half_pos hε_pos);
+        h_unif_bound (ε / 2) (half_pos hε_pos)
       obtain ⟨n, hn_pos, hn⟩ : ∃ n : ℕ, 0 < n ∧ 2 * hbdd.choose / (n : ℝ) < ε / 2 := by
         exact
           ⟨⌊2 * hbdd.choose / (ε / 2)⌋₊ + 1, Nat.succ_pos _, by
             rw [div_lt_iff₀] <;>
             push_cast <;>
             nlinarith [Nat.lt_floor_add_one (2 * hbdd.choose / (ε / 2)),
-              mul_div_cancel₀ (2 * hbdd.choose) (ne_of_gt (half_pos hε_pos))]⟩;
+              mul_div_cancel₀ (2 * hbdd.choose) (ne_of_gt (half_pos hε_pos))]⟩
       refine ⟨δ, hδ_pos, fun h hh => ?_⟩
       specialize h_telescope n h hn_pos
-      simp_all +decide [abs_mul];
+      simp_all +decide only [abs_mul]
+      rw [abs_of_nonneg (Nat.cast_nonneg n : (0 : ℝ) ≤ (n : ℝ))] at h_telescope
       have h_sSup : sSup ((fun x => |cauchyDiff f x h|) '' Icc 0 1) ≤ ε / 2 := by
         exact
           csSup_le (Set.Nonempty.image _ <| Set.nonempty_Icc.mpr zero_le_one) <|
-            Set.forall_mem_image.mpr fun x hx => le_of_lt <| hδ x h hh;
-      rw [ div_lt_iff₀ ] at hn <;> nlinarith [ show ( n : ℝ ) ≥ 1 by norm_cast ];
-    exact Metric.continuousAt_iff.2 fun ε hε => by simpa using h_cont_at_zero_aux ε hε;
-  rw [ continuous_iff_continuousAt ];
-  intro x;
-  have := hf x;
-  have := this.tendsto 0; simp_all +decide only [ContinuousAt];
+            Set.forall_mem_image.mpr fun x hx => le_of_lt <| hδ x h hh
+      rw [ div_lt_iff₀ ] at hn <;> nlinarith [ show ( n : ℝ ) ≥ 1 by norm_cast ]
+    exact Metric.continuousAt_iff.2 fun ε hε => by simpa using h_cont_at_zero_aux ε hε
+  rw [ continuous_iff_continuousAt ]
+  intro x
+  have := hf x
+  have := this.tendsto 0
+  simp_all +decide only [ContinuousAt]
   convert
       (this.comp
           (show Filter.Tendsto (fun y => y - x) (nhds x) (nhds 0) by
@@ -759,15 +787,17 @@ lemma cauchyDiff_periodic_bounded (f : ℝ → ℝ)
     (hcont : Continuous (Function.uncurry (cauchyDiff f))) :
     ∃ M : ℝ, 0 ≤ M ∧ ∀ x h, |cauchyDiff f x h| ≤ M := by
   have h_periodic : ∀ x h : ℝ, cauchyDiff f x h = cauchyDiff f (x - ⌊x⌋) (h - ⌊h⌋) := by
-    intros x h; unfold cauchyDiff; simp +decide only [Int.self_sub_floor, add_left_inj];
+    intros x h
+    unfold cauchyDiff
+    simp +decide only [Int.self_sub_floor, add_left_inj]
     have h_periodic_simp : ∀ x : ℝ, f x = f (Int.fract x) := by
-      exact fun x => by simpa using Function.Periodic.int_mul hperiodic ⌊x⌋ ( Int.fract x ) ;
-    rw [ h_periodic_simp ( x + h ), h_periodic_simp x, h_periodic_simp h ];
-    rw [ h_periodic_simp ( Int.fract x + Int.fract h ) ];
+      exact fun x => by simpa using Function.Periodic.int_mul hperiodic ⌊x⌋ ( Int.fract x )
+    rw [ h_periodic_simp ( x + h ), h_periodic_simp x, h_periodic_simp h ]
+    rw [ h_periodic_simp ( Int.fract x + Int.fract h ) ]
     rw [← Int.fract_add_intCast (Int.fract x + Int.fract h) ⌊x⌋]
-    norm_num [add_assoc, Int.fract_add];
-    rw [ ← add_assoc, Int.fract_eq_fract.mpr ];
-    exact ⟨ ⌊h⌋, by linarith [ Int.fract_add_floor x, Int.fract_add_floor h ] ⟩;
+    norm_num [add_assoc, Int.fract_add]
+    rw [ ← add_assoc, Int.fract_eq_fract.mpr ]
+    exact ⟨ ⌊h⌋, by linarith [ Int.fract_add_floor x, Int.fract_add_floor h ] ⟩
   obtain ⟨M, hM⟩ : ∃ M : ℝ, ∀ x h : ℝ, 0 ≤ x → x ≤ 1 → 0 ≤ h → h ≤ 1 → |cauchyDiff f x h| ≤ M := by
     exact
       IsCompact.exists_bound_of_continuousOn
@@ -775,7 +805,7 @@ lemma cauchyDiff_periodic_bounded (f : ℝ → ℝ)
         hcont.continuousOn |>
       fun ⟨M, hM⟩ =>
         ⟨M, fun x h hx₁ hx₂ hy₁ hy₂ =>
-          hM (x, h) ⟨⟨hx₁, hx₂⟩, ⟨hy₁, hy₂⟩⟩⟩;
+          hM (x, h) ⟨⟨hx₁, hx₂⟩, ⟨hy₁, hy₂⟩⟩⟩
   exact
     ⟨Max.max M 0, by positivity, fun x h =>
       le_trans
@@ -894,7 +924,7 @@ theorem erdos907 (f : ℝ → ℝ)
     ∃ g H : ℝ → ℝ, Continuous g ∧ IsAdditiveFn H ∧ ∀ x, f x = g x + H x :=
   erdos907_of_all_h f <| hasContinuousDifferences_of_pos f hf
 
-#print axioms erdos907
--- 'Erdos907.erdos907' depends on axioms: [propext, Classical.choice, Quot.sound]
-
 end Erdos907
+
+#print axioms Erdos907.erdos907
+-- 'Erdos907.erdos907' depends on axioms: [propext, Classical.choice, Quot.sound]
