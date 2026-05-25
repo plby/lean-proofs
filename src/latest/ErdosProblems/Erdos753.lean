@@ -60,8 +60,6 @@ The construction uses the **complete equipartite graph** `K_{m×r}` (the complet
 - `erdos_753`: the answer to Erdős Problem 753 is **NO**
 -/
 
-noncomputable section
-
 open Real Finset
 
 /-! ### Definition of List Chromatic Number -/
@@ -83,7 +81,7 @@ def IsKChoosable {V : Type*} (G : SimpleGraph V) (k : ℕ) : Prop :=
 
 /-- The **list chromatic number** (choice number) of a graph `G` is the minimum `k`
 such that `G` is k-choosable. -/
-def listChromaticNumber {V : Type*} (G : SimpleGraph V) : ℕ :=
+noncomputable def listChromaticNumber {V : Type*} (G : SimpleGraph V) : ℕ :=
   sInf {k : ℕ | IsKChoosable G k}
 
 /-! ### Basic Properties of Choosability -/
@@ -256,8 +254,6 @@ The probabilistic method / counting argument. For large enough lists,
 a partition function exists. The proof uses the union bound: if each vertex has
 ≥ k colors and `r · m · (1 - 1/r)^k < 1`, then a good partition function exists. -/
 
--- The bijection proof intentionally works several generated goals in sequence.
-set_option linter.style.multiGoal false in
 /-- Counting functions avoiding a given color on a subset: if `T` has at least `k`
 elements, the number of functions `S → Fin r` with `f(c) ≠ i` for all `c ∈ T` is at most
 `|Fin r|^|S| · ((r-1)/r)^|T|`. -/
@@ -274,24 +270,27 @@ private lemma fiber_count_for_subset {r : ℕ} {S : Finset ℕ}
         (Finset.univ.filter (fun f : S → Fin r => ∀ c ∈ T, f c ≠ i)).card =
           (∏ c ∈ Finset.univ,
             (Finset.univ.filter (fun j : Fin r => j ≠ i ∨ c ∉ T)).card) := by
-      convert Finset.card_pi _ _ using 2;
-      convert rfl;
-      fapply Finset.card_bij;
-      use fun a ha c => a c ( Finset.mem_univ c );
-      all_goals try infer_instance;
-      · grind;
-      · simp +contextual [ funext_iff ];
-      · intro b hb;
-        use fun c _ => b c;
-        grind;
-    rw [ h_count, ← Finset.prod_sdiff <| Finset.subset_univ T ];
-    rw [ mul_comm ];
-    exact congrArg₂ _ ( Finset.prod_congr rfl fun x hx => by aesop ) 
-      ( Finset.prod_congr rfl fun x hx => by aesop );
-  simp_all +decide [ Finset.filter_ne' ]
+      convert Finset.card_pi _ _ using 2
+      · convert rfl
+        refine Finset.card_bij (fun a ha c => a c (Finset.mem_univ c)) ?_ ?_ ?_
+        · grind
+        · simp +contextual [funext_iff]
+        · intro b hb
+          use fun c _ => b c
+          grind
+      · infer_instance
+    rw [h_count, ← Finset.prod_sdiff <| Finset.subset_univ T]
+    rw [mul_comm]
+    exact congrArg₂ _
+      (Finset.prod_congr rfl fun x hx => by
+        simp_all only [ne_eq, Subtype.forall, Finset.univ_eq_attach,
+          not_true_eq_false, or_false])
+      (Finset.prod_congr rfl fun x hx => by
+        simp_all only [ne_eq, Subtype.forall, Finset.univ_eq_attach,
+          Finset.mem_sdiff, Finset.mem_attach, true_and, not_false_eq_true, or_true,
+          Finset.filter_true, Finset.card_univ, Fintype.card_fin])
+  simp_all +decide [Finset.filter_ne']
 
--- The generated cardinality estimate relies on broad simplification of finite functions.
-set_option linter.flexible false in
 /-- Each fiber of functions avoiding color `i` on `L_ij` has the expected cardinality
 bound relative to the total function space. -/
 private lemma fiber_card_bound {r : ℕ} (hr : 1 ≤ r)
@@ -300,27 +299,45 @@ private lemma fiber_card_bound {r : ℕ} (hr : 1 ≤ r)
     ((Finset.univ : Finset (↥S → Fin r)).filter
       (fun f => ∀ c : ↥S, ↑c ∈ L_ij → f c ≠ i)).card ≤
     (Finset.univ : Finset (↥S → Fin r)).card * ((1 - 1 / (r : ℝ)) ^ k : ℝ) := by
-  nontriviality;
+  nontriviality
   obtain ⟨T, hT⟩ : ∃ T : Finset ↥S, T.card = k ∧ ∀ c ∈ T, c.val ∈ L_ij := by
-    obtain ⟨ T, hT ⟩ := Finset.exists_subset_card_eq hL_ij;
-    use Finset.subtype (fun x => x ∈ S) T;
-    simp_all +decide [ Finset.subset_iff ];
-    rw [ Finset.filter_true_of_mem fun x hx => hL_sub ( hT.1 hx ), hT.2 ];
+    obtain ⟨T, hT⟩ := Finset.exists_subset_card_eq hL_ij
+    use Finset.subtype (fun x => x ∈ S) T
+    constructor
+    · rw [Finset.card_subtype,
+        Finset.filter_true_of_mem fun x hx => hL_sub (hT.1 hx), hT.2]
+    · intro c hc
+      exact hT.1 (by simpa using hc)
   have h_filter_T :
       (((Finset.univ : Finset (↥S → Fin r)).filter
         (fun f => ∀ c ∈ T, f c ≠ i)).card : ℝ) ≤
         (((Finset.univ : Finset (↥S → Fin r)).card : ℝ) * ((r - 1) / r) ^ k) := by
-      rw [ fiber_count_for_subset ];
-      simp_all +decide [ Finset.card_univ, Finset.card_sdiff ];
-      rw [ show # ( T ∩ S.attach ) = k from ?_, mul_comm ];
-      · rw [ div_pow, mul_div, le_div_iff₀ ] <;> first | positivity | ring_nf ;
+      rw [fiber_count_for_subset]
+      simp_all +decide only [Finset.prod_const, Finset.univ_eq_attach, Nat.cast_mul,
+        Nat.cast_pow, Finset.card_univ, Fintype.card_pi, Fintype.card_fin,
+        Finset.card_attach]
+      rw [show #(S.attach \ T) = #S - k from by
+        have hT_sub_attach : T ⊆ S.attach := by
+          intro x _
+          simp
+        rw [Finset.card_sdiff_of_subset hT_sub_attach, Finset.card_attach, hT.1],
+        mul_comm]
+      · rw [div_pow, mul_div, le_div_iff₀]
+        all_goals first | positivity | ring_nf
         rw [← pow_add,
           Nat.sub_add_cancel
             (show k ≤ #S from hL_ij.trans (Finset.card_le_card hL_sub))]
-      · convert hT.1 using 2 ; ext ; aesop;
-  refine le_trans ?_ ( h_filter_T.trans ?_ );
-  · exact_mod_cast Finset.card_le_card fun f hf => by aesop;
-  · rw [ sub_div, div_self ( by positivity ) ]
+        have h_cast : ((r - 1 : ℕ) : ℝ) = (r : ℝ) - 1 := by
+          rw [Nat.cast_sub hr]
+          norm_num
+        rw [h_cast, show (r : ℝ) - 1 = -1 + r by ring]
+  refine le_trans ?_ (h_filter_T.trans ?_)
+  · exact_mod_cast Finset.card_le_card fun f hf => by
+      simp_all only [Subtype.forall, ne_eq, Finset.card_univ, Fintype.card_pi,
+        Finset.univ_eq_attach, Fintype.card_fin, Finset.prod_const, Finset.card_attach,
+        Nat.cast_pow, SetLike.coe_mem, Finset.mem_filter, Finset.mem_univ, true_and,
+        not_false_eq_true, implies_true, and_self]
+  · rw [sub_div, div_self (by positivity)]
 
 /-- The total function space is covered by the union of fibers of bad vertices. -/
 private lemma sum_fiber_bound {r m : ℕ} (hr : 1 ≤ r)
@@ -349,8 +366,6 @@ private lemma sum_fiber_bound {r m : ℕ} (hr : 1 ≤ r)
     (Finset.card_biUnion_le.trans
       (Finset.sum_le_sum fun i _ => Finset.card_biUnion_le))
 
--- The probabilistic counting bound uses generated finite-function cardinality simplification.
-set_option linter.flexible false in
 /-- The core counting argument: if `r · m · (1 - 1/r)^k < 1` and every vertex has
 at least `k` colors in its list, then a good partition function `f : ℕ → Fin r` exists
 such that every vertex gets at least one color mapped to its group. -/
@@ -384,9 +399,12 @@ lemma exists_partition_function {r m : ℕ} (hr : 1 ≤ r)
           Finset.sum_le_sum fun i _ => Finset.sum_le_sum fun j _ => h_fiber i j
       _ = (Finset.univ : Finset (↥S → Fin r)).card *
           ((r * m : ℝ) * (1 - 1 / (r : ℝ)) ^ k) := by
-          simp [Finset.sum_const, Finset.card_univ, Fintype.card_fin]; ring
+          simp [Finset.sum_const, Finset.card_univ, Fintype.card_fin]
+          ring
   have hpos : (0 : ℝ) < (Finset.univ : Finset (↥S → Fin r)).card := by
-    simp [Finset.card_univ]; positivity
+    simp only [Finset.card_univ, Fintype.card_pi, Finset.univ_eq_attach,
+      Fintype.card_fin, Finset.prod_const, Finset.card_attach, Nat.cast_pow]
+    positivity
   nlinarith [mul_lt_mul_of_pos_left hk hpos]
 
 /-! ### Union bound condition -/
@@ -400,9 +418,10 @@ lemma union_bound_condition {r m : ℕ} (hr : 2 ≤ r) (hm : 2 ≤ m) (hrm : r �
   have h_upper_bound :
       (r * m : ℝ) * ((1 - 1 / r) ^ k : ℝ) ≤
         (r * m : ℝ) * (Real.exp (-3 * r * Real.log m / r) : ℝ) := by
-    gcongr;
+    gcongr
     have h_exp : (1 - 1 / (r : ℝ)) ^ k ≤ Real.exp (-k / (r : ℝ)) := by
-      rw [ ← Real.rpow_natCast, Real.rpow_def_of_pos ] <;> norm_num;
+      rw [← Real.rpow_natCast, Real.rpow_def_of_pos]
+      all_goals norm_num
       · exact le_trans
           (mul_le_mul_of_nonneg_right
             (Real.log_le_sub_one_of_pos
@@ -410,15 +429,18 @@ lemma union_bound_condition {r m : ℕ} (hr : 2 ≤ r) (hm : 2 ≤ m) (hrm : r �
             (Nat.cast_nonneg _)) <| by
           ring_nf
           norm_num
-      · exact inv_lt_one_of_one_lt₀ <| by norm_cast;
-    exact h_exp.trans 
-      ( Real.exp_le_exp.mpr <| by rw [ div_le_div_iff_of_pos_right <| by positivity ] ; linarith );
-  refine lt_of_le_of_lt h_upper_bound ?_;
-  field_simp;
-  rw [ Real.exp_neg, mul_comm ];
-  rw [ inv_mul_eq_div, div_lt_one ( by positivity ) ];
-  rw [ mul_comm 3, Real.exp_mul, Real.exp_log ] <;> norm_cast;
-  · nlinarith [ Nat.pow_le_pow_left hm 2 ];
+      · exact inv_lt_one_of_one_lt₀ <| by norm_cast
+    exact h_exp.trans
+      (Real.exp_le_exp.mpr <| by
+        rw [div_le_div_iff_of_pos_right <| by positivity]
+        linarith)
+  refine lt_of_le_of_lt h_upper_bound ?_
+  field_simp
+  rw [Real.exp_neg, mul_comm]
+  rw [inv_mul_eq_div, div_lt_one (by positivity)]
+  rw [mul_comm 3, Real.exp_mul, Real.exp_log]
+  all_goals norm_cast
+  · nlinarith [Nat.pow_le_pow_left hm 2]
   · linarith
 
 /-- Alon's Proposition 2.1: there exists a constant `C > 0` such that for all `m ≥ 2`
@@ -432,14 +454,18 @@ theorem alon_prop_2_1 :
       apply Nat.sInf_le
       intro L hL
       have hne : ∀ v : Fin 1 × Fin m, (L v).Nonempty :=
-        fun v => Finset.card_pos.mp (by rw [hL v]; omega)
+        fun v => Finset.card_pos.mp (by
+          rw [hL v]
+          omega)
       refine ⟨SimpleGraph.Coloring.mk (fun v => (L v).min' (hne v))
         (fun {u v} hadj => ?_),
         fun v => Finset.min'_mem _ (hne v)⟩
       simp only [completeEquipartite_adj] at hadj
       exact absurd (Subsingleton.elim u.1 v.1) hadj
     calc (listChromaticNumber (completeEquipartite r m) : ℝ)
-        ≤ 1 := by rw [hr1]; exact_mod_cast h_r1
+        ≤ 1 := by
+          rw [hr1]
+          exact_mod_cast h_r1
       _ ≤ 6 * r * Real.log m := by
           nlinarith [Real.log_two_gt_d9,
             Real.log_le_log (by norm_num) (show (2 : ℝ) ≤ m by exact_mod_cast hm),
@@ -493,7 +519,8 @@ lemma log_dominated_by_rpow {C : ℝ} {c : ℝ} (hc : 0 < c) :
       have := h_z.comp (Filter.tendsto_id.const_mul_atTop hc)
       have hc_ne : c ≠ 0 := hc.ne'
       convert this.div_const c using 1
-      · ext x; simp [div_eq_mul_inv, mul_assoc, mul_comm c, hc_ne]
+      · ext x
+        simp [div_eq_mul_inv, mul_assoc, mul_comm c, hc_ne]
       · simp
     simpa [Real.exp_neg, mul_div_assoc] using
       tendsto_const_nhds.mul (Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 1)
@@ -539,13 +566,19 @@ theorem erdos_753 :
     by exact_mod_cast listChromaticNumber_le hGc_ch
   -- Using the inequality $m * (C * \log m + 1) \leq m * m^c$, we can conclude.
   have h_final : m * (C * Real.log m + 1) ≤ m * m^c := by
-    exact mul_le_mul_of_nonneg_left ( hM m hm_ge_M ) ( Nat.cast_nonneg _ );
-  convert le_trans _ ( h_final.trans _ ) using 1;
-  · linarith;
+    exact mul_le_mul_of_nonneg_left (hM m hm_ge_M) (Nat.cast_nonneg _)
+  convert le_trans _ (h_final.trans _) using 1
+  · linarith
   · rw [Nat.cast_mul, Real.mul_rpow (by positivity) (by positivity),
-      ← Real.rpow_one_add'] <;> norm_num;
-    · rw [ ← Real.rpow_add ( by positivity ) ] ; ring_nf;
-      exact Real.rpow_le_rpow_of_exponent_le ( by norm_cast; linarith ) ( by linarith );
+      ← Real.rpow_one_add']
+    all_goals norm_num
+    · rw [← Real.rpow_add (by positivity)]
+      ring_nf
+      exact Real.rpow_le_rpow_of_exponent_le
+        (by
+          norm_cast
+          linarith)
+        (by linarith)
     · finiteness
 
 /-- The negation form: there is **no** constant `c > 0` such that
@@ -558,9 +591,7 @@ theorem erdos_753_negation :
   obtain ⟨n, hn_ge, G, hG⟩ := erdos_753 c hc N
   exact not_lt.mpr hG (hN n hn_ge G)
 
-#print axioms erdos_753_negation
--- 'Erdos753.erdos_753_negation' depends on axioms: [propext, choice, Quot.sound]
-
-end
-
 end Erdos753
+
+#print axioms Erdos753.erdos_753_negation
+-- 'Erdos753.erdos_753_negation' depends on axioms: [propext, choice, Quot.sound]
