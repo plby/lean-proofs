@@ -35,13 +35,7 @@ import Mathlib
 
 namespace Erdos1100b
 
-set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.flexible false
-set_option linter.style.induction false
-set_option linter.style.refine false
-set_option linter.style.multiGoal false
-set_option linter.unusedDecidableInType false
 
 open scoped BigOperators
 open scoped Real
@@ -117,6 +111,9 @@ lemma y_val_pos (ε : ℝ) (hε : ε < 1 / 2) :
 /-
 Lemma: For sufficiently large x, and n defined as product of primes in (x, 2x], the divisors with y prime factors are strictly between x^y and (2x)^y.
 -/
+set_option linter.style.refine false in
+set_option linter.style.multiGoal false in
+set_option linter.flexible false in
 lemma D_set_bounds_Ioc (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2) :
     ∃ N, ∀ x ≥ N, ∀ d ∈ D_set_Ioc x ε,
       (x ^ (y_val x ε) : ℝ) < d ∧ (d : ℝ) < ((2 * x) ^ (y_val x ε)) := by
@@ -191,6 +188,7 @@ lemma prime_factors_of_divisor_of_n_val_Ioc (x : ℝ) (d : ℕ) (hd : d ∣ n_va
 /-
 Gap Lemma Lower: For sufficiently large x, divisors with fewer than y factors are smaller than x^y.
 -/
+set_option linter.flexible false in
 lemma gap_lemma_lower (ε : ℝ) :
     ∃ N, ∀ x ≥ N, ∀ d, d ∣ n_val_Ioc x →
       d.primeFactors.card < y_val x ε → (d : ℝ) < x ^ (y_val x ε) := by
@@ -250,6 +248,7 @@ lemma gap_lemma_lower (ε : ℝ) :
 /-
 Gap Lemma Upper: For sufficiently large x, divisors with more than y factors are larger than (2x)^y.
 -/
+set_option linter.style.refine false in
 lemma gap_lemma_upper (ε : ℝ) :
     ∃ N, ∀ x ≥ N, ∀ d, d ∣ n_val_Ioc x →
       d.primeFactors.card > y_val x ε → (d : ℝ) > (2 * x) ^ (y_val x ε) := by
@@ -325,6 +324,9 @@ Definition of count_primes_Ioc(x) and lemma stating that the size of D_set_Ioc i
 noncomputable def count_primes_Ioc (x : ℝ) : ℕ :=
   ((Finset.Ioc (Nat.floor x) (Nat.floor (2 * x))).filter Nat.Prime).card
 
+set_option linter.style.refine false in
+set_option linter.style.multiGoal false in
+set_option linter.flexible false in
 lemma card_D_set_Ioc_eq_choose (x : ℝ) (ε : ℝ) :
     (D_set_Ioc x ε).card = Nat.choose (count_primes_Ioc x) (y_val x ε) := by
       -- By definition of $D_set_Ioc$, we know that every element in $D_set_Ioc x ε$ is a divisor of $n_val_Ioc x$ with exactly $y_val x ε$ prime factors.
@@ -382,6 +384,8 @@ lemma D_set_consecutive (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2) :
 /-
 Lemma: If two distinct divisors of n_val_Ioc(x) share a common factor, their difference is greater than x.
 -/
+set_option linter.style.refine false in
+set_option linter.flexible false in
 lemma gcd_gt_one_implies_diff_gt_x (x : ℝ) (d₁ d₂ : ℕ) (h₁ : d₁ ∣ n_val_Ioc x) (h₂ : d₂ ∣ n_val_Ioc x) (h_neq : d₁ ≠ d₂) (h_gcd : Nat.gcd d₁ d₂ > 1) :
     |(d₁ : ℤ) - (d₂ : ℤ)| > x := by
       -- Since $g$ divides both $d₁$ and $d₂$, it follows that $g$ is a product of distinct primes in the interval $(x, 2x]$.
@@ -401,6 +405,7 @@ lemma gcd_gt_one_implies_diff_gt_x (x : ℝ) (d₁ d₂ : ℕ) (h₁ : d₁ ∣ 
 /-
 Lemma: The number of consecutive pairs in D_set that are not coprime is bounded by (2x)^y / x.
 -/
+set_option linter.style.refine false in
 lemma non_coprime_pairs_bound (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2) :
     ∃ N, ∀ x ≥ N,
       let D := (D_set_Ioc x ε).sort (· ≤ ·)
@@ -578,6 +583,7 @@ lemma count_primes_ge_log_n_val_div_log_2x (x : ℝ) (hx : x > 1) :
 /-
 Assuming PNT, for sufficiently large x, the number of primes in (x, 2x] is greater than x / (2 log x).
 -/
+set_option linter.style.refine false in
 lemma count_primes_lower_bound_of_PNT (hPNT : PNT_statement) :
     ∃ N, ∀ x ≥ N, (count_primes_Ioc x : ℝ) > x / (2 * Real.log x) := by
       -- From PNT, we know that for sufficiently large x, log(n_val_Ioc x) > 0.9 * x.
@@ -603,6 +609,7 @@ lemma count_primes_lower_bound_of_PNT (hPNT : PNT_statement) :
 /-
 Assuming PNT, for sufficiently large x, the number of divisors r is bounded below by (x / (2y log x))^y.
 -/
+set_option linter.style.refine false in
 lemma r_lower_bound (hPNT : PNT_statement) (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2) :
     ∃ N, ∀ x ≥ N, ((D_set_Ioc x ε).card : ℝ) > (x / (2 * (y_val x ε) * Real.log x)) ^ (y_val x ε) := by
       -- Applying the bounds from `card_D_set_Ioc_eq_choose` and `choose_ge_pow`, we get the desired inequality.
@@ -666,6 +673,8 @@ lemma log_log_n_sim_log_x (hPNT : PNT_statement) :
 /-
 The number of pairs satisfying P in a contiguous sublist s is at most the number of pairs in the full list.
 -/
+set_option linter.style.induction false in
+set_option linter.flexible false in
 lemma countP_zip_tail_sublist {α : Type*} (l s r : List α) (P : α × α → Bool) :
     (s.zip s.tail).countP P ≤ ((l ++ s ++ r).zip (l ++ s ++ r).tail).countP P := by
       -- The zipped list of l ++ s ++ r is a sublist of the zipped list of l ++ s ++ r ++ [], so the countP of P over s.zip s.tail is less than or equal to the countP of P over the zipped list of l ++ s ++ r.
@@ -677,6 +686,7 @@ lemma countP_zip_tail_sublist {α : Type*} (l s r : List α) (P : α × α → B
           cases hl <;> aesop;
       exact List.Sublist.countP_le h_sublist
 
+set_option linter.unusedDecidableInType false in
 lemma prefix_of_head_mem_of_convex {α : Type*} [LinearOrder α] [DecidableEq α] :
     ∀ (L S : List α),
       List.Pairwise (· ≤ ·) L → L.Nodup →
@@ -776,6 +786,7 @@ lemma prefix_of_head_mem_of_convex {α : Type*} [LinearOrder α] [DecidableEq α
 /-
 If S is a sorted sublist of a sorted list L, and S is convex in L (contains all intermediate elements), then S is a contiguous sublist of L.
 -/
+set_option linter.unusedDecidableInType false in
 lemma contiguous_sublist_of_convex {α : Type*} [LinearOrder α] [DecidableEq α] (L S : List α)
     (hL_sorted : List.Pairwise (· ≤ ·) L) (hL_nodup : L.Nodup)
     (hS_sorted : List.Pairwise (· ≤ ·) S) (hS_nodup : S.Nodup)
@@ -863,6 +874,8 @@ lemma tau_perp_ge_D_set_pairs (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2) :
 /-
 The number of pairs in (L zip L.tail) satisfying P is equal to the number of indices i such that P(L[i], L[i+1]) holds.
 -/
+set_option linter.style.induction false in
+set_option linter.flexible false in
 lemma countP_zip_eq_countP_range {α : Type*} [Inhabited α] (L : List α) (P : α × α → Bool) :
     (L.zip L.tail).countP P = (List.range (L.length - 1)).countP (fun i => P (L[i]!, L[i+1]!)) := by
       induction' L with x L ih generalizing P;
@@ -965,6 +978,8 @@ lemma tau_perp_lower_bound_explicit (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2
 /-
 For sufficiently large x, bound(n, epsilon) < exp((1 / 2 - epsilon + delta) * (log x)^2 / log log x).
 -/
+set_option linter.style.refine false in
+set_option linter.style.multiGoal false in
 lemma bound_asymptotic (hPNT : PNT_statement) (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2) (δ : ℝ) (hδ : δ > 0) :
     ∃ N, ∀ x ≥ N, bound (n_val_Ioc x) ε < Real.exp ((1 / 2 - ε + δ) * (Real.log x)^2 / Real.log (Real.log x)) := by
       -- By definition of $bound$, we know that for sufficiently large $x$, $(1 / 2 - ε) * (log (log n))^2 / log (log (log n)) < (1 / 2 - ε + δ) * (log x)^2 / log (log x)$.
@@ -990,6 +1005,9 @@ lemma bound_asymptotic (hPNT : PNT_statement) (ε : ℝ) (hε : ε > 0) (hε2 : 
 /-
 The ratio of the error term to the lower bound of r tends to 0.
 -/
+set_option linter.style.refine false in
+set_option linter.style.multiGoal false in
+set_option linter.flexible false in
 lemma error_term_ratio_tendsto_zero (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2) :
     Filter.Tendsto (fun x => ((2 * x) ^ (y_val x ε) / x) / ((x / (2 * (y_val x ε) * Real.log x)) ^ (y_val x ε))) Filter.atTop (nhds 0) := by
       refine' squeeze_zero_norm' _ _;
@@ -1055,6 +1073,7 @@ lemma error_term_ratio_tendsto_zero (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2
 /-
 The log of the lower bound of r is asymptotically (1 / 2 - epsilon) * (log x)^2 / log log x.
 -/
+set_option linter.style.refine false in
 lemma log_r_lower_bound_asymptotic (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2) :
     Filter.Tendsto (fun x => Real.log ((x / (2 * (y_val x ε) * Real.log x)) ^ (y_val x ε)) / ((Real.log x)^2 / Real.log (Real.log x))) Filter.atTop (nhds (1 / 2 - ε)) := by
       -- Let's simplify the expression inside the limit.
@@ -1188,6 +1207,7 @@ lemma lower_bound_gt_four (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2) :
 /-
 For sufficiently large x, tau_perp(n) > |D_set| / 2.
 -/
+set_option linter.flexible false in
 lemma tau_perp_gt_half_card_D_set (hPNT : PNT_statement) (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2) :
     ∃ N, ∀ x ≥ N, (tau_perp (n_val_Ioc x) : ℝ) > ((D_set_Ioc x ε).card : ℝ) / 2 := by
       -- By combining the results from the lemmas, we can find such an N.
@@ -1202,6 +1222,8 @@ lemma tau_perp_gt_half_card_D_set (hPNT : PNT_statement) (ε : ℝ) (hε : ε > 
 /-
 For sufficiently large x, |D_set| > exp((1 / 2 - epsilon - delta) * (log x)^2 / log log x).
 -/
+set_option linter.style.refine false in
+set_option linter.style.multiGoal false in
 lemma card_D_set_lower_bound_explicit (hPNT : PNT_statement) (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2) (δ : ℝ) (hδ : δ > 0) :
     ∃ N, ∀ x ≥ N, ((D_set_Ioc x ε).card : ℝ) > Real.exp ((1 / 2 - ε - δ) * (Real.log x)^2 / Real.log (Real.log x)) := by
       -- By the properties of logarithms and exponentials, if $\log(LB(x))$ tends to infinity, then $LB(x)$ itself tends to infinity.
@@ -1233,6 +1255,8 @@ lemma card_D_set_lower_bound_explicit (hPNT : PNT_statement) (ε : ℝ) (hε : �
 /-
 For sufficiently large x, tau_perp(n) > bound(n, epsilon).
 -/
+set_option linter.style.refine false in
+set_option linter.style.multiGoal false in
 lemma tau_perp_gt_bound (hPNT : PNT_statement) (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2) :
     ∃ N, ∀ x ≥ N, (tau_perp (n_val_Ioc x) : ℝ) > bound (n_val_Ioc x) ε := by
       -- Let $\epsilon' = \epsilon / 2$. Let $\delta = \epsilon / 8$.
