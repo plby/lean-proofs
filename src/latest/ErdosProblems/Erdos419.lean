@@ -35,12 +35,8 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
-set_option linter.style.openClassical false
-set_option linter.style.refine false
 
 namespace Erdos419
-
-open scoped Classical
 
 noncomputable def tau (n : ℕ) : ℕ := (Nat.divisors n).card
 
@@ -128,7 +124,7 @@ There is at most one prime factor of $n+1$ greater than $n^{2/3}$.
 -/
 lemma at_most_one_large_prime (n : ℕ) :
     ((n + 1).primeFactors.filter
-      (fun p => (p : ℝ) > (n : ℝ) ^ (2 / 3 : ℝ))).card ≤ 1 := by
+      (fun p : ℕ => (p : ℝ) > (n : ℝ) ^ (2 / 3 : ℝ))).card ≤ 1 := by
   -- If there were two such primes $p, q$, then $p \cdot q > n^{4/3} > n+1$
   -- for large $n$, which is a contradiction since $p \cdot q \mid n+1$.
   have h_two_primes :
@@ -186,7 +182,7 @@ lemma at_most_one_large_prime (n : ℕ) :
 The product over prime factors $p \le n^{2/3}$ converges to 1.
 -/
 noncomputable def small_primes (n : ℕ) : Finset ℕ :=
-  (n + 1).primeFactors.filter (fun p => (p : ℝ) ≤ (n : ℝ) ^ (2 / 3 : ℝ))
+  (n + 1).primeFactors.filter (fun p : ℕ => (p : ℝ) ≤ (n : ℝ) ^ (2 / 3 : ℝ))
 
 lemma small_prime_contribution_tendsto_one :
     Filter.Tendsto
@@ -320,16 +316,17 @@ lemma small_prime_contribution_tendsto_one :
             ((Nat.factorization n.factorial p) + 1))) ≤
           (1 + (Real.log (n + 1) * (n : ℝ) ^ (2 / 3 : ℝ) / n) /
             (Real.log 2)) ^ (small_primes n).card := by
-      refine' le_trans ( Finset.prod_le_prod _ fun p hp => h_term_bound_simplified n hn p hp ) _;
+      refine le_trans
+        (Finset.prod_le_prod ?_ fun p hp => h_term_bound_simplified n hn p hp) ?_
       · exact fun _ _ => by positivity;
-      · refine' le_trans
-          (Finset.prod_le_prod _ fun p hp =>
+      · refine le_trans
+          (Finset.prod_le_prod ?_ fun p hp =>
             show
               (1 + Real.log (n + 1) * p / n / Real.log 2) ≤
                 1 + Real.log (n + 1) * (n : ℝ) ^ (2 / 3 : ℝ) / n /
                   Real.log 2 from
-              _)
-          _ <;> norm_num;
+              ?_)
+          ?_ <;> norm_num;
         · exact fun p hp =>
             add_nonneg zero_le_one <|
               div_nonneg
@@ -468,9 +465,9 @@ lemma small_prime_contribution_tendsto_one :
       convert h_log_div_n_shifted_aux.mul h_log_ratio_shifted using 2 <;> ring_nf;
       rw [ mul_assoc, mul_inv_cancel₀ ( by positivity ), mul_one ];
     simpa using h_log_div_n_shifted.div_const _;
-  refine' tendsto_of_tendsto_of_tendsto_of_le_of_le' tendsto_const_nhds
+  refine tendsto_of_tendsto_of_tendsto_of_le_of_le' tendsto_const_nhds
     (by simpa using Filter.Tendsto.comp (Real.continuous_exp.tendsto _) h_exp_zero)
-    _ _;
+    ?_ ?_;
   · filter_upwards [Filter.eventually_ge_atTop 2] with n hn
     exact le_trans (by norm_num)
       (Finset.prod_le_prod (fun _ _ => by positivity) fun _ _ =>
@@ -518,7 +515,7 @@ lemma large_prime_properties :
     · assumption;
   -- Since $p > b^{2/3}$, we have $p^2 > b$, thus $\log_p(b) < 2$.
   have h_log : Nat.log p b < 2 := by
-    refine' Nat.log_lt_of_lt_pow _ _ <;> norm_num at * <;> try nlinarith [ hp.two_le ] ;
+    refine Nat.log_lt_of_lt_pow ?_ ?_ <;> norm_num at * <;> try nlinarith [ hp.two_le ]
     -- Raising both sides to the power of 3, we get $b^2 < p^3$.
     have h_b2_lt_p3 : (b : ℝ) ^ 2 < p ^ 3 := by
       exact lt_of_le_of_lt
@@ -602,7 +599,7 @@ lemma large_prime_eq_iff (n : ℕ) (p : ℕ) :
           ?_
       ]
       aesop;
-      refine' le_antisymm _ _ <;> aesop
+      refine le_antisymm ?_ ?_ <;> aesop
 
 /-
 If there are no large primes, `u_large` is 1.
@@ -635,14 +632,13 @@ lemma u_large_eq_term_of_large_prime_pos :
     intros b hb
     have h_card :
         ((b + 1).primeFactors.filter
-          (fun p => (p : ℝ) > (b : ℝ) ^ (2 / 3 : ℝ))).card ≤ 1 := by
+          (fun p : ℕ => (p : ℝ) > (b : ℝ) ^ (2 / 3 : ℝ))).card ≤ 1 := by
       convert at_most_one_large_prime b using 1;
-    convert h_card using 2;
-    refine' Finset.card_bij _ _ _ _;
-    use fun p hp => p;
-    · unfold small_primes; aesop;
-    · aesop;
-    · unfold small_primes; aesop;
+    convert h_card using 2
+    ext p
+    unfold small_primes
+    simp [not_le]
+    tauto
   use a
   intros b hb hb'
   specialize ha b hb
@@ -695,7 +691,8 @@ lemma u_large_eventually_eq_approx_u :
 lemma approx_u_bounded : ∃ C, ∀ n, |approx_u n| ≤ C := by
   unfold approx_u;
   field_simp;
-  refine' ⟨ 3, fun n => _ ⟩ ; split_ifs <;> norm_num [ abs_le ];
+  refine ⟨ 3, fun n => ?_ ⟩
+  split_ifs <;> norm_num [ abs_le ]
   -- Since $large\_prime n$ is a prime factor of $n+1$, we have
   -- $large\_prime n \leq n+1$.
   have h_large_prime_le : (large_prime n : ℝ) ≤ n + 1 := by
@@ -765,7 +762,7 @@ lemma approx_u_mem_S (n : ℕ) : approx_u n ∈ S := by
 $S$ is a closed set.
 -/
 lemma S_is_closed : IsClosed S := by
-  refine' IsCompact.isClosed _;
+  refine IsCompact.isClosed ?_
   -- The set $\{1 + 1/k \mid k \ge 1\}$ has 1 as its only accumulation point.
   have h_acc : Filter.Tendsto (fun k : ℕ => 1 + 1 / (k : ℝ)) Filter.atTop (nhds 1) := by
     simpa using tendsto_const_nhds.add (tendsto_inv_atTop_nhds_zero_nat (𝕜 := ℝ));
@@ -838,15 +835,15 @@ lemma one_is_cluster_point : MapClusterPt 1 Filter.atTop u := by
             ∑ i ∈ Finset.Ico 1 (k + 1), (2^k - 1) / 2^i := by
         rw [ Nat.factorization_def ];
         · rw [ padicValNat_factorial ];
-          refine' Nat.lt_succ_of_le
-            (Nat.le_trans (Nat.log_mono_right <| Nat.sub_le _ _) _)
+          refine Nat.lt_succ_of_le
+            (Nat.le_trans (Nat.log_mono_right <| Nat.sub_le _ _) ?_)
           norm_num [Nat.log_pow];
         · norm_num;
       -- We'll use that $\sum_{i=1}^{k} \frac{2^k - 1}{2^i} = 2^k - 1 - k$.
       have h_sum :
           ∑ i ∈ Finset.Ico 1 (k + 1), (2^k - 1) / 2^i =
             ∑ i ∈ Finset.Ico 1 (k + 1), (2^(k-i) - 1) := by
-        refine' Finset.sum_congr rfl fun i hi => _;
+        refine Finset.sum_congr rfl fun i hi => ?_
         rw [
           show
             2 ^ k - 1 =
@@ -898,9 +895,9 @@ lemma one_is_cluster_point : MapClusterPt 1 Filter.atTop u := by
               Filter.Tendsto (fun m : ℕ => (1 - (m : ℝ) / 2 ^ m))
                 Filter.atTop (nhds (1 - 0)) from
             tendsto_const_nhds.sub h_convert)
-          _ using 2 <;> norm_num;
+          ?_ using 2 <;> norm_num;
         rw [ div_div, mul_sub, mul_one, mul_div_cancel₀ _ ( by positivity ) ];
-      refine' squeeze_zero_norm' _ (tendsto_inv_atTop_nhds_zero_nat (𝕜 := ℝ));
+      refine squeeze_zero_norm' ?_ (tendsto_inv_atTop_nhds_zero_nat (𝕜 := ℝ))
       norm_num;
       exact ⟨8, fun n hn => by
         rw [inv_eq_one_div, div_le_div_iff₀] <;> norm_cast <;>
@@ -1046,7 +1043,7 @@ lemma cluster_point_of_k (k : ℕ) (hk : k ≥ 1) :
           (nhds 0) := by
       have h_u_approx : Filter.Tendsto (fun n => |u n - approx_u n|) Filter.atTop (nhds 0) := by
         convert u_approx_main using 1;
-      refine' h_u_approx.comp _;
+      refine h_u_approx.comp ?_
       rw [ Filter.tendsto_atTop ];
       exact fun n =>
         Filter.eventually_inf_principal.mpr <|
