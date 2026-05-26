@@ -30,11 +30,8 @@ set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.unusedDecidableInType false
 set_option linter.unusedFintypeInType false
-set_option linter.style.cases false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
-set_option linter.style.whitespace false
 
 /-!
 # Erdős Problem 760: Subgraphs with a Large Cochromatic Number
@@ -52,8 +49,6 @@ Number" by Alon, Krivelevich, and Sudakov (1997). Note: the reference paper expl
 `All graphs considered here are finite and simple`, so we take this as an assumption in our
 statements.
 -/
-
-noncomputable section
 
 open scoped ENat
 
@@ -148,11 +143,11 @@ theorem colorable_of_cochromPartable_of_cliqueNum_le {V : Type*} [Fintype V] [De
     (G : SimpleGraph V) [DecidableRel G.Adj] (k ω : ℕ) (hk : CochromPartable G k)
     (hω : G.cliqueNum ≤ ω) :
     G.Colorable (k * ω) := by
-  cases' hk with f hf
+  rcases hk with ⟨f, hf⟩
   have h_coloring : ∀ i : Fin k, ∃ g : (f ⁻¹' {i}) → Fin ω, ∀ u v : f ⁻¹' {i},
       u ≠ v → g u ≠ g v ∨ ¬G.Adj u v := by
     intro i
-    cases' hf i with h h
+    rcases hf i with h | h
     · have hsize : (Finset.univ.filter (fun v => f v = i)).card ≤ ω := by
         refine' le_trans _ hω
         refine' le_csSup _ _
@@ -231,29 +226,31 @@ theorem colorable_of_degenerate {V : Type*} [Fintype V] [DecidableEq V]
       exact Exists.elim (h_colorable Finset.univ)
         fun c hc => ⟨c, fun v w hvw => hc v (Finset.mem_univ v) w (Finset.mem_univ w) hvw⟩
     intro S
-    induction' S using Finset.strongInduction with S ih
-    by_cases hS : S.Nonempty
-    · obtain ⟨v, hvS, hv⟩ := hdegen S hS
-      obtain ⟨c, hc⟩ := ih (S.erase v) (Finset.erase_ssubset hvS)
-      obtain ⟨color_v, hcolor_v⟩ :
-          ∃ color_v : Fin d, ∀ w ∈ S, G.Adj v w → color_v ≠ c w := by
-        have h_color_v :
-            Finset.card (Finset.image c (Finset.filter (fun w => G.Adj v w) S)) < d :=
-          lt_of_le_of_lt Finset.card_image_le hv
-        contrapose! h_color_v
-        have : Finset.image c (Finset.filter (fun w => G.Adj v w) S) = Finset.univ :=
-          Finset.eq_univ_of_forall fun x => by
-            obtain ⟨w, hwS, hw, rfl⟩ :=
-              h_color_v x
-            exact Finset.mem_image_of_mem _
-              (Finset.mem_filter.mpr ⟨hwS, hw⟩)
-        simp +decide [this]
-      use fun w => if w = v then color_v else c w
-      intro u hu w hw huv
-      by_cases hu' : u = v <;>
-        by_cases hw' : w = v <;> simp_all +decide
-      exact Ne.symm (hcolor_v u hu huv.symm)
-    · exact ⟨fun _ => ⟨0, hd⟩, by aesop⟩
+    exact Finset.strongInduction
+      (p := fun S => ∃ c : V → Fin d, ∀ v ∈ S, ∀ w ∈ S, G.Adj v w → c v ≠ c w)
+      (fun S ih => by
+        by_cases hS : S.Nonempty
+        · obtain ⟨v, hvS, hv⟩ := hdegen S hS
+          obtain ⟨c, hc⟩ := ih (S.erase v) (Finset.erase_ssubset hvS)
+          obtain ⟨color_v, hcolor_v⟩ :
+              ∃ color_v : Fin d, ∀ w ∈ S, G.Adj v w → color_v ≠ c w := by
+            have h_color_v :
+                Finset.card (Finset.image c (Finset.filter (fun w => G.Adj v w) S)) < d :=
+              lt_of_le_of_lt Finset.card_image_le hv
+            contrapose! h_color_v
+            have : Finset.image c (Finset.filter (fun w => G.Adj v w) S) = Finset.univ :=
+              Finset.eq_univ_of_forall fun x => by
+                obtain ⟨w, hwS, hw, rfl⟩ :=
+                  h_color_v x
+                exact Finset.mem_image_of_mem _
+                  (Finset.mem_filter.mpr ⟨hwS, hw⟩)
+            simp +decide [this]
+          use fun w => if w = v then color_v else c w
+          intro u hu w hw huv
+          by_cases hu' : u = v <;>
+            by_cases hw' : w = v <;> simp_all +decide
+          exact Ne.symm (hcolor_v u hu huv.symm)
+        · exact ⟨fun _ => ⟨0, hd⟩, by aesop⟩) S
   exact ⟨c, by aesop⟩
 
 /-! ## Spanning subgraph from an edge subset -/
@@ -419,7 +416,7 @@ theorem per_clique_bad_count {V : Type*} [Fintype V] [DecidableEq V]
 
 /-- For a dense independent set `S` with min `G`-degree `≥ d`, at most `2^(m − d·|S|/2)` edge 
 subsets make `S` independent. -/
-theorem per_degen_bad_count {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V) 
+theorem per_degen_bad_count {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V)
     [DecidableRel G.Adj] (S : Finset V) (d : ℕ)
     (hdense : ∀ v ∈ S, d ≤ (S.filter (fun w => G.Adj v w)).card) :
     (G.edgeFinset.powerset.filter (fun T =>
@@ -592,7 +589,7 @@ theorem choose_pow_bound (N L s m : ℕ) (hN : N ≤ 2 ^ L) (hle : 2 * L * (s + 
   grind
 
 /-- Total bad-degeneracy count, times 5, is `≤ 2^m`. -/
-theorem degen_bad_total_bound {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V) 
+theorem degen_bad_total_bound {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V)
     [DecidableRel G.Adj] (hn : 2 ≤ Fintype.card V)
     (hlarge : 4 * Nat.clog 2 (Fintype.card V) < Fintype.card V) :
     5 * (G.edgeFinset.powerset.filter (fun T =>
@@ -1262,7 +1259,5 @@ theorem erdos_760 : ∃ C : ℕ, 0 < C ∧
 -- 'Erdos760.SimpleGraph.erdos_760' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end SimpleGraph
-
-end
 
 end Erdos760
