@@ -57,9 +57,7 @@ import Mathlib.Tactic
 import Mathlib.Topology.Algebra.PontryaginDual
 import Mathlib.Topology.ContinuousMap.SecondCountableSpace
 
-set_option linter.deprecated false
 set_option linter.style.setOption false
-set_option linter.flexible false
 set_option linter.style.openClassical false
 set_option linter.unusedDecidableInType false
 set_option linter.unusedFintypeInType false
@@ -1217,7 +1215,8 @@ lemma sum_allowedDiffSetMod_stdAddChar_re_le
       rw [Nat.cast_sub hApos]
       norm_num
     rw [hcast]
-    simp
+    simp only [Complex.sub_re, Complex.natCast_re, Complex.one_re, tsub_le_iff_right,
+      le_add_iff_nonneg_right, ge_iff_le]
     exact hP_nonneg
 
 /-- Sidon Fourier estimate (normalized): `Re 1̂_{T_A}(r) ≤ (|A|−1)/p` for every
@@ -4098,9 +4097,13 @@ lemma exists_strictMono_subseq_eventually_const_countable_family
     exact (isOpen_discrete ({y i} : Set Bool)).mem_nhds rfl
   have heq : ∀ᶠ n in atTop, x (φ n) i = y i := by
     simpa using hi.eventually hmem
-  cases hy : y i <;> simp [x, hy] at heq ⊢
-  · exact Or.inr heq
-  · exact Or.inl heq
+  cases hy : y i
+  · right
+    filter_upwards [heq] with n hn
+    simpa [x, hy] using hn
+  · left
+    filter_upwards [heq] with n hn
+    simpa [x, hy] using hn
 
 /-- Relabel a label-frequency assignment after passing a `FourierSeq` to a
 subsequence. -/
@@ -5833,7 +5836,7 @@ lemma TrigPoly.normalizedDftFunction_evalFinite_single
           TrigPoly.evalFinite (Finsupp.single γ c : E.TrigPoly) n x) r =
       if r + E.lift n γ = 0 then c else 0 := by
   rw [normalizedDftFunction_eq_avgZMod]
-  simp [TrigPoly.evalFinite_single]
+  simp only [TrigPoly.evalFinite_single]
   calc
     avgZMod
         (fun x : ZMod (S.p (E.φ n)) =>
@@ -6882,7 +6885,9 @@ lemma compactFejerKernel_re_nonneg
     inv_nonneg.mpr (Nat.cast_nonneg Q.card)
   rw [← Complex.ofReal_natCast, ← Complex.ofReal_inv]
   rw [show star w = conj w by rfl, Complex.mul_conj]
-  simp [Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im]
+  simp only [ofReal_inv, ofReal_natCast, mul_re, inv_re, natCast_re, normSq_natCast,
+    div_self_mul_self', ofReal_re, inv_im, natCast_im, neg_zero, zero_div, ofReal_im,
+    mul_zero, sub_zero, ge_iff_le]
   exact mul_nonneg hnonneg (Complex.normSq_nonneg w)
 
 lemma compactFejerKernel_im_eq_zero
@@ -6919,7 +6924,9 @@ lemma finiteFejerKernel_re_nonneg
     inv_nonneg.mpr (Nat.cast_nonneg Q.card)
   rw [← Complex.ofReal_natCast, ← Complex.ofReal_inv]
   rw [show star w = conj w by rfl, Complex.mul_conj]
-  simp [Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im]
+  simp only [ofReal_inv, ofReal_natCast, mul_re, inv_re, natCast_re, normSq_natCast,
+    div_self_mul_self', ofReal_re, inv_im, natCast_im, neg_zero, zero_div, ofReal_im,
+    mul_zero, sub_zero, ge_iff_le]
   exact mul_nonneg hnonneg (Complex.normSq_nonneg w)
 
 lemma finiteFejerKernel_im_eq_zero
@@ -6947,7 +6954,9 @@ lemma shiftedFiniteFejerKernel_re_nonneg
     inv_nonneg.mpr (Nat.cast_nonneg Q.card)
   rw [← Complex.ofReal_natCast, ← Complex.ofReal_inv]
   rw [show star w = conj w by rfl, Complex.mul_conj]
-  simp [Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im]
+  simp only [ofReal_inv, ofReal_natCast, mul_re, inv_re, natCast_re, normSq_natCast,
+    div_self_mul_self', ofReal_re, inv_im, natCast_im, neg_zero, zero_div, ofReal_im,
+    mul_zero, sub_zero, ge_iff_le]
   exact mul_nonneg hnonneg (Complex.normSq_nonneg w)
 
 lemma shiftedFiniteFejerKernel_im_eq_zero
@@ -8903,9 +8912,13 @@ lemma exists_torsionFree_pairCoeffLowerBound
     H.subtype (AddSubgroup.subtype_injective H)
   have hBmap : BH.map emb = B := by
     ext γ
-    simp [BH, H, emb, PairCoeffLowerBound.addMonoidHomEmbedding]
-    intro hγ
-    exact AddSubgroup.subset_closure hγ
+    simp only [Finset.mem_map, Subtype.exists]
+    constructor
+    · rintro ⟨a, haH, haBH, hγ⟩
+      rw [← hγ]
+      simpa [BH, emb, PairCoeffLowerBound.addMonoidHomEmbedding] using haBH
+    · intro hγ
+      exact ⟨γ, AddSubgroup.subset_closure hγ, by simpa [BH], rfl⟩
   refine ⟨QH.map emb, ?_, ?_⟩
   · rcases hQH with ⟨q, hq⟩
     exact ⟨q, Finset.mem_map.mpr ⟨q, hq, rfl⟩⟩
@@ -13088,7 +13101,9 @@ lemma finiteEdgeFrequencyBalanceOn_exponent_identity
     (∑ e ∈ s, -(r e * (x e.1 - x e.2))) =
       ∑ i : Fin M, -(finiteEdgeFrequencyBalanceOn s r i * x i) := by
   classical
-  simp [finiteEdgeFrequencyBalanceOn, Finset.sum_filter]
+  simp only [Finset.sum_neg_distrib, neg_inj]
+  unfold finiteEdgeFrequencyBalanceOn
+  simp only [Finset.sum_filter]
   rw [show
       (∑ i : Fin M,
         ((∑ e ∈ s, if e.1 = i then r e else 0) -
@@ -14844,7 +14859,7 @@ theorem erdos_42_via_cayley :
       apply hnot
       rw [hAempty]
       intro a₁ ha₁ a₂ ha₂ a₃ ha₃ a₄ ha₄ _hsum
-      simp at ha₁ ha₂ ha₃ ha₄
+      simp only [Set.mem_insert_iff, Set.mem_empty_iff_false, or_false] at ha₁ ha₂ ha₃ ha₄
       subst a₁
       subst a₂
       subst a₃
