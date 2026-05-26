@@ -34,11 +34,6 @@ limitations under the License.
 
 import Mathlib
 
-set_option linter.style.openClassical false
-set_option linter.unusedVariables false
-set_option linter.style.cdot false
-set_option linter.unusedFintypeInType false
-
 scoped[EuclideanGeometry] notation "ℝ²" => EuclideanSpace ℝ (Fin 2)
 
 def Triplewise {α : Type*} (r : α → α → α → Prop) : Prop :=
@@ -53,7 +48,8 @@ The ternary relation `r` holds triplewise on the set `s`
 if `r x y z` for all *distinct* `x y z ∈ s`.
 -/
 protected def Triplewise (s : Set α) (r : α → α → α → Prop) : Prop :=
-  ∀ ⦃x⦄, x ∈ s → ∀ ⦃y⦄, y ∈ s → ∀ ⦃z⦄, z ∈ s → x ≠ y → y ≠ z → x ≠ z → r x y z
+  ∀ ⦃x⦄, x ∈ s → ∀ ⦃y⦄, y ∈ s → ∀ ⦃z⦄, z ∈ s →
+    x ≠ y → y ≠ z → x ≠ z → r x y z
 
 end Set
 
@@ -72,7 +68,6 @@ open EuclideanGeometry
 namespace Erdos846
 
 section Prelims
-open Classical
 
 /-- We say a subset `A` of points in the plane is `ε`-non-trilinear if any subset
 `B` of `A`, contains a non-trilinear subset `C` of size at least `ε|B|`. -/
@@ -90,7 +85,6 @@ end Prelims
 open MeasureTheory
 open Polynomial
 open scoped BigOperators
-open scoped Classical
 open scoped ENNReal
 open scoped EuclideanGeometry
 open scoped InnerProductSpace
@@ -116,10 +110,15 @@ def kyncl_poly (a b c d e f : ℝ) : ℝ :=
   ((a + b) * (c * d - e * f) + (c + d) * (e * f - a * b) + (e + f) * (a * b - c * d))
 
 lemma collinear_fin_two_iff_det_zero (x₁ y₁ x₂ y₂ x₃ y₃ : ℝ) :
-    Collinear ℝ ({(!₂[x₁, y₁] : ℝ²), (!₂[x₂, y₂] : ℝ²), (!₂[x₃, y₃] : ℝ²)} : Set ℝ²) ↔
+    Collinear ℝ
+        ({(!₂[x₁, y₁] : ℝ²), (!₂[x₂, y₂] : ℝ²),
+          (!₂[x₃, y₃] : ℝ²)} : Set ℝ²) ↔
       (x₂ - x₁) * (y₃ - y₁) - (x₃ - x₁) * (y₂ - y₁) = 0 := by
-  rw [collinear_iff_of_mem (show (!₂[x₁, y₁] : ℝ²) ∈
-      ({(!₂[x₁, y₁] : ℝ²), (!₂[x₂, y₂] : ℝ²), (!₂[x₃, y₃] : ℝ²)} : Set ℝ²) by simp)]
+  rw [collinear_iff_of_mem
+    (show (!₂[x₁, y₁] : ℝ²) ∈
+      ({(!₂[x₁, y₁] : ℝ²), (!₂[x₂, y₂] : ℝ²),
+        (!₂[x₃, y₃] : ℝ²)} : Set ℝ²) by
+      simp)]
   constructor
   · rintro ⟨v, hv⟩
     rcases hv (!₂[x₂, y₂] : ℝ²) (by simp) with ⟨r₂, hr₂⟩
@@ -151,13 +150,17 @@ lemma collinear_fin_two_iff_det_zero (x₁ y₁ x₂ y₂ x₃ y₃ : ℝ) :
         rcases hp with rfl | rfl | rfl
         · refine ⟨0, ?_⟩
           ext i
-          fin_cases i <;> simp
+          fin_cases i
+          all_goals simp
         · refine ⟨0, ?_⟩
           ext i
-          fin_cases i <;> simp <;> linarith
+          fin_cases i
+          all_goals simp
+          all_goals linarith
         · refine ⟨1, ?_⟩
           ext i
-          fin_cases i <;> simp
+          fin_cases i
+          all_goals simp
       · have hx₃ : x₃ - x₁ = 0 := by
           have hprod : (x₃ - x₁) * (y₂ - y₁) = 0 := by
             have h' := hdet
@@ -172,10 +175,12 @@ lemma collinear_fin_two_iff_det_zero (x₁ y₁ x₂ y₂ x₃ y₃ : ℝ) :
         rcases hp with rfl | rfl | rfl
         · refine ⟨0, ?_⟩
           ext i
-          fin_cases i <;> simp
+          fin_cases i
+          all_goals simp
         · refine ⟨1, ?_⟩
           ext i
-          fin_cases i <;> simp
+          fin_cases i
+          all_goals simp
         · refine ⟨(y₃ - y₁) / (y₂ - y₁), ?_⟩
           ext i
           fin_cases i
@@ -190,10 +195,12 @@ lemma collinear_fin_two_iff_det_zero (x₁ y₁ x₂ y₂ x₃ y₃ : ℝ) :
       rcases hp with rfl | rfl | rfl
       · refine ⟨0, ?_⟩
         ext i
-        fin_cases i <;> simp
+        fin_cases i
+        all_goals simp
       · refine ⟨1, ?_⟩
         ext i
-        fin_cases i <;> simp
+        fin_cases i
+        all_goals simp
       · refine ⟨(x₃ - x₁) / (x₂ - x₁), ?_⟩
         have hy₃ : y₃ - y₁ = ((x₃ - x₁) / (x₂ - x₁)) * (y₂ - y₁) := by
           field_simp [hx]
@@ -222,10 +229,14 @@ lemma kyncl_seq_mono : StrictMono kyncl_seq := by
   norm_num [pow_lt_pow_iff_right₀]
 
 lemma kyncl_poly_swap12 (a b c d e f : ℝ) :
-  kyncl_poly a b c d e f = - kyncl_poly c d a b e f := by unfold kyncl_poly; ring
+  kyncl_poly a b c d e f = - kyncl_poly c d a b e f := by
+  unfold kyncl_poly
+  ring
 
 lemma kyncl_poly_swap23 (a b c d e f : ℝ) :
-  kyncl_poly a b c d e f = - kyncl_poly a b e f c d := by unfold kyncl_poly; ring
+  kyncl_poly a b c d e f = - kyncl_poly a b e f c d := by
+  unfold kyncl_poly
+  ring
 
 lemma kyncl_seq_int_pos (n : ℕ) : 0 < kyncl_seq_int n := by
   dsimp [kyncl_seq_int]
@@ -296,23 +307,25 @@ lemma pair_eq_of_min_eq_max_eq {a b c d : ℕ}
     (hmax : max a b = max c d) (hmin : min a b = min c d) :
     ({a, b} : Set ℕ) = {c, d} := by
   apply Set.pair_eq_pair_iff.mpr
-  rcases le_total a b with hab | hba <;> rcases le_total c d with hcd | hdc
-  · left
-    constructor
-    · simpa [min_eq_left hab, min_eq_left hcd] using hmin
-    · simpa [max_eq_right hab, max_eq_right hcd] using hmax
-  · right
-    constructor
-    · simpa [min_eq_left hab, min_eq_right hdc] using hmin
-    · simpa [max_eq_right hab, max_eq_left hdc] using hmax
-  · right
-    constructor
-    · simpa [max_eq_left hba, max_eq_right hcd] using hmax
-    · simpa [min_eq_right hba, min_eq_left hcd] using hmin
-  · left
-    constructor
-    · simpa [max_eq_left hba, max_eq_left hdc] using hmax
-    · simpa [min_eq_right hba, min_eq_right hdc] using hmin
+  rcases le_total a b with hab | hba
+  · rcases le_total c d with hcd | hdc
+    · left
+      constructor
+      · simpa [min_eq_left hab, min_eq_left hcd] using hmin
+      · simpa [max_eq_right hab, max_eq_right hcd] using hmax
+    · right
+      constructor
+      · simpa [min_eq_left hab, min_eq_right hdc] using hmin
+      · simpa [max_eq_right hab, max_eq_left hdc] using hmax
+  · rcases le_total c d with hcd | hdc
+    · right
+      constructor
+      · simpa [max_eq_left hba, max_eq_right hcd] using hmax
+      · simpa [min_eq_right hba, min_eq_left hcd] using hmin
+    · left
+      constructor
+      · simpa [max_eq_left hba, max_eq_left hdc] using hmax
+      · simpa [min_eq_right hba, min_eq_right hdc] using hmin
 
 lemma kyncl_seq_int_diff4 (a b c d : ℕ) (h_neq : ({a, b} : Set ℕ) ≠ {c, d}) :
   kyncl_seq_int a + kyncl_seq_int b - kyncl_seq_int c - kyncl_seq_int d ≠ 0 := by
@@ -526,7 +539,10 @@ lemma case3_ineq (A C E : ℝ) (hAC : A ≠ C) (hCE : C ≠ E) (hEA : E ≠ A) :
       (sub_ne_zero.mpr hEA)
 
 lemma kyncl_poly_case3 (a b c d e f : ℝ) (h1 : b = d) (h2 : d = f) :
-  kyncl_poly a b c d e f = (a - c) * (c - e) * (e - a) := by rw [h1, h2]; unfold kyncl_poly; ring
+  kyncl_poly a b c d e f = (a - c) * (c - e) * (e - a) := by
+  rw [h1, h2]
+  unfold kyncl_poly
+  ring
 
 lemma kyncl_seq_case3_eval (i1 j1 i2 j2 i3 j3 : ℕ)
   (h1 : i1 < j1) (h2 : i2 < j2) (h3 : i3 < j3)
@@ -534,6 +550,9 @@ lemma kyncl_seq_case3_eval (i1 j1 i2 j2 i3 j3 : ℕ)
   (h_diff1 : i1 ≠ i2) (h_diff2 : i2 ≠ i3) (h_diff3 : i3 ≠ i1) :
   kyncl_poly (kyncl_seq i1) (kyncl_seq j1) (kyncl_seq i2) (kyncl_seq j2)
     (kyncl_seq i3) (kyncl_seq j3) ≠ 0 := by
+  have _ := h1
+  have _ := h2
+  have _ := h3
   have hAC : kyncl_seq i1 ≠ kyncl_seq i2 := fun h => h_diff1 (kyncl_seq_mono.injective h)
   have hCE : kyncl_seq i2 ≠ kyncl_seq i3 := fun h => h_diff2 (kyncl_seq_mono.injective h)
   have hEA : kyncl_seq i3 ≠ kyncl_seq i1 := fun h => h_diff3 (kyncl_seq_mono.injective h)
@@ -598,19 +617,24 @@ lemma sort3_cases (a b c : ℕ) :
     (b ≤ c ∧ c ≤ a) ∨ (c ≤ a ∧ a ≤ b) ∨ (c ≤ b ∧ b ≤ a) := by
   grind
 
-lemma IsTriangle_perm1 (e₁ e₂ e₃ : ℕ × ℕ) : IsTriangle e₁ e₃ e₂ ↔ IsTriangle e₁ e₂ e₃ := by
+lemma IsTriangle_perm1 (e₁ e₂ e₃ : ℕ × ℕ) :
+    IsTriangle e₁ e₃ e₂ ↔ IsTriangle e₁ e₂ e₃ := by
   delta IsTriangle
   rw [←Set.pair_comm]
-lemma IsTriangle_perm2 (e₁ e₂ e₃ : ℕ × ℕ) : IsTriangle e₂ e₁ e₃ ↔ IsTriangle e₁ e₂ e₃ := by
+lemma IsTriangle_perm2 (e₁ e₂ e₃ : ℕ × ℕ) :
+    IsTriangle e₂ e₁ e₃ ↔ IsTriangle e₁ e₂ e₃ := by
   delta IsTriangle
   rw [←Set.insert_comm]
-lemma IsTriangle_perm3 (e₁ e₂ e₃ : ℕ × ℕ) : IsTriangle e₂ e₃ e₁ ↔ IsTriangle e₁ e₂ e₃ := by
+lemma IsTriangle_perm3 (e₁ e₂ e₃ : ℕ × ℕ) :
+    IsTriangle e₂ e₃ e₁ ↔ IsTriangle e₁ e₂ e₃ := by
   delta IsTriangle
   rw [←Set.pair_comm _,Set.insert_comm]
-lemma IsTriangle_perm4 (e₁ e₂ e₃ : ℕ × ℕ) : IsTriangle e₃ e₁ e₂ ↔ IsTriangle e₁ e₂ e₃ := by
+lemma IsTriangle_perm4 (e₁ e₂ e₃ : ℕ × ℕ) :
+    IsTriangle e₃ e₁ e₂ ↔ IsTriangle e₁ e₂ e₃ := by
   delta IsTriangle
   repeat rw [←Set.insert_comm _,Set.pair_comm]
-lemma IsTriangle_perm5 (e₁ e₂ e₃ : ℕ × ℕ) : IsTriangle e₃ e₂ e₁ ↔ IsTriangle e₁ e₂ e₃ := by
+lemma IsTriangle_perm5 (e₁ e₂ e₃ : ℕ × ℕ) :
+    IsTriangle e₃ e₂ e₁ ↔ IsTriangle e₁ e₂ e₃ := by
   constructor
   · rintro ⟨i, j, k, hij, hjk, hset⟩
     have hperm : ({e₁, e₂, e₃} : Set (ℕ × ℕ)) = {e₃, e₂, e₁} := by
@@ -644,12 +668,12 @@ lemma kyncl_poly_perm5 (a b c d e f : ℝ) (h : kyncl_poly a b c d e f = 0) :
   delta Erdos846.kyncl_poly at*
   linear_combination2- @ h
 
--- Generated proof: keep the flexible tactic suppression local to this dense block.
-set_option linter.flexible false in
-lemma kyncl_poly_triangle (V : ℕ → ℝ) (e₁ e₂ e₃ : ℕ × ℕ) (h : IsTriangle e₁ e₂ e₃) :
+lemma kyncl_poly_triangle (V : ℕ → ℝ) (e₁ e₂ e₃ : ℕ × ℕ)
+    (h : IsTriangle e₁ e₂ e₃) :
   kyncl_poly (V e₁.1) (V e₁.2) (V e₂.1) (V e₂.2) (V e₃.1) (V e₃.2) = 0 := by
   norm_num[kyncl_poly, true,IsTriangle] at h⊢
-  simp_all[sub_sub,mul_assoc,Set.ext_iff]
+  simp_all only [Set.ext_iff, Set.mem_insert_iff, Set.mem_singleton_iff, Prod.forall,
+    Prod.mk.injEq, sub_sub, mul_assoc]
   use h.elim fun and⟨x,k,y,A, B⟩=>by_contra fun and=>
     absurd ((B _ _).2 (.inl ⟨rfl, rfl⟩)) fun and=>
       absurd ((B x y).2 (by valid))
@@ -666,23 +690,34 @@ lemma kyncl_seq_not_tri (e₁ e₂ e₃ : ℕ × ℕ)
   have h_cases := sort3_cases e₁.2 e₂.2 e₃.2
   rcases h_cases with h | h | h | h | h | h
   · exact kyncl_seq_not_tri_sorted e₁ e₂ e₃ h1 h2 h3 h12 h13 h23 htri h.1 h.2
-  · have htri' : ¬ IsTriangle e₁ e₃ e₂ := fun hh => htri ((IsTriangle_perm1 e₁ e₂ e₃).mp hh)
-    have h_neq := kyncl_seq_not_tri_sorted e₁ e₃ e₂ h1 h3 h2 h13 h12 h23.symm htri' h.1 h.2
+  · have htri' : ¬ IsTriangle e₁ e₃ e₂ := fun hh =>
+      htri ((IsTriangle_perm1 e₁ e₂ e₃).mp hh)
+    have h_neq :=
+      kyncl_seq_not_tri_sorted e₁ e₃ e₂ h1 h3 h2 h13 h12 h23.symm htri' h.1 h.2
     intro h_zero
     exact h_neq (kyncl_poly_perm1 _ _ _ _ _ _ h_zero)
-  · have htri' : ¬ IsTriangle e₂ e₁ e₃ := fun hh => htri ((IsTriangle_perm2 e₁ e₂ e₃).mp hh)
-    have h_neq := kyncl_seq_not_tri_sorted e₂ e₁ e₃ h2 h1 h3 h12.symm h23 h13 htri' h.1 h.2
+  · have htri' : ¬ IsTriangle e₂ e₁ e₃ := fun hh =>
+      htri ((IsTriangle_perm2 e₁ e₂ e₃).mp hh)
+    have h_neq :=
+      kyncl_seq_not_tri_sorted e₂ e₁ e₃ h2 h1 h3 h12.symm h23 h13 htri' h.1 h.2
     intro h_zero
     exact h_neq (kyncl_poly_perm2 _ _ _ _ _ _ h_zero)
-  · have htri' : ¬ IsTriangle e₂ e₃ e₁ := fun hh => htri ((IsTriangle_perm3 e₁ e₂ e₃).mp hh)
-    have h_neq := kyncl_seq_not_tri_sorted e₂ e₃ e₁ h2 h3 h1 h23 h12.symm h13.symm htri' h.1 h.2
+  · have htri' : ¬ IsTriangle e₂ e₃ e₁ := fun hh =>
+      htri ((IsTriangle_perm3 e₁ e₂ e₃).mp hh)
+    have h_neq :=
+      kyncl_seq_not_tri_sorted e₂ e₃ e₁ h2 h3 h1 h23 h12.symm h13.symm htri'
+        h.1 h.2
     intro h_zero
     exact h_neq (kyncl_poly_perm3 _ _ _ _ _ _ h_zero)
-  · have htri' : ¬ IsTriangle e₃ e₁ e₂ := fun hh => htri ((IsTriangle_perm4 e₁ e₂ e₃).mp hh)
-    have h_neq := kyncl_seq_not_tri_sorted e₃ e₁ e₂ h3 h1 h2 h13.symm h23.symm h12 htri' h.1 h.2
+  · have htri' : ¬ IsTriangle e₃ e₁ e₂ := fun hh =>
+      htri ((IsTriangle_perm4 e₁ e₂ e₃).mp hh)
+    have h_neq :=
+      kyncl_seq_not_tri_sorted e₃ e₁ e₂ h3 h1 h2 h13.symm h23.symm h12 htri'
+        h.1 h.2
     intro h_zero
     exact h_neq (kyncl_poly_perm4 _ _ _ _ _ _ h_zero)
-  · have htri' : ¬ IsTriangle e₃ e₂ e₁ := fun hh => htri ((IsTriangle_perm5 e₁ e₂ e₃).mp hh)
+  · have htri' : ¬ IsTriangle e₃ e₂ e₁ := fun hh =>
+      htri ((IsTriangle_perm5 e₁ e₂ e₃).mp hh)
     have h_neq :=
       kyncl_seq_not_tri_sorted e₃ e₂ e₁ h3 h2 h1 h23.symm h13.symm h12.symm htri'
         h.1 h.2
@@ -753,16 +788,17 @@ def IsBipartite (C : Finset (ℕ × ℕ)) (V1 V2 : Set ℕ) : Prop :=
 
 lemma bipartite_is_triangle_free (C : Finset (ℕ × ℕ)) (V1 V2 : Set ℕ)
   (hDisj : Disjoint V1 V2) (hBip : IsBipartite C V1 V2) :
-  ∀ e₁ ∈ C, ∀ e₂ ∈ C, ∀ e₃ ∈ C, e₁ ≠ e₂ → e₁ ≠ e₃ → e₂ ≠ e₃ → ¬ IsTriangle e₁ e₂ e₃ := by
+  ∀ e₁ ∈ C, ∀ e₂ ∈ C, ∀ e₃ ∈ C,
+    e₁ ≠ e₂ → e₁ ≠ e₃ → e₂ ≠ e₃ → ¬ IsTriangle e₁ e₂ e₃ := by
   delta Ne IsTriangle IsBipartite at*
   simp_all (config := { singlePass := true }) -contextual only [Set.disjoint_left,
     Prod.forall, Set.ext_iff, exists_and_left, not_exists, Prod.mk.injEq, not_and,
     Set.mem_insert_iff, Set.mem_singleton_iff, not_forall]
   use fun and a s I I R M _ _ _ _ A B K V W Z=>by_contra fun and=>
-    absurd ((not_not.1 (and ⟨B,W,.⟩)).2 (by valid)) fun and' =>
-      absurd ((not_not.1 (and ⟨B,W,.⟩)).2 (by valid)) ?_
-  induction (by_contra (and ⟨B, _,.⟩)).2 (by repeat constructor) with
-    cases (by_contra (and ⟨ K,W,.⟩)).2 (by valid) with
+    absurd ((not_not.1 (and ⟨B, W, ·⟩)).2 (by valid)) fun and' =>
+      absurd ((not_not.1 (and ⟨B, W, ·⟩)).2 (by valid)) ?_
+  induction (by_contra (and ⟨B, _, ·⟩)).2 (by repeat constructor) with
+    cases (by_contra (and ⟨K, W, ·⟩)).2 (by valid) with
     · grind
 
 lemma bipartite_half_ind (n : ℕ) (S : Finset (ℕ × ℕ))
@@ -836,9 +872,11 @@ lemma bipartite_half_ind (n : ℕ) (S : Finset (ℕ × ℕ))
           omega
         cases hcases with
         | inl h =>
-            cases f' e.2 <;> simp [f1, f2, h.1, Nat.ne_of_lt h.2]
+            cases f' e.2
+            all_goals simp [f1, f2, h.1, Nat.ne_of_lt h.2]
         | inr h =>
-            cases f' e.1 <;> simp [f1, f2, Nat.ne_of_lt h.1, h.2]
+            cases f' e.1
+            all_goals simp [f1, f2, Nat.ne_of_lt h.1, h.2]
       rw [hcomp]
       exact Finset.card_filter_add_card_filter_not
         (s := S_n) (p := fun e => f1 e.1 ≠ f1 e.2)
@@ -868,8 +906,6 @@ lemma bipartite_half_f_int (S : Finset (ℕ × ℕ)) (h_neq : ∀ e ∈ S, e.1 �
   obtain ⟨n, hn⟩ := h_bound
   exact bipartite_half_ind n S h_neq hn
 
--- Generated proof: keep the flexible tactic suppression local to this dense block.
-set_option linter.flexible false in
 lemma exists_bipartite_half (S : Finset (ℕ × ℕ)) (hS_lt : ∀ e ∈ S, e.1 < e.2) :
   ∃ V1 V2 : Set ℕ, Disjoint V1 V2 ∧
     ∃ C ⊆ S, (S.card : ℝ) / 2 ≤ C.card ∧ IsBipartite C V1 V2 := by
@@ -886,13 +922,14 @@ lemma exists_bipartite_half (S : Finset (ℕ × ℕ)) (hS_lt : ∀ e ∈ S, e.1 
     · exact Finset.filter_subset _ _
     · constructor
       · exact (div_le_iff₀' two_pos).mpr (by norm_cast)
-      · simp_all[IsBipartite]
+      · simp_all only [Prod.forall, ne_eq, ge_iff_le, IsBipartite, Finset.mem_filter,
+          Set.mem_setOf_eq, and_imp]
         use fun and a s=>by cases f and with norm_num
 
 lemma mantel_half (S : Finset (ℕ × ℕ)) (hS_lt : ∀ e ∈ S, e.1 < e.2) :
   ∃ C ⊆ S, (S.card : ℝ) / 2 ≤ C.card ∧
-    ∀ e₁ ∈ C, ∀ e₂ ∈ C, ∀ e₃ ∈ C, e₁ ≠ e₂ → e₁ ≠ e₃ → e₂ ≠ e₃ →
-      ¬ IsTriangle e₁ e₂ e₃ := by
+    ∀ e₁ ∈ C, ∀ e₂ ∈ C, ∀ e₃ ∈ C,
+      e₁ ≠ e₂ → e₁ ≠ e₃ → e₂ ≠ e₃ → ¬ IsTriangle e₁ e₂ e₃ := by
   have h := exists_bipartite_half S hS_lt
   rcases h with ⟨V1, V2, hDisj, C, hC_sub, hC_card, hBip⟩
   use C
@@ -904,6 +941,7 @@ lemma pullback_finset (f : ℕ × ℕ → ℝ²)
   (B : Finset ℝ²) (hB : (B : Set ℝ²) ⊆ A_set f) :
   ∃ S : Finset (ℕ × ℕ), S.card = B.card ∧ (∀ e ∈ S, e.1 < e.2) ∧
     (B : Set ℝ²) = f '' (S : Set (ℕ × ℕ)) := by
+  have _ := hf
   simp_rw [A_set,Set.subset_def, B.mem_coe] at hB
   choose! I R L using(id) hB
   exact
@@ -973,8 +1011,10 @@ def R_num : ℕ → ℕ
 | 0 => 3
 | (K + 1) => (K + 1) * R_num K + 2
 
-lemma finite_ramsey_ind (K : ℕ) (V : Finset ℕ) (c : (ℕ × ℕ) → Fin K) (hV : V.card ≥ R_num K) :
-  ∃ i ∈ V, ∃ j ∈ V, ∃ k ∈ V, i < j ∧ j < k ∧ c (i, j) = c (j, k) ∧ c (j, k) = c (i, k) := by
+lemma finite_ramsey_ind (K : ℕ) (V : Finset ℕ) (c : (ℕ × ℕ) → Fin K)
+    (hV : V.card ≥ R_num K) :
+  ∃ i ∈ V, ∃ j ∈ V, ∃ k ∈ V,
+    i < j ∧ j < k ∧ c (i, j) = c (j, k) ∧ c (j, k) = c (i, k) := by
   classical
   induction K generalizing V with
   | zero =>
@@ -985,7 +1025,9 @@ lemma finite_ramsey_ind (K : ℕ) (V : Finset ℕ) (c : (ℕ × ℕ) → Fin K) 
       apply V.card_ne_zero.mp<|ne_zero_of_lt hV
     let v0 := V.min' h_nonempty
     let V' := V.erase v0
-    have h_pigeon : ∃ c0 : Fin (K + 1), ∃ S ⊆ V', S.card ≥ R_num K ∧ ∀ x ∈ S, c (v0, x) = c0 := by
+    have h_pigeon :
+        ∃ c0 : Fin (K + 1), ∃ S ⊆ V',
+          S.card ≥ R_num K ∧ ∀ x ∈ S, c (v0, x) = c0 := by
       delta Erdos846.R_num at*
       refine(Finset.exists_le_of_sum_le Finset.univ_nonempty ?_).imp fun and y=>
         ⟨ _, (V').filter_subset _,y.2, fun and=>And.right ∘ Finset.mem_filter.1⟩
@@ -1098,6 +1140,7 @@ lemma finite_ramsey (K : ℕ) : ∃ N : ℕ,
     rw [Finset.mem_range] at h_k_in
     exact h_k_in
 
+set_option linter.unusedFintypeInType false in
 lemma ramsey_infinite_chromatic_type (C : Type) [Fintype C] (c : (ℕ × ℕ) → C) :
   ∃ i j k, i < j ∧ j < k ∧ c (i, j) = c (j, k) ∧ c (j, k) = c (i, k) := by
   let K := Fintype.card C
@@ -1208,8 +1251,8 @@ In other words, prove or disprove the following statement: every infinite
 `ε`-non-trilinear subset of the
 plane is weakly non-trilinar.
 -/
-theorem erdos_846 : (False) ↔ ∀ᵉ (A : Set ℝ²) (ε > 0), A.Infinite → NonTrilinearFor A ε →
-    WeaklyNonTrilinear A := by
+theorem erdos_846 : (False) ↔ ∀ᵉ (A : Set ℝ²) (ε > 0),
+    A.Infinite → NonTrilinearFor A ε → WeaklyNonTrilinear A := by
   constructor
   · intro h
     exact False.elim h
