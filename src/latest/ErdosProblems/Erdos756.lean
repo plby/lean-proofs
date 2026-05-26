@@ -27,35 +27,31 @@ import Mathlib
 
 namespace Erdos756
 
-set_option linter.style.setOption false
-set_option linter.style.openClassical false
-set_option linter.style.longLine false
-set_option linter.flexible false
-set_option linter.style.refine false
-
 open scoped BigOperators
 open scoped Real
 open scoped Nat
-open scoped Classical
 open scoped Pointwise
 
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
 
 /-
-The number of times a distance `d` appears in a set of points `P`. We divide by 2 because `offDiag` counts both `(x, y)` and `(y, x)`.
+The number of times a distance `d` appears in a set of points `P`. We divide
+by 2 because `offDiag` counts both `(x, y)` and `(y, x)`.
 -/
 noncomputable def distance_count (P : Finset ℂ) (d : ℝ) : ℕ :=
   (P.offDiag.filter (fun (x, y) => dist x y = d)).card / 2
 
 /-
-The set of vertices of a regular `m`-gon, represented as the `m`-th roots of unity in the complex plane.
+The set of vertices of a regular `m`-gon, represented as the `m`-th roots of
+unity in the complex plane.
 -/
 noncomputable def regular_polygon (m : ℕ) : Finset ℂ :=
   Polynomial.nthRootsFinset m (1 : ℂ)
 
 /-
-The distance between the vertex 1 and the vertex corresponding to the `k`-th root of unity in a regular `m`-gon.
+The distance between the vertex 1 and the vertex corresponding to the `k`-th
+root of unity in a regular `m`-gon.
 -/
 noncomputable def regular_polygon_distance (m k : ℕ) : ℝ :=
   dist 1 (Complex.exp (2 * Real.pi * Complex.I * k / m))
@@ -73,8 +69,11 @@ lemma regular_polygon_card (m : ℕ) (hm : m ≥ 1) : (regular_polygon m).card =
   exact (Complex.isPrimitiveRoot_exp m (by omega)).card_nthRootsFinset
 
 /-
-For any vertex `x` in a regular `m`-gon, the vertices `y` at distance corresponding to step `k` are exactly `x * zeta^k` and `x * zeta^(m-k)`.
+For any vertex `x` in a regular `m`-gon, the vertices `y` at distance
+corresponding to step `k` are exactly `x * zeta^k` and `x * zeta^(m-k)`.
 -/
+set_option linter.flexible false in
+set_option linter.style.longLine false in
 lemma neighbors_at_distance_eq (m k : ℕ) (hm : m ≥ 3) (hk2 : k ≤ (m - 1) / 2) (x : ℂ) (hx : x ∈ regular_polygon m) :
   (regular_polygon m).filter (fun y => dist x y = regular_polygon_distance m k) =
     {x * (zeta m) ^ k, x * (zeta m) ^ (m - k)} := by
@@ -85,7 +84,7 @@ lemma neighbors_at_distance_eq (m k : ℕ) (hm : m ≥ 3) (hk2 : k ≤ (m - 1) /
           -- Since $x$ and $y$ are $m$-th roots of unity, we can write $y = x \cdot \zeta$ for some $\zeta$ on the unit circle.
           obtain ⟨ζ, hζ⟩ : ∃ ζ : ℂ, y = x * ζ ∧ ζ ^ m = 1 := by
             simp_all +decide [ Polynomial.nthRoots ];
-            refine' ⟨ y / x, _, _ ⟩ <;> simp_all +decide [ sub_eq_iff_eq_add, mul_div_cancel₀, show x ≠ 0 from by rintro rfl; norm_num [ show m ≠ 0 by linarith ] at hx ];
+            refine ⟨ y / x, ?_, ?_ ⟩ <;> simp_all +decide [ sub_eq_iff_eq_add, mul_div_cancel₀, show x ≠ 0 from by rintro rfl; norm_num [ show m ≠ 0 by linarith ] at hx ];
             rw [ div_pow, hy.1, hx.2, div_one ];
           -- Since ζ is an m-th root of unity, we can write ζ = exp(2πiθ) for some real number θ.
           obtain ⟨θ, hθ⟩ : ∃ θ : ℝ, ζ = Complex.exp (2 * Real.pi * Complex.I * θ) := by
@@ -135,8 +134,11 @@ lemma neighbors_at_distance_eq (m k : ℕ) (hm : m ≥ 3) (hk2 : k ≤ (m - 1) /
             norm_num [ mul_two, Real.cos_sub, Real.sin_sub ]
 
 /-
-In a regular $m$-gon, the distance corresponding to a step of size $k$ appears $m$ times, for $1 \le k \le (m-1)/2$.
+In a regular $m$-gon, the distance corresponding to a step of size $k$ appears
+$m$ times, for $1 \le k \le (m-1)/2$.
 -/
+set_option linter.flexible false in
+set_option linter.style.longLine false in
 lemma mgon_helper (m k : ℕ) (hm : m ≥ 3) (hk1 : 1 ≤ k) (hk2 : k ≤ (m - 1) / 2) :
   distance_count (regular_polygon m) (regular_polygon_distance m k) = m := by
     -- By `neighbors_at_distance_eq`, each vertex has exactly two neighbors at distance `regular_polygon_distance m k`.
@@ -170,8 +172,11 @@ lemma mgon_helper (m k : ℕ) (hm : m ≥ 3) (hk1 : 1 ≤ k) (hk2 : k ≤ (m - 1
     rw [ h_total_edges.1, h_total_edges.2, Nat.mul_div_cancel_left _ ( by decide ), regular_polygon_card m ( by linarith ) ]
 
 /-
-The distance function `regular_polygon_distance` is injective for step sizes `k` in the range `1` to `(m-1)/2`.
+The distance function `regular_polygon_distance` is injective for step sizes
+`k` in the range `1` to `(m-1)/2`.
 -/
+set_option linter.flexible false in
+set_option linter.style.longLine false in
 lemma regular_polygon_distance_inj (m : ℕ) (hm : m ≥ 3) :
   Set.InjOn (regular_polygon_distance m) (Set.Icc 1 ((m - 1) / 2)) := by
     intro k hk l hl hkl; simp_all +decide ;
@@ -187,18 +192,20 @@ lemma regular_polygon_distance_inj (m : ℕ) (hm : m ≥ 3) :
 /-
 In a regular $m$-gon, $\left\lfloor\frac{m-1}{2}\right\rfloor$ distances appear $m$ times.
 -/
+set_option linter.flexible false in
+set_option linter.style.longLine false in
 lemma mgon (m : ℕ) (hm : m ≥ 3) :
   let P := regular_polygon m
   let distances := (P.offDiag.image (fun (x, y) => dist x y))
   ∃ S ⊆ distances, S.card = (m - 1) / 2 ∧ ∀ d ∈ S, distance_count P d = m := by
     use Finset.image ( regular_polygon_distance m ) ( Finset.Icc 1 ( ( m - 1 ) / 2 ) );
     field_simp;
-    refine' ⟨ _, _, _ ⟩ <;> norm_num [ Finset.card_image_of_injOn ];
+    refine ⟨ ?_, ?_, ?_ ⟩ <;> norm_num [ Finset.card_image_of_injOn ];
     · intro;
       simp +zetaDelta at *;
       rintro x hx₁ hx₂ rfl;
-      refine' ⟨ 1, Complex.exp ( 2 * Real.pi * Complex.I * x / m ), _, _ ⟩;
-      · refine' ⟨ _, _, _ ⟩ <;> norm_num [ regular_polygon ];
+      refine ⟨ 1, Complex.exp ( 2 * Real.pi * Complex.I * x / m ), ?_, ?_ ⟩;
+      · refine ⟨ ?_, ?_, ?_ ⟩ <;> norm_num [ regular_polygon ];
         · simp +decide [ Polynomial.nthRootsFinset ];
           simp +decide [ Polynomial.nthRoots ];
           exact Polynomial.X_pow_sub_C_ne_zero ( by linarith ) _;
@@ -222,8 +229,9 @@ noncomputable def rotate_around (c : ℂ) (θ : ℝ) (z : ℂ) : ℂ :=
 /-
 Rotation around a point `c` by angle `θ` is an isometry.
 -/
+set_option linter.style.longLine false in
 lemma rotate_around_isometry (c : ℂ) (θ : ℝ) : Isometry (rotate_around c θ) := by
-  refine' Isometry.of_dist_eq fun x y => _;
+  refine Isometry.of_dist_eq fun x y => ?_;
   unfold rotate_around; rw [ dist_eq_norm, dist_eq_norm ] ; ring_nf;
   rw [ show x * Complex.exp ( θ * Complex.I ) - Complex.exp ( θ * Complex.I ) * y = ( x - y ) * Complex.exp ( θ * Complex.I ) by ring, norm_mul, Complex.norm_exp ] ; norm_num
 
@@ -234,8 +242,12 @@ lemma rotate_around_self (c : ℂ) (θ : ℝ) : rotate_around c θ c = c := by
   unfold rotate_around; norm_num;
 
 /-
-For any finite set of points `P` and a point `c` in `P`, there exists a non-zero rotation angle `θ` such that the rotated set `P` intersects the original set `P` only at `c`.
+For any finite set of points `P` and a point `c` in `P`, there exists a
+non-zero rotation angle `θ` such that the rotated set `P` intersects the
+original set `P` only at `c`.
 -/
+set_option linter.flexible false in
+set_option linter.style.longLine false in
 lemma exists_good_rotation (P : Finset ℂ) (c : ℂ) (hc : c ∈ P) :
   ∃ θ : ℝ, θ ≠ 0 ∧ (P.image (rotate_around c θ)) ∩ P = {c} := by
     -- The set of angles $\theta \in [0, 2\pi)$ such that $rotate\_around(c, \theta, x) = y$ for some $x, y \in P$ is countable.
@@ -267,19 +279,24 @@ noncomputable def reflect_over (a b z : ℂ) : ℂ :=
 /-
 Reflection across the line passing through `a` and `b` is an isometry.
 -/
+set_option linter.flexible false in
+set_option linter.style.longLine false in
 lemma reflect_over_isometry (a b : ℂ) (h : a ≠ b) : Isometry (reflect_over a b) := by
-  refine' Isometry.of_dist_eq fun x y => _;
+  refine Isometry.of_dist_eq fun x y => ?_;
   simp +decide [ dist_eq_norm, reflect_over ];
   norm_num [ ← mul_sub, ← mul_div_assoc, h ];
   rw [ ← sub_div ];
   norm_num [ ← mul_sub, norm_mul, norm_div ];
   rw [ div_eq_iff ] <;> simp_all +decide [ Complex.norm_def, Complex.normSq ];
   · ring_nf;
-  · exact ne_of_gt <| Real.sqrt_pos.mpr <| not_le.mp fun h' => h <| by refine' Complex.ext _ _ <;> nlinarith;
+  · exact ne_of_gt <| Real.sqrt_pos.mpr <| not_le.mp fun h' => h <| by refine Complex.ext ?_ ?_ <;> nlinarith;
 
 /-
-For odd `n = 2m+1`, there exists a set of `n` points with `floor(m/2)` distances appearing at least `n+1` times.
+For odd `n = 2m+1`, there exists a set of `n` points with `floor(m/2)`
+distances appearing at least `n+1` times.
 -/
+set_option linter.flexible false in
+set_option linter.style.longLine false in
 lemma erdos756_odd (m : ℕ) (hm : m ≥ 2) :
   let n := 2 * m + 1
   ∃ P : Finset ℂ, P.card = n ∧
@@ -327,7 +344,7 @@ lemma erdos756_odd (m : ℕ) (hm : m ≥ 2) :
           rw [ Finset.sum_image ];
           · aesop;
           · exact fun x hx y hy hxy => Prod.ext ( hR.1.injective <| by aesop ) ( hR.1.injective <| by aesop );
-        refine' ⟨ P, _, S0, _, _, _ ⟩ <;> simp_all +decide [ two_mul ];
+        refine ⟨ P, ?_, S0, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ two_mul ];
         · rw [ Finset.card_union ];
           rw [ Finset.inter_comm, hR.2.2 ] ; norm_num [ regular_polygon_card ] ; ring_nf;
           rw [ Finset.card_image_of_injective _ hR.1.injective ] ; rw [ regular_polygon_card ] <;> linarith;
@@ -335,8 +352,11 @@ lemma erdos756_odd (m : ℕ) (hm : m ≥ 2) :
         · exact fun d hd => by linarith [ h_count d hd ] ;
 
 /-
-The intersection of a regular `(m+1)`-gon and its reflection across an edge is exactly the two endpoints of the edge.
+The intersection of a regular `(m+1)`-gon and its reflection across an edge is
+exactly the two endpoints of the edge.
 -/
+set_option linter.flexible false in
+set_option linter.style.longLine false in
 lemma regular_polygon_reflection_inter (m : ℕ) (hm : m ≥ 2) :
   let P := regular_polygon (m + 1)
   let u := (1 : ℂ)
@@ -377,15 +397,18 @@ lemma regular_polygon_reflection_inter (m : ℕ) (hm : m ≥ 2) :
     · simp +zetaDelta at *;
       rintro ( rfl | rfl ) <;> norm_num [ regular_polygon, zeta ];
       · use 1; simp [reflect_over];
-      · refine' ⟨ _, Complex.exp ( 2 * Real.pi * Complex.I / ( m + 1 ) ), _, _ ⟩ <;> norm_num [ ← Complex.exp_nat_mul, mul_div_cancel₀, show ( m : ℂ ) + 1 ≠ 0 from Nat.cast_add_one_ne_zero m ];
+      · refine ⟨ ?_, Complex.exp ( 2 * Real.pi * Complex.I / ( m + 1 ) ), ?_, ?_ ⟩ <;> norm_num [ ← Complex.exp_nat_mul, mul_div_cancel₀, show ( m : ℂ ) + 1 ≠ 0 from Nat.cast_add_one_ne_zero m ];
         unfold reflect_over; norm_num [ Complex.exp_ne_zero ] ;
         rw [ div_self ] <;> norm_num [ Complex.ext_iff, Complex.exp_re, Complex.exp_im ];
         ring_nf; norm_num [ Complex.normSq, Complex.div_re, Complex.div_im ];
         exact fun _ => ne_of_gt ( Real.sin_pos_of_pos_of_lt_pi ( by positivity ) ( by nlinarith [ Real.pi_pos, show ( m : ℝ ) ≥ 2 by norm_cast, mul_inv_cancel₀ ( by positivity : ( 1 + m : ℝ ) ≠ 0 ) ] ) )
 
 /-
-For even `n = 2m`, there exists a set of `n` points with `floor(m/2)` distances appearing at least `n+1` times.
+For even `n = 2m`, there exists a set of `n` points with `floor(m/2)`
+distances appearing at least `n+1` times.
 -/
+set_option linter.flexible false in
+set_option linter.style.longLine false in
 lemma erdos756_even (m : ℕ) (hm : m ≥ 2) :
   let n := 2 * m
   ∃ P : Finset ℂ, P.card = n ∧
@@ -432,19 +455,19 @@ lemma erdos756_even (m : ℕ) (hm : m ≥ 2) :
             have hS0_count_P : (P.offDiag.filter (fun (x, y) => dist x y = d)).card ≥ (P0.offDiag.filter (fun (x, y) => dist x y = d)).card + ((P0.image R).offDiag.filter (fun (x, y) => dist x y = d)).card - (if d = dist u v then 2 else 0) := by
               have hS0_count_P : (P.offDiag.filter (fun (x, y) => dist x y = d)).card ≥ (P0.offDiag.filter (fun (x, y) => dist x y = d)).card + ((P0.image R).offDiag.filter (fun (x, y) => dist x y = d)).card - ((P0 ∩ (P0.image R)).offDiag.filter (fun (x, y) => dist x y = d)).card := by
                 rw [ ← Finset.card_union_add_card_inter ];
-                refine' Nat.sub_le_of_le_add _;
-                refine' add_le_add _ _;
-                · refine' Finset.card_mono _;
+                refine Nat.sub_le_of_le_add ?_;
+                refine add_le_add ?_ ?_;
+                · refine Finset.card_mono ?_;
                   simp +decide [ Finset.subset_iff ];
                   rintro a b ( ⟨ ⟨ ha, hb, hab ⟩, rfl ⟩ | ⟨ ⟨ ⟨ x, hx, rfl ⟩, ⟨ y, hy, rfl ⟩, hab ⟩, rfl ⟩ ) <;> simp +decide [ *, Finset.mem_union ];
                   · exact ⟨ Or.inl ha, Or.inl hb ⟩;
                   · exact ⟨ Or.inr ⟨ x, hx, rfl ⟩, Or.inr ⟨ y, hy, rfl ⟩, hab ⟩;
-                · refine' Finset.card_mono _;
+                · refine Finset.card_mono ?_;
                   simp +contextual [ Finset.subset_iff ];
               split_ifs <;> simp_all +decide ;
               · refine le_trans hS0_count_P ?_;
                 simp +zetaDelta at *;
-                refine' le_trans ( Finset.card_le_card (t := ({ ( 1, zeta ( m + 1 ) ), ( zeta ( m + 1 ), 1 ) } : Finset (ℂ × ℂ))) _ ) _;
+                refine le_trans ( Finset.card_le_card (t := ({ ( 1, zeta ( m + 1 ) ), ( zeta ( m + 1 ), 1 ) } : Finset (ℂ × ℂ))) ?_ ) ?_;
                 · simp +decide [ Finset.subset_iff ];
                   rintro a b ( rfl | rfl ) ( rfl | rfl ) <;> norm_num [ dist_comm ] at *;
                 · exact Finset.card_insert_le _ _;
@@ -471,14 +494,17 @@ lemma erdos756_even (m : ℕ) (hm : m ≥ 2) :
             have h_dist_eq_final : distance_count (P0.image R) d = distance_count P0 d := by
               exact congr_arg ( · / 2 ) h_dist_eq_card
             exact h_dist_eq_final;
-          refine' ⟨ S0, _, hS0_card, _ ⟩ <;> simp_all +decide [ two_mul ];
+          refine ⟨ S0, ?_, hS0_card, ?_ ⟩ <;> simp_all +decide [ two_mul ];
           · exact fun x hx => Finset.mem_image.mpr <| by rcases Finset.mem_image.mp ( hS0_sub hx ) with ⟨ y, hy, rfl ⟩ ; exact ⟨ y, Finset.mem_offDiag.mpr ⟨ Finset.mem_union_left _ <| Finset.mem_offDiag.mp hy |>.1, Finset.mem_union_left _ <| Finset.mem_offDiag.mp hy |>.2.1, Finset.mem_offDiag.mp hy |>.2.2 ⟩, rfl ⟩ ;
           · grind
         use P, hP_card, hS_exists.choose, hS_exists.choose_spec.left, hS_exists.choose_spec.right.left, hS_exists.choose_spec.right.right
 
 /-
-For all $n \in \mathbb{N}$, there exists a set of $n$ points such that $\left\lfloor\frac{n}{4}\right\rfloor$ distances occur at least $n+1$ times.
+For all $n \in \mathbb{N}$, there exists a set of $n$ points such that
+$\left\lfloor\frac{n}{4}\right\rfloor$ distances occur at least $n+1$ times.
 -/
+set_option linter.flexible false in
+set_option linter.style.longLine false in
 theorem erdos756 (n : ℕ) :
   ∃ P : Finset ℂ, P.card = n ∧
     ∃ S ⊆ (P.offDiag.image (fun (x, y) => dist x y)),
