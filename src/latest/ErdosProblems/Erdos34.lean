@@ -39,13 +39,6 @@ sums is at least `c * n^2` for some `c > 0` (`exists_perm_not_small_o`).
 
 import Mathlib
 
-set_option linter.style.induction false
-set_option linter.style.multiGoal false
-set_option linter.style.refine false
-set_option linter.style.emptyLine false
-set_option linter.style.setOption false
-set_option linter.flexible false
-
 namespace Erdos34
 
 /-
@@ -66,12 +59,15 @@ The sum of $a_{2k+1}$ and $a_{2k+2}$ is $n+1$.
 -/
 lemma pair_sum_odd (n k : ℕ) (hk : 2 * k + 2 ≤ n) :
     construction n (2 * k + 1) + construction n (2 * k + 2) = n + 1 := by
-  unfold construction; norm_num [ Nat.add_mod, Nat.mod_two_of_bodd ] ; omega;
+  unfold construction
+  norm_num [Nat.add_mod, Nat.mod_two_of_bodd]
+  omega
 
 /-
 If a segment has odd length and starts at an odd index, its sum is
 $\frac{j-i}{2}(n+1) + a_j$.
 -/
+set_option linter.flexible false in
 lemma sum_odd_length_odd_start (n i j : ℕ) (hij : i ≤ j) (hjn : j ≤ n)
     (h_odd_len : (j - i + 1) % 2 = 1) (h_i_odd : i % 2 = 1) :
     segment_sum n i j = (j - i) / 2 * (n + 1) + construction n j := by
@@ -90,16 +86,21 @@ lemma sum_odd_length_odd_start (n i j : ℕ) (hij : i ≤ j) (hjn : j ≤ n)
           (construction n (2 * k + 1 + 2 * x) +
               construction n (2 * k + 2 + 2 * x)) +
             construction n (2 * k + 1 + 2 * m) := by
-    erw [ Finset.sum_Ico_eq_sum_range ];
+    erw [Finset.sum_Ico_eq_sum_range]
     rw [show 2 * k + 1 + 2 * m + 1 - (2 * k + 1) = 2 * m + 1 by
       rw [Nat.sub_eq_of_eq_add]
       ring]
     simp +arith +decide [Finset.sum_add_distrib, Finset.sum_range_succ]
-    induction' m with m ih;
-    · norm_num;
-    · induction' m + 1 with m ih <;>
-        simp +arith +decide [Nat.mul_succ, Finset.sum_range_succ] at * ;
-      linarith
+    induction m with
+    | zero =>
+        norm_num
+    | succ m ih =>
+        induction m + 1 with
+        | zero =>
+            simp +arith +decide [Nat.mul_succ] at *
+        | succ m ih =>
+            simp +arith +decide [Nat.mul_succ, Finset.sum_range_succ] at *
+            linarith
   -- Each pair $(a_{2k+1+2x}, a_{2k+2+2x})$ sums to $n+1$ by `pair_sum_odd`.
   have h_pair_sum_value :
       ∀ x ∈ Finset.range m,
@@ -129,7 +130,7 @@ lemma sum_odd_length_even_start (n i j : ℕ) (hi : 1 ≤ i) (hij : i ≤ j)
   have h_segment_sum :
       segment_sum n (2 * k) (2 * k + 2 * m) =
         (∑ x ∈ Finset.range (2 * m + 1), construction n (2 * k + x)) := by
-    apply Finset.sum_bij (fun x hx => x - 2 * k);
+    apply Finset.sum_bij (fun x hx => x - 2 * k)
     · exact fun x hx =>
         Finset.mem_range.mpr (by
           rw [tsub_lt_iff_left] <;>
@@ -143,7 +144,8 @@ lemma sum_odd_length_even_start (n i j : ℕ) (hi : 1 ≤ i) (hij : i ≤ j)
             ⟨by linarith [Finset.mem_range.mp hx],
               by linarith [Finset.mem_range.mp hx]⟩,
           by simp +decide⟩
-    · exact fun x hx => by rw [ Nat.add_sub_of_le ( Finset.mem_Icc.mp hx |>.1 ) ] ;
+    · exact fun x hx => by
+        rw [Nat.add_sub_of_le (Finset.mem_Icc.mp hx |>.1)]
   -- By definition of $construction$, we can split the sum into pairs and the last term.
   have h_split_sum :
       ∑ x ∈ Finset.range (2 * m + 1), construction n (2 * k + x) =
@@ -151,21 +153,31 @@ lemma sum_odd_length_even_start (n i j : ℕ) (hi : 1 ≤ i) (hij : i ≤ j)
           (construction n (2 * k + 2 * x) +
               construction n (2 * k + 2 * x + 1)) +
             construction n (2 * k + 2 * m) := by
-    induction' m with m ih;
-    · norm_num;
-    · induction' m + 1 with m ih <;>
-        simp_all +arith +decide [Nat.mul_succ, Finset.sum_range_succ]
+    induction m with
+    | zero =>
+        norm_num
+    | succ m ih =>
+        induction m + 1 with
+        | zero =>
+            simp_all +arith +decide [Nat.mul_succ, Finset.sum_range_succ]
+        | succ m ih =>
+            simp_all +arith +decide [Nat.mul_succ, Finset.sum_range_succ]
   -- By definition of $construction$, each pair $(a_{2k}, a_{2k+1})$ sums to $n+2$.
   have h_pair_sum :
       ∀ x ∈ Finset.range m,
         construction n (2 * k + 2 * x) +
             construction n (2 * k + 2 * x + 1) =
           n + 2 := by
-    intros x hx; unfold construction; simp +arith +decide [ Nat.add_mod ] ;
-    grind;
+    intros x hx
+    unfold construction
+    simp +arith +decide [Nat.add_mod]
+    grind
   simp_all +decide
 
 set_option maxHeartbeats 2000000 in
+-- The parity case split below needs extra heartbeats for its arithmetic subgoals.
+set_option linter.flexible false in
+set_option linter.style.multiGoal false in
 /-
 If two odd-length segments have the same sum, they must be the same segment.
 -/
@@ -178,15 +190,15 @@ theorem distinct_odd_sums (n : ℕ) {i j k l : ℕ}
     i = k ∧ j = l := by
   -- Let's consider the four cases based on the parity of $i$ and $k$.
   by_cases hi_odd : i % 2 = 1
-  by_cases hk_odd : k % 2 = 1;
+  by_cases hk_odd : k % 2 = 1
   · -- By Lemma 2, the sums have the same paired part and final term.
     have h_eq_odd :
         (j - i) / 2 * (n + 1) + construction n j =
           (l - k) / 2 * (n + 1) + construction n l := by
       rw [
         ← sum_odd_length_odd_start n i j hij hjn h_odd_1 hi_odd,
-        ← sum_odd_length_odd_start n k l hkl hln h_odd_2 hk_odd] ;
-        aesop
+        ← sum_odd_length_odd_start n k l hkl hln h_odd_2 hk_odd]
+      aesop
     -- The residual terms are bounded by $n+1$, so the paired coefficients agree.
     have h_eq_odd_simplified :
         (j - i) / 2 = (l - k) / 2 ∧ construction n j = construction n l := by
@@ -203,10 +215,10 @@ theorem distinct_odd_sums (n : ℕ) {i j k l : ℕ}
             · omega
             · omega⟩
       have h_eq_odd_simplified : (j - i) / 2 = (l - k) / 2 := by
-        nlinarith only [ h_eq_odd, h_eq_odd_simplified ];
-      aesop;
-    unfold construction at h_eq_odd_simplified;
-    grind;
+        nlinarith only [h_eq_odd, h_eq_odd_simplified]
+      aesop
+    unfold construction at h_eq_odd_simplified
+    grind
   · -- By `sum_odd_length_odd_start`, the sums are $m_1(n+1) + a_j$ and
     -- $m_2(n+2) + a_l$.
     obtain ⟨m1, hm1⟩ : ∃ m1, j = i + 2 * m1 := by
@@ -216,24 +228,26 @@ theorem distinct_odd_sums (n : ℕ) {i j k l : ℕ}
     have h_sum1 : segment_sum n i j = m1 * (n + 1) + construction n j := by
       convert sum_odd_length_odd_start n i j hij hjn _ _ using 1 <;> aesop
     have h_sum2 : segment_sum n k l = m2 * (n + 2) + construction n l := by
-      convert sum_odd_length_even_start n k l hk hkl hln _ _ using 1 <;> aesop;
+      convert sum_odd_length_even_start n k l hk hkl hln _ _ using 1 <;> aesop
     -- Since $j$ is odd and $l$ is even, simplify the two endpoint terms.
     have h_construction_j : construction n j = (j + 1) / 2 := by
-      unfold construction; aesop
+      unfold construction
+      aesop
     have h_construction_l : construction n l = n + 1 - l / 2 := by
-      unfold construction; aesop;
+      unfold construction
+      aesop
     -- Since $m1 \neq m2$, we have $m1 > m2$ or $m1 < m2$.
-    by_cases h_cases : m1 > m2;
-    · simp_all +decide [ Nat.add_div ];
+    by_cases h_cases : m1 > m2
+    · simp_all +decide [Nat.add_div]
       nlinarith only [h_sum2, h_cases, Nat.sub_le (n + 1) (k / 2 + m2),
         Nat.div_mul_le_self i 2, Nat.div_mul_le_self k 2, Nat.div_add_mod i 2,
         Nat.div_add_mod k 2, hi_odd, hk_odd]
-    · cases lt_or_eq_of_le (le_of_not_gt h_cases) <;> simp_all +decide [Nat.add_div];
-      · contrapose! h_sum2;
+    · cases lt_or_eq_of_le (le_of_not_gt h_cases) <;> simp_all +decide [Nat.add_div]
+      · contrapose! h_sum2
         exact ne_of_lt <| by
           nlinarith only [Nat.div_mul_le_self i 2, Nat.div_mul_le_self k 2,
             Nat.sub_le (n + 1) (k / 2 + m2), ‹m1 < m2›, hjn, hln]
-      · grind +ring;
+      · grind +ring
   · by_cases hk_odd : k % 2 = 1 <;> simp_all +decide
     · -- By `sum_odd_length_odd_start`, the sums are $m_1(n+2) + a_j$ and
       -- $m_2(n+1) + a_l$.
@@ -245,19 +259,21 @@ theorem distinct_odd_sums (n : ℕ) {i j k l : ℕ}
         convert sum_odd_length_even_start n i j hi hij hjn _ _ using 1 <;> aesop
       have h_sum2 : segment_sum n k l = m2 * (n + 1) + construction n l := by
         convert sum_odd_length_odd_start n k l hkl hln _ _ using 1 <;> aesop
-      rw [h_sum1, h_sum2] at h_eq; (
+      rw [h_sum1, h_sum2] at h_eq
       -- Since $j$ is even and $l$ is odd, simplify the two endpoint terms.
       have h_construction_j : construction n j = n + 1 - (i + 2 * m1) / 2 := by
-        unfold construction; simp +arith +decide [ hm1, Nat.add_div ] ;
+        unfold construction
+        simp +arith +decide [hm1, Nat.add_div]
         aesop
       have h_construction_l : construction n l = (k + 2 * m2 + 1) / 2 := by
-        unfold construction; simp +decide [ *, Nat.add_mod ] ;
-      rw [h_construction_j, h_construction_l] at h_eq; (
+        unfold construction
+        simp +decide [*, Nat.add_mod]
+      rw [h_construction_j, h_construction_l] at h_eq
       -- By simplifying, we can see that $m1 = m2$.
       have h_m_eq : m1 = m2 := by
         by_contra h_m_neq
-        generalize_proofs at *; (
-        cases lt_or_gt_of_ne h_m_neq <;> simp_all +decide [ Nat.add_div ];
+        generalize_proofs at *
+        cases lt_or_gt_of_ne h_m_neq <;> simp_all +decide [Nat.add_div]
         · nlinarith only [Nat.div_mul_le_self i 2, Nat.div_mul_le_self k 2,
             Nat.div_add_mod i 2, Nat.div_add_mod k 2, hi_odd, hk_odd, h_eq,
             ‹m1 < m2›,
@@ -267,9 +283,9 @@ theorem distinct_odd_sums (n : ℕ) {i j k l : ℕ}
             Nat.div_add_mod i 2, Nat.div_add_mod k 2, hi_odd, hk_odd, h_eq,
             hjn, hln, ‹_›,
             Nat.sub_add_cancel (show i / 2 + m1 ≤ n + 1 from by
-              linarith [Nat.div_mul_le_self i 2])])
-      subst h_m_eq; (
-      grind +ring);));
+              linarith [Nat.div_mul_le_self i 2])]
+      subst h_m_eq
+      grind +ring
     · -- By `sum_odd_length_even_start`, the sums are $m_1(n+2) + a_j$ and
       -- $m_2(n+2) + a_l$.
       obtain ⟨m1, hm1⟩ : ∃ m1, j = i + 2 * m1 := by
@@ -279,13 +295,15 @@ theorem distinct_odd_sums (n : ℕ) {i j k l : ℕ}
       have h_sum1 : segment_sum n i j = m1 * (n + 2) + construction n j := by
         convert sum_odd_length_even_start n i j hi hij hjn _ _ using 1 <;> aesop
       have h_sum2 : segment_sum n k l = m2 * (n + 2) + construction n l := by
-        convert sum_odd_length_even_start n k l hk hkl hln _ _ using 1 <;> aesop;
+        convert sum_odd_length_even_start n k l hk hkl hln _ _ using 1 <;> aesop
       -- Since both endpoints are even, simplify both construction values.
       have h_construction_j : construction n j = n + 1 - (i + 2 * m1) / 2 := by
-        unfold construction; aesop;
+        unfold construction
+        aesop
       have h_construction_l : construction n l = n + 1 - (k + 2 * m2) / 2 := by
-        unfold construction; aesop;
-      simp_all +decide [ Nat.add_div ];
+        unfold construction
+        aesop
+      simp_all +decide [Nat.add_div]
       -- Since $m1 = m2$, we have $i + 2 * m1 = k + 2 * m2$.
       have h_eq_m : m1 = m2 := by
         nlinarith only [h_sum2,
@@ -295,10 +313,12 @@ theorem distinct_odd_sums (n : ℕ) {i j k l : ℕ}
             linarith [Nat.div_mul_le_self k 2]),
           Nat.div_mul_cancel (show 2 ∣ i from Nat.dvd_of_mod_eq_zero hi_odd),
           Nat.div_mul_cancel (show 2 ∣ k from Nat.dvd_of_mod_eq_zero hk_odd)]
-      simp_all +decide [ Nat.add_comm ];
-      rw [ tsub_right_inj ] at h_sum2 <;> omega;
+      simp_all +decide [Nat.add_comm]
+      rw [tsub_right_inj] at h_sum2 <;> omega
 
 set_option maxHeartbeats 2000000 in
+-- The cardinality lower bound proof needs extra heartbeats for finite-set arithmetic.
+set_option linter.flexible false in
 /-
 The number of distinct consecutive sums is at least $n^2/4$.
 -/
@@ -319,13 +339,12 @@ theorem num_distinct_sums_ge (n : ℕ) :
       Finset.filter
         (fun p => p.1 ≤ p.2 ∧ (p.2 - p.1 + 1) % 2 = 1)
         (Finset.product (Finset.Icc 1 n) (Finset.Icc 1 n)) with hS_def
-
     -- By `distinct_odd_sums`, the map `segment_sum` is injective on $S$.
     have h_inj_odd :
         Finset.card (Finset.image (fun p => segment_sum n p.1 p.2) S) =
           Finset.card S := by
-      apply Finset.card_image_of_injOn;
-      intros p hp q hq h_eq;
+      apply Finset.card_image_of_injOn
+      intros p hp q hq h_eq
       have hp_filter := Finset.mem_filter.mp hp
       have hq_filter := Finset.mem_filter.mp hq
       have hp_prod := Finset.mem_product.mp hp_filter.1
@@ -340,8 +359,8 @@ theorem num_distinct_sums_ge (n : ℕ) :
         hp_filter.2.2
         hq_filter.2.2
         h_eq
-      aesop;
-    rw [ h_inj_odd ];
+      aesop
+    rw [h_inj_odd]
     -- Let's count the number of pairs $(i, j)$ in $S$ by considering the parity of $i$ and $j$.
     have h_count :
         Finset.card S =
@@ -350,8 +369,9 @@ theorem num_distinct_sums_ge (n : ℕ) :
               (Finset.filter
                 (fun j => j ≥ i ∧ (j - i + 1) % 2 = 1)
                 (Finset.Icc 1 n))) := by
-      erw [ Finset.card_filter ];
-      erw [ Finset.sum_product ] ; aesop;
+      erw [Finset.card_filter]
+      erw [Finset.sum_product]
+      aesop
     -- For each $i$, the number of valid $j$ is at least $\frac{n - i + 1}{2}$.
     have h_card_filter :
         ∀ i ∈ Finset.Icc 1 n,
@@ -367,7 +387,7 @@ theorem num_distinct_sums_ge (n : ℕ) :
               (Finset.Icc 1 n) ⊇
             Finset.image (fun k => i + 2 * k)
               (Finset.range ((n - i + 1 + 1) / 2)) := by
-        simp +arith +decide [ Finset.subset_iff ];
+        simp +arith +decide [Finset.subset_iff]
         exact fun a ha =>
           ⟨by linarith [Finset.mem_Icc.mp hi],
             by
@@ -376,10 +396,10 @@ theorem num_distinct_sums_ge (n : ℕ) :
                   (show i ≤ n from Finset.mem_Icc.mp hi |>.2)]⟩
       exact le_trans
         (by rw [ Finset.card_image_of_injective ] <;> aesop_cat)
-        (Finset.card_mono h_filter);
-    refine' le_trans _ ( h_count.symm ▸ Finset.sum_le_sum h_card_filter );
-    erw [ Finset.sum_Ico_eq_sum_range ];
-    rcases Nat.even_or_odd' n with ⟨ k, rfl | rfl ⟩ <;> norm_num [ Nat.add_div ];
+        (Finset.card_mono h_filter)
+    refine le_trans ?_ (h_count.symm ▸ Finset.sum_le_sum h_card_filter)
+    erw [Finset.sum_Ico_eq_sum_range]
+    rcases Nat.even_or_odd' n with ⟨ k, rfl | rfl ⟩ <;> norm_num [Nat.add_div]
     · rw [show (2 * k) ^ 2 / 4 = k ^ 2 by
         rw [Nat.div_eq_of_eq_mul_left zero_lt_four]
         ring]
@@ -425,18 +445,23 @@ theorem num_distinct_sums_ge (n : ℕ) :
                   (Finset.range k).sum (fun x => k - x - 1) from
               Finset.sum_congr rfl fun x hx => ?_]
           · exact Nat.recOn k (by norm_num) fun n ih => by
-              cases n <;> simp +decide [Finset.sum_range_succ'] at * ;
-                linarith
-          · omega;
-          · grind;
-        · intro a ha; omega;
-        · intro a ha; omega;
-        · intro a ha; omega;
-        · intro a ha; omega;
-      · norm_num [ Finset.disjoint_right ];
-        intros; omega;
+              cases n <;> simp +decide [Finset.sum_range_succ'] at *
+              all_goals linarith
+          · omega
+          · grind
+        · intro a ha
+          omega
+        · intro a ha
+          omega
+        · intro a ha
+          omega
+        · intro a ha
+          omega
+      · norm_num [Finset.disjoint_right]
+        intros
+        omega
       · ext x
-        simp [Finset.mem_range, Finset.mem_image];
+        simp [Finset.mem_range, Finset.mem_image]
         exact ⟨
           fun h => by
             rcases Nat.even_or_odd' x with ⟨c, rfl | rfl⟩ <;> [left; right] <;>
@@ -451,9 +476,9 @@ theorem num_distinct_sums_ge (n : ℕ) :
                 Finset.image (fun x => 2 * x + 1) (Finset.range k) from ?_,
         Finset.sum_union] <;>
         norm_num [Finset.sum_image, Nat.add_mod, Nat.mul_mod]
-      · norm_num [ add_comm 1, Nat.add_sub_add_left, ← Nat.div_div_eq_div_mul ];
-        norm_num [ add_assoc, Nat.add_sub_add_right, Nat.mul_succ, Finset.sum_add_distrib ];
-        norm_num [ ← mul_tsub, Nat.add_mod, Nat.mul_mod ];
+      · norm_num [add_comm 1, Nat.add_sub_add_left, ← Nat.div_div_eq_div_mul]
+        norm_num [add_assoc, Nat.add_sub_add_right, Nat.mul_succ, Finset.sum_add_distrib]
+        norm_num [← mul_tsub, Nat.add_mod, Nat.mul_mod]
         rw [
           show
               (∑ x ∈ Finset.range (k + 1), (k - x)) =
@@ -461,24 +486,25 @@ theorem num_distinct_sums_ge (n : ℕ) :
           show
               (∑ x ∈ Finset.range k, (2 * k - (2 * x + 1)) / 2) =
                 k * (k - 1) / 2 from ?_]
-        · rcases k with ( _ | _ | k ) <;> simp +arith +decide [ Nat.add_mod ];
-          ring_nf;
-          cases Nat.mod_two_eq_zero_or_one k <;> simp +decide [ * ] <;> omega;
+        · rcases k with ( _ | _ | k ) <;> simp +arith +decide [Nat.add_mod]
+          ring_nf
+          cases Nat.mod_two_eq_zero_or_one k <;> simp +decide [*] <;> omega
         · rw [
             show
                 (∑ x ∈ Finset.range k, (2 * k - (2 * x + 1)) / 2) =
                   ∑ x ∈ Finset.range k, (k - x - 1) from
               Finset.sum_congr rfl fun x hx => by omega]
-          convert Finset.sum_range_id k using 1;
-          conv_rhs => rw [ ← Finset.sum_range_reflect ] ;
-          exact Finset.sum_congr rfl fun x hx => by rw [ Nat.sub_right_comm ] ;
-        · convert Finset.sum_range_id ( k + 1 ) using 1;
-          conv_rhs => rw [ ← Finset.sum_range_reflect ] ;
-          rfl;
-      · norm_num [ Finset.disjoint_right ];
-        intros; omega;
+          convert Finset.sum_range_id k using 1
+          conv_rhs => rw [← Finset.sum_range_reflect]
+          exact Finset.sum_congr rfl fun x hx => by rw [Nat.sub_right_comm]
+        · convert Finset.sum_range_id (k + 1) using 1
+          conv_rhs => rw [← Finset.sum_range_reflect]
+          rfl
+      · norm_num [Finset.disjoint_right]
+        intros
+        omega
       · ext x
-        simp [Finset.mem_range, Finset.mem_image];
+        simp [Finset.mem_range, Finset.mem_image]
         exact ⟨
           fun hx => by
             rcases Nat.even_or_odd' x with ⟨c, rfl | rfl⟩ <;> [left; right] <;>
@@ -491,35 +517,36 @@ theorem num_distinct_sums_ge (n : ℕ) :
 /-
 The function `construction n` is a bijection from $\{1, \dots, n\}$ to itself.
 -/
+set_option linter.flexible false in
 lemma construction_bij_on (n : ℕ) :
     { x | x ∈ Finset.Icc 1 n }.BijOn (construction n) { x | x ∈ Finset.Icc 1 n } := by
   -- To prove bijection, show injectivity and surjectivity on the set {1, 2, ..., n}.
   have h_inj :
       ∀ i j : ℕ, 1 ≤ i → i ≤ n → 1 ≤ j → j ≤ n →
         construction n i = construction n j → i = j := by
-    unfold construction;
-    grind;
+    unfold construction
+    grind
   -- Next, show that construction n is surjective on the set {1, 2, ..., n}.
   have h_surj :
       ∀ y : ℕ, 1 ≤ y → y ≤ n →
         ∃ x : ℕ, 1 ≤ x ∧ x ≤ n ∧ construction n x = y := by
     intro y hy₁ hy₂
-    by_cases hy_even : y ≤ (n + 1) / 2;
-    · use 2 * y - 1;
+    by_cases hy_even : y ≤ (n + 1) / 2
+    · use 2 * y - 1
       exact ⟨Nat.le_sub_one_of_lt (by linarith),
         Nat.sub_le_of_le_add (by omega),
         by
           unfold construction
           split_ifs
           · omega
-          · omega⟩;
-    · use 2 * ( n + 1 - y );
-      exact ⟨ by omega, by omega, by unfold construction; split_ifs <;> omega ⟩;
-  simp +zetaDelta at *;
-  refine' ⟨ fun x hx => _, fun x hx => _, fun x hx => _ ⟩;
-  · unfold construction;
-    grind;
-  · exact fun y hy hxy => h_inj x y hx.1 hx.2 hy.1 hy.2 hxy;
+          · omega⟩
+    · use 2 * (n + 1 - y)
+      exact ⟨ by omega, by omega, by unfold construction; split_ifs <;> omega ⟩
+  simp +zetaDelta at *
+  refine ⟨ fun x hx => ?_, fun x hx => ?_, fun x hx => ?_ ⟩
+  · unfold construction
+    grind
+  · exact fun y hy hxy => h_inj x y hx.1 hx.2 hy.1 hy.2 hxy
   · grind
 
 /-
@@ -535,15 +562,18 @@ There exists a permutation $p$ of $\{0, \dots, n-1\}$ such that
 $p(i) + 1 = a_{i+1}$ for all $i$.
 -/
 lemma exists_perm_eq_construction (n : ℕ) :
-    ∃ p : Equiv.Perm (Fin n), ∀ i : Fin n, (p i : ℕ) + 1 = construction n (i + 1) := by
+    ∃ p : Equiv.Perm (Fin n),
+      ∀ i : Fin n, (p i : ℕ) + 1 = construction n (i + 1) := by
   -- Let $f : \text{Fin} n \to \text{Fin} n$ be defined by
   -- $f(i) = \text{construction}(n, i+1) - 1$.
-  obtain ⟨f, hf⟩ : ∃ f : Fin n → Fin n, ∀ i, (f i : ℕ) + 1 = construction n (i + 1) := by
+  obtain ⟨f, hf⟩ :
+      ∃ f : Fin n → Fin n,
+        ∀ i, (f i : ℕ) + 1 = construction n (i + 1) := by
     have h_construction_bounds :
         ∀ i : Fin n, 1 ≤ construction n (i + 1) ∧
           construction n (i + 1) ≤ n := by
-      unfold construction;
-      intro i; split_ifs <;> omega;
+      unfold construction
+      intro i; split_ifs <;> omega
     exact
       ⟨fun i =>
           ⟨construction n (i + 1) - 1, by
@@ -556,7 +586,9 @@ lemma exists_perm_eq_construction (n : ℕ) :
     -- By definition of $f$, we know that it is injective.
     have h_inj : Function.Injective f := by
       -- By definition of `construction`, the value `construction n (i + 1)` is unique.
-      have h_unique : ∀ i j : Fin n, i ≠ j → construction n (i + 1) ≠ construction n (j + 1) := by
+      have h_unique :
+          ∀ i j : Fin n, i ≠ j →
+            construction n (i + 1) ≠ construction n (j + 1) := by
         intro i j hij h_eq
         have hi_mem : (i : ℕ) + 1 ∈ Finset.Icc 1 n :=
           Finset.mem_Icc.mpr ⟨ Nat.succ_pos _, Nat.succ_le_of_lt i.2 ⟩
@@ -570,25 +602,30 @@ lemma exists_perm_eq_construction (n : ℕ) :
           h_unique i j hi <| by
             linarith [hf i, hf j,
               show (f i : ℕ) = f j from congr_arg Fin.val hij]
-    exact ⟨ h_inj, Finite.injective_iff_surjective.mp h_inj ⟩;
+    exact ⟨ h_inj, Finite.injective_iff_surjective.mp h_inj ⟩
   exact ⟨ Equiv.ofBijective f h_perm, hf ⟩
 
 /-
 If $p(i)+1 = a_{i+1}$, then the set of consecutive sums of $p$ is the same as the
 set of consecutive sums of the sequence $a$.
 -/
+set_option linter.flexible false in
+set_option linter.style.multiGoal false in
 lemma perm_sums_eq_construction_sums (n : ℕ) (p : Equiv.Perm (Fin n))
     (hp : ∀ i : Fin n, (p i : ℕ) + 1 = construction n (i + 1)) :
     perm_consecutive_sums n p =
     Finset.image (fun x : ℕ × ℕ => segment_sum n x.1 x.2)
       ((Finset.Icc 1 n).product (Finset.Icc 1 n) |>.filter
         (fun x => x.1 ≤ x.2)) := by
-  ext; simp [perm_consecutive_sums];
-  constructor;
+  ext
+  simp [perm_consecutive_sums]
+  constructor
   · rintro ⟨ a, b, hab, rfl ⟩
-    refine' ⟨ a + 1, b + 1, _, _ ⟩ <;> simp_all +decide [ segment_sum ] ;
-    · refine' Finset.sum_bij ( fun x hx => ⟨ x - 1, _ ⟩ ) _ _ _ _ <;> norm_num;
-      any_goals intros; omega;
+    refine ⟨ a + 1, b + 1, ?_, ?_ ⟩ <;> simp_all +decide [segment_sum]
+    · refine Finset.sum_bij (fun x hx => ⟨ x - 1, ?_ ⟩) ?_ ?_ ?_ ?_ <;> norm_num
+      any_goals
+        intros
+        omega
       exact lt_of_lt_of_le
         (Nat.pred_lt (ne_bot_of_gt (Finset.mem_Icc.mp hx |>.1)))
         (Finset.mem_Icc.mp hx |>.2.trans
@@ -600,16 +637,16 @@ lemma perm_sums_eq_construction_sums (n : ℕ) (p : Equiv.Perm (Fin n))
           ⟨i + 1, ⟨Nat.succ_le_succ hi₁, Nat.succ_le_succ hi₂⟩, by
             erw [Fin.ext_iff]
             simp +decide⟩
-      · exact fun i hi₁ hi₂ => by rw [ Nat.sub_add_cancel ( by linarith ) ] ;
-  · rintro ⟨ a, b, ⟨ ⟨ ⟨ ha₁, ha₂ ⟩, ⟨ hb₁, hb₂ ⟩ ⟩, hab ⟩, rfl ⟩;
-    refine' ⟨ ⟨ a - 1, _ ⟩, ⟨ b - 1, _ ⟩, _, _ ⟩ <;>
+      · exact fun i hi₁ hi₂ => by rw [Nat.sub_add_cancel (by linarith)]
+  · rintro ⟨ a, b, ⟨ ⟨ ⟨ ha₁, ha₂ ⟩, ⟨ hb₁, hb₂ ⟩ ⟩, hab ⟩, rfl ⟩
+    refine ⟨ ⟨ a - 1, ?_ ⟩, ⟨ b - 1, ?_ ⟩, ?_, ?_ ⟩ <;>
       rcases a with ( _ | a ) <;>
       rcases b with ( _ | b ) <;>
-      norm_num at *;
-    any_goals omega;
-    refine' Finset.sum_bij ( fun x hx => x + 1 ) _ _ _ _ <;> simp_all +decide [ Finset.mem_Icc ];
-    · exact fun i hi₁ hi₂ => ⟨ hi₁, hi₂ ⟩;
-    · exact fun i hi₁ hi₂ j hj₁ hj₂ h => Fin.ext h;
+      norm_num at *
+    any_goals omega
+    refine Finset.sum_bij (fun x hx => x + 1) ?_ ?_ ?_ ?_ <;> simp_all +decide [Finset.mem_Icc]
+    · exact fun i hi₁ hi₂ => ⟨ hi₁, hi₂ ⟩
+    · exact fun i hi₁ hi₂ j hj₁ hj₂ h => Fin.ext h
     · exact fun x hx₁ hx₂ =>
         ⟨⟨x - 1, by omega⟩,
           ⟨Nat.le_sub_one_of_lt hx₁, Nat.sub_le_of_le_add <| by omega⟩,
@@ -622,26 +659,26 @@ permutation of $\{1, \dots, n\}$ with at least $c n^2$ distinct consecutive sums
 theorem exists_perm_not_small_o :
     ∃ (c : ℝ), c > 0 ∧ ∀ n, ∃ (p : Equiv.Perm (Fin n)),
       (perm_consecutive_sums n p).card ≥ c * n^2 := by
-  use 1 / 16, by norm_num, ?_;
-  field_simp;
+  use 1 / 16, by norm_num, ?_
+  field_simp
   intro n
-  by_cases hn : n ≤ 4;
-  · interval_cases n <;> norm_cast;
+  by_cases hn : n ≤ 4
+  · interval_cases n <;> norm_cast
   · -- By `exists_perm_eq_construction`, choose a permutation matching `construction`.
-    obtain ⟨p, hp⟩ := exists_perm_eq_construction n;
+    obtain ⟨p, hp⟩ := exists_perm_eq_construction n
     -- Transfer the consecutive sums of $p$ to those of `construction`.
     have h_eq_sums :
         perm_consecutive_sums n p =
           Finset.image (fun x : ℕ × ℕ => segment_sum n x.1 x.2)
             ((Finset.Icc 1 n).product (Finset.Icc 1 n) |>.filter
               (fun x => x.1 ≤ x.2)) := by
-      exact perm_sums_eq_construction_sums n p hp;
+      exact perm_sums_eq_construction_sums n p hp
     -- By `num_distinct_sums_ge`, the cardinality of this image is at least $n^2/4$.
     have h_card_ge :
         (Finset.image (fun x : ℕ × ℕ => segment_sum n x.1 x.2)
           ((Finset.Icc 1 n).product (Finset.Icc 1 n) |>.filter
             (fun x => x.1 ≤ x.2))).card ≥ n^2 / 4 := by
-      convert num_distinct_sums_ge n using 1;
+      convert num_distinct_sums_ge n using 1
     exact ⟨p, by
       rw [h_eq_sums]
       exact_mod_cast by
@@ -661,7 +698,7 @@ theorem not_erdos_34 : ¬ erdos_34 := by
     exact hN N (le_rfl) p
   exact (not_lt_of_ge hp_ge) hp_lt
 
-#print axioms not_erdos_34
--- 'Erdos34.not_erdos_34' depends on axioms: [propext, Classical.choice, Quot.sound]
-
 end Erdos34
+
+#print axioms Erdos34.not_erdos_34
+-- 'Erdos34.not_erdos_34' depends on axioms: [propext, Classical.choice, Quot.sound]
