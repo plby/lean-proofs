@@ -32,13 +32,7 @@ import Mathlib
 
 namespace Erdos281
 
-set_option linter.style.setOption false
-set_option linter.style.openClassical false
-set_option linter.flexible false
-set_option linter.style.refine false
-set_option linter.style.multiGoal false
-
-open Filter Topology Classical
+open Filter Topology
 
 open scoped BigOperators
 
@@ -56,6 +50,7 @@ def avoidPrefix (n : ℕ → ℕ) (a : Choice n) (k : ℕ) : Set ℤ :=
 def avoidAll (n : ℕ → ℕ) (a : Choice n) : Set ℤ :=
   {m | ∀ i : ℕ, (m : ZMod (n i)) ≠ a i}
 
+open Classical in
 /-- Two-sided natural density sequence on ℤ using [-N,N]. -/
 noncomputable def densSeqZ (S : Set ℤ) (N : ℕ) : ℝ :=
   (((Finset.Icc (-(N : ℤ)) (N : ℤ)).filter (· ∈ S)).card : ℝ) / (2 * (N : ℝ) + 1)
@@ -122,7 +117,7 @@ instance : TopologicalSpace ZHat := TopologicalSpace.induced Subtype.val inferIn
 Zero element of ZHat.
 -/
 instance : Zero ZHat := ⟨⟨0, by
-  exact fun m k h => by simp +decide ;⟩⟩
+  exact fun m k h => by simp +decide⟩⟩
 
 /-
 Addition and negation on ZHat.
@@ -178,28 +173,44 @@ instance : AddCommGroup ZHat :=
     add_assoc := by
       exact fun x y z => Subtype.ext <| add_assoc _ _ _
     zero_add := by
-      simp +zetaDelta at *;
-      exact fun a ha => Subtype.ext <| zero_add a
+      intro a
+      apply Subtype.ext
+      funext k
+      exact zero_add (a.1 k)
     add_zero := by
-      simp +zetaDelta at *;
-      exact fun a ha => Subtype.ext <| add_zero a
+      intro a
+      apply Subtype.ext
+      funext k
+      exact add_zero (a.1 k)
     neg_add_cancel := by
-      simp +zetaDelta at *;
-      intro a ha;
+      intro a
       exact Subtype.ext <| funext fun k => neg_add_cancel _
     add_comm := by
       exact fun a b => Subtype.ext <| funext fun k => add_comm _ _
     nsmul_zero := by
       aesop
     nsmul_succ := by
-      intros n a; ext k; simp [add_mul]; rfl
+      intros n a
+      ext k
+      simp [add_mul]
+      rfl
     zsmul_zero' := by
-      intros a; ext k; simp; rfl
+      intros a
+      ext k
+      simp
+      rfl
     zsmul_succ' := by
-      intros n a; ext k; simp [Nat.succ_eq_add_one, add_smul]; rfl
+      intros n a
+      ext k
+      simp [Nat.succ_eq_add_one, add_smul]
+      rfl
     zsmul_neg' := by
-      simp +decide [ Int.negSucc_eq ];
-      intro n a ha; congr; ext k; simp +decide [ add_mul, add_comm ] ;
+      simp +decide only [zsmul_eq_mul, Int.cast_negSucc, Nat.cast_add, Nat.cast_one, neg_add_rev,
+        Nat.succ_eq_add_one, Int.cast_add, Int.cast_natCast, Int.cast_one, Subtype.forall]
+      intro n a ha
+      congr
+      ext k
+      simp +decide [add_mul, add_comm]
     sub_eq_add_neg := by
       intro x y
       apply Subtype.ext
@@ -211,18 +222,19 @@ instance : AddCommGroup ZHat :=
 Compactness of ZHat.
 -/
 instance : CompactSpace ZHat := ⟨by
-convert isCompact_univ_iff.mpr ?_;
+convert isCompact_univ_iff.mpr ?_
 -- The product of compact `ZMod k` spaces is compact.
 have h_compact : IsCompact (Set.pi Set.univ fun k : ℕ+ => Set.univ : Set (∀ k : ℕ+, ZMod k)) := by
-  exact isCompact_univ_pi fun k => isCompact_univ;
-refine' isCompact_iff_compactSpace.mp _;
-convert h_compact.of_isClosed_subset _ _;
-· simp +decide [ ZHat ];
-  simp +decide only [Set.setOf_forall];
-  refine' isClosed_iInter fun i => isClosed_iInter fun j =>
-    isClosed_iInter fun hij => isClosed_eq _ _;
-  · fun_prop (disch := solve_by_elim);
-  · exact continuous_apply i;
+  exact isCompact_univ_pi fun k => isCompact_univ
+refine isCompact_iff_compactSpace.mp ?_
+convert h_compact.of_isClosed_subset _ _
+· simp +decide only [ZHat, ZMod.castHom_apply]
+  simp +decide only [Set.setOf_forall]
+  refine isClosed_iInter fun i => isClosed_iInter fun j =>
+    isClosed_iInter fun hij => ?_
+  apply isClosed_eq
+  · fun_prop (disch := solve_by_elim)
+  · exact continuous_apply i
 · aesop_cat⟩
 
 /-
@@ -239,8 +251,8 @@ have h_proj_cont : ∀ k : ℕ+, Continuous (fun p : ZHat × ZHat => p.1.val k +
   exact fun k =>
     Continuous.add
       ( continuous_apply k |> Continuous.comp <| continuous_subtype_val.comp continuous_fst )
-      ( continuous_apply k |> Continuous.comp <| continuous_subtype_val.comp continuous_snd );
-refine' Continuous.subtype_mk _ _;
+      ( continuous_apply k |> Continuous.comp <| continuous_subtype_val.comp continuous_snd )
+apply Continuous.subtype_mk
 exact continuous_pi_iff.mpr fun k => h_proj_cont k⟩
 
 /-
@@ -249,7 +261,7 @@ Continuous negation on ZHat.
 instance : ContinuousNeg ZHat := ⟨by
   have h_proj_cont : ∀ k : ℕ+, Continuous (fun p : ZHat => -p.val k) := by
     exact fun k => Continuous.neg (Continuous.comp (continuous_apply k) continuous_subtype_val)
-  refine' Continuous.subtype_mk _ _
+  apply Continuous.subtype_mk
   exact continuous_pi_iff.mpr fun k => h_proj_cont k⟩
 
 /-
@@ -305,13 +317,15 @@ avoidPrefix is periodic.
 -/
 lemma avoidPrefix_periodic (n : ℕ → ℕ) (_hnpos : ∀ i, 0 < n i) (a : Choice n) (k : ℕ) :
   Function.Periodic (fun m : ℤ => m ∈ avoidPrefix n a k) (period n k : ℤ) := by
-    intro m; simp +decide [ avoidPrefix ] ;
+    intro m
+    simp +decide [avoidPrefix]
     -- The period is a multiple of each `n i` for `i < k`.
     have h_period_mod : ∀ i < k, (m + period n k : ZMod (n i)) = m := by
       intros i hi
       have h_div : n i ∣ period n k := by
-        exact Finset.dvd_lcm ( Finset.mem_range.mpr hi );
-      cases h_div ; aesop;
+        exact Finset.dvd_lcm (Finset.mem_range.mpr hi)
+      cases h_div
+      aesop
     grind
 
 
@@ -452,7 +466,7 @@ private lemma periodic_nat_count_mul (p : ℕ → Prop) [DecidablePred p] (L : �
             simp [Finset.mem_Ico] at hy ⊢
             omega
           · intro hx
-            simp [Finset.mem_Ico] at hx
+            rw [Finset.mem_Ico] at hx
             refine Finset.mem_map.mpr ⟨x - q * L, ?_, ?_⟩
             · simp
               omega
@@ -460,8 +474,12 @@ private lemma periodic_nat_count_mul (p : ℕ → Prop) [DecidablePred p] (L : �
               omega
         rw [hmap_set, hblock, Nat.count_eq_card_filter_range]
         ring
-      · simp [Finset.disjoint_left]
+      · rw [Finset.disjoint_left]
         intro x hx hxl
+        rcases Finset.mem_filter.mp hx with ⟨hx_range, _⟩
+        rcases Finset.mem_filter.mp hxl with ⟨hxl_map, _⟩
+        rcases Finset.mem_map.mp hxl_map with ⟨y, hy, rfl⟩
+        simp only [Finset.mem_range, addLeftEmbedding_apply] at hx_range hy
         omega
 
 private lemma periodic_nat_count_error (p : ℕ → Prop) [DecidablePred p]
@@ -510,6 +528,7 @@ private lemma periodic_nat_count_error (p : ℕ → Prop) [DecidablePred p]
 /-
 A periodic set has a natural density equal to the proportion of elements in one period.
 -/
+open Classical in
 lemma dens_periodic (S : Set ℤ) (L : ℕ) (hL : 0 < L) (hper : ∀ n, n ∈ S ↔ n + L ∈ S) :
   HasIntDensity S (((Finset.range L).filter (fun x : ℕ => (x : ℤ) ∈ S)).card / L) := by
   classical
@@ -651,6 +670,7 @@ lemma dens_periodic (S : Set ℤ) (L : ℕ) (hL : 0 < L) (hper : ∀ n, n ∈ S 
 /-
   The number of avoiding integers in one period equals the number of avoiding residues.
   -/
+open Classical in
 lemma card_avoidPrefix_inter_range_eq_card_avoidPrefixMod (n : ℕ → ℕ)
     (hnpos : ∀ i, 0 < n i) (a : Choice n) (k : ℕ) :
   ((Finset.range (period n k)).filter (fun m : ℕ =>
@@ -704,7 +724,7 @@ instance : MeasureTheory.Measure.IsAddHaarMeasure haar where
   toIsOpenPosMeasure := by
     unfold haar
     apply MeasureTheory.Measure.isOpenPosMeasure_smul
-    · simp;
+    · simp
 
 /-
 The pushforward of the Haar measure to a finite quotient is an additive Haar measure.
@@ -713,57 +733,60 @@ lemma map_proj_haar_is_add_haar (m : ℕ) [NeZero m] :
   MeasureTheory.Measure.IsAddHaarMeasure (MeasureTheory.Measure.map (proj m) haar) := by
     -- The projection map `proj m` is continuous.
     have h_proj_cont : Continuous (proj m) := by
-      exact continuous_apply _ |> Continuous.comp <| continuous_subtype_val;
+      exact continuous_apply _ |> Continuous.comp <| continuous_subtype_val
     have h_proj_surj : Function.Surjective (proj m) := by
       intro x
       obtain ⟨y, hy⟩ : ∃ y : ℕ, (y : ZMod m) = x := by
-        exact ⟨ x.val, by simp +decide ⟩;
+        exact ⟨ x.val, by simp +decide ⟩
       use ⟨fun k => (y : ZMod k), by
-        exact fun m k h => by aesop;⟩
-      generalize_proofs at *;
-      aesop;
+        exact fun m k h => by aesop⟩
+      generalize_proofs at *
+      aesop
     have h_proj_hom : ∀ x y : ZHat, proj m (x + y) = proj m x + proj m y := by
-      aesop;
+      aesop
     have h_pushforward_add_haar :
         ∀ (μ : MeasureTheory.Measure ZHat),
           MeasureTheory.Measure.IsAddHaarMeasure μ →
             MeasureTheory.Measure.IsAddHaarMeasure (MeasureTheory.Measure.map (proj m) μ) := by
-      intro μ hμ;
-      refine' { .. };
-      · intro g;
-        ext s hs;
-        rw [ MeasureTheory.Measure.map_apply ];
-        · rw [ MeasureTheory.Measure.map_apply, MeasureTheory.Measure.map_apply ];
+      intro μ hμ
+      haveI : MeasureTheory.Measure.IsAddHaarMeasure μ := hμ
+      refine
+        { map_add_left_eq_self := ?_
+          open_pos := ?_ }
+      · intro g
+        ext s hs
+        rw [ MeasureTheory.Measure.map_apply ]
+        · rw [ MeasureTheory.Measure.map_apply, MeasureTheory.Measure.map_apply ]
           · -- Since proj m is surjective, there exists some x in ZHat such that proj m x = g.
             obtain ⟨x, hx⟩ : ∃ x : ZHat, proj m x = g := by
-              exact h_proj_surj g;
+              exact h_proj_surj g
             -- Since proj m is a homomorphism, we have proj m (x + y) = proj m x + proj m y.
             have h_hom : ∀ y : ZHat, proj m (x + y) = proj m x + proj m y := by
-              exact fun y => h_proj_hom x y;
+              exact fun y => h_proj_hom x y
             rw [ show ( proj m ⁻¹' ( ( fun x => g + x ) ⁻¹' s ) ) =
                 ( fun y => x + y ) ⁻¹' ( proj m ⁻¹' s ) by
               ext y
-              simp [hx, h_hom] ];
-            exact MeasureTheory.measure_preimage_add _ _ _;
-          · exact h_proj_cont.measurable;
-          · exact hs;
-          · exact h_proj_cont.measurable;
-          · exact hs.preimage (measurable_const.add measurable_id);
-        · exact measurable_const.add measurable_id;
-        · exact hs;
+              simp [hx, h_hom] ]
+            exact MeasureTheory.measure_preimage_add μ x (proj m ⁻¹' s)
+          · exact h_proj_cont.measurable
+          · exact hs
+          · exact h_proj_cont.measurable
+          · exact hs.preimage (measurable_const.add measurable_id)
+        · exact measurable_const.add measurable_id
+        · exact hs
       · intro U hU hU_nonempty
         have h_preimage_nonempty : (proj m ⁻¹' U).Nonempty := by
           exact hU_nonempty.elim fun x hx => by
             obtain ⟨ y, rfl ⟩ := h_proj_surj x
-            exact ⟨ y, hx ⟩ ;
-        rw [ MeasureTheory.Measure.map_apply ];
+            exact ⟨ y, hx ⟩
+        rw [ MeasureTheory.Measure.map_apply ]
         · have h_preimage_open : IsOpen (proj m ⁻¹' U) := by
-            exact h_proj_cont.isOpen_preimage _ hU;
-          exact IsOpen.measure_ne_zero _ h_preimage_open h_preimage_nonempty;
-        · exact h_proj_cont.measurable;
-        · exact hU.measurableSet;
+            exact h_proj_cont.isOpen_preimage _ hU
+          exact IsOpen.measure_ne_zero _ h_preimage_open h_preimage_nonempty
+        · exact h_proj_cont.measurable
+        · exact hU.measurableSet
     exact h_pushforward_add_haar _ (by
-    unfold haar;
+    unfold haar
     constructor)
 
 /-
@@ -816,6 +839,7 @@ lemma map_proj_haar_eq_normalized_count (m : ℕ) [NeZero m] :
 /-
 The Haar measure of a finite-quotient preimage is normalized cardinality.
 -/
+open Classical in
 lemma haar_preimage_proj_eq_card_div (m : ℕ) [NeZero m] (S : Set (ZMod m)) :
   haar {x : ZHat | proj m x ∈ S} = S.toFinset.card / m := by
     classical
@@ -880,20 +904,26 @@ Shifted avoidance corresponds to translating in `ZHat`.
 lemma mem_avoidAll_shift_iff (n : ℕ → ℕ) (hnpos : ∀ i, 0 < n i)
     (a : Choice n) (x : ZHat) (m : ℤ) :
   m ∈ avoidAll n (shiftChoice n hnpos a x) ↔ x + (m : ZHat) ∈ C n hnpos a := by
-    unfold C;
-    unfold Ck avoidAll;
-    simp +decide [ shiftChoice, cylinder ];
-    constructor;
-    · intro h i j hj; have := h j; simp_all +decide [ proj ] ;
-      exact fun h' => h j <| by simpa [ sub_eq_iff_eq_add ] using eq_sub_of_add_eq' h';
-    · intro h i hi; specialize h ( i + 1 ) i; simp_all +decide [ eq_sub_iff_add_eq, add_comm ] ;
-      exact h ( by simpa [ proj ] using hi )
+    unfold C
+    unfold Ck avoidAll
+    simp +decide only [shiftChoice, cylinder, ne_eq, Set.mem_setOf_eq, Set.mem_iInter,
+      Set.mem_compl_iff]
+    constructor
+    · intro h i j hj
+      have := h j
+      simp_all +decide only [ne_eq]
+      exact fun h' => h j <| by simpa [sub_eq_iff_eq_add] using eq_sub_of_add_eq' h'
+    · intro h i hi
+      specialize h (i + 1) i
+      simp_all +decide only [eq_sub_iff_add_eq, add_comm, lt_add_iff_pos_right, forall_const]
+      exact h (by simpa [proj] using hi)
 
 /-
 The integral of the density sequence of the shifted set is equal to the Haar measure of the set.
 -/
 lemma integral_densSeq_eq_haar (S : Set ZHat) (hS : MeasurableSet S) (N : ℕ) :
   ∫ x, densSeqZ {m : ℤ | x + (m : ZHat) ∈ S} N ∂haar = (haar S).toReal := by
+    classical
     unfold densSeqZ
     rw [MeasureTheory.integral_div]
     simp_rw [Finset.card_filter, Set.mem_setOf_eq]
@@ -909,10 +939,13 @@ lemma integral_densSeq_eq_haar (S : Set ZHat) (hS : MeasurableSet S) (N : ℕ) :
         exact MeasureTheory.integral_indicator_one hS
       simp_rw [h_inv, Finset.sum_const, nsmul_eq_mul]
       have h_card : (Finset.Icc (-N : ℤ) N).card = 2 * N + 1 := by
-        simp [Int.card_Icc, sub_neg_eq_add]; norm_cast; ring
-      rw [h_card]; push_cast
+        simp [Int.card_Icc, sub_neg_eq_add]
+        norm_cast
+        ring
+      rw [h_card]
+      push_cast
       have h_div : (2 * (N : ℝ) + 1) ≠ 0 := by positivity
-      field_simp [h_div];
+      field_simp [h_div]
     · intro m _
       apply MeasureTheory.Integrable.indicator (MeasureTheory.integrable_const 1)
       exact hS.preimage (continuous_add_const _ |>.measurable)
@@ -922,53 +955,59 @@ If the set of return times to S has density 0 for every starting point, then S h
 -/
 lemma haar_zero_of_null_density (S : Set ZHat) (hS : MeasurableSet S)
   (h_null : ∀ x : ZHat, HasIntDensity {m : ℤ | x + (m : ZHat) ∈ S} 0) : haar S = 0 := by
+    classical
     -- The integral of the density sequence tends to zero.
     have h_integral :
         Filter.Tendsto
           (fun N : ℕ => ∫ x, densSeqZ (fun m => x + (m : ZHat) ∈ S) N ∂haar)
           Filter.atTop (𝓝 0) := by
-      convert MeasureTheory.tendsto_integral_of_dominated_convergence _ _ _ _ _;
-      rotate_left;
-      use fun x => 0;
-      use fun x => 1;
-      · intro n;
-        refine' Measurable.aestronglyMeasurable _;
-        refine' Measurable.div_const _ _;
-        refine' Measurable.comp
-          ( show Measurable ( fun x : ℕ => ( x : ℝ ) ) from by measurability ) _;
-        simp +decide only [Finset.card_filter];
-        refine' Finset.measurable_sum _ fun i hi => _;
-        refine' Measurable.ite _ measurable_const measurable_const;
+      convert MeasureTheory.tendsto_integral_of_dominated_convergence _ _ _ _ _
+      rotate_left
+      · use fun x => 0
+      · use fun x => 1
+      · intro n
+        apply Measurable.aestronglyMeasurable
+        apply Measurable.div_const
+        refine Measurable.comp
+          (show Measurable (fun x : ℕ => (x : ℝ)) from by measurability) ?_
+        simp +decide only [Finset.card_filter]
+        refine Finset.measurable_sum _ fun i hi => ?_
+        refine Measurable.ite ?_ measurable_const measurable_const
         exact hS.preimage
-          ( show Measurable ( fun x : ZHat => x + ( i : ZHat ) ) from
-              measurable_id.add_const _ );
-      · norm_num +zetaDelta at *;
-      · intro N; filter_upwards [ ] with x; rw [ Real.norm_of_nonneg ];
-        · refine' div_le_one_of_le₀ _ _ <;> norm_cast <;> norm_num;
-          exact le_trans ( Finset.card_filter_le _ _ ) ( by norm_num; linarith );
-        · exact div_nonneg ( Nat.cast_nonneg _ ) ( by positivity );
-      · exact Filter.Eventually.of_forall fun x => h_null x;
-      · norm_num;
-    contrapose! h_integral;
+          (show Measurable (fun x : ZHat => x + (i : ZHat)) from measurable_id.add_const _)
+      · norm_num +zetaDelta at *
+      · intro N
+        filter_upwards [] with x
+        rw [Real.norm_of_nonneg]
+        · refine div_le_one_of_le₀ ?_ ?_
+          · norm_cast
+            exact le_trans (Finset.card_filter_le _ _) (by
+              norm_num
+              linarith)
+          · positivity
+        · exact div_nonneg (Nat.cast_nonneg _) (by positivity)
+      · exact Filter.Eventually.of_forall fun x => h_null x
+      · norm_num
+    contrapose! h_integral
     -- The shifted density integral has value `haar S`.
     have h_integral_eq :
         ∀ N : ℕ,
           ∫ x, densSeqZ (fun m => x + (m : ZHat) ∈ S) N ∂haar =
             (haar S).toReal := by
-      exact fun N => integral_densSeq_eq_haar S hS N;
-    simp_all +decide [ ENNReal.toReal_ne_zero ]
+      exact fun N => integral_densSeq_eq_haar S hS N
+    simp_all +decide [ENNReal.toReal_ne_zero]
 
 /-
 The set Ck is measurable.
 -/
 lemma measurable_Ck (n : ℕ → ℕ) (hnpos : ∀ i, 0 < n i) (a : Choice n) (k : ℕ) :
   MeasurableSet (Ck n hnpos a k) := by
-    refine' MeasurableSet.iInter fun i => MeasurableSet.iInter fun hi => _;
-    refine' MeasurableSet.compl _;
+    refine MeasurableSet.iInter fun i => MeasurableSet.iInter fun hi => ?_
+    refine MeasurableSet.compl ?_
     -- The projection is continuous, so this singleton preimage is measurable.
     have h_proj_cont : Continuous (fun x : ZHat => x.val ⟨n i, hnpos i⟩) := by
-      exact continuous_apply _ |> Continuous.comp <| continuous_subtype_val;
-    exact h_proj_cont.measurable ( MeasurableSingletonClass.measurableSet_singleton _ )
+      exact continuous_apply _ |> Continuous.comp <| continuous_subtype_val
+    exact h_proj_cont.measurable (MeasurableSingletonClass.measurableSet_singleton _)
 
 /-
 The set C is measurable.
@@ -1038,33 +1077,36 @@ The function fk is continuous.
 -/
 lemma continuous_fk (n : ℕ → ℕ) (hnpos : ∀ i, 0 < n i) (k : ℕ) :
   Continuous (fk n hnpos k) := by
-    refine' continuous_iff_continuousAt.mpr _;
-    intro a;
+    refine continuous_iff_continuousAt.mpr ?_
+    intro a
     -- The projection to the first k coordinates is continuous.
     have h_proj_cont : ContinuousAt (fun a : Choice n => fun i : Fin k => a i) a := by
-      exact continuousAt_pi.2 fun i => continuousAt_apply _ _;
+      exact continuousAt_pi.2 fun i => continuousAt_apply _ _
     -- The measure function on the finite quotient is continuous (since the space is discrete).
     have h_measure_cont :
         Continuous (fun a : ∀ i : Fin k, ZMod (n i) =>
           (haar
             {x : ZHat |
               ∀ i : Fin k, @proj (n i) ⟨ne_of_gt (hnpos i)⟩ x ≠ a i}).toReal) := by
-      refine' continuous_of_discreteTopology;
-    convert h_measure_cont.continuousAt.comp h_proj_cont using 1;
-    ext; simp [fk, Ck];
-    congr with x ; simp +decide [ cylinder ];
-    exact ⟨ fun h i => h i i.2, fun h i hi => h ⟨ i, hi ⟩ ⟩
+      refine continuous_of_discreteTopology
+    convert h_measure_cont.continuousAt.comp h_proj_cont using 1
+    ext
+    simp only [fk, Ck, ne_eq, Function.comp_apply]
+    congr with x
+    simp +decide only [Set.mem_iInter, Set.mem_compl_iff, Set.mem_setOf_eq]
+    exact ⟨fun h i => h i i.2, fun h i hi => h ⟨i, hi⟩⟩
 
 /-
 The sequence of functions fk is antitone (decreasing).
 -/
 lemma antitone_fk (n : ℕ → ℕ) (hnpos : ∀ i, 0 < n i) :
   Antitone (fk n hnpos) := by
-    refine' antitone_nat_of_succ_le _;
-    intro k a; refine' ENNReal.toReal_mono _ _;
-    · exact MeasureTheory.measure_ne_top _ _;
-    · refine' MeasureTheory.measure_mono _;
-      exact Set.biInter_subset_biInter_left ( Set.Iio_subset_Iio ( Nat.le_succ _ ) )
+    apply antitone_nat_of_succ_le
+    intro k a
+    apply ENNReal.toReal_mono
+    · exact MeasureTheory.measure_ne_top haar (Ck n hnpos a k)
+    · apply MeasureTheory.measure_mono
+      exact Set.biInter_subset_biInter_left (Set.Iio_subset_Iio (Nat.le_succ _))
 
 /-
 The space of choices is compact.
