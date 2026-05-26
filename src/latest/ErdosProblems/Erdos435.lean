@@ -31,9 +31,6 @@ set_option linter.flexible false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
-set_option linter.deprecated false
-set_option linter.unusedTactic false
-set_option linter.unusedVariables false
 
 namespace Erdos435
 
@@ -62,7 +59,7 @@ lemma lemma2_part1_bound (y : ℕ) (hy : y ≥ 5) :
     ∏ i ∈ Finset.Icc (2 * y + 1) (3 * y), i ≥
       2 * y * ∏ i ∈ Finset.Icc (y + 1) (2 * y), i := by
     -- By induction on $y$, we can show that the inequality holds for all $y \geq 5$.
-    induction' y, Nat.succ_le.mpr hy using Nat.le_induction with y ih;
+    induction' y, Nat.succ_le_iff.mpr hy using Nat.le_induction with y ih;
     · decide +kernel;
     · -- Let's simplify the goal using the induction hypothesis.
       have h_simp :
@@ -153,9 +150,9 @@ lemma lemma2_part1_bound (y : ℕ) (hy : y ≥ 5) :
             Nat.zero_le (∏ i ∈ Finset.Icc (y + 1) (2 * y), i),
             Nat.zero_le ((2 * y + 1) * (2 * y + 2)),
             Nat.zero_le ((3 * y + 1) * (3 * y + 2) * (3 * y + 3)),
-            mul_le_mul_left' ih (∏ i ∈ Finset.Icc (y + 1) (2 * y), i),
-            mul_le_mul_left' ih ((2 * y + 1) * (2 * y + 2)),
-            mul_le_mul_left' ih ((3 * y + 1) * (3 * y + 2) * (3 * y + 3))]
+            mul_le_mul_right ih (∏ i ∈ Finset.Icc (y + 1) (2 * y), i),
+            mul_le_mul_right ih ((2 * y + 1) * (2 * y + 2)),
+            mul_le_mul_right ih ((3 * y + 1) * (3 * y + 2) * (3 * y + 3))]
         · exact
             dvd_mul_of_dvd_left
               (Finset.dvd_prod_of_mem _
@@ -282,7 +279,7 @@ lemma lemma2_step3 (n x y : ℕ) (hy : y ≥ x) (hn : n ≥ 2 * y) :
         · -- Compare consecutive weighted binomial coefficients.
           have h_ratio : (k + 1) * Nat.choose n (k + 1) ≥ k * Nat.choose n k := by
             nlinarith [
-              Nat.succ_mul_choose_eq n k,
+              Nat.add_one_mul_choose_eq n k,
               Nat.choose_succ_succ n k,
               show n ≥ 2 * (k + 1) by linarith]
           exact le_trans ( ih ( Nat.le_of_succ_le hky ) ) h_ratio;
@@ -380,10 +377,10 @@ lemma lemma2_case_4_4 (n : ℕ) (hn : n ≥ 32) :
     Nat.choose n 16 ≥ 8 * Nat.choose n 4 := by
       induction' hn with k hk ih48;
       · decide +revert;
-      · have := Nat.succ_mul_choose_eq k 3
-        have := Nat.succ_mul_choose_eq k 4
-        have := Nat.succ_mul_choose_eq k 14
-        have := Nat.succ_mul_choose_eq k 15
+      · have := Nat.add_one_mul_choose_eq k 3
+        have := Nat.add_one_mul_choose_eq k 4
+        have := Nat.add_one_mul_choose_eq k 14
+        have := Nat.add_one_mul_choose_eq k 15
         norm_num [Nat.choose] at *
         nlinarith
 
@@ -551,7 +548,7 @@ lemma lemma1_equality (n j p : ℕ) (hp : p.Prime) (hj : j ≥ 1)
         have h_div :
             Nat.choose n (p ^ j) * (p ^ j) =
               n * Nat.choose (n - 1) (p ^ j - 1) := by
-          cases n <;> cases p <;> cases j <;> simp_all +decide [ Nat.succ_mul_choose_eq ];
+          cases n <;> cases p <;> cases j <;> simp_all +decide [ Nat.add_one_mul_choose_eq ];
           rw [ Nat.sub_add_cancel ( Nat.one_le_pow _ _ ( Nat.succ_pos _ ) ) ];
         have h_div :
             Nat.choose n (p ^ j) =
@@ -665,7 +662,7 @@ lemma lemma_super_increasing (n : ℕ) (p : ℕ) (j : ℕ)
                   obtain ⟨ k, hk ⟩ := h_lemma2_step;
                   rcases k with ( _ | _ | k ) <;> simp_all +decide [ Nat.pow_succ', mul_assoc ];
                   · exact h_not_prime_pow p 2 hp.1 ( by ring );
-                  · nlinarith only [ hp_ge_2, mul_le_mul_left' hp_ge_2 p ];
+                  · nlinarith only [ hp_ge_2, mul_le_mul_right hp_ge_2 p ];
                 simp_all +decide [ sq ];
                 grind;
               · interval_cases p <;> simp_all +decide
@@ -692,7 +689,7 @@ lemma lemma_super_increasing (n : ℕ) (p : ℕ) (j : ℕ)
                 intros x y hx hy hn
                 exact_mod_cast lemma2 n x y hx hy hn
                   (fun q k hq => h_not_prime_pow q k hq)
-              convert h_lemma2 p ( p ^ ( j + 1 ) ) _ _ _ using 1 <;> norm_num;
+              convert h_lemma2 p ( p ^ ( j + 1 ) ) _ _ _ using 1
               · exact Nat.Prime.two_le ( Nat.prime_of_mem_primeFactors hp );
               · exact Nat.le_self_pow ( by linarith ) _;
               · have h_div : p ^ (j + 2) ∣ n := by
@@ -1143,9 +1140,9 @@ lemma lemma_binom_ge_n (n p j : ℕ)
         · cases n <;> aesop;
         · have h_binom_ge_n : k * (n.choose k : ℤ) ≥ n * (n - 1).choose (k - 1) := by
             norm_cast ; rcases k <;> simp_all +decide
-            cases n <;> simp_all +decide [ Nat.succ_mul_choose_eq ];
+            cases n <;> simp_all +decide [ Nat.add_one_mul_choose_eq ];
             linarith;
-          rcases n with ( _ | _ | n ) <;> rcases k with ( _ | _ | k ) <;> norm_num [ Nat.succ_mul_choose_eq ] at *;
+          rcases n with ( _ | _ | n ) <;> rcases k with ( _ | _ | k ) <;> norm_num [ Nat.add_one_mul_choose_eq ] at *;
           nlinarith [ show ( Nat.choose ( n + 1 ) ( k + 1 ) : ℤ ) ≥ k + 2 from mod_cast Nat.le_induction ( by simp +arith +decide ) ( fun m hm ih ↦ by { rw [ Nat.choose_succ_succ ] ; linarith } ) _ ( show k + 1 ≤ n from by linarith ) ] ;
       exact h_binom_ge_n _ h_bounds.1 h_bounds.2
 
@@ -1257,7 +1254,7 @@ lemma lemma_cross_term_vanishes (n : ℕ) (p q : ℕ) (j : ℕ)
         have h_kummer : padicValNat p (Nat.choose n (q ^ j) * q ^ j) ≥ padicValNat p n := by
           have h_kummer : padicValNat p (Nat.choose n (q ^ j) * q ^ j) = padicValNat p (n * Nat.choose (n - 1) (q ^ j - 1)) := by
             rw [ ← Nat.succ_pred_eq_of_pos ( Nat.one_le_pow j q ( Nat.pos_of_mem_primeFactors hq ) ) ];
-            cases n <;> cases q <;> simp_all +decide [ Nat.succ_mul_choose_eq ];
+            cases n <;> cases q <;> simp_all +decide [ Nat.add_one_mul_choose_eq ];
           have h_kummer : padicValNat p (n * Nat.choose (n - 1) (q ^ j - 1)) = padicValNat p n + padicValNat p (Nat.choose (n - 1) (q ^ j - 1)) := by
             convert padicValNat.mul _ _ using 1;
             · exact ⟨ Nat.prime_of_mem_primeFactors hp ⟩;
@@ -1317,7 +1314,7 @@ lemma lemma_crt_implication (n : ℕ) (A x : ℤ)
               exact_mod_cast Nat.Coprime.prod_right fun q hq => h_coprime.1 q hq ( Ne.symm <| by aesop );
         exact h_crt ( fun p hp q hq hpq => h_coprime p q hp hq hpq ) h_cong;
       convert h_crt using 1;
-      exact_mod_cast Eq.symm ( Nat.factorization_prod_pow_eq_self hn )
+      exact_mod_cast Eq.symm ( Nat.prod_factorization_pow_eq_self hn )
 
 /-
 Existence of canonical representation for any integer x modulo n.
@@ -1529,6 +1526,7 @@ lemma lemma_super_sequence_valuation_implication (p m : ℕ) (A : ℕ → ℤ) (
     (k : ℕ)
     (h_cong : ∑ j ∈ Finset.Icc 1 m, c j * A j ≡ 0 [ZMOD p ^ k]) :
     ∀ j ∈ Finset.Icc 1 m, m - j < k → c j = 0 := by
+      have _hm := hm
       -- Let $S = \{j \in \{1, \dots, m\} \mid m-j < k \land c_j \ne 0\}$.
       set S := Finset.filter (fun j => m - j < k ∧ c j ≠ 0) (Finset.Icc 1 m) with hS_def;
       by_contra h_nonempty_S;
@@ -1574,7 +1572,7 @@ lemma lemma_valuation_binom_lower_bound (n m p : ℕ)
     padicValNat p (Nat.choose n m) ≥ padicValNat p n - padicValNat p m := by
       have h_identity : padicValNat p (m * Nat.choose n m) = padicValNat p n + padicValNat p (Nat.choose (n - 1) (m - 1)) := by
         have h_identity : m * Nat.choose n m = n * Nat.choose (n - 1) (m - 1) := by
-          cases n <;> cases m <;> simp_all +decide [ Nat.succ_mul_choose_eq ];
+          cases n <;> cases m <;> simp_all +decide [ Nat.add_one_mul_choose_eq ];
           ring;
         haveI := Fact.mk hp; rw [ h_identity, padicValNat.mul ] ; aesop;
         exact ne_of_gt <| Nat.choose_pos <| by omega;
@@ -1635,7 +1633,7 @@ lemma lemma_binom_monotonicity_k (n k l : ℕ) (hkl : k ≤ l) (hln : l ≤ n / 
       -- We can prove this by induction on $l - k$.
       induction' hkl with l hl ih;
       · rfl;
-      · exact le_trans ( ih ( Nat.le_of_succ_le hln ) ) ( Nat.le_of_lt_succ ( by nlinarith [ Nat.div_mul_le_self n 2, Nat.succ_mul_choose_eq n l, Nat.choose_succ_succ n l ] ) )
+      · exact le_trans ( ih ( Nat.le_of_succ_le hln ) ) ( Nat.le_of_lt_succ ( by nlinarith [ Nat.div_mul_le_self n 2, Nat.add_one_mul_choose_eq n l, Nat.choose_succ_succ n l ] ) )
 
 /-
 $p^k \binom{n}{p^k} \le p^l \binom{n}{p^l}$ if $k \le l$ and $p^l \le n/2$.
