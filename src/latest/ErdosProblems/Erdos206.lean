@@ -27,7 +27,6 @@ namespace Erdos206
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.induction false
-set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 
@@ -68,7 +67,6 @@ underapproximations. The key steps are:
 -/
 
 open scoped BigOperators ENNReal
-noncomputable section
 open Finset MeasureTheory Set
 
 namespace EgyptianFractions
@@ -76,7 +74,7 @@ namespace EgyptianFractions
 /-! ## §1. Core Definitions -/
 
 /-- The Egyptian fraction sum: `∑_{m ∈ S} 1/m` for a finset of natural numbers. -/
-def egyptianSum (S : Finset ℕ) : ℝ :=
+noncomputable def egyptianSum (S : Finset ℕ) : ℝ :=
   S.sum (fun m => (1 : ℝ) / m)
 
 /-- All elements of the finset are positive (valid denominators). -/
@@ -93,7 +91,7 @@ def IsBestNTerm (S : Finset ℕ) (n : ℕ) (x : ℝ) : Prop :=
     ∀ T : Finset ℕ, T.card = n → IsUnderapprox T x → egyptianSum T ≤ egyptianSum S
 
 /-- The `n`-th harmonic number: `H_n = ∑_{k=1}^{n} 1/k`. -/
-def harmonicNumber (n : ℕ) : ℝ :=
+noncomputable def harmonicNumber (n : ℕ) : ℝ :=
   (Finset.range n).sum (fun k => (1 : ℝ) / (↑k + 1))
 
 /-- `x` has eventually greedy best Egyptian underapproximations. -/
@@ -144,7 +142,7 @@ have non-greedy best two-term Egyptian underapproximations (with strict inequali
 -/
 
 /-- The sequence `x_k = i(i+1)·(i(i+1)+2k)/(i(i+1)-2k)`. -/
-def x_seq (i : ℕ) (k : ℕ) : ℝ :=
+noncomputable def x_seq (i : ℕ) (k : ℕ) : ℝ :=
   (i : ℝ) * (i + 1) * ((i : ℝ) * (i + 1) + 2 * k) / ((i : ℝ) * (i + 1) - 2 * k)
 
 lemma x_seq_pos (i : ℕ) (k : ℕ) (hi : 1 ≤ i)
@@ -307,6 +305,7 @@ lemma good_interval_predicate_strict (i : ℕ) (k : ℕ) (hi : 1000 ≤ i)
         simp +arith +decide [ mul_add, parity_simps ] )
 
 set_option maxHeartbeats 800000 in
+-- This construction combines long interval, disjointness, and measure estimates.
 /-- **Lemma 1** (Kovač [1, Lemma 1], strict version): For `i ≥ 1000`, there exists a measurable
     set `E ⊆ (1/i, 1/(i-1)]` of measure `≥ 1/1000 · (1/(i-1) - 1/i)` such that every `x ∈ E`
     has a non-greedy best two-term Egyptian underapproximation with strict inequality. -/
@@ -394,7 +393,9 @@ lemma non_greedy_measure_bound_strict (i : ℕ) (hi : 1000 ≤ i) :
     refine' Set.Ioc_subset_Ioc _ _ <;> norm_num at *
     · exact le_of_lt ( x_seq_pos i l ( by linarith ) ( by linarith ) )
     · have h_floor : ⌊x_seq i l⌋₊ ≥ i * (i + 1) := by
-        exact Nat.le_floor <| by push_cast; exact x_seq_ge i l (by linarith)
+        exact Nat.le_floor <| by
+          push_cast
+          exact x_seq_ge i l (by linarith)
       field_simp
       rw [ add_div', div_le_div_iff₀ ] <;>
         nlinarith only [
@@ -540,11 +541,14 @@ lemma valid_set_exists (n : ℕ) (a₀ : ℕ) (x : ℝ) (hx : 0 < x) :
       _, _, _, _ ⟩ <;>
     norm_num [ Finset.card_image_of_injective, Function.Injective, * ]
   · grind
-  · exact fun m hm => by obtain ⟨ k, hk, rfl ⟩ := Finset.mem_image.mp hm; positivity
+  · exact fun m hm => by
+      obtain ⟨ k, hk, rfl ⟩ := Finset.mem_image.mp hm
+      positivity
   · unfold egyptianSum
     rw [ Finset.sum_image ] <;> aesop
 
 set_option maxHeartbeats 800000 in
+-- This proof searches through the finite maximality construction for best approximants.
 /-- The best `n`-term underapproximation with elements `> a₀` exists. -/
 lemma exists_bestNTerm_above (n : ℕ) (x : ℝ) (hx : 0 < x) (a₀ : ℕ) :
     ∃ S : Finset ℕ, S.card = n ∧ (∀ m ∈ S, a₀ < m) ∧
@@ -670,6 +674,7 @@ lemma exists_bestNTerm_above (n : ℕ) (x : ℝ) (hx : 0 < x) (a₀ : ℕ) :
                   rfl ⟩ ) ) ]
 
 set_option maxHeartbeats 800000 in
+-- This wrapper still unfolds the preceding best-approximation existence proof.
 /-- For any `x > 0` and `n`, the best `n`-term underapproximation exists. -/
 lemma exists_bestNTerm (n : ℕ) (x : ℝ) (hx : 0 < x) :
     ∃ S : Finset ℕ, IsBestNTerm S n x := by
@@ -678,6 +683,7 @@ lemma exists_bestNTerm (n : ℕ) (x : ℝ) (hx : 0 < x) :
     hbest T hT (fun m hm => hTv m hm) hTv hTs⟩
 
 set_option maxHeartbeats 800000 in
+-- This argument compares two nested best-approximation problems.
 /-- P2: If two numbers have the same best `(n+1)`-term sum, they have the same
     best `n`-term sum. -/
 lemma IsBestNTerm_value_determines_prev (n : ℕ) (x y : ℝ)
@@ -719,7 +725,10 @@ lemma IsBestNTerm_value_determines_prev (n : ℕ) (x y : ℝ)
   · linarith
   · exact hT₂.1
   · constructor
-    · exact fun m hm => by cases Finset.mem_insert.mp hm <;> [ aesop; exact hT₂.2.1.1 m ‹_› ]
+    · exact fun m hm => by
+        cases Finset.mem_insert.mp hm with
+        | inl _ => aesop
+        | inr h => exact hT₂.2.1.1 m h
     · simp_all +decide [ egyptianSum ]
       linarith
 
@@ -736,8 +745,12 @@ lemma exists_harmonic_prefix (n : ℕ) (hn : 1 ≤ n) (x : ℝ) (hx : 0 < x)
       (l + 1 ≤ n → x ≤ harmonicNumber (l + 1)) := by
   induction' hn with n hn ih
   · exact ⟨0, by norm_num,
-      by norm_num [harmonicNumber] at *; linarith,
-      by norm_num [harmonicNumber] at *; linarith⟩
+      by
+        norm_num [harmonicNumber] at *
+        linarith,
+      by
+        norm_num [harmonicNumber] at *
+        linarith⟩
   · grind
 
 /-- Greedy density: for any `δ ∈ (0, 1/(l+1)]`, there exist `t` distinct positive integers
@@ -797,7 +810,9 @@ lemma greedy_density (t : ℕ) (ht : 1 ≤ t) (l : ℕ) (δ : ℝ) (hδ_pos : 0 
         exact hm₀.2.2.trans
           ( add_le_add_left
             ( mul_le_of_le_one_right ( by positivity )
-              ( inv_le_one_of_one_le₀ ( by norm_cast; linarith ) ) ) _ )
+              ( inv_le_one_of_one_le₀ ( by
+                norm_cast
+                linarith ) ) ) _ )
     refine' ⟨ Insert.insert m₀ S', _, _, _, _, _ ⟩ <;> simp_all +decide [ ValidEgyptian ]
     · rw [ Finset.card_insert_of_notMem ( fun h => by linarith [ hS'.2.2.1 m₀ h ] ), hS'.1 ]
     · linarith
@@ -851,7 +866,8 @@ lemma exists_good_approx (t : ℕ) (ht : 2 ≤ t) (x : ℝ) (hx : 0 < x)
       norm_num [ Finset.sum_range_succ ]
   refine' ⟨ Finset.image ( fun k => k + 1 ) ( Finset.range l ) ∪ S', _, _, _ ⟩ <;> simp_all +decide
   · rw [ Finset.card_union_of_disjoint ]
-    · rw [ Finset.card_image_of_injective ] <;> norm_num [ Function.Injective ] ; omega
+    · rw [ Finset.card_image_of_injective ] <;> norm_num [ Function.Injective ]
+      omega
     · exact Finset.disjoint_left.mpr fun x hx₁ hx₂ => by
         obtain ⟨ k, hk₁, hk₂ ⟩ := Finset.mem_image.mp hx₁
         linarith [ Finset.mem_range.mp hk₁, hS'_sum x hx₂ ]
@@ -893,13 +909,13 @@ We define `bestNTermSum` and `bestNTermSet` as canonical choices, and study thei
 -/
 
 /-- The best `t`-term sum for `x` (as a real number). -/
-def bestNTermSum (t : ℕ) (x : ℝ) : ℝ :=
+noncomputable def bestNTermSum (t : ℕ) (x : ℝ) : ℝ :=
   if hx : 0 < x then
     (exists_bestNTerm t x hx).choose |>.sum (fun m => (1 : ℝ) / m)
   else 0
 
 /-- A canonical best `t`-term set for `x`. -/
-def bestNTermSet (t : ℕ) (x : ℝ) : Finset ℕ :=
+noncomputable def bestNTermSet (t : ℕ) (x : ℝ) : Finset ℕ :=
   if hx : 0 < x then
     (exists_bestNTerm t x hx).choose
   else ∅
@@ -995,7 +1011,7 @@ lemma fiber_sums_equal (t : ℕ) (x y : ℝ) (hx : 0 < x) (hy : 0 < y) (hxy : x 
 /-! ### X_fiber: the fiber restricted to X_set -/
 
 /-- The set of `x` in `X_set s t` with `bestNTermSum t x = q`. -/
-def X_fiber (s t : ℕ) (q : ℝ) : Set ℝ :=
+noncomputable def X_fiber (s t : ℕ) (q : ℝ) : Set ℝ :=
   {x | x ∈ X_set s t ∧ bestNTermSum t x = q}
 
 /-- The `sSup` of the fiber has `bestNTermSum t = q`. -/
@@ -1157,7 +1173,11 @@ lemma non_greedy_pair_gt_i (i a b : ℕ) (hi : 1000 ≤ i)
     i < a ∧ i < b := by
   constructor <;> contrapose! hsum
   · exact le_add_of_le_of_nonneg (one_div_le_one_div_of_le (by positivity)
-      (by linarith [show (a : ℝ) + 1 ≤ i by norm_cast; exact lt_of_le_of_ne hsum ha_ne]))
+      (by
+        linarith [
+          show (a : ℝ) + 1 ≤ i by
+            norm_cast
+            exact lt_of_le_of_ne hsum ha_ne]))
       (by positivity)
   · rcases i with (_ | _ | i) <;> norm_num at *
     rw [inv_eq_one_div, inv_eq_one_div, inv_eq_one_div, div_add_div, div_le_div_iff₀] <;>
@@ -1253,7 +1273,9 @@ lemma compatible_seq_mt_eq
     have := hm_best ( t + 1 ) ( by linarith ) ( by linarith )
     have := this.2.2 ( S ∪ { i } ) ?_ ?_ <;> simp_all +decide
     · simp_all +decide [ egyptianSum ]
-      rw [ Finset.sum_image <| by intros a ha b hb hab; exact hm.injective hab ] at this
+      rw [ Finset.sum_image <| by
+        intro a ha b hb hab
+        exact hm.injective hab ] at this
       have := hS_best.2.2 ( Finset.image m ( Finset.range t ) ) ?_ ?_ <;>
         simp_all +decide [ Finset.sum_range_succ, IsBestNTerm ]
       · unfold egyptianSum at this
@@ -1447,6 +1469,7 @@ lemma i0_exists (t : ℕ) (ht : 100 < t) (rq : ℝ) (hrq : 0 < rq)
     nlinarith [(by norm_cast : (100 : ℝ) < t)]
 
 set_option maxHeartbeats 800000 in
+-- This avoided-set construction combines the previous measure and interval estimates.
 /-- Existence of an avoided measurable set with positive measure. -/
 lemma exists_avoided_set
     (s t : ℕ) (hs : 100 ≤ s) (hst : s < t)
@@ -1483,11 +1506,19 @@ lemma exists_avoided_set
     intro x i hi₁ hi₂ hi₃ hi₄
     have := hE_sub i _ hi₄
     constructor
-    · linarith [ inv_pos.mpr ( by norm_cast; linarith : 0 < ( i : ℝ ) ) ]
+    · linarith [ inv_pos.mpr ( by
+        norm_cast
+        linarith : 0 < ( i : ℝ ) ) ]
     · linarith [
-        inv_anti₀ ( by norm_num; linarith )
-          ( show ( i : ℝ ) ≥ i₀ by norm_cast; linarith ),
-        inv_anti₀ ( by norm_num; linarith )
+        inv_anti₀ ( by
+          norm_num
+          linarith )
+          ( show ( i : ℝ ) ≥ i₀ by
+            norm_cast
+            linarith ),
+        inv_anti₀ ( by
+          norm_num
+          linarith )
           ( show ( i - 1 : ℝ ) ≥ i₀ by
             exact le_tsub_of_add_le_right ( by norm_cast ) ) ]
   · intro x hx hx_A
@@ -1520,12 +1551,16 @@ lemma exists_avoided_set
         rcases lt_or_gt_of_ne hij with hij | hij <;> norm_num at *
         · linarith [
             inv_anti₀ ( by linarith ) ( show ( j : ℝ ) ≥ i + 1 by norm_cast ),
-            inv_anti₀ ( by norm_num; linarith )
+            inv_anti₀ ( by
+              norm_num
+              linarith )
               ( show ( j - 1 : ℝ ) ≥ i by
                 linarith [ show ( j : ℝ ) ≥ i + 1 by norm_cast ] ) ]
         · linarith [
             inv_anti₀ ( by linarith ) ( show ( i : ℝ ) ≥ j + 1 by norm_cast ),
-            inv_anti₀ ( by norm_num; linarith )
+            inv_anti₀ ( by
+              norm_num
+              linarith )
               ( show ( i - 1 : ℝ ) ≥ j by
                 exact le_tsub_of_add_le_right ( by norm_cast ) ) ]
       · exact fun i hi => measurable_id.sub_const q ( hE_meas i )
@@ -1558,7 +1593,9 @@ lemma exists_avoided_set
         nlinarith [
           show ( i₀ : ℝ ) ≥ 1000 by exact_mod_cast hi₀.2.2.1,
           one_div_mul_cancel ( show ( i₀ : ℝ ) - 1 ≠ 0 by
-            exact sub_ne_zero_of_ne ( by norm_cast; linarith ) ) ]
+            exact sub_ne_zero_of_ne ( by
+              norm_cast
+              linarith ) ) ]
     refine' le_trans _ ( le_trans ‹_› _ )
     · exact ENNReal.ofReal_le_ofReal ( by linarith )
     · aesop
@@ -1864,7 +1901,8 @@ lemma iInter_X_set_mono_s (s₁ s₂ : ℕ) (h : s₁ ≤ s₂) :
   simp only [Set.mem_iInter] at hx ⊢
   intro t ht
   have ht' : t ∈ Set.Ici (s₁ + 1) := Set.mem_Ici.mpr (by
-    have := Set.mem_Ici.mp ht; omega)
+    have := Set.mem_Ici.mp ht
+    omega)
   exact X_set_mono_s s₁ s₂ t h (hx t ht')
 
 /-- For `s ≥ 100`, the intersection `⋂_{t > s} X_{s,t}` has measure zero. -/
@@ -1916,7 +1954,5 @@ theorem erdos_206 : volume {x : ℝ | EventuallyGreedy x} = 0 := by
 -- 'Erdos206.EgyptianFractions.erdos_206' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end EgyptianFractions
-
-end
 
 end Erdos206
