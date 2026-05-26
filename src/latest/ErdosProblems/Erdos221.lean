@@ -43,10 +43,12 @@ open scoped Nat
 open scoped Pointwise
 
 /-
-For each integer n >= 1, A_n is the set of numbers of the form 5^n * m or 5^n * m + 1 where 1 <= m < 2^(5^(n+1)). A is the union of all A_n for n >= 1.
+For each integer n >= 1, A_n is the set of numbers of the form 5^n * m or
+5^n * m + 1 where 1 <= m < 2^(5^(n+1)). A is the union of all A_n for n >= 1.
 -/
 def A_n (n : ℕ) : Set ℕ :=
-  {x | ∃ m, 1 ≤ m ∧ m < 2^(5^(n+1)) ∧ (x = 5^n * m ∨ x = 5^n * m + 1)}
+  {x | ∃ m, 1 ≤ m ∧ m < 2 ^ (5 ^ (n + 1)) ∧
+    (x = 5 ^ n * m ∨ x = 5 ^ n * m + 1)}
 
 def A : Set ℕ := ⋃ n ≥ 1, A_n n
 
@@ -57,54 +59,90 @@ lemma lem_order_mod5 : orderOf (2 : ZMod 5) = 4 := by
   simp +decide only [orderOf_eq_iff]
 
 /-
-If the multiplicative order of 2 modulo 5^n is 4 * 5^(n-1), then the multiplicative order of 2 modulo 5^(n+1) is 4 * 5^n.
+If the multiplicative order of 2 modulo 5^n is 4 * 5^(n-1), then the
+multiplicative order of 2 modulo 5^(n+1) is 4 * 5^n.
 -/
 theorem lem_order_lift_explicit (n : ℕ) (h : n ≥ 1)
   (h_ord : orderOf (2 : ZMod (5 ^ n)) = 4 * 5 ^ (n - 1)) :
   orderOf (2 : ZMod (5 ^ (n + 1))) = 4 * 5 ^ n := by
-    -- Let $r_{n+1} := ord_{5^{n+1}}(2)$. Reduction modulo 5^n shows $2^{r_{n+1}} ≡ 1 (mod 5^n)$, hence $r_n | r_{n+1}$. Thus there exists $t ∈ Z_{≥1}$ with $r_{n+1} = r_n * t$.
-    have h_div : (orderOf (2 : ZMod (5 ^ n))) ∣ (orderOf (2 : ZMod (5 ^ (n + 1)))) := by
-      rw [ orderOf_dvd_iff_pow_eq_one ];
-      -- By definition of order, we know that $2^{orderOf (2 : ZMod (5 ^ (n + 1)))} \equiv 1 \pmod{5^{n+1}}$.
-      have h_order : 2 ^ orderOf (2 : ZMod (5 ^ (n + 1))) ≡ 1 [MOD 5 ^ (n + 1)] := by
-        simp +decide [ ← ZMod.natCast_eq_natCast_iff, pow_orderOf_eq_one ];
-      simpa [ ← ZMod.natCast_eq_natCast_iff ] using h_order.of_dvd <| pow_dvd_pow _ <| Nat.le_succ _
-    obtain ⟨t, ht⟩ : ∃ t : ℕ, (orderOf (2 : ZMod (5 ^ (n + 1)))) = (orderOf (2 : ZMod (5 ^ n))) * t := h_div;
-    -- We will show $t = 5$. Consider the integer $u := 2^{r_n}$. By definition of $r_n$, $u ≡ 1 (mod 5^n)$. Write $u = 1 + 5^n * s$ for an integer $s$. Note that $s$ is not congruent to $0 mod 5$.
-    obtain ⟨s, hs⟩ : ∃ s : ℕ, 2 ^ (orderOf (2 : ZMod (5 ^ n))) = 1 + 5 ^ n * s ∧ ¬(5 ∣ s) := by
-      -- By definition of $r_n$, $u ≡ 1 (mod 5^n)$. Write $u = 1 + 5^n * s$ for an integer $s$. Note that $s$ is not congruent to $0 mod 5$.
-      have h_u_mod : 2 ^ (orderOf (2 : ZMod (5 ^ n))) ≡ 1 [MOD 5 ^ n] ∧ ¬(5 ∣ (2 ^ (orderOf (2 : ZMod (5 ^ n))) - 1) / 5 ^ n) := by
-        -- By definition of $r_n$, $u ≡ 1 (mod 5^n)$. Write $u = 1 + 5^n * s$ for an integer $s$. Note that $s$ is not congruent to $0 mod 5$ because $2^{r_n} ≡ 1 (mod 5^{n+1})$ would contradict $r_n$ being the order modulo $5^n$.
-        have h_u_mod : 2 ^ (orderOf (2 : ZMod (5 ^ n))) ≡ 1 [MOD 5 ^ n] ∧ ¬(5 ∣ (2 ^ (orderOf (2 : ZMod (5 ^ n))) - 1) / 5 ^ n) := by
+    -- Let $r_{n+1} := ord_{5^{n+1}}(2)$. Reduction modulo 5^n shows
+    -- $2^{r_{n+1}} ≡ 1 (mod 5^n)$, hence $r_n | r_{n+1}$.
+    have h_div :
+        (orderOf (2 : ZMod (5 ^ n))) ∣
+          (orderOf (2 : ZMod (5 ^ (n + 1)))) := by
+      rw [orderOf_dvd_iff_pow_eq_one]
+      -- By definition of order, we know that
+      -- $2^{orderOf (2 : ZMod (5 ^ (n + 1)))} \equiv 1 \pmod{5^{n+1}}$.
+      have h_order :
+          2 ^ orderOf (2 : ZMod (5 ^ (n + 1))) ≡ 1 [MOD 5 ^ (n + 1)] := by
+        simp +decide [← ZMod.natCast_eq_natCast_iff, pow_orderOf_eq_one]
+      simpa [← ZMod.natCast_eq_natCast_iff] using
+        h_order.of_dvd <| pow_dvd_pow _ <| Nat.le_succ _
+    obtain ⟨t, ht⟩ :
+        ∃ t : ℕ,
+          (orderOf (2 : ZMod (5 ^ (n + 1)))) = (orderOf (2 : ZMod (5 ^ n))) * t :=
+      h_div
+    -- We will show $t = 5$. Consider $u := 2^{r_n}$. By definition of $r_n$,
+    -- $u ≡ 1 (mod 5^n)$, and we can write $u = 1 + 5^n * s$.
+    obtain ⟨s, hs⟩ :
+        ∃ s : ℕ,
+          2 ^ (orderOf (2 : ZMod (5 ^ n))) = 1 + 5 ^ n * s ∧ ¬(5 ∣ s) := by
+      -- It remains to show that the quotient is not congruent to 0 mod 5.
+      have h_u_mod :
+          2 ^ (orderOf (2 : ZMod (5 ^ n))) ≡ 1 [MOD 5 ^ n] ∧
+            ¬(5 ∣ (2 ^ (orderOf (2 : ZMod (5 ^ n))) - 1) / 5 ^ n) := by
+        have h_u_mod :
+            2 ^ (orderOf (2 : ZMod (5 ^ n))) ≡ 1 [MOD 5 ^ n] ∧
+              ¬(5 ∣ (2 ^ (orderOf (2 : ZMod (5 ^ n))) - 1) / 5 ^ n) := by
           have h_cong : 2 ^ (orderOf (2 : ZMod (5 ^ n))) ≡ 1 [MOD 5 ^ n] := by
-            simp +decide [ ← ZMod.natCast_eq_natCast_iff, pow_orderOf_eq_one ]
-          have h_not_div : ¬(5 ∣ (2 ^ (orderOf (2 : ZMod (5 ^ n))) - 1) / 5 ^ n) := by
-            -- By definition of $r_n$, $u ≡ 1 (mod 5^n)$. Write $u = 1 + 5^n * s$ for an integer $s$. Note that $s$ is not congruent to $0 mod 5$ because $2^{r_n} ≡ 1 (mod 5^{n+1})$ would contradict $r_n$ being the order modulo $5^n$. Hence, $s$ must be not divisible by 5.
+            simp +decide [← ZMod.natCast_eq_natCast_iff, pow_orderOf_eq_one]
+          have h_not_div :
+              ¬(5 ∣ (2 ^ (orderOf (2 : ZMod (5 ^ n))) - 1) / 5 ^ n) := by
+            -- If the quotient were divisible by 5, the same power would be 1 modulo 5^(n+1).
             have h_not_div : ¬(2 ^ (4 * 5 ^ (n - 1)) ≡ 1 [MOD 5 ^ (n + 1)]) := by
-              -- We'll use that $2^{4 \cdot 5^{n-1}} \equiv 1 + 5^n \cdot k \pmod{5^{n+1}}$ for some integer $k$ not divisible by 5.
-              have h_cong : ∃ k : ℕ, 2 ^ (4 * 5 ^ (n - 1)) = 1 + 5 ^ n * k ∧ ¬(5 ∣ k) := by
+              -- Use that $2^{4 \cdot 5^{n-1}} = 1 + 5^n \cdot k$ with $5 ∤ k$.
+              have h_cong :
+                  ∃ k : ℕ, 2 ^ (4 * 5 ^ (n - 1)) = 1 + 5 ^ n * k ∧ ¬(5 ∣ k) := by
                 -- We'll use induction to prove that the order of 2 modulo 5^n is 4*5^(n-1).
-                have h_ind : ∀ n ≥ 1, ∃ k : ℕ, 2 ^ (4 * 5 ^ (n - 1)) = 1 + 5 ^ n * k ∧ ¬(5 ∣ k) := by
+                have h_ind :
+                    ∀ n ≥ 1,
+                      ∃ k : ℕ, 2 ^ (4 * 5 ^ (n - 1)) = 1 + 5 ^ n * k ∧
+                        ¬(5 ∣ k) := by
                   intro n hn
-                  induction' n, Nat.succ_le_iff.mpr hn using Nat.le_induction with n hn ih;
-                  · exists ( 2 ^ 4 - 1 ) / 5;
+                  induction' n, Nat.succ_le_iff.mpr hn using Nat.le_induction with n hn ih
+                  · exists (2 ^ 4 - 1) / 5
                   · rcases ih ‹_› with ⟨ k, hk₁, hk₂ ⟩ ; rcases n <;> simp_all +decide [ pow_succ, pow_mul ];
                     refine' ⟨ k + k ^ 2 * 5 ^ ‹_› * 10 + k ^ 3 * 5 ^ ( ‹_› * 2 ) * 50 + k ^ 4 * 5 ^ ( ‹_› * 3 ) * 125 + k ^ 5 * 5 ^ ( ‹_› * 4 ) * 125, _, _ ⟩ <;> ring_nf at * ; norm_num [ Nat.dvd_iff_mod_eq_zero, Nat.add_mod, Nat.mul_mod, Nat.pow_mod ] at * ; aesop ( simp_config := { decide := true } ) ;
-                exact h_ind n h;
-              rcases h_cong with ⟨ k, hk₁, hk₂ ⟩ ; rw [ hk₁ ] ; rw [ Nat.modEq_iff_dvd ] ; norm_num [ pow_add, pow_mul ];
-              exact_mod_cast Nat.mul_dvd_mul_iff_left ( by positivity ) |>.not.mpr hk₂;
-            contrapose! h_not_div; simp_all +decide [ Nat.ModEq ] ;
+                exact h_ind n h
+              rcases h_cong with ⟨k, hk₁, hk₂⟩
+              rw [hk₁]
+              rw [Nat.modEq_iff_dvd]
+              norm_num [pow_add, pow_mul]
+              exact_mod_cast Nat.mul_dvd_mul_iff_left (by positivity) |>.not.mpr hk₂
+            contrapose! h_not_div
+            simp_all +decide [Nat.ModEq]
             -- If $5 \mid (2 ^ (4 * 5 ^ (n - 1)) - 1) / 5 ^ n$, then $2 ^ (4 * 5 ^ (n - 1)) - 1$ is divisible by $5^{n+1}$.
             have h_div : 5 ^ (n + 1) ∣ (2 ^ (4 * 5 ^ (n - 1)) - 1) := by
-              convert Nat.mul_dvd_mul_left ( 5 ^ n ) h_not_div using 1 ; rw [ Nat.mul_div_cancel' ] ; simpa [ ← Int.natCast_dvd_natCast ] using Nat.modEq_iff_dvd.mp h_cong.symm;
-            exact Nat.ModEq.symm ( Nat.modEq_of_dvd <| by simpa [ ← Int.natCast_dvd_natCast ] using h_div )
+              convert Nat.mul_dvd_mul_left (5 ^ n) h_not_div using 1
+              · rw [Nat.mul_div_cancel']
+                simpa [← Int.natCast_dvd_natCast] using Nat.modEq_iff_dvd.mp h_cong.symm
+            exact Nat.ModEq.symm
+              (Nat.modEq_of_dvd <| by simpa [← Int.natCast_dvd_natCast] using h_div)
           exact ⟨h_cong, h_not_div⟩;
         exact h_u_mod;
       obtain ⟨s, hs⟩ : ∃ s : ℕ, 2 ^ (orderOf (2 : ZMod (5 ^ n))) - 1 = 5 ^ n * s := by
-        exact exists_eq_mul_right_of_dvd ( by simpa [ ← Int.natCast_dvd_natCast ] using h_u_mod.1.symm.dvd );
-      exact ⟨ s, by linarith [ Nat.sub_add_cancel ( Nat.one_le_pow ( orderOf ( 2 : ZMod ( 5 ^ n ) ) ) 2 zero_lt_two ) ], by simpa [ hs ] using h_u_mod.2 ⟩;
-    -- We now compute $u^5$ modulo $5^{n+1}$ using the binomial expansion: $u^5 = (1 + 5^n * s)^5 ≡ 1 + 5 * 5^n * s (mod 5^{n+1})$, because all other binomial coefficients (5 choose j) for 2 <= j <= 5 have a factor $5^2$ and therefore contribute multiples of $5^{n+2}$.
-    have h_u5 : 2 ^ (orderOf (2 : ZMod (5 ^ n)) * 5) ≡ 1 + 5 ^ (n + 1) * s [MOD 5 ^ (n + 1)] := by
+        exact exists_eq_mul_right_of_dvd
+          (by simpa [← Int.natCast_dvd_natCast] using h_u_mod.1.symm.dvd)
+      exact ⟨s,
+        by
+          linarith [
+            Nat.sub_add_cancel
+              (Nat.one_le_pow (orderOf (2 : ZMod (5 ^ n))) 2 zero_lt_two)],
+        by simpa [hs] using h_u_mod.2⟩
+    -- Compute $u^5$ modulo $5^{n+1}$ using the binomial expansion.
+    have h_u5 :
+        2 ^ (orderOf (2 : ZMod (5 ^ n)) * 5) ≡
+          1 + 5 ^ (n + 1) * s [MOD 5 ^ (n + 1)] := by
       have h_u5 : (1 + 5 ^ n * s) ^ 5 ≡ 1 + 5 ^ (n + 1) * s [MOD 5 ^ (n + 1)] := by
         refine Nat.ModEq.symm ( Nat.modEq_of_dvd ?_ );
         norm_num [ ← geom_sum_mul ] ; ring_nf ;
@@ -114,18 +152,23 @@ theorem lem_order_lift_explicit (n : ℕ) (h : n ≥ 1)
         · exact ⟨ s ^ 4 * 5 ^ ( n * 3 ), by ring ⟩;
         · exact ⟨ s ^ 5 * 5 ^ ( n * 4 - 1 ), by rw [ show ( 5 : ℤ ) ^ ( n * 5 ) = 5 ^ ( n * 4 - 1 ) * 5 ^ ( n + 1 ) by rw [ ← pow_add ] ; congr 1; omega ] ; ring ⟩;
       convert h_u5 using 1 ; rw [ pow_mul, hs.1 ];
-    -- Thus $2^{r_n * 5} ≡ 1 (mod 5^{n+1})$. So the order $r_{n+1}$ divides $r_n * 5$. Since $r_n | r_{n+1}$ we get $r_{n+1} = r_n$ or $r_n * 5$.
-    have h_div : (orderOf (2 : ZMod (5 ^ (n + 1)))) ∣ (orderOf (2 : ZMod (5 ^ n))) * 5 := by
-      rw [ orderOf_dvd_iff_pow_eq_one ];
-      simp_all +decide [ ← ZMod.natCast_eq_natCast_iff ]
-    have h_cases : (orderOf (2 : ZMod (5 ^ (n + 1)))) = (orderOf (2 : ZMod (5 ^ n))) ∨ (orderOf (2 : ZMod (5 ^ (n + 1)))) = (orderOf (2 : ZMod (5 ^ n))) * 5 := by
-      simp_all +decide [ Nat.mul_dvd_mul_iff_left ];
-      rwa [ Nat.dvd_prime ( by decide ) ] at h_div;
-    -- But $r_{n+1} = r_n$ is impossible because that would imply $2^{r_n} ≡ 1 (mod 5^{n+1})$, contradicting $s$ is not congruent to $0 mod 5$.
+    -- Thus $2^{r_n * 5} ≡ 1 (mod 5^{n+1})$, so the new order divides $r_n * 5$.
+    have h_div :
+        (orderOf (2 : ZMod (5 ^ (n + 1)))) ∣ (orderOf (2 : ZMod (5 ^ n))) * 5 := by
+      rw [orderOf_dvd_iff_pow_eq_one]
+      simp_all +decide [← ZMod.natCast_eq_natCast_iff]
+    have h_cases :
+        (orderOf (2 : ZMod (5 ^ (n + 1)))) = (orderOf (2 : ZMod (5 ^ n))) ∨
+          (orderOf (2 : ZMod (5 ^ (n + 1)))) = (orderOf (2 : ZMod (5 ^ n))) * 5 := by
+      simp_all +decide [Nat.mul_dvd_mul_iff_left]
+      rwa [Nat.dvd_prime (by decide)] at h_div
+    -- The case $r_{n+1} = r_n$ contradicts the non-divisibility of $s$ by 5.
     have h_contra : ¬(2 ^ (orderOf (2 : ZMod (5 ^ n))) ≡ 1 [MOD 5 ^ (n + 1)]) := by
-      rw [ Nat.modEq_iff_dvd ];
-      norm_num [ hs.1 ];
-      rw [ pow_succ, mul_dvd_mul_iff_left ( by positivity ) ] ; norm_cast ; exact fun h => hs.2 <| by simpa [ Nat.Prime.dvd_iff_not_coprime ] using h;
+      rw [Nat.modEq_iff_dvd]
+      norm_num [hs.1]
+      rw [pow_succ, mul_dvd_mul_iff_left (by positivity)]
+      norm_cast
+      exact fun h => hs.2 <| by simpa [Nat.Prime.dvd_iff_not_coprime] using h
     rcases h_cases with h_case | h_case
     · exfalso
       exact h_contra (by
