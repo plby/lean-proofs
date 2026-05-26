@@ -25,16 +25,9 @@ namespace Erdos246
 -- This generated proof file still relies on automated proof scripts whose warnings
 -- are too interdependent to remove locally without changing the proof structure.
 set_option linter.style.setOption false
-set_option linter.style.openClassical false
 set_option linter.style.longLine false
 set_option linter.style.refine false
-set_option linter.style.induction false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
-set_option linter.unusedSimpArgs false
-set_option linter.unusedVariables false
-
-open scoped Classical
 
 /-
 Definitions of FS (finite subset sums), IsCompleteSeq (completeness of a set), and Gamma (the set of numbers of the form a^k * b^l).
@@ -65,9 +58,9 @@ theorem log_ratio_irrational {p q : ℕ} (hp : 2 ≤ p) (hq : 2 ≤ q) (h_coprim
         · exact ne_of_gt <| Real.log_pos <| Nat.one_lt_cast.mpr hq;
       rw [ ← Real.exp_log ( by positivity : 0 < ( p : ℝ ) ), ← Real.exp_log ( by positivity : 0 < ( q : ℝ ) ), ← Real.exp_nat_mul, ← Real.exp_nat_mul, mul_comm, h_exp, mul_comm ];
     norm_cast at *;
-    apply_fun fun x => x.gcd p at h_exp ; simp_all +decide [ Nat.Coprime, Nat.Coprime.symm ];
-    simp_all +decide [ Nat.gcd_comm, Nat.Coprime, Nat.Coprime.pow_left ];
-    cases a_den : a.den <;> cases a_num : a.num.natAbs <;> simp_all +decide [ Nat.Coprime, Nat.Coprime.pow_left ];
+    apply_fun fun x => x.gcd p at h_exp ; simp_all +decide [ Nat.Coprime ];
+    simp_all +decide [ Nat.gcd_comm ];
+    cases a_den : a.den <;> cases a_num : a.num.natAbs <;> simp_all +decide [ Nat.Coprime ];
     simp_all +decide [ Nat.Coprime, Nat.Coprime.pow_right ]
 
 theorem exists_small_fract_mul (α : ℝ) (h_irr : Irrational α) (ε : ℝ) (hε : 0 < ε) :
@@ -212,9 +205,12 @@ theorem lem_halfinterval {p q : ℕ} (hp : 2 ≤ p) (hq : 2 ≤ q) (h_coprime : 
         have h_exp : (p : ℝ) ^ (u + n * (Real.log q / Real.log p)) ≤ (p : ℝ) ^ (Real.log X / Real.log p) := by
           exact_mod_cast Real.rpow_le_rpow_of_exponent_le ( by norm_cast; linarith ) ( show ( u : ℝ ) + n * ( Real.log q / Real.log p ) ≤ Real.log X / Real.log p from by rw [ eq_comm, Int.floor_eq_iff ] at hu; norm_num at *; linarith );
         convert h_exp using 1;
-        erw [ Real.rpow_logb ] <;> norm_cast ; linarith;
-        · linarith;
-        · exact lt_of_lt_of_le ( by exact Real.rpow_pos_of_pos ( by positivity ) _ ) hX;
+        erw [ Real.rpow_logb ]
+        · norm_cast
+          linarith
+        · norm_cast
+          linarith
+        · exact lt_of_lt_of_le ( by exact Real.rpow_pos_of_pos ( by positivity ) _ ) hX
       convert h_exp using 1 ; norm_num [ Real.rpow_add ( by positivity : 0 < ( p : ℝ ) ), Real.rpow_mul ( by positivity : 0 ≤ ( p : ℝ ) ), mul_div_cancel₀, ne_of_gt ( Real.log_pos ( show ( p : ℝ ) > 1 by norm_cast ) ) ];
       rw [ ← Real.rpow_natCast, ← Real.rpow_natCast, ← Real.rpow_mul ( by positivity ), mul_comm ];
       rw [ Real.rpow_def_of_pos ( by positivity ), Real.rpow_def_of_pos ( by positivity ) ] ; ring_nf ; norm_num [ Real.exp_log, show p ≠ 0 by positivity, show q ≠ 0 by positivity ];
@@ -231,8 +227,11 @@ theorem prop_boundedgaps {p q : ℕ} (hp : 2 ≤ p) (hq : 2 ≤ q) (h_coprime : 
     obtain ⟨G, hG⟩ : ∃ G : ℕ, ∀ M ∈ Finset.range (Nat.floor X₀ + 2), ∃ s ∈ FS (Gamma p q), s ≤ M ∧ M < s + G := by
       use Nat.succ (Nat.floor X₀ + 2);
       exact fun M hM => ⟨ 0, ⟨ ∅, by norm_num, by norm_num ⟩, by norm_num, by linarith [ Finset.mem_range.mp hM ] ⟩;
-    refine ⟨ G + 2, Nat.succ_pos _, fun M => ?_ ⟩ ; induction' M using Nat.strong_induction_on with M ih ; rcases le_or_gt M ( Nat.floor X₀ + 1 ) with h | h;
-    · exact Exists.elim ( hG M ( Finset.mem_range.mpr ( by linarith ) ) ) fun s hs => ⟨ s, hs.1, hs.2.1, by linarith ⟩;
+    refine ⟨ G + 2, Nat.succ_pos _, fun M => ?_ ⟩
+    refine Nat.strong_induction_on M ?_
+    intro M ih
+    rcases le_or_gt M ( Nat.floor X₀ + 1 ) with h | h
+    · exact Exists.elim ( hG M ( Finset.mem_range.mpr ( by linarith ) ) ) fun s hs => ⟨ s, hs.1, hs.2.1, by linarith ⟩
     · -- By `lem_halfinterval`, there exists $t \in \Gamma(p,q)$ such that $M/2 < t \le M$.
       obtain ⟨t, ht⟩ : ∃ t ∈ Gamma p q, M / 2 < t ∧ t ≤ M := by
         obtain ⟨ u, v, hu, hv ⟩ := hX₀.2 M ( Nat.lt_of_floor_lt ( by linarith ) |> le_of_lt );
@@ -412,7 +411,7 @@ lemma lem_equal (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) :
         grind
       have h_nonempty_V : V.Nonempty := by
         by_contra h_empty_V;
-        simp_all +decide [ Finset.sdiff_eq_empty_iff_subset ];
+        simp_all +decide;
         rw [ Finset.sdiff_eq_empty_iff_subset ] at h_empty_V;
         have h_sum_lt : ∑ x ∈ U', f x > ∑ x ∈ V', f x := by
           rw [ ← Finset.sum_sdiff h_empty_V ];
@@ -504,14 +503,14 @@ lemma lem_unit (P Q : ℕ) (hP : 2 ≤ P) (hQ : 2 ≤ Q) :
         -- Define $E = \text{translate\_set}(V, (A,B))$ and $F = \text{translate\_set}(U', (A,B))$.
         use translate_set V (A, B), translate_set U' (A, B);
         refine' ⟨ _, _, _ ⟩;
-        · simp_all +decide [ Finset.disjoint_left, Set.disjoint_left ];
+        · simp_all +decide [ Finset.disjoint_left ];
           unfold translate_set; aesop;
         · -- By `Phi_translate`, $\Phi(E) = P^{-A} Q^{-B} \Phi(V)$ and $\Phi(F) = P^{-A} Q^{-B} \Phi(U')$.
           have hE_eq : Phi P Q (translate_set V (A, B)) = (P : ℚ) ^ (-A) * (Q : ℚ) ^ (-B) * Phi P Q V := by
             apply Phi_translate P Q hP hQ V (A, B)
           have hF_eq : Phi P Q (translate_set U' (A, B)) = (P : ℚ) ^ (-A) * (Q : ℚ) ^ (-B) * Phi P Q U' := by
             convert Phi_translate P Q hP hQ U' ( A, B ) using 1;
-          simp_all +decide [ mul_sub ];
+          simp_all +decide;
           rw [ ← mul_sub, ← hUV_eq.2.2.2, add_sub_cancel_right, inv_mul_eq_div, div_eq_mul_inv ];
           field_simp;
         · simp_all +decide [ Set.disjoint_left, translate_set ];
@@ -531,7 +530,7 @@ def scale_set (M : ℕ) (S : Finset (ℤ × ℤ)) : Finset (ℤ × ℤ) :=
 lemma Phi_scale (p q : ℕ) (M : ℕ) (hM : M ≠ 0) (S : Finset (ℤ × ℤ)) :
   Phi p q (scale_set M S) = Phi (p ^ M) (q ^ M) S := by
     unfold Phi scale_set
-    simp [Finset.sum_map, Finset.sum_add_distrib];
+    simp;
     rw [ Finset.sum_image ];
     · norm_num [ zpow_mul ];
     · intro x hx y hy; aesop;
@@ -554,9 +553,11 @@ lemma exists_sequence_EF (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) (k : ℕ) :
         (∀ i, Disjoint (E i ∪ F i : Set (ℤ × ℤ)) Q_set) ∧
         (∀ i j, i ≠ j → Disjoint ((E i ∪ F i) : Finset (ℤ × ℤ)) (E j ∪ F j)) := by
           intro n;
-          induction' n with n ih;
-          · exact ⟨ fun _ => ∅, fun _ => ∅, by simp +decide ⟩;
-          · obtain ⟨ E, F, hE, hF, hQ, h ⟩ := ih;
+          induction n with
+          | zero =>
+            exact ⟨ fun _ => ∅, fun _ => ∅, by simp +decide ⟩
+          | succ n ih =>
+            obtain ⟨ E, F, hE, hF, hQ, h ⟩ := ih;
             -- Let $S$ be the union of all $E_i$ and $F_i$ for $i < n$.
             set S : Finset (ℤ × ℤ) := Finset.biUnion Finset.univ (fun i => E i ∪ F i) with hS_def;
             -- Let $M = 1 + \max_{x \in S} \|x\|$.
@@ -572,7 +573,7 @@ lemma exists_sequence_EF (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) (k : ℕ) :
             use Fin.cons (scale_set M E') E, Fin.cons (scale_set M F') F;
             simp_all +decide [ Fin.forall_fin_succ, Finset.disjoint_left, Set.disjoint_left ];
             refine' ⟨ _, _, _, _, _ ⟩;
-            · unfold scale_set; simp +contextual [ hE' ] ;
+            · unfold scale_set; simp +contextual;
               intro a b x y hx hy hxy z w hz hz' hw'; specialize hE' x y hx; specialize hF' ; aesop;
             · refine' ⟨ _, hF ⟩;
               rw [ ← Phi_scale, ← Phi_scale ];
@@ -586,7 +587,7 @@ lemma exists_sequence_EF (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) (k : ℕ) :
               · exact fun i a b a_1 => hQ i a b a_1;
             · intro i hi a b hab; specialize hM; specialize hQ i; specialize h i; simp_all +decide [ Fin.ext_iff, scale_set ] ;
               rcases hab with ( ⟨ a', b', ha', rfl, rfl ⟩ | ⟨ a', b', ha', rfl, rfl ⟩ ) <;> simp_all +decide [ Q_set ];
-              · constructor <;> intro H <;> specialize hM <;> specialize hQ' a' b' ( Or.inl ha' ) <;> specialize hM <;> specialize hQ <;> specialize hQ ( M * a' ) ( M * b' ) <;> simp_all +decide [ mul_nonneg ];
+              · constructor <;> intro H <;> specialize hM <;> specialize hQ' a' b' ( Or.inl ha' ) <;> specialize hM <;> specialize hQ <;> specialize hQ ( M * a' ) ( M * b' ) <;> simp_all +decide;
                 · have := hM.2 _ _ i ( Or.inl H ) ; simp_all +decide [ Int.natAbs_mul ] ;
                 · have := hM.2 _ _ i ( Or.inr H ) ; simp_all +decide [ Int.natAbs_mul ] ;
               · constructor <;> intro H <;> specialize hM <;> have := hM.2 _ _ i ( by tauto ) <;> simp_all +decide [ Int.natAbs_mul ];
@@ -619,7 +620,7 @@ lemma unique_representation (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) (h_coprime
   (p : ℚ) ^ u * (q : ℚ) ^ v = (p : ℚ) ^ u' * (q : ℚ) ^ v' ↔ u = u' ∧ v = v' := by
     -- If $p^u q^v = p^{u'} q^{v'}$, then $p^{u-u'} = q^{v'-v}$. Taking logs, $(u-u') \log p = (v'-v) \log q$.
     have h_log : (p : ℚ) ^ u * (q : ℚ) ^ v = (p : ℚ) ^ u' * (q : ℚ) ^ v' → (u - u') * Real.log p = (v' - v) * Real.log q := by
-      intro h; apply_fun Real.log at h; simp_all +decide [ Real.log_mul, ne_of_gt ( zero_lt_two.trans_le hp ), ne_of_gt ( zero_lt_two.trans_le hq ) ] ;
+      intro h; apply_fun Real.log at h; simp_all +decide;
       rw [ Real.log_mul ( by positivity ) ( by positivity ), Real.log_mul ( by positivity ) ( by positivity ), Real.log_zpow, Real.log_zpow, Real.log_zpow, Real.log_zpow ] at h ; linarith;
     -- If $v' \neq v$, then $\frac{\log p}{\log q} = \frac{v'-v}{u-u'}$ is rational.
     have h_rat : (u - u') * Real.log p = (v' - v) * Real.log q → (v' = v ∧ u = u') := by
@@ -663,7 +664,7 @@ lemma mem_FS_Gamma_iff_exists_Phi (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) (h_c
         · unfold Phi; norm_num;
           exact Finset.sum_congr rfl fun x hx => by rw [ ← Int.toNat_of_nonneg ( hS₁ hx |>.1 ), ← Int.toNat_of_nonneg ( hS₁ hx |>.2 ) ] ; norm_cast;
         · intros x hx y hy; have := hS₁ hx; have := hS₁ hy; simp_all +decide [ Q_set ] ;
-          intro h; have := unique_representation p q hp hq h_coprime x.1.toNat x.2.toNat y.1.toNat y.2.toNat; simp_all +decide [ Int.toNat_of_nonneg ] ;
+          intro h; have := unique_representation p q hp hq h_coprime x.1.toNat x.2.toNat y.1.toNat y.2.toNat; simp_all +decide;
           exact Prod.ext ( this.mp ( by rw [ ← Int.toNat_of_nonneg ( by linarith : 0 ≤ x.1 ), ← Int.toNat_of_nonneg ( by linarith : 0 ≤ x.2 ), ← Int.toNat_of_nonneg ( by linarith : 0 ≤ y.1 ), ← Int.toNat_of_nonneg ( by linarith : 0 ≤ y.2 ) ] at *; exact mod_cast h ) |>.1 ) ( this.mp ( by rw [ ← Int.toNat_of_nonneg ( by linarith : 0 ≤ x.1 ), ← Int.toNat_of_nonneg ( by linarith : 0 ≤ x.2 ), ← Int.toNat_of_nonneg ( by linarith : 0 ≤ y.1 ), ← Int.toNat_of_nonneg ( by linarith : 0 ≤ y.2 ) ] at *; exact mod_cast h ) |>.2 );
       use F;
       exact ⟨ hF_subset_Gamma, by rw [ ← @Nat.cast_inj ℚ ] ; aesop ⟩
@@ -705,7 +706,7 @@ theorem prop_AP (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) (h_coprime : Nat.Copri
             simp +zetaDelta at *;
             exact Finset.sum_congr rfl fun x hx => by rw [ ← Int.toNat_of_nonneg ( hAB.2.2 _ _ i ( Or.inr hx ) |>.1 ), ← Int.toNat_of_nonneg ( hAB.2.2 _ _ i ( Or.inr hx ) |>.2 ) ] ; norm_cast;
           convert h_int_sum using 1;
-          unfold Phi; simp +decide [ mul_assoc, Finset.mul_sum _ _ _, h_int ] ;
+          unfold Phi; simp +decide [ mul_assoc, Finset.mul_sum _ _ _ ] ;
           exact funext fun R => by rw [ Finset.sum_congr rfl ] ; intros x hx; linear_combination' h_int x hx;
         choose! R hR using h_int; exact ⟨ ∑ i, R i, by push_cast; rw [ Finset.mul_sum _ _ _, Finset.sum_congr rfl fun _ _ => hR _ ] ⟩ ;
       use A.natAbs, B.natAbs, R;
@@ -727,7 +728,7 @@ theorem prop_AP (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) (h_coprime : Nat.Copri
               intro a b ha x hx; specialize hEF₃ x; simp_all +decide [ Set.disjoint_left ] ;
               exact fun h => hEF₃.1 a b h ( hT₁ a b ha );
             · simp_all +decide [ Finset.disjoint_left, Set.subset_def ];
-              rintro a b ( h | ⟨ i, hi, hi' ⟩ ) x hx <;> simp_all +decide [ Finset.disjoint_left, Set.disjoint_left ];
+              rintro a b ( h | ⟨ i, hi, hi' ⟩ ) x hx <;> simp_all +decide [ Set.disjoint_left ];
               · exact fun hx' => hEF₃ x |>.2 _ _ hx' ( hT₁ _ _ h );
               · exact fun hx' => hEF₄ i x ( by rintro rfl; linarith ) a b ( Or.inl hi' ) |>.2 hx';
           rw [ hU_m, Phi, Phi, Phi ];
@@ -771,6 +772,8 @@ lemma Phi_construction (p q : ℕ) (L : ℕ) (E F : Fin L → Finset (ℤ × ℤ
   (hEF_self : ∀ i, Disjoint (E i) (F i)) :
   let U := T ∪ Finset.biUnion (Finset.univ.filter (fun i => i.val < y)) E ∪ Finset.biUnion (Finset.univ.filter (fun i => y ≤ i.val)) F
   Phi p q U = Phi p q T + ∑ i ∈ Finset.univ.filter (fun i => i.val < y), Phi p q (E i) + ∑ i ∈ Finset.univ.filter (fun i => y ≤ i.val), Phi p q (F i) := by
+    have _hy := hy
+    have _hEF_self := hEF_self
     simp +zetaDelta at *;
     rw [ Phi ];
     rw [ Finset.sum_union, Finset.sum_union ];
@@ -842,17 +845,20 @@ lemma sums_cover_product (m n : ℕ) (hm : m > 0) (hn : n > 0) (h_coprime : Nat.
   (S_m : Finset ℕ) (hS_m_mod : ∀ x ∈ S_m, x % n = 0) (hS_m_cover : ∀ r, ∃ U, U ⊆ S_m ∧ (∑ x ∈ U, x) % m = r % m)
   (S_n : Finset ℕ) (hS_n_mod : ∀ x ∈ S_n, x % m = 0) (hS_n_cover : ∀ r, ∃ V, V ⊆ S_n ∧ (∑ x ∈ V, x) % n = r % n) :
   ∀ T : ℕ, ∃ U V, U ⊆ S_m ∧ V ⊆ S_n ∧ (∑ x ∈ U, x + ∑ x ∈ V, x) % (m * n) = T % (m * n) := by
+    have _hm := hm
+    have _hn := hn
     simp +zetaDelta at *;
     intro T;
-    obtain ⟨ U, hU₁, hU₂ ⟩ := hS_m_cover T; obtain ⟨ V, hV₁, hV₂ ⟩ := hS_n_cover T; use U, hU₁, V, hV₁; simp +decide [ Nat.add_mod, Nat.mul_mod, * ] ;
+    obtain ⟨ U, hU₁, hU₂ ⟩ := hS_m_cover T; obtain ⟨ V, hV₁, hV₂ ⟩ := hS_n_cover T; use U, hU₁, V, hV₁; simp +decide [ Nat.add_mod, * ] ;
     -- By the Chinese Remainder Theorem, since $m$ and $n$ are coprime, we have:
     have h_crt : (∑ x ∈ U, x) + (∑ x ∈ V, x) ≡ T [MOD m] ∧ (∑ x ∈ U, x) + (∑ x ∈ V, x) ≡ T [MOD n] := by
       simp_all +decide [ Nat.ModEq ];
       exact ⟨ by simp +decide [ Nat.add_mod, hU₂, Nat.mod_eq_zero_of_dvd ( Finset.dvd_sum fun x hx => Nat.dvd_of_mod_eq_zero ( hS_n_mod x ( hV₁ hx ) ) ) ], by simp +decide [ Nat.add_mod, hV₂, Nat.mod_eq_zero_of_dvd ( Finset.dvd_sum fun x hx => Nat.dvd_of_mod_eq_zero ( hS_m_mod x ( hU₁ hx ) ) ) ] ⟩;
     simp_all +decide [ Nat.ModEq ];
     rw [ Nat.ModEq.symm ];
-    rw [ ← Nat.modEq_and_modEq_iff_modEq_mul ] ; tauto;
-    assumption
+    rw [ ← Nat.modEq_and_modEq_iff_modEq_mul ]
+    · tauto
+    · assumption
 
 /-
 There exist A, B, R such that m p^A q^B + R is representable by a subset of Q for all m.
@@ -934,6 +940,8 @@ lemma exists_subsets_sum_mod (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) (h_coprim
   (hQ_cover : ∀ r : ℕ, ∃ V ⊆ Q, (∑ y ∈ V, y) % p ^ (A + 1) = r % p ^ (A + 1))
   (T : ℕ) :
   ∃ P₀ Q₀ : Finset ℕ, P₀ ⊆ P ∧ Q₀ ⊆ Q ∧ (∑ x ∈ P₀, x + ∑ y ∈ Q₀, y) % (p ^ (A + 1) * q ^ (B + 1)) = T % (p ^ (A + 1) * q ^ (B + 1)) := by
+    have _hp := hp
+    have _hq := hq
     have h_sum_cong : ∃ P₀ Q₀ : Finset ℕ, P₀ ⊆ P ∧ Q₀ ⊆ Q ∧ (∑ x ∈ P₀, x) % q ^ (B + 1) = T % q ^ (B + 1) ∧ (∑ y ∈ Q₀, y) % p ^ (A + 1) = T % p ^ (A + 1) := by
       exact Exists.elim ( hP_cover T ) fun P₀ hP₀ => Exists.elim ( hQ_cover T ) fun Q₀ hQ₀ => ⟨ P₀, Q₀, hP₀.1, hQ₀.1, hP₀.2, hQ₀.2 ⟩;
     simp +zetaDelta at *;
@@ -991,9 +999,11 @@ lemma disjoint_parts (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) (h_coprime : Nat.
   (hQ_div : ∀ y ∈ Q₀, q ∣ y) :
   let S_m' := S_m.image (fun x => p ^ (x.1.toNat + 1) * q ^ (x.2.toNat + 1))
   Disjoint S_m' P₀ ∧ Disjoint S_m' Q₀ ∧ Disjoint P₀ Q₀ := by
+    have _hS_m := hS_m
+    have hP_div' := hP_div
     constructor;
     · rw [ Finset.disjoint_left ];
-      intro x hx₁ hx₂; obtain ⟨ k₁, hk₁ ⟩ := hP₀ x hx₂; obtain ⟨ k₂, hk₂ ⟩ := Finset.mem_image.mp hx₁; simp_all +decide [ pow_add, mul_assoc, Nat.Prime.dvd_mul ] ;
+      intro x hx₁ hx₂; obtain ⟨ k₁, hk₁ ⟩ := hP₀ x hx₂; obtain ⟨ k₂, hk₂ ⟩ := Finset.mem_image.mp hx₁; simp_all +decide [ pow_add, mul_assoc ] ;
       -- Since $p$ and $q$ are coprime, $q \mid p^k₁$ implies $q \mid 1$, which is impossible.
       have hq_div_one : q ∣ p ^ k₁ := by
         exact hk₂.2 ▸ dvd_mul_of_dvd_right ( dvd_mul_of_dvd_right ( dvd_mul_left _ _ ) _ ) _;
@@ -1001,13 +1011,13 @@ lemma disjoint_parts (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) (h_coprime : Nat.
     · constructor;
       · rw [ Finset.disjoint_left ];
         norm_num +zetaDelta at *;
-        intros a x y hx hy hQ; obtain ⟨ k, hk ⟩ := hQ₀ a hQ; simp_all +decide [ pow_add, mul_assoc, Nat.Prime.dvd_mul ] ;
+        intros a x y hx hy hQ; obtain ⟨ k, hk ⟩ := hQ₀ a hQ; simp_all +decide [ pow_add, mul_assoc ] ;
         -- Since $p$ and $q$ are coprime, $p$ must divide $q^k$, which implies $p$ divides $q$, contradicting $p \geq 2$ and $q \geq 2$.
         have h_contra : p ∣ q ^ k := by
           exact hy ▸ dvd_mul_of_dvd_right ( dvd_mul_right _ _ ) _;
         exact absurd ( h_coprime.pow_right k ) ( by intro H; have := Nat.dvd_gcd ( dvd_refl p ) h_contra; aesop );
-      · rw [ Finset.disjoint_left ] ; intro x hx hy ; obtain ⟨ k₁, hk₁ ⟩ := hP₀ x hx ; obtain ⟨ k₂, hk₂ ⟩ := hQ₀ x hy ; simp_all +decide [ Nat.Prime.dvd_iff_one_le_factorization ];
-        specialize hP_div _ hx ; specialize hQ_div _ hy ; simp_all +decide [ Nat.Prime.dvd_iff_one_le_factorization ];
+      · rw [ Finset.disjoint_left ] ; intro x hx hy ; obtain ⟨ k₁, hk₁ ⟩ := hP₀ x hx ; obtain ⟨ k₂, hk₂ ⟩ := hQ₀ x hy ; simp_all +decide;
+        specialize hP_div' _ hx ; specialize hQ_div _ hy ; simp_all +decide;
         exact absurd ( Nat.Prime.dvd_of_dvd_pow ( Nat.minFac_prime ( by linarith ) ) ( dvd_trans ( Nat.minFac_dvd q ) hQ_div ) ) ( by intro t; have := Nat.dvd_gcd t ( Nat.minFac_dvd q ) ; aesop )
 
 /-
@@ -1047,12 +1057,15 @@ theorem prop_APtoComplete (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) (h_coprime :
           rw [ Finset.sum_image ];
           · norm_num [ pow_succ', mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _ ];
           · intro x hx y hy; have := hS_m.1 hx; have := hS_m.1 hy; simp_all +decide [ Q_set ] ;
-            intro h; have := unique_representation p q hp hq h_coprime ( x.1.toNat + 1 ) ( x.2.toNat + 1 ) ( y.1.toNat + 1 ) ( y.2.toNat + 1 ) ; simp_all +decide [ ne_of_gt ( zero_lt_two.trans_le hp ), ne_of_gt ( zero_lt_two.trans_le hq ) ] ;
-            simp_all +decide [ Int.toNat_of_nonneg, Prod.ext_iff ];
+            intro h; have := unique_representation p q hp hq h_coprime ( x.1.toNat + 1 ) ( x.2.toNat + 1 ) ( y.1.toNat + 1 ) ( y.2.toNat + 1 ) ; simp_all +decide;
+            simp_all +decide [ Prod.ext_iff ];
             exact this.mp ( by rw [ ← Int.toNat_of_nonneg ( by linarith : 0 ≤ x.1 ), ← Int.toNat_of_nonneg ( by linarith : 0 ≤ x.2 ), ← Int.toNat_of_nonneg ( by linarith : 0 ≤ y.1 ), ← Int.toNat_of_nonneg ( by linarith : 0 ≤ y.2 ) ] ; exact mod_cast h );
         convert hPhi_S_m' using 1;
-        rw [ show ( ∑ x ∈ S_m, ( p : ℚ ) ^ x.1.toNat * ( q : ℚ ) ^ x.2.toNat ) = ( m : ℚ ) * p ^ A * q ^ B + R from ?_ ] ; push_cast ; ring_nf;
-        · norm_cast ; ring_nf;
+        rw [ show ( ∑ x ∈ S_m, ( p : ℚ ) ^ x.1.toNat * ( q : ℚ ) ^ x.2.toNat ) = ( m : ℚ ) * p ^ A * q ^ B + R from ?_ ]
+        · push_cast
+          ring_nf
+          norm_cast
+          ring_nf
           norm_num [ ← @Int.cast_inj ℚ ];
         · convert hS_m.2 using 1;
           unfold Phi; norm_cast;
