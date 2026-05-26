@@ -54,15 +54,14 @@ An algebraic identity for 2D inner product spaces: the squared norm of the diffe
 of projections of a vector `w` onto two unit vectors `u` and `v` is
 `‖w‖^2 * (1 - ⟨u, v⟩^2)`.
 -/
-set_option linter.style.refine false in
-set_option linter.flexible false in
 lemma norm_inner_smul_sub_inner_smul_sq_of_dim_two
     {V : Type*} [NormedAddCommGroup V] [InnerProductSpace ℝ V] [FiniteDimensional ℝ V]
     [hV : Fact (Module.finrank ℝ V = 2)]
     (u v w : V) (hu : ‖u‖ = 1) (hv : ‖v‖ = 1) :
     ‖inner ℝ w v • v - inner ℝ w u • u‖^2 = ‖w‖^2 * (1 - (inner ℝ u v)^2) := by
-      simp +decide [ @norm_sub_sq ℝ ];
-      simp_all +decide [ norm_smul, inner_smul_left, inner_smul_right ] ; ring_nf;
+      simp +decide [@norm_sub_sq ℝ]
+      simp_all +decide [norm_smul, inner_smul_left, inner_smul_right]
+      ring_nf
       -- By the properties of the inner product and the fact that $u$ and $v$ are
       -- unit vectors, we can simplify the expression.
       have h_inner :
@@ -78,39 +77,46 @@ lemma norm_inner_smul_sub_inner_smul_sq_of_dim_two
               ∃ e1 e2 : V, ‖e1‖ = 1 ∧ ‖e2‖ = 1 ∧ ⟪e1, e2⟫ = 0 ∧
                 Submodule.span ℝ {e1, e2} = ⊤ := by
             have h_basis : ∃ (b : OrthonormalBasis (Fin 2) ℝ V), True := by
-              simp +zetaDelta at *;
-              refine' ⟨ _ ⟩;
-              convert ( stdOrthonormalBasis ℝ V );
-              exact hV.1.symm;
-            obtain ⟨ b, - ⟩ := h_basis; use b 0, b 1; simp_all +decide ;
-            have := b.sum_repr;
-            refine' eq_top_iff.mpr fun x hx => _;
+              simp +zetaDelta only [exists_const_iff, and_true] at *
+              refine ⟨?_⟩
+              convert (stdOrthonormalBasis ℝ V)
+              exact hV.1.symm
+            obtain ⟨ b, - ⟩ := h_basis
+            use b 0, b 1
+            simp_all +decide only [Fin.isValue, OrthonormalBasis.norm_eq_one, ne_eq,
+              OrthonormalBasis.inner_eq_zero, true_and]
+            have := b.sum_repr
+            refine eq_top_iff.mpr fun x hx => ?_
             exact this x ▸ Submodule.sum_mem _ fun i _ =>
               Submodule.smul_mem _ _
-                (Submodule.subset_span (by fin_cases i <;> simp +decide));
-          refine' ⟨ e1, e2, he1, he2, h_orth.1, fun w => _ ⟩;
+                (Submodule.subset_span (by
+                  fin_cases i
+                  · simp +decide
+                  · simp +decide))
+          refine ⟨ e1, e2, he1, he2, h_orth.1, fun w => ?_ ⟩
           have := h_orth.2.ge (Submodule.mem_top : w ∈ ⊤)
           rw [Submodule.mem_span_pair] at this
-          tauto;
-        obtain ⟨ e1, e2, he1, he2, he1e2, hw ⟩ := h_basis;
+          tauto
+        obtain ⟨ e1, e2, he1, he2, he1e2, hw ⟩ := h_basis
         -- By the properties of the inner product and the fact that $e1$ and $e2$
         -- are orthonormal, we can express $u$ and $v$ in terms of $e1$ and $e2$.
         obtain ⟨a1, a2, ha⟩ : ∃ a1 a2 : ℝ, u = a1 • e1 + a2 • e2 := hw u
         obtain ⟨b1, b2, hb⟩ : ∃ b1 b2 : ℝ, v = b1 • e1 + b2 • e2 := hw v
-        obtain ⟨c1, c2, hc⟩ : ∃ c1 c2 : ℝ, w = c1 • e1 + c2 • e2 := hw w;
+        obtain ⟨c1, c2, hc⟩ : ∃ c1 c2 : ℝ, w = c1 • e1 + c2 • e2 := hw w
         simp_all +decide [norm_add_sq_real, norm_smul, inner_add_left, inner_add_right,
-          inner_smul_left, inner_smul_right];
-        simp_all +decide [ real_inner_comm ];
+          inner_smul_left, inner_smul_right]
+        simp_all +decide [real_inner_comm]
         have h_norm_sq : a1^2 + a2^2 = 1 ∧ b1^2 + b2^2 = 1 := by
           have h_norm_sq :
               ‖a1 • e1 + a2 • e2‖^2 = a1^2 + a2^2 ∧
                 ‖b1 • e1 + b2 • e2‖^2 = b1^2 + b2^2 := by
             simp +decide [norm_add_sq_real, norm_smul, inner_smul_left,
-              inner_smul_right, he1, he2, he1e2];
-          aesop;
-        grind;
-      field_simp;
-      rw [ ← h_inner, real_inner_comm v u ] ; ring
+              inner_smul_right, he1, he2, he1e2]
+          aesop
+        grind
+      field_simp
+      rw [← h_inner, real_inner_comm v u]
+      ring
 
 /-
 A formula for the orthogonal projection of a point `P` onto the line passing through `A` and `B`.
@@ -172,7 +178,6 @@ lemma orthogonalProjection_affineSpan_pair_eq
 
 end AristotleLemmas
 
-set_option linter.flexible false in
 lemma dist_projections_eq_dist_mul_sin {A B C P : V}
     (h_triangle : ¬ Collinear ℝ ({A, B, C} : Set V)) :
     let Pb : V := orthogonalProjection (affineSpan ℝ ({A, C} : Set V)) P
@@ -185,44 +190,48 @@ lemma dist_projections_eq_dist_mul_sin {A B C P : V}
   have hPb :
       (EuclideanGeometry.orthogonalProjection (affineSpan ℝ ({A, C} : Set V)) P : V) =
         A + inner ℝ (P - A) u • u := by
-    convert orthogonalProjection_affineSpan_pair_eq A C P _ using 1;
-    exact fun h => h_triangle <| by rw [ h ] ; simp +decide [ collinear_pair ] ;
+    convert orthogonalProjection_affineSpan_pair_eq A C P _ using 1
+    exact fun h => h_triangle <| by
+      rw [h]
+      simp +decide [collinear_pair]
   have hPc :
       (EuclideanGeometry.orthogonalProjection (affineSpan ℝ ({A, B} : Set V)) P : V) =
         A + inner ℝ (P - A) v • v := by
-    convert orthogonalProjection_affineSpan_pair_eq A B P _ using 1;
-    rintro rfl; simp_all +decide [ collinear_pair ];
+    convert orthogonalProjection_affineSpan_pair_eq A B P _ using 1
+    rintro rfl
+    simp_all +decide [collinear_pair]
   -- The squared norm of the difference of projections is
   -- $\|P - A\|^2 (1 - \langle u, v \rangle^2)$.
   have h_diff_sq :
       ‖(inner ℝ (P - A) v • v - inner ℝ (P - A) u • u)‖^2 =
         ‖P - A‖^2 * (1 - (inner ℝ u v)^2) := by
-    convert norm_inner_smul_sub_inner_smul_sq_of_dim_two u v ( P - A ) _ _ using 1;
+    convert norm_inner_smul_sub_inner_smul_sq_of_dim_two u v ( P - A ) _ _ using 1
     · rw [norm_smul, norm_inv, Real.norm_of_nonneg (norm_nonneg _),
         inv_mul_cancel₀
           (norm_ne_zero_iff.mpr <| sub_ne_zero.mpr <| by
             rintro rfl
-            simp_all +decide [collinear_pair])];
+            simp_all +decide [collinear_pair])]
     · rw [norm_smul, norm_inv, Real.norm_of_nonneg (norm_nonneg _),
         inv_mul_cancel₀
           (norm_ne_zero_iff.mpr <| sub_ne_zero.mpr <| by
             rintro rfl
-            simp_all +decide [collinear_pair])];
+            simp_all +decide [collinear_pair])]
   -- Since $\sin^2(\theta) = 1 - \cos^2(\theta)$, we can rewrite the
   -- right-hand side of the equation.
   have h_sin_sq : 1 - (inner ℝ u v)^2 = (Real.sin (∠ B A C))^2 := by
-    rw [ EuclideanGeometry.angle, Real.sin_sq, Real.cos_sq' ];
-    rw [ Real.sin_sq, InnerProductGeometry.cos_angle ];
-    simp +zetaDelta at *;
-    simp +decide [ div_eq_inv_mul, mul_comm, mul_left_comm, inner_smul_left, inner_smul_right ];
-    rw [ real_inner_comm ];
-  simp_all +decide [ dist_eq_norm ];
+    rw [EuclideanGeometry.angle, Real.sin_sq, Real.cos_sq']
+    rw [Real.sin_sq, InnerProductGeometry.cos_angle]
+    simp +zetaDelta only [vsub_eq_sub, sub_sub_cancel, sub_right_inj] at *
+    simp +decide only [inner_smul_right, inner_smul_left, map_inv₀, Real.ringHom_apply,
+      mul_comm, mul_left_comm, div_eq_inv_mul, mul_inv_rev]
+    rw [real_inner_comm]
+  simp_all +decide only [dist_eq_norm, add_sub_add_left_eq_sub]
   rw [← Real.sqrt_sq (norm_nonneg _),
     ← Real.sqrt_sq
       (mul_nonneg (norm_nonneg _)
         (Real.sin_nonneg_of_nonneg_of_le_pi
           (EuclideanGeometry.angle_nonneg _ _ _)
-          (EuclideanGeometry.angle_le_pi _ _ _)))];
+          (EuclideanGeometry.angle_le_pi _ _ _)))]
   rw [ norm_sub_rev, h_diff_sq, mul_pow ]
 
 /- Projection inequality: dist(Pb, Pc) ≥ d₂ * sin C + d₃ * sin B. -/
@@ -231,7 +240,6 @@ section AristotleLemmas
 /-
 Trigonometric inequality for the projection lemma.
 -/
-set_option linter.style.refine false in
 lemma trig_ineq_of_sum_pi (A B C α₁ α₂ : ℝ) (h_sum : A + B + C = Real.pi)
     (h_split : α₁ + α₂ = A) (hA : 0 ≤ Real.sin A) :
     Real.sin α₂ * Real.sin C + Real.sin α₁ * Real.sin B ≤ Real.sin A := by
@@ -240,21 +248,26 @@ lemma trig_ineq_of_sum_pi (A B C α₁ α₂ : ℝ) (h_sum : A + B + C = Real.pi
           Real.sin α₂ * Real.sin (Real.pi - (α₁ + α₂ + B)) +
               Real.sin α₁ * Real.sin B ≤
             Real.sin (α₁ + α₂) := by
-        norm_num [ Real.sin_add, Real.cos_add ];
+        norm_num [Real.sin_add, Real.cos_add]
         -- Factor out common terms and simplify the expression.
         suffices h_simp :
             (Real.sin α₁ * Real.cos α₂ + Real.cos α₁ * Real.sin α₂) *
                 (Real.sin α₂ * Real.cos B + Real.cos α₂ * Real.sin B) ≤
               Real.sin α₁ * Real.cos α₂ + Real.cos α₁ * Real.sin α₂ by
-          convert h_simp using 1 ; ring_nf;
-          rw [ Real.cos_sq' ] ; ring;
-        refine' mul_le_of_le_one_right _ _;
-        · rw [ ← Real.sin_add ] ; aesop;
+          convert h_simp using 1
+          · ring_nf
+            rw [Real.cos_sq']
+            ring
+        refine mul_le_of_le_one_right ?_ ?_
+        · rw [← Real.sin_add]
+          aesop
         · nlinarith only [sq_nonneg (Real.sin α₂ - Real.cos B),
             sq_nonneg (Real.cos α₂ - Real.sin B), Real.sin_sq_add_cos_sq α₂,
-            Real.sin_sq_add_cos_sq B];
-      convert h_subst using 2 <;> subst_vars <;> ring_nf;
-      exact congrArg _ ( congrArg Real.sin ( by linarith ) )
+            Real.sin_sq_add_cos_sq B]
+      convert h_subst using 2
+      all_goals subst_vars
+      all_goals ring_nf
+      exact congrArg _ (congrArg Real.sin (by linarith))
 
 /-
 Distance from a point to a line is the distance to the reference point times the sine of the angle.
@@ -442,32 +455,41 @@ lemma angle_add_eq_angle_of_add {u v : V}
 /-
 If 0, u, v are not collinear and k is non-zero, then 0, u, k*v are not collinear.
 -/
-set_option linter.style.refine false in
-set_option linter.flexible false in
 omit [FiniteDimensional ℝ V] hV in
 lemma not_collinear_smul_right {u v : V}
     (h : ¬ Collinear ℝ ({0, u, v} : Set V)) (k : ℝ) (hk : k ≠ 0) :
     ¬ Collinear ℝ ({0, u, k • v} : Set V) := by
-  simp_all +decide [ collinear_iff_exists_forall_eq_smul_vadd ];
+  simp_all +decide only [collinear_iff_exists_forall_eq_smul_vadd, Set.mem_insert_iff,
+    Set.mem_singleton_iff, vadd_eq_add, forall_eq_or_imp, forall_eq, not_exists,
+    not_and, forall_exists_index, ne_eq]
   intro a b x hx y hy z hz
   have h_collinear : Collinear ℝ ({0, u, v} : Set V) := by
-    rw [ collinear_iff_exists_forall_eq_smul_vadd ];
-    use 0, b;
-    simp_all +decide [ ← eq_sub_iff_add_eq' ];
-    refine' ⟨ ⟨ 0, _ ⟩, ⟨ -x + y, _ ⟩, ⟨ k⁻¹ * z - k⁻¹ * x, _ ⟩ ⟩ <;> simp +decide [ ← hx ];
-    · rw [ eq_comm ] at hx ; simp_all +decide [ add_smul ];
-      exact eq_neg_of_add_eq_zero_right hx;
-    · simp +decide [ ← mul_sub ];
+    rw [collinear_iff_exists_forall_eq_smul_vadd]
+    use 0, b
+    simp_all +decide only [Set.mem_insert_iff, Set.mem_singleton_iff, vadd_eq_add,
+      forall_eq_or_imp, forall_eq]
+    refine ⟨⟨0, ?_⟩, ⟨-x + y, ?_⟩, ⟨k⁻¹ * z - k⁻¹ * x, ?_⟩⟩
+    · simp +decide only [← hx, zero_smul, add_zero]
+    · simp +decide only [← hx, add_zero]
+      rw [eq_comm] at hx
+      simp_all +decide only [add_smul, neg_smul]
+      rw [eq_neg_of_add_eq_zero_right hx]
+      abel
+    · simp +decide only [← hx, add_zero]
+      simp +decide only [← mul_sub]
       rw [show a = -x • b by
         rw [eq_comm, add_eq_zero_iff_eq_neg] at hx
-        simp_all +decide] at hz;
+        simp_all +decide] at hz
       rw [show v = k⁻¹ • (k • v) by rw [inv_smul_smul₀ hk]]
       rw [hz]
-      simp +decide [smul_smul];
-      simp +decide [ mul_sub, sub_smul ];
-      grind;
-  rw [ collinear_iff_exists_forall_eq_smul_vadd ] at h_collinear;
-  obtain ⟨ p₀, v₁, hp₀ ⟩ := h_collinear; specialize h p₀ v₁; simp_all +decide [ add_comm ] ;
+      simp +decide [smul_smul]
+      simp +decide [mul_sub, sub_smul]
+      grind
+  rw [collinear_iff_exists_forall_eq_smul_vadd] at h_collinear
+  obtain ⟨ p₀, v₁, hp₀ ⟩ := h_collinear
+  specialize h p₀ v₁
+  simp_all +decide only [add_comm, Set.mem_insert_iff, Set.mem_singleton_iff,
+    vadd_eq_add, forall_eq_or_imp, forall_eq]
   exact h _ hp₀.1.choose_spec _ hp₀.2.1.choose_spec _ hp₀.2.2.choose_spec
 
 /-
@@ -483,7 +505,7 @@ lemma angle_add_of_positive_linear_combination {u v : V}
         InnerProductGeometry.angle (a • u + b • v) v =
       InnerProductGeometry.angle u v := by
       -- Let $w = (b/a)v$. Then $u + w = u + (b/a)v$.
-      set w : V := (b / a) • v;
+      set w : V := (b / a) • v
       -- By the properties of the angle function, we have
       -- $\angle(u, a \bullet u + b \bullet v) = \angle(u, u + w)$ and
       -- $\angle(a \bullet u + b \bullet v, v) = \angle(u + w, v)$.
@@ -493,19 +515,19 @@ lemma angle_add_of_positive_linear_combination {u v : V}
             InnerProductGeometry.angle (a • u + b • v) v =
               InnerProductGeometry.angle (u + w) v := by
         have h_angle_eq : a • u + b • v = a • (u + w) := by
-          simp +zetaDelta at *;
-          simp +decide [ ← smul_assoc, mul_div_cancel₀ _ ha.ne' ];
-        simp +decide [ h_angle_eq ];
+          simp +zetaDelta at *
+          simp +decide [← smul_assoc, mul_div_cancel₀ _ ha.ne']
+        simp +decide [h_angle_eq]
         simp +decide [← smul_add, InnerProductGeometry.angle_smul_left_of_pos,
-          InnerProductGeometry.angle_smul_right_of_pos, ha];
+          InnerProductGeometry.angle_smul_right_of_pos, ha]
       -- By the properties of the angle function, we have
       -- $\angle(u, u + w) + \angle(u + w, w) = \angle(u, w)$.
       have h_angle_sum :
           InnerProductGeometry.angle u (u + w) +
               InnerProductGeometry.angle (u + w) w =
             InnerProductGeometry.angle u w := by
-        apply angle_add_eq_angle_of_add;
-        convert not_collinear_smul_right h_indep ( b / a ) ( div_ne_zero hb.ne' ha.ne' ) using 1;
+        apply angle_add_eq_angle_of_add
+        convert not_collinear_smul_right h_indep (b / a) (div_ne_zero hb.ne' ha.ne') using 1
       aesop
 
 /-
@@ -556,7 +578,6 @@ lemma exists_pos_linear_combination_of_mem_interior_triangle {A B C P : V}
 /-
 If P is in the interior of triangle ABC, then angle BAP + angle PAC = angle BAC.
 -/
-set_option linter.flexible false in
 omit [FiniteDimensional ℝ V] hV in
 lemma angle_split_of_interior {A B C P : V}
     (h_triangle : ¬ Collinear ℝ ({A, B, C} : Set V))
@@ -567,25 +588,27 @@ lemma angle_split_of_interior {A B C P : V}
   obtain ⟨a, b, ha, hb, h_comb⟩ :
       ∃ a b : ℝ, 0 < a ∧ 0 < b ∧
         P - A = a • (B - A) + b • (C - A) :=
-    exists_pos_linear_combination_of_mem_interior_triangle h_triangle h_interior;
+    exists_pos_linear_combination_of_mem_interior_triangle h_triangle h_interior
   -- Let $u = B - A$ and $v = C - A$. Since $A, B, C$ are not collinear, $u$
   -- and $v$ are linearly independent, so $0, u, v$ are not collinear.
   set u : V := B - A
   set v : V := C - A
   have h_indep : ¬ Collinear ℝ ({0, u, v} : Set V) := by
-    simp_all +decide [ collinear_iff_exists_forall_eq_smul_vadd ];
-    contrapose! h_triangle;
+    simp_all +decide only [collinear_iff_exists_forall_eq_smul_vadd, Set.mem_insert_iff,
+      Set.mem_singleton_iff, vadd_eq_add, forall_eq_or_imp, forall_eq, not_exists,
+      not_and, forall_exists_index]
+    contrapose! h_triangle
     obtain ⟨ x, y, z, hz, w, hw, u, hu ⟩ := h_triangle
     use x + A, y, z
-    simp_all +decide [ sub_eq_iff_eq_add ];
-    grind;
+    simp_all +decide [sub_eq_iff_eq_add]
+    grind
   -- Apply `angle_add_of_positive_linear_combination` to $u, v, a, b$.
   have h_angle_add :
       InnerProductGeometry.angle u (P - A) +
           InnerProductGeometry.angle (P - A) v =
         InnerProductGeometry.angle u v := by
-    convert angle_add_of_positive_linear_combination h_indep a b ha hb using 1;
-      aesop ( simp_config := { singlePass := true } ) ;
+    convert angle_add_of_positive_linear_combination h_indep a b ha hb using 1
+    aesop (simp_config := { singlePass := true })
   convert h_angle_add using 1
 
 end AristotleLemmas
@@ -600,29 +623,34 @@ lemma dist_projections_ge_projection_on_side {A B C P : V}
   set Pb : V := (EuclideanGeometry.orthogonalProjection (affineSpan ℝ {A, C}) P : V)
   set Pc : V := (EuclideanGeometry.orthogonalProjection (affineSpan ℝ {A, B}) P : V)
   have h_dist_Pb_Pc : dist Pb Pc = dist P A * Real.sin (∠ B A C) := by
-    exact dist_projections_eq_dist_mul_sin h_triangle;
+    exact dist_projections_eq_dist_mul_sin h_triangle
   -- By `dist_projection_eq_dist_mul_sin`, we have formulas for `dist P Pb`
   -- and `dist P Pc`.
   have h_dist_P_Pb : dist P Pb = dist P A * Real.sin (∠ P A C) := by
-    convert dist_projection_eq_dist_mul_sin _ using 2;
-    · infer_instance;
-    · rintro rfl; simp_all +decide [ collinear_pair ] ;
+    convert dist_projection_eq_dist_mul_sin _ using 2
+    · infer_instance
+    · rintro rfl
+      simp_all +decide [collinear_pair]
   have h_dist_P_Pc : dist P Pc = dist P A * Real.sin (∠ P A B) := by
-    convert dist_projection_eq_dist_mul_sin _ using 1;
-    · infer_instance;
-    · rintro rfl; simp_all +decide [ collinear_pair ];
+    convert dist_projection_eq_dist_mul_sin _ using 1
+    · infer_instance
+    · rintro rfl
+      simp_all +decide [collinear_pair]
   -- By `angle_split_of_interior`, we have `∠ PAB + ∠ PAC = ∠ BAC`.
   have h_angle_split : ∠ P A B + ∠ P A C = ∠ B A C := by
-    convert angle_split_of_interior h_triangle h_interior using 1;
-    rw [ EuclideanGeometry.angle_comm B A P ];
+    convert angle_split_of_interior h_triangle h_interior using 1
+    rw [EuclideanGeometry.angle_comm B A P]
   -- By `EuclideanGeometry.angle_add_angle_add_angle_eq_pi`, the three angles
   -- of triangle `ABC` sum to `pi`.
   have h_angle_sum : ∠ B A C + ∠ A B C + ∠ A C B = Real.pi := by
     have h_angle_sum : ∀ (p₁ p₂ p₃ : V), p₂ ≠ p₁ →
         angle p₁ p₂ p₃ + angle p₂ p₃ p₁ + angle p₃ p₁ p₂ = Real.pi := by
-      exact fun p₁ p₂ p₃ a => angle_add_angle_add_angle_eq_pi p₃ a;
-    convert h_angle_sum A B C ( by rintro rfl; simp_all +decide [ collinear_pair ] ) using 1;
-    simp +decide only [angle_comm] ; ring;
+      exact fun p₁ p₂ p₃ a => angle_add_angle_add_angle_eq_pi p₃ a
+    convert h_angle_sum A B C (by
+      rintro rfl
+      simp_all +decide [collinear_pair]) using 1
+    simp +decide only [angle_comm]
+    ring
   -- By `trig_ineq_of_sum_pi`, the split angles give the needed sine inequality.
   have h_trig_ineq :
       Real.sin (∠ P A C) * Real.sin (∠ A C B) +
@@ -631,13 +659,15 @@ lemma dist_projections_ge_projection_on_side {A B C P : V}
     convert
       trig_ineq_of_sum_pi (∠ B A C) (∠ A B C) (∠ A C B) (∠ P A B)
         (∠ P A C) _ _ _
-      using 1 <;>
+      using 1
+    all_goals
       linarith
         [Real.sin_nonneg_of_nonneg_of_le_pi
           (show 0 ≤ ∠ B A C by exact EuclideanGeometry.angle_nonneg _ _ _)
-          (show ∠ B A C ≤ Real.pi by exact EuclideanGeometry.angle_le_pi _ _ _)];
-  field_simp;
-  rw [ h_dist_Pb_Pc, h_dist_P_Pb, h_dist_P_Pc ] ; nlinarith [ @dist_nonneg _ _ P A ] ;
+          (show ∠ B A C ≤ Real.pi by exact EuclideanGeometry.angle_le_pi _ _ _)]
+  field_simp
+  rw [h_dist_Pb_Pc, h_dist_P_Pb, h_dist_P_Pc]
+  nlinarith [@dist_nonneg _ _ P A]
 
 /-- The core lemma for Erdős-Mordell: R₁ ≥ d₂ * (c/a) + d₃ * (b/a) -/
 lemma erdos_mordell_lemma {A B C P : V}
@@ -747,7 +777,9 @@ theorem erdos_mordell {A B C P : V}
     (h_interior : P ∈ interior (convexHull ℝ ({A, B, C} : Set V))) :
     dist P A + dist P B + dist P C ≥
       2 * (dist_to_line P B C + dist_to_line P A C + dist_to_line P A B) := by
-  let a := dist B C; let b := dist A C; let c := dist A B
+  let a := dist B C
+  let b := dist A C
+  let c := dist A B
   have h_ne_BC : B ≠ C := by
     intro h
     subst h
@@ -803,8 +835,10 @@ theorem erdos_mordell {A B C P : V}
     (dist_to_line P B C) (dist_to_line P A C) (dist_to_line P A B)
     a b c ha hb hc dist_nonneg dist_nonneg dist_nonneg
   · exact h1
-  · convert h2 using 1; simp [a, b, c, dist_to_line, dist_comm, Set.pair_comm]
-  · convert h3 using 1; simp [a, b, c, dist_to_line, dist_comm, Set.pair_comm]
+  · convert h2 using 1
+    simp [a, b, c, dist_to_line, dist_comm, Set.pair_comm]
+  · convert h3 using 1
+    simp [a, b, c, dist_to_line, dist_comm, Set.pair_comm]
 
 end Erdos898
 
