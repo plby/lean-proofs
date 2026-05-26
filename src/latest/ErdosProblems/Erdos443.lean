@@ -39,10 +39,7 @@ open scoped Classical
 
 open scoped Pointwise
 
---set_option linter.mathlibStandardSet false
-
 set_option maxHeartbeats 50000000
-set_option linter.style.cases false
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
@@ -1996,7 +1993,11 @@ lemma final_algebraic_bound_adjusted (c : ℝ) (hc0 : 0 < c) (hc1 : c < 1) :
         let m := 0.5 * (n : ℝ);
         let bound := (n : ℝ) ^ (4 / 3 - 3 / L ^ (1 - c));
         0.0625 * (n : ℝ) ^ (1 / L ^ (1 - c) - 4 / L) / (1 + R / (m * k)) ≥ 1 by
-          cases' h_simplified with N hN h_simplified; use N + 2; intros n hn; specialize hN n ( by linarith ) ; norm_num at *;
+          rcases h_simplified with ⟨N, hN⟩
+          use N + 2
+          intros n hn
+          specialize hN n (by linarith)
+          norm_num at *
           rw [ le_div_iff₀ ] at hN ⊢;
           · rw [ one_mul, add_div', div_le_iff₀ ] at hN <;> ring_nf at * <;> norm_num at *;
             · convert mul_le_mul_of_nonneg_left hN ( show ( 0 : ℝ ) ≤ n ^ ( 4 / 3 - ( Real.log ( Real.log n ) ^ ( 1 - c ) ) ⁻¹ * 3 ) by positivity ) using 1 <;> ring_nf;
