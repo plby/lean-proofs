@@ -27,10 +27,12 @@ import Mathlib
 
 namespace Erdos844
 
+-- Several long legacy proof blocks rely on `refine'`, `induction'`, broad
+-- simplification, and unfocused tactic chains. Rewriting them would be a
+-- proof refactor rather than a cleanup.
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.induction false
-set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 
@@ -231,6 +233,7 @@ and k ∈ {1,...,N-1} \ X, the set (X \ {N}) ∪ {k} is also in G.
 This is the key exchange argument from Chvátal's proof.
 -/
 set_option maxHeartbeats 800000 in
+-- The exchange argument has several large finset/cardinality simplification goals.
 lemma min_weight_shiftN (N : ℕ)
     (F G : Finset (Finset ℕ))
     (hF_sub : ∀ X ∈ F, X ⊆ Finset.Icc 1 N)
@@ -385,6 +388,7 @@ Case B of Chvátal's theorem: when the link of G₂ at N is NOT intersecting.
   which has the shifting property, then apply the three-way split.
 -/
 set_option maxHeartbeats 1600000 in
+-- The case split proof constructs and compares several auxiliary families.
 private lemma chvatal_case_B (N : ℕ) (hN : 2 ≤ N)
     (F : Finset (Finset ℕ))
     (hF_sub : ∀ X ∈ F, X ⊆ Finset.Icc 1 N)
@@ -577,6 +581,7 @@ private lemma chvatal_case_B (N : ℕ) (hN : 2 ≤ N)
   linarith [hG'_card.symm]
 
 set_option maxHeartbeats 800000 in
+-- The strong induction proof repeatedly simplifies finset images and filters.
 theorem chvatal_theorem_ground_set (N : ℕ) (hN : 0 < N)
     (F : Finset (Finset ℕ))
     (hF_sub : ∀ X ∈ F, X ⊆ Finset.Icc 1 N)
