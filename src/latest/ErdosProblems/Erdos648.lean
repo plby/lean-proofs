@@ -24,9 +24,7 @@ import Mathlib
 import PrimeNumberTheoremAnd.Consequences
 
 set_option linter.style.setOption false
-set_option linter.deprecated false
 set_option linter.flexible false
-set_option linter.unusedVariables false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
@@ -345,7 +343,7 @@ lemma theta_le_n_log_4 {n : ℕ} :
   rw [← log_primorial_eq_sum_log]
   have h : (primorial n : ℝ) ≤ (4 ^ n : ℝ) := by
     norm_cast
-    exact primorial_le_4_pow n
+    exact primorial_le_four_pow n
   have h_pos : 0 < (primorial n : ℝ) := by
     norm_cast
     exact primorial_pos n
