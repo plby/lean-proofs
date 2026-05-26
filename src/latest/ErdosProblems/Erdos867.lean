@@ -57,10 +57,6 @@ open Finset
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.induction false
-set_option linter.style.multiGoal false
-set_option linter.style.refine false
-set_option maxHeartbeats 800000
 
 /-! ## Definition -/
 
@@ -159,8 +155,7 @@ lemma freudSet_card (y : ℕ) (hy : 1 ≤ y) :
         have hDelIII :
             ((Icc (128 * y - 10) (144 * y - 22)).filter (· % 4 = 2)).card =
               4 * y - 2 := by
-          rw [Finset.card_eq_of_bijective]
-          use fun i _ => 128 * y - 10 + 4 * i
+          apply Finset.card_eq_of_bijective (fun i _ => 128 * y - 10 + 4 * i)
           · simp +zetaDelta at *
             exact fun a ha₁ ha₂ ha₃ => ⟨(a - (128 * y - 10))/4, by omega, by omega⟩
           · norm_num +zetaDelta at *; exact fun i hi => ⟨by omega, by omega⟩
@@ -226,7 +221,7 @@ lemma csf_of_no_interval_sum (S : Finset ℕ)
           Finset.pairwise_sort _ _
         convert List.pairwise_iff_get.mp h_pw ⟨i, hi⟩ ⟨j, hj⟩ hij using 1 <;> grind
       simp +zetaDelta at *
-      refine' ⟨_, _, _⟩
+      refine ⟨?_, ?_, ?_⟩
       · convert Finset.mem_sort (α := ℕ) (· ≤ ·) |>.1 _
         exact List.mem_of_mem_take hx |> List.mem_of_mem_drop
       · by_cases hi' : i = 0
@@ -260,10 +255,12 @@ lemma freudSet_interval_sum_lb (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
       x2 ∈ (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b) ∧ x1 < x2 := by
     obtain ⟨x1, hx1, x2, hx2, hne⟩ := Finset.one_lt_card.1 hcard
     cases lt_trichotomy x1 x2 <;> aesop
-  refine' le_trans _ (Finset.sum_le_sum_of_subset
+  refine le_trans ?_ (Finset.sum_le_sum_of_subset
     (Finset.insert_subset hx1 (Finset.singleton_subset_iff.mpr hx2)))
   grind
 
+set_option maxHeartbeats 800000 in
+-- Needed for arithmetic-heavy simplification in this proof.
 /-- No contiguous subsum of `freudSet y` lands in block C. -/
 lemma freudSet_interval_sum_not_in_C (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
     (hcard : ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).card ≥ 2)
@@ -289,12 +286,15 @@ lemma freudSet_interval_sum_not_in_C (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
         exact ⟨fun i => Finset.orderEmbOfFin _ (by aesop) i, by aesop_cat,
           fun i => Finset.orderEmbOfFin_mem _ (by aesop) _⟩
       have hx_seq_ge : ∀ i, x_seq i ≥ 32 * y - 4 + i := by
-        intro i; induction' i with i ih; induction' i with i ih
-        · exact Finset.mem_Icc.mp (hT_subset (hx_seq.2 _)) |>.1
-        · exact lt_of_le_of_lt
-            (‹∀ (ih : i < ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).card),
-              x_seq ⟨i, ih⟩ ≥ 32 * y - 4 + i› (Nat.lt_of_succ_lt ih))
-            (hx_seq.1 (Nat.lt_succ_self _))
+        intro i
+        induction i with
+        | mk i hi =>
+          induction i with
+          | zero => exact Finset.mem_Icc.mp (hT_subset (hx_seq.2 _)) |>.1
+          | succ i ih =>
+              exact lt_of_le_of_lt
+                (ih (Nat.lt_of_succ_lt hi))
+                (hx_seq.1 (Nat.lt_succ_self _))
       have hT_sum_ge : ({x ∈ freudSet y | a ≤ x ∧ x ≤ b}).sum id ≥
           ∑ i ∈ Finset.range ({x ∈ freudSet y | a ≤ x ∧ x ≤ b}).card, (32 * y - 4 + i) := by
         have : ({x ∈ freudSet y | a ≤ x ∧ x ≤ b}).sum id ≥
@@ -317,6 +317,8 @@ lemma freudSet_interval_sum_not_in_C (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
     · have := h x; have := h y; simp_all +decide [Finset.subset_iff]
       have := h (y + 1); simp_all +decide [freudSet]; grind +ring
 
+set_option maxHeartbeats 800000 in
+-- Needed for arithmetic-heavy simplification in this proof.
 /-- If all summands come from block A, the subsum exceeds `4y + 2` and thus cannot land in A. -/
 lemma freudSet_interval_sum_all_in_A (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
     (hcard : ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).card ≥ 2)
@@ -360,7 +362,7 @@ lemma freudSet_interval_sum_all_in_A (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
               (max a (32 * y - 4) + x) := by
         erw [Finset.sum_Ico_eq_sum_range]; rw [Nat.sub_add_comm (by omega)]
       refine le_trans ?_ this
-      refine' le_trans _ (Finset.sum_le_sum_of_subset
+      refine le_trans ?_ (Finset.sum_le_sum_of_subset
         (Finset.range_mono (show min b (36 * y - 4) - max a (32 * y - 4) + 1 ≥ 5 by linarith)))
       simp +arith +decide [Finset.sum]
     omega
@@ -423,6 +425,8 @@ lemma freudSet_all_ge48_card3_sum_gt (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
       ⟨hx₁, Finset.insert_subset_iff.mpr ⟨hx₂, Finset.singleton_subset_iff.mpr hx₃⟩⟩)
   grind
 
+set_option maxHeartbeats 800000 in
+-- Needed for arithmetic-heavy simplification in this proof.
 /-- A pair of adjacent elements from D sums to a value not in `freudSet y`. -/
 lemma freudSet_adj_pair_ge48_sum (y : ℕ) (hy : 1 ≤ y) (x₁ x₂ : ℕ)
     (hx₁ : x₁ ∈ freudSet y) (hx₂ : x₂ ∈ freudSet y)
@@ -451,7 +455,7 @@ lemma freudSet_adj_pair_ge48_sum (y : ℕ) (hy : 1 ≤ y) (x₁ x₂ : ℕ)
         Or.inl ⟨⟨by omega, by omega⟩, h_sum_div3⟩
     · have hx2_eq : x₂ = 64 * y - 6 := by
         contrapose! hadj; use 64 * y - 6
-        refine' ⟨_, _, _, trivial⟩
+        refine ⟨?_, ?_, ?_, trivial⟩
         · unfold freudSet; simp +decide [*]; exact Or.inr <| Or.inr <| Or.inl ⟨by omega, by omega⟩
         · simp +zetaDelta at *; omega
         · exact lt_of_le_of_ne (Nat.le_of_not_lt fun h => by
@@ -481,6 +485,8 @@ lemma freudSet_adj_pair_ge48_sum (y : ℕ) (hy : 1 ≤ y) (x₁ x₂ : ℕ)
       exact Or.inr (by norm_num at *; omega)
 
 
+set_option maxHeartbeats 800000 in
+-- Needed for arithmetic-heavy simplification in this proof.
 /-- A pair of elements from D sums to a value not in `freudSet y`. -/
 lemma freudSet_all_ge48_card2_sum (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
     (hcard : ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).card = 2)
@@ -507,6 +513,8 @@ lemma freudSet_all_ge48_card2_sum (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
     rw [show (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b) = {x₁, x₂} by ext; aesop]
     simp_all +decide [add_comm]
 
+set_option maxHeartbeats 800000 in
+-- Needed for arithmetic-heavy simplification in this proof.
 /-- A cross-block subsum of `≥ 4` elements spanning A and B exceeds the maximum of
 `freudSet y`. -/
 lemma freudSet_cross_AB_card4_sum_gt (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
@@ -556,8 +564,8 @@ lemma freudSet_cross_AB_card4_sum_gt (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
       have : ({x ∈ freudSet y | a ≤ x ∧ x ≤ b} \
           ({36 * y - 4, 48 * y - 5, 48 * y - 4} : Finset ℕ)).card ≥ 1 := by grind
       exact Exists.elim (Finset.card_pos.mp this) fun x hx => ⟨x, hx, trivial⟩
-    refine' lt_of_lt_of_le _ (Finset.sum_le_sum_of_subset <|
-      show {36 * y - 4, 48 * y - 5, 48 * y - 4, u} ⊆ {x ∈ freudSet y | a ≤ x ∧ x ≤ b} from _)
+    refine lt_of_lt_of_le ?_ (Finset.sum_le_sum_of_subset <|
+      show {36 * y - 4, 48 * y - 5, 48 * y - 4, u} ⊆ {x ∈ freudSet y | a ≤ x ∧ x ≤ b} from ?_)
     · rw [Finset.sum_insert, Finset.sum_insert, Finset.sum_insert] <;> simp +arith +decide at *
       · have := freudSet_min_elem y hy u hu.1.1; omega
       · tauto
@@ -565,6 +573,8 @@ lemma freudSet_cross_AB_card4_sum_gt (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
       · omega
     · simp_all +decide [Finset.subset_iff]
 
+set_option maxHeartbeats 800000 in
+-- Needed for arithmetic-heavy simplification in this proof.
 /-- A cross-block subsum of 3 elements spanning A and B lands in the
 gap between C and D. -/
 lemma freudSet_cross_AB_card3_sum_in_del (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
@@ -580,9 +590,9 @@ lemma freudSet_cross_AB_card3_sum_in_del (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
     · by_cases hx_lower : x < 36 * y - 5
       · have h_contradiction :
             ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).card ≥ 4 := by
-          refine' le_trans _ (Finset.card_mono <|
+          refine le_trans ?_ (Finset.card_mono <|
             show {x, 36 * y - 5, 36 * y - 4, 48 * y - 5} ⊆
-              (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b) from _)
+              (freudSet y).filter (fun x => a ≤ x ∧ x ≤ b) from ?_)
           · grind
           · simp_all +decide [Finset.insert_subset_iff]
             unfold freudSet; simp +decide; omega
@@ -593,9 +603,9 @@ lemma freudSet_cross_AB_card3_sum_in_del (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
             x > 48 * y - 5 → x = 48 * y - 4 ∨ x > 48 * y - 4 := by
           intros x _ hx_upper; contrapose! hx_upper; omega
         contrapose! hcard
-        refine' ne_of_gt (lt_of_lt_of_le _ (Finset.card_mono <|
+        refine ne_of_gt (lt_of_lt_of_le ?_ (Finset.card_mono <|
           show {36 * y - 4, 48 * y - 5, x, 48 * y - 4} ⊆
-            {x ∈ freudSet y | a ≤ x ∧ x ≤ b} from _))
+            {x ∈ freudSet y | a ≤ x ∧ x ≤ b} from ?_))
         · grind
         · simp_all +decide [Finset.insert_subset_iff]
           exact ⟨freudSet_mem_48_4 y hy, by omega, by omega⟩
@@ -659,6 +669,8 @@ lemma freudSet_interval_sum_cross_AB_or_all_ge_48 (y : ℕ) (hy : 1 ≤ y) (a b 
         exact hs_not_del (Finset.mem_union_right _ <|
           freudSet_cross_AB_card2_sum_in_del y hy a b hcard2 h36 h48)
 
+set_option maxHeartbeats 800000 in
+-- Needed for arithmetic-heavy simplification in this proof.
 /-- No contiguous subsum of `freudSet y` lands in block D. -/
 lemma freudSet_interval_sum_not_in_D (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
     (hcard : ((freudSet y).filter (fun x => a ≤ x ∧ x ≤ b)).card ≥ 2)
@@ -732,10 +744,12 @@ theorem csf_exceeds_half_plus_constant :
   obtain ⟨S, hS⟩ := hC' (36 * (C + C' + 1) + 144) (by linarith)
   exact ⟨_, S, hS.1, hS.2.1, by linarith⟩
 
+end Erdos867
+
+open Erdos867
+
 #print axioms construction_19_36
 -- 'Erdos867.construction_19_36' depends on axioms: [propext, Classical.choice, Quot.sound]
 #print axioms csf_exceeds_half_plus_constant
 -- 'Erdos867.csf_exceeds_half_plus_constant' depends on axioms: [propext, Classical.choice,
 -- Quot.sound]
-
-end Erdos867
