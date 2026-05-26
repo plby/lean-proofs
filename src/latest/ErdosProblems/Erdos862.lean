@@ -36,9 +36,7 @@ this bound.
 import Mathlib
 import PrimeNumberTheoremAnd.Consequences
 
-set_option linter.deprecated false
 set_option linter.style.setOption false
-set_option linter.style.whitespace false
 set_option linter.flexible false
 set_option linter.unusedFintypeInType false
 
@@ -257,13 +255,13 @@ lemma erdos_turan_inequality {N m : ℕ} (hm : 0 < m) (A : Finset ℕ)
   nlinarith [show (m : ℝ) ≥ 1 by norm_cast]
 
 /-
-Algebraic bound for x satisfying a quadratic inequality x^2 ≤ bx + c.
+Algebraic bound for x satisfying a quadratic inequality x ^ 2 ≤ bx + c.
 -/
-lemma quadratic_bound_pos {x b c : ℝ} (c_nonneg : 0 ≤ c) (h : x^2 ≤ b * x + c) :
-    x ≤ (b + Real.sqrt (b^2 + 4 * c)) / 2 := by
+lemma quadratic_bound_pos {x b c : ℝ} (c_nonneg : 0 ≤ c) (h : x ^ 2 ≤ b * x + c) :
+    x ≤ (b + Real.sqrt (b ^ 2 + 4 * c)) / 2 := by
       nlinarith [
-        Real.sqrt_nonneg (b^2 + 4 * c),
-        Real.mul_self_sqrt (by positivity : 0 ≤ b^2 + 4 * c)
+        Real.sqrt_nonneg (b ^ 2 + 4 * c),
+        Real.mul_self_sqrt (by positivity : 0 ≤ b ^ 2 + 4 * c)
       ]
 
 /-
@@ -312,11 +310,11 @@ lemma erdos_turan_limit_lemma_nat {m : ℕ → ℝ} (hm_pos : ∀ᶠ n in atTop,
       convert
         Filter.Tendsto.div_const
           (Filter.Tendsto.add
-            (hm2.add (tendsto_inverse_atTop_nhds_zero_nat.sqrt))
+            (hm2.add (tendsto_inv_atTop_nhds_zero_nat.sqrt))
             (Filter.Tendsto.sqrt
               (Filter.Tendsto.add
                 (Filter.Tendsto.pow
-                  (hm2.add (tendsto_inverse_atTop_nhds_zero_nat.sqrt)) 2)
+                  (hm2.add (tendsto_inv_atTop_nhds_zero_nat.sqrt)) 2)
                 (tendsto_const_nhds.mul (tendsto_const_nhds.add hm1)))))
           2 using 2
       norm_num;
@@ -880,7 +878,7 @@ lemma exists_field_extension_of_degree_two (q : ℕ) (hq : IsPrimePow q) :
     all_goals try infer_instance;
     · convert Fintype.ofFinite ( AdjoinRoot f );
       have h_finite : FiniteDimensional Fq (AdjoinRoot f) := by
-        exact FiniteDimensional.of_fintype_basis ( AdjoinRoot.powerBasis hf.2.ne_zero ).basis;
+        exact Module.Basis.finiteDimensional_of_finite ( AdjoinRoot.powerBasis hf.2.ne_zero ).basis;
       have h_finite : Finite (AdjoinRoot f) := by
         have h_finite : FiniteDimensional Fq (AdjoinRoot f) := h_finite
         have h_finite : Finite Fq := by
@@ -1510,7 +1508,7 @@ lemma eventually_lower_bound (c : ℝ) (hc : c < Real.log 5 / 2) :
           by nlinarith [Real.sqrt_nonneg b, Real.sq_sqrt (Nat.cast_nonneg b)],
           by nlinarith [Real.sqrt_nonneg b, Real.sq_sqrt (Nat.cast_nonneg b)]
         ⟩ ;
-      -- Let $N_p = 4p(p-1)$. Then $N_p \le 4x^2 = N$.
+      -- Let $N_p = 4p(p-1)$. Then $N_p \le 4x ^ 2 = N$.
       have h_Np :
           ∀ᶠ N : ℕ in Filter.atTop,
             ∃ p : ℕ,
@@ -1565,7 +1563,7 @@ lemma eventually_lower_bound (c : ℝ) (hc : c < Real.log 5 / 2) :
       have h_log_div_sqrt :
           Filter.Tendsto (fun N : ℕ => Real.log 5 / Real.sqrt N)
             Filter.atTop (nhds 0) := by
-        simpa using tendsto_const_nhds.mul ( tendsto_inverse_atTop_nhds_zero_nat.sqrt );
+        simpa using tendsto_const_nhds.mul ( tendsto_inv_atTop_nhds_zero_nat.sqrt );
       filter_upwards [
         h_bound,
         h_log_div_sqrt.eventually
