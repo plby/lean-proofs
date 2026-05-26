@@ -114,7 +114,6 @@ lemma plargerthanthreevaluationofoneoverb (a : ℕ) (p : ℕ) [Fact p.Prime] (hp
 For all primes $p > 3$ dividing $v_{a,b}$ we have
 $\nu_p\left(\frac{u_{a,b}}{v_{a,b}}\right) = -\nu_p(v_{a,b}) < 0$.
 -/
-set_option linter.flexible false in
 lemma plargerthanthreevaluationofvab (a : ℕ) (p : ℕ) [Fact p.Prime]
     (hp : p > 3) (hpv : p ∣ v a (b_val a)) :
   padicValRat p (harmonicSum a (b_val a)) = -padicValRat p (v a (b_val a)) ∧
@@ -132,7 +131,13 @@ lemma plargerthanthreevaluationofvab (a : ℕ) (p : ℕ) [Fact p.Prime]
       exact ⟨ Eq.symm ( Rat.num_div_den _ ), Rat.reduced _ ⟩
     by_cases h : u a ( b_val a ) = 0 <;>
       by_cases h' : v a ( b_val a ) = 0 <;>
-      simp_all +decide [ padicValRat.div, padicValRat.of_nat ]
+      simp_all +decide only [gt_iff_lt, dvd_zero, CharP.cast_eq_zero, div_zero,
+        Int.gcd_self, Int.natAbs_zero, zero_ne_one, and_false, exists_const,
+        zero_div, Int.zero_gcd, Int.natAbs_natCast, one_ne_zero, not_false_eq_true,
+        padicValRat.zero, Nat.cast_one, padicValRat.one, neg_zero, lt_self_iff_false,
+        Nat.dvd_one, Int.gcd_zero, Int.gcd_natCast_natCast, ne_eq, Nat.cast_eq_zero,
+        padicValRat.div, padicValRat.of_nat, sub_eq_neg_self, padicValNat.eq_zero_iff,
+        false_or, sub_neg, Nat.cast_lt]
     · exact absurd h' ( Nat.ne_of_gt ( Rat.pos _ ) )
     · exact ⟨
         Or.inr fun h'' => absurd ( Nat.dvd_gcd h'' hpv ) ( by aesop ),
@@ -210,8 +215,11 @@ lemma plargerthanthreevaluationofvabminusone (a : ℕ) (p : ℕ) [Fact p.Prime]
       have hxy_val : padicValRat p (x + y) = min (padicValRat p x) (padicValRat p y) := by
         have hx_ne_zero : x ≠ 0 := by
           intro hx_zero
-          simp [hx_zero] at *
-          exact hxy_neq <| by rw [ plargerthanthreevaluationofoneoverb a p hp ]
+          have hx_val : padicValRat p x = 0 := by
+            simp [hx_zero]
+          have hy_val : padicValRat p y = 0 := by
+            simpa [y] using plargerthanthreevaluationofoneoverb a p hp
+          exact hxy_neq (hx_val.trans hy_val.symm)
         have hy_ne_zero : y ≠ 0 := by
           exact div_ne_zero (by norm_num) (Nat.cast_ne_zero.mpr <| by
             exact ne_of_gt (Nat.mul_pos (by norm_num) (pow_pos (by norm_num) _)))
@@ -668,7 +676,6 @@ lemma pequaltothreevaluationofvabminusone (a : ℕ) (ha : a > 0) :
 /-
 We have $\nu_3\left(\sum_{\substack{a \le i \le b-1 \\ i \neq 3^k}} \frac{1}{i} \right) \ge -k+1$.
 -/
-set_option linter.flexible false in
 lemma padicValRat_harmonicSum_diff_ge (a : ℕ) (ha : a > 0) :
   padicValRat 3 (harmonicSum a (b_val a - 1) - 1 / 3 ^ (k_val a)) ≥ -(k_val a - 1 : ℤ) := by
     -- We have the harmonic sum with the $3^k$ term separated.
@@ -691,7 +698,9 @@ lemma padicValRat_harmonicSum_diff_ge (a : ℕ) (ha : a > 0) :
       rcases k : k_val a with ( _ | k ) <;> simp_all +decide [ padicValRat.inv ]
       unfold k_val at k
       aesop
-    by_cases h : 3 ^ k_val a ∈ Finset.Icc a ( b_val a - 1 ) <;> simp_all +decide
+    by_cases h : 3 ^ k_val a ∈ Finset.Icc a ( b_val a - 1 ) <;>
+      simp_all +decide only [gt_iff_lt, one_div, sub_left_inj, Finset.mem_Icc, ne_eq,
+        neg_sub, ge_iff_le, tsub_le_iff_right, and_imp, not_and, not_le]
     · have h_sum_val :
           padicValRat 3
               (∑ i ∈ Finset.Icc a (b_val a - 1) \ {3 ^ k_val a}, (1 : ℚ) / i) ≥
@@ -739,7 +748,6 @@ lemma padicValRat_harmonicSum_diff_ge (a : ℕ) (ha : a > 0) :
 /-
 We have $\nu_3(v_{a,b}) \le k-1$.
 -/
-set_option linter.flexible false in
 lemma pequaltothreevaluationofvab (a : ℕ) (ha : a > 0) :
   padicValRat 3 (v a (b_val a)) ≤ k_val a - 1 := by
     by_contra h_contra
@@ -756,7 +764,9 @@ lemma pequaltothreevaluationofvab (a : ℕ) (ha : a > 0) :
             convert padicValRat.div _ _ <;> norm_num [ h_coprime ]
             · exact ⟨ trivial ⟩
             · intro h
-              simp_all +decide
+              simp_all +decide only [gt_iff_lt, padicValRat.of_nat, Order.le_sub_one_iff,
+                Nat.cast_lt, not_lt, CharP.cast_eq_zero, Int.zero_gcd, Int.natAbs_natCast,
+                padicValNat_one_right, nonpos_iff_eq_zero]
               exact absurd h_contra ( Nat.ne_of_gt ( Nat.succ_pos _ ) )
             · exact Nat.ne_of_gt ( Rat.pos _ )
           have h_val : ¬(3 ∣ u a (b_val a)) := by
@@ -815,7 +825,9 @@ lemma pequaltothreevaluationofvab (a : ℕ) (ha : a > 0) :
     have h_ultra : padicValRat 3 (X + Y) ≥ min (padicValRat 3 X) (padicValRat 3 Y) := by
       apply_rules [ padicValRat.min_le_padicValRat_add ]
       intro h
-      simp_all +decide
+      simp_all +decide only [gt_iff_lt, padicValRat.of_nat, Order.le_sub_one_iff,
+        Nat.cast_lt, not_lt, padicValRat.zero, neg_sub, Int.sub_pos, Nat.cast_lt_one,
+        CharP.cast_eq_zero, zero_sub, Int.reduceNeg, neg_neg, ge_iff_le, zero_le]
       exact absurd hXY.1 <| ne_of_gt <|
         Finset.sum_pos
           ( fun x hx =>
@@ -836,7 +848,6 @@ lemma pequaltothreevaluationofvab_final (a : ℕ) (ha : a > 0) :
 For every positive integer $a$ there exists a positive integer $b$ with
 $a < b \le 6a$ such that $v_{a,b} < v_{a,b-1}$.
 -/
-set_option linter.flexible false in
 theorem main (a : ℕ) (ha : a > 0) : ∃ b, a < b ∧ b ≤ 6 * a ∧ v a b < v a (b - 1) := by
   use b_val a
   -- By combining the results from the lemmas, we conclude that $v_{a,b} < v_{a,b-1}$.
