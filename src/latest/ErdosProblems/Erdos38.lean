@@ -27,15 +27,6 @@ import Mathlib
 
 namespace Erdos38
 
-set_option linter.style.openClassical false
-set_option linter.style.setOption false
-set_option linter.style.docString false
-set_option linter.style.induction false
-set_option linter.style.multiGoal false
-set_option linter.style.refine false
-set_option linter.style.whitespace false
-set_option linter.flexible false
-
 /-!
 # Erdős Problem 38 — Complete Proof
 
@@ -80,9 +71,9 @@ We use Mathlib's `schnirelmannDensity` and define additive basis and related not
 -/
 
 open scoped BigOperators Pointwise
-open Finset Classical Real Filter
+open Finset Real Filter
 
-set_option maxHeartbeats 800000
+attribute [local instance] Classical.propDecidable
 
 noncomputable section
 
@@ -290,7 +281,8 @@ lemma hoeffding_upper_tail (M L : ℕ) (_hM : 0 < M) (f : Fin M → ℝ)
     · exact Real.one_le_exp (by nlinarith)
     · exact Real.exp_nonneg _
 
-/-- Combined two-sided Hoeffding bound.-/
+set_option linter.style.refine false in
+/-- Combined two-sided Hoeffding bound. -/
 lemma hoeffding_two_sided (M L : ℕ) (hM : 0 < M) (f : Fin M → ℝ)
     (hf : ∀ i, |f i| ≤ 1) (hf_mean : ∑ i, f i = 0) (ε : ℝ) (hε : 0 < ε) :
     ((univ.filter (fun ω : Fin L → Fin M => (ε : ℝ) * L ≤ |∑ j, f (ω j)|)).card : ℝ) ≤
@@ -309,7 +301,9 @@ lemma hoeffding_two_sided (M L : ℕ) (hM : 0 < M) (f : Fin M → ℝ)
       using 1 <;>
       norm_num [*]
     exact congr_arg _ ( by ext; simp +decide [ le_neg ] )
-  refine' le_trans _ ( add_le_add h_upper h_lower ) |> le_trans <| by ring_nf ; norm_num
+  refine' le_trans _ (add_le_add h_upper h_lower) |> le_trans <| by
+    ring_nf
+    norm_num
   norm_cast
   rw [ ← Finset.card_union_add_card_inter ]
   exact le_add_right <|
@@ -407,6 +401,7 @@ def maxPolyOnGrid (a : ℕ → ℝ) (d M : ℕ) (hM : 0 < M) : ℝ :=
   Finset.sup' (range M) (nonempty_range_iff.mpr (by omega))
     (fun l => ‖∑ s ∈ Icc 1 d, (a s : ℂ) * (omegaPrim M) ^ (s * l)‖)
 
+set_option linter.flexible false in
 /-- Parseval's identity for indicator DFTs on `ℤ/Mℤ`:
 `∑_{l < M} ‖∑_{s ∈ S} ω^{sl}‖² = M · |S|` when `S ⊆ Icc 1 N` and `N ≤ M`. -/
 private lemma indicator_parseval (M N : ℕ) (hM : 0 < M) (hMN : 2 * N ≤ M)
@@ -445,6 +440,10 @@ private lemma indicator_parseval (M N : ℕ) (hM : 0 < M) (hMN : 2 * N ≤ M)
   norm_cast at *
   simp_all +decide [mul_comm]
 
+set_option maxHeartbeats 800000 in
+-- The DFT expansion and Parseval calculation time out at the default heartbeat limit.
+set_option linter.flexible false in
+set_option linter.style.multiGoal false in
 /--
 **Von Neumann's Inequality** (specialized to indicator vectors):
     For M ≥ 2N and polynomial of degree ≤ M/2:
@@ -632,6 +631,8 @@ noncomputable section
 
 /-! ## Part 1: Von Neumann Bridge -/
 
+set_option linter.flexible false in
+set_option linter.style.multiGoal false in
 lemma vn_bridge (m : ℕ) (_hm : 0 < m) (L : ℕ) (hL : 0 < L)
     (ω : Fin L → ℕ) (hω : ∀ j, ω j ∈ Icc 1 (2 ^ m))
     (N : ℕ) (_hN : N ≤ 2 ^ m) (_hN0 : 0 < N)
@@ -724,6 +725,7 @@ lemma vn_bridge (m : ℕ) (_hm : 0 < m) (L : ℕ) (hL : 0 < L)
 /-
 maxPolyOnGrid is bounded by the max of |Re| + |Im| over the DFT grid.
 -/
+set_option linter.flexible false in
 lemma max_poly_le_from_re_im (a : ℕ → ℝ) (d M : ℕ) (hM : 0 < M)
     (δ : ℝ) (hδ : 0 ≤ δ)
     (h_re :
@@ -740,6 +742,9 @@ lemma max_poly_le_from_re_im (a : ℕ → ℝ) (d M : ℕ) (hM : 0 < M)
       ⟨by positivity,
         by nlinarith only [abs_le.mp (h_re l hl), abs_le.mp (h_im l hl)]⟩
 
+set_option linter.flexible false in
+set_option linter.style.multiGoal false in
+set_option linter.style.refine false in
 /-- Count of tuples with a small element is less than half the total. -/
 lemma bad_min_count_lt (m : ℕ) (_hm : 20 ≤ m) :
     2 * (univ.filter (fun ω : Fin (shiftL m) → Fin (2 ^ m) =>
@@ -844,6 +849,11 @@ lemma bad_min_count_lt (m : ℕ) (_hm : 20 ≤ m) :
     ring
     norm_num [ Fintype.card_pi ]
 
+set_option maxHeartbeats 800000 in
+-- The Hoeffding/DFT union-bound proof times out at the default heartbeat limit.
+set_option linter.flexible false in
+set_option linter.style.multiGoal false in
+set_option linter.style.refine false in
 /-- Count of tuples with bad `maxPolyOnGrid` is less than half the total.
 The proof uses Hoeffding's inequality applied to centered trigonometric
 functions, followed by a union bound over all Fourier frequencies. -/
@@ -1307,6 +1317,7 @@ lemma good_tuple_exists (m : ℕ) (hm : 20 ≤ m) :
 
 /-! ## Assembly -/
 
+set_option linter.style.refine false in
 theorem per_m_good_shifts_hard (m : ℕ) (hm : 20 ≤ m) :
     ∃ S : Finset ℕ, S ⊆ Icc 1 (2 ^ m) ∧ S.Nonempty ∧ S.card ≤ shiftL m ∧
     (∀ s ∈ S, 2 ^ m < s * (2 * shiftL m + 2)) ∧
@@ -1438,6 +1449,7 @@ lemma per_m_good_shifts (m : ℕ) (hm : 0 < m) :
 
 /-! ## Sparsity from polylog count -/
 
+set_option linter.style.refine false in
 /-- If count up to N is bounded by C₀ + C₁ · (log₂ N)^4, then sparsity holds. -/
 lemma sparse_of_polylog_count (shifts : ℕ → Finset ℕ)
 (_h_range : ∀ m, 0 < m → shifts m ⊆ Icc 1 (2 ^ m))
@@ -1508,6 +1520,9 @@ Filter.atTop (nhds 0) := by
 
 /-! ## Count bound from min-bound property -/
 
+set_option maxHeartbeats 800000 in
+-- The final polynomial-logarithmic estimate times out at the default heartbeat limit.
+set_option linter.style.induction false in
 /--
 The count of elements ≤ N in ⋃ shifts m is polylog, using the min bound.
 
@@ -1641,6 +1656,9 @@ noncomputable section
 def constructB (d : ShiftApproxData) : Set ℕ :=
   {1} ∪ {n | ∃ m, 0 < m ∧ n ∈ d.shifts m}
 
+set_option linter.flexible false in
+set_option linter.style.induction false in
+set_option linter.style.refine false in
 /-- If |B ∩ [1,N]|^h / N → 0 for every h, then B is not an additive basis. -/
 lemma not_basis_of_sparse {B : Set ℕ}
     (hsparse : ∀ h : ℕ, Tendsto (fun N => (countIn B N : ℝ) ^ h / N) atTop (nhds 0)) :
@@ -1812,6 +1830,8 @@ lemma not_basis_of_sparse {B : Set ℕ}
           ]
         · positivity)
 
+set_option linter.flexible false in
+set_option linter.style.refine false in
 /-- The constructed B is not an additive basis. -/
 theorem constructB_not_basis (d : ShiftApproxData) : ¬IsAdditiveBasis (constructB d) := by
   -- To establish sparsity of B, we set A = {n | ∃ m, 0 < m ∧ n ∈ d.shifts m}.
@@ -1874,6 +1894,8 @@ The proof splits into cases based on m vs m₀(α).
 
 noncomputable section
 
+set_option linter.flexible false in
+set_option linter.style.refine false in
 /-- Double counting: Σ_{s=1}^{M} hitCount A C s = Σ_{c∈C} countIn A (c-1).
     Valid when all c ∈ C satisfy c ≤ M. -/
 lemma double_counting (A : Set ℕ) (C : Finset ℕ) (M : ℕ)
@@ -1913,6 +1935,7 @@ lemma double_counting (A : Set ℕ) (C : Finset ℕ) (M : ℕ)
 
 If c ∉ A and c ≥ 1, then countIn A (c-1) = countIn A c ≥ α*c.
 -/
+set_option linter.flexible false in
 lemma countIn_pred_of_not_mem {A : Set ℕ} {c : ℕ} (hc : c ≥ 1) (hcA : c ∉ A) :
     countIn A (c - 1) = countIn A c := by
   rcases c with ( _ | c ) <;> simp_all +decide [ countIn ]
@@ -1922,6 +1945,7 @@ lemma countIn_pred_of_not_mem {A : Set ℕ} {c : ℕ} (hc : c ≥ 1) (hcA : c �
 /-
 Sum of elements in a finset of distinct positive integers with q elements is ≥ q(q+1)/2.
 -/
+set_option linter.style.induction false in
 lemma sum_ge_triangular (C : Finset ℕ) (hC : ∀ c ∈ C, c ≥ 1) :
     C.card * (C.card + 1) / 2 ≤ C.sum id := by
   -- Since $C$ is a finite set of distinct positive integers, we can order its
@@ -1952,6 +1976,8 @@ lemma sum_ge_triangular (C : Finset ℕ) (hC : ∀ c ∈ C, c ≥ 1) :
           rw [Finset.card_image_of_injective _ hf_mono.injective, Finset.card_fin])]
     rfl
 
+set_option linter.flexible false in
+set_option linter.style.multiGoal false in
 /-- Lower bound on the full average of hit counts when C ⊆ [N] \ A, |C| = q.
     Uses: countIn A (c-1) ≥ α*c (since c ∉ A), Σ c ≥ q(q+1)/2 ≥ q²/2. -/
 lemma full_average_lower_bound {A : Set ℕ} {α : ℝ}
@@ -2021,6 +2047,7 @@ lemma full_average_lower_bound {A : Set ℕ} {α : ℝ}
     have hrhs_nonneg : 0 ≤ (∑ s ∈ Icc 1 M, (hitCount A C s : ℝ)) / M :=
       div_nonneg (Finset.sum_nonneg fun _ _ => Nat.cast_nonneg _) (Nat.cast_nonneg _)
     linarith
+set_option linter.flexible false in
 /-- If `1 ∈ A` and there exists `c ∈ [N]` with `c ∉ A`, then translating by 1 adds
 at least one new element. -/
 lemma translate_one_adds_new {A : Set ℕ} {N : ℕ}
@@ -2113,6 +2140,7 @@ lemma density_increment_dense {A : Set ℕ} {α : ℝ} {N : ℕ}
 When `m ≥ m₀`, `|E| < (α + β/2)N`, and `|C| > βN/2`, find `s ∈ d.shifts m` with enough
 new elements.
 -/
+set_option linter.flexible false in
 lemma density_increment_shift_approx (d : ShiftApproxData)
     (A : Set ℕ) (α : ℝ) (hα : α = schnirelmannDensity A)
     (hα0 : 0 < α) (hα1 : α < 1)
@@ -2190,6 +2218,7 @@ lemma density_increment_shift_approx (d : ShiftApproxData)
     (Finset.filter (· ∉ A) (Icc 1 N)) (Finset.filter_subset _ _) (fun c hc => by aesop)
 
 /-! ### Main density increment theorem -/
+set_option linter.flexible false in
 theorem density_increment (d : ShiftApproxData) (A : Set ℕ) (N : ℕ) (hN : 0 < N)
     (hα0 : 0 < schnirelmannDensity A) (hα1 : schnirelmannDensity A < 1) :
     ∃ b ∈ constructB d,
