@@ -19,15 +19,6 @@ import Mathlib
 
 namespace Erdos905
 
-
-set_option linter.style.setOption false
-set_option linter.flexible false
-set_option linter.style.multiGoal false
-set_option linter.style.refine false
-set_option linter.unusedDecidableInType false
-set_option linter.unusedFintypeInType false
-set_option linter.unusedSectionVars false
-
 /-!
 # Erdős Problem 905
 
@@ -224,6 +215,8 @@ lemma sum_triangleDegree_le_maxTriangleDegree_mul_edgeFinset
 /-
 If `m > n²/4` then `G` has a triangle, hence `maxTriangleDegree G > 0`.
 -/
+-- The final parity normalization is compact but trips the flexible-tactic linter.
+set_option linter.flexible false in
 lemma maxTriangleDegree_pos_of_quarter_sq_lt_edges
     (G : SimpleGraph V) [DecidableRel G.Adj]
     (h : Fintype.card V ^ 2 / 4 < G.edgeFinset.card) :
@@ -255,6 +248,9 @@ lemma maxTriangleDegree_pos_of_quarter_sq_lt_edges
 /-
 The sum of triangle-degrees is `3` times the number of triangles.
 -/
+-- This incidence-counting proof relies on broad finite-set simplification.
+set_option linter.flexible false in
+set_option linter.style.multiGoal false in
 lemma sum_triangleDegree_eq_three_mul_cliqueFinset [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj] :
     ∑ e ∈ G.edgeFinset, triangleDegree G e = 3 * (G.cliqueFinset 3).card := by
@@ -265,9 +261,9 @@ lemma sum_triangleDegree_eq_three_mul_cliqueFinset [DecidableEq V]
   simp +decide [SimpleGraph.cliqueFinset]
   convert Finset.sum_congr rfl fun e he => ?_
   rotate_left
-  use fun e =>
-    ∑ T ∈ Finset.filter (fun T => G.IsNClique 3 T) Finset.univ,
-      if e ∈ Finset.image (fun p : V × V => s(p.1, p.2)) (Finset.offDiag T) then 1 else 0
+  · use fun e =>
+      ∑ T ∈ Finset.filter (fun T => G.IsNClique 3 T) Finset.univ,
+        if e ∈ Finset.image (fun p : V × V => s(p.1, p.2)) (Finset.offDiag T) then 1 else 0
   · rcases e with ⟨u, v⟩
     simp +decide [SimpleGraph.commonNeighbors]
     refine Finset.card_bij (fun w _hw => {u, v, (w : V)}) ?_ ?_ ?_ <;>
@@ -311,6 +307,8 @@ lemma degree_add_degree_le_card_add_two_mul_triangleDegree
   have := degree_add_degree_le_card_add_commonNeighbors G u v
   omega
 
+-- The following lemmas keep their existing decidability hypotheses to preserve statements.
+set_option linter.unusedDecidableInType false in
 lemma commonNeighbors_card_eq_triangleDegree_edge
     (G : SimpleGraph V) [DecidableRel G.Adj] [DecidableEq V] (e : Sym2 V) :
     (Finset.filter (fun y => y ∈ G.commonNeighbors e.out.1 e.out.2)
@@ -322,6 +320,7 @@ lemma commonNeighbors_card_eq_triangleDegree_edge
     aesop
   · exact congr_arg _ (by exact Eq.symm (Quot.out_eq e))
 
+set_option linter.unusedDecidableInType false in
 lemma edge_degree_add_degree_le_card_add_two_mul_triangleDegree
     (G : SimpleGraph V) [DecidableRel G.Adj] [DecidableEq V] (e : Sym2 V) :
     G.degree e.out.1 + G.degree e.out.2 ≤
@@ -338,6 +337,8 @@ lemma edge_degree_add_degree_le_card_add_two_mul_triangleDegree
 
 /-! ### Endpoint-degree identities -/
 
+-- The endpoint expansion uses symmetric-pair normalization in both subgoals.
+set_option linter.flexible false in
 lemma edge_endpoint_degree_sum_eq_indicator_sum
     (G : SimpleGraph V) [DecidableRel G.Adj] [DecidableEq V] :
     ∑ e ∈ G.edgeFinset, (G.degree e.out.1 + G.degree e.out.2) =
@@ -354,6 +355,7 @@ lemma edge_endpoint_degree_sum_eq_indicator_sum
     rw [h_edge_repr] at he
     simp +decide [h] at he
 
+set_option linter.unusedDecidableInType false in
 lemma edge_endpoint_degree_sum_eq_neighbor_sum
     (G : SimpleGraph V) [DecidableRel G.Adj] [DecidableEq V] :
     ∑ e ∈ G.edgeFinset, (G.degree e.out.1 + G.degree e.out.2) =
@@ -379,12 +381,16 @@ lemma edge_endpoint_degree_sum_eq_neighbor_sum
           · intro x hx
             rfl
 
+set_option linter.unusedDecidableInType false in
 lemma edge_endpoint_degree_sum_eq_sum_sq
     (G : SimpleGraph V) [DecidableRel G.Adj] [DecidableEq V] :
     ∑ e ∈ G.edgeFinset, (G.degree e.out.1 + G.degree e.out.2) =
       ∑ v : V, G.degree v ^ 2 := by
   simp +decide [edge_endpoint_degree_sum_eq_neighbor_sum, pow_two]
 
+-- This finite-set cardinality estimate uses `refine'` to expose nested goals.
+set_option linter.unusedDecidableInType false in
+set_option linter.style.refine false in
 /--
 For a fixed edge `e = s(u, v)`, the number of vertices whose adjacency pattern to
 `u, v` is concordant is at most `n + 2t(e) - d(u) - d(v)`.
@@ -467,6 +473,8 @@ lemma concordant_vertex_count_le_card_add_two_mul_triangleDegree_sub_degree [Dec
         (Finset.univ : Finset V))
   omega
 
+set_option linter.unusedSectionVars false in
+set_option linter.unusedFintypeInType false in
 lemma concordant_pair_out
     (G : SimpleGraph V) (y a b : V) :
     ((G.Adj y a ∧ G.Adj y b) ∨ (¬ G.Adj y a ∧ ¬ G.Adj y b)) →
@@ -496,6 +504,8 @@ set_option maxHeartbeats 800000 in
 -- This proof contains the main finite-set encoding of the combinatorial
 -- injection. The heartbeat bump avoids timeouts in the large `simp`/`grind`
 -- blocks handling `Sym2` and filtered products.
+set_option linter.flexible false in
+set_option linter.style.refine false in
 lemma injection_counting_bound [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj] :
     (G.cliqueFinset 3).card * Fintype.card V +
@@ -577,7 +587,7 @@ lemma injection_counting_bound [DecidableEq V]
           simp_all +decide [SimpleGraph.isNClique_iff]
           rcases hu with (rfl | rfl | rfl) <;> rcases hv with (rfl | rfl | rfl) <;>
             simp_all +decide [SimpleGraph.adj_comm]
-          grind
+          · grind
           · grind
           · grind
           · grind
@@ -842,10 +852,10 @@ theorem erdos_905 (G : SimpleGraph V) [DecidableRel G.Adj]
   exact ⟨e, heE, hmax ▸
     card_div_six_le_maxTriangleDegree_of_quarter_sq_lt_edges G h⟩
 
-#print axioms erdos_905
--- 'Erdos905.ErdosProblems.P905.erdos_905' depends on axioms: [propext, Classical.choice,
--- Quot.sound]
-
 end ErdosProblems.P905
 
 end Erdos905
+
+#print axioms Erdos905.ErdosProblems.P905.erdos_905
+-- 'Erdos905.ErdosProblems.P905.erdos_905' depends on axioms: [propext, Classical.choice,
+-- Quot.sound]
