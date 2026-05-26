@@ -26,22 +26,6 @@ import Mathlib
 
 namespace Erdos1148
 
-set_option linter.style.setOption false
-set_option linter.style.openClassical false
-set_option linter.style.longLine false
-set_option linter.flexible false
-
-open scoped BigOperators
-open scoped Real
-open scoped Nat
-open scoped Classical
-open scoped Pointwise
-
-set_option relaxedAutoImplicit false
-set_option autoImplicit false
-
-noncomputable section
-
 /-
 Lemma 2.1: Dictionary between ternary representations and discriminant points.
 If b^2 - 4ac = 4n, b is even, and a, c have the same parity, then x=(a-c)/2,
@@ -173,7 +157,9 @@ theorem erdos_problem_1148 (h_duke : DukeTheoremStatement) :
   have sqrt_pos : 0 < 2 * Real.sqrt (n : ℝ) := by positivity
   have h_bound1 : |((a - c : ℤ) : ℝ)| < 2 * Real.sqrt (n : ℝ) := by
     have h_sub : (a : ℝ) / (2 * Real.sqrt (n : ℝ)) - (c : ℝ) / (2 * Real.sqrt (n : ℝ))
-        = ((a - c : ℤ) : ℝ) / (2 * Real.sqrt (n : ℝ)) := by push_cast; ring
+        = ((a - c : ℤ) : ℝ) / (2 * Real.sqrt (n : ℝ)) := by
+      push_cast
+      ring
     have h_omega1' : |((a - c : ℤ) : ℝ) / (2 * Real.sqrt (n : ℝ))| < 1 := by rwa [← h_sub]
     rw [abs_div, abs_of_pos sqrt_pos, div_lt_iff₀ sqrt_pos] at h_omega1'
     linarith
@@ -185,7 +171,9 @@ theorem erdos_problem_1148 (h_duke : DukeTheoremStatement) :
     linarith
   have h_bound3 : |((a + c : ℤ) : ℝ)| < 2 * Real.sqrt (n : ℝ) := by
     have h_add : (a : ℝ) / (2 * Real.sqrt (n : ℝ)) + (c : ℝ) / (2 * Real.sqrt (n : ℝ))
-        = ((a + c : ℤ) : ℝ) / (2 * Real.sqrt (n : ℝ)) := by push_cast; ring
+        = ((a + c : ℤ) : ℝ) / (2 * Real.sqrt (n : ℝ)) := by
+      push_cast
+      ring
     have h_omega3' : |((a + c : ℤ) : ℝ) / (2 * Real.sqrt (n : ℝ))| < 1 := by rwa [← h_add]
     rw [abs_div, abs_of_pos sqrt_pos, div_lt_iff₀ sqrt_pos] at h_omega3'
     linarith
@@ -202,28 +190,37 @@ theorem erdos_problem_1148 (h_duke : DukeTheoremStatement) :
       positivity
     have hprod : 0 < (Real.sqrt (n : ℝ)) ^ 2 - |(w : ℝ)| ^ 2 := by
       calc 0
-          < (Real.sqrt (n : ℝ) - |(w : ℝ)|) * (Real.sqrt (n : ℝ) + |(w : ℝ)|) := mul_pos hdiff hsum_pos
+          < (Real.sqrt (n : ℝ) - |(w : ℝ)|) *
+              (Real.sqrt (n : ℝ) + |(w : ℝ)|) := by
+            exact mul_pos hdiff hsum_pos
         _ = (Real.sqrt (n : ℝ)) ^ 2 - |(w : ℝ)| ^ 2 := by ring
     have h2 : |(w : ℝ)| ^ 2 < (Real.sqrt (n : ℝ)) ^ 2 := by linarith
     rw [sq_abs, Real.sq_sqrt hn_nonneg] at h2
     exact_mod_cast le_of_lt h2
   have hx_bound : (x ^ 2 : ℤ) ≤ n := by
     apply bound_helper
-    have : ((a - c : ℤ) : ℝ) = 2 * (x : ℝ) := by rw [hx_rel]; push_cast; ring
+    have : ((a - c : ℤ) : ℝ) = 2 * (x : ℝ) := by
+      rw [hx_rel]
+      push_cast
+      ring
     rwa [this] at h_bound1
   have hy_bound : (y ^ 2 : ℤ) ≤ n := by
     apply bound_helper
-    have : ((b : ℤ) : ℝ) = 2 * (y : ℝ) := by rw [hy_rel]; push_cast; ring
+    have : ((b : ℤ) : ℝ) = 2 * (y : ℝ) := by
+      rw [hy_rel]
+      push_cast
+      ring
     rwa [this] at h_bound2
   have hz_bound : (z ^ 2 : ℤ) ≤ n := by
     apply bound_helper
-    have : ((a + c : ℤ) : ℝ) = 2 * (z : ℝ) := by rw [hz_rel]; push_cast; ring
+    have : ((a + c : ℤ) : ℝ) = 2 * (z : ℝ) := by
+      rw [hz_rel]
+      push_cast
+      ring
     rwa [this] at h_bound3
   exact max_le hx_bound (max_le hy_bound hz_bound)
 
-#print axioms erdos_problem_1148
--- 'Erdos1148.erdos_problem_1148' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end
-
 end Erdos1148
+
+#print axioms Erdos1148.erdos_problem_1148
+-- 'Erdos1148.erdos_problem_1148' depends on axioms: [propext, Classical.choice, Quot.sound]
