@@ -35,13 +35,6 @@ limitations under the License.
 import Mathlib
 import Util
 
-set_option linter.style.setOption false
-set_option linter.style.cdot false
-set_option linter.style.show false
-set_option linter.deprecated false
-set_option linter.unusedSimpArgs false
-set_option linter.flexible false
-
 open Filter
 
 open scoped Topology
@@ -381,11 +374,14 @@ lemma dirichlet_approximation (α : ℝ) (Q : ℕ) (hQ : Q > 0) :
   refine α.exists_int_int_abs_mul_sub_le hQ |>.imp fun and⟨A, B, _⟩=>?_
   match A with | (n : ℕ) =>exact ⟨ (n : ℕ),by valid,by assumption_mod_cast⟩
 
+-- Contextual simplification is required in this generated proof; local simp suggestions
+-- change the proof context.
+set_option linter.flexible false in
 lemma log_ratio_approximation (Q : ℕ) (hQ : Q > 0) :
     ∃ (k m : ℕ), 0 < m ∧ m ≤ Q ∧
       |(m : ℝ) * (Real.log 4) - (k : ℝ) * (Real.log 3)| ≤
         (Real.log 3) / ((Q : ℝ) + 1) := by
-  show∃ R M,_ ∧_ ∧abs ((Nat.cast M) *_ -Nat.cast R * _)≤_ /(id @_+1)
+  change ∃ R M, _ ∧ _ ∧ abs ((Nat.cast M) *_ -Nat.cast R * _) ≤ _ / (id @_ + 1)
   by_cases h:
       (Finset.Icc (1) Q).image
         (@ fun and : ℕ =>
@@ -405,7 +401,7 @@ lemma log_ratio_approximation (Q : ℕ) (hQ : Q > 0) :
           (.trans (by
             rw [←Int.cast_natCast (Int.toNat _), Int.toNat_of_nonneg (by positivity),
               Int.cast_add]) ? _)⟩
-    have:=⌊↑and*Real.log 4/.log (3)*(Q+1)⌋.ediv_add_emod (Q+1)
+    have := Int.mul_ediv_add_emod (⌊↑and*Real.log 4/.log (3)*(Q+1)⌋) (Q+1)
     push_cast[id,x,comm.trans Int.floor_eq_iff] at this⊢
     use
       abs_sub_le_iff.2 (by
@@ -419,18 +415,31 @@ lemma log_ratio_approximation (Q : ℕ) (hQ : Q > 0) :
     (by_contra fun and =>
       h
         (Finset.eq_of_subset_of_card_le
-          (Finset.image_subset_iff.2 fun and j => _)
+          (Finset.image_subset_iff.2 fun n j => _)
           ((Finset.card_image_of_injOn fun and _ _ _ _ =>
             le_antisymm (not_lt.1 _) (not_lt.1 _)).ge.trans' _)))
-  · simp_all-contextual
+  · suffices
+      (∃ a ≤ Q,
+          (a : ℤ) =
+            ⌊(n : ℝ) * Real.log 4 / Real.log 3 * (Q + 1)⌋ % (Q + 1)) ∧
+        ¬ (Q : ℤ) + 1 ∣
+          ⌊(n : ℝ) * Real.log 4 / Real.log 3 * (Q + 1)⌋ by
+      simpa only [Finset.pure_def, Finset.bind_def, Finset.sup_singleton_apply,
+        Finset.mem_sdiff, Finset.mem_image, Finset.mem_range, Order.lt_add_one_iff,
+        Finset.mem_singleton, EuclideanDomain.mod_eq_zero] using this
+    have hContra' :
+        ∀ (x x_1 : ℕ), 0 < x_1 → x_1 ≤ Q →
+          Real.log 3 / ((Q : ℝ) + 1) <
+            |(x_1 : ℝ) * Real.log 4 - (x : ℝ) * Real.log 3| := by
+      intro x x_1 hx_1 hx_Q
+      exact lt_of_not_ge fun hle_abs => and ⟨x, x_1, hx_1, hx_Q, hle_abs⟩
     use
       ⟨_, Int.toNat_le.2
           (Int.le_of_lt_add_one.comp (Int.emod_lt_of_pos _) (by valid)),
         Int.toNat_of_nonneg ((Int.emod_nonneg _) (nofun))⟩,
-      fun ⟨A, B⟩ => (j.elim (and A.natAbs _)).asymm ?_
+      fun ⟨A, B⟩ => ((Finset.mem_Icc.mp j).elim (hContra' A.natAbs _)).asymm ?_
     simp_all[
-      mul_assoc, sub_mul, mul_comm (A : ℝ), Q.cast_add_one_pos, A.cast_natAbs,
-      sub_lt_iff_lt_add', abs_of_nonneg,
+      mul_assoc, mul_comm (A : ℝ), Q.cast_add_one_pos, Nat.cast_natAbs A, abs_of_nonneg,
       nonneg_of_mul_nonneg_right (B.subst (by positivity)), div_mul_eq_mul_div,
       Int.floor_eq_iff, Real.log_pos, le_div_iff₀]
     exact
@@ -449,11 +458,11 @@ lemma log_ratio_approximation (Q : ℕ) (hQ : Q > 0) :
     refine
       ⟨by valid,
         s.imp (by
-          linear_combination.+Int.sub_floor_div_mul_lt
+          linear_combination · + Int.sub_floor_div_mul_lt
             (↑‹ℕ›*.log 4*(Q+1): ℝ)
             (by positivity : Real.log (3) > 0)) @?_⟩
     use (by
-      linear_combination.+Int.sub_floor_div_mul_nonneg (‹ℕ›*.log 4*(Q+1): ℝ)
+      linear_combination · + Int.sub_floor_div_mul_nonneg (‹ℕ›*.log 4*(Q+1): ℝ)
         (by positivity : Real.log (3) > 0))
   · refine
       (Int.ModEq.dvd (by assumption)).elim fun a s H =>
@@ -504,9 +513,7 @@ lemma gap_alignment (Q : ℕ) (hQ : Q > 0) :
           4 ^ m*div_self_le_one (3 ^ k: ℝ)
       · simp_all[h_bound.trans']
       · have := (.log (3 ^k) -Real.log (4 ^m)).add_one_le_exp
-        simp_all[
-          Fin, max_eq_right S.le, sub_add, sub_le_comm.1, abs_of_pos (sub_pos.mpr S),
-          Real.exp_log, Real.exp_sub]
+        simp_all[max_eq_right S.le, sub_add, abs_of_pos (sub_pos.mpr S), Real.exp_sub]
         linear_combination
           (4)^m*le_sup_left.trans h_bound +
           (le_div_iff₀ (by bound)).1
@@ -606,7 +613,7 @@ use fun and A B R =>
           norm_num[a, Finset.insert_subset_iff]) ∘ A S (by constructor) (B/3))
       (.trans (by cases B.eq_zero_or_pos with norm_num [*]) R)
 · simp_all-contextual[
-    mul_add, S|>.lt_succ, B.mod_lt, B.pos_of_ne_zero (a.comp (by rw [.])),
+    B.pos_of_ne_zero (a.comp (by rw [·])),
     Finset.insert_subset_iff, Nat.add_mul_div_left, pos_iff_ne_zero.eq]
 lemma B_decomp_div (m b : ℕ) (hb : b ∈ B) : b / 4 ^ m ∈ B := by
   change b ∈{s |_}at@@hb⊢
@@ -632,7 +639,7 @@ lemma B_decomp_mod (m b : ℕ) (hb : b ∈ B) : b % 4 ^ m ∈ B := by
             (A S (by constructor) (B/4)
               ((.trans (by cases B with norm_num) R)))))
   · simp_all-contextual[
-      B.mod_lt, B.pos_of_ne_zero (a.comp (by rw [.])), Finset.insert_subset_iff,
+      B.pos_of_ne_zero (a.comp (by rw [·])), Finset.insert_subset_iff,
       Nat.add_mul_div_left _, pos_iff_ne_zero.eq]
 
 def sum_c (k m a b : ℕ) : ℕ :=
@@ -847,9 +854,8 @@ lemma density_multiplier_le (k m N_0 : ℕ) (C : ℕ)
 lemma ratio_close_of_log_close (k m : ℕ) (ε : ℝ) (hε : ε > 0)
   (h_gap : |(m : ℝ) * Real.log 4 - (k : ℝ) * Real.log 3| < Real.log (1 + ε)) :
   |(4 ^ m : ℝ) / (3 ^ k : ℝ) - 1| < ε := by
-  simp_all[
-    abs_sub_lt_iff, ←Real.rpow_natCast, sub_lt_iff_lt_add',
-    Real.rpow_def_of_pos, add_pos _, ← Real.exp_sub]
+  simp_all only [gt_iff_lt, abs_sub_lt_iff, sub_lt_iff_lt_add', ← Real.rpow_natCast,
+    ofNat_pos, Real.rpow_def_of_pos, ← Real.exp_sub]
   use
     (Real.lt_log_iff_exp_lt (by bound)).1 (by bound),
     by_contra fun and =>
@@ -874,7 +880,7 @@ lemma exists_k_m_ratio_close (ε : ℝ) (hε : ε > 0) :
   · obtain ⟨rfl⟩ :=eq_or_ne k 0
     · norm_num[
         *, not_le.2.comp (div_lt_self _ _).trans, Real.log_lt_log, Real.log_pos,
-        lt_abs, (le_mul_of_one_le_left _ _).trans_lt', le_of_lt, Nat.succ_le] at h_gap
+        lt_abs, (le_mul_of_one_le_left _ _).trans_lt', le_of_lt, Nat.succ_le_iff] at h_gap
       cases
         (h_gap.trans_lt <| div_lt_self (by bound) (by simp_all)).asymm
           ((lt_of_lt_of_le (by bound)
@@ -888,6 +894,9 @@ lemma exists_k_m_ratio_close (ε : ℝ) (hε : ε > 0) :
         norm_num[h_gap.trans_lt, abs_mul, mul_assoc, ←mul_sub, ←lt_div_iff₀', *]
       exact ratio_close_of_log_close (10 * k) (10 * m) ε hε h_gap_10
 
+-- Contextual simplification is required in this generated proof; local simp suggestions
+-- change the proof context.
+set_option linter.flexible false in
 lemma good_k_m_of_close (N_0 k m : ℕ)
   (h_M : (3 ^ k : ℝ) > 30) (h_M4 : (4 ^ m : ℝ) > 30)
   (h_eps : |(4 ^ m : ℝ) / (3 ^ k : ℝ) - 1| < 1 / (30 * N_0 + 30 : ℝ)) :
@@ -898,11 +907,11 @@ lemma good_k_m_of_close (N_0 k m : ℕ)
   cases le_total (3 ^ k : ℤ) (4 ^m)
   · field_simp at@h_eps⊢
     simp_all[
-      abs_sub_comm (3 ^ k : ℝ), abs_div, abs_of_nonneg,
+      abs_div, abs_of_nonneg,
       (k.rec _ (by valid):2 ∣3 ^ k-1), (m.rec _ (by valid):3 ∣4 ^ m-1),
       div_mul_eq_mul_div, div_lt_one]
     norm_cast at*
-    simp_all[Int.subNatNat_of_lt,h_M.trans',h_M4.trans']
+    simp_all[h_M.trans',h_M4.trans']
     trans((3 ^ k-1) / 2+ (4 ^ m-1) / 3+ (4 ^ m-3 ^ k) *N_0+1)*15
     · exact
         (.trans
@@ -914,10 +923,7 @@ lemma good_k_m_of_close (N_0 k m : ℕ)
           simp_all only[←@Nat.cast_lt ℝ, push_cast],
         (by assumption_mod_cast : (31 : ℝ)≤3 ^ k)]
   · field_simp at@h_eps⊢
-    simp_all[
-      abs_sub_comm, abs_div,
-      show((3 ^ k-1) / 2+ (4 ^ m-1) / 3+ (3 ^ k-4 ^ m) *N_0+1: ℝ)*15≤4 ^ m*14
-        from _]
+    simp_all[abs_sub_comm, abs_div]
     simp_all[div_mul_eq_mul_div,←geom_sum_mul_of_one_le]
     norm_cast at*
     refine
@@ -1057,9 +1063,11 @@ lemma pach_pintz_diophantine_gaps :
     rw [Real.dist_eq, sub_zero, abs_of_nonneg h_nonneg]
     exact hk
 
+-- Contextual simplification is required here; the local simp suggestion changes the proof shape.
+set_option linter.flexible false in
 lemma lower_density_zero : (A + B).lowerDensity = 0 := by
   have h_gaps := pach_pintz_diophantine_gaps
-  simp_all[div_eq_inv_mul, Real.zero_lt_one,Set.lowerDensity,Set.inter_comm]
+  simp_all[div_eq_inv_mul,Set.lowerDensity,Set.inter_comm]
   refine h_gaps.elim fun and⟨A, B⟩=>Filter.liminf_eq.trans (symm ? _)
   exact
     (IsGreatest.csSup_eq
@@ -1086,11 +1094,12 @@ theorem erdos_125.variants.positive_lower_density :
     revert h
     norm_num
 
+end Erdos125
+
+open Erdos125
 
 #print axioms erdos_125.variants.positive_lower_density
 -- 'Erdos125.erdos_125.variants.positive_lower_density' depends on axioms: [propext,
 -- Classical.choice, Quot.sound]
 #print axioms erdos_125
 -- 'Erdos125.erdos_125' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end Erdos125
