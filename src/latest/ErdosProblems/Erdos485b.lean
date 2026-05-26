@@ -24,7 +24,6 @@ namespace Erdos485b
 set_option linter.style.setOption false
 set_option linter.style.maxHeartbeats false
 set_option linter.flexible false
-set_option linter.style.cases false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.deprecated false
@@ -46,7 +45,6 @@ Indag. Math. 11 (1949), 546–565.
 
 -/
 
-open Polynomial Finset
 open Polynomial Finset Pointwise
 
 set_option maxHeartbeats 1600000
@@ -187,7 +185,7 @@ lemma product_complete (f : ℤ[X]) (d : ℕ) (lam : ℤ)
       nlinarith [ Nat.pos_of_ne_zero hi''.1 ] ;
     have hj'' : j ≤ 8 ∨ j = 9 := by
       interval_cases j <;> trivial;
-    cases' hj'' with hj'' hj'' <;> simp_all +decide ;
+    rcases hj'' with hj'' | hj'' <;> simp_all +decide
     · -- By definition of polynomial multiplication, we have:
       have h_coeff :
           (f * (baseP.comp (C lam * X ^ d))).coeff (j * d) =
@@ -1677,7 +1675,8 @@ lemma exists_complete_prod_real (g : ℝ[X]) (d a : ℕ)
             have hb_mul_d : ∃ k : ℕ, b = k * d := by
               exact Exists.elim (Finset.exists_ne_zero_of_sum_ne_zero h.2) fun x hx =>
                 ⟨ x, by aesop ⟩
-            cases' hb_mul_d with k hk; simp_all +decide ;
+            rcases hb_mul_d with ⟨k, hk⟩
+            simp_all +decide
             norm_num [ show i = a_1 + k * d by linarith ] at *;
             norm_num [ Nat.add_mul_div_right _ _ hd ];
             exact
@@ -1968,6 +1967,12 @@ theorem exists_complete_poly_with_sparse_square_improved (n : ℕ) (hn : 0 < n) 
       _ < (1 / 7 : ℝ) * (170 * (n : ℝ) ^ (Real.log 8 / Real.log 13) - 14) :=
           arithmetic_bound_improved n N a ha1 ha12 haN⟩
 
+end
+
+end Erdos485b
+
+open Erdos485b
+
 #print axioms exists_complete_poly_with_sparse_square
 -- 'Erdos485b.exists_complete_poly_with_sparse_square' depends on axioms: [propext,
 -- Classical.choice, Quot.sound]
@@ -1975,7 +1980,3 @@ theorem exists_complete_poly_with_sparse_square_improved (n : ℕ) (hn : 0 < n) 
 #print axioms exists_complete_poly_with_sparse_square_improved
 -- 'Erdos485b.exists_complete_poly_with_sparse_square_improved' depends on axioms: [propext,
 -- Classical.choice, Quot.sound]
-
-end
-
-end Erdos485b
