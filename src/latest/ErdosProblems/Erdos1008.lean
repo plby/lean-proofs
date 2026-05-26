@@ -21,18 +21,6 @@ import Mathlib
 
 namespace Erdos1008
 
-set_option linter.style.induction false
-set_option linter.style.lambdaSyntax false
-set_option linter.style.multiGoal false
-set_option linter.style.openClassical false
-set_option linter.style.refine false
-set_option linter.style.setOption false
-set_option linter.flexible false
-set_option linter.unusedSimpArgs false
-
-set_option maxHeartbeats 1000000
--- Multiple generated C4-counting proofs time out at the default heartbeat limit.
-
 /-
 A set of edges forms a C4 if it has size 4 and the graph formed by these edges contains a C4.
 -/
@@ -43,11 +31,12 @@ def is_C4 {V : Type} [DecidableEq V] (s : Finset (Sym2 V)) : Prop :=
 Defines `disjoint_pairs` as the set of pairs of disjoint edges, and proves that the number of
 such pairs is at most half the square of the number of edges.
 -/
-open SimpleGraph Finset Classical
+open SimpleGraph Finset
 
 def is_disjoint_pair {V : Type} (s : Finset (Sym2 V)) : Prop :=
   s.card = 2 ∧ ∀ e ∈ s, ∀ f ∈ s, e ≠ f → ∀ v, v ∈ e → v ∉ f
 
+open Classical in
 noncomputable def disjoint_pairs {V : Type} [Fintype V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj] : Finset (Finset (Sym2 V)) :=
   (G.edgeFinset.powersetCard 2).filter is_disjoint_pair
@@ -55,6 +44,7 @@ noncomputable def disjoint_pairs {V : Type} [Fintype V] [DecidableEq V]
 lemma disjoint_pairs_card_le {V : Type} [Fintype V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj] :
   (disjoint_pairs G).card ≤ (G.edgeFinset.card) ^ 2 / 2 := by
+    classical
     -- The set `disjoint_pairs` is a subset of all pairs of edges.
     have h_disjoint_le_all_pairs :
         (disjoint_pairs G).card ≤ Finset.card (Finset.powersetCard 2 G.edgeFinset) := by
@@ -62,7 +52,7 @@ lemma disjoint_pairs_card_le {V : Type} [Fintype V] [DecidableEq V]
       intro p hp
       unfold disjoint_pairs at hp
       exact (Finset.mem_filter.mp hp).1
-    refine le_trans h_disjoint_le_all_pairs ?_;
+    refine le_trans h_disjoint_le_all_pairs ?_
     rw [Finset.card_powersetCard, Nat.choose_two_right, pow_two]
     exact Nat.div_le_div_right (Nat.mul_le_mul_left _ (Nat.sub_le _ _))
 
@@ -70,28 +60,35 @@ lemma disjoint_pairs_card_le {V : Type} [Fintype V] [DecidableEq V]
 Defines `C4s` as the set of C4 subgraphs. Proves that every C4 subgraph contains exactly 2
 disjoint pairs of edges.
 -/
+open Classical in
 noncomputable def C4s {V : Type} [Fintype V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj] : Finset (Finset (Sym2 V)) :=
   (G.edgeFinset.powersetCard 4).filter is_C4
 
+-- These generated counting/probability proofs need a concrete heartbeat bound; the
+-- flexible-tactic linter would require proof refactors outside this cleanup.
+set_option maxHeartbeats 1000000 in
+-- Generated C4 enumeration proof times out at the default heartbeat limit.
+set_option linter.flexible false in
 lemma c4_contains_two_disjoint_pairs {V : Type} [Fintype V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj] :
-  ∀ c ∈ C4s G, ((disjoint_pairs G).filter (λ p => p ⊆ c)).card = 2 := by
-    intro c hc;
+  ∀ c ∈ C4s G, ((disjoint_pairs G).filter (fun p => p ⊆ c)).card = 2 := by
+    classical
+    intro c hc
     -- By definition of $C4s$, there exist vertices $v₁$, $v₂$, $v₃$, and $v₄$.
     obtain ⟨v₁, v₂, v₃, v₄, hv⟩ :
         ∃ v₁ v₂ v₃ v₄ : V,
           c = {s(v₁, v₂), s(v₂, v₃), s(v₃, v₄), s(v₄, v₁)} ∧
           v₁ ≠ v₂ ∧ v₂ ≠ v₃ ∧ v₃ ≠ v₄ ∧ v₄ ≠ v₁ ∧
           v₁ ≠ v₃ ∧ v₂ ≠ v₄ := by
-      unfold C4s at hc;
-      unfold is_C4 at hc;
-      simp_all +decide [ SimpleGraph.fromEdgeSet ];
-      rcases hc.2.2 with ⟨ f, hf ⟩;
-      use f 0, f 1, f 2, f 3;
+      unfold C4s at hc
+      unfold is_C4 at hc
+      simp_all +decide [SimpleGraph.fromEdgeSet]
+      rcases hc.2.2 with ⟨ f, hf ⟩
+      use f 0, f 1, f 2, f 3
       have h_edges : c = {s(f 0, f 1), s(f 1, f 2), s(f 2, f 3), s(f 3, f 0)} := by
         have h_edges : c ⊇ {s(f 0, f 1), s(f 1, f 2), s(f 2, f 3), s(f 3, f 0)} := by
-          simp_all +decide [ Finset.subset_iff, Set.subset_def ];
+          simp_all +decide [Finset.subset_iff]
           exact
             ⟨f.map_adj (by decide) |>.1, f.map_adj (by decide) |>.1,
               f.map_adj (by decide) |>.1, f.map_adj (by decide) |>.1⟩
@@ -101,7 +98,8 @@ lemma c4_contains_two_disjoint_pairs {V : Type} [Fintype V] [DecidableEq V]
           rw [Finset.card_insert_of_notMem, Finset.card_insert_of_notMem,
             Finset.card_insert_of_notMem, Finset.card_singleton] <;>
             simp +decide [hf.eq_iff]
-        rw [ Finset.eq_of_subset_of_card_le h_edges ] ; aesop;
+        rw [Finset.eq_of_subset_of_card_le h_edges]
+        aesop
       exact
         ⟨h_edges, hf.ne (by decide), hf.ne (by decide), hf.ne (by decide),
           hf.ne (by decide), hf.ne (by decide), hf.ne (by decide)⟩
@@ -109,34 +107,41 @@ lemma c4_contains_two_disjoint_pairs {V : Type} [Fintype V] [DecidableEq V]
     have h_disjoint_pairs :
         Finset.filter (fun p => p ⊆ c) (disjoint_pairs G) =
           {{s(v₁, v₂), s(v₃, v₄)}, {s(v₂, v₃), s(v₄, v₁)}} := by
-      ext p;
-      constructor;
-      · simp [disjoint_pairs];
+      ext p
+      constructor
+      · simp [disjoint_pairs]
         intro hp hp' hp'' hp'''
         rw [Finset.card_eq_two] at hp'
         obtain ⟨ e₁, e₂, he₁, he₂, rfl ⟩ := hp'
         simp_all +decide [Finset.subset_iff]
         rcases hp''' with ⟨ rfl | rfl | rfl | rfl, rfl | rfl | rfl | rfl ⟩ <;> simp_all +decide
-        all_goals unfold is_disjoint_pair at hp''; simp_all +decide
-        · exact Or.inl <| Finset.pair_comm _ _;
-        · exact Or.inr ( Finset.pair_comm _ _ );
-      · simp [hv];
-        rintro ( rfl | rfl ) <;> simp_all +decide [ Finset.subset_iff ];
-        · refine' Finset.mem_filter.mpr ⟨ _, _ ⟩;
-          · simp_all +decide [ Finset.subset_iff, C4s ];
-          · constructor <;> simp +decide [ * ];
-            grind;
-        · refine' Finset.mem_filter.mpr ⟨ _, _ ⟩;
-          · simp_all +decide [ Finset.subset_iff, C4s ];
-          · unfold is_disjoint_pair; aesop;
-    rw [ h_disjoint_pairs, Finset.card_insert_of_notMem, Finset.card_singleton ] ; simp +decide
-    simp +decide [ Finset.Subset.antisymm_iff, Finset.subset_iff, hv ];
+        all_goals
+          unfold is_disjoint_pair at hp''
+          simp_all +decide
+        · exact Or.inl <| Finset.pair_comm _ _
+        · exact Or.inr (Finset.pair_comm _ _)
+      · simp [hv]
+        rintro (rfl | rfl) <;> simp_all +decide [Finset.subset_iff]
+        · refine Finset.mem_filter.mpr ⟨ ?_, ?_ ⟩
+          · simp_all +decide [Finset.subset_iff, C4s]
+          · constructor <;> simp +decide [*]
+            grind
+        · refine Finset.mem_filter.mpr ⟨ ?_, ?_ ⟩
+          · simp_all +decide [Finset.subset_iff, C4s]
+          · unfold is_disjoint_pair
+            aesop
+    rw [h_disjoint_pairs, Finset.card_insert_of_notMem, Finset.card_singleton]
+    simp +decide
+    simp +decide [Finset.Subset.antisymm_iff, Finset.subset_iff, hv]
     aesop
 
 /-
 Proves that if a C4 graph contains two disjoint edges $\{u, v\}$ and $\{x, y\}$, then the
 edge set has one of the two possible cycle structures on these four vertices.
 -/
+set_option maxHeartbeats 1000000 in
+-- Generated C4 structure proof times out at the default heartbeat limit.
+set_option linter.flexible false in
 lemma C4_containing_disjoint_pair_structure {V : Type} [DecidableEq V]
     (c : Finset (Sym2 V)) (u v x y : V) :
   is_C4 c →
@@ -145,32 +150,34 @@ lemma C4_containing_disjoint_pair_structure {V : Type} [DecidableEq V]
   ({u, v} : Finset V) ∩ {x, y} = ∅ →
   c = {s(u, v), s(x, y), s(u, x), s(v, y)} ∨
   c = {s(u, v), s(x, y), s(u, y), s(v, x)} := by
-    unfold is_C4;
-    intro h hc huv hxy hxy';
+    unfold is_C4
+    classical
+    intro h hc huv hxy hxy'
     -- Since $c$ is a C4, it is isomorphic to the cycle graph $C_4$.
     obtain ⟨ϕ, hϕ⟩ :
         ∃ ϕ : Fin 4 → V,
           c = {s(ϕ 0, ϕ 1), s(ϕ 1, ϕ 2), s(ϕ 2, ϕ 3), s(ϕ 3, ϕ 0)} := by
-      simp_all +decide [ SimpleGraph.Free ];
-      obtain ⟨ ϕ, hϕ ⟩ := h.2;
-      refine' ⟨ fun i => ϕ i, _ ⟩;
+      simp_all +decide [SimpleGraph.Free]
+      obtain ⟨ ϕ, hϕ ⟩ := h.2
+      refine ⟨ fun i => ϕ i, ?_ ⟩
       have h_edges : ∀ i : Fin 4, s(ϕ i, ϕ (i + 1)) ∈ c := by
         intro i
         have := ϕ.map_adj (show SimpleGraph.Adj (SimpleGraph.cycleGraph 4) i (i + 1) from by
           fin_cases i <;> trivial)
         aesop
       have h_edges_subset : {s(ϕ 0, ϕ 1), s(ϕ 1, ϕ 2), s(ϕ 2, ϕ 3), s(ϕ 3, ϕ 0)} ⊆ c := by
-        simp_all +decide [ Finset.insert_subset_iff ];
-        exact ⟨ h_edges 0, h_edges 1, h_edges 2, h_edges 3 ⟩;
+        simp_all +decide [Finset.insert_subset_iff]
+        exact ⟨ h_edges 0, h_edges 1, h_edges 2, h_edges 3 ⟩
       have h_edges_card :
           ({s(ϕ 0, ϕ 1), s(ϕ 1, ϕ 2), s(ϕ 2, ϕ 3), s(ϕ 3, ϕ 0)} :
             Finset (Sym2 V)).card = 4 := by
         rw [Finset.card_insert_of_notMem, Finset.card_insert_of_notMem,
           Finset.card_insert_of_notMem, Finset.card_singleton] <;>
           simp +decide [hϕ.eq_iff]
-      rw [ Finset.eq_of_subset_of_card_le h_edges_subset ] ; aesop;
-    simp_all +decide [ Finset.subset_iff ];
-    simp_all +decide [ Finset.ext_iff ];
+      rw [Finset.eq_of_subset_of_card_le h_edges_subset]
+      aesop
+    simp_all +decide [Finset.subset_iff]
+    simp_all +decide [Finset.ext_iff]
     rcases hc with
       ⟨⟨⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩,
         ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩⟩,
@@ -178,21 +185,21 @@ lemma C4_containing_disjoint_pair_structure {V : Type} [DecidableEq V]
     · rcases ‹_› with
         ((⟨rfl, rfl⟩ | ⟨rfl, rfl⟩) | (⟨rfl, rfl⟩ | ⟨rfl, rfl⟩) |
           ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩) <;> simp_all +decide [Sym2.eq_swap]
-      · grind;
-      · grind;
+      · grind
+      · grind
     · rcases ‹_› with
         ((⟨rfl, rfl⟩ | ⟨rfl, rfl⟩) | (⟨rfl, rfl⟩ | ⟨rfl, rfl⟩) |
           ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩) <;> simp_all +decide [Sym2.eq_swap]
-      · grind;
-      · exact Or.inr fun a => by tauto;
+      · grind
+      · exact Or.inr fun a => by tauto
     · rcases ‹u = ϕ 2 ∧ v = ϕ 3 ∨ u = ϕ 3 ∧ v = ϕ 2› with
         (⟨rfl, rfl⟩ | ⟨rfl, rfl⟩) <;> simp_all +decide [Sym2.eq_swap]
-      · exact Or.inr fun a => by tauto;
-      · grind;
+      · exact Or.inr fun a => by tauto
+      · grind
     · rcases ‹u = ϕ 2 ∧ v = ϕ 3 ∨ u = ϕ 3 ∧ v = ϕ 2› with
         (⟨rfl, rfl⟩ | ⟨rfl, rfl⟩) <;> simp_all +decide [Sym2.eq_swap]
-      · grind;
-      · exact Or.inr fun a => by tauto;
+      · grind
+      · exact Or.inr fun a => by tauto
     · rcases
         ‹(u = ϕ 1 ∧ v = ϕ 2 ∨ u = ϕ 2 ∧ v = ϕ 1) ∨
           (u = ϕ 2 ∧ v = ϕ 3 ∨ u = ϕ 3 ∧ v = ϕ 2) ∨
@@ -208,21 +215,22 @@ lemma C4_containing_disjoint_pair_structure {V : Type} [DecidableEq V]
           with
           ((⟨rfl, rfl⟩ | ⟨rfl, rfl⟩) | (⟨rfl, rfl⟩ | ⟨rfl, rfl⟩) |
             ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩) <;> simp_all +decide [Sym2.eq_swap]
-      all_goals simp_all +decide [ or_comm, or_left_comm ] ;
+      all_goals simp_all +decide [or_comm, or_left_comm]
 
 /-
 Proves that any disjoint pair of edges is contained in at most 2 C4 subgraphs.
 -/
 lemma disjoint_pair_in_at_most_two_C4s {V : Type} [Fintype V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj] :
-  ∀ p ∈ disjoint_pairs G, ((C4s G).filter (λ c => p ⊆ c)).card ≤ 2 := by
-    intro p hp;
+  ∀ p ∈ disjoint_pairs G, ((C4s G).filter (fun c => p ⊆ c)).card ≤ 2 := by
+    classical
+    intro p hp
     -- Let $p$ be a pair of disjoint edges, written as $\{u, v\}$ and $\{x, y\}$.
     obtain ⟨u, v, x, y, huv, hxy, h_disjoint⟩ :
         ∃ u v x y : V,
           u ≠ v ∧ x ≠ y ∧ ({u, v} : Finset V) ∩ {x, y} = ∅ ∧
             p = {s(u, v), s(x, y)} := by
-      unfold disjoint_pairs at hp;
+      unfold disjoint_pairs at hp
       rw [Finset.mem_filter, Finset.mem_powersetCard] at hp
       rcases hp with ⟨⟨hp_sub, hp_card⟩, hp_disj⟩
       rcases Finset.card_eq_two.mp hp_card with ⟨e₁, e₂, hne, rfl⟩
@@ -251,7 +259,8 @@ lemma disjoint_pair_in_at_most_two_C4s {V : Type} [Fintype V] [DecidableEq V]
       have h_c4_structure :
           is_C4 c ∧ {s(u, v), s(x, y)} ⊆ c ∧ u ≠ v ∧ x ≠ y ∧
             ({u, v} : Finset V) ∩ {x, y} = ∅ := by
-        unfold C4s at hc; aesop;
+        unfold C4s at hc
+        aesop
       exact
         C4_containing_disjoint_pair_structure c u v x y h_c4_structure.1
           h_c4_structure.2.1 h_c4_structure.2.2.1 h_c4_structure.2.2.2.1
@@ -272,22 +281,24 @@ lemma disjoint_pair_in_at_most_two_C4s {V : Type} [Fintype V] [DecidableEq V]
 Proves that the number of C4s is at most the number of disjoint pairs of edges, using double
 counting.
 -/
+set_option linter.flexible false in
 lemma card_C4s_le_disjoint_pairs {V : Type} [Fintype V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj] :
   (C4s G).card ≤ (disjoint_pairs G).card := by
+    classical
     -- Double count pairs `(c, p)` where `p` is a disjoint edge pair contained in `c`.
     have h_double_counting :
-        ∑ c ∈ C4s G, ((disjoint_pairs G).filter (λ p => p ⊆ c)).card =
-          ∑ p ∈ disjoint_pairs G, ((C4s G).filter (λ c => p ⊆ c)).card := by
-      simp +decide only [card_eq_sum_ones, sum_filter];
-      exact Finset.sum_comm;
+        ∑ c ∈ C4s G, ((disjoint_pairs G).filter (fun p => p ⊆ c)).card =
+          ∑ p ∈ disjoint_pairs G, ((C4s G).filter (fun c => p ⊆ c)).card := by
+      simp +decide only [card_eq_sum_ones, sum_filter]
+      exact Finset.sum_comm
     -- Every C4 contributes exactly two disjoint pairs.
-    have h_sum_c4 : ∀ c ∈ C4s G, ((disjoint_pairs G).filter (λ p => p ⊆ c)).card = 2 := by
-      exact fun c a => c4_contains_two_disjoint_pairs G c a;
+    have h_sum_c4 : ∀ c ∈ C4s G, ((disjoint_pairs G).filter (fun p => p ⊆ c)).card = 2 := by
+      exact fun c a => c4_contains_two_disjoint_pairs G c a
     -- Every disjoint pair appears in at most two C4s.
     have h_sum_disjoint_pairs :
-        ∀ p ∈ disjoint_pairs G, ((C4s G).filter (λ c => p ⊆ c)).card ≤ 2 := by
-      exact fun p a => disjoint_pair_in_at_most_two_C4s G p a;
+        ∀ p ∈ disjoint_pairs G, ((C4s G).filter (fun c => p ⊆ c)).card ≤ 2 := by
+      exact fun p a => disjoint_pair_in_at_most_two_C4s G p a
     simp_all +decide
     exact
       le_of_mul_le_mul_right
@@ -307,10 +318,14 @@ lemma card_C4s_le_m_sq_div_2 {V : Type} [Fintype V] [DecidableEq V]
 Proves that for any set $E$ and collection of subsets $C$ of size $k$, there exists a
 subset $S \subseteq E$ with $|S| - |\{c \in C : c \subseteq S\}| \ge p |E| - p^k |C|$.
 -/
+set_option maxHeartbeats 1000000 in
+-- Generated probabilistic-method proof times out at the default heartbeat limit.
+set_option linter.flexible false in
 lemma probabilistic_exists {α : Type} [DecidableEq α] (E : Finset α)
     (C : Finset (Finset α)) (k : ℕ) (p : ℝ)
     (hk : ∀ c ∈ C, c.card = k) (hc : ∀ c ∈ C, c ⊆ E) (hp0 : 0 ≤ p) (hp1 : p ≤ 1) :
-  ∃ S ⊆ E, (S.card : ℝ) - (C.filter (λ c => c ⊆ S)).card ≥ p * E.card - p^k * C.card := by
+  ∃ S ⊆ E, (S.card : ℝ) - (C.filter (fun c => c ⊆ S)).card ≥ p * E.card - p^k * C.card := by
+    classical
     -- By linearity of expectation, $\mathbb{E}[X] = \sum_{e \in E} \mathbb{P}(e \in S) = |E| p$.
     have h_exp_X :
         (Finset.sum (Finset.powerset E) fun S =>
@@ -325,7 +340,7 @@ lemma probabilistic_exists {α : Type} [DecidableEq α] (E : Finset α)
             ∑ x ∈ Finset.range (Finset.card E + 1),
               (x : ℝ) * Nat.choose (Finset.card E) x * p ^ x *
                 (1 - p) ^ (Finset.card E - x) := by
-        rw [ Finset.sum_powerset ];
+        rw [Finset.sum_powerset]
         exact Finset.sum_congr rfl fun i hi => by
           rw [Finset.sum_congr rfl fun x hx => by
             rw [Finset.mem_powersetCard.mp hx |>.2]]
@@ -339,14 +354,14 @@ lemma probabilistic_exists {α : Type} [DecidableEq α] (E : Finset α)
               ∑ x ∈ Finset.range (Finset.card E),
                 Nat.choose (Finset.card E - 1) x * p ^ x *
                   (1 - p) ^ (Finset.card E - 1 - x) := by
-        norm_num [ Finset.sum_range_succ' ];
+        norm_num [Finset.sum_range_succ']
         rw [Finset.mul_sum _ _ _]
-        refine' Finset.sum_congr rfl fun x hx => _
+        refine Finset.sum_congr rfl fun x hx => ?_
         rcases n : Finset.card E with (_ | n) <;> simp_all +decide [add_comm]
         ring_nf
         rw [Nat.add_comm 1, Nat.add_comm 1]
         rw [Nat.cast_choose, Nat.cast_choose] <;> try linarith
-        field_simp;
+        field_simp
         rw [Nat.factorial_succ, Nat.factorial_succ]
         push_cast [Nat.succ_sub (by linarith : x ≤ _)]
         ring
@@ -394,31 +409,33 @@ lemma probabilistic_exists {α : Type} [DecidableEq α] (E : Finset α)
                 ∑ x ∈ Finset.powerset (E \ c),
                   p ^ (Finset.card (c ∪ x)) *
                     (1 - p) ^ (Finset.card E - Finset.card (c ∪ x)) := by
-            rw [ ← Finset.sum_filter ];
-            refine' Finset.sum_bij (fun x hx => x \ c) _ _ _ _ <;>
+            rw [← Finset.sum_filter]
+            refine Finset.sum_bij (fun x hx => x \ c) ?_ ?_ ?_ ?_ <;>
               simp_all +decide [Finset.subset_iff]
             · intro a₁ ha₁ ha₂ a₂ ha₃ ha₄ h
               ext x
               by_cases hx : x ∈ c <;> simp_all +decide [Finset.ext_iff]
-            · exact fun b hb => ⟨ b ∪ c, ⟨ fun x hx => by aesop, fun x hx => by aesop ⟩, by aesop ⟩;
-            · intro a ha₁ ha₂; rw [ Finset.union_eq_right.mpr ha₂ ] ;
-          rw [ h_indicator, Finset.mul_sum _ _ _ ];
-          refine' Finset.sum_congr rfl fun x hx => _;
+            · exact fun b hb => ⟨ b ∪ c, ⟨ fun x hx => by aesop, fun x hx => by aesop ⟩, by aesop ⟩
+            · intro a ha₁ ha₂
+              rw [Finset.union_eq_right.mpr ha₂]
+          rw [h_indicator, Finset.mul_sum _ _ _]
+          refine Finset.sum_congr rfl fun x hx => ?_
           rw [Finset.card_union_of_disjoint
             (Finset.disjoint_left.mpr fun y hy₁ hy₂ => by
               have := Finset.mem_sdiff.mp (Finset.mem_powerset.mp hx hy₂)
               aesop)]
           ring_nf
-          rw [ Nat.sub_sub ];
+          rw [Nat.sub_sub]
         -- Use the binomial expansion over `E \ c`.
         have h_binom :
             (∑ x ∈ Finset.powerset (E \ c),
               p ^ (Finset.card x) *
                 (1 - p) ^ (Finset.card (E \ c) - Finset.card x)) =
               (p + (1 - p)) ^ (Finset.card (E \ c)) := by
-          exact sum_pow_mul_eq_add_pow p (1 - p) (E \ c);
-        simp_all +decide [ Finset.card_sdiff ];
-        rw [ show c ∩ E = c by rw [ Finset.inter_eq_left.mpr ( hc c hc' ) ] ] at h_binom ; aesop;
+          exact sum_pow_mul_eq_add_pow p (1 - p) (E \ c)
+        simp_all +decide [Finset.card_sdiff]
+        rw [show c ∩ E = c by rw [Finset.inter_eq_left.mpr (hc c hc')]] at h_binom
+        aesop
       -- By Fubini's theorem, we can interchange the order of summation.
       have h_fubini :
           (∑ x ∈ Finset.powerset E,
@@ -427,9 +444,9 @@ lemma probabilistic_exists {α : Type} [DecidableEq α] (E : Finset α)
             ∑ c ∈ C, ∑ x ∈ Finset.powerset E,
               (if c ⊆ x then 1 else 0) *
                 (p ^ (Finset.card x) * (1 - p) ^ (Finset.card E - Finset.card x)) := by
-        rw [ Finset.sum_comm, Finset.sum_congr rfl fun _ _ => Finset.sum_mul _ _ _ ];
-      simp_all +decide [ Finset.sum_ite ];
-    by_contra! h_contra;
+        rw [Finset.sum_comm, Finset.sum_congr rfl fun _ _ => Finset.sum_mul _ _ _]
+      simp_all +decide [Finset.sum_ite]
+    by_contra! h_contra
     have h_exp_diff :
         (Finset.sum (Finset.powerset E) fun S =>
           ((Finset.card S : ℝ) -
@@ -444,7 +461,7 @@ lemma probabilistic_exists {α : Type} [DecidableEq α] (E : Finset α)
             (Finset.sum (Finset.powerset E) fun S =>
               (p * (Finset.card E : ℝ) - p ^ k * (Finset.card C : ℝ)) *
                 (p ^ (Finset.card S) * (1 - p) ^ (Finset.card E - Finset.card S))) := by
-        apply Finset.sum_lt_sum;
+        apply Finset.sum_lt_sum
         · exact fun x hx =>
             mul_le_mul_of_nonneg_right
               (le_of_lt (h_contra x (Finset.mem_powerset.mp hx)))
@@ -452,9 +469,10 @@ lemma probabilistic_exists {α : Type} [DecidableEq α] (E : Finset α)
         · by_cases h : p = 0 <;>
             by_cases h' : 1 - p = 0 <;>
             simp_all +decide [mul_assoc, mul_comm, mul_left_comm]
-          · exact ⟨ ∅, Finset.empty_subset _, by simpa using h_contra ∅ ( Finset.empty_subset _ ) ⟩;
-          · norm_num [ show p = 1 by linarith ] at *;
-            specialize h_contra E ; aesop;
+          · exact ⟨∅, Finset.empty_subset _, by simpa using h_contra ∅ (Finset.empty_subset _)⟩
+          · norm_num [show p = 1 by linarith] at *
+            specialize h_contra E
+            aesop
           · exact
               ⟨∅, Finset.empty_subset _, by
                 have hmul :=
@@ -476,27 +494,31 @@ lemma probabilistic_exists {α : Type} [DecidableEq α] (E : Finset α)
             (Finset.sum (Finset.powerset E) fun S =>
               p ^ (Finset.card S) * (1 - p) ^ (Finset.card E - Finset.card S)) =
               (p + (1 - p)) ^ (Finset.card E) := by
-          rw [ add_pow ];
-          rw [ Finset.sum_powerset ];
+          rw [add_pow]
+          rw [Finset.sum_powerset]
           exact Finset.sum_congr rfl fun i hi => by
             rw [Finset.sum_congr rfl fun x hx => by
               rw [Finset.mem_powersetCard.mp hx |>.2]]
             simp +decide [mul_comm, mul_left_comm]
-        aesop;
-      simp_all +decide [ ← Finset.mul_sum _ _ _ ];
-      linarith;
-    simp_all +decide [ sub_mul ]
+        aesop
+      simp_all +decide [← Finset.mul_sum _ _ _]
+      linarith
+    simp_all +decide [sub_mul]
 
 /-
 Every graph with m edges contains a C4-free subgraph with at least (1/2) * m^(2/3) edges.
 -/
+set_option maxHeartbeats 1000000 in
+-- Generated final extraction proof times out at the default heartbeat limit.
+set_option linter.flexible false in
 theorem exists_C4_free_subgraph_with_many_edges {V : Type} [Fintype V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj] :
   ∃ (S' : Finset (Sym2 V)), S' ⊆ G.edgeFinset ∧
   (∀ s, s ⊆ S' → ¬is_C4 s) ∧
   (S'.card : ℝ) ≥ ((1 : ℝ) / 2) * (G.edgeFinset.card : ℝ) ^ ((2 : ℝ) / 3) :=
   by
-    by_contra h_contra;
+    classical
+    by_contra h_contra
     -- Applying the probabilistic method to find such a subset $S'$.
     obtain ⟨S, hS⟩ :
         ∃ S ⊆ G.edgeFinset,
@@ -511,30 +533,32 @@ theorem exists_C4_free_subgraph_with_many_edges {V : Type} [Fintype V] [Decidabl
                 (G.edgeFinset.card : ℝ) -
               (1 / (G.edgeFinset.card : ℝ) ^ (4 / 3 : ℝ)) * (C4s G).card := by
         have h_card_C4s : ∀ c ∈ C4s G, c.card = 4 := by
-          unfold C4s; aesop;
+          unfold C4s
+          aesop
         have h_subset_C4s : ∀ c ∈ C4s G, c ⊆ G.edgeFinset := by
-          unfold C4s; aesop;
+          unfold C4s
+          aesop
         convert
           probabilistic_exists G.edgeFinset (C4s G) 4
             (1 / (G.edgeFinset.card : ℝ) ^ (1 / 3 : ℝ))
             h_card_C4s h_subset_C4s _ _
           using 1 <;> norm_num
-        · norm_num only [ ← Real.rpow_natCast, ← Real.rpow_mul ( Nat.cast_nonneg _ ) ];
-        · positivity;
+        · norm_num only [← Real.rpow_natCast, ← Real.rpow_mul (Nat.cast_nonneg _)]
+        · positivity
         · by_cases hm : G.edgeFinset.card = 0
           · simp [hm]
           · have hmpos : 0 < G.edgeFinset.card := Nat.pos_of_ne_zero hm
             have hmone : (1 : ℝ) ≤ (G.edgeFinset.card : ℝ) := by exact_mod_cast hmpos
             simpa [one_div] using inv_le_one_of_one_le₀ (Real.one_le_rpow hmone (by norm_num))
-      exact h_probabilistic;
+      exact h_probabilistic
     -- Let $C_S = \{c \in C4s(G) : c \subseteq S\}$.
-    set C_S := (C4s G |>.filter (fun c => c ⊆ S)) with hC_S;
+    set C_S := (C4s G |>.filter (fun c => c ⊆ S)) with hC_S
     -- Remove one edge from each $c \in C_S$.
     obtain ⟨R, hR⟩ :
         ∃ R : Finset (Sym2 V),
           R ⊆ S ∧ R.card ≤ C_S.card ∧ ∀ c ∈ C_S, ∃ e ∈ R, e ∈ c := by
       have hR : ∀ c ∈ C_S, ∃ e ∈ S, e ∈ c := by
-        simp +zetaDelta at *;
+        simp +zetaDelta at *
         intro c hc hcs
         have := Finset.card_pos.mp (show 0 < Finset.card c from by
           rw [show c.card = 4 from by
@@ -542,8 +566,8 @@ theorem exists_C4_free_subgraph_with_many_edges {V : Type} [Fintype V] [Decidabl
           norm_num)
         obtain ⟨e, he⟩ := this
         exact ⟨e, hcs he, he⟩
-      choose! f hf₁ hf₂ using hR;
-      use Finset.image (fun c => f c.1 c.2) (Finset.attach C_S);
+      choose! f hf₁ hf₂ using hR
+      use Finset.image (fun c => f c.1 c.2) (Finset.attach C_S)
       exact
         ⟨Finset.image_subset_iff.mpr fun x hx => hf₁ _ _,
           Finset.card_image_le.trans (by simp), fun c hc =>
@@ -552,7 +576,9 @@ theorem exists_C4_free_subgraph_with_many_edges {V : Type} [Fintype V] [Decidabl
               hf₂ _ _⟩⟩
     -- Then $S' = S \setminus R$ is a C4-free subgraph of $G$.
     have hS'_free : ∀ s ⊆ S \ R, ¬is_C4 s := by
-      intro s hs hcs; have := hR.2.2 s; simp_all +decide [ Finset.subset_iff ] ;
+      intro s hs hcs
+      have := hR.2.2 s
+      simp_all +decide [Finset.subset_iff]
       obtain ⟨ e, he₁, he₂ ⟩ := hR.2.2 s ( by
         exact Finset.mem_filter.mpr
           ⟨Finset.mem_powersetCard.mpr
@@ -568,14 +594,16 @@ theorem exists_C4_free_subgraph_with_many_edges {V : Type} [Fintype V] [Decidabl
             (G.edgeFinset.card : ℝ) -
           (1 / (G.edgeFinset.card : ℝ) ^ (4 / 3 : ℝ)) * (C4s G).card := by
       have hS'_size : (S \ R).card ≥ S.card - C_S.card := by
-        grind;
-      refine le_trans hS.2 ?_;
-      norm_cast;
-      rw [ Int.subNatNat_eq_coe ] ; omega;
+        grind
+      refine le_trans hS.2 ?_
+      norm_cast
+      rw [Int.subNatNat_eq_coe]
+      omega
     -- Using `card_C4s_le_m_sq_div_2`, $|C4s(G)| \le m^2/2$.
     have hC4s_le : (C4s G).card ≤ (G.edgeFinset.card : ℝ) ^ 2 / 2 := by
-      have := card_C4s_le_m_sq_div_2 G;
-      rw [ le_div_iff₀ ] <;> norm_cast ; nlinarith [ Nat.div_mul_le_self ( #G.edgeFinset ^ 2 ) 2 ];
+      have := card_C4s_le_m_sq_div_2 G
+      rw [le_div_iff₀] <;> norm_cast
+      nlinarith [Nat.div_mul_le_self (#G.edgeFinset ^ 2) 2]
     -- Substitute $|C4s(G)| \le m^2/2$ into the inequality for $|S'|$.
     have hS'_size_subst :
         (S \ R).card ≥
