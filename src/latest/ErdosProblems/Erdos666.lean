@@ -27,16 +27,7 @@ import Mathlib
 
 namespace Erdos666
 
-set_option linter.style.openClassical false
-set_option linter.style.setOption false
-
-open scoped Classical
 open SimpleGraph
-
-set_option linter.style.induction false
-set_option linter.style.multiGoal false
-set_option linter.style.refine false
-set_option linter.flexible false
 
 /-
 Definition of the hypercube graph Q_n and the property of containing a cycle of length k.
@@ -102,6 +93,8 @@ noncomputable def walkIndices {n : ℕ} {u v : Fin n → ZMod 2}
 Lemma: The coordinate v_i is equal to u_i plus the number of times direction i
 appears in the walk, modulo 2.
 -/
+set_option linter.flexible false in
+set_option linter.style.induction false in
 theorem walk_coordinate_change {n : ℕ} {u v : Fin n → ZMod 2}
     (p : (hypercubeGraph n).Walk u v) (i : Fin n) :
   v i = u i + ((walkIndices p).count i : ZMod 2) := by
@@ -182,6 +175,9 @@ theorem cycle_directions_count_ge_two {n : ℕ} {u : Fin n → ZMod 2}
 Lemma: For any walk, all vertices in the walk agree with the starting vertex on
 coordinates that are not in the set of used directions.
 -/
+set_option linter.flexible false in
+set_option linter.style.induction false in
+set_option linter.style.refine false in
 theorem walk_support_in_subcube {n : ℕ} {u v : Fin n → ZMod 2}
     (p : (hypercubeGraph n).Walk u v) :
   ∀ w ∈ p.support, ∀ i ∉ directionsUsed p, w i = u i := by
@@ -246,6 +242,8 @@ theorem cycle_directions_card_le_three {n : ℕ} {u : Fin n → ZMod 2}
 Lemma: The number of distinct vertices in a walk is at most 2 raised to the
 power of the number of distinct directions used.
 -/
+set_option linter.flexible false in
+set_option linter.style.refine false in
 theorem support_card_le_two_pow_directions_card {n : ℕ}
     {u v : Fin n → ZMod 2} (p : (hypercubeGraph n).Walk u v) :
   p.support.toFinset.card ≤ 2 ^ (directionsUsed p).card := by
@@ -293,6 +291,7 @@ theorem support_card_le_two_pow_directions_card {n : ℕ}
 Lemma: For a simple cycle of length at least 3, the number of distinct vertices
 is equal to the length of the cycle.
 -/
+set_option linter.flexible false in
 theorem cycle_support_card_eq_length {V : Type*} [DecidableEq V]
     {G : SimpleGraph V} {u : V} (p : G.Walk u u) (hp : p.IsCycle)
     (hn : p.length ≥ 3) :
@@ -357,6 +356,8 @@ theorem edgeDirection_comm {n : ℕ} (x y : Fin n → ZMod 2)
 /-
 Definition of the partition subgraphs G_ab.
 -/
+set_option linter.flexible false in
+open Classical in
 def partitionGraph (n : ℕ) (ab : Fin 2 × Fin 2) : SimpleGraph (Fin n → ZMod 2) where
   Adj x y := ∃ h : (hypercubeGraph n).Adj x y, L x y h = ab.1 ∧ R x y h = ab.2
   symm x y := by
@@ -415,6 +416,8 @@ Lemma: In a Q3 determined by p < q < r, the sum of L values for two edges
 in direction q equals the sum of their p-coordinates, and similarly for R and
 r-coordinates.
 -/
+set_option linter.flexible false in
+set_option linter.style.refine false in
 set_option maxHeartbeats 50000000 in
 -- Needed for the generated coordinate-splitting proof over the Q3 slice.
 theorem L_R_differences_in_Q3 {n : ℕ} {p q r : Fin n} (hpq : p < q) (hqr : q < r)
@@ -526,6 +529,8 @@ theorem L_R_differences_in_Q3 {n : ℕ} {p q r : Fin n} (hpq : p < q) (hqr : q <
 Lemma: In a Q3 determined by p < q < r, edges in direction q with the same
 (L, R) labels are identical.
 -/
+set_option linter.flexible false in
+set_option linter.style.refine false in
 theorem distinct_labels_in_Q3_slice {n : ℕ} {p q r : Fin n} (hpq : p < q) (hqr : q < r)
   (u : Fin n → ZMod 2)
   (x₁ y₁ x₂ y₂ : Fin n → ZMod 2)
@@ -695,6 +700,7 @@ theorem partitionGraph_le_hypercube (n : ℕ) (ab : Fin 2 × Fin 2) :
 /-
 A set has cardinality 3 iff it can be written as {x, y, z} with x < y < z.
 -/
+set_option linter.flexible false in
 theorem card_eq_three_iff_exists_sorted {α : Type*} [LinearOrder α]
     [DecidableEq α] {S : Finset α} :
   S.card = 3 ↔ ∃ x y z, x < y ∧ y < z ∧ S = {x, y, z} := by
@@ -711,6 +717,7 @@ theorem card_eq_three_iff_exists_sorted {α : Type*} [LinearOrder α]
 If two edges in the partition graph lie in the same Q3 slice (direction q),
 they must have the same lower endpoint.
 -/
+set_option linter.style.multiGoal false in
 lemma partition_q_edges_eq_lowerEndpoint {n : ℕ} {ab : Fin 2 × Fin 2}
   {p q r : Fin n} (hpq : p < q) (hqr : q < r)
   (u : Fin n → ZMod 2)
@@ -732,6 +739,9 @@ lemma partition_q_edges_eq_lowerEndpoint {n : ℕ} {ab : Fin 2 × Fin 2}
 If a list has exactly two occurrences of x, there are two distinct indices
 pointing to x.
 -/
+set_option linter.flexible false in
+set_option linter.style.induction false in
+set_option linter.style.refine false in
 theorem list_count_two_implies_exists_indices {α : Type*} [DecidableEq α]
     (l : List α) (x : α) (h : l.count x = 2) :
   ∃ i j : Fin l.length, i < j ∧ l.get i = x ∧ l.get j = x := by
@@ -748,6 +758,7 @@ theorem list_count_two_implies_exists_indices {α : Type*} [DecidableEq α]
 /-
 The length of the list of walk indices is equal to the length of the walk.
 -/
+set_option linter.style.induction false in
 theorem walkIndices_length {n : ℕ} {u v : Fin n → ZMod 2} (p : (hypercubeGraph n).Walk u v) :
   (walkIndices p).length = p.length := by
     -- We can prove this by induction on the walk.
@@ -758,6 +769,8 @@ theorem walkIndices_length {n : ℕ} {u v : Fin n → ZMod 2} (p : (hypercubeGra
 /-
 The i-th element of walkIndices is the direction of the i-th edge in the walk.
 -/
+set_option linter.flexible false in
+set_option linter.style.induction false in
 theorem walkIndices_get {n : ℕ} {u v : Fin n → ZMod 2}
     (p : (hypercubeGraph n).Walk u v) (i : ℕ) (hi : i < p.length) :
   (walkIndices p).get ⟨i, by rw [walkIndices_length]; exact hi⟩ =
@@ -775,6 +788,7 @@ theorem walkIndices_get {n : ℕ} {u v : Fin n → ZMod 2}
 If two edges have the same direction and lower endpoint, they are the same
 edge (as a set of vertices).
 -/
+set_option linter.flexible false in
 lemma same_edge_of_lowerEndpoint_eq {n : ℕ} {u v x y : Fin n → ZMod 2}
   (huv : hammingDist u v = 1) (hxy : hammingDist x y = 1) :
   edgeDirection u v huv = edgeDirection x y hxy →
@@ -813,6 +827,9 @@ lemma same_edge_of_lowerEndpoint_eq {n : ℕ} {u v x y : Fin n → ZMod 2}
 /-
 A 6-cycle contained in a Q3 cannot have all its edges in the same partition class G_ab.
 -/
+set_option linter.flexible false in
+set_option linter.style.refine false in
+set_option linter.style.multiGoal false in
 lemma C6_in_Q3_impossible {n : ℕ} {ab : Fin 2 × Fin 2} {u : Fin n → ZMod 2}
   (C : (hypercubeGraph n).Walk u u) (hC : C.IsCycle) (hlen : C.length = 6)
   (S : Finset (Fin n)) (hS : S.card = 3)
@@ -1037,6 +1054,7 @@ theorem partitionGraph_C6_free (n : ℕ) (ab : Fin 2 × Fin 2) :
 /-
 The number of edges in the hypercube graph Q_n is n * 2^(n-1).
 -/
+set_option linter.flexible false in
 theorem hypercube_card_edges (n : ℕ) :
   (hypercubeGraph n).edgeFinset.card = n * 2 ^ (n - 1) := by
     have h_degrees : ∀ v : Fin n → ZMod 2, (hypercubeGraph n).degree v = n := by
@@ -1076,6 +1094,8 @@ theorem hypercube_card_edges (n : ℕ) :
 /-
 It is not true that for every epsilon > 0, sufficiently large subgraphs of Q_n contain a C6.
 -/
+set_option linter.flexible false in
+open Classical in
 theorem not_erdos_666 :
   ¬ (∀ ε > 0,
       ∃ N,
