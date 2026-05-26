@@ -30,15 +30,15 @@ import Mathlib
 
 namespace Erdos401
 
--- This generated proof still has extensive style debt; use specific suppressions
--- rather than the broad `linter.mathlibStandardSet` switch.
+-- This generated proof still has proof-style warnings that are risky to
+-- rewrite locally; keep specific suppressions rather than the broad
+-- `linter.mathlibStandardSet` switch.
 set_option linter.style.setOption false
 set_option linter.style.openClassical false
 set_option linter.style.longLine false
 set_option linter.style.refine false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
-set_option linter.style.whitespace false
 set_option linter.flexible false
 
 open scoped Classical
@@ -245,9 +245,9 @@ t_p = ceil(gamma/4 * log_p M).
 noncomputable def t (p M : ℕ) : ℕ := Nat.ceil (γ / 4 * (Real.log M / Real.log p))
 
 /-
-If p^j divides m+i and i is small, then kappa_p(m) >= j.
+If p ^ j divides m+i and i is small, then kappa_p(m) >= j.
 -/
-lemma kappa_ge_j (p m i j : ℕ) (hp : p.Prime) (hi_pos : 0 < i) (h_div : p^j ∣ m + i) (h_small : 2 * i < p) :
+lemma kappa_ge_j (p m i j : ℕ) (hp : p.Prime) (hi_pos : 0 < i) (h_div : p ^ j ∣ m + i) (h_small : 2 * i < p) :
     j ≤ κ p m := by
   -- By definition of κ, we know that κ_p(m) is the number of t such that p^t ≤ m % p^t + m % p^t = 2 * (m % p^t).
   have h_kappa_def : κ p m = ((Finset.Ico 1 (Nat.log p (2 * m) + 1)).filter (fun t => p ^ t ≤ 2 * (m % p ^ t))).card := by
@@ -1138,7 +1138,7 @@ lemma p_pow_t_ge (p M : ℕ) (hp : p ≥ 2) (hM : M ≥ 1) :
 
 /-
 Lemma 3 (Forced carries from a large p-power divisor).
-If p^j divides m+i and i <= (p-1)/2, then kappa_p(m) >= j.
+If p ^ j divides m+i and i <= (p-1)/2, then kappa_p(m) >= j.
 -/
 lemma forced_carries_largep (p m i j : ℕ) [Fact p.Prime] (hi_pos : 1 ≤ i) (hi_le : i ≤ (p - 1) / 2) (h_div : p ^ j ∣ m + i) :
     j ≤ κ p m := by
