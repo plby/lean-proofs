@@ -42,13 +42,6 @@ below you can find the union of Boris' and Aristotle's fruits of labor.
 
 import Mathlib
 
-set_option linter.style.setOption false
-set_option linter.flexible false
-set_option linter.style.induction false
-set_option linter.style.multiGoal false
-set_option linter.style.openClassical false
-set_option linter.style.refine false
-
 namespace Erdos459
 
 /-
@@ -60,10 +53,10 @@ def f (u : ℕ) : ℕ :=
     -- Let $p$ be a prime factor of $u$. Then $u \cdot p$ is divisible by all
     -- prime factors of $u$.
     obtain ⟨p, hp⟩ : ∃ p, Nat.Prime p ∧ p ∣ u := by
-      exact Nat.exists_prime_and_dvd ( by linarith );
+      exact Nat.exists_prime_and_dvd ( by linarith )
     -- Let $v = u \cdot p$. Then $v$ is divisible by all prime factors of $u$
     -- and $v > u$.
-    use u * p;
+    use u * p
     exact ⟨
       lt_mul_of_one_lt_right ( by linarith ) hp.1.one_lt,
       fun x hx => by
@@ -72,6 +65,7 @@ def f (u : ℕ) : ℕ :=
 /-
 For u ≥ 2, u + 2 ≤ f(u) ≤ u^2.
 -/
+set_option linter.flexible false in
 theorem f_bounds {u : ℕ} (hu : 2 ≤ u) : u + 2 ≤ f u ∧ f u ≤ u ^ 2 := by
   -- Let's first prove that $u + 2 \leq f(u)$.
   have h_lower_bound : u + 2 ≤ f u := by
@@ -81,75 +75,82 @@ theorem f_bounds {u : ℕ} (hu : 2 ≤ u) : u + 2 ≤ f u ∧ f u ≤ u ^ 2 := b
       intro v hv₁ hv₂
       rcases Nat.even_or_odd' v with ⟨ k, rfl | rfl ⟩ <;>
         rcases Nat.even_or_odd' u with ⟨ l, rfl | rfl ⟩ <;>
-        simp_all +arith +decide
-      · linarith [ show k > l by linarith ];
-      · contrapose! hv₂;
-        norm_num [ show k = l + 1 by linarith ];
-        norm_num [ Finset.subset_iff, Nat.primeFactors_mul ];
-      · by_contra h_contra₁ ; simp_all +arith +decide [ Finset.subset_iff ];
-        norm_num [ show k = l by linarith ] at *;
+        simp_all +arith +decide only [Nat.reduceLeDiff, Order.add_one_le_iff,
+          Order.lt_two_iff, mul_lt_mul_iff_right₀]
+      · linarith [ show k > l by linarith ]
+      · contrapose! hv₂
+        norm_num [ show k = l + 1 by linarith ]
+        norm_num [ Finset.subset_iff, Nat.primeFactors_mul ]
+      · by_contra h_contra₁
+        simp_all +arith +decide [ Finset.subset_iff ]
+        norm_num [ show k = l by linarith ] at *
         exact absurd
           (hv₂ ( Nat.minFac_prime ( by linarith ) ) ( Nat.minFac_dvd _ ))
           (by
             intro t
             have := Nat.dvd_gcd t.1 ( Nat.minFac_dvd _ )
             aesop)
-      · grind;
+      · grind
+    have h_exists : ∃ v, u < v ∧ v.primeFactors ⊆ u.primeFactors := by
+      -- Let $p$ be a prime factor of $u$. Then $u \cdot p$ is divisible by all
+      -- prime factors of $u$ and $u \cdot p > u$.
+      obtain ⟨p, hp⟩ : ∃ p, Nat.Prime p ∧ p ∣ u := by
+        exact Nat.exists_prime_and_dvd ( by linarith )
+      use u * p
+      exact ⟨
+        lt_mul_of_one_lt_right ( by linarith ) hp.1.one_lt,
+        by
+          rw [ Nat.primeFactors_mul ( by linarith ) ( by linarith [ hp.1.pos ] ) ]
+          aesop_cat⟩
     convert hf_def _
-      ( Nat.find_spec ( _ : ∃ v, u < v ∧ v.primeFactors ⊆ u.primeFactors ) |>.1 )
-      ( Nat.find_spec ( _ : ∃ v, u < v ∧ v.primeFactors ⊆ u.primeFactors ) |>.2 )
-      using 1;
+      ( Nat.find_spec h_exists |>.1 )
+      ( Nat.find_spec h_exists |>.2 )
+      using 1
     unfold f
     split
     next h => exact (False.elim ((Nat.not_lt_of_ge hu) h))
     next h => rfl
-    -- Let $p$ be a prime factor of $u$. Then $u \cdot p$ is divisible by all
-    -- prime factors of $u$ and $u \cdot p > u$.
-    obtain ⟨p, hp⟩ : ∃ p, Nat.Prime p ∧ p ∣ u := by
-      exact Nat.exists_prime_and_dvd ( by linarith );
-    use u * p;
-    exact ⟨
-      lt_mul_of_one_lt_right ( by linarith ) hp.1.one_lt,
-      by
-        rw [ Nat.primeFactors_mul ( by linarith ) ( by linarith [ hp.1.pos ] ) ]
-        aesop_cat⟩
-  refine ⟨ h_lower_bound, ?_ ⟩;
+  refine ⟨ h_lower_bound, ?_ ⟩
   -- By definition of $f$, we know that $f(u)$ is the smallest integer greater
   -- than $u$ such that all prime factors of $f(u)$ are factors of $u$.
   have h_def : ∀ v > u, v.primeFactors ⊆ u.primeFactors → f u ≤ v := by
-    unfold f; aesop;
-  exact h_def _ ( by nlinarith ) ( by rw [ Nat.primeFactors_pow ] ; aesop )
+    unfold f
+    aesop
+  exact h_def _ ( by nlinarith ) ( by rw [ Nat.primeFactors_pow ]; aesop )
 
 /-
 When p is prime, f(p) = p^2.
 -/
+set_option linter.flexible false in
 theorem f_prime {p : ℕ} (hp : p.Prime) : f p = p ^ 2 := by
-  refine' le_antisymm ( f_bounds hp.two_le |>.2 ) _;
+  apply le_antisymm
+  · exact f_bounds hp.two_le |>.2
   -- By definition of $f$, we know that $p^2$ is the smallest integer greater
   -- than $p$ whose prime factors are all factors of $p$.
-  have h_fp_def : ∀ v, p < v ∧ v.primeFactors ⊆ {p} → p^2 ≤ v := by
+  · have h_fp_def : ∀ v, p < v ∧ v.primeFactors ⊆ {p} → p^2 ≤ v := by
     -- If $v$'s prime factors are all $p$, then $v$ must be $p^k$ for some $k$.
-    intro v hv
-    obtain ⟨k, hk⟩ : ∃ k, v = p^k := by
-      rw [ ← Nat.prod_factorization_pow_eq_self ( by linarith : v ≠ 0 ) ]
-      rw [ Finsupp.prod ]
-      aesop
-    exact hk.symm ▸ Nat.pow_le_pow_right hp.pos
-      (show k ≥ 2 by
-        contrapose! hv
-        interval_cases k <;> aesop)
-  unfold f at *;
-  split_ifs at * <;> simp_all +decide
-  · interval_cases p <;> trivial;
-  · grind
+      intro v hv
+      obtain ⟨k, hk⟩ : ∃ k, v = p^k := by
+        rw [ ← Nat.prod_factorization_pow_eq_self ( by linarith : v ≠ 0 ) ]
+        rw [ Finsupp.prod ]
+        aesop
+      exact hk.symm ▸ Nat.pow_le_pow_right hp.pos
+        (show k ≥ 2 by
+          contrapose! hv
+          interval_cases k <;> aesop)
+    unfold f at *
+    split_ifs at * <;> simp_all +decide
+    · interval_cases p <;> trivial
+    · grind
 
 /-
 If u is a non-zero even number, the prime factors of any power of 2 are a
 subset of the prime factors of u.
 -/
+set_option linter.flexible false in
 theorem primeFactors_pow_two_subset_even {u k : ℕ} (hu : Even u) (hu0 : u ≠ 0) :
     (2 ^ k).primeFactors ⊆ u.primeFactors := by
-  rcases k with ( _ | k ) <;> simp_all +decide [ Nat.primeFactors_pow ];
+  rcases k with ( _ | k ) <;> simp_all +decide [ Nat.primeFactors_pow ]
   exact even_iff_two_dvd.mp hu
 
 /-
@@ -157,10 +158,10 @@ For n ≥ 1, n ≤ 2^(size(n-1)).
 -/
 theorem le_pow_size_sub_one {n : ℕ} (hn : 1 ≤ n) : n ≤ 2 ^ (n - 1).size := by
   -- Let $m = n - 1$. Then $n = m + 1$.
-  set m : ℕ := n - 1;
+  set m : ℕ := n - 1
   -- By definition of size, we know that $m < 2^{\text{size}(m)}$.
   have h_size : m < 2 ^ (Nat.size m) := by
-    exact Nat.lt_size_self m;
+    exact Nat.lt_size_self m
   grind
 
 /-
@@ -183,7 +184,8 @@ theorem f_even_le_next_pow_two {u : ℕ} (hu_even : Even u) (hu_pos : 0 < u) :
   -- are in $u$'s prime factors, it must be that
   -- $f(u) \leq 2^{Nat.log 2 u + 1}$.
   have h_f_le : ∀ v, u < v → v.primeFactors ⊆ u.primeFactors → f u ≤ v := by
-    unfold f; aesop;
+    unfold f
+    aesop
   exact h_f_le _ ( Nat.lt_pow_succ_log_self ( by decide ) _ )
     (by
       rw [ Nat.primeFactors_pow ] <;> norm_num
@@ -192,9 +194,10 @@ theorem f_even_le_next_pow_two {u : ℕ} (hu_even : Even u) (hu_pos : 0 < u) :
 /-
 For k ≥ 2, f(2^k - 2) = (2^k - 2) + 2.
 -/
+set_option linter.flexible false in
 theorem f_eq_u_plus_two_of_u_eq_pow_two_sub_two {k : ℕ} (hk : 2 ≤ k) :
     f (2 ^ k - 2) = (2 ^ k - 2) + 2 := by
-  refine' le_antisymm _ _;
+  apply le_antisymm
   · -- For $k \geq 2$, $2^k - 2$ is even, so we can apply the theorem
     -- $f_even_le_next_pow_two$.
     have h_even : Even (2 ^ k - 2) := by
@@ -202,17 +205,17 @@ theorem f_eq_u_plus_two_of_u_eq_pow_two_sub_two {k : ℕ} (hk : 2 ≤ k) :
         ( Nat.dvd_sub ( dvd_pow_self _ ( by linarith ) ) ( by norm_num ) )
     convert f_even_le_next_pow_two h_even
       ( Nat.sub_pos_of_lt <| by linarith [ Nat.pow_le_pow_right two_pos hk ] )
-      using 1;
+      using 1
     rw [ Nat.sub_add_cancel
       ( show 2 ≤ 2 ^ k from
-        le_trans ( by decide ) ( pow_le_pow_right₀ ( by decide ) hk ) ) ];
+        le_trans ( by decide ) ( pow_le_pow_right₀ ( by decide ) hk ) ) ]
     -- Since $2^k - 2$ is less than $2^k$, we have $\log_2(2^k - 2) = k - 1$.
     have h_log : Nat.log 2 (2 ^ k - 2) = k - 1 := by
-      rw [ Nat.log_eq_iff ] <;> norm_num;
-      · rcases k with ( _ | _ | k ) <;> simp_all +decide [ pow_succ' ];
-        exact le_tsub_of_add_le_left ( by linarith [ Nat.one_le_pow k 2 zero_lt_two ] );
-      · exact Or.inl ( Nat.sub_ne_zero_of_lt hk );
-    cases k <;> aesop;
+      rw [ Nat.log_eq_iff ] <;> norm_num
+      · rcases k with ( _ | _ | k ) <;> simp_all +decide [ pow_succ' ]
+        exact le_tsub_of_add_le_left ( by linarith [ Nat.one_le_pow k 2 zero_lt_two ] )
+      · exact Or.inl ( Nat.sub_ne_zero_of_lt hk )
+    cases k <;> aesop
   · have := f_bounds
       ( show 2 ≤ 2 ^ k - 2 from
         Nat.le_sub_of_add_le ( by linarith [ Nat.pow_le_pow_right two_pos hk ] ) )
@@ -230,8 +233,11 @@ theorem infinite_setOf_f_eq_self_add_two : Set.Infinite {u | f u = u + 2} := by
     ⟨ _,
       h_f_eq_add_two ( n + 2 ) ( by linarith ),
       lt_tsub_iff_right.mpr (by
-        induction' n with n ih <;> norm_num [ Nat.pow_succ' ] at *
-        linarith [ Nat.one_le_pow n 2 zero_lt_two ])⟩
+        induction n with
+        | zero => norm_num
+        | succ n ih =>
+            norm_num [ Nat.pow_succ' ] at *
+            linarith [ Nat.one_le_pow n 2 zero_lt_two ])⟩
 
 /-
 There are infinitely many u such that f(u) = u^2.
@@ -247,6 +253,8 @@ A set $A \subseteq \mathbb{N}$ has natural density $d$ if
 $\lim_{n \to \infty} \frac{|A \cap \{0, \dots, n-1\}|}{n} = d$. The natural
 density is defined as this limit if it exists, and 0 otherwise.
 -/
+set_option linter.style.openClassical false
+
 open Classical
 
 def has_natural_density (A : Set ℕ) (d : ℝ) : Prop :=
@@ -257,6 +265,7 @@ def has_natural_density (A : Set ℕ) (d : ℝ) : Prop :=
 /-
 The natural density of the set of integers coprime to $k$ is $\phi(k)/k$.
 -/
+set_option linter.flexible false in
 lemma density_coprime (k : ℕ) (hk : k > 0) :
   has_natural_density {n | k.Coprime n} ((Nat.totient k : ℝ) / k) := by
     have h_density :
@@ -272,9 +281,10 @@ lemma density_coprime (k : ℕ) (hk : k > 0) :
             ∑ i ∈ Finset.range (m * k), (if k.Coprime i then 1 else 0) =
               m * Nat.totient k := by
         intro m
-        induction' m with m ih;
-        · norm_num;
-        · rw [ Nat.succ_mul, Finset.sum_range_add, ih ];
+        induction m with
+        | zero => norm_num
+        | succ m ih =>
+          rw [ Nat.succ_mul, Finset.sum_range_add, ih ];
           simp +decide [add_mul];
           exact congr_arg Finset.card
             ( Finset.filter_congr fun x hx => by rw [ Nat.coprime_comm ] )
@@ -329,20 +339,18 @@ lemma density_coprime (k : ℕ) (hk : k > 0) :
                     (if k.Coprime i then 1 else 0) : ℝ) -
                   (n : ℝ) * Nat.totient k / k) / n)
               Filter.atTop (nhds 0) := by
-          refine' squeeze_zero_norm' _ _;
-          exacts [
-            fun n => k / n,
-            Filter.eventually_atTop.mpr ⟨ k, fun n hn => by
+          refine squeeze_zero_norm' (a := fun n : ℕ => (k : ℝ) / n) ?_ ?_
+          · exact Filter.eventually_atTop.mpr ⟨ k, fun n hn => by
               simpa [ abs_div ] using
-                div_le_div_of_nonneg_right ( h_bound n hn ) ( Nat.cast_nonneg n )⟩,
-            tendsto_const_nhds.div_atTop tendsto_natCast_atTop_atTop]
+                div_le_div_of_nonneg_right ( h_bound n hn ) ( Nat.cast_nonneg n )⟩
+          · exact tendsto_const_nhds.div_atTop tendsto_natCast_atTop_atTop
         simpa using
           (h_limit.add_const ( k.totient / k : ℝ ) |>
             Filter.Tendsto.congr' (by
               filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn
               simp +decide [ sub_div, mul_div_assoc, hn.ne' ]))
       simpa only [ Finset.sum_div _ _ _ ] using h_limit;
-    refine' h_density.congr' _;
+    refine h_density.congr' ?_
     filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn using by
       rw [ ← Finset.sum_div, Finset.card_filter ]
       aesop
@@ -350,6 +358,8 @@ lemma density_coprime (k : ℕ) (hk : k > 0) :
 /-
 If a set $A$ has natural density $d$, then the set scaled by $p$ has natural density $d/p$.
 -/
+set_option linter.flexible false in
+set_option linter.style.multiGoal false in
 lemma density_scaled (A : Set ℕ) (d : ℝ) (p : ℕ) (hp : p > 0)
     (hA : has_natural_density A d) :
   has_natural_density {n | ∃ a ∈ A, n = p * a} (d / p) := by
@@ -432,7 +442,7 @@ lemma density_scaled (A : Set ℕ) (d : ℝ) (p : ℕ) (hp : p > 0)
                     (Finset.Ico (⌊n / p⌋₊ * p) n)).card : ℝ) ≤
                     Finset.card (Finset.Ico (⌊n / p⌋₊ * p) n) := by
                 exact_mod_cast Finset.card_filter_le _ _;
-              simp +zetaDelta at *;
+              simp +zetaDelta at *
               exact h_card_bound.trans
                 ( Nat.sub_le_of_le_add <| by
                   nlinarith [ Nat.div_add_mod n p, Nat.mod_lt n hp ] )
@@ -515,6 +525,7 @@ lemma density_scaled (A : Set ℕ) (d : ℝ) (p : ℕ) (hp : p > 0)
 The density of integers divisible by $p \in S$ and no other prime in $S$ is
 $\frac{1}{p} \prod_{q \in S \setminus \{p\}} (1 - \frac{1}{q})$.
 -/
+set_option linter.flexible false in
 lemma density_exact_prime (S : Finset ℕ) (hS : ∀ p ∈ S, p.Prime) (p : ℕ) (hp : p ∈ S) :
   has_natural_density {n | p ∣ n ∧ ∀ q ∈ S, q ≠ p → ¬ q ∣ n}
     ((1 / p : ℝ) * (∏ q ∈ S \ {p}, (1 - 1 / (q : ℝ)))) := by
@@ -571,6 +582,7 @@ lemma density_exact_prime (S : Finset ℕ) (hS : ∀ p ∈ S, p.Prime) (p : ℕ)
 The density of integers divisible by no prime in a finite set of primes $S$ is
 $\prod_{p \in S} (1 - 1/p)$.
 -/
+set_option linter.flexible false in
 lemma density_no_prime (S : Finset ℕ) (hS : ∀ p ∈ S, p.Prime) :
   has_natural_density {n | ∀ p ∈ S, ¬ p ∣ n} (∏ p ∈ S, (1 - 1 / (p : ℝ))) := by
     by_contra h_contra;
@@ -605,6 +617,8 @@ lemma density_no_prime (S : Finset ℕ) (hS : ∀ p ∈ S, p.Prime) :
 /-
 If two disjoint sets have natural densities, their union has the sum of their densities.
 -/
+set_option linter.flexible false in
+set_option linter.style.multiGoal false in
 lemma density_disjoint_union (A B : Set ℕ) (dA dB : ℝ)
     (hA : has_natural_density A dA) (hB : has_natural_density B dB)
     (hdisj : Disjoint A B) :
@@ -624,9 +638,12 @@ lemma density_finset_union {α : Type*} (I : Finset α) (A : α → Set ℕ) (d 
   (hA : ∀ i ∈ I, has_natural_density (A i) (d i))
   (hdisj : ∀ i ∈ I, ∀ j ∈ I, i ≠ j → Disjoint (A i) (A j)) :
   has_natural_density (⋃ i ∈ I, A i) (∑ i ∈ I, d i) := by
-    induction' I using Finset.induction with i I hi ih generalizing d;
-    · unfold has_natural_density; aesop;
-    · norm_num +zetaDelta at *;
+    induction I using Finset.induction generalizing d with
+    | empty =>
+      unfold has_natural_density
+      aesop
+    | insert i I hi ih =>
+      norm_num +zetaDelta at *;
       rw [ Finset.sum_insert hi ]
       exact density_disjoint_union _ _ _ _ hA.1
         ( ih _ hA.2 fun a ha => hdisj.2 a ha |>.2 )
@@ -656,7 +673,7 @@ lemma density_algebraic_identity (S : Finset ℕ) (hS : ∀ p ∈ S, p.Prime) :
           norm_num
           linarith [ Nat.Prime.one_lt ( hS p hp ) ] ) ]
     rw [ Finset.mul_sum _ _ _ ]
-    refine' Finset.sum_congr rfl fun p hp => _
+    refine Finset.sum_congr rfl fun p hp => ?_
     rw [ h_prod_identity p hp ]
     ring_nf
     field_simp;
@@ -668,23 +685,23 @@ lemma density_algebraic_identity (S : Finset ℕ) (hS : ∀ p ∈ S, p.Prime) :
 The set of integers with exactly one prime factor in $S$ is the disjoint union
 of sets of non-zero integers divisible by exactly one specific prime $p \in S$.
 -/
+set_option linter.flexible false in
 lemma set_decomposition_exactly_one_prime (S : Finset ℕ) (hS : ∀ p ∈ S, p.Prime) :
   {n : ℕ | (n.primeFactors.filter (fun p => p ∈ S)).card = 1} =
   ⋃ p ∈ S, {n : ℕ | n ≠ 0 ∧ p ∣ n ∧ ∀ q ∈ S, q ≠ p → ¬ q ∣ n} := by
-    ext n;
-    simp +zetaDelta at *;
-    constructor <;> intro h;
+    ext n; simp +zetaDelta at *; constructor <;> intro h;
     · obtain ⟨ p, hp ⟩ := Finset.card_eq_one.mp h;
       rw [ Finset.eq_singleton_iff_unique_mem ] at hp ; aesop;
     · obtain ⟨ x, hx₁, hx₂, hx₃ ⟩ := h.2
-      refine' Finset.card_eq_one.mpr
-        ⟨ x, Finset.eq_singleton_iff_unique_mem.mpr ⟨ _, fun p hp => _ ⟩ ⟩ <;>
+      refine Finset.card_eq_one.mpr
+        ⟨ x, Finset.eq_singleton_iff_unique_mem.mpr ⟨ ?_, fun p hp => ?_ ⟩ ⟩ <;>
         simp_all +decide
       exact Classical.not_not.1 fun h => hx₃ p hp.2 h hp.1.2
 
 /-
 Removing 0 from a set does not change its natural density.
 -/
+set_option linter.flexible false in
 lemma density_diff_singleton_zero (A : Set ℕ) (d : ℝ) (h : has_natural_density A d) :
   has_natural_density (A \ {0}) d := by
     rw [ has_natural_density ] at *;
@@ -713,8 +730,7 @@ lemma density_diff_singleton_zero (A : Set ℕ) (d : ℝ) (h : has_natural_densi
               ((Finset.filter (fun k => k ∈ A \ {0}) (Finset.range n)).card : ℝ) /
                 n)
           Filter.atTop (nhds 0) := by
-      refine' squeeze_zero_norm' _ _;
-      use fun n => 1 / ( n : ℝ );
+      refine squeeze_zero_norm' (a := fun n : ℕ => 1 / (n : ℝ)) ?_ ?_
       · simp_all +decide [ ← sub_div ];
         exact ⟨ 1, fun n hn => by
           rw [ abs_of_nonneg
@@ -728,6 +744,8 @@ The set of integers with at most one prime factor less than $M$ has natural
 density $\prod_{p < M} (1 - 1/p) \times
 (1 + \sum_{p < M} \frac{1}{p-1})$.
 -/
+set_option linter.flexible false in
+set_option linter.style.multiGoal false in
 lemma density_at_most_one_prime (M : ℕ) :
   let S := (Finset.range M).filter Nat.Prime
   has_natural_density {n : ℕ | (n.primeFactors.filter (fun p => p < M)).card ≤ 1}
@@ -759,8 +777,7 @@ lemma density_at_most_one_prime (M : ℕ) :
               has_natural_density {n : ℕ | n = 0 ∨ ∀ p ∈ S, ¬p ∣ n}
                 (∏ p ∈ S, (1 - 1 / (p : ℝ))) := by
             have h_density_zero : has_natural_density {n : ℕ | n = 0} 0 := by
-              refine' squeeze_zero_norm' _ _;
-              use fun n => 1 / ( n : ℝ );
+              refine squeeze_zero_norm' (a := fun n : ℕ => 1 / (n : ℝ)) ?_ ?_
               · norm_num [ Finset.filter_eq' ];
                 exact ⟨ 1, fun n hn => by rw [ if_pos ( by linarith ) ] ; norm_num ⟩;
               · exact tendsto_one_div_atTop_nhds_zero_nat;
@@ -912,6 +929,7 @@ lemma compact_approx_by_finite_subset (D : Set ℝ) (hD : Dense D) (K : Set ℝ)
 For any positive irrational $\alpha$ and $\epsilon > 0$, there exist natural
 numbers $n, m$ such that $0 < n \alpha - m < \epsilon$.
 -/
+set_option linter.flexible false in
 lemma exists_nat_mul_sub_nat_small (α : ℝ) (hα_pos : 0 < α)
     (hα_irr : Irrational α) (ε : ℝ) (hε : 0 < ε) :
   ∃ n m : ℕ, 0 < (n : ℝ) * α - m ∧ (n : ℝ) * α - m < ε := by
@@ -962,7 +980,7 @@ lemma exists_nat_mul_sub_nat_small (α : ℝ) (hα_pos : 0 < α)
                     hkk' ) ]
             simp +arith +decide )
       obtain ⟨ k, l, hkl, hk, hl, h ⟩ := h_pigeonhole
-      refine' ⟨ k, l, hkl, hk, hl, _ ⟩
+      refine ⟨ k, l, hkl, hk, hl, ?_ ⟩
       rw [ abs_lt ]
       constructor <;>
         nlinarith [
@@ -984,7 +1002,7 @@ lemma exists_nat_mul_sub_nat_small (α : ℝ) (hα_pos : 0 < α)
     have hnm :
         0 < n * α - m ∧ n * α - m < 1 / (N : ℝ) ∨
           0 < m - n * α ∧ m - n * α < 1 / (N : ℝ) := by
-      simp +zetaDelta at *;
+      simp +zetaDelta at *
       rw [ Nat.cast_sub hkl.le ];
       cases lt_or_gt_of_ne
           ( show
@@ -1014,7 +1032,7 @@ lemma exists_nat_mul_sub_nat_small (α : ℝ) (hα_pos : 0 < α)
               Int.fract_add_floor ( ( k : ℝ ) * α )]
     rcases hnm with hnm | hnm
     · use n, m.natAbs;
-      simp +zetaDelta at *;
+      simp +zetaDelta at *
       exact ⟨
         by
           rw [ abs_of_nonneg ] <;>
@@ -1041,7 +1059,7 @@ lemma exists_nat_mul_sub_nat_small (α : ℝ) (hα_pos : 0 < α)
           contrapose! h_seq;
           exact fun x => Nat.recOn x ( by norm_num; linarith ) fun x ih => mod_cast h_seq x ih;
         exact hq;
-      refine' ⟨ q * n + 1, q * m.natAbs, _, _ ⟩ <;> norm_num at *;
+      refine ⟨ q * n + 1, q * m.natAbs, ?_, ?_ ⟩ <;> norm_num at *
       · rw [ abs_of_nonneg ] <;>
           nlinarith [ show ( n : ℝ ) ≥ 1 by exact_mod_cast Nat.sub_pos_of_lt hkl ]
       · rw [ abs_of_nonneg ] <;> nlinarith [ show ( 0 : ℝ ) ≤ n * α by positivity ]
@@ -1194,6 +1212,7 @@ If $u, v > 0$ and $u/v$ is irrational, then for every $\epsilon > 0$, the
 additive semigroup generated by $u, v$ is $\epsilon$-dense in
 $[K, \infty)$ for some large $K$.
 -/
+set_option linter.flexible false in
 lemma dense_semigroup_of_irrational_ratio (u v : ℝ) (hu : 0 < u)
     (hv : 0 < v) (h_irr : Irrational (u / v)) (ε : ℝ) (hε : 0 < ε) :
   ∃ K : ℝ, ∀ x ≥ K,
@@ -1218,7 +1237,7 @@ lemma dense_semigroup_of_irrational_ratio (u v : ℝ) (hu : 0 < u)
         norm_num +zetaDelta at *;
         contrapose! hB;
         use x - ⌊x / u⌋ * u + ε / 2 - ⌊(x - ⌊x / u⌋ * u + ε / 2) / u⌋ * u;
-        refine' ⟨ _, _, _ ⟩;
+        refine ⟨ ?_, ?_, ?_ ⟩
         · nlinarith [
             Int.floor_le ( ( x - ⌊x / u⌋ * u + ε / 2 ) / u ),
             Int.lt_floor_add_one ( ( x - ⌊x / u⌋ * u + ε / 2 ) / u ),
@@ -1257,6 +1276,7 @@ for every integer $n \ge K$ divisible by both $p$ and $q$, there exists an
 integer $m \in (n,(1+\epsilon)n]$ whose prime divisors are contained in
 $\{p,q\}$.
 -/
+set_option linter.style.multiGoal false in
 lemma lemma_3 (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p ≠ q)
     (ε : ℝ) (hε : 0 < ε) :
   ∃ K : ℕ, ∀ n : ℕ, K ≤ n → p ∣ n → q ∣ n →
@@ -1285,7 +1305,7 @@ lemma lemma_3 (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p ≠ q)
           simpa using
             Real.log_le_log ( by positivity )
               ( Nat.le_of_ceil_le ( Nat.le_of_succ_le hn ) ) )
-      refine' ⟨ p ^ a * q ^ b, _, _, _ ⟩ <;>
+      refine ⟨ p ^ a * q ^ b, ?_, ?_, ?_ ⟩ <;>
         norm_num [ Nat.primeFactors_mul, hp.ne_zero, hq.ne_zero ];
       · rw [ ← @Nat.cast_lt ℝ ]
         push_cast
@@ -1406,7 +1426,7 @@ lemma density_bound_tends_to_zero :
           Filter.atTop (nhds 0) := by
       refine h_lim.comp ?_;
       convert sum_prime_recip_diverges using 1;
-    refine' squeeze_zero
+    refine squeeze_zero
       ( fun M =>
         mul_nonneg
           ( Finset.prod_nonneg fun _ _ =>
@@ -1453,7 +1473,12 @@ lemma lemma_1 (δ : ℝ) (hδ : 0 < δ) :
               (1 + ∑ p ∈ (Finset.range M).filter Nat.Prime,
                 (1 / (p - 1 : ℝ))) < δ / 2 := by
         have := density_bound_tends_to_zero.eventually ( gt_mem_nhds <| half_pos hδ ) ; aesop;
-      refine' ⟨ M, _, _, hM ⟩;
+      refine ⟨
+        M,
+        (∏ p ∈ (Finset.range M).filter Nat.Prime, (1 - 1 / (p : ℝ))) *
+          (1 + ∑ p ∈ (Finset.range M).filter Nat.Prime, (1 / (p - 1 : ℝ))),
+        ?_,
+        hM⟩
       convert density_at_most_one_prime M using 1;
     -- The set with at least two small prime factors complements the set with at most one.
     have h_complement :
@@ -1468,7 +1493,7 @@ lemma lemma_1 (δ : ℝ) (hδ : 0 < δ) :
             (n.primeFactors.filter (fun p => p < M)).card ≤ 1})
           (1 - d) := by
       have := hd.1;
-      refine' Filter.Tendsto.congr' _ ( this.const_sub 1 );
+      refine Filter.Tendsto.congr' ?_ ( this.const_sub 1 )
       filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn
       simp +decide
       ring_nf
@@ -1488,6 +1513,7 @@ For every $\epsilon, \delta > 0$, there exists $x_0$ such that for all
 $x \ge x_0$ at least $(1 - \delta)x$ of the integers $n \le x$ satisfy
 $f(n) < (1 + \epsilon)n$.
 -/
+set_option linter.flexible false in
 theorem main_theorem (ε δ : ℝ) (hε : 0 < ε) (hδ : 0 < δ) :
   ∃ x₀ : ℝ, ∀ x ≥ x₀,
     (Finset.filter (fun n => (f n : ℝ) < (1 + ε) * n)
@@ -1509,9 +1535,9 @@ theorem main_theorem (ε δ : ℝ) (hε : 0 < ε) (hδ : 0 < δ) :
         use K + 2;
         intro n hn hpq hq
         obtain ⟨ m, hm₁, hm₂, hm₃ ⟩ := hK n ( by linarith ) hpq hq
-        refine' lt_of_le_of_lt
-          ( Nat.cast_le.mpr <| show f n ≤ m from _ )
-          _
+        refine lt_of_le_of_lt
+          ( Nat.cast_le.mpr <| show f n ≤ m from ?_ )
+          ?_
         · unfold f;
           split_ifs <;> simp_all +decide;
           exact ⟨ m, le_rfl, hm₁, hm₃.trans <| by intro x hx; aesop ⟩;
@@ -1623,7 +1649,7 @@ theorem main_theorem (ε δ : ℝ) (hε : 0 < ε) (hδ : 0 < δ) :
           have := (div_le_iff₀ hδ4).1 hdiv_le_x;
           nlinarith;
         exact hcard_le.trans hK_le;
-      refine' ⟨ x₀ + x₁ + ⌈δ⁻¹ * 4⌉₊ + 1, fun x hx => _ ⟩
+      refine ⟨ x₀ + x₁ + ⌈δ⁻¹ * 4⌉₊ + 1, fun x hx => ?_ ⟩
       norm_num at *
       -- Applying the bounds from hx₀ and hx₁, we get:
       have h_card :
@@ -1636,9 +1662,9 @@ theorem main_theorem (ε δ : ℝ) (hε : 0 < ε) (hδ : 0 < δ) :
                 (fun n =>
                   (n.primeFactors.filter (fun p => p < M)).card ≥ 2 ∧ n < K)
                 (Finset.range (⌊x⌋₊ + 1))).card := by
-        refine' Nat.sub_le_of_le_add _;
-        rw [ ← Finset.card_union_add_card_inter ];
-        refine' le_trans _ ( Nat.le_add_right _ _ );
+        refine Nat.sub_le_of_le_add ?_
+        rw [ ← Finset.card_union_add_card_inter ]
+        refine le_trans ?_ ( Nat.le_add_right _ _ )
         refine Finset.card_mono ?_;
         intro n hn; by_cases h : n < K <;> aesop;
       have := hx₀ ⌊x⌋₊ ( Nat.le_floor <| by linarith )
