@@ -30,13 +30,13 @@ A. W. Goodman and R. E. Goodman, "A Circle Covering Theorem",
 -/
 import Mathlib
 
+-- The legacy proof blocks below rely on nonterminal flexible tactics, `refine'`,
+-- and induction patterns whose direct replacements changed generated goals.
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.unusedSimpArgs false
 set_option linter.style.induction false
 set_option linter.style.refine false
 set_option linter.style.multiGoal false
-set_option linter.style.maxHeartbeats false
 
 namespace Erdos1121
 
@@ -66,15 +66,22 @@ noncomputable def perp2D (v : EuclideanSpace ℝ (Fin 2)) : EuclideanSpace ℝ (
 
 @[simp] lemma perp2D_norm (v : EuclideanSpace ℝ (Fin 2)) : ‖perp2D v‖ = ‖v‖ := by
   simp only [EuclideanSpace.norm_eq, perp2D]
-  congr 1; simp [Fin.sum_univ_two, EuclideanSpace.equiv]; ring
+  congr 1
+  simp [Fin.sum_univ_two, EuclideanSpace.equiv]
+  ring
 
 @[simp] lemma perp2D_inner_self (v : EuclideanSpace ℝ (Fin 2)) :
     @inner ℝ _ _ (perp2D v) v = 0 := by
-  simp only [perp2D, inner]; simp [Fin.sum_univ_two, EuclideanSpace.equiv]; ring
+  simp only [perp2D, inner]
+  simp [Fin.sum_univ_two, EuclideanSpace.equiv]
+  ring
 
 @[simp] lemma perp2D_perp2D (v : EuclideanSpace ℝ (Fin 2)) : perp2D (perp2D v) = -v := by
   simp [perp2D, EuclideanSpace.equiv]
-  ext i; fin_cases i <;> simp [Matrix.cons_val_zero, Matrix.cons_val_one]
+  ext i
+  fin_cases i
+  · simp [Matrix.cons_val_zero]
+  · simp [Matrix.cons_val_one]
 
 /-! ## Geometric Predicates -/
 
@@ -129,7 +136,9 @@ lemma Nonseparable1D.neg {n : ℕ} {s r : Fin n → ℝ}
 lemma Nonseparable1D.comp_equiv {n : ℕ} {s r : Fin n → ℝ}
     (hns : Nonseparable1D s r) (σ : Fin n ≃ Fin n) :
     Nonseparable1D (s ∘ σ) (r ∘ σ) := by
-  intro c hc; have := hns c; simp_all +decide [← Equiv.eq_symm_apply]
+  intro c hc
+  have := hns c
+  simp_all +decide
   exact fun i j => this (fun i => by simpa using hc (σ.symm i)) _ _
 
 /-! ### Algebraic identity -/
@@ -140,10 +149,10 @@ lemma sum_weighted_Iio_eq_sq {n : ℕ} (a : Fin n → ℝ) :
     (∑ j : Fin n, a j) ^ 2 := by
   induction' n with n ih
   · norm_num
-  · simp +decide [Fin.sum_univ_castSucc, ih]
+  · simp +decide [Fin.sum_univ_castSucc]
     convert congr_arg (· + a (Fin.last n) * (2 * ∑ k, a (Fin.castSucc k) + a (Fin.last n)))
       (ih fun i ↦ a (Fin.castSucc i)) using 1; ring_nf!
-    · simp +decide [add_comm, add_left_comm, add_assoc]
+    · simp +decide [add_comm, add_assoc]
       refine' Finset.sum_congr rfl fun i hi => _
       rw [show (Iio (Fin.castSucc i) : Finset (Fin (n + 1))) =
         Finset.image (Fin.castSucc) (Iio i) from ?_, Finset.sum_image] <;> aesop
@@ -154,6 +163,7 @@ lemma sum_weighted_Iio_eq_sq {n : ℕ} (a : Fin n → ℝ) :
 -- For sorted intervals (left endpoints in increasing order), nonseparability forces
 -- each center to be within `2 * ∑_{k < j} r_k + r_j` of the minimum left endpoint.
 set_option maxHeartbeats 800000 in
+-- This proof uses strong induction plus nonlinear arithmetic over finite sums.
 lemma sorted_center_bound {n : ℕ} (s r : Fin (n + 1) → ℝ)
     (hr : ∀ i, 0 ≤ r i)
     (hsorted : Monotone (fun i : Fin (n + 1) => s i - r i))
@@ -167,7 +177,8 @@ lemma sorted_center_bound {n : ℕ} (s r : Fin (n + 1) → ℝ)
     have h_sum_lt : ∑ k ∈ Finset.Iio ⟨j, ih⟩, r k ≥ ∑ k ∈ Finset.Iio k, r k + r k := by
       rw [← Finset.sum_erase_add _ _ (show k ∈ Iio ⟨j, ih⟩ from Finset.mem_Iio.mpr hk_lt_j),
         add_comm]
-      rw [add_comm]; gcongr
+      rw [add_comm]
+      gcongr
       · aesop
       · grind
     linarith [hr k, hr ⟨j, ih⟩,
@@ -178,23 +189,32 @@ lemma sorted_center_bound {n : ℕ} (s r : Fin (n + 1) → ℝ)
     · aesop
     · obtain ⟨k₀, hk₀⟩ : ∃ k₀ < ⟨j, ih⟩, ∀ k < ⟨j, ih⟩, s k + r k ≤ s k₀ + r k₀ := by
         have := Finset.exists_max_image (Finset.Iio ⟨j, ih⟩) (fun k => s k + r k)
-          ⟨⟨0, by linarith⟩, Finset.mem_Iio.mpr (Nat.pos_of_ne_zero hj)⟩; aesop
+          ⟨⟨0, by linarith⟩, Finset.mem_Iio.mpr (Nat.pos_of_ne_zero hj)⟩
+        aesop
       exact ⟨(s k₀ + r k₀ + s ⟨j, ih⟩ - r ⟨j, ih⟩) / 2,
         fun k hk => ⟨by linarith [h_gt k hk, hk₀.2 k hk],
           by linarith [h_gt k hk, hk₀.2 k hk, h_gt k₀ hk₀.1]⟩⟩
   have h_abs : ∀ k, |s k - c| > r k := by
-    intro k; by_cases hk : k < ⟨j, ih⟩ <;> simp_all +decide [abs_eq_max_neg]
+    intro k
+    by_cases hk : k < ⟨j, ih⟩ <;> simp_all +decide [abs_eq_max_neg]
     · exact Or.inr (by linarith [hc k hk, hr k])
     · specialize hc ⟨j - 1, Nat.lt_succ_of_le (Nat.sub_le_of_le_add <| by linarith)⟩
-      rcases j with (_ | j) <;> norm_num at *
-      · erw [Finset.sum_empty] at h_contra; linarith [hr 0]
-      · exact Or.inl (by linarith [hsorted hk, hr k])
+      rcases j with (_ | j)
+      · norm_num at *
+        erw [Finset.sum_empty] at h_contra
+        linarith [hr 0]
+      · norm_num at *
+        exact Or.inl (by linarith [hsorted hk, hr k])
   have := hns c h_abs
   specialize this ⟨j, ih⟩ 0
-  specialize hc 0; simp_all +decide
-  rcases j with (_ | j) <;> simp_all +decide
-  · erw [Finset.sum_empty] at h_contra; linarith
-  · linarith [this.mp (by linarith [hc (Nat.succ_pos _), hr 0, hr ⟨j + 1, by linarith⟩]),
+  specialize hc 0
+  simp_all +decide
+  rcases j with (_ | j)
+  · simp_all +decide
+    erw [Finset.sum_empty] at h_contra
+    linarith
+  · simp_all +decide
+    linarith [this.mp (by linarith [hc (Nat.succ_pos _), hr 0, hr ⟨j + 1, by linarith⟩]),
       hc (Nat.succ_pos _), hr 0, hr ⟨j + 1, by linarith⟩]
 
 /-! ### Sorted weighted sum bound -/
@@ -222,7 +242,7 @@ lemma sorted_weighted_sum_le {n : ℕ} (s r : Fin (n + 1) → ℝ)
 theorem one_dim_covering_lower {n : ℕ} (s r : Fin n → ℝ) (hr : ∀ i, 0 ≤ r i)
     (hns : Nonseparable1D s r) (i : Fin n) :
     ∑ j, s j * r j - (∑ j, r j) ^ 2 ≤ (s i - r i) * ∑ j, r j := by
-  rcases n with (_ | n) <;> simp_all +decide [Finset.sum_div _ _ _, sq]
+  rcases n with (_ | n) <;> simp_all +decide [sq]
   obtain ⟨σ, hσ⟩ : ∃ σ : Fin (n + 1) ≃ Fin (n + 1),
       ∀ j k : Fin (n + 1), j ≤ k → s (σ j) - r (σ j) ≤ s (σ k) - r (σ k) := by
     have h_sorted : ∃ σ : Fin (n + 1) → Fin (n + 1),
@@ -232,7 +252,7 @@ theorem one_dim_covering_lower {n : ℕ} (s r : Fin n → ℝ) (hr : ∀ i, 0 �
       have h_ind : ∀ (n : ℕ), ∀ (f : Fin n → ℝ),
           ∃ σ : Fin n → Fin n, (∀ i, σ i ∈ Finset.univ) ∧
           (∀ i j, i < j → f (σ i) ≤ f (σ j)) ∧ Function.Injective σ := by
-        intro n f; induction' n with n ih <;> simp_all +decide [Finset.card_univ]
+        intro n f; induction' n with n ih <;> simp_all +decide
         obtain ⟨m, hm⟩ : ∃ m : Fin (n + 1), ∀ i : Fin (n + 1), f i ≥ f m := by
           simpa using Finset.exists_min_image Finset.univ (fun i => f i) ⟨0, Finset.mem_univ 0⟩
         obtain ⟨σ, hσ₁, hσ₂⟩ := ih (fun i => f (Fin.succAbove m i))
@@ -240,7 +260,7 @@ theorem one_dim_covering_lower {n : ℕ} (s r : Fin n → ℝ) (hr : ∀ i, 0 �
           simp_all +decide [Function.Injective]
         · intro i j hij
           induction i using Fin.inductionOn <;> induction j using Fin.inductionOn <;> aesop
-        · simp +decide [Fin.forall_fin_succ, Function.Injective]; tauto
+        · simp +decide [Fin.forall_fin_succ]; tauto
       exact h_ind _ fun i => s i - r i
     obtain ⟨σ, hσ₁, hσ₂, hσ₃⟩ := h_sorted
     exact ⟨Equiv.ofBijective σ ⟨hσ₃, Finite.injective_iff_surjective.mp hσ₃⟩,
