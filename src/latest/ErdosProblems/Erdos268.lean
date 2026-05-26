@@ -32,12 +32,6 @@ import Mathlib.Topology.EMetricSpace.Paracompact
 import Mathlib.Topology.Separation.CompletelyRegular
 import Mathlib.CategoryTheory.Category.Basic
 
-set_option linter.style.setOption false
-set_option linter.flexible false
-set_option linter.style.refine false
-set_option linter.style.multiGoal false
-set_option linter.style.maxHeartbeats false
-
 namespace Erdos268
 
 /-! # The Erdős–Graham Problem on Harmonic Subseries Points
@@ -107,6 +101,7 @@ lemma primeFactors_union_dvd_m_const :
   exact (Nat.prime_of_mem_primeFactors hp).dvd_of_dvd_pow
     ((Nat.dvd_of_mem_primeFactors hp).trans ha_dvd)
 
+set_option linter.flexible false in
 /-- Every positive integer has at most one representation as `a * (k² * m + 1)`
   for `a ∈ U` and `k ∈ ℕ`, because all prime factors of `a` divide `m`,
   hence `gcd(a, k² * m + 1) = 1`. -/
@@ -165,6 +160,7 @@ lemma constructA_pos (K : ℕ) (ε : ℕ → Fin 3 → Bool) :
     fin_cases hx <;>
     norm_num [ m_const ]
 
+set_option linter.flexible false in
 /-- The set `constructA` is infinite (since each k contributes at least 2 elements,
 and different k's give different elements by unique representation). -/
 lemma constructA_infinite (K : ℕ) (ε : ℕ → Fin 3 → Bool) :
@@ -194,6 +190,7 @@ lemma constructA_infinite (K : ℕ) (ε : ℕ → Fin 3 → Bool) :
   refine Set.mem_iUnion₂.mpr ⟨ k, hk.1, Set.mem_iUnion.mpr ⟨ j, ?_ ⟩ ⟩
   split_ifs <;> exact Finset.mem_coe.mpr (Finset.mem_image_of_mem _ (Finset.min'_mem _ _))
 
+set_option linter.flexible false in
 /-
 The sum `∑_{n ∈ A} 1/n` converges, because each term is O(1/k²).
 -/
@@ -822,6 +819,8 @@ lemma aGameSeq_pos (j : Fin 3) (K n : ℕ) : 0 < aGameSeq j K n := by
 lemma eGameSeq_nonneg (K n : ℕ) : 0 ≤ eGameSeq K n := by
   unfold eGameSeq; positivity
 
+set_option linter.style.multiGoal false in
+set_option linter.style.refine false in
 lemma aGameSeq_summable (j : Fin 3) (K : ℕ) : Summable (aGameSeq j K) := by
   refine' Summable.of_nonneg_of_le ?_ ?_ ?_
   exact fun n => c_coeff j / ( ( n : ℝ ) + K + 1 ) ^ 2
@@ -863,6 +862,9 @@ lemma eGameSeq_summable (K : ℕ) : Summable (eGameSeq K) := by
 Error domination: the total future error is smaller than the current main term.
 -/
 set_option maxHeartbeats 400000 in
+-- The integral comparison and final rational inequality need extra arithmetic search.
+set_option linter.style.refine false in
+set_option linter.flexible false in
 /-- The total future error `∑' e(k+l)` is smaller than the current main term `a_j(k)`.
 This is the key analytic estimate ensuring that Bob's perturbations are negligible
 compared to Alice's moves. The proof bounds the error tail by an integral. -/
@@ -1033,6 +1035,10 @@ lemma error_domination (j : Fin 3) (k : ℕ) :
 Tail domination: the sum of future main terms exceeds 4 times the current.
 -/
 set_option maxHeartbeats 400000 in
+-- The finite lower-bound comparison checks 100 explicit nonlinear cases.
+set_option linter.style.refine false in
+set_option linter.flexible false in
+set_option linter.style.multiGoal false in
 /-- The tail sum of future main terms exceeds 4 times the current term.
 This ensures Alice has enough "room" for future moves, which is needed
 to show she eventually skips (Claim 2). Proved by comparing against 100 explicit terms. -/
@@ -1132,6 +1138,10 @@ Stronger error domination: 3 times the total future error is smaller than the cu
 Needed because each coordinate's perturbation in the 3D game has 3 contributing sources.
 -/
 set_option maxHeartbeats 400000 in
+-- This combines the earlier domination estimate with three explicit coordinate checks.
+set_option linter.style.refine false in
+set_option linter.flexible false in
+set_option linter.style.multiGoal false in
 /-- Strengthened error domination: `3 · ∑' e < a_j(k)`. Each coordinate's perturbation in the
 3D game receives contributions from all 3 swap operations, hence the factor of 3. -/
 lemma error_domination_3x (j : Fin 3) (k : ℕ) :
@@ -1436,6 +1446,7 @@ lemma constructA_subset_range (K : ℕ) (ε : ℕ → Fin 3 → Bool) :
   generalize_proofs at *;
   unfold structEmbed; aesop;
 
+set_option linter.flexible false in
 lemma structEmbed_injective (K : ℕ) (ε : ℕ → Fin 3 → Bool) :
     Function.Injective (structEmbed K ε) := by
   intro p₁ p₂ h_eq;
@@ -1460,6 +1471,9 @@ lemma structEmbed_injective (K : ℕ) (ε : ℕ → Fin 3 → Bool) :
 /-
 Key rearrangement: the tsum over constructA equals the structured double sum.
 -/
+set_option linter.flexible false in
+set_option linter.style.multiGoal false in
+set_option linter.style.refine false in
 lemma tsum_constructA_eq (ε : ℕ → Fin 3 → Bool) (f : ℕ → ℝ)
     (hf : Summable (fun m : ↑(constructA K₀ ε) => f m)) :
     ∑' (m : ↑(constructA K₀ ε)), f m =
@@ -1492,6 +1506,9 @@ lemma tsum_constructA_eq (ε : ℕ → Fin 3 → Bool) (f : ℕ → ℝ)
 /-
 Algebraic simplification: the structured sum equals basePointM + swap sums.
 -/
+set_option linter.flexible false in
+set_option linter.style.multiGoal false in
+set_option linter.style.refine false in
 lemma structured_sum_eq_base_plus_swap (ε : ℕ → Fin 3 → Bool) (i : Fin 3) :
     (∑' n, ∑ j : Fin 3, ∑ a ∈ ActiveSet ε (K₀ + n) j,
       (M_mat.mulVec (fun l : Fin 3 =>
@@ -1697,6 +1714,9 @@ def gameDelta (q : Fin 3 → ℝ) (j : Fin 3) (n : ℕ) : ℝ :=
     (if game3D q n j + 3 * aGameSeq j K₀ n ≤ q j - basePointM K₀ j
      then aGameSeq j K₀ n else 0)
 
+set_option linter.flexible false in
+set_option linter.style.multiGoal false in
+set_option linter.style.refine false in
 lemma gameDelta_bound (q : Fin 3 → ℝ) (j : Fin 3) (n : ℕ) :
     |gameDelta q j n| ≤ 3 * eGameSeq K₀ n := by
   -- By definition of `gameDelta`, we have:
@@ -1792,6 +1812,8 @@ lemma game3D_converges (q : Fin 3 → ℝ) (hq : q ∈ targetBoxM K₀) (j : Fin
   · linarith [ hq j |>.1 ];
   · linarith [ hq j |>.2 ]
 
+set_option linter.flexible false in
+set_option linter.style.refine false in
 lemma game3D_limit_eq_tsum (q : Fin 3 → ℝ) (hq : q ∈ targetBoxM K₀) (i : Fin 3) :
     (∑' n, ∑ j : Fin 3,
       if gameEpsilon q (K₀ + n) j = true then swapContribM K₀ n j i else 0) =
@@ -1856,9 +1878,9 @@ theorem exists_box_covered :
     ∀ q ∈ B, ∃ ε : ℕ → Fin 3 → Bool,
       M_mat.mulVec (fun j : Fin 3 =>
         ∑' (n : constructA K₀ ε), 1 / (((n : ℕ) : ℝ) + ((j : ℕ) : ℝ))) = q := by
-  refine' ⟨targetBoxM K₀, targetBoxM_isOpen K₀, targetBoxM_nonempty K₀, ?_⟩
+  refine ⟨targetBoxM K₀, targetBoxM_isOpen K₀, targetBoxM_nonempty K₀, ?_⟩
   intro q hq
-  refine' ⟨gameEpsilon q, ?_⟩
+  refine ⟨gameEpsilon q, ?_⟩
   ext i
   have h1 := MHarmonicSums_decompose (gameEpsilon q) i
   have h2 := game3D_limit_eq_tsum q hq i
