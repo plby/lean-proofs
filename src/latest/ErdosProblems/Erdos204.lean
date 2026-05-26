@@ -41,7 +41,6 @@ set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.flexible false
 set_option linter.unusedVariables false
-set_option linter.unusedSimpArgs false
 
 open scoped BigOperators
 open scoped Real
@@ -810,7 +809,7 @@ theorem case_1b_density_lt_one (q k : ℕ) (hq : q.Prime) (hq_odd : Odd q) (hk :
             have hmem : c2 j j.2 ∈ ({ c1 j' j'.2, c2 j' j'.2 } : Finset Congruence) := by
               change c2 j j.2 ∈ (fun j : Finset.range k => { c1 j j.2, c2 j j.2 }) j';
               rw [ ← hset ];
-              simp [ hne j j.2 ];
+              simp;
             simp at hmem;
             rcases hmem with hmem | hmem;
             · have hd := congr_arg Congruence.d hmem;
