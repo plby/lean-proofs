@@ -841,8 +841,6 @@ lemma f_additive {a b : ℕ} (ha : a ≠ 0) (hb : b ≠ 0) (h : a.Coprime b) : f
     · exact Finset.sum_congr rfl fun p hp => by rw [ Nat.factorization_eq_zero_of_not_dvd ( fun h => Finset.disjoint_left.mp h_disjoint ( Nat.mem_primeFactors.mpr ⟨ Nat.prime_of_mem_primeFactors hp, h, by aesop ⟩ ) hp ) ] ; ring_nf;
   · rw [ Finsupp.support_add_eq ] <;> aesop
 
-set_option maxHeartbeats 800000 in
--- The limsup argument needs extra heartbeats for filter and EReal elaboration.
 lemma f_limsup_condition : ((Filter.atTop ⊓ Filter.principal {(p, _k) : ℕ × ℕ | p.Prime}).limsup
       (fun (p, k) => (f (p^k) / (p^k : ℝ).log : EReal)) = ⊤) := by
         -- By definition of $f$, we know that $f(p^k) = \log(p^k) \cdot \log^*(p^k)$.
@@ -936,10 +934,10 @@ theorem erdos_897.parts.ii : (∀ (f : ℕ → ℝ),
       exact EReal.coe_le_coe_iff.mpr hn;
     · exact EReal.coe_lt_top _
 
-#print axioms erdos_897.parts.i
+end Erdos897
+
+#print axioms Erdos897.erdos_897.parts.i
 -- 'Erdos897.erdos_897.parts.i' depends on axioms: [propext, Classical.choice, Quot.sound]
 
-#print axioms erdos_897.parts.ii
+#print axioms Erdos897.erdos_897.parts.ii
 -- 'Erdos897.erdos_897.parts.ii' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end Erdos897
