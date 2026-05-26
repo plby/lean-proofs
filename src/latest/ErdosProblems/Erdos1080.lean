@@ -549,7 +549,6 @@ noncomputable instance : Fintype (Line F q) := by
 /-
 Fintype instance for the vertex set of B_S(q).
 -/
-variable {F : Type*} [Field F] [Fintype F] {q : ℕ}
 
 noncomputable instance (S : Set F) [DecidablePred (· ∈ S)] : Fintype (@V_S F _ q S) :=
   inferInstanceAs (Fintype { v : Point F q ⊕ Line F q // v ∈ @V_S F _ q S })
@@ -557,7 +556,6 @@ noncomputable instance (S : Set F) [DecidablePred (· ∈ S)] : Fintype (@V_S F 
 /-
 Fintype instance for V_S.
 -/
-variable {F : Type*} [Field F] [Fintype F] {q : ℕ}
 
 noncomputable instance (S : Set F) [DecidablePred (· ∈ S)] : Fintype (V_S (q := q) S) :=
   have : Fintype (Point F q ⊕ Line F q) := inferInstance
@@ -577,12 +575,11 @@ instance instDecidableRelB : DecidableRel (B F q).Adj := by
 /-
 The degree of any point $p \in P_S$ in $B_S(q)$ is $|F| = q^2$.
 -/
-variable {F : Type*} [Field F] [Fintype F] [DecidableEq F] {q : ℕ}
 
 /-
-For any $x \in S$ and line $l$, there is a unique point $p$ with $p_1 = x$ adjacent to $l$.
+For any $x \in S$ and line $l$, there is a unique point $p$ with $p_1 = x$ adjacent
+to $l$.
 -/
-variable {F : Type*} [Field F] [Fintype F] [DecidableEq F] {q : ℕ}
 
 theorem unique_neighbor_with_x_coord
   (S : Set F)
@@ -608,7 +605,6 @@ theorem unique_neighbor_with_x_coord
 /-
 DecidableRel instance for B_S (v3, explicit q).
 -/
-variable {F : Type*} [Field F] [Fintype F] [DecidableEq F] {q : ℕ}
 
 instance instDecidableRelBS_v3 (S : Set F) [DecidablePred (· ∈ S)] : DecidableRel (B_S (q := q) S).Adj := by
   intros a b
@@ -620,7 +616,6 @@ instance instDecidableRelBS_v3 (S : Set F) [DecidablePred (· ∈ S)] : Decidabl
 /-
 DecidableRel instance for B_S (v4, explicit arguments).
 -/
-variable {F : Type*} [Field F] [Fintype F] [DecidableEq F] {q : ℕ}
 
 instance instDecidableRelBS_v4 (S : Set F) [DecidablePred (· ∈ S)] : DecidableRel (@B_S F _ q S).Adj := by
   intros a b
@@ -628,19 +623,17 @@ instance instDecidableRelBS_v4 (S : Set F) [DecidablePred (· ∈ S)] : Decidabl
   exact inferInstance
 
 /-
-For any point $p$ and $l_1 \in F$, there is a unique line $l$ with first coordinate $l_1$ adjacent to $p$.
+For any point $p$ and $l_1 \in F$, there is a unique line $l$ with first coordinate
+$l_1$ adjacent to $p$.
 -/
-variable {F : Type*} [Field F] [Fintype F] [DecidableEq F] {q : ℕ}
 
 /-
 The degree of any line $l \in L$ in $B_S(q)$ is $|S|$.
 -/
-variable {F : Type*} [Field F] [Fintype F] [DecidableEq F] {q : ℕ}
 
 /-
 The number of points in $P_S$ adjacent to a line $l$ is $|S|$.
 -/
-variable {F : Type*} [Field F] [Fintype F] [DecidableEq F] {q : ℕ}
 
 theorem card_neighbors_in_P_S
   (S : Set F)
@@ -669,7 +662,6 @@ theorem card_neighbors_in_P_S
 /-
 The degree of any point $p \in P_S$ in $B_S(q)$ is $|F| = q^2$.
 -/
-variable {F : Type*} [Field F] [Fintype F] [DecidableEq F] {q : ℕ}
 
 /-
 `C6_free`: A graph is $C_6$-free if it contains no cycle of length 6.
@@ -772,7 +764,6 @@ Definition of the graph $G$ obtained by deleting a set of lines $D$ from $B_S(q)
 $V(G) = P_S \cup (L \setminus D)$.
 $G$ is the induced subgraph of $B(q)$ on $V(G)$.
 -/
-variable {F : Type*} [Field F] [Fintype F] [DecidableEq F] {q : ℕ}
 
 /-- The vertex set of the graph G obtained by deleting D from L in B_S(q). -/
 def V_G (S : Set F) (D : Set (Line F q)) : Set (Point F q ⊕ Line F q) :=
