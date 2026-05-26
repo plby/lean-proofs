@@ -41,10 +41,8 @@ can be found below.
 
 import Mathlib
 
-set_option linter.style.setOption false
-set_option linter.flexible false
-set_option linter.style.cases false
-set_option linter.style.induction false
+-- Generated proof blocks below still depend on multi-goal tactic sequencing and `refine'`;
+-- local rewrites are brittle in this file.
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 
@@ -52,17 +50,19 @@ open Finset Nat BigOperators
 
 namespace Erdos369
 
-noncomputable section
-
 /-- The largest prime factor of a natural number n.
     Returns 0 if n ≤ 1 (no prime factors). -/
 def Nat.largestPrimeFactor (n : ℕ) : ℕ :=
   if n ≤ 1 then 0 else n.primeFactors.sup id
 
+set_option linter.flexible false in
+-- Generated simplification is intentionally left unchanged.
 lemma Nat.largestPrimeFactor_le (n : ℕ) : Nat.largestPrimeFactor n ≤ n := by
   unfold Nat.largestPrimeFactor; rcases n with ( _ | _ | n ) <;> simp +arith +decide;
   exact fun p pp dp => Nat.le_of_dvd ( Nat.succ_pos _ ) dp
 
+set_option linter.flexible false in
+-- Generated simplification is intentionally left unchanged.
 lemma Nat.le_largestPrimeFactor {n p : ℕ} (hp : p ∈ n.primeFactors) :
     p ≤ Nat.largestPrimeFactor n := by
   unfold Nat.largestPrimeFactor;
@@ -156,6 +156,7 @@ For any positive reals α, β with α/β irrational, and any δ > 0,
 -/
 set_option maxHeartbeats 800000 in
 -- The quantitative density construction needs extra search beyond the default heartbeat limit.
+set_option linter.flexible false in
 lemma exists_nat_mul_mod_near (α β : ℝ) (hβ : 0 < β)
     (hirr : Irrational (α / β)) (δ : ℝ) (hδ : 0 < δ) :
     ∃ U : ℕ, ∀ t : ℝ, 0 ≤ t → t < β →
@@ -296,6 +297,8 @@ lemma two_pow_mul_three_pow_eq_exp (a b : ℕ) :
 For any L > 0, the semigroup L·ℕ·log 2 + L·ℕ·log 3 hits every interval (T - log(4/3),
   T) for large enough T.
 -/
+set_option linter.flexible false in
+-- Generated simplification is intentionally left unchanged.
 lemma exists_log_combination_in_interval (L : ℕ) (hL : 0 < L) :
     ∃ T₀ : ℝ, ∀ T : ℝ, T₀ ≤ T →
       ∃ u v : ℕ, T - Real.log (4/3) < ↑(L * u) * Real.log 2 + ↑(L * v) * Real.log 3 ∧
@@ -401,6 +404,8 @@ lemma cyclotomic_eval_le_pow_totient {b : ℕ} (hb : 1 < (b : ℝ)) (d : ℕ) :
 /-
 When ε ≥ 1, the theorem is trivial: P⁺(m) ≤ m ≤ m^ε for m ≥ 1.
 -/
+set_option linter.flexible false in
+-- Generated simplification is intentionally left unchanged.
 lemma erdos_369_eps_ge_one (k : ℕ) (hk : 2 ≤ k) (ε : ℝ) (hε : 1 ≤ ε) :
     ∃ N₀ : ℕ, ∀ N : ℕ, N₀ ≤ N →
       ∃ a : ℕ, N / 2 ≤ a - (k - 1) ∧ a ≤ N ∧ k ≤ a ∧
@@ -423,6 +428,8 @@ lemma erdos_369_eps_ge_one (k : ℕ) (hk : 2 ≤ k) (ε : ℝ) (hε : 1 ≤ ε) 
 For a squarefree number that is a product of a set of primes S,
     φ(n)/n = ∏_{p ∈ S} (1 - 1/p).
 -/
+set_option linter.flexible false in
+-- Generated simplification is intentionally left unchanged.
 lemma totient_div_eq_euler_product (S : Finset ℕ) (hS : ∀ p ∈ S, Nat.Prime p) :
     (↑(Nat.totient (∏ p ∈ S, p)) : ℝ) / ↑(∏ p ∈ S, p) =
       ∏ p ∈ S, (1 - (1 : ℝ) / p) := by
@@ -443,6 +450,7 @@ Step 1: Building moduli with small totient ratio.
 -/
 set_option maxHeartbeats 800000 in
 -- The prime-set construction has several pigeonhole and product estimates.
+set_option linter.flexible false in
 lemma exists_coprime_moduli_small_totient (θ : ℝ) (hθ : 0 < θ) (m : ℕ) (hm : 1 ≤ m) :
     ∃ (r : Fin m → ℕ) (X₀ : ℕ),
       (∀ i, 1 < r i) ∧
@@ -515,9 +523,11 @@ lemma exists_coprime_moduli_small_totient (θ : ℝ) (hθ : 0 < θ) (m : ℕ) (h
         (∀ p ∈ T i, X₀ < p)) ∧ (∀ i, (∏ p ∈ T i, (1 - (1 : ℝ) / p)) < θ) ∧ (∀ i, 1 < ∏ p ∈ T i, p)
         ∧ (∀ i j, i ≠ j → Disjoint (T i) (T j)) := by
         intro n
-        induction' n with n ih;
-        · exact ⟨ fun _ => ∅, by simp +decide ⟩;
-        · obtain ⟨ T, hT₁, hT₂, hT₃, hT₄, hT₅ ⟩ := ih;
+        induction n with
+        | zero =>
+          exact ⟨ fun _ => ∅, by simp +decide ⟩
+        | succ n ih =>
+          obtain ⟨ T, hT₁, hT₂, hT₃, hT₄, hT₅ ⟩ := ih
           -- Choose a new set $S_{n+1}$ of primes greater than $X₀$ and ensure it is disjoint from
           -- all previous sets $T_i$.
           obtain ⟨ S, hS₁, hS₂, hS₃, hS₄ ⟩ : ∃ S : Finset ℕ, (∀ p ∈ S, Nat.Prime p) ∧ (∀ p ∈ S,
@@ -591,6 +601,7 @@ Step 2: CRT construction of the multiplier C.
 -/
 set_option maxHeartbeats 800000 in
 -- The CRT multiplier construction is heartbeat-intensive.
+set_option linter.flexible false in
 lemma exists_crt_multiplier (k : ℕ) (hk : 2 ≤ k) (m : ℕ) (hm : m = k - 1)
     (r : Fin m → ℕ) (hr_pos : ∀ i, 1 < r i)
     (hr_coprime : ∀ i j, i ≠ j → Nat.Coprime (r i) (r j))
@@ -631,7 +642,7 @@ lemma exists_crt_multiplier (k : ℕ) (hk : 2 ≤ k) (m : ℕ) (hm : m = k - 1)
       use ∑ i, f i;
       intro i; simp_all +decide only [ModEq];
       rw [ Finset.sum_nat_mod, Finset.sum_eq_single i ] <;> aesop;
-    cases' h_crt with e_q he_q;
+    obtain ⟨e_q, he_q⟩ := h_crt
     -- Let $M = \prod_{i=0}^{m-1} r_i$.
     set M := Finset.prod Finset.univ r with hM_def;
     refine' ⟨ e_q + M * ( Finset.sup ( Finset.Ico 1 k ) ( fun j => Nat.factorization j q ) + 1 ), _,
@@ -698,6 +709,8 @@ lemma exists_crt_multiplier (k : ℕ) (hk : 2 ≤ k) (m : ℕ) (hm : m = k - 1)
 Step 3: Given a/j is a perfect r-th power (b^r), prime factors of
     a - j = j*(b^r - 1) are bounded by max(k-1, (2b)^{φ(r)}).
 -/
+set_option linter.flexible false in
+-- Generated simplification is intentionally left unchanged.
 lemma prime_factor_bound_of_perfect_power (a j b R : ℕ)
     (hj : 1 ≤ j) (hR : 1 < R) (hb : 1 ≤ b)
     (hpow : a = j * b ^ R) :
@@ -771,6 +784,8 @@ lemma prime_factor_bound_of_perfect_power (a j b R : ℕ)
 For any L > 1 with φ(L)/L < θ, and a = b^L with b = 2^u · 3^v,
     each prime factor of a - 1 = b^L - 1 is bounded by (2b)^{φ(L)} ≤ 2^L · N^θ.
 -/
+set_option linter.flexible false in
+-- Generated simplification is intentionally left unchanged.
 lemma smooth_pair_exists (θ : ℝ) (hθ : 0 < θ) :
     ∃ K : ℝ, 0 < K ∧
       ∃ N₀ : ℕ, ∀ N : ℕ, N₀ ≤ N →
@@ -875,6 +890,7 @@ Stronger CRT multiplier with full factorization conditions .
 -/
 set_option maxHeartbeats 800000 in
 -- The stronger CRT multiplier repeats the expensive factorization construction.
+set_option linter.flexible false in
 lemma exists_crt_multiplier_strong (k : ℕ) (hk : 2 ≤ k) (m : ℕ) (hm : m = k - 1)
     (r : Fin m → ℕ) (hr_pos : ∀ i, 1 < r i)
     (hr_coprime : ∀ i j, i ≠ j → Nat.Coprime (r i) (r j))
@@ -971,6 +987,7 @@ lemma exists_crt_multiplier_strong (k : ℕ) (hk : 2 ≤ k) (m : ℕ) (hm : m = 
 
 set_option maxHeartbeats 800000 in
 -- The perfect-power quotient proof depends on the same CRT data.
+set_option linter.flexible false in
 lemma quotient_is_perfect_power_of_crt (k : ℕ) (hk : 2 ≤ k) (m : ℕ) (hm : m = k - 1)
     (r : Fin m → ℕ) (hr_pos : ∀ i, 1 < r i)
     (hr_coprime : ∀ i j, i ≠ j → Nat.Coprime (r i) (r j))
@@ -1025,6 +1042,8 @@ lemma rpow_inv_le_of_pow_le {b N : ℕ} {r : ℕ} (hr : 0 < r) (h : b ^ r ≤ N)
 /-
 Largest prime factor of product with {2,3}-smooth and bounded-prime numbers is bounded.
 -/
+set_option linter.flexible false in
+-- Generated simplification is intentionally left unchanged.
 lemma largest_prime_factor_mul_pow23_le (k : ℕ) {C : ℕ} {Lu Lv : ℕ}
     (hC : 0 < C)
     (hC_primes : ∀ p : ℕ, Nat.Prime p → p ∣ C → p ≤ max 3 (k - 1)) :
@@ -1045,6 +1064,8 @@ lemma largest_prime_factor_mul_pow23_le (k : ℕ) {C : ℕ} {Lu Lv : ℕ}
 /-
 The rpow bound (2b)^{φ(R)} ≤ 2^L * N^θ.
 -/
+set_option linter.flexible false in
+-- Generated simplification is intentionally left unchanged.
 lemma two_mul_rpow_totient_le {b N R L : ℕ} {θ : ℝ}
     (hR : 0 < R) (hθ : 0 < θ)
     (hb : (b : ℝ) ≤ (N : ℝ) ^ (1 / (R : ℝ)))
@@ -1067,6 +1088,7 @@ lemma two_mul_rpow_totient_le {b N R L : ℕ} {θ : ℝ}
 
 set_option maxHeartbeats 3200000 in
 -- The final smooth block estimate is the most expensive generated proof in this file.
+set_option linter.flexible false in
 lemma smooth_consecutive_exists (θ : ℝ) (hθ : 0 < θ) (k : ℕ) (hk : 2 ≤ k) :
     ∃ K : ℝ, 0 < K ∧
       ∃ N₀ : ℕ, ∀ N : ℕ, N₀ ≤ N →
@@ -1225,8 +1247,6 @@ theorem erdos_problem_369 (ε : ℝ) (hε : 0 < ε) (k : ℕ) (hk : 2 ≤ k) :
   by_cases hε1 : ε ≥ 1;
   · exact erdos_369_eps_ge_one k hk ε hε1;
   · convert erdos_369_eps_lt_one k hk ε hε using 1
-
-end
 
 end Erdos369
 
