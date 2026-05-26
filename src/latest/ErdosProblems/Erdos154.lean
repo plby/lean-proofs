@@ -30,10 +30,8 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.induction false
 set_option linter.style.refine false
 set_option linter.style.multiGoal false
-set_option maxHeartbeats 1000000
 
 open scoped BigOperators
 open scoped Real
@@ -150,9 +148,13 @@ theorem sum_distinct_pos_ints_ge (S : Finset ℕ) (h_pos : ∀ x ∈ S, 0 < x) :
     exact ⟨ fun i => S.orderEmbOfFin rfl i, by simp +decide [ StrictMono ], fun i => S.orderEmbOfFin_mem rfl _ ⟩;
   -- Since $x$ is strictly monotone, we have $x_i \geq i + 1$ for all $i$.
   have h_x_ge : ∀ i, x i ≥ i + 1 := by
-    intro ⟨ i, hi ⟩ ; induction' i with i ih;
-    · exact h_pos _ ( hx.2 _ );
-    · exact Nat.succ_le_of_lt ( lt_of_le_of_lt ( ih ( Nat.lt_of_succ_lt hi ) ) ( hx.1 ( Nat.lt_succ_self _ ) ) );
+    intro ⟨ i, hi ⟩
+    induction i with
+    | zero =>
+        exact h_pos _ ( hx.2 _ )
+    | succ i ih =>
+        exact Nat.succ_le_of_lt
+          (lt_of_le_of_lt (ih (Nat.lt_of_succ_lt hi)) (hx.1 (Nat.lt_succ_self _)))
   -- Therefore, $\sum_{x \in S} x \geq \sum_{i=0}^{k-1} (i + 1) = \frac{k(k+1)}{2}$.
   have h_sum_ge : ∑ x ∈ Finset.image x Finset.univ, x ≥ ∑ i ∈ Finset.range (Finset.card S), (i + 1) := by
     rw [ Finset.sum_image (by intro a _ b _ h; exact hx.1.injective h) ] ; simpa only [ Finset.sum_range ] using Finset.sum_le_sum fun i _ => h_x_ge i;
@@ -291,6 +293,8 @@ noncomputable def total_diffs (A : Finset ℕ) (m : ℕ) (s : ℕ → ℕ) : Fin
 /-
 The difference sets from distinct B_i are disjoint.
 -/
+set_option maxHeartbeats 1000000 in
+-- The generated disjointness proof times out at the default heartbeat limit.
 theorem disjoint_diffs_le_s_set (A : Finset ℕ) (m : ℕ) (hm : 2 ≤ m) (s : ℕ → ℕ) (hA : IsSidonSetNat (A : Set ℕ))
   (i j : ℕ) (hi : i < m) (hj : j < m) (hij : i ≠ j) :
   Disjoint (diffs_le_s_set (B_finset_new A m i) (s i)) (diffs_le_s_set (B_finset_new A m j) (s j)) := by
