@@ -25,13 +25,11 @@ the conjecture that f(d) = d + 1.
 import Mathlib
 
 set_option linter.style.setOption false
-set_option linter.style.cases false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.openClassical false
 set_option linter.style.refine false
 set_option linter.flexible false
-set_option linter.unusedFintypeInType false
 
 namespace Erdos505
 
@@ -157,11 +155,11 @@ def SignVectorsProdOneEquiv (n : ℕ) : SignVectorsProdOne (n + 1) ≃ SignVecto
     left_inv := by
       intro x; ext i; induction i using Fin.lastCases <;> simp_all +decide [ Fin.snoc ] ;
       have := x.2.2; simp_all +decide [ Fin.prod_univ_castSucc ] ;
-      cases' eq_or_eq_neg_of_abs_eq
+      rcases eq_or_eq_neg_of_abs_eq
           (show |(x : Fin (n + 1) → ℝ) (Fin.last n)| = 1 from by
             have := x.2.1 (Fin.last n)
             aesop)
-          with h h <;>
+          with h | h <;>
         simp_all +decide [mul_comm];
       linarith
     right_inv := by
@@ -1576,6 +1574,7 @@ theorem unit_ball_cover_diam_lt_one (d : ℕ) [NeZero d] :
 /-
 A finite indexed cover can be refined to a partition.
 -/
+set_option linter.unusedFintypeInType false in
 theorem partition_refinement_indexed
     {α : Type*} {ι : Type*} [Fintype ι] [LinearOrder ι]
     (U : ι → Set α) :
