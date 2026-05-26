@@ -1825,7 +1825,7 @@ theorem erdos_537 : ¬(∀ ε > 0, ∃ N₀, ∀ N ≥ N₀, ∀ A, A ⊆ Finset
     exact ⟨ fun h => ⟨ ⟨ h.2.2, by linarith ⟩, h.2.1 ⟩, fun h => ⟨ by linarith, h.2, h.1.1 ⟩ ⟩;
   · exact h_contra
 
-#print axioms erdos_537
--- 'Erdos537.erdos_537' depends on axioms: [propext, Classical.choice, Quot.sound]
-
 end Erdos537
+
+#print axioms Erdos537.erdos_537
+-- 'Erdos537.erdos_537' depends on axioms: [propext, Classical.choice, Quot.sound]
