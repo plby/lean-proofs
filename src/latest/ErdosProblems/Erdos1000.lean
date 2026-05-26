@@ -31,11 +31,8 @@ namespace Erdos1000
 set_option linter.style.setOption false
 set_option linter.style.openClassical false
 set_option linter.style.longLine false
-set_option linter.unusedVariables false
 set_option linter.style.refine false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
-set_option linter.style.whitespace false
 set_option linter.style.induction false
 
 open scoped Classical
@@ -50,7 +47,7 @@ def phi_A (n : ℕ → ℕ) (k : ℕ) : ℕ :=
 Lemma 1: Let p be a prime and q a positive integer coprime to p. Assume that for every proper divisor d of q, pd appears in the sequence A before pq. If n_k = pq, then phi_A(k)/n_k <= phi(q)/q + 1/p.
 -/
 lemma lem_primeblock (n : ℕ → ℕ) (k : ℕ) (p q : ℕ)
-    (h_mono : StrictMono n)
+    (_h_mono : StrictMono n)
     (hp : p.Prime)
     (hq : 0 < q)
     (hpq : Nat.Coprime p q)
@@ -92,7 +89,7 @@ lemma lem_primeblock (n : ℕ → ℕ) (k : ℕ) (p q : ℕ)
   rw [ add_div', div_le_div_iff_of_pos_right ] <;> norm_cast <;> nlinarith [ hp.two_le, Nat.totient_le p, Nat.totient_le q ]
 
 /-
-Lemma 2: Let Q_t be the product of the first t primes. Then (1/2^t) * sum_{d|Q_t} (phi(d)/d) = product_{i=1}^t (1 - 1/(2p_i)).
+Lemma 2: Let Q_t be the product of the first t primes. Then (1/2 ^ t) * sum_{d|Q_t} (phi(d)/d) = product_{i=1}^t (1 - 1/(2p_i)).
 -/
 noncomputable def Q (t : ℕ) : ℕ := (Finset.range t).prod (fun i => Nat.nth Nat.Prime i)
 
@@ -183,7 +180,7 @@ lemma lem_sumrecipprimes : Filter.Tendsto (fun N => ∑ p ∈ Finset.filter Nat.
         rw [ h_sum_rewrite, Finset.prod_sum ];
         refine' le_trans _ ( Finset.sum_le_sum_of_subset_of_nonneg _ fun _ _ _ => Finset.prod_nonneg fun _ _ => by positivity );
         rotate_left;
-        exact Finset.image ( fun n => fun p hp => f n p ) ( Finset.Icc 1 N );
+        · exact Finset.image ( fun n => fun p hp => f n p ) ( Finset.Icc 1 N );
         · norm_num [ Finset.image_subset_iff ];
           exact fun n hn hn' p hp hp' => hf1 n (Finset.mem_Icc.mpr ⟨hn, hn'⟩) p hp';
         · rw [ Finset.sum_image ];
@@ -253,21 +250,23 @@ lemma lem_product0 : Filter.Tendsto (fun t => (Finset.range t).prod (fun i => 1 
   norm_num [ Norm.norm ]
 
 /-
-Lemma 5: If a sequence a_k in [0,1] has block sums bounded by c_t * 2^t where c_t -> 0, then the Cesaro average of a_k tends to 0.
+Lemma 5: If a sequence a_k in [0,1] has block sums bounded by c_t * 2 ^ t where c_t -> 0, then the Cesaro average of a_k tends to 0.
 -/
 lemma lem_block (a : ℕ → ℝ) (c : ℕ → ℝ)
     (h_bound : ∀ k, 0 ≤ a k ∧ a k ≤ 1)
     (h_c_nonneg : ∀ t, 0 ≤ c t)
     (h_c_to_zero : Filter.Tendsto c Filter.atTop (nhds 0))
-    (h_sum : ∀ t ≥ 1, ∑ k ∈ Finset.Icc (2^t - 1) (2^(t+1) - 2), a k ≤ c t * (2^t : ℝ)) :
+    (h_sum : ∀ t ≥ 1, ∑ k ∈ Finset.Icc (2 ^ t - 1) (2 ^ (t + 1) - 2), a k ≤ c t * (2 ^ t : ℝ)) :
     Filter.Tendsto (fun N : ℕ => (1 / N : ℝ) * ∑ k ∈ Finset.Icc 1 N, a k) Filter.atTop (nhds 0) := by
   -- By Lemma 5, it suffices to show that the limit of the average of the $a_k$'s is bounded by the limit of the average of the $c_t$'s.
   suffices h_suff : Filter.Tendsto (fun t : ℕ => (∑ k ∈ Finset.Icc 1 (2 ^ (t + 1) - 2), a k) / (2 ^ (t + 1) - 2 : ℝ)) Filter.atTop (nhds 0) by
-    -- By the properties of the average, if the average of the $a_k$'s over the intervals $[2^t - 1, 2^{t+1} - 2]$ tends to 0, then the average of the $a_k$'s over the entire range also tends to 0.
+    -- By the properties of the average, if the average of the $a_k$'s over the intervals $[2 ^ t - 1, 2^{t+1} - 2]$ tends to 0, then the average of the $a_k$'s over the entire range also tends to 0.
     have h_avg : ∀ N : ℕ, (∑ k ∈ Finset.Icc 1 N, a k) ≤ (∑ k ∈ Finset.Icc 1 (2 ^ (Nat.log 2 N + 1 + 1) - 2), a k) := by
-      intro N; gcongr ; aesop;
+      intro N
+      gcongr
+      · aesop
       exact Nat.le_sub_of_add_le ( by rw [ Nat.pow_succ ] ; linarith [ Nat.lt_pow_of_log_lt one_lt_two ( by linarith : Nat.log 2 N < Nat.log 2 N + 1 ) ] );
-    -- Using the bound from h_avg, we can show that the average of the $a_k$'s over the entire range is bounded by the average of the $a_k$'s over the intervals $[2^t - 1, 2^{t+1} - 2]$.
+    -- Using the bound from h_avg, we can show that the average of the $a_k$'s over the entire range is bounded by the average of the $a_k$'s over the intervals $[2 ^ t - 1, 2^{t+1} - 2]$.
     have h_avg_bound : ∀ N : ℕ, N ≥ 1 → (∑ k ∈ Finset.Icc 1 N, a k) / (N : ℝ) ≤ (∑ k ∈ Finset.Icc 1 (2 ^ (Nat.log 2 N + 1 + 1) - 2), a k) / (2 ^ (Nat.log 2 N + 1 + 1) - 2 : ℝ) * 4 := by
       intros N hN
       have h_avg_bound_step : (2 ^ (Nat.log 2 N + 1 + 1) - 2 : ℝ) ≥ N / 4 := by
@@ -282,7 +281,7 @@ lemma lem_block (a : ℕ → ℝ) (c : ℕ → ℝ)
         · norm_num [ pow_succ' ];
           exact_mod_cast ( by linarith [ Nat.pow_log_le_self 2 ( by linarith : N ≠ 0 ) ] : ( 2 : ℕ ) * ( 2 * 2 ^ Nat.log 2 N ) ≤ 4 * N + 2 );
       · exact lt_of_lt_of_le ( by positivity ) h_avg_bound_step;
-    -- Since the average of the $a_k$'s over the intervals $[2^t - 1, 2^{t+1} - 2]$ tends to 0, multiplying by 4 preserves the limit.
+    -- Since the average of the $a_k$'s over the intervals $[2 ^ t - 1, 2^{t+1} - 2]$ tends to 0, multiplying by 4 preserves the limit.
     have h_avg_mul : Filter.Tendsto (fun N : ℕ => (∑ k ∈ Finset.Icc 1 (2 ^ (Nat.log 2 N + 1 + 1) - 2), a k) / (2 ^ (Nat.log 2 N + 1 + 1) - 2 : ℝ) * 4) Filter.atTop (nhds 0) := by
       simpa using Filter.Tendsto.mul ( h_suff.comp ( Filter.tendsto_add_atTop_nat 1 |> Filter.Tendsto.comp <| Filter.tendsto_atTop_atTop.mpr fun x => ⟨ 2 ^ x, fun n hn => Nat.le_log_of_pow_le ( by norm_num ) hn ⟩ ) ) tendsto_const_nhds;
     refine' squeeze_zero_norm' _ h_avg_mul;
@@ -360,7 +359,7 @@ Definition of the sequence n_seq.
 noncomputable def n_seq (k : ℕ) : ℕ :=
   if k = 0 then 1 else
   let t := Nat.log 2 (k + 1)
-  let j := k - (2^t - 2)
+  let j := k - (2 ^ t - 2)
   let divisors := (Nat.divisors (Q t)).sort (· ≤ ·)
   r_seq t * divisors.getD (j - 1) 0
 
@@ -368,7 +367,7 @@ noncomputable def n_seq (k : ℕ) : ℕ :=
 n_seq is strictly increasing within each block.
 -/
 lemma n_seq_block_mono (t : ℕ) (k : ℕ)
-    (hk1 : 2^t - 1 ≤ k) (hk2 : k + 1 ≤ 2^(t+1) - 2) :
+    (hk1 : 2 ^ t - 1 ≤ k) (hk2 : k + 1 ≤ 2 ^ (t + 1) - 2) :
     n_seq k < n_seq (k + 1) := by
   -- Since $k$ and $k+1$ are in the same block $I_t$, they have the same $t = \lfloor \log_2(k+1) \rfloor = \lfloor \log_2(k+2) \rfloor$.
   set t' := Nat.log 2 (k + 1)
@@ -394,9 +393,9 @@ lemma n_seq_block_mono (t : ℕ) (k : ℕ)
       convert mul_lt_mul_of_pos_left ( h_divisors_strict_mono ( k - ( 2 ^ t - 2 ) - 1 ) _ ) ( Nat.Prime.pos ( show Nat.Prime ( r_seq t ) from ?_ ) ) using 1;
       · grind;
       · rw [ show k + 1 - ( 2 ^ t - 2 ) - 1 = k - ( 2 ^ t - 2 ) - 1 + 1 from by omega ];
-      · -- Since $Q(t)$ is the product of the first $t$ primes, the number of divisors of $Q(t)$ is $2^t$.
+      · -- Since $Q(t)$ is the product of the first $t$ primes, the number of divisors of $Q(t)$ is $2 ^ t$.
         have h_divisors_card : (Nat.divisors (Q t)).card = 2 ^ t := by
-          -- Since $Q(t)$ is the product of the first $t$ primes, the number of divisors of $Q(t)$ is $2^t$ by definition.
+          -- Since $Q(t)$ is the product of the first $t$ primes, the number of divisors of $Q(t)$ is $2 ^ t$ by definition.
           have h_divisors_card : (Nat.divisors (Finset.prod (Finset.range t) (fun i => Nat.nth Nat.Prime i))).card = Finset.prod (Finset.range t) (fun i => (Nat.divisors (Nat.nth Nat.Prime i)).card) := by
             have h_divisors_card : ∀ {a b : ℕ}, Nat.gcd a b = 1 → (Nat.divisors (a * b)).card = (Nat.divisors a).card * (Nat.divisors b).card := by
               exact fun {a b} a_1 => Nat.Coprime.card_divisors_mul a_1;
@@ -421,7 +420,7 @@ private lemma sorted_divisors_two_first_ne_zero :
     Finset.mem_sort (α := ℕ) (· ≤ ·) |>.1 (List.getElem_mem _)
 
 lemma n_seq_block_transition (t : ℕ) :
-    n_seq (2^(t+1) - 2) < n_seq (2^(t+1) - 1) := by
+    n_seq (2 ^ (t + 1) - 2) < n_seq (2 ^ (t + 1) - 1) := by
   unfold n_seq;
   -- Let's simplify the expressions for the indices.
   have h_indices : Nat.log 2 (2 ^ (t + 1) - 2 + 1) = t ∧ Nat.log 2 (2 ^ (t + 1) - 1 + 1) = t + 1 := by
@@ -447,8 +446,8 @@ lemma n_seq_block_transition (t : ℕ) :
         any_goals exact Finset.prod_ne_zero_iff.mpr fun i hi => Nat.Prime.ne_zero <| Nat.prime_nth_prime i;
         exact Nat.ne_of_gt <| Nat.pos_of_mem_divisors <| Finset.mem_sort ( α := ℕ ) ( · ≤ · ) |>.1 <| List.getElem_mem _;
     · rw [ List.getElem?_eq_getElem ] <;> norm_num;
-      refine' Nat.pos_of_mem_divisors ( Finset.mem_sort ( α := ℕ ) ( · ≤ · ) |>.1 ( List.getElem_mem _ ) );
-      exact Finset.prod_ne_zero_iff.mpr fun i hi => Nat.Prime.ne_zero <| by aesop;
+      · refine' Nat.pos_of_mem_divisors ( Finset.mem_sort ( α := ℕ ) ( · ≤ · ) |>.1 ( List.getElem_mem _ ) );
+      · exact Finset.prod_ne_zero_iff.mpr fun i hi => Nat.Prime.ne_zero <| by aesop;
 
 /-
 The sequence n_seq is strictly increasing.
@@ -458,12 +457,12 @@ lemma n_seq_strictMono : StrictMono n_seq := by
   have h_strict_mono : ∀ k, n_seq k < n_seq (k + 1) := by
     -- By definition of $n_seq$, we know that $n_seq k$ is strictly increasing within each block and between blocks.
     intros k
-    by_cases hk : ∃ t, 2^t - 1 ≤ k ∧ k + 1 ≤ 2^(t+1) - 2;
+    by_cases hk : ∃ t, 2 ^ t - 1 ≤ k ∧ k + 1 ≤ 2 ^ (t + 1) - 2;
     · exact n_seq_block_mono _ _ hk.choose_spec.1 hk.choose_spec.2;
     · -- Since $k$ is not in the same block as $k+1$, it must be the last element of block $t$.
-      obtain ⟨t, ht⟩ : ∃ t, k = 2^(t+1) - 2 := by
+      obtain ⟨t, ht⟩ : ∃ t, k = 2 ^ (t + 1) - 2 := by
         -- Since $k$ is not in the same block as $k+1$, it must be the last element of some block $t$.
-        obtain ⟨t, ht⟩ : ∃ t, 2^t - 1 ≤ k ∧ k < 2^(t+1) - 1 := by
+        obtain ⟨t, ht⟩ : ∃ t, 2 ^ t - 1 ≤ k ∧ k < 2 ^ (t + 1) - 1 := by
           use Nat.log 2 (k + 1);
           exact ⟨ Nat.sub_le_of_le_add <| by linarith [ Nat.pow_log_le_self 2 <| show k + 1 ≠ 0 by linarith ], Nat.lt_sub_of_add_lt <| by linarith [ Nat.lt_pow_of_log_lt one_lt_two <| show Nat.log 2 ( k + 1 ) < Nat.log 2 ( k + 1 ) + 1 by linarith ] ⟩;
         grind;
@@ -477,7 +476,7 @@ Bound for phi_A(k)/n_k for k in block t.
 -/
 lemma n_seq_phi_bound (t : ℕ) (k : ℕ)
     (ht : t ≥ 1)
-    (hk1 : 2^t - 1 ≤ k) (hk2 : k + 1 ≤ 2^(t+1) - 2) :
+    (hk1 : 2 ^ t - 1 ≤ k) (hk2 : k + 1 ≤ 2 ^ (t + 1) - 2) :
     (phi_A n_seq k : ℚ) / n_seq k ≤ (Nat.totient (n_seq k / r_seq t) : ℚ) / (n_seq k / r_seq t) + 1 / r_seq t := by
   -- We apply `lem_primeblock` with $p = r_t$ and $q = n_k / r_t$.
   have h_apply_lemma : ((phi_A n_seq k : ℚ) / (n_seq k : ℚ)) ≤ ((Nat.totient (n_seq k / r_seq t) : ℚ) / (n_seq k / r_seq t : ℚ)) + 1 / (r_seq t : ℚ) := by
@@ -533,12 +532,12 @@ lemma n_seq_phi_bound (t : ℕ) (k : ℕ)
     have h_div : ∀ e, e ∣ (n_seq k / r_seq t) → e < (n_seq k / r_seq t) → ∃ j < k, n_seq j = r_seq t * e := by
       intro e he_div he_lt
       obtain ⟨j, hj⟩ : ∃ j, j < k ∧ n_seq j = r_seq t * e := by
-        have h_divisors : Finset.image (fun j => n_seq j) (Finset.Ico (2^t - 1) (2^(t+1) - 1)) = Finset.image (fun d => r_seq t * d) (Nat.divisors (Q t)) := by
+        have h_divisors : Finset.image (fun j => n_seq j) (Finset.Ico (2 ^ t - 1) (2 ^ (t + 1) - 1)) = Finset.image (fun d => r_seq t * d) (Nat.divisors (Q t)) := by
           refine' Finset.eq_of_subset_of_card_le ( Finset.image_subset_iff.mpr _ ) _;
           · intro x hx;
             rcases x with ( _ | x ) <;> norm_num [ n_seq ] at hx ⊢;
             · exact absurd hx ( Nat.sub_ne_zero_of_lt ( one_lt_pow₀ one_lt_two ( by linarith ) ) );
-            · -- Since $2^t \leq x + 2 < 2^{t+1}$, we have $\log_2(x + 2) = t$.
+            · -- Since $2 ^ t \leq x + 2 < 2^{t+1}$, we have $\log_2(x + 2) = t$.
               have h_log : Nat.log 2 (x + 2) = t := by
                 rw [ Nat.log_eq_iff ] <;> norm_num;
                 omega;
@@ -564,8 +563,8 @@ lemma n_seq_phi_bound (t : ℕ) (k : ℕ)
                     obtain ⟨ a, ha₁, rfl ⟩ := hd; exact ⟨ by rw [ ← Finset.prod_sdiff ha₁ ] ; norm_num, Finset.prod_ne_zero_iff.mpr fun i hi => Nat.Prime.ne_zero <| by norm_num ⟩ ;
               · exact Finset.prod_ne_zero_iff.mpr fun i hi => Nat.Prime.ne_zero <| Nat.prime_nth_prime i;
           · rw [ Finset.card_image_of_injective _ fun x y hxy => mul_left_cancel₀ h_p_prime.ne_zero hxy, Finset.card_image_of_injective _ h_mono.injective ] ; norm_num;
-            -- The number of divisors of $Q_t$ is $2^t$.
-            have h_divisors_card : (Nat.divisors (Q t)).card = 2^t := by
+            -- The number of divisors of $Q_t$ is $2 ^ t$.
+            have h_divisors_card : (Nat.divisors (Q t)).card = 2 ^ t := by
               have h_divisors_card : (Nat.divisors (Finset.prod (Finset.range t) (fun i => Nat.nth Nat.Prime i))).card = Finset.prod (Finset.range t) (fun i => (Nat.divisors (Nat.nth Nat.Prime i)).card) := by
                 have h_divisors_card : ∀ {m n : ℕ}, Nat.Coprime m n → (Nat.divisors (m * n)).card = (Nat.divisors m).card * (Nat.divisors n).card := by
                   exact fun {m n} a => Nat.Coprime.card_divisors_mul a;
@@ -600,10 +599,10 @@ lemma n_seq_phi_bound (t : ℕ) (k : ℕ)
   convert h_apply_lemma using 1
 
 /-
-The function k -> k - (2^t - 2) - 1 maps the block indices to the range [0, 2^t - 1].
+The function k -> k - (2 ^ t - 2) - 1 maps the block indices to the range [0, 2 ^ t - 1].
 -/
 lemma block_index_map (t : ℕ) (ht : t ≥ 1) :
-    (Finset.Icc (2^t - 1) (2^(t+1) - 2)).image (fun k => k - (2^t - 2) - 1) = Finset.range (2^t) := by
+    (Finset.Icc (2 ^ t - 1) (2 ^ (t + 1) - 2)).image (fun k => k - (2 ^ t - 2) - 1) = Finset.range (2 ^ t) := by
   ext;
   norm_num +zetaDelta at *;
   constructor;
@@ -613,9 +612,9 @@ lemma block_index_map (t : ℕ) (ht : t ≥ 1) :
     refine' ⟨ 2 ^ t + ‹ℕ› - 1, _, _ ⟩ <;> omega
 
 /-
-The number of divisors of Q(t) is 2^t.
+The number of divisors of Q(t) is 2 ^ t.
 -/
-lemma card_divisors_Q (t : ℕ) : (Nat.divisors (Q t)).card = 2^t := by
+lemma card_divisors_Q (t : ℕ) : (Nat.divisors (Q t)).card = 2 ^ t := by
   -- By definition of $Q$, we know that $Q_t = \prod_{i=0}^{t-1} p_i$, where $p_i$ is the $i$-th prime number.
   have hQ_def : Q t = ∏ i ∈ Finset.range t, Nat.nth Nat.Prime i := by
     rfl;
@@ -630,28 +629,29 @@ lemma card_divisors_Q (t : ℕ) : (Nat.divisors (Q t)).card = 2^t := by
     · rintro ⟨ s, hs, rfl ⟩ ; by_cases h : ‹_› ∈ s <;> simp_all +decide [ Finset.subset_iff ] ;
       · exact Or.inr ⟨ s.erase ‹_›, fun x hx => by cases hs ( Finset.mem_of_mem_erase hx ) <;> aesop, by rw [ mul_comm, Finset.prod_erase_mul _ _ h ] ⟩;
       · exact Or.inl ⟨ s, fun x hx => Or.resolve_left ( hs hx ) ( by aesop ), rfl ⟩;
-  rw [ h_divisors, Finset.card_image_of_injOn, Finset.card_powerset ] ; aesop;
-  intros s hs t ht h_eq; apply_fun fun x => x.primeFactors at h_eq; simp_all +decide
-  simp_all +decide [ Finset.ext_iff, Set.subset_def ];
-  intro x; specialize h_eq ( Nat.nth Nat.Prime x ) ( Nat.prime_nth_prime x ) ; simp_all +decide [ Nat.Prime.dvd_iff_not_coprime, Nat.coprime_prod_right_iff ] ;
-  simp_all +decide [ Nat.coprime_primes, Finset.prod_eq_zero_iff, Nat.Prime.ne_zero ];
-  exact ⟨ fun hx => h_eq.mp ⟨ x, hx, rfl ⟩ |> fun ⟨ y, hy, hy' ⟩ => by have := Nat.nth_injective ( Nat.infinite_setOf_prime ) hy'; aesop, fun hx => h_eq.mpr ⟨ x, hx, rfl ⟩ |> fun ⟨ y, hy, hy' ⟩ => by have := Nat.nth_injective ( Nat.infinite_setOf_prime ) hy'; aesop ⟩
+  rw [ h_divisors, Finset.card_image_of_injOn, Finset.card_powerset ];
+  · aesop
+  · intros s hs t ht h_eq; apply_fun fun x => x.primeFactors at h_eq; simp_all +decide
+    simp_all +decide [ Finset.ext_iff, Set.subset_def ];
+    intro x; specialize h_eq ( Nat.nth Nat.Prime x ) ( Nat.prime_nth_prime x ) ; simp_all +decide [ Nat.Prime.dvd_iff_not_coprime, Nat.coprime_prod_right_iff ] ;
+    simp_all +decide [ Nat.coprime_primes, Finset.prod_eq_zero_iff, Nat.Prime.ne_zero ];
+    exact ⟨ fun hx => h_eq.mp ⟨ x, hx, rfl ⟩ |> fun ⟨ y, hy, hy' ⟩ => by have := Nat.nth_injective ( Nat.infinite_setOf_prime ) hy'; aesop, fun hx => h_eq.mpr ⟨ x, hx, rfl ⟩ |> fun ⟨ y, hy, hy' ⟩ => by have := Nat.nth_injective ( Nat.infinite_setOf_prime ) hy'; aesop ⟩
 
 /-
 For t >= 1, the sum of f(n_k/r_t) over the block t is equal to the sum of f(d) over the divisors of Q_t.
 -/
 lemma sum_over_block_eq_sum_over_divisors (t : ℕ) (ht : t ≥ 1) (f : ℕ → ℝ) :
-    ∑ k ∈ Finset.Icc (2^t - 1) (2^(t+1) - 2), f (n_seq k / r_seq t) = ∑ d ∈ Nat.divisors (Q t), f d := by
-  -- By definition of $n_seq$, we know that for $k \in [2^t - 1, 2^{t+1} - 2]$, $n_k / r_t$ is a divisor of $Q_t$.
-  have h_divisors : ∀ k ∈ Finset.Icc (2^t - 1) (2^(t+1) - 2), n_seq k / r_seq t ∈ Nat.divisors (Q t) := by
+    ∑ k ∈ Finset.Icc (2 ^ t - 1) (2 ^ (t + 1) - 2), f (n_seq k / r_seq t) = ∑ d ∈ Nat.divisors (Q t), f d := by
+  -- By definition of $n_seq$, we know that for $k \in [2 ^ t - 1, 2^{t+1} - 2]$, $n_k / r_t$ is a divisor of $Q_t$.
+  have h_divisors : ∀ k ∈ Finset.Icc (2 ^ t - 1) (2 ^ (t + 1) - 2), n_seq k / r_seq t ∈ Nat.divisors (Q t) := by
     unfold n_seq;
-    -- By definition of $n_seq$, for $k \in [2^t - 1, 2^{t+1} - 2]$, $n_k / r_t$ is a divisor of $Q_t$.
+    -- By definition of $n_seq$, for $k \in [2 ^ t - 1, 2^{t+1} - 2]$, $n_k / r_t$ is a divisor of $Q_t$.
     intros k hk
     have ht : Nat.log 2 (k + 1) = t := by
       rw [ Nat.log_eq_iff ] <;> norm_num;
       exact ⟨ by linarith [ Finset.mem_Icc.mp hk, Nat.sub_add_cancel ( Nat.one_le_pow t 2 zero_lt_two ) ], by linarith [ Finset.mem_Icc.mp hk, Nat.sub_add_cancel ( show 2 ≤ 2 ^ ( t + 1 ) from le_self_pow₀ ( by norm_num ) ( by linarith ) ) ] ⟩;
-    have h_divisors : ((Nat.divisors (Q t)).sort (· ≤ ·)).getD (k - (2^t - 2) - 1) 0 ∈ Nat.divisors (Q t) := by
-      have h_divisors : k - (2^t - 2) - 1 < (Nat.divisors (Q t)).card := by
+    have h_divisors : ((Nat.divisors (Q t)).sort (· ≤ ·)).getD (k - (2 ^ t - 2) - 1) 0 ∈ Nat.divisors (Q t) := by
+      have h_divisors : k - (2 ^ t - 2) - 1 < (Nat.divisors (Q t)).card := by
         rw [ card_divisors_Q ];
         rw [ Nat.sub_sub, tsub_lt_iff_left ] <;> norm_num at * <;> linarith [ Nat.sub_add_cancel ( show 2 ≤ 2 ^ t from le_trans ( by decide ) ( pow_le_pow_right₀ ( by decide ) ‹1 ≤ t› ) ), Nat.sub_add_cancel ( show 2 ≤ 2 ^ ( t + 1 ) from le_trans ( by decide ) ( pow_le_pow_right₀ ( by decide ) ( Nat.succ_le_succ ‹1 ≤ t› ) ) ), pow_succ' 2 t ];
       simp +zetaDelta at *;
@@ -660,7 +660,7 @@ lemma sum_over_block_eq_sum_over_divisors (t : ℕ) (ht : t ≥ 1) (f : ℕ → 
     · grind;
     · rw [ Nat.mul_div_cancel_left _ ( Nat.pos_of_ne_zero ( by
         exact Nat.ne_of_gt ( Nat.recOn t ( by norm_num [ r_seq ] ) fun n ihn => Nat.Prime.pos ( by exact Nat.find_spec ( Nat.exists_infinite_primes _ ) |>.2 ) ) ) ) ] ; aesop;
-  have h_divisors_eq : Finset.image (fun k => n_seq k / r_seq t) (Finset.Icc (2^t - 1) (2^(t+1) - 2)) = Nat.divisors (Q t) := by
+  have h_divisors_eq : Finset.image (fun k => n_seq k / r_seq t) (Finset.Icc (2 ^ t - 1) (2 ^ (t + 1) - 2)) = Nat.divisors (Q t) := by
     refine' Finset.eq_of_subset_of_card_le ( fun x hx => _ ) _;
     · grind;
     · rw [ Finset.card_image_of_injOn ];
@@ -669,7 +669,7 @@ lemma sum_over_block_eq_sum_over_divisors (t : ℕ) (ht : t ≥ 1) (f : ℕ → 
         -- Since $n_seq$ is strictly increasing, if $n_seq k / r_seq t = n_seq l / r_seq t$, then $n_seq k = n_seq l$.
         have h_eq : n_seq k = n_seq l := by
           have h_eq : n_seq k = r_seq t * (n_seq k / r_seq t) ∧ n_seq l = r_seq t * (n_seq l / r_seq t) := by
-            have h_eq : ∀ k ∈ Finset.Icc (2^t - 1) (2^(t+1) - 2), r_seq t ∣ n_seq k := by
+            have h_eq : ∀ k ∈ Finset.Icc (2 ^ t - 1) (2 ^ (t + 1) - 2), r_seq t ∣ n_seq k := by
               intros k hk
               simp [n_seq];
               split_ifs <;> simp_all +decide
@@ -682,7 +682,8 @@ lemma sum_over_block_eq_sum_over_divisors (t : ℕ) (ht : t ≥ 1) (f : ℕ → 
           grind;
         exact StrictMono.injective ( show StrictMono n_seq from by exact n_seq_strictMono ) h_eq;
   rw [ ← h_divisors_eq, Finset.sum_image ];
-  have := Finset.card_image_iff.mp ( show Finset.card ( Finset.image ( fun k => n_seq k / r_seq t ) ( Finset.Icc ( 2 ^ t - 1 ) ( 2 ^ ( t + 1 ) - 2 ) ) ) = Finset.card ( Finset.Icc ( 2 ^ t - 1 ) ( 2 ^ ( t + 1 ) - 2 ) ) from ?_ ) ; aesop;
+  have := Finset.card_image_iff.mp ( show Finset.card ( Finset.image ( fun k => n_seq k / r_seq t ) ( Finset.Icc ( 2 ^ t - 1 ) ( 2 ^ ( t + 1 ) - 2 ) ) ) = Finset.card ( Finset.Icc ( 2 ^ t - 1 ) ( 2 ^ ( t + 1 ) - 2 ) ) from ?_ );
+  · aesop
   rw [ h_divisors_eq, card_divisors_Q ] ; norm_num [ Nat.pow_succ' ];
   exact eq_tsub_of_add_eq ( by linarith [ Nat.sub_add_cancel ( show 1 ≤ 2 ^ t from Nat.one_le_pow _ _ ( by decide ) ), Nat.sub_add_cancel ( show 2 ≤ 2 * 2 ^ t from by linarith [ Nat.pow_le_pow_right ( by decide : 1 ≤ 2 ) ht ] ) ] )
 
@@ -690,8 +691,8 @@ lemma sum_over_block_eq_sum_over_divisors (t : ℕ) (ht : t ≥ 1) (f : ℕ → 
 For t >= 1, the sum of f(n_k/r_t) over the block t is equal to the sum of f(d) over the divisors of Q_t.
 -/
 lemma sum_over_block_eq_sum_over_divisors_correct (t : ℕ) (ht : t ≥ 1) (f : ℕ → ℝ) :
-    ∑ k ∈ Finset.Icc (2^t - 1) (2^(t+1) - 2), f (n_seq k / r_seq t) = ∑ d ∈ Nat.divisors (Q t), f d := by
-  let I := Finset.Icc (2^t - 1) (2^(t+1) - 2)
+    ∑ k ∈ Finset.Icc (2 ^ t - 1) (2 ^ (t + 1) - 2), f (n_seq k / r_seq t) = ∑ d ∈ Nat.divisors (Q t), f d := by
+  let I := Finset.Icc (2 ^ t - 1) (2 ^ (t + 1) - 2)
   let D := Nat.divisors (Q t)
   let g (k : ℕ) := n_seq k / r_seq t
   have h_bij : ∀ k ∈ I, g k ∈ D := by
@@ -707,11 +708,12 @@ lemma sum_over_block_eq_sum_over_divisors_correct (t : ℕ) (ht : t ≥ 1) (f : 
         refine' ⟨ _, rfl, _, _ ⟩;
         · by_cases h : k - ( 2 ^ t - 2 ) - 1 < List.length ((Nat.divisors (Q t)).sort (fun x1 x2 => x1 ≤ x2)) <;> simp_all +decide
           · exact Nat.dvd_of_mem_divisors <| Finset.mem_sort ( α := ℕ ) ( fun x1 x2 => x1 ≤ x2 ) |>.1 <| by aesop;
-          · have h_card : (Nat.divisors (Q t)).card = 2^t := by
+          · have h_card : (Nat.divisors (Q t)).card = 2 ^ t := by
               exact card_divisors_Q t;
             omega;
         · exact Finset.prod_ne_zero_iff.mpr fun i hi => Nat.Prime.ne_zero <| by aesop;
-    rw [ hd.1, Nat.mul_div_cancel_left _ ( Nat.Prime.pos ( show Nat.Prime ( r_seq t ) from ?_ ) ) ] ; aesop;
+    rw [ hd.1, Nat.mul_div_cancel_left _ ( Nat.Prime.pos ( show Nat.Prime ( r_seq t ) from ?_ ) ) ];
+    · aesop
     induction' t with t ih;
     · contradiction;
     · exact Nat.find_spec ( Nat.exists_infinite_primes _ ) |>.2
@@ -723,11 +725,11 @@ lemma sum_over_block_eq_sum_over_divisors_correct (t : ℕ) (ht : t ≥ 1) (f : 
     -- Since $r_seq t$ is a prime number, it is non-zero, so we can multiply both sides of the equation $n_seq k₁ / r_seq t = n_seq k₂ / r_seq t$ by $r_seq t$ to get $n_seq k₁ = n_seq k₂$.
     have h_eq_n : n_seq k₁ = n_seq k₂ := by
       have h_eq_n : n_seq k₁ = r_seq t * g k₁ ∧ n_seq k₂ = r_seq t * g k₂ := by
-        -- By definition of $n_seq$, we know that $n_seq k = r_seq t * (divisors.get! (j - 1))$ where $j = k - (2^t - 2)$.
-        have h_n_seq_def : ∀ k ∈ I, n_seq k = r_seq t * ((Nat.divisors (Q t)).sort (· ≤ ·)).getD (k - (2^t - 2) - 1) 0 := by
+        -- By definition of $n_seq$, we know that $n_seq k = r_seq t * (divisors.get! (j - 1))$ where $j = k - (2 ^ t - 2)$.
+        have h_n_seq_def : ∀ k ∈ I, n_seq k = r_seq t * ((Nat.divisors (Q t)).sort (· ≤ ·)).getD (k - (2 ^ t - 2) - 1) 0 := by
           intros k hk
           simp [n_seq];
-          -- Since $k \in I$, we have $2^t \leq k + 1 < 2^{t+1}$, thus $\log_2(k + 1) = t$.
+          -- Since $k \in I$, we have $2 ^ t \leq k + 1 < 2^{t+1}$, thus $\log_2(k + 1) = t$.
           have h_log : Nat.log 2 (k + 1) = t := by
             rw [ Nat.log_eq_iff ] <;> norm_num;
             exact ⟨ by linarith [ Finset.mem_Icc.mp hk, Nat.sub_add_cancel ( Nat.one_le_pow t 2 zero_lt_two ) ], by linarith [ Finset.mem_Icc.mp hk, Nat.sub_add_cancel ( show 2 ≤ 2 ^ ( t + 1 ) from le_self_pow₀ ( by decide ) ( by linarith ) ) ] ⟩;
@@ -739,7 +741,7 @@ lemma sum_over_block_eq_sum_over_divisors_correct (t : ℕ) (ht : t ≥ 1) (f : 
     exact le_antisymm ( le_of_not_gt fun h => by linarith [ h_strict_mono _ _ h ] ) ( le_of_not_gt fun h => by linarith [ h_strict_mono _ _ h ] )
   have h_surj : ∀ d ∈ D, ∃ k, ∃ (hk : k ∈ I), g k = d := by
     intro d hd
-    -- Since D has 2^t elements and I has 2^t elements, and g is injective on I, the image of g over I must be exactly D.
+    -- Since D has 2 ^ t elements and I has 2 ^ t elements, and g is injective on I, the image of g over I must be exactly D.
     have h_card : Finset.card (Finset.image g I) = 2 ^ t := by
       rw [ Finset.card_image_of_injOn fun k₁ hk₁ k₂ hk₂ h => h_inj k₁ hk₁ k₂ hk₂ h ];
       simp +zetaDelta at *;
@@ -770,17 +772,17 @@ lemma inv_r_seq_le_A_val (t : ℕ) (ht : t ≥ 1) :
         · linarith
 
 /-
-The sum of the bound terms over block t equals 2^t * A_val t + 2^t / r_seq t.
+The sum of the bound terms over block t equals 2 ^ t * A_val t + 2 ^ t / r_seq t.
 -/
 lemma sum_bound_eval (t : ℕ) (ht : t ≥ 1) :
-    ∑ k ∈ Finset.Icc (2^t - 1) (2^(t+1) - 2), ((Nat.totient (n_seq k / r_seq t) : ℝ) / (n_seq k / r_seq t) + 1 / r_seq t) =
-    (2^t : ℝ) * A_val t + (2^t : ℝ) / r_seq t := by
+    ∑ k ∈ Finset.Icc (2 ^ t - 1) (2 ^ (t + 1) - 2), ((Nat.totient (n_seq k / r_seq t) : ℝ) / (n_seq k / r_seq t) + 1 / r_seq t) =
+    (2 ^ t : ℝ) * A_val t + (2 ^ t : ℝ) / r_seq t := by
       -- Split the sum into two parts: the sum of the totient function divided by the divisor, and the sum of 1/r_seq t.
-      have h_split : ∑ k ∈ Finset.Icc (2^t - 1) (2^(t+1) - 2), ((Nat.totient (n_seq k / r_seq t) : ℝ) / (n_seq k / r_seq t)) = 2^t * A_val t := by
+      have h_split : ∑ k ∈ Finset.Icc (2 ^ t - 1) (2 ^ (t + 1) - 2), ((Nat.totient (n_seq k / r_seq t) : ℝ) / (n_seq k / r_seq t)) = 2 ^ t * A_val t := by
         convert sum_over_block_eq_sum_over_divisors t ht ( fun x => ( Nat.totient x : ℝ ) / x ) using 1;
         · refine' Finset.sum_congr rfl fun x hx => _;
           unfold n_seq;
-          -- Since $x$ is in the interval $[2^t - 1, 2^{t+1} - 2]$, we have $\log_2(x + 1) = t$.
+          -- Since $x$ is in the interval $[2 ^ t - 1, 2^{t+1} - 2]$, we have $\log_2(x + 1) = t$.
           have h_log : Nat.log 2 (x + 1) = t := by
             rw [ Nat.log_eq_iff ] <;> norm_num;
             exact ⟨ by linarith [ Finset.mem_Icc.mp hx, Nat.sub_add_cancel ( Nat.one_le_pow t 2 zero_lt_two ) ], by linarith [ Finset.mem_Icc.mp hx, Nat.sub_add_cancel ( show 2 ≤ 2 ^ ( t + 1 ) from le_trans ( by decide ) ( Nat.pow_le_pow_right ( by decide ) ( Nat.succ_le_succ ht ) ) ) ] ⟩;
@@ -790,27 +792,29 @@ lemma sum_bound_eval (t : ℕ) (ht : t ≥ 1) :
             convert lem_divisoravg t using 1;
           unfold A_val; norm_num [ ← @Rat.cast_inj ℝ ] at *; rw [ inv_mul_eq_div, div_eq_iff ] at * <;> first | positivity | linarith;
       norm_num [ ← h_split, Finset.sum_add_distrib, div_eq_mul_inv ];
-      rw [ Nat.cast_sub ] <;> norm_num [ pow_succ' ] ; ring_nf;
-      · exact Or.inl ( by rw [ Nat.cast_sub ( by linarith [ Nat.pow_le_pow_right two_pos ht ] ) ] ; push_cast; ring );
-      · omega
+      rw [ Nat.cast_sub ] <;> norm_num [ pow_succ' ];
+      · ring_nf;
+        exact Or.inl ( by rw [ Nat.cast_sub ( by linarith [ Nat.pow_le_pow_right two_pos ht ] ) ] ; push_cast; ring );
+      · ring_nf;
+        omega
 
 /-
 If e is a proper divisor of the d-part of n_seq k, then r_seq t * e appears earlier in the same block.
 -/
 lemma n_seq_divisors_property (t : ℕ) (k : ℕ)
     (ht : t ≥ 1)
-    (hk : k ∈ Finset.Icc (2^t - 1) (2^(t+1) - 2))
+    (hk : k ∈ Finset.Icc (2 ^ t - 1) (2 ^ (t + 1) - 2))
     (e : ℕ) (he_dvd : e ∣ (n_seq k / r_seq t)) (he_lt : e < (n_seq k / r_seq t)) :
-    ∃ j ∈ Finset.Icc (2^t - 1) (2^(t+1) - 2), j < k ∧ n_seq j = r_seq t * e := by
+    ∃ j ∈ Finset.Icc (2 ^ t - 1) (2 ^ (t + 1) - 2), j < k ∧ n_seq j = r_seq t * e := by
       -- Let $d = n_seq k / r_seq t$. From the definition of $n_seq$, $d$ is an element of $divisors_Q t$.
       set d := n_seq k / r_seq t
       have hd_divisors : d ∈ Nat.divisors (Q t) := by
-        -- Since $k \in \text{Finset.Icc} (2^t - 1) (2^{t+1} - 2)$, we have $t = \text{Nat.log} 2 (k + 1)$.
+        -- Since $k \in \text{Finset.Icc} (2 ^ t - 1) (2^{t+1} - 2)$, we have $t = \text{Nat.log} 2 (k + 1)$.
         have ht_eq : t = Nat.log 2 (k + 1) := by
           rw [ eq_comm, Nat.log_eq_iff ] <;> norm_num;
           exact ⟨ by linarith [ Finset.mem_Icc.mp hk, Nat.sub_add_cancel ( Nat.one_le_pow t 2 zero_lt_two ) ], by linarith [ Finset.mem_Icc.mp hk, Nat.sub_add_cancel ( show 2 ≤ 2 ^ ( t + 1 ) from le_trans ( by decide ) ( Nat.pow_le_pow_right ( by decide ) ( Nat.succ_le_succ ht ) ) ) ] ⟩;
         -- By definition of $n_seq$, we know that $n_seq k = r_seq t * divisors_Q t.get! (j - 1)$ for some $j$.
-        have h_nseq_def : n_seq k = r_seq t * ((Nat.divisors (Q t)).sort (· ≤ ·)).getD (k - (2^t - 2) - 1) 0 := by
+        have h_nseq_def : n_seq k = r_seq t * ((Nat.divisors (Q t)).sort (· ≤ ·)).getD (k - (2 ^ t - 2) - 1) 0 := by
           unfold n_seq; aesop;
         simp +zetaDelta at *;
         rw [ h_nseq_def, Nat.mul_div_cancel_left _ ( Nat.Prime.pos ( show Nat.Prime ( r_seq t ) from ?_ ) ) ];
@@ -823,10 +827,10 @@ lemma n_seq_divisors_property (t : ℕ) (k : ℕ)
       have he_divisors : e ∈ Nat.divisors (Q t) := by
         exact Nat.mem_divisors.mpr ⟨ dvd_trans he_dvd ( Nat.dvd_of_mem_divisors hd_divisors ), by aesop ⟩;
       -- Since $e$ is in $divisors_Q t$ and $e < d$, there exists an index $j$ in the block such that $n_seq j = r_seq t * e$.
-      obtain ⟨j, hj⟩ : ∃ j ∈ Finset.Icc (2^t - 1) (2^(t+1) - 2), n_seq j = r_seq t * e := by
-        have h_map : Finset.image (fun j => n_seq j) (Finset.Icc (2^t - 1) (2^(t+1) - 2)) = Finset.image (fun d => r_seq t * d) (Nat.divisors (Q t)) := by
+      obtain ⟨j, hj⟩ : ∃ j ∈ Finset.Icc (2 ^ t - 1) (2 ^ (t + 1) - 2), n_seq j = r_seq t * e := by
+        have h_map : Finset.image (fun j => n_seq j) (Finset.Icc (2 ^ t - 1) (2 ^ (t + 1) - 2)) = Finset.image (fun d => r_seq t * d) (Nat.divisors (Q t)) := by
           -- By definition of $n_seq$, the elements of the block are exactly the multiples of $r_seq t$ by the divisors of $Q t$.
-          have h_block_elements : ∀ j ∈ Finset.Icc (2^t - 1) (2^(t+1) - 2), n_seq j ∈ Finset.image (fun d => r_seq t * d) (Nat.divisors (Q t)) := by
+          have h_block_elements : ∀ j ∈ Finset.Icc (2 ^ t - 1) (2 ^ (t + 1) - 2), n_seq j ∈ Finset.image (fun d => r_seq t * d) (Nat.divisors (Q t)) := by
             intro j hj
             simp [n_seq];
             -- Since $j$ is in the block, we have $Nat.log 2 (j + 1) = t$.
@@ -859,7 +863,7 @@ r_seq t is coprime to the d-part of n_seq k.
 -/
 lemma r_seq_coprime_aux (t : ℕ) (k : ℕ)
     (ht : t ≥ 1)
-    (hk : k ∈ Finset.Icc (2^t - 1) (2^(t+1) - 2)) :
+    (hk : k ∈ Finset.Icc (2 ^ t - 1) (2 ^ (t + 1) - 2)) :
     Nat.Coprime (r_seq t) (n_seq k / r_seq t) := by
       -- From the definition of n_seq, we know that n_seq k / r_seq t is a divisor of Q t.
       have h_div : n_seq k / r_seq t ∣ Q t := by
@@ -871,8 +875,8 @@ lemma r_seq_coprime_aux (t : ℕ) (k : ℕ)
           · rw [ Nat.mul_div_cancel_left _ ( Nat.Prime.pos ( by exact Nat.recOn t ( by exact Nat.prime_two ) fun t ih => by exact Nat.find_spec ( Nat.exists_infinite_primes _ ) |>.2 ) ) ];
             by_cases h : k - ( 2 ^ t - 2 ) - 1 < List.length ((Nat.divisors (Q t)).sort (fun x1 x2 => x1 ≤ x2)) <;> simp_all +decide [ Nat.sub_sub ];
             · exact Nat.dvd_of_mem_divisors <| Finset.mem_sort ( α := ℕ ) ( · ≤ · ) |>.1 <| by aesop;
-            · -- Since $Q_t$ is the product of the first $t$ primes, its number of divisors is $2^t$.
-              have h_divisors_card : (Nat.divisors (Q t)).card = 2^t := by
+            · -- Since $Q_t$ is the product of the first $t$ primes, its number of divisors is $2 ^ t$.
+              have h_divisors_card : (Nat.divisors (Q t)).card = 2 ^ t := by
                 exact card_divisors_Q t;
               omega;
           · rw [ Nat.log_eq_iff ] <;> norm_num;
@@ -892,7 +896,7 @@ For any k in the t-th block, phi_A(n_seq k)/n_seq k <= phi(n_seq k/r_seq t)/(n_s
 -/
 lemma n_seq_phi_bound_correct (t : ℕ) (k : ℕ)
     (ht : t ≥ 1)
-    (hk : k ∈ Finset.Icc (2^t - 1) (2^(t+1) - 2)) :
+    (hk : k ∈ Finset.Icc (2 ^ t - 1) (2 ^ (t + 1) - 2)) :
     (phi_A n_seq k : ℚ) / n_seq k ≤ (Nat.totient (n_seq k / r_seq t) : ℚ) / (n_seq k / r_seq t) + 1 / r_seq t := by
       -- Apply `lem_primeblock` with $p = r_seq t$ and $q = n_seq k / r_seq t$.
       have h_apply_lemma : (phi_A n_seq k : ℚ) / (n_seq k : ℚ) ≤ ((Nat.totient (n_seq k / r_seq t) : ℚ) / (n_seq k / r_seq t)) + (1 / (r_seq t : ℚ)) := by
@@ -917,16 +921,16 @@ lemma n_seq_phi_bound_correct (t : ℕ) (k : ℕ)
       convert h_apply_lemma using 1
 
 /-
-The sum of phi_A(n_seq k)/n_seq k over block t is bounded by 2 * A_val t * 2^t.
+The sum of phi_A(n_seq k)/n_seq k over block t is bounded by 2 * A_val t * 2 ^ t.
 -/
 lemma block_sum_bound (t : ℕ) (ht : t ≥ 1) :
-    ∑ k ∈ Finset.Icc (2^t - 1) (2^(t+1) - 2), (phi_A n_seq k : ℝ) / n_seq k ≤ (2 * A_val t) * (2^t : ℝ) := by
+    ∑ k ∈ Finset.Icc (2 ^ t - 1) (2 ^ (t + 1) - 2), (phi_A n_seq k : ℝ) / n_seq k ≤ (2 * A_val t) * (2 ^ t : ℝ) := by
       -- By Lemma `n_seq_phi_bound_correct`, each term in the sum is bounded above by $\phi(n_k/r_t)/n_k/r_t + 1/r_t$.
       have h_sum_bound : ∑ k ∈ Finset.Icc (2 ^ t - 1) (2 ^ (t + 1) - 2), (phi_A n_seq k : ℚ) / (n_seq k) ≤ ∑ k ∈ Finset.Icc (2 ^ t - 1) (2 ^ (t + 1) - 2), ((Nat.totient (n_seq k / r_seq t) : ℚ) / (n_seq k / r_seq t) + 1 / r_seq t) := by
         apply Finset.sum_le_sum
         intro k hk
         apply n_seq_phi_bound_correct t k ht hk;
-      -- Since $1/r_seq t \leq A_val t$, we can replace $2^t / r_seq t$ with $2^t * A_val t$ in the sum.
+      -- Since $1/r_seq t \leq A_val t$, we can replace $2 ^ t / r_seq t$ with $2 ^ t * A_val t$ in the sum.
       have h_sum_bound_replace : ∑ k ∈ Finset.Icc (2 ^ t - 1) (2 ^ (t + 1) - 2), ((Nat.totient (n_seq k / r_seq t) : ℚ) / (n_seq k / r_seq t) + 1 / r_seq t) ≤ (2 ^ t : ℚ) * A_val t + (2 ^ t : ℚ) * A_val t := by
         have h_sum_bound_replace : ∑ k ∈ Finset.Icc (2 ^ t - 1) (2 ^ (t + 1) - 2), ((Nat.totient (n_seq k / r_seq t) : ℚ) / (n_seq k / r_seq t) + 1 / r_seq t) = (2 ^ t : ℚ) * A_val t + (2 ^ t : ℚ) / r_seq t := by
           convert sum_bound_eval t ht using 1;
@@ -939,8 +943,11 @@ lemma block_sum_bound (t : ℕ) (ht : t ≥ 1) :
       -- By combining the inequalities from h_sum_bound and h_sum_bound_replace, we conclude the proof.
       have h_final : ∑ k ∈ Finset.Icc (2 ^ t - 1) (2 ^ (t + 1) - 2), (phi_A n_seq k : ℚ) / (n_seq k) ≤ (2 ^ t : ℚ) * A_val t + (2 ^ t : ℚ) * A_val t := by
         exact le_trans ( mod_cast h_sum_bound ) h_sum_bound_replace;
-      convert h_final using 1 ; push_cast ; ring;
-      push_cast; ring;
+      convert h_final using 1
+      · push_cast
+        ring
+      · push_cast
+        ring
 
 /-
 There exists a strictly increasing sequence A={n_1<n_2<...} of positive integers such that lim_{N->infinity} (1/N) * sum_{k=1}^N phi_A(k)/n_k = 0.
@@ -958,7 +965,7 @@ theorem thm_main : ∃ n : ℕ → ℕ, StrictMono n ∧ Filter.Tendsto (fun (N 
         exact fun t => mul_nonneg zero_le_two <| Finset.prod_nonneg fun _ _ => sub_nonneg.2 <| div_le_self zero_le_one <| by norm_cast; linarith [ Nat.Prime.two_le <| Nat.prime_nth_prime ‹_› ] ;
       have h_c_to_zero : Filter.Tendsto (fun t => 2 * A_val t) Filter.atTop (nhds 0) := by
         convert A_val_tendsto_zero.const_mul 2 using 2 ; ring
-      have h_sum : ∀ t ≥ 1, ∑ k ∈ Finset.Icc (2^t - 1) (2^(t+1) - 2), (phi_A n_seq k : ℝ) / n_seq k ≤ (2 * A_val t) * (2^t : ℝ) := by
+      have h_sum : ∀ t ≥ 1, ∑ k ∈ Finset.Icc (2 ^ t - 1) (2 ^ (t + 1) - 2), (phi_A n_seq k : ℝ) / n_seq k ≤ (2 * A_val t) * (2 ^ t : ℝ) := by
         convert block_sum_bound using 1
       apply_rules [ @lem_block ];
     simpa only [ one_div, inv_mul_eq_div ] using h_apply_lemma
@@ -1000,7 +1007,7 @@ theorem erdos_1000_true :
   -- We apply `lem_block` to the sequence `a k = (phi_A n_seq k : ℝ) / n_seq k`.
   have h_apply_lem_block : Tendsto (fun N : ℕ => (1 / (N : ℝ)) * ∑ k ∈ Finset.Icc 1 N, (phiA n_seq k : ℝ) / (n_seq k : ℝ)) Filter.atTop (nhds 0) := by
     -- Applying the lemma `lem_block` to the sequence `a k = (phi_A n_seq k : ℝ) / n_seq k`.
-    have h_apply_lem_block : ∀ (a : ℕ → ℝ), (∀ k, 0 ≤ a k ∧ a k ≤ 1) → Filter.Tendsto (fun t : ℕ => (Finset.range t).prod (fun i => 1 - 1 / (2 * (Nat.nth Nat.Prime i : ℝ)))) Filter.atTop (nhds 0) → (∀ t ≥ 1, ∑ k ∈ Finset.Icc (2^t - 1) (2^(t+1) - 2), a k ≤ (2 * (Finset.range t).prod (fun i => 1 - 1 / (2 * (Nat.nth Nat.Prime i : ℝ)))) * (2^t : ℝ)) → Filter.Tendsto (fun N : ℕ => (1 / (N : ℝ)) * ∑ k ∈ Finset.Icc 1 N, a k) Filter.atTop (nhds 0) := by
+    have h_apply_lem_block : ∀ (a : ℕ → ℝ), (∀ k, 0 ≤ a k ∧ a k ≤ 1) → Filter.Tendsto (fun t : ℕ => (Finset.range t).prod (fun i => 1 - 1 / (2 * (Nat.nth Nat.Prime i : ℝ)))) Filter.atTop (nhds 0) → (∀ t ≥ 1, ∑ k ∈ Finset.Icc (2 ^ t - 1) (2 ^ (t + 1) - 2), a k ≤ (2 * (Finset.range t).prod (fun i => 1 - 1 / (2 * (Nat.nth Nat.Prime i : ℝ)))) * (2 ^ t : ℝ)) → Filter.Tendsto (fun N : ℕ => (1 / (N : ℝ)) * ∑ k ∈ Finset.Icc 1 N, a k) Filter.atTop (nhds 0) := by
       intros a ha h_prod h_sum_bound
       apply lem_block a (fun t => 2 * (Finset.range t).prod (fun i => 1 - 1 / (2 * (Nat.nth Nat.Prime i : ℝ)))) ha (fun t => by
         exact mul_nonneg zero_le_two <| Finset.prod_nonneg fun _ _ => sub_nonneg.2 <| div_le_self zero_le_one <| by norm_cast; linarith [ Nat.Prime.two_le <| Nat.prime_nth_prime ‹_› ] ;) (by
