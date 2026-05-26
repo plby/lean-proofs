@@ -30,8 +30,7 @@ import Mathlib
 
 namespace Erdos476
 
--- This generated proof file still relies on automated proof scripts whose warnings
--- are too interdependent to remove locally without changing the proof structure.
+-- These generated proof scripts still rely on style-heavy tactic automation.
 set_option linter.style.setOption false
 set_option linter.style.openClassical false
 set_option linter.style.longLine false
