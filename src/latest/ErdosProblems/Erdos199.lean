@@ -69,7 +69,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.induction false
 set_option linter.style.refine false
 set_option linter.style.multiGoal false
 
@@ -81,7 +80,9 @@ open scoped Pointwise
 namespace Erdos199
 
 /-
-A 3-term arithmetic progression is a set of three distinct numbers a, b, c such that a + c = 2b. An infinite arithmetic progression is a set of the form {a + nb | n ∈ ℕ} with b ≠ 0.
+A 3-term arithmetic progression is a set of three distinct numbers a, b, c such
+that a + c = 2b. An infinite arithmetic progression is a set of the form
+{a + nb | n ∈ ℕ} with b ≠ 0.
 -/
 def IsThreeTermAP (a b c : ℝ) : Prop :=
   a + c = 2 * b ∧ a ≠ c
@@ -90,7 +91,9 @@ def IsInfiniteAP (S : Set ℝ) : Prop :=
   ∃ a b : ℝ, b ≠ 0 ∧ S = {x | ∃ n : ℕ, x = a + n * b}
 
 /-
-A 3-term arithmetic progression in a vector space V over ℚ is a set of three distinct vectors a, b, c such that a + c = 2b. An infinite arithmetic progression is a set of the form {a + nb | n ∈ ℕ} with b ≠ 0.
+A 3-term arithmetic progression in a vector space V over ℚ is a set of three
+distinct vectors a, b, c such that a + c = 2b. An infinite arithmetic
+progression is a set of the form {a + nb | n ∈ ℕ} with b ≠ 0.
 -/
 def IsThreeTermAP_V {V : Type*} [AddCommGroup V] [Module ℚ V] (a b c : V) : Prop :=
   a + c = 2 • b ∧ a ≠ c
@@ -99,31 +102,53 @@ def IsInfiniteAP_V {V : Type*} [AddCommGroup V] [Module ℚ V] (S : Set V) : Pro
   ∃ a b : V, b ≠ 0 ∧ S = {x | ∃ n : ℕ, x = a + n • b}
 
 /-
-The coefficient sequence of a vector x with respect to an ordered basis b is the list of coefficients of x in the basis expansion, ordered by the basis indices.
+The coefficient sequence of a vector x with respect to an ordered basis b is
+the list of coefficients of x in the basis expansion, ordered by the basis
+indices.
 -/
-noncomputable def coeffSeq {ι : Type*} [LinearOrder ι] {V : Type*} [AddCommGroup V] [Module ℚ V]
+noncomputable def coeffSeq {ι : Type*} [LinearOrder ι] {V : Type*}
+  [AddCommGroup V] [Module ℚ V]
   (b : Module.Basis ι ℚ V) (x : V) : List ℚ :=
   let support := (b.repr x).support.sort (· ≤ ·)
   support.map (b.repr x)
 
 /-
-Given a basis, a starting vector u, a non-zero direction vector v, and a threshold T, there exists a natural number m such that the coefficients of u + m*v corresponding to the support of v are all greater than T in absolute value.
+Given a basis, a starting vector u, a non-zero direction vector v, and a
+threshold T, there exists a natural number m such that the coefficients of
+u + m*v corresponding to the support of v are all greater than T in absolute
+value.
 -/
-lemma exists_large_coeff_in_AP {ι : Type*} [LinearOrder ι] {V : Type*} [AddCommGroup V] [Module ℚ V]
+lemma exists_large_coeff_in_AP {ι : Type*} [LinearOrder ι] {V : Type*}
+  [AddCommGroup V] [Module ℚ V]
   (b : Module.Basis ι ℚ V) (u v : V) (_hv : v ≠ 0) (T : ℚ) :
   ∃ m : ℕ, ∀ i ∈ (b.repr v).support, |(b.repr (u + m • v)) i| > T := by
-  -- For each $i \in S$, $|u_i + m v_i| \ge m |v_i| - |u_i|$. Since $v_i \neq 0$ (because $i \in S$), $|v_i| > 0$, and $m |v_i| - |u_i| \to \infty$ as $m \to \infty$.
-  have h_abs : ∀ i ∈ (b.repr v).support, ∃ m : ℕ, ∀ k ≥ m, |(b.repr u i) + k * (b.repr v i)| > T := by
-    -- By the Archimedean property, for each $i \in S$, there exists an $m$ such that $m |v_i| > T + |u_i|$.
+  -- For each $i \in S$, $|u_i + m v_i| \ge m |v_i| - |u_i|$.
+  -- Since $v_i \neq 0$, $m |v_i| - |u_i| \to \infty$ as $m \to \infty$.
+  have h_abs :
+      ∀ i ∈ (b.repr v).support, ∃ m : ℕ,
+        ∀ k ≥ m, |(b.repr u i) + k * (b.repr v i)| > T := by
+    -- By Archimedean, choose $m$ with $m |v_i| > T + |u_i|$.
     intro i hi
     obtain ⟨m, hm⟩ : ∃ m : ℕ, m * |(b.repr v i)| > T + |(b.repr u i)| := by
-      exact exists_nat_gt ( ( T + |b.repr u i| ) / |b.repr v i| ) |> fun ⟨ m, hm ⟩ => ⟨ m, by rwa [ div_lt_iff₀ ( abs_pos.mpr ( Finsupp.mem_support_iff.mp hi ) ) ] at hm ⟩;
-    exact ⟨ m, fun k hk => by cases abs_cases ( ( b.repr u i ) + ( k : ℚ ) * ( b.repr v i ) ) <;> cases abs_cases ( ( b.repr v i ) ) <;> cases abs_cases ( ( b.repr u i ) ) <;> nlinarith [ show ( k : ℚ ) ≥ m by norm_cast ] ⟩;
-  choose! m hm using h_abs;
-  exact ⟨ Finset.sup ( b.repr v |> Finsupp.support ) m + 1, fun i hi => by simpa using hm i hi _ ( Nat.le_succ_of_le ( Finset.le_sup ( f := m ) hi ) ) ⟩
+      exact exists_nat_gt ((T + |b.repr u i|) / |b.repr v i|) |>
+        fun ⟨m, hm⟩ =>
+          ⟨m, by
+            rwa [div_lt_iff₀ (abs_pos.mpr (Finsupp.mem_support_iff.mp hi))] at hm⟩
+    exact ⟨m, fun k hk => by
+      cases abs_cases ((b.repr u i) + (k : ℚ) * (b.repr v i))
+      <;> cases abs_cases (b.repr v i)
+      <;> cases abs_cases (b.repr u i)
+      <;> nlinarith [show (k : ℚ) ≥ m by norm_cast]⟩
+  choose! m hm using h_abs
+  exact ⟨Finset.sup (b.repr v |> Finsupp.support) m + 1, fun i hi => by
+    simpa using hm i hi _ (Nat.le_succ_of_le (Finset.le_sup (f := m) hi))⟩
 
 /-
-A sequence of patterns (lists of rationals) and thresholds is spaced if for every n, all coefficients in previous patterns are bounded by t_n, all coefficients in the n-th pattern are either bounded by t_n or greater than 3*t_n, and there is at least one coefficient in the n-th pattern greater than 3*t_n.
+A sequence of patterns (lists of rationals) and thresholds is spaced if for
+every n, all coefficients in previous patterns are bounded by t_n, all
+coefficients in the n-th pattern are either bounded by t_n or greater than
+3*t_n, and there is at least one coefficient in the n-th pattern greater than
+3*t_n.
 -/
 def IsSpacedPatternSeq (σ : ℕ → List ℚ) (t : ℕ → ℚ) : Prop :=
   ∀ n,
@@ -138,7 +163,8 @@ def firstLargeValue (l : List ℚ) (t : ℚ) : Option ℚ :=
   l.find? (fun x => |x| > 3 * t)
 
 /-
-Searching for a value satisfying P in a mapped sorted list returns the image of the smallest index satisfying the condition.
+Searching for a value satisfying P in a mapped sorted list returns the image of
+the smallest index satisfying the condition.
 -/
 lemma find_map_sorted {α β : Type*} [LinearOrder α]
   (l : List α) (f : α → β) (P : β → Bool) (i : α)
@@ -306,9 +332,10 @@ lemma suffix_eq_of_coeffSeq_eq {ι : Type*} [LinearOrder ι] {V : Type*} [AddCom
         intro x i;
         have h_split : ∀ (l : List ι), l.Pairwise (· ≤ ·) → ∀ (i : ι), (l.map (b.repr x)) = ((l.filter (fun j => j < i)).map (b.repr x)) ++ ((l.filter (fun j => i ≤ j)).map (b.repr x)) := by
           intro l hl i
-          induction' l with j l ih generalizing i;
-          · rfl;
-          · by_cases h : j < i <;> simp_all +decide
+          induction l generalizing i with
+          | nil => rfl
+          | cons j l ih =>
+            by_cases h : j < i <;> simp_all +decide
             · exact ih i;
             · rw [ ih i ];
               rw [ List.filter_eq_nil_iff.mpr ] <;> simp +decide
@@ -810,9 +837,12 @@ lemma exists_good_sequence_countable {ι : Type*} [LinearOrder ι] {V : Type*} [
         have h_rec : ∃ (σ : ℕ → List ℚ), (∀ n, σ n = coeffSeq b (c (List.map σ (List.range n)) (A_start n) (A_step n))) := by
           have h_rec : ∀ (n : ℕ), ∃ σ : ℕ → List ℚ, ∀ m ≤ n, σ m = coeffSeq b (c (List.map σ (List.range m)) (A_start m) (A_step m)) := by
             intro n;
-            induction' n with n ih;
-            · exact ⟨ fun _ => coeffSeq b ( c [ ] ( A_start 0 ) ( A_step 0 ) ), by simp +decide ⟩;
-            · obtain ⟨ σ, hσ ⟩ := ih;
+            induction n with
+            | zero =>
+              exact ⟨ fun _ => coeffSeq b ( c [ ] ( A_start 0 ) ( A_step 0 ) ),
+                by simp +decide ⟩;
+            | succ n ih =>
+              obtain ⟨ σ, hσ ⟩ := ih;
               use fun m => if m ≤ n then σ m else coeffSeq b (c (List.map σ (List.range m)) (A_start m) (A_step m));
               intro m hm; cases hm <;> simp +decide [ *, List.range_succ ] ;
               · congr! 2;
@@ -824,7 +854,7 @@ lemma exists_good_sequence_countable {ι : Type*} [LinearOrder ι] {V : Type*} [
           choose σ hσ using h_rec;
           have h_rec : ∀ n m, n ≤ m → ∀ k ≤ n, σ n k = σ m k := by
             intro n m hnm k hk;
-            induction' k using Nat.strong_induction_on with k ih;
+            induction k using Nat.strong_induction_on with | h k ih =>
             rw [ hσ n k hk, hσ m k ( le_trans hk hnm ) ];
             rw [ List.map_congr_left ];
             exact fun a ha => ih a ( List.mem_range.mp ha ) ( by linarith [ List.mem_range.mp ha ] );
@@ -1175,7 +1205,7 @@ theorem disproof_of_conjecture : ¬ Conjecture := by
   rename_i h₁ h₂;
   exact ⟨ A, h₁, fun S hS hS' => by obtain ⟨ x, hx₁, hx₂ ⟩ := h₂ S hS; exact hS' hx₁ |>.2 hx₂ ⟩
 
-#print axioms disproof_of_conjecture
--- 'Erdos199.disproof_of_conjecture' depends on axioms: [propext, Classical.choice, Quot.sound]
-
 end Erdos199
+
+#print axioms Erdos199.disproof_of_conjecture
+-- 'Erdos199.disproof_of_conjecture' depends on axioms: [propext, Classical.choice, Quot.sound]
