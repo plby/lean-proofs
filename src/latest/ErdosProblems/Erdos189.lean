@@ -46,58 +46,62 @@ import Mathlib
 
 namespace Erdos189
 
-set_option linter.style.setOption false
-set_option linter.style.openClassical false
-set_option linter.style.longLine false
-set_option linter.style.induction false
-set_option linter.style.multiGoal false
-set_option linter.style.refine false
-set_option linter.flexible false
-set_option linter.unusedSimpArgs false
-set_option linter.unusedVariables false
-
 open scoped BigOperators
 
 open scoped Real
 
 open scoped Nat
 
-open scoped Classical
-
 open scoped Pointwise
 
 open Complex
 
 /-
-A set of complex numbers forms a rectangle of area 1 if it consists of 4 distinct points $z_1, z_2, z_3, z_4$ such that $z_2 - z_1 = z_3 - z_4$ (parallelogram), $(z_2 - z_1) \cdot \overline{(z_4 - z_1)}$ has real part 0 (perpendicular sides), and $|z_2 - z_1|^2 |z_4 - z_1|^2 = 1$ (area squared is 1).
+A set of complex numbers forms a rectangle of area 1 if it consists of 4
+distinct points $z_1, z_2, z_3, z_4$ such that $z_2 - z_1 = z_3 - z_4$
+(parallelogram), $(z_2 - z_1) \cdot \overline{(z_4 - z_1)}$ has real part 0
+(perpendicular sides), and $|z_2 - z_1|^2 |z_4 - z_1|^2 = 1$
+(area squared is 1).
 -/
 open Complex
 
 def IsRectangleArea1 (s : Set ℂ) : Prop :=
-  ∃ z1 z2 z3 z4, s = {z1, z2, z3, z4} ∧ z1 ≠ z2 ∧ z1 ≠ z3 ∧ z1 ≠ z4 ∧ z2 ≠ z3 ∧ z2 ≠ z4 ∧ z3 ≠ z4 ∧
-  (z2 - z1 = z3 - z4) ∧ ((z2 - z1) * star (z4 - z1)).re = 0 ∧ normSq (z2 - z1) * normSq (z4 - z1) = 1
+  ∃ z1 z2 z3 z4,
+    s = {z1, z2, z3, z4} ∧
+      z1 ≠ z2 ∧
+      z1 ≠ z3 ∧
+      z1 ≠ z4 ∧
+      z2 ≠ z3 ∧
+      z2 ≠ z4 ∧
+      z3 ≠ z4 ∧
+      (z2 - z1 = z3 - z4) ∧
+      ((z2 - z1) * star (z4 - z1)).re = 0 ∧
+      normSq (z2 - z1) * normSq (z4 - z1) = 1
 
 /-
-The color tuple of a complex number $z$ is a pair of integers modulo 5, derived from the floor of the real and imaginary parts of $\frac{3}{2}z^2$.
+The color tuple of a complex number $z$ is a pair of integers modulo 5, derived
+from the floor of the real and imaginary parts of $\frac{3}{2}z^2$.
 -/
 open Complex
 
 noncomputable def color_tuple (z : ℂ) : Fin 5 × Fin 5 :=
   let u := (3/2 : ℂ) * z^2
   (⟨(Int.floor u.re).emod 5 |>.toNat, by
-    -- Since the floor function returns an integer, and modulo 5 gives a remainder between 0 and 4, this should hold.
+    -- Since the floor function returns an integer, modulo 5 gives a remainder below 5.
     have h_mod : (Int.floor u.re).emod 5 < 5 := by
-      exact Int.emod_lt_of_pos _ ( by decide );
+      exact Int.emod_lt_of_pos _ (by decide)
     grind⟩,
    ⟨(Int.floor u.im).emod 5 |>.toNat, by
-     -- Since $⌊u.im⌋ \% 5$ is the remainder when $⌊u.im⌋$ is divided by 5, it must be less than 5.
+     -- Since $⌊u.im⌋ \% 5$ is a remainder, it must be less than 5.
      have h_mod : ⌊u.im⌋ % 5 < 5 := by
-       exact Int.emod_lt_of_pos _ ( by norm_num )
+       exact Int.emod_lt_of_pos _ (by norm_num)
      exact (by
-     linarith! [ Int.toNat_of_nonneg ( Int.emod_nonneg ( ⌊u.im⌋ ) ( by decide : ( 5 : ℤ ) ≠ 0 ) ) ])⟩)
+       linarith! [
+         Int.toNat_of_nonneg (Int.emod_nonneg ⌊u.im⌋ (by decide : (5 : ℤ) ≠ 0))])⟩)
 
 /-
-The coloring function maps a complex number $z$ to a color in $\{0, \dots, 24\}$ based on its color tuple $(j, k)$ via the formula $5j + k$.
+The coloring function maps a complex number $z$ to a color in $\{0, \dots, 24\}$
+based on its color tuple $(j, k)$ via the formula $5j + k$.
 -/
 open Complex
 
@@ -107,22 +111,30 @@ noncomputable def color (z : ℂ) : Fin 25 :=
     have hj := j.isLt
     have hk := k.isLt
     calc
-      5 * j.val + k.val ≤ 5 * 4 + 4 := by gcongr; apply Nat.le_of_lt_succ hj; apply Nat.le_of_lt_succ hk
+      5 * j.val + k.val ≤ 5 * 4 + 4 := by
+        gcongr
+        · exact Nat.le_of_lt_succ hj
+        · exact Nat.le_of_lt_succ hk
       _ = 24 := by norm_num
       _ < 25 := by norm_num⟩
 
 /-
-It is possible to partition $\mathbb{R}^2$ into $25$ color classes such that none of them contains the vertices of a rectangle of area $1$.
+It is possible to partition $\mathbb{R}^2$ into $25$ color classes such that
+none of them contains the vertices of a rectangle of area $1$.
 -/
 open Complex
 
+set_option linter.flexible false in
 set_option maxHeartbeats 1000000 in
 -- `partition_rectangles` times out at the default heartbeat limit.
-theorem partition_rectangles : ∃ (f : ℂ → Fin 25), ∀ (c : Fin 25), ¬ ∃ (s : Set ℂ), s ⊆ f ⁻¹' {c} ∧ IsRectangleArea1 s := by
+theorem partition_rectangles :
+    ∃ (f : ℂ → Fin 25), ∀ (c : Fin 25),
+      ¬ ∃ (s : Set ℂ), s ⊆ f ⁻¹' {c} ∧ IsRectangleArea1 s := by
   use color
   intro c_color
   rintro ⟨s, hs_sub, hs_rect⟩
-  obtain ⟨z1, z2, z3, z4, h_s, h_ne1, h_ne2, h_ne3, h_ne4, h_ne5, h_ne6, h_par, h_perp, h_area⟩ := hs_rect
+  obtain ⟨z1, z2, z3, z4, h_s, h_ne1, h_ne2, h_ne3, h_ne4, h_ne5, h_ne6,
+    h_par, h_perp, h_area⟩ := hs_rect
   have h_col : color z1 = color z2 ∧ color z2 = color z3 ∧ color z3 = color z4 := by
     simp only [Set.subset_def, Set.mem_preimage, Set.mem_singleton_iff] at hs_sub
     rw [h_s] at hs_sub
@@ -132,23 +144,42 @@ theorem partition_rectangles : ∃ (f : ℂ → Fin 25), ∀ (c : Fin 25), ¬ �
     have h4 : color z4 = c_color := hs_sub z4 (by simp)
     simp [h1, h2, h3, h4]
   subst h_s
-  simp_all only [ne_eq, star_sub, RCLike.star_def, mul_re, sub_re, conj_re, sub_im, conj_im, sub_neg_eq_add]
+  simp_all only [
+    ne_eq, star_sub, RCLike.star_def, mul_re, sub_re, conj_re, sub_im, conj_im,
+    sub_neg_eq_add]
   obtain ⟨left, right⟩ := h_col
   obtain ⟨left_1, right⟩ := right
   simp_all only
-  rw [ Set.subset_def ] at hs_sub;
-  have := hs_sub z1 ( by norm_num ) ; have := hs_sub z2 ( by norm_num ) ; have := hs_sub z3 ( by norm_num ) ; have := hs_sub z4 ( by norm_num ) ; simp_all +decide [ color ] ;
-  have h_monochrome : Int.floor ((3 / 2 : ℝ) * (z1 ^ 2).re) % 5 = Int.floor ((3 / 2 : ℝ) * (z2 ^ 2).re) % 5 ∧ Int.floor ((3 / 2 : ℝ) * (z1 ^ 2).im) % 5 = Int.floor ((3 / 2 : ℝ) * (z2 ^ 2).im) % 5 ∧ Int.floor ((3 / 2 : ℝ) * (z1 ^ 2).re) % 5 = Int.floor ((3 / 2 : ℝ) * (z3 ^ 2).re) % 5 ∧ Int.floor ((3 / 2 : ℝ) * (z1 ^ 2).im) % 5 = Int.floor ((3 / 2 : ℝ) * (z3 ^ 2).im) % 5 ∧ Int.floor ((3 / 2 : ℝ) * (z1 ^ 2).re) % 5 = Int.floor ((3 / 2 : ℝ) * (z4 ^ 2).re) % 5 ∧ Int.floor ((3 / 2 : ℝ) * (z1 ^ 2).im) % 5 = Int.floor ((3 / 2 : ℝ) * (z4 ^ 2).im) % 5 := by
-    unfold color_tuple at *;
-    simp +zetaDelta at *;
+  rw [Set.subset_def] at hs_sub
+  have := hs_sub z1 (by norm_num)
+  have := hs_sub z2 (by norm_num)
+  have := hs_sub z3 (by norm_num)
+  have := hs_sub z4 (by norm_num)
+  simp_all +decide [color]
+  have h_monochrome :
+      Int.floor ((3 / 2 : ℝ) * (z1 ^ 2).re) % 5 =
+        Int.floor ((3 / 2 : ℝ) * (z2 ^ 2).re) % 5 ∧
+      Int.floor ((3 / 2 : ℝ) * (z1 ^ 2).im) % 5 =
+        Int.floor ((3 / 2 : ℝ) * (z2 ^ 2).im) % 5 ∧
+      Int.floor ((3 / 2 : ℝ) * (z1 ^ 2).re) % 5 =
+        Int.floor ((3 / 2 : ℝ) * (z3 ^ 2).re) % 5 ∧
+      Int.floor ((3 / 2 : ℝ) * (z1 ^ 2).im) % 5 =
+        Int.floor ((3 / 2 : ℝ) * (z3 ^ 2).im) % 5 ∧
+      Int.floor ((3 / 2 : ℝ) * (z1 ^ 2).re) % 5 =
+        Int.floor ((3 / 2 : ℝ) * (z4 ^ 2).re) % 5 ∧
+      Int.floor ((3 / 2 : ℝ) * (z1 ^ 2).im) % 5 =
+        Int.floor ((3 / 2 : ℝ) * (z4 ^ 2).im) % 5 := by
+    unfold color_tuple at *
+    simp +zetaDelta at *
     have h_mod_eq : ∀ x : ℤ, x % 5 = (x.emod 5).toNat := by
-      exact fun x => by erw [ Int.toNat_of_nonneg ( Int.emod_nonneg _ ( by decide ) ) ] ;
-    grind;
-  -- Let $I = z_1^2 - z_2^2 + z_3^2 - z_4^2$. We show that $|I| = 2$ for any rectangle of area 1.
+      exact fun x => by
+        erw [Int.toNat_of_nonneg (Int.emod_nonneg _ (by decide))]
+    grind
+  -- Let $I = z_1^2 - z_2^2 + z_3^2 - z_4^2$.
   set I : ℂ := z1^2 - z2^2 + z3^2 - z4^2
   have h_I : Complex.normSq I = 4 := by
-    norm_num [ Complex.normSq ] at *;
-    rw [ sub_eq_iff_eq_add ] at h_par
+    norm_num [Complex.normSq] at *
+    rw [sub_eq_iff_eq_add] at h_par
     subst h_par
     simp_all only [right_eq_add, sub_re, add_re, sub_im, add_im, I]
     obtain ⟨left, right⟩ := hs_sub
@@ -161,45 +192,102 @@ theorem partition_rectangles : ∃ (f : ℂ → Fin 25), ∀ (c : Fin 25), ¬ �
     obtain ⟨left_7, right_1⟩ := right_1
     subst left
     simp_all only [Fin.mk.injEq, forall_eq]
-    norm_num [ sq ] at * ; nlinarith;
-  -- We also show that if $z_1, z_2, z_3, z_4$ are monochromatic, then $I$ must lie in a region that is disjoint from the circle $|w|=2$.
-  have h_I_disjoint : ∃ k1 k2 : ℤ, Complex.re I = (k1 : ℝ) * (10 / 3) + (Complex.re I - (k1 : ℝ) * (10 / 3)) ∧ Complex.im I = (k2 : ℝ) * (10 / 3) + (Complex.im I - (k2 : ℝ) * (10 / 3)) ∧ |Complex.re I - (k1 : ℝ) * (10 / 3)| < 4 / 3 ∧ |Complex.im I - (k2 : ℝ) * (10 / 3)| < 4 / 3 := by
-    -- Since $z_1, z_2, z_3, z_4$ are monochromatic, we have $⌊(3 / 2 : ℝ) * (z1 ^ 2).re⌋ ≡ ⌊(3 / 2 : ℝ) * (z2 ^ 2).re⌋ ≡ ⌊(3 / 2 : ℝ) * (z3 ^ 2).re⌋ ≡ ⌊(3 / 2 : ℝ) * (z4 ^ 2).re⌋ \pmod{5}$ and similarly for the imaginary parts.
-    obtain ⟨k1, hk1⟩ : ∃ k1 : ℤ, ⌊(3 / 2 : ℝ) * (z1 ^ 2).re⌋ - ⌊(3 / 2 : ℝ) * (z2 ^ 2).re⌋ + ⌊(3 / 2 : ℝ) * (z3 ^ 2).re⌋ - ⌊(3 / 2 : ℝ) * (z4 ^ 2).re⌋ = 5 * k1 := by
-      exact Int.dvd_of_emod_eq_zero ( by omega )
-    obtain ⟨k2, hk2⟩ : ∃ k2 : ℤ, ⌊(3 / 2 : ℝ) * (z1 ^ 2).im⌋ - ⌊(3 / 2 : ℝ) * (z2 ^ 2).im⌋ + ⌊(3 / 2 : ℝ) * (z3 ^ 2).im⌋ - ⌊(3 / 2 : ℝ) * (z4 ^ 2).im⌋ = 5 * k2 := by
-      exact Int.dvd_of_emod_eq_zero ( by omega );
-    refine' ⟨ k1, k2, _, _, _, _ ⟩ <;> norm_num [ abs_lt ];
-    · simp +zetaDelta at *;
-      constructor <;> linarith [ Int.floor_le ( ( 3 : ℝ ) / 2 * ( z1 ^ 2 |> Complex.re ) ), Int.lt_floor_add_one ( ( 3 : ℝ ) / 2 * ( z1 ^ 2 |> Complex.re ) ), Int.floor_le ( ( 3 : ℝ ) / 2 * ( z2 ^ 2 |> Complex.re ) ), Int.lt_floor_add_one ( ( 3 : ℝ ) / 2 * ( z2 ^ 2 |> Complex.re ) ), Int.floor_le ( ( 3 : ℝ ) / 2 * ( z3 ^ 2 |> Complex.re ) ), Int.lt_floor_add_one ( ( 3 : ℝ ) / 2 * ( z3 ^ 2 |> Complex.re ) ), Int.floor_le ( ( 3 : ℝ ) / 2 * ( z4 ^ 2 |> Complex.re ) ), Int.lt_floor_add_one ( ( 3 : ℝ ) / 2 * ( z4 ^ 2 |> Complex.re ) ), ( by norm_cast : ( ⌊ ( 3 : ℝ ) / 2 * ( z1 ^ 2 |> Complex.re ) ⌋ : ℝ ) - ⌊ ( 3 : ℝ ) / 2 * ( z2 ^ 2 |> Complex.re ) ⌋ + ⌊ ( 3 : ℝ ) / 2 * ( z3 ^ 2 |> Complex.re ) ⌋ - ⌊ ( 3 : ℝ ) / 2 * ( z4 ^ 2 |> Complex.re ) ⌋ = 5 * k1 ) ];
-    · norm_num +zetaDelta at *;
-      constructor <;> linarith [ Int.floor_le ( ( 3 : ℝ ) / 2 * ( z1 ^ 2 |> Complex.im ) ), Int.lt_floor_add_one ( ( 3 : ℝ ) / 2 * ( z1 ^ 2 |> Complex.im ) ), Int.floor_le ( ( 3 : ℝ ) / 2 * ( z2 ^ 2 |> Complex.im ) ), Int.lt_floor_add_one ( ( 3 : ℝ ) / 2 * ( z2 ^ 2 |> Complex.im ) ), Int.floor_le ( ( 3 : ℝ ) / 2 * ( z3 ^ 2 |> Complex.im ) ), Int.lt_floor_add_one ( ( 3 : ℝ ) / 2 * ( z3 ^ 2 |> Complex.im ) ), Int.floor_le ( ( 3 : ℝ ) / 2 * ( z4 ^ 2 |> Complex.im ) ), Int.lt_floor_add_one ( ( 3 : ℝ ) / 2 * ( z4 ^ 2 |> Complex.im ) ), ( by norm_cast : ( ⌊ ( 3 : ℝ ) / 2 * ( z1 ^ 2 |> Complex.im ) ⌋ : ℝ ) - ⌊ ( 3 : ℝ ) / 2 * ( z2 ^ 2 |> Complex.im ) ⌋ + ⌊ ( 3 : ℝ ) / 2 * ( z3 ^ 2 |> Complex.im ) ⌋ - ⌊ ( 3 : ℝ ) / 2 * ( z4 ^ 2 |> Complex.im ) ⌋ = 5 * k2 ) ];
-  obtain ⟨ k1, k2, hk1, hk2, hk3, hk4 ⟩ := h_I_disjoint;
-  norm_num [ Complex.normSq ] at *;
-  rcases k1 with ⟨ _ | _ | k1 ⟩ <;> norm_num at hk3 <;> try nlinarith only [ abs_lt.mp hk3, abs_lt.mp hk4, h_I ] ;
-  rcases k2 with ⟨ _ | _ | k2 ⟩ <;> norm_num at hk4 <;> nlinarith only [ abs_lt.mp hk3, abs_lt.mp hk4, h_I ] ;
+    norm_num [sq] at *
+    nlinarith
+  -- Monochromaticity puts $I$ in a region disjoint from the circle $|w|=2$.
+  have h_I_disjoint :
+      ∃ k1 k2 : ℤ,
+        Complex.re I =
+          (k1 : ℝ) * (10 / 3) + (Complex.re I - (k1 : ℝ) * (10 / 3)) ∧
+        Complex.im I =
+          (k2 : ℝ) * (10 / 3) + (Complex.im I - (k2 : ℝ) * (10 / 3)) ∧
+        |Complex.re I - (k1 : ℝ) * (10 / 3)| < 4 / 3 ∧
+        |Complex.im I - (k2 : ℝ) * (10 / 3)| < 4 / 3 := by
+    obtain ⟨k1, hk1⟩ :
+        ∃ k1 : ℤ,
+          ⌊(3 / 2 : ℝ) * (z1 ^ 2).re⌋ -
+              ⌊(3 / 2 : ℝ) * (z2 ^ 2).re⌋ +
+              ⌊(3 / 2 : ℝ) * (z3 ^ 2).re⌋ -
+              ⌊(3 / 2 : ℝ) * (z4 ^ 2).re⌋ =
+            5 * k1 := by
+      exact Int.dvd_of_emod_eq_zero (by omega)
+    obtain ⟨k2, hk2⟩ :
+        ∃ k2 : ℤ,
+          ⌊(3 / 2 : ℝ) * (z1 ^ 2).im⌋ -
+              ⌊(3 / 2 : ℝ) * (z2 ^ 2).im⌋ +
+              ⌊(3 / 2 : ℝ) * (z3 ^ 2).im⌋ -
+              ⌊(3 / 2 : ℝ) * (z4 ^ 2).im⌋ =
+            5 * k2 := by
+      exact Int.dvd_of_emod_eq_zero (by omega)
+    refine ⟨k1, k2, ?_, ?_, ?_, ?_⟩ <;> norm_num [abs_lt]
+    · simp +zetaDelta at *
+      constructor <;>
+        linarith [
+          Int.floor_le ((3 : ℝ) / 2 * (z1 ^ 2 |> Complex.re)),
+          Int.lt_floor_add_one ((3 : ℝ) / 2 * (z1 ^ 2 |> Complex.re)),
+          Int.floor_le ((3 : ℝ) / 2 * (z2 ^ 2 |> Complex.re)),
+          Int.lt_floor_add_one ((3 : ℝ) / 2 * (z2 ^ 2 |> Complex.re)),
+          Int.floor_le ((3 : ℝ) / 2 * (z3 ^ 2 |> Complex.re)),
+          Int.lt_floor_add_one ((3 : ℝ) / 2 * (z3 ^ 2 |> Complex.re)),
+          Int.floor_le ((3 : ℝ) / 2 * (z4 ^ 2 |> Complex.re)),
+          Int.lt_floor_add_one ((3 : ℝ) / 2 * (z4 ^ 2 |> Complex.re)),
+          (by norm_cast :
+            (⌊(3 : ℝ) / 2 * (z1 ^ 2 |> Complex.re)⌋ : ℝ) -
+                ⌊(3 : ℝ) / 2 * (z2 ^ 2 |> Complex.re)⌋ +
+                ⌊(3 : ℝ) / 2 * (z3 ^ 2 |> Complex.re)⌋ -
+                ⌊(3 : ℝ) / 2 * (z4 ^ 2 |> Complex.re)⌋ =
+              5 * k1)]
+    · norm_num +zetaDelta at *
+      constructor <;>
+        linarith [
+          Int.floor_le ((3 : ℝ) / 2 * (z1 ^ 2 |> Complex.im)),
+          Int.lt_floor_add_one ((3 : ℝ) / 2 * (z1 ^ 2 |> Complex.im)),
+          Int.floor_le ((3 : ℝ) / 2 * (z2 ^ 2 |> Complex.im)),
+          Int.lt_floor_add_one ((3 : ℝ) / 2 * (z2 ^ 2 |> Complex.im)),
+          Int.floor_le ((3 : ℝ) / 2 * (z3 ^ 2 |> Complex.im)),
+          Int.lt_floor_add_one ((3 : ℝ) / 2 * (z3 ^ 2 |> Complex.im)),
+          Int.floor_le ((3 : ℝ) / 2 * (z4 ^ 2 |> Complex.im)),
+          Int.lt_floor_add_one ((3 : ℝ) / 2 * (z4 ^ 2 |> Complex.im)),
+          (by norm_cast :
+            (⌊(3 : ℝ) / 2 * (z1 ^ 2 |> Complex.im)⌋ : ℝ) -
+                ⌊(3 : ℝ) / 2 * (z2 ^ 2 |> Complex.im)⌋ +
+                ⌊(3 : ℝ) / 2 * (z3 ^ 2 |> Complex.im)⌋ -
+                ⌊(3 : ℝ) / 2 * (z4 ^ 2 |> Complex.im)⌋ =
+              5 * k2)]
+  obtain ⟨k1, k2, hk1, hk2, hk3, hk4⟩ := h_I_disjoint
+  norm_num [Complex.normSq] at *
+  rcases k1 with ⟨_ | _ | k1⟩ <;>
+    norm_num at hk3 <;>
+    try nlinarith only [abs_lt.mp hk3, abs_lt.mp hk4, h_I]
+  rcases k2 with ⟨_ | _ | k2⟩ <;>
+    norm_num at hk4 <;>
+    nlinarith only [abs_lt.mp hk3, abs_lt.mp hk4, h_I]
 
 /-
-If $z_1, z_2, z_3, z_4$ form a rectangle of area 1, then $|z_1^2 - z_2^2 + z_3^2 - z_4^2|^2 = 4$.
+If $z_1, z_2, z_3, z_4$ form a rectangle of area 1, then
+$|z_1^2 - z_2^2 + z_3^2 - z_4^2|^2 = 4$.
 -/
 open Complex
 
 lemma rectangle_imp_abs_I_eq_two {z1 z2 z3 z4 : ℂ}
   (h_par : z2 - z1 = z3 - z4)
-  (h_perp : ((z2 - z1) * star (z4 - z1)).re = 0)
+  (_h_perp : ((z2 - z1) * star (z4 - z1)).re = 0)
   (h_area : normSq (z2 - z1) * normSq (z4 - z1) = 1) :
   normSq (z1^2 - z2^2 + z3^2 - z4^2) = 4 := by
   -- Let $u = z_2 - z_1$ and $v = z_4 - z_1$.
   set u : ℂ := z2 - z1
-  set v : ℂ := z4 - z1;
+  set v : ℂ := z4 - z1
   -- So the vertices are $z_1, z_1+u, z_1+u+v, z_1+v$.
   have h_vertices : z2 = z1 + u ∧ z3 = z1 + u + v ∧ z4 = z1 + v := by
-    grind +ring;
-  rw [ h_vertices.1, h_vertices.2.1, h_vertices.2.2 ] ; ring_nf;
-  norm_num [ Complex.normSq_mul ] at * ; linarith
+    grind +ring
+  rw [h_vertices.1, h_vertices.2.1, h_vertices.2.2]
+  ring_nf
+  norm_num [Complex.normSq_mul] at *
+  linarith
 
 /-
-If $z_1, z_2, z_3, z_4$ are monochromatic, then the real and imaginary parts of $I = z_1^2 - z_2^2 + z_3^2 - z_4^2$ are close to multiples of $10/3$.
+If $z_1, z_2, z_3, z_4$ are monochromatic, then the real and imaginary parts of
+$I = z_1^2 - z_2^2 + z_3^2 - z_4^2$ are close to multiples of $10/3$.
 -/
 open Complex
 
@@ -209,7 +297,7 @@ lemma monochromatic_imp_I_close {z1 z2 z3 z4 : ℂ}
     let I := z1^2 - z2^2 + z3^2 - z4^2
     abs (I.re - (k1 : ℝ) * (10 / 3)) < 4 / 3 ∧
     abs (I.im - (k2 : ℝ) * (10 / 3)) < 4 / 3 := by
-  -- Let $n_j = \lfloor \frac{3}{2} \text{Re}(z_j^2) \rfloor$. Then $n_1 - n_2 + n_3 - n_4$ is divisible by 5.
+  -- Let $n_j = \lfloor \frac{3}{2} \text{Re}(z_j^2) \rfloor$.
   have h_n_div : ∃ k1 k2 : ℤ,
       let n1 := ⌊(3/2 : ℝ) * (z1 ^ 2).re⌋
       let n2 := ⌊(3/2 : ℝ) * (z2 ^ 2).re⌋
@@ -221,15 +309,41 @@ lemma monochromatic_imp_I_close {z1 z2 z3 z4 : ℂ}
       let m3 := ⌊(3/2 : ℝ) * (z3 ^ 2).im⌋
       let m4 := ⌊(3/2 : ℝ) * (z4 ^ 2).im⌋
       m1 - m2 + m3 - m4 = 5 * k2 := by
-        -- By definition of color, we know that the real and imaginary parts of $z^2$ are congruent modulo 5.
-        have h_cong : ⌊(3/2 : ℝ) * (z1 ^ 2).re⌋ % 5 = ⌊(3/2 : ℝ) * (z2 ^ 2).re⌋ % 5 ∧ ⌊(3/2 : ℝ) * (z2 ^ 2).re⌋ % 5 = ⌊(3/2 : ℝ) * (z3 ^ 2).re⌋ % 5 ∧ ⌊(3/2 : ℝ) * (z3 ^ 2).re⌋ % 5 = ⌊(3/2 : ℝ) * (z4 ^ 2).re⌋ % 5 ∧ ⌊(3/2 : ℝ) * (z1 ^ 2).im⌋ % 5 = ⌊(3/2 : ℝ) * (z2 ^ 2).im⌋ % 5 ∧ ⌊(3/2 : ℝ) * (z2 ^ 2).im⌋ % 5 = ⌊(3/2 : ℝ) * (z3 ^ 2).im⌋ % 5 ∧ ⌊(3/2 : ℝ) * (z3 ^ 2).im⌋ % 5 = ⌊(3/2 : ℝ) * (z4 ^ 2).im⌋ % 5 := by
-          unfold color at h_col;
-          unfold color_tuple at h_col; norm_num at h_col;
-          -- By definition of color, we know that the real and imaginary parts of $z^2$ are congruent modulo 5 for each $z_i$.
-          have h_cong : ∀ z : ℂ, ⌊(3 / 2 : ℝ) * (z ^ 2).re⌋ % 5 = (⌊(3 / 2 : ℝ) * (z ^ 2).re⌋.emod 5).toNat ∧ ⌊(3 / 2 : ℝ) * (z ^ 2).im⌋ % 5 = (⌊(3 / 2 : ℝ) * (z ^ 2).im⌋.emod 5).toNat := by
-            exact fun z => ⟨ Eq.symm ( Int.toNat_of_nonneg ( Int.emod_nonneg _ ( by norm_num ) ) ), Eq.symm ( Int.toNat_of_nonneg ( Int.emod_nonneg _ ( by norm_num ) ) ) ⟩;
-          grind;
-        exact ⟨ ( ⌊3 / 2 * ( z1 ^ 2 |> Complex.re ) ⌋ - ⌊3 / 2 * ( z2 ^ 2 |> Complex.re ) ⌋ + ⌊3 / 2 * ( z3 ^ 2 |> Complex.re ) ⌋ - ⌊3 / 2 * ( z4 ^ 2 |> Complex.re ) ⌋ ) / 5, ( ⌊3 / 2 * ( z1 ^ 2 |> Complex.im ) ⌋ - ⌊3 / 2 * ( z2 ^ 2 |> Complex.im ) ⌋ + ⌊3 / 2 * ( z3 ^ 2 |> Complex.im ) ⌋ - ⌊3 / 2 * ( z4 ^ 2 |> Complex.im ) ⌋ ) / 5, by omega, by omega ⟩;
+        have h_cong :
+            ⌊(3/2 : ℝ) * (z1 ^ 2).re⌋ % 5 =
+              ⌊(3/2 : ℝ) * (z2 ^ 2).re⌋ % 5 ∧
+            ⌊(3/2 : ℝ) * (z2 ^ 2).re⌋ % 5 =
+              ⌊(3/2 : ℝ) * (z3 ^ 2).re⌋ % 5 ∧
+            ⌊(3/2 : ℝ) * (z3 ^ 2).re⌋ % 5 =
+              ⌊(3/2 : ℝ) * (z4 ^ 2).re⌋ % 5 ∧
+            ⌊(3/2 : ℝ) * (z1 ^ 2).im⌋ % 5 =
+              ⌊(3/2 : ℝ) * (z2 ^ 2).im⌋ % 5 ∧
+            ⌊(3/2 : ℝ) * (z2 ^ 2).im⌋ % 5 =
+              ⌊(3/2 : ℝ) * (z3 ^ 2).im⌋ % 5 ∧
+            ⌊(3/2 : ℝ) * (z3 ^ 2).im⌋ % 5 =
+              ⌊(3/2 : ℝ) * (z4 ^ 2).im⌋ % 5 := by
+          unfold color at h_col
+          unfold color_tuple at h_col
+          norm_num at h_col
+          have h_cong : ∀ z : ℂ,
+              ⌊(3 / 2 : ℝ) * (z ^ 2).re⌋ % 5 =
+                (⌊(3 / 2 : ℝ) * (z ^ 2).re⌋.emod 5).toNat ∧
+              ⌊(3 / 2 : ℝ) * (z ^ 2).im⌋ % 5 =
+                (⌊(3 / 2 : ℝ) * (z ^ 2).im⌋.emod 5).toNat := by
+            exact fun z =>
+              ⟨ Eq.symm (Int.toNat_of_nonneg (Int.emod_nonneg _ (by norm_num))),
+                Eq.symm (Int.toNat_of_nonneg (Int.emod_nonneg _ (by norm_num))) ⟩
+          grind
+        exact
+          ⟨ (⌊3 / 2 * (z1 ^ 2 |> Complex.re)⌋ -
+                ⌊3 / 2 * (z2 ^ 2 |> Complex.re)⌋ +
+                ⌊3 / 2 * (z3 ^ 2 |> Complex.re)⌋ -
+                ⌊3 / 2 * (z4 ^ 2 |> Complex.re)⌋) / 5,
+            (⌊3 / 2 * (z1 ^ 2 |> Complex.im)⌋ -
+                ⌊3 / 2 * (z2 ^ 2 |> Complex.im)⌋ +
+                ⌊3 / 2 * (z3 ^ 2 |> Complex.im)⌋ -
+                ⌊3 / 2 * (z4 ^ 2 |> Complex.im)⌋) / 5,
+            by omega, by omega⟩
   norm_num [ Complex.ext_iff, sq ] at *
   obtain ⟨left, right⟩ := h_col
   obtain ⟨left_1, right_1⟩ := h_n_div
@@ -238,11 +352,34 @@ lemma monochromatic_imp_I_close {z1 z2 z3 z4 : ℂ}
   obtain ⟨w_1, h_1⟩ := right_1
   simp_all only
   apply And.intro
-  · use w; rw [ abs_lt ] ; constructor <;> push_cast [ ← @Int.cast_inj ℝ .. ] at * <;> linarith [ Int.floor_le ( 3 / 2 * ( z1.re * z1.re - z1.im * z1.im ) ), Int.lt_floor_add_one ( 3 / 2 * ( z1.re * z1.re - z1.im * z1.im ) ), Int.floor_le ( 3 / 2 * ( z2.re * z2.re - z2.im * z2.im ) ), Int.lt_floor_add_one ( 3 / 2 * ( z2.re * z2.re - z2.im * z2.im ) ), Int.floor_le ( 3 / 2 * ( z3.re * z3.re - z3.im * z3.im ) ), Int.lt_floor_add_one ( 3 / 2 * ( z3.re * z3.re - z3.im * z3.im ) ), Int.floor_le ( 3 / 2 * ( z4.re * z4.re - z4.im * z4.im ) ), Int.lt_floor_add_one ( 3 / 2 * ( z4.re * z4.re - z4.im * z4.im ) ) ] ;
-  · refine' ⟨ w_1, abs_lt.mpr ⟨ _, _ ⟩ ⟩ <;> push_cast [ ← @Int.cast_inj ℝ .. ] at * <;> linarith [ Int.floor_le ( 3 / 2 * ( z1.re * z1.im + z1.im * z1.re ) ), Int.lt_floor_add_one ( 3 / 2 * ( z1.re * z1.im + z1.im * z1.re ) ), Int.floor_le ( 3 / 2 * ( z2.re * z2.im + z2.im * z2.re ) ), Int.lt_floor_add_one ( 3 / 2 * ( z2.re * z2.im + z2.im * z2.re ) ), Int.floor_le ( 3 / 2 * ( z3.re * z3.im + z3.im * z3.re ) ), Int.lt_floor_add_one ( 3 / 2 * ( z3.re * z3.im + z3.im * z3.re ) ), Int.floor_le ( 3 / 2 * ( z4.re * z4.im + z4.im * z4.re ) ), Int.lt_floor_add_one ( 3 / 2 * ( z4.re * z4.im + z4.im * z4.re ) ) ]
+  · use w
+    rw [abs_lt]
+    constructor <;>
+      push_cast [← @Int.cast_inj ℝ ..] at * <;>
+      linarith [
+        Int.floor_le (3 / 2 * (z1.re * z1.re - z1.im * z1.im)),
+        Int.lt_floor_add_one (3 / 2 * (z1.re * z1.re - z1.im * z1.im)),
+        Int.floor_le (3 / 2 * (z2.re * z2.re - z2.im * z2.im)),
+        Int.lt_floor_add_one (3 / 2 * (z2.re * z2.re - z2.im * z2.im)),
+        Int.floor_le (3 / 2 * (z3.re * z3.re - z3.im * z3.im)),
+        Int.lt_floor_add_one (3 / 2 * (z3.re * z3.re - z3.im * z3.im)),
+        Int.floor_le (3 / 2 * (z4.re * z4.re - z4.im * z4.im)),
+        Int.lt_floor_add_one (3 / 2 * (z4.re * z4.re - z4.im * z4.im))]
+  · refine ⟨w_1, abs_lt.mpr ⟨?_, ?_⟩⟩ <;>
+      push_cast [← @Int.cast_inj ℝ ..] at * <;>
+      linarith [
+        Int.floor_le (3 / 2 * (z1.re * z1.im + z1.im * z1.re)),
+        Int.lt_floor_add_one (3 / 2 * (z1.re * z1.im + z1.im * z1.re)),
+        Int.floor_le (3 / 2 * (z2.re * z2.im + z2.im * z2.re)),
+        Int.lt_floor_add_one (3 / 2 * (z2.re * z2.im + z2.im * z2.re)),
+        Int.floor_le (3 / 2 * (z3.re * z3.im + z3.im * z3.re)),
+        Int.lt_floor_add_one (3 / 2 * (z3.re * z3.im + z3.im * z3.re)),
+        Int.floor_le (3 / 2 * (z4.re * z4.im + z4.im * z4.re)),
+        Int.lt_floor_add_one (3 / 2 * (z4.re * z4.im + z4.im * z4.re))]
 
 /-
-There is no complex number $I$ with $|I|^2 = 4$ that is close to a point in the lattice $\frac{10}{3}(\mathbb{Z} + i\mathbb{Z})$.
+There is no complex number $I$ with $|I|^2 = 4$ that is close to a point in the
+lattice $\frac{10}{3}(\mathbb{Z} + i\mathbb{Z})$.
 -/
 open Complex
 
@@ -251,19 +388,27 @@ lemma no_I_on_circle (I : ℂ) (k1 k2 : ℤ)
   (h_close_re : abs (I.re - (k1 : ℝ) * (10 / 3)) < 4 / 3)
   (h_close_im : abs (I.im - (k2 : ℝ) * (10 / 3)) < 4 / 3) :
   False := by
-  rcases k1 with ⟨ _ | _ | k1 ⟩ <;> norm_num at * <;> try nlinarith [ abs_lt.mp h_close_re, abs_lt.mp h_close_im, Complex.normSq_apply I ] ;
-  rcases k2 with ⟨ _ | _ | k2 ⟩ <;> norm_num [ Complex.normSq_apply ] at * <;> nlinarith [ abs_lt.mp h_close_re, abs_lt.mp h_close_im ]
+  rcases k1 with ⟨_ | _ | k1⟩ <;>
+    norm_num at * <;>
+    try nlinarith [abs_lt.mp h_close_re, abs_lt.mp h_close_im, Complex.normSq_apply I]
+  rcases k2 with ⟨_ | _ | k2⟩ <;>
+    norm_num [Complex.normSq_apply] at * <;>
+    nlinarith [abs_lt.mp h_close_re, abs_lt.mp h_close_im]
 
 /-
-It is possible to partition $\mathbb{R}^2$ into $25$ color classes such that none of them contains the vertices of a rectangle of area $1$.
+It is possible to partition $\mathbb{R}^2$ into $25$ color classes such that
+none of them contains the vertices of a rectangle of area $1$.
 -/
 open Complex
 
-theorem partition_rectangles_final : ∃ (f : ℂ → Fin 25), ∀ (c : Fin 25), ¬ ∃ (s : Set ℂ), s ⊆ f ⁻¹' {c} ∧ IsRectangleArea1 s := by
+theorem partition_rectangles_final :
+    ∃ (f : ℂ → Fin 25), ∀ (c : Fin 25),
+      ¬ ∃ (s : Set ℂ), s ⊆ f ⁻¹' {c} ∧ IsRectangleArea1 s := by
   use color
   intro c_color
   rintro ⟨s, hs_sub, hs_rect⟩
-  obtain ⟨z1, z2, z3, z4, h_s, h_ne1, h_ne2, h_ne3, h_ne4, h_ne5, h_ne6, h_par, h_perp, h_area⟩ := hs_rect
+  obtain ⟨z1, z2, z3, z4, h_s, h_ne1, h_ne2, h_ne3, h_ne4, h_ne5, h_ne6,
+    h_par, h_perp, h_area⟩ := hs_rect
   have h_col : color z1 = color z2 ∧ color z2 = color z3 ∧ color z3 = color z4 := by
     simp only [Set.subset_def, Set.mem_preimage, Set.mem_singleton_iff] at hs_sub
     rw [h_s] at hs_sub
@@ -274,12 +419,17 @@ theorem partition_rectangles_final : ∃ (f : ℂ → Fin 25), ∀ (c : Fin 25),
     simp [h1, h2, h3, h4]
   let I := z1^2 - z2^2 + z3^2 - z4^2
   have h_abs : normSq I = 4 := rectangle_imp_abs_I_eq_two h_par h_perp h_area
-  have h_close : ∃ k1 k2 : ℤ, abs (I.re - (k1 : ℝ) * (10 / 3)) < 4 / 3 ∧ abs (I.im - (k2 : ℝ) * (10 / 3)) < 4 / 3 := monochromatic_imp_I_close h_col
+  have h_close :
+      ∃ k1 k2 : ℤ,
+        abs (I.re - (k1 : ℝ) * (10 / 3)) < 4 / 3 ∧
+          abs (I.im - (k2 : ℝ) * (10 / 3)) < 4 / 3 :=
+    monochromatic_imp_I_close h_col
   obtain ⟨k1, k2, hk1, hk2⟩ := h_close
   exact no_I_on_circle I k1 k2 h_abs hk1 hk2
 
 /-
-If $z_1, z_2, z_3, z_4$ form a rectangle of area 1, then $|z_1^2 - z_2^2 + z_3^2 - z_4^2|^2 = 4$.
+If $z_1, z_2, z_3, z_4$ form a rectangle of area 1, then
+$|z_1^2 - z_2^2 + z_3^2 - z_4^2|^2 = 4$.
 -/
 open Complex
 
@@ -291,15 +441,19 @@ lemma rectangle_imp_abs_I_eq_two_proved {z1 z2 z3 z4 : ℂ}
     convert rectangle_imp_abs_I_eq_two h_par h_perp h_area using 1
 
 /-
-It is possible to partition $\mathbb{R}^2$ into $25$ color classes such that none of them contains the vertices of a rectangle of area $1$.
+It is possible to partition $\mathbb{R}^2$ into $25$ color classes such that
+none of them contains the vertices of a rectangle of area $1$.
 -/
 open Complex
 
-theorem partition_rectangles_final_v2 : ∃ (f : ℂ → Fin 25), ∀ (c : Fin 25), ¬ ∃ (s : Set ℂ), s ⊆ f ⁻¹' {c} ∧ IsRectangleArea1 s := by
+theorem partition_rectangles_final_v2 :
+    ∃ (f : ℂ → Fin 25), ∀ (c : Fin 25),
+      ¬ ∃ (s : Set ℂ), s ⊆ f ⁻¹' {c} ∧ IsRectangleArea1 s := by
   use color
   intro c_color
   rintro ⟨s, hs_sub, hs_rect⟩
-  obtain ⟨z1, z2, z3, z4, h_s, h_ne1, h_ne2, h_ne3, h_ne4, h_ne5, h_ne6, h_par, h_perp, h_area⟩ := hs_rect
+  obtain ⟨z1, z2, z3, z4, h_s, h_ne1, h_ne2, h_ne3, h_ne4, h_ne5, h_ne6,
+    h_par, h_perp, h_area⟩ := hs_rect
   have h_col : color z1 = color z2 ∧ color z2 = color z3 ∧ color z3 = color z4 := by
     simp only [Set.subset_def, Set.mem_preimage, Set.mem_singleton_iff] at hs_sub
     rw [h_s] at hs_sub
@@ -310,20 +464,28 @@ theorem partition_rectangles_final_v2 : ∃ (f : ℂ → Fin 25), ∀ (c : Fin 2
     simp [h1, h2, h3, h4]
   let I := z1^2 - z2^2 + z3^2 - z4^2
   have h_abs : normSq I = 4 := rectangle_imp_abs_I_eq_two_proved h_par h_perp h_area
-  have h_close : ∃ k1 k2 : ℤ, abs (I.re - (k1 : ℝ) * (10 / 3)) < 4 / 3 ∧ abs (I.im - (k2 : ℝ) * (10 / 3)) < 4 / 3 := monochromatic_imp_I_close h_col
+  have h_close :
+      ∃ k1 k2 : ℤ,
+        abs (I.re - (k1 : ℝ) * (10 / 3)) < 4 / 3 ∧
+          abs (I.im - (k2 : ℝ) * (10 / 3)) < 4 / 3 :=
+    monochromatic_imp_I_close h_col
   obtain ⟨k1, k2, hk1, hk2⟩ := h_close
   exact no_I_on_circle I k1 k2 h_abs hk1 hk2
 
 /-
-It is possible to partition $\mathbb{R}^2$ into $25$ color classes such that none of them contains the vertices of a rectangle of area $1$.
+It is possible to partition $\mathbb{R}^2$ into $25$ color classes such that
+none of them contains the vertices of a rectangle of area $1$.
 -/
 open Complex
 
-theorem partition_rectangles_final_v3 : ∃ (f : ℂ → Fin 25), ∀ (c : Fin 25), ¬ ∃ (s : Set ℂ), s ⊆ f ⁻¹' {c} ∧ IsRectangleArea1 s := by
+theorem partition_rectangles_final_v3 :
+    ∃ (f : ℂ → Fin 25), ∀ (c : Fin 25),
+      ¬ ∃ (s : Set ℂ), s ⊆ f ⁻¹' {c} ∧ IsRectangleArea1 s := by
   use color
   intro c_color
   rintro ⟨s, hs_sub, hs_rect⟩
-  obtain ⟨z1, z2, z3, z4, h_s, h_ne1, h_ne2, h_ne3, h_ne4, h_ne5, h_ne6, h_par, h_perp, h_area⟩ := hs_rect
+  obtain ⟨z1, z2, z3, z4, h_s, h_ne1, h_ne2, h_ne3, h_ne4, h_ne5, h_ne6,
+    h_par, h_perp, h_area⟩ := hs_rect
   have h_col : color z1 = color z2 ∧ color z2 = color z3 ∧ color z3 = color z4 := by
     simp only [Set.subset_def, Set.mem_preimage, Set.mem_singleton_iff] at hs_sub
     rw [h_s] at hs_sub
@@ -334,20 +496,28 @@ theorem partition_rectangles_final_v3 : ∃ (f : ℂ → Fin 25), ∀ (c : Fin 2
     simp [h1, h2, h3, h4]
   let I := z1^2 - z2^2 + z3^2 - z4^2
   have h_abs : normSq I = 4 := rectangle_imp_abs_I_eq_two_proved h_par h_perp h_area
-  have h_close : ∃ k1 k2 : ℤ, abs (I.re - (k1 : ℝ) * (10 / 3)) < 4 / 3 ∧ abs (I.im - (k2 : ℝ) * (10 / 3)) < 4 / 3 := monochromatic_imp_I_close h_col
+  have h_close :
+      ∃ k1 k2 : ℤ,
+        abs (I.re - (k1 : ℝ) * (10 / 3)) < 4 / 3 ∧
+          abs (I.im - (k2 : ℝ) * (10 / 3)) < 4 / 3 :=
+    monochromatic_imp_I_close h_col
   obtain ⟨k1, k2, hk1, hk2⟩ := h_close
   exact no_I_on_circle I k1 k2 h_abs hk1 hk2
 
 /-
-It is possible to partition $\mathbb{R}^2$ into $25$ color classes such that none of them contains the vertices of a rectangle of area $1$.
+It is possible to partition $\mathbb{R}^2$ into $25$ color classes such that
+none of them contains the vertices of a rectangle of area $1$.
 -/
 open Complex
 
-theorem partition_rectangles_main : ∃ (f : ℂ → Fin 25), ∀ (c : Fin 25), ¬ ∃ (s : Set ℂ), s ⊆ f ⁻¹' {c} ∧ IsRectangleArea1 s := by
+theorem partition_rectangles_main :
+    ∃ (f : ℂ → Fin 25), ∀ (c : Fin 25),
+      ¬ ∃ (s : Set ℂ), s ⊆ f ⁻¹' {c} ∧ IsRectangleArea1 s := by
   use color
   intro c_color
   rintro ⟨s, hs_sub, hs_rect⟩
-  obtain ⟨z1, z2, z3, z4, h_s, h_ne1, h_ne2, h_ne3, h_ne4, h_ne5, h_ne6, h_par, h_perp, h_area⟩ := hs_rect
+  obtain ⟨z1, z2, z3, z4, h_s, h_ne1, h_ne2, h_ne3, h_ne4, h_ne5, h_ne6,
+    h_par, h_perp, h_area⟩ := hs_rect
   have h_col : color z1 = color z2 ∧ color z2 = color z3 ∧ color z3 = color z4 := by
     simp only [Set.subset_def, Set.mem_preimage, Set.mem_singleton_iff] at hs_sub
     rw [h_s] at hs_sub
@@ -358,20 +528,28 @@ theorem partition_rectangles_main : ∃ (f : ℂ → Fin 25), ∀ (c : Fin 25), 
     simp [h1, h2, h3, h4]
   let I := z1^2 - z2^2 + z3^2 - z4^2
   have h_abs : normSq I = 4 := rectangle_imp_abs_I_eq_two_proved h_par h_perp h_area
-  have h_close : ∃ k1 k2 : ℤ, abs (I.re - (k1 : ℝ) * (10 / 3)) < 4 / 3 ∧ abs (I.im - (k2 : ℝ) * (10 / 3)) < 4 / 3 := monochromatic_imp_I_close h_col
+  have h_close :
+      ∃ k1 k2 : ℤ,
+        abs (I.re - (k1 : ℝ) * (10 / 3)) < 4 / 3 ∧
+          abs (I.im - (k2 : ℝ) * (10 / 3)) < 4 / 3 :=
+    monochromatic_imp_I_close h_col
   obtain ⟨k1, k2, hk1, hk2⟩ := h_close
   exact no_I_on_circle I k1 k2 h_abs hk1 hk2
 
 /-
-It is possible to partition $\mathbb{R}^2$ into $25$ color classes such that none of them contains the vertices of a rectangle of area $1$.
+It is possible to partition $\mathbb{R}^2$ into $25$ color classes such that
+none of them contains the vertices of a rectangle of area $1$.
 -/
 open Complex
 
-theorem partition_rectangles_final_v4 : ∃ (f : ℂ → Fin 25), ∀ (c : Fin 25), ¬ ∃ (s : Set ℂ), s ⊆ f ⁻¹' {c} ∧ IsRectangleArea1 s := by
+theorem partition_rectangles_final_v4 :
+    ∃ (f : ℂ → Fin 25), ∀ (c : Fin 25),
+      ¬ ∃ (s : Set ℂ), s ⊆ f ⁻¹' {c} ∧ IsRectangleArea1 s := by
   use color
   intro c_color
   rintro ⟨s, hs_sub, hs_rect⟩
-  obtain ⟨z1, z2, z3, z4, h_s, h_ne1, h_ne2, h_ne3, h_ne4, h_ne5, h_ne6, h_par, h_perp, h_area⟩ := hs_rect
+  obtain ⟨z1, z2, z3, z4, h_s, h_ne1, h_ne2, h_ne3, h_ne4, h_ne5, h_ne6,
+    h_par, h_perp, h_area⟩ := hs_rect
   have h_col : color z1 = color z2 ∧ color z2 = color z3 ∧ color z3 = color z4 := by
     simp only [Set.subset_def, Set.mem_preimage, Set.mem_singleton_iff] at hs_sub
     rw [h_s] at hs_sub
@@ -382,12 +560,17 @@ theorem partition_rectangles_final_v4 : ∃ (f : ℂ → Fin 25), ∀ (c : Fin 2
     simp [h1, h2, h3, h4]
   let I := z1^2 - z2^2 + z3^2 - z4^2
   have h_abs : normSq I = 4 := rectangle_imp_abs_I_eq_two_proved h_par h_perp h_area
-  have h_close : ∃ k1 k2 : ℤ, abs (I.re - (k1 : ℝ) * (10 / 3)) < 4 / 3 ∧ abs (I.im - (k2 : ℝ) * (10 / 3)) < 4 / 3 := monochromatic_imp_I_close h_col
+  have h_close :
+      ∃ k1 k2 : ℤ,
+        abs (I.re - (k1 : ℝ) * (10 / 3)) < 4 / 3 ∧
+          abs (I.im - (k2 : ℝ) * (10 / 3)) < 4 / 3 :=
+    monochromatic_imp_I_close h_col
   obtain ⟨k1, k2, hk1, hk2⟩ := h_close
   exact no_I_on_circle I k1 k2 h_abs hk1 hk2
 
 /-
-If $z_1, z_2, z_3, z_4$ form a rectangle of area 1, then $|z_1^2 - z_2^2 + z_3^2 - z_4^2|^2 = 4$.
+If $z_1, z_2, z_3, z_4$ form a rectangle of area 1, then
+$|z_1^2 - z_2^2 + z_3^2 - z_4^2|^2 = 4$.
 -/
 open Complex
 
@@ -402,9 +585,11 @@ notation "ℝ²" => EuclideanSpace ℝ (Fin 2)
 
 variable {V P : Type*} {n : ℕ}
 
-variable [NormedAddCommGroup V] [InnerProductSpace ℝ V] [MetricSpace P] [NormedAddTorsor V P]
+variable [NormedAddCommGroup V] [InnerProductSpace ℝ V] [MetricSpace P]
+  [NormedAddTorsor V P]
 
-variable [Module.Oriented ℝ V (Fin 2)] [Fact (Module.finrank ℝ V = 2)] {p : Fin n → P}
+variable [Module.Oriented ℝ V (Fin 2)] [Fact (Module.finrank ℝ V = 2)]
+  {p : Fin n → P}
 
 /-- Oriented angles make sense in 2d.
 
@@ -423,11 +608,10 @@ def IsCcwConvexPolygon (p : Fin n → P) : Prop :=
 
 /-- Erdős problem 189 asked whether the below holds for all rectangles. -/
 def Erdos189For (P : ℝ² → ℝ² → ℝ² → ℝ² → Prop) (A : ℝ² → ℝ² → ℝ² → ℝ² → ℝ) :=
-    ∀ᵉ (n > 0) (colouring : ℝ² → Fin n), ∃ colour, ∀ area > (0 : ℝ), ∃ a b c d,
-      {a, b, c, d} ⊆ colouring⁻¹' {colour} ∧
-      IsCcwConvexPolygon ![a, b, c, d] ∧
-      A a b c d = area ∧
-      P a b c d
+  ∀ᵉ (n > 0) (colouring : ℝ² → Fin n), ∃ colour,
+    ∀ area > (0 : ℝ), ∃ a b c d,
+      {a, b, c, d} ⊆ colouring⁻¹' {colour} ∧ IsCcwConvexPolygon ![a, b, c, d] ∧
+        A a b c d = area ∧ P a b c d
 
 noncomputable section AristotleLemmas
 
@@ -444,9 +628,11 @@ The mapping from R^2 to C is injective.
 open Complex
 
 lemma toComplex_inj : Function.Injective toComplex := by
-  intro z w h; simp +decide [ Complex.ext_iff ] at h
-  obtain ⟨left, right⟩ := h
-  ext i; fin_cases i <;> aesop
+  intro z w h
+  ext i
+  fin_cases i
+  · simpa [toComplex] using congr_arg Complex.re h
+  · simpa [toComplex] using congr_arg Complex.im h
 
 /-
 toComplex preserves subtraction.
@@ -463,8 +649,8 @@ open Complex EuclideanGeometry
 
 lemma toComplex_inner (x y : ℝ²) : inner ℝ x y = ((toComplex x) * star (toComplex y)).re := by
   -- Unpack the definitions of `toComplex` and `star`, then calculate the real part of the product.
-  simp +decide [toComplex, star, mul_assoc, mul_comm, mul_left_comm];
-  simp +decide [ *, Fin.sum_univ_two, Inner.inner ];
+  simp +decide [toComplex, star]
+  simp +decide [*, Fin.sum_univ_two, Inner.inner]
   ring
 
 /-
@@ -473,27 +659,33 @@ The squared norm in R^2 corresponds to the squared norm of the complex number.
 open Complex EuclideanGeometry
 
 lemma toComplex_normSq (x : ℝ²) : ‖x‖^2 = normSq (toComplex x) := by
-  norm_num [ EuclideanSpace.norm_eq ];
-  rw [ Real.sq_sqrt <| by positivity, Complex.normSq_apply ];
-  rw [ ← sq, ← sq, toComplex ]
+  norm_num [EuclideanSpace.norm_eq]
+  rw [Real.sq_sqrt <| by positivity, Complex.normSq_apply]
+  rw [← sq, ← sq, toComplex]
 
 /-
-The directions of the lines ab and bc are perpendicular if and only if the inner product of the vectors b-a and c-b is zero.
+The directions of the lines ab and bc are perpendicular if and only if the inner
+product of the vectors b-a and c-b is zero.
 -/
 open Complex EuclideanGeometry
 
 lemma perp_iff_inner_eq_zero (a b c : ℝ²) :
   line[ℝ, a, b].direction ⟂ line[ℝ, b, c].direction ↔ inner ℝ (b - a) (c - b) = 0 := by
-    have h_dir_span : (affineSpan ℝ {a, b}).direction = Submodule.span ℝ {b - a} ∧ (affineSpan ℝ {b, c}).direction = Submodule.span ℝ {c - b} := by
-      constructor <;> rw [ direction_affineSpan ];
-      · rw [ vectorSpan_pair ];
-        rw [ ← Submodule.span_neg ] ; norm_num;
-      · simp +decide [ vectorSpan_pair ];
-        rw [ ← Submodule.span_neg ] ; norm_num [ neg_sub ] ;
+    have h_dir_span :
+        (affineSpan ℝ {a, b}).direction = Submodule.span ℝ {b - a} ∧
+        (affineSpan ℝ {b, c}).direction = Submodule.span ℝ {c - b} := by
+      constructor <;> rw [direction_affineSpan]
+      · rw [vectorSpan_pair]
+        rw [← Submodule.span_neg]
+        norm_num
+      · rw [vectorSpan_pair]
+        rw [← Submodule.span_neg]
+        norm_num [neg_sub]
     simp +decide [ h_dir_span, Submodule.isOrtho_span ]
 
 /-
-If a, b, c, d form a convex polygon with three right angles, then they form a parallelogram (specifically b - a = c - d).
+If a, b, c, d form a convex polygon with three right angles, then they form a
+parallelogram (specifically b - a = c - d).
 -/
 open Complex EuclideanGeometry
 
@@ -504,36 +696,54 @@ lemma parallelogram_of_rect (a b c d : ℝ²)
   (h_perp3 : line[ℝ, c, d].direction ⟂ line[ℝ, d, a].direction) :
   b - a = c - d := by
     -- By definition of perpendicularity, we know that the inner product of the vectors is zero.
-    have h_inner_zero : inner ℝ (b - a) (c - b) = 0 ∧ inner ℝ (c - b) (d - c) = 0 ∧ inner ℝ (d - c) (a - d) = 0 := by
-      exact ⟨ by simpa using ( perp_iff_inner_eq_zero a b c ) |>.1 h_perp1, by simpa using ( perp_iff_inner_eq_zero b c d ) |>.1 h_perp2, by simpa using ( perp_iff_inner_eq_zero c d a ) |>.1 h_perp3 ⟩;
-    -- By hypothesis, we know that the vectors (b - a) and (c - d) are perpendicular to (c - b), and (d - c) is perpendicular to (a - d).
-    have h_perp : inner ℝ (b - a - (c - d)) (c - b) = 0 ∧ inner ℝ (b - a - (c - d)) (d - c) = 0 := by
-      simp_all +decide [ inner_sub_left, inner_sub_right ];
-      constructor <;> norm_num [ real_inner_comm ] at * <;> linarith;
-    -- Since the vectors (c - b) and (d - c) are linearly independent, the only solution to the system of equations is that (b - a) - (c - d) = 0.
+    have h_inner_zero :
+        inner ℝ (b - a) (c - b) = 0 ∧
+        inner ℝ (c - b) (d - c) = 0 ∧
+        inner ℝ (d - c) (a - d) = 0 := by
+      exact
+        ⟨ by simpa using (perp_iff_inner_eq_zero a b c).1 h_perp1,
+          by simpa using (perp_iff_inner_eq_zero b c d).1 h_perp2,
+          by simpa using (perp_iff_inner_eq_zero c d a).1 h_perp3 ⟩
+    have h_perp :
+        inner ℝ (b - a - (c - d)) (c - b) = 0 ∧
+        inner ℝ (b - a - (c - d)) (d - c) = 0 := by
+      simp_all +decide [inner_sub_left, inner_sub_right]
+      constructor <;> norm_num [real_inner_comm] at * <;> linarith
     have h_lin_indep : LinearIndependent ℝ ![c - b, d - c] := by
       have h_lin_indep : c - b ≠ 0 ∧ d - c ≠ 0 := by
-        constructor <;> intro h <;> simp_all +decide [ sub_eq_iff_eq_add ];
-        · have := h_ccw ( show 0 < 1 from by decide ) ( show 1 < 2 from by decide ) ; simp_all +decide [ IsCcwConvexPolygon ];
-        · have := @h_ccw 1 2 3 ( by decide ) ( by decide ) ; simp_all +decide [ EuclideanGeometry.oangle ] ;
-      rw [ Fintype.linearIndependent_iff ]
+        constructor <;> intro h <;> simp_all +decide [sub_eq_iff_eq_add]
+        · have := h_ccw (show 0 < 1 from by decide) (show 1 < 2 from by decide)
+          simp_all +decide [IsCcwConvexPolygon]
+        · have := @h_ccw 1 2 3 (by decide) (by decide)
+          simp_all +decide [EuclideanGeometry.oangle]
+      rw [Fintype.linearIndependent_iff]
       intro g a_1 i
-      simp_all only [Nat.succ_eq_add_one, Nat.reduceAdd, ne_eq, Fin.sum_univ_two, Fin.isValue, Matrix.cons_val_zero,
+      simp_all only [Nat.succ_eq_add_one, Nat.reduceAdd, ne_eq, Fin.sum_univ_two,
+        Fin.isValue, Matrix.cons_val_zero,
         Matrix.cons_val_one, Matrix.cons_val_fin_one]
       obtain ⟨left, right⟩ := h_inner_zero
       obtain ⟨left_1, right_1⟩ := h_perp
       obtain ⟨left_2, right_2⟩ := h_lin_indep
       obtain ⟨left_3, right⟩ := right
-      fin_cases i <;> simp_all +decide [ inner_add_left, inner_add_right, inner_smul_left, inner_smul_right ];
-      · replace a_1 := congr_arg ( fun x => inner ℝ x ( c - b ) ) a_1 ; simp_all +decide [ inner_add_left, inner_add_right, inner_smul_left, inner_smul_right ];
-        simp_all +decide [ real_inner_comm ];
-      · have := congr_arg ( fun x => inner ℝ x ( d - c ) ) a_1 ; norm_num [ left_3, right_1, right_2, left_2, inner_add_left, inner_add_right, inner_smul_left, inner_smul_right ] at this ; aesop;
-    have h_lin_comb : ∀ (v : EuclideanSpace ℝ (Fin 2)), (∀ i : Fin 2, inner ℝ v (![c - b, d - c] i) = 0) → v = 0 := by
+      fin_cases i <;>
+        simp_all +decide only [Nat.succ_eq_add_one, Nat.reduceAdd, Fin.zero_eta, Fin.isValue]
+      · replace a_1 := congr_arg (fun x => inner ℝ x (c - b)) a_1
+        simp_all +decide [inner_add_left, inner_smul_left]
+        simp_all +decide [real_inner_comm]
+      · have := congr_arg (fun x => inner ℝ x (d - c)) a_1
+        norm_num [
+          left_3, right_1, right_2, left_2, inner_add_left, inner_add_right,
+          inner_smul_left, inner_smul_right] at this
+        aesop
+    have h_lin_comb :
+        ∀ (v : EuclideanSpace ℝ (Fin 2)),
+          (∀ i : Fin 2, inner ℝ v (![c - b, d - c] i) = 0) → v = 0 := by
       intro v hv
       have h_ortho : v ∈ (Submodule.span ℝ (Set.range ![c - b, d - c]))ᗮ := by
-        intro w hw;
-        rw [ Submodule.mem_span_range_iff_exists_fun ] at hw;
-        simp_all only [Nat.succ_eq_add_one, Nat.reduceAdd, Fin.forall_fin_two, Fin.isValue, Matrix.cons_val_zero,
+        intro w hw
+        rw [Submodule.mem_span_range_iff_exists_fun] at hw
+        simp_all only [Nat.succ_eq_add_one, Nat.reduceAdd, Fin.forall_fin_two,
+          Fin.isValue, Matrix.cons_val_zero,
           Matrix.cons_val_one, Matrix.cons_val_fin_one, Fin.sum_univ_two]
         obtain ⟨left, right⟩ := h_inner_zero
         obtain ⟨left_1, right_1⟩ := h_perp
@@ -541,19 +751,20 @@ lemma parallelogram_of_rect (a b c d : ℝ²)
         obtain ⟨w_1, h⟩ := hw
         obtain ⟨left_3, right⟩ := right
         subst h
-        simp_all +decide [ inner_add_left, inner_smul_left ];
-        simp_all +decide [ real_inner_comm ];
+        simp_all +decide [inner_add_left, inner_smul_left]
+        simp_all +decide [real_inner_comm]
       have h_ortho : v ∈ (Submodule.span ℝ (Set.range ![c - b, d - c]))ᗮ → v = 0 := by
         intro hv
         have h_subspace : Submodule.span ℝ (Set.range ![c - b, d - c]) = ⊤ := by
-          refine' Submodule.eq_top_of_finrank_eq _;
-          rw [ finrank_span_eq_card ] <;> aesop
-        aesop;
-      exact h_ortho ‹_›;
+          refine Submodule.eq_top_of_finrank_eq ?_
+          rw [finrank_span_eq_card] <;> aesop
+        aesop
+      exact h_ortho ‹_›
     exact sub_eq_zero.mp ( h_lin_comb _ fun i => by fin_cases i <;> tauto )
 
 /-
-If a, b, c, d form a rectangle in R^2 with area 1 (satisfying the Erdos189 conditions), then their complex representations form a rectangle of area 1 in C.
+If a, b, c, d form a rectangle in R^2 with area 1 (satisfying the Erdos189
+conditions), then their complex representations form a rectangle of area 1 in C.
 Proof idea:
 1. Use `parallelogram_of_rect` to show `b - a = c - d`.
 2. Use `toComplex_sub` to translate this to `toComplex b - toComplex a = toComplex c - toComplex d`.
@@ -571,6 +782,7 @@ Proof idea:
 -/
 open Complex EuclideanGeometry
 
+set_option linter.flexible false in
 lemma is_rectangle_of_erdos (a b c d : ℝ²)
   (h_ccw : IsCcwConvexPolygon ![a, b, c, d])
   (h_perp1 : line[ℝ, a, b].direction ⟂ line[ℝ, b, c].direction)
@@ -578,53 +790,64 @@ lemma is_rectangle_of_erdos (a b c d : ℝ²)
   (h_perp3 : line[ℝ, c, d].direction ⟂ line[ℝ, d, a].direction)
   (h_area : dist a b * dist b c = 1) :
   IsRectangleArea1 {toComplex a, toComplex b, toComplex c, toComplex d} := by
-    refine' ⟨ toComplex a, toComplex b, toComplex c, toComplex d, _, _, _, _, _, _ ⟩ <;> simp_all +decide [ IsCcwConvexPolygon, dist_eq_norm, EuclideanSpace.norm_eq ];
-    · intro h; simp_all +decide [ toComplex ];
-    · intro heq; simp_all +decide [ Fin.forall_fin_succ, Complex.ext_iff ] ;
-      norm_num [ show a = c from by ext i; fin_cases i <;> aesop ] at *;
-    · intro h; simp_all +decide [ Fin.forall_fin_succ, Complex.ext_iff ] ;
+    refine ⟨toComplex a, toComplex b, toComplex c, toComplex d, ?_, ?_, ?_, ?_, ?_, ?_⟩ <;>
+      simp_all +decide [IsCcwConvexPolygon, dist_eq_norm, EuclideanSpace.norm_eq]
+    · intro h
+      simp_all +decide [toComplex]
+    · intro heq
+      simp_all +decide [Fin.forall_fin_succ, Complex.ext_iff]
+      norm_num [show a = c from by ext i; fin_cases i <;> aesop] at *
+    · intro h
+      simp_all +decide [Fin.forall_fin_succ, Complex.ext_iff]
       unfold toComplex at h
       simp_all only [Fin.isValue]
       obtain ⟨left, right⟩ := h_ccw
       obtain ⟨left_1, right_1⟩ := h
       obtain ⟨left, right_2⟩ := left
       obtain ⟨left, right_3⟩ := left
-      norm_num [ show a = d from by ext i; fin_cases i <;> assumption ] at *;
-    · intro h; have := congr_arg Complex.re h; have := congr_arg Complex.im h; simp_all +decide [ toComplex ];
-    · refine' ⟨ _, _, _, _, _ ⟩;
-      · intro h; simp_all +decide [ toComplex ] ;
-        norm_num [ show b = d from by ext i; fin_cases i <;> tauto ] at *;
-        simp_all +decide [ Fin.forall_fin_succ ];
-      · norm_num [ Complex.ext_iff, toComplex ];
-        intro h₀ h₁; simp_all +decide [ Fin.forall_fin_succ ] ;
-        simp_all +decide [ show c = d from by ext i; fin_cases i <;> assumption ];
+      norm_num [show a = d from by ext i; fin_cases i <;> assumption] at *
+    · intro h
+      have := congr_arg Complex.re h
+      have := congr_arg Complex.im h
+      simp_all +decide [toComplex]
+    · refine ⟨?_, ?_, ?_, ?_, ?_⟩
+      · intro h
+        simp_all +decide [toComplex]
+        norm_num [show b = d from by ext i; fin_cases i <;> tauto] at *
+        simp_all +decide [Fin.forall_fin_succ]
+      · norm_num [Complex.ext_iff, toComplex]
+        intro h₀ h₁
+        simp_all +decide [Fin.forall_fin_succ]
+        simp_all +decide [show c = d from by ext i; fin_cases i <;> assumption]
       · have h_par : b - a = c - d := by
-          apply parallelogram_of_rect a b c d h_ccw h_perp1 h_perp2 h_perp3;
-        exact toComplex_sub b a ▸ toComplex_sub c d ▸ congr_arg toComplex h_par;
+          apply parallelogram_of_rect a b c d h_ccw h_perp1 h_perp2 h_perp3
+        exact toComplex_sub b a ▸ toComplex_sub c d ▸ congr_arg toComplex h_par
       · have h_inner : inner ℝ (d - a) (b - a) = 0 := by
           have h_inner : inner ℝ (c - d) (d - a) = 0 := by
-            simp_all +decide [ Submodule.mem_orthogonal, direction_affineSpan ];
-            simp_all +decide [ vectorSpan_pair, Submodule.mem_orthogonal ];
+            simp_all +decide [direction_affineSpan]
+            simp_all +decide [vectorSpan_pair]
           have h_inner : b - a = c - d := by
-            apply parallelogram_of_rect;
-            · exact h_ccw;
-            · assumption;
-            · assumption;
-            · assumption;
-          rw [ h_inner, real_inner_comm ] ; aesop;
-        simp_all +decide [ toComplex, inner ];
-        linarith;
-      · unfold toComplex; simp_all +decide [ Complex.normSq, sq ] ;
+            apply parallelogram_of_rect
+            · exact h_ccw
+            · assumption
+            · assumption
+            · assumption
+          rw [h_inner, real_inner_comm]
+          aesop
+        simp_all +decide [toComplex, inner]
+        linarith
+      · unfold toComplex
+        simp_all +decide [Complex.normSq, sq]
         -- By definition of $d$, we know that $d = a + (c - b)$.
         have hd : d = a + (c - b) := by
-          have := parallelogram_of_rect a b c d h_ccw h_perp1 h_perp2 h_perp3;
-          exact eq_add_of_sub_eq' ( by
+          have := parallelogram_of_rect a b c d h_ccw h_perp1 h_perp2 h_perp3
+          exact eq_add_of_sub_eq' (by
             ext i
             have := congr_arg (fun x : ℝ² => x i) this
             norm_num at *
-            linarith );
-        rw [ ← Real.sqrt_mul <| by nlinarith ] at h_area;
-        rw [ Real.sqrt_eq_one ] at h_area
+            linarith)
+        rw [← Real.sqrt_mul <| by nlinarith] at h_area
+        rw [Real.sqrt_eq_one] at h_area
         subst hd
         simp_all only [Fin.isValue, PiLp.add_apply, PiLp.sub_apply, add_sub_cancel_left]
         nlinarith
@@ -637,17 +860,15 @@ theorem erdos_189 :
         line[ℝ, a, b].direction ⟂ line[ℝ, b, c].direction ∧
         line[ℝ, b, c].direction ⟂ line[ℝ, c, d].direction ∧
         line[ℝ, c, d].direction ⟂ line[ℝ, d, a].direction)
-      (fun a b c d ↦ dist a b * dist b c) ↔ False := by
-  refine' iff_false_intro _;
-  -- By definition of Erdos189For, we need to show that there exists a coloring with 25 colors such that no monochromatic rectangle of area 1 exists.
+      (fun a b c _d ↦ dist a b * dist b c) ↔ False := by
+  refine iff_false_intro ?_
   intro h
-  obtain ⟨f, hf⟩ := partition_rectangles_final_v4;
-  obtain ⟨ n, hn ⟩ := h 25 ( by norm_num ) ( fun x => f ( toComplex x ) );
-  obtain ⟨ a, b, c, d, h₁, h₂, h₃, h₄ ⟩ := hn 1 zero_lt_one;
-  -- Apply `is_rectangle_of_erdos` to obtain that `{toComplex a, toComplex b, toComplex c, toComplex d}` forms a rectangle of area 1 in `ℂ`.
+  obtain ⟨f, hf⟩ := partition_rectangles_final_v4
+  obtain ⟨n, hn⟩ := h 25 (by norm_num) (fun x => f (toComplex x))
+  obtain ⟨a, b, c, d, h₁, h₂, h₃, h₄⟩ := hn 1 zero_lt_one
   have h_rect : IsRectangleArea1 {toComplex a, toComplex b, toComplex c, toComplex d} := by
-    apply is_rectangle_of_erdos a b c d h₂ h₄.left h₄.right.left h₄.right.right h₃;
-  exact hf n ⟨ _, by simpa [ Set.subset_def ] using h₁, h_rect ⟩
+    apply is_rectangle_of_erdos a b c d h₂ h₄.left h₄.right.left h₄.right.right h₃
+  exact hf n ⟨_, by simpa [Set.subset_def] using h₁, h_rect⟩
 
 #print axioms erdos_189
 -- 'Erdos189.erdos_189' depends on axioms: [propext, Classical.choice, Quot.sound]
