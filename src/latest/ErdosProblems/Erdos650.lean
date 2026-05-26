@@ -42,6 +42,8 @@ import Mathlib
 
 namespace Erdos650
 
+-- These generated proof scripts rely on tactic shapes that trigger style
+-- linters; keep the suppressions scoped to this file to preserve the proof.
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.unusedDecidableInType false
@@ -1266,8 +1268,8 @@ lemma case2_neighborhood_bound (A : Finset ℕ) (amax : ℕ)
             exact ⟨ ⟨ ⟨ by linarith [ h_range.2.1 ], by linarith [ h_range.2.2 ] ⟩,
               by linarith [ h_range.2.1 ] ⟩, a, ha, h_range.1 ⟩ ;
           have him₁_im₂_disjoint : Disjoint im₁ im₂ := by
-            -- By definition of $im₁$ and $im₂$, we know that for any $a \in S$, $case2_phi1 b₀ amax
-            -- a < b₀$ and $case2_phi2 b₀ amax a > b₀$.
+            -- By definition of $im₁$ and $im₂$, we know that for any $a \in S$,
+            -- $case2_phi1 b₀ amax a < b₀$ and $case2_phi2 b₀ amax a > b₀$.
             have h_case2_phi1_lt_b₀ : ∀ a ∈ S, case2_phi1 b₀ amax a < b₀ := by
               exact fun a ha => case2_phi1_in_range b₀ x amax a ( hS_pos a ha ) ( hS_lt_amax a ha )
                     rfl |>.2.2.trans_le ( by linarith ) ;
