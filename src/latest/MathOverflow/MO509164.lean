@@ -16,7 +16,6 @@ import Mathlib
 
 namespace MO509164
 
-set_option linter.style.emptyLine false
 set_option linter.style.openClassical false
 set_option linter.style.setOption false
 
@@ -25,13 +24,10 @@ open scoped Classical
 
 set_option maxHeartbeats 50000000
 set_option linter.flexible false
-set_option linter.style.cases false
-set_option linter.style.cdot false
 set_option linter.style.induction false
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
-set_option linter.style.whitespace false
 
 /-
 The contraction maps f_0 and f_1 for the middle-a Cantor set construction.
@@ -113,9 +109,9 @@ theorem prop_symbolic_1 (r : ℝ) (u : List (Fin 2)) (x : ℝ) :
       · simpa [ Finset.mul_sum _ _ _, mul_add, mul_assoc, mul_left_comm, Finset.sum_add_distrib ] using by ring_nf;
 
 /-
-Proposition 2.1(1): Explicit formula for I_u(r), assuming 0 < r < 1/2.
+Proposition 2.1(1): Explicit formula for I_u(r), assuming 0 < r < 1 / 2.
 -/
-theorem prop_symbolic_1_interval (r : ℝ) (hr : 0 < r ∧ r < 1/2) (u : List (Fin 2)) :
+theorem prop_symbolic_1_interval (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (u : List (Fin 2)) :
     I_word u r = Set.Icc ((1 - r) * ∑ k ∈ Finset.range u.length, ((u[k]?).getD 0 : ℝ) * r ^ k)
                          ((1 - r) * (∑ k ∈ Finset.range u.length, ((u[k]?).getD 0 : ℝ) * r ^ k) + r ^ u.length) := by
                            ext x;
@@ -142,7 +138,7 @@ theorem pi_append_zeros (r : ℝ) (u : List (Fin 2)) :
 /-
 Formula for pi_r(u1^infty).
 -/
-theorem pi_append_ones (r : ℝ) (hr : 0 < r ∧ r < 1/2) (u : List (Fin 2)) :
+theorem pi_append_ones (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (u : List (Fin 2)) :
     pi r (append_ones u) = (1 - r) * (∑ k ∈ Finset.range u.length, ((u[k]?).getD 0 : ℝ) * r ^ k) + r ^ u.length := by
       -- Split the sum in the definition of pi into the first n terms and the rest. The rest form a geometric series.
       have h_split_sum : ∑' k : ℕ, ((append_ones u k : ℝ) * r ^ k) = (∑ k ∈ Finset.range u.length, ((u[k]?).getD 0 : ℝ) * r ^ k) + (∑' k : ℕ, r ^ (k + u.length)) := by
@@ -159,7 +155,7 @@ theorem pi_append_ones (r : ℝ) (hr : 0 < r ∧ r < 1/2) (u : List (Fin 2)) :
 /-
 Proposition 2.1(3) part 2: I_u(r) = [L_u(r), R_u(r)].
 -/
-theorem prop_symbolic_3_interval (r : ℝ) (hr : 0 < r ∧ r < 1/2) (u : List (Fin 2)) :
+theorem prop_symbolic_3_interval (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (u : List (Fin 2)) :
     I_word u r = Set.Icc (pi r (append_zeros u)) (pi r (append_ones u)) := by
       -- Apply the definition of I_word u r from.prop_symbolic_1_interval.
       rw [prop_symbolic_1_interval r hr u];
@@ -171,7 +167,7 @@ pi_r(omega) is in the interval corresponding to the prefix of omega of length n.
 def take_word (n : ℕ) (ω : ℕ → Fin 2) : List (Fin 2) :=
   List.ofFn (fun i : Fin n => ω i)
 
-theorem pi_mem_I_word (r : ℝ) (hr : 0 < r ∧ r < 1/2) (ω : ℕ → Fin 2) (n : ℕ) :
+theorem pi_mem_I_word (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (ω : ℕ → Fin 2) (n : ℕ) :
     pi r ω ∈ I_word (take_word n ω) r := by
       -- By definition of $f_{word}$, we know that $f_{take\_word n ω}(x) = (1 - r) * ∑ k ∈ Finset.range n, (ω k : ℝ) * r ^ k + r ^ n * x$.
       have h_f_word : ∀ x : ℝ, (f_word (take_word n ω) r) x = (1 - r) * (∑ k ∈ Finset.range n, (ω k : ℝ) * r ^ k) + r ^ n * x := by
@@ -200,7 +196,7 @@ theorem pi_mem_I_word (r : ℝ) (hr : 0 < r ∧ r < 1/2) (ω : ℕ → Fin 2) (n
 /-
 The image of the projection map is contained in the Cantor set.
 -/
-theorem range_pi_subset_C (r : ℝ) (hr : 0 < r ∧ r < 1/2) :
+theorem range_pi_subset_C (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
     Set.range (pi r) ⊆ C r := by
       intro x;
       rintro ⟨ ω, rfl ⟩;
@@ -211,7 +207,7 @@ theorem range_pi_subset_C (r : ℝ) (hr : 0 < r ∧ r < 1/2) :
 /-
 pi_r(omega) is in C_n(r).
 -/
-theorem pi_mem_C_n (r : ℝ) (hr : 0 < r ∧ r < 1/2) (ω : ℕ → Fin 2) (n : ℕ) :
+theorem pi_mem_C_n (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (ω : ℕ → Fin 2) (n : ℕ) :
     pi r ω ∈ C_n r n := by
       have h_pi_mem_I : pi r ω ∈ I_word (take_word n ω) r := by
         exact pi_mem_I_word r hr ω n
@@ -232,7 +228,7 @@ theorem exists_word_of_mem_C (r : ℝ) (x : ℝ) (hx : x ∈ C r) (n : ℕ) :
 /-
 I_{ui} is a subset of I_u.
 -/
-theorem I_word_subset_of_append (r : ℝ) (hr : 0 < r ∧ r < 1/2) (u : List (Fin 2)) (i : Fin 2) :
+theorem I_word_subset_of_append (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (u : List (Fin 2)) (i : Fin 2) :
     I_word (u ++ [i]) r ⊆ I_word u r := by
       intro x hx;
       obtain ⟨ y, hy, rfl ⟩ := hx;
@@ -243,7 +239,7 @@ theorem I_word_subset_of_append (r : ℝ) (hr : 0 < r ∧ r < 1/2) (u : List (Fi
 /-
 The image of the projection map is contained in the Cantor set.
 -/
-theorem range_pi_subset_C' (r : ℝ) (hr : 0 < r ∧ r < 1/2) :
+theorem range_pi_subset_C' (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
     Set.range (pi r) ⊆ C r := by
       exact range_pi_subset_C r hr
 
@@ -263,7 +259,7 @@ theorem f_word_injective (r : ℝ) (hr : r ≠ 0) (u : List (Fin 2)) :
 /-
 Distinct words of the same length correspond to disjoint intervals.
 -/
-theorem disjoint_I_word (r : ℝ) (hr : 0 < r ∧ r < 1/2) (n : ℕ) (u v : List (Fin 2)) (hu : u ∈ Sigma_n n) (hv : v ∈ Sigma_n n) (hdiff : u ≠ v) :
+theorem disjoint_I_word (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (n : ℕ) (u v : List (Fin 2)) (hu : u ∈ Sigma_n n) (hv : v ∈ Sigma_n n) (hdiff : u ≠ v) :
     Disjoint (I_word u r) (I_word v r) := by
       induction' n with n ih generalizing u v;
       · cases u <;> cases v <;> simp_all +decide [ Sigma_n ];
@@ -326,7 +322,7 @@ theorem disjoint_I_word (r : ℝ) (hr : 0 < r ∧ r < 1/2) (n : ℕ) (u v : List
 /-
 For every x in C and n, the word u of length n such that x is in I_u is unique.
 -/
-theorem unique_word_of_mem_C (r : ℝ) (hr : 0 < r ∧ r < 1/2) (x : ℝ) (hx : x ∈ C r) (n : ℕ) :
+theorem unique_word_of_mem_C (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (x : ℝ) (hx : x ∈ C r) (n : ℕ) :
     ∃! u, u ∈ Sigma_n n ∧ x ∈ I_word u r := by
       obtain ⟨ u, hu ⟩ := exists_word_of_mem_C r x hx n;
       refine' ⟨ u, hu, fun v hv => _ ⟩;
@@ -338,7 +334,7 @@ theorem unique_word_of_mem_C (r : ℝ) (hr : 0 < r ∧ r < 1/2) (x : ℝ) (hx : 
 /-
 The unique words associated with x are compatible.
 -/
-theorem compatible_words_of_mem_C (r : ℝ) (hr : 0 < r ∧ r < 1/2) (x : ℝ) (hx : x ∈ C r) (n : ℕ) :
+theorem compatible_words_of_mem_C (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (x : ℝ) (hx : x ∈ C r) (n : ℕ) :
     let u_n := Classical.choose (unique_word_of_mem_C r hr x hx n)
     let u_succ := Classical.choose (unique_word_of_mem_C r hr x hx (n + 1))
     u_succ.take n = u_n := by
@@ -362,7 +358,7 @@ theorem compatible_words_of_mem_C (r : ℝ) (hr : 0 < r ∧ r < 1/2) (x : ℝ) (
 /-
 The code corresponding to a point in the Cantor set.
 -/
-noncomputable def code_of_mem_C (r : ℝ) (hr : 0 < r ∧ r < 1/2) (x : ℝ) (hx : x ∈ C r) : ℕ → Fin 2 :=
+noncomputable def code_of_mem_C (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (x : ℝ) (hx : x ∈ C r) : ℕ → Fin 2 :=
   fun n =>
     let u_succ := Classical.choose (unique_word_of_mem_C r hr x hx (n + 1))
     u_succ.get ⟨n, by rw [Classical.choose_spec (unique_word_of_mem_C r hr x hx (n + 1)) |>.1.1]; exact Nat.lt_succ_self n⟩
@@ -370,7 +366,7 @@ noncomputable def code_of_mem_C (r : ℝ) (hr : 0 < r ∧ r < 1/2) (x : ℝ) (hx
 /-
 The projection of the code of x is x.
 -/
-theorem pi_code_of_mem_C (r : ℝ) (hr : 0 < r ∧ r < 1/2) (x : ℝ) (hx : x ∈ C r) :
+theorem pi_code_of_mem_C (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (x : ℝ) (hx : x ∈ C r) :
     pi r (code_of_mem_C r hr x hx) = x := by
       -- Let's denote the word of length n corresponding to x as u_n.
       set u_n := fun n => Classical.choose (unique_word_of_mem_C r hr x hx n) with hu_n_def
@@ -434,7 +430,7 @@ theorem pi_code_of_mem_C (r : ℝ) (hr : 0 < r ∧ r < 1/2) (x : ℝ) (hx : x �
 /-
 The projection map pi is continuous.
 -/
-theorem continuous_pi' (r : ℝ) (hr : 0 < r ∧ r < 1/2) :
+theorem continuous_pi' (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
     Continuous (pi r) := by
       refine' continuous_const.mul _;
       refine' continuous_tsum _ _ _;
@@ -446,7 +442,7 @@ theorem continuous_pi' (r : ℝ) (hr : 0 < r ∧ r < 1/2) :
 /-
 Lemma 2.3: Closedness of the limit of Cantor sets.
 -/
-theorem closedness_limit_Cantor (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (r : ℕ → ℝ) (hr : Filter.Tendsto r Filter.atTop (nhds rho)) (x : ℝ) (hx : ∀ n, x ∈ C (r n)) :
+theorem closedness_limit_Cantor (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) (r : ℕ → ℝ) (hr : Filter.Tendsto r Filter.atTop (nhds rho)) (x : ℝ) (hx : ∀ n, x ∈ C (r n)) :
     x ∈ C rho := by
       have h_cont : ∀ᶠ n in Filter.atTop, 0 < r n ∧ r n < 1 / 2 := by
         exact hr.eventually ( Ioo_mem_nhds hrho.1 hrho.2 );
@@ -490,7 +486,7 @@ theorem closedness_limit_Cantor (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (r : 
 Lemma 2.4(1): pi_r(omega) is strictly increasing if omega starts with 0 and is not 0^infty.
 -/
 theorem pi_strictly_increasing (ω : ℕ → Fin 2) (h0 : ω 0 = 0) (h_not_zero : ∃ n, ω n ≠ 0) :
-    StrictMonoOn (fun r => pi r ω) (Set.Ico 0 (1/2)) := by
+    StrictMonoOn (fun r => pi r ω) (Set.Ico 0 (1 / 2)) := by
       -- Let $n$ be the smallest index such that $\omega_n = 1$.
       obtain ⟨n, hn⟩ : ∃ n, ω n = 1 ∧ ∀ m < n, ω m = 0 := by
         exact ⟨ Nat.find h_not_zero, Or.resolve_left ( Fin.exists_fin_two.mp ( by aesop ) ) ( Nat.find_spec h_not_zero ), fun m mn => by simpa using Nat.find_min h_not_zero mn ⟩;
@@ -512,9 +508,9 @@ theorem pi_strictly_increasing (ω : ℕ → Fin 2) (h0 : ω 0 = 0) (h_not_zero 
         cases n with
         | zero => simpa [h0] using hn.1
         | succ n => exact Nat.succ_pos n
-      -- The term $(1-r) r^n$ is strictly increasing on $[0, 1/2)$.
+      -- The term $(1-r) r^n$ is strictly increasing on $[0, 1 / 2)$.
       have h_term1_inc : StrictMonoOn (fun r : ℝ => (1 - r) * r ^ n) (Set.Ico 0 (1 / 2)) := by
-        -- Let's calculate the derivative of $(1-r) r^n$ and show it is positive on $(0, 1/2)$.
+        -- Let's calculate the derivative of $(1-r) r^n$ and show it is positive on $(0, 1 / 2)$.
         have h_deriv_pos : ∀ r ∈ Set.Ioo 0 (1 / 2), deriv (fun r : ℝ => (1 - r) * r ^ n) r > 0 := by
           intro r hr
           rcases n with _ | n
@@ -537,7 +533,7 @@ theorem pi_strictly_increasing (ω : ℕ → Fin 2) (h0 : ω 0 = 0) (h_not_zero 
         intros x hx y hy hxy;
         have := exists_deriv_eq_slope ( fun r => ( 1 - r ) * r ^ n ) hxy ; norm_num at *;
         exact this ( Continuous.continuousOn <| by continuity ) ( Differentiable.differentiableOn <| by exact Differentiable.mul ( differentiable_id.const_sub _ ) <| differentiable_pow _ ) |> fun ⟨ c, hc₁, hc₂ ⟩ => by have := h_deriv_pos c ( by linarith ) ( by linarith ) ; rw [ hc₂, lt_div_iff₀ ] at this <;> linarith;
-      -- The term $(1-r) r^{n+1} \sum_{k=0}^{\infty} \sigma_k r^k$ is non-decreasing on $[0, 1/2)$.
+      -- The term $(1-r) r^{n+1} \sum_{k=0}^{\infty} \sigma_k r^k$ is non-decreasing on $[0, 1 / 2)$.
       have h_term2_nondec : ∀ r1 r2 : ℝ, 0 ≤ r1 → r1 < r2 → r2 < 1 / 2 → (1 - r1) * r1 ^ (n + 1) * ∑' k, (σ k : ℝ) * r1 ^ k ≤ (1 - r2) * r2 ^ (n + 1) * ∑' k, (σ k : ℝ) * r2 ^ k := by
         intros r1 r2 hr1 hr2 hr2_half
         have h_term2_nondec : (1 - r1) * r1 ^ (n + 1) ≤ (1 - r2) * r2 ^ (n + 1) := by
@@ -555,7 +551,7 @@ theorem pi_strictly_increasing (ω : ℕ → Fin 2) (h0 : ω 0 = 0) (h_not_zero 
 Lemma 2.4(2): pi_r(omega) is strictly decreasing if omega starts with 1 and is not 1^infty.
 -/
 theorem pi_strictly_decreasing (ω : ℕ → Fin 2) (h1 : ω 0 = 1) (h_not_one : ∃ n, ω n ≠ 1) :
-    StrictAntiOn (fun r => pi r ω) (Set.Ico 0 (1/2)) := by
+    StrictAntiOn (fun r => pi r ω) (Set.Ico 0 (1 / 2)) := by
       intro r hr s hs hrs;
       -- By definition of $pi$, we know that $pi_r(omega) = 1 - pi_r(1-omega)$.
       have h_pi_symm : ∀ r ∈ Set.Ico 0 (1 / 2), pi r ω = 1 - pi r (fun n => 1 - ω n) := by
@@ -583,7 +579,7 @@ def E_plus (rho : ℝ) : Set ℝ :=
 /-
 R_u(rho) is not in C_alpha^+ if u starts with 0.
 -/
-theorem not_mem_C_plus_of_R_u (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (u : List (Fin 2)) (hu : u ≠ []) (h0 : u.head! = 0) :
+theorem not_mem_C_plus_of_R_u (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) (u : List (Fin 2)) (hu : u ≠ []) (h0 : u.head! = 0) :
     pi rho (append_ones u) ∉ C_plus rho := by
       -- Let $x = \pi_\rho(\text{append\_ones } u)$. We need to show that $x \notin C_\alpha^+$.
       set x := pi rho (append_ones u) with hx
@@ -592,7 +588,7 @@ theorem not_mem_C_plus_of_R_u (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (u : Li
         have hx_not_in_I_u : ∀ᶠ r in nhdsWithin rho (Set.Iio rho), x∉ I_word u r := by
           -- Since $x = \pi_\rho(\text{append\_ones } u)$, we have $x > R_u(r)$ for $r$ close to $\rho$.
           have hx_gt_R_u_r : ∀ᶠ r in nhdsWithin rho (Set.Iio rho), x > pi r (append_ones u) := by
-            have h_inc : StrictMonoOn (fun r => pi r (append_ones u)) (Set.Ico 0 (1/2)) := by
+            have h_inc : StrictMonoOn (fun r => pi r (append_ones u)) (Set.Ico 0 (1 / 2)) := by
               apply pi_strictly_increasing;
               · cases u <;> aesop;
               · use u.length; simp [append_ones];
@@ -674,7 +670,7 @@ theorem not_mem_C_plus_of_R_u (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (u : Li
 /-
 R_u(rho) is not in C_alpha^+ if u starts with 0.
 -/
-theorem not_mem_C_plus_of_R_u' (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (u : List (Fin 2)) (hu : u ≠ []) (h0 : u.head! = 0) :
+theorem not_mem_C_plus_of_R_u' (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) (u : List (Fin 2)) (hu : u ≠ []) (h0 : u.head! = 0) :
     pi rho (append_ones u) ∉ C_plus rho := by
       exact not_mem_C_plus_of_R_u rho hrho u hu h0
 
@@ -692,7 +688,7 @@ noncomputable def R_word (u : List (Fin 2)) (r : ℝ) := pi r (append_ones u)
 pi_r(append_zeros u) is strictly decreasing if u starts with 1.
 -/
 theorem pi_append_zeros_strictly_decreasing (u : List (Fin 2)) (hu : u ≠ []) (h1 : u.head! = 1) :
-    StrictAntiOn (fun r => pi r (append_zeros u)) (Set.Ico 0 (1/2)) := by
+    StrictAntiOn (fun r => pi r (append_zeros u)) (Set.Ico 0 (1 / 2)) := by
       apply_rules [ pi_strictly_decreasing ];
       · cases u <;> aesop;
       · use u.length + 1; simp [append_zeros]
@@ -700,7 +696,7 @@ theorem pi_append_zeros_strictly_decreasing (u : List (Fin 2)) (hu : u ≠ []) (
 /-
 R_u(rho) is not in I_v(r) for r close to rho, if v != u.
 -/
-theorem not_mem_I_word_of_ne (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (u : List (Fin 2)) (v : List (Fin 2)) (hv : v ∈ Sigma_n u.length) (h_ne : v ≠ u) :
+theorem not_mem_I_word_of_ne (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) (u : List (Fin 2)) (v : List (Fin 2)) (hv : v ∈ Sigma_n u.length) (h_ne : v ≠ u) :
     ∀ᶠ r in nhds rho, pi rho (append_ones u) ∉ I_word v r := by
       -- By definition of $C_plus$, we know that $I_u(rho)$ and $I_v(rho)$ are disjoint compact sets.
       have h_disjoint : Disjoint (I_word u rho) (I_word v rho) := by
@@ -755,7 +751,7 @@ theorem not_mem_I_word_of_ne (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (u : Lis
 /-
 L_u(rho) is not in C_alpha^+ if u starts with 1.
 -/
-theorem not_mem_C_plus_of_L_u (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (u : List (Fin 2)) (hu : u ≠ []) (h1 : u.head! = 1) :
+theorem not_mem_C_plus_of_L_u (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) (u : List (Fin 2)) (hu : u ≠ []) (h1 : u.head! = 1) :
     pi rho (append_zeros u) ∉ C_plus rho := by
       have h_not_in_C_plus : ∀ᶠ r in nhdsWithin rho (Set.Iio rho), pi rho (append_zeros u) ∉ ⋃ u_1 ∈ Sigma_n u.length, I_word u_1 r := by
         -- Since $pi_r(append_zeros u)$ is strictly decreasing and $u$ starts with $1$, for $r$ close to $\rho$, $pi_r(append_zeros u)$ is not in $I_v(r)$ for any $v \neq u$.
@@ -781,7 +777,7 @@ theorem not_mem_C_plus_of_L_u (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (u : Li
                 · convert h_not_in_I_word using 1;
                   rw [ pi_append_zeros, pi_append_ones ] <;> norm_num [ hrho ];
                 · tauto;
-              cases' h_not_in_I_word with h h;
+              rcases h_not_in_I_word with h | h;
               · have h_not_in_I_word : ∀ᶠ r in nhds rho, pi rho (append_zeros u) < (1 - r) * (∑ k ∈ Finset.range v.length, ((v[k]?).getD 0 : ℝ) * r ^ k) := by
                   have := h_cont.1.eventually ( gt_mem_nhds <| show pi rho ( append_zeros u ) - ( 1 - rho ) * ∑ k ∈ Finset.range v.length, ( v[k]? |> Option.getD <| 0 ) * rho ^ k < 0 from sub_neg_of_lt h ) ; aesop;
                 filter_upwards [ h_not_in_I_word, Ioo_mem_nhds hrho.1 hrho.2 ] with r hr₁ hr₂;
@@ -804,7 +800,7 @@ theorem not_mem_C_plus_of_L_u (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (u : Li
         -- Since $pi_r(append_zeros u)$ is strictly decreasing and $u$ starts with $1$, for $r$ close to $\rho$, $pi_r(append_zeros u)$ is not in $I_u(r)$.
         have h_not_in_I_u : ∀ᶠ r in nhdsWithin rho (Set.Iio rho), pi rho (append_zeros u) ∉ I_word u r := by
           have h_not_in_I_u : ∀ᶠ r in nhdsWithin rho (Set.Iio rho), pi r (append_zeros u) > pi rho (append_zeros u) := by
-            have h_not_in_I_u : StrictAntiOn (fun r => pi r (append_zeros u)) (Set.Ico 0 (1/2)) := by
+            have h_not_in_I_u : StrictAntiOn (fun r => pi r (append_zeros u)) (Set.Ico 0 (1 / 2)) := by
               exact pi_append_zeros_strictly_decreasing u hu h1;
             filter_upwards [ Ioo_mem_nhdsLT hrho.1 ] with r hr using h_not_in_I_u ⟨ by linarith [ hr.1 ], by linarith [ hr.2 ] ⟩ ⟨ by linarith [ hr.1 ], by linarith [ hr.2 ] ⟩ hr.2;
           filter_upwards [ h_not_in_I_u, mem_nhdsWithin_of_mem_nhds ( Ioo_mem_nhds hrho.1 hrho.2 ) ] with r hr₁ hr₂;
@@ -828,7 +824,7 @@ theorem finite_Sigma_n (n : ℕ) : Set.Finite (Sigma_n n) := by
 /-
 L_u(rho) is not in I_v(r) for r close to rho, if v != u.
 -/
-theorem not_mem_I_word_of_ne_zeros (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (u : List (Fin 2)) (v : List (Fin 2)) (hv : v ∈ Sigma_n u.length) (h_ne : v ≠ u) :
+theorem not_mem_I_word_of_ne_zeros (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) (u : List (Fin 2)) (v : List (Fin 2)) (hv : v ∈ Sigma_n u.length) (h_ne : v ≠ u) :
     ∀ᶠ r in nhds rho, pi rho (append_zeros u) ∉ I_word v r := by
       -- By definition of $C_plus$, we know that if $x \in C_plus$, then there exists a sequence $r_n \to \rho$ such that $x \in C(r_n)$.
       by_contra h_contra;
@@ -870,7 +866,7 @@ theorem not_mem_I_word_of_ne_zeros (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (u
 /-
 pi(omega) < R_{u_n}(rho) if omega is not eventually 1.
 -/
-theorem pi_lt_R_word_of_not_eventually_one (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (ω : ℕ → Fin 2) (h_not_ev_one : ∀ n, ∃ k ≥ n, ω k ≠ 1) (n : ℕ) :
+theorem pi_lt_R_word_of_not_eventually_one (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) (ω : ℕ → Fin 2) (h_not_ev_one : ∀ n, ∃ k ≥ n, ω k ≠ 1) (n : ℕ) :
     pi rho ω < R_word (take_word n ω) rho := by
       obtain ⟨ k, hk₁, hk₂ ⟩ := h_not_ev_one n; simp_all +decide [ R_word ] ;
       unfold pi; norm_num [ Finset.sum_range_succ, take_word ] ;
@@ -886,7 +882,7 @@ theorem pi_lt_R_word_of_not_eventually_one (rho : ℝ) (hrho : 0 < rho ∧ rho <
 /-
 0 and 1 are in C_alpha^+.
 -/
-theorem endpoints_mem_C_plus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) :
+theorem endpoints_mem_C_plus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) :
     0 ∈ C_plus rho ∧ 1 ∈ C_plus rho := by
       constructor <;> refine' Set.mem_iInter₂.mpr fun ε hε => _;
       · simp +zetaDelta at *;
@@ -912,7 +908,7 @@ theorem endpoints_mem_C_plus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) :
 /-
 pi(omega) > L_{u_n}(rho) if omega is not eventually 0.
 -/
-theorem pi_gt_L_word_of_not_eventually_zero (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (ω : ℕ → Fin 2) (h_not_ev_zero : ∀ n, ∃ k ≥ n, ω k ≠ 0) (n : ℕ) :
+theorem pi_gt_L_word_of_not_eventually_zero (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) (ω : ℕ → Fin 2) (h_not_ev_zero : ∀ n, ∃ k ≥ n, ω k ≠ 0) (n : ℕ) :
     pi rho ω > L_word (take_word n ω) rho := by
       unfold L_word;
       -- By definition of $pi$, we can expand both sides.
@@ -940,7 +936,7 @@ theorem pi_gt_L_word_of_not_eventually_zero (rho : ℝ) (hrho : 0 < rho ∧ rho 
 /-
 L_u(rho) is not in C_alpha^+ if u starts with 1.
 -/
-theorem not_mem_C_plus_of_L_u' (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (u : List (Fin 2)) (hu : u ≠ []) (h1 : u.head! = 1) :
+theorem not_mem_C_plus_of_L_u' (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) (u : List (Fin 2)) (hu : u ≠ []) (h1 : u.head! = 1) :
     pi rho (append_zeros u) ∉ C_plus rho := by
       -- Apply the theorem that states $L_u(rho) \notin C_\alpha^+$ if $u$ starts with $1$.
       apply not_mem_C_plus_of_L_u rho hrho u hu h1
@@ -948,7 +944,7 @@ theorem not_mem_C_plus_of_L_u' (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (u : L
 /-
 If x is not in E_plus and starts with 0, its code is not eventually 1.
 -/
-theorem not_eventually_one_of_mem_diff (rho : ℝ) (_hrho : 0 < rho ∧ rho < 1/2) (x : ℝ) (hx_not_E : x ∉ E_plus rho) (ω : ℕ → Fin 2) (hω : pi rho ω = x) (h0 : ω 0 = 0) :
+theorem not_eventually_one_of_mem_diff (rho : ℝ) (_hrho : 0 < rho ∧ rho < 1 / 2) (x : ℝ) (hx_not_E : x ∉ E_plus rho) (ω : ℕ → Fin 2) (hω : pi rho ω = x) (h0 : ω 0 = 0) :
     ∀ n, ∃ k ≥ n, ω k ≠ 1 := by
       -- Assume for contradiction that ω is eventually 1.
       by_contra h_contra
@@ -964,7 +960,7 @@ theorem not_eventually_one_of_mem_diff (rho : ℝ) (_hrho : 0 < rho ∧ rho < 1/
 /-
 R_{u_n}(r) converges to pi_r(omega).
 -/
-theorem tendsto_R_word (r : ℝ) (hr : 0 < r ∧ r < 1/2) (ω : ℕ → Fin 2) :
+theorem tendsto_R_word (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (ω : ℕ → Fin 2) :
     Filter.Tendsto (fun n => R_word (take_word n ω) r) Filter.atTop (nhds (pi r ω)) := by
       -- By definition of $R_word$, we know that $R_word (take_word n ω) r = (1 - r) * (∑ k ∈ Finset.range n, (ω k : ℝ) * r ^ k) + r ^ n$.
       have hR_word : ∀ n, R_word (take_word n ω) r = (1 - r) * (∑ k ∈ Finset.range n, (ω k : ℝ) * r ^ k) + r ^ n := by
@@ -1041,7 +1037,7 @@ The pushforward measure mu on the Cantor set.
 -/
 noncomputable def mu (r : ℝ) : Measure ℝ := infiniteBernoulliMeasure.map (pi r)
 
-instance (r : ℝ) (hr : 0 < r ∧ r < 1/2) : IsProbabilityMeasure (mu r) := by
+instance (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) : IsProbabilityMeasure (mu r) := by
   unfold mu
   apply MeasureTheory.Measure.isProbabilityMeasure_map
   exact (continuous_pi' r hr).aemeasurable
@@ -1149,7 +1145,7 @@ theorem mass_distribution_principle (E : Set ℝ) (μ : MeasureTheory.Measure �
 /-
 Property of the similarity dimension s: 2 * r^s = 1.
 -/
-theorem s_property (r : ℝ) (hr : 0 < r ∧ r < 1/2) :
+theorem s_property (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
     let s := Real.log 2 / -Real.log r
     2 * r ^ s = 1 := by
       norm_num [ Real.rpow_def_of_pos hr.1 ];
@@ -1159,7 +1155,7 @@ theorem s_property (r : ℝ) (hr : 0 < r ∧ r < 1/2) :
 /-
 Upper bound for the Hausdorff dimension of the Cantor set.
 -/
-lemma dimH_C_le_s (r : ℝ) (hr : 0 < r ∧ r < 1/2) :
+lemma dimH_C_le_s (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
     dimH (C r) ≤ ENNReal.ofReal (Real.log 2 / -Real.log r) := by
       -- Let $s$ be the similarity dimension, so $2r^s = 1$.
       set s := Real.log 2 / (-Real.log r)
@@ -1248,7 +1244,7 @@ lemma dimH_C_le_s (r : ℝ) (hr : 0 < r ∧ r < 1/2) :
 /-
 The measure of a level-n interval is 2^-n.
 -/
-lemma mu_I_word (r : ℝ) (hr : 0 < r ∧ r < 1/2) (u : List (Fin 2)) :
+lemma mu_I_word (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (u : List (Fin 2)) :
     mu r (I_word u r) = (1 / 2 : ENNReal) ^ u.length := by
       have hI_meas : MeasurableSet (I_word u r) := by
         rw [prop_symbolic_1_interval r hr u]
@@ -1273,7 +1269,7 @@ lemma mu_I_word (r : ℝ) (hr : 0 < r ∧ r < 1/2) (u : List (Fin 2)) :
           · intro hω;
             convert pi_mem_I_word r hr ω u.length using 1;
             aesop;
-        -- The measure of the set of sequences where the first n elements are exactly u is the product of the measures of each element. Since each element is independent and has measure 1/2, the product is (1/2)^n.
+        -- The measure of the set of sequences where the first n elements are exactly u is the product of the measures of each element. Since each element is independent and has measure 1 / 2, the product is (1 / 2)^n.
         have h_measure : infiniteBernoulliMeasure {ω : ℕ → Fin 2 | ∀ i : Fin u.length, ω i = u[i]!} = (1 / 2 : ENNReal) ^ u.length := by
           have h_cyl :
               infiniteBernoulliMeasure {ω : ℕ → Fin 2 | ∀ i : Fin u.length, ω i = u[i]!}
@@ -1321,7 +1317,7 @@ lemma mu_I_word (r : ℝ) (hr : 0 < r ∧ r < 1/2) (u : List (Fin 2)) :
 /-
 The distance between disjoint level-n intervals is at least (1-2r)r^(n-1).
 -/
-lemma dist_I_word_ge (r : ℝ) (hr : 0 < r ∧ r < 1/2) (n : ℕ)
+lemma dist_I_word_ge (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (n : ℕ)
     (u v : List (Fin 2)) (hu : u ∈ Sigma_n n) (hv : v ∈ Sigma_n n) (hdiff : u ≠ v) :
     ∀ x ∈ I_word u r, ∀ y ∈ I_word v r, |x - y| ≥ (1 - 2 * r) * r ^ (n - 1) := by
       -- Let k be the first index where u and v differ. Since u ≠ v, k < n.
@@ -1351,14 +1347,12 @@ lemma dist_I_word_ge (r : ℝ) (hr : 0 < r ∧ r < 1/2) (n : ℕ)
           intros x hx y hy
           norm_num [ Finset.sum_range_succ, pow_succ' ] at *;
           cases abs_cases ( x - y )
-          ·
-            obtain ⟨ a, ha, rfl ⟩ := hx; obtain ⟨ b, hb, rfl ⟩ := hy; norm_num [ prop_symbolic_1 ] at *;
+          · obtain ⟨ a, ha, rfl ⟩ := hx; obtain ⟨ b, hb, rfl ⟩ := hy; norm_num [ prop_symbolic_1 ] at *;
             norm_num [ Finset.sum_range_succ, pow_succ' ] at *;
             rw [ abs_of_nonneg ] <;> norm_num [ Finset.sum_range, List.getElem?_append ] at *;
             · nlinarith [ show 0 < r ^ w.length by exact pow_pos hr.1 _, show 0 < r ^ w.length * r by exact mul_pos ( pow_pos hr.1 _ ) hr.1 ];
             · linarith
-          ·
-            rw [ prop_symbolic_1_interval ] at hx hy <;> norm_num at *;
+          · rw [ prop_symbolic_1_interval ] at hx hy <;> norm_num at *;
             · norm_num [ Finset.sum_range_succ, List.getElem?_append ] at *;
               norm_num [ pow_succ, mul_assoc, mul_comm, mul_left_comm, Finset.sum_range, List.getElem?_append ] at *;
               nlinarith [ pow_pos hr.1 w.length ];
@@ -1382,7 +1376,7 @@ lemma dist_I_word_ge (r : ℝ) (hr : 0 < r ∧ r < 1/2) (n : ℕ)
 /-
 If a set has small diameter, its measure is bounded by 2^-n.
 -/
-lemma measure_le_two_pow_neg_n_of_diam_le (r : ℝ) (hr : 0 < r ∧ r < 1/2) (U : Set ℝ) (n : ℕ) (hn : 1 ≤ n)
+lemma measure_le_two_pow_neg_n_of_diam_le (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (U : Set ℝ) (n : ℕ) (hn : 1 ≤ n)
     (h_diam : Metric.ediam U < ENNReal.ofReal ((1 - 2 * r) * r ^ (n - 1))) :
     mu r U ≤ (1 / 2 : ENNReal) ^ n := by
       -- By definition of $C_n$, $U$ can intersect at most one interval $I_u$ at level $n$.
@@ -1440,7 +1434,7 @@ lemma measure_le_two_pow_neg_n_of_diam_le (r : ℝ) (hr : 0 < r ∧ r < 1/2) (U 
 /-
 Algebraic bound for the measure estimate.
 -/
-lemma algebraic_bound (r : ℝ) (hr : 0 < r ∧ r < 1/2) (d : ℝ) (hd_pos : 0 < d) (n : ℕ)
+lemma algebraic_bound (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (d : ℝ) (hd_pos : 0 < d) (n : ℕ)
     (h_lower : (1 - 2 * r) * r ^ n ≤ d) :
     let s := Real.log 2 / -Real.log r
     let a := 1 - 2 * r
@@ -1462,7 +1456,7 @@ lemma algebraic_bound (r : ℝ) (hr : 0 < r ∧ r < 1/2) (d : ℝ) (hd_pos : 0 <
 /-
 Bound for the measure of small sets.
 -/
-lemma mu_bound_specific (r : ℝ) (hr : 0 < r ∧ r < 1/2) :
+lemma mu_bound_specific (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
     let s := Real.log 2 / -Real.log r
     let a := 1 - 2 * r
     let C := a ^ (-s)
@@ -1513,7 +1507,7 @@ lemma mu_bound_specific (r : ℝ) (hr : 0 < r ∧ r < 1/2) :
 /-
 The Cantor set C r is closed.
 -/
-theorem isClosed_C (r : ℝ) (hr : 0 < r ∧ r < 1/2) : IsClosed (C r) := by
+theorem isClosed_C (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) : IsClosed (C r) := by
   refine' isClosed_iInter _;
   intro n
   unfold C_n;
@@ -1526,7 +1520,7 @@ theorem isClosed_C (r : ℝ) (hr : 0 < r ∧ r < 1/2) : IsClosed (C r) := by
 /-
 Lower bound for the Hausdorff dimension of the Cantor set.
 -/
-lemma dimH_C_ge_s (r : ℝ) (hr : 0 < r ∧ r < 1/2) :
+lemma dimH_C_ge_s (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
     dimH (C r) ≥ ENNReal.ofReal (Real.log 2 / -Real.log r) := by
       have := @mass_distribution_principle ( C r ) ( mu r ) ?_;
       · contrapose! this;
@@ -1552,7 +1546,7 @@ lemma dimH_C_ge_s (r : ℝ) (hr : 0 < r ∧ r < 1/2) :
 /-
 Upper bound on the covering number of the Cantor set.
 -/
-lemma N_delta_le (r : ℝ) (hr : 0 < r ∧ r < 1/2) (n : ℕ) :
+lemma N_delta_le (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (n : ℕ) :
     N_delta (C r) (r ^ n) ≤ 2 ^ n := by
       refine' csInf_le _ _;
       · exact ⟨ 0, fun x hx => Nat.zero_le _ ⟩;
@@ -1579,7 +1573,7 @@ lemma N_delta_le (r : ℝ) (hr : 0 < r ∧ r < 1/2) (n : ℕ) :
 /-
 The Hausdorff dimension of the middle-a Cantor set is s = log 2 / -log r.
 -/
-theorem dimH_C_eq_s (r : ℝ) (hr : 0 < r ∧ r < 1/2) :
+theorem dimH_C_eq_s (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
     dimH (C r) = ENNReal.ofReal (Real.log 2 / -Real.log r) := by
       convert le_antisymm ?_ ?_ using 1;
       exact ENNReal.instPartialOrder;
@@ -1658,7 +1652,7 @@ lemma N_delta_antitone_on_pos (E : Set ℝ) :
 /-
 The upper box dimension of C_r is at most s.
 -/
-theorem upper_box_dim_le_s (r : ℝ) (hr : 0 < r ∧ r < 1/2) :
+theorem upper_box_dim_le_s (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
     upper_box_dim (C r) ≤ Real.log 2 / -Real.log r := by
       -- Using the upper bound on the covering number, we get
       have h_upper_bound : ∀ δ > 0, δ < 1 → Real.log (N_delta (C r) δ) / -Real.log δ ≤ (Real.log 2 / -Real.log r) + (Real.log 2 / -Real.log δ) := by
@@ -1711,7 +1705,7 @@ lemma exists_n_sandwich (r : ℝ) (hr : 0 < r ∧ r < 1) (C : ℝ) (δ : ℝ) (h
 /-
 If delta is smaller than the smallest gap at level n, then the covering number is at least 2^n.
 -/
-lemma N_delta_ge_two_pow (r : ℝ) (hr : 0 < r ∧ r < 1/2) (n : ℕ) (δ : ℝ) (hδ : 0 < δ)
+lemma N_delta_ge_two_pow (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (n : ℕ) (δ : ℝ) (hδ : 0 < δ)
     (hδ_lt : δ < (1 - 2 * r) * r ^ (n - 1)) :
     N_delta (C r) δ ≥ 2 ^ n := by
       -- Let $U$ be a finite cover of $C_r$ with sets of diameter $\le \delta$.
@@ -1789,7 +1783,7 @@ lemma limit_lower_bound_aux (r : ℝ) (hr : 0 < r ∧ r < 1) (C : ℝ) (hC : 0 <
 /-
 For delta sandwiched between scaled powers of r, the dimension ratio is bounded below by the sequence term.
 -/
-lemma ratio_lower_bound (r : ℝ) (hr : 0 < r ∧ r < 1/2) (n : ℕ) (δ : ℝ) (hδ : 0 < δ)
+lemma ratio_lower_bound (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (n : ℕ) (δ : ℝ) (hδ : 0 < δ)
     (h_sandwich_left : (1 - 2 * r) / 2 * r ^ n < δ)
     (h_sandwich_right : δ ≤ (1 - 2 * r) / 2 * r ^ (n - 1)) :
     Real.log (N_delta (C r) δ) / -Real.log δ ≥ (n * Real.log 2) / -Real.log ((1 - 2 * r) / 2 * r ^ n) := by
@@ -1805,7 +1799,7 @@ lemma ratio_lower_bound (r : ℝ) (hr : 0 < r ∧ r < 1/2) (n : ℕ) (δ : ℝ) 
 /-
 The lower box dimension of C_r is at least s.
 -/
-theorem lower_box_dim_ge_s (r : ℝ) (hr : 0 < r ∧ r < 1/2) :
+theorem lower_box_dim_ge_s (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
     lower_box_dim (C r) ≥ Real.log 2 / -Real.log r := by
       -- By definition of lower_box_dim, we need to show that for any ε > 0, there exists a δ > 0 such that for all δ' < δ, we have (log (N_delta' (C r))) / (-log δ') ≥ (log 2) / (-log r) - ε.
       suffices h_lower_bound : ∀ ε > 0, ∃ δ > 0, ∀ δ' ∈ Set.Ioo 0 δ, (Real.log (N_delta (C r) δ')) / (-Real.log δ') ≥ (Real.log 2) / (-Real.log r) - ε by
@@ -1857,7 +1851,7 @@ theorem lower_box_dim_ge_s (r : ℝ) (hr : 0 < r ∧ r < 1/2) :
 /-
 The lower box dimension of C_r is at least s = log 2 / -log r.
 -/
-theorem lower_box_dim_ge_s' (r : ℝ) (hr : 0 < r ∧ r < 1/2) :
+theorem lower_box_dim_ge_s' (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
     lower_box_dim (C r) ≥ Real.log 2 / -Real.log r := by
       -- Apply the lemma that states the lower box dimension is at least s.
       apply lower_box_dim_ge_s r hr
@@ -1865,7 +1859,7 @@ theorem lower_box_dim_ge_s' (r : ℝ) (hr : 0 < r ∧ r < 1/2) :
 /-
 C_plus is a subset of C.
 -/
-theorem C_plus_subset_C (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) :
+theorem C_plus_subset_C (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) :
     C_plus rho ⊆ C rho := by
       intro x hx
       obtain ⟨r_n, hr_n_eps, hr_n_C⟩ : ∃ r_n : ℕ → ℝ, Filter.Tendsto r_n Filter.atTop (nhds rho) ∧ ∀ n, x ∈ C (r_n n) := by
@@ -1881,7 +1875,7 @@ theorem C_plus_subset_C (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) :
 /-
 The ratio log N_delta / -log delta is eventually bounded.
 -/
-lemma ratio_eventually_bounded (r : ℝ) (hr : 0 < r ∧ r < 1/2) :
+lemma ratio_eventually_bounded (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
     Filter.IsBoundedUnder (· ≤ ·) (nhdsWithin 0 (Set.Ioi 0)) (fun δ => Real.log (N_delta (C r) δ) / -Real.log δ) ∧
     Filter.IsBoundedUnder (· ≥ ·) (nhdsWithin 0 (Set.Ioi 0)) (fun δ => Real.log (N_delta (C r) δ) / -Real.log δ) := by
       constructor;
@@ -1932,7 +1926,7 @@ lemma ratio_bounded_below (r : ℝ) :
 /-
 The ratio log N_delta / -log delta is bounded above as delta -> 0.
 -/
-lemma ratio_bounded_above (r : ℝ) (hr : 0 < r ∧ r < 1/2) :
+lemma ratio_bounded_above (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
     Filter.IsBoundedUnder (· ≤ ·) (nhdsWithin 0 (Set.Ioi 0)) (fun δ => Real.log (N_delta (C r) δ) / -Real.log δ) := by
       have := ratio_eventually_bounded r hr;
       exact this.1
@@ -1940,7 +1934,7 @@ lemma ratio_bounded_above (r : ℝ) (hr : 0 < r ∧ r < 1/2) :
 /-
 Theorem 2.6: The Hausdorff and box dimensions of the middle-a Cantor set are all equal to s.
 -/
-theorem theorem_dimension_Ca (r : ℝ) (hr : 0 < r ∧ r < 1/2) :
+theorem theorem_dimension_Ca (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
     let s := Real.log 2 / -Real.log r
     dimH (C r) = ENNReal.ofReal s ∧
     lower_box_dim (C r) = s ∧
@@ -1949,17 +1943,14 @@ theorem theorem_dimension_Ca (r : ℝ) (hr : 0 < r ∧ r < 1/2) :
       have h_dimH : dimH (C r) = ENNReal.ofReal s := dimH_C_eq_s r hr
       have h_upper : upper_box_dim (C r) ≤ s := upper_box_dim_le_s r hr
       have h_lower : lower_box_dim (C r) ≥ s := lower_box_dim_ge_s' r hr
-      
       have h_neBot : (nhdsWithin (0 : ℝ) (Set.Ioi 0)).NeBot := by
         refine' mem_closure_iff_nhdsWithin_neBot.mp _
         rw [closure_Ioi]
         exact Set.self_mem_Ici
-
       have h_le : lower_box_dim (C r) ≤ upper_box_dim (C r) := by
         apply Filter.liminf_le_limsup
         · exact ratio_bounded_above r hr
         · exact ratio_bounded_below r
-
       have h_eq : lower_box_dim (C r) = s ∧ upper_box_dim (C r) = s := by
         constructor
         · apply le_antisymm
@@ -1968,13 +1959,12 @@ theorem theorem_dimension_Ca (r : ℝ) (hr : 0 < r ∧ r < 1/2) :
         · apply le_antisymm
           · exact h_upper
           · exact le_trans h_lower h_le
-      
       exact ⟨h_dimH, h_eq.1, h_eq.2⟩
 
 /-
 If omega starts with 0 and is not eventually 1, then pi(omega) is in C_plus.
 -/
-lemma mem_C_plus_of_not_eventually_one (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (ω : ℕ → Fin 2) (h0 : ω 0 = 0) (h_not_ev_one : ∀ n, ∃ k ≥ n, ω k ≠ 1) :
+lemma mem_C_plus_of_not_eventually_one (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) (ω : ℕ → Fin 2) (h0 : ω 0 = 0) (h_not_ev_one : ∀ n, ∃ k ≥ n, ω k ≠ 1) :
     pi rho ω ∈ C_plus rho := by
       -- Let $x = \pi_\rho(\omega)$.
       set x := pi rho ω;
@@ -2002,8 +1992,7 @@ lemma mem_C_plus_of_not_eventually_one (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2
           obtain ⟨r, hr⟩ : ∃ r ∈ Set.Ioo s rho, R_word (take_word n ω) r = x := by
             apply_rules [ intermediate_value_Ioo ];
             · linarith [ hs.1.2 ];
-            ·
-              -- The function R_word (take_word n ω) is a composition of continuous functions, hence it is continuous.
+            · -- The function R_word (take_word n ω) is a composition of continuous functions, hence it is continuous.
               have h_cont : ContinuousOn (fun r => (1 - r) * (∑ k ∈ Finset.range (take_word n ω).length, ((take_word n ω)[k]?.getD 0 : ℝ) * r ^ k) + r ^ (take_word n ω).length) (Set.Icc s rho) := by
                 fun_prop;
               refine' h_cont.congr fun r hr => _;
@@ -2021,7 +2010,7 @@ lemma mem_C_plus_of_not_eventually_one (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2
 /-
 If omega starts with 1 and is not eventually 0, then pi(omega) is in C_plus.
 -/
-lemma mem_C_plus_of_not_eventually_zero (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (ω : ℕ → Fin 2) (h1 : ω 0 = 1) (h_not_ev_zero : ∀ n, ∃ k ≥ n, ω k ≠ 0) :
+lemma mem_C_plus_of_not_eventually_zero (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) (ω : ℕ → Fin 2) (h1 : ω 0 = 1) (h_not_ev_zero : ∀ n, ∃ k ≥ n, ω k ≠ 0) :
     pi rho ω ∈ C_plus rho := by
       -- Let $x = \pi_\rho(\omega)$. If $x = 1$, then $x \in C_+$.
       by_cases hx1 : pi rho ω = 1;
@@ -2067,8 +2056,7 @@ lemma mem_C_plus_of_not_eventually_zero (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/
           obtain ⟨r, hr₁, hr₂⟩ : ∃ r ∈ Set.Ioo s rho, pi r (append_zeros (take_word n ω)) = x := by
             apply_rules [ intermediate_value_Ioo' ];
             · linarith [ hs₁.2 ];
-            ·
-              refine' ContinuousOn.mul _ _;
+            · refine' ContinuousOn.mul _ _;
               · exact continuousOn_const.sub continuousOn_id;
               · refine' continuousOn_tsum _ _ _;
                 use fun i => ( 1 : ℝ ) * ( rho ^ i );
@@ -2096,7 +2084,7 @@ def E_minus (rho : ℝ) : Set ℝ :=
 /-
 If u starts with 0 and contains a 1, then L_u(rho) is not in C_minus.
 -/
-theorem not_mem_C_minus_of_L_u (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (u : List (Fin 2)) (hu : u ≠ []) (h0 : u.head! = 0) (h_contains_one : (1 : Fin 2) ∈ u) :
+theorem not_mem_C_minus_of_L_u (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) (u : List (Fin 2)) (hu : u ≠ []) (h0 : u.head! = 0) (h_contains_one : (1 : Fin 2) ∈ u) :
     pi rho (append_zeros u) ∉ C_minus rho := by
       have h_not_mem_C_n : ∀ᶠ r in nhdsWithin rho (Set.Ioi rho), pi rho (append_zeros u) ∉ C_n r u.length := by
         have h_not_mem_C_n : ∀ᶠ r in nhdsWithin rho (Set.Ioi rho), ∀ v ∈ Sigma_n u.length, v ≠ u → pi rho (append_zeros u) ∉ I_word v r := by
@@ -2133,7 +2121,7 @@ theorem not_mem_C_minus_of_L_u (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (u : L
 /-
 If u starts with 1 and contains a 0, then R_u(rho) is not in C_minus.
 -/
-theorem not_mem_C_minus_of_R_u (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (u : List (Fin 2)) (hu : u ≠ []) (h1 : u.head! = 1) (h_contains_zero : (0 : Fin 2) ∈ u) :
+theorem not_mem_C_minus_of_R_u (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) (u : List (Fin 2)) (hu : u ≠ []) (h1 : u.head! = 1) (h_contains_zero : (0 : Fin 2) ∈ u) :
     pi rho (append_ones u) ∉ C_minus rho := by
       unfold C_minus;
       -- For $r$ close to $\rho$, $x$ is not in $I_u(r)$ because $R_u(r) < x$.
@@ -2166,9 +2154,9 @@ theorem not_mem_C_minus_of_R_u (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (u : L
 /-
 If omega starts with 0 and is not eventually 0, then pi(omega) is in C_minus.
 -/
-theorem mem_C_minus_of_not_eventually_zero (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (ω : ℕ → Fin 2) (h0 : ω 0 = 0) (h_not_ev_zero : ∀ n, ∃ k ≥ n, ω k ≠ 0) :
+theorem mem_C_minus_of_not_eventually_zero (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) (ω : ℕ → Fin 2) (h0 : ω 0 = 0) (h_not_ev_zero : ∀ n, ∃ k ≥ n, ω k ≠ 0) :
     pi rho ω ∈ C_minus rho := by
-      -- Since $\pi_\rho(\omega)$ is strictly increasing on $[0, 1/2)$ and $\pi_\rho(\omega) > L_{u_n}(\rho)$ for all $n$, we can find $r \in (\rho, \min(\rho+\varepsilon, 1/2))$ such that $L_{u_n}(r) = \pi_\rho(\omega)$.
+      -- Since $\pi_\rho(\omega)$ is strictly increasing on $[0, 1 / 2)$ and $\pi_\rho(\omega) > L_{u_n}(\rho)$ for all $n$, we can find $r \in (\rho, \min(\rho+\varepsilon, 1 / 2))$ such that $L_{u_n}(r) = \pi_\rho(\omega)$.
       have h_ivt : ∀ ε > 0, ∃ r ∈ Set.Ioo rho (min (rho + ε) (1 / 2)), ∃ n, L_word (take_word n ω) r = pi rho ω := by
         -- Fix an arbitrary $\epsilon > 0$.
         intro ε hε_pos
@@ -2211,17 +2199,17 @@ theorem mem_C_minus_of_not_eventually_zero (rho : ℝ) (hrho : 0 < rho ∧ rho <
 /-
 If omega starts with 1 and is not eventually 1, then pi(omega) is in C_minus.
 -/
-theorem mem_C_minus_of_not_eventually_one (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) (ω : ℕ → Fin 2) (h1 : ω 0 = 1) (h_not_ev_one : ∀ n, ∃ k ≥ n, ω k ≠ 1) :
+theorem mem_C_minus_of_not_eventually_one (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) (ω : ℕ → Fin 2) (h1 : ω 0 = 1) (h_not_ev_one : ∀ n, ∃ k ≥ n, ω k ≠ 1) :
     pi rho ω ∈ C_minus rho := by
       -- Let's choose any $\epsilon > 0$.
       by_contra h_not_in_C_minus;
       -- Let's choose any $\epsilon > 0$ and derive a contradiction.
       obtain ⟨ε, hε⟩ : ∃ ε > 0, ∀ r ∈ Set.Ioo rho (rho + ε), pi rho ω ∉ C r := by
         unfold C_minus at h_not_in_C_minus; aesop;
-      -- Choose $s \in (\rho, \min(\rho+\varepsilon, 1/2))$.
+      -- Choose $s \in (\rho, \min(\rho+\varepsilon, 1 / 2))$.
       obtain ⟨s, hs⟩ : ∃ s ∈ Set.Ioo rho (min (rho + ε) (1 / 2)), True := by
         exact ⟨ rho + ( Min.min ( rho + ε ) ( 1 / 2 ) - rho ) / 2, ⟨ by linarith [ lt_min ( show rho + ε > rho by linarith ) ( show 1 / 2 > rho by linarith ) ], by linarith [ lt_min ( show rho + ε > rho by linarith ) ( show 1 / 2 > rho by linarith ), min_le_left ( rho + ε ) ( 1 / 2 ), min_le_right ( rho + ε ) ( 1 / 2 ) ] ⟩, trivial ⟩;
-      -- Since $\omega$ starts with 1 and is not $1^\infty$, $\pi_r(\omega)$ is strictly decreasing on $[0, 1/2)$.
+      -- Since $\omega$ starts with 1 and is not $1^\infty$, $\pi_r(\omega)$ is strictly decreasing on $[0, 1 / 2)$.
       have h_pi_decreasing : StrictAntiOn (fun r => pi r ω) (Set.Ico 0 (1 / 2)) := by
         apply_rules [ pi_strictly_decreasing ];
         exact Exists.elim ( h_not_ev_one 0 ) fun n hn => ⟨ n, hn.2 ⟩;
@@ -2257,7 +2245,7 @@ theorem mem_C_minus_of_not_eventually_one (rho : ℝ) (hrho : 0 < rho ∧ rho < 
         exact ⟨ _, rfl ⟩;
       convert range_pi_subset_C r ⟨ by linarith [ hr.1.1 ], by linarith [ hr.1.2, hs.1.2, min_le_left ( rho + ε ) ( 1 / 2 ), min_le_right ( rho + ε ) ( 1 / 2 ) ] ⟩ h_R_in_C using 1
 
-theorem theorem_minus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) :
+theorem theorem_minus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) :
     C_minus rho = C rho \ E_minus rho := by
       -- To prove equality of sets, we show each set is a subset of the other.
       apply Set.ext
@@ -2282,7 +2270,7 @@ theorem theorem_minus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) :
       · intro hx i hi
         by_cases hx0 : x = 0 ∨ x = 1;
         · -- Since $x = 0$ or $x = 1$, we can use the fact that $0$ and $1$ are in $C_r$ for any $r$.
-          have h_endpoints : ∀ r : ℝ, 0 < r ∧ r < 1/2 → 0 ∈ C r ∧ 1 ∈ C r := by
+          have h_endpoints : ∀ r : ℝ, 0 < r ∧ r < 1 / 2 → 0 ∈ C r ∧ 1 ∈ C r := by
             intros r hr
             have h0 : 0 ∈ C r := by
               apply Set.mem_iInter.mpr;
@@ -2361,7 +2349,7 @@ theorem theorem_minus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) :
 /-
 Theorem 2.5: Characterization of the one-sided limsup set C_plus.
 -/
-theorem theorem_plus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) :
+theorem theorem_plus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) :
     C_plus rho = C rho \ E_plus rho := by
       refine' Set.Subset.antisymm _ _;
       · intro x hx;
@@ -2414,7 +2402,7 @@ lemma countable_E_minus (rho : ℝ) : Set.Countable (E_minus rho) := by
 /-
 The closure of C_plus is C.
 -/
-theorem closure_C_plus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) :
+theorem closure_C_plus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) :
     closure (C_plus rho) = C rho := by
       -- We show that $C_+^\rho$ is dense in $C^\rho$.
       have h_dense : ∀ x ∈ C rho, ∀ ε > 0, ∃ y ∈ C_plus rho, |y - x| < ε := by
@@ -2429,7 +2417,7 @@ theorem closure_C_plus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) :
               intro ω n
               by_cases hω0 : ω 0 = 0 ∨ ω 0 = 1
               generalize_proofs at *; (
-              cases' hω0 with hω0 hω0 <;> [ exact ⟨ _, mem_C_plus_of_not_eventually_one rho hrho ( fun i => if i < n then ω i else 0 ) ( by aesop ) ( by
+              rcases hω0 with hω0 | hω0 <;> [ exact ⟨ _, mem_C_plus_of_not_eventually_one rho hrho ( fun i => if i < n then ω i else 0 ) ( by aesop ) ( by
                 exact fun m => ⟨ m + n, by linarith, by simp +decide ⟩ ), fun i hi => by aesop ⟩ ; exact ⟨ _, mem_C_plus_of_not_eventually_zero rho hrho ( fun i => if i < n then ω i else 1 ) ( by aesop ) ( by
                 exact fun m => ⟨ m + n, by linarith, by aesop ⟩ ), fun i hi => by aesop ⟩ ]);
               exact False.elim <| hω0 <| Fin.exists_fin_two.mp ⟨ ω 0, rfl ⟩ |> Or.imp ( fun h => by aesop ) fun h => by aesop;
@@ -2451,7 +2439,7 @@ theorem closure_C_plus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) :
 /-
 The closure of C_minus is C.
 -/
-theorem closure_C_minus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) :
+theorem closure_C_minus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) :
     closure (C_minus rho) = C rho := by
       -- To show the reverse inclusion, take any $x \in C_\alpha$ and let $U$ be an open neighborhood of $x$ in $C_\alpha$.
       have h_reverse : ∀ x ∈ C rho, ∀ U : Set ℝ, IsOpen U → x ∈ U → ∃ y ∈ U, y ∈ C_minus rho := by
@@ -2493,7 +2481,7 @@ theorem closure_C_minus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) :
 /-
 Hausdorff dimension of C_plus is s.
 -/
-lemma dimH_C_plus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) :
+lemma dimH_C_plus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) :
     let s := Real.log 2 / -Real.log rho
     dimH (C_plus rho) = ENNReal.ofReal s := by
       refine' le_antisymm _ _;
@@ -2515,7 +2503,7 @@ lemma dimH_C_plus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) :
 /-
 Hausdorff dimension of C_minus is s.
 -/
-lemma dimH_C_minus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) :
+lemma dimH_C_minus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) :
     let s := Real.log 2 / -Real.log rho
     dimH (C_minus rho) = ENNReal.ofReal s := by
       have h_eq : C rho = C_minus rho ∪ (C rho ∩ E_minus rho) := by
@@ -2541,7 +2529,7 @@ lemma dimH_C_minus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) :
 /-
 Corollary 2.8: Dimensions of the one-sided limsup sets.
 -/
-theorem corollary_dimensions_limsup (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) :
+theorem corollary_dimensions_limsup (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) :
     let s := Real.log 2 / -Real.log rho
     dimH (C_plus rho) = ENNReal.ofReal s ∧
     dimH (C_minus rho) = ENNReal.ofReal s ∧
@@ -2563,6 +2551,10 @@ theorem corollary_dimensions_limsup (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) :
           apply lem_closure_box
         have := theorem_dimension_Ca rho hrho; aesop;
 
+end MO509164
+
+open MO509164
+
 #print axioms theorem_plus
 -- 'MO509164.theorem_plus' depends on axioms: [propext, Classical.choice, Quot.sound]
 
@@ -2571,5 +2563,3 @@ theorem corollary_dimensions_limsup (rho : ℝ) (hrho : 0 < rho ∧ rho < 1/2) :
 
 #print axioms corollary_dimensions_limsup
 -- 'MO509164.corollary_dimensions_limsup' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end MO509164
