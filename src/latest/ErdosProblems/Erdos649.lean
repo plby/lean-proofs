@@ -44,10 +44,6 @@ set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
-set_option linter.style.whitespace false
-set_option linter.unnecessarySimpa false
-set_option linter.unusedSimpArgs false
 
 namespace Erdos649
 
@@ -74,9 +70,9 @@ theorem conjecture_false :
       intros p hp
       have hp_le_2 : p ≤ 2 := by
         have h_le_two : p ≤ Finset.max x.primeFactors := by
-          exact Finset.le_max hp;
-        cases h : Finset.max x.primeFactors <;> aesop;
-      interval_cases p <;> simp_all +decide;
+          exact Finset.le_max hp
+        cases h : Finset.max x.primeFactors <;> aesop
+      interval_cases p <;> simp_all +decide
     rw [ ← Nat.prod_primeFactorsList ( show x ≠ 0 from _ ) ] ;
     rw [ List.prod_eq_pow_single 2 ] ;
     aesop;
@@ -155,7 +151,7 @@ theorem solutions_finite_without_mahler (p q : ℕ) : {n | P n = p ∧ P (n + 1)
   refine Set.Finite.subset ( h_finite_bad_set.union ( Set.finite_singleton 0 ) ) ?_
   intro n hn
   by_cases hn0 : n = 0
-  · exact Or.inr (by simpa [hn0])
+  · exact Or.inr (by simp [hn0])
   · exact Or.inl ⟨Nat.succ_le_of_lt (Nat.pos_of_ne_zero hn0), h_bound n hn⟩
 
 /-
@@ -183,7 +179,7 @@ lemma q_mod_l_eq_neg_one (p q l : ℕ) (hl : l.Prime) (h_le : l ≤ p)
     (h_q_mod : (q : ℤ) ≡ -1 [ZMOD (4 * primorial p)]) : (q : ℤ) ≡ -1 [ZMOD l] := by
       -- Since $l \le p$, $l$ divides $4 * primorial p$.
       have h_div : l ∣ 4 * primorial p := by
-        refine' dvd_mul_of_dvd_right _ _;
+        refine dvd_mul_of_dvd_right ?_ _
         exact Finset.dvd_prod_of_mem _
           ( Finset.mem_filter.mpr
             ⟨ Finset.mem_range.mpr ( Nat.lt_succ_of_le h_le ), hl ⟩ );
@@ -223,13 +219,15 @@ If q = -1 mod 4p#, then q = -1 mod 8.
 -/
 lemma q_mod_eight_eq_neg_one (p q : ℕ) (hp : p.Prime)
     (h_q_mod : (q : ℤ) ≡ -1 [ZMOD (4 * primorial p)]) : (q : ℤ) ≡ -1 [ZMOD 8] := by
-      refine h_q_mod.of_dvd ?_;
-      rcases p with ( _ | _ | _ | _ | p ) <;> simp_all +arith +decide [ primorial ];
-      exact dvd_trans ( by norm_num )
-        ( Finset.dvd_prod_of_mem _
-          ( show 2 ∈ Finset.filter Nat.Prime ( Finset.range ( p + 5 ) ) from
-            Finset.mem_filter.mpr
-              ⟨ Finset.mem_range.mpr ( by linarith ), by norm_num ⟩ ) )
+      refine h_q_mod.of_dvd ?_
+      have h_two_dvd : 2 ∣ primorial p := by
+        exact Finset.dvd_prod_of_mem _
+          (Finset.mem_filter.mpr
+            ⟨Finset.mem_range.mpr (Nat.lt_succ_of_le hp.two_le), Nat.prime_two⟩)
+      have h_eight_dvd : 8 ∣ 4 * primorial p := by
+        simpa [Nat.mul_assoc, Nat.mul_comm, Nat.mul_left_comm] using
+          Nat.mul_dvd_mul_left 4 h_two_dvd
+      exact Int.natCast_dvd_natCast.mpr h_eight_dvd
 
 /-
 If q = -1 mod 8, then (2/q) = 1.
@@ -237,11 +235,12 @@ If q = -1 mod 8, then (2/q) = 1.
 lemma jacobi_two_q_eq_one (q : ℕ) (hq : q.Prime)
     (hq_mod_8 : (q : ℤ) ≡ -1 [ZMOD 8]) :
     jacobiSym 2 q = 1 := by
-      rw [ jacobiSym.mod_right ] ; norm_num [ hq_mod_8 ];
-      · rw [ ← Nat.mod_add_div q 8,
-          show q % 8 = 7 by exact Nat.cast_injective hq_mod_8 ] ;
-        norm_num;
-      · exact hq.odd_of_ne_two <| by rintro rfl; contradiction;
+      rw [ jacobiSym.mod_right ]
+      · norm_num [ hq_mod_8 ]
+        rw [ ← Nat.mod_add_div q 8,
+          show q % 8 = 7 by exact Nat.cast_injective hq_mod_8 ]
+        norm_num
+      · exact hq.odd_of_ne_two <| by rintro rfl; contradiction
 
 /-
 If l <= p and q = -1 mod 4p#, then (l/q) = 1.
@@ -379,7 +378,7 @@ theorem tong_counterexamples (p : ℕ) (hp : p.Prime) :
           exact Finset.prod_ne_zero_iff.mpr fun q hq => Nat.Prime.ne_zero <| by aesop ) ];
   refine Set.Infinite.mono ?_ h_inf;
   intro q hqaesop;
-  refine' ⟨ hqaesop.1, _ ⟩;
+  refine ⟨ hqaesop.1, ?_ ⟩
   rintro ⟨ n, hn₁, hn₂ ⟩;
   -- Since $P(n+1)=q$, we have $q \mid n+1$.
   have hq_div_n1 : q ∣ n + 1 := by
@@ -448,7 +447,7 @@ lemma P_eq_two_iff_pow_two {m : ℕ} (hm : m ≠ 0) : P m = 2 ↔ ∃ k > 0, m =
 If $18 \mid k$, then $73 \mid 2^k - 1$.
 -/
 lemma seventy_three_dvd_two_pow_sub_one_of_eighteen_dvd {k : ℕ} (hk : 18 ∣ k) :
-    73 ∣ 2^k - 1 := by
+    73 ∣ 2 ^ k - 1 := by
   -- Since $18 \mid k$, we can write $k = 18m$ for some integer $m$.
   obtain ⟨m, rfl⟩ : ∃ m, k = 18 * m := hk;
   rw [ pow_mul ] ;
@@ -461,7 +460,7 @@ lemma seventy_three_dvd_two_pow_sub_one_of_eighteen_dvd {k : ℕ} (hk : 18 ∣ k
 /-
 If $2^k \equiv 1 \pmod{19}$, then $18 \mid k$.
 -/
-lemma eighteen_dvd_k_of_pow_two_mod_nineteen_eq_one {k : ℕ} (h : 2^k ≡ 1 [MOD 19]) :
+lemma eighteen_dvd_k_of_pow_two_mod_nineteen_eq_one {k : ℕ} (h : 2 ^ k ≡ 1 [MOD 19]) :
     18 ∣ k := by
   exact Nat.dvd_of_mod_eq_zero
     ( by
@@ -547,7 +546,7 @@ lemma P_mul_P_eq_mul_prime_factors {p q n : ℕ} (hp : p.Prime) (hq : q.Prime)
       unfold P at *;
       rcases x : n.primeFactors.max with ( _ | x ) <;>
         rcases y : ( n + 1 ).primeFactors.max with ( _ | y ) <;>
-        simp_all +decide
+        simp_all +decide only [Option.getD_some]
       · aesop;
       · aesop;
       · aesop;
@@ -560,7 +559,7 @@ If $a^k = -1$ in $\mathbb{Z}/n\mathbb{Z}$ with $n > 2$, then the order of $a$
 divides $2k$ but not $k$.
 -/
 lemma order_properties_of_neg_one {n : ℕ} (hn : n > 2) {a : ZMod n} {k : ℕ}
-    (h : a^k = -1) : orderOf a ∣ 2 * k ∧ ¬ orderOf a ∣ k := by
+    (h : a ^ k = -1) : orderOf a ∣ 2 * k ∧ ¬ orderOf a ∣ k := by
   constructor
   · rw [orderOf_dvd_iff_pow_eq_one]
     rw [mul_comm 2 k, pow_mul, h]
@@ -585,8 +584,8 @@ $a^k \equiv -1 \pmod{q_2}$.
 lemma same_order_neg_one_power {q1 q2 : ℕ} (hq2 : q2.Prime) (h_odd1 : q1 > 2)
   (a : ℕ) (k : ℕ)
   (h_ord : orderOf (a : ZMod q1) = orderOf (a : ZMod q2))
-  (h_pow : (a : ZMod q1)^k = -1) :
-  (a : ZMod q2)^k = -1 := by
+  (h_pow : (a : ZMod q1) ^ k = -1) :
+  (a : ZMod q2) ^ k = -1 := by
     -- By `order_properties_of_neg_one`, we know that `orderOf (a : ZMod q1) 2 * k`
     -- and `orderOf (a : ZMod q1) ∤ k`.
     have h_div : orderOf (a : ZMod q1) ∣ 2 * k ∧ ¬orderOf (a : ZMod q1) ∣ k := by
@@ -599,7 +598,7 @@ lemma same_order_neg_one_power {q1 q2 : ℕ} (hq2 : q2.Prime) (h_odd1 : q1 > 2)
 /-
 If the greatest prime factor of $n$ is 2, then $n$ is a power of 2.
 -/
-lemma P_eq_2_implies_power_two {n : ℕ} (h : P n = 2) : ∃ k : ℕ, n = 2^k := by
+lemma P_eq_2_implies_power_two {n : ℕ} (h : P n = 2) : ∃ k : ℕ, n = 2 ^ k := by
   by_cases hn : n = 0;
   · simp_all +decide [ P ];
   · unfold P at h;
@@ -624,19 +623,19 @@ lemma case1_impossible {q1 q2 n : ℕ} (hq1 : q1.Prime) (hq2 : q2.Prime)
   (h_q1_lt_q2 : q1 < q2)
   (h_ord : orderOf (2 : ZMod q1) = orderOf (2 : ZMod q2))
   (hPn : P n = 2) (hPn1 : P (n + 1) = q1) : False := by
-    -- Since $P(n)=2$, $n=2^k$ for some $k$. Since $P(n+1)=q_1 �$,�
+    -- Since $P(n)=2$, $n=2^k$ for some $k$. Since $P(n+1)=q_1$,
     -- $q_1 \mid n+1 = 2^k+1$.
-    obtain ⟨k, hk⟩ : ∃ k : ℕ, n = 2^k := by
+    obtain ⟨k, hk⟩ : ∃ k : ℕ, n = 2 ^ k := by
       exact P_eq_2_implies_power_two hPn
-    have hq1_div : q1 ∣ 2^k + 1 := by
+    have hq1_div : q1 ∣ 2 ^ k + 1 := by
       unfold P at hPn1;
       replace hPn1 := Finset.mem_of_max
         ( show ( n + 1 |> Nat.primeFactors |> Finset.max ) = some q1 from by
           { unfold Option.getD at hPn1; aesop } ) ;
       aesop;
     -- Thus $2^k \equiv -1 \pmod{q_2}$. Thus $q_2 \mid 2^k+1 = n+1$.
-    have hq2_div : q2 ∣ 2^k + 1 := by
-      have hq2_div : (2 : ZMod q2)^k = -1 := by
+    have hq2_div : q2 ∣ 2 ^ k + 1 := by
+      have hq2_div : (2 : ZMod q2) ^ k = -1 := by
         have hq1_cong : (2 ^ k : ZMod q1) = -1 := by
           exact eq_neg_of_add_eq_zero_left
             ( by simpa [ ← ZMod.natCast_eq_zero_iff ] using hq1_div );
@@ -644,11 +643,11 @@ lemma case1_impossible {q1 q2 n : ℕ} (hq1 : q1.Prime) (hq2 : q2.Prime)
         aesop;
       simp_all +decide [ ← ZMod.natCast_eq_zero_iff ];
     -- So $P(n+1) \ge q_2$.
-    have hPn1_ge_q2 : q2 ≤ P (2^k + 1) := by
+    have hPn1_ge_q2 : q2 ≤ P (2 ^ k + 1) := by
       -- Since $q2$ is a prime factor of $2^k + 1$, it must be less than or equal
       -- to the maximum prime factor of $2^k + 1$.
-      have hq2_le_max_prime_factor : q2 ≤ (2^k + 1).primeFactors.max.getD 0 := by
-        have hq2_prime_factor : q2 ∈ (2^k + 1).primeFactors := by
+      have hq2_le_max_prime_factor : q2 ≤ (2 ^ k + 1).primeFactors.max.getD 0 := by
+        have hq2_prime_factor : q2 ∈ (2 ^ k + 1).primeFactors := by
           aesop
         have hq2_le_max_prime_factor : ∀ {S : Finset ℕ}, q2 ∈ S → q2 ≤ S.max.getD 0 := by
           intros S hq2_in_S; exact (by
@@ -665,10 +664,10 @@ lemma case2_impossible {q1 q2 n : ℕ} (hq1 : q1.Prime) (hq2 : q2.Prime)
   (h_q1_lt_q2 : q1 < q2)
   (h_ord : orderOf (2 : ZMod q1) = orderOf (2 : ZMod q2))
   (hPn : P n = q1) (hPn1 : P (n + 1) = 2) : False := by
-    -- Since $P(n+1)=2 �$,� $n+1=2^k$ for some $k$.
+    -- Since $P(n+1)=2$, $n+1=2^k$ for some $k$.
     obtain ⟨k, hk⟩ : ∃ k, n + 1 = 2 ^ k := by
       exact P_eq_2_implies_power_two hPn1;
-    -- Since $q1 \mid n = 2^k - 1$, we have $2^k \equiv 1 \p �mod�{q1}$.
+    -- Since $q1 \mid n = 2^k - 1$, we have $2^k \equiv 1 \pmod{q1}$.
     have h_mod_q1 : 2 ^ k ≡ 1 [MOD q1] := by
       refine Nat.ModEq.symm <| Nat.modEq_of_dvd ?_;
       simp +decide [ ← hk ];
@@ -680,11 +679,11 @@ lemma case2_impossible {q1 q2 n : ℕ} (hq1 : q1.Prime) (hq2 : q2.Prime)
         exact Finset.mem_of_max hq1_div_n;
       exact_mod_cast Nat.dvd_of_mem_primeFactors h_div;
     -- Since $\ord_{q_2}(2)=s$, $s$ is the order of 2 mod $q_2$. Thus
-    -- $2^k \equiv 1 � \�pmod{q_2}$.
+    -- $2^k \equiv 1 \pmod{q_2}$.
     have h_mod_q2 : 2 ^ k ≡ 1 [MOD q2] := by
       simp_all +decide [ ← ZMod.natCast_eq_natCast_iff ];
       rw [ ← orderOf_dvd_iff_pow_eq_one ] at * ; aesop;
-    -- Since $q2 \mid 2^k - 1 = n$, we have $P(n) \ge q2 �$�.
+    -- Since $q2 \mid 2^k - 1 = n$, we have $P(n) \ge q2$.
     have h_div_q2 : q2 ∣ n := by
       rw [ ← Int.natCast_dvd_natCast ] ;
       simpa [ ← hk ] using h_mod_q2.symm.dvd;
@@ -708,10 +707,10 @@ lemma equal_order_strange {q1 q2 : ℕ} (hq1 : q1.Prime) (hq2 : q2.Prime)
     (h_order : 2 < q1) (h_q1_lt_q2 : q1 < q2)
     (h_eq_ord : orderOf (2 : ZMod q1) = orderOf (2 : ZMod q2)) :
     StrangePair 2 q1 := by
-  refine' ⟨ Nat.prime_two, hq1, _, _ ⟩;
+  refine ⟨ Nat.prime_two, hq1, ?_, ?_ ⟩
   · linarith;
   · -- Assume, for contradiction, that $\{2,q_1\}$ is not strange. Then there
-    -- exists $n\ge 2 �$� such that
+    -- exists $n\ge 2$ such that
     -- \[
     -- F(n)\,F(n+1)=2q_1.
     -- \]
@@ -720,18 +719,17 @@ lemma equal_order_strange {q1 q2 : ℕ} (hq1 : q1.Prime) (hq2 : q2.Prime)
     have h_cases : P n = 2 ∧ P (n + 1) = q1 ∨ P n = q1 ∧ P (n + 1) = 2 := by
       have := P_mul_P_eq_mul_prime_factors Nat.prime_two hq1 ( by linarith ) h_contra;
       aesop;
-    cases h_cases <;> simp_all +decide;
-    · exact case1_impossible hq1 hq2 h_order ( by linarith ) h_eq_ord ( by tauto )
-        ( by tauto );
-    · apply case2_impossible hq1 hq2 h_order ( by linarith ) h_eq_ord ( by tauto ) ( by tauto )
+    rcases h_cases with h_cases | h_cases
+    · exact case1_impossible hq1 hq2 h_order (by linarith) h_eq_ord h_cases.1 h_cases.2
+    · exact case2_impossible hq1 hq2 h_order (by linarith) h_eq_ord h_cases.1 h_cases.2
 
 /-
 For a prime $p > 5$, $N = 2^{2p} + 1$ satisfies $N \equiv 2 \pmod 3$,
 $N \equiv 0 \pmod 5$, and $N \not\equiv 0 \pmod{25}$.
 -/
 lemma N_mod_3_and_5 {p : ℕ} (hp : p.Prime) (hp5 : p > 5) :
-  (2^(2*p) + 1) % 3 = 2 ∧ (2^(2*p) + 1) % 5 = 0 ∧
-    (2^(2*p) + 1) % 25 ≠ 0 := by
+  (2 ^ (2 * p) + 1) % 3 = 2 ∧ (2 ^ (2 * p) + 1) % 5 = 0 ∧
+    (2 ^ (2 * p) + 1) % 25 ≠ 0 := by
     norm_num [ Nat.pow_mul, Nat.add_mod, Nat.pow_mod ];
     rw [ ← Nat.mod_add_div p 20 ] at *;
     have := Nat.mod_lt p ( by decide : 0 < 20 ) ;
@@ -756,9 +754,9 @@ $r = (p+1)/2$.
 -/
 lemma N_factorization {p : ℕ} (hp : Odd p) :
   let r := (p + 1) / 2
-  let A := 2^p - 2^r + 1
-  let B := 2^p + 2^r + 1
-  2^(2*p) + 1 = A * B := by
+  let A := 2 ^ p - 2 ^ r + 1
+  let B := 2 ^ p + 2 ^ r + 1
+  2 ^ (2 * p) + 1 = A * B := by
     obtain ⟨ k, rfl ⟩ : ∃ k, p = 2 * k + 1 := hp; ring_nf;
     norm_num [ Nat.add_div ] ; ring_nf;
     zify ; ring_nf;
@@ -769,10 +767,10 @@ The factors $A = 2^p - 2^r + 1$ and $B = 2^p + 2^r + 1$ are coprime.
 -/
 lemma N_factors_coprime {p : ℕ} (hp : Odd p) :
   let r := (p + 1) / 2
-  let A := 2^p - 2^r + 1
-  let B := 2^p + 2^r + 1
+  let A := 2 ^ p - 2 ^ r + 1
+  let B := 2 ^ p + 2 ^ r + 1
   Nat.gcd A B = 1 := by
-    -- Since $B - A = 2 �^{�r+1}$ and $A$ is odd, any common divisor of $A$ and $B$
+    -- Since $B - A = 2^{r+1}$ and $A$ is odd, any common divisor of $A$ and $B$
     -- must also divide $2^{r+1}$. Since $A$ is odd, the only possible common divisor
     -- is $1$.
     have h_div : ∀ d, d ∣ (2 ^ p - 2 ^ ((p + 1) / 2) + 1) →
@@ -802,23 +800,23 @@ Neither $A$ nor $B$ is divisible by 3, and exactly one of them is divisible by 5
 -/
 lemma N_factors_divisibility {p : ℕ} (hp : p.Prime) (hp5 : p > 5) :
   let r := (p + 1) / 2
-  let A := 2^p - 2^r + 1
-  let B := 2^p + 2^r + 1
+  let A := 2 ^ p - 2 ^ r + 1
+  let B := 2 ^ p + 2 ^ r + 1
   ¬(3 ∣ A) ∧ ¬(3 ∣ B) ∧
     ((5 ∣ A ∧ ¬(25 ∣ A) ∧ ¬(5 ∣ B)) ∨
       (5 ∣ B ∧ ¬(25 ∣ B) ∧ ¬(5 ∣ A))) := by
     -- Since $N = A \cdot B$ and $N \equiv 0 \pmod 5$, $5 \mid N$ but
     -- $25 \nmid N$.
     have h_mod_5 :
-        let A := 2^p - 2^((p + 1) / 2) + 1
-        let B := 2^p + 2^((p + 1) / 2) + 1
+        let A := 2 ^ p - 2 ^ ((p + 1) / 2) + 1
+        let B := 2 ^ p + 2 ^ ((p + 1) / 2) + 1
         (5 ∣ A ∧ ¬25 ∣ A ∧ ¬5 ∣ B) ∨
           (5 ∣ B ∧ ¬25 ∣ B ∧ ¬5 ∣ A) := by
-      have h_mod_5 : (2^(2*p) + 1) % 5 = 0 ∧ (2^(2*p) + 1) % 25 ≠ 0 := by
+      have h_mod_5 : (2 ^ (2 * p) + 1) % 5 = 0 ∧ (2 ^ (2 * p) + 1) % 25 ≠ 0 := by
         exact N_mod_3_and_5 hp hp5 |>.2;
       have h_mod_5 :
-          let A := 2^p - 2^((p + 1) / 2) + 1
-          let B := 2^p + 2^((p + 1) / 2) + 1
+          let A := 2 ^ p - 2 ^ ((p + 1) / 2) + 1
+          let B := 2 ^ p + 2 ^ ((p + 1) / 2) + 1
           (A * B) % 5 = 0 ∧ (A * B) % 25 ≠ 0 := by
         convert h_mod_5 using 2;
         · rw [ ← N_factorization ( show Odd p from hp.odd_of_ne_two <| by linarith ) ];
@@ -826,8 +824,8 @@ lemma N_factors_divisibility {p : ℕ} (hp : p.Prime) (hp5 : p > 5) :
               ( 2 ^ p - 2 ^ ( ( p + 1 ) / 2 ) + 1 ) *
                 ( 2 ^ p + 2 ^ ( ( p + 1 ) / 2 ) + 1 ) from ?_ ];
           convert N_factorization ( show Odd p from hp.odd_of_ne_two <| by linarith ) using 1;
-      by_cases h5A : 5 ∣ (2^p - 2^((p + 1) / 2) + 1) <;>
-        by_cases h5B : 5 ∣ (2^p + 2^((p + 1) / 2) + 1) <;>
+      by_cases h5A : 5 ∣ (2 ^ p - 2 ^ ((p + 1) / 2) + 1) <;>
+        by_cases h5B : 5 ∣ (2 ^ p + 2 ^ ((p + 1) / 2) + 1) <;>
         simp_all +decide
       · exact h_mod_5.2
           ( Nat.mod_eq_zero_of_dvd ( dvd_trans ( by decide ) ( mul_dvd_mul h5A h5B ) ) );
@@ -839,12 +837,12 @@ lemma N_factors_divisibility {p : ℕ} (hp : p.Prime) (hp5 : p > 5) :
     -- Since $N = A \cdot B$ and $N \equiv 2 \pmod 3$, $3 \nmid N$, so
     -- $3 \nmid A$ and $3 \nmid B$.
     have h_mod_3 :
-        let A := 2^p - 2^((p + 1) / 2) + 1
-        let B := 2^p + 2^((p + 1) / 2) + 1
+        let A := 2 ^ p - 2 ^ ((p + 1) / 2) + 1
+        let B := 2 ^ p + 2 ^ ((p + 1) / 2) + 1
         ¬(3 ∣ A) ∧ ¬(3 ∣ B) := by
       have h_mod_3 :
-          let A := 2^p - 2^((p + 1) / 2) + 1
-          let B := 2^p + 2^((p + 1) / 2) + 1
+          let A := 2 ^ p - 2 ^ ((p + 1) / 2) + 1
+          let B := 2 ^ p + 2 ^ ((p + 1) / 2) + 1
           (A * B) % 3 = 2 := by
         convert N_mod_3_and_5 hp hp5 |>.1 using 1;
         rw [ N_factorization ( show Odd p from hp.odd_of_ne_two <| by linarith ) ];
@@ -860,8 +858,8 @@ For $p \ge 7$, the factors $A$ and $B$ are strictly greater than 5.
 -/
 lemma N_factors_large {p : ℕ} (hp : p ≥ 7) :
   let r := (p + 1) / 2
-  let A := 2^p - 2^r + 1
-  let B := 2^p + 2^r + 1
+  let A := 2 ^ p - 2 ^ r + 1
+  let B := 2 ^ p + 2 ^ r + 1
   A > 5 ∧ B > 5 := by
     refine ⟨ ?_, ?_ ⟩ <;> norm_num [ Nat.pow_succ' ] at *;
     · have hr_le : (p + 1) / 2 ≤ p - 1 := by omega
@@ -890,11 +888,11 @@ than 5.
 lemma exists_prime_gt_five {n : ℕ} (h_odd : Odd n) (h_not_3 : ¬ 3 ∣ n)
     (h_not_5 : ¬ 5 ∣ n) (h_gt_1 : n > 1) :
   ∃ q, q.Prime ∧ q ∣ n ∧ q > 5 := by
-    -- Since $n$ is odd and greater than 1, it must � have� at least one prime factor.
-    -- Let $q$ be � the� smallest prime factor of $n$.
+    -- Since $n$ is odd and greater than 1, it must have at least one prime factor.
+    -- Let $q$ be the smallest prime factor of $n$.
     obtain ⟨q, hq_prime, hq_div⟩ : ∃ q, Nat.Prime q ∧ q ∣ n := by
       exact Nat.exists_prime_and_dvd h_gt_1.ne';
-    rcases q with ( _ | _ | _ | _ | _ | _ | q ) <;> simp_all +arith +decide
+    rcases q with ( _ | _ | _ | _ | _ | _ | q ) <;> simp_all +arith +decide only [gt_iff_lt]
     · exact absurd ( even_iff_two_dvd.mpr hq_div ) ( by simpa using h_odd );
     · exact ⟨ _, hq_prime, hq_div, by linarith ⟩
 
@@ -904,12 +902,12 @@ divisors greater than $5$.
 -/
 lemma two_large_primes {p : ℕ} (hp : p.Prime) (hp5 : p > 5) :
   ∃ q1 q2 : ℕ, q1.Prime ∧ q2.Prime ∧ q1 ≠ q2 ∧ q1 > 5 ∧ q2 > 5 ∧
-    q1 ∣ (2^(2*p) + 1) ∧ q2 ∣ (2^(2*p) + 1) := by
+    q1 ∣ (2 ^ (2 * p) + 1) ∧ q2 ∣ (2 ^ (2 * p) + 1) := by
     -- Let $r = (p+1)/2$, $A = 2^p - 2^r + 1$, and $B = 2^p + 2^r + 1$.
     set r := (p + 1) / 2
-    set A := 2^p - 2^r + 1
-    set B := 2^p + 2^r + 1
-    have hN : 2^(2*p) + 1 = A * B := by
+    set A := 2 ^ p - 2 ^ r + 1
+    set B := 2 ^ p + 2 ^ r + 1
+    have hN : 2 ^ (2 * p) + 1 = A * B := by
       convert N_factorization ( show Odd p from hp.odd_of_ne_two <| by linarith ) using 1
     have h_coprime : Nat.gcd A B = 1 := by
       apply N_factors_coprime; exact hp.odd_of_ne_two (by linarith)
@@ -924,15 +922,15 @@ lemma two_large_primes {p : ℕ} (hp : p.Prime) (hp5 : p > 5) :
           fun h => ⟨ h.1, h.2 ⟩;
     -- Case 1: $5 \mid A$. Then $5 \nmid B$.
     by_cases h5A : 5 ∣ A;
-    · -- Since $A$ is divisible by 5, $ �A�/5$ is odd and greater than 1. Also �,�
+    · -- Since $A$ is divisible by 5, $A/5$ is odd and greater than 1. Also,
       -- $A$ is not divisible by 3 or 25.
       have hA_div_5 : ∃ q1 : ℕ, Nat.Prime q1 ∧ q1 ∣ A / 5 ∧ q1 > 5 := by
-        -- Since $A/5$ is odd and greater � than� 1, it must have a prime factor greater � than� 5.
+        -- Since $A/5$ is odd and greater than 1, it must have a prime factor greater than 5.
         have hA_div_5_odd : Odd (A / 5) := by
           have hA_odd : Odd A := by
             simp +zetaDelta at *;
             cases le_total ( 2 ^ p ) ( 2 ^ ( ( p + 1 ) / 2 ) ) <;>
-              simp_all +decide [ Nat.one_le_iff_ne_zero, parity_simps ];
+              simp_all +decide [ parity_simps ];
           exact hA_odd.of_dvd_nat ( Nat.div_dvd_of_dvd h5A )
         have hA_div_5_gt_1 : 1 < A / 5 := by
           omega
@@ -941,8 +939,12 @@ lemma two_large_primes {p : ℕ} (hp : p.Prime) (hp5 : p > 5) :
         have hA_div_5_not_div_5 : ¬(5 ∣ A / 5) := by
           omega
         have hA_div_5_prime_factor : ∃ q1 : ℕ, Nat.Prime q1 ∧ q1 ∣ A / 5 ∧ q1 > 5 := by
-          apply exists_prime_gt_five; assumption; assumption; assumption; assumption;
-        exact hA_div_5_prime_factor;
+          apply exists_prime_gt_five
+          · exact hA_div_5_odd
+          · exact hA_div_5_not_div_3
+          · exact hA_div_5_not_div_5
+          · exact hA_div_5_gt_1
+        exact hA_div_5_prime_factor
       obtain ⟨q1, hq1⟩ := hA_div_5
       use q1, Nat.minFac B;
       -- Since $B$ is not divisible by 3 or 5, its minimal prime factor must be greater than 5.
@@ -966,7 +968,7 @@ lemma two_large_primes {p : ℕ} (hp : p.Prime) (hp5 : p > 5) :
           dvd_trans x ( hN.symm ▸ dvd_mul_right _ _ ),
         Nat.minFac_dvd _ |> fun x => dvd_trans x ( hN.symm ▸ dvd_mul_left _ _ ) ⟩;
     · -- Since $5 \mid B$, we can apply `exists_prime_gt_five` to $B/5$ to find a
-      -- prime factor $ �q�_1 > 5$.
+      -- prime factor $q_1 > 5$.
       obtain ⟨q1, hq1⟩ : ∃ q1 : ℕ, Nat.Prime q1 ∧ q1 ∣ B / 5 ∧ q1 > 5 := by
         apply exists_prime_gt_five;
         · rcases h_divisibility.2.2 with h | h <;> simp_all +decide
@@ -977,7 +979,7 @@ lemma two_large_primes {p : ℕ} (hp : p.Prime) (hp5 : p > 5) :
         · omega;
         · grind;
       -- Since $A$ is not divisible by 3 or 5, and $A > 5$, it must have a prime
-      -- factor greater � than� 5.
+      -- factor greater than 5.
       obtain ⟨q2, hq2⟩ : ∃ q2 : ℕ, Nat.Prime q2 ∧ q2 ∣ A ∧ q2 > 5 := by
         apply exists_prime_gt_five;
         · rw [ Nat.odd_add, Nat.odd_sub ] <;> norm_num [ Nat.even_pow ];
@@ -1008,9 +1010,9 @@ Let $p>5$ be a prime, let $N=2^{2p}+1$, and let $q>5$ be a prime divisor of $N$.
 Then $\ord_q(2)=4p$.
 -/
 lemma order_4p {p q : ℕ} (hp : p.Prime) (hp5 : p > 5) (hq : q.Prime)
-    (hq5 : q > 5) (h_div : q ∣ 2^(2*p) + 1) :
+    (hq5 : q > 5) (h_div : q ∣ 2 ^ (2 * p) + 1) :
   orderOf (2 : ZMod q) = 4 * p := by
-    refine' orderOf_eq_of_pow_and_pow_div_prime _ _ _;
+    refine orderOf_eq_of_pow_and_pow_div_prime ?_ ?_ ?_
     · linarith;
     · haveI := Fact.mk hq; simp_all +decide [ ← ZMod.natCast_eq_zero_iff, pow_mul' ] ;
       linear_combination' h_div * ( ( 2 ^ p ) ^ 2 - 1 );
@@ -1018,7 +1020,7 @@ lemma order_4p {p q : ℕ} (hp : p.Prime) (hp5 : p > 5) (hq : q.Prime)
       haveI := Fact.mk hq;
       simp_all +decide [ ← ZMod.natCast_eq_zero_iff ] ;
       -- Since $r$ is a prime divisor of $4p$, and $p$ is prime and greater than 5,
-      -- $r$ must be 2 � or� $p$.
+      -- $r$ must be 2 or $p$.
       have hr_cases : r = 2 ∨ r = p := by
         have hr_cases : r ∣ 4 * p := by
           simp_all +decide [ ← ZMod.natCast_eq_zero_iff ];
@@ -1072,7 +1074,7 @@ theorem infinite_strange_pairs : { q | StrangePair 2 q }.Infinite := by
     exact Set.Infinite.mono ( by aesop_cat )
       ( Nat.infinite_setOf_prime.diff ( Set.finite_le_nat 5 ) );
   rw [ Set.infinite_iff_exists_gt ] at *;
-  -- For any prime $p > 5$, we can find a prime $ �q�$ such that $\{2, q\}$ is a
+  -- For any prime $p > 5$, we can find a prime $q$ such that $\{2, q\}$ is a
   -- strange pair and $\ord_q(2) = 4p$.
   have h_exists_q : ∀ p : ℕ, Nat.Prime p → 5 < p →
       ∃ q : ℕ, StrangePair 2 q ∧ orderOf (2 : ZMod q) = 4 * p ∧ q > p := by
@@ -1095,7 +1097,7 @@ theorem infinite_strange_pairs : { q | StrangePair 2 q }.Infinite := by
     obtain ⟨ q, hq₁, hq₂, hq₃ ⟩ := h_exists_q p hp₁.left hp₁.right;
     exact ⟨ q, hq₁, by linarith ⟩ ;
 
-#print axioms infinite_strange_pairs
--- 'Erdos649.infinite_strange_pairs' depends on axioms: [propext, Classical.choice, Quot.sound]
-
 end Erdos649
+
+#print axioms Erdos649.infinite_strange_pairs
+-- 'Erdos649.infinite_strange_pairs' depends on axioms: [propext, Classical.choice, Quot.sound]
