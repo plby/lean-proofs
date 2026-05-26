@@ -47,19 +47,9 @@ please submit the same prompt, and add this .lean file in "Optional: Attach a Le
 import Mathlib
 import ErdosProblems.Erdos433
 
-set_option linter.style.setOption false
-set_option linter.style.openClassical false
-set_option linter.style.longLine false
-set_option linter.flexible false
-set_option linter.style.multiGoal false
-set_option linter.unusedSimpArgs false
-set_option linter.style.induction false
-set_option linter.style.refine false
-
 open scoped BigOperators
 open scoped Real
 open scoped Nat
-open scoped Classical
 open scoped Pointwise
 
 namespace Erdos434
@@ -80,123 +70,255 @@ theorem theorem_2 (a b : ℕ) (E : Finset ℕ) (hE_sub : (E : Set ℕ) ⊆ Set.I
   simpa [S_k, S, Erdos433.S_k, Erdos433.S] using
     Erdos433.theorem_2 a b E hE_sub hE_card hE_gcd k hk
 
+-- The generated closure proof relies on context-wide simplification.
+set_option linter.flexible false in
 lemma mem_closure_iff_exists_sum {A : Set ℕ} {x : ℕ} :
-  x ∈ AddSubsemigroup.closure A ↔ ∃ j : ℕ, j ≥ 1 ∧ ∃ (f : Fin j → ℕ), (∀ i, f i ∈ A) ∧ ∑ i, f i = x := by
-    constructor <;> intro hx;
-    · induction hx using AddSubsemigroup.closure_induction ; aesop;
-      rename_i hx hy;
-      obtain ⟨ j₁, hj₁, f₁, hf₁, rfl ⟩ := hx; obtain ⟨ j₂, hj₂, f₂, hf₂, rfl ⟩ := hy; exact ⟨ j₁ + j₂, by linarith, Fin.append f₁ f₂, fun i => by cases i using Fin.addCases <;> simp +decide [ * ], by simp +decide [ Fin.sum_univ_add ] ⟩ ;
-    · obtain ⟨ j, hj, f, hf, rfl ⟩ := hx;
-      induction hj <;> simp_all +decide [ Fin.sum_univ_succ, AddSubsemigroup.mem_closure ];
-      · exact fun S hS => hS hf;
+  x ∈ AddSubsemigroup.closure A ↔
+    ∃ j : ℕ, j ≥ 1 ∧ ∃ (f : Fin j → ℕ), (∀ i, f i ∈ A) ∧
+      ∑ i, f i = x := by
+    constructor <;> intro hx
+    · induction hx using AddSubsemigroup.closure_induction
+      · aesop
+      rename_i hx hy
+      obtain ⟨ j₁, hj₁, f₁, hf₁, rfl ⟩ := hx
+      obtain ⟨ j₂, hj₂, f₂, hf₂, rfl ⟩ := hy
+      exact ⟨ j₁ + j₂, by linarith, Fin.append f₁ f₂,
+        fun i => by
+          cases i using Fin.addCases <;> simp +decide [*],
+        by simp +decide [Fin.sum_univ_add] ⟩
+    · obtain ⟨ j, hj, f, hf, rfl ⟩ := hx
+      induction hj <;> simp_all +decide [Fin.sum_univ_succ, AddSubsemigroup.mem_closure]
+      · exact fun S hS => hS hf
       · expose_names
         exact fun S a =>
-          AddSubsemigroup.add_mem S (a (hf 0)) (a_ih (fun i => f i.succ) (fun i => hf i.succ) S a)
+          AddSubsemigroup.add_mem S (a (hf 0))
+            (a_ih (fun i => f i.succ) (fun i => hf i.succ) S a)
 
+-- The generated proof relies on context-wide simplification.
+set_option linter.flexible false in
 set_option maxHeartbeats 1000000 in
 -- The finite-interval representation proof needs extra heartbeats for arithmetic normalization.
 lemma S_A_opt_eq_Union (n k : ℕ) :
-  (S (A_opt n k : Set ℕ) : Set ℕ) = ⋃ (j : ℕ) (_hj : j ≥ 1), Set.Icc (j * (n - k + 1)) (j * n) := by
-    -- By definition of $S_k$, we know that $S(A_{\text{opt}})$ is the set of all sums of elements from $A_{\text{opt}}$.
-    have hS_eq : S (A_opt n k) = {x | ∃ j : ℕ, j ≥ 1 ∧ ∃ (f : Fin j → ℕ), (∀ i, f i ∈ A_opt n k) ∧ ∑ i, f i = x} := by
+  (S (A_opt n k : Set ℕ) : Set ℕ) =
+    ⋃ (j : ℕ) (_hj : j ≥ 1), Set.Icc (j * (n - k + 1)) (j * n) := by
+    -- By definition of $S_k$, we know that $S(A_{\text{opt}})$ is the set of
+    -- all sums of elements from $A_{\text{opt}}$.
+    have hS_eq : S (A_opt n k) =
+        {x | ∃ j : ℕ, j ≥ 1 ∧ ∃ (f : Fin j → ℕ), (∀ i, f i ∈ A_opt n k) ∧
+          ∑ i, f i = x} := by
       ext x
-      simp [S, mem_closure_iff_exists_sum];
-    ext x; simp [hS_eq];
-    constructor;
-    · rintro ⟨ j, hj, f, hf, rfl ⟩;
-      exact ⟨ j, by simpa [ mul_comm ] using Finset.sum_le_sum fun i ( hi : i ∈ Finset.univ ) => show f i ≥ n - k + 1 from Finset.mem_Icc.mp ( hf i ) |>.1, hj, by simpa [ mul_comm ] using Finset.sum_le_sum fun i ( hi : i ∈ Finset.univ ) => show f i ≤ n from Finset.mem_Icc.mp ( hf i ) |>.2 ⟩;
-    · rintro ⟨ j, hj₁, hj₂, hj₃ ⟩;
-      -- By definition of $A_{\text{opt}}$, we know that every element in $A_{\text{opt}}$ is between $n - k + 1$ and $n$.
-      have h_bounds : ∀ i : Fin j, ∃ y ∈ Finset.Icc (n - k + 1) n, y = (x - j * (n - k + 1)) / j + (n - k + 1) + (if i.val < (x - j * (n - k + 1)) % j then 1 else 0) := by
-        simp +zetaDelta at *;
-        intro i; split_ifs <;> constructor <;> nlinarith [ Nat.div_mul_le_self ( x - j * ( n - k + 1 ) ) j, Nat.mod_add_div ( x - j * ( n - k + 1 ) ) j, Nat.mod_lt ( x - j * ( n - k + 1 ) ) hj₂, Nat.sub_add_cancel hj₁ ] ;
-      choose f hf₁ hf₂ using h_bounds;
-      refine' ⟨ j, hj₂, f, _, _ ⟩ <;> simp_all +decide [ Finset.sum_add_distrib ];
-      · intro i; specialize hf₁ i; unfold A_opt; aesop;
-      · rw [ show Finset.card ( Finset.filter ( fun i : Fin j => ( i : ℕ ) < ( x - j * ( n - k + 1 ) ) % j ) Finset.univ ) = ( x - j * ( n - k + 1 ) ) % j from ?_ ];
-        · linarith [ Nat.mod_add_div ( x - j * ( n - k + 1 ) ) j, Nat.sub_add_cancel hj₁ ];
-        · rw [ Finset.card_eq_of_bijective ];
-          use fun i hi => ⟨ i, by linarith [ Nat.mod_lt ( x - j * ( n - k + 1 ) ) hj₂ ] ⟩;
-          · exact fun a ha => ⟨ a, Finset.mem_filter.mp ha |>.2, rfl ⟩;
-          · grind;
+      simp [S, mem_closure_iff_exists_sum]
+    ext x
+    simp only [hS_eq, ge_iff_le, Set.mem_iUnion, Set.mem_Icc,
+      exists_and_left, exists_prop]
+    constructor
+    · rintro ⟨ j, hj, f, hf, rfl ⟩
+      exact ⟨ j,
+        by
+          simpa [mul_comm] using
+            Finset.sum_le_sum fun i (_hi : i ∈ Finset.univ) =>
+              show f i ≥ n - k + 1 from Finset.mem_Icc.mp (hf i) |>.1,
+        hj,
+        by
+          simpa [mul_comm] using
+            Finset.sum_le_sum fun i (_hi : i ∈ Finset.univ) =>
+              show f i ≤ n from Finset.mem_Icc.mp (hf i) |>.2 ⟩
+    · rintro ⟨ j, hj₁, hj₂, hj₃ ⟩
+      -- By definition of $A_{\text{opt}}$, we know that every element in
+      -- $A_{\text{opt}}$ is between $n - k + 1$ and $n$.
+      have h_bounds : ∀ i : Fin j, ∃ y ∈ Finset.Icc (n - k + 1) n,
+          y = (x - j * (n - k + 1)) / j + (n - k + 1) +
+            (if i.val < (x - j * (n - k + 1)) % j then 1 else 0) := by
+        simp +zetaDelta only [↓existsAndEq, Finset.mem_Icc, Order.add_one_le_iff,
+          and_true] at *
+        intro i
+        split_ifs <;> constructor <;>
+          nlinarith [Nat.div_mul_le_self (x - j * (n - k + 1)) j,
+            Nat.mod_add_div (x - j * (n - k + 1)) j,
+            Nat.mod_lt (x - j * (n - k + 1)) hj₂, Nat.sub_add_cancel hj₁]
+      choose f hf₁ hf₂ using h_bounds
+      refine ⟨ j, hj₂, f, ?_, ?_ ⟩ <;> simp_all +decide [Finset.sum_add_distrib]
+      · intro i
+        specialize hf₁ i
+        unfold A_opt
+        aesop
+      · rw [show
+            Finset.card
+                (Finset.filter
+                  (fun i : Fin j => (i : ℕ) < (x - j * (n - k + 1)) % j)
+                  Finset.univ) =
+              (x - j * (n - k + 1)) % j from ?_]
+        · linarith [Nat.mod_add_div (x - j * (n - k + 1)) j, Nat.sub_add_cancel hj₁]
+        · rw [Finset.card_eq_of_bijective]
+          · use fun i hi =>
+              ⟨ i, by linarith [Nat.mod_lt (x - j * (n - k + 1)) hj₂] ⟩
+          · exact fun a ha => ⟨ a, Finset.mem_filter.mp ha |>.2, rfl ⟩
+          · grind
           · grind
 
+-- The generated cardinality proof relies on context-wide simplification.
+set_option linter.flexible false in
 set_option maxHeartbeats 1000000 in
 -- The cardinality computation uses several interval normalizations.
 lemma card_S_k_A_opt (n k m : ℕ) (hk : 1 ≤ k) (hn : k ≤ n) (hm : m ≥ 1) :
   (S_k n (S (A_opt n k : Set ℕ)) m).ncard = min n (m * (k - 1) + 1) := by
-    -- By definition of $S_k$, we know that $S_k n (S (A_opt n k)) m = \{x \in \mathbb{N} \mid (m-1)n + 1 \leq x \leq mn\}$.
-    have h_S_k_def : S_k n (S (A_opt n k)) m = Set.Icc ((m - 1) * n + 1) (m * n) ∩ (⋃ (j : ℕ) (hj : j ≥ 1), Set.Icc (j * (n - k + 1)) (j * n)) := by
-      ext x;
-      simp [S_k, S_A_opt_eq_Union n k];
-      tauto;
+    -- By definition of $S_k$, we know that $S_k n (S (A_opt n k)) m$ is
+    -- the interval of representable numbers in the relevant block.
+    have h_S_k_def :
+        S_k n (S (A_opt n k)) m =
+          Set.Icc ((m - 1) * n + 1) (m * n) ∩
+            (⋃ (j : ℕ) (hj : j ≥ 1), Set.Icc (j * (n - k + 1)) (j * n)) := by
+      ext x
+      simp [S_k, S_A_opt_eq_Union n k]
+      tauto
     -- Let's simplify the intersection.
-    have h_inter : Set.Icc ((m - 1) * n + 1) (m * n) ∩ (⋃ (j : ℕ) (hj : j ≥ 1), Set.Icc (j * (n - k + 1)) (j * n)) = Set.Icc ((m - 1) * n + 1) (m * n) ∩ Set.Icc (m * (n - k + 1)) (m * n) := by
-      ext x;
-      -- If $x$ is in the intersection, then there exists some $j \geq 1$ such that $x \in [j(n - k + 1), jn]$. Since $x \leq mn$, we must have $j \leq m$. Therefore, $x \in [m(n - k + 1), mn]$.
+    have h_inter :
+        Set.Icc ((m - 1) * n + 1) (m * n) ∩
+            (⋃ (j : ℕ) (hj : j ≥ 1), Set.Icc (j * (n - k + 1)) (j * n)) =
+          Set.Icc ((m - 1) * n + 1) (m * n) ∩
+            Set.Icc (m * (n - k + 1)) (m * n) := by
+      ext x
+      -- If $x$ is in the intersection, then it lies in some block
+      -- $[j(n-k+1), jn]$, and the outer bounds force the corresponding block.
       apply Iff.intro
-      intro hx
-      obtain ⟨j, hj₁, hj₂⟩ : ∃ j ≥ 1, x ∈ Set.Icc (j * (n - k + 1)) (j * n) := by
-        aesop;
-      · -- Since $j \geq m$, we have $j * (n - k + 1) \geq m * (n - k + 1)$.
+      · intro hx
+        obtain ⟨j, hj₁, hj₂⟩ :
+            ∃ j ≥ 1, x ∈ Set.Icc (j * (n - k + 1)) (j * n) := by
+          aesop
+        -- Since $j \geq m$, we have $j * (n-k+1) \geq m * (n-k+1)$.
         have hj_ge_m : j ≥ m := by
-          nlinarith [ hx.1.1, hx.1.2, hj₂.1, hj₂.2, Nat.sub_add_cancel hm, Nat.sub_add_cancel hn ];
-        exact ⟨ hx.1, ⟨ by nlinarith [ hj₂.1, Nat.sub_add_cancel hm ], by nlinarith [ hj₂.2, Nat.sub_add_cancel hm, hx.1.2 ] ⟩ ⟩;
-      · exact fun hx => ⟨ hx.1, Set.mem_iUnion₂.mpr ⟨ m, hm, hx.2 ⟩ ⟩;
-    rcases m with ( _ | m ) <;> simp_all +decide [ Nat.succ_mul ];
-    rw [ show ( Set.Icc ( m * n + 1 ) ( m * n + n ) ∩ Set.Icc ( m * ( n - k + 1 ) + ( n - k + 1 ) ) ( m * n + n ) ) = Set.Icc ( Max.max ( m * n + 1 ) ( m * ( n - k + 1 ) + ( n - k + 1 ) ) ) ( m * n + n ) by ext; aesop ] ; rw [ Set.ncard_eq_toFinset_card' ] ; norm_num;
-    cases max_cases ( m * n + 1 ) ( m * ( n - k + 1 ) + ( n - k + 1 ) ) <;> cases min_cases n ( m * ( k - 1 ) + ( k - 1 ) + 1 ) <;> simp_all +decide;
-    · cases k <;> norm_num at * ; nlinarith [ Nat.sub_add_cancel hn ];
-    · exact Nat.sub_eq_of_eq_add <| by nlinarith only [ Nat.sub_add_cancel hn, Nat.sub_add_cancel hk, ‹m * n + 1 ≤ m * ( n - k + 1 ) + ( n - k + 1 ) ∧ m * n + 1 < m * ( n - k + 1 ) + ( n - k + 1 ) ›, ‹n ≤ m * ( k - 1 ) + ( k - 1 ) + 1› ] ;
-    · exact Nat.sub_eq_of_eq_add <| by nlinarith only [ Nat.sub_add_cancel hn, Nat.sub_add_cancel hk ] ;
+          nlinarith [hx.1.1, hx.1.2, hj₂.1, hj₂.2, Nat.sub_add_cancel hm,
+            Nat.sub_add_cancel hn]
+        exact ⟨ hx.1,
+          ⟨ by nlinarith [hj₂.1, Nat.sub_add_cancel hm],
+            by nlinarith [hj₂.2, Nat.sub_add_cancel hm, hx.1.2] ⟩ ⟩
+      · exact fun hx => ⟨ hx.1, Set.mem_iUnion₂.mpr ⟨ m, hm, hx.2 ⟩ ⟩
+    rcases m with (_ | m) <;> simp_all +decide [Nat.succ_mul]
+    rw [show
+        Set.Icc (m * n + 1) (m * n + n) ∩
+            Set.Icc (m * (n - k + 1) + (n - k + 1)) (m * n + n) =
+          Set.Icc (Max.max (m * n + 1) (m * (n - k + 1) + (n - k + 1)))
+            (m * n + n) by
+        ext
+        aesop]
+    rw [Set.ncard_eq_toFinset_card']
+    norm_num
+    cases max_cases (m * n + 1) (m * (n - k + 1) + (n - k + 1)) <;>
+      cases min_cases n (m * (k - 1) + (k - 1) + 1) <;>
+        simp_all +decide
+    · cases k <;> norm_num at *
+      nlinarith [Nat.sub_add_cancel hn]
+    · exact Nat.sub_eq_of_eq_add <| by
+        nlinarith only [Nat.sub_add_cancel hn, Nat.sub_add_cancel hk,
+          ‹m * n + 1 ≤ m * (n - k + 1) + (n - k + 1) ∧
+            m * n + 1 < m * (n - k + 1) + (n - k + 1)›,
+          ‹n ≤ m * (k - 1) + (k - 1) + 1›]
+    · exact Nat.sub_eq_of_eq_add <| by
+        nlinarith only [Nat.sub_add_cancel hn, Nat.sub_add_cancel hk]
 
+-- The Bezout construction uses generated context-wide simplification.
+set_option linter.flexible false in
 lemma exists_u_v_diff_one (A : Finset ℕ) (h_gcd : A.gcd id = 1) :
-  ∃ u v, u ∈ AddSubmonoid.closure (A : Set ℕ) ∧ v ∈ AddSubmonoid.closure (A : Set ℕ) ∧ u = v + 1 := by
-    -- By Bezout's identity, since $\gcd(A) = 1$, there exist integers $x_1, x_2, \ldots, x_k$ such that $x_1 a_1 + x_2 a_2 + \cdots + x_k a_k = 1$.
+  ∃ u v, u ∈ AddSubmonoid.closure (A : Set ℕ) ∧
+    v ∈ AddSubmonoid.closure (A : Set ℕ) ∧ u = v + 1 := by
+    -- By Bezout's identity, since $\gcd(A) = 1$, there are integer
+    -- coefficients whose weighted sum over $A$ is $1$.
     obtain ⟨x, hx⟩ : ∃ x : ℕ → ℤ, (∑ a ∈ A, x a * a) = 1 := by
-      have h_bezout : ∀ (s : Finset ℕ), (∃ x : ℕ → ℤ, (∑ a ∈ s, x a * a) = s.gcd id) := by
-        intro s;
+      have h_bezout :
+          ∀ (s : Finset ℕ), ∃ x : ℕ → ℤ, (∑ a ∈ s, x a * a) = s.gcd id := by
+        intro s
         -- We can prove this by induction on the size of the set $s$.
-        induction' s using Finset.induction with a s ih;
-        · exact ⟨ fun _ => 0, by norm_num ⟩;
-        · obtain ⟨ x, hx ⟩ := ‹_›;
-          -- By Bézout's identity, there exist integers $u$ and $v$ such that $au + \gcd(s) \cdot v = \gcd(a, \gcd(s))$.
-          obtain ⟨u, v, huv⟩ : ∃ u v : ℤ, a * u + s.gcd id * v = Nat.gcd a (s.gcd id) := by
-            -- By Bézout's identity, there exist integers $u$ and $v$ such that $a * u + \gcd(s) * v = \gcd(a, \gcd(s))$.
-            have h_bezout : ∀ (a b : ℕ), ∃ u v : ℤ, a * u + b * v = Nat.gcd a b := by
-              exact fun a b => ⟨ Nat.gcdA a b, Nat.gcdB a b, by linarith [ Nat.gcd_eq_gcd_ab a b ] ⟩;
-            exact h_bezout a _;
-          use fun b => if b = a then u else if b ∈ s then v * x b else 0;
-          simp_all +decide [ Finset.sum_ite, Finset.filter_ne', Finset.filter_eq' ];
-          simp_all +decide [ mul_assoc, mul_comm];
-          simpa only [ ← Finset.mul_sum _ _ _, hx ] using huv;
-      simpa [ h_gcd ] using h_bezout A;
-    -- Let $u = \sum_{a \in A} x_a a$ and $v = \sum_{a \in A} y_a a$ where $y_a = x_a$ if $x_a \geq 0$ and $y_a = 0$ otherwise.
-    obtain ⟨u, v, hu, hv, huv⟩ : ∃ u v : ℕ, (∑ a ∈ A, (max (x a) 0) * a) = u ∧ (∑ a ∈ A, (max (-x a) 0) * a) = v ∧ u = v + 1 := by
-      have huv : ∑ a ∈ A, (max (x a) 0) * a - ∑ a ∈ A, (max (-x a) 0) * a = 1 := by
-        rw [ ← hx, ← Finset.sum_sub_distrib ] ; congr ; ext a ; cases max_cases ( x a ) 0 <;> cases max_cases ( -x a ) 0 <;> nlinarith;
-      exact ⟨ Int.toNat ( ∑ a ∈ A, Max.max ( x a ) 0 * ( a : ℤ ) ), Int.toNat ( ∑ a ∈ A, Max.max ( -x a ) 0 * ( a : ℤ ) ), by rw [ Int.toNat_of_nonneg ( Finset.sum_nonneg fun _ _ => mul_nonneg ( le_max_right _ _ ) ( Nat.cast_nonneg _ ) ) ], by rw [ Int.toNat_of_nonneg ( Finset.sum_nonneg fun _ _ => mul_nonneg ( le_max_right _ _ ) ( Nat.cast_nonneg _ ) ) ], by linarith [ Int.toNat_of_nonneg ( show 0 ≤ ∑ a ∈ A, Max.max ( x a ) 0 * ( a : ℤ ) from Finset.sum_nonneg fun _ _ => mul_nonneg ( le_max_right _ _ ) ( Nat.cast_nonneg _ ) ), Int.toNat_of_nonneg ( show 0 ≤ ∑ a ∈ A, Max.max ( -x a ) 0 * ( a : ℤ ) from Finset.sum_nonneg fun _ _ => mul_nonneg ( le_max_right _ _ ) ( Nat.cast_nonneg _ ) ) ] ⟩;
-    refine' ⟨ u, v, _, _, huv ⟩ <;> simp_all +decide [ AddSubmonoid.mem_closure ];
-    · intro S hS; exact (by
-      convert S.sum_mem fun a ha => S.nsmul_mem ( hS ha ) ( Max.max ( x a ) 0 |> Int.toNat ) using 1 ; norm_num [ ← @Nat.cast_inj ℤ ] ; aesop;);
-    · intro S hS;
-      convert S.sum_mem fun a ha => S.nsmul_mem ( hS ha ) ( Int.toNat ( Max.max ( -x a ) 0 ) ) using 1;
-      rw [ ← @Nat.cast_inj ℤ ] ; aesop
+        induction s using Finset.induction with
+        | empty =>
+        · exact ⟨ fun _ => 0, by norm_num ⟩
+        | @insert a s ha ih =>
+          obtain ⟨ x, hx ⟩ := ih
+          -- By Bézout's identity, there exist integers $u$ and $v$ such that
+          -- $a u + \gcd(s) v = \gcd(a,\gcd(s))$.
+          obtain ⟨u, v, huv⟩ :
+              ∃ u v : ℤ, a * u + s.gcd id * v = Nat.gcd a (s.gcd id) := by
+            have h_bezout :
+                ∀ (a b : ℕ), ∃ u v : ℤ, a * u + b * v = Nat.gcd a b := by
+              exact fun a b =>
+                ⟨ Nat.gcdA a b, Nat.gcdB a b, by
+                  linarith [Nat.gcd_eq_gcd_ab a b] ⟩
+            exact h_bezout a _
+          use fun b => if b = a then u else if b ∈ s then v * x b else 0
+          simp_all +decide [Finset.sum_ite, Finset.filter_ne', Finset.filter_eq']
+          simp_all +decide [mul_assoc, mul_comm]
+          simpa only [← Finset.mul_sum _ _ _, hx] using huv
+      simpa [h_gcd] using h_bezout A
+    -- Split the integer coefficients into positive and negative parts.
+    obtain ⟨u, v, hu, hv, huv⟩ :
+        ∃ u v : ℕ, (∑ a ∈ A, (max (x a) 0) * a) = u ∧
+          (∑ a ∈ A, (max (-x a) 0) * a) = v ∧ u = v + 1 := by
+      have huv :
+          ∑ a ∈ A, (max (x a) 0) * a -
+              ∑ a ∈ A, (max (-x a) 0) * a =
+            1 := by
+        rw [← hx, ← Finset.sum_sub_distrib]
+        congr
+        ext a
+        cases max_cases (x a) 0 <;> cases max_cases (-x a) 0 <;> nlinarith
+      exact ⟨
+        Int.toNat (∑ a ∈ A, Max.max (x a) 0 * (a : ℤ)),
+        Int.toNat (∑ a ∈ A, Max.max (-x a) 0 * (a : ℤ)),
+        by
+          rw [Int.toNat_of_nonneg
+            (Finset.sum_nonneg fun _ _ =>
+              mul_nonneg (le_max_right _ _) (Nat.cast_nonneg _))],
+        by
+          rw [Int.toNat_of_nonneg
+            (Finset.sum_nonneg fun _ _ =>
+              mul_nonneg (le_max_right _ _) (Nat.cast_nonneg _))],
+        by
+          linarith [
+            Int.toNat_of_nonneg
+              (show 0 ≤ ∑ a ∈ A, Max.max (x a) 0 * (a : ℤ) from
+                Finset.sum_nonneg fun _ _ =>
+                  mul_nonneg (le_max_right _ _) (Nat.cast_nonneg _)),
+            Int.toNat_of_nonneg
+              (show 0 ≤ ∑ a ∈ A, Max.max (-x a) 0 * (a : ℤ) from
+                Finset.sum_nonneg fun _ _ =>
+                  mul_nonneg (le_max_right _ _) (Nat.cast_nonneg _))] ⟩
+    refine ⟨ u, v, ?_, ?_, huv ⟩ <;> simp_all +decide [AddSubmonoid.mem_closure]
+    · intro S hS
+      exact (by
+        convert
+          S.sum_mem fun a ha => S.nsmul_mem (hS ha) (Max.max (x a) 0 |> Int.toNat)
+          using 1
+        norm_num [← @Nat.cast_inj ℤ]
+        aesop)
+    · intro S hS
+      convert S.sum_mem fun a ha =>
+        S.nsmul_mem (hS ha) (Int.toNat (Max.max (-x a) 0)) using 1
+      rw [← @Nat.cast_inj ℤ]
+      aesop
 
-lemma exists_conductor_of_diff_one (A : Set ℕ) (u v : ℕ) (hu : u ∈ AddSubmonoid.closure A) (hv : v ∈ AddSubmonoid.closure A) (h_diff : u = v + 1) (hu_pos : u > 0) :
+lemma exists_conductor_of_diff_one (A : Set ℕ) (u v : ℕ)
+    (hu : u ∈ AddSubmonoid.closure A) (hv : v ∈ AddSubmonoid.closure A)
+    (h_diff : u = v + 1) (hu_pos : u > 0) :
   ∃ N, ∀ n ≥ N, n ∈ AddSubmonoid.closure A := by
-    -- Since $u$ and $v$ are in the closure of $A$, and $u = v + 1$, we can use induction to show that all larger integers are also in the closure.
-    use v * u + u + v + 1;
-    intro n hn;
-    -- By induction on $n$, we can show that for any $n \geq v * u + u + v + 1$, $n$ can be written as $k * u + m * v$ for some $k, m \geq 0$.
+    -- Since $u$ and $v$ are in the closure of $A$ and differ by one, all
+    -- sufficiently large integers are in the closure.
+    use v * u + u + v + 1
+    intro n hn
+    -- Show that large $n$ can be written as $k u + m v$ with natural
+    -- coefficients.
     have h_ind : ∀ n ≥ v * u + u + v + 1, ∃ k m : ℕ, n = k * u + m * v := by
       intros n hn
       obtain ⟨k, m, hkm⟩ : ∃ k m : ℤ, n = k * u + m * v := by
-        exact ⟨ n, -n, by nlinarith ⟩;
-      -- Since $k$ and $m$ are integers, we can choose $k' = k + tv$ and $m' = m - tu$ for some integer $t$ such that $k' \geq 0$ and $m' \geq 0$.
+        exact ⟨ n, -n, by nlinarith ⟩
+      -- Shift the integer coefficients to nonnegative representatives.
       obtain ⟨t, ht⟩ : ∃ t : ℤ, k + t * v ≥ 0 ∧ m - t * u ≥ 0 := by
-        by_cases hv_pos : v > 0;
-        · exact ⟨ - ( k / v ), by nlinarith [ Int.mul_ediv_add_emod k v, Int.emod_nonneg k ( by positivity : ( v : ℤ ) ≠ 0 ) ], by nlinarith [ Int.mul_ediv_add_emod k v, Int.emod_lt_of_pos k ( by positivity : ( v : ℤ ) > 0 ) ] ⟩;
+        by_cases hv_pos : v > 0
+        · exact ⟨ - (k / v),
+            by
+              nlinarith [Int.mul_ediv_add_emod k v,
+                Int.emod_nonneg k (by positivity : (v : ℤ) ≠ 0)],
+            by
+              nlinarith [Int.mul_ediv_add_emod k v,
+                Int.emod_lt_of_pos k (by positivity : (v : ℤ) > 0)] ⟩
         · have hv_zero : v = 0 := by omega
           have hu_one : u = 1 := by omega
           refine ⟨ m, ?_, ?_ ⟩
@@ -207,89 +329,160 @@ lemma exists_conductor_of_diff_one (A : Set ℕ) (u v : ℕ) (hu : u ∈ AddSubm
           · subst u
             subst v
             norm_num
-      exact ⟨ Int.toNat ( k + t * v ), Int.toNat ( m - t * u ), by nlinarith only [ Int.toNat_of_nonneg ht.1, Int.toNat_of_nonneg ht.2, hkm ] ⟩;
-    obtain ⟨ k, m, rfl ⟩ := h_ind n hn; exact AddSubmonoid.add_mem _ ( AddSubmonoid.nsmul_mem _ hu k ) ( AddSubmonoid.nsmul_mem _ hv m ) ;
+      exact ⟨ Int.toNat (k + t * v), Int.toNat (m - t * u), by
+        nlinarith only [Int.toNat_of_nonneg ht.1, Int.toNat_of_nonneg ht.2, hkm] ⟩
+    obtain ⟨ k, m, rfl ⟩ := h_ind n hn
+    exact AddSubmonoid.add_mem _
+      (AddSubmonoid.nsmul_mem _ hu k)
+      (AddSubmonoid.nsmul_mem _ hv m)
 
+-- The finite-complement proof uses context-wide simplification after contraposition.
+set_option linter.flexible false in
 lemma finite_compl_S (A : Finset ℕ) (h_gcd : Finset.gcd A id = 1) :
   (Set.univ \ (S (A : Set ℕ) : Set ℕ)).Finite := by
-    -- By definition of $S_k$, we know that $S(A)$ contains all sufficiently large integers.
-    have h_S_A_contains_all_large_integers : ∃ N, ∀ n ≥ N, n ∈ AddSubmonoid.closure (A : Set ℕ) := by
-      -- By the properties of the Frobenius number, since the gcd of A is 1, there exist two consecutive numbers u and v in the closure of A.
-      obtain ⟨u, v, hu, hv, huv⟩ : ∃ u v : ℕ, u ∈ AddSubmonoid.closure (A : Set ℕ) ∧ v ∈ AddSubmonoid.closure (A : Set ℕ) ∧ u = v + 1 := by
-        apply exists_u_v_diff_one A h_gcd;
-      apply exists_conductor_of_diff_one;
-      exacts [ hu, hv, huv, by linarith ];
-    refine Set.finite_iff_bddAbove.mpr ?_;
-    obtain ⟨ N, hN ⟩ := h_S_A_contains_all_large_integers;
-    use N;
-    intro n hn;
-    contrapose! hn;
-    simp +zetaDelta at *;
-    -- Since $n$ is in the additive submonoid closure of $A$, it is also in the additive subsemigroup closure of $A$.
-    have h_subsemigroup : ∀ n, n ∈ AddSubmonoid.closure (A : Set ℕ) → n > 0 → n ∈ AddSubsemigroup.closure (A : Set ℕ) := by
+    -- By definition of $S_k$, we know that $S(A)$ contains all sufficiently
+    -- large integers.
+    have h_S_A_contains_all_large_integers :
+        ∃ N, ∀ n ≥ N, n ∈ AddSubmonoid.closure (A : Set ℕ) := by
+      -- Since the gcd of $A$ is $1$, the closure contains consecutive numbers.
+      obtain ⟨u, v, hu, hv, huv⟩ :
+          ∃ u v : ℕ, u ∈ AddSubmonoid.closure (A : Set ℕ) ∧
+            v ∈ AddSubmonoid.closure (A : Set ℕ) ∧ u = v + 1 := by
+        apply exists_u_v_diff_one A h_gcd
+      apply exists_conductor_of_diff_one
+      exacts [ hu, hv, huv, by linarith ]
+    refine Set.finite_iff_bddAbove.mpr ?_
+    obtain ⟨ N, hN ⟩ := h_S_A_contains_all_large_integers
+    use N
+    intro n hn
+    contrapose! hn
+    simp +zetaDelta at *
+    -- A positive element of the additive submonoid closure lies in the additive
+    -- subsemigroup closure.
+    have h_subsemigroup :
+        ∀ n, n ∈ AddSubmonoid.closure (A : Set ℕ) → n > 0 →
+          n ∈ AddSubsemigroup.closure (A : Set ℕ) := by
       intro n hn hn_pos
-      induction' hn using AddSubmonoid.closure_induction with n hn ih;
-      · exact AddSubsemigroup.subset_closure hn;
-      · contradiction;
-      · by_cases hi : 0 < ih <;> by_cases hy : 0 < ‹_› <;> aesop;
-    exact h_subsemigroup n ( hN n hn.le ) ( pos_of_gt hn )
+      induction hn using AddSubmonoid.closure_induction with
+      | mem n hn =>
+        exact AddSubsemigroup.subset_closure hn
+      | zero =>
+        contradiction
+      | add x y hx hy ihx ihy =>
+        by_cases hx_pos : 0 < x <;> by_cases hy_pos : 0 < y <;> aesop
+    exact h_subsemigroup n (hN n hn.le) (pos_of_gt hn)
 
-lemma gaps_eventually_zero (A : Set ℕ) (n : ℕ) (hn : n ≥ 1) (h_finite : (Set.univ \ (S A : Set ℕ)).Finite) :
+-- The generated interval proof uses flexible simplification to expose bounds.
+set_option linter.flexible false in
+lemma gaps_eventually_zero (A : Set ℕ) (n : ℕ) (hn : n ≥ 1)
+    (h_finite : (Set.univ \ (S A : Set ℕ)).Finite) :
   ∃ M, ∀ m ≥ M, n - (S_k n (S A) (m + 1)).ncard = 0 := by
-    -- Since the set of non-representable numbers is finite, there exists a maximum element $M$ in this set.
+    -- Since the set of non-representable numbers is finite, it has an upper
+    -- bound.
     obtain ⟨M, hM⟩ : ∃ M, ∀ x ∈ Set.univ \ (S A : Set ℕ), x ≤ M := by
-      exact h_finite.bddAbove;
-    use M + n;
-    intro m hm; rw [ Set.ncard_def ] ;
-    rw [ show S_k n ( S A ) ( m + 1 ) = Set.Icc ( m * n + 1 ) ( ( m + 1 ) * n ) from ?_, Set.encard_eq_coe_toFinset_card ] ; norm_num;
-    · norm_cast ; simp +arith +decide [ add_mul ];
+      exact h_finite.bddAbove
+    use M + n
+    intro m hm
+    rw [Set.ncard_def]
+    rw [show
+        S_k n (S A) (m + 1) = Set.Icc (m * n + 1) ((m + 1) * n) from ?_,
+      Set.encard_eq_coe_toFinset_card]
+    · norm_num
+      · norm_cast
+        simp +arith +decide [add_mul]
     · ext x
-      simp [S_k];
-      exact fun hx₁ hx₂ => Classical.not_not.1 fun hx₃ => by nlinarith [ hM x ⟨ Set.mem_univ _, hx₃ ⟩ ] ;
+      simp [S_k]
+      exact fun hx₁ hx₂ => Classical.not_not.1 fun hx₃ => by
+        nlinarith [hM x ⟨ Set.mem_univ _, hx₃ ⟩]
 
-lemma count_eq_one_add_sum_gaps (A : Set ℕ) (n : ℕ) (hn : n ≥ 1) (h_sub : A ⊆ Set.Icc 1 n) (h_finite : (Set.univ \ (S A : Set ℕ)).Finite) :
+-- The generated union decomposition proof relies on flexible simplification in several set goals.
+set_option linter.flexible false in
+lemma count_eq_one_add_sum_gaps (A : Set ℕ) (n : ℕ) (hn : n ≥ 1)
+    (h_sub : A ⊆ Set.Icc 1 n) (h_finite : (Set.univ \ (S A : Set ℕ)).Finite) :
   non_representable_count A = 1 + ∑' m : ℕ, (n - (S_k n (S A) (m + 1)).ncard) := by
-    -- The complement of $S(A)$ can be written as the union of intervals $[kn+1, (k+1)n]$ for $k \geq 0$.
-    have h_union_intervals : Set.univ \ (S A : Set ℕ) = {0} ∪ ⋃ k : ℕ, (Set.Icc (k * n + 1) ((k + 1) * n)) \ (S_k n (S A) (k + 1)) := by
-      -- Any element in the complement of $S(A)$ is either $0$ or in one of the intervals $[kn+1, (k+1)n]$.
+    classical
+    -- The complement of $S(A)$ is the singleton `{0}` together with the
+    -- interval blocks.
+    have h_union_intervals :
+        Set.univ \ (S A : Set ℕ) =
+          {0} ∪ ⋃ k : ℕ,
+            (Set.Icc (k * n + 1) ((k + 1) * n)) \ (S_k n (S A) (k + 1)) := by
+      -- Any element in the complement is either `0` or in one of the interval
+      -- blocks `[kn+1, (k+1)n]`.
       ext x
-      simp [Set.mem_diff, Set.mem_Icc];
-      constructor <;> intro hx;
-      · by_cases hx_zero : x = 0 <;> simp_all +decide [ S_k ];
-        exact ⟨ ( x - 1 ) / n, by linarith [ Nat.div_mul_le_self ( x - 1 ) n, Nat.sub_add_cancel ( Nat.pos_of_ne_zero hx_zero ) ], by linarith [ Nat.div_add_mod ( x - 1 ) n, Nat.mod_lt ( x - 1 ) hn, Nat.sub_add_cancel ( Nat.pos_of_ne_zero hx_zero ) ] ⟩;
-      · rcases hx with ( rfl | ⟨ i, hi, hx ⟩ ) <;> simp_all +decide [ S_k ];
+      simp [Set.mem_diff, Set.mem_Icc]
+      constructor <;> intro hx
+      · by_cases hx_zero : x = 0 <;> simp_all +decide [S_k]
+        exact ⟨ (x - 1) / n,
+          by
+            linarith [Nat.div_mul_le_self (x - 1) n,
+              Nat.sub_add_cancel (Nat.pos_of_ne_zero hx_zero)],
+          by
+            linarith [Nat.div_add_mod (x - 1) n, Nat.mod_lt (x - 1) hn,
+              Nat.sub_add_cancel (Nat.pos_of_ne_zero hx_zero)] ⟩
+      · rcases hx with ( rfl | ⟨ i, hi, hx ⟩ ) <;> simp_all +decide [S_k]
         intro h_zero
-        obtain ⟨j, hj_pos, f, hf⟩ : ∃ j : ℕ, j ≥ 1 ∧ ∃ f : Fin j → ℕ, (∀ i, f i ∈ A) ∧ ∑ i, f i = 0 := by
-          exact mem_closure_iff_exists_sum.mp h_zero;
-        exact absurd ( hf.2 ▸ Finset.sum_pos ( fun i _ => h_sub ( hf.1 i ) |>.1 ) ⟨ ⟨ 0, hj_pos ⟩, Finset.mem_univ _ ⟩ ) ( by norm_num );
-    -- The cardinality of the union of intervals is the sum of the cardinalities of the intervals.
-    have h_card_union_intervals : (Set.univ \ (S A : Set ℕ)).ncard = 1 + ∑' k : ℕ, (Set.ncard ((Set.Icc (k * n + 1) ((k + 1) * n)) \ (S_k n (S A) (k + 1)))) := by
-      rw [ h_union_intervals, @Set.ncard_union_eq ];
-      · norm_num [ Set.ncard_eq_toFinset_card' ];
-        rw [ tsum_eq_sum ];
-        any_goals exact Finset.range ( h_finite.bddAbove.choose + 1 );
-        · rw [ show ( ⋃ k : ℕ, Set.Icc ( k * n + 1 ) ( ( k + 1 ) * n ) \ S_k n ( S A ) ( k + 1 ) ) = Finset.biUnion ( Finset.range ( h_finite.bddAbove.choose + 1 ) ) ( fun k => Finset.filter ( fun x => x ∉ S_k n ( S A ) ( k + 1 ) ) ( Finset.Icc ( k * n + 1 ) ( ( k + 1 ) * n ) ) ) from ?_, Set.ncard_coe_finset ];
-          · rw [ Finset.card_biUnion ];
+        obtain ⟨j, hj_pos, f, hf⟩ :
+            ∃ j : ℕ, j ≥ 1 ∧ ∃ f : Fin j → ℕ, (∀ i, f i ∈ A) ∧
+              ∑ i, f i = 0 := by
+          exact mem_closure_iff_exists_sum.mp h_zero
+        exact absurd
+          (hf.2 ▸
+            Finset.sum_pos (fun i _ => h_sub (hf.1 i) |>.1)
+              ⟨ ⟨ 0, hj_pos ⟩, Finset.mem_univ _ ⟩)
+          (by norm_num)
+    -- The cardinality of the union of intervals is the sum of the cardinalities
+    -- of the intervals.
+    have h_card_union_intervals :
+        (Set.univ \ (S A : Set ℕ)).ncard =
+          1 + ∑' k : ℕ,
+            Set.ncard ((Set.Icc (k * n + 1) ((k + 1) * n)) \
+              (S_k n (S A) (k + 1))) := by
+      rw [h_union_intervals, @Set.ncard_union_eq]
+      · norm_num [Set.ncard_eq_toFinset_card']
+        rw [tsum_eq_sum]
+        any_goals exact Finset.range (h_finite.bddAbove.choose + 1)
+        · rw [show
+              (⋃ k : ℕ,
+                  Set.Icc (k * n + 1) ((k + 1) * n) \
+                    S_k n (S A) (k + 1)) =
+                Finset.biUnion (Finset.range (h_finite.bddAbove.choose + 1))
+                  (fun k =>
+                    Finset.filter (fun x => x ∉ S_k n (S A) (k + 1))
+                      (Finset.Icc (k * n + 1) ((k + 1) * n))) from ?_,
+            Set.ncard_coe_finset]
+          · rw [Finset.card_biUnion]
             · apply Finset.sum_congr rfl
               intro b hb
-              rw [ ← Set.toFinset_card ]
+              rw [← Set.toFinset_card]
               apply congrArg Finset.card
               ext x
               simp [Set.mem_diff]
-            · intros k hk l hl hkl; simp_all +decide [ Finset.disjoint_left ];
-              exact fun x hx₁ hx₂ hx₃ hx₄ hx₅ => False.elim <| hkl <| by nlinarith;
-          · ext x; simp
-            constructor;
-            · rintro ⟨ i, hi, hi' ⟩;
+            · intros k hk l hl hkl
+              simp_all +decide [Finset.disjoint_left]
+              exact fun x hx₁ hx₂ hx₃ hx₄ hx₅ => False.elim <| hkl <| by nlinarith
+          · ext x
+            simp
+            constructor
+            · rintro ⟨ i, hi, hi' ⟩
               have hx_le : x ≤ h_finite.bddAbove.choose := by
-                exact h_finite.bddAbove.choose_spec ( show x ∈ Set.univ \ ( S A : Set ℕ ) from
-                  h_union_intervals.symm.subset <| Or.inr <| Set.mem_iUnion.mpr ⟨ i, ⟨⟨ Nat.succ_le_of_lt hi.1, hi.2 ⟩, hi' ⟩ ⟩ )
+                exact h_finite.bddAbove.choose_spec
+                  (show x ∈ Set.univ \ (S A : Set ℕ) from
+                    h_union_intervals.symm.subset <|
+                      Or.inr <|
+                        Set.mem_iUnion.mpr
+                          ⟨ i, ⟨⟨ Nat.succ_le_of_lt hi.1, hi.2 ⟩, hi' ⟩ ⟩)
               have hi_le : i ≤ h_finite.bddAbove.choose := by
-                exact Nat.le_trans (Nat.le_of_lt (Nat.lt_of_le_of_lt (Nat.le_mul_of_pos_right i hn) hi.1)) hx_le
-              exact ⟨ i, hi, hi_le, hi' ⟩;
-            · exact fun ⟨ i, hi₁, hi₂, hi₃ ⟩ => ⟨ i, hi₁, hi₃ ⟩;
-        · intro k hk; rw [ ← Set.toFinset_card, Finset.card_eq_zero ] ;
-          ext x; constructor
+                exact Nat.le_trans
+                  (Nat.le_of_lt
+                    (Nat.lt_of_le_of_lt (Nat.le_mul_of_pos_right i hn) hi.1))
+                  hx_le
+              exact ⟨ i, hi, hi_le, hi' ⟩
+            · exact fun ⟨ i, hi₁, hi₂, hi₃ ⟩ => ⟨ i, hi₁, hi₃ ⟩
+        · intro k hk
+          rw [← Set.toFinset_card, Finset.card_eq_zero]
+          ext x
+          constructor
           · intro hx
             have hx_set : x ∈ Set.Icc (k * n + 1) ((k + 1) * n) \ S_k n (S A) (k + 1) := by
               simpa using (Set.mem_toFinset.mp hx)
@@ -306,63 +499,93 @@ lemma count_eq_one_add_sum_gaps (A : Set ℕ) (n : ℕ) (hn : n ≥ 1) (h_sub : 
             exact (hk (Finset.mem_range.2 (Nat.lt_succ_of_le hk_le))).elim
           · intro hx
             simp at hx
-      · norm_num [ Set.disjoint_left ];
-      · norm_num;
-      · exact h_finite.subset ( h_union_intervals.symm ▸ Set.subset_union_right );
-    -- The cardinality of each interval is $n$, and the cardinality of the subset of representable numbers in each interval is $|S_k|$.
-    have h_card_interval : ∀ k : ℕ, (Set.ncard ((Set.Icc (k * n + 1) ((k + 1) * n)) \ (S_k n (S A) (k + 1)))) = n - (Set.ncard (S_k n (S A) (k + 1))) := by
-      intro k; rw [ Set.ncard_diff _ _ ] ; norm_num [ add_mul, hn ] ;
-      · omega;
-      · exact Set.inter_subset_right.trans ( by norm_num [ add_mul ] );
-      · exact Set.Finite.subset ( Set.finite_Icc _ _ ) fun x hx => hx.2;
-    simpa only [ h_card_interval ] using h_card_union_intervals
+      · norm_num [Set.disjoint_left]
+      · norm_num
+      · exact h_finite.subset (h_union_intervals.symm ▸ Set.subset_union_right)
+    -- Each interval has cardinality $n$, so subtract the representable part.
+    have h_card_interval :
+        ∀ k : ℕ,
+          Set.ncard ((Set.Icc (k * n + 1) ((k + 1) * n)) \
+              (S_k n (S A) (k + 1))) =
+            n - Set.ncard (S_k n (S A) (k + 1)) := by
+      intro k
+      rw [Set.ncard_diff _ _]
+      · norm_num [add_mul, hn]
+        omega
+      · exact Set.inter_subset_right.trans (by norm_num [add_mul])
+      · exact Set.Finite.subset (Set.finite_Icc _ _) fun x hx => hx.2
+    simpa only [h_card_interval] using h_card_union_intervals
 
-lemma summable_gaps (A : Set ℕ) (n : ℕ) (hn : n ≥ 1) (h_finite : (Set.univ \ (S A : Set ℕ)).Finite) :
+lemma summable_gaps (A : Set ℕ) (n : ℕ) (hn : n ≥ 1)
+    (h_finite : (Set.univ \ (S A : Set ℕ)).Finite) :
   Summable (fun m : ℕ => n - (S_k n (S A) (m + 1)).ncard) := by
-    have h_eventually_zero : ∃ M, ∀ m ≥ M, (n - (S_k n (S A) (m + 1)).ncard) = 0 := by
+    have h_eventually_zero :
+        ∃ M, ∀ m ≥ M, (n - (S_k n (S A) (m + 1)).ncard) = 0 := by
       -- Apply the lemma `gaps_eventually_zero` with the given hypotheses.
-      apply gaps_eventually_zero A n hn h_finite;
-    -- Apply the fact that if the terms of the series are eventually zero, then the series is summable.
-    obtain ⟨M, hM⟩ := h_eventually_zero;
+      apply gaps_eventually_zero A n hn h_finite
+    -- If the terms of the series are eventually zero, the series is summable.
+    obtain ⟨M, hM⟩ := h_eventually_zero
     have h_summable : Summable (fun m : ℕ => n - (S_k n (S A) (m + 1)).ncard) := by
       have h_finite : Set.Finite {m : ℕ | n - (S_k n (S A) (m + 1)).ncard ≠ 0} := by
-        exact Set.finite_iff_bddAbove.mpr ⟨ M, fun m hm => not_lt.1 fun contra => hm <| hM m contra.le ⟩
-      -- Apply the fact that if the set of non-zero terms is finite, then the series is summable.
-      apply summable_of_hasFiniteSupport; exact h_finite;
+        exact Set.finite_iff_bddAbove.mpr
+          ⟨ M, fun m hm => not_lt.1 fun contra => hm <| hM m contra.le ⟩
+      -- If the set of non-zero terms is finite, the series is summable.
+      apply summable_of_hasFiniteSupport
+      exact h_finite
     convert h_summable using 1
 
 lemma gaps_le_gaps_opt (n k : ℕ) (hk : 1 ≤ k) (hn : k ≤ n) (A : Finset ℕ)
-  (hA_sub : (A : Set ℕ) ⊆ Set.Icc 1 n) (hA_card : A.card = k) (hA_gcd : Finset.gcd A id = 1) (m : ℕ) :
+  (hA_sub : (A : Set ℕ) ⊆ Set.Icc 1 n) (hA_card : A.card = k)
+  (hA_gcd : Finset.gcd A id = 1) (m : ℕ) :
   (S_k n (S (A_opt n k : Set ℕ)) (m + 1)).ncard ≤ (S_k n (S A) (m + 1)).ncard := by
-    have h_diff : (S_k n (S A) (m + 1)).ncard ≥ min n ((m + 1) * k - (m + 1) + 1) := by
-      convert theorem_2 n k A hA_sub hA_card hA_gcd ( m + 1 ) ( Nat.succ_pos m ) using 1;
-    convert h_diff.le using 1;
-    convert card_S_k_A_opt n k ( m + 1 ) ( by linarith ) ( by linarith ) ( by linarith ) using 1;
-    rw [ Nat.mul_sub_left_distrib, Nat.mul_one ]
+    have h_diff :
+        (S_k n (S A) (m + 1)).ncard ≥ min n ((m + 1) * k - (m + 1) + 1) := by
+      convert theorem_2 n k A hA_sub hA_card hA_gcd (m + 1) (Nat.succ_pos m)
+        using 1
+    convert h_diff.le using 1
+    convert card_S_k_A_opt n k (m + 1) (by linarith) (by linarith) (by linarith)
+      using 1
+    rw [Nat.mul_sub_left_distrib, Nat.mul_one]
 
-lemma gcd_A_opt_eq_one (n k : ℕ) (hk : k ≥ 2) (hn : k ≤ n) : Finset.gcd (A_opt n k) id = 1 := by
+lemma gcd_A_opt_eq_one (n k : ℕ) (hk : k ≥ 2) (hn : k ≤ n) :
+  Finset.gcd (A_opt n k) id = 1 := by
   -- Since $A_{\text{opt}}(n, k)$ contains consecutive integers, their gcd is 1.
   have h_consecutive : ∀ m : ℕ, Finset.gcd (Finset.Icc m (m + k - 1)) id = 1 := by
     intro m
-    have h_consecutive : ∃ x ∈ Finset.Icc m (m + k - 1), ∃ y ∈ Finset.Icc m (m + k - 1), x = y + 1 := by
-      exact ⟨ m + 1, Finset.mem_Icc.mpr ⟨ by linarith, Nat.le_sub_one_of_lt <| by linarith ⟩, m, Finset.mem_Icc.mpr ⟨ by linarith, Nat.le_sub_one_of_lt <| by linarith ⟩, rfl ⟩;
-    obtain ⟨ x, hx, y, hy, rfl ⟩ := h_consecutive;
-    refine' Nat.dvd_one.mp ( Nat.dvd_gcd ( Finset.gcd_dvd hx ) ( Finset.gcd_dvd hy ) |> fun h => h.trans ( by simp +decide ) );
-  convert h_consecutive ( n - k + 1 ) using 1;
-  unfold A_opt; aesop;
+    have h_consecutive :
+        ∃ x ∈ Finset.Icc m (m + k - 1),
+          ∃ y ∈ Finset.Icc m (m + k - 1), x = y + 1 := by
+      exact ⟨ m + 1,
+        Finset.mem_Icc.mpr ⟨ by linarith, Nat.le_sub_one_of_lt <| by linarith ⟩,
+        m,
+        Finset.mem_Icc.mpr ⟨ by linarith, Nat.le_sub_one_of_lt <| by linarith ⟩,
+        rfl ⟩
+    obtain ⟨ x, hx, y, hy, rfl ⟩ := h_consecutive
+    exact Nat.dvd_one.mp
+      (Nat.dvd_gcd (Finset.gcd_dvd hx) (Finset.gcd_dvd hy) |> fun h =>
+        h.trans (by simp +decide))
+  convert h_consecutive (n - k + 1) using 1
+  unfold A_opt
+  aesop
 
 lemma finite_compl_S_A_opt (n k : ℕ) (hk : k ≥ 2) (hn : k ≤ n) :
   (Set.univ \ (S (A_opt n k : Set ℕ) : Set ℕ)).Finite := by
-    convert finite_compl_S  _ _;
-    · -- Since $k \geq 2$, the set $A_{\text{opt}}$ contains consecutive integers, ensuring that the gcd is 1.
-      apply gcd_A_opt_eq_one n k hk hn;
+    convert finite_compl_S  _ _
+    · -- Since $k \geq 2$, the set $A_{\text{opt}}$ contains consecutive
+      -- integers, ensuring that the gcd is 1.
+      apply gcd_A_opt_eq_one n k hk hn
 
 lemma sum_gaps_le (n k : ℕ) (hk : 1 ≤ k) (hn : k ≤ n) (A : Finset ℕ)
-  (hA_sub : (A : Set ℕ) ⊆ Set.Icc 1 n) (hA_card : A.card = k) (hA_gcd : Finset.gcd A id = 1)
+  (hA_sub : (A : Set ℕ) ⊆ Set.Icc 1 n) (hA_card : A.card = k)
+  (hA_gcd : Finset.gcd A id = 1)
   (h_finite_opt : (Set.univ \ (S (A_opt n k : Set ℕ) : Set ℕ)).Finite) :
-  ∑' m : ℕ, (n - (S_k n (S A) (m + 1)).ncard) ≤ ∑' m : ℕ, (n - (S_k n (S (A_opt n k : Set ℕ)) (m + 1)).ncard) := by
+  ∑' m : ℕ, (n - (S_k n (S A) (m + 1)).ncard) ≤
+    ∑' m : ℕ, (n - (S_k n (S (A_opt n k : Set ℕ)) (m + 1)).ncard) := by
     -- We have term-wise inequality of the gaps.
-    have h_term_le : ∀ m : ℕ, (n - (S_k n (S A) (m + 1)).ncard) ≤ (n - (S_k n (S (A_opt n k : Set ℕ)) (m + 1)).ncard) := by
+    have h_term_le :
+        ∀ m : ℕ,
+          (n - (S_k n (S A) (m + 1)).ncard) ≤
+            (n - (S_k n (S (A_opt n k : Set ℕ)) (m + 1)).ncard) := by
       intro m
       apply Nat.sub_le_sub_left
       apply gaps_le_gaps_opt n k hk hn A hA_sub hA_card hA_gcd m
@@ -370,18 +593,23 @@ lemma sum_gaps_le (n k : ℕ) (hk : 1 ≤ k) (hn : k ≤ n) (A : Finset ℕ)
     have h_summable_A : Summable (fun m : ℕ => n - (S_k n (S A) (m + 1)).ncard) := by
       apply summable_gaps A n (by linarith)
       apply finite_compl_S A hA_gcd
-    have h_summable_opt : Summable (fun m : ℕ => n - (S_k n (S (A_opt n k : Set ℕ)) (m + 1)).ncard) := by
+    have h_summable_opt :
+        Summable (fun m : ℕ =>
+          n - (S_k n (S (A_opt n k : Set ℕ)) (m + 1)).ncard) := by
       apply summable_gaps (A_opt n k) n (by linarith) h_finite_opt
     -- Apply the comparison test for series.
     apply Summable.tsum_le_tsum h_term_le h_summable_A h_summable_opt
 
 
 /-
-Let k ≤ n and k ≥ 2. The choice of A ⊆ {1, ..., n} (with gcd(A) = 1) of size |A| = k which maximises the number of integers not representable as the sum of finitely many elements from A is A = {n, n-1, ..., n-k+1}.
+Let k ≤ n and k ≥ 2. The choice of A ⊆ {1, ..., n} (with gcd(A) = 1) of
+size |A| = k which maximises the number of integers not representable as the
+sum of finitely many elements from A is A = {n, n-1, ..., n-k+1}.
 -/
 theorem main_theorem_final (n k : ℕ) (hk : k ≤ n) (hk_ge_2 : k ≥ 2) :
-  ∀ A : Finset ℕ, (A : Set ℕ) ⊆ Set.Icc 1 n → A.card = k → Finset.gcd A id = 1 →
-  non_representable_count A ≤ non_representable_count (A_opt n k) := by
+  ∀ A : Finset ℕ, (A : Set ℕ) ⊆ Set.Icc 1 n → A.card = k →
+    Finset.gcd A id = 1 →
+    non_representable_count A ≤ non_representable_count (A_opt n k) := by
   intro A hA_sub hA_card hA_gcd
   have hn_ge_1 : n ≥ 1 := by
     apply le_trans _ hk
@@ -393,7 +621,8 @@ theorem main_theorem_final (n k : ℕ) (hk : k ≤ n) (hk_ge_2 : k ≥ 2) :
     simp at this
     linarith
   have h_finite_A : (Set.univ \ (S A : Set ℕ)).Finite := finite_compl_S A hA_gcd
-  have h_finite_opt : (Set.univ \ (S (A_opt n k : Set ℕ) : Set ℕ)).Finite := finite_compl_S_A_opt n k hk_ge_2 hk
+  have h_finite_opt : (Set.univ \ (S (A_opt n k : Set ℕ) : Set ℕ)).Finite :=
+    finite_compl_S_A_opt n k hk_ge_2 hk
   have h_opt_sub : (A_opt n k : Set ℕ) ⊆ Set.Icc 1 n := by
     intro x hx
     rw [A_opt, Finset.coe_Icc, Set.mem_Icc] at hx
@@ -408,8 +637,8 @@ theorem main_theorem_final (n k : ℕ) (hk : k ≤ n) (hk_ge_2 : k ≥ 2) :
   apply sum_gaps_le n k _ hk A hA_sub hA_card hA_gcd h_finite_opt
   linarith
 
-#print axioms main_theorem_final
+end Erdos434
+
+#print axioms Erdos434.main_theorem_final
 -- 'Erdos434.main_theorem_final' depends on axioms: [propext, Classical.choice,
 -- Finset.add_kneser, Quot.sound]
-
-end Erdos434
