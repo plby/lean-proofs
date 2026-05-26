@@ -30,11 +30,7 @@ Trust boundary, verified at the bottom with `#print axioms`:
 import Mathlib
 
 set_option autoImplicit false
-set_option linter.style.setOption false
 set_option linter.unusedDecidableInType false
-set_option linter.style.show false
-set_option linter.flexible false
-set_option linter.style.cdot false
 
 
 
@@ -2366,7 +2362,7 @@ theorem muP_upClosure_single (X T₀ : Finset α) (hT₀ : T₀ ⊆ X) {p : ℝ}
           have := hS₀T
           rw [hS₀eq] at this
           exact this
-        show T₀ ∪ (T \ T₀) = T
+        change T₀ ∪ (T \ T₀) = T
         ext x
         constructor
         · intro hx
@@ -2393,9 +2389,9 @@ theorem muP_upClosure_single (X T₀ : Finset α) (hT₀ : T₀ ⊆ X) {p : ℝ}
       Finset.card_union_of_disjoint hdisj
     have hsum_eq : X.card - (T₀.card + S'.card) = Y.card - S'.card := by
       rw [hY_card]; omega
-    show p ^ (f S').card * (1 - p) ^ (X.card - (f S').card)
+    change p ^ (f S').card * (1 - p) ^ (X.card - (f S').card)
         = p ^ T₀.card * (p ^ S'.card * (1 - p) ^ (Y.card - S'.card))
-    show p ^ (T₀ ∪ S').card * (1 - p) ^ (X.card - (T₀ ∪ S').card)
+    change p ^ (T₀ ∪ S').card * (1 - p) ^ (X.card - (T₀ ∪ S').card)
         = p ^ T₀.card * (p ^ S'.card * (1 - p) ^ (Y.card - S'.card))
     rw [hcard, hsum_eq, pow_add, mul_assoc]
   -- Apply hkey, factor out p^|T₀|, and use sum_bernoulliMass_eq_one on Y.
@@ -7720,9 +7716,13 @@ lemma pvSnocPowerCutoff_tail (a n : ℕ) :
       pvSnocPowerCutoff (a + 1) n := by
   funext i
   have hi : i.1 ≤ n := Nat.lt_succ_iff.mp i.2
-  simp [pvSnocPowerCutoff]
-  have hsub : n + 1 - i.1 = n - i.1 + 1 := by omega
+  simp only [pvSnocPowerCutoff]
+  have hcast : i.castSucc.1 = i.1 := rfl
+  have hsub : n + 1 - i.castSucc.1 = n - i.1 + 1 := by
+    rw [hcast]
+    omega
   rw [hsub]
+  congr 1
   omega
 
 lemma pvSnocPowerCutoff_last (a n : ℕ) :
@@ -9934,8 +9934,7 @@ noncomputable def colorPartFiberEquiv {X T : Finset α} (hTX : T ⊆ X)
       by_contra hxT
       have hg_ne : (g ⟨x.1, Finset.mem_sdiff.2 ⟨x.2, hxT⟩⟩).1 ≠ i :=
         (g ⟨x.1, Finset.mem_sdiff.2 ⟨x.2, hxT⟩⟩).2
-      simp [hxT] at hxcolor
-      exact hg_ne hxcolor
+      exact hg_ne (by simpa [hxT] using hxcolor)
   left_inv c := by
     ext x
     by_cases hxT : x.1 ∈ T
@@ -10393,7 +10392,7 @@ the Erdős–Lovász / minimal-family loss in the BFV descending chain.
 
 This file:
   * states the finite combinatorial spread-disjointness consequence of
-    Park–Pham (Kahn–Kalai) as a derived theorem;
+    Park–Pham (Kahn–Kalai) as a derived theorem.
   * derives the dense-core corollary used downstream.
 
 Park–Pham theorem reference: arXiv:2203.17207. We do NOT formalize the full
@@ -10847,13 +10846,14 @@ lemma squarefree_recip_sum_le_euler_product
   have hinj :
       ∀ d ∈ S, ∀ e ∈ S, primeSupport d = primeSupport e → d = e := by
     intro d hd e he hsupport
-    simp [S] at hd he
+    have hdS := Finset.mem_filter.mp hd
+    have heS := Finset.mem_filter.mp he
     have hdprod : ∏ p ∈ primeSupport d, p = d := by
       rw [primeSupport_eq_primeFactors]
-      exact Nat.prod_primeFactors_of_squarefree hd.2
+      exact Nat.prod_primeFactors_of_squarefree hdS.2
     have heprod : ∏ p ∈ primeSupport e, p = e := by
       rw [primeSupport_eq_primeFactors]
-      exact Nat.prod_primeFactors_of_squarefree he.2
+      exact Nat.prod_primeFactors_of_squarefree heS.2
     calc
       d = ∏ p ∈ primeSupport d, p := hdprod.symm
       _ = ∏ p ∈ primeSupport e, p := by rw [hsupport]
@@ -10862,8 +10862,8 @@ lemma squarefree_recip_sum_le_euler_product
     intro T hT
     rw [Finset.mem_powerset]
     rcases Finset.mem_image.mp hT with ⟨d, hdS, rfl⟩
-    simp [S] at hdS
-    have hdIcc := hdS.1
+    have hdS' := Finset.mem_filter.mp hdS
+    have hdIcc := Finset.mem_Icc.mp hdS'.1
     exact primeSupport_subset_primesUpTo_of_le hdIcc.1 hdIcc.2
   have hterm_nonneg :
       ∀ T ∈ P.powerset, 0 ≤ term T := by
@@ -10872,8 +10872,8 @@ lemma squarefree_recip_sum_le_euler_product
     refine Finset.prod_nonneg ?_
     intro p hpT
     have hpP : p ∈ P := hT hpT
-    simp [P] at hpP
-    have hpPrime : Nat.Prime p := hpP.2
+    have hpP' := Finset.mem_filter.mp hpP
+    have hpPrime : Nat.Prime p := hpP'.2
     exact div_nonneg hz (by exact_mod_cast hpPrime.pos.le)
   calc
     (∑ d ∈ (Finset.Icc 1 y).filter Squarefree, z ^ omega d / (d : ℝ))
@@ -10881,8 +10881,8 @@ lemma squarefree_recip_sum_le_euler_product
           apply Finset.sum_congr
           · simp [S]
           · intro d hd
-            simp [S] at hd
-            exact squarefree_zpow_omega_div_eq_primeSupport_prod z hd.2
+            exact squarefree_zpow_omega_div_eq_primeSupport_prod z
+              (Finset.mem_filter.mp hd).2
     _ = ∑ T ∈ S.image primeSupport, term T := by
           rw [Finset.sum_image]
           intro d hd e he hsupport
@@ -11008,8 +11008,9 @@ lemma reciprocal_prime_sum_Ico_pow_two_le (k : ℕ) :
   have hdenpos : 0 < (((2 ^ k : ℕ) : ℝ)) := by positivity
   have hpoint : ∀ p ∈ S, (1 : ℝ) / (p : ℝ) ≤ 1 / ((2 ^ k : ℕ) : ℝ) := by
     intro p hp
-    simp [S] at hp
-    have hlow_nat : 2 ^ k ≤ p := hp.1.1
+    have hpS := Finset.mem_filter.mp hp
+    have hpIco := Finset.mem_Ico.mp hpS.1
+    have hlow_nat : 2 ^ k ≤ p := hpIco.1
     have hlow : (((2 ^ k : ℕ) : ℝ)) ≤ (p : ℝ) := by exact_mod_cast hlow_nat
     exact one_div_le_one_div_of_le hdenpos hlow
   have hcard_le :
@@ -11017,11 +11018,11 @@ lemma reciprocal_prime_sum_Ico_pow_two_le (k : ℕ) :
     rw [← primeCounting_eq_card_Icc_filter_prime]
     refine Finset.card_le_card ?_
     intro p hp
-    simp [S] at hp
-    rw [Finset.mem_filter]
-    have hpIco := hp.1
-    have hpPrime : Nat.Prime p := hp.2
-    exact ⟨Finset.mem_Icc.mpr ⟨hpPrime.one_le, hpIco.2.le⟩, hpPrime⟩
+    have hpS := Finset.mem_filter.mp hp
+    have hpIco := Finset.mem_Ico.mp hpS.1
+    have hpPrime : Nat.Prime p := hpS.2
+    exact Finset.mem_filter.mpr
+      ⟨Finset.mem_Icc.mpr ⟨hpPrime.one_le, hpIco.2.le⟩, hpPrime⟩
   calc
     (∑ p ∈ (Finset.Ico (2 ^ k) (2 ^ (k + 1))).filter Nat.Prime,
         (1 : ℝ) / (p : ℝ))
@@ -11160,8 +11161,10 @@ lemma reciprocal_prime_sum_le_dyadic_harmonic
   let T : Finset ℕ := Finset.Icc 0 (Nat.log 2 N)
   have hmaps : ∀ p ∈ S, Nat.log 2 p ∈ T := by
     intro p hp
-    simp [S, T] at hp ⊢
-    exact Nat.log_mono_right hp.1.2
+    have hpS := Finset.mem_filter.mp hp
+    have hpIcc := Finset.mem_Icc.mp hpS.1
+    exact Finset.mem_Icc.mpr
+      ⟨Nat.zero_le _, Nat.log_mono_right hpIcc.2⟩
   have hdecomp :
       ∑ k ∈ T, ∑ p ∈ S.filter (fun p => Nat.log 2 p = k),
           (1 : ℝ) / (p : ℝ)
@@ -11176,13 +11179,17 @@ lemma reciprocal_prime_sum_le_dyadic_harmonic
     intro k hk
     refine Finset.sum_le_sum_of_subset_of_nonneg ?_ ?_
     · intro p hp
-      simp [S] at hp ⊢
-      have hpPrime : Nat.Prime p := hp.1.2
+      have hpFilter := Finset.mem_filter.mp hp
+      have hpS := Finset.mem_filter.mp hpFilter.1
+      have hpPrime : Nat.Prime p := hpS.2
       have hpne : p ≠ 0 := hpPrime.ne_zero
-      have hlog : Nat.log 2 p = k := hp.2
-      exact ⟨⟨by simpa [hlog] using Nat.pow_log_le_self 2 hpne,
-        by simpa [hlog, Nat.succ_eq_add_one] using
-          Nat.lt_pow_succ_log_self Nat.one_lt_two p⟩, hpPrime⟩
+      have hlog : Nat.log 2 p = k := hpFilter.2
+      exact Finset.mem_filter.mpr
+        ⟨Finset.mem_Ico.mpr
+          ⟨by simpa [hlog] using Nat.pow_log_le_self 2 hpne,
+            by simpa [hlog, Nat.succ_eq_add_one] using
+              Nat.lt_pow_succ_log_self Nat.one_lt_two p⟩,
+          hpPrime⟩
     · intro p hp _hnot
       exact div_nonneg zero_le_one (by positivity)
   have hsum_blocks :
@@ -11355,24 +11362,25 @@ theorem omega_weighted_sum_euler_mertens :
   let PN : Finset ℕ := (Finset.Icc 1 N).filter Nat.Prime
   have hPy_subset : Py ⊆ PN := by
     intro p hp
-    simp [Py, PN] at hp ⊢
-    exact ⟨⟨hp.1.1, hp.1.2.trans hy⟩, hp.2⟩
+    have hpPy := Finset.mem_filter.mp hp
+    have hpIcc := Finset.mem_Icc.mp hpPy.1
+    exact Finset.mem_filter.mpr
+      ⟨Finset.mem_Icc.mpr ⟨hpIcc.1, hpIcc.2.trans hy⟩, hpPy.2⟩
   have hsum_y_le_N :
       Py.sum (fun p : ℕ => (1 : ℝ) / (p : ℝ)) ≤
         PN.sum (fun p : ℕ => (1 : ℝ) / (p : ℝ)) := by
     exact Finset.sum_le_sum_of_subset_of_nonneg hPy_subset
       (by
         intro p hpN _hpnot
-        simp [PN] at hpN
-        exact div_nonneg zero_le_one (by exact_mod_cast hpN.2.pos.le))
+        have hpN' := Finset.mem_filter.mp hpN
+        exact div_nonneg zero_le_one (by exact_mod_cast hpN'.2.pos.le))
   have hsum_y_bound :
       Py.sum (fun p : ℕ => (1 : ℝ) / (p : ℝ)) ≤
         A * Real.log (Real.log (N : ℝ)) + C := by
     exact hsum_y_le_N.trans (by simpa [PN] using hMertensN)
   have hpos_p : ∀ p ∈ Py, 0 < (p : ℝ) := by
     intro p hp
-    simp [Py] at hp
-    exact_mod_cast hp.2.pos
+    exact_mod_cast (Finset.mem_filter.mp hp).2.pos
   have hprod_exp :
       Py.prod (fun p : ℕ => (1 : ℝ) + BFVz N / (p : ℝ)) ≤
         Real.exp (BFVz N *
@@ -12477,8 +12485,8 @@ This file is a non-consuming scaffold for replacing the current fixed-root
 lower construction in `LowerConstruction.lean`.  The key point is the BFV
 source scale:
 
-* roughly `2 * M(N)` prime blocks;
-* logarithmic gap about `(1 / 2) * log log N - sqrt (log log N)`;
+* roughly `2 * M(N)` prime blocks,
+* logarithmic gap about `(1 / 2) * log log N - sqrt (log log N)`,
 * exact normalization `prod_i (2 * Y_i) = N`.
 
 The existing rooted construction fixes a whole root block and is too small for
@@ -12569,7 +12577,7 @@ lemma lowerPathLogScale_sum (N : ℕ) :
       (lowerPathR N : ℝ) + 1 := by
     simp [lowerPathIndex]
   have hsum := lowerPathIndex_sum_val N
-  simp [lowerPathLogScale, lowerPathLogBase]
+  simp only [lowerPathLogScale, lowerPathLogBase]
   rw [Finset.sum_add_distrib, Finset.sum_const, nsmul_eq_mul, ← Finset.sum_mul]
   rw [hsum, hcard]
   have hden : (lowerPathR N : ℝ) + 1 ≠ 0 := by positivity
@@ -17096,7 +17104,7 @@ noncomputable def initialChainState (N : ℕ) (D : PrunedData N) : ChainState N 
 
 lemma initialChainState_room (N : ℕ) (D : PrunedData N) :
     (initialChainState N D).W < D.K := by
-  simp [initialChainState]
+  simp only [initialChainState]
   exact D.K_pos
 
 lemma initialChainState_r_zero (N : ℕ) (D : PrunedData N) :
@@ -18541,7 +18549,7 @@ lemma hExpMomentTerm_nonneg (s n : ℕ) :
   by_cases hn : n = 0
   · simp [hExpMomentTerm, hn]
   · have hnpos : 0 < (n : ℝ) := by exact_mod_cast Nat.pos_of_ne_zero hn
-    simp [hExpMomentTerm, hn]
+    rw [hExpMomentTerm, if_neg hn]
     exact div_nonneg (by positivity) hnpos.le
 
 lemma hExpMomentTerm_one (s : ℕ) : hExpMomentTerm s 1 = 1 := by
@@ -18959,7 +18967,7 @@ lemma hExp_moment_sum_le_squarefull_divisor_multiple_sum (N s : ℕ) :
           apply Finset.sum_congr rfl
           intro d hd
           by_cases hsq : IsSquarefull d
-          · simp [hsq]
+          · simp only [hsq, and_true]
             calc
               (∑ x ∈ Finset.Icc 1 N,
                   if d ∣ x then (hExp d : ℝ) ^ s else 0)
@@ -18969,7 +18977,7 @@ lemma hExp_moment_sum_le_squarefull_divisor_multiple_sum (N s : ℕ) :
               _ = (((Finset.Icc 1 N).filter fun n => d ∣ n).card : ℝ) *
                     (hExp d : ℝ) ^ s := by
                     simp [Finset.sum_const, nsmul_eq_mul]
-          · simp [hsq]
+          · simp only [hsq, and_false, if_false, Finset.sum_const_zero]
 
 lemma hExp_moment_sum_le_squarefull_recip_sum (N s : ℕ) :
     (∑ n ∈ Finset.Icc 1 N, (hExp n : ℝ) ^ s) ≤
@@ -18992,7 +19000,7 @@ lemma hExp_moment_sum_le_squarefull_recip_sum (N s : ℕ) :
           refine Finset.sum_le_sum ?_
           intro d hd
           by_cases hsq : IsSquarefull d
-          · simp [hsq]
+          · rw [if_pos hsq, if_pos hsq]
             have hdIcc := Finset.mem_Icc.mp hd
             have hdpos : 0 < d := lt_of_lt_of_le Nat.zero_lt_one hdIcc.1
             have hcard_nat :
@@ -19003,19 +19011,19 @@ lemma hExp_moment_sum_le_squarefull_recip_sum (N s : ℕ) :
                   (N : ℝ) / (d : ℝ) := by
               exact (Nat.cast_le.mpr hcard_nat).trans Nat.cast_div_le
             exact mul_le_mul_of_nonneg_right hcard_real (by positivity)
-          · simp [hsq]
+          · rw [if_neg hsq, if_neg hsq]
     _ = ∑ d ∈ Finset.Icc 1 N,
           (N : ℝ) *
             (if IsSquarefull d then (hExp d : ℝ) ^ s / (d : ℝ) else 0) := by
           apply Finset.sum_congr rfl
           intro d hd
           by_cases hsq : IsSquarefull d
-          · simp [hsq]
+          · rw [if_pos hsq, if_pos hsq]
             have hdIcc := Finset.mem_Icc.mp hd
             have hdne : (d : ℝ) ≠ 0 := by
               exact_mod_cast (Nat.ne_of_gt (lt_of_lt_of_le Nat.zero_lt_one hdIcc.1))
             field_simp [hdne]
-          · simp [hsq]
+          · rw [if_neg hsq, if_neg hsq, mul_zero]
     _ = (N : ℝ) *
           ∑ d ∈ Finset.Icc 1 N,
             if IsSquarefull d then (hExp d : ℝ) ^ s / (d : ℝ) else 0 := by
@@ -19126,7 +19134,7 @@ lemma squarefullMomentTerm_prime_pow_le_factorial_exp
   have hp_real_pos : 0 < (p : ℝ) := by exact_mod_cast hp.pos
   have hp_pos : 0 < (p : ℝ) ^ e := pow_pos hp_real_pos e
   rw [squarefullMomentTerm_prime_pow hp]
-  simp [he0, he1]
+  rw [if_neg he0, if_neg he1]
   exact div_le_div_of_nonneg_right
     (nat_pow_le_factorial_mul_exp_quarter s e) hp_pos.le
 
@@ -19237,12 +19245,13 @@ lemma squarefullMomentTerm_prime_pow_tsum_le
     · subst e
       change squarefullMomentTerm s 1 ≤ g 0
       rw [squarefullMomentTerm_one]
-      simp [g]
-      exact hC_nonneg
+      dsimp [g]
+      nlinarith [hC_nonneg]
     · by_cases he1 : e = 1
       · subst e
         rw [squarefullMomentTerm_prime_pow hp]
-        simp [g]
+        rw [if_neg one_ne_zero, if_pos rfl]
+        dsimp [g]
         dsimp [C]
         positivity
       · have he2 : 2 ≤ e := by omega
@@ -19289,8 +19298,7 @@ lemma sum_Icc_inv_sq_le_two_bfv (N : ℕ) :
         ⟨by omega, Nat.succ_le_iff.2 (Finset.mem_range.1 hν)⟩
   rw [hIcc]
   rw [Finset.sum_image]
-  ·
-    simpa using sum_inv_sq_le_two_bfv N
+  · simpa using sum_inv_sq_le_two_bfv N
   · intro a _ha b _hb h
     exact Nat.succ.inj (by simpa [Nat.succ_eq_add_one] using h)
 
@@ -21733,7 +21741,7 @@ Erdős Problem 202 — Main theorem.
 Combines:
   * upper bound from `Optimization.f_upper_bound`
     (Chain inequality + σ optimization, conditional on the BFV inputs and
-     the spread-disjointness input);
+     the spread-disjointness input),
   * lower bound from `bfv_lower_bound_theorem`.
 
 The historical omega-count and lower-bound input names now point to theorem
