@@ -26,12 +26,8 @@ the existence of such a polynomial and threshold value.
 import Mathlib
 
 set_option linter.style.setOption false
-set_option linter.style.whitespace false
-set_option linter.style.induction false
-set_option linter.style.multiGoal false
-set_option linter.style.openClassical false
-set_option linter.style.refine false
 set_option linter.flexible false
+set_option linter.style.multiGoal false
 
 namespace Erdos1047
 
@@ -65,7 +61,9 @@ theorem f_roots_distinct : (f.roots).Nodup := by
   have h_roots_X5_minus_1 :
       Multiset.Nodup (Polynomial.roots (Polynomial.X ^ 5 - 1 : Polynomial ℂ)) := by
     convert Polynomial.nodup_roots ?_ using 1
-    refine' Polynomial.separable_X_pow_sub_C _ _ _ <;> norm_num
+    simpa using
+      Polynomial.separable_X_pow_sub_C (F := ℂ) (n := 5) (1 : ℂ)
+        (by norm_num) one_ne_zero
   aesop
 
 /-
@@ -92,8 +90,7 @@ lemma roots_card : roots.card = 6 := by
 /-
 Let `components` be the set of connected components of the sublevel set containing the roots.
 -/
-open Classical
-
+open Classical in
 noncomputable def components : Finset (Set ℂ) :=
   roots.image (fun z => connectedComponentIn sublevelSet z)
 
@@ -326,7 +323,7 @@ lemma circle_separation' : ∀ z : ℂ, ‖z‖ = (1/6)^(1/5 : ℝ) → ‖f.eva
 /-
 On the rays where $z^5$ is negative real and $|z| \ge (1/6)^{1/5}$, $|f(z)| > c'$.
 -/
-lemma ray_separation' (r : ℝ) (θ : ℝ) (hr : r ≥ (1/6)^(1/5 : ℝ))
+lemma ray_separation' (r : ℝ) (θ : ℝ) (hr : r ≥ (1 / 6 : ℝ) ^ (1 / 5 : ℝ))
     (hθ : 5 * θ = Real.pi) :
     ‖f.eval (r * Complex.exp (θ * Complex.I))‖ > c' := by
   -- Substitute $z = r * e^{iθ}$ into $f(z)$ and simplify.
@@ -463,13 +460,13 @@ lemma roots_eq : roots = roots' := by
                 Polynomial.X -
                   Polynomial.C
                     (Complex.exp (Complex.I * 2 * k * Real.pi / 5))) := by
-        refine' Polynomial.eq_of_degree_sub_lt_of_eval_finset_eq _ _ _;
-        exact
-          Finset.image
-            (fun k : Fin 5 => Complex.exp (Complex.I * 2 * k * Real.pi / 5))
-            Finset.univ;
-        · refine' lt_of_lt_of_le (Polynomial.degree_sub_lt _ _ _) _ <;>
-            norm_num [Polynomial.degree_prod];
+        refine Polynomial.eq_of_degree_sub_lt_of_eval_finset_eq ?_ ?_ ?_
+        · exact
+            Finset.image
+              (fun k : Fin 5 => Complex.exp (Complex.I * 2 * k * Real.pi / 5))
+              Finset.univ
+        · refine lt_of_lt_of_le (Polynomial.degree_sub_lt ?_ ?_ ?_) ?_ <;>
+            norm_num [Polynomial.degree_prod]
           · erw [ Polynomial.degree_X_pow_sub_C ] <;> norm_num;
           · exact ne_of_apply_ne ( Polynomial.eval 2 ) ( by norm_num );
           · norm_num [ Polynomial.leadingCoeff_prod ];
@@ -534,8 +531,10 @@ lemma f_symmetry_pow (z : ℂ) (k : ℕ) :
       ∀ z : ℂ,
         ‖f.eval (z * Complex.exp (Complex.I * (2 * Real.pi / 5)))‖ =
           ‖f.eval z‖ := by
-    exact fun z => f_symmetry z;
-  induction' k with k ih <;> simp_all +decide [ pow_succ, ← mul_assoc ]
+    exact fun z => f_symmetry z
+  induction k with
+  | zero => simp_all
+  | succ k ih => simp_all +decide [pow_succ, ← mul_assoc]
 
 /-
 The sets U_i are pairwise disjoint.
@@ -707,50 +706,52 @@ lemma on_ray_implies_large_val (z : ℂ) (h_norm : ‖z‖ ≥ r_c)
 The sets U_i are open.
 -/
 lemma isOpen_U (i : Fin 6) : IsOpen (U i) := by
-  fin_cases i <;> unfold U <;> norm_num [ isOpen_lt, isOpen_const ];
-  exact isOpen_lt continuous_norm continuous_const;
-  · refine' isOpen_iff_mem_nhds.mpr _;
-    intro z hz;
+  fin_cases i <;> unfold U <;> norm_num [isOpen_lt, isOpen_const]
+  · exact isOpen_lt continuous_norm continuous_const
+  · rw [isOpen_iff_mem_nhds]
+    intro z hz
     have h_arg_cont : ContinuousAt (fun z : ℂ => z.arg) z := by
-      refine' Complex.continuousAt_arg _;
-      norm_num [ Complex.slitPlane ];
-      contrapose! hz;
-      norm_num [ Complex.arg ];
-      split_ifs <;> norm_num [ hz ];
-      · exact fun _ _ => by linarith [ Real.pi_pos ];
-      · intros; linarith [ Real.pi_pos ];
+      apply Complex.continuousAt_arg
+      norm_num [Complex.slitPlane]
+      contrapose! hz
+      norm_num [Complex.arg]
+      split_ifs <;> norm_num [hz]
+      · exact fun _ _ => by linarith [Real.pi_pos]
+      · intros
+        linarith [Real.pi_pos]
     exact Filter.inter_mem
       (IsOpen.mem_nhds (isOpen_lt continuous_const continuous_norm) hz.1)
       (Filter.inter_mem
         (h_arg_cont.eventually (Ioi_mem_nhds hz.2.1))
         (h_arg_cont.eventually (Iio_mem_nhds hz.2.2)))
-  · refine' IsOpen.inter _ _;
-    · exact isOpen_lt continuous_const continuous_norm;
-    · refine' isOpen_iff_mem_nhds.mpr _;
-      intro z hz;
+  · apply IsOpen.inter
+    · exact isOpen_lt continuous_const continuous_norm
+    · rw [isOpen_iff_mem_nhds]
+      intro z hz
       -- The argument function is continuous, so the preimage of an open interval
       -- under the argument function is open.
       have h_arg_cont : ContinuousAt Complex.arg z := by
-        refine' Complex.continuousAt_arg _;
-        contrapose! hz;
-        simp_all +decide [ Complex.slitPlane ];
-        rw [ show z = z.re by simpa [ Complex.ext_iff ] using hz.2 ] ; norm_num [ Complex.arg ];
+        apply Complex.continuousAt_arg
+        contrapose! hz
+        simp_all +decide [Complex.slitPlane]
+        rw [show z = z.re by simpa [Complex.ext_iff] using hz.2]
+        norm_num [Complex.arg]
         intro h
         have := h.1
         have := h.2
         split_ifs at * <;> norm_num at * <;> linarith [Real.pi_pos]
-      exact h_arg_cont.eventually ( Ioo_mem_nhds hz.1 hz.2 );
-  · refine' isOpen_iff_mem_nhds.mpr _;
+      exact h_arg_cont.eventually (Ioo_mem_nhds hz.1 hz.2)
+  · rw [isOpen_iff_mem_nhds]
     intro z hz
     obtain ⟨hz_norm, hz_arg⟩ := hz
     have h_arg_cont : ContinuousAt (fun z : ℂ => z.arg) z := by
-      refine' Complex.continuousAt_arg _ |> fun h => h.mono_left _;
-      · norm_num [ Complex.slitPlane ];
-        contrapose! hz_norm;
-        cases eq_or_lt_of_le hz_norm.1 <;> simp_all +decide [ Complex.arg ];
-        · simp_all +decide [ show z = 0 by refine' Complex.ext _ _ <;> aesop ];
-          exact Real.rpow_nonneg ( by norm_num ) _;
-        · split_ifs at hz_arg <;> linarith [ Real.pi_pos ];
+      refine (Complex.continuousAt_arg ?_).mono_left ?_
+      · norm_num [Complex.slitPlane]
+        contrapose! hz_norm
+        cases eq_or_lt_of_le hz_norm.1 <;> simp_all +decide [Complex.arg]
+        · simp_all +decide [show z = 0 by exact Complex.ext (by aesop) (by aesop)]
+          exact Real.rpow_nonneg (by norm_num) _
+        · split_ifs at hz_arg <;> linarith [Real.pi_pos]
       · exact le_rfl
     have h_norm_cont : ContinuousAt (fun z : ℂ => ‖z‖) z := by
       exact continuous_norm.continuousAt
@@ -763,29 +764,30 @@ lemma isOpen_U (i : Fin 6) : IsOpen (U i) := by
   · -- The set {z | π / 5 < z.arg ∧ z.arg < 3 * π / 5} is open because
     -- the argument function is continuous, and the interval (π/5, 3π/5) is open.
     have h_arg_open : IsOpen {z : ℂ | Real.pi / 5 < z.arg ∧ z.arg < 3 * Real.pi / 5} := by
-      refine' isOpen_iff_mem_nhds.mpr _;
-      intro z hz;
+      rw [isOpen_iff_mem_nhds]
+      intro z hz
       -- The argument function is continuous, so the preimage of an open interval
       -- under the argument function is open.
       have h_arg_cont : ContinuousAt (fun z : ℂ => z.arg) z := by
-        refine' Complex.continuousAt_arg _;
-        norm_num [ Complex.slitPlane ];
-        contrapose! hz;
-        cases eq_or_lt_of_le hz.1 <;> simp_all +decide [ Complex.arg ];
-        · exact fun h => False.elim <| h.not_ge <| by positivity;
-        · split_ifs <;> intros <;> linarith [ Real.pi_pos ];
-      exact h_arg_cont.eventually ( Ioo_mem_nhds hz.1 hz.2 );
-    exact IsOpen.inter ( isOpen_lt continuous_const continuous_norm ) h_arg_open;
-  · refine' IsOpen.inter _ _;
-    · exact isOpen_lt continuous_const continuous_norm;
-    · refine' isOpen_iff_mem_nhds.mpr _;
+        apply Complex.continuousAt_arg
+        norm_num [Complex.slitPlane]
+        contrapose! hz
+        cases eq_or_lt_of_le hz.1 <;> simp_all +decide [Complex.arg]
+        · exact fun h => False.elim <| h.not_ge <| by positivity
+        · split_ifs <;> intros <;> linarith [Real.pi_pos]
+      exact h_arg_cont.eventually (Ioo_mem_nhds hz.1 hz.2)
+    exact IsOpen.inter (isOpen_lt continuous_const continuous_norm) h_arg_open
+  · apply IsOpen.inter
+    · exact isOpen_lt continuous_const continuous_norm
+    · rw [isOpen_iff_mem_nhds]
       intro z hz
       obtain ⟨hz₁, hz₂⟩ := hz
       have h_arg_cont : ContinuousAt (fun z : ℂ => z.arg) z := by
-        refine' Complex.continuousAt_arg _;
-        simp [Complex.slitPlane];
-        contrapose! hz₁; simp_all +decide [ Complex.arg ];
-        split_ifs at * <;> linarith [ Real.pi_pos ];
+        apply Complex.continuousAt_arg
+        simp [Complex.slitPlane]
+        contrapose! hz₁
+        simp_all +decide [Complex.arg]
+        split_ifs at * <;> linarith [Real.pi_pos]
       exact Filter.inter_mem
         (h_arg_cont.eventually (lt_mem_nhds hz₁))
         (h_arg_cont.eventually (gt_mem_nhds hz₂))
@@ -865,13 +867,13 @@ lemma connected_subset_disjoint_union_open {ι : Type*} [Finite ι] {U : ι → 
     exact h_conn.isPreconnected;
   contrapose! h_subset_U_i;
   rw [ IsPreconnected ];
-  simp_all +decide [ Set.subset_def ];
-  refine' ⟨
+  simp_all +decide [Set.subset_def]
+  refine ⟨
     U i,
     h_open i,
     (⋃ j ≠ i, U j),
     isOpen_iUnion fun j => isOpen_iUnion fun hj => h_open j,
-    _, _, _, _
+    ?_, ?_, ?_, ?_
   ⟩ <;> simp_all +decide [Set.Nonempty]
   · exact fun x hx =>
       Classical.or_iff_not_imp_left.2 fun hx' => by
@@ -896,7 +898,7 @@ lemma connected_subset_disjoint_union_open {ι : Type*} [Finite ι] {U : ι → 
           hj
         ⟩
     ⟩
-  · exact fun x hx hx' j hj hx'' => Set.disjoint_left.mp ( h_disjoint hj ) hx'' hx'
+  · exact fun x hx hx' j hj hx'' => Set.disjoint_left.mp (h_disjoint hj) hx'' hx'
 
 /-
 The set of roots is the image of the index map.
@@ -917,12 +919,11 @@ lemma component_subset_U (i : Fin 6) :
       ∃ k : Fin 6, connectedComponentIn sublevelSet' (root_of_index i) ⊆ U k := by
     apply connected_subset_disjoint_union_open (fun j => isOpen_U j) (fun j k => by
       exact fun h => U_disjoint h) (by
-    refine' ⟨ _, _ ⟩;
-    · refine' ⟨ root_of_index i, _ ⟩;
-      apply_rules [ mem_connectedComponentIn ];
-      exact roots_in_sublevelSet' _ ( roots_eq.symm ▸ root_of_index_mem_roots' _ );
-    · exact isPreconnected_connectedComponentIn) (by
-    apply Set.Subset.trans (connectedComponentIn_subset _ _) (sublevelSet_subset_union_U));
+      refine ⟨?_, isPreconnected_connectedComponentIn⟩
+      refine ⟨root_of_index i, ?_⟩
+      apply_rules [mem_connectedComponentIn]
+      exact roots_in_sublevelSet' _ (roots_eq.symm ▸ root_of_index_mem_roots' _)) (by
+      apply Set.Subset.trans (connectedComponentIn_subset _ _) (sublevelSet_subset_union_U))
   -- Since $z_i \in C_i$, $z_i \in U_k$.
   have hzik : root_of_index i ∈ U k := by
     exact hk <| mem_connectedComponentIn <| by
@@ -941,14 +942,14 @@ lemma component_subset_U (i : Fin 6) :
 The set of connected components containing the roots has cardinality 6.
 -/
 lemma components'_card : components'.card = 6 := by
-  rw [ Finset.card_eq_of_bijective ];
-  use fun i hi => connectedComponentIn sublevelSet' ( root_of_index ⟨ i, hi ⟩ );
-  · unfold components';
-    simp +decide [ roots'_eq_image ];
-    exact fun a => ⟨ a, a.2, rfl ⟩;
-  · unfold components';
-    norm_num +zetaDelta at *;
-    exact fun i hi => ⟨ root_of_index ⟨ i, hi ⟩, root_of_index_mem_roots' _, rfl ⟩;
+  rw [Finset.card_eq_of_bijective]
+  · exact fun i hi => connectedComponentIn sublevelSet' (root_of_index ⟨i, hi⟩)
+  · unfold components'
+    simp +decide [roots'_eq_image]
+    exact fun a => ⟨a, a.2, rfl⟩
+  · unfold components'
+    norm_num +zetaDelta at *
+    exact fun i hi => ⟨root_of_index ⟨i, hi⟩, root_of_index_mem_roots' _, rfl⟩
   · intro i j hi hj h_eq
     have h_subset :
         connectedComponentIn sublevelSet' (root_of_index ⟨i, hi⟩) ⊆
@@ -987,22 +988,22 @@ theorem main_result : ∃ (f : Polynomial ℂ) (c : ℝ) (m : ℕ),
       (f.roots.toFinset.image
         (fun z => connectedComponentIn {w | ‖f.eval w‖ ≤ c} z)),
     ¬ Convex ℝ K := by
-    refine' ⟨ Polynomial.X ^ 6 - Polynomial.X, _, _, _, _, rfl, _, _, _ ⟩;
-    exact 0.582;
-    · rw [ Polynomial.Monic, Polynomial.leadingCoeff_sub_of_degree_lt ] <;> norm_num;
-    · convert f_roots_distinct;
-    · norm_num;
-    · convert components'_card using 1;
-      · unfold components';
-        congr! 2;
-        convert roots_eq using 1;
-      · convert roots_card using 1;
-    · refine' ⟨ _, Finset.mem_image.mpr ⟨ 0, _, rfl ⟩, _ ⟩ <;> norm_num;
-      · exact ne_of_apply_ne ( Polynomial.eval 2 ) ( by norm_num );
-      · convert C0_not_convex using 1;
-        unfold C0;
-        unfold sublevelSet';
-        unfold f c'; norm_num;
+    refine ⟨Polynomial.X ^ 6 - Polynomial.X, 0.582, _, ?_, ?_, rfl, ?_, ?_, ?_⟩
+    · rw [Polynomial.Monic, Polynomial.leadingCoeff_sub_of_degree_lt] <;> norm_num
+    · convert f_roots_distinct
+    · norm_num
+    · convert components'_card using 1
+      · unfold components'
+        congr! 2
+        convert roots_eq using 1
+      · convert roots_card using 1
+    · refine ⟨_, Finset.mem_image.mpr ⟨0, ?_, rfl⟩, ?_⟩ <;> norm_num
+      · exact ne_of_apply_ne (Polynomial.eval 2) (by norm_num)
+      · convert C0_not_convex using 1
+        unfold C0
+        unfold sublevelSet'
+        unfold f c'
+        norm_num
 
 theorem erdos_1047 :
   ¬ (∀ (f : Polynomial ℂ) (c : ℝ) (m : ℕ),
