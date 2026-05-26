@@ -23,28 +23,17 @@ This project request had uuid: 85bb77a4-160d-4c93-b255-24aea4451e62
 -/
 
 /-
-We define the central binomial coefficient and the problem statement. We then formalize the provided solution, which constructs an infinite family of solutions parameterized by an integer `a ≥ 2`. We prove the core identity for this family and show that it yields infinitely many distinct solutions where all indices are distinct. Thus, we answer the question in the negative: there are infinitely many solutions.
+We define the central binomial coefficient and the problem statement. We then
+formalize the provided solution, which constructs an infinite family of
+solutions parameterized by an integer `a ≥ 2`. We prove the core identity for
+this family and show that it yields infinitely many distinct solutions where all
+indices are distinct. Thus, we answer the question in the negative: there are
+infinitely many solutions.
 -/
 
 import Mathlib
 
 namespace Erdos397
-
-set_option linter.style.setOption false
-set_option linter.style.openClassical false
-set_option linter.style.longLine false
-set_option linter.flexible false
-
-open scoped BigOperators
-open scoped Real
-open scoped Nat
-open scoped Classical
-open scoped Pointwise
-
-set_option relaxedAutoImplicit false
-set_option autoImplicit false
-
-noncomputable section
 
 /-
 Define c(a) as in the solution.
@@ -52,12 +41,15 @@ Define c(a) as in the solution.
 def c (a : ℕ) : ℕ := 8 * a^2 + 8 * a + 1
 
 /-
-The product of central binomial coefficients for indices a, 2a+2, c equals the product for indices a+1, 2a, c+1.
+The product of central binomial coefficients for indices a, 2a+2, c equals the
+product for indices a+1, 2a, c+1.
 -/
 theorem central_binom_identity (a : ℕ) (h : a ≥ 2) :
   Nat.centralBinom a * Nat.centralBinom (2 * a + 2) * Nat.centralBinom (c a) =
   Nat.centralBinom (a + 1) * Nat.centralBinom (2 * a) * Nat.centralBinom (c a + 1) := by
-  have hA : (Nat.centralBinom a : ℚ) / Nat.centralBinom (a + 1) = (a + 1 : ℚ) / (2 * (2 * a + 1)) := by
+  have hA :
+      (Nat.centralBinom a : ℚ) / Nat.centralBinom (a + 1) =
+        (a + 1 : ℚ) / (2 * (2 * a + 1)) := by
     have hq : ((a + 1 : ℕ) : ℚ) * (Nat.centralBinom (a + 1) : ℚ) =
         (2 * (2 * a + 1) : ℕ) * (Nat.centralBinom a : ℚ) := by
       exact_mod_cast Nat.succ_mul_centralBinom_succ a
@@ -100,7 +92,9 @@ theorem central_binom_identity (a : ℕ) (h : a ≥ 2) :
   simpa [Nat.cast_mul] using hprod
 
 /-
-A pair of lists of natural numbers (M, N) is a solution if all elements in M and N are distinct (pairwise distinct across both lists) and the product of central binomial coefficients of elements in M equals that of N.
+A pair of lists of natural numbers (M, N) is a solution if all elements in M
+and N are distinct (pairwise distinct across both lists) and the product of
+central binomial coefficients of elements in M equals that of N.
 -/
 def is_solution (M N : List ℕ) : Prop :=
   (M ++ N).Nodup ∧
@@ -114,23 +108,33 @@ def sol_family (a : ℕ) : List ℕ × List ℕ := ([a, 2 * a + 2, c a], [a + 1,
 /-
 For a >= 2, the family of solutions defined by sol_family constitutes a valid solution.
 -/
-theorem sol_family_is_solution (a : ℕ) (h : a ≥ 2) : is_solution (sol_family a).1 (sol_family a).2 := by
-  constructor <;> norm_num [ sol_family ];
-  · unfold c; omega;
-  · convert central_binom_identity a h using 1 <;> ring
+theorem sol_family_is_solution (a : ℕ) (h : a ≥ 2) :
+    is_solution (sol_family a).1 (sol_family a).2 := by
+  constructor
+  · norm_num [sol_family]
+    unfold c
+    omega
+  · norm_num [sol_family]
+    convert central_binom_identity a h using 1
+    all_goals ring
 
 /-
 The set of solutions is infinite.
 -/
 theorem infinite_solutions : Set.Infinite { s : List ℕ × List ℕ | is_solution s.1 s.2 } := by
-  -- Since a can be chosen arbitrarily large, there are infinitely many distinct solutions of the form (sol_family a).
+  -- Since a can be chosen arbitrarily large, there are infinitely many distinct solutions.
   have h_infinite : Set.Infinite {s | ∃ a ≥ 2, s = (sol_family a)} := by
-    exact Set.infinite_of_injective_forall_mem ( fun a b h => by cases h; aesop ) fun n => ⟨ n + 2, by linarith, rfl ⟩;
-  exact h_infinite.mono fun s hs => by obtain ⟨ a, ha, rfl ⟩ := hs; exact sol_family_is_solution a ha;
+    exact Set.infinite_of_injective_forall_mem
+      (fun a b h => by
+        simpa [sol_family] using congrArg (fun p : List ℕ × List ℕ => p.1.head?) h)
+      fun n => ⟨n + 2, by linarith, rfl⟩
+  exact h_infinite.mono fun s hs => by
+    obtain ⟨a, ha, rfl⟩ := hs
+    exact sol_family_is_solution a ha
 
-end
+end Erdos397
+
+open Erdos397
 
 #print axioms infinite_solutions
 -- 'Erdos397.infinite_solutions' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end Erdos397
