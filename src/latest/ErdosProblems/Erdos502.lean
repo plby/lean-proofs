@@ -38,21 +38,15 @@ import Mathlib
 
 namespace Erdos502
 
-set_option linter.style.setOption false
-set_option linter.style.longLine false
-set_option linter.flexible false
-set_option linter.style.refine false
-set_option linter.style.cases false
-set_option linter.style.multiGoal false
-set_option linter.unusedDecidableInType false
-
 open scoped BigOperators
 open scoped Real
 open scoped Nat
 open scoped Pointwise
 
 /-
-A finite subset A in a metric space M is called an s-distance set if there are s positive real numbers such that all pairwise distances determined by the points in M are among these numbers, and each is realized.
+A finite subset A in a metric space M is called an s-distance set if there are s
+positive real numbers such that all pairwise distances determined by the points
+in M are among these numbers, and each is realized.
 -/
 def is_s_distance_set {α : Type*} [MetricSpace α] (A : Set α) (s : ℕ) : Prop :=
   A.Finite ∧ Set.ncard {d : ℝ | ∃ x ∈ A, ∃ y ∈ A, x ≠ y ∧ dist x y = d} = s
@@ -73,17 +67,22 @@ open MvPolynomial
 
 /-- The linear map restricting polynomials to A. -/
 noncomputable def restriction_map (d : ℕ) (A : Set (EuclideanSpace ℝ (Fin d))) :
-    MvPolynomial (Fin d) ℝ →ₗ[ℝ] (A → ℝ) where
+  MvPolynomial (Fin d) ℝ →ₗ[ℝ] (A → ℝ) where
   toFun p x := eval x p
-  map_add' p q := by ext x; simp
-  map_smul' c p := by ext x; simp
+  map_add' p q := by
+    ext x
+    simp
+  map_smul' c p := by
+    ext x
+    simp
 
 /-
 The dimension of the space of polynomials of degree at most s considered as functions on A.
 -/
 open MvPolynomial
 
-/-- The dimension of the space of polynomials of degree at most s considered as functions on A. -/
+/-- The dimension of the space of polynomials of degree at most s considered as
+functions on A. -/
 noncomputable def dim_s (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d))) : ℕ :=
   Module.finrank ℝ (Submodule.map (restriction_map d A) (polynomials_of_degree_le d s))
 
@@ -135,47 +134,73 @@ theorem card_monomials_le (d s : ℕ) :
     exact hkl (hk_sum.symm.trans hl_sum)
 
 /-
-The dimension of the space of polynomials of degree at most s considered as functions on A is at most the number of monomials of degree at most s.
+The dimension of the space of polynomials of degree at most s considered as
+functions on A is at most the number of monomials of degree at most s.
 -/
 theorem dim_s_le_card_monomials_le (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d))) :
     dim_s d s A ≤ (monomials_le d s).card := by
-      -- The set of monomials of degree at most s spans the space of polynomials of degree at most s.
-      have h_span : Submodule.span ℝ (Set.image (fun m => MvPolynomial.monomial m (1 : ℝ)) (monomials_le d s : Set (Fin d →₀ ℕ))) = polynomials_of_degree_le d s := by
-        ext p
-        refine' ⟨ fun hp => _, fun hp => _ ⟩;
-        · refine' Submodule.span_induction _ _ _ _ hp;
-          · rintro _ ⟨ m, hm, rfl ⟩;
-            refine' Submodule.subset_span _;
-            have hm_le : m.sum (fun _ n => n) ≤ s := by
-              simpa [monomials_le, Finset.mem_finsuppAntidiag', Finsupp.sum_fintype] using hm
-            exact (MvPolynomial.totalDegree_monomial_le m (1 : ℝ)).trans hm_le
-          · exact Submodule.zero_mem _;
-          · exact fun x y hx hy hx' hy' => Submodule.add_mem _ hx' hy';
-          · exact fun a x hx₁ hx₂ => Submodule.smul_mem _ _ hx₂;
-        · refine' Submodule.span_induction _ _ _ _ hp;
-          · intro p hp;
-            -- Since $p$ is a polynomial of degree at most $s$, it can be written as a linear combination of monomials of degree at most $s$.
-            have h_decomp : p = ∑ m ∈ p.support, p.coeff m • MvPolynomial.monomial m (1 : ℝ) := by
-              simp +decide [ MvPolynomial.smul_monomial ];
-            refine' h_decomp.symm ▸ Submodule.sum_mem _ fun m hm => Submodule.smul_mem _ _ _;
-            refine' Submodule.subset_span ⟨ m, _, _ ⟩ <;> norm_num;
-            refine' Finset.mem_biUnion.mpr ⟨m.sum fun i n => n, _, _⟩
-            · exact Finset.mem_range.mpr (Nat.lt_succ_of_le (le_trans (Finset.le_sup (f := fun m => m.sum fun i n => n) hm) hp))
-            · exact Finset.mem_finsuppAntidiag'.mpr ⟨rfl, by intro i hi; exact Finset.mem_univ i⟩
-          · exact Submodule.zero_mem _;
-          · exact fun x y hx hy hx' hy' => Submodule.add_mem _ hx' hy';
-          · exact fun a x hx₁ hx₂ => Submodule.smul_mem _ _ hx₂;
-      -- The dimension of the image of a linear map is less than or equal to the dimension of the domain.
-      have h_dim_le : Module.finrank ℝ (Submodule.map (restriction_map d A) (Submodule.span ℝ (Set.image (fun m => MvPolynomial.monomial m (1 : ℝ)) (monomials_le d s : Set (Fin d →₀ ℕ))))) ≤ Module.finrank ℝ (Submodule.span ℝ (Set.image (fun m => MvPolynomial.monomial m (1 : ℝ)) (monomials_le d s : Set (Fin d →₀ ℕ)))) := by
-        convert Submodule.finrank_map_le ( restriction_map d A ) _;
-        exact Module.Finite.span_of_finite _ ( Set.toFinite _ );
-      refine le_trans ( h_span ▸ h_dim_le ) ?_;
-      rw [ ← h_span ];
-      refine' le_trans ( finrank_span_le_card _ ) _ ; norm_num;
-      exact Finset.card_image_le
+  -- The set of monomials of degree at most s spans the space of polynomials of
+  -- degree at most s.
+  have h_span :
+      Submodule.span ℝ
+          (Set.image (fun m => MvPolynomial.monomial m (1 : ℝ))
+            (monomials_le d s : Set (Fin d →₀ ℕ))) =
+        polynomials_of_degree_le d s := by
+    ext p
+    refine ⟨fun hp => ?_, fun hp => ?_⟩
+    · refine Submodule.span_induction ?_ ?_ ?_ ?_ hp
+      · rintro _ ⟨m, hm, rfl⟩
+        refine Submodule.subset_span ?_
+        have hm_le : m.sum (fun _ n => n) ≤ s := by
+          simpa [monomials_le, Finset.mem_finsuppAntidiag', Finsupp.sum_fintype] using hm
+        exact (MvPolynomial.totalDegree_monomial_le m (1 : ℝ)).trans hm_le
+      · exact Submodule.zero_mem _
+      · exact fun x y hx hy hx' hy' => Submodule.add_mem _ hx' hy'
+      · exact fun a x hx₁ hx₂ => Submodule.smul_mem _ _ hx₂
+    · refine Submodule.span_induction ?_ ?_ ?_ ?_ hp
+      · intro p hp
+        -- Since $p$ is a polynomial of degree at most $s$, it can be written as
+        -- a linear combination of monomials of degree at most $s$.
+        have h_decomp :
+            p = ∑ m ∈ p.support, p.coeff m • MvPolynomial.monomial m (1 : ℝ) := by
+          simp +decide [MvPolynomial.smul_monomial]
+        refine h_decomp.symm ▸ Submodule.sum_mem _ fun m hm => Submodule.smul_mem _ _ ?_
+        refine Submodule.subset_span ⟨m, ?_, ?_⟩
+        · refine Finset.mem_biUnion.mpr ⟨m.sum fun i n => n, ?_, ?_⟩
+          · exact Finset.mem_range.mpr <|
+              Nat.lt_succ_of_le <|
+                le_trans (Finset.le_sup (f := fun m => m.sum fun i n => n) hm) hp
+          · exact Finset.mem_finsuppAntidiag'.mpr
+              ⟨rfl, by
+                intro i hi
+                exact Finset.mem_univ i⟩
+        · norm_num
+      · exact Submodule.zero_mem _
+      · exact fun x y hx hy hx' hy' => Submodule.add_mem _ hx' hy'
+      · exact fun a x hx₁ hx₂ => Submodule.smul_mem _ _ hx₂
+  -- The dimension of the image of a linear map is less than or equal to the
+  -- dimension of the domain.
+  have h_dim_le :
+      Module.finrank ℝ
+          (Submodule.map (restriction_map d A)
+            (Submodule.span ℝ
+              (Set.image (fun m => MvPolynomial.monomial m (1 : ℝ))
+                (monomials_le d s : Set (Fin d →₀ ℕ))))) ≤
+        Module.finrank ℝ
+          (Submodule.span ℝ
+            (Set.image (fun m => MvPolynomial.monomial m (1 : ℝ))
+              (monomials_le d s : Set (Fin d →₀ ℕ)))) := by
+    convert Submodule.finrank_map_le (restriction_map d A) _
+    exact Module.Finite.span_of_finite _ (Set.toFinite _)
+  refine le_trans (h_span ▸ h_dim_le) ?_
+  rw [← h_span]
+  refine le_trans (finrank_span_le_card _) ?_
+  norm_num
+  exact Finset.card_image_le
 
 /-
-The dimension of the space of polynomials of degree at most s considered as functions on A is at most (d+s choose s).
+The dimension of the space of polynomials of degree at most s considered as
+functions on A is at most (d+s choose s).
 -/
 theorem dim_s_le_binom (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d))) :
     dim_s d s A ≤ Nat.choose (d + s) s := by
@@ -192,7 +217,8 @@ noncomputable def dist_sq_poly (d : ℕ) : MvPolynomial (Fin d ⊕ Fin d) ℝ :=
   ∑ i : Fin d, (X (Sum.inl i) - X (Sum.inr i)) ^ 2
 
 /-- The polynomial p(x, y) = Π (d^2 - ||x - y||^2) for d in S. -/
-noncomputable def distance_poly (d : ℕ) (S : Finset ℝ) : MvPolynomial (Fin d ⊕ Fin d) ℝ :=
+noncomputable def distance_poly (d : ℕ) (S : Finset ℝ) :
+    MvPolynomial (Fin d ⊕ Fin d) ℝ :=
   ∏ s ∈ S, (C (s ^ 2) - dist_sq_poly d)
 
 /-
@@ -202,17 +228,20 @@ The matrix M_{p,A} with entries p(a, b).
 open MvPolynomial
 
 /-- Evaluate a polynomial in 2d variables at a pair of points (x, y). -/
-noncomputable def eval_pair (d : ℕ) (p : MvPolynomial (Fin d ⊕ Fin d) ℝ) (x y : EuclideanSpace ℝ (Fin d)) : ℝ :=
+noncomputable def eval_pair (d : ℕ) (p : MvPolynomial (Fin d ⊕ Fin d) ℝ)
+    (x y : EuclideanSpace ℝ (Fin d)) : ℝ :=
   eval (Sum.elim (x : Fin d → ℝ) (y : Fin d → ℝ)) p
 
 /-- The matrix M_{p,A} with entries p(a, b). -/
-noncomputable def matrix_p_A (d : ℕ) (p : MvPolynomial (Fin d ⊕ Fin d) ℝ) (A : Set (EuclideanSpace ℝ (Fin d))) [Fintype A] :
+noncomputable def matrix_p_A (d : ℕ) (p : MvPolynomial (Fin d ⊕ Fin d) ℝ)
+    (A : Set (EuclideanSpace ℝ (Fin d))) [Fintype A] :
     Matrix A A ℝ :=
   Matrix.of fun a b => eval_pair d p a b
 
 /-
-The positive inertia index of a matrix M is the maximum dimension of a subspace where the associated quadratic form is positive definite.
-The negative inertia index of a matrix M.
+The positive inertia index of a matrix M is the maximum dimension of a subspace
+where the associated quadratic form is positive definite. The negative inertia
+index of a matrix M.
 -/
 open Matrix LinearMap
 
@@ -221,30 +250,38 @@ def quadratic_form_of_matrix {n : Type*} [Fintype n] [DecidableEq n] (M : Matrix
     QuadraticForm ℝ (n → ℝ) :=
   M.toQuadraticMap'
 
-/-- The positive inertia index of a matrix M is the maximum dimension of a subspace where the associated quadratic form is positive definite. -/
-noncomputable def r_plus {n : Type*} [Fintype n] [DecidableEq n] (M : Matrix n n ℝ) : ℕ :=
-  sSup {k | ∃ (W : Submodule ℝ (n → ℝ)), Module.finrank ℝ W = k ∧ ((quadratic_form_of_matrix M).comp W.subtype).PosDef}
+/-- The positive inertia index of a matrix M is the maximum dimension of a
+subspace where the associated quadratic form is positive definite. -/
+noncomputable def r_plus {n : Type*} [Fintype n] [DecidableEq n]
+    (M : Matrix n n ℝ) : ℕ :=
+  sSup {k | ∃ (W : Submodule ℝ (n → ℝ)),
+    Module.finrank ℝ W = k ∧ ((quadratic_form_of_matrix M).comp W.subtype).PosDef}
 
 /-- The negative inertia index of a matrix M. -/
-noncomputable def r_minus {n : Type*} [Fintype n] [DecidableEq n] (M : Matrix n n ℝ) : ℕ :=
-  sSup {k | ∃ (W : Submodule ℝ (n → ℝ)), Module.finrank ℝ W = k ∧ ((-(quadratic_form_of_matrix M)).comp W.subtype).PosDef}
+noncomputable def r_minus {n : Type*} [Fintype n] [DecidableEq n]
+    (M : Matrix n n ℝ) : ℕ :=
+  sSup {k | ∃ (W : Submodule ℝ (n → ℝ)),
+    Module.finrank ℝ W = k ∧ ((-(quadratic_form_of_matrix M)).comp W.subtype).PosDef}
 
 /-
-The subspace Omega is the set of functions on A that are orthogonal to all polynomials of degree at most s.
-The bilinear form Phi_p associated to p and A.
+The subspace Omega is the set of functions on A that are orthogonal to all
+polynomials of degree at most s. The bilinear form Phi_p associated to p and A.
 -/
 open Matrix LinearMap MvPolynomial
 
-/-- The standard dot product identifies finitely supported coordinate functions with their dual. -/
+/-- The standard dot product identifies finitely supported coordinate functions
+with their dual. -/
 noncomputable def dotProductDualEquiv (α : Type*) [Fintype α] [DecidableEq α] :
     (α → ℝ) ≃ₗ[ℝ] Module.Dual ℝ (α → ℝ) :=
   (Pi.basisFun ℝ α).toDualEquiv
 
-theorem dotProductDualEquiv_apply (α : Type*) [Fintype α] [DecidableEq α] (f g : α → ℝ) :
+theorem dotProductDualEquiv_apply (α : Type*) [Fintype α] [DecidableEq α]
+    (f g : α → ℝ) :
     dotProductDualEquiv α f g = dotProduct f g := by
   rw [dotProductDualEquiv, Module.Basis.toDualEquiv_apply]
   conv_lhs => rw [← (Pi.basisFun ℝ α).sum_repr f]
-  simp only [map_sum, LinearMap.sum_apply, map_smul, LinearMap.smul_apply, Pi.basisFun_repr]
+  simp only [map_sum, LinearMap.sum_apply, map_smul, LinearMap.smul_apply,
+    Pi.basisFun_repr]
   simp only [dotProduct]
   refine Finset.sum_congr rfl ?_
   intro x hx
@@ -252,25 +289,34 @@ theorem dotProductDualEquiv_apply (α : Type*) [Fintype α] [DecidableEq α] (f 
   rw [Module.Basis.toDual_apply_right]
   simp [Pi.basisFun_repr]
 
-/-- The subspace Omega of functions on A orthogonal to all polynomials of degree at most s. -/
-noncomputable def Omega (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d))) [Fintype A] [DecidableEq A] : Submodule ℝ (A → ℝ) :=
-  (Submodule.dualAnnihilator (Submodule.map (restriction_map d A) (polynomials_of_degree_le d s))).comap
+/-- The subspace Omega of functions on A orthogonal to all polynomials of degree
+at most s. -/
+noncomputable def Omega (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)))
+    [Fintype A] [DecidableEq A] : Submodule ℝ (A → ℝ) :=
+  (Submodule.dualAnnihilator
+      (Submodule.map (restriction_map d A) (polynomials_of_degree_le d s))).comap
     (dotProductDualEquiv A).toLinearMap
 
-theorem mem_Omega_iff (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d))) [Fintype A] [DecidableEq A]
+theorem mem_Omega_iff (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)))
+    [Fintype A] [DecidableEq A]
     (f : A → ℝ) :
     f ∈ Omega d s A ↔
-      ∀ g ∈ Submodule.map (restriction_map d A) (polynomials_of_degree_le d s), dotProduct f g = 0 := by
+      ∀ g ∈ Submodule.map (restriction_map d A) (polynomials_of_degree_le d s),
+        dotProduct f g = 0 := by
   simp [Omega, Submodule.mem_dualAnnihilator, dotProductDualEquiv_apply]
 
 /-- The bilinear form associated to p and A. -/
-noncomputable def Phi_p (d : ℕ) (p : MvPolynomial (Fin d ⊕ Fin d) ℝ) (A : Set (EuclideanSpace ℝ (Fin d))) [Fintype A] [DecidableEq A] :
+noncomputable def Phi_p (d : ℕ) (p : MvPolynomial (Fin d ⊕ Fin d) ℝ)
+    (A : Set (EuclideanSpace ℝ (Fin d))) [Fintype A] [DecidableEq A] :
     (A → ℝ) →ₗ[ℝ] (A → ℝ) →ₗ[ℝ] ℝ :=
   Matrix.toBilin' (matrix_p_A d p A)
 
 /-
-The bilinear form associated to a monomial m vanishes on Omega x Omega if the degree of m is at most 2s+1.
-Proof idea: A monomial m(x, y) of degree <= 2s+1 can be written as m_x(x) * m_y(y). The total degree is deg(m_x) + deg(m_y) <= 2s+1, so either deg(m_x) <= s or deg(m_y) <= s.
+The bilinear form associated to a monomial m vanishes on Omega x Omega if the
+degree of m is at most 2s+1.
+Proof idea: A monomial m(x, y) of degree <= 2s+1 can be written as m_x(x) *
+m_y(y). The total degree is deg(m_x) + deg(m_y) <= 2s+1, so either deg(m_x) <=
+s or deg(m_y) <= s.
 If deg(m_x) <= s, then sum_x m_x(x) f(x) = 0 because f is in Omega.
 If deg(m_y) <= s, then sum_y m_y(y) g(y) = 0 because g is in Omega.
 In either case, the bilinear form sum_{x,y} m(x,y) f(x) g(y) vanishes.
@@ -278,60 +324,98 @@ In either case, the bilinear form sum_{x,y} m(x,y) f(x) g(y) vanishes.
 open Matrix LinearMap MvPolynomial BigOperators
 
 /-- The bilinear form associated to a monomial m. -/
-noncomputable def Phi_monomial (d : ℕ) (m : Fin d ⊕ Fin d →₀ ℕ) (A : Set (EuclideanSpace ℝ (Fin d))) [Fintype A] [DecidableEq A] :
+noncomputable def Phi_monomial (d : ℕ) (m : Fin d ⊕ Fin d →₀ ℕ)
+    (A : Set (EuclideanSpace ℝ (Fin d))) [Fintype A] [DecidableEq A] :
     (A → ℝ) →ₗ[ℝ] (A → ℝ) →ₗ[ℝ] ℝ :=
   Matrix.toBilin' (matrix_p_A d (monomial m 1) A)
 
-theorem Phi_monomial_vanishes_on_Omega (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d))) [Fintype A] [DecidableEq A]
+theorem Phi_monomial_vanishes_on_Omega (d s : ℕ)
+    (A : Set (EuclideanSpace ℝ (Fin d))) [Fintype A] [DecidableEq A]
     (m : Fin d ⊕ Fin d →₀ ℕ) (hm : m.sum (fun _ n => n) ≤ 2 * s + 1)
     (f g : A → ℝ) (hf : f ∈ Omega d s A) (hg : g ∈ Omega d s A) :
     Phi_monomial d m A f g = 0 := by
-      have h_monomial : ∀ (m : Fin d ⊕ Fin d →₀ ℕ), m.sum (fun _ n => n) ≤ 2 * s + 1 → (∀ (f g : A → ℝ), f ∈ Omega d s A → g ∈ Omega d s A → (Phi_monomial d m A) f g = 0) := by
-        intro m hm f g hf hg
-        have h_deg : (m.sum (fun _ n => n)) ≤ 2 * s + 1 := hm
-        have h_split : ∃ mx : Fin d →₀ ℕ, ∃ my : Fin d →₀ ℕ, m = Finsupp.mapDomain (Sum.inl) mx + Finsupp.mapDomain (Sum.inr) my ∧ (mx.sum (fun _ n => n)) + (my.sum (fun _ n => n)) = (m.sum (fun _ n => n)) := by
-          refine' ⟨ m.sum ( fun x n => if hx : ∃ i, x = Sum.inl i then Finsupp.single ( hx.choose ) n else 0 ), m.sum ( fun x n => if hx : ∃ i, x = Sum.inr i then Finsupp.single ( hx.choose ) n else 0 ), _, _ ⟩;
-          · ext x; simp [Finsupp.mapDomain];
-            rcases x with ( x | x ) <;> simp +decide [ Finsupp.single_apply, Finsupp.sum_fintype ];
-          · simp +decide [ Finsupp.sum_fintype ];
-            simp +decide [ Finsupp.single_apply ];
-        obtain ⟨mx, my, hm_eq, hm_sum⟩ := h_split;
-        have h_deg_mx : (mx.sum (fun _ n => n)) ≤ s ∨ (my.sum (fun _ n => n)) ≤ s := by
-          contrapose! h_deg; linarith;;
-        have h_bilinear : ∀ (f g : A → ℝ), f ∈ Omega d s A → g ∈ Omega d s A → (Phi_monomial d (Finsupp.mapDomain (Sum.inl) mx + Finsupp.mapDomain (Sum.inr) my) A) f g = (∑ x : A, f x * (eval x (monomial mx 1))) * (∑ y : A, g y * (eval y (monomial my 1))) := by
-          unfold Phi_monomial; simp +decide [ Finset.sum_mul _ _ _, Finset.mul_sum ] ;
-          intro f g hf hg; rw [ Matrix.toBilin'_apply ] ; simp +decide [ mul_assoc, mul_comm, mul_left_comm, MvPolynomial.eval_monomial ] ;
-          unfold matrix_p_A; simp +decide  ;
-          unfold eval_pair; simp +decide [ MvPolynomial.eval_monomial, Finsupp.mapDomain ] ;
-          simp +decide [ Finsupp.single_apply, Finsupp.sum_fintype ];
-        cases' h_deg_mx with h h;
-        · have h_ortho : ∀ (p : MvPolynomial (Fin d) ℝ), p.totalDegree ≤ s → (∑ x : A, f x * (eval x p)) = 0 := by
-            intro p hp
-            have h_ortho : ∀ (g : A → ℝ), g ∈ Submodule.map (restriction_map d A) (polynomials_of_degree_le d s) → (∑ x : A, f x * g x) = 0 := by
-              intro g hg
-              simpa [dotProduct] using (mem_Omega_iff d s A f).mp hf g hg
-            convert h_ortho _ _;
-            exact ⟨ p, Submodule.subset_span hp, rfl ⟩;
-          simp_all +decide [ MvPolynomial.totalDegree_monomial ];
-        · have h_g_zero : ∑ y : A, g y * (eval y (monomial my 1)) = 0 := by
-            have h_g_zero : ∀ (p : MvPolynomial (Fin d) ℝ), p.totalDegree ≤ s → ∑ y : A, g y * (eval y p) = 0 := by
-              intros p hp
-              have h_mem : (restriction_map d A) p ∈
-                  Submodule.map (restriction_map d A) (polynomials_of_degree_le d s) :=
-                ⟨p, Submodule.subset_span hp, rfl⟩
-              simpa [restriction_map, dotProduct] using (mem_Omega_iff d s A g).mp hg ((restriction_map d A) p) h_mem
-            convert h_g_zero ( MvPolynomial.monomial my 1 ) _;
-            simp +decide [ MvPolynomial.totalDegree_monomial, h ];
-          grind;
-      exact h_monomial m hm f g hf hg
+  have h_monomial :
+      ∀ (m : Fin d ⊕ Fin d →₀ ℕ), m.sum (fun _ n => n) ≤ 2 * s + 1 →
+        (∀ (f g : A → ℝ), f ∈ Omega d s A → g ∈ Omega d s A →
+          (Phi_monomial d m A) f g = 0) := by
+    intro m hm f g hf hg
+    have h_deg : (m.sum (fun _ n => n)) ≤ 2 * s + 1 := hm
+    have h_split :
+        ∃ mx : Fin d →₀ ℕ, ∃ my : Fin d →₀ ℕ,
+          m = Finsupp.mapDomain (Sum.inl) mx + Finsupp.mapDomain (Sum.inr) my ∧
+            (mx.sum (fun _ n => n)) + (my.sum (fun _ n => n)) =
+              (m.sum (fun _ n => n)) := by
+      refine
+        ⟨m.sum (fun x n =>
+            if hx : ∃ i, x = Sum.inl i then Finsupp.single (hx.choose) n else 0),
+          m.sum (fun x n =>
+            if hx : ∃ i, x = Sum.inr i then Finsupp.single (hx.choose) n else 0),
+          ?_, ?_⟩
+      · ext x
+        rcases x with x | x
+        · simp +decide [Finsupp.mapDomain, Finsupp.single_apply, Finsupp.sum_fintype]
+        · simp +decide [Finsupp.mapDomain, Finsupp.single_apply, Finsupp.sum_fintype]
+      · simp +decide [Finsupp.sum_fintype]
+        simp +decide [Finsupp.single_apply]
+    obtain ⟨mx, my, hm_eq, hm_sum⟩ := h_split
+    have h_deg_mx : (mx.sum (fun _ n => n)) ≤ s ∨ (my.sum (fun _ n => n)) ≤ s := by
+      contrapose! h_deg
+      linarith
+    have h_bilinear :
+        ∀ (f g : A → ℝ), f ∈ Omega d s A → g ∈ Omega d s A →
+          (Phi_monomial d
+              (Finsupp.mapDomain (Sum.inl) mx + Finsupp.mapDomain (Sum.inr) my)
+              A) f g =
+            (∑ x : A, f x * (eval x (monomial mx 1))) *
+              (∑ y : A, g y * (eval y (monomial my 1))) := by
+      intro f g hf hg
+      unfold Phi_monomial
+      rw [Matrix.toBilin'_apply]
+      unfold matrix_p_A
+      unfold eval_pair
+      simp +decide [Finset.sum_mul _ _ _, Finset.mul_sum, mul_assoc, mul_comm,
+        mul_left_comm, MvPolynomial.eval_monomial, Finsupp.mapDomain,
+        Finsupp.single_apply, Finsupp.sum_fintype]
+    rcases h_deg_mx with h | h
+    · have h_ortho :
+          ∀ (p : MvPolynomial (Fin d) ℝ), p.totalDegree ≤ s →
+            (∑ x : A, f x * (eval x p)) = 0 := by
+        intro p hp
+        have h_ortho :
+            ∀ (g : A → ℝ),
+              g ∈ Submodule.map (restriction_map d A) (polynomials_of_degree_le d s) →
+                (∑ x : A, f x * g x) = 0 := by
+          intro g hg
+          simpa [dotProduct] using (mem_Omega_iff d s A f).mp hf g hg
+        convert h_ortho _ _
+        exact ⟨p, Submodule.subset_span hp, rfl⟩
+      simp_all +decide [MvPolynomial.totalDegree_monomial]
+    · have h_g_zero : ∑ y : A, g y * (eval y (monomial my 1)) = 0 := by
+        have h_g_zero :
+            ∀ (p : MvPolynomial (Fin d) ℝ), p.totalDegree ≤ s →
+              ∑ y : A, g y * (eval y p) = 0 := by
+          intros p hp
+          have h_mem : (restriction_map d A) p ∈
+              Submodule.map (restriction_map d A) (polynomials_of_degree_le d s) :=
+            ⟨p, Submodule.subset_span hp, rfl⟩
+          simpa [restriction_map, dotProduct] using
+            (mem_Omega_iff d s A g).mp hg ((restriction_map d A) p) h_mem
+        convert h_g_zero (MvPolynomial.monomial my 1)
+        simp +decide [MvPolynomial.totalDegree_monomial, h]
+      grind
+  exact h_monomial m hm f g hf hg
 
 /-
 The bilinear form Phi_p vanishes on Omega x Omega.
-Proof: p is a sum of monomials of degree <= 2s+1. For each such monomial m, Phi_m vanishes on Omega x Omega. By linearity, Phi_p vanishes on Omega x Omega.
+Proof: p is a sum of monomials of degree <= 2s+1. For each such monomial m,
+Phi_m vanishes on Omega x Omega. By linearity, Phi_p vanishes on Omega x Omega.
 -/
 open Matrix LinearMap MvPolynomial BigOperators
 
-theorem Phi_p_vanishes_on_Omega (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d))) [Fintype A] [DecidableEq A]
+set_option linter.flexible false in
+set_option linter.style.refine false in
+theorem Phi_p_vanishes_on_Omega (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)))
+    [Fintype A] [DecidableEq A]
     (p : MvPolynomial (Fin d ⊕ Fin d) ℝ) (hp : p.totalDegree ≤ 2 * s + 1)
     (f g : A → ℝ) (hf : f ∈ Omega d s A) (hg : g ∈ Omega d s A) :
     Phi_p d p A f g = 0 := by
@@ -339,37 +423,52 @@ theorem Phi_p_vanishes_on_Omega (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)
   rw [as_sum p]
   -- Use linearity of Phi_p (which needs to be established or unfolded)
   -- Apply Phi_monomial_vanishes_on_Omega for each monomial
-  have h_sum_zero : ∀ x : MvPolynomial (Fin d ⊕ Fin d) ℝ, (∀ m ∈ x.support, m.sum (fun _ n => n) ≤ 2 * s + 1) → Phi_p d x A f g = 0 := by
-    intros x hx;
-    have h_sum_zero : Phi_p d x A = ∑ m ∈ x.support, x.coeff m • Phi_p d (monomial m 1) A := by
-      ext a b; simp +decide [ Phi_p, matrix_p_A ] ;
-      simp +decide [ eval_pair, MvPolynomial.eval_eq' ];
-    simp_all +decide [ Phi_p ];
-    refine' Finset.sum_eq_zero fun m hm => _;
-    convert mul_eq_zero_of_right ( MvPolynomial.coeff m x ) ( Phi_monomial_vanishes_on_Omega d s A m ( hx m ( by aesop ) ) f g hf hg ) using 1;
-  refine' h_sum_zero _ _;
-  simp +decide [ MvPolynomial.totalDegree ] at hp ⊢;
+  have h_sum_zero :
+      ∀ x : MvPolynomial (Fin d ⊕ Fin d) ℝ,
+        (∀ m ∈ x.support, m.sum (fun _ n => n) ≤ 2 * s + 1) →
+          Phi_p d x A f g = 0 := by
+    intros x hx
+    have h_sum_zero :
+        Phi_p d x A = ∑ m ∈ x.support, x.coeff m • Phi_p d (monomial m 1) A := by
+      ext a b
+      simp +decide [Phi_p, matrix_p_A]
+      simp +decide [eval_pair, MvPolynomial.eval_eq']
+    simp_all +decide [Phi_p]
+    refine' Finset.sum_eq_zero fun m hm => _
+    convert
+      mul_eq_zero_of_right (MvPolynomial.coeff m x)
+        (Phi_monomial_vanishes_on_Omega d s A m (hx m (by aesop)) f g hf hg) using 1
+  refine' h_sum_zero _ _
+  simp +decide [MvPolynomial.totalDegree] at hp ⊢
   exact hp
 
 /-
 The dimension of Omega is |A| - dim_s(A).
-Proof: Omega is the orthogonal complement of the subspace U of polynomials of degree at most s restricted to A.
-Since the standard dot product on the space of functions A -> R is non-degenerate (it is positive definite), the dimension of the orthogonal complement U^perp is equal to the dimension of the whole space minus the dimension of U.
+Proof: Omega is the orthogonal complement of the subspace U of polynomials of
+degree at most s restricted to A.
+Since the standard dot product on the space of functions A -> R is
+non-degenerate (it is positive definite), the dimension of the orthogonal
+complement U^perp is equal to the dimension of the whole space minus the
+dimension of U.
 The dimension of the whole space is |A|.
 The dimension of U is dim_s(A).
 Therefore, dim(Omega) = |A| - dim_s(A).
 -/
 open Matrix LinearMap MvPolynomial BigOperators
 
-theorem finrank_Omega (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d))) [Fintype A] [DecidableEq A] :
+theorem finrank_Omega (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)))
+    [Fintype A] [DecidableEq A] :
     Module.finrank ℝ (Omega d s A) = Fintype.card A - dim_s d s A := by
   let U := Submodule.map (restriction_map d A) (polynomials_of_degree_le d s)
-  have hmap : Submodule.map (dotProductDualEquiv A).toLinearMap (Omega d s A) = U.dualAnnihilator := by
+  have hmap :
+      Submodule.map (dotProductDualEquiv A).toLinearMap (Omega d s A) =
+        U.dualAnnihilator := by
     rw [Omega, Submodule.map_comap_eq]
     simp [U]
   have hOmega :
       Module.finrank ℝ (Omega d s A) = Module.finrank ℝ U.dualAnnihilator :=
-    (LinearEquiv.ofSubmodules (dotProductDualEquiv A) (Omega d s A) U.dualAnnihilator hmap).finrank_eq
+    (LinearEquiv.ofSubmodules (dotProductDualEquiv A) (Omega d s A)
+      U.dualAnnihilator hmap).finrank_eq
   letI : FiniteDimensional ℝ U := FiniteDimensional.finiteDimensional_submodule U
   letI : Module.Free ℝ U := Module.Free.of_divisionRing ℝ U
   have hsum := Subspace.finrank_add_finrank_dualAnnihilator_eq U
@@ -378,14 +477,19 @@ theorem finrank_Omega (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d))) [Fintyp
     simpa [U, Module.finrank_fintype_fun_eq_card, add_comm] using hsum
 
 /-
-If a quadratic form vanishes on a subspace W, then its positive inertia index is at most the codimension of W.
-Proof: Let P be a subspace where the form is positive definite. If x is in the intersection of P and W, then Q(x) > 0 (since x in P, x != 0) and Q(x) = 0 (since x in W). Thus x must be 0. So P and W have trivial intersection.
+If a quadratic form vanishes on a subspace W, then its positive inertia index is
+at most the codimension of W.
+Proof: Let P be a subspace where the form is positive definite. If x is in the
+intersection of P and W, then Q(x) > 0 (since x in P, x != 0) and Q(x) = 0
+(since x in W). Thus x must be 0. So P and W have trivial intersection.
 This implies dim(P) + dim(W) <= dim(V).
 So dim(P) <= dim(V) - dim(W).
 Taking the supremum over all such P, we get r_plus <= dim(V) - dim(W).
 -/
 open Matrix LinearMap MvPolynomial BigOperators
 
+set_option linter.flexible false in
+set_option linter.style.refine false in
 theorem r_plus_le_codim_of_vanishes_on_subspace {n : Type*} [Fintype n] [DecidableEq n]
     (M : Matrix n n ℝ) (W : Submodule ℝ (n → ℝ))
     (hW : ∀ w ∈ W, (quadratic_form_of_matrix M) w = 0) :
@@ -394,21 +498,29 @@ theorem r_plus_le_codim_of_vanishes_on_subspace {n : Type*} [Fintype n] [Decidab
   -- Let P be a positive definite subspace
   -- P \cap W = {0}
   -- dim(P) + dim(W) <= dim(V)
-  refine' le_trans ( csSup_le _ _ ) _;
-  exact Fintype.card n - Module.finrank ℝ W;
-  · refine' ⟨ 0, ⟨ ⊥, _, _ ⟩ ⟩ <;> simp +decide [ QuadraticMap.PosDef ];
+  refine' le_trans (csSup_le _ _) _
+  · exact Fintype.card n - Module.finrank ℝ W
+  · refine' ⟨0, ⟨⊥, _, _⟩⟩
+    · simp +decide
+    · simp +decide [QuadraticMap.PosDef]
   · rintro k ⟨ W', rfl, hW' ⟩
     have h_inter : ∀ x ∈ W', x ∈ W → x = 0 := by
-      intro x hx hx'; have := hW' ( ⟨ x, hx ⟩ : W' ) ; aesop;
+      intro x hx hx'
+      have := hW' (⟨x, hx⟩ : W')
+      aesop
     have h_dim : Module.finrank ℝ W' + Module.finrank ℝ W ≤ Fintype.card n := by
-      rw [ ← Submodule.finrank_sup_add_finrank_inf_eq ];
-      rw [ show W' ⊓ W = ⊥ from eq_bot_iff.mpr fun x hx => h_inter x hx.1 hx.2 ] ; simp +decide;
-      exact le_trans ( Submodule.finrank_le _ ) ( by simp +decide )
-    exact Nat.le_sub_of_add_le ( by linarith );
+      rw [← Submodule.finrank_sup_add_finrank_inf_eq]
+      rw [show W' ⊓ W = ⊥ from eq_bot_iff.mpr fun x hx => h_inter x hx.1 hx.2]
+      simp +decide
+      exact le_trans (Submodule.finrank_le _) (by simp +decide)
+    exact Nat.le_sub_of_add_le (by linarith)
   · rfl
 
 /-
-Theorem 1.2: Let V be a finite-dimensional vector space over a field F, and let A be a finite set. Let s be a nonnegative integer, and let p(x,y) be a 2 dim V-variate polynomial with coefficients in F and of degree at most 2s+1. Then max {r_+(p, A), r_-(p, A)} <= dim_s(A).
+Theorem 1.2: Let V be a finite-dimensional vector space over a field F, and let
+A be a finite set. Let s be a nonnegative integer, and let p(x,y) be a
+2 dim V-variate polynomial with coefficients in F and of degree at most 2s+1.
+Then max {r_+(p, A), r_-(p, A)} <= dim_s(A).
 Proof:
 1. The bilinear form Phi_p vanishes on Omega x Omega.
 2. Omega has codimension dim_s(A).
@@ -419,9 +531,11 @@ Proof:
 open Matrix LinearMap MvPolynomial BigOperators
 
 /-- Theorem 1.2: Bound on the rank and inertia indices of the matrix M_{p,A}. -/
-theorem theorem_1_2 (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d))) [Fintype A] [DecidableEq A]
+theorem theorem_1_2 (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)))
+    [Fintype A] [DecidableEq A]
     (p : MvPolynomial (Fin d ⊕ Fin d) ℝ) (hp : p.totalDegree ≤ 2 * s + 1) :
-    r_plus (matrix_p_A d p A) ≤ dim_s d s A ∧ r_minus (matrix_p_A d p A) ≤ dim_s d s A := by
+    r_plus (matrix_p_A d p A) ≤ dim_s d s A ∧
+      r_minus (matrix_p_A d p A) ≤ dim_s d s A := by
   constructor
   · -- Proof for r_plus
     let M := matrix_p_A d p A
@@ -440,25 +554,30 @@ theorem theorem_1_2 (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d))) [Fintype 
     -- We need dim_s d s A <= Fintype.card A
     have h_dim_le : dim_s d s A ≤ Fintype.card A := by
       -- dim_s is dimension of a subspace of A -> R, which has dimension |A|
-      exact Submodule.finrank_le _ |> le_trans <| by simp +decide ;
+      exact Submodule.finrank_le _ |> le_trans <| by simp +decide
     rw [Nat.sub_sub_self h_dim_le] at h_bound
     exact h_bound
   · -- Proof for r_minus
     -- Similar to r_plus, but working with -p
-    -- By definition of $r_minus$, we know that $r_minus (matrix_p_A d p A) \leq \dim(V) - \dim(W)$ where $W$ is a subspace where the quadratic form is negative definite.
-    have hr_minus_le_codim : r_minus (matrix_p_A d p A) ≤ Fintype.card A - Module.finrank ℝ (Omega d s A) := by
-      convert r_plus_le_codim_of_vanishes_on_subspace ( -matrix_p_A d p A ) ( Omega d s A ) _ using 1;
-      · -- By definition of $r_minus$, we have $r_minus (matrix_p_A d p A) = r_plus (-matrix_p_A d p A)$.
-        simp [r_minus, r_plus];
-        unfold quadratic_form_of_matrix;
-        simp +decide [ QuadraticMap.PosDef, Matrix.toQuadraticMap' ];
+    -- By definition of $r_minus$, we bound the negated quadratic form by the
+    -- codimension of a subspace where it vanishes.
+    have hr_minus_le_codim :
+        r_minus (matrix_p_A d p A) ≤
+          Fintype.card A - Module.finrank ℝ (Omega d s A) := by
+      convert
+        r_plus_le_codim_of_vanishes_on_subspace (-matrix_p_A d p A) (Omega d s A) _
+          using 1
+      · -- By definition, r_minus M = r_plus (-M).
+        unfold r_minus r_plus quadratic_form_of_matrix
+        simp +decide [QuadraticMap.PosDef, Matrix.toQuadraticMap']
       · intro w hw
         have h_quad_form : (quadratic_form_of_matrix (matrix_p_A d p A)) w = 0 := by
-          convert Phi_p_vanishes_on_Omega d s A p hp w w hw hw using 1;
-        convert congr_arg Neg.neg h_quad_form using 1;
-        · unfold quadratic_form_of_matrix; norm_num [ Matrix.toQuadraticMap' ] ;
-        · norm_num;
-    have := finrank_Omega d s A;
+          convert Phi_p_vanishes_on_Omega d s A p hp w w hw hw using 1
+        convert congr_arg Neg.neg h_quad_form using 1
+        · unfold quadratic_form_of_matrix
+          norm_num [Matrix.toQuadraticMap']
+        · norm_num
+    have := finrank_Omega d s A
     grind
 
 /-
@@ -467,26 +586,37 @@ The set of distances determined by A has cardinality s.
 open Matrix LinearMap MvPolynomial BigOperators
 
 /-- The set of distances determined by A. -/
-noncomputable def distances_finset (d : ℕ) (A : Set (EuclideanSpace ℝ (Fin d))) [Fintype A] : Finset ℝ :=
+noncomputable def distances_finset (d : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)))
+    [Fintype A] : Finset ℝ :=
   (Set.image (fun (p : A × A) => dist p.1.val p.2.val) Set.univ).toFinset \ {0}
 
-theorem card_distances_finset (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d))) [Fintype A]
+set_option linter.flexible false in
+theorem card_distances_finset (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)))
+    [Fintype A]
     (hA : is_s_distance_set A s) : (distances_finset d A).card = s := by
-      rw [ ← Set.ncard_coe_finset ];
-      convert hA.2 using 1;
-      congr with x
-      simp +decide [ distances_finset ];
-      exact ⟨ by rintro ⟨ ⟨ a, ha, b, hb, rfl ⟩, hx ⟩ ; exact ⟨ a, ha, b, hb, by aesop ⟩, by rintro ⟨ a, ha, b, hb, hab, rfl ⟩ ; exact ⟨ ⟨ a, ha, b, hb, rfl ⟩, by aesop ⟩ ⟩
+  rw [← Set.ncard_coe_finset]
+  convert hA.2 using 1
+  congr with x
+  simp +decide [distances_finset]
+  constructor
+  · rintro ⟨⟨a, ha, b, hb, rfl⟩, hx⟩
+    exact ⟨a, ha, b, hb, by aesop⟩
+  · rintro ⟨a, ha, b, hb, hab, rfl⟩
+    exact ⟨⟨a, ha, b, hb, rfl⟩, by aesop⟩
 
 /-
-For an s-distance set A, the positive inertia index of the matrix M_{p,A} is equal to |A|.
-Proof: The matrix M_{p,A} is diagonal because p(a, b) = 0 for a != b (since the distance is in S).
+For an s-distance set A, the positive inertia index of the matrix M_{p,A} is
+equal to |A|.
+Proof: The matrix M_{p,A} is diagonal because p(a, b) = 0 for a != b (since the
+distance is in S).
 The diagonal entries are p(a, a) = product of s^2 for s in S, which is positive.
 A diagonal matrix with positive entries has positive inertia index equal to its size.
 -/
 open Matrix LinearMap MvPolynomial BigOperators
 
-theorem r_plus_matrix_p_A_eq_card (d : ℕ) (A : Set (EuclideanSpace ℝ (Fin d))) [Fintype A] [DecidableEq A] :
+set_option linter.flexible false in
+theorem r_plus_matrix_p_A_eq_card (d : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)))
+    [Fintype A] [DecidableEq A] :
     let S := distances_finset d A
     let p := distance_poly d S
     r_plus (matrix_p_A d p A) = Fintype.card A := by
@@ -497,49 +627,70 @@ theorem r_plus_matrix_p_A_eq_card (d : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)
     simp [matrix_p_A, eval_pair]
     -- p(a, b) = product over s in S of (s^2 - dist(a, b)^2)
     -- Since a != b, dist(a, b) is in S, so one factor is 0
-    -- Since $a \neq b$, the distance between $a$ and $b$ is one of the distances in $S$, making one of the terms in the product zero.
+    -- Since $a \neq b$, the distance between $a$ and $b$ is one of the distances
+    -- in $S$, making one of the terms in the product zero.
     have h_dist_in_S : dist a.val b.val ∈ S := by
-      simp +zetaDelta at *;
-      unfold distances_finset; aesop;
-    norm_num +zetaDelta at *;
-    rw [ distance_poly ];
-    rw [ MvPolynomial.eval_prod, Finset.prod_eq_zero h_dist_in_S ] ; norm_num;
-    unfold dist_sq_poly; simp +decide [ dist_eq_norm, EuclideanSpace.norm_eq ] ;
-    rw [ Real.sq_sqrt <| Finset.sum_nonneg fun _ _ => sq_nonneg _, sub_self ]
+      simp +zetaDelta at *
+      unfold distances_finset
+      aesop
+    norm_num +zetaDelta at *
+    rw [distance_poly]
+    rw [MvPolynomial.eval_prod, Finset.prod_eq_zero h_dist_in_S]
+    norm_num
+    unfold dist_sq_poly
+    simp +decide [dist_eq_norm, EuclideanSpace.norm_eq]
+    rw [Real.sq_sqrt <| Finset.sum_nonneg fun _ _ => sq_nonneg _, sub_self]
   -- The diagonal entries are positive
   have h_pos : ∀ a : A, (matrix_p_A d p A) a a > 0 := by
     intro a
     simp [matrix_p_A, eval_pair]
     -- p(a, a) = product over s in S of s^2
     -- S contains positive numbers, so product is positive
-    -- Since $p(a, a) = \prod_{s \in S} (s^2 - 0) = \prod_{s \in S} s^2$ and $S$ consists of positive distances, $p(a, a)$ is positive.
-    have h_diag_pos : (p.eval (Sum.elim (a : Fin d → ℝ) (a : Fin d → ℝ))) = ∏ s ∈ S, s^2 := by
-      simp +zetaDelta at *;
-      unfold distance_poly;
-      simp +decide [ dist_sq_poly ];
+    -- Since $p(a, a) = \prod_{s \in S} (s^2 - 0) = \prod_{s \in S} s^2$
+    -- and $S$ consists of positive distances, $p(a, a)$ is positive.
+    have h_diag_pos :
+        (p.eval (Sum.elim (a : Fin d → ℝ) (a : Fin d → ℝ))) = ∏ s ∈ S, s^2 := by
+      simp +zetaDelta at *
+      unfold distance_poly
+      simp +decide [dist_sq_poly]
     -- Since $S$ consists of positive distances, each $s^2$ is positive.
     have h_pos : ∀ s ∈ S, 0 < s^2 := by
-      simp +zetaDelta at *;
-      unfold distances_finset; aesop;
+      simp +zetaDelta at *
+      unfold distances_finset
+      aesop
     exact h_diag_pos.symm ▸ Finset.prod_pos h_pos
   -- Therefore r_plus is |A|
-  refine' le_antisymm _ _;
-  · convert r_plus_le_codim_of_vanishes_on_subspace _ ⊥ _;
-    · norm_num;
-    · simp +zetaDelta at *;
-  · refine' le_csSup _ _;
-    · exact ⟨ _, fun k hk => by obtain ⟨ W, rfl, hW ⟩ := hk; exact Submodule.finrank_le _ ⟩;
-    · refine' ⟨ ⊤, _, _ ⟩ <;> norm_num;
-      intro x hx; simp_all +decide ;
+  refine le_antisymm ?_ ?_
+  · convert r_plus_le_codim_of_vanishes_on_subspace _ ⊥ ?_
+    · norm_num
+    · simp +zetaDelta at *
+  · refine le_csSup ?_ ?_
+    · exact ⟨_, fun k hk => by
+        obtain ⟨W, rfl, _⟩ := hk
+        exact Submodule.finrank_le _⟩
+    · refine ⟨⊤, ?_, ?_⟩
+      all_goals
+        norm_num
+      intro x hx
+      simp_all +decide
       -- Since $x \neq 0$, there exists some $a \in A$ such that $x(a) \neq 0$.
       obtain ⟨a, ha⟩ : ∃ a : A, x.val a ≠ 0 := by
-        exact not_forall.mp fun h => hx <| Subtype.ext <| funext h;
-      -- Since $x \neq 0$, there exists some $a \in A$ such that $x(a) \neq 0$. Therefore, the quadratic form evaluated at $x$ is positive.
-      have h_quad_pos : (quadratic_form_of_matrix (matrix_p_A d p A)) x.val = ∑ a : A, x.val a ^ 2 * (matrix_p_A d p A a a) := by
-        erw [ Matrix.toLinearMap₂'_apply' ];
-        simp +decide [ sq, mul_comm, mul_left_comm, dotProduct, Matrix.mulVec, Finset.mul_sum _ _ _ ];
-        exact Finset.sum_congr rfl fun i hi => Finset.sum_eq_single i ( by aesop ) ( by aesop );
-      exact h_quad_pos.symm ▸ lt_of_lt_of_le ( mul_pos ( sq_pos_of_ne_zero ha ) ( h_pos _ a.2 ) ) ( Finset.single_le_sum ( fun a _ => mul_nonneg ( sq_nonneg ( x.val a ) ) ( le_of_lt ( h_pos _ a.2 ) ) ) ( Finset.mem_univ a ) )
+        exact not_forall.mp fun h => hx <| Subtype.ext <| funext h
+      -- Since $x \neq 0$, there exists some $a \in A$ such that $x(a) \neq 0$.
+      -- Therefore, the quadratic form evaluated at $x$ is positive.
+      have h_quad_pos :
+          (quadratic_form_of_matrix (matrix_p_A d p A)) x.val =
+            ∑ a : A, x.val a ^ 2 * (matrix_p_A d p A a a) := by
+        erw [Matrix.toLinearMap₂'_apply']
+        simp +decide [sq, mul_comm, mul_left_comm, dotProduct, Matrix.mulVec,
+          Finset.mul_sum _ _ _]
+        exact Finset.sum_congr rfl fun i hi =>
+          Finset.sum_eq_single i (by aesop) (by aesop)
+      exact h_quad_pos.symm ▸
+        lt_of_lt_of_le (mul_pos (sq_pos_of_ne_zero ha) (h_pos _ a.2))
+          (Finset.single_le_sum
+            (fun a _ => mul_nonneg (sq_nonneg (x.val a)) (le_of_lt (h_pos _ a.2)))
+            (Finset.mem_univ a))
 
 /-
 Theorem 1.1: If A is an s-distance subset in ℝ^d, then |A| ≤ (d+s choose s).
@@ -553,8 +704,11 @@ Proof:
 -/
 open Matrix LinearMap MvPolynomial BigOperators
 
+set_option linter.flexible false in
+set_option linter.unusedDecidableInType false in
 /-- Theorem 1.1: If A is an s-distance subset in ℝ^d, then |A| ≤ (d+s choose s). -/
-theorem bannai_bannai_stanton (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d))) [Fintype A] [DecidableEq A]
+theorem bannai_bannai_stanton (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)))
+    [Fintype A] [DecidableEq A]
     (hA : is_s_distance_set A s) : Fintype.card A ≤ Nat.choose (d + s) s := by
   let S := distances_finset d A
   let p := distance_poly d S
@@ -562,26 +716,52 @@ theorem bannai_bannai_stanton (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)))
     -- degree of p is 2 * |S|
     -- |S| = s
     -- so degree is 2 * s <= 2 * s + 1
-    -- The total degree of a product of polynomials is the sum of their total degrees.
-    have h_total_degree : p.totalDegree ≤ ∑ s ∈ S, (C (s^2) - dist_sq_poly d).totalDegree := by
-      -- Apply the lemma that the total degree of a product of polynomials is at most the sum of their total degrees.
-      have h_total_degree : ∀ (s : Finset ℝ), (Finset.prod s fun t => (MvPolynomial.C (t ^ 2) - dist_sq_poly d)).totalDegree ≤ ∑ t ∈ s, ((MvPolynomial.C (t ^ 2) - dist_sq_poly d).totalDegree) := by
+    -- The total degree of a product of polynomials is the sum of their total
+    -- degrees.
+    have h_total_degree :
+        p.totalDegree ≤ ∑ s ∈ S, (C (s^2) - dist_sq_poly d).totalDegree := by
+      -- Apply the lemma that the total degree of a product of polynomials is at
+      -- most the sum of their total degrees.
+      have h_total_degree :
+          ∀ (s : Finset ℝ),
+            (Finset.prod s fun t =>
+              (MvPolynomial.C (t ^ 2) - dist_sq_poly d)).totalDegree ≤
+              ∑ t ∈ s, ((MvPolynomial.C (t ^ 2) - dist_sq_poly d).totalDegree) := by
         exact fun s => totalDegree_finset_prod s fun t => C (t ^ 2) - dist_sq_poly d
-      exact h_total_degree S;
+      exact h_total_degree S
     -- The total degree of each term $(C(s^2) - dist_sq_poly d)$ is 2.
     have h_term_degree : ∀ s ∈ S, (C (s^2) - dist_sq_poly d).totalDegree ≤ 2 := by
-      intro s hs; rw [ dist_sq_poly ] ; simp +decide [ MvPolynomial.totalDegree ] ;
-      intro b hb; contrapose! hb; simp_all +decide [ sq, sub_mul, mul_sub, MvPolynomial.coeff_sum ] ;
-      rw [ Finset.sum_eq_zero, Finset.sum_eq_zero, Finset.sum_eq_zero, Finset.sum_eq_zero ] <;> intros <;> simp_all +decide [ MvPolynomial.X ];
-      · aesop_cat;
-      · intro h; subst h; simp_all +decide [ Finsupp.sum_add_index' ] ;
-      · intro h; subst h; simp_all +decide [ Finsupp.sum_add_index' ] ;
-      · intro h; subst h; simp_all +decide [ Finsupp.sum_add_index' ] ;
-      · intro h; rw [ ← h ] at hb; simp_all +decide ;
-        subst h; simp_all +decide [ Finsupp.sum_add_index' ] ;
-    generalize_proofs at *; simp_all +decide ; (
-    refine le_trans h_total_degree <| le_trans ( Finset.sum_le_sum h_term_degree ) ?_ ; simp +arith +decide [ mul_comm ] ; (
-    exact Nat.le_succ_of_le ( by rw [ card_distances_finset d s A hA ] )))
+      intro s hs
+      rw [dist_sq_poly]
+      simp +decide [MvPolynomial.totalDegree]
+      intro b hb
+      contrapose! hb
+      simp_all +decide [sq, sub_mul, mul_sub, MvPolynomial.coeff_sum]
+      rw [Finset.sum_eq_zero, Finset.sum_eq_zero, Finset.sum_eq_zero,
+        Finset.sum_eq_zero]
+      all_goals
+        intros
+        simp_all +decide [MvPolynomial.X]
+      · aesop_cat
+      · intro h
+        subst h
+        simp_all +decide [Finsupp.sum_add_index']
+      · intro h
+        subst h
+        simp_all +decide [Finsupp.sum_add_index']
+      · intro h
+        subst h
+        simp_all +decide [Finsupp.sum_add_index']
+      · intro h
+        rw [← h] at hb
+        simp_all +decide
+        subst h
+        simp_all +decide [Finsupp.sum_add_index']
+    generalize_proofs at *
+    simp_all +decide
+    refine le_trans h_total_degree <| le_trans (Finset.sum_le_sum h_term_degree) ?_
+    simp +arith +decide [mul_comm]
+    exact Nat.le_succ_of_le (by rw [card_distances_finset d s A hA])
   have h_r_plus := r_plus_matrix_p_A_eq_card d A
   have h_thm_1_2 := theorem_1_2 d s A p hp_deg
   have h_dim_bound := dim_s_le_binom d s A
