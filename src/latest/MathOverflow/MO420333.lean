@@ -43,17 +43,12 @@ set_option linter.style.setOption false
 --
 set_option linter.deprecated false
 set_option linter.flexible false
-set_option linter.style.cases false
-set_option linter.style.commandStart false
-set_option linter.style.refine false
 set_option linter.style.induction false
+set_option linter.style.refine false
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
 set_option linter.style.openClassical false
 set_option linter.style.whitespace false
-set_option linter.unusedDecidableInType false
-set_option linter.unusedFintypeInType false
-set_option linter.unusedVariables false
 
 open scoped Classical
 
@@ -851,7 +846,7 @@ lemma g_gt_self_of_lt_R {R a : ℝ} (hR : 1 < R) (hR4 : R < 4) (ha : a < R) : g 
 /-
 The function g(R, a) is monotone increasing in a for a < R.
 -/
-lemma g_monotone {R a b : ℝ} (hR : 0 < R) (ha : a < R) (hb : b < R) (hab : a ≤ b) : g R a ≤ g R b := by
+lemma g_monotone {R a b : ℝ} (hR : 0 < R) (_ha : a < R) (hb : b < R) (hab : a ≤ b) : g R a ≤ g R b := by
   exact mul_le_mul_of_nonneg_left ( inv_anti₀ ( by linarith ) ( by linarith ) ) hR.le
 
 /-
@@ -1137,7 +1132,7 @@ The first guess $x_0$ is bounded by $R$.
 -/
 lemma recurrence_start {s : Strategy} {B R : ℝ}
     (h_score : boundedWorstCaseScore s B ≤ ENNReal.ofReal R)
-    (hB : 1 ≤ B) (h_x0 : s.x 0 ≤ B) : s.x 0 ≤ R := by
+    (hB : 1 ≤ B) (_h_x0 : s.x 0 ≤ B) : s.x 0 ≤ R := by
       -- By considering the score when $y = 1$, we have $\text{score}(s, 1) = s.x 0$.
       have h_score_one : score s ⟨1, by linarith⟩ = ENNReal.ofReal (s.x 0) := by
         unfold score;
@@ -1640,7 +1635,7 @@ Lemma: optimalStrategy_x is non-negative.
 theorem optimalStrategy_x_nonneg (n : ℕ) (R B : ℝ)
     (hn : 1 ≤ n) (hB : 1 < B)
     (hR_range : R ∈ Set.Icc (ratioLower n) (ratioUpper n))
-    (h_tight : tightPoly n R = B) (k : ℕ) :
+    (_h_tight : tightPoly n R = B) (k : ℕ) :
     0 ≤ optimalStrategy_x n R B k := by
       unfold optimalStrategy_x;
       split_ifs <;> try linarith [ tightPoly_pos n hn R hR_range ( k + 1 ) ( by linarith ) ];
@@ -1976,9 +1971,9 @@ lemma strategy_recurrence_slack {s : Strategy} {R : ℝ} (k : ℕ) (hk : 2 ≤ k
 $x_k$ equals `formula_x` for all $k < n$.
 -/
 lemma strategy_eq_formula_x {s : Strategy} {B R : ℝ} {n : ℕ}
-    (h_strict : StrictMono s.x)
-    (h_n : s.x (n - 1) = B)
-    (h_score : boundedWorstCaseScore s B ≤ ENNReal.ofReal R)
+    (_h_strict : StrictMono s.x)
+    (_h_n : s.x (n - 1) = B)
+    (_h_score : boundedWorstCaseScore s B ≤ ENNReal.ofReal R)
     (hR : R ≠ 0)
     (k : ℕ) (hk : k < n) :
     s.x k = formula_x s R k := by
@@ -2338,7 +2333,7 @@ The sequence d k can be expressed as the convolution of the impulse response and
 -/
 lemma diffSeq_eq_convolution {d : ℕ → ℝ} {R : ℝ} {n : ℕ}
     (hR : R ≠ 0)
-    (h_rec : ∀ k, 1 ≤ k → k < n → d k ≥ R * d (k - 1) - ∑ j ∈ Finset.range k, d j) :
+    (_h_rec : ∀ k, 1 ≤ k → k < n → d k ≥ R * d (k - 1) - ∑ j ∈ Finset.range k, d j) :
     ∀ k, k < n → d k = ∑ j ∈ Finset.range (k + 1), impulseResponse R (k - j) * slackSeq d R j := by
       -- By definition of `impulseResponse` and `slackSeq`, we can expand the right-hand side of the equation.
       have h_expand : ∀ k < n, ∑ j ∈ Finset.range (k + 1), (tightPoly (k - j + 1) R / R) * (slackSeq d R j) = d k := by
@@ -2986,7 +2981,7 @@ lemma recurrence_positivity_v2 {u : ℕ → ℝ} {R : ℝ} {n : ℕ}
     (h_u0 : 0 ≤ u 0)
     (h_rec : ∀ k, 1 ≤ k → k < n → u k ≥ R * u (k - 1) - ∑ j ∈ Finset.range k, u j)
     (h_tight_nonneg : ∀ k, k ≤ n → 0 ≤ tightPoly k R)
-    (h_mono : ∀ k, k < n → tightPoly k R ≤ tightPoly (k + 1) R) :
+    (_h_mono : ∀ k, k < n → tightPoly k R ≤ tightPoly (k + 1) R) :
     ∀ k, k < n → 0 ≤ u k := by
       -- Apply the recurrence_positivity lemma with the given hypotheses.
       apply recurrence_positivity hR h_u0 h_rec h_tight_nonneg
@@ -3011,7 +3006,7 @@ lemma diffSeq_satisfies_recurrence {s : Strategy} {B R : ℝ} {n : ℕ}
     (h_strict : StrictMono s.x)
     (h_n : s.x (n - 1) = B)
     (h_score : boundedWorstCaseScore s B ≤ ENNReal.ofReal R)
-    (hR : 1 ≤ R) :
+    (_hR : 1 ≤ R) :
     let u := fun k => tightPoly (k + 1) R - s.x k
     ∀ k, 1 ≤ k → k < n → u k ≥ R * u (k - 1) - ∑ j ∈ Finset.range k, u j := by
       simp +zetaDelta at *;
@@ -3032,7 +3027,7 @@ lemma dominance_property_strict {s : Strategy} {B R : ℝ} {n : ℕ}
     (h_score : boundedWorstCaseScore s B ≤ ENNReal.ofReal R)
     (hR : 1 ≤ R)
     (h_tight_nonneg : ∀ k, k ≤ n → 0 ≤ tightPoly k R)
-    (h_mono : ∀ k, k < n → tightPoly k R ≤ tightPoly (k + 1) R) :
+    (_h_mono : ∀ k, k < n → tightPoly k R ≤ tightPoly (k + 1) R) :
     ∀ k, k < n → s.x k ≤ tightPoly (k + 1) R := by
       exact fun k a ↦ dominance_property_proof h_strict h_n h_score hR h_tight_nonneg k a
 
@@ -3455,9 +3450,10 @@ lemma List_dedup_getLast_eq_getLast_of_sorted {α : Type*} [LinearOrder α] {L :
     L.dedup.getLast (by simpa using h_ne_nil) = L.getLast h_ne_nil := by
       induction' L with x xs ih
       · contradiction
-      · cases' xs with y ys
-        · simp
-        · have h_tail : List.Sorted (· ≤ ·) (y :: ys) := List.Sorted.tail h_sorted
+      · cases xs with
+        | nil => simp
+        | cons y ys =>
+          have h_tail : List.Sorted (· ≤ ·) (y :: ys) := List.Sorted.tail h_sorted
           by_cases hx : x ∈ y :: ys
           · simpa [List.dedup_cons_of_mem hx, List.getLast_cons] using ih h_tail (by simp)
           · simpa [List.dedup_cons_of_notMem hx, List.getLast_cons] using ih h_tail (by simp)
@@ -3756,8 +3752,9 @@ lemma List_filter_lt_eq_take_of_sorted {L : List ℝ} (h_sorted : List.Sorted (�
     L.filter (· < y) = L.take k := by
       induction' L with a L ih generalizing k
       · simp
-      · cases' k with k
-        · have h_not : ∀ x ∈ a :: L, ¬x < y := by
+      · cases k with
+        | zero =>
+          have h_not : ∀ x ∈ a :: L, ¬x < y := by
             intro x hx
             exact not_lt.mpr (h_drop x hx)
           have h_filter_nil : (a :: L).filter (fun x => decide (x < y)) = [] := by
@@ -3765,7 +3762,8 @@ lemma List_filter_lt_eq_take_of_sorted {L : List ℝ} (h_sorted : List.Sorted (�
             intro x hx hdec
             exact h_not x hx (of_decide_eq_true hdec)
           simpa using h_filter_nil
-        · have ha : a < y := h_take a (by simp)
+        | succ k =>
+          have ha : a < y := h_take a (by simp)
           have h_take_tail : ∀ x ∈ L.take k, x < y := by
             intro x hx
             exact h_take x (by simp [hx])
