@@ -30,16 +30,12 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.style.openClassical false
 set_option linter.flexible false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
 
 namespace Erdos26
 
 open scoped Classical
-
-set_option linter.style.docString false
-set_option linter.style.induction false
-set_option linter.style.multiGoal false
-set_option linter.style.refine false
-set_option linter.unusedVariables false
 
 variable {β : Type*} [Preorder β]
 
@@ -415,7 +411,7 @@ lemma ruzsa_sequence_divisible_by_pk_plus_1 (k : ℕ) (l : ℕ) (hl : l ≥ k + 
 If $n \in S_k$ and $\ell \ge k+1$, then $(n_\ell + k) \nmid n$.
 -/
 lemma ruzsa_progression_subset_case2
-    (k : ℕ) (hk : k ≥ 1) (n : ℕ) (hn : n ∈ ruzsa_progression k)
+    (k : ℕ) (_hk : k ≥ 1) (n : ℕ) (hn : n ∈ ruzsa_progression k)
     (l : ℕ) (hl : l ≥ k + 1) :
     ¬ ((ruzsa_sequence l + k) ∣ n) := by
   -- If $n \in S_k$ and $\ell \ge k+1$, then $p_{k+1}$ divides $n_\ell + k$.
@@ -525,7 +521,8 @@ theorem ruzsa_counterexample :
 /-- A sequence of naturals $(a_i)$ is _thick_ if their sum of reciprocals diverges:
 $$
   \sum_i \frac{1}{a_i} = \infty
-$$-/
+$$
+-/
 def IsThick {ι : Type*} (A : ι → ℕ) : Prop := ¬Summable (fun i ↦ (1 : ℝ) / A i)
 
 /-- The set of multiples of a sequence $(a_i)$ is $\{na_i | n \in \mathbb{N}, i\}$. -/
@@ -801,9 +798,12 @@ theorem erdos_26.variants.rusza : ∃ A : ℕ → ℕ,
               norm_num [Nat.pow_succ', Nat.pow_mul];
             exact inv_anti₀ (by positivity)
               (pow_le_pow_right₀ (by norm_num) (by
-                induction' n with n ih <;>
-                  norm_num [Nat.pow_succ', Nat.pow_mul] at *
-                linarith [Nat.one_le_pow n 2 zero_lt_two]))
+                induction n with
+                | zero =>
+                    norm_num [Nat.pow_succ', Nat.pow_mul]
+                | succ n ih =>
+                    norm_num [Nat.pow_succ', Nat.pow_mul] at *
+                    linarith [Nat.one_le_pow n 2 zero_lt_two]))
           · norm_num;
           · simpa using
               summable_geometric_two.comp_injective (Nat.pow_right_injective (by decide));
@@ -817,7 +817,7 @@ theorem erdos_26.variants.rusza : ∃ A : ℕ → ℕ,
           h_upper_density.trans' <| by
             linarith [isBehrend_implies_upperDensity_eq_one h]
 
-#print axioms erdos_26.variants.rusza
--- 'Erdos26.erdos_26.variants.rusza' depends on axioms: [propext, Classical.choice, Quot.sound]
-
 end Erdos26
+
+#print axioms Erdos26.erdos_26.variants.rusza
+-- 'Erdos26.erdos_26.variants.rusza' depends on axioms: [propext, Classical.choice, Quot.sound]
