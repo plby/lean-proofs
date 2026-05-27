@@ -34,22 +34,15 @@ import Mathlib
 
 namespace Erdos229
 
--- This generated proof still has extensive style debt; use specific suppressions
--- rather than the broad `linter.mathlibStandardSet` switch.
+-- Remaining suppressions cover generated proof structure that is risky to
+-- rewrite mechanically in this cleanup pass.
 set_option linter.style.setOption false
 set_option linter.style.openClassical false
 set_option linter.style.longLine false
 set_option linter.style.refine false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
-set_option linter.style.whitespace false
-set_option linter.style.cdot false
-set_option linter.style.cases false
-set_option linter.style.docString false
 set_option linter.flexible false
-set_option linter.unnecessarySimpa false
-set_option linter.unusedSimpArgs false
-set_option linter.unusedVariables false
 
 open scoped Classical
 
@@ -163,7 +156,7 @@ lemma analytic_on_larger_disk (r : ℝ) (hr : r > 0) (f : ℂ → ℂ)
   intro x hx; simp_all +decide [ Metric.mem_thickening_iff ];
   by_cases hx' : ‖x‖ ≤ r;
   · exact ⟨ x, hx', by simpa using hδ_pos ⟩;
-  · refine' ⟨ r • ( ‖x‖⁻¹ • x ), _, _ ⟩ <;> simp_all +decide [ norm_smul, abs_of_nonneg ];
+  · refine' ⟨ r • ( ‖x‖⁻¹ • x ), _, _ ⟩ <;> simp_all +decide;
     · rw [ abs_of_pos hr, inv_mul_cancel₀ ( by linarith ), mul_one ];
     · rw [ dist_eq_norm ] ; ring_nf;
       rw [ show x - x * ( r : ℂ ) * ( ‖x‖ : ℂ ) ⁻¹ = x * ( 1 - ( r : ℂ ) * ( ‖x‖ : ℂ ) ⁻¹ ) by ring, norm_mul ];
@@ -257,10 +250,10 @@ open Complex Polynomial Set Filter Topology Metric
 
 lemma hermite_interpolation_finset (S : Finset ℂ) (L : ℕ) (γ : S → Fin (L + 1) → ℂ) :
     ∃ H : Polynomial ℂ, ∀ (s : S) (l : Fin (L + 1)), (derivative^[l] H).eval (s : ℂ) = γ s l := by
-  -- Let $m = |S|$. Since $S$ is a finite set, there exists a bijection $e : \{0, \dots, m-1\} \to S$.
+  -- Let $m = |S|$. Since $S$ is a finite set, there exists a bijection $e : \{0, \dots, m - 1\} \to S$.
   obtain ⟨e, he⟩ : ∃ e : Fin S.card ≃ S, True := by
     exact ⟨ Fintype.equivOfCardEq <| by simp +decide, trivial ⟩;
-  -- Define $\gamma' : \{0, \dots, m-1\} \to \{0, \dots, L\} \to \mathbb{C}$ by $\gamma'(j, l) = \gamma(e(j), l)$.
+  -- Define $\gamma' : \{0, \dots, m - 1\} \to \{0, \dots, L\} \to \mathbb{C}$ by $\gamma'(j, l) = \gamma(e(j), l)$.
   set γ' : Fin S.card → Fin (L + 1) → ℂ := fun j l => γ (e j) l;
   -- Apply `hermite_interpolation` to $b$ and $\gamma'$ to obtain a polynomial $H$.
   obtain ⟨H, hH⟩ : ∃ H : Polynomial ℂ, ∀ (j : Fin S.card) (l : Fin (L + 1)), (Polynomial.derivative^[l] H).eval (e j).val = γ' j l := by
@@ -310,7 +303,7 @@ lemma countable_of_hasNoFiniteLimitPoint (S : Set ℂ) (h : HasNoFiniteLimitPoin
   -- Since $S$ has no finite limit point, its intersection with any compact set is finite. Hence, $S$ is countable.
   have h_countable : S = ⋃ n : ℕ, S ∩ Metric.closedBall 0 (n : ℝ) := by
     ext z
-    simp [h_compact_finite];
+    simp;
     exact fun hz => ⟨ ⌈‖z‖⌉₊, Nat.le_ceil _ ⟩;
   exact h_countable ▸ Set.countable_iUnion fun n => Set.Finite.countable ( h_compact_finite n )
 
@@ -329,7 +322,7 @@ lemma exists_radii (S : ℕ → Set ℂ) (hS : ∀ n, HasNoFiniteLimitPoint (S n
       have hr_exists : ∀ n : ℕ, ∃ r_n : ℝ, (n + 1 : ℝ) < r_n ∧ r_n < (n + 2 : ℝ) ∧ r_n ∉ {‖z‖ | z ∈ ⋃ j ∈ Finset.range (n + 2), S j} := by
         intro n;
         contrapose! h_bad_rad;
-        exact ⟨ n, fun h => absurd ( h.mono <| show { x | ∃ z ∈ ⋃ j ∈ Finset.range ( n + 2 ), S j, ‖z‖ = x } ⊇ Set.Ioo ( n + 1 : ℝ ) ( n + 2 ) from fun x hx => h_bad_rad x hx.1 hx.2 ) ( by exact fun h' => absurd ( h'.measure_zero <| MeasureTheory.MeasureSpace.volume ) ( by simp +decide [ Set.Ioo_def ] ) ) ⟩;
+        exact ⟨ n, fun h => absurd ( h.mono <| show { x | ∃ z ∈ ⋃ j ∈ Finset.range ( n + 2 ), S j, ‖z‖ = x } ⊇ Set.Ioo ( n + 1 : ℝ ) ( n + 2 ) from fun x hx => h_bad_rad x hx.1 hx.2 ) ( by exact fun h' => absurd ( h'.measure_zero <| MeasureTheory.MeasureSpace.volume ) ( by simp +decide ) ) ⟩;
       choose r hr using hr_exists;
       use r;
       exact ⟨ strictMono_nat_of_lt_succ fun n => by have := hr n; have := hr ( n + 1 ) ; norm_num at * ; linarith, fun n => hr n |>.1, fun n => Set.eq_empty_of_forall_notMem fun z hz => hr n |>.2.2 ⟨ z, hz.2, hz.1 ⟩ ⟩
@@ -344,7 +337,7 @@ lemma annulus_uncountable (r₁ r₂ : ℝ) (h₀ : 0 ≤ r₁) (h : r₁ < r₂
       refine' absurd ( this.mono _ ) _;
       exact Set.Ioo ( r₁ : ℝ ) r₂;
       · exact fun x hx => ⟨ x, ⟨ by simpa [ abs_of_nonneg ( show 0 ≤ x by linarith [ hx.1 ] ) ] using hx.1, by simpa [ abs_of_nonneg ( show 0 ≤ x by linarith [ hx.1 ] ) ] using hx.2 ⟩, rfl ⟩;
-      · exact fun H => absurd ( H.measure_zero <| MeasureTheory.MeasureSpace.volume ) ( by simp +decide [ *, le_of_lt ] )
+      · exact fun H => absurd ( H.measure_zero <| MeasureTheory.MeasureSpace.volume ) ( by simp +decide [ * ] )
 
 /-
 Existence of auxiliary points $c_n$ in the annuli defined by $r_n$, avoiding $\Sigma$.
@@ -418,7 +411,7 @@ lemma small_polynomial_with_prescribed_jets (r : ℝ) (hr : 0 < r)
             intro x hx; right; left; erw [ Polynomial.iterate_derivative_X_sub_pow ] ; norm_num [ Nat.choose_eq_zero_of_lt ( show x < L + 1 from by linarith ) ] ;
             exact Or.inr ( Nat.sub_ne_zero_of_lt ( by omega ) );
           rw [ hP₀.1 a ha l, h_deriv_zero l ( Fin.is_le l ), add_zero ];
-        · intro b hb l; rw [ ← hP₀.2.1 b hb l ] ; simp +decide [ ← hP₀.2.2, mul_assoc, Polynomial.derivative_mul ] ;
+        · intro b hb l; rw [ ← hP₀.2.1 b hb l ] ; simp +decide [ mul_assoc ] ;
           rw [ Polynomial.iterate_derivative_mul ];
           rw [ Polynomial.eval_finset_sum, Finset.sum_eq_zero ] ; intros ; norm_num [ Polynomial.eval_prod, Finset.prod_eq_zero hb ];
           refine' Or.inr <| Or.inr <| _;
@@ -475,11 +468,13 @@ lemma exists_correction_polynomial (m : ℕ) (hm : m > 0)
     (F_prev : Polynomial ℂ)
     (k_next : ℕ) (hk_next : k_next > k_prev) :
     ∃ T_next : Polynomial ℂ,
-      (∀ z, ‖z‖ ≤ r (m-1) → ‖T_next.eval z‖ < 2 ^ (-(m : ℝ) + 1)) ∧
-      (∀ i ≤ m, ∀ z ∈ S i ∩ Metric.ball 0 (r (m-1)), ∀ l ≤ k_next, (derivative^[l] T_next).eval z = 0) ∧
-      (∀ i < m-1, ∀ l ≤ k_next, (derivative^[l] T_next).eval (c i) = 0) ∧
-      (∀ i ≤ m, ∀ z ∈ S i ∩ {z | r (m-1) < ‖z‖ ∧ ‖z‖ < r m}, ∀ l ≤ k_next, (derivative^[l] T_next).eval z = -(derivative^[l] F_prev).eval z) ∧
-      (∀ l ≤ k_next, (derivative^[l] T_next).eval (c (m-1)) = if l = k_prev then 1 - (derivative^[l] F_prev).eval (c (m-1)) else -(derivative^[l] F_prev).eval (c (m-1))) := by
+      (∀ z, ‖z‖ ≤ r (m - 1) → ‖T_next.eval z‖ < 2 ^ (-(m : ℝ) + 1)) ∧
+      (∀ i ≤ m, ∀ z ∈ S i ∩ Metric.ball 0 (r (m - 1)), ∀ l ≤ k_next, (derivative^[l] T_next).eval z = 0) ∧
+      (∀ i < m - 1, ∀ l ≤ k_next, (derivative^[l] T_next).eval (c i) = 0) ∧
+      (∀ i ≤ m, ∀ z ∈ S i ∩ {z | r (m - 1) < ‖z‖ ∧ ‖z‖ < r m}, ∀ l ≤ k_next, (derivative^[l] T_next).eval z = -(derivative^[l] F_prev).eval z) ∧
+      (∀ l ≤ k_next, (derivative^[l] T_next).eval (c (m - 1)) = if l = k_prev then 1 - (derivative^[l] F_prev).eval (c (m - 1)) else -(derivative^[l] F_prev).eval (c (m - 1))) := by
+        have _hm := hm
+        have _hr_pos := hr_pos
         have h_finite : Set.Finite (⋃ i ≤ m, S i ∩ Metric.ball 0 (r (m - 1))) ∧ Set.Finite (⋃ i ≤ m, S i ∩ {z | r (m - 1) < ‖z‖ ∧ ‖z‖ < r m}) := by
           constructor <;> refine' Set.Finite.biUnion ( Set.finite_Iic _ ) fun i hi => _;
           · have := hS i;
@@ -489,7 +484,7 @@ lemma exists_correction_polynomial (m : ℕ) (hm : m > 0)
         have h_finite_union : Set.Finite (⋃ i ≤ m, S i ∩ Metric.ball 0 (r (m - 1))) ∧ Set.Finite (⋃ i ≤ m, S i ∩ {z | r (m - 1) < ‖z‖ ∧ ‖z‖ < r m}) ∧ Set.Finite (Set.image c (Finset.range (m - 1))) ∧ Set.Finite {c (m - 1)} := by
           exact ⟨ h_finite.1, h_finite.2, Set.toFinite _, Set.finite_singleton _ ⟩;
         obtain ⟨A, B, hA, hB, h_disjoint, h_union⟩ : ∃ A B : Finset ℂ, (∀ a ∈ A, ‖a‖ < r (m - 1)) ∧ (∀ b ∈ B, r (m - 1) < ‖b‖) ∧ (⋃ i ≤ m, S i ∩ Metric.ball 0 (r (m - 1))) ∪ (Set.image c (Finset.range (m - 1))) = A ∧ (⋃ i ≤ m, S i ∩ {z | r (m - 1) < ‖z‖ ∧ ‖z‖ < r m}) ∪ {c (m - 1)} = B := by
-          refine' ⟨ h_finite_union.1.toFinset ∪ Finset.image c ( Finset.range ( m - 1 ) ), h_finite_union.2.1.toFinset ∪ { c ( m - 1 ) }, _, _, _, _ ⟩ <;> simp_all +decide [ Finset.ext_iff, Set.ext_iff ];
+          refine' ⟨ h_finite_union.1.toFinset ∪ Finset.image c ( Finset.range ( m - 1 ) ), h_finite_union.2.1.toFinset ∪ { c ( m - 1 ) }, _, _, _, _ ⟩ <;> simp_all +decide;
           rintro a ( ⟨ i, hi₁, hi₂, hi₃ ⟩ | ⟨ i, hi₁, rfl ⟩ ) <;> [ exact hi₃; exact lt_of_lt_of_le ( hc_norm i |>.2.le ) ( hr.monotone ( by omega ) ) ];
           exact lt_of_lt_of_le ( hc_norm i |>.2 ) ( hr.monotone ( by omega ) );
         -- Define the values $\beta_{b,\ell}$ for $b \in B$ and $\ell \leq k_{next}$.
@@ -528,17 +523,18 @@ lemma exists_next_step (m : ℕ) (hm : m > 0)
     (hr_avoid : ∀ n, {z | ‖z‖ = r n} ∩ (⋃ j ∈ Finset.range (n + 2), S j) = ∅)
     (c : ℕ → ℂ) (hc_norm : ∀ n, r n < ‖c n‖ ∧ ‖c n‖ < r (n + 1)) (hc_inj : Function.Injective c)
     (hc_mem : ∀ n, c n ∉ ⋃ j, S j)
-    (k : ℕ → ℕ) (hk_mono : StrictMonoOn k (Set.Iic (m-1)))
+    (k : ℕ → ℕ) (hk_mono : StrictMonoOn k (Set.Iic (m - 1)))
     (F_prev : Polynomial ℂ)
-    (hF_zeros : ∀ i < m, ∀ z ∈ S i ∩ Metric.ball 0 (r (m-1)), (derivative^[k i] F_prev).eval z = 0)
-    (hF_vals : ∀ i < m-1, (derivative^[k i] F_prev).eval (c i) = 1) :
+    (hF_zeros : ∀ i < m, ∀ z ∈ S i ∩ Metric.ball 0 (r (m - 1)), (derivative^[k i] F_prev).eval z = 0)
+    (hF_vals : ∀ i < m - 1, (derivative^[k i] F_prev).eval (c i) = 1) :
     ∃ k_next : ℕ, ∃ T_next : Polynomial ℂ,
-      k_next > k (m-1) ∧ k_next > F_prev.natDegree ∧
-      (∀ z, ‖z‖ ≤ r (m-1) → ‖T_next.eval z‖ < 2 ^ (-(m : ℝ) + 1)) ∧
+      k_next > k (m - 1) ∧ k_next > F_prev.natDegree ∧
+      (∀ z, ‖z‖ ≤ r (m - 1) → ‖T_next.eval z‖ < 2 ^ (-(m : ℝ) + 1)) ∧
       let F_next := F_prev + T_next
       (∀ i < m, ∀ z ∈ S i ∩ Metric.ball 0 (r m), (derivative^[k i] F_next).eval z = 0) ∧
       (∀ z ∈ S m ∩ Metric.ball 0 (r m), (derivative^[k_next] F_next).eval z = 0) ∧
       (∀ i < m, (derivative^[k i] F_next).eval (c i) = 1) := by
+        have _hc_inj := hc_inj
         obtain ⟨T_next, hT_next⟩ : ∃ T_next : Polynomial ℂ, (∀ z, ‖z‖ ≤ r (m - 1) → ‖T_next.eval z‖ < 2 ^ (-(m : ℝ) + 1)) ∧ (∀ i ≤ m, ∀ z ∈ S i ∩ Metric.ball 0 (r (m - 1)), ∀ l ≤ (k (m - 1) + F_prev.natDegree + 1), (derivative^[l] T_next).eval z = 0) ∧ (∀ i < m - 1, ∀ l ≤ (k (m - 1) + F_prev.natDegree + 1), (derivative^[l] T_next).eval (c i) = 0) ∧ (∀ i ≤ m, ∀ z ∈ S i ∩ {z | r (m - 1) < ‖z‖ ∧ ‖z‖ < r m}, ∀ l ≤ (k (m - 1) + F_prev.natDegree + 1), (derivative^[l] T_next).eval z = -(derivative^[l] F_prev).eval z) ∧ (∀ l ≤ (k (m - 1) + F_prev.natDegree + 1), (derivative^[l] T_next).eval (c (m - 1)) = if l = k (m - 1) then 1 - (derivative^[l] F_prev).eval (c (m - 1)) else -(derivative^[l] F_prev).eval (c (m - 1))) := by
           apply exists_correction_polynomial m hm S hS r hr hr_pos hr_gt c hc_norm hc_mem (k (m - 1)) F_prev (k (m - 1) + F_prev.natDegree + 1) (by
           linarith);
@@ -550,17 +546,17 @@ lemma exists_next_step (m : ℕ) (hm : m > 0)
           by_cases hz_case : ‖z‖ ≤ r (m - 1);
           · simp +zetaDelta at *;
             rw [ hF_zeros i hi z hz.1 ( lt_of_le_of_ne hz_case fun h => by have := hr_avoid ( m - 1 ) ; exact this.subset ⟨ h, Set.mem_iUnion₂.mpr ⟨ i, by omega, hz.1 ⟩ ⟩ ), hT_next.2.1 i ( by omega ) z hz.1 ( lt_of_le_of_ne hz_case fun h => by have := hr_avoid ( m - 1 ) ; exact this.subset ⟨ h, Set.mem_iUnion₂.mpr ⟨ i, by omega, hz.1 ⟩ ⟩ ) ( k i ) ( by linarith [ hk_mono.le_iff_le ( show i ∈ Iic ( m - 1 ) from Nat.le_sub_one_of_lt hi ) ( show m - 1 ∈ Iic ( m - 1 ) from Nat.le_refl _ ) |>.2 ( Nat.le_sub_one_of_lt hi ) ] ) ] ; norm_num;
-          · have := hT_next.2.2.2.1 i ( by linarith ) z ⟨ hz.1, ⟨ by linarith, by simpa using hz.2.out ⟩ ⟩ ( k i ) ( by linarith [ hk_mono.le_iff_le ( show i ≤ m - 1 from Nat.le_sub_one_of_lt hi ) ( show m - 1 ≤ m - 1 from le_rfl ) |>.2 ( Nat.le_sub_one_of_lt hi ) ] ) ; simp_all +decide [ Polynomial.eval_add, Function.iterate_add_apply ] ;
+          · have := hT_next.2.2.2.1 i ( by linarith ) z ⟨ hz.1, ⟨ by linarith, by simpa using hz.2.out ⟩ ⟩ ( k i ) ( by linarith [ hk_mono.le_iff_le ( show i ≤ m - 1 from Nat.le_sub_one_of_lt hi ) ( show m - 1 ≤ m - 1 from le_rfl ) |>.2 ( Nat.le_sub_one_of_lt hi ) ] ) ; simp_all +decide [ Polynomial.eval_add ] ;
         · intro z hz
           have hF_prev_zero : (derivative^[k (m - 1) + F_prev.natDegree + 1] F_prev).eval z = 0 := by
             rw [ Polynomial.iterate_derivative_eq_zero ] ; aesop;
             linarith;
-          by_cases hz' : ‖z‖ < r ( m - 1 ) <;> simp_all +decide [ Polynomial.eval_add, Polynomial.eval_pow, Polynomial.eval_X, Polynomial.eval_C ];
+          by_cases hz' : ‖z‖ < r ( m - 1 ) <;> simp_all +decide [ Polynomial.eval_add ];
           · convert hT_next.2.1 m ( by linarith ) z hz.1 hz' _ le_rfl using 1;
           · cases eq_or_lt_of_le hz' <;> simp_all +decide [ Set.ext_iff ];
             · exact False.elim <| hr_avoid ( m - 1 ) z ( by linarith ) m ( by omega ) hz.1;
             · have := hT_next.2.2.2.1 m ( by linarith ) z hz.1 ‹_› hz.2 ( k ( m - 1 ) + F_prev.natDegree + 1 ) ( by linarith ) ; aesop;
-        · intro i hi; specialize hT_next; rcases lt_or_eq_of_le ( Nat.le_sub_one_of_lt hi ) <;> simp_all +decide [ Function.iterate_add_apply ] ;
+        · intro i hi; specialize hT_next; rcases lt_or_eq_of_le ( Nat.le_sub_one_of_lt hi ) <;> simp_all +decide;
           · exact hT_next.2.2.1 i ‹_› _ ( by linarith [ hk_mono.le_iff_le ( show i ≤ m - 1 from by linarith ) ( show m - 1 ≤ m - 1 from by linarith ) |>.2 ( by linarith ) ] );
           · rw [ hT_next.2.2.2.2 _ ( by linarith ) ] ; aesop
 
@@ -573,13 +569,13 @@ lemma exists_next_step_v2 (m : ℕ) (hm : m > 0)
     (hr_avoid : ∀ n, {z | ‖z‖ = r n} ∩ (⋃ j ∈ Finset.range (n + 2), S j) = ∅)
     (c : ℕ → ℂ) (hc_norm : ∀ n, r n < ‖c n‖ ∧ ‖c n‖ < r (n + 1)) (hc_inj : Function.Injective c)
     (hc_mem : ∀ n, c n ∉ ⋃ j, S j)
-    (k : ℕ → ℕ) (hk_mono : StrictMonoOn k (Set.Iic (m-1)))
+    (k : ℕ → ℕ) (hk_mono : StrictMonoOn k (Set.Iic (m - 1)))
     (F_prev : Polynomial ℂ)
-    (hF_zeros : ∀ i < m, ∀ z ∈ S i ∩ Metric.ball 0 (r (m-1)), (derivative^[k i] F_prev).eval z = 0)
-    (hF_vals : ∀ i < m-1, (derivative^[k i] F_prev).eval (c i) = 1) :
+    (hF_zeros : ∀ i < m, ∀ z ∈ S i ∩ Metric.ball 0 (r (m - 1)), (derivative^[k i] F_prev).eval z = 0)
+    (hF_vals : ∀ i < m - 1, (derivative^[k i] F_prev).eval (c i) = 1) :
     ∃ k_next : ℕ, ∃ T_next : Polynomial ℂ,
-      k_next > k (m-1) ∧ k_next > F_prev.natDegree ∧
-      (∀ z, ‖z‖ ≤ r (m-1) → ‖T_next.eval z‖ < 2 ^ (-(m : ℝ) + 1)) ∧
+      k_next > k (m - 1) ∧ k_next > F_prev.natDegree ∧
+      (∀ z, ‖z‖ ≤ r (m - 1) → ‖T_next.eval z‖ < 2 ^ (-(m : ℝ) + 1)) ∧
       let F_next := F_prev + T_next
       (∀ i < m, ∀ z ∈ S i ∩ Metric.ball 0 (r m), (derivative^[k i] F_next).eval z = 0) ∧
       (∀ z ∈ S m ∩ Metric.ball 0 (r m), (derivative^[k_next] F_next).eval z = 0) ∧
@@ -593,13 +589,13 @@ lemma exists_next_step_v3 (m : ℕ) (hm : m > 0)
     (hr_avoid : ∀ n, {z | ‖z‖ = r n} ∩ (⋃ j ∈ Finset.range (n + 2), S j) = ∅)
     (c : ℕ → ℂ) (hc_norm : ∀ n, r n < ‖c n‖ ∧ ‖c n‖ < r (n + 1)) (hc_inj : Function.Injective c)
     (hc_mem : ∀ n, c n ∉ ⋃ j, S j)
-    (k : ℕ → ℕ) (hk_mono : StrictMonoOn k (Set.Iic (m-1)))
+    (k : ℕ → ℕ) (hk_mono : StrictMonoOn k (Set.Iic (m - 1)))
     (F_prev : Polynomial ℂ)
-    (hF_zeros : ∀ i < m, ∀ z ∈ S i ∩ Metric.ball 0 (r (m-1)), (derivative^[k i] F_prev).eval z = 0)
-    (hF_vals : ∀ i < m-1, (derivative^[k i] F_prev).eval (c i) = 1) :
+    (hF_zeros : ∀ i < m, ∀ z ∈ S i ∩ Metric.ball 0 (r (m - 1)), (derivative^[k i] F_prev).eval z = 0)
+    (hF_vals : ∀ i < m - 1, (derivative^[k i] F_prev).eval (c i) = 1) :
     ∃ k_next : ℕ, ∃ T_next : Polynomial ℂ,
-      k_next > k (m-1) ∧ k_next > F_prev.natDegree ∧
-      (∀ z, ‖z‖ ≤ r (m-1) → ‖T_next.eval z‖ < 2 ^ (-(m : ℝ) + 1)) ∧
+      k_next > k (m - 1) ∧ k_next > F_prev.natDegree ∧
+      (∀ z, ‖z‖ ≤ r (m - 1) → ‖T_next.eval z‖ < 2 ^ (-(m : ℝ) + 1)) ∧
       let F_next := F_prev + T_next
       (∀ i < m, ∀ z ∈ S i ∩ Metric.ball 0 (r m), (derivative^[k i] F_next).eval z = 0) ∧
       (∀ z ∈ S m ∩ Metric.ball 0 (r m), (derivative^[k_next] F_next).eval z = 0) ∧
@@ -615,13 +611,13 @@ lemma exists_next_step_final (m : ℕ) (hm : m > 0)
     (hr_avoid : ∀ n, {z | ‖z‖ = r n} ∩ (⋃ j ∈ Finset.range (n + 2), S j) = ∅)
     (c : ℕ → ℂ) (hc_norm : ∀ n, r n < ‖c n‖ ∧ ‖c n‖ < r (n + 1)) (hc_inj : Function.Injective c)
     (hc_mem : ∀ n, c n ∉ ⋃ j, S j)
-    (k : ℕ → ℕ) (hk_mono : StrictMonoOn k (Set.Iic (m-1)))
+    (k : ℕ → ℕ) (hk_mono : StrictMonoOn k (Set.Iic (m - 1)))
     (F_prev : Polynomial ℂ)
-    (hF_zeros : ∀ i < m, ∀ z ∈ S i ∩ Metric.ball 0 (r (m-1)), (derivative^[k i] F_prev).eval z = 0)
-    (hF_vals : ∀ i < m-1, (derivative^[k i] F_prev).eval (c i) = 1) :
+    (hF_zeros : ∀ i < m, ∀ z ∈ S i ∩ Metric.ball 0 (r (m - 1)), (derivative^[k i] F_prev).eval z = 0)
+    (hF_vals : ∀ i < m - 1, (derivative^[k i] F_prev).eval (c i) = 1) :
     ∃ k_next : ℕ, ∃ T_next : Polynomial ℂ,
-      k_next > k (m-1) ∧ k_next > F_prev.natDegree ∧
-      (∀ z, ‖z‖ ≤ r (m-1) → ‖T_next.eval z‖ < 2 ^ (-(m : ℝ) + 1)) ∧
+      k_next > k (m - 1) ∧ k_next > F_prev.natDegree ∧
+      (∀ z, ‖z‖ ≤ r (m - 1) → ‖T_next.eval z‖ < 2 ^ (-(m : ℝ) + 1)) ∧
       let F_next := F_prev + T_next
       (∀ i < m, ∀ z ∈ S i ∩ Metric.ball 0 (r m), (derivative^[k i] F_next).eval z = 0) ∧
       (∀ z ∈ S m ∩ Metric.ball 0 (r m), (derivative^[k_next] F_next).eval z = 0) ∧
@@ -869,32 +865,27 @@ lemma valid_next_step (S : ℕ → Set ℂ) (hS : ∀ n, HasNoFiniteLimitPoint (
   by_cases hnil : L = []
   · subst L
     simpa [next_step, IsValid] using valid_zero S r c
-  ·
-    let x := next_step S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem L
+  · let x := next_step S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem L
     let m := L.length
     have hm : m > 0 := List.length_pos_iff.mpr hnil
     have hspec := next_step_spec S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem L hL hnil
     change IsValid S r c (L ++ [x])
     intro hnew
     constructor
-    ·
-      have h0 := (hL hm).1
+    · have h0 := (hL hm).1
       simpa [x, m, k_of_append, hm] using h0
     constructor
-    ·
-      intro a ha b hb hab
+    · intro a ha b hb hab
       have ha_lt_succ : a < m + 1 := by simpa [m] using ha
       have hb_lt_succ : b < m + 1 := by simpa [m] using hb
       have ha_le_m : a ≤ m := Nat.le_of_lt_succ ha_lt_succ
       have hb_le_m : b ≤ m := Nat.le_of_lt_succ hb_lt_succ
       have ha_lt_m : a < m := lt_of_lt_of_le hab hb_le_m
       by_cases hb_lt_m : b < m
-      ·
-        have hmono := (hL hm).2.1
+      · have hmono := (hL hm).2.1
         have := hmono ha_lt_m hb_lt_m hab
         simpa [x, m, k_of_append, ha_lt_m, hb_lt_m] using this
-      ·
-        have hb_eq_m : b = m := by omega
+      · have hb_eq_m : b = m := by omega
         subst b
         have hk_le : k_of L a ≤ k_of L (m - 1) := by
           by_cases ha_eq : a = m - 1
@@ -904,52 +895,43 @@ lemma valid_next_step (S : ℕ → Set ℂ) (hS : ∀ n, HasNoFiniteLimitPoint (
             have hmono := (hL hm).2.1
             exact le_of_lt (hmono ha_lt_m (Nat.sub_lt hm zero_lt_one) ha_lt_pred)
         exact lt_of_le_of_lt (by simpa [x, m, k_of_append, ha_lt_m] using hk_le)
-          (by simpa [x, m, k_of_append, hspec] using hspec.1)
-    ·
-      intro j hj
+          (by simp [x, m, k_of_append, hspec])
+    · intro j hj
       by_cases hj_lt : j < m
-      ·
-        have hj_old := (hL hm).2.2 j hj_lt
+      · have hj_old := (hL hm).2.2 j hj_lt
         have htake : (L ++ [x]).take (j + 1) = L.take (j + 1) := by
           rw [List.take_append_of_le_length]
           omega
         constructor
-        ·
-          intro i hi z hz
+        · intro i hi z hz
           have hi_lt_m : i < m := lt_of_le_of_lt hi hj_lt
           have h_old := hj_old.1 i hi z hz
           simpa [htake, k_of_append, m, hi_lt_m] using h_old
         constructor
-        ·
-          intro i hi
+        · intro i hi
           have hi_lt_m : i < m := lt_trans hi hj_lt
           have h_old := hj_old.2.1 i hi
           simpa [htake, k_of_append, m, hi_lt_m] using h_old
-        ·
-          intro hj_pos z hz
+        · intro hj_pos z hz
           have h_old := hj_old.2.2 hj_pos z hz
           simpa [T_of_append, m, hj_lt] using h_old
-      ·
-        have hj_lt_succ : j < m + 1 := by simpa [m] using hj
+      · have hj_lt_succ : j < m + 1 := by simpa [m] using hj
         have hj_eq : j = m := by omega
         subst j
         have htake : (L ++ [x]).take (m + 1) = L ++ [x] := by
           simp [m]
         constructor
-        ·
-          intro i hi z hz
+        · intro i hi z hz
           rcases lt_or_eq_of_le hi with hi_lt | rfl
           · have h_old := hspec.2.2.1 i hi_lt z hz
             simpa [htake, F_of_append, k_of_append, m, hi_lt, x] using h_old
           · have h_new := hspec.2.2.2.1 z hz
             simpa [htake, F_of_append, k_of_append, m, x] using h_new
         constructor
-        ·
-          intro i hi
+        · intro i hi
           have h_val := hspec.2.2.2.2 i hi
           simpa [htake, F_of_append, k_of_append, m, hi, x] using h_val
-        ·
-          intro hm_pos z hz
+        · intro hm_pos z hz
           have h_bound := hspec.2.1 z hz
           simpa [T_of_append, m, x] using h_bound
 
@@ -1332,7 +1314,7 @@ lemma f_transcendental (S : ℕ → Set ℂ) (hS : ∀ n, HasNoFiniteLimitPoint 
     (hc_mem : ∀ n, c n ∉ ⋃ j, S j) :
     TranscendentalEntire (f S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem) := by
       refine' ⟨ _, _ ⟩;
-      · exact fun x => ( f_entire S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem |> AnalyticOn.differentiableOn ) |> DifferentiableOn.differentiableAt <| by simpa;
+      · exact fun x => ( f_entire S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem |> AnalyticOn.differentiableOn ) |> DifferentiableOn.differentiableAt <| by simp;
       · intro h;
         -- Since `f` is a polynomial, there exists `N` such that for all `k > N`, `f^{(k)} = 0`.
         obtain ⟨N, hN⟩ : ∃ N : ℕ, ∀ k > N, ∀ z : ℂ, (iteratedDeriv k (f S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem)) z = 0 := by
@@ -1375,10 +1357,8 @@ theorem main_result (S : ℕ → Set ℂ) (hS : ∀ n, HasNoFiniteLimitPoint (S 
   let k := k_seq S hS r hr_mono hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem
   let f_val := f S hS r hr_mono hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem
   refine ⟨k, f_val, ?_, ?_⟩
-  ·
-    apply_rules [ f_transcendental ]
-  ·
-    -- Apply the lemma f_deriv_vanishes_on_Sn to conclude the proof.
+  · apply_rules [ f_transcendental ]
+  · -- Apply the lemma f_deriv_vanishes_on_Sn to conclude the proof.
     intros n z hz
     apply f_deriv_vanishes_on_Sn S hS r hr_mono hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem n z hz
 
@@ -1513,7 +1493,7 @@ lemma isPolynomial_of_isIntegral (f : ℂ → ℂ) (h_entire : AnalyticOn ℂ f 
           have h_f_le_max_step : ‖f z‖ ^ P.natDegree ≤ ∑ i ∈ Finset.range (P.natDegree), ‖(P.coeff i).eval z‖ * ‖f z‖ ^ i := by
             replace hP_root := congr_fun hP_root z;
             rw [ Polynomial.eval₂_eq_sum_range ] at hP_root;
-            simp_all +decide [ Finset.sum_range_succ, Polynomial.eval_finset_sum ];
+            simp_all +decide [ Finset.sum_range_succ ];
             simpa [ add_eq_zero_iff_eq_neg ] using norm_sum_le ( Finset.range P.natDegree ) ( fun i => Polynomial.eval z ( P.coeff i ) * f z ^ i ) |> le_trans ( by norm_num [ eq_neg_of_add_eq_zero_left hP_root ] );
           contrapose! h_f_le_max_step;
           refine' lt_of_le_of_lt ( Finset.sum_le_sum fun i hi => mul_le_mul_of_nonneg_left ( pow_le_pow_right₀ ( by linarith [ le_max_left 1 ( ∑ i ∈ Finset.range P.natDegree, ‖Polynomial.eval z ( P.coeff i )‖ ), le_max_right 1 ( ∑ i ∈ Finset.range P.natDegree, ‖Polynomial.eval z ( P.coeff i )‖ ) ] ) ( show i ≤ P.natDegree - 1 from Nat.le_pred_of_lt ( Finset.mem_range.mp hi ) ) ) ( norm_nonneg _ ) ) _;
@@ -1527,14 +1507,14 @@ lemma isPolynomial_of_isIntegral (f : ℂ → ℂ) (h_entire : AnalyticOn ℂ f 
         · exact le_add_of_nonneg_of_le ( Finset.sum_nonneg fun _ _ => mul_nonneg ( show 0 ≤ C _ from by have := hCk ‹_› 0; norm_num at this; linarith [ norm_nonneg ( Polynomial.eval 0 ( P.coeff ‹_› ) ) ] ) ( pow_nonneg ( by positivity ) _ ) ) ( one_le_pow₀ ( by linarith [ norm_nonneg z ] ) );
         · refine le_add_of_le_of_nonneg ( Finset.sum_le_sum fun i hi => le_trans ( hCk i z ) ?_ ) ( by positivity );
           exact mul_le_mul_of_nonneg_left ( pow_le_pow_right₀ ( by linarith [ norm_nonneg z ] ) ( by linarith [ Finset.single_le_sum ( fun i _ => Nat.zero_le ( k i ) ) hi ] ) ) ( show 0 ≤ C i from by have := hCk i 0; norm_num at this; linarith [ norm_nonneg ( Polynomial.eval 0 ( P.coeff i ) ) ] );
-      exact isPolynomial_of_bound f ( show Differentiable ℂ f from fun z => ( h_entire.differentiableOn.differentiableAt <| by simpa ) ) _ _ h_f_poly_bound.choose_spec.choose_spec
+      exact isPolynomial_of_bound f ( show Differentiable ℂ f from fun z => ( h_entire.differentiableOn.differentiableAt <| by simp ) ) _ _ h_f_poly_bound.choose_spec.choose_spec
 
 /-
 If (z-a)*f(z) is a polynomial, then f is a polynomial (assuming f is entire).
 -/
 lemma isPolynomial_of_mul_sub_c (f : ℂ → ℂ) (h_entire : AnalyticOn ℂ f Set.univ) (a : ℂ)
     (h_mul : IsPolynomial (fun z => (z - a) * f z)) : IsPolynomial f := by
-      cases' h_mul with P hP;
+      obtain ⟨P, hP⟩ := h_mul;
       -- If $P(a) \neq 0$, then $f(a)$ would be undefined, contradicting the fact that $f$ is entire. Hence, $P(a) = 0$.
       have hP_a_zero : P.eval a = 0 := by
         simpa using Eq.symm ( hP a );
@@ -1544,7 +1524,7 @@ lemma isPolynomial_of_mul_sub_c (f : ℂ → ℂ) (h_entire : AnalyticOn ℂ f S
       have h_eq_all : f a = Q.eval a := by
         have h_eq_all : Filter.Tendsto (fun z => f z) (nhdsWithin a {a}ᶜ) (nhds (Q.eval a)) := by
           exact Filter.Tendsto.congr' ( Filter.eventuallyEq_of_mem self_mem_nhdsWithin fun x hx => by rw [ h_eq x hx ] ) ( Q.continuous.continuousWithinAt );
-        exact tendsto_nhds_unique ( h_entire.continuousOn.continuousAt ( by simpa ) |> fun h => h.mono_left nhdsWithin_le_nhds ) h_eq_all;
+        exact tendsto_nhds_unique ( h_entire.continuousOn.continuousAt ( by simp ) |> fun h => h.mono_left nhdsWithin_le_nhds ) h_eq_all;
       exact ⟨ Q, fun z => by by_cases h : z = a <;> simp +decide [ * ] ⟩
 
 /-
@@ -1556,7 +1536,7 @@ lemma isPolynomial_of_mul_poly (f : ℂ → ℂ) (h_entire : AnalyticOn ℂ f Se
       induction' n : p.natDegree using Nat.strong_induction_on with n ih generalizing p f;
       by_cases h_deg : p.natDegree ≤ 0;
       · simp +zetaDelta at *;
-        rw [ Polynomial.eq_C_of_natDegree_eq_zero h_deg ] at hp h_mul; obtain ⟨ q, hq ⟩ := h_mul; use Polynomial.C ( ( p.coeff 0 : ℂ ) ⁻¹ ) * q; intro z; simp +decide [ hq, hp ] ;
+        rw [ Polynomial.eq_C_of_natDegree_eq_zero h_deg ] at hp h_mul; obtain ⟨ q, hq ⟩ := h_mul; use Polynomial.C ( ( p.coeff 0 : ℂ ) ⁻¹ ) * q; intro z; simp +decide;
         simp +decide [ ← hq z, mul_comm ];
         rw [ mul_assoc, mul_inv_cancel₀ ( by aesop ), mul_one ];
       · -- Since `p` has degree `n > 0`, it has a root `a`.
@@ -1570,9 +1550,9 @@ lemma isPolynomial_of_mul_poly (f : ℂ → ℂ) (h_entire : AnalyticOn ℂ f Se
         -- By `isPolynomial_of_mul_sub_c`, `g` is a polynomial.
         have h_g_poly : IsPolynomial (fun z => q.eval z * f z) := by
           have h_g_poly : IsPolynomial (fun z => (z - a) * (q.eval z * f z)) := by
-            obtain ⟨ P, hP ⟩ := h_mul; use P; simp_all +decide [ mul_assoc, mul_comm, mul_left_comm ] ;
+            obtain ⟨ P, hP ⟩ := h_mul; use P; simp_all +decide [ mul_comm, mul_left_comm ] ;
           apply isPolynomial_of_mul_sub_c;
-          exacts [ by exact DifferentiableOn.analyticOn ( by exact DifferentiableOn.mul ( q.differentiable.differentiableOn ) h_entire.differentiableOn ) ( by simpa ), h_g_poly ];
+          exacts [ by exact DifferentiableOn.analyticOn ( by exact DifferentiableOn.mul ( q.differentiable.differentiableOn ) h_entire.differentiableOn ) ( by simp ), h_g_poly ];
         exact ih _ ( by linarith ) _ h_entire _ ( by aesop ) h_g_poly rfl
 
 /-
@@ -1588,7 +1568,7 @@ lemma isPolynomial_of_isAlgebraic (f : ℂ → ℂ) (h_entire : AnalyticOn ℂ f
       -- Since $f$ is entire and $a_n$ is a polynomial, $a_n • f$ is entire.
       have h_a_n_f_entire : AnalyticOn ℂ (fun z => a_n.eval z * f z) Set.univ := by
         apply_rules [ AnalyticOn.mul, h_entire ];
-        exact DifferentiableOn.analyticOn ( by exact Differentiable.differentiableOn ( by exact Polynomial.differentiable _ ) ) ( by simpa );
+        exact DifferentiableOn.analyticOn ( by exact Differentiable.differentiableOn ( by exact Polynomial.differentiable _ ) ) ( by simp );
       -- By `isPolynomial_of_isIntegral`, `a_n • f` is a polynomial.
       have h_a_n_f_poly : IsPolynomial (fun z => a_n.eval z * f z) := by
         apply isPolynomial_of_isIntegral;
@@ -1617,7 +1597,7 @@ lemma transcendental_of_transcendentalEntire (f : ℂ → ℂ) (hf : Transcenden
     intro H;
     convert isPolynomial_of_isAlgebraic f ?_ H;
     · unfold TranscendentalEntire at hf; aesop;
-    · exact DifferentiableOn.analyticOn ( hf.1.differentiableOn ) ( by simpa )
+    · exact DifferentiableOn.analyticOn ( hf.1.differentiableOn ) ( by simp )
 
 /-
 Let $\{S_k\}$ be any sequence of sets in the complex plane, each of which has no finite
@@ -1635,7 +1615,7 @@ theorem theorem_1
   obtain ⟨ r, hr₁, hr₂, hr₃ ⟩ := this;
   obtain ⟨ c, hc₁, hc₂, hc₃ ⟩ := exists_auxiliary_points S ( fun n => derivedSet_empty_imp_hasNoFiniteLimitPoint _ ( h n ) ) r hr₁ ( fun n => by linarith [ hr₂ n ] );
   refine' ⟨ f S ( fun n => derivedSet_empty_imp_hasNoFiniteLimitPoint _ ( h n ) ) r hr₁ ( fun n => by linarith [ hr₂ n ] ) ( fun n => by linarith [ hr₂ n ] ) hr₃ c hc₁ hc₃ hc₂, fun n => k_seq S ( fun n => derivedSet_empty_imp_hasNoFiniteLimitPoint _ ( h n ) ) r hr₁ ( fun n => by linarith [ hr₂ n ] ) ( fun n => by linarith [ hr₂ n ] ) hr₃ c hc₁ hc₃ hc₂ n, _, _, _ ⟩;
-  · exact fun z => ( f_entire S ( fun n => derivedSet_empty_imp_hasNoFiniteLimitPoint _ ( h n ) ) r hr₁ ( fun n => by linarith [ hr₂ n ] ) ( fun n => by linarith [ hr₂ n ] ) hr₃ c hc₁ hc₃ hc₂ |> fun h => h.differentiableOn.differentiableAt <| by simpa );
+  · exact fun z => ( f_entire S ( fun n => derivedSet_empty_imp_hasNoFiniteLimitPoint _ ( h n ) ) r hr₁ ( fun n => by linarith [ hr₂ n ] ) ( fun n => by linarith [ hr₂ n ] ) hr₃ c hc₁ hc₃ hc₂ |> fun h => h.differentiableOn.differentiableAt <| by simp );
   · apply_rules [ transcendental_of_transcendentalEntire ];
     apply_rules [ f_transcendental ];
   · intro k;
@@ -1677,7 +1657,8 @@ $$
 Solved in the affirmative by Barth and Schneider [BaSc72].
 
 [BaSc72] Barth, K. F. and Schneider, W. J., _On a problem of Erdős concerning the zeros of_
-_the derivatives of an entire function_. Proc. Amer. Math. Soc. (1972), 229--232.-/
+_the derivatives of an entire function_. Proc. Amer. Math. Soc. (1972), 229--232.
+-/
 theorem erdos_229 :
     letI := Polynomial.algebraPi ℂ ℂ ℂ
     (∀ (S : ℕ → Set ℂ), (∀ n, derivedSet (S n) = ∅) →
