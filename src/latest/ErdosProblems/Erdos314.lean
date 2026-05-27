@@ -34,16 +34,10 @@ open Finset Real MeasureTheory intervalIntegral
 noncomputable section
 
 set_option linter.style.setOption false
-set_option linter.deprecated false
 set_option linter.flexible false
-set_option linter.style.cdot false
-set_option linter.style.dollarSyntax false
 set_option linter.style.induction false
-set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
-set_option linter.style.whitespace false
-set_option linter.unusedSimpArgs false
 
 /-- The partial harmonic sum from n to m: ∑_{ℓ=n}^{m} 1/ℓ. -/
 def harmonicPartialSum (n m : ℕ) : ℝ :=
@@ -150,7 +144,7 @@ theorem recip_one_minus_inv_approx (n : ℕ) (hn : 2 ≤ n) :
 set_option maxHeartbeats 800000 in
 -- The Taylor-error estimate needs extra heartbeats for generated real-field normalization.
 theorem taylor_error_bound (n : ℕ) (hn : 2 ≤ n) (u a : ℝ)
-    (ha : 0 < a) (_ha1 : a ≤ 1) (hu : |u| ≤ 1/2) :
+    (ha : 0 < a) (_ha1 : a ≤ 1) (hu : |u| ≤ 1 / 2) :
     |(Real.log (1 + u) - Real.log (1 - 1/(↑n : ℝ)))
       + (a / (2 * ↑n) * (1 / (1 + u)) - 1 / (2 * ↑n) * (1 / (1 - 1/↑n)))
       + (-(a^2 / (12 * (↑n)^2)) * (1 / (1 + u)^2) + 1 / (12 * (↑n)^2) * (1 / (1 - 1/↑n)^2))
@@ -408,8 +402,7 @@ theorem ePadeDen_pos : ∀ k, 0 < ePadeDen k := by
     intro k
     induction' k with k ih
     · exact ⟨by norm_num [ePadeDen_zero], by norm_num [eSecDen_zero]⟩
-    ·
-      constructor <;> nlinarith [ ePadeDen_succ k, eSecDen_succ k ];
+    · constructor <;> nlinarith [ ePadeDen_succ k, eSecDen_succ k ];
   aesop
 
 /-! ## Section 3: Determinant identity -/
@@ -457,7 +450,7 @@ The secondary integral is positive.
 lemma secBound_pos (k : ℕ) : 0 < secBound k := by
   refine' lt_of_lt_of_le _
     ( intervalIntegral.integral_mono_on _ _ _ fun x hx =>
-      mul_le_mul_of_nonneg_left ( Real.one_le_exp $ by linarith [ hx.1 ] ) <|
+      mul_le_mul_of_nonneg_left ( Real.one_le_exp <| by linarith [ hx.1 ] ) <|
         mul_nonneg ( pow_nonneg ( by linarith [ hx.1 ] ) _ ) <|
           pow_nonneg ( by linarith [ hx.2 ] ) _ ) <;> norm_num;
   · rw [ intervalIntegral.integral_of_le zero_le_one ];
