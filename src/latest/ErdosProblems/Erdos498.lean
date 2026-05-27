@@ -60,16 +60,8 @@ import Mathlib
 
 set_option linter.style.setOption false
 set_option linter.style.openClassical false
-set_option linter.style.multiGoal false
-set_option linter.style.whitespace false
-set_option linter.style.emptyLine false
-set_option linter.style.show false
-set_option linter.style.cases false
 set_option linter.style.refine false
 set_option linter.flexible false
-set_option linter.unusedDecidableInType false
-set_option linter.unusedFintypeInType false
-set_option linter.unusedVariables false
 set_option maxHeartbeats 2000000
 -- Several generated Littlewood-Offord estimates time out at the default heartbeat limit.
 
@@ -184,7 +176,10 @@ lemma sum_diff_subset_exists_aligned (z : Fin n → ℂ) (A B : Finset (Fin n)) 
       intro i hi_out; obtain ⟨s, hs, hunique⟩ := exists_unique_baseSign (z i)
       rw [Finset.mem_sdiff, not_and_or] at hi_out
       by_cases hBi : i ∈ B
-      · have hAi : i ∈ A := by rcases hi_out with h | h; contradiction; exact not_not.mp h
+      · have hAi : i ∈ A := by
+          rcases hi_out with h | h
+          · contradiction
+          · exact not_not.mp h
         have hBin : IsBaseSign (z i) (εB i) := by
           rw [←mem_signToSet_iff, hB, Finset.mem_coe]
           exact hBi
@@ -256,13 +251,13 @@ lemma IsAlignedZ_isUHP {z w : ℂ} (h : IsAlignedZ z w) : inUHP w := by
 
 /-! ## Main Geometry -/
 
-lemma complex_sum_re {α : Type*} (S: Finset α) (f : α → ℂ) :
+lemma complex_sum_re {α : Type*} (S : Finset α) (f : α → ℂ) :
     (∑ i ∈ S, f i).re = ∑ i ∈ S, (f i).re := by
   induction S using Finset.induction with
   | empty => simp
   | insert a s ha ih => rw [Finset.sum_insert ha, Finset.sum_insert ha, add_re, ih]
 
-lemma complex_sum_im {α : Type*} (S: Finset α) (f : α → ℂ) :
+lemma complex_sum_im {α : Type*} (S : Finset α) (f : α → ℂ) :
     (∑ i ∈ S, f i).im = ∑ i ∈ S, (f i).im := by
   induction S using Finset.induction with
   | empty => simp
@@ -290,7 +285,6 @@ lemma pure_sum_norm_gt_sqrt (S : Finset (Fin n)) (w : Fin n → ℂ)
   have h_norm_sq_def (z : ℂ) : ‖z‖ ^ 2 = z.re ^ 2 + z.im ^ 2 := by
     rw [←Complex.normSq_eq_norm_sq, Complex.normSq_apply]
     simp only [pow_two]
-
   have ineq_sum : 1 < ∑ i ∈ S, ((w i).re ^ 2 + (w i).im ^ 2) := by
     have : ∑ i ∈ S, (1 : ℝ) < ∑ i ∈ S, (‖w i‖^2) := by
       apply Finset.sum_lt_sum
@@ -304,7 +298,6 @@ lemma pure_sum_norm_gt_sqrt (S : Finset (Fin n)) (w : Fin n → ℂ)
     refine lt_of_lt_of_le this (le_of_eq ?_)
     refine Finset.sum_congr rfl (fun i hi => ?_)
     rw [h_norm_sq_def]
-
   have h_sq_bound : 1 < (∑ i ∈ S, (w i).re)^2 + (∑ i ∈ S, (w i).im)^2 := by
     rcases h_pure with hQ1 | hQ2
     · let SR := ∑ i ∈ S, (w i).re
@@ -327,8 +320,7 @@ lemma pure_sum_norm_gt_sqrt (S : Finset (Fin n)) (w : Fin n → ℂ)
         sum_sq_le_sq _ _ (fun i hi => (hQ2 i hi).2)
       rw [Finset.sum_add_distrib] at ineq_sum
       linarith
-
-  show 1 < ‖∑ i ∈ S, w i‖
+  change 1 < ‖∑ i ∈ S, w i‖
   have h_sq :
       ‖∑ i ∈ S, w i‖ ^ 2 =
         (∑ i ∈ S, (w i).re) ^ 2 + (∑ i ∈ S, (w i).im) ^ 2 := by
@@ -415,7 +407,7 @@ lemma chain_extension_is_chain {α : Type*} [DecidableEq α] {C : Finset (Finset
         cases eq_or_ne a
             ( Classical.choose ( Finset.exists_max_image C Finset.card ‹_› ) ) <;>
           aesop;
-      cases' h_subset with h_subset h_subset <;> simp_all +decide [ Finset.subset_iff ];
+      rcases h_subset with h_subset | h_subset <;> simp_all +decide [ Finset.subset_iff ];
       · simp_all +decide [ Finset.mapEmbedding ];
         simp_all +decide [ OrderEmbedding.ofMapLEIff ];
       · simp_all +decide [ Finset.mapEmbedding ];
@@ -546,6 +538,7 @@ Proof idea:
 5. Verify `C1.card = top'.card - start'.card + 1`.
 Use `check_symmetric`.
 -/
+set_option linter.style.cases false in
 lemma symmetric_chain_extension_C1 {α : Type*} [Fintype α] [DecidableEq α]
     (C : Finset (Finset α)) (top : Finset α)
     (hS : Erdos498.IsSymmetricChain C)
@@ -599,7 +592,7 @@ lemma chain_map_card_injective {α : Type*} (C : Finset (Finset α))
       intros X hX Y hY h_eq_card
       have h_sub : X ⊆ Y ∨ Y ⊆ X := by
         exact h_chain.total hX hY;
-      cases' h_sub with h_sub h_sub
+      rcases h_sub with h_sub | h_sub
       · exact Finset.eq_of_subset_of_card_le h_sub ( by linarith )
       · exact Eq.symm ( Finset.eq_of_subset_of_card_le h_sub ( by linarith ) )
 
@@ -679,6 +672,8 @@ lemma exists_second_top {α : Type*} [Fintype α] (C : Finset (Finset α)) (top 
 /-
 If C \ {top} is nonempty, then the minimum element `start` is not equal to `top`.
 -/
+set_option linter.unusedFintypeInType false in
+set_option linter.unusedVariables false in
 lemma start_ne_top_of_rest_nonempty {α : Type*} [Fintype α] (C : Finset (Finset α))
     (top : Finset α) (start : Finset α)
     (h_start : start ∈ C)
@@ -721,6 +716,7 @@ lemma lift_is_chain {α : Type*} (S : Finset (Finset α))
 /-
 Lifting a chain preserves the minimum and maximum elements.
 -/
+set_option linter.unusedVariables false in
 lemma lift_chain_min_max {α : Type*} (S : Finset (Finset α)) (start last : Finset α)
     (hS : IsChain (· ⊆ ·) (S : Set (Finset α)))
     (h_start : start ∈ S)
@@ -775,12 +771,12 @@ lemma symmetric_chain_extension_C2 {α : Type*} [Fintype α] [DecidableEq α]
       apply Erdos498.check_symmetric;
       rotate_left;
       rotate_left;
-      exact Finset.mem_image_of_mem _ h_second_top_mem;
+      · exact Finset.mem_image_of_mem _ h_second_top_mem;
       rotate_left;
-      grind;
+      · grind;
       rotate_left;
       rotate_left;
-      exact Insert.insert Option.none ( Finset.map Function.Embedding.some start );
+      · exact Insert.insert Option.none ( Finset.map Function.Embedding.some start );
       · intro x hx y hy; aesop;
       · grind;
       · grind;
@@ -811,6 +807,7 @@ lemma symmetric_chain_extension_C2_aux {α : Type*} [Fintype α] [DecidableEq α
 
 end AristotleLemmas
 
+set_option linter.style.cases false in
 lemma chain_extension_is_symmetric {α : Type*} [Fintype α] {C : Finset (Finset α)}
     (hS : IsSymmetricChain C) :
     ∀ C' ∈ chain_extension C, IsSymmetricChain C' := by
@@ -827,7 +824,7 @@ lemma chain_extension_is_symmetric {α : Type*} [Fintype α] {C : Finset (Finset
       have h_chain : IsChain (· ⊆ ·) (C : Set (Finset α)) := by
         exact k.choose_spec.1;
       intro X hX;
-      cases' h_chain.total hX this.1 with h h <;> simp_all +decide [ Finset.subset_iff ];
+      rcases h_chain.total hX this.1 with h | h <;> simp_all +decide [ Finset.subset_iff ];
       have := this.2 X hX; have := Finset.eq_of_subset_of_card_le h; aesop;
     exact ⟨
       Erdos498.symmetric_chain_extension_C1 _ _ hS this.1 h_top_max,
@@ -961,11 +958,11 @@ lemma chain_extension_partition {α : Type*} [Fintype α] (D : Finset (Finset (F
         rcases this with ( ⟨ B, hB, rfl ⟩ | ⟨ B, hB, rfl ⟩ ) <;>
           simp_all +decide [ Finset.mapEmbedding ];
         · simp_all +decide [ Finset.ext_iff, OrderEmbedding.ofMapLEIff ];
-          cases' hA' with hA' hA' <;> have := hA' ( Option.none ) <;> simp_all +decide;
+          rcases hA' with hA' | hA' <;> have := hA' ( Option.none ) <;> simp_all +decide;
           convert hB using 1;
           ext a; specialize hA' ( Option.some a ) ; aesop;
         · simp_all +decide [ Finset.ext_iff, OrderEmbedding.ofMapLEIff ];
-          cases' hA' with hA' hA' <;> have := hA' Option.none <;> simp_all +decide;
+          rcases hA' with hA' | hA' <;> have := hA' Option.none <;> simp_all +decide;
           have hA'_eq_B : A' = B := by
             ext a; specialize hA' ( Option.some a ) ; aesop;
           grind;
@@ -1036,6 +1033,8 @@ lemma exists_SCD (α : Type*) [Fintype α] :
   obtain ⟨D, hD⟩ := exists_SCD_fin (Fintype.card α)
   exact scd_equiv (Fintype.equivFin α).symm D hD
 
+set_option linter.unusedDecidableInType false in
+set_option linter.unusedFintypeInType false in
 lemma kleitman_bound_unique_proj_C {α : Type*} [Fintype α] (T : Set α) [DecidablePred (· ∈ T)]
     (C D : Finset (Finset α))
     (hD : IsChain (· ⊆ ·) (D : Set (Finset α)))
@@ -1095,6 +1094,8 @@ lemma kleitman_bound_unique_proj_C {α : Type*} [Fintype α] (T : Set α) [Decid
       simp_all +decide [ Set.Nonempty, Set.ext_iff ];
       grind
 
+set_option linter.unusedDecidableInType false in
+set_option linter.unusedFintypeInType false in
 /-- The core local bound for the Kleitman argument on a product of two chains. -/
 lemma kleitman_grid_bound {α : Type*} [Fintype α] (T : Set α) [DecidablePred (· ∈ T)]
     (C D : Finset (Finset α))
@@ -1163,6 +1164,7 @@ lemma kleitman_grid_bound {α : Type*} [Fintype α] (T : Set α) [DecidablePred 
     contrapose! hXY
     exact hf₂ X Y hX hY hXY ] at h_f_image
 
+set_option linter.unusedFintypeInType false in
 /-- Mapping a chain from a subtype preserves the chain property. -/
 lemma map_chain_is_chain {α β : Type*} [Fintype α] [Fintype β] (emb : β ↪ α)
     (C : Finset (Finset β))
@@ -1175,19 +1177,19 @@ lemma map_chain_is_chain {α β : Type*} [Fintype α] [Fintype β] (emb : β ↪
   rw [Finset.mem_map] at hA hB
   rcases hA with ⟨a, ha, rfl⟩
   rcases hB with ⟨b, hb, rfl⟩
-
   -- Use chain property of C
   have h_eq : a ≠ b := by
     intro h_eq
     apply hneq
     congr
-
   rcases hC ha hb h_eq with (h_sub | h_sub)
   · left
     exact Finset.map_subset_map.mpr h_sub
   · right
     exact Finset.map_subset_map.mpr h_sub
 
+set_option linter.unusedDecidableInType false in
+set_option linter.unusedFintypeInType false in
 /-- Mapping a chain from a subtype T to alpha lands in T. -/
 lemma map_chain_support {α : Type*} [Fintype α] (T : Set α) [DecidablePred (· ∈ T)]
     (emb : T ↪ α) (h_emb : ∀ x, emb x ∈ T)
@@ -1521,6 +1523,7 @@ lemma rectangle_middle_inter_size {α β : Type*} [Fintype α] [Fintype β]
     rw [h_kD_val, h_card]; omega
   rw [h_C_card, h_D_card]
 
+set_option linter.unusedDecidableInType false in
 lemma sum_ncard_product_eq_ncard_biUnion {I J X : Type*} [DecidableEq X]
     {s : Finset I} {t : Finset J} {f : I → J → Set X}
     (h_disj : (↑(s.product t) : Set (I × J)).PairwiseDisjoint (fun p => f p.1 p.2))
@@ -1661,10 +1664,8 @@ theorem kleitman_bound_theorem {α : Type*} [Fintype α] (F : Set (Set α))
   let Tc := Tᶜ
   obtain ⟨CT, hCT⟩ := exists_SCD { x // x ∈ T }
   obtain ⟨DTC, hDTC⟩ := exists_SCD { x // x ∈ Tc }
-
   let embT : T ↪ α := Function.Embedding.subtype _
   let embTC : Tc ↪ α := Function.Embedding.subtype _
-
   -- F converted to Finsets
   let toFin : Set α → Finset α := fun s => s.toFinset
   let F_fin : Set (Finset α) := toFin '' F
@@ -1673,12 +1674,9 @@ theorem kleitman_bound_theorem {α : Type*} [Fintype α] (F : Set (Set α))
     · apply Set.injOn_of_injective
       intro x y h; dsimp [toFin] at h
       exact Set.toFinset_inj.mp h
-
   let P (C : Finset (Finset T)) (D : Finset (Finset Tc)) :=
     {U.map embT ∪ V.map embTC | (U ∈ C) (V ∈ D)}
-
   let F_part (C : Finset (Finset T)) (D : Finset (Finset Tc)) := F_fin ∩ P C D
-
   have h_bound : ∀ C ∈ CT, ∀ D ∈ DTC, (F_part C D).ncard ≤ min C.card D.card := by
     intro C hCin D hDin
     let C' := C.map (Finset.mapEmbedding embT).toEmbedding
@@ -1706,7 +1704,6 @@ theorem kleitman_bound_theorem {α : Type*} [Fintype α] (F : Set (Set α))
          exact ⟨h1, U, hU, V, hV, rfl⟩
     have h_card_C : C'.card = C.card := Finset.card_map _
     have h_card_D : D'.card = D.card := Finset.card_map _
-
     rw [h_match, ←h_card_C, ←h_card_D]
     apply kleitman_grid_bound T C' D' hC' hD' h_suppC h_suppD
     · intro A B hA hB hsub
@@ -1718,7 +1715,6 @@ theorem kleitman_bound_theorem {α : Type*} [Fintype α] (F : Set (Set α))
       have h_ssub : A0 ⊂ B0 := Set.toFinset_ssubset_toFinset.mp hsub
       simpa [toFin] using h_kleitman A0 B0 hA0 hB0 h_ssub
     · exact fun x hx => hx.2
-
   have h_cover : F_fin = ⋃ x ∈ (CT.product DTC), (F_part x.1 x.2) := by
     ext S; constructor
     · intro hS
@@ -1733,7 +1729,6 @@ theorem kleitman_bound_theorem {α : Type*} [Fintype α] (F : Set (Set α))
       simp only [Set.mem_iUnion] at hS
       rcases hS with ⟨x, hx, hS_in_part⟩
       exact hS_in_part.1
-
   have total_card : F_fin.ncard = ∑ C ∈ CT, ∑ D ∈ DTC, (F_part C D).ncard := by
     classical
     have hf_fin : F_fin.Finite := Set.finite_univ.subset (Set.subset_univ F_fin)
@@ -1759,8 +1754,8 @@ theorem kleitman_bound_theorem {α : Type*} [Fintype α] (F : Set (Set α))
         use p, hp
         exact (Set.Finite.mem_toFinset _).mp hS_fin
     rw [h_toF, Finset.card_biUnion]
-    erw [Finset.sum_product]
-    · apply Finset.sum_congr rfl; intro C hC; apply Finset.sum_congr rfl; intro D hD
+    · erw [Finset.sum_product]
+      apply Finset.sum_congr rfl; intro C hC; apply Finset.sum_congr rfl; intro D hD
       exact (Set.ncard_eq_toFinset_card _ (hf_part C D)).symm
     · intro p hp q hq hne
       dsimp [Function.onFun]
@@ -1777,10 +1772,8 @@ theorem kleitman_bound_theorem {α : Type*} [Fintype α] (F : Set (Set α))
           (Set.disjoint_of_subset
             (@Set.inter_subset_right _ F_fin (P p.1 p.2))
             (@Set.inter_subset_right _ F_fin (P q.1 q.2)) disj) hx
-
   have split_card : Fintype.card α = Fintype.card ↑T + Fintype.card ↑Tc := by
     classical rw [← Fintype.card_sum]; exact Fintype.card_congr (Equiv.sumCompl T).symm
-
   rw [F_card, total_card, split_card]
   apply le_trans (Finset.sum_le_sum fun C hC => Finset.sum_le_sum fun D hD => h_bound C hC D hD)
   exact le_of_eq (scd_product_identity CT DTC hCT hDTC)
@@ -1966,11 +1959,9 @@ theorem littlewood_offord_complex_bound (n : ℕ) (z : Fin n → ℂ) (hz : ∀ 
       simp [signs] at this
       rcases this with h|h <;> rw [h] <;> norm_num
     exact signToSet_injective_on_signs z ε₁ ε₂ h1 h2 heq
-
   have card_eq : valid_sums.ncard = F.ncard := (Set.InjOn.ncard_image hinj).symm
   let aligned := fun i => Classical.choose (exists_unique_alignedZ (z i))
   let T : Set (Fin n) := {i | (aligned i).re ≥ 0}
-
   have bound : F.ncard ≤ (Fintype.card (Fin n)).choose (Fintype.card (Fin n) / 2) := by
     apply kleitman_bound_theorem F T
     intro A B hAF hBF hsub
@@ -1991,7 +1982,6 @@ theorem littlewood_offord_complex_bound (n : ℕ) (z : Fin n → ℂ) (hz : ∀ 
       compatibility_helper z hz c valid_sums helper_valid A B εA εB hA_val hB_val T
         hA_eq hB_eq hsub (by rfl)
     exact res
-
   rw [card_eq]
   simp only [Fintype.card_fin] at bound
   exact bound
