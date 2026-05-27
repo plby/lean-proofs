@@ -34,11 +34,6 @@ noticed #351 follows) — see proof.pdf.
 
 import Mathlib
 
-set_option linter.style.setOption false
-set_option linter.flexible false
-set_option linter.unusedFintypeInType false
-set_option linter.style.show false
-
 /-! =============================================================
     Section from: Erdos/P283/RSG/CompleteSequences.lean
     ============================================================= -/
@@ -1025,14 +1020,14 @@ theorem duplicated_generators_subset_sum_all_residues
     ((Finset.univ : Finset (Fin w)) ×ˢ (Finset.univ : Finset (Fin (g - 1)))).filter
       (fun p => p.2.1 < k p.1)
   refine ⟨T, ?_⟩
-  show r = ∑ t ∈ T, ρ t.1
+  change r = ∑ t ∈ T, ρ t.1
   have hsum : (∑ t ∈ T, ρ t.1) = ∑ i, k i • ρ i := by
-    show (∑ t ∈ ((Finset.univ : Finset (Fin w)) ×ˢ
+    change (∑ t ∈ ((Finset.univ : Finset (Fin w)) ×ˢ
             (Finset.univ : Finset (Fin (g - 1)))).filter
             (fun p => p.2.1 < k p.1), ρ t.1) = ∑ i, k i • ρ i
     rw [Finset.sum_filter, Finset.sum_product]
     refine Finset.sum_congr rfl (fun i _ => ?_)
-    show (∑ y : Fin (g - 1), if y.val < k i then ρ i else 0) = k i • ρ i
+    change (∑ y : Fin (g - 1), if y.val < k i then ρ i else 0) = k i • ρ i
     rw [← Finset.sum_filter, Finset.sum_const]
     congr 1
     have heq : ((Finset.univ : Finset (Fin (g - 1))).filter
@@ -1070,15 +1065,15 @@ lemma exists_injective_indices_fin :
       · intro a b hab
         rcases Fin.eq_castSucc_or_eq_last a with ⟨a0, rfl⟩ | rfl
         · rcases Fin.eq_castSucc_or_eq_last b with ⟨b0, rfl⟩ | rfl
-          · simp [idx'] at hab
+          · simp only [idx', Fin.lastCases_castSucc] at hab
             exact congrArg Fin.castSucc (hidx hab)
-          · simp [idx'] at hab
+          · simp only [idx', Fin.lastCases_castSucc, Fin.lastCases_last] at hab
             have ha_le : idx a0 ≤ Finset.univ.sup idx :=
               Finset.le_sup (s := Finset.univ) (f := idx) (Finset.mem_univ a0)
             have : idx a0 < j := by omega
             omega
         · rcases Fin.eq_castSucc_or_eq_last b with ⟨b0, rfl⟩ | rfl
-          · simp [idx'] at hab
+          · simp only [idx', Fin.lastCases_castSucc, Fin.lastCases_last] at hab
             have hb_le : idx b0 ≤ Finset.univ.sup idx :=
               Finset.le_sup (s := Finset.univ) (f := idx) (Finset.mem_univ b0)
             have : idx b0 < j := by omega
@@ -1238,6 +1233,7 @@ lemma coversResidues_of_frequently_unit_terms {S : ℕ → ℤ} {m : ℕ}
     exists_finset_card_eq_of_frequently_atTop hunit (m * m)
   exact coversResidues_of_many_unit_terms hm (by simp [hAcard]) hA
 
+set_option linter.unusedFintypeInType false in
 /-- If all residue classes are covered by arbitrary finite subset sums, then a
 single finite prefix already contains witnesses for every residue class. -/
 lemma CoversResidues.exists_prefix {S : ℕ → ℤ} {m : ℕ}
@@ -1303,6 +1299,7 @@ lemma fs_finitePrefixSeq_mono (S : ℕ → ℤ) {N M : ℕ} (hNM : N ≤ M) :
       · exfalso
         exact hi0 (by simp [finitePrefixSeq, hiN]))
 
+set_option linter.unusedFintypeInType false in
 /-- Residue coverage can be witnessed by a finite prefix, padded by zeros. -/
 lemma CoversResidues.exists_finitePrefixSeq {S : ℕ → ℤ} {m : ℕ}
     [Fintype (ZMod m)] (hcov : CoversResidues S m) :
@@ -1718,8 +1715,9 @@ lemma deltaTerms_sign_eq_one_or_neg_one {k : ℕ} {p : ℤ × ℕ}
     p.1 = 1 ∨ p.1 = -1 := by
   induction k generalizing p with
   | zero =>
-      simp [deltaTerms] at hp
-      exact Or.inl (by simp [hp])
+      have hp' : p = (1, 0) := by
+        simpa [deltaTerms] using hp
+      exact Or.inl (by simp [hp'])
   | succ k ih =>
       simp only [deltaTerms, List.mem_append, List.mem_map] at hp
       rcases hp with ⟨q, hq, rfl⟩ | ⟨q, hq, rfl⟩
@@ -1735,8 +1733,9 @@ lemma deltaTerms_offset_lt_pow_four {k : ℕ} {p : ℤ × ℕ}
     p.2 < 4 ^ k := by
   induction k generalizing p with
   | zero =>
-      simp [deltaTerms] at hp
-      simp [hp]
+      have hp' : p = (1, 0) := by
+        simpa [deltaTerms] using hp
+      simp [hp']
   | succ k ih =>
       simp only [deltaTerms, List.mem_append, List.mem_map] at hp
       rcases hp with ⟨q, hq, rfl⟩ | ⟨q, hq, rfl⟩
@@ -2279,7 +2278,7 @@ theorem exists_integral_multiple (p : ℚ[X]) :
       refine ⟨c.den, c.den_pos, Polynomial.monomial n c.num, ?_⟩
       rw [Polynomial.map_monomial, Polynomial.C_mul_monomial]
       congr 1
-      show (c.num : ℚ) = (c.den : ℚ) * c
+      change (c.num : ℚ) = (c.den : ℚ) * c
       have h : (c.num : ℚ) / (c.den : ℚ) = c := c.num_div_den
       field_simp at h
       linarith
@@ -3408,7 +3407,7 @@ theorem exists_integral_multiple (p : ℚ[X]) :
     refine ⟨c.den, c.den_pos, Polynomial.monomial n c.num, ?_⟩
     rw [Polynomial.map_monomial, Polynomial.C_mul_monomial]
     congr 1
-    show (c.num : ℚ) = (c.den : ℚ) * c
+    change (c.num : ℚ) = (c.den : ℚ) * c
     have h : (c.num : ℚ) / (c.den : ℚ) = c := c.num_div_den
     field_simp at h
     linarith
@@ -3522,10 +3521,19 @@ private lemma exists_harmonic_gt_aux (R : ℚ) : ∃ N : ℕ, harmonic N > R := 
     · rw [Finset.sum_image (fun a _ b _ h => by simp at h; omega)]
       simp
     · ext x
-      simp [Finset.mem_Icc, Finset.mem_image, Finset.mem_range]
       constructor
-      · intro ⟨h1, h2⟩; refine ⟨x - 1, ?_, ?_⟩ <;> omega
-      · rintro ⟨a, ha, rfl⟩; omega
+      · intro hx
+        rw [Finset.mem_Icc] at hx
+        rw [Finset.mem_image]
+        refine ⟨x - 1, ?_, by omega⟩
+        rw [Finset.mem_range]
+        omega
+      · intro hx
+        rw [Finset.mem_image] at hx
+        rcases hx with ⟨a, ha, rfl⟩
+        rw [Finset.mem_range] at ha
+        rw [Finset.mem_Icc]
+        omega
   have h_test : ((R : ℝ) + 1) ≤ (harmonic N : ℝ) := h_eq ▸ hN N le_rfl
   have h_cast : (R : ℝ) < (harmonic N : ℝ) := by linarith
   exact_mod_cast h_cast
@@ -3540,7 +3548,10 @@ private lemma harmonicTail_eq_aux (L N : ℕ) (h : L ≤ N) :
     ext x; simp [Finset.mem_Icc, Finset.mem_union]; omega
   rw [h_split, Finset.sum_union ?_]
   · simp [one_div]
-  · simp [Finset.disjoint_left, Finset.mem_Icc]; intros; omega
+  · rw [Finset.disjoint_left]
+    intro x hx_left hx_right
+    rw [Finset.mem_Icc] at hx_left hx_right
+    omega
 
 /-- For any positive rational `R` and natural `L`, there exists `N ≥ L` such that
 the harmonic tail from `L+1` to `N` is at least `R`. -/
@@ -3700,7 +3711,10 @@ private lemma greedy_residual_aux (n : ℕ) :
     -- Case: S = 1/q
     by_cases h_eq : S = 1/(q : ℚ)
     · refine ⟨{q}, ?_, ?_⟩
-      · intro e he; simp at he; rw [he]; exact hq_ge
+      · intro e he
+        rw [Finset.mem_singleton] at he
+        rw [he]
+        exact hq_ge
       · rw [Finset.sum_singleton]; exact h_eq
     -- S ≠ 1/q: greedy step
     have h_nonneg' : 0 ≤ S - 1/(q : ℚ) := greedy_step_nonneg_aux S hS_pos
@@ -4064,14 +4078,14 @@ theorem egyptian_expansion (R : ℚ) (hR : 0 < R) (L : ℕ) :
     induction n with
     | zero =>
       refine ⟨hne0, h2_0, hL_0, ?_, ?_⟩
-      · show (splitAtMax^[0] E0).card = E0.card + 0
+      · change (splitAtMax^[0] E0).card = E0.card + 0
         rw [Function.iterate_zero_apply]; ring
-      · show (∑ e ∈ splitAtMax^[0] E0, (1 : ℚ) / e) = R
+      · change (∑ e ∈ splitAtMax^[0] E0, (1 : ℚ) / e) = R
         rw [Function.iterate_zero_apply]; linarith
     | succ n ih =>
       obtain ⟨hne_n, h2_n, hL_n, hcard_n, hsum_n⟩ := ih
       have h_iter_succ : iter (n + 1) = splitAtMax (iter n) := by
-        show splitAtMax^[n + 1] E0 = splitAtMax (splitAtMax^[n] E0)
+        change splitAtMax^[n + 1] E0 = splitAtMax (splitAtMax^[n] E0)
         exact Function.iterate_succ_apply' splitAtMax n E0
       refine ⟨?_, ?_, ?_, ?_, ?_⟩
       · rw [h_iter_succ]; exact splitAtMax_nonempty _ hne_n
@@ -4107,9 +4121,9 @@ theorem egyptian_pattern_with_period (T M : ℕ) (hT : 1 ≤ T) (hM : 1 ≤ M)
   let k : ℕ := K + r
   have hk_ge : k ≥ K := Nat.le_add_right _ _
   have hk_cast : (k : ZMod M) = ρ := by
-    show ((K + r : ℕ) : ZMod M) = ρ
+    change ((K + r : ℕ) : ZMod M) = ρ
     push_cast
-    show (K : ZMod M) + ((ρ - (K : ZMod M)).val : ZMod M) = ρ
+    change (K : ZMod M) + ((ρ - (K : ZMod M)).val : ZMod M) = ρ
     rw [ZMod.natCast_val, ZMod.cast_id]
     ring
   -- Step 3: Get F : Finset ℕ from egyptian_expansion at this k.
@@ -4944,7 +4958,7 @@ theorem switching_values_span_top (p : ℚ[X]) (hp : IntValued p)
         (∑ e ∈ E, intEval p hp ((e * n : ℕ) : ℤ)) -
           ((∑ e ∈ E, intEval p hp ((e * n : ℕ) : ℤ)) - intEval p hp ((n : ℕ) : ℤ))
       ring
-    show (ℓ : ℤ) ∣ intEval p hp ((n : ℕ) : ℤ)
+    change (ℓ : ℤ) ∣ intEval p hp ((n : ℕ) : ℤ)
     rw [h_diff]
     exact dvd_sub h_dvd_sum hℓ_dvd_Qn
   -- Apply NoFixedDivisor at d = ℓ.
@@ -5026,9 +5040,9 @@ theorem finite_switch_values_generate_zmod (p : ℚ[X]) (hp : IntValued p)
     apply zsmul_mem
     apply AddSubgroup.subset_closure
     refine ⟨t_set.equivFin ⟨a, ha⟩, ?_⟩
-    show ((b (t_set.equivFin ⟨a, ha⟩) : ℤ) : ZMod g) = ((a : ℤ) : ZMod g)
+    change ((b (t_set.equivFin ⟨a, ha⟩) : ℤ) : ZMod g) = ((a : ℤ) : ZMod g)
     have h_b_eq : b (t_set.equivFin ⟨a, ha⟩) = (a : ℤ) := by
-      show (t_set.equivFin.symm (t_set.equivFin ⟨a, ha⟩) : ℤ) = (a : ℤ)
+      change (t_set.equivFin.symm (t_set.equivFin ⟨a, ha⟩) : ℤ) = (a : ℤ)
       simp
     rw [h_b_eq]
   -- Every x = (ZMod.val x) • 1 ∈ closure.
@@ -5162,7 +5176,7 @@ lemma main_telescoping (J N : ℕ) (hJN : J ≤ N) :
   have hD_eq : ∀ j, (1 : ℚ) / (D j : ℚ) = f (j + 1) - f j := by
     intro j
     rw [D_recip]
-    show (1 / (P : ℚ)) * (1 / (u j : ℚ) - 1 / (u (j + 1) : ℚ)) =
+    change (1 / (P : ℚ)) * (1 / (u j : ℚ) - 1 / (u (j + 1) : ℚ)) =
         -1 / ((P : ℚ) * (u (j + 1) : ℚ)) - -1 / ((P : ℚ) * (u j : ℚ))
     field_simp
     ring
@@ -5174,7 +5188,7 @@ lemma main_telescoping (J N : ℕ) (hJN : J ≤ N) :
               (Finset.Ico_add_one_right_eq_Icc J N).symm]
     _ = f (N + 1) - f J := Finset.sum_Ico_sub f (by omega : J ≤ N + 1)
     _ = 1 / ((P : ℚ) * (u J : ℚ)) - 1 / (tau N : ℚ) := by
-        show -1 / ((P : ℚ) * (u (N + 1) : ℚ)) - -1 / ((P : ℚ) * (u J : ℚ)) =
+        change -1 / ((P : ℚ) * (u (N + 1) : ℚ)) - -1 / ((P : ℚ) * (u J : ℚ)) =
             1 / ((P : ℚ) * (u J : ℚ)) - 1 / (tau N : ℚ)
         unfold tau
         push_cast
@@ -5931,14 +5945,14 @@ theorem duplicated_generators_subset_sum_all_residues
     ((Finset.univ : Finset (Fin w)) ×ˢ (Finset.univ : Finset (Fin (g - 1)))).filter
       (fun p => p.2.1 < k p.1)
   refine ⟨T, ?_⟩
-  show r = ∑ t ∈ T, ρ t.1
+  change r = ∑ t ∈ T, ρ t.1
   have hsum : (∑ t ∈ T, ρ t.1) = ∑ i, k i • ρ i := by
-    show (∑ t ∈ ((Finset.univ : Finset (Fin w)) ×ˢ
+    change (∑ t ∈ ((Finset.univ : Finset (Fin w)) ×ˢ
             (Finset.univ : Finset (Fin (g - 1)))).filter
             (fun p => p.2.1 < k p.1), ρ t.1) = ∑ i, k i • ρ i
     rw [Finset.sum_filter, Finset.sum_product]
     refine Finset.sum_congr rfl (fun i _ => ?_)
-    show (∑ y : Fin (g - 1), if y.val < k i then ρ i else 0) = k i • ρ i
+    change (∑ y : Fin (g - 1), if y.val < k i then ρ i else 0) = k i • ρ i
     rw [← Finset.sum_filter, Finset.sum_const]
     congr 1
     have heq : ((Finset.univ : Finset (Fin (g - 1))).filter
@@ -5955,9 +5969,10 @@ theorem duplicated_generators_subset_sum_all_residues
 /-! ## Correction-denominator existence (density argument) -/
 
 section ExistsLargeCorrectionDenominator
-set_option maxHeartbeats 1600000
-set_option maxRecDepth 2048
 
+set_option maxHeartbeats 1600000 in
+-- Needed for the density-counting inequalities in this declaration.
+set_option maxRecDepth 2048 in
 /-- A density argument: an arithmetic progression `{a + k T_g : k ∈ ℕ}` has
 positive density `1/T_g`, while the union of finitely many specific values
 plus the curves `{(h/e) D j : j ≥ J}` (parametrized by `j`, contributing
@@ -6221,7 +6236,7 @@ theorem exists_large_correction_denominator
             (Nat.sqrt (maxE * UpperC) + 1) * (Nat.sqrt (maxE * UpperC) + 1) := by
         have h := Nat.lt_succ_sqrt (maxE * UpperC)
         -- h : maxE * UpperC < (maxE*UpperC).sqrt.succ * (maxE*UpperC).sqrt.succ
-        show maxE * UpperC <
+        change maxE * UpperC <
           (Nat.sqrt (maxE * UpperC) + 1) * (Nat.sqrt (maxE * UpperC) + 1)
         convert h using 2
       have h3 :
@@ -6280,7 +6295,7 @@ theorem exists_large_correction_denominator
       -- Now k ∈ HE_set.filter(...).image(...).
       refine Finset.mem_image.mpr ⟨(h, e), ?_, ?_⟩
       · rw [Finset.mem_filter]
-        show (h, e) ∈ HE_set ∧ h * D j ≥ e * aσ ∧
+        change (h, e) ∈ HE_set ∧ h * D j ≥ e * aσ ∧
              e ∣ h * D j - e * aσ ∧ e * Tg ∣ h * D j - e * aσ
         refine ⟨?_, ?_, ?_, ?_⟩
         · rw [hHE_def]; exact Finset.mem_product.mpr ⟨hh, he⟩
@@ -6305,7 +6320,7 @@ theorem exists_large_correction_denominator
           -- e * Tg ∣ e * (k * Tg) = e * Tg * k
           refine ⟨k, ?_⟩; ring
       · -- the image element equals k
-        show (h * D j - e * aσ) / (e * Tg) = k
+        change (h * D j - e * aσ) / (e * Tg) = k
         have : h * D j - e * aσ = e * (k * Tg) := by
           have h2 : e * aσ + e * (k * Tg) = h * D j := by
             have := heq
@@ -7051,8 +7066,6 @@ lemma qPoly_int_pos_on_pos {α : ℚ} {L : ℕ} (p : ℚ[X]) (hp : IntValued p)
     --     ((intEval (A p) (D (md.J + n - 1)) : ℤ) : ℚ) / (gcd.g : ℚ).
     rw [qPoly_eval_at_succ p hp md.J gcd.g n hn]
     -- Now goal: (z : ℚ) = (val : ℚ) / (gcd.g : ℚ), where val = gcd.g * z.
-    show (z : ℚ) = ((intEval (A p) (A_intValued p hp)
-        ((D (md.J + n - 1) : ℕ) : ℤ) : ℤ) : ℚ) / (gcd.g : ℚ)
     -- Rewrite via val = gcd.g * z.
     have hval_eq : (val : ℚ) = (gcd.g : ℚ) * (z : ℚ) := by
       have : ((val : ℤ) : ℚ) = (((gcd.g : ℤ) * z : ℤ) : ℚ) := by
@@ -7060,7 +7073,7 @@ lemma qPoly_int_pos_on_pos {α : ℚ} {L : ℕ} (p : ℚ[X]) (hp : IntValued p)
       push_cast at this
       exact this
     -- val on the goal is exactly the intEval expression with j = md.J + n - 1.
-    show (z : ℚ) = (val : ℚ) / (gcd.g : ℚ)
+    change (z : ℚ) = (val : ℚ) / (gcd.g : ℚ)
     rw [hval_eq]
     field_simp
 
@@ -7452,7 +7465,7 @@ lemma exists_ordered_correction_slots
           · intro hne e he e' he' h_eq
             exact (hne rfl).elim
           · intro hne e he e' he' h_eq
-            simp [c] at h_eq
+            simp only [c, Fin.snoc_last, Fin.snoc_castSucc] at h_eq
             have hmem : e' * c_old μ' ∈ forbiddenFinite := by
               dsimp [forbiddenFinite]
               refine Finset.mem_biUnion.mpr ⟨μ', Finset.mem_univ μ', ?_⟩
@@ -7460,14 +7473,14 @@ lemma exists_ordered_correction_slots
             exact hlast_finite e he (by rwa [h_eq])
         · refine Fin.lastCases ?_ (fun μ' => ?_) μ
           · intro hne e he e' he' h_eq
-            simp [c] at h_eq
+            simp only [c, Fin.snoc_last, Fin.snoc_castSucc] at h_eq
             have hmem : e * c_old ν' ∈ forbiddenFinite := by
               dsimp [forbiddenFinite]
               refine Finset.mem_biUnion.mpr ⟨ν', Finset.mem_univ ν', ?_⟩
               exact Finset.mem_image.mpr ⟨e, he, rfl⟩
             exact hlast_finite e' he' (by rwa [← h_eq])
           · intro hne e he e' he' h_eq
-            simp [c] at h_eq
+            simp only [c, Fin.snoc_castSucc] at h_eq
             have hne_old : ν' ≠ μ' := by
               intro h
               apply hne
@@ -9512,7 +9525,8 @@ lemma witness_of_fintype_denominators (α : ℚ) (L m : ℕ) (p : ℚ[X])
     exact ⟨d i, by simp [E]⟩
   have hE_gt_L : ∀ n ∈ E, L < n := by
     intro n hn
-    simp [E] at hn
+    change n ∈ Finset.univ.image d at hn
+    rw [Finset.mem_image] at hn
     obtain ⟨i, _, rfl⟩ := hn
     exact hd_gt_L i
   have hE_recip : α = ∑ n ∈ E, (1 : ℚ) / (n : ℚ) := by
@@ -10039,8 +10053,6 @@ theorem corollary_7_zero : IsStronglyComplete (imageSet 0) := by
 
 /-! ## Case positive leading coefficient -/
 
-set_option maxHeartbeats 800000
-
 /-! ### Helper lemmas for `corollary_7_pos_leading` -/
 
 /-- `IntValued (C D * p)` whenever `D · p` has integer coefficients. The
@@ -10238,6 +10250,8 @@ private lemma intValued_dvd_extends_to_int (q : ℚ[X]) (hq_int : IntValued q)
     rw [hw_eq]
     exact h_neg m
 
+set_option maxHeartbeats 800000 in
+-- Needed for the final positive-leading reduction and fixed-divisor argument.
 /-- **Corollary 7, positive-leading case.** For `p` with positive leading
 coefficient, `A_p` is strongly complete.
 
@@ -10415,7 +10429,7 @@ theorem corollary_7_pos_leading (p : ℚ[X])
       apply Ideal.span_le.mpr
       intro x hx
       obtain ⟨w, hx_eq⟩ := hx
-      show x ∈ Ideal.span ({(d : ℤ) * (h : ℤ)} : Set ℤ)
+      change x ∈ Ideal.span ({(d : ℤ) * (h : ℤ)} : Set ℤ)
       rw [Ideal.mem_span_singleton, hx_eq]
       exact hdh_dvd_all w
     have hz₀_mem_I : z₀ ∈ I := Submodule.IsPrincipal.generator_mem I
@@ -11111,7 +11125,7 @@ theorem erdos_283 :
   have hp_int : PolynomialEgyptianSums.IntValued pℚ := by
     intro z
     refine ⟨Polynomial.eval z p, ?_⟩
-    show ((Polynomial.eval z p : ℤ) : ℚ) = pℚ.eval ((z : ℤ) : ℚ)
+    change ((Polynomial.eval z p : ℤ) : ℚ) = pℚ.eval ((z : ℤ) : ℚ)
     rw [hpℚ, Polynomial.eval_map]
     rw [show ((z : ℤ) : ℚ) = (Int.castRingHom ℚ) z from rfl]
     rw [Polynomial.eval₂_at_apply]
@@ -11120,7 +11134,7 @@ theorem erdos_283 :
   have hlc_pℚ : 0 < pℚ.leadingCoeff := by
     rw [hpℚ]
     rw [Polynomial.leadingCoeff_map_of_injective (f := Int.castRingHom ℚ) Int.cast_injective]
-    show 0 < ((p.leadingCoeff : ℤ) : ℚ)
+    change 0 < ((p.leadingCoeff : ℤ) : ℚ)
     exact_mod_cast hlc
   -- `intEval pℚ hp_int z = p.eval z` (as ℤ).
   have h_intEval_eq : ∀ z : ℤ,
