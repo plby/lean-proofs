@@ -18,15 +18,9 @@ URLs:
 import Mathlib
 
 set_option linter.style.setOption false
-set_option linter.style.cdot false
-set_option linter.style.whitespace false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
-set_option linter.style.nativeDecide false
-set_option linter.style.refine false
 set_option linter.flexible false
-set_option linter.deprecated false
-set_option linter.unusedSimpArgs false
 set_option aesop.warn.nonterminal false
 
 namespace Erdos418
@@ -149,14 +143,14 @@ lemma phi_mod_4_eq_2_iff_of_even (n : ℕ) (h_even : Even n) (h_gt : 4 < n) :
             -- Hence, $m$ must have exactly one prime factor.
             have h_prime_factors : (Nat.primeFactors m).card ≥ 2 := by
               by_cases h_prime_factors : (Nat.primeFactors m).card = 1;
-              · rw [ Finset.card_eq_one ] at h_prime_factors ; aesop;
-                exact h_contra w
-                  ( Nat.prime_of_mem_primeFactors ( h.symm ▸ Finset.mem_singleton_self _ ) )
-                  ( Nat.factorization m w )
-                  ( by
-                    nth_rw 1 [ ← Nat.factorization_prod_pow_eq_self hm.pos.ne' ]
+              · rw [ Finset.card_eq_one ] at h_prime_factors
+                obtain ⟨w, h⟩ := h_prime_factors
+                exact False.elim <| h_contra ⟨w, Nat.factorization m w,
+                  Nat.prime_of_mem_primeFactors ( h.symm ▸ Finset.mem_singleton_self _ ),
+                  by
+                    nth_rw 1 [ ← Nat.prod_factorization_pow_eq_self hm.pos.ne' ]
                     rw [ Finsupp.prod ]
-                    aesop );
+                    aesop⟩;
               · exact Nat.lt_of_le_of_ne
                   ( Finset.card_pos.mpr ⟨ Nat.minFac m,
                     Nat.mem_primeFactors.mpr
@@ -204,7 +198,7 @@ lemma phi_mod_4_eq_2_iff_of_even (n : ℕ) (h_even : Even n) (h_gt : 4 < n) :
         · have := congr_arg ( · % 2 ) h
           norm_num [ Nat.mul_mod, Nat.pow_mod,
             left.eq_two_or_odd.resolve_left ( by aesop_cat ) ] at this;
-      simp_all +decide [ Nat.totient_mul, Nat.totient_prime_pow ];
+      simp_all +decide [ Nat.totient_mul ];
       rw [ Nat.totient_prime_pow left ];
       · rw [ ← Nat.mod_add_div w 4, left_1 ] ; norm_num [ Nat.add_mod, Nat.mul_mod, Nat.pow_mod ] ;
         rcases Nat.even_or_odd' ( w_1 - 1 ) with ⟨ k, hk | hk ⟩ <;>
@@ -219,7 +213,7 @@ private lemma two_pow_ne_m_BS_plus_one_of_lt_23 (k : ℕ) (hk : k < 23) :
     2 ^ k ≠ m_BS + 1 := by
   interval_cases k <;> norm_num [m_BS]
 
-lemma m_BS_plus_one_not_power_of_two (k : ℕ) : 2^k ≠ m_BS + 1 := by
+lemma m_BS_plus_one_not_power_of_two (k : ℕ) : 2 ^ k ≠ m_BS + 1 := by
   intro h;
   exact absurd ( h.symm ▸ pow_dvd_pow _ ( show k ≥ 23 by
     contrapose! h
@@ -230,8 +224,8 @@ lemma composite_implies_not_prime {n : ℕ} (h : Composite n) : ¬ n.Prime := by
 
 
 lemma inductive_step
-    (k : ℕ) (hk : 2 ≤ k) (h_ind : IsNoncototient (2^(k-1) * m_BS)) :
-    IsNoncototient (2^k * m_BS) := by
+    (k : ℕ) (hk : 2 ≤ k) (h_ind : IsNoncototient (2 ^ (k - 1) * m_BS)) :
+    IsNoncototient (2 ^ k * m_BS) := by
   -- Assume for contradiction that $2^k * m_BS$ is a cototient.
   by_contra h_contra
   obtain ⟨n, hn⟩ : ∃ n, 2^k * m_BS = n - n.totient := by
@@ -273,8 +267,8 @@ lemma inductive_step
       omega) (by
       rcases n with ( _ | _ | _ | _ | _ | n ) <;> simp +arith +decide at *) |>.1 h_phi_mod4;
     -- Substitute $n = 2 * p^a$ into the equation $2^k * m_BS = n - n.totient$ and simplify.
-    have h_eq : 2^k * m_BS = p^(a-1) * (p + 1) := by
-      rcases a with ( _ | a ) <;> simp_all +decide [ Nat.totient_prime_pow ];
+    have h_eq : 2 ^ k * m_BS = p ^ (a - 1) * (p + 1) := by
+      rcases a with ( _ | a ) <;> simp_all +decide;
       rw [ Nat.totient_mul, Nat.totient_prime_pow ] <;> norm_num [ hp_prime ];
       · exact Nat.sub_eq_of_eq_add <| by cases p <;> norm_num [ pow_succ' ] at * ; linarith;
       · exact hp_prime.odd_of_ne_two <| by aesop_cat;
@@ -383,8 +377,7 @@ lemma n_le_four_m (n : ℕ) (h : n - n.totient = 2 * m_BS) : n ≤ 4 * m_BS := b
         · exact fun i hi => Finset.mem_filter.mpr
             ⟨ Finset.mem_range.mpr ( by linarith [ Nat.div_mul_le_self n 2 ] ),
               by norm_num [ Nat.add_mod ] ⟩;
-        ·
-          -- If $2i + 1 = 2j + 1$, then subtracting 1 from both sides gives
+        · -- If $2i + 1 = 2j + 1$, then subtracting 1 from both sides gives
           -- $2i = 2j$, and dividing by 2 gives $i = j$.
           intros i j hi hj h_eq
           linarith
@@ -410,7 +403,7 @@ lemma not_dvd_four (n : ℕ) (h : n - n.totient = 2 * m_BS) : ¬ 4 ∣ n := by
     have h_phi_4k : Nat.totient (4 * k) = 2 * Nat.totient (2 * k) := by
       rw [ show 4 * k = 2 * ( 2 * k ) by ring,
         Nat.totient_mul_of_prime_of_dvd ] <;> norm_num;
-    rcases k with ( _ | _ | k ) <;> simp_all +arith +decide [ Nat.totient_prime ];
+    rcases k with ( _ | _ | k ) <;> simp_all +arith +decide;
     exact mul_dvd_mul_left 2
       ( even_iff_two_dvd.mp ( Nat.totient_even <| by linarith ) );
   -- Since $4 \mid n$ and $4 \mid n.totient$, their difference
@@ -423,35 +416,41 @@ lemma not_dvd_four (n : ℕ) (h : n - n.totient = 2 * m_BS) : ¬ 4 ∣ n := by
 lemma base_case_reduction : IsCototient (2 * m_BS) ↔ ∃ m, Odd m ∧ 2 * m - m.totient = 2 * m_BS := by
   -- Assume 2 * m_BS is a cototient. Then there exists an n such that 2 * m_BS = n - phi(n).
   apply Iff.intro
-  intro h_cototient
-  obtain ⟨n, hn⟩ := h_cototient
-  have hn_even : Even n := by
-    -- Since $2 * m_BS$ is even, $n - n.totient$ must also be even. If $n$
-    -- were odd, then $n.totient$ would be even, making $n - n.totient$ odd,
-    -- which contradicts $2 * m_BS$ being even. Hence, $n$ must be even.
-    have h_even : Even (n - n.totient) := by
-      exact hn ▸ even_two_mul _;
-    cases le_total n ( n.totient ) <;> simp_all +decide [ parity_simps ];
-    by_contra h_odd;
-    exact h_odd <| Nat.totient_even <| Nat.le_of_not_lt fun h => by
-      interval_cases n <;> contradiction;
-  obtain ⟨m, rfl⟩ : ∃ m, n = 2 * m := by
-    exact even_iff_two_dvd.mp hn_even
-  have hm_odd : Odd m := by
-    -- Since $2 * m - 2 * m_BS$ is even and $2 * m_BS$ is even, $2 * m$
-    -- must be even. Therefore, $m$ must be odd.
-    by_contra hm_even
-    have h_div_four : 4 ∣ 2 * m := by
-      exact mul_dvd_mul_left 2 ( even_iff_two_dvd.mp ( by simpa using hm_even ) );
-    exact not_dvd_four ( 2 * m ) ( by omega ) h_div_four
-  use m
-  aesop;
-  · rw [ Nat.totient_mul ] <;> norm_num [ hm_odd ];
-  · aesop;
+  · intro h_cototient
+    obtain ⟨n, hn⟩ := h_cototient
+    have hn_even : Even n := by
+      -- Since $2 * m_BS$ is even, $n - n.totient$ must also be even. If $n$
+      -- were odd, then $n.totient$ would be even, making $n - n.totient$ odd,
+      -- which contradicts $2 * m_BS$ being even. Hence, $n$ must be even.
+      have h_even : Even (n - n.totient) := by
+        exact hn ▸ even_two_mul _;
+      cases le_total n ( n.totient ) <;> simp_all +decide [ parity_simps ];
+      by_contra h_odd;
+      exact h_odd <| Nat.totient_even <| Nat.le_of_not_lt fun h => by
+        interval_cases n <;> contradiction;
+    obtain ⟨m, rfl⟩ : ∃ m, n = 2 * m := by
+      exact even_iff_two_dvd.mp hn_even
+    have hm_odd : Odd m := by
+      -- Since $2 * m - 2 * m_BS$ is even and $2 * m_BS$ is even, $2 * m$
+      -- must be even. Therefore, $m$ must be odd.
+      by_contra hm_even
+      have h_div_four : 4 ∣ 2 * m := by
+        exact mul_dvd_mul_left 2 ( even_iff_two_dvd.mp ( by simpa using hm_even ) );
+      exact not_dvd_four ( 2 * m ) ( by omega ) h_div_four
+    use m
+    constructor
+    · exact hm_odd
+    · rw [ Nat.totient_mul ] at hn
+      · norm_num [ hm_odd ] at hn
+        omega
+      · exact hm_odd.coprime_two_left
+  · rintro ⟨m, hm_odd, hm⟩
     -- Let $n = 2m$. Then, $\phi(n) = \phi(2m) = \phi(2) \cdot \phi(m)$,
     -- which equals $\phi(m)$.
-    use 2 * w;
-    rw [ ← right, Nat.totient_mul ] <;> aesop
+    use 2 * m
+    rw [ ← hm, Nat.totient_mul ]
+    · norm_num
+    · exact hm_odd.coprime_two_left
 
 
 lemma m_BS_is_prime : Nat.Prime m_BS := by
@@ -491,8 +490,8 @@ lemma solution_squarefree (m : ℕ) (h : IsSolution m) : Squarefree m := by
   have hp_div_m : p ∣ m := by
     exact dvd_of_mul_left_dvd hp_sq
   have hp_div_phi : p ∣ m.totient := by
-    refine' Nat.dvd_trans _ ( Nat.totient_dvd_of_dvd hp_sq );
-    norm_num [ Nat.totient_prime_pow hp_prime ];
+    refine Nat.dvd_trans ?_ ( Nat.totient_dvd_of_dvd hp_sq );
+    norm_num [ Nat.totient_prime_pow hp_prime (by norm_num : 0 < 2) ];
   -- Since $p$ divides $2 * m_BS$ and $m_BS$ is prime, $p$ must be either $2$
   -- or $m_BS$. However, $m$ is odd, so $p$ cannot be $2$. Thus, $p = m_BS$.
   have hp_eq_m_BS : p = m_BS := by
@@ -722,6 +721,7 @@ lemma phi_k_mod_3_contra
     have := totient_mod_3_of_squarefree_not_dvd_3 k h_sq h_nd
     aesop )
 
+set_option linter.style.nativeDecide false in
 private lemma computation_lemma_check :
     ∀ m ∈ Finset.Ico (m_BS + 1) (2 * m_BS), Odd m → Squarefree m → ¬(3 ∣ m) →
       2 * m - m * (∏ p ∈ Nat.primeFactors m, (1 - 1 / p : ℚ)) ≠ 2 * m_BS := by
