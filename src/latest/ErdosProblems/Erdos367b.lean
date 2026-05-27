@@ -71,26 +71,10 @@ import Mathlib
 
 namespace Erdos367b
 
-set_option linter.style.setOption false
-set_option linter.flexible false
-set_option linter.style.multiGoal false
-set_option aesop.warn.nonterminal false
-set_option maxHeartbeats 50000000
--- Several generated Pell-equation and divisibility proofs time out at the default heartbeat limit.
-set_option maxRecDepth 4000
-set_option synthInstance.maxHeartbeats 20000
-set_option synthInstance.maxSize 128
-set_option linter.style.induction false
-set_option linter.style.openClassical false
-set_option linter.style.refine false
-set_option linter.unusedSimpArgs false
-set_option linter.unusedTactic false
-
-open scoped Classical
-
 def IsPowerful (n : ℕ) : Prop :=
   ∀ p : ℕ, Nat.Prime p → p ∣ n → p ^ 2 ∣ n
 
+open Classical in
 noncomputable def powerfulPart (n : ℕ) : ℕ :=
   if n = 0 then 0 else (n.divisors.filter IsPowerful).max.getD 1
 
@@ -98,6 +82,8 @@ noncomputable def alpha : ℝ := 3 + Real.sqrt 8
 
 noncomputable def n_real (j : ℕ) : ℝ := (alpha ^ (2 * j) - 2 + alpha ^ (-(2 * j : ℤ))) / 4
 
+set_option aesop.warn.nonterminal false in
+set_option linter.style.induction false in
 theorem n_real_is_nat (j : ℕ) : ∃ k : ℕ, n_real j = k := by
   -- Let's denote α = 3 + sqrt(8). Then α^(2j) is a number of the form
   -- a + b*sqrt(8), where a and b are integers.
@@ -106,55 +92,67 @@ theorem n_real_is_nat (j : ℕ) : ∃ k : ℕ, n_real j = k := by
       ∃ a b : ℕ,
         α^(2*j) = a + b * Real.sqrt 8 ∧
           α^(-2*j : ℤ) = a - b * Real.sqrt 8 := by
-    induction' j with j ih;
-    · exact ⟨ 1, 0, by norm_num, by norm_num ⟩;
+    induction' j with j ih
+    · exact ⟨ 1, 0, by norm_num, by norm_num ⟩
     · -- By the induction hypothesis, we have α^(2*j) = a + b*sqrt(8)
       -- and α^(-2*j) = a - b*sqrt(8).
-      obtain ⟨a, b, ha, hb⟩ := ih;
-      use 17 * a + 48 * b, 6 * a + 17 * b;
-      aesop;
+      obtain ⟨a, b, ha, hb⟩ := ih
+      use 17 * a + 48 * b, 6 * a + 17 * b
+      aesop
       · -- Now use the induction hypothesis to simplify the expression.
         have h_expand :
             (3 + Real.sqrt 8) ^ (2 * (j + 1)) =
               (a + b * Real.sqrt 8) * (17 + 6 * Real.sqrt 8) := by
-          rw [ ← ha ] ; ring_nf ; norm_num ; ring_nf;
-        exact h_expand.trans ( by ring_nf; norm_num ; ring_nf );
-      · convert congr_arg ( fun x : ℝ => x / ( 3 + Real.sqrt 8 ) ^ 2 ) hb using 1 <;> ring_nf;
-        · rw [ ← mul_inv ] ; norm_cast ; ring_nf;
-        · rw [ show ( Real.sqrt 8 ) ^ 2 = 8 by norm_num ] ; ring_nf;
+          rw [ ← ha ]
+          ring_nf
+          norm_num
+          ring_nf
+        exact h_expand.trans (by ring_nf; norm_num; ring_nf)
+      · convert congr_arg ( fun x : ℝ => x / ( 3 + Real.sqrt 8 ) ^ 2 ) hb using 1 <;> ring_nf
+        · rw [ ← mul_inv ]
+          norm_cast
+          ring_nf
+        · rw [ show ( Real.sqrt 8 ) ^ 2 = 8 by norm_num ]
+          ring_nf
           nlinarith [
             Real.sqrt_nonneg 8,
             Real.sq_sqrt (show 0 ≤ 8 by norm_num),
             inv_mul_cancel_left₀
               (show (17 + Real.sqrt 8 * 6) ≠ 0 by positivity) (a : ℝ),
             inv_mul_cancel_left₀
-              (show (17 + Real.sqrt 8 * 6) ≠ 0 by positivity) (b : ℝ) ];
-  -- Substitute the expressions for α^(2j) and α^(-2j) into the formula for n_j.
+              (show (17 + Real.sqrt 8 * 6) ≠ 0 by positivity) (b : ℝ) ]
+  -- Substitute the expressions for α^(2j) and α^(-2j) into the formula for
+  -- n_j.
   obtain ⟨a, b, ha, hb⟩ := h_alpha_pow
   have h_n_j : n_real j = (a - 1) / 2 := by
-    -- Substitute the expressions for α^(2j) and α^(-2j) into the formula for n_real j and simplify.
+    -- Substitute the expressions for α^(2j) and α^(-2j) into the formula for
+    -- n_real j and simplify.
     have h_n_j : n_real j = ((a + b * Real.sqrt 8) - 2 + (a - b * Real.sqrt 8)) / 4 := by
       -- Substitute the expressions for α^(2j) and α^(-2j) into the formula
       -- for n_real j and simplify using the definitions of ha and hb.
       rw [show n_real j = (α^(2*j) - 2 + α^(-2*j : ℤ)) / 4 from rfl]
-      rw [ha, hb];
+      rw [ha, hb]
     -- Combine like terms in the numerator and simplify the expression.
     rw [h_n_j]
-    ring_nf;
-  -- Since $a$ is odd, $(a - 1)$ is even, and thus $(a - 1) / 2$ is a natural number.
+    ring_nf
+  -- Since $a$ is odd, $(a - 1)$ is even, and thus $(a - 1) / 2$ is a natural
+  -- number.
   have h_a_odd : Odd a := by
     -- From the equation $a^2 - 8b^2 = 1$, we know that $a$ must be odd.
     have h_a_odd : a^2 = 8 * b^2 + 1 := by
       have h_eq : (a + b * Real.sqrt 8) * (a - b * Real.sqrt 8) = 1 := by
-        rw [ ← ha, ← hb ] ; group ; norm_num;
-        exact mul_inv_cancel₀ ( by positivity );
+        rw [ ← ha, ← hb ]
+        group
+        norm_num
+        exact mul_inv_cancel₀ (by positivity)
       exact_mod_cast
         (show (a : ℝ) ^ 2 = 8 * b ^ 2 + 1 by
           ring_nf at h_eq
           norm_num at h_eq
           linarith)
-    simpa [ parity_simps ] using congr_arg Even h_a_odd;
-  obtain ⟨ k, rfl ⟩ := h_a_odd; exact ⟨ k, by push_cast [ h_n_j ] ; ring_nf ⟩ ;
+    simpa [ parity_simps ] using congr_arg Even h_a_odd
+  obtain ⟨ k, rfl ⟩ := h_a_odd
+  exact ⟨ k, by push_cast [ h_n_j ]; ring_nf ⟩
 
 noncomputable def n_nat (j : ℕ) : ℕ := (n_real_is_nat j).choose
 
@@ -163,16 +161,26 @@ theorem n_nat_eq_n_real (j : ℕ) : (n_nat j : ℝ) = n_real j := (n_real_is_nat
 def x_j (j : ℕ) : ℕ := Pell.xn (show 1 < 3 by norm_num) j
 def y_j (j : ℕ) : ℕ := Pell.yn (show 1 < 3 by norm_num) j
 
+set_option aesop.warn.nonterminal false in
+set_option linter.style.induction false in
+set_option linter.style.multiGoal false in
 theorem n_nat_eq_8_y_sq (j : ℕ) : n_nat j = 8 * (y_j j)^2 := by
   -- By definition of $n_real$, we know that
   -- $n_real j = ((alpha^(2*j) - 2 + alpha^(-(2*j))) / 4)$.
   have h_n_real :
       n_real j =
         ((3 + Real.sqrt 8) ^ (2 * j) - 2 + (3 - Real.sqrt 8) ^ (2 * j)) / 4 := by
-    unfold n_real;
-    simp +zetaDelta at *;
-    unfold alpha; norm_cast; ring_nf; norm_num; ring_nf;
-    rw [ inv_eq_of_mul_eq_one_right ] ; ring_nf ; norm_num;
+    unfold n_real
+    simp +zetaDelta only [zpow_neg, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true,
+      div_left_inj'] at *
+    unfold alpha
+    norm_cast
+    ring_nf
+    norm_num
+    ring_nf
+    rw [ inv_eq_of_mul_eq_one_right ]
+    ring_nf
+    norm_num
   -- By definition of $n_real$, we know that $n_real j = 8 * y_j j^2$.
   have h_n_real_eq : n_real j = 8 * y_j j ^ 2 := by
     -- By definition of $x_j$ and $y_j$, we know that
@@ -181,33 +189,47 @@ theorem n_nat_eq_8_y_sq (j : ℕ) : n_nat j = 8 * (y_j j)^2 := by
         (3 + Real.sqrt 8) ^ j = x_j j + y_j j * Real.sqrt 8 ∧
           (3 - Real.sqrt 8) ^ j = x_j j - y_j j * Real.sqrt 8 := by
       -- We proceed by induction on $j$.
-      induction' j with j ih;
-      · norm_num [ x_j, y_j ];
-      · induction' j + 1 <;> simp_all +decide [ pow_succ, Pell.xn_succ, Pell.yn_succ ] ; ring_nf;
-        · norm_cast;
-        · unfold x_j y_j; norm_num [ Pell.xn_succ, Pell.yn_succ ] ; ring_nf ; norm_num;
-          exact Or.inl rfl;
-    aesop;
-    rw [ pow_mul', pow_mul' ] ; rw [ left, right ] ; ring_nf ; norm_num ; ring_nf;
+      induction' j with j ih
+      · norm_num [ x_j, y_j ]
+      · induction' j + 1 <;>
+          simp_all +decide only [pow_zero, CharP.cast_eq_zero, zero_mul, add_zero,
+            sub_zero, and_self, pow_succ] ; ring_nf;
+        · norm_cast
+        · unfold x_j y_j
+          norm_num [ Pell.xn_succ, Pell.yn_succ ]
+          ring_nf
+          norm_num
+          exact Or.inl rfl
+    aesop
+    rw [ pow_mul', pow_mul' ]
+    rw [ left, right ]
+    ring_nf
+    norm_num
+    ring_nf
     -- By definition of $x_j$ and $y_j$, we know that $x_j^2 - 8y_j^2 = 1$.
     have h_pell : (x_j j : ℝ)^2 - 8 * (y_j j : ℝ)^2 = 1 := by
       have h_pell :
           (x_j j : ℝ)^2 - 8 * (y_j j : ℝ)^2 =
             ((3 + Real.sqrt 8) ^ j) * ((3 - Real.sqrt 8) ^ j) := by
-        rw [ left, right ] ; ring_nf ; norm_num;
-      rw [ h_pell, ← mul_pow ] ; ring_nf ; norm_num;
-    linarith;
+        rw [ left, right ]
+        ring_nf
+        norm_num
+      rw [ h_pell, ← mul_pow ]
+      ring_nf
+      norm_num
+    linarith
   -- Since $n_real j = 8 * y_j j^2$ and $n_nat j$ is the natural number
   -- corresponding to $n_real j$, we can conclude that $n_nat j = 8 * y_j j^2$.
   have h_n_nat_eq : n_nat j = Nat.floor (n_real j) := by
     have h_n_nat_eq : n_nat j = Nat.floor (n_real j) := by
       have h_eq : (n_nat j : ℝ) = n_real j := by
         exact n_nat_eq_n_real j
-      rw [ ← h_eq, Nat.floor_natCast ];
-    exact h_n_nat_eq;
-  norm_num [ h_n_nat_eq, h_n_real_eq ];
+      rw [ ← h_eq, Nat.floor_natCast ]
+    exact h_n_nat_eq
+  norm_num [ h_n_nat_eq, h_n_real_eq ]
   exact_mod_cast Nat.floor_natCast _
 
+set_option aesop.warn.nonterminal false in
 theorem n_nat_succ_eq_x_sq (j : ℕ) : n_nat j + 1 = (x_j j)^2 := by
   -- We'll use that $n_j + 1 = x_j^2$ to show that $n_j + 1$ can be powerful.
   have h_xj_sq : (n_nat j : ℝ) + 1 = (x_j j : ℝ) ^ 2 := by
@@ -220,8 +242,9 @@ theorem n_nat_succ_eq_x_sq (j : ℕ) : n_nat j + 1 = (x_j j)^2 := by
             (Pell.xn (show 1 < 3 by norm_num) j : ℝ)^2 -
                 8 * (Pell.yn (show 1 < 3 by norm_num) j : ℝ)^2 =
               1 := by
-        intro j; exact (by
-        induction j <;> aesop;
+        intro j
+        exact (by
+        induction j <;> aesop
         -- Substitute $d = 8$ into the equation and simplify.
         have h_sub :
             ((Pell.xn (show 1 < 3 by norm_num) n : ℝ) * 3 +
@@ -229,10 +252,11 @@ theorem n_nat_succ_eq_x_sq (j : ℕ) : n_nat j + 1 = (x_j j)^2 := by
               8 * ((Pell.xn (show 1 < 3 by norm_num) n : ℝ) +
                   (Pell.yn (show 1 < 3 by norm_num) n : ℝ) * 3) ^ 2 =
                 1 := by
-          linarith;
-        convert h_sub using 1);
-      exact eq_add_of_sub_eq' ( h_pell j );
-    rw [ h_sub, n_nat_eq_8_y_sq ] ; norm_cast;
+          linarith
+        convert h_sub using 1)
+      exact eq_add_of_sub_eq' ( h_pell j )
+    rw [ h_sub, n_nat_eq_8_y_sq ]
+    norm_cast
   exact_mod_cast h_xj_sq
 
 theorem n_nat_is_powerful (j : ℕ) : IsPowerful (n_nat j) := by
@@ -257,6 +281,9 @@ def j_t (t : ℕ) : ℕ := (3 * 5^(t-1) - 1) / 2
 theorem j_t_well_defined (t : ℕ) : 2 ∣ 3 * 5^(t-1) - 1 := by
   norm_num [ ← even_iff_two_dvd, Nat.one_le_iff_ne_zero, parity_simps ]
 
+set_option aesop.warn.nonterminal false in
+set_option linter.style.induction false in
+set_option linter.style.refine false in
 theorem alpha_pow_K_t (t : ℕ) (ht : t ≥ 1) :
   ∃ a b : ℤ,
     alpha ^ (3 * 5^(t-1)) = -1 + 5^t * (a + b * Real.sqrt 8) ∧
@@ -269,9 +296,9 @@ theorem alpha_pow_K_t (t : ℕ) (ht : t ≥ 1) :
         (3 + Real.sqrt 8) ^ (3 * 5 ^ (t - 1)) = a + b * Real.sqrt 8 ∧
           (3 - Real.sqrt 8) ^ (3 * 5 ^ (t - 1)) =
             a - b * Real.sqrt 8 := by
-    norm_num +zetaDelta at *;
-    induction' 3 * 5 ^ ( t - 1 ) <;> aesop;
-    · exact ⟨ 1, 0, by norm_num, by norm_num ⟩;
+    norm_num +zetaDelta at *
+    induction' 3 * 5 ^ ( t - 1 ) <;> aesop
+    · exact ⟨ 1, 0, by norm_num, by norm_num ⟩
     · exact ⟨
         w * 3 + w_1 * 8,
         w + w_1 * 3,
@@ -284,7 +311,7 @@ theorem alpha_pow_K_t (t : ℕ) (ht : t ≥ 1) :
           push_cast [ pow_succ, * ]
           ring_nf
           norm_num
-          ring_nf ⟩;
+          ring_nf ⟩
   -- We'll use that $a$ and $b$ satisfy the recurrence relations to show that
   -- $a \equiv -1 \pmod{5^t}$ and $b \equiv 0 \pmod{5^t}$.
   have h_recurrence :
@@ -296,14 +323,14 @@ theorem alpha_pow_K_t (t : ℕ) (ht : t ≥ 1) :
                 a - b * Real.sqrt 8 ∧
               a ≡ -1 [ZMOD 5 ^ t] ∧ b ≡ 0 [ZMOD 5 ^ t] := by
     intro t ht
-    induction' ht with t ht ih;
+    induction' ht with t ht ih
     · -- For the base case $t = 1$, we can compute $(3 + \sqrt{8})^3$
       -- and $(3 - \sqrt{8})^3$ directly.
       use 99, 35
-      norm_num;
+      norm_num
       constructor <;> nlinarith [
         Real.sqrt_nonneg 8,
-        Real.sq_sqrt (show 0 ≤ 8 by norm_num) ];
+        Real.sq_sqrt (show 0 ≤ 8 by norm_num) ]
     · rcases ih with ⟨ a, b, ha, hb, ha', hb' ⟩
       rcases t with ( _ | t ) <;>
         simp_all +decide [ pow_succ, pow_mul ] ;
@@ -315,26 +342,25 @@ theorem alpha_pow_K_t (t : ℕ) (ht : t ≥ 1) :
         show (Real.sqrt 8) ^ 5 = (Real.sqrt 8 ^ 2) ^ 2 * Real.sqrt 8 by
           ring_nf,
         show (Real.sqrt 8) ^ 3 = (Real.sqrt 8 ^ 2) * Real.sqrt 8 by ring_nf,
-        Real.sq_sqrt <| by norm_num ] ;
-      ring_nf at * ;
-      norm_cast at * ;
-      aesop;
+        Real.sq_sqrt <| by norm_num ]
+      ring_nf at *
+      norm_cast at *
+      aesop
       refine' ⟨
         a ^ 5 + a ^ 3 * b ^ 2 * 80 + a * b ^ 4 * 320,
         a ^ 4 * b * 5 + a ^ 2 * b ^ 3 * 80 + b ^ 5 * 64,
         _, _, _, _ ⟩ <;>
         push_cast <;>
         ring_nf at * <;>
-        norm_num at * <;>
         norm_cast at * <;>
-        aesop;
-      · rw [ Int.modEq_comm, Int.modEq_iff_dvd ] at *;
+        aesop
+      · rw [ Int.modEq_comm, Int.modEq_iff_dvd ] at *
         obtain ⟨ k, hk ⟩ := ha'
         obtain ⟨ l, hl ⟩ := hb'
         norm_num [
           show a = -1 + k * (5 ^ t * 5) by linarith,
-          show b = l * (5 ^ t * 5) by linarith ] ;
-        ring_nf;
+          show b = l * (5 ^ t * 5) by linarith ]
+        ring_nf
         exact ⟨
           k - k ^ 2 * 5 ^ t * 10 + k ^ 3 * 5 ^ (t * 2) * 50 -
             k ^ 4 * 5 ^ (t * 3) * 125 + k ^ 5 * 5 ^ (t * 4) * 125 -
@@ -342,24 +368,28 @@ theorem alpha_pow_K_t (t : ℕ) (ht : t ≥ 1) :
             k ^ 2 * l ^ 2 * 5 ^ (t * 3) * 6000 +
             k ^ 3 * l ^ 2 * 5 ^ (t * 4) * 10000 -
             l ^ 4 * 5 ^ (t * 3) * 8000 +
-            k * l ^ 4 * 5 ^ (t * 4) * 40000, by ring_nf ⟩;
-      · rw [ Int.modEq_zero_iff_dvd ] at *;
+            k * l ^ 4 * 5 ^ (t * 4) * 40000, by ring_nf ⟩
+      · rw [ Int.modEq_zero_iff_dvd ] at *
         rcases hb' with ⟨ k, rfl ⟩
         ring_nf
         norm_num [ pow_succ, mul_assoc, dvd_mul_of_dvd_right ]
-        aesop;
+        aesop
         exact ⟨
           a ^ 2 * k ^ 3 * 5 ^ (t * 2) * 400 + a ^ 4 * k +
             k ^ 5 * 5 ^ (t * 4) * 8000,
-          by ring_nf ⟩;
-  obtain ⟨ a, b, ha, hb, ha', hb' ⟩ := h_recurrence t ht;
+          by ring_nf ⟩
+  obtain ⟨ a, b, ha, hb, ha', hb' ⟩ := h_recurrence t ht
   obtain ⟨ k, hk ⟩ := ha'.symm.dvd
   obtain ⟨ l, hl ⟩ := hb'.symm.dvd
   use k, l
-  aesop;
-  · unfold alpha; norm_num [ show a = 5 ^ t * k - 1 by linarith ] at *; linarith;
-  · push_cast [ ← @Int.cast_inj ℝ .. ] at *; linarith;
+  aesop
+  · unfold alpha
+    norm_num [ show a = 5 ^ t * k - 1 by linarith ] at *
+    linarith
+  · push_cast [ ← @Int.cast_inj ℝ .. ] at *
+    linarith
 
+set_option aesop.warn.nonterminal false in
 theorem five_pow_t_dvd_n_jt_plus_two (t : ℕ) (ht : t ≥ 1) :
   5^t ∣ n_nat (j_t t) + 2 := by
     -- Using the identity $4(n_j + 2) = \alpha^{2j} + 6 + \alpha^{-2j}$,
@@ -367,8 +397,9 @@ theorem five_pow_t_dvd_n_jt_plus_two (t : ℕ) (ht : t ≥ 1) :
     have h_identity :
         4 * (n_nat (j_t t) + 2) =
           (alpha ^ (2 * j_t t) + 6 + alpha ^ (-(2 * j_t t) : ℤ)) := by
-      rw [ n_nat_eq_n_real ];
-      unfold n_real; ring_nf;
+      rw [ n_nat_eq_n_real ]
+      unfold n_real
+      ring_nf
     -- Since $2j_t = 3 \cdot 5^{t-1} - 1 = K_t - 1$, we can rewrite the
     -- identity as $4(n_{j_t} + 2) = \alpha^{K_t - 1} + 6 +
     -- \alpha^{-(K_t - 1)}$.
@@ -382,18 +413,21 @@ theorem five_pow_t_dvd_n_jt_plus_two (t : ℕ) (ht : t ≥ 1) :
               alpha ^ (-(j_t t + j_t t + 1) : ℤ) * alpha ^ 2 =
             alpha * (alpha ^ (2 * j_t t) + 6 +
               alpha ^ (-(2 * j_t t) : ℤ)) := by
-        norm_cast ; norm_num ; ring_nf;
-        norm_cast ; norm_num [
+        norm_cast
+        norm_num
+        ring_nf
+        norm_cast
+        norm_num [
           sq,
           mul_assoc,
           ne_of_gt
             (show 0 < alpha from by
-              exact add_pos_of_pos_of_nonneg zero_lt_three <| Real.sqrt_nonneg _) ];
+              exact add_pos_of_pos_of_nonneg zero_lt_three <| Real.sqrt_nonneg _) ]
       rw [
         h_factor,
         mul_div_cancel_left₀ _
-          (by rw [ show alpha = 3 + Real.sqrt 8 by rfl ] ; positivity) ] ;
-      aesop;
+          (by rw [ show alpha = 3 + Real.sqrt 8 by rfl ]; positivity) ]
+      aesop
     -- Using the result from `alpha_pow_K_t`, we know that
     -- $\alpha^{K_t} = -1 + 5^t(a + b\sqrt{8})$.
     obtain ⟨a, b, ha⟩ :
@@ -402,41 +436,47 @@ theorem five_pow_t_dvd_n_jt_plus_two (t : ℕ) (ht : t ≥ 1) :
               -1 + 5 ^ t * (a + b * Real.sqrt 8) ∧
             alpha ^ (-(j_t t + j_t t + 1) : ℤ) =
               -1 + 5 ^ t * (a - b * Real.sqrt 8) := by
-      have := alpha_pow_K_t t ht; aesop;
+      have := alpha_pow_K_t t ht
+      aesop
       -- Since $j_t t = \frac{3 \cdot 5^{t-1} - 1}{2}$, we have
       -- $j_t t + j_t t + 1 = 3 \cdot 5^{t-1}$.
       have h_exp : j_t t + j_t t + 1 = 3 * 5 ^ (t - 1) := by
-        unfold j_t; ring_nf;
+        unfold j_t
+        ring_nf
         rw [
           Nat.div_mul_cancel
             (even_iff_two_dvd.mp
               (by simp +decide [ Nat.one_le_iff_ne_zero, parity_simps ])),
           add_tsub_cancel_of_le
-            (Nat.one_le_iff_ne_zero.mpr <| by positivity) ];
-      use w, w_1; aesop;
-      convert right using 1;
-      rw [ ← h_exp ] ; group;
+            (Nat.one_le_iff_ne_zero.mpr <| by positivity) ]
+      use w, w_1
+      aesop
+      convert right using 1
+      rw [ ← h_exp ]
+      group
       rw [ show (alpha : ℝ) = 3 + Real.sqrt 8 by rfl ]
       rw [
         show (3 - Real.sqrt 8) = (3 + Real.sqrt 8)⁻¹ by
           exact eq_inv_of_mul_eq_one_right (by ring_nf; norm_num) ]
-      group;
+      group
     -- Substitute $\alpha^{K_t}$ and $\alpha^{-K_t}$ into the rewritten identity.
     have h_subst :
         4 * (n_nat (j_t t) + 2) = (5 ^ t * (6 * a - 16 * b)) / 1 := by
-      rw [ ← @Int.cast_inj ℝ ] ; aesop;
+      rw [ ← @Int.cast_inj ℝ ]
+      aesop
       rw [ ← h_identity ]
       rw [ show (alpha : ℝ) = 3 + Real.sqrt 8 by rfl ]
-      ring_nf;
-      norm_num [ pow_three ] ; ring_nf;
+      ring_nf
+      norm_num [ pow_three ]
+      ring_nf
       nlinarith [
         Real.sqrt_nonneg 8,
         Real.sq_sqrt (show 0 ≤ 8 by norm_num),
         inv_mul_cancel_left₀
           (show (3 + Real.sqrt 8) ≠ 0 by positivity) ((a : ℝ) * 5 ^ t),
         inv_mul_cancel_left₀
-          (show (3 + Real.sqrt 8) ≠ 0 by positivity) ((b : ℝ) * 5 ^ t) ];
-    norm_num at *;
+          (show (3 + Real.sqrt 8) ≠ 0 by positivity) ((b : ℝ) * 5 ^ t) ]
+    norm_num at *
     exact_mod_cast
       Int.dvd_of_dvd_mul_right_of_gcd_one
         (h_subst.symm ▸ dvd_mul_right _ _)
@@ -448,18 +488,21 @@ theorem five_pow_t_is_powerful (t : ℕ) (ht : t ≥ 2) : IsPowerful (5^t) := by
   have h_prime : p = 5 := by
     have := hp.dvd_of_dvd_pow hdiv
     have := Nat.le_of_dvd ( by decide ) this
-    interval_cases p <;> trivial;
+    interval_cases p <;> trivial
   exact h_prime.symm ▸ pow_dvd_pow _ ht
 
+set_option aesop.warn.nonterminal false in
 theorem powerful_dvd_le_powerfulPart {n d : ℕ} (hn : n ≠ 0)
     (hd : IsPowerful d) (hdn : d ∣ n) :
     d ≤ powerfulPart n := by
+  classical
   -- Since $d$ is a powerful divisor of $n$, it is included in the set of
   -- powerful divisors of $n$.
   have h_d_in_set : d ∈ (Nat.divisors n).filter IsPowerful := by
-    aesop;
-  unfold powerfulPart;
-  have := Finset.le_max h_d_in_set; aesop;
+    aesop
+  unfold powerfulPart
+  have := Finset.le_max h_d_in_set
+  aesop
   -- Since the maximum is a WithBot ℕ, we can use the fact that if the
   -- maximum is some value, then that value is indeed the maximum. If the
   -- maximum is none, then the default value is 1, but since d is a divisor of
@@ -467,9 +510,11 @@ theorem powerful_dvd_le_powerfulPart {n d : ℕ} (hn : n ≠ 0)
   -- less than or equal to the maximum value.
   cases h : Finset.max (Finset.filter IsPowerful n.divisors) <;> aesop
 
+set_option aesop.warn.nonterminal false in
 theorem final_inequality (t : ℕ) (ht : t ≥ 2) :
   (Finset.Ico (n_nat (j_t t)) (n_nat (j_t t) + 3)).prod powerfulPart ≥
     n_nat (j_t t) * (n_nat (j_t t) + 1) * 5^t := by
+  classical
   -- Since $n_{j_t}$, $n_{j_t} + 1$, and $n_{j_t} + 2$ are all powerful,
   -- their powerful parts are themselves.
   have h_powerful_parts :
@@ -486,39 +531,41 @@ theorem final_inequality (t : ℕ) (ht : t ≥ 2) :
       have h_powerful_parts : ∀ n : ℕ, IsPowerful n → powerfulPart n = n := by
         intro n hn
         unfold powerfulPart
-        aesop;
+        aesop
         have h_max : Finset.max (Finset.filter IsPowerful (Nat.divisors n)) = some n := by
           -- Since $n$ is powerful, it is in the set of powerful divisors of $n$.
           have h_n_in_set : n ∈ Finset.filter IsPowerful (Nat.divisors n) := by
-            aesop;
+            aesop
           exact le_antisymm
             (Finset.sup_le fun x hx =>
               WithBot.coe_le_coe.mpr <|
                 Nat.le_of_dvd (Nat.pos_of_ne_zero h) <|
                   Nat.dvd_of_mem_divisors <| Finset.filter_subset _ _ hx)
-            (Finset.le_sup h_n_in_set);
+            (Finset.le_sup h_n_in_set)
         -- Since the maximum is some n, the Option.getD will return n.
-        simp [h_max, Option.getD];
+        simp [h_max, Option.getD]
       exact ⟨
         h_powerful_parts _ <| n_nat_is_powerful _,
-        h_powerful_parts _ <| n_nat_succ_is_powerful _ ⟩;
+        h_powerful_parts _ <| n_nat_succ_is_powerful _ ⟩
     refine ⟨ h_powerful_parts_self.left, h_powerful_parts_self.right, ?_ ⟩
     have := five_pow_t_dvd_n_jt_plus_two t ( by linarith )
-    aesop;
-    refine' powerful_dvd_le_powerfulPart _ _ this ; aesop;
-    -- Since $5$ is a prime and $t \geq 2$, $5^2$ divides $5^t$, so $5^t$ is
-    -- powerful.
-    apply five_pow_t_is_powerful t ht;
+    aesop
+    refine powerful_dvd_le_powerfulPart ?_ ?_ this
+    · aesop
+    · -- Since $5$ is a prime and $t \geq 2$, $5^2$ divides $5^t$, so $5^t$ is
+      -- powerful.
+      apply five_pow_t_is_powerful t ht
   rw [
     show
         Finset.Ico (n_nat (j_t t)) (n_nat (j_t t) + 3) =
           { n_nat (j_t t), n_nat (j_t t) + 1, n_nat (j_t t) + 2 } by
       ext x
       aesop
-      omega ] ;
-  aesop;
+      omega ]
+  aesop
   simpa only [ mul_assoc ] using Nat.mul_le_mul_left _ ( Nat.mul_le_mul_left _ right )
 
+set_option aesop.warn.nonterminal false in
 theorem neg_powerfulPart_bound_k3 :
   ¬ (∃ C : ℝ, ∀ n : ℕ,
     (∏ m ∈ Finset.Ico n (n + 3), (powerfulPart m : ℝ))
@@ -530,13 +577,13 @@ theorem neg_powerfulPart_bound_k3 :
         (n_nat (j_t t) * (n_nat (j_t t) + 1) * 5 ^ t : ℝ) ≤
           C * (n_nat (j_t t))^2 := by
     intro t ht
-    specialize hC (n_nat (j_t t));
+    specialize hC (n_nat (j_t t))
     -- Applying the inequality from `final_inequality` to the assumption `hC`.
     have h_final :
         (n_nat (j_t t) * (n_nat (j_t t) + 1) * 5 ^ t : ℝ) ≤
           ∏ m ∈ Finset.Ico (n_nat (j_t t)) (n_nat (j_t t) + 3),
             (powerfulPart m : ℝ) := by
-      exact_mod_cast final_inequality t ht |> le_trans <| mod_cast le_rfl;
+      exact_mod_cast final_inequality t ht |> le_trans <| mod_cast le_rfl
     linarith
   have h_contradiction :
       ∀ t ≥ 2,
@@ -550,7 +597,7 @@ theorem neg_powerfulPart_bound_k3 :
     rw [h_contradiction t ht] at h_final_ineq
     norm_cast at h_final_ineq ⊢
     ring_nf at h_final_ineq ⊢
-    aesop;
+    aesop
     nlinarith [
       show ( 0 : ℝ ) ≤ ( y_j ( j_t t ) ) ^ 2 * 5 ^ t by positivity,
       show ( 0 : ℝ ) ≤ ( y_j ( j_t t ) ) ^ 4 * 5 ^ t by positivity ]
@@ -561,7 +608,8 @@ theorem neg_powerfulPart_bound_k3 :
       -- Since $j_t t$ is a positive integer for $t \geq 2$, and $y_j$ is
       -- positive for all positive $j$, we have $y_j (j_t t) > 0$.
       have h_y_pos : ∀ j : ℕ, 0 < j → 0 < Pell.yn (show 1 < 3 by norm_num) j := by
-                                                    intro j hj; induction hj <;> aesop;
+        intro j hj
+        induction hj <;> aesop
       exact h_y_pos _
         (Nat.div_pos
           (Nat.le_sub_one_of_lt
@@ -575,7 +623,7 @@ theorem neg_powerfulPart_bound_k3 :
     have h_div_ineq : 5 ^ t ≤ C * 8 := by
       -- By dividing both sides of the inequality by $(8 * y_j (j_t t))^4$, we get $5^t \leq C$.
       have h_div_ineq : 5 ^ t ≤ C := by
-        nlinarith [ ( by positivity : 0 < ( 8 * y_j ( j_t t ) : ℝ ) ^ 4 ) ];
+        nlinarith [ ( by positivity : 0 < ( 8 * y_j ( j_t t ) : ℝ ) ^ 4 ) ]
       exact le_trans h_div_ineq
         (le_mul_of_one_le_right
           (by linarith [ pow_pos (by norm_num : ( 0 : ℝ ) < 5) t ])
@@ -598,9 +646,10 @@ theorem neg_powerfulPart_bound_k3' :
   -- By combining the results from the previous steps, we conclude that the statement holds.
   intro C
   by_contra h_contra
-  push Not at h_contra;
+  push Not at h_contra
   -- Apply the theorem neg_powerfulPart_bound_k3 to the assumption h_contra.
-  apply neg_powerfulPart_bound_k3; exact ⟨C, h_contra⟩
+  apply neg_powerfulPart_bound_k3
+  exact ⟨C, h_contra⟩
 
 /--
 **Erdős Problem 367, strong form.**
@@ -626,11 +675,12 @@ def erdos_367 : Prop :=
 
 theorem disproof_367 : ¬ erdos_367 := by
   -- By contradiction, assume the conjecture is true.
-  by_contra h_contra;
+  by_contra h_contra
   -- Apply the contradiction assumption to obtain the required result.
-  specialize h_contra 3 (by norm_num);
+  specialize h_contra 3 (by norm_num)
   -- Apply the negation of the conjecture for k=3 to obtain the required result.
-  apply neg_powerfulPart_bound_k3; exact h_contra
+  apply neg_powerfulPart_bound_k3
+  exact h_contra
 
 #print axioms disproof_367
 -- 'Erdos367b.disproof_367' depends on axioms: [propext, Classical.choice, Quot.sound]
