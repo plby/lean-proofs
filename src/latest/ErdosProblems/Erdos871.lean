@@ -21,21 +21,14 @@ URLs:
 -/
 import Mathlib
 
-namespace Erdos871
-
 set_option linter.style.setOption false
-set_option linter.deprecated false
 set_option linter.flexible false
-set_option linter.style.emptyLine false
-set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
 set_option linter.style.induction false
 set_option linter.style.cases false
 set_option linter.style.refine false
 set_option linter.style.multiGoal false
-
-set_option maxHeartbeats 1000000
--- Several generated Nathanson-sequence case proofs time out at the default heartbeat limit.
+namespace Erdos871
 
 def shiftedPairs (x y k : ℕ) : Finset (ℕ × ℕ) :=
   Finset.image (fun i => (x - i, y + i)) (Finset.range k)
@@ -164,7 +157,7 @@ lemma n_exponential_bound (seq : NathansonSeq) (j : ℕ) : seq.n j ≥ 8^j * seq
   induction' j with j ih;
   · norm_num;
   · simpa only [ pow_succ', mul_assoc ] using
-      le_trans ( mul_le_mul_left' ih 8 ) ( seq.exponential_growth _ ( Nat.succ_pos _ ) )
+      le_trans ( Nat.mul_le_mul_left 8 ih ) ( seq.exponential_growth _ ( Nat.succ_pos _ ) )
 
 lemma N_unbounded (seq : NathansonSeq) (M : ℕ) : ∃ k, M < seq.N k := by
   have hN_lower_bound : ∀ k, seq.N k ≥ 2 * 8^k * seq.n 0 + 1 := by
@@ -295,7 +288,7 @@ lemma B_j_le_bound (seq : NathansonSeq) (j k : ℕ) (hjk : j < k) (hj : 1 ≤ j)
 lemma lemma3_part1_mixed_impossible (seq : NathansonSeq) (k : ℕ) (hk : k ≥ 1) :
     ∀ a ∈ seq.P k ∪ seq.Q k, ∀ b ∈ seq.R k, a + b ≠ seq.N k := by
       intro a ha b hb;
-      cases' Finset.mem_union.mp ha with ha' ha' <;> simp_all +decide [ R, S, Q, P ];
+      cases' Finset.mem_union.mp ha with ha' ha' <;> simp_all +decide [ R, Q, P ];
       · split_ifs at * <;> simp_all +decide;
         unfold NathansonSeq.N at *; omega;
       · split_ifs at * <;> simp_all +decide [ Nat.sub_sub ];
@@ -581,6 +574,8 @@ def lemma3_case5_x (seq : NathansonSeq) (k u : ℕ) : ℕ :=
 def lemma3_case5_y (seq : NathansonSeq) (k u j : ℕ) : ℕ :=
   seq.n k + seq.n (k - 1) + 3 * k * u - j
 
+set_option maxHeartbeats 1000000 in
+-- This generated case proof times out at the default heartbeat limit.
 lemma lemma3_case5_valid (seq : NathansonSeq) (k : ℕ) (hk : k ≥ 3) (n : ℕ)
     (hn_lo : seq.N k - k + 1 ≤ n)
     (hn_hi : n ≤ seq.N k - 1)
@@ -1205,7 +1200,7 @@ lemma N_representations (k : ℕ) (hk : k ≥ 2) :
         unfold GrowingConstruction.G at hb; aesop;
       have hf_le_Nk : f ≤ gc.seq.N k := by
         exact le_of_lt ( gc.F_lt_N k hk f hfF )
-      simp_all +decide [ Nat.sub_sub_self hf_le_Nk ];
+      simp_all +decide;
       exact Or.inl ( by
         convert hfF using 1
         linarith [ Nat.sub_add_cancel hf_le_Nk ] );
@@ -1397,7 +1392,7 @@ lemma intersection_infinite (B' C' : Set ℕ)
           ( show k ≥ 1 from
             Nat.pos_of_ne_zero ( by rintro rfl; linarith [ gc.stage_zero ] ) ) ] )
   simp_all +decide [ Set.disjoint_left ] ;
-  simp_all +decide [ Finset.disjoint_left, Set.disjoint_left ];
+  simp_all +decide [ Finset.disjoint_left ];
   have hf_in_B : gc.seq.inB f := by
     obtain ⟨ i, hi₁, hi₂, rfl ⟩ := gc.F_subset k
       ( show k ≥ 1 from
@@ -1596,7 +1591,7 @@ lemma nextInB_gt (M : ℕ) : nextInB M > M := (Nat.find_spec (B_has_next M)).1
 lemma nextInB_in_B (M : ℕ) : inB_concrete (nextInB M) := (Nat.find_spec (B_has_next M)).2
 
 noncomputable def enumerateB : ℕ → ℕ
-  | 0 => 0  
+  | 0 => 0
   | n + 1 => nextInB (enumerateB n)
 
 lemma enumerateB_zero : enumerateB 0 = 0 := rfl
@@ -1643,7 +1638,7 @@ lemma K_succ (m : ℕ) (hm : m ≥ 1) : K (m + 1) = K m + Nat.choose (simpleH m)
   cases m <;> trivial
 
 lemma K_mono (m : ℕ) : K m ≤ K (m + 1) := by
-  induction m <;> simp +arith +decide [ *, Nat.choose ];
+  induction m <;> simp +arith +decide [ * ];
   exact Nat.le_add_right _ _
 
 lemma K_mono_le {a b : ℕ} (hab : a ≤ b) : K a ≤ K b := by
@@ -1652,7 +1647,6 @@ lemma K_mono_le {a b : ℕ} (hab : a ≤ b) : K a ≤ K b := by
 noncomputable def stageAssign (k : ℕ) : ℕ :=
   if hk : k = 0 then 0
   else Nat.find (exists_stage k (Nat.one_le_iff_ne_zero.mpr hk))
-
 where
   exists_stage (k : ℕ) (hk_pos : k ≥ 1) : ∃ m, K m < k ∧ k ≤ K (m + 1) := by
     have hK_grows : ∀ m, K m ≤ K (m + 1) := K_mono
@@ -1756,7 +1750,7 @@ lemma nthSubsetOfIcc_ge_one (n m i : ℕ) (hn : n ≥ 1) :
   · contradiction;
   · rcases m with ( _ | m ) <;>
       rcases n with ( _ | n ) <;>
-      simp_all +arith +decide [ Nat.choose_eq_zero_of_lt ];
+      simp_all +arith +decide;
     · unfold nthSubsetOfIcc; aesop;
     · unfold nthSubsetOfIcc; aesop;
     · unfold nthSubsetOfIcc;
@@ -1794,6 +1788,8 @@ lemma nthSubsetOfIcc_subset (n m i : ℕ) (hi : i < Nat.choose n m) :
     · unfold nthSubsetOfIcc at hx; aesop;
   · exact nthSubsetOfIcc_le n m i x hx
 
+set_option maxHeartbeats 1000000 in
+-- The generated subset-enumeration injectivity proof exceeds the default limit.
 lemma nthSubsetOfIcc_exhaustive (n m : ℕ) (S : Finset ℕ)
     (hS_card : S.card = m) (hS_subset : ∀ x ∈ S, 1 ≤ x ∧ x ≤ n) :
     ∃ i < Nat.choose n m, nthSubsetOfIcc n m i = S := by
@@ -1836,7 +1832,7 @@ lemma nthSubsetOfIcc_exhaustive (n m : ℕ) (S : Finset ℕ)
                   have := nthSubsetOfIcc_le n ( m + 1 ) j ( n + 1 ) h
                   linarith );
             · specialize ih m ( i - n.choose ( m + 1 ) ) ( j - n.choose ( m + 1 ) )
-              simp_all +decide [ Nat.choose_succ_succ ];
+              simp_all +decide;
               contrapose! ih;
               refine' ⟨ _, _, _, _ ⟩;
               · omega;
@@ -1979,7 +1975,7 @@ lemma UnionB_card_lower (m : ℕ) (hm : m ≥ 1) :
         · intro x hx₁ hx₂
           have := P_subset concreteSeq ( i + 1 ) ( by linarith ) x hx₁
           have := P_subset concreteSeq ( j + 1 ) ( by linarith ) x hx₂
-          simp_all +decide [ Finset.mem_Icc ] ;
+          simp_all +decide;
           have h_N_j_ge_N_i_plus_1 : concreteSeq.N j ≥ concreteSeq.N (i + 1) := by
             exact Nat.le_induction ( by norm_num )
               ( fun k hk ih => by
@@ -1993,7 +1989,7 @@ lemma UnionB_card_lower (m : ℕ) (hm : m ≥ 1) :
         · intro x hx₁ hx₂;
           have := concreteSeq.P_subset ( i + 1 ) ( by linarith ) x hx₁
           have := concreteSeq.P_subset ( j + 1 ) ( by linarith ) x hx₂
-          simp_all +decide [ Nat.succ_eq_add_one ] ;
+          simp_all +decide;
           unfold NathansonSeq.N at *;
           unfold concreteSeq at *; norm_num at *;
           unfold concreteN at *
@@ -2017,7 +2013,7 @@ lemma stages_contradict_positions (m : ℕ) (hm : m ≥ 1) (i : ℕ) (hi : i ≥
       exact ⟨ j, hj.1, hj.2.2 ⟩ ) ( by
       exact hbound j hj.2.1 hj.1 x hj.2.2 ) ; aesop;
   have := Finset.card_le_card hS_subset_B
-  simp_all +decide [ Finset.card_image_of_injective, Function.Injective ] ;
+  simp_all +decide;
   exact this.not_gt
     ( lt_of_le_of_lt ( Finset.card_image_le ) ( by
       simpa using by
@@ -2234,7 +2230,7 @@ lemma F_lt_N_prev_prop (k : ℕ) (hk : k ≥ 2) (x : ℕ) (hx : x ∈ F k) :
         apply stage_le_k_prop;
         linarith;
       cases h_stage_le.eq_or_lt <;>
-        simp_all +decide [ Nat.sub_add_cancel ( by linarith : 1 ≤ k ) ];
+        simp_all +decide;
       · have h_stage_k : K k < k ∧ k ≤ K (k + 1) := by
           have h_stage_k : K (stageAssign k) < k ∧ k ≤ K (stageAssign k + 1) := by
             have := Nat.find_spec (stageAssign.exists_stage k (by linarith))
