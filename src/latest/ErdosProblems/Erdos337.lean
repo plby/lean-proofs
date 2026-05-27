@@ -17,16 +17,11 @@ URLs:
 import Mathlib
 
 set_option linter.style.setOption false
-set_option maxHeartbeats 50000000
--- Several generated thin-basis estimates time out at the default heartbeat limit.
-set_option linter.style.whitespace false
 set_option linter.flexible false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.openClassical false
 set_option linter.style.refine false
-set_option linter.unusedSimpArgs false
-set_option linter.unusedTactic false
 set_option linter.unusedVariables false
 set_option aesop.warn.nonterminal false
 
@@ -34,8 +29,6 @@ namespace Erdos337
 
 open scoped Classical
 open scoped Pointwise
-
-noncomputable section
 
 /-
 Definitions of iterated sumset, counting function, basis of order h, and thin basis property.
@@ -71,7 +64,6 @@ structure ThinBasis (h : ℕ) where
 /-
 Structure defining the properties of the sequence d_n.
 -/
-open scoped Pointwise
 
 structure ValidSequence (h : ℕ) (r : ℝ) (C : ℝ) where
   d : ℕ → ℕ
@@ -87,7 +79,7 @@ Lemma: For any S, there exists a large enough D such that any d >= D satisfies t
 conditions.
 -/
 theorem exists_next_d (h : ℕ) (r : ℝ) (C : ℝ) (S : ℝ)
-  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1/(h : ℝ) < r) (hr2 : r < 1) (C_pos : C > 0) :
+  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1 / (h : ℝ) < r) (hr2 : r < 1) (C_pos : C > 0) :
   ∃ D : ℕ, ∀ d : ℕ, d ≥ D →
     (d : ℝ)^r ≤ (1/2) * (d : ℝ) ∧
     S ≤ (1/4) * (d : ℝ)^(1 / (h : ℝ)) ∧
@@ -149,7 +141,7 @@ theorem exists_next_d (h : ℕ) (r : ℝ) (C : ℝ) (S : ℝ)
 /-
 Theorem: There exists a valid sequence d_n.
 -/
-theorem exists_valid_sequence (h : ℕ) (h_ge_3 : h ≥ 3) (r : ℝ) (hr1 : 1 - 1/(h : ℝ) < r)
+theorem exists_valid_sequence (h : ℕ) (h_ge_3 : h ≥ 3) (r : ℝ) (hr1 : 1 - 1 / (h : ℝ) < r)
   (hr2 : r < 1) (C : ℝ) (C_pos : C > 0) :
   ∃ S : ValidSequence h r C, True := by
     simp +zetaDelta at *;
@@ -181,9 +173,8 @@ theorem exists_valid_sequence (h : ℕ) (h_ge_3 : h ≥ 3) (r : ℝ) (hr1 : 1 - 
 /-
 Definitions of L_n, I_n, and the constructed set A.
 -/
-open scoped Pointwise
 
-def L (r : ℝ) (dn : ℕ) : ℕ := ⌊(dn : ℝ)^r⌋₊
+noncomputable def L (r : ℝ) (dn : ℕ) : ℕ := ⌊(dn : ℝ)^r⌋₊
 
 def I (dn : ℕ) (Ln : ℕ) : Set ℕ := Set.Icc (dn - Ln + 1) dn
 
@@ -215,12 +206,11 @@ theorem step3_basis (h : ℕ) (B : Set ℕ) (d : ℕ → ℕ) (r : ℝ)
 /-
 Lemma: The sum of lengths of intervals I_k up to n is bounded by 2 * d_n^r.
 -/
-open scoped Pointwise
 
 open Filter
 
 theorem sum_L_bound (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r C)
-  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1/(h : ℝ) < r) (hr2 : r < 1) (C_pos : C > 0) :
+  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1 / (h : ℝ) < r) (hr2 : r < 1) (C_pos : C > 0) :
   ∀ᶠ n in atTop, (∑ k ∈ Finset.range (n + 1), (L r (S.d k) : ℝ)) ≤ 2 * (S.d n : ℝ)^r := by
     -- By definition of $L$, we know that $L r (S.d k) \leq (S.d k : ℝ)^r$ for all $k$.
     have h_L_le : ∀ k, (L r (S.d k) : ℝ) ≤ (S.d k : ℝ)^r := by
@@ -249,7 +239,7 @@ theorem sum_L_bound (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r C)
 For large n, d_{n+1} > 2 * d_n.
 -/
 theorem d_super_growth (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r C)
-  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1/(h : ℝ) < r) (hr2 : r < 1) :
+  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1 / (h : ℝ) < r) (hr2 : r < 1) :
   ∀ᶠ n in atTop, 2 * S.d n < S.d (n + 1) := by
     -- From `cond_sum`, we have $d_n^r \le \sum_{k \le n} d_k^r \le \frac{1}{4} d_{n+1}^{1/h}$.
     have h_cond_sum : ∀ n, (S.d n : ℝ)^r ≤ (1/4) * (S.d (n + 1) : ℝ)^(1 / (h : ℝ)) := by
@@ -296,7 +286,7 @@ theorem d_super_growth (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r C)
 For large x, if d_n <= x < d_{n+1}, then for all k >= n+2, I_k is disjoint from [1, x].
 -/
 theorem intervals_disjoint_large (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r C)
-  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1/(h : ℝ) < r) (hr2 : r < 1) :
+  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1 / (h : ℝ) < r) (hr2 : r < 1) :
   ∀ᶠ x in atTop, ∀ n, S.d n ≤ x ∧ x < S.d (n + 1) →
     ∀ k ≥ n + 2, Disjoint (I (S.d k) (L r (S.d k))) (Set.Icc 1 ⌊x⌋₊) := by
   rcases Filter.eventually_atTop.mp (d_super_growth h r C S h_ge_3 hr1 hr2) with ⟨N, hN⟩
@@ -335,7 +325,7 @@ theorem intervals_disjoint_large (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequenc
 For large n, 2 * d_n^r + d_{n+1}^r <= 2 * (d_{n+1} - d_{n+1}^r)^r.
 -/
 theorem final_inequality (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r C)
-  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1/(h : ℝ) < r) (hr2 : r < 1) :
+  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1 / (h : ℝ) < r) (hr2 : r < 1) :
   ∀ᶠ n in atTop, 2 * (S.d n : ℝ)^r + (S.d (n + 1) : ℝ)^r ≤ 2 * ((S.d (n + 1) : ℝ) - (S.d (n + 1)
     : ℝ)^r)^r := by
     -- Divide by $d_{n+1}^r$.
@@ -421,7 +411,7 @@ theorem final_inequality (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r C)
 Algebraic bounds for the two cases in the proof of intervals_bound.
 -/
 theorem algebraic_step (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r C)
-  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1/(h : ℝ) < r) (hr2 : r < 1) :
+  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1 / (h : ℝ) < r) (hr2 : r < 1) :
   ∀ᶠ n in atTop, ∀ x, S.d n ≤ x ∧ x < S.d (n + 1) →
     (x < S.d (n + 1) - L r (S.d (n + 1)) + 1 → 2 * (S.d n : ℝ)^r ≤ 2 * x^r) ∧
     (x ≥ S.d (n + 1) - L r (S.d (n + 1)) + 1 → 2 * (S.d n : ℝ)^r + (S.d (n + 1)
@@ -466,7 +456,7 @@ theorem algebraic_step (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r C)
 Decomposition of the cardinality of the union of intervals intersected with [1, x].
 -/
 theorem card_decomposition (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r C)
-  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1/(h : ℝ) < r) (hr2 : r < 1) :
+  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1 / (h : ℝ) < r) (hr2 : r < 1) :
   ∀ᶠ x in atTop, ∀ n, S.d n ≤ x ∧ x < S.d (n + 1) →
     (Set.ncard ((⋃ k, I (S.d k) (L r (S.d k))) ∩ Set.Icc 1 ⌊x⌋₊) : ℝ) ≤
     (∑ k ∈ Finset.range (n + 1), (L r (S.d k) : ℝ)) + (Set.ncard (I (S.d (n + 1))
@@ -523,7 +513,7 @@ theorem card_decomposition (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r 
 The number of elements of A in [1, x] coming from the intervals I_n is at most 2 * x^r for large x.
 -/
 theorem intervals_bound (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r C)
-  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1/(h : ℝ) < r) (hr2 : r < 1) (C_pos : C > 0) :
+  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1 / (h : ℝ) < r) (hr2 : r < 1) (C_pos : C > 0) :
   ∀ᶠ x in atTop, (Set.ncard ((⋃ n, I (S.d n) (L r (S.d n))) ∩ Set.Icc 1 ⌊x⌋₊) : ℝ) ≤ 2 * x^r := by
   rcases Filter.eventually_atTop.mp (sum_L_bound h r C S h_ge_3 hr1 hr2 C_pos) with ⟨Ns, hNs⟩
   rcases Filter.eventually_atTop.mp (algebraic_step h r C S h_ge_3 hr1 hr2) with ⟨Na, hNa⟩
@@ -704,7 +694,7 @@ For large n, if d_n <= x < d_{n+1}, then the number of elements of A in [1, x] c
 intervals is at most 2 * x^r.
 -/
 theorem intervals_bound_aux (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r C)
-  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1/(h : ℝ) < r) (hr2 : r < 1) (C_pos : C > 0) :
+  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1 / (h : ℝ) < r) (hr2 : r < 1) (C_pos : C > 0) :
   ∀ᶠ n in atTop, ∀ x, S.d n ≤ x ∧ x < S.d (n + 1) →
     (Set.ncard ((⋃ k, I (S.d k) (L r (S.d k))) ∩ Set.Icc 1 ⌊x⌋₊) : ℝ) ≤ 2 * x^r := by
       aesop;
@@ -729,7 +719,7 @@ theorem intervals_bound_aux (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r
 The number of elements of A in [1, x] coming from the intervals I_n is at most 2 * x^r for large x.
 -/
 theorem intervals_bound_final (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r C)
-  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1/(h : ℝ) < r) (hr2 : r < 1) (C_pos : C > 0) :
+  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1 / (h : ℝ) < r) (hr2 : r < 1) (C_pos : C > 0) :
   ∀ᶠ x in atTop, (Set.ncard ((⋃ n, I (S.d n) (L r (S.d n))) ∩ Set.Icc 1 ⌊x⌋₊) : ℝ) ≤ 2 * x^r := by
     exact intervals_bound h r C S h_ge_3 hr1 hr2 C_pos
 
@@ -737,7 +727,7 @@ theorem intervals_bound_final (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h
 For sufficiently large x, A(x) <= C * x^(1/h) + 2 * x^r.
 -/
 theorem A_upper_bound (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSequence h r TB.C)
-  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1/(h : ℝ) < r) (hr2 : r < 1) :
+  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1 / (h : ℝ) < r) (hr2 : r < 1) :
   ∀ᶠ x in atTop, (count_in_range (constructed_A TB.B S.d r) x : ℝ) ≤ TB.C * x^(1 / (h : ℝ))
     + 2 * x^r := by
     -- By `TB.thin_condition`, $B(x) \le C x^{1/h}$.
@@ -758,7 +748,7 @@ theorem A_upper_bound (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSequence 
 For large n, A(d_n) >= 1/2 * d_n^r.
 -/
 theorem A_dn_lower_bound (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSequence h r TB.C)
-  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1/(h : ℝ) < r) (hr2 : r < 1) :
+  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1 / (h : ℝ) < r) (hr2 : r < 1) :
   ∀ᶠ n in atTop, (count_in_range (constructed_A TB.B S.d r) (S.d n) : ℝ) ≥ (1/2)
     * (S.d n : ℝ)^r := by
     -- Since $I_n$ is contained within $[1, S.d n]$ and $I_n$ has length $L_r(S.d n)$, we have
@@ -804,7 +794,7 @@ theorem A_dn_lower_bound (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSequen
 For n >= 1, the sum of d_k^r for k <= n is at most 1/4 * d_n^(1/h) + d_n^r.
 -/
 theorem sum_bound_at_n (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r C)
-  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1/(h : ℝ) < r) (hr2 : r < 1) :
+  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1 / (h : ℝ) < r) (hr2 : r < 1) :
   ∀ n ≥ 1, (∑ k ∈ Finset.range (n + 1), (S.d k : ℝ)^r) ≤ (1/4) * (S.d n : ℝ)^(1 / (h : ℝ))
     + (S.d n : ℝ)^r := by
     intro n hn; rw [ Finset.sum_range_succ ] ; linarith [ S.cond_sum n hn ] ;
@@ -813,7 +803,7 @@ theorem sum_bound_at_n (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r C)
 For large n, (C + 1/4) * d_n^(1/h) <= d_n^r.
 -/
 theorem asymptotic_inequality (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSequence h r TB.C)
-  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1/(h : ℝ) < r) (hr2 : r < 1) :
+  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1 / (h : ℝ) < r) (hr2 : r < 1) :
   ∀ᶠ n in atTop, (TB.C + 1/4) * (S.d n : ℝ)^(1 / (h : ℝ)) ≤ (S.d n : ℝ)^r := by
     -- We can divide both sides by $d_n^{1/h}$ to get $(C + 1/4) \leq d_n^{r - 1/h}$.
     suffices h_divided : ∀ᶠ n in atTop, (TB.C + 1 / 4 : ℝ) ≤ (S.d n : ℝ) ^ (r - 1 / h : ℝ) by
@@ -834,7 +824,7 @@ For large n, the intersection of the union of intervals with [1, d_n] is contain
 of the first n+1 intervals.
 -/
 theorem intervals_subset_dn (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r C)
-  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1/(h : ℝ) < r) (hr2 : r < 1) :
+  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1 / (h : ℝ) < r) (hr2 : r < 1) :
   ∀ᶠ n in atTop, (⋃ k, I (S.d k) (L r (S.d k))) ∩ Set.Icc 1 (S.d n) ⊆ ⋃ k ∈ Finset.range (n +
     1), I (S.d k) (L r (S.d k)) := by
   rcases Filter.eventually_atTop.mp (d_super_growth h r C S h_ge_3 hr1 hr2) with ⟨N, hN⟩
@@ -893,7 +883,7 @@ theorem intervals_subset_dn (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r
 For large n, A(d_n) <= (C + 1/4) * d_n^(1/h) + d_n^r.
 -/
 theorem A_dn_intermediate_bound (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSequence h r TB.C)
-  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1/(h : ℝ) < r) (hr2 : r < 1) :
+  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1 / (h : ℝ) < r) (hr2 : r < 1) :
   ∀ᶠ n in atTop, (count_in_range (constructed_A TB.B S.d r) (S.d n) : ℝ) ≤ (TB.C + 1/4)
     * (S.d n : ℝ)^(1 / (h : ℝ)) + (S.d n : ℝ)^r := by
   have hI_card_le : ∀ k, (I (S.d k) (L r (S.d k))).ncard ≤ L r (S.d k) := by
@@ -1016,7 +1006,7 @@ theorem A_dn_intermediate_bound (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : Vali
 For large n, A(d_n) <= 2 * d_n^r.
 -/
 theorem A_dn_upper_bound (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSequence h r TB.C)
-  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1/(h : ℝ) < r) (hr2 : r < 1) :
+  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1 / (h : ℝ) < r) (hr2 : r < 1) :
   ∀ᶠ n in atTop, (count_in_range (constructed_A TB.B S.d r) (S.d n) : ℝ) ≤ 2 * (S.d n : ℝ)^r := by
     have := A_dn_intermediate_bound h r TB S h_ge_3 hr1 hr2;
     filter_upwards [ this, asymptotic_inequality h r TB S h_ge_3 hr1 hr2 ]
@@ -1047,7 +1037,7 @@ theorem S1_card_bound (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r C)
 For large n, A(d_n - L_n) <= (C + 1/4) * d_n^(1/h).
 -/
 theorem A_dn_minus_Ln_bound (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSequence h r TB.C)
-  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1/(h : ℝ) < r) (hr2 : r < 1) :
+  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1 / (h : ℝ) < r) (hr2 : r < 1) :
   ∀ᶠ n in atTop, (count_in_range (constructed_A TB.B S.d r) ((S.d n) - L r (S.d n)) : ℝ)
     ≤ (TB.C + 1/4) * (S.d n : ℝ)^(1 / (h : ℝ)) := by
   have hI_card_le : ∀ k, (I (S.d k) (L r (S.d k))).ncard ≤ L r (S.d k) := by
@@ -1245,7 +1235,7 @@ theorem A_dn_minus_Ln_bound (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSeq
 For large n, A(d_n) <= 2 * d_n^r.
 -/
 theorem A_dn_upper_bound_final (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSequence h r TB.C)
-  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1/(h : ℝ) < r) (hr2 : r < 1) :
+  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1 / (h : ℝ) < r) (hr2 : r < 1) :
   ∀ᶠ n in atTop, (count_in_range (constructed_A TB.B S.d r) (S.d n) : ℝ) ≤ 2 * (S.d n : ℝ)^r := by
     exact A_dn_upper_bound h r TB S h_ge_3 hr1 hr2
 
@@ -1255,8 +1245,7 @@ with [1, M].
 -/
 theorem iterated_sumset_subset_lemma (S : Set ℕ) (k M : ℕ) (hS : ∀ x ∈ S, 1 ≤ x) :
   iterated_sumset S k ∩ Set.Icc 1 M ⊆ iterated_sumset (S ∩ Set.Icc 1 M) k := by
-    induction' k with k ih <;> simp_all ( config := { decide := Bool.true } ) [ Set.subset_def,
-      Finset.card_univ ];
+    induction' k with k ih <;> simp_all ( config := { decide := Bool.true } ) [ Set.subset_def ];
     · bound;
     · intros x hx hx₁ hx₂;
       -- Since $s \in kS$ and $s \leq M$, by the induction hypothesis, $s \in k(S \cap [1, M])$.
@@ -1400,7 +1389,7 @@ theorem sumset_decomposition (A : Set ℕ) (I : Set ℕ) (k : ℕ) :
 Bound for A_{h-1}(d_n) in terms of L_n and A(d_n - L_n).
 -/
 theorem Ah_minus_1_bound (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSequence h r TB.C)
-  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1/(h : ℝ) < r) (hr2 : r < 1) (hB_pos : ∀ x ∈ TB.B, 1 ≤ x) :
+  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1 / (h : ℝ) < r) (hr2 : r < 1) (hB_pos : ∀ x ∈ TB.B, 1 ≤ x) :
   ∀ᶠ n in atTop, (count_in_range (iterated_sumset (constructed_A TB.B S.d r) (h - 1)) (S.d n) : ℝ) ≤
     (L r (S.d n) : ℝ) + (count_in_range (constructed_A TB.B S.d r) ((S.d n) - L r (S.d n))
       : ℝ)^(h - 1) := by
@@ -1460,7 +1449,7 @@ theorem Ah_minus_1_bound (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSequen
 Bound for the cardinality of the second part of the sumset decomposition.
 -/
 theorem S2_card_bound (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSequence h r TB.C)
-  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1/(h : ℝ) < r) (hr2 : r < 1) (hB_pos : ∀ x ∈ TB.B, 1 ≤ x) :
+  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1 / (h : ℝ) < r) (hr2 : r < 1) (hB_pos : ∀ x ∈ TB.B, 1 ≤ x) :
   ∀ᶠ n in atTop, (count_in_range (iterated_sumset ((constructed_A TB.B S.d r) \ I (S.d n)
     (L r (S.d n))) (h - 1)) (S.d n) : ℝ) ≤
     (count_in_range (constructed_A TB.B S.d r) ((S.d n) - L r (S.d n)) : ℝ)^(h - 1) := by
@@ -1494,7 +1483,7 @@ theorem S2_card_bound (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSequence 
 Bound for A_{h-1}(d_n) in terms of L_n and A(d_n - L_n).
 -/
 theorem Ah_minus_1_bound_final (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSequence h r TB.C)
-  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1/(h : ℝ) < r) (hr2 : r < 1) (hB_pos : ∀ x ∈ TB.B, 1 ≤ x) :
+  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1 / (h : ℝ) < r) (hr2 : r < 1) (hB_pos : ∀ x ∈ TB.B, 1 ≤ x) :
   ∀ᶠ n in atTop, (count_in_range (iterated_sumset (constructed_A TB.B S.d r) (h - 1)) (S.d n) : ℝ) ≤
     (L r (S.d n) : ℝ) + (count_in_range (constructed_A TB.B S.d r) ((S.d n) - L r (S.d n))
       : ℝ)^(h - 1) := by
@@ -1504,7 +1493,7 @@ theorem Ah_minus_1_bound_final (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : Valid
 For large n, A_{h-1}(d_n) <= 2 * d_n^r.
 -/
 theorem Ah_minus_1_upper_bound (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSequence h r TB.C)
-  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1/(h : ℝ) < r) (hr2 : r < 1) (hB_pos : ∀ x ∈ TB.B, 1 ≤ x) :
+  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1 / (h : ℝ) < r) (hr2 : r < 1) (hB_pos : ∀ x ∈ TB.B, 1 ≤ x) :
   ∀ᶠ n in atTop, (count_in_range (iterated_sumset (constructed_A TB.B S.d r) (h - 1)) (S.d n)
     : ℝ) ≤ 2 * (S.d n : ℝ)^r := by
   have h_combined :
@@ -1612,7 +1601,7 @@ noncomputable def ratio_fun (A : Set ℕ) (h : ℕ) (x : ℝ) : ℝ :=
   (count_in_range (iterated_sumset A (h - 1)) x : ℝ) / (count_in_range A x : ℝ)
 
 theorem liminf_ratio_le_four (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSequence h r TB.C)
-  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1/(h : ℝ) < r) (hr2 : r < 1) (hB_pos : ∀ x ∈ TB.B, 1 ≤ x) :
+  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1 / (h : ℝ) < r) (hr2 : r < 1) (hB_pos : ∀ x ∈ TB.B, 1 ≤ x) :
   Filter.liminf (ratio_fun (constructed_A TB.B S.d r) h) Filter.atTop ≤ 4 := by
     by_contra h_contra;
     -- By the definition of limit inferior, there exists some $N$ such that for all $x \geq N$,
@@ -1650,7 +1639,7 @@ theorem liminf_ratio_le_four (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSe
 A(x) is little-o of x as x tends to infinity.
 -/
 theorem A_is_o_x (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSequence h r TB.C)
-  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1/(h : ℝ) < r) (hr2 : r < 1) :
+  (h_ge_3 : h ≥ 3) (hr1 : 1 - 1 / (h : ℝ) < r) (hr2 : r < 1) :
   Asymptotics.IsLittleO Filter.atTop (fun x => (count_in_range (constructed_A TB.B S.d r)
     x : ℝ)) (fun x => x) := by
     -- By `A_upper_bound`, for large $x$, $A(x) \le C x^{1/h} + 2 x^r$. Since $r < 1$ and $1/h <
@@ -1790,7 +1779,7 @@ theorem A_constructed_is_basis : iterated_sumset A_constructed 3 = Set.univ := b
 /-
 Elements of A_i bounded by x are sums of powers of 2 with exponents in J_i(x).
 -/
-def J (i : ℕ) (x : ℝ) : Finset ℕ :=
+noncomputable def J (i : ℕ) (x : ℝ) : Finset ℕ :=
   (Finset.range (Nat.log 2 (Nat.floor x) + 1)).filter (fun j => j ∈ W i)
 
 theorem A_part_subset_powerset (i : ℕ) (x : ℝ) (hx : x ≥ 1) :
@@ -2246,8 +2235,6 @@ theorem not_erdos_337 : ¬ erdos_337 := by
   convert hA_ratio A ⟨ h, hA_basis ⟩ hA_density using 1;
   simp +zetaDelta at *;
   norm_num [ iterated_sumset ]
-
-end
 
 #print axioms erdos_337
 -- 'Erdos337.erdos_337' depends on axioms: [propext, Classical.choice, Quot.sound]
