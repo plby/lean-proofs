@@ -34,33 +34,23 @@ Formalization of the disproof of a question by Erdős and Ingham regarding the n
 
 import Mathlib
 
-set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.openClassical false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
-set_option linter.style.whitespace false
-set_option linter.flexible false
 set_option aesop.warn.nonterminal false
 
 open scoped BigOperators
 open scoped Real
 open scoped Nat
-open scoped Classical
 open scoped Pointwise
-
-set_option maxHeartbeats 50000000
--- Several generated complex-analysis estimates time out at the default heartbeat limit.
-set_option maxRecDepth 4000
-set_option synthInstance.maxHeartbeats 20000
-set_option synthInstance.maxSize 128
 
 namespace Erdos967
 
 /-
 Bound for the difference of complex powers using the Mean Value Theorem.
 -/
+set_option linter.flexible false in
 lemma mvt_estimate (t : ℝ) (x : ℝ) (hx : 0 < x) (n : ℝ) (hn : x ≤ n) :
   ‖(n : ℂ) ^ (-(1 + Complex.I * t)) - (x : ℂ) ^ (-(1 + Complex.I * t))‖ ≤ ‖1 + Complex.I * t‖ / x ^ 2 * (n - x) := by
     field_simp;
@@ -117,6 +107,7 @@ lemma exist_x_parallel (t : ℝ) (ht : t ≠ 0) (N : ℝ) (c : ℂ) (_hc : c ≠
 /-
 Main lemma: existence of a set S' approximating c.
 -/
+set_option linter.flexible false in
 lemma lemma_2_1 (t : ℝ) (ht : t ≠ 0) (N : ℕ) (_hN : N > 0) (c : ℂ) :
   ∃ S' : Finset ℕ, (∀ n ∈ S', N ≤ n) ∧
   (∑ n ∈ S', (n : ℝ)⁻¹) ≤ ‖c‖ ∧
@@ -192,6 +183,7 @@ noncomputable def step_target (t : ℝ) (rem : ℂ) : ℂ :=
   let r := (2 + 2 * ‖1 + Complex.I * (t : ℂ)‖)⁻¹
   if ‖rem‖ ≤ r then rem else (r / ‖rem‖) * rem
 
+set_option linter.flexible false in
 lemma step_exists (t : ℝ) (ht : t ≠ 0) (N : ℕ) (hN : N > 0) (rem : ℂ) :
   ∃ S' : Finset ℕ, (∀ n ∈ S', n ≥ N) ∧
   (∑ n ∈ S', (n : ℝ)⁻¹) ≤ ‖step_target t rem‖ ∧
@@ -252,6 +244,7 @@ noncomputable def construction_seq (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
 def constructed_S (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) : Set ℕ :=
   ⋃ k, (construction_seq t ht lambda_val k).1
 
+set_option linter.flexible false in
 lemma construction_disjoint (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) (k l : ℕ) (h : k < l) :
   Disjoint (construction_seq t ht lambda_val k).1 (construction_seq t ht lambda_val l).1 := by
     rw [ Finset.disjoint_left ];
@@ -383,6 +376,7 @@ lemma grouped_sum_eq_lambda (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
 /-
 The sum of reciprocals over the constructed set S is summable.
 -/
+open Classical in
 lemma summable_constructed_S (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
   Summable (fun n => if n ∈ constructed_S t ht lambda_val then (n : ℝ)⁻¹ else 0) := by
     refine' summable_of_sum_le _ _;
@@ -412,6 +406,7 @@ lemma summable_constructed_S (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
 /-
 The complex power series is summable on the constructed set.
 -/
+open Classical in
 lemma summable_complex_constructed_S (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
   Summable (fun n => if n ∈ constructed_S t ht lambda_val then (n : ℂ) ^ (-(1 + Complex.I * t)) else 0) := by
     -- We know `summable_constructed_S` gives summability of `n^{-1}` on `constructed_S`, and `|n^{-(1+it)}| = n^{-1}` for `n > 0`.
@@ -505,6 +500,7 @@ lemma tsum_constructed_S_eq (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) (f : ℕ
 /-
 All elements in the constructed set S are greater than or equal to 2.
 -/
+set_option linter.flexible false in
 lemma main_theorem_ge_2 (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
   ∀ n ∈ constructed_S t ht lambda_val, n ≥ 2 := by
     intro n hn;
@@ -519,6 +515,7 @@ lemma main_theorem_ge_2 (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
 /-
 The infinite sum of the terms equals lambda.
 -/
+open Classical in
 lemma tsum_eq_lambda (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
   ∑' n, (if n ∈ constructed_S t ht lambda_val then (n : ℂ) ^ (-(1 + Complex.I * (t : ℂ))) else 0) = lambda_val := by
     -- Apply the lemma `grouped_sum_eq_lambda` to conclude that the sum of the series is lambda.
@@ -536,6 +533,7 @@ lemma tsum_eq_lambda (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
 /-
 The sequence defined by the target terms is summable.
 -/
+open Classical in
 noncomputable def target_seq (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) (n : ℕ) : ℂ :=
   if n ∈ constructed_S t ht lambda_val then (n : ℂ) ^ (-(1 + Complex.I * (t : ℂ))) else 0
 
@@ -547,6 +545,7 @@ lemma summable_target_seq (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
 /-
 For any real number t ≠ 0 and any complex number λ, there exists a subset S ⊆ ℤ≥2 such that ∑_{n∈S} 1/n < ∞ and ∑_{n∈S} 1/n^{1+it} = λ.
 -/
+open Classical in
 theorem main_theorem (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
   ∃ S : Set ℕ, (∀ n ∈ S, n ≥ 2) ∧
   Summable (fun n => if n ∈ S then (n : ℝ)⁻¹ else 0) ∧
@@ -572,6 +571,7 @@ def erdos_ingham_2_3_5_statement : Prop :=
 /-
 Question 1.1: Let 1 < a_1 < a_2 < ... be a (finite or infinite) sequence of integers such that sum a_k^{-1} < infinity. Is it true that, for every t in R, 1 + sum a_k^{-1-it} != 0?
 -/
+open Classical in
 def question_1_1_statement : Prop :=
   ∀ (S : Set ℕ), (∀ n ∈ S, 1 < n) →
   Summable (fun n => if n ∈ S then (n : ℝ)⁻¹ else 0) →
