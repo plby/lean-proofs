@@ -547,9 +547,35 @@ lemma im_subset_of_le {t1 t2 : T_struct} (h : t1 ≤ t2) : im t1 ⊆ im t2 := by
   exact ⟨ ⟨ y, lt_of_lt_of_le y.2 h₁ ⟩, by aesop ⟩
 
 /-
-If s1 < s2 are in A_set t, then last(s1) < last(s2).
+The last element of a successor sequence is not in the image of its immediate predecessor.
 -/
 set_option linter.flexible false in
+lemma last_not_mem_im_s_star
+  (t : T_struct)
+  (h : is_succ_ordinal t.α)
+  : last t h ∉ im
+  (s_star t h) := by
+  simp +decide [im, last, s_star]
+  intro x hx hxy
+  set β := Classical.choose h with hβ
+  have hspec : t.α = Order.succ β := by
+    rw [hβ]
+    exact Classical.choose_spec h
+  have hsucc : β < t.α := by
+    rw [hspec]
+    exact Order.lt_succ β
+  let hxα : x < t.α := hx.trans hsucc
+  have heq_sub :
+      (⟨x, hxα⟩ : {γ // γ < t.α}) = ⟨β, hsucc⟩ := by
+    apply t.val.2.1
+    exact hxy
+  have heq : x = β := congrArg Subtype.val heq_sub
+  rw [heq] at hx
+  exact (lt_irrefl β) hx
+
+/-
+If s1 < s2 are in A_set t, then last(s1) < last(s2).
+-/
 lemma A_set_strict_mono
   (t : T_struct)
   (s1 s2 : T_struct)
@@ -589,24 +615,7 @@ lemma A_set_strict_mono
           rw [im_eq_im_s_star_union_last s2 h2]
           exact Set.mem_union_right _ <| Set.mem_singleton _
       have h_last_s2_not_in_im_s_star_s2 : last s2 h2 ∉ im (s_star s2 h2) := by
-        have h_im_s2_eq_im_s_star_s2_union_last : im s2 = im (s_star s2 h2) ∪ {last s2 h2} := by
-          exact im_eq_im_s_star_union_last s2 h2
-        have h_last_s2_not_in_im_s_star_s2 :
-            Function.Injective (fun x : {β // β < s2.α} => s2.val.1 x.1 x.2) := by
-          exact s2.val.2.1
-        contrapose! h_last_s2_not_in_im_s_star_s2
-        obtain ⟨ x, hx ⟩ := h_last_s2_not_in_im_s_star_s2
-        simp_all +decide [ Function.Injective, last ]
-        use x.val, by
-          exact lt_of_lt_of_le x.2 ( by
-            exact le_of_lt (by
-              rw [Classical.choose_spec h2]
-              exact Order.lt_succ _)), Classical.choose h2_le, by
-          all_goals generalize_proofs at *
-          unfold s_star at *
-          aesop
-        generalize_proofs at *
-        exact ne_of_lt ( lt_of_lt_of_le ‹_› ( by simp +decide [ s_star ] ) )
+        exact last_not_mem_im_s_star s2 h2
       exact ⟨ h_last_s2_in_im_t, h_last_s2_not_in_im_s_star_s2 ⟩
     -- Since $last(s1) \in im(s1)$ and $im(s1) \subseteq im(s_star s2 h2)$, we have
     -- $last(s1) \in
@@ -622,44 +631,15 @@ lemma A_set_strict_mono
     · exact fun h => h_last_s2_in_diff.2 <| h ▸ h_last_s1_in_im_s_star_s2
 
 /-
-The last element of a successor sequence is not in the image of its immediate predecessor.
--/
-set_option linter.flexible false in
-lemma last_not_mem_im_s_star
-  (t : T_struct)
-  (h : is_succ_ordinal t.α)
-  : last t h ∉ im
-  (s_star t h) := by
-  simp +decide [im, last, s_star]
-  intro x hx hxy
-  set β := Classical.choose h with hβ
-  have hspec : t.α = Order.succ β := by
-    rw [hβ]
-    exact Classical.choose_spec h
-  have hsucc : β < t.α := by
-    rw [hspec]
-    exact Order.lt_succ β
-  let hxα : x < t.α := hx.trans hsucc
-  have heq_sub :
-      (⟨x, hxα⟩ : {γ // γ < t.α}) = ⟨β, hsucc⟩ := by
-    apply t.val.2.1
-    exact hxy
-  have heq : x = β := congrArg Subtype.val heq_sub
-  rw [heq] at hx
-  exact (lt_irrefl β) hx
-
-/-
 If t is a successor, then t is in A_set t.
 -/
-set_option linter.flexible false in
 lemma t_in_A_set (t : T_struct) (h : is_succ_ordinal t.α) : t ∈ A_set t := by
   refine ⟨ h, le_rfl, ?_ ⟩
   -- By definition of $im$, we know that $im t = im (s_star t h) ∪ {last t h}$.
   have h_im : im t = im (s_star t h) ∪ {last t h} := by
     exact im_eq_im_s_star_union_last t h
-  simp_all +decide
-  rw [ Set.insert_diff_of_notMem ] <;> norm_num
-  exact last_not_mem_im_s_star t h
+  rw [h_im]
+  simp +decide [last_not_mem_im_s_star t h]
 
 /-
 The set of predecessors of any sequence t forms a chain.
@@ -766,7 +746,6 @@ lemma A_star_finite_of_succ (t : T_struct) (h : is_succ_ordinal t.α) : (A_star 
 /-
 If s ≤ u, then any element of A_set u that is strictly less than s is also in A_set s.
 -/
-set_option linter.flexible false in
 lemma A_set_intersection (u s : T_struct) (h : s ≤ u) : A_set u ∩ {x | x < s} ⊆ A_set s := by
   -- Since v ∈ A_set u, we have v ≤ u and last v = sInf (im u \ im v*).
   intro v hv
@@ -809,7 +788,6 @@ lemma A_set_intersection (u s : T_struct) (h : s ≤ u) : A_set u ∩ {x | x < s
 /-
 If v is in A_set u, s ≤ u, and v* < s, then v ≤ s.
 -/
-set_option linter.flexible false in
 lemma v_le_s_of_v_star_lt_s
   {u s v : T_struct}
   (hu : s ≤ u)
@@ -826,17 +804,18 @@ lemma v_le_s_of_v_star_lt_s
         apply_rules [ predecessors_chain ]
       exact fun { a b } ha hb => h_comparable.total ha hb
     cases h_comparable hu ( hv.choose_spec.1 ) <;> tauto
-  cases h_le <;> simp_all +decide [ lt_iff_le_and_ne ]
-  -- Since $s \leq v$, we have $v = s$ or $v > s$.
-  by_cases h_eq : v = s
-  · exact h_eq.le
-  · -- Since $s \leq v$ and $v \neq s$, we have $s < v$.
-    have h_lt_v : s < v := by
-      exact lt_of_le_of_ne ‹_› ( Ne.symm h_eq )
-    -- Since $s < v$, we have $s \leq s_star v h_succ$.
-    have h_le_s_star : s ≤ s_star v h_succ := by
-      exact s1_le_s_star_of_lt h_succ h_lt_v
-    exact False.elim <| h_lt.2 <| le_antisymm h_lt.1 h_le_s_star
+  rcases h_le with h_le_sv | h_lt_vs
+  · -- Since $s \leq v$, we have $v = s$ or $v > s$.
+    by_cases h_eq : v = s
+    · exact h_eq.le
+    · -- Since $s \leq v$ and $v \neq s$, we have $s < v$.
+      have h_lt_v : s < v := by
+        exact lt_of_le_of_ne h_le_sv ( Ne.symm h_eq )
+      -- Since $s < v$, we have $s \leq s_star v h_succ$.
+      have h_le_s_star : s ≤ s_star v h_succ := by
+        exact s1_le_s_star_of_lt h_succ h_lt_v
+      exact False.elim <| h_lt.2 h_le_s_star
+  · exact le_of_lt h_lt_vs
 
 /-
 If s ≤ u, then any element of A_star u that is strictly less than s is also in A_star s.
@@ -1531,7 +1510,6 @@ lemma skipped_element_not_mem_im_of_one_extension
 /-
 Appending the skipped element creates an extension.
 -/
-set_option linter.flexible false in
 /-- Appending the skipped element creates an extension. -/
 lemma T_append_skipped_element_extension
   (t : T_struct)
@@ -1568,10 +1546,11 @@ lemma T_append_skipped_element_extension
         aesop
       generalize_proofs at *
       have h_gt : n > last t ht := by
-        cases h_im <;> simp_all +decide [ one_extension ]
+        rcases h_im with hn_im | hn_singleton
         · exact lt_of_le_of_lt (Nat.le_of_lt (skipped_element_gt_last t ht))
-            (h_one.2 n ‹_› (by aesop))
-        · exact skipped_element_gt_last t ht
+            (h_one.2 n ⟨ hn_im, hn.2 ⟩)
+        · rw [Set.mem_singleton_iff.mp hn_singleton]
+          exact skipped_element_gt_last t ht
       generalize_proofs at *
       exact h_gt
 
@@ -2167,7 +2146,6 @@ lemma get_an_is_min_diff
 /-
 The sequence $t_n''$ forms a clique.
 -/
-set_option linter.flexible false in
 lemma tn_double_prime_adj
   (c : G.Coloring ℕ)
   (t0 : T_struct)
@@ -2196,13 +2174,10 @@ lemma tn_double_prime_adj
     -- greater than the last element of $get_tn_double_prime c t0 ht0 h_counter m$.
     apply And.intro
     · intro h_eq
-      have := get_an_not_mem_im_vn c t0 ht0 h_counter m
-      have := get_an_not_mem_im_vn c t0 ht0 h_counter n
-      simp_all +decide
+      have h_not_m := get_an_not_mem_im_vn c t0 ht0 h_counter m
       have h_contra : get_an c t0 ht0 h_counter m ∈ im (get_vn c t0 ht0 h_counter n) := by
         exact get_an_mem_im_vn_of_lt c t0 ht0 h_counter h
-      unfold get_vn at *
-      aesop
+      exact h_not_m (by simpa +decide [get_vn, ← h_eq] using h_contra)
     · -- Since $get_tn (m+1)$ is an extension of $get_tn_double_prime m$, and $get_tn
       -- (m+1)$ is in $A_set (get_tn_double_prime n)$, it follows that
       -- $get_tn_double_prime m$ is in $A_star (get_tn_double_prime n)$.
@@ -2980,7 +2955,6 @@ lemma im_construction_tn_succ_eq_im_tn_prime_union_a_even
 /-
 Decomposition of the difference of images of prime sequences.
 -/
-set_option linter.flexible false in
 lemma diff_decomposition
   (c : G.Coloring ℕ)
   (t0 : T_struct)
@@ -3009,15 +2983,18 @@ lemma diff_decomposition
         exact hx_in_n_or_m_plus_1.imp_right fun h => h.imp id fun h => by simpa using h
       generalize_proofs at *
       grind
-    · intro x hxaesop
-      cases hxaesop <;> simp_all +decide only [mem_diff]
-      · have := a_even_mem_diff_im_tn_prime c t0 ht0 h
-        aesop
-      · have := im_tn_succ_subset_im_tn_prime_of_lt c t0 ht0 h
-        simp_all +decide [Set.subset_def]
-        intro hx
-        have := this x
-        simp_all +decide [im_construction_tn_succ_eq_im_tn_prime_union_a_even]
+    · intro x hx_union
+      rcases hx_union with hx_even | hx_diff
+      · have hx_eq : x = get_construction_a_even c t0 ht0 m := by
+          simpa using hx_even
+        rw [hx_eq]
+        exact a_even_mem_diff_im_tn_prime c t0 ht0 h
+      · rcases hx_diff with ⟨hx_in_n, hx_not_in_succ⟩
+        refine ⟨hx_in_n, ?_⟩
+        intro hx_in_m
+        apply hx_not_in_succ
+        rw [im_construction_tn_succ_eq_im_tn_prime_union_a_even c t0 ht0 m]
+        exact Or.inl hx_in_m
 
 /-
 The n-th prime sequence extends the (m+1)-th sequence for m < n.
@@ -3438,7 +3415,6 @@ lemma t_hat_gt_tn_prime (c : G.Coloring ℕ) (t0 : T_struct) (ht0 : is_succ_ordi
 Elements in the difference of the limit sequence image and the n-th prime sequence image are
 strictly greater than the n-th odd skipped element.
 -/
-set_option linter.flexible false in
 lemma im_t_hat_diff_im_tn_prime_gt_a_odd
   (c : G.Coloring ℕ)
   (t0 : T_struct)
@@ -3453,10 +3429,21 @@ lemma im_t_hat_diff_im_tn_prime_gt_a_odd
       aesop
     generalize_proofs at *
     by_cases hk_le_n : k ≤ n + 1
-    · cases hk_le_n.eq_or_lt <;> simp_all +decide
-      · have := im_construction_tn_succ_eq_im_tn_prime_union_a_even c t0 ht0 n
-        simp_all +decide [Set.ext_iff]
-        exact get_construction_a_odd_lt_even c t0 ht0 n
+    · rcases hk_le_n.eq_or_lt with hk_eq | hk_lt
+      · rw [hk_eq] at hk
+        have h_union :
+            im (get_construction_tn c t0 ht0 (n + 1)) =
+              im (get_construction_tn_prime c t0 ht0 n) ∪
+                {get_construction_a_even c t0 ht0 n} := by
+          exact im_construction_tn_succ_eq_im_tn_prime_union_a_even c t0 ht0 n
+        have hx_union :
+            x ∈ im (get_construction_tn_prime c t0 ht0 n) ∪
+              {get_construction_a_even c t0 ht0 n} := by
+          simpa [h_union] using hk
+        rcases hx_union with hx_prime | hx_even
+        · exact False.elim <| hx.2 hx_prime
+        · rw [Set.mem_singleton_iff.mp hx_even]
+          exact get_construction_a_odd_lt_even c t0 ht0 n
       · -- Since $k \leq n$, we have $im (get_construction_tn c t0 ht0 k) \subseteq im
         -- (get_construction_tn_prime c t0 ht0 n)$.
         have h_subset :
@@ -3465,7 +3452,7 @@ lemma im_t_hat_diff_im_tn_prime_gt_a_odd
             get_construction_tn c t0 ht0 k ≤ get_construction_tn_prime c t0 ht0 n := by
             have h_subset : get_construction_tn c t0 ht0 k ≤ get_construction_tn c t0 ht0 n := by
               apply get_construction_tn_mono
-              assumption
+              exact Nat.lt_succ_iff.mp hk_lt
             exact le_trans h_subset ( get_construction_tn_prime_extends c t0 ht0 n |> fun h => h.1 )
           exact im_subset_of_le h_subset
         exact False.elim <| hx.2 <| h_subset hk
@@ -3482,8 +3469,14 @@ lemma im_t_hat_diff_im_tn_prime_gt_a_odd
               im (get_construction_tn_prime c t0 ht0 n) ∪
                 {get_construction_a_even c t0 ht0 n} := by
           exact im_construction_tn_succ_eq_im_tn_prime_union_a_even c t0 ht0 n
-        simp_all +decide [ Set.ext_iff ]
-        exact get_construction_a_odd_lt_even c t0 ht0 n
+        have hx_union :
+            x ∈ im (get_construction_tn_prime c t0 ht0 n) ∪
+              {get_construction_a_even c t0 ht0 n} := by
+          simpa [h_union] using hx_in_tn_succ
+        rcases hx_union with hx_prime | hx_even
+        · exact False.elim <| hx.2 hx_prime
+        · rw [Set.mem_singleton_iff.mp hx_even]
+          exact get_construction_a_odd_lt_even c t0 ht0 n
       · exact h_diff x ⟨ hk, hx_in_tn_succ ⟩
 
 /-
