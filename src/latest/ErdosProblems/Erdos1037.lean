@@ -18,9 +18,9 @@ URLs:
 /-
 Formalization of a theorem stating the existence of graphs with many distinct degrees and small clique/independence numbers.
 
-The main result is `Theorem_Main`, which proves that for any $\varepsilon \in (0, 1/4)$, for sufficiently large $n$ divisible by 4, there exists a graph on $n$ vertices such that:
+The main result is `Theorem_Main`, which proves that for any $\varepsilon \in (0, 1 / 4)$, for sufficiently large $n$ divisible by 4, there exists a graph on $n$ vertices such that:
 1. Every degree occurs at most twice.
-2. The number of distinct degrees is greater than $(1/2 + \varepsilon)n$.
+2. The number of distinct degrees is greater than $(1 / 2 + \varepsilon)n$.
 3. The clique number and independence number are both $O(\log n)$.
 
 The proof uses a probabilistic construction based on random graphs (Lemma `Lemma_Base`, assumed) and a specific graph product/sum construction (`H_graph`). The properties are verified using auxiliary lemmas about degree distribution and graph invariants under isomorphism.
@@ -30,18 +30,17 @@ import Mathlib
 
 namespace Erdos1037
 
--- This generated proof file still relies on automated proof scripts whose warnings
--- are too interdependent to remove locally without changing the proof structure.
+-- This generated proof file still has a broad automated proof-script warning
+-- surface. The remaining suppressions guard warnings that would require a
+-- substantial proof rewrite rather than local cleanup.
 set_option linter.style.setOption false
 set_option linter.style.openClassical false
 set_option linter.style.longLine false
-set_option linter.style.whitespace false
 set_option linter.style.refine false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
 set_option linter.unusedDecidableInType false
 set_option linter.unusedFintypeInType false
-set_option linter.unnecessarySimpa false
 
 open scoped Classical
 
@@ -58,16 +57,16 @@ def NumDistinctDegrees {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph 
   (Finset.univ.image (fun v => G.degree v)).card
 
 /-
-If $Y$ is a Bernoulli(1/2) random variable, then $\mathbb{E}[e^{t(Y - 1/2)}] \le e^{t^2/8}$.
+If $Y$ is a Bernoulli(1 / 2) random variable, then $\mathbb{E}[e^{t(Y - 1 / 2)}] \le e^{t^2/8}$.
 -/
 theorem Bernoulli_MGF_bound
   {Ω : Type*} [MeasureTheory.MeasureSpace Ω] [MeasureTheory.IsProbabilityMeasure (MeasureTheory.MeasureSpace.volume : MeasureTheory.Measure Ω)]
   (Y : Ω → ℝ)
   (h_meas : Measurable Y)
-  (h_bernoulli : MeasureTheory.MeasureSpace.volume {ω | Y ω = 1} = 1/2 ∧ MeasureTheory.MeasureSpace.volume {ω | Y ω = 0} = 1/2)
+  (h_bernoulli : MeasureTheory.MeasureSpace.volume {ω | Y ω = 1} = 1 / 2 ∧ MeasureTheory.MeasureSpace.volume {ω | Y ω = 0} = 1 / 2)
   (h_range : ∀ᵐ ω ∂MeasureTheory.MeasureSpace.volume, Y ω = 0 ∨ Y ω = 1)
   (t : ℝ) :
-  ∫ ω, Real.exp (t * (Y ω - 1/2)) ∂MeasureTheory.MeasureSpace.volume ≤ Real.exp (t^2 / 8) := by
+  ∫ ω, Real.exp (t * (Y ω - 1 / 2)) ∂MeasureTheory.MeasureSpace.volume ≤ Real.exp (t^2 / 8) := by
     -- Let's simplify the integral.
     have h_integral_simplified : ∫ ω, Real.exp (t * (Y ω - 1 / 2)) ∂MeasureTheory.MeasureSpace.volume = (∫ ω in {ω | Y ω = 1}, Real.exp (t * (1 - 1 / 2))) + (∫ ω in {ω | Y ω = 0}, Real.exp (t * (0 - 1 / 2))) := by
       rw [ ← MeasureTheory.integral_indicator, ← MeasureTheory.integral_indicator ];
@@ -98,7 +97,7 @@ theorem Lemma_Hoeffding_OneSided
   (N : ℕ) (Y : Fin N → Ω → ℝ)
   (h_meas : ∀ i, Measurable (Y i))
   (h_indep : ProbabilityTheory.iIndepFun Y MeasureTheory.MeasureSpace.volume)
-  (h_bernoulli : ∀ i, MeasureTheory.MeasureSpace.volume {ω | Y i ω = 1} = 1/2 ∧ MeasureTheory.MeasureSpace.volume {ω | Y i ω = 0} = 1/2)
+  (h_bernoulli : ∀ i, MeasureTheory.MeasureSpace.volume {ω | Y i ω = 1} = 1 / 2 ∧ MeasureTheory.MeasureSpace.volume {ω | Y i ω = 0} = 1 / 2)
   (h_range : ∀ i, ∀ᵐ ω ∂MeasureTheory.MeasureSpace.volume, Y i ω = 0 ∨ Y i ω = 1) :
   let X := ∑ i, Y i
   ∀ t > 0, (MeasureTheory.MeasureSpace.volume {ω | X ω - N / 2 ≥ t}).toReal ≤ Real.exp (-2 * t^2 / N) := by
@@ -130,7 +129,7 @@ theorem Lemma_Hoeffding_OneSided
         · simp +zetaDelta at *;
           filter_upwards [ MeasureTheory.ae_all_iff.2 h_range ] with ω hω using mul_le_mul_of_nonneg_left ( by linarith [ show ( ∑ i : Fin N, Y i ω ) ≤ N by exact le_trans ( Finset.sum_le_sum fun i _ => show Y i ω ≤ 1 by cases hω i <;> linarith ) ( by norm_num ) ] ) ( by positivity );
       · exact Filter.Eventually.of_forall fun ω => Real.exp_nonneg _;
-    -- Using `Bernoulli_MGF_bound`, we have $\mathbb{E}(e^{\lambda (Y_i - 1/2)}) \le e^{\lambda^2/8}$.
+    -- Using `Bernoulli_MGF_bound`, we have $\mathbb{E}(e^{\lambda (Y_i - 1 / 2)}) \le e^{\lambda^2/8}$.
     have h_mgf_bound : ∀ i, (∫ ω, Real.exp (4 * t / (N : ℝ) * (Y i ω - 1 / 2)) ∂MeasureTheory.MeasureSpace.volume) ≤ Real.exp ((4 * t / (N : ℝ)) ^ 2 / 8) := by
       intro i
       exact
@@ -141,7 +140,7 @@ theorem Lemma_Hoeffding_OneSided
           (h_bernoulli := h_bernoulli i)
           (h_range := h_range i)
           (t := 4 * t / (N : ℝ)))
-    -- Using independence, we have $\mathbb{E}(e^{\lambda Z}) = \prod_{i=1}^N \mathbb{E}(e^{\lambda (Y_i - 1/2)})$.
+    -- Using independence, we have $\mathbb{E}(e^{\lambda Z}) = \prod_{i=1}^N \mathbb{E}(e^{\lambda (Y_i - 1 / 2)})$.
     have h_indep_mgf : (∫ ω, Real.exp (4 * t / (N : ℝ) * (X ω - (N : ℝ) / 2)) ∂MeasureTheory.MeasureSpace.volume) = (∏ i, (∫ ω, Real.exp (4 * t / (N : ℝ) * (Y i ω - 1 / 2)) ∂MeasureTheory.MeasureSpace.volume)) := by
       have h_indep_mgf : ∀ {f : Fin N → Ω → ℝ}, (∀ i, Measurable (f i)) → ProbabilityTheory.iIndepFun f MeasureTheory.MeasureSpace.volume → (∫ ω, ∏ i, Real.exp (f i ω) ∂MeasureTheory.MeasureSpace.volume) = (∏ i, (∫ ω, Real.exp (f i ω) ∂MeasureTheory.MeasureSpace.volume)) := by
         intro f hf h_indep_f
@@ -179,7 +178,7 @@ theorem Lemma_Hoeffding
   (N : ℕ) (Y : Fin N → Ω → ℝ)
   (h_meas : ∀ i, Measurable (Y i))
   (h_indep : ProbabilityTheory.iIndepFun Y MeasureTheory.MeasureSpace.volume)
-  (h_bernoulli : ∀ i, MeasureTheory.MeasureSpace.volume {ω | Y i ω = 1} = 1/2 ∧ MeasureTheory.MeasureSpace.volume {ω | Y i ω = 0} = 1/2)
+  (h_bernoulli : ∀ i, MeasureTheory.MeasureSpace.volume {ω | Y i ω = 1} = 1 / 2 ∧ MeasureTheory.MeasureSpace.volume {ω | Y i ω = 0} = 1 / 2)
   (h_range : ∀ i, ∀ᵐ ω ∂MeasureTheory.MeasureSpace.volume, Y i ω = 0 ∨ Y i ω = 1) :
   let X := ∑ i, Y i
   ∀ t > 0, (MeasureTheory.MeasureSpace.volume {ω | |X ω - N / 2| ≥ t}).toReal ≤ 2 * Real.exp (-2 * t^2 / N) := by
@@ -215,7 +214,7 @@ We equip the set of simple graphs on V with the discrete measurable space.
 instance {V : Type*} [Fintype V] [DecidableEq V] : MeasurableSpace (SimpleGraph V) := ⊤
 
 /-
-The random graph $G_{m, 1/2}$ is the uniform measure on the set of all simple graphs on $m$ vertices.
+The random graph $G_{m, 1 / 2}$ is the uniform measure on the set of all simple graphs on $m$ vertices.
 -/
 noncomputable def randomGraphMeasure {V : Type*} [Fintype V] [DecidableEq V] : MeasureTheory.Measure (SimpleGraph V) :=
   ProbabilityTheory.uniformOn Set.univ
@@ -233,10 +232,10 @@ def incidentEdgeInd {m : ℕ} (v : Fin m) (u : {x // x ≠ v}) (G : SimpleGraph 
   if G.Adj u v then 1 else 0
 
 /-
-The probability that an edge exists in $G_{m, 1/2}$ is $1/2$.
+The probability that an edge exists in $G_{m, 1 / 2}$ is $1 / 2$.
 -/
 theorem incidentEdgeInd_Bernoulli {m : ℕ} (v : Fin m) (u : {x // x ≠ v}) :
-  randomGraphMeasure {G : SimpleGraph (Fin m) | incidentEdgeInd v u G = 1} = 1/2 := by
+  randomGraphMeasure {G : SimpleGraph (Fin m) | incidentEdgeInd v u G = 1} = 1 / 2 := by
     have h_card : (randomGraphMeasure {G : SimpleGraph (Fin m) | G.Adj u v}) = 1 / 2 := by
       have h_uniform : (randomGraphMeasure {G : SimpleGraph (Fin m) | G.Adj u v}) = (randomGraphMeasure {G : SimpleGraph (Fin m) | ¬G.Adj u v}) := by
         have h_uniform : (randomGraphMeasure {G : SimpleGraph (Fin m) | G.Adj u v}) = (randomGraphMeasure {G : SimpleGraph (Fin m) | ¬G.Adj u v}) := by
@@ -287,10 +286,10 @@ noncomputable def incidentEdgeInd_classical {m : ℕ} (v : Fin m) (u : {x // x �
   if G.Adj u v then 1 else 0
 
 /-
-The probability that an edge exists in $G_{m, 1/2}$ is $1/2$.
+The probability that an edge exists in $G_{m, 1 / 2}$ is $1 / 2$.
 -/
 theorem incidentEdgeInd_classical_Bernoulli {m : ℕ} (v : Fin m) (u : {x // x ≠ v}) :
-  randomGraphMeasure {G : SimpleGraph (Fin m) | incidentEdgeInd_classical v u G = 1} = 1/2 := by
+  randomGraphMeasure {G : SimpleGraph (Fin m) | incidentEdgeInd_classical v u G = 1} = 1 / 2 := by
     convert incidentEdgeInd_Bernoulli v u using 1
 
 /-
@@ -652,7 +651,7 @@ theorem card_powerset_filter_subset {α : Type*} [DecidableEq α] (U : Finset α
       intro x; specialize hAB x; replace hA' := @hA' x; replace hB' := @hB' x; aesop;
 
 /-
-The probability that a random graph has a specific configuration of edges incident to $v$ on a set $S$ is $(1/2)^{|S|}$.
+The probability that a random graph has a specific configuration of edges incident to $v$ on a set $S$ is $(1 / 2)^{|S|}$.
 -/
 theorem measure_inter_incident_edges {m : ℕ} (v : Fin m) (S : Finset {x // x ≠ v}) (f : {x // x ≠ v} → Bool) :
   randomGraphMeasure {G : SimpleGraph (Fin m) | ∀ u ∈ S, G.Adj v u ↔ f u} = (1 / 2 : ENNReal) ^ S.card := by
@@ -872,7 +871,7 @@ theorem edge_indicators_independent (m : ℕ) (v : Fin m) :
     have h_indep : ∀ (S : Finset {x // x ≠ v}) (A : {x // x ≠ v} → Set ℝ), (∀ u ∈ S, MeasurableSet (A u)) → (randomGraphMeasure (⋂ u ∈ S, {G : SimpleGraph (Fin m) | incidentEdgeInd_classical v u G ∈ A u})) = ∏ u ∈ S, (randomGraphMeasure {G : SimpleGraph (Fin m) | incidentEdgeInd_classical v u G ∈ A u}) := by
       -- For each $u \in S$, the set $A_u$ is either $\emptyset$, $\{0\}$, $\{1\}$, or $\{0, 1\}$.
       intros S A hA
-      have h_cases : ∀ u ∈ S, (randomGraphMeasure {G : SimpleGraph (Fin m) | incidentEdgeInd_classical v u G ∈ A u}) = if (0 ∈ A u) ∧ (1 ∈ A u) then 1 else if (0 ∈ A u) then (1/2 : ENNReal) else if (1 ∈ A u) then (1/2 : ENNReal) else 0 := by
+      have h_cases : ∀ u ∈ S, (randomGraphMeasure {G : SimpleGraph (Fin m) | incidentEdgeInd_classical v u G ∈ A u}) = if (0 ∈ A u) ∧ (1 ∈ A u) then 1 else if (0 ∈ A u) then (1 / 2 : ENNReal) else if (1 ∈ A u) then (1 / 2 : ENNReal) else 0 := by
         intro u hu
         have h_cases : {G : SimpleGraph (Fin m) | incidentEdgeInd_classical v u G ∈ A u} = if (0 ∈ A u) ∧ (1 ∈ A u) then Set.univ else if (0 ∈ A u) then {G : SimpleGraph (Fin m) | incidentEdgeInd_classical v u G = 0} else if (1 ∈ A u) then {G : SimpleGraph (Fin m) | incidentEdgeInd_classical v u G = 1} else ∅ := by
           ext G; unfold incidentEdgeInd_classical; aesop;
@@ -889,7 +888,7 @@ theorem edge_indicators_independent (m : ℕ) (v : Fin m) :
         · obtain ⟨ a, b, ha, hb, hc ⟩ := h; rw [ zero_pow ] <;> aesop;
         · obtain ⟨ a, ha₁, ha₂, ha₃, ha₄ ⟩ := h; filter_upwards [ ] with G; simp_all +decide [ Set.mem_iInter ] ;
           exact ⟨ a, ha₁, ha₂, by unfold incidentEdgeInd_classical; aesop ⟩;
-      · convert measure_inter_incident_edges v ( Finset.filter ( fun u => 0 ∈ A u → 1∉A u ) S ) ( fun u => if 0 ∈ A u then Bool.false else Bool.true ) using 1;
+      · convert measure_inter_incident_edges v ( Finset.filter ( fun u => 0 ∈ A u → 1 ∉ A u ) S ) ( fun u => if 0 ∈ A u then Bool.false else Bool.true ) using 1;
         · congr with G ; simp +decide [ incidentEdgeInd_classical ];
           simp +decide [ SimpleGraph.adj_comm ];
           grind;
@@ -927,11 +926,7 @@ theorem degree_concentration_at_vertex (m : ℕ) (hm : m > 1) (v : Fin m) (t : �
         ext G; rw [ Finset.card_filter, Finset.card_filter ] ; rw [ ← Equiv.sum_comp bij ] ;
       · intro i;
         apply Measurable.ite
-        · simpa using
-            (measurableSet_singleton True).preimage
-              (Measurable.eval (a := v)
-                (Measurable.eval (a := ↑(bij i))
-                  (SimpleGraph.measurable_adj (V := Fin m))))
+        · simp
         · exact measurable_const
         · exact measurable_const
       · have h_indep : ProbabilityTheory.iIndepFun (fun u : {x : Fin m // x ≠ v} => Y u) randomGraphMeasure := by
@@ -949,15 +944,11 @@ theorem degree_concentration_at_vertex (m : ℕ) (hm : m > 1) (v : Fin m) (t : �
         simp +decide [ Y, SimpleGraph.adj_comm ];
         intro h;
         have hmeas_adj : MeasurableSet { G : SimpleGraph ( Fin m ) | G.Adj v ↑ ( bij i ) } := by
-          simpa using
-            (measurableSet_singleton True).preimage
-              (Measurable.eval (a := ↑(bij i))
-                (Measurable.eval (a := v)
-                  (SimpleGraph.measurable_adj (V := Fin m))))
+          simp
         rw [ show { G : SimpleGraph ( Fin m ) | ¬G.Adj v ↑ ( bij i ) } = Set.univ \ { G : SimpleGraph ( Fin m ) | G.Adj v ↑ ( bij i ) } by ext; simp +decide, MeasureTheory.measure_diff ] <;> norm_num [ h, hmeas_adj, hmeas_adj.nullMeasurableSet ] ;
         unfold randomGraphMeasure;
         rw [ ProbabilityTheory.uniformOn ] ; norm_num;
-      · intro i; filter_upwards [ ] with G; by_cases hi : G.Adj ( bij i |>.1 ) v <;> simp +decide 
+      · intro i; filter_upwards [ ] with G; by_cases hi : G.Adj ( bij i |>.1 ) v <;> simp +decide
         · exact Or.inr ( if_pos hi );
         · exact Or.inl ( if_neg hi );
     convert h_hoeffding using 4;
@@ -1791,11 +1782,11 @@ lemma exists_ordering (m : ℕ) (R : SimpleGraph (Fin m)) :
     exact ⟨ h_order.choose, fun i j hij => by cases lt_or_eq_of_le hij <;> [ exact h_order.choose_spec i j ‹_› ; aesop ] ⟩
 
 /-
-For sufficiently large m, the number of distinct degrees is greater than (1/2 + epsilon) * 4m.
+For sufficiently large m, the number of distinct degrees is greater than (1 / 2 + epsilon) * 4m.
 -/
-theorem distinct_degrees_bound_aux (ε : ℝ) (hε : ε < 1/4) :
+theorem distinct_degrees_bound_aux (ε : ℝ) (hε : ε < 1 / 4) :
   ∀ᶠ m : ℕ in Filter.atTop,
-    (3 * m : ℝ) - 4 * Real.sqrt (m * Real.log m) > (1/2 + ε) * (4 * m) := by
+    (3 * m : ℝ) - 4 * Real.sqrt (m * Real.log m) > (1 / 2 + ε) * (4 * m) := by
       -- We can divide both sides by $m$ to get $3 - 4 \sqrt{\frac{\log m}{m}} > 2 + 4 \epsilon$.
       suffices h_div : ∀ᶠ m : ℕ in Filter.atTop, 3 - 4 * Real.sqrt (Real.log m / (m : ℝ)) > 2 + 4 * ε by
         filter_upwards [ h_div, Filter.eventually_gt_atTop 0 ] with m hm₁ hm₂ using by rw [ show ( m : ℝ ) * Real.log m = m ^ 2 * ( Real.log m / m ) by rw [ mul_div, eq_div_iff ( by positivity ) ] ; ring ] ; rw [ Real.sqrt_mul ( by positivity ), Real.sqrt_sq ( by positivity ) ] ; nlinarith [ show ( m :ℝ ) > 0 by exact Nat.cast_pos.mpr hm₂, Real.sqrt_nonneg ( Real.log m / m ), Real.mul_self_sqrt ( show 0 ≤ Real.log m / m by positivity ) ] ;
@@ -2058,19 +2049,19 @@ lemma log_inequality (n : ℕ) (h : n ≥ 4) :
     have := Real.log_two_gt_d9 ; norm_num at * ; nlinarith [ Real.log_nonneg ( show ( n : ℝ ) ≥ 1 by norm_cast; linarith ) ]
 
 /-
-Main theorem: For any $\varepsilon \in (0, 1/4)$, for sufficiently large $n$ divisible by 4, there exists a graph on $n$ vertices with degrees occurring at most twice, many distinct degrees, and logarithmic clique/independence numbers.
+Main theorem: For any $\varepsilon \in (0, 1 / 4)$, for sufficiently large $n$ divisible by 4, there exists a graph on $n$ vertices with degrees occurring at most twice, many distinct degrees, and logarithmic clique/independence numbers.
 -/
 theorem Theorem_Main :
-  ∃ C : ℝ, ∀ ε : ℝ, 0 < ε → ε < 1/4 → ∃ n₀ : ℕ, ∀ n ≥ n₀, 4 ∣ n →
+  ∃ C : ℝ, ∀ ε : ℝ, 0 < ε → ε < 1 / 4 → ∃ n₀ : ℕ, ∀ n ≥ n₀, 4 ∣ n →
   ∃ H : SimpleGraph (Fin n),
     DegreeOccursAtMostTwice H ∧
-    (NumDistinctDegrees H : ℝ) > (1/2 + ε) * n ∧
+    (NumDistinctDegrees H : ℝ) > (1 / 2 + ε) * n ∧
     (H.cliqueNum : ℝ) ≤ C * Real.log n ∧
     (H.indepNum : ℝ) ≤ C * Real.log n := by
       use 20, fun ε hε₁ hε₂ => ?_;
       -- Let's choose any $m₀$ from Lemma_Base.
       obtain ⟨m₀, hm₀⟩ := Lemma_Base;
-      obtain ⟨m₁, hm₁⟩ : ∃ m₁ : ℕ, ∀ m ≥ m₁, 3 * m - 4 * Real.sqrt (m * Real.log m) - 1 > (1/2 + ε) * (4 * m) := by
+      obtain ⟨m₁, hm₁⟩ : ∃ m₁ : ℕ, ∀ m ≥ m₁, 3 * m - 4 * Real.sqrt (m * Real.log m) - 1 > (1 / 2 + ε) * (4 * m) := by
         -- We can choose $m₁$ such that for all $m ≥ m₁$, $4 * Real.sqrt (m * Real.log m) < (1 - 4 * ε) * m / 2$.
         obtain ⟨m₁, hm₁⟩ : ∃ m₁ : ℕ, ∀ m ≥ m₁, 4 * Real.sqrt (m * Real.log m) < (1 - 4 * ε) * m / 2 := by
           have h_sqrt_log : Filter.Tendsto (fun m : ℕ => Real.sqrt (m * Real.log m) / m) Filter.atTop (nhds 0) := by
@@ -2104,7 +2095,7 @@ theorem not_erdos_1037 :
     ∀ C : ℝ, 0 < C →
     ∃ n₀ : ℕ, ∀ n ≥ n₀,
       ∀ G : SimpleGraph (Fin n),
-        (NumDistinctDegrees G : ℝ) ≥ (1/2 + ε) * n →
+        (NumDistinctDegrees G : ℝ) ≥ (1 / 2 + ε) * n →
         (C * Real.log n ≤ (G.cliqueNum : ℝ) ∨
          C * Real.log n ≤ (G.indepNum : ℝ))
   ) := by
@@ -2112,7 +2103,7 @@ theorem not_erdos_1037 :
   intro h
   have hεpos : (0 : ℝ) < (1/8 : ℝ) := by
     norm_num
-  have hεlt : (1/8 : ℝ) < (1/4 : ℝ) := by
+  have hεlt : (1/8 : ℝ) < (1 / 4 : ℝ) := by
     norm_num
   let C1 : ℝ := |C0| + 1
   have hC1pos : 0 < C1 := by
@@ -2139,7 +2130,7 @@ theorem not_erdos_1037 :
   have h4 : 4 ∣ n := by
     refine ⟨Nat.max n0 n1 + 1, by simp [n]⟩
   rcases hn1 n hn_ge_n1 h4 with ⟨H, hDegTwice, hNDeg, hClique_le, hIndep_le⟩
-  have hNDeg' : (NumDistinctDegrees H : ℝ) ≥ (1/2 + (1/8 : ℝ)) * n := by
+  have hNDeg' : (NumDistinctDegrees H : ℝ) ≥ (1 / 2 + (1/8 : ℝ)) * n := by
     exact le_of_lt hNDeg
   have hn_ge4 : 4 ≤ n := by
     simp_all only [one_div, ge_iff_le, gt_iff_lt, inv_pos, Nat.ofNat_pos, dvd_mul_right, Nat.cast_mul, Nat.cast_ofNat,
@@ -2155,7 +2146,9 @@ theorem not_erdos_1037 :
   · exact (not_le_of_gt (lt_of_le_of_lt hClique_le hmul_lt)) hbigClique
   · exact (not_le_of_gt (lt_of_le_of_lt hIndep_le hmul_lt)) hbigIndep
 
+end Erdos1037
+
+open Erdos1037
+
 #print axioms not_erdos_1037
 -- 'Erdos1037.not_erdos_1037' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end Erdos1037
