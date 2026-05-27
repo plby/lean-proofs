@@ -30,15 +30,12 @@ path in the process.
 import Mathlib
 
 set_option linter.style.setOption false
-set_option maxRecDepth 10000
-set_option maxHeartbeats 800000
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.openClassical false
 set_option linter.style.refine false
 set_option linter.deprecated false
 set_option linter.flexible false
-set_option linter.unusedSimpArgs false
 set_option linter.unusedDecidableInType false
 set_option linter.unusedFintypeInType false
 
@@ -825,8 +822,7 @@ theorem degree_add_edge {V : Type*} [Fintype V] [DecidableEq V]
       have hfin : (SimpleGraph.fromEdgeSet (G.edgeSet ∪ {s(u, v)})).neighborFinset u =
           insert v (G.neighborFinset u) := by
         ext z
-        simp [ SimpleGraph.fromEdgeSet_adj, SimpleGraph.mem_edgeSet, Sym2.eq_iff, h_ne, h_not_adj,
-          SimpleGraph.adj_comm ]
+        simp [ SimpleGraph.fromEdgeSet_adj, SimpleGraph.mem_edgeSet, h_ne ]
         aesop
       rw [ hfin, Finset.card_insert_of_notMem ]
       simpa using h_not_adj
@@ -838,8 +834,7 @@ theorem degree_add_edge {V : Type*} [Fintype V] [DecidableEq V]
         have hfin : (SimpleGraph.fromEdgeSet (G.edgeSet ∪ {s(u, v)})).neighborFinset v =
             insert u (G.neighborFinset v) := by
           ext z
-          simp [ SimpleGraph.fromEdgeSet_adj, SimpleGraph.mem_edgeSet, Sym2.eq_iff, h_ne, h_not_adj,
-            SimpleGraph.adj_comm ]
+          simp [ SimpleGraph.fromEdgeSet_adj, SimpleGraph.mem_edgeSet ]
           aesop
         rw [ hfin, Finset.card_insert_of_notMem ]
         simpa [ SimpleGraph.adj_comm ] using h_not_adj
@@ -849,8 +844,7 @@ theorem degree_add_edge {V : Type*} [Fintype V] [DecidableEq V]
         have hfin : (SimpleGraph.fromEdgeSet (G.edgeSet ∪ {s(u, v)})).neighborFinset w =
             G.neighborFinset w := by
           ext z
-          simp [ SimpleGraph.fromEdgeSet_adj, SimpleGraph.mem_edgeSet, Sym2.eq_iff, hwu, hwv,
-            SimpleGraph.adj_comm ]
+          simp [ SimpleGraph.fromEdgeSet_adj, SimpleGraph.mem_edgeSet, hwu, hwv ]
           aesop
         rw [ hfin ]
 
@@ -2003,7 +1997,9 @@ theorem process_step_le {V : Type} [Fintype V] [DecidableEq V]
           unfold NextGraphsState at h_t1_next; aesop;
         unfold NextGraphs at h_next; aesop;
       obtain ⟨ e, he₁, he₂ ⟩ := h_add; rw [ he₂ ] ; exact by
-        intro v w hvw; simp [SimpleGraph.fromEdgeSet] at hvw ⊢; aesop;;
+        intro v w hvw
+        simp [SimpleGraph.fromEdgeSet] at hvw ⊢
+        aesop
     · unfold TheProcess at h; aesop;
 
 /-
