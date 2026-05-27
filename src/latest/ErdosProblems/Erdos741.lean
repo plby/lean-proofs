@@ -36,15 +36,9 @@ import Mathlib
 import Util
 
 set_option linter.style.setOption false
-set_option aesop.warn.nonterminal false
 set_option linter.dupNamespace false
 set_option linter.flexible false
 set_option linter.style.cdot false
-set_option linter.style.docString false
-set_option linter.style.emptyLine false
-set_option linter.style.show false
-set_option linter.unusedSimpArgs false
-set_option linter.unusedVariables false
 
 open Filter
 
@@ -299,8 +293,9 @@ lemma base3_to_base4_lt_4_pow_iff (d n : ℕ) : base3_to_base4 n < 4^d ↔ n < 3
       n/3).strongRec ?_))))))
     exact (fun R L =>
       WellFounded.Nat.fix_eq _ _ _▸by
-        cases R <;>
-          norm_num [L, Nat.ofDigits, Nat.div_lt_self (@Nat.succ_pos _)])
+        cases R
+        · norm_num [L, Nat.ofDigits, Nat.div_lt_self (@Nat.succ_pos _)]
+        · norm_num [L, Nat.ofDigits, Nat.div_lt_self (@Nat.succ_pos _)])
   refine d.strongRec (@fun R L=>? _) n
   use fun and=>match R with|0=>?_ | S+1=> (and/3).eq_zero_or_pos.elim ?_ ((
       3).digits_def' (by decide) ·▸Nat.ofDigits_cons▸pow_succ (3) S▸pow_succ 4 S▸? _)
@@ -553,13 +548,19 @@ lemma set_shift_size_lower_bound (A : Set ℕ) (e x y : ℕ) (hxy : x ≤ y) (hx
 
 lemma split1_eq_add (n : ℕ) : split1 n = n % 2 + 4 * split1 (n / 4) := by
   by_cases h : n = 0
-  · rw [h]; unfold split1; simp
-  · rw [split1]; simp [h]
+  · rw [h]
+    unfold split1
+    simp
+  · rw [split1]
+    simp [h]
 
 lemma split2_eq_add (n : ℕ) : split2 n = (n % 4 - n % 2) + 4 * split2 (n / 4) := by
   by_cases h : n = 0
-  · rw [h]; unfold split2; simp
-  · rw [split2]; simp [h]
+  · rw [h]
+    unfold split2
+    simp
+  · rw [split2]
+    simp [h]
 
 lemma split1_eq_add' (a : ℕ) : split1 a = a % 2 + 4 * split1 (a / 4) := by
   by_cases h : a = 0
@@ -774,7 +775,9 @@ lemma Sx_eq_sq (k : ℕ) :
   calc (S_x k : ℝ) = ((4 ^ (3^k) : ℕ) : ℝ) := by rw [h1]
     _ = (((2 * 2) ^ (3^k) : ℕ) : ℝ) := by rw [h2]
     _ = (((2 ^ (3^k) * 2 ^ (3^k) : ℕ)) : ℝ) := by rw [mul_pow]
-    _ = ((2 ^ (3^k) : ℕ) : ℝ) * ((2 ^ (3^k) : ℕ) : ℝ) := by push_cast; rfl
+    _ = ((2 ^ (3^k) : ℕ) : ℝ) * ((2 ^ (3^k) : ℕ) : ℝ) := by
+      push_cast
+      rfl
 
 lemma Mk_pos (k : ℕ) : (2 ^ (3^k) : ℝ) > 0 := by positivity
 
@@ -807,7 +810,6 @@ noncomputable def extract_binary (m : ℕ) : ℕ :=
 termination_by m
 
 lemma split1_eq_base2_to_base4 (m : ℕ) : split1 m = base2_to_base4 (extract_binary m) := by
-  aesop( add safe forward True)
   delta Erdos741.base2_to_base4 Erdos741.extract_binary Erdos741.split1
   induction m using @Nat.strongRec
   obtain ⟨a, rfl⟩|⟨b, rfl⟩:=‹ℕ›.even_or_odd
@@ -882,7 +884,8 @@ lemma x_seq_bounds (A₁ : Set ℕ) (k : ℕ) : 0 ≤ x_seq A₁ k ∧ x_seq A�
     · exact Nat.cast_nonneg _
     · positivity
   · have h_sub : A₁ ∩ B1 ∩ Iio (S_x k) ⊆ B1 ∩ Iio (S_x k) := by
-      intro x hx; exact ⟨hx.1.2, hx.2⟩
+      intro x hx
+      exact ⟨hx.1.2, hx.2⟩
     have h_fin :
         (B1 ∩ Iio (S_x k)).Finite :=
       Set.Finite.subset (finite_Iio _) Set.inter_subset_right
@@ -906,7 +909,8 @@ lemma y_seq_bounds (A₁ : Set ℕ) (k : ℕ) : 0 ≤ y_seq A₁ k ∧ y_seq A�
     · exact Nat.cast_nonneg _
     · positivity
   · have h_sub : A₁ ∩ B2 ∩ Iio (S_x k) ⊆ B2 ∩ Iio (S_x k) := by
-      intro x hx; exact ⟨hx.1.2, hx.2⟩
+      intro x hx
+      exact ⟨hx.1.2, hx.2⟩
     have h_fin :
         (B2 ∩ Iio (S_x k)).Finite :=
       Set.Finite.subset (finite_Iio _) Set.inter_subset_right
@@ -976,8 +980,10 @@ lemma B_Iio_bound (k : ℕ) : ((B ∩ Iio (S_x k)).ncard : ℝ) ≤ 2 * (2 ^ (3^
     intro x hx
     rcases hx with ⟨h_B, h_lt⟩
     rcases h_B with h_B1 | h_B2
-    · left; exact ⟨h_B1, h_lt⟩
-    · right; exact ⟨h_B2, h_lt⟩
+    · left
+      exact ⟨h_B1, h_lt⟩
+    · right
+      exact ⟨h_B2, h_lt⟩
   have h_fin1 :
       (B1 ∩ Iio (4 ^ (3^k))).Finite :=
     Set.Finite.subset (finite_Iio _) Set.inter_subset_right
@@ -1025,12 +1031,18 @@ lemma A1_subset_SandorA (A₁ A₂ : Set ℕ) (h_union : SandorA = A₁ ∪ A₂
   intro x hx
   have h_in : x ∈ SandorA := by
     rw [h_union]
-    left; exact hx
+    left
+    exact hx
   rcases h_in with h_B | h_C
   · rcases h_B with h_B1 | h_B2
-    · left; left; exact h_B1
-    · left; right; exact h_B2
-  · right; exact h_C
+    · left
+      left
+      exact h_B1
+    · left
+      right
+      exact h_B2
+  · right
+    exact h_C
 
 lemma A1_sum_subset (A₁ A₂ : Set ℕ) (h_union : SandorA = A₁ ∪ A₂) (k : ℕ) :
   (A₁ + A₁) ∩ Iio (S_x k) ⊆ ((A₁ ∩ B1 + A₁ ∩ B2) ∩ Iio (S_x k))
@@ -1045,17 +1057,42 @@ lemma A1_sum_subset (A₁ A₂ : Set ℕ) (h_union : SandorA = A₁ ∪ A₂) (k
   · rcases hb2 with h_b_B | h_b_C
     · rcases h_a_B with h_a_B1 | h_a_B2
       · rcases h_b_B with h_b_B1 | h_b_B2
-        · left; left; left; left; right; exact ⟨⟨a, h_a_B1, b, h_b_B1, rfl⟩, hx_lt⟩
-        · left; left; left; left; left; exact ⟨⟨a, ⟨ha, h_a_B1⟩, b, ⟨hb,
+        · left
+          left
+          left
+          left
+          right
+          exact ⟨⟨a, h_a_B1, b, h_b_B1, rfl⟩, hx_lt⟩
+        · left
+          left
+          left
+          left
+          left
+          exact ⟨⟨a, ⟨ha, h_a_B1⟩, b, ⟨hb,
             h_b_B2⟩, rfl⟩, hx_lt⟩
       · rcases h_b_B with h_b_B1 | h_b_B2
-        · left; left; left; left; left; exact ⟨⟨b, ⟨hb, h_b_B1⟩, a, ⟨ha,
+        · left
+          left
+          left
+          left
+          left
+          exact ⟨⟨b, ⟨hb, h_b_B1⟩, a, ⟨ha,
             h_a_B2⟩, Nat.add_comm b a⟩, hx_lt⟩
-        · left; left; left; right; exact ⟨⟨a, h_a_B2, b, h_b_B2, rfl⟩, hx_lt⟩
-    · left; left; right; exact ⟨⟨a, h_a_B, b, h_b_C, rfl⟩, hx_lt⟩
+        · left
+          left
+          left
+          right
+          exact ⟨⟨a, h_a_B2, b, h_b_B2, rfl⟩, hx_lt⟩
+    · left
+      left
+      right
+      exact ⟨⟨a, h_a_B, b, h_b_C, rfl⟩, hx_lt⟩
   · rcases hb2 with h_b_B | h_b_C
-    · left; right; exact ⟨⟨a, h_a_C, b, h_b_B, rfl⟩, hx_lt⟩
-    · right; exact ⟨⟨a, h_a_C, b, h_b_C, rfl⟩, hx_lt⟩
+    · left
+      right
+      exact ⟨⟨a, h_a_C, b, h_b_B, rfl⟩, hx_lt⟩
+    · right
+      exact ⟨⟨a, h_a_C, b, h_b_C, rfl⟩, hx_lt⟩
 
 lemma B_SC_comm (k : ℕ) :
     (((B + S_C) ∩ Iio (S_x k)).ncard : ℝ) = (((S_C + B) ∩ Iio (S_x k)).ncard : ℝ) := by
@@ -1070,6 +1107,7 @@ lemma A1_sum_decomp_bound (A₁ A₂ : Set ℕ) (h_union : SandorA = A₁ ∪ A�
     (((B2 + B2) ∩ Iio (S_x k)).ncard : ℝ) +
     2 * (((S_C + B) ∩ Iio (S_x k)).ncard : ℝ) +
     (((S_C + S_C) ∩ Iio (S_x k)).ncard : ℝ) := by
+  have _ := hk
   have h_sub := A1_sum_subset A₁ A₂ h_union k
   have h_fin :
       (((A₁ ∩ B1 + A₁ ∩ B2) ∩ Iio (S_x k)) ∪
@@ -1125,8 +1163,8 @@ lemma A1_density_drop (A₁ A₂ : Set ℕ) (h_union : SandorA = A₁ ∪ A₂) 
   have h6 := SC_sum_bound k hk
   have h_Sx_pos : (S_x k : ℝ) > 0 := by
     have h : S_x k = 4 ^ (3^k) := rfl
-    calc (S_x k : ℝ) = (4 ^ (3^k) : ℝ) := by rw [h]; norm_cast
-      _ > 0 := by positivity
+    rw [h]
+    positivity
   have h_mul :
       (((A₁ + A₁) ∩ Iio (S_x k)).ncard : ℝ) ≤
         x_seq A₁ k * y_seq A₁ k * (S_x k : ℝ) + E
@@ -1172,17 +1210,40 @@ lemma A2_sum_subset (A₁ A₂ : Set ℕ) (h_union : SandorA = A₁ ∪ A₂) (k
   · rcases hb2 with h_b_B | h_b_C
     · rcases h_a_B with h_a_B1 | h_a_B2
       · rcases h_b_B with h_b_B1 | h_b_B2
-        · left; left; left; left; right; exact ⟨⟨a, h_a_B1, b, h_b_B1, rfl⟩, hx_lt⟩
-        · left; left; left; left; left
+        · left
+          left
+          left
+          left
+          right
+          exact ⟨⟨a, h_a_B1, b, h_b_B1, rfl⟩, hx_lt⟩
+        · left
+          left
+          left
+          left
+          left
           exact ⟨⟨a, ⟨ha, h_a_B1⟩, b, ⟨hb, h_b_B2⟩, rfl⟩, hx_lt⟩
       · rcases h_b_B with h_b_B1 | h_b_B2
-        · left; left; left; left; left
+        · left
+          left
+          left
+          left
+          left
           exact ⟨⟨b, ⟨hb, h_b_B1⟩, a, ⟨ha, h_a_B2⟩, Nat.add_comm b a⟩, hx_lt⟩
-        · left; left; left; right; exact ⟨⟨a, h_a_B2, b, h_b_B2, rfl⟩, hx_lt⟩
-    · left; left; right; exact ⟨⟨a, h_a_B, b, h_b_C, rfl⟩, hx_lt⟩
+        · left
+          left
+          left
+          right
+          exact ⟨⟨a, h_a_B2, b, h_b_B2, rfl⟩, hx_lt⟩
+    · left
+      left
+      right
+      exact ⟨⟨a, h_a_B, b, h_b_C, rfl⟩, hx_lt⟩
   · rcases hb2 with h_b_B | h_b_C
-    · left; right; exact ⟨⟨a, h_a_C, b, h_b_B, rfl⟩, hx_lt⟩
-    · right; exact ⟨⟨a, h_a_C, b, h_b_C, rfl⟩, hx_lt⟩
+    · left
+      right
+      exact ⟨⟨a, h_a_C, b, h_b_B, rfl⟩, hx_lt⟩
+    · right
+      exact ⟨⟨a, h_a_C, b, h_b_C, rfl⟩, hx_lt⟩
 
 lemma A2_sum_decomp_bound (A₁ A₂ : Set ℕ) (h_union : SandorA = A₁ ∪ A₂) (k : ℕ)
     (hk : k ≥ 10) :
@@ -1192,6 +1253,7 @@ lemma A2_sum_decomp_bound (A₁ A₂ : Set ℕ) (h_union : SandorA = A₁ ∪ A�
     (((B2 + B2) ∩ Iio (S_x k)).ncard : ℝ) +
     2 * (((S_C + B) ∩ Iio (S_x k)).ncard : ℝ) +
     (((S_C + S_C) ∩ Iio (S_x k)).ncard : ℝ) := by
+  have _ := hk
   have h_sub := A2_sum_subset A₁ A₂ h_union k
   have h_fin :
       (((A₂ ∩ B1 + A₂ ∩ B2) ∩ Iio (S_x k)) ∪
@@ -1238,13 +1300,20 @@ lemma A2_B1_bound (A₁ A₂ : Set ℕ) (h_union : SandorA = A₁ ∪ A₂)
     ext x
     simp only [Set.mem_union, Set.mem_inter_iff, Set.mem_Iio]
     constructor
-    · rintro (⟨⟨h1, h2⟩, h3⟩ | ⟨⟨h1, h2⟩, h3⟩) <;> exact ⟨h2, h3⟩
+    · rintro (⟨⟨h1, h2⟩, h3⟩ | ⟨⟨h1, h2⟩, h3⟩)
+      · exact ⟨h2, h3⟩
+      · exact ⟨h2, h3⟩
     · rintro ⟨h1, h2⟩
-      have hx : x ∈ SandorA := by left; left; exact h1
+      have hx : x ∈ SandorA := by
+        left
+        left
+        exact h1
       rw [h_union] at hx
       rcases hx with hA1 | hA2
-      · left; exact ⟨⟨hA1, h1⟩, h2⟩
-      · right; exact ⟨⟨hA2, h1⟩, h2⟩
+      · left
+        exact ⟨⟨hA1, h1⟩, h2⟩
+      · right
+        exact ⟨⟨hA2, h1⟩, h2⟩
   have h_fin1 :
       (A₁ ∩ B1 ∩ Iio (S_x k)).Finite :=
     Set.Finite.subset (finite_Iio _) Set.inter_subset_right
@@ -1295,13 +1364,20 @@ lemma A2_B2_bound (A₁ A₂ : Set ℕ) (h_union : SandorA = A₁ ∪ A₂)
     ext x
     simp only [Set.mem_union, Set.mem_inter_iff, Set.mem_Iio]
     constructor
-    · rintro (⟨⟨h1, h2⟩, h3⟩ | ⟨⟨h1, h2⟩, h3⟩) <;> exact ⟨h2, h3⟩
+    · rintro (⟨⟨h1, h2⟩, h3⟩ | ⟨⟨h1, h2⟩, h3⟩)
+      · exact ⟨h2, h3⟩
+      · exact ⟨h2, h3⟩
     · rintro ⟨h1, h2⟩
-      have hx : x ∈ SandorA := by left; right; exact h1
+      have hx : x ∈ SandorA := by
+        left
+        right
+        exact h1
       rw [h_union] at hx
       rcases hx with hA1 | hA2
-      · left; exact ⟨⟨hA1, h1⟩, h2⟩
-      · right; exact ⟨⟨hA2, h1⟩, h2⟩
+      · left
+        exact ⟨⟨hA1, h1⟩, h2⟩
+      · right
+        exact ⟨⟨hA2, h1⟩, h2⟩
   have h_fin1 :
       (A₁ ∩ B2 ∩ Iio (S_x k)).Finite :=
     Set.Finite.subset (finite_Iio _) Set.inter_subset_right
@@ -1380,8 +1456,8 @@ lemma A2_density_drop (A₁ A₂ : Set ℕ) (h_union : SandorA = A₁ ∪ A₂)
   have h6 := SC_sum_bound k hk
   have h_Sx_pos : (S_x k : ℝ) > 0 := by
     have h : S_x k = 4 ^ (3^k) := rfl
-    calc (S_x k : ℝ) = (4 ^ (3^k) : ℝ) := by rw [h]; norm_cast
-      _ > 0 := by positivity
+    rw [h]
+    positivity
   have h_mul :
       (((A₂ + A₂) ∩ Iio (S_x k)).ncard : ℝ) ≤
         (1 - x_seq A₁ k) * (1 - y_seq A₁ k) * (S_x k : ℝ) + E
@@ -1456,7 +1532,7 @@ lemma error_term_le_eps (ε : ℝ) (hε : ε > 0) :
 
 lemma partialDensity_eq (A : Set ℕ) (b : ℕ) :
     A.partialDensity Set.univ b = ((A ∩ Iio b).ncard : ℝ) / (b : ℝ) := by
-  simp_all [Set.partialDensity, A.inter_comm, true,Set.ncard_eq_toFinset_card']
+  simp_all [Set.partialDensity, A.inter_comm, Set.ncard_eq_toFinset_card']
 
 lemma limit_lower_bound_A (A : Set ℕ) (α : ℝ) (h_dens : HasDensity A α) (ε : ℝ)
     (hε : ε > 0) :
@@ -1508,7 +1584,6 @@ lemma limit_exists_eps (A₁ A₂ : Set ℕ) (h_union : SandorA = A₁ ∪ A₂)
         (S_x K : ℝ) ≤ ε'
       :=
     hK3 K (by omega)
-
   use x_seq A₁ K, y_seq A₁ K
   have hBx := x_seq_bounds A₁ K
   have hBy := y_seq_bounds A₁ K
@@ -1646,7 +1721,9 @@ lemma B_partition_density (A₁ A₂ : Set ℕ) (h_union : SandorA = A₁ ∪ A�
   have h1 := hN1 (2 * S_x k) h_ge_N1
   have h2 := hN2 (2 * S_x k) h_ge_N2
   have h_alpha_bound := B_partition_alpha_bound A₁ A₂ h_union h_disj α₁ α₂ h_dens1 h_dens2
-  have h_cast : (↑(2 * S_x k) : ℝ) = 2 * (S_x k : ℝ) := by push_cast; rfl
+  have h_cast : (↑(2 * S_x k) : ℝ) = 2 * (S_x k : ℝ) := by
+    push_cast
+    rfl
   have h_div1 :
       (((A₁ + A₁) ∩ Iio (2 * S_x k)).ncard : ℝ) /
           (2 * (S_x k : ℝ)) <
@@ -1694,6 +1771,7 @@ lemma sandor_cross_sums (A₁ A₂ : Set ℕ) (h_union : SandorA = A₁ ∪ A₂
   (((A₁ + A₁) ∩ Ico (2 * S_x k) (2 * S_y k)).ncard : ℝ) +
       (((A₂ + A₂) ∩ Ico (2 * S_x k) (2 * S_y k)).ncard : ℝ)
     ≥ 2 * ((S_y k : ℝ) - (S_x k : ℝ)) - 2 := by
+  have _ := hk
   have h_C_sub : Ico (S_x k) (S_y k) ⊆ SandorA := by
     intro x hx
     right
@@ -1813,7 +1891,6 @@ lemma SandorA_fluctuation_bounds (A₁ A₂ : Set ℕ) (h_union : SandorA = A₁
   have hk_K1 : k ≥ K1 := le_trans (le_max_right _ _) hk
   have hk_K0 : k ≥ K0 := le_trans (le_max_left K0 10) (le_trans (le_max_left _ _) hk)
   have hk_10 : k ≥ 10 := le_trans (le_max_right K0 10) (le_trans (le_max_left _ _) hk)
-
   change
     (((A₁ + A₁) ∩ Iio (2 * S_y k)).ncard : ℝ) /
         ((2 * S_y k : ℕ) : ℝ) +
@@ -1824,7 +1901,6 @@ lemma SandorA_fluctuation_bounds (A₁ A₂ : Set ℕ) (h_union : SandorA = A₁
       (((A₂ + A₂) ∩ Iio (2 * S_x k)).ncard : ℝ) /
         ((2 * S_x k : ℕ) : ℝ) + c / 2
   push_cast
-
   have h_add_div_x :
       (((A₁ + A₁) ∩ Iio (2 * S_x k)).ncard : ℝ) / (2 * (S_x k : ℝ)) +
           (((A₂ + A₂) ∩ Iio (2 * S_x k)).ncard : ℝ) / (2 * (S_x k : ℝ)) =
@@ -1842,7 +1918,6 @@ lemma SandorA_fluctuation_bounds (A₁ A₂ : Set ℕ) (h_union : SandorA = A₁
       := by
     ring_nf
   rw [h_add_div_x, h_add_div_y]
-
   have h_split1 :
       (((A₁ + A₁) ∩ Iio (2 * S_y k)).ncard : ℝ) =
         (((A₁ + A₁) ∩ Iio (2 * S_x k)).ncard : ℝ) +
@@ -2120,7 +2195,7 @@ lemma test_add_basis (A : Set ℕ) :
 
 lemma test_syndetic (S : Set ℕ) :
     IsSyndetic S ↔ ∃ C, ∀ n, ∃ m ∈ S, n ≤ m ∧ m ≤ n + C := by
-  show S ∈({s |_}) ↔_
+  change S ∈ ({s | _}) ↔ _
   trivial
 
 lemma minZ_mono {a b : ℕ} (h : a ≤ b) : minZ a ≤ minZ b := by
@@ -2175,7 +2250,7 @@ lemma in_A_of_lt_minZ_1 (n : ℕ) (hu : n < minZ 1) :
   n ∈ A_set ∪ {0} := by
   norm_num [minZ, A_set] at *
   norm_num[in_any_Z, P, and] at hu⊢
-  show _ ∨∀ (x _),_ ∉{s |_}
+  change _ ∨ ∀ (x _), _ ∉ {s | _}
   norm_num[ Erdos741.maxZ, or_iff_not_imp_left, Erdos741.minZ,x ]
   delta Erdos741.P
   use fun and R M=>by match R.le_self_pow (by omega) 100 with | S=>omega
@@ -2253,7 +2328,7 @@ lemma no_syndetic (A₁ A₂ : Set ℕ) (hU : A_set = A₁ ∪ A₂) (hD : Disjo
 /--
 Is there a basis $A$ of order $2$ such that if $A=A_1\sqcup A_2$ then $A_1+A_1$ and $A_2+A_2$
 cannot both have bounded gaps?
- -/
+-/
 theorem erdos_741.parts.ii : (True) ↔ ∃ A :
     Set ℕ, IsAddBasisOfOrder (A ∪ {0}) 2 ∧ ∀ A₁ A₂,
         A = A₁ ∪ A₂ → Disjoint A₁ A₂ →
@@ -2294,7 +2369,7 @@ lemma exists_N_sparse (A : Set ℕ) (c : ℝ) (hc : 0 < c)
       (K + 1 : ℝ) * (Set.ncard (A ∩ Set.Iic N) : ℝ) ≤ (c / 4) * (N : ℝ) ∧
              c ≤ (Set.ncard ((A + A) ∩ Set.Iic N) : ℝ) / (N : ℝ) := by
   simp_rw [upperDensity,.>.]at *
-  simp_all[Filter.limsup_eq, A.inter_comm, true,Set.partialDensity]
+  simp_all[Filter.limsup_eq, A.inter_comm, Set.partialDensity]
   obtain ⟨y, @c, _⟩ := exists_lt_of_csInf_lt
     (by
       use 1, 1, fun and x =>
@@ -2325,6 +2400,7 @@ lemma exists_rapid_seq (P : ℕ → ℕ → Prop) (h_inf : ∀ K, ∃ N > K, P K
   exact (Classical.axiomOfChoice ↑h_inf).elim fun and (a) =>
     ⟨.rec 0 _, strictMono_nat_of_lt_succ fun and => (a _).left, fun and => (a _).right⟩
 
+set_option linter.unusedVariables false in
 theorem Erdos741.upperDensity_pos_implies_seq.extracted_1_3 (S : Set ℕ)
   (h : 0 < sInf {a | ∃ a_1, ∀ (b : ℕ), a_1 ≤ b →
       (b : ℝ)⁻¹ * ↑(Fintype.card ↑(Iio b ∩ S)) ≤ a}) (and_1 : ℝ)
@@ -2341,6 +2417,11 @@ theorem Erdos741.upperDensity_pos_implies_seq.extracted_1_3 (S : Set ℕ)
   ↑(Fintype.card ↑(Iio (and_2 ((fun t ↦ Nat.rec 0 (fun and ↦ and_2) t) and)) ∩ S)) ≤
     ↑(Fintype.card ↑(Iic ((and_2 ∘ fun t ↦ Nat.rec 0 (fun and ↦ and_2) t) and) ∩ S)) :=
       by
+    have _ := h
+    have _ := x
+    have _ := A
+    have _ := B
+    have _ := m
     use Set.card_le_card fun and=>.imp_left (·.out.le)
 
 lemma upperDensity_add_self_pos (A : Set ℕ) (h : 0 < upperDensity A) :
@@ -2609,7 +2690,10 @@ lemma exists_partition_positive_density (A : Set ℕ) (hA : 0 < upperDensity A) 
       (fun K N =>
         (Set.ncard (A ∩ Set.Iic K) : ℝ) ≤ (c / 4) * (N : ℝ) ∧
           c ≤ (Set.ncard (A ∩ Set.Iic N) : ℝ) / (N : ℝ))
-      (by intro K; have ⟨N, hN_gt, hN⟩ := h_inf K; exact ⟨N, hN_gt, hN⟩)
+      (by
+        intro K
+        have ⟨N, hN_gt, hN⟩ := h_inf K
+        exact ⟨N, hN_gt, hN⟩)
   have ⟨h_pos1, h_pos2⟩ := case_dense_bounds A c hc M hM_mono hM
   have h_union : A = (A ∩ block_set M) ∪ (A \ block_set M) := by norm_num
   have h_disj : Disjoint (A ∩ block_set M) (A \ block_set M) := by exact ↑disjoint_inf_sdiff
@@ -2638,7 +2722,10 @@ lemma case_sparse_A (A : Set ℕ) (hA_sum : 0 < upperDensity (A + A))
         (K + 1 : ℝ) * (Set.ncard (A ∩ Set.Iic N) : ℝ) ≤
             (c / 4) * (N : ℝ) ∧
           c ≤ (Set.ncard ((A + A) ∩ Set.Iic N) : ℝ) / (N : ℝ))
-      (by intro K; have ⟨N, hN_gt, hN⟩ := h_inf K; exact ⟨N, hN_gt, hN⟩)
+      (by
+        intro K
+        have ⟨N, hN_gt, hN⟩ := h_inf K
+        exact ⟨N, hN_gt, hN⟩)
   have ⟨h_pos1, h_pos2⟩ := case_sparse_bounds A c hc M hM_mono hM
   have h_union : A = (A ∩ block_set M) ∪ (A \ block_set M) := by norm_num[]
   have h_disj : Disjoint (A ∩ block_set M) (A \ block_set M) := by use disjoint_inf_sdiff
