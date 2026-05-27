@@ -82,7 +82,8 @@ lemma sumImage_slope_range
       p.2 / p.1 < t := by
   obtain ⟨a, ha, b, hb, rfl⟩ :=
     Finset.mem_image.mp hp
-  unfold slopeSet at ha; norm_num at ha
+  unfold slopeSet at ha
+  norm_num at ha
   exact
     ⟨add_pos (hpos _ ha.1.1) (hpos _ ha.2.1),
      by rw [lt_div_iff₀] <;>
@@ -110,19 +111,21 @@ noncomputable def extraImage
     (fun p =>
       (p.1 + A.min' hA, sm * p.1 + sm * p.2))
 
--- The generated subset proof relies on contextual simplification over products.
-set_option linter.flexible false in
 lemma extraImage_subset
     (A : Finset ℝ) (hA : A.Nonempty) (sm : ℝ) :
     extraImage A hA sm ⊆
       (A + A) ×ˢ (A + A) := by
-  unfold extraImage
-  simp +contextual [Finset.subset_iff, slopeSet]
-  rintro a b x y hx hy hx' hy' rfl rfl
+  intro p hp
+  obtain ⟨q, hq, rfl⟩ :=
+    Finset.mem_image.mp hp
+  rw [Finset.mem_product] at hq
+  rw [Finset.mem_product]
   exact
-    ⟨Finset.add_mem_add hx
+    ⟨Finset.add_mem_add (slopeSet_subset A sm hq.1)
        (Finset.min'_mem _ hA),
-     Finset.add_mem_add hy hy'⟩
+     Finset.add_mem_add
+       (mul_mem_of_slopeSet hq.1)
+       (mul_mem_of_slopeSet hq.2)⟩
 
 lemma extraImage_card
     (A : Finset ℝ) (hA : A.Nonempty)
@@ -132,31 +135,31 @@ lemma extraImage_card
       (slopeSet A sm).card ^ 2 := by
   convert Finset.card_image_of_injOn _
   · norm_num [sq]
-  · intro p hp q hq; aesop
+  · intro p hp q hq
+    aesop
 
--- The generated slope proof relies on broad simplification after unpacking the image.
-set_option linter.flexible false in
 lemma extraImage_slope_ge
     (A : Finset ℝ) (hA : A.Nonempty)
     (hpos : ∀ a ∈ A, (0 : ℝ) < a)
     {sm : ℝ} (hsm : 0 < sm)
     {p : ℝ × ℝ} (hp : p ∈ extraImage A hA sm) :
     0 < p.1 ∧ sm ≤ p.2 / p.1 := by
-  obtain ⟨q, hq⟩ : ∃ q : ℝ × ℝ,
-      q ∈ slopeSet A sm ×ˢ slopeSet A sm ∧
-      p = (q.1 + A.min' hA,
-           sm * q.1 + sm * q.2) := by
-    unfold extraImage at hp; aesop
-  simp_all +decide [slopeSet]
+  obtain ⟨q, hq, rfl⟩ :=
+    Finset.mem_image.mp hp
+  rw [Finset.mem_product] at hq
+  have hq₁A : q.1 ∈ A :=
+    slopeSet_subset A sm hq.1
+  have hq₂A : q.2 ∈ A :=
+    slopeSet_subset A sm hq.2
+  have hq₁pos : 0 < q.1 :=
+    hpos _ hq₁A
+  have hmin_pos : 0 < A.min' hA :=
+    hpos _ (Finset.min'_mem _ hA)
   exact
-    ⟨add_pos (hpos _ hq.1.1.1)
-       (hpos _ (Finset.min'_mem _ hA)),
-     by rw [le_div_iff₀ (add_pos
-          (hpos _ hq.1.1.1)
-          (hpos _ (Finset.min'_mem _ hA)))]
-        nlinarith [hpos _ hq.1.1.1,
-          hpos _ hq.1.2.1,
-          Finset.min'_le _ _ hq.1.2.1]⟩
+    ⟨add_pos hq₁pos hmin_pos,
+     by rw [le_div_iff₀ (add_pos hq₁pos hmin_pos)]
+        nlinarith [hsm, hq₁pos, hpos _ hq₂A,
+          Finset.min'_le _ _ hq₂A]⟩
 
 lemma extraImage_disjoint_sumImage
     (A : Finset ℝ) (hA : A.Nonempty)
@@ -209,7 +212,8 @@ lemma cauchy_schwarz_energy (A : Finset ℝ) :
   convert sq_sum_le_card_mul_sum_sq
     (s := A * A)
     (f := fun p => mulRep A p) using 1 <;> ring_nf
-  · rw [sum_mulRep_eq]; ring
+  · rw [sum_mulRep_eq]
+    ring
   · norm_num [mul_comm]
 
 /-! ## Part 2: Geometric sub-lemmas -/
@@ -275,12 +279,14 @@ lemma energy_equiv
           ext ⟨⟨a, b⟩, ⟨c, d⟩⟩
           simp [Finset.mem_biUnion,
             Finset.mem_filter]
-          rw [Finset.mem_mul]; aesop
+          rw [Finset.mem_mul]
+          aesop
         rw [h_bij, Finset.card_biUnion]
         · exact Finset.sum_congr rfl
             fun x hx => by
-              erw [Finset.card_product]; ring
-        · intros p hp q hq hpq;
+              erw [Finset.card_product]
+              ring
+        · intros p hp q hq hpq
           simp_all +decide [Finset.disjoint_left]
       convert h_bij using 1
     convert h_bij using 1
@@ -335,8 +341,9 @@ lemma energy_equiv
       rw [this, Finset.card_biUnion]
       · exact Finset.sum_congr rfl
           fun x hx => by
-            erw [Finset.card_product]; ring
-      · intros s hs t ht hst;
+            erw [Finset.card_product]
+            ring
+      · intros s hs t ht hst
         simp_all +decide [Finset.disjoint_left]
     have h_ratioRep :
         ∀ s ∈ A / A, ratioRep A s =
@@ -479,7 +486,7 @@ lemma slopes_contribution_bound
     simp_all +decide [sq]
     nlinarith [Nat.sub_add_cancel
       hD_nonempty.card_pos]
-  · aesop
+  · simp_all only [not_nonempty_iff_eq_empty, card_empty, zero_mul, zero_le]
 
 -- The dyadic decomposition proof uses generated broad simplifications and `refine'`.
 set_option linter.flexible false in
@@ -534,9 +541,9 @@ lemma ratio_energy_bound
               Finset.mem_filter.mp hx |>.2.2,
             show ratioRep A x ≥ 2 ^ i from
               Finset.mem_filter.mp hx |>.2.1,
-            pow_succ' (2 : ℕ) i]) _;
+            pow_succ' (2 : ℕ) i]) _
     norm_num [Finset.sum_add_distrib,
-      mul_assoc] at *;
+      mul_assoc] at *
     nlinarith [pow_pos (zero_lt_two' ℕ) i]
   have h_last_class_bound :
       ∑ s ∈ (A / A).filter
@@ -563,13 +570,14 @@ lemma ratio_energy_bound
           (ratioRep_le_card A x)
           (Nat.le_pow_clog (by norm_num) _)
       · rcases k with (_ | k) <;>
-          simp_all +decide [pow_succ'];
-        ring_nf;
+          simp_all +decide [pow_succ']
+        ring_nf
         rw [show Nat.clog 2 #A * 2 =
             (Nat.clog 2 #A - 1) * 2 + 2 by
           linarith [Nat.sub_add_cancel
-            hk_pos]];
-        ring_nf; norm_num
+            hk_pos]]
+        ring_nf
+        norm_num
     · intro s hs h
       rw [Finset.mem_div] at hs
       obtain ⟨a, ha, b, hb, rfl⟩ := hs
@@ -587,35 +595,36 @@ lemma ratio_energy_bound
           ratioRep A s ^ 2 := by
     rw [← Finset.sum_biUnion,
       ← Finset.sum_union]
-    · refine Finset.sum_le_sum_of_subset ?_;
-      intro s hs;
+    · refine Finset.sum_le_sum_of_subset ?_
+      intro s hs
       by_cases h :
-          2 ^ (k - 1) ≤ ratioRep A s <;>
-        simp_all +decide;
-      by_cases h₂ : ratioRep A s = 0;
-      · simp_all +decide [ratioRep];
-        contrapose! h₂;
-        simp_all +decide [Finset.mem_div];
-        rcases hs with ⟨b, hb, c, hc, rfl⟩;
-        exact ⟨c, hc, by simpa [div_mul_cancel₀ _ (ne_of_gt (hpos _ hc))] using hb⟩
-      · exact Or.inl
-          ⟨Nat.log 2 (ratioRep A s),
-           Nat.log_lt_of_lt_pow
-             (by positivity) h,
-           Nat.pow_le_of_le_log
-             (by positivity) (by linarith),
-           Nat.lt_pow_of_log_lt
-             (by linarith) (by linarith)⟩
-    · norm_num [Finset.disjoint_left];
+          2 ^ (k - 1) ≤ ratioRep A s
+      · simp_all +decide
+      · simp_all +decide
+        by_cases h₂ : ratioRep A s = 0
+        · simp_all +decide [ratioRep]
+          contrapose! h₂
+          simp_all +decide [Finset.mem_div]
+          rcases hs with ⟨b, hb, c, hc, rfl⟩
+          exact ⟨c, hc, by simpa [div_mul_cancel₀ _ (ne_of_gt (hpos _ hc))] using hb⟩
+        · exact Or.inl
+            ⟨Nat.log 2 (ratioRep A s),
+             Nat.log_lt_of_lt_pow
+               (by positivity) h,
+             Nat.pow_le_of_le_log
+               (by positivity) (by linarith),
+             Nat.lt_pow_of_log_lt
+               (by linarith) (by linarith)⟩
+    · norm_num [Finset.disjoint_left]
       exact fun s i hi₁ hi₂ hi₃ hi₄ hi₅ =>
         lt_of_lt_of_le hi₄
           (pow_le_pow_right₀ (by norm_num)
             (Nat.succ_le_of_lt hi₁))
-    · intros i hi j hj hij;
-      simp_all +decide [Finset.disjoint_left];
-      contrapose! hij;
+    · intros i hi j hj hij
+      simp_all +decide [Finset.disjoint_left]
+      contrapose! hij
       obtain ⟨a, ha₁, ha₂, ha₃, ha₄, ha₅⟩ :=
-        hij;
+        hij
       exact le_antisymm
         (Nat.le_of_not_lt fun hi' => by
           linarith [pow_le_pow_right₀
@@ -625,15 +634,16 @@ lemma ratio_energy_bound
           linarith [pow_le_pow_right₀
             (by norm_num : (1 : ℕ) ≤ 2)
             (by linarith : j ≥ i + 1)])
-  refine le_trans h_sum_bound ?_;
+  refine le_trans h_sum_bound ?_
   refine' le_trans (add_le_add
     (Finset.sum_le_sum fun i hi =>
       h_class_bound i <|
         Nat.lt_of_lt_of_le
           (Finset.mem_range.mp hi)
           (Nat.pred_le _))
-    h_last_class_bound) _;
-  norm_num; ring_nf;
+    h_last_class_bound) _
+  norm_num
+  ring_nf
   nlinarith only [Nat.sub_add_cancel hk_pos]
 
 lemma energy_le_sumset_sq
@@ -669,8 +679,6 @@ theorem solymosi_bound
           (A * A).card *
           (A + A).card ^ 2 := by ring
 
--- The final case split uses broad simplification over the selected maximum.
-set_option linter.flexible false in
 theorem solymosi_corollary
     (A : Finset ℝ)
     (hpos : ∀ a ∈ A, (0 : ℝ) < a)
@@ -681,15 +689,27 @@ theorem solymosi_corollary
           (A * A).card) ^ 3 := by
   have := solymosi_bound A hpos hcard
   refine le_trans this ?_
-  cases max_cases (#(A + A)) (#(A * A)) <;>
-    simp +decide [*, mul_assoc, pow_succ]
-  · exact Nat.mul_le_mul_left _ (by
-      nlinarith [mul_le_mul_right
-        (by tauto : #(A * A) ≤ #(A + A))
-        (#(A + A))])
-  · exact Nat.mul_le_mul_left _
-      (Nat.mul_le_mul_left _
-        (by nlinarith))
+  let M := max (A + A).card (A * A).card
+  have hsum : (A + A).card ≤ M :=
+    le_max_left _ _
+  have hprod : (A * A).card ≤ M :=
+    le_max_right _ _
+  have hsquares : (A + A).card ^ 2 ≤ M ^ 2 :=
+    Nat.pow_le_pow_left hsum 2
+  have hproduct :
+      (A * A).card * (A + A).card ^ 2 ≤ M ^ 3 := by
+    calc
+      (A * A).card * (A + A).card ^ 2
+          ≤ M * M ^ 2 :=
+        Nat.mul_le_mul hprod hsquares
+      _ = M ^ 3 := by ring
+  calc
+    4 * Nat.clog 2 A.card * (A * A).card *
+        (A + A).card ^ 2
+        = 4 * Nat.clog 2 A.card *
+          ((A * A).card * (A + A).card ^ 2) := by ring
+    _ ≤ 4 * Nat.clog 2 A.card * M ^ 3 :=
+      Nat.mul_le_mul_left _ hproduct
 
 /-!
 # Erdős Problem 818 (with C = 1)
@@ -748,22 +768,21 @@ private lemma neg_negFilter_pos
     ∀ a ∈ -(negFilter A), (0 : ℝ) < a := by
   simp +contextual [negFilter]
 
--- The generated cardinality comparison uses `refine'` to preserve its proof shape.
-set_option linter.style.refine false in
 private lemma card_le_pos_neg_plus_one
     (A : Finset ℝ) :
     A.card ≤
       (posFilter A).card +
         (negFilter A).card + 1 := by
   have h_inter :
-      A = posFilter A ∪ negFilter A ∪
-        ({0} ∩ A) := by
+    A = posFilter A ∪ negFilter A ∪
+      ({0} ∩ A) := by
     unfold posFilter negFilter
-    ext x; by_cases hx : x = 0 <;> aesop
+    ext x
+    by_cases hx : x = 0 <;> aesop
   rw [h_inter]
-  refine' le_trans
-    (Finset.card_union_le _ _) _
-  grind
+  exact le_trans
+    (Finset.card_union_le _ _)
+    (by grind)
 
 private lemma posFilter_subset
     (A : Finset ℝ) : posFilter A ⊆ A :=
@@ -797,8 +816,6 @@ private lemma prodset_card_mono
     (B * B).card ≤ (A * A).card :=
   card_le_card (mul_subset_mul h h)
 
--- The generated case proof uses `refine'` to construct the subset witnesses.
-set_option linter.style.refine false in
 private lemma exists_pos_large_subset
     (A : Finset ℝ) (hcard : 5 ≤ A.card) :
     ∃ B : Finset ℝ,
@@ -810,7 +827,7 @@ private lemma exists_pos_large_subset
   by_cases hP :
       (posFilter A).card ≥
         (negFilter A).card
-  · refine' ⟨posFilter A, _, _, _, _, _⟩
+  · refine ⟨posFilter A, ?_, ?_, ?_, ?_, ?_⟩
     · exact fun x hx =>
         Finset.mem_filter.mp hx |>.2
     · linarith [card_le_pos_neg_plus_one A]
@@ -819,27 +836,24 @@ private lemma exists_pos_large_subset
         (Finset.filter_subset _ _)
     · exact prodset_card_mono
         (posFilter_subset A)
-  · refine' ⟨-negFilter A, _, _, _, _, _⟩ <;>
-      norm_num
-    · exact fun x hx =>
-        neg_neg_iff_pos.mp
-          (Finset.mem_filter.mp hx |>.2)
-    · linarith [show
+  · refine ⟨-negFilter A, ?_, ?_, ?_, ?_, ?_⟩
+    · exact neg_negFilter_pos A
+    · rw [card_neg]
+      linarith [show
         Finset.card (posFilter A) +
           Finset.card (negFilter A) ≥ 4 by
         linarith
           [card_le_pos_neg_plus_one A]]
-    · linarith
+    · rw [card_neg]
+      linarith
         [card_le_pos_neg_plus_one A]
-    · convert sumset_card_mono
-        (negFilter_subset A) using 1
-      convert neg_add_card_eq
-        (negFilter A) using 1
-    · exact prodset_card_mono
+    · rw [neg_add_card_eq]
+      exact sumset_card_mono
+        (negFilter_subset A)
+    · rw [neg_mul_neg_eq]
+      exact prodset_card_mono
         (negFilter_subset A)
 
--- The subset extraction branch uses broad simplification to assemble hypotheses.
-set_option linter.flexible false in
 theorem erdos_problem_818_general
     (A : Finset ℝ) (hcard : 5 ≤ A.card)
     (c : ℕ)
@@ -864,21 +878,15 @@ theorem erdos_problem_818_general
     · have := Finset.exists_subset_card_eq
         (show #A ≤ #B from by linarith)
       obtain ⟨t, ht₁, ht₂⟩ := this
-      use t;
-      simp_all +decide [Finset.subset_iff];
-      exact ⟨by linarith, by linarith,
-        le_trans
-          (Finset.card_le_card <|
-            Finset.add_subset_add
-              (Finset.subset_iff.mpr ht₁)
-              (Finset.subset_iff.mpr ht₁))
-          hB₄,
-        le_trans
-          (Finset.card_le_card <|
-            Finset.mul_subset_mul
-              (Finset.subset_iff.mpr ht₁)
-              (Finset.subset_iff.mpr ht₁))
-          hB₅⟩
+      refine ⟨t, ?_, ?_, ?_, ?_, ?_, ?_⟩
+      · exact fun x hx => hB₁ x (ht₁ hx)
+      · rw [ht₂]
+        linarith
+      · rw [ht₂]
+        nlinarith
+      · exact le_trans (sumset_card_mono ht₁) hB₄
+      · exact le_trans (prodset_card_mono ht₁) hB₅
+      · rw [ht₂]
   have := erdos_problem_818 B hBpos hB2
     (3 * c) ?_
   · have h_clog :
