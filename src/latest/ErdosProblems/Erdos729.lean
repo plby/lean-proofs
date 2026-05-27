@@ -30,27 +30,18 @@ We prove that for any $C>0$, there exists a constant $K$ such that there are inf
 import Mathlib
 
 set_option linter.style.setOption false
-set_option linter.style.openClassical false
 set_option linter.style.longLine false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.flexible false
-set_option linter.unusedSimpArgs false
-set_option linter.unusedVariables false
-
-set_option maxHeartbeats 1000000
--- Several generated carry-counting estimates time out at the default heartbeat limit.
 
 namespace Erdos729
 
 open scoped BigOperators
 open scoped Real
 open scoped Nat
-open scoped Classical
 open scoped Pointwise
-
-noncomputable section
 
 /-
 Let $A,B\in\Z_{>0}$ and write $A/B$ in lowest terms as $A'/B'$ with $\gcd(A',B')=1$.
@@ -147,7 +138,7 @@ lemma p_gt_2k_good (m k p : ℕ) (hp : p.Prime) (hp_gt : p > 2 * k) :
           intro j hj₁ hj₂; specialize h_unique_i j i hj₁ hi₁ hj₂; aesop;
         exact Finset.sum_eq_single i ( by aesop ) ( by aesop );
       linarith;
-    · simp_all +decide [ padicValNat.eq_zero_of_not_dvd ];
+    · simp_all +decide;
       exact le_trans ( Finset.sum_nonpos fun x hx => by rw [ padicValNat.eq_zero_of_not_dvd ( h_div x ( Finset.mem_Icc.mp hx |>.1 ) ( Finset.mem_Icc.mp hx |>.2 ) ) ] ) ( Nat.zero_le _ )
 
 /-
@@ -169,10 +160,10 @@ lemma W_le_k_div_p_sub_one_add_V (m k p : ℕ) (hp : p.Prime) :
         have h_div : ∀ j, p ^ j ∣ m + i ↔ j ≤ padicValNat p (m + i) := by
           intro j;
           haveI := Fact.mk hp; rw [ padicValNat_dvd_iff_le ] ; aesop;
-        simp_all +decide [ Finset.sum_ite ];
+        simp_all +decide;
         rw [ show { x ∈ Finset.Icc 1 ( V p m k ) | x ≤ padicValNat p ( m + i ) } = Finset.Icc 1 ( padicValNat p ( m + i ) ) from ?_ ];
         · norm_num;
-        · ext; simp [Finset.inter_filter, Finset.mem_Icc];
+        · ext; simp [Finset.mem_Icc];
           exact fun _ _ => Finset.le_sup ( f := fun x => padicValNat p ( m + x ) ) ( Finset.mem_Icc.mpr ⟨ by linarith, by linarith ⟩ ) |> le_trans ( by aesop );
       rw [ show W p m k = ∑ i ∈ Finset.Icc 1 k, padicValNat p ( m + i ) from Finset.sum_congr rfl fun x hx => rfl ] ; rw [ ← Finset.sum_congr rfl hN ] ; rw [ Finset.sum_comm ] ; aesop;;
     -- In any interval of length $k$, the number of multiples of $p^j$ is at most $\lceil k/p^j\rceil\le k/p^j+1$.
@@ -241,7 +232,7 @@ lemma mod_uniform (M Q : ℕ) (A : Finset ℕ) (η : ℝ) (hM : M > 0) (hQ : Q >
         refine le_trans ( Finset.card_le_card h_residue_class ) ?_;
         rw [ Finset.card_image_of_injective ] <;> norm_num [ Function.Injective, hQ.ne' ];
         norm_num [ Nat.sub_sub ];
-        simp +arith +decide [ add_comm, add_left_comm, add_assoc ];
+        simp +arith +decide [ add_comm, add_assoc ];
         rw [ ← Nat.add_mul_div_left _ _ hQ ];
         gcongr;
         rw [ tsub_le_iff_right ];
@@ -278,10 +269,10 @@ lemma kappa_eq_sum_carries (p m : ℕ) (hp : p.Prime) :
             induction' n using Nat.strong_induction_on with n ih;
             rcases p with ( _ | _ | p ) <;> rcases n with ( _ | _ | n ) <;> norm_num [ Nat.div_eq_of_lt, Nat.log_of_lt ];
             have := ih ( ( n + 1 + 1 ) / ( p + 1 + 1 ) ) ( Nat.div_lt_of_lt_mul <| by nlinarith ) ; simp_all +decide [ Nat.div_div_eq_div_mul, Finset.sum_Ico_eq_sum_range ] ;
-            rcases k : Nat.log ( p + 1 + 1 ) ( n + 1 + 1 ) with ( _ | k ) <;> simp_all +decide [ Nat.pow_succ', ← Nat.div_div_eq_div_mul, Finset.sum_range_succ' ];
+            rcases k : Nat.log ( p + 1 + 1 ) ( n + 1 + 1 ) with ( _ | k ) <;> simp_all +decide [ ← Nat.div_div_eq_div_mul, Finset.sum_range_succ' ];
             · rw [ Nat.mod_eq_of_lt, Nat.div_eq_of_lt ] <;> linarith;
-            · simp_all +decide [ Nat.pow_add, Nat.mul_div_mul_left, Nat.div_div_eq_div_mul, Finset.sum_range_succ' ];
-              simp_all +decide [ mul_comm, Nat.div_div_eq_div_mul ];
+            · simp_all +decide [ Nat.pow_add, Nat.div_div_eq_div_mul ];
+              simp_all +decide [ mul_comm ];
               linarith [ Nat.mod_add_div ( n + 1 + 1 ) ( p + 1 + 1 ) ];
           exact h_sum_digits n;
         rw [ h_sum_digits, Nat.factorization_def ];
@@ -319,8 +310,8 @@ lemma carry_condition_of_digit_large (p m k : ℕ) (hp : p.Prime)
       have h_digit_def : ∀ (m p k : ℕ), p.Prime → (p.digits m).getD k 0 = (m / p^k) % p := by
         intros m p k hp
         induction' k with k ih generalizing m p;
-        · cases m <;> cases p <;> simp_all +decide [ Nat.div_eq_of_lt ];
-          cases ‹ℕ› <;> simp_all +decide [ Nat.div_eq_of_lt ];
+        · cases m <;> cases p <;> simp_all +decide;
+          cases ‹ℕ› <;> simp_all +decide;
         · rcases p with ( _ | _ | p ) <;> simp_all +decide [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ];
           cases m <;> simp_all +decide [ Nat.div_div_eq_div_mul ];
       exact h_digit_def m p k hp;
@@ -342,6 +333,7 @@ def X_p_L (p m L : ℕ) : ℕ :=
 
 lemma forced_carries_small_p (p m L : ℕ) (hp : p.Prime) (hp_ge_3 : p ≥ 3) :
   kappa p m ≥ X_p_L p m L := by
+    have _ := hp_ge_3
     unfold X_p_L kappa;
     -- By Kummer's theorem, $\kappa_p(m)$ is the number of carries when $m$ and $m$ are added in base $p$.
     have h_kummer : ∀ {p : ℕ} (hp : p.Prime) {m : ℕ}, kappa p m = (Finset.range (Nat.log p (2 * m) + 1)).sum (fun i => if p ^ (i + 1) ≤ m % p ^ (i + 1) + m % p ^ (i + 1) then 1 else 0) := by
@@ -375,6 +367,8 @@ lemma forced_carries_small_p (p m L : ℕ) (hp : p.Prime) (hp_ge_3 : p ≥ 3) :
 /-
 The number of integers $m \in [0, p^L)$ having exactly $k$ digits $\ge (p+1)/2$ in base $p$ is $\binom{L}{k} (\frac{p-1}{2})^k (\frac{p+1}{2})^{L-k}$.
 -/
+set_option maxHeartbeats 1000000 in
+-- This generated digit-counting proof times out at the default heartbeat limit.
 lemma card_X_p_L_eq (p L k : ℕ) (hp : p.Prime) (hp_ge_3 : p ≥ 3) :
   ((Finset.range (p ^ L)).filter (fun m => X_p_L p m L = k)).card =
   (Nat.choose L k) * ((p - 1) / 2) ^ k * ((p + 1) / 2) ^ (L - k) := by
@@ -440,7 +434,7 @@ lemma card_X_p_L_eq (p L k : ℕ) (hp : p.Prime) (hp_ge_3 : p ≥ 3) :
           intros; subst_vars; exact fun h => hmn <| by nlinarith;
       -- Let's simplify the inner sum.
       have h_inner_sum : ∀ m < p ^ L, ∀ k : ℕ, ∑ i ∈ Finset.range p, (if X_p_L p m L + (if i ≥ (p + 1) / 2 then 1 else 0) = k then 1 else 0) = if X_p_L p m L = k then (p + 1) / 2 else if X_p_L p m L + 1 = k then (p - 1) / 2 else 0 := by
-        intro m hm k; split_ifs <;> simp_all +decide [ Finset.sum_ite ] ;
+        intro m hm k; split_ifs <;> simp_all +decide;
         · rw [ Finset.card_eq_of_bijective ];
           use fun i hi => i;
           · aesop;
@@ -455,11 +449,11 @@ lemma card_X_p_L_eq (p L k : ℕ) (hp : p.Prime) (hp_ge_3 : p ≥ 3) :
       have h_sum_simplified : ∀ k : ℕ, ∑ m ∈ Finset.range (p ^ L), ∑ i ∈ Finset.range p, (if X_p_L p m L + (if i ≥ (p + 1) / 2 then 1 else 0) = k then 1 else 0) = (∑ m ∈ Finset.range (p ^ L), if X_p_L p m L = k then (p + 1) / 2 else 0) + (∑ m ∈ Finset.range (p ^ L), if X_p_L p m L + 1 = k then (p - 1) / 2 else 0) := by
         intro k; rw [ ← Finset.sum_add_distrib ] ; exact Finset.sum_congr rfl fun m hm => by specialize h_inner_sum m ( Finset.mem_range.mp hm ) k; split_ifs at * <;> linarith;
       intro k; rw [ h_sum_split, h_sum_simplified ] ; simp +decide [ Finset.sum_ite, ih ] ;
-      rcases k with ( _ | k ) <;> simp +decide [ Nat.choose_succ_succ, add_mul, mul_assoc, mul_comm, mul_left_comm, pow_succ, ih ];
+      rcases k with ( _ | k ) <;> simp +decide [ Nat.choose_succ_succ, add_mul, mul_comm, mul_left_comm, pow_succ, ih ];
       rcases le_or_gt ( k + 1 ) L with h | h
-      · simp_all +decide [ Nat.choose_eq_zero_of_lt, Nat.sub_add_comm ]
+      · simp_all +decide
         rw [ show L - k = L - ( 1 + k ) + 1 by omega ] ; ring_nf
-      · simp_all +decide [ Nat.choose_eq_zero_of_lt, Nat.sub_add_comm ]
+      · simp_all +decide [ Nat.choose_eq_zero_of_lt ]
 
 /-
 For $X \sim B(n, q)$, $P(X \le nq/2) \le \exp(-nq/8)$.
@@ -502,6 +496,7 @@ noncomputable def mu (p L : ℕ) : ℝ := L * theta p
 
 lemma chernoff_digits (p L : ℕ) (hp : p.Prime) (hp_ge_3 : p ≥ 3) (hL : L ≥ 1) :
   ((Finset.range (p ^ L)).filter (fun m => X_p_L p m L ≤ 1/2 * mu p L)).card ≤ (p ^ L : ℝ) * Real.exp (-1/8 * mu p L) := by
+    have _ := hL
     -- Let $q = \frac{p-1}{2p}$.
     set q : ℝ := (p - 1) / (2 * p);
     -- By definition of $X_{p,L}$, we have $|S| = \sum_{k=0}^{\lfloor \mu/2 \rfloor} |\{m < p^L : X_{p,L}(m) = k\}|$.
@@ -512,7 +507,7 @@ lemma chernoff_digits (p L : ℕ) (hp : p.Prime) (hp_ge_3 : p ≥ 3) (hL : L ≥
             rw [ show ( Finset.filter ( fun m => ( X_p_L p m L : ℝ ) ≤ 1 / 2 * mu p L ) ( Finset.range ( p ^ L ) ) ) = Finset.biUnion ( Finset.range ( ⌊mu p L / 2⌋₊ + 1 ) ) ( fun k => Finset.filter ( fun m => X_p_L p m L = k ) ( Finset.range ( p ^ L ) ) ) from ?_ ];
             · rw [ Finset.card_biUnion ] ; aesop;
               exact fun i hi j hj hij => Finset.disjoint_left.mpr fun x => by aesop;
-            · ext m; simp [Finset.mem_biUnion, Finset.inter_filter];
+            · ext m; simp [Finset.mem_biUnion];
               have hmu_half_nonneg : 0 ≤ mu p L / 2 := by
                 unfold mu theta
                 exact div_nonneg
@@ -624,6 +619,8 @@ lemma mu_ge_gamma (p M : ℕ) (η : ℝ) (hp : p.Prime) (hp_ge_3 : p ≥ 3) (hM 
   (h_eta_pos : 0 < η) (h_eta_lt_one : η < 1)
   (h_log_large : Real.log M / Real.log p ≥ 7 / (1 - η)) :
   gamma η * (Real.log M / Real.log p) ≤ 1/2 * mu p (L_p p M η) := by
+    have _ := hp
+    have _ := hM
     unfold gamma mu;
     -- Using the definition of $L_p$, we know that $L_p \ge (1-\eta) \frac{\log M}{\log p} - 1$.
     have hL_p_ge : (L_p p M η : ℝ) ≥ (1 - η) * (Real.log M / Real.log p) - 1 := by
@@ -649,6 +646,8 @@ lemma exp_mu_le_exp_c1 (p M : ℕ) (η : ℝ) (hp : p.Prime) (hp_ge_3 : p ≥ 3)
   (h_eta_pos : 0 < η) (h_eta_lt_one : η < 1)
   (h_log_large : Real.log M / Real.log p ≥ 7 / (1 - η)) :
   Real.exp (-1/8 * mu p (L_p p M η)) ≤ Real.exp (-c1 η * (Real.log M / Real.log p)) := by
+    have _ := hp
+    have _ := hM
     -- We show $\frac{1}{8} \mu_p \ge c_1 \log_p M$.
     have h_mu_ge_c1 : 1 / 8 * mu p (L_p p M η) ≥ c1 η * (Real.log M / Real.log p) := by
       -- We'll use that $\mu_p = L_p \theta_p$ and $L_p \ge (1-\eta) \log_p M - 1$.
@@ -762,6 +761,8 @@ def is_good_K (K : ℕ) (C : ℝ) (η : ℝ) : Prop :=
 
 lemma exists_good_K (C : ℝ) (η : ℝ) (hC : C > 0) (h_eta : 0 < η) (h_eta_lt_one : η < 1) :
   ∃ K ≥ 3, is_good_K K C η := by
+    have _ := hC
+    have _ := h_eta
     -- Since $\lim_{x \to \infty} \frac{x-1}{\log x} = \infty$, there exists $K$ such that for all $p \ge K$, $\frac{x-1}{\log x} \ge \frac{4C}{\gamma}$.
     have h_limit : Filter.Tendsto (fun x : ℝ => (x - 1) / Real.log x) Filter.atTop Filter.atTop := by
       -- We can use the change of variables $u = \log x$ to transform the limit expression.
@@ -872,7 +873,7 @@ noncomputable def k_M (c : ℝ) (M : ℕ) : ℕ := Nat.floor (c * Real.log M)
 
 noncomputable def t_p (p M : ℕ) (η : ℝ) : ℕ := Nat.ceil (gamma η / 4 * (Real.log M / Real.log p))
 
-def bad_event_p (p M : ℕ) (c η : ℝ) : Finset ℕ :=
+noncomputable def bad_event_p (p M : ℕ) (c η : ℝ) : Finset ℕ :=
   (Finset.Icc M (2 * M)).filter (fun m =>
     (kappa p m : ℝ) ≤ gamma η * (Real.log M / Real.log p) ∨
     V p m (k_M c M) ≥ t_p p M η)
@@ -908,7 +909,7 @@ lemma prob_bad_event_p_bound (p M : ℕ) (c η : ℝ) (hp : p.Prime) (hp_ge_3 : 
 /-
 Definition of the union of bad events over all relevant primes.
 -/
-def union_bad_events (M K : ℕ) (C η : ℝ) : Finset ℕ :=
+noncomputable def union_bad_events (M K : ℕ) (C η : ℝ) : Finset ℕ :=
   let c := C + 1
   let k := k_M c M
   let primes := (Finset.Ioc K (2 * k)).filter Nat.Prime
@@ -923,6 +924,8 @@ lemma prob_union_bad_events_bound (M K : ℕ) (C η : ℝ) (hM : M > 0) (hC : C 
   (h_pow_bound : ∀ p ∈ (Finset.Ioc K (2 * k_M (C + 1) M)).filter Nat.Prime, (p : ℝ) ^ (t_p p M η) ≤ (M : ℝ) ^ (1 - η))
   (ht_p_ge_1 : ∀ p ∈ (Finset.Ioc K (2 * k_M (C + 1) M)).filter Nat.Prime, t_p p M η ≥ 1) :
   (union_bad_events M K C η).card / ((M + 1) : ℝ) ≤ failure_bound M C η := by
+    have _ := hC
+    have _ := hK
     -- Apply the bound on the probability of the union of bad events.
     have h_union_bound : ((Finset.biUnion (Finset.filter Nat.Prime (Finset.Ioc K (2 * k_M (C + 1) M))) (fun p => bad_event_p p M (C + 1) η)).card : ℝ) / (M + 1) ≤
       (∑ p ∈ Finset.filter Nat.Prime (Finset.Ioc K (2 * k_M (C + 1) M)),
@@ -1103,7 +1106,7 @@ theorem main_theorem (C : ℝ) (hC : C > 0) :
       -- For each such $M$, we can construct a solution $(a, b, n)$ with $n = 2m$.
       have h_solution : ∀ᶠ M in Filter.atTop, ∃ m ∈ Finset.Icc M (2 * M), m ∉ union_bad_events M K C η ∧ k_M (C + 1) M > C * Real.log (2 * m) ∧ ∃ a b n : ℕ, a = m + k_M (C + 1) M ∧ b = m ∧ n = 2 * m ∧ a > 0 ∧ b > 0 ∧ n > 0 ∧ (a : ℝ) + b > n + C * Real.log n ∧ ∀ p : ℕ, p.Prime → p > K → padicValNat p ((n ! : ℚ) / (a ! * b !)).den = 0 := by
         filter_upwards [ h_infinite, Filter.eventually_gt_atTop 0 ] with M hM₁ hM₂;
-        obtain ⟨ m, hm₁, hm₂, hm₃ ⟩ := hM₁; use m; simp_all +decide [ Nat.factorial_ne_zero ] ;
+        obtain ⟨ m, hm₁, hm₂, hm₃ ⟩ := hM₁; use m; simp_all +decide;
         refine' ⟨ Or.inl ( by linarith ), by linarith, by linarith, _ ⟩;
         intro p hp hpK
         have hW_le_kappa : W p m (k_M (C + 1) M) ≤ kappa p m := by
@@ -1153,8 +1156,7 @@ theorem main_theorem (C : ℝ) (hC : C > 0) :
       simp_all +decide [ Prod.lt_iff ];
       exact Or.inr ⟨ by linarith, Or.inl ⟨ by linarith, by linarith ⟩ ⟩
 
-#print axioms main_theorem
--- 'Erdos729.main_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end
 end Erdos729
+
+#print axioms Erdos729.main_theorem
+-- 'Erdos729.main_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
