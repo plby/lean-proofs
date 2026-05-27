@@ -44,10 +44,7 @@ set_option linter.style.longLine false
 set_option linter.style.refine false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
-set_option linter.style.cases false
 set_option linter.unusedSimpArgs false
-set_option linter.unusedTactic false
-set_option linter.unusedVariables false
 
 open scoped Classical
 
@@ -886,7 +883,6 @@ theorem G_chromatic_le_7 (sizes : X_collection → ℕ) : (G sizes).chromaticNum
     obtain ⟨c_H, hc_H⟩ := h_colorable
     use c_H
     aesop
-    skip;
   refine' le_trans ( ciInf_le _ 7 ) _;
   · exact ⟨ 0, Set.forall_mem_range.2 fun n => by exact zero_le _ ⟩;
   · refine' ciInf_le_of_le _ _ _ <;> norm_num;
@@ -963,11 +959,11 @@ theorem lemma_exists_clique_disjoint_H_of_cover_3K (sizes : X_collection → ℕ
     (hk3 : (G sizes).IsClique k3) :
     (k1 ∩ Set.range Sum.inl = ∅) ∨ (k2 ∩ Set.range Sum.inl = ∅) ∨ (k3 ∩ Set.range Sum.inl = ∅) := by
       norm_num [ Set.ext_iff ] at *;
-      cases' h_cover ( Sum.inr ⟨ ⟨ ∅, by
+      rcases h_cover ( Sum.inr ⟨ ⟨ ∅, by
         exact empty_mem_X_collection ⟩, ⟨ 0, by
-        exact h_sizes _ _ ⟩ ⟩ ) with h h
+        exact h_sizes _ _ ⟩ ⟩ ) with h | h
       all_goals generalize_proofs at *;
-      · cases' h with h h;
+      · rcases h with h | h
         · left;
           intro x hx y hy; have := hk1 hx h; simp_all +decide [ G ] ;
           subst hy; simp_all +decide ;
@@ -1068,6 +1064,7 @@ G cannot be covered by 3 independent sets.
 theorem lemma_G_no_cover_3I (sizes : X_collection → ℕ) (h_sizes : ∀ X, sizes X > 0) :
     ¬ ∃ (i1 i2 i3 : Set (G_V sizes)), i1 ∪ i2 ∪ i3 = Set.univ ∧
     (G sizes).IsIndepSet i1 ∧ (G sizes).IsIndepSet i2 ∧ (G sizes).IsIndepSet i3 := by
+      have _ := h_sizes
       intro h
       obtain ⟨i1, i2, i3, h_cover, h_i1, h_i2, h_i3⟩ := h
       set j1 := i1.preimage Sum.inl
@@ -1097,6 +1094,7 @@ G cannot be covered by 1 clique and 2 independent sets.
 theorem lemma_G_no_cover_1K_2I (sizes : X_collection → ℕ) (h_sizes : ∀ X, sizes X > 0) :
     ¬ ∃ (k1 i1 i2 : Set (G_V sizes)), k1 ∪ i1 ∪ i2 = Set.univ ∧
     (G sizes).IsClique k1 ∧ (G sizes).IsIndepSet i1 ∧ (G sizes).IsIndepSet i2 := by
+      have _ := h_sizes
       by_contra h_contra
       obtain ⟨k1, i1, i2, h_cover, hk1, hi1, hi2⟩ := h_contra;
       have h_cover_H : (k1.preimage Sum.inl) ∪ (i1.preimage Sum.inl) ∪ (i2.preimage Sum.inl) = Set.univ := by
@@ -1172,6 +1170,7 @@ theorem lemma_H_not_covered_by_small_cliques_and_indep (k1 k2 i1 : Set H_V)
     (h_cover : k1 ∪ k2 ∪ i1 = Set.univ)
     (hk1 : H.IsClique k1) (hk2 : H.IsClique k2) (hi1 : H.IsIndepSet i1)
     (hk1_size : k1.ncard ≤ 1) : False := by
+      have _ := hk1
       -- We know $|k2| \le 4$ (since max clique size in H is 4).
       have hk2_size : k2.ncard ≤ 4 := by
         have hk2_card : ∀ (s : Finset H_V), H.IsClique s → s.card ≤ 4 := by
