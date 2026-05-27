@@ -12,7 +12,6 @@ Informal authors:
 Formal authors:
 - Claude Opus 4.5
 - Gemini 3 Pro
-- Aristotle
 - Daniel Larsen
 
 URLs:

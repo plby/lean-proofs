@@ -2315,7 +2315,6 @@
       AI:
         - Claude Opus 4.5
         - Gemini 3 Pro
-        - Aristotle
       human:
         - Daniel Larsen
   url:
