@@ -40,15 +40,9 @@ import Mathlib
 set_option linter.style.setOption false
 set_option aesop.warn.nonterminal false
 set_option linter.flexible false
-set_option linter.style.cases false
-set_option linter.style.induction false
-set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
-set_option linter.style.whitespace false
-set_option linter.unnecessarySeqFocus false
 set_option linter.unusedSimpArgs false
-set_option linter.unusedVariables false
 
 namespace Erdos264
 
@@ -117,8 +111,9 @@ lemma gap_inequality (n : ℕ) (k : ℕ) (h_ge : 1 ≤ k) (h_le : k ≤ 3) :
               (3 / ((2 ^ (n + 1 + m) + 1) *
                 (2 ^ (n + 1 + m) + 4) : ℝ)) ≤
                 3 / (4 ^ (n + 1 + m) : ℝ) := by
-          intro m; rw [ div_le_div_iff₀ ] <;> norm_cast <;> ring_nf <;> norm_num;
-          norm_num [ pow_mul', ← mul_pow ];
+          intro m
+          rw [ div_le_div_iff₀ ] <;> norm_cast <;> ring_nf <;> norm_num
+          norm_num [ pow_mul', ← mul_pow ]
         exact Summable.of_nonneg_of_le ( fun m => by positivity ) h_compare ( by
           exact Summable.mul_left _ <| by
             simpa using summable_geometric_of_lt_one ( by norm_num )
@@ -176,27 +171,27 @@ lemma inductive_step (n : ℕ) (z : ℝ) (hz : z ∈ Set.Icc (min_tail n) (max_t
           max_tail (n + 1) - min_tail (n + 1) =
             ∑' m, (1 / (2^(n + 1 + m) + 1 : ℝ) -
               1 / (2^(n + 1 + m) + 4 : ℝ)) := by
-        unfold max_tail min_tail;
-        rw [ Summable.tsum_sub ];
+        unfold max_tail min_tail
+        rw [ Summable.tsum_sub ]
         · -- This is a convergent geometric-series tail.
           have h_geo_series : Summable (fun m : ℕ => (1 : ℝ) / 2^(n+1+m)) := by
             simpa using summable_geometric_two.comp_injective ( add_right_injective _ );
           exact Summable.of_nonneg_of_le
             ( fun m => by positivity )
             ( fun m => by gcongr ; norm_num )
-            h_geo_series;
+            h_geo_series
         · -- This is a convergent geometric-series tail.
           have h_geo_series : Summable (fun m : ℕ => (1 : ℝ) / (2^(n + 1 + m))) := by
             simpa using summable_geometric_two.comp_injective ( add_right_injective _ );
           exact Summable.of_nonneg_of_le
             ( fun m => by positivity )
             ( fun m => by gcongr ; norm_num )
-            h_geo_series;
+            h_geo_series
       exact fun k hk =>
         h_diff ▸ gap_inequality n k
           ( by fin_cases hk <;> norm_num )
           ( by fin_cases hk <;> norm_num ) |>
-            le_trans ( by norm_num ) ;
+            le_trans ( by norm_num )
     -- These are the one-term tail decompositions.
     have h_bounds :
         min_tail n = 1 / (2^n + 4 : ℝ) + min_tail (n + 1) ∧
@@ -262,9 +257,11 @@ lemma SumSet_is_OrdConnected : Set.OrdConnected SumSet := by
                     Set.Icc (min_tail i) (max_tail i) := by
           -- We proceed by induction on $n$.
           intro n
-          induction' n with n ih;
-          · exact ⟨ fun _ => 1, fun _ => ⟨ by norm_num, by norm_num ⟩, by simpa using hz ⟩;
-          · obtain ⟨ b, hb₁, hb₂ ⟩ := ih;
+          induction n with
+          | zero =>
+              exact ⟨ fun _ => 1, fun _ => ⟨ by norm_num, by norm_num ⟩, by simpa using hz ⟩
+          | succ n ih =>
+            obtain ⟨ b, hb₁, hb₂ ⟩ := ih
             obtain ⟨ k, hk₁, hk₂ ⟩ := inductive_step n
               ( z - ∑ j ∈ Finset.range n,
                   ( 1 : ℝ ) / ( 2 ^ j + ( b j : ℝ ) ) )
@@ -370,7 +367,7 @@ lemma SumSet_is_OrdConnected : Set.OrdConnected SumSet := by
             norm_num [ pow_add, tsum_mul_left ];
             norm_num [ tsum_mul_right ];
             exact tendsto_const_nhds.div_atTop ( tendsto_pow_atTop_atTop_of_one_lt one_lt_two );
-          refine' ⟨
+          refine ⟨
             squeeze_zero
               ( fun n => tsum_nonneg fun m => by positivity )
               ( fun n =>
@@ -417,7 +414,7 @@ lemma SumSet_is_OrdConnected : Set.OrdConnected SumSet := by
             h_tail_zero.2 h_tail_zero.1
             ( fun n => hb_tail n |>.1 ) ( fun n => hb_tail n |>.2 );
         simpa using h_tail_zero.const_sub z;
-      refine' ⟨ b, hb_bounds, _ ⟩;
+      refine ⟨ b, hb_bounds, ?_ ⟩
       exact tendsto_nhds_unique h_sum
         ( Summable.hasSum ( show Summable _ from by
             exact ( by
@@ -430,10 +427,10 @@ lemma SumSet_is_OrdConnected : Set.OrdConnected SumSet := by
     -- The endpoint sums lie in `[min_tail 0, max_tail 0]`.
     have hw_range : w ∈ Set.Icc (min_tail 0) (max_tail 0) := by
       cases left ; aesop;
-      · refine' Summable.tsum_le_tsum _ _ _;
+      · refine Summable.tsum_le_tsum ?_ ?_ ?_
         · norm_num +zetaDelta at *;
           exact fun n => inv_anti₀ ( by positivity ) ( by norm_cast; linarith [ left n ] );
-        · simp +zetaDelta at *;
+        · simp +zetaDelta only [zero_add, one_div] at *
           -- This series is dominated by the convergent geometric series.
           have h_dominate : ∀ m : ℕ, (2^m + 4 : ℝ)⁻¹ ≤ (2^m : ℝ)⁻¹ := by
             exact fun m => inv_anti₀ ( by positivity ) ( by linarith );
@@ -446,12 +443,12 @@ lemma SumSet_is_OrdConnected : Set.OrdConnected SumSet := by
               simpa using inv_anti₀ ( by positivity )
                 ( show ( 2 ^ n + ( w_2 n : ℝ ) ) ≥ 2 ^ n by linarith ) )
             ( summable_geometric_two );
-      · refine' Summable.tsum_le_tsum _ _ _;
+      · refine Summable.tsum_le_tsum ?_ ?_ ?_
         · exact fun n => by
             rw [ zero_add, inv_eq_one_div ];
             gcongr;
             norm_cast;
-            linarith [ left n ] ;
+            linarith [ left n ]
         · -- Each term `(2^n + w_2 n)⁻¹` is bounded by `(2^n)⁻¹`.
           have h_bound : ∀ n, (2^n + w_2 n : ℝ)⁻¹ ≤ (2^n : ℝ)⁻¹ := by
             exact fun n => inv_anti₀ ( by positivity ) ( by
@@ -459,20 +456,20 @@ lemma SumSet_is_OrdConnected : Set.OrdConnected SumSet := by
           exact Summable.of_nonneg_of_le
             ( fun n => inv_nonneg.2 ( by positivity ) ) h_bound
             ( by simpa using summable_geometric_two );
-        · simp +zetaDelta at *;
+        · simp +zetaDelta only [zero_add, one_div] at *
           -- This is a convergent geometric series.
           have h_geo_series : Summable (fun m : ℕ => (2^m : ℝ)⁻¹) := by
             simpa using summable_geometric_two;
           exact Summable.of_nonneg_of_le
             ( fun m => by positivity )
             ( fun m => by
-              rw [ inv_le_comm₀ ] <;> norm_num ;
+              rw [ inv_le_comm₀ ] <;> norm_num
               linarith [ pow_pos ( zero_lt_two' ℝ ) m ] )
             h_geo_series
     have hw1_range : w_1 ∈ Set.Icc (min_tail 0) (max_tail 0) := by
       cases left_1 ; aesop;
       · exact le_imp_le_of_le_of_le left_1 right left_2;
-      · refine' Summable.tsum_le_tsum _ _ _;
+      · refine Summable.tsum_le_tsum ?_ ?_ ?_
         · norm_num +zetaDelta at *;
           exact fun n => inv_anti₀ ( by positivity ) ( by norm_cast; linarith [ left_3 n ] );
         · exact Summable.of_nonneg_of_le
@@ -493,7 +490,7 @@ lemma SumSet_is_OrdConnected : Set.OrdConnected SumSet := by
       h_ord_connected z
         ⟨ by linarith [ hw_range.1 ], by linarith [ hw1_range.2 ] ⟩ |>
           fun ⟨ b, hb₁, hb₂ ⟩ => ⟨ b, hb₁, hb₂ ⟩;
-  refine' ⟨ fun x hx y hy z hz => h_interval z ⟨ x, y, hx, hy, hz.1, hz.2 ⟩ ⟩
+  refine ⟨ fun x hx y hy z hz => h_interval z ⟨ x, y, hx, hy, hz.1, hz.2 ⟩ ⟩
 
 /-
 The interval [min_tail 0, max_tail 0] is a subset of SumSet.
@@ -510,7 +507,7 @@ lemma Icc_subset_SumSet : Set.Icc (min_tail 0) (max_tail 0) ⊆ SumSet := by
     choose! b hb using fun n z hz => inductive_step n z hz;
     use fun n =>
       b n (Nat.recOn n z fun n ih => ih - 1 / (2 ^ n + (b n ih : ℝ)));
-    refine' ⟨ _, _ ⟩;
+    refine ⟨ ?_, ?_ ⟩
     · intro n;
       have h_seq :
           ∀ n,
@@ -527,7 +524,7 @@ lemma Icc_subset_SumSet : Set.Icc (min_tail 0) (max_tail 0) ⊆ SumSet := by
     have h_tail_bound : ∀ n, max_tail n ≤ 2 / 2^n ∧ min_tail n ≥ 0 := by
       intros n
       have h_tail_bound : max_tail n ≤ ∑' m, (1 : ℝ) / (2^(n + m)) := by
-        refine' Summable.tsum_le_tsum _ _ _;
+        refine Summable.tsum_le_tsum ?_ ?_ ?_
         · exact fun i => by gcongr ; norm_num;
         · exact Summable.of_nonneg_of_le
             ( fun m => by positivity )
@@ -611,7 +608,9 @@ theorem exists_bounded_seq_rational_sum :
     obtain ⟨q, hq⟩ : ∃ q : ℚ, (q : ℝ) ∈ SumSet := by
       exact Exists.elim ( exists_rat_btwn h_min_lt_max ) fun q hq =>
         ⟨ q, Icc_subset_SumSet ⟨ hq.1.le, hq.2.le ⟩ ⟩;
-    cases' hq with b hb; use b, q; aesop;
+    rcases hq with ⟨b, hb⟩
+    use b, q
+    aesop
     exact ⟨ 4, Set.forall_mem_range.mpr fun n => left n |>.2 ⟩
 
 end AristotleLemmas
@@ -638,17 +637,18 @@ other grows doubly exponentially, we get a contradiction.
 -/
 theorem erdos_264_algebraic_contradiction
     (a b : ℕ → ℕ)
-    (ha : ∀ n, a (n + 1) = (a n)^2)
+    (ha : ∀ n, a (n + 1) = (a n) ^ 2)
     (ha_grow : Filter.Tendsto a Filter.atTop Filter.atTop)
     (hb_bounded : BddAbove (Set.range b))
     (hb_pos : ∀ n, b n ≠ 0)
-    (h_rec : ∀ᶠ n in Filter.atTop, a (n + 1) + b (n + 1) = (a n + b n)^2 - (a n + b n) + 1) :
+    (h_rec : ∀ᶠ n in Filter.atTop,
+      a (n + 1) + b (n + 1) = (a n + b n) ^ 2 - (a n + b n) + 1) :
     False := by
       -- Since $a_n \to \infty$, we have $b_{n+1} \geq a_n + 1$ for sufficiently large $n$.
       have h_b_ge_a : ∃ N, ∀ n ≥ N, b (n + 1) ≥ a n + 1 := by
         aesop;
-        refine' ⟨ w, fun n hn ↦ _ ⟩ ;
-        specialize h n hn ;
+        refine ⟨ w, fun n hn ↦ ?_ ⟩
+        specialize h n hn
         rw [
           tsub_add_eq_add_tsub ( by
             nlinarith only [ Nat.pos_of_ne_zero ( hb_pos n ) ] )
@@ -686,7 +686,8 @@ theorem Kn_constant_implies_recurrence
     (hK_rec : ∀ n, K (n + 1) = x n * K n - Q * P n)
     (hK_const : ∀ n ≥ N, K n = C)
     (hC_ne_zero : C ≠ 0) :
-    ∀ n ≥ N, x (n + 1) = (x n)^2 - x n + 1 := by
+    ∀ n ≥ N, x (n + 1) = (x n) ^ 2 - x n + 1 := by
+  have _hP0 := hP0
   intro n hn
   have hn1 : n + 1 ≥ N := Nat.le_trans hn (Nat.le_succ n)
   have hn2 : n + 2 ≥ N := Nat.le_trans hn (by omega)
@@ -709,9 +710,9 @@ theorem Kn_constant_implies_recurrence
       _ = x (n + 1) * C - (Q * P n) * x n := by ring_nf
   have h_sub2'' : C = x (n + 1) * C - (C * (x n - 1)) * x n := by
     simpa [h_qp] using h_sub2'
-  have h_mul : C * (x (n + 1) - (x n)^2 + x n - 1) = 0 := by
+  have h_mul : C * (x (n + 1) - (x n) ^ 2 + x n - 1) = 0 := by
     nlinarith [h_sub2'']
-  have h_factor : x (n + 1) - (x n)^2 + x n - 1 = 0 := by
+  have h_factor : x (n + 1) - (x n) ^ 2 + x n - 1 = 0 := by
     exact mul_eq_zero.mp h_mul |>.resolve_left hC_ne_zero
   nlinarith
 
@@ -723,15 +724,16 @@ $(a_n + b_n) \sum_{k=n}^\infty \frac{1}{a_k + b_k} \to 1$.
 -/
 theorem sum_recip_asymptotic
     (a b : ℕ → ℕ)
-    (ha : ∀ n, a (n + 1) = (a n)^2)
+    (ha : ∀ n, a (n + 1) = (a n) ^ 2)
     (ha_pos : ∀ n, 1 < a n)
     (hb_bounded : BddAbove (Set.range b))
     (hx_pos : ∀ n, a n + b n ≠ 0) :
     Filter.Tendsto
       (fun n => (a n + b n : ℝ) * ∑' k, (1 : ℝ) / (a (n + k) + b (n + k)))
       Filter.atTop (nhds 1) := by
+      have _hx_pos := hx_pos
       -- First, show that $a_{n+1} \geq \frac{1}{2} a_n^2$ for all $n$.
-      have h_a_growth : ∀ n, (a (n + 1) : ℝ) ≥ (1 / 2) * (a n)^2 := by
+      have h_a_growth : ∀ n, (a (n + 1) : ℝ) ≥ (1 / 2) * (a n) ^ 2 := by
         exact fun n => by rw [ ha ] ; norm_num ; nlinarith;
       -- Bound the tail using the growth of `a` and boundedness of `b`.
       have h_tail_bound :
@@ -745,29 +747,32 @@ theorem sum_recip_asymptotic
                 2 / (a n : ℝ) ^ (2 ^ (k + 1)) := by
           -- We proceed by induction on $k$.
           intro n k
-          induction' k with k ih generalizing n;
-          · rw [ div_le_div_iff₀ ] <;> norm_num <;>
+          induction k generalizing n with
+          | zero =>
+            rw [ div_le_div_iff₀ ] <;> norm_num <;>
               specialize h_a_growth n <;>
-              norm_cast at * <;> aesop;
+              norm_cast at * <;> aesop
             · nlinarith;
             · exact Or.inl ( sq_pos_of_pos ( pos_of_gt ( ha_pos n ) ) );
             · grind;
-          · have := ih ( n + 1 ) ; simp_all +decide [ Nat.add_assoc, pow_succ, pow_mul ] ;
-            convert this using 1 <;> ring_nf;
+          | succ k ih =>
+            have := ih ( n + 1 )
+            simp_all +decide [ Nat.add_assoc, pow_succ, pow_mul ]
+            convert this using 1 <;> ring_nf
         intro n
         have h_sum_le :
             ∑' k, (1 : ℝ) / ((a (n + k + 1) : ℝ) + (b (n + k + 1) : ℝ)) ≤
               ∑' k, (2 : ℝ) / (a n : ℝ) ^ (2 * (k + 1)) := by
-          refine' Summable.tsum_le_tsum ( fun k => le_trans ( h_term_bound n k ) _ ) _ _;
+          refine Summable.tsum_le_tsum ( fun k => le_trans ( h_term_bound n k ) ?_ ) ?_ ?_
           · gcongr;
             · exact_mod_cast pow_pos ( zero_lt_one.trans ( ha_pos n ) ) _;
             · exact_mod_cast ha_pos n |> Nat.one_le_of_lt;
             · exact Nat.recOn k ( by norm_num ) fun n ihn => by
                 norm_num [ Nat.pow_succ' ] at ihn ⊢ ;
                 linarith;
-          · refine' Summable.of_nonneg_of_le
-              ( fun k => by positivity ) ( fun k => h_term_bound n k ) _;
-            ring_nf;
+          · refine Summable.of_nonneg_of_le
+              ( fun k => by positivity ) ( fun k => h_term_bound n k ) ?_
+            ring_nf
             exact Summable.mul_right _
               ( Summable.comp_injective
                 ( summable_geometric_of_lt_one ( by positivity )
@@ -786,7 +791,7 @@ theorem sum_recip_asymptotic
           ( inv_lt_one_of_one_lt₀
             ( one_lt_pow₀ ( show ( a n : ℝ ) > 1 by exact mod_cast ha_pos n )
               two_ne_zero ) ) ;
-        simp_all +decide [ mul_assoc, tsum_mul_left ] ;
+        simp_all +decide [ mul_assoc ]
       -- Using the tail bound, we can replace the tail sum with the bound from h_tail_bound.
       have h_split_sum :
           ∀ n,
@@ -813,7 +818,7 @@ theorem sum_recip_asymptotic
                   simpa using summable_geometric_two.comp_injective
                     ( Nat.pow_right_injective ( by decide ) ) );
             exact h_summable.comp_injective ( add_right_injective n );
-          simp +zetaDelta at *;
+          simp +zetaDelta only [one_div] at *
           exact Summable.of_nonneg_of_le
             ( fun k =>
               inv_nonneg.2 ( add_nonneg ( Nat.cast_nonneg _ ) ( Nat.cast_nonneg _ ) ) )
@@ -838,11 +843,11 @@ theorem sum_recip_asymptotic
               Filter.atTop (nhds 0) := by
           -- Since $a_n$ grows doubly exponentially, we have $a_n \to \infty$.
           have h_a_inf : Filter.Tendsto a Filter.atTop Filter.atTop := by
-            refine' Filter.tendsto_atTop_mono _ tendsto_natCast_atTop_atTop;
+            refine Filter.tendsto_atTop_mono ?_ tendsto_natCast_atTop_atTop
             exact fun n =>
               Nat.recOn n ( by norm_num ) fun n ih => by
                 rw [ ha ];
-                nlinarith only [ ih, ha_pos n ] ;
+                nlinarith only [ ih, ha_pos n ]
           -- Since $b_n$ is bounded, we have $b_n / a_n \to 0$.
           have h_b_div_a_zero :
               Filter.Tendsto (fun n => (b n : ℝ) / (a n : ℝ)) Filter.atTop (nhds 0) := by
@@ -863,8 +868,9 @@ theorem sum_recip_asymptotic
                   ( tendsto_inv_atTop_nhds_zero_nat.pow 2 |>
                     Filter.Tendsto.comp <| h_a_inf ) )
                 ( by norm_num ) ) );
-        convert h_factor using 2 ; ring_nf;
-        simpa [ sq, mul_assoc, ne_of_gt ( zero_lt_one.trans ( ha_pos _ ) ) ] using by ring_nf;
+        convert h_factor using 2
+        ring_nf
+        simpa [ sq, mul_assoc, ne_of_gt ( zero_lt_one.trans ( ha_pos _ ) ) ] using by ring_nf
       simpa only [ h_split_sum, add_zero ] using tendsto_const_nhds.add
         ( squeeze_zero
           ( fun n => mul_nonneg ( by positivity ) ( tsum_nonneg fun _ => by positivity ) )
@@ -879,7 +885,7 @@ $P_n / x_n$ converges to a non-zero limit.
 -/
 theorem product_ratio_convergence
     (a b : ℕ → ℕ)
-    (ha : ∀ n, a (n + 1) = (a n)^2)
+    (ha : ∀ n, a (n + 1) = (a n) ^ 2)
     (ha_pos : ∀ n, 1 < a n)
     (hb_bounded : BddAbove (Set.range b))
     (hx_pos : ∀ n, a n + b n ≠ 0) :
@@ -924,16 +930,16 @@ theorem product_ratio_convergence
               intro k; constructor <;> gcongr <;> norm_cast at * <;> aesop;
               · exact le_trans ( Nat.cast_nonneg _ ) ( hM k );
               · simpa only [ ← ha ] using h_ak_exp ( k + 1 );
-            refine' ⟨
+            refine ⟨
               Summable.of_nonneg_of_le
                 ( fun k => div_nonneg ( Nat.cast_nonneg _ ) ( Nat.cast_nonneg _ ) )
-                ( fun k => h_bound k |>.1 ) _,
+                ( fun k => h_bound k |>.1 ) ?_,
               Summable.of_nonneg_of_le
                 ( fun k => div_nonneg ( Nat.cast_nonneg _ ) ( Nat.cast_nonneg _ ) )
-                ( fun k => h_bound ( k + 1 ) |>.1 ) _,
+                ( fun k => h_bound ( k + 1 ) |>.1 ) ?_,
               Summable.of_nonneg_of_le
                 ( fun k => div_nonneg ( sq_nonneg _ ) ( sq_nonneg _ ) )
-                ( fun k => h_bound k |>.2 ) _ ⟩;
+                ( fun k => h_bound k |>.2 ) ?_ ⟩;
             · exact Summable.mul_left _ <| by
                 simpa using summable_geometric_two.comp_injective <|
                   Nat.pow_right_injective <| by decide;
@@ -971,8 +977,8 @@ theorem product_ratio_convergence
               simpa [ mul_div_assoc ] using
                 Summable.sub ( Summable.add ( h_decay.1.mul_left 2 ) h_decay.2.2 )
                   h_decay.2.1 );
-          refine' Summable.of_nonneg_of_le ( fun k => abs_nonneg _ ) ( fun k => h_bound k ) _;
-          refine' .of_nonneg_of_le
+          refine Summable.of_nonneg_of_le ( fun k => abs_nonneg _ ) ( fun k => h_bound k ) ?_
+          refine .of_nonneg_of_le
             ( fun k =>
               div_nonneg ( abs_nonneg _ )
                 ( add_nonneg zero_le_one
@@ -980,7 +986,7 @@ theorem product_ratio_convergence
             ( fun k =>
               div_le_self ( abs_nonneg _ ) ( by
                 linarith [ show ( 0 : ℝ ) ≤ b ( k + 1 ) / a ( k + 1 ) by positivity ] ) )
-            h_quot_summable;
+            h_quot_summable
         have h_prod_conv :
             Summable
               (fun k =>
@@ -1109,22 +1115,24 @@ theorem product_ratio_convergence
                 (∏ k ∈ Finset.range n,
                   ((a k + b k : ℝ) ^ 2) / ((a (k + 1) + b (k + 1) : ℝ))) := by
         intro n
-        induction' n with n ih;
-        · norm_num;
-        · rw [ Finset.prod_range_succ, Finset.prod_range_succ ];
-          rw [ ← mul_assoc, ← ih ];
+        induction n with
+        | zero =>
+          norm_num
+        | succ n ih =>
+          rw [ Finset.prod_range_succ, Finset.prod_range_succ ]
+          rw [ ← mul_assoc, ← ih ]
           simp +decide [
             div_eq_mul_inv, sq, mul_assoc, mul_comm, mul_left_comm,
             ne_of_gt
               ( show 0 < ( a n : ℝ ) + b n from
                 mod_cast Nat.pos_of_ne_zero ( hx_pos n ) )
-          ];
+          ]
       use (1 / ((a 0 : ℝ) + (b 0 : ℝ))) * L;
       simp_all +decide [
         ne_of_gt
           ( show 0 < ( a 0 : ℝ ) + b 0 from
             mod_cast Nat.pos_of_ne_zero ( by aesop ) )
-      ];
+      ]
       exact hL.2.const_mul _
 
 end AristotleLemmas
@@ -1221,7 +1229,7 @@ theorem erdos_264.variants.example : IsIrrationalitySequence (fun n ↦ 2 ^ (2 ^
       · exact fun n => by ring_nf;
       · exact hb;
     have := hL.mul h_sum_recip_asymptotic;
-    simp_all +decide [ ← mul_assoc, div_mul_cancel₀ ];
+    simp_all +decide [ ← mul_assoc, div_mul_cancel₀ ]
     exact
       ⟨Q * L, mul_ne_zero (Nat.cast_ne_zero.mpr hQ_pos.ne') hL_ne_zero, by
         simpa only [mul_assoc] using this.const_mul _⟩
@@ -1261,7 +1269,7 @@ theorem erdos_264.variants.example : IsIrrationalitySequence (fun n ↦ 2 ^ (2 ^
                         abs_lt.mp <| hN N le_rfl])⟩⟩
         exact hK_const;
       exact hK_const hK_limit.choose_spec.1 hK_limit.choose_spec.2;
-    refine' ⟨ C, _, hC ⟩;
+    refine ⟨ C, ?_, hC ⟩
     obtain ⟨L, hL_ne_zero, hL_tendsto⟩ := hK_limit
     have := hL_tendsto.congr' (by
       filter_upwards [hC] with n hn
