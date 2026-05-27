@@ -64,7 +64,6 @@ set_option linter.flexible false
 set_option linter.style.multiGoal false
 set_option linter.style.induction false
 set_option linter.style.whitespace false
-set_option linter.style.show false
 
 set_option maxHeartbeats 8000000
 -- Several generated Sidon-set and pairwise-sum estimates time out at the default heartbeat limit.
@@ -2011,7 +2010,7 @@ theorem Sidonbound (S : Finset ℤ) (hS : IsSidonSet S) (hcard : 2 ≤ S.card) :
   set s : ℝ := sqrt y + sqrt (sqrt y) + 1 / 2
   -- y ≥ 1 since S has at least 2 distinct integer elements
   have hy : 1 ≤ y := by
-    show (1 : ℝ) ≤ ↑(spreadZ S hne)
+    change (1 : ℝ) ≤ ↑(spreadZ S hne)
     exact_mod_cast spreadZ_pos S hcard
   -- f(t) ≤ y (counting bound)
   have h_count : t ^ 2 - 2 * t * sqrt t + t + sqrt t - 1 ≤ y := sidon_counting S hS hcard
