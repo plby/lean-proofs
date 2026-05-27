@@ -55,16 +55,9 @@ set_option linter.style.refine false
 set_option linter.flexible false
 set_option linter.unusedFintypeInType false
 set_option linter.unusedDecidableInType false
-set_option linter.style.multiGoal false
 set_option linter.style.induction false
-set_option linter.style.cdot false
-set_option linter.unreachableTactic false
-set_option linter.unusedSimpArgs false
-set_option linter.unusedTactic false
 
 open scoped Classical
-
-set_option maxRecDepth 10000
 
 open SimpleGraph
 
@@ -217,7 +210,7 @@ lemma planes_inter_is_line {n1 n2 : EuclideanSpace ℝ (Fin 3)} (h : LinearIndep
                 · exact ⟨ fun i => if i = 0 then n2 2 else -n1 2, by ext i; fin_cases i <;> simp +decide [ *, mul_comm ], by simp +decide [ * ] ⟩;
               · exact ⟨ fun i => if i = 0 then 1 else 0, by ext i; fin_cases i <;> simp +decide [ * ], by simp +decide ⟩;
               · exact ⟨ fun i => if i = 0 then 0 else 1, by ext i; fin_cases i <;> aesop, by aesop ⟩;
-              · exact ⟨ fun i => if i = 0 then -n2 1 else n1 1, by ext i; fin_cases i <;> simp +decide [ * ] <;> ring_nf at h ⊢ <;> linarith, by simp +decide [ * ] ⟩;
+              · exact ⟨ fun i => if i = 0 then -n2 1 else n1 1, by ext i; fin_cases i <;> simp +decide [ * ] <;> ring_nf at h ⊢, by simp +decide [ * ] ⟩;
             · exact ⟨ fun i => if i = 0 then 1 else 0, by ext i; fin_cases i <;> simp +decide [ * ], by simp +decide ⟩;
             · exact ⟨ fun i => if i = 0 then 0 else 1, by ext i; fin_cases i <;> simp +decide [ * ], by simp +decide ⟩;
             · exact ⟨ fun i => if i = 0 then -n2 0 else n1 0, by ext i; fin_cases i <;> simp +decide <;> linarith !, by simp +decide [ h1, h2 ] ⟩;
@@ -320,7 +313,6 @@ lemma dim_K33_le_4 : GraphDimension (completeBipartiteGraph (Fin 3) (Fin 3)) ≤
   use fun v => if v = (Sum.inl 0) then WithLp.toLp 2 ![1 / Real.sqrt 2, 0, 0, 0] else if v = (Sum.inl 1) then WithLp.toLp 2 ![0, 1 / Real.sqrt 2, 0, 0] else if v = (Sum.inl 2) then WithLp.toLp 2 ![-1 / Real.sqrt 2, 0, 0, 0] else if v = (Sum.inr 0) then WithLp.toLp 2 ![0, 0, 1 / Real.sqrt 2, 0] else if v = (Sum.inr 1) then WithLp.toLp 2 ![0, 0, 0, 1 / Real.sqrt 2] else WithLp.toLp 2 ![0, 0, -1 / Real.sqrt 2, 0];
   constructor <;> simp +decide [ Function.Injective, Fin.forall_fin_succ ];
   · ring_nf ;
-    repeat erw [ ← List.ofFn_inj ] ; norm_num;
     constructor <;> linarith [ inv_pos.mpr ( Real.sqrt_pos.mpr zero_lt_two ) ];
   · norm_num [ dist_eq_norm, EuclideanSpace.norm_eq, Fin.sum_univ_succ ] ; ring_nf ; norm_num;
 
@@ -330,8 +322,8 @@ If a graph has a unit-distance embedding in dimension n, it has one in any dimen
 lemma embedding_dim_mono {V : Type*} (G : SimpleGraph V) {n m : ℕ} (h : n ≤ m)
     (h_emb : HasUnitDistanceEmbedding G n) : HasUnitDistanceEmbedding G m := by
       obtain ⟨ f, hf ⟩ := h_emb;
-      refine' ⟨ _, _, _ ⟩;
-      exact fun v => ( f v ) |> fun x => WithLp.toLp 2 (fun i : Fin m => if hi : (i : ℕ) < n then x ⟨ i, hi ⟩ else 0);
+      refine' ⟨ _, _, _ ⟩
+      · exact fun v => ( f v ) |> fun x => WithLp.toLp 2 (fun i : Fin m => if hi : (i : ℕ) < n then x ⟨ i, hi ⟩ else 0);
       · intro v w h_eq;
         exact hf.1 ( by ext i; simpa using congr_arg (fun y : EuclideanSpace ℝ (Fin m) => y ⟨ i, by linarith [ Fin.is_lt i ] ⟩) h_eq );
       · intro u v huv; have := hf.2 huv; simp_all +decide [ dist_eq_norm, EuclideanSpace.norm_eq ] ;
@@ -413,8 +405,9 @@ lemma K33_no_embedding_R3 : ¬ HasUnitDistanceEmbedding (completeBipartiteGraph 
     · exact hf_inj.ne ( by decide );
   have h_three_points : Set.ncard (Set.image f {Sum.inr 0, Sum.inr 1, Sum.inr 2}) ≤ 2 := by
     refine le_trans ?_ h_three_spheres;
-    apply_rules [ Set.ncard_le_ncard ] ; aesop_cat;
-    exact Set.Finite.subset ( three_spheres_intersection_finite ( show f ( Sum.inl 0 ) ≠ f ( Sum.inl 1 ) from hf_inj.ne <| by decide ) ( show f ( Sum.inl 1 ) ≠ f ( Sum.inl 2 ) from hf_inj.ne <| by decide ) ( show f ( Sum.inl 0 ) ≠ f ( Sum.inl 2 ) from hf_inj.ne <| by decide ) ) fun x hx => by aesop;
+    apply_rules [ Set.ncard_le_ncard ]
+    · aesop_cat
+    · exact Set.Finite.subset ( three_spheres_intersection_finite ( show f ( Sum.inl 0 ) ≠ f ( Sum.inl 1 ) from hf_inj.ne <| by decide ) ( show f ( Sum.inl 1 ) ≠ f ( Sum.inl 2 ) from hf_inj.ne <| by decide ) ( show f ( Sum.inl 0 ) ≠ f ( Sum.inl 2 ) from hf_inj.ne <| by decide ) ) fun x hx => by aesop;
   simp_all +decide [ Set.ncard_image_of_injective ]
 
 /-
@@ -534,11 +527,9 @@ lemma embed_extend_deg_1 {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGrap
             intro x hx;
             refine' ⟨ WithLp.toLp 2 (fun i : Fin 3 => if i = 0 then x else if i = 1 then Real.sqrt ( 1 - x ^ 2 ) else 0), _, _ ⟩ <;> simp +decide [ EuclideanSpace.norm_eq, Fin.sum_univ_three ];
             rw [ Real.sq_sqrt ] <;> nlinarith [ hx.1, hx.2 ]
-          convert h_sphere_infinite.image _ using 1;
-          rotate_left;
-          use fun x => f' ⟨ u, hu.1 ⟩ + x;
-          · exact fun x hx y hy hxy => by simpa using hxy;
+          convert h_sphere_infinite.image (f := fun x => f' ⟨ u, hu.1 ⟩ + x) _ using 1
           · simp +decide
+          · exact fun x hx y hy hxy => by simpa using hxy
         exact h_sphere_infinite H;
       -- The set of images of other vertices is finite.
       have h_finite : Set.Finite (Set.image f' Set.univ) := by
@@ -590,8 +581,9 @@ lemma embed_extend_deg_2_adj {V : Type*} [Fintype V] [DecidableEq V] (G : Simple
           simp_all +decide [ Finset.ext_iff, SimpleGraph.neighborFinset ];
           obtain ⟨ x, y, hxy, h ⟩ := this; have := h u; have := h w; simp_all +decide [ SimpleGraph.adj_comm ] ;
           grind;
-        · have := hf' |>.2 ( show ( deleteVertex G v ).Adj ⟨ x, by assumption ⟩ ⟨ y, by assumption ⟩ from ?_ ) ; aesop;
-          exact hxy
+        · have := hf' |>.2 ( show ( deleteVertex G v ).Adj ⟨ x, by assumption ⟩ ⟨ y, by assumption ⟩ from ?_ )
+          · aesop
+          · exact hxy
 
 /-
 If a graph G has a vertex v of degree 2 with neighbors u and w, and u and w are not adjacent, and the graph obtained by removing v and adding edge (u,w) embeds in R^3, then G embeds in R^3.
@@ -612,16 +604,19 @@ lemma embed_extend_deg_2_not_adj {V : Type*} [Fintype V] [DecidableEq V] (G : Si
           apply sphere_intersection_infinite;
           exact this.2 ( by simp +decide [ addEdge, huw ] );
         exact h_infinite.exists_notMem_finset ( Set.toFinset ( Set.range h_emb.choose ) ) |> fun ⟨ p, hp₁, hp₂ ⟩ => ⟨ p, hp₁, by simpa using hp₂ ⟩;
-      refine' ⟨ fun x => if hx : x = v then p else h_emb.choose ⟨ x, _ ⟩, _, _ ⟩;
-      exact hx;
+      refine' ⟨ fun x => if hx : x = v then p else h_emb.choose ⟨ x, _ ⟩, _, _ ⟩
+      · exact hx
       · intro x y hxy;
         by_cases hx : x = v <;> by_cases hy : y = v <;> simp_all +decide;
         · exact False.elim ( hp.2 _ hy rfl );
         · have := h_emb.choose_spec.1 hxy; aesop;
       · intro x y hxy; by_cases hx : x = v <;> by_cases hy : y = v <;> simp_all +decide
-        · have := Finset.eq_of_subset_of_card_le ( show { u, w } ⊆ G.neighborFinset v from ?_ ) ; simp_all +decide
-          · replace this := Finset.ext_iff.mp this y; aesop;
-          · simp_all +decide [ Finset.insert_subset_iff ];
+        · have h_neighbors : { u, w } = G.neighborFinset v :=
+            Finset.eq_of_subset_of_card_le
+              (show { u, w } ⊆ G.neighborFinset v from by
+                simp_all +decide [ Finset.insert_subset_iff ])
+              (by simp_all +decide)
+          replace h_neighbors := Finset.ext_iff.mp h_neighbors y; aesop;
         · -- Since $x$ is adjacent to $v$ and $v$ is adjacent to $u$ and $w$, $x$ must be either $u$ or $w$.
           have hx_u_or_w : x = u ∨ x = w := by
             have := Finset.card_eq_two.mp hdeg;
@@ -1002,8 +997,7 @@ lemma edges_lt_9_embeds_in_3_measure (n : ℕ) :
             simp_all +decide
             linarith [ Nat.sub_add_cancel ( show 1 ≤ Fintype.card V from Fintype.card_pos_iff.mpr ⟨ v ⟩ ) ];
           by_cases hG'_edges : G'.edgeFinset.card < 9;
-          ·
-            exact
+          · exact
               embed_isolated G v hdv
                 (ih (3 * G'.edgeFinset.card + Fintype.card { u // u ≠ v }) hG' (deleteVertex G v)
                   rfl hG'_edges)
@@ -1023,8 +1017,7 @@ lemma edges_lt_9_embeds_in_3_measure (n : ℕ) :
               linarith;
           have hdv : G.degree v = 1 := by
             subst hn
-            simp_all only [Set.toFinset_card, Fintype.card_ofFinset, ge_iff_le, not_forall, not_le, ne_eq,
-              forall_const, G']
+            simp_all only [ge_iff_le, not_forall, not_le, ne_eq, forall_const, G']
           exact embed_extend_deg_1 G v hdv hG'_embed
         · -- Let `u, w` be neighbors.
           obtain ⟨u, w, hu, hw, huw⟩ : ∃ u w : V, G.Adj v u ∧ G.Adj v w ∧ u ≠ w := by
