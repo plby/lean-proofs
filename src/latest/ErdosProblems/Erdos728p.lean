@@ -16,8 +16,10 @@ URLs:
 - https://raw.githubusercontent.com/plby/lean-proofs/refs/heads/main/src/v4.24.0/ErdosProblems/Erdos728p.lean
 -/
 /-
-We have formalized the main results of the paper "A Remark on the Middle Binomial Coefficient" by Carl Pomerance.
-Specifically, we have defined the properties and bad sets for Theorems 1.1 and 1.2, and stated the density results.
+We have formalized the main results of the paper "A Remark on the Middle
+Binomial Coefficient" by Carl Pomerance.
+Specifically, we have defined the properties and bad sets for Theorems 1.1 and
+1.2, and stated the density results.
 We have also formalized the intermediate lemmas and bounds required for the proofs.
 The final theorems are `theorem_1_1` and `theorem_1_2`.
 -/
@@ -27,9 +29,7 @@ import Mathlib
 namespace Erdos728p
 
 set_option linter.unusedSimpArgs false
-set_option linter.unnecessarySimpa false
 set_option linter.unusedVariables false
-set_option linter.deprecated false
 set_option linter.style.openClassical false
 set_option linter.style.setOption false
 set_option linter.style.longLine false
@@ -123,7 +123,7 @@ theorem valuation_ge_large_digits (p m : ℕ) [Fact p.Prime] :
       -- Since $2 * (Nat.digits p m)[k]! ≥ p$, we have $2 * (Nat.ofDigits p (List.take (k + 1) (Nat.digits p m))) ≥ p^{k+1}$.
       have h_ofDigits : 2 * (Nat.ofDigits p (List.take (k + 1) (Nat.digits p m))) ≥ p ^ (k + 1) := by
         have h_digit : (Nat.ofDigits p (List.take (k + 1) (Nat.digits p m))) = (Nat.ofDigits p (List.take k (Nat.digits p m))) + ((Nat.digits p m).getD k 0) * p ^ k := by
-          rw [ List.take_succ ];
+          rw [ List.take_add_one ];
           simp +decide [ Nat.ofDigits_append, mul_comm ];
           rw [ min_eq_left ( Finset.mem_range_le hk ) ] ; aesop
         rw [ pow_succ' ];
@@ -236,7 +236,7 @@ theorem bound_N (p D B : ℕ) [Fact p.Prime] (hD : D ≥ 2) :
         -- Let $a$ be the function that maps each index $i$ to the $i$-th digit of $x$ in base $p$.
         obtain ⟨a, ha⟩ : ∃ a : Fin D → Fin p, List.map (fun i => (a i).val) (List.finRange D) = Nat.digits p x ++ List.replicate (D - (Nat.digits p x).length) 0 := by
           have h_digits_len : (Nat.digits p x).length ≤ D := by
-            have := @Nat.digits_len p x;
+            have := @Nat.length_digits p x;
             exact if hx₃ : x = 0 then by simp +decide [ hx₃ ] else by rw [ this ( Nat.Prime.one_lt Fact.out ) hx₃ ] ; exact Nat.log_lt_of_lt_pow ( by positivity ) hx₁;
           use fun i => ⟨ (Nat.digits p x ++ List.replicate (D - (Nat.digits p x).length) 0).getD i 0, by
             by_cases hi : i.val < (Nat.digits p x).length <;> simp_all +decide
@@ -657,7 +657,7 @@ theorem lemma_carry_prop (p : ℕ) [Fact p.Prime] (m j i : ℕ) (hi : 1 ≤ i) (
               refine' Nat.ofDigits_lt_base_pow_length _ _ |> lt_of_lt_of_le <| Nat.pow_le_pow_right ( Nat.Prime.pos Fact.out ) <| by aesop;
               · linarith;
               · exact fun x hx => Nat.digits_lt_base ( Fact.out : p.Prime ).one_lt ( List.mem_of_mem_take hx );
-            rcases j <;> simp_all +decide [ Nat.ofDigits_append, List.take_succ ];
+            rcases j <;> simp_all +decide [ Nat.ofDigits_append, List.take_add_one ];
             cases h : ( p.digits m)[‹_›]? <;> aesop;
           rcases j with ( _ | j ) <;> simp_all +decide [ pow_succ' ];
           · contradiction;
@@ -1798,7 +1798,11 @@ theorem weighted_vector_recurrence (p D : ℕ) (z : ℝ) [Fact p.Prime] (hp : p 
         ∑ d_init : Fin D → Fin p, ∑ d_last : Fin p, (if (if 2 * (d_last : ℕ) + (carry_out p D d_init : ℕ) ≥ p then 1 else 0) = c then z ^ (num_carries p D d_init + (if 2 * (d_last : ℕ) + (carry_out p D d_init : ℕ) ≥ p then 1 else 0)) else 0) := by
           rw [ ← Finset.sum_product' ];
           refine' Finset.sum_bij ( fun x _ => ( x ∘ Fin.castSucc, x ( Fin.last _ ) ) ) _ _ _ _ <;> simp +decide;
-          · exact fun a₁ a₂ h₁ h₂ => funext fun i => by cases i using Fin.lastCases <;> simpa [ * ] using congr_fun h₁ ‹_›;
+          · intro a₁ a₂ h₁ h₂
+            exact funext fun i => by
+              cases i using Fin.lastCases
+              · exact h₂
+              · exact congr_fun h₁ _
           · exact fun a b => ⟨ Fin.snoc a b, by ext i; simp +decide, by simp +decide ⟩;
           · intro a; rw [ num_carries_succ, carry_out_succ ] ;
             rw [ carries_last_eq ];
@@ -5251,7 +5255,7 @@ The sum of binomial coefficients binom(n, i) for i <= k is bounded by (k+1) * bi
 theorem sum_choose_le_mul_max (n k : ℕ) (hk : 2 * k ≤ n) :
     ∑ i ∈ Finset.range (k + 1), Nat.choose n i ≤ (k + 1) * Nat.choose n k := by
       induction' k with k ih <;> simp_all +decide [ Finset.sum_range_succ, Nat.choose_succ_succ ];
-      nlinarith [ ih ( by linarith ), Nat.succ_mul_choose_eq n k, Nat.choose_succ_succ n k ]
+      nlinarith [ ih ( by linarith ), Nat.add_one_mul_choose_eq n k, Nat.choose_succ_succ n k ]
 
 /-
 The cardinality of the bad set for Lemma 3.1 (v2) is bounded by L^D * (B+1) * D^B.
@@ -5729,7 +5733,7 @@ theorem term_2_bound (x : ℝ) (hx : x ≥ 10) :
     term_2 x ≤ 2 * (K_thm x : ℝ)^2 := by
       -- The number of primes less than $2K$ is at most $2K$.
       have h_prime_count : (Finset.filter Nat.Prime (Finset.range (2 * K_thm x))).card ≤ 2 * (K_thm x : ℕ) := by
-        exact le_trans ( Finset.card_filter_le _ _ ) ( by simpa );
+        exact le_trans ( Finset.card_filter_le _ _ ) ( by simp );
       exact le_trans ( mul_le_mul_of_nonneg_left ( Nat.cast_le.mpr h_prime_count ) ( Nat.cast_nonneg _ ) ) ( by norm_num; nlinarith )
 
 /-
@@ -6160,7 +6164,7 @@ theorem lemma_implication_fixed_K (x : ℝ) (m : ℕ) (hx : x ≥ 100) (hm : m �
           exact le_of_lt h_val;
         · convert lemma_large_primes m k p ( by linarith ) ( by linarith ) using 1;
           exact ⟨ hp ⟩;
-      · simp +decide [ hp, Nat.factorization_eq_zero_of_non_prime ]
+      · simp +decide [ hp, Nat.factorization_eq_zero_of_not_prime ]
 
 /-
 The bad set for Theorem 1.2 is contained in the union of the bad sets for Lemma 3.1 and Lemma 3.2.
@@ -6603,7 +6607,7 @@ theorem count_large_digits_add (p : ℕ) (n : ℕ) (k r : ℕ) (hr : r < p ^ n) 
       have h_digits_split : Nat.digits p (k * p ^ n + r) = Nat.digits p r ++ Nat.digits p (k * p ^ (n - (Nat.digits p r).length)) := by
         rw [ Nat.add_comm, Nat.digits_append_digits ];
         · rw [ mul_left_comm, ← pow_add, Nat.add_sub_of_le ];
-          have := @Nat.digits_len p r;
+          have := @Nat.length_digits p r;
           exact if hr0 : r = 0 then by simp +decide [ hr0 ] else by rw [ this hp hr0 ] ; exact Nat.log_lt_of_lt_pow ( by positivity ) hr;
         · linarith;
       rw [ h_digits_split, List.filter_append ];
