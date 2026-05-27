@@ -29,12 +29,9 @@ set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.style.openClassical false
 set_option linter.style.refine false
-set_option linter.style.cases false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
-set_option linter.style.cdot false
 set_option linter.flexible false
-set_option linter.unusedSimpArgs false
 
 open scoped Classical
 
@@ -1006,8 +1003,7 @@ lemma fourth_moment_rademacher_sum_finset {Ω : Type*} [MeasurableSpace Ω] {P :
                 have := h_rad a
                 have := rademacher_props this; aesop
               have hY_cube_mean : ∫ ω, (ξ a ω)^3 ∂P = 0 := by
-                have := h_rad a
-                cases' this with h₁ h₂
+                obtain ⟨ h₁, h₂ ⟩ := h_rad a
                 have hY_cube_mean : ∫ ω, (ξ a ω)^3 ∂P = ∫ ω in {ω | ξ a ω = 1}, (ξ a ω)^3 ∂P + ∫ ω in {ω | ξ a ω = -1}, (ξ a ω)^3 ∂P := by
                   rw [ ← MeasureTheory.setIntegral_union ]
                   · rw [ MeasureTheory.Measure.restrict_eq_self_of_ae_mem ]
@@ -1485,7 +1481,9 @@ theorem erdos_1028 : ∃ c C : ℝ, 0 < c ∧ c < C ∧ ∀ᶠ n : ℕ in atTop,
   obtain ⟨ C, hC₀, hC ⟩ := thm_upper
   exact ⟨ c, hc₀, C + c, by linarith, Max.max a 2, fun n hn => ⟨ ha n ( le_trans ( le_max_left _ _ ) hn ), hC n ( le_trans ( le_max_right _ _ ) hn ) |> le_trans <| mul_le_mul_of_nonneg_right ( by linarith ) <| by positivity ⟩ ⟩
 
+end Erdos1028
+
+open Erdos1028
+
 #print axioms erdos_1028
 -- 'Erdos1028.erdos_1028' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end Erdos1028
