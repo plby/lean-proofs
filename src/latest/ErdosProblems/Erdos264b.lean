@@ -61,7 +61,6 @@ set_option linter.style.longLine false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.flexible false
-set_option linter.unusedSimpArgs false
 set_option aesop.warn.nonterminal false
 
 open scoped BigOperators
@@ -71,14 +70,6 @@ open scoped Real
 open scoped Nat
 
 open scoped Pointwise
-
-set_option maxHeartbeats 20000000
-
-set_option maxRecDepth 4000
-
-set_option synthInstance.maxHeartbeats 20000
-
-set_option synthInstance.maxSize 128
 
 /-
 Definition of alpha_n as the sum from k=n+1 to infinity of 1/(2^k + 5).
@@ -95,82 +86,207 @@ For every integer n>=0 we have alpha_n < beta_n.
 -/
 theorem lemma1 (n : ℕ) : alpha n < beta n := by
   -- Rewrite $\alpha_n$ and $\beta_n$ using their definitions.
-  have h_def : alpha n = ∑' k, (1 / (((2 : ℝ)^(n + 1 + k) + 5))) ∧ beta n = ∑' k, (1 / (((2 : ℝ)^(n + 1 + k) + 1))) := by
-    exact ⟨ rfl, rfl ⟩;
-  aesop;
-  fapply Summable.tsum_lt_tsum;
-  use 0;
-  · exact fun k => inv_anti₀ ( by positivity ) ( by linarith );
-  · gcongr ; norm_num;
-  · exact Summable.of_nonneg_of_le ( fun _ => by positivity ) ( fun m => by simpa using inv_anti₀ ( by positivity ) ( show ( 2 ^ ( n + 1 + m ) + 5 : ℝ ) ≥ 2 ^ ( n + 1 + m ) by linarith ) ) ( by simpa using summable_geometric_two.comp_injective ( by aesop_cat ) );
-  · exact Summable.of_nonneg_of_le ( fun _ ↦ by positivity ) ( fun _ ↦ by simpa using inv_anti₀ ( by positivity ) ( show ( 2 ^ ( n + 1 + ‹_› ) + 1 : ℝ ) ≥ 2 ^ ( n + 1 + ‹_› ) by norm_num ) ) ( by simpa using summable_geometric_two.comp_injective ( by aesop_cat ) )
+  have h_def :
+      alpha n = ∑' k, (1 / (((2 : ℝ) ^ (n + 1 + k) + 5))) ∧
+        beta n = ∑' k, (1 / (((2 : ℝ) ^ (n + 1 + k) + 1))) := by
+    exact ⟨rfl, rfl⟩
+  rw [h_def.1, h_def.2]
+  exact Summable.tsum_lt_tsum_of_nonneg (i := 0)
+    (fun _ => by positivity)
+    (fun k => by
+      simpa [one_div] using inv_anti₀
+        (by positivity : 0 < (2 : ℝ) ^ (n + 1 + k) + 1)
+        (show (2 : ℝ) ^ (n + 1 + k) + 1 ≤ (2 : ℝ) ^ (n + 1 + k) + 5 by
+          linarith))
+    (by
+      gcongr
+      norm_num)
+    (Summable.of_nonneg_of_le
+      (fun _ ↦ by positivity)
+      (fun m ↦ by
+        simpa using inv_anti₀ (by positivity)
+          (show (2 ^ (n + 1 + m) + 1 : ℝ) ≥ 2 ^ (n + 1 + m) by
+            norm_num))
+      (by
+        simpa using summable_geometric_two.comp_injective (by aesop_cat)))
 
 /-
 For every integer n>=0 we have beta_{n+1} >= alpha_{n+1} + 1/((2^{n+1}+1)(2^{n+1}+2)).
 -/
-theorem lemma2 (n : ℕ) : beta (n + 1) ≥ alpha (n + 1) + 1 / ((2^(n + 1) + 1) * (2^(n + 1) + 2)) := by
-  -- By Lemma 1, we have $\beta_{n+1} - \alpha_{n+1} \geq \frac{1}{2^{n+2}+1} - \frac{1}{2^{n+2}+5}$.
-  have h_diff_lower_bound : (beta (n + 1)) - (alpha (n + 1)) ≥ (1 / ((2 ^ (n + 2) + 1) * (2 ^ (n + 2) + 5) : ℝ)) * 4 := by
+theorem lemma2 (n : ℕ) :
+    beta (n + 1) ≥ alpha (n + 1) +
+      1 / ((2 ^ (n + 1) + 1) * (2 ^ (n + 1) + 2)) := by
+  -- By Lemma 1, lower-bound the difference of the two tails by the first term.
+  have h_diff_lower_bound :
+      (beta (n + 1)) - (alpha (n + 1)) ≥
+        (1 / ((2 ^ (n + 2) + 1) * (2 ^ (n + 2) + 5) : ℝ)) * 4 := by
     -- By Lemma 1, we can write $\beta_{n+1} - \alpha_{n+1}$ as a sum of differences.
-    have h_beta_alpha_sum : (beta (n + 1)) - (alpha (n + 1)) = (∑' (k : ℕ), (1 / (((2 : ℝ)^(n + 1 + 1 + k)) + 1) - 1 / (((2 : ℝ)^(n + 1 + 1 + k)) + 5))) := by
-      unfold beta alpha; aesop;
-      rw [ Summable.tsum_sub ];
-      · exact Summable.of_nonneg_of_le ( fun _ ↦ by positivity ) ( fun k ↦ by simpa using inv_anti₀ ( by positivity ) ( show ( 2 ^ ( n + 1 + 1 + k ) + 1 : ℝ ) ≥ 2 ^ ( n + 1 + 1 + k ) by norm_num ) ) ( by simpa using summable_geometric_two.comp_injective ( by aesop_cat ) );
-      · exact Summable.of_nonneg_of_le ( fun _ ↦ by positivity ) ( fun k ↦ by simpa using inv_anti₀ ( by positivity ) ( show ( 2:ℝ ) ^ ( n + 1 + 1 + k ) + 5 ≥ ( 2:ℝ ) ^ ( n + 1 + 1 + k ) by norm_num ) ) ( by simpa using summable_geometric_two.comp_injective <| by aesop_cat );
-    rw [ h_beta_alpha_sum, Summable.tsum_eq_zero_add ] <;> norm_num;
-    · exact le_add_of_le_of_nonneg ( by nlinarith only [ inv_pos.mpr ( by positivity : 0 < ( 2:ℝ ) ^ ( n+2 ) +5 ), inv_pos.mpr ( by positivity : 0 < ( 2:ℝ ) ^ ( n+2 ) +1 ), mul_inv_cancel₀ ( by positivity : ( 2:ℝ ) ^ ( n+2 ) +5 ≠ 0 ), mul_inv_cancel₀ ( by positivity : ( 2:ℝ ) ^ ( n+2 ) +1 ≠ 0 ) ] ) ( tsum_nonneg fun _ => sub_nonneg.mpr <| inv_anti₀ ( by positivity ) <| by gcongr ; norm_num );
-    · refine' Summable.of_nonneg_of_le _ _ _;
-      use fun k => 1 / ( 2 ^ ( n + 1 + 1 + k ) );
-      · exact fun k => sub_nonneg_of_le <| inv_anti₀ ( by positivity ) <| by linarith [ pow_pos ( by norm_num : ( 0 : ℝ ) < 2 ) ( n + 1 + 1 + k ) ] ;
-      · field_simp;
-        exact fun k => by nlinarith [ pow_pos ( zero_lt_two' ℝ ) ( n + 1 + 1 + k ) ] ;
-      · simpa using summable_geometric_two.comp_injective ( add_right_injective _ );
-  norm_num [ pow_succ' ] at *;
+    have h_beta_alpha_sum :
+        (beta (n + 1)) - (alpha (n + 1)) =
+          (∑' (k : ℕ),
+            (1 / (((2 : ℝ) ^ (n + 1 + 1 + k)) + 1) -
+              1 / (((2 : ℝ) ^ (n + 1 + 1 + k)) + 5))) := by
+      unfold beta alpha
+      rw [Summable.tsum_sub]
+      · exact Summable.of_nonneg_of_le
+          (fun _ ↦ by positivity)
+          (fun k ↦ by
+            simpa using inv_anti₀ (by positivity)
+              (show (2 ^ (n + 1 + 1 + k) + 1 : ℝ) ≥ 2 ^ (n + 1 + 1 + k) by
+                norm_num))
+          (by
+            simpa using summable_geometric_two.comp_injective (by aesop_cat))
+      · exact Summable.of_nonneg_of_le
+          (fun _ ↦ by positivity)
+          (fun k ↦ by
+            simpa using inv_anti₀ (by positivity)
+              (show (2 : ℝ) ^ (n + 1 + 1 + k) + 5 ≥
+                  (2 : ℝ) ^ (n + 1 + 1 + k) by
+                norm_num))
+          (by
+            simpa using summable_geometric_two.comp_injective <| by aesop_cat)
+    rw [h_beta_alpha_sum, Summable.tsum_eq_zero_add] <;> norm_num
+    · exact le_add_of_le_of_nonneg
+        (by
+          nlinarith only [
+            inv_pos.mpr (by positivity : 0 < (2 : ℝ) ^ (n + 2) + 5),
+            inv_pos.mpr (by positivity : 0 < (2 : ℝ) ^ (n + 2) + 1),
+            mul_inv_cancel₀ (by positivity : (2 : ℝ) ^ (n + 2) + 5 ≠ 0),
+            mul_inv_cancel₀ (by positivity : (2 : ℝ) ^ (n + 2) + 1 ≠ 0)])
+        (tsum_nonneg fun _ =>
+          sub_nonneg.mpr <| inv_anti₀ (by positivity) <| by
+            gcongr
+            norm_num)
+    · refine Summable.of_nonneg_of_le
+        (f := fun k => 1 / (2 ^ (n + 1 + 1 + k))) ?_ ?_ ?_
+      · exact fun k => sub_nonneg_of_le <| inv_anti₀ (by positivity) <| by
+          linarith [pow_pos (by norm_num : (0 : ℝ) < 2) (n + 1 + 1 + k)]
+      · intro k
+        field_simp
+        nlinarith [pow_pos (zero_lt_two' ℝ) (n + 1 + 1 + k)]
+      · simpa using summable_geometric_two.comp_injective (add_right_injective _)
+  norm_num [pow_succ'] at *
   -- Let's simplify the inequality.
-  field_simp at *;
+  field_simp at *
   nlinarith [ pow_pos ( zero_lt_two' ℝ ) n, pow_mul ( 2 : ℝ ) n 2 ]
 
 /-
-Given bounds at step n, there exists a next term b_{n+1} in {1,..,5} such that the bounds hold at step n+1.
+Given bounds at step n, there exists a next term b_{n+1} in {1,..,5} such
+that the bounds hold at step n+1.
 -/
 theorem recursive_step (n : ℕ) (current_sum : ℝ) (x : ℝ)
   (h_bounds : current_sum + alpha n ≤ x ∧ x ≤ current_sum + beta n) :
   ∃ b_next ∈ ({1, 2, 3, 4, 5} : Set ℕ),
     current_sum + 1 / ((2 : ℝ)^(n + 1) + (b_next : ℝ)) + alpha (n + 1) ≤ x ∧
     x ≤ current_sum + 1 / ((2 : ℝ)^(n + 1) + (b_next : ℝ)) + beta (n + 1) := by
-      -- Let's choose $b_{n+1}$ to be the largest integer in $\{1, 2, 3, 4, 5\}$ such that $x \leq \sum_{k=1}^{n} \frac{1}{2^k+b_k} + \frac{1}{2^{n+1}+b_{n+1}} + \beta_{n+1}$.
-      obtain ⟨b_next, hb_next_def⟩ : ∃ b_next ∈ Finset.Icc (1 : ℕ) 5, x ≤ current_sum + 1 / ((2 : ℝ)^(n + 1) + b_next) + beta (n + 1) ∧ ∀ c ∈ Finset.Icc (1 : ℕ) 5, c > b_next → ¬(x ≤ current_sum + 1 / ((2 : ℝ)^(n + 1) + c) + beta (n + 1)) := by
-        -- By definition of $beta$, we know that $x \leq current\_sum + \frac{1}{2^{n+1} + 1} + \beta (n + 1)$.
-        have h_beta : x ≤ current_sum + 1 / ((2 : ℝ)^(n + 1) + 1) + beta (n + 1) := by
+      -- Choose the largest admissible integer satisfying the upper bound.
+      obtain ⟨b_next, hb_next_def⟩ :
+          ∃ b_next ∈ Finset.Icc (1 : ℕ) 5,
+            x ≤ current_sum + 1 / ((2 : ℝ) ^ (n + 1) + b_next) +
+                beta (n + 1) ∧
+              ∀ c ∈ Finset.Icc (1 : ℕ) 5, c > b_next →
+                ¬(x ≤ current_sum + 1 / ((2 : ℝ) ^ (n + 1) + c) +
+                  beta (n + 1)) := by
+        have h_beta :
+            x ≤ current_sum + 1 / ((2 : ℝ) ^ (n + 1) + 1) +
+              beta (n + 1) := by
           -- By definition of $beta$, we can split the sum into the first term and the rest.
           have h_beta_split : beta n = 1 / ((2 : ℝ)^(n + 1) + 1) + beta (n + 1) := by
-            unfold beta; aesop;
-            rw [ Summable.tsum_eq_zero_add ] ; norm_num [ pow_add ] ; ring_nf; (
-            exact Summable.of_nonneg_of_le ( fun _ => by positivity ) ( fun k => by simpa using inv_anti₀ ( by positivity ) ( show ( 2 ^ ( n + 1 + k ) + 1 : ℝ ) ≥ 2 ^ ( n + 1 + k ) by linarith ) ) ( by simpa using summable_geometric_two.comp_injective ( by aesop_cat ) ));
-          linarith;
-        exact ⟨ Finset.max' ( Finset.filter ( fun c : ℕ => x ≤ current_sum + 1 / ( 2 ^ ( n + 1 ) + c : ℝ ) + beta ( n + 1 ) ) ( Finset.Icc 1 5 ) ) ⟨ 1, by norm_num; aesop ⟩, Finset.mem_filter.mp ( Finset.max'_mem ( Finset.filter ( fun c : ℕ => x ≤ current_sum + 1 / ( 2 ^ ( n + 1 ) + c : ℝ ) + beta ( n + 1 ) ) ( Finset.Icc 1 5 ) ) ⟨ 1, by norm_num; aesop ⟩ ) |>.1, Finset.mem_filter.mp ( Finset.max'_mem ( Finset.filter ( fun c : ℕ => x ≤ current_sum + 1 / ( 2 ^ ( n + 1 ) + c : ℝ ) + beta ( n + 1 ) ) ( Finset.Icc 1 5 ) ) ⟨ 1, by norm_num; aesop ⟩ ) |>.2, fun c hc hbc hxc => not_lt_of_ge ( Finset.le_max' _ _ <| by aesop ) hbc ⟩;
+            unfold beta
+            rw [Summable.tsum_eq_zero_add]
+            · norm_num [pow_add]
+              ring_nf
+            · exact Summable.of_nonneg_of_le
+                (fun _ => by positivity)
+                (fun k => by
+                  simpa using inv_anti₀ (by positivity)
+                    (show (2 ^ (n + 1 + k) + 1 : ℝ) ≥
+                        2 ^ (n + 1 + k) by
+                      linarith))
+                (by
+                  simpa using summable_geometric_two.comp_injective (by aesop_cat))
+          linarith
+        let good : Finset ℕ :=
+          (Finset.Icc 1 5).filter fun c : ℕ =>
+            x ≤ current_sum + 1 / ((2 : ℝ) ^ (n + 1) + (c : ℝ)) +
+              beta (n + 1)
+        have h_good_nonempty : (1 : ℕ) ∈ good := by
+          dsimp [good]
+          exact Finset.mem_filter.mpr ⟨by norm_num, by simpa [one_div] using h_beta⟩
+        let b_max := Finset.max' good ⟨1, h_good_nonempty⟩
+        have hb_max_mem : b_max ∈ good := Finset.max'_mem good ⟨1, h_good_nonempty⟩
+        have hb_max_icc : b_max ∈ Finset.Icc (1 : ℕ) 5 :=
+          (Finset.mem_filter.mp hb_max_mem).1
+        have hb_max_prop :
+            x ≤ current_sum + 1 / ((2 : ℝ) ^ (n + 1) + (b_max : ℝ)) +
+              beta (n + 1) :=
+          (Finset.mem_filter.mp hb_max_mem).2
+        refine ⟨b_max, hb_max_icc, hb_max_prop, ?_⟩
+        intro c hc hbc hxc
+        have hc_good : c ∈ good := by
+          exact Finset.mem_filter.mpr ⟨hc, hxc⟩
+        exact not_lt_of_ge (Finset.le_max' good c hc_good) hbc
       -- If $b_{n+1}=5$, then \eqref{property2} and \eqref{ineq1} together give
-      by_cases hb_next_eq_5 : b_next = 5;
-      · use 5; aesop;
+      by_cases hb_next_eq_5 : b_next = 5
+      · refine ⟨5, by norm_num, ?_, ?_⟩
         -- By definition of $alpha$, we know that
         have h_alpha : alpha n = 1 / ((2 : ℝ)^(n + 1) + 5) + alpha (n + 1) := by
-          unfold alpha; rw [ Summable.tsum_eq_zero_add ] ; norm_num; ring_nf;
-          norm_num [ pow_add ];
-          exact Summable.of_nonneg_of_le ( fun _ => by positivity ) ( fun k => by rw [ inv_le_comm₀ ] <;> norm_num <;> ring_nf <;> nlinarith [ pow_le_pow_right₀ ( by norm_num : ( 1 : ℝ ) ≤ 2 ) n.zero_le, pow_le_pow_right₀ ( by norm_num : ( 1 : ℝ ) ≤ 2 ) k.zero_le ] ) ( summable_geometric_two );
-        norm_num at * ; linarith;
+          unfold alpha
+          rw [Summable.tsum_eq_zero_add]
+          · norm_num
+            ring_nf
+          · exact Summable.of_nonneg_of_le
+              (fun _ => by positivity)
+              (fun k => by
+                rw [one_div]
+                rw [show ((1 / 2 : ℝ) ^ k) = ((2 : ℝ) ^ k)⁻¹ by
+                  rw [one_div, inv_pow]]
+                exact inv_anti₀ (by positivity)
+                  (by
+                    have hpow : (2 : ℝ) ^ k ≤ (2 : ℝ) ^ (n + 1 + k) := by
+                      exact pow_le_pow_right₀ (by norm_num : (1 : ℝ) ≤ 2) (by omega)
+                    linarith))
+              summable_geometric_two
+        · rw [h_alpha] at h_bounds
+          nlinarith
+        · simpa [hb_next_eq_5] using hb_next_def.2.1
       · -- Otherwise, if $b_{n+1}\in\{1,2,3,4\}$, then the maximality from its definition gives
         -- \[ x > \sum_{k=1}^{n} \frac{1}{2^k+b_k} + \frac{1}{2^{n+1}+b_{n+1}+1} + \beta_{n+1}, \]
-        have hx_gt : x > current_sum + 1 / ((2 : ℝ)^(n + 1) + (b_next + 1 : ℕ)) + beta (n + 1) := by
-          exact lt_of_not_ge ( hb_next_def.2.2 ( b_next + 1 ) ( Finset.mem_Icc.mpr ⟨ by linarith [ Finset.mem_Icc.mp hb_next_def.1 ], by linarith [ Finset.mem_Icc.mp hb_next_def.1, Nat.lt_of_le_of_ne ( Finset.mem_Icc.mp hb_next_def.1 |>.2 ) hb_next_eq_5 ] ⟩ ) ( by linarith [ Finset.mem_Icc.mp hb_next_def.1 ] ) );
+        have hx_gt :
+            x > current_sum + 1 / ((2 : ℝ) ^ (n + 1) + (b_next + 1 : ℕ)) +
+              beta (n + 1) := by
+          exact lt_of_not_ge
+            (hb_next_def.2.2 (b_next + 1)
+              (Finset.mem_Icc.mpr
+                ⟨by linarith [Finset.mem_Icc.mp hb_next_def.1],
+                 by
+                  linarith [
+                    Finset.mem_Icc.mp hb_next_def.1,
+                    Nat.lt_of_le_of_ne (Finset.mem_Icc.mp hb_next_def.1 |>.2)
+                      hb_next_eq_5]⟩)
+              (by linarith [Finset.mem_Icc.mp hb_next_def.1]))
         -- Using Lemma 2, we have $\beta_{n+1} \geq \alpha_{n+1} + \frac{1}{(2^{n+1}+1)(2^{n+1}+2)}$.
-        have h_beta_alpha : beta (n + 1) ≥ alpha (n + 1) + 1 / ((2^(n + 1) + 1) * (2^(n + 1) + 2) : ℝ) := by
+        have h_beta_alpha :
+            beta (n + 1) ≥
+              alpha (n + 1) + 1 / ((2 ^ (n + 1) + 1) * (2 ^ (n + 1) + 2) : ℝ) := by
           exact lemma2 n
         -- Using the inequality $\frac{1}{(2^{n+1}+b_{n+1})(2^{n+1}+b_{n+1}+1)} \leq \frac{1}{(2^{n+1}+1)(2^{n+1}+2)}$, we get
-        have h_ineq : 1 / ((2^(n + 1) + (b_next : ℕ)) * (2^(n + 1) + (b_next + 1) : ℕ) : ℝ) ≤ 1 / ((2^(n + 1) + 1) * (2^(n + 1) + 2) : ℝ) := by
-          gcongr <;> norm_cast <;> aesop;
-        use b_next; aesop;
-        · interval_cases b_next <;> trivial;
-        · nlinarith [ inv_pos.mpr ( by positivity : 0 < ( 2 : ℝ ) ^ ( n + 1 ) + ( b_next : ℝ ) ), inv_pos.mpr ( by positivity : 0 < ( 2 : ℝ ) ^ ( n + 1 ) + ( b_next + 1 : ℝ ) ), mul_inv_cancel₀ ( by positivity : ( 2 : ℝ ) ^ ( n + 1 ) + ( b_next : ℝ ) ≠ 0 ), mul_inv_cancel₀ ( by positivity : ( 2 : ℝ ) ^ ( n + 1 ) + ( b_next + 1 : ℝ ) ≠ 0 ) ]
+        have h_ineq :
+            1 / ((2 ^ (n + 1) + (b_next : ℕ)) *
+                (2 ^ (n + 1) + (b_next + 1) : ℕ) : ℝ) ≤
+              1 / ((2 ^ (n + 1) + 1) * (2 ^ (n + 1) + 2) : ℝ) := by
+          gcongr <;> norm_cast <;> aesop
+        use b_next; aesop
+        · interval_cases b_next <;> trivial
+        · nlinarith [
+            inv_pos.mpr (by positivity :
+              0 < (2 : ℝ) ^ (n + 1) + (b_next : ℝ)),
+            inv_pos.mpr (by positivity :
+              0 < (2 : ℝ) ^ (n + 1) + (b_next + 1 : ℝ)),
+            mul_inv_cancel₀ (by positivity :
+              (2 : ℝ) ^ (n + 1) + (b_next : ℝ) ≠ 0),
+            mul_inv_cancel₀ (by positivity :
+              (2 : ℝ) ^ (n + 1) + (b_next + 1 : ℝ) ≠ 0)]
 
 /-
 There exists a sequence b_k with values in {1,2,3,4,5} such that the sum of 1/(2^k + b_k) is a rational number.
@@ -188,21 +304,29 @@ theorem main_theorem : ∃ b : ℕ → ℕ, (∀ k, b k ∈ ({1, 2, 3, 4, 5} : S
       intro n
       induction n with
       | zero =>
-        aesop
+        refine ⟨fun _ => 1, ?_, ?_⟩
+        · intro k
+          norm_num
+        · intro m hm
+          have hm0 : m = 0 := Nat.eq_zero_of_le_zero hm
+          subst m
+          simpa using hx_bounds
       | succ n ih =>
-        obtain ⟨ b, hb₁, hb₂ ⟩ := ih;
+        obtain ⟨ b, hb₁, hb₂ ⟩ := ih
         -- By the recursive step, there exists a $b_{n+1} \in \{1, 2, 3, 4, 5\}$ such that the bounds hold for $n+1$.
         obtain ⟨ b_next, hb_next ⟩ : ∃ b_next ∈ ({1, 2, 3, 4, 5} : Set ℕ), (∑ k ∈ Finset.range n, (1 / ((2 : ℝ)^(k + 1) + (b (k + 1))))) + (1 / ((2 : ℝ)^(n + 1) + (b_next : ℝ))) + (alpha (n + 1) : ℝ) ≤ x ∧ x ≤ (∑ k ∈ Finset.range n, (1 / ((2 : ℝ)^(k + 1) + (b (k + 1))))) + (1 / ((2 : ℝ)^(n + 1) + (b_next : ℝ))) + (beta (n + 1) : ℝ) := by
-          convert recursive_step n _ _ _ using 1;
-          exact hb₂ n le_rfl;
-        refine' ⟨ fun k => if k = n + 1 then b_next else b k, _, _ ⟩ <;> simp_all +decide;
+          convert recursive_step n _ _ _ using 1
+          exact hb₂ n le_rfl
+        refine' ⟨ fun k => if k = n + 1 then b_next else b k, _, _ ⟩ <;> simp_all +decide
         · grind +ring;
-        · intro m hm; cases hm <;> simp_all +decide [ Finset.sum_range_succ ] ;
-          · convert hb_next.2 using 2 <;> rw [ Finset.sum_congr rfl ] <;> aesop;
-          · convert hb₂ m ‹_› using 2 <;> congr! 1;
-            · exact Finset.sum_congr rfl fun x hx => by rw [ if_neg ( by linarith [ Finset.mem_range.mp hx ] ) ] ;
-            · exact Finset.sum_congr rfl fun x hx => by rw [ if_neg ( by linarith [ Finset.mem_range.mp hx ] ) ] ;
-    choose f hf1 hf2 using h_seq;
+        · intro m hm; cases hm <;> simp_all +decide [ Finset.sum_range_succ ]
+          · convert hb_next.2 using 2 <;> rw [Finset.sum_congr rfl] <;> aesop
+          · convert hb₂ m ‹_› using 2 <;> congr! 1
+            · exact Finset.sum_congr rfl fun x hx => by
+                rw [if_neg (by linarith [Finset.mem_range.mp hx])]
+            · exact Finset.sum_congr rfl fun x hx => by
+                rw [if_neg (by linarith [Finset.mem_range.mp hx])]
+    choose f hf1 hf2 using h_seq
     -- By the properties of the sequence $(f_n)$, we can extract a subsequence $(f_{n_k})$ that converges pointwise to some function $b$.
     obtain ⟨b, hb⟩ : ∃ b : ℕ → ℕ, (∀ k, b k ∈ ({1, 2, 3, 4, 5} : Set ℕ)) ∧ ∃ (subseq : ℕ → ℕ), StrictMono subseq ∧ ∀ k, Filter.Tendsto (fun n => f (subseq n) k) Filter.atTop (nhds (b k)) := by
       have h_compact : IsCompact (Set.pi Set.univ fun k : ℕ => ({1, 2, 3, 4, 5} : Set ℕ)) := by
@@ -259,14 +383,20 @@ theorem erdos_264.parts.i : ¬IsIrrationalitySequence (2 ^ ·) := by
   have hb'_pos : ∀ n, 0 < b' n := by
     intro n
     by_cases hn : n = 0
-    · simp [b', hn]
-    · simp [b', hn]
+    · subst n
+      norm_num [b']
+    · have hb'_eq : b' n = b n := by
+        simp [b', hn]
+      rw [hb'_eq]
       rcases hb_mem n with h | h | h | h | h <;> norm_num at h <;> omega
   have hb'_bdd : BddAbove (Set.range b') := by
     refine' ⟨5, Set.forall_mem_range.mpr fun n => _⟩
     by_cases hn : n = 0
-    · simp [b', hn]
-    · simp [b', hn]
+    · subst n
+      norm_num [b']
+    · have hb'_eq : b' n = b n := by
+        simp [b', hn]
+      rw [hb'_eq]
       rcases hb_mem n with h | h | h | h | h <;> norm_num at h <;> omega
   have h_ab_ne_zero : 0 ∉ Set.range (fun n => (2 ^ n) + b' n) := by
     rintro ⟨n, hn⟩
