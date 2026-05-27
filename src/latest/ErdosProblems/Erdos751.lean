@@ -31,19 +31,7 @@ import Mathlib.Data.Finset.Card
 import Mathlib.Data.Nat.Dist
 import Mathlib.Tactic
 
-set_option linter.style.setOption false
-set_option linter.style.openClassical false
-set_option linter.unusedDecidableInType false
-set_option linter.flexible false
-set_option linter.style.cdot false
-set_option linter.unusedSimpArgs false
-set_option linter.style.maxHeartbeats false
-set_option linter.style.emptyLine false
-set_option linter.unusedFintypeInType false
-
 namespace Erdos751
-
-open Classical
 
 universe u
 variable {V : Type u} [Fintype V] [DecidableEq V]
@@ -283,8 +271,6 @@ end Erdos751
 
 namespace Erdos751
 
-open Classical
-
 universe u
 variable {V : Type u} [Fintype V] [DecidableEq V]
 variable (G : SimpleGraph V) [DecidableRel G.Adj]
@@ -462,8 +448,6 @@ end Erdos751
 
 namespace Erdos751
 
-open Classical
-
 universe u
 variable {V : Type u} [Fintype V] [DecidableEq V]
 variable (G : SimpleGraph V) [DecidableRel G.Adj]
@@ -516,7 +500,6 @@ end Erdos751
 
 namespace Erdos751
 
-open Classical
 open SimpleGraph
 
 universe u
@@ -526,6 +509,7 @@ variable (G : SimpleGraph V) [DecidableRel G.Adj]
 namespace BV
 
 omit [Fintype V] [DecidableRel G.Adj] in
+set_option linter.unusedDecidableInType false in
 private lemma shorter_cycle_of_chord
     {v : V} {c : G.Walk v v} (hc : c.IsCycle)
     {x y : V} (hx : x ∈ c.support) (hy : y ∈ c.support)
@@ -966,10 +950,8 @@ theorem compression
   have hA1subset : ∀ v : V, v ∈ A1.support → v ∈ C.vSet (G := G) := by
     intro v hv
     by_cases hz1 : z ∈ a1.support
-    · simp [A1, hz1] at hv
-      exact ha2_subset v hv
-    · simp [A1, hz1] at hv
-      exact ha1_subset v hv
+    · exact ha2_subset v (by simpa [A1, hz1] using hv)
+    · exact ha1_subset v (by simpa [A1, hz1] using hv)
   have hA1not : z ∉ A1.support := by
     by_cases hz1 : z ∈ a1.support
     · have : z ∉ a2.support := hz_not_in_a2_of_a1 hz1
@@ -1001,13 +983,11 @@ theorem compression
         have hEdgeXw_head : s(x, wK) = s(x, v) := by
           rcases List.mem_cons.1 hEdgeXw' with hEq | hTail
           · exact hEq
-          ·
-            have hx_mem : x ∈ pTail.support :=
+          · have hx_mem : x ∈ pTail.support :=
               pTail.fst_mem_support_of_mem_edges (by simpa using hTail)
             exact (hx_not_tail hx_mem).elim
         rcases List.mem_cons.1 hxyEdge' with hEq | hTail
-        ·
-          have hEq' : s(x, y) = s(x, wK) := by
+        · have hEq' : s(x, y) = s(x, wK) := by
             simpa [hEdgeXw_head] using hEq
           have hw_not_C : wK ∉ C.vSet (G := G) :=
             mem_bridge_imp_not_mem_cycle (G := G) (C := C) K hwK
@@ -1017,8 +997,7 @@ theorem compression
           rcases hsym with ⟨_, hyw⟩ | ⟨hxw, _⟩
           · exact (hw_not_C (by simpa [hyw] using hy_in_C)).elim
           · exact (hw_not_C (by simpa [hxw] using hxC)).elim
-        ·
-          have hx_mem : x ∈ pTail.support :=
+        · have hx_mem : x ∈ pTail.support :=
             pTail.fst_mem_support_of_mem_edges (by simpa using hTail)
           exact (hx_not_tail hx_mem).elim
   have hA1_tail_nodup : A1.support.tail.Nodup := hA1path.support_nodup.tail
@@ -1098,19 +1077,16 @@ theorem compression
                 exact (G.irrefl hadj)
               have htu_xy : (t = x ∧ u = y) ∨ (t = y ∧ u = x) := by
                 rcases htxy with ht | ht <;> rcases huxy with hu | hu
-                ·
-                  exfalso
+                · exfalso
                   exact htne (by simp [ht, hu])
                 · exact Or.inl ⟨ht, hu⟩
                 · exact Or.inr ⟨ht, hu⟩
-                ·
-                  exfalso
+                · exfalso
                   exact htne (by simp [ht, hu])
               have hxyEdge : s(x, y) ∈ Pxy.edges := by
                 rcases htu_xy with ⟨ht, hu⟩ | ⟨ht, hu⟩
                 · simpa [ht, hu] using heP''
-                ·
-                  have hsymm : s(y, x) = s(x, y) :=
+                · have hsymm : s(y, x) = s(x, y) :=
                     (Sym2.eq_iff).2 (Or.inr ⟨rfl, rfl⟩)
                   simpa [ht, hu, hsymm] using heP''
               exact (hxy_edge_false hxyEdge).elim
@@ -1271,8 +1247,7 @@ theorem compression
         have : (⟨v, hvW⟩ : {v // v ∈ W}) ∈ C'.verts (G := G.induce W) := by
           simpa [Cycle.verts] using this
         exact (C'.mem_vSet_iff (G := G.induce W)).2 this
-      ·
-        have hw_support : w ∈ Cg.walk.support := by
+      · have hw_support : w ∈ Cg.walk.support := by
           have : w ∈ Cg.verts (G := G) := (Cg.mem_vSet_iff (G := G)).1 hw
           simpa [Cycle.verts, Cg] using this
         have hw_support' : w ∈ C'.walk.support.map f.toHom := by
@@ -1339,8 +1314,7 @@ theorem compression
           rcases hvy_or with hvy | hvK'
           · subst hvy
             exact hv_not_C hyC
-          ·
-            have hdis :
+          · have hdis :
                 Disjoint (bridgeSet (G := G) C K)
                   (bridgeSet (G := G) C (Bmax (G := G) hch hne)) :=
               disjoint_bridge_of_ne (G := G) (C := C) (K1 := K)
@@ -1580,8 +1554,7 @@ theorem BV_Lemma1_core
       intro y hy
       by_cases hxy' : y = x
       · simp [Set.mem_singleton_iff, hxy']
-      ·
-        have hxy : x ≠ y := by
+      · have hxy : x ≠ y := by
           simpa [ne_comm] using hxy'
         have : False := hno ⟨y, hxy, hx, hy⟩
         exact (this.elim)
@@ -1625,15 +1598,13 @@ theorem BV_Lemma1_core
             exact v.property
           have hvK : (v : V) ∈ bridgeSet (G := G) C K := by
             by_cases hvC : (v : V) ∈ C.vSet (G := G)
-            ·
-              have hvatt : (v : V) ∈ attachSet (G := G) C K :=
+            · have hvatt : (v : V) ∈ attachSet (G := G) C K :=
                 ⟨hvC, ⟨u.1, hu, by simpa using (G.symm hAdjG)⟩⟩
               have hvx : (v : V) = x := by
                 have hv := hsubset hvatt
                 simpa [Set.mem_singleton_iff] using hv
               exact (hv_ne hvx).elim
-            ·
-              exact mem_bridge_of_adj_outside (G := G) (C := C) (K := K) hu hvC hAdjG
+            · exact mem_bridge_of_adj_outside (G := G) (C := C) (K := K) hu hvC hAdjG
           exact ih hvK
     have hconn := (h2.2 x)
     have hu_ne_x : u ≠ x := by
@@ -2048,6 +2019,7 @@ theorem exists_external_path_in_Bmax
     · exact hvK
   exact mem_bridge_imp_not_mem_cycle (G := G) (C := C) B hv_bridge
 
+set_option linter.unusedDecidableInType false in
 theorem exists_two_cycles_length_dist_1_or_2
     (h2 : VertexTwoConnected (G := G))
     (hδ3 : MinDegreeGE3 (G := G))
@@ -2179,8 +2151,7 @@ theorem exists_two_cycles_length_dist_1_or_2
       simpa [x, y] using h.symm
     have hk' := (hr_cycle.getVert_endpoint_iff (i := k) hk_le).1 this
     rcases hk' with hk0 | hklen
-    ·
-      have hkpos : 0 < k := (Nat.succ_le_iff).1 hk1
+    · have hkpos : 0 < k := (Nat.succ_le_iff).1 hk1
       exact (Nat.ne_of_gt hkpos) hk0
     · exact (Nat.ne_of_lt hklt) hklen
   -- attachments of x,y
@@ -2323,8 +2294,7 @@ theorem exists_two_cycles_length_dist_1_or_2
       simpa using (List.mem_cons.1 this)
     rcases hmem' with hmem' | hmem'
     · exact hmem'
-    ·
-      have hP_nodup : P.support.Nodup :=
+    · have hP_nodup : P.support.Nodup :=
         (SimpleGraph.Walk.isPath_def (p := P)).1 hP_path
       have hx_not_tail : x ∉ P.support.tail := by
         have hsup : P.support = x :: P.support.tail :=
@@ -2673,8 +2643,6 @@ end Erdos751
 
 namespace Erdos751
 
-open Classical
-
 universe u
 variable {V : Type u} [Fintype V] [DecidableEq V]
 variable (G : SimpleGraph V) [DecidableRel G.Adj]
@@ -2715,6 +2683,8 @@ abbrev H (W : Witness (G := G)) : SimpleGraph {v : V // v ∈ W.S} :=
   G.induce (fun v : V => v ∈ W.S)
 
 set_option maxHeartbeats 50000000 in
+-- This construction minimizes over induced subgraphs and builds the critical witness;
+-- the proof repeatedly unfolds finite colorability witnesses and needs a higher bound.
 noncomputable def exists_witness_of_chromaticNumber_ge_4
     (hχ : (4 : ℕ∞) ≤ G.chromaticNumber) :
     Witness (G := G) := by
@@ -2722,7 +2692,6 @@ noncomputable def exists_witness_of_chromaticNumber_ge_4
   -- Minimal (by cardinality) induced subgraph not 3-colorable.
   let bad : Finset V → Prop :=
     fun S => ¬ (G.induce (fun v : V => v ∈ S)).Colorable 3
-
   have hbad_univ : bad (Finset.univ : Finset V) := by
     intro hcol
     -- convert to colorability of the full graph
@@ -2744,7 +2713,6 @@ noncomputable def exists_witness_of_chromaticNumber_ge_4
       (SimpleGraph.chromaticNumber_le_iff_colorable (G := G) (n := 3)).2 hcolG
     have : (4 : ℕ∞) ≤ (3 : ℕ) := hχ.trans hle
     exact (by norm_num : ¬ (4 : ℕ∞) ≤ (3 : ℕ)) this
-
   let cand : Finset (Finset V) :=
     (Finset.univ : Finset V).powerset.filter bad
   have hnonempty : cand.Nonempty := by
@@ -2752,7 +2720,6 @@ noncomputable def exists_witness_of_chromaticNumber_ge_4
     refine (Finset.mem_filter).2 ?_
     refine ⟨?_, hbad_univ⟩
     simp
-
   let S : Finset V :=
     Classical.choose (Finset.exists_min_image cand (fun S => S.card) hnonempty)
   have hS_spec :=
@@ -2760,7 +2727,6 @@ noncomputable def exists_witness_of_chromaticNumber_ge_4
   have hS_cand : S ∈ cand := hS_spec.1
   have hS_min : ∀ S' ∈ cand, S.card ≤ S'.card := hS_spec.2
   have hS_bad : bad S := (Finset.mem_filter.mp hS_cand).2
-
   have hcolor_of_ssubset :
       ∀ {T : Finset V}, T ⊂ S → (G.induce (fun v : V => v ∈ T)).Colorable 3 := by
     intro T hTS
@@ -2774,10 +2740,8 @@ noncomputable def exists_witness_of_chromaticNumber_ge_4
     have hcard_le : S.card ≤ T.card := hS_min _ hTmem
     have hcard_lt : T.card < S.card := Finset.card_lt_card hTS
     exact (Nat.lt_irrefl _ (lt_of_lt_of_le hcard_lt hcard_le))
-
   let H : SimpleGraph {v : V // v ∈ S} :=
     G.induce (fun v : V => v ∈ S)
-
   -- |S| ≥ 4, otherwise 3-colorable by monotonicity.
   have hcard4 :
       (letI : Fintype {v : V // v ∈ S} := instSub (V := V) S
@@ -2801,7 +2765,6 @@ noncomputable def exists_witness_of_chromaticNumber_ge_4
         (G.induce (fun v : V => v ∈ S)).Colorable 3 :=
       SimpleGraph.Colorable.mono hcard_le3 hcol_card
     exact hS_bad hcolS
-
   -- Minimum degree ≥ 3 in the minimal counterexample.
   have hδ3 :
       (letI : Fintype {v : V // v ∈ S} := instSub (V := V) S
@@ -2873,16 +2836,15 @@ noncomputable def exists_witness_of_chromaticNumber_ge_4
         have hw_color_mem : color w ∈ colors := by
           refine Finset.mem_image.mpr ?_
           refine ⟨⟨w, hw_mem⟩, by simp, ?_⟩
-          simp [color, hw, hw_ne]
+          simp [color, hw_ne]
         intro hcw
         have hcu : color u = c0 := by
-          simp [color, hu, hu_eq]
+          simp [color, hu_eq]
         have hcw' : color w = c0 := by
           simpa [hcu] using hcw.symm
         have : c0 ∈ colors := by simpa [hcw'] using hw_color_mem
         exact (hc0_not this).elim
-      ·
-        have hu_ne : u ≠ v := by
+      · have hu_ne : u ≠ v := by
           intro h
           exact hu (congrArg Subtype.val h)
         by_cases hw : w.1 = v.1
@@ -2896,10 +2858,10 @@ noncomputable def exists_witness_of_chromaticNumber_ge_4
           have hu_color_mem : color u ∈ colors := by
             refine Finset.mem_image.mpr ?_
             refine ⟨⟨u, hu_mem⟩, by simp, ?_⟩
-            simp [color, hu, hu_ne]
+            simp [color, hu_ne]
           intro hcu
           have hcv : color w = c0 := by
-            simp [color, hw, hw_eq]
+            simp [color, hw_eq]
           have hcu' : color u = c0 := by
             simpa [hcv] using hcu
           have : c0 ∈ colors := by simpa [hcu'] using hu_color_mem
@@ -2917,7 +2879,6 @@ noncomputable def exists_witness_of_chromaticNumber_ge_4
           simpa [color, hu, hu_ne, hw, hw_ne] using hneq
     have hcolH : H.Colorable 3 := ⟨SimpleGraph.Coloring.mk color hvalid⟩
     exact hS_bad hcolH
-
   -- Connectivity and vertex-deletion connectivity.
   have h2 : BV.VertexTwoConnected (G := H) := by
     classical
@@ -2981,7 +2942,6 @@ noncomputable def exists_witness_of_chromaticNumber_ge_4
       have hcolH : H.Colorable 3 :=
         (SimpleGraph.colorable_iff_forall_connectedComponents (G := H) (n := 3)).2 hcol_all
       exact hS_bad hcolH
-
     -- Deleting any vertex keeps the graph connected.
     have hH_del_conn :
         ∀ v : {v : V // v ∈ S},
@@ -3086,8 +3046,7 @@ noncomputable def exists_witness_of_chromaticNumber_ge_4
         have hsubset : B' ⊆ S := by
           intro x hx
           rcases Finset.mem_union.mp hx with hx | hx
-          ·
-            have hx' : x ∈ S.erase v.1 := (Finset.mem_sdiff.mp hx).1
+          · have hx' : x ∈ S.erase v.1 := (Finset.mem_sdiff.mp hx).1
             exact Finset.mem_of_subset (Finset.erase_subset _ _) hx'
           · simpa using (Finset.mem_singleton.mp hx ▸ v.property)
         have hu0_notin_B' : u0.1.1 ∉ B' := by
@@ -3152,7 +3111,7 @@ noncomputable def exists_witness_of_chromaticNumber_ge_4
               exact hAdjG
             have hneq := CA.valid hAdjA
             have hcu : color u = cA := by
-              simp [color, hu, hu_eq]
+              simp [color, hu_eq]
             have hcu' : color u = CA ⟨v.1, hvA'⟩ := by
               simpa [cA] using hcu
             have hwv : w.1 ≠ v.1 := by
@@ -3164,7 +3123,7 @@ noncomputable def exists_witness_of_chromaticNumber_ge_4
               intro h
               exact hwv (congrArg Subtype.val h)
             have hcw : color w = CA ⟨w.1, hwA'⟩ := by
-              simp [color, hwv, hw_ne, hwA]
+              simp [color, hw_ne, hwA]
             intro hEq
             apply hneq
             exact (by simpa [hcu', hcw] using hEq)
@@ -3190,12 +3149,12 @@ noncomputable def exists_witness_of_chromaticNumber_ge_4
             have hneq := CB'.valid hAdjB
             -- `CB'` sends `v` to `cA`
             have hcu : color u = cA := by
-              simp [color, hu, hu_eq]
+              simp [color, hu_eq]
             have hw_ne : w ≠ v := by
               intro h
               exact hwv (congrArg Subtype.val h)
             have hcw : color w = CB' ⟨w.1, hwB'⟩ := by
-              simp [color, hwv, hw_ne, hwA]
+              simp [color, hw_ne, hwA]
             intro hEq
             apply hneq
             have hEq' : CB' ⟨v.1, hvB'⟩ = CB' ⟨w.1, hwB'⟩ := by
@@ -3205,8 +3164,7 @@ noncomputable def exists_witness_of_chromaticNumber_ge_4
                 _ = color w := hEq
                 _ = CB' ⟨w.1, hwB'⟩ := hcw
             exact hEq'
-        ·
-          have hu_ne : u ≠ v := by
+        · have hu_ne : u ≠ v := by
             intro h
             exact hu (congrArg Subtype.val h)
           by_cases hw : w.1 = v.1
@@ -3225,9 +3183,9 @@ noncomputable def exists_witness_of_chromaticNumber_ge_4
                 exact hAdjG
               have hneq := CA.valid hAdjA
               have hcw : color w = cA := by
-                simp [color, hw, hw_eq]
+                simp [color, hw_eq]
               have hcu : color u = CA ⟨u.1, huA'⟩ := by
-                simp [color, hu, hu_ne, huA]
+                simp [color, hu_ne, huA]
               intro hEq
               apply hneq
               -- rewrite color u / color w to CA-values
@@ -3251,9 +3209,9 @@ noncomputable def exists_witness_of_chromaticNumber_ge_4
               have hneq := CB'.valid hAdjB
               -- `CB'` sends v to cA
               have hcw : color w = cA := by
-                simp [color, hw, hw_eq]
+                simp [color, hw_eq]
               have hcu : color u = CB' ⟨u.1, huB'⟩ := by
-                simp [color, hu, hu_ne, huA]
+                simp [color, hu_ne, huA]
               intro hEq
               apply hneq
               have hEq' : CB' ⟨u.1, huB'⟩ = CB' ⟨v.1, hvB'⟩ := by
@@ -3274,8 +3232,7 @@ noncomputable def exists_witness_of_chromaticNumber_ge_4
               exact congrArg Subtype.val h
             by_cases huA : u.1 ∈ A
             · by_cases hwA : w.1 ∈ A
-              ·
-                have huA' : u.1 ∈ A' := Finset.mem_union.mpr (Or.inl huA)
+              · have huA' : u.1 ∈ A' := Finset.mem_union.mpr (Or.inl huA)
                 have hwA' : w.1 ∈ A' := Finset.mem_union.mpr (Or.inl hwA)
                 have hAdjA :
                     (G.induce (fun u : V => u ∈ A')).Adj
@@ -3283,9 +3240,9 @@ noncomputable def exists_witness_of_chromaticNumber_ge_4
                   simpa using hAdj
                 have hneq := CA.valid hAdjA
                 have hcu : color u = CA ⟨u.1, huA'⟩ := by
-                  simp [color, hu, hu_ne, huA]
+                  simp [color, hu_ne, huA]
                 have hcw : color w = CA ⟨w.1, hwA'⟩ := by
-                  simp [color, hw, hw_ne, hwA]
+                  simp [color, hw_ne, hwA]
                 intro hEq
                 apply hneq
                 exact (by simpa [hcu, hcw] using hEq)
@@ -3419,9 +3376,7 @@ noncomputable def exists_witness_of_chromaticNumber_ge_4
                 exact hEq'
       have hcol : H.Colorable 3 := ⟨SimpleGraph.Coloring.mk color hvalid⟩
       exact hS_bad hcol
-
     exact ⟨hH_conn, hH_del_conn⟩
-
   letI : Fintype {v : V // v ∈ S} := instSub (V := V) S
   exact
     { S := S
@@ -3433,8 +3388,6 @@ end Critical
 end Erdos751
 
 namespace Erdos751
-
-open Classical
 
 universe u
 variable {V : Type u} [Fintype V] [DecidableEq V]
@@ -3469,6 +3422,8 @@ theorem lift_cycle_from_induce_preserve_length
   refine ⟨C', ?_⟩
   simp [BV.Cycle.length, C', SimpleGraph.Walk.length_map]
 
+set_option linter.unusedDecidableInType false in
+set_option linter.unusedFintypeInType false in
 theorem erdos_751_strong
     (hχ : (4 : ℕ∞) ≤ G.chromaticNumber) :
     ∃ C1 C2 : BV.Cycle (G := G),
@@ -3476,11 +3431,9 @@ theorem erdos_751_strong
       (Nat.dist (BV.Cycle.length (G := G) C1) (BV.Cycle.length (G := G) C2) = 2) := by
   classical
   let W := Critical.exists_witness_of_chromaticNumber_ge_4 (G := G) hχ
-
   -- IMPORTANT: match the exact subtype `Fintype` instance used inside `W.hδ3` and `W.hcard4`.
   -- Do NOT use `Subtype.fintype ...` here.
   letI : Fintype {v : V // v ∈ W.S} := Critical.instSub (V := V) W.S
-
   have hBV :
       ∃ D1 D2 : BV.Cycle (G := Critical.H (G := G) W),
         (Nat.dist (BV.Cycle.length (G := Critical.H (G := G) W) D1)
@@ -3492,7 +3445,6 @@ theorem erdos_751_strong
       (by simpa [Critical.H] using W.h2)
       (by convert W.hδ3 using 1)
       (by simpa using W.hcard4)
-
   rcases hBV with ⟨D1, D2, hdist⟩
   rcases lift_cycle_from_induce_preserve_length (G := G) (S := W.S) D1 with ⟨C1, hlen1⟩
   rcases lift_cycle_from_induce_preserve_length (G := G) (S := W.S) D2 with ⟨C2, hlen2⟩
