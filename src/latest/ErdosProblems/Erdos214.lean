@@ -29,12 +29,7 @@ set_option linter.style.setOption false
 set_option linter.style.openClassical false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.induction false
 set_option linter.style.refine false
-set_option linter.style.multiGoal false
-set_option linter.style.cases false
-set_option maxHeartbeats 1000000
--- Several generated geometric-coloring arguments time out at the default heartbeat limit.
 
 namespace Erdos214
 
@@ -2071,6 +2066,8 @@ lemma lemma_cases_exhaustive (c : Point → Color) (cfg : Fin 4 → Point)
     · exact finish 3 2 0 1 (by decide) (by decide) (by decide) (by decide) (by decide) (by decide) hblue
     · exact False.elim (hij rfl)
 
+set_option maxHeartbeats 1000000 in
+-- Generated geometric-coloring argument exceeds the default heartbeat limit.
 lemma lemma_case1_Y_blue (c : Point → Color) (a : ℝ) (P Q R S X Y : Point)
   (h_rhombus : regular_t_rhombus a P Q S R)
   (h_parallelogram : X - P = Y - Q)
@@ -2429,6 +2426,8 @@ lemma lemma_rhombus_rotation (a : ℝ) (P Q R S : Point)
   · exact ⟨Real.pi / 3, Or.inl rfl, hrot⟩
   · exact ⟨-Real.pi / 3, Or.inr rfl, hrot⟩
 
+set_option maxHeartbeats 1000000 in
+-- Generated geometric-coloring argument exceeds the default heartbeat limit.
 lemma lemma_case1_X_blue (c : Point → Color) (a b : ℝ) (P Q R S X Y : Point)
   (h_rhombus : regular_t_rhombus a P Q S R)
   (h_parallelogram : X - P = Y - Q)
@@ -5400,6 +5399,8 @@ lemma single_disc_no_dist_1 (P Q L : Point)
 /-
 Two points in different blue regions cannot be at distance 1.
 -/
+set_option maxHeartbeats 1000000 in
+-- Generated lattice-coloring argument exceeds the default heartbeat limit.
 lemma two_discs_no_dist_1 (P Q L1 L2 : Point)
   (hL1 : L1 ∈ lattice_color_set)
   (hL2 : L2 ∈ lattice_color_set)
@@ -5531,6 +5532,8 @@ The set X consists exactly of the 12 points listed.
 def config_points_list : List (ℤ × ℤ) :=
   [(0,0), (1,0), (0,1), (-1,0), (0,-1), (1,-1), (-1,1), (2,0), (0,2), (1,1), (2,-1), (-1,2)]
 
+set_option maxHeartbeats 1000000 in
+-- Generated finite-lattice enumeration exceeds the default heartbeat limit.
 lemma config_X_eq_list : config_X = { p | ∃ c ∈ config_points_list, p = c.1 • config_lattice_basis_1 + c.2 • config_lattice_basis_2 } := by
   unfold config_X config_points_list
   generalize_proofs at *;
@@ -5719,6 +5722,8 @@ lemma lemma_fundamental_triangle_unique_max (u v : ℝ)
 /-
 For any point P, either there is a lattice point strictly within distance 0.5, or P is the circumcenter of an equilateral triangle of lattice points with side sqrt(3)/2 at distance 0.5.
 -/
+set_option maxHeartbeats 1000000 in
+-- Generated lattice-covering case split exceeds the default heartbeat limit.
 lemma lemma_lattice_cover_cases (P : Point) :
   (∃ L ∈ config_lattice, dist P L < 0.5) ∨
   (∃ L1 L2 L3 : Point, L1 ∈ config_lattice ∧ L2 ∈ config_lattice ∧ L3 ∈ config_lattice ∧
@@ -5847,8 +5852,11 @@ lemma lemma_config_intersects_blue (f : Point ≃ᵃⁱ[ℝ] Point) :
           exact Or.inl hL₃;
         have hL₆ : dist (f L) (f config_center) = dist L config_center := by
           exact f.isometry.dist_eq _ _;
-        refine' lt_of_le_of_ne ( hL₆ ▸ hL₅ ) _;
-        apply lemma_boundary_irrational; assumption; rfl; ⟩, rfl ⟩) hL₄;
+        refine' lt_of_le_of_ne ( hL₆ ▸ hL₅ ) ?_;
+        apply lemma_boundary_irrational
+        · assumption
+        · rfl
+        ⟩, rfl ⟩) hL₄;
     · obtain ⟨L1, L2, L3, hL1, hL2, hL3, hQ1, hQ2, hQ3, hL1L2, hL2L3, hL3L1⟩ := h
       have h_fL1 : dist L_color (f L1) = 0.5 ∧ dist L_color (f L2) = 0.5 ∧ dist L_color (f L3) = 0.5 := by
         aesop
@@ -5872,7 +5880,9 @@ lemma lemma_config_intersects_blue (f : Point ≃ᵃⁱ[ℝ] Point) :
           refine' lt_of_le_of_ne ( hL_color.2 _ h ) _;
           have h_fL2_in_X : dist (f L2) (f config_center) ≠ config_radius := by
             have h_fL2_in_X : dist L2 config_center ≠ config_radius := by
-              apply lemma_boundary_irrational; assumption; exact rfl;
+              apply lemma_boundary_irrational
+              · assumption
+              · exact rfl
             convert h_fL2_in_X using 1;
             exact f.isometry.dist_eq _ _;
           exact h_fL2_in_X;
