@@ -14,7 +14,6 @@ Formal authors:
 - Gemini 3 Pro
 - Aristotle
 - Daniel Larsen
-- Boris Alexeev
 
 URLs:
 - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos871.md
