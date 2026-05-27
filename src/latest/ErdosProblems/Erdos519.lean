@@ -54,19 +54,13 @@ involving Cauchy-Schwarz, Parseval's identity, and integral estimates.
 
 open Finset Complex MeasureTheory
 
--- Many proofs involve complex analytic arguments requiring extra heartbeats.
 set_option linter.style.setOption false
-set_option linter.unnecessarySimpa false
 set_option linter.flexible false
 set_option linter.style.longLine false
 set_option linter.style.refine false
-set_option linter.unusedSimpArgs false
 set_option linter.style.multiGoal false
 set_option linter.style.induction false
-set_option linter.deprecated false
-set_option linter.style.show false
-set_option linter.unnecessarySeqFocus false
-set_option linter.style.maxHeartbeats false
+-- The generated analytic proof blocks need a larger heartbeat budget throughout.
 set_option maxHeartbeats 10000000
 -- Several generated complex-integral estimates time out at the default heartbeat limit.
 
@@ -258,7 +252,10 @@ lemma G_eq_P_mul_correction {n : ℕ} (z : Fin n → ℂ)
     exact Summable.of_norm <| by
       simpa using Summable.of_nonneg_of_le
         (fun k => by positivity)
-        (fun k => by cases k <;> simpa using div_le_self (by positivity) (mod_cast Nat.le_add_left _ _))
+        (fun k => by
+          cases k
+          · simp
+          · simpa using div_le_self (by positivity) (mod_cast Nat.le_add_left _ _))
         (summable_geometric_of_lt_one (by positivity) h_abs)
   -- For each $r$, the series $\sum_{k \geq 1} \frac{(z_r y)^k}{k}$ converges absolutely, so we can split it into two parts.
   have h_split (r : Fin n) : ∑' k : ℕ, (z r * y) ^ k / (k : ℂ) =
@@ -375,8 +372,7 @@ lemma poly_circle_integral_sum_eq_eval_one {n : ℕ} (p : Polynomial ℂ)
   have h_linearity : ∀ m ∈ Finset.range (n + 1), (∮ y in C(0, 1), (y ^ (m + 1))⁻¹ • p.eval y) = (∑ k ∈ Finset.range (n + 1), p.coeff k • (∮ y in C(0, 1), (y ^ (m + 1))⁻¹ * y ^ k)) := by
     intro m hm
     simp +decide [ Polynomial.eval_eq_sum_range, circleIntegral ]
-    simp +decide [mul_assoc, mul_left_comm, Finset.mul_sum _ _ _,
-                  ← intervalIntegral.integral_const_mul]
+    simp +decide [mul_assoc, mul_left_comm, Finset.mul_sum _ _ _]
     rw [ intervalIntegral.integral_finset_sum ]
     · rw [Finset.sum_subset (Finset.range_mono (Nat.succ_le_succ hp)) fun x hx₁ hx₂ => by
         rw [Polynomial.coeff_eq_zero_of_natDegree_lt]
@@ -1107,9 +1103,10 @@ lemma cauchy_poly_recovery {n : ℕ} (z : Fin n → ℂ) (y : ℂ) :
             (h_inv.mul (continuous_const.mul (h_exp.pow i)))).continuousOn
       -- Evaluate the integral $\oint_{|w|=1} w^{k-m-1} \, dw$.
       have h_integral : ∀ k : ℕ, (∮ w in C(0, 1), (w ^ (m + 1))⁻¹ • (w ^ k)) = if k = m then 2 * Real.pi * I else 0 := by
-        intro k; split_ifs <;> simp_all +decide [circleIntegral, mul_assoc, mul_comm, mul_left_comm]
+        intro k; split_ifs <;> simp_all +decide [circleIntegral, mul_assoc, mul_comm]
         · norm_num [ ← mul_assoc, ← pow_succ', circleMap ]
-          convert two_pi_smul_I using 1 <;> ring
+          convert two_pi_smul_I using 1
+          ring
         · -- Simplify the integral using the fact that $circleMap 0 1 x = e^{ix}$.
           suffices h_simp : ∫ x in (0 : ℝ)..Real.pi * 2, Complex.exp (Complex.I * x * (k - m)) = 0 by
             have hI :
@@ -1296,6 +1293,7 @@ This follows from:
 5. Newton's identity: ∑_{k=0}^n d_k·r^k = P(r)
 -/
 set_option maxHeartbeats 30000000 in
+-- The regularized integral proof exceeds the file-level heartbeat budget.
 lemma regularized_integral_eq {n : ℕ} (hn : 0 < n) (z : Fin n → ℂ)
     (hz1 : z ⟨0, hn⟩ = 1) (hz : ∀ i, ‖z i‖ ≤ 1)
     (r : ℝ) (hr : 0 < r) (hr1 : r < 1) :
@@ -1343,7 +1341,7 @@ lemma regularized_integral_eq {n : ℕ} (hn : 0 < n) (z : Fin n → ℂ)
           fun θ : ℝ => (r ^ (k + n + 1) / (k + n + 1 : ℝ)) * B θ := by
       funext θ
       dsimp [F, B]
-      simp [norm_mul, norm_div, norm_pow, Complex.norm_exp, abs_of_pos hr,
+      simp [norm_pow, Complex.norm_exp, abs_of_pos hr,
         div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm]
       left
       have hden : ‖((↑k + ↑n + 1 : ℂ))‖⁻¹ = ((↑k + ↑n + 1 : ℝ))⁻¹ := by
@@ -1590,6 +1588,7 @@ lemma regularized_limit {n : ℕ} (_hn : 0 < n) (z : Fin n → ℂ)
       erw [ Set.countable_range _ |> fun h => h.measure_zero _ ]
 
 set_option maxHeartbeats 1600000 in
+-- This identity depends on the preceding Abel regularization argument.
 lemma atkinson_core_identity {n : ℕ} (hn : 0 < n) (z : Fin n → ℂ)
     (hz1 : z ⟨0, hn⟩ = 1) (hz : ∀ i, ‖z i‖ ≤ 1) :
     ∫ θ in (-Real.pi)..Real.pi,
@@ -1923,7 +1922,7 @@ lemma parseval_g_deriv_bound {n : ℕ} (z : Fin n → ℂ)
               ring
     rw [hsum]
     rw [← Polynomial.eval_finset_sum]
-    simp [norm_mul, Complex.norm_exp_ofReal_mul_I, Complex.norm_I]
+    simp [Complex.norm_exp_ofReal_mul_I, Complex.norm_I]
   have h_periodic : Function.Periodic F (2 * Real.pi) := by
     intro θ
     dsimp [F]
@@ -1974,7 +1973,7 @@ lemma parseval_g_deriv_bound {n : ℕ} (z : Fin n → ℂ)
       dsimp [p]
       rw [Polynomial.finset_sum_coeff]
       rw [Finset.sum_eq_single (⟨i, hi_lt⟩ : Fin n)]
-      · simp [Polynomial.coeff_monomial]
+      · simp
       · intro k hk hki
         rw [Polynomial.coeff_monomial]
         simp [show ¬ k.val = i by
@@ -3179,7 +3178,7 @@ theorem erdos519 {n : ℕ} (hn : 0 < n) (z : Fin n → ℂ)
   refine ⟨k, ?_⟩
   -- powerSum w k = powerSum z k / (z i₀)^k (permutation-invariance + scaling)
   have hpw : powerSum w (k.val + 1) = powerSum z (k.val + 1) / (z i₀) ^ (k.val + 1) := by
-    show powerSum (fun i => z (σ i) / z i₀) (k.val + 1) = _
+    change powerSum (fun i => z (σ i) / z i₀) (k.val + 1) = _
     rw [show (fun i => z (σ i) / z i₀) = (fun i => (z ∘ σ) i / z i₀) from rfl]
     rw [powerSum_div, powerSum_perm]
   -- ‖powerSum z (k+1)‖ / ‖z i₀‖^(k+1) > 1/6 and ‖z i₀‖^(k+1) ≥ 1
