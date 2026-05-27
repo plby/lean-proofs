@@ -59,10 +59,9 @@ open scoped Nat
 open scoped Classical
 open scoped Pointwise
 
-set_option relaxedAutoImplicit false
 set_option autoImplicit false
 
-noncomputable section
+section
 
 /-
 Definitions of additive complements, counting function, and exact complements.
@@ -2398,8 +2397,9 @@ theorem corollary_erdos_785 (A B : Set ℕ) (h_inf_A : A.Infinite) (h_inf_B : B.
           intro b; obtain ⟨ i, hi ⟩ := h_inf ( b * 2 ) ; obtain ⟨ j, hj ⟩ := this ( by norm_num ) ; exact ⟨ Max.max i j, fun x hx => by have := hi x ( le_trans ( le_max_left _ _ ) hx ) ; have := hj x ( le_trans ( le_max_right _ _ ) hx ) ; ring_nf at *; linarith ⟩ ;
         · have h_r_bound : ∃ C, ∀ x, missing_sum_count B A x ≤ C := by
             apply lemma_r_bounded B A (lemma_exact_complements_symm A B h_hyp) |> fun ⟨C, hC⟩ => ⟨C, fun x => hC x⟩
-          generalize_proofs at *; (
-          obtain ⟨ C, hC ⟩ := h_r_bound; exact squeeze_zero_norm' ( Filter.eventually_atTop.mpr ⟨ 1, fun x hx => by simpa [ abs_div, abs_of_nonneg ( show 0 ≤ x by positivity ) ] using div_le_div_of_nonneg_right ( Nat.cast_le.mpr ( hC x ) ) ( show 0 ≤ x by positivity ) ⟩ ) ( tendsto_const_nhds.div_atTop Filter.tendsto_abs_atTop_atTop ) ;);
+          generalize_proofs at *
+          obtain ⟨ C, hC ⟩ := h_r_bound
+          exact squeeze_zero_norm' ( Filter.eventually_atTop.mpr ⟨ 1, fun x hx => by simpa [ abs_div, abs_of_nonneg ( show 0 ≤ x by positivity ) ] using div_le_div_of_nonneg_right ( Nat.cast_le.mpr ( hC x ) ) ( show 0 ≤ x by positivity ) ⟩ ) ( tendsto_const_nhds.div_atTop Filter.tendsto_abs_atTop_atTop )
         · convert lemma_r_mul_A_div_t_tendsto_zero B A h_inf_B h_inf_A ( lemma_exact_complements_symm A B h_hyp ) using 1
 
 end
