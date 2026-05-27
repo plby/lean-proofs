@@ -45,11 +45,8 @@ import ErdosProblems.Axioms
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.cases false
-set_option linter.style.emptyLine false
 set_option linter.style.induction false
 set_option linter.style.longLine false
-set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 
@@ -187,7 +184,7 @@ def mSeq (k : ℕ) : ℕ :=
 def gSeq (k : ℕ) : ℝ :=
   if k ≤ 150 then 1 else ((k : ℝ) - 149) ^ 2
 
-set_option maxHeartbeats 800000
+set_option maxHeartbeats 800000 in
 -- The finite supremum estimate needs extra heartbeats for generated simplification.
 
 /-- E_val is always ≥ 1 (achieved by the empty subset) -/
@@ -364,6 +361,7 @@ lemma Y_val_succ_ge_2278382 (k : ℕ) (hk : 25 ≤ k) : Y_val lam0 (k+1) ≥ 227
 /-! ## Euler-Mascheroni constant bound -/
 
 set_option maxHeartbeats 200000000 in
+-- The rational harmonic-number bound needs extra heartbeats for `norm_num`.
 /-- γ < 579/1000. Proved using eulerMascheroniSeq'(500) with norm_num for harmonic(500). -/
 lemma gamma_lt_tight : γ < 579/1000 := by
   unfold γ
@@ -623,8 +621,8 @@ theorem weighted_regular_reduction (n : ℕ) (lam : ℝ) (m : ℕ → ℕ) (g : 
       ProductAdmissible n A' B' ∧ Regular lam m g A' ∧ Regular lam m g B' ∧
       ((A'.card : ℝ) * B'.card ≥
         (1 - Omega_val lam m g) ^ 2 * (A.card * B.card)) := by
-  cases' lt_or_ge ( 1 - Omega_val lam m g ) 0 with h h;
-  · exact absurd h ( not_lt_of_ge ( sub_nonneg_of_le hadmT.2.2.2.2.1.le ) );
+  rcases lt_or_ge ( 1 - Omega_val lam m g ) 0 with h | h
+  · exact absurd h ( not_lt_of_ge ( sub_nonneg_of_le hadmT.2.2.2.2.1.le ) )
   · obtain ⟨A', hA'⟩ := weighted_deletion lam m g hadmT A
     obtain ⟨B', hB'⟩ := weighted_deletion lam m g hadmT B;
     refine' ⟨ A', B', hA'.1, hB'.1, admissible_subset hadm hA'.1 hB'.1, hA'.2.1, hB'.2.1, _ ⟩;
@@ -924,6 +922,7 @@ lemma mean_L_improved (A : ℝ) (hA : A > 0) (ε₁ : ℝ) (hε₁ : 0 < ε₁) 
 For large X, the tail F_f(X·e^{-JA}) + 1 is bounded by ε * X/log X * H_f(X).
 -/
 set_option maxHeartbeats 1600000 in
+-- The tail estimate combines several asymptotic bounds through generated arithmetic.
 lemma mean_tail_small (A : ℝ) (hA : A > Real.log 2) (ε : ℝ) (hε : 0 < ε) :
     ∃ X₀ : ℝ, X₀ ≥ 2 ∧ ∀ X : ℝ, X ≥ X₀ → ∀ f : ℕ → ℝ, CompMult01 f →
       ∀ J : ℕ, (J : ℝ) * A ≥ 2 * Real.log (Real.log X) →
@@ -975,6 +974,7 @@ lemma mean_tail_small (A : ℝ) (hA : A > Real.log 2) (ε : ℝ) (hε : 0 < ε) 
   obtain ⟨ X₁, hX₁₁, hX₁₂ ⟩ := h_combined_bound; exact ⟨ X₁, by linarith, fun X hX f hf J hJ => by linarith [ hF_count_bound f hf X ( by linarith ) J, hX₁₂ X hX f hf J hJ ] ⟩ ;
 
 set_option maxHeartbeats 6400000 in
+-- The fixed-A mean estimate contains the largest generated block estimate.
 lemma mean_estimate_fixed_A (A : ℝ) (hA : A > Real.log 2) (ε : ℝ) (hε : ε > 0) :
     ∃ X₀ : ℝ, ∀ X : ℝ, X ≥ X₀ → ∀ f : ℕ → ℝ, CompMult01 f →
       F_count f X ≤ ((1 + 1.66 / A ^ 2) / (1 - Real.exp (-A)) + ε) *
@@ -1028,6 +1028,7 @@ lemma mean_estimate_fixed_A (A : ℝ) (hA : A > Real.log 2) (ε : ℝ) (hε : ε
   · linarith [ le_max_left X₁ X₂, le_max_right X₁ X₂ ]
 
 set_option maxHeartbeats 3200000 in
+-- The final mean estimate depends on the fixed-A estimate and coefficient comparison.
 theorem mean_estimate (ε : ℝ) (hε : ε > 0) :
     ∃ X₀ : ℝ, ∀ X : ℝ, X ≥ X₀ → ∀ f : ℕ → ℝ, CompMult01 f →
       F_count f X ≤ (1 + ε) * X / Real.log X * H_count f X := by
@@ -2235,7 +2236,6 @@ lemma tail_ratio_bound (k : ℕ) (hk : 25 ≤ k) :
   set L := Real.log (Y_val lam0 k)
   set L1 := Real.log (Y_val lam0 (k + 1))
   set d := Real.log lam0
-
   have hd_pos : 0 < d := by
     exact Real.log_pos <| by norm_num [ lam0 ] ;
   have hL_ge_11 : 11 ≤ L := by
@@ -2736,6 +2736,7 @@ lemma gSeq_ge_one (k : ℕ) : 1 ≤ gSeq k := by
     nlinarith
 
 set_option maxRecDepth 1000 in
+-- The growth proof for `gSeq` expands nested generated arithmetic comparisons.
 lemma gSeq_tendsto : Filter.Tendsto gSeq Filter.atTop Filter.atTop := by
   rw [Filter.tendsto_atTop_atTop]
   intro b
@@ -2859,6 +2860,7 @@ lemma gs_summable : Summable (fun k => gSeq k * s_val lam0 k (mSeq k)) := by
 log D < 3.476
 -/
 set_option maxHeartbeats 1600000 in
+-- The log-D estimate combines finite generated arithmetic with a tail comparison.
 theorem logD_bound :
     ∑' k, Real.log (E_val lam0 k (mSeq k)) < 3.456 := by
   -- Split the tsum into finite (k < 25) and tail (k ≥ 25).
@@ -2915,6 +2917,7 @@ theorem logD_bound :
 Ω < 0.024
 -/
 set_option maxHeartbeats 800000 in
+-- The omega estimate combines finite generated arithmetic with a summability tail.
 theorem omega_bound : Omega_val lam0 mSeq gSeq < 0.029 := by
   -- We'll use the fact that s_val(k, mSeq(k)) ≤ 1.71 / √μ₀ · gSeq(k) · Y_k^{-1/3} for k ≥ 25.
   have h_bound : ∀ k ≥ 25, gSeq k * s_val lam0 k (mSeq k) ≤ 1.71 / Real.sqrt (29607 / 20000) * gSeq k * (Y_val lam0 k) ^ (-(1 : ℝ) / 3) := by
