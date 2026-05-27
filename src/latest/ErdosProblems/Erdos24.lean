@@ -310,7 +310,9 @@ def σ₂FlagIdx (adjDA adjDCenter adjDC : Bool) : Option (Fin 5) :=
 
 /-- Contribution of one ordered quintuple to the flag algebra sum. -/
 def quintContribOf (adj : Fin 5 → Fin 5 → Bool) (a b c d e : Fin 5) : ℚ :=
-  let ab := adj a b; let ac := adj a c; let bc := adj b c
+  let ab := adj a b
+  let ac := adj a c
+  let bc := adj b c
   if !ab && !ac && !bc then
     P_cert (σ₀FlagIdx (adj d a) (adj d b) (adj d c))
            (σ₀FlagIdx (adj e a) (adj e b) (adj e c)) / 625
@@ -1835,51 +1837,63 @@ theorem flag_bound_with_c5 : ∀ e : Fin 10 → Bool,
     · rcases hpat with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9⟩
       simp [mkAdj5] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
       have he := edgeBits_ext e h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
-      rw [he, c5_contrib_0]; norm_num
+      rw [he, c5_contrib_0]
+      norm_num
     · rcases hpat with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9⟩
       simp [mkAdj5] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
       have he := edgeBits_ext e h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
-      rw [he, c5_contrib_1]; norm_num
+      rw [he, c5_contrib_1]
+      norm_num
     · rcases hpat with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9⟩
       simp [mkAdj5] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
       have he := edgeBits_ext e h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
-      rw [he, c5_contrib_2]; norm_num
+      rw [he, c5_contrib_2]
+      norm_num
     · rcases hpat with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9⟩
       simp [mkAdj5] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
       have he := edgeBits_ext e h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
-      rw [he, c5_contrib_3]; norm_num
+      rw [he, c5_contrib_3]
+      norm_num
     · rcases hpat with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9⟩
       simp [mkAdj5] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
       have he := edgeBits_ext e h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
-      rw [he, c5_contrib_4]; norm_num
+      rw [he, c5_contrib_4]
+      norm_num
     · rcases hpat with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9⟩
       simp [mkAdj5] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
       have he := edgeBits_ext e h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
-      rw [he, c5_contrib_5]; norm_num
+      rw [he, c5_contrib_5]
+      norm_num
     · rcases hpat with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9⟩
       simp [mkAdj5] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
       have he := edgeBits_ext e h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
-      rw [he, c5_contrib_6]; norm_num
+      rw [he, c5_contrib_6]
+      norm_num
     · rcases hpat with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9⟩
       simp [mkAdj5] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
       have he := edgeBits_ext e h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
-      rw [he, c5_contrib_7]; norm_num
+      rw [he, c5_contrib_7]
+      norm_num
     · rcases hpat with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9⟩
       simp [mkAdj5] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
       have he := edgeBits_ext e h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
-      rw [he, c5_contrib_8]; norm_num
+      rw [he, c5_contrib_8]
+      norm_num
     · rcases hpat with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9⟩
       simp [mkAdj5] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
       have he := edgeBits_ext e h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
-      rw [he, c5_contrib_9]; norm_num
+      rw [he, c5_contrib_9]
+      norm_num
     · rcases hpat with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9⟩
       simp [mkAdj5] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
       have he := edgeBits_ext e h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
-      rw [he, c5_contrib_10]; norm_num
+      rw [he, c5_contrib_10]
+      norm_num
     · rcases hpat with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9⟩
       simp [mkAdj5] at h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
       have he := edgeBits_ext e h0 h1 h2 h3 h4 h5 h6 h7 h8 h9
-      rw [he, c5_contrib_11]; norm_num
+      rw [he, c5_contrib_11]
+      norm_num
   · cases hfalse : isC5_adj (mkAdj5 e)
     · simp
       exact flag_bound_all_graphs e htri
@@ -2225,24 +2239,34 @@ lemma quadForm_nonneg {V : Type*} [Fintype V]
               (graphAdj5 G ![a, b, c, d, d] 3 2)) 625 (by norm_num) using 1
         refine Finset.sum_congr rfl fun d _ => Finset.sum_congr rfl fun e _ => ?_
         rw [quintContrib_type2]
-        · unfold graphAdj5; simp
-          congr! 1; ext
+        · unfold graphAdj5
+          simp
+          congr! 1
+          ext
           cases ‹Option (Fin 5)› <;> cases ‹Option (Fin 5)› <;> rfl
-        · unfold graphAdj5; aesop
-        · unfold graphAdj5; aesop
-        · unfold graphAdj5; aesop
+        · unfold graphAdj5
+          aesop
+        · unfold graphAdj5
+          aesop
+        · unfold graphAdj5
+          aesop
       · convert sum_sum_psd_option Q_cert_psd (Finset.univ : Finset V)
             (fun d => σ₁FlagIdx (graphAdj5 G ![a, b, c, d, d] 3 0)
               (graphAdj5 G ![a, b, c, d, d] 3 1)
               (graphAdj5 G ![a, b, c, d, d] 3 2)) 2500 (by norm_num) using 1
         refine Finset.sum_congr rfl fun d _ => Finset.sum_congr rfl fun e _ => ?_
         rw [quintContrib_type1]
-        · unfold graphAdj5; simp
-          congr! 1; ext
+        · unfold graphAdj5
+          simp
+          congr! 1
+          ext
           cases ‹Option (Fin 6)› <;> cases ‹Option (Fin 6)› <;> rfl
-        · unfold graphAdj5; aesop
-        · unfold graphAdj5; aesop
-        · unfold graphAdj5; aesop
+        · unfold graphAdj5
+          aesop
+        · unfold graphAdj5
+          aesop
+        · unfold graphAdj5
+          aesop
   · by_cases h_ac : G.Adj a c <;> by_cases h_bc : G.Adj b c
     · unfold quintContrib quintContribOf graphAdj5
       simp [*]
@@ -2358,7 +2382,10 @@ lemma allFuncSum_nonneg {V : Type*} [Fintype V] (G : SimpleGraph V) :
     · exact fun a b c d e =>
         ⟨fun i => if i = 0 then a else if i = 1 then b else if i = 2 then c
           else if i = 3 then d else e, rfl, rfl, rfl, rfl, rfl⟩
-    · intro a; congr; ext i; fin_cases i <;> rfl
+    · intro a
+      congr
+      ext i
+      fin_cases i <;> rfl
   exact h_decomp.symm ▸
     Finset.sum_nonneg fun a _ => Finset.sum_nonneg fun b _ =>
       Finset.sum_nonneg fun c _ => quadForm_nonneg G a b c
@@ -2395,8 +2422,11 @@ lemma non_injective_count_le {V : Type*} [Fintype V] :
       have h_eq : (Finset.univ.filter fun f : Fin 5 → Fin n => Injective f) =
           Finset.image (fun f : Fin 5 ↪ Fin n => f.toFun)
             (Finset.univ : Finset (Fin 5 ↪ Fin n)) := by
-        ext f; simp [Function.Injective]
-        exact ⟨fun h => ⟨⟨f, h⟩, rfl⟩, by rintro ⟨a, rfl⟩; exact a.injective⟩
+        ext f
+        simp [Function.Injective]
+        exact ⟨fun h => ⟨⟨f, h⟩, rfl⟩, by
+          rintro ⟨a, rfl⟩
+          exact a.injective⟩
       rw [h_eq, Finset.card_image_of_injective _
           (fun f g h => by simpa [Function.Injective] using h)]
       simp +decide [Finset.card_univ]
@@ -2524,7 +2554,10 @@ lemma counting_identity {V : Type*} [Fintype V] [DecidableEq V]
         grind
       choose σ hσ using h_bij
       have hσ_inj : Function.Injective σ := fun i j hij =>
-        h.1 <| by have := hσ i; have := hσ j; aesop
+        h.1 <| by
+          have := hσ i
+          have := hσ j
+          aesop
       exact ⟨Equiv.ofBijective σ ⟨hσ_inj,
         Finite.injective_iff_surjective.mp hσ_inj⟩, funext hσ⟩
     · rintro ⟨σ, rfl⟩
@@ -2643,7 +2676,10 @@ lemma isC5Copy_implies_isC5_adj {V : Type*} [Fintype V] [DecidableEq V]
         exact Finset.mem_image.mp (hh_image.symm ▸ this) |>.imp fun _ => And.right
       choose τ hτ using this
       have hτ_inj : Function.Injective τ := fun x y hxy =>
-        hg_inj <| by have := hτ x; have := hτ y; aesop
+        hg_inj <| by
+          have := hτ x
+          have := hτ y
+          aesop
       exact ⟨Equiv.ofBijective τ
         ⟨hτ_inj, Finite.injective_iff_surjective.mp hτ_inj⟩,
         funext fun x => hτ x ▸ rfl⟩
@@ -2705,9 +2741,11 @@ lemma chooseEnum5_injective {V : Type*} (S : Finset V) (hS : S.card = 5) :
 lemma chooseEnum5_image {V : Type*} [DecidableEq V] (S : Finset V)
     (hS : S.card = 5) :
     Finset.image (chooseEnum5 S hS) Finset.univ = S := by
-  ext x; simp only [chooseEnum5, Finset.mem_image, Finset.mem_univ, true_and]
+  ext x
+  simp only [chooseEnum5, Finset.mem_image, Finset.mem_univ, true_and]
   constructor
-  · rintro ⟨i, rfl⟩; exact ((Fintype.equivFin ↥S).symm _).prop
+  · rintro ⟨i, rfl⟩
+    exact ((Fintype.equivFin ↥S).symm _).prop
   · intro hx
     exact ⟨Fin.cast (by simp [Fintype.card_coe, hS]) ((Fintype.equivFin ↥S) ⟨x, hx⟩),
            by simp [Equiv.symm_apply_apply]⟩
@@ -2750,7 +2788,8 @@ lemma c5_indicator_sum {V : Type*} [Fintype V] [DecidableEq V]
       (fun S => if G.IsC5Copy S then (1 : ℚ) else 0) = G.numC5Copies := by
   simp only [sum_boole, Nat.cast_inj]
   unfold SimpleGraph.numC5Copies
-  congr 1; ext S
+  congr 1
+  ext S
   simp only [mem_filter, mem_univ, true_and]
   exact ⟨fun ⟨_, h⟩ => h, fun h => ⟨isC5Copy_card G S h, h⟩⟩
 
@@ -2774,14 +2813,18 @@ theorem numC5Copies_le_turan_plus_error {V : Type*} [Fintype V] [DecidableEq V]
       F.sum fun S => (576 / 125 : ℚ) - 120 * if G.IsC5Copy S then 1 else 0 := by
     apply Finset.sum_le_sum
     intro S hS
-    have hScard : S.card = 5 := by simp [hF_def] at hS; exact hS
+    have hScard : S.card = 5 := by
+      simp [hF_def] at hS
+      exact hS
     simp only [dif_pos hScard]
     linarith [per_subset_c5_bound G hG S hScard (chooseEnum5 S hScard)
       (chooseEnum5_injective S hScard) (chooseEnum5_image S hScard)]
   have hcard : F.card = (Fintype.card V).choose 5 := by
     rw [hF_def,
       show (Finset.univ : Finset (Finset V)).filter (fun S => S.card = 5) =
-        (Finset.univ : Finset V).powersetCard 5 from by ext S; simp [Finset.mem_powersetCard]]
+        (Finset.univ : Finset V).powersetCard 5 from by
+          ext S
+          simp [Finset.mem_powersetCard]]
     simp [Finset.card_powersetCard]
   have h_step2 :
       F.sum (fun S => (576 / 125 : ℚ) - 120 * if G.IsC5Copy S then 1 else 0) =
@@ -2809,7 +2852,8 @@ lemma error_le_eps_choose {n : ℕ} {eps : ℝ} (heps : 0 < eps)
     8 * (n : ℝ) ^ 4 ≤ eps * ((n.choose 5 : ℕ) : ℝ) := by
   have hn_ge_8 : 8 ≤ n :=
     le_trans (Nat.le_of_lt_succ <| by
-      rw [← @Nat.cast_lt ℝ]; push_cast
+      rw [← @Nat.cast_lt ℝ]
+      push_cast
       linarith [Nat.le_ceil (15360 * eps⁻¹ + 8), inv_pos.2 heps]) hn
   have hepsn_ge_15360 : 15360 ≤ eps * n := by
     nlinarith [Nat.ceil_le.mp hn, mul_inv_cancel₀ heps.ne']
@@ -2820,7 +2864,8 @@ lemma error_le_eps_choose {n : ℕ} {eps : ℝ} (heps : 0 < eps)
       n * (n - 1) * (n - 2) * (n - 3) * (n - 4) / 120 := by
     rw [Nat.cast_choose] <;> try linarith
     rcases n with (_ | _ | _ | _ | _ | n) <;> norm_num [Nat.factorial] at *
-    rw [div_eq_div_iff] <;> first | positivity | push_cast [Nat.factorial_succ]; ring
+    rw [div_eq_div_iff] <;> first | positivity | push_cast [Nat.factorial_succ]
+    ring
   nlinarith [pow_pos (by positivity : 0 < (n : ℝ)) 2,
              pow_pos (by positivity : 0 < (n : ℝ)) 3,
              pow_pos (by positivity : 0 < (n : ℝ)) 4]
@@ -2951,7 +2996,11 @@ lemma _root_.SimpleGraph.blowup_numC5Copies_ge {V : Type*} [Fintype V]
         from Set.image_subset_iff.mpr fun p hp => ?_)
     · rw [Set.InjOn.ncard_image, Set.ncard_prod]
       · simp [Set.ncard_univ, SimpleGraph.numC5Copies]
-        exact Or.inl (by rw [← Set.ncard_coe_finset]; congr; ext; simp)
+        exact Or.inl (by
+          rw [← Set.ncard_coe_finset]
+          congr
+          ext
+          simp)
       · intro p hp q hq h_eq
         have := SimpleGraph.blowupC5Map_injective
           (show G.IsC5Copy p.1 from hp.1) (show G.IsC5Copy q.1 from hq.1) h_eq
@@ -2971,7 +3020,8 @@ lemma Nat.mul_choose_five_le (M : ℕ) : 120 * M.choose 5 ≤ M ^ 5 := by
   have h2 : Nat.factorial 5 = 120 := by norm_num
   rw [h1, h2]
   have h3 : 120 ∣ M.descFactorial 5 := by
-    rw [← h2]; exact Nat.factorial_dvd_descFactorial M 5
+    rw [← h2]
+    exact Nat.factorial_dvd_descFactorial M 5
   rw [Nat.mul_div_cancel' h3]
   exact Nat.descFactorial_le_pow M 5
 
@@ -2999,7 +3049,9 @@ lemma erdos_key_arithmetic (n : ℕ) (hn : 0 < n) :
 /-- A natural number `c ≤ n⁵ + 1/2` (over `ℝ`) implies `c ≤ n⁵` (over `ℕ`). -/
 lemma nat_le_of_real_le_add_half (c n : ℕ) (h : (c : ℝ) ≤ (n : ℝ) ^ 5 + 1 / 2) :
     c ≤ n ^ 5 := by
-  have : (c : ℝ) < (n ^ 5 + 1 : ℕ) := by push_cast; linarith
+  have : (c : ℝ) < (n ^ 5 + 1 : ℕ) := by
+    push_cast
+    linarith
   exact Nat.lt_add_one_iff.mp (Nat.cast_lt.mp this)
 
 /-- **Erdős Pentagon Conjecture** (settled affirmatively by Grzesik, 2012).
@@ -3056,7 +3108,9 @@ theorem erdos_pentagon_conjecture' (n : ℕ) (G : SimpleGraph (Fin (5 * n)))
             ((Fintype.card (Fin (5 * n) × Fin N) : ℝ) ^ 5 / 120) :=
           mul_le_mul_of_nonneg_left h3 hε'
       _ = (24 / 625 + ε) * ((5 * (n : ℝ)) ^ 5 / 120) * (N : ℝ) ^ 5 := by
-          rw [hcard]; push_cast; ring
+          rw [hcard]
+          push_cast
+          ring
   have hc_le : (c : ℝ) ≤ (24 / 625 + ε) * ((5 * (n : ℝ)) ^ 5 / 120) :=
     le_of_mul_le_mul_right hchain hN5
   rw [erdos_key_arithmetic n hn] at hc_le
@@ -3121,7 +3175,10 @@ lemma triangleFree_C5_no_chords {V : Type*} {G : SimpleGraph V}
   have h12 : G.Adj (f 1) (f 2) := h 1
   have h23 : G.Adj (f 2) (f 3) := h 2
   have h34 : G.Adj (f 3) (f 4) := h 3
-  have h40 : G.Adj (f 4) (f 0) := by have := h 4; simp at this; exact this
+  have h40 : G.Adj (f 4) (f 0) := by
+    have := h 4
+    simp at this
+    exact this
   have tri : ∀ a b c : Fin 5, a ≠ b → a ≠ c → b ≠ c →
       G.Adj (f a) (f b) → G.Adj (f a) (f c) → G.Adj (f b) (f c) → False := by
     intro a b c hab hac hbc e1 e2 e3
@@ -3157,17 +3214,18 @@ lemma labeledC5_fiber_card {V : Type*} [Fintype V] [DecidableEq V]
     {S : Finset V} (hS : G.IsC5Copy S) :
     ((Finset.univ : Finset (Fin 5 → V)).filter
       (fun f => G.IsLabeledC5 f ∧ Finset.image f Finset.univ = S)).card = 10 := by
-        revert hS S;
+        revert hS S
         intro S hS
         obtain ⟨f₀, hf₀⟩ := hS
         have h_adj : ∀ i j : Fin 5, G.Adj (f₀ i) (f₀ j) ↔ (j = i + 1 ∨ i = j + 1) := by
-          intro i j;
-          constructor;
+          intro i j
+          constructor
           · intro hij
-            by_contra h_contra;
-            exact triangleFree_C5_no_chords hG hf₀.1 i j ( by tauto ) ( by tauto ) ( by aesop ) hij;
-          · rintro ( rfl | rfl ) <;> simp_all +decide [ SimpleGraph.IsLabeledC5 ];
-            simpa [ SimpleGraph.adj_comm ] using hf₀.1.2 j;
+            by_contra h_contra
+            exact triangleFree_C5_no_chords hG hf₀.1 i j
+              (by tauto) (by tauto) (by aesop) hij
+          · rintro (rfl | rfl) <;> simp_all +decide [SimpleGraph.IsLabeledC5]
+            simpa [SimpleGraph.adj_comm] using hf₀.1.2 j
         -- We need to show that the set of labeled 5-cycles on $S$ is in bijection with the set
         -- of dihedral permutations of $\{0, 1, 2, 3, 4\}$.
         have h_bij :
@@ -3178,46 +3236,53 @@ lemma labeledC5_fiber_card {V : Type*} [Fintype V] [DecidableEq V]
                   (fun σ : Equiv.Perm (Fin 5) =>
                     ∀ i, σ (i + 1) = σ i + 1 ∨ σ i = σ (i + 1) + 1)
                   (Finset.univ : Finset (Equiv.Perm (Fin 5)))) := by
-          ext f; simp;
-          constructor;
+          ext f
+          simp
+          constructor
           · intro hf
             obtain ⟨σ, hσ⟩ : ∃ σ : Equiv.Perm (Fin 5), ∀ i, f i = f₀ (σ i) := by
               have h_bij : ∀ i, ∃ j, f i = f₀ j := by
                 intro i
                 have h_mem : f i ∈ S := by
-                  exact hf.2 ▸ Finset.mem_image_of_mem _ ( Finset.mem_univ _ );
-                grind +qlia;
-              choose σ hσ using h_bij;
+                  exact hf.2 ▸ Finset.mem_image_of_mem _ (Finset.mem_univ _)
+                grind +qlia
+              choose σ hσ using h_bij
               have hσ_inj : Function.Injective σ := by
-                intro i j hij; have := hf.1.1; have := hf₀.1.1; aesop;
+                intro i j hij
+                have := hf.1.1
+                have := hf₀.1.1
+                aesop
               exact ⟨
                 Equiv.ofBijective σ
                   ⟨hσ_inj, Finite.injective_iff_surjective.mp hσ_inj⟩,
-                hσ⟩;
-            use σ;
-            simp_all +decide [ funext_iff, SimpleGraph.IsLabeledC5 ];
-          · rintro ⟨ σ, hσ, rfl ⟩ ; simp_all +decide [ SimpleGraph.IsLabeledC5 ] ;
-            simp_all +decide [ Finset.ext_iff, Function.Injective ];
+                hσ⟩
+            use σ
+            simp_all +decide [funext_iff, SimpleGraph.IsLabeledC5]
+          · rintro ⟨σ, hσ, rfl⟩
+            simp_all +decide [SimpleGraph.IsLabeledC5]
+            simp_all +decide [Finset.ext_iff, Function.Injective]
             exact ⟨
               fun i j hij => σ.injective (hf₀.1 hij),
               fun a => by
                 rw [← hf₀.2 a]
                 exact ⟨
                   fun ⟨i, hi⟩ => ⟨σ i, hi⟩,
-                  fun ⟨i, hi⟩ => ⟨σ.symm i, by simpa using hi⟩⟩⟩;
-        rw [ Set.ext_iff ] at h_bij;
+                  fun ⟨i, hi⟩ => ⟨σ.symm i, by simpa using hi⟩⟩⟩
+        rw [Set.ext_iff] at h_bij
         convert Finset.card_image_of_injective _
           (show Function.Injective
-              (fun σ : Equiv.Perm (Fin 5) => fun i => f₀ (σ i)) from ?_) using 1;
+              (fun σ : Equiv.Perm (Fin 5) => fun i => f₀ (σ i)) from ?_) using 1
         any_goals
           exact Finset.filter
             (fun σ : Equiv.Perm (Fin 5) =>
               ∀ i : Fin 5, σ (i + 1) = σ i + 1 ∨ σ i = σ (i + 1) + 1)
-            Finset.univ;
-        · exact congr_arg Finset.card ( Finset.ext fun x => by simpa using h_bij x );
+            Finset.univ
+        · exact congr_arg Finset.card (Finset.ext fun x => by simpa using h_bij x)
         · decide
-        · intro σ τ hστ; have := hf₀.1.1; simp_all +decide [ funext_iff, Fin.forall_fin_succ ] ;
-          exact Equiv.Perm.ext fun x => this <| by fin_cases x <;> tauto;
+        · intro σ τ hστ
+          have := hf₀.1.1
+          simp_all +decide [funext_iff, Fin.forall_fin_succ]
+          exact Equiv.Perm.ext fun x => this <| by fin_cases x <;> tauto
 
 /-
 In a triangle-free graph, `numC5 = numC5Copies`.
@@ -3230,21 +3295,23 @@ labeled 5-cycles (one orbit under D₅), so
 theorem numC5_eq_numC5Copies_of_triangleFree {V : Type*} [Fintype V] [DecidableEq V]
     (G : SimpleGraph V) (hG : G.CliqueFree 3) :
     G.numC5 = G.numC5Copies := by
-      have := @labeledC5_fiber_card;
-      rw [ eq_comm, SimpleGraph.numC5, SimpleGraph.numC5Copies ];
-      rw [ Nat.div_eq_of_eq_mul_left ];
-      decide +revert;
-      rw [ ← Finset.sum_const_nat ];
-      nontriviality;
-      convert Finset.card_biUnion _;
-      rotate_left;
-      infer_instance;
-      rotate_left;
-      intro S hS;
-      convert this hG ( Finset.mem_filter.mp hS |>.2 );
-      · ext f; simp [SimpleGraph.IsC5Copy];
-        grind +qlia;
-      · exact fun x hx y hy hxy => Finset.disjoint_left.mpr fun f hf₁ hf₂ => hxy <| by aesop;
+      have := @labeledC5_fiber_card
+      rw [eq_comm, SimpleGraph.numC5, SimpleGraph.numC5Copies]
+      rw [Nat.div_eq_of_eq_mul_left]
+      decide +revert
+      rw [← Finset.sum_const_nat]
+      nontriviality
+      convert Finset.card_biUnion _
+      rotate_left
+      infer_instance
+      rotate_left
+      intro S hS
+      convert this hG (Finset.mem_filter.mp hS |>.2)
+      · ext f
+        simp [SimpleGraph.IsC5Copy]
+        grind +qlia
+      · exact fun x hx y hy hxy =>
+          Finset.disjoint_left.mpr fun f hf₁ hf₂ => hxy <| by aesop
 
 /-- **Erdős Pentagon Conjecture** (settled affirmatively by Grzesik, 2012).
 
