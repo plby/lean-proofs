@@ -22,27 +22,18 @@ import Mathlib
 
 namespace Erdos845
 
-set_option linter.unusedSimpArgs false
-set_option linter.unusedVariables false
-set_option linter.deprecated false
 set_option linter.style.openClassical false
+set_option linter.unusedVariables false
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.whitespace false
 set_option linter.style.induction false
 set_option linter.flexible false
 set_option linter.style.refine false
-set_option linter.style.multiGoal false
 
 open scoped BigOperators
 open scoped Real
 open scoped Nat
-open scoped Classical
 open scoped Pointwise
-
-set_option maxRecDepth 4000
-
-noncomputable section
 
 /-
 Definition of the set A_p and the functions f_k and F.
@@ -73,11 +64,11 @@ theorem S_p_card (p : ℕ) (hp_odd : Odd p) (hp_gt_1 : p > 1) : (S_p p).card = N
 /-
 S_p contains all powers of 2 up to 2^k where 2^k <= |S_p|.
 -/
-theorem S_p_contains_powers (p : ℕ) (hp_odd : Odd p) (hp_gt_1 : p > 1) (k : ℕ) (hk : 1 ≤ k) (hk' : 2^k ≤ (S_p p).card) :
-  2^k ∈ S_p p := by
+theorem S_p_contains_powers (p : ℕ) (hp_odd : Odd p) (hp_gt_1 : p > 1) (k : ℕ) (hk : 1 ≤ k) (hk' : 2 ^ k ≤ (S_p p).card) :
+  2 ^ k ∈ S_p p := by
     have h_log : k ≤ Nat.clog 2 p := by
       -- Since $2^k \leq \text{card}(S_p)$ and $\text{card}(S_p) = \text{clog}(2, p) + 1$, we have $2^k \leq \text{clog}(2, p) + 1$.
-      have h_log : 2^k ≤ Nat.clog 2 p + 1 := by
+      have h_log : 2 ^ k ≤ Nat.clog 2 p + 1 := by
         convert hk' using 1;
         exact S_p_card p hp_odd hp_gt_1 ▸ rfl;
       contrapose! h_log;
@@ -87,9 +78,9 @@ theorem S_p_contains_powers (p : ℕ) (hp_odd : Odd p) (hp_gt_1 : p > 1) (k : �
 /-
 Any natural number n < 2^k can be written as a sum of distinct powers of 2 with exponents in range k.
 -/
-theorem binary_sum_subset (n k : ℕ) (h : n < 2^k) :
+theorem binary_sum_subset (n k : ℕ) (h : n < 2 ^ k) :
   ∃ S : Finset ℕ, S ⊆ Finset.range k ∧ S.sum (2 ^ ·) = n := by
-    induction' k with k ih generalizing n <;> simp_all +decide [ Finset.sum_range_succ', pow_succ' ];
+    induction' k with k ih generalizing n <;> simp_all +decide [ pow_succ' ];
     by_cases h₂ : n < 2 ^ k;
     · exact Exists.elim ( ih n h₂ ) fun S hS => ⟨ S, Finset.Subset.trans hS.1 ( Finset.range_mono ( Nat.le_succ _ ) ), hS.2 ⟩;
     · obtain ⟨ S, hS₁, hS₂ ⟩ := ih ( n - 2 ^ k ) ( by rw [ tsub_lt_iff_left ] <;> linarith );
@@ -225,10 +216,10 @@ open Classical
 def S_with_props (p : ℕ) (h : Odd p ∧ p > 1) :=
   lemma_ssize_v2 p h.1 h.2
 
-def S (p : ℕ) : Finset ℕ :=
+noncomputable def S (p : ℕ) : Finset ℕ :=
   if h : Odd p ∧ p > 1 then (S_with_props p h).choose else ∅
 
-def M_0 (p : ℕ) : ℕ :=
+noncomputable def M_0 (p : ℕ) : ℕ :=
   if h : Odd p ∧ p > 1 then (S_with_props p h).choose_spec.2.2.1.choose else 0
 
 theorem S_properties (p : ℕ) (h : Odd p ∧ p > 1) :
@@ -279,9 +270,8 @@ theorem iter_log_eventually_le_one (n : ℕ) : ∃ k, iter_log n k ≤ 1 := by
 /-
 Definitions of M, K, u, C_p and proof that M eventually becomes <= 1.
 -/
-open Classical
 
-def M (p : ℕ) : ℕ → ℕ
+noncomputable def M (p : ℕ) : ℕ → ℕ
 | 0 => 0
 | 1 => M_0 p + (S p).card
 | 2 => (S p).card
@@ -302,19 +292,17 @@ theorem M_eventually_le_one (p : ℕ) (h : Odd p ∧ p > 1) :
   · rw [M_eq_iter_log]
     exact hk
 
-def K (p : ℕ) : ℕ :=
+noncomputable def K (p : ℕ) : ℕ :=
   if h : ∃ k, k ≥ 2 ∧ M p k ≤ 1 then Nat.find h else 2
 
-def u (p : ℕ) : ℕ → ℕ
+noncomputable def u (p : ℕ) : ℕ → ℕ
 | 0 => 1
 | 1 => 1
 | 2 => if h : (S p).Nonempty then (S p).max' h else 1
 | k => 2^(M p k)
 
-def C_p (p : ℕ) : ℕ :=
+noncomputable def C_p (p : ℕ) : ℕ :=
   (List.range (K p + 1)).map (u p) |>.prod
-
-end
 
 /-
 Definitions of P (partial products) and IsShortSum.
@@ -440,7 +428,7 @@ theorem pow2_index_lt (p : ℕ) (hp : p > 1) (k : ℕ) :
 /-
 If 2^k <= R, then the index of 2^k in a_seq is strictly less than R + 1.
 -/
-theorem pow2_index_le_R (p : ℕ) (hp : p > 1) (R k : ℕ) (h : 2^k ≤ R) :
+theorem pow2_index_le_R (p : ℕ) (hp : p > 1) (R k : ℕ) (h : 2 ^ k ≤ R) :
   pow2_index p hp k < R + 1 := by
     linarith [ pow2_index_lt p hp k ]
 
@@ -594,8 +582,9 @@ theorem n_eq_sum_c_init (p n : ℕ) (hp : Odd p ∧ p > 1) :
             intro h_eq;
             rw [ Nat.testBit_eq_false_of_lt ];
             linarith;
-          rw [ ← Finset.sum_subset ( Finset.range_mono ( Nat.succ_le_of_lt ( Nat.lt_add_of_pos_right ( Nat.pos_of_ne_zero h ) ) ) ) ] ; aesop;
-          aesop;
+          rw [ ← Finset.sum_subset ( Finset.range_mono ( Nat.succ_le_of_lt ( Nat.lt_add_of_pos_right ( Nat.pos_of_ne_zero h ) ) ) ) ]
+          · aesop
+          · aesop
       linarith! [ Nat.sub_add_cancel ( show M_0 p * partial_sum p ( m p n hp - 1 ) ≤ n from R_nonneg p n hp ) ]
 
 /-
@@ -612,7 +601,7 @@ theorem decompose_even_pow2_spec (x : ℕ) (hx : x > 1) :
     · unfold decompose_even_pow2;
       split_ifs <;> simp_all +decide [ Nat.even_iff ];
       · have h_binary_sum : ∑ k ∈ x.bitIndices.toFinset, 2^k = x := by
-          induction' ( Nat.digits 2 x ) using List.reverseRecOn with d _ ih <;> simp_all +decide [ Nat.ofDigits ];
+          induction' ( Nat.digits 2 x ) using List.reverseRecOn with d _ ih <;> simp_all +decide;
         convert Or.inl h_binary_sum using 2;
         refine' Finset.sum_bij ( fun k hk => Nat.log 2 k ) _ _ _ _ <;> aesop;
       · -- By definition of `bitIndices`, the sum of the elements in the list `List.map (fun x => 2 ^ x) (x - 1).bitIndices` is equal to `x - 1`.
@@ -866,7 +855,7 @@ theorem coeff_from_binary_eq_zero_of_gt (p : ℕ) (hp : p > 1) (R i : ℕ) (h : 
 /-
 The remainder R is less than M_0 * a_{m-1}.
 -/
-set_option maxHeartbeats 1000000 in
+set_option maxHeartbeats 500000 in
 -- This arithmetic proof needs more than the default heartbeat limit for `nlinarith!`.
 theorem R_lt_M0_am_sub_1 (p n : ℕ) (hp : Odd p ∧ p > 1) (hn : n > 0) :
   R p n hp < M_0 p * a_seq p (m p n hp - 1) := by
@@ -977,7 +966,7 @@ theorem exists_non_pow2_in_S (p : ℕ) (hp : Odd p ∧ p > 1) :
   ∃ x ∈ S p, ∀ k, x ≠ 2^k := by
     obtain ⟨ x, hx₁, hx₂ ⟩ := exists_odd_in_S p hp;
     refine' ⟨ x, hx₁, fun k hk => _ ⟩;
-    cases k <;> simp_all +decide [ Nat.even_pow ];
+    cases k <;> simp_all +decide;
     · have := S_properties p hp;
       exact this.1 1 hx₁ |>.2 rfl;
     · exact absurd hx₂ ( by simp +decide [ Nat.even_pow ] )
@@ -1014,7 +1003,7 @@ theorem target_index_gt_self (p : ℕ) (hp : p > 1) (k : ℕ) (s : ℕ) (hs : s 
 Recursive definition of P.
 -/
 theorem lemma_P_recursive (p : ℕ) (k : ℕ) (hk : k ≥ 1) : P p k = P p (k - 1) * u p k := by
-  rcases k with ( _ | k ) <;> simp_all +decide [ pow_succ' ];
+  rcases k with ( _ | k ) <;> simp_all +decide;
   unfold P;
   simp +decide [ List.range_succ ];
   ring
@@ -1278,7 +1267,7 @@ theorem lemma_M_antitone (p : ℕ) (hp : Odd p ∧ p > 1) :
 If s is a power of 2, greater than 1, and less than or equal to |S|, then s is in S.
 -/
 theorem lemma_pow2_in_S_if_le_card (p : ℕ) (hp : Odd p ∧ p > 1) (s : ℕ)
-  (hs_pow2 : ∃ k, s = 2^k)
+  (hs_pow2 : ∃ k, s = 2 ^ k)
   (hs_gt_1 : s > 1)
   (hs_le : s ≤ (S p).card) :
   s ∈ S p := by
@@ -1289,7 +1278,7 @@ theorem lemma_pow2_in_S_if_le_card (p : ℕ) (hp : Odd p ∧ p > 1) (s : ℕ)
 If s is a power of 2, greater than 1, and less than or equal to |S|, then s is in S.
 -/
 theorem lemma_pow2_in_S_if_le_card_v2 (p : ℕ) (hp : Odd p ∧ p > 1) (s : ℕ)
-  (hs_pow2 : ∃ k, s = 2^k)
+  (hs_pow2 : ∃ k, s = 2 ^ k)
   (hs_gt_1 : s > 1)
   (hs_le : s ≤ (S p).card) :
   s ∈ S p := by
@@ -1417,7 +1406,7 @@ theorem lemma_used_s_final_v2_sum_le (p n : ℕ) (hp : Odd p ∧ p > 1) (k : ℕ
         have h_sum_le : ∀ n : ℕ, n > 1 → (List.map (fun x => 2 ^ x) (n).bitIndices).toFinset.sum id ≤ n := by
           intro n hn;
           induction' n using Nat.strong_induction_on with n ih;
-          rcases Nat.even_or_odd' n with ⟨ c, rfl | rfl ⟩ <;> simp_all +decide [ Nat.pow_succ', Nat.mul_mod ];
+          rcases Nat.even_or_odd' n with ⟨ c, rfl | rfl ⟩ <;> simp_all +decide [ Nat.pow_succ' ];
           · rcases c with ( _ | _ | c ) <;> simp_all +arith +decide;
             rw [ show ( List.map ( ( fun x => 2 ^ x ) ∘ fun x => x + 1 ) ( c + 2 ).bitIndices ).toFinset = Finset.image ( fun x => 2 ^ ( x + 1 ) ) ( List.toFinset ( List.map ( fun x => x ) ( c + 2 ).bitIndices ) ) from ?_ ];
             · rw [ Finset.sum_image ] <;> norm_num [ pow_succ' ];
@@ -1500,7 +1489,7 @@ theorem lemma_used_s_final_v2_ge_m_properties (p n : ℕ) (hp : Odd p ∧ p > 1)
     -- By definition of `used_s_final_v2`, if `j ≥ m - 1`, then `used_s_final_v2 p n hp j` is either empty or a subset of the even powers of 2 up to the coefficient.
     by_cases h_even : j ≥ m p n hp - 1;
     · unfold used_s_final_v2;
-      split_ifs <;> simp_all +decide [ decompose_even_pow2_spec ];
+      split_ifs <;> simp_all +decide;
       · omega;
       · split_ifs <;> simp_all +decide [ decompose_even_pow2_le ];
         unfold decompose_even_pow2; aesop;
@@ -1637,7 +1626,7 @@ theorem lemma_contributing_subset_S_final (p n : ℕ) (hp : Odd p ∧ p > 1) (j 
       refine lt_tsub_iff_right.mpr ?_;
       unfold v at hj'_lt_m_sub_1;
       unfold index_in_A at hj'_lt_m_sub_1;
-      split_ifs at hj'_lt_m_sub_1 <;> simp_all +decide [ Nat.find_eq_iff ];
+      split_ifs at hj'_lt_m_sub_1 <;> simp_all +decide;
       contrapose! hj'_lt_m_sub_1;
       refine' ⟨ m p n hp - 1, _, _ ⟩ <;> norm_num [ Nat.sub_add_cancel ( show 1 ≤ m p n hp from _ ) ];
       · linarith;
@@ -1766,7 +1755,7 @@ theorem lemma_c_step_final_succ_eq (p n : ℕ) (hp : Odd p ∧ p > 1) (j i : ℕ
 /-
 If the target of a scalar s is a power of 2, then s itself must be a power of 2.
 -/
-theorem lemma_s_is_pow2_of_target_pow2 (p : ℕ) (hp : p > 1) (j : ℕ) (s : ℕ) (hs : s ∈ A p) (i : ℕ) (ht : target_index p j s = i) (h_pow2 : ∃ k, a_seq p i = 2^k) : ∃ k, s = 2^k := by
+theorem lemma_s_is_pow2_of_target_pow2 (p : ℕ) (hp : p > 1) (j : ℕ) (s : ℕ) (hs : s ∈ A p) (i : ℕ) (ht : target_index p j s = i) (h_pow2 : ∃ k, a_seq p i = 2 ^ k) : ∃ k, s = 2 ^ k := by
   have h_s_pow2 : s * a_seq p j = 2 ^ h_pow2.choose := by
     rw [ ← h_pow2.choose_spec, ← ht, target_index_spec ];
     · exact hp;
@@ -1791,7 +1780,7 @@ theorem lemma_card_contributing_le_S_sub_one_final_if_pow2 (p n : ℕ) (hp : Odd
   (hi : in_interval_final p n hp 1 i)
   (h_ge : i ≥ j)
   (h_prev : ∀ j' < j, CoeffBound_final p n hp j')
-  (h_pow2 : ∃ r, a_seq p i = 2^r) :
+  (h_pow2 : ∃ r, a_seq p i = 2 ^ r) :
   (contributing_s_final_v2_up_to p n hp j i).card ≤ (S p).card - 1 := by
     obtain ⟨x, hx⟩ := exists_non_pow2_in_S p hp
     -- Since `s` is a power of 2 and `x` is not, `s` cannot be equal to `x`.
@@ -1844,15 +1833,16 @@ theorem lemma_bound_final_k1 (p n : ℕ) (hp : Odd p ∧ p > 1) (hn : n > 0) (j 
       unfold u at hi; norm_num [ List.range_succ ] at hi;
       refine lt_of_lt_of_le hi ?_;
       unfold index_in_A; aesop;
-    by_cases h : c_init p n hp i > M_0 p <;> simp_all +decide [ Nat.lt_succ_iff ];
+    by_cases h : c_init p n hp i > M_0 p <;> simp_all +decide;
     · have h_ak_pow2 : ∃ r, a_seq p i = 2^r := by
         apply_rules [ ak_is_pow2_of_gt_M0 ];
       have h_card_le_S_sub_one : (contributing_s_final_v2_up_to p n hp j i).card ≤ (S p).card - 1 := by
         apply_rules [ lemma_card_contributing_le_S_sub_one_final_if_pow2 ];
       have h_c_step_le_M1 : c_step_final_v2 p n hp j i ≤ c_init p n hp i + (S p).card - 1 := by
         rw [ lemma_c_step_final_eq_init_plus_card ];
-        · rw [ Nat.add_sub_assoc ] <;> norm_num at * ; omega;
-          exact S_nonempty p hp;
+        · rw [ Nat.add_sub_assoc ] <;> norm_num at *
+          · omega
+          · exact S_nonempty p hp
         · linarith;
       have h_c_init_le_M0_plus_1 : c_init p n hp i ≤ M_0 p + 1 := by
         apply c_init_bounds_lt_m p n hp i h_lt_m |>.2;
@@ -1911,7 +1901,7 @@ theorem lemma_target_scalar_properties (p n : ℕ) (hp : Odd p ∧ p > 1) (j : �
         exact h_v_mono _ ( Nat.sub_pos_of_lt ( by linarith ) ) ( Nat.sub_le_of_le_add ( by linarith ) );
       have := lemma_used_s_final_v2_ge_m_properties p n hp j' h_j'_ge_m_sub_1 s hs; aesop;
     have h_s_le_c_j' : s ≤ c_step_final_v2 p n hp j' j' := by
-      exact lemma_used_s_final_v2_sum_le p n hp j' |> fun h => Finset.single_le_sum ( fun x _ => Nat.zero_le x ) hs |> le_trans ( by simp +decide [ hs ] ) |> le_trans <| h;
+      exact lemma_used_s_final_v2_sum_le p n hp j' |> fun h => Finset.single_le_sum ( fun x _ => Nat.zero_le x ) hs |> le_trans ( by simp +decide ) |> le_trans <| h;
     -- Since $j'$ is in some interval $k'$, we have $k' \ge k-1$.
     obtain ⟨k', hk'⟩ : ∃ k', 1 ≤ k' ∧ k' ≤ K p ∧ in_interval_final p n hp k' j' := by
       have h_interval : j' < v p n hp (K p) := by
@@ -2130,7 +2120,7 @@ theorem lemma_card_contributing_le_S_sub_one_final_if_pow2_I2 (p n : ℕ) (hp : 
   (hi : in_interval_final p n hp 2 i)
   (h_ge : i ≥ j)
   (h_prev : ∀ j' < j, CoeffBound_final p n hp j')
-  (h_pow2 : ∃ r, a_seq p i = 2^r) :
+  (h_pow2 : ∃ r, a_seq p i = 2 ^ r) :
   (contributing_s_final_v2_up_to p n hp j i).card ≤ (S p).card - 1 := by
     -- By `lemma_contributing_subset_S_final_interval_2`, `contributing_s_final_v2_up_to p n hp j i ⊆ S p`.
     have h_subset : contributing_s_final_v2_up_to p n hp j i ⊆ S p := by
@@ -2160,11 +2150,9 @@ theorem lemma_bound_final_k2_case_1 (p n : ℕ) (hp : Odd p ∧ p > 1) (hn : n >
     -- Apply the lemma that states if the target is a power of 2, the number of contributing scalars is at most |S| - 1.
     have h_cardContributing : (contributing_s_final_v2_up_to p n hp j i).card ≤ (S p).card - 1 := by
       apply lemma_card_contributing_le_S_sub_one_final_if_pow2_I2 p n hp j i hi h_ge h_prev;
-      apply lemma_c_init_eq_one_imp_pow2_ge_m_sub_1;
-      apply lemma_j_ge_m_sub_1_of_in_interval_final_ge_2;
-      any_goals assumption;
-      · norm_num;
-      · unfold K; aesop;
+      apply lemma_c_init_eq_one_imp_pow2_ge_m_sub_1
+      · exact lemma_j_ge_m_sub_1_of_in_interval_final_ge_2 p n hp i 2 (by norm_num) (by unfold K; aesop) hi
+      · exact h_init
     rw [ lemma_c_step_final_eq_init_plus_card ];
     · rw [h_init]
       change 1 + (contributing_s_final_v2_up_to p n hp j i).card ≤ (S p).card
@@ -2284,7 +2272,7 @@ theorem lemma_c_step_final_v2_at_k_le_one (p n : ℕ) (hp : Odd p ∧ p > 1) (k 
       have h_step : c_step_final_v2 p n hp (k + 1) k = (step_transform_final_v2 p n hp (c_step_final_v2 p n hp k) k) k := by
         exact rfl;
       exact h_step.trans ( by unfold step_transform_final_v2; aesop );
-    split_ifs at h_step <;> simp_all +decide [ Nat.sub_eq_zero_of_le ];
+    split_ifs at h_step <;> simp_all +decide;
     have := decompose_even_pow2_spec ( c_step_final_v2 p n hp k k );
     cases this ‹_› |>.1 <;> simp_all +decide [ add_comm ];
     omega
@@ -2297,8 +2285,9 @@ theorem lemma_c_step_final_v2_stable (p n : ℕ) (hp : Odd p ∧ p > 1) (j i : �
     -- Since $i < j$, by the lemma_c_step_final_succ_eq, the coefficient at $i$ in step $j+1$ is equal to the coefficient at $i$ in step $j$ plus the number of scalars used in step $j$ that target $i$. However, since $i < j$, by the lemma_target_gt_source_final, the target index of any scalar used in step $j$ is greater than $j$, which cannot be $i$. Hence, the number of such scalars is zero.
     have h_no_targets : ¬∃ s ∈ used_s_final_v2 p n hp j, target_index p j s = i := by
       exact fun ⟨ s, hs₁, hs₂ ⟩ => by linarith [ lemma_target_gt_source_final p n hp j s hs₁ ] ;
-    rw [ lemma_c_step_final_succ_eq ] ; aesop;
-    linarith
+    rw [ lemma_c_step_final_succ_eq ]
+    · aesop
+    · linarith
 
 /-
 The final coefficient at index i is at most 1.
@@ -2429,11 +2418,12 @@ theorem lemma_c_step_at_vK_eq_zero (p n : ℕ) (hp : Odd p ∧ p > 1) (hn : n > 
         intros j hj s hs
         apply lemma_target_lt_vK_of_lt_vK_final p n hp hn j hj (lemma_invariant_final_holds p n hp hn j).left s hs;
       rw [ Finset.card_eq_zero ];
-      ext s; simp [contributing_s_final_v2_up_to]; (
-      exact fun j hj hs => ne_of_lt ( h_target_lt_vK j hj s hs ));
+      ext s; simp [contributing_s_final_v2_up_to]
+      exact fun j hj hs => ne_of_lt ( h_target_lt_vK j hj s hs )
     rw [ lemma_c_step_final_eq_init_plus_card ];
-    · rw [ lemma_c_init_eq_zero_of_ge_vK p n hp hn ] ; aesop;
-      rfl;
+    · rw [ lemma_c_init_eq_zero_of_ge_vK p n hp hn ]
+      · aesop
+      · rfl
     · norm_num
 
 /-
@@ -2510,6 +2500,7 @@ theorem final_summands_in_A_v2 (p n : ℕ) (hp : Odd p ∧ p > 1) :
 /-
 The final summands list is sorted.
 -/
+set_option linter.deprecated false in
 theorem final_summands_sorted_v2 (p n : ℕ) (hp : Odd p ∧ p > 1) :
   (final_summands_list_v2 p n hp).Sorted (· < ·) := by
     unfold final_summands_list_v2;
@@ -2531,9 +2522,11 @@ theorem lemma_sum_targets_eq_sum_scalars_mul_ak (p n : ℕ) (hp : Odd p ∧ p > 
     have h_sum : ∑ i ∈ Finset.filter (fun i => ∃ s ∈ used_s_final_v2 p n hp k, target_index p k s = i) (Finset.range (final_step_index p n hp)), a_seq p i = (used_s_final_v2 p n hp k).sum (fun s => s * a_seq p k) := by
       rw [ ← h_distinct, Finset.sum_image ];
       · exact Finset.sum_congr rfl fun x hx => target_index_spec p hp.2 k x ( lemma_used_s_final_v2_properties p n hp k x hx |>.1 );
-      · intro s hs t ht; apply_rules [ lemma_target_index_inj_s ] ; aesop;
-        · exact lemma_used_s_final_v2_properties p n hp k s hs |>.1;
-        · exact lemma_used_s_final_v2_properties p n hp k t ht |>.1;
+      · intro s hs t ht hst
+        exact lemma_target_index_inj_s p hp.2 k s t
+          (lemma_used_s_final_v2_properties p n hp k s hs |>.1)
+          (lemma_used_s_final_v2_properties p n hp k t ht |>.1)
+          hst
     simp_all +decide [ Finset.sum_filter, Finset.sum_mul _ _ _ ]
 
 /-
@@ -2681,7 +2674,7 @@ theorem final_summands_max_lt_Cp_min_retry (p n : ℕ) (hp : Odd p ∧ p > 1) (h
 If a_k is a power of 2 and contributing scalars are in S, then the number of contributing scalars is at most |S| - 1.
 -/
 theorem lemma_card_contributing_le_S_sub_one_if_pow2_final_v2_lt_m (p n : ℕ) (hp : Odd p ∧ p > 1) (k : ℕ) (hk : k < m p n hp - 1)
-  (h_pow2 : ∃ r, a_seq p k = 2^r)
+  (h_pow2 : ∃ r, a_seq p k = 2 ^ r)
   (h_subset : contributing_s_final_v2_up_to p n hp k k ⊆ S p) :
   (contributing_s_final_v2_up_to p n hp k k).card ≤ (S p).card - 1 := by
     have h_card : (contributing_s_final_v2_up_to p n hp k k).card ≤ (S p).card - 1 := by
@@ -2783,7 +2776,7 @@ theorem lemma_sum_at_step_zero (p n : ℕ) (hp : Odd p ∧ p > 1) (hn : n > 0) :
       simp +zetaDelta at *;
       intros i hi₁ hi₂; exact Or.inl (by
       exact c_init_eq_zero_of_gt_vK p n hp i hi₁);
-    cases le_total final_step ( R p n hp + m p n hp ) <;> simp_all +decide [ Finset.sum_range_add_sum_Ico ];
+    cases le_total final_step ( R p n hp + m p n hp ) <;> simp_all +decide;
     · rw [ ← h_sum_c, Finset.sum_subset ( Finset.range_mono ‹_› ) ] ; aesop;
     · rw [ ← h_sum_c, ← Finset.sum_range_add_sum_Ico _ ‹_› ];
       simp +zetaDelta at *;
@@ -2812,14 +2805,15 @@ The sum of coefficients weighted by the sequence values is preserved at each ste
 -/
 theorem lemma_sum_at_step_succ (p n : ℕ) (hp : Odd p ∧ p > 1) (hn : n > 0) (k : ℕ) (hk : k < final_step_index p n hp) :
   sum_at_step p n hp (k + 1) = sum_at_step p n hp k := by
-    apply_rules [ lemma_step_transform_algebra_v2 ];
+    apply lemma_step_transform_algebra_v2
     -- Apply the lemma that states the targets of the used scalars are within the range.
-    apply lemma_targets_in_range_final p n hp hn k hk;
-    · exact lemma_c_step_final_v2_k_eq p n hp k;
-    · exact fun i a a_1 ↦ lemma_c_step_final_v2_other_eq p n hp k i a;
-    · exact lemma_used_s_final_v2_sum_le p n hp k;
-    · apply lemma_sum_targets_eq_sum_scalars_mul_ak;
-      exact fun s a ↦ lemma_targets_in_range_final p n hp hn k hk s a;
+    · exact fun s hs => lemma_targets_in_range_final p n hp hn k hk s hs
+    · exact hk
+    · exact lemma_c_step_final_v2_k_eq p n hp k
+    · exact fun i a a_1 ↦ lemma_c_step_final_v2_other_eq p n hp k i a
+    · exact lemma_used_s_final_v2_sum_le p n hp k
+    · apply lemma_sum_targets_eq_sum_scalars_mul_ak
+      exact fun s a ↦ lemma_targets_in_range_final p n hp hn k hk s a
     · exact fun s a ↦ lemma_target_neq_source_final p n hp k s a
 
 /-
@@ -2875,6 +2869,7 @@ theorem final_summands_max_lt_Cp_min (p n : ℕ) (hp : Odd p ∧ p > 1) (hn : n 
 /-
 For every odd p > 1, there exists a constant C such that every positive integer n can be written as a sum of distinct elements of A_p with small spacing.
 -/
+set_option linter.deprecated false in
 theorem main_theorem (p : ℕ) (hp : Odd p ∧ p > 1) :
   ∃ C, ∀ n > 0, ∃ (L : List ℕ),
     L.Sorted (· < ·) ∧
@@ -2948,23 +2943,23 @@ theorem main_theorem_consequence :
       have hB : ∀ x ∈ L, ∃ y : ℕ × ℕ, 2 ^ y.1 * 3 ^ y.2 = x := by
         exact fun x hx => by obtain ⟨ k, l, rfl ⟩ := hL₂ x hx; exact ⟨ ⟨ k, l ⟩, rfl ⟩ ;
       choose! f hf using hB;
-      refine' ⟨ L.toFinset.image f, _, _, _ ⟩ <;> simp_all +decide [ Finset.sum_image ];
+      refine' ⟨ L.toFinset.image f, _, _, _ ⟩ <;> simp_all +decide;
       · exact fun x hx => ⟨ x, hx, hf x hx ⟩;
       · rw [ Finset.sum_image ];
         · rw [ ← hL₃, List.sum_toFinset ];
           · rw [ List.map_congr_left hf ] ; aesop;
           · exact List.Pairwise.nodup hL₁;
         · intro x hx y hy; have := hf x; have := hf y; aesop;
-    refine' ⟨ B, _, _, _ ⟩ <;> simp_all +decide [ Finset.sup'_le_iff, Finset.le_inf'_iff ];
-    exact Exists.elim ( hB.2.1 _ ( Classical.choose_spec ( List.length_pos_iff_exists_mem.mp ( List.length_pos_iff.mpr hL₄ ) ) ) ) fun x hx => Exists.elim hx fun y hy => ⟨ ( x, y ), hy.1 ⟩;
-    refine' mod_cast le_trans _ ( Nat.mul_le_mul_left _ <| Finset.le_inf' _ _ _ );
-    rotate_left;
-    exact L.head!;
-    · intro x hx
-      have hxL : 2 ^ x.1 * 3 ^ x.2 ∈ L := hB.1 x hx
-      have hLle : List.Pairwise (fun x y => x ≤ y) L := hL₁.imp fun h => le_of_lt h
-      exact List.Pairwise.head!_le hLle hxL
-    · exact Finset.sup_le fun x hx => by nlinarith [ hL₅ _ ( hB.1 x hx ), Nat.zero_le ( L.head! ) ] ;
+    refine' ⟨ B, _, _, _ ⟩ <;> simp_all +decide
+    · exact Exists.elim ( hB.2.1 _ ( Classical.choose_spec ( List.length_pos_iff_exists_mem.mp ( List.length_pos_iff.mpr hL₄ ) ) ) ) fun x hx => Exists.elim hx fun y hy => ⟨ ( x, y ), hy.1 ⟩
+    · refine' mod_cast le_trans _ ( Nat.mul_le_mul_left _ <| Finset.le_inf' _ _ _ )
+      rotate_left
+      · exact L.head!
+      · intro x hx
+        have hxL : 2 ^ x.1 * 3 ^ x.2 ∈ L := hB.1 x hx
+        have hLle : List.Pairwise (fun x y => x ≤ y) L := hL₁.imp fun h => le_of_lt h
+        exact List.Pairwise.head!_le hLle hxL
+      · exact Finset.sup_le fun x hx => by nlinarith [ hL₅ _ ( hB.1 x hx ), Nat.zero_le ( L.head! ) ]
 
 /-
 Let $C > 0$. Is it true that the set of integers of the form $n = b_1 + \cdots + b_t$,
