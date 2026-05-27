@@ -42,16 +42,10 @@ set_option linter.flexible false
 set_option linter.style.refine false
 set_option linter.style.multiGoal false
 set_option linter.style.induction false
-set_option linter.unusedSimpArgs false
-set_option linter.unusedVariables false
-set_option linter.unnecessarySimpa false
-set_option linter.unusedTactic false
 
 namespace Erdos226
 
 open scoped Classical
-
-noncomputable section
 
 /-
 A function f:R->R is affine if f(x)=ax+b for some a,b in R.
@@ -121,7 +115,7 @@ lemma exists_rat_in_interval_diff_finite (x y : ℝ) (hxy : x < y) (S : Set ℚ)
 /-
 epsilon_seq n = (1/2)^(n+3). It is positive and sums to less than 1/2.
 -/
-def epsilon_seq (n : ℕ) : ℝ := (1/2) ^ (n + 3)
+noncomputable def epsilon_seq (n : ℕ) : ℝ := (1/2) ^ (n + 3)
 
 theorem epsilon_pos (n : ℕ) : 0 < epsilon_seq n := by
   unfold epsilon_seq
@@ -250,7 +244,7 @@ lemma beta_set_finite (hist : List (ℚ × ℚ × ℝ)) : (beta_set hist).Finite
   have h_beta_finite : (beta_set hist) = Finset.image (fun t => t.2.1) (List.toFinset hist) := by
     -- To prove equality of sets, we show each set is a subset of the other.
     ext q
-    simp [beta_set, Finset.mem_image];
+    simp [beta_set];
     -- To prove the equivalence, we can use the fact that if there exists a k such that the k-th element is (a, q, x), then (a, q, x) is in the list, and vice versa.
     apply Iff.intro;
     · grind;
@@ -343,13 +337,13 @@ noncomputable def next_step (n : ℕ) (hist : List (ℚ × ℚ × ℝ)) : ℚ ×
 /-
 Defines the sequences alpha, beta, and lambda by iterating next_step.
 -/
-def all_tuples : ℕ → List (ℚ × ℚ × ℝ)
+noncomputable def all_tuples : ℕ → List (ℚ × ℚ × ℝ)
 | 0 => []
 | n + 1 =>
   let prev := all_tuples n
   prev ++ [next_step n prev]
 
-def construction_seq (n : ℕ) : ℚ × ℚ × ℝ :=
+noncomputable def construction_seq (n : ℕ) : ℚ × ℚ × ℝ :=
   (all_tuples (n + 1)).getLast (by simp [all_tuples])
 
 noncomputable def alpha_seq (n : ℕ) : ℚ := (construction_seq n).1
@@ -443,7 +437,7 @@ lemma L_val_pos (alpha : ℕ → ℝ) (n : ℕ) (hn : n ≥ 1) : 0 < L_val alpha
     have h_cont : ContinuousOn (fun z : ℂ => deriv (h_seq alpha n) z) (Set.univ : Set ℂ) := by
       have h_poly : ∃ Q : Polynomial ℂ, Q.degree = n + 1 ∧ ∀ z : ℂ, deriv (h_seq alpha n) z = Complex.exp (-z^2 / (n + 1)) * Q.eval z := h_seq_deriv_structure alpha n hn
       exact Continuous.continuousOn ( by rcases h_poly with ⟨ Q, hQ₁, hQ₂ ⟩ ; exact by rw [ show deriv ( h_seq alpha n ) = _ from funext hQ₂ ] ; exact Continuous.mul ( Complex.continuous_exp.comp <| by continuity ) <| Q.continuous );
-    exact ContinuousOn.norm ( h_cont.comp ( Complex.continuous_ofReal.continuousOn ) fun x hx => by simpa );
+    exact ContinuousOn.norm ( h_cont.comp ( Complex.continuous_ofReal.continuousOn ) fun x hx => by simp );
   have h_bdd_above : Filter.Tendsto (fun x : ℝ => ‖deriv (h_seq alpha n) (x : ℂ)‖) Filter.atTop (nhds 0) ∧ Filter.Tendsto (fun x : ℝ => ‖deriv (h_seq alpha n) (x : ℂ)‖) Filter.atBot (nhds 0) := by
     -- Since $Q$ is a polynomial of degree $n+1$, $|Q(x)|$ grows without bound as $x$ goes to infinity.
     have h_Q_growth : Filter.Tendsto (fun x : ℝ => ‖Polynomial.eval (x : ℂ) (Classical.choose (h_seq_deriv_structure alpha n hn))‖ * Real.exp (-x^2 / (n + 1))) Filter.atTop (nhds 0) ∧ Filter.Tendsto (fun x : ℝ => ‖Polynomial.eval (x : ℂ) (Classical.choose (h_seq_deriv_structure alpha n hn))‖ * Real.exp (-x^2 / (n + 1))) Filter.atBot (nhds 0) := by
@@ -478,7 +472,7 @@ lemma L_val_pos (alpha : ℕ → ℝ) (n : ℕ) (hn : n ≥ 1) : 0 < L_val alpha
               simpa [ Finset.sum_mul _ _ _, mul_assoc ] using tendsto_finset_sum _ fun k hk => h_poly_growth k |> Filter.Tendsto.const_mul ( ‖p.coeff k‖ );
             refine' squeeze_zero ( fun x => by positivity ) ( fun x => mul_le_mul_of_nonneg_right ( _ : _ ≤ _ ) ( Real.exp_nonneg _ ) ) h_poly_growth;
             rw [ Polynomial.eval_eq_sum_range ];
-            exact le_trans ( norm_sum_le _ _ ) ( Finset.sum_le_sum fun _ _ => by simp +decide [ abs_mul ] );
+            exact le_trans ( norm_sum_le _ _ ) ( Finset.sum_le_sum fun _ _ => by simp +decide );
           exact h_Q_growth_bot _;
         convert h_Q_growth_bot using 2 ; norm_num;
       exact ⟨ h_Q_growth, by convert h_Q_growth_bot.comp Filter.tendsto_neg_atBot_atTop using 2; aesop ⟩;
@@ -541,7 +535,7 @@ lemma h_seq_deriv_bounded (alpha : ℕ → ℝ) (n : ℕ) (hn : n ≥ 1) :
           convert h_exp_decay_top.comp Filter.tendsto_neg_atBot_atTop using 2 ; norm_num
         exact ⟨h_exp_decay_top, h_exp_decay_bot⟩;
       have h_bound : ∀ x : ℝ, ‖Q.eval (x : ℂ)‖ ≤ (∑ i ∈ Finset.range (Q.natDegree + 1), ‖Q.coeff i‖ * |x|^i) := by
-        intro x; rw [ Polynomial.eval_eq_sum_range ] ; exact le_trans ( norm_sum_le _ _ ) ( Finset.sum_le_sum fun i hi => by simp +decide [ abs_mul ] ) ;
+        intro x; rw [ Polynomial.eval_eq_sum_range ] ; exact le_trans ( norm_sum_le _ _ ) ( Finset.sum_le_sum fun i hi => by simp +decide ) ;
       have h_bound : Filter.Tendsto (fun x : ℝ => (∑ i ∈ Finset.range (Q.natDegree + 1), ‖Q.coeff i‖ * |x|^i) * Real.exp (-x^2 / (n + 1))) Filter.atTop (nhds 0) ∧ Filter.Tendsto (fun x : ℝ => (∑ i ∈ Finset.range (Q.natDegree + 1), ‖Q.coeff i‖ * |x|^i) * Real.exp (-x^2 / (n + 1))) Filter.atBot (nhds 0) := by
         simp_all +decide [ Finset.sum_mul _ _ _ ];
         exact ⟨ by simpa [ mul_assoc ] using tendsto_finset_sum _ fun i hi => Filter.Tendsto.const_mul ( ‖Q.coeff i‖ ) ( ‹∀ d : ℕ, Filter.Tendsto ( fun x : ℝ => |x| ^ d * Real.exp ( -x ^ 2 / ( n + 1 ) ) ) Filter.atTop ( nhds 0 ) ∧ Filter.Tendsto ( fun x : ℝ => |x| ^ d * Real.exp ( -x ^ 2 / ( n + 1 ) ) ) Filter.atBot ( nhds 0 ) › i |>.1 ), by simpa [ mul_assoc ] using tendsto_finset_sum _ fun i hi => Filter.Tendsto.const_mul ( ‖Q.coeff i‖ ) ( ‹∀ d : ℕ, Filter.Tendsto ( fun x : ℝ => |x| ^ d * Real.exp ( -x ^ 2 / ( n + 1 ) ) ) Filter.atTop ( nhds 0 ) ∧ Filter.Tendsto ( fun x : ℝ => |x| ^ d * Real.exp ( -x ^ 2 / ( n + 1 ) ) ) Filter.atBot ( nhds 0 ) › i |>.2 ) ⟩;
@@ -610,7 +604,7 @@ lemma h_seq_eq_of_agree (n : ℕ) (alpha1 alpha2 : ℕ → ℝ) (h_agree : ∀ k
     h_seq alpha1 n z = h_seq alpha2 n z := by
       unfold h_seq;
       cases n <;> simp_all +decide [ List.range_succ_eq_map ];
-      exact Or.inl ( congr_arg _ ( List.ext_get ( by simp +decide [ h_agree ] ) fun i hi => by aesop ) )
+      exact Or.inl ( congr_arg _ ( List.ext_get ( by simp +decide ) fun i hi => by aesop ) )
 
 /-
 If k is the smallest index such that seq k is not in S, then first_unused returns seq k.
@@ -752,7 +746,7 @@ lemma alpha_from_hist_eq_alpha_seq' (n k : ℕ) (h : k < n) :
         refine' Nat.le_induction rfl ( fun m hm ih => _ ) _ h;
         -- By definition of `all_tuples'`, appending an element to a list does not change the elements before the appended element.
         have h_append : ∀ (l : List (ℚ × ℚ × ℝ)) (x : ℚ × ℚ × ℝ), ∀ k, k < l.length → (l ++ [x]).get? k = l.get? k := by
-          simp +contextual [ List.get?_eq_get ];
+          simp +contextual;
           grind;
         convert h_append _ _ _ _ using 1;
         · exact id (Eq.symm ih);
@@ -999,7 +993,7 @@ h_seq with alpha_seq' takes real values for real arguments.
 -/
 lemma h_seq'_is_real (n : ℕ) (x : ℝ) : (h_seq (fun k => (alpha_seq' k : ℝ)) n (x : ℂ)).im = 0 := by
   unfold h_seq;
-  induction List.range n <;> simp_all +decide [ Complex.exp_re, Complex.exp_im, List.prod_cons ];
+  induction List.range n <;> simp_all +decide [ List.prod_cons ];
   · split_ifs <;> norm_num [ Complex.exp_re, Complex.exp_im ];
     norm_cast ; norm_num;
   · split_ifs at * <;> simp_all +decide [ Complex.exp_re, Complex.exp_im, Complex.mul_im ];
@@ -1036,7 +1030,7 @@ noncomputable def F_partial_sum' (N : ℕ) (z : ℂ) : ℂ := z + ((List.range (
 lemma F_partial_sum'_eq_F_seq_real (n : ℕ) (x : ℝ) :
     (F_partial_sum' n (x : ℂ)).re = F_seq_real (fun k => alpha_seq' k) (fun k => lambda_seq' k) n x := by
       unfold F_partial_sum' F_seq_real;
-      unfold F_seq; simp +decide [ List.sum_map_mul_right ] ;
+      unfold F_seq; simp +decide ;
 
 /-
 The invariant holds for n=0.
@@ -1136,7 +1130,7 @@ lemma next_step'_eq_B (n : ℕ) (hn : n ≥ 2) (heven : n % 2 = 0) (h_inv : Inva
               rw [ List.getLast_eq_getElem ];
             have h_alpha_seq'_eq : ∀ p q : ℕ, p ≤ q → alpha_set (all_tuples' p) ⊆ alpha_set (all_tuples' q) := by
               intros p q hpq;
-              induction hpq <;> simp_all +decide [ alpha_set, List.range_succ ];
+              induction hpq <;> simp_all +decide [ alpha_set ];
               rename_i k hk ih;
               intro a x x_1 x_2 hx; obtain ⟨ k, a, b, hk ⟩ := ih a x x_1 x_2 hx; use k, a, b; simp_all +decide [ all_tuples' ] ;
               rw [ List.get?_append ] ; aesop;
@@ -1160,11 +1154,11 @@ lemma next_step'_eq_B (n : ℕ) (hn : n ≥ 2) (heven : n % 2 = 0) (h_inv : Inva
   let lambda_n := (beta_n - y) / h_val
   next_step' n hist = (alpha_n, beta_n, lambda_n) := by
     unfold next_step';
-    split_ifs <;> simp_all +decide [ Nat.even_iff ];
-    · split_ifs <;> simp_all +decide [ Nat.even_iff ];
+    split_ifs <;> simp_all +decide;
+    · split_ifs <;> simp_all +decide;
       · grind;
       · exact absurd ‹_› ( not_le_of_gt ( eta_seq'_pos 2 ( by norm_num ) ) );
-    · split_ifs <;> simp_all +decide [ Nat.even_iff ];
+    · split_ifs <;> simp_all +decide;
       · linarith;
       · linarith;
       · grind;
@@ -1184,7 +1178,7 @@ lemma lambda_from_hist_eq_lambda_seq' (n k : ℕ) (h : k < n) :
           induction' k + 1 with n ih <;> simp_all +decide [ all_tuples' ];
         aesop;
       · rw [ show all_tuples' n = all_tuples' ( k + 1 ) ++ List.map ( fun m => next_step' m ( all_tuples' m ) ) ( List.range ( n - ( k + 1 ) ) |> List.map ( fun m => m + ( k + 1 ) ) ) from ?_ ];
-        · rcases n with ( _ | _ | n ) <;> simp_all +decide [ List.get?_eq_get ];
+        · rcases n with ( _ | _ | n ) <;> simp_all +decide;
           rw [ List.get?_append ] ; norm_num;
           exact fun h => absurd h ( by linarith [ show List.length ( all_tuples' ( k + 1 ) ) = k + 1 from by exact Nat.recOn k ( by trivial ) fun n ihn => by rw [ show all_tuples' ( n + 1 + 1 ) = all_tuples' ( n + 1 ) ++ [ next_step' ( n + 1 ) ( all_tuples' ( n + 1 ) ) ] from rfl ] ; simp +arith +decide [ ihn ] ] );
         · have h_all_tuples'_eq : ∀ m, all_tuples' (m + 1) = all_tuples' m ++ [next_step' m (all_tuples' m)] := by
@@ -1241,7 +1235,6 @@ lemma F_seq_real_surjective_of_Invariant' (n : ℕ) (h : Invariant' n) :
         refine' fun x => le_trans _ ( this x );
         norm_num [ Finset.sum_range_succ', epsilon_seq ];
         rcases n with ( _ | _ | n ) <;> norm_num [ Finset.sum_range_succ', pow_succ' ] at *;
-        norm_num [ Nat.succ_lt_succ_iff ];
         norm_num [ ← Finset.mul_sum _ _ _, ← Finset.sum_mul ];
         linarith [ show ( ∑ x ∈ Finset.range n, ( 1 / 2 : ℝ ) ^ x ) ≤ 2 by rw [ geom_sum_eq ] <;> ring_nf <;> norm_num ];
       -- Apply the lemma that states a differentiable function with a derivative bounded below by a positive constant is surjective.
@@ -1256,6 +1249,7 @@ If x maps to the new beta value under F_{n-1}, then x is not one of the previous
 lemma preimage_not_alpha' (n : ℕ) (h_inv : Invariant' (n - 1)) (hn : n ≥ 1)
     (x : ℝ) (hx : F_seq_real (fun k => alpha_seq' k) (fun k => lambda_seq' k) (n - 1) x = first_unused b_seq b_seq_surj (beta_set (all_tuples' n)) (beta_set_finite (all_tuples' n))) :
     ∀ k < n, x ≠ alpha_seq' k := by
+      have _ := hn
       intro k hk_lt_n hk_eq_alpha_seq'_k;
       have h_beta_k : F_seq_real (fun k => (alpha_seq' k : ℝ)) (fun k => lambda_seq' k) (n - 1) (alpha_seq' k) = beta_seq' k := by
         convert h_inv.2.2.1 k ( Nat.le_sub_one_of_lt hk_lt_n );
@@ -1339,6 +1333,7 @@ lemma next_step'_odd_conditions (n : ℕ) (hn : n ≥ 1) (hodd : n % 2 = 1) (h_i
   let Lambda := fun t => (beta_n - F_prev t) / h_curr t
   (ContinuousAt Lambda x_n ∧ Lambda x_n = 0) ∧
   ∃ delta, 0 < delta ∧ ∀ t, |t - x_n| < delta → |Lambda t| < eta := by
+    have _ := hodd
     have h_surj : ∃ x, F_seq_real (fun k => alpha_seq' k) (fun k => lambda_seq' k) (n - 1) x = first_unused b_seq b_seq_surj (beta_set (all_tuples' n)) (beta_set_finite (all_tuples' n)) := by
       apply_rules [ F_seq_real_surjective_of_Invariant' ];
     have h_cont : ContinuousAt (fun t => (first_unused b_seq b_seq_surj (beta_set (all_tuples' n)) (beta_set_finite (all_tuples' n)) - F_seq_real (fun k => alpha_seq' k) (fun k => lambda_seq' k) (n - 1) t) / h_seq_real (fun k => alpha_seq' k) n t) (Classical.choose h_surj) ∧ (first_unused b_seq b_seq_surj (beta_set (all_tuples' n)) (beta_set_finite (all_tuples' n)) - F_seq_real (fun k => alpha_seq' k) (fun k => lambda_seq' k) (n - 1) (Classical.choose h_surj)) / h_seq_real (fun k => alpha_seq' k) n (Classical.choose h_surj) = 0 := by
@@ -1373,7 +1368,7 @@ lemma h_seq_real_ne_zero_of_not_mem_alpha_set' (n : ℕ) (x : ℝ) (hist : List 
     unfold h_seq_real;
     unfold h_seq;
     split_ifs <;> simp_all +decide [ Complex.exp_re, Complex.exp_im ];
-    norm_cast ; simp_all +decide [ List.prod_eq_zero_iff ];
+    norm_cast ; simp_all +decide;
     -- Since the product of non-zero real numbers is non-zero, the real part of the product is also non-zero.
     have h_prod_real_nonzero : ∀ {l : List ℝ}, (∀ x ∈ l, x ≠ 0) → (List.prod l) ≠ 0 := by
       intros l hl; induction l <;> simp_all +decide [ List.prod_cons ] ;
@@ -1464,7 +1459,7 @@ lemma next_step'_alpha_not_mem_odd (n : ℕ) (hn : n ≥ 1) (hodd : n % 2 = 1) (
     split_ifs <;> norm_num at *;
     · linarith;
     · unfold all_tuples'; simp +decide [ *, alpha_set ] ;
-      unfold all_tuples'; simp +decide [ *, alpha_set ] ;
+      unfold all_tuples'; simp +decide [ * ] ;
       rintro ( _ | _ | n ) <;> simp +decide [ next_step' ];
     · omega;
     · split_ifs <;> norm_num at *;
@@ -1492,13 +1487,13 @@ lemma next_step'_interpolation_odd (n : ℕ) (hn : n ≥ 1) (hodd : n % 2 = 1) (
         obtain ⟨ h_surj, h_curr_nz, h_cont, delta, h_delta_pos, h_delta ⟩ := this;
         simp +zetaDelta at *;
         unfold next_step'; simp +decide [ * ] ;
-        split_ifs <;> simp_all +decide [ Nat.even_iff ];
+        split_ifs <;> simp_all +decide;
         · unfold all_tuples'; unfold alpha_from_hist; unfold lambda_from_hist; unfold F_seq_real; unfold h_seq_real; norm_num;
           unfold all_tuples'; unfold next_step'; norm_num [ F_seq, h_seq ] ;
         · rename_i h₁ h₂ h₃ h₄ h₅;
           exact absurd ( h₅ delta h_delta_pos ) ( by rintro ⟨ x, hx₁, hx₂ ⟩ ; exact not_lt_of_ge hx₂ ( h_delta x hx₁ ) );
         · exact absurd ‹_› ( not_le_of_gt ( eta_val_pos_any _ _ hn ) );
-      by_cases h : h_seq_real ( alpha_from_hist ( all_tuples' n ) ) n x = 0 <;> simp_all +decide [ sub_eq_iff_eq_add ];
+      by_cases h : h_seq_real ( alpha_from_hist ( all_tuples' n ) ) n x = 0 <;> simp_all +decide;
       exact False.elim <| absurd h <| h_seq_real_ne_zero_of_not_mem_alpha_set' n _ _ rfl <| by
         have := next_step'_alpha_not_mem_odd n hn hodd h_inv; aesop;;
     -- By definition of `F_seq_real`, we know that `F_seq_real (fun k => (alpha_seq' k : ℝ)) (fun k => lambda_seq' k) n x` is equal to `F_seq_real (alpha_from_hist (all_tuples' n)) (lambda_from_hist (all_tuples' n)) (n - 1) x + lambda_n * h_seq_real (alpha_from_hist (all_tuples' n)) n x`.
@@ -1563,7 +1558,7 @@ lemma beta_set_eq_image' (n : ℕ) : beta_set (all_tuples' n) = (Finset.range n)
       unfold construction_seq'; aesop;
   simp ( config := { decide := Bool.true } ) [ h_all_tuples'_def, beta_set ];
   ext;
-  simp ( config := { decide := Bool.true } ) [ List.get?, List.getElem?_eq_some_iff ];
+  simp ( config := { decide := Bool.true } ) [ List.getElem?_eq_some_iff ];
   rfl
 
 /-
@@ -1639,14 +1634,14 @@ lemma beta_seq'_succ_not_mem_prev (n : ℕ) (h_inv : Invariant' n) :
       unfold construction_seq';
       -- By definition of `all_tuples'`, the last element of `all_tuples' (n + 2)` is `next_step' (n + 1) (all_tuples' (n + 1))`.
       have h_last : (all_tuples' (n + 2)).getLast (by
-      induction' n with n ih <;> simp_all +decide [ Nat.succ_eq_add_one, all_tuples' ]) = next_step' (n + 1) (all_tuples' (n + 1)) := by
+      induction' n with n ih <;> simp_all +decide [ all_tuples' ]) = next_step' (n + 1) (all_tuples' (n + 1)) := by
         -- By definition of `all_tuples'`, we have `all_tuples' (n + 2) = all_tuples' (n + 1) ++ [next_step' (n + 1) (all_tuples' (n + 1))]`.
         have h_all_tuples' : all_tuples' (n + 2) = all_tuples' (n + 1) ++ [next_step' (n + 1) (all_tuples' (n + 1))] := by
           exact rfl;
         aesop
       generalize_proofs at *;
       have h_beta_not_mem : (next_step' (n + 1) (all_tuples' (n + 1))).2.1 ∉ beta_set (all_tuples' (n + 1)) := by
-        by_cases h : n + 1 % 2 = 1 <;> simp_all +decide [ Nat.add_mod ];
+        by_cases h : n + 1 % 2 = 1 <;> simp_all +decide;
         · simp +decide [ beta_set ];
           rintro ( _ | _ | n ) <;> simp +decide [ all_tuples' ];
           unfold next_step'; aesop;
@@ -1689,7 +1684,7 @@ lemma beta_seq'_distinct_succ (n : ℕ) (h : Invariant' n) :
         rw [ show j = n + 1 by linarith ] ; exact this i ( by linarith );
       · cases hi.eq_or_lt <;> cases hj.eq_or_lt <;> first | linarith | simp_all (config :=
         { decide := Bool.true }) only [le_refl, ne_eq, add_le_iff_nonpos_right, not_false_eq_true] ;
-        have := beta_seq'_succ_not_mem_prev n h; simp_all +decide [ Set.Finite.image ] ;
+        have := beta_seq'_succ_not_mem_prev n h; simp_all +decide ;
         exact Ne.symm ( this _ ‹_› )
 
 /-
@@ -1699,7 +1694,7 @@ lemma interpolation_succ_le_n' (n : ℕ) (h : Invariant' n) :
     ∀ k ≤ n, F_seq_real (fun i => alpha_seq' i) (fun i => lambda_seq' i) (n + 1) (alpha_seq' k) = beta_seq' k := by
       -- By definition of $F_{n+1}$, we have $F_{n+1}(alpha_k) = F_n(alpha_k) + lambda_{n+1} * h_{n+1}(alpha_k)$.
       intro k hk
-      simp [F_seq_real, hk, h_seq_vanishes_for_large_n'];
+      simp [F_seq_real];
       convert h.2.2.1 k hk using 1;
       unfold F_seq F_seq_real; norm_num [ hk ] ;
       unfold F_seq; norm_num [ List.range_succ ] ; ring_nf;
@@ -1726,7 +1721,7 @@ lemma interpolation_succ_eq_n_plus_1_even' (n : ℕ) (h : Invariant' n) (h_even 
           unfold F_seq; norm_num [ Finset.sum_range_succ ] ;
           simp +decide [ add_assoc, List.range_succ ];
           exact Or.inl rfl;
-      by_cases h : h_seq_real ( fun i => ( alpha_seq' i : ℝ ) ) ( n + 1 ) ( alpha_seq' ( n + 1 ) ) = 0 <;> simp_all +decide [ h_seq_real_ne_zero_of_not_mem_alpha_set' ];
+      by_cases h : h_seq_real ( fun i => ( alpha_seq' i : ℝ ) ) ( n + 1 ) ( alpha_seq' ( n + 1 ) ) = 0 <;> simp_all +decide;
       · -- Since `alpha_{n+1}` is chosen to be the first unused rational, it is not in `alpha_set hist`.
         have h_alpha_not_mem : (next_step' (n + 1) hist).1 ∉ alpha_set hist := by
           have h_alpha_not_mem : (next_step' (n + 1) hist).1 = first_unused a_seq a_seq_surj (alpha_set hist) (alpha_set_finite hist) := by
@@ -1810,7 +1805,7 @@ The new lambda value satisfies the bound |lambda_seq' (n+1)| < eta_seq' (n+1).
 -/
 lemma lambda_seq'_succ_bound (n : ℕ) (h : Invariant' n) :
     |lambda_seq' (n + 1)| < eta_seq' (n + 1) := by
-      rcases Nat.even_or_odd' ( n + 1 ) with ⟨ k, hk | hk ⟩ <;> simp_all +decide [ Nat.even_iff ];
+      rcases Nat.even_or_odd' ( n + 1 ) with ⟨ k, hk | hk ⟩ <;> simp_all +decide;
       · convert lambda_seq'_strict_bound_even ( 2 * k ) ( by linarith [ show k > 0 from Nat.pos_of_ne_zero ( by aesop_cat ) ] ) ( by norm_num ) using 1;
       · convert next_step'_lambda_bound_odd ( 2 * k + 1 ) ( by linarith ) ( by norm_num ) h using 1;
         unfold lambda_seq';
@@ -2073,7 +2068,7 @@ lemma beta_seq'_subset_image_of_never_chosen (k : ℕ) (h_never : ∀ n, beta_se
       intros n hn_odd hn_ge_1
       have h_min_unused_beta_index_le_k : min_unused_beta_index n ≤ k := by
         apply min_unused_beta_index_le;
-        rw [ beta_set_eq_image' ] ; simp +decide [ Finset.mem_image, h_never ];
+        rw [ beta_set_eq_image' ] ; simp +decide [ h_never ];
       exact Finset.mem_image.mpr ⟨ min_unused_beta_index n, Finset.mem_range.mpr ( by linarith ), by rw [ beta_seq'_eq_b_seq_of_odd n hn_odd hn_ge_1 ] ⟩
 
 /-
@@ -2142,9 +2137,9 @@ lemma avoid_nat_dec_1 :
       intro h
       have : (0:ℚ) = 2 := by
         apply e.injective
-        simpa [n0, n2] using h
+        simp [n0, n2] at h
       have h0 : (0:ℚ) ≠ 2 := by
-        simpa [eq_comm] using (two_ne_zero : (2:ℚ) ≠ 0)
+        simp
       exact h0 this
     have hn0s1 : n0 ≠ s1 := by
       dsimp [s1, s0]
@@ -2164,7 +2159,7 @@ lemma avoid_nat_dec_1 :
         simpa [Equiv.swap_apply_of_ne_of_ne, h2n0] using h
     have hB : B = n0 := by
       dsimp [B, t]
-      simpa [Equiv.swap_apply_of_ne_of_ne, hn0s1, hn0n1]
+      simp [Equiv.swap_apply_of_ne_of_ne, hn0s1, hn0n1]
     have ht_n0 : t n0 = n0 := by
       simpa [B] using hB
     have ht_symm_n0 : t.symm n0 = n0 := by
@@ -2179,7 +2174,7 @@ lemma avoid_nat_dec_1 :
         simpa [A, ht_symm_n0] using h'
       exact hn0s2 this
     have hswap : (Equiv.swap A n2) n0 = n0 := by
-      simpa [Equiv.swap_apply_of_ne_of_ne, hn0A, hn0n2]
+      simp [Equiv.swap_apply_of_ne_of_ne, hn0A, hn0n2]
     have hnat : (Equiv.swap A n2) B = n0 := by
       simpa [hB] using hswap
     have hin :
@@ -2196,7 +2191,7 @@ lemma avoid_nat_dec_1 :
             (e 2))
           ((Equiv.swap ((Equiv.swap 0 (e 0)) 1) (e 1)) (e 0))) = e 0 := by
       simpa [n0, n1, n2] using hin
-    simpa [hin'] using (e.symm_apply_apply (0:ℚ)).symm
+    simp [hin']
   simpa [e] using this
 
 lemma avoid_nat_dec_2 :
@@ -2228,7 +2223,7 @@ lemma avoid_nat_dec_2 :
     have ht' : t n1 = t (t s2) := by
       simpa [A] using ht
     have ht_invol : t (t s2) = s2 := by
-      simpa [t] using (t.apply_symm_apply s2)
+      simp [t]
     have : t n1 = s2 := by
       simpa [ht_invol] using ht'
     have : s1 = s2 := by
@@ -2237,7 +2232,7 @@ lemma avoid_nat_dec_2 :
   have hswap : (Equiv.swap A n2) n1 = n1 :=
     Equiv.swap_apply_of_ne_of_ne hn1A hn1n2
   have : (1 : ℚ) = e.symm ((Equiv.swap A n2) n1) := by
-    simpa [hswap, n1] using (e.symm_apply_apply (1 : ℚ)).symm
+    simp [hswap, n1]
   simpa [e, n0, n1, n2, s0, s1, s2, t, A] using this
 
 
@@ -2302,7 +2297,7 @@ lemma f_final'_term_bound (n : ℕ) (x : ℝ) :
       rcases n with ( _ | _ | n ) <;> simp_all +decide;
       · unfold h_seq_real;
         unfold h_seq; norm_num;
-      · unfold lambda_seq' h_seq_real; norm_num;
+      · unfold lambda_seq' h_seq_real;
         unfold construction_seq';
         unfold all_tuples'; norm_num;
         unfold next_step' all_tuples'; norm_num;
@@ -2412,7 +2407,7 @@ theorem f_final'_surj_Q : f_final' '' (Set.range ((↑) : ℚ → ℝ)) = Set.ra
     have h_image : ∀ k : ℕ, f_final' (alpha_seq' k) = beta_seq' k := by
       intro k
       have := F_final'_eq_beta' k
-      simp [f_final'] at this;
+      simp at this;
       convert congr_arg Complex.re this using 1;
     -- By definition of $beta_seq'$, we know that every rational number appears in the sequence $beta_seq'$.
     have h_beta_seq'_surjective : ∀ r : ℚ, ∃ k : ℕ, beta_seq' k = r := by
@@ -2437,7 +2432,5 @@ theorem erdos_226 : ∃ F : ℂ → ℂ, Differentiable ℂ F ∧ (∀ x : ℝ, 
 
 #print axioms erdos_226
 -- 'Erdos226.erdos_226' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end
 
 end Erdos226
