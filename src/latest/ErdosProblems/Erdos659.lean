@@ -42,16 +42,9 @@ import ErdosProblems.Axioms
 
 namespace Erdos659
 
-
-set_option linter.unusedSimpArgs false
-set_option linter.unusedVariables false
-set_option linter.style.cases false
-set_option linter.style.whitespace false
-set_option linter.style.multiGoal false
-set_option linter.style.refine false
 set_option linter.style.setOption false
+set_option linter.style.refine false
 set_option linter.flexible false
-
 set_option maxHeartbeats 50000000
 
 open scoped Real
@@ -155,8 +148,10 @@ theorem distinctDistances'_bound (m : ℕ) (hm : m ≥ 1) :
         obtain ⟨ u, v, h₁, h₂,
           h₃ ⟩ := h_squared_dist p hp q hq hpq; exact ⟨ u.natAbs ^ 2 + 2 * v.natAbs ^ 2,
           by linarith [ abs_mul_abs_self u, abs_mul_abs_self v ], u, v,
-          by simp +decide [ ← @Nat.cast_inj ℝ ],
-          by simp +decide [ ← @Nat.cast_inj ℝ ] at *; linarith ⟩ ;
+          by simp +decide,
+          by
+            simp +decide at *
+            linarith ⟩ ;
       -- Therefore, the number of distinct distances in $P_m$ is at most the number of integers $n
       -- \leq 3m^2$ represented by $Q(u,v) = u^2 + 2v^2$.
       have h_card_le_B : (distinctDistances' (P m)).card ≤
@@ -167,7 +162,7 @@ theorem distinctDistances'_bound (m : ℕ) (hm : m ≥ 1) :
           rw [ Nat.card_eq_fintype_card, Fintype.card_coe, Finset.card_image_of_injOn ];
           intro d hd d' hd' h_eq; obtain ⟨ n, hn₁, u, v, huv,
             hd₂ ⟩ := h_squared_dist d hd; obtain ⟨ n', hn₁', u', v', huv',
-            hd₂' ⟩ := h_squared_dist d' hd'; simp_all +decide [ Nat.floor_eq_iff, sq ] ;
+            hd₂' ⟩ := h_squared_dist d' hd'; simp_all +decide [ sq ] ;
           -- Since $d$ and $d'$ are both non-negative (as they are distances), we can conclude that
           -- $d = d'$.
           have h_nonneg : 0 ≤ d ∧ 0 ≤ d' := by
@@ -340,7 +335,7 @@ lemma L_set_equilateral_zero (v w : ℝ × ℝ) (hv : v ∈ L_set) (hw : w ∈ L
     obtain ⟨i, j, hi, hj⟩ := hv
     obtain ⟨k, l, hk, hl⟩ := hw;
     norm_num [ Prod.dist_eq, latticePoint ] at *;
-    rcases eq_or_ne i.2 0 <;> rcases eq_or_ne k.2 0 <;> simp_all +decide [ abs_mul, abs_of_pos,
+    rcases eq_or_ne i.2 0 <;> rcases eq_or_ne k.2 0 <;> simp_all +decide [ abs_of_pos,
       Real.sqrt_pos.mpr ];
     · simp_all +decide [ abs_eq_abs, dist_eq_norm ];
       cases h_dist_eq <;> simp_all +decide [ Norm.norm ];
@@ -361,7 +356,7 @@ lemma L_set_equilateral_zero (v w : ℝ × ℝ) (hv : v ∈ L_set) (hw : w ∈ L
         cases max_cases ( |↑i.1| ) ( Real.sqrt 2 * |↑k.2| ) <;>
           cases max_cases ( |↑k.1| ) ( Real.sqrt 2 * |↑k.2| ) <;>
           cases max_cases ( dist i.1 k.1 ) ( Real.sqrt 2 * |↑k.2| ) <;>
-          first | linarith | simp_all +decide [ Real.dist_eq ];
+          first | linarith | simp_all +decide;
         cases abs_cases ( i.1 : ℝ ) <;>
           cases abs_cases ( k.1 : ℝ ) <;>
           cases abs_cases ( k.2 : ℝ ) <;>
@@ -392,7 +387,7 @@ lemma L_set_equilateral_zero (v w : ℝ × ℝ) (hv : v ∈ L_set) (hw : w ∈ L
     · rw [ max_eq_iff ] at h_dist_eq;
       norm_num [ abs_eq_abs ] at h_dist_eq;
       rcases h_dist_eq with ( ⟨ h | h, h' ⟩ | ⟨ h,
-        h' ⟩ ) <;> norm_cast at * <;> simp_all +decide [ abs_mul, abs_of_nonneg ];
+        h' ⟩ ) <;> norm_cast at * <;> simp_all +decide;
       · exact irrational_sqrt_two <| ⟨ |↑k.1| / |↑i.2|,
         by push_cast [ ← h_dist_eq' ] ; rw [ mul_div_cancel_right₀ _ <| by positivity ] ⟩;
       · rw [ max_eq_iff ] at h_dist_eq';
@@ -413,7 +408,7 @@ lemma L_set_equilateral_zero (v w : ℝ × ℝ) (hv : v ∈ L_set) (hw : w ∈ L
       cases max_choice ( |↑k.1| ) ( Real.sqrt 2 * |↑k.2| ) <;>
       simp_all +decide;
       · rw [ abs_eq_abs ] at h_dist_eq;
-        cases' h_dist_eq with h h <;> simp_all +decide [ Real.dist_eq, abs_mul ];
+        rcases h_dist_eq with h | h <;> simp_all +decide [ Real.dist_eq ];
         · -- Since $|√2 * i.2 - √2 * k.2| = |k.1|$, we can divide both sides by
           -- $√2$ to get $|i.2 -
           -- k.2| = |k.1| / √2$.
@@ -769,10 +764,12 @@ lemma L_no_square_euc (S : Finset (ℝ × ℝ)) (hS : (S : Set (ℝ × ℝ)) ⊆
       have hv : v ∈ L_set := by
         have hv : r ∈ L_set ∧ q ∈ L_set := by
           exact ⟨ hS <| by norm_num, hS <| by norm_num ⟩;
-        apply L_set_sub_closed; exact hv.left; exact hv.right;
+        apply L_set_sub_closed
+        · exact hv.left
+        · exact hv.right
       -- By L_no_rotate90, u = 0.
       have hu_zero : u = 0 := by
-        cases' ‹v = rotate90 u ∨ v = -rotate90 u› with hv hv <;>
+        rcases ‹v = rotate90 u ∨ v = -rotate90 u› with hv | hv <;>
           simp_all +decide [ Set.subset_def ];
         · exact L_no_rotate90 u hu ‹_›;
         · exact L_no_rotate90 u hu ( by
@@ -808,7 +805,7 @@ If p, q, r form an equilateral triangle, then r-p is a rotation of q-p by 60 or 
 lemma equilateral_euc_implies_rotation (p q r : ℝ × ℝ)
   (h_eq1 : dist_euc p q = dist_euc q r)
   (h_eq2 : dist_euc q r = dist_euc r p)
-  (h_neq : p ≠ q) :
+  (_h_neq : p ≠ q) :
   let u := (q.1 - p.1, q.2 - p.2)
   let v := (r.1 - p.1, r.2 - p.2)
   v = rotate60 u ∨ v = rotate_neg60 u := by
@@ -844,7 +841,7 @@ lemma L_no_equilateral_euc (S : Finset (ℝ × ℝ)) (hS : (S : Set (ℝ × ℝ)
           intros x hx y hy; exact L_set_sub_closed x y (hS hx) (hS hy);
         exact ⟨ h_u_v_in_L q ( hp ( by simp +decide ) ) p ( hp ( by simp +decide ) ),
           h_u_v_in_L r ( hp ( by simp +decide ) ) p ( hp ( by simp +decide ) ) ⟩;
-      cases h_rotate <;> simp_all +decide [ L_no_rotate60, L_no_rotate_neg60 ];
+      cases h_rotate <;> simp_all +decide;
       · have := L_no_rotate60 _ h_u_v_in_L.1 h_u_v_in_L.2;
         simp_all +decide [ Prod.ext_iff, sub_eq_zero ];
       · have := L_no_rotate_neg60 _ h_u_v_in_L.1 h_u_v_in_L.2
@@ -1011,7 +1008,7 @@ lemma P_dist_sq_form (m : ℕ) (p q : ℝ × ℝ) (hp : p ∈ P m) (hq : q ∈ P
 /-
 The number of distinct Euclidean distances in P_m is bounded by B_Q(3m^2).
 -/
-theorem distinctDistances'_euc_bound (m : ℕ) (hm : m ≥ 1) :
+theorem distinctDistances'_euc_bound (m : ℕ) (_hm : m ≥ 1) :
     (distinctDistances'_euc (P m)).card ≤ BinQuadForm.B Q_form (3 * m ^ 2) := by
       -- The number of distinct squared distances in P_m is at most the number of integers ≤ 3m^2
       -- represented by the quadratic form Q(u,v) = u^2 + 2v^2.
@@ -1112,7 +1109,7 @@ lemma P_seq_spec (n : ℕ) : (P_seq n).card = n ∧ P_seq n ⊆ P (m_of_n n) := 
 Main theorem: Existence of sets P_n satisfying the local constraint and the distinct distance bound.
 -/
 theorem main_theorem (h_perucca : PeruccaClassificationStatement)
-    (h_bernays : ∀ (Δ : ℤ) (hΔnonsq : ¬ ∃ z : ℤ, z * z = Δ),
+    (h_bernays : ∀ (Δ : ℤ) (_hΔnonsq : ¬ ∃ z : ℤ, z * z = Δ),
     ∃ CΔ : ℝ, 0 < CΔ ∧
       ∀ f : BinQuadForm,
         f.Primitive →
@@ -1258,9 +1255,10 @@ lemma configuration_4_2_implies_square (p1 p2 p3 p4 : ℝ × ℝ) (a b : ℝ)
           Real.mul_self_sqrt ( show 0 ≤ 2 by norm_num ) ] )
 
 /-
-Roots of the polynomial t^3 - 2t^2 - 2t + 1 are -1, (3+sqrt(5))/2, and (3-sqrt(5))/2.
+Roots of the polynomial t ^ 3 - 2 * t ^ 2 - 2 * t + 1 are -1, (3+sqrt(5))/2,
+and (3-sqrt(5))/2.
 -/
-lemma golden_polynomial_roots (t : ℝ) (h : t^3 - 2*t^2 - 2*t + 1 = 0) :
+lemma golden_polynomial_roots (t : ℝ) (h : t ^ 3 - 2 * t ^ 2 - 2 * t + 1 = 0) :
     t = -1 ∨ t = (3 + Real.sqrt 5) / 2 ∨ t = (3 - Real.sqrt 5) / 2 := by
       exact Classical.or_iff_not_imp_left.2 fun h' =>
         Classical.or_iff_not_imp_left.2 fun h'' =>
@@ -1273,7 +1271,7 @@ lemma golden_polynomial_roots (t : ℝ) (h : t^3 - 2*t^2 - 2*t + 1 = 0) :
 /-
 Algebraic helper: roots of 2(1-x) = (2x-1)^2 are (1 ± sqrt(5))/4.
 -/
-lemma solve_golden_equation (x : ℝ) (h : 2 * (1 - x) = (2 * x - 1)^2) :
+lemma solve_golden_equation (x : ℝ) (h : 2 * (1 - x) = (2 * x - 1) ^ 2) :
     x = (1 + Real.sqrt 5) / 4 ∨ x = (1 - Real.sqrt 5) / 4 := by
       grind
 
@@ -1288,7 +1286,7 @@ lemma solve_impossible_equation (x : ℝ) (h1 : 2 * (1 - x) = 5 - 4 * x)
 Helper lemma 1: A specific 3-3 distance configuration implies the golden ratio.
 -/
 lemma configuration_3_3_implies_golden (p1 p2 p3 p4 : ℝ × ℝ) (a b : ℝ)
-    (h_distinct : p1 ≠ p2 ∧ p2 ≠ p3 ∧ p3 ≠ p4 ∧ p1 ≠ p3 ∧ p2 ≠ p4 ∧ p1 ≠ p4)
+    (_h_distinct : p1 ≠ p2 ∧ p2 ≠ p3 ∧ p3 ≠ p4 ∧ p1 ≠ p3 ∧ p2 ≠ p4 ∧ p1 ≠ p4)
     (ha : a > 0) (hb : b > 0) (hab : a ≠ b)
     (h12 : dist_euc p1 p2 = a) (h23 : dist_euc p2 p3 = a) (h34 : dist_euc p3 p4 = a)
     (h13 : dist_euc p1 p3 = b) (h24 : dist_euc p2 p4 = b) (h14 : dist_euc p1 p4 = b) :
@@ -1328,8 +1326,8 @@ lemma configuration_3_3_implies_golden (p1 p2 p3 p4 : ℝ × ℝ) (a b : ℝ)
           - ( p1.1 - p2.1 ) * Real.sin θ + ( p1.2 - p2.2 ) * Real.cos θ ), ( 0, 0 ), ( a, 0 ),
           ( ( p4.1 - p2.1 ) * Real.cos θ + ( p4.2 - p2.2 ) * Real.sin θ,
           - ( p4.1 - p2.1 ) * Real.sin θ + ( p4.2 - p2.2 ) * Real.cos θ )
-        simp_all +decide [ dist_eq_norm, Prod.norm_def ] ;
-        unfold dist_euc at *; simp_all +decide [ Prod.norm_def ] ;
+        simp_all +decide ;
+        unfold dist_euc at *; simp_all +decide ;
         refine' ⟨ _, _, _, _, _ ⟩ <;>
           rw [ Real.sqrt_eq_iff_mul_self_eq_of_pos ] <;>
           try linarith;
@@ -1357,7 +1355,7 @@ lemma configuration_3_3_implies_golden (p1 p2 p3 p4 : ℝ × ℝ) (a b : ℝ)
         -- relationship between a and b.
         have h_rel : b^2 = a^2 - a * b ∨ b^2 = a^2 + a * b := by
           grind;
-        cases' h_rel with h_rel h_rel;
+        rcases h_rel with h_rel | h_rel;
         · exact Or.inr <| by
             nlinarith only [ ha, hb, h_rel, show 0 < a * Real.sqrt 5 by positivity,
               show 0 < b * Real.sqrt 5 by positivity, Real.sqrt_nonneg 5,
@@ -1398,8 +1396,9 @@ lemma C4_2K2_implies_square (S : Finset (ℝ × ℝ)) (a b : ℝ) (ha : a > 0)
     (hb : b > 0) (hab : a ≠ b) (h : is_C4_2K2 S a b) : is_square_euc S := by
   rcases h with ⟨ p1, p2, p3, p4, rfl, h1, h2, h3, h4, h5, h6 ⟩;
   have h_square : b = a * Real.sqrt 2 := by
-    apply configuration_4_2_implies_square p1 p2 p3 p4 a b ; aesop;
-    all_goals tauto;
+    apply configuration_4_2_implies_square p1 p2 p3 p4 a b
+    · aesop
+    all_goals tauto
   refine' ⟨ p1, p2, p3, p4, _, _, _, _, _ ⟩ <;> aesop
 
 /-
@@ -1832,7 +1831,7 @@ lemma max_degree_le_2 (S : Finset (ℝ × ℝ)) (a b : ℝ)
           exact hq1 ( Prod.mk_inj.mpr ⟨
             by nlinarith [ hsqrt, hmul ],
             by nlinarith [ hsqrt, hmul ] ⟩ );
-        · unfold dist_euc at hs; simp_all +decide [ Prod.dist_eq ] ;
+        · unfold dist_euc at hs; simp_all +decide ;
           have hsqrt : 0 ≤ Real.sqrt ( ( p.1 - q1.1 ) ^ 2 + ( p.2 - q1.2 ) ^ 2 ) :=
             Real.sqrt_nonneg _
           have hmul := Real.mul_self_sqrt
@@ -1893,7 +1892,7 @@ If a 4-point set has edge count 6 and degrees are only 2 or 0, then it contains 
 triangle.
 -/
 lemma case_2_2_2_0_implies_triangle (S : Finset (ℝ × ℝ)) (a : ℝ)
-    (h4 : S.card = 4)
+    (_h4 : S.card = 4)
     (h_deg : ∀ p ∈ S, (S.filter (fun q => dist_euc p q = a)).card = 2 ∨
       (S.filter (fun q => dist_euc p q = a)).card = 0)
     (h_count : edge_count S a = 6) :
@@ -1939,7 +1938,7 @@ lemma case_2_2_2_0_implies_triangle (S : Finset (ℝ × ℝ)) (a : ℝ)
       have := h_triangle.1 y.1 y.2
       have := h_triangle.2.1 z.1 z.2
       have := h_triangle.2.2 x.1 x.2
-      simp_all +decide [ dist_comm ] ;
+      simp_all +decide ;
       exact ⟨ by aesop_cat, Ne.symm hxz ⟩
 
 /-
@@ -1998,7 +1997,7 @@ equilateral triangle.
 lemma eliminate_case_2_2_2_0 (S : Finset (ℝ × ℝ)) (a : ℝ)
     (h4 : S.card = 4)
     (h_count : edge_count S a = 6)
-    (h_max_deg : ∀ p ∈ S, (S.filter (fun q => dist_euc p q = a)).card ≤ 2)
+    (_h_max_deg : ∀ p ∈ S, (S.filter (fun q => dist_euc p q = a)).card ≤ 2)
     (h_no_tri : ¬ has_equilateral_triangle_euc S)
     (h_case : (S.filter (fun p => (S.filter (fun q => dist_euc p q = a)).card = 2)).card = 3 ∧
               (S.filter (fun p => (S.filter (fun q => dist_euc p q = a)).card = 0)).card = 1) :
@@ -2107,7 +2106,7 @@ lemma degree_1_vertices_not_connected (S : Finset (ℝ × ℝ)) (a : ℝ)
         y} ∧ (S.filter (fun q => dist_euc y q = a)) ⊆ {x, y} := by
         simp_all +decide [ Finset.subset_iff ];
         simp_all +decide [ Finset.eq_singleton_iff_unique_mem ];
-        simp_all +decide [ dist_comm, dist_euc ];
+        simp_all +decide [ dist_euc ];
         exact ⟨
           ⟨
             fun h => False.elim <| h_neighborhoods.1.2.1 <| by
@@ -2151,7 +2150,7 @@ lemma degree_1_neighbors_distinct (S : Finset (ℝ × ℝ)) (a : ℝ)
         intros y hy hy_ne
         have h_y_u : dist_euc y u ≠ a := by
           intro H; have := Finset.card_eq_one.mp h_deg_u; obtain ⟨ q,
-            hq ⟩ := this; simp_all +decide [ Finset.filter_eq', Finset.filter_ne' ] ;
+            hq ⟩ := this; simp_all +decide ;
           rw [ Finset.eq_singleton_iff_unique_mem ] at hq ; simp_all +decide [ dist_euc ];
           grind
         have h_y_v : dist_euc y v ≠ a := by
@@ -2169,7 +2168,7 @@ lemma degree_1_neighbors_distinct (S : Finset (ℝ × ℝ)) (a : ℝ)
             use u, by
               simp_all +decide [ dist_euc ];
               rw [ ← h_ux, Real.sqrt_inj ( by positivity ) ( by positivity ) ] ; ring, v, by
-              unfold dist_euc at *; simp_all +decide [ dist_comm ] ;
+              unfold dist_euc at *; simp_all +decide ;
               rw [ ← h_vx, Real.sqrt_inj ( by positivity ) ( by positivity ) ] ; ring, y, by
               simp_all +decide [ dist_euc ];
               exact Eq.trans ( by ring_nf ) H;
@@ -2190,9 +2189,9 @@ lemma degree_1_neighbors_distinct (S : Finset (ℝ × ℝ)) (a : ℝ)
         ( Finset.insert_subset hu
           ( Finset.insert_subset hv ( Finset.singleton_subset_iff.mpr hx ) ) )
         ] at *
-      simp_all +decide [ Finset.filter_ne', Finset.filter_eq', Finset.sum_insert ] ;
+      simp_all +decide [ Finset.sum_insert ] ;
       have h_card_S_minus : (S \ {u, v, x}).card = 1 := by
-        rw [ Finset.card_sdiff ] ; simp +decide [ *, Finset.subset_iff ];
+        rw [ Finset.card_sdiff ] ; simp +decide [ * ];
       rw [ Finset.card_eq_one ] at h_card_S_minus ; obtain ⟨ y,
         hy ⟩ := h_card_S_minus ; simp_all +decide [ Finset.sum_singleton ];
       rw [ Finset.card_eq_two ] at h_sum_degrees ; obtain ⟨ z, w,
@@ -2218,7 +2217,7 @@ lemma degree_1_connects_to_degree_2 (S : Finset (ℝ × ℝ)) (a : ℝ)
         · simp_all +decide [ dist_euc ];
           contrapose! h_count;
           unfold edge_count; simp +decide [ hv.1.symm ] ;
-          unfold dist_euc; simp +decide [ Real.sqrt_eq_zero', hv.1.symm ] ;
+          unfold dist_euc; simp +decide [ Real.sqrt_eq_zero' ] ;
           rw [ Finset.card_eq_zero.mpr ] <;> norm_num;
           exact fun a b c d ha hb hab => not_le.mp fun h =>
             hab ( by nlinarith only [ h ] ) ( by nlinarith only [ h ] );
@@ -2232,7 +2231,7 @@ lemma degree_1_connects_to_degree_2 (S : Finset (ℝ × ℝ)) (a : ℝ)
       interval_cases _ : Finset.card ( Finset.filter ( fun q => dist_euc v q = a ) S ) <;>
         simp_all +decide ;
       specialize ‹∀ a_1 b : ℝ, ( a_1, b ) ∈ S → ¬dist_euc v ( a_1,
-        b ) = a› u.1 u.2 ; simp_all +decide [ dist_comm ];
+        b ) = a› u.1 u.2 ; simp_all +decide;
       exact ‹¬dist_euc v u = a› ( by
         rw [ ← h_deg_v.2, dist_euc ]
         exact Real.sqrt_inj ( by positivity ) ( by positivity ) |>.2 <| by ring )
@@ -2314,26 +2313,26 @@ lemma path_graph_structure (S : Finset (ℝ × ℝ)) (a b : ℝ)
         use u, v, x, y;
         rw [ Finset.eq_of_subset_of_card_le ( Finset.insert_subset_iff.mpr ⟨ hu,
           Finset.insert_subset_iff.mpr ⟨ hv, Finset.insert_subset_iff.mpr ⟨ hx,
-          Finset.singleton_subset_iff.mpr hy ⟩ ⟩ ⟩ ) ] ; aesop;
-        rw [ Finset.card_insert_of_notMem, Finset.card_insert_of_notMem,
-          Finset.card_insert_of_notMem ] <;> aesop;
+          Finset.singleton_subset_iff.mpr hy ⟩ ⟩ ⟩ ) ]
+        · aesop
+        · rw [ Finset.card_insert_of_notMem, Finset.card_insert_of_notMem,
+            Finset.card_insert_of_notMem ] <;> aesop
       -- Since $x$ and $y$ have degree 2, they must be connected to each other.
       have h_xy : dist_euc x y = a := by
-        contrapose! h_deg_x; simp_all +decide [ Finset.filter_ne', Finset.filter_eq',
-          Finset.filter_and ] ;
+        contrapose! h_deg_x; simp_all +decide;
         have h_xy : {q ∈ S | dist_euc x q = a} ⊆ {y, u} := by
           simp_all +decide [ Finset.subset_iff ];
-          intro a b ha hb; subst h_set; simp_all +decide [ Finset.ext_iff ] ;
-          rcases ha with ( ha | ha | ha | ha ) <;> simp_all +decide [ dist_comm ];
-          · contrapose! h_deg_v; simp_all +decide [ Finset.filter_eq', Finset.filter_or ] ;
+          intro a b ha hb; subst h_set; simp_all +decide ;
+          rcases ha with ( ha | ha | ha | ha ) <;> simp_all +decide;
+          · contrapose! h_deg_v; simp_all +decide ;
             refine' ne_of_gt ( Finset.one_lt_card.mpr _ );
             use x, by
-              simp +decide [ ← hb, dist_comm ];
+              simp +decide [ ← hb ];
               exact Real.sqrt_inj ( add_nonneg ( sq_nonneg _ ) ( sq_nonneg _ ) )
                 ( add_nonneg ( sq_nonneg _ ) ( sq_nonneg _ ) ) |>.2 ( by ring ), y, by
               aesop;
             grind;
-          · unfold dist_euc at *; simp_all +decide [ Finset.filter_ne', Finset.filter_eq' ] ;
+          · unfold dist_euc at *; simp_all +decide ;
             norm_num [ ← hb ] at *;
             rw [ Real.sqrt_eq_zero' ] at *;
             exact Or.inr ( Prod.mk_inj.mpr ⟨ by nlinarith only [ h.neighbors.1 ],
@@ -2357,11 +2356,11 @@ lemma path_graph_structure (S : Finset (ℝ × ℝ)) (a b : ℝ)
             grind;
         grind;
       use u, x, y, v;
-      simp_all +decide [ Finset.ext_iff, Set.ext_iff ];
+      simp_all +decide [ Finset.ext_iff ];
       refine' ⟨ _, _, _, _, _, _, _, _ ⟩;
-      any_goals intro h; simp_all +decide [ dist_comm ];
+      any_goals intro h; simp_all +decide;
       · intro a b; specialize h_set a b; aesop;
-      · simp_all +decide [ dist_comm, dist_euc ];
+      · simp_all +decide [ dist_euc ];
         exact ⟨ by
           rw [ ← h.neighbors.2, Real.sqrt_inj ( by positivity ) ( by positivity ) ]
           ring,
@@ -2431,14 +2430,14 @@ lemma degree_2_connected_to_degree_2_if_connected_to_degree_1 (S : Finset (ℝ �
               nlinarith only [ h_conn ] ⟩;
         · aesop
       obtain ⟨w, hw⟩ : ∃ w, w ∈ S ∧ w ≠ v ∧ w ≠ y ∧ dist_euc y w = a := by
-        contrapose! h_deg_y; simp_all +decide [ Finset.filter_ne', Finset.filter_and ] ;
+        contrapose! h_deg_y; simp_all +decide ;
         rw [ Finset.card_filter ] at *;
-        rw [ Finset.sum_eq_single v ] <;> simp_all +decide [ Finset.sum_add_distrib ];
+        rw [ Finset.sum_eq_single v ] <;> simp_all +decide ;
         · split_ifs <;> norm_num;
         · intro a_1 b h₁ h₂; specialize h_deg_y a_1 b h₁ h₂; by_cases h₃ : ( a_1,
           b ) = y <;> simp_all +decide ;
           rintro rfl; simp_all +decide [ dist_euc ];
-          simp_all +decide [ Real.sqrt_eq_zero', add_nonneg, sq_nonneg ];
+          simp_all +decide [ add_nonneg, sq_nonneg ];
           norm_num [ show x = u by ext <;> nlinarith only [ h_conn ] ] at *;
           linarith;
       have h_eq : S = {x, y, u, v} := by
@@ -2457,11 +2456,11 @@ lemma degree_2_connected_to_degree_2_if_connected_to_degree_1 (S : Finset (ℝ �
         exact Real.sqrt_inj ( by positivity ) ( by positivity ) |>.2 ( by ring );
       · contrapose! h_deg_u;
         rw [ Multiset.ndinsert_of_notMem,
-          Multiset.ndinsert_of_notMem ] <;> simp_all +decide [ dist_comm ];
+          Multiset.ndinsert_of_notMem ] <;> simp_all +decide;
         · rw [ Multiset.filter_cons, Multiset.filter_cons, Multiset.filter_cons,
-          Multiset.filter_singleton ] ; simp_all +decide [ dist_comm ];
-          simp_all +decide [ dist_comm, dist_euc ];
-          split_ifs <;> simp_all +decide [ dist_comm ];
+          Multiset.filter_singleton ] ; simp_all +decide;
+          simp_all +decide [ dist_euc ];
+          split_ifs <;> simp_all +decide;
           · exact ‹¬Real.sqrt ( ( w.1 - y.1 ) ^ 2 + ( w.2 - y.2 ) ^ 2 ) = a› ( by
               rw [ ← hw₃ ]
               rw [ Real.sqrt_inj ( by positivity ) ( by positivity ) ]
@@ -2520,16 +2519,16 @@ lemma degree_2_vertices_connected (S : Finset (ℝ × ℝ)) (a : ℝ)
               from by aesop_cat ) ] ; aesop;
         rw [ Finset.ext_iff ] at hz_cases; specialize hz_cases z; aesop;
       rcases hz_cases with ( rfl | rfl ) <;> simp_all +decide only [Finset.card_eq_two];
-      · apply degree_2_connected_to_degree_2_if_connected_to_degree_1;
-        convert h4 using 1;
-        exact h_count;
-        exact fun p a => h_max_deg p a;
-        grind;
-        grind;
-        exact hy;
-        exact hu.1;
-        exact hv.1;
-        all_goals try tauto;
+      · apply degree_2_connected_to_degree_2_if_connected_to_degree_1
+        · convert h4 using 1
+        · exact h_count
+        · exact fun p a => h_max_deg p a
+        · grind
+        · grind
+        · exact hy
+        · exact hu.1
+        · exact hv.1
+        all_goals try tauto
         · grind;
         · obtain ⟨ x, y, hxy, h ⟩ := h_deg_y; rw [ h ] ; simp +decide [ hxy ] ;
         · convert hz.2.2 using 1;
@@ -2595,7 +2594,7 @@ theorem PeruccaClassificationStatement_proof : PeruccaClassificationStatement :=
     obtain ⟨ a, b, hab, h ⟩ := this; use a, b; simp_all +decide [ Finset.ext_iff ] ;
     refine' ⟨ _, _, _, _ ⟩;
     · contrapose! h;
-      use a; simp [h];
+      use a; simp;
       intro H;
       obtain ⟨ p, hp, q, hq, hpq, rfl ⟩ := Finset.mem_image.mp ( Finset.mem_sdiff.mp H |>.1 );
       unfold dist_euc at *; simp_all +decide [ Real.sqrt_le_iff ] ;
@@ -2617,13 +2616,13 @@ theorem PeruccaClassificationStatement_proof : PeruccaClassificationStatement :=
   have h_edge_count_even : Even (edge_count S a) ∧ Even (edge_count S b) := by
     exact ⟨ edge_count_even S a, edge_count_even S b ⟩
   have h_edge_count_nonzero : edge_count S a ≠ 0 ∧ edge_count S b ≠ 0 := by
-    constructor <;> intro h <;> simp_all +decide [ Finset.ext_iff ];
+    constructor <;> intro h <;> simp_all +decide;
     · -- If the edge count for a is zero, then all edges in S must be of distance b.
       have h_all_b : ∀ p ∈ S, ∀ q ∈ S, q ≠ p → dist_euc p q = b := by
         intros p hp q hq hneq
         have h_dist : dist_euc p q = a ∨ dist_euc p q = b := by
           grind;
-        rw [ edge_count ] at h; simp_all +decide [ Finset.ext_iff ] ;
+        rw [ edge_count ] at h; simp_all +decide ;
         exact h_dist.resolve_left fun h' => h _ _ _ _ hp hq ( by aesop ) h';
       have h_contradiction : (distinctDistances'_euc S).card ≤ 1 := by
         refine' Finset.card_le_one.mpr _;
@@ -2641,11 +2640,11 @@ theorem PeruccaClassificationStatement_proof : PeruccaClassificationStatement :=
         contrapose! h; simp_all +decide [ edge_count ] ;
         exact ⟨ p.1, p.2, hp, q.1, q.2, hq, by aesop ⟩);
       have h_eq_dist : ∀ p ∈ S, ∀ q ∈ S, dist_euc p q = if p = q then 0 else a := by
-        intros p hp q hq; split_ifs <;> simp_all +decide [ dist_comm ] ;
+        intros p hp q hq; split_ifs <;> simp_all +decide ;
         · unfold dist_euc; norm_num;
         · grind;
       have h_eq_dist : distinctDistances'_euc S = {a} := by
-        ext; simp [h_eq_dist];
+        ext; simp;
         constructor <;> intro h <;> simp_all +decide [ distinctDistances'_euc ];
         · grind +ring;
         · obtain ⟨ p, hp, q, hq,
@@ -2659,7 +2658,7 @@ theorem PeruccaClassificationStatement_proof : PeruccaClassificationStatement :=
     have : edge_count S a ≤ 12 := Nat.le_of_lt_succ ( by linarith )
     interval_cases edge_count S a <;>
       simp_all +decide ;
-  cases' h_edge_count_cases with h_case h_case <;> simp_all +decide only [← even_iff_two_dvd];
+  rcases h_edge_count_cases with h_case | h_case <;> simp_all +decide only;
   · -- If `edge_count S a = 2`, then `edge_count S b = 10`, which implies a monochromatic triangle
     -- of color `b`, contradiction.
     have h_contra : has_equilateral_triangle_euc S := by
