@@ -29,7 +29,6 @@ namespace Erdos497
 set_option linter.style.openClassical false
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.unusedSimpArgs false
 
 open scoped Classical
 
@@ -40,7 +39,6 @@ open Nat
 open Real
 
 set_option maxHeartbeats 50000000
-set_option maxRecDepth 20000
 set_option linter.style.cases false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
@@ -2020,9 +2018,9 @@ lemma card_edges_induce_G_eq_card_comparable_pairs (n : ℕ) (U : Finset (Finset
           simp_all +decide [ Finset.ssubset_def ];
       · simp +decide [ SimpleGraph.fromRel ];
         rintro ⟨ a, b ⟩ h;
-          cases' h with h₁ h₂;
+          rcases h with ⟨ h₁, h₂ ⟩;
           simp_all +decide [ Finset.ssubset_def, Finset.subset_iff ] ;
-        cases' h₂ with h₂ h₂
+        rcases h₂ with h₂ | h₂
         · exact
             ⟨ a, b, ⟨ ⟨ a.2, b.2 ⟩, h₂, by
               contrapose! h₁
