@@ -2498,22 +2498,22 @@ theorem erdos_678_kmn_infinite :
     exact ⟨ k, hk ⟩;
   obtain ⟨ k, hk₁, n, m, hnm, hkm ⟩ := h_contradiction; exact (not_le_of_gt hkm) <| hK k hk₁ n m hnm;
 
-#print axioms main_theorem_expanded
--- 'Erdos678.main_theorem_expanded' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-#print axioms erdos_678_kmn_infinite
--- 'Erdos678.erdos_678_kmn_infinite' depends on axioms: [propext, Classical.choice,
--- Quot.sound]
-
-#print axioms not_erdos_678_fc
--- 'Erdos678.not_erdos_678_fc' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-#print axioms not_erdos_678_other
--- 'Erdos678.not_erdos_678_other' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-#print axioms erdos_678
--- 'Erdos678.erdos_678' depends on axioms: [propext, Classical.choice, Quot.sound]
-
 end
 
 end Erdos678
+
+#print axioms Erdos678.main_theorem_expanded
+-- 'Erdos678.main_theorem_expanded' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+#print axioms Erdos678.erdos_678_kmn_infinite
+-- 'Erdos678.erdos_678_kmn_infinite' depends on axioms: [propext, Classical.choice,
+-- Quot.sound]
+
+#print axioms Erdos678.not_erdos_678_fc
+-- 'Erdos678.not_erdos_678_fc' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+#print axioms Erdos678.not_erdos_678_other
+-- 'Erdos678.not_erdos_678_other' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+#print axioms Erdos678.erdos_678
+-- 'Erdos678.erdos_678' depends on axioms: [propext, Classical.choice, Quot.sound]
