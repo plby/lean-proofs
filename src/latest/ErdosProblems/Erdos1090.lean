@@ -39,24 +39,19 @@ namespace Erdos1090
 
 
 set_option linter.style.setOption false
-set_option linter.style.openClassical false
 set_option linter.style.longLine false
 set_option linter.flexible false
 set_option linter.style.refine false
-set_option linter.style.cases false
 set_option linter.unusedFintypeInType false
 set_option linter.style.multiGoal false
 
 open scoped BigOperators
 open scoped Real
 open scoped Nat
-open scoped Classical
 open scoped Pointwise
 
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
-
-noncomputable section
 
 /-
 A projection from the hypercube (Fin k)^ι to R^2 given by a linear combination of vectors v_i.
@@ -103,6 +98,7 @@ For any distinct points $x, y$, there is a projection separating them.
 -/
 lemma exists_proj_sep {ι : Type*} [Fintype ι] (k : ℕ) (x y : ι → Fin k) (h : x ≠ y) :
   ∃ v : ι → Fin 2 → ℝ, Proj k v x ≠ Proj k v y := by
+    classical
     contrapose! h with hxy;
     ext i; specialize hxy ( fun j t => if t = 0 then if j = i then 1 else 0 else 0 ) ; simp_all +decide [ funext_iff, Fin.forall_fin_two ] ;
     unfold Proj at hxy ; aesop;
@@ -116,7 +112,7 @@ lemma mem_affine_span_line_implies_mem_range {ι : Type*} [Fintype ι] (k : ℕ)
     obtain ⟨t, ht⟩ : ∃ t : Fin k, x = l t := by
       -- Since $l$ is a combinatorial line, there exists a coordinate $j$ such that $l(\cdot)_j$ is the identity map (active coordinate).
       obtain ⟨j, hj⟩ : ∃ j : ι, ∀ t : Fin k, (l t j : ℝ) = t := by
-        cases' l with f hf;
+        rcases l with ⟨f, hf⟩;
         obtain ⟨ j, hj ⟩ := hf; use j; aesop;
       -- Since $x$ is in the affine span of the image of $l$, we can write $x$ as a linear combination of the points in the image of $l$.
       obtain ⟨c, hc⟩ : ∃ c : Fin k → ℝ, ∑ t ∈ Finset.univ, c t = 1 ∧ (fun i => (x i : ℝ)) = ∑ t ∈ Finset.univ, c t • (fun i => (l t i : ℝ)) := by
@@ -190,8 +186,10 @@ lemma exists_linear_map_preserving_independence {V : Type*} [AddCommGroup V] [Mo
 /-
 The projection defined by a linear map on basis vectors acts as the linear map on the whole vector.
 -/
+open Classical in
 lemma proj_eq_linear_map_apply {ι : Type*} [Fintype ι] (k : ℕ) (f : (ι → ℝ) →ₗ[ℝ] Fin 2 → ℝ) (x : ι → Fin k) :
   Proj k (fun i => f (Pi.single i 1)) x = f (fun i => (x i : ℝ)) := by
+    classical
     unfold Proj;
     convert f.pi_apply_eq_sum_univ _ using 1;
     convert f.pi_apply_eq_sum_univ _ using 1;
@@ -209,6 +207,7 @@ If three points form a non-degenerate triangle in the hypercube, there is a proj
 lemma exists_proj_preserving_independence {ι : Type*} [Fintype ι] (k : ℕ) (x y z : ι → Fin k)
   (h : LinearIndependent ℝ ![fun i => (y i : ℝ) - (x i : ℝ), fun i => (z i : ℝ) - (x i : ℝ)]) :
   ∃ v : ι → Fin 2 → ℝ, LinearIndependent ℝ ![Proj k v y - Proj k v x, Proj k v z - Proj k v x] := by
+    classical
     -- By `exists_linear_map_preserving_independence`, there exists a linear map $f$ such that $f(u)$ and $f(w)$ are linearly independent.
     obtain ⟨f, hf⟩ : ∃ f : (ι → ℝ) →ₗ[ℝ] (Fin 2 → ℝ), LinearIndependent ℝ ![f (fun i => (y i : ℝ) - (x i : ℝ)), f (fun i => (z i : ℝ) - (x i : ℝ))] := by
       convert exists_linear_map_preserving_independence _ _ h using 1;
@@ -224,6 +223,7 @@ The affine span of the projection of a line is the line through the projections 
 -/
 lemma affine_span_image_line_eq_span_pair {ι : Type*} [Fintype ι] (k : ℕ) (hk : 3 ≤ k) (v : ι → Fin 2 → ℝ) (l : Combinatorics.Line (Fin k) ι) :
   affineSpan ℝ (Set.range (fun t => Proj k v (l t))) = affineSpan ℝ {Proj k v (l ⟨0, by linarith⟩), Proj k v (l ⟨1, by linarith⟩)} := by
+    classical
     refine' le_antisymm _ _ <;> simp_all +decide [ affineSpan_le ];
     · rintro _ ⟨ t, rfl ⟩ ; simp +decide [ spanPoints ] ; (
       -- By definition of $Proj$, we know that $Proj k v (l t) = Proj k v (l ⟨0, by linarith⟩) + t \cdot (Proj k v (l ⟨1, by linarith⟩) - Proj k v (l ⟨0, by linarith⟩))$.
@@ -256,13 +256,13 @@ lemma exists_not_root_of_finite_product {σ R : Type*} [CommRing R] [IsDomain R]
 /-
 Polynomials representing the failure of injectivity and the failure of the line condition.
 -/
-def ProjPoly {ι : Type*} [Fintype ι] (k : ℕ) (x : ι → Fin k) (j : Fin 2) : MvPolynomial (ι × Fin 2) ℝ :=
+noncomputable def ProjPoly {ι : Type*} [Fintype ι] (k : ℕ) (x : ι → Fin k) (j : Fin 2) : MvPolynomial (ι × Fin 2) ℝ :=
   ∑ i, (x i : ℝ) • MvPolynomial.X (i, j)
 
-def InjectivityPoly {ι : Type*} [Fintype ι] (k : ℕ) (x y : ι → Fin k) : MvPolynomial (ι × Fin 2) ℝ :=
+noncomputable def InjectivityPoly {ι : Type*} [Fintype ι] (k : ℕ) (x y : ι → Fin k) : MvPolynomial (ι × Fin 2) ℝ :=
   (ProjPoly k x 0 - ProjPoly k y 0)^2 + (ProjPoly k x 1 - ProjPoly k y 1)^2
 
-def CollinearityPoly {ι : Type*} [Fintype ι] (k : ℕ) (hk : 3 ≤ k) (l : Combinatorics.Line (Fin k) ι) (x : ι → Fin k) : MvPolynomial (ι × Fin 2) ℝ :=
+noncomputable def CollinearityPoly {ι : Type*} [Fintype ι] (k : ℕ) (hk : 3 ≤ k) (l : Combinatorics.Line (Fin k) ι) (x : ι → Fin k) : MvPolynomial (ι × Fin 2) ℝ :=
   let a := l ⟨0, by linarith⟩
   let b := l ⟨1, by linarith⟩
   (ProjPoly k b 0 - ProjPoly k a 0) * (ProjPoly k x 1 - ProjPoly k a 1) -
@@ -328,7 +328,7 @@ lemma exists_good_proj_for_line {ι : Type*} [Fintype ι] (k : ℕ) (hk : 3 ≤ 
       · rename_i h;
         rw [ eq_comm ] at h;
         simp_all +decide [ funext_iff, sub_eq_zero ];
-        cases' l with l hl;
+        rcases l with ⟨l, hl⟩;
         grind;
       · refine' h_affine_indep _;
         refine' ⟨ _, _, _ ⟩;
@@ -370,6 +370,7 @@ There exists a generic projection from the hypercube to the plane.
 set_option maxHeartbeats 1000000 in
 -- The generic projection argument needs extra heartbeats for polynomial evaluation simplification.
 lemma exists_generic_proj {ι : Type*} [Fintype ι] (k : ℕ) (hk : 3 ≤ k) : ∃ v : ι → Fin 2 → ℝ, IsGenericProj k v := by
+  classical
   by_contra h_contra;
   -- Apply `exists_not_root_of_finite_product` to find such a point `v_raw`.
   obtain ⟨v_raw, hv_raw⟩ : ∃ v_raw : ι × Fin 2 → ℝ, (∀ x y : ι → Fin k, x ≠ y → (InjectivityPoly k x y).eval v_raw ≠ 0) ∧ (∀ l : Combinatorics.Line (Fin k) ι, ∀ x : ι → Fin k, x∉Set.range l → (CollinearityPoly k hk l x).eval v_raw ≠ 0) := by
@@ -416,6 +417,7 @@ theorem exists_set_with_monochromatic_line_property (k : ℕ) (hk : 3 ≤ k) :
   ∃ (A : Finset (Fin 2 → ℝ)), ∀ (C : A → Fin 2),
     ∃ (S : Finset (Fin 2 → ℝ)), ∃ (hSA : S ⊆ A), Collinear ℝ (S : Set (Fin 2 → ℝ)) ∧ S.card ≥ k ∧
       ∃ c, ∀ x (hx : x ∈ S), C ⟨x, hSA hx⟩ = c := by
+        classical
         by_contra h;
         -- Use `Combinatorics.Line.exists_mono_in_high_dimension` with `α = Fin k` and `κ = Fin 2` to find a dimension `ι` (and `Fintype ι`) such that any 2-coloring of `(Fin k)^ι` has a monochromatic line.
         obtain ⟨ι, hι⟩ : ∃ (ι : Type) (x : Fintype ι), ∀ (C : (ι → Fin k) → Fin 2), ∃ (l : Combinatorics.Line (Fin k) ι), Combinatorics.Line.IsMono C l := by
@@ -453,6 +455,7 @@ theorem exists_set_with_strict_monochromatic_line_property (k : ℕ) (hk : 3 ≤
       Collinear ℝ (S : Set (Fin 2 → ℝ)) ∧ S.card ≥ k ∧
       (∀ y ∈ A, y ∈ affineSpan ℝ (S : Set (Fin 2 → ℝ)) → y ∈ S) ∧
       ∃ c, ∀ x (hx : x ∈ S), C ⟨x, hSA hx⟩ = c := by
+  classical
   -- 1. Find a dimension ι such that (Fin k)^ι has the Hales-Jewett property for 2 colors.
   obtain ⟨ι, inst, hι⟩ := Combinatorics.Line.exists_mono_in_high_dimension (Fin k) (Fin 2)
   -- 2. Find a generic projection from (Fin k)^ι to R^2.
@@ -517,7 +520,5 @@ theorem exists_set_with_strict_monochromatic_line_property (k : ℕ) (hk : 3 ≤
 #print axioms exists_set_with_strict_monochromatic_line_property
 -- 'Erdos1090.exists_set_with_strict_monochromatic_line_property' depends on axioms: [propext,
 -- Classical.choice, Quot.sound]
-
-end
 
 end Erdos1090
