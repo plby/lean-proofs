@@ -20,17 +20,10 @@ import Mathlib
 
 namespace Erdos1034
 
-set_option linter.style.whitespace false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.unreachableTactic false
-set_option linter.unusedTactic false
-set_option linter.unnecessarySimpa false
-set_option linter.unusedSimpArgs false
-set_option linter.unusedVariables false
-set_option linter.deprecated false
 set_option aesop.warn.nonterminal false
 
 set_option maxHeartbeats 50000000
@@ -157,7 +150,7 @@ lemma card_clique_i_lt (n : ℕ) (α : ℝ) (s : ℕ) (i : ℕ)
     rw [ Finset.card_eq_of_bijective ];
     use fun j hj => ⟨ i * s + j, by nlinarith [ Nat.div_mul_le_self ( ⌊α * n⌋₊ ) s ] ⟩;
     · aesop;
-      exact ⟨ a % s, Nat.mod_lt _ hs, by simpa [ Nat.div_add_mod' ] ⟩;
+      exact ⟨ a % s, Nat.mod_lt _ hs, by simp [ Nat.div_add_mod' ] ⟩;
     · unfold B_set; aesop;
       · nlinarith [ Nat.div_mul_le_self ( ⌊α * n⌋₊ ) s ];
       · rw [ Nat.add_div ] <;> aesop;
@@ -225,6 +218,7 @@ lemma edges_B_decomposition (n : ℕ) (α : ℝ) (s : ℕ) (hs : s > 0) :
   let b := ⌊α * n⌋₊
   let q := b / s
   edges_B_set n α s = Finset.biUnion (Finset.range (q + 1)) (fun i => edges_clique_i n α s i) := by
+    have _ := hs
     -- To prove equality of finite sets, we show each set is a subset of the other.
     apply Finset.ext
     intro e
@@ -361,9 +355,10 @@ lemma lower_bound_eB (n : ℕ) (α : ℝ) (s : ℕ) (hs : s > 0) (h_b : ⌊α * 
     rw [h_card]
     nlinarith
 
-lemma lower_bound_BS (n : ℕ) (α : ℝ) (hα : 1/2 ≤ α) (hα1 : α ≤ 1) :
+lemma lower_bound_BS (n : ℕ) (α : ℝ) (hα : 1 / 2 ≤ α) (hα1 : α ≤ 1) :
   let b := ⌊α * n⌋₊
   ((b * (n - b)) : ℝ) ≥ α * (1 - α) * n^2 - 1 := by
+    have _ := hα1
     -- Let $b = \lfloor \alpha n \rfloor$. Then $b \leq \alpha n < b + 1$.
     set b := ⌊α * n⌋₊
     have hb : (b : ℝ) ≤ α * n ∧ α * n < b + 1 := by
@@ -417,7 +412,7 @@ lemma c1_pos : c1 alpha_star > 0 := by
 
 noncomputable def gamma_const : ℝ := alpha_star / c1 alpha_star
 
-lemma gamma_not_half_integer : ∀ k : ℤ, gamma_const ≠ k + 1/2 := by
+lemma gamma_not_half_integer : ∀ k : ℤ, gamma_const ≠ k + 1 / 2 := by
   -- By simplifying, we can see that gamma_const is approximately 6.6667, which is not equal to any
   -- integer plus 1/2.
   have h_approx : gamma_const > 6 ∧ gamma_const < 7 := by
@@ -775,8 +770,8 @@ lemma Phi_val : 1 - alpha_star + c1 alpha_star = 2 - Real.sqrt (5 / 2) := by
 
 lemma Y_asymptotic_bound (ε : ℝ) (hε : ε > 0) :
   ∀ᶠ n in Filter.atTop, ∀ T ∈ (MaTangGraph n alpha_star (s_func n alpha_star)).cliqueFinset 3,
-  ((Y_set (MaTangGraph n alpha_star (s_func n alpha_star)) T).card : ℝ) ≤ (2 - Real.sqrt (5/2) + ε)
-    * n := by
+  ((Y_set (MaTangGraph n alpha_star (s_func n alpha_star)) T).card : ℝ) ≤
+    (2 - Real.sqrt (5 / 2) + ε) * n := by
     -- We'll use the fact that |Y(T)| ≤ |S| + |clique_i| and the bounds on |S| and |clique_i|.
     have h_bound : ∀ n : ℕ, ∀ T ∈ (MaTangGraph n alpha_star (s_func n alpha_star)).cliqueFinset 3,
       (Y_set (MaTangGraph n alpha_star (s_func n alpha_star)) T).card ≤ (1 - alpha_star) * n + 1 +
@@ -793,7 +788,7 @@ lemma Y_asymptotic_bound (ε : ℝ) (hε : ε > 0) :
             -- positive.
             have h_n_pos : 0 < n := by
               cases n <;> aesop;
-              fin_cases T ; simp_all +decide [ SimpleGraph.isNClique_iff ];
+              fin_cases T ; simp_all +decide;
             exact mul_pos ( c1_pos ) ( Nat.cast_pos.mpr h_n_pos );
           exact Nat.ceil_pos.mpr h_pos;
         · -- By definition of $hT$, we know that $T$ is in the cliqueFinset 3 of the MaTangGraph.
@@ -883,7 +878,7 @@ lemma s_over_n_gt_c1 (n : ℕ) (hn : n > 0) :
     rwa [ gt_iff_lt, lt_div_iff₀ ( by positivity ) ]
 
 lemma edge_density_quad_neg (c : ℝ) (hc1 : c > c1 alpha_star) (hc2 : c < c1 alpha_star + 0.1) :
-  c^2 - 4 * alpha_star * c + 8 * (alpha_star - 1/2)^2 < 0 := by
+  c^2 - 4 * alpha_star * c + 8 * (alpha_star - 1 / 2)^2 < 0 := by
     unfold c1 at * ; norm_num at * ; aesop;
     unfold alpha_star at * ; norm_num at *;
     -- Substitute the values of $c1$ and $c2$ into the quadratic expression.
@@ -945,7 +940,7 @@ noncomputable def s_func_robust (n : ℕ) (α : ℝ) : ℕ := Nat.ceil (c1 α * 
 lemma gamma_const_eq_proof : gamma_const = 7 / 2 + Real.sqrt 10 := by
   exact gamma_const_eq
 
-lemma gamma_not_half_integer_proven : ∀ k : ℤ, gamma_const ≠ k + 1/2 := by
+lemma gamma_not_half_integer_proven : ∀ k : ℤ, gamma_const ≠ k + 1 / 2 := by
   -- Since $\sqrt{10}$ is irrational, $3 + \sqrt{10}$ cannot be an integer.
   have h_irr : Irrational (Real.sqrt 10) := by
     have h_not_sq : ¬IsSquare 10 := by
@@ -1026,7 +1021,7 @@ lemma b_div_s_tendsto_gamma : Filter.Tendsto (fun n : ℕ => (⌊alpha_star * n�
     filter_upwards [Filter.eventually_gt_atTop 0] with n hn
     rw [ Pi.div_apply, div_div_div_cancel_right₀ <| by positivity ] ;
 
-lemma fract_gamma_ne_half : Int.fract gamma_const ≠ 1/2 := by
+lemma fract_gamma_ne_half : Int.fract gamma_const ≠ 1 / 2 := by
   -- By contradiction, assume that `Int.fract gamma_const = 1/2`.
   by_contra h_contra
   -- Then `gamma_const = ⌊gamma_const⌋ + 1/2`.
@@ -1285,7 +1280,7 @@ theorem MaTang_edge_density_lower_bound : ∃ N : ℕ, ∀ n ≥ N, ((MaTangGrap
 theorem MaTang_Y_upper_bound (ε : ℝ) (hε : 0 < ε) :
   ∃ N, ∀ n ≥ N, ∀ T ∈ (MaTangGraph n alpha_star (s_func_robust n alpha_star)).cliqueFinset 3,
   ((Y_set (MaTangGraph n alpha_star (s_func_robust n alpha_star)) T).card : ℝ) ≤ (2 - Real.sqrt
-    (5/2) + ε) * n := by
+    (5 / 2) + ε) * n := by
     -- Apply the lemma Y_card_bound to bound |Y(T)|.
     have h_bound : ∀ n ≥ 1, ∀ T ∈ (MaTangGraph n alpha_star (s_func_robust n
       alpha_star)).cliqueFinset 3, ((Y_set (MaTangGraph n alpha_star (s_func_robust n alpha_star))
@@ -1368,7 +1363,7 @@ theorem MaTang_Y_upper_bound (ε : ℝ) (hε : 0 < ε) :
                 norm_cast
                 linarith) ];
         simpa using Filter.Tendsto.add ( Filter.Tendsto.add ( tendsto_const_nhds.sub h_floor )
-          h_ceil ) ( tendsto_const_nhds.mul tendsto_inverse_atTop_nhds_zero_nat );
+          h_ceil ) ( tendsto_const_nhds.mul tendsto_inv_atTop_nhds_zero_nat );
       -- Since the two expressions are equal, their limits are the same.
       have h_eq : ∀ n : ℕ, n ≥ 1 → ((n : ℝ) - ⌊alpha_star * n⌋₊ + (Nat.ceil (c1 alpha_star * n) +
         100)) / n = 1 - (⌊alpha_star * n⌋₊ : ℝ) / n + (Nat.ceil (c1 alpha_star * n) : ℝ) / n + 100 /
@@ -1402,7 +1397,7 @@ theorem MaTang_main (ε : ℝ) (hε : 0 < ε) :
     let G : SimpleGraph (Fin n) := MaTangGraph n alpha_star (s_func_robust n alpha_star)
     (G.edgeFinset.card : ℝ) > (n^2 : ℝ) / 4 ∧
     ∀ T ∈ G.cliqueFinset 3,
-      ((Y_set G T).card : ℝ) ≤ (2 - Real.sqrt (5/2) + ε) * n := by
+      ((Y_set G T).card : ℝ) ≤ (2 - Real.sqrt (5 / 2) + ε) * n := by
   obtain ⟨ N1, hN1 ⟩ := MaTang_edge_density_lower_bound;
   obtain ⟨ N2, hN2 ⟩ := MaTang_Y_upper_bound ε hε ; exact ⟨ Max.max N1 N2, fun n hn => ⟨ hN1 n (
     le_trans ( le_max_left _ _ ) hn ), fun T hT => hN2 n ( le_trans ( le_max_right _ _ ) hn ) T hT ⟩
@@ -1433,7 +1428,7 @@ theorem not_erdos_1034 : ¬ erdos_1034 := by
   obtain ⟨n, hn⟩ : ∃ n ≥ x, (MaTangGraph n alpha_star (s_func_robust n alpha_star)).edgeFinset.card
     > (n^2 : ℝ) / 4 ∧ ∀ T ∈ (MaTangGraph n alpha_star (s_func_robust n alpha_star)).cliqueFinset 3,
       ((Y_set (MaTangGraph n alpha_star (s_func_robust n alpha_star)) T).card : ℝ) ≤ (2 - Real.sqrt
-        (5/2) + 1/100) * n := by
+        (5 / 2) + 1 / 100) * n := by
     have := MaTang_main ( 1 / 100 ) ( by norm_num );
     exact ⟨ _, le_max_left _ _, this.choose_spec _ ( le_max_right _ _ ) ⟩;
   refine' ⟨ n, hn.1, _, _, hn.2.1, fun T hT => _ ⟩;
