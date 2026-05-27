@@ -30,14 +30,9 @@ import Mathlib
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.cases false
-set_option linter.style.docString false
-set_option linter.style.induction false
 set_option linter.style.longLine false
-set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
-set_option linter.unusedSimpArgs false
 
 /-! ### From Defs.lean -/
 
@@ -1201,6 +1196,8 @@ lemma norm_sub_ge_of_deriv_approx {s t : ℝ} (hst : s ≤ t)
   nlinarith [h_reverse_triangle', h_error_term]
 
 set_option maxHeartbeats 800000 in
+-- This Riemann-sum proof is expensive because it combines partition estimates
+-- with integral and variation bounds.
 lemma integral_le_eVariationOn {a b : ℝ} (hab : a < b)
     {γ : ℝ → ℂ}
     (hγ_cont : ContinuousOn γ (Icc a b))
@@ -1546,7 +1543,7 @@ lemma petal_curve_sub_closure (n : ℕ) (hn : n ≥ 1) :
     intro θ hθ
     by_cases hθ' : θ = - ( Real.pi / ( 2 * n ) ) ∨ θ = Real.pi / ( 2 * n )
     · obtain ⟨seq, hseq⟩ : ∃ seq : ℕ → ℝ, (∀ k, seq k ∈ Set.Ioo (-(Real.pi / (2 * n))) (Real.pi / (2 * n))) ∧ Filter.Tendsto seq Filter.atTop (nhds θ) := by
-        cases' hθ' with hθ' hθ'
+        rcases hθ' with hθ' | hθ'
         · refine' ⟨ fun k => - ( Real.pi / ( 2 * n ) ) + ( Real.pi / ( 2 * n ) ) / ( k + 1 ), _, _ ⟩ <;> norm_num
           · exact fun k => ⟨ by positivity, lt_add_of_le_of_pos ( div_le_self ( by positivity ) ( by linarith ) ) ( by positivity ) ⟩
           · exact hθ'.symm ▸ le_trans ( tendsto_const_nhds.add ( tendsto_const_nhds.div_atTop ( Filter.tendsto_atTop_add_const_right _ _ tendsto_natCast_atTop_atTop ) ) ) ( by norm_num )
@@ -1874,7 +1871,7 @@ lemma frontier_component_sub_lemniscate (f : Polynomial ℂ) (z : ℂ)
           use uᶜ, isOpen_compl_iff.mpr hu, vᶜ, isOpen_compl_iff.mpr hv
           simp_all +decide [ Set.ext_iff, Set.Nonempty ]
           grind +ring
-        cases' h_connectedComponent with h h <;> simp_all +decide [ Set.subset_def ]
+        rcases h_connectedComponent with h | h <;> simp_all +decide [ Set.subset_def ]
         · exact Or.inl <| hu.closure_subset_iff.mpr ( by aesop ) <| by simpa using hw.1
         · exact Or.inr ( by exact closure_minimal ( show connectedComponentIn ( OmegaSet f ) z ⊆ v from fun x hx => h x hx ) hv ( frontier_subset_closure hw ) )
       have hw_in_connectedComponent : IsPreconnected (connectedComponentIn (OmegaSet f) z ∪ {w}) ∧ connectedComponentIn (OmegaSet f) z ∪ {w} ⊆ OmegaSet f := by
@@ -2038,7 +2035,8 @@ lemma hausdorffMeasure_curve_eq_integral {a b : ℝ} (hab : a < b)
     γ' = (r' + ir)·e^{iθ}, so |γ'|² = r'² + r².
     r' = -2sin(nθ)·(2cos(nθ))^{1/n - 1}
     r'² + r² = 4·(2cos(nθ))^{2/n - 2}
-    |γ'| = 2·(2cos(nθ))^{1/n - 1}  -/
+    |γ'| = 2·(2cos(nθ))^{1/n - 1}
+-/
 lemma norm_deriv_lemniscatePetalCurve (n : ℕ) (hn : n ≥ 1) (θ : ℝ)
     (hθ : θ ∈ Ioo (-(Real.pi / (2 * ↑n))) (Real.pi / (2 * ↑n))) :
     ‖deriv (lemniscatePetalCurve n) θ‖ =
@@ -2720,9 +2718,11 @@ lemma modelPoly_uniform_boundary_length (n : ℕ) (hn : n ≥ 1)
         · simp_all +decide [ modelPoly, OmegaSet ];
           rw [ ← pow_mul, Nat.mul_comm, pow_mul, ← Complex.exp_nat_mul, mul_comm, div_mul_cancel₀ ] <;> aesop;
       rw [ h_symm_step, pow_succ' ];
-    induction' k with k ih;
-    · norm_num;
-    · rw [ ← h_symm_step k ( Nat.lt_of_succ_lt hk_lt_n ), ih ( Nat.lt_of_succ_lt hk_lt_n ) ];
+    induction k with
+    | zero =>
+      norm_num
+    | succ k ih =>
+      rw [ ← h_symm_step k ( Nat.lt_of_succ_lt hk_lt_n ), ih ( Nat.lt_of_succ_lt hk_lt_n ) ];
   -- By the properties of the connected components and the rotational symmetry, we have that for any $z \in \Omega(z^n - 1)$, $componentBoundaryLength (modelPoly n) z = componentBoundaryLength (modelPoly n) 1$.
   have h_eq : ∀ z ∈ OmegaSet (modelPoly n), componentBoundaryLength (modelPoly n) z = componentBoundaryLength (modelPoly n) 1 := by
     intro z hz
@@ -2833,9 +2833,14 @@ lemma holomorphic_constant_of_norm_bounds
 
 lemma multiset_prod_norm_le_one (S : Multiset ℂ) (hS : ∀ a ∈ S, ‖a‖ ≤ 1) :
     ‖S.prod‖ ≤ 1 := by
-      induction' S using Multiset.induction with a S ih;
-      · norm_num;
-      · simpa using mul_le_mul ( hS a ( Multiset.mem_cons_self _ _ ) ) ( ih fun x hx => hS x ( Multiset.mem_cons_of_mem hx ) ) ( by positivity ) ( by positivity )
+      induction S using Multiset.induction with
+      | empty =>
+        norm_num
+      | cons a S ih =>
+        simpa using mul_le_mul ( hS a ( Multiset.mem_cons_self _ _ ) )
+          ( ih fun x hx => hS x ( Multiset.mem_cons_of_mem hx ) )
+          ( by positivity )
+          ( by positivity )
 
 lemma blaschke_factorization (S : Multiset ℂ) (hS : ∀ a ∈ S, ‖a‖ < 1)
     (z : ℂ) (hz : ‖z‖ ≤ 1) :
