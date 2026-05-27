@@ -94,9 +94,8 @@ it is a composition of continuous functions (norm, rpow, exp, arg) and
 the argument function is continuous on the right half-plane, where the
 disk lies.
 -/
--- This generated continuity proof uses proof-sensitive `refine'` placeholders
--- and context-wide simplification of the slit-plane side condition.
-set_option linter.style.refine false in
+-- This generated continuity proof relies on flexible simplification of the
+-- slit-plane side condition.
 set_option linter.flexible false in
 lemma branch_continuous_on_disk {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1) (k : ℕ) :
   ContinuousOn (branch n k) (Metric.closedBall (r^n : ℂ) 1) := by
@@ -104,15 +103,16 @@ lemma branch_continuous_on_disk {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1) (k
     have h_arg_cont :
         ContinuousOn (fun z : ℂ => Complex.arg z)
           (Metric.closedBall (r ^ n : ℂ) 1) := by
-      refine' continuousOn_of_forall_continuousAt fun z hz => _;
-      refine' Complex.continuousAt_arg _;
+      refine continuousOn_of_forall_continuousAt fun z hz => ?_
+      refine Complex.continuousAt_arg ?_
       simp_all +decide [ Complex.slitPlane ];
       contrapose! hz;
       norm_num [ Complex.dist_eq, Complex.normSq, Complex.norm_def, hz ];
-      norm_cast ; norm_num;
+      norm_cast
+      norm_num
       rw [Real.sqrt_mul_self_eq_abs, abs_of_nonpos] <;>
         nlinarith [pow_le_pow_right₀ hr.le hn];
-    refine' ContinuousOn.mul _ _;
+    refine ContinuousOn.mul ?_ ?_
     · exact
         Complex.continuous_ofReal.comp_continuousOn
           (ContinuousOn.rpow continuous_norm.continuousOn continuousOn_const <| by
@@ -146,8 +146,6 @@ S is contained in the union of the components. If z is in S, then z^n is
 in the disk, so z is an n-th root of a point in the disk, hence in one
 of the components.
 -/
--- This generated root-enumeration proof relies on one proof-sensitive `refine'`.
-set_option linter.style.refine false in
 lemma S_subset_union_components {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1) :
   S n r ⊆ ⋃ k ∈ Finset.range n, component n r k := by
   intro z hz
@@ -230,7 +228,7 @@ lemma S_subset_union_components {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1) :
             linarith [Int.emod_add_mul_ediv k n,
               Int.toNat_of_nonneg
                 (Int.emod_nonneg k (by positivity : (n : ℤ) ≠ 0))]⟩;
-    refine' ⟨r, Finset.mem_range.mpr hr.1, hk.trans _⟩;
+    refine ⟨r, Finset.mem_range.mpr hr.1, hk.trans ?_⟩
     norm_num [hr.2, branch];
     ring_nf;
     norm_num [hn.ne'];
@@ -241,9 +239,8 @@ lemma S_subset_union_components {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1) :
 /-
 If two components intersect, their indices must be equal. This is because the branches are distinct.
 -/
--- This generated disjointness proof uses proof-sensitive `refine'` placeholders
--- and context-wide simplification of branch equations.
-set_option linter.style.refine false in
+-- This generated disjointness proof relies on flexible simplification of
+-- branch equations.
 set_option linter.flexible false in
 lemma components_disjoint {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1)
     (k l : ℕ) (hk : k < n) (hl : l < n)
@@ -268,10 +265,11 @@ lemma components_disjoint {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1)
         Complex.exp (Complex.I * ((Complex.arg w1 + 2 * Real.pi * l) / n)) := by
     unfold branch at h_branch_eq;
     simp +zetaDelta at *;
-    refine h_branch_eq.resolve_right ?_;
-    refine' ne_of_gt ( Real.rpow_pos_of_pos _ _ );
-    refine' norm_pos_iff.mpr _;
-    rintro rfl; norm_num at *;
+    refine h_branch_eq.resolve_right ?_
+    refine ne_of_gt ( Real.rpow_pos_of_pos ?_ ((n : ℝ)⁻¹) )
+    refine norm_pos_iff.mpr ?_
+    rintro rfl
+    norm_num at *
     exact hw1.not_gt ( one_lt_pow₀ ( by rw [ abs_of_pos ] <;> linarith ) ( by linarith ) );
   rw [ Complex.exp_eq_exp_iff_exists_int ] at h_exp_eq;
   obtain ⟨ m, hm ⟩ := h_exp_eq; rw [ Complex.ext_iff ] at hm; simp_all +decide
@@ -317,9 +315,8 @@ lemma component_subtype_isClosed {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1) (
   IsClosed (component_subtype n r k) := by
     exact IsClosed.preimage continuous_subtype_val ( component_isClosed hn hr k )
 
--- This generated open-set proof uses proof-sensitive `refine'` placeholders
--- and context-wide simplification of finite unions of components.
-set_option linter.style.refine false in
+-- This generated open-set proof relies on flexible simplification of finite
+-- unions of components.
 set_option linter.flexible false in
 lemma component_subtype_isOpen {n : ℕ} (hn : n > 0) {r : ℝ}
     (hr : r > 1) (k : ℕ) (hk : k < n) :
@@ -328,9 +325,9 @@ lemma component_subtype_isOpen {n : ℕ} (hn : n > 0) {r : ℝ}
     have h_complement_closed :
         IsClosed
           ((⋃ l ∈ Finset.erase (Finset.range n) k, component n r l) ∩ S n r) := by
-      refine' IsClosed.inter _ _;
+      refine IsClosed.inter ?_ ?_
       · exact isClosed_biUnion_finset fun l hl => component_isClosed hn hr l;
-      · refine' isClosed_le _ _;
+      · refine isClosed_le ?_ ?_
         · exact Continuous.norm ( by unfold f; continuity );
         · exact continuous_const;
     have h_complement :
@@ -563,7 +560,7 @@ lemma deriv_branch {n : ℕ} (k : ℕ) (w : ℂ) (hw : 0 < w.re) :
 Bound the norm of the derivative of the branch function. The derivative
 is bounded by (1/n) * (r^n - 1)^(1/n - 1).
 -/
--- This generated derivative estimate uses context-wide simplification of
+-- This generated derivative estimate relies on flexible simplification of
 -- complex norms and exponentials.
 set_option linter.flexible false in
 lemma norm_deriv_branch_le {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1)
@@ -615,16 +612,18 @@ lemma norm_deriv_branch_le {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1)
 /-
 The branch function is differentiable on the closed ball D(r^n, 1).
 -/
--- This generated differentiability proof uses proof-sensitive `refine'` placeholders.
-set_option linter.style.refine false in
 lemma branch_differentiable_on_disk {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1) (k : ℕ) :
   ∀ w ∈ Metric.closedBall (r^n : ℂ) 1, DifferentiableAt ℂ (branch n k) w := by
     intro w hw;
-    refine' DifferentiableAt.congr_of_eventuallyEq _ _
-    · exact fun z => ( z ^ ( 1 / ( n : ℂ ) ) ) * Complex.exp ( 2 * Real.pi * Complex.I * k / n );
-    · refine' DifferentiableAt.mul _ _ <;> norm_num;
-      refine' DifferentiableAt.cpow _ _ _ <;> norm_num [ hn.ne' ];
-      refine' Or.inl _;
+    refine
+      (show
+        DifferentiableAt ℂ
+          (fun z => ( z ^ ( 1 / ( n : ℂ ) ) ) *
+            Complex.exp ( 2 * Real.pi * Complex.I * k / n ))
+          w from ?_).congr_of_eventuallyEq ?_
+    · refine DifferentiableAt.mul ?_ ?_ <;> norm_num;
+      refine DifferentiableAt.cpow ?_ ?_ ?_ <;> norm_num [ hn.ne' ];
+      refine Or.inl ?_
       exact disk_in_right_half_plane hr hn w hw;
     · -- Since $w$ is in the closed ball $D(r^n, 1)$, we know that $w$ has a positive real part.
       have h_pos_re : 0 < w.re := by
@@ -666,8 +665,6 @@ lemma diam_image_le_of_convex_norm_deriv_le {f : ℂ → ℂ} {s : Set ℂ}
 Bound the diameter of the component using the helper lemma. The diameter
 is at most 2 times the bound on the derivative.
 -/
--- This generated diameter estimate uses proof-sensitive `refine'` placeholders.
-set_option linter.style.refine false in
 lemma diam_component_le {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1) (k : ℕ) :
   Metric.diam (component n r k) ≤ 2 * ((1 / n : ℝ) * (r^n - 1) ^ ((1 / n : ℝ) - 1)) := by
     -- Apply the Mean Value Inequality to bound the diameter of the image.
@@ -688,18 +685,17 @@ lemma diam_component_le {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1) (k : ℕ) 
     · exact
         mul_nonneg (by positivity)
           (Real.rpow_nonneg (sub_nonneg.2 (one_le_pow₀ hr.le)) _);
-    · refine' le_trans ( Metric.diam_le_of_forall_dist_le _ _ ) _ <;> norm_num;
-      exacts [2, by norm_num,
-        fun x hx y hy => le_trans (dist_triangle_right _ _ _) (by linarith),
-        by norm_num]
+    · refine Metric.diam_le_of_forall_dist_le (C := 2) ?_ ?_
+      · norm_num
+      · intro x hx y hy
+        rw [Metric.mem_closedBall] at hx hy
+        exact le_trans (dist_triangle_right x y (r ^ n : ℂ)) (by linarith)
 
 /-
 If r > 1, then for all n > 0, the set S = {z : |z^n - r^n| <= 1}
 has n connected components, and the diameter of these components tends
 to 0 as n tends to infinity.
 -/
--- This generated assembly proof uses one proof-sensitive `refine'` placeholder.
-set_option linter.style.refine false in
 theorem main_result (r : ℝ) (hr : r > 1) :
   (∀ n > 0, Nat.card (ConnectedComponents (S n r)) = n) ∧
   (∀ ε > 0, ∃ N, ∀ n ≥ N, ∀ x : S n r,
@@ -722,7 +718,7 @@ theorem main_result (r : ℝ) (hr : r > 1) :
               2 * ((1 / n : ℝ) * (r^n - 1) ^ ((1 / n : ℝ) - 1)) := by
           convert diam_component_le hn hr k using 1
         exact (by
-        refine' le_trans _ h_diam_bound;
+        refine le_trans ?_ h_diam_bound;
         apply_rules [ Metric.diam_mono ];
         · have h_connected_component_eq :
               connectedComponent x = component_subtype n r k := by
@@ -853,9 +849,8 @@ lemma S_bounded {n : ℕ} (hn : n > 0) {r : ℝ} : Bornology.IsBounded (S n r) :
 If K is a connected subset of a bounded set S, then the diameter of K is
 bounded by the diameter of some connected component of S.
 -/
--- This generated connected-subset proof uses proof-sensitive `refine'`
--- placeholders and context-wide simplification of connectedness predicates.
-set_option linter.style.refine false in
+-- This generated connected-subset proof relies on flexible simplification of
+-- connectedness predicates.
 set_option linter.flexible false in
 lemma connected_subset_le_diam {S : Set ℂ} (hS : Bornology.IsBounded S)
     (K : Set ℂ) (hK : IsConnected K) (hKS : K ⊆ S)
@@ -863,11 +858,11 @@ lemma connected_subset_le_diam {S : Set ℂ} (hS : Bornology.IsBounded S)
     ∃ x : S,
       Metric.diam K ≤ Metric.diam (Subtype.val '' (connectedComponent x)) := by
   obtain ⟨x, hxK_nonempty⟩ := hK_nonempty
-  refine' ⟨ ⟨ x, hKS hxK_nonempty ⟩, _ ⟩;
+  refine ⟨ ⟨ x, hKS hxK_nonempty ⟩, ?_ ⟩;
   apply_rules [ Metric.diam_mono ];
   · intro y hyKop;
-    refine' ⟨ ⟨ y, hKS hyKop ⟩, _, rfl ⟩;
-    refine' ⟨ _, _ ⟩
+    refine ⟨ ⟨ y, hKS hyKop ⟩, ?_, rfl ⟩;
+    refine ⟨ ?_, ?_ ⟩
     · exact { z : { x : ℂ // x ∈ S } | z.val ∈ K };
     · simp_all +decide [ IsPreconnected, IsConnected ];
       rintro u v hu hv huv ⟨ z, hz ⟩ ⟨ w, hw ⟩;
@@ -875,10 +870,10 @@ lemma connected_subset_le_diam {S : Set ℂ} (hS : Bornology.IsBounded S)
       obtain ⟨v', hv', hv''⟩ := hv;
       simp_all +decide [Set.subset_def];
       contrapose! hK;
-      refine' fun _ => ⟨ u', v', hu', hv', _, _, _, _ ⟩ <;> simp_all +decide [ Set.ext_iff ];
+      refine fun _ => ⟨ u', v', hu', hv', ?_, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ Set.ext_iff ];
       · exact ⟨ _, hz.1, hu'' _ ( hKS _ hz.1 ) |>.2 hz.2 ⟩;
       · exact ⟨ _, hw.1, hv'' _ _ |>.2 hw.2 ⟩;
-  · refine' hS.subset _;
+  · refine hS.subset ?_;
     exact Subtype.coe_image_subset S (connectedComponent ⟨x, hKS hxK_nonempty⟩)
 
 theorem not_erdos_1048 : ¬ erdos_1048 := by
