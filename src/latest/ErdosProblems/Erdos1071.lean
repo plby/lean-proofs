@@ -3151,7 +3151,6 @@ set_option linter.style.refine false
 set_option linter.style.induction false
 set_option linter.style.cases false
 set_option linter.style.multiGoal false
-set_option linter.style.emptyLine false
 set_option linter.flexible false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
@@ -3939,7 +3938,6 @@ lemma disjoint_2_5 : Disjoint segment2 segment5 := by
 segment3 and segment4 are disjoint.
 -/
 lemma disjoint_3_4 : Disjoint segment3 segment4 := by
-
   have h_disjoint : ∀ p ∈ segment3, p ≠ V_point := by
     intro p hp hp'
     obtain ⟨ a, b, ha, hb, hab, hp_eq ⟩ := hp
@@ -3959,7 +3957,6 @@ lemma disjoint_3_4 : Disjoint segment3 segment4 := by
           rw [ segment4 ] at hp4; rw [ openSegment_eq_image ] at hp4; aesop;
         rcases h_line4_eq with ⟨ t, ht₀, ht₁, rfl ⟩ ; norm_num [ X_point, Y_point ] ; ring_nf;
         nlinarith [ inv_mul_cancel_left₀ ( show ( 1 - x1 ) ≠ 0 by linarith [ show x1 < 1 by exact lt_of_lt_of_le ( Classical.choose_spec ( exists_root_x1 ) |>.2.1 ) ( by norm_num ) ] ) ( t * y1 ) ]
-
       have h_eq : ∀ p ∈ segment3 ∩ segment4, p 0 = V_point 0 := by
         intros p hp
         have h_eq : p 0 + ((Y_point 1 - X_point 1) / (Y_point 0 - X_point 0)) * (p 0 - X_point 0) + X_point 1 = V_point 0 + V_point 1 := by
