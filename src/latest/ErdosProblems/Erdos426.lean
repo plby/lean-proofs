@@ -21,7 +21,6 @@ import Mathlib
 
 namespace Erdos426
 
-
 set_option linter.style.setOption false
 -- The generated counting and switching sections need extended heartbeat and
 -- recursion budgets.
@@ -31,7 +30,6 @@ set_option linter.deprecated false
 set_option linter.flexible false
 set_option linter.style.cases false
 set_option linter.style.cdot false
-set_option linter.style.emptyLine false
 set_option linter.style.induction false
 set_option linter.style.longLine false
 -- Local generated proof budgets below exceed the style threshold but are scoped
@@ -63,10 +61,6 @@ Extracted from Main.lean to break the circular dependency with PolyaWright.lean.
 Contains all definitions, basic properties, the group action, and Burnside-related
 theorems needed by both Main.lean and PolyaWright.lean.
 -/
-
-
-open Finset Function SimpleGraph
-open scoped Classical
 
 namespace UniqueSubgraphs
 
@@ -296,8 +290,6 @@ instance permGraphMulAction (n : ℕ) :
 
 @[simp] theorem smul_adj {n : ℕ} (σ : Equiv.Perm (Fin n)) (G : SimpleGraph (Fin n))
     (u v : Fin n) : (σ • G).Adj u v ↔ G.Adj (σ⁻¹ u) (σ⁻¹ v) := Iff.rfl
-
-
 
 /-! ### Connecting MulAction to autFinset and graphIsoSetoid -/
 
@@ -1344,7 +1336,6 @@ section EdgeOrderingSection
 This file proves the abstract transition bound needed for `sum_z_refined_le_one`.
 -/
 
-
 open Finset Function
 open scoped Classical
 
@@ -1684,7 +1675,6 @@ The proof uses Burnside's lemma and bounds the contributions from
 non-identity permutations using an orbit-size argument on edges.
 -/
 
-
 open Finset Function SimpleGraph Filter
 open scoped Classical
 
@@ -1865,7 +1855,6 @@ theorem card_fixedPoints_edgePerm_le {n : ℕ} (σ : Equiv.Perm (Fin n)) :
   -- An edge e = s(u,v) is a fixed point of edgePerm σ iff {σ(u), σ(v)} = {u, v} (as an unordered pair). This happens in two cases:
   -- 1. Both u and v are fixed points of σ (σ(u) = u and σ(v) = v). There are (s choose 2) such edges where s = Fintype.card (fixedPoints σ).
   -- 2. σ swaps u and v: σ(u) = v and σ(v) = u, i.e., (u,v) form a 2-cycle of σ. The number of 2-cycles is at most (n-s)/2 since each 2-cycle uses 2 non-fixed points.
-
   have card_fixed_edges : (Finset.univ.filter (fun e : Sym2 (Fin n) => ¬ e.IsDiag ∧ Sym2.map σ e = e)).card ≤ (Fintype.card (fixedPoints σ)).choose 2 + (n - Fintype.card (fixedPoints σ)) / 2 := by
     have h_fixed_points : (Finset.univ.filter (fun e : Sym2 (Fin n) => ¬ e.IsDiag ∧ Sym2.map σ e = e ∧ ∃ u v : Fin n, e = Sym2.mk u v ∧ u ∈ fixedPoints σ ∧ v ∈ fixedPoints σ)).card ≤ (Fintype.card (fixedPoints σ)).choose 2 := by
       have h_fixed_edges : (Finset.univ.filter (fun e : Sym2 (Fin n) => ¬ e.IsDiag ∧ e ∈ Finset.image (fun (uv : Fin n × Fin n) => Sym2.mk uv.1 uv.2) (Finset.offDiag (Finset.univ.filter (fun u => u ∈ fixedPoints σ))))).card ≤ (Finset.univ.filter (fun u => u ∈ fixedPoints σ)).card.choose 2 := by
@@ -2158,7 +2147,6 @@ The proof uses the standard exponential moment method:
 open Finset Real Function
 open scoped BigOperators
 
-
 namespace ChernoffBound
 
 /-! ## Definitions -/
@@ -2346,7 +2334,6 @@ We use the exponential moment method:
 3. **Optimization**: Choose λ = 4t/∑bᵢ² (when ∑bᵢ² > 0) to get the
    optimal bound `exp(-2t²/∑bᵢ²)`.
 -/
-
 
 open Finset Real
 
@@ -2574,7 +2561,6 @@ Core definitions and Burnside machinery are in `MainDefs.lean`.
 - Bradač, D., Christoph, M. "Unique subgraphs are rare" (2024)
 - Erdős, P. "Problems and results in graph theory and combinatorial analysis" (1975)
 -/
-
 
 open Finset Function SimpleGraph
 open scoped Classical
@@ -4298,7 +4284,6 @@ lemma find_good_independent_set {n : ℕ} (C : ℕ) (Hc : SimpleGraph (Fin n))
     · linarith;
   · have := low_degree_set_large C Hc hCn;
     grind +locals
-
 
 /-
 The sum of squared bounded-differences constants for switchCount
