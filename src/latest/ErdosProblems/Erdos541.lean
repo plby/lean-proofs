@@ -39,7 +39,6 @@ set_option linter.style.multiGoal false
 set_option linter.style.whitespace false
 set_option linter.style.cdot false
 set_option linter.style.cases false
-set_option linter.style.docString false
 set_option linter.flexible false
 set_option linter.unnecessarySimpa false
 set_option linter.unusedDecidableInType false
@@ -50,8 +49,6 @@ open scoped Classical
 open scoped Pointwise
 open Multiset
 open Filter
-
-noncomputable section
 
 /-
 Definitions of Σ_k(S), Σ_≤k(S), Σ_≥k(S), and h(S).
@@ -345,6 +342,7 @@ r_{A,B}(x)=|\{(a,b)\in A\times B: a+b=x\}|.
 Then $r_{A,B}(x)\ge |A|+|B|-p$ for every $x\in \G$.
 In particular, if $|A|+|B|\ge p+k$, then $r_{A,B}(x)\ge k$ for every $x$.
 -/
+/-- The number of representations of `x` as `a + b` with `a ∈ A` and `b ∈ B`. -/
 def representation_count {G : Type*} [AddCommMonoid G] [DecidableEq G] (A B : Finset G) (x : G) : ℕ :=
   ((A ×ˢ B).filter (fun p => p.1 + p.2 = x)).card
 
@@ -1577,6 +1575,7 @@ lemma lem_find_h_bad_case_aux {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) (
 /-
 Property that every nonempty zero-sum subsequence of S has length r.
 -/
+/-- Every nonempty zero-sum submultiset of `S` has cardinality `r`. -/
 def has_unique_zero_sum_len {G : Type*} [AddCommMonoid G] (S : Multiset G) (r : ℕ) : Prop :=
   ∀ T ≤ S, T ≠ 0 → T.sum = 0 → T.card = r
 
@@ -1873,6 +1872,7 @@ lemma sum_take_sub_sum_take {G : Type*} [AddCommGroup G] (L : List G) (s t : ℕ
 /-
 The set of prefix sums of a list, including 0.
 -/
+/-- The set of prefix sums of a list, including `0`. -/
 def prefix_sums_set {G : Type*} [AddMonoid G] [DecidableEq G] (L : List G) : Finset G :=
   (List.range (L.length + 1)).map (fun i => (L.take i).sum) |>.toFinset
 
@@ -2933,6 +2933,7 @@ lemma claim_2_T_piecewise_constant {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod 
 /-
 A list is piecewise constant if it can be split into two parts, each of which is constant.
 -/
+/-- A list that can be split into two uniform pieces. -/
 def IsPiecewiseConstant {α : Type*} (L : List α) : Prop :=
   ∃ k, k ≤ L.length ∧
     (∀ (i j : Fin L.length), (i : ℕ) < k → (j : ℕ) < k → L.get i = L.get j) ∧
@@ -3424,7 +3425,5 @@ theorem erdos_541 : ∀ p, Fact p.Prime → ∀ (a : Fin p → ZMod p),
 
 #print axioms erdos_541
 -- 'Erdos541.erdos_541' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end
 
 end Erdos541
