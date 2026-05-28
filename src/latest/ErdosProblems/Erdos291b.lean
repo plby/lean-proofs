@@ -45,12 +45,10 @@ namespace Erdos291b
 
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.maxHeartbeats false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.openClassical false
 set_option linter.style.refine false
-set_option linter.style.whitespace false
 set_option linter.flexible false
 
 open scoped BigOperators
@@ -59,14 +57,8 @@ open scoped Nat
 open scoped Classical
 open scoped Pointwise
 
-set_option maxHeartbeats 50000000
--- Several generated divisibility and interval estimates time out at the default heartbeat limit.
-set_option maxRecDepth 4000
-set_option synthInstance.maxHeartbeats 20000
-set_option synthInstance.maxSize 128
-
-set_option relaxedAutoImplicit false
-set_option autoImplicit false
+-- The proof of `exists_good_p` times out at Lean's default heartbeat limit.
+set_option maxHeartbeats 300000
 
 /-
 Definitions of L_n and X_n as in the problem description.
@@ -111,10 +103,10 @@ theorem z_ge_two (m : ℕ) (hm : 4 ≤ m) : 2 ≤ z m := by
 Helper lemma to construct ProblemParameters from global hypotheses.
 -/
 lemma exists_good_p (r : ℕ → ℤ) (m : ℕ) (hm : 4 ≤ m) (h_r_nz : ∀ i, r i ≠ 0) (h_r_bdd : ∀ i, |r i| < m)
-    (h_priemteller : (m : ℝ)^(2 * z m) < Real.exp (2.52 * m))
-    (h_bla0_global : ∀ n ≥ 100, L n > 2^n) :
+    (h_priemteller : (m : ℝ) ^ (2 * z m) < Real.exp (2.52 * m))
+    (h_bla0_global : ∀ n ≥ 100, L n > 2 ^ n) :
     ∃ p : ProblemParameters, p.r = r ∧ p.m = m := by
-      obtain ⟨q0, hq0_prime, hq0_large⟩ : ∃ q0, Nat.Prime q0 ∧ q0 > m^(2 * z m - 1) := by
+      obtain ⟨q0, hq0_prime, hq0_large⟩ : ∃ q0, Nat.Prime q0 ∧ q0 > m ^ (2 * z m - 1) := by
         exact Exists.imp ( by tauto ) ( Nat.exists_infinite_primes ( m ^ ( 2 * z m - 1 ) + 1 ) )
       generalize_proofs at *;
       obtain ⟨tilde_m, htilde_m_gt, htilde_m_div⟩ : ∃ tilde_m, tilde_m > 20 * m^(2 * z m) ∧ q0 ∣ tilde_m := by
@@ -357,8 +349,8 @@ theorem bound_step3 (m : ℕ) (hm : 4 ≤ m) (z : ℕ) (hzm : z ≤ m) :
 /-
 Numerical bound step 4: 2z + 4 m^(2z-1) / log 2 > 1 + z / log 2 + 2k / log 2.
 -/
-theorem bound_step4 (m : ℕ) (_hm : 4 ≤ m) (z : ℕ) (hz : 2 ≤ z) (k : ℕ) (hk : k < 2 * m^(2*z-1)) :
-    2 * z + 4 * (m : ℝ)^(2*z-1) / Real.log 2 > 1 + (z : ℝ) / Real.log 2 + 2 * k / Real.log 2 := by
+theorem bound_step4 (m : ℕ) (_hm : 4 ≤ m) (z : ℕ) (hz : 2 ≤ z) (k : ℕ) (hk : k < 2 * m ^ (2 * z - 1)) :
+    2 * z + 4 * (m : ℝ) ^ (2 * z - 1) / Real.log 2 > 1 + (z : ℝ) / Real.log 2 + 2 * k / Real.log 2 := by
       -- Since $k < 2 m^{2z-1}$, it follows that $\frac{2k}{\log 2} < \frac{4 m^{2z-1}}{\log 2}$, so it suffices to show that $2z > 1 + \frac{z}{\log 2}$.
       have h_step4 : 2 * (z : ℝ) > 1 + (z : ℝ) / Real.log 2 := by
         rw [ add_div', gt_iff_lt, div_lt_iff₀ ] <;> norm_num;
