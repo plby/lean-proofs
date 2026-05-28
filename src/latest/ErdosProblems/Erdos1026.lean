@@ -47,10 +47,6 @@ set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.deprecated false
 set_option linter.flexible false
-set_option linter.unnecessarySimpa false
-set_option linter.unreachableTactic false
-set_option linter.unusedSimpArgs false
-set_option linter.unusedTactic false
 set_option linter.unusedVariables false
 
 set_option aesop.warn.nonterminal false
@@ -69,7 +65,7 @@ theorem sum_sq_gt_one_div_k_sq (k : ℕ) (hk : k ≥ 2) (x : Fin (k^2) → ℝ)
       cases h_inj ( h_eq_mean ⟨ 0, by positivity ⟩ ▸ h_eq_mean ⟨ 1, by nlinarith ⟩ );
     -- Expanding the square and using the fact that $\sum x_i = 1$, we can simplify the expression.
     have h_expand : ∑ i, (x i - 1 / (k ^ 2 : ℝ)) ^ 2 = ∑ i, x i ^ 2 - 2 * (1 / (k ^ 2 : ℝ)) * ∑ i, x i + (k ^ 2 : ℝ) * (1 / (k ^ 2 : ℝ)) ^ 2 := by
-      simp +decide [ sub_sq, Finset.sum_add_distrib, Finset.mul_sum _ _ _, Finset.sum_mul ];
+      simp +decide [ sub_sq, Finset.sum_add_distrib, Finset.mul_sum _ _ _ ];
       grind;
     simp_all +decide [ sq, mul_assoc, ne_of_gt ( zero_lt_two.trans_le hk ) ];
     linarith
@@ -341,7 +337,7 @@ theorem es_seq_monotone_subseq_le (k : ℕ) (hk : 0 < k)
             exact False.elim <|
               (not_le_of_gt (Nat.lt_of_succ_le this)) <|
                 Nat.sub_le_sub_left (Nat.div_le_div_right <| le_of_lt <| hs h_3) _;
-        exact h_distinct ▸ le_trans ( Finset.card_le_card ( Finset.image_subset_iff.mpr fun p _ => Finset.mem_range.mpr ( Nat.mod_lt _ hk ) ) ) ( by simpa );
+        exact h_distinct ▸ le_trans ( Finset.card_le_card ( Finset.image_subset_iff.mpr fun p _ => Finset.mem_range.mpr ( Nat.mod_lt _ hk ) ) ) ( by simp );
       ·
         set u : Fin (k ^ 2) → ℕ := fun i => i.val / k
         set v : Fin (k ^ 2) → ℕ := fun i => i.val % k;
@@ -354,7 +350,7 @@ theorem es_seq_monotone_subseq_le (k : ℕ) (hk : 0 < k)
           have := hs hpq; ( have := Nat.mod_add_div ( s p ) k; have := Nat.mod_add_div ( s q ) k; aesop; );
           grind +ring;
         have h_u_distinct : Finset.card (Finset.image (fun p => u (s p)) Finset.univ) ≤ k := by
-          exact le_trans ( Finset.card_le_card <| Finset.image_subset_iff.mpr fun p _ => Finset.mem_range.mpr <| Nat.div_lt_of_lt_mul <| by nlinarith [ Fin.is_lt ( s p ) ] ) ( by simpa );
+          exact le_trans ( Finset.card_le_card <| Finset.image_subset_iff.mpr fun p _ => Finset.mem_range.mpr <| Nat.div_lt_of_lt_mul <| by nlinarith [ Fin.is_lt ( s p ) ] ) ( by simp );
         rw [ Finset.card_image_of_injective _ fun p q hpq => le_antisymm ( le_of_not_gt fun h => by linarith [ h_u_mono _ _ h ] ) ( le_of_not_gt fun h => by linarith [ h_u_mono _ _ h ] ) ] at h_u_distinct ; aesop
 
 /-
@@ -577,8 +573,7 @@ theorem exists_seq_with_monotone_subseq_sum_le_minus_one
   have hsum_erase_pos : 0 < ∑ i ∈ Finset.univ.erase i_min, x i :=
     Finset.sum_pos (fun i _ => hx_pos i) (Finset.card_pos.mp hcard_erase_pos)
   have hsum_erase_add : (∑ i ∈ Finset.univ.erase i_min, x i) + x i_min = 1 := by
-    simpa [hx_sum] using
-      (Finset.sum_erase_add (Finset.univ : Finset (Fin (k ^ 2))) x (Finset.mem_univ i_min))
+    simp [hx_sum]
   have hx_min_lt_one : x i_min < 1 := by
     linarith
   have hden_pos : 0 < 1 - x i_min := sub_pos.mpr hx_min_lt_one
@@ -732,7 +727,7 @@ theorem M_inc_append_of_lt {A B : List ℝ} (h : ∀ a ∈ A, ∀ b ∈ B, a < b
     intro L
     refine List.mem_map.mpr ?_
     refine ⟨[], ?_, by simp⟩
-    simp [sums, good, List.mem_sublists, List.Sorted, List.Pairwise.nil]
+    simp [good, List.mem_sublists, List.Sorted, List.Pairwise.nil]
   have le_max_getD :
       ∀ (xs : List ℝ), (0 : ℝ) ∈ xs → ∀ x ∈ xs, x ≤ xs.maximum.getD 0 := by
     intro xs h0 x hx
@@ -835,7 +830,7 @@ theorem M_dec_append_of_lt {A B : List ℝ} (h : ∀ a ∈ A, ∀ b ∈ B, a < b
     intro L
     refine List.mem_map.mpr ?_
     refine ⟨[], ?_, by simp⟩
-    simp [sums, good, List.mem_sublists, List.Sorted, List.Pairwise.nil]
+    simp [good, List.mem_sublists, List.Sorted, List.Pairwise.nil]
   have le_max_getD :
       ∀ (xs : List ℝ), (0 : ℝ) ∈ xs → ∀ x ∈ xs, x ≤ xs.maximum.getD 0 := by
     intro xs h0 x hx
@@ -904,7 +899,7 @@ theorem M_dec_append_of_lt {A B : List ℝ} (h : ∀ a ∈ A, ∀ b ∈ B, a < b
         have hT₁ : T₁.Sublist A ∧ T₁.Sorted (· > ·) := by
           simpa [sums, good, List.mem_sublists] using hT₁good
         refine List.mem_map.mpr ?_
-        refine ⟨T₁ ++ [], ?_, by simp [List.sum_append]⟩
+        refine ⟨T₁ ++ [], ?_, by simp⟩
         have hsub : (T₁ ++ []).Sublist (A ++ B) :=
           List.Sublist.append hT₁.1 (List.nil_sublist B)
         have hsorted : (T₁ ++ []).Sorted (· > ·) := by
@@ -914,7 +909,7 @@ theorem M_dec_append_of_lt {A B : List ℝ} (h : ∀ a ∈ A, ∀ b ∈ B, a < b
         have hT₂ : T₂.Sublist B ∧ T₂.Sorted (· > ·) := by
           simpa [sums, good, List.mem_sublists] using hT₂good
         refine List.mem_map.mpr ?_
-        refine ⟨[] ++ T₂, ?_, by simp [List.sum_append]⟩
+        refine ⟨[] ++ T₂, ?_, by simp⟩
         have hsub : ([] ++ T₂).Sublist (A ++ B) :=
           List.Sublist.append (List.nil_sublist A) hT₂.1
         have hsorted : ([] ++ T₂).Sorted (· > ·) := by
@@ -1033,8 +1028,8 @@ theorem M_inc_append_of_gt {A B : List ℝ} (h : ∀ a ∈ A, ∀ b ∈ B, a > b
         have hgb : Option.getD (↑b : WithBot ℝ) 0 = b := rfl
         simp_all [max_def]
         by_cases hab : a ≤ b
-        · simpa [hab, hga, hgb]
-        · simpa [hab, hga, hgb]
+        · simp [hab, hgb]
+        · simp [hab, hga]
 
 /-
 If every element in A is greater than every element in B, then the maximum sum of a decreasing subsequence of A ++ B is the sum of the maximum sums of decreasing subsequences of A and B.
@@ -1051,7 +1046,7 @@ theorem M_dec_append_of_gt {A B : List ℝ} (h : ∀ a ∈ A, ∀ b ∈ B, a > b
     intro L
     refine List.mem_map.mpr ?_
     refine ⟨[], ?_, by simp⟩
-    simp [sums, good, List.mem_sublists, List.Sorted, List.Pairwise.nil]
+    simp [good, List.mem_sublists, List.Sorted, List.Pairwise.nil]
   have le_max_getD :
       ∀ (xs : List ℝ), (0 : ℝ) ∈ xs → ∀ x ∈ xs, x ≤ xs.maximum.getD 0 := by
     intro xs h0 x hx
@@ -1246,7 +1241,7 @@ theorem M_dec_sorted {L : List ℝ} (h_sorted : L.Sorted (· < ·)) (h_pos : ∀
             List.le_maximum_of_length_pos_of_mem ha_mem hlen
           simpa [m] using hle
         | cons b U =>
-          simpa using hSlen
+          simp at hSlen
     have hmD : m ∈ D := by
       apply List.mem_map.mpr
       refine ⟨[m], ?_, by simp⟩
@@ -1256,7 +1251,7 @@ theorem M_dec_sorted {L : List ℝ} (h_sorted : L.Sorted (· < ·)) (h_pos : ∀
     have hDmax : D.maximum = (m : WithBot ℝ) :=
       List.maximum_eq_coe_iff.mpr ⟨hmD, h_upper⟩
     have hLmax : L.maximum = (m : WithBot ℝ) := by
-      simpa [m] using (List.coe_maximum_of_length_pos hlen).symm
+      simp [m]
     simp [M_dec, D, hDmax, hLmax]
 
 /-
@@ -1400,7 +1395,7 @@ theorem M_inc_flatten_of_pairwise_decreasing (L : List (List ℝ))
         rcases List.mem_flatten.mp hb with ⟨B, hB, hbB⟩
         rcases List.mem_iff_get.mp hB with ⟨n, hn⟩
         exact h_dec 0 (n.val + 1) (Nat.succ_pos n.val)
-          (by simpa using Nat.succ_lt_succ n.isLt) a
+          (by simp) a
           (by
             rw [getElem!_pos (c := A :: T) (i := 0) (h := by simp)]
             simpa using ha)
@@ -1453,7 +1448,7 @@ theorem M_dec_flatten_of_pairwise_decreasing (L : List (List ℝ))
         rcases List.mem_flatten.mp hb with ⟨B, hB, hbB⟩
         rcases List.mem_iff_get.mp hB with ⟨n, hn⟩
         exact h_dec 0 (n.val + 1) (Nat.succ_pos n.val)
-          (by simpa using Nat.succ_lt_succ n.isLt) a
+          (by simp) a
           (by
             rw [getElem!_pos (c := A :: T) (i := 0) (h := by simp)]
             simpa using ha)
@@ -1862,7 +1857,7 @@ theorem M_dec_es_part_value (num_blocks block_size : ℕ) (base_val : ℝ) (star
     ring
   rw [M_dec_es_part_eq_sum_max num_blocks block_size base_val start_idx eps h_eps h_base]
   unfold es_part_blocks
-  simp only [List.map_map, Function.comp_apply]
+  simp only [List.map_map]
   change (List.map (fun b =>
     ((List.range block_size).map (fun i : ℕ =>
       base_val + (↑start_idx + ↑((num_blocks - 1 - b) * block_size + i)) * eps)).maximum.getD 0)
@@ -1951,10 +1946,10 @@ theorem limit_sum_correct (k : ℤ) (a : ℤ) (h_k : k ≥ 1) (h_a_le : -k ≤ a
         fun_prop;
       unfold seq_eps;
       unfold es_part;
-      simp +decide [ List.flatMap, List.map ];
+      simp +decide [ List.flatMap ];
       fun_prop;
     convert h_cont.tendsto 0 using 1 ; norm_num [ limit_sum ];
-    rw [ seq_eps_eq_seq_of_data ] ; norm_num [ part1, part2, part3, sum_es_part_eq ] ; ring_nf;
+    rw [ seq_eps_eq_seq_of_data ] ; ring_nf;
     unfold seq_of_data; norm_num [ part1, part2, part3, sum_es_part_eq ] ; ring;
 
 /-
@@ -1992,10 +1987,10 @@ theorem limit_M_inc_es_part (num_blocks block_size : ℕ) (base_val : ℝ) (star
         unfold es_part
         induction (List.range num_blocks) with
         | nil => simp
-        | cons b bs ih => simp [ih]
+        | cons b bs ih => simp
       have h_M_nil : M_inc ([] : List ℝ) = 0 := by
         simpa using (M_inc_sorted (L := ([] : List ℝ)) (List.Pairwise.nil) (by simp))
-      simpa [h_es, h_M_nil]
+      simp [h_es, h_M_nil]
     · have h_cont : ∀ᶠ eps in nhdsWithin 0 (Set.Ioi 0), M_inc (es_part num_blocks block_size base_val start_idx eps) = (block_size : ℝ) * base_val + eps * (block_size * start_idx + block_size * ((num_blocks - 1) * block_size) + (block_size * (block_size - 1)) / 2) := by
         filter_upwards [ self_mem_nhdsWithin ] with eps h_eps using M_inc_es_part_value num_blocks block_size base_val start_idx eps h_eps.out h_base h_blocks ( Nat.pos_of_ne_zero h );
       rw [ Filter.tendsto_congr' h_cont ] ; exact tendsto_nhdsWithin_of_tendsto_nhds ( Continuous.tendsto' ( by continuity ) _ _ <| by aesop ) ;
@@ -2068,8 +2063,7 @@ theorem limit_M_inc_part3_correct (k : ℤ) (a : ℤ) (h_k : k ≥ 1) (h_a_le : 
                                                     ∀ eps, part3 { k := k, a := a, eps := eps } = ([] : List ℝ) := by
                                                   intro eps
                                                   unfold part3 es_part
-                                                  simp [SeqData.num_blocks3, SeqData.block_size3, SeqData.blue, SeqData.start3,
-                                                    hzero]
+                                                  simp [hzero]
                                                 have h_fun :
                                                     (fun eps => M_inc (part3 { k := k, a := a, eps := eps })) =
                                                       (fun _ => (0 : ℝ)) := by
@@ -2175,7 +2169,7 @@ theorem limit_M_dec_part1_correct (k : ℤ) (a : ℤ) (h_k : k ≥ 1) (h_a_le : 
                                                     List.flatMap (fun _ : ℕ => ([] : List ℝ)) (List.range a.natAbs) = ([] : List ℝ) := by
                                                   induction (List.range a.natAbs) with
                                                   | nil => rfl
-                                                  | cons b bs ih => simpa [List.flatMap, ih]
+                                                  | cons b bs ih => simp [List.flatMap]
                                                 rw [hflat];
                                                 simp [List.Sorted];
                                                 rfl
@@ -2222,7 +2216,7 @@ theorem limit_M_dec_part3_correct (k : ℤ) (a : ℤ) (h_k : k ≥ 1) (h_a_le : 
                                                 have hfilter :
                                                     List.filter (fun S : List ℝ => Decidable.decide (S.Sorted (fun x1 x2 => x2 < x1))) [[]] = [[]] := by
                                                   simp [hdec];
-                                                simp [hfilter, List.max?];
+                                                simp [hfilter];
                                                 rfl;
 
 /-
@@ -2681,7 +2675,7 @@ lemma es_partp_bound (base : ℝ) (start_idx : ℕ) (num_blocks size : ℕ) (eps
   unfold es_partp at hx
   rw [List.mem_flatMap] at hx
   rcases hx with ⟨b, hb, hx⟩
-  simp only [es_block, List.mem_map, List.mem_range] at hx
+  simp only [es_block, List.mem_map] at hx
   rcases hx with ⟨i, hi, rfl⟩
   rw [List.bind_eq_flatMap, List.mem_flatMap] at hi
   rcases hi with ⟨j, hj, hji⟩
@@ -2734,7 +2728,7 @@ lemma es_partp_inc_length_le (base : ℝ) (start_idx : ℕ) (num_blocks size : �
         linarith
     induction' num_blocks with n ih
     · intro s hs hs_sorted
-      simpa [List.eq_nil_of_sublist_nil hs]
+      simp [List.eq_nil_of_sublist_nil hs]
     · intro s hs hs_sorted
       simp [List.range_succ, List.flatMap_append, List.sublist_append_iff] at hs
       rcases hs with ⟨s₁, s₂, rfl, hs₁, hs₂⟩
@@ -2784,7 +2778,7 @@ lemma es_partp_dec_length_le (base : ℝ) (start_idx : ℕ) (num_blocks size : �
   unfold es_partp
   induction' num_blocks with n ih
   · intro s hs hs_sorted
-    simpa [List.eq_nil_of_sublist_nil hs]
+    simp [List.eq_nil_of_sublist_nil hs]
   · intro s hs hs_sorted
     simp [List.range_succ, List.flatMap_append, List.sublist_append_iff] at hs
     rcases hs with ⟨s₁, s₂, rfl, hs₁, hs₂⟩
@@ -2887,7 +2881,7 @@ lemma max_inc_sum_append_of_lt (L1 L2 : List ℝ) (h : ∀ x ∈ L1, ∀ y ∈ L
     intro L
     refine List.mem_map.mpr ?_
     refine ⟨[], ?_, by simp⟩
-    simp [sums, good, List.mem_sublists, List.Sorted, List.Pairwise.nil]
+    simp [good, List.mem_sublists, List.Sorted, List.Pairwise.nil]
   have le_max_getD :
       ∀ (xs : List ℝ), (0 : ℝ) ∈ xs → ∀ x ∈ xs, x ≤ xs.maximum.getD 0 := by
     intro xs h0 x hx
@@ -3101,8 +3095,8 @@ lemma max_inc_sum_append_of_gt (L1 L2 : List ℝ) (h : ∀ x ∈ L1, ∀ y ∈ L
       have hgb : Option.getD (↑b : WithBot ℝ) 0 = b := rfl
       simp_all [max_def]
       by_cases hab : a ≤ b
-      · simpa [hab, hga, hgb]
-      · simpa [hab, hga, hgb]
+      · simp [hab, hgb]
+      · simp [hab, hga]
 
 /-
 If L1 < L2, then max_dec_sum(L1 ++ L2) = max(max_dec_sum(L1), max_dec_sum(L2)).
@@ -3322,13 +3316,13 @@ lemma M_shift (L : List ℝ) (cp : ℝ) (hc : 0 ≤ cp) :
       rw [List.sum_map_add]
       simp
     calc
-      s.sum = s'.sum + (s'.length : ℝ) * cp := by simpa [hs_eq] using hsum
+      s.sum = s'.sum + (s'.length : ℝ) * cp := by simp [hs_eq]
       _ ≤ A.maximum.getD 0 + (L.length : ℝ) * cp := add_le_add hs'_sum_le hlen
   have hzero_mem : (0 : ℝ) ∈ B := by
     apply List.mem_map.mpr
     refine ⟨[], ?_, by simp⟩
     rw [List.mem_filter]
-    exact ⟨by simp, decide_eq_true (Or.inl (by simp [P, List.Sorted]))⟩
+    exact ⟨by simp, decide_eq_true (Or.inl (by simp [List.Sorted]))⟩
   cases hB : B.maximum with
   | bot =>
       have hB_nil : B = [] := List.maximum_eq_bot.mp hB
@@ -3655,7 +3649,7 @@ lemma exists_shift_sum_ge (n : ℕ) (a b : Fin n → ℝ) (hab : ∀ i, a i ≤ 
             exact_mod_cast Int.le_of_lt_add_one ( by rw [ ← @Int.cast_lt ℝ ] ; push_cast; linarith [ Int.floor_le ( b i - x ), Int.lt_floor_add_one ( b i - x ), Int.le_ceil ( a i - x ), Int.ceil_lt_add_one ( a i - x ), hab i ] );
     rw [ MeasureTheory.setIntegral_congr_set ] at h_integral_lt;
     any_goals exact Set.Ioo 0 1;
-    · simp_all +decide [ MeasureTheory.integral_diff, hBad.measure_zero ];
+    · simp_all +decide;
       rw [ MeasureTheory.measureReal_def, MeasureTheory.measure_diff_null ] at h_integral_lt <;> norm_num at *;
       exact hBad.measure_zero MeasureTheory.MeasureSpace.volume;
     · rw [ MeasureTheory.ae_eq_set ] ; aesop;
@@ -3689,7 +3683,6 @@ lemma lattice_points_disjoint_sum (n : ℕ) (k : ℤ) (hk : 0 < k) (P : Packing 
         have hnonneg : 0 ≤ (k : ℝ) * (P i).x := mul_nonneg hk_nonneg (P i).x_nonneg
         nlinarith [ha, hx.2, hnonneg]
       · rw [← @Int.cast_lt ℝ]
-        push_cast
         have hmul_le : (k : ℝ) * ((P i).x + (P i).s) ≤ (k : ℝ) := by
           calc
             (k : ℝ) * ((P i).x + (P i).s) ≤ (k : ℝ) * 1 := by
@@ -3702,7 +3695,6 @@ lemma lattice_points_disjoint_sum (n : ℕ) (k : ℤ) (hk : 0 < k) (P : Packing 
         have hnonneg : 0 ≤ (k : ℝ) * (P i).y := mul_nonneg hk_nonneg (P i).y_nonneg
         nlinarith [hc, hy.2, hnonneg]
       · rw [← @Int.cast_lt ℝ]
-        push_cast
         have hmul_le : (k : ℝ) * ((P i).y + (P i).s) ≤ (k : ℝ) := by
           calc
             (k : ℝ) * ((P i).y + (P i).s) ≤ (k : ℝ) * 1 := by
@@ -3738,7 +3730,7 @@ lemma num_points_bounds (a b x : ℝ) (hx : 0 ≤ x ∧ x < 1)
       · refine' lt_of_le_of_ne ( Int.floor_le _ ) _;
         exact fun h => ha <| by linarith [ Int.fract_add_floor a, Int.fract_add_floor ( a - x ), show ( ⌊a⌋ : ℝ ) = ⌊a - x⌋ by exact_mod_cast Int.floor_eq_iff.mpr ⟨ by linarith [ Int.floor_le ( a - x ), Int.lt_floor_add_one ( a - x ) ], by linarith [ Int.floor_le ( a - x ), Int.lt_floor_add_one ( a - x ) ] ⟩ ] ;
       · linarith [ Int.lt_floor_add_one ( a - x ) ];
-    unfold num_points at h_contra; simp_all +decide [ Int.floor_eq_iff, Int.ceil_eq_iff ] ;
+    unfold num_points at h_contra; simp_all +decide [ Int.ceil_eq_iff ] ;
     have h_floor : ⌊b - a⌋ ≤ ⌊b - x⌋ - ⌊a - x⌋ ∧ ⌊b - x⌋ - ⌊a - x⌋ ≤ ⌈b - a⌉ := by
       exact ⟨ Int.le_of_lt_add_one <| by rw [ ← @Int.cast_lt ℝ ] ; push_cast ; linarith [ Int.floor_le ( b - a ), Int.lt_floor_add_one ( b - a ), Int.floor_le ( b - x ), Int.lt_floor_add_one ( b - x ), Int.floor_le ( a - x ), Int.lt_floor_add_one ( a - x ) ], Int.le_of_lt_add_one <| by rw [ ← @Int.cast_lt ℝ ] ; push_cast ; linarith [ Int.le_ceil ( b - a ), Int.ceil_lt_add_one ( b - a ), Int.floor_le ( b - x ), Int.lt_floor_add_one ( b - x ), Int.floor_le ( a - x ), Int.lt_floor_add_one ( a - x ) ] ⟩;
     cases lt_or_gt_of_ne h_contra.1 <;> cases lt_or_gt_of_ne h_contra.2 <;> linarith [ Int.le_ceil ( b - a ), Int.ceil_le_floor_add_one ( b - a ) ]
@@ -3847,7 +3839,7 @@ lemma key_geometric_lemma (n : ℕ) (k : ℤ) (hk : 0 < k) (P : Packing n) (h_va
         · exact Int.ceil_le.mpr ( mod_cast hx₀.2.2 );
         · exact Int.ceil_le.mpr ( mod_cast hy₀.2.2 );
         · convert lattice_points_disjoint_sum n k hk P h_valid x₀ y₀ ⟨ hx₀.1.1, hx₀.1.2 ⟩ ⟨ hy₀.1.1, hy₀.1.2 ⟩ _ _;
-          · intro i z; constructor <;> intro h <;> simp_all +decide [ Int.fract_eq_iff ] ;
+          · intro i z; constructor <;> intro h <;> simp_all +decide ;
             · exact hx₀.2.1 <| Or.inl ⟨ i, by linarith [ Int.fract_add_floor ( ( k : ℝ ) * ( P i |> Square.x ) ), show ( Int.floor ( ( k : ℝ ) * ( P i |> Square.x ) ) : ℝ ) = z by exact_mod_cast Int.floor_eq_iff.mpr ⟨ by linarith, by linarith ⟩ ] ⟩;
             · exact hx₀.2.1 <| Or.inr ⟨ i, by linarith [ Int.fract_add_floor ( ( k : ℝ ) * ( ( P i |> Square.x ) + ( P i |> Square.s ) ) ), show ( ⌊ ( k : ℝ ) * ( ( P i |> Square.x ) + ( P i |> Square.s ) ) ⌋ : ℝ ) = z by exact_mod_cast Int.floor_eq_iff.mpr ⟨ by linarith, by linarith ⟩ ] ⟩;
           · intro i z; constructor <;> intro h <;> simp_all ( config := { decide := Bool.true } ) [ sub_eq_iff_eq_add ] ;
@@ -3882,7 +3874,7 @@ theorem baek_koizumi_ueoro (k c : ℤ) (hk : 0 < k) (hc : -k^2 ≤ c) : g (k ^ 2
       exact h_sum_le''''';
     exact csSup_le ⟨ _, ⟨ fun _ => ⟨ 0, 0, 0, by norm_num, by norm_num, by norm_num, by norm_num, by norm_num ⟩, by exact fun _ _ _ => by norm_num [ Square.disjoint ], rfl ⟩ ⟩ fun L hL => by aesop;
   · unfold g; aesop;
-    rw [ show ( k ^ 2 + 2 * c + 1 |> Int.toNat ) = 0 by nlinarith [ Int.toNat_of_nonpos h_pos.le ] ] ; norm_num;
+    rw [ show ( k ^ 2 + 2 * c + 1 |> Int.toNat ) = 0 by nlinarith [ Int.toNat_of_nonpos h_pos.le ] ];
     refine' csSup_le _ _ <;> norm_num;
     · exact ⟨ 0, ⟨ fun _ => ⟨ 0, 0, 0, by norm_num, by norm_num, by norm_num, by norm_num, by norm_num ⟩, by unfold Packing.is_valid; aesop ⟩ ⟩;
     · unfold Packing.total_side_length; aesop;
@@ -4047,7 +4039,7 @@ lemma sorted_sublist_of_subset_fin {n : ℕ} : ∀ {l₂ : List (Fin n)},
       | nil => exact List.Sublist.slnil
       | cons x xs =>
           have : x ∈ ([] : List (Fin n)) := hmem x (by simp)
-          simpa using this
+          cases this
   | cons y ys ih =>
       intro h₂ l₁ h₁ hmem
       cases l₁ with
@@ -4081,7 +4073,7 @@ lemma sorted_sublist_of_subset_fin {n : ℕ} : ∀ {l₂ : List (Fin n)},
               · rcases (show z = x ∨ z ∈ xs from by simpa using hz) with hz_eq_x | hz_in_xs
                 · have hy_eq_x : y = x := hzy.symm.trans hz_eq_x
                   have hyx : y < x := (List.pairwise_cons.mp h₂).1 x hxys
-                  have hxx : x < x := by simpa [hy_eq_x] using hyx
+                  have hxx : x < x := hy_eq_x ▸ hyx
                   exact (lt_irrefl x hxx).elim
                 · have hy_in_xs : y ∈ xs := by simpa [hzy] using hz_in_xs
                   have hyx : y < x := (List.pairwise_cons.mp h₂).1 x hxys
