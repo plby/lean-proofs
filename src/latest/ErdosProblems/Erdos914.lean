@@ -53,8 +53,6 @@ set_option linter.unusedFintypeInType false
 set_option linter.unusedSectionVars false
 set_option linter.unusedVariables false
 set_option linter.unusedSimpArgs false
-set_option linter.unnecessarySimpa false
-set_option linter.deprecated false
 
 open Classical
 
@@ -650,7 +648,7 @@ lemma equitable_coloring_of_edgeless (G : SimpleGraph V) [DecidableRel G.Adj]
   intro v w hvw
   have h_edge : s(v, w) ∈ G.edgeSet := by
     simpa [SimpleGraph.mem_edgeSet] using hvw
-  simpa [hG] using h_edge
+  exact False.elim (hG s(v, w) h_edge)
 
 /-! ## Section 5: Auxiliary digraph and accessibility -/
 
@@ -3048,7 +3046,7 @@ lemma A_plus_equitable
       simpa [f_A] using congr_arg Subtype.val (φ.injective h_eq)
     by_cases huz : u.val = z
     · by_cases hvz : v.val = z
-      · exact huv.ne (Subtype.ext (by simpa [huz, hvz]))
+      · exact huv.ne (Subtype.ext (by simp [huz, hvz]))
       · by_cases hvy : v.val = y₁
         · have hXW' : X = W_col := by
             simpa [g, huz, hvz, hvy, hy₁_ne_z] using hg_eq
@@ -3066,7 +3064,7 @@ lemma A_plus_equitable
           exact hXmov u.val hu_color (by simpa [hvz] using huv.symm)
       · by_cases huy : u.val = y₁
         · by_cases hvy : v.val = y₁
-          · exact huv.ne (Subtype.ext (by simpa [huy, hvy]))
+          · exact huv.ne (Subtype.ext (by simp [huy, hvy]))
           · have hv_color : ne.f v.val = W_col := by
               simpa [g, huz, hvz, huy, hvy, hy₁_ne_z] using hg_eq.symm
             exact huniq_y₁ v.val hv_color hvz (by simpa [huy] using huv)
