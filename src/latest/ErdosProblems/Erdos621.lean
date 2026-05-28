@@ -35,10 +35,8 @@ import Mathlib
 namespace Erdos621
 
 
-set_option linter.deprecated false
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
 set_option linter.style.openClassical false
 set_option linter.style.refine false
@@ -51,7 +49,6 @@ set_option linter.unusedVariables false
 open Finset SimpleGraph BigOperators
 open scoped Classical
 
-noncomputable section
 
 
 /-! ================================================================
@@ -777,7 +774,7 @@ We define F₂ = 2·F and show F₂ ≤ (card V)² · S_total.
 
 The proof combines:
 - Identity (e:fbound1)
-- Lemma 2.3 (big sum identity)  
+- Lemma 2.3 (big sum identity)
 - Lemma 2.2 (Cauchy-Schwarz inequalities)
 -/
 
@@ -1174,6 +1171,7 @@ private lemma s_zero_of_ne_one (G : Trigraph V) (u v : V) (h : G.s u v ≠ 1) :
   (G.s_eq_zero_or_one u v).resolve_right h
 
 set_option maxHeartbeats 6400000 in
+-- The generated Boolean case split in this pairwise bound exceeds the default heartbeat limit.
 /-- Pairwise bound on f₂ symmetrization (copy for use without circular import). -/
 private lemma pairwise_bound (G : Trigraph V) (u₀ v₀ w x : V)
     (huv : G.s u₀ v₀ = 1)
@@ -1296,6 +1294,7 @@ private lemma IH_as_indicator_bound (G : Trigraph V) (u₀ v₀ : V) (huv : G.s 
   · aesop
 
 set_option maxHeartbeats 6400000 in
+-- The final two-coloring sum comparison exceeds the default heartbeat limit.
 /-- Core inequality: summing pairwise_bound over all (w,x) and applying the IH gives
     the global two-coloring bound. -/
 private lemma two_coloring_sum_le (G : Trigraph V) (u₀ v₀ : V) (huv : G.s u₀ v₀ = 1)
@@ -1375,6 +1374,7 @@ private lemma two_coloring_sum_le (G : Trigraph V) (u₀ v₀ : V) (huv : G.s u�
       from sum_f2_swap G u₀ v₀]
 
 set_option maxHeartbeats 3200000 in
+-- The partition construction proof exceeds the default heartbeat limit.
 theorem partition_construction_bound (G : Trigraph V) (u₀ v₀ : V)
     (huv : G.s u₀ v₀ = 1)
     (χ_Z : ↥(Finset.univ \ (Finset.univ.filter (fun w => G.s v₀ w = 1) ∪
@@ -1610,6 +1610,7 @@ variable {V : Type*} [Fintype V] [DecidableEq V]
     This is equivalent to α₁(G) + τ_B(G) ≤ |V(G)|²/4 (over the reals).
 -/
 set_option maxHeartbeats 1600000 in
+-- The final graph inequality uses generated finite-sum/cardinality expansions.
 theorem main_inequality (G : SimpleGraph V) [DecidableRel G.Adj] :
     4 * (alpha1 G + tauB G) ≤ (Fintype.card V) ^ 2 := by
   -- By definition of $alpha1$, choose a maximizing triangle-independent set $S$.
@@ -1764,7 +1765,5 @@ theorem erdos_conjecture (G : SimpleGraph V) [DecidableRel G.Adj] :
 
 end TriangleIndep
 
-
-end
 
 end Erdos621
