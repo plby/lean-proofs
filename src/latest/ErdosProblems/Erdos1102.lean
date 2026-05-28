@@ -7503,11 +7503,11 @@ theorem Theorem_suff :
   ∃ C > 0, ∀ A : Set ℕ, Admissible A → A.Infinite → GrowthCondition A C → PropertyQ A := by
     -- Apply the lemma prob_condition_of_growth_v2 to obtain the constant C.
     obtain ⟨C, hC_pos, hC⟩ : ∃ C > 0, ∀ᶠ j in Filter.atTop, ∀ x, x ≥ Real.exp (C * j / Real.log j) → (j : ℝ) * C_freq * failure_prob_sum_2 x < 1 := by
-      exact prob_condition_of_growth_v2;
-    refine' ⟨ C, hC_pos, _ ⟩;
+      exact prob_condition_of_growth_v2
+    refine' ⟨ C, hC_pos, _ ⟩
     intro A hA_adm hA_inf h_growth
-    apply sufficient_condition_for_Q A hA_adm hA_inf C;
-    · exact hC;
+    apply sufficient_condition_for_Q A hA_adm hA_inf C
+    · exact hC
     · assumption
 
 #print axioms Theorem_suff
@@ -7517,7 +7517,7 @@ theorem Theorem_suff :
 The sequence A1 has property Q.
 -/
 theorem A1_PropertyQ : PropertyQ A1 := by
-  obtain ⟨ C, hC_pos, hC ⟩ := Theorem_suff;
+  obtain ⟨C, _, hC⟩ := Theorem_suff
   exact hC A1 A1_admissible A1_infinite ( A1_growth C )
 
 /-
@@ -7525,7 +7525,7 @@ The sequence A2 has property Q.
 -/
 theorem A2_PropertyQ : PropertyQ A2 := by
   -- By Theorem_suff, there exists a constant C > 0 such that any admissible infinite sequence satisfying the growth condition for C has Property Q.
-  obtain ⟨C, hC_pos, hC⟩ := Theorem_suff;
+  obtain ⟨C, _, hC⟩ := Theorem_suff
   exact hC _ A2_admissible A2_infinite ( A2_growth C )
 
 /-
@@ -7533,16 +7533,16 @@ The sequence A3 has property Q.
 -/
 theorem A3_PropertyQ : PropertyQ A3 := by
   -- By Theorem_suff, there exists a constant C > 0 such that any admissible infinite sequence satisfying the growth condition for C has Property Q.
-  obtain ⟨C, hC_pos, hC⟩ : ∃ C > 0, ∀ A : Set ℕ, Admissible A → A.Infinite → GrowthCondition A C → PropertyQ A := by
-    exact Theorem_suff;
+  obtain ⟨C, _, hC⟩ : ∃ C > 0, ∀ A : Set ℕ, Admissible A → A.Infinite → GrowthCondition A C → PropertyQ A := by
+    exact Theorem_suff
   exact hC A3 A3_admissible A3_infinite ( A3_growth C )
 
 /-
 The sequence A4 has property Q.
 -/
 theorem A4_PropertyQ : PropertyQ A4 := by
-  obtain ⟨ C, hC_pos, hC ⟩ := Theorem_suff;
-  apply hC A4 A4_admissible A4_infinite;
+  obtain ⟨C, hC_pos, hC⟩ := Theorem_suff
+  apply hC A4 A4_admissible A4_infinite
   -- To show that A4 satisfies the growth condition with any constant C, we need to find infinitely many j such that the j-th element of A4 is at least exp(C*j/log j).
   have h_growth_A4 : ∀ C > 0, ∃ᶠ j in Filter.atTop, (Nat.nth (· ∈ A4) (j - 1) : ℝ) ≥ Real.exp (C * j / Real.log j) := by
     intro C hC_pos
@@ -7551,20 +7551,20 @@ theorem A4_PropertyQ : PropertyQ A4 := by
       have h_factorial_growth : Filter.Tendsto (fun j : ℕ => Real.exp (C * j / Real.log j) / (j ! : ℝ)) Filter.atTop (nhds 0) := by
         have h_factorial_growth : Filter.Tendsto (fun j : ℕ => Real.exp (C * j) / (j ! : ℝ)) Filter.atTop (nhds 0) := by
           have h_factorial_growth : Summable (fun j : ℕ => Real.exp (C * j) / (j ! : ℝ)) := by
-            have := Real.summable_pow_div_factorial ( Real.exp C );
-            simpa [ Real.exp_mul ] using this;
-          convert h_factorial_growth.tendsto_atTop_zero;
-        refine' squeeze_zero_norm' _ h_factorial_growth;
+            have := Real.summable_pow_div_factorial ( Real.exp C )
+            simpa [ Real.exp_mul ] using this
+          convert h_factorial_growth.tendsto_atTop_zero
+        refine' squeeze_zero_norm' _ h_factorial_growth
         exact Filter.eventually_atTop.mpr ⟨ 3, fun n hn => by
           rw [Real.norm_of_nonneg (div_nonneg (Real.exp_nonneg _) (Nat.cast_nonneg _))]
-          exact div_le_div_of_nonneg_right (Real.exp_le_exp_of_le (div_le_self (by positivity) (Real.le_log_iff_exp_le (by positivity) |>.2 <| by exact Real.exp_one_lt_d9.le.trans <| by norm_num; linarith [show (n : ℝ) ≥ 3 by norm_cast]))) (Nat.cast_nonneg _) ⟩;
-      filter_upwards [ h_factorial_growth.eventually ( gt_mem_nhds zero_lt_one ), Filter.eventually_gt_atTop 0 ] with j hj₁ hj₂;
-      rw [ div_lt_one ( by positivity ) ] at hj₁;
-      exact le_trans hj₁.le ( le_tsub_of_add_le_right <| mod_cast by nlinarith [ Nat.factorial_pos j, Nat.factorial_succ j ] );
-    refine' Filter.Eventually.frequently _;
-    filter_upwards [ h_growth_A4, Filter.eventually_gt_atTop 1 ] with j hj₁ hj₂;
-    rw [ A4_nth ];
-    rw [ Nat.cast_sub <| Nat.factorial_pos _ ] ; cases j <;> simp [Nat.factorial] at * ; linarith;
+          exact div_le_div_of_nonneg_right (Real.exp_le_exp_of_le (div_le_self (by positivity) (Real.le_log_iff_exp_le (by positivity) |>.2 <| by exact Real.exp_one_lt_d9.le.trans <| by norm_num; linarith [show (n : ℝ) ≥ 3 by norm_cast]))) (Nat.cast_nonneg _) ⟩
+      filter_upwards [ h_factorial_growth.eventually ( gt_mem_nhds zero_lt_one ), Filter.eventually_gt_atTop 0 ] with j hj₁ hj₂
+      rw [ div_lt_one ( by positivity ) ] at hj₁
+      exact le_trans hj₁.le ( le_tsub_of_add_le_right <| mod_cast by nlinarith [ Nat.factorial_pos j, Nat.factorial_succ j ] )
+    refine' Filter.Eventually.frequently _
+    filter_upwards [ h_growth_A4, Filter.eventually_gt_atTop 1 ] with j hj₁ hj₂
+    rw [ A4_nth ]
+    rw [ Nat.cast_sub <| Nat.factorial_pos _ ] ; cases j <;> simp [Nat.factorial] at * ; linarith
   exact h_growth_A4 C hC_pos
 
 /-
