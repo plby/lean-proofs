@@ -50,9 +50,6 @@ set_option linter.style.refine false
 set_option linter.style.multiGoal false
 set_option linter.style.cases false
 set_option linter.style.whitespace false
-set_option linter.deprecated false
-set_option linter.unusedSimpArgs false
-set_option linter.unusedTactic false
 
 open scoped BigOperators
 open scoped Real
@@ -704,7 +701,6 @@ noncomputable def n_seq (lambda : ℝ) (h_lambda : 1 < lambda ∧ lambda < 2) (n
     d * n_seq lambda h_lambda prev_m
 termination_by n
 decreasing_by
-  simp_wf
   have _hn : n ≥ 2 := by linarith
   have hk : k_of_index lambda h_lambda n ≥ 1 := k_of_index_pos lambda h_lambda n (by linarith)
   let k := k_of_index lambda h_lambda n
@@ -718,7 +714,7 @@ $n_i > 0$ for all $i$.
 lemma n_seq_pos (lambda : ℝ) (h_lambda : 1 < lambda ∧ lambda < 2) (n : ℕ) :
   0 < n_seq lambda h_lambda n := by
     induction' n using Nat.strong_induction_on with n ih;
-    unfold n_seq; split_ifs <;> simp_all +decide [ Nat.lt_succ_iff ] ;
+    unfold n_seq; split_ifs <;> simp_all +decide;
     refine' ⟨ _, ih _ _ ⟩;
     · have := step_data_props lambda h_lambda ( k_of_index lambda h_lambda n );
       refine' Nat.pos_of_dvd_of_pos ( this.2.2.2.1 _ _ ) _;
@@ -1162,16 +1158,16 @@ lemma lm_divisors2 (lambda : ℝ) (Q : ℕ) (K : ℕ) (n : ℕ → ℕ)
           subst i
           simp [hd₁]
       · rw [show K + M + 1 - 1 = K + M by omega]
-        simp [show ¬ K + M < K by omega, Nat.add_sub_cancel_left, hd₂.1]
+        simp [show ¬ K + M < K by omega, hd₂.1]
         exact dvd_mul_of_dvd_left ( dvd_of_mul_left_dvd hd₀ ) _;
       · intro i hi
         rw [show K + M + 1 - 1 = K + M by omega]
         by_cases hik : i < K
-        · simp [hik, show ¬ K + M < K by omega, Nat.add_sub_cancel_left, hd₂.1]
+        · simp [hik, show ¬ K + M < K by omega, hd₂.1]
           refine' dvd_mul_of_dvd_left _ _;
           exact dvd_trans ( dvd_mul_of_dvd_left ( Finset.dvd_prod_of_mem _ ( Finset.mem_range.mpr hik ) ) _ ) hd₀;
         · have hiM : i - K ≤ M := by omega
-          simp [hik, show ¬ K + M < K by omega, Nat.add_sub_cancel_left, hd₂.1]
+          simp [hik, show ¬ K + M < K by omega, hd₂.1]
           exact mul_dvd_mul ( hd₂.2.1 _ hiM ) dvd_rfl;
       · intro a ha b hb hab
         rw [show K + M + 1 - 1 = K + M by omega] at ha hb
@@ -1392,7 +1388,6 @@ noncomputable def n_seq_thm2 (lambda : ℝ) (K : ℕ) (h_lambda : 1 < lambda ∧
     d j * n_seq_thm2 lambda K h_lambda hK prev_m
 termination_by i
 decreasing_by
-  simp_wf
   have _h_not_le : ¬ (i ≤ base_M lambda K h_lambda hK - 1) := _h
   have hi : i > base_M lambda K h_lambda hK - 1 := by linarith
   have h_spec := k_of_index_thm2_spec_high lambda K h_lambda hK i hi
@@ -1595,7 +1590,7 @@ lemma n_seq_thm2_growth (lambda : ℝ) (K : ℕ) (h_lambda : 1 < lambda ∧ lamb
       convert h_base_n i ( Nat.lt_of_succ_le hi.2 ) using 1;
       · rw [ n_seq_thm2_eq_base, n_seq_thm2_eq_base ] <;> aesop;
       · rw [ n_seq_thm2_eq_base, n_seq_thm2_eq_base ] <;> aesop;
-    · by_cases hi : i < base_M lambda K h_lambda hK - 1 <;> simp_all +decide [ Nat.succ_le_iff ];
+    · by_cases hi : i < base_M lambda K h_lambda hK - 1 <;> simp_all +decide;
       · linarith;
       · -- By definition of $k_of_index_thm2$, we know that $m_seq_thm2 k \geq i$ and $m_seq_thm2 (k - 1) < i$.
         set k := k_of_index_thm2 lambda K h_lambda hK (i + 1)
@@ -1604,11 +1599,11 @@ lemma n_seq_thm2_growth (lambda : ℝ) (K : ℕ) (h_lambda : 1 < lambda ∧ lamb
           generalize_proofs at *; (
           exact Nat.lt_succ_of_le ( Nat.sub_le_of_le_add <| by linarith ) ;)
         generalize_proofs at *; (
-        by_cases hi : i = m_seq_thm2 lambda K h_lambda hK (k - 1) <;> simp_all +decide [ Nat.succ_le_iff ] ; (
+        by_cases hi : i = m_seq_thm2 lambda K h_lambda hK (k - 1) <;> simp_all +decide; (
         -- By definition of $n_seq_thm2$, we know that $n_{i+1} = d_k(1) \cdot n_i$.
         have h_n_succ : n_seq_thm2 lambda K h_lambda hK (m_seq_thm2 lambda K h_lambda hK (k - 1) + 1) = d_at lambda k 1 * n_seq_thm2 lambda K h_lambda hK (m_seq_thm2 lambda K h_lambda hK (k - 1)) := by
           rw [n_seq_thm2];
-          split_ifs <;> simp_all +decide [ Nat.succ_le_iff ] ; (
+          split_ifs <;> simp_all +decide; (
           omega;);
           grind
         generalize_proofs at *; (
@@ -1640,7 +1635,7 @@ lemma n_seq_thm2_growth (lambda : ℝ) (K : ℕ) (h_lambda : 1 < lambda ∧ lamb
           rfl)
           generalize_proofs at *; (
           rw [n_seq_thm2];
-          split_ifs <;> simp_all +decide [ Nat.lt_succ_iff ];
+          split_ifs <;> simp_all +decide;
           have h_contra : m_seq_thm2 lambda K h_lambda hK (k - 1) ≥ base_M lambda K h_lambda hK - 1 := by
             exact Nat.recOn ( k - 1 ) ( by norm_num [ m_seq_thm2 ] ) fun n ihn => by linarith! [ m_seq_thm2_strictMono lambda K h_lambda hK ( Nat.lt_succ_self n ) ] ;
           generalize_proofs at *; (
@@ -2585,7 +2580,7 @@ lemma thm3_seq_v2_large_jumps (Lambda : ℝ) (lambda : ℝ) (h_Lambda : Lambda �
         (thm3_seq_v2 Lambda lambda h_Lambda h_lambda (k + 1)).n (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k).m =
           jump_val Lambda ((thm3_seq_v2 Lambda lambda h_Lambda h_lambda k).n ((thm3_seq_v2 Lambda lambda h_Lambda h_lambda k).m - 1)) := by
       convert hstep.2.1 (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k).m (by omega) using 1
-      simp [thm3_seq_v2, extend_temp, geo_seq]
+      simp [extend_temp, geo_seq]
     rw [hjump, jump_val]
     exact_mod_cast Nat.lt_of_floor_lt (Nat.lt_succ_self _)
 
@@ -3880,6 +3875,7 @@ theorem Theorem_4 (S : Set ℕ) (hS : S_cond S) :
 /-
 Statement taken from the Formal Conjectures project.
 -/
+set_option linter.deprecated false in
 theorem erdos_355 :
     ∃ A : ℕ → ℕ, IsLacunary A ∧ ∃ u v : ℝ, u < v ∧ ∀ q : ℚ, ↑q ∈ Set.Ioo u v →
       q ∈ {∑ a ∈ A', (1 / a : ℚ) | (A' : Finset ℕ) (_ : A'.toSet ⊆ Set.range A)} := by
