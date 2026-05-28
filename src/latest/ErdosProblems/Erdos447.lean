@@ -22,7 +22,6 @@ import Mathlib
 namespace Erdos447
 
 set_option linter.style.setOption false
-set_option linter.deprecated false
 set_option linter.flexible false
 set_option linter.style.cases false
 set_option linter.style.cdot false
@@ -30,23 +29,13 @@ set_option linter.style.commandStart false
 set_option linter.style.docString false
 set_option linter.style.emptyLine false
 set_option linter.style.induction false
-set_option linter.style.lambdaSyntax false
 set_option linter.style.longLine false
-set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
 set_option linter.style.openClassical false
 set_option linter.style.refine false
 set_option linter.style.show false
 set_option linter.style.whitespace false
-set_option linter.tacticAnalysis.introMerge false
-set_option linter.unnecessarySeqFocus false
-set_option linter.unnecessarySimpa false
 set_option linter.unusedDecidableInType false
-set_option linter.unusedFintypeInType false
-set_option linter.unusedSectionVars false
-set_option linter.unusedSimpArgs false
-set_option linter.unusedTactic false
-set_option linter.unusedVariables false
 
 open scoped Nat
 open scoped Classical
@@ -74,7 +63,7 @@ lemma erdos_ko_rado_range (m r : ℕ) (hrm : r ≤ m / 2) (G : Finset (Finset (F
 The family of differences A \ B for B in F strictly contained in A is intersecting.
 -/
 def DifferenceFamily {n : ℕ} (F : Finset (Finset (Fin n))) (A : Finset (Fin n)) (k : ℕ) : Finset (Finset (Fin n)) :=
-  (F.filter (λ B => B ⊂ A ∧ k ≤ B.card)).image (λ B => A \ B)
+  (F.filter (fun B => B ⊂ A ∧ k ≤ B.card)).image (fun B => A \ B)
 
 lemma difference_family_intersecting {n : ℕ} (F : Finset (Finset (Fin n))) (hF : UnionFree F)
     (A : Finset (Fin n)) (hA : A ∈ F) (k : ℕ) :
@@ -96,7 +85,7 @@ lemma difference_family_intersecting {n : ℕ} (F : Finset (Finset (Fin n))) (hF
 The family of supersets of differences is intersecting.
 -/
 def SuperSets {n : ℕ} (F : Finset (Finset (Fin n))) (A : Finset (Fin n)) (k : ℕ) : Finset (Finset (Fin n)) :=
-  (A.powersetCard (A.card - k)).filter (λ S => ∃ E ∈ DifferenceFamily F A k, E ⊆ S)
+  (A.powersetCard (A.card - k)).filter (fun S => ∃ E ∈ DifferenceFamily F A k, E ⊆ S)
 
 lemma super_sets_intersecting {n : ℕ} (F : Finset (Finset (Fin n))) (hF : UnionFree F)
     (A : Finset (Fin n)) (hA : A ∈ F) (k : ℕ) :
@@ -118,7 +107,7 @@ An embedding from the subtype of elements in A to the subtype of elements in S.
 -/
 def subSubsetEmbedding {α : Type*} [DecidableEq α] {S A : Finset α} (h : A ⊆ S) :
     {x // x ∈ A} ↪ {x // x ∈ S} :=
-  ⟨λ x => ⟨x.1, h x.2⟩, by
+  ⟨fun x => ⟨x.1, h x.2⟩, by
     intro x y e
     apply Subtype.ext
     rw [Subtype.ext_iff] at e
@@ -195,7 +184,7 @@ def superSetsToSubtype {n : ℕ} (F : Finset (Finset (Fin n))) (A : Finset (Fin 
 The family of supersets mapped to the subtype of A.
 -/
 def SuperSetsSubtype {n : ℕ} (F : Finset (Finset (Fin n))) (A : Finset (Fin n)) (k : ℕ) : Finset (Finset {x // x ∈ A}) :=
-  (SuperSets F A k).attach.map ⟨λ ⟨B, hB⟩ => superSetsToSubtype F A k B hB, by
+  (SuperSets F A k).attach.map ⟨fun ⟨B, hB⟩ => superSetsToSubtype F A k B hB, by
     intro ⟨B1, hB1⟩ ⟨B2, hB2⟩ eq
     simp [superSetsToSubtype] at eq
     apply Subtype.ext
@@ -261,7 +250,7 @@ x_j=x_j(\cF):=\bigl|\cF\cap \bin{[n]}{j}\bigr|.
 \]
 -/
 def x_j {n : ℕ} (F : Finset (Finset (Fin n))) (j : ℕ) : ℕ :=
-  (F.filter (λ A => A.card = j)).card
+  (F.filter (fun A => A.card = j)).card
 
 /-
 $S_j$ is the set of elements $\pi(i)$ for $i < j$. Wait, the paper says "set of the first $t$ elements of $\pi$". Usually this means $\{\pi(1), \dots, \pi(t)\}$.
@@ -269,16 +258,16 @@ Let's be precise. $\pi$ is a permutation of $[n]$. $S_t = \{\pi(1), \dots, \pi(t
 In Lean, `Equiv.Perm (Fin n)` maps `Fin n` to `Fin n`.
 If we view `p` as the sequence $p(0), p(1), \dots, p(n-1)$, then the first $j$ elements are $\{p(0), \dots, p(j-1)\}$.
 So `prefix_set p j` should be the image of `{0, ..., j-1}` under `p`.
-My previous definition `(Finset.univ.filter (λ x => x.val < j)).map p.toEmbedding` was actually mapping `{0, ..., j-1}` via `p`, which is correct.
+My previous definition `(Finset.univ.filter (fun x => x.val < j)).map p.toEmbedding` was actually mapping `{0, ..., j-1}` via `p`, which is correct.
 Wait, `p.toEmbedding` is the embedding corresponding to `p`.
 So `prefix_set p j = {p(0), ..., p(j-1)}`.
 Let's stick to that.
-The previous definition `(Finset.univ.filter (λ x => x.val < j)).map p.toEmbedding` is correct.
-Wait, I wrote `(Finset.univ.filter (λ x => p x < j))` in the thought block above, which is wrong (that would be the set of $x$ such that $p(x) < j$).
+The previous definition `(Finset.univ.filter (fun x => x.val < j)).map p.toEmbedding` is correct.
+Wait, I wrote `(Finset.univ.filter (fun x => p x < j))` in the thought block above, which is wrong (that would be the set of $x$ such that $p(x) < j$).
 I will use the correct definition.
 -/
 def prefix_set {n : ℕ} (p : Equiv.Perm (Fin n)) (j : ℕ) : Finset (Fin n) :=
-  (Finset.univ.filter (λ x => p x < j)).map (Equiv.refl (Fin n)).toEmbedding
+  (Finset.univ.filter (fun x => p x < j)).map (Equiv.refl (Fin n)).toEmbedding
 
 /-
 For each chain, if $\cF\cap\{S_k,S_{k+1},\dots,S_{2k}\}$ is nonempty, \emph{star} the smallest member of $\cF$ on the chain
@@ -300,7 +289,7 @@ The number of bad $k$-subsets of $A$ is at most $\binom{|A|-1}{k}$.
 -/
 lemma bad_subsets_count {n : ℕ} (F : Finset (Finset (Fin n))) (hF : UnionFree F)
     (A : Finset (Fin n)) (hA : A ∈ F) (k : ℕ) (hk : 1 ≤ k) (hjk : A.card ≤ 2 * k) :
-    ((Finset.powersetCard k A).filter (λ D => is_bad_subset F A D k)).card ≤ (A.card - 1).choose k := by
+    ((Finset.powersetCard k A).filter (fun D => is_bad_subset F A D k)).card ≤ (A.card - 1).choose k := by
       -- By the Erdős–Ko–Rado theorem, the number of $(A.card - k)$-subsets of $A$ that are not disjoint from any member of $\mathcal{E}$ is at most $\binom{A.card - 1}{A.card - k - 1}$.
       have h_erdos_ko_rado : (Finset.filter (fun S => S ⊆ A ∧ S.card = A.card - k ∧ ∃ E ∈ Finset.image (fun B => A \ B) (Finset.filter (fun B => k ≤ B.card ∧ B ⊂ A) F), E ⊆ S) (Finset.powersetCard (A.card - k) A)).card ≤ Nat.choose (A.card - 1) ((A.card - k) - 1) := by
         convert super_sets_bound F hF A hA k hjk using 1;
@@ -325,7 +314,7 @@ lemma bad_subsets_count {n : ℕ} (F : Finset (Finset (Fin n))) (hF : UnionFree 
 At most one set is starred per permutation.
 -/
 lemma starred_unique {n : ℕ} (F : Finset (Finset (Fin n))) (p : Equiv.Perm (Fin n)) (k : ℕ) :
-    (F.filter (λ A => IsStarred F p A k)).card ≤ 1 := by
+    (F.filter (fun A => IsStarred F p A k)).card ≤ 1 := by
       refine Finset.card_le_one.mpr ?_;
       unfold IsStarred;
       grind
@@ -385,13 +374,13 @@ lemma not_bad_implies_starred {n : ℕ} (F : Finset (Finset (Fin n))) (A : Finse
 The set of permutations of $[n]$ whose prefix of length $j$ is the set $A$.
 -/
 def permutations_with_prefix {n : ℕ} (A : Finset (Fin n)) (j : ℕ) : Finset (Equiv.Perm (Fin n)) :=
-  Finset.univ.filter (λ p => prefix_set p j = A)
+  Finset.univ.filter (fun p => prefix_set p j = A)
 
 /-
 The number of embeddings from $\{0, \dots, j-1\}$ to $[n]$ whose image is $A$ is $j!$.
 -/
 noncomputable def embeddings_with_range {n : ℕ} (A : Finset (Fin n)) (j : ℕ) : Finset (Fin j ↪ Fin n) :=
-  Finset.univ.filter (λ f => Finset.univ.map f = A)
+  Finset.univ.filter (fun f => Finset.univ.map f = A)
 
 lemma embeddings_with_range_card {n : ℕ} (A : Finset (Fin n)) (j : ℕ) (hA : A.card = j) :
     (embeddings_with_range A j).card = j.factorial := by
@@ -410,7 +399,7 @@ lemma embeddings_with_range_card {n : ℕ} (A : Finset (Fin n)) (j : ℕ) (hA : 
 Combining two embeddings with disjoint ranges yields an injective function.
 -/
 def combine_embeddings {n j : ℕ} (hj : j ≤ n) (f : Fin j ↪ Fin n) (g : Fin (n - j) ↪ Fin n) : Fin n → Fin n :=
-  λ x => Fin.addCases f g (Fin.cast (Nat.add_sub_of_le hj).symm x)
+  fun x => Fin.addCases f g (Fin.cast (Nat.add_sub_of_le hj).symm x)
 
 lemma combine_embeddings_injective {n j : ℕ} (hj : j ≤ n) (f : Fin j ↪ Fin n) (g : Fin (n - j) ↪ Fin n)
     (h_disjoint : Disjoint (Set.range f) (Set.range g)) :
@@ -567,10 +556,10 @@ lemma card_permutations_with_prefix {n : ℕ} (A : Finset (Fin n)) (j : ℕ) (hj
 /-
 Definitions for embeddings with subrange condition.
 -/
-def canonical_prefix_fin (j k : ℕ) : Finset (Fin j) := Finset.univ.filter (λ x => x < k)
+def canonical_prefix_fin (j k : ℕ) : Finset (Fin j) := Finset.univ.filter (fun x => x < k)
 
 noncomputable def embeddings_with_range_and_subrange {n : ℕ} (A : Finset (Fin n)) (D : Finset (Fin n)) (j k : ℕ) : Finset (Fin j ↪ Fin n) :=
-  (embeddings_with_range A j).filter (λ f => Finset.map f (canonical_prefix_fin j k) = D)
+  (embeddings_with_range A j).filter (fun f => Finset.map f (canonical_prefix_fin j k) = D)
 
 /-
 Map an embedding with subrange condition to a pair of embeddings.
@@ -601,7 +590,7 @@ def embeddings_split_fwd {n : ℕ} (A : Finset (Fin n)) (D : Finset (Fin n)) (j 
     -- So f({k..j-1}) is A \ D.
     have h_disjoint : Disjoint (Finset.map g1 Finset.univ) (Finset.map g2 Finset.univ) := by
       simp +decide [ Finset.disjoint_left ];
-      intro a x; intro H; have := f'.injective H; simp_all +decide [ Fin.ext_iff ] ;
+      intro a x H; have := f'.injective H; simp_all +decide [ Fin.ext_iff ] ;
       grind;
     have h_union : Finset.map g1 Finset.univ ∪ Finset.map g2 Finset.univ = A := by
       have h_union : Finset.map g1 Finset.univ ∪ Finset.map g2 Finset.univ = Finset.map f' Finset.univ := by
@@ -735,7 +724,7 @@ lemma card_embeddings_with_range_and_subrange {n : ℕ} (A : Finset (Fin n)) (D 
 Definition of permutations with prefix and subprefix.
 -/
 def permutations_with_prefix_and_subprefix {n : ℕ} (A : Finset (Fin n)) (D : Finset (Fin n)) (j k : ℕ) : Finset (Equiv.Perm (Fin n)) :=
-  (permutations_with_prefix A j).filter (λ p => prefix_set p k = D)
+  (permutations_with_prefix A j).filter (fun p => prefix_set p k = D)
 
 /-
 The set of permutations with prefix A and subprefix D is equivalent to the product of embeddings with subrange condition and embeddings with range A^c.
@@ -768,24 +757,24 @@ noncomputable def permutations_equiv_embeddings_subprefix {n : ℕ} (A : Finset 
   let split_equiv : { pair : { x // x ∈ embeddings_with_range A j } × { x // x ∈ embeddings_with_range (Finset.univ \ A) (n - j) } // Q pair } ≃
                     { f : { x // x ∈ embeddings_with_range A j } // Finset.map f.1 (canonical_prefix_fin j k) = D } × { x // x ∈ embeddings_with_range (Finset.univ \ A) (n - j) } :=
     Equiv.mk
-      (λ ⟨⟨f, g⟩, h⟩ => (⟨f, h⟩, g))
-      (λ ⟨f, g⟩ => ⟨(f.1, g), f.2⟩)
+      (fun ⟨⟨f, g⟩, h⟩ => (⟨f, h⟩, g))
+      (fun ⟨f, g⟩ => ⟨(f.1, g), f.2⟩)
       (by intro ⟨⟨f, g⟩, h⟩; simp)
       (by intro ⟨f, g⟩; simp)
   let refine_equiv : { f : { x // x ∈ embeddings_with_range A j } // Finset.map f.1 (canonical_prefix_fin j k) = D } ≃
                      { f // f ∈ embeddings_with_range_and_subrange A D j k } :=
     Equiv.mk
-      (λ ⟨⟨f, hf⟩, h⟩ => ⟨f, by
+      (fun ⟨⟨f, hf⟩, h⟩ => ⟨f, by
         rw [embeddings_with_range_and_subrange, Finset.mem_filter]
         exact ⟨hf, h⟩⟩)
-      (λ ⟨f, hf⟩ => ⟨⟨f, (Finset.mem_filter.mp hf).1⟩, (Finset.mem_filter.mp hf).2⟩)
+      (fun ⟨f, hf⟩ => ⟨⟨f, (Finset.mem_filter.mp hf).1⟩, (Finset.mem_filter.mp hf).2⟩)
       (by intro ⟨⟨f, hf⟩, h⟩; simp)
       (by intro ⟨f, hf⟩; simp)
   let final_equiv := Equiv.trans split_equiv (Equiv.prodCongr refine_equiv (Equiv.refl _))
   let domain_equiv : { p // p ∈ permutations_with_prefix_and_subprefix A D j k } ≃ { p : { x // x ∈ permutations_with_prefix A j } // P p } :=
     Equiv.mk
-      (λ ⟨p, hp⟩ => ⟨⟨p, (Finset.mem_filter.mp hp).1⟩, (Finset.mem_filter.mp hp).2⟩)
-      (λ ⟨⟨p, hp1⟩, hp2⟩ => ⟨p, Finset.mem_filter.mpr ⟨hp1, hp2⟩⟩)
+      (fun ⟨p, hp⟩ => ⟨⟨p, (Finset.mem_filter.mp hp).1⟩, (Finset.mem_filter.mp hp).2⟩)
+      (fun ⟨⟨p, hp1⟩, hp2⟩ => ⟨p, Finset.mem_filter.mpr ⟨hp1, hp2⟩⟩)
       (by intro ⟨p, hp⟩; simp)
       (by intro ⟨⟨p, hp1⟩, hp2⟩; simp)
   domain_equiv.trans (subtype_equiv.trans final_equiv)
@@ -808,10 +797,10 @@ lemma card_permutations_with_prefix_and_subprefix {n : ℕ} (A : Finset (Fin n))
 Definitions for bad subsets and permutations.
 -/
 noncomputable def bad_k_subsets {n : ℕ} (F : Finset (Finset (Fin n))) (A : Finset (Fin n)) (k : ℕ) : Finset (Finset (Fin n)) :=
-  (Finset.powersetCard k A).filter (λ D => is_bad_subset F A D k)
+  (Finset.powersetCard k A).filter (fun D => is_bad_subset F A D k)
 
 noncomputable def permutations_where_Sk_is_bad {n : ℕ} (F : Finset (Finset (Fin n))) (A : Finset (Fin n)) (j k : ℕ) : Finset (Equiv.Perm (Fin n)) :=
-  (permutations_with_prefix A j).filter (λ p => prefix_set p k ∈ bad_k_subsets F A k)
+  (permutations_with_prefix A j).filter (fun p => prefix_set p k ∈ bad_k_subsets F A k)
 
 /-
 The number of permutations where the k-prefix is bad is the number of bad k-subsets times the number of permutations with a fixed k-prefix.
@@ -837,7 +826,7 @@ lemma card_permutations_where_Sk_is_bad {n : ℕ} (F : Finset (Finset (Fin n))) 
 The number of permutations where A is starred is at least k/j * (n! / binom(n,j)).
 -/
 noncomputable def permutations_starred {n : ℕ} (F : Finset (Finset (Fin n))) (A : Finset (Fin n)) (k : ℕ) : Finset (Equiv.Perm (Fin n)) :=
-  Finset.univ.filter (λ p => IsStarred F p A k)
+  Finset.univ.filter (fun p => IsStarred F p A k)
 
 lemma card_starred_ge {n : ℕ} (F : Finset (Finset (Fin n))) (hF : UnionFree F)
     (A : Finset (Fin n)) (hA : A ∈ F) (k : ℕ) (hk : 1 ≤ k) (hjk : A.card ≤ 2 * k) (hAk : k ≤ A.card) :
@@ -891,7 +880,7 @@ lemma card_starred_ge {n : ℕ} (F : Finset (Finset (Fin n))) (hF : UnionFree F)
 The sum of the number of starred sets over all permutations equals the sum of the number of permutations where a set is starred over all sets.
 -/
 noncomputable def starred_sets {n : ℕ} (F : Finset (Finset (Fin n))) (p : Equiv.Perm (Fin n)) (k : ℕ) : Finset (Finset (Fin n)) :=
-  F.filter (λ A => IsStarred F p A k)
+  F.filter (fun A => IsStarred F p A k)
 
 lemma sum_starred_card_eq_sum_perm_starred_card {n : ℕ} (F : Finset (Finset (Fin n))) (k : ℕ) :
     ∑ p : Equiv.Perm (Fin n), (starred_sets F p k).card =
@@ -1058,7 +1047,6 @@ noncomputable def Y_sol (n : ℕ) (k : ℕ) : ℝ :=
       B_term n k + Y_sol n ((k - 1) / 2)
 termination_by k
 decreasing_by
-  simp_wf
   omega
 
 /-
@@ -1068,7 +1056,7 @@ lemma B_term_nonneg {n k : ℕ} (hk : 1 ≤ k) (hkn : k ≤ n / 2) : 0 ≤ B_ter
   unfold B_term;
   rcases k with ( _ | k ) <;> norm_num at *;
   norm_cast;
-  nlinarith [ Nat.div_mul_le_self n 2, Nat.succ_mul_choose_eq n k, Nat.choose_succ_succ n k ]
+  nlinarith [ Nat.div_mul_le_self n 2, Nat.add_one_mul_choose_eq n k, Nat.choose_succ_succ n k ]
 
 /-
 The dual variables $Y_k$ are non-negative.
@@ -1141,7 +1129,7 @@ lemma sum_Y_mid {m : ℕ} (hm : m ≥ 1) :
             unfold B_term Y_sol; norm_num;
           · exact_mod_cast h_sum ( c + 1 ) ( by linarith ) ( by omega );
         have h_binom : (2 * c + 1 : ℝ) * (4 * c + 2).choose (2 * c + 1) = (2 * c + 2 : ℝ) * (4 * c + 2).choose (2 * c + 2) := by
-          norm_cast; nlinarith [ Nat.succ_mul_choose_eq ( 4 * c + 2 ) ( 2 * c + 1 ), Nat.choose_succ_succ ( 4 * c + 2 ) ( 2 * c + 1 ) ] ;
+          norm_cast; nlinarith [ Nat.add_one_mul_choose_eq ( 4 * c + 2 ) ( 2 * c + 1 ), Nat.choose_succ_succ ( 4 * c + 2 ) ( 2 * c + 1 ) ] ;
         linarith
 
 /-
@@ -1156,7 +1144,6 @@ noncomputable def Y_tilde (n : ℕ) (k : ℕ) : ℝ :=
       B_term n k + Y_tilde n ((k - 1) / 2)
 termination_by k
 decreasing_by
-  simp_wf
   omega
 
 /-
@@ -1232,7 +1219,7 @@ lemma sum_binom_div_j_plus_1 {n m : ℕ} (hm : m ≥ 1) (hn : n = 2 * m) :
       have h_identity : ∑ j ∈ Finset.range m, (n.choose j : ℝ) / (j + 1) = (1 / (n + 1 : ℝ)) * ∑ j ∈ Finset.range m, (n + 1).choose (j + 1) := by
         norm_num [ Finset.mul_sum _ _ _ ];
         refine Finset.sum_congr rfl fun i hi => ?_;
-        rw [ inv_mul_eq_div, div_eq_div_iff ] <;> norm_cast ; linarith [ Nat.succ_mul_choose_eq n i, Nat.choose_succ_succ n i ];
+        rw [ inv_mul_eq_div, div_eq_div_iff ] <;> norm_cast ; linarith [ Nat.add_one_mul_choose_eq n i, Nat.choose_succ_succ n i ];
       -- The sum of binomial coefficients $\sum_{j=0}^{m-1} \binom{n+1}{j+1}$ is at most $2^{n+1} / 2$.
       have h_sum_bound : ∑ j ∈ Finset.range m, (n + 1).choose (j + 1) ≤ 2 ^ (n + 1) / 2 := by
         have h_sum_bound : ∑ j ∈ Finset.range (m + 1), (n + 1).choose j ≤ 2 ^ (n + 1) / 2 := by
@@ -1306,7 +1293,7 @@ lemma sum_binom_tail_bound {n k : ℕ} (hk : 1 ≤ k) (hkn : 3 * k ≤ n) :
         intro i hi
         have h_ratio : Nat.choose n i ≤ Nat.choose n (i + 1) / 2 := by
           have h_ratio_ge : Nat.choose n i * 2 ≤ Nat.choose n (i + 1) := by
-            nlinarith! [ Finset.mem_range.mp hi, Nat.succ_mul_choose_eq n i, Nat.choose_succ_succ n i ]
+            nlinarith! [ Finset.mem_range.mp hi, Nat.add_one_mul_choose_eq n i, Nat.choose_succ_succ n i ]
           rwa [ Nat.le_div_iff_mul_le zero_lt_two ]
         exact h_ratio;
       induction hk <;> simp_all +decide [ Finset.sum_range_succ ];
@@ -1350,7 +1337,7 @@ lemma B_term_eq {n m : ℕ} (hm : m ≥ 1) (hn : n = 2 * m) :
       unfold B_term
       field_simp
       ring_nf;
-      rw [ hn ] ; rcases m with ( _ | m ) <;> norm_num [ Nat.succ_mul_choose_eq ] at * ; ring_nf;
+      rw [ hn ] ; rcases m with ( _ | m ) <;> norm_num [ Nat.add_one_mul_choose_eq ] at * ; ring_nf;
       rw [ show 1 + m = m + 1 by ring, Nat.cast_choose, Nat.cast_choose ] <;> try linarith;
       rw [ show 2 + m * 2 - ( m + 1 ) = m + 1 by rw [ Nat.sub_eq_of_eq_add ] ; ring, show 2 + m * 2 - m = m + 2 by rw [ Nat.sub_eq_of_eq_add ] ; ring ] ; push_cast [ Nat.factorial_succ ] ; ring_nf;
       -- Combine like terms and simplify the expression.
@@ -1372,7 +1359,7 @@ lemma base_case {n m : ℕ} (hm : m ≥ 1) (hn : n = 2 * m) : LHS n m (m + 1) �
     -- By definition of $LHS$ and $RHS$, we have:
     simp [LHS, RHS];
     have := sum_Y_mid ( show 1 ≤ 2 * t by linarith ) ; simp_all +decide [ Nat.add_div ] ;
-    have := Nat.succ_mul_choose_eq ( 2 * ( 2 * t ) ) ( 2 * t ) ; ( have := Nat.succ_mul_choose_eq ( 2 * ( 2 * t ) ) ( 2 * t + 1 ) ; ( norm_cast at * ; simp_all +decide [ Nat.choose_succ_succ, mul_assoc ] ; ) );
+    have := Nat.add_one_mul_choose_eq ( 2 * ( 2 * t ) ) ( 2 * t ) ; ( have := Nat.add_one_mul_choose_eq ( 2 * ( 2 * t ) ) ( 2 * t + 1 ) ; ( norm_cast at * ; simp_all +decide [ Nat.choose_succ_succ, mul_assoc ] ; ) );
     grind;
   · obtain ⟨ k, rfl ⟩ : ∃ k, m = 2 * k + 1 := by exact Nat.odd_iff.mpr ( Nat.mod_two_ne_zero.mp fun h => h_even <| even_iff_two_dvd.mpr <| Nat.dvd_of_mod_eq_zero h );
     -- By definition of $LHS$ and $RHS$, we know that $LHS(n, m, m+1) = \sum_{k=(m+1)/2}^m Y_k$ and $RHS(n, m+1) = (m+1) \binom{n}{m+1}$.
@@ -1444,7 +1431,7 @@ noncomputable section AristotleLemmas
 A relation between $\binom{2m}{m+1}$ and $\binom{2m}{m}$.
 -/
 lemma binom_relation (m : ℕ) : (m + 1) * (2 * m).choose (m + 1) = m * (2 * m).choose m := by
-  nlinarith [ Nat.succ_mul_choose_eq ( 2 * m ) m, Nat.choose_succ_succ ( 2 * m ) m ]
+  nlinarith [ Nat.add_one_mul_choose_eq ( 2 * m ) m, Nat.choose_succ_succ ( 2 * m ) m ]
 
 /-
 An auxiliary inequality for binomial coefficients.
@@ -1506,7 +1493,7 @@ lemma LHS_ge_RHS_base {n m : ℕ} (hm : m ≥ 4) (hn : n = 2 * m) :
           intros j hj1 hj2
           have h_decreasing : (j + 1 : ℝ) * n.choose (j + 1) ≤ (j : ℝ) * n.choose j := by
             norm_cast;
-            nlinarith [ Nat.succ_mul_choose_eq n j, Nat.choose_succ_succ n j ];
+            nlinarith [ Nat.add_one_mul_choose_eq n j, Nat.choose_succ_succ n j ];
           unfold RHS; aesop;
         have := base_case ( by linarith ) hn; have := h_RHS_decreasing ( m + 1 ) ( by linarith ) ( by linarith ) ; simp_all +decide [ LHS ] ;
         convert this.trans ‹_› using 1 ; congr ; omega;
@@ -1548,7 +1535,7 @@ lemma LHS_ge_RHS_base_odd {n m : ℕ} (hm : m ≥ 1) (hn : n = 2 * m) (ho : m % 
         by_cases hmn : m < n / 2 <;> simp_all +decide
         unfold RHS; norm_num [ Nat.choose_succ_succ, two_mul ] ; ring_nf;
         rw [ show 2 + m = m + 2 by ring, show 1 + m = m + 1 by ring ] ; norm_cast ; simp +arith +decide [ mul_comm ] ; ring_nf ;
-        rw [ show 2 + m = m + 1 + 1 by ring, show 1 + m = m + 1 by ring ] ; nlinarith only [ hm, Nat.succ_mul_choose_eq ( m * 2 ) ( m + 1 ), Nat.choose_succ_succ ( m * 2 ) ( m + 1 ) ] ;
+        rw [ show 2 + m = m + 1 + 1 by ring, show 1 + m = m + 1 by ring ] ; nlinarith only [ hm, Nat.add_one_mul_choose_eq ( m * 2 ) ( m + 1 ), Nat.choose_succ_succ ( m * 2 ) ( m + 1 ) ] ;
       have h_lhs_eq : LHS n m (m + 2) = LHS n m (m + 1) := by
         exact LHS_eq_odd ho
       linarith [h_lhs_ge_rhs, h_rhs_decreasing, h_lhs_eq]
@@ -2292,7 +2279,7 @@ lemma binom_ineq_odd_case {n m : ℕ} (hm : m ≥ 200) (hn : n = 2 * m) :
           intros k l hkl hlm;
           induction' hkl with k hk ih;
           · rfl;
-          · exact le_trans ( ih ( Nat.le_of_succ_le hlm ) ) ( Nat.le_of_lt_succ ( by nlinarith [ Nat.succ_mul_choose_eq ( 2 * m ) k, Nat.choose_succ_succ ( 2 * m ) k ] ) );
+          · exact le_trans ( ih ( Nat.le_of_succ_le hlm ) ) ( Nat.le_of_lt_succ ( by nlinarith [ Nat.add_one_mul_choose_eq ( 2 * m ) k, Nat.choose_succ_succ ( 2 * m ) k ] ) );
         have h_symm : Nat.choose (2 * m) (m + 1) = Nat.choose (2 * m) (m - 1) := by
           rw [ Nat.choose_symm_of_eq_add ] ; omega;
         exact h_symm.symm ▸ h_inc _ _ ( by omega ) ( by omega );
@@ -2327,7 +2314,7 @@ lemma binom_ineq_odd_case {n m : ℕ} (hm : m ≥ 200) (hn : n = 2 * m) :
       rcases Nat.even_or_odd' m with ⟨ k, rfl | rfl ⟩ <;> simp +arith +decide [ *] at *;
       · grind;
       · norm_num [ Nat.add_div ] at *;
-        have := Nat.succ_mul_choose_eq ( 4 * k + 2 ) k; ( have := Nat.succ_mul_choose_eq ( 4 * k + 2 ) ( k + 1 ) ; ( norm_num [ Nat.choose_succ_succ ] at * ; nlinarith; ) )
+        have := Nat.add_one_mul_choose_eq ( 4 * k + 2 ) k; ( have := Nat.add_one_mul_choose_eq ( 4 * k + 2 ) ( k + 1 ) ; ( norm_num [ Nat.choose_succ_succ ] at * ; nlinarith; ) )
 
 /-
 Base case for the induction: LHS(m+3) >= RHS(m+3).
@@ -2409,7 +2396,7 @@ The gap between RHS(j-1) and RHS(j) is at least 4 * binom(n, j-1) for j >= m+3.
 lemma RHS_gap_odd_j_part1 {n m j : ℕ} (hn : n = 2 * m) (hj : j ≥ m + 3) (hjn : j ≤ n) :
     RHS n (j - 1) - RHS n j ≥ 4 * n.choose (j - 1) := by
       rcases j with ( _ | _ | j ) <;> simp_all +decide [ RHS ];
-      have := Nat.succ_mul_choose_eq ( 2 * m ) ( j + 1 );
+      have := Nat.add_one_mul_choose_eq ( 2 * m ) ( j + 1 );
       rw [ Nat.choose_succ_succ ] at this;
       norm_cast;
       rw [ Int.subNatNat_eq_coe ] ; push_cast ; nlinarith only [ this, hj, hjn ]
@@ -2458,11 +2445,11 @@ lemma binom_ineq_very_loose {n m : ℕ} (hm : m ≥ 200) (hn : n = 2 * m) :
       specialize h_binom_ineq_range (m + 1 + 1) (by linarith) (by
       omega);
       norm_cast at * ; simp_all +decide [ Nat.add_div ];
-      have := Nat.succ_mul_choose_eq ( 2 * m ) ( m + 1 ) ; simp_all +decide [ Nat.choose_succ_succ, mul_comm ];
+      have := Nat.add_one_mul_choose_eq ( 2 * m ) ( m + 1 ) ; simp_all +decide [ Nat.choose_succ_succ, mul_comm ];
       split_ifs at * <;> simp_all +decide [ Nat.add_mod ];
       · cases Nat.mod_two_eq_zero_or_one m <;> simp_all +decide;
       · nlinarith [ Nat.zero_le ( Nat.choose ( m * 2 ) ( m / 2 + 1 ) ) ];
-      · have := Nat.succ_mul_choose_eq ( m * 2 ) ( m / 2 ) ; simp_all +decide [ Nat.choose_succ_succ, mul_comm ];
+      · have := Nat.add_one_mul_choose_eq ( m * 2 ) ( m / 2 ) ; simp_all +decide [ Nat.choose_succ_succ, mul_comm ];
         nlinarith [ Nat.div_mul_cancel ( show 2 ∣ m from Nat.dvd_of_mod_eq_zero ‹_› ) ]
 
 /-
@@ -2646,16 +2633,16 @@ lemma sum_Z_final_bound {n m : ℕ} (hm : m ≥ 1) (hn : n = 2 * m) :
 Project a set of Fin (n+1) to a set of Fin n by keeping elements less than n.
 -/
 def project_set {n : ℕ} (A : Finset (Fin (n + 1))) : Finset (Fin n) :=
-  Finset.univ.filter (λ x => Fin.castSucc x ∈ A)
+  Finset.univ.filter (fun x => Fin.castSucc x ∈ A)
 
 /-
 Decomposition of the family into two subfamilies based on the last element.
 -/
 def family_zero {n : ℕ} (F : Finset (Finset (Fin (n + 1)))) : Finset (Finset (Fin n)) :=
-  (F.filter (λ A => Fin.last n ∉ A)).image project_set
+  (F.filter (fun A => Fin.last n ∉ A)).image project_set
 
 def family_one {n : ℕ} (F : Finset (Finset (Fin (n + 1)))) : Finset (Finset (Fin n)) :=
-  (F.filter (λ A => Fin.last n ∈ A)).image project_set
+  (F.filter (fun A => Fin.last n ∈ A)).image project_set
 
 /-
 Injectivity of projection for sets not containing the last element.
@@ -2717,7 +2704,7 @@ lemma family_one_union_free {n : ℕ} (F : Finset (Finset (Fin (n + 1)))) (hF : 
 Cardinality of the projected family zero equals the cardinality of the filtered subfamily.
 -/
 lemma card_family_zero {n : ℕ} (F : Finset (Finset (Fin (n + 1)))) :
-    (family_zero F).card = (F.filter (λ A => Fin.last n ∉ A)).card := by
+    (family_zero F).card = (F.filter (fun A => Fin.last n ∉ A)).card := by
       rw [ show family_zero F = Finset.image project_set ( F.filter fun A => Fin.last n∉A ) from rfl, Finset.card_image_of_injOn ];
       exact fun x hx y hy hxy => project_set_inj_on_zero _ _ ( by aesop ) ( by aesop ) hxy
 
@@ -2725,7 +2712,7 @@ lemma card_family_zero {n : ℕ} (F : Finset (Finset (Fin (n + 1)))) :
 Cardinality of the projected family one equals the cardinality of the filtered subfamily.
 -/
 lemma card_family_one {n : ℕ} (F : Finset (Finset (Fin (n + 1)))) :
-    (family_one F).card = (F.filter (λ A => Fin.last n ∈ A)).card := by
+    (family_one F).card = (F.filter (fun A => Fin.last n ∈ A)).card := by
       convert Finset.card_image_of_injOn _;
       intros A hA B hB h; have := project_set_inj_on_one A B; aesop;
 
@@ -2923,7 +2910,7 @@ theorem erdos_447 :
       rw [ Asymptotics.isEquivalent_iff_exists_eq_mul ];
       exact ⟨ _, h_even_bound, by filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn; rw [ Pi.mul_apply, div_mul_cancel₀ _ ( Nat.cast_ne_zero.mpr <| Nat.ne_of_gt <| Nat.choose_pos <| Nat.div_le_self _ _ ) ] ⟩
 
-#print axioms erdos_447
--- 'Erdos447.erdos_447' depends on axioms: [propext, Classical.choice, Quot.sound]
-
 end Erdos447
+
+#print axioms Erdos447.erdos_447
+-- 'Erdos447.erdos_447' depends on axioms: [propext, Classical.choice, Quot.sound]
