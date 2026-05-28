@@ -38,12 +38,7 @@ set_option linter.style.longLine false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
-set_option linter.style.cases false
 set_option linter.flexible false
-set_option linter.deprecated false
-set_option linter.unnecessarySimpa false
-set_option linter.unusedSimpArgs false
-set_option linter.unusedVariables false
 
 open scoped BigOperators
 open scoped Real
@@ -51,14 +46,8 @@ open scoped Nat
 open scoped Classical
 open scoped Pointwise
 
-set_option maxHeartbeats 1000000
--- Several generated density and subset-sum proofs time out at the default heartbeat limit.
-set_option maxRecDepth 4000
-
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
-
-noncomputable section
 
 /-
 We define the sequence A by blocks.
@@ -154,6 +143,7 @@ lemma M_mono : Monotone M := by
 /-
 Each block is sorted in nondecreasing order.
 -/
+set_option linter.deprecated false in
 lemma block_sorted (n : ℕ) : (block n).Sorted (· ≤ ·) := by
   -- The first part of the block is sorted by definition.
   have h_first_part_sorted : List.Sorted (· ≤ ·) (List.map (fun i => 2^i * M n) (List.range (k n - 1))) := by
@@ -264,16 +254,16 @@ theorem A_is_nondecreasing : Monotone A_val := by
         -- By definition of $A_val$, we have $A_val(n+1) = M_{b_n+1}$.
         have h_A_val_n_plus_1 : A_val (n + 1) = (block (b_n + 1))[0]! := by
           rw [ show n + 1 = block_start ( b_n + 1 ) from h_last_first.2 ];
-          unfold A_val; simp +decide [ block_index_spec ] ;
+          unfold A_val; simp +decide;
           rw [ show Nat.find ( show ∃ m, block_start ( m + 1 ) > block_start ( b_n + 1 ) from ⟨ b_n + 1, by linarith [ block_start_strict_mono ( Nat.lt_succ_self ( b_n + 1 ) ) ] ⟩ ) = b_n + 1 from _ ];
           · norm_num;
           · rw [ Nat.find_eq_iff ];
             exact ⟨ block_start_strict_mono ( Nat.lt_succ_self _ ), fun n hn => not_lt_of_ge ( block_start_strict_mono.monotone ( by linarith ) ) ⟩;
-        rcases x : k ( block_index n + 1 ) with ( _ | _ | k ) <;> simp +decide [ x ] at h_A_val_n_plus_1 ⊢;
-        · unfold k at x; simp +decide [ Nat.log2 ] at x;
+        rcases x : k ( block_index n + 1 ) with ( _ | _ | k ) <;> simp +decide at h_A_val_n_plus_1 ⊢;
+        · unfold k at x; simp +decide at x;
         · unfold k at x; norm_num at x;
           omega;
-        · unfold block at h_A_val_n_plus_1; simp +decide [ x ] at h_A_val_n_plus_1 ⊢;
+        · unfold block at h_A_val_n_plus_1; simp +decide at h_A_val_n_plus_1 ⊢;
           grind;
       exact h_A_val_n.symm ▸ h_A_val_n_plus_1.symm ▸ M_transition_ineq _;
   exact monotone_nat_of_le_succ h_monotone
@@ -286,8 +276,8 @@ lemma block_ratio_exact (n i : ℕ) (h : i < k n - 2) :
     -- The block is constructed as a list where each element is 2^i * M n for i from 0 to k n - 2, and the last element is (2^(k n - 1) - 1) * M n + 1.
     have h_block : block n = List.map (fun i => 2^i * M n) (List.range (k n - 1)) ++ [(2^(k n - 1) - 1) * M n + 1] := by
       exact List.toList_toArray;
-    rcases k : k n with ( _ | _ | k ) <;> simp_all +decide [ Nat.pow_succ', mul_assoc ];
-    simp_all +decide [ List.getElem?_append, List.getElem?_range ];
+    rcases k : k n with ( _ | _ | k ) <;> simp_all +decide [ Nat.pow_succ' ];
+    simp_all +decide [ List.getElem?_append ];
     rw [ if_pos ( by linarith ), div_eq_iff ] <;> norm_cast <;> norm_num [ pow_succ', Nat.mul_assoc ];
     exact ne_of_gt ( M_pos _ )
 
@@ -298,7 +288,7 @@ lemma block_ratio_last :
   Filter.Tendsto (fun n => (((2^(k n - 1) - 1) * M n + 1 : ℕ) : ℝ) / ((2^(k n - 2) * M n : ℕ) : ℝ)) Filter.atTop (nhds (2 : ℝ)) := by
     -- Simplify the expression inside the limit.
     suffices h_simp : Filter.Tendsto (fun n => (2 - 1 / 2^(k n - 2) + 1 / (2^(k n - 2) * M n) : ℝ)) Filter.atTop (nhds 2) by
-      refine h_simp.congr' ?_ ; filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn ; rcases k_n : k n with ( _ | _ | k ) <;> simp_all +decide [ pow_succ', mul_assoc, div_eq_mul_inv ] ; ring_nf;
+      refine h_simp.congr' ?_ ; filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn ; rcases k_n : k n with ( _ | _ | k ) <;> simp_all +decide [ pow_succ', div_eq_mul_inv ] ; ring_nf;
       · unfold k at k_n ; aesop;
       · unfold k at k_n;
         omega;
@@ -412,6 +402,8 @@ lemma block_ratio_cross :
 /-
 The ratio of consecutive terms of the sequence A tends to 2.
 -/
+set_option maxHeartbeats 1000000 in
+-- The generated ratio-limit proof times out at the default heartbeat limit.
 theorem A_ratio_limit : Filter.Tendsto (fun n => (A_val (n + 1) : ℝ) / A_val n) Filter.atTop (nhds 2) := by
   -- Let $b_n$ be the block index of $n$. There are three cases for the position of $n$ within block $b_n$:
   have h_cases : ∀ n, block_index (n + 1) = block_index n ∨ block_index (n + 1) = block_index n + 1 := by
@@ -441,10 +433,10 @@ theorem A_ratio_limit : Filter.Tendsto (fun n => (A_val (n + 1) : ℝ) / A_val n
           linarith;
         · exact Nat.le_of_lt_succ ( by linarith [ block_index_spec n ] );
       by_cases h_last : n - block_start (block_index n) = k (block_index n) - 2;
-      · rcases x : k ( block_index n ) with ( _ | _ | k ) <;> simp_all +decide [ Nat.pow_succ', Nat.mul_succ ];
+      · rcases x : k ( block_index n ) with ( _ | _ | k ) <;> simp_all +decide;
         simp_all +decide [ Nat.sub_add_comm ( show block_start ( block_index n ) ≤ n from Nat.le_of_lt_succ <| by linarith [ Nat.sub_add_cancel <| show block_start ( block_index n ) ≤ n from Nat.le_of_lt_succ <| by linarith [ Nat.sub_add_cancel <| show block_start ( block_index n ) ≤ n from Nat.le_of_lt_succ <| by linarith [ block_index_spec n ] ] ] ) ];
         rw [ show ( block ( block_index n ) ) = ( List.range ( k + 1 ) ).map ( fun i => 2 ^ i * M ( block_index n ) ) ++ [ ( 2 ^ ( k + 1 ) - 1 ) * M ( block_index n ) + 1 ] from ?_ ];
-        · simp +decide [ List.getElem?_append, List.getElem?_range ];
+        · simp +decide;
         · unfold block; aesop;
       · have h_ratio : ((block (block_index n))[n + 1 - block_start (block_index n)]! : ℝ) / ((block (block_index n))[n - block_start (block_index n)]! : ℝ) = 2 := by
           convert block_ratio_exact ( block_index n ) ( n - block_start ( block_index n ) ) _ using 1;
@@ -477,7 +469,7 @@ theorem A_ratio_limit : Filter.Tendsto (fun n => (A_val (n + 1) : ℝ) / A_val n
               Nat.add_zero
                 ((block (Nat.find (A_val._proof_1 (n + 1)))).get!Internal
                   (n + 1 - block_start (Nat.find (A_val._proof_1 (n + 1)))));
-          simp_all +decide [ Nat.sub_sub ];
+          simp_all +decide;
           rw [ show n + 1 - block_start ( block_index n + 1 ) = 0 from Nat.sub_eq_zero_of_le <| by linarith [ block_index_spec n, block_index_spec ( n + 1 ) ] ];
         rcases k : k ( block_index n + 1 ) with ( _ | _ | k ) <;> simp_all +decide;
         · unfold Erdos347.k at k; aesop;
@@ -550,7 +542,7 @@ lemma greedy_covering (n : ℕ) (x : ℕ) (hx : x ≤ M (n + 1)) :
               refine' Nat.div_le_of_le_mul _;
               rw [ mul_left_comm, Nat.pow_succ' ];
               exact Nat.mul_le_mul_left _ ( by omega );
-            nlinarith [ Nat.sub_add_cancel ( show 1 ≤ 2 ^ k n from Nat.one_le_pow _ _ ( by decide ) ), Nat.sub_add_cancel ( show 2 ≤ 2 ^ k n from le_trans ( by decide ) ( pow_le_pow_right₀ ( by decide ) ( show k n ≥ 1 from Nat.succ_le_of_lt ( Nat.pos_of_ne_zero ( by rintro h; simp_all +decide [ Nat.log2 ] ) ) ) ) ) ];
+            nlinarith [ Nat.sub_add_cancel ( show 1 ≤ 2 ^ k n from Nat.one_le_pow _ _ ( by decide ) ), Nat.sub_add_cancel ( show 2 ≤ 2 ^ k n from le_trans ( by decide ) ( pow_le_pow_right₀ ( by decide ) ( show k n ≥ 1 from Nat.succ_le_of_lt ( Nat.pos_of_ne_zero ( by rintro h; simp_all +decide ) ) ) ) ) ];
         exact ⟨ b, hb.1, by omega, hb.2.1 ⟩
 
 /-
@@ -651,7 +643,7 @@ lemma greedy_expansion_spec (n_0 N m : ℕ) (hm : m ≤ M (N + 1)) :
           · exact hb0.2.1;
           · grind;
       · unfold greedy_expansion at *;
-        rw [ show N + 1 - n_0 = ( N + 1 - ( n_0 + 1 ) ) + 1 by omega, List.range_succ ] ; simp +decide [ hbs', hb0 ];
+        rw [ show N + 1 - n_0 = ( N + 1 - ( n_0 + 1 ) ) + 1 by omega, List.range_succ ] ; simp +decide;
         rw [ Nat.sub_sub_self ( by omega ) ] ; aesop ( simp_config := { singlePass := true } ) ;
 
 /-
@@ -660,6 +652,8 @@ Every element of B_n is a subset sum of the elements in block n.
 -/
 def c (n : ℕ) : ℕ := (2^(k n - 1) - 1) * M n
 
+set_option maxHeartbeats 1000000 in
+-- The generated subset-sum decomposition proof times out at the default heartbeat limit.
 lemma mem_subset_sums_block (n x : ℕ) (hx : x ∈ B n) :
   x ∈ subset_sums (fun i => (block n)[i]!) := by
     -- By definition of $B_n$, we know that every element in $B_n$ is a subset sum of the elements in $block n$.
@@ -676,7 +670,7 @@ lemma mem_subset_sums_block (n x : ℕ) (hx : x ∈ B n) :
               · obtain ⟨ I, hI₁, hI₂ ⟩ := ih ( c + 1 ) ( by linarith ) ( by linarith );
                 use I.image (fun i => i + 1);
                 simp_all +decide [ Finset.subset_iff, pow_succ', ← Finset.mul_sum _ _ _ ];
-                intro x hx; specialize hI₁ hx; contrapose! hm; simp_all +decide [ pow_succ' ] ;
+                intro x hx; specialize hI₁ hx; contrapose! hm; simp_all +decide;
                 exact le_trans ( pow_le_pow_right₀ ( by decide ) ( show k n - 1 ≤ x + 1 by omega ) ) ( by rw [ pow_succ' ] ; linarith [ Finset.single_le_sum ( fun i _ => Nat.zero_le ( 2 ^ i ) ) hx ] );
             · obtain ⟨ I, hI₁, hI₂ ⟩ := ih c ( by linarith ) ( by linarith );
               refine' ⟨ I.image ( fun i => i + 1 ) ∪ { 0 }, _, _ ⟩ <;> simp_all +decide [ Finset.subset_iff ];
@@ -719,7 +713,7 @@ lemma mem_subset_sums_block (n x : ℕ) (hx : x ∈ B n) :
         refine' ⟨ a ∪ { k n - 1 }, _, _ ⟩ <;> simp_all +decide [ Finset.subset_iff ];
         · exact fun x hx => Nat.le_of_lt ( ha.1 hx );
         · rw [ Finset.sum_insert ];
-          · simp_all +decide [ List.getElem?_append, List.getElem?_range ];
+          · simp_all +decide [ List.getElem?_append ];
             rw [ ← Finset.sum_mul _ _ _, ha.2 ];
             nlinarith [ Nat.sub_add_cancel ( show 2 ^ ( k n - 1 ) ≤ j from hj.1 ), Nat.sub_add_cancel ( show 1 ≤ 2 ^ ( k n - 1 ) from Nat.one_le_pow _ _ ( by decide ) ) ];
           · exact fun h => by have := ha.1 h; omega;
@@ -745,7 +739,7 @@ def P_T (n_0 : ℕ) : Set ℕ := subset_sums (T_seq n_0)
 c_count counts the number of indices where b_n = c_n in the greedy expansion.
 -/
 def c_count (n_0 N m : ℕ) : ℕ :=
-  let (bs, d) := greedy_expansion n_0 N m
+  let (bs, _) := greedy_expansion n_0 N m
   (List.range bs.length).filter (fun i => bs[i]! = c (n_0 + i)) |>.length
 
 /-
@@ -781,7 +775,7 @@ lemma exists_modified_coeffs (bs : List ℕ) (d : ℕ) (c_func : ℕ → ℕ)
                   (List.map (fun i ↦ if i ∈ T then 1 else 0) (List.range bs.length))));
         rw [ h_card, Finset.sum_boole ];
         rw [ Finset.filter_mem_eq_inter, Finset.inter_eq_right.mpr <| Finset.subset_iff.mpr fun x hx => Finset.mem_range.mpr <| hT.2 x hx |>.2 ] ; aesop;
-      simp_all +decide [ List.map_eq_map_iff ];
+      simp_all +decide;
       refine' ⟨ _, _ ⟩;
       · refine' congr_arg _ ( List.ext_get _ _ ) <;> aesop;
       · grind
@@ -911,7 +905,7 @@ lemma correction_lemma (n_0 N m : ℕ) (hm : m ≤ M (N + 1)) :
     have h_subset_sum : ∀ i, i < bs'.length → bs'[i]! ∈ subset_sums (fun j => (block (n_0 + i))[j]!) := by
       intro i hi
       specialize hbs'_cond i hi
-      cases' hbs'_cond with h_case1 h_case2;
+      rcases hbs'_cond with h_case1 | h_case2;
       · convert mem_subset_sums_block ( n_0 + i ) _ _;
         have := greedy_expansion_spec n_0 N m hm;
         grind;
@@ -924,7 +918,7 @@ lemma correction_lemma (n_0 N m : ℕ) (hm : m ≤ M (N + 1)) :
 /-
 E_N is the number of integers m <= M_{N+1} that are not in P(T).
 -/
-def E_N (n_0 N : ℕ) : ℕ :=
+noncomputable def E_N (n_0 N : ℕ) : ℕ :=
   ((Finset.range (M (N + 1) + 1)).filter (fun m => m ∉ P_T n_0)).card
 
 /-
@@ -932,9 +926,13 @@ The size of the digit set B_n is 2^{k_n} - 1.
 -/
 def B_card (n : ℕ) : ℕ := (B_finset n).card
 
+set_option maxRecDepth 4000 in
+-- The generated cardinality decision proof needs deeper unfolding than the default recursion limit.
 lemma B_card_zero_pos : 0 < B_card 0 := by
   decide
 
+set_option maxRecDepth 4000 in
+-- The generated cardinality formula proof needs deeper unfolding than the default recursion limit.
 lemma B_card_eq (n : ℕ) : B_card n = 2^(k n) - 1 := by
   -- The cardinality of the first set is $2^{k_n - 1}$ and the cardinality of the second set is $2^{k_n} - 2 - 2^{k_n - 1} + 1 = 2^{k_n - 1} - 1$.
   have h_card_first : (Finset.range (2^(k n - 1))).card = 2^(k n - 1) := by
@@ -993,16 +991,16 @@ lemma E_N_le_bad_functions (n_0 N : ℕ) :
         intro h_contra'0; exact (by
         exact Finset.mem_filter.mp hm |>.2 ( correction_lemma n_0 N m ( by linarith [ Finset.mem_range.mp ( Finset.mem_filter.mp hm |>.1 ) ] ) ( by linarith ) ));
       convert h_c_count using 1;
-      unfold greedy_expansion c_count count_matches_dep; simp +decide [ Finset.sum_range_succ' ] ;
+      unfold greedy_expansion c_count count_matches_dep; simp +decide;
       rw [ ← Multiset.coe_card ];
       rw [ ← Multiset.toFinset_card_of_nodup ];
       · refine' Finset.card_bij ( fun x hx => x.val - n_0 ) _ _ _ <;> simp +decide [ Finset.mem_filter, Finset.mem_attach ];
         · intro a ha₁ ha₂ ha₃; rw [ Nat.add_sub_cancel' ha₁ ] ;
           exact ⟨ by rw [ show ( greedy_expansion n_0 N m ).1.length = N + 1 - n_0 from h_greedy.1 ] ; omega, ha₃ ⟩;
         · intros; omega;
-        · intro b hb hb'; use n_0 + b; simp +decide [ hb', hb ] ;
+        · intro b hb hb'; use n_0 + b; simp +decide;
           exact ⟨ hb', by linarith! [ Nat.sub_add_cancel ( show n_0 ≤ N + 1 from by linarith [ show n_0 ≤ N from by
-                                                                                                unfold greedy_expansion at hb; simp +decide [ Finset.sum_range_succ' ] at hb;
+                                                                                                unfold greedy_expansion at hb; simp +decide at hb;
                                                                                                 grind ] ) ] ⟩;
       · refine' List.Nodup.filter _ _;
         exact List.nodup_range;
@@ -1022,7 +1020,7 @@ lemma E_N_le_bad_functions (n_0 N : ℕ) :
         have h_eq_i : (greedy_expansion n_0 N m1).1[i]! = (greedy_expansion n_0 N m2).1[i]! := by
           convert congr_fun ( congr_fun h_eq.1 ( n_0 + i ) ) ( Finset.mem_Icc.mpr ⟨ by linarith, by
             have := greedy_expansion_spec n_0 N m1 ( by linarith );
-            grind ⟩ ) using 1 <;> simp +decide [ Nat.add_sub_cancel' ]
+            grind ⟩ ) using 1 <;> simp +decide
         exact h_eq_i;
       have h_sum_eq : (greedy_expansion n_0 N m1).1 = (greedy_expansion n_0 N m2).1 := by
         refine' List.ext_get _ _ <;> norm_num;
@@ -1036,7 +1034,7 @@ lemma E_N_le_bad_functions (n_0 N : ℕ) :
       obtain ⟨m, hmS, rfl⟩ := Finset.mem_image.mp hx
       have h_f : (fun i hi => (greedy_expansion n_0 N m).1[i - n_0]!) ∈ Finset.pi (Finset.Icc n_0 N) (fun n => B_finset n) := by
         have := greedy_expansion_spec n_0 N m ( Finset.mem_range_succ_iff.mp ( Finset.mem_filter.mp hmS |>.1 ) ) ; simp +decide [ Finset.mem_pi ] at this ⊢;
-        intro i hi₁ hi₂; specialize this; have := this.2.2.2 ( i - n_0 ) ( by omega ) ; simp +decide [ hi₁, hi₂, Nat.add_sub_of_le hi₁ ] at this ⊢;
+        intro i hi₁ hi₂; specialize this; have := this.2.2.2 ( i - n_0 ) ( by omega ) ; simp +decide [ Nat.add_sub_of_le hi₁ ] at this ⊢;
         exact (mem_B_iff_mem_B_finset i ((greedy_expansion n_0 N m).1[i - n_0]?.getD 0)).mp this
       have h_d : (greedy_expansion n_0 N m).2 ≤ M n_0 := by
         exact greedy_expansion_spec n_0 N m ( Finset.mem_range_succ_iff.mp ( Finset.mem_filter.mp hmS |>.1 ) ) |>.2.1
@@ -1048,8 +1046,10 @@ lemma E_N_le_bad_functions (n_0 N : ℕ) :
 /-
 The sum of reciprocals of B_card sizes diverges.
 -/
-def sum_inv_B_card (n_0 N : ℕ) : ℝ := ∑ n ∈ Finset.Icc n_0 N, (1 : ℝ) / B_card n
+noncomputable def sum_inv_B_card (n_0 N : ℕ) : ℝ := ∑ n ∈ Finset.Icc n_0 N, (1 : ℝ) / B_card n
 
+set_option maxRecDepth 4000 in
+-- The generated reciprocal-sum divergence proof needs deeper unfolding than the default recursion limit.
 lemma sum_inv_B_card_diverges (n_0 : ℕ) :
   Filter.Tendsto (fun N => sum_inv_B_card n_0 N) Filter.atTop Filter.atTop := by
     -- By definition of $B_card$, we know that $B_card n \leq 2^{k n} \leq C' \log(n+16)$ for some constants $C$ and $C'$.
@@ -1114,7 +1114,7 @@ lemma sum_inv_B_card_diverges (n_0 : ℕ) :
 
 def a_seq (n : ℕ) : ℝ := (B_card n : ℝ) - 1
 
-def symmetric_bound (n_0 N : ℕ) : ℝ :=
+noncomputable def symmetric_bound (n_0 N : ℕ) : ℝ :=
   (∏ n ∈ Finset.Icc n_0 N, a_seq n) *
   ∑ j ∈ Finset.range (M n_0), ((Finset.Icc n_0 N).val.map (fun n => 1 / a_seq n)).esymm j
 
@@ -1160,6 +1160,7 @@ The number of functions with exactly a set J of matches is the product of (B_car
 -/
 lemma exact_matches_card (n_0 N : ℕ) (J : Finset ℕ) (hJ : J ⊆ Finset.Icc n_0 N) :
   (exact_matches n_0 N J).card = ∏ n ∈ (Finset.Icc n_0 N) \ J, (B_card n - 1) := by
+    have _ := hJ
     -- Apply the lemma that states the cardinality of the product of choices is the product of the cardinalities of the choices.
     have h_card_pi : (exact_matches n_0 N J).card = Finset.prod (Finset.Icc n_0 N) (fun n => (choices J n).card) := by
       convert Finset.card_pi _ _;
@@ -1225,7 +1226,7 @@ lemma esymm_recip_eq_sum_subsets {α : Type*} [DecidableEq α] (s : Finset α) (
     rw [ h_esymm, Finset.mul_sum _ _ _ ];
     refine' Finset.sum_congr rfl fun t ht => _;
     rw [ ← Finset.prod_sdiff ( Finset.mem_powersetCard.mp ht |>.1 ) ];
-    simp +decide [ Finset.prod_eq_zero_iff, hf ];
+    simp +decide;
     rw [ mul_assoc, mul_inv_cancel₀ ( Finset.prod_ne_zero_iff.mpr fun x hx => hf x ( Finset.mem_powersetCard.mp ht |>.1 hx ) ), mul_one ]
 
 /-
@@ -1262,7 +1263,7 @@ theorem bad_functions_bound (n_0 N : ℕ) :
 /-
 M_{n+1} is at least M_n * product_term n - 1.
 -/
-def product_term (n : ℕ) : ℝ := a_seq n + 1/2
+noncomputable def product_term (n : ℕ) : ℝ := a_seq n + 1/2
 
 lemma M_recurrence_ineq (n : ℕ) : (M (n + 1) : ℝ) ≥ M n * product_term n - 1 := by
   -- By definition of $M$, we know that $M (n + 1) = \left\lfloor \left(2^{k n + 1} - 3\right) \frac{M n}{2} \right\rfloor$.
@@ -1278,7 +1279,7 @@ lemma M_recurrence_ineq (n : ℕ) : (M (n + 1) : ℝ) ≥ M n * product_term n -
 /-
 The ratio M_n / P_n decreases by at most 1 / P_{n+1} at each step.
 -/
-def partial_prod (n_0 n : ℕ) : ℝ := ∏ k ∈ Finset.Ico n_0 n, product_term k
+noncomputable def partial_prod (n_0 n : ℕ) : ℝ := ∏ k ∈ Finset.Ico n_0 n, product_term k
 
 lemma ratio_recurrence (n_0 n : ℕ) (hn : n ≥ n_0) :
   (M (n + 1) : ℝ) / partial_prod n_0 (n + 1) ≥ (M n : ℝ) / partial_prod n_0 n - 1 / partial_prod n_0 (n + 1) := by
@@ -1353,7 +1354,7 @@ theorem M_lower_bound (n_0 : ℕ) :
           convert ratio_recurrence n_0 n_0 le_rfl |> le_trans _ using 1;
           unfold partial_prod; norm_num [ Finset.prod_range_succ ] ;
         · have h_ratio_recurrence_step : (M (N + 2) : ℝ) / (∏ n ∈ Finset.Icc n_0 (N + 1), product_term n) ≥ (M (N + 1) : ℝ) / (∏ n ∈ Finset.Icc n_0 N, product_term n) - 1 / (∏ n ∈ Finset.Ico n_0 (N + 1), product_term n) / product_term (N + 1) := by
-            have := ratio_recurrence n_0 ( N + 1 ) ( by linarith [ Nat.succ_le_succ hN ] ) ; simp_all +decide [ Finset.Ico_succ_right_eq_Icc, Finset.prod_Ioc_succ_top, Finset.Icc_succ_left_eq_Ioc ] ;
+            have := ratio_recurrence n_0 ( N + 1 ) ( by linarith [ Nat.succ_le_succ hN ] ) ; simp_all +decide;
             convert this using 1;
             unfold partial_prod; erw [ Finset.prod_Ico_succ_top ( by linarith ), Finset.prod_Ico_succ_top ( by linarith ) ] ; ring;
           simp_all +decide [ Nat.succ_sub ( show n_0 ≤ N from hN ), Finset.sum_range_succ ];
@@ -1419,7 +1420,7 @@ lemma sum_inv_a_seq_diverges (n_0 : ℕ) :
 /-
 The product of a_n / (a_n + 1/2) tends to 0.
 -/
-def prod_ratio (n_0 N : ℕ) : ℝ := ∏ n ∈ Finset.Icc n_0 N, a_seq n / product_term n
+noncomputable def prod_ratio (n_0 N : ℕ) : ℝ := ∏ n ∈ Finset.Icc n_0 N, a_seq n / product_term n
 
 lemma prod_ratio_tendsto_zero (n_0 : ℕ) :
   Filter.Tendsto (fun N => prod_ratio n_0 N) Filter.atTop (nhds 0) := by
@@ -1458,7 +1459,7 @@ lemma prod_ratio_tendsto_zero (n_0 : ℕ) :
     refine' h_prod_zero.congr' _;
     filter_upwards [ Filter.eventually_ge_atTop n_0 ] with N hN using by rw [ h_prod_ratio N hN, Real.exp_neg, Real.exp_sum, Finset.prod_congr rfl fun _ _ => Real.exp_log ( by exact add_pos_of_pos_of_nonneg zero_lt_one <| one_div_nonneg.mpr <| mul_nonneg zero_le_two <| le_of_lt <| a_seq_pos _ ) ] ; aesop;
 
-def density_ratio (n_0 N : ℕ) : ℝ := (E_N n_0 N : ℝ) / M (N + 1)
+noncomputable def density_ratio (n_0 N : ℕ) : ℝ := (E_N n_0 N : ℝ) / M (N + 1)
 
 /-
 e_k is bounded by (sum)^k / k!.
@@ -1478,7 +1479,7 @@ lemma esymm_le_pow_sum (s : Finset ℕ) (f : ℕ → ℝ) (k : ℕ) (hf : ∀ i 
           · erw [ Quot.liftOn_mk ] ; norm_num;
         · rcases k with ( _ | k ) <;> simp_all +decide [ Multiset.powersetCard_cons ];
           rw [ add_pow ];
-          simp_all +decide [ Finset.sum_range_succ', Nat.factorial_succ, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _ ];
+          simp_all +decide [ Finset.sum_range_succ', Nat.factorial_succ, mul_assoc, mul_comm, mul_left_comm ];
           refine' le_trans ( add_le_add ( _ : _ ≤ _ ) ( _ : _ ≤ _ ) ) _;
           exact s.sum ^ ( k + 1 );
           exact x * ( s.sum ^ k * ( k + 1 ) );
@@ -1490,12 +1491,12 @@ lemma esymm_le_pow_sum (s : Finset ℕ) (f : ℕ → ℝ) (k : ℕ) (hf : ∀ i 
       aesop;
     rwa [ le_div_iff₀ ( by positivity ) ]
 
-def bound_ratio (n_0 N : ℕ) : ℝ := symmetric_bound n_0 N / ∏ n ∈ Finset.Icc n_0 N, product_term n
+noncomputable def bound_ratio (n_0 N : ℕ) : ℝ := symmetric_bound n_0 N / ∏ n ∈ Finset.Icc n_0 N, product_term n
 
 /-
 The symmetric bound is bounded by the product of a_n times a polynomial in S_N.
 -/
-def S_sum (n_0 N : ℕ) : ℝ := ∑ n ∈ Finset.Icc n_0 N, 1 / a_seq n
+noncomputable def S_sum (n_0 N : ℕ) : ℝ := ∑ n ∈ Finset.Icc n_0 N, 1 / a_seq n
 
 lemma symmetric_bound_le_poly (n_0 N : ℕ) :
   symmetric_bound n_0 N ≤ (∏ n ∈ Finset.Icc n_0 N, a_seq n) * ∑ j ∈ Finset.range (M n_0), (S_sum n_0 N) ^ j / j ! := by
@@ -1507,9 +1508,9 @@ lemma symmetric_bound_le_poly (n_0 N : ℕ) :
 /-
 The density ratio E_N / M_{N+1} is bounded by a constant times the product ratio times a polynomial in S_N.
 -/
-def poly_S (n_0 N : ℕ) : ℝ := ∑ j ∈ Finset.range (M n_0), (S_sum n_0 N) ^ j / j !
+noncomputable def poly_S (n_0 N : ℕ) : ℝ := ∑ j ∈ Finset.range (M n_0), (S_sum n_0 N) ^ j / j !
 
-def C_val (n_0 : ℕ) : ℝ := (M n_0 + 1 : ℝ) / M n_0
+noncomputable def C_val (n_0 : ℕ) : ℝ := (M n_0 + 1 : ℝ) / M n_0
 
 lemma density_ratio_bound (n_0 : ℕ) :
   ∃ c > 0, ∀ N ≥ n_0,
@@ -1588,7 +1589,7 @@ lemma prod_ratio_bound (n_0 N : ℕ) : prod_ratio n_0 N ≤ Real.exp (- S_sum n_
     exact fun x hx => div_pos ( a_seq_pos x ) ( add_pos ( a_seq_pos x ) ( by norm_num ) );
   -- Apply the inequality term by term to the sum.
   have h_sum_le_exp : ∑ x ∈ Finset.Icc n_0 N, Real.log (a_seq x / product_term x) ≤ -S_sum n_0 N / 4 := by
-    exact le_trans ( Finset.sum_le_sum fun i hi => log_ineq i ) ( by simp +decide [ div_eq_mul_inv, Finset.mul_sum _ _ _, mul_assoc, mul_comm, mul_left_comm, S_sum ] );
+    exact le_trans ( Finset.sum_le_sum fun i hi => log_ineq i ) ( by simp +decide [ div_eq_mul_inv, Finset.mul_sum _ _ _, mul_comm, mul_left_comm, S_sum ] );
   exact h_prod_le_exp.trans ( Real.exp_le_exp.mpr h_sum_le_exp )
 
 /-
@@ -1615,7 +1616,7 @@ lemma main_bound_tendsto_zero (n_0 : ℕ) :
       convert this j |> Filter.Tendsto.const_mul ( 4 ^ j ) using 2 <;> ring;
     have h_sum : Filter.Tendsto (fun N => ∑ j ∈ Finset.range (M n_0), (S_sum n_0 N)^j * Real.exp (-S_sum n_0 N / 4) / j !) Filter.atTop (nhds (∑ j ∈ Finset.range (M n_0), 0 / j !)) := by
       exact tendsto_finset_sum _ fun j hj => by simpa using h_term j ( Finset.mem_range.mp hj ) |> Filter.Tendsto.div_const <| j !;
-    simp_all +decide [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _, Finset.sum_mul ];
+    simp_all +decide [ div_eq_mul_inv, mul_comm, mul_left_comm ];
     refine' squeeze_zero ( fun N => _ ) ( fun N => _ ) h_sum;
     · exact mul_nonneg ( Finset.sum_nonneg fun _ _ => div_nonneg ( pow_nonneg ( Finset.sum_nonneg fun _ _ => one_div_nonneg.mpr ( show 0 ≤ a_seq _ from le_of_lt ( a_seq_pos _ ) ) ) _ ) ( Nat.cast_nonneg _ ) ) ( Finset.prod_nonneg fun _ _ => div_nonneg ( show 0 ≤ a_seq _ from le_of_lt ( a_seq_pos _ ) ) ( show 0 ≤ product_term _ from add_nonneg ( le_of_lt ( a_seq_pos _ ) ) ( by norm_num ) ) );
     · refine' le_trans ( mul_le_mul_of_nonneg_left ( prod_ratio_bound n_0 N ) ( _ ) ) _;
@@ -1889,12 +1890,12 @@ lemma M_tendsto_top : Filter.Tendsto M Filter.atTop Filter.atTop := by
   -- By induction, we can show that $M_n \geq 2^n$ for all $n$.
   have h_lower_bound : ∀ n, M n ≥ 2 ^ n := by
     exact fun n => Nat.recOn n ( by norm_num [ show M 0 = 10 by rfl ] ) fun n ih => by rw [ pow_succ' ] ; linarith [ h_exp_growth n ] ;
-  exact Filter.tendsto_atTop_mono h_lower_bound ( Nat.tendsto_pow_atTop_atTop_of_one_lt one_lt_two )
+  exact Filter.tendsto_atTop_mono h_lower_bound ( tendsto_pow_atTop_atTop_of_one_lt one_lt_two )
 
 /-
 The count of exceptions up to m is bounded by E_N if m is small enough.
 -/
-def bad_count (n_0 m : ℕ) : ℕ := ((Finset.range m).filter (fun x => x ∉ P_T n_0)).card
+noncomputable def bad_count (n_0 m : ℕ) : ℕ := ((Finset.range m).filter (fun x => x ∉ P_T n_0)).card
 
 lemma bad_count_le_E_N (n_0 N m : ℕ) (h_le : m ≤ M (N + 1) + 1) :
   bad_count n_0 m ≤ E_N n_0 N := by
@@ -2000,12 +2001,12 @@ lemma P_T_density_one (n_0 : ℕ) : has_asymptotic_density_one (P_T n_0) := by
     rw [ Finset.filter_not, Finset.card_sdiff ] ; norm_num;
     rw [ Nat.sub_sub_self ];
     · exact congr_arg Finset.card ( by ext; aesop );
-    · exact le_trans ( Finset.card_le_card ( Finset.inter_subset_right ) ) ( by simpa );
+    · exact le_trans ( Finset.card_le_card ( Finset.inter_subset_right ) ) ( by simp );
   refine' h_density.congr' _;
   filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn;
   rw [ h_card_eq, Nat.cast_sub ];
-  · rw [ sub_div, div_self ( by positivity ) ];
-  · exact le_trans ( Finset.card_filter_le _ _ ) ( by simpa )
+  · rw [ sub_div, div_self ( by positivity ) ]
+  · exact le_trans ( Finset.card_filter_le _ _ ) ( by simp )
 
 /-
 If a subset has density 1, the superset has density 1.
@@ -2019,7 +2020,7 @@ lemma density_superset {S1 S2 : Set ℕ} (h : S1 ⊆ S2) (h_dens : has_asymptoti
       have h_lim_inf : Filter.Tendsto (fun n => ((Finset.range n).filter (· ∈ S1)).card / (n : ℝ)) Filter.atTop (nhds 1) := h_dens
       refine' tendsto_of_tendsto_of_tendsto_of_le_of_le' h_lim_inf tendsto_const_nhds _ _;
       · filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn using div_le_div_of_nonneg_right ( mod_cast h_ratio_le n ) ( Nat.cast_nonneg _ );
-      · filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn using div_le_one_of_le₀ ( mod_cast le_trans ( Finset.card_filter_le _ _ ) ( by simpa ) ) ( by positivity );
+      · filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn using div_le_one_of_le₀ ( mod_cast le_trans ( Finset.card_filter_le _ _ ) ( by simp ) ) ( by positivity );
     exact h_ratio_ge
 
 /-
@@ -2048,12 +2049,12 @@ lemma P_T_density_one_proven (n_0 : ℕ) : has_asymptotic_density_one (P_T n_0) 
     rw [ Finset.filter_not, Finset.card_sdiff ] ; norm_num;
     rw [ Nat.sub_sub_self ];
     · exact congr_arg Finset.card ( by ext; aesop );
-    · exact le_trans ( Finset.card_le_card ( Finset.inter_subset_right ) ) ( by simpa );
+    · exact le_trans ( Finset.card_le_card ( Finset.inter_subset_right ) ) ( by simp );
   refine' h_density.congr' _;
   filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn;
   rw [ h_card_eq, Nat.cast_sub ];
-  · rw [ sub_div, div_self ( by positivity ) ];
-  · exact le_trans ( Finset.card_filter_le _ _ ) ( by simpa )
+  · rw [ sub_div, div_self ( by positivity ) ]
+  · exact le_trans ( Finset.card_filter_le _ _ ) ( by simp )
 
 /-
 The last element of block n is strictly less than the first element of block n+1.
@@ -2072,6 +2073,7 @@ lemma M_transition_strict_ineq (n : ℕ) : (2^(k n - 1) - 1) * M n + 1 < M (n + 
 /-
 Each block is strictly sorted.
 -/
+set_option linter.deprecated false in
 lemma block_strict_sorted (n : ℕ) : (block n).Sorted (· < ·) := by
   -- The list [2^i * M n | i < k n - 1] is strictly increasing because each term is twice the previous term.
   have h_increasing : StrictMono (fun i => 2^i * M n : ℕ → ℕ) := by
@@ -2111,7 +2113,7 @@ A_val n is strictly less than A_val (n+1).
 lemma A_lt_succ (n : ℕ) : A_val n < A_val (n + 1) := by
   have h_block_index : block_index (n + 1) = block_index n ∨ block_index (n + 1) = block_index n + 1 := by
     exact block_index_succ n;
-  cases' h_block_index with h h;
+  rcases h_block_index with h | h;
   · -- Since $n$ and $n+1$ are in the same block, we can use the strict monotonicity of the block.
     have h_block_mono : (block (block_index n))[n - block_start (block_index n)]! < (block (block_index n))[n + 1 - block_start (block_index n)]! := by
       have h_block_mono : ∀ i j, i < j → i < (block (block_index n)).length → j < (block (block_index n)).length → (block (block_index n))[i]! < (block (block_index n))[j]! := by
@@ -2157,7 +2159,7 @@ lemma T_seq_range_subset (S : Set ℕ) (h : is_cofinite_subsequence S) :
   ∃ n_0, Set.range (T_seq n_0) ⊆ S := by
     -- Since $range\_A \setminus S$ is finite, there exists $k$ such that $A_k \notin S$ and for all $i > k$, $A_i \in S$.
     obtain ⟨k, hk⟩ : ∃ k, ∀ i > k, A_val i ∈ S := by
-      cases' h with k hk;
+      rcases h with ⟨k, hk⟩;
       contrapose! hk;
       exact Set.infinite_of_forall_exists_gt fun n => by obtain ⟨ m, hm₁, hm₂ ⟩ := hk n; exact ⟨ A_val m, ⟨ ⟨ m, rfl ⟩, hm₂ ⟩, by linarith [ show A_val m ≥ m from Nat.recOn m ( by norm_num [ A_val ] ) fun n ihn => by linarith [ A_lt_succ n ] ] ⟩ ;
     use k + 1;
@@ -2223,7 +2225,5 @@ theorem answer_is_yes : ∃ A : ℕ → ℕ, Monotone A ∧ (Filter.Tendsto (fun
 
 #print axioms answer_is_yes
 -- 'Erdos347.answer_is_yes' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end
 
 end Erdos347
