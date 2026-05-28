@@ -34,15 +34,12 @@ We formalize three results about Erdős problem #741:
 import Mathlib
 
 set_option linter.style.setOption false
-set_option linter.style.openClassical false
 set_option linter.style.induction false
 set_option linter.style.refine false
-set_option linter.style.cases false
 set_option linter.style.multiGoal false
 set_option linter.flexible false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
-set_option linter.deprecated false
 set_option linter.unnecessarySimpa false
 
 namespace Erdos741b
@@ -50,7 +47,6 @@ namespace Erdos741b
 open scoped BigOperators
 open scoped Real
 open scoped Nat
-open scoped Classical
 open scoped Pointwise
 
 set_option maxHeartbeats 8000000
@@ -70,7 +66,6 @@ set_option pp.letVarTypes true
 set_option pp.piBinderTypes true
 
 set_option grind.warning false
-open scoped BigOperators Pointwise
 open Classical in
 attribute [local instance] Classical.propDecidable
 
@@ -1002,7 +997,9 @@ lemma upperDensity_pos_frequently (S : Set ℕ) (h : upperDensity S > 0) :
         · exact Set.infinite_of_not_bddAbove fun ⟨N₀, hN₀⟩ =>
             h₂ ⟨N₀ + 1, fun N hN =>
               lt_of_not_ge fun hN' => not_lt_of_ge (hN₀ hN') hN⟩
-      exact fun N₀ => by cases' h_inf.exists_gt N₀ with N hN; exact ⟨ N, hN.2, hN.1 ⟩ ;
+      exact fun N₀ => by
+        obtain ⟨ N, hN ⟩ := h_inf.exists_gt N₀
+        exact ⟨ N, hN.2, hN.1 ⟩
 
 /-
 Case 2 of Theorem 1: ūd(A) ≤ 0 but ūd(A+A) > 0 implies a good partition exists.
@@ -1939,7 +1936,7 @@ lemma interval_count_below_Nk (k : ℕ) (hk : k ≥ 2) :
     nlinarith only [
       Nat.sub_le k 1,
       Nat.zero_le ( counterexN ( k - 1 ) ),
-      mul_le_mul_left' (Nat.sub_le k 1) (counterexN (k - 1))]
+      mul_le_mul_right (Nat.sub_le k 1) (counterexN (k - 1))]
 
 /-
 N_k grows super-exponentially: k^2 * N_{k-1}^2 / N_k → 0
