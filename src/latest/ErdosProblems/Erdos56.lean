@@ -37,24 +37,13 @@ set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
 set_option linter.style.cases false
-set_option linter.style.cdot false
-set_option linter.style.multiGoal false
-set_option linter.style.openClassical false
 set_option linter.style.refine false
-set_option linter.style.setOption false
-set_option linter.flexible false
-set_option linter.deprecated false
-set_option linter.unnecessarySimpa false
-set_option linter.unusedSimpArgs false
-set_option linter.unusedVariables false
 -- The generated proof script uses many nonterminal `aesop` calls followed by
 -- explicit cleanup tactics.
 set_option aesop.warn.nonterminal false
 
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
-
-noncomputable section
 
 section PrimeCertificates
 
@@ -1499,9 +1488,9 @@ lemma count_prime_1362_gt_217 : 217 < Nat.count Nat.Prime 1362 := by
   norm_num
 
 end PrimeCertificates
-def P (k : ℕ) : ℕ := ∏ i ∈ Finset.range k, Nat.nth Nat.Prime i
+noncomputable def P (k : ℕ) : ℕ := ∏ i ∈ Finset.range k, Nat.nth Nat.Prime i
 
-def E (n k : ℕ) : Finset ℕ := (Finset.Icc 1 n).filter (fun m => m.gcd (P k) > 1)
+noncomputable def E (n k : ℕ) : Finset ℕ := (Finset.Icc 1 n).filter (fun m => m.gcd (P k) > 1)
 
 def has_no_k_plus_1_coprime (A : Finset ℕ) (k : ℕ) : Prop :=
   ∀ S ⊆ A, (S : Set ℕ).Pairwise Nat.Coprime → S.card ≤ k
@@ -1512,34 +1501,35 @@ noncomputable def f (n k : ℕ) : ℕ :=
 def t_val : ℕ := 209
 def k_val : ℕ := 212
 
-def p (i : ℕ) : ℕ := Nat.nth Nat.Prime (i - 1)
+noncomputable def p (i : ℕ) : ℕ := Nat.nth Nat.Prime (i - 1)
 
-def C_set : Finset ℕ :=
+noncomputable def C_set : Finset ℕ :=
   ((Finset.range 9).product (Finset.range 9)).image
     (fun x => p (t_val + x.1) * p (t_val + x.2))
   |>.filter (fun m => ∃ i j, 0 ≤ i ∧ i < j ∧ j ≤ 8 ∧ m = p (t_val + i) * p (t_val + j))
 
-def B_set (n : ℕ) : Finset ℕ :=
+noncomputable def B_set (n : ℕ) : Finset ℕ :=
   (Finset.Icc 1 n).filter (fun m => m.gcd (P (t_val - 1)) > 1)
 
-def A_set (n : ℕ) : Finset ℕ := B_set n ∪ C_set
+noncomputable def A_set (n : ℕ) : Finset ℕ := B_set n ∪ C_set
 
 def satisfies_H (t : ℕ) : Prop :=
   p (t + 7) * p (t + 8) < p t * p (t + 9) ∧ p (t + 9) < (p t) ^ 2
 
-def interval_start (t : ℕ) : ℕ := p (t + 7) * p (t + 8)
-def interval_end (t : ℕ) : ℕ := p t * p (t + 9)
+noncomputable def interval_start (t : ℕ) : ℕ := p (t + 7) * p (t + 8)
+noncomputable def interval_end (t : ℕ) : ℕ := p t * p (t + 9)
 
-def B (t n : ℕ) : Finset ℕ := (Finset.Icc 1 n).filter (fun m => m.gcd (P (t - 1)) > 1)
+noncomputable def B (t n : ℕ) : Finset ℕ :=
+  (Finset.Icc 1 n).filter (fun m => m.gcd (P (t - 1)) > 1)
 
-def C (t : ℕ) : Finset ℕ :=
+noncomputable def C (t : ℕ) : Finset ℕ :=
   ((Finset.range 9).product (Finset.range 9)).image
     (fun x => p (t + x.1) * p (t + x.2))
   |>.filter (fun m => ∃ i j, i < j ∧ j ≤ 8 ∧ m = p (t + i) * p (t + j))
 
-def A (t n : ℕ) : Finset ℕ := B t n ∪ C t
+noncomputable def A (t n : ℕ) : Finset ℕ := B t n ∪ C t
 
-def D (t n : ℕ) : Finset ℕ := (E n (t + 3)) \ (B t n)
+noncomputable def D (t n : ℕ) : Finset ℕ := (E n (t + 3)) \ (B t n)
 
 lemma E_no_k_plus_1 (n k : ℕ) : has_no_k_plus_1_coprime (E n k) k := by
   intro S hS_sub hS_coprime
@@ -1567,7 +1557,7 @@ lemma E_no_k_plus_1 (n k : ℕ) : has_no_k_plus_1_coprime (E n k) k := by
   choose! f hf using h_prime_divisors;
   have h_distinct_primes : Finset.card (Finset.image f S) ≤ k := by
     exact le_trans ( Finset.card_le_card ( Finset.image_subset_iff.mpr fun x hx =>
-        Finset.mem_range.mpr ( hf x hx |>.1 |> Finset.mem_range.mp ) ) ) ( by simpa );
+        Finset.mem_range.mpr ( hf x hx |>.1 |> Finset.mem_range.mp ) ) ) ( by simp );
   rwa [
     Finset.card_image_of_injOn fun x hx y hy hxy =>
       Classical.not_not.1 fun h =>
@@ -1581,6 +1571,7 @@ lemma E_no_k_plus_1 (n k : ℕ) : has_no_k_plus_1_coprime (E n k) k := by
 lemma C_subset_n
     (t n : ℕ) (h_H : satisfies_H t) (h_n : interval_start t ≤ n) :
     C t ⊆ Finset.Icc 1 n := by
+  have _ : satisfies_H t := h_H
   intro x hx;
   -- Since $x \in C t$, we have $x = p(t+i) * p(t+j)$ for some $0 \leq i < j \leq 8$.
   obtain ⟨i, j, hi, hj, hx_eq⟩ : ∃ i j, 0 ≤ i ∧ i < j ∧ j ≤ 8 ∧ x = p (t + i) * p (t + j) := by
@@ -1678,13 +1669,13 @@ lemma B_disjoint_C (t n : ℕ) : Disjoint (B t n) (C t) := by
     have h_contradiction : p t ≤ p (t - 1) := by
       grind
     rcases t with ( _ | _ | t )
-    · simp_all +decide [ Nat.nth_zero ]
+    · simp_all +decide
       unfold B at hx_B; unfold C at hx_C; aesop;
       unfold P at right; aesop;
-    · simp_all +decide [ Nat.nth_zero ]
+    · simp_all +decide
       unfold B C at * ; aesop;
       unfold P at * ; aesop;
-    · simp_all +decide [ Nat.nth_zero ]
+    · simp_all +decide
       exact (not_lt_of_ge h_contradiction) ( Nat.nth_strictMono ( Nat.infinite_setOf_prime ) (
           Nat.lt_succ_self _ ) );
   exact Finset.disjoint_left.mpr h_contradiction
@@ -1769,14 +1760,14 @@ lemma card_C (t : ℕ) (h : satisfies_H t) : (C t).card = 36 := by
       rw [ Finsupp.single_apply, Finsupp.single_apply, Finsupp.single_apply ] at this ; aesop;
       · exact absurd h_2 ( Nat.Prime.ne_zero ( Nat.prime_nth_prime _ ) );
       · nlinarith [ Nat.Prime.one_lt ( Nat.prime_nth_prime ( t + i - 1 ) ) ];
-    cases h_prime_eq <;> simp_all +decide [ Nat.nth_injective ];
+    cases h_prime_eq <;> simp_all +decide;
     · have := Nat.nth_injective ( Nat.infinite_setOf_prime ) ( by tauto : Nat.nth Nat.Prime ( t
         + i - 1 ) = Nat.nth Nat.Prime ( t + k - 1 ) ) ;
             ( have := Nat.nth_injective ( Nat.infinite_setOf_prime ) ( by tauto : Nat.nth
                 Nat.Prime ( t + j - 1 ) = Nat.nth Nat.Prime ( t + l - 1 ) ) ; aesop; );
       · rcases t with ( _ | _ | t ) <;> simp_all +arith +decide;
         have := h.1; ( have := h.2; ( norm_num [ Nat.nth_zero ] at *; ) );
-        unfold p at * ; simp_all +decide [ Nat.Prime.two_le ];
+        unfold p at * ; simp_all +decide;
         linarith [ Nat.Prime.two_le ( Nat.prime_nth_prime 6 ),
             Nat.Prime.two_le ( Nat.prime_nth_prime 7 ),
                 Nat.Prime.two_le ( Nat.prime_nth_prime 8 ),
@@ -1862,7 +1853,9 @@ lemma p_strictMono_new {i j : ℕ} (hi : 1 ≤ i) (hij : i < j) : p i < p j := b
   apply Nat.nth_strictMono;
   · exact Nat.infinite_setOf_prime;
   · -- Since $i < j$, subtracting 1 from both sides preserves the inequality.
-    apply Nat.sub_lt_sub_right; exact hi; exact hij
+    apply Nat.sub_lt_sub_right
+    · exact hi
+    · exact hij
 
 lemma t_ge_one_of_satisfies_H_new (t : ℕ) (h : satisfies_H t) : t ≥ 1 := by
   exact t_ge_one_of_satisfies_H t h
@@ -1941,7 +1934,7 @@ lemma max_C (t : ℕ) : has_no_k_plus_1_coprime (C t) 4 := by
     have h_div : p (t + i) ∣ Nat.gcd x y := by
       exact Nat.dvd_gcd ( Nat.dvd_of_mod_eq_zero ( Finset.mem_filter.mp hi.1 |>.2 ) ) (
           Nat.dvd_of_mod_eq_zero ( Finset.mem_filter.mp hi.2 |>.2 ) );
-    have := hS_coprime hx hy hxy; simp_all +decide [ Nat.dvd_gcd_iff ] ;
+    have := hS_coprime hx hy hxy; simp_all +decide;
     exact Nat.Prime.ne_one ( Nat.prime_nth_prime _ ) h_div;
   -- The union of the images of S under f is a subset of {0, 1, ..., 8}, which has 9 elements.
   have h_union_card : (Finset.biUnion S f).card ≤ 9 := by
@@ -1977,7 +1970,8 @@ lemma p_t_injective (t : ℕ) (ht : t ≥ 1) : Function.Injective (fun i => p (t
     exact fun i j hij => p_strictMono_new ( by linarith ) ( by linarith );
   exact StrictMono.injective h_inj
 
-def prime_indices (t x : ℕ) : Finset ℕ := (Finset.range 9).filter (fun i => p (t + i) ∣ x)
+noncomputable def prime_indices (t x : ℕ) : Finset ℕ :=
+  (Finset.range 9).filter (fun i => p (t + i) ∣ x)
 
 lemma prime_indices_card (t x : ℕ) (hx : x ∈ C t) (ht : t ≥ 1) : (prime_indices t x).card = 2 := by
   -- Since $x \in C t$, there exist $a$ and $b$ such that $x = p(t+a) * p(t+b)$ and $0 \leq a < b
@@ -2018,6 +2012,8 @@ lemma prime_indices_card (t x : ℕ) (hx : x ∈ C t) (ht : t ≥ 1) : (prime_in
 
 lemma prime_indices_disjoint (t x y : ℕ) (hx : x ∈ C t) (hy : y ∈ C t) (h : Nat.Coprime x y) :
     Disjoint (prime_indices t x) (prime_indices t y) := by
+  have _ : x ∈ C t := hx
+  have _ : y ∈ C t := hy
   -- If $p(t+i)$ divides both $x$ and $y$, then it divides their gcd, which is 1. But since $p(t+i)$
   -- is a prime, it can't divide 1. Hence, $i$ can't be in both prime_indices $t$ $x$ and
   -- prime_indices $t$ $y$.
@@ -2031,6 +2027,7 @@ lemma prime_indices_disjoint (t x y : ℕ) (hx : x ∈ C t) (hy : y ∈ C t) (h 
 
 
 lemma max_C_bound (t : ℕ) (ht : t ≥ 1) : has_no_k_plus_1_coprime (C t) 4 := by
+  have _ : t ≥ 1 := ht
   exact max_C t
 
 
@@ -2049,6 +2046,7 @@ lemma card_union_indices (t : ℕ) (ht : t ≥ 1) (S : Finset ℕ) (hS : S ⊆ C
 
 lemma card_union_le_nine (t : ℕ) (S : Finset ℕ) (hS : S ⊆ C t) :
   (Finset.biUnion S (prime_indices t)).card ≤ 9 := by
+    have _ : S ⊆ C t := hS
     exact le_trans ( Finset.card_le_card ( Finset.biUnion_subset.mpr fun x hx =>
         Finset.filter_subset _ _ ) ) ( by norm_num )
 
@@ -2155,15 +2153,16 @@ lemma has_no_k_plus_1_coprime_union (B C : Finset ℕ) (k_B k_C : ℕ)
 
 lemma A_no_k_plus_1_final (t n : ℕ) (h_H : satisfies_H t) (h_disjoint : Disjoint (B t n) (C t)) :
   has_no_k_plus_1_coprime (A t n) (t + 3) := by
+    have _ : Disjoint (B t n) (C t) := h_disjoint
     exact A_no_k_plus_1 t n h_H
 
-def D_primes (t : ℕ) : Finset ℕ := (Finset.range 4).image (fun i => p (t + i))
-def D_squares (t : ℕ) : Finset ℕ := (Finset.range 4).image (fun i => p (t + i) ^ 2)
-def D_products (t : ℕ) : Finset ℕ :=
+noncomputable def D_primes (t : ℕ) : Finset ℕ := (Finset.range 4).image (fun i => p (t + i))
+noncomputable def D_squares (t : ℕ) : Finset ℕ := (Finset.range 4).image (fun i => p (t + i) ^ 2)
+noncomputable def D_products (t : ℕ) : Finset ℕ :=
   ((Finset.range 4).product (Finset.range 9)).image (fun x => p (t + x.1) * p (t + x.2))
   |>.filter (fun m => ∃ i j, 0 ≤ i ∧ i ≤ 3 ∧ 1 ≤ j ∧ j ≤ 8 ∧ i < j ∧ m = p (t + i) * p (t + j))
 
-def D_union (t : ℕ) : Finset ℕ := D_primes t ∪ D_squares t ∪ D_products t
+noncomputable def D_union (t : ℕ) : Finset ℕ := D_primes t ∪ D_squares t ∪ D_products t
 
 lemma D_union_subset_D (t n : ℕ) (h_H : satisfies_H t) (h_n : interval_start t ≤ n) :
   D_union t ⊆ D t n := by
@@ -2303,8 +2302,11 @@ lemma D_union_subset_D (t n : ℕ) (h_H : satisfies_H t) (h_n : interval_start t
               have h_coprime : p (t + w_1) > Nat.nth Nat.Prime i ∧
                   p (t + w_3) > Nat.nth Nat.Prime i := by
                 have h_coprime : ∀ j > i, Nat.nth Nat.Prime j > Nat.nth Nat.Prime i := by
-                  intro j hj; rw [ gt_iff_lt ] ; rw [ Nat.nth_lt_nth ] ; aesop;
-                  exact Nat.infinite_setOf_prime;
+                  intro j hj
+                  rw [ gt_iff_lt ]
+                  rw [ Nat.nth_lt_nth ]
+                  · aesop
+                  · exact Nat.infinite_setOf_prime;
                 exact ⟨ h_coprime _ ( by omega ), h_coprime _ ( by omega ) ⟩;
               exact ⟨ Nat.coprime_iff_gcd_eq_one.mpr <|
                   by have := Nat.coprime_primes ( show Nat.Prime ( p ( t + w_1 ) ) from
@@ -2335,6 +2337,7 @@ lemma D_primes_subset (t n : ℕ) (h_H : satisfies_H t) (h_n : interval_start t 
 
 lemma D_squares_subset (t n : ℕ) (h_H : satisfies_H t) (h_n : interval_start t ≤ n) :
   D_squares t ⊆ D t n := by
+    have hH : satisfies_H t := h_H
     intro x hx; unfold D_squares at hx; aesop;
     -- Since $p(t + w)$ is a prime number, $p(t + w)^2$ is divisible by $p(t + w)$, which is one of
     -- the primes in $P(t+3)$. Therefore, $p(t + w)^2$ is in $E(n, t+3)$.
@@ -2356,8 +2359,8 @@ lemma D_squares_subset (t n : ℕ) (h_H : satisfies_H t) (h_n : interval_start t
           exact Nat.pow_le_pow_left h_prime_le 2;
         have h_interval : p (t + 3) ^ 2 < p (t + 7) * p (t + 8) := by
           have h_interval : p (t + 3) < p (t + 7) ∧ p (t + 3) < p (t + 8) := by
-            exact ⟨ p_strictMono_new ( by linarith [ t_ge_one_of_satisfies_H t h_H ] ) ( by
-                linarith ), p_strictMono_new ( by linarith [ t_ge_one_of_satisfies_H t h_H ] ) (
+            exact ⟨ p_strictMono_new ( by linarith [ t_ge_one_of_satisfies_H t hH ] ) ( by
+                linarith ), p_strictMono_new ( by linarith [ t_ge_one_of_satisfies_H t hH ] ) (
                     by linarith ) ⟩;
           nlinarith only [ h_interval ];
         exact le_trans ‹_› ( le_trans h_interval.le h_n );
@@ -2405,6 +2408,7 @@ lemma D_squares_subset (t n : ℕ) (h_H : satisfies_H t) (h_n : interval_start t
 
 lemma D_products_subset (t n : ℕ) (h_H : satisfies_H t) (h_n : interval_start t ≤ n) :
   D_products t ⊆ D t n := by
+    have _ : satisfies_H t := h_H
     -- To show that D_products t is a subset of D t n, we need to verify that each element of
     -- D_products t is in E(n, t+3) and not in B(t, n).
     intro x hx
@@ -2458,8 +2462,10 @@ lemma D_products_subset (t n : ℕ) (h_H : satisfies_H t) (h_n : interval_start 
         exact le_trans ( Nat.mul_le_mul h_pi_le_pt3 h_pj_le_pt8 ) ( le_trans
             h_prod_lt_interval.le h_n );
       · -- Since the gcd is not 1, it must be greater than 1.
-        apply Nat.lt_of_le_of_ne; exact Nat.gcd_pos_of_pos_right _ (by
-        exact Finset.prod_pos fun i hi => Nat.Prime.pos <| by aesop); exact Ne.symm h_not_coprime;
+        apply Nat.lt_of_le_of_ne
+        · exact Nat.gcd_pos_of_pos_right _ (by
+            exact Finset.prod_pos fun i hi => Nat.Prime.pos <| by aesop)
+        · exact Ne.symm h_not_coprime;
     · unfold B; aesop;
       -- Since $p(t+i)$ and $p(t+j)$ are primes greater than $p(t-1)$, they are coprime with
       -- $P(t-1)$.
@@ -2642,9 +2648,9 @@ lemma D_prime_factors_ge_pt_v7 (t n : ℕ) (u : ℕ) (hu : u ∈ D t n) :
   exact Nat.Prime.not_dvd_one hq h_div_gcd
 
 
-def D_extra (t : ℕ) : Finset ℕ := {p t * p (t + 9)}
+noncomputable def D_extra (t : ℕ) : Finset ℕ := {p t * p (t + 9)}
 
-def D_plus (t : ℕ) : Finset ℕ := D_union t ∪ D_extra t
+noncomputable def D_plus (t : ℕ) : Finset ℕ := D_union t ∪ D_extra t
 
 lemma nth_prime_eq_of_count (p n : ℕ) (hp : Nat.Prime p) (hc : Nat.count Nat.Prime p = n) :
     Nat.nth Nat.Prime n = p := by
@@ -2701,8 +2707,7 @@ lemma m_structure (t : ℕ) (m : ℕ) (h_t : t = 209) (hm_le : m ≤ p (t + 9)) 
       refine' le_csInf _ _;
       · exact ⟨ _, Nat.prime_nth_prime 208,
           fun k hk => Nat.nth_strictMono ( Nat.infinite_setOf_prime ) hk ⟩;
-      ·
-        -- Since the 208th prime is 1289, any prime greater than all the first 208 primes must be at
+      · -- Since the 208th prime is 1289, any prime greater than all the first 208 primes must be at
         -- least 1289.
         have h_prime_208 : Nat.nth Nat.Prime 208 = 1289 := by
           -- We can use the fact that the nth prime is the nth element in the list of primes.
@@ -2746,9 +2751,9 @@ lemma m_structure (t : ℕ) (m : ℕ) (h_t : t = 209) (hm_le : m ≤ p (t + 9)) 
             nlinarith [ Nat.div_mul_cancel hx₃ ] )
 
 
-def D_extra_v3 (t : ℕ) : Finset ℕ := {p t * p (t + 9)}
+noncomputable def D_extra_v3 (t : ℕ) : Finset ℕ := {p t * p (t + 9)}
 
-def D_plus_v3 (t : ℕ) : Finset ℕ := D_union t ∪ D_extra_v3 t
+noncomputable def D_plus_v3 (t : ℕ) : Finset ℕ := D_union t ∪ D_extra_v3 t
 
 lemma p_t_sq_gt_p_t_plus_9_v3 (t : ℕ) (h_t : t = 209) : p t ^ 2 > p (t + 9) := by
   -- By definition of $p$, we know that $p 209 = 1289$ and $p 218 = 1361$.
@@ -2833,7 +2838,7 @@ lemma D_subset_D_plus_final (t n : ℕ) (h_t : t = 209) (h_n : n =
     simp +zetaDelta at *;
     exact m_structure t m h_t hm_le hm_factors
   have hu_in_D_plus : u ∈ D_plus t := by
-    cases hm_is_prime_or_one <;> simp_all +decide [ Finset.subset_iff ];
+    cases hm_is_prime_or_one <;> simp_all +decide;
     · -- Since $q \in D_{\text{primes}} 209$, and $D_{\text{primes}} 209 \subseteq D_{\text{union}}
       -- 209$, it follows that $q \in D_{\text{plus}} 209$.
       have hq_in_D_union : q ∈ D_union 209 := by
@@ -2929,9 +2934,10 @@ lemma card_D_plus_final (t : ℕ) (h_t : t = 209) : (D_plus t).card ≤ 35 := by
     have hD_products_card : (D_products t).card ≤ 26 := by
       simp +arith +decide [ D_products ];
       refine' le_trans ( Finset.card_le_card _ ) _;
-      exact Finset.image ( fun x : ℕ × ℕ =>
-          p ( t + x.1 ) * p ( t + x.2 ) ) ( Finset.filter ( fun x : ℕ × ℕ => x.1 ≤ 3 ∧ 1 ≤ x.2 ∧
-              x.2 ≤ 8 ∧ x.1 < x.2 ) ( Finset.range 4 ×ˢ Finset.range 9 ) );
+      · exact Finset.image ( fun x : ℕ × ℕ =>
+            p ( t + x.1 ) * p ( t + x.2 ) ) ( Finset.filter ( fun x : ℕ × ℕ =>
+                x.1 ≤ 3 ∧ 1 ≤ x.2 ∧ x.2 ≤ 8 ∧ x.1 < x.2 ) ( Finset.range 4 ×ˢ
+                  Finset.range 9 ) );
       · simp ( config := { contextual := Bool.true } ) [ Finset.subset_iff ];
         exact fun x i j hi hj hx k hk l hl hl' hkl hx' => ⟨ k, l, ⟨ ⟨ by linarith,
             by linarith ⟩, by linarith, by linarith, by linarith, by linarith ⟩, hx' ▸ rfl ⟩;
@@ -2971,8 +2977,7 @@ lemma D_decomp_final (t n : ℕ) (h_t : t = 209) (h_n : n = interval_end t) (u :
       -- primes, $q$ must be one of the primes in the range from 208 to 211.
       have hq_range : ∃ i ∈ Finset.range 4, q = Nat.nth Nat.Prime (208 + i) := by
         have hq_range : ∃ i ∈ Finset.range 212, q = Nat.nth Nat.Prime i := by
-          simp_all +contextual [ Nat.Prime.dvd_iff_not_coprime, Nat.coprime_prod_right_iff,
-              Nat.coprime_prod_left_iff ];
+          simp_all +contextual [ Nat.Prime.dvd_iff_not_coprime, Nat.coprime_prod_right_iff ];
           obtain ⟨ i, hi, hi' ⟩ := left_1; use i; aesop;
           have := Nat.coprime_primes hq_prime ( Nat.prime_nth_prime i ) ; aesop;
         obtain ⟨ i, hi, rfl ⟩ := hq_range
@@ -3015,7 +3020,9 @@ lemma D_subset_D_plus_final_v2 (t n : ℕ) (h_t : t = 209) (h_n : n =
     interval_end t) : D t n ⊆ D_plus t := by
   aesop;
   -- Apply the lemma that states D t n is a subset of D_plus t.
-  apply D_subset_D_plus_final; norm_num; norm_num
+  apply D_subset_D_plus_final
+  · norm_num
+  · norm_num
 
 lemma card_D_plus_final_v2 (t : ℕ) (h_t : t = 209) : (D_plus t).card ≤ 35 := by
   -- Apply the lemma `card_D_plus_final` with the given `h_t`.
@@ -3219,7 +3226,5 @@ theorem erdos_56 :
 
 #print axioms erdos_56
 -- 'Erdos56.erdos_56' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-end
 
 end Erdos56
