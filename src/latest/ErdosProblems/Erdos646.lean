@@ -72,13 +72,8 @@ import Mathlib
 
 namespace Erdos646
 
-set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
-set_option linter.style.whitespace false
-set_option linter.flexible false
-set_option linter.unusedSimpArgs false
 set_option linter.unusedDecidableInType false
 set_option linter.unusedVariables false
 
@@ -86,15 +81,6 @@ open scoped BigOperators
 open scoped Real
 open scoped Nat
 open scoped Pointwise
-
-set_option maxHeartbeats 20000000
--- Several generated finite-set density arguments time out at the default heartbeat limit.
-set_option maxRecDepth 4000
-set_option synthInstance.maxHeartbeats 20000
-set_option synthInstance.maxSize 128
-
-set_option relaxedAutoImplicit false
-set_option autoImplicit false
 
 private lemma zmod_two_eq_zero_or_one (a : ZMod 2) : a = 0 ∨ a = 1 := by
   have hlt : a.val < 2 := ZMod.val_lt a
@@ -108,10 +94,12 @@ private lemma zmod_two_eq_zero_or_one (a : ZMod 2) : a = 0 ∨ a = 1 := by
 /-
 Given k+1 elements in (Z/2Z)^k, there exists a non-empty subset summing to 0.
 -/
+set_option linter.flexible false in
 lemma exists_subset_sum_zero {k : ℕ} (v : Fin (k + 1) → (Fin k → ZMod 2)) :
   ∃ (I : Finset (Fin (k + 1))), I.Nonempty ∧ ∑ i ∈ I, v i = 0 := by
     classical
-    -- Consider the $k+1$ vectors $v_1, v_2, \ldots, v_{k+1}$ in the $k$-dimensional vector space $(\mathbb{Z}/2\mathbb{Z})^k$.
+    -- Consider the $k+1$ vectors $v_1, v_2, \ldots, v_{k+1}$ in the
+    -- $k$-dimensional vector space $(\mathbb{Z}/2\mathbb{Z})^k$.
     have h_linear_dep : ¬ LinearIndependent (ZMod 2) v := by
       intro h
       have hle := linearIndependent_le_basis (Pi.basisFun (ZMod 2) (Fin k)) v h
@@ -144,151 +132,251 @@ lemma exists_subset_sum_zero {k : ℕ} (v : Fin (k + 1) → (Fin k → ZMod 2)) 
 /-
 If n > 0 and v_p(n) <= M, then v_p(n + k * p^(M+1)) = v_p(n).
 -/
-lemma padicValNat_periodic_pos (p : ℕ) (hp : p.Prime) (n k M : ℕ) (hn : n > 0) (h : padicValNat p n ≤ M) :
+lemma padicValNat_periodic_pos (p : ℕ) (hp : p.Prime) (n k M : ℕ) (hn : n > 0)
+  (h : padicValNat p n ≤ M) :
   padicValNat p (n + k * p ^ (M + 1)) = padicValNat p n := by
     -- Let $v = v_p(n)$. We have $v \le M$.
     set v : ℕ := padicValNat p n with hv_def
-    have hv_le_M : v ≤ M := h;
+    have hv_le_M : v ≤ M := h
     -- Write $n = p^v \cdot u$ where $p \nmid u$.
     obtain ⟨u, hu⟩ : ∃ u : ℕ, n = p^v * u ∧ ¬ p ∣ u := by
-      use n / p^v, by
-        rw [ Nat.mul_div_cancel' ];
-        exact pow_padicValNat_dvd, by
-        rw [ Nat.dvd_div_iff_mul_dvd ];
-        · rw [ ← pow_succ ];
-          haveI := Fact.mk hp; rw [ padicValNat_dvd_iff_le ] ; aesop;
-          positivity;
-        · exact pow_padicValNat_dvd;
-    -- Then $n + k p^{M+1} = p^v u + k p^{M+1} = p^v (u + k p^{M+1-v})$.
+      use n / p^v
+      constructor
+      · rw [Nat.mul_div_cancel']
+        exact pow_padicValNat_dvd
+      · rw [Nat.dvd_div_iff_mul_dvd]
+        · rw [← pow_succ]
+          haveI := Fact.mk hp
+          rw [padicValNat_dvd_iff_le]
+          · aesop
+          · positivity
+        · exact pow_padicValNat_dvd
+    -- Then $n + k p^{M+1} = p^v u + k p^{M+1} =
+    -- p^v (u + k p^{M+1-v})$.
     have h_factor : n + k * p^(M + 1) = p^v * (u + k * p^(M + 1 - v)) := by
-      rw [ hu.1, mul_add, mul_left_comm, ← pow_add, add_tsub_cancel_of_le ( by linarith ) ];
+      rw [hu.1, mul_add, mul_left_comm, ← pow_add, add_tsub_cancel_of_le (by linarith)]
     -- Since $v \le M$, $M+1-v \ge 1$, so $p \mid p^{M+1-v}$.
     have h_div : ¬ p ∣ (u + k * p^(M + 1 - v)) := by
-      rw [ Nat.dvd_add_left ( dvd_mul_of_dvd_right ( dvd_pow_self _ ( Nat.sub_ne_zero_of_lt ( by linarith ) ) ) _ ) ] ; tauto;
-    haveI := Fact.mk hp; rw [ h_factor, padicValNat.mul ] <;> norm_num [ h_div ] ;
-    · exact fun h => absurd h hp.ne_zero;
-    · exact fun h => absurd h ( by rintro rfl; simp_all +singlePass )
+      rw [
+        Nat.dvd_add_left
+          (dvd_mul_of_dvd_right (dvd_pow_self _ (Nat.sub_ne_zero_of_lt (by linarith))) _)
+      ]
+      tauto
+    haveI := Fact.mk hp
+    rw [h_factor, padicValNat.mul] <;> norm_num [h_div]
+    · exact fun h => absurd h hp.ne_zero
+    · exact fun h => absurd h (by
+        rintro rfl
+        simp_all +singlePass)
 
 /-
 If the maximum valuation M is attained at least twice in a range of length b, then p^M < b.
 -/
-lemma padicValNat_max_attained_twice_implies_pow_lt_b (p : ℕ) (hp : p.Prime) (b m : ℕ) (hb : b > 0)
+lemma padicValNat_max_attained_twice_implies_pow_lt_b (p : ℕ) (hp : p.Prime)
+  (b m : ℕ) (hb : b > 0)
   (M : ℕ) (hM : M = Finset.sup (Finset.range b) (fun k => padicValNat p (m + k)))
-  (h_not_unique : ∃ k1 k2, k1 < b ∧ k2 < b ∧ k1 ≠ k2 ∧ padicValNat p (m + k1) = M ∧ padicValNat p (m + k2) = M) :
+  (h_not_unique :
+    ∃ k1 k2, k1 < b ∧ k2 < b ∧ k1 ≠ k2 ∧
+      padicValNat p (m + k1) = M ∧ padicValNat p (m + k2) = M) :
   p ^ M < b := by
-    obtain ⟨ k1, k2, hk1, hk2, hk_ne, hk1_eq, hk2_eq ⟩ := h_not_unique;
-    -- Since $p^M \mid (m + k1)$ and $p^M \mid (m + k2)$, we have $p^M \mid (k2 - k1)$.
+    have _ := hb
+    obtain ⟨ k1, k2, hk1, hk2, hk_ne, hk1_eq, hk2_eq ⟩ := h_not_unique
+    -- Since $p^M \mid (m + k1)$ and $p^M \mid (m + k2)$, we have
+    -- $p^M \mid (k2 - k1)$.
     have h_div : p ^ M ∣ Int.natAbs (k2 - k1) := by
       have h_div : p ^ M ∣ (m + k1) ∧ p ^ M ∣ (m + k2) := by
-        haveI := Fact.mk hp; simp_all +decide [ padicValNat_dvd_iff ] ;
-      simpa [ ← Int.natCast_dvd_natCast ] using dvd_sub ( Int.natCast_dvd_natCast.mpr h_div.2 ) ( Int.natCast_dvd_natCast.mpr h_div.1 );
-    cases abs_cases ( k2 - k1 : ℤ ) <;> linarith [ Nat.le_of_dvd ( by omega ) h_div ]
+        haveI := Fact.mk hp
+        simp_all +decide [padicValNat_dvd_iff]
+      simpa [← Int.natCast_dvd_natCast] using
+        dvd_sub (Int.natCast_dvd_natCast.mpr h_div.2)
+          (Int.natCast_dvd_natCast.mpr h_div.1)
+    cases abs_cases (k2 - k1 : ℤ) <;> linarith [Nat.le_of_dvd (by omega) h_div]
 
 /-
 If v_p(n) <= M, then v_p(n + p^(M+1)) = v_p(n).
 -/
-lemma lemma_2_case_1_equality (p : ℕ) (hp : p.Prime) (n M : ℕ) (hn : n > 0) (h_le : padicValNat p n ≤ M) :
+lemma lemma_2_case_1_equality (p : ℕ) (hp : p.Prime) (n M : ℕ) (hn : n > 0)
+  (h_le : padicValNat p n ≤ M) :
   padicValNat p (n + p ^ (M + 1)) = padicValNat p n := by
     -- Apply the periodicity lemma with $k=1$.
-    have := padicValNat_periodic_pos p hp n 1 M hn h_le; aesop
+    have := padicValNat_periodic_pos p hp n 1 M hn h_le
+    aesop
 
 /-
 If v_p(n) = M, then v_p(n + p^(M+1)) = M.
 -/
-lemma padicValNat_add_pow_succ_eq_self (p : ℕ) (hp : p.Prime) (n M : ℕ) (hn : n > 0) (h_eq : padicValNat p n = M) :
+lemma padicValNat_add_pow_succ_eq_self (p : ℕ) (hp : p.Prime) (n M : ℕ)
+  (hn : n > 0) (h_eq : padicValNat p n = M) :
   padicValNat p (n + p ^ (M + 1)) = M := by
-    convert padicValNat_periodic_pos p hp n 1 M hn _ using 1 ; aesop;
-    · exact h_eq.symm;
+    convert padicValNat_periodic_pos p hp n 1 M hn _ using 1
+    · aesop
+    · exact h_eq.symm
     · rw [h_eq]
 
-/-
-If the maximum valuation M is attained at least twice, then there exists a shift s <= 2*p^2*b such that the block repeats.
--/
+/- If the maximum valuation M is attained at least twice, then there exists a
+shift s <= 2*p^2*b such that the block repeats. -/
 lemma lemma_2_case_1 (p : ℕ) (hp : p.Prime) (b m : ℕ) (hb : b > 0) (hm : m > 0)
   (M : ℕ) (hM : M = Finset.sup (Finset.range b) (fun k => padicValNat p (m + k)))
-  (h_not_unique : ∃ k1 k2, k1 < b ∧ k2 < b ∧ k1 ≠ k2 ∧ padicValNat p (m + k1) = M ∧ padicValNat p (m + k2) = M) :
+  (h_not_unique :
+    ∃ k1 k2, k1 < b ∧ k2 < b ∧ k1 ≠ k2 ∧
+      padicValNat p (m + k1) = M ∧ padicValNat p (m + k2) = M) :
   ∃ s, 0 < s ∧ s ≤ 2 * p^2 * b ∧
   ∀ k < b, (padicValNat p (m + k)) % 2 = (padicValNat p (m + s + k)) % 2 := by
     -- By `padicValNat_max_attained_twice_implies_pow_lt_b`, we have `p^M < b`.
     have h_pow_lt_b : p ^ M < b := by
       exact padicValNat_max_attained_twice_implies_pow_lt_b p hp b m hb M hM h_not_unique
-    refine' ⟨ p ^ ( M + 1 ), pow_pos hp.pos _, _, _ ⟩;
-    · nlinarith [ Nat.mul_le_mul_left b hp.two_le, pow_succ' p M ];
-    · intro k hk; rw [ show m + p ^ ( M + 1 ) + k = m + k + p ^ ( M + 1 ) by ring ] ; rw [ lemma_2_case_1_equality p hp ( m + k ) M ( by linarith ) ] ;
-      exact hM.symm ▸ Finset.le_sup ( f := fun k => padicValNat p ( m + k ) ) ( Finset.mem_range.mpr hk )
+    refine ⟨p ^ (M + 1), pow_pos hp.pos _, ?_, ?_⟩
+    · nlinarith [Nat.mul_le_mul_left b hp.two_le, pow_succ' p M]
+    · intro k hk
+      rw [show m + p ^ (M + 1) + k = m + k + p ^ (M + 1) by ring]
+      rw [lemma_2_case_1_equality p hp (m + k) M (by linarith)]
+      exact hM.symm ▸
+        Finset.le_sup (f := fun k => padicValNat p (m + k)) (Finset.mem_range.mpr hk)
 
-/-
-If M is the unique maximum valuation, and M_next is the maximum of the remaining valuations, then p^M_next < b.
--/
+/- If M is the unique maximum valuation, and M_next is the maximum of the
+remaining valuations, then p^M_next < b. -/
 lemma second_largest_valuation_bound (p : ℕ) (hp : p.Prime) (b m : ℕ) (hb : b > 0)
   (M : ℕ) (hM : M = Finset.sup (Finset.range b) (fun k => padicValNat p (m + k)))
   (k0 : ℕ) (hk0 : k0 < b) (hk0_val : padicValNat p (m + k0) = M)
   (h_unique : ∀ k < b, k ≠ k0 → padicValNat p (m + k) < M)
-  (M_next : ℕ) (hM_next : M_next = Finset.sup (Finset.erase (Finset.range b) k0) (fun k => padicValNat p (m + k)))
+  (M_next : ℕ)
+  (hM_next : M_next =
+    Finset.sup (Finset.erase (Finset.range b) k0) (fun k => padicValNat p (m + k)))
   (h_exists_next : (Finset.erase (Finset.range b) k0).Nonempty) :
   p ^ M_next < b := by
+    have _ := hb
     -- Let $k_{next}$ be an index where $M_{next}$ is attained.
-    obtain ⟨k_next, hk_next⟩ : ∃ k_next, k_next < b ∧ k_next ≠ k0 ∧ padicValNat p (m + k_next) = M_next := by
-      obtain ⟨k_next, hk_next⟩ : ∃ k_next ∈ Finset.erase (Finset.range b) k0, ∀ k ∈ Finset.erase (Finset.range b) k0, padicValNat p (m + k) ≤ padicValNat p (m + k_next) := by
-        exact Finset.exists_max_image _ _ h_exists_next;
-      exact ⟨ k_next, Finset.mem_range.mp ( Finset.mem_of_mem_erase hk_next.1 ), by aesop, hM_next ▸ le_antisymm ( Finset.le_sup ( f := fun k => padicValNat p ( m + k ) ) hk_next.1 ) ( Finset.sup_le fun k hk => hk_next.2 k hk ) ⟩;
+    obtain ⟨k_next, hk_next⟩ :
+        ∃ k_next, k_next < b ∧ k_next ≠ k0 ∧
+          padicValNat p (m + k_next) = M_next := by
+      obtain ⟨k_next, hk_next⟩ :
+          ∃ k_next ∈ Finset.erase (Finset.range b) k0,
+            ∀ k ∈ Finset.erase (Finset.range b) k0,
+              padicValNat p (m + k) ≤ padicValNat p (m + k_next) := by
+        exact Finset.exists_max_image _ _ h_exists_next
+      exact
+        ⟨ k_next, Finset.mem_range.mp (Finset.mem_of_mem_erase hk_next.1), by aesop,
+          hM_next ▸
+            le_antisymm
+              (Finset.le_sup (f := fun k => padicValNat p (m + k)) hk_next.1)
+              (Finset.sup_le fun k hk => hk_next.2 k hk) ⟩
     -- Since $M > M_{next}$, $p^{M_{next}} \mid p^M \mid (m+k_0)$.
     have h_div : p ^ M_next ∣ (m + k0) ∧ p ^ M_next ∣ (m + k_next) := by
-      have h_div : p ^ (padicValNat p (m + k0)) ∣ (m + k0) ∧ p ^ (padicValNat p (m + k_next)) ∣ (m + k_next) := by
-        haveI := Fact.mk hp; simp +decide [ padicValNat_dvd_iff ] ;
-      exact ⟨ dvd_trans ( pow_dvd_pow _ ( by linarith [ h_unique k_next hk_next.1 hk_next.2.1 ] ) ) h_div.1, dvd_trans ( pow_dvd_pow _ ( by linarith [ h_unique k_next hk_next.1 hk_next.2.1 ] ) ) h_div.2 ⟩;
+      have h_div :
+          p ^ (padicValNat p (m + k0)) ∣ (m + k0) ∧
+            p ^ (padicValNat p (m + k_next)) ∣ (m + k_next) := by
+        haveI := Fact.mk hp
+        simp +decide [padicValNat_dvd_iff]
+      exact
+        ⟨ dvd_trans
+            (pow_dvd_pow _ (by linarith [h_unique k_next hk_next.1 hk_next.2.1]))
+            h_div.1,
+          dvd_trans
+            (pow_dvd_pow _ (by linarith [h_unique k_next hk_next.1 hk_next.2.1]))
+            h_div.2 ⟩
     -- Therefore, $p^{M_{next}} \mid (k_0 - k_{next})$.
     have h_div_diff : p ^ M_next ∣ Int.natAbs (k0 - k_next) := by
-      simpa [ ← Int.natCast_dvd_natCast ] using dvd_sub ( Int.natCast_dvd_natCast.mpr h_div.1 ) ( Int.natCast_dvd_natCast.mpr h_div.2 );
-    cases abs_cases ( k0 - k_next : ℤ ) <;> linarith [ Nat.le_of_dvd ( by omega ) h_div_diff ]
+      simpa [← Int.natCast_dvd_natCast] using
+        dvd_sub (Int.natCast_dvd_natCast.mpr h_div.1)
+          (Int.natCast_dvd_natCast.mpr h_div.2)
+    cases abs_cases (k0 - k_next : ℤ) <;>
+      linarith [Nat.le_of_dvd (by omega) h_div_diff]
 
 /-
 For any u and target parity, there exists t in [1, 2p] such that v_p(u+t) has that parity.
 -/
+set_option linter.flexible false in
 lemma exists_shift_with_parity (p : ℕ) (hp : p.Prime) (u : ℕ) (target_parity : ZMod 2) :
   ∃ t ∈ Finset.Icc 1 (2 * p), (padicValNat p (u + t)) % 2 = target_parity := by
     -- Consider two cases: target_parity = 0 and target_parity = 1.
-    by_cases h_case : target_parity = 0;
-    · by_contra h_contra;
-      -- If no such $t$ exists, then for all $t \in \{1, 2, \ldots, 2p\}$, $v_p(u+t)$ is odd.
+    by_cases h_case : target_parity = 0
+    · by_contra h_contra
+      -- If no such $t$ exists, then for all $t \in \{1, 2, \ldots, 2p\}$,
+      -- $v_p(u+t)$ is odd.
       have h_odd : ∀ t ∈ Finset.Icc 1 (2 * p), Odd (padicValNat p (u + t)) := by
-        intro t ht; specialize h_contra; simp_all +decide ;
-        specialize h_contra t ht.1 ht.2; rcases Nat.even_or_odd' ( padicValNat p ( u + t ) ) with ⟨ k, hk | hk ⟩ <;> simp_all +decide ;
-        grind;
+        intro t ht
+        specialize h_contra
+        simp_all +decide
+        specialize h_contra t ht.1 ht.2
+        rcases Nat.even_or_odd' (padicValNat p (u + t)) with ⟨ k, hk | hk ⟩ <;>
+          simp_all +decide
+        grind
       -- This implies that $p \mid (u + t)$ for all $t \in \{1, 2, \ldots, 2p\}$.
       have h_div : ∀ t ∈ Finset.Icc 1 (2 * p), p ∣ (u + t) := by
-        intro t ht; specialize h_odd t ht; contrapose! h_odd; simp_all +decide [ padicValNat.eq_zero_of_not_dvd ] ;
+        intro t ht
+        specialize h_odd t ht
+        contrapose! h_odd
+        simp_all +decide [padicValNat.eq_zero_of_not_dvd]
       have h_dvd_one : p ∣ 1 := by
-        convert Nat.dvd_sub ( h_div 2 ( Finset.mem_Icc.mpr ⟨ by linarith [ hp.two_le ], by linarith [ hp.two_le ] ⟩ ) ) ( h_div 1 ( Finset.mem_Icc.mpr ⟨ by linarith [ hp.two_le ], by linarith [ hp.two_le ] ⟩ ) ) using 1
+        convert
+          Nat.dvd_sub
+            (h_div 2
+              (Finset.mem_Icc.mpr
+                ⟨by linarith [hp.two_le], by linarith [hp.two_le]⟩))
+            (h_div 1
+              (Finset.mem_Icc.mpr
+                ⟨by linarith [hp.two_le], by linarith [hp.two_le]⟩))
+          using 1
         omega
       exact (hp.not_dvd_one h_dvd_one).elim
-    · -- For the case when target_parity = 1, we need to find t in [1, 2p] such that v_p(u + t) is odd.
+    · -- For the case when target_parity = 1, find t in [1, 2p] such that
+      -- v_p(u + t) is odd.
       -- We can choose t such that u + t is divisible by p but not by p^2.
-      obtain ⟨t, ht1, ht2⟩ : ∃ t ∈ Finset.Icc 1 (2 * p), p ∣ (u + t) ∧ ¬(p ^ 2 ∣ (u + t)) := by
-        -- In the range $t \in \{1, \dots, 2p\}$, there are exactly two values $t_1, t_2$ such that $p \mid (u+t)$.
+      obtain ⟨t, ht1, ht2⟩ :
+          ∃ t ∈ Finset.Icc 1 (2 * p), p ∣ (u + t) ∧ ¬(p ^ 2 ∣ (u + t)) := by
+        -- In the range $t \in \{1, \dots, 2p\}$, there are exactly two values
+        -- $t_1, t_2$ such that $p \mid (u+t)$.
         obtain ⟨t1, ht1⟩ : ∃ t1 ∈ Finset.Icc 1 (2 * p), p ∣ (u + t1) := by
-          use p - u % p;
-          exact ⟨ Finset.mem_Icc.mpr ⟨ Nat.sub_pos_of_lt ( Nat.mod_lt _ hp.pos ), Nat.sub_le_of_le_add <| by linarith [ Nat.zero_le ( u % p ), Nat.mod_lt u hp.pos ] ⟩, ⟨ u / p + 1, by linarith [ Nat.div_add_mod u p, Nat.sub_add_cancel ( Nat.mod_lt u hp.pos |> Nat.le_of_lt ) ] ⟩ ⟩
-        obtain ⟨t2, ht2, ht2_ne⟩ : ∃ t2 ∈ Finset.Icc 1 (2 * p), p ∣ (u + t2) ∧ t2 ≠ t1 := by
-          by_cases ht1_le_p : t1 ≤ p;
-          · exact ⟨ t1 + p, Finset.mem_Icc.mpr ⟨ by linarith [ Finset.mem_Icc.mp ht1.1 ], by linarith [ Finset.mem_Icc.mp ht1.1 ] ⟩, by simpa [ Nat.dvd_iff_mod_eq_zero, Nat.add_mod, Nat.mod_eq_of_lt hp.one_lt ] using ht1.2, by linarith [ hp.two_le ] ⟩;
-          · refine' ⟨ t1 - p, _, _, _ ⟩ <;> norm_num at * <;> try omega;
-            convert Nat.dvd_sub ht1.2 ( dvd_refl p ) using 1 ; omega;
+          use p - u % p
+          exact
+            ⟨ Finset.mem_Icc.mpr
+                ⟨ Nat.sub_pos_of_lt (Nat.mod_lt _ hp.pos),
+                  Nat.sub_le_of_le_add <| by
+                    linarith [Nat.zero_le (u % p), Nat.mod_lt u hp.pos] ⟩,
+              ⟨u / p + 1, by
+                linarith [
+                  Nat.div_add_mod u p,
+                  Nat.sub_add_cancel (Nat.mod_lt u hp.pos |> Nat.le_of_lt)]⟩ ⟩
+        obtain ⟨t2, ht2, ht2_ne⟩ :
+            ∃ t2 ∈ Finset.Icc 1 (2 * p), p ∣ (u + t2) ∧ t2 ≠ t1 := by
+          by_cases ht1_le_p : t1 ≤ p
+          · exact
+              ⟨ t1 + p,
+                Finset.mem_Icc.mpr
+                  ⟨ by linarith [Finset.mem_Icc.mp ht1.1],
+                    by linarith [Finset.mem_Icc.mp ht1.1] ⟩,
+                by
+                  simpa [Nat.dvd_iff_mod_eq_zero, Nat.add_mod, Nat.mod_eq_of_lt hp.one_lt]
+                    using ht1.2,
+                by linarith [hp.two_le] ⟩
+          · refine ⟨t1 - p, ?_, ?_, ?_⟩ <;> norm_num at * <;> try omega
+            convert Nat.dvd_sub ht1.2 (dvd_refl p) using 1
+            omega
         by_contra h_contra
         push Not at h_contra
         have h_div_p2 : p^2 ∣ (u + t1) ∧ p^2 ∣ (u + t2) := by
           aesop
         have h_diff : p^2 ∣ Int.natAbs (t1 - t2) := by
-          simpa [ ← Int.natCast_dvd_natCast ] using dvd_sub ( Int.natCast_dvd_natCast.mpr h_div_p2.1 ) ( Int.natCast_dvd_natCast.mpr h_div_p2.2 ) |> fun x => by simpa [ add_comm ] using x;
+          simpa [← Int.natCast_dvd_natCast] using
+            dvd_sub (Int.natCast_dvd_natCast.mpr h_div_p2.1)
+              (Int.natCast_dvd_natCast.mpr h_div_p2.2) |> fun x => by
+                simpa [add_comm] using x
         have h_absurd : Int.natAbs (t1 - t2) < p^2 := by
-          cases abs_cases ( t1 - t2 : ℤ ) <;> nlinarith [ Finset.mem_Icc.mp ht1.1, Finset.mem_Icc.mp ht2, hp.two_le ] ;
+          cases abs_cases (t1 - t2 : ℤ) <;>
+            nlinarith [Finset.mem_Icc.mp ht1.1, Finset.mem_Icc.mp ht2, hp.two_le]
         exact absurd h_diff (by
-        exact Nat.not_dvd_of_pos_of_lt ( Int.natAbs_pos.mpr ( sub_ne_zero_of_ne <| by aesop ) ) h_absurd);
+          exact
+            Nat.not_dvd_of_pos_of_lt
+              (Int.natAbs_pos.mpr (sub_ne_zero_of_ne <| by aesop)) h_absurd)
       -- Since $p \mid (u + t)$ and $\neg(p^2 \mid (u + t))$, we have $v_p(u + t) = 1$.
       have ht_val : padicValNat p (u + t) = 1 := by
-        rw [ ← Nat.factorization_def ];
-        · exact le_antisymm ( Nat.le_of_not_lt fun h => ht2.2 <| Nat.dvd_trans ( pow_dvd_pow _ h ) <| Nat.ordProj_dvd _ _ ) ( Nat.pos_of_ne_zero <| Finsupp.mem_support_iff.mp <| by aesop );
-        · assumption;
+        rw [← Nat.factorization_def]
+        · exact
+            le_antisymm
+              (Nat.le_of_not_lt fun h =>
+                ht2.2 <| Nat.dvd_trans (pow_dvd_pow _ h) <| Nat.ordProj_dvd _ _)
+              (Nat.pos_of_ne_zero <| Finsupp.mem_support_iff.mp <| by aesop)
+        · assumption
       have htarget : target_parity = 1 := by
         rcases zmod_two_eq_zero_or_one target_parity with h0 | h1
         · exact (h_case h0).elim
@@ -300,6 +388,7 @@ lemma exists_shift_with_parity (p : ℕ) (hp : p.Prime) (u : ℕ) (target_parity
 /-
 If the maximum valuation M is attained exactly once, then there exists a shift s <= 2*p^2*b such that the block repeats.
 -/
+set_option linter.flexible false in
 lemma lemma_2_case_2 (p : ℕ) (hp : p.Prime) (b m : ℕ) (hb : b > 0) (hm : m > 0)
   (M : ℕ) (hM : M = Finset.sup (Finset.range b) (fun k => padicValNat p (m + k)))
   (k0 : ℕ) (hk0 : k0 < b) (hk0_val : padicValNat p (m + k0) = M)
@@ -340,7 +429,7 @@ lemma lemma_2_case_2 (p : ℕ) (hp : p.Prime) (b m : ℕ) (hb : b > 0) (hm : m >
         ext; norm_num [ two_mul, add_assoc ] ;
         intro _ _; erw [ Nat.cast_sub ( by linarith ) ] ; norm_num;
         grind +ring;
-      refine' ⟨ t * Q, _, _, _ ⟩ <;> norm_num at *;
+      refine ⟨t * Q, ?_, ?_, ?_⟩ <;> norm_num at *
       · exact ⟨ ht.1.1, hQ.1.symm ▸ pow_pos hp.pos _ ⟩;
       · nlinarith [ pow_succ' p M_next ];
       · intro k hk
@@ -396,7 +485,7 @@ lemma lemma_block_recurrence_AP_case1 (p : ℕ) (hp : p.Prime) (b m : ℕ) (hb :
     have h_pow_lt_b : p ^ M < b := by
       exact padicValNat_max_attained_twice_implies_pow_lt_b p hp b m hb M hM h_not_unique
     use m, p ^ ( M + 1 );
-    refine' ⟨ hm, pow_pos hp.pos _, _, _ ⟩;
+    refine ⟨hm, pow_pos hp.pos _, ?_, ?_⟩
     · rw [ pow_succ' ] ; nlinarith [ Nat.mul_le_mul_left ( p ^ M ) ( show p ≥ 2 by exact hp.two_le ), pow_pos hp.pos 2, pow_pos hp.pos 3 ] ;
     · intro r k hk_lt_b
       have h_val_le_M : padicValNat p (m + k) ≤ M := by
@@ -406,6 +495,7 @@ lemma lemma_block_recurrence_AP_case1 (p : ℕ) (hp : p.Prime) (b m : ℕ) (hb :
 /-
 Case b=1 of Lemma 2 Case 2.
 -/
+set_option linter.flexible false in
 lemma lemma_block_recurrence_AP_case2_b_eq_1 (p : ℕ) (hp : p.Prime) (b m : ℕ) (hb : b = 1) (hm : m > 0)
   (M : ℕ) (hM : M = Finset.sup (Finset.range b) (fun k => padicValNat p (m + k)))
   (k0 : ℕ) (hk0 : k0 < b) (hk0_val : padicValNat p (m + k0) = M) :
@@ -414,7 +504,9 @@ lemma lemma_block_recurrence_AP_case2_b_eq_1 (p : ℕ) (hp : p.Prime) (b m : ℕ
       cases Nat.mod_two_eq_zero_or_one M <;> simp +decide [ * ];
       · aesop;
       · grind +ring;
-    refine' ⟨ p ^ M' + p ^ ( M' + 1 ), p ^ ( M' + 1 ), _, _, _, _ ⟩ <;> simp_all +decide [ Nat.pow_succ ];
+    refine
+      ⟨p ^ M' + p ^ (M' + 1), p ^ (M' + 1), ?_, ?_, ?_, ?_⟩ <;>
+        simp_all +decide [Nat.pow_succ]
     · exact Or.inl ( pow_pos hp.pos _ );
     · exact ⟨ pow_pos hp.pos _, hp.pos ⟩;
     · interval_cases M' <;> nlinarith [ hp.two_le ];
@@ -445,6 +537,7 @@ lemma lemma_exists_a_case2 (p : ℕ) (hp : p.Prime) (b k0 M' : ℕ) (hb : b > 0)
 /-
 If M is the unique maximum valuation at k0, then the valuation of the distance to k0 is less than M.
 -/
+set_option linter.flexible false in
 lemma lemma_valuation_diff_lt_max (p : ℕ) (hp : p.Prime) (b m : ℕ) (hm : m > 0) (k0 : ℕ) (hk0 : k0 < b)
   (M : ℕ) (hM : padicValNat p (m + k0) = M)
   (h_unique : ∀ k < b, k ≠ k0 → padicValNat p (m + k) < M) :
@@ -482,6 +575,7 @@ lemma lemma_valuation_diff_lt_max' (p : ℕ) (hp : p.Prime) (b m : ℕ) (hm : m 
 /-
 If M is the unique maximum valuation at k0, then for other k, the valuation depends only on the distance to k0.
 -/
+set_option linter.flexible false in
 lemma lemma_valuation_near_max (p : ℕ) (hp : p.Prime) (b m : ℕ) (hm : m > 0) (k0 : ℕ) (hk0 : k0 < b)
   (M : ℕ) (hM : padicValNat p (m + k0) = M)
   (h_unique : ∀ k < b, k ≠ k0 → padicValNat p (m + k) < M) :
@@ -564,6 +658,7 @@ def partial_sum (k : ℕ) (p : Fin k → ℕ) (n : ℕ) : Fin k → ZMod 2 :=
 /-
 The sequence of valuation vectors is recurrent.
 -/
+set_option linter.flexible false in
 lemma val_vec_recurrent (k : ℕ) (p : Fin k → ℕ) (hp : ∀ i, (p i).Prime) (b m : ℕ) (hb : b > 0) (hm : m > 0) :
   ∃ s > 0, ∀ j < b, val_vec k p (m + j) = val_vec k p (m + s + j) := by
     revert k p hp b m hb hm;
@@ -572,7 +667,10 @@ lemma val_vec_recurrent (k : ℕ) (p : Fin k → ℕ) (hp : ∀ i, (p i).Prime) 
     set M := fun i => Finset.sup (Finset.range (b + m)) (fun n => padicValNat (p i) (n + 1)) with hM_def;
     -- Let $S = \prod_{i=1}^k p_i^{M_i + 1}$.
     set S := Finset.prod Finset.univ (fun i => p i ^ (M i + 1)) with hS_def;
-    refine' ⟨ S, Finset.prod_pos fun i _ => pow_pos ( Nat.Prime.pos ( hp i ) ) _, fun j hj => _ ⟩ ; ext i ; simp +decide [ add_right_comm, val_vec ];
+    refine
+      ⟨S, Finset.prod_pos fun i _ => pow_pos (Nat.Prime.pos (hp i)) _, fun j hj => ?_⟩
+    ext i
+    simp +decide [add_right_comm, val_vec]
     -- By the properties of the p-adic valuation, we have that $v_{p_i}(m + j + S) = v_{p_i}(m + j)$ since $S$ is divisible by $p_i^{M_i + 1}$.
     have h_val_eq : padicValNat (p i) (m + j + S) = padicValNat (p i) (m + j) := by
       have h_val_eq : padicValNat (p i) (m + j) ≤ M i := by
@@ -623,6 +721,7 @@ lemma exists_prefix_sums (k : ℕ) (p : Fin k → ℕ) (hp : ∀ i, (p i).Prime)
 /-
 Inductive step for constructing a rich block. Given a block of length L that generates all subset sums of f, we can extend it to a block of length L' that generates all subset sums of f extended with a new vector.
 -/
+set_option linter.flexible false in
 lemma rich_block_inductive_step (k : ℕ) (p : Fin k → ℕ) (hp : ∀ i, (p i).Prime) (N : ℕ) (m : ℕ) (L : ℕ) (f : Fin m → Fin k → ZMod 2)
   (h : ∀ (S : Finset (Fin m)), S.Nonempty → ∃ (l : ℕ), 0 < l ∧ l ≤ L ∧ ∑ i ∈ Finset.range l, val_vec k p (N + 1 + i) = ∑ i ∈ S, f i) :
   ∃ (L' : ℕ) (f' : Fin (m + 1) → Fin k → ZMod 2),
@@ -632,7 +731,9 @@ lemma rich_block_inductive_step (k : ℕ) (p : Fin k → ℕ) (hp : ∀ i, (p i)
         by_cases hL : L = 0;
         · exact ⟨ 1, by norm_num, by norm_num [ hL ] ⟩;
         · convert val_vec_recurrent k p hp L ( N + 1 ) ( Nat.pos_of_ne_zero hL ) ( Nat.succ_pos _ ) using 1;
-      refine' h_contra ⟨ s + L, Fin.snoc f ( ∑ i ∈ Finset.range s, val_vec k p ( N + 1 + i ) ), _ ⟩;
+      refine
+        h_contra
+          ⟨s + L, Fin.snoc f (∑ i ∈ Finset.range s, val_vec k p (N + 1 + i)), ?_⟩
       intro S hS_nonempty
       by_cases hm : Fin.last m ∈ S;
       · -- Let $S' = S \setminus \{m\}$.
@@ -642,7 +743,7 @@ lemma rich_block_inductive_step (k : ℕ) (p : Fin k → ℕ) (hp : ∀ i, (p i)
           exact ⟨ fun hi' => ⟨ ⟨ i.val, lt_of_le_of_ne ( Fin.le_last _ ) ( by simpa [ Fin.ext_iff ] using hi ) ⟩, by simpa [ Fin.ext_iff ] using hi', rfl ⟩, by rintro ⟨ a, ha, rfl ⟩ ; exact ha ⟩;
         by_cases hS'_nonempty : S'.Nonempty;
         · obtain ⟨ l, hl_pos, hl_le, hl ⟩ := h S' hS'_nonempty;
-          refine' ⟨ s + l, by linarith, by linarith, _ ⟩;
+          refine ⟨s + l, by linarith, by linarith, ?_⟩
           simp_all +decide [ Finset.sum_range_add, Finset.sum_image, Fin.snoc ];
           convert hl using 1;
           exact Finset.sum_congr rfl fun i hi => by rw [ show N + 1 + ( s + i ) = N + 1 + s + i by ring, hs i ( by linarith [ Finset.mem_range.mp hi ] ) ] ;
@@ -670,6 +771,7 @@ lemma exists_rich_block (k : ℕ) (p : Fin k → ℕ) (hp : ∀ i, (p i).Prime) 
 /-
 There are infinitely many n such that n! is divisible by an even power of each of the p_i.
 -/
+set_option linter.flexible false in
 theorem infinitely_many_even_factorial_exponents (k : ℕ) (p : Fin k → ℕ) (hp : ∀ i, (p i).Prime) (h_distinct : Function.Injective p) :
   Set.Infinite { n | ∀ i, partial_sum k p n i = 0 } := by
     -- By induction on $N$, we can construct an infinite sequence of such $n$.
@@ -683,7 +785,7 @@ theorem infinitely_many_even_factorial_exponents (k : ℕ) (p : Fin k → ℕ) (
         obtain ⟨ L, f, hf ⟩ := exists_rich_block k p hp n ( k + 1 );
         obtain ⟨ S, hS₁, hS₂ ⟩ := exists_subset_sum_zero f;
         obtain ⟨ l, hl₁, hl₂, hl₃ ⟩ := hf S hS₁;
-        refine' ⟨ n + l, by linarith, fun i => _ ⟩;
+        refine ⟨n + l, by linarith, fun i => ?_⟩
         -- By definition of partial_sum, we have:
         have h_partial_sum : partial_sum k p (n + l) i = partial_sum k p n i + ∑ j ∈ Finset.range l, val_vec k p (n + 1 + j) i := by
           unfold partial_sum val_vec; simp +decide [ add_assoc ] ;
