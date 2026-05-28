@@ -239,25 +239,22 @@ lemma edge_card_three {N : ℕ} (hN : N ≥ 1) {a b c : ℤ}
     vertexOf_injective hN ha hb hc
   simp +decide [h_distinct.eq_iff]
 
-set_option linter.flexible false in
 /-- Each edge from a point in `[N]³` is a subset of the vertex set. -/
 lemma edge_sub_vertexSet {N : ℕ} (hN : N ≥ 1) {a b c : ℤ}
     (ha : 0 ≤ a ∧ a < ↑N) (hb : 0 ≤ b ∧ b < ↑N)
     (hc : 0 ≤ c ∧ c < ↑N) :
     ∀ e ∈ pointEdges N a b c, e ⊆ vertexSet N := by
-  intro e he
-  simp_all +decide [Finset.subset_iff]
-  intro x hx
+  intro e he x hx
   obtain ⟨ix, hix⟩ :
       ∃ ix ∈ ({0, 1, 2, 3} : Finset (Fin 4)),
         x = vertexOf N a b c ix := by
     unfold pointEdges at he
     aesop
-  fin_cases ix <;> simp_all +decide [vertexOf]
-  · exact Finset.mem_range.mpr (by
-      unfold encVertex
-      norm_num
-      linarith [Int.toNat_of_nonneg (by linarith : 0 ≤ c + N)])
+  obtain ⟨_, rfl⟩ := hix
+  fin_cases ix
+  · change encVertex N 0 c ∈ vertexSet N
+    exact Finset.mem_range.mpr
+      (encVertex_lt hN (by decide) (by linarith) (by linarith))
   · exact Finset.mem_range.mpr
       (encVertex_lt hN (by decide) (by linarith) (by linarith))
   · exact Finset.mem_range.mpr
@@ -442,19 +439,25 @@ lemma pointClique_edges {N : ℕ} (_hN : N ≥ 1) {a b c : ℤ}
   rcases ht with
     ⟨rfl | rfl | rfl | rfl,
      rfl | rfl | rfl | rfl,
-     rfl | rfl | rfl | rfl⟩ <;>
-    simp +decide at hxyz ⊢
+     rfl | rfl | rfl | rfl⟩
+    <;> simp +decide at hxyz ⊢
 
-set_option linter.flexible false in
 /-- The point clique is a subset of the vertex set. -/
 lemma pointClique_sub_vertexSet {N : ℕ} (_hN : N ≥ 1) {a b c : ℤ}
     (_ha : 0 ≤ a ∧ a < ↑N) (_hb : 0 ≤ b ∧ b < ↑N)
     (_hc : 0 ≤ c ∧ c < ↑N) :
     pointClique N a b c ⊆ vertexSet N := by
-  unfold pointClique vertexSet
-  simp +decide [Finset.subset_iff]
-  unfold vertexOf encVertex
-  grind
+  intro x hx
+  unfold pointClique at hx
+  simp only [Finset.mem_insert, Finset.mem_singleton] at hx
+  rcases hx with rfl | rfl | rfl | rfl
+  all_goals
+    unfold vertexOf vertexSet
+    apply Finset.mem_range.mpr
+  · exact encVertex_lt _hN (by decide) (by linarith) (by linarith)
+  · exact encVertex_lt _hN (by decide) (by linarith) (by linarith)
+  · exact encVertex_lt _hN (by decide) (by linarith) (by linarith)
+  · exact encVertex_lt _hN (by decide) (by linarith) (by linarith)
 
 /-- Given an edge from families {0,1,2} with encoded vertices, recover the
 intersection point. -/
@@ -473,13 +476,12 @@ lemma edge_from_point {N : ℕ} {S : Finset (ℤ × ℤ × ℤ)}
   obtain ⟨⟨a, b, c⟩, hmem, he⟩ := he
   exact ⟨a, b, c, hmem, he⟩
 
-set_option linter.flexible false in
 /-- Grid membership gives coordinate bounds. -/
 lemma grid_mem_bounds {N : ℕ} {S : Finset (ℤ × ℤ × ℤ)}
     (hS : S ⊆ grid3 N) {a b c : ℤ} (hmem : (a, b, c) ∈ S) :
     (0 ≤ a ∧ a < ↑N) ∧ (0 ≤ b ∧ b < ↑N) ∧ (0 ≤ c ∧ c < ↑N) := by
   have := hS hmem
-  simp_all +decide [grid3]
+  simp only [grid3, Finset.mem_product] at this
   exact ⟨mem_gridRange.mp this.1,
     mem_gridRange.mp this.2.1, mem_gridRange.mp this.2.2⟩
 
