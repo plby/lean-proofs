@@ -551,7 +551,8 @@ private lemma fixed_line_block_inclusion {N : ℕ} {H : Set ℝ} {y : ℝ}
     (hmem : ∀ i : ℕ, 1 ≤ i → i ≤ N → HSetPow N H (y + ↑i)) :
     HSetPow N H y := by
   convert HSetPow.step 1 zero_lt_one _
-  aesop
+  intro i hi₁ hi₂
+  simpa only [mul_one] using hmem i hi₁ hi₂
 
 /-- Downward induction along integer translates in `H^(N)`. -/
 private lemma fixed_line_backward_induction {N : ℕ} {H : Set ℝ} {y : ℝ} {J : ℤ}
@@ -889,7 +890,7 @@ private lemma bounded_on_left_ray_in_I {α : ℝ} (hα : HasControlledIntegerApp
       · have h_closure_subset_I : ∀ x ∈ HSetPow 2 H, x ∈ I α := by
           intros x hx
           induction hx
-          · aesop
+          · exact hH.2.1 ‹_›
           · rename_i k hk₁ hk₂ hk₃
             obtain ⟨ n₁, k₁, hn₁ ⟩ := hk₃ 1 (by norm_num) (by norm_num)
             obtain ⟨ n₂, k₂, hn₂ ⟩ := hk₃ 2 (by norm_num) (by norm_num)
@@ -901,7 +902,7 @@ private lemma bounded_on_left_ray_in_I {α : ℝ} (hα : HasControlledIntegerApp
       · have h_closure : ∀ x ∈ HSetPow 2 H, x ∈ I α := by
           intros x hx
           induction hx
-          · aesop
+          · exact hH.2.1 ‹_›
           · rename_i k hk₁ hk₂ hk₃
             obtain ⟨ n₁, k₁, hn₁ ⟩ := hk₃ 1 (by norm_num) (by norm_num)
             obtain ⟨ n₂, k₂, hn₂ ⟩ := hk₃ 2 (by norm_num) (by norm_num)
@@ -912,7 +913,7 @@ private lemma bounded_on_left_ray_in_I {α : ℝ} (hα : HasControlledIntegerApp
       · have h_closure : ∀ x ∈ HSetPow 2 H, x ∈ I α := by
           intros x hx
           induction hx
-          · aesop
+          · exact hH.2.1 ‹_›
           · rename_i k hk₁ hk₂ hk₃
             obtain ⟨ n₁, k₁, hn₁ ⟩ := hk₃ 1 (by norm_num) (by norm_num)
             obtain ⟨ n₂, k₂, hn₂ ⟩ := hk₃ 2 (by norm_num) (by norm_num)
@@ -1024,7 +1025,7 @@ private lemma choose_positive_c_d_in_I {α : ℝ} (hα : Irrational α)
       (show (b - a) / (N + 1 : ℝ) < (b - a) / N from by
         rw [div_lt_div_iff₀] <;>
           nlinarith [show (N : ℝ) ≥ 2 by norm_cast])
-    aesop
+    simpa only [mem_range, Prod.exists, mem_Ioo, exists_exists_exists_and_eq] using this
   obtain ⟨n_coeff, k_coeff, hn_coeff⟩ :
       ∃ n_coeff k_coeff : ℤ, b - a = n_coeff * α + k_coeff := by
     rcases ha with ⟨ n₁, k₁, rfl ⟩
@@ -1074,7 +1075,11 @@ private lemma first_interpolation_bound {α : ℝ}
   set φ : ℕ → ℝ := fun i ↦ g (a + i * c)
   have hφ_in_Fn : IsF N φ := by
     apply arithmetic_progression_restriction_in_isF hg hc hpts
-  have := lemma1 (by positivity) hφ_in_Fn hK hbound; aesop
+  have := lemma1 (by positivity) hφ_in_Fn hK hbound
+  simpa only [
+    mem_inter_iff, mem_Icc, gt_iff_lt, and_imp, le_add_iff_nonneg_right,
+    mul_nonneg_iff_of_pos_right, Nat.cast_nonneg, true_and,
+    CharP.cast_eq_zero, zero_mul, add_zero, φ] using this
 
 /-- Second interpolation bound: `g(a + Nc) ≤ g(b) + 10K/(N+1)`. -/
 private lemma second_interpolation_bound {α : ℝ}
@@ -1243,7 +1248,9 @@ private lemma pellP_ge_pellQ (n : ℕ) : PellQ n ≤ PellP n := by
   | case3 n ih1 ih2 => simp [PellP, PellQ]; omega
 
 /-- `(-1)^(n+2) = (-1)^n`. -/
-private lemma neg_one_pow_add_two' (n : ℕ) : (-1 : ℤ)^(n+2) = (-1)^n := by rw [pow_add]; norm_num
+private lemma neg_one_pow_add_two' (n : ℕ) : (-1 : ℤ)^(n+2) = (-1)^n := by
+  rw [pow_add]
+  norm_num
 
 /-- The Pell identity and cross-product identity. -/
 private lemma pell_both (n : ℕ) :
