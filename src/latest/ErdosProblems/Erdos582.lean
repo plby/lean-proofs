@@ -28,11 +28,8 @@ import Mathlib
 
 namespace Erdos582
 
---set_option linter.mathlibStandardSet false
 set_option linter.unusedSectionVars false
 set_option linter.unusedVariables false
-set_option linter.style.cases false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.openClassical false
 set_option linter.style.refine false
@@ -40,9 +37,6 @@ set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.unusedDecidableInType false
 set_option linter.unusedFintypeInType false
-set_option linter.unnecessarySimpa false
-set_option linter.unreachableTactic false
-set_option linter.unusedTactic false
 
 open scoped Classical
 open SimpleGraph
@@ -169,8 +163,9 @@ theorem exists_H_n_of_exists_H_2
     ∃ (W : Type) (_ : Fintype W) (_ : DecidableEq W) (H : SimpleGraph W),
       H.cliqueNum = G.cliqueNum ∧ VertexPartitionRamsey n H G := by
         intro n hn;
-        induction' n, hn using Nat.le_induction with n hn ih;
-        · -- For the base case $n = 1$, we can take $H = G$.
+        induction n, hn using Nat.le_induction with
+        | base =>
+          -- For the base case $n = 1$, we can take $H = G$.
           intros V _ _ G
           use V, inferInstance, inferInstance, G
           simp [VertexPartitionRamsey];
@@ -184,7 +179,8 @@ theorem exists_H_n_of_exists_H_2
                   cases x
                   exact ⟨ _, rfl ⟩ ⟩,
             by simp +decide [ SimpleGraph.induce ] ];
-        · intro V _ _ G
+        | succ n hn ih =>
+          intro V _ _ G
           obtain ⟨W, x, x', H, hH⟩ := ih V G
           obtain ⟨W', x', x'', H', hH'⟩ := h2 W H;
           use W', x', x'', H';
@@ -906,8 +902,18 @@ lemma psi_map_injective
   Function.Injective (psi_map G v0 H' T S' phi S'' v1 i_star) := by
     intro x y hxy
     simp [psi_map] at hxy
-    cases' eq_or_ne x v0 with hx hx <;> cases' eq_or_ne y v0 with hy hy <;> simp_all +decide
-    have := phi.injective ( Subtype.ext ( by injection hxy with h; aesop ) ) ; aesop;
+    cases eq_or_ne x v0 with
+    | inl hx =>
+      cases eq_or_ne y v0 with
+      | inl hy => simp_all +decide
+      | inr hy => simp_all +decide
+    | inr hx =>
+      cases eq_or_ne y v0 with
+      | inl hy => simp_all +decide
+      | inr hy =>
+        simp_all +decide
+        have := phi.injective ( Subtype.ext ( by injection hxy with h; aesop ) )
+        aesop
 
 /-
 The map psi preserves adjacency between G and H.
@@ -1229,9 +1235,7 @@ lemma PropH2_step (n : ℕ) (hn : n > 1) (IH : PropH2 (n - 1)) : PropH2 n := by
                   (by linarith : 0 < Fintype.card V)))} =
               Fintype.card V - 1
           simp only [V_prime, Set.mem_setOf_eq]
-          simpa [ne_eq] using
-            (Fintype.card_subtype_compl fun x : V =>
-              x = Classical.choose (Finset.card_pos.mp (by linarith : 0 < Fintype.card V)))
+          simp [ne_eq]
         exact hv0.trans (by rw [hG])
       specialize IH
         (V_prime
@@ -1275,7 +1279,7 @@ lemma PropH2_0 : PropH2 0 := by
     refine' ⟨ 0, Set.univ, _, _ ⟩
     · intro w hw
       cases w
-    · refine' ⟨ { toEquiv := Fintype.equivOfCardEq (by simpa using hG), map_rel_iff' := _ } ⟩
+    · refine' ⟨ { toEquiv := Fintype.equivOfCardEq (by simp), map_rel_iff' := _ } ⟩
       intro a b
       exact False.elim (isEmptyElim a)
 
@@ -1289,11 +1293,13 @@ theorem exists_H_2 :
       H.cliqueNum = G.cliqueNum ∧ VertexPartitionRamsey 2 H G := by
         have h_ind : ∀ n : ℕ, PropH2 n := by
           intro n
-          induction' n using Nat.strong_induction_on with n ih;
-          rcases n with ( _ | _ | n ) <;> simp_all +arith +decide
-          · exact PropH2_0;
-          · exact PropH2_base;
-          · exact PropH2_step _ ( Nat.succ_lt_succ ( Nat.succ_pos _ ) ) ( ih _ ( Nat.le_refl _ ) );
+          induction n using Nat.strong_induction_on with
+          | h n ih =>
+            rcases n with ( _ | _ | n ) <;> simp_all +arith +decide
+            · exact PropH2_0;
+            · exact PropH2_base;
+            · exact PropH2_step _
+                (Nat.succ_lt_succ (Nat.succ_pos _)) (ih _ (Nat.le_refl _));
         exact fun V [Fintype V] [DecidableEq V] G => h_ind (Fintype.card V) V G rfl
 
 /-
@@ -1383,7 +1389,7 @@ lemma TwoK3_cliqueNum_le_three : TwoK3.cliqueNum ≤ 3 := by
       · exact Finset.mem_image.mpr ⟨j, Finset.mem_univ j, rfl⟩
       · have hne : (Sum.inl i : Fin 3 ⊕ Fin 3) ≠ Sum.inr j := by simp
         have hAdj := hQ.1 hx hy hne
-        simpa [TwoK3] using hAdj
+        simp [TwoK3] at hAdj
     have hcard :
         (Finset.image (fun i : Fin 3 => (Sum.inl i : Fin 3 ⊕ Fin 3)) Finset.univ).card = 3 := by
       rw [Finset.card_image_of_injective]
@@ -1396,7 +1402,7 @@ lemma TwoK3_cliqueNum_le_three : TwoK3.cliqueNum ≤ 3 := by
       rcases y with j | j
       · have hne : (Sum.inr i : Fin 3 ⊕ Fin 3) ≠ Sum.inl j := by simp
         have hAdj := hQ.1 hx hy hne
-        simpa [TwoK3] using hAdj
+        simp [TwoK3] at hAdj
       · exact Finset.mem_image.mpr ⟨j, Finset.mem_univ j, rfl⟩
     have hcard :
         (Finset.image (fun i : Fin 3 => (Sum.inr i : Fin 3 ⊕ Fin 3)) Finset.univ).card = 3 := by
@@ -1433,8 +1439,8 @@ The adjacency relation of the Folkman graph $G$.
 noncomputable def AdjG (x y : VertexG) : Prop :=
   match x, y with
   | Sum.inl (u, v), Sum.inl (u', v') => (u = u' ∧ H2.Adj v v') ∨ (v = v' ∧ H1.Adj u u')
-  | Sum.inr S, Sum.inl (u, v) => u ∈ S.val
-  | Sum.inl (u, v), Sum.inr S => u ∈ S.val
+  | Sum.inr S, Sum.inl (u, _) => u ∈ S.val
+  | Sum.inl (u, _), Sum.inr S => u ∈ S.val
   | Sum.inr _, Sum.inr _ => False
 
 /-
@@ -2151,22 +2157,22 @@ lemma exists_signature_for_v
       · exact Finset.mem_image.mpr
           ⟨(u, w),
             Finset.mem_offDiag.mpr ⟨h_red.1, h_red.2.1, h_red.2.2.1⟩,
-            by simpa [hu1u]⟩
+            by simp [hu1u]⟩
       · exact Finset.mem_image.mpr
           ⟨(w, u),
             Finset.mem_offDiag.mpr ⟨h_red.2.1, h_red.1, Ne.symm h_red.2.2.1⟩,
-            by simpa [hu1w, Sym2.eq_swap]⟩
+            by simp [hu1w, Sym2.eq_swap]⟩
     have hmem2 : (s(p, q), u2) ∈ edgeWithVertexFinset B := by
       unfold edgeWithVertexFinset
       rcases hu2.1 with hu2p | hu2q
       · exact Finset.mem_image.mpr
           ⟨(p, q),
             Finset.mem_offDiag.mpr ⟨h_blue.1, h_blue.2.1, h_blue.2.2.1⟩,
-            by simpa [hu2p]⟩
+            by simp [hu2p]⟩
       · exact Finset.mem_image.mpr
           ⟨(q, p),
             Finset.mem_offDiag.mpr ⟨h_blue.2.1, h_blue.1, Ne.symm h_blue.2.2.1⟩,
-            by simpa [hu2q, Sym2.eq_swap]⟩
+            by simp [hu2q, Sym2.eq_swap]⟩
     let sig : SigData A B := ⟨⟨(s(u, w), u1), hmem1⟩, ⟨(s(p, q), u2), hmem2⟩⟩
     refine ⟨sig, ?_⟩
     unfold ValidSignature
@@ -2429,7 +2435,7 @@ theorem erdos_582 :
   use VertexG, inferInstance, inferInstance, GraphG
   exact ⟨GraphG_cliqueNum_eq_three, folkman_theorem⟩
 
-#print axioms erdos_582
--- 'Erdos582.erdos_582' depends on axioms: [propext, Classical.choice, Quot.sound]
-
 end Erdos582
+
+#print axioms Erdos582.erdos_582
+-- 'Erdos582.erdos_582' depends on axioms: [propext, Classical.choice, Quot.sound]
