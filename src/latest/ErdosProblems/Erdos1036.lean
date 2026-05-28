@@ -249,7 +249,6 @@ namespace Erdos1036
 
 set_option linter.style.setOption false
 set_option linter.style.openClassical false
-set_option linter.style.longLine false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
@@ -257,7 +256,6 @@ set_option linter.style.cases false
 set_option linter.flexible false
 set_option linter.unusedDecidableInType false
 set_option linter.unusedFintypeInType false
-set_option linter.style.emptyLine false
 
 open scoped BigOperators
 open scoped Real
@@ -2106,12 +2104,9 @@ theorem lemma_bad_graph_edge_bound {V : Type*} [Fintype V] [DecidableEq V]
     (d : ℝ)
     (h_bound : ∀ j, (bad_indices G B rep j).card ≤ d) :
     ((bad_graph G N B rep).edgeFinset.card : ℝ) ≤ N * d := by
-
-      set E := (bad_graph G N B rep).edgeFinset;
-
+      set E := (bad_graph G N B rep).edgeFinset
       have h_edge_count : E.card ≤ ∑ j, ((bad_indices G B rep j).card : ℝ) := by
         have h_edge_count : E.card ≤ ∑ j, ((bad_indices G B rep j).card : ℕ) := by
-
           have h_edge_contribution :
               ∀ e ∈ E,
                 ∃ j : Fin N,
