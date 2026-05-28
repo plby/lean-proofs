@@ -40,7 +40,7 @@ set_option maxHeartbeats 2000000
 open Real Metric Set InnerProductSpace Complex EuclideanGeometry
 open scoped Classical InnerProductSpace Pointwise Complex EuclideanGeometry
 namespace Erdos93
-noncomputable section
+section
 
 variable {V : Type*} [NormedAddCommGroup V] [InnerProductSpace ℝ V]
 variable [FiniteDimensional ℝ V]
@@ -50,7 +50,7 @@ variable [Fact (Module.finrank ℝ V = 2)]
 The set of distinct distances determined by a finite set of points `s`.
 It is the set { dist x y | x ∈ s, y ∈ s, x ≠ y }.
 -/
-def distinctDistances (s : Finset V) : Finset ℝ :=
+noncomputable def distinctDistances (s : Finset V) : Finset ℝ :=
   (s.product s).filter (fun p => p.1 ≠ p.2) |>.image (fun p => dist p.1 p.2)
 
 /--
@@ -71,7 +71,7 @@ noncomputable def centroid_angle {V : Type*} [NormedAddCommGroup V] [InnerProduc
 /--
 The centroid of a finite set of points.
 -/
-def finset_centroid (s : Finset V) : V :=
+noncomputable def finset_centroid (s : Finset V) : V :=
   (s.card : ℝ)⁻¹ • s.sum id
 
 /--
