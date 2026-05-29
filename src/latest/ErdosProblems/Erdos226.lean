@@ -2430,7 +2430,7 @@ theorem erdos_226 : ∃ F : ℂ → ℂ, Differentiable ℂ F ∧ (∀ x : ℝ, 
   use F_final';
   exact ⟨ F_final'_entire, F_final'_real_on_real, f_final'_not_affine, f_final'_preserves_rationality ⟩
 
-#print axioms erdos_226
--- 'Erdos226.erdos_226' depends on axioms: [propext, Classical.choice, Quot.sound]
-
 end Erdos226
+
+#print axioms Erdos226.erdos_226
+-- 'Erdos226.erdos_226' depends on axioms: [propext, Classical.choice, Quot.sound]
