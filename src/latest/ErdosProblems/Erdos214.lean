@@ -5914,11 +5914,11 @@ theorem theorem_2 :
       · exact lemma_config_X_card;
       · rintro X' ⟨ f, rfl ⟩ ; exact lemma_config_intersects_blue f;
 
-#print axioms theorem_1
--- 'Erdos214.theorem_1' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-#print axioms theorem_2
--- 'Erdos214.theorem_2' depends on axioms: [propext, Classical.choice, Quot.sound]
-
 end
 end Erdos214
+
+#print axioms Erdos214.theorem_1
+-- 'Erdos214.theorem_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+#print axioms Erdos214.theorem_2
+-- 'Erdos214.theorem_2' depends on axioms: [propext, Classical.choice, Quot.sound]
