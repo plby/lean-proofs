@@ -608,7 +608,7 @@ lemma exists_bestNTerm_above (n : ℕ) (x : ℝ) (hx : 0 < x) (a₀ : ℕ) :
       · exact hS₀.2.2.1
       · exact fun m hm => by
           rcases Finset.mem_insert.mp hm with rfl | hm
-          · exact Nat.pos_of_ne_zero ( by aesop )
+          · exact Nat.lt_of_le_of_lt ( Nat.zero_le a₀ ) ha₁
           · exact hT_a a ha₁ ha₂ ha₃ |>.2.2.1 m hm
     · simp +zetaDelta at *
       rcases hS.1 with ( rfl | ⟨ a, ⟨ ⟨ ha₁, ha₂ ⟩, ha₃ ⟩, rfl ⟩ ) <;> norm_num at *
@@ -727,7 +727,7 @@ lemma IsBestNTerm_value_determines_prev (n : ℕ) (x y : ℝ)
   · constructor
     · exact fun m hm => by
         cases Finset.mem_insert.mp hm with
-        | inl _ => aesop
+        | inl h => subst h; exact hM₂.2
         | inr h => exact hT₂.2.1.1 m h
     · simp_all +decide [ egyptianSum ]
       linarith
@@ -1393,7 +1393,8 @@ lemma telescoping_sum_lower_bound
         (1 / (i - 1 : ℝ) - 1 / (i : ℝ)) := by
     rw [← Finset.sum_sdiff (show S ∩ Finset.Icc (i₀ + 1) (i₀ * i₀) ⊆ Finset.Icc (i₀ + 1) (i₀ * i₀)
       from Finset.inter_subset_right)]
-    aesop
+    simp_all only [one_div, sum_sub_distrib, mul_inv_rev, tsub_le_iff_right,
+      sdiff_inter_self_right, add_sub_cancel_right, ge_iff_le, Std.le_refl]
   refine le_trans ?_ h_sum_bound
   refine le_trans ?_ ( sub_le_sub_left ‹_› _ )
   field_simp
@@ -1585,7 +1586,7 @@ lemma exists_avoided_set
           (1 / ((i : ℝ) - 1) - 1 / i) ≥
         1 / (i₀ : ℝ) - (1 + t) / (i₀ : ℝ) ^ 2 := by
       have := telescoping_sum_lower_bound i₀ ( by linarith ) S
-      aesop
+      simp_all only [one_div, sum_sub_distrib, mul_inv_rev, tsub_le_iff_right, ge_iff_le]
     have h_measure_sum : 1 / 1000 * (1 / (i₀ : ℝ) - (1 + t) / (i₀ : ℝ) ^ 2) ≥ (r - q) / 2000 := by
       have := avoided_measure_arithmetic i₀ t ( by linarith ) ( by linarith )
       refine le_trans ?_ this
@@ -1671,7 +1672,7 @@ lemma X_set_eq_disjoint_union (s t : ℕ) (hs : 0 < s) (ht : s ≤ t) :
       · convert fiber_gap_bound s t ht ht2 j.val j.prop using 1
         have := fiber_sup_bestNTermSum s t j.val j.prop
         rw [ bestNTermSum_eq ] at this
-        · aesop
+        · simp_all only [mem_setOf_eq]
         · exact fiber_sup_mem_X_set s t j.val j.prop |>.1
       · interval_cases t <;> interval_cases s ; norm_num at *
         have h_fiber : ∀ x ∈ X_fiber 1 1 j.val, x ≤ 1 / 2 + egyptianSum (bestNTermSet 1 x) := by
