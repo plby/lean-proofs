@@ -35,7 +35,6 @@ set_option linter.style.openClassical false
 set_option linter.style.refine false
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.unusedDecidableInType false
 
 open scoped Classical
 open SimpleGraph
@@ -64,12 +63,13 @@ def EdgeRamseyTriangle {V : Type*} (G : SimpleGraph V) : Prop :=
 If $H \Rightarrow_2 K$ and $K \Rightarrow_n G$, then $H \Rightarrow_{n+1} G$.
 -/
 lemma ramsey_trans
-  {V W U : Type*} [DecidableEq V] [DecidableEq W] [DecidableEq U]
+  {V W U : Type*}
   (G : SimpleGraph V) (K : SimpleGraph W) (H : SimpleGraph U)
   (n : ℕ) (hn : n ≥ 1)
   (hK : VertexPartitionRamsey n K G)
   (hH : VertexPartitionRamsey 2 H K) :
   VertexPartitionRamsey (n + 1) H G := by
+    classical
     intro f;
     -- Define a new function $g : U \to \{0, 1\}$ by $g(u) = 0$ if $f(u) < n$,
     -- and $g(u) = 1$ if $f(u) = n$.
@@ -153,19 +153,20 @@ If for every graph $G$ there exists $H$ such that $\om(H)=\om(G)$ and
 $H \Rightarrow_2 G$, then for every $n \ge 1$ and every $G$ there exists $H$ such
 that $\om(H)=\om(G)$ and $H \Rightarrow_n G$.
 -/
-omit [Fintype V] in
+omit [Fintype V] [DecidableEq V] in
 theorem exists_H_n_of_exists_H_2
-  (h2 : ∀ (V : Type) [Finite V] [DecidableEq V] (G : SimpleGraph V),
+  (h2 : ∀ (V : Type) [Finite V] (G : SimpleGraph V),
     ∃ (W : Type) (_ : Fintype W) (_ : DecidableEq W) (H : SimpleGraph W),
       H.cliqueNum = G.cliqueNum ∧ VertexPartitionRamsey 2 H G) :
-  ∀ (n : ℕ) (hn : n ≥ 1) (V : Type) [Finite V] [DecidableEq V] (G : SimpleGraph V),
+  ∀ (n : ℕ) (hn : n ≥ 1) (V : Type) [Finite V] (G : SimpleGraph V),
     ∃ (W : Type) (_ : Fintype W) (_ : DecidableEq W) (H : SimpleGraph W),
       H.cliqueNum = G.cliqueNum ∧ VertexPartitionRamsey n H G := by
+        classical
         intro n hn;
         induction n, hn using Nat.le_induction with
         | base =>
           -- For the base case $n = 1$, we can take $H = G$.
-          intros V _ _ G
+          intros V _ G
           letI := Fintype.ofFinite V
           use V, inferInstance, inferInstance, G
           simp [VertexPartitionRamsey];
@@ -180,7 +181,7 @@ theorem exists_H_n_of_exists_H_2
                   exact ⟨ _, rfl ⟩ ⟩,
             by simp +decide [ SimpleGraph.induce ] ];
         | succ n hn ih =>
-          intro V _ _ G
+          intro V _ G
           obtain ⟨W, x, x', H, hH⟩ := ih V G
           obtain ⟨W', x', x'', H', hH'⟩ := h2 W H;
           use W', x', x'', H';
@@ -198,8 +199,9 @@ def G_double_prime : SimpleGraph (V_double_prime G v0) :=
 
 def X_set : Set (Set W) := { S | Nonempty ((H'.induce S) ≃g (G_double_prime G v0)) }
 
-omit [Fintype V] [Fintype W] in
+omit [Fintype V] [Fintype W] [DecidableEq V] [DecidableEq W] in
 lemma X_nonempty (h : VertexPartitionRamsey 2 H' (G_prime G v0)) : (X_set G v0 H').Nonempty := by
+  classical
   -- By definition of $X_set$, we need to show that there exists a subset
   -- $S \subseteq (G 인덱스 (SimpleGraph.induce {v0}ᶜ G)).vertexSet$ such that
   -- $H'.induce (Gszczę (H'.induce {v0}ᶜ H')) S) \cong G''$.
@@ -306,9 +308,11 @@ noncomputable def GraphH : SimpleGraph (VertexH G v0 H') where
 /-
 Lower bound on the clique number of H(2,G).
 -/
+omit [DecidableEq V] [DecidableEq W] in
 lemma GraphH_cliqueNum_ge
   (h_ramsey : VertexPartitionRamsey 2 H' (G_prime G v0)) :
   G.cliqueNum ≤ (GraphH G v0 H').cliqueNum := by
+    classical
     -- Since $H' \Rightarrow_2 G'$, $X$ is nonempty. Let $S \in X$ and $T \in J$.
     obtain ⟨S, hS⟩ : ∃ S : Set W, S ∈ X_set G v0 H' := by
       exact Set.nonempty_iff_ne_empty.2 ( X_nonempty G v0 H' h_ramsey |> Set.Nonempty.ne_empty )
@@ -341,6 +345,7 @@ lemma GraphH_cliqueNum_ge
 /-
 If a clique contains at least two type A vertices, its size is at most the clique number of G.
 -/
+omit [DecidableEq V] [DecidableEq W] in
 lemma clique_case_two_A
   (Q : Finset (VertexH G v0 H'))
   (hQ : (GraphH G v0 H').IsClique Q)
@@ -348,6 +353,7 @@ lemma clique_case_two_A
   (hx : x ∈ Q) (hy : y ∈ Q) (hxy : x ≠ y)
   (hx_A : ∃ a, x = Sum.inl a) (hy_A : ∃ b, y = Sum.inl b) :
   Q.card ≤ G.cliqueNum := by
+    classical
     -- Since there are at least two type A vertices, there cannot be any type B vertices in $Q$.
     have h_no_B : ∀ z ∈ Q, ¬∃ w i, z = Sum.inr (w, i) := by
       intro z hz hz_B
@@ -442,9 +448,10 @@ lemma clique_case_two_A
 /-
 The clique number of G'' plus 1 is at most the clique number of G.
 -/
-omit [Fintype V] in
+omit [Fintype V] [DecidableEq V] in
 lemma cliqueNum_G_double_prime_le [Finite V] :
   (G_double_prime G v0).cliqueNum + 1 ≤ G.cliqueNum := by
+    classical
     letI := Fintype.ofFinite V
     simp +decide [ SimpleGraph.cliqueNum ];
     refine' (le_csSup (α := ℕ) _ _);
@@ -482,6 +489,7 @@ lemma cliqueNum_G_double_prime_le [Finite V] :
 If a clique contains a type A vertex and a type B vertex, the type B vertex must be
 in the subset S associated with the type A vertex.
 -/
+omit [DecidableEq V] [DecidableEq W] in
 lemma clique_case_one_A_subset_S
   (Q : Finset (VertexH G v0 H'))
   (hQ : (GraphH G v0 H').IsClique Q)
@@ -490,6 +498,7 @@ lemma clique_case_one_A_subset_S
   (w : W) (i : I_type V W)
   (hw : Sum.inr (w, i) ∈ Q) :
   w ∈ S.val := by
+    classical
     have := hQ hv hw; simp_all +decide [ GraphH ] ;
     exact this.1
 
@@ -588,10 +597,11 @@ If a clique is contained in a subset of vertices, its size is at most the clique
 of the induced subgraph on that subset.
 -/
 lemma clique_subset_le_cliqueNum_induce
-  {V : Type*} [Finite V] [DecidableEq V]
-  (G : SimpleGraph V) (S : Set V) [Finite S] [DecidableEq S]
+  {V : Type*} [Finite V]
+  (G : SimpleGraph V) (S : Set V) [Finite S]
   (C : Finset V) (hC : G.IsClique C) (hCS : ∀ v ∈ C, v ∈ S) :
   C.card ≤ (G.induce S).cliqueNum := by
+    classical
     letI := Fintype.ofFinite V
     letI := Fintype.ofFinite S
     refine' le_csSup _ _;
@@ -608,6 +618,7 @@ lemma clique_subset_le_cliqueNum_induce
 /-
 If a clique contains exactly one type A vertex, its size is at most the clique number of G'' plus 1.
 -/
+omit [DecidableEq V] [DecidableEq W] in
 lemma clique_case_one_A
   (Q : Finset (VertexH G v0 H'))
   (hQ : (GraphH G v0 H').IsClique Q)
@@ -616,6 +627,7 @@ lemma clique_case_one_A
   (hx_A : ∃ a, x = Sum.inl a)
   (h_unique : ∀ y ∈ Q, (∃ b, y = Sum.inl b) → y = x) :
   Q.card ≤ (G_double_prime G v0).cliqueNum + 1 := by
+    classical
     obtain ⟨v, S, T, hv⟩ :
         ∃ v : V, ∃ S : X_type G v0 H', ∃ T : J_type V W,
           x = Sum.inl (v, S, T) := by
@@ -703,11 +715,13 @@ lemma clique_case_one_A
 /-
 If a clique contains no type A vertices, its size is at most the clique number of H'.
 -/
+omit [DecidableEq V] [DecidableEq W] in
 lemma clique_case_zero_A
   (Q : Finset (VertexH G v0 H'))
   (hQ : (GraphH G v0 H').IsClique Q)
   (h_no_A : ∀ x ∈ Q, ∀ a, x ≠ Sum.inl a) :
   Q.card ≤ H'.cliqueNum := by
+    classical
     -- Since there are no type A vertices in Q, all vertices in Q must be of type B.
     have h_all_B : ∀ x ∈ Q, ∃ w i, x = Sum.inr (w, i) := by
       intro x hx; specialize h_no_A x hx; rcases x with ( ⟨ v, S, T ⟩ | ⟨ w, i ⟩ ) <;> tauto;
@@ -760,9 +774,11 @@ lemma clique_case_zero_A
 /-
 The clique number of H(2,G) is at most the clique number of G.
 -/
+omit [DecidableEq V] [DecidableEq W] in
 lemma GraphH_cliqueNum_le
   (h_clique : H'.cliqueNum = (G_prime G v0).cliqueNum) :
   (GraphH G v0 H').cliqueNum ≤ G.cliqueNum := by
+    classical
     -- Let $Q$ be a clique in $H(2,G)$. We show that $|Q| \le G.cliqueNum$ by
     -- considering the cases with at least two, exactly one, or no type A vertices.
     have h_clique_size :
@@ -822,10 +838,12 @@ lemma GraphH_cliqueNum_le
 /-
 The clique number of H(2,G) is equal to the clique number of G.
 -/
+omit [DecidableEq V] [DecidableEq W] in
 lemma GraphH_cliqueNum_eq
   (h_ramsey : VertexPartitionRamsey 2 H' (G_prime G v0))
   (h_clique : H'.cliqueNum = (G_prime G v0).cliqueNum) :
   (GraphH G v0 H').cliqueNum = G.cliqueNum := by
+    classical
     refine' le_antisymm _ _;
     · exact GraphH_cliqueNum_le G v0 H' h_clique;
     · convert GraphH_cliqueNum_ge G v0 H' h_ramsey using 1
@@ -845,9 +863,11 @@ def is_uniform (f : VertexH G v0 H' → Fin 2) (T : Finset (I_type V W)) : Prop 
 /-
 There exists a subset of indices of size r that is uniform with respect to the induced partition.
 -/
+omit [DecidableEq V] [DecidableEq W] in
 lemma exists_uniform_subset
   (f : VertexH G v0 H' → Fin 2) :
   ∃ (T : J_type V W), is_uniform G v0 H' f T.val := by
+    classical
     -- By the pigeonhole principle, since there are $(r-1)t + 1$ indices and only
     -- $t$ possible functions $c_i$, some function $c : W \to \text{Fin } 2$
     -- occurs for at least $r$ indices.
@@ -897,6 +917,7 @@ def psi_map
 /-
 The map psi is injective.
 -/
+omit [DecidableEq W] in
 lemma psi_map_injective
   (T : J_type V W)
   (S' : Set W)
@@ -905,6 +926,7 @@ lemma psi_map_injective
   (v1 : V)
   (i_star : I_type V W) :
   Function.Injective (psi_map G v0 H' T S' phi S'' v1 i_star) := by
+    classical
     intro x y hxy
     simp [psi_map] at hxy
     cases eq_or_ne x v0 with
@@ -923,6 +945,7 @@ lemma psi_map_injective
 /-
 The map psi preserves adjacency between G and H.
 -/
+omit [DecidableEq W] in
 lemma psi_map_preserves_adj
   (T : J_type V W)
   (S' : Set W)
@@ -939,6 +962,7 @@ lemma psi_map_preserves_adj
     (GraphH G v0 H').Adj
       (psi_map G v0 H' T S' phi S'' v1 i_star u)
       (psi_map G v0 H' T S' phi S'' v1 i_star v) := by
+    classical
     by_cases hu : u = v0 <;> by_cases hv : v = v0 <;> simp +decide [ *, psi_map ];
     · unfold GraphH; simp +decide [ * ] ;
       unfold AdjH; simp +decide [ * ] ;
@@ -956,11 +980,15 @@ under the bijection $f_T$.
 noncomputable def get_i_star (T : J_type V W) (v : V) : I_type V W :=
   ((f_map V W T).symm v).val
 
+omit [DecidableEq V] [DecidableEq W] in
 lemma get_i_star_mem (T : J_type V W) (v : V) : get_i_star T v ∈ T.val := by
+  classical
   exact ( Equiv.symm ( f_map V W T ) ) v |>.2
 
+omit [DecidableEq V] [DecidableEq W] in
 lemma f_map_get_i_star (T : J_type V W) (v : V) :
   f_map_val T (get_i_star T v) (get_i_star_mem T v) = v := by
+    classical
     exact Equiv.apply_symm_apply _ _
 
 /-
@@ -978,6 +1006,7 @@ noncomputable def psi_map_case_1
 /-
 The map `psi_map_case_1` preserves adjacency, i.e., it is a graph embedding from $G$ to $H$.
 -/
+omit [DecidableEq W] in
 lemma psi_map_case_1_preserves_adj
   (T : J_type V W)
   (S' : Set W)
@@ -991,6 +1020,7 @@ lemma psi_map_case_1_preserves_adj
     (GraphH G v0 H').Adj
       (psi_map_case_1 G v0 H' T S' phi S'' v1 u)
       (psi_map_case_1 G v0 H' T S' phi S'' v1 v) := by
+    classical
     convert psi_map_preserves_adj G v0 H' T S' phi h_phi_iso S'' h_S''_eq v1
       (get_i_star T v1) (get_i_star_mem T v1) (f_map_get_i_star T v1) u v using 1
 
@@ -1008,6 +1038,7 @@ noncomputable def U_case_1
 /-
 The map `psi_map_case_1` is injective.
 -/
+omit [DecidableEq W] in
 lemma psi_map_case_1_injective
   (T : J_type V W)
   (S' : Set W)
@@ -1015,11 +1046,13 @@ lemma psi_map_case_1_injective
   (S'' : X_type G v0 H')
   (v1 : V) :
   Function.Injective (psi_map_case_1 G v0 H' T S' phi S'' v1) := by
+    classical
     convert psi_map_injective G v0 H' T S' phi S'' v1 _ using 1
 
 /-
 All vertices in the set $U$ constructed for Case 1 have color $k$.
 -/
+omit [DecidableEq W] in
 lemma U_case_1_monochromatic
   (f : VertexH G v0 H' → Fin 2)
   (T : J_type V W)
@@ -1035,6 +1068,7 @@ lemma U_case_1_monochromatic
   (x : VertexH G v0 H')
   (hx : x ∈ U_case_1 G v0 H' T S' phi S'' v1) :
   f x = k := by
+    classical
     obtain ⟨ v, rfl ⟩ := Set.mem_range.mp hx;
     by_cases h : v = v0 <;> simp_all +decide [ psi_map_case_1 ];
     · unfold psi_map; aesop;
@@ -1047,6 +1081,7 @@ lemma U_case_1_monochromatic
 The map `psi_map_case_1` induces an isomorphism between $G$ and the induced subgraph
 on its range $U$.
 -/
+omit [DecidableEq W] in
 lemma psi_map_case_1_is_iso
   (T : J_type V W)
   (S' : Set W)
@@ -1056,6 +1091,7 @@ lemma psi_map_case_1_is_iso
   (h_S''_eq : S''.val = Subtype.val '' (phi '' (V_double_prime G v0)))
   (v1 : V) :
   Nonempty (G ≃g (GraphH G v0 H').induce (U_case_1 G v0 H' T S' phi S'' v1)) := by
+    classical
     refine' ⟨ _ ⟩;
     refine' { Equiv.ofBijective ( fun x => ⟨ _, ⟨ x, rfl ⟩ ⟩ ) ⟨ _, _ ⟩ with .. };
     all_goals norm_num [ Function.Injective, Function.Surjective ];
@@ -1076,10 +1112,12 @@ noncomputable def U_case_2
 The map `psi_map_case_2` induces an isomorphism between $G$ and the induced subgraph
 on its range $U$.
 -/
+omit [DecidableEq V] [DecidableEq W] in
 lemma psi_map_case_2_is_iso
   (S'' : X_type G v0 H')
   (T : J_type V W) :
   Nonempty (G ≃g (GraphH G v0 H').induce (U_case_2 G v0 H' S'' T)) := by
+    classical
     refine' ⟨ _, _, _ ⟩;
     refine' Equiv.ofBijective
       (fun v => ⟨ Sum.inl ( v, S'', T ), _ ⟩)
@@ -1094,6 +1132,7 @@ lemma psi_map_case_2_is_iso
 Case 1 of the Ramsey proof: if we find a vertex $v_1$ of the same color as the
 monochromatic set $S'$, we construct a monochromatic copy of $G$.
 -/
+omit [DecidableEq V] [DecidableEq W] in
 lemma GraphH_ramsey_2_case_1
   (f : VertexH G v0 H' → Fin 2)
   (T : J_type V W)
@@ -1110,6 +1149,7 @@ lemma GraphH_ramsey_2_case_1
   (h_v1_color : f (Sum.inl (v1, S'', T)) = k) :
   ∃ (U : Set (VertexH G v0 H')),
     (∀ x ∈ U, f x = k) ∧ Nonempty (G ≃g (GraphH G v0 H').induce U) := by
+    classical
     refine' ⟨ _, _, _ ⟩;
     exact Set.range ( psi_map_case_1 G v0 H' T S' phi S'' v1 );
     · exact fun x a =>
@@ -1119,9 +1159,11 @@ lemma GraphH_ramsey_2_case_1
 /-
 The graph $H(2,G)$ satisfies the vertex-partition Ramsey property for $G$ with 2 colors.
 -/
+omit [DecidableEq V] [DecidableEq W] in
 lemma GraphH_ramsey_2
   (h_ramsey : VertexPartitionRamsey 2 H' (G_prime G v0)) :
   VertexPartitionRamsey 2 (GraphH G v0 H') G := by
+    classical
     revert h_ramsey;
     intro h_ramsey f;
     -- By `exists_uniform_subset`, there exists $T \in J$ such that the induced
@@ -1292,11 +1334,12 @@ lemma PropH2_0 : PropH2 0 := by
 For every graph $G$, there exists a graph $H$ such that $\omega(H) = \omega(G)$ and
 $H \Rightarrow_2 G$.
 -/
-omit [Fintype V] in
+omit [Fintype V] [DecidableEq V] in
 theorem exists_H_2 :
-  ∀ (V : Type) [Finite V] [DecidableEq V] (G : SimpleGraph V),
+  ∀ (V : Type) [Finite V] (G : SimpleGraph V),
     ∃ (W : Type) (_ : Fintype W) (_ : DecidableEq W) (H : SimpleGraph W),
       H.cliqueNum = G.cliqueNum ∧ VertexPartitionRamsey 2 H G := by
+        classical
         have h_ind : ∀ n : ℕ, PropH2 n := by
           intro n
           induction n using Nat.strong_induction_on with
@@ -1306,7 +1349,8 @@ theorem exists_H_2 :
             · exact PropH2_base;
             · exact PropH2_step _
                 (Nat.succ_lt_succ (Nat.succ_pos _)) (ih _ (Nat.le_refl _));
-        exact fun V [Finite V] [DecidableEq V] G => by
+        exact fun V [Finite V] G => by
+          classical
           letI := Fintype.ofFinite V
           exact h_ind (Fintype.card V) V G rfl
 
@@ -1314,12 +1358,13 @@ theorem exists_H_2 :
 For every graph $G$ and integer $n \ge 1$, there exists a graph $H(n,G)$ with the
 same clique number such that $H(n,G) \Rightarrow_n G$.
 -/
-omit [Fintype V] in
+omit [Fintype V] [DecidableEq V] in
 theorem exists_H_n :
-  ∀ (n : ℕ) (hn : n ≥ 1) (V : Type) [Finite V] [DecidableEq V] (G : SimpleGraph V),
+  ∀ (n : ℕ) (hn : n ≥ 1) (V : Type) [Finite V] (G : SimpleGraph V),
     ∃ (W : Type) (_ : Fintype W) (_ : DecidableEq W) (H : SimpleGraph W),
       H.cliqueNum = G.cliqueNum ∧ VertexPartitionRamsey n H G := by
-  intro n hn V _ _ G
+  classical
+  intro n hn V _ G
   exact exists_H_n_of_exists_H_2 exists_H_2 n hn V G
 
 /-
