@@ -59,7 +59,6 @@ import Mathlib.Topology.ContinuousMap.SecondCountableSpace
 
 set_option linter.style.setOption false
 set_option linter.style.openClassical false
-set_option linter.unusedDecidableInType false
 
 /-!
 Trust boundary (verified at the bottom with `#print axioms`):
@@ -4081,10 +4080,11 @@ subsequence, every countably indexed yes/no relation is eventually constantly
 true or eventually constantly false. -/
 lemma exists_strictMono_subseq_eventually_const_countable_family
     {ι : Type*} [Countable ι] (P : ι → ℕ → Prop)
-    [∀ i n, Decidable (P i n)] :
+    :
     ∃ φ : ℕ → ℕ, StrictMono φ ∧
       ∀ i : ι, (∀ᶠ n in atTop, P i (φ n)) ∨
         (∀ᶠ n in atTop, ¬ P i (φ n)) := by
+  classical
   let x : ℕ → (ι → Bool) := fun n i => decide (P i n)
   rcases CompactSpace.tendsto_subseq x with ⟨y, φ, hφ, hlim⟩
   refine ⟨φ, hφ, ?_⟩
@@ -8786,7 +8786,7 @@ lemma intPi_pairCoeffLowerBound_of_loss
   intPi_pairCoeffLowerBound_of_nat_ratio hK hB
     (intPi_product_ratio_bound (ι := ι) hK hloss)
 
-omit [Fintype ι] in
+omit [Fintype ι] [DecidableEq ι] in
 lemma exists_intPi_pairCoeffLowerBound_of_bound
     [Finite ι]
     (B : Finset (ι → ℤ)) (K : ℕ) {M : ℝ} (hM : 0 < M)
@@ -8822,7 +8822,7 @@ lemma exists_intPi_pairCoeffLowerBound_of_bound
     ⟨intPiCenteredBox ι N, intPiCenteredBox_nonempty N,
       intPi_pairCoeffLowerBound_of_loss hKle hB hloss⟩
 
-omit [Fintype ι] in
+omit [Fintype ι] [DecidableEq ι] in
 lemma exists_intPi_pairCoeffLowerBound
     [Finite ι]
     (B : Finset (ι → ℤ)) {M : ℝ} (hM : 0 < M) :
@@ -8855,7 +8855,7 @@ section FinsuppBoxes
 
 variable {ι : Type*} [Fintype ι] [DecidableEq ι]
 
-omit [Fintype ι] in
+omit [Fintype ι] [DecidableEq ι] in
 lemma exists_finsupp_pairCoeffLowerBound
     [Finite ι]
     (B : Finset (ι →₀ ℤ)) {M : ℝ} (hM : 0 < M) :
