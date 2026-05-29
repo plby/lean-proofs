@@ -573,35 +573,30 @@ lemma fin3_sum_pow_nonneg (f : Fin 3 → ℝ)
 
 /-! ## Hadamard product of M and Mᵀ is symmetric -/
 
--- These helper statements keep the same matrix typeclass hypotheses as nearby lemmas.
-set_option linter.unusedDecidableInType false in
 /-- The Hadamard product `M ∘ Mᵀ` is symmetric for any square matrix `M`. -/
-lemma hadamard_transpose_isSymm {n : Type*} [DecidableEq n]
+lemma hadamard_transpose_isSymm {n : Type*}
     (M : Matrix n n ℝ) : (M.hadamard M.transpose).IsSymm := by
+  classical
   ext i j; simp +decide [mul_comm]
 
--- These helper statements keep the same matrix typeclass hypotheses as nearby lemmas.
-set_option linter.unusedDecidableInType false in
 /-- Conversion: a symmetric real matrix is Hermitian. -/
-lemma isSymm_to_isHermitian {n : Type*} [DecidableEq n]
+lemma isSymm_to_isHermitian {n : Type*}
     (M : Matrix n n ℝ) (h : M.IsSymm) : M.IsHermitian := by
   rwa [Matrix.IsHermitian, Matrix.conjTranspose_eq_transpose_of_trivial]
 
--- This helper statement keeps the same matrix typeclass hypotheses as nearby lemmas.
-set_option linter.unusedDecidableInType false in
 /-- For symmetric P₁, P₂, we have `P₂ * P₁ = (P₁ * P₂)ᵀ`. -/
-lemma transpose_prod_symm {n : Type*} [Fintype n] [DecidableEq n]
+lemma transpose_prod_symm {n : Type*} [Fintype n]
     (P₁ P₂ : Matrix n n ℝ) (h1 : P₁.transpose = P₁) (h2 : P₂.transpose = P₂) :
     P₂ * P₁ = (P₁ * P₂).transpose := by
+  classical
   simp [Matrix.transpose_mul, h1, h2]
 
--- This helper statement keeps the same matrix typeclass hypotheses as nearby lemmas.
-set_option linter.unusedDecidableInType false in
 /-- The Hadamard product `(P₁P₂) ∘ (P₂P₁)` is symmetric when P₁, P₂ are symmetric. -/
 lemma hadamard_prod_isSymm
-    {n : Type*} [Fintype n] [DecidableEq n]
+    {n : Type*} [Fintype n]
     (P₁ P₂ : Matrix n n ℝ) (h1 : P₁.transpose = P₁) (h2 : P₂.transpose = P₂) :
     (hadamard (P₁ * P₂) (P₂ * P₁)).IsSymm := by
+  classical
   rw [transpose_prod_symm P₁ P₂ h1 h2]
   exact hadamard_transpose_isSymm (P₁ * P₂)
 
