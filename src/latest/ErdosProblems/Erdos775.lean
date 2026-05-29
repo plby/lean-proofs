@@ -94,7 +94,7 @@ def IsClique (H : KUniformHypergraph α k) (S : Finset α) : Prop :=
   H.IsComplete S ∧ ∀ T : Finset α, S ⊂ T → ¬H.IsComplete T
 
 set_option linter.unusedSectionVars false in
-set_option linter.unusedDecidableInType false in
+omit [DecidableEq α] in
 /-- Subsets of complete sets are complete. -/
 lemma IsComplete.mono {H : KUniformHypergraph α k} {S T : Finset α}
     (hST : S ⊆ T) (hT : H.IsComplete T) : H.IsComplete S :=
