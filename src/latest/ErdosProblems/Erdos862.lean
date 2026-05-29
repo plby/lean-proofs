@@ -1935,9 +1935,9 @@ theorem erdos_862 :
   apply thm_main
   exact sqrt_asymptotic
 
-#print axioms erdos_862
--- 'Erdos862.erdos_862' depends on axioms: [propext, choice, Quot.sound]
-
 end
 
 end Erdos862
+
+#print axioms Erdos862.erdos_862
+-- 'Erdos862.erdos_862' depends on axioms: [propext, Classical.choice, Quot.sound]
