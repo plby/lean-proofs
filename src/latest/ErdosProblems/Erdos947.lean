@@ -103,7 +103,7 @@ theorem power_series_identity_geometric (l : List (ℤ × ℕ)) (h : IsExactCove
     · simp +decide [← Int.natCast_modEq_iff]
       rw [max_eq_left (by
         have := h.1 (l.get i) (by simp +decide)
-        aesop)]
+        simp_all only [List.get_eq_getElem])]
     · simp +decide [← Int.natCast_modEq_iff]
       congr! 3
       exact max_eq_left (h.1 _ (by simp) |>.1)
@@ -128,13 +128,14 @@ theorem power_series_identity_geometric (l : List (ℤ × ℕ)) (h : IsExactCove
         apply hiu j
         have hlt_j : l[(j : ℕ)].1.toNat < l[(j : ℕ)].2 := by
           have := h.1 (l.get j) (by simp)
-          aesop
+          simp_all only [List.get_eq_getElem, Int.toNat_lt]
         rw [Nat.ModEq]
         exact hj.trans (Nat.mod_eq_of_lt hlt_j).symm
       · intro hji
         have hlt_i : l[(i : ℕ)].1.toNat < l[(i : ℕ)].2 := by
           have := h.1 (l.get i) (by simp)
-          aesop
+          subst hji
+          simp_all only [List.get_eq_getElem, Int.toNat_lt]
         have hi_eq : m % l[(i : ℕ)].2 = l[(i : ℕ)].1.toNat := by
           have hi_eq_mod :
               m % l[(i : ℕ)].2 = l[(i : ℕ)].1.toNat % l[(i : ℕ)].2 := by
@@ -144,7 +145,7 @@ theorem power_series_identity_geometric (l : List (ℤ × ℕ)) (h : IsExactCove
     simp [Nat.mod_one, hcard]
   ext m
   specialize h_coeff m
-  aesop
+  simp_all only [List.get_eq_getElem, map_sum]
 
 /-
 The identity $\sum x^{a_i} \prod_{j \ne i} (1-x^{n_j}) \cdot (1-x) =
@@ -248,7 +249,8 @@ theorem polynomial_identity_mul (l : List (ℤ × ℕ)) (h : IsExactCoveringSyst
     -- Since the coefficients of the polynomial and the power series are the same.
     have h_coeff_eq : ∀ (p : Polynomial ℂ), ∀ (n : ℕ),
         PowerSeries.coeff n (Polynomial.toPowerSeries p) = Polynomial.coeff p n := by
-      aesop
+      intro p n
+      simp_all only [Polynomial.coeff_coe]
     congr! 2
     · congr! 2
       · congr! 2
