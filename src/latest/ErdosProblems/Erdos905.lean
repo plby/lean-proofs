@@ -307,12 +307,11 @@ lemma degree_add_degree_le_card_add_two_mul_triangleDegree
   have := degree_add_degree_le_card_add_commonNeighbors G u v
   omega
 
--- The following lemmas keep their existing decidability hypotheses to preserve statements.
-set_option linter.unusedDecidableInType false in
 lemma commonNeighbors_card_eq_triangleDegree_edge
-    (G : SimpleGraph V) [DecidableRel G.Adj] [DecidableEq V] (e : Sym2 V) :
+    (G : SimpleGraph V) [DecidableRel G.Adj] (e : Sym2 V) :
     (Finset.filter (fun y => y ∈ G.commonNeighbors e.out.1 e.out.2)
       (Finset.univ : Finset V)).card = triangleDegree G e := by
+  classical
   convert triangleDegree_mk G (Quot.out e).1 (Quot.out e).2 using 1
   · convert rfl
     convert triangleDegree_mk G (Quot.out e).1 (Quot.out e).2 using 1
@@ -320,11 +319,11 @@ lemma commonNeighbors_card_eq_triangleDegree_edge
     aesop
   · exact congr_arg _ (by exact Eq.symm (Quot.out_eq e))
 
-set_option linter.unusedDecidableInType false in
 lemma edge_degree_add_degree_le_card_add_two_mul_triangleDegree
-    (G : SimpleGraph V) [DecidableRel G.Adj] [DecidableEq V] (e : Sym2 V) :
+    (G : SimpleGraph V) [DecidableRel G.Adj] (e : Sym2 V) :
     G.degree e.out.1 + G.degree e.out.2 ≤
       Fintype.card V + 2 * triangleDegree G e := by
+  classical
   have h_deg := degree_add_degree_le_card_add_two_mul_triangleDegree G e.out.1 e.out.2
   have h_card :
       Fintype.card (G.commonNeighbors e.out.1 e.out.2) = triangleDegree G e := by
@@ -355,9 +354,8 @@ lemma edge_endpoint_degree_sum_eq_indicator_sum
     rw [h_edge_repr] at he
     simp +decide [h] at he
 
-set_option linter.unusedDecidableInType false in
 lemma edge_endpoint_degree_sum_eq_neighbor_sum
-    (G : SimpleGraph V) [DecidableRel G.Adj] [DecidableEq V] :
+    (G : SimpleGraph V) [DecidableRel G.Adj] :
     ∑ e ∈ G.edgeFinset, (G.degree e.out.1 + G.degree e.out.2) =
       ∑ v : V, ∑ _ ∈ G.neighborFinset v, G.degree v := by
   classical
@@ -381,15 +379,14 @@ lemma edge_endpoint_degree_sum_eq_neighbor_sum
           · intro x hx
             rfl
 
-set_option linter.unusedDecidableInType false in
 lemma edge_endpoint_degree_sum_eq_sum_sq
-    (G : SimpleGraph V) [DecidableRel G.Adj] [DecidableEq V] :
+    (G : SimpleGraph V) [DecidableRel G.Adj] :
     ∑ e ∈ G.edgeFinset, (G.degree e.out.1 + G.degree e.out.2) =
       ∑ v : V, G.degree v ^ 2 := by
+  classical
   simp +decide [edge_endpoint_degree_sum_eq_neighbor_sum, pow_two]
 
 -- This finite-set cardinality estimate uses `refine'` to expose nested goals.
-set_option linter.unusedDecidableInType false in
 set_option linter.style.refine false in
 /--
 For a fixed edge `e = s(u, v)`, the number of vertices whose adjacency pattern to
@@ -398,7 +395,7 @@ For a fixed edge `e = s(u, v)`, the number of vertices whose adjacency pattern t
 This is the finite-set version of the inclusion-exclusion estimate used in the
 Bollobás-Nikiforov counting argument.
 -/
-lemma concordant_vertex_count_le_card_add_two_mul_triangleDegree_sub_degree [DecidableEq V]
+lemma concordant_vertex_count_le_card_add_two_mul_triangleDegree_sub_degree
     (G : SimpleGraph V) [DecidableRel G.Adj] (e : Sym2 V) :
     (Finset.filter
         (fun y =>
@@ -407,6 +404,7 @@ lemma concordant_vertex_count_le_card_add_two_mul_triangleDegree_sub_degree [Dec
         (Finset.univ : Finset V)).card ≤
       Fintype.card V + 2 * triangleDegree G e -
         G.degree e.out.1 - G.degree e.out.2 := by
+  classical
   have concordant_split_bound :
       (Finset.filter
           (fun y =>
