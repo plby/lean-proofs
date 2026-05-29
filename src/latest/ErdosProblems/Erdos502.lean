@@ -705,11 +705,11 @@ Proof:
 open Matrix LinearMap MvPolynomial BigOperators
 
 set_option linter.flexible false in
-set_option linter.unusedDecidableInType false in
 /-- Theorem 1.1: If A is an s-distance subset in ℝ^d, then |A| ≤ (d+s choose s). -/
 theorem bannai_bannai_stanton (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)))
-    [Fintype A] [DecidableEq A]
+    [Fintype A]
     (hA : is_s_distance_set A s) : Fintype.card A ≤ Nat.choose (d + s) s := by
+  classical
   let S := distances_finset d A
   let p := distance_poly d S
   have hp_deg : p.totalDegree ≤ 2 * s + 1 := by
