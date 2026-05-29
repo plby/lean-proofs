@@ -74,7 +74,6 @@ namespace Erdos646
 
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
-set_option linter.unusedDecidableInType false
 set_option linter.unusedVariables false
 
 open scoped BigOperators
@@ -683,8 +682,9 @@ lemma val_vec_recurrent (k : ℕ) (p : Fin k → ℕ) (hp : ∀ i, (p i).Prime) 
 /-
 Any sequence with values in a finite type has a repeating block of any length.
 -/
-lemma exists_repeating_block {A : Type} [Finite A] [DecidableEq A] (f : ℕ → A) (b : ℕ) :
+lemma exists_repeating_block {A : Type} [Finite A] (f : ℕ → A) (b : ℕ) :
   ∃ n m, n < m ∧ ∀ k < b, f (n + k) = f (m + k) := by
+    classical
     by_contra! h;
     -- Consider the sequence of blocks $B_n = (f(n), \dots, f(n+b-1))$. Each block $B_n$ belongs to the set $A^b$, which is finite since $A$ is finite.
     have h_blocks_finite : Set.Finite (Set.range (fun n => fun k : Fin b => f (n + k.val))) := by
