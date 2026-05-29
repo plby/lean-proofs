@@ -61,7 +61,6 @@ set_option linter.style.longLine false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.flexible false
-set_option aesop.warn.nonterminal false
 
 open scoped BigOperators
 
@@ -275,10 +274,34 @@ theorem recursive_step (n : ℕ) (current_sum : ℝ) (x : ℝ)
             1 / ((2 ^ (n + 1) + (b_next : ℕ)) *
                 (2 ^ (n + 1) + (b_next + 1) : ℕ) : ℝ) ≤
               1 / ((2 ^ (n + 1) + 1) * (2 ^ (n + 1) + 2) : ℝ) := by
-          gcongr <;> norm_cast <;> aesop
-        use b_next; aesop
-        · interval_cases b_next <;> trivial
-        · nlinarith [
+          gcongr <;> norm_cast <;>
+            simp_all only [Finset.mem_Icc, one_div, gt_iff_lt, not_le, and_imp,
+              Nat.cast_add, Nat.cast_one, mul_inv_rev, ge_iff_le, add_le_add_iff_left,
+              Nat.reduceLeDiff]
+        refine ⟨b_next, ?_, ?_, hb_next_def.2.1⟩
+        · rcases Finset.mem_Icc.mp hb_next_def.1 with ⟨hb_low, hb_high⟩
+          interval_cases b_next <;> simp
+        · have h_recip :
+              1 / ((2 : ℝ) ^ (n + 1) + (b_next : ℝ)) =
+                1 / ((2 : ℝ) ^ (n + 1) + (b_next + 1 : ℝ)) +
+                  1 / (((2 : ℝ) ^ (n + 1) + (b_next : ℝ)) *
+                    ((2 : ℝ) ^ (n + 1) + (b_next + 1 : ℝ))) := by
+            field_simp
+            ring
+          have h_ineq' :
+              1 / (((2 : ℝ) ^ (n + 1) + (b_next : ℝ)) *
+                    ((2 : ℝ) ^ (n + 1) + (b_next + 1 : ℝ))) ≤
+                1 / ((2 ^ (n + 1) + 1) * (2 ^ (n + 1) + 2) : ℝ) := by
+            simpa [Nat.cast_add, Nat.cast_pow] using h_ineq
+          have hx_gt' :
+              x > current_sum +
+                  1 / ((2 : ℝ) ^ (n + 1) + ((b_next : ℝ) + 1)) +
+                beta (n + 1) := by
+            simpa [Nat.cast_add, add_assoc] using hx_gt
+          nlinarith [
+            h_recip,
+            h_ineq',
+            hx_gt',
             inv_pos.mpr (by positivity :
               0 < (2 : ℝ) ^ (n + 1) + (b_next : ℝ)),
             inv_pos.mpr (by positivity :
@@ -333,24 +356,39 @@ theorem main_theorem : ∃ b : ℕ → ℕ, (∀ k, b k ∈ ({1, 2, 3, 4, 5} : S
         exact isCompact_univ_pi fun _ => isCompact_singleton.union ( isCompact_singleton.union ( isCompact_singleton.union ( isCompact_singleton.union ( isCompact_singleton ) ) ) );
       have := h_compact.isSeqCompact fun n => show f n ∈ Set.pi Set.univ fun k => { 1, 2, 3, 4, 5 } from fun k _ => hf1 n k;
       exact ⟨ this.choose, fun k => this.choose_spec.1 k trivial, this.choose_spec.2.choose, this.choose_spec.2.choose_spec.1, fun k => tendsto_pi_nhds.mp this.choose_spec.2.choose_spec.2 k ⟩;
-    use b; aesop;
+    rcases hb with ⟨hb_mem, w, hw_strict, hw_tendsto⟩
+    have h_eventually_eq : ∀ k : ℕ, ∃ a, ∀ n, a ≤ n → f (w n) k = b k := by
+      intro k
+      exact Filter.eventually_atTop.mp (by
+        simpa [nhds_discrete] using hw_tendsto k)
+    refine ⟨b, hb_mem, fun n => ?_⟩
+    constructor
     · -- By the properties of the subsequence, we have that for all $m \leq n$, $\sum_{k=0}^{m-1} \frac{1}{2^{k+1} + f_{w(n)}(k+1)} + \alpha_m \leq x$.
       have h_subseq : ∀ m ≤ n, ∑ k ∈ Finset.range m, (2 ^ (k + 1) + (b (k + 1) : ℝ))⁻¹ + alpha m ≤ x := by
         intros m hm
         have h_subseq : ∀ᶠ n in Filter.atTop, ∑ k ∈ Finset.range m, (2 ^ (k + 1) + (f (w n) (k + 1) : ℝ))⁻¹ + alpha m ≤ x := by
-          exact Filter.eventually_atTop.mpr ⟨ n, fun k hk => hf2 _ _ ( le_trans hm ( left_2.id_le _ |> le_trans hk ) ) |>.1 ⟩;
+          exact Filter.eventually_atTop.mpr ⟨n, fun k hk => by
+            simpa [one_div] using
+              (hf2 _ _ (le_trans hm (hw_strict.id_le _ |> le_trans hk))).1⟩
         have h_subseq : Filter.Tendsto (fun n => ∑ k ∈ Finset.range m, (2 ^ (k + 1) + (f (w n) (k + 1) : ℝ))⁻¹ + alpha m) Filter.atTop (nhds (∑ k ∈ Finset.range m, (2 ^ (k + 1) + (b (k + 1) : ℝ))⁻¹ + alpha m)) := by
-          refine' Filter.Tendsto.add _ tendsto_const_nhds;
-          exact tendsto_finset_sum _ fun i hi => Filter.Tendsto.inv₀ ( tendsto_const_nhds.add <| tendsto_const_nhds.congr' <| by filter_upwards [ Filter.eventually_ge_atTop ( right_1 ( i + 1 ) |> Classical.choose ) ] with n hn; rw [ right_1 ( i + 1 ) |> Classical.choose_spec |> fun h => h n hn ] ) <| by positivity;
-        exact le_of_tendsto h_subseq ( by aesop );
-      exact h_subseq n le_rfl;
+          refine' Filter.Tendsto.add _ tendsto_const_nhds
+          exact tendsto_finset_sum _ fun i hi => Filter.Tendsto.inv₀ ( tendsto_const_nhds.add <| tendsto_const_nhds.congr' <| by filter_upwards [ Filter.eventually_ge_atTop ( h_eventually_eq ( i + 1 ) |> Classical.choose ) ] with n hn; rw [ h_eventually_eq ( i + 1 ) |> Classical.choose_spec |> fun h => h n hn ] ) <| by positivity;
+        exact le_of_tendsto h_subseq (by
+          simp_all only [Set.mem_insert_iff, Set.mem_singleton_iff, one_div, nhds_discrete,
+            Filter.tendsto_pure, Filter.eventually_atTop, ge_iff_le, implies_true])
+      simpa [one_div] using h_subseq n le_rfl
     · -- By the properties of the sequence $(f_n)$, we can extract a subsequence $(f_{n_k})$ that converges pointwise to some function $b$. Hence, for any $n$, we have:
-      have h_subseq : Filter.Tendsto (fun m => ∑ k ∈ Finset.range n, (2 ^ (k + 1) + (f (w m) (k + 1)) : ℝ)⁻¹) Filter.atTop (nhds (∑ k ∈ Finset.range n, (2 ^ (k + 1) + (b (k + 1)) : ℝ)⁻¹)) := by
-        exact tendsto_finset_sum _ fun i hi => Filter.Tendsto.inv₀ ( tendsto_const_nhds.add <| tendsto_const_nhds.congr' <| by filter_upwards [ Filter.eventually_ge_atTop ( Classical.choose ( right_1 ( i + 1 ) ) ) ] with m hm; rw [ Classical.choose_spec ( right_1 ( i + 1 ) ) m hm ] ) <| by positivity;
-      have h_subseq : ∀ᶠ m in Filter.atTop, ∑ k ∈ Finset.range n, (2 ^ (k + 1) + (f (w m) (k + 1)) : ℝ)⁻¹ + alpha n ≤ x ∧ x ≤ ∑ k ∈ Finset.range n, (2 ^ (k + 1) + (f (w m) (k + 1)) : ℝ)⁻¹ + beta n := by
-        exact Filter.eventually_atTop.mpr ⟨ n, fun m hm => hf2 _ _ <| hm.trans <| left_2.id_le _ ⟩;
-      aesop;
-      exact le_of_tendsto_of_tendsto tendsto_const_nhds ( h_subseq_1.add_const _ ) ( Filter.eventually_atTop.mpr ⟨ w_1, fun m hm => h m hm |>.2 ⟩ );
+      have h_sum_tendsto : Filter.Tendsto (fun m => ∑ k ∈ Finset.range n, (2 ^ (k + 1) + (f (w m) (k + 1)) : ℝ)⁻¹) Filter.atTop (nhds (∑ k ∈ Finset.range n, (2 ^ (k + 1) + (b (k + 1)) : ℝ)⁻¹)) := by
+        exact tendsto_finset_sum _ fun i hi => Filter.Tendsto.inv₀ ( tendsto_const_nhds.add <| tendsto_const_nhds.congr' <| by filter_upwards [ Filter.eventually_ge_atTop ( Classical.choose ( h_eventually_eq ( i + 1 ) ) ) ] with m hm; rw [ Classical.choose_spec ( h_eventually_eq ( i + 1 ) ) m hm ] ) <| by positivity;
+      have h_bounds_eventually : ∀ᶠ m in Filter.atTop, ∑ k ∈ Finset.range n, (2 ^ (k + 1) + (f (w m) (k + 1)) : ℝ)⁻¹ + alpha n ≤ x ∧ x ≤ ∑ k ∈ Finset.range n, (2 ^ (k + 1) + (f (w m) (k + 1)) : ℝ)⁻¹ + beta n := by
+        exact Filter.eventually_atTop.mpr ⟨n, fun m hm => by
+          simpa [one_div] using hf2 _ _ <| hm.trans <| hw_strict.id_le _⟩
+      rw [Filter.eventually_atTop] at h_bounds_eventually
+      rcases h_bounds_eventually with ⟨w_1, h⟩
+      exact le_of_tendsto_of_tendsto tendsto_const_nhds
+        (by simpa [one_div] using h_sum_tendsto.add_const (beta n))
+        (Filter.eventually_atTop.mpr
+          ⟨w_1, fun m hm => by simpa [one_div] using (h m hm).2⟩)
   -- By the properties of the series, we know that the partial sums converge to $x$.
   have h_sum_converges : Filter.Tendsto (fun n => (∑ k ∈ Finset.range n, (1 / ((2 : ℝ)^(k + 1) + (b (k + 1)) : ℝ)))) Filter.atTop (nhds x) := by
     -- Since $\alpha_n$ and $\beta_n$ tend to $0$ as $n$ tends to infinity, we can apply the squeeze theorem.
@@ -367,8 +405,23 @@ theorem main_theorem : ∃ b : ℕ → ℕ, (∀ k, b k ∈ ({1, 2, 3, 4, 5} : S
         have h_geo_series : ∀ n, ∑' k : ℕ, (1 / ((2 : ℝ)^(n + 1 + k))) = (1 / ((2 : ℝ)^(n + 1))) / (1 - 1 / 2) := by
           intro n; ring_nf;
           rw [ tsum_mul_right, tsum_mul_left, tsum_geometric_of_lt_one ] <;> ring_nf <;> norm_num;
-        aesop;
-        exact squeeze_zero ( fun n => tsum_nonneg fun _ => by positivity ) h_beta_le ( by exact le_trans ( Filter.Tendsto.div_const ( tendsto_inv_atTop_zero.comp ( tendsto_pow_atTop_atTop_of_one_lt one_lt_two |> Filter.Tendsto.comp <| Filter.tendsto_add_atTop_nat _ ) ) _ ) <| by norm_num );
+        have h_explicit_tendsto :
+            Filter.Tendsto
+              (fun n : ℕ => (1 / ((2 : ℝ) ^ (n + 1))) / (1 - 1 / 2))
+              Filter.atTop (nhds 0) := by
+          simpa [one_div] using
+            (Filter.Tendsto.div_const
+              (tendsto_inv_atTop_zero.comp
+                ((tendsto_pow_atTop_atTop_of_one_lt (by norm_num : (1 : ℝ) < 2)).comp
+                  (Filter.tendsto_add_atTop_nat 1)))
+              (1 - 1 / 2))
+        have h_geo_tendsto :
+            Filter.Tendsto
+              (fun n : ℕ => ∑' k : ℕ, (1 / ((2 : ℝ) ^ (n + 1 + k))))
+              Filter.atTop (nhds 0) :=
+          h_explicit_tendsto.congr'
+            (Filter.Eventually.of_forall fun n => (h_geo_series n).symm)
+        exact squeeze_zero ( fun n => tsum_nonneg fun _ => by positivity ) h_beta_le h_geo_tendsto
     rw [ Metric.tendsto_nhds ] at *;
     intro ε hε; filter_upwards [ h_alpha_beta_zero.1 ε hε, h_alpha_beta_zero.2.eventually <| Metric.ball_mem_nhds _ hε ] with n hn hn'; exact abs_lt.mpr ⟨ by linarith [ abs_lt.mp hn, abs_lt.mp hn', hb.2 n ], by linarith [ abs_lt.mp hn, abs_lt.mp hn', hb.2 n ] ⟩ ;
   exact ⟨ b, by simpa using hb.1, x, tendsto_nhds_unique ( by exact ( Summable.hasSum <| by exact ( by by_contra h; exact not_tendsto_atTop_of_tendsto_nhds ( h_sum_converges ) <| by exact not_summable_iff_tendsto_nat_atTop_of_nonneg ( fun _ => by positivity ) |>.1 h ) ) |> HasSum.tendsto_sum_nat ) h_sum_converges |> fun h => h.symm ▸ by norm_num ⟩
