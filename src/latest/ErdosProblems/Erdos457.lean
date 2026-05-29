@@ -19,7 +19,7 @@ URLs:
 /-
 Prompted by Kevin Barreto, GPT-5.2 Pro managed to solve Erdős Problem #457 (https://www.erdosproblems.com/457) by exhibiting infinitely many $n$ such that $\prod_{1 \le i \le \log n} n+i$ is divisible by all primes smaller than $2.1 \log n$.
 
-Aristotle from Harmonic (https://aristotle.harmonic.fun) already formalized the solution, but the proof had not yet been connected to the statement from Google DeepMind's Formal Conjectures Project. 
+Aristotle from Harmonic (https://aristotle.harmonic.fun) already formalized the solution, but the proof had not yet been connected to the statement from Google DeepMind's Formal Conjectures Project.
 
 https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/457.lean
 
@@ -345,8 +345,8 @@ lemma lemma_divisibility (m : ℕ) (hm : m ≥ 100) (k : ℕ) (hk_pos : k ≥ 1)
         -- Let $r = kA - \ell p$. Then $|r| < p/6 \le 3m/6 = m/2$.
         set r := k * A - ℓ * p
         have hr_bounds : |(r : ℝ)| < m / 2 := by
-          simp +zetaDelta at *;
-          linarith [ show ( p : ℝ ) ≤ 3 * m by norm_cast ];
+          simp +zetaDelta at *
+          linarith [ show ( p : ℝ ) ≤ 3 * m by norm_cast ]
         -- We want to find $i$ such that $n+i$ is a multiple of $p$.
         -- $n+i = kA - c + i$.
         -- Set $kA - c + i = \ell p \implies r - c + i = 0 \implies i = c - r$.
