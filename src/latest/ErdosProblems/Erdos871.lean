@@ -2394,7 +2394,7 @@ theorem not_erdos_871 :
     · exact fun t ↦ concreteGC_reps_ge_t t;
     · convert GrowingConstruction.non_decomposable concreteGC using 1
 
-#print axioms not_erdos_871
--- 'Erdos871.not_erdos_871' depends on axioms: [propext, Classical.choice, Quot.sound]
-
 end Erdos871
+
+#print axioms Erdos871.not_erdos_871
+-- 'Erdos871.not_erdos_871' depends on axioms: [propext, Classical.choice, Quot.sound]
