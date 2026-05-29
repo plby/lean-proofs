@@ -36,7 +36,6 @@ set_option linter.style.openClassical false
 set_option linter.style.refine false
 set_option linter.deprecated false
 set_option linter.flexible false
-set_option linter.unusedDecidableInType false
 
 open scoped Classical
 
@@ -57,9 +56,10 @@ A maximal triangle-free graph has diameter at most 2 (every pair of distinct ver
 adjacent or shares a common neighbor).
 -/
 theorem _root_.SimpleGraph.maximal_triangle_free_diam_two {V : Type*} [Finite V] (G :
-  SimpleGraph V) [DecidableRel G.Adj]
+  SimpleGraph V)
   (h : G.IsMaximalTriangleFree) :
   ∀ x y, x ≠ y → G.Adj x y ∨ ∃ z, G.Adj x z ∧ G.Adj z y := by
+    classical
     letI := Fintype.ofFinite V
     -- Assume that there exist vertices $x$ and $y$ such that $x \neq y$ and $G$ does not have an
     -- edge between them.
@@ -117,9 +117,10 @@ Every triangle-free graph G can be extended to a maximal triangle-free graph H, 
 number of H is at most that of G.
 -/
 theorem _root_.SimpleGraph.exists_maximal_triangle_free_extension {V : Type*} [Finite V] (G :
-  SimpleGraph V) [DecidableRel G.Adj]
+  SimpleGraph V)
   (h : G.CliqueFree 3) :
   ∃ H : SimpleGraph V, G ≤ H ∧ H.IsMaximalTriangleFree ∧ H.indepNum ≤ G.indepNum := by
+    classical
     letI := Fintype.ofFinite V
     -- By definition of maximal triangle-free graphs, there exists a maximal triangle-free graph $H$
     -- such that $G \leq H$.
@@ -201,12 +202,12 @@ If there exists a triangle-free supergraph Gm of G with independence number at m
 exists a triangle-free supergraph G' of G with diameter 2 and at most 2.5cn^2 edges.
 -/
 theorem _root_.SimpleGraph.deterministic_reduction {V : Type*} [Fintype V] (G : SimpleGraph V)
-  [DecidableRel G.Adj]
   (n : ℕ) (c : ℝ) (h_n : Fintype.card V = n)
   (h_exists : ∃ G_m : SimpleGraph V, G ≤ G_m ∧ G_m.CliqueFree 3 ∧ (G_m.indepNum : ℝ) ≤ 5 * c * n) :
   ∃ G' : SimpleGraph V, G ≤ G' ∧ G'.CliqueFree 3 ∧
     (∀ x y : V, x ≠ y → G'.Adj x y ∨ ∃ z, G'.Adj x z ∧ G'.Adj z y) ∧
     (G'.edgeFinset.card : ℝ) ≤ 2.5 * c * n ^ 2 := by
+      classical
       -- By `exists_maximal_triangle_free_extension`, G_m has a maximal triangle-free extension G'
       -- which has diameter 2.
       obtain ⟨G_m, hG_m⟩ := h_exists
@@ -861,11 +862,12 @@ noncomputable def HitGraphs {V : Type*} [Fintype V] [DecidableEq V] (c : ℝ) (n
 /-
 Adding an eligible edge preserves triangle-freeness.
 -/
-theorem _root_.SimpleGraph.add_eligible_edge_triangle_free {V : Type*} [Fintype V] [DecidableEq V]
+theorem _root_.SimpleGraph.add_eligible_edge_triangle_free {V : Type*} [Fintype V]
   (G : SimpleGraph V) [DecidableRel G.Adj] (c : ℝ) (n : ℕ) (u v : V)
   (h_free : G.CliqueFree 3)
   (h_eligible : G.eligiblePair c n u v) :
   (SimpleGraph.fromEdgeSet (G.edgeSet ∪ {s(u, v)})).CliqueFree 3 := by
+    classical
     intro t h;
     rcases h with ⟨ h₁, h₂ ⟩;
     -- Since $t$ is a clique of size 3 in the new graph, it must contain the edge $\{u, v\}$.
@@ -1122,11 +1124,12 @@ theorem card_NextGraphsState_eq {V : Type*} [Fintype V] [DecidableEq V]
 /-
 Adding an edge that does not have both endpoints in U preserves the independence of U.
 -/
-theorem _root_.SimpleGraph.IsIndepSet_add_edge_sym2 {V : Type*} [Finite V] [DecidableEq V]
-  (G : SimpleGraph V) [DecidableRel G.Adj] (U : Finset V) (e : Sym2 V)
+theorem _root_.SimpleGraph.IsIndepSet_add_edge_sym2 {V : Type*} [Finite V]
+  (G : SimpleGraph V) (U : Finset V) (e : Sym2 V)
   (h_indep : G.IsIndepSet U)
   (h_not_in_U : ¬(e.out.1 ∈ U ∧ e.out.2 ∈ U)) :
   (SimpleGraph.fromEdgeSet (G.edgeSet ∪ {e})).IsIndepSet U := by
+    classical
     letI := Fintype.ofFinite V
     simp_all +decide [ Set.Pairwise ];
     have := Quot.out_eq e;
@@ -1228,13 +1231,9 @@ theorem invariant_preservation_step {V : Type} [Fintype V] [DecidableEq V]
           (Quot.out e).1 (Quot.out e).2 h_inv.2.1 h_eligible
         using 1
       aesop (simp_config := { singlePass := true }), by
-      convert SimpleGraph.IsIndepSet_add_edge_sym2 _ _ _ _ _ using 1;
-      convert h_g1;
-      · infer_instance;
-      · infer_instance;
-      · infer_instance;
-      · exact h_inv.2.2.1;
-      · exact h_not_in_U, h_deg_bound, h_card, h_le_m⟩
+      simpa [h_g1] using
+        SimpleGraph.IsIndepSet_add_edge_sym2 s.1 U e h_inv.2.2.1 h_not_in_U,
+      h_deg_bound, h_card, h_le_m⟩
 
 /-
 The invariant is preserved by the process when avoiding the hit set.
@@ -2626,7 +2625,7 @@ theorem final_graph_indepNum_bound_G0 {V : Type} [Fintype V] [DecidableEq V]
 /-
 There exists a triangle-free supergraph G_m of G with independence number at most 5cn.
 -/
-theorem exists_Gm_bounded_indep {V : Type} [Fintype V] [DecidableEq V]
+theorem exists_Gm_bounded_indep {V : Type} [Fintype V]
   (G : SimpleGraph V) [DecidableRel G.Adj]
   (n : ℕ) (c : ℝ)
   (h_n : Fintype.card V = n)
@@ -2639,6 +2638,7 @@ theorem exists_Gm_bounded_indep {V : Type} [Fintype V] [DecidableEq V]
   (h_clique_free : G.CliqueFree 3)
   (h_binom_bound : (n.choose (Nat.floor (5 * c * n)) : ℝ) ≤ 2 ^ (10 * c * n * Real.log (1 / c))) :
   ∃ G_m : SimpleGraph V, G ≤ G_m ∧ G_m.CliqueFree 3 ∧ (G_m.indepNum : ℝ) ≤ 5 * c * n := by
+    classical
     -- Convert the max degree hypothesis to use the Classical instance.
     have h_max_deg_classical :
       ∀ v, @SimpleGraph.degree V G v (@SimpleGraph.neighborSetFintype V G _ (Classical.decRel G.Adj)
@@ -2680,7 +2680,7 @@ theorem exists_Gm_bounded_indep {V : Type} [Fintype V] [DecidableEq V]
 Theorem 1.2: Given a triangle-free graph G with bounded max degree, we can add edges to obtain a
 triangle-free graph of diameter 2 with a bounded number of edges.
 -/
-theorem theorem_1_2 {V : Type} [Fintype V] [DecidableEq V]
+theorem theorem_1_2 {V : Type} [Fintype V]
   (G : SimpleGraph V) [DecidableRel G.Adj]
   (n : ℕ) (c : ℝ)
   (h_n : Fintype.card V = n)
@@ -2695,6 +2695,7 @@ theorem theorem_1_2 {V : Type} [Fintype V] [DecidableEq V]
   ∃ G' : SimpleGraph V, G ≤ G' ∧ G'.CliqueFree 3 ∧
     (∀ x y : V, x ≠ y → G'.Adj x y ∨ ∃ z, G'.Adj x z ∧ G'.Adj z y) ∧
     (G'.edgeFinset.card : ℝ) ≤ 2.5 * c * n ^ 2 := by
+      classical
       have := exists_Gm_bounded_indep G n c;
       specialize this h_n h_n_large h_c_pos h_c_small h_c_lower h_c_lower_bound
         h_max_deg h_clique_free h_binom_bound
