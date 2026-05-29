@@ -46,7 +46,6 @@ namespace Erdos650
 -- linters; keep the suppressions scoped to this file to preserve the proof.
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.unusedDecidableInType false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
@@ -478,10 +477,11 @@ lemma small_set_card (s t M D : ℕ) (x₀ : ℤ) (_hM : 0 < M) :
        · exact Finset.card_image_le.trans ( by simp )
 
 -- If gcd(n_i, m) | d for all i in S, then gcd(lcm_S n, m) | d.
-lemma gcd_lcm_dvd_of_all_gcd_dvd {ι : Type*} [DecidableEq ι] (S : Finset ι)
+lemma gcd_lcm_dvd_of_all_gcd_dvd {ι : Type*} (S : Finset ι)
     (n : ι → ℕ) (m : ℕ) (d : ℤ)
     (h : ∀ i ∈ S, (Nat.gcd (n i) m : ℤ) ∣ d) :
     (Nat.gcd (S.lcm n) m : ℤ) ∣ d := by
+      classical
       induction' S using Finset.induction with i S hi ih <;> simp_all +decide ;
       have h_gcd_lcm : ∀ a b m : ℕ, (Nat.gcd (Nat.lcm a b) m : ℤ) ∣ Int.lcm (Nat.gcd a m : ℤ)
             (Nat.gcd b m : ℤ) := by
@@ -499,11 +499,12 @@ lemma gcd_lcm_dvd_of_all_gcd_dvd {ι : Type*} [DecidableEq ι] (S : Finset ι)
 
 /-- Generalized CRT: given finitely many congruences with pairwise compatible
     moduli, a simultaneous solution exists. -/
-lemma generalized_crt (ι : Type*) [DecidableEq ι] (S : Finset ι)
+lemma generalized_crt (ι : Type*) (S : Finset ι)
     (n : ι → ℕ) (hn : ∀ i ∈ S, 0 < n i)
     (a : ι → ℤ)
     (compat : ∀ i ∈ S, ∀ j ∈ S, (Int.gcd (n i) (n j) : ℤ) ∣ (a i - a j)) :
     ∃ x₀ : ℤ, ∀ i ∈ S, (↑(n i) : ℤ) ∣ (x₀ - a i) := by
+      classical
       induction' S using Finset.induction with i S hi ih generalizing a;
       · exact ⟨ 0, by simp +decide ⟩;
       · obtain ⟨ x₁, hx₁ ⟩ := ih ( fun j hj => hn j ( Finset.mem_insert_of_mem hj ) )
@@ -1045,7 +1046,7 @@ lemma deficientHall {α : Type*} {ι : Type*} [DecidableEq α] [DecidableEq ι] 
 
 /-- If every subset S ⊆ A has |Γ(S)| ≥ g(|S|) where g satisfies
     t - g(t) ≤ m - g(m), then there is a matching of size ≥ g(m). -/
-lemma matching_from_neighborhood_bound {α : Type*} {ι : Type*} [DecidableEq α] [DecidableEq ι]
+lemma matching_from_neighborhood_bound {α : Type*} {ι : Type*} [DecidableEq α]
     [Fintype ι] (t : ι → Finset α)
     (g : ℕ → ℕ)
     (hg : ∀ S : Finset ι, g S.card ≤ (S.biUnion t).card)
@@ -1055,6 +1056,7 @@ lemma matching_from_neighborhood_bound {α : Type*} {ι : Type*} [DecidableEq α
       Function.Injective f ∧
       (∀ x : S, f x ∈ t x.1) ∧
       g (Fintype.card ι) ≤ S.card := by
+        classical
         -- By definition of maxDeficiency, we know that maxDeficiency t ≤ Fintype.card ι - g
         -- (Fintype.card ι).
         have h_max_deficiency : maxDeficiency t ≤ Fintype.card ι - g (Fintype.card ι) := by
