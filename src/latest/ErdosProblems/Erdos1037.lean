@@ -39,7 +39,6 @@ set_option linter.style.longLine false
 set_option linter.style.refine false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
-set_option linter.unusedDecidableInType false
 
 open scoped Classical
 
@@ -631,8 +630,9 @@ theorem card_graphs_with_fixed_edges_aux {m : ℕ} (v : Fin m) (S : Finset {x //
 /-
 The number of subsets of $U$ that agree with $f$ on $S$ (where $S \subseteq U$) is $2^{|U| - |S|}$.
 -/
-theorem card_powerset_filter_subset {α : Type*} [DecidableEq α] (U : Finset α) (S : Finset α) (hS : S ⊆ U) (f : α → Bool) :
+theorem card_powerset_filter_subset {α : Type*} (U : Finset α) (S : Finset α) (hS : S ⊆ U) (f : α → Bool) :
   (U.powerset.filter (fun A => ∀ x ∈ S, x ∈ A ↔ f x)).card = 2 ^ (U.card - S.card) := by
+    classical
     -- Let $R = U \setminus S$. Any subset $A \subseteq U$ satisfying the condition can be written uniquely as $A' \cup \{x \in S : f(x)\}$, where $A' \subseteq R$.
     set R := U \ S
     have h_bij : {A ∈ U.powerset | ∀ x ∈ S, x ∈ A ↔ f x = Bool.true} = Finset.image (fun A' => A' ∪ S.filter (fun x => f x = Bool.true)) (Finset.powerset R) := by
@@ -1815,9 +1815,10 @@ def iso_VH_Fin (m : ℕ) : V_H m ≃ Fin (4 * m) :=
 /-
 The clique number is preserved under graph isomorphism.
 -/
-lemma cliqueNum_map_equiv {V W : Type*} [Finite V] [DecidableEq V] [Finite W] [DecidableEq W]
+lemma cliqueNum_map_equiv {V W : Type*} [Finite V] [Finite W]
     (G : SimpleGraph V) (e : V ≃ W) :
     (G.map e.toEmbedding).cliqueNum = G.cliqueNum := by
+      classical
       letI := Fintype.ofFinite V
       letI := Fintype.ofFinite W
       have h_back : (G.map e.toEmbedding).map e.symm.toEmbedding = G := by
@@ -1841,9 +1842,10 @@ lemma cliqueNum_map_equiv {V W : Type*} [Finite V] [DecidableEq V] [Finite W] [D
 /-
 The independence number is preserved under graph isomorphism.
 -/
-lemma indepNum_map_equiv {V W : Type*} [Finite V] [DecidableEq V] [Finite W] [DecidableEq W]
+lemma indepNum_map_equiv {V W : Type*} [Finite V] [Finite W]
     (G : SimpleGraph V) (e : V ≃ W) :
     (G.map e.toEmbedding).indepNum = G.indepNum := by
+      classical
       letI := Fintype.ofFinite V
       letI := Fintype.ofFinite W
       unfold SimpleGraph.indepNum
@@ -1878,9 +1880,10 @@ lemma indepNum_map_equiv {V W : Type*} [Finite V] [DecidableEq V] [Finite W] [De
 /-
 The degree of a vertex is preserved under graph isomorphism.
 -/
-lemma degree_map_equiv {V W : Type*} [Fintype V] [DecidableEq V] [Fintype W] [DecidableEq W]
+lemma degree_map_equiv {V W : Type*} [Fintype V] [Fintype W] [DecidableEq W]
     (G : SimpleGraph V) (e : V ≃ W) (v : V) :
     (G.map e.toEmbedding).degree (e v) = G.degree v := by
+      classical
       rw [ SimpleGraph.degree, SimpleGraph.degree ];
       -- The set of neighbors of $e(v)$ in $G.map e$ is exactly the image of the set of neighbors of $v$ in $G$ under $e$.
       have h_neighbors : (SimpleGraph.map e.toEmbedding G).neighborFinset (e v) = Finset.image (fun w => e w) (G.neighborFinset v) := by
