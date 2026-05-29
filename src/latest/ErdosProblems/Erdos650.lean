@@ -1556,7 +1556,7 @@ theorem erdos_f_eq_ge4 (m : ℕ) (hm : 4 ≤ m) :
       exact min_eq_right <| Nat.ceil_le.mpr <| by nlinarith [ Real.mul_self_sqrt ( Nat.cast_nonneg m
             ), ( by norm_cast : ( 4 : ℝ ) ≤ m ) ] ;
 
-#print axioms erdos_f_eq
--- 'Erdos650.erdos_f_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
-
 end Erdos650
+
+#print axioms Erdos650.erdos_f_eq
+-- 'Erdos650.erdos_f_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
