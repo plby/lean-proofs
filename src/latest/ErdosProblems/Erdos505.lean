@@ -1779,7 +1779,7 @@ theorem not_erdos_505 : ¬ BorsukConjecture := by
     exact f_946_ge_1650
   exact fun h => by linarith [h 946 (by norm_num)] ;
 
-#print axioms not_erdos_505
--- 'Erdos505.not_erdos_505' depends on axioms: [propext, Classical.choice, Quot.sound]
-
 end Erdos505
+
+#print axioms Erdos505.not_erdos_505
+-- 'Erdos505.not_erdos_505' depends on axioms: [propext, Classical.choice, Quot.sound]
