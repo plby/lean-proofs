@@ -1971,12 +1971,10 @@ end
 
 end Erdos485b
 
-open Erdos485b
-
-#print axioms exists_complete_poly_with_sparse_square
+#print axioms Erdos485b.exists_complete_poly_with_sparse_square
 -- 'Erdos485b.exists_complete_poly_with_sparse_square' depends on axioms: [propext,
 -- Classical.choice, Quot.sound]
 
-#print axioms exists_complete_poly_with_sparse_square_improved
+#print axioms Erdos485b.exists_complete_poly_with_sparse_square_improved
 -- 'Erdos485b.exists_complete_poly_with_sparse_square_improved' depends on axioms: [propext,
 -- Classical.choice, Quot.sound]
