@@ -508,8 +508,7 @@ variable (G : SimpleGraph V) [DecidableRel G.Adj]
 
 namespace BV
 
-omit [Fintype V] [DecidableRel G.Adj] in
-set_option linter.unusedDecidableInType false in
+omit [Fintype V] [DecidableEq V] [DecidableRel G.Adj] in
 private lemma shorter_cycle_of_chord
     {v : V} {c : G.Walk v v} (hc : c.IsCycle)
     {x y : V} (hx : x ∈ c.support) (hy : y ∈ c.support)
@@ -2019,7 +2018,7 @@ theorem exists_external_path_in_Bmax
     · exact hvK
   exact mem_bridge_imp_not_mem_cycle (G := G) (C := C) B hv_bridge
 
-set_option linter.unusedDecidableInType false in
+omit [DecidableEq V] in
 theorem exists_two_cycles_length_dist_1_or_2
     (h2 : VertexTwoConnected (G := G))
     (hδ3 : MinDegreeGE3 (G := G))
