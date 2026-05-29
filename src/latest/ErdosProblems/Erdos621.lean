@@ -40,7 +40,6 @@ set_option linter.flexible false
 set_option linter.style.multiGoal false
 set_option linter.style.openClassical false
 set_option linter.style.refine false
-set_option linter.unusedDecidableInType false
 set_option linter.unusedSectionVars false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
@@ -95,7 +94,7 @@ structure Trigraph (V : Type*) where
 
 namespace Trigraph
 
-variable {V : Type*} [Fintype V] [DecidableEq V]
+variable {V : Type*} [Fintype V]
 
 /-- The non-edge indicator function: n(u,v) = 1 - c(u,v) - s(u,v).
     Note n(v,v) = 1 for all v. -/
@@ -186,7 +185,7 @@ and τ_B(G) is the minimum number of edges to delete to make G bipartite.
 -/
 
 
-variable {V : Type*} [Fintype V] [DecidableEq V]
+variable {V : Type*} [Fintype V]
 
 namespace TriangleIndep
 
@@ -233,7 +232,7 @@ The proof uses a Cauchy-Schwarz-like argument:
 
 namespace Trigraph
 
-variable {V : Type*} [Fintype V] [DecidableEq V]
+variable {V : Type*} [Fintype V]
 
 set_option maxHeartbeats 1600000
 -- The generated trigraph sum expansions time out at the default heartbeat limit.
@@ -350,7 +349,7 @@ We prove:
 
 namespace Trigraph
 
-variable {V : Type*} [Fintype V] [DecidableEq V]
+variable {V : Type*} [Fintype V]
 
 set_option maxHeartbeats 800000
 -- The P4/C4 inequality expands several generated trigraph sums.
@@ -472,7 +471,7 @@ The proof of fbound3 follows the paper's decomposition:
 
 namespace Trigraph
 
-variable {V : Type*} [Fintype V] [DecidableEq V]
+variable {V : Type*} [Fintype V]
 
 set_option maxHeartbeats 1600000
 -- The fbound4 algebraic rewrite needs extra heartbeats.
@@ -638,7 +637,7 @@ Proves: 2·LHS_c + B = (card V)²·S_total - 6P₄ - 2C₄ - 2K₁,₃ - 4D - 4R
 
 namespace Trigraph
 
-variable {V : Type*} [Fintype V] [DecidableEq V]
+variable {V : Type*} [Fintype V]
 
 set_option maxHeartbeats 1600000
 -- The total signed-edge expansion needs extra heartbeats.
@@ -787,7 +786,7 @@ The proof combines:
 
 namespace Trigraph
 
-variable {V : Type*} [Fintype V] [DecidableEq V]
+variable {V : Type*} [Fintype V]
 
 set_option maxHeartbeats 1600000
 -- The f2 expansion proof needs extra heartbeats for generated trigraph sums.
@@ -1001,7 +1000,7 @@ For every triangle-free trigraph G = (V, C, S), there exists a bipartition
 
 namespace Trigraph
 
-variable {V : Type*} [Fintype V] [DecidableEq V]
+variable {V : Type*} [Fintype V]
 
 def edgesWithin (G : Trigraph V) (χ : V → Bool) : ℤ :=
   ∑ u : V, ∑ v : V,
@@ -1434,16 +1433,17 @@ theorem partition_construction_bound (G : Trigraph V) (u₀ v₀ : V)
 /-! ### Main induction -/
 
 private theorem partition_aux (n : ℕ) :
-    ∀ {V : Type*} [Fintype V] [DecidableEq V] (G : Trigraph V),
+    ∀ {V : Type*} [Fintype V] (G : Trigraph V),
     Fintype.card V ≤ n →
     ∃ χ : V → Bool, 2 * (G.edgesWithin χ + G.S_total) ≤ (Fintype.card V : ℤ) ^ 2 := by
+  classical
   induction n with
   | zero =>
-    intro V _ _ G hn
+    intro V _ G hn
     have hcard : Fintype.card V = 0 := Nat.le_zero.mp hn
     exact ⟨fun _ => false, by simp [edgesWithin, S_total, Fintype.card_eq_zero_iff.mp hcard]⟩
   | succ n ih =>
-    intro V _ _ G hn
+    intro V _ G hn
     by_cases hS : G.S_total = 0
     · exact partition_when_S_zero G hS
     · have hS_pos : 0 < G.S_total := lt_of_le_of_ne (S_total_nonneg G) (Ne.symm hS)
@@ -1625,8 +1625,10 @@ variable {V : Type*} [Fintype V] [DecidableEq V]
 -/
 set_option maxHeartbeats 1600000 in
 -- The final graph inequality uses generated finite-sum/cardinality expansions.
+omit [DecidableEq V] in
 theorem main_inequality (G : SimpleGraph V) [DecidableRel G.Adj] :
     4 * (alpha1 G + tauB G) ≤ (Fintype.card V) ^ 2 := by
+  classical
   -- By definition of $alpha1$, choose a maximizing triangle-independent set $S$.
   obtain ⟨S, hS⟩ :
       ∃ S : Finset (Sym2 V),
