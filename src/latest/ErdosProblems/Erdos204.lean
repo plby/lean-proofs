@@ -1003,12 +1003,12 @@ theorem erdos_204 : ¬ ∃ (n : ℕ) (a : ℕ → ℤ),
     specialize ha₂ 2 ( by decide ) 4 ( by decide ) ; norm_num at ha₂;
     exact ha₂ ( a 4 ) |>.2 ( by norm_num )
 
-#print axioms T1
--- 'Erdos204.T1' depends on axioms: [propext, Classical.choice, Quot.sound]
-
-#print axioms erdos_204
--- 'Erdos204.erdos_204' depends on axioms: [propext, Classical.choice, Quot.sound]
-
 end
 
 end Erdos204
+
+#print axioms Erdos204.T1
+-- 'Erdos204.T1' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+#print axioms Erdos204.erdos_204
+-- 'Erdos204.erdos_204' depends on axioms: [propext, Classical.choice, Quot.sound]
