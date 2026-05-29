@@ -686,14 +686,14 @@ lemma countP_zip_tail_sublist {α : Type*} (l s r : List α) (P : α × α → B
           cases hl <;> aesop;
       exact List.Sublist.countP_le h_sublist
 
-set_option linter.unusedDecidableInType false in
-lemma prefix_of_head_mem_of_convex {α : Type*} [LinearOrder α] [DecidableEq α] :
+lemma prefix_of_head_mem_of_convex {α : Type*} [LinearOrder α] :
     ∀ (L S : List α),
       List.Pairwise (· ≤ ·) L → L.Nodup →
       List.Pairwise (· ≤ ·) S → S.Nodup →
       (∀ x ∈ S, x ∈ L) →
       (∀ a ∈ S, ∀ b ∈ S, a < b → ∀ x ∈ L, a < x → x < b → x ∈ S) →
       ∀ {a : α} {L' : List α}, L = a :: L' → a ∈ S → S <+: L := by
+  classical
   intro L
   induction L with
   | nil =>
@@ -786,13 +786,13 @@ lemma prefix_of_head_mem_of_convex {α : Type*} [LinearOrder α] [DecidableEq α
 /-
 If S is a sorted sublist of a sorted list L, and S is convex in L (contains all intermediate elements), then S is a contiguous sublist of L.
 -/
-set_option linter.unusedDecidableInType false in
-lemma contiguous_sublist_of_convex {α : Type*} [LinearOrder α] [DecidableEq α] (L S : List α)
+lemma contiguous_sublist_of_convex {α : Type*} [LinearOrder α] (L S : List α)
     (hL_sorted : List.Pairwise (· ≤ ·) L) (hL_nodup : L.Nodup)
     (hS_sorted : List.Pairwise (· ≤ ·) S) (hS_nodup : S.Nodup)
     (hsub : ∀ x ∈ S, x ∈ L)
     (hconv : ∀ a ∈ S, ∀ b ∈ S, a < b → ∀ x ∈ L, a < x → x < b → x ∈ S) :
     ∃ l r, L = l ++ S ++ r := by
+  classical
   suffices hInfix : S <:+: L by
     rcases hInfix with ⟨l, r, h⟩
     exact ⟨l, r, h.symm⟩
@@ -807,7 +807,6 @@ lemma contiguous_sublist_of_convex {α : Type*} [LinearOrder α] [DecidableEq α
           cases hs
   | cons a L ih =>
       intro S hS_sorted hS_nodup hsub hconv
-      rename_i hL_sorted hL_nodup
       by_cases haS : a ∈ S
       · exact (prefix_of_head_mem_of_convex (a :: L) S hL_sorted hL_nodup hS_sorted hS_nodup hsub hconv rfl haS).isInfix
       · have hL_tail_sorted : List.Pairwise (· ≤ ·) L := List.Pairwise.tail hL_sorted
