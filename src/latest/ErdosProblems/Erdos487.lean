@@ -3013,7 +3013,7 @@ theorem erdos_487 (A : Set ℕ) (hA : lowerDensity A > 0) :
         exact ⟨ a, ha, b, hb, c, hc, habc ⟩;
       exact h a ha.1 b hb.1 c hc.1 habc.1 habc.2.1 habc.2.2.1 habc.2.2.2.2.2.2
 
-#print axioms erdos_487
--- 'Erdos487.erdos_487' depends on axioms: [propext, Classical.choice, Quot.sound]
-
 end Erdos487
+
+#print axioms Erdos487.erdos_487
+-- 'Erdos487.erdos_487' depends on axioms: [propext, Classical.choice, Quot.sound]
