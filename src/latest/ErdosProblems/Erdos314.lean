@@ -403,7 +403,8 @@ theorem ePadeDen_pos : ∀ k, 0 < ePadeDen k := by
     induction' k with k ih
     · exact ⟨by norm_num [ePadeDen_zero], by norm_num [eSecDen_zero]⟩
     · constructor <;> nlinarith [ ePadeDen_succ k, eSecDen_succ k ];
-  aesop
+  intro k
+  simp_all only
 
 /-! ## Section 3: Determinant identity -/
 
@@ -902,7 +903,8 @@ lemma ePadeNum_gt_ePadeDen (k : ℕ) : ePadeNum k > ePadeDen k := by
   have h_ind : ∀ k, ePadeNum k > ePadeDen k ∧ eSecNum k > eSecDen k := by
     intro k
     induction' k with k ih
-    aesop
+    simp_all only [ePadeNum_zero, ePadeDen_zero, gt_iff_lt, Nat.one_lt_ofNat, eSecNum_zero,
+      eSecDen_zero, Order.lt_two_iff, Std.le_refl, and_self]
     generalize_proofs at *; (
     simp_all +decide [ ePadeNum_succ, ePadeDen_succ, eSecNum_succ, eSecDen_succ ] ;
       constructor <;> nlinarith;)
@@ -1016,11 +1018,13 @@ lemma d_bound_from_y (k d : ℕ) (hk : 2 ≤ k) (hk_even : Even k)
           Real.exp_pos 1 ] ;
       have h_bound : ((ePadeNum k : ℝ) - Real.exp 1 * (ePadeDen k : ℝ)) * (ePadeDen k : ℝ) ≥ 1 /
         (2 * k + 4) := by
-        have := @eps_q_lower k ( by linarith ) hk_even; aesop;
+        have := @eps_q_lower k ( by linarith ) hk_even
+        simp_all only [tsub_le_iff_right, ge_iff_le, one_div]
       have h_bound : y_func k d ≤ Real.sinh 1 / 12 + d / (2 * k + 2) := by
         have h_bound : ((ePadeNum k : ℝ) - Real.exp 1 * (ePadeDen k : ℝ)) * (ePadeDen k : ℝ) ≤ 1 /
           (2 * k + 2) := by
-          have := eps_q_upper k ( by linarith ) ; aesop;
+          have := eps_q_upper k ( by linarith )
+          simp_all only [tsub_le_iff_right, ge_iff_le, one_div]
         ring_nf at *; nlinarith;
       simp +zetaDelta at *;
       rw [ inv_eq_one_div, div_le_iff₀ ] at h_bound <;> nlinarith [ ( by norm_cast : ( 2 : ℝ ) ≤ k )
@@ -1195,7 +1199,8 @@ lemma construct_mn_from_d (k d : ℕ) (hk : 2 ≤ k)
       apply y_func_eq_y k d m n (by
       grind) (by
       grind);
-    aesop
+    intro y
+    simp_all only [one_div, tsub_le_iff_right, and_self, y]
 
 theorem choose_d_construction_strong :
     ∃ C₂ : ℝ, C₂ > 0 ∧ ∃ K₀ : ℕ, ∀ k : ℕ, K₀ ≤ k → Even k →
@@ -1743,7 +1748,8 @@ theorem main_theorem (c : ℝ) (hc : c > 0) :
         ((24 * Real.exp (-1) * y + Real.exp (-2) - 1) / 24) * (1 / (↑n) ^ 2)| ≤
         C_E / (↑n) ^ 3 := by
     have := @second_order_expansion 1 (by norm_num) (Real.sinh 1 / 12 + C₂ + 1) (by positivity)
-    aesop
+    simp_all only [gt_iff_lt, one_div, tsub_le_iff_right,
+      eulerMaclaurinApprox_eq_eulerMaclaurinApprox', mul_one]
   -- Choose k large enough
   obtain ⟨k, hk_K0, hk_NE, hk_N, hk_ge2, hk_upper, hk_lower, hk_even⟩ :
       ∃ k : ℕ, K₀ ≤ k ∧ N_E ≤ k ∧ N ≤ k ∧ 2 ≤ k ∧
