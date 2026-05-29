@@ -38,7 +38,6 @@ set_option linter.style.refine false
 set_option linter.style.induction false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
-set_option linter.unusedDecidableInType false
 
 open scoped Classical
 open Polynomial Finset
@@ -420,9 +419,10 @@ lemma F_poly_coeff {p : ℕ} (C : Finset (ZMod p)) (n : ℕ) (hC : C.card = 2 * 
 /-
 If $|S| \le k \le |\alpha|$, there exists $C \supseteq S$ with $|C| = k$.
 -/
-lemma exists_superset_card_eq {α : Type*} [Fintype α] [DecidableEq α] (S : Finset α) (k : ℕ)
+lemma exists_superset_card_eq {α : Type*} [Fintype α] (S : Finset α) (k : ℕ)
     (h_le : S.card ≤ k) (h_lt : k ≤ Fintype.card α) :
     ∃ C : Finset α, S ⊆ C ∧ C.card = k := by
+      classical
       exact Finset.exists_superset_card_eq h_le h_lt
 
 /-
