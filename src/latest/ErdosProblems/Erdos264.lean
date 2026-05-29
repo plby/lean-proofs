@@ -41,7 +41,6 @@ set_option linter.style.setOption false
 set_option aesop.warn.nonterminal false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 set_option linter.unusedSimpArgs false
 
 namespace Erdos264
@@ -79,7 +78,8 @@ lemma gap_inequality (n : ℕ) (k : ℕ) (h_ge : 1 ≤ k) (h_le : k ≤ 3) :
               1 / (2 ^ (n + 1 + m) + 4 : ℝ)) =
             3 / ((2 ^ (n + 1 + m) + 1) *
               (2 ^ (n + 1 + m) + 4) : ℝ) := by
-      intro m; rw [ div_sub_div ] <;> ring_nf <;> positivity;
+      intro m
+      rw [div_sub_div] <;> ring_nf <;> positivity
     -- We'll use the fact that the sum of a geometric series can be bounded.
     have h_geo_series :
         (∑' m : ℕ,
@@ -87,13 +87,17 @@ lemma gap_inequality (n : ℕ) (k : ℕ) (h_ge : 1 ≤ k) (h_le : k ≤ 3) :
             (2 ^ (n + 1 + m) + 4) : ℝ)) ≥
           3 / ((2 ^ (n + 1) + 1) * (2 ^ (n + 1) + 4) : ℝ) *
             ∑' m : ℕ, (1 / 4 : ℝ) ^ m := by
-      rw [ ← tsum_mul_left ] ; refine' Summable.tsum_le_tsum _ _ _ ; aesop;
-      · field_simp;
-        norm_num [ pow_add, pow_mul ];
+      rw [← tsum_mul_left]
+      refine Summable.tsum_le_tsum ?_ ?_ ?_
+      · intro i
+        field_simp
+        norm_num [pow_add, pow_mul]
         rw [
-          show ( 4 : ℝ ) ^ i = ( 2 ^ i ) ^ 2 by
-            norm_num [ sq, ← mul_pow ]
-        ];
+          show (1 / 4 : ℝ) ^ i = ((2 ^ i : ℝ) ^ 2)⁻¹ by
+            rw [one_div, inv_pow]
+            norm_num [sq, ← mul_pow]
+        ]
+        field_simp
         nlinarith [
           show ( 2 ^ n : ℝ ) ≥ 1 by exact one_le_pow₀ ( by norm_num ),
           show ( 2 ^ i : ℝ ) ≥ 1 by exact one_le_pow₀ ( by norm_num ),
@@ -103,8 +107,8 @@ lemma gap_inequality (n : ℕ) (k : ℕ) (h_ge : 1 ≤ k) (h_le : k ≤ 3) :
           mul_le_mul_of_nonneg_left
             ( show ( 2 ^ i : ℝ ) ≥ 1 by exact one_le_pow₀ ( by norm_num ) )
             ( show ( 0 : ℝ ) ≤ 2 ^ n by positivity )
-        ];
-      · exact Summable.mul_left _ ( summable_geometric_of_lt_one ( by norm_num ) ( by norm_num ) );
+        ]
+      · exact Summable.mul_left _ ( summable_geometric_of_lt_one ( by norm_num ) ( by norm_num ) )
       · -- We can compare our series to a geometric series with ratio $1/4$.
         have h_compare :
             ∀ m : ℕ,
@@ -196,26 +200,27 @@ lemma inductive_step (n : ℕ) (z : ℝ) (hz : z ∈ Set.Icc (min_tail n) (max_t
     have h_bounds :
         min_tail n = 1 / (2^n + 4 : ℝ) + min_tail (n + 1) ∧
           max_tail n = 1 / (2^n + 1 : ℝ) + max_tail (n + 1) := by
-      unfold min_tail max_tail; aesop;
-      · rw [ Summable.tsum_eq_zero_add ];
-        · ac_rfl;
+      unfold min_tail max_tail
+      constructor
+      · rw [Summable.tsum_eq_zero_add]
+        · ac_rfl
         · exact Summable.of_nonneg_of_le
             ( fun _ => by positivity )
             ( fun m => by
               simpa using inv_anti₀ ( by positivity )
                 ( show ( 2 ^ ( n + m ) + 4 : ℝ ) ≥ 2 ^ ( n + m ) by linarith ) )
             ( by
-              simpa using summable_geometric_two.comp_injective ( add_right_injective n ) );
-      · rw [ Summable.tsum_eq_zero_add ];
-        · ac_rfl;
+              simpa using summable_geometric_two.comp_injective ( add_right_injective n ) )
+      · rw [Summable.tsum_eq_zero_add]
+        · ac_rfl
         · exact Summable.of_nonneg_of_le
             ( fun m => by positivity )
             ( fun m => by
               simpa using inv_anti₀ ( by positivity )
                 ( show ( 2 ^ ( n + m ) + 1 : ℝ ) ≥ 2 ^ ( n + m ) by norm_num ) )
             ( by
-              simpa using summable_geometric_two.comp_injective ( add_right_injective n ) );
-    norm_num [ add_assoc ] at *;
+              simpa using summable_geometric_two.comp_injective ( add_right_injective n ) )
+    norm_num [add_assoc] at *
     exact ⟨
       if ( 2 ^ n + 1 : ℝ ) ⁻¹ + min_tail ( n + 1 ) ≤ z then 1
       else if ( 2 ^ n + 2 : ℝ ) ⁻¹ + min_tail ( n + 1 ) ≤ z then 2
@@ -1361,9 +1366,9 @@ theorem erdos_264.variants.example : IsIrrationalitySequence (fun n ↦ 2 ^ (2 ^
       (by
         aesop)
 
-#print axioms erdos_264.parts.i
--- 'Erdos264.erdos_264.parts.i' depends on axioms: [propext, Classical.choice, Quot.sound]
-#print axioms erdos_264.variants.example
--- 'Erdos264.erdos_264.variants.example' depends on axioms: [propext, Classical.choice, Quot.sound]
-
 end Erdos264
+
+#print axioms Erdos264.erdos_264.parts.i
+-- 'Erdos264.erdos_264.parts.i' depends on axioms: [propext, Classical.choice, Quot.sound]
+#print axioms Erdos264.erdos_264.variants.example
+-- 'Erdos264.erdos_264.variants.example' depends on axioms: [propext, Classical.choice, Quot.sound]
