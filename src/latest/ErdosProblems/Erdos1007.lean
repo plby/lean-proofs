@@ -53,7 +53,6 @@ set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.style.refine false
 set_option linter.flexible false
-set_option linter.unusedDecidableInType false
 set_option linter.style.induction false
 
 open scoped Classical
@@ -504,9 +503,10 @@ def addEdge {V : Type*} (G : SimpleGraph V) (u v : V) : SimpleGraph V :=
 /-
 If a graph G has a vertex of degree 1, and G without that vertex embeds in R^3, then G embeds in R^3.
 -/
-lemma embed_extend_deg_1 {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V) (v : V)
+lemma embed_extend_deg_1 {V : Type*} [Fintype V] (G : SimpleGraph V) (v : V)
     (h : G.degree v = 1) (h_emb : HasUnitDistanceEmbedding (deleteVertex G v) 3) :
     HasUnitDistanceEmbedding G 3 := by
+      classical
       by_contra h_contra;
       -- Let f' be the embedding of G - v. Let u be the unique neighbor of v.
       obtain ⟨f', hf'⟩ : ∃ f' : { u : V // u ≠ v } → EuclideanSpace ℝ (Fin 3), IsUnitDistanceEmbedding (deleteVertex G v) 3 f' := by
@@ -554,11 +554,12 @@ lemma embed_extend_deg_1 {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGrap
 /-
 If a graph G has a vertex v of degree 2 with neighbors u and w, and u and w are adjacent, and G - v embeds in R^3, then G embeds in R^3.
 -/
-lemma embed_extend_deg_2_adj {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V) (v : V)
+lemma embed_extend_deg_2_adj {V : Type*} [Fintype V] (G : SimpleGraph V) (v : V)
     (u w : V) (hu : G.Adj v u) (hw : G.Adj v w) (huw : u ≠ w) (hdeg : G.degree v = 2)
     (hu_adj_w : G.Adj u w)
     (h_emb : HasUnitDistanceEmbedding (deleteVertex G v) 3) :
     HasUnitDistanceEmbedding G 3 := by
+      classical
       obtain ⟨ f', hf' ⟩ := h_emb;
       -- Since u and w are adjacent in G, they are adjacent in G - v. Therefore, we can extend the embedding f' of G - v to an embedding of G by mapping v to a point in the intersection of the unit spheres around f(u) and f(w) that is not in the image of f'.
       obtain ⟨p, hp⟩ : ∃ p : EuclideanSpace ℝ (Fin 3), dist (f' ⟨u, by aesop⟩) p = 1 ∧ dist (f' ⟨w, by aesop⟩) p = 1 ∧ p ∉ Set.range f' := by
@@ -588,11 +589,12 @@ lemma embed_extend_deg_2_adj {V : Type*} [Fintype V] [DecidableEq V] (G : Simple
 /-
 If a graph G has a vertex v of degree 2 with neighbors u and w, and u and w are not adjacent, and the graph obtained by removing v and adding edge (u,w) embeds in R^3, then G embeds in R^3.
 -/
-lemma embed_extend_deg_2_not_adj {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V) (v : V)
+lemma embed_extend_deg_2_not_adj {V : Type*} [Fintype V] (G : SimpleGraph V) (v : V)
     (u w : V) (hu : G.Adj v u) (hw : G.Adj v w) (huw : u ≠ w) (hdeg : G.degree v = 2)
     (hu_not_adj_w : ¬ G.Adj u w)
     (h_emb : HasUnitDistanceEmbedding (addEdge (deleteVertex G v) ⟨u, (G.ne_of_adj hu).symm⟩ ⟨w, (G.ne_of_adj hw).symm⟩) 3) :
     HasUnitDistanceEmbedding G 3 := by
+      classical
       -- Since the intersection of the two spheres is infinite, we can pick any point in that intersection that's not in the image of f'.
       obtain ⟨p, hp⟩ : ∃ p : EuclideanSpace ℝ (Fin 3), p ∈ Metric.sphere (h_emb.choose ⟨u, by
         exact hu.symm.ne⟩) 1 ∩ Metric.sphere (h_emb.choose ⟨w, by
@@ -630,8 +632,9 @@ lemma embed_extend_deg_2_not_adj {V : Type*} [Fintype V] [DecidableEq V] (G : Si
 /-
 Any graph with at most 4 vertices has dimension at most 3.
 -/
-lemma dim_le_3_of_card_le_4 {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V)
+lemma dim_le_3_of_card_le_4 {V : Type*} [Fintype V] (G : SimpleGraph V)
     (h : Fintype.card V ≤ 4) : GraphDimension G ≤ 3 := by
+      classical
       -- Any graph with at most 4 vertices is a subgraph of $K_4$, which can be embedded in $\mathbb{R}^3$.
       have h_subgraph : ∃ (f : V → EuclideanSpace ℝ (Fin 3)), IsUnitDistanceEmbedding G 3 f := by
         have h_subgraph : ∃ (f : V → EuclideanSpace ℝ (Fin 3)), ∀ v w : V, v ≠ w → dist (f v) (f w) = 1 := by
@@ -690,9 +693,10 @@ lemma regular_triangle_sphere_intersection_avoid {x y z u : EuclideanSpace ℝ (
 /-
 If a graph has 5 vertices, fewer than 9 edges, and minimum degree at least 3, then it has a vertex of degree 3.
 -/
-lemma exists_deg_3_of_card_5_edges_lt_9 {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V)
+lemma exists_deg_3_of_card_5_edges_lt_9 {V : Type*} [Fintype V] (G : SimpleGraph V)
     (hV : Fintype.card V = 5) (hE : G.edgeFinset.card < 9) (hmin : ∀ v, 3 ≤ G.degree v) :
     ∃ v, G.degree v = 3 := by
+      classical
       by_contra h_contra;
       -- If all vertices have degree at least 4, then the sum of degrees is at least 4*5 = 20.
       have h_sum_deg : ∑ v : V, G.degree v ≥ 4 * 5 := by
@@ -702,13 +706,14 @@ lemma exists_deg_3_of_card_5_edges_lt_9 {V : Type*} [Fintype V] [DecidableEq V] 
 /-
 If G has 5 vertices and v has degree 3, there exists an embedding of G - v such that the neighbors of v form a regular triangle (pairwise distance 1).
 -/
-lemma exists_embedding_with_regular_neighbors {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V) (v : V)
+lemma exists_embedding_with_regular_neighbors {V : Type*} [Fintype V] (G : SimpleGraph V) (v : V)
     (hV : Fintype.card V = 5) (hdeg : G.degree v = 3) :
     ∃ f : {u // u ≠ v} → EuclideanSpace ℝ (Fin 3),
       IsUnitDistanceEmbedding (deleteVertex G v) 3 f ∧
       ∀ x y (hx : G.Adj v x) (hy : G.Adj v y), x ≠ y →
         dist (f ⟨x, (G.ne_of_adj hx).symm⟩)
              (f ⟨y, (G.ne_of_adj hy).symm⟩) = 1 := by
+               classical
                simp +zetaDelta at *;
                -- Let $N = G.neighborFinset v$. Define $H$ as $G \setminus \{v\}$ with all edges between distinct pairs in $N$ added.
                set N := G.neighborFinset v
@@ -732,7 +737,7 @@ lemma exists_embedding_with_regular_neighbors {V : Type*} [Fintype V] [Decidable
 /-
 If a graph has 5 vertices and a vertex v has degree 3, there is exactly one vertex u distinct from v that is not adjacent to v.
 -/
-lemma exists_unique_non_neighbor {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V) (v : V)
+lemma exists_unique_non_neighbor {V : Type*} [Fintype V] (G : SimpleGraph V) (v : V)
     (hV : Fintype.card V = 5) (hdeg : G.degree v = 3) :
     ∃! u, u ≠ v ∧ ¬ G.Adj v u := by
       classical
@@ -761,13 +766,14 @@ lemma exists_unique_non_neighbor {V : Type*} [Fintype V] [DecidableEq V] (G : Si
 /-
 Given a unit distance embedding of G - v and a point p that is at distance 1 from neighbors of v and distinct from non-neighbors of v, we can extend the embedding to G.
 -/
-lemma embedding_extension {V : Type*} [Finite V] [DecidableEq V] (G : SimpleGraph V) (v : V)
+lemma embedding_extension {V : Type*} [Finite V] (G : SimpleGraph V) (v : V)
     (f' : {u // u ≠ v} → EuclideanSpace ℝ (Fin 3))
     (hf' : IsUnitDistanceEmbedding (deleteVertex G v) 3 f')
     (p : EuclideanSpace ℝ (Fin 3))
     (hp_adj : ∀ u (h : G.Adj v u), dist p (f' ⟨u, G.ne_of_adj (G.adj_symm h)⟩) = 1)
     (hp_not_adj : ∀ u (h : u ≠ v), ¬ G.Adj v u → p ≠ f' ⟨u, h⟩) :
     HasUnitDistanceEmbedding G 3 := by
+      classical
       letI := Fintype.ofFinite V
       refine' ⟨ fun u => if hu : u = v then p else f' ⟨ u, hu ⟩, _, _ ⟩ <;> simp_all +decide [ IsUnitDistanceEmbedding ];
       · intro u w h_eq; by_cases hu : u = v <;> by_cases hw : w = v <;> simp_all +decide [ Function.Injective.eq_iff hf'.1 ] ;
@@ -786,9 +792,10 @@ lemma embedding_extension {V : Type*} [Finite V] [DecidableEq V] (G : SimpleGrap
 /-
 If a graph has fewer than 9 edges and minimum degree at least 3, it can be embedded in dimension 3.
 -/
-lemma min_degree_ge_3_edges_lt_9_embeds {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V)
+lemma min_degree_ge_3_edges_lt_9_embeds {V : Type*} [Fintype V] (G : SimpleGraph V)
     (hE : G.edgeFinset.card < 9) (hmin : ∀ v, 3 ≤ G.degree v) :
     HasUnitDistanceEmbedding G 3 := by
+  classical
   have hcard_le5 : Fintype.card V ≤ 5 := by
     have hsum_min : 3 * Fintype.card V ≤ ∑ v : V, G.degree v := by
       calc
@@ -887,9 +894,10 @@ lemma card_edges_deleteVertex {V : Type*} [Fintype V] [DecidableEq V] (G : Simpl
 /-
 Adding a non-existing edge increases the edge count by 1.
 -/
-lemma card_edges_addEdge {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V) (u v : V)
+lemma card_edges_addEdge {V : Type*} [Fintype V] (G : SimpleGraph V) (u v : V)
     (h : ¬ G.Adj u v) (h_ne : u ≠ v) :
     (addEdge G u v).edgeFinset.card = G.edgeFinset.card + 1 := by
+  classical
   unfold addEdge
   simpa [SimpleGraph.edge] using G.card_edgeFinset_sup_edge h h_ne
 
@@ -919,9 +927,10 @@ theorem K33_edges_final : (completeBipartiteGraph (Fin 3) (Fin 3)).edgeFinset.ca
 /-
 If a graph G has an isolated vertex v, and G - v embeds in R^3, then G embeds in R^3.
 -/
-lemma embed_isolated {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V) (v : V)
+lemma embed_isolated {V : Type*} [Fintype V] (G : SimpleGraph V) (v : V)
     (h : G.degree v = 0) (h_emb : HasUnitDistanceEmbedding (deleteVertex G v) 3) :
     HasUnitDistanceEmbedding G 3 := by
+      classical
       obtain ⟨f', hf'⟩ := h_emb
       obtain ⟨p, hp⟩ : ∃ p : EuclideanSpace ℝ (Fin 3), p ∉ Set.range f' := by
         by_contra h_contra
@@ -973,9 +982,10 @@ lemma embed_isolated {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V)
 Every graph with fewer than 9 edges has a unit-distance embedding in R^3.
 -/
 lemma edges_lt_9_embeds_in_3_measure (n : ℕ) :
-    ∀ {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V),
+    ∀ {V : Type*} [Fintype V] (G : SimpleGraph V),
     3 * G.edgeFinset.card + Fintype.card V = n → G.edgeFinset.card < 9 → HasUnitDistanceEmbedding G 3 := by
-      intro V _ _ G hn hE;
+      intro V _ G hn hE;
+      classical
       -- We prove this by strong induction on `n`.
       induction' n using Nat.strong_induction_on with n ih generalizing V G;
       -- If `∀ v, G.degree v ≥ 3`, then `min_degree_ge_3_edges_lt_9_embeds` applies.
@@ -989,7 +999,7 @@ lemma edges_lt_9_embeds_in_3_measure (n : ℕ) :
           set G' := deleteVertex G v
           have hdv : G.degree v = 0 := by
             subst hn
-            simp_all only [ge_iff_le, not_forall, not_le, forall_const]
+            simp_all only [ge_iff_le, not_forall, not_le]
           have hG' : 3 * G'.edgeFinset.card + Fintype.card {u : V // u ≠ v} < n := by
             have hG'_edges : G'.edgeFinset.card = G.edgeFinset.card := by
               have h_card_edges := card_edges_deleteVertex G v
@@ -1018,7 +1028,7 @@ lemma edges_lt_9_embeds_in_3_measure (n : ℕ) :
               linarith;
           have hdv : G.degree v = 1 := by
             subst hn
-            simp_all only [ge_iff_le, not_forall, not_le, ne_eq, forall_const, G']
+            simp_all only [ge_iff_le, not_forall, not_le, ne_eq, G']
           exact embed_extend_deg_1 G v hdv hG'_embed
         · -- Let `u, w` be neighbors.
           obtain ⟨u, w, hu, hw, huw⟩ : ∃ u w : V, G.Adj v u ∧ G.Adj v w ∧ u ≠ w := by
@@ -1065,8 +1075,9 @@ lemma edges_lt_9_embeds_in_3_measure (n : ℕ) :
 /-
 Every graph with fewer than 9 edges has a unit-distance embedding in R^3.
 -/
-theorem edges_lt_9_embeds_in_3 {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V)
+theorem edges_lt_9_embeds_in_3 {V : Type*} [Fintype V] (G : SimpleGraph V)
     (h : G.edgeFinset.card < 9) : HasUnitDistanceEmbedding G 3 := by
+      classical
       apply edges_lt_9_embeds_in_3_measure;
       exacts [ rfl, h ]
 
