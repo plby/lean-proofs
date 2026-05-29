@@ -11255,7 +11255,7 @@ theorem erdos_283 :
       rw [h_rat]; push_cast; rfl
     exact_mod_cast h_int
 
-#print axioms erdos_283
--- 'Erdos283.erdos_283' depends on axioms: [propext, Classical.choice, Quot.sound]
-
 end Erdos283
+
+#print axioms Erdos283.erdos_283
+-- 'Erdos283.erdos_283' depends on axioms: [propext, Classical.choice, Quot.sound]
