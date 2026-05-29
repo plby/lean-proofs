@@ -254,7 +254,6 @@ set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.style.cases false
 set_option linter.flexible false
-set_option linter.unusedDecidableInType false
 
 open scoped BigOperators
 open scoped Real
@@ -357,10 +356,11 @@ theorem ramsey_prop_mono {a b N N' : ℕ} (h : Ramsey_prop a b N)
 /-
 Generalization of Ramsey property to any type with cardinality N.
 -/
-theorem ramsey_prop_general {V : Type*} [Fintype V] [DecidableEq V] (a b N : ℕ)
+theorem ramsey_prop_general {V : Type*} [Fintype V] (a b N : ℕ)
   (hN : Fintype.card V = N)
   (h : Ramsey_prop a b N) (G : SimpleGraph V) :
   a ≤ G.cliqueNum ∨ b ≤ G.indepNum := by
+  classical
   obtain ⟨e⟩ := Fintype.truncEquivFinOfCardEq hN
   let H : SimpleGraph (Fin N) := G.map e
   have h_clique : H.cliqueNum = G.cliqueNum := by
@@ -819,8 +819,9 @@ noncomputable def prob_event {V : Type*} [Fintype V] (p : ℝ) (E : Set (Finset 
 /-
 Probability that random set A is disjoint from D is (1-p)^|D|.
 -/
-theorem prob_disjoint_eq {V : Type*} [Fintype V] [DecidableEq V] (p : ℝ) (D : Finset V) :
+theorem prob_disjoint_eq {V : Type*} [Fintype V] (p : ℝ) (D : Finset V) :
   prob_event p {A | Disjoint A D} = (1 - p) ^ D.card := by
+    classical
     unfold prob_event;
     convert sum_bernoulli_weight_disjoint p D using 1;
     simp +decide [ Finset.disjoint_left ]
@@ -914,10 +915,11 @@ Helper for Markov: k * P(X >= k) <= E[X].
 -/
 open Classical
 
-theorem sum_ge_k_le_expectation {V : Type*} [Fintype V] [DecidableEq V]
+theorem sum_ge_k_le_expectation {V : Type*} [Fintype V]
     (p : ℝ) (k : ℝ) (hp : 0 ≤ p) (hp1 : p ≤ 1) :
     k * prob_event p {A : Finset V | k ≤ A.card} ≤
       ∑ A : Finset V, (A.card : ℝ) * bernoulli_weight p A := by
+    classical
     unfold prob_event;
     rw [ Finset.mul_sum _ _ _ ];
     refine' le_trans ( Finset.sum_le_sum_of_subset_of_nonneg _ _ ) _;
@@ -939,13 +941,13 @@ Markov's inequality for cardinality of random set.
 -/
 open Classical
 
-theorem markov_inequality_card {V : Type*} [Fintype V] [DecidableEq V]
+theorem markov_inequality_card {V : Type*} [Fintype V]
     (p : ℝ) (k : ℝ) (hk : 0 < k) (hp : 0 ≤ p) (hp1 : p ≤ 1) :
   prob_event p {A : Finset V | k ≤ A.card} ≤ (p * Fintype.card V) / k := by
+    classical
     rw [ le_div_iff₀' hk ];
     convert sum_ge_k_le_expectation p k hp hp1 using 1;
-    · exact Eq.symm (expectation_card p);
-    · infer_instance
+    · exact Eq.symm (expectation_card p)
 
 /-
 The probability that there exists a pair (x,y) with large difference that is not distinguished by A
@@ -960,7 +962,7 @@ def BadPairsEvent {V : Type*} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Ad
   {A | ∃ x y : V,
     x ≠ y ∧ (dif_size G x y : ℝ) ≥ T ∧ Disjoint A (DifFinset G x y)}
 
-theorem prob_bad_pairs_le {V : Type*} [Fintype V] [DecidableEq V]
+theorem prob_bad_pairs_le {V : Type*} [Fintype V]
     (G : SimpleGraph V) [DecidableRel G.Adj]
     (n : ℕ) (hn : Fintype.card V = n) (p T : ℝ) (hp : 0 ≤ p ∧ p < 1) :
     prob_event p (BadPairsEvent G T) ≤ (n : ℝ) ^ 2 * (1 - p) ^ T := by
@@ -1146,12 +1148,13 @@ theorem lemma_prob_bad_pairs_small (γ : ℝ) (hγ : 0 < γ ∧ γ < 1) :
 /-
 The probability that the random set A is too large is at most 1/2.
 -/
-theorem lemma_prob_size_large {V : Type*} [Fintype V] [DecidableEq V] (n : ℕ)
+theorem lemma_prob_size_large {V : Type*} [Fintype V] (n : ℕ)
     (hn : Fintype.card V = n)
     (γ : ℝ) (hγ : 0 < γ) (hn_ge_2 : 2 ≤ n) :
     let p := param_p γ n
     let k := 2 * γ * n / Real.logb 2 n
     prob_event p {A : Finset V | k < A.card} ≤ 1 / 2 := by
+      classical
       have h_markov :
           prob_event (γ / Real.logb 2 n)
               {A : Finset V | (A.card : ℝ) > 2 * γ * n / Real.logb 2 n} ≤
@@ -1679,7 +1682,7 @@ theorem lemma_eqclasses_part2 {V : Type*} [Fintype V] [DecidableEq V]
 /-
 The Caro-Wei bound: the independence number is at least the sum of 1/(d(v)+1).
 -/
-theorem lemma_caro_wei {V : Type*} [Fintype V] [DecidableEq V]
+theorem lemma_caro_wei {V : Type*} [Fintype V]
     (G : SimpleGraph V) [DecidableRel G.Adj] :
     ∑ v, (1 : ℝ) / (G.degree v + 1) ≤ G.indepNum := by
   classical
@@ -1834,11 +1837,12 @@ theorem lemma_caro_wei {V : Type*} [Fintype V] [DecidableEq V]
 /-
 A graph with N vertices and at most Nd edges has an independent set of size at least N/(2d+1).
 -/
-theorem lemma_indset_edges {V : Type*} [Fintype V] [DecidableEq V]
+theorem lemma_indset_edges {V : Type*} [Fintype V]
     (H : SimpleGraph V) [DecidableRel H.Adj]
     (N : ℕ) (hN : Fintype.card V = N)
     (d : ℝ) (h_edges : H.edgeFinset.card ≤ N * d) :
     (N : ℝ) / (2 * d + 1) ≤ H.indepNum := by
+      classical
       have h_avg_deg :
           ∑ v, (1 : ℝ) / (H.degree v + 1) ≥ N / (2 * d + 1) := by
         have h_jensen :
@@ -1880,7 +1884,7 @@ We can greedily extract disjoint homogeneous sets of size m from C until fewer t
 remain.
 -/
 theorem lemma_greedy_homogeneous {V : Type*} [Finite V] [DecidableEq V]
-    (G : SimpleGraph V) [DecidableRel G.Adj]
+    (G : SimpleGraph V)
     (C : Finset V) (m : ℕ) (hm : 2 ≤ m) :
     ∃ (B : List (Finset V)),
       (∀ b ∈ B, b ⊆ C) ∧
@@ -1888,6 +1892,7 @@ theorem lemma_greedy_homogeneous {V : Type*} [Finite V] [DecidableEq V]
       (∀ b ∈ B, G.IsNClique m b ∨ G.IsNIndepSet m b) ∧
       (B.Pairwise Disjoint) ∧
       (C \ B.foldr (· ∪ ·) ∅).card < R m m := by
+        classical
         letI := Fintype.ofFinite V
         have h_exists_B :
             ∃ B : List (Finset V),
@@ -2152,7 +2157,7 @@ theorem lemma_bad_graph_indep_implies_uniformity {V : Type*} [Fintype V] [Decida
 /-
 There exists a large subset of indices W such that the blocks indexed by W have uniform adjacency.
 -/
-theorem lemma_uniform_subset_existence {V : Type*} [Fintype V] [DecidableEq V]
+theorem lemma_uniform_subset_existence {V : Type*} [Fintype V]
     (G : SimpleGraph V) [DecidableRel G.Adj]
     {N : ℕ} (B : Fin N → Finset V) (rep : Fin N → V)
     (m : ℕ) (T : ℝ)
@@ -2164,6 +2169,7 @@ theorem lemma_uniform_subset_existence {V : Type*} [Fintype V] [DecidableEq V]
       (W.card : ℝ) ≥ (N : ℝ) / (2 * ((m - 1) * T) + 1) ∧
       ∀ i ∈ W, ∀ j ∈ W, i ≠ j →
         ∀ x ∈ B i, ∀ y ∈ B j, G.Adj x y ↔ G.Adj (rep i) (rep j) := by
+        classical
         -- By lemma_indset_edges, H has an independent set W of size at least N/(2d+1).
         obtain ⟨W, hW⟩ :
             ∃ W : Finset (Fin N),
@@ -2886,14 +2892,15 @@ def R_graph {V : Type*} [Fintype V] [DecidableEq V]
 There exists a subset $W' \subseteq W$ of size at least $|W|/2$ such that all blocks in $W'$ are
 cliques or all are independent sets.
 -/
-lemma lemma_large_homogeneous_subset {V : Type*} [Finite V] [DecidableEq V]
-    (G : SimpleGraph V) [DecidableRel G.Adj]
+lemma lemma_large_homogeneous_subset {V : Type*} [Finite V]
+    (G : SimpleGraph V)
     {N : ℕ} (B : Fin N → Finset V)
     (m : ℕ)
     (h_hom : ∀ i, G.IsNClique m (B i) ∨ G.IsNIndepSet m (B i))
     (W : Finset (Fin N)) :
     ∃ W' ⊆ W, (W'.card : ℝ) ≥ (W.card : ℝ) / 2 ∧
       ((∀ i ∈ W', G.IsNClique m (B i)) ∨ (∀ i ∈ W', G.IsNIndepSet m (B i))) := by
+        classical
         letI := Fintype.ofFinite V
         -- Let $W_{clique} = \{i \in W \mid B_i \text{ is clique}\}$ and $W_{indep} = \{i \in W \mid
         -- B_i \text{ is indep}\}$.
@@ -2926,11 +2933,12 @@ theorem lemma_ramsey_prop_R (a b : ℕ) (ha : 2 ≤ a) (hb : 2 ≤ b) :
 If a graph has a subset of vertices $S$ with $|S| \ge R(a,b)$, then $S$ contains a clique of size
 $a$ or an independent set of size $b$.
 -/
-lemma lemma_ramsey_on_subset {V : Type*} [Finite V] [DecidableEq V]
-    (G : SimpleGraph V) [DecidableRel G.Adj]
+lemma lemma_ramsey_on_subset {V : Type*} [Finite V]
+    (G : SimpleGraph V)
     (S : Finset V) (a b : ℕ) (ha : 2 ≤ a) (hb : 2 ≤ b)
     (hS : S.card ≥ R a b) :
     (∃ K ⊆ S, G.IsNClique a K) ∨ (∃ I ⊆ S, G.IsNIndepSet b I) := by
+      classical
       letI := Fintype.ofFinite V
       have := @ramsey_prop_general;
       specialize this a b (S.card) (by simp +decide)
@@ -2979,8 +2987,8 @@ lemma lemma_ramsey_on_subset {V : Type*} [Finite V] [DecidableEq V]
 /-
 If a large set of blocks are cliques and uniform, then $G$ has a large homogeneous set.
 -/
-lemma lemma_hom_from_uniform_W_cliques {V : Type*} [Finite V] [DecidableEq V]
-    (G : SimpleGraph V) [DecidableRel G.Adj]
+lemma lemma_hom_from_uniform_W_cliques {V : Type*} [Finite V]
+    (G : SimpleGraph V)
     {N : ℕ} (B : Fin N → Finset V) (rep : Fin N → V)
     (m : ℕ)
     (h_disjoint : ∀ i j, i ≠ j → Disjoint (B i) (B j))
@@ -2994,6 +3002,7 @@ lemma lemma_hom_from_uniform_W_cliques {V : Type*} [Finite V] [DecidableEq V]
     (hs : 2 ≤ s) (hr_ge_2 : 2 ≤ r)
     (hW' : (W'.card : ℝ) ≥ R s r) :
     hom_num G ≥ r := by
+      classical
       letI := Fintype.ofFinite V
       -- Apply `lemma_ramsey_on_subset` to `R_graph G rep` and `W'` with parameters `s` and `r`.
       obtain ⟨K, hK⟩ :
@@ -3076,8 +3085,8 @@ lemma lemma_hom_from_uniform_W_cliques {V : Type*} [Finite V] [DecidableEq V]
 /-
 If a large set of blocks are independent sets and uniform, then $G$ has a large homogeneous set.
 -/
-lemma lemma_hom_from_uniform_W_indep {V : Type*} [Finite V] [DecidableEq V]
-    (G : SimpleGraph V) [DecidableRel G.Adj]
+lemma lemma_hom_from_uniform_W_indep {V : Type*} [Finite V]
+    (G : SimpleGraph V)
     {N : ℕ} (B : Fin N → Finset V) (rep : Fin N → V)
     (m : ℕ)
     (h_disjoint : ∀ i j, i ≠ j → Disjoint (B i) (B j))
@@ -3091,6 +3100,7 @@ lemma lemma_hom_from_uniform_W_indep {V : Type*} [Finite V] [DecidableEq V]
     (hs : 2 ≤ s) (hr_ge_2 : 2 ≤ r)
     (hW' : (W'.card : ℝ) ≥ R r s) :
     hom_num G ≥ r := by
+      classical
       letI := Fintype.ofFinite V
       -- Apply `lemma_ramsey_on_subset` to `R_graph G rep` and `W'` with parameters `r` and `s`.
       have h_subset :
@@ -3176,8 +3186,8 @@ lemma lemma_hom_from_uniform_W_indep {V : Type*} [Finite V] [DecidableEq V]
 /-
 If there is a large uniform subset of indices $W$, then $G$ has a large homogeneous set.
 -/
-lemma lemma_hom_from_uniform_W {V : Type*} [Finite V] [DecidableEq V]
-    (G : SimpleGraph V) [DecidableRel G.Adj]
+lemma lemma_hom_from_uniform_W {V : Type*} [Finite V]
+    (G : SimpleGraph V)
     {N : ℕ} (B : Fin N → Finset V) (rep : Fin N → V)
     (m : ℕ)
     (h_disjoint : ∀ i j, i ≠ j → Disjoint (B i) (B j))
@@ -3191,6 +3201,7 @@ lemma lemma_hom_from_uniform_W {V : Type*} [Finite V] [DecidableEq V]
     (hs : 2 ≤ s) (hr_ge_2 : 2 ≤ r)
     (hW : (W.card : ℝ) ≥ 2 * R r s) :
     hom_num G ≥ r := by
+      classical
       letI := Fintype.ofFinite V
       -- Apply `lemma_large_homogeneous_subset` to get $W' \subseteq W$ with $|W'| \ge |W|/2 \ge
       -- R(r,s)$.
@@ -3557,13 +3568,14 @@ The distinguishing property holds for n >= shelah_n0.
 lemma shelah_n0_distinguish (c : ℝ) (hc : c > 0) (n : ℕ) (hn : n ≥ shelah_n0 c hc) :
   let γ := shelah_gamma c
   let T := param_T γ n
-  ∀ {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V) [DecidableRel G.Adj],
+  ∀ {V : Type*} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj],
     Fintype.card V = n →
     ∃ A : Finset V, A.Nonempty ∧
       (A.card : ℝ) ≤ 2 * γ * n / Real.logb 2 n ∧
       ∀ x y : V, x ∉ A → y ∉ A →
         same_adj_to_A G A x y →
         (dif_size G x y : ℝ) < T := by
+          classical
           convert Classical.choose_spec
             (lemma_distinguish ( shelah_gamma c ) ( shelah_gamma_bounds c ));
           any_goals exact Fin n;
@@ -3575,7 +3587,7 @@ lemma shelah_n0_distinguish (c : ℝ) (hc : c > 0) (n : ℕ) (hn : n ≥ shelah_
             · infer_instance;
             · exact hn_1;
             · convert hn_1' using 1;
-          · intro γ T V _ _ G _ hn_card
+          · intro γ T V _ G _ hn_card
             let e := Fintype.equivFinOfCardEq hn_card
             have h_adj_iff : ∀ (u : V) (z : Fin n),
                 (SimpleGraph.map (Fintype.equivFinOfCardEq hn_card) G).Adj
@@ -3729,10 +3741,11 @@ lemma shelah_n0_W_large (c : ℝ) (hc : c > 0) (n : ℕ) (hn : n ≥ shelah_n0 c
 If I(G) is small, then hom(G) is large.
 -/
 lemma shelah_hom_lower_bound (c : ℝ) (hc : c > 0) (n : ℕ) (hn : n ≥ shelah_n0 c hc)
-  {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V) [DecidableRel G.Adj]
+  {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V)
   (hV : Fintype.card V = n)
   (hI : (I_num G : ℝ) < (2 : ℝ) ^ (shelah_epsilon c * n)) :
   hom_num G ≥ shelah_r c n := by
+    classical
     -- Let's choose the set A from the hypothesis Shellah_n0_distinguish.
     obtain ⟨A, hA_nonempty, hA_card, hA_distinguish⟩ := shelah_n0_distinguish c hc n hn G hV;
     -- Use `lemma_good_blocks_and_reps` to get $B$ and $rep$.
@@ -3857,10 +3870,11 @@ lemma shelah_contradiction {V : Type*} [Finite V] (c : ℝ) (n : ℕ) (G : Simpl
 If n >= n0 and hom(G) <= c log n, then I(G) >= 2^(epsilon * n).
 -/
 lemma shelah_contrapositive (c : ℝ) (hc : c > 0) (n : ℕ) (hn : n ≥ shelah_n0 c hc)
-  {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V) [DecidableRel G.Adj]
+  {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V)
   (hV : Fintype.card V = n)
   (h_hom : (hom_num G : ℝ) ≤ c * Real.logb 2 n) :
   (I_num G : ℝ) ≥ (2 : ℝ) ^ (shelah_epsilon c * n) := by
+    classical
     -- By contradiction, assume `(I_num G : ℝ) < (2 : ℝ) ^ (shelah_epsilon c * n)`.
     by_contra h_contra;
     have := shelah_hom_lower_bound c hc n hn G hV ( lt_of_not_ge h_contra );
