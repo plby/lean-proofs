@@ -324,7 +324,8 @@ set_option linter.flexible false in
 lemma probabilistic_exists {α : Type} [DecidableEq α] (E : Finset α)
     (C : Finset (Finset α)) (k : ℕ) (p : ℝ)
     (hk : ∀ c ∈ C, c.card = k) (hc : ∀ c ∈ C, c ⊆ E) (hp0 : 0 ≤ p) (hp1 : p ≤ 1) :
-  ∃ S ⊆ E, (S.card : ℝ) - (C.filter (fun c => c ⊆ S)).card ≥ p * E.card - p^k * C.card := by
+  ∃ S ⊆ E,
+    (S.card : ℝ) - (C.filter (fun c => c ⊆ S)).card ≥ p * E.card - p^k * C.card := by
     classical
     -- By linearity of expectation, $\mathbb{E}[X] = \sum_{e \in E} \mathbb{P}(e \in S) = |E| p$.
     have h_exp_X :
@@ -415,7 +416,8 @@ lemma probabilistic_exists {α : Type} [DecidableEq α] (E : Finset α)
             · intro a₁ ha₁ ha₂ a₂ ha₃ ha₄ h
               ext x
               by_cases hx : x ∈ c <;> simp_all +decide [Finset.ext_iff]
-            · exact fun b hb => ⟨ b ∪ c, ⟨ fun x hx => by aesop, fun x hx => by aesop ⟩, by aesop ⟩
+            · exact fun b hb =>
+                ⟨b ∪ c, ⟨fun x hx => by aesop, fun x hx => by aesop⟩, by aesop⟩
             · intro a ha₁ ha₂
               rw [Finset.union_eq_right.mpr ha₂]
           rw [h_indicator, Finset.mul_sum _ _ _]
@@ -469,7 +471,9 @@ lemma probabilistic_exists {α : Type} [DecidableEq α] (E : Finset α)
         · by_cases h : p = 0 <;>
             by_cases h' : 1 - p = 0 <;>
             simp_all +decide [mul_assoc, mul_comm, mul_left_comm]
-          · exact ⟨∅, Finset.empty_subset _, by simpa using h_contra ∅ (Finset.empty_subset _)⟩
+          · exact
+              ⟨∅, Finset.empty_subset _, by
+                simpa using h_contra ∅ (Finset.empty_subset _)⟩
           · norm_num [show p = 1 by linarith] at *
             specialize h_contra E
             aesop
@@ -632,7 +636,8 @@ theorem exists_C4_free_subgraph_with_many_edges {V : Type} [Fintype V] [Decidabl
       simp [h_edges_empty]
     · have hnonempty : G.edgeFinset.Nonempty :=
         ⟨h.choose, by simpa [SimpleGraph.mem_edgeFinset] using h.choose_spec⟩
-      have hmpos : 0 < (G.edgeFinset.card : ℝ) := by exact_mod_cast (Finset.card_pos.mpr hnonempty)
+      have hmpos : 0 < (G.edgeFinset.card : ℝ) := by
+        exact_mod_cast (Finset.card_pos.mpr hnonempty)
       set m : ℝ := (G.edgeFinset.card : ℝ)
       have hmpos' : 0 < m := by simpa [m] using hmpos
       have hpow2 : m * (m * m ^ (-(4 / 3 : ℝ))) = m ^ ((2 : ℝ) / 3) := by
