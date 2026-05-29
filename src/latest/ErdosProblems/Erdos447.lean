@@ -35,7 +35,6 @@ set_option linter.style.openClassical false
 set_option linter.style.refine false
 set_option linter.style.show false
 set_option linter.style.whitespace false
-set_option linter.unusedDecidableInType false
 
 open scoped Nat
 open scoped Classical
@@ -616,10 +615,11 @@ Combining two embeddings with disjoint ranges yields an injective function.
 def combine_embeddings_general {β : Type*} {k l : ℕ} (f1 : Fin k ↪ β) (f2 : Fin l ↪ β) : Fin (k + l) → β :=
   Fin.addCases f1 f2
 
-lemma combine_embeddings_general_injective {β : Type*} [DecidableEq β] {k l : ℕ}
+lemma combine_embeddings_general_injective {β : Type*} {k l : ℕ}
     (f1 : Fin k ↪ β) (f2 : Fin l ↪ β)
     (h_disjoint : Disjoint (Set.range f1) (Set.range f2)) :
     Function.Injective (combine_embeddings_general f1 f2) := by
+      classical
       intro x y hxy;
       unfold combine_embeddings_general at hxy;
       cases x using Fin.addCases <;> cases y using Fin.addCases <;> simp_all +decide [ Fin.addCases ];
