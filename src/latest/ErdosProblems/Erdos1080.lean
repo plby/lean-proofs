@@ -43,7 +43,6 @@ set_option linter.style.longLine false
 set_option linter.flexible false
 set_option linter.style.refine false
 set_option linter.style.multiGoal false
-set_option linter.unusedDecidableInType false
 set_option linter.unusedSectionVars false
 
 open scoped Classical
@@ -580,7 +579,7 @@ For any $x \in S$ and line $l$, there is a unique point $p$ with $p_1 = x$ adjac
 to $l$.
 -/
 
-omit [Fintype F] in
+omit [Fintype F] [DecidableEq F] in
 theorem unique_neighbor_with_x_coord
   (S : Set F)
   (l : Line F q)
@@ -592,6 +591,7 @@ theorem unique_neighbor_with_x_coord
   (h_sub : ∀ a b : F, (a - b)^q = a^q - b^q)
   (h_S : ∀ a ∈ S, a^q = a) :
   ∃! p : Point F q, p.p1 = x ∧ is_adjacent F q p l := by
+  classical
   refine' ⟨ ⟨ x, l.l2 - l.l1 * x, l.l3 - ( l.l1 ^ q ) * ( l.l2 - l.l1 * x ) - l.l1 * ( l.l2 - l.l1 * x ) ^ q, h_S x hx, _ ⟩, ⟨ rfl, _ ⟩, _ ⟩;
   all_goals simp_all +decide [ is_adjacent ]
   all_goals generalize_proofs at *;
@@ -635,10 +635,9 @@ The degree of any line $l \in L$ in $B_S(q)$ is $|S|$.
 The number of points in $P_S$ adjacent to a line $l$ is $|S|$.
 -/
 
-omit [Fintype F] in
+omit [Fintype F] [DecidableEq F] in
 theorem card_neighbors_in_P_S
   (S : Set F)
-  [DecidablePred (· ∈ S)]
   (l : Line F q)
   (h_add : ∀ a b : F, (a + b)^q = a^q + b^q)
   (h_mul : ∀ a b : F, (a * b)^q = a^q * b^q)
@@ -646,6 +645,7 @@ theorem card_neighbors_in_P_S
   (h_sub : ∀ a b : F, (a - b)^q = a^q - b^q)
   (h_S : ∀ a ∈ S, a^q = a) :
   Set.ncard { p : Point F q | p ∈ P_S S ∧ is_adjacent F q p l } = Set.ncard S := by
+  classical
   rw [ Set.ncard_def, Set.ncard_def, Set.encard_congr ];
   refine' Equiv.symm ( Equiv.ofBijective _ ⟨ _, _ ⟩ );
   refine' fun x => ⟨ Classical.choose ( unique_neighbor_with_x_coord S l x x.2 h_add h_mul h_F h_sub h_S ), _ ⟩;
@@ -689,7 +689,7 @@ No cycle of length 6 passes through $(0,0,0)$ in $B(q)$.
 -/
 set_option maxHeartbeats 2000000 in
 -- The explicit six-walk case split needs more than the default heartbeat budget.
-omit [Fintype F] in
+omit [Fintype F] [DecidableEq F] in
 theorem B_no_C6_through_zero_cycle
   (hq : q ≠ 0)
   (h_add : ∀ a b : F, (a + b)^q = a^q + b^q)
@@ -702,6 +702,7 @@ theorem B_no_C6_through_zero_cycle
   (hw : w.IsCycle)
   (hlen : w.length = 6) :
   False := by
+    classical
     rcases w with ( _ | ⟨ u, _ | ⟨ v, _ | ⟨ w, _ | ⟨ x, _ | ⟨ y, _ | ⟨ z, _ | w ⟩ ⟩ ⟩ ⟩ ⟩ ⟩ ) <;> simp_all +decide [ SimpleGraph.Walk.cons_isCycle_iff ];
     unfold B at *; simp_all +decide [ SimpleGraph.adj_comm ] ;
     rename_i a b c d e;
@@ -715,7 +716,7 @@ theorem B_no_C6_through_zero_cycle
 /-
 $B(q)$ contains no cycle of length 6.
 -/
-omit [Fintype F] in
+omit [Fintype F] [DecidableEq F] in
 theorem B_C6_free
   (hq : q ≠ 0)
   (h_add : ∀ a b : F, (a + b)^q = a^q + b^q)
@@ -726,6 +727,7 @@ theorem B_C6_free
   (h_two_ne_zero : (2 : F) ≠ 0)
   (h_neg : ∀ x : F, (-x)^q = - (x^q)) :
   C6_free (B F q) := by
+    classical
     -- To prove that $B(q)$ is $C_6$-free, we show that there is no cycle of length 6 passing through $(0,0,0)$ and then use the transitivity on $P$ to conclude.
     have h_no_C6 : ∀ p : Point F q, ¬∃ w : (B F q).Walk (Sum.inl p) (Sum.inl p), w.IsCycle ∧ w.length = 6 := by
       -- By `B_transitive_on_P`, there is an automorphism $\phi$ mapping $p$ to $(0,0,0)$.
@@ -787,7 +789,7 @@ instance (S : Set F) (D : Set (Line F q)) [DecidablePred (· ∈ S)] [DecidableP
 /-
 The graph $G$ is $C_6$-free.
 -/
-omit [Fintype F] in
+omit [Fintype F] [DecidableEq F] in
 theorem B_G_C6_free
   (S : Set F)
   (D : Set (Line F q))
@@ -800,6 +802,7 @@ theorem B_G_C6_free
   (h_two_ne_zero : (2 : F) ≠ 0)
   (h_neg : ∀ x : F, (-x)^q = - (x^q)) :
   C6_free (B_G (q := q) S D) := by
+    classical
     -- Assume there exists a cycle of length 6 in $B_G$.
     intro w hw hw_cycle hw_length;
     -- Since $B_G$ is an induced subgraph of $B(q)$, any cycle in $B_G$ is also a cycle in $B(q)$.
@@ -907,11 +910,11 @@ The size of $P_S$ is $|S| \cdot q^3$.
 -/
 theorem card_P_S
   (S : Set F)
-  [DecidablePred (· ∈ S)]
   (h_card_F : Fintype.card F = q * q)
   (h_card_fixed : Fintype.card { x : F // x ^ q = x } = q)
   (h_S : ∀ a ∈ S, a ^ q = a) :
   Fintype.card (P_S (q := q) S) = S.ncard * q^3 := by
+    classical
     rw [ Set.ncard_eq_toFinset_card' ];
     rw [ Fintype.card_of_subtype ];
     case s => exact Finset.image ( fun x : { x // x ∈ S } × { x // x ^ q = x } × F => ⟨ x.1.val, x.2.2, x.2.1.val, h_S _ x.1.2, x.2.1.2 ⟩ ) ( Finset.univ );
@@ -1326,7 +1329,7 @@ lemma B_G_properties (q k y : ℕ)
 /-
 If a graph $G$ on $n$ vertices has an independent set $A$ such that $A^c$ is also independent, and $G$ is $C_6$-free, then there exists an isomorphic graph on `Fin n` with the same properties.
 -/
-lemma transfer_to_fin_n {V : Type*} [Fintype V] [DecidableEq V]
+lemma transfer_to_fin_n {V : Type*} [Fintype V]
   (G : SimpleGraph V) [DecidableRel G.Adj]
   (A : Finset V)
   (n : ℕ)
@@ -1340,6 +1343,7 @@ lemma transfer_to_fin_n {V : Type*} [Fintype V] [DecidableEq V]
     A'.card = A.card ∧
     (G'.edgeFinset.card : ℝ) = G.edgeFinset.card ∧
     C6_free G' := by
+      classical
       have h_bij : ∃ e : V ≃ Fin n, True := by
         exact ⟨ Fintype.equivOfCardEq ( by simp +decide [ hn ] ), trivial ⟩;
       obtain ⟨ e, - ⟩ := h_bij;
