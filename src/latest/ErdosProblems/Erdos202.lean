@@ -32,8 +32,6 @@ import Mathlib
 set_option autoImplicit false
 set_option linter.unusedDecidableInType false
 
-
-
 /-! =============================================================
     Section from: Erdos/P202/P202Basic.lean
     ============================================================= -/
