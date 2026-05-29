@@ -255,7 +255,6 @@ set_option linter.style.refine false
 set_option linter.style.cases false
 set_option linter.flexible false
 set_option linter.unusedDecidableInType false
-set_option linter.unusedFintypeInType false
 
 open scoped BigOperators
 open scoped Real
@@ -1880,7 +1879,7 @@ theorem lemma_indset_edges {V : Type*} [Fintype V] [DecidableEq V]
 We can greedily extract disjoint homogeneous sets of size m from C until fewer than R(m,m) vertices
 remain.
 -/
-theorem lemma_greedy_homogeneous {V : Type*} [Fintype V] [DecidableEq V]
+theorem lemma_greedy_homogeneous {V : Type*} [Finite V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj]
     (C : Finset V) (m : ℕ) (hm : 2 ≤ m) :
     ∃ (B : List (Finset V)),
@@ -1889,6 +1888,7 @@ theorem lemma_greedy_homogeneous {V : Type*} [Fintype V] [DecidableEq V]
       (∀ b ∈ B, G.IsNClique m b ∨ G.IsNIndepSet m b) ∧
       (B.Pairwise Disjoint) ∧
       (C \ B.foldr (· ∪ ·) ∅).card < R m m := by
+        letI := Fintype.ofFinite V
         have h_exists_B :
             ∃ B : List (Finset V),
               (∀ b ∈ B, b ⊆ C) ∧
@@ -2886,7 +2886,7 @@ def R_graph {V : Type*} [Fintype V] [DecidableEq V]
 There exists a subset $W' \subseteq W$ of size at least $|W|/2$ such that all blocks in $W'$ are
 cliques or all are independent sets.
 -/
-lemma lemma_large_homogeneous_subset {V : Type*} [Fintype V] [DecidableEq V]
+lemma lemma_large_homogeneous_subset {V : Type*} [Finite V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj]
     {N : ℕ} (B : Fin N → Finset V)
     (m : ℕ)
@@ -2894,6 +2894,7 @@ lemma lemma_large_homogeneous_subset {V : Type*} [Fintype V] [DecidableEq V]
     (W : Finset (Fin N)) :
     ∃ W' ⊆ W, (W'.card : ℝ) ≥ (W.card : ℝ) / 2 ∧
       ((∀ i ∈ W', G.IsNClique m (B i)) ∨ (∀ i ∈ W', G.IsNIndepSet m (B i))) := by
+        letI := Fintype.ofFinite V
         -- Let $W_{clique} = \{i \in W \mid B_i \text{ is clique}\}$ and $W_{indep} = \{i \in W \mid
         -- B_i \text{ is indep}\}$.
         set W_clique := Finset.filter (fun i => G.IsNClique m (B i)) W
@@ -2925,11 +2926,12 @@ theorem lemma_ramsey_prop_R (a b : ℕ) (ha : 2 ≤ a) (hb : 2 ≤ b) :
 If a graph has a subset of vertices $S$ with $|S| \ge R(a,b)$, then $S$ contains a clique of size
 $a$ or an independent set of size $b$.
 -/
-lemma lemma_ramsey_on_subset {V : Type*} [Fintype V] [DecidableEq V]
+lemma lemma_ramsey_on_subset {V : Type*} [Finite V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj]
     (S : Finset V) (a b : ℕ) (ha : 2 ≤ a) (hb : 2 ≤ b)
     (hS : S.card ≥ R a b) :
     (∃ K ⊆ S, G.IsNClique a K) ∨ (∃ I ⊆ S, G.IsNIndepSet b I) := by
+      letI := Fintype.ofFinite V
       have := @ramsey_prop_general;
       specialize this a b (S.card) (by simp +decide)
         (ramsey_prop_mono (lemma_ramsey_prop_R a b ha hb) hS) (G.induce S);
@@ -2977,7 +2979,7 @@ lemma lemma_ramsey_on_subset {V : Type*} [Fintype V] [DecidableEq V]
 /-
 If a large set of blocks are cliques and uniform, then $G$ has a large homogeneous set.
 -/
-lemma lemma_hom_from_uniform_W_cliques {V : Type*} [Fintype V] [DecidableEq V]
+lemma lemma_hom_from_uniform_W_cliques {V : Type*} [Finite V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj]
     {N : ℕ} (B : Fin N → Finset V) (rep : Fin N → V)
     (m : ℕ)
@@ -2992,6 +2994,7 @@ lemma lemma_hom_from_uniform_W_cliques {V : Type*} [Fintype V] [DecidableEq V]
     (hs : 2 ≤ s) (hr_ge_2 : 2 ≤ r)
     (hW' : (W'.card : ℝ) ≥ R s r) :
     hom_num G ≥ r := by
+      letI := Fintype.ofFinite V
       -- Apply `lemma_ramsey_on_subset` to `R_graph G rep` and `W'` with parameters `s` and `r`.
       obtain ⟨K, hK⟩ :
           ∃ K ⊆ W',
@@ -3073,7 +3076,7 @@ lemma lemma_hom_from_uniform_W_cliques {V : Type*} [Fintype V] [DecidableEq V]
 /-
 If a large set of blocks are independent sets and uniform, then $G$ has a large homogeneous set.
 -/
-lemma lemma_hom_from_uniform_W_indep {V : Type*} [Fintype V] [DecidableEq V]
+lemma lemma_hom_from_uniform_W_indep {V : Type*} [Finite V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj]
     {N : ℕ} (B : Fin N → Finset V) (rep : Fin N → V)
     (m : ℕ)
@@ -3088,6 +3091,7 @@ lemma lemma_hom_from_uniform_W_indep {V : Type*} [Fintype V] [DecidableEq V]
     (hs : 2 ≤ s) (hr_ge_2 : 2 ≤ r)
     (hW' : (W'.card : ℝ) ≥ R r s) :
     hom_num G ≥ r := by
+      letI := Fintype.ofFinite V
       -- Apply `lemma_ramsey_on_subset` to `R_graph G rep` and `W'` with parameters `r` and `s`.
       have h_subset :
           ∃ K ⊆ W', (R_graph G rep).IsClique K ∧ K.card = r ∨
@@ -3172,7 +3176,7 @@ lemma lemma_hom_from_uniform_W_indep {V : Type*} [Fintype V] [DecidableEq V]
 /-
 If there is a large uniform subset of indices $W$, then $G$ has a large homogeneous set.
 -/
-lemma lemma_hom_from_uniform_W {V : Type*} [Fintype V] [DecidableEq V]
+lemma lemma_hom_from_uniform_W {V : Type*} [Finite V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj]
     {N : ℕ} (B : Fin N → Finset V) (rep : Fin N → V)
     (m : ℕ)
@@ -3187,6 +3191,7 @@ lemma lemma_hom_from_uniform_W {V : Type*} [Fintype V] [DecidableEq V]
     (hs : 2 ≤ s) (hr_ge_2 : 2 ≤ r)
     (hW : (W.card : ℝ) ≥ 2 * R r s) :
     hom_num G ≥ r := by
+      letI := Fintype.ofFinite V
       -- Apply `lemma_large_homogeneous_subset` to get $W' \subseteq W$ with $|W'| \ge |W|/2 \ge
       -- R(r,s)$.
       obtain ⟨W', hW'_subset, hW'_card, hW'_hom⟩ :
@@ -3842,9 +3847,10 @@ lemma shelah_r_gt (c : ℝ) (n : ℕ) : (shelah_r c n : ℝ) > c * Real.logb 2 n
 /-
 If hom(G) is both <= c log n and >= shelah_r(c, n), we have a contradiction.
 -/
-lemma shelah_contradiction {V : Type*} [Fintype V] (c : ℝ) (n : ℕ) (G : SimpleGraph V)
+lemma shelah_contradiction {V : Type*} [Finite V] (c : ℝ) (n : ℕ) (G : SimpleGraph V)
   (h1 : (hom_num G : ℝ) ≤ c * Real.logb 2 n)
   (h2 : hom_num G ≥ shelah_r c n) : False := by
+    letI := Fintype.ofFinite V
     exact h1.not_gt ( lt_of_lt_of_le ( shelah_r_gt c n ) ( Nat.cast_le.mpr h2 ) )
 
 /-

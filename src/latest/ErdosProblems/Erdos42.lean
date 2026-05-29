@@ -60,7 +60,6 @@ import Mathlib.Topology.ContinuousMap.SecondCountableSpace
 set_option linter.style.setOption false
 set_option linter.style.openClassical false
 set_option linter.unusedDecidableInType false
-set_option linter.unusedFintypeInType false
 
 /-!
 Trust boundary (verified at the bottom with `#print axioms`):
@@ -8787,11 +8786,14 @@ lemma intPi_pairCoeffLowerBound_of_loss
   intPi_pairCoeffLowerBound_of_nat_ratio hK hB
     (intPi_product_ratio_bound (ι := ι) hK hloss)
 
+omit [Fintype ι] in
 lemma exists_intPi_pairCoeffLowerBound_of_bound
+    [Finite ι]
     (B : Finset (ι → ℤ)) (K : ℕ) {M : ℝ} (hM : 0 < M)
     (hB : ∀ γ ∈ B, ∀ i : ι, (γ i).natAbs ≤ K) :
     ∃ Q : Finset (ι → ℤ), Q.Nonempty ∧ PairCoeffLowerBound Q B M := by
   classical
+  letI := Fintype.ofFinite ι
   obtain ⟨N, hN⟩ :=
     exists_nat_gt ((((Fintype.card ι : ℝ) * (2 * K : ℝ)) / M) + (K : ℝ))
   have hN_gt_K : (K : ℝ) < (N : ℝ) := by
@@ -8820,10 +8822,13 @@ lemma exists_intPi_pairCoeffLowerBound_of_bound
     ⟨intPiCenteredBox ι N, intPiCenteredBox_nonempty N,
       intPi_pairCoeffLowerBound_of_loss hKle hB hloss⟩
 
+omit [Fintype ι] in
 lemma exists_intPi_pairCoeffLowerBound
+    [Finite ι]
     (B : Finset (ι → ℤ)) {M : ℝ} (hM : 0 < M) :
     ∃ Q : Finset (ι → ℤ), Q.Nonempty ∧ PairCoeffLowerBound Q B M := by
   classical
+  letI := Fintype.ofFinite ι
   let C : Finset ℕ :=
     B.biUnion fun γ => (Finset.univ : Finset ι).image fun i => (γ i).natAbs
   by_cases hC : C.Nonempty
@@ -8850,10 +8855,13 @@ section FinsuppBoxes
 
 variable {ι : Type*} [Fintype ι] [DecidableEq ι]
 
+omit [Fintype ι] in
 lemma exists_finsupp_pairCoeffLowerBound
+    [Finite ι]
     (B : Finset (ι →₀ ℤ)) {M : ℝ} (hM : 0 < M) :
     ∃ Q : Finset (ι →₀ ℤ), Q.Nonempty ∧ PairCoeffLowerBound Q B M := by
   classical
+  letI := Fintype.ofFinite ι
   let e : (ι →₀ ℤ) ≃+ (ι → ℤ) :=
     (Finsupp.linearEquivFunOnFinite ℤ ℤ ι).toAddEquiv
   exact PairCoeffLowerBound.exists_of_addEquiv e

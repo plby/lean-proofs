@@ -33,7 +33,6 @@ set_option linter.unusedSimpArgs false
 set_option linter.unusedTactic false
 set_option linter.unusedSectionVars false
 set_option linter.unusedVariables false
-set_option linter.unusedFintypeInType false
 set_option maxHeartbeats 2000000
 -- Several generated convex-geometry arguments time out at the default heartbeat limit.
 
@@ -145,10 +144,11 @@ If w has positive entries and L is a continuous linear map, then for sufficientl
 -/
 lemma exists_ball_pos_of_pos_continuous_linear_map
     {V : Type*} [NormedAddCommGroup V] [NormedSpace ℝ V]
-    {ι : Type*} [Fintype ι]
+    {ι : Type*} [Finite ι]
     (w : ι → ℝ) (hw : ∀ i, 0 < w i)
     (L : V →L[ℝ] (ι → ℝ)) :
     ∃ δ > 0, ∀ v, ‖v‖ < δ → ∀ i, 0 < w i + L v i := by
+      letI := Fintype.ofFinite ι
       -- Let $m = \min_{i} w_i$. Since $w_i > 0$ for all $i$, $m > 0$.
       obtain ⟨m, hm⟩ : ∃ m > 0, ∀ i, w i ≥ m := by
         by_cases h_empty : Nonempty ι;

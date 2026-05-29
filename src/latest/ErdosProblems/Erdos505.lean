@@ -1574,14 +1574,14 @@ theorem unit_ball_cover_diam_lt_one (d : ℕ) [NeZero d] :
 /-
 A finite indexed cover can be refined to a partition.
 -/
-set_option linter.unusedFintypeInType false in
 theorem partition_refinement_indexed
-    {α : Type*} {ι : Type*} [Fintype ι] [LinearOrder ι]
+    {α : Type*} {ι : Type*} [Finite ι] [LinearOrder ι]
     (U : ι → Set α) :
     ∃ (P : ι → Set α),
     (∀ i, P i ⊆ U i) ∧
     (Pairwise (fun i j => Disjoint (P i) (P j))) ∧
     (⋃ i, U i) = ⋃ i, P i := by
+      letI := Fintype.ofFinite ι
       -- Define $P_i$ as $U_i$ minus the union of $U_j$ for $j < i$.
       set P : ι → Set α := fun i => U i \ ⋃ j < i, U j;
       refine' ⟨ P, _, _, _ ⟩;

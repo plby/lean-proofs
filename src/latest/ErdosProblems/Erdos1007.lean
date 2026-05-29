@@ -53,7 +53,6 @@ set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.style.refine false
 set_option linter.flexible false
-set_option linter.unusedFintypeInType false
 set_option linter.unusedDecidableInType false
 set_option linter.style.induction false
 
@@ -78,7 +77,8 @@ noncomputable def GraphDimension {V : Type*} (G : SimpleGraph V) : ℕ :=
 /-
 Every finite graph has a unit-distance embedding in some dimension.
 -/
-lemma exists_embedding {V : Type*} [Fintype V] (G : SimpleGraph V) : ∃ d, HasUnitDistanceEmbedding G d := by
+lemma exists_embedding {V : Type*} [Finite V] (G : SimpleGraph V) : ∃ d, HasUnitDistanceEmbedding G d := by
+  letI := Fintype.ofFinite V
   use Fintype.card V;
   -- Embed $V$ as a regular simplex in $\mathbb{R}^{|V|}$.
   have h_regular_simplex : ∃ f : V → EuclideanSpace ℝ (Fin (Fintype.card V)), Function.Injective f ∧ ∀ u v : V, u ≠ v → dist (f u) (f v) = 1 := by
@@ -761,13 +761,14 @@ lemma exists_unique_non_neighbor {V : Type*} [Fintype V] [DecidableEq V] (G : Si
 /-
 Given a unit distance embedding of G - v and a point p that is at distance 1 from neighbors of v and distinct from non-neighbors of v, we can extend the embedding to G.
 -/
-lemma embedding_extension {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V) (v : V)
+lemma embedding_extension {V : Type*} [Finite V] [DecidableEq V] (G : SimpleGraph V) (v : V)
     (f' : {u // u ≠ v} → EuclideanSpace ℝ (Fin 3))
     (hf' : IsUnitDistanceEmbedding (deleteVertex G v) 3 f')
     (p : EuclideanSpace ℝ (Fin 3))
     (hp_adj : ∀ u (h : G.Adj v u), dist p (f' ⟨u, G.ne_of_adj (G.adj_symm h)⟩) = 1)
     (hp_not_adj : ∀ u (h : u ≠ v), ¬ G.Adj v u → p ≠ f' ⟨u, h⟩) :
     HasUnitDistanceEmbedding G 3 := by
+      letI := Fintype.ofFinite V
       refine' ⟨ fun u => if hu : u = v then p else f' ⟨ u, hu ⟩, _, _ ⟩ <;> simp_all +decide [ IsUnitDistanceEmbedding ];
       · intro u w h_eq; by_cases hu : u = v <;> by_cases hw : w = v <;> simp_all +decide [ Function.Injective.eq_iff hf'.1 ] ;
         · contrapose! hp_not_adj;

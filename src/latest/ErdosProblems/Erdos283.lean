@@ -1233,13 +1233,13 @@ lemma coversResidues_of_frequently_unit_terms {S : ℕ → ℤ} {m : ℕ}
     exists_finset_card_eq_of_frequently_atTop hunit (m * m)
   exact coversResidues_of_many_unit_terms hm (by simp [hAcard]) hA
 
-set_option linter.unusedFintypeInType false in
 /-- If all residue classes are covered by arbitrary finite subset sums, then a
 single finite prefix already contains witnesses for every residue class. -/
 lemma CoversResidues.exists_prefix {S : ℕ → ℤ} {m : ℕ}
-    [Fintype (ZMod m)] (hcov : CoversResidues S m) :
+    [Finite (ZMod m)] (hcov : CoversResidues S m) :
     ∃ N : ℕ, ∀ r : ZMod m,
       ∃ x ∈ FSOf S (Finset.range N), ((x : ℤ) : ZMod m) = r := by
+  letI := Fintype.ofFinite (ZMod m)
   classical
   let x : ZMod m → ℤ := fun r => Classical.choose (hcov r)
   have hx : ∀ r : ZMod m, x r ∈ FS S ∧ ((x r : ℤ) : ZMod m) = r := by
@@ -1299,11 +1299,11 @@ lemma fs_finitePrefixSeq_mono (S : ℕ → ℤ) {N M : ℕ} (hNM : N ≤ M) :
       · exfalso
         exact hi0 (by simp [finitePrefixSeq, hiN]))
 
-set_option linter.unusedFintypeInType false in
 /-- Residue coverage can be witnessed by a finite prefix, padded by zeros. -/
 lemma CoversResidues.exists_finitePrefixSeq {S : ℕ → ℤ} {m : ℕ}
-    [Fintype (ZMod m)] (hcov : CoversResidues S m) :
+    [Finite (ZMod m)] (hcov : CoversResidues S m) :
     ∃ N : ℕ, CoversResidues (finitePrefixSeq S N) m := by
+  letI := Fintype.ofFinite (ZMod m)
   rcases hcov.exists_prefix with ⟨N, hN⟩
   refine ⟨N, ?_⟩
   intro r

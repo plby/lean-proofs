@@ -672,9 +672,8 @@ lemma exists_second_top {α : Type*} [Fintype α] (C : Finset (Finset α)) (top 
 /-
 If C \ {top} is nonempty, then the minimum element `start` is not equal to `top`.
 -/
-set_option linter.unusedFintypeInType false in
 set_option linter.unusedVariables false in
-lemma start_ne_top_of_rest_nonempty {α : Type*} [Fintype α] (C : Finset (Finset α))
+lemma start_ne_top_of_rest_nonempty {α : Type*} [Finite α] (C : Finset (Finset α))
     (top : Finset α) (start : Finset α)
     (h_start : start ∈ C)
     (h_min : ∀ X ∈ C, start ⊆ X)
@@ -682,6 +681,7 @@ lemma start_ne_top_of_rest_nonempty {α : Type*} [Fintype α] (C : Finset (Finse
     (h_max : ∀ X ∈ C, X ⊆ top)
     (h_rest : (C.erase top).Nonempty) :
     start ≠ top := by
+  letI := Fintype.ofFinite α
   intro h_eq
   have h_singleton : C = {top} := by
     ext X
@@ -1034,8 +1034,7 @@ lemma exists_SCD (α : Type*) [Fintype α] :
   exact scd_equiv (Fintype.equivFin α).symm D hD
 
 set_option linter.unusedDecidableInType false in
-set_option linter.unusedFintypeInType false in
-lemma kleitman_bound_unique_proj_C {α : Type*} [Fintype α] (T : Set α) [DecidablePred (· ∈ T)]
+lemma kleitman_bound_unique_proj_C {α : Type*} [Finite α] (T : Set α) [DecidablePred (· ∈ T)]
     (C D : Finset (Finset α))
     (hD : IsChain (· ⊆ ·) (D : Set (Finset α)))
     (h_suppC : ∀ A ∈ C, (A : Set α) ⊆ T)
@@ -1046,6 +1045,7 @@ lemma kleitman_bound_unique_proj_C {α : Type*} [Fintype α] (T : Set α) [Decid
     (h_subset : F_part ⊆ {U ∪ V | (U ∈ C) (V ∈ D)})
     (X Y : Finset α) (hX : X ∈ F_part) (hY : Y ∈ F_part)
     (h_eq : (X : Set α) ∩ T = (Y : Set α) ∩ T) : X = Y := by
+      letI := Fintype.ofFinite α
       -- By h_subset, there exist Ux, Vx, Uy, Vy such that X = Ux ∪ Vx and Y = Uy ∪ Vy.
       obtain ⟨Ux, Vx, hx⟩ : ∃ Ux Vx, Ux ∈ C ∧ Vx ∈ D ∧ X = Ux ∪ Vx := by
         simpa [ eq_comm ] using h_subset hX
@@ -1095,9 +1095,8 @@ lemma kleitman_bound_unique_proj_C {α : Type*} [Fintype α] (T : Set α) [Decid
       grind
 
 set_option linter.unusedDecidableInType false in
-set_option linter.unusedFintypeInType false in
 /-- The core local bound for the Kleitman argument on a product of two chains. -/
-lemma kleitman_grid_bound {α : Type*} [Fintype α] (T : Set α) [DecidablePred (· ∈ T)]
+lemma kleitman_grid_bound {α : Type*} [Finite α] (T : Set α) [DecidablePred (· ∈ T)]
     (C D : Finset (Finset α))
     (hC : IsChain (· ⊆ ·) (C : Set (Finset α)))
     (hD : IsChain (· ⊆ ·) (D : Set (Finset α)))
@@ -1108,6 +1107,7 @@ lemma kleitman_grid_bound {α : Type*} [Fintype α] (T : Set α) [DecidablePred 
         (((B : Set α) \ A) ∩ T).Nonempty ∧ (((B : Set α) \ A) ∩ Tᶜ).Nonempty)
     (h_subset : F_part ⊆ {U ∪ V | (U ∈ C) (V ∈ D)}) :
     F_part.ncard ≤ min C.card D.card := by
+  letI := Fintype.ofFinite α
   have h_card_le_C : F_part.ncard ≤ C.card := by
     have h_card_le_C :
         F_part.ncard ≤
@@ -1164,12 +1164,13 @@ lemma kleitman_grid_bound {α : Type*} [Fintype α] (T : Set α) [DecidablePred 
     contrapose! hXY
     exact hf₂ X Y hX hY hXY ] at h_f_image
 
-set_option linter.unusedFintypeInType false in
 /-- Mapping a chain from a subtype preserves the chain property. -/
-lemma map_chain_is_chain {α β : Type*} [Fintype α] [Fintype β] (emb : β ↪ α)
+lemma map_chain_is_chain {α β : Type*} [Finite α] [Finite β] (emb : β ↪ α)
     (C : Finset (Finset β))
     (hC : IsChain (· ⊆ ·) (C : Set (Finset β))) :
     IsChain (· ⊆ ·) ((C.map (Finset.mapEmbedding emb).toEmbedding) : Set (Finset α)) := by
+  letI := Fintype.ofFinite α
+  letI := Fintype.ofFinite β
   intro A hA B hB hneq
   -- Lift A and B back to C
   change A ∈ C.map (Finset.mapEmbedding emb).toEmbedding at hA
@@ -1189,13 +1190,13 @@ lemma map_chain_is_chain {α β : Type*} [Fintype α] [Fintype β] (emb : β ↪
     exact Finset.map_subset_map.mpr h_sub
 
 set_option linter.unusedDecidableInType false in
-set_option linter.unusedFintypeInType false in
 /-- Mapping a chain from a subtype T to alpha lands in T. -/
-lemma map_chain_support {α : Type*} [Fintype α] (T : Set α) [DecidablePred (· ∈ T)]
+lemma map_chain_support {α : Type*} [Finite α] (T : Set α) [DecidablePred (· ∈ T)]
     (emb : T ↪ α) (h_emb : ∀ x, emb x ∈ T)
     (C : Finset (Finset T)) :
     let C' := C.map (Finset.mapEmbedding emb).toEmbedding
     ∀ A ∈ C', (A : Set α) ⊆ T := by
+  letI := Fintype.ofFinite α
   intro C' A hA
   rw [Finset.mem_map] at hA
   rcases hA with ⟨B, _, rfl⟩

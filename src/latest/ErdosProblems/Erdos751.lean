@@ -3422,13 +3422,14 @@ theorem lift_cycle_from_induce_preserve_length
   simp [BV.Cycle.length, C', SimpleGraph.Walk.length_map]
 
 set_option linter.unusedDecidableInType false in
-set_option linter.unusedFintypeInType false in
-theorem erdos_751_strong
+omit [Fintype V] in
+theorem erdos_751_strong [Finite V]
     (hχ : (4 : ℕ∞) ≤ G.chromaticNumber) :
     ∃ C1 C2 : BV.Cycle (G := G),
       (Nat.dist (BV.Cycle.length (G := G) C1) (BV.Cycle.length (G := G) C2) = 1) ∨
       (Nat.dist (BV.Cycle.length (G := G) C1) (BV.Cycle.length (G := G) C2) = 2) := by
   classical
+  letI := Fintype.ofFinite V
   let W := Critical.exists_witness_of_chromaticNumber_ge_4 (G := G) hχ
   -- IMPORTANT: match the exact subtype `Fintype` instance used inside `W.hδ3` and `W.hcard4`.
   -- Do NOT use `Subtype.fintype ...` here.

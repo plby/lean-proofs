@@ -67,7 +67,6 @@ set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.style.show false
 set_option linter.unusedDecidableInType false
-set_option linter.unusedFintypeInType false
 set_option maxHeartbeats 50000000
 -- Several generated pentagon-density arguments time out at the default heartbeat limit.
 
@@ -2655,7 +2654,7 @@ noncomputable def _root_.SimpleGraph.numC5Copies {V : Type*} [Fintype V]
 set_option maxHeartbeats 1600000 in
 /-- If `S` is a C₅ copy in a triangle-free graph, then the induced adjacency
 on any enumeration of `S` satisfies `isC5_adj`. -/
-lemma isC5Copy_implies_isC5_adj {V : Type*} [Fintype V] [DecidableEq V]
+lemma isC5Copy_implies_isC5_adj {V : Type*} [DecidableEq V]
     (G : SimpleGraph V) (hG : G.CliqueFree 3)
     (S : Finset V) (enumS : Fin 5 → V) (henumInj : Function.Injective enumS)
     (henumImg : Finset.image enumS Finset.univ = S)
@@ -2756,7 +2755,7 @@ lemma chooseEnum5_spec {V : Type*} [DecidableEq V] (S : Finset V)
     Finset.image (chooseEnum5 S hS) Finset.univ = S :=
   ⟨chooseEnum5_injective S hS, chooseEnum5_image S hS⟩
 
-lemma per_subset_c5_bound {V : Type*} [Fintype V] [DecidableEq V]
+lemma per_subset_c5_bound {V : Type*} [DecidableEq V]
     (G : SimpleGraph V) (hG : G.CliqueFree 3)
     (S : Finset V) (_hS : S.card = 5) (enumS : Fin 5 → V)
     (hinj : Function.Injective enumS) (himg : Finset.image enumS univ = S) :
@@ -2775,7 +2774,7 @@ lemma per_subset_c5_bound {V : Type*} [Fintype V] [DecidableEq V]
       (graphAdj5_symm G enumS) (graphAdj5_irrefl G enumS)
       (graphAdj5_triangleFree G hG enumS hinj)
 
-lemma isC5Copy_card {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V)
+lemma isC5Copy_card {V : Type*} [DecidableEq V] (G : SimpleGraph V)
     (S : Finset V) (h : G.IsC5Copy S) : S.card = 5 := by
   obtain ⟨f, ⟨hfinj, _⟩, himg⟩ := h
   conv_lhs => rw [show S = Finset.image f Finset.univ from

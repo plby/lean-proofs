@@ -44,7 +44,6 @@ set_option linter.flexible false
 set_option linter.style.refine false
 set_option linter.style.multiGoal false
 set_option linter.unusedDecidableInType false
-set_option linter.unusedFintypeInType false
 set_option linter.unusedSectionVars false
 
 open scoped Classical
@@ -581,6 +580,7 @@ For any $x \in S$ and line $l$, there is a unique point $p$ with $p_1 = x$ adjac
 to $l$.
 -/
 
+omit [Fintype F] in
 theorem unique_neighbor_with_x_coord
   (S : Set F)
   (l : Line F q)
@@ -635,6 +635,7 @@ The degree of any line $l \in L$ in $B_S(q)$ is $|S|$.
 The number of points in $P_S$ adjacent to a line $l$ is $|S|$.
 -/
 
+omit [Fintype F] in
 theorem card_neighbors_in_P_S
   (S : Set F)
   [DecidablePred (· ∈ S)]
@@ -688,6 +689,7 @@ No cycle of length 6 passes through $(0,0,0)$ in $B(q)$.
 -/
 set_option maxHeartbeats 2000000 in
 -- The explicit six-walk case split needs more than the default heartbeat budget.
+omit [Fintype F] in
 theorem B_no_C6_through_zero_cycle
   (hq : q ≠ 0)
   (h_add : ∀ a b : F, (a + b)^q = a^q + b^q)
@@ -713,6 +715,7 @@ theorem B_no_C6_through_zero_cycle
 /-
 $B(q)$ contains no cycle of length 6.
 -/
+omit [Fintype F] in
 theorem B_C6_free
   (hq : q ≠ 0)
   (h_add : ∀ a b : F, (a + b)^q = a^q + b^q)
@@ -784,6 +787,7 @@ instance (S : Set F) (D : Set (Line F q)) [DecidablePred (· ∈ S)] [DecidableP
 /-
 The graph $G$ is $C_6$-free.
 -/
+omit [Fintype F] in
 theorem B_G_C6_free
   (S : Set F)
   (D : Set (Line F q))

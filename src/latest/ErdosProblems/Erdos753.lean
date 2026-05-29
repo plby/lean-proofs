@@ -117,10 +117,10 @@ lemma isKChoosable_card {V : Type*} [Fintype V] (G : SimpleGraph V) :
     (Finset.all_card_le_biUnion_card_iff_exists_injective (fun v => L v)).mp hall
   exact ⟨SimpleGraph.Coloring.mk f (fun hadj => hf_inj.ne hadj.ne), hf_mem⟩
 
-set_option linter.unusedFintypeInType false in
 -- Keep the finite-graph API statement even though the proof only needs nonemptiness.
-lemma choosable_set_nonempty {V : Type*} [Fintype V] (G : SimpleGraph V) :
+lemma choosable_set_nonempty {V : Type*} [Finite V] (G : SimpleGraph V) :
     {k : ℕ | IsKChoosable G k}.Nonempty :=
+  letI := Fintype.ofFinite V
   ⟨_, isKChoosable_card G⟩
 
 /-- The list chromatic number of a finite graph is at most `|V|`. -/
@@ -202,11 +202,11 @@ lemma compl_comap_equiv {V W : Type*} (e : V ≃ W) (G : SimpleGraph V) :
   simp [SimpleGraph.compl_adj, SimpleGraph.comap_adj, e.symm.injective.ne_iff]
 
 -- Keep the finite-graph API statement aligned with nearby list-chromatic lemmas.
-set_option linter.unusedFintypeInType false in
 /-- The list chromatic number is preserved (up to ≤) under graph isomorphism. -/
-lemma listChromaticNumber_comap_equiv_le {V W : Type*} [Fintype V]
+lemma listChromaticNumber_comap_equiv_le {V W : Type*} [Finite V]
     (e : V ≃ W) (G : SimpleGraph V) :
     listChromaticNumber (G.comap e.symm) ≤ listChromaticNumber G :=
+  letI := Fintype.ofFinite V
   csInf_le_csInf (OrderBot.bddBelow _)
     (choosable_set_nonempty G) (fun _ hk => IsKChoosable.equiv e hk)
 

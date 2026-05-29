@@ -49,7 +49,6 @@ set_option linter.style.multiGoal false
 set_option linter.style.cases false
 set_option linter.flexible false
 set_option linter.unusedDecidableInType false
-set_option linter.unusedFintypeInType false
 set_option linter.unusedSectionVars false
 set_option linter.unusedVariables false
 set_option linter.unusedSimpArgs false
@@ -195,12 +194,15 @@ In a finite directed graph, if there exists a vertex W₀ ≠ r that can reach r
 -/
 -- The generated terminal-vertex proof needs extra heartbeats for reachability minimization.
 set_option maxHeartbeats 800000 in
+omit [Fintype α] in
 theorem exists_terminal_vertex
+    [Finite α]
     (R : α → α → Prop) (r : α)
     (W₀ : α) (hW₀ : Relation.ReflTransGen R W₀ r) (hW₀_ne : W₀ ≠ r) :
     ∃ W : α, Relation.ReflTransGen R W r ∧ W ≠ r ∧
       ∀ C : α, Relation.ReflTransGen R C r → C ≠ W →
         Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W) C r := by
+  letI := Fintype.ofFinite α
   by_contra! h_contra;
   -- By finiteness, the set of vertices that can reach r is nonempty and finite, so it
   -- must have a minimal element with respect to some well-ordering.
@@ -386,12 +388,13 @@ In a finite digraph, if W can't reach target without U,
     and C can't reach target without W, and C ≠ U,
     then C can't reach target without U.
 -/
-lemma cannot_reach_transitive {α : Type*} [Fintype α] [DecidableEq α]
+lemma cannot_reach_transitive {α : Type*} [Finite α] [DecidableEq α]
     (R : α → α → Prop) (target U W C : α)
     (hW : ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ U) W target)
     (hC : ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W) C target)
     (_hCU : C ≠ U) :
     ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ U) C target := by
+  letI := Fintype.ofFinite α
   contrapose! hC;
   induction hC;
   · rfl;
@@ -401,7 +404,7 @@ lemma cannot_reach_transitive {α : Type*} [Fintype α] [DecidableEq α]
 Mutual dependency is impossible: if W needs U to reach target,
     and U needs W to reach target, we get a contradiction.
 -/
-lemma mutual_dependency_impossible {α : Type*} [Fintype α] [DecidableEq α]
+lemma mutual_dependency_impossible {α : Type*} [Finite α] [DecidableEq α]
     (R : α → α → Prop) [DecidableRel R] (target U W : α)
     (hUW : U ≠ W)
     (hU_acc : Relation.ReflTransGen R U target)
@@ -409,6 +412,7 @@ lemma mutual_dependency_impossible {α : Type*} [Fintype α] [DecidableEq α]
     (hU_needs_W : ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W) U target)
     (hW_needs_U : ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ U) W target) :
     False := by
+  letI := Fintype.ofFinite α
   -- Consider a nodup chain from U to target: U = c₀, c₁, ..., cₖ = target.
   obtain ⟨l, hl_nodup, hl_chain, hl_head, hl_last⟩ : ∃ l : List α, l.Nodup ∧
     l.IsChain R ∧ l.head? = some U ∧ l.getLast? = some target ∧ 2 ≤ l.length := by
@@ -428,7 +432,7 @@ lemma mutual_dependency_impossible {α : Type*} [Fintype α] [DecidableEq α]
 /-
 Every member of the minimal T_U is terminal.
 -/
-lemma terminal_set_members_are_terminal {α : Type*} [Fintype α] [DecidableEq α]
+lemma terminal_set_members_are_terminal {α : Type*} [Finite α] [DecidableEq α]
     (R : α → α → Prop) [DecidableRel R] (target : α)
     (acc : Finset α)
     (hacc : ∀ c ∈ acc, Relation.ReflTransGen R c target)
@@ -446,6 +450,7 @@ lemma terminal_set_members_are_terminal {α : Type*} [Fintype α] [DecidableEq �
     (W : α) (hW : W ∈ T_U) :
     ∀ C ∈ acc, C ≠ W →
       Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W) C target := by
+  letI := Fintype.ofFinite α
   intro C hC hCW; contrapose! hT_U_min; simp_all +decide ;
   refine' ⟨ W, hW.1, ⟨ C, hC, hCW, hT_U_min ⟩, _ ⟩;
   refine' Finset.card_lt_card _;
@@ -725,11 +730,12 @@ lemma auxAdj_preserved_by_recolor
 
 /-! ### Simple path extraction from ReflTransGen -/
 
-lemma exists_nodup_chain {α : Type*} [Fintype α] [DecidableEq α]
+lemma exists_nodup_chain {α : Type*} [Finite α] [DecidableEq α]
     {R : α → α → Prop} {a b : α}
     (h : Relation.ReflTransGen R a b) (hab : a ≠ b) :
     ∃ l : List α, l.Nodup ∧ l.IsChain R ∧ l.head? = some a ∧
     l.getLast? = some b ∧ 2 ≤ l.length := by
+  letI := Fintype.ofFinite α
   -- Let's take the shortest path from `a` to `b` in the reflexive transitive closure.
   obtain ⟨l, hl⟩ : ∃ l : List α, l.head? = some a ∧ l.getLast? = some b ∧
     List.IsChain R l ∧ ¬∃ l' : List α, l'.head? = some a ∧ l'.getLast? = some b ∧
@@ -995,7 +1001,7 @@ lemma edgeFinset_card_deleteEdges_lt (G : SimpleGraph V) [DecidableRel G.Adj]
 
 /-! ## Non-accessible case helpers -/
 
-omit [DecidableEq V] in
+omit [Fintype V] [DecidableEq V] in
 lemma non_acc_has_acc_neighbor
     (G : SimpleGraph V) [DecidableRel G.Adj]
     {k : ℕ} {f : V → Fin k} {i_minus : Fin k}
@@ -1069,13 +1075,15 @@ lemma acc_has_second_color
 /-- In a finite directed graph, if there exists a vertex W₀ ≠ r that can reach r,
     then there exists a "terminal" vertex W ≠ r that can reach r, such that every
     other vertex that can reach r can also reach r without passing through W. -/
-lemma exists_terminal_vertex {α : Type*} [Fintype α] [DecidableEq α]
+lemma exists_terminal_vertex {α : Type*} [Finite α] [DecidableEq α]
     (R : α → α → Prop) (r : α)
     (W₀ : α) (hW₀ : Relation.ReflTransGen R W₀ r) (hW₀_ne : W₀ ≠ r) :
     ∃ W : α, Relation.ReflTransGen R W r ∧ W ≠ r ∧
       ∀ C : α, Relation.ReflTransGen R C r → C ≠ W →
         Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W) C r :=
-  TerminalVertex.exists_terminal_vertex R r W₀ hW₀ hW₀_ne
+  by
+    letI := Fintype.ofFinite α
+    exact TerminalVertex.exists_terminal_vertex R r W₀ hW₀ hW₀_ne
 
 omit [Fintype V] [DecidableEq V] in
 /-- Specialization of exists_terminal_vertex to the auxiliary digraph. -/

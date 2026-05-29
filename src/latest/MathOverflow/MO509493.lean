@@ -575,17 +575,15 @@ lemma fin3_sum_pow_nonneg (f : Fin 3 → ℝ)
 
 -- These helper statements keep the same matrix typeclass hypotheses as nearby lemmas.
 set_option linter.unusedDecidableInType false in
-set_option linter.unusedFintypeInType false in
 /-- The Hadamard product `M ∘ Mᵀ` is symmetric for any square matrix `M`. -/
-lemma hadamard_transpose_isSymm {n : Type*} [Fintype n] [DecidableEq n]
+lemma hadamard_transpose_isSymm {n : Type*} [DecidableEq n]
     (M : Matrix n n ℝ) : (M.hadamard M.transpose).IsSymm := by
   ext i j; simp +decide [mul_comm]
 
 -- These helper statements keep the same matrix typeclass hypotheses as nearby lemmas.
 set_option linter.unusedDecidableInType false in
-set_option linter.unusedFintypeInType false in
 /-- Conversion: a symmetric real matrix is Hermitian. -/
-lemma isSymm_to_isHermitian {n : Type*} [Fintype n] [DecidableEq n]
+lemma isSymm_to_isHermitian {n : Type*} [DecidableEq n]
     (M : Matrix n n ℝ) (h : M.IsSymm) : M.IsHermitian := by
   rwa [Matrix.IsHermitian, Matrix.conjTranspose_eq_transpose_of_trivial]
 

@@ -40,7 +40,6 @@ set_option linter.style.refine false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
 set_option linter.unusedDecidableInType false
-set_option linter.unusedFintypeInType false
 
 open scoped Classical
 
@@ -1816,9 +1815,11 @@ def iso_VH_Fin (m : ℕ) : V_H m ≃ Fin (4 * m) :=
 /-
 The clique number is preserved under graph isomorphism.
 -/
-lemma cliqueNum_map_equiv {V W : Type*} [Fintype V] [DecidableEq V] [Fintype W] [DecidableEq W]
+lemma cliqueNum_map_equiv {V W : Type*} [Finite V] [DecidableEq V] [Finite W] [DecidableEq W]
     (G : SimpleGraph V) (e : V ≃ W) :
     (G.map e.toEmbedding).cliqueNum = G.cliqueNum := by
+      letI := Fintype.ofFinite V
+      letI := Fintype.ofFinite W
       have h_back : (G.map e.toEmbedding).map e.symm.toEmbedding = G := by
         rw [SimpleGraph.map_map]
         convert SimpleGraph.map_id G using 2
@@ -1840,9 +1841,11 @@ lemma cliqueNum_map_equiv {V W : Type*} [Fintype V] [DecidableEq V] [Fintype W] 
 /-
 The independence number is preserved under graph isomorphism.
 -/
-lemma indepNum_map_equiv {V W : Type*} [Fintype V] [DecidableEq V] [Fintype W] [DecidableEq W]
+lemma indepNum_map_equiv {V W : Type*} [Finite V] [DecidableEq V] [Finite W] [DecidableEq W]
     (G : SimpleGraph V) (e : V ≃ W) :
     (G.map e.toEmbedding).indepNum = G.indepNum := by
+      letI := Fintype.ofFinite V
+      letI := Fintype.ofFinite W
       unfold SimpleGraph.indepNum
       congr 1
       ext n

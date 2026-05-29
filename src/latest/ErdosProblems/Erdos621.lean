@@ -41,7 +41,6 @@ set_option linter.style.multiGoal false
 set_option linter.style.openClassical false
 set_option linter.style.refine false
 set_option linter.unusedDecidableInType false
-set_option linter.unusedFintypeInType false
 set_option linter.unusedSectionVars false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
@@ -102,23 +101,29 @@ variable {V : Type*} [Fintype V] [DecidableEq V]
     Note n(v,v) = 1 for all v. -/
 def n (G : Trigraph V) (u v : V) : ℤ := 1 - G.c u v - G.s u v
 
+omit [Fintype V] in
 lemma n_nonneg (G : Trigraph V) (u v : V) : 0 ≤ G.n u v := by
   unfold n; linarith [G.cs_disjoint u v]
 
+omit [Fintype V] in
 lemma n_le_one (G : Trigraph V) (u v : V) : G.n u v ≤ 1 := by
   unfold n; linarith [G.c_nonneg u v, G.s_nonneg u v]
 
+omit [Fintype V] in
 lemma n_symm (G : Trigraph V) (u v : V) : G.n u v = G.n v u := by
   unfold n; rw [G.c_symm, G.s_symm]
 
+omit [Fintype V] in
 lemma c_add_s_add_n (G : Trigraph V) (u v : V) :
     G.c u v + G.s u v + G.n u v = 1 := by
   unfold n; ring_nf
 
+omit [Fintype V] in
 lemma n_self (G : Trigraph V) (v : V) : G.n v v = 1 := by
   unfold n; rw [G.c_self, G.s_self]; ring_nf
 
-/-- Key consequence of triangle-free: s(uv)*s(vw) = s(uv)*s(vw)*n(uw) -/
+/- Key consequence of triangle-free: s(uv)*s(vw) = s(uv)*s(vw)*n(uw) -/
+omit [Fintype V] in
 lemma s_s_eq_s_s_n (G : Trigraph V) (u v w : V) :
     G.s u v * G.s v w = G.s u v * G.s v w * G.n u w := by
   have h := G.triangle_free v u w
@@ -502,6 +507,7 @@ Triangle-free kills c(wx)·s(ux)·s(uw): this product is always 0.
     From triangle_free u x w: s(ux)·s(uw)·(c(xw)+s(xw)) = 0,
     hence s(uw)·s(ux)·c(wx) = 0 since c(wx) ≤ c(xw)+s(xw).
 -/
+omit [Fintype V] in
 lemma c_s_s_vanish (G : Trigraph V) (u w x : V) :
     G.s u w * G.s u x * G.c w x = 0 := by
   by_contra h_contra;
@@ -1069,12 +1075,15 @@ def restrict (G : Trigraph V) (Z : Finset V) : Trigraph ↥Z where
 lemma S_total_nonneg (G : Trigraph V) : 0 ≤ G.S_total :=
   Finset.sum_nonneg fun u _ => Finset.sum_nonneg fun v _ => G.s_nonneg u v
 
+omit [Fintype V] in
 lemma s_eq_zero_or_one (G : Trigraph V) (u v : V) : G.s u v = 0 ∨ G.s u v = 1 := by
   have := G.s_nonneg u v; have := G.s_le_one u v; omega
 
+omit [Fintype V] in
 lemma c_eq_zero_or_one (G : Trigraph V) (u v : V) : G.c u v = 0 ∨ G.c u v = 1 := by
   have := G.c_nonneg u v; have := G.c_le_one u v; omega
 
+omit [Fintype V] in
 lemma no_edges_in_S_nbrs (G : Trigraph V) (v₀ u w : V)
     (hu : G.s v₀ u = 1) (hw : G.s v₀ w = 1) :
     G.c u w = 0 ∧ G.s u w = 0 := by
@@ -1082,6 +1091,7 @@ lemma no_edges_in_S_nbrs (G : Trigraph V) (v₀ u w : V)
   exact ⟨by linarith [G.c_nonneg u w, G.s_nonneg u w],
          by linarith [G.c_nonneg u w, G.s_nonneg u w]⟩
 
+omit [Fintype V] in
 lemma s_nbrs_disjoint (G : Trigraph V) (u₀ v₀ : V) (huv : G.s u₀ v₀ = 1) :
     ∀ w, G.s v₀ w = 1 → G.s u₀ w = 0 := by
   intro w hw
@@ -1089,6 +1099,7 @@ lemma s_nbrs_disjoint (G : Trigraph V) (u₀ v₀ : V) (huv : G.s u₀ v₀ = 1)
   rw [G.s_symm v₀ u₀, huv, hw] at h; simp at h
   linarith [G.c_nonneg u₀ w, G.s_nonneg u₀ w]
 
+omit [Fintype V] in
 lemma f2_nonneg (G : Trigraph V) (u v w x : V) (huv : G.s u v = 1) :
     0 ≤ G.f2 u v w x := by
       have h_s_values : ∀ u v, G.s u v = 0 ∨ G.s u v = 1 := by
@@ -1165,14 +1176,16 @@ private lemma mem_Z_iff' (G : Trigraph V) (u₀ v₀ w : V) :
     G.s v₀ w ≠ 1 ∧ G.s u₀ w ≠ 1 := by
   simp [Finset.mem_sdiff, Finset.mem_union, Finset.mem_filter]
 
-/-- s values are 0 or 1, so ≠ 1 implies = 0. -/
+/- s values are 0 or 1, so ≠ 1 implies = 0. -/
+omit [Fintype V] in
 private lemma s_zero_of_ne_one (G : Trigraph V) (u v : V) (h : G.s u v ≠ 1) :
     G.s u v = 0 :=
   (G.s_eq_zero_or_one u v).resolve_right h
 
+/- Pairwise bound on f₂ symmetrization (copy for use without circular import). -/
 set_option maxHeartbeats 6400000 in
 -- The generated Boolean case split in this pairwise bound exceeds the default heartbeat limit.
-/-- Pairwise bound on f₂ symmetrization (copy for use without circular import). -/
+omit [Fintype V] in
 private lemma pairwise_bound (G : Trigraph V) (u₀ v₀ w x : V)
     (huv : G.s u₀ v₀ = 1)
     (a b : Bool) :
@@ -1211,6 +1224,7 @@ private lemma pairwise_bound (G : Trigraph V) (u₀ v₀ w x : V)
 /-
 Unfolding the restricted edgesWithin + S_total as a sum over the subtype.
 -/
+omit [Fintype V] in
 private lemma restrict_sum_unfold (G : Trigraph V) (Z : Finset V) (χ_Z : ↥Z → Bool) :
     (G.restrict Z).edgesWithin χ_Z + (G.restrict Z).S_total =
     ∑ w : ↥Z, ∑ x : ↥Z,

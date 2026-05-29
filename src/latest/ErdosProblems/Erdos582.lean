@@ -36,7 +36,6 @@ set_option linter.style.refine false
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.unusedDecidableInType false
-set_option linter.unusedFintypeInType false
 
 open scoped Classical
 open SimpleGraph
@@ -65,8 +64,7 @@ def EdgeRamseyTriangle {V : Type*} (G : SimpleGraph V) : Prop :=
 If $H \Rightarrow_2 K$ and $K \Rightarrow_n G$, then $H \Rightarrow_{n+1} G$.
 -/
 lemma ramsey_trans
-  {V W U : Type*} [Fintype V] [Fintype W] [Fintype U]
-  [DecidableEq V] [DecidableEq W] [DecidableEq U]
+  {V W U : Type*} [DecidableEq V] [DecidableEq W] [DecidableEq U]
   (G : SimpleGraph V) (K : SimpleGraph W) (H : SimpleGraph U)
   (n : ℕ) (hn : n ≥ 1)
   (hK : VertexPartitionRamsey n K G)
@@ -155,11 +153,12 @@ If for every graph $G$ there exists $H$ such that $\om(H)=\om(G)$ and
 $H \Rightarrow_2 G$, then for every $n \ge 1$ and every $G$ there exists $H$ such
 that $\om(H)=\om(G)$ and $H \Rightarrow_n G$.
 -/
+omit [Fintype V] in
 theorem exists_H_n_of_exists_H_2
-  (h2 : ∀ (V : Type) [Fintype V] [DecidableEq V] (G : SimpleGraph V),
+  (h2 : ∀ (V : Type) [Finite V] [DecidableEq V] (G : SimpleGraph V),
     ∃ (W : Type) (_ : Fintype W) (_ : DecidableEq W) (H : SimpleGraph W),
       H.cliqueNum = G.cliqueNum ∧ VertexPartitionRamsey 2 H G) :
-  ∀ (n : ℕ) (hn : n ≥ 1) (V : Type) [Fintype V] [DecidableEq V] (G : SimpleGraph V),
+  ∀ (n : ℕ) (hn : n ≥ 1) (V : Type) [Finite V] [DecidableEq V] (G : SimpleGraph V),
     ∃ (W : Type) (_ : Fintype W) (_ : DecidableEq W) (H : SimpleGraph W),
       H.cliqueNum = G.cliqueNum ∧ VertexPartitionRamsey n H G := by
         intro n hn;
@@ -167,6 +166,7 @@ theorem exists_H_n_of_exists_H_2
         | base =>
           -- For the base case $n = 1$, we can take $H = G$.
           intros V _ _ G
+          letI := Fintype.ofFinite V
           use V, inferInstance, inferInstance, G
           simp [VertexPartitionRamsey];
           intro f; use Set.univ; simp +decide [ Fin.eq_zero ] ;
@@ -198,6 +198,7 @@ def G_double_prime : SimpleGraph (V_double_prime G v0) :=
 
 def X_set : Set (Set W) := { S | Nonempty ((H'.induce S) ≃g (G_double_prime G v0)) }
 
+omit [Fintype V] [Fintype W] in
 lemma X_nonempty (h : VertexPartitionRamsey 2 H' (G_prime G v0)) : (X_set G v0 H').Nonempty := by
   -- By definition of $X_set$, we need to show that there exists a subset
   -- $S \subseteq (G 인덱스 (SimpleGraph.induce {v0}ᶜ G)).vertexSet$ such that
@@ -441,8 +442,10 @@ lemma clique_case_two_A
 /-
 The clique number of G'' plus 1 is at most the clique number of G.
 -/
-lemma cliqueNum_G_double_prime_le :
+omit [Fintype V] in
+lemma cliqueNum_G_double_prime_le [Finite V] :
   (G_double_prime G v0).cliqueNum + 1 ≤ G.cliqueNum := by
+    letI := Fintype.ofFinite V
     simp +decide [ SimpleGraph.cliqueNum ];
     refine' (le_csSup (α := ℕ) _ _);
     · exact ⟨ Fintype.card V, fun n hn => by
@@ -585,10 +588,12 @@ If a clique is contained in a subset of vertices, its size is at most the clique
 of the induced subgraph on that subset.
 -/
 lemma clique_subset_le_cliqueNum_induce
-  {V : Type*} [Fintype V] [DecidableEq V]
-  (G : SimpleGraph V) (S : Set V) [Fintype S] [DecidableEq S]
+  {V : Type*} [Finite V] [DecidableEq V]
+  (G : SimpleGraph V) (S : Set V) [Finite S] [DecidableEq S]
   (C : Finset V) (hC : G.IsClique C) (hCS : ∀ v ∈ C, v ∈ S) :
   C.card ≤ (G.induce S).cliqueNum := by
+    letI := Fintype.ofFinite V
+    letI := Fintype.ofFinite S
     refine' le_csSup _ _;
     · exact ⟨ _, fun n hn => by
         rcases hn with ⟨ s, hs ⟩
@@ -1287,8 +1292,9 @@ lemma PropH2_0 : PropH2 0 := by
 For every graph $G$, there exists a graph $H$ such that $\omega(H) = \omega(G)$ and
 $H \Rightarrow_2 G$.
 -/
+omit [Fintype V] in
 theorem exists_H_2 :
-  ∀ (V : Type) [Fintype V] [DecidableEq V] (G : SimpleGraph V),
+  ∀ (V : Type) [Finite V] [DecidableEq V] (G : SimpleGraph V),
     ∃ (W : Type) (_ : Fintype W) (_ : DecidableEq W) (H : SimpleGraph W),
       H.cliqueNum = G.cliqueNum ∧ VertexPartitionRamsey 2 H G := by
         have h_ind : ∀ n : ℕ, PropH2 n := by
@@ -1300,14 +1306,17 @@ theorem exists_H_2 :
             · exact PropH2_base;
             · exact PropH2_step _
                 (Nat.succ_lt_succ (Nat.succ_pos _)) (ih _ (Nat.le_refl _));
-        exact fun V [Fintype V] [DecidableEq V] G => h_ind (Fintype.card V) V G rfl
+        exact fun V [Finite V] [DecidableEq V] G => by
+          letI := Fintype.ofFinite V
+          exact h_ind (Fintype.card V) V G rfl
 
 /-
 For every graph $G$ and integer $n \ge 1$, there exists a graph $H(n,G)$ with the
 same clique number such that $H(n,G) \Rightarrow_n G$.
 -/
+omit [Fintype V] in
 theorem exists_H_n :
-  ∀ (n : ℕ) (hn : n ≥ 1) (V : Type) [Fintype V] [DecidableEq V] (G : SimpleGraph V),
+  ∀ (n : ℕ) (hn : n ≥ 1) (V : Type) [Finite V] [DecidableEq V] (G : SimpleGraph V),
     ∃ (W : Type) (_ : Fintype W) (_ : DecidableEq W) (H : SimpleGraph W),
       H.cliqueNum = G.cliqueNum ∧ VertexPartitionRamsey n H G := by
   intro n hn V _ _ G
@@ -1848,9 +1857,11 @@ The number of pairs $(e, v)$ where $e$ is an edge in a set of size 3 and $v \in 
 -/
 variable {V : Type*} [Fintype V] [DecidableEq V]
 
+omit [Fintype V] in
 noncomputable def edgeWithVertexFinset (S : Finset V) : Finset (Sym2 V × V) :=
   S.offDiag.image (fun p : V × V => (s(p.1, p.2), p.1))
 
+omit [Fintype V] in
 lemma card_edgeWithVertexFinset (S : Finset V) (hS : S.card = 3) :
   (edgeWithVertexFinset S).card = 6 := by
   rw [edgeWithVertexFinset, Finset.card_image_of_injOn]
@@ -1878,14 +1889,17 @@ The cardinality of the signature data type is 36.
 noncomputable def SigData (A B : Finset V) : Type _ :=
   { x // x ∈ edgeWithVertexFinset A } × { x // x ∈ edgeWithVertexFinset B }
 
+omit [Fintype V] in
 noncomputable instance (A B : Finset V) : Fintype (SigData A B) := by
   unfold SigData
   infer_instance
 
+omit [Fintype V] in
 noncomputable instance (A B : Finset V) : DecidableEq (SigData A B) := by
   unfold SigData
   infer_instance
 
+omit [Fintype V] in
 lemma card_SigData (A B : Finset V) (hA : A.card = 3) (hB : B.card = 3) :
   Fintype.card (SigData A B) = 36 := by
     convert congr_arg₂ ( · * · )
@@ -1899,6 +1913,7 @@ lemma card_SigData (A B : Finset V) (hA : A.card = 3) (hB : B.card = 3) :
 /-
 Edges in a signature are non-diagonal.
 -/
+omit [Fintype V] in
 lemma SigData_edge_nd1 (A B : Finset V) (s : SigData A B) : ¬ s.1.val.1.IsDiag := by
   rcases s.1 with ⟨⟨e, u⟩, hmem⟩
   change ¬ e.IsDiag
@@ -1910,6 +1925,7 @@ lemma SigData_edge_nd1 (A B : Finset V) (s : SigData A B) : ¬ s.1.val.1.IsDiag 
   rw [he]
   simpa [Sym2.mk_isDiag_iff] using hne
 
+omit [Fintype V] in
 lemma SigData_edge_nd2 (A B : Finset V) (s : SigData A B) : ¬ s.2.val.1.IsDiag := by
   rcases s.2 with ⟨⟨e, u⟩, hmem⟩
   change ¬ e.IsDiag
@@ -1921,6 +1937,7 @@ lemma SigData_edge_nd2 (A B : Finset V) (s : SigData A B) : ¬ s.2.val.1.IsDiag 
   rw [he]
   simpa [Sym2.mk_isDiag_iff] using hne
 
+omit [Fintype V] in
 lemma SigData_mem_left (A B : Finset V) (s : SigData A B) : s.1.val.2 ∈ A := by
   rcases s.1 with ⟨⟨e, u⟩, hmem⟩
   change u ∈ A
@@ -1930,6 +1947,7 @@ lemma SigData_mem_left (A B : Finset V) (s : SigData A B) : s.1.val.2 ∈ A := b
   rw [hu]
   exact (Finset.mem_offDiag.mp hab).1
 
+omit [Fintype V] in
 lemma SigData_mem_right (A B : Finset V) (s : SigData A B) : s.2.val.2 ∈ B := by
   rcases s.2 with ⟨⟨e, u⟩, hmem⟩
   change u ∈ B

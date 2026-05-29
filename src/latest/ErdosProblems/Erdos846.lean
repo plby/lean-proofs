@@ -1141,9 +1141,9 @@ lemma finite_ramsey (K : ℕ) : ∃ N : ℕ,
     rw [Finset.mem_range] at h_k_in
     exact h_k_in
 
-set_option linter.unusedFintypeInType false in
-lemma ramsey_infinite_chromatic_type (C : Type) [Fintype C] (c : (ℕ × ℕ) → C) :
+lemma ramsey_infinite_chromatic_type (C : Type) [Finite C] (c : (ℕ × ℕ) → C) :
   ∃ i j k, i < j ∧ j < k ∧ c (i, j) = c (j, k) ∧ c (j, k) = c (i, k) := by
+  letI := Fintype.ofFinite C
   let K := Fintype.card C
   have h_equiv := Fintype.equivFin C
   let c' : (ℕ × ℕ) → Fin K := fun e ↦ h_equiv (c e)

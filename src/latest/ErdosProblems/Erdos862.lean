@@ -38,7 +38,6 @@ import PrimeNumberTheoremAnd.Consequences
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.unusedFintypeInType false
 
 namespace Erdos862
 
@@ -544,11 +543,13 @@ theorem theta_not_in_Fq {h : ℕ} (hh : 2 ≤ h) (_hdeg : Module.finrank Fq Fqh 
         (Nat.one_le_iff_ne_zero.mpr <| Fintype.card_ne_zero)]
       exact lt_self_pow₀ (Fintype.one_lt_card) hh
 
-theorem bose_chowla_exponents {h : ℕ} (hh : 2 ≤ h)
+omit [Fintype Fqh] in
+theorem bose_chowla_exponents {h : ℕ} [Finite Fqh] (hh : 2 ≤ h)
     (hdeg : Module.finrank Fq Fqh = h) (theta : Fqh)
     (htheta : IsPrimitiveRoot theta (boseChowlaMod (Fq := Fq) h)) :
     ∀ x : Fq, ∃! k : ℕ, 0 < k ∧ k < boseChowlaMod (Fq := Fq) h ∧
       theta ^ k = theta - algebraMap Fq Fqh x := by
+  letI := Fintype.ofFinite Fqh
   intro x
   have h_neq : theta ≠ algebraMap Fq Fqh x :=
     theta_not_in_Fq hh hdeg theta htheta x
@@ -609,10 +610,12 @@ theorem bose_chowla_exponents {h : ℕ} (hh : 2 ≤ h)
       (by linarith : k < Fintype.card Fqh - 1)
     aesop
 
-theorem minpoly_degree_eq_h {h : ℕ} (hh : 2 ≤ h)
+omit [Fintype Fqh] in
+theorem minpoly_degree_eq_h {h : ℕ} [Finite Fqh] (hh : 2 ≤ h)
     (hdeg : Module.finrank Fq Fqh = h) (theta : Fqh)
     (htheta : IsPrimitiveRoot theta (boseChowlaMod (Fq := Fq) h)) :
     (minpoly Fq theta).natDegree = h := by
+  letI := Fintype.ofFinite Fqh
   have h_subfield : (IntermediateField.adjoin Fq {theta}) = ⊤ := by
     have h_pow : ∀ x : Fqh, x ≠ 0 → ∃ k : ℕ, x = theta ^ k := by
       intro x hx_ne_zero
@@ -675,13 +678,15 @@ theorem multiset_prod_X_sub_C_injective {F : Type*} [Field F] (s t : Multiset F)
   replace h := congr_arg (fun p => Polynomial.roots p) h
   simp_all +decide
 
-theorem bose_chowla_poly_identity {h : ℕ} (hh : 2 ≤ h)
+omit [Fintype Fqh] in
+theorem bose_chowla_poly_identity {h : ℕ} [Finite Fqh] (hh : 2 ≤ h)
     (hdeg : Module.finrank Fq Fqh = h) (theta : Fqh)
     (htheta : IsPrimitiveRoot theta (boseChowlaMod (Fq := Fq) h))
     (s t : Multiset Fq) (hs : s.card = h) (ht : t.card = h)
     (heq : (s.map (fun x => theta - algebraMap Fq Fqh x)).prod =
            (t.map (fun x => theta - algebraMap Fq Fqh x)).prod) :
     s = t := by
+  letI := Fintype.ofFinite Fqh
   set Ps : Polynomial Fq :=
     Multiset.prod (Multiset.map (fun x => Polynomial.X - Polynomial.C x) s)
   set Pt : Polynomial Fq :=
@@ -712,7 +717,8 @@ theorem bose_chowla_poly_identity {h : ℕ} (hh : 2 ≤ h)
   apply (multiset_prod_X_sub_C_injective s t).mp
   exact eq_of_sub_eq_zero hQ_zero
 
-theorem bose_chowla {h : ℕ} (hh : 2 ≤ h)
+omit [Fintype Fqh] in
+theorem bose_chowla {h : ℕ} [Finite Fqh] (hh : 2 ≤ h)
     (hdeg : Module.finrank Fq Fqh = h) (theta : Fqh)
     (htheta : IsPrimitiveRoot theta (boseChowlaMod (Fq := Fq) h)) :
     ∃ a : Fq → {k : ℕ // 0 < k ∧ k < boseChowlaMod (Fq := Fq) h},
@@ -723,6 +729,7 @@ theorem bose_chowla {h : ℕ} (hh : 2 ≤ h)
        SidonModOfOrder h (boseChowlaMod (Fq := Fq) h) (A : Set ℕ) ∧
           A.card = Fintype.card Fq) := by
   classical
+  letI := Fintype.ofFinite Fqh
   -- Abbreviation for the repeated exponents call
   let BC := bose_chowla_exponents hh hdeg theta htheta
   let k := fun x : Fq => (BC x).exists.choose
@@ -799,8 +806,9 @@ lemma SidonOfOrder_two_iff_Sidon {α : Type} [AddCommMonoid α] (S : Set α) :
       simp_all +decide [List.Perm.swap]
 
 /-- There exists an irreducible polynomial of degree 2 over any finite field. -/
-lemma exists_irreducible_poly_of_degree_two {F : Type*} [Field F] [Fintype F] :
+lemma exists_irreducible_poly_of_degree_two {F : Type*} [Field F] [Finite F] :
     ∃ f : Polynomial F, Polynomial.natDegree f = 2 ∧ Irreducible f := by
+  letI := Fintype.ofFinite F
   set q := Fintype.card F with hq_def
   have h_card : 2 ≤ q := Fintype.one_lt_card
   have h_exists_a : ∃ a : F, ¬∃ x : F, x ^ 2 - x = a := by

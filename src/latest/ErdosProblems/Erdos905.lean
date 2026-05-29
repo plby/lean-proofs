@@ -473,8 +473,8 @@ lemma concordant_vertex_count_le_card_add_two_mul_triangleDegree_sub_degree [Dec
         (Finset.univ : Finset V))
   omega
 
+omit [Fintype V] in
 set_option linter.unusedSectionVars false in
-set_option linter.unusedFintypeInType false in
 lemma concordant_pair_out
     (G : SimpleGraph V) (y a b : V) :
     ((G.Adj y a ∧ G.Adj y b) ∨ (¬ G.Adj y a ∧ ¬ G.Adj y b)) →

@@ -19,7 +19,6 @@ URLs:
 import Mathlib
 
 set_option linter.unusedDecidableInType false
-set_option linter.unusedFintypeInType false
 
 namespace Erdos707
 
@@ -2523,11 +2522,13 @@ lemma even_ncard_nonAbsOn_of_order
 
 lemma ncard_nonAbsOn_mod2_zero_of_order
     {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L]
-    [Fintype P] [Fintype L]
+    [Finite P] [Finite L]
     (C : Polarity P L) (ℓ : L)
     (hℓ_nonabs : ℓ ∉ polarity_absoluteLines C) :
     (nonAbsOn C ℓ).ncard % 2 = 0 := by
   classical
+  letI := Fintype.ofFinite P
+  letI := Fintype.ofFinite L
   -- subtype of non-absolute points on ℓ
   let S := {p : P // p ∈ nonAbsOn C ℓ}
   -- fixed-point-free involution on S from `mate`
@@ -2565,12 +2566,14 @@ lemma ncard_nonAbsOn_mod2_zero_of_order
 of absolute points (i.e. the remainder mod 2 is `1`). -/
 lemma absOnLine_ncard_mod2_eq_one_of_order_even
     {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L]
-    [Fintype P] [Fintype L]
+    [Finite P] [Finite L]
     (C : Polarity P L)
     (hq_even : Configuration.ProjectivePlane.order P L % 2 = 0)
     (ℓ : L) :
     (absOnLine C ℓ).ncard % 2 = 1 := by
   classical
+  letI := Fintype.ofFinite P
+  letI := Fintype.ofFinite L
   set q := Configuration.ProjectivePlane.order P L with hqdef
   have h_total :
       ({p : P | p ∈ ℓ}).ncard = q + 1 := by
@@ -2672,12 +2675,14 @@ lemma absOnLine_ncard_mod2_eq_one_of_order_even
 a line is absolute **iff** it carries exactly one absolute point. -/
 lemma absLine_iff_one_absPoint_of_order_odd
     {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L]
-    [Fintype P] [Fintype L]
+    [Finite P] [Finite L]
     (C : Polarity P L)
     (hq_odd : Configuration.ProjectivePlane.order P L % 2 = 1)
     (ℓ : L) :
     ℓ ∈ polarity_absoluteLines C ↔ (absOnLine C ℓ).ncard = 1 := by
   classical
+  letI := Fintype.ofFinite P
+  letI := Fintype.ofFinite L
   set q := Configuration.ProjectivePlane.order P L with hqdef
   -- Total points on a line: q + 1
   have h_total :
@@ -2768,12 +2773,14 @@ lemma absLine_iff_one_absPoint_of_order_odd
 /-- If the order is odd, `p` is an absolute point, `ℓ = C.φ p` is its absolute line,
 and `m ≠ ℓ` is another line through `p`, then `m` is not absolute. -/
 lemma nonAbs_of_absPoint_other_line
-    {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L] [Fintype P] [Fintype L]
+    {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L] [Finite P] [Finite L]
     (C : Polarity P L)
     {p : P} (hp : p ∈ polarity_absolutePoints C)
     {ℓ m : L} (hℓ : ℓ = C.φ p) (hp_mem_m : p ∈ m) (hm_ne : m ≠ ℓ) :
     m ∉ polarity_absoluteLines C := by
   classical
+  letI := Fintype.ofFinite P
+  letI := Fintype.ofFinite L
   -- Suppose, for contradiction, that `m` is absolute.
   intro h_abs_m
   -- Let p' be the point `C.φ.symm m`. Since `m` is absolute, p' ∈ m.
@@ -2823,13 +2830,15 @@ lemma nonAbs_of_absPoint_other_line
 and `m ≠ ℓ` is another line through `p`, then `m` contains another absolute point
 distinct from `p`. -/
 lemma exists_other_absPoint_on_line_through_absPoint_of_order_odd
-    {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L] [Fintype P] [Fintype L]
+    {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L] [Finite P] [Finite L]
     (C : Polarity P L)
     (hq_odd : Configuration.ProjectivePlane.order P L % 2 = 1)
     {p : P} (hp : p ∈ polarity_absolutePoints C)
     {ℓ m : L} (hℓ : ℓ = C.φ p) (hp_mem_m : p ∈ m) (hm_ne : m ≠ ℓ) :
     ∃ p' : P, p' ≠ p ∧ p' ∈ m ∧ p' ∈ polarity_absolutePoints C := by
   classical
+  letI := Fintype.ofFinite P
+  letI := Fintype.ofFinite L
   -- First, `m` is not absolute (your previous lemma).
   have h_nonabs_m : m ∉ polarity_absoluteLines C :=
     nonAbs_of_absPoint_other_line C hp hℓ hp_mem_m hm_ne
@@ -2896,7 +2905,7 @@ lemma ne_of_points_on_distinct_lines_through
 from the set of lines through `p` to the set of absolute points **such that the image point
 lies on the originating line**. -/
 lemma exists_injective_map_linesThrough_to_absPoints_of_order_odd
-    {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L] [Fintype P] [Fintype L]
+    {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L] [Finite P] [Finite L]
     (C : Polarity P L)
     (hq_odd : Configuration.ProjectivePlane.order P L % 2 = 1)
     {p : P} (hp : p ∈ polarity_absolutePoints C) :
@@ -2905,6 +2914,8 @@ lemma exists_injective_map_linesThrough_to_absPoints_of_order_odd
       Function.Injective f
       ∧ ∀ (m : {m : L // p ∈ m}), (f m : P) ∈ (m : L) := by
   classical
+  letI := Fintype.ofFinite P
+  letI := Fintype.ofFinite L
   -- absolute line of `p`
   let ℓ : L := C.φ p
   have hp_mem_ℓ : p ∈ ℓ := by simpa [polarity_absolutePoints] using hp
@@ -3049,20 +3060,23 @@ lemma fintype_card_eq_of_nat_card_eq
 
 /-- In a projective plane, the number of lines through `p` is `order + 1` (as a `Nat.card`). -/
 lemma nat_card_linesThrough_eq_order_add_one
-    {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L] [Fintype P] [Fintype L]
+    {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L] [Finite P] [Finite L]
     (p : P) :
   Nat.card {m : L // p ∈ m} = Configuration.ProjectivePlane.order P L + 1 := by
+  letI := Fintype.ofFinite P
+  letI := Fintype.ofFinite L
   -- `lineCount L p` *is* this `Nat.card`, and `lineCount_eq` says it's `order+1`.
   simpa [Configuration.lineCount, Configuration.ProjectivePlane.order]
     using Configuration.ProjectivePlane.lineCount_eq (P := P) (L := L) (p := p)
 
 /-- If `order = q`, then there are `q+1` lines through `p` (as a `Fintype.card`). -/
 lemma card_linesThrough_eq_q_add_one
-    {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L] [Fintype P] [Fintype L]
+    {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L] [Finite P] [Fintype L]
     (p : P) (q : ℕ)
     [DecidablePred (fun m : L => p ∈ m)]
     (horder : Configuration.ProjectivePlane.order P L = q) :
   Fintype.card {m : L // p ∈ m} = q + 1 := by
+  letI := Fintype.ofFinite P
   -- First get the `Nat.card` statement, then switch to `Fintype.card` and rewrite `order`.
   have h₁ : Nat.card {m : L // p ∈ m} = Configuration.ProjectivePlane.order P L + 1 :=
     nat_card_linesThrough_eq_order_add_one (P := P) (L := L) p
@@ -3084,7 +3098,7 @@ lemma Set.fintype_card_of_ncard_eq
 `f` is an injective map from the lines through `p` to the absolute points,
 then `f` is bijective. -/
 lemma bijective_linesThrough_to_absPoints
-  {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L] [Fintype P] [Fintype L]
+  {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L] [Finite P] [Finite L]
   (C : Polarity P L) (q : ℕ) {p : P}
   [DecidablePred (fun m : L => p ∈ m)]
   (horder : Configuration.ProjectivePlane.order P L = q)
@@ -3093,6 +3107,8 @@ lemma bijective_linesThrough_to_absPoints
   (hAbsPts : (polarity_absolutePoints C).ncard = q + 1) :
   Function.Bijective f := by
   classical
+  letI := Fintype.ofFinite P
+  letI := Fintype.ofFinite L
   -- Give `Fintype` instance for absolute points (no decidability required).
   letI : Fintype ↥(polarity_absolutePoints C) := Fintype.ofFinite _
   -- |lines through p| = q + 1
@@ -3116,7 +3132,7 @@ from the set of lines through `p` to the set of absolute points, and the image p
 on the originating line. We assume there are exactly `q+1` absolute points and that
 `q` is the order. -/
 lemma exists_bijective_map_linesThrough_to_absPoints_of_order_odd
-    {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L] [Fintype P] [Fintype L]
+    {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L] [Finite P] [Finite L]
     (C : Polarity P L)
     (q : ℕ)
     (horder : Configuration.ProjectivePlane.order P L = q)
@@ -3128,6 +3144,8 @@ lemma exists_bijective_map_linesThrough_to_absPoints_of_order_odd
       Function.Bijective f
       ∧ ∀ (m : {m : L // p ∈ m}), (f m : P) ∈ (m : L) := by
   classical
+  letI := Fintype.ofFinite P
+  letI := Fintype.ofFinite L
   -- decidability so `{m : L // p ∈ m}` has the canonical `Subtype.fintype`
   haveI : DecidablePred (fun m : L => p ∈ m) := Classical.decPred _
   -- 1) get an injective map with the on-line property
@@ -3146,7 +3164,7 @@ lemma exists_bijective_map_linesThrough_to_absPoints_of_order_odd
 build the inverse bijection `absolute points ↔ linesThrough p`, which sends each absolute
 point to a line **containing** it. -/
 lemma exists_bijective_map_absPoints_to_linesThrough_of_order_odd
-    {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L] [Fintype P] [Fintype L]
+    {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L] [Finite P] [Finite L]
     (C : Polarity P L)
     (q : ℕ)
     (horder : Configuration.ProjectivePlane.order P L = q)
@@ -3158,6 +3176,8 @@ lemma exists_bijective_map_absPoints_to_linesThrough_of_order_odd
       ({x : P // x ∈ polarity_absolutePoints C}) → {m : L // p ∈ m},
       Function.Bijective f
       ∧ ∀ (x : {x : P // x ∈ polarity_absolutePoints C}), (x : P) ∈ (f x : L) := by
+  letI := Fintype.ofFinite P
+  letI := Fintype.ofFinite L
   letI : Fintype ↥(polarity_absolutePoints C) := Fintype.ofFinite _
   obtain ⟨f, hf_bij, hf_on⟩ :=
     exists_bijective_map_linesThrough_to_absPoints_of_order_odd
@@ -3201,7 +3221,7 @@ and `p` is an absolute point, then on any line `ℓ` through `p` there is at mos
 other absolute point. In particular, if `p₁` and `p₂` are absolute points on `ℓ`
 with `p₁ ≠ p` and `p₂ ≠ p`, then `p₁ = p₂`. -/
 lemma unique_other_absPoint_on_line_through_absPoint_of_order_odd
-    {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L] [Fintype P] [Fintype L]
+    {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L] [Finite P] [Finite L]
     (C : Polarity P L)
     (q : ℕ)
     (horder : Configuration.ProjectivePlane.order P L = q)
@@ -3214,6 +3234,8 @@ lemma unique_other_absPoint_on_line_through_absPoint_of_order_odd
     (hp₂_abs : p₂ ∈ polarity_absolutePoints C) (hp₂ℓ : p₂ ∈ ℓ) (hp₂_ne : p₂ ≠ p) :
   p₁ = p₂ := by
   classical
+  letI := Fintype.ofFinite P
+  letI := Fintype.ofFinite L
   -- We will use the bijection `abs points ↔ lines through p` with the on-line property.
   haveI : DecidablePred (fun m : L => p ∈ m) := Classical.decPred _
   obtain ⟨g, hbij, h_on⟩ :=
@@ -3267,7 +3289,7 @@ lemma unique_other_absPoint_on_line_through_absPoint_of_order_odd
 three *distinct* absolute points. Equivalently, among any three absolute points on a line,
 two must be equal. -/
 lemma no_three_distinct_absPoints_on_a_line_of_order_odd
-    {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L] [Fintype P] [Fintype L]
+    {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L] [Finite P] [Finite L]
     (C : Polarity P L) (q : ℕ)
     (horder : Configuration.ProjectivePlane.order P L = q)
     (hq_odd : q % 2 = 1)
@@ -3277,6 +3299,8 @@ lemma no_three_distinct_absPoints_on_a_line_of_order_odd
     c ∈ polarity_absolutePoints C → a ∈ ℓ → b ∈ ℓ → c ∈ ℓ →
     a = b ∨ a = c ∨ b = c := by
   classical
+  letI := Fintype.ofFinite P
+  letI := Fintype.ofFinite L
   intro ℓ a b c ha hb hc haℓ hbℓ hcℓ
   -- If `a=b` or `a=c`, done.
   by_cases h_ab : a = b
@@ -3791,12 +3815,14 @@ lemma no_pds_with_1_2_4_8_members
 at least one absolute point. -/
 lemma exists_absPoint_on_line_of_order_even
     {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L]
-    [Fintype P] [Fintype L]
+    [Finite P] [Finite L]
     (C : Polarity P L)
     (hq_even : Configuration.ProjectivePlane.order P L % 2 = 0)
     (ℓ : L) :
     (absOnLine C ℓ).Nonempty := by
   classical
+  letI := Fintype.ofFinite P
+  letI := Fintype.ofFinite L
   -- From your lemma: the parity of the count is `1`.
   have hmod :
       (absOnLine C ℓ).ncard % 2 = 1 :=
@@ -3814,11 +3840,13 @@ lemma exists_absPoint_on_line_of_order_even
 /-- Existential version of `exists_absPoint_on_line_of_order_even`. -/
 lemma exists_mem_absOnLine_of_order_even
     {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L]
-    [Fintype P] [Fintype L]
+    [Finite P] [Finite L]
     (C : Polarity P L)
     (hq_even : Configuration.ProjectivePlane.order P L % 2 = 0)
     (ℓ : L) :
     ∃ p : P, p ∈ absOnLine C ℓ := by
+  letI := Fintype.ofFinite P
+  letI := Fintype.ofFinite L
   have h := exists_absPoint_on_line_of_order_even (C := C) (hq_even := hq_even) (ℓ := ℓ)
   rcases h with ⟨p, hp⟩
   exact ⟨p, hp⟩
@@ -3828,7 +3856,7 @@ an injective map from the set of lines through `p` to the set of absolute points
 image point lies on the originating line. -/
 lemma exists_injective_map_linesThrough_to_absPoints_of_order_even
     {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L]
-    [Fintype P] [Fintype L]
+    [Finite P] [Finite L]
     (C : Polarity P L)
     (hq_even : Configuration.ProjectivePlane.order P L % 2 = 0)
     {p : P} (hp_notabs : p ∉ polarity_absolutePoints C) :
@@ -3837,6 +3865,8 @@ lemma exists_injective_map_linesThrough_to_absPoints_of_order_even
       Function.Injective f
       ∧ ∀ (m : {m : L // p ∈ m}), (f m : P) ∈ (m : L) := by
   classical
+  letI := Fintype.ofFinite P
+  letI := Fintype.ofFinite L
   ----------------------------------------------------------------------
   -- Step 1: Every line has at least one absolute point.
   -- Option A (Nonempty version):
@@ -3910,7 +3940,7 @@ map from the set of lines through `p` to the set of absolute points, and the ima
 on the originating line. We assume there are exactly `q+1` absolute points and that `q`
 is the order. -/
 lemma exists_bijective_map_linesThrough_to_absPoints_of_order_even
-    {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L] [Fintype P] [Fintype L]
+    {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L] [Finite P] [Finite L]
     (C : Polarity P L)
     (q : ℕ)
     (horder : Configuration.ProjectivePlane.order P L = q)
@@ -3922,6 +3952,8 @@ lemma exists_bijective_map_linesThrough_to_absPoints_of_order_even
       Function.Bijective f
       ∧ ∀ (m : {m : L // p ∈ m}), (f m : P) ∈ (m : L) := by
   classical
+  letI := Fintype.ofFinite P
+  letI := Fintype.ofFinite L
   -- Ensure canonical fintype instance on the subtype `{m : L // p ∈ m}`.
   haveI : DecidablePred (fun m : L => p ∈ m) := Classical.decPred _
   -- 1) obtain an injective selector with the "lies on the line" property (even-order,
@@ -3942,7 +3974,7 @@ lemma exists_bijective_map_linesThrough_to_absPoints_of_order_even
 build the inverse bijection `absolute points ↔ linesThrough p`, which sends each absolute
 point to a line **containing** it. (Even-order version with `p` not absolute.) -/
 lemma exists_bijective_map_absPoints_to_linesThrough_of_order_even
-    {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L] [Fintype P] [Fintype L]
+    {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L] [Finite P] [Finite L]
     (C : Polarity P L)
     (q : ℕ)
     (horder : Configuration.ProjectivePlane.order P L = q)
@@ -3955,6 +3987,8 @@ lemma exists_bijective_map_absPoints_to_linesThrough_of_order_even
       Function.Bijective f
       ∧ ∀ (x : {x : P // x ∈ polarity_absolutePoints C}), (x : P) ∈ (f x : L) := by
   classical
+  letI := Fintype.ofFinite P
+  letI := Fintype.ofFinite L
   -- Give the absolute-points subtype a `Fintype` instance.
   letI : Fintype ↥(polarity_absolutePoints C) := Fintype.ofFinite _
   -- Obtain the bijection `linesThrough p → absPoints` with the on-line property.
@@ -3984,7 +4018,7 @@ distinct from both `p₁` and `p₂`, then `p` is also absolute.
 We assume the plane has order `q` and there are exactly `q+1` absolute points. -/
 lemma abs_of_third_point_on_line_with_two_absPoints_of_order_even
     {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L]
-    [Fintype P] [Fintype L]
+    [Finite P] [Finite L]
     (C : Polarity P L)
     (q : ℕ)
     (horder : Configuration.ProjectivePlane.order P L = q)
@@ -3999,6 +4033,8 @@ lemma abs_of_third_point_on_line_with_two_absPoints_of_order_even
     [DecidablePred (fun m : L => p ∈ m)] :
     p ∈ polarity_absolutePoints C := by
   classical
+  letI := Fintype.ofFinite P
+  letI := Fintype.ofFinite L
   -- Give the absolute-points subtype a `Fintype` instance.
   letI : Fintype ↥(polarity_absolutePoints C) := Fintype.ofFinite _
   -- Suppose `p` is not absolute; we derive a contradiction.
@@ -4057,7 +4093,7 @@ If a line `ℓ` contains two distinct absolute points, then **every** point of `
 We assume the plane has order `q` and there are exactly `q+1` absolute points. -/
 lemma all_points_on_line_abs_of_two_absPoints_of_order_even
     {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L]
-    [Fintype P] [Fintype L]
+    [Finite P] [Finite L]
     (C : Polarity P L)
     (q : ℕ)
     (horder : Configuration.ProjectivePlane.order P L = q)
@@ -4070,6 +4106,8 @@ lemma all_points_on_line_abs_of_two_absPoints_of_order_even
     (hp₁_ne_hp₂ : p₁ ≠ p₂) :
     ∀ p : P, p ∈ ℓ → p ∈ polarity_absolutePoints C := by
   classical
+  letI := Fintype.ofFinite P
+  letI := Fintype.ofFinite L
   intro p hpℓ
   -- If `p` is one of the given absolute points, we are done.
   by_cases h1 : p = p₁
@@ -5067,7 +5105,7 @@ If `2 ≤ q`, `q` is even, and there are exactly `q+1` absolute points,
 then there exists a line all of whose points are absolute. -/
 lemma exists_line_all_absPoints_of_order_even
     {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L]
-    [Fintype P] [Fintype L]
+    [Finite P] [Finite L]
     (C : Polarity P L)
     (q : ℕ)
     (horder : Configuration.ProjectivePlane.order P L = q)
@@ -5076,6 +5114,8 @@ lemma exists_line_all_absPoints_of_order_even
     (hq_ge2 : 2 ≤ q) :
   ∃ ℓ : L, ∀ p : P, p ∈ ℓ → p ∈ polarity_absolutePoints C := by
   classical
+  letI := Fintype.ofFinite P
+  letI := Fintype.ofFinite L
   -- A finite witness for the absolute-points set (subset of a finite type)
   have hFin : (polarity_absolutePoints C).Finite :=
     (Set.finite_univ : (Set.univ : Set P).Finite).subset (by
@@ -5139,7 +5179,7 @@ lemma exists_line_all_absPoints_of_order_even
 there exists a line that contains **all** absolute points. -/
 lemma exists_line_containing_all_absPoints_of_order_even
     {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L]
-    [Fintype P] [Fintype L] [Finite P] [Finite L]
+    [Finite P] [Finite L]
     (C : Polarity P L)
     (q : ℕ)
     (horder : Configuration.ProjectivePlane.order P L = q)
@@ -5148,6 +5188,8 @@ lemma exists_line_containing_all_absPoints_of_order_even
     (hq_ge2 : 2 ≤ q) :
   ∃ ℓ : L, polarity_absolutePoints C ⊆ {p : P | p ∈ ℓ} := by
   classical
+  letI := Fintype.ofFinite P
+  letI := Fintype.ofFinite L
   -- 1) pick a line all of whose points are absolute
   obtain ⟨ℓ, hall⟩ :=
     exists_line_all_absPoints_of_order_even
@@ -5222,7 +5264,7 @@ whenever `ℓ` contains two distinct absolute points `p₁, p₂`, **every**
 absolute point lies on `ℓ`. -/
 lemma absPoint_mem_line_of_two_absPoints_of_order_even
     {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L]
-    [Fintype P] [Fintype L] [Finite P] [Finite L]
+    [Finite P] [Finite L]
     (C : Polarity P L)
     (q : ℕ)
     (horder : Configuration.ProjectivePlane.order P L = q)
@@ -5237,6 +5279,8 @@ lemma absPoint_mem_line_of_two_absPoints_of_order_even
     (hp_abs : p ∈ polarity_absolutePoints C) :
     p ∈ ℓ := by
   classical
+  letI := Fintype.ofFinite P
+  letI := Fintype.ofFinite L
   -- 1) A line containing *all* absolute points
   obtain ⟨ℓ₀, hAbs_sub_ℓ₀⟩ :=
     exists_line_containing_all_absPoints_of_order_even

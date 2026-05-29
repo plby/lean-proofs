@@ -37,7 +37,6 @@ set_option linter.style.refine false
 set_option linter.deprecated false
 set_option linter.flexible false
 set_option linter.unusedDecidableInType false
-set_option linter.unusedFintypeInType false
 
 open scoped Classical
 
@@ -57,10 +56,11 @@ def _root_.SimpleGraph.IsMaximalTriangleFree {V : Type*} (G : SimpleGraph V) : P
 A maximal triangle-free graph has diameter at most 2 (every pair of distinct vertices is either
 adjacent or shares a common neighbor).
 -/
-theorem _root_.SimpleGraph.maximal_triangle_free_diam_two {V : Type*} [Fintype V] (G :
+theorem _root_.SimpleGraph.maximal_triangle_free_diam_two {V : Type*} [Finite V] (G :
   SimpleGraph V) [DecidableRel G.Adj]
   (h : G.IsMaximalTriangleFree) :
   ∀ x y, x ≠ y → G.Adj x y ∨ ∃ z, G.Adj x z ∧ G.Adj z y := by
+    letI := Fintype.ofFinite V
     -- Assume that there exist vertices $x$ and $y$ such that $x \neq y$ and $G$ does not have an
     -- edge between them.
     by_contra h_contra
@@ -100,9 +100,10 @@ theorem _root_.SimpleGraph.maximal_triangle_free_diam_two {V : Type*} [Fintype V
 /-
 If G is a subgraph of H, then the independence number of H is at most the independence number of G.
 -/
-theorem _root_.SimpleGraph.indepNum_le_of_le {V : Type*} [Fintype V] {G H : SimpleGraph V} (h :
+theorem _root_.SimpleGraph.indepNum_le_of_le {V : Type*} [Finite V] {G H : SimpleGraph V} (h :
   G ≤ H) :
   H.indepNum ≤ G.indepNum := by
+    letI := Fintype.ofFinite V
     apply_rules [ csSup_le_csSup ];
     · exact ⟨ _, fun n hn => by
         rcases hn with ⟨ s, hs ⟩
@@ -115,10 +116,11 @@ theorem _root_.SimpleGraph.indepNum_le_of_le {V : Type*} [Fintype V] {G H : Simp
 Every triangle-free graph G can be extended to a maximal triangle-free graph H, and the independence
 number of H is at most that of G.
 -/
-theorem _root_.SimpleGraph.exists_maximal_triangle_free_extension {V : Type*} [Fintype V] (G :
+theorem _root_.SimpleGraph.exists_maximal_triangle_free_extension {V : Type*} [Finite V] (G :
   SimpleGraph V) [DecidableRel G.Adj]
   (h : G.CliqueFree 3) :
   ∃ H : SimpleGraph V, G ≤ H ∧ H.IsMaximalTriangleFree ∧ H.indepNum ≤ G.indepNum := by
+    letI := Fintype.ofFinite V
     -- By definition of maximal triangle-free graphs, there exists a maximal triangle-free graph $H$
     -- such that $G \leq H$.
     obtain ⟨H, hH⟩ :
@@ -1120,11 +1122,12 @@ theorem card_NextGraphsState_eq {V : Type*} [Fintype V] [DecidableEq V]
 /-
 Adding an edge that does not have both endpoints in U preserves the independence of U.
 -/
-theorem _root_.SimpleGraph.IsIndepSet_add_edge_sym2 {V : Type*} [Fintype V] [DecidableEq V]
+theorem _root_.SimpleGraph.IsIndepSet_add_edge_sym2 {V : Type*} [Finite V] [DecidableEq V]
   (G : SimpleGraph V) [DecidableRel G.Adj] (U : Finset V) (e : Sym2 V)
   (h_indep : G.IsIndepSet U)
   (h_not_in_U : ¬(e.out.1 ∈ U ∧ e.out.2 ∈ U)) :
   (SimpleGraph.fromEdgeSet (G.edgeSet ∪ {e})).IsIndepSet U := by
+    letI := Fintype.ofFinite V
     simp_all +decide [ Set.Pairwise ];
     have := Quot.out_eq e;
     cases h' : Quot.out e ; aesop
@@ -2398,9 +2401,10 @@ theorem _root_.SimpleGraph.IsIndepSet_of_le {V : Type*} (G H : SimpleGraph V) (s
 If every set of vertices of size k is not an independent set, then the independence number of the
 graph is strictly less than k.
 -/
-theorem indepNum_lt_of_forall_not_indep {V : Type*} [Fintype V] (G : SimpleGraph V) (k : ℕ)
+theorem indepNum_lt_of_forall_not_indep {V : Type*} [Finite V] (G : SimpleGraph V) (k : ℕ)
   (h : ∀ U : Finset V, U.card = k → ¬ G.IsIndepSet U) :
   G.indepNum < k := by
+    letI := Fintype.ofFinite V
     have h_max : ∀ U : Set V, G.IsIndepSet U → U.Finite → U.ncard ≤ k - 1 := by
       intro U hU hU_fin
       by_contra h_contra;
