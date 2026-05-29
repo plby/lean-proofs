@@ -32,10 +32,6 @@ We use `limit_points_subset_S` (provided in the context) to show there are no ot
 
 import Mathlib
 
-set_option linter.style.setOption false
-set_option linter.flexible false
-set_option linter.style.multiGoal false
-
 namespace Erdos419
 
 noncomputable def tau (n : ℕ) : ℕ := (Nat.divisors n).card
@@ -48,6 +44,7 @@ def S : Set ℝ := {1} ∪ {x | ∃ k : ℕ, k ≥ 1 ∧ x = 1 + 1 / (k : ℝ)}
 The ratio $u(n) = \frac{\tau((n+1)!)}{\tau(n!)}$ can be written as a product
 over the prime factors of $n+1$.
 -/
+set_option linter.flexible false in
 lemma u_eq_prod (n : ℕ) :
     u n =
       ∏ p ∈ (n + 1).primeFactors,
@@ -184,6 +181,7 @@ The product over prime factors $p \le n^{2/3}$ converges to 1.
 noncomputable def small_primes (n : ℕ) : Finset ℕ :=
   (n + 1).primeFactors.filter (fun p : ℕ => (p : ℝ) ≤ (n : ℝ) ^ (2 / 3 : ℝ))
 
+set_option linter.flexible false in
 lemma small_prime_contribution_tendsto_one :
     Filter.Tendsto
       (fun n =>
@@ -479,6 +477,7 @@ lemma small_prime_contribution_tendsto_one :
 For sufficiently large $n$, if $p \mid n+1$ and $p > n^{2/3}$, then
 $v_p(n+1) = 1$ and $v_p(n!) = (n+1)/p - 1$.
 -/
+set_option linter.flexible false in
 lemma large_prime_properties :
     ∀ᶠ (n : ℕ) in Filter.atTop, ∀ p ∈ (n + 1).primeFactors,
       (p : ℝ) > (n : ℝ) ^ (2 / 3 : ℝ) →
@@ -546,6 +545,7 @@ noncomputable def large_prime (n : ℕ) : ℕ := ((n + 1).primeFactors \ small_p
 noncomputable def approx_u (n : ℕ) : ℝ :=
   if large_prime n > 0 then 1 + 1 / ((n + 1 : ℝ) / (large_prime n : ℝ)) else 1
 
+set_option linter.style.multiGoal false in
 lemma u_eq_u_small_mul_u_large (n : ℕ) : u n = u_small n * u_large n := by
   convert Finset.prod_union ?_ using 2;
   rw [ Finset.union_sdiff_of_subset ];
@@ -561,6 +561,8 @@ lemma u_small_tendsto_one :
     Filter.Tendsto u_small Filter.atTop (nhds 1) :=
   small_prime_contribution_tendsto_one
 
+set_option linter.flexible false in
+set_option linter.style.multiGoal false in
 lemma large_prime_eq_iff (n : ℕ) (p : ℕ) :
     large_prime n = p ↔
       (p = 0 ∧ ((n + 1).primeFactors \ small_primes n) = ∅) ∨
@@ -615,6 +617,7 @@ lemma u_large_eq_one_of_large_prime_zero (n : ℕ) (h : large_prime n = 0) : u_l
 /-
 If there is a large prime, `u_large` is the term corresponding to that prime.
 -/
+set_option linter.flexible false in
 lemma u_large_eq_term_of_large_prime_pos :
     ∀ᶠ n in Filter.atTop, large_prime n > 0 →
       u_large n =
@@ -648,6 +651,7 @@ lemma u_large_eq_term_of_large_prime_pos :
 /-
 `u_large` is eventually equal to `approx_u`.
 -/
+set_option linter.flexible false in
 lemma u_large_eventually_eq_approx_u :
     ∀ᶠ n in Filter.atTop, u_large n = approx_u n := by
   -- By definition of $u_{large}$, we know that for sufficiently large $n$,
@@ -922,6 +926,7 @@ lemma one_is_cluster_point : MapClusterPt 1 Filter.atTop u := by
 /-
 For sufficiently large primes $p$, the "large prime" of $k \cdot p - 1$ is $p$.
 -/
+set_option linter.flexible false in
 lemma large_prime_of_kp_minus_1 (k : ℕ) (hk : k ≥ 1) :
     ∀ᶠ p in Filter.atTop, Nat.Prime p → large_prime (k * p - 1) = p := by
   -- Let $n = k \cdot p - 1$. Then $n + 1 = k \cdot p$.
@@ -1002,6 +1007,8 @@ lemma large_prime_of_kp_minus_1 (k : ℕ) (hk : k ≥ 1) :
 /-
 For any $k \ge 1$, $1 + 1/k$ is a cluster point of the sequence $u(n)$.
 -/
+set_option linter.flexible false in
+set_option linter.style.multiGoal false in
 lemma cluster_point_of_k (k : ℕ) (hk : k ≥ 1) :
     MapClusterPt (1 + 1 / (k : ℝ)) Filter.atTop u := by
   -- Since $p$ is a prime such that $p > \max(1000, k^2)$ and
