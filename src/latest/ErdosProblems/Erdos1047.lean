@@ -25,10 +25,6 @@ the existence of such a polynomial and threshold value.
 
 import Mathlib
 
-set_option linter.style.setOption false
-set_option linter.flexible false
-set_option linter.style.multiGoal false
-
 namespace Erdos1047
 
 /-
@@ -439,6 +435,7 @@ noncomputable def U : Fin 6 → Set ℂ
 /-
 The set of roots of f is equal to the set roots'.
 -/
+set_option linter.flexible false in
 lemma roots_eq : roots = roots' := by
   unfold roots roots';
   -- The polynomial $f(z) = z^6 - z$ can be factored as $z(z^5 - 1)$.
@@ -539,6 +536,7 @@ lemma f_symmetry_pow (z : ℂ) (k : ℕ) :
 /-
 The sets U_i are pairwise disjoint.
 -/
+set_option linter.flexible false in
 lemma U_disjoint : Pairwise (fun i j => Disjoint (U i) (U j)) := by
   intro a b hne; cases a ; cases b ; norm_num [ Fin.ext_iff ] at hne ⊢;
   rename_i i hi j hj;
@@ -557,6 +555,8 @@ noncomputable def root_of_index : Fin 6 → ℂ
 | 4 => Complex.exp (Complex.I * (2 * 1 * Real.pi / 5))
 | 5 => Complex.exp (Complex.I * (2 * 2 * Real.pi / 5))
 
+set_option linter.flexible false in
+set_option linter.style.multiGoal false in
 lemma root_of_index_mem_U (i : Fin 6) : root_of_index i ∈ U i := by
   fin_cases i <;> simp +decide [ U ];
   all_goals unfold root_of_index; norm_num [ Complex.norm_exp, Complex.arg ];
@@ -705,6 +705,7 @@ lemma on_ray_implies_large_val (z : ℂ) (h_norm : ‖z‖ ≥ r_c)
 /-
 The sets U_i are open.
 -/
+set_option linter.flexible false in
 lemma isOpen_U (i : Fin 6) : IsOpen (U i) := by
   fin_cases i <;> unfold U <;> norm_num [isOpen_lt, isOpen_const]
   · exact isOpen_lt continuous_norm continuous_const
@@ -849,6 +850,7 @@ lemma sublevelSet_subset_union_U : sublevelSet' ⊆ ⋃ i, U i := by
 If a connected set is contained in a finite union of pairwise disjoint open sets,
 it is contained in one of them.
 -/
+set_option linter.flexible false in
 lemma connected_subset_disjoint_union_open {ι : Type*} [Finite ι] {U : ι → Set ℂ}
     (h_open : ∀ i, IsOpen (U i))
     (h_disjoint : Pairwise (fun i j => Disjoint (U i) (U j))) {S : Set ℂ}
@@ -941,6 +943,7 @@ lemma component_subset_U (i : Fin 6) :
 /-
 The set of connected components containing the roots has cardinality 6.
 -/
+set_option linter.flexible false in
 lemma components'_card : components'.card = 6 := by
   rw [Finset.card_eq_of_bijective]
   · exact fun i hi => connectedComponentIn sublevelSet' (root_of_index ⟨i, hi⟩)
