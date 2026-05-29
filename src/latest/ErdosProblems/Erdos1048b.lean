@@ -724,7 +724,7 @@ theorem my_U_diam (k : ℕ) : Metric.ediam (my_U k) = Metric.ediam (my_g '' my_D
     · unfold my_U
       aesop
 
-#print axioms components_small_final
--- 'Erdos1048b.components_small_final' depends on axioms: [propext, Classical.choice, Quot.sound]
-
 end Erdos1048b
+
+#print axioms Erdos1048b.components_small_final
+-- 'Erdos1048b.components_small_final' depends on axioms: [propext, Classical.choice, Quot.sound]
