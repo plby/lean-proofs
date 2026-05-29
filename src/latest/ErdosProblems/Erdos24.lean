@@ -66,7 +66,6 @@ set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.style.show false
-set_option linter.unusedDecidableInType false
 set_option maxHeartbeats 50000000
 -- Several generated pentagon-density arguments time out at the default heartbeat limit.
 
@@ -2774,17 +2773,19 @@ lemma per_subset_c5_bound {V : Type*} [DecidableEq V]
       (graphAdj5_symm G enumS) (graphAdj5_irrefl G enumS)
       (graphAdj5_triangleFree G hG enumS hinj)
 
-lemma isC5Copy_card {V : Type*} [DecidableEq V] (G : SimpleGraph V)
+lemma isC5Copy_card {V : Type*} (G : SimpleGraph V)
     (S : Finset V) (h : G.IsC5Copy S) : S.card = 5 := by
+  classical
   obtain ⟨f, ⟨hfinj, _⟩, himg⟩ := h
   conv_lhs => rw [show S = Finset.image f Finset.univ from
-    Subsingleton.elim (Classical.decEq V) ‹DecidableEq V› ▸ himg.symm]
+    himg.symm]
   exact Finset.card_image_of_injective _ hfinj
 
-lemma c5_indicator_sum {V : Type*} [Fintype V] [DecidableEq V]
+lemma c5_indicator_sum {V : Type*} [Fintype V]
     (G : SimpleGraph V) :
     ((univ : Finset (Finset V)).filter fun S => S.card = 5).sum
       (fun S => if G.IsC5Copy S then (1 : ℚ) else 0) = G.numC5Copies := by
+  classical
   simp only [sum_boole, Nat.cast_inj]
   unfold SimpleGraph.numC5Copies
   congr 1
@@ -2795,11 +2796,12 @@ lemma c5_indicator_sum {V : Type*} [Fintype V] [DecidableEq V]
 set_option maxHeartbeats 800000 in
 /-- **Key intermediate bound**:
 `numC5Copies ≤ (24/625) * C(n,5) + 8 * n^4`. -/
-theorem numC5Copies_le_turan_plus_error {V : Type*} [Fintype V] [DecidableEq V]
+theorem numC5Copies_le_turan_plus_error {V : Type*} [Fintype V]
     (G : SimpleGraph V) (hG : G.CliqueFree 3) :
     (G.numC5Copies : ℝ) ≤
       (24 / 625 : ℝ) * ((Fintype.card V).choose 5 : ℝ) +
       8 * (Fintype.card V : ℝ) ^ 4 := by
+  classical
   set F := (univ : Finset (Finset V)).filter (fun S => S.card = 5) with hF_def
   have h_lb : -(70 : ℚ) * (Fintype.card V : ℚ) ^ 4 ≤
       F.sum fun S => if h : S.card = 5
@@ -3291,9 +3293,10 @@ labeled 5-cycles (one orbit under D₅), so
 `|{f | IsLabeledC5 f}| = 10 * numC5Copies` and dividing by 10 recovers
 `numC5Copies`.
 -/
-theorem numC5_eq_numC5Copies_of_triangleFree {V : Type*} [Fintype V] [DecidableEq V]
+theorem numC5_eq_numC5Copies_of_triangleFree {V : Type*} [Fintype V]
     (G : SimpleGraph V) (hG : G.CliqueFree 3) :
     G.numC5 = G.numC5Copies := by
+      classical
       have := @labeledC5_fiber_card
       rw [eq_comm, SimpleGraph.numC5, SimpleGraph.numC5Copies]
       rw [Nat.div_eq_of_eq_mul_left]
