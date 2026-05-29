@@ -21,7 +21,6 @@ set_option linter.style.setOption false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.flexible false
-set_option aesop.warn.nonterminal false
 
 namespace Erdos418
 
@@ -157,19 +156,20 @@ lemma phi_mod_4_eq_2_iff_of_even (n : ℕ) (h_even : Even n) (h_gt : 4 < n) :
                       ⟨ Nat.minFac_prime ( by linarith ), Nat.minFac_dvd m,
                         by linarith ⟩ ⟩ )
                   ( Ne.symm h_prime_factors );
-            have h_div4 : ∀ p ∈ Nat.primeFactors m, 2 ∣ Nat.totient p := by
-              intro p hp; rw [ Nat.totient_prime ( Nat.prime_of_mem_primeFactors hp ) ] ; aesop;
-              exact even_iff_two_dvd.mp ( left.even_sub_one <| by
+            have h_div4 : ∀ p : ℕ, Nat.Prime p → p ∣ m → ¬m = 0 → 2 ∣ Nat.totient p := by
+              intro p hp_prime hp_dvd _hm_ne
+              rw [Nat.totient_prime hp_prime]
+              exact even_iff_two_dvd.mp (hp_prime.even_sub_one <| by
                 rintro rfl
-                exact absurd ( hm.of_dvd_nat left_1 ) ( by norm_num ) );
+                exact absurd (hm.of_dvd_nat hp_dvd) (by norm_num))
             have h_div4 : 2 ^ (Nat.primeFactors m).card ∣ Nat.totient m := by
-              rw [ Nat.totient_eq_prod_factorization ] <;> aesop;
+              rw [Nat.totient_eq_prod_factorization hm.pos.ne', Finsupp.prod_mul]
               exact dvd_mul_of_dvd_right ( by
                 simpa [ Finsupp.prod ] using Finset.prod_dvd_prod_of_dvd _ _ fun p hp =>
                   show 2 ∣ p - 1 from by
-                    simpa [ Nat.totient_prime ( Nat.prime_of_mem_primeFactors hp ) ] using
-                      h_div4 p ( Nat.prime_of_mem_primeFactors hp )
-                        ( Nat.dvd_of_mem_primeFactors hp ) ( by aesop ) ) _;
+                    rw [← Nat.totient_prime (Nat.prime_of_mem_primeFactors hp)]
+                    exact h_div4 p (Nat.prime_of_mem_primeFactors hp)
+                      (Nat.dvd_of_mem_primeFactors hp) hm.pos.ne' ) _;
             exact dvd_trans ( pow_dvd_pow _ h_prime_factors ) h_div4;
           omega;
         rcases k with ( _ | k ) <;> simp_all +decide [ Nat.totient_prime_pow ];
@@ -323,18 +323,20 @@ lemma totient_le_half_of_even (n : ℕ) (h_even : Even n) (h_pos : 0 < n) : n.to
   have h_subset :
       Finset.filter (fun a => Nat.Coprime (2 * k) a) (Finset.range (2 * k)) ⊆
         Finset.image (fun a => 2 * a + 1) (Finset.range k) := by
-    intro a ha; aesop;
+    intro a ha
+    rw [Finset.mem_filter] at ha
+    rw [Finset.mem_range] at ha
+    rw [Finset.mem_image]
     exact ⟨ a / 2,
       by
-        linarith [ Nat.mod_add_div a 2,
-          show a % 2 = 1 from Nat.mod_two_ne_zero.mp fun h => by
-            have := Nat.dvd_gcd ( dvd_mul_right 2 k ) ( Nat.dvd_of_mod_eq_zero h )
-            aesop ],
+        exact Finset.mem_range.mpr <|
+          (Nat.div_lt_iff_lt_mul (by decide : 0 < 2)).2 (by
+            simpa [mul_comm] using ha.1),
       by
-        linarith [ Nat.mod_add_div a 2,
-          show a % 2 = 1 from Nat.mod_two_ne_zero.mp fun h => by
+        have hmod : a % 2 = 1 := Nat.mod_two_ne_zero.mp fun h => by
             have := Nat.dvd_gcd ( dvd_mul_right 2 k ) ( Nat.dvd_of_mod_eq_zero h )
-            aesop ] ⟩;
+            aesop
+        linarith [Nat.mod_add_div a 2, hmod] ⟩;
   exact le_trans ( Finset.card_le_card h_subset ) ( Finset.card_image_le.trans ( by norm_num ) )
 
 lemma n_le_four_m (n : ℕ) (h : n - n.totient = 2 * m_BS) : n ≤ 4 * m_BS := by
@@ -368,11 +370,13 @@ lemma n_le_four_m (n : ℕ) (h : n - n.totient = 2 * m_BS) : n ≤ 4 * m_BS := b
             n / 2 := by
         rw [ Finset.card_eq_of_bijective ];
         use fun i hi => 2 * i + 1;
-        · aesop;
+        · intro a ha
+          rw [Finset.mem_filter] at ha
+          rw [Finset.mem_range] at ha
           exact ⟨ a / 2,
             by
               linarith [ Nat.mod_add_div a 2,
-                Nat.div_mul_cancel ( even_iff_two_dvd.mp h_odd ) ],
+                Nat.div_mul_cancel ( even_iff_two_dvd.mp (by simpa using h_odd) ) ],
             by linarith [ Nat.mod_add_div a 2 ] ⟩;
         · exact fun i hi => Finset.mem_filter.mpr
             ⟨ Finset.mem_range.mpr ( by linarith [ Nat.div_mul_le_self n 2 ] ),
@@ -502,8 +506,8 @@ lemma solution_squarefree (m : ℕ) (h : IsSolution m) : Squarefree m := by
         -- Since $p \mid m$ and $p \mid \phi(m)$, we have
         -- $p \mid 2m - \phi(m) = 2m_BS$ by divisibility.
         have hp_div_2m_BS : p ∣ 2 * m - m.totient := by
-          exact Nat.dvd_sub ( dvd_mul_of_dvd_right hp_div_m _ ) hp_div_phi;
-        cases h ; aesop;
+          exact Nat.dvd_sub ( dvd_mul_of_dvd_right hp_div_m _ ) hp_div_phi
+        simpa [h.2] using hp_div_2m_BS
       -- Since $p$ is odd and $p \mid 2 * m_BS$, it must divide $m_BS$
       -- because $p$ cannot divide $2$.
       have hp_div_m_BS : p ∣ 2 * m_BS → p ≠ 2 → p ∣ m_BS := by
@@ -517,11 +521,10 @@ lemma solution_squarefree (m : ℕ) (h : IsSolution m) : Squarefree m := by
             have := Nat.le_of_dvd ( by decide ) h
             interval_cases p <;> trivial;
         -- Apply the lemma that if p divides 2*m_BS and p is not 2, then p divides m_BS.
-        apply hp_div_m_BS hp_div_2m_BS hp_ne_2;
-      cases h ; aesop;
-      exact hp_div_m_BS ( by
+        exact hp_div_m_BS hp_div_2m_BS hp_ne_2
+      exact hp_div_m_BS hp_div_2m_BS ( by
         rintro rfl
-        exact absurd ( left.of_dvd_nat hp_div_m ) ( by norm_num ) );
+        exact absurd (h.1.of_dvd_nat hp_div_m) (by norm_num))
     have := Nat.prime_dvd_prime_iff_eq hp_prime m_BS_prime; aesop;
   -- Since $m_BS^2 \mid m$, we have $m \geq m_BS^2$.
   have hm_ge_m_BS_sq : m ≥ m_BS^2 := by
@@ -572,15 +575,20 @@ lemma n_not_div_3 (m : ℕ) (h : IsSolution m) : ¬ 3 ∣ 2 * m := by
     obtain ⟨k, rfl⟩ : ∃ k, m = 3 * k := h_div_3;
     -- Since m is squarefree, k is not divisible by 3.
     have h_k_not_div_3 : ¬(3 ∣ k) := by
-      have := solution_squarefree ( 3 * k ) h; rw [ Nat.squarefree_mul_iff ] at this; aesop;
-      exact absurd ( Nat.dvd_gcd ( by decide : 3 ∣ 3 ) a ) ( by aesop );
+      have hsq := solution_squarefree (3 * k) h
+      rw [Nat.squarefree_mul_iff] at hsq
+      exact fun h3k => by
+        have hdiv : 3 ∣ Nat.gcd 3 k := Nat.dvd_gcd (by decide : 3 ∣ 3) h3k
+        rw [hsq.1] at hdiv
+        norm_num at hdiv
     -- Since $m$ is squarefree, $k$ is not divisible by 3, and thus $\phi(k) \neq 2 \mod 3$.
     have h_phi_k_ne_2_mod_3 : (Nat.totient k) % 3 ≠ 2 := by
       -- Since $k$ is squarefree and not divisible by 3, we can apply
       -- totient_mod_3_of_squarefree_not_dvd_3.
       have h_k_squarefree : Squarefree k := by
-        have := solution_squarefree ( 3 * k ) h;
-        rw [ Nat.squarefree_mul_iff ] at this ; aesop;
+        have hsq := solution_squarefree (3 * k) h
+        rw [Nat.squarefree_mul_iff] at hsq
+        exact hsq.2.2
       exact totient_mod_3_of_squarefree_not_dvd_3 k h_k_squarefree h_k_not_div_3;
     unfold IsSolution at h;
     rw [ Nat.totient_mul ] at h <;> simp_all +arith +decide [ Nat.totient_prime ];
@@ -603,10 +611,11 @@ lemma n_mod_12_eq_2 (m : ℕ) (h : IsSolution m) : 2 * m % 12 = 2 := by
     -- $\phi(k) \equiv 2 \mod 3$, a contradiction.
     have h_contra : Nat.totient k % 3 = 2 := by
       have h_contra : 3 * k - Nat.totient k = m_BS := by
-        cases h ; aesop;
-        rw [ Nat.totient_mul ] at right;
-        · norm_num [ Nat.totient_prime ] at * ; omega;
-        · assumption;
+        have h_eq : 2 * (3 * k) - Nat.totient (3 * k) = 2 * m_BS := by
+          simpa [hk.1] using h.2
+        rw [Nat.totient_mul (by simpa [Nat.Coprime] using hk.2)] at h_eq
+        norm_num [Nat.totient_prime] at h_eq
+        omega
       rw [ Nat.sub_eq_iff_eq_add ] at h_contra;
       · have := congr_arg ( · % 3 ) h_contra
         norm_num [ Nat.add_mod, Nat.mul_mod ] at this
@@ -614,8 +623,10 @@ lemma n_mod_12_eq_2 (m : ℕ) (h : IsSolution m) : 2 * m % 12 = 2 := by
         interval_cases Nat.totient k % 3 <;> trivial;
       · exact le_trans ( Nat.totient_le _ ) ( by linarith );
     exact absurd ( totient_mod_3_of_squarefree_not_dvd_3 k ( by
-      have := solution_squarefree m h; aesop;
-      exact this.squarefree_of_dvd ( dvd_mul_left _ _ ) ) ( by
+      have hsq_m := solution_squarefree m h
+      exact hsq_m.squarefree_of_dvd (by
+        rw [hk.1]
+        exact dvd_mul_left _ _) ) ( by
       exact fun h => by
         have := Nat.dvd_gcd ( by decide : 3 ∣ 3 ) h
         simp_all +decide ; ) ) ( by aesop );
@@ -659,10 +670,11 @@ lemma m_mod_6_eq_1 (m : ℕ) (h : IsSolution m) : m % 6 = 1 := by
     -- $\phi(k) \equiv 2 \mod 3$, a contradiction.
     have h_contra : Nat.totient k % 3 = 2 := by
       have h_contra : 3 * k - Nat.totient k = m_BS := by
-        cases h ; aesop;
-        rw [ Nat.totient_mul ] at right;
-        · norm_num [ Nat.totient_prime ] at * ; omega;
-        · assumption;
+        have h_eq : 2 * (3 * k) - Nat.totient (3 * k) = 2 * m_BS := by
+          simpa [hk.1] using h.2
+        rw [Nat.totient_mul (by simpa [Nat.Coprime] using hk.2)] at h_eq
+        norm_num [Nat.totient_prime] at h_eq
+        omega
       rw [ Nat.sub_eq_iff_eq_add ] at h_contra;
       · have := congr_arg ( · % 3 ) h_contra
         norm_num [ Nat.add_mod, Nat.mul_mod ] at this
@@ -670,8 +682,10 @@ lemma m_mod_6_eq_1 (m : ℕ) (h : IsSolution m) : m % 6 = 1 := by
         interval_cases Nat.totient k % 3 <;> trivial;
       · exact le_trans ( Nat.totient_le _ ) ( by linarith );
     exact absurd ( totient_mod_3_of_squarefree_not_dvd_3 k ( by
-      have := solution_squarefree m h; aesop;
-      exact this.squarefree_of_dvd ( dvd_mul_left _ _ ) ) ( by
+      have hsq_m := solution_squarefree m h
+      exact hsq_m.squarefree_of_dvd (by
+        rw [hk.1]
+        exact dvd_mul_left _ _) ) ( by
       exact fun h => by
         have := Nat.dvd_gcd ( by decide : 3 ∣ 3 ) h
         simp_all +decide ; ) ) ( by aesop );
@@ -742,10 +756,15 @@ lemma computation_lemma : ¬ ∃ m, IsSolution m := by
       intro m hm hm_odd hm_sq hm_not_div3
       have h_phi : Nat.totient m = m * (∏ p ∈ Nat.primeFactors m, (1 - 1 / p : ℚ)) := by
         have := @Nat.totient_eq_mul_prod_factors m; aesop;
-      have h_check := computation_lemma_check
-      contrapose! h_check;
-      use m; aesop; norm_cast;
-      rw [ ← h_check, Nat.cast_sub ] <;> norm_num [ h_phi ] ; omega;
+      have h_check := computation_lemma_check m hm hm_odd hm_sq hm_not_div3
+      intro h_eq
+      apply h_check
+      have h_eq_cast : ((2 * m - m.totient : ℕ) : ℚ) = 2 * (m_BS : ℚ) := by
+        exact_mod_cast h_eq
+      rw [← h_phi, ← h_eq_cast]
+      rw [Nat.cast_sub]
+      · norm_num
+      · exact le_trans (Nat.totient_le m) (by omega)
     assumption;
   contrapose! h_check;
   exact ⟨ h_check.choose,
