@@ -734,7 +734,7 @@ lemma parallelogram_of_rect (a b c d : ℝ²)
         norm_num [
           left_3, right_1, right_2, left_2, inner_add_left, inner_add_right,
           inner_smul_left, inner_smul_right] at this
-        aesop
+        simp_all only [Fin.isValue, zero_smul, add_zero, smul_eq_zero, or_false, Fin.mk_one]
     have h_lin_comb :
         ∀ (v : EuclideanSpace ℝ (Fin 2)),
           (∀ i : Fin 2, inner ℝ v (![c - b, d - c] i) = 0) → v = 0 := by
@@ -757,10 +757,23 @@ lemma parallelogram_of_rect (a b c d : ℝ²)
         intro hv
         have h_subspace : Submodule.span ℝ (Set.range ![c - b, d - c]) = ⊤ := by
           refine Submodule.eq_top_of_finrank_eq ?_
-          rw [finrank_span_eq_card] <;> aesop
-        aesop
+          rw [finrank_span_eq_card]
+          · simp_all only [Nat.succ_eq_add_one, Nat.reduceAdd, Fin.forall_fin_two,
+              Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one,
+              Matrix.cons_val_fin_one, Matrix.range_cons, Matrix.range_empty,
+              Set.union_empty, Set.union_singleton, zero_add, Fintype.card_fin,
+              finrank_euclideanSpace]
+          · simp_all only [Nat.succ_eq_add_one, Nat.reduceAdd, Fin.forall_fin_two,
+              Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one,
+              Matrix.cons_val_fin_one, Matrix.range_cons, Matrix.range_empty,
+              Set.union_empty, Set.union_singleton]
+        rw [h_subspace] at hv
+        simpa using hv
       exact h_ortho ‹_›
-    exact sub_eq_zero.mp ( h_lin_comb _ fun i => by fin_cases i <;> tauto )
+    exact sub_eq_zero.mp (h_lin_comb _ fun i => by
+      fin_cases i
+      · tauto
+      · tauto)
 
 /-
 If a, b, c, d form a rectangle in R^2 with area 1 (satisfying the Erdos189
@@ -796,7 +809,11 @@ lemma is_rectangle_of_erdos (a b c d : ℝ²)
       simp_all +decide [toComplex]
     · intro heq
       simp_all +decide [Fin.forall_fin_succ, Complex.ext_iff]
-      norm_num [show a = c from by ext i; fin_cases i <;> aesop] at *
+      norm_num [show a = c from by
+        ext i
+        fin_cases i
+        · aesop
+        · aesop] at *
     · intro h
       simp_all +decide [Fin.forall_fin_succ, Complex.ext_iff]
       unfold toComplex at h
@@ -833,7 +850,7 @@ lemma is_rectangle_of_erdos (a b c d : ℝ²)
             · assumption
             · assumption
           rw [h_inner, real_inner_comm]
-          aesop
+          simp_all only [Fin.isValue]
         simp_all +decide [toComplex, inner]
         linarith
       · unfold toComplex
