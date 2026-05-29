@@ -40,11 +40,6 @@ import Mathlib
 
 import ErdosProblems.Erdos368b
 
-set_option linter.style.setOption false
-set_option linter.flexible false
-set_option linter.style.induction false
-set_option linter.style.multiGoal false
-
 namespace Erdos649
 
 /-
@@ -56,6 +51,8 @@ def P (n : ℕ) : ℕ := (n.primeFactors).max.getD 0
 It is not true that for any two primes $p,q$, there exists some integer $n$ such that
 $P(n)=p$ and $P(n+1)=q$. Specifically, there is no solution for $p=2$ and $q=7$.
 -/
+set_option linter.flexible false in
+set_option linter.style.multiGoal false in
 theorem conjecture_false :
     ¬ ∀ (p q : ℕ), p.Prime → q.Prime → ∃ (n : ℕ),
       P n = p ∧ P (n + 1) = q := by
@@ -91,6 +88,7 @@ theorem conjecture_false :
   have := Nat.mod_lt k zero_lt_three;
   interval_cases k % 3 <;> norm_num at *;
 
+set_option linter.flexible false in
 theorem solutions_finite_without_mahler (p q : ℕ) : {n | P n = p ∧ P (n + 1) = q}.Finite := by
   -- Let $S$ be the set of $n$ such that $P(n) = p$ and $P(n+1) = q$.
   set S := {n : ℕ | Erdos649.P n = p ∧ Erdos649.P (n + 1) = q};
@@ -245,6 +243,7 @@ lemma jacobi_two_q_eq_one (q : ℕ) (hq : q.Prime)
 /-
 If l <= p and q = -1 mod 4p#, then (l/q) = 1.
 -/
+set_option linter.flexible false in
 lemma jacobi_of_factor_le_p (p q l : ℕ) (hp : p.Prime) (hq : q.Prime) (hl : l.Prime)
     (h_le : l ≤ p) (h_q_mod : (q : ℤ) ≡ -1 [ZMOD (4 * primorial p)]) :
     jacobiSym l q = 1 := by
@@ -299,6 +298,8 @@ lemma jacobi_of_factor_le_p (p q l : ℕ) (hp : p.Prime) (hq : q.Prime) (hl : l.
 /-
 If (l/q)=1 for all prime factors l of n, then (n/q)=1.
 -/
+set_option linter.flexible false in
+set_option linter.style.induction false in
 lemma jacobi_eq_one_of_prime_factors_eq_one {n q : ℕ} (hn : n ≠ 0)
     (h : ∀ l, l.Prime → l ∣ n → jacobiSym l q = 1) : jacobiSym n q = 1 := by
       induction' n using Nat.strongRecOn with n ih;
@@ -334,6 +335,7 @@ lemma jacobi_of_P_eq_p (p q n : ℕ) (hp : p.Prime) (hq : q.Prime) (hn : n ≠ 0
 /-
 If P(n)=p and q = -1 mod 4p#, then n is not -1 mod q.
 -/
+set_option linter.style.multiGoal false in
 lemma n_not_equiv_neg_one_mod_q (p q n : ℕ) (hp : p.Prime) (hq : q.Prime) (hn : n ≠ 0)
     (h_max_prime : P n = p) (h_q_mod : (q : ℤ) ≡ -1 [ZMOD (4 * primorial p)]) :
     ¬ ((n : ℤ) ≡ -1 [ZMOD q]) := by
@@ -419,6 +421,7 @@ private lemma P_zero_eq_zero : P 0 = 0 := by
   change (0 : ℕ) = 0
   rfl
 
+set_option linter.style.multiGoal false in
 lemma P_eq_two_iff_pow_two {m : ℕ} (hm : m ≠ 0) : P m = 2 ↔ ∃ k > 0, m = 2 ^ k := by
   constructor <;> intro h;
   · -- If $P(m)=2$, then the greatest prime factor of $m$ is 2. This means all prime
@@ -446,6 +449,7 @@ lemma P_eq_two_iff_pow_two {m : ℕ} (hm : m ≠ 0) : P m = 2 ↔ ∃ k > 0, m =
 /-
 If $18 \mid k$, then $73 \mid 2^k - 1$.
 -/
+set_option linter.style.induction false in
 lemma seventy_three_dvd_two_pow_sub_one_of_eighteen_dvd {k : ℕ} (hk : 18 ∣ k) :
     73 ∣ 2 ^ k - 1 := by
   -- Since $18 \mid k$, we can write $k = 18m$ for some integer $m$.
@@ -472,6 +476,7 @@ lemma eighteen_dvd_k_of_pow_two_mod_nineteen_eq_one {k : ℕ} (h : 2 ^ k ≡ 1 [
 /-
 There is no integer $n$ such that $P(n)=19$ and $P(n+1)=2$.
 -/
+set_option linter.flexible false in
 theorem sampaio_counterexample : ¬ ∃ n, P n = 19 ∧ P (n + 1) = 2 := by
   -- Assume there exists $n$ such that $P(n)=19$ and $P(n+1)=2$.
   by_contra h
@@ -581,6 +586,7 @@ lemma order_properties_of_neg_one {n : ℕ} (hn : n > 2) {a : ZMod n} {k : ℕ}
 If $\ord_{q_1}(a)=\ord_{q_2}(a)$ and $a^k \equiv -1 \pmod{q_1}$, then
 $a^k \equiv -1 \pmod{q_2}$.
 -/
+set_option linter.flexible false in
 lemma same_order_neg_one_power {q1 q2 : ℕ} (hq2 : q2.Prime) (h_odd1 : q1 > 2)
   (a : ℕ) (k : ℕ)
   (h_ord : orderOf (a : ZMod q1) = orderOf (a : ZMod q2))
@@ -659,6 +665,7 @@ lemma case1_impossible {q1 q2 n : ℕ} (hq1 : q1.Prime) (hq2 : q2.Prime)
 /-
 Under the assumptions, it is impossible that $P(n)=q_1$ and $P(n+1)=2$.
 -/
+set_option linter.flexible false in
 lemma case2_impossible {q1 q2 n : ℕ} (hq1 : q1.Prime) (hq2 : q2.Prime)
   (h_odd1 : q1 > 2)
   (h_q1_lt_q2 : q1 < q2)
@@ -798,6 +805,7 @@ lemma N_factors_coprime {p : ℕ} (hp : Odd p) :
 Neither $A$ nor $B$ is divisible by 3, and exactly one of them is divisible by 5
 (but not 25).
 -/
+set_option linter.flexible false in
 lemma N_factors_divisibility {p : ℕ} (hp : p.Prime) (hp5 : p > 5) :
   let r := (p + 1) / 2
   let A := 2 ^ p - 2 ^ r + 1
@@ -900,6 +908,7 @@ lemma exists_prime_gt_five {n : ℕ} (h_odd : Odd n) (h_not_3 : ¬ 3 ∣ n)
 Let $p>5$ be a prime and set $N=2^{2p}+1$. Then $N$ has at least two distinct prime
 divisors greater than $5$.
 -/
+set_option linter.flexible false in
 lemma two_large_primes {p : ℕ} (hp : p.Prime) (hp5 : p > 5) :
   ∃ q1 q2 : ℕ, q1.Prime ∧ q2.Prime ∧ q1 ≠ q2 ∧ q1 > 5 ∧ q2 > 5 ∧
     q1 ∣ (2 ^ (2 * p) + 1) ∧ q2 ∣ (2 ^ (2 * p) + 1) := by
@@ -1009,6 +1018,7 @@ lemma two_large_primes {p : ℕ} (hp : p.Prime) (hp5 : p > 5) :
 Let $p>5$ be a prime, let $N=2^{2p}+1$, and let $q>5$ be a prime divisor of $N$.
 Then $\ord_q(2)=4p$.
 -/
+set_option linter.flexible false in
 lemma order_4p {p q : ℕ} (hp : p.Prime) (hp5 : p > 5) (hq : q.Prime)
     (hq5 : q > 5) (h_div : q ∣ 2 ^ (2 * p) + 1) :
   orderOf (2 : ZMod q) = 4 * p := by
@@ -1047,6 +1057,7 @@ lemma order_4p {p q : ℕ} (hp : p.Prime) (hp5 : p > 5) (hq : q.Prime)
 For every prime $p > 5$, there exists a prime $q$ such that $\{2, q\}$ is a strange
 pair and $\ord_q(2) = 4p$.
 -/
+set_option linter.flexible false in
 lemma exists_strange_q_for_p {p : ℕ} (hp : p.Prime) (hp5 : p > 5) :
   ∃ q, StrangePair 2 q ∧ orderOf (2 : ZMod q) = 4 * p := by
     obtain ⟨ q1, q2, hq1, hq2, hne, hgt1, hgt2, hdvd1, hdvd2 ⟩ :=
