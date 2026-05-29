@@ -20,7 +20,6 @@ import Mathlib
 
 set_option linter.style.setOption false
 set_option linter.style.openClassical false
-set_option linter.unusedDecidableInType false
 set_option aesop.warn.nonterminal false
 
 namespace Erdos31
@@ -260,10 +259,11 @@ lemma list_getD_filter_sum_eq (s : ℕ) :
       · simp [hhead]
         simpa [Finset.sum_filter] using ih
 
-lemma greedy_step_bound {I J : Finset ℕ} {A : Set ℕ} [DecidablePred (· ∈ A)] {k s : ℕ}
+lemma greedy_step_bound {I J : Finset ℕ} {A : Set ℕ} {k s : ℕ}
     (h_cover : ∀ u ∈ I, k ≤ (J.filter (fun b ↦ u ∈ A + {b})).card)
     (h_max : ∀ b ∈ J, (I.filter (fun u ↦ u ∈ A + {b})).card ≤ s) :
     I.card * k ≤ J.card * s := by
+  classical
   -- By summing h_cover over all u in I, we get I.card * k ≤ sum_{u in I}
   -- (number of b in J such that u is in A + {b}).
   have h_sum_cover :
@@ -284,7 +284,7 @@ lemma greedy_step_bound {I J : Finset ℕ} {A : Set ℕ} [DecidablePred (· ∈ 
 
 
 lemma exists_greedy_list_unsorted {I J : Finset ℕ} {A : Set ℕ}
-    [DecidablePred (· ∈ A)] (k : ℕ) (hk : 1 ≤ k)
+    (k : ℕ) (hk : 1 ≤ k)
     (h_cover : ∀ u ∈ I, k ≤ (J.filter (fun b ↦ u ∈ A + {b})).card) :
     ∃ (B : Finset ℕ) (L : List ℕ),
       B ⊆ J ∧
@@ -293,9 +293,10 @@ lemma exists_greedy_list_unsorted {I J : Finset ℕ} {A : Set ℕ}
       L.sum = I.card ∧
       (∀ x ∈ L, 1 ≤ x) ∧
       (∀ s, (L.filter (· ≤ s)).sum ≤ (J.card * s) / k) := by
+  classical
   revert h_cover hk A J k
   induction' I using Finset.strongInduction with I ih
-  intro J A _ k hk h_cover
+  intro J A k hk h_cover
   by_cases hI : I = ∅
   · use ∅, ∅
     simp [hI]
@@ -578,10 +579,11 @@ noncomputable def max_gain (I J : Finset ℕ) (A : Set ℕ) [DecidablePred (· �
   (J.image (fun b ↦ (I.filter (fun u ↦ u ∈ A + {b})).card)).max.getD 0
 
 lemma greedy_cover_size {I J : Finset ℕ} {A : Set ℕ}
-    [DecidablePred (· ∈ A)] (k : ℕ) (hk : 1 ≤ k)
+    (k : ℕ) (hk : 1 ≤ k)
     (h_cover : ∀ u ∈ I, k ≤ (J.filter (fun b ↦ u ∈ A + {b})).card) :
     ∃ B : Finset ℕ, B ⊆ J ∧ (I : Set ℕ) ⊆ A + (B : Set ℕ) ∧
     (B.card : ℝ) ≤ 2 * (I.card : ℝ) / k + (J.card : ℝ) / k * Real.log k := by
+  classical
   -- Apply the unsorted greedy-list construction to obtain the set B and the list L.
   obtain ⟨B, L, hB_sub, hI_cover, hB_card, hL_sum, hL_pos, hL_bound⟩ :=
     exists_greedy_list_unsorted k hk h_cover
