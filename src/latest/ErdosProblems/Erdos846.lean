@@ -1132,7 +1132,8 @@ lemma finite_ramsey (K : ℕ) : ∃ N : ℕ,
   use R_num K + 1
   intro c
   let V := Finset.range (R_num K + 1)
-  have hV : V.card ≥ R_num K := by aesop
+  have hV : V.card ≥ R_num K := by
+    simp [V]
   obtain ⟨i, hi, j, hj, k, hk, hij, hjk, hc1, hc2⟩ := finite_ramsey_ind K V c hV
   use i, j, k
   refine ⟨hij, hjk, ?_, hc1, hc2⟩
