@@ -3186,7 +3186,7 @@ theorem erdos519 {n : ℕ} (hn : 0 < n) (z : Fin n → ℂ)
   calc 1 / 6 < ‖powerSum z (↑k + 1)‖ / ‖z i₀‖ ^ (↑k + 1) := hk
     _ ≤ ‖powerSum z (↑k + 1)‖ := div_le_self (norm_nonneg _) (one_le_pow₀ hi₀_ge_one)
 
-#print axioms erdos519
--- 'Erdos519.erdos519' depends on axioms: [propext, Classical.choice, Quot.sound]
-
 end Erdos519
+
+#print axioms Erdos519.erdos519
+-- 'Erdos519.erdos519' depends on axioms: [propext, Classical.choice, Quot.sound]
