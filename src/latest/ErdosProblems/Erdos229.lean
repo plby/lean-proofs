@@ -1672,7 +1672,7 @@ theorem erdos_229 :
   apply transcendental_of_transcendentalEntire f ⟨hf.2.1, by
     exact fun ⟨ p, hp ⟩ => hf.1 ⟨ p, funext fun z => by simpa using hp z ⟩⟩
 
-#print axioms erdos_229
--- 'Erdos229.erdos_229' depends on axioms: [propext, Classical.choice, Quot.sound]
-
 end Erdos229
+
+#print axioms Erdos229.erdos_229
+-- 'Erdos229.erdos_229' depends on axioms: [propext, Classical.choice, Quot.sound]
