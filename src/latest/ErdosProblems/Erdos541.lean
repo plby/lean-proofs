@@ -41,7 +41,6 @@ set_option linter.style.cdot false
 set_option linter.style.cases false
 set_option linter.flexible false
 set_option linter.unnecessarySimpa false
-set_option linter.unusedDecidableInType false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
 
@@ -2528,10 +2527,11 @@ lemma claim_2_B_structure {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) (l : 
 /-
 Swapping adjacent elements in a list preserves prefix sums at all indices except possibly the one between the swapped elements.
 -/
-lemma prefix_sums_swap_almost_same {G : Type*} [AddCommGroup G] [DecidableEq G]
+lemma prefix_sums_swap_almost_same {G : Type*} [AddCommGroup G]
     (L : List G) (i : ℕ) (h : i + 1 < L.length) :
     let L' := L.set i (L.get ⟨i + 1, h⟩) |>.set (i + 1) (L.get ⟨i, by omega⟩)
     ∀ j, j ≠ i + 1 → (L'.take j).sum = (L.take j).sum := by
+      classical
       intro L' j hj
       generalize_proofs at *;
       induction' j with j ih generalizing i;
@@ -2944,10 +2944,11 @@ If every permutation of a list of length at least 3 is piecewise constant, then 
 -/
 set_option maxHeartbeats 8000000 in
 -- This generated list-permutation proof needs a larger heartbeat budget.
-lemma piecewise_constant_perm_implies_constant {α : Type*} [DecidableEq α] (L : List α)
+lemma piecewise_constant_perm_implies_constant {α : Type*} (L : List α)
   (h_len : L.length ≥ 3)
   (h_all_perm : ∀ L' : List α, List.Perm L' L → IsPiecewiseConstant L') :
   ∃ c, ∀ x ∈ L, x = c := by
+    classical
     -- By contradiction, assume there exist distinct elements $u$ and $v$ in $L$.
     by_contra h_nonconst
     obtain ⟨u, v, hu, hv, huv⟩ : ∃ u v : α, u ≠ v ∧ u ∈ L ∧ v ∈ L := by
@@ -3372,9 +3373,10 @@ theorem thm_main {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p))
 /-
 If T is a sub-multiset of the values of a, then T corresponds to a subset of indices.
 -/
-  lemma subset_indices_of_submultiset {α : Type*} [DecidableEq α] {n : ℕ} (a : Fin n → α)
+  lemma subset_indices_of_submultiset {α : Type*} {n : ℕ} (a : Fin n → α)
     (T : Multiset α) (hT : T ≤ Multiset.ofList (List.ofFn a)) :
     ∃ I : Finset (Fin n), T = Multiset.map a I.val := by
+      classical
       revert T;
       induction' n with n ih;
       · intro T hT
