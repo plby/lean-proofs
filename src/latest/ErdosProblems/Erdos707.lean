@@ -18,8 +18,6 @@ URLs:
 -/
 import Mathlib
 
-set_option linter.unusedDecidableInType false
-
 namespace Erdos707
 
 /-- A Sidon set `A` is a set where all pairwise sums `i + j` are unique,
@@ -175,7 +173,7 @@ lemma ncard_diff_singleton_zero
 
 /-- Same statement, written with a set-builder predicate `{x ∈ S | x ≠ 0}`. -/
 lemma ncard_subset_ne_zero
-  {α : Type*} [Zero α] [DecidableEq α]
+  {α : Type*} [Zero α]
   {S : Set α} {v : ℕ}
   (hfin : S.Finite) (hcard : S.ncard = v) (h0 : (0 : α) ∈ S) :
   ({x : α | x ∈ S ∧ x ≠ 0}).ncard = v - 1 := by
@@ -210,7 +208,7 @@ lemma ncard_nonzero_zmod (v : ℕ) [NeZero v] :
 
 /-- If `B` is infinite, then `B.offDiag` is infinite. -/
 lemma infinite_offDiag_of_infinite
-  {α : Type*} [DecidableEq α] {B : Set α} (hB : B.Infinite) :
+  {α : Type*} {B : Set α} (hB : B.Infinite) :
   (B.offDiag).Infinite := by
   classical
   -- pick a point b₀ ∈ B
@@ -295,7 +293,7 @@ lemma IsPerfectDifferenceSetModulo.finite
 
 /-- Seemingly an extremely useful lemma? -/
 lemma ncard_toFinset
-  {α : Type*} [DecidableEq α] {S : Set α}
+  {α : Type*} {S : Set α}
   (hS : S.Finite) :
   S.ncard = hS.toFinset.card := by
   classical
@@ -304,7 +302,7 @@ lemma ncard_toFinset
 /-- If a finset `T` has cardinality `x`, then `T.offDiag` has cardinality `x*x - x`
 (= `x * (x - 1)`). -/
 lemma card_offDiag_of_card
-  {α : Type*} [DecidableEq α] {T : Finset α} {x : ℕ}
+  {α : Type*} {T : Finset α} {x : ℕ}
   (hx : T.card = x) :
   T.offDiag.card = x * x - x := by
   classical
@@ -314,14 +312,14 @@ lemma card_offDiag_of_card
 
 /-- As sets, `(↑T : Set α).offDiag = ↑(T.offDiag)`. -/
 lemma coe_offDiag_finset
-  {α : Type*} [DecidableEq α] (T : Finset α) :
+  {α : Type*} (T : Finset α) :
   ((↑T : Set α).offDiag : Set (α × α)) = (↑(T.offDiag) : Set (α × α)) := by
   simp
 
 /-- If `B` is finite with cardinality `x`, then `B.offDiag` has cardinality `x*x - x`
 (= `x * (x - 1)`). -/
 lemma ncard_offDiag_of_card
-  {α : Type*} [DecidableEq α]
+  {α : Type*}
   {B : Set α} {x : ℕ}
   (hfin : B.Finite) (hcard : B.ncard = x) :
   (B.offDiag).ncard = x * x - x := by
@@ -354,7 +352,7 @@ lemma ncard_offDiag_of_card
 
 /-- If `B` is finite with cardinality `q + 1`, then `B.offDiag` has cardinality `q*q + q`. -/
 lemma ncard_offDiag_of_card_succ
-  {α : Type*} [DecidableEq α]
+  {α : Type*}
   {B : Set α} {q : ℕ}
   (hfin : B.Finite) (hcard : B.ncard = q + 1) :
   (B.offDiag).ncard = q*q + q := by
@@ -3100,7 +3098,6 @@ then `f` is bijective. -/
 lemma bijective_linesThrough_to_absPoints
   {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L] [Finite P] [Finite L]
   (C : Polarity P L) (q : ℕ) {p : P}
-  [DecidablePred (fun m : L => p ∈ m)]
   (horder : Configuration.ProjectivePlane.order P L = q)
   (f : ({m : L // p ∈ m}) → {x : P // x ∈ polarity_absolutePoints C})
   (hf : Function.Injective f)
@@ -3170,12 +3167,12 @@ lemma exists_bijective_map_absPoints_to_linesThrough_of_order_odd
     (horder : Configuration.ProjectivePlane.order P L = q)
     (hq_odd : q % 2 = 1)
     {p : P} (hp : p ∈ polarity_absolutePoints C)
-    (hAbsPts : (polarity_absolutePoints C).ncard = q + 1)
-    [DecidablePred (fun m : L => p ∈ m)] :
+    (hAbsPts : (polarity_absolutePoints C).ncard = q + 1) :
   ∃ f :
       ({x : P // x ∈ polarity_absolutePoints C}) → {m : L // p ∈ m},
       Function.Bijective f
       ∧ ∀ (x : {x : P // x ∈ polarity_absolutePoints C}), (x : P) ∈ (f x : L) := by
+  classical
   letI := Fintype.ofFinite P
   letI := Fintype.ofFinite L
   letI : Fintype ↥(polarity_absolutePoints C) := Fintype.ofFinite _
@@ -3980,8 +3977,7 @@ lemma exists_bijective_map_absPoints_to_linesThrough_of_order_even
     (horder : Configuration.ProjectivePlane.order P L = q)
     (hq_even : q % 2 = 0)
     {p : P} (hp_notabs : p ∉ polarity_absolutePoints C)
-    (hAbsPts : (polarity_absolutePoints C).ncard = q + 1)
-    [DecidablePred (fun m : L => p ∈ m)] :
+    (hAbsPts : (polarity_absolutePoints C).ncard = q + 1) :
   ∃ f :
       ({x : P // x ∈ polarity_absolutePoints C}) → {m : L // p ∈ m},
       Function.Bijective f
@@ -4029,8 +4025,7 @@ lemma abs_of_third_point_on_line_with_two_absPoints_of_order_even
     (hp₂_abs : p₂ ∈ polarity_absolutePoints C)
     (hp₁ℓ : p₁ ∈ ℓ) (hp₂ℓ : p₂ ∈ ℓ)
     (hp₁_ne_hp₂ : p₁ ≠ p₂)
-    (hpℓ : p ∈ ℓ) (hp_ne₁ : p ≠ p₁) (hp_ne₂ : p ≠ p₂)
-    [DecidablePred (fun m : L => p ∈ m)] :
+    (hpℓ : p ∈ ℓ) (hp_ne₁ : p ≠ p₁) (hp_ne₂ : p ≠ p₂) :
     p ∈ polarity_absolutePoints C := by
   classical
   letI := Fintype.ofFinite P
