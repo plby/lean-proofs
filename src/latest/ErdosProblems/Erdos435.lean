@@ -2328,7 +2328,7 @@ theorem erdos_435 (n : ℕ)
       -- Apply the lemma `lemma_target_not_representable` to conclude the first part of the conjunction.
       apply And.intro (lemma_target_not_representable n hn h_not_prime_pow) (fun x hx => upper_bound_proven n x hn h_not_prime_pow hx)
 
-#print axioms erdos_435
--- 'Erdos435.erdos_435' depends on axioms: [propext, Classical.choice, Quot.sound]
-
 end Erdos435
+
+#print axioms Erdos435.erdos_435
+-- 'Erdos435.erdos_435' depends on axioms: [propext, Classical.choice, Quot.sound]
