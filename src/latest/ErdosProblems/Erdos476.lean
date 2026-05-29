@@ -524,7 +524,7 @@ theorem erdos_476 (p : ℕ) [Fact p.Prime] (A : Finset (ZMod p)) :
           fin_cases A <;> contradiction;
         · omega
 
-#print axioms erdos_476
--- 'Erdos476.erdos_476' depends on axioms: [propext, Classical.choice, Quot.sound]
-
 end Erdos476
+
+#print axioms Erdos476.erdos_476
+-- 'Erdos476.erdos_476' depends on axioms: [propext, Classical.choice, Quot.sound]
