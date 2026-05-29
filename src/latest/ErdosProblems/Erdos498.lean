@@ -1033,8 +1033,7 @@ lemma exists_SCD (α : Type*) [Fintype α] :
   obtain ⟨D, hD⟩ := exists_SCD_fin (Fintype.card α)
   exact scd_equiv (Fintype.equivFin α).symm D hD
 
-set_option linter.unusedDecidableInType false in
-lemma kleitman_bound_unique_proj_C {α : Type*} [Finite α] (T : Set α) [DecidablePred (· ∈ T)]
+lemma kleitman_bound_unique_proj_C {α : Type*} [Finite α] (T : Set α)
     (C D : Finset (Finset α))
     (hD : IsChain (· ⊆ ·) (D : Set (Finset α)))
     (h_suppC : ∀ A ∈ C, (A : Set α) ⊆ T)
@@ -1045,6 +1044,7 @@ lemma kleitman_bound_unique_proj_C {α : Type*} [Finite α] (T : Set α) [Decida
     (h_subset : F_part ⊆ {U ∪ V | (U ∈ C) (V ∈ D)})
     (X Y : Finset α) (hX : X ∈ F_part) (hY : Y ∈ F_part)
     (h_eq : (X : Set α) ∩ T = (Y : Set α) ∩ T) : X = Y := by
+      classical
       letI := Fintype.ofFinite α
       -- By h_subset, there exist Ux, Vx, Uy, Vy such that X = Ux ∪ Vx and Y = Uy ∪ Vy.
       obtain ⟨Ux, Vx, hx⟩ : ∃ Ux Vx, Ux ∈ C ∧ Vx ∈ D ∧ X = Ux ∪ Vx := by
@@ -1094,9 +1094,8 @@ lemma kleitman_bound_unique_proj_C {α : Type*} [Finite α] (T : Set α) [Decida
       simp_all +decide [ Set.Nonempty, Set.ext_iff ];
       grind
 
-set_option linter.unusedDecidableInType false in
 /-- The core local bound for the Kleitman argument on a product of two chains. -/
-lemma kleitman_grid_bound {α : Type*} [Finite α] (T : Set α) [DecidablePred (· ∈ T)]
+lemma kleitman_grid_bound {α : Type*} [Finite α] (T : Set α)
     (C D : Finset (Finset α))
     (hC : IsChain (· ⊆ ·) (C : Set (Finset α)))
     (hD : IsChain (· ⊆ ·) (D : Set (Finset α)))
@@ -1107,6 +1106,7 @@ lemma kleitman_grid_bound {α : Type*} [Finite α] (T : Set α) [DecidablePred (
         (((B : Set α) \ A) ∩ T).Nonempty ∧ (((B : Set α) \ A) ∩ Tᶜ).Nonempty)
     (h_subset : F_part ⊆ {U ∪ V | (U ∈ C) (V ∈ D)}) :
     F_part.ncard ≤ min C.card D.card := by
+  classical
   letI := Fintype.ofFinite α
   have h_card_le_C : F_part.ncard ≤ C.card := by
     have h_card_le_C :
@@ -1189,13 +1189,13 @@ lemma map_chain_is_chain {α β : Type*} [Finite α] [Finite β] (emb : β ↪ �
   · right
     exact Finset.map_subset_map.mpr h_sub
 
-set_option linter.unusedDecidableInType false in
 /-- Mapping a chain from a subtype T to alpha lands in T. -/
-lemma map_chain_support {α : Type*} [Finite α] (T : Set α) [DecidablePred (· ∈ T)]
+lemma map_chain_support {α : Type*} [Finite α] (T : Set α)
     (emb : T ↪ α) (h_emb : ∀ x, emb x ∈ T)
     (C : Finset (Finset T)) :
     let C' := C.map (Finset.mapEmbedding emb).toEmbedding
     ∀ A ∈ C', (A : Set α) ⊆ T := by
+  classical
   letI := Fintype.ofFinite α
   intro C' A hA
   rw [Finset.mem_map] at hA
@@ -1524,12 +1524,12 @@ lemma rectangle_middle_inter_size {α β : Type*} [Fintype α] [Fintype β]
     rw [h_kD_val, h_card]; omega
   rw [h_C_card, h_D_card]
 
-set_option linter.unusedDecidableInType false in
-lemma sum_ncard_product_eq_ncard_biUnion {I J X : Type*} [DecidableEq X]
+lemma sum_ncard_product_eq_ncard_biUnion {I J X : Type*}
     {s : Finset I} {t : Finset J} {f : I → J → Set X}
     (h_disj : (↑(s.product t) : Set (I × J)).PairwiseDisjoint (fun p => f p.1 p.2))
     (h_fin : ∀ i ∈ s, ∀ j ∈ t, (f i j).Finite) :
     ∑ i ∈ s, ∑ j ∈ t, (f i j).ncard = (⋃ p ∈ s.product t, f p.1 p.2).ncard := by
+  classical
   have h_fin_map : ∀ p ∈ s.product t, (f p.1 p.2).Finite := fun p hp => by
     simp at hp; exact h_fin p.1 hp.1 p.2 hp.2
   let t_finset := s.product t
@@ -1578,7 +1578,6 @@ lemma scd_middle_rank_sum {G : Type*} [Fintype G] (T : Set G) [DecidablePred (·
             h.choose_spec.2.choose_spec.2⟩, hx⟩,
         fun ⟨⟨a, ha, b, hb, U, hU, V, hV, hx⟩, hx'⟩ =>
           ⟨a, b, ⟨U, hU, V, hV, hx⟩, ⟨ha, hb⟩, hx'⟩⟩;
-    · infer_instance;
     · intro p hp q hq hpq;
       have h_disjoint :
           Disjoint
