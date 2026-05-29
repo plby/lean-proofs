@@ -2400,7 +2400,6 @@ lemma exists_rapid_seq (P : ℕ → ℕ → Prop) (h_inf : ∀ K, ∃ N > K, P K
   exact (Classical.axiomOfChoice ↑h_inf).elim fun and (a) =>
     ⟨.rec 0 _, strictMono_nat_of_lt_succ fun and => (a _).left, fun and => (a _).right⟩
 
-set_option linter.unusedVariables false in
 theorem Erdos741.upperDensity_pos_implies_seq.extracted_1_3 (S : Set ℕ)
   (h : 0 < sInf {a | ∃ a_1, ∀ (b : ℕ), a_1 ≤ b →
       (b : ℝ)⁻¹ * ↑(Fintype.card ↑(Iio b ∩ S)) ≤ a}) (and_1 : ℝ)
@@ -2414,8 +2413,8 @@ theorem Erdos741.upperDensity_pos_implies_seq.extracted_1_3 (S : Set ℕ)
     ¬(x + 1 ≤ and_2 x →
       (↑(and_2 x))⁻¹ * ↑(Fintype.card ↑(Iio (and_2 x) ∩ S)) ≤ and_1))
   (and : ℕ) :
-  ↑(Fintype.card ↑(Iio (and_2 ((fun t ↦ Nat.rec 0 (fun and ↦ and_2) t) and)) ∩ S)) ≤
-    ↑(Fintype.card ↑(Iic ((and_2 ∘ fun t ↦ Nat.rec 0 (fun and ↦ and_2) t) and) ∩ S)) :=
+  ↑(Fintype.card ↑(Iio (and_2 ((fun t ↦ Nat.rec 0 (fun _ ↦ and_2) t) and)) ∩ S)) ≤
+    ↑(Fintype.card ↑(Iic ((and_2 ∘ fun t ↦ Nat.rec 0 (fun _ ↦ and_2) t) and) ∩ S)) :=
       by
     have _ := h
     have _ := x
