@@ -1538,7 +1538,7 @@ theorem not_erdos_762 : ¬ erdos_762 := by
   have : ¬ ((7 : ℕ∞) ≤ (4 : ℕ∞) + 2) := by decide
   exact this hcontra
 
-#print axioms not_erdos_762
--- 'Erdos762.not_erdos_762' depends on axioms: [propext, Classical.choice, Quot.sound]
-
 end Erdos762
+
+#print axioms Erdos762.not_erdos_762
+-- 'Erdos762.not_erdos_762' depends on axioms: [propext, Classical.choice, Quot.sound]
