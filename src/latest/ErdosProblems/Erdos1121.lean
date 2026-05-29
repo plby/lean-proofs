@@ -252,7 +252,8 @@ theorem one_dim_covering_lower {n : ℕ} (s r : Fin n → ℝ) (hr : ∀ i, 0 �
       have h_ind : ∀ (n : ℕ), ∀ (f : Fin n → ℝ),
           ∃ σ : Fin n → Fin n, (∀ i, σ i ∈ Finset.univ) ∧
           (∀ i j, i < j → f (σ i) ≤ f (σ j)) ∧ Function.Injective σ := by
-        intro n f; induction' n with n ih <;> simp_all +decide
+        intro n f
+        induction' n with n ih <;> simp_all +decide
         obtain ⟨m, hm⟩ : ∃ m : Fin (n + 1), ∀ i : Fin (n + 1), f i ≥ f m := by
           simpa using Finset.exists_min_image Finset.univ (fun i => f i) ⟨0, Finset.mem_univ 0⟩
         obtain ⟨σ, hσ₁, hσ₂⟩ := ih (fun i => f (Fin.succAbove m i))
@@ -260,7 +261,8 @@ theorem one_dim_covering_lower {n : ℕ} (s r : Fin n → ℝ) (hr : ∀ i, 0 �
           simp_all +decide [Function.Injective]
         · intro i j hij
           induction i using Fin.inductionOn <;> induction j using Fin.inductionOn <;> aesop
-        · simp +decide [Fin.forall_fin_succ]; tauto
+        · simp +decide [Fin.forall_fin_succ]
+          tauto
       exact h_ind _ fun i => s i - r i
     obtain ⟨σ, hσ₁, hσ₂, hσ₃⟩ := h_sorted
     exact ⟨Equiv.ofBijective σ ⟨hσ₃, Finite.injective_iff_surjective.mp hσ₃⟩,
@@ -273,7 +275,8 @@ theorem one_dim_covering_lower {n : ℕ} (s r : Fin n → ℝ) (hr : ∀ i, 0 �
   have h_perm : ∑ j, s (σ j) * r (σ j) = ∑ j, s j * r j ∧
       ∑ j, r (σ j) = ∑ j, r j := by
     exact ⟨Equiv.sum_comp σ fun j => s j * r j, Equiv.sum_comp σ fun j => r j⟩
-  have := hσ 0 (σ.symm i) (Nat.zero_le _); simp_all +decide
+  have := hσ 0 (σ.symm i) (Nat.zero_le _)
+  simp_all +decide
   nlinarith [hr i, hr (σ 0), Finset.sum_nonneg fun j (_ : j ∈ Finset.univ) => hr j]
 
 /-- **1D Covering Lemma (upper bound).**
@@ -282,7 +285,8 @@ theorem one_dim_covering_upper {n : ℕ} (s r : Fin n → ℝ) (hr : ∀ i, 0 �
     (hns : Nonseparable1D s r) (i : Fin n) :
     (s i + r i) * ∑ j, r j ≤ ∑ j, s j * r j + (∑ j, r j) ^ 2 := by
   have := one_dim_covering_lower (fun j => -s j) r hr (?_) i
-  · norm_num [Finset.sum_neg_distrib] at *; linarith
+  · norm_num [Finset.sum_neg_distrib] at *
+    linarith
   · exact Nonseparable1D.neg hr hns
 
 /-! ## Internal 2D Nonseparability (normal–offset form) -/
@@ -315,22 +319,24 @@ The geometric nonseparability condition (no separating line) implies the interna
 lemma circlesNonseparable_implies_internal {n : ℕ} (circles : Fin n → Circle2D)
     (hns : CirclesNonseparable circles) :
     NonseparableInternal (fun i => (circles i).center) (fun i => (circles i).radius) := by
-  intro w c hw hc i j;
-  contrapose! hns;
-  unfold CirclesNonseparable;
-  simp +zetaDelta at *;
+  intro w c hw hc i j
+  contrapose! hns
+  unfold CirclesNonseparable
+  simp +zetaDelta at *
   refine' ⟨ ⟨ c • w, perp2D w, _ ⟩, _, i, j, _ ⟩ <;>
-    simp_all +decide [Circle2D.disjointFromLine, Circle2D.onDifferentSidesOfLine];
-  · intro i; specialize hc i; simp_all +decide [ Line2D.signedDist ];
-    simp_all +decide [ inner_sub_right, inner_smul_right ];
-  · cases hns <;> simp_all +decide [ Line2D.onDifferentSides, Line2D.signedDist ];
-    · simp_all +decide [ inner_sub_right, inner_smul_right ];
+    simp_all +decide [Circle2D.disjointFromLine, Circle2D.onDifferentSidesOfLine]
+  · intro i
+    specialize hc i
+    simp_all +decide [ Line2D.signedDist ]
+    simp_all +decide [ inner_sub_right, inner_smul_right ]
+  · cases hns <;> simp_all +decide [ Line2D.onDifferentSides, Line2D.signedDist ]
+    · simp_all +decide [ inner_sub_right, inner_smul_right ]
       exact Or.inr (lt_of_le_of_ne (by linarith) (by
         intro H
         specialize hc j
         norm_num [H] at hc
-        linarith [(circles j).radius_pos]));
-    · simp_all +decide [ inner_sub_right, inner_smul_right ];
+        linarith [(circles j).radius_pos]))
+    · simp_all +decide [ inner_sub_right, inner_smul_right ]
       exact Or.inl (lt_of_le_of_ne (by linarith) fun h => by
         have := hc i
         norm_num [h] at this
@@ -345,7 +351,8 @@ theorem projection_nonseparable {n : ℕ}
     (hns : NonseparableInternal center radius)
     (w : EuclideanSpace ℝ (Fin 2)) (hw : ‖w‖ = 1) :
     Nonseparable1D (fun i => @inner ℝ (EuclideanSpace ℝ (Fin 2)) _ w (center i)) radius := by
-  intros c hc i j; exact (hns w c hw hc i j)
+  intros c hc i j
+  exact (hns w c hw hc i j)
 
 /-! ## Helper: norm bound from 1D covering applied to all projections -/
 
@@ -362,7 +369,9 @@ lemma weighted_centroid_dist_le {n : ℕ}
   by_contra! h_contra
   set T₀ := (∑ j, radius j)⁻¹ • (∑ j, radius j • center j)
   have hw : ‖(center i - T₀)‖ ≠ 0 := by
-    intro h; simp_all +decide [sub_eq_iff_eq_add]; linarith [hradii i,
+    intro h
+    simp_all +decide [sub_eq_iff_eq_add]
+    linarith [hradii i,
       Finset.single_le_sum (fun a _ => hradii a) (Finset.mem_univ i)]
   set w := ‖(center i - T₀)‖⁻¹ • (center i - T₀)
   have hw_norm : ‖w‖ = 1 := by
@@ -387,7 +396,8 @@ lemma weighted_centroid_dist_le {n : ℕ}
       simp +zetaDelta at *
       simp +decide [inner_smul_left, inner_self_eq_norm_sq_to_K]
       rw [inv_mul_eq_div, sq, mul_div_cancel_right₀ _ (norm_ne_zero_iff.mpr hw)]
-    rw [← h_inner, inner_sub_right]; ring
+    rw [← h_inner, inner_sub_right]
+    ring
   nlinarith! [norm_nonneg (center i - T₀), dist_eq_norm (center i) T₀]
 
 /-! ## Internal Goodman Theorem -/
@@ -418,7 +428,9 @@ theorem goodman_circle_covering_internal {n : ℕ}
         refine' ⟨‖w‖⁻¹ • w, _, i, ⟨0, Nat.pos_of_ne_zero hn⟩, _⟩ <;>
           simp_all +decide [norm_smul, inner_smul_left]
         · rw [inv_mul_cancel₀ (norm_ne_zero_iff.mpr
-            (show w ≠ 0 from by rintro rfl; simp +decide at hw))]
+            (show w ≠ 0 from by
+              rintro rfl
+              simp +decide at hw))]
         · exact ⟨fun h => hw <| by rw [inner_sub_right, h, sub_self],
             fun h => hw <| by simp +decide [h]⟩
       obtain ⟨i, j, hij⟩ := hw.2
@@ -442,14 +454,18 @@ theorem goodman_circle_covering_internal {n : ℕ}
             (Set.Infinite.diff (Set.Ioo_infinite
               (by linarith : inner ℝ w (center j) < inner ℝ w (center i))) h_finite))
       exact ⟨w, c, hw.1, fun i => sub_ne_zero_of_ne <| by aesop,
-        by obtain ⟨i, hi⟩ := hc.2.1; obtain ⟨j, hj⟩ := hc.2.2;
-           exact ⟨i, j, Or.inr ⟨by linarith, by linarith⟩⟩⟩
+        by
+          obtain ⟨i, hi⟩ := hc.2.1
+          obtain ⟨j, hj⟩ := hc.2.2
+          exact ⟨i, j, Or.inr ⟨by linarith, by linarith⟩⟩⟩
   · have h_dist : ∀ i, dist (center i)
         ((R⁻¹) • ∑ j, radius j • center j) + radius i ≤ R := by
       convert weighted_centroid_dist_le center radius hradii hns
         (lt_of_le_of_ne (Finset.sum_nonneg fun _ _ => hradii _) (Ne.symm hR)) using 1
     use (R⁻¹) • ∑ j, radius j • center j
-    intro i x hx; specialize h_dist i; rw [Metric.mem_closedBall] at *
+    intro i x hx
+    specialize h_dist i
+    rw [Metric.mem_closedBall] at *
     linarith [dist_triangle x (center i) (R⁻¹ • ∑ j, radius j • center j)]
 
 /-! ## Main Theorem -/
