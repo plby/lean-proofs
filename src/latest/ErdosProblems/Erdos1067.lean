@@ -549,13 +549,13 @@ lemma im_subset_of_le {t1 t2 : T_struct} (h : t1 ≤ t2) : im t1 ⊆ im t2 := by
 /-
 The last element of a successor sequence is not in the image of its immediate predecessor.
 -/
-set_option linter.flexible false in
 lemma last_not_mem_im_s_star
   (t : T_struct)
   (h : is_succ_ordinal t.α)
   : last t h ∉ im
   (s_star t h) := by
-  simp +decide [im, last, s_star]
+  simp +decide only [im, s_star, last, mem_range, Subtype.exists, Order.succ_eq_add_one,
+    not_exists]
   intro x hx hxy
   set β := Classical.choose h with hβ
   have hspec : t.α = Order.succ β := by
