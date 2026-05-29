@@ -110,7 +110,9 @@ lemma hj_map_injective {n k : ℕ} (hk : k ≥ 2) : Function.Injective (hj_map n
           exact hvw.resolve_right (by positivity) ▸ rfl
         generalize_proofs at *
         exact fun i => Fin.cases h0 (ih h_eq) i
-  aesop
+  simp_all only [ge_iff_le]
+  ext x : 2
+  simp_all only
 
 /-
 The map `hj_map` transforms any combinatorial line `L` in the hypercube
@@ -123,7 +125,8 @@ lemma hj_map_maps_line_to_AP (n k : ℕ) (L : Combinatorics.Line (Fin k) (Fin n)
   unfold hj_map
   by_cases hk : k = 0
   · simp_all +decide only [ne_eq, Combinatorics.Line.coe_apply, Nat.exists_ne_zero]
-    aesop
+    subst hk
+    simp_all only [mul_zero, IsEmpty.forall_iff, exists_const]
   · simp_all +decide only [ne_eq, Combinatorics.Line.coe_apply, Nat.exists_ne_zero]
     obtain ⟨a, d, hd⟩ :
         ∃ a d : ℕ,
@@ -143,8 +146,10 @@ lemma hj_map_maps_line_to_AP (n k : ℕ) (L : Combinatorics.Line (Fin k) (Fin n)
         · -- Since L.idxFun i is not fixed, it must be the identity function.
           have h_id : ∀ x : Fin k, ((L.idxFun i).getD x).val = x.val := by
             cases h : L.idxFun i
-            · aesop
-            · aesop
+            · intro x
+              simp_all only [Option.getD_none, not_forall]
+            · intro x
+              simp_all only [Option.getD_some, implies_true, not_true_eq_false]
           exact ⟨0, 1, fun x => by simpa using h_id x⟩
       choose a d h using h_decomp
       exact ⟨∑ i, a i * (2 * k) ^ (i : ℕ), ∑ i, d i * (2 * k) ^ (i : ℕ),
@@ -177,7 +182,8 @@ lemma hj_map_maps_line_to_AP (n k : ℕ) (L : Combinatorics.Line (Fin k) (Fin n)
         simp_all +decide [funext_iff]
         obtain ⟨i, hi⟩ := this
         specialize ‹∀ x : Fin n, (L.idxFun x).getD 0 = (L.idxFun x).getD 1› i
-        aesop
+        subst hd_zero
+        simp_all only [Option.getD_none, zero_ne_one]
     · exact ⟨a, d - 1, fun x => by
         rw [hd x, Nat.sub_add_cancel (Nat.pos_of_ne_zero hd_zero)]⟩
 
@@ -202,7 +208,8 @@ lemma hj_midpoint_property {n k : ℕ} (hk : k ≥ 2) (u v w : Fin n → Fin k)
           have := congr_arg (· % (2 * k)) h_eq
           norm_num [Nat.ModEq, Nat.add_mod, Nat.mul_mod, Nat.pow_mod,
             Finset.sum_nat_mod] at this ⊢
-          aesop
+          simp_all only [dvd_refl, Nat.mod_mod_of_dvd, Nat.add_mod_mod, Nat.mod_add_mod,
+            Nat.mul_mod_mod, Nat.mod_mul_mod]
         rw [Nat.ModEq] at h_first_coord
         rw [Nat.mod_eq_of_lt, Nat.mod_eq_of_lt] at h_first_coord <;>
           linarith [Fin.is_lt (u 0), Fin.is_lt (w 0), Fin.is_lt (v 0)]
@@ -228,7 +235,11 @@ lemma nat_AP_in_bounded_range_is_const (k : ℕ) (f : Fin (k + 1) → ℕ)
     by_cases hd_zero : d = 0
     · use f 0
       intro i
-      induction i using Fin.inductionOn <;> aesop
+      induction i using Fin.inductionOn
+      · subst hd_zero
+        simp_all only [add_zero]
+      · subst hd_zero
+        simp_all only [add_zero]
     · -- Since $d \neq 0$, we have $f(i) = f(0) + i * d$ for all $i$.
       have h_formula : ∀ i : Fin (k + 1), f i = f 0 + i.val * d := by
         exact fun i => Fin.inductionOn i
@@ -401,7 +412,7 @@ theorem existence_of_AP_free_Ramsey_set :
     constructor
     · convert hj_set_no_AP n k hk using 1
       unfold hj_set
-      aesop
+      simp_all only [ge_iff_le, Set.image_univ]
     · intro c
       obtain ⟨L, hL⟩ := hn (fun v => c (hj_map n k v))
       obtain ⟨a, d, hd, h⟩ := hj_map_maps_line_to_AP n k L
