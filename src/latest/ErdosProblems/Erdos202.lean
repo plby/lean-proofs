@@ -30,7 +30,6 @@ Trust boundary, verified at the bottom with `#print axioms`:
 import Mathlib
 
 set_option autoImplicit false
-set_option linter.unusedDecidableInType false
 
 /-! =============================================================
     Section from: Erdos/P202/P202Basic.lean
@@ -1558,7 +1557,7 @@ space.  This is the bookkeeping form needed for a multi-exposure process:
 if all bad outcomes have loss at least `B > 0` and the expected loss is below
 `B/2`, then the good event has weight greater than `1/2`. -/
 lemma half_lt_weighted_good_of_average_lt_half_of_bad_le
-    {Ω : Type*} [DecidableEq Ω] (s : Finset Ω)
+    {Ω : Type*} (s : Finset Ω)
     (weight : Ω → ℝ) (Good : Ω → Prop) [DecidablePred Good]
     (F : Ω → ℝ) {B : ℝ}
     (hweight_nonneg : ∀ ω ∈ s, 0 ≤ weight ω)
@@ -1568,6 +1567,7 @@ lemma half_lt_weighted_good_of_average_lt_half_of_bad_le
     (hbad : ∀ ω ∈ s, ¬ Good ω → B ≤ F ω)
     (havg : (∑ ω ∈ s, weight ω * F ω) < B * (1 / 2)) :
     (1 / 2 : ℝ) < ∑ ω ∈ s.filter Good, weight ω := by
+  classical
   let bad : Finset Ω := s.filter fun ω => ¬ Good ω
   have hbad_weight_le :
       (∑ ω ∈ bad, weight ω * B) ≤
@@ -3544,6 +3544,7 @@ lemma coverWeight_union_le {G H : Finset (Finset α)} {p : ℝ}
         (by intro T _ _; exact pow_nonneg hp0 T.card))
         (∑ T ∈ G, p ^ T.card)
 
+omit [DecidableEq α] in
 /-- A `pSmall` witness may be chosen with every cover set inside the ground
 universe. -/
 lemma pSmall.exists_ground_cover
@@ -3553,6 +3554,7 @@ lemma pSmall.exists_ground_cover
       (∀ T ∈ G, T ⊆ X) ∧
       CoversIn X G U ∧
       (∑ T ∈ G, p ^ T.card) ≤ (1 / 2 : ℝ) := by
+  classical
   rcases hSmall with ⟨G, hCover, hsum⟩
   refine ⟨G.filter fun T => T ⊆ X, ?_, ?_, ?_⟩
   · intro T hT
@@ -4992,6 +4994,7 @@ lemma coverCost_pos_iff_empty_mem_of_forall_card_zero
     rw [coverCost_eq_one_of_empty_mem hp0 hEmpty]
     norm_num
 
+omit [DecidableEq α] in
 /-- Ground-supported cover cost recovers the existing `pSmall` predicate for
 families living inside `X`. -/
 theorem pSmall_iff_coverCost_le
@@ -5008,6 +5011,7 @@ theorem pSmall_iff_coverCost_le
       ⟨G, _hGX, hCover, hEq⟩
     exact ⟨G, hCover, by simpa [hEq] using hCost⟩
 
+omit [DecidableEq α] in
 lemma not_pSmall_iff_half_lt_coverCost
     {X : Finset α} {U : Finset (Finset α)} {p : ℝ}
     (hp0 : 0 ≤ p) (hUX : ∀ S ∈ U, S ⊆ X) :
@@ -6918,7 +6922,7 @@ tuples.  Each outcome must end with a cutoff-`1` exposure; if the accumulated
 loss has expectation below half the initial cover cost, then the endpoint
 upper-closure event has weight greater than `1/2`. -/
 lemma half_lt_weighted_endpoint_of_iteratedLargeCost_average_lt
-    {Ω : Type*} [DecidableEq Ω]
+    {Ω : Type*}
     (X : Finset α) (H : Finset (Finset α)) {p : ℝ}
     (s : Finset Ω) (weight : Ω → ℝ)
     (stepsOf : Ω → List (ℕ × Finset α))
@@ -6939,6 +6943,7 @@ lemma half_lt_weighted_endpoint_of_iteratedLargeCost_average_lt
       ∑ ω ∈ s.filter
         (fun ω => smallStepExposureUnion (stepsOf ω) ∈ upClosureIn X H),
         weight ω := by
+  classical
   refine half_lt_weighted_good_of_average_lt_half_of_bad_le
     s weight
     (fun ω => smallStepExposureUnion (stepsOf ω) ∈ upClosureIn X H)
@@ -14315,7 +14320,7 @@ lemma lowerPathCRTModuli_pairwise_coprime {N : ℕ}
 /-- Finite CRT in the integer `Int.ModEq` form used for path residue
 assignments.  This local copy keeps the path scaffold independent of the old
 `LowerConstruction.lean` file. -/
-theorem lowerPath_int_modEq_crt_finset_exists {ι : Type*} [DecidableEq ι]
+theorem lowerPath_int_modEq_crt_finset_exists {ι : Type*}
     (s : Finset ι) (m : ι → ℕ) (b : ι → ℤ)
     (hm : ∀ i ∈ s, m i ≠ 0)
     (hcop : Set.Pairwise (↑s : Set ι)
@@ -15185,7 +15190,7 @@ with positive weights, at least one summand is at least its weighted share.
 
 This is the finite lemma used in PDF Lemma 4.1 to select an attained exact
 block value. -/
-lemma weighted_pigeonhole {α : Type*} [DecidableEq α] (I : Finset α)
+lemma weighted_pigeonhole {α : Type*} (I : Finset α)
     (N w : α → ℝ) (hI : I.Nonempty)
     (hw : ∀ i ∈ I, 0 < w i) :
     ∃ i ∈ I, (∑ j ∈ I, N j) * w i / (∑ j ∈ I, w j) ≤ N i := by
@@ -15218,7 +15223,7 @@ lemma weighted_pigeonhole {α : Type*} [DecidableEq α] (I : Finset α)
 /-- Weighted pigeonhole applied to fibers of a finite map. For any positive
 weight on the attained values of `B`, one value has a fiber at least its
 weighted share of the whole domain. -/
-lemma exists_fiber_weighted_share {α β : Type*} [DecidableEq α] [DecidableEq β]
+lemma exists_fiber_weighted_share {α β : Type*} [DecidableEq β]
     (S : Finset α) (B : α → β) (w : β → ℝ) (hS : S.Nonempty)
     (hw : ∀ b ∈ S.image B, 0 < w b) :
     ∃ b ∈ S.image B,
@@ -15247,7 +15252,7 @@ lemma exists_fiber_weighted_share {α β : Type*} [DecidableEq α] [DecidableEq 
     exact_mod_cast hsum_counts_nat
   simpa [hsum_counts_real] using hbshare
 
-lemma fiber_nonempty_of_mem_image {α β : Type*} [DecidableEq α] [DecidableEq β]
+lemma fiber_nonempty_of_mem_image {α β : Type*} [DecidableEq β]
     {S : Finset α} {B : α → β} {b : β} (hb : b ∈ S.image B) :
     (S.filter fun a => B a = b).Nonempty := by
   rcases Finset.mem_image.mp hb with ⟨a, ha, rfl⟩
@@ -15255,7 +15260,7 @@ lemma fiber_nonempty_of_mem_image {α β : Type*} [DecidableEq α] [DecidableEq 
 
 /-- Ordinary pigeonhole over a finite codomain, in the real-valued form used
 for residue classes modulo the chosen exact block. -/
-lemma exists_fiber_card_div_le {α β : Type*} [DecidableEq α] [Fintype β]
+lemma exists_fiber_card_div_le {α β : Type*} [Fintype β]
     [DecidableEq β] (S : Finset α) (r : α → β) (hS : S.Nonempty) :
     ∃ b : β,
       (S.card : ℝ) / (Fintype.card β : ℝ) ≤
@@ -18123,7 +18128,7 @@ lemma chooseOnePerImage_subset {α β : Type*} [DecidableEq α] [DecidableEq β]
   rcases hx with ⟨b, -, rfl⟩
   exact (Classical.choose_spec (Finset.mem_image.1 b.2)).1
 
-lemma chooseOnePerImage_maps {α β : Type*} [DecidableEq α] [DecidableEq β]
+lemma chooseOnePerImage_maps {α β : Type*} [DecidableEq β]
     (s : Finset α) (g : α → β) {b : β} (hb : b ∈ s.image g) :
     g (Classical.choose (Finset.mem_image.1 hb)) = b := by
   exact (Classical.choose_spec (Finset.mem_image.1 hb)).2
@@ -18174,7 +18179,7 @@ lemma image_card_mul_fiber_bound_ge {α β : Type*} [DecidableEq β]
   classical
   exact Finset.card_le_mul_card_image s C hC
 
-lemma choose_one_per_fiber_card_lower {α β : Type*} [DecidableEq α] [DecidableEq β]
+lemma choose_one_per_fiber_card_lower {α β : Type*} [DecidableEq β]
     (s : Finset α) (g : α → β) (C : ℕ)
     (hC : ∀ b ∈ s.image g, (s.filter fun x => g x = b).card ≤ C) :
     ∃ s' : Finset α,
