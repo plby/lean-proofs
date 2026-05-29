@@ -36,10 +36,10 @@ set_option linter.style.refine false
 /-!
 # Erdős Problem 760: Subgraphs with a Large Cochromatic Number
 
-The cochromatic number `ζ(G)` of a graph `G` is the minimum number of colours needed to colour 
+The cochromatic number `ζ(G)` of a graph `G` is the minimum number of colours needed to colour
 the vertices of `G` such that each colour class induces either a complete graph or empty graph.
 
-**Erdős Problem 760**: If `G` is a graph with chromatic number `χ(G) = m`, then `G` must contain 
+**Erdős Problem 760**: If `G` is a graph with chromatic number `χ(G) = m`, then `G` must contain
 a subgraph `H` with `ζ(H) ≫ m / log m`.
 
 **Answer**: YES.
@@ -58,7 +58,7 @@ open _root_.SimpleGraph
 
 /-! ## Cochromatic colorability -/
 
-/-- `CochromPartable G n` holds when `G`'s vertices can be coloured with `n` colours so that 
+/-- `CochromPartable G n` holds when `G`'s vertices can be coloured with `n` colours so that
 each colour class induces either a complete or an empty graph. -/
 def CochromPartable {V : Type*} (G : SimpleGraph V) (n : ℕ) : Prop :=
   ∃ f : V → Fin n, ∀ i : Fin n, G.IsClique (f ⁻¹' {i}) ∨ G.IsIndepSet (f ⁻¹' {i})
@@ -75,7 +75,7 @@ theorem cochromPartable_card {V : Type*} [Fintype V] [DecidableEq V] (G : Simple
   use Fintype.equivFin V
   intro i
   right
-  intro u hu v hv huv 
+  intro u hu v hv huv
   rw [Set.mem_preimage, Set.mem_singleton_iff] at hu hv
   exact absurd ((Fintype.equivFin V).injective (hu.trans hv.symm)) huv
 
@@ -137,7 +137,7 @@ theorem cochromaticNumber_comap_equiv {V W : Type*} (G : SimpleGraph W) (e : V �
 
 /-! ## Product Coloring: χ ≤ ζ · ω -/
 
-/-- If `G` is cochrom-partable with `k` colours and has clique number `≤ ω`, then 
+/-- If `G` is cochrom-partable with `k` colours and has clique number `≤ ω`, then
 `G` is `(k * ω)`-colourable. -/
 theorem colorable_of_cochromPartable_of_cliqueNum_le {V : Type*} [Fintype V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj] (k ω : ℕ) (hk : CochromPartable G k)
@@ -186,7 +186,7 @@ theorem colorable_of_cochromPartable_of_cliqueNum_le {V : Type*} [Fintype V] [De
       have := h u.2 v.2
       aesop
   choose g hg using h_coloring
-  have h_unique_color : ∀ u v : V, u ≠ v → 
+  have h_unique_color : ∀ u v : V, u ≠ v →
       (f u, g (f u) ⟨u, by simp⟩) ≠ (f v, g (f v) ⟨v, by simp⟩) ∨ ¬G.Adj u v := by
     grind
   obtain ⟨h, hh⟩ : ∃ h : V → Fin k × Fin ω, ∀ u v : V, u ≠ v → h u ≠ h v ∨ ¬G.Adj u v :=
@@ -340,17 +340,17 @@ theorem edgeFinset_within_ge_of_min_deg {V : Type*} [Fintype V] [DecidableEq V]
             ∑ e ∈ Finset.filter (fun e => (∀ v ∈ e, v ∈ S)) G.edgeFinset,
               (if v ∈ e.toFinset then 1 else 0) := by
         intro v hv
-        simp;
-        refine' Finset.card_bij ( fun w hw => s(v, w) ) _ _ _ <;> simp_all +decide;
-        · grind;
-        · rintro ⟨ u, w ⟩ huv hS hvw; cases hvw; aesop;
-      rw [ Finset.sum_congr rfl h_double_count, Finset.sum_comm ];
-      simp +decide [Finset.filter_mem_eq_inter];
-      exact Finset.sum_congr rfl fun x hx => congr_arg Finset.card ( by ext; aesop );
-    rw [ h_double_count, Finset.sum_const_nat ];
-    rw [ mul_comm ];
-    intro e he; rcases e with ⟨ u, v ⟩ ; simp_all +decide ;
-    rw [ Finset.card_eq_two ] ; use u, v ; aesop;
+        simp
+        refine' Finset.card_bij ( fun w hw => s(v, w) ) _ _ _ <;> simp_all +decide
+        · grind
+        · rintro ⟨ u, w ⟩ huv hS hvw; cases hvw; aesop
+      rw [ Finset.sum_congr rfl h_double_count, Finset.sum_comm ]
+      simp +decide [Finset.filter_mem_eq_inter]
+      exact Finset.sum_congr rfl fun x hx => congr_arg Finset.card ( by ext; aesop )
+    rw [ h_double_count, Finset.sum_const_nat ]
+    rw [ mul_comm ]
+    intro e he; rcases e with ⟨ u, v ⟩ ; simp_all +decide
+    rw [ Finset.card_eq_two ] ; use u, v ; aesop
   simpa [ mul_comm, h_double_count ] using Finset.sum_le_sum hmin
 
 /-- The set of edges of `G` with both endpoints in `S`. -/
@@ -398,23 +398,23 @@ theorem per_clique_bad_count {V : Type*} [Fintype V] [DecidableEq V]
     (hclique : G.IsClique ↑S) :
     (G.edgeFinset.powerset.filter (fun T => (spanSub G T).IsClique ↑S)).card ≤
       2 ^ (G.edgeFinset.card - k.choose 2) := by
-  refine' le_trans ( Finset.card_le_card _ ) _;
+  refine' le_trans ( Finset.card_le_card _ ) _
   exact Finset.image
     (fun T => T ∪ edgesWithin G S)
-    (Finset.powerset (G.edgeFinset \ edgesWithin G S));
-  · intro T hT; simp_all +decide [ Finset.subset_iff ] ;
-    refine' ⟨ T \ edgesWithin G S, _, _ ⟩ <;> simp_all +decide [ Finset.subset_iff, spanSub ];
-    rintro ⟨ u, v ⟩ huv; have := hT.2; simp_all +decide [ Set.Pairwise ] ;
-    unfold edgesWithin at huv; aesop;
-  · refine' Finset.card_image_le.trans _;
-    rw [ Finset.card_powerset, Finset.card_sdiff ];
-    rw [ Finset.inter_eq_left.mpr ];
+    (Finset.powerset (G.edgeFinset \ edgesWithin G S))
+  · intro T hT; simp_all +decide [ Finset.subset_iff ]
+    refine' ⟨ T \ edgesWithin G S, _, _ ⟩ <;> simp_all +decide [ Finset.subset_iff, spanSub ]
+    rintro ⟨ u, v ⟩ huv; have := hT.2; simp_all +decide [ Set.Pairwise ]
+    unfold edgesWithin at huv; aesop
+  · refine' Finset.card_image_le.trans _
+    rw [ Finset.card_powerset, Finset.card_sdiff ]
+    rw [ Finset.inter_eq_left.mpr ]
     · exact pow_le_pow_right₀ (by decide)
         (Nat.sub_le_sub_left
-          (by simpa [hS] using card_edgesWithin_clique G S hclique) _);
+          (by simpa [hS] using card_edgesWithin_clique G S hclique) _)
     · exact edgesWithin_sub_edgeFinset G S
 
-/-- For a dense independent set `S` with min `G`-degree `≥ d`, at most `2^(m − d·|S|/2)` edge 
+/-- For a dense independent set `S` with min `G`-degree `≥ d`, at most `2^(m − d·|S|/2)` edge
 subsets make `S` independent. -/
 theorem per_degen_bad_count {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V)
     [DecidableRel G.Adj] (S : Finset V) (d : ℕ)
@@ -436,7 +436,7 @@ theorem per_degen_bad_count {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleG
       · simp +decide [Finset.subset_iff]
         exact fun T hT₁ hT₂ => ⟨hT₁, indep_spanSub_edgesWithin_disjoint G T S hT₂⟩
     · simp +decide
-      convert card_filter_disjoint' G.edgeFinset (edgesWithin G S) 
+      convert card_filter_disjoint' G.edgeFinset (edgesWithin G S)
         (edgesWithin_sub_edgeFinset G S) using 1
 
 /-- Union bound for filters with existential quantifier. -/
@@ -481,26 +481,26 @@ private lemma one_le_clog_two_two : 1 ≤ Nat.clog 2 2 := by
 theorem clique_bad_total_bound {V : Type*} [Fintype V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj] (hn : 2 ≤ Fintype.card V) :
     6 * (G.edgeFinset.powerset.filter (fun T =>
-      ∃ S : Finset V, S.card = 4 * Nat.clog 2 (Fintype.card V) + 1 ∧ 
+      ∃ S : Finset V, S.card = 4 * Nat.clog 2 (Fintype.card V) + 1 ∧
       (spanSub G T).IsClique ↑S)).card ≤ 2 ^ G.edgeFinset.card := by
   refine' le_trans
-    (mul_le_mul_of_nonneg_left (card_filter_bexists_le_sum _ _) (by norm_num)) _;
+    (mul_le_mul_of_nonneg_left (card_filter_bexists_le_sum _ _) (by norm_num)) _
   refine' le_trans
-    (mul_le_mul_of_nonneg_left (Finset.sum_le_sum fun S hS => _) (by norm_num)) _;
+    (mul_le_mul_of_nonneg_left (Finset.sum_le_sum fun S hS => _) (by norm_num)) _
   use fun S =>
     if S.card = 4 * Nat.clog 2 (Fintype.card V) + 1 ∧ G.IsClique S then
       2 ^ (G.edgeFinset.card - S.card.choose 2)
     else
-      0;
-  · split_ifs with h;
+      0
+  · split_ifs with h
     · have := per_clique_bad_count G S
-        (4 * Nat.clog 2 (Fintype.card V) + 1) h.1 h.2;
-      aesop;
-    · simp_all +decide [ spanSub ];
-      intro T hT hS hclique; specialize h hS; simp_all +decide [ Set.Pairwise ] ;
+        (4 * Nat.clog 2 (Fintype.card V) + 1) h.1 h.2
+      aesop
+    · simp_all +decide [ spanSub ]
+      intro T hT hS hclique; specialize h hS; simp_all +decide [ Set.Pairwise ]
   · by_cases h :
         4 * Nat.clog 2 (Fintype.card V) + 1 ≤ Fintype.card V <;>
-      simp_all +decide [Finset.sum_ite];
+      simp_all +decide [Finset.sum_ite]
     · have h_card :
           (Finset.filter
             (fun S : Finset V =>
@@ -522,20 +522,20 @@ theorem clique_bad_total_bound {V : Type*} [Fintype V] [DecidableEq V]
                 fun S hS =>
                   Finset.mem_powersetCard.mpr
                     ⟨Finset.subset_univ _, by aesop⟩))
-            (by simp +decide [Finset.card_univ]);
+            (by simp +decide [Finset.card_univ])
       have h_exp :
           6 * Nat.choose (Fintype.card V)
               (4 * Nat.clog 2 (Fintype.card V) + 1) ≤
             2 ^ ((4 * Nat.clog 2 (Fintype.card V) + 1).choose 2) := by
-        apply six_choose_le_pow_choose2';
-        · exact Nat.le_pow_clog ( by decide ) _;
-        · exact Nat.le_trans one_le_clog_two_two ( Nat.clog_mono_right _ hn );
-      by_cases h₂ : (4 * Nat.clog 2 (Fintype.card V) + 1).choose 2 ≤ G.edgeFinset.card;
-      · rw [ ← mul_assoc ];
-        refine' le_trans ( Nat.mul_le_mul_right _ ( Nat.mul_le_mul_left _ h_card ) ) _;
+        apply six_choose_le_pow_choose2'
+        · exact Nat.le_pow_clog ( by decide ) _
+        · exact Nat.le_trans one_le_clog_two_two ( Nat.clog_mono_right _ hn )
+      by_cases h₂ : (4 * Nat.clog 2 (Fintype.card V) + 1).choose 2 ≤ G.edgeFinset.card
+      · rw [ ← mul_assoc ]
+        refine' le_trans ( Nat.mul_le_mul_right _ ( Nat.mul_le_mul_left _ h_card ) ) _
         exact le_trans
           (Nat.mul_le_mul_right _ h_exp)
-          (by rw [← pow_add, Nat.add_sub_of_le h₂]);
+          (by rw [← pow_add, Nat.add_sub_of_le h₂])
       · have h_empty :
             ∀ S : Finset V,
               S.card = 4 * Nat.clog 2 (Fintype.card V) + 1 → ¬G.IsClique S := by
@@ -543,10 +543,10 @@ theorem clique_bad_total_bound {V : Type*} [Fintype V] [DecidableEq V]
           have h_edges :
               (edgesWithin G S).card ≥
                 (4 * Nat.clog 2 (Fintype.card V) + 1).choose 2 := by
-            have := card_edgesWithin_clique G S hclique; aesop;
-          exact h₂ ( h_edges.trans ( Finset.card_le_card ( edgesWithin_sub_edgeFinset _ _ ) ) );
-        rw [ Finset.card_eq_zero.mpr ] <;> aesop;
-    · rw [ Finset.card_eq_zero.mpr ] <;> norm_num;
+            have := card_edgesWithin_clique G S hclique; aesop
+          exact h₂ ( h_edges.trans ( Finset.card_le_card ( edgesWithin_sub_edgeFinset _ _ ) ) )
+        rw [ Finset.card_eq_zero.mpr ] <;> aesop
+    · rw [ Finset.card_eq_zero.mpr ] <;> norm_num
       exact fun S hS => absurd ( Finset.card_le_univ S ) ( by simp +decide [ hS ] ; linarith )
 
 /-! ## Telescoping sum identity for geometric series -/
@@ -646,13 +646,13 @@ theorem degen_bad_total_bound {V : Type*} [Fintype V] [DecidableEq V] (G : Simpl
                   by_cases hS_dense :
                       ∀ v ∈ S,
                         4 * Nat.clog 2 (Fintype.card V) ≤
-                          (S.filter (fun w => G.Adj v w)).card;
+                          (S.filter (fun w => G.Adj v w)).card
                   · have := per_degen_bad_count G S
-                      (4 * Nat.clog 2 (Fintype.card V)) hS_dense;
-                    simp_all +decide [mul_comm];
-                    grind;
-                  · rw [ Finset.card_eq_zero.mpr ] <;> aesop;
-            refine' le_trans ( Finset.card_le_card _ ) _;
+                      (4 * Nat.clog 2 (Fintype.card V)) hS_dense
+                    simp_all +decide [mul_comm]
+                    grind
+                  · rw [ Finset.card_eq_zero.mpr ] <;> aesop
+            refine' le_trans ( Finset.card_le_card _ ) _
             exact Finset.biUnion
               (Finset.powersetCard (s + 1) Finset.univ)
               fun S =>
@@ -663,15 +663,15 @@ theorem degen_bad_total_bound {V : Type*} [Fintype V] [DecidableEq V] (G : Simpl
                     ∀ v ∈ S,
                       4 * Nat.clog 2 (Fintype.card V) ≤
                         Finset.card (Finset.filter (fun w => G.Adj v w) S))
-                  (Finset.powerset G.edgeFinset);
-            · simp +contextual [ Finset.subset_iff ];
-            · refine' le_trans ( Finset.card_biUnion_le ) _;
+                  (Finset.powerset G.edgeFinset)
+            · simp +contextual [ Finset.subset_iff ]
+            · refine' le_trans ( Finset.card_biUnion_le ) _
               exact le_trans
                 (Finset.sum_le_sum fun x hx =>
                   h_filter x <| Finset.mem_powersetCard.mp hx |>.2)
-                (by simp +decide [Finset.card_univ]);
+                (by simp +decide [Finset.card_univ])
       refine' le_trans (Finset.card_le_card _)
-        (Finset.card_biUnion_le.trans (Finset.sum_le_sum h_union_bound));
+        (Finset.card_biUnion_le.trans (Finset.sum_le_sum h_union_bound))
       intro T hT
       obtain ⟨S, hS_nonempty, hS_indep, hS_deg⟩ := (Finset.mem_filter.mp hT).right
       have hS_card :
@@ -680,17 +680,17 @@ theorem degen_bad_total_bound {V : Type*} [Fintype V] [DecidableEq V] (G : Simpl
         have hS_card :
             4 * Nat.clog 2 (Fintype.card V) * S.card ≤ 2 * G.edgeFinset.card := by
           have := edgeFinset_within_ge_of_min_deg G S
-            (4 * Nat.clog 2 (Fintype.card V)) hS_deg;
-          exact this.trans (Nat.mul_le_mul_left _ (Finset.card_filter_le _ _));
-        exact Nat.le_floor (Nat.le_div_iff_mul_le (by positivity) |>.2 (by linarith));
-      simp +zetaDelta at *;
+            (4 * Nat.clog 2 (Fintype.card V)) hS_deg
+          exact this.trans (Nat.mul_le_mul_left _ (Finset.card_filter_le _ _))
+        exact Nat.le_floor (Nat.le_div_iff_mul_le (by positivity) |>.2 (by linarith))
+      simp +zetaDelta at *
       exact
         ⟨S.card - 1,
           by
             rw [tsub_lt_iff_left] <;>
               linarith [Finset.card_pos.mpr hS_nonempty],
           hT.1, S, by rw [Nat.sub_add_cancel hS_nonempty.card_pos], hS_indep,
-          hS_deg⟩;
+          hS_deg⟩
   -- Use choose_pow_bound to reduce each term.
   have h_choose_pow_bound :
       ∀ s ∈
@@ -701,14 +701,14 @@ theorem degen_bad_total_bound {V : Type*} [Fintype V] [DecidableEq V] (G : Simpl
             2 * Nat.clog 2 (Fintype.card V) * (s + 1)) ≤
           2 ^ (G.edgeFinset.card - Nat.clog 2 (Fintype.card V) * (s + 1)) := by
     intros s hs
-    apply choose_pow_bound (Fintype.card V) (Nat.clog 2 (Fintype.card V)) s G.edgeFinset.card;
-    · exact Nat.le_pow_clog ( by decide ) _;
+    apply choose_pow_bound (Fintype.card V) (Nat.clog 2 (Fintype.card V)) s G.edgeFinset.card
+    · exact Nat.le_pow_clog ( by decide ) _
     · nlinarith
         [Finset.mem_range.mp hs,
           Nat.div_mul_le_self G.edgeFinset.card (2 * Nat.clog 2 (Fintype.card V)),
           Nat.floor_le
             (show 0 ≤ G.edgeFinset.card / (2 * Nat.clog 2 (Fintype.card V)) from
-              Nat.zero_le _)];
+              Nat.zero_le _)]
   -- Use geom_sum_bound to bound the geometric sum.
   have h_geom_sum_bound :
       5 * (∑ s ∈
@@ -722,18 +722,18 @@ theorem degen_bad_total_bound {V : Type*} [Fintype V] [DecidableEq V] (G : Simpl
       (Nat.clog 2 (Fintype.card V))
       (by linarith)
       (by
-        norm_num +zetaDelta at *;
+        norm_num +zetaDelta at *
         nlinarith
           [Nat.div_mul_le_self G.edgeFinset.card
-            (2 * Nat.clog 2 (Fintype.card V))]);
-    simp_all +decide [ mul_comm ];
+            (2 * Nat.clog 2 (Fintype.card V))])
+    simp_all +decide [ mul_comm ]
     exact le_trans
       (Nat.mul_le_mul_right _
         (show 5 ≤ 2 ^ Nat.clog 2 (Fintype.card V) - 1 from
           Nat.le_sub_one_of_lt
             (lt_of_lt_of_le (by decide)
               (Nat.pow_le_pow_right (by decide) L_ge_5))))
-      this;
+      this
   exact le_trans
     (Nat.mul_le_mul_left _ h_union_bound)
     (le_trans
@@ -782,15 +782,15 @@ theorem large_N_counting {V : Type*} [Fintype V] [DecidableEq V]
       (∀ (S : Finset V), S.Nonempty → (∀ u ∈ S, ∀ v ∈ S, u ≠ v → ¬ H.Adj u v) →
         ∃ v ∈ S,
           (S.filter (fun w => G.Adj v w)).card < 4 * Nat.clog 2 (Fintype.card V)) := by
-  obtain ⟨T, hT⟩ := exists_good_edge_subset G hn hlarge;
-  refine' ⟨ spanSub G T, _, _, _, _ ⟩;
-  · infer_instance;
-  · exact fun u v h => h.2;
+  obtain ⟨T, hT⟩ := exists_good_edge_subset G hn hlarge
+  refine' ⟨ spanSub G T, _, _, _, _ ⟩
+  · infer_instance
+  · exact fun u v h => h.2
   · apply cliqueNum_spanSub_le_of_no_large_clique G T
-      (4 * Nat.clog 2 (Fintype.card V)) hT.2.1;
+      (4 * Nat.clog 2 (Fintype.card V)) hT.2.1
   · exact fun S hS₁ hS₂ => by
       push Not at hT
-      exact hT.2.2 S hS₁ hS₂;
+      exact hT.2.2 S hS₁ hS₂
 
 /-- The good spanning subgraph exists for all graphs on `≥ 2` vertices. -/
 theorem exists_good_spanning_subgraph {V : Type*} [Fintype V] [DecidableEq V]
@@ -800,19 +800,19 @@ theorem exists_good_spanning_subgraph {V : Type*} [Fintype V] [DecidableEq V]
       (∀ (S : Finset V), S.Nonempty → (∀ u ∈ S, ∀ v ∈ S, u ≠ v → ¬ H.Adj u v) →
         ∃ v ∈ S,
           (S.filter (fun w => G.Adj v w)).card < 4 * Nat.clog 2 (Fintype.card V)) := by
-  by_cases h_large : 4 * Nat.clog 2 ( Fintype.card V ) < Fintype.card V;
-  · convert large_N_counting G hn h_large using 1;
-  · refine' ⟨ ⊥, _, _, _, _ ⟩ <;> norm_num;
-    · infer_instance;
-    · refine' le_trans _ ( le_of_not_gt h_large );
+  by_cases h_large : 4 * Nat.clog 2 ( Fintype.card V ) < Fintype.card V
+  · convert large_N_counting G hn h_large using 1
+  · refine' ⟨ ⊥, _, _, _, _ ⟩ <;> norm_num
+    · infer_instance
+    · refine' le_trans _ ( le_of_not_gt h_large )
       exact csSup_le' fun n hn => by
         obtain ⟨s, hs⟩ := hn
-        exact hs.card_eq ▸ Finset.card_le_univ _;
-    · intro S hS;
+        exact hs.card_eq ▸ Finset.card_le_univ _
+    · intro S hS
       refine' ⟨hS.choose, hS.choose_spec,
         lt_of_lt_of_le
-          (Finset.card_lt_card (Finset.filter_ssubset.mpr _)) _⟩;
-      · exact ⟨ hS.choose, hS.choose_spec, by simp +decide ⟩;
+          (Finset.card_lt_card (Finset.filter_ssubset.mpr _)) _⟩
+      · exact ⟨ hS.choose, hS.choose_spec, by simp +decide ⟩
       · exact le_trans ( Finset.card_le_univ _ ) ( le_of_not_gt h_large )
 
 /-- Degeneracy colouring restricted to a subset. -/
@@ -862,7 +862,7 @@ theorem colorable_of_cochrom_degen {V : Type*} [Fintype V] [DecidableEq V] (G H 
       obtain ⟨g, hg⟩ : ∃ g : {v : V | f v = i} → Fin d, Function.Injective g := by
         have hle : Fintype.card {v : V | f v = i} ≤ d := by
           simpa [Fintype.card_subtype] using hsize
-        obtain ⟨g⟩ := Trunc.exists_rep (Fintype.truncEquivFinOfCardEq 
+        obtain ⟨g⟩ := Trunc.exists_rep (Fintype.truncEquivFinOfCardEq
           (show Fintype.card {v : V | f v = i} = Fintype.card {v : V | f v = i} from rfl))
         exact ⟨fun x => Fin.castLE hle (g x),
           fun x y hxy => g.injective <| Fin.castLE_injective _ hxy⟩
@@ -918,23 +918,23 @@ theorem exists_subgraph_from_clique_cochrom {V : Type*} [Fintype V] [DecidableEq
   have h_exists_clique : ∃ S : Finset V, S.card = n ∧ G.IsClique S := by
     -- Since $n \leq \omega(G)$, there exists a clique of size $n$ in $G$.
     have h_clique : ∃ S : Finset V, G.IsClique S ∧ S.card ≥ n := by
-      contrapose! hn;
-      refine' lt_of_le_of_lt ( csSup_le' _ ) _;
-      exact n - 1;
-      · rintro m ⟨ s, hs ⟩;
-        exact Nat.le_sub_one_of_lt ( by simpa [ hs.card_eq ] using hn s hs.isClique );
-      · exact Nat.pred_lt ( ne_bot_of_gt ( hn ∅ ( by simp +decide ) ) );
-    obtain ⟨ S, hS₁, hS₂ ⟩ := h_clique;
-    obtain ⟨ T, hT ⟩ := Finset.exists_subset_card_eq hS₂;
-    exact ⟨ T, hT.2, fun u hu v hv huv => hS₁ ( hT.1 hu ) ( hT.1 hv ) huv ⟩;
+      contrapose! hn
+      refine' lt_of_le_of_lt ( csSup_le' _ ) _
+      exact n - 1
+      · rintro m ⟨ s, hs ⟩
+        exact Nat.le_sub_one_of_lt ( by simpa [ hs.card_eq ] using hn s hs.isClique )
+      · exact Nat.pred_lt ( ne_bot_of_gt ( hn ∅ ( by simp +decide ) ) )
+    obtain ⟨ S, hS₁, hS₂ ⟩ := h_clique
+    obtain ⟨ T, hT ⟩ := Finset.exists_subset_card_eq hS₂
+    exact ⟨ T, hT.2, fun u hu v hv huv => hS₁ ( hT.1 hu ) ( hT.1 hv ) huv ⟩
   obtain ⟨S, hS_card, hS_clique⟩ := h_exists_clique
   obtain ⟨f, hf⟩ : ∃ f : Fin n ≃ S, True := by
-    exact ⟨ Fintype.equivOfCardEq ( by simp +decide [ hS_card ] ), trivial ⟩;
+    exact ⟨ Fintype.equivOfCardEq ( by simp +decide [ hS_card ] ), trivial ⟩
   refine' ⟨S, inferInstance, R.comap f.symm, inferInstance, inferInstance, _, _, _⟩ <;>
-    simp_all +decide;
+    simp_all +decide
   · intro a ha b hb hab
     have := hS_clique ha hb
-    aesop;
+    aesop
   · convert cochromaticNumber_comap_equiv R f.symm
 
 /-- Extension lemma: colour clique fibres, assign independent fibres their own colour. -/
