@@ -3421,8 +3421,7 @@ theorem lift_cycle_from_induce_preserve_length
   refine ⟨C', ?_⟩
   simp [BV.Cycle.length, C', SimpleGraph.Walk.length_map]
 
-set_option linter.unusedDecidableInType false in
-omit [Fintype V] in
+omit [Fintype V] [DecidableEq V] [DecidableRel G.Adj] in
 theorem erdos_751_strong [Finite V]
     (hχ : (4 : ℕ∞) ≤ G.chromaticNumber) :
     ∃ C1 C2 : BV.Cycle (G := G),
