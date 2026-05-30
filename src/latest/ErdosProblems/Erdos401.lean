@@ -34,14 +34,13 @@ namespace Erdos401
 -- rewrite locally; keep specific suppressions rather than the broad
 -- `linter.mathlibStandardSet` switch.
 set_option linter.style.setOption false
-set_option linter.style.openClassical false
 set_option linter.style.longLine false
 set_option linter.style.refine false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.flexible false
 
-open scoped Classical
+attribute [local instance] Classical.propDecidable
 
 /-
 p_j is the j-th prime number (1-indexed).
