@@ -26,7 +26,6 @@ The proof (of the existence of a red copy of any arbitrary four-point configurat
 import Mathlib
 
 set_option linter.style.setOption false
-set_option linter.style.openClassical false
 set_option linter.style.longLine false
 set_option linter.flexible false
 set_option linter.style.refine false
@@ -36,8 +35,8 @@ namespace Erdos214
 open scoped BigOperators
 open scoped Real
 open scoped Nat
-open scoped Classical
 open scoped Pointwise
+attribute [local instance] Classical.propDecidable
 
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
