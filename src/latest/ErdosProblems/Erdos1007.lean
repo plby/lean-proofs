@@ -52,7 +52,6 @@ set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.style.refine false
 set_option linter.flexible false
-set_option linter.style.induction false
 
 attribute [local instance] Classical.propDecidable
 
@@ -986,7 +985,8 @@ lemma edges_lt_9_embeds_in_3_measure (n : ℕ) :
       intro V _ G hn hE;
       classical
       -- We prove this by strong induction on `n`.
-      induction' n using Nat.strong_induction_on with n ih generalizing V G;
+      induction n using Nat.strong_induction_on generalizing V G with
+      | h n ih =>
       -- If `∀ v, G.degree v ≥ 3`, then `min_degree_ge_3_edges_lt_9_embeds` applies.
       by_cases h_min_deg : ∀ v, G.degree v ≥ 3;
       · exact min_degree_ge_3_edges_lt_9_embeds G hE h_min_deg;
