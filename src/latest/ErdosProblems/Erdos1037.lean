@@ -34,13 +34,12 @@ namespace Erdos1037
 -- surface. The remaining suppressions guard warnings that would require a
 -- substantial proof rewrite rather than local cleanup.
 set_option linter.style.setOption false
-set_option linter.style.openClassical false
 set_option linter.style.longLine false
 set_option linter.style.refine false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
 
-open scoped Classical
+attribute [local instance] Classical.propDecidable
 
 /-
 A degree value $t$ occurs at most twice in $G$ if $|\{v \in V : d_G(v) = t\}| \le 2$. We say every degree occurs at most twice if this holds for all $t$.
