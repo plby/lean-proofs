@@ -18,7 +18,6 @@ import Mathlib
 set_option linter.style.cases false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
-set_option linter.style.openClassical false
 set_option linter.style.refine false
 set_option linter.style.setOption false
 set_option linter.flexible false
@@ -26,7 +25,7 @@ set_option linter.unusedSimpArgs false
 
 namespace Erdos537
 
-open scoped Classical
+attribute [local instance] Classical.propDecidable
 
 /-
 The set of all squarefree numbers of the shape $p_1\cdots p_r$ where $p_{i+1}>2p_i$ for $1\leq i<r$.
