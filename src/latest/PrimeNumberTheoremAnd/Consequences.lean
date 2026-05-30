@@ -6,14 +6,13 @@ import PrimeNumberTheoremAnd.Wiener
 set_option linter.style.setOption false
 set_option linter.style.emptyLine false
 set_option linter.style.longLine false
-set_option linter.style.openClassical false
 set_option linter.flexible false
 set_option lang.lemmaCmd true
 
 open ArithmeticFunction hiding log
 open Nat hiding log
 open Finset
-open BigOperators Filter Real Classical Asymptotics MeasureTheory intervalIntegral
+open BigOperators Filter Real Asymptotics MeasureTheory intervalIntegral
 open scoped ArithmeticFunction.Moebius ArithmeticFunction.Omega Chebyshev
 
 lemma Set.Ico_subset_Ico_of_Icc_subset_Icc {a b c d : ℝ} (h : Set.Icc a b ⊆ Set.Icc c d) :
@@ -2316,4 +2315,3 @@ theorem dirichlet_thm {q : ℕ} {a : ℕ} (hq : q ≥ 1) (ha : Nat.Coprime a q) 
           from by rwa [ZMod.isUnit_iff_coprime])).choose_spec
     exact this.mono fun p hp ↦ ⟨hp.1, by simpa [ModEq, mod_eq_of_lt ha'] using hp.2⟩
   exact Set.infinite_coe_iff.mpr this
-
