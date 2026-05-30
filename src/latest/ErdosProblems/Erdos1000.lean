@@ -32,7 +32,6 @@ set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.style.refine false
 set_option linter.flexible false
-set_option linter.style.induction false
 
 attribute [local instance] Classical.propDecidable
 
@@ -290,9 +289,11 @@ lemma lem_block (a : ℕ → ℝ) (c : ℕ → ℝ)
     -- By Lemma 5, it suffices to show that the average of the $a_k$'s is bounded above by the average of the $c_t$'s.
     have h_bound : ∀ t ≥ 1, (∑ k ∈ Finset.Icc 1 (2 ^ (t + 1) - 2), a k) ≤ (∑ j ∈ Finset.range t, c (j + 1) * 2 ^ (j + 1)) := by
       intros t ht
-      induction' ht with t ht ih;
-      · simpa using h_sum 1 le_rfl;
-      · have := h_sum ( t + 1 ) ( Nat.le_succ_of_le ht );
+      induction t, ht using Nat.le_induction with
+      | base =>
+        simpa using h_sum 1 le_rfl
+      | succ t ht ih =>
+        have := h_sum ( t + 1 ) ( Nat.le_succ_of_le ht );
         erw [ Finset.sum_Ico_eq_sub _ _ ] at * <;> norm_num [ Finset.sum_range_succ ] at *;
         · rw [ show ( 2 ^ ( t + 1 ) - 1 : ℕ ) = ( 2 ^ ( t + 1 ) - 2 ) + 1 by exact Nat.sub_eq_of_eq_add <| by linarith [ Nat.sub_add_cancel <| show 2 ≤ 2 ^ ( t + 1 ) from le_trans ( by norm_num ) <| pow_le_pow_right₀ ( by norm_num ) <| Nat.succ_le_succ ht ] ] at this ; norm_num [ Finset.sum_range_succ ] at * ; linarith;
         · ring_nf;
@@ -398,11 +399,17 @@ lemma n_seq_block_mono (t : ℕ) (k : ℕ)
           have h_divisors_card : (Nat.divisors (Finset.prod (Finset.range t) (fun i => Nat.nth Nat.Prime i))).card = Finset.prod (Finset.range t) (fun i => (Nat.divisors (Nat.nth Nat.Prime i)).card) := by
             have h_divisors_card : ∀ {a b : ℕ}, Nat.gcd a b = 1 → (Nat.divisors (a * b)).card = (Nat.divisors a).card * (Nat.divisors b).card := by
               exact fun {a b} a_1 => Nat.Coprime.card_divisors_mul a_1;
-            induction' t with t ih;
-            · norm_num;
-            · induction' t + 1 with t ih <;> simp_all +decide [ Finset.prod_range_succ ];
-              rw [ h_divisors_card, ih ];
-              exact Nat.Coprime.prod_left fun i hi => Nat.coprime_comm.mp <| Nat.Prime.coprime_iff_not_dvd ( Nat.prime_nth_prime _ ) |>.2 <| Nat.not_dvd_of_pos_of_lt ( Nat.Prime.pos <| Nat.prime_nth_prime _ ) <| Nat.nth_strictMono ( Nat.infinite_setOf_prime ) <| Finset.mem_range.mp hi;
+            induction t with
+            | zero =>
+              norm_num
+            | succ t ih =>
+              induction (t + 1) with
+              | zero =>
+                simp_all +decide
+              | succ t ih =>
+                simp_all +decide [ Finset.prod_range_succ ];
+                rw [ h_divisors_card, ih ];
+                exact Nat.Coprime.prod_left fun i hi => Nat.coprime_comm.mp <| Nat.Prime.coprime_iff_not_dvd ( Nat.prime_nth_prime _ ) |>.2 <| Nat.not_dvd_of_pos_of_lt ( Nat.Prime.pos <| Nat.prime_nth_prime _ ) <| Nat.nth_strictMono ( Nat.infinite_setOf_prime ) <| Finset.mem_range.mp hi;
           simp_all +decide [ Nat.Prime.divisors ];
           exact h_divisors_card.trans ( by rw [ Finset.prod_congr rfl fun _ _ => Finset.card_pair <| ne_of_lt <| Nat.Prime.one_lt <| Nat.prime_nth_prime _ ] ; norm_num );
         omega;
@@ -503,8 +510,12 @@ lemma n_seq_phi_bound (t : ℕ) (k : ℕ)
       have h_coprime_Q : Nat.Coprime (r_seq t) (Q t) := by
         -- Since $r_t > Q_t$ and $r_t$ is prime, $r_t$ cannot divide any of the primes in the product defining $Q_t$.
         have h_r_gt_Q : r_seq t > Q t := by
-          induction' t with t ih <;> simp_all +decide [ Nat.pow_succ' ];
-          have := r_seq_spec t; aesop;
+          induction t with
+          | zero =>
+            simp_all +decide
+          | succ t ih =>
+            simp_all +decide [ Nat.pow_succ' ];
+            have := r_seq_spec t; aesop;
         refine' h_p_prime.coprime_iff_not_dvd.mpr _;
         exact Nat.not_dvd_of_pos_of_lt ( Nat.pos_of_ne_zero ( by exact Finset.prod_ne_zero_iff.mpr fun i hi => Nat.Prime.ne_zero ( by aesop ) ) ) h_r_gt_Q;
       refine' h_coprime_Q.coprime_dvd_right _;
@@ -567,13 +578,19 @@ lemma n_seq_phi_bound (t : ℕ) (k : ℕ)
               have h_divisors_card : (Nat.divisors (Finset.prod (Finset.range t) (fun i => Nat.nth Nat.Prime i))).card = Finset.prod (Finset.range t) (fun i => (Nat.divisors (Nat.nth Nat.Prime i)).card) := by
                 have h_divisors_card : ∀ {m n : ℕ}, Nat.Coprime m n → (Nat.divisors (m * n)).card = (Nat.divisors m).card * (Nat.divisors n).card := by
                   exact fun {m n} a => Nat.Coprime.card_divisors_mul a;
-                induction' t with t ih;
-                · contradiction;
-                · induction' t + 1 with t ih <;> simp +decide [ Finset.prod_range_succ, * ];
-                  rw [ h_divisors_card, ih ];
-                  refine' Nat.Coprime.prod_left _;
-                  intro i hi; rw [ Nat.coprime_primes ] <;> norm_num [ Nat.Prime.ne_zero, Nat.Prime.ne_one ] ;
-                  exact fun h => by have := Nat.nth_injective ( Nat.infinite_setOf_prime ) h; linarith [ Finset.mem_range.mp hi ] ;
+                induction t with
+                | zero =>
+                  contradiction
+                | succ t ih =>
+                  induction (t + 1) with
+                  | zero =>
+                    simp +decide [ * ]
+                  | succ t ih =>
+                    simp +decide [ Finset.prod_range_succ, * ];
+                    rw [ h_divisors_card, ih ];
+                    refine' Nat.Coprime.prod_left _;
+                    intro i hi; rw [ Nat.coprime_primes ] <;> norm_num [ Nat.Prime.ne_zero, Nat.Prime.ne_one ] ;
+                    exact fun h => by have := Nat.nth_injective ( Nat.infinite_setOf_prime ) h; linarith [ Finset.mem_range.mp hi ] ;
               simp_all +singlePass [ Nat.Prime.divisors ];
               exact h_divisors_card.trans ( by rw [ Finset.prod_congr rfl fun _ _ => Finset.card_pair <| ne_of_lt <| Nat.Prime.one_lt <| Nat.prime_nth_prime _ ] ; norm_num );
             omega
@@ -713,9 +730,11 @@ lemma sum_over_block_eq_sum_over_divisors_correct (t : ℕ) (ht : t ≥ 1) (f : 
         · exact Finset.prod_ne_zero_iff.mpr fun i hi => Nat.Prime.ne_zero <| by aesop;
     rw [ hd.1, Nat.mul_div_cancel_left _ ( Nat.Prime.pos ( show Nat.Prime ( r_seq t ) from ?_ ) ) ];
     · aesop
-    induction' t with t ih;
-    · contradiction;
-    · exact Nat.find_spec ( Nat.exists_infinite_primes _ ) |>.2
+    induction t with
+    | zero =>
+      contradiction
+    | succ t ih =>
+      exact Nat.find_spec ( Nat.exists_infinite_primes _ ) |>.2
   have h_inj : ∀ k₁ ∈ I, ∀ k₂ ∈ I, g k₁ = g k₂ → k₁ = k₂ := by
     intro k₁ hk₁ k₂ hk₂ h_eq
     -- Since $n_k$ is strictly increasing, if $n_k1 = n_k2$, then $k1 = k2$.
@@ -882,9 +901,11 @@ lemma r_seq_coprime_aux (t : ℕ) (k : ℕ)
             exact ⟨ by linarith [ Finset.mem_Icc.mp hk, Nat.sub_add_cancel ( Nat.one_le_pow t 2 zero_lt_two ) ], by linarith [ Finset.mem_Icc.mp hk, Nat.sub_add_cancel ( show 2 ≤ 2 ^ ( t + 1 ) from le_trans ( by decide ) ( Nat.pow_le_pow_right ( by decide ) ( Nat.succ_le_succ ht ) ) ) ] ⟩;
       -- From r_seq_spec, we know that r_seq t > Q t.
       have h_r_gt_Q : r_seq t > Q t := by
-        induction' t with t ih;
-        · contradiction;
-        · exact lt_of_le_of_lt ( le_max_of_le_right ( le_max_left _ _ ) ) ( r_seq_spec _ |>.1 );
+        induction t with
+        | zero =>
+          contradiction
+        | succ t ih =>
+          exact lt_of_le_of_lt ( le_max_of_le_right ( le_max_left _ _ ) ) ( r_seq_spec _ |>.1 );
       -- Since $r_seq t$ is prime and greater than $Q t$, it cannot divide any divisor of $Q t$.
       have h_r_not_div_Q : ¬(r_seq t ∣ Q t) := by
         exact Nat.not_dvd_of_pos_of_lt ( Nat.pos_of_ne_zero ( by exact ne_of_gt ( Finset.prod_pos fun i hi => Nat.Prime.pos ( by aesop ) ) ) ) h_r_gt_Q;
@@ -1023,9 +1044,11 @@ theorem erdos_1000_true :
       tauto;
   refine' ⟨ n_seq, n_seq_strictMono, _, _ ⟩;
   · intro k;
-    induction' k with k ih;
-    · unfold n_seq; norm_num;
-    · exact lt_of_lt_of_le ih ( n_seq_strictMono.monotone ( Nat.le_succ _ ) );
+    induction k with
+    | zero =>
+      unfold n_seq; norm_num
+    | succ k ih =>
+      exact lt_of_lt_of_le ih ( n_seq_strictMono.monotone ( Nat.le_succ _ ) );
   · -- Since `cesaroPhi` sums from `k=0` to `N-1`, we need to adjust the index to match `h_apply_lem_block`.
     have h_shift : Filter.Tendsto (fun N : ℕ => (1 / (N : ℝ)) * ∑ k ∈ Finset.range N, (phiA n_seq k : ℝ) / (n_seq k : ℝ)) Filter.atTop (nhds 0) := by
       -- The term `a 0 = 1`, so the term `a 0 / N` tends to 0.
