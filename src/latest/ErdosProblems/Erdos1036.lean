@@ -248,7 +248,6 @@ end Harmonic
 namespace Erdos1036
 
 set_option linter.style.setOption false
-set_option linter.style.openClassical false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
@@ -258,8 +257,9 @@ set_option linter.flexible false
 open scoped BigOperators
 open scoped Real
 open scoped Nat
-open scoped Classical
 open scoped Pointwise
+
+attribute [local instance] Classical.propDecidable
 
 set_option maxHeartbeats 1000000
 -- Several generated homogeneous-set estimates time out at the default heartbeat limit.
@@ -913,8 +913,6 @@ theorem prob_bound_main_v3 (γ : ℝ) (n : ℕ) (hγ : 0 < γ ∧ γ < 1) (hn : 
 /-
 Helper for Markov: k * P(X >= k) <= E[X].
 -/
-open Classical
-
 theorem sum_ge_k_le_expectation {V : Type*} [Fintype V]
     (p : ℝ) (k : ℝ) (hp : 0 ≤ p) (hp1 : p ≤ 1) :
     k * prob_event p {A : Finset V | k ≤ A.card} ≤
@@ -939,8 +937,6 @@ theorem sum_ge_k_le_expectation {V : Type*} [Fintype V]
 /-
 Markov's inequality for cardinality of random set.
 -/
-open Classical
-
 theorem markov_inequality_card {V : Type*} [Fintype V]
     (p : ℝ) (k : ℝ) (hk : 0 < k) (hp : 0 ≤ p) (hp1 : p ≤ 1) :
   prob_event p {A : Finset V | k ≤ A.card} ≤ (p * Fintype.card V) / k := by
