@@ -36,7 +36,6 @@ set_option linter.style.longLine false
 -- where possible.
 set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
-set_option linter.style.openClassical false
 set_option linter.style.refine false
 set_option linter.unnecessarySeqFocus false
 set_option linter.unreachableTactic false
@@ -52,7 +51,8 @@ noncomputable section
     ================================================================== -/
 
 open Finset Function SimpleGraph
-open scoped Classical
+
+attribute [local instance] Classical.propDecidable
 
 /-!
 # Core Definitions and Burnside Machinery for Unique Subgraphs
@@ -472,7 +472,6 @@ and `reduction_to_dense` in the main formalization.
 -/
 
 open Finset Function SimpleGraph
-open scoped Classical
 
 namespace UniqueSubgraphs
 
@@ -637,7 +636,6 @@ Key results:
 -/
 
 open Finset Function SimpleGraph
-open scoped Classical
 
 -- The generated Azuma-switch infrastructure needs a higher ambient heartbeat budget.
 set_option maxHeartbeats 1600000
@@ -1016,7 +1014,6 @@ end UniqueSubgraphs
 -/
 
 open Finset Function SimpleGraph
-open scoped Classical
 
 namespace UniqueSubgraphs
 
@@ -1076,7 +1073,6 @@ pair with a good ratio bound.
 -/
 
 open Finset Function SimpleGraph
-open scoped Classical
 
 namespace UniqueSubgraphs
 
@@ -1337,7 +1333,6 @@ This file proves the abstract transition bound needed for `sum_z_refined_le_one`
 -/
 
 open Finset Function
-open scoped Classical
 
 namespace EdgeOrderingCount
 
@@ -1676,7 +1671,6 @@ non-identity permutations using an orbit-size argument on edges.
 -/
 
 open Finset Function SimpleGraph Filter
-open scoped Classical
 
 namespace PolyaWright
 
@@ -2563,7 +2557,6 @@ Core definitions and Burnside machinery are in `MainDefs.lean`.
 -/
 
 open Finset Function SimpleGraph
-open scoped Classical
 
 namespace UniqueSubgraphs
 
