@@ -31,13 +31,13 @@ namespace Erdos582
 set_option linter.unusedSectionVars false
 set_option linter.unusedVariables false
 set_option linter.style.multiGoal false
-set_option linter.style.openClassical false
 set_option linter.style.refine false
 set_option linter.style.setOption false
 set_option linter.flexible false
 
-open scoped Classical
 open SimpleGraph
+
+attribute [local instance] Classical.propDecidable
 
 variable {V W : Type*} [Fintype V] [Fintype W] [DecidableEq V] [DecidableEq W]
 variable (G : SimpleGraph V) (v0 : V) (H' : SimpleGraph W)
