@@ -27,7 +27,6 @@ import PrimeNumberTheoremAnd.Consequences
 namespace Erdos678
 
 set_option linter.style.setOption false
-set_option linter.style.openClassical false
 set_option linter.style.longLine false
 set_option linter.flexible false
 set_option linter.style.induction false
@@ -39,8 +38,9 @@ set_option maxHeartbeats 1000000
 
 open scoped BigOperators
 open scoped Nat
-open scoped Classical
 open scoped Pointwise
+
+attribute [local instance] Classical.propDecidable
 
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
