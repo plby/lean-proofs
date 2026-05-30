@@ -46,16 +46,16 @@ import ErdosProblems.Erdos447
 set_option linter.style.setOption false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
-set_option linter.style.openClassical false
 set_option linter.style.refine false
 set_option linter.flexible false
 
 namespace Erdos487
 
 open scoped Nat
-open scoped Classical
 open Asymptotics Filter
 open Erdos447
+
+attribute [local instance] Classical.propDecidable
 
 /-
 Definition of lower asymptotic density of a set A of natural numbers.
