@@ -6,7 +6,6 @@ import PrimeNumberTheoremAnd.Mathlib.Algebra.Notation.Support
 set_option linter.style.setOption false
 set_option linter.style.emptyLine false
 set_option linter.style.longLine false
-set_option linter.style.openClassical false
 set_option linter.flexible false
 set_option lang.lemmaCmd true
 
