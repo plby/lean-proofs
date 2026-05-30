@@ -32,14 +32,14 @@ namespace Erdos476
 
 -- These generated proof scripts still rely on style-heavy tactic automation.
 set_option linter.style.setOption false
-set_option linter.style.openClassical false
 set_option linter.style.longLine false
 set_option linter.style.refine false
 set_option linter.style.induction false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
 
-open scoped Classical
+attribute [local instance] Classical.propDecidable
+
 open Polynomial Finset
 
 /-
