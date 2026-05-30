@@ -4,13 +4,12 @@ import Mathlib.NumberTheory.Chebyshev
 set_option linter.style.setOption false
 set_option linter.style.emptyLine false
 set_option linter.style.longLine false
-set_option linter.style.openClassical false
 set_option linter.flexible false
 
 open ArithmeticFunction hiding log
 open Nat hiding log
 open Finset Topology
-open BigOperators Filter Real Classical Asymptotics
+open BigOperators Filter Real Asymptotics
 open MeasureTheory intervalIntegral
 open scoped ArithmeticFunction.Moebius
 open scoped ArithmeticFunction.Omega Chebyshev
@@ -33,11 +32,13 @@ def prime_gap_record (p g : ℕ) : Prop :=
   ∃ n, nth_prime n = p ∧ nth_prime_gap n = g ∧
     ∀ k, nth_prime k < p → nth_prime_gap k < g
 
-open Classical in
 noncomputable def first_gap (g : ℕ) : ℕ :=
-  if h : ∃ n, nth_prime_gap n = g then
-    nth_prime (Nat.find h)
-  else 0
+  by
+    classical
+    exact
+      if h : ∃ n, nth_prime_gap n = g then
+        nth_prime (Nat.find h)
+      else 0
 
 def first_gap_record (g P : ℕ) : Prop :=
   first_gap g = P ∧
