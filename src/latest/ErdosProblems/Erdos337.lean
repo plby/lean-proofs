@@ -20,15 +20,15 @@ set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
-set_option linter.style.openClassical false
 set_option linter.style.refine false
 set_option linter.unusedVariables false
 set_option aesop.warn.nonterminal false
 
 namespace Erdos337
 
-open scoped Classical
 open scoped Pointwise
+
+attribute [local instance] Classical.propDecidable
 
 /-
 Definitions of iterated sumset, counting function, basis of order h, and thin basis property.
