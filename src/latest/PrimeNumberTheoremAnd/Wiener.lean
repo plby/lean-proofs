@@ -13,7 +13,6 @@ import Mathlib.Analysis.Convolution
 set_option linter.style.setOption false
 set_option linter.style.emptyLine false
 set_option linter.style.longLine false
-set_option linter.style.openClassical false
 set_option linter.flexible false
 set_option lang.lemmaCmd true
 
@@ -3657,7 +3656,6 @@ theorem WeakPNT_AP {q : ℕ} {a : ℕ} (hq : q ≥ 1) (ha : a.Coprime q) (ha' : 
   · convert hG₂ using 3
     · exact tsum_congr fun n ↦ by cases n <;> aesop
     · norm_num [div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm]
-
 
 
 
