@@ -16,11 +16,9 @@ import Mathlib
 
 namespace MO509164
 
-set_option linter.style.openClassical false
 set_option linter.style.setOption false
 
 open scoped Nat
-open scoped Classical
 
 set_option maxHeartbeats 50000000
 set_option linter.flexible false
@@ -946,6 +944,7 @@ If x is not in E_plus and starts with 0, its code is not eventually 1.
 -/
 theorem not_eventually_one_of_mem_diff (rho : ℝ) (_hrho : 0 < rho ∧ rho < 1 / 2) (x : ℝ) (hx_not_E : x ∉ E_plus rho) (ω : ℕ → Fin 2) (hω : pi rho ω = x) (h0 : ω 0 = 0) :
     ∀ n, ∃ k ≥ n, ω k ≠ 1 := by
+      classical
       -- Assume for contradiction that ω is eventually 1.
       by_contra h_contra
       obtain ⟨u, hu⟩ : ∃ u : List (Fin 2), u ≠ [] ∧ ω = append_ones u := by
@@ -1379,6 +1378,7 @@ If a set has small diameter, its measure is bounded by 2^-n.
 lemma measure_le_two_pow_neg_n_of_diam_le (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (U : Set ℝ) (n : ℕ) (hn : 1 ≤ n)
     (h_diam : Metric.ediam U < ENNReal.ofReal ((1 - 2 * r) * r ^ (n - 1))) :
     mu r U ≤ (1 / 2 : ENNReal) ^ n := by
+      classical
       -- By definition of $C_n$, $U$ can intersect at most one interval $I_u$ at level $n$.
       have h_inter : ∀ u v : List (Fin 2), u ∈ Sigma_n n → v ∈ Sigma_n n → u ≠ v → Disjoint U (I_word u r) ∨ Disjoint U (I_word v r) := by
         intros u v hu hv huv
@@ -1708,6 +1708,7 @@ If delta is smaller than the smallest gap at level n, then the covering number i
 lemma N_delta_ge_two_pow (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (n : ℕ) (δ : ℝ) (hδ : 0 < δ)
     (hδ_lt : δ < (1 - 2 * r) * r ^ (n - 1)) :
     N_delta (C r) δ ≥ 2 ^ n := by
+      classical
       -- Let $U$ be a finite cover of $C_r$ with sets of diameter $\le \delta$.
       have h_cover : ∀ (U : Finset (Set ℝ)), (∀ i ∈ U, Metric.ediam i ≤ ENNReal.ofReal δ) → (C r ⊆ ⋃ i ∈ U, i) → U.card ≥ 2 ^ n := by
         intros U hU hU_cover
