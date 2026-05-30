@@ -57,8 +57,6 @@ import Mathlib.Tactic
 import Mathlib.Topology.Algebra.PontryaginDual
 import Mathlib.Topology.ContinuousMap.SecondCountableSpace
 
-set_option linter.style.setOption false
-
 attribute [local instance] Classical.propDecidable
 
 /-!
