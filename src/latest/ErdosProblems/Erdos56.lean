@@ -17,7 +17,6 @@ URLs:
 -/
 import Mathlib
 
-set_option linter.style.openClassical false
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.deprecated false
@@ -27,7 +26,6 @@ namespace Erdos56
 open scoped BigOperators
 open scoped Real
 open scoped Nat
-open scoped Classical
 open scoped Pointwise
 
 -- The generated prime-factor construction needs extended heartbeat, recursion,
@@ -1496,7 +1494,11 @@ def has_no_k_plus_1_coprime (A : Finset ℕ) (k : ℕ) : Prop :=
   ∀ S ⊆ A, (S : Set ℕ).Pairwise Nat.Coprime → S.card ≤ k
 
 noncomputable def f (n k : ℕ) : ℕ :=
-  ((Finset.powerset (Finset.Icc 1 n)).filter (fun A => has_no_k_plus_1_coprime A k)).sup Finset.card
+  by
+    classical
+    exact
+      ((Finset.powerset (Finset.Icc 1 n)).filter
+          (fun A => has_no_k_plus_1_coprime A k)).sup Finset.card
 
 def t_val : ℕ := 209
 def k_val : ℕ := 212
@@ -1504,9 +1506,14 @@ def k_val : ℕ := 212
 noncomputable def p (i : ℕ) : ℕ := Nat.nth Nat.Prime (i - 1)
 
 noncomputable def C_set : Finset ℕ :=
-  ((Finset.range 9).product (Finset.range 9)).image
-    (fun x => p (t_val + x.1) * p (t_val + x.2))
-  |>.filter (fun m => ∃ i j, 0 ≤ i ∧ i < j ∧ j ≤ 8 ∧ m = p (t_val + i) * p (t_val + j))
+  by
+    classical
+    exact
+      ((Finset.range 9).product (Finset.range 9)).image
+        (fun x => p (t_val + x.1) * p (t_val + x.2))
+      |>.filter
+        (fun m => ∃ i j, 0 ≤ i ∧ i < j ∧ j ≤ 8 ∧
+          m = p (t_val + i) * p (t_val + j))
 
 noncomputable def B_set (n : ℕ) : Finset ℕ :=
   (Finset.Icc 1 n).filter (fun m => m.gcd (P (t_val - 1)) > 1)
@@ -1523,9 +1530,12 @@ noncomputable def B (t n : ℕ) : Finset ℕ :=
   (Finset.Icc 1 n).filter (fun m => m.gcd (P (t - 1)) > 1)
 
 noncomputable def C (t : ℕ) : Finset ℕ :=
-  ((Finset.range 9).product (Finset.range 9)).image
-    (fun x => p (t + x.1) * p (t + x.2))
-  |>.filter (fun m => ∃ i j, i < j ∧ j ≤ 8 ∧ m = p (t + i) * p (t + j))
+  by
+    classical
+    exact
+      ((Finset.range 9).product (Finset.range 9)).image
+        (fun x => p (t + x.1) * p (t + x.2))
+      |>.filter (fun m => ∃ i j, i < j ∧ j ≤ 8 ∧ m = p (t + i) * p (t + j))
 
 noncomputable def A (t n : ℕ) : Finset ℕ := B t n ∪ C t
 
@@ -2159,8 +2169,14 @@ lemma A_no_k_plus_1_final (t n : ℕ) (h_H : satisfies_H t) (h_disjoint : Disjoi
 noncomputable def D_primes (t : ℕ) : Finset ℕ := (Finset.range 4).image (fun i => p (t + i))
 noncomputable def D_squares (t : ℕ) : Finset ℕ := (Finset.range 4).image (fun i => p (t + i) ^ 2)
 noncomputable def D_products (t : ℕ) : Finset ℕ :=
-  ((Finset.range 4).product (Finset.range 9)).image (fun x => p (t + x.1) * p (t + x.2))
-  |>.filter (fun m => ∃ i j, 0 ≤ i ∧ i ≤ 3 ∧ 1 ≤ j ∧ j ≤ 8 ∧ i < j ∧ m = p (t + i) * p (t + j))
+  by
+    classical
+    exact
+      ((Finset.range 4).product (Finset.range 9)).image
+        (fun x => p (t + x.1) * p (t + x.2))
+      |>.filter
+        (fun m => ∃ i j, 0 ≤ i ∧ i ≤ 3 ∧ 1 ≤ j ∧ j ≤ 8 ∧ i < j ∧
+          m = p (t + i) * p (t + j))
 
 noncomputable def D_union (t : ℕ) : Finset ℕ := D_primes t ∪ D_squares t ∪ D_products t
 
@@ -2785,6 +2801,7 @@ lemma m_is_prime_or_one_v3 (t : ℕ) (m : ℕ) (h_t : t =
 
 lemma D_subset_D_plus_final (t n : ℕ) (h_t : t = 209) (h_n : n =
     interval_end t) : D t n ⊆ D_plus t := by
+  classical
   intro u hu
   obtain ⟨hu_E, hu_B⟩ := Finset.mem_sdiff.mp hu
   have hu_prime_factors : ∀ q, Nat.Prime q → q ∣ u → q ≥ p t := by
