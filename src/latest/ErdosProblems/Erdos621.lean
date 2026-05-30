@@ -38,14 +38,14 @@ namespace Erdos621
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
-set_option linter.style.openClassical false
 set_option linter.style.refine false
 set_option linter.unusedSectionVars false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
 
 open Finset SimpleGraph BigOperators
-open scoped Classical
+
+attribute [local instance] Classical.propDecidable
 
 
 
