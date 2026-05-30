@@ -31,14 +31,14 @@ set_option linter.style.emptyLine false
 set_option linter.style.induction false
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
-set_option linter.style.openClassical false
 set_option linter.style.refine false
 set_option linter.style.show false
 set_option linter.style.whitespace false
 
 open scoped Nat
-open scoped Classical
 open Asymptotics Filter
+
+attribute [local instance] Classical.propDecidable
 
 set_option maxHeartbeats 50000000
 -- Several generated union-free-family arguments time out at the default heartbeat limit.
