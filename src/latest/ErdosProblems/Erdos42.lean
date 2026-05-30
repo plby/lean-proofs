@@ -58,7 +58,8 @@ import Mathlib.Topology.Algebra.PontryaginDual
 import Mathlib.Topology.ContinuousMap.SecondCountableSpace
 
 set_option linter.style.setOption false
-set_option linter.style.openClassical false
+
+attribute [local instance] Classical.propDecidable
 
 /-!
 Trust boundary (verified at the bottom with `#print axioms`):
@@ -3636,7 +3637,7 @@ extraction specializes it to the indicators of the counterexample sets.
 namespace Erdos42.CompactCayley
 
 open Finset Erdos42
-open scoped BigOperators Classical Topology
+open scoped BigOperators Topology
 
 /-- A bounded sequence of functions on prime cyclic groups. -/
 structure FourierSeq where
@@ -3895,7 +3896,7 @@ finite-lift injectivity-on-finite-sets facts needed later.
 namespace Erdos42.CompactCayley
 
 open Filter Erdos42
-open scoped Classical Topology
+open scoped Topology
 
 /-- Formal integer combinations of compact-Cayley large-spectrum labels. -/
 abbrev ExtractionFreeGroup : Type :=
@@ -4039,7 +4040,7 @@ packages that diagonal step for a generic `FourierSeq`.
 namespace Erdos42.CompactCayley
 
 open Filter Erdos42
-open scoped Classical Topology
+open scoped Topology
 
 noncomputable section
 
@@ -4217,7 +4218,7 @@ recorded as eventual statements.
 namespace Erdos42.CompactCayley
 
 open Filter Erdos42
-open scoped Classical Topology
+open scoped Topology
 
 noncomputable section
 
@@ -4450,7 +4451,7 @@ those cyclic groups, hence the eventual-kernel quotient is torsion-free.
 namespace Erdos42.CompactCayley
 
 open Filter Erdos42
-open scoped Classical Topology
+open scoped Topology
 
 noncomputable section
 
@@ -4561,7 +4562,7 @@ large-spectrum covering consequence of the non-nested labels.
 namespace Erdos42.CompactCayley
 
 open Filter Erdos42
-open scoped BigOperators Classical Topology
+open scoped BigOperators Topology
 
 noncomputable section
 
@@ -4752,7 +4753,7 @@ hypotheses that later define the compact limit kernel.
 namespace Erdos42.CompactCayley
 
 open Filter Erdos42
-open scoped Classical Topology
+open scoped Topology
 
 noncomputable section
 
@@ -4955,7 +4956,6 @@ endpoint can use additive notation and Haar probability measure.
 
 namespace Erdos42.CompactCayley
 
-open scoped Classical
 
 noncomputable section
 
@@ -5106,7 +5106,7 @@ Erdős Problem 42 — characters on the compact-Cayley compact dual.
 namespace Erdos42.CompactCayley
 
 open MeasureTheory
-open scoped Classical ComplexConjugate Topology
+open scoped ComplexConjugate Topology
 
 noncomputable section
 
@@ -5447,7 +5447,7 @@ average convergence that follows from relation-stable quotient lifts.
 namespace Erdos42.CompactCayley
 
 open Filter Complex MeasureTheory
-open scoped BigOperators Classical ComplexConjugate Topology
+open scoped BigOperators ComplexConjugate Topology
 
 noncomputable section
 
@@ -6092,7 +6092,6 @@ Erdős Problem 42 — generic finite pair-overlap predicates.
 
 namespace Erdos42.CompactCayley
 
-open scoped Classical
 
 /-- The finite fiber of pairs in `Q × Q` with prescribed difference.  This
 definition fixes the otherwise hidden decidability argument of `Finset.filter`,
@@ -6185,7 +6184,7 @@ Erdős Problem 42 — Fejér kernels for compact-Cayley extraction.
 namespace Erdos42.CompactCayley
 
 open Filter Complex
-open scoped BigOperators Classical ComplexConjugate Topology
+open scoped BigOperators ComplexConjugate Topology
 
 noncomputable section
 
@@ -6990,7 +6989,7 @@ Erdős Problem 42 — finite Fejér smoothing for compact-Cayley extraction.
 namespace Erdos42.CompactCayley
 
 open Filter Complex MeasureTheory
-open scoped BigOperators Classical Topology
+open scoped BigOperators Topology
 
 noncomputable section
 
@@ -8258,7 +8257,7 @@ subgroups of the extraction group.
 
 namespace Erdos42.CompactCayley
 
-open scoped BigOperators Classical
+open scoped BigOperators
 
 noncomputable section
 
@@ -10586,7 +10585,7 @@ continuous Fourier-series construction are later steps.
 namespace Erdos42.CompactCayley
 
 open Filter Erdos42 MeasureTheory
-open scoped Classical Topology
+open scoped Topology
 
 noncomputable section
 
@@ -12852,7 +12851,7 @@ fixed-`Q` finite Fejér-smoothed clique density into a compact Haar integral.
 namespace Erdos42.CompactCayley
 
 open Filter MeasureTheory
-open scoped BigOperators Classical Topology
+open scoped BigOperators Topology
 
 noncomputable section
 
