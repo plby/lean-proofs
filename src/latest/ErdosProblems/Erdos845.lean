@@ -22,7 +22,6 @@ import Mathlib
 
 namespace Erdos845
 
-set_option linter.style.openClassical false
 set_option linter.unusedVariables false
 set_option linter.style.setOption false
 set_option linter.style.longLine false
@@ -211,7 +210,7 @@ theorem lemma_ssize_v2 (p : ℕ) (hp_odd : Odd p) (hp_gt_1 : p > 1) :
 /-
 Definitions of S and M_0 with their properties extracted from lemma_ssize_v2.
 -/
-open Classical
+attribute [local instance] Classical.propDecidable
 
 def S_with_props (p : ℕ) (h : Odd p ∧ p > 1) :=
   lemma_ssize_v2 p h.1 h.2
