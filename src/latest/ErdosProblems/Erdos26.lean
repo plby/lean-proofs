@@ -28,14 +28,13 @@ that almost all integers have a divisor of the form $a+k$ with $a \in A$.
 import Mathlib
 
 set_option linter.style.setOption false
-set_option linter.style.openClassical false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 
 namespace Erdos26
 
-open scoped Classical
+attribute [local instance] Classical.propDecidable
 
 variable {β : Type*} [Preorder β]
 
