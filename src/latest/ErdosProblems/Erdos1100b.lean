@@ -673,16 +673,19 @@ lemma log_log_n_sim_log_x (hPNT : PNT_statement) :
 /-
 The number of pairs satisfying P in a contiguous sublist s is at most the number of pairs in the full list.
 -/
-set_option linter.style.induction false in
 set_option linter.flexible false in
 lemma countP_zip_tail_sublist {α : Type*} (l s r : List α) (P : α × α → Bool) :
     (s.zip s.tail).countP P ≤ ((l ++ s ++ r).zip (l ++ s ++ r).tail).countP P := by
       -- The zipped list of l ++ s ++ r is a sublist of the zipped list of l ++ s ++ r ++ [], so the countP of P over s.zip s.tail is less than or equal to the countP of P over the zipped list of l ++ s ++ r.
       have h_sublist : List.Sublist (s.zip s.tail) ((l ++ s ++ r).zip ((l ++ s ++ r).tail)) := by
-        induction' l with l hl generalizing s r <;> simp_all +decide;
-        · induction s <;> simp_all +decide [ List.zip ];
+        induction l generalizing s r with
+        | nil =>
+          simp_all +decide;
+          induction s <;> simp_all +decide [ List.zip ];
           cases ‹List α› <;> simp_all +decide [ List.zipWith ];
-        · rename_i ih; specialize ih s r; cases s <;> simp_all +decide [ List.zip ] ;
+        | cons l hl ih =>
+          simp_all +decide;
+          specialize ih s r; cases s <;> simp_all +decide [ List.zip ] ;
           cases hl <;> aesop;
       exact List.Sublist.countP_le h_sublist
 
@@ -873,13 +876,14 @@ lemma tau_perp_ge_D_set_pairs (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2) :
 /-
 The number of pairs in (L zip L.tail) satisfying P is equal to the number of indices i such that P(L[i], L[i+1]) holds.
 -/
-set_option linter.style.induction false in
 set_option linter.flexible false in
 lemma countP_zip_eq_countP_range {α : Type*} [Inhabited α] (L : List α) (P : α × α → Bool) :
     (L.zip L.tail).countP P = (List.range (L.length - 1)).countP (fun i => P (L[i]!, L[i+1]!)) := by
-      induction' L with x L ih generalizing P;
-      · rfl;
-      · cases L <;> simp_all +decide [ List.range_succ_eq_map ];
+      induction L generalizing P with
+      | nil =>
+        rfl
+      | cons x L ih =>
+        cases L <;> simp_all +decide [ List.range_succ_eq_map ];
         rw [ List.countP_cons, List.countP_cons ] ; aesop
 
 /-
