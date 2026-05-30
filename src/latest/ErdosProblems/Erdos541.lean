@@ -31,7 +31,6 @@ namespace Erdos541
 -- This generated additive-combinatorics proof still has extensive style debt;
 -- use specific suppressions rather than the broad `linter.mathlibStandardSet`.
 set_option linter.style.setOption false
-set_option linter.style.openClassical false
 set_option linter.style.longLine false
 set_option linter.style.refine false
 set_option linter.style.induction false
@@ -44,10 +43,11 @@ set_option linter.unnecessarySimpa false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
 
-open scoped Classical
 open scoped Pointwise
 open Multiset
 open Filter
+
+attribute [local instance] Classical.propDecidable
 
 /-
 Definitions of Σ_k(S), Σ_≤k(S), Σ_≥k(S), and h(S).
