@@ -30,12 +30,11 @@ import Mathlib
 
 namespace Erdos443
 
-set_option linter.style.openClassical false
 set_option linter.style.setOption false
 set_option linter.style.whitespace false
 set_option linter.flexible false
 
-open scoped Classical
+attribute [local instance] Classical.propDecidable
 
 open scoped Pointwise
 
