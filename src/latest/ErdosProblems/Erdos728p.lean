@@ -30,7 +30,6 @@ namespace Erdos728p
 
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
-set_option linter.style.openClassical false
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.style.whitespace false
@@ -40,7 +39,7 @@ set_option linter.style.refine false
 set_option linter.style.multiGoal false
 set_option linter.style.induction false
 
-open scoped Classical
+attribute [local instance] Classical.propDecidable
 
 /-
 Legendre's formula for the p-adic valuation of n!.
