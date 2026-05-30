@@ -34,14 +34,13 @@ set_option linter.style.setOption false
 namespace Erdos897
 
 
-set_option linter.style.openClassical false
 set_option linter.style.longLine false
 set_option linter.style.refine false
 set_option linter.style.induction false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
 
-open scoped Classical
+attribute [local instance] Classical.propDecidable
 
 /-
 Define iterated logarithms by $\log ^{(0)} x:=x$ and, for $j \geq 0$ and $x>1$, $\log ^{(j+1)} x:=\log \left(\log ^{(j)} x\right)$. Define the iterated logarithm count (the "log-star" function) by $\log ^{*} x:=\min \left\{j \geq 0: \log ^{(j)} x \leq 1\right\}$.
@@ -904,8 +903,7 @@ theorem erdos_897.parts.i : (∀ (f : ℕ → ℝ),
       · rw [ Nat.factorization_eq_zero_of_not_dvd ( fun h => hp.1.not_dvd_one <| hab.gcd_eq_one ▸ Nat.dvd_gcd h hp.2 ) ] ; aesop;
     · exact hab.disjoint_primeFactors;
   · convert f_hypothesis using 1;
-  · refine' ne_of_lt ( lt_of_le_of_lt ( corollary1 ) _ );
-    norm_cast
+  · exact ne_of_lt (lt_of_le_of_lt corollary1 (EReal.coe_lt_top 4))
 
 /-
 Let $f(n)$ be an additive function (so that $f(ab)=f(a)+f(b)$
