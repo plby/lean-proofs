@@ -18,7 +18,6 @@ import Mathlib
 
 namespace Erdos775
 
-set_option linter.style.openClassical false
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.refine false
@@ -48,7 +47,9 @@ All theorems are fully proved (0 sorries). Only standard axioms are used:
 `propext`, `Classical.choice`, `Quot.sound`.
 -/
 
-open Finset Classical
+open Finset
+
+attribute [local instance] Classical.propDecidable
 
 set_option maxHeartbeats 12800000
 -- Several generated hypergraph clique-size arguments time out at the default heartbeat limit.
@@ -69,7 +70,7 @@ Formalization of "On cliques in hypergraphs" by Jun Gao.
 * `IsKCLayeredTree` — the (k,C)-layered tree property (Definition 2.1)
 -/
 
-open Finset Classical
+open Finset
 
 noncomputable section
 
