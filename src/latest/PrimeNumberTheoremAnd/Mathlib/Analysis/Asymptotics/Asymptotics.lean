@@ -4,7 +4,6 @@ import Mathlib.Topology.Order.Compact
 set_option linter.style.setOption false
 set_option linter.style.emptyLine false
 set_option linter.style.longLine false
-set_option linter.style.openClassical false
 set_option linter.flexible false
 
 open Filter Topology
