@@ -248,7 +248,6 @@ end Harmonic
 namespace Erdos1036
 
 set_option linter.style.setOption false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.style.cases false
@@ -613,8 +612,10 @@ Ramsey property holds for the Erdos-Szekeres bound.
 -/
 theorem ramsey_upper_bound_prop (a b : ℕ) (ha : 2 ≤ a) (hb : 2 ≤ b) :
   Ramsey_prop a b (Nat.choose (a + b - 2) (a - 1)) := by
-    induction' a using Nat.strong_induction_on with a ih generalizing b;
-    induction' b using Nat.strong_induction_on with b ih;
+    induction a using Nat.strong_induction_on generalizing b with
+    | h a ih_a =>
+    induction b using Nat.strong_induction_on with
+    | h b ih =>
     rcases a with ( _ | _ | a ) <;> rcases b with ( _ | _ | b ) <;> simp_all +arith +decide;
     -- By the induction hypothesis, we know that Ramsey_prop (a + 1) (b + 2) ((a + b + 1).choose
     -- (a)) holds.
@@ -996,9 +997,11 @@ theorem prob_bad_pairs_le {V : Type*} [Fintype V]
       prob_event p (⋃ xy ∈ S, pairEvent xy) ≤
         ∑ xy ∈ S, prob_event p (pairEvent xy) := by
     intro S
-    induction' S using Finset.induction with xy S hxy ih
-    · simp [prob_event]
-    · have hunion :
+    induction S using Finset.induction with
+    | empty =>
+      simp [prob_event]
+    | insert xy S hxy ih =>
+      have hunion :
           (⋃ z ∈ insert xy S, pairEvent z) =
             pairEvent xy ∪ ⋃ z ∈ S, pairEvent z := by
         ext A
@@ -1682,7 +1685,8 @@ theorem lemma_caro_wei {V : Type*} [Fintype V]
     (G : SimpleGraph V) [DecidableRel G.Adj] :
     ∑ v, (1 : ℝ) / (G.degree v + 1) ≤ G.indepNum := by
   classical
-  induction' n : Fintype.card V using Nat.strong_induction_on with n ih generalizing V G;
+  induction n : Fintype.card V using Nat.strong_induction_on generalizing V G with
+  | h n ih =>
   by_cases hV : Nonempty V
   · obtain ⟨v, hvmin_eq⟩ :=
       @SimpleGraph.exists_minimal_degree_vertex V G inferInstance inferInstance hV
@@ -1996,7 +2000,8 @@ theorem lemma_greedy_homogeneous {V : Type*} [Finite V] [DecidableEq V]
               simp_all +decide [ SimpleGraph.isIndepSet_iff, SimpleGraph.isClique_iff,
                 Finset.card_image_of_injective _ hf.1 ];
               simp_all +decide [ Set.Pairwise, hf.1.eq_iff ]
-          induction' n : C.card using Nat.strong_induction_on with n ih generalizing C;
+          induction n : C.card using Nat.strong_induction_on generalizing C with
+          | h n ih =>
           by_cases hC : C.card ≥ R m m;
           · obtain ⟨ H, hH₁, hH₂, hH₃ ⟩ := h_exists_homogeneous C hC;
             obtain ⟨ B, hB₁, hB₂, hB₃, hB₄, hB₅ ⟩ := ih (C.card - m) (by
@@ -2387,11 +2392,16 @@ theorem all_blocks_props {V : Type*} [Fintype V] [DecidableEq V]
                         ∀ {l : List (Finset V)}, (∀ b ∈ l, b.card = m) →
                           (vertices_with_pattern G A p ∩ l.foldr (· ∪ ·) ∅).card ≤
                             l.length * m := by
-                      intros l hl; induction' l with b l ih <;> simp_all +decide
-                      rw [ Finset.inter_union_distrib_left ];
-                      exact le_trans (Finset.card_union_le _ _) (by
-                        linarith [show Finset.card (vertices_with_pattern G A p ∩ b) ≤ m by
-                          exact le_trans (Finset.card_le_card fun x hx => by aesop) hl.1.le]);
+                      intros l hl
+                      induction l with
+                      | nil =>
+                        simp_all +decide
+                      | cons b l ih =>
+                        simp_all +decide
+                        rw [ Finset.inter_union_distrib_left ];
+                        exact le_trans (Finset.card_union_le _ _) (by
+                          linarith [show Finset.card (vertices_with_pattern G A p ∩ b) ≤ m by
+                            exact le_trans (Finset.card_le_card fun x hx => by aesop) hl.1.le]);
                     exact h_block_prop ‹_›;
                   exact h_block_prop;
                 grind;
