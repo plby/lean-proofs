@@ -19,7 +19,6 @@ URLs:
 import Mathlib
 
 set_option linter.style.setOption false
-set_option linter.style.openClassical false
 set_option aesop.warn.nonterminal false
 
 namespace Erdos31
@@ -27,8 +26,9 @@ namespace Erdos31
 open scoped BigOperators
 open scoped Real
 open scoped Nat
-open scoped Classical
 open scoped Pointwise
+
+attribute [local instance] Classical.propDecidable
 
 set_option maxHeartbeats 50000000
 -- Several generated prime-factor estimates time out at the default heartbeat limit.
