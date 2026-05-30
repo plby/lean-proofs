@@ -28,7 +28,6 @@ namespace Erdos1028
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.style.refine false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.flexible false
 
@@ -301,9 +300,11 @@ lemma coloring_product_measure_independent (n : ℕ) :
       intros S sets hsets
       have h_prod_measure : ∀ (S : Finset (Sym2 (Fin n))) (sets : Sym2 (Fin n) → Set Bool), (∀ i ∈ S, MeasurableSet (sets i)) → (MeasureTheory.Measure.pi fun (x : Sym2 (Fin n)) => (PMF.uniformOfFintype Bool).toMeasure) (⋂ i ∈ S, (fun (ω : Sym2 (Fin n) → Bool) => ω i) ⁻¹' sets i) = ∏ i ∈ S, (PMF.uniformOfFintype Bool).toMeasure (sets i) := by
         intros S sets hsets
-        induction' S using Finset.induction with i S hiS ih
-        · simp +decide
-        · simp_all +decide [ Finset.prod_insert hiS, Set.preimage ]
+        induction S using Finset.induction with
+        | empty =>
+          simp +decide
+        | insert i S hiS ih =>
+          simp_all +decide [ Finset.prod_insert hiS, Set.preimage ]
           rw [ ← ih ]
           rw [ show { x : Sym2 ( Fin n ) → Bool | x i ∈ sets i } ∩ ⋂ x ∈ S, { x_1 : Sym2 ( Fin n ) → Bool | x_1 x ∈ sets x } = ( Set.pi Set.univ fun j => if j = i then sets i else if j ∈ S then sets j else Set.univ ) from ?_ ]
           · rw [ show ( ⋂ i ∈ S, { x : Sym2 ( Fin n ) → Bool | x i ∈ sets i } ) = Set.pi Set.univ fun j => if j ∈ S then sets j else Set.univ from ?_ ]
@@ -973,9 +974,11 @@ lemma fourth_moment_rademacher_sum_finset {Ω : Type*} [MeasurableSpace Ω] {P :
     (s : Finset ι) :
     ∫ ω, (∑ i ∈ s, ξ i ω)^4 ∂P = 3 * (s.card : ℝ)^2 - 2 * (s.card : ℝ) := by
       classical
-      induction' s using Finset.induction with a s ha ih generalizing P
-      · norm_num
-      · -- Apply the lemma about the fourth moment of the sum of independent variables.
+      induction s using Finset.induction generalizing P with
+      | empty =>
+        norm_num
+      | insert a s ha ih =>
+        -- Apply the lemma about the fourth moment of the sum of independent variables.
         have h_sum_fourth_moment_step : ∫ ω, (∑ i ∈ insert a s, ξ i ω)^4 ∂P = ∫ ω, (∑ i ∈ s, ξ i ω)^4 ∂P + 6 * ∫ ω, (∑ i ∈ s, ξ i ω)^2 ∂P + 1 := by
           have h_sum_fourth_moment_step : ∫ ω, ((∑ i ∈ s, ξ i ω) + ξ a ω)^4 ∂P = ∫ ω, (∑ i ∈ s, ξ i ω)^4 ∂P + 6 * ∫ ω, (∑ i ∈ s, ξ i ω)^2 ∂P + 1 := by
             have h_exp : ∫ ω, (∑ i ∈ s, ξ i ω + ξ a ω)^4 ∂P = ∫ ω, (∑ i ∈ s, ξ i ω)^4 ∂P + 6 * ∫ ω, (∑ i ∈ s, ξ i ω)^2 ∂P + 1 := by
