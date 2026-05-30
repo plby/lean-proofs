@@ -33,7 +33,6 @@ import Mathlib
 namespace Erdos347
 
 set_option linter.style.setOption false
-set_option linter.style.openClassical false
 set_option linter.style.longLine false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
@@ -43,8 +42,9 @@ set_option linter.flexible false
 open scoped BigOperators
 open scoped Real
 open scoped Nat
-open scoped Classical
 open scoped Pointwise
+
+attribute [local instance] Classical.propDecidable
 
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
