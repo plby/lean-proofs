@@ -18,7 +18,6 @@ URLs:
 -/
 import Mathlib
 
-set_option linter.style.openClassical false
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.style.refine false
@@ -37,7 +36,8 @@ set_option maxHeartbeats 2000000
 -- Several generated convex-geometry arguments time out at the default heartbeat limit.
 
 open Real Metric Set InnerProductSpace Complex EuclideanGeometry
-open scoped Classical InnerProductSpace Pointwise Complex EuclideanGeometry
+open scoped InnerProductSpace Pointwise Complex EuclideanGeometry
+attribute [local instance] Classical.propDecidable
 namespace Erdos93
 section
 
