@@ -34,7 +34,6 @@ set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.longLine false
 set_option linter.style.refine false
-set_option linter.style.induction false
 set_option linter.style.cases false
 set_option linter.style.multiGoal false
 set_option linter.unnecessarySeqFocus false
@@ -245,12 +244,14 @@ lemma dist_O_O_prime : dist O_point O_prime > 1 := by
 For all n, dist(O, A_n) = 1 and dist(O, A'_n) < 1.
 -/
 lemma A_seq_properties (n : ℕ) : dist O_point (A_seq n) = 1 ∧ dist O_point (reflection (A_seq n)) < 1 := by
-  induction' n with n ih;
-  · -- Let's calculate the distance from O to A_0.
+  induction n with
+  | zero =>
+    -- Let's calculate the distance from O to A_0.
     simp [O_point];
     norm_num [ dist_eq_norm, EuclideanSpace.norm_eq, A_seq, reflection ];
     exact ⟨ by norm_num [ A_0 ], by rw [ Real.sqrt_lt' ] <;> norm_num [ A_0 ] ⟩;
-  · -- By definition of $A_{n+1}$, we know that $A_{n+1}$ is the next vertex of $A_n$.
+  | succ n ih =>
+    -- By definition of $A_{n+1}$, we know that $A_{n+1}$ is the next vertex of $A_n$.
     have h_next_vertex : is_next_vertex (A_seq n) (A_seq (n + 1)) := by
       convert Classical.choose_spec ( exists_next_vertex ( A_seq n ) ih.2.le );
       rw [ show A_seq ( n + 1 ) = next_vertex ( A_seq n ) from rfl, next_vertex ];
@@ -272,9 +273,11 @@ lemma A_seq_in_closed_region (n : ℕ) : A_seq n ∈ ClosedRegion_R := by
   -- By definition of $A_seq$, we know that $A_n$ is in the closed region $[0,1] \times [0, 1/2]$.
   have h_closed : ∀ n, A_seq n ∈ {p : Point | 0 ≤ p 0 ∧ p 0 ≤ 1 ∧ 0 ≤ p 1 ∧ p 1 ≤ 1/2} := by
     intro n
-    induction' n with n ih;
-    · exact ⟨ by rw [ show A_seq 0 = A_0 from rfl ] ; exact by rw [ show A_0 = !₂[1, 0] from rfl ] ; norm_num, by rw [ show A_seq 0 = A_0 from rfl ] ; exact by rw [ show A_0 = !₂[1, 0] from rfl ] ; norm_num, by rw [ show A_seq 0 = A_0 from rfl ] ; exact by rw [ show A_0 = !₂[1, 0] from rfl ] ; norm_num, by rw [ show A_seq 0 = A_0 from rfl ] ; exact by rw [ show A_0 = !₂[1, 0] from rfl ] ; norm_num ⟩;
-    · -- By definition of $A_seq$, we know that $A_{n+1}$ is the next vertex from $A_n$, which lies on the segment $O'A'$ and is at distance 1 from $O$.
+    induction n with
+    | zero =>
+      exact ⟨ by rw [ show A_seq 0 = A_0 from rfl ] ; exact by rw [ show A_0 = !₂[1, 0] from rfl ] ; norm_num, by rw [ show A_seq 0 = A_0 from rfl ] ; exact by rw [ show A_0 = !₂[1, 0] from rfl ] ; norm_num, by rw [ show A_seq 0 = A_0 from rfl ] ; exact by rw [ show A_0 = !₂[1, 0] from rfl ] ; norm_num, by rw [ show A_seq 0 = A_0 from rfl ] ; exact by rw [ show A_0 = !₂[1, 0] from rfl ] ; norm_num ⟩;
+    | succ n ih =>
+      -- By definition of $A_seq$, we know that $A_{n+1}$ is the next vertex from $A_n$, which lies on the segment $O'A'$ and is at distance 1 from $O$.
       have h_next_vertex : ∀ A : Point, dist O_point A = 1 → dist O_point (reflection A) < 1 → next_vertex A ∈ segment ℝ O_prime (reflection A) ∧ dist O_point (next_vertex A) = 1 := by
         intro A hA hA';
         have := Classical.choose_spec ( exists_next_vertex A hA'.le );
@@ -836,9 +839,11 @@ The distance of A_n from the diagonal is bounded by the contraction factor raise
 -/
 lemma dist_from_diagonal_bound (n : ℕ) :
   dist_from_diagonal (A_seq n) ≤ contraction_factor ^ n * dist_from_diagonal (A_seq 0) := by
-    induction' n with n ih;
-    · norm_num;
-    · rw [ pow_succ', mul_assoc ];
+    induction n with
+    | zero =>
+      norm_num
+    | succ n ih =>
+      rw [ pow_succ', mul_assoc ];
       exact le_trans ( dist_from_diagonal_recurrence n ) ( mul_le_mul_of_nonneg_left ih ( by exact div_nonneg ( sub_nonneg.mpr ( Real.sqrt_le_iff.mpr ⟨ by norm_num, by norm_num ⟩ ) ) zero_le_two ) )
 
 /-
@@ -1408,9 +1413,11 @@ lemma dist_from_diagonal_strict_decreasing (n : ℕ) : dist_from_diagonal (A_seq
     have h_pos : ∀ n, dist_from_diagonal (A_seq n) > 0 := by
       intro n
       have h_pos : (A_seq n) 0 - 2 * (A_seq n) 1 ≠ 0 := by
-        induction' n with n ih;
-        · exact show ( 1 : ℝ ) - 2 * 0 ≠ 0 by norm_num;
-        · have h_pos : A_seq (n + 1) ∈ openSegment ℝ O_prime (reflection (A_seq n)) := by
+        induction n with
+        | zero =>
+          exact show ( 1 : ℝ ) - 2 * 0 ≠ 0 by norm_num
+        | succ n ih =>
+          have h_pos : A_seq (n + 1) ∈ openSegment ℝ O_prime (reflection (A_seq n)) := by
             exact A_seq_between n;
           obtain ⟨ t, ht₀, ht₁, ht₂ ⟩ := h_pos;
           simp_all +decide [ ← ht₂.2.2, reflection ];
@@ -1494,10 +1501,14 @@ def signed_dist_from_diagonal (p : Point) : ℝ := p 0 - 2 * p 1
 lemma signed_dist_A_seq_sign (n : ℕ) :
   (Even n → signed_dist_from_diagonal (A_seq n) > 0) ∧
   (Odd n → signed_dist_from_diagonal (A_seq n) < 0) := by
-    induction' n with n ih <;> simp_all +decide [ parity_simps ];
-    · unfold signed_dist_from_diagonal; norm_num [ A_0 ];
+    induction n with
+    | zero =>
+      simp_all +decide [ parity_simps ];
+      unfold signed_dist_from_diagonal; norm_num [ A_0 ];
       exact show 2 * 0 < 1 by norm_num;
-    · -- By definition of $A_{n+1}$, it lies on the segment between $O'$ and $A'_n$.
+    | succ n ih =>
+      simp_all +decide [ parity_simps ];
+      -- By definition of $A_{n+1}$, it lies on the segment between $O'$ and $A'_n$.
       have h_A_seq_succ : A_seq (n + 1) ∈ openSegment ℝ O_prime (reflection (A_seq n)) := by
         exact A_seq_between n;
       obtain ⟨t, ht⟩ : ∃ t ∈ Set.Ioo (0 : ℝ) 1, A_seq (n + 1) = (1 - t) • O_prime + t • reflection (A_seq n) := by
@@ -1673,9 +1684,11 @@ lemma separating_functional_nonzero_on_S_seq_refl (n m : ℕ) (h : n ≤ m) :
           exact subset_convexHull ℝ _ <| by aesop;
         have h_P_k_plus_1_subset_P_n_plus_1 : ∀ k ≥ n + 1, Parallelogram_seq (k + 1) ⊆ Parallelogram_seq (n + 1) := by
           intros k hk_n_plus_1
-          induction' hk_n_plus_1 with k hk ih;
-          · exact Parallelogram_seq_subset (n + 1);
-          · exact Set.Subset.trans ( Parallelogram_seq_subset _ ) ih;
+          induction k, hk_n_plus_1 using Nat.le_induction with
+          | base =>
+            exact Parallelogram_seq_subset (n + 1)
+          | succ k hk ih =>
+            exact Set.Subset.trans ( Parallelogram_seq_subset _ ) ih;
         exact h_P_k_plus_1_subset_P_n_plus_1 k hk_n_plus_1 h_A_prime_mem_P_k_plus_1;
       by_cases h_cases : m = n;
       · simp_all +decide [ Parallelogram_seq ];
@@ -2212,9 +2225,11 @@ lemma S_collection_is_blocking : IsBlocking S_collection Region_R := by
   -- By induction using `L_subset_Parallelogram_succ`, `L ⊆ Parallelogram_seq n` for all `n`.
   have hL_parallelogram : ∀ n, L ⊆ Parallelogram_seq n := by
     intro n
-    induction' n with n ih;
-    · exact hL_subset.trans ( Region_subset_P0 );
-    · apply L_subset_Parallelogram_succ n L hL_unit ih (by
+    induction n with
+    | zero =>
+      exact hL_subset.trans ( Region_subset_P0 )
+    | succ n ih =>
+      apply L_subset_Parallelogram_succ n L hL_unit ih (by
       exact fun s hs => by push Not at h_disjoint; exact h_disjoint s hs |> Disjoint.symm;) hL_subset;
   -- Thus `L ⊆ ⋂ n, Parallelogram_seq n`.
   have hL_inter : L ⊆ ⋂ n, Parallelogram_seq n := by
@@ -3146,7 +3161,6 @@ namespace Erdos1071b
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.style.refine false
-set_option linter.style.induction false
 set_option linter.style.cases false
 set_option linter.style.multiGoal false
 set_option linter.flexible false
