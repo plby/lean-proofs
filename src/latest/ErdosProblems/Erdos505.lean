@@ -27,14 +27,14 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
-set_option linter.style.openClassical false
 set_option linter.style.refine false
 set_option linter.flexible false
 
 namespace Erdos505
 
-open scoped Classical
 open scoped Pointwise
+
+attribute [local instance] Classical.propDecidable
 
 /-
 Let $E\subset \RR^d$ be bounded. Its \emph{diameter} is
