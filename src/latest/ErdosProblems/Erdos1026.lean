@@ -42,7 +42,6 @@ set_option linter.style.whitespace false
 set_option linter.style.cdot false
 set_option linter.style.longLine false
 set_option linter.style.emptyLine false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.deprecated false
@@ -1693,9 +1692,14 @@ theorem sum_es_part_eq (num_blocks block_size : ℕ) (base_val : ℝ) (start_idx
     norm_num [ List.flatMap ];
     -- Let's simplify the expression for the sum of the elements in each block.
     have h_block_sum : ∀ b < num_blocks, List.sum (List.map (fun i : ℕ => base_val + ((start_idx : ℝ) + ((num_blocks - 1 - b) * block_size + i)) * eps) (List.range block_size)) = block_size * base_val + eps * (block_size * start_idx + (num_blocks - 1 - b) * block_size^2 + block_size * (block_size - 1) / 2) := by
-      intro b hb; induction' block_size with block_size ih <;> simp_all +decide [ List.range_succ ] ; ring_nf;
-      norm_num [ List.sum_map_add, List.sum_range_succ' ] at * ; ring_nf at * ; aesop;
-      linarith;
+      intro b hb
+      induction block_size with
+      | zero =>
+        simp_all +decide
+      | succ block_size ih =>
+        simp_all +decide [ List.range_succ ] ; ring_nf
+        norm_num [ List.sum_map_add, List.sum_range_succ' ] at * ; ring_nf at * ; aesop
+        linarith
     convert Finset.sum_congr rfl fun b hb => h_block_sum b ( Finset.mem_range.mp hb ) using 1;
     · refine' congr_arg _ ( List.ext_get _ _ ) <;> aesop;
       convert h_block_sum n h₁ using 3 ; rw [ Nat.cast_sub <| Nat.le_sub_one_of_lt h₁ ] ; rw [ Nat.cast_sub <| by linarith ] ; push_cast ; ring;
@@ -2558,9 +2562,11 @@ lemma es_partp_sum (base : ℝ) (start_idx : ℕ) (num_blocks size : ℕ) (eps :
   (es_partp base start_idx num_blocks size eps).sum =
     (num_blocks : ℝ) * ((size : ℝ) * base + eps * ((size : ℝ) * (start_idx : ℝ) + (size : ℝ) * ((size : ℝ) - 1) / 2)) +
     (eps * (size : ℝ)^2) * ((num_blocks : ℝ) * ((num_blocks : ℝ) - 1) / 2) := by
-      induction' num_blocks with d ih;
-      · aesop;
-      · -- By definition of `es_partp`, we can split the sum into the sum of the first `d` blocks and the sum of the last block.
+      induction num_blocks with
+      | zero =>
+        aesop
+      | succ d ih =>
+        -- By definition of `es_partp`, we can split the sum into the sum of the first `d` blocks and the sum of the last block.
         have h_split : (es_partp base start_idx (d + 1) size eps).sum = (es_partp base start_idx d size eps).sum + (es_block base (start_idx + d * size) size eps).sum := by
           unfold es_partp;
           simp [List.range_succ];
@@ -2726,10 +2732,12 @@ lemma es_partp_inc_length_le (base : ℝ) (start_idx : ℕ) (num_blocks size : �
       · have hxy_lt : x < y := (List.pairwise_cons.mp hs_sorted).1 y (by simp)
         have hxy_gt : x > y := (List.pairwise_cons.mp h_block_sorted).1 y (by simp)
         linarith
-    induction' num_blocks with n ih
-    · intro s hs hs_sorted
+    induction num_blocks with
+    | zero =>
+      intro s hs hs_sorted
       simp [List.eq_nil_of_sublist_nil hs]
-    · intro s hs hs_sorted
+    | succ n ih =>
+      intro s hs hs_sorted
       simp [List.range_succ, List.flatMap_append, List.sublist_append_iff] at hs
       rcases hs with ⟨s₁, s₂, rfl, hs₁, hs₂⟩
       rw [List.length_append]
@@ -2776,10 +2784,12 @@ lemma es_partp_dec_length_le (base : ℝ) (start_idx : ℕ) (num_blocks size : �
   ∀ (s : List ℝ), List.Sublist s (es_partp base start_idx num_blocks size eps) → List.Sorted (· > ·) s →
   s.length ≤ size := by
   unfold es_partp
-  induction' num_blocks with n ih
-  · intro s hs hs_sorted
+  induction num_blocks with
+  | zero =>
+    intro s hs hs_sorted
     simp [List.eq_nil_of_sublist_nil hs]
-  · intro s hs hs_sorted
+  | succ n ih =>
+    intro s hs hs_sorted
     simp [List.range_succ, List.flatMap_append, List.sublist_append_iff] at hs
     rcases hs with ⟨s₁, s₂, rfl, hs₁, hs₂⟩
     by_cases h₁ : s₁ = []
