@@ -32,7 +32,6 @@ import Mathlib
 
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.style.show false
@@ -290,12 +289,16 @@ theorem polynomial_star_neg_norm_le (p : Polynomial ℂ) (hp : p.Monic) (z : ℂ
       have hp_prod : p = Polynomial.C (p.leadingCoeff) * Multiset.prod (Multiset.map (fun r => Polynomial.X - Polynomial.C r) (Polynomial.roots p)) := by
         convert (IsAlgClosed.splits p).eq_prod_roots_of_monic hp ; aesop;
       rw [ hp_prod ] ; norm_num [ hp ] ; ring_nf; (
-      induction' ( Polynomial.roots p ) using Multiset.induction with r s ih <;> norm_num [ polynomial_star ] at *;
-      rw [ Polynomial.roots_mul ] <;> norm_num at *;
-      · gcongr;
-        convert abs_norm_sub_norm_le z r using 1 ; norm_num [ Complex.normSq, Complex.norm_def ] ; ring_nf; (
-        rw [ ← Real.sqrt_sq_eq_abs ] ; ring_nf;);
-      · exact ⟨ Polynomial.X_sub_C_ne_zero _, fun x hx => Polynomial.X_sub_C_ne_zero _ ⟩);
+      induction ( Polynomial.roots p ) using Multiset.induction with
+      | empty =>
+        norm_num [ polynomial_star ] at *
+      | cons r s ih =>
+        norm_num [ polynomial_star ] at *
+        rw [ Polynomial.roots_mul ] <;> norm_num at *;
+        · gcongr;
+          convert abs_norm_sub_norm_le z r using 1 ; norm_num [ Complex.normSq, Complex.norm_def ] ; ring_nf; (
+          rw [ ← Real.sqrt_sq_eq_abs ] ; ring_nf;);
+        · exact ⟨ Polynomial.X_sub_C_ne_zero _, fun x hx => Polynomial.X_sub_C_ne_zero _ ⟩);
 
 /-
 Prove that a non-constant polynomial has no non-zero local minima of its modulus.
@@ -574,9 +577,13 @@ The coefficients of the polynomial $f^*$ are real.
 theorem polynomial_star_coeff_real (p : Polynomial ℂ) (n : ℕ) :
     ((polynomial_star p).coeff n).im = 0 := by
       unfold polynomial_star;
-      induction' p.roots using Multiset.induction with r s ih generalizing n <;> simp_all +decide
-      · cases n <;> norm_num [ Polynomial.coeff_one ];
-      · rcases n <;> simp_all +decide [ add_mul ]
+      induction p.roots using Multiset.induction generalizing n with
+      | empty =>
+        simp_all +decide
+        cases n <;> norm_num [ Polynomial.coeff_one ];
+      | cons r s ih =>
+        simp_all +decide
+        rcases n <;> simp_all +decide [ add_mul ]
 
 /-
 The roots of the derivative of $f^*$ are real and non-positive.
@@ -598,10 +605,15 @@ theorem polynomial_star_derivative_roots_nonpositive (p : Polynomial ℂ) :
                   · simp +decide [ Finset.prod_multiset_map_count ];
                 rw [ h_root ] ; norm_num [ Polynomial.eval_prod, Polynomial.eval_finset_sum ] ; ring_nf;
                 have h_root : ∀ {S : Finset ℂ} {f : ℂ → ℕ}, (∀ w ∈ S, z ≠ w) → Polynomial.eval z (Polynomial.derivative (∏ w ∈ S, (Polynomial.X - Polynomial.C w) ^ (f w))) = (∏ w ∈ S, (z - w) ^ (f w)) * ∑ w ∈ S, (f w) * (z - w)⁻¹ := by
-                  intros S f hf; induction' S using Finset.induction with w S hwS ih; simp +decide ; ring_nf;
-                  simp +decide [ Finset.prod_insert hwS, Polynomial.derivative_pow, Polynomial.derivative_mul, Polynomial.eval_prod, ih fun x hx => hf x <| Finset.mem_insert_of_mem hx ] ; ring_nf;
-                  rcases k : f w with ( _ | k ) <;> simp +decide [ k, pow_succ, mul_assoc, mul_comm, Finset.sum_insert hwS ] ; ring_nf;
-                  grind;
+                  intros S f hf
+                  induction S using Finset.induction with
+                  | empty =>
+                    simp +decide
+                  | insert w S hwS ih =>
+                    ring_nf
+                    simp +decide [ Finset.prod_insert hwS, Polynomial.derivative_pow, Polynomial.derivative_mul, Polynomial.eval_prod, ih fun x hx => hf x <| Finset.mem_insert_of_mem hx ] ; ring_nf;
+                    rcases k : f w with ( _ | k ) <;> simp +decide [ k, pow_succ, mul_assoc, mul_comm, Finset.sum_insert hwS ] ; ring_nf;
+                    grind;
                 rw [ h_root ];
                 · rw [ ← ‹p = Polynomial.C p.leadingCoeff * ∏ w ∈ p.roots.toFinset, ( Polynomial.X - Polynomial.C w ) ^ Polynomial.rootMultiplicity w p› ] ; ring;
                 · exact fun w hw => by rintro rfl; exact h <| Polynomial.isRoot_of_mem_roots <| Multiset.mem_toFinset.mp hw;
@@ -712,14 +724,22 @@ theorem polynomial_star_critical_points_subset_segment (p : Polynomial ℂ) :
           exact Finset.prod_ne_zero_iff.mpr fun z hz => pow_ne_zero _ <| ne_of_lt <| h_neg z hz;
         have h_prod_neg : deriv (fun x : ℝ => ∏ z ∈ p.roots.toFinset, (x + ‖z‖) ^ (p.roots.count z)) x.re = (∏ z ∈ p.roots.toFinset, (x.re + ‖z‖) ^ (p.roots.count z)) * (∑ z ∈ p.roots.toFinset, (p.roots.count z) / (x.re + ‖z‖)) := by
           have h_prod_neg : ∀ {S : Finset ℂ} {f : ℂ → ℝ → ℝ}, (∀ z ∈ S, DifferentiableAt ℝ (fun x => f z x) x.re) → (∀ z ∈ S, f z x.re ≠ 0) → deriv (fun x => ∏ z ∈ S, f z x) x.re = (∏ z ∈ S, f z x.re) * (∑ z ∈ S, deriv (fun x => f z x) x.re / f z x.re) := by
-            intros S f hf_diff hf_ne_zero; induction' S using Finset.induction with z S hzS ih; simp_all +decide
-            simp_all +decide [ Finset.prod_insert hzS, Finset.sum_insert hzS ];
-            convert HasDerivAt.deriv ( HasDerivAt.mul ( hf_diff.1.hasDerivAt ) ( hasDerivAt_deriv_iff.mpr ( show DifferentiableAt ℝ ( fun x => ∏ z ∈ S, f z x ) x.re from ?_ ) ) ) using 1 <;> norm_num [ ih, hf_ne_zero, mul_assoc, mul_comm, mul_left_comm, div_eq_mul_inv ] ; ring_nf!;
-            · grind;
-            · have h_prod_diff : ∀ {S : Finset ℂ} {f : ℂ → ℝ → ℝ}, (∀ z ∈ S, DifferentiableAt ℝ (fun x => f z x) x.re) → DifferentiableAt ℝ (fun x => ∏ z ∈ S, f z x) x.re := by
-                intros S f hf_diff; induction' S using Finset.induction with z S hzS ih; simp_all +decide
-                simp_all +decide [ Finset.prod_insert hzS ];
-              exact h_prod_diff hf_diff.2;
+            intros S f hf_diff hf_ne_zero
+            induction S using Finset.induction with
+            | empty =>
+              simp_all +decide
+            | insert z S hzS ih =>
+              simp_all +decide [ Finset.prod_insert hzS, Finset.sum_insert hzS ];
+              convert HasDerivAt.deriv ( HasDerivAt.mul ( hf_diff.1.hasDerivAt ) ( hasDerivAt_deriv_iff.mpr ( show DifferentiableAt ℝ ( fun x => ∏ z ∈ S, f z x ) x.re from ?_ ) ) ) using 1 <;> norm_num [ ih, hf_ne_zero, mul_assoc, mul_comm, mul_left_comm, div_eq_mul_inv ] ; ring_nf!;
+              · grind;
+              · have h_prod_diff : ∀ {S : Finset ℂ} {f : ℂ → ℝ → ℝ}, (∀ z ∈ S, DifferentiableAt ℝ (fun x => f z x) x.re) → DifferentiableAt ℝ (fun x => ∏ z ∈ S, f z x) x.re := by
+                  intros S f hf_diff
+                  induction S using Finset.induction with
+                  | empty =>
+                    simp_all +decide
+                  | insert z S hzS ih =>
+                    simp_all +decide
+                exact h_prod_diff hf_diff.2;
           convert h_prod_neg _ _ using 3 <;> norm_num [ h_neg ];
           · rw [ div_eq_div_iff ] <;> norm_num [ show x.re + ‖‹ℂ›‖ ≠ 0 from by linarith [ h_neg _ ‹_› ] ] ; ring_nf;
             cases n : Polynomial.rootMultiplicity ‹_› p <;> simp_all +decide [ pow_succ, mul_assoc, mul_add, add_mul ] ; ring;
@@ -2635,9 +2655,11 @@ lemma combined_set_connected_in_level_set (n : ℕ) (p q : Polynomial ℂ)
     rw [h_union]
     have h_induction : ∀ s : Finset ℂ, s ⊆ p.roots.toFinset → IsConnected ((⋃ w ∈ s, Metric.ball w r) ∪ Seg) := by
       intro s hs
-      induction' s using Finset.induction_on with w s hw ih
-      · simp [hSeg_conn]
-      · rw [Finset.set_biUnion_insert, Set.union_assoc]
+      induction s using Finset.induction_on with
+      | empty =>
+        simp [hSeg_conn]
+      | insert w s hw ih =>
+        rw [Finset.set_biUnion_insert, Set.union_assoc]
         have h_ball_conn : IsConnected (Metric.ball w r) := Metric.isConnected_ball hr_pos
         have hw_ball : w ∈ Metric.ball w r := Metric.mem_ball_self hr_pos
         have hw_seg : w ∈ Seg := by
@@ -3553,52 +3575,53 @@ The degree and leading coefficient of the Chebyshev polynomial $T_n(x)$ for $n \
 lemma T_natDegree_and_leadingCoeff (n : ℕ) (hn : n ≠ 0) :
     (Polynomial.Chebyshev.T ℂ n).natDegree = n ∧
     (Polynomial.Chebyshev.T ℂ n).leadingCoeff = 2 ^ (n - 1) := by
-  induction' n using Nat.strong_induction_on with n ih
-  rcases n with _ | _ | n
-  · contradiction
-  · change (Polynomial.Chebyshev.T ℂ 1).natDegree = 1 ∧ (Polynomial.Chebyshev.T ℂ 1).leadingCoeff = 2 ^ 0
-    rw [Polynomial.Chebyshev.T_one]
-    exact ⟨Polynomial.natDegree_X, Polynomial.leadingCoeff_X⟩
-  · -- Case for n + 2
-    have ih1_pre := ih (n + 1) (by omega) (by omega)
-    have ih1 : (Polynomial.Chebyshev.T ℂ (n + 1)).natDegree = n + 1 ∧
-               (Polynomial.Chebyshev.T ℂ (n + 1)).leadingCoeff = 2 ^ n := by
-      rcases ih1_pre with ⟨hdeg, hl⟩
-      exact ⟨hdeg, by simpa using hl⟩
-    have ih2 : n = 0 ∨ ((Polynomial.Chebyshev.T ℂ n).natDegree = n ∧ (Polynomial.Chebyshev.T ℂ n).leadingCoeff = 2 ^ (n - 1)) := by
-      by_cases hn0 : n = 0
-      · exact Or.inl hn0
-      · exact Or.inr (ih n (by omega) hn0)
-    have h_T_add_two := Polynomial.Chebyshev.T_add_two ℂ n
-    have h_2X : (2 * Polynomial.X : Polynomial ℂ) = Polynomial.C (2:ℂ) * Polynomial.X := by
-      exact rfl
-    have hc : (Polynomial.C (2:ℂ) * Polynomial.X : Polynomial ℂ).natDegree = 1 := by
-      rw [Polynomial.natDegree_mul, Polynomial.natDegree_C, Polynomial.natDegree_X, zero_add]
-      · exact Polynomial.C_ne_zero.mpr two_ne_zero
-      · exact Polynomial.X_ne_zero
-    have hd1 : ((Polynomial.C (2:ℂ) * Polynomial.X) * Polynomial.Chebyshev.T ℂ (n + 1)).natDegree = n + 2 := by
-      rw [Polynomial.natDegree_mul, hc, ih1.1, add_comm]
-      · exact mul_ne_zero (Polynomial.C_ne_zero.mpr two_ne_zero) Polynomial.X_ne_zero
-      · rw [← Polynomial.leadingCoeff_ne_zero, ih1.2]
-        exact pow_ne_zero n two_ne_zero
-    have hd2 : (Polynomial.Chebyshev.T ℂ n).natDegree ≤ n := by
-      rcases ih2 with hn0 | ⟨hnd, _⟩
-      · subst hn0
-        have h0 : Polynomial.Chebyshev.T ℂ 0 = 1 := Polynomial.Chebyshev.T_zero ℂ
-        rw [Nat.cast_zero, h0, Polynomial.natDegree_one]
-      · rw [hnd]
-    have h_lt : (Polynomial.Chebyshev.T ℂ n).natDegree < (Polynomial.C (2:ℂ) * Polynomial.X * Polynomial.Chebyshev.T ℂ (n + 1)).natDegree := by
-      rw [hd1]
-      exact lt_of_le_of_lt hd2 (by omega)
-    have h_deg : (Polynomial.Chebyshev.T ℂ (n + 2)).natDegree = n + 2 := by
-      rw [h_T_add_two, h_2X, Polynomial.natDegree_sub_eq_left_of_natDegree_lt h_lt, hd1]
-    have h_coeff : (Polynomial.Chebyshev.T ℂ (n + 2)).leadingCoeff = 2 ^ (n + 1) := by
-      have h_deg_lt : Polynomial.degree (Polynomial.Chebyshev.T ℂ n) < Polynomial.degree (Polynomial.C (2:ℂ) * Polynomial.X * Polynomial.Chebyshev.T ℂ (n + 1)) := by
-        exact Polynomial.degree_lt_degree h_lt
-      rw [h_T_add_two, h_2X, Polynomial.leadingCoeff_sub_of_degree_lt h_deg_lt]
-      rw [Polynomial.leadingCoeff_mul, Polynomial.leadingCoeff_mul, Polynomial.leadingCoeff_C, Polynomial.leadingCoeff_X, mul_one, ih1.2]
-      ring
-    exact ⟨h_deg, h_coeff⟩
+  induction n using Nat.strong_induction_on with
+  | h n ih =>
+    rcases n with _ | _ | n
+    · contradiction
+    · change (Polynomial.Chebyshev.T ℂ 1).natDegree = 1 ∧ (Polynomial.Chebyshev.T ℂ 1).leadingCoeff = 2 ^ 0
+      rw [Polynomial.Chebyshev.T_one]
+      exact ⟨Polynomial.natDegree_X, Polynomial.leadingCoeff_X⟩
+    · -- Case for n + 2
+      have ih1_pre := ih (n + 1) (by omega) (by omega)
+      have ih1 : (Polynomial.Chebyshev.T ℂ (n + 1)).natDegree = n + 1 ∧
+                 (Polynomial.Chebyshev.T ℂ (n + 1)).leadingCoeff = 2 ^ n := by
+        rcases ih1_pre with ⟨hdeg, hl⟩
+        exact ⟨hdeg, by simpa using hl⟩
+      have ih2 : n = 0 ∨ ((Polynomial.Chebyshev.T ℂ n).natDegree = n ∧ (Polynomial.Chebyshev.T ℂ n).leadingCoeff = 2 ^ (n - 1)) := by
+        by_cases hn0 : n = 0
+        · exact Or.inl hn0
+        · exact Or.inr (ih n (by omega) hn0)
+      have h_T_add_two := Polynomial.Chebyshev.T_add_two ℂ n
+      have h_2X : (2 * Polynomial.X : Polynomial ℂ) = Polynomial.C (2:ℂ) * Polynomial.X := by
+        exact rfl
+      have hc : (Polynomial.C (2:ℂ) * Polynomial.X : Polynomial ℂ).natDegree = 1 := by
+        rw [Polynomial.natDegree_mul, Polynomial.natDegree_C, Polynomial.natDegree_X, zero_add]
+        · exact Polynomial.C_ne_zero.mpr two_ne_zero
+        · exact Polynomial.X_ne_zero
+      have hd1 : ((Polynomial.C (2:ℂ) * Polynomial.X) * Polynomial.Chebyshev.T ℂ (n + 1)).natDegree = n + 2 := by
+        rw [Polynomial.natDegree_mul, hc, ih1.1, add_comm]
+        · exact mul_ne_zero (Polynomial.C_ne_zero.mpr two_ne_zero) Polynomial.X_ne_zero
+        · rw [← Polynomial.leadingCoeff_ne_zero, ih1.2]
+          exact pow_ne_zero n two_ne_zero
+      have hd2 : (Polynomial.Chebyshev.T ℂ n).natDegree ≤ n := by
+        rcases ih2 with hn0 | ⟨hnd, _⟩
+        · subst hn0
+          have h0 : Polynomial.Chebyshev.T ℂ 0 = 1 := Polynomial.Chebyshev.T_zero ℂ
+          rw [Nat.cast_zero, h0, Polynomial.natDegree_one]
+        · rw [hnd]
+      have h_lt : (Polynomial.Chebyshev.T ℂ n).natDegree < (Polynomial.C (2:ℂ) * Polynomial.X * Polynomial.Chebyshev.T ℂ (n + 1)).natDegree := by
+        rw [hd1]
+        exact lt_of_le_of_lt hd2 (by omega)
+      have h_deg : (Polynomial.Chebyshev.T ℂ (n + 2)).natDegree = n + 2 := by
+        rw [h_T_add_two, h_2X, Polynomial.natDegree_sub_eq_left_of_natDegree_lt h_lt, hd1]
+      have h_coeff : (Polynomial.Chebyshev.T ℂ (n + 2)).leadingCoeff = 2 ^ (n + 1) := by
+        have h_deg_lt : Polynomial.degree (Polynomial.Chebyshev.T ℂ n) < Polynomial.degree (Polynomial.C (2:ℂ) * Polynomial.X * Polynomial.Chebyshev.T ℂ (n + 1)) := by
+          exact Polynomial.degree_lt_degree h_lt
+        rw [h_T_add_two, h_2X, Polynomial.leadingCoeff_sub_of_degree_lt h_deg_lt]
+        rw [Polynomial.leadingCoeff_mul, Polynomial.leadingCoeff_mul, Polynomial.leadingCoeff_C, Polynomial.leadingCoeff_X, mul_one, ih1.2]
+        ring
+      exact ⟨h_deg, h_coeff⟩
 lemma T_leadingCoeff (n : ℕ) (hn : n ≠ 0) :
     (Polynomial.Chebyshev.T ℂ n).leadingCoeff = 2 ^ (n - 1) :=
   (T_natDegree_and_leadingCoeff n hn).2
