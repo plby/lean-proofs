@@ -34,7 +34,6 @@ import Mathlib
 -- and induction patterns whose direct replacements changed generated goals.
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.induction false
 set_option linter.style.refine false
 set_option linter.style.multiGoal false
 
@@ -147,9 +146,11 @@ lemma Nonseparable1D.comp_equiv {n : ℕ} {s r : Fin n → ℝ}
 lemma sum_weighted_Iio_eq_sq {n : ℕ} (a : Fin n → ℝ) :
     ∑ j : Fin n, a j * (2 * ∑ k ∈ Finset.Iio j, a k + a j) =
     (∑ j : Fin n, a j) ^ 2 := by
-  induction' n with n ih
-  · norm_num
-  · simp +decide [Fin.sum_univ_castSucc]
+  induction n with
+  | zero =>
+    norm_num
+  | succ n ih =>
+    simp +decide [Fin.sum_univ_castSucc]
     convert congr_arg (· + a (Fin.last n) * (2 * ∑ k, a (Fin.castSucc k) + a (Fin.last n)))
       (ih fun i ↦ a (Fin.castSucc i)) using 1; ring_nf!
     · simp +decide [add_comm, add_assoc]
@@ -169,53 +170,53 @@ lemma sorted_center_bound {n : ℕ} (s r : Fin (n + 1) → ℝ)
     (hsorted : Monotone (fun i : Fin (n + 1) => s i - r i))
     (hns : Nonseparable1D s r) (j : Fin (n + 1)) :
     s j ≤ s 0 - r 0 + 2 * ∑ k ∈ Finset.Iio j, r k + r j := by
-  induction' j with j ih
-  induction' j using Nat.strong_induction_on with j ih
-  by_contra h_contra
-  have h_gt : ∀ k < ⟨j, ih⟩, s ⟨j, ih⟩ - r ⟨j, ih⟩ > s k + r k := by
-    intros k hk_lt_j
-    have h_sum_lt : ∑ k ∈ Finset.Iio ⟨j, ih⟩, r k ≥ ∑ k ∈ Finset.Iio k, r k + r k := by
-      rw [← Finset.sum_erase_add _ _ (show k ∈ Iio ⟨j, ih⟩ from Finset.mem_Iio.mpr hk_lt_j),
-        add_comm]
-      rw [add_comm]
-      gcongr
+  rcases j with ⟨j, hj⟩
+  induction j using Nat.strong_induction_on with
+  | h j ih =>
+    by_contra h_contra
+    have h_gt : ∀ k < ⟨j, hj⟩, s ⟨j, hj⟩ - r ⟨j, hj⟩ > s k + r k := by
+      intros k hk_lt_j
+      have h_sum_lt : ∑ k ∈ Finset.Iio ⟨j, hj⟩, r k ≥ ∑ k ∈ Finset.Iio k, r k + r k := by
+        rw [← Finset.sum_erase_add _ _ (show k ∈ Iio ⟨j, hj⟩ from Finset.mem_Iio.mpr hk_lt_j),
+          add_comm]
+        rw [add_comm]
+        gcongr
+        · aesop
+        · grind
+      linarith [hr k, hr ⟨j, hj⟩,
+        ih _ hk_lt_j (by linarith [Fin.is_lt k])]
+    obtain ⟨c, hc⟩ : ∃ c, ∀ k < ⟨j, hj⟩, s k + r k < c ∧ c < s ⟨j, hj⟩ - r ⟨j, hj⟩ := by
+      by_cases hj0 : j = 0
       · aesop
-      · grind
-    linarith [hr k, hr ⟨j, ih⟩,
-      ‹∀ m < j, ∀ (ih : m < n + 1), s ⟨m, ih⟩ ≤ s 0 - r 0 + 2 * ∑ k ∈ Iio ⟨m, ih⟩,
-        r k + r ⟨m, ih⟩› _ hk_lt_j (by linarith [Fin.is_lt k])]
-  obtain ⟨c, hc⟩ : ∃ c, ∀ k < ⟨j, ih⟩, s k + r k < c ∧ c < s ⟨j, ih⟩ - r ⟨j, ih⟩ := by
-    by_cases hj : j = 0
-    · aesop
-    · obtain ⟨k₀, hk₀⟩ : ∃ k₀ < ⟨j, ih⟩, ∀ k < ⟨j, ih⟩, s k + r k ≤ s k₀ + r k₀ := by
-        have := Finset.exists_max_image (Finset.Iio ⟨j, ih⟩) (fun k => s k + r k)
-          ⟨⟨0, by linarith⟩, Finset.mem_Iio.mpr (Nat.pos_of_ne_zero hj)⟩
-        aesop
-      exact ⟨(s k₀ + r k₀ + s ⟨j, ih⟩ - r ⟨j, ih⟩) / 2,
-        fun k hk => ⟨by linarith [h_gt k hk, hk₀.2 k hk],
-          by linarith [h_gt k hk, hk₀.2 k hk, h_gt k₀ hk₀.1]⟩⟩
-  have h_abs : ∀ k, |s k - c| > r k := by
-    intro k
-    by_cases hk : k < ⟨j, ih⟩ <;> simp_all +decide [abs_eq_max_neg]
-    · exact Or.inr (by linarith [hc k hk, hr k])
-    · specialize hc ⟨j - 1, Nat.lt_succ_of_le (Nat.sub_le_of_le_add <| by linarith)⟩
-      rcases j with (_ | j)
-      · norm_num at *
-        erw [Finset.sum_empty] at h_contra
-        linarith [hr 0]
-      · norm_num at *
-        exact Or.inl (by linarith [hsorted hk, hr k])
-  have := hns c h_abs
-  specialize this ⟨j, ih⟩ 0
-  specialize hc 0
-  simp_all +decide
-  rcases j with (_ | j)
-  · simp_all +decide
-    erw [Finset.sum_empty] at h_contra
-    linarith
-  · simp_all +decide
-    linarith [this.mp (by linarith [hc (Nat.succ_pos _), hr 0, hr ⟨j + 1, by linarith⟩]),
-      hc (Nat.succ_pos _), hr 0, hr ⟨j + 1, by linarith⟩]
+      · obtain ⟨k₀, hk₀⟩ : ∃ k₀ < ⟨j, hj⟩, ∀ k < ⟨j, hj⟩, s k + r k ≤ s k₀ + r k₀ := by
+          have := Finset.exists_max_image (Finset.Iio ⟨j, hj⟩) (fun k => s k + r k)
+            ⟨⟨0, by linarith⟩, Finset.mem_Iio.mpr (Nat.pos_of_ne_zero hj0)⟩
+          aesop
+        exact ⟨(s k₀ + r k₀ + s ⟨j, hj⟩ - r ⟨j, hj⟩) / 2,
+          fun k hk => ⟨by linarith [h_gt k hk, hk₀.2 k hk],
+            by linarith [h_gt k hk, hk₀.2 k hk, h_gt k₀ hk₀.1]⟩⟩
+    have h_abs : ∀ k, |s k - c| > r k := by
+      intro k
+      by_cases hk : k < ⟨j, hj⟩ <;> simp_all +decide [abs_eq_max_neg]
+      · exact Or.inr (by linarith [hc k hk, hr k])
+      · specialize hc ⟨j - 1, Nat.lt_succ_of_le (Nat.sub_le_of_le_add <| by linarith)⟩
+        rcases j with (_ | j)
+        · norm_num at *
+          erw [Finset.sum_empty] at h_contra
+          linarith [hr 0]
+        · norm_num at *
+          exact Or.inl (by linarith [hsorted hk, hr k])
+    have := hns c h_abs
+    specialize this ⟨j, hj⟩ 0
+    specialize hc 0
+    simp_all +decide
+    rcases j with (_ | j)
+    · simp_all +decide
+      erw [Finset.sum_empty] at h_contra
+      linarith
+    · simp_all +decide
+      linarith [this.mp (by linarith [hc (Nat.succ_pos _), hr 0, hr ⟨j + 1, by linarith⟩]),
+        hc (Nat.succ_pos _), hr 0, hr ⟨j + 1, by linarith⟩]
 
 /-! ### Sorted weighted sum bound -/
 
@@ -253,16 +254,20 @@ theorem one_dim_covering_lower {n : ℕ} (s r : Fin n → ℝ) (hr : ∀ i, 0 �
           ∃ σ : Fin n → Fin n, (∀ i, σ i ∈ Finset.univ) ∧
           (∀ i j, i < j → f (σ i) ≤ f (σ j)) ∧ Function.Injective σ := by
         intro n f
-        induction' n with n ih <;> simp_all +decide
-        obtain ⟨m, hm⟩ : ∃ m : Fin (n + 1), ∀ i : Fin (n + 1), f i ≥ f m := by
-          simpa using Finset.exists_min_image Finset.univ (fun i => f i) ⟨0, Finset.mem_univ 0⟩
-        obtain ⟨σ, hσ₁, hσ₂⟩ := ih (fun i => f (Fin.succAbove m i))
-        refine' ⟨Fin.cons m (fun i => Fin.succAbove m (σ i)), _, _⟩ <;>
-          simp_all +decide [Function.Injective]
-        · intro i j hij
-          induction i using Fin.inductionOn <;> induction j using Fin.inductionOn <;> aesop
-        · simp +decide [Fin.forall_fin_succ]
-          tauto
+        induction n with
+        | zero =>
+          simp_all +decide
+        | succ n ih =>
+          simp_all +decide
+          obtain ⟨m, hm⟩ : ∃ m : Fin (n + 1), ∀ i : Fin (n + 1), f i ≥ f m := by
+            simpa using Finset.exists_min_image Finset.univ (fun i => f i) ⟨0, Finset.mem_univ 0⟩
+          obtain ⟨σ, hσ₁, hσ₂⟩ := ih (fun i => f (Fin.succAbove m i))
+          refine' ⟨Fin.cons m (fun i => Fin.succAbove m (σ i)), _, _⟩ <;>
+            simp_all +decide [Function.Injective]
+          · intro i j hij
+            induction i using Fin.inductionOn <;> induction j using Fin.inductionOn <;> aesop
+          · simp +decide [Fin.forall_fin_succ]
+            tauto
       exact h_ind _ fun i => s i - r i
     obtain ⟨σ, hσ₁, hσ₂, hσ₃⟩ := h_sorted
     exact ⟨Equiv.ofBijective σ ⟨hσ₃, Finite.injective_iff_surjective.mp hσ₃⟩,
