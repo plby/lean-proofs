@@ -40,7 +40,6 @@ import Mathlib
 namespace Erdos914
 
 set_option linter.style.setOption false
-set_option linter.style.openClassical false
 set_option linter.style.induction false
 set_option linter.style.refine false
 -- Local generated proof budgets below exceed the style threshold but are scoped.
@@ -52,7 +51,7 @@ set_option linter.unusedSectionVars false
 set_option linter.unusedVariables false
 set_option linter.unusedSimpArgs false
 
-open Classical
+attribute [local instance] Classical.propDecidable
 
 /-! ## Terminal vertex construction
 
