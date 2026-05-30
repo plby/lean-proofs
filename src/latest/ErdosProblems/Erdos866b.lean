@@ -56,7 +56,6 @@ import Mathlib
 
 namespace Erdos866b
 
-set_option linter.style.openClassical false
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.style.refine false
@@ -70,7 +69,9 @@ set_option maxHeartbeats 8000000
 set_option maxRecDepth 4096
 
 open Finset
-open scoped Pointwise Classical
+open scoped Pointwise
+
+attribute [local instance] Classical.propDecidable
 
 /-- There exist k distinct integers whose pairwise sums are all in A. -/
 def HasPairwiseSums (A : Finset ℤ) (k : ℕ) : Prop :=
