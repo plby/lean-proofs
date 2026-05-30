@@ -32,7 +32,6 @@ namespace Erdos728
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.openClassical false
 set_option linter.style.whitespace false
 set_option linter.unusedSimpArgs false
 
@@ -41,7 +40,9 @@ namespace Erdos728b
 
 open Real
 
-open scoped Classical Nat Topology
+open scoped Nat Topology
+
+attribute [local instance] Classical.propDecidable
 
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
