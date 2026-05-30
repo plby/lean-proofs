@@ -48,7 +48,6 @@ set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
 set_option linter.style.cases false
 set_option linter.flexible false
-set_option linter.unusedDecidableInType false
 set_option linter.unusedSectionVars false
 set_option linter.unusedVariables false
 set_option linter.unusedSimpArgs false
@@ -65,6 +64,7 @@ vertices reaching r. -/
 namespace TerminalVertex
 
 variable {α : Type*} [Fintype α] [DecidableEq α]
+omit [DecidableEq α]
 
 /-
 Extract a nodup chain witnessing ReflTransGen.
@@ -292,7 +292,7 @@ open Finset
 
 /-! ## Rational weight function lower bound -/
 
-lemma weight_sum_lower_bound {ι : Type*} [DecidableEq ι]
+lemma weight_sum_lower_bound {ι : Type*}
     (F : Finset ι) (s : ι → ℕ) (q t c_max : ℕ)
     (hq : 1 ≤ q) (ht : q < t)
     (hF_card : F.card ≥ t - q + c_max)
@@ -301,6 +301,7 @@ lemma weight_sum_lower_bound {ι : Type*} [DecidableEq ι]
     (hs_pos : ∀ i ∈ F, 1 ≤ s i)
     (hs_le : ∀ i ∈ F, s i ≤ c_max) :
     ∑ i ∈ F, (q : ℚ) / (s i : ℚ) ≥ (t : ℚ) := by
+  classical
   -- By assumption, $s_i \leq c_max$ for all $i \in F$, so $\frac{q}{s_i} \geq \frac{q}{c_max}$.
   have h_term_bound : ∀ i ∈ F, (q : ℚ) / s i ≥ q / c_max := by
     field_simp;
@@ -315,7 +316,7 @@ lemma weight_sum_lower_bound {ι : Type*} [DecidableEq ι]
 /-! ## Double counting for the weight function -/
 
 lemma weight_function_contradiction
-    {α β : Type*} [DecidableEq α] [DecidableEq β]
+    {α β : Type*} [DecidableEq β]
     (A : Finset α) (B : Finset β)
     (Solo : α → Finset β)
     (q t s : ℕ)
@@ -332,6 +333,7 @@ lemma weight_function_contradiction
         (∀ z ∈ Sy, (Solo z).card ≤ c_max) ∧
         (∀ z ∈ Sy, 1 ≤ (Solo z).card)) :
     False := by
+  classical
   -- Define the weight function total computed by the "z-side".
   set μ := ∑ a ∈ A, ∑ b ∈ Solo a, (q : ℚ) / ((Solo a).card : ℚ)
   have mu_upper : μ ≤ q * (t * s) := by
@@ -388,12 +390,13 @@ In a finite digraph, if W can't reach target without U,
     and C can't reach target without W, and C ≠ U,
     then C can't reach target without U.
 -/
-lemma cannot_reach_transitive {α : Type*} [Finite α] [DecidableEq α]
+lemma cannot_reach_transitive {α : Type*} [Finite α]
     (R : α → α → Prop) (target U W C : α)
     (hW : ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ U) W target)
     (hC : ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W) C target)
     (_hCU : C ≠ U) :
     ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ U) C target := by
+  classical
   letI := Fintype.ofFinite α
   contrapose! hC;
   induction hC;
@@ -404,14 +407,15 @@ lemma cannot_reach_transitive {α : Type*} [Finite α] [DecidableEq α]
 Mutual dependency is impossible: if W needs U to reach target,
     and U needs W to reach target, we get a contradiction.
 -/
-lemma mutual_dependency_impossible {α : Type*} [Finite α] [DecidableEq α]
-    (R : α → α → Prop) [DecidableRel R] (target U W : α)
+lemma mutual_dependency_impossible {α : Type*} [Finite α]
+    (R : α → α → Prop) (target U W : α)
     (hUW : U ≠ W)
     (hU_acc : Relation.ReflTransGen R U target)
     (hW_acc : Relation.ReflTransGen R W target)
     (hU_needs_W : ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W) U target)
     (hW_needs_U : ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ U) W target) :
     False := by
+  classical
   letI := Fintype.ofFinite α
   -- Consider a nodup chain from U to target: U = c₀, c₁, ..., cₖ = target.
   obtain ⟨l, hl_nodup, hl_chain, hl_head, hl_last⟩ : ∃ l : List α, l.Nodup ∧
@@ -433,7 +437,7 @@ lemma mutual_dependency_impossible {α : Type*} [Finite α] [DecidableEq α]
 Every member of the minimal T_U is terminal.
 -/
 lemma terminal_set_members_are_terminal {α : Type*} [Finite α] [DecidableEq α]
-    (R : α → α → Prop) [DecidableRel R] (target : α)
+    (R : α → α → Prop) (target : α)
     (acc : Finset α)
     (hacc : ∀ c ∈ acc, Relation.ReflTransGen R c target)
     (U : α) (hU_acc : U ∈ acc)
@@ -450,6 +454,7 @@ lemma terminal_set_members_are_terminal {α : Type*} [Finite α] [DecidableEq α
     (W : α) (hW : W ∈ T_U) :
     ∀ C ∈ acc, C ≠ W →
       Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W) C target := by
+  classical
   letI := Fintype.ofFinite α
   intro C hC hCW; contrapose! hT_U_min; simp_all +decide ;
   refine' ⟨ W, hW.1, ⟨ C, hC, hCW, hT_U_min ⟩, _ ⟩;
@@ -487,10 +492,12 @@ def IsEquitable (f : V → Fin k) : Prop :=
 def HasEquitableColoring (G : SimpleGraph V) (k : ℕ) : Prop :=
   ∃ f : V → Fin k, IsProper G f ∧ IsEquitable f
 
-lemma hasEquitableColoring_of_iso {W : Type*} [Fintype W] [DecidableEq W]
+omit [DecidableEq V] in
+lemma hasEquitableColoring_of_iso {W : Type*} [Fintype W]
     {G : SimpleGraph V} {H : SimpleGraph W} {k : ℕ}
     (e : H ≃g G) :
     HasEquitableColoring H k → HasEquitableColoring G k := by
+  classical
   rintro ⟨f, hf_proper, hf_equitable⟩
   refine ⟨fun v => f (e.symm v), ?_, ?_⟩
   · intro v w hvw h_eq
@@ -533,10 +540,11 @@ lemma cClass_card_sum (f : V → Fin k) :
   exact h_insert
 
 omit [Fintype V] in
-lemma recolor_preserves_proper {G : SimpleGraph V} [DecidableRel G.Adj]
+lemma recolor_preserves_proper {G : SimpleGraph V}
     {f : V → Fin k} (hf : IsProper G f) {v : V} {c : Fin k}
     (hm : IsMovable G f v c) :
     IsProper G (recolor f v c) := by
+  classical
   intro w x; by_cases hvw : w = v <;> by_cases hvx : x = v <;> simp_all +decide [recolor]
   · intro hx; have := hm.2 x; simp_all +decide; aesop
   · rintro h; have := hm.2 w; simp_all +decide [SimpleGraph.adj_comm]; aesop
@@ -595,9 +603,11 @@ lemma maxDegree_deleteEdges_le (G : SimpleGraph V) [DecidableRel G.Adj]
 
 /-! ## Section 4: Base case -/
 
-lemma equitable_coloring_of_edgeless (G : SimpleGraph V) [DecidableRel G.Adj]
+omit [DecidableEq V] in
+lemma equitable_coloring_of_edgeless (G : SimpleGraph V)
     (r : ℕ) (hG : G.edgeSet = ∅) :
     HasEquitableColoring G (r + 1) := by
+  classical
   simp +decide [Set.ext_iff] at hG ⊢
   have h_eq : ∃ f : V → Fin (r + 1), ∀ c₁ c₂ : Fin (r + 1), ((cClass f c₁).card ≤
     (cClass f c₂).card + 1) := by
@@ -685,11 +695,13 @@ structure NearlyEquitable (G : SimpleGraph V) (k s : ℕ) where
 
 /-! ## Section 7: Lemma 2.1 — One-step and general cases -/
 
+omit [DecidableEq V] in
 lemma one_step_equitable
-    (G : SimpleGraph V) [DecidableRel G.Adj] (k s : ℕ) (hs : 1 ≤ s)
+    (G : SimpleGraph V) (k s : ℕ) (hs : 1 ≤ s)
     (ne : NearlyEquitable G k s)
     (hdirect : AuxAdj G ne.f ne.large ne.small) :
     HasEquitableColoring G k := by
+  classical
   obtain ⟨ v, hv ⟩ := hdirect;
   refine' ⟨ recolor ne.f v ne.small, _, _ ⟩ <;> simp_all +decide [ IsProper, IsEquitable ];
   · intro u w huw; by_cases hu : u = v <;> by_cases hw : w = v <;> simp_all +decide [ recolor,
@@ -717,12 +729,13 @@ lemma one_step_equitable
 
 omit [Fintype V] in
 lemma auxAdj_preserved_by_recolor
-    (G : SimpleGraph V) [DecidableRel G.Adj]
+    (G : SimpleGraph V)
     {k : ℕ} {f : V → Fin k} {v : V} {c : Fin k}
     {i j : Fin k} (hvc : f v ≠ c)
     (hij : AuxAdj G f i j)
     (hi_ne : i ≠ f v) (hj_ne : j ≠ c) :
     AuxAdj G (recolor f v c) i j := by
+  classical
   obtain ⟨ u, hu ⟩ := hij;
   refine' ⟨ u, _, _ ⟩ <;> simp_all +decide [ recolor ];
   · rw [ Function.update_apply ] ; aesop;
@@ -730,11 +743,12 @@ lemma auxAdj_preserved_by_recolor
 
 /-! ### Simple path extraction from ReflTransGen -/
 
-lemma exists_nodup_chain {α : Type*} [Finite α] [DecidableEq α]
+lemma exists_nodup_chain {α : Type*} [Finite α]
     {R : α → α → Prop} {a b : α}
     (h : Relation.ReflTransGen R a b) (hab : a ≠ b) :
     ∃ l : List α, l.Nodup ∧ l.IsChain R ∧ l.head? = some a ∧
-    l.getLast? = some b ∧ 2 ≤ l.length := by
+      l.getLast? = some b ∧ 2 ≤ l.length := by
+  classical
   letI := Fintype.ofFinite α
   -- Let's take the shortest path from `a` to `b` in the reflexive transitive closure.
   obtain ⟨l, hl⟩ : ∃ l : List α, l.head? = some a ∧ l.getLast? = some b ∧
@@ -788,7 +802,7 @@ lemma exists_nodup_chain {α : Type*} [Finite α] [DecidableEq α]
 
 omit [Fintype V] in
 lemma chain_preserved_after_recolor
-    (G : SimpleGraph V) [DecidableRel G.Adj]
+    (G : SimpleGraph V)
     {k : ℕ} {f : V → Fin k} {v : V} {c : Fin k}
     (hvc : f v ≠ c)
     {path : List (Fin k)}
@@ -796,13 +810,15 @@ lemma chain_preserved_after_recolor
     (hi_avoid : ∀ x ∈ path, x ≠ f v)
     (hj_avoid : ∀ x ∈ path.tail, x ≠ c) :
     path.IsChain (AuxAdj G (recolor f v c)) := by
+      classical
       induction' path with x path ih;
       · exact List.isChain_nil;
       · rcases path <;> simp_all +decide;
         exact auxAdj_preserved_by_recolor G hvc hchain.1 hi_avoid.1 hj_avoid.1
 
+omit [DecidableEq V] in
 lemma step_with_chain_preservation
-    (G : SimpleGraph V) [DecidableRel G.Adj] (k s : ℕ) (_hs : 1 ≤ s)
+    (G : SimpleGraph V) (k s : ℕ) (_hs : 1 ≤ s)
     (ne : NearlyEquitable G k s)
     (mid : Fin k) (hmid_ne_small : mid ≠ ne.small)
     (hmid_ne_large : mid ≠ ne.large)
@@ -817,6 +833,7 @@ lemma step_with_chain_preservation
       (mid :: tail).IsChain (AuxAdj G ne'.f) ∧
       (mid :: tail).head? = some ne'.large ∧
       (mid :: tail).getLast? = some ne'.small := by
+  classical
   obtain ⟨ v, hv1, hv2 ⟩ := hedge; use ⟨ recolor ne.f v mid, ?_, ne.small, mid, ?_, ?_, ?_,
     ?_, ?_ ⟩ <;> simp_all +decide ;
   any_goals tauto;
@@ -839,8 +856,9 @@ lemma step_with_chain_preservation
       · have := ne.card_large; aesop;
     · exact ne.card_other c hc1 hc3
 
+omit [DecidableEq V] in
 lemma equitable_from_nodup_chain
-    (G : SimpleGraph V) [DecidableRel G.Adj] (k s : ℕ)
+    (G : SimpleGraph V) (k s : ℕ)
     (ne : NearlyEquitable G k s)
     (path : List (Fin k))
     (hnodup : path.Nodup)
@@ -848,6 +866,7 @@ lemma equitable_from_nodup_chain
     (hhead : path.head? = some ne.large)
     (hlast : path.getLast? = some ne.small) :
     HasEquitableColoring G k := by
+      classical
       by_cases hs : 1 ≤ s;
       · induction' n : path.length using Nat.strong_induction_on with n ih generalizing path ne;
         by_cases hpath : path.length ≤ 2;
@@ -872,11 +891,13 @@ lemma equitable_from_nodup_chain
         have := ne.card_total; simp_all +decide [ cClass ] ;
         rw [ Fintype.card_eq_zero_iff ] at this ; aesop
 
+omit [DecidableEq V] in
 lemma accessible_large_gives_equitable
-    (G : SimpleGraph V) [DecidableRel G.Adj] (k s : ℕ)
+    (G : SimpleGraph V) (k s : ℕ)
     (ne : NearlyEquitable G k s)
     (hacc : IsAccessible G ne.f ne.small ne.large) :
     HasEquitableColoring G k := by
+  classical
   -- Use the hypothesis `hacc` to obtain a nodup chain from the large class to the small
   -- class in the auxiliary digraph.
   obtain ⟨l, hl⟩ : ∃ l : List (Fin k), l.Nodup ∧ l.IsChain (AuxAdj G ne.f) ∧ l.head? =
@@ -935,6 +956,7 @@ lemma exists_movable_class
 
 /-! ## Section 9: Induction step -/
 
+omit [DecidableEq V] in
 -- The generated induction step needs extra heartbeats for coloring bookkeeping.
 set_option maxHeartbeats 800000 in
 /-- Variant of `induction_step` that takes a callback for converting
@@ -949,6 +971,7 @@ lemma induction_step_with_callback
     (h_ne : ∀ (s : ℕ), Fintype.card V = (r + 1) * s → 0 < s →
       NearlyEquitable G (r + 1) s → HasEquitableColoring G (r + 1)) :
     HasEquitableColoring G (r + 1) := by
+  classical
   cases' hIH with f hf
   rcases e with ⟨x, y⟩
   by_cases hxy : f x = f y
@@ -1003,12 +1026,13 @@ lemma edgeFinset_card_deleteEdges_lt (G : SimpleGraph V) [DecidableRel G.Adj]
 
 omit [Fintype V] [DecidableEq V] in
 lemma non_acc_has_acc_neighbor
-    (G : SimpleGraph V) [DecidableRel G.Adj]
+    (G : SimpleGraph V)
     {k : ℕ} {f : V → Fin k} {i_minus : Fin k}
     {y : V} {c : Fin k}
     (hacc_c : IsAccessible G f i_minus c)
     (hnacc_y : ¬IsAccessible G f i_minus (f y)) :
     ∃ w, f w = c ∧ G.Adj y w := by
+  classical
   by_contra h_contra; push Not at h_contra; (
   -- By contraposition, if y has no neighbor of color c, then y's color is accessible to
   -- i_minus by the definition of AuxAdj.
@@ -1018,6 +1042,7 @@ lemma non_acc_has_acc_neighbor
 
 /-! ### Helper lemmas for Lemma 2.3 -/
 
+omit [DecidableEq V] in
 /-- There exists a second accessible color besides ne.small. -/
 lemma acc_has_second_color
     (G : SimpleGraph V) [DecidableRel G.Adj]
@@ -1026,6 +1051,7 @@ lemma acc_has_second_color
     (ne : NearlyEquitable G (r + 1) s)
     (hacc : ¬IsAccessible G ne.f ne.small ne.large) :
     ∃ W : Fin (r + 1), W ≠ ne.small ∧ W ≠ ne.large ∧ IsAccessible G ne.f ne.small W := by
+  classical
   by_contra h_contra;
   -- If there are no vertices of color ne.small that are not adjacent to any vertex of
   -- color ne.large, then every vertex of color ne.small is adjacent to at least one
@@ -1075,20 +1101,21 @@ lemma acc_has_second_color
 /-- In a finite directed graph, if there exists a vertex W₀ ≠ r that can reach r,
     then there exists a "terminal" vertex W ≠ r that can reach r, such that every
     other vertex that can reach r can also reach r without passing through W. -/
-lemma exists_terminal_vertex {α : Type*} [Finite α] [DecidableEq α]
+lemma exists_terminal_vertex {α : Type*} [Finite α]
     (R : α → α → Prop) (r : α)
     (W₀ : α) (hW₀ : Relation.ReflTransGen R W₀ r) (hW₀_ne : W₀ ≠ r) :
     ∃ W : α, Relation.ReflTransGen R W r ∧ W ≠ r ∧
       ∀ C : α, Relation.ReflTransGen R C r → C ≠ W →
         Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W) C r :=
   by
+    classical
     letI := Fintype.ofFinite α
     exact TerminalVertex.exists_terminal_vertex R r W₀ hW₀ hW₀_ne
 
 omit [Fintype V] [DecidableEq V] in
 /-- Specialization of exists_terminal_vertex to the auxiliary digraph. -/
 lemma exists_terminal_color
-    (G : SimpleGraph V) [DecidableRel G.Adj]
+    (G : SimpleGraph V)
     (k : ℕ) (f : V → Fin k) (small : Fin k)
     (W₀ : Fin k) (hW₀ : IsAccessible G f small W₀) (hW₀_ne : W₀ ≠ small) :
     ∃ W : Fin k, IsAccessible G f small W ∧ W ≠ small ∧
@@ -1096,6 +1123,7 @@ lemma exists_terminal_color
         Relation.ReflTransGen (fun c d => AuxAdj G f c d ∧ c ≠ W) C small :=
   exists_terminal_vertex (AuxAdj G f) small W₀ hW₀ hW₀_ne
 
+omit [DecidableEq V] in
 -- The generated solo-weight contradiction needs extra heartbeats for finite-set estimates.
 set_option maxHeartbeats 1600000 in
 /-- Under negation of the good solo vertex conclusion (all solo vertices are "bad"),
@@ -1117,6 +1145,7 @@ lemma solo_weight_contradiction
       (∀ y₂, y₂ ≠ y₁ → ¬IsAccessible G ne.f ne.small (ne.f y₂) →
         G.Adj y₂ z → (∀ w, ne.f w = W → w ≠ z → ¬G.Adj y₂ w) → G.Adj y₁ y₂)) :
     False := by
+  classical
   -- Step 1: Get an accessible color W₀ ≠ small, ≠ large
   obtain ⟨W₀, hW₀_ne_small, hW₀_ne_large, hW₀_acc⟩ :=
     acc_has_second_color G r s hs hd hs0 ne hacc
@@ -1615,6 +1644,7 @@ lemma solo_weight_contradiction
             intro z hz
             exact Finset.card_pos.mpr ⟨y, (Finset.mem_filter.mp hz).2⟩)
 
+omit [DecidableEq V] in
 /-- Lemma 2.3 from Kierstead-Kostochka: Given a nearly equitable coloring where
     the large class is not accessible, there exists a "good solo vertex"
     configuration that enables progress. -/
@@ -1644,6 +1674,7 @@ lemma good_solo_vertex_exists
         ¬G.Adj y₁ y₂ ∧
         (∀ X : Fin (r+1), IsAccessible G ne.f ne.small X → X ≠ W →
           ∃ w, ne.f w = X ∧ G.Adj z w))) := by
+  classical
   by_contra h_neg
   -- h_neg : ¬∃ W z y₁, ... ∧ (Case1 ∨ Case2)
   apply solo_weight_contradiction G r s hs hd hs0 ne hacc
@@ -1665,6 +1696,7 @@ lemma good_solo_vertex_exists
 
 /-! ### Helper: T-vertex degree bound in B -/
 
+omit [DecidableEq V] in
 -- The generated T-class degree bound needs extra heartbeats for filtered-neighborhood counts.
 set_option maxHeartbeats 1600000 in
 /-- Any vertex in a T-class has at most q + t neighbors in B, where q = r+1-|acc_colors|, t = |T|.
@@ -1689,6 +1721,7 @@ lemma T_vertex_B_degree_bound
     (Finset.univ.filter (fun w => G.Adj x w ∧ ¬IsAccessible G ne.f ne.small (ne.f w))).card
       ≤ r + 1 - (Finset.univ.filter (fun c : Fin (r + 1) =>
         IsAccessible G ne.f ne.small c)).card + T.card := by
+  classical
   -- The number of accessible neighbors of x is at least acc_colors.card - T.card - 1.
   have h_acc_neighbors : (Finset.filter (fun w => G.Adj x w ∧
     IsAccessible G ne.f ne.small (ne.f w)) Finset.univ).card ≥ (Finset.filter (fun c =>
@@ -1713,6 +1746,7 @@ lemma T_vertex_B_degree_bound
       G.Adj x w ) Finset.univ ) = Finset.filter ( fun w => G.Adj x w ∧
         IsAccessible G ne.f ne.small ( ne.f w ) ) Finset.univ by ext; aesop ] ; omega;
 
+omit [DecidableEq V] in
 -- The generated T-solo bound needs extra heartbeats for accessible-color counting.
 set_option maxHeartbeats 1600000 in
 /-- Solo vertex in T-class has at most q non-accessible neighbors.
@@ -1731,6 +1765,7 @@ lemma T_solo_vertex_B_degree_bound
     (Finset.univ.filter (fun w => G.Adj z w ∧ ¬IsAccessible G ne.f ne.small (ne.f w))).card
       ≤ r + 1 - (Finset.univ.filter (fun c : Fin (r + 1) => IsAccessible G ne.f ne.small c)).card
         := by
+  classical
   have h_image : Finset.card (Finset.image (fun w => ne.f w) (Finset.univ.filter (fun w =>
     G.Adj z w ∧ IsAccessible G ne.f ne.small (ne.f w)))) ≥
       Finset.card (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c)) - 1 := by
@@ -1757,8 +1792,9 @@ lemma T_solo_vertex_B_degree_bound
 /-
 B_card computation: number of non-accessible vertices = q*s + 1.
 -/
+omit [DecidableEq V] in
 lemma B_card_eq_aux
-    (G : SimpleGraph V) [DecidableRel G.Adj]
+    (G : SimpleGraph V)
     (r s : ℕ) (hs : Fintype.card V = (r + 1) * s)
     (hs0 : 0 < s)
     (ne : NearlyEquitable G (r + 1) s)
@@ -1766,6 +1802,7 @@ lemma B_card_eq_aux
     (Finset.univ.filter (fun v : V => ¬IsAccessible G ne.f ne.small (ne.f v))).card =
     (r + 1 - (Finset.univ.filter (fun c : Fin (r + 1) => IsAccessible G ne.f ne.small c)).card) *
       s + 1 := by
+  classical
   -- The number of vertices in the union of all accessible color classes is equal to the
   -- sum of their sizes.
   have h_union_accessible_size : ∑ c ∈ Finset.univ.filter (fun c =>
@@ -1798,6 +1835,7 @@ lemma B_card_eq_aux
   · exact False.elim
       (‹¬IsAccessible G ne.f ne.small ne.small› Relation.ReflTransGen.refl)
 
+omit [DecidableEq V] in
 /-- Solo vertex bound: for z with a solo B-neighbor y₁, the number of B-neighbors of z that
     are solo (unique in W₀-class) is at most q. -/
 lemma solo_card_le_q_aux
@@ -1819,12 +1857,14 @@ lemma solo_card_le_q_aux
     (hy₁_adj : G.Adj y₁ z) (hy₁_uniq : ∀ w, ne.f w = W₀ → w ≠ z → ¬G.Adj y₁ w) :
     (Finset.univ.filter (fun w => G.Adj z w ∧ ¬IsAccessible G ne.f ne.small (ne.f w))).card ≤
     r + 1 - (Finset.univ.filter (fun c : Fin (r + 1) => IsAccessible G ne.f ne.small c)).card := by
+  classical
   exact
     T_solo_vertex_B_degree_bound G r s hs hd hs0 ne hacc z y₁ W₀ hz hy₁_nacc
       hy₁_adj hy₁_uniq ((h_bad W₀ hW₀ z y₁ hz hy₁_nacc hy₁_adj hy₁_uniq).1)
 
 -- The generated restricted-cardinality argument needs extra heartbeats for arithmetic bounds.
 set_option maxHeartbeats 3200000 in
+omit [DecidableEq V] in
 lemma restricted_T_card_gt_q
     (G : SimpleGraph V) [DecidableRel G.Adj]
     (r s : ℕ) (hs : Fintype.card V = (r + 1) * s)
@@ -1851,6 +1891,7 @@ lemma restricted_T_card_gt_q
       ∃ w, ne.f w = V_out ∧ G.Adj x w) :
     (r + 1 - (Finset.univ.filter (fun c : Fin (r + 1) =>
       IsAccessible G ne.f ne.small c)).card) < T.card := by
+  classical
   obtain ⟨W₀, hW₀⟩ : ∃ W₀ ∈ T, True := by
     exact ⟨ hT_nonempty.choose, hT_nonempty.choose_spec, trivial ⟩;
   -- Let $B$ be the set of non-accessible vertices, and $W₀_class$ be the class of $W₀$.
@@ -2269,15 +2310,17 @@ lemma restricted_Solo_lower_bound
     solo_card_le_dB_plus_one G r s hs hd hs0 ne hacc T hT_sub h_bad y hy,
     fun z hz => Finset.card_pos.mpr ⟨y, (Finset.mem_filter.mp hz).2⟩⟩
 
+omit [DecidableEq V] in
 /-- The non-accessible vertices have cardinality q*s + 1, expressed in terms of q -/
 lemma non_acc_verts_card_q
-    (G : SimpleGraph V) [DecidableRel G.Adj]
+    (G : SimpleGraph V)
     (r : ℕ) (s : ℕ) (_hs : Fintype.card V = (r + 1) * s)
     (ne : NearlyEquitable G (r + 1) s)
     (hacc : ¬IsAccessible G ne.f ne.small ne.large) :
     (Finset.univ.filter (fun v : V => ¬IsAccessible G ne.f ne.small (ne.f v))).card =
     (r + 1 - (Finset.univ.filter (fun c : Fin (r + 1) => IsAccessible G ne.f ne.small c)).card) *
       s + 1 := by
+  classical
   have := ne.card_total;
   rw [ tsub_mul, mul_comm ];
   rw [ mul_comm, this.symm ];
@@ -2319,6 +2362,7 @@ lemma non_acc_verts_card_q
   · rw [ this ];
     exact Nat.mul_le_mul_right _ ( le_trans ( Finset.card_le_univ _ ) ( by simp +decide ) )
 
+omit [DecidableEq V] in
 -- The generated restricted weight contradiction needs extra heartbeats for double-counting.
 set_option maxHeartbeats 3200000 in
 /-- Restricted weight argument: the weight function argument applied to a subset T
@@ -2351,6 +2395,7 @@ lemma restricted_solo_weight_contradiction
       V_out ∉ T → V_out ≠ U →
       ∃ w, ne.f w = V_out ∧ G.Adj x w) :
     False := by
+  classical
   -- Step 1: Setup
   set acc_colors := Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c)
   set q := r + 1 - acc_colors.card
@@ -2389,6 +2434,7 @@ lemma restricted_solo_weight_contradiction
     (restricted_Solo_card_le G r s hs hd hs0 ne hacc T hT_sub hT_ne_small hT_ne_large h_bad)
     (restricted_Solo_lower_bound G r s hs hd hs0 ne hacc T hT_sub ht h_bad)
 
+omit [DecidableEq V] in
 -- The generated terminal-weight argument needs extra heartbeats for terminal-set construction.
 set_option maxHeartbeats 3200000 in
 /-- The weight argument restricted to the proper terminal set.
@@ -2414,6 +2460,7 @@ lemma terminal_weight_contradiction
         (∀ X : Fin (r+1), IsAccessible G ne.f ne.small X → X ≠ W →
           ∃ w, ne.f w = X ∧ G.Adj z w)))) :
     False := by
+  classical
   -- Step 1: Extract bad property for terminal W from h_neg
   have h_bad_from_terminal : ∀ (W : Fin (r + 1)) (z y₁ : V),
       IsAccessible G ne.f ne.small W → W ≠ ne.small → W ≠ ne.large →
@@ -2545,11 +2592,11 @@ lemma terminal_weight_contradiction
   exact restricted_solo_weight_contradiction G r s hs hd hs0 ne hacc
     T hT_sub hT_ne_small hT_ne_large hU_nonterm_T h_T_bad U hU_acc hU_not_T h_not_mov
 
+omit [DecidableEq V] in
 -- The generated no-terminal-good-solo contradiction needs extra heartbeats for case assembly.
 set_option maxHeartbeats 800000 in
-/-- If there exists a terminal accessible class W_t (≠ small, ≠ large) such that
-    no good solo vertex exists for W_t (i.e., h_neg denies the full existential
-    with terminal property), then solo_weight_contradiction gives False.
+/-- If h_neg says no terminal good solo configuration exists for a fixed terminal
+    W_t with terminal property, then solo_weight_contradiction gives False.
     The key: h_neg gives the "bad" property for W_t (as proved by by_contra),
     and the edge counting for W_t's class versus B_verts gives contradiction. -/
 lemma no_terminal_good_solo_contradiction
@@ -2577,6 +2624,7 @@ lemma no_terminal_good_solo_contradiction
         (∀ X : Fin (r+1), IsAccessible G ne.f ne.small X → X ≠ W →
           ∃ w, ne.f w = X ∧ G.Adj z w)))) :
     False := by
+  classical
   -- Case split: are ALL accessible ≠ small ≠ large classes terminal?
   by_cases h_all_term : ∀ W : Fin (r + 1),
     IsAccessible G ne.f ne.small W → W ≠ ne.small → W ≠ ne.large →
@@ -2612,6 +2660,7 @@ lemma no_terminal_good_solo_contradiction
     -- This is the content of the paper's Lemma 2.3 restricted to terminal classes.
     exact terminal_weight_contradiction G r s hs hd hs0 ne hacc h_neg
 
+omit [DecidableEq V] in
 /-- Strengthened version of good_solo_vertex_exists that also guarantees
     the terminal property of W: every other accessible color can reach
     ne.small without passing through W. -/
@@ -2639,6 +2688,7 @@ lemma good_solo_vertex_exists_terminal
         ¬G.Adj y₁ y₂ ∧
         (∀ X : Fin (r+1), IsAccessible G ne.f ne.small X → X ≠ W →
           ∃ w, ne.f w = X ∧ G.Adj z w))) := by
+  classical
   -- Use good_solo_vertex_exists (without terminal) and check if W is terminal
   obtain ⟨W, z, y₁, hW_acc, hW_ne_small, hW_ne_large, hz_color, hy₁_nacc,
     hadj_y₁_z, huniq_y₁, hcases⟩ :=
@@ -2702,7 +2752,7 @@ omit [DecidableEq V] in
 /-- Combining two equitable colorings on complementary sets into one equitable coloring
     of the whole graph. The two parts use disjoint ranges of Fin (a+b). -/
 lemma combine_disjoint_equitable
-    (G : SimpleGraph V) [DecidableRel G.Adj]
+    (G : SimpleGraph V)
     (A_set : Set V) [DecidablePred (· ∈ A_set)]
     (a b s_val : ℕ)
     (hA_card : Fintype.card ↥A_set = a * s_val)
@@ -2713,6 +2763,7 @@ lemma combine_disjoint_equitable
     (hfA_equitable : IsEquitable fA)
     (hfB_equitable : IsEquitable fB) :
     HasEquitableColoring G (a + b) := by
+  classical
   use fun v => if h : v ∈ A_set then Fin.castAdd b ( fA ⟨ v, h ⟩ )
     else Fin.natAdd a ( fB ⟨ v, by simpa using h ⟩ );
   refine' ⟨ fun v w hvw => _, fun c₁ c₂ => _ ⟩;
@@ -2755,15 +2806,17 @@ lemma combine_disjoint_equitable
 
 /-! ### Cardinality lemmas for the non-accessible partition -/
 
+omit [DecidableEq V] in
 /-- The non-accessible vertices have cardinality q*s + 1 -/
 lemma non_acc_verts_card
-    (G : SimpleGraph V) [DecidableRel G.Adj]
+    (G : SimpleGraph V)
     (r : ℕ) (s : ℕ) (_hs : Fintype.card V = (r + 1) * s)
     (ne : NearlyEquitable G (r + 1) s)
     (hacc : ¬IsAccessible G ne.f ne.small ne.large) :
     (Finset.univ.filter (fun v : V => ¬IsAccessible G ne.f ne.small (ne.f v))).card =
     (Finset.univ.filter (fun c : Fin (r + 1) => ¬IsAccessible G ne.f ne.small c)).card * s + 1
       := by
+  classical
   have h_sum : ∑ c ∈ Finset.univ.filter (fun c => ¬IsAccessible G ne.f ne.small c),
     (cClass ne.f c).card = (Finset.univ.filter (fun c => ¬IsAccessible G ne.f ne.small c)).card *
       s + 1 := by
@@ -2789,17 +2842,19 @@ lemma non_acc_verts_card
 
 /-- Non-accessible vertices minus one have cardinality q*s -/
 lemma non_acc_verts_minus_one_card
-    (G : SimpleGraph V) [DecidableRel G.Adj]
+    (G : SimpleGraph V)
     (r : ℕ) (s : ℕ) (hs : Fintype.card V = (r + 1) * s)
     (ne : NearlyEquitable G (r + 1) s)
     (hacc : ¬IsAccessible G ne.f ne.small ne.large)
     (y₁ : V) (hy₁_nacc : ¬IsAccessible G ne.f ne.small (ne.f y₁)) :
     ((Finset.univ.filter (fun v : V => ¬IsAccessible G ne.f ne.small (ne.f v))).erase y₁).card =
     (Finset.univ.filter (fun c : Fin (r + 1) => ¬IsAccessible G ne.f ne.small c)).card * s := by
+  classical
   rw [ Finset.card_erase_of_mem ];
   · convert Nat.sub_eq_of_eq_add <| non_acc_verts_card G r s hs ne hacc using 1;
   · aesop
 
+omit [DecidableEq V] in
 /-- Degree bound: a non-accessible vertex has at most q-1 neighbors in the non-accessible set -/
 lemma non_acc_degree_bound
     (G : SimpleGraph V) [DecidableRel G.Adj]
@@ -2812,6 +2867,7 @@ lemma non_acc_degree_bound
     (v : V) (hv : v ∈ S) :
     (S.filter (fun w => G.Adj v w)).card ≤
     (Finset.univ.filter (fun c : Fin (r + 1) => ¬IsAccessible G ne.f ne.small c)).card - 1 := by
+  classical
   -- Since v is in S, ne.f v is a non-accessible color.
   have hv_nonacc : ¬IsAccessible G ne.f ne.small (ne.f v) := by
     simpa using hS hv;
@@ -2962,7 +3018,7 @@ Transfer a single AuxAdj step from the original graph to the induced A_plus subg
 -/
 lemma auxadj_transfer_step
     {V : Type*} [Fintype V] [DecidableEq V]
-    (G : SimpleGraph V) [DecidableRel G.Adj]
+    (G : SimpleGraph V)
     (r : ℕ) (ne : NearlyEquitable G (r + 1) s)
     (W_col : Fin (r + 1)) (z y₁ : V) (X : Fin (r + 1))
     (hz_color : ne.f z = W_col)
@@ -2984,6 +3040,7 @@ lemma auxadj_transfer_step
     (hd_ne_X : d ≠ X)
     (hadj_cd : AuxAdj G ne.f c d) :
     AuxAdj (G.induce A_plus) f_A (φ ⟨c, hc_acc⟩) (φ ⟨d, hd_acc⟩) := by
+  classical
   obtain ⟨ v, hv, hv' ⟩ := hadj_cd;
   refine' ⟨ ⟨ v, _ ⟩, _, _ ⟩ <;> simp_all +decide;
   · grind;
@@ -3297,6 +3354,7 @@ lemma A_plus_equitable
 /-! ### Case 1 and Case 2 helper lemmas -/
 
 -- The generated first non-accessible case needs extra heartbeats for recoloring construction.
+omit [DecidableEq V] in
 set_option maxHeartbeats 1600000 in
 /-- Case 1: z is movable to accessible class X.
     We add ih (secondary induction) to the hypotheses since we may need it. -/
@@ -3329,6 +3387,7 @@ lemma non_accessible_case1
       IsAccessible G ne.f ne.small C → C ≠ W →
       Relation.ReflTransGen (fun c d => AuxAdj G ne.f c d ∧ c ≠ W) C ne.small) :
     HasEquitableColoring G (r + 1) := by
+  classical
   set A_plus := {v : V | IsAccessible G ne.f ne.small (ne.f v) ∨ v = y₁}
   set B_minus := {v : V | ¬IsAccessible G ne.f ne.small (ne.f v) ∧ v ≠ y₁};
   have hA_plus_card : Fintype.card A_plus = (Finset.univ.filter (fun c : Fin (r + 1) =>
@@ -3420,11 +3479,13 @@ lemma transGen_exists_ne_first_step {α : Type*} {r : α → α → Prop} {a b :
     · obtain ⟨ d, hd₁, hd₂, hd₃ ⟩ := ‹∃ d, ¬d = a ∧ r a d ∧
       Relation.ReflTransGen r d c›; exact ⟨ d, hd₁, hd₂, hd₃.tail ‹_› ⟩ ;
 
+omit [DecidableEq V] in
 -- The generated second non-accessible case needs extra heartbeats for split coloring.
 set_option maxHeartbeats 6400000 in
-/-- **Paper's Case 2**: When z is not movable to any accessible class and has
-    two nonadjacent solo neighbors y₁, y₂, we construct a new NearlyEquitable
-    coloring with fewer non-accessible classes by:
+/-- Case 2 of Lemma 2.2 in Kierstead-Kostochka: z is not movable to another
+    accessible class but has two nonadjacent solo neighbors y₁,y₂.
+    We construct an equitable coloring by:
+    - coloring accessible part with r+1-q colors
     - recoloring B⁻ via primary induction (equitable q-coloring)
     - adding z to a class with no z-neighbor
     - moving y₁ to W (which z vacated) -/
@@ -3465,6 +3526,7 @@ lemma non_accessible_case2_paper
       IsAccessible G ne.f ne.small C → C ≠ W →
       Relation.ReflTransGen (fun c d => AuxAdj G ne.f c d ∧ c ≠ W) C ne.small) :
     HasEquitableColoring G (r + 1) := by
+  classical
   /-
   Paper's Case 2 proof (Kierstead-Kostochka, Theorem 2.4):
   1. Use B_minus_equitable to get equitable q-coloring g of G[B⁻]
@@ -3766,6 +3828,7 @@ lemma non_accessible_case2_paper
 The non-accessible case of nearly_equitable_to_equitable, with primary IH.
     This is the heart of the Kierstead-Kostochka proof (Lemmas 2.2-2.3).
 -/
+omit [DecidableEq V] in
 lemma non_accessible_case
     (G : SimpleGraph V) [DecidableRel G.Adj]
     (r : ℕ) (s : ℕ) (hs : Fintype.card V = (r + 1) * s)
@@ -3777,6 +3840,7 @@ lemma non_accessible_case
       H.maxDegree ≤ r' → (r' + 1) ∣ Fintype.card W →
       HasEquitableColoring H (r' + 1)) :
     HasEquitableColoring G (r + 1) := by
+  classical
   suffices h_sec : ∀ q_val, ∀ (ne : NearlyEquitable G (r + 1) s),
       (Finset.univ.filter (fun c : Fin (r + 1) =>
         ¬IsAccessible G ne.f ne.small c)).card ≤ q_val →
@@ -3813,6 +3877,7 @@ lemma non_accessible_case
             hy₂ne hy₂nacc hy₂adj hy₂uniq hnonadj
             (fun X hXacc hXW => hnotmov X hXacc hXW) hW_terminal
 
+omit [DecidableEq V] in
 /-- For a fixed type, induction on edges. The `ih_primary` parameter provides
     the H-S theorem for types with strictly fewer elements. -/
 lemma hajnal_szemeredi_edge_induction
@@ -3824,6 +3889,7 @@ lemma hajnal_szemeredi_edge_induction
       H.maxDegree ≤ r' → (r' + 1) ∣ Fintype.card W →
       HasEquitableColoring H (r' + 1)) :
     HasEquitableColoring G (r + 1) := by
+  classical
   -- Inner induction on number of edges
   have h_ind : ∀ (G' : SimpleGraph V) [DecidableRel G'.Adj],
       G'.maxDegree ≤ r → HasEquitableColoring G' (r + 1) := by
@@ -3851,7 +3917,7 @@ lemma hajnal_szemeredi_edge_induction
 set_option maxHeartbeats 400000 in
 /-- Outer induction on vertex count, providing ih_primary. -/
 private theorem hajnal_szemeredi_outer' : ∀ (n : ℕ)
-    {W : Type*} [Fintype W] [DecidableEq W]
+    {W : Type*} [Fintype W]
     (H : SimpleGraph W) [DecidableRel H.Adj] (r : ℕ),
     Fintype.card W ≤ n →
     H.maxDegree ≤ r → (r + 1) ∣ Fintype.card W →
@@ -3859,11 +3925,12 @@ private theorem hajnal_szemeredi_outer' : ∀ (n : ℕ)
   intro n
   induction n using Nat.strongRecOn with
   | _ n ih =>
-    intro W _ _ H _ r hn hmax hdiv
+    intro W _ H _ r hn hmax hdiv
     exact hajnal_szemeredi_edge_induction H r hmax hdiv
       (fun W' _ _ H' _ r' hcard hmax' hdiv' =>
         ih (Fintype.card W') (by omega) H' r' le_rfl hmax' hdiv')
 
+omit [DecidableEq V] in
 /-- Hajnal-Szemerédi Theorem, divisible case. -/
 theorem hajnal_szemeredi_divisible' (G : SimpleGraph V) [DecidableRel G.Adj]
     (r : ℕ) (h : G.maxDegree ≤ r) (hdiv : (r + 1) ∣ Fintype.card V) :
@@ -3930,6 +3997,7 @@ lemma paddedGraph_degree_inl (G : SimpleGraph V) [DecidableRel G.Adj] (p : ℕ) 
   refine' Finset.card_bij (fun w _hw => Sum.elim id (fun i => by tauto) w) _ _ _ <;>
     simp +decide
 
+omit [DecidableEq V] in
 lemma paddedGraph_degree_inr (G : SimpleGraph V) [DecidableRel G.Adj] (p : ℕ) (i : Fin p) :
     (paddedGraph G p).degree (Sum.inr i) = p - 1 := by
   rw [SimpleGraph.degree, SimpleGraph.neighborFinset_def]
@@ -3939,6 +4007,7 @@ lemma paddedGraph_degree_inr (G : SimpleGraph V) [DecidableRel G.Adj] (p : ℕ) 
   · simp +decide [Finset.card_univ]
   · ext x; aesop
 
+omit [DecidableEq V] in
 lemma paddedGraph_maxDegree_le (G : SimpleGraph V) [DecidableRel G.Adj] (p : ℕ) (r : ℕ)
     (hG : G.maxDegree ≤ r) (hp : p ≤ r + 1) :
     (paddedGraph G p).maxDegree ≤ r := by
@@ -3950,14 +4019,14 @@ lemma paddedGraph_maxDegree_le (G : SimpleGraph V) [DecidableRel G.Adj] (p : ℕ
   · rw [paddedGraph_degree_inr]; omega
 
 omit [Fintype V] [DecidableEq V] in
-lemma paddedGraph_proper_restrict (G : SimpleGraph V) [DecidableRel G.Adj] (p : ℕ)
+lemma paddedGraph_proper_restrict (G : SimpleGraph V) (p : ℕ)
     {k : ℕ} (f : (V ⊕ Fin p) → Fin k) (hf : IsProper (paddedGraph G p) f) :
     IsProper G (f ∘ Sum.inl) := by
   intro u v huv
   exact hf (Sum.inl u) (Sum.inl v) ((paddedGraph_adj_inl_inl G p u v).mpr huv)
 
 omit [Fintype V] [DecidableEq V] in
-lemma paddedGraph_proper_inr_injective (G : SimpleGraph V) [DecidableRel G.Adj] (p : ℕ)
+lemma paddedGraph_proper_inr_injective (G : SimpleGraph V) (p : ℕ)
     {k : ℕ} (f : (V ⊕ Fin p) → Fin k) (hf : IsProper (paddedGraph G p) f) :
     Function.Injective (f ∘ Sum.inr) := by
   intro i j hij
@@ -3965,10 +4034,11 @@ lemma paddedGraph_proper_inr_injective (G : SimpleGraph V) [DecidableRel G.Adj] 
   exact hf (Sum.inr i) (Sum.inr j) ((paddedGraph_adj_inr_inr G p i j).mpr h) hij
 
 /-- In an equitable coloring where k | |V|, all classes have the same size. -/
-lemma equitable_classes_equal_of_dvd {W : Type*} [Fintype W] [DecidableEq W]
+lemma equitable_classes_equal_of_dvd {W : Type*} [Fintype W]
     {k : ℕ} (f : W → Fin k)
     (hequit : IsEquitable f) (hdvd : k ∣ Fintype.card W) (c : Fin k) :
     (cClass f c).card = Fintype.card W / k := by
+  classical
   obtain ⟨m, hm⟩ := hdvd
   have h_sum : ∑ c : Fin k, (cClass f c).card = Fintype.card W := by
     simp +decide only [cClass, Finset.card_eq_sum_ones,
@@ -3999,13 +4069,15 @@ lemma cClass_comp_inl_card {k : ℕ} {p : ℕ}
   rw [Finset.card_filter, Finset.card_filter, Finset.card_filter]
   exact Eq.symm (Fintype.sum_sum_type fun x => if f x = c then 1 else 0)
 
+omit [DecidableEq V] in
 /-- The equitability of the restriction, with divisibility hypothesis. -/
-lemma paddedGraph_equitable_restrict (G : SimpleGraph V) [DecidableRel G.Adj] (p : ℕ)
+lemma paddedGraph_equitable_restrict (G : SimpleGraph V) (p : ℕ)
     {k : ℕ} (f : (V ⊕ Fin p) → Fin k)
     (hf_proper : IsProper (paddedGraph G p) f)
     (hf_equitable : IsEquitable f)
     (hdvd : k ∣ Fintype.card (V ⊕ Fin p)) :
     IsEquitable (f ∘ Sum.inl) := by
+  classical
   have h_eq_classes : ∀ c : Fin k, (cClass f c).card = (Fintype.card (V ⊕ Fin p)) / k :=
     fun c => equitable_classes_equal_of_dvd f hf_equitable hdvd c
   have h_inj_classes : ∀ c : Fin k, ((cClass f c).card - (cClass (f ∘ Sum.inl) c).card) ≤ 1
@@ -4037,6 +4109,7 @@ lemma padding_dvd (n k : ℕ) (hk : 0 < k) : k ∣ (n + (k - n % k) % k) := by
           have : n % k + (k - n % k) = k := by omega
           rw [this, Nat.mod_self]
 
+omit [DecidableEq V] in
 /-- **Hajnal-Szemerédi Theorem**.
     If G has maximum degree at most r, then G has an equitable (r+1)-coloring. -/
 theorem hajnal_szemeredi (G : SimpleGraph V) [DecidableRel G.Adj]
@@ -4067,6 +4140,7 @@ def HasDisjointCliques (G : SimpleGraph V) (r m : ℕ) : Prop :=
     (∀ i, ∀ v ∈ f i, ∀ w ∈ f i, v ≠ w → G.Adj v w) ∧
     (∀ i j, i ≠ j → Disjoint (f i) (f j))
 
+omit [DecidableEq V] in
 /-- **Hajnal-Szemerédi Theorem** (clique cover version). -/
 theorem hajnal_szemeredi_clique_cover (G : SimpleGraph V) [DecidableRel G.Adj]
     (r m : ℕ) (hr : 1 ≤ r) (hcard : Fintype.card V = r * m)
