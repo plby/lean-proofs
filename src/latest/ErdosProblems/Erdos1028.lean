@@ -27,13 +27,12 @@ namespace Erdos1028
 
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.openClassical false
 set_option linter.style.refine false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.flexible false
 
-open scoped Classical
+attribute [local instance] Classical.propDecidable Classical.decEq
 
 set_option maxHeartbeats 20000000
 -- Large generated probability and finite-set proofs exceed the default heartbeat limit.
@@ -1288,7 +1287,9 @@ lemma vertex_measure_rademacher (n : ℕ) (i : Fin n) :
           have h_measure : (vertexMeasure n) (Set.pi Set.univ fun j => if j = i then {false} else Set.univ) = ∏ j, (if j = i then 1 / 2 else 1) := by
             convert Measure.pi_pi _ _
             · split_ifs <;> simp +decide [ *, PMF.uniformOfFintype ]
-              rw [ ENNReal.mul_inv_cancel ] <;> norm_cast
+              rw [ ENNReal.mul_inv_cancel ]
+              · norm_cast
+              · exact ENNReal.coe_ne_top
             · exact fun i => sigmaFinite_of_locallyFinite
           aesop
         · grind
