@@ -35,7 +35,6 @@ theorem get?_eq_some_iff {α : Type*} {i : ℕ} {a : α} {l : List α} :
 
 end List
 
-set_option linter.style.openClassical false
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
@@ -45,7 +44,7 @@ set_option linter.style.induction false
 
 namespace Erdos226
 
-open scoped Classical
+attribute [local instance] Classical.propDecidable
 
 /-
 A function f:R->R is affine if f(x)=ax+b for some a,b in R.
