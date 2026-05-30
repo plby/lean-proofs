@@ -58,7 +58,6 @@ import Mathlib
 -- The concatenated generated proof sections need these focused linter
 -- suppressions and resource budgets while avoiding broad linter disables.
 set_option linter.style.setOption false
-set_option linter.style.openClassical false
 set_option linter.style.refine false
 set_option linter.style.induction false
 set_option linter.style.cases false
@@ -80,8 +79,9 @@ open Squarefree Set Order Filter Topology
 open scoped BigOperators
 open scoped Real
 open scoped Nat
-open scoped Classical
 open scoped Pointwise
+
+attribute [local instance] Classical.propDecidable
 
 -- The generated density-P construction needs extended heartbeat, recursion,
 
@@ -1156,8 +1156,9 @@ open Squarefree Set Order Filter Topology
 open scoped BigOperators
 open scoped Real
 open scoped Nat
-open scoped Classical
 open scoped Pointwise
+
+attribute [local instance] Classical.propDecidable
 
 
 
@@ -4430,8 +4431,9 @@ open Squarefree Set Order Filter Topology
 open scoped BigOperators
 open scoped Real
 open scoped Nat
-open scoped Classical
 open scoped Pointwise
+
+attribute [local instance] Classical.propDecidable
 
 
 
@@ -7208,8 +7210,9 @@ Mathlib version: 8f9d9cff6bd728b17a24e163c9402775d9e6a365
 open scoped BigOperators
 open scoped Real
 open scoped Nat
-open scoped Classical
 open scoped Pointwise
+
+attribute [local instance] Classical.propDecidable
 
 
 
