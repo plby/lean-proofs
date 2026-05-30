@@ -140,24 +140,28 @@ private lemma estimate_at_one_for_power_of_two_plus_one {k : ℕ} (hk : 1 ≤ k)
   grobner
 
 set_option linter.style.setOption false in
-set_option linter.style.induction false in
 set_option linter.style.multiGoal false in
 /-- Backward propagation from two consecutive bounds. -/
 private lemma backward_propagation_from_two_consecutive_bounds {n : ℕ}
     {f : ℕ → ℝ} (hf : IsF n f)
     {r : ℕ} {M : ℝ} (hr : r + 2 ≤ n) (hfr : f r ≤ M) (hfr1 : f (r + 1) ≤ M) :
     ∀ i, i ≤ r → f i ≤ M := by
-  intro i hi; induction' hi with i hi ih <;> cases lt_trichotomy i r <;> norm_num at *; linarith
-  · linarith
-  · contrapose! ih
-    exact ⟨ by linarith, by
-      have := hf i 1 zero_lt_one (by linarith)
-      norm_num at this
-      linarith, hfr, ih ⟩
-  · exact
-      (ih (by linarith)
-        (by linarith [one_step_average hf (by linarith : i + 2 ≤ n)])
-        hfr).trans (by linarith)
+  intro i hi
+  have haux : ∀ d i, i + d = r → f i ≤ M ∧ f (i + 1) ≤ M := by
+    intro d
+    induction d with
+    | zero =>
+      intro i hid
+      have : i = r := by omega
+      subst i
+      exact ⟨hfr, hfr1⟩
+    | succ d ih =>
+      intro i hid
+      have hpair := ih (i + 1) (by omega)
+      exact ⟨by
+        linarith [one_step_average hf (by omega : i + 2 ≤ n), hpair.1, hpair.2],
+        hpair.1⟩
+  exact (haux (r - i) i (Nat.add_sub_of_le hi)).1
 
 /-- Part B of the combined bound: given Part A at `k`, derive Part B at `k`. -/
 private lemma combined_partb_from_parta (k : ℕ) (hk : 1 ≤ k)
@@ -209,7 +213,6 @@ private lemma combined_partb_from_parta (k : ℕ) (hk : 1 ≤ k)
   exact h4
 
 set_option linter.style.setOption false in
-set_option linter.style.induction false in
 set_option linter.flexible false in
 /-- Combined bound for `2^k+1` and intermediate `n` by induction on `k` (auxiliary). -/
 private lemma combined_isF_bound (k : ℕ) (hk : 1 ≤ k) :
@@ -220,58 +223,61 @@ private lemma combined_isF_bound (k : ℕ) (hk : 1 ≤ k) :
       IsF nn f → 0 < K → (∀ i, i ≤ nn → |f i| ≤ K) →
       f 0 ≤ f nn + 5 * K / (2 : ℝ) ^ k) := by
   refine ⟨?_, fun nn hnn₁ hnn₂ f K hf hK hK' ↦ ?_⟩
-  · induction' k using Nat.strong_induction_on with k ih
-    intro f K hf hK hbound
-    by_cases hk2 : k = 1 ∨ k = 2
-    · rcases hk2 with (rfl | rfl) <;> norm_num at *
-      · linarith [abs_le.mp (hbound 0 (by norm_num)), abs_le.mp (hbound 3 (by norm_num))]
-      · linarith [
-          abs_le.mp (hbound 0 (by norm_num)),
-          abs_le.mp (hbound 1 (by norm_num)),
-          abs_le.mp (hbound 2 (by norm_num)),
-          abs_le.mp (hbound 3 (by norm_num)),
-          abs_le.mp (hbound 4 (by norm_num)),
-          abs_le.mp (hbound 5 (by norm_num)),
-          hf 0 1 (by norm_num) (by norm_num),
-          hf 1 1 (by norm_num) (by norm_num),
-          hf 2 1 (by norm_num) (by norm_num),
-          hf 3 1 (by norm_num) (by norm_num)]
-    · have ih_step :
-          f 1 ≤ f (2 ^ k + 1) + 2 * K / 2 ^ k ∧
-          f 2 ≤ f (2 ^ k + 1) + 10 * K / 2 ^ k := by
-        constructor
-        · apply estimate_at_one_for_power_of_two_plus_one hk hf hbound
-        · have ih_step : f 2 ≤ f (2 ^ k + 1) + 5 * K / 2 ^ (k - 1) := by
-            have ih_step :
-                ∀ (nn : ℕ), 2 ^ (k - 1) + 2 ≤ nn → nn < 2 ^ k →
-                ∀ (f : ℕ → ℝ) (K : ℝ), IsF nn f → 0 < K →
-                (∀ i, i ≤ nn → |f i| ≤ K) →
-                f 0 ≤ f nn + 5 * K / 2 ^ (k - 1) := by
-              intros nn hnn1 hnn2 f K hf hK hbound
-              have := combined_partb_from_parta (k - 1)
-                (Nat.le_sub_one_of_lt (lt_of_le_of_ne hk (Ne.symm (by tauto))))
-                (ih (k - 1) (Nat.sub_lt hk zero_lt_one)
-                  (Nat.le_sub_one_of_lt (lt_of_le_of_ne hk (Ne.symm (by tauto)))))
-              exact this nn hnn1 (by cases k <;> trivial) f K hf hK hbound
-            specialize ih_step (2 ^ k - 1) (by
-            rcases k with (_ | _ | _ | k) <;> norm_num [pow_succ'] at *
-            exact le_tsub_of_add_le_left (by linarith [Nat.one_le_pow k 2 zero_lt_two])) (by
-            exact Nat.sub_lt (by positivity) (by positivity)) (fun i ↦ f (i + 2)) K (by
-            convert isF_translate hf
-                (show 2 ≤ 2 ^ k + 1 from by
-                  linarith [Nat.pow_le_pow_right two_pos hk])
-                (show 2 ^ k + 1 ≤ 2 ^ k + 1 from by linarith) using 1) hK (by
-            exact fun i hi ↦ hbound _ (by
-              linarith [Nat.sub_add_cancel (Nat.one_le_pow k 2 zero_lt_two)]))
-            convert ih_step using 2
-            rw [show 2 ^ k - 1 + 2 = 2 ^ k + 1 by
-              linarith [Nat.sub_add_cancel (Nat.one_le_pow k 2 zero_lt_two)]]
-          rcases k with (_ | _ | k) <;> simp_all +decide [pow_succ']; ring_nf at *; linarith
-      have := hf 0 1; norm_num at *
-      ring_nf at *; linarith [this (by linarith [Nat.pow_le_pow_right two_pos hk])]
-  · induction' k with k ih generalizing nn f K
-    · contradiction
-    · convert combined_partb_from_parta (k + 1) (by linarith) _
+  · induction k using Nat.strong_induction_on with
+    | h k ih =>
+      intro f K hf hK hbound
+      by_cases hk2 : k = 1 ∨ k = 2
+      · rcases hk2 with (rfl | rfl) <;> norm_num at *
+        · linarith [abs_le.mp (hbound 0 (by norm_num)), abs_le.mp (hbound 3 (by norm_num))]
+        · linarith [
+            abs_le.mp (hbound 0 (by norm_num)),
+            abs_le.mp (hbound 1 (by norm_num)),
+            abs_le.mp (hbound 2 (by norm_num)),
+            abs_le.mp (hbound 3 (by norm_num)),
+            abs_le.mp (hbound 4 (by norm_num)),
+            abs_le.mp (hbound 5 (by norm_num)),
+            hf 0 1 (by norm_num) (by norm_num),
+            hf 1 1 (by norm_num) (by norm_num),
+            hf 2 1 (by norm_num) (by norm_num),
+            hf 3 1 (by norm_num) (by norm_num)]
+      · have ih_step :
+            f 1 ≤ f (2 ^ k + 1) + 2 * K / 2 ^ k ∧
+            f 2 ≤ f (2 ^ k + 1) + 10 * K / 2 ^ k := by
+          constructor
+          · apply estimate_at_one_for_power_of_two_plus_one hk hf hbound
+          · have ih_step : f 2 ≤ f (2 ^ k + 1) + 5 * K / 2 ^ (k - 1) := by
+              have ih_step :
+                  ∀ (nn : ℕ), 2 ^ (k - 1) + 2 ≤ nn → nn < 2 ^ k →
+                  ∀ (f : ℕ → ℝ) (K : ℝ), IsF nn f → 0 < K →
+                  (∀ i, i ≤ nn → |f i| ≤ K) →
+                  f 0 ≤ f nn + 5 * K / 2 ^ (k - 1) := by
+                intros nn hnn1 hnn2 f K hf hK hbound
+                have := combined_partb_from_parta (k - 1)
+                  (Nat.le_sub_one_of_lt (lt_of_le_of_ne hk (Ne.symm (by tauto))))
+                  (ih (k - 1) (Nat.sub_lt hk zero_lt_one)
+                    (Nat.le_sub_one_of_lt (lt_of_le_of_ne hk (Ne.symm (by tauto)))))
+                exact this nn hnn1 (by cases k <;> trivial) f K hf hK hbound
+              specialize ih_step (2 ^ k - 1) (by
+              rcases k with (_ | _ | _ | k) <;> norm_num [pow_succ'] at *
+              exact le_tsub_of_add_le_left (by linarith [Nat.one_le_pow k 2 zero_lt_two])) (by
+              exact Nat.sub_lt (by positivity) (by positivity)) (fun i ↦ f (i + 2)) K (by
+              convert isF_translate hf
+                  (show 2 ≤ 2 ^ k + 1 from by
+                    linarith [Nat.pow_le_pow_right two_pos hk])
+                  (show 2 ^ k + 1 ≤ 2 ^ k + 1 from by linarith) using 1) hK (by
+              exact fun i hi ↦ hbound _ (by
+                linarith [Nat.sub_add_cancel (Nat.one_le_pow k 2 zero_lt_two)]))
+              convert ih_step using 2
+              rw [show 2 ^ k - 1 + 2 = 2 ^ k + 1 by
+                linarith [Nat.sub_add_cancel (Nat.one_le_pow k 2 zero_lt_two)]]
+            rcases k with (_ | _ | k) <;> simp_all +decide [pow_succ']; ring_nf at *; linarith
+        have := hf 0 1; norm_num at *
+        ring_nf at *; linarith [this (by linarith [Nat.pow_le_pow_right two_pos hk])]
+  · induction k generalizing nn f K with
+    | zero =>
+      contradiction
+    | succ k ih =>
+      convert combined_partb_from_parta (k + 1) (by linarith) _
         nn hnn₁ hnn₂ f K hf hK hK' using 1
       intro f K hf hK hK'; rcases k with (_ | k) <;> simp_all +decide [pow_succ']
       · interval_cases nn
@@ -838,7 +844,6 @@ lemma lemma2 (α : ℝ) (hα : HasControlledIntegerApproximants α)
 /-! ## Section 3: Monotonicity on `I(α)` -/
 
 set_option linter.style.setOption false in
-set_option linter.style.induction false in
 /-- If `f ≤ M` on `H` and `f` satisfies the Kemperman inequality on `H^(N)`,
 then `f ≤ M` on `H^(N)`. -/
 private lemma closure_boundedness_principle {N : ℕ} (hN : 2 ≤ N) {H : Set ℝ}
@@ -848,26 +853,30 @@ private lemma closure_boundedness_principle {N : ℕ} (hN : 2 ≤ N) {H : Set �
     (hf_bound : ∀ y, y ∈ H → f y ≤ M) :
     ∀ x, x ∈ HSetPow N H → f x ≤ M := by
   intro x hx
-  induction' hx with x h hx ih
-  · exact hf_bound x h
-  · have h_ind : f (hx + ih) ≤ M ∧ f (hx + 2 * ih) ≤ M := by
+  induction hx with
+  | base h =>
+    rename_i x0
+    exact hf_bound x0 h
+  | step h hh hmem ih =>
+    rename_i x0
+    have h_ind : f (x0 + h) ≤ M ∧ f (x0 + 2 * h) ≤ M := by
       constructor
       · simpa using
-          ‹∀ i : ℕ, 1 ≤ i → i ≤ N → f (hx + i * ih) ≤ M›
+          ih
             1 (by norm_num) (by linarith)
       · simpa using
-          ‹∀ i : ℕ, 1 ≤ i → i ≤ N → f (hx + i * ih) ≤ M›
+          ih
             2 (by norm_num) (by linarith)
     contrapose! hf_ineq
-    have hx_in_H_pow : hx ∈ HSetPow N H := by
+    have hx_in_H_pow : x0 ∈ HSetPow N H := by
       apply HSetPow.step
       exacts [by assumption, by assumption]
     exact ⟨_, _, hx_in_H_pow, ‹_›, by
       simpa using
-        ‹∀ i : ℕ, 1 ≤ i → i ≤ N → HSetPow N H (hx + i * ih)›
+        hmem
           1 le_rfl (by linarith), by
       simpa using
-        ‹∀ i : ℕ, 1 ≤ i → i ≤ N → HSetPow N H (hx + i * ih)›
+        hmem
           2 (by linarith) (by linarith), by linarith⟩
 
 /-- `f` is bounded above on `I(α) ∩ (-∞, b]` under controlled approximants. -/
