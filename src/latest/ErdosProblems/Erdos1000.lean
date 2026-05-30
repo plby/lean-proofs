@@ -29,13 +29,12 @@ namespace Erdos1000
 -- This generated proof file still relies on automated proof scripts whose warnings
 -- are too interdependent to remove locally without changing the proof structure.
 set_option linter.style.setOption false
-set_option linter.style.openClassical false
 set_option linter.style.longLine false
 set_option linter.style.refine false
 set_option linter.flexible false
 set_option linter.style.induction false
 
-open scoped Classical
+attribute [local instance] Classical.propDecidable
 
 /-
 For a sequence A = {n_k}, phi_A(k) is the number of integers m with 1 <= m <= n_k such that n_k / gcd(m, n_k) is not equal to any n_j for j < k.
