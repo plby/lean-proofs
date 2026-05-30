@@ -47,10 +47,7 @@ set_option linter.style.induction false
 set_option linter.style.refine false
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
-set_option linter.style.openClassical false
 set_option linter.style.whitespace false
-
-open scoped Classical
 
 /-
 A Lean 4 formalization of the game:
@@ -205,14 +202,18 @@ theorem exists_stepCount_of_one_lt
 /-- `n(B)`: the (minimal) step-count in the breakpoint decomposition.
 For `B ≤ 1` we set it to `1` by convention (irrelevant for `B → ∞`). -/
 noncomputable def nSteps (B : ℝ) : ℕ :=
-  if h : 1 < B then
-    Nat.find (exists_stepCount_of_one_lt (B := B) h)
-  else
-    1
+  by
+    classical
+    exact
+      if h : 1 < B then
+        Nat.find (exists_stepCount_of_one_lt (B := B) h)
+      else
+        1
 
 /-- Specification lemma for `nSteps` (in the nontrivial case `1 < B`). -/
 theorem nSteps_spec {B : ℝ} (hB : 1 < B) :
     1 ≤ nSteps B ∧ InStepRange B (nSteps B) := by
+  classical
   -- would follow from `Nat.find_spec` and the definition of `nSteps`
   unfold nSteps;
   grind
@@ -2778,6 +2779,7 @@ theorem firstGuess_tendsto_four_proof : Tendsto firstGuess atTop (𝓝 4) := by
 If 1 < B <= 2, then nSteps B = 1.
 -/
 lemma nSteps_eq_one {B : ℝ} (hB1 : 1 < B) (hB2 : B ≤ 2) : nSteps B = 1 := by
+  classical
   unfold nSteps;
   norm_num [ hB1, hB2 ];
   norm_num [ Nat.find_eq_iff ];
@@ -2787,6 +2789,7 @@ lemma nSteps_eq_one {B : ℝ} (hB1 : 1 < B) (hB2 : B ≤ 2) : nSteps B = 1 := by
 If 2 < B <= 2 + sqrt(5), then nSteps B = 2.
 -/
 lemma nSteps_eq_two {B : ℝ} (hB1 : 2 < B) (hB2 : B ≤ 2 + Real.sqrt 5) : nSteps B = 2 := by
+  classical
   unfold nSteps;
   split_ifs <;> norm_num [ Nat.find_eq_iff ] at *;
   · unfold InStepRange;
@@ -2798,6 +2801,7 @@ lemma nSteps_eq_two {B : ℝ} (hB1 : 2 < B) (hB2 : B ≤ 2 + Real.sqrt 5) : nSte
 If 2 + sqrt(5) < B <= 9, then nSteps B = 3.
 -/
 lemma nSteps_eq_three {B : ℝ} (hB1 : 2 + Real.sqrt 5 < B) (hB2 : B ≤ 9) : nSteps B = 3 := by
+  classical
   apply le_antisymm;
   · unfold nSteps;
     split_ifs <;> norm_num [ Nat.find_eq_iff ];
