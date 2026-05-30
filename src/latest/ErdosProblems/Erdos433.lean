@@ -26,7 +26,6 @@ import Mathlib
 import ErdosProblems.Axioms
 
 set_option linter.style.setOption false
-set_option linter.style.openClassical false
 set_option linter.style.longLine false
 set_option linter.style.induction false
 set_option linter.style.multiGoal false
@@ -40,8 +39,9 @@ set_option linter.unusedVariables false
 open scoped BigOperators
 open scoped Real
 open scoped Nat
-open scoped Classical
 open scoped Pointwise
+
+attribute [local instance] Classical.propDecidable
 
 set_option maxHeartbeats 1000000
 -- Several generated additive-combinatorics estimates time out at the default heartbeat limit.
