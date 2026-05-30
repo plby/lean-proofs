@@ -39,14 +39,13 @@ import Mathlib
 namespace Erdos762
 
 set_option linter.style.setOption false
-set_option linter.style.openClassical false
 set_option linter.style.longLine false
 set_option linter.style.refine false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
 set_option linter.unusedSimpArgs false
 
-open scoped Classical
+attribute [local instance] Classical.propDecidable
 
 lemma sum_inl_ne {α β : Type*} {x y : α} (h : x ≠ y) : (Sum.inl x : α ⊕ β) ≠ Sum.inl y := by
   intro hxy
