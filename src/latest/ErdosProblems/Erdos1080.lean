@@ -37,7 +37,6 @@ import Mathlib
 
 namespace Erdos1080
 
-set_option linter.style.openClassical false
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
@@ -45,7 +44,8 @@ set_option linter.style.refine false
 set_option linter.style.multiGoal false
 set_option linter.unusedSectionVars false
 
-open scoped Classical
+attribute [local instance] Classical.propDecidable
+
 open SimpleGraph Sum
 
 /-
