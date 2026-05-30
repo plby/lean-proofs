@@ -30,7 +30,6 @@ import Mathlib
 
 namespace Erdos1071
 
-set_option linter.style.openClassical false
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.longLine false
@@ -42,7 +41,7 @@ set_option linter.unnecessarySeqFocus false
 set_option linter.unreachableTactic false
 set_option linter.unusedTactic false
 
-open scoped Classical
+attribute [local instance] Classical.propDecidable
 
 set_option maxHeartbeats 50000000
 -- Several generated unit-segment blocking arguments time out at the default heartbeat limit.
@@ -3144,7 +3143,6 @@ by `S_finite`.
 
 namespace Erdos1071b
 
-set_option linter.style.openClassical false
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.style.refine false
@@ -3159,7 +3157,7 @@ set_option linter.unnecessarySeqFocus false
 set_option linter.unnecessarySimpa false
 set_option linter.unreachableTactic false
 
-open scoped Classical
+attribute [local instance] Classical.propDecidable
 
 set_option maxHeartbeats 50000000
 -- Several generated square-boundary blocking arguments time out at the default heartbeat limit.
