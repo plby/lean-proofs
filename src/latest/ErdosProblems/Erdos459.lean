@@ -253,9 +253,7 @@ A set $A \subseteq \mathbb{N}$ has natural density $d$ if
 $\lim_{n \to \infty} \frac{|A \cap \{0, \dots, n-1\}|}{n} = d$. The natural
 density is defined as this limit if it exists, and 0 otherwise.
 -/
-set_option linter.style.openClassical false
-
-open Classical
+attribute [local instance] Classical.propDecidable
 
 def has_natural_density (A : Set ℕ) (d : ℝ) : Prop :=
   Filter.Tendsto
