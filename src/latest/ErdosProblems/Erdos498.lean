@@ -59,7 +59,6 @@ The following was proved by Aristotle (and also everything which I wrote "by Ari
 import Mathlib
 
 set_option linter.style.setOption false
-set_option linter.style.openClassical false
 set_option linter.style.refine false
 set_option linter.flexible false
 set_option maxHeartbeats 2000000
@@ -68,7 +67,9 @@ set_option maxHeartbeats 2000000
 
 open Complex ArithmeticFunction Int Set Real Filter Topology BigOperators Metric
 
-open scoped BigOperators Classical
+open scoped BigOperators
+
+attribute [local instance] Classical.propDecidable
 
 namespace Erdos498
 
