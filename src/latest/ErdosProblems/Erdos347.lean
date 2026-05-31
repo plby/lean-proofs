@@ -34,7 +34,6 @@ namespace Erdos347
 
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.flexible false
@@ -119,9 +118,10 @@ lemma block_start_strict_mono : StrictMono block_start := by
 M_n is always positive.
 -/
 lemma M_pos (n : ℕ) : 0 < M n := by
-  induction' n with n ih;
-  · decide +revert;
-  · -- By definition of $M$, we have $M (n + 1) = \frac{M n \cdot (2^{k n + 1} - 3)}{2}$.
+  induction n with
+  | zero => decide +revert;
+  | succ n ih =>
+    -- By definition of $M$, we have $M (n + 1) = \frac{M n \cdot (2^{k n + 1} - 3)}{2}$.
     have hM_succ : M (n + 1) = (M n * (2^(k n + 1) - 3)) / 2 := by
       rfl;
     refine' hM_succ.symm ▸ Nat.div_pos _ ( by decide );
@@ -176,8 +176,9 @@ We define block_index(n) as the unique b such that block_start(b) <= n < block_s
 def block_index (n : ℕ) : ℕ :=
   Nat.find (p := fun m => n < block_start (m + 1)) (by
   use n;
-  induction' n with n ih <;> simp_all +decide [ block_start ];
-  linarith [ block_length_pos ( n + 1 ) ])
+  induction n with
+  | zero => simp_all +decide;
+  | succ n ih => simp_all +decide [ block_start ]; linarith [ block_length_pos ( n + 1 ) ])
 
 /-
 block_index(n) is the unique b such that block_start(b) <= n < block_start(b+1).
@@ -618,8 +619,9 @@ lemma greedy_expansion_spec (n_0 N m : ℕ) (hm : m ≤ M (N + 1)) :
   bs.length = N + 1 - n_0 ∧
   ∀ i, i < bs.length → bs[i]! ∈ B (n_0 + i) := by
     -- We'll use induction on $N - n_0$ to prove the statement.
-    induction' h : N - n_0 with d hd generalizing n_0 N m;
-    · unfold greedy_expansion;
+    induction h : N - n_0 generalizing n_0 N m with
+    | zero =>
+      unfold greedy_expansion;
       rcases le_total n_0 N with hn | hn <;> simp_all +decide [ Nat.sub_eq_iff_eq_add ];
       · unfold greedy_step;
         have := greedy_choice_spec n_0 m hm; aesop;
@@ -627,7 +629,8 @@ lemma greedy_expansion_spec (n_0 N m : ℕ) (hm : m ≤ M (N + 1)) :
         · unfold greedy_step;
           have := greedy_choice_spec n_0 m hm; aesop;
         · exact hm.trans ( M_mono ( by linarith ) );
-    · -- Let's denote the greedy expansion of $m$ with respect to blocks $n_0 + 1$ to $N$ as $(bs', d')$.
+    | succ d hd =>
+      -- Let's denote the greedy expansion of $m$ with respect to blocks $n_0 + 1$ to $N$ as $(bs', d')$.
       obtain ⟨bs', d', hbs', hd'⟩ : ∃ bs' d', greedy_expansion (n_0 + 1) N m = (bs', d') ∧ m = bs'.sum + d' ∧ d' ≤ M (n_0 + 1) ∧ bs'.length = N + 1 - (n_0 + 1) ∧ ∀ i < bs'.length, bs'[i]! ∈ B (n_0 + 1 + i) := by
         grind;
       -- Let's denote the greedy choice of $d'$ with respect to block $n_0$ as $b_0$.
@@ -663,7 +666,8 @@ lemma mem_subset_sums_block (n x : ℕ) (hx : x ∈ B n) :
         obtain ⟨I, hI⟩ : ∃ I : Finset ℕ, I ⊆ Finset.range (k n - 1) ∧ j = ∑ i ∈ I, 2^i := by
           have h_binary : ∀ m : ℕ, m < 2^(k n - 1) → ∃ I : Finset ℕ, I ⊆ Finset.range (k n - 1) ∧ m = ∑ i ∈ I, 2^i := by
             intro m hm
-            induction' m using Nat.strong_induction_on with m ih;
+            induction m using Nat.strong_induction_on with
+            | _ m ih =>
             rcases Nat.even_or_odd' m with ⟨ c, rfl | rfl ⟩;
             · rcases c with ( _ | c );
               · exact ⟨ ∅, by norm_num ⟩;
@@ -686,7 +690,8 @@ lemma mem_subset_sums_block (n x : ℕ) (hx : x ∈ B n) :
         obtain ⟨a, ha⟩ : ∃ a : Finset ℕ, a ⊆ Finset.range (k n - 1) ∧ ∑ i ∈ a, 2^i = j - 2^(k n - 1) + 1 := by
           have h_binary : ∀ m : ℕ, m < 2^(k n - 1) → ∃ a : Finset ℕ, a ⊆ Finset.range (k n - 1) ∧ ∑ i ∈ a, 2^i = m := by
             intro m hm;
-            induction' m using Nat.strong_induction_on with m ih;
+            induction m using Nat.strong_induction_on with
+            | _ m ih =>
             by_cases hm_zero : m = 0;
             · exact ⟨ ∅, Finset.empty_subset _, hm_zero.symm ▸ rfl ⟩;
             · -- Let $i$ be the largest index such that $2^i \leq m$.
@@ -1349,11 +1354,13 @@ theorem M_lower_bound (n_0 : ℕ) :
       -- By the ratio recurrence inequality, we have that $M_{N+1}/P_N \ge M_{n_0} - \sum_{k=n_0}^N 1/P_k$.
       have h_ratio_recurrence : ∀ N ≥ n_0, (M (N + 1) : ℝ) / (∏ n ∈ Finset.Icc n_0 N, product_term n) ≥ (M n_0 : ℝ) - ∑ k ∈ Finset.range (N - n_0 + 1), 1 / (∏ n ∈ Finset.Ico n_0 (n_0 + k), product_term n) / product_term (n_0 + k) := by
         intro N hN;
-        induction' hN with N hN ih;
-        · field_simp;
-          convert ratio_recurrence n_0 n_0 le_rfl |> le_trans _ using 1;
-          unfold partial_prod; norm_num [ Finset.prod_range_succ ] ;
-        · have h_ratio_recurrence_step : (M (N + 2) : ℝ) / (∏ n ∈ Finset.Icc n_0 (N + 1), product_term n) ≥ (M (N + 1) : ℝ) / (∏ n ∈ Finset.Icc n_0 N, product_term n) - 1 / (∏ n ∈ Finset.Ico n_0 (N + 1), product_term n) / product_term (N + 1) := by
+        induction hN with
+        | refl =>
+          field_simp
+          convert ratio_recurrence n_0 n_0 le_rfl |> le_trans _ using 1
+          unfold partial_prod; norm_num [ Finset.prod_range_succ ]
+        | @step N hN ih =>
+          have h_ratio_recurrence_step : (M (N + 2) : ℝ) / (∏ n ∈ Finset.Icc n_0 (N + 1), product_term n) ≥ (M (N + 1) : ℝ) / (∏ n ∈ Finset.Icc n_0 N, product_term n) - 1 / (∏ n ∈ Finset.Ico n_0 (N + 1), product_term n) / product_term (N + 1) := by
             have := ratio_recurrence n_0 ( N + 1 ) ( by linarith [ Nat.succ_le_succ hN ] ) ; simp_all +decide;
             convert this using 1;
             unfold partial_prod; erw [ Finset.prod_Ico_succ_top ( by linarith ), Finset.prod_Ico_succ_top ( by linarith ) ] ; ring;
@@ -1373,10 +1380,14 @@ theorem M_lower_bound (n_0 : ℕ) :
         -- Using the growth rate of the product, we can bound the terms of the series.
         have h_term_bound : ∀ x : ℕ, (1 : ℝ) / ((∏ n ∈ Finset.Ico n_0 (n_0 + x), product_term n) * product_term (n_0 + x)) ≤ (1 : ℝ) / (2.5 ^ (x + 1)) := by
           intro x; gcongr;
-          induction' x with x ih <;> norm_num [ Finset.prod_Ico_succ_top, pow_succ' ] at *;
-          · exact h_prod_growth _ le_rfl;
-          · rw [ Nat.add_succ, Finset.prod_Ico_succ_top ( by linarith ) ];
-            nlinarith [ h_prod_growth ( n_0 + x + 1 ) ( by linarith ), pow_pos ( by norm_num : ( 0 : ℝ ) < 5 / 2 ) x ];
+          induction x with
+          | zero =>
+            norm_num [ Finset.prod_Ico_succ_top, pow_succ' ] at *
+            exact h_prod_growth _ le_rfl
+          | succ x ih =>
+            norm_num [ Finset.prod_Ico_succ_top, pow_succ' ] at *
+            rw [ Nat.add_succ, Finset.prod_Ico_succ_top ( by linarith ) ]
+            nlinarith [ h_prod_growth ( n_0 + x + 1 ) ( by linarith ), pow_pos ( by norm_num : ( 0 : ℝ ) < 5 / 2 ) x ]
         exact Summable.of_nonneg_of_le ( fun x => div_nonneg zero_le_one ( mul_nonneg ( Finset.prod_nonneg fun _ _ => le_trans ( by norm_num ) ( h_prod_growth _ ( by linarith [ Finset.mem_Ico.mp ‹_› ] ) ) ) ( le_trans ( by norm_num ) ( h_prod_growth _ ( by linarith ) ) ) ) ) h_term_bound ( by simpa using summable_nat_add_iff 1 |>.2 <| summable_geometric_of_lt_one ( by norm_num ) <| inv_lt_one_of_one_lt₀ <| by norm_num );
     exact ⟨ c, hc_pos, fun N hN => by have := hc N hN; rwa [ ge_iff_le, le_div_iff₀ ( Finset.prod_pos fun n hn => by exact add_pos_of_pos_of_nonneg ( a_seq_pos n ) ( by norm_num ) ) ] at this ⟩
 
@@ -1386,9 +1397,10 @@ The ratio M_{N+1}/P_N is at least M_{n_0} minus the sum of reciprocals of P_k.
 lemma M_ratio_lower_bound (n_0 N : ℕ) (hN : N ≥ n_0) :
   (M (N + 1) : ℝ) / partial_prod n_0 (N + 1) ≥ (M n_0 : ℝ) - ∑ k ∈ Finset.Icc n_0 N, 1 / partial_prod n_0 (k + 1) := by
     have := @ratio_recurrence n_0 N;
-    induction' hN with N hN ih;
-    · convert this le_rfl using 1 ; norm_num [ partial_prod ];
-    · erw [ Finset.sum_Ico_succ_top ( by linarith [ Nat.succ_le_succ hN ] ) ];
+    induction hN with
+    | refl => convert this le_rfl using 1 ; norm_num [ partial_prod ];
+    | @step N hN ih =>
+      erw [ Finset.sum_Ico_succ_top ( by linarith [ Nat.succ_le_succ hN ] ) ];
       have := ih ( fun _ => ?_ ) ; simp_all +decide [ Finset.sum_Ico_succ_top ] ;
       · rw [ Finset.Icc_eq_cons_Ico ( by linarith ), Finset.sum_cons ] at this ; linarith [ ‹n_0 ≤ N + 1 → _› ( by linarith ) ];
       · exact ratio_recurrence n_0 N hN
@@ -1473,21 +1485,23 @@ lemma esymm_le_pow_sum (s : Finset ℕ) (f : ℕ → ℝ) (k : ℕ) (hf : ∀ i 
       -- By definition of $e_k$, we know that $k! e_k = \sum_{j_1, \dots, j_k \in s} f j_1 \cdots f j_k$ and each term in the sum is non-negative.
       have h_esymm : ∀ (s : Multiset ℝ) (k : ℕ), (∀ x ∈ s, 0 ≤ x) → ((Multiset.map (fun i => i.prod * (k ! : ℝ)) (Multiset.powersetCard k s)).sum) ≤ (Multiset.sum s) ^ k := by
         intros s k hs_nonneg
-        induction' s using Multiset.induction with x s ih generalizing k;
-        · cases k <;> norm_num [ Multiset.powersetCard ];
-          · erw [ Quot.liftOn_mk ] ; norm_num;
-          · erw [ Quot.liftOn_mk ] ; norm_num;
-        · rcases k with ( _ | k ) <;> simp_all +decide [ Multiset.powersetCard_cons ];
-          rw [ add_pow ];
-          simp_all +decide [ Finset.sum_range_succ', Nat.factorial_succ, mul_assoc, mul_comm, mul_left_comm ];
-          refine' le_trans ( add_le_add ( _ : _ ≤ _ ) ( _ : _ ≤ _ ) ) _;
-          exact s.sum ^ ( k + 1 );
-          exact x * ( s.sum ^ k * ( k + 1 ) );
+        induction s using Multiset.induction generalizing k with
+        | empty =>
+          cases k <;> norm_num [ Multiset.powersetCard ]
+          · erw [ Quot.liftOn_mk ] ; norm_num
+          · erw [ Quot.liftOn_mk ] ; norm_num
+        | cons x s ih =>
+          rcases k with ( _ | k ) <;> simp_all +decide [ Multiset.powersetCard_cons ]
+          rw [ add_pow ]
+          simp_all +decide [ Finset.sum_range_succ', Nat.factorial_succ, mul_assoc, mul_comm, mul_left_comm ]
+          refine' le_trans ( add_le_add ( _ : _ ≤ _ ) ( _ : _ ≤ _ ) ) _
+          exact s.sum ^ ( k + 1 )
+          exact x * ( s.sum ^ k * ( k + 1 ) )
           · convert ih ( k + 1 ) using 1;
-            norm_num [ Nat.factorial_succ, mul_assoc, mul_comm, mul_left_comm ];
-          · rw [ Multiset.sum_map_mul_left ];
-            exact mul_le_mul_of_nonneg_left ( by simpa [ mul_assoc, mul_comm, mul_left_comm, Multiset.sum_map_mul_right ] using mul_le_mul_of_nonneg_left ( ih k ) ( by positivity : 0 ≤ ( k + 1 : ℝ ) ) ) hs_nonneg.1;
-          · linarith [ show 0 ≤ ∑ i ∈ Finset.range k, x ^ ( i + 1 + 1 ) * ( s.sum ^ ( k - ( i + 1 ) ) * ( Nat.choose ( k + 1 ) ( i + 1 + 1 ) : ℝ ) ) from Finset.sum_nonneg fun i hi => mul_nonneg ( pow_nonneg hs_nonneg.1 _ ) ( mul_nonneg ( pow_nonneg ( Multiset.sum_nonneg hs_nonneg.2 ) _ ) ( Nat.cast_nonneg _ ) ) ];
+            norm_num [ Nat.factorial_succ, mul_assoc, mul_comm, mul_left_comm ]
+          · rw [ Multiset.sum_map_mul_left ]
+            exact mul_le_mul_of_nonneg_left ( by simpa [ mul_assoc, mul_comm, mul_left_comm, Multiset.sum_map_mul_right ] using mul_le_mul_of_nonneg_left ( ih k ) ( by positivity : 0 ≤ ( k + 1 : ℝ ) ) ) hs_nonneg.1
+          · linarith [ show 0 ≤ ∑ i ∈ Finset.range k, x ^ ( i + 1 + 1 ) * ( s.sum ^ ( k - ( i + 1 ) ) * ( Nat.choose ( k + 1 ) ( i + 1 + 1 ) : ℝ ) ) from Finset.sum_nonneg fun i hi => mul_nonneg ( pow_nonneg hs_nonneg.1 _ ) ( mul_nonneg ( pow_nonneg ( Multiset.sum_nonneg hs_nonneg.2 ) _ ) ( Nat.cast_nonneg _ ) ) ]
       aesop;
     rwa [ le_div_iff₀ ( by positivity ) ]
 
