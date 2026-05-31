@@ -35,7 +35,6 @@ set_option maxHeartbeats 50000000
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option relaxedAutoImplicit false
@@ -295,156 +294,157 @@ lemma exists_greedy_list_unsorted {I J : Finset ℕ} {A : Set ℕ}
       (∀ s, (L.filter (· ≤ s)).sum ≤ (J.card * s) / k) := by
   classical
   revert h_cover hk A J k
-  induction' I using Finset.strongInduction with I ih
-  intro J A k hk h_cover
-  by_cases hI : I = ∅
-  · use ∅, ∅
-    simp [hI]
-  · -- Choose $b \in J$ maximizing $|(A+b) \cap I|$.
-    obtain ⟨b, hb⟩ :
-        ∃ b ∈ J, ∀ b' ∈ J,
-          (Finset.filter (fun u => u ∈ A + {b'}) I).card ≤
-            (Finset.filter (fun u => u ∈ A + {b}) I).card := by
-      apply_rules [ Finset.exists_max_image ]
-      exact Exists.elim (Finset.nonempty_of_ne_empty hI) fun x hx => by
-        obtain ⟨y, hy⟩ := Finset.card_pos.mp (by linarith [h_cover x hx])
-        exact ⟨y, by aesop⟩
-    -- Let $S = (A+b) \cap I$ and $s_{new} = |S|$.
-    set S := Finset.filter (fun u => u ∈ A + {b}) I
-    set s_new := S.card
-    -- Let $I' = I \setminus S$. Then $|I'| < |I|$.
-    set I' := I \ S
-    have hS_sub : S ⊆ I := by
-      intro x hx
-      exact (Finset.mem_filter.mp hx).1
-    have hS_nonempty : S.Nonempty := by
-      obtain ⟨u, hu⟩ := Finset.nonempty_of_ne_empty hI
-      have hpos_cover : 0 < (J.filter (fun b => u ∈ A + {b})).card := by
-        exact lt_of_lt_of_le (Nat.pos_of_ne_zero (ne_of_gt hk)) (h_cover u hu)
-      obtain ⟨b₀, hb₀⟩ := Finset.card_pos.mp hpos_cover
-      have hb₀J : b₀ ∈ J := (Finset.mem_filter.mp hb₀).1
-      have hb₀cov : u ∈ A + {b₀} := (Finset.mem_filter.mp hb₀).2
-      have hpos_b₀ : 0 < (Finset.filter (fun u => u ∈ A + {b₀}) I).card :=
-        Finset.card_pos.mpr ⟨u, Finset.mem_filter.mpr ⟨hu, hb₀cov⟩⟩
-      exact Finset.card_pos.mp (lt_of_lt_of_le hpos_b₀ (hb.2 b₀ hb₀J))
-    have hI'_ssub : I' ⊂ I := by
-      rw [Finset.ssubset_def]
-      constructor
+  induction I using Finset.strongInduction with
+  | H I ih =>
+    intro J A k hk h_cover
+    by_cases hI : I = ∅
+    · use ∅, ∅
+      simp [hI]
+    · -- Choose $b \in J$ maximizing $|(A+b) \cap I|$.
+      obtain ⟨b, hb⟩ :
+          ∃ b ∈ J, ∀ b' ∈ J,
+            (Finset.filter (fun u => u ∈ A + {b'}) I).card ≤
+              (Finset.filter (fun u => u ∈ A + {b}) I).card := by
+        apply_rules [ Finset.exists_max_image ]
+        exact Exists.elim (Finset.nonempty_of_ne_empty hI) fun x hx => by
+          obtain ⟨y, hy⟩ := Finset.card_pos.mp (by linarith [h_cover x hx])
+          exact ⟨y, by aesop⟩
+      -- Let $S = (A+b) \cap I$ and $s_{new} = |S|$.
+      set S := Finset.filter (fun u => u ∈ A + {b}) I
+      set s_new := S.card
+      -- Let $I' = I \setminus S$. Then $|I'| < |I|$.
+      set I' := I \ S
+      have hS_sub : S ⊆ I := by
+        intro x hx
+        exact (Finset.mem_filter.mp hx).1
+      have hS_nonempty : S.Nonempty := by
+        obtain ⟨u, hu⟩ := Finset.nonempty_of_ne_empty hI
+        have hpos_cover : 0 < (J.filter (fun b => u ∈ A + {b})).card := by
+          exact lt_of_lt_of_le (Nat.pos_of_ne_zero (ne_of_gt hk)) (h_cover u hu)
+        obtain ⟨b₀, hb₀⟩ := Finset.card_pos.mp hpos_cover
+        have hb₀J : b₀ ∈ J := (Finset.mem_filter.mp hb₀).1
+        have hb₀cov : u ∈ A + {b₀} := (Finset.mem_filter.mp hb₀).2
+        have hpos_b₀ : 0 < (Finset.filter (fun u => u ∈ A + {b₀}) I).card :=
+          Finset.card_pos.mpr ⟨u, Finset.mem_filter.mpr ⟨hu, hb₀cov⟩⟩
+        exact Finset.card_pos.mp (lt_of_lt_of_le hpos_b₀ (hb.2 b₀ hb₀J))
+      have hI'_ssub : I' ⊂ I := by
+        rw [Finset.ssubset_def]
+        constructor
+        · intro x hx
+          exact (Finset.mem_sdiff.mp hx).1
+        · intro hsub
+          obtain ⟨u, huS⟩ := hS_nonempty
+          have huI : u ∈ I := hS_sub huS
+          have huI' : u ∈ I' := hsub huI
+          exact (Finset.mem_sdiff.mp huI').2 huS
+      -- By the induction hypothesis, there exist $B'$ and $L'$ for $I'$.
+      obtain ⟨B', L', hB', hI', hB'_card, hL'_sum, hL'_pos, hL'_bound⟩ :
+          ∃ B' : Finset ℕ, ∃ L' : List ℕ,
+            B' ⊆ J \ {b} ∧
+            (I' : Set ℕ) ⊆ A + B' ∧
+            B'.card = L'.length ∧
+            L'.sum = I'.card ∧
+            (∀ x ∈ L', 1 ≤ x) ∧
+            ∀ s, (L'.filter (fun x => x ≤ s)).sum ≤ (J \ {b}).card * s / k := by
+        apply ih I' hI'_ssub
+        · exact hk
+        · intro u hu
+          have huI : u ∈ I := (Finset.mem_sdiff.mp hu).1
+          have hu_not_b : ¬ u ∈ A + ({b} : Set ℕ) := by
+            intro hbcover
+            exact (Finset.mem_sdiff.mp hu).2 (by
+              rcases hbcover with ⟨a, ha, y, hy, hsum⟩
+              simp only [Set.mem_singleton_iff] at hy
+              subst y
+              exact Finset.mem_filter.mpr ⟨huI, ⟨a, ha, ⟨b, by simp, hsum⟩⟩⟩)
+          have hfilter :
+              (Finset.filter (fun b' => u ∈ A + {b'}) (J \ {b})).card =
+                (Finset.filter (fun b' => u ∈ A + {b'}) J).card := by
+            apply congrArg Finset.card
+            ext b'
+            by_cases hb' : b' = b
+            · subst hb'
+              simp only [Set.add_singleton, Set.mem_image, Finset.mem_filter, Finset.mem_sdiff,
+                Finset.mem_singleton, not_true_eq_false, and_false, false_and, false_iff,
+                not_and, not_exists]
+              intro _ a ha hsum
+              exact hu_not_b ⟨a, ha, _, by simp, hsum⟩
+            · simp [hb']
+          rw [hfilter]
+          exact h_cover u huI
+      -- Let's define B and L as described.
+      refine ⟨B' ∪ {b}, s_new :: L', ?_, ?_, ?_, ?_, ?_, ?_⟩
       · intro x hx
-        exact (Finset.mem_sdiff.mp hx).1
-      · intro hsub
-        obtain ⟨u, huS⟩ := hS_nonempty
-        have huI : u ∈ I := hS_sub huS
-        have huI' : u ∈ I' := hsub huI
-        exact (Finset.mem_sdiff.mp huI').2 huS
-    -- By the induction hypothesis, there exist $B'$ and $L'$ for $I'$.
-    obtain ⟨B', L', hB', hI', hB'_card, hL'_sum, hL'_pos, hL'_bound⟩ :
-        ∃ B' : Finset ℕ, ∃ L' : List ℕ,
-          B' ⊆ J \ {b} ∧
-          (I' : Set ℕ) ⊆ A + B' ∧
-          B'.card = L'.length ∧
-          L'.sum = I'.card ∧
-          (∀ x ∈ L', 1 ≤ x) ∧
-          ∀ s, (L'.filter (fun x => x ≤ s)).sum ≤ (J \ {b}).card * s / k := by
-      apply ih I' hI'_ssub
-      · exact hk
-      · intro u hu
-        have huI : u ∈ I := (Finset.mem_sdiff.mp hu).1
-        have hu_not_b : ¬ u ∈ A + ({b} : Set ℕ) := by
-          intro hbcover
-          exact (Finset.mem_sdiff.mp hu).2 (by
-            rcases hbcover with ⟨a, ha, y, hy, hsum⟩
-            simp only [Set.mem_singleton_iff] at hy
+        rcases Finset.mem_union.mp hx with hxB | hxb
+        · exact (Finset.mem_sdiff.mp (hB' hxB)).1
+        · have hxb' : x = b := by simpa using hxb
+          simpa [hxb'] using hb.1
+      · intro u huI
+        by_cases hu_b : u ∈ A + ({b} : Set ℕ)
+        · have hsub_singleton : ({b} : Set ℕ) ⊆ (B' ∪ {b} : Finset ℕ) := by
+            intro y hy
+            simp at hy
             subst y
-            exact Finset.mem_filter.mpr ⟨huI, ⟨a, ha, ⟨b, by simp, hsum⟩⟩⟩)
-        have hfilter :
-            (Finset.filter (fun b' => u ∈ A + {b'}) (J \ {b})).card =
-              (Finset.filter (fun b' => u ∈ A + {b'}) J).card := by
-          apply congrArg Finset.card
-          ext b'
-          by_cases hb' : b' = b
-          · subst hb'
-            simp only [Set.add_singleton, Set.mem_image, Finset.mem_filter, Finset.mem_sdiff,
-              Finset.mem_singleton, not_true_eq_false, and_false, false_and, false_iff,
-              not_and, not_exists]
-            intro _ a ha hsum
-            exact hu_not_b ⟨a, ha, _, by simp, hsum⟩
-          · simp [hb']
-        rw [hfilter]
-        exact h_cover u huI
-    -- Let's define B and L as described.
-    refine ⟨B' ∪ {b}, s_new :: L', ?_, ?_, ?_, ?_, ?_, ?_⟩
-    · intro x hx
-      rcases Finset.mem_union.mp hx with hxB | hxb
-      · exact (Finset.mem_sdiff.mp (hB' hxB)).1
-      · have hxb' : x = b := by simpa using hxb
-        simpa [hxb'] using hb.1
-    · intro u huI
-      by_cases hu_b : u ∈ A + ({b} : Set ℕ)
-      · have hsub_singleton : ({b} : Set ℕ) ⊆ (B' ∪ {b} : Finset ℕ) := by
-          intro y hy
-          simp at hy
-          subst y
-          simp
-        exact Set.mem_of_subset_of_mem
-          (Set.add_subset_add Set.Subset.rfl hsub_singleton) hu_b
-      · have huI' : u ∈ I' := by
-          exact Finset.mem_sdiff.mpr
-            ⟨huI, fun huS => hu_b (Finset.mem_filter.mp huS).2⟩
-        have hsub_B' : (B' : Set ℕ) ⊆ (B' ∪ {b} : Finset ℕ) := by
-          intro y hy
-          simp [hy]
-        exact Set.mem_of_subset_of_mem
-          (Set.add_subset_add Set.Subset.rfl hsub_B')
-          (hI' huI')
-    · have hb_not_B' : b ∉ B' := by
-        intro hbB'
-        exact (Finset.mem_sdiff.mp (hB' hbB')).2 (by simp)
-      have hunion : B' ∪ {b} = insert b B' := by
-        ext x
-        by_cases hx : x = b <;> simp [hx]
-      rw [hunion, Finset.card_insert_of_notMem hb_not_B', hB'_card]
-      simp
-    · have hcard := Finset.card_sdiff_add_card_eq_card hS_sub
-      simpa [s_new, hL'_sum, Nat.add_comm] using hcard
-    · intro x hx
-      rcases List.mem_cons.mp hx with rfl | hx
-      · exact Finset.card_pos.mpr hS_nonempty
-      · exact hL'_pos x hx
-    · intro s
-      by_cases hs : s_new ≤ s
-      · have h_filter_le_L' : (List.filter (fun x => x ≤ s) L').sum ≤ L'.sum := by
-          exact list_filter_sum_le_sum L' (fun x => x ≤ s)
-        have hsum_le_I : ((s_new :: L').filter (fun x => x ≤ s)).sum ≤ I.card := by
-          simp only [List.filter_cons, hs]
-          have hcard := Finset.card_sdiff_add_card_eq_card hS_sub
-          calc
-            s_new + (List.filter (fun x => x ≤ s) L').sum ≤ s_new + L'.sum :=
-              Nat.add_le_add_left h_filter_le_L' s_new
-            _ = s_new + I'.card := by rw [hL'_sum]
-            _ = I.card := by simpa [s_new, Nat.add_comm] using hcard
-        have hI_le : I.card ≤ J.card * s / k := by
-          rw [Nat.le_div_iff_mul_le hk]
-          have htotal_cover :
-              I.card * k ≤
-                ∑ u ∈ I, (J.filter (fun b => u ∈ A + ({b} : Set ℕ))).card := by
-            simpa [mul_comm] using Finset.sum_le_sum fun u hu => h_cover u hu
-          have hsum_comm :
-              (∑ u ∈ I, (J.filter (fun b => u ∈ A + ({b} : Set ℕ))).card)
-                = ∑ b ∈ J, (I.filter (fun u => u ∈ A + ({b} : Set ℕ))).card := by
-            simp +decide only [Finset.card_filter]
-            exact Finset.sum_comm
-          have hsum_le :
-              (∑ b ∈ J, (I.filter (fun u => u ∈ A + ({b} : Set ℕ))).card) ≤
-                J.card * s_new := by
-            exact Finset.sum_le_card_nsmul _ _ _ fun b hbJ => hb.2 b hbJ
-          exact le_trans (le_trans htotal_cover ((le_of_eq hsum_comm).trans hsum_le))
-            (Nat.mul_le_mul_left J.card hs)
-        exact le_trans hsum_le_I hI_le
-      · simp only [List.filter_cons, hs]
-        exact le_trans (hL'_bound s) (by
-          gcongr
-          exact (show J \ {b} ⊆ J from Finset.sdiff_subset))
+            simp
+          exact Set.mem_of_subset_of_mem
+            (Set.add_subset_add Set.Subset.rfl hsub_singleton) hu_b
+        · have huI' : u ∈ I' := by
+            exact Finset.mem_sdiff.mpr
+              ⟨huI, fun huS => hu_b (Finset.mem_filter.mp huS).2⟩
+          have hsub_B' : (B' : Set ℕ) ⊆ (B' ∪ {b} : Finset ℕ) := by
+            intro y hy
+            simp [hy]
+          exact Set.mem_of_subset_of_mem
+            (Set.add_subset_add Set.Subset.rfl hsub_B')
+            (hI' huI')
+      · have hb_not_B' : b ∉ B' := by
+          intro hbB'
+          exact (Finset.mem_sdiff.mp (hB' hbB')).2 (by simp)
+        have hunion : B' ∪ {b} = insert b B' := by
+          ext x
+          by_cases hx : x = b <;> simp [hx]
+        rw [hunion, Finset.card_insert_of_notMem hb_not_B', hB'_card]
+        simp
+      · have hcard := Finset.card_sdiff_add_card_eq_card hS_sub
+        simpa [s_new, hL'_sum, Nat.add_comm] using hcard
+      · intro x hx
+        rcases List.mem_cons.mp hx with rfl | hx
+        · exact Finset.card_pos.mpr hS_nonempty
+        · exact hL'_pos x hx
+      · intro s
+        by_cases hs : s_new ≤ s
+        · have h_filter_le_L' : (List.filter (fun x => x ≤ s) L').sum ≤ L'.sum := by
+            exact list_filter_sum_le_sum L' (fun x => x ≤ s)
+          have hsum_le_I : ((s_new :: L').filter (fun x => x ≤ s)).sum ≤ I.card := by
+            simp only [List.filter_cons, hs]
+            have hcard := Finset.card_sdiff_add_card_eq_card hS_sub
+            calc
+              s_new + (List.filter (fun x => x ≤ s) L').sum ≤ s_new + L'.sum :=
+                Nat.add_le_add_left h_filter_le_L' s_new
+              _ = s_new + I'.card := by rw [hL'_sum]
+              _ = I.card := by simpa [s_new, Nat.add_comm] using hcard
+          have hI_le : I.card ≤ J.card * s / k := by
+            rw [Nat.le_div_iff_mul_le hk]
+            have htotal_cover :
+                I.card * k ≤
+                  ∑ u ∈ I, (J.filter (fun b => u ∈ A + ({b} : Set ℕ))).card := by
+              simpa [mul_comm] using Finset.sum_le_sum fun u hu => h_cover u hu
+            have hsum_comm :
+                (∑ u ∈ I, (J.filter (fun b => u ∈ A + ({b} : Set ℕ))).card)
+                  = ∑ b ∈ J, (I.filter (fun u => u ∈ A + ({b} : Set ℕ))).card := by
+              simp +decide only [Finset.card_filter]
+              exact Finset.sum_comm
+            have hsum_le :
+                (∑ b ∈ J, (I.filter (fun u => u ∈ A + ({b} : Set ℕ))).card) ≤
+                  J.card * s_new := by
+              exact Finset.sum_le_card_nsmul _ _ _ fun b hbJ => hb.2 b hbJ
+            exact le_trans (le_trans htotal_cover ((le_of_eq hsum_comm).trans hsum_le))
+              (Nat.mul_le_mul_left J.card hs)
+          exact le_trans hsum_le_I hI_le
+        · simp only [List.filter_cons, hs]
+          exact le_trans (hL'_bound s) (by
+            gcongr
+            exact (show J \ {b} ⊆ J from Finset.sdiff_subset))
 
 lemma greedy_list_bound {L : List ℕ} {K : ℕ} {C : ℝ}
     (h_pos : ∀ x ∈ L, 1 ≤ x)
