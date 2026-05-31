@@ -34,7 +34,6 @@ namespace Erdos476
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.style.refine false
-set_option linter.style.induction false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
 
@@ -486,9 +485,10 @@ theorem erdos_heilbronn_small (p : ℕ) [Fact p.Prime] (A : Finset (ZMod p))
             · -- The total degree of a product of polynomials is the sum of their total degrees.
               have h_deg_prod : ∀ (S : Finset (ZMod p)), (∏ c ∈ S, (MvPolynomial.X 0 + MvPolynomial.X 1 - (MvPolynomial.C : ZMod p → MvPolynomial (Fin 2) (ZMod p)) c)).totalDegree ≤ S.card := by
                 intro S
-                induction' S using Finset.induction with c S hc ih;
-                · norm_num;
-                · rw [ Finset.prod_insert hc ];
+                induction S using Finset.induction with
+                | empty => norm_num;
+                | insert c S' hc ih =>
+                  rw [ Finset.prod_insert hc ];
                   refine' le_trans ( MvPolynomial.totalDegree_mul _ _ ) _;
                   refine' le_trans ( add_le_add ( MvPolynomial.totalDegree_sub _ _ ) ih ) _;
                   simp +decide [ Finset.card_insert_of_notMem hc ];
