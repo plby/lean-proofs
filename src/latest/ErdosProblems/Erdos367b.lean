@@ -83,7 +83,6 @@ noncomputable def alpha : ℝ := 3 + Real.sqrt 8
 noncomputable def n_real (j : ℕ) : ℝ := (alpha ^ (2 * j) - 2 + alpha ^ (-(2 * j : ℤ))) / 4
 
 set_option aesop.warn.nonterminal false in
-set_option linter.style.induction false in
 theorem n_real_is_nat (j : ℕ) : ∃ k : ℕ, n_real j = k := by
   -- Let's denote α = 3 + sqrt(8). Then α^(2j) is a number of the form
   -- a + b*sqrt(8), where a and b are integers.
@@ -92,9 +91,10 @@ theorem n_real_is_nat (j : ℕ) : ∃ k : ℕ, n_real j = k := by
       ∃ a b : ℕ,
         α^(2*j) = a + b * Real.sqrt 8 ∧
           α^(-2*j : ℤ) = a - b * Real.sqrt 8 := by
-    induction' j with j ih
-    · exact ⟨ 1, 0, by norm_num, by norm_num ⟩
-    · -- By the induction hypothesis, we have α^(2*j) = a + b*sqrt(8)
+    induction j with
+    | zero => exact ⟨ 1, 0, by norm_num, by norm_num ⟩
+    | succ j ih =>
+      -- By the induction hypothesis, we have α^(2*j) = a + b*sqrt(8)
       -- and α^(-2*j) = a - b*sqrt(8).
       obtain ⟨a, b, ha, hb⟩ := ih
       use 17 * a + 48 * b, 6 * a + 17 * b
@@ -162,7 +162,6 @@ def x_j (j : ℕ) : ℕ := Pell.xn (show 1 < 3 by norm_num) j
 def y_j (j : ℕ) : ℕ := Pell.yn (show 1 < 3 by norm_num) j
 
 set_option aesop.warn.nonterminal false in
-set_option linter.style.induction false in
 set_option linter.style.multiGoal false in
 theorem n_nat_eq_8_y_sq (j : ℕ) : n_nat j = 8 * (y_j j)^2 := by
   -- By definition of $n_real$, we know that
@@ -189,17 +188,17 @@ theorem n_nat_eq_8_y_sq (j : ℕ) : n_nat j = 8 * (y_j j)^2 := by
         (3 + Real.sqrt 8) ^ j = x_j j + y_j j * Real.sqrt 8 ∧
           (3 - Real.sqrt 8) ^ j = x_j j - y_j j * Real.sqrt 8 := by
       -- We proceed by induction on $j$.
-      induction' j with j ih
-      · norm_num [ x_j, y_j ]
-      · induction' j + 1 <;>
-          simp_all +decide only [pow_zero, CharP.cast_eq_zero, zero_mul, add_zero,
-            sub_zero, and_self, pow_succ] ; ring_nf;
-        · norm_cast
-        · unfold x_j y_j
-          norm_num [ Pell.xn_succ, Pell.yn_succ ]
-          ring_nf
-          norm_num
-          exact Or.inl rfl
+      clear h_n_real
+      induction j with
+      | zero => norm_num [ x_j, y_j ]
+      | succ j ihn =>
+        simp_all +decide only [pow_succ] ; ring_nf
+        unfold x_j y_j
+        simp only [ Nat.add_comm 1 j ]
+        norm_num [ Pell.xn_succ, Pell.yn_succ ]
+        ring_nf
+        norm_num
+        exact Or.inl rfl
     aesop
     rw [ pow_mul', pow_mul' ]
     rw [ left, right ]
@@ -282,7 +281,6 @@ theorem j_t_well_defined (t : ℕ) : 2 ∣ 3 * 5^(t-1) - 1 := by
   norm_num [ ← even_iff_two_dvd, Nat.one_le_iff_ne_zero, parity_simps ]
 
 set_option aesop.warn.nonterminal false in
-set_option linter.style.induction false in
 set_option linter.style.refine false in
 theorem alpha_pow_K_t (t : ℕ) (ht : t ≥ 1) :
   ∃ a b : ℤ,
@@ -297,9 +295,11 @@ theorem alpha_pow_K_t (t : ℕ) (ht : t ≥ 1) :
           (3 - Real.sqrt 8) ^ (3 * 5 ^ (t - 1)) =
             a - b * Real.sqrt 8 := by
     norm_num +zetaDelta at *
-    induction' 3 * 5 ^ ( t - 1 ) <;> aesop
-    · exact ⟨ 1, 0, by norm_num, by norm_num ⟩
-    · exact ⟨
+    induction (3 * 5 ^ (t - 1)) with
+    | zero => aesop; exact ⟨ 1, 0, by norm_num, by norm_num ⟩
+    | succ k ih =>
+      aesop
+      exact ⟨
         w * 3 + w_1 * 8,
         w + w_1 * 3,
         by
@@ -323,15 +323,18 @@ theorem alpha_pow_K_t (t : ℕ) (ht : t ≥ 1) :
                 a - b * Real.sqrt 8 ∧
               a ≡ -1 [ZMOD 5 ^ t] ∧ b ≡ 0 [ZMOD 5 ^ t] := by
     intro t ht
-    induction' ht with t ht ih
-    · -- For the base case $t = 1$, we can compute $(3 + \sqrt{8})^3$
+    induction ht with
+    | refl =>
+      -- For the base case $t = 1$, we can compute $(3 + \sqrt{8})^3$
       -- and $(3 - \sqrt{8})^3$ directly.
       use 99, 35
       norm_num
       constructor <;> nlinarith [
         Real.sqrt_nonneg 8,
         Real.sq_sqrt (show 0 ≤ 8 by norm_num) ]
-    · rcases ih with ⟨ a, b, ha, hb, ha', hb' ⟩
+    | step ht ih =>
+      rename_i t
+      rcases ih with ⟨ a, b, ha, hb, ha', hb' ⟩
       rcases t with ( _ | t ) <;>
         simp_all +decide [ pow_succ, pow_mul ] ;
         ring_nf at * ;
