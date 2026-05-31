@@ -31,7 +31,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.style.refine false
-set_option linter.style.induction false
 set_option linter.flexible false
 set_option linter.unusedVariables false
 
@@ -641,11 +640,11 @@ lemma seq_strict_v4_properties (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.a
     (seq_strict_v4 f hf k).state.B.card = k ∧
     primes_in_constraints (seq_strict_v4 f hf k).state = first_k_primes (k + 1) ∧
     (∀ x ∈ (seq_strict_v4 f hf k).state.constraints, x.2 < x.1) := by
-      induction' k with k ih
-      · -- For the base case when $k = 0$, the state is initialized with $B = \emptyset$ and constraints $\{(2, 0)\}$.
+      induction k with
+      | zero => -- For the base case when $k = 0$, the state is initialized with $B = \emptyset$ and constraints $\{(2, 0)\}$.
         simp [seq_strict_v4]
         unfold primes_in_constraints first_k_primes; aesop
-      · -- By definition of `seq_strict_v4`, we have `seq_strict_v4 f hf (k + 1) = step_strict_v4 f hf (zigzag k) (seq_strict_v4 f hf k)`. Use this fact.
+      | succ k ih => -- By definition of `seq_strict_v4`, we have `seq_strict_v4 f hf (k + 1) = step_strict_v4 f hf (zigzag k) (seq_strict_v4 f hf k)`. Use this fact.
         have h_step : (seq_strict_v4 f hf (k + 1)).state.B.card = (seq_strict_v4 f hf k).state.B.card + 1 ∧
                        primes_in_constraints (seq_strict_v4 f hf (k + 1)).state = primes_in_constraints (seq_strict_v4 f hf k).state ∪ {min_unconstrained_prime (seq_strict_v4 f hf k).state.constraints} ∧
                        ∀ x ∈ (seq_strict_v4 f hf (k + 1)).state.constraints, x.2 < x.1 := by
@@ -736,9 +735,9 @@ lemma B_final_v4_respects (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.atTop 
         -- By definition of `seq_strict_v4`, the constraints are monotonic.
         have h_constraints_mono : ∀ k j, k ≤ j → (seq_strict_v4 f hf k).state.constraints ⊆ (seq_strict_v4 f hf j).state.constraints := by
           intros k j hkj
-          induction' hkj with j hj ih ih
-          · rfl
-          · exact Set.Subset.trans ih ( by exact seq_strict_v4_mono f hf j |>.2 )
+          induction hkj with
+          | refl => rfl
+          | step hj ih => rename_i j; exact Set.Subset.trans ih ( by exact seq_strict_v4_mono f hf j |>.2 )
         generalize_proofs at *; (exact h_constraints_mono k j hj_ge_k h)
       exact ( seq_strict_v4 f hf j ).state.h_respects _ h_constraint_in_j _ hj_mem
 
@@ -812,9 +811,9 @@ theorem B_final_v4_density (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.atTop
           obtain ⟨k, hk⟩ := h_seq_increasing b hb
           use k
           intro j hj
-          induction' hj with j hj ih
-          · assumption
-          · exact seq_strict_v4_mono f hf j |>.1 ih
+          induction hj with
+          | refl => assumption
+          | step hj ih => rename_i j; exact seq_strict_v4_mono f hf j |>.1 ih
         choose! k hk using h_seq_increasing
         exact ⟨ Finset.sup ( Set.Finite.toFinset ( show Set.Finite ( B_final_v4 f hf ∩ Set.Icc 1 N ) from Set.finite_iff_bddAbove.mpr ⟨ N, fun x hx => hx.2.2 ⟩ ) ) k, fun x hx => hk x ( by simpa using hx ) _ ( Finset.le_sup ( f := k ) ( by simpa using hx ) ) ⟩
       intro N
