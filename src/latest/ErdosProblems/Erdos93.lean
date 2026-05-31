@@ -26,7 +26,6 @@ set_option linter.style.multiGoal false
 set_option linter.style.cdot false
 set_option linter.style.whitespace false
 set_option linter.style.cases false
-set_option linter.style.induction false
 set_option linter.flexible false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedTactic false
@@ -3890,9 +3889,9 @@ lemma dist_set_cardinality_from_chain {m : ℕ} (d : ℕ → ℝ) (h_strict : �
     have h_ind : ∀ i j, i < j → i < m + 1 → j < m + 1 → d i > d j := by
       -- By induction on $j - i$, we can show that $d_i > d_j$ for any $i < j$.
       intros i j hij hi hj
-      induction' hij with k hk ih;
-      · exact h_strict i ( Nat.lt_of_succ_lt_succ hj );
-      · grind;
+      induction hij with
+      | refl => exact h_strict i ( Nat.lt_of_succ_lt_succ hj );
+      | step hk ih => grind;
     exact fun i j hi hj hij => fun h => hij <| le_antisymm ( le_of_not_gt fun hi' => by linarith [ h_ind _ _ hi' hj hi ] ) ( le_of_not_gt fun hj' => by linarith [ h_ind _ _ hj' hi hj ] );
   rw [ Finset.card_image_of_injOn fun i hi j hj hij => by contrapose hij; exact h_inj i j ( Finset.mem_range.mp hi ) ( Finset.mem_range.mp hj ) hij, Finset.card_range ]
 
