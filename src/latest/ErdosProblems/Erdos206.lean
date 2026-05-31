@@ -26,7 +26,6 @@ namespace Erdos206
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 
@@ -556,9 +555,11 @@ lemma exists_bestNTerm_above (n : ℕ) (x : ℝ) (hx : 0 < x) (a₀ : ℕ) :
       ∀ T : Finset ℕ, T.card = n → (∀ m ∈ T, a₀ < m) →
         ValidEgyptian T → egyptianSum T < x → egyptianSum T ≤ egyptianSum S := by
   by_contra h
-  induction' n with n ih generalizing a₀ x
-  · simp_all +decide [ ValidEgyptian, egyptianSum ]
-  · obtain ⟨S₀, hS₀⟩ :
+  induction n generalizing a₀ x with
+  | zero =>
+    simp_all +decide [ ValidEgyptian, egyptianSum ]
+  | succ n ih =>
+    obtain ⟨S₀, hS₀⟩ :
         ∃ S₀ : Finset ℕ,
           S₀.card = n + 1 ∧ (∀ m ∈ S₀, a₀ < m) ∧
             ValidEgyptian S₀ ∧ egyptianSum S₀ < x := by
@@ -743,15 +744,17 @@ lemma exists_harmonic_prefix (n : ℕ) (hn : 1 ≤ n) (x : ℝ) (hx : 0 < x)
     (hx_le : x ≤ harmonicNumber n) :
     ∃ l : ℕ, l ≤ n - 1 ∧ harmonicNumber l < x ∧
       (l + 1 ≤ n → x ≤ harmonicNumber (l + 1)) := by
-  induction' hn with n hn ih
-  · exact ⟨0, by norm_num,
+  induction hn
+  case refl =>
+    exact ⟨0, by norm_num,
       by
         norm_num [harmonicNumber] at *
         linarith,
       by
         norm_num [harmonicNumber] at *
         linarith⟩
-  · grind
+  case step n hn ih =>
+    grind
 
 /-- Greedy density: for any `δ ∈ (0, 1/(l+1)]`, there exist `t` distinct positive integers
     `≥ l+2` with reciprocal sum `< δ` and gap `≤ 1/((l+t)(l+t+1))`. -/
@@ -761,8 +764,9 @@ lemma greedy_density (t : ℕ) (ht : 1 ≤ t) (l : ℕ) (δ : ℝ) (hδ_pos : 0 
       (∀ m ∈ S, l + 2 ≤ m) ∧
       egyptianSum S < δ ∧
       δ - egyptianSum S ≤ 1 / (((l : ℝ) + ↑t) * ((l : ℝ) + ↑t + 1)) := by
-  induction' ht with t ht ih generalizing l δ
-  · refine' ⟨ { ⌊δ⁻¹⌋₊ + 1 }, _, _, _, _, _ ⟩ <;> norm_num [ ValidEgyptian, egyptianSum ]
+  induction ht generalizing l δ
+  case refl =>
+    refine' ⟨ { ⌊δ⁻¹⌋₊ + 1 }, _, _, _, _, _ ⟩ <;> norm_num [ ValidEgyptian, egyptianSum ]
     · exact Nat.succ_le_succ ( Nat.le_floor <| by
         rw [ inv_eq_one_div ]
         rw [ le_div_iff₀ hδ_pos ]
@@ -772,7 +776,8 @@ lemma greedy_density (t : ℕ) (ht : 1 ≤ t) (l : ℕ) (δ : ℝ) (hδ_pos : 0 
     · field_simp
       have := Nat.floor_le ( by positivity : 0 ≤ 1 / δ )
       rw [ le_div_iff₀ ] at * <;> nlinarith [ sq ( l : ℝ ) ]
-  · obtain ⟨m₀, hm₀⟩ :
+  case step t ht ih =>
+    obtain ⟨m₀, hm₀⟩ :
         ∃ m₀ : ℕ,
           m₀ ≥ l + 2 ∧ (1 : ℝ) / m₀ < δ ∧
             (δ - (1 : ℝ) / m₀) ≤ 1 / ((m₀ - 1 : ℝ) * m₀) := by
