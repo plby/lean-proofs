@@ -31,7 +31,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.induction false
 set_option linter.style.refine false
 set_option linter.style.multiGoal false
 
@@ -109,9 +108,11 @@ theorem lem_order_lift_explicit (n : ℕ) (h : n ≥ 1)
                       ∃ k : ℕ, 2 ^ (4 * 5 ^ (n - 1)) = 1 + 5 ^ n * k ∧
                         ¬(5 ∣ k) := by
                   intro n hn
-                  induction' n, Nat.succ_le_iff.mpr hn using Nat.le_induction with n hn ih
-                  · exists (2 ^ 4 - 1) / 5
-                  · rcases ih ‹_› with ⟨ k, hk₁, hk₂ ⟩ ; rcases n <;> simp_all +decide [ pow_succ, pow_mul ];
+                  induction n, Nat.succ_le_iff.mpr hn using Nat.le_induction
+                  case base =>
+                    exists (2 ^ 4 - 1) / 5
+                  case succ n hn ih =>
+                    rcases ih ‹_› with ⟨ k, hk₁, hk₂ ⟩ ; rcases n <;> simp_all +decide [ pow_succ, pow_mul ];
                     refine' ⟨ k + k ^ 2 * 5 ^ ‹_› * 10 + k ^ 3 * 5 ^ ( ‹_› * 2 ) * 50 + k ^ 4 * 5 ^ ( ‹_› * 3 ) * 125 + k ^ 5 * 5 ^ ( ‹_› * 4 ) * 125, _, _ ⟩ <;> ring_nf at * ; norm_num [ Nat.dvd_iff_mod_eq_zero, Nat.add_mod, Nat.mul_mod, Nat.pow_mod ] at * ; aesop ( simp_config := { decide := true } ) ;
                 exact h_ind n h
               rcases h_cong with ⟨k, hk₁, hk₂⟩
@@ -465,12 +466,14 @@ For n >= 1 and k > n, the intersection of A_k with [1, M_n] is a subset of A_n.
 lemma lemma_Ak_subset_An (n k : ℕ) (hk : k > n) :
   {a ∈ A_n k | a ≤ M n} ⊆ A_n n := by
     -- Assume k > n. We proceed by induction on k.
-    induction' hk with k ih;
-    · exact lemma_A_succ_subset_A_n n;
-    · -- Since $M_n < M_k$, we have $\{a \in A_{k+1} \mid a \leq M_n\} \subseteq \{a \in A_{k+1} \mid a \leq M_k\}$.
+    induction hk
+    case refl =>
+      exact lemma_A_succ_subset_A_n n
+    case step k hk ih =>
+      -- Since $M_n < M_k$, we have $\{a \in A_{k+1} \mid a \leq M_n\} \subseteq \{a \in A_{k+1} \mid a \leq M_k\}$.
       have h_subset_Mk : {a ∈ A_n (k + 1) | a ≤ M n} ⊆ {a ∈ A_n (k + 1) | a ≤ M k} := by
         refine' fun x hx => ⟨ hx.1, le_trans hx.2 _ ⟩;
-        exact Nat.mul_le_mul ( pow_le_pow_right₀ ( by decide ) ( by linarith [ Nat.succ_le_iff.mp ih ] ) ) ( pow_le_pow_right₀ ( by decide ) ( by linarith [ Nat.succ_le_iff.mp ih, Nat.pow_le_pow_right ( by decide : 1 ≤ 5 ) ( by linarith [ Nat.succ_le_iff.mp ih ] : n + 1 ≤ k + 1 ) ] ) );
+        exact Nat.mul_le_mul ( pow_le_pow_right₀ ( by decide ) ( by linarith [ Nat.succ_le_iff.mp hk ] ) ) ( pow_le_pow_right₀ ( by decide ) ( by linarith [ Nat.succ_le_iff.mp hk, Nat.pow_le_pow_right ( by decide : 1 ≤ 5 ) ( by linarith [ Nat.succ_le_iff.mp hk ] : n + 1 ≤ k + 1 ) ] ) );
       -- By lemma_A_succ_subset_A_n, we have {a ∈ A_{k+1} | a ≤ M_k} ⊆ A_k.
       have h_subset_Ak : {a ∈ A_n (k + 1) | a ≤ M k} ⊆ A_n k := by
         exact lemma_A_succ_subset_A_n k
@@ -598,9 +601,11 @@ theorem density_bound : ∃ c > 0, ∃ x₀, ∀ x ≥ x₀, Set.ncard {a ∈ A 
         have h_unbounded : Filter.Tendsto M Filter.atTop Filter.atTop := by
           exact strictMono_nat_of_lt_succ ( fun n => by exact mul_lt_mul'' ( pow_lt_pow_right₀ ( by decide ) ( Nat.lt_succ_self _ ) ) ( pow_lt_pow_right₀ ( by decide ) ( pow_lt_pow_right₀ ( by decide ) ( Nat.lt_succ_self _ ) ) ) ( by positivity ) ( by positivity ) ) |> StrictMono.tendsto_atTop;
         exact ( h_unbounded.eventually_ge_atTop x ) |> fun h => h.exists;
-      induction' n with n ih;
-      · exact absurd hn ( by linarith! [ show M 0 < M 1 from lemma_M_increasing ( by decide ) ] );
-      · grind;
+      induction n with
+      | zero =>
+        exact absurd hn ( by linarith! [ show M 0 < M 1 from lemma_M_increasing ( by decide ) ] )
+      | succ n ih =>
+        grind
     use M ( hC2.2.choose + 1 ) + x₀ + 1;
     intro x hx;
     obtain ⟨ n, hn₁, hn₂ ⟩ := hx₀ x ( by linarith [ show M ( hC2.2.choose + 1 ) ≥ 0 by exact Nat.zero_le _ ] );
