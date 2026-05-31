@@ -35,7 +35,6 @@ namespace Erdos204
 
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.flexible false
@@ -311,11 +310,13 @@ lemma sorted_primes_bound_strong (p : ℕ) (s : ℕ) (q : ℕ → ℕ)
     (hq_sorted : ∀ i j, i ∈ Finset.range s → j ∈ Finset.range s → i < j → q i < q j) :
     ∀ i ∈ Finset.range s, q i ≥ p + 2 + i := by
       intro i hi
-      induction' i with i ih;
-      · cases Nat.Prime.eq_two_or_odd hp_prime <;> cases Nat.Prime.eq_two_or_odd ( hq_prime 0 hi ) <;> simp_all +arith +decide ;
-        · grind;
-        · exact Nat.succ_le_of_lt ( lt_of_le_of_ne ( hq_gt 0 hi ) ( Ne.symm <| by omega ) );
-      · grind
+      induction i with
+      | zero =>
+        cases Nat.Prime.eq_two_or_odd hp_prime <;> cases Nat.Prime.eq_two_or_odd ( hq_prime 0 hi ) <;> simp_all +arith +decide
+        · grind
+        · exact Nat.succ_le_of_lt ( lt_of_le_of_ne ( hq_gt 0 hi ) ( Ne.symm <| by omega ) )
+      | succ i ih =>
+        grind
 
 /-
 Lemma: If $p \ge 3$ is prime and $q_0 < q_1 < \dots < q_{s-1}$ are primes greater than $p$, then $\prod_{i=0}^{s-1} \frac{q_i}{q_i-1} \le \frac{p+s+1}{p+1}$.
@@ -338,9 +339,11 @@ lemma product_bound_primes_v2 (p : ℕ) (s : ℕ) (q : ℕ → ℕ)
       refine le_trans ( Finset.prod_le_prod ?_ h_prod_bound ) ?_;
       · exact fun i hi => div_nonneg ( Nat.cast_nonneg _ ) ( sub_nonneg_of_le ( mod_cast Nat.one_le_iff_ne_zero.mpr ( Nat.Prime.ne_zero ( hq_prime i hi ) ) ) );
       · -- By induction on $s$, we can show that the product telescopes.
-        induction' s with s ih;
-        · norm_num [ show ( p : ℚ ) + 1 ≠ 0 by positivity ];
-        · rw [ Finset.prod_range_succ, Nat.cast_succ ];
+        induction s with
+        | zero =>
+          norm_num [ show ( p : ℚ ) + 1 ≠ 0 by positivity ]
+        | succ s ih =>
+          rw [ Finset.prod_range_succ, Nat.cast_succ ]
           exact le_trans ( mul_le_mul_of_nonneg_right ( ih ( fun i hi => hq_prime i ( Finset.mem_range.mpr ( Nat.lt_succ_of_lt ( Finset.mem_range.mp hi ) ) ) ) ( fun i hi => hq_gt i ( Finset.mem_range.mpr ( Nat.lt_succ_of_lt ( Finset.mem_range.mp hi ) ) ) ) ( fun i j hi hj hij => hq_sorted i j ( Finset.mem_range.mpr ( Nat.lt_succ_of_lt ( Finset.mem_range.mp hi ) ) ) ( Finset.mem_range.mpr ( Nat.lt_succ_of_lt ( Finset.mem_range.mp hj ) ) ) hij ) ( fun i hi => h_prod_bound i ( Finset.mem_range.mpr ( Nat.lt_succ_of_lt ( Finset.mem_range.mp hi ) ) ) ) ) ( by positivity ) ) ( by rw [ div_mul_div_comm, div_le_div_iff₀ ] <;> ring_nf <;> nlinarith )
 
 /-
@@ -563,9 +566,13 @@ theorem intersection_count_pairwise_coprime (S : Finset Congruence) (I : Finset 
             have hP_div_D : ∀ c ∈ I, c.d ∣ Finset.lcm I (fun c => c.d) := by
               exact fun c hc => Finset.dvd_lcm hc;
             have hP_div_D : ∀ {T : Finset Congruence}, (∀ c ∈ T, c.d ∣ Finset.lcm I (fun c => c.d)) → (∀ c1 ∈ T, ∀ c2 ∈ T, c1 ≠ c2 → Nat.Coprime c1.d c2.d) → (∏ c ∈ T, c.d) ∣ Finset.lcm I (fun c => c.d) := by
-              intros T hT_div hT_coprime; induction' T using Finset.induction with c T hcT ih; aesop;
-              rw [ Finset.prod_insert hcT ];
-              exact Nat.Coprime.mul_dvd_of_dvd_of_dvd ( show Nat.Coprime ( c.d ) ( ∏ x ∈ T, x.d ) from Nat.Coprime.prod_right fun x hx => hT_coprime c ( Finset.mem_insert_self _ _ ) x ( Finset.mem_insert_of_mem hx ) <| by aesop ) ( hT_div c <| Finset.mem_insert_self _ _ ) ( ih ( fun x hx => hT_div x <| Finset.mem_insert_of_mem hx ) ( fun x hx y hy hxy => hT_coprime x ( Finset.mem_insert_of_mem hx ) y ( Finset.mem_insert_of_mem hy ) hxy ) );
+              intros T hT_div hT_coprime
+              induction T using Finset.induction with
+              | empty =>
+                simp
+              | insert c T hcT ih =>
+                rw [ Finset.prod_insert hcT ]
+                exact Nat.Coprime.mul_dvd_of_dvd_of_dvd ( show Nat.Coprime ( c.d ) ( ∏ x ∈ T, x.d ) from Nat.Coprime.prod_right fun x hx => hT_coprime c ( Finset.mem_insert_self _ _ ) x ( Finset.mem_insert_of_mem hx ) <| by aesop ) ( hT_div c <| Finset.mem_insert_self _ _ ) ( ih ( fun x hx => hT_div x <| Finset.mem_insert_of_mem hx ) ( fun x hx y hy hxy => hT_coprime x ( Finset.mem_insert_of_mem hx ) y ( Finset.mem_insert_of_mem hy ) hxy ) );
             exact hP_div_D ‹_› h_coprime;
           exact dvd_trans hP_div_D ( Finset.lcm_dvd fun x hx => Finset.dvd_lcm ( hI hx ) );
         -- By the Chinese Remainder Theorem, there exists a unique solution modulo $P$ to the system of congruences.
@@ -708,9 +715,13 @@ theorem lemma_good (S : Finset Congruence) (h_cd : IsCD S) :
           · have h_prod_div : ∀ c ∈ I, c.d ∣ D := by
               exact fun c hc => Finset.dvd_lcm ( Finset.mem_powerset.mp ( Finset.mem_filter.mp hI |>.1 ) hc );
             have h_prod_div : ∀ {T : Finset Congruence}, (∀ c ∈ T, c.d ∣ D) → (∀ c1 ∈ T, ∀ c2 ∈ T, c1 ≠ c2 → Nat.Coprime c1.d c2.d) → (∏ c ∈ T, c.d) ∣ D := by
-              intros T hT_div hT_coprime; induction' T using Finset.induction with c T hcT ih; aesop;
-              rw [ Finset.prod_insert hcT ];
-              exact Nat.Coprime.mul_dvd_of_dvd_of_dvd ( by exact Nat.Coprime.prod_right fun x hx => hT_coprime _ ( Finset.mem_insert_self _ _ ) _ ( Finset.mem_insert_of_mem hx ) <| by aesop ) ( hT_div _ <| Finset.mem_insert_self _ _ ) ( ih ( fun x hx => hT_div _ <| Finset.mem_insert_of_mem hx ) ( fun x hx y hy hxy => hT_coprime _ ( Finset.mem_insert_of_mem hx ) _ ( Finset.mem_insert_of_mem hy ) hxy ) );
+              intros T hT_div hT_coprime
+              induction T using Finset.induction with
+              | empty =>
+                simp
+              | insert c T hcT ih =>
+                rw [ Finset.prod_insert hcT ]
+                exact Nat.Coprime.mul_dvd_of_dvd_of_dvd ( by exact Nat.Coprime.prod_right fun x hx => hT_coprime _ ( Finset.mem_insert_self _ _ ) _ ( Finset.mem_insert_of_mem hx ) <| by aesop ) ( hT_div _ <| Finset.mem_insert_self _ _ ) ( ih ( fun x hx => hT_div _ <| Finset.mem_insert_of_mem hx ) ( fun x hx y hy hxy => hT_coprime _ ( Finset.mem_insert_of_mem hx ) _ ( Finset.mem_insert_of_mem hy ) hxy ) );
             exact h_prod_div ‹_› hI_coprime;
         · simp +zetaDelta at *;
           exact Nat.eq_zero_of_not_pos fun h => pairwise_coprime_subset hI.1 h_cd hI_coprime ( Classical.choose ( Finset.card_pos.mp h ) ) ( Classical.choose_spec ( Finset.card_pos.mp h ) |> Finset.mem_filter.mp |>.2 );
