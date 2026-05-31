@@ -27,7 +27,6 @@ import Mathlib
 
 namespace Erdos331
 
-set_option linter.style.induction false
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
@@ -69,7 +68,8 @@ The k-th bit of partA n is the k-th bit of n if k is even, and 0 otherwise.
 set_option linter.flexible false in
 lemma partA_testBit (n k : ℕ) :
     (partA n).testBit k = (if Even k then n.testBit k else false) := by
-  induction' n using Nat.strong_induction_on with n ih generalizing k
+  induction n using Nat.strong_induction_on generalizing k with
+  | h n ih =>
   rcases n with (_ | _ | _ | n) <;> simp +arith +decide [*]
   · unfold partA
     aesop
@@ -133,13 +133,17 @@ lemma unique_decomposition {n a b : ℕ} (ha : a ∈ A) (hb : b ∈ B)
       exact disjoint_bits ha hb
     have h_or : ∀ x y : ℕ, x &&& y = 0 → x + y = x ||| y := by
       intro x y hxy
-      induction' x using Nat.binaryRec with x ih generalizing y <;>
-        induction' y using Nat.binaryRec with y ih' <;>
-        simp_all +decide
-      cases x <;> cases y <;> simp_all +decide [Nat.bit]
-      · linarith [‹∀ y : ℕ, ih &&& y = 0 → ih + y = ih ||| y› ih' hxy]
-      · grind
-      · linarith [‹∀ y : ℕ, ih &&& y = 0 → ih + y = ih ||| y› ih' hxy]
+      induction x using Nat.binaryRec generalizing y with
+      | zero => simp_all +decide
+      | bit x ih xih =>
+        induction y using Nat.binaryRec with
+        | zero => simp_all +decide
+        | bit y ih' yih =>
+          simp_all +decide
+          cases x <;> cases y <;> simp_all +decide [Nat.bit]
+          · linarith [‹∀ y : ℕ, ih &&& y = 0 → ih + y = ih ||| y› ih' hxy]
+          · grind
+          · linarith [‹∀ y : ℕ, ih &&& y = 0 → ih + y = ih ||| y› ih' hxy]
     apply h_or
     assumption
   -- On `a ||| b`, the even bits come from `a` and the odd bits from `b`.
@@ -227,7 +231,8 @@ lemma expandA_in_A (n : ℕ) : expandA n ∈ A := by
       (expandA n).testBit k = if Even k then (n.testBit (k / 2)) else false := by
     -- We'll use induction on $n$ to prove the equivalence.
     intro n k
-    induction' n using Nat.strong_induction_on with n ih generalizing k
+    induction n using Nat.strong_induction_on generalizing k with
+    | h n ih =>
     unfold expandA
     rcases k with (_ | _ | k) <;> simp_all +decide [Nat.testBit, Nat.shiftRight_eq_div_pow]
     · grind
@@ -268,7 +273,8 @@ expandA is strictly monotonic.
 lemma expandA_strict_mono : StrictMono expandA := by
   refine' strictMono_nat_of_lt_succ _
   intro n
-  induction' n using Nat.strong_induction_on with n ih
+  induction n using Nat.strong_induction_on with
+  | h n ih =>
   rcases Nat.even_or_odd' n with ⟨ k, rfl | rfl ⟩
   · unfold expandA
     rcases k with (_ | k) <;> simp +arith +decide [Nat.add_div]
@@ -290,10 +296,14 @@ lemma expandA_lt {k n : ℕ} (h : n < 2 ^ k) : expandA n < 4 ^ k := by
   -- Each recursive step in `expandA` multiplies the previous contribution by 4.
   have h_expandA_le : ∀ k, ∀ n < 2 ^ k, expandA n < 4 ^ k := by
     intro k n hn
-    induction' k with k ih generalizing n <;> norm_num [Nat.pow_succ'] at *
-    · unfold expandA
+    induction k generalizing n with
+    | zero =>
+      norm_num [Nat.pow_succ'] at *
+      unfold expandA
       aesop
-    · -- By definition of expandA, we have expandA n = (n % 2) + 4 * expandA (n / 2).
+    | succ k ih =>
+      norm_num [Nat.pow_succ'] at *
+      -- By definition of expandA, we have expandA n = (n % 2) + 4 * expandA (n / 2).
       have h_expandA_def : expandA n = (n % 2) + 4 * expandA (n / 2) := by
         by_cases hn : n = 0
         · simp +decide [hn, expandA]
