@@ -35,7 +35,6 @@ noncomputable section
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 
@@ -388,21 +387,29 @@ theorem eSecDen_succ (k : ℕ) :
 
 theorem ePadeNum_odd : ∀ k, ¬ 2 ∣ ePadeNum k := by
   intro k;
-  induction' k with k ih;
-  · decide +revert;
-  · simp_all +decide [ ePadeNum_succ, ← even_iff_two_dvd, parity_simps ]
+  induction k with
+  | zero =>
+    decide +revert;
+  | succ k ih =>
+    simp_all +decide [ ePadeNum_succ, ← even_iff_two_dvd, parity_simps ]
 
 theorem ePadeDen_odd : ∀ k, ¬ 2 ∣ ePadeDen k := by
-  intro k hk; induction' k with k ih <;> norm_num [ *, Nat.add_mod, Nat.mul_mod ] at *;
-  rw [ ePadeDen_succ ] at hk; simp_all +decide [ ← even_iff_two_dvd, parity_simps ] ;
-  grind
+  intro k hk; induction k with
+  | zero =>
+    norm_num [ *, Nat.add_mod, Nat.mul_mod ] at *
+  | succ k ih =>
+    norm_num [ *, Nat.add_mod, Nat.mul_mod ] at *
+    rw [ ePadeDen_succ ] at hk; simp_all +decide [ ← even_iff_two_dvd, parity_simps ] ;
+    grind
 
 theorem ePadeDen_pos : ∀ k, 0 < ePadeDen k := by
   have h_ind : ∀ k, 0 < ePadeDen k ∧ 0 < eSecDen k := by
     intro k
-    induction' k with k ih
-    · exact ⟨by norm_num [ePadeDen_zero], by norm_num [eSecDen_zero]⟩
-    · constructor <;> nlinarith [ ePadeDen_succ k, eSecDen_succ k ];
+    induction k with
+    | zero =>
+      exact ⟨by norm_num [ePadeDen_zero], by norm_num [eSecDen_zero]⟩
+    | succ k ih =>
+      constructor <;> nlinarith [ ePadeDen_succ k, eSecDen_succ k ];
   intro k
   simp_all only
 
@@ -410,9 +417,11 @@ theorem ePadeDen_pos : ∀ k, 0 < ePadeDen k := by
 
 theorem convergent_det (k : ℕ) :
     ePadeNum k * eSecDen k - eSecNum k * ePadeDen k = (-1 : ℤ) ^ k := by
-  induction' k with k ih;
-  · decide +revert;
-  · rw [ ePadeNum_succ, ePadeDen_succ, eSecNum_succ, eSecDen_succ ] ; push_cast [ pow_succ' ] at * ;
+  induction k with
+  | zero =>
+    decide +revert;
+  | succ k ih =>
+    rw [ ePadeNum_succ, ePadeDen_succ, eSecNum_succ, eSecDen_succ ] ; push_cast [ pow_succ' ] at * ;
     linarith;
 
 /-! ## Section 4: Integral representation of the Padé error -/
@@ -691,10 +700,12 @@ lemma ePade_integral_identity (k : ℕ) :
       (-1 : ℝ) ^ k / ↑(Nat.factorial (k + 1)) * padeBound k ∧
     (eSecNum k : ℝ) - (eSecDen k : ℝ) * exp 1 =
       (-1 : ℝ) ^ (k + 1) / ↑(Nat.factorial k) * secBound k := by
-        induction' k with k ih;
-        · constructor <;> norm_num [ ePadeNum_zero, ePadeDen_zero, eSecNum_zero, eSecDen_zero,
+        induction k with
+        | zero =>
+          constructor <;> norm_num [ ePadeNum_zero, ePadeDen_zero, eSecNum_zero, eSecDen_zero,
           padeBound_zero, secBound_zero ];
-        · norm_num [ ePadeNum_succ, ePadeDen_succ, eSecNum_succ, eSecDen_succ, Nat.factorial_succ ]
+        | succ k ih =>
+          norm_num [ ePadeNum_succ, ePadeDen_succ, eSecNum_succ, eSecDen_succ, Nat.factorial_succ ]
           at *;
           rw [ padeBound_recurrence, secBound_recurrence ] at *;
           field_simp at *;
@@ -703,24 +714,34 @@ lemma ePade_integral_identity (k : ℕ) :
 /-! ## Section 5: Construction for choose_d -/
 
 theorem ePadeDen_exp_growth (k : ℕ) : (ePadeDen k : ℝ) ≥ 3 ^ k := by
-  induction' k with k ih <;> norm_num [ *, pow_succ' ] at *;
-  have h_sub : (ePadeDen (k + 1) : ℝ) = (4 * k + 5) * (ePadeDen k : ℝ) + 2 * (eSecDen k : ℝ) := by
-    exact_mod_cast ePadeDen_succ k;
-  have h_sub2 : (eSecDen k : ℝ) ≥ 0 := by
-    have h_pos : ∀ k, 0 < eSecDen k := by
-      intro k; induction' k with k ih <;> norm_num [ *, eSecDen_succ ] ;
-      exact add_pos_of_nonneg_of_pos ( mul_nonneg ( by positivity )
-        ( mod_cast ePadeDen_pos k |> le_of_lt ) ) ih
-    norm_cast at *; exact le_of_lt (h_pos k);
-  nlinarith [ pow_pos ( by norm_num : ( 0 : ℝ ) < 3 ) k ]
+  induction k with
+  | zero =>
+    norm_num [ *, pow_succ' ] at *
+  | succ k ih =>
+    norm_num [ *, pow_succ' ] at *
+    have h_sub : (ePadeDen (k + 1) : ℝ) = (4 * k + 5) * (ePadeDen k : ℝ) + 2 * (eSecDen k : ℝ) := by
+      exact_mod_cast ePadeDen_succ k;
+    have h_sub2 : (eSecDen k : ℝ) ≥ 0 := by
+      have h_pos : ∀ k, 0 < eSecDen k := by
+        intro k; induction k with
+        | zero =>
+          norm_num [ *, eSecDen_succ ]
+        | succ k ih =>
+          norm_num [ *, eSecDen_succ ]
+          exact add_pos_of_nonneg_of_pos ( mul_nonneg ( by positivity )
+            ( mod_cast ePadeDen_pos k |> le_of_lt ) ) ih
+      norm_cast at *; exact le_of_lt (h_pos k);
+    nlinarith [ pow_pos ( by norm_num : ( 0 : ℝ ) < 3 ) k ]
 
 /-! ## Section 6: Key identities for asymptotic analysis -/
 
 /-- The eSecDen sequence is positive. -/
 lemma eSecDen_pos : ∀ k, 0 < eSecDen k := by
-  intro k; induction' k with k ih
-  · norm_num [eSecDen_zero]
-  · rw [eSecDen_succ]
+  intro k; induction k with
+  | zero =>
+    norm_num [eSecDen_zero]
+  | succ k ih =>
+    rw [eSecDen_succ]
     exact add_pos_of_nonneg_of_pos
       (mul_nonneg (by positivity) (mod_cast ePadeDen_pos k |>.le)) ih
 
@@ -766,9 +787,11 @@ lemma eSecDen_ePadeDen_ratio_bound (k : ℕ) (hk : 1 ≤ k) :
   refine' div_le_one_of_le₀ _ ( mod_cast ePadeDen_pos k |> le_of_lt );
   norm_cast;
   -- We prove this by induction on $k$.
-  induction' k with k ih;
-  · contradiction;
-  · by_cases hk : 1 ≤ k <;> simp_all +decide [ eSecDen_succ, ePadeDen_succ ];
+  induction k with
+  | zero =>
+    contradiction;
+  | succ k ih =>
+    by_cases hk : 1 ≤ k <;> simp_all +decide [ eSecDen_succ, ePadeDen_succ ];
     nlinarith [ show 0 < ePadeDen k from ePadeDen_pos k, show 0 < eSecDen k from eSecDen_pos k ]
 
 /-! ## Section 7: Error coefficient asymptotics -/
@@ -902,12 +925,14 @@ lemma ePadeNum_gt_ePadeDen (k : ℕ) : ePadeNum k > ePadeDen k := by
   -- all $k$.
   have h_ind : ∀ k, ePadeNum k > ePadeDen k ∧ eSecNum k > eSecDen k := by
     intro k
-    induction' k with k ih
-    simp_all only [ePadeNum_zero, ePadeDen_zero, gt_iff_lt, Nat.one_lt_ofNat, eSecNum_zero,
+    induction k with
+    | zero =>
+      simp_all only [ePadeNum_zero, ePadeDen_zero, gt_iff_lt, Nat.one_lt_ofNat, eSecNum_zero,
       eSecDen_zero, Order.lt_two_iff, Std.le_refl, and_self]
-    generalize_proofs at *; (
-    simp_all +decide [ ePadeNum_succ, ePadeDen_succ, eSecNum_succ, eSecDen_succ ] ;
-      constructor <;> nlinarith;)
+    | succ k ih =>
+      generalize_proofs at *; (
+      simp_all +decide [ ePadeNum_succ, ePadeDen_succ, eSecNum_succ, eSecDen_succ ] ;
+        constructor <;> nlinarith;)
   exact (h_ind k).left
 
 /-
@@ -1416,9 +1441,11 @@ theorem harmonicReal_approx :
       have h_sum : ∀ N : ℕ, |R n| ≤ ∑ k ∈ Finset.range N, |R (n + k) - R (n + k + 1)| + |R
         (n + N)| := by
         intro N
-        induction' N with N ih;
-        · norm_num;
-        · rw [ Finset.sum_range_succ ];
+        induction N with
+        | zero =>
+          norm_num;
+        | succ N ih =>
+          rw [ Finset.sum_range_succ ];
           linarith! [ abs_sub_abs_le_abs_sub ( R ( n + N ) ) ( R ( n + N + 1 ) ) ];
       -- Taking the limit of both sides of the inequality as $N$ approaches infinity, we get the
       -- desired result.
