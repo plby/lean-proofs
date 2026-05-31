@@ -39,7 +39,6 @@ namespace Erdos229
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.style.refine false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.flexible false
 
@@ -509,7 +508,11 @@ Linearity of iterated derivative.
 -/
 lemma iterate_derivative_add {R : Type*} [CommSemiring R] (f g : Polynomial R) (n : ℕ) :
     (derivative^[n] (f + g)) = (derivative^[n] f) + (derivative^[n] g) := by
-      induction' n with n ih generalizing f g <;> simp_all +decide [ Function.iterate_succ_apply' ]
+      induction n generalizing f g with
+      | zero =>
+        simp_all +decide
+      | succ n ih =>
+        simp_all +decide [ Function.iterate_succ_apply' ]
 
 /-
 Inductive step for the construction of the sequence of polynomials.
@@ -943,10 +946,12 @@ lemma history_seq_valid (S : ℕ → Set ℂ) (hS : ∀ n, HasNoFiniteLimitPoint
     (c : ℕ → ℂ) (hc_norm : ∀ n, r n < ‖c n‖ ∧ ‖c n‖ < r (n + 1)) (hc_inj : Function.Injective c)
     (hc_mem : ∀ n, c n ∉ ⋃ j, S j) (n : ℕ) :
     IsValid S r c (history_seq S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem n) := by
-      induction' n with n ih;
-      · -- The base case is when the list is [(1, 0)], which is valid by definition.
+      induction n with
+      | zero =>
+        -- The base case is when the list is [(1, 0)], which is valid by definition.
         apply valid_zero;
-      · convert valid_next_step S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem _ ih using 1
+      | succ n ih =>
+        convert valid_next_step S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem _ ih using 1
 
 lemma history_seq_length (S : ℕ → Set ℂ) (hS : ∀ n, HasNoFiniteLimitPoint (S n))
     (r : ℕ → ℝ) (hr : StrictMono r) (hr_pos : ∀ n, 0 ≤ r n) (hr_gt : ∀ n, n + 1 < r n)
@@ -1108,9 +1113,11 @@ lemma f_iterated_deriv_eq_limit (S : ℕ → Set ℂ) (hS : ∀ n, HasNoFiniteLi
       have := @f_tendsto_locally_uniformly S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem;
       -- By the properties of the derivatives of the partial sums, we can apply the fact that the derivatives of the partial sums converge locally uniformly to the derivative of $f$.
       have h_deriv_conv : TendstoLocallyUniformlyOn (fun N z => iteratedDeriv k (fun w => ∑ n ∈ Finset.range N, (T_seq S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem n).eval w) z) (iteratedDeriv k (f S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem)) atTop Set.univ := by
-        induction' k with k ih;
-        · simpa using this;
-        · simp_all +decide [ iteratedDeriv_succ ];
+        induction k with
+        | zero =>
+          simpa using this;
+        | succ k ih =>
+          simp_all +decide [ iteratedDeriv_succ ];
           apply_rules [ TendstoLocallyUniformlyOn.deriv ];
           · refine' Filter.Eventually.of_forall fun N => _;
             -- The sum of polynomials is a polynomial, and the k-th derivative of a polynomial is also a polynomial.
@@ -1119,9 +1126,14 @@ lemma f_iterated_deriv_eq_limit (S : ℕ → Set ℂ) (hS : ∀ n, HasNoFiniteLi
             obtain ⟨ P, hP ⟩ := h_poly N; simp +decide [ funext hP ] ;
             -- The k-th derivative of a polynomial is also a polynomial.
             have h_poly_deriv : ∀ k, ∃ Q : Polynomial ℂ, iteratedDeriv k (fun x => P.eval x) = fun x => Q.eval x := by
-              intro k; induction' k with k ih <;> simp_all +decide [ iteratedDeriv_succ ] ;
-              · exact ⟨ P, rfl ⟩;
-              · obtain ⟨ Q, hQ ⟩ := ih; use Polynomial.derivative Q; ext; simp +decide [ hQ ] ;
+              intro k
+              induction k with
+              | zero =>
+                simp_all +decide
+                exact ⟨ P, rfl ⟩;
+              | succ k ih =>
+                simp_all +decide [ iteratedDeriv_succ ]
+                obtain ⟨ Q, hQ ⟩ := ih; use Polynomial.derivative Q; ext; simp +decide [ hQ ] ;
             obtain ⟨ Q, hQ ⟩ := h_poly_deriv k; rw [ hQ ] ; exact Differentiable.differentiableOn ( by exact Q.differentiable ) ;
           · exact isOpen_univ;
       rw [ eq_comm ];
@@ -1532,27 +1544,28 @@ If f is an entire function and p is a non-zero polynomial such that p*f is a pol
 lemma isPolynomial_of_mul_poly (f : ℂ → ℂ) (h_entire : AnalyticOn ℂ f Set.univ) (p : Polynomial ℂ) (hp : p ≠ 0)
     (h_mul : IsPolynomial (fun z => p.eval z * f z)) : IsPolynomial f := by
       -- We proceed by induction on the degree of `p`.
-      induction' n : p.natDegree using Nat.strong_induction_on with n ih generalizing p f;
-      by_cases h_deg : p.natDegree ≤ 0;
-      · simp +zetaDelta at *;
-        rw [ Polynomial.eq_C_of_natDegree_eq_zero h_deg ] at hp h_mul; obtain ⟨ q, hq ⟩ := h_mul; use Polynomial.C ( ( p.coeff 0 : ℂ ) ⁻¹ ) * q; intro z; simp +decide;
-        simp +decide [ ← hq z, mul_comm ];
-        rw [ mul_assoc, mul_inv_cancel₀ ( by aesop ), mul_one ];
-      · -- Since `p` has degree `n > 0`, it has a root `a`.
-        obtain ⟨a, ha⟩ : ∃ a : ℂ, p.eval a = 0 := by
-          exact ( Complex.exists_root <| Polynomial.natDegree_pos_iff_degree_pos.mp <| lt_of_not_ge h_deg );
-        -- We can write `p(z) = (z - a) * q(z)` where `degree q < n`.
-        obtain ⟨q, hq⟩ : ∃ q : Polynomial ℂ, p = (Polynomial.X - Polynomial.C a) * q ∧ q.natDegree < p.natDegree := by
-          obtain ⟨ q, hq ⟩ := Polynomial.dvd_iff_isRoot.mpr ha;
-          by_cases hq_zero : q = 0 <;> simp_all ( config := { decide := Bool.true } ) [ Polynomial.natDegree_mul' ];
-          linarith;
-        -- By `isPolynomial_of_mul_sub_c`, `g` is a polynomial.
-        have h_g_poly : IsPolynomial (fun z => q.eval z * f z) := by
-          have h_g_poly : IsPolynomial (fun z => (z - a) * (q.eval z * f z)) := by
-            obtain ⟨ P, hP ⟩ := h_mul; use P; simp_all +decide [ mul_comm, mul_left_comm ] ;
-          apply isPolynomial_of_mul_sub_c;
-          exacts [ by exact DifferentiableOn.analyticOn ( by exact DifferentiableOn.mul ( q.differentiable.differentiableOn ) h_entire.differentiableOn ) ( by simp ), h_g_poly ];
-        exact ih _ ( by linarith ) _ h_entire _ ( by aesop ) h_g_poly rfl
+      induction n : p.natDegree using Nat.strong_induction_on generalizing p f with
+      | h n ih =>
+        by_cases h_deg : p.natDegree ≤ 0;
+        · simp +zetaDelta at *;
+          rw [ Polynomial.eq_C_of_natDegree_eq_zero h_deg ] at hp h_mul; obtain ⟨ q, hq ⟩ := h_mul; use Polynomial.C ( ( p.coeff 0 : ℂ ) ⁻¹ ) * q; intro z; simp +decide;
+          simp +decide [ ← hq z, mul_comm ];
+          rw [ mul_assoc, mul_inv_cancel₀ ( by aesop ), mul_one ];
+        · -- Since `p` has degree `n > 0`, it has a root `a`.
+          obtain ⟨a, ha⟩ : ∃ a : ℂ, p.eval a = 0 := by
+            exact ( Complex.exists_root <| Polynomial.natDegree_pos_iff_degree_pos.mp <| lt_of_not_ge h_deg );
+          -- We can write `p(z) = (z - a) * q(z)` where `degree q < n`.
+          obtain ⟨q, hq⟩ : ∃ q : Polynomial ℂ, p = (Polynomial.X - Polynomial.C a) * q ∧ q.natDegree < p.natDegree := by
+            obtain ⟨ q, hq ⟩ := Polynomial.dvd_iff_isRoot.mpr ha;
+            by_cases hq_zero : q = 0 <;> simp_all ( config := { decide := Bool.true } ) [ Polynomial.natDegree_mul' ];
+            linarith;
+          -- By `isPolynomial_of_mul_sub_c`, `g` is a polynomial.
+          have h_g_poly : IsPolynomial (fun z => q.eval z * f z) := by
+            have h_g_poly : IsPolynomial (fun z => (z - a) * (q.eval z * f z)) := by
+              obtain ⟨ P, hP ⟩ := h_mul; use P; simp_all +decide [ mul_comm, mul_left_comm ] ;
+            apply isPolynomial_of_mul_sub_c;
+            exacts [ by exact DifferentiableOn.analyticOn ( by exact DifferentiableOn.mul ( q.differentiable.differentiableOn ) h_entire.differentiableOn ) ( by simp ), h_g_poly ];
+          exact ih _ ( by linarith ) _ h_entire _ ( by aesop ) h_g_poly rfl
 
 /-
 If an entire function f is algebraic over the ring of polynomials, then f is a polynomial.
@@ -1619,9 +1632,11 @@ theorem theorem_1
     apply_rules [ f_transcendental ];
   · intro k;
     refine' ⟨ _, fun { z } hz => _ ⟩;
-    · induction' k with k ih;
-      · exact Nat.cast_pos.mpr ( by norm_num : 0 < 1 );
-      · exact lt_of_le_of_lt ( Nat.zero_le _ ) ( k_seq_strict_mono S ( fun n => derivedSet_empty_imp_hasNoFiniteLimitPoint _ ( h n ) ) r hr₁ ( fun n => by linarith [ hr₂ n ] ) ( fun n => by linarith [ hr₂ n ] ) hr₃ c hc₁ hc₃ hc₂ k.lt_succ_self );
+    · induction k with
+      | zero =>
+        exact Nat.cast_pos.mpr ( by norm_num : 0 < 1 );
+      | succ k ih =>
+        exact lt_of_le_of_lt ( Nat.zero_le _ ) ( k_seq_strict_mono S ( fun n => derivedSet_empty_imp_hasNoFiniteLimitPoint _ ( h n ) ) r hr₁ ( fun n => by linarith [ hr₂ n ] ) ( fun n => by linarith [ hr₂ n ] ) hr₃ c hc₁ hc₃ hc₂ k.lt_succ_self );
     · exact f_deriv_vanishes_on_Sn S ( fun n => derivedSet_empty_imp_hasNoFiniteLimitPoint _ ( h n ) ) r hr₁ ( fun n => by linarith [ hr₂ n ] ) ( fun n => by linarith [ hr₂ n ] ) hr₃ c hc₁ hc₃ hc₂ k z hz
 
 theorem erdos_229.not_polynomial :
