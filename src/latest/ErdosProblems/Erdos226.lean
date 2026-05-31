@@ -40,7 +40,6 @@ set_option linter.style.longLine false
 set_option linter.flexible false
 set_option linter.style.refine false
 set_option linter.style.multiGoal false
-set_option linter.style.induction false
 
 namespace Erdos226
 
@@ -629,11 +628,13 @@ The derivative of the real part of h_seq is the real part of the derivative of h
 lemma h_seq_real_deriv (n : ℕ) (x : ℝ) :
     deriv (h_seq_real (fun k => (alpha_seq k : ℝ)) n) x = (deriv (h_seq (fun k => (alpha_seq k : ℝ)) n) (x : ℂ)).re := by
       have h_diff : DifferentiableAt ℂ (h_seq (fun k => (alpha_seq k : ℝ)) n) x := by
-        induction' n with n ih generalizing x;
-        · unfold h_seq; norm_num [ Complex.exp_ne_zero ] ;
-        · apply_rules [ DifferentiableAt.const_mul, DifferentiableAt.mul, DifferentiableAt.exp, differentiableAt_id ];
+        induction n generalizing x with
+        | zero =>
+          unfold h_seq; norm_num [ Complex.exp_ne_zero ] ;
+        | succ n ih =>
+          apply_rules [ DifferentiableAt.const_mul, DifferentiableAt.mul, DifferentiableAt.exp, differentiableAt_id ];
           · exact Complex.differentiableAt_exp.comp _ ( DifferentiableAt.div_const ( DifferentiableAt.neg ( differentiableAt_id.pow 2 ) ) _ );
-          · induction' ( List.range ( n + 1 ) ) with k hk ih <;> simp_all +decide [ List.prod_cons ];
+          · induction ( List.range ( n + 1 ) ) <;> simp_all +decide [ List.prod_cons ];
       have h_real_part_deriv : HasDerivAt (fun t : ℝ => (h_seq (fun k => (alpha_seq k : ℝ)) n t).re) ((deriv (h_seq (fun k => (alpha_seq k : ℝ)) n) x).re) x := by
         have := h_diff.hasDerivAt;
         exact HasDerivAt.real_of_complex this;
@@ -756,9 +757,11 @@ lemma alpha_from_hist_eq_alpha_seq' (n k : ℕ) (h : k < n) :
       -- By induction on $k$, we can show that the length of `all_tuples' k` is $k$.
       have h_length : ∀ k, List.length (all_tuples' k) = k := by
         intro k
-        induction' k with k ih;
-        · rfl;
-        · rw [ show all_tuples' ( k + 1 ) = all_tuples' k ++ [ next_step' k ( all_tuples' k ) ] from rfl, List.length_append, ih ] ; simp +arith +decide;
+        induction k with
+        | zero =>
+          rfl
+        | succ k ih =>
+          rw [ show all_tuples' ( k + 1 ) = all_tuples' k ++ [ next_step' k ( all_tuples' k ) ] from rfl, List.length_append, ih ] ; simp +arith +decide;
       aesop
 
 /-
@@ -896,12 +899,14 @@ noncomputable def term' (n : ℕ) (z : ℂ) := (lambda_seq' n : ℂ) * h_seq (fu
 
 lemma term'_diff (n : ℕ) : Differentiable ℂ (term' n) := by
   apply_rules [ Differentiable.const_mul, Complex.differentiable_exp ];
-  induction' n with n ih;
-  · unfold h_seq;
+  induction n with
+  | zero =>
+    unfold h_seq;
     norm_num;
-  · refine' Differentiable.mul _ _;
+  | succ n ih =>
+    refine' Differentiable.mul _ _;
     · exact Complex.differentiable_exp.comp ( Differentiable.div_const ( Differentiable.neg ( differentiable_pow 2 ) ) _ );
-    · induction' ( List.range ( n + 1 ) ) using List.reverseRecOn <;> aesop
+    · induction ( List.range ( n + 1 ) ) using List.reverseRecOn <;> aesop
 
 /-
 The sequence epsilon_seq is summable.
@@ -1174,7 +1179,7 @@ lemma lambda_from_hist_eq_lambda_seq' (n k : ℕ) (h : k < n) :
         rw [ List.getLast_eq_getElem ];
         -- By definition of `all_tuples'`, the length of `all_tuples' (k + 1)` is `k + 1`.
         have h_len : (all_tuples' (k + 1)).length = k + 1 := by
-          induction' k + 1 with n ih <;> simp_all +decide [ all_tuples' ];
+          induction k + 1 <;> simp_all +decide [ all_tuples' ];
         aesop;
       · rw [ show all_tuples' n = all_tuples' ( k + 1 ) ++ List.map ( fun m => next_step' m ( all_tuples' m ) ) ( List.range ( n - ( k + 1 ) ) |> List.map ( fun m => m + ( k + 1 ) ) ) from ?_ ];
         · rcases n with ( _ | _ | n ) <;> simp_all +decide;
@@ -1301,9 +1306,13 @@ lemma Lambda_properties (n : ℕ) (h_inv : Invariant' (n - 1)) (hn : n ≥ 1)
         refine' ⟨ _, _ ⟩;
         · refine' Continuous.continuousAt _;
           unfold F_seq_real;
-          induction' n - 1 with n ih <;> simp_all +decide [ F_seq ];
-          · unfold h_seq; continuity;
-          · simp_all +decide [ List.range_succ ];
+          induction n - 1 with
+          | zero =>
+            simp_all +decide [ F_seq ];
+            unfold h_seq; continuity;
+          | succ n ih =>
+            simp_all +decide [ F_seq ];
+            simp_all +decide [ List.range_succ ];
             convert ih.add ( show Continuous fun t : ℝ => lambda_seq' ( n + 1 ) * ( h_seq ( fun k => ( alpha_seq' k : ℝ ) ) ( n + 1 ) ↑t |> Complex.re ) from ?_ ) using 2
             · simp [Pi.add_apply]
               ring_nf
@@ -1382,8 +1391,12 @@ h_seq is zero if and only if z is equal to one of the alpha values used in its c
 -/
 lemma h_seq_eq_zero_iff (alpha : ℕ → ℝ) (n : ℕ) (z : ℂ) :
     h_seq alpha n z = 0 ↔ ∃ k < n, z = (alpha k : ℂ) := by
-      induction' n with n ih generalizing z <;> simp +decide [ *, h_seq ];
-      simp +decide [ sub_eq_zero ]
+      induction n generalizing z with
+      | zero =>
+        simp +decide [ *, h_seq ]
+      | succ n ih =>
+        simp +decide [ *, h_seq ]
+        simp +decide [ sub_eq_zero ]
 
 /-
 For odd n, the beta component of the next step is the first unused beta value.
@@ -1529,9 +1542,11 @@ lemma alpha_set_eq_image' (n : ℕ) : alpha_set (all_tuples' n) = (Finset.range 
   -- The list `all_tuples' n` is constructed by appending the next step to the previous list. Therefore, the elements of `all_tuples' n` are exactly the elements from the previous steps plus the new element added at step `n`.
   have h_list_eq : ∀ n, all_tuples' n = List.map (fun k => (construction_seq' k)) (List.range n) := by
     intro n
-    induction' n with n ih;
-    · rfl;
-    · -- By definition of `all_tuples'`, we have `all_tuples' (n + 1) = all_tuples' n ++ [next_step' n (all_tuples' n)]`.
+    induction n with
+    | zero =>
+      rfl
+    | succ n ih =>
+      -- By definition of `all_tuples'`, we have `all_tuples' (n + 1) = all_tuples' n ++ [next_step' n (all_tuples' n)]`.
       have h_all_tuples'_succ : all_tuples' (n + 1) = all_tuples' n ++ [next_step' n (all_tuples' n)] := by
         exact rfl;
       simp_all ( config := { decide := Bool.true } ) [ List.range_succ ];
@@ -1548,9 +1563,11 @@ lemma beta_set_eq_image' (n : ℕ) : beta_set (all_tuples' n) = (Finset.range n)
   -- By definition of `all_tuples'`, we can rewrite the left-hand side.
   have h_all_tuples'_def : ∀ n, all_tuples' n = List.map construction_seq' (List.range n) := by
     intro n
-    induction' n with n ih;
-    · rfl;
-    · -- By definition of `all_tuples'`, we have `all_tuples' (n + 1) = all_tuples' n ++ [next_step' n (all_tuples' n)]`.
+    induction n with
+    | zero =>
+      rfl
+    | succ n ih =>
+      -- By definition of `all_tuples'`, we have `all_tuples' (n + 1) = all_tuples' n ++ [next_step' n (all_tuples' n)]`.
       have h_all_tuples'_def : all_tuples' (n + 1) = all_tuples' n ++ [next_step' n (all_tuples' n)] := by
         exact rfl;
       rw [ h_all_tuples'_def, List.range_succ, List.map_append, ih ];
@@ -1633,7 +1650,7 @@ lemma beta_seq'_succ_not_mem_prev (n : ℕ) (h_inv : Invariant' n) :
       unfold construction_seq';
       -- By definition of `all_tuples'`, the last element of `all_tuples' (n + 2)` is `next_step' (n + 1) (all_tuples' (n + 1))`.
       have h_last : (all_tuples' (n + 2)).getLast (by
-      induction' n with n ih <;> simp_all +decide [ all_tuples' ]) = next_step' (n + 1) (all_tuples' (n + 1)) := by
+      induction n <;> simp_all +decide [ all_tuples' ]) = next_step' (n + 1) (all_tuples' (n + 1)) := by
         -- By definition of `all_tuples'`, we have `all_tuples' (n + 2) = all_tuples' (n + 1) ++ [next_step' (n + 1) (all_tuples' (n + 1))]`.
         have h_all_tuples' : all_tuples' (n + 2) = all_tuples' (n + 1) ++ [next_step' (n + 1) (all_tuples' (n + 1))] := by
           exact rfl;
@@ -1867,18 +1884,33 @@ lemma derivative_bound_succ' (n : ℕ) (h : Invariant' n) :
         · rw [ show 2 + n = 1 + n + 1 by ring, List.range_succ ] ; norm_num ; ring_nf;
           rfl;
         · norm_num [ F_seq ];
-          induction' n + 1 with n ih <;> simp_all +decide [ List.range_succ ];
-          apply_rules [ DifferentiableAt.mul, DifferentiableAt.pow, differentiableAt_id, differentiableAt_const ];
-          -- The real part of a differentiable function is differentiable.
-          have h_real_part_diff : DifferentiableAt ℝ (fun y : ℝ => (h_seq (fun i => (alpha_seq' i : ℝ)) n (y : ℂ))) x := by
-            induction' n with n ih <;> simp_all +decide [ List.range_succ ];
-            · exact differentiableAt_const _;
-            · apply_rules [ DifferentiableAt.mul, DifferentiableAt.pow, differentiableAt_id, differentiableAt_const ];
-              · norm_num [ Complex.exp_re, Complex.exp_im, neg_div ];
-                exact Complex.differentiableAt_exp.comp x ( DifferentiableAt.neg ( DifferentiableAt.div_const ( differentiableAt_id.pow 2 |> DifferentiableAt.comp _ <| Complex.ofRealCLM.differentiableAt ) _ ) );
-              · induction' ( List.range ( n + 1 ) ) with n ih <;> simp_all +decide [ List.prod_cons ];
-                exact DifferentiableAt.mul ( differentiableAt_id.sub_const _ |> DifferentiableAt.comp _ <| Complex.ofRealCLM.differentiableAt ) ‹_›;
-          exact Complex.reCLM.differentiableAt.comp x h_real_part_diff;
+          induction n + 1 with
+          | zero =>
+            simp_all +decide;
+          | succ n ih =>
+            simp_all +decide [ List.range_succ ];
+            apply_rules [ DifferentiableAt.mul, DifferentiableAt.pow, differentiableAt_id, differentiableAt_const ];
+            -- The real part of a differentiable function is differentiable.
+            have h_real_part_diff : DifferentiableAt ℝ (fun y : ℝ => (h_seq (fun i => (alpha_seq' i : ℝ)) n (y : ℂ))) x := by
+              induction n with
+              | zero =>
+                simp +decide [ h_seq ];
+              | succ n ih =>
+                simp +decide [ h_seq, List.range_succ ];
+                apply_rules [ DifferentiableAt.mul, DifferentiableAt.pow, differentiableAt_id, differentiableAt_const ];
+                · norm_num [ Complex.exp_re, Complex.exp_im, neg_div ];
+                  exact Complex.differentiableAt_exp.comp x ( DifferentiableAt.neg ( DifferentiableAt.div_const ( differentiableAt_id.pow 2 |> DifferentiableAt.comp _ <| Complex.ofRealCLM.differentiableAt ) _ ) );
+                · induction ( List.range n ) with
+                  | nil =>
+                    exact
+                      (differentiableAt_const (c := (1 : ℂ)) :
+                        DifferentiableAt ℝ (fun _ : ℝ => (1 : ℂ)) x)
+                  | cons k ks ih_list =>
+                    exact DifferentiableAt.mul
+                      ((Complex.ofRealCLM.differentiableAt.comp x differentiableAt_id).sub_const _)
+                      ih_list
+                · exact (Complex.ofRealCLM.differentiableAt.comp x differentiableAt_id).sub_const _
+            exact Complex.reCLM.differentiableAt.comp x h_real_part_diff;
         · apply_rules [ DifferentiableAt.prodMk, DifferentiableAt.sub, differentiableAt_id, differentiableAt_const, DifferentiableAt.mul ];
           · convert DifferentiableAt.exp
               (DifferentiableAt.neg
@@ -1892,7 +1924,7 @@ lemma derivative_bound_succ' (n : ℕ) (h : Invariant' n) :
             ring_nf
           · induction ( List.range ( n + 1 ) ) <;> simp_all +decide [ List.prod_cons, List.prod_nil ];
           · norm_cast ; norm_num;
-          · induction' ( List.range ( n + 1 ) ) with k hk <;> simp_all +decide [ List.prod_cons, List.prod_nil ];
+          · induction ( List.range ( n + 1 ) ) <;> simp_all +decide [ List.prod_cons, List.prod_nil ];
       have := h.2.2.2.1 x;
       exact le_trans ( by rw [ Finset.sum_range_succ ] ; linarith ) ( h_F_succ.symm ▸ add_le_add this ( neg_le_of_abs_le ( deriv_term_bound_succ' n h x ) ) )
 
@@ -1912,7 +1944,11 @@ lemma Invariant'_succ (n : ℕ) (h : Invariant' n) : Invariant' (n + 1) := by
 The invariant Invariant' holds for all n.
 -/
 theorem Invariant'_all (n : ℕ) : Invariant' n := by
-  induction' n with n ih <;> [ exact Invariant'_0; exact Invariant'_succ n ih ]
+  induction n with
+  | zero =>
+    exact Invariant'_0
+  | succ n ih =>
+    exact Invariant'_succ n ih
 
 /-
 The limit function F' maps alpha'_k to beta'_k for all k.
