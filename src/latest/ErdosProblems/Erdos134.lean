@@ -30,7 +30,6 @@ path in the process.
 import Mathlib
 
 set_option linter.style.setOption false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.deprecated false
@@ -951,22 +950,25 @@ theorem prob_avoid_bound_with_invariant {State : Type} (P : Process State) (Hit 
   (hp1 : p ≤ 1) :
   prob_avoid P Hit m s ≤ (1 - p)^m := by
     -- We proceed by induction on $m$.
-    induction' m with m ih generalizing s;
-    · exact Std.IsPreorder.le_refl (prob_avoid P Hit 0 s);
-    · -- By definition of prob_avoid, we have:
+    induction m generalizing s with
+    | zero =>
+      exact Std.IsPreorder.le_refl (prob_avoid P Hit 0 s)
+    | succ m ih =>
+      -- By definition of prob_avoid, we have:
       have h_prob_succ :
         prob_avoid P Hit (m + 1) s = (∑ x ∈ (P s \ Hit s), prob_avoid P Hit m x) / (P s).card := by
-        exact if_neg ( ne_of_gt ( h_progress s h_start ) );
+        exact if_neg ( ne_of_gt ( h_progress s h_start ) )
       -- By the induction hypothesis, we have:
       have h_ind_step :
         (∑ x ∈ (P s \ Hit s), prob_avoid P Hit m x) / (P s).card ≤ (∑ x ∈ (P s \ Hit s), (1 - p)
           ^ m) / (P s).card := by
-        gcongr ; aesop;
-      simp_all +decide [ Finset.card_sdiff, pow_succ' ];
-      refine le_trans h_ind_step ?_;
-      rw [ Nat.cast_sub ( Finset.card_le_card ( Finset.inter_subset_right ) ) ];
-      rw [ div_le_iff₀ ( Nat.cast_pos.mpr <| Finset.card_pos.mpr <| h_progress s h_start ) ];
-      rw [ Finset.inter_eq_left.mpr ( h_hit_subset s h_start ) ];
+        gcongr
+        aesop
+      simp_all +decide [ Finset.card_sdiff, pow_succ' ]
+      refine le_trans h_ind_step ?_
+      rw [ Nat.cast_sub ( Finset.card_le_card ( Finset.inter_subset_right ) ) ]
+      rw [ div_le_iff₀ ( Nat.cast_pos.mpr <| Finset.card_pos.mpr <| h_progress s h_start ) ]
+      rw [ Finset.inter_eq_left.mpr ( h_hit_subset s h_start ) ]
       have := h_hit_ratio s h_start
       rw [
         le_div_iff₀
@@ -1937,32 +1939,41 @@ theorem exists_path_hitting_all {State : Type} (P : Process State) (Bad :
   (h_progress : ∀ s, (P s).card > 0)
   (h_sum : ∑ H ∈ Bad, prob_avoid P H m s < 1) :
   ∃ path, IsValidPath P m s path ∧ ∀ H ∈ Bad, Hits H path := by
-    induction' m with m ih generalizing s Bad P <;> simp_all +decide [ prob_avoid ];
-    · exact ⟨ [ s ], by tauto ⟩;
-    · -- By `exists_good_next_state`, there exists x in P s such that sum_{H in Bad} (if x in H s
+    induction m generalizing s Bad P with
+    | zero =>
+      simp_all +decide [prob_avoid]
+      exact ⟨ [ s ], by tauto ⟩
+    | succ m ih =>
+      simp_all +decide [prob_avoid]
+      -- By `exists_good_next_state`, there exists x in P s such that sum_{H in Bad} (if x in H s
       -- then 0 else prob_avoid P H m x) < 1.
       obtain ⟨x, hx_mem, hx_sum⟩ :
         ∃ x ∈ P s, ∑ H ∈ Bad, (if x ∈ H s then 0 else prob_avoid P H m x) < 1 := by
-        convert exists_good_next_state P Bad m s _ _ using 1;
-        · exact Finset.card_pos.mpr ( h_progress s );
-        · convert h_sum using 1;
+        convert exists_good_next_state P Bad m s _ _ using 1
+        · exact Finset.card_pos.mpr ( h_progress s )
+        · convert h_sum using 1
           exact Eq.symm <| by
             rw [if_neg (Finset.Nonempty.ne_empty (h_progress s))]
             exact Finset.sum_congr rfl fun _ _ => by
               rw [prob_avoid]
               aesop
       -- Let Bad' = Bad.filter (fun H => x not in H s).
-      set Bad' := Bad.filter (fun H => x ∉ H s) with hBad'';
+      set Bad' := Bad.filter (fun H => x ∉ H s) with hBad''
       -- By `sum_filter_bound`, sum_{H in Bad'} prob_avoid P H m x < 1.
       have h_sum_Bad' : ∑ H ∈ Bad', prob_avoid P H m x < 1 := by
-        convert hx_sum using 1;
-        rw [ Finset.sum_filter ] ; congr ; ext ; aesop;
-      obtain ⟨ path', hpath'_valid, hpath'_hits ⟩ := ih P Bad' x h_progress h_sum_Bad';
+        convert hx_sum using 1
+        rw [ Finset.sum_filter ]
+        congr
+        ext
+        aesop
+      obtain ⟨ path', hpath'_valid, hpath'_hits ⟩ := ih P Bad' x h_progress h_sum_Bad'
       -- By `IsValidPath_cons`, path' = x :: tail.
       obtain ⟨tail, ht⟩ : ∃ tail, path' = x :: tail := by
-        exact IsValidPath_cons P m x path' hpath'_valid;
-      use s :: x :: tail; simp_all +decide [ IsValidPath_succ ] ;
-      intro H hH; by_cases hxH : x ∈ H s <;> simp_all +decide [ Hits_cons, Hits_head ] ;
+        exact IsValidPath_cons P m x path' hpath'_valid
+      use s :: x :: tail
+      simp_all +decide [ IsValidPath_succ ]
+      intro H hH
+      by_cases hxH : x ∈ H s <;> simp_all +decide [ Hits_cons, Hits_head ]
 
 /-
 If a state is obtained by adding an edge in U, then U is not independent in that state.
@@ -2144,22 +2155,29 @@ theorem prob_avoid_eq_general {V : Type} [Fintype V] [DecidableEq V]
   ∀ k, ∀ s, MyInvariant G₀ c n m U s → s.2 + k = m →
   prob_avoid (SafeProcess c n m) (SafeHit c n m U) k s = prob_avoid (TheProcess c n m)
     (TheHit c n m U) k s := by
-    intro k s hs hk; induction' k with k ih generalizing s; simp_all +decide [ prob_avoid ] ;
-    -- By definition of `prob_avoid`, we have:
-    simp [prob_avoid];
-    rw [ SafeProcess_eq_TheProcess, SafeHit_eq_HitGraphsState ] <;> try omega;
-    congr! 2;
-    refine' Finset.sum_congr _ _ <;> simp +contextual [ *, TheProcess, TheHit ];
-    · grind;
-    · intro x hx hx'; split_ifs at hx hx' <;> simp_all +decide [ TheProcess ] ;
-      apply ih x _ _;
-      · apply invariant_preservation;
-        exact hs;
-        unfold TheProcess TheHit; aesop;
-      · -- Since $x$ is in the next graphs state of $s$, we have $x.2 = s.2 + 1$.
-        have hx2 : x.2 = s.2 + 1 := by
-          unfold NextGraphsState at hx; aesop;
-        linarith
+    intro k s hs hk
+    induction k generalizing s with
+    | zero =>
+      simp_all +decide [ prob_avoid ]
+    | succ k ih =>
+      simp_all +decide [ prob_avoid ]
+      -- By definition of `prob_avoid`, we have:
+      rw [ SafeProcess_eq_TheProcess, SafeHit_eq_HitGraphsState ] <;> try omega
+      congr! 2
+      refine' Finset.sum_congr _ _ <;> simp +contextual [ *, TheProcess, TheHit ]
+      · grind
+      · intro x hx hx'
+        split_ifs at hx hx' <;> simp_all +decide [ TheProcess ]
+        apply ih x _ _
+        · apply invariant_preservation
+          exact hs
+          unfold TheProcess TheHit
+          aesop
+        · -- Since $x$ is in the next graphs state of $s$, we have $x.2 = s.2 + 1$.
+          have hx2 : x.2 = s.2 + 1 := by
+            unfold NextGraphsState at hx
+            aesop
+          linarith
 
 /-
 The set of all subsets of vertices with size equal to floor(5cn).
@@ -2286,14 +2304,15 @@ If a path hits a target set H, then there exists a step (x, y) in the path such 
 theorem Hits_implies_exists_step {State : Type} (H : State → Finset State) (path : List State)
   (h_hits : Hits H path) :
   ∃ x y, List.IsInfix [x, y] path ∧ y ∈ H x := by
-    induction' k : path.length using Nat.strong_induction_on with k ih generalizing path
-    rcases path with (_ | ⟨x, _ | ⟨y, path⟩⟩) <;>
-      simp_all +decide [List.IsInfix]
-    · cases h_hits;
-    · cases h_hits;
-    · by_cases h : y ∈ H x <;> simp_all +decide [ Hits ];
-      · exact ⟨ x, y, ⟨ [ ], path, rfl ⟩, h ⟩;
-      · grind
+    induction k : path.length using Nat.strong_induction_on generalizing path with
+    | h k ih =>
+      rcases path with (_ | ⟨x, _ | ⟨y, path⟩⟩) <;>
+        simp_all +decide [List.IsInfix]
+      · cases h_hits
+      · cases h_hits
+      · by_cases h : y ∈ H x <;> simp_all +decide [ Hits ]
+        · exact ⟨ x, y, ⟨ [ ], path, rfl ⟩, h ⟩
+        · grind
 
 /-
 A step in the safe process results in a graph that contains the original graph as a subgraph.
@@ -2318,11 +2337,16 @@ theorem IsValidPath_implies_Chain {State : Type} (P : Process State) (m : ℕ) (
   List State)
   (h : IsValidPath P m s path) :
   List.IsChain (fun a b => b ∈ P a) path := by
-    induction' m with m ih generalizing s path <;>
+    induction m generalizing s path with
+    | zero =>
       rcases path with (_ | ⟨x, _ | ⟨y, path⟩⟩) <;>
         simp_all +decide
-    · cases h;
-    · cases h ; aesop
+      cases h
+    | succ m ih =>
+      rcases path with (_ | ⟨x, _ | ⟨y, path⟩⟩) <;>
+        simp_all +decide
+      cases h
+      aesop
 
 /-
 If a path is valid for the safe process, then the graphs in the path form a chain with respect to
@@ -2355,9 +2379,27 @@ the last element.
 theorem Chain_rel_last {α : Type*} (r : α → α → Prop) (l : List α) (h_chain : List.IsChain r l) (x :
   α) (hx : x ∈ l) (h_ne : l ≠ []) (h_refl : Reflexive r) (h_trans : Transitive r) :
   r x (l.getLast h_ne) := by
-  induction' l using List.reverseRecOn with l IH generalizing x; aesop;
-  rw [ List.isChain_append ] at h_chain;
-  cases l <;> aesop
+  induction l using List.reverseRecOn generalizing x with
+  | nil =>
+    cases h_ne rfl
+  | append_singleton l y IH =>
+    rw [List.getLast_append_singleton]
+    rw [List.mem_append, List.mem_singleton] at hx
+    rcases hx with hx | rfl
+    · by_cases hl : l = []
+      · subst l
+        simp at hx
+      · have h_chain_l : List.IsChain r l := (List.isChain_append.mp h_chain).1
+        have h_last_rel_y : r (l.getLast hl) y := by
+          have hbridge :
+              ∀ x ∈ l.getLast?, ∀ y' ∈ ([y] : List α).head?, r x y' :=
+            (List.isChain_append.mp h_chain).2.2
+          have hlast_mem : l.getLast hl ∈ l.getLast? := by
+            rw [List.getLast?_eq_getLast_of_ne_nil hl]
+            simp
+          exact hbridge (l.getLast hl) hlast_mem y (by simp)
+        exact h_trans (IH h_chain_l x hx hl) h_last_rel_y
+    · exact h_refl x
 
 /-
 For any state x in a valid path, the graph in x is a subgraph of the final graph in the path.
@@ -2481,18 +2523,21 @@ theorem IsValidPath_preserves_BaseInvariant {V : Type} [Fintype V] [DecidableEq 
     have h_ind :
       ∀ (k : ℕ) (s : ProcessState V) (path : List (ProcessState V)), IsValidPath (SafeProcess c n m)
         k s path → BaseInvariant G₀ c n m s → BaseInvariant G₀ c n m (path.getLastD (G₀, 0)) := by
-      intro k;
-      induction' k with k ih generalizing V;
-      · intro s path h_valid h_start
+      intro k
+      induction k generalizing V with
+      | zero =>
+        intro s path h_valid h_start
         rcases path with (_ | ⟨x, _ | ⟨y, path⟩⟩) <;>
           simp_all +decide
-        · cases h_valid ; aesop;
-        · cases h_valid;
-      · intro s path h_valid h_inv
+        · cases h_valid
+          aesop
+        · cases h_valid
+      | succ k ih =>
+        intro s path h_valid h_inv
         rcases path with (_ | ⟨x, _ | ⟨y, path⟩⟩) <;>
           simp_all +decide
-        · exact False.elim h_valid;
-        · rcases h_valid with ⟨ rfl, hxy, hpath ⟩;
+        · exact False.elim h_valid
+        · rcases h_valid with ⟨ rfl, hxy, hpath ⟩
           exact ih G₀ _ h_valid h_start _ _ hpath
             (SafeProcess_preserves_BaseInvariant G₀ c n m x y h_inv hxy)
     exact h_ind m _ _ h_valid h_start
