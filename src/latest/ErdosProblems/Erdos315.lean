@@ -49,11 +49,12 @@ noncomputable def c (n : ℕ) : ℝ :=
 /-
 The terms of the generalized Sylvester sequence are always positive.
 -/
-set_option linter.style.induction false in
 lemma generalized_sylvester_pos (n k : ℕ) : 0 < generalized_sylvester n k := by
-  induction' k with k ih
-  · exact Nat.succ_pos _
-  · exact Nat.pos_of_ne_zero (by
+  induction k with
+  | zero =>
+    exact Nat.succ_pos _
+  | succ k ih =>
+    exact Nat.pos_of_ne_zero (by
       erw [
         show generalized_sylvester n (k + 1) =
           (generalized_sylvester n k) ^ 2 - generalized_sylvester n k + 1 from rfl]
@@ -79,13 +80,14 @@ theorem prop_syl_2 (n : ℕ) (j : ℕ) :
 /-
 Sum of reciprocals identity: sum_{i < j} 1/s_i(n) + 1/(s_j(n) - 1) = 1/n.
 -/
-set_option linter.style.induction false in
 theorem prop_syl_1 (n : ℕ) (hn : 0 < n) (j : ℕ) :
   (∑ i ∈ Finset.range j, (1 : ℝ) / generalized_sylvester n i) +
     1 / (generalized_sylvester n j - 1 : ℝ) = 1 / n := by
-    induction' j with j ih
-    · norm_num [ generalized_sylvester ]
-    · -- Substitute the identity $1/(s_{j+1}(n) - 1) = 1/(s_j(n) - 1) -
+    induction j with
+    | zero =>
+      norm_num [ generalized_sylvester ]
+    | succ j ih =>
+      -- Substitute the identity $1/(s_{j+1}(n) - 1) = 1/(s_j(n) - 1) -
       -- 1/s_j(n)$ into the equation.
       have h_identity :
         (1 / (generalized_sylvester n (j + 1) - 1) : ℝ) = (1 / (generalized_sylvester n j - 1) :
@@ -117,12 +119,13 @@ theorem prop_syl_1 (n : ℕ) (hn : 0 < n) (j : ℕ) :
 /-
 Identity for the generalized Sylvester sequence: s_{k+l}(n) = s_l(s_k(n)-1).
 -/
-set_option linter.style.induction false in
 theorem prop_syl_3 (n k l : ℕ) :
   generalized_sylvester n (k + l) = generalized_sylvester (generalized_sylvester n k - 1) l := by
-    induction' l with l ih generalizing k
-    · exact Eq.symm ( Nat.sub_add_cancel ( generalized_sylvester_pos n k ) )
-    · -- By definition of generalized_sylvester, we have:
+    induction l generalizing k with
+    | zero =>
+      exact Eq.symm ( Nat.sub_add_cancel ( generalized_sylvester_pos n k ) )
+    | succ l ih =>
+      -- By definition of generalized_sylvester, we have:
       have h_def :
         ∀ n k, generalized_sylvester n (k + 1) =
           (generalized_sylvester n k)^2 - generalized_sylvester n k + 1 := by
@@ -495,7 +498,6 @@ noncomputable def u_seq_general (n : ℕ) (i : ℕ) : ℝ :=
 The comparison sequence u_i satisfies the conditions of Lemma 6 (pac_sou) for n >= 2.
 -/
 set_option linter.style.refine false in
-set_option linter.style.induction false in
 set_option linter.flexible false in
 set_option linter.style.multiGoal false in
 lemma u_seq_satisfies_pac_sou (n : ℕ) (hn : 2 ≤ n) :
@@ -531,14 +533,16 @@ lemma u_seq_satisfies_pac_sou (n : ℕ) (hn : 2 ≤ n) :
           nlinarith [ Nat.sub_add_cancel h_pow ]
     · intro k hk
       -- We'll use induction to prove that the equation holds for all $k \geq 2$.
-      induction' hk with k ih
-      · unfold u_seq_general
+      induction hk
+      case refl =>
+        unfold u_seq_general
         norm_num [ Finset.sum_range_succ, Finset.prod_range_succ ]
         ring_nf
         -- Combine and simplify the terms on the left-hand side.
         field_simp
         ring
-      · -- For the inductive step, we need to show that
+      case step k hk ih =>
+        -- For the inductive step, we need to show that
         -- $u_k = C \prod_{i=0}^{k-1} u_i (1 - u_k)$.
         have h_ind_step :
           u_seq_general n k = (1 / (n : ℝ)) * (∏ i ∈ Finset.range k, u_seq_general n i) *
@@ -715,7 +719,6 @@ lemma lower_seq_increasing (n : ℕ) (hn : 0 < n) :
 The lower bound sequence converges to c_n.
 -/
 set_option linter.style.refine false in
-set_option linter.style.induction false in
 set_option linter.flexible false in
 lemma lower_seq_tendsto_c (n : ℕ) (hn : 0 < n) :
   Filter.Tendsto (lower_seq n) Filter.atTop (nhds (c n)) := by
@@ -737,9 +740,11 @@ lemma lower_seq_tendsto_c (n : ℕ) (hn : 0 < n) :
           -- `1 / generalized_sylvester n i` tends to 0.
           have h_sylvester_growth : ∀ i, generalized_sylvester n i ≥ i + 2 := by
             intro i
-            induction' i with i ih
-            · exact Nat.succ_le_succ hn
-            · exact Nat.succ_le_of_lt (by
+            induction i with
+            | zero =>
+              exact Nat.succ_le_succ hn
+            | succ i ih =>
+              exact Nat.succ_le_of_lt (by
                 erw [
                   show generalized_sylvester n (i + 1) =
                     (generalized_sylvester n i) ^ 2 - (generalized_sylvester n i) + 1 from rfl]
@@ -1128,7 +1133,6 @@ lemma v_satisfies_pac_sou_condition (n : ℕ) (hn : 0 < n) (a : ℕ → ℕ)
 /-
 For n=1, the reciprocal sequence is bounded by the comparison sequence for the first 3 terms.
 -/
-set_option linter.style.induction false in
 set_option linter.flexible false in
 set_option linter.style.multiGoal false in
 lemma v_le_u_base_case_one (a : ℕ → ℕ)
@@ -1160,26 +1164,27 @@ lemma v_le_u_base_case_one (a : ℕ → ℕ)
         linarith [ h_mono ( show 0 ≤ 1 by norm_num ), h_mono ( show 1 ≤ 2 by norm_num ) ]
       have ha_eq_3 : ∀ i, a i = 3 := by
         intro i
-        induction' i using Nat.strong_induction_on with i ih
-        rcases i with ( _ | _ | _ | i ) <;> simp_all +arith +decide
-        · linarith [ h_mono ( show 0 ≤ 1 by norm_num ), h_mono ( show 1 ≤ 2 by norm_num ) ]
-        · linarith [ h_mono ( show 1 ≤ 2 by norm_num ) ]
-        · have :=
-            h_sum ▸
-              Summable.sum_le_tsum ( Finset.range ( i + 4 ) )
-                ( fun _ _ => inv_nonneg.2 ( Nat.cast_nonneg _ ) )
-                ( show Summable _ from by
-                  by_contra h
-                  rw [ tsum_eq_zero_of_not_summable h ] at h_sum
-                  norm_num at h_sum )
-          norm_num [ Finset.sum_range_succ, ih ] at this
-          exact absurd this (by
-            linarith [
-              show ( ∑ i ∈ Finset.range i, ( a i : ℝ ) ⁻¹ ) ≥ 0 from
-                Finset.sum_nonneg fun _ _ => inv_nonneg.2 ( Nat.cast_nonneg _ ),
-              inv_pos.2
-                ( show 0 < ( a ( i + 3 ) : ℝ ) by
-                  exact Nat.cast_pos.2 ( h_pos _ ) )])
+        induction i using Nat.strong_induction_on with
+        | h i ih =>
+          rcases i with ( _ | _ | _ | i ) <;> simp_all +arith +decide
+          · linarith [ h_mono ( show 0 ≤ 1 by norm_num ), h_mono ( show 1 ≤ 2 by norm_num ) ]
+          · linarith [ h_mono ( show 1 ≤ 2 by norm_num ) ]
+          · have :=
+              h_sum ▸
+                Summable.sum_le_tsum ( Finset.range ( i + 4 ) )
+                  ( fun _ _ => inv_nonneg.2 ( Nat.cast_nonneg _ ) )
+                  ( show Summable _ from by
+                    by_contra h
+                    rw [ tsum_eq_zero_of_not_summable h ] at h_sum
+                    norm_num at h_sum )
+            norm_num [ Finset.sum_range_succ, ih ] at this
+            exact absurd this (by
+              linarith [
+                show ( ∑ i ∈ Finset.range i, ( a i : ℝ ) ⁻¹ ) ≥ 0 from
+                  Finset.sum_nonneg fun _ _ => inv_nonneg.2 ( Nat.cast_nonneg _ ),
+                inv_pos.2
+                  ( show 0 < ( a ( i + 3 ) : ℝ ) by
+                    exact Nat.cast_pos.2 ( h_pos _ ) )])
       aesop
     intro i hi
     interval_cases i <;> norm_num [ u_seq_one ]
@@ -2385,12 +2390,15 @@ lemma liminf_shift_pow (a : ℕ → ℕ) (k : ℕ)
 /-
 For any $n \ge 1$ and $k \ge 0$, the generalized Sylvester sequence term $s_k(n)$ is at least 2.
 -/
-set_option linter.style.induction false in
 lemma generalized_sylvester_ge_two (n k : ℕ) (hn : 1 ≤ n) :
     2 ≤ generalized_sylvester n k := by
-  induction' k with k ih <;> norm_num [ *, generalized_sylvester ] at *
-  · nlinarith [ ( by norm_cast : ( 1 : ℝ ) ≤ n ) ]
-  · nlinarith [
+  induction k with
+  | zero =>
+    norm_num [ *, generalized_sylvester ] at *
+    nlinarith [ ( by norm_cast : ( 1 : ℝ ) ≤ n ) ]
+  | succ k ih =>
+    norm_num [ *, generalized_sylvester ] at *
+    nlinarith [
       Nat.sub_add_cancel
         ( by nlinarith : generalized_sylvester n k ≤ generalized_sylvester n k ^ 2 )]
 
@@ -2547,7 +2555,6 @@ Erdős 315: Let $a_1 \leq a_2 \leq \cdots$ be a sequence of positive integers. A
 s_i(0)$ for some $i$, and that $1 = \sum_{i=1}^\infty \frac{1}{a_i}$. Then $\liminf_{i\to\infty}
 a_i^{2^{-i}} < c_1$, where $c_1$ is the Vardi value.
 -/
-set_option linter.style.induction false in
 set_option linter.flexible false in
 set_option linter.style.multiGoal false in
 theorem erdos_315 (a : ℕ → ℕ)
@@ -2561,10 +2568,13 @@ theorem erdos_315 (a : ℕ → ℕ)
     · rw [ show generalized_sylvester 1 = sylvester from ?_ ]
       · aesop
       · funext i
-        induction' i with i ih
-        simp [sylvester]
-        · rfl
-        · -- By definition of generalized_sylvester, we have generalized_sylvester 1 (i
+        induction i with
+        | zero =>
+          simp [sylvester]
+          rfl
+        | succ i ih =>
+          simp [sylvester]
+          -- By definition of generalized_sylvester, we have generalized_sylvester 1 (i
             -- + 1) = (generalized_sylvester 1 i)^2 - generalized_sylvester 1 i + 1.
           have h_gen_sylvester_succ :
             generalized_sylvester 1 (i + 1) =
