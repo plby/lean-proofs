@@ -44,7 +44,6 @@ open scoped Nat Topology
 
 attribute [local instance] Classical.propDecidable
 
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 
@@ -234,9 +233,10 @@ lemma lemma_W_eq_sum_N_pj (p m k : ℕ) (hp : p.Prime) :
     rw [ Nat.descFactorial_eq_prod_range ];
     have h_prod : padicValNat p (∏ i ∈ Finset.range k, (
       m + k - i)) = ∑ i ∈ Finset.range k, padicValNat p (m + k - i) := by
-      induction' k with k ih;
-      · aesop;
-      · rw [ Finset.prod_range_succ', Finset.sum_range_succ' ];
+      induction k with
+      | zero => aesop;
+      | succ k ih =>
+        rw [ Finset.prod_range_succ', Finset.sum_range_succ' ];
         haveI := Fact.mk hp; rw [ padicValNat.mul ] <;> simp_all +decide [ ← add_assoc ] ;
         exact Finset.prod_ne_zero_iff.mpr fun x hx => Nat.sub_ne_zero_of_lt <| by
             linarith [ Finset.mem_range.mp hx ] ;
@@ -470,9 +470,10 @@ The sum of exp(-t X_p) over all m is (p * ((1-theta) + theta e^-t))^L.
 lemma lemma_exp_sum_X_p (p L : ℕ) (t : ℝ) (hp : p.Prime) :
     ∑ m ∈ Finset.range (p ^ L), Real.exp (-t * (X_p p m L : ℝ)) =
     (p : ℝ) ^ L * ((1 - theta p) + theta p * Real.exp (-t)) ^ L := by
-  induction' L with L ih generalizing t;
-  · unfold X_p; norm_num;
-  · -- We can split the sum into two parts: one over $m$ divisible by $p$ and one over $m$ not
+  induction L generalizing t with
+  | zero => unfold X_p; norm_num;
+  | succ L ih =>
+    -- We can split the sum into two parts: one over $m$ divisible by $p$ and one over $m$ not
   -- divisible by $p$.
     have h_split : ∑ m ∈ Finset.range (p ^ (L + 1)), Real.exp (-t * (X_p p m (
       L + 1))) = ∑ d ∈ Finset.range p, ∑ m' ∈ Finset.range (p ^ L), Real.exp (-t * (X_p p (
