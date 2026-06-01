@@ -45,7 +45,6 @@ import ErdosProblems.Axioms
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.induction false
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
@@ -849,9 +848,10 @@ lemma block_estimate_iter (A : ℝ) (hA : A > Real.log 2) (f : ℕ → ℝ)
     F_count f X ≤ F_count f (X * Real.exp (-(J : ℝ) * A)) +
       (1 + 1.66 / A ^ 2) * X * H_count f X / L *
         ∑ j ∈ Finset.range J, Real.exp (-(j : ℝ) * A) := by
-  induction' J with J ih;
-  · norm_num;
-  · have h_block : F_count f (X * Real.exp (-J * A)) - F_count f (X * Real.exp (-(J + 1) * A)) ≤ (1 + 1.66 / A ^ 2) * X * Real.exp (-J * A) * H_count f (X * Real.exp (-J * A)) / L := by
+  induction J with
+  | zero => norm_num;
+  | succ J ih =>
+    have h_block : F_count f (X * Real.exp (-J * A)) - F_count f (X * Real.exp (-(J + 1) * A)) ≤ (1 + 1.66 / A ^ 2) * X * Real.exp (-J * A) * H_count f (X * Real.exp (-J * A)) / L := by
       convert block_estimate A hA f hf ( X * Real.exp ( -J * A ) ) ( hXj J ( Nat.lt_succ_self J ) ) |> le_trans <| ?_ using 1;
       · rw [ mul_assoc, ← Real.exp_add ] ; ring_nf;
       · convert div_le_div_of_nonneg_left _ _ ( hLbound J ( Nat.lt_succ_self J ) ) using 1 <;> ring_nf;
