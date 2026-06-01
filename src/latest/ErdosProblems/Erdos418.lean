@@ -18,7 +18,6 @@ URLs:
 import Mathlib
 
 set_option linter.style.setOption false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.flexible false
 
@@ -790,11 +789,14 @@ lemma base_case : IsNoncototient (2 * m_BS) := by
 
 theorem browkin_schinzel (k : ℕ) (hk : 1 ≤ k) : IsNoncototient (2^k * m_BS) := by
   -- We proceed by induction on $k$.
-  induction' hk with k ih;
-  · -- Apply the base_case lemma to conclude the proof for the base case.
-    apply base_case;
-  · -- Apply the inductive step to $k+1$.
-    apply inductive_step (k + 1) (by linarith [Nat.succ_le_iff.mp ih]) (by assumption)
+  induction hk with
+  | refl =>
+    -- Apply the base_case lemma to conclude the proof for the base case.
+    apply base_case
+  | step hb ih =>
+    rename_i k
+    -- Apply the inductive step to $k+1$.
+    apply inductive_step (k + 1) (by linarith [Nat.succ_le_iff.mp hb]) ih
 
 /--
 Are there infinitely many integers not of the form $n - \phi(n)$?
