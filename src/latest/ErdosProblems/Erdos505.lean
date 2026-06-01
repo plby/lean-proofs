@@ -25,7 +25,6 @@ the conjecture that f(d) = d + 1.
 import Mathlib
 
 set_option linter.style.setOption false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.flexible false
@@ -1129,8 +1128,9 @@ theorem eval_Fa_of_ne
           );
         rw [ h_Fa_def, h_ml_def, Pa ];
         rw [ ← eval_La_eq_inner ];
-        · induction' (G p) using Polynomial.induction_on' with p q hp hq <;>
-            simp_all +decide [Polynomial.aeval_def, Polynomial.eval₂_add];
+        · induction (G p) using Polynomial.induction_on' with
+          | add p q hp hq => simp_all +decide [Polynomial.aeval_def]
+          | monomial n b => simp_all +decide [Polynomial.aeval_def]
         · assumption;
         · assumption;
       -- By Lemma 3.2, $\langle a, b \rangle \not\equiv 0 \pmod p$.
@@ -1343,9 +1343,10 @@ theorem partition_lower_bound
               ∀ (s : Finset (Fin m)),
                 Set.ncard (⋃ i ∈ s, A i) = ∑ i ∈ s, Set.ncard (A i) := by
             intros s
-            induction' s using Finset.induction with i s hi ih;
-            · norm_num [ Set.ncard ];
-            · simp +zetaDelta at *;
+            induction s using Finset.induction with
+            | empty => norm_num [ Set.ncard ]
+            | @insert i s hi ih =>
+              simp +zetaDelta at *;
               rw [ Finset.sum_insert hi, @Set.ncard_union_eq ];
               · rw [ ih ];
               · exact Set.disjoint_left.mpr fun x hx hx' => by
