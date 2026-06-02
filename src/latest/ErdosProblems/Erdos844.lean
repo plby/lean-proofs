@@ -32,7 +32,6 @@ namespace Erdos844
 -- proof refactor rather than a cleanup.
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 
@@ -130,7 +129,8 @@ private lemma dominated_of_tail_ineq (N : ℕ) (A B : Finset ℕ)
     (h_tail : ∀ k, tailCount A k ≤ tailCount B k) :
     Dominated A B := by
   -- By strong induction on the size of A.
-  induction' hA : A.card using Nat.strong_induction_on with n ih generalizing A B;
+  induction hA : A.card using Nat.strong_induction_on generalizing A B with
+  | h n ih =>
   by_cases hA_empty : A = ∅;
   · exact ⟨fun _ => 0,
       fun _ h => absurd (hA_empty ▸ h) (by simp),
@@ -589,7 +589,8 @@ theorem chvatal_theorem_ground_set (N : ℕ) (hN : 0 < N)
     (G : Finset (Finset ℕ)) (hG_sub : G ⊆ F)
     (hG_int : ∀ X ∈ G, ∀ Y ∈ G, (X ∩ Y).Nonempty) :
     G.card ≤ (F.filter (1 ∈ ·)).card := by
-  induction' N using Nat.strong_induction_on with N ih generalizing F G;
+  induction N using Nat.strong_induction_on generalizing F G with
+  | h N ih =>
   by_cases hG2 :
       ∀ X ∈ G.filter (fun X => N ∈ X),
       ∀ Y ∈ G.filter (fun X => N ∈ X),

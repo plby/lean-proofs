@@ -43,7 +43,6 @@ set_option linter.style.setOption false
 --
 set_option linter.deprecated false
 set_option linter.flexible false
-set_option linter.style.induction false
 set_option linter.style.refine false
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
@@ -195,9 +194,9 @@ theorem exists_stepCount_of_one_lt
   field_simp;
   use B;
   refine ⟨ hB, fun x => ?_ ⟩;
-  induction' x with n ih;
-  · exact le_trans ( by norm_num [ stepBreakpoint_zero ] ) hB.le;
-  · exact le_of_lt ( h_unbounded _ n.succ_pos ( Nat.recOn n ( by norm_num [ stepBreakpoint_zero ] ; linarith ) fun n ihn => by linarith! [ h_unbounded _ n.succ_pos ihn ] ) )
+  induction x with
+  | zero => exact le_trans ( by norm_num [ stepBreakpoint_zero ] ) hB.le;
+  | succ n ih => exact le_of_lt ( h_unbounded _ n.succ_pos ( Nat.recOn n ( by norm_num [ stepBreakpoint_zero ] ; linarith ) fun n ihn => by linarith! [ h_unbounded _ n.succ_pos ihn ] ) )
 
 /-- `n(B)`: the (minimal) step-count in the breakpoint decomposition.
 For `B ≤ 1` we set it to `1` by convention (irrelevant for `B → ∞`). -/
@@ -226,7 +225,7 @@ theorem tightPoly_eq_trig
     (n : ℕ) (θ : ℝ) (hθ : Real.sin θ ≠ 0) :
     tightPoly n (4 * (Real.cos θ) ^ (2 : ℕ)) =
       (2 * Real.cos θ) ^ n * (Real.sin (((n + 1 : ℕ) : ℝ) * θ) / Real.sin θ) := by
-  induction' n using Nat.strong_induction_on with n ih;
+  induction n using Nat.strong_induction_on with | _ n ih => ?_
   rcases n with ( _ | _ | n ) <;> simp_all +decide [ pow_succ', mul_assoc ];
   · rfl;
   · rw [ Real.sin_two_mul ] ; ring_nf at * ; aesop;
@@ -270,7 +269,7 @@ lemma tightPoly_upper_val {n : ℕ} :
 The tight polynomial `p_n(R)` is continuous with respect to `R` for any fixed `n`. This follows from the fact that it is a polynomial in `R`.
 -/
 lemma continuous_tightPoly (n : ℕ) : Continuous (tightPoly n) := by
-  induction' n using Nat.strong_induction_on with n ih;
+  induction n using Nat.strong_induction_on with | _ n ih => ?_
   rcases n with ( _ | _ | n );
   · exact continuous_const;
   · exact continuous_id;
@@ -706,9 +705,9 @@ lemma union_Ioc_eq_Ioi_one (s : Strategy) :
         intro hx
         obtain ⟨n, hn⟩ : ∃ n, x ≤ s.x n := by
           exact s.hits hx.le;
-        induction' n with n ih;
-        · exact ⟨ 0, by aesop ⟩;
-        · by_cases h : x ≤ s.x n <;> aesop
+        induction n with
+        | zero => exact ⟨ 0, by aesop ⟩;
+        | succ n ih => by_cases h : x ≤ s.x n <;> aesop
 
 /-
 The worst-case score is the supremum of the ratios S_{k+1}/x_k.
@@ -855,11 +854,13 @@ The sequence b_k is a lower bound for a_k.
 -/
 lemma b_seq_le_a_seq {s : Strategy} {R : ℝ} (h_score : worstCaseScore s ≤ ENNReal.ofReal R)
     (hR : 1 < R) (k : ℕ) : b_seq R k ≤ a_seq s k := by
-      induction' k with k ih;
-      · unfold a_seq b_seq;
+      induction k with
+      | zero =>
+        unfold a_seq b_seq;
         unfold partialSum;
         rw [ Finset.sum_range_one, le_div_iff₀ ] <;> linarith [ s.nonneg 0, s.one_le ];
-      · -- By definition of $b_seq$, we have $b_seq R (k + 1) = g R (b_seq R k)$.
+      | succ k ih =>
+        -- By definition of $b_seq$, we have $b_seq R (k + 1) = g R (b_seq R k)$.
         have h_b_succ : b_seq R (k + 1) = g R (b_seq R k) := by
           rfl;
         refine' h_b_succ ▸ le_trans ( g_monotone _ _ _ ih ) _;
@@ -1111,9 +1112,10 @@ lemma exists_strict_ge {s : Strategy} {n k : ℕ} (hk : k < n) (h_n : s.x (n - 1
     (h_prev : n = 1 ∨ s.x (n - 2) < B) :
     ∃ m, k ≤ m ∧ m < n ∧ (m = 0 ∨ s.x (m - 1) < s.x m) ∧ scoreTerm s k ≤ scoreTerm s m := by
       -- We proceed by induction on $n - k$.
-      induction' hnk : n - k with m ih generalizing k;
-      · omega;
-      · by_cases h_eq : s.x (k - 1) = s.x k ∧ k > 0;
+      induction hnk : n - k generalizing k with
+      | zero => omega;
+      | succ m ih =>
+        by_cases h_eq : s.x (k - 1) = s.x k ∧ k > 0;
         · -- Since $s.x (k - 1) = s.x k$, we have $scoreTerm s k ≤ scoreTerm s (k + 1)$.
           have h_score_term_le : scoreTerm s k ≤ scoreTerm s (k + 1) := by
             apply scoreTerm_mono_of_eq; exact h_eq.left; exact h_eq.right;
@@ -1370,7 +1372,7 @@ If R = 4 cos^2(theta), then p_k(R) = (2 cos theta)^k * sin((k+1)theta) / sin the
 theorem tightPoly_trig_form (θ : ℝ) (hθ : Real.sin θ ≠ 0) (k : ℕ) :
     let R := 4 * (Real.cos θ) ^ 2
     tightPoly k R = (2 * Real.cos θ) ^ k * Real.sin ((k + 1) * θ) / Real.sin θ := by
-      induction' k using Nat.strong_induction_on with n ih;
+      induction k using Nat.strong_induction_on with | _ n ih => ?_
       rcases n with ( _ | _ | n ) <;> norm_num [ Nat.succ_eq_add_one, ih ];
       · aesop;
       · rw [ Real.sin_two_mul ] ; ring_nf;
@@ -1979,7 +1981,7 @@ lemma strategy_eq_formula_x {s : Strategy} {B R : ℝ} {n : ℕ}
     (k : ℕ) (hk : k < n) :
     s.x k = formula_x s R k := by
       -- We proceed by induction on $k$.
-      induction' k using Nat.strong_induction_on with k ih;
+      induction k using Nat.strong_induction_on with | _ k ih => ?_
       by_cases hk0 : k = 0 ∨ k = 1;
       · rcases hk0 with ( rfl | rfl ) <;> norm_num [ formula_x ];
         · field_simp;
@@ -2136,9 +2138,9 @@ lemma diffSeq_recurrence_sum {s : Strategy} {B R : ℝ} {n : ℕ}
       have h_p_k1 : tightPoly (k + 1) R = R * tightPoly k R - ∑ i ∈ Finset.range k, tightPoly (i + 1) R := by
         have h_p_k1 : ∀ k, tightPoly (k + 1) R = R * tightPoly k R - ∑ i ∈ Finset.range k, tightPoly (i + 1) R := by
           intro k;
-          induction' k with k ih;
-          · exact show R = R * 1 - 0 by ring;
-          · rw [ Finset.sum_range_succ, tightPoly_recurrence_values ] ; linarith;
+          induction k with
+          | zero => exact show R = R * 1 - 0 by ring;
+          | succ k ih => rw [ Finset.sum_range_succ, tightPoly_recurrence_values ] ; linarith;
         exact h_p_k1 k;
       unfold diffSeq;
       cases k <;> norm_num [ Finset.sum_range_succ, partialSum ] at * ; linarith!
@@ -2151,9 +2153,10 @@ noncomputable def upperBoundSeq (R x0 : ℝ) (k : ℕ) : ℝ := (tightPoly (k + 
 lemma upperBoundSeq_recurrence {R x0 : ℝ} {k : ℕ} (hk : k ≥ 2) (hR : R ≠ 0) :
     upperBoundSeq R x0 k = (R - 1) * upperBoundSeq R x0 (k - 1) - ∑ j ∈ Finset.range (k - 1), upperBoundSeq R x0 j := by
       -- For the inductive step, assume the theorem holds for all $j < k$. We need to show it holds for $k$.
-      induction' k with k ih;
-      · contradiction;
-      · rcases k with ( _ | _ | k ) <;> simp_all +decide [ upperBoundSeq ];
+      induction k with
+      | zero => contradiction;
+      | succ k ih =>
+        rcases k with ( _ | _ | k ) <;> simp_all +decide [ upperBoundSeq ];
         · rw [ show tightPoly 3 R = R * ( tightPoly 2 R - tightPoly 1 R ) by rfl, show tightPoly 2 R = R * ( tightPoly 1 R - tightPoly 0 R ) by rfl, show tightPoly 1 R = R by rfl, show tightPoly 0 R = 1 by rfl ] ; ring;
         · simp_all +decide [ Finset.sum_range_succ, tightPoly_recurrence_values ];
           grind
@@ -2181,9 +2184,10 @@ noncomputable def impulseSeq (R : ℝ) (k : ℕ) : ℝ :=
 lemma impulseSeq_recurrence {R : ℝ} (k : ℕ) (hk : k ≥ 2) :
     impulseSeq R k = R * impulseSeq R (k - 1) - R * impulseSeq R (k - 2) := by
       -- We'll use induction to prove that the impulse sequence satisfies the given recurrence relation.
-      induction' k with k ih;
-      · contradiction;
-      · rcases k with ( _ | _ | k ) <;> simp_all
+      induction k with
+      | zero => contradiction;
+      | succ k ih =>
+        rcases k with ( _ | _ | k ) <;> simp_all
         · -- By definition of impulseSeq, we have:
           simp [impulseSeq];
         · rw [ ← ih, impulseSeq ];
@@ -2224,11 +2228,15 @@ Lemma: $p_{k+1}(R) = R p_k(R) - \sum_{j=0}^{k-1} p_{j+1}(R)$.
 lemma tightPoly_recurrence_sum {R : ℝ} {k : ℕ} (hk : 1 ≤ k) :
     tightPoly (k + 1) R = R * tightPoly k R - ∑ j ∈ Finset.range k, tightPoly (j + 1) R := by
       -- We proceed by induction on $k$.
-      induction' k with k ih;
-      · contradiction;
-      · induction' k with k ih <;> simp_all +decide [ Finset.sum_range_succ ];
-        · exact show R * ( R - 1 ) = R * R - R by ring;
-        · rw [ ← ih ];
+      induction k with
+      | zero => contradiction;
+      | succ k ih =>
+        induction k with
+        | zero => simp_all +decide;
+                  exact show R * ( R - 1 ) = R * R - R by ring;
+        | succ k ih =>
+          simp_all +decide [ Finset.sum_range_succ ];
+          rw [ ← ih ];
           exact tightPoly_recurrence_values R (k + 1)
 
 /-
@@ -2339,11 +2347,13 @@ lemma diffSeq_eq_convolution {d : ℕ → ℝ} {R : ℝ} {n : ℕ}
       -- By definition of `impulseResponse` and `slackSeq`, we can expand the right-hand side of the equation.
       have h_expand : ∀ k < n, ∑ j ∈ Finset.range (k + 1), (tightPoly (k - j + 1) R / R) * (slackSeq d R j) = d k := by
         intro k hk_lt_n
-        induction' k using Nat.case_strong_induction_on with k ih;
-        · field_simp;
+        induction k using Nat.case_strong_induction_on with
+        | hz =>
+          field_simp;
           unfold slackSeq; norm_num;
           rw [ show tightPoly 1 R = R by rfl, mul_div_cancel_left₀ _ hR ];
-        · -- Apply the convolution recurrence identity with `e_j = slackSeq d R j`.
+        | hi k ih =>
+          -- Apply the convolution recurrence identity with `e_j = slackSeq d R j`.
           have h_convolution : ∑ j ∈ Finset.range (k + 2), tightPoly (k + 1 - j + 1) R / R * slackSeq d R j = R * ∑ j ∈ Finset.range (k + 1), tightPoly (k - j + 1) R / R * slackSeq d R j - ∑ j ∈ Finset.range (k + 1), ∑ i ∈ Finset.range (j + 1), tightPoly (j - i + 1) R / R * slackSeq d R i + slackSeq d R (k + 1) := by
             convert convolution_recurrence_identity hR ( k + 1 ) ( by linarith ) using 1;
           -- Substitute the induction hypothesis into the convolution recurrence identity.
@@ -2440,8 +2450,12 @@ lemma tightPoly_le_max_upto_n_plus_one {n : ℕ} {R : ℝ}
       by_cases hkn : k ≤ n;
       · -- By induction on $i$, we can show that $tightPoly k R \leq tightPoly (k + i) R$ for any $i \geq 0$.
         have h_ind : ∀ i, k + i ≤ n → tightPoly k R ≤ tightPoly (k + i) R := by
-          intro i hi; induction' i with i ih <;> simp_all +decide [ ← add_assoc ] ;
-          exact le_trans ( ih ( by linarith ) ) ( h_monotone _ ( by linarith ) );
+          intro i hi
+          induction i with
+          | zero => simp_all +decide
+          | succ i ih =>
+            simp_all +decide [ ← add_assoc ]
+            exact le_trans ( ih ( by linarith ) ) ( h_monotone _ ( by linarith ) );
         simpa only [ add_tsub_cancel_of_le hkn ] using h_ind ( n - k ) ( by rw [ add_tsub_cancel_of_le hkn ] );
       · norm_num [ show k = n + 1 by linarith ];
         have := tightPoly_step_limit n hn R hR; aesop;
@@ -2576,9 +2590,11 @@ Identity for tight polynomials: $p_{k+1} = (R-1)p_k - \sum_{j=0}^{k-2} p_{j+1}$.
 lemma tightPoly_recurrence_sum_identity {R : ℝ} {k : ℕ} (hk : 2 ≤ k) :
     tightPoly (k + 1) R = (R - 1) * tightPoly k R - ∑ i ∈ Finset.range (k - 1), tightPoly (i + 1) R := by
       rcases k with ( _ | _ | k ) <;> norm_num [ Finset.sum_range_succ' ] at *;
-      induction' k with k ih <;> norm_num [ Finset.sum_range_succ, tightPoly ] at *;
-      · ring;
-      · linarith
+      induction k with
+      | zero => norm_num [ Finset.sum_range_succ, tightPoly ] at *;
+                ring;
+      | succ k ih => norm_num [ Finset.sum_range_succ, tightPoly ] at *;
+                     linarith
 
 /-
 If R is in the n-th bracket, then tight polynomials are non-decreasing up to index n.
@@ -2610,11 +2626,13 @@ Identity relating b_seq to tight polynomials.
 lemma b_seq_eq_tightPoly_ratio {R : ℝ} {k : ℕ}
     (h_pos : ∀ j ≤ k + 1, 0 < tightPoly j R) :
     b_seq R k = R * tightPoly k R / tightPoly (k + 1) R := by
-      induction' k with k ih;
-      · -- By definition of $b_seq$, we have $b_seq R 0 = 1$.
+      induction k with
+      | zero =>
+        -- By definition of $b_seq$, we have $b_seq R 0 = 1$.
         simp [b_seq];
         rw [ eq_div_iff ] <;> have := h_pos 0 <;> have := h_pos 1 <;> norm_num [ tightPoly ] at * ; linarith;
-      · rw [ show b_seq R ( k + 1 ) = R / ( R - b_seq R k ) from rfl ];
+      | succ k ih =>
+        rw [ show b_seq R ( k + 1 ) = R / ( R - b_seq R k ) from rfl ];
         rw [ ih fun j hj => h_pos j ( by linarith ), sub_div' ];
         · rw [ div_div_eq_mul_div, tightPoly_recurrence_values ];
         · linarith [ h_pos ( k + 1 ) ( by linarith ) ]
@@ -2640,7 +2658,7 @@ noncomputable def recurrence_error (u : ℕ → ℝ) (R : ℝ) (k : ℕ) : ℝ :
 
 lemma recurrence_reconstruction {u : ℕ → ℝ} {R : ℝ} (k : ℕ) :
     u k = ∑ j ∈ Finset.range (k + 1), tightPoly (k - j) R * recurrence_error u R j := by
-  induction' k using Nat.strong_induction_on with k ih
+  induction k using Nat.strong_induction_on with | _ k ih => ?_
   by_cases hk : k < 2
   · interval_cases k <;> norm_num [Finset.sum_range_succ]
     · unfold recurrence_error
@@ -2720,9 +2738,9 @@ lemma exists_strict_step_ge {s : Strategy} {B : ℝ} {n k : ℕ}
       by_cases h_empty : ∀ m, k ≤ m ∧ m < n → s.x (m - 1) = s.x m;
       · have h_eq : ∀ m, k ≤ m ∧ m < n → s.x (k - 1) = s.x m := by
           intro m hm
-          induction' m with m ih;
-          · grind;
-          · grind;
+          induction m with
+          | zero => grind;
+          | succ m ih => grind;
         specialize h_eq ( n - 1 ) ⟨ Nat.le_sub_one_of_lt hk, Nat.pred_lt ( ne_bot_of_gt hk ) ⟩ ; aesop;
       · obtain ⟨m, hm⟩ : ∃ m, k ≤ m ∧ m < n ∧ s.x (m - 1) ≠ s.x m := by
           aesop;
@@ -3105,9 +3123,9 @@ lemma dominance_property_upto {s : Strategy} {B R : ℝ} {m : ℕ}
                                                                         · exact div_nonneg ( h_tight_nonneg _ ( by norm_num at *; omega ) ) ( by positivity );
                                                                         · apply slack_nonneg h_strict h_m h_score (i + 1) (by linarith [Finset.mem_range.mp hi]);
                                                                       · refine' mul_nonneg ( div_nonneg ( _ ) ( by positivity ) ) ( _ );
-                                                                        · induction' k with k ih;
-                                                                          · exact le_of_lt ( by erw [ show tightPoly 1 R = R from rfl ] ; linarith );
-                                                                          · exact mul_nonneg ( by positivity ) ( sub_nonneg_of_le ( h_mono _ ( Nat.lt_succ_self _ ) ) );
+                                                                        · induction k with
+                                                                          | zero => exact le_of_lt ( by erw [ show tightPoly 1 R = R from rfl ] ; linarith );
+                                                                          | succ k ih => exact mul_nonneg ( by positivity ) ( sub_nonneg_of_le ( h_mono _ ( Nat.lt_succ_self _ ) ) );
                                                                         · apply_rules [ slack_nonneg ];
                                                                           linarith;
 
@@ -3124,7 +3142,7 @@ lemma tightPoly_nonneg_of_strict_strategy {s : Strategy} {B R : ℝ} {n : ℕ}
     ∀ k, k ≤ n → 0 ≤ tightPoly k R := by
       -- We prove this by induction on $k$.
       intro k hk_le_n
-      induction' k using Nat.strong_induction_on with k ih;
+      induction k using Nat.strong_induction_on with | _ k ih => ?_
       rcases k with ( _ | _ | k ) <;> norm_num [ tightPoly ] at *;
       · linarith;
       · -- By Lemma~\ref{lem:dominance_eq_formula_x}, $x_k = p_{k+1}(R) - \sum_{j=0}^k \frac{p_{k-j+1}(R)}{R} \epsilon_j$
@@ -3452,9 +3470,10 @@ For a sorted non-empty list, deduplication preserves the last element.
 lemma List_dedup_getLast_eq_getLast_of_sorted {α : Type*} [LinearOrder α] {L : List α}
     (h_sorted : List.Sorted (· ≤ ·) L) (h_ne_nil : L ≠ []) :
     L.dedup.getLast (by simpa using h_ne_nil) = L.getLast h_ne_nil := by
-      induction' L with x xs ih
-      · contradiction
-      · cases xs with
+      induction L with
+      | nil => contradiction
+      | cons x xs ih =>
+        cases xs with
         | nil => simp
         | cons y ys =>
           have h_tail : List.Sorted (· ≤ ·) (y :: ys) := List.Sorted.tail h_sorted
@@ -3516,9 +3535,12 @@ The sum of a deduplicated list of non-negative numbers is less than or equal to 
 -/
 lemma List_dedup_sum_le_sum {L : List ℝ} (h_nonneg : ∀ x ∈ L, 0 ≤ x) :
     L.dedup.sum ≤ L.sum := by
-      induction' L with a L ih <;> simp_all
-      by_cases ha : a ∈ L <;> simp_all +decide [ List.dedup_cons_of_mem ];
-      linarith
+      induction L with
+      | nil => simp_all
+      | cons a L ih =>
+        simp_all
+        by_cases ha : a ∈ L <;> simp_all +decide [ List.dedup_cons_of_mem ];
+        linarith
 
 /-
 The value of the strategy at the hit index is the smallest value in the strategy's range that is at least y.
@@ -3560,9 +3582,10 @@ The sum of a filtered deduplicated list is less than or equal to the sum of the 
 lemma List_dedup_filter_sum_le {L : List ℝ} (p : ℝ → Bool) (h_nonneg : ∀ x ∈ L, 0 ≤ x) :
     (L.dedup.filter p).sum ≤ (L.filter p).sum := by
       by_contra h_contra;
-      induction' L with x L ih generalizing p;
-      · norm_num at h_contra;
-      · by_cases hx : x ∈ L <;> simp_all +decide [ List.filter_cons ];
+      induction L generalizing p with
+      | nil => norm_num at h_contra;
+      | cons x L ih =>
+        by_cases hx : x ∈ L <;> simp_all +decide [ List.filter_cons ];
         · grind;
         · split_ifs at h_contra <;> simp_all +decide [ List.sum_cons ];
           · linarith [ ih p ];
@@ -3721,7 +3744,10 @@ lemma partialSum_eq_filter_sum_add {s : Strategy} {y : ℝ} (hy : 1 ≤ y) {N : 
             exact List.filter_congr fun i hi => by aesop;
           rw [ h_filter_eq ];
           have h_filter_eq : ∀ {n m : ℕ}, n ≤ m → List.filter (fun i => decide (i < n)) (List.range m) = List.range n := by
-            intros n m hnm; induction' hnm with m hnm ih <;> simp_all +decide [ List.range_succ ] ;
+            intros n m hnm
+            induction hnm with
+            | refl => simp_all +decide
+            | step hnm ih => simp_all +decide [ List.range_succ ]
           exact h_filter_eq h_hit.le;
         rw [h_filter, h_filter_eq];
       simp +decide [ h_filter, partialSum ];
@@ -3754,9 +3780,10 @@ lemma List_filter_lt_eq_take_of_sorted {L : List ℝ} (h_sorted : List.Sorted (�
     (h_take : ∀ x ∈ L.take k, x < y)
     (h_drop : ∀ x ∈ L.drop k, y ≤ x) :
     L.filter (· < y) = L.take k := by
-      induction' L with a L ih generalizing k
-      · simp
-      · cases k with
+      induction L generalizing k with
+      | nil => simp
+      | cons a L ih =>
+        cases k with
         | zero =>
           have h_not : ∀ x ∈ a :: L, ¬x < y := by
             intro x hx
@@ -3788,9 +3815,10 @@ lemma List_take_eq_filter_lt_of_sorted {L : List ℝ} (h_sorted : List.Sorted (�
         intros L k hk_le_L h_sorted h_k_lt h_k_ge;
         have h_take_eq_filter : ∀ {L : List ℝ} {k : ℕ} (_ : k ≤ L.length), (List.Sorted (· ≤ ·) L) → (∀ j, j < k → L[j]! < y) → (∀ j, k ≤ j → j < L.length → y ≤ L[j]!) → ∀ {i : ℕ}, i ≤ k → List.take i L = List.filter (fun x => x < y) (List.take i L) := by
           intros L k hk_le_L h_sorted h_k_lt h_k_ge i hi_le_k;
-          induction' i with i ih;
-          · norm_num;
-          · rw [ List.take_succ ];
+          induction i with
+          | zero => norm_num;
+          | succ i ih =>
+            rw [ List.take_succ ];
             rw [ List.filter_append, ih ( Nat.le_of_succ_le hi_le_k ) ];
             by_cases hi : i < L.length <;> simp_all
             grind;
@@ -3855,7 +3883,11 @@ lemma strictifyStrategy_values_lt_eq_dedup_filter {s : Strategy} {N : ℕ} {y : 
           unfold strictifyStrategy; aesop;
       convert h_take_filter using 1;
       have h_take_filter_eq : ∀ k < ((List.range (N + 1)).map s.x).dedup.length, (List.map (strictifyStrategy s N).x (List.range k)) = (List.take k ((List.range (N + 1)).map s.x).dedup) := by
-        intro k hk; induction' k with k ih <;> simp_all +decide [ List.range_succ ] ;
+        intro k hk
+        induction k with
+        | zero => simp_all +decide [ List.range_succ ]
+        | succ k ih =>
+        simp_all +decide [ List.range_succ ]
         rw [ ih ( Nat.lt_of_succ_lt hk ), List.take_succ ];
         -- Since the strictifyStrategy's x function is defined as the deduplicated list's elements, the (k+1)-th element of the strictifyStrategy's x function is the same as the (k+1)-th element of the deduplicated list.
         have h_eq : ∀ k < ((List.range (N + 1)).map s.x).dedup.length, (strictifyStrategy s N).x k = (((List.range (N + 1)).map s.x).dedup)[k]! := by

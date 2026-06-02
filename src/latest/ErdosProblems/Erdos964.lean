@@ -43,7 +43,6 @@ set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.style.refine false
 set_option linter.flexible false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.unusedVariables false
 
@@ -611,7 +610,8 @@ Proof sketch:
 4. Therefore G contains all positive integers.
 -/
 lemma G_contains_nat (n : ℕ) (hn : 0 < n) : Units.mk0 (n : ℚ) (by norm_cast; linarith) ∈ G_subgroup_def := by
-  induction' n using Nat.strong_induction_on with n ih;
+  induction n using Nat.strong_induction_on with
+  | h n ih =>
   by_cases hn_one : n = 1;
   · aesop;
   · -- Since n is not 1, it must � have� a prime factor p. By the induction hypothesis, the product of the other factors (which is less than n) is in G.
@@ -672,13 +672,13 @@ lemma exists_representation (q : ℚ) (hq : 0 < q) :
         obtain ⟨data_p, data_q, h_prod⟩ : ∃ data_p data_q : List ℚ, q = (4 / 3 : ℚ) * (data_p.prod) * (data_q.prod)⁻¹ ∧ (∀ x ∈ data_p, x ∈ G_gen) ∧ (∀ x ∈ data_q, x ∈ G_gen) := by
           have h_prod : ∀ x ∈ G_subgroup_def, ∃ data_p data_q : List ℚ, (x : ℚ) = (data_p.prod) * (data_q.prod)⁻¹ ∧ (∀ y ∈ data_p, y ∈ G_gen) ∧ (∀ y ∈ data_q, y ∈ G_gen) := by
             intro x hx
-            induction' hx using Subgroup.closure_induction with x hx ihx
-            all_goals generalize_proofs at *;
-            · exact ⟨ [ x ], [ ], by aesop ⟩;
-            · exact ⟨ [ ], [ ], by norm_num, by norm_num, by norm_num ⟩;
-            · rename_i hx hy ihx hyx; obtain ⟨ data_p, data_q, h₁, h₂, h₃ ⟩ := ihx; obtain ⟨ data_p', data_q', h₄, h₅, h₆ ⟩ := hyx; use data_p ++ data_p', data_q ++ data_q'; simp_all +decide [ mul_assoc, mul_comm, mul_left_comm ] ;
+            induction hx using Subgroup.closure_induction with
+            | mem x hx => generalize_proofs at *; exact ⟨ [ x ], [ ], by aesop ⟩
+            | one => generalize_proofs at *; exact ⟨ [ ], [ ], by norm_num, by norm_num, by norm_num ⟩
+            | mul a b ha hb ihx hyx =>
+              generalize_proofs at *; obtain ⟨ data_p, data_q, h₁, h₂, h₃ ⟩ := ihx; obtain ⟨ data_p', data_q', h₄, h₅, h₆ ⟩ := hyx; use data_p ++ data_p', data_q ++ data_q'; simp_all +decide [ mul_assoc, mul_comm, mul_left_comm ]
               exact ⟨ fun y hy => hy.elim ( fun hy => h₂ y hy ) fun hy => h₅ y hy, fun y hy => hy.elim ( fun hy => h₃ y hy ) fun hy => h₆ y hy ⟩
-            · rename_i hx ih; obtain ⟨ data_p, data_q, h₁, h₂, h₃ ⟩ := ih; use data_q, data_p; aesop;
+            | inv a ha ih => generalize_proofs at *; obtain ⟨ data_p, data_q, h₁, h₂, h₃ ⟩ := ih; use data_q, data_p; aesop
           field_simp;
           obtain ⟨ data_p, data_q, h₁, h₂, h₃ ⟩ := h_prod ( Units.mk0 ( q * 3 / 4 ) ( by positivity ) ) ( by simpa using G_is_everything_pos_rat ( q * 3 / 4 ) ( by positivity ) );
           exact ⟨ data_p, data_q, by norm_num [ Units.ext_iff ] at h₁; linear_combination h₁ * 4, h₂, h₃ ⟩;
@@ -871,9 +871,10 @@ lemma tau_P (data_p : List (ℕ × ℕ × ℕ))
   (hp : ∀ p ∈ data_p.map (·.1), Nat.Prime p)
   (hd : (data_p.map (·.1)).Pairwise (· ≠ ·)) :
   tau (P_val data_p) = (data_p.map (fun (_, x, _) => x + 1)).prod := by
-    induction' data_p using List.reverseRecOn with data_p ih;
-    · rfl;
-    · -- Since $P_val$ and $ih.1 ^ ih.2.1$ are coprime, we can apply the multiplicativity of the divisor function.
+    induction data_p using List.reverseRecOn with
+    | nil => rfl
+    | append_singleton data_p ih _ =>
+      -- Since $P_val$ and $ih.1 ^ ih.2.1$ are coprime, we can apply the multiplicativity of the divisor function.
       have h_coprime : Nat.gcd (P_val data_p) (ih.1 ^ ih.2.1) = 1 := by
         -- Since the primes in data_p are distinct and ih.1 is a prime not in data_p, their product P_val is coprime with ih.1^ih.2.1.
         have h_coprime : ∀ p ∈ data_p.map (fun x => x.1), Nat.gcd p ih.1 = 1 := by

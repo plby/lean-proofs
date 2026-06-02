@@ -31,7 +31,6 @@ import Mathlib
 
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.flexible false
@@ -266,7 +265,8 @@ lemma kappa_eq_sum_carries (p m : ℕ) (hp : p.Prime) :
           refine' eq_tsub_of_add_eq _
           have h_sum_digits : ∀ (n : ℕ), (Nat.digits p n).sum + (p - 1) * (∑ k ∈ Finset.Ico 1 (Nat.log p n + 1), (n / p ^ k)) = n := by
             intro n
-            induction' n using Nat.strong_induction_on with n ih
+            induction n using Nat.strong_induction_on with
+            | _ n ih =>
             rcases p with ( _ | _ | p ) <;> rcases n with ( _ | _ | n ) <;> norm_num [ Nat.div_eq_of_lt, Nat.log_of_lt ]
             have := ih ( ( n + 1 + 1 ) / ( p + 1 + 1 ) ) ( Nat.div_lt_of_lt_mul <| by nlinarith ) ; simp_all +decide [ Nat.div_div_eq_div_mul, Finset.sum_Ico_eq_sum_range ]
             rcases k : Nat.log ( p + 1 + 1 ) ( n + 1 + 1 ) with ( _ | k ) <;> simp_all +decide [ ← Nat.div_div_eq_div_mul, Finset.sum_range_succ' ]
@@ -309,10 +309,12 @@ lemma carry_condition_of_digit_large (p m k : ℕ) (hp : p.Prime)
       -- By definition of `Nat.digits`, we know that `(p.digits m).getD k 0` is the digit at position `k` in the base-`p` representation of `m`.
       have h_digit_def : ∀ (m p k : ℕ), p.Prime → (p.digits m).getD k 0 = (m / p^k) % p := by
         intros m p k hp
-        induction' k with k ih generalizing m p
-        · cases m <;> cases p <;> simp_all +decide
+        induction k generalizing m p with
+        | zero =>
+          cases m <;> cases p <;> simp_all +decide
           cases ‹ℕ› <;> simp_all +decide
-        · rcases p with ( _ | _ | p ) <;> simp_all +decide [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ]
+        | succ k ih =>
+          rcases p with ( _ | _ | p ) <;> simp_all +decide [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ]
           cases m <;> simp_all +decide [ Nat.div_div_eq_div_mul ]
       exact h_digit_def m p k hp
     -- Since $(m / p^k) % p \ge (p + 1) / 2$, we can write $m / p^k = q * p + r$ where $r \ge (p + 1) / 2$.
@@ -374,9 +376,12 @@ lemma card_X_p_L_eq (p L k : ℕ) (hp : p.Prime) (hp_ge_3 : p ≥ 3) :
   (Nat.choose L k) * ((p - 1) / 2) ^ k * ((p + 1) / 2) ^ (L - k) := by
     revert k L
     intro L
-    induction' L with L ih <;> simp_all +decide [ Nat.pow_succ' ]
-    · rintro ( _ | k ) <;> simp_all +decide [ Finset.filter_singleton, X_p_L ]
-    · -- We'll use the fact that $X_{p,L+1}(m) = X_{p,L}(m) + \mathbf{1}_{\{m \geq \frac{p+1}{2} p^L\}}$.
+    induction L with
+    | zero => simp_all +decide
+              rintro ( _ | k ) <;> simp_all +decide [ Finset.filter_singleton, X_p_L ]
+    | succ L ih =>
+      simp_all +decide [ Nat.pow_succ' ]
+      -- We'll use the fact that $X_{p,L+1}(m) = X_{p,L}(m) + \mathbf{1}_{\{m \geq \frac{p+1}{2} p^L\}}$.
       have h_split : ∀ m < p * p ^ L, X_p_L p m (L + 1) = X_p_L p (m / p) L + if m % p ≥ (p + 1) / 2 then 1 else 0 := by
         intro m hm
         unfold X_p_L
@@ -1126,9 +1131,10 @@ theorem main_theorem (C : ℝ) (hC : C > 0) :
           have h_den_valuation : padicValNat p (Nat.factorial (m + k_M (C + 1) M)) = padicValNat p (Nat.factorial m) + W p m (k_M (C + 1) M) := by
             have h_den_valuation : ∀ k : ℕ, padicValNat p (Nat.factorial (m + k)) = padicValNat p (Nat.factorial m) + ∑ i ∈ Finset.Icc 1 k, padicValNat p (m + i) := by
               intro k
-              induction' k with k ih
-              · simp
-              · haveI := Fact.mk hp
+              induction k with
+              | zero => simp
+              | succ k ih =>
+                haveI := Fact.mk hp
                 have hfact : Nat.factorial (m + (k + 1)) = (m + (k + 1)) * Nat.factorial (m + k) := by
                   rw [show m + (k + 1) = (m + k) + 1 by omega, Nat.factorial_succ]
                 rw [hfact, padicValNat.mul (by positivity) (by positivity), ih]

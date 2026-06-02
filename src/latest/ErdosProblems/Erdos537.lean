@@ -16,7 +16,6 @@ URLs:
 import Mathlib
 
 set_option linter.style.cases false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.style.setOption false
@@ -392,9 +391,10 @@ lemma lem_prime_series (hChebyshev : ChebyshevUpperBound) : Summable (fun p : �
       Real.log p) else 0) ≤ ∑ k ∈ Finset.range (N + 1), ∑ p ∈ Finset.filter Nat.Prime (Finset.Icc
       (2^(k-1) + 1) (2^k)), (1 : ℝ) / (p * Real.log p) := by
       intro N
-      induction' N with N ih;
-      · norm_num [ Finset.sum_filter ];
-      · have h_split : Finset.Icc 1 (2^(N+1)) = Finset.Icc 1 (2^N) ∪ Finset.Icc (2^N + 1) (2^(N+1))
+      induction N with
+      | zero => norm_num [ Finset.sum_filter ];
+      | succ N ih =>
+        have h_split : Finset.Icc 1 (2^(N+1)) = Finset.Icc 1 (2^N) ∪ Finset.Icc (2^N + 1) (2^(N+1))
         := by
           exact Eq.symm ( Finset.Ico_union_Ico_eq_Ico ( by norm_num ) ( by ring_nf; norm_num ) );
         rw [ h_split, Finset.sum_union ];
@@ -832,9 +832,10 @@ lemma periodic_has_density_value (S : Set ℕ) (M : ℕ) (hM : M > 0) (h_per : �
             have h_card_approx_step : ∀ k : ℕ, ((Finset.filter (fun n => n ∈ S) (Finset.range (k *
               M))).card : ℝ) ≤ c * k := by
               intro k
-              induction' k with k ih;
-              · norm_num +zetaDelta at *;
-              · rw [ Nat.succ_mul, Finset.card_filter ];
+              induction k with
+              | zero => norm_num +zetaDelta at *;
+              | succ k ih =>
+                rw [ Nat.succ_mul, Finset.card_filter ];
                 rw [ Finset.sum_range_add _ _ M ];
                 norm_num [ Finset.sum_ite ] at *;
                 rw [ show ( Finset.filter ( fun x => k * M + x ∈ S ) ( Finset.range M ) ) =
@@ -864,9 +865,10 @@ lemma periodic_has_density_value (S : Set ℕ) (M : ℕ) (hM : M > 0) (h_per : �
               have h_card_approx_lower_step : ((Finset.filter (fun n => n ∈ S) (Finset.range (k *
                 M))).card : ℝ) = ∑ i ∈ Finset.range k, ((Finset.filter (fun n => n ∈ S) (Finset.Ico
                 (i * M) ((i + 1) * M))).card : ℝ) := by
-                induction' k with k ih;
-                · norm_num;
-                · rw [ Finset.sum_range_succ, ← ih ];
+                induction k with
+                | zero => norm_num;
+                | succ k ih =>
+                  rw [ Finset.sum_range_succ, ← ih ];
                   rw_mod_cast [ ← Finset.card_union_of_disjoint ];
                   · congr with n ; simp +decide
                     exact ⟨ fun h => if h' : n < k * M then Or.inl ⟨ h', h.2 ⟩ else Or.inr ⟨ ⟨

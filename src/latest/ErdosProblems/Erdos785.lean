@@ -45,7 +45,6 @@ namespace Erdos785
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.induction false
 set_option linter.style.refine false
 set_option linter.style.multiGoal false
 set_option linter.style.cases false
@@ -204,7 +203,9 @@ theorem lemma_limit_3_2 (A B : Set ℕ)
           intro p hp; specialize h_bound p.1 hp.1 hp.2.2.1 hp.2.2.2.2.1 p.2 hp.2.1 hp.2.2.2.1 hp.2.2.2.2.2; aesop;
         have h_card_bound : Nat.card (⋃ l ∈ Finset.Icc (⌊x⌋.toNat + 1) (⌊2 * x⌋.toNat), {p : ℕ × ℕ | p.1 ∈ A ∧ p.2 ∈ B ∧ p.1 ≤ x ∧ p.2 ≤ x ∧ p.1 + p.2 = l}) ≤ ∑ l ∈ Finset.Icc (⌊x⌋.toNat + 1) (⌊2 * x⌋.toNat), Nat.card {p : ℕ × ℕ | p.1 ∈ A ∧ p.2 ∈ B ∧ p.1 ≤ x ∧ p.2 ≤ x ∧ p.1 + p.2 = l} := by
           have h_card_bound : ∀ (S : Finset ℕ) (f : ℕ → Set (ℕ × ℕ)), Nat.card (⋃ l ∈ S, f l) ≤ ∑ l ∈ S, Nat.card (f l) := by
-            intros S f; induction' S using Finset.induction with l S hlS ih; aesop;
+            intros S f; induction S using Finset.induction with
+            | empty => aesop
+            | insert l S hlS ih =>
             simp_all +decide [ Finset.sum_insert hlS ];
             exact le_trans ( Set.ncard_union_le _ _ ) ( add_le_add_right ih _ );
           exact h_card_bound _ _;
@@ -434,7 +435,9 @@ theorem lemma_quarter_limit_expression (A B : Set ℕ) (h_hyp : exact_complement
           simp [h_l] at *;
           tauto;
         have h_card_union : ∀ {S : Finset ℕ} {f : ℕ → Set (ℕ × ℕ)}, (∀ l ∈ S, Set.Finite (f l)) → Nat.card (⋃ l ∈ S, f l) ≤ ∑ l ∈ S, Nat.card (f l) := by
-          intros S f hf_finite; induction' S using Finset.induction with l S hlS ih; aesop;
+          intros S f hf_finite; induction S using Finset.induction with
+          | empty => aesop
+          | insert l S hlS ih =>
           simp_all +decide [ Finset.sum_insert hlS ];
           exact le_trans ( Set.ncard_union_le _ _ ) ( add_le_add_right ih _ );
         refine' mod_cast le_trans _ ( h_card_union _ );
@@ -985,7 +988,9 @@ theorem lemma_sum_representation_count (A B : Set ℕ) (x : ℝ) :
       have h_sum_eq : ∑ l ∈ Finset.range (⌊2 * x⌋.toNat + 1), Nat.card {p : ℕ × ℕ | p.1 ∈ A ∧ p.2 ∈ B ∧ p.1 ≤ x ∧ p.2 ≤ x ∧ p.1 + p.2 = l} = Nat.card {p : ℕ × ℕ | p.1 ∈ A ∧ p.2 ∈ B ∧ p.1 ≤ x ∧ p.2 ≤ x} := by
         have h_sum_eq : ∑ l ∈ Finset.range (⌊2 * x⌋.toNat + 1), Nat.card {p : ℕ × ℕ | p.1 ∈ A ∧ p.2 ∈ B ∧ p.1 ≤ x ∧ p.2 ≤ x ∧ p.1 + p.2 = l} = Nat.card (⋃ l ∈ Finset.range (⌊2 * x⌋.toNat + 1), {p : ℕ × ℕ | p.1 ∈ A ∧ p.2 ∈ B ∧ p.1 ≤ x ∧ p.2 ≤ x ∧ p.1 + p.2 = l}) := by
           have h_sum_eq : ∀ {S : Finset ℕ} {f : ℕ → Set (ℕ × ℕ)}, (∀ l ∈ S, Set.Finite (f l)) → (∀ l₁ l₂, l₁ ∈ S → l₂ ∈ S → l₁ ≠ l₂ → Disjoint (f l₁) (f l₂)) → ∑ l ∈ S, Nat.card (f l) = Nat.card (⋃ l ∈ S, f l) := by
-            intros S f hf_finite hf_disjoint; induction' S using Finset.induction with l S hl ih; aesop;
+            intros S f hf_finite hf_disjoint; induction S using Finset.induction with
+            | empty => aesop
+            | insert l S hl ih =>
             simp_all +decide [Finset.sum_insert hl];
             rw [ @Set.ncard_union_eq ];
             · simp_all +decide [ Set.disjoint_left ];
@@ -1224,10 +1229,12 @@ theorem lemma_limit_powers_of_two (A : Set ℕ)
       -- For $k > 0$, we use induction on $k$.
       have h_pos : ∀ k : ℕ, Filter.Tendsto (fun x => ((counting_function A (2 ^ k * x)) : ℝ) / (counting_function A x)) Filter.atTop (nhds 1) := by
         intro k
-        induction' k with k ih;
-        · refine' tendsto_const_nhds.congr' _;
+        induction k with
+        | zero =>
+          refine' tendsto_const_nhds.congr' _;
           filter_upwards [ h_double.eventually_ne one_ne_zero ] with x hx using by aesop;
-        · have h_succ : Filter.Tendsto (fun x => ((counting_function A (2 * (2 ^ k * x)) : ℝ) / (counting_function A (2 ^ k * x))) * ((counting_function A (2 ^ k * x) : ℝ) / (counting_function A x))) Filter.atTop (nhds 1) := by
+        | succ k ih =>
+          have h_succ : Filter.Tendsto (fun x => ((counting_function A (2 * (2 ^ k * x)) : ℝ) / (counting_function A (2 ^ k * x))) * ((counting_function A (2 ^ k * x) : ℝ) / (counting_function A x))) Filter.atTop (nhds 1) := by
             simpa using Filter.Tendsto.mul ( h_double.comp ( Filter.tendsto_id.const_mul_atTop ( by positivity ) ) ) ih;
           refine h_succ.congr' ( by filter_upwards [ ih.eventually_ne one_ne_zero ] with x hx using by rw [ div_mul_div_cancel₀ ( by aesop ) ] ; ring_nf );
       intro k
