@@ -1522,7 +1522,6 @@ Filter.atTop (nhds 0) := by
 
 set_option maxHeartbeats 800000 in
 -- The final polynomial-logarithmic estimate times out at the default heartbeat limit.
-set_option linter.style.induction false in
 /--
 The count of elements ≤ N in ⋃ shifts m is polylog, using the min bound.
 
@@ -1553,22 +1552,29 @@ lemma count_bound_from_min_shifts (shifts : ℕ → Finset ℕ)
     · have h_contradiction : 2 ^ m ≥ N * (256 * m ^ 3 + 4) := by
         have h_contradiction : ∀ m ≥ 4 * Nat.log 2 N + 69, 2 ^ m ≥ N * (256 * m ^ 3 + 4) := by
           intro m hm
-          induction' hm with m ih
-          · have h_contradiction :
+          induction hm with
+          | refl =>
+            have h_contradiction :
                 2 ^ (4 * Nat.log 2 N + 69) ≥
                   2 ^ (Nat.log 2 N + 1) *
                     (256 * (4 * Nat.log 2 N + 69) ^ 3 + 4) := by
-              induction' Nat.log 2 N with k ih <;> norm_num [ Nat.pow_succ', Nat.pow_mul ] at *
-              nlinarith [
-                pow_pos ( zero_lt_two' ℕ ) k,
-                pow_nonneg ( Nat.zero_le k ) 2,
-                pow_nonneg ( Nat.zero_le k ) 3 ]
+              induction Nat.log 2 N with
+              | zero =>
+                norm_num [ Nat.pow_succ', Nat.pow_mul ] at *
+              | succ k ih =>
+                norm_num [ Nat.pow_succ', Nat.pow_mul ] at *
+                nlinarith [
+                  pow_pos ( zero_lt_two' ℕ ) k,
+                  pow_nonneg ( Nat.zero_le k ) 2,
+                  pow_nonneg ( Nat.zero_le k ) 3 ]
             exact
               le_trans
                 (Nat.mul_le_mul_right _
                   (Nat.le_of_lt (Nat.lt_pow_succ_log_self (by decide) _)))
                 h_contradiction
-          · norm_num [ pow_succ' ] at *
+          | step hm ih =>
+            rename_i m
+            norm_num [ pow_succ' ] at *
             nlinarith [
               Nat.zero_le ( N * m ),
               Nat.zero_le ( N * m ^ 2 ),
@@ -1657,7 +1663,6 @@ def constructB (d : ShiftApproxData) : Set ℕ :=
   {1} ∪ {n | ∃ m, 0 < m ∧ n ∈ d.shifts m}
 
 set_option linter.flexible false in
-set_option linter.style.induction false in
 set_option linter.style.refine false in
 /-- If |B ∩ [1,N]|^h / N → 0 for every h, then B is not an additive basis. -/
 lemma not_basis_of_sparse {B : Set ℕ}
@@ -1694,12 +1699,16 @@ lemma not_basis_of_sparse {B : Set ℕ}
                 ∃ f : Fin h → ℕ,
                   (∀ i, f i ∈ B ∪ {0}) ∧ (∑ i, f i = n) := by
             intro h n hn
-            induction' h with h ih generalizing n <;> simp_all +decide [ hSumset ]
-            rcases hn with ⟨ x, hx, y, hy, rfl ⟩
-            obtain ⟨ f, hf₁, hf₂ ⟩ := ih x hx
-            use Fin.snoc f y
-            simp_all +decide [ Fin.sum_univ_castSucc ]
-            exact fun i => by cases i using Fin.lastCases <;> simp +decide [ * ]
+            induction h generalizing n with
+            | zero =>
+              simp_all +decide [ hSumset ]
+            | succ h ih =>
+              simp_all +decide [ hSumset ]
+              rcases hn with ⟨ x, hx, y, hy, rfl ⟩
+              obtain ⟨ f, hf₁, hf₂ ⟩ := ih x hx
+              use Fin.snoc f y
+              simp_all +decide [ Fin.sum_univ_castSucc ]
+              exact fun i => by cases i using Fin.lastCases <;> simp +decide [ * ]
           exact h_sums_bound_aux h n hn
         exact
           Finset.mem_image.mpr
@@ -1945,7 +1954,6 @@ lemma countIn_pred_of_not_mem {A : Set ℕ} {c : ℕ} (hc : c ≥ 1) (hcA : c �
 /-
 Sum of elements in a finset of distinct positive integers with q elements is ≥ q(q+1)/2.
 -/
-set_option linter.style.induction false in
 lemma sum_ge_triangular (C : Finset ℕ) (hC : ∀ c ∈ C, c ≥ 1) :
     C.card * (C.card + 1) / 2 ≤ C.sum id := by
   -- Since $C$ is a finite set of distinct positive integers, we can order its
@@ -1956,9 +1964,14 @@ lemma sum_ge_triangular (C : Finset ℕ) (hC : ∀ c ∈ C, c ≥ 1) :
   obtain ⟨f, hf_mono, hf_mem⟩ := h_order
   have h_f_ge : ∀ i, f i ≥ i + 1 := by
     intro ⟨ i, hi ⟩
-    induction' i with i ih
-    · exact hC _ ( hf_mem _ )
-    · exact lt_of_le_of_lt ( ih ( Nat.lt_of_succ_lt hi ) ) ( hf_mono ( Nat.lt_succ_self _ ) )
+    revert hi
+    induction i with
+    | zero =>
+      intro hi
+      exact hC _ ( hf_mem _ )
+    | succ i ih =>
+      intro hi
+      exact lt_of_le_of_lt ( ih ( Nat.lt_of_succ_lt hi ) ) ( hf_mono ( Nat.lt_succ_self _ ) )
   have h_sum_ge : ∑ i ∈ Finset.univ.image f, i ≥ ∑ i ∈ Finset.range C.card, (i + 1) := by
     rw [ Finset.sum_image <| by intros i hi j hj hij; exact hf_mono.injective hij ]
     rw [ Finset.sum_range ]
