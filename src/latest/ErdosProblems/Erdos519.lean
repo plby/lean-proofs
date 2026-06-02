@@ -59,7 +59,6 @@ set_option linter.flexible false
 set_option linter.style.longLine false
 set_option linter.style.refine false
 set_option linter.style.multiGoal false
-set_option linter.style.induction false
 -- The generated analytic proof blocks need a larger heartbeat budget throughout.
 set_option maxHeartbeats 10000000
 -- Several generated complex-integral estimates time out at the default heartbeat limit.
@@ -512,7 +511,9 @@ lemma exp_correction_iteratedDeriv {n : ℕ} (z : Fin n → ℂ)
   have h_iter_zero : deriv^[k] (fun y => y ^ (n + 1) * F y) 0 = 0 := by
     have := @iteratedDeriv_pow_mul_zero
     simpa only [ iteratedDeriv_eq_iterate ] using this hF_cont k hk
-  induction' k with k ih <;> simp_all +decide []
+  induction k with
+  | zero => simp_all +decide []
+  | succ k ih => simp_all +decide []
 
 /-
 G and P have the same iterated derivatives at 0 through degree n.
@@ -681,12 +682,13 @@ lemma exp_g_fun_hasDerivAt {n : ℕ} (z : Fin n → ℂ) (θ : ℝ) :
       (g_deriv_fun z θ * Complex.exp (g_fun z θ)) θ := by
   -- By definition of $g_fun$, we can write its derivative using the chain rule.
   have h_deriv : HasDerivAt (fun t => ∑ k : Fin n, (powerSum z (k.val + 1) / (k.val + 1 : ℂ)) * Complex.exp ((k.val + 1 : ℂ) * t * I)) (∑ k : Fin n, (powerSum z (k.val + 1)) * Complex.exp ((k.val + 1 : ℂ) * θ * I) * Complex.I) θ := by
-    induction' (Finset.univ : Finset (Fin n)) using Finset.induction <;> simp_all +decide [Finset.sum_insert,
-                                                                                           mul_comm,
-                                                                                           mul_left_comm,
-                                                                                           div_eq_mul_inv]
-    · exact hasDerivAt_const _ _
-    · convert HasDerivAt.add (HasDerivAt.mul (HasDerivAt.comp _ (Complex.hasDerivAt_exp _) (HasDerivAt.mul (hasDerivAt_id _) (hasDerivAt_const _ _))) (hasDerivAt_const _ _)) ‹_› using 1; norm_num; ring_nf
+    induction (Finset.univ : Finset (Fin n)) using Finset.induction with
+    | empty =>
+      simp_all +decide [mul_comm, mul_left_comm, div_eq_mul_inv]
+      exact hasDerivAt_const _ _
+    | insert a s hc ih =>
+      simp_all +decide [Finset.sum_insert, mul_comm, mul_left_comm, div_eq_mul_inv]
+      convert HasDerivAt.add (HasDerivAt.mul (HasDerivAt.comp _ (Complex.hasDerivAt_exp _) (HasDerivAt.mul (hasDerivAt_id _) (hasDerivAt_const _ _))) (hasDerivAt_const _ _)) ‹_› using 1; norm_num; ring_nf
       field_simp
       rw [ eq_div_iff ] <;> ring_nf; norm_cast; aesop
   convert HasDerivAt.cexp (h_deriv.neg.comp_ofReal) using 1; norm_num [ g_deriv_fun ]; ring_nf
