@@ -44,7 +44,6 @@ import Mathlib
 import ErdosProblems.Erdos447
 
 set_option linter.style.setOption false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.flexible false
@@ -522,24 +521,27 @@ lemma central_binom_bound :
       have h_stirling : (Nat.choose (2 * m) m : ℝ) ≤ (4 ^ m) / Real.sqrt (3 * m + 1) := by
         have h_binom : (Nat.choose (2 * m) m : ℝ) ^ 2 ≤ (4 ^ (2 * m)) / (3 * m + 1) := by
           field_simp;
-          induction' m with m ih <;>
-            norm_num [ Nat.cast_succ, Nat.mul_succ, pow_succ', pow_mul' ] at *;
-          have h_binom_succ :
-              (Nat.choose (2 * m + 2) (m + 1) : ℝ) =
-                (Nat.choose (2 * m) m : ℝ) * (2 * m + 1) * 2 / (m + 1) := by
-            rw [ Nat.cast_choose, Nat.cast_choose ] <;> try linarith;
-            norm_num [ two_mul, add_assoc, Nat.factorial ] ; ring_nf;
-            rw [ show 2 + m * 2 - ( 1 + m ) = m + 1 by
-              rw [ Nat.sub_eq_of_eq_add ]
-              ring ]
-            norm_num [ Nat.factorial_succ ]
-            ring_nf;
-            -- Combine and simplify the fractions
-            field_simp
-            ring;
-          rw [ h_binom_succ, div_mul_div_comm, div_mul_eq_mul_div, div_le_iff₀ ] <;>
-            ring_nf at * <;> try positivity;
-          nlinarith [ pow_nonneg ( Nat.cast_nonneg m : ( 0 : ℝ ) ≤ m ) 3 ]
+          induction m with
+          | zero =>
+              norm_num [ Nat.cast_succ, Nat.mul_succ, pow_succ', pow_mul' ] at *
+          | succ m ih =>
+              norm_num [ Nat.cast_succ, Nat.mul_succ, pow_succ', pow_mul' ] at *;
+              have h_binom_succ :
+                  (Nat.choose (2 * m + 2) (m + 1) : ℝ) =
+                    (Nat.choose (2 * m) m : ℝ) * (2 * m + 1) * 2 / (m + 1) := by
+                rw [ Nat.cast_choose, Nat.cast_choose ] <;> try linarith;
+                norm_num [ two_mul, add_assoc, Nat.factorial ] ; ring_nf;
+                rw [ show 2 + m * 2 - ( 1 + m ) = m + 1 by
+                  rw [ Nat.sub_eq_of_eq_add ]
+                  ring ]
+                norm_num [ Nat.factorial_succ ]
+                ring_nf;
+                -- Combine and simplify the fractions
+                field_simp
+                ring;
+              rw [ h_binom_succ, div_mul_div_comm, div_mul_eq_mul_div, div_le_iff₀ ] <;>
+                ring_nf at * <;> try positivity;
+              nlinarith [ pow_nonneg ( Nat.cast_nonneg m : ( 0 : ℝ ) ≤ m ) 3 ]
         convert Real.le_sqrt_of_sq_le h_binom using 1
         · rw [Real.sqrt_div]
           · rw [show 2 * m = m * 2 by ring, pow_mul, Real.sqrt_sq_eq_abs, abs_of_nonneg]
@@ -815,13 +817,18 @@ lemma sum_tau_bound :
           ∀ N : ℕ, N ≥ 1 →
             ∑ x ∈ Finset.Ico 1 (N + 1), (1 / (x : ℝ)) ≤ Real.log N + 1 := by
         intros N hN
-        induction' hN with N hN ih <;> norm_num [ Finset.sum_Ico_succ_top ] at *;
-        field_simp;
-        have := Real.log_le_sub_one_of_pos
-          (by positivity : 0 < (N : ℝ) / (N + 1))
-        rw [Real.log_div (by positivity) (by positivity)] at this
-        norm_num at *
-        nlinarith [mul_div_cancel₀ (N : ℝ) (by positivity : (N + 1 : ℝ) ≠ 0)] ;
+        induction hN with
+        | refl =>
+            norm_num [ Finset.sum_Ico_succ_top ] at *
+        | step hN ih =>
+            rename_i N
+            norm_num [ Finset.sum_Ico_succ_top ] at *;
+            field_simp;
+            have := Real.log_le_sub_one_of_pos
+              (by positivity : 0 < (N : ℝ) / (N + 1))
+            rw [Real.log_div (by positivity) (by positivity)] at this
+            norm_num at *
+            nlinarith [mul_div_cancel₀ (N : ℝ) (by positivity : (N + 1 : ℝ) ≠ 0)] ;
       exact if hN : 1 ≤ N then h_sum_divisors_le_harmonic N hN else by aesop;
     rcases N.eq_zero_or_pos with hN | hN <;> simp_all +decide [ div_eq_mul_inv ];
     exact h_sum_divisors_le_floor.trans (by
@@ -1075,29 +1082,33 @@ lemma sum_le_prod_of_multiplicative_bounded (f : ℕ → ℝ) (hf_pos : ∀ n, 0
                 (∀ p ∈ ps, e p ≤ Nat.log p N) →
                   f (∏ p ∈ ps, p ^ e p) = ∏ p ∈ ps, f (p ^ e p) := by
           intros ps hps_prime hps_log
-          induction' ps using Finset.induction with p ps hps ih <;> simp_all +decide
-          · by_cases h : f 1 = 0;
-            · have h_f_zero : ∀ n, 1 ≤ n → n ≤ N → f n = 0 := by
-                exact fun n hn hn' => by simpa [ h ] using hf_mul n 1 ( by norm_num ) ;
-              exact False.elim <|
-                h_contra.not_ge <| by
-                  rw [
-                    Finset.sum_eq_zero fun x hx =>
-                      h_f_zero x
-                        (Finset.mem_Icc.mp hx |>.1)
-                        (Finset.mem_Icc.mp hx |>.2)]
-                  exact Finset.prod_nonneg fun _ _ =>
-                    Finset.sum_nonneg fun _ _ => hf_pos _
-            · simpa [ h ] using hf_mul 1 1 ( by norm_num );
-          · rw [ hf_mul ];
-            · rw [ ih ]
-            · exact Nat.Coprime.prod_right fun q hq =>
-                Nat.Coprime.pow _ _ <| by
-                  have :=
-                    Nat.coprime_primes
-                      hps_prime.1
-                      (hps_prime.2 q hq)
-                  aesop
+          induction ps using Finset.induction with
+          | empty =>
+              simp_all +decide
+              by_cases h : f 1 = 0;
+              · have h_f_zero : ∀ n, 1 ≤ n → n ≤ N → f n = 0 := by
+                  exact fun n hn hn' => by simpa [ h ] using hf_mul n 1 ( by norm_num ) ;
+                exact False.elim <|
+                  h_contra.not_ge <| by
+                    rw [
+                      Finset.sum_eq_zero fun x hx =>
+                        h_f_zero x
+                          (Finset.mem_Icc.mp hx |>.1)
+                          (Finset.mem_Icc.mp hx |>.2)]
+                    exact Finset.prod_nonneg fun _ _ =>
+                      Finset.sum_nonneg fun _ _ => hf_pos _
+              · simpa [ h ] using hf_mul 1 1 ( by norm_num );
+          | insert p ps hps ih =>
+              simp_all +decide
+              rw [ hf_mul ];
+              · rw [ ih ]
+              · exact Nat.Coprime.prod_right fun q hq =>
+                  Nat.Coprime.pow _ _ <| by
+                    have :=
+                      Nat.coprime_primes
+                        hps_prime.1
+                        (hps_prime.2 q hq)
+                    aesop
         rw [
           he.2.2,
           h_f_factorization_step S
@@ -2076,16 +2087,19 @@ lemma lower_log_density_pos (A : Set ℕ) (hA : lowerDensity A > 0) :
                   ∀ N : ℕ, N ≥ 1 →
                     ∑ n ∈ Finset.Icc 1 N, (1 : ℝ) / n ≤ Real.log N + 1 := by
                 intro N hN
-                induction' hN with N hN ih
-                · norm_num +zetaDelta at *
-                · norm_num [Finset.sum_Icc_succ_top] at *
-                  rw [
-                    show (N : ℝ) + 1 = N * (1 + (N : ℝ)⁻¹) by
-                      nlinarith only [
-                        mul_inv_cancel₀ (by positivity : (N : ℝ) ≠ 0)],
-                    Real.log_mul (by positivity) (by positivity)]
-                  nlinarith [
-                    inv_pos.mpr
+                induction hN with
+                | refl =>
+                    norm_num +zetaDelta at *
+                | step hN ih =>
+                    rename_i N
+                    norm_num [Finset.sum_Icc_succ_top] at *
+                    rw [
+                      show (N : ℝ) + 1 = N * (1 + (N : ℝ)⁻¹) by
+                        nlinarith only [
+                          mul_inv_cancel₀ (by positivity : (N : ℝ) ≠ 0)],
+                      Real.log_mul (by positivity) (by positivity)]
+                    nlinarith [
+                      inv_pos.mpr
                       (by positivity : 0 < (N : ℝ) * (1 + (N : ℝ)⁻¹)),
                     mul_inv_cancel₀
                       (by positivity : (N : ℝ) * (1 + (N : ℝ)⁻¹) ≠ 0),
@@ -2594,18 +2608,21 @@ lemma log_density_sum_le_log (A : Set ℕ) (N : ℕ) (hN : N ≥ 1) :
           ∀ N : ℕ, N ≥ 1 →
             ∑ n ∈ Finset.Icc 1 N, (1 : ℝ) / n ≤ Real.log N + 1 := by
         intro N hN
-        induction' hN with N hN ih;
-        · norm_num +zetaDelta at *;
-        · norm_num [ Finset.sum_Ioc_succ_top, helper3 ] at *;
-          rw [
-            show (N : ℝ) + 1 = N * (1 + (N : ℝ)⁻¹) by
-              nlinarith only [mul_inv_cancel₀ (by positivity : (N : ℝ) ≠ 0)],
-            Real.log_mul (by positivity) (by positivity)];
-          nlinarith [
-            inv_pos.mpr (by positivity : 0 < (N : ℝ) * (1 + (N : ℝ)⁻¹)),
-            mul_inv_cancel₀
-              (by positivity : (N : ℝ) * (1 + (N : ℝ)⁻¹) ≠ 0),
-            Real.log_inv (1 + (N : ℝ)⁻¹),
+        induction hN with
+        | refl =>
+            norm_num +zetaDelta at *;
+        | step hN ih =>
+            rename_i N
+            norm_num [ Finset.sum_Ioc_succ_top, helper3 ] at *;
+            rw [
+              show (N : ℝ) + 1 = N * (1 + (N : ℝ)⁻¹) by
+                nlinarith only [mul_inv_cancel₀ (by positivity : (N : ℝ) ≠ 0)],
+              Real.log_mul (by positivity) (by positivity)];
+            nlinarith [
+              inv_pos.mpr (by positivity : 0 < (N : ℝ) * (1 + (N : ℝ)⁻¹)),
+              mul_inv_cancel₀
+                (by positivity : (N : ℝ) * (1 + (N : ℝ)⁻¹) ≠ 0),
+              Real.log_inv (1 + (N : ℝ)⁻¹),
             Real.log_le_sub_one_of_pos
               (inv_pos.mpr (by positivity : 0 < (1 + (N : ℝ)⁻¹))),
             mul_inv_cancel₀ (by positivity : (N : ℝ) ≠ 0),
