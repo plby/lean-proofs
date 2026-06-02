@@ -18,7 +18,6 @@ import Mathlib
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.unusedVariables false
@@ -189,10 +188,12 @@ theorem step3_basis (h : ℕ) (B : Set ℕ) (d : ℕ → ℕ) (r : ℝ)
   is_basis_of_order (constructed_A B d r) h := by
     -- Since $B \subseteq A$, we have $hB \subseteq hA$.
     have hB_subset_hA : ∀ n, iterated_sumset B n ⊆ iterated_sumset (constructed_A B d r) n := by
-      intro n;
-      induction' n with n ih;
-      · aesop;
-      · -- By definition of iterated sumset, we have $B + iterated_sumset B n \subseteq
+      intro n
+      induction n with
+      | zero =>
+        aesop
+      | succ n ih =>
+        -- By definition of iterated sumset, we have $B + iterated_sumset B n \subseteq
         -- constructed_A B d r + iterated_sumset (constructed_A B d r) n$.
         have h_sumset_subset : B + iterated_sumset B n ⊆ constructed_A B d r + iterated_sumset
           (constructed_A B d r) n := by
@@ -219,9 +220,11 @@ theorem sum_L_bound (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r C)
     -- ℝ)^{1/h}$ for all $n$.
     have h_sum_le : ∀ n, (∑ k ∈ Finset.range n, (S.d k : ℝ)^r) ≤ (1 / 4)
       * (S.d n : ℝ)^(1 / h : ℝ) := by
-      intro n; induction' n with n ih <;> norm_num [ Finset.sum_range_succ ] ; aesop;
-      · positivity;
-      · have := S.cond_sum ( n + 1 ) ; norm_num [ Finset.sum_range_succ ] at * ; linarith;
+      intro n
+      rcases n with _ | n
+      · norm_num [Finset.sum_range_succ]
+        positivity
+      · exact S.cond_sum (n + 1) (by omega)
     -- By definition of $d$, we know that $(d n : ℝ)^{1/h} \leq (d n : ℝ)^r$ for sufficiently
     -- large $n$.
     have h_exp_le : ∀ᶠ n in Filter.atTop, (S.d n : ℝ)^(1 / h : ℝ) ≤ (S.d n : ℝ)^r := by
@@ -471,9 +474,11 @@ theorem card_decomposition (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r 
         (⋃ k ∈ s, I (S.d k) (L r (S.d k))).ncard ≤
           ∑ k ∈ s, L r (S.d k) := by
     intro s
-    induction' s using Finset.induction with a s has ih
-    · simp
-    · rw [Finset.sum_insert has]
+    induction s using Finset.induction with
+    | empty =>
+      simp
+    | insert a s has ih =>
+      rw [Finset.sum_insert has]
       have hunion :
           (⋃ k ∈ insert a s, I (S.d k) (L r (S.d k))) =
             I (S.d a) (L r (S.d a)) ∪ ⋃ k ∈ s, I (S.d k) (L r (S.d k)) := by
@@ -896,9 +901,11 @@ theorem A_dn_intermediate_bound (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : Vali
         (⋃ k ∈ s, I (S.d k) (L r (S.d k))).ncard ≤
           ∑ k ∈ s, L r (S.d k) := by
     intro s
-    induction' s using Finset.induction with a s has ih
-    · simp
-    · rw [Finset.sum_insert has]
+    induction s using Finset.induction with
+    | empty =>
+      simp
+    | insert a s has ih =>
+      rw [Finset.sum_insert has]
       have hunion :
           (⋃ k ∈ insert a s, I (S.d k) (L r (S.d k))) =
             I (S.d a) (L r (S.d a)) ∪ ⋃ k ∈ s, I (S.d k) (L r (S.d k)) := by
@@ -955,52 +962,6 @@ theorem A_dn_intermediate_bound (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : Vali
       ((U ∩ R).ncard : ℝ) ≤ ∑ k ∈ Finset.range (n + 1), (L r (S.d k) : ℝ) := by
     exact_mod_cast hU_card
   linarith
-/-
-    -- Apply the bounds to get the desired inequality.
-    have h_aux : ∀ᶠ n in atTop, (Set.ncard ((⋃ k, I (S.d k) (L r (S.d k))) ∩ Set.Icc 1 (S.d
-    n)) : ℝ) ≤ ∑ k ∈ Finset.range (n + 1), (L r (S.d k) : ℝ) ∧ (∑ k ∈ Finset.range (n + 1),
-    (S.d k : ℝ)^r) ≤ (1/4) * (S.d n : ℝ)^(1 / (h : ℝ)) + (S.d n : ℝ)^r := by
-      have h_aux : ∀ᶠ n in atTop, (Set.ncard ((⋃ k, I (S.d k) (L r (S.d k))) ∩ Set.Icc 1
-      (S.d n)) : ℝ) ≤ ∑ k ∈ Finset.range (n + 1), (L r (S.d k) : ℝ) := by
-        have h_aux : ∀ᶠ n in atTop, (⋃ k, I (S.d k) (L r (S.d k))) ∩ Set.Icc 1 (S.d n) ⊆
-        ⋃ k ∈ Finset.range (n + 1), I (S.d k) (L r (S.d k)) := by
-          bound;
-          exact?;
-        filter_upwards [ h_aux ] with n hn;
-        have h_aux : (Set.ncard ((⋃ k, I (S.d k) (L r (S.d k))) ∩ Set.Icc 1 (S.d n)) :
-        ℝ) ≤ ∑ k ∈ Finset.range (n + 1), (Set.ncard (I (S.d k) (L r (S.d k))) : ℝ) := by
-          have h_aux : (Set.ncard ((⋃ k, I (S.d k) (L r (S.d k))) ∩ Set.Icc 1 (S.d n))
-          : ℝ) ≤ (Set.ncard (⋃ k ∈ Finset.range (n + 1), I (S.d k) (L r (S.d k))) : ℝ)
-          := by
-            gcongr;
-            exact Set.Finite.biUnion ( Finset.finite_toSet _ ) fun _ _ => Set.finite_Icc _ _;
-          refine le_trans h_aux ?_;
-          induction' ( Finset.range ( n + 1 ) ) using Finset.induction <;> aesop;
-          exact le_trans ( mod_cast Set.ncard_union_le _ _ ) ( add_le_add_left a_2 _ );
-        refine le_trans h_aux ?_;
-        gcongr ; aesop;
-        unfold I; norm_num [ Set.ncard_eq_toFinset_card' ] ;
-        omega;
-      filter_upwards [ h_aux, Filter.eventually_ge_atTop 1 ] with n hn hn' using ⟨ hn,
-      sum_bound_at_n h r TB.C S h_ge_3 hr1 hr2 n hn' ⟩;
-    -- By definition of $count_in_range$, we know that
-    have h_count : ∀ᶠ n in atTop, (count_in_range (constructed_A TB.B S.d r) (S.d n) : ℝ) ≤
-    (count_in_range TB.B (S.d n) : ℝ) + (Set.ncard ((⋃ k, I (S.d k) (L r (S.d k))) ∩ Set.Icc
-    1 (S.d n)) : ℝ) := by
-      refine Filter.Eventually.of_forall fun n => ?_ ; norm_cast ; aesop;
-      unfold count_in_range constructed_A; aesop;
-      convert Set.ncard_union_le _ _ using 2 ; aesop;
-    -- By definition of $count_in_range$, we know that $count_in_range TB.B (S.d n) \leq TB.C *
-    -- (S.d n : ℝ)^(1 / (h : ℝ))$.
-    have h_count_TB : ∀ᶠ n in atTop, (count_in_range TB.B (S.d n) : ℝ) ≤ TB.C * (S.d n :
-    ℝ)^(1 / (h : ℝ)) := by
-      exact Filter.eventually_atTop.mpr ⟨ 1, fun n hn => TB.thin_condition _ <| mod_cast
-      Nat.one_le_iff_ne_zero.mpr <| Nat.ne_of_gt <| S.d_pos n ⟩;
-    filter_upwards [ h_aux, h_count, h_count_TB ] with n hn hn' hn'';
-    linarith [ show ( ∑ k ∈ Finset.range ( n + 1 ), ( L r ( S.d k ) : ℝ ) ) ≤ ∑ k ∈
-    Finset.range ( n + 1 ), ( S.d k : ℝ ) ^ r by exact Finset.sum_le_sum fun i hi => by
-    exact_mod_cast Nat.floor_le ( Real.rpow_nonneg ( Nat.cast_nonneg _ ) _ ) ]
--/
 
 /-
 For large n, A(d_n) <= 2 * d_n^r.
@@ -1050,9 +1011,11 @@ theorem A_dn_minus_Ln_bound (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSeq
         (⋃ k ∈ s, I (S.d k) (L r (S.d k))).ncard ≤
           ∑ k ∈ s, L r (S.d k) := by
     intro s
-    induction' s using Finset.induction with a s has ih
-    · simp
-    · rw [Finset.sum_insert has]
+    induction s using Finset.induction with
+    | empty =>
+      simp
+    | insert a s has ih =>
+      rw [Finset.sum_insert has]
       have hunion :
           (⋃ k ∈ insert a s, I (S.d k) (L r (S.d k))) =
             I (S.d a) (L r (S.d a)) ∪ ⋃ k ∈ s, I (S.d k) (L r (S.d k)) := by
@@ -1148,88 +1111,6 @@ theorem A_dn_minus_Ln_bound (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSeq
         (TB.C + 1 / 4) * (S.d n : ℝ)^(1 / (h : ℝ)) := by
     linarith
   simpa [hyN_cast] using hmain
-/-
-    -- By Lemma `intervals_subset_dn`, for large $n$, the intersection of the union of intervals
-    -- with $[1, d_n - L_n]$ is contained in the union of the first $n-1$ intervals.
-    have intervals_subset_dn_minus_L : ∀ᶠ n in atTop, (⋃ k, I (S.d k) (L r (S.d k))) ∩
-    Set.Icc 1 (Nat.floor ((S.d n : ℝ) - (L r (S.d n) : ℝ))) ⊆ ⋃ k ∈ Finset.range n, I (S.d
-    k) (L r (S.d k)) := by
-      have := intervals_subset_dn h r TB.C S h_ge_3 hr1 hr2;
-      norm_num +zetaDelta at *;
-      obtain ⟨ a, ha ⟩ := this; use a + 1; intros b hb; specialize ha b ( by linarith ) ;
-      simp_all +decide [ Set.subset_def ] ;
-      intro x y hx hy hxy; specialize ha x y hx hy ( le_trans hxy ( Nat.sub_le _ _ ) ) ; aesop;
-      cases lt_or_eq_of_le ( Nat.le_of_lt_succ left ) <;> aesop;
-      exact ⟨ y, lt_of_le_of_lt ( show y ≤ a by exact le_of_not_lt fun h => by have :=
-      S.d_strict_mono h; linarith [ hx.1, hx.2, right.1, right.2, Nat.sub_add_cancel (
-      show L r ( S.d w ) ≤ S.d w from Nat.floor_le_of_le <| by exact le_trans (
-      Real.rpow_le_rpow_of_exponent_le ( mod_cast Nat.one_le_iff_ne_zero.mpr <| ne_of_gt
-      <| S.d_pos _ ) hr2.le ) <| by norm_num ) ] ) hb, hx ⟩;
-    have big_step : ∀ᶠ n in atTop, (count_in_range (constructed_A TB.B S.d r) ((S.d n : ℝ) -
-    (L r (S.d n) : ℝ))) ≤ TB.C * ((S.d n : ℝ) - (L r (S.d n) : ℝ))^(1 / h : ℝ) + (∑ k ∈
-    Finset.range n, (L r (S.d k) : ℝ)) := by
-      -- By definition of $count_in_range$, we know that
-      have h_count_def : ∀ᶠ n in atTop, (count_in_range (constructed_A TB.B S.d r) ((S.d n
-      : ℝ) - (L r (S.d n) : ℝ))) ≤ (count_in_range TB.B ((S.d n : ℝ) - (L r (S.d n) : ℝ)))
-      + (Set.ncard ((⋃ k, I (S.d k) (L r (S.d k))) ∩ Set.Icc 1 (Nat.floor ((S.d n : ℝ) -
-      (L r (S.d n) : ℝ))))) := by
-        refine Filter.Eventually.of_forall fun n => ?_;
-        unfold count_in_range constructed_A;
-        convert Set.ncard_union_le _ _ using 2 ; ext ; aesop;
-      have h_count_bound : ∀ᶠ n in atTop, (count_in_range TB.B ((S.d n : ℝ) - (L r (S.d n)
-      : ℝ))) ≤ TB.C * ((S.d n : ℝ) - (L r (S.d n) : ℝ))^(1 / h : ℝ) := by
-        refine' Filter.eventually_atTop.mpr ⟨ 1, fun n hn => _ ⟩ ; aesop;
-        convert TB.thin_condition _ _ using 1;
-        · norm_num;
-        · have := S.cond_half n; aesop;
-          rw [ show L r ( S.d n ) = ⌊ ( S.d n : ℝ ) ^ r⌋₊ by rfl ];
-          linarith [ show ( S.d n : ℝ ) ≥ 2 by exact_mod_cast Nat.succ_le_of_lt (
-          lt_of_le_of_lt ( Nat.succ_le_of_lt ( show 0 < S.d 0 from S.d_pos 0 ) ) (
-          S.d_strict_mono hn ) ), Nat.floor_le ( Real.rpow_nonneg ( Nat.cast_nonneg (
-          S.d n ) ) r ) ];
-      have h_intervals_bound : ∀ᶠ n in atTop, (Set.ncard ((⋃ k, I (S.d k) (L r (S.d k))) ∩
-      Set.Icc 1 (Nat.floor ((S.d n : ℝ) - (L r (S.d n) : ℝ))))) ≤ (∑ k ∈ Finset.range n,
-      (L r (S.d k) : ℝ)) := by
-        filter_upwards [ intervals_subset_dn_minus_L ] with n hn;
-        have h_intervals_bound : (Set.ncard ((⋃ k, I (S.d k) (L r (S.d k))) ∩ Set.Icc 1
-        (Nat.floor ((S.d n : ℝ) - (L r (S.d n) : ℝ))))) ≤ (∑ k ∈ Finset.range n,
-        (Set.ncard (I (S.d k) (L r (S.d k))))) := by
-          have h_intervals_bound : (Set.ncard ((⋃ k, I (S.d k) (L r (S.d k))) ∩
-          Set.Icc 1 (Nat.floor ((S.d n : ℝ) - (L r (S.d n) : ℝ))))) ≤ (Set.ncard (⋃ k
-          ∈ Finset.range n, I (S.d k) (L r (S.d k)))) := by
-            apply_rules [ Set.ncard_le_ncard ];
-            exact Set.Finite.biUnion ( Finset.finite_toSet _ ) fun k hk => Set.finite_Icc _ _;
-          refine le_trans h_intervals_bound ?_;
-          induction' ( Finset.range n : Finset ℕ ) using Finset.induction <;> aesop;
-          exact le_trans ( Set.ncard_union_le _ _ ) ( add_le_add_left a_2 _ );
-        refine' le_trans ( Nat.cast_le.mpr h_intervals_bound ) _;
-        norm_num [ Set.ncard_eq_toFinset_card' ];
-        gcongr ; aesop;
-        unfold I; norm_num [ Set.ncard_eq_toFinset_card' ] ;
-        omega;
-      filter_upwards [ h_count_def, h_count_bound, h_intervals_bound ] with n hn hn' hn''
-      using le_trans ( mod_cast hn ) ( add_le_add hn' hn'' );
-    -- By Lemma `sum_bound_at_n`, we know that $\sum_{k < n} L_k \le \frac14 d_n^{1/h}$.
-    have sum_bound_at_n' : ∀ n ≥ 1, (∑ k ∈ Finset.range n, (L r (S.d k) : ℝ)) ≤ (1 / 4) *
-    (S.d n : ℝ)^(1 / h : ℝ) := by
-      intros n hn
-      have sum_bound_at_n' : (∑ k ∈ Finset.range n, (L r (S.d k) : ℝ)) ≤ (∑ k ∈
-      Finset.range n, (S.d k : ℝ)^r) := by
-        exact Finset.sum_le_sum fun i hi => Nat.floor_le ( by exact Real.rpow_nonneg (
-        Nat.cast_nonneg _ ) _ );
-      have := S.cond_sum n hn; norm_num at * ; linarith;
-    -- Since $d_n - L_n < d_n$, we have $(d_n - L_n)^{1/h} \le d_n^{1/h}$.
-    have h_ineq : ∀ᶠ n in atTop, ((S.d n : ℝ) - (L r (S.d n) : ℝ))^(1 / h : ℝ) ≤ (S.d n :
-    ℝ)^(1 / h : ℝ) := by
-      filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn using Real.rpow_le_rpow (
-      sub_nonneg.mpr <| Nat.cast_le.mpr <| Nat.floor_le_of_le <| by exact le_trans (
-      Real.rpow_le_rpow_of_exponent_le ( mod_cast Nat.one_le_iff_ne_zero.mpr <| ne_of_gt
-      <| S.d_pos n ) hr2.le ) <| by norm_num ) ( sub_le_self _ <| Nat.cast_nonneg _ ) <|
-      by positivity;
-    filter_upwards [ big_step, h_ineq, Filter.eventually_ge_atTop 1 ] with n hn hn' hn''
-    using le_trans hn ( by nlinarith [ sum_bound_at_n' n hn'', show ( 0 :ℝ ) ≤ TB.C by exact
-    le_of_lt TB.C_pos ] )
--/
 
 /-
 For large n, A(d_n) <= 2 * d_n^r.
@@ -1245,21 +1126,28 @@ with [1, M].
 -/
 theorem iterated_sumset_subset_lemma (S : Set ℕ) (k M : ℕ) (hS : ∀ x ∈ S, 1 ≤ x) :
   iterated_sumset S k ∩ Set.Icc 1 M ⊆ iterated_sumset (S ∩ Set.Icc 1 M) k := by
-    induction' k with k ih <;> simp_all ( config := { decide := Bool.true } ) [ Set.subset_def ];
-    · bound;
-    · intros x hx hx₁ hx₂;
+    induction k with
+    | zero =>
+      simp_all (config := { decide := Bool.true }) [Set.subset_def]
+      bound
+    | succ k ih =>
+      simp_all (config := { decide := Bool.true }) [Set.subset_def]
+      intros x hx hx₁ hx₂
       -- Since $s \in kS$ and $s \leq M$, by the induction hypothesis, $s \in k(S \cap [1, M])$.
       obtain ⟨a, haS, s, hs⟩ : ∃ a ∈ S, ∃ s ∈ iterated_sumset S k, x = a + s := by
-        cases hx ; aesop;
-      by_cases hs_pos : 1 ≤ s <;> aesop;
+        cases hx ; aesop
+      by_cases hs_pos : 1 ≤ s <;> aesop
       · exact
           Set.add_mem_add
             (Set.mem_inter haS ⟨ hS a haS, by linarith ⟩)
-            (ih s left hs_pos ( by linarith ));
-      · induction' k with k ih <;> simp_all ( config := { decide := Bool.true } )
-        [ iterated_sumset ];
-        cases left ; aesop;
-        linarith [ hS 0 left ]
+            (ih s left hs_pos ( by linarith ))
+      · induction k with
+        | zero =>
+          simp_all (config := { decide := Bool.true }) [iterated_sumset]
+        | succ k ih =>
+          simp_all (config := { decide := Bool.true }) [iterated_sumset]
+          cases left ; aesop
+          linarith [ hS 0 left ]
 
 /-
 Set inclusion helper lemma for S2 bound.
@@ -1274,9 +1162,11 @@ Monotonicity of iterated sumset.
 theorem iterated_sumset_mono (S T : Set ℕ) (k : ℕ) (h : S ⊆ T) :
   iterated_sumset S k ⊆ iterated_sumset T k := by
     -- We proceed by induction on $k$.
-    induction' k with k ih;
-    · exact LE.le.subset fun ⦃a⦄ ↦ congrArg fun ⦃a⦄ ↦ a;
-    · exact Set.add_subset_add h ih
+    induction k with
+    | zero =>
+      exact LE.le.subset fun ⦃a⦄ ↦ congrArg fun ⦃a⦄ ↦ a
+    | succ k ih =>
+      exact Set.add_subset_add h ih
 
 /-
 If s is a sum of k elements from A \ I and s <= M, then s is a sum of k elements from A
@@ -1308,14 +1198,18 @@ theorem card_iterated_sumset_le (A : Set ℕ) (k : ℕ) :
     · intro hx
       rcases hx with ⟨p, hp, rfl⟩
       exact ⟨p.1, hp.1, p.2, hp.2, rfl⟩
-  induction' k with k ih
-  · simp [iterated_sumset]
-  · by_cases hAfin : A.Finite
+  induction k with
+  | zero =>
+    simp [iterated_sumset]
+  | succ k ih =>
+    by_cases hAfin : A.Finite
     · have hfinite_iter : ∀ m, (iterated_sumset A m).Finite := by
         intro m
-        induction' m with m ihm
-        · exact Set.finite_singleton 0
-        · exact hAfin.add ihm
+        induction m with
+        | zero =>
+          exact Set.finite_singleton 0
+        | succ m ihm =>
+          exact hAfin.add ihm
       have hprod_fin : (A ×ˢ iterated_sumset A k).Finite := hAfin.prod (hfinite_iter k)
       have hsum_le :
           (A + iterated_sumset A k).ncard ≤ A.ncard * (iterated_sumset A k).ncard := by
@@ -1332,9 +1226,11 @@ theorem card_iterated_sumset_le (A : Set ℕ) (k : ℕ) :
         exact ⟨a, ha⟩
       have hiter_nonempty : ∀ m, (iterated_sumset A m).Nonempty := by
         intro m
-        induction' m with m ihm
-        · exact ⟨0, by simp [iterated_sumset]⟩
-        · rcases hA_nonempty with ⟨a, ha⟩
+        induction m with
+        | zero =>
+          exact ⟨0, by simp [iterated_sumset]⟩
+        | succ m ihm =>
+          rcases hA_nonempty with ⟨a, ha⟩
           rcases ihm with ⟨b, hb⟩
           exact ⟨a + b, Set.add_mem_add ha hb⟩
       have hsum_inf : (A + iterated_sumset A k).Infinite := by
@@ -1347,43 +1243,20 @@ theorem card_iterated_sumset_le (A : Set ℕ) (k : ℕ) :
         rw [Set.ncard_def, Set.encard_eq_top_iff.mpr hsum_inf]
         rfl
       simp [iterated_sumset, hsum_ncard, hA_ncard]
-/-
-    induction' k with k ih generalizing A <;> simp_all +decide [ pow_succ, iterated_sumset ];
-    by_cases hA : A.Finite <;> by_cases hB : iterated_sumset A k |> Set.Finite <;> simp_all
-    +decide [ Set.ncard_def ];
-    · rw [ mul_comm ];
-      have h_card_sumset : ∀ (A B : Set ℕ), Set.Finite A → Set.Finite B → (A +
-      B).encard.toNat ≤ A.encard.toNat * B.encard.toNat := by
-        intros A B hA hB; have := hA.exists_finset_coe; have := hB.exists_finset_coe; aesop;
-        rw [ Set.encard_eq_coe_toFinset_card ] ; aesop;
-        exact Finset.card_add_le;
-      exact le_trans ( h_card_sumset _ _ hA hB ) ( Nat.mul_le_mul_left _ ( ih _ ) );
-    · contrapose! hB;
-      refine' Nat.recOn k _ _ <;> aesop;
-      · exact Set.finite_singleton 0;
-      · exact Set.Finite.add hA n_ih;
-    · norm_num [ Set.encard_eq_top_iff.mpr hA ];
-      contrapose! hA;
-      aesop;
-      exact Set.Finite.subset ( right.preimage fun x => by aesop ) fun x hx =>
-      Set.add_mem_add hx right_1.choose_spec;
-    · rw [ Set.encard_eq_top_iff.mpr ];
-      · norm_num;
-      · refine Set.infinite_of_forall_exists_gt ?_;
-        exact fun n => by rcases Set.Infinite.exists_gt hA n with ⟨ m, hm₁, hm₂ ⟩ ;
-        rcases Set.Infinite.exists_gt hB m with ⟨ n, hn₁, hn₂ ⟩ ; exact ⟨ m + n,
-        Set.add_mem_add hm₁ hn₁, by linarith ⟩ ;
--/
 
 /-
 Decomposition of sumset based on whether elements are in I or not.
 -/
 theorem sumset_decomposition (A : Set ℕ) (I : Set ℕ) (k : ℕ) :
   iterated_sumset A k ⊆ iterated_sumset (A \ I) k ∪ {s | ∃ a ∈ A ∩ I, a ≤ s} := by
-    intro s;
-    induction' k with k ih generalizing s <;> simp_all +decide [ iterated_sumset ];
-    simp_all +decide [ Set.mem_add ];
-    grind
+    intro s
+    induction k generalizing s with
+    | zero =>
+      simp_all +decide [iterated_sumset]
+    | succ k ih =>
+      simp_all +decide [iterated_sumset]
+      simp_all +decide [Set.mem_add]
+      grind
 
 /-
 Bound for A_{h-1}(d_n) in terms of L_n and A(d_n - L_n).
@@ -1424,10 +1297,12 @@ theorem Ah_minus_1_bound (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSequen
             exact Set.finite_iff_bddAbove.mpr ⟨ S.d n - L r ( S.d n ), fun x hx => hx.2.2 ⟩;
           have h_finite : ∀ k, Set.Finite (iterated_sumset (constructed_A TB.B S.d r ∩ Set.Icc 1
             (S.d n - L r (S.d n))) k) := by
-            intro k;
-            induction' k with k ih;
-            · exact Set.finite_singleton 0;
-            · exact Set.Finite.add h_finite ih;
+            intro k
+            induction k with
+            | zero =>
+              exact Set.finite_singleton 0
+            | succ k ih =>
+              exact Set.Finite.add h_finite ih
           exact h_finite _;
         · apply_rules [ S2_subset_lemma ];
           unfold constructed_A; aesop;
@@ -1471,8 +1346,13 @@ theorem S2_card_bound (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSequence 
           -- The sumset of a finite set is finite.
           have h_sumset_finite : ∀ (S : Set ℕ), Set.Finite S → ∀ k : ℕ, Set.Finite
             (iterated_sumset S k) := by
-            intro S hS k; induction' k with k ih <;> simp_all +decide [ iterated_sumset ] ;
-            exact hS.add ih;
+            intro S hS k
+            induction k with
+            | zero =>
+              simp_all +decide [iterated_sumset]
+            | succ k ih =>
+              simp_all +decide [iterated_sumset]
+              exact hS.add ih
           exact h_sumset_finite _ h_finite _;
       refine Filter.Eventually.mono h_subset ?_;
       unfold count_in_range; aesop;
@@ -1744,11 +1624,13 @@ theorem A_constructed_is_basis : iterated_sumset A_constructed 3 = Set.univ := b
     -- into three parts.
     obtain ⟨a0, a1, a2, ha⟩ : ∃ a0 a1 a2 : ℕ, n = a0 + a1 + a2 ∧ (∀ j, Nat.testBit a0 j → j % 3
       = 0) ∧ (∀ j, Nat.testBit a1 j → j % 3 = 1) ∧ (∀ j, Nat.testBit a2 j → j % 3 = 2) := by
-      induction' n using Nat.binaryRec with b n ih;
-      · exact ⟨ 0, 0, 0, rfl, by norm_num, by norm_num, by norm_num ⟩;
-      · obtain ⟨ a0, a1, a2, rfl, ha0, ha1, ha2 ⟩ := ih;
-        use if b then 2 * a2 + 1 else 2 * a2, 2 * a0, 2 * a1;
-        split_ifs <;> simp_all +decide [ Nat.testBit, Nat.shiftRight_eq_div_pow ];
+      induction n using Nat.binaryRec with
+      | zero =>
+        exact ⟨ 0, 0, 0, rfl, by norm_num, by norm_num, by norm_num ⟩
+      | bit b n ih =>
+        obtain ⟨ a0, a1, a2, rfl, ha0, ha1, ha2 ⟩ := ih
+        use if b then 2 * a2 + 1 else 2 * a2, 2 * a0, 2 * a1
+        split_ifs <;> simp_all +decide [ Nat.testBit, Nat.shiftRight_eq_div_pow ]
         · aesop;
           · ring;
           · rcases j with ( _ | j ) <;> norm_num [ Nat.add_div, Nat.mul_div_assoc,
@@ -1794,10 +1676,12 @@ theorem A_part_subset_powerset (i : ℕ) (x : ℝ) (hx : x ≥ 1) :
   · have h_ofBits_eq_sum :
         ∀ n (f : Fin n → Bool), Nat.ofBits f = ∑ j : Fin n, if f j then 2 ^ (j : ℕ) else 0 := by
       intro n
-      induction' n with n ih
-      · intro f
+      induction n with
+      | zero =>
+        intro f
         simp [Nat.ofBits, Fin.foldr_zero]
-      · intro f
+      | succ n ih =>
+        intro f
         rw [Nat.ofBits, Fin.foldr_succ]
         change 2 * Nat.ofBits (fun j : Fin n => f j.succ) + (f 0).toNat =
           ∑ j : Fin (n + 1), if f j then 2 ^ (j : ℕ) else 0
@@ -1847,43 +1731,6 @@ theorem A_part_subset_powerset (i : ℕ) (x : ℝ) (hx : x ≥ 1) :
       _ = ((Finset.range (Nat.log 2 ⌊x⌋₊ + 1)).filter (fun j => Nat.testBit a j = true)).sum
           (fun j => 2 ^ j) := by
         rw [Finset.sum_filter]
-/-
-    intro a ha hx' ; use Finset.filter ( fun j ↦ Nat.testBit a j = Bool.true ) (
-    Finset.range ( Nat.log 2 ( Nat.floor x ) + 1 ) ) ; aesop;
-    · intro j hj; unfold J; aesop;
-    · -- Apply the theorem that states a number is equal to the sum of 2^j for the positions
-      -- where the binary digit is 1.
-      have h_binary_expansion : a = ∑ j ∈ Finset.range (Nat.log 2 a + 1), (if Nat.testBit
-      a j then 2 ^ j else 0) := by
-        -- By definition of binary representation, the sum of 2^j for the positions where the
-        -- binary digit is 1 is equal to a.
-        have h_binary : ∀ n : ℕ, n = ∑ j ∈ Finset.range (Nat.log 2 n + 1), (if
-        (n.testBit j) then 2 ^ j else 0) := by
-          intro n; induction' n using Nat.strong_induction_on with n ih; rcases n with
-          ( _ | _ | n ) <;> simp +arith +decide [ Finset.sum_range_succ', Nat.testBit
-          ] ;
-          have := ih ( ( n + 2 ) / 2 ) ( Nat.div_lt_of_lt_mul <| by linarith ) ;
-          norm_num [ Nat.pow_succ', Nat.mul_mod, Nat.div_add_mod ] at *;
-          rw [ show Nat.log 2 ( n + 2 ) = Nat.log 2 ( n / 2 + 1 ) + 1 from ?_ ];
-          · norm_num [ Nat.testBit, Nat.shiftRight_eq_div_pow ] at *;
-            norm_num [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ] at *;
-            norm_num [ Finset.sum_ite ] at *;
-            rw [ ← Finset.mul_sum _ _ _ ] ; split_ifs <;> omega;
-          · rw [ Nat.log_eq_iff ] <;> norm_num;
-            exact ⟨ by rw [ pow_succ' ] ; linarith [ Nat.div_mul_le_self n 2,
-            Nat.pow_log_le_self 2 ( show n / 2 + 1 ≠ 0 by norm_num ) ], by rw [
-            pow_succ' ] ; linarith [ Nat.div_add_mod n 2, Nat.mod_lt n two_pos,
-            Nat.lt_pow_of_log_lt ( by norm_num ) ( show Nat.log 2 ( n / 2 + 1 ) <
-            Nat.log 2 ( n / 2 + 1 ) + 1 by norm_num ) ] ⟩;
-        exact h_binary a;
-      rw [ Finset.sum_filter ];
-      refine' Eq.trans h_binary_expansion ( Finset.sum_subset _ _ ) <;> simp +contextual [
-      Finset.subset_iff ];
-      · exact fun n hn => lt_of_lt_of_le hn ( Nat.succ_le_succ ( Nat.log_mono_right <|
-      Nat.le_floor <| mod_cast hx' ) );
-      · intro j hj₁ hj₂; rw [ Nat.testBit_eq_false_of_lt ] ; linarith [
-      Nat.lt_pow_of_log_lt one_lt_two hj₂ ] ;
--/
 
 /-
 The cardinality of J_i(x) is at most (log_2 x)/3 + 1.
