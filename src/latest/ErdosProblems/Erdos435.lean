@@ -28,7 +28,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 
@@ -59,9 +58,11 @@ lemma lemma2_part1_bound (y : ℕ) (hy : y ≥ 5) :
     ∏ i ∈ Finset.Icc (2 * y + 1) (3 * y), i ≥
       2 * y * ∏ i ∈ Finset.Icc (y + 1) (2 * y), i := by
     -- By induction on $y$, we can show that the inequality holds for all $y \geq 5$.
-    induction' y, Nat.succ_le_iff.mpr hy using Nat.le_induction with y ih;
-    · decide +kernel;
-    · -- Let's simplify the goal using the induction hypothesis.
+    induction y, Nat.succ_le_iff.mpr hy using Nat.le_induction with
+    | base =>
+      decide +kernel
+    | succ y hy ih =>
+      -- Let's simplify the goal using the induction hypothesis.
       have h_simp :
           (∏ i ∈ Finset.Icc (2 * y + 3) (3 * y + 3), i) =
             (∏ i ∈ Finset.Icc (2 * y + 1) (3 * y), i) *
@@ -145,14 +146,14 @@ lemma lemma2_part1_bound (y : ℕ) (hy : y ≥ 5) :
                 2 * y * ∏ i ∈ Finset.Icc (y + 1) (2 * y), i :=
             ‹y ≥ 5 →
               ∏ i ∈ Finset.Icc (2 * y + 1) (3 * y), i ≥
-                2 * y * ∏ i ∈ Finset.Icc (y + 1) (2 * y), i› ih
+                2 * y * ∏ i ∈ Finset.Icc (y + 1) (2 * y), i› (by linarith : y ≥ 5)
           nlinarith [
             Nat.zero_le (∏ i ∈ Finset.Icc (y + 1) (2 * y), i),
             Nat.zero_le ((2 * y + 1) * (2 * y + 2)),
             Nat.zero_le ((3 * y + 1) * (3 * y + 2) * (3 * y + 3)),
-            mul_le_mul_right ih (∏ i ∈ Finset.Icc (y + 1) (2 * y), i),
-            mul_le_mul_right ih ((2 * y + 1) * (2 * y + 2)),
-            mul_le_mul_right ih ((3 * y + 1) * (3 * y + 2) * (3 * y + 3))]
+            mul_le_mul_right (by linarith : y ≥ 5) (∏ i ∈ Finset.Icc (y + 1) (2 * y), i),
+            mul_le_mul_right (by linarith : y ≥ 5) ((2 * y + 1) * (2 * y + 2)),
+            mul_le_mul_right (by linarith : y ≥ 5) ((3 * y + 1) * (3 * y + 2) * (3 * y + 3))]
         · exact
             dvd_mul_of_dvd_left
               (Finset.dvd_prod_of_mem _
@@ -256,9 +257,12 @@ lemma lemma2_step1 (n x y : ℕ) (hx : x ≥ 2) (hy : y ≥ 1) (hn : n ≥ 2 * x
       have h_binom_inc :
           ∀ k l : ℕ, 0 ≤ k → k ≤ l → l ≤ n / 2 → Nat.choose n k ≤ Nat.choose n l := by
         intros k l hk hl hn_div_2
-        induction' hl with l hl ih;
-        · rfl;
-        · exact
+        induction hl with
+        | refl =>
+          rfl
+        | step hl ih =>
+          rename_i l
+          exact
             le_trans
               (ih (Nat.le_of_succ_le hn_div_2))
               (Nat.choose_le_succ_of_lt_half_left
@@ -274,9 +278,12 @@ lemma lemma2_step3 (n x y : ℕ) (hy : y ≥ x) (hn : n ≥ 2 * y) :
       have h_ind : ∀ k : ℕ, x ≤ k → k ≤ y → k * Nat.choose n k ≥ x * Nat.choose n x := by
         -- We proceed by induction on $k$.
         intro k hkx hky
-        induction' hkx with k hk ih;
-        · rfl;
-        · -- Compare consecutive weighted binomial coefficients.
+        induction hkx with
+        | refl =>
+          rfl
+        | step hk ih =>
+          rename_i k
+          -- Compare consecutive weighted binomial coefficients.
           have h_ratio : (k + 1) * Nat.choose n (k + 1) ≥ k * Nat.choose n k := by
             nlinarith [
               Nat.add_one_mul_choose_eq n k,
@@ -354,18 +361,24 @@ Lemma 2 Case (2,4): For $n \ge 16$, $\binom{n}{8} \ge 2\binom{n}{2} + 4\binom{n}
 -/
 lemma lemma2_case_2_4 (n : ℕ) (hn : n ≥ 16) :
     Nat.choose n 8 ≥ 2 * Nat.choose n 2 + 4 * Nat.choose n 4 := by
-      induction' hn with k hk <;> simp +arith +decide [ Nat.choose ] at *;
-      rcases k with ( _ | _ | _ | _ | _ | _ | _ | k ) <;> simp +arith +decide [ Nat.choose ] at *;
-      rcases k with ( _ | _ | _ | _ | _ | _ | _ | k ) <;> simp +arith +decide [ Nat.choose ] at *
+      induction n, hn using Nat.le_induction with
+      | base =>
+        simp +arith +decide at *
+      | succ k hk ih =>
+        simp +arith +decide [ Nat.choose ] at *
+        rcases k with ( _ | _ | _ | _ | _ | _ | _ | k ) <;> simp +arith +decide [ Nat.choose ] at *;
+        rcases k with ( _ | _ | _ | _ | _ | _ | _ | k ) <;> simp +arith +decide [ Nat.choose ] at *
 
 /-
 Lemma 2 Case (3,4): For $n \ge 24$, $\binom{n}{12} \ge 3\binom{n}{3} + 4\binom{n}{4}$.
 -/
 lemma lemma2_case_3_4 (n : ℕ) (hn : n ≥ 24) :
     Nat.choose n 12 ≥ 3 * Nat.choose n 3 + 4 * Nat.choose n 4 := by
-      induction' hn with k hk;
-      · decide +revert;
-      · rcases k with ( _ | _ | _ | _ | _ | _ | _ | _ | _ | k ) <;>
+      induction n, hn using Nat.le_induction with
+      | base =>
+        decide +revert
+      | succ k hk ih =>
+        rcases k with ( _ | _ | _ | _ | _ | _ | _ | _ | _ | k ) <;>
           simp +arith +decide [ Nat.choose ] at *;
         rcases k with ( _ | _ | _ | _ | _ | _ | _ | k ) <;> simp +arith +decide [ Nat.choose ] at *;
         grind
@@ -375,9 +388,11 @@ Lemma 2 Case (4,4): For $n \ge 32$, $\binom{n}{16} \ge 8\binom{n}{4}$.
 -/
 lemma lemma2_case_4_4 (n : ℕ) (hn : n ≥ 32) :
     Nat.choose n 16 ≥ 8 * Nat.choose n 4 := by
-      induction' hn with k hk ih48;
-      · decide +revert;
-      · have := Nat.add_one_mul_choose_eq k 3
+      induction n, hn using Nat.le_induction with
+      | base =>
+        decide +revert
+      | succ k hk ih48 =>
+        have := Nat.add_one_mul_choose_eq k 3
         have := Nat.add_one_mul_choose_eq k 4
         have := Nat.add_one_mul_choose_eq k 14
         have := Nat.add_one_mul_choose_eq k 15
@@ -525,9 +540,11 @@ lemma lemma1_lucas_step (n j p : ℕ) (hp : p.Prime) (hj : j ≥ 1)
             Nat.choose ((n - 1) / p ^ (k + 1)) (p ^ (j - k - 1) - 1)
               [MOD p] := by
       intro k hk;
-      induction' k with k ih;
-      · simpa using h_lucas_iter 0 hk;
-      · exact
+      induction k with
+      | zero =>
+        simpa using h_lucas_iter 0 hk
+      | succ k ih =>
+        exact
           Eq.trans
             (ih (Finset.mem_range.mpr (Nat.lt_of_succ_lt (Finset.mem_range.mp hk))))
             (h_lucas_iter (k + 1) hk) |> Eq.trans <| by
@@ -642,8 +659,9 @@ lemma lemma_super_increasing (n : ℕ) (p : ℕ) (j : ℕ)
             (Nat.choose n (p ^ (j + 1)) : ℤ) >
               (p - 1) * (∑ k ∈ Finset.Icc 1 j, (Nat.choose n (p ^ k) : ℤ)) := by
         intro j hj hj_lt
-        induction' hj with j hj ih;
-        · -- By Lemma 2, we have $\binom{n}{p^2} \ge p \binom{n}{p}$.
+        induction hj with
+        | refl =>
+          -- By Lemma 2, we have $\binom{n}{p^2} \ge p \binom{n}{p}$.
           have h_lemma2 : (Nat.choose n (p ^ 2) : ℤ) ≥ p * (Nat.choose n p : ℤ) := by
             have h_lemma2 : (Nat.choose n (p ^ 2) : ℤ) ≥ p * (Nat.choose n p : ℤ) := by
               have h_lemma2_step :
@@ -672,7 +690,9 @@ lemma lemma_super_increasing (n : ℕ) (p : ℕ) (j : ℕ)
             Nat.choose_pos
               (show p + 1 + 1 ≤ n from
                 Nat.le_of_dvd (Nat.pos_of_ne_zero hp.2.2) hp.2.1)]
-        · -- Apply Lemma 2 to the next power of `p`.
+        | step hj ih =>
+          rename_i j
+          -- Apply Lemma 2 to the next power of `p`.
           have h_lemma2 :
               (Nat.choose n (p ^ (j + 2)) : ℤ) ≥
                 (p - 1) * (Nat.choose n (p ^ (j + 1)) : ℤ) +
@@ -914,7 +934,8 @@ lemma lemma_super_sequence_induction (p m : ℕ) (A : ℕ → ℤ) (c : ℕ → 
     (hc_nonneg : ∀ j, 0 ≤ c j)
     (h_cong : ∑ j ∈ Finset.Icc 1 m, c j * A j ≡ ∑ j ∈ Finset.Icc 1 m, (p - 1) * A j [ZMOD p ^ m]) :
     ∑ j ∈ Finset.Icc 1 m, c j * A j ≥ ∑ j ∈ Finset.Icc 1 m, (p - 1) * A j := by
-      induction' m using Nat.strong_induction_on with m ih generalizing A c;
+      induction m using Nat.strong_induction_on generalizing A c with
+      | h m ih =>
       by_cases hm2 : m ≥ 2;
       · -- By `lemma_abstract_coeff_congruence`, $c_m \equiv p-1 \pmod p$.
         have hc_m_cong : c m ≡ p - 1 [ZMOD p] := by
@@ -1053,7 +1074,8 @@ lemma lemma_decomposition_inequality (n m : ℕ)
       -- By strong induction on $m$, we can assume the inequality holds for all $m' < m$.
       have h_ind : ∀ m' < m, ¬IsPrimePow m' → (Nat.choose n m' : ℤ) ≥ DecompositionSum n m' := by
         intros m' hm' hm'_not_prime_pow
-        induction' m' using Nat.strong_induction_on with m' ih;
+        induction m' using Nat.strong_induction_on with
+        | h m' ih =>
         by_cases hm'_gt_one : m' > 1;
         · -- Since $m'$ is not a prime power, we can write $m' = x y$ where $x, y \ge 2$ are coprime.
           obtain ⟨x, y, hx, hy, h_coprime, h_prod⟩ : ∃ x y : ℕ, x ≥ 2 ∧ y ≥ 2 ∧ Nat.Coprime x y ∧ m' = x * y := by
@@ -1221,8 +1243,9 @@ lemma lemma_super_sequence_representation (p m : ℕ) (A : ℕ → ℤ) (x : ℤ
     ∃ c : ℕ → ℤ,
       (∀ j ∈ Finset.Icc 1 m, 0 ≤ c j ∧ c j ≤ p - 1) ∧
       x ≡ ∑ j ∈ Finset.Icc 1 m, c j * A j [ZMOD p ^ m] := by
-        induction' hm with m hm ih generalizing A x;
-        · -- For the base case when $m = 1$, we can directly apply the lemma_solve_mod_p.
+        induction hm generalizing A x with
+        | refl =>
+          -- For the base case when $m = 1$, we can directly apply the lemma_solve_mod_p.
           obtain ⟨c, hc⟩ : ∃ c : ℤ, 0 ≤ c ∧ c ≤ p - 1 ∧ c * A 1 ≡ x [ZMOD p] := by
             -- Since $p$ is prime and $A 1$ is not divisible by $p$, we can apply Lemma 3.
             have h_not_div : ¬ (p : ℤ) ∣ A 1 := by
@@ -1232,7 +1255,9 @@ lemma lemma_super_sequence_representation (p m : ℕ) (A : ℕ → ℤ) (x : ℤ
               · exact fun h' => this.resolve_left hp.ne_one <| by simpa [ ← Int.natCast_dvd_natCast, Int.toNat_of_nonneg h.le ] using h';
             exact lemma_solve_mod_p (A 1) x p hp h_not_div;
           exact ⟨ fun _ => c, fun j hj => ⟨ hc.1, hc.2.1 ⟩, by simpa using hc.2.2.symm ⟩;
-        · -- Apply the induction hypothesis to the sequence A/p of length m.
+        | step hm ih =>
+          rename_i m
+          -- Apply the induction hypothesis to the sequence A/p of length m.
           have h_ind_step : ∀ y : ℤ, ∃ c' : ℕ → ℤ, (∀ j ∈ Finset.Icc 1 m, 0 ≤ c' j ∧ c' j ≤ p - 1) ∧ y ≡ ∑ j ∈ Finset.Icc 1 m, c' j * (A j / p) [ZMOD p ^ m] := by
             intros y
             apply ih (fun j => A j / p) y;
@@ -1305,9 +1330,11 @@ lemma lemma_crt_implication (n : ℕ) (A x : ℤ)
       have h_crt : A ≡ x [ZMOD ∏ p ∈ n.factorization.support, (p ^ (n.factorization p) : ℤ)] := by
         have h_crt : ∀ {S : Finset ℕ}, (∀ p ∈ S, ∀ q ∈ S, p ≠ q → Nat.gcd (p ^ (n.factorization p)) (q ^ (n.factorization q)) = 1) → (∀ p ∈ S, A ≡ x [ZMOD (p ^ (n.factorization p) : ℤ)]) → A ≡ x [ZMOD (∏ p ∈ S, (p ^ (n.factorization p) : ℤ))] := by
           intros S h_coprime h_cong;
-          induction' S using Finset.induction with p S hS ih;
-          · norm_num [ Int.modEq_iff_dvd ];
-          · rw [ Finset.prod_insert hS ];
+          induction S using Finset.induction with
+          | empty =>
+            norm_num [ Int.modEq_iff_dvd ]
+          | insert p S hS ih =>
+            rw [ Finset.prod_insert hS ];
             rw [ ← Int.modEq_and_modEq_iff_modEq_mul ];
             · exact ⟨ h_cong p ( Finset.mem_insert_self _ _ ), ih ( fun q hq r hr hqr => h_coprime q ( Finset.mem_insert_of_mem hq ) r ( Finset.mem_insert_of_mem hr ) hqr ) ( fun q hq => h_cong q ( Finset.mem_insert_of_mem hq ) ) ⟩;
             · simp +zetaDelta at *;
@@ -1595,9 +1622,13 @@ lemma lemma_sum_super_sequence_bound (n p k : ℕ)
         · exact lt_of_le_of_lt ( Finset.mem_Icc.mp hj |>.2 ) ( Nat.lt_of_lt_of_le ( Nat.pred_lt ( ne_bot_of_gt hk ) ) hk_le );
         · grind;
       rcases k with ( _ | k ) <;> simp_all +decide [ Finset.sum_Ioc_succ_top, (Nat.succ_eq_succ ▸ Finset.Icc_succ_left_eq_Ioc) ];
-      induction' k with k ih <;> simp_all +decide [ Finset.sum_Ioc_succ_top, pow_succ' ];
-      · exact mul_lt_mul_of_pos_right ( sub_lt_self _ zero_lt_one ) ( Nat.cast_pos.mpr ( Nat.choose_pos ( Nat.le_of_dvd ( Nat.pos_of_ne_zero hp.2.2 ) hp.2.1 ) ) );
-      · have := h_super_increasing ( k + 1 ) ( Nat.succ_pos _ ) ( by linarith ) ; simp_all +decide [ Finset.sum_Ioc_succ_top, pow_succ' ] ;
+      induction k with
+      | zero =>
+        simp_all +decide [ pow_succ' ]
+        exact mul_lt_mul_of_pos_right ( sub_lt_self _ zero_lt_one ) ( Nat.cast_pos.mpr ( Nat.choose_pos ( Nat.le_of_dvd ( Nat.pos_of_ne_zero hp.2.2 ) hp.2.1 ) ) )
+      | succ k ih =>
+        simp_all +decide [ Finset.sum_Ioc_succ_top, pow_succ' ]
+        have := h_super_increasing ( k + 1 ) ( Nat.succ_pos _ ) ( by linarith ) ; simp_all +decide [ Finset.sum_Ioc_succ_top, pow_succ' ] ;
         rw [ ← Finset.mul_sum _ _ _ ] ; nlinarith [ h_super_increasing 1 zero_lt_one ( by linarith ), h_super_increasing ( k + 1 ) ( Nat.succ_pos _ ) ( by linarith ), hp.1.two_le ] ;
 
 /-
@@ -1631,9 +1662,12 @@ Binomial coefficients are increasing for $k \le n/2$.
 lemma lemma_binom_monotonicity_k (n k l : ℕ) (hkl : k ≤ l) (hln : l ≤ n / 2) :
     Nat.choose n k ≤ Nat.choose n l := by
       -- We can prove this by induction on $l - k$.
-      induction' hkl with l hl ih;
-      · rfl;
-      · exact le_trans ( ih ( Nat.le_of_succ_le hln ) ) ( Nat.le_of_lt_succ ( by nlinarith [ Nat.div_mul_le_self n 2, Nat.add_one_mul_choose_eq n l, Nat.choose_succ_succ n l ] ) )
+      induction hkl with
+      | refl =>
+        rfl
+      | step hl ih =>
+        rename_i l
+        exact le_trans ( ih ( Nat.le_of_succ_le hln ) ) ( Nat.le_of_lt_succ ( by nlinarith [ Nat.div_mul_le_self n 2, Nat.add_one_mul_choose_eq n l, Nat.choose_succ_succ n l ] ) )
 
 /-
 $p^k \binom{n}{p^k} \le p^l \binom{n}{p^l}$ if $k \le l$ and $p^l \le n/2$.
@@ -2210,11 +2244,14 @@ lemma lemma_representable_reduction (n : ℕ) (x : ℤ)
               intro x hx
               have h_ind : ∀ (x : ℤ), x ∈ AddSubmonoid.closure (generators_int n) → ∃ xs : List ℤ, x = List.sum xs ∧ ∀ m ∈ xs, ∃ y : ℤ, IsPrimePowerSum n y ∧ y ≤ m ∧ y ≡ m [ZMOD n] := by
                 intro x hx
-                induction' hx using AddSubmonoid.closure_induction with x hx ih
-                generalize_proofs at *; (
-                exact ⟨ [ x ], by simp +decide, by simpa using h_base x hx ⟩);
-                · exact ⟨ [ ], rfl, by intros; contradiction ⟩;
-                · rename_i hx hy ih₁ ih₂; obtain ⟨ xs₁, rfl, hx₁ ⟩ := ih₁; obtain ⟨ xs₂, rfl, hx₂ ⟩ := ih₂; exact ⟨ xs₁ ++ xs₂, by simp +decide, fun m hm => by aesop ⟩ ;
+                induction hx using AddSubmonoid.closure_induction with
+                | mem x hx =>
+                  generalize_proofs at *; (
+                  exact ⟨ [ x ], by simp +decide, by simpa using h_base x hx ⟩)
+                | zero =>
+                  exact ⟨ [ ], rfl, by intros; contradiction ⟩
+                | add x y hx hy ih₁ ih₂ =>
+                  obtain ⟨ xs₁, rfl, hx₁ ⟩ := ih₁; obtain ⟨ xs₂, rfl, hx₂ ⟩ := ih₂; exact ⟨ xs₁ ++ xs₂, by simp +decide, fun m hm => by aesop ⟩ ;
               exact h_ind x hx
             generalize_proofs at *; (
             grind)
