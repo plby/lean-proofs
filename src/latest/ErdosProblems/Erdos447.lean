@@ -28,7 +28,6 @@ set_option linter.style.cdot false
 set_option linter.style.commandStart false
 set_option linter.style.docString false
 set_option linter.style.emptyLine false
-set_option linter.style.induction false
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
@@ -1062,10 +1061,11 @@ lemma B_term_nonneg {n k : ℕ} (hk : 1 ≤ k) (hkn : k ≤ n / 2) : 0 ≤ B_ter
 The dual variables $Y_k$ are non-negative.
 -/
 lemma Y_sol_nonneg {n k : ℕ} : 0 ≤ Y_sol n k := by
-  induction' k using Nat.strong_induction_on with k ih generalizing n;
-  unfold Y_sol; split_ifs <;> norm_num;
-  · exact B_term_nonneg ( Nat.pos_of_ne_zero ‹_› ) ( by linarith );
-  · exact add_nonneg ( B_term_nonneg ( Nat.pos_of_ne_zero ‹_› ) ( by omega ) ) ( ih _ ( by omega ) )
+  induction k using Nat.strong_induction_on generalizing n with
+  | h k ih =>
+      unfold Y_sol; split_ifs <;> norm_num;
+      · exact B_term_nonneg ( Nat.pos_of_ne_zero ‹_› ) ( by linarith );
+      · exact add_nonneg ( B_term_nonneg ( Nat.pos_of_ne_zero ‹_› ) ( by omega ) ) ( ih _ ( by omega ) )
 
 /-
 Identities for sums of $Y_k$ over blocks $[t, 2t]$ and $[t, 2t+1]$.
@@ -1075,34 +1075,38 @@ lemma block_sum_identities {n t : ℕ} (ht : 1 ≤ t) (h2t : 2 * t ≤ n / 2) :
     (2 * t + 1 ≤ n / 2 → ∑ k ∈ Finset.Icc t (2 * t + 1), Y_sol n k = ((2 * t + 1 : ℕ) : ℝ) * n.choose (2 * t + 1) + Y_sol n t) := by
       -- By definition of $Y_sol$, we know that $\sum_{k=t}^{2t} Y_k = 2t \binom{n}{2t}$.
       have h_sum_even : ∑ k ∈ Finset.Icc t (2 * t), Y_sol n k = 2 * t * (Nat.choose n (2 * t) : ℝ) := by
-        induction' t with t ih generalizing n <;> simp_all +decide [ Nat.mul_succ ];
-        by_cases ht : 1 ≤ t <;> simp_all +decide [ Finset.sum_Ioc_succ_top, (Nat.succ_eq_succ ▸ Finset.Icc_succ_left_eq_Ioc) ];
-        · have h_sum_even : ∑ k ∈ Finset.Icc t (2 * t + 1), Y_sol n k = (2 * t + 1) * (Nat.choose n (2 * t + 1) : ℝ) + Y_sol n t := by
-            have h_sum_even : ∑ k ∈ Finset.Icc t (2 * t), Y_sol n k = 2 * t * (Nat.choose n (2 * t) : ℝ) := by
-              exact ih ( by omega );
-            have h_sum_even : Y_sol n (2 * t + 1) = (2 * t + 1) * (Nat.choose n (2 * t + 1) : ℝ) - 2 * t * (Nat.choose n (2 * t) : ℝ) + Y_sol n t := by
-              rw [ Y_sol ] ; norm_num [ Nat.add_div ] ; ring_nf;
-              rw [ if_neg ( by linarith ) ] ; unfold B_term ; ring_nf;
-              norm_num ; ring;
-            erw [ Finset.sum_Ico_succ_top ( by linarith ), ‹∑ k ∈ Finset.Icc t ( 2 * t ), Y_sol n k = _›, h_sum_even ] ; ring;
-          have h_sum_even : ∑ k ∈ Finset.Icc (t + 1) (2 * t + 2), Y_sol n k = ∑ k ∈ Finset.Icc t (2 * t + 1), Y_sol n k - Y_sol n t + Y_sol n (2 * t + 2) := by
-            erw [ Finset.sum_Ico_eq_sub _ _, Finset.sum_Ico_eq_sub _ _ ] <;> norm_num [ Finset.sum_range_succ ];
-            · ring;
-            · linarith;
-            · linarith;
-          have h_sum_even : Y_sol n (2 * t + 2) = (2 * t + 2) * (Nat.choose n (2 * t + 2) : ℝ) - (2 * t + 1) * (Nat.choose n (2 * t + 1) : ℝ) := by
-            -- By definition of $Y_sol$, we know that $Y_sol n (2 * t + 2) = B_term n (2 * t + 2)$.
-            have h_Y_sol_even : Y_sol n (2 * t + 2) = B_term n (2 * t + 2) := by
-              rw [ Y_sol ] ; simp +decide
-              exact fun h => False.elim <| h.not_ge h2t;
-            exact h_Y_sol_even.trans ( by unfold B_term; norm_num );
-          rw [ show ( Finset.Ioc t ( 2 * t + 2 ) : Finset ℕ ) = Finset.Icc ( t + 1 ) ( 2 * t + 2 ) by ext; aesop ] ; linarith!;
-        · unfold Y_sol; norm_num; ring_nf;
-          unfold B_term; split_ifs <;> norm_num [ Nat.choose_two_right ] ; ring_nf;
-          · omega;
-          · omega;
-          · linarith;
-          · unfold Y_sol; norm_num; ring;
+        induction t generalizing n with
+        | zero =>
+            simp_all +decide
+        | succ t ih =>
+            simp_all +decide [ Nat.mul_succ ];
+            by_cases ht : 1 ≤ t <;> simp_all +decide [ Finset.sum_Ioc_succ_top, (Nat.succ_eq_succ ▸ Finset.Icc_succ_left_eq_Ioc) ];
+            · have h_sum_even : ∑ k ∈ Finset.Icc t (2 * t + 1), Y_sol n k = (2 * t + 1) * (Nat.choose n (2 * t + 1) : ℝ) + Y_sol n t := by
+                have h_sum_even : ∑ k ∈ Finset.Icc t (2 * t), Y_sol n k = 2 * t * (Nat.choose n (2 * t) : ℝ) := by
+                  exact ih ( by omega );
+                have h_sum_even : Y_sol n (2 * t + 1) = (2 * t + 1) * (Nat.choose n (2 * t + 1) : ℝ) - 2 * t * (Nat.choose n (2 * t) : ℝ) + Y_sol n t := by
+                  rw [ Y_sol ] ; norm_num [ Nat.add_div ] ; ring_nf;
+                  rw [ if_neg ( by linarith ) ] ; unfold B_term ; ring_nf;
+                  norm_num ; ring;
+                erw [ Finset.sum_Ico_succ_top ( by linarith ), ‹∑ k ∈ Finset.Icc t ( 2 * t ), Y_sol n k = _›, h_sum_even ] ; ring;
+              have h_sum_even : ∑ k ∈ Finset.Icc (t + 1) (2 * t + 2), Y_sol n k = ∑ k ∈ Finset.Icc t (2 * t + 1), Y_sol n k - Y_sol n t + Y_sol n (2 * t + 2) := by
+                erw [ Finset.sum_Ico_eq_sub _ _, Finset.sum_Ico_eq_sub _ _ ] <;> norm_num [ Finset.sum_range_succ ];
+                · ring;
+                · linarith;
+                · linarith;
+              have h_sum_even : Y_sol n (2 * t + 2) = (2 * t + 2) * (Nat.choose n (2 * t + 2) : ℝ) - (2 * t + 1) * (Nat.choose n (2 * t + 1) : ℝ) := by
+                -- By definition of $Y_sol$, we know that $Y_sol n (2 * t + 2) = B_term n (2 * t + 2)$.
+                have h_Y_sol_even : Y_sol n (2 * t + 2) = B_term n (2 * t + 2) := by
+                  rw [ Y_sol ] ; simp +decide
+                  exact fun h => False.elim <| h.not_ge h2t;
+                exact h_Y_sol_even.trans ( by unfold B_term; norm_num );
+              rw [ show ( Finset.Ioc t ( 2 * t + 2 ) : Finset ℕ ) = Finset.Icc ( t + 1 ) ( 2 * t + 2 ) by ext; aesop ] ; linarith!;
+            · unfold Y_sol; norm_num; ring_nf;
+              unfold B_term; split_ifs <;> norm_num [ Nat.choose_two_right ] ; ring_nf;
+              · omega;
+              · omega;
+              · linarith;
+              · unfold Y_sol; norm_num; ring;
       refine' ⟨ h_sum_even, fun h => _ ⟩;
       erw [ Finset.sum_Ico_succ_top ( by linarith ), h_sum_even ];
       rw [ Y_sol ]; ring_nf;
@@ -1150,37 +1154,42 @@ decreasing_by
 `Y_sol` and `Y_tilde` agree for $k \le n/2$.
 -/
 lemma Y_sol_eq_Y_tilde {n k : ℕ} (hk : k ≤ n / 2) : Y_sol n k = Y_tilde n k := by
-  induction' k using Nat.strongRecOn with k ih generalizing n;
-  unfold Y_sol Y_tilde;
-  grind +ring
+  induction k using Nat.strongRecOn generalizing n with
+  | ind k ih =>
+      unfold Y_sol Y_tilde;
+      grind +ring
 
 /-
 Loose upper bound on $Y\_tilde_k$.
 -/
 lemma Y_tilde_loose_bound {n k : ℕ} (hk : 1 ≤ k) (hkn : k ≤ n / 2) :
     Y_tilde n k ≤ (2 * k : ℝ) * n.choose k := by
-      induction' k using Nat.strong_induction_on with k ihizing n;
-      unfold Y_tilde;
-      split_ifs <;> simp_all +decide [ B_term ];
-      · nlinarith [ show ( k : ℝ ) ≥ 1 by norm_cast, show ( n.choose k : ℝ ) ≥ 0 by positivity, show ( n.choose ( k - 1 ) : ℝ ) ≥ 0 by positivity ];
-      · -- Since $k$ is odd, we have $Y_tilde n ((k - 1) / 2) \leq 2 * ((k - 1) / 2) * Nat.choose n ((k - 1) / 2)$ by the induction hypothesis.
-        have h_ind : Y_tilde n ((k - 1) / 2) ≤ 2 * ((k - 1) / 2) * Nat.choose n ((k - 1) / 2) := by
-          rcases Nat.even_or_odd' k with ⟨ c, rfl | rfl ⟩ <;> norm_num at *;
-          exact if hc : 1 ≤ c then ihizing c ( by linarith ) hc ( by omega ) else by interval_cases c ; unfold Y_tilde; norm_num;
-        -- Since $k$ is odd, we have $(k - 1) * \binom{n}{(k - 1) / 2} \leq k * \binom{n}{k}$.
-        have h_odd : (k - 1) * Nat.choose n ((k - 1) / 2) ≤ k * Nat.choose n k := by
-          rcases Nat.even_or_odd' k with ⟨ c, rfl | rfl ⟩ <;> simp_all +decide
-          have h_odd : Nat.choose n (2 * c + 1) ≥ Nat.choose n c := by
-            have h_odd : ∀ i j : ℕ, i ≤ j → j ≤ n / 2 → Nat.choose n i ≤ Nat.choose n j := by
-              intros i j hij hjn
-              induction' hij with j hj ih;
-              · norm_num;
-              · exact le_trans ( ih ( Nat.le_of_succ_le hjn ) ) ( Nat.choose_le_succ_of_lt_half_left ( by linarith [ Nat.div_mul_le_self n 2 ] ) );
-            exact h_odd _ _ ( by linarith ) ( by linarith );
-          nlinarith [ Nat.choose_pos ( show c ≤ n by linarith [ Nat.div_mul_le_self n 2 ] ) ];
-        rcases k with ( _ | _ | k ) <;> simp_all +decide
-        · linarith;
-        · nlinarith [ ( by norm_cast : ( k + 1 : ℝ ) * Nat.choose n ( ( k + 1 ) / 2 ) ≤ ( k + 1 + 1 ) * Nat.choose n ( k + 1 + 1 ) ), Nat.div_mul_le_self ( k + 1 ) 2 ]
+      induction k using Nat.strong_induction_on generalizing n with
+      | h k ih =>
+          unfold Y_tilde;
+          split_ifs <;> simp_all +decide [ B_term ];
+          · nlinarith [ show ( k : ℝ ) ≥ 1 by norm_cast, show ( n.choose k : ℝ ) ≥ 0 by positivity, show ( n.choose ( k - 1 ) : ℝ ) ≥ 0 by positivity ];
+          · -- Since $k$ is odd, we have $Y_tilde n ((k - 1) / 2) \leq 2 * ((k - 1) / 2) * Nat.choose n ((k - 1) / 2)$ by the induction hypothesis.
+            have h_ind : Y_tilde n ((k - 1) / 2) ≤ 2 * ((k - 1) / 2) * Nat.choose n ((k - 1) / 2) := by
+              rcases Nat.even_or_odd' k with ⟨ c, rfl | rfl ⟩ <;> norm_num at *;
+              exact if hc : 1 ≤ c then ih c ( by linarith ) hc ( by omega ) else by interval_cases c ; unfold Y_tilde; norm_num;
+            -- Since $k$ is odd, we have $(k - 1) * \binom{n}{(k - 1) / 2} \leq k * \binom{n}{k}$.
+            have h_odd : (k - 1) * Nat.choose n ((k - 1) / 2) ≤ k * Nat.choose n k := by
+              rcases Nat.even_or_odd' k with ⟨ c, rfl | rfl ⟩ <;> simp_all +decide
+              have h_odd : Nat.choose n (2 * c + 1) ≥ Nat.choose n c := by
+                have h_odd : ∀ i j : ℕ, i ≤ j → j ≤ n / 2 → Nat.choose n i ≤ Nat.choose n j := by
+                  intros i j hij hjn
+                  induction hij with
+                  | refl =>
+                      norm_num;
+                  | step hij ih =>
+                      rename_i j
+                      exact le_trans ( ih ( Nat.le_of_succ_le hjn ) ) ( Nat.choose_le_succ_of_lt_half_left ( by linarith [ Nat.div_mul_le_self n 2 ] ) );
+                exact h_odd _ _ ( by linarith ) ( by linarith );
+              nlinarith [ Nat.choose_pos ( show c ≤ n by linarith [ Nat.div_mul_le_self n 2 ] ) ];
+            rcases k with ( _ | _ | k ) <;> simp_all +decide
+            · linarith;
+            · nlinarith [ ( by norm_cast : ( k + 1 : ℝ ) * Nat.choose n ( ( k + 1 ) / 2 ) ≤ ( k + 1 + 1 ) * Nat.choose n ( k + 1 + 1 ) ), Nat.div_mul_le_self ( k + 1 ) 2 ]
 
 /-
 The sum of B_k/k telescopes to binom(n, m) + sum_{j=1}^{m-1} binom(n, j)/(j+1).
@@ -1446,16 +1455,24 @@ lemma binom_ineq_aux (m : ℕ) (hm : m ≥ 4) : 2 * (2 * m).choose m ≥ (m + 1)
       · exact ⟨ Nat.factorial_pos _, Nat.factorial_pos _ ⟩;
     rcases Nat.even_or_odd' m with ⟨ k, rfl | rfl ⟩ <;> norm_num [ Nat.mul_succ, Nat.factorial ] at *;
     · rw [ show 2 * ( 2 * k ) - k = 3 * k by rw [ Nat.sub_eq_of_eq_add ] ; ring ];
-      induction' k with k ih <;> norm_num [ Nat.factorial_succ, Nat.mul_succ ] at *;
-      rcases k with ( _ | _ | k ) <;> simp_all +arith +decide [ Nat.factorial_succ, Nat.mul_succ ];
-      ring_nf at *;
-      nlinarith [ pow_nonneg ( Nat.zero_le k ) 3, pow_nonneg ( Nat.zero_le k ) 4, pow_nonneg ( Nat.zero_le k ) 5, pow_nonneg ( Nat.zero_le k ) 6, pow_nonneg ( Nat.zero_le k ) 7, pow_nonneg ( Nat.zero_le k ) 8, pow_nonneg ( Nat.zero_le k ) 9, pow_nonneg ( Nat.zero_le k ) 10, pow_nonneg ( Nat.zero_le k ) 11, pow_nonneg ( Nat.zero_le k ) 12, pow_nonneg ( Nat.zero_le k ) 13 ];
+      induction k with
+      | zero =>
+          norm_num [ Nat.factorial_succ, Nat.mul_succ ] at *
+      | succ k ih =>
+          norm_num [ Nat.factorial_succ, Nat.mul_succ ] at *;
+          rcases k with ( _ | _ | k ) <;> simp_all +arith +decide [ Nat.factorial_succ, Nat.mul_succ ];
+          ring_nf at *;
+          nlinarith [ pow_nonneg ( Nat.zero_le k ) 3, pow_nonneg ( Nat.zero_le k ) 4, pow_nonneg ( Nat.zero_le k ) 5, pow_nonneg ( Nat.zero_le k ) 6, pow_nonneg ( Nat.zero_le k ) 7, pow_nonneg ( Nat.zero_le k ) 8, pow_nonneg ( Nat.zero_le k ) 9, pow_nonneg ( Nat.zero_le k ) 10, pow_nonneg ( Nat.zero_le k ) 11, pow_nonneg ( Nat.zero_le k ) 12, pow_nonneg ( Nat.zero_le k ) 13 ];
     · norm_num [ Nat.add_div ] at *;
       rw [ show 2 * ( 2 * k ) + 2 - k = 3 * k + 2 by rw [ Nat.sub_eq_of_eq_add ] ; ring ];
-      induction' k with k ih <;> norm_num [ Nat.factorial_succ, Nat.mul_succ ] at *;
-      rcases k with ( _ | _ | k ) <;> simp_all +decide [ Nat.factorial_succ, Nat.mul_succ ];
-      ring_nf at *;
-      nlinarith [ pow_nonneg ( Nat.zero_le k ) 3, pow_nonneg ( Nat.zero_le k ) 4, pow_nonneg ( Nat.zero_le k ) 5, pow_nonneg ( Nat.zero_le k ) 6, pow_nonneg ( Nat.zero_le k ) 7, pow_nonneg ( Nat.zero_le k ) 8, pow_nonneg ( Nat.zero_le k ) 9, pow_nonneg ( Nat.zero_le k ) 10, pow_nonneg ( Nat.zero_le k ) 11, pow_nonneg ( Nat.zero_le k ) 12, pow_nonneg ( Nat.zero_le k ) 13, pow_nonneg ( Nat.zero_le k ) 14, pow_nonneg ( Nat.zero_le k ) 15 ];
+      induction k with
+      | zero =>
+          norm_num [ Nat.factorial_succ, Nat.mul_succ ] at *
+      | succ k ih =>
+          norm_num [ Nat.factorial_succ, Nat.mul_succ ] at *;
+          rcases k with ( _ | _ | k ) <;> simp_all +decide [ Nat.factorial_succ, Nat.mul_succ ];
+          ring_nf at *;
+          nlinarith [ pow_nonneg ( Nat.zero_le k ) 3, pow_nonneg ( Nat.zero_le k ) 4, pow_nonneg ( Nat.zero_le k ) 5, pow_nonneg ( Nat.zero_le k ) 6, pow_nonneg ( Nat.zero_le k ) 7, pow_nonneg ( Nat.zero_le k ) 8, pow_nonneg ( Nat.zero_le k ) 9, pow_nonneg ( Nat.zero_le k ) 10, pow_nonneg ( Nat.zero_le k ) 11, pow_nonneg ( Nat.zero_le k ) 12, pow_nonneg ( Nat.zero_le k ) 13, pow_nonneg ( Nat.zero_le k ) 14, pow_nonneg ( Nat.zero_le k ) 15 ];
   convert h_factorial using 1 <;> norm_num [ Nat.choose_eq_factorial_div_factorial ( show m ≤ 2 * m by linarith ), Nat.choose_eq_factorial_div_factorial ( show m / 2 ≤ 2 * m by omega ) ];
   · rw [ ← Nat.mul_div_assoc ];
     · grind;
@@ -1649,15 +1666,18 @@ lemma binom_decay {n k j : ℕ} (hk : k ≤ j) (hjn : j ≤ n) :
     (n.choose j : ℝ) ≤ (n.choose k : ℝ) * ((n - k : ℝ) / (k + 1)) ^ (j - k) := by
       have h_binom_ratio : ∀ {j : ℕ}, k ≤ j → j ≤ n → (n.choose j : ℝ) ≤ (n.choose k : ℝ) * ((n - k : ℝ) / (k + 1)) ^ (j - k) := by
         intros j hk hjn
-        induction' hk with j hj ih;
-        · norm_num +zetaDelta at *;
-        · have h_binom_ratio_step : (n.choose (j + 1) : ℝ) = (n.choose j : ℝ) * ((n - j : ℝ) / (j + 1)) := by
-            rw [ mul_div, eq_div_iff ] <;> norm_cast;
-            rw [ Int.subNatNat_of_le ( by linarith ) ] ; norm_cast ; rw [ Nat.choose_succ_right_eq ];
-          have h_binom_ratio_step : (n.choose (j + 1) : ℝ) ≤ (n.choose j : ℝ) * ((n - k : ℝ) / (k + 1)) := by
-            exact h_binom_ratio_step.symm ▸ mul_le_mul_of_nonneg_left ( by rw [ div_le_div_iff₀ ] <;> nlinarith only [ show ( k : ℝ ) ≤ j by norm_cast, show ( j : ℝ ) + 1 ≤ n by norm_cast ] ) ( Nat.cast_nonneg _ );
-          convert h_binom_ratio_step.trans ( mul_le_mul_of_nonneg_right ( ih ( Nat.le_of_succ_le hjn ) ) ( div_nonneg ( sub_nonneg.mpr <| Nat.cast_le.mpr <| by linarith ) <| by positivity ) ) using 1 ; rw [ Nat.succ_sub hj ] ; ring_nf;
-          simpa only [ pow_succ' ] using by ring;
+        induction hk with
+        | refl =>
+            norm_num +zetaDelta at *;
+        | step hj ih =>
+            rename_i j
+            have h_binom_ratio_step : (n.choose (j + 1) : ℝ) = (n.choose j : ℝ) * ((n - j : ℝ) / (j + 1)) := by
+              rw [ mul_div, eq_div_iff ] <;> norm_cast;
+              rw [ Int.subNatNat_of_le ( by linarith ) ] ; norm_cast ; rw [ Nat.choose_succ_right_eq ];
+            have h_binom_ratio_step : (n.choose (j + 1) : ℝ) ≤ (n.choose j : ℝ) * ((n - k : ℝ) / (k + 1)) := by
+              exact h_binom_ratio_step.symm ▸ mul_le_mul_of_nonneg_left ( by rw [ div_le_div_iff₀ ] <;> nlinarith only [ show ( k : ℝ ) ≤ j by norm_cast, show ( j : ℝ ) + 1 ≤ n by norm_cast ] ) ( Nat.cast_nonneg _ );
+            convert h_binom_ratio_step.trans ( mul_le_mul_of_nonneg_right ( ih ( Nat.le_of_succ_le hjn ) ) ( div_nonneg ( sub_nonneg.mpr <| Nat.cast_le.mpr <| by linarith ) <| by positivity ) ) using 1 ; rw [ Nat.succ_sub hj ] ; ring_nf;
+            simpa only [ pow_succ' ] using by ring;
       exact h_binom_ratio hk hjn
 
 /-
@@ -1695,15 +1715,17 @@ Binomial coefficients are bounded by the central coefficient for k >= m.
 -/
 lemma binom_le_of_ge_mid {n m k : ℕ} (hn : n = 2 * m) (hm : m ≤ k) (hkn : k ≤ n) :
     n.choose k ≤ n.choose m := by
-  induction' k with k ih
-  · simp at hm
-    rw [hm]
-  · by_cases h : m ≤ k
-    · have h_le : n.choose (k + 1) ≤ n.choose k := by
-        apply binom_decreasing_after_m hn h (Nat.lt_of_succ_le hkn)
-      exact le_trans h_le (ih h (Nat.le_of_succ_le hkn))
-    · have h_eq : k + 1 = m := by linarith
-      rw [h_eq]
+  induction k with
+  | zero =>
+      simp at hm
+      rw [hm]
+  | succ k ih =>
+      by_cases h : m ≤ k
+      · have h_le : n.choose (k + 1) ≤ n.choose k := by
+          apply binom_decreasing_after_m hn h (Nat.lt_of_succ_le hkn)
+        exact le_trans h_le (ih h (Nat.le_of_succ_le hkn))
+      · have h_eq : k + 1 = m := by linarith
+        rw [h_eq]
 
 /-
 Binomial decay from j to k2 with ratio 0.75.
@@ -1739,13 +1761,14 @@ Stronger arithmetic bound for decay factors.
 -/
 lemma decay_bound_stronger {m : ℕ} (hm : m ≥ 200) :
     (0.88 : ℝ) ^ (8 * m / 100) * (0.75 : ℝ) ^ (15 * m / 100) ≤ 0.88 / (2 * m) := by
-      induction' m using Nat.strong_induction_on with m ih;
-      by_cases hm200 : m ≥ 400;
-      · have := ih ( m - 200 ) ( Nat.sub_lt ( by linarith ) ( by linarith ) ) ( by linarith [ Nat.sub_add_cancel ( by linarith : 200 ≤ m ) ] );
-        rw [ Nat.cast_sub ( by linarith ) ] at this;
-        rw [ show ( 8 * m / 100 : ℕ ) = ( 8 * ( m - 200 ) / 100 ) + 16 by omega, show ( 15 * m / 100 : ℕ ) = ( 15 * ( m - 200 ) / 100 ) + 30 by omega ] ; norm_num [ pow_add ] at *;
-        rw [ le_div_iff₀ ] at * <;> nlinarith [ ( by norm_cast : ( 400 : ℝ ) ≤ m ) ];
-      · interval_cases m <;> norm_num
+      induction m using Nat.strong_induction_on with
+      | h m ih =>
+          by_cases hm200 : m ≥ 400;
+          · have := ih ( m - 200 ) ( Nat.sub_lt ( by linarith ) ( by linarith ) ) ( by linarith [ Nat.sub_add_cancel ( by linarith : 200 ≤ m ) ] );
+            rw [ Nat.cast_sub ( by linarith ) ] at this;
+            rw [ show ( 8 * m / 100 : ℕ ) = ( 8 * ( m - 200 ) / 100 ) + 16 by omega, show ( 15 * m / 100 : ℕ ) = ( 15 * ( m - 200 ) / 100 ) + 30 by omega ] ; norm_num [ pow_add ] at *;
+            rw [ le_div_iff₀ ] at * <;> nlinarith [ ( by norm_cast : ( 400 : ℝ ) ≤ m ) ];
+          · interval_cases m <;> norm_num
 
 /-
 For j > 1.3m, binom(n, j) is at most binom(n, m) / (2m).
@@ -1805,8 +1828,13 @@ lemma binom_growth_iter {n m : ℕ} (hm : m ≥ 200) (hn : n = 2 * m) :
         exact h_ratio_step;
       -- Apply induction on the number of steps to show the inequality holds.
       have h_induction : ∀ k, k ≤ 7 * m / 10 - m / 2 → (n.choose (m / 2 + k) : ℝ) ≥ (n.choose (m / 2) : ℝ) * (1.5 : ℝ) ^ k := by
-        intro k hk; induction' k with k ih <;> norm_num [ pow_succ, mul_assoc ] at *;
-        specialize ih ( Nat.le_of_succ_le hk ) ; specialize h_ratio_step ( m / 2 + k ) ( by omega ) ( by omega ) ; ring_nf at *; linarith;
+        intro k hk
+        induction k with
+        | zero =>
+            norm_num [ pow_succ, mul_assoc ] at *
+        | succ k ih =>
+            norm_num [ pow_succ, mul_assoc ] at *;
+            specialize ih ( Nat.le_of_succ_le hk ) ; specialize h_ratio_step ( m / 2 + k ) ( by omega ) ( by omega ) ; ring_nf at *; linarith;
       convert h_induction ( 7 * m / 10 - m / 2 ) le_rfl using 1 ; rw [ Nat.add_sub_of_le ( by omega ) ]
 
 /-
@@ -1820,11 +1848,12 @@ lemma linear_le_exp_bound_nat {m : ℕ} (hm : m ≥ 200) :
       contrapose! h_ind;
       use 40 - 1;
       revert h_ind; norm_num [ Nat.cast_pow ] ; norm_cast;
-      induction' m using Nat.strong_induction_on with m ih;
-      by_cases hm' : m < 400;
-      · interval_cases m <;> norm_num;
-      · have := ih ( m - 5 ) ( Nat.sub_lt ( by linarith ) ( by linarith ) ) ( Nat.le_sub_of_add_le ( by linarith ) ) ; norm_num at *;
-        rw [ show m / 5 = ( m - 5 ) / 5 + 1 by omega ] ; norm_num [ pow_succ' ] at * ; rw [ Nat.cast_sub ( by linarith ) ] at * ; linarith [ ( by norm_cast : ( 400 : ℝ ) ≤ m ) ] ;
+      induction m using Nat.strong_induction_on with
+      | h m ih =>
+          by_cases hm' : m < 400;
+          · interval_cases m <;> norm_num;
+          · have := ih ( m - 5 ) ( Nat.sub_lt ( by linarith ) ( by linarith ) ) ( Nat.le_sub_of_add_le ( by linarith ) ) ; norm_num at *;
+            rw [ show m / 5 = ( m - 5 ) / 5 + 1 by omega ] ; norm_num [ pow_succ' ] at * ; rw [ Nat.cast_sub ( by linarith ) ] at * ; linarith [ ( by norm_cast : ( 400 : ℝ ) ≤ m ) ] ;
 
 /-
 The growth factor $1.5^{0.2m}$ is at least $m$.
@@ -1853,10 +1882,13 @@ lemma binom_ratio_bound {n m : ℕ} (hm : m ≥ 200) (hn : n = 2 * m) :
         generalize_proofs at *; (
         have h_binom_growth : ∀ k l : ℕ, k ≤ l → l ≤ 2 * m / 2 → (2 * m).choose k ≤ (2 * m).choose l := by
           intros k l hkl hlm
-          induction' hkl with k l hkl ih
-          generalize_proofs at *; (
-          grind);
-          exact le_trans ( hkl ( Nat.le_of_succ_le hlm ) ) ( Nat.choose_le_succ_of_lt_half_left ( by omega ) )
+          induction hkl with
+          | refl =>
+              generalize_proofs at *; (
+              grind)
+          | step hkl ih =>
+              rename_i l
+              exact le_trans ( ih ( Nat.le_of_succ_le hlm ) ) ( Nat.choose_le_succ_of_lt_half_left ( by omega ) )
         generalize_proofs at *; (
         grind)))
       generalize_proofs at *; (
@@ -1929,15 +1961,18 @@ lemma binom_ratio_identity (n : ℕ) (h : n / 4 ≤ n / 2) :
       -- By repeatedly applying the identity, we can express $\binom{n}{n/4}$ in terms of $\binom{n}{n/2}$ and a product of ratios.
       have h_seq : ∀ (i j : ℕ), i ≤ j → j ≤ n → (Nat.choose n i : ℝ) = (Nat.choose n j : ℝ) * (∏ k ∈ Finset.Ico i j, (k + 1 : ℝ) / (n - k)) := by
         intros i j hij hjn
-        induction' hij with k hk ih;
-        · norm_num +zetaDelta at *;
-        · rw [ Finset.prod_Ico_succ_top ( by linarith [ Nat.succ_le_succ hk ] ), mul_comm ];
-          rw [ ih ( Nat.le_of_succ_le hjn ), mul_comm ];
-          rw [ mul_assoc, show ( Nat.choose n ( k + 1 ) : ℝ ) = ( Nat.choose n k : ℝ ) * ( n - k ) / ( k + 1 ) from ?_ ];
-          · field_simp;
-            rw [ mul_div_cancel_right₀ _ ( sub_ne_zero_of_ne ( by norm_cast; linarith ) ) ];
-          · rw [ eq_div_iff ] <;> norm_cast;
-            rw [ Int.subNatNat_of_le ( by linarith ) ] ; push_cast [ Nat.choose_succ_right_eq ] ; ring;
+        induction hij with
+        | refl =>
+            norm_num +zetaDelta at *;
+        | step hk ih =>
+            rename_i k
+            rw [ Finset.prod_Ico_succ_top ( by linarith [ Nat.succ_le_succ hk ] ), mul_comm ];
+            rw [ ih ( Nat.le_of_succ_le hjn ), mul_comm ];
+            rw [ mul_assoc, show ( Nat.choose n ( k + 1 ) : ℝ ) = ( Nat.choose n k : ℝ ) * ( n - k ) / ( k + 1 ) from ?_ ];
+            · field_simp;
+              rw [ mul_div_cancel_right₀ _ ( sub_ne_zero_of_ne ( by norm_cast; linarith ) ) ];
+            · rw [ eq_div_iff ] <;> norm_cast;
+              rw [ Int.subNatNat_of_le ( by linarith ) ] ; push_cast [ Nat.choose_succ_right_eq ] ; ring;
       grind
 
 /-
@@ -2045,14 +2080,17 @@ lemma binom_growth_065_070 {m : ℕ} (hm : m ≥ 200) (n : ℕ) (hn : n = 2 * m)
       have h_ratio_growth : (Nat.choose n (7 * m / 10) : ℝ) ≥ (Nat.choose n (13 * m / 20) : ℝ) * (∏ k ∈ Finset.Ico (13 * m / 20) (7 * m / 10), ((n - k : ℝ) / (k + 1))) := by
         have h_ratio_growth : ∀ {a b : ℕ}, a ≤ b → b ≤ n → (Nat.choose n b : ℝ) ≥ (Nat.choose n a : ℝ) * (∏ k ∈ Finset.Ico a b, ((n - k : ℝ) / (k + 1))) := by
           intros a b hab hbn
-          induction' hab with b hb ih;
-          · norm_num;
-          · rw [ Finset.prod_Ico_succ_top ( by linarith [ Nat.succ_le_succ hb ] ) ];
-            have h_ratio_growth_step : (Nat.choose n (b + 1) : ℝ) ≥ (Nat.choose n b : ℝ) * ((n - b : ℝ) / (b + 1)) := by
-              rw [ mul_div, ge_iff_le, div_le_iff₀ ] <;> norm_cast <;> try linarith;
-              rw [ Int.subNatNat_of_le ( by linarith ) ] ; norm_cast;
-              rw [ ← Nat.choose_succ_right_eq ];
-            simpa only [ ← mul_assoc ] using le_trans ( mul_le_mul_of_nonneg_right ( ih ( Nat.le_of_succ_le hbn ) ) ( div_nonneg ( sub_nonneg.mpr ( Nat.cast_le.mpr ( by linarith ) ) ) ( by positivity ) ) ) h_ratio_growth_step;
+          induction hab with
+          | refl =>
+              norm_num;
+          | step hb ih =>
+              rename_i b
+              rw [ Finset.prod_Ico_succ_top ( by linarith [ Nat.succ_le_succ hb ] ) ];
+              have h_ratio_growth_step : (Nat.choose n (b + 1) : ℝ) ≥ (Nat.choose n b : ℝ) * ((n - b : ℝ) / (b + 1)) := by
+                rw [ mul_div, ge_iff_le, div_le_iff₀ ] <;> norm_cast <;> try linarith;
+                rw [ Int.subNatNat_of_le ( by linarith ) ] ; norm_cast;
+                rw [ ← Nat.choose_succ_right_eq ];
+              simpa only [ ← mul_assoc ] using le_trans ( mul_le_mul_of_nonneg_right ( ih ( Nat.le_of_succ_le hbn ) ) ( div_nonneg ( sub_nonneg.mpr ( Nat.cast_le.mpr ( by linarith ) ) ) ( by positivity ) ) ) h_ratio_growth_step;
         exact h_ratio_growth ( by omega ) ( by omega );
       -- The product of the ratios is at least (1.85 : ℝ) ^ (7 * m / 10 - 13 * m / 20).
       have h_prod_ratio : ∏ k ∈ Finset.Ico (13 * m / 20) (7 * m / 10), ((n - k : ℝ) / (k + 1)) ≥ (1.85 : ℝ) ^ (7 * m / 10 - 13 * m / 20) := by
@@ -2066,11 +2104,12 @@ lemma binom_growth_065_070 {m : ℕ} (hm : m ≥ 200) (n : ℕ) (hn : n = 2 * m)
       have h_exp_growth : ∀ m : ℕ, 200 ≤ m → (1.85 : ℝ) ^ (7 * m / 10 - 13 * m / 20) ≥ m := by
         intro m hm
         have h_exp_growth : (1.85 : ℝ) ^ (m / 20) ≥ m := by
-          induction' m using Nat.strong_induction_on with m ih;
-          by_cases hm' : m < 400;
-          · interval_cases m <;> norm_num;
-          · have := ih ( m - 20 ) ( Nat.sub_lt ( by linarith ) ( by linarith ) ) ( Nat.le_sub_of_add_le ( by linarith ) ) ; norm_num at *;
-            rw [ show m / 20 = ( m - 20 ) / 20 + 1 by omega ] ; norm_num [ pow_add ] at * ; rw [ Nat.cast_sub ( by linarith ) ] at * ; nlinarith [ ( by norm_cast : ( 400 :ℝ ) ≤ m ) ] ;
+          induction m using Nat.strong_induction_on with
+          | h m ih =>
+              by_cases hm' : m < 400;
+              · interval_cases m <;> norm_num;
+              · have := ih ( m - 20 ) ( Nat.sub_lt ( by linarith ) ( by linarith ) ) ( Nat.le_sub_of_add_le ( by linarith ) ) ; norm_num at *;
+                rw [ show m / 20 = ( m - 20 ) / 20 + 1 by omega ] ; norm_num [ pow_add ] at * ; rw [ Nat.cast_sub ( by linarith ) ] at * ; nlinarith [ ( by norm_cast : ( 400 :ℝ ) ≤ m ) ] ;
         exact le_trans h_exp_growth ( pow_le_pow_right₀ ( by norm_num ) ( by omega ) );
       nlinarith [ h_exp_growth m hm, show ( 0 : ℝ ) ≤ Nat.choose n ( 13 * m / 20 ) by positivity ]
 
@@ -2097,9 +2136,12 @@ lemma binom_ineq_range {n m j : ℕ} (hm : m ≥ 200) (hn : n = 2 * m) (hj1 : m 
             exact h_binom_ge_floor;
           have h_binom_ge_floor : ∀ k, m + 2 ≤ k → k ≤ 13 * m / 10 → ∀ l, k ≤ l → l ≤ 13 * m / 10 → (Nat.choose n k : ℝ) ≥ (Nat.choose n l : ℝ) := by
             intros k hk1 hk2 l hkl hlk
-            induction' hkl with l hl ih;
-            · grind;
-            · exact le_trans ( h_binom_ge_floor l ( by linarith [ Nat.succ_le_succ hl ] ) ( by linarith ) ) ( ih ( by linarith ) );
+            induction hkl with
+            | refl =>
+                grind;
+            | step hl ih =>
+                rename_i l
+                exact le_trans ( h_binom_ge_floor l ( by linarith [ Nat.succ_le_succ hl ] ) ( by linarith ) ) ( ih ( by linarith ) );
           exact h_binom_ge_floor k hk1 hk2 _ hk2 le_rfl;
         exact h_binom_ge_floor j hj1 hj2;
       -- Since $j \in [m+2, 1.3m]$, we have $\binom{n}{j/2} \le \binom{n}{\lfloor 0.65m \rfloor}$.
@@ -2119,9 +2161,12 @@ lemma binom_ineq_range {n m j : ℕ} (hm : m ≥ 200) (hn : n = 2 * m) (hj1 : m 
               exact mul_le_mul_of_nonneg_left ( by rw [ le_sub_iff_add_le ] ; norm_cast; omega ) ( Nat.cast_nonneg _ );
             have h_binom_le_floor : ∀ k, k ≤ 13 * m / 20 → k ≤ n / 2 → ∀ l, k ≤ l → l ≤ 13 * m / 20 → (Nat.choose n k : ℝ) ≤ (Nat.choose n l : ℝ) := by
               intros k hk_le_floor hk_le_half l hkl hl_le_floor
-              induction' hkl with l hl ih;
-              · norm_num +zetaDelta at *;
-              · exact le_trans ( ih ( Nat.le_of_succ_le hl_le_floor ) ) ( h_binom_le_floor _ ( Nat.le_of_succ_le hl_le_floor ) ( by omega ) );
+              induction hkl with
+              | refl =>
+                  norm_num +zetaDelta at *;
+              | step hl ih =>
+                  rename_i l
+                  exact le_trans ( ih ( Nat.le_of_succ_le hl_le_floor ) ) ( h_binom_le_floor _ ( Nat.le_of_succ_le hl_le_floor ) ( by omega ) );
             exact h_binom_le_floor k hk_le_floor hk_le_half _ hk_le_floor le_rfl;
           exact h_binom_le_floor k hk_le_floor ( by omega ) |> le_trans ( by norm_num ) ;
         exact h_binom_le_floor _ ‹_›;
@@ -2140,9 +2185,12 @@ lemma binom_ineq_range {n m j : ℕ} (hm : m ≥ 200) (hn : n = 2 * m) (hj1 : m 
             rw [ h_binom_ge_7m10, ge_iff_le, le_div_iff₀ ] <;> norm_num [ hn ];
             · exact mul_le_mul_of_nonneg_left ( by rw [ le_sub_iff_add_le ] ; norm_cast; omega ) ( Nat.cast_nonneg _ );
             · positivity;
-          induction' hk1 with k hk ih
-          · exact le_rfl
-          · exact le_trans (ih (by omega)) (h_binom_ge_7m10 k hk (by omega))
+          induction hk1 with
+          | refl =>
+              exact le_rfl
+          | step hk ih =>
+              rename_i k
+              exact le_trans (ih (by omega)) (h_binom_ge_7m10 k hk (by omega))
         exact h_binom_ge_7m10 _ ( by omega ) ( by omega );
       nlinarith [ ( by norm_cast : ( 200 : ℝ ) ≤ m ) ]
 
@@ -2277,9 +2325,12 @@ lemma binom_ineq_odd_case {n m : ℕ} (hm : m ≥ 200) (hn : n = 2 * m) :
         -- Apply the lemma that binomial coefficients are increasing up to the middle term.
         have h_inc : ∀ k l : ℕ, k ≤ l → l ≤ m → Nat.choose (2 * m) k ≤ Nat.choose (2 * m) l := by
           intros k l hkl hlm;
-          induction' hkl with k hk ih;
-          · rfl;
-          · exact le_trans ( ih ( Nat.le_of_succ_le hlm ) ) ( Nat.le_of_lt_succ ( by nlinarith [ Nat.add_one_mul_choose_eq ( 2 * m ) k, Nat.choose_succ_succ ( 2 * m ) k ] ) );
+          induction hkl with
+          | refl =>
+              rfl;
+          | step hk ih =>
+              rename_i k
+              exact le_trans ( ih ( Nat.le_of_succ_le hlm ) ) ( Nat.le_of_lt_succ ( by nlinarith [ Nat.add_one_mul_choose_eq ( 2 * m ) k, Nat.choose_succ_succ ( 2 * m ) k ] ) );
         have h_symm : Nat.choose (2 * m) (m + 1) = Nat.choose (2 * m) (m - 1) := by
           rw [ Nat.choose_symm_of_eq_add ] ; omega;
         exact h_symm.symm ▸ h_inc _ _ ( by omega ) ( by omega );
@@ -2305,9 +2356,12 @@ lemma binom_ineq_odd_case {n m : ℕ} (hm : m ≥ 200) (hn : n = 2 * m) :
             exact h_binom_le;
           have h_binom_le : ∀ i, m + 1 ≤ i → i ≤ k → Nat.choose (2 * m) i ≥ Nat.choose (2 * m) k := by
             intros i hi1 hi2
-            induction' hi2 with i hi ih;
-            · grind;
-            · exact le_trans ( h_binom_le i ( by linarith [ Nat.succ_le_succ hi ] ) ( by linarith ) ) ( ih ( by linarith [ Nat.succ_le_succ hi ] ) ( by linarith ) );
+            induction hi2 with
+            | refl =>
+                grind;
+            | step hi ih =>
+                rename_i i
+                exact le_trans ( h_binom_le i ( by linarith [ Nat.succ_le_succ hi ] ) ( by linarith ) ) ( ih ( by linarith [ Nat.succ_le_succ hi ] ) ( by linarith ) );
           exact h_binom_le _ le_rfl hk1 |> le_trans <| by norm_num;
         exact h_binom_le _ ( by omega ) ( by omega );
       norm_cast at *;
@@ -2354,28 +2408,31 @@ lemma LHS_ge_RHS_all_even {n m : ℕ} (hm : m ≥ 200) (hn : n = 2 * m) :
     ∀ j, m + 2 ≤ j → j ≤ n → j % 2 = 0 → LHS n m j ≥ RHS n j := by
       intro j hj₁ hj₂ hj;
       by_cases h_even : m % 2 = 0;
-      · induction' j using Nat.strong_induction_on with j ih;
-        by_cases hj_cases : j = m + 2 ∨ j = m + 4;
-        · rcases hj_cases with ( rfl | rfl );
-          · exact LHS_ge_RHS_base_even ( by linarith ) ( by linarith )
-          · apply LHS_ge_RHS_step_general_no_parity;
-            · grind;
-            · exact hn;
-            · linarith;
-            · linarith;
-            · exact LHS_ge_RHS_base_even ( by linarith ) ( by linarith );
-        · -- Since $j$ is even and greater than $m+4$, we can write $j = k + 2$ for some $k$ such that $m+2 \leq k < j$.
-          obtain ⟨k, rfl⟩ : ∃ k, j = k + 2 := by
-            exact ⟨ j - 2, by rw [ Nat.sub_add_cancel ( by linarith ) ] ⟩;
-          exact LHS_ge_RHS_step_general hm hn ( by omega ) ( by omega ) ( by omega ) ( ih k ( by omega ) ( by omega ) ( by omega ) ( by omega ) );
+      · induction j using Nat.strong_induction_on with
+        | h j ih =>
+            by_cases hj_cases : j = m + 2 ∨ j = m + 4;
+            · rcases hj_cases with ( rfl | rfl );
+              · exact LHS_ge_RHS_base_even ( by linarith ) ( by linarith )
+              · apply LHS_ge_RHS_step_general_no_parity;
+                · grind;
+                · exact hn;
+                · linarith;
+                · linarith;
+                · exact LHS_ge_RHS_base_even ( by linarith ) ( by linarith );
+            · -- Since $j$ is even and greater than $m+4$, we can write $j = k + 2$ for some $k$ such that $m+2 \leq k < j$.
+              obtain ⟨k, rfl⟩ : ∃ k, j = k + 2 := by
+                exact ⟨ j - 2, by rw [ Nat.sub_add_cancel ( by linarith ) ] ⟩;
+              exact LHS_ge_RHS_step_general hm hn ( by omega ) ( by omega ) ( by omega ) ( ih k ( by omega ) ( by omega ) ( by omega ) ( by omega ) );
       · -- Since $m$ is odd, we can write $j = m + 1 + 2k$ for some $k \geq 1$.
         obtain ⟨k, rfl⟩ : ∃ k, j = m + 1 + 2 * k := by
           exact ⟨ ( j - ( m + 1 ) ) / 2, by omega ⟩;
-        induction' k with k ih;
-        · linarith;
-        · rcases k with ( _ | k ) <;> simp_all +arith +decide [ Nat.add_mod ];
-          · exact LHS_ge_RHS_base_m_plus_3 hm ( by linarith );
-          · have := LHS_ge_RHS_step_general_no_parity ( by linarith ) ( by linarith ) ( by linarith ) ( by linarith ) ( ih ( by linarith ) ) ; aesop;
+        induction k with
+        | zero =>
+            linarith;
+        | succ k ih =>
+            rcases k with ( _ | k ) <;> simp_all +arith +decide [ Nat.add_mod ];
+            · exact LHS_ge_RHS_base_m_plus_3 hm ( by linarith );
+            · have := LHS_ge_RHS_step_general_no_parity ( by linarith ) ( by linarith ) ( by linarith ) ( by linarith ) ( ih ( by linarith ) ) ; aesop;
 
 /-
 LHS(j+1) >= RHS(j) for odd j > 1.3m.
@@ -2413,13 +2470,14 @@ lemma LHS_ge_RHS_all {n m : ℕ} (hm : m ≥ 200) (hn : n = 2 * m) :
       -- For odd $j \in [m+2, 1.3m]$, we can use the lemma `LHS_ge_RHS_step_small_j_no_parity` to show $LHS(j) \geq RHS(j)$.
       have h_odd_small : ∀ j, m + 2 ≤ j → j ≤ 13 * m / 10 → LHS n m j ≥ RHS n j := by
         intros j hj1 hj2
-        induction' j using Nat.strong_induction_on with j ih;
-        rcases hj1 with ( _ | _ | j ) <;> simp_all +arith +decide;
-        · exact LHS_ge_RHS_base_final ( by linarith ) ( by linarith );
-        · convert LHS_ge_RHS_base_m_plus_3 _ _ using 1;
-          · grind;
-          · rfl;
-        · exact LHS_ge_RHS_step_small_j_no_parity ( by linarith ) ( by linarith ) ( by linarith ) ( by linarith ) ( ih _ ( by linarith ) ( by linarith ) ( by linarith ) );
+        induction j using Nat.strong_induction_on with
+        | h j ih =>
+            rcases hj1 with ( _ | _ | j ) <;> simp_all +arith +decide;
+            · exact LHS_ge_RHS_base_final ( by linarith ) ( by linarith );
+            · convert LHS_ge_RHS_base_m_plus_3 _ _ using 1;
+              · grind;
+              · rfl;
+            · exact LHS_ge_RHS_step_small_j_no_parity ( by linarith ) ( by linarith ) ( by linarith ) ( by linarith ) ( ih _ ( by linarith ) ( by linarith ) ( by linarith ) );
       -- By combining the results for even and odd j, we can conclude that LHS n m j ≥ RHS n j for all j in the range m+2 to n.
       intros j hj1 hj2
       by_cases hj_even : j % 2 = 0;
