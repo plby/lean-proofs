@@ -27,7 +27,6 @@ import ErdosProblems.Axioms
 
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.style.cases false
@@ -55,8 +54,8 @@ local notation:max "#" s:max => Finset.card s
 
 /-
 per Gemini 3.0 Flash, the correspondence between Diximier and the Lean is as Follows
-Lemma 2.1	 --> lemma_2_1_general
-Lemma 2.2	 --> lemma_2_2_full
+Lemma 2.1  --> lemma_2_1_general
+Lemma 2.2  --> lemma_2_2_full
 Lemma 2.3  --> lemma_2_2_final
 Lemma 2.4  --> lemma_2_3
 Lemma 2.5  --> lemma_card_ineq
@@ -127,9 +126,11 @@ lemma lemma_2_1_case_1 {A : Type*} [AddCommGroup A] [Finite A] (B : Set A) (b₀
             have h_neg_in_image : (n - 1) • c ∈ (fun y : A => QuotientAddGroup.mk y : A → A ⧸ B0) '' B := by
               have h_neg_in_image : ∀ m : ℕ, m > 0 → m • c ∈ (fun y : A => QuotientAddGroup.mk y : A → A ⧸ B0) '' B := by
                 intro m hm_pos
-                induction' hm_pos with m hm ih;
-                · simpa using hc;
-                · simpa only [ Nat.succ_eq_add_one, add_smul, one_smul ] using h_add _ _ ih hc;
+                induction hm_pos with
+                | refl =>
+                  simpa using hc
+                | step hm ih =>
+                  simpa only [ Nat.succ_eq_add_one, add_smul, one_smul ] using h_add _ _ ih hc
               rcases n with ( _ | _ | n ) <;> simp_all +decide
             rw [h_neg] at *
             exact h_neg_in_image
@@ -217,9 +218,12 @@ lemma lemma_2_1_cyclic_interval (n : ℕ) (hn : n > 0) (B : Set (ZMod n)) (h1 : 
   ∀ j, k ≤ j → j ≤ n → (j : ZMod n) ∈ B := by
   -- We proceed by induction on $j$ starting from $k$.
   intro j hj_k hj_n
-  induction' hj_k with j hj_k ih
-  · exact hk_in
-  · have hj_lt_n : j < n := Nat.lt_of_succ_le hj_n
+  induction hj_k with
+  | refl =>
+    exact hk_in
+  | step hj_k ih =>
+    rename_i j
+    have hj_lt_n : j < n := Nat.lt_of_succ_le hj_n
     have hj_ge_two : 2 ≤ j := le_trans hk_le hj_k
     have hne : (j : ZMod n) ≠ 1 :=
       zmod_nat_cast_ne_one_of_two_le_lt n j hn hj_ge_two hj_lt_n
@@ -398,7 +402,8 @@ lemma lemma_2_2_part1 (a b : ℕ) (ha : a > 0) (hb : b > 0) (E : Finset ℕ)
     -- By induction on $k$ where $n = a + k$, we show that $a + k \in S(E)$ for all $k \geq 1$.
     have h_ind : ∀ k ≥ 1, a + k ∈ S (E : Set ℕ) := by
       intro k hk_ge_1
-      induction' k using Nat.strong_induction_on with k ih;
+      induction k using Nat.strong_induction_on with
+      | h k ih =>
       rcases k with ( _ | _ | k ) <;> simp_all +arith +decide;
       · exact lemma_2_2_step1 a b ha hb E hE_subset hE_card hb_gt;
       · -- Apply Lemma 2.2.1 to $E' = E \cup \{a+1, \dots, a+k+1\}$.
@@ -535,7 +540,8 @@ Lemma 2.2: Let a, b be integers > 0, E a subset of [1, a] with b elements. If b 
 lemma lemma_2_2_final (a b : ℕ) (ha : a > 0) (hb : b > 0) (E : Finset ℕ)
   (hE_subset : E ⊆ Finset.Icc 1 a) (hE_card : E.card = b) (hb_gt : b > a / 2) :
   ∀ n, a - 1 ≤ n → n > 0 → n ∈ S (E : Set ℕ) := by
-    induction' a using Nat.strongRecOn with a ih generalizing b E;
+    induction a using Nat.strongRecOn generalizing b E with
+    | ind a ih =>
     -- Consider two cases: $a \leq 2$ and $a \geq 3$.
     by_cases ha_le_2 : a ≤ 2;
     · interval_cases a <;> simp_all +decide;
@@ -624,9 +630,11 @@ lemma lemma_card_ineq (S : AddSubsemigroup ℕ) (r c s d : ℕ)
     -- Applying the translation $\tau$ repeatedly, we can shift the interval $[r, r+c]$ to the right until it is contained in or to the right of $[s, s+d]$.
     have h_shift : ∀ k : ℕ, Finset.card (Finset.filter (fun x => x ∈ S) (Finset.Icc r (r + c))) ≤ Finset.card (Finset.filter (fun x => x ∈ S) (Finset.Icc (r + k * (c + 1)) (r + k * (c + 1) + c))) := by
       intro k
-      induction' k with k ih;
-      · norm_num;
-      · refine le_trans ih ?_;
+      induction k with
+      | zero =>
+        norm_num
+      | succ k ih =>
+        refine le_trans ih ?_;
         have h_image : Finset.image (fun x => x + (c + 1)) (Finset.filter (fun x => x ∈ S) (Finset.Icc (r + k * (c + 1)) (r + k * (c + 1) + c))) ⊆ Finset.filter (fun x => x ∈ S) (Finset.Icc (r + (k + 1) * (c + 1)) (r + (k + 1) * (c + 1) + c)) := by
           simp +decide [ Finset.subset_iff ];
           rintro x y hy₁ hy₂ hy₃ rfl; exact ⟨ ⟨ by linarith, by linarith ⟩, S.add_mem hy₃ hc ⟩ ;
@@ -5012,7 +5020,8 @@ theorem theorem_2 (a b : ℕ) (E : Finset ℕ) (hE_sub : (E : Set ℕ) ⊆ Set.I
         have h_periodic : ∀ x ∈ S E, x + m ∈ S E := by
           intro x hx; exact (by
           exact AddSubsemigroup.add_mem _ hx ( AddSubsemigroup.subset_closure hm_mem ));
-        induction' n using Nat.strong_induction_on with n ih;
+        induction n using Nat.strong_induction_on with
+        | h n ih =>
         by_cases hn' : n ≤ k * m;
         · exact h_subset_m ⟨ hn, hn' ⟩;
         · convert h_periodic ( n - m ) ( ih ( n - m ) ( Nat.sub_lt ( by nlinarith ) ( by nlinarith [ Set.mem_Icc.mp ( hE_sub hm_mem ) ] ) ) ( Nat.le_sub_of_add_le ( by nlinarith [ Nat.sub_add_cancel hk ] ) ) ) using 1 ; rw [ Nat.sub_add_cancel ( by nlinarith [ Nat.sub_add_cancel hk ] ) ];
@@ -5141,9 +5150,15 @@ lemma mem_closure_lower_bound_set (a b : ℕ) (hb_ge_2 : b ≥ 2) (hb_lt_a : b <
         obtain ⟨ k₁, hk₁₁, hk₁₂, hk₁₃ ⟩ := hx; obtain ⟨ k₂, hk₂₁, hk₂₂, hk₂₃ ⟩ := hy; exact ⟨ k₁ + k₂, by linarith, by linarith, by linarith ⟩ ;
     · rintro ⟨ k, hk₁, hk₂, hk₃ ⟩
       have h_ind : ∀ k ≥ 1, ∀ n, k * (a - b + 1) ≤ n → n ≤ k * a → n ∈ S (lower_bound_set a b : Set ℕ) := by
-        intro k hk n hn₁ hn₂; induction' hk with k hk ih generalizing n <;> norm_num at *;
-        · exact AddSubsemigroup.subset_closure ( Finset.mem_Icc.mpr ⟨ by linarith, by linarith ⟩ );
-        · -- By the induction hypothesis, $n - x \in S(E)$ for some $x \in E$.
+        intro k hk n hn₁ hn₂
+        induction hk generalizing n with
+        | refl =>
+          norm_num at *
+          exact AddSubsemigroup.subset_closure ( Finset.mem_Icc.mpr ⟨ by linarith, by linarith ⟩ )
+        | step hk ih =>
+          rename_i k
+          norm_num at *
+          -- By the induction hypothesis, $n - x \in S(E)$ for some $x \in E$.
           obtain ⟨x, hx⟩ : ∃ x ∈ lower_bound_set a b, (k * (a - b + 1)) ≤ (n - x) ∧ (n - x) ≤ k * a := by
             refine' ⟨ if n - k * ( a - b + 1 ) ≤ a then n - k * ( a - b + 1 ) else a, _, _, _ ⟩ <;> norm_num [ lower_bound_set ];
             · split_ifs <;> constructor <;> nlinarith [ Nat.sub_add_cancel ( by nlinarith : k * ( a - b + 1 ) ≤ n ) ];
@@ -5203,11 +5218,13 @@ lemma large_elements_in_S (a b : ℕ) (hb_ge_2 : b ≥ 2) (hb_lt_a : b < a) :
     -- By induction on $n$, we can show that for any $n \ge Km$, $n \in S(E)$.
     have h_ind : ∀ n ≥ Nat.floor ((a - 2 : ℝ) / (b - 1 : ℝ)) * (a - b + 1), ∃ k ≥ 1, k * (a - b + 1) ≤ n ∧ n ≤ k * a := by
       intro n hn
-      induction' n, hn using Nat.le_induction with n hn ih;
-      · refine' ⟨ ⌊ ( ( a : ℝ ) - 2 ) / ( b - 1 ) ⌋₊, _, _, _ ⟩ <;> norm_num;
+      induction n, hn using Nat.le_induction with
+      | base =>
+        refine' ⟨ ⌊ ( ( a : ℝ ) - 2 ) / ( b - 1 ) ⌋₊, _, _, _ ⟩ <;> norm_num;
         · rw [ le_div_iff₀ ] <;> linarith [ show ( b : ℝ ) ≥ 2 by norm_cast, show ( a : ℝ ) ≥ b + 1 by norm_cast ];
         · exact Nat.mul_le_mul_left _ ( Nat.succ_le_of_lt ( Nat.sub_lt ( by linarith ) ( by linarith ) ) );
-      · obtain ⟨ k, hk₁, hk₂, hk₃ ⟩ := ih;
+      | succ n hn ih =>
+        obtain ⟨ k, hk₁, hk₂, hk₃ ⟩ := ih;
         by_cases hk : k ≥ Nat.floor ((a - 2 : ℝ) / (b - 1 : ℝ));
         · exact int_overlap k hk n ⟨ hk₂, hk₃ ⟩;
         · exact ⟨ k + 1, by linarith, by nlinarith [ Nat.sub_add_cancel hb_lt_a.le ], by nlinarith [ Nat.sub_add_cancel hb_lt_a.le ] ⟩;
