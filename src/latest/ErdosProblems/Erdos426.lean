@@ -30,7 +30,6 @@ set_option linter.deprecated false
 set_option linter.flexible false
 set_option linter.style.cases false
 set_option linter.style.cdot false
-set_option linter.style.induction false
 set_option linter.style.longLine false
 -- Local generated proof budgets below exceed the style threshold but are scoped
 -- where possible.
@@ -744,18 +743,19 @@ lemma greedy_independent_set {n : ℕ} (G : SimpleGraph (Fin n))
     ∃ I : Finset (Fin n), I ⊆ S ∧
     (∀ u ∈ I, ∀ v ∈ I, u ≠ v → ¬G.Adj u v) ∧
     S.card ≤ I.card * (d + 1) := by
-  induction' S using Finset.strongInduction with S ih;
-  by_cases hS : S = ∅;
-  · aesop;
-  · obtain ⟨v, hv⟩ : ∃ v ∈ S, True := by
-      exact Exists.elim ( Finset.nonempty_of_ne_empty hS ) fun v hv => ⟨ v, hv, trivial ⟩;
-    have := ih ( S \ ( { v } ∪ G.neighborFinset v ) ) ?_ ?_;
-    · obtain ⟨ I, hI₁, hI₂, hI₃ ⟩ := this; use Insert.insert v I; simp_all +decide [ Finset.subset_iff ] ;
-      rw [ Finset.card_sdiff ] at hI₃ ; simp_all +decide [ Finset.subset_iff ];
-      exact ⟨ fun u hu => by have := hI₁ hu; tauto, by rw [ Finset.card_insert_of_notMem fun h => by have := hI₁ h; tauto ] ; nlinarith [ show # ( G.neighborFinset v ∩ S ) ≤ d by exact le_trans ( Finset.card_le_card fun x hx => by aesop ) ( hdeg v hv ) ] ⟩;
-    · simp_all +decide [ Finset.ssubset_def, Finset.subset_iff ];
-      exact ⟨ v, hv, by tauto ⟩;
-    · grind +qlia
+  induction S using Finset.strongInduction with
+  | H S ih =>
+    by_cases hS : S = ∅;
+    · aesop;
+    · obtain ⟨v, hv⟩ : ∃ v ∈ S, True := by
+        exact Exists.elim ( Finset.nonempty_of_ne_empty hS ) fun v hv => ⟨ v, hv, trivial ⟩;
+      have := ih ( S \ ( { v } ∪ G.neighborFinset v ) ) ?_ ?_;
+      · obtain ⟨ I, hI₁, hI₂, hI₃ ⟩ := this; use Insert.insert v I; simp_all +decide [ Finset.subset_iff ] ;
+        rw [ Finset.card_sdiff ] at hI₃ ; simp_all +decide [ Finset.subset_iff ];
+        exact ⟨ fun u hu => by have := hI₁ hu; tauto, by rw [ Finset.card_insert_of_notMem fun h => by have := hI₁ h; tauto ] ; nlinarith [ show # ( G.neighborFinset v ∩ S ) ≤ d by exact le_trans ( Finset.card_le_card fun x hx => by aesop ) ( hdeg v hv ) ] ⟩;
+      · simp_all +decide [ Finset.ssubset_def, Finset.subset_iff ];
+        exact ⟨ v, hv, by tauto ⟩;
+      · grind +qlia
 
 /-! ## Switch Count Infrastructure -/
 
@@ -1180,9 +1180,11 @@ lemma pruning_chain_produces_controlled {n : ℕ} (C : ℕ) (hC : C ≥ 1)
   -- Define a recursive construction: at level ℓ (starting from 0), we have T_ℓ ⊆ B' with |T_ℓ| ≥ (if ℓ=0 then |B'| else τ(ℓ-1)), and a set W_ℓ of ℓ distinct vertices outside B', all adjacent to all of T_ℓ.
   have h_rec : ∀ k ≤ 4 * C + 1, ∃ T : Finset (Fin n), ∃ W : Finset (Fin n), T ⊆ B' ∧ W.card = k ∧ (∀ w ∈ W, w ∉ B') ∧ (∀ w ∈ W, ∀ v ∈ T, Hc.Adj v w) ∧ T.card ≥ (if k = 0 then B'.card else τ (k - 1)) := by
     intro k hk
-    induction' k with k ih;
-    · exact ⟨ B', ∅, Finset.Subset.refl _, rfl, by norm_num, by norm_num, by norm_num ⟩;
-    · obtain ⟨ T, W, hT₁, hT₂, hT₃, hT₄, hT₅ ⟩ := ih ( Nat.le_of_succ_le hk );
+    induction k with
+    | zero =>
+      exact ⟨ B', ∅, Finset.Subset.refl _, rfl, by norm_num, by norm_num, by norm_num ⟩
+    | succ k ih =>
+      obtain ⟨ T, W, hT₁, hT₂, hT₃, hT₄, hT₅ ⟩ := ih ( Nat.le_of_succ_le hk );
       -- By the induction hypothesis, T is not controlled with threshold τ k.
       have h_not_controlled : ¬(∀ w, w ∉ T → (∀ v ∈ T, Hc.Adj v w) ∨ (T.filter (fun v => Hc.Adj v w)).card < τ k) := by
         specialize h_contra k T ( by linarith ) hT₁ ( by
@@ -1398,11 +1400,13 @@ lemma chainPrefix_new_not_mem (σ : Equiv.Perm (Fin N)) {m : ℕ} (hm : m < N) :
 set_option maxHeartbeats 800000 in
 lemma perm_prefix_fiber_card (m : ℕ) (S : Finset (Fin N)) (hS : S.card = m) (hm : m ≤ N) :
     (Finset.univ.filter (fun σ : Equiv.Perm (Fin N) => chainPrefix σ m = S)).card =
-    Nat.factorial m * Nat.factorial (N - m) := by
+      Nat.factorial m * Nat.factorial (N - m) := by
   revert S hS hm;
-  induction' m with m ih generalizing N;
-  · simp +decide [ Fintype.card_perm ];
-  · intro S hS hN
+  induction m generalizing N with
+  | zero =>
+    simp +decide [ Fintype.card_perm ]
+  | succ m ih =>
+    intro S hS hN
     have h_count_succ : Finset.card {σ : Equiv.Perm (Fin N) | chainPrefix σ (m + 1) = S} = ∑ x ∈ S, Finset.card {σ : Equiv.Perm (Fin N) | chainPrefix σ m = S.erase x ∧ σ ⟨m, by linarith⟩ = x} := by
       have h_count_succ : Finset.filter (fun σ : Equiv.Perm (Fin N) => chainPrefix σ (m + 1) = S) Finset.univ = Finset.biUnion S (fun x => Finset.filter (fun σ : Equiv.Perm (Fin N) => chainPrefix σ m = S.erase x ∧ σ ⟨m, by linarith⟩ = x) Finset.univ) := by
         ext σ; simp [chainPrefix_succ];
@@ -3272,9 +3276,11 @@ lemma binomial_anticoncentration {n : ℕ} (hn : 4 ≤ n) (m : ℕ) :
     -- By the properties of binomial coefficients, we know that $\binom{2k}{k} \leq \frac{4^k}{\sqrt{k+1}}$ for any $k$.
     have h_binom_bound : ∀ k : ℕ, (Nat.choose (2 * k) k : ℝ) ≤ 4 ^ k / Real.sqrt (k + 1) := by
       intro k
-      induction' k with k ih;
-      · norm_num;
-      · -- For the inductive step, we use the identity $\binom{2(k+1)}{k+1} = \frac{2(2k+1)}{k+1} \binom{2k}{k}$.
+      induction k with
+      | zero =>
+        norm_num
+      | succ k ih =>
+        -- For the inductive step, we use the identity $\binom{2(k+1)}{k+1} = \frac{2(2k+1)}{k+1} \binom{2k}{k}$.
         have h_identity : (Nat.choose (2 * (k + 1)) (k + 1) : ℝ) = (2 * (2 * k + 1) / (k + 1)) * (Nat.choose (2 * k) k : ℝ) := by
           rw [ Nat.cast_choose, Nat.cast_choose ] <;> try linarith;
           norm_num [ two_mul, Nat.factorial ];
@@ -3432,10 +3438,15 @@ lemma abstract_process_bound (N : ℕ) (f z : ℕ → ℝ) (p : ℝ) (k : ℕ) (
     have h_interchange : ∀ m ∈ S, f m ≤ ∑ j ∈ Finset.range (m + 1), z j * p ^ (m - j) := by
       intro m hm
       have h_induction : ∀ m ≤ N, f m ≤ ∑ j ∈ Finset.range (m + 1), z j * p ^ (m - j) := by
-        intro m hm; induction' m with m ih <;> simp_all +decide [ Finset.sum_range_succ ] ;
-        refine le_trans ( hrec _ ( Nat.succ_pos _ ) ( by linarith ) ) ?_;
-        norm_num [ Nat.succ_eq_add_one, pow_add, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _ ] at *;
-        exact le_trans ( mul_le_mul_of_nonneg_left ( ih hm.le ) hp ) ( by rw [ show ∑ j ∈ Finset.range m, z j * p ^ ( m + 1 - j ) = p * ∑ j ∈ Finset.range m, z j * p ^ ( m - j ) by rw [ Finset.mul_sum _ _ _ ] ; exact Finset.sum_congr rfl fun _ _ => by rw [ Nat.sub_add_comm ( by linarith [ Finset.mem_range.mp ‹_› ] ) ] ; ring ] ; linarith );
+        intro m hm
+        induction m with
+        | zero =>
+          simp_all +decide [ Finset.sum_range_succ ]
+        | succ m ih =>
+          simp_all +decide [ Finset.sum_range_succ ]
+          refine le_trans ( hrec _ ( Nat.succ_pos _ ) ( by linarith ) ) ?_;
+          norm_num [ Nat.succ_eq_add_one, pow_add, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _ ] at *;
+          exact le_trans ( mul_le_mul_of_nonneg_left ( ih hm.le ) hp ) ( by rw [ show ∑ j ∈ Finset.range m, z j * p ^ ( m + 1 - j ) = p * ∑ j ∈ Finset.range m, z j * p ^ ( m - j ) by rw [ Finset.mul_sum _ _ _ ] ; exact Finset.sum_congr rfl fun _ _ => by rw [ Nat.sub_add_comm ( by linarith [ Finset.mem_range.mp ‹_› ] ) ] ; ring ] ; linarith );
       exact h_induction m <| hS m hm;
     refine le_trans ( Finset.sum_le_sum h_interchange ) ?_;
     simp +decide only [Finset.mul_sum _ _ _];
@@ -4371,10 +4382,11 @@ lemma iterative_pruning_fixed_threshold {n : ℕ} (C : ℕ) (Hc : SimpleGraph (F
   -- We proceed by strong induction on the size of the candidate subset of B'.
   have h_ind : ∀ S ⊆ B', τ ≤ S.card → ∃ T ⊆ S, τ ≤ T.card ∧ ∀ w ∉ T, (∀ v ∈ T, Hc.Adj v w) ∨ (T.filter (fun v => Hc.Adj v w)).card < τ := by
     intro S hS_sub hS_card
-    induction' S using Finset.strongInduction with S ih;
-    by_cases hS_prop : ∀ w ∉ S, (∀ v ∈ S, Hc.Adj v w) ∨ (S.filter (fun v => Hc.Adj v w)).card < τ;
-    · exact ⟨ S, Finset.Subset.refl _, hS_card, hS_prop ⟩;
-    · grind;
+    induction S using Finset.strongInduction with
+    | H S ih =>
+      by_cases hS_prop : ∀ w ∉ S, (∀ v ∈ S, Hc.Adj v w) ∨ (S.filter (fun v => Hc.Adj v w)).card < τ;
+      · exact ⟨ S, Finset.Subset.refl _, hS_card, hS_prop ⟩;
+      · grind;
   exact h_ind B' Finset.Subset.rfl hτ_le
 
 /-! ### Claim 2.4: Iterative pruning -/
@@ -4733,13 +4745,19 @@ lemma switchCount_zero_bound (C : ℕ) :
       intros x y
       have h_diff_zero : ∀ e : EdgeSlot n, ∀ x y : EdgeSlot n → Bool, (∀ e', e' ≠ e → x e' = y e') → |switchCount Hc T (graphDecode x) - switchCount Hc T (graphDecode y)| ≤ switchBoundTight Hc T e := by
         exact fun e x y a ↦ switchCount_bounded_diff_tight Hc T hT_indep e x y a;
-      induction' s : Finset.univ.filter (fun e => x e ≠ y e) using Finset.induction with e s ih generalizing x y;
-      · simp_all +decide [ Finset.ext_iff ];
-        rw [ show x = y from funext s ];
-      · rename_i s' hs';
+      induction hs : Finset.univ.filter (fun e => x e ≠ y e) using Finset.induction generalizing x y with
+      | empty =>
+        simp_all +decide [ Finset.ext_iff ];
+        have hxy : x = y := by
+          funext e
+          by_contra hne
+          have : e ∈ Finset.univ.filter (fun e => x e ≠ y e) := by simp [hne]
+          simp_all
+        rw [ hxy ];
+      | insert e s hnot ih =>
         have h_diff_zero : |switchCount Hc T (graphDecode x) - switchCount Hc T (graphDecode (fun e' => if e' = e then y e else x e'))| ≤ switchBoundTight Hc T e := by
           grind;
-        specialize hs' ( fun e' => if e' = e then y e else x e' ) y ; simp_all +decide [ Finset.ext_iff ];
+        specialize ih ( fun e' => if e' = e then y e else x e' ) y ; simp_all +decide [ Finset.ext_iff ];
         grind +ring
     -- The constant must be > 0 (from mean_switchCount_lower)
     have hmean_pos : ∑ G : SimpleGraph (Fin n), switchCount Hc T G > 0 := by
