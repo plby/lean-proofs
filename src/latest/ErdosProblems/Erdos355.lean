@@ -44,7 +44,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.induction false
 set_option linter.style.refine false
 set_option linter.style.multiGoal false
 set_option linter.style.cases false
@@ -154,9 +153,10 @@ lemma lm_reals (m : ℕ) (hm : m ≥ 1) (x : ℕ → ℝ)
   (h_dec : ∀ i ∈ Finset.Icc 1 (m - 1), x (i + 1) < x i)
   (h_cond : ∀ i ∈ Finset.Icc 1 (m - 1), x i ≤ (∑ j ∈ Finset.Icc (i + 1) m, x j) + x m) :
   DenselyFills { s | ∃ t ⊆ Finset.Icc 1 m, s = ∑ i ∈ t, x i } 0 (∑ i ∈ Finset.Icc 1 m, x i) (x m) := by
-  induction' m with m ih generalizing x;
-  · contradiction;
-  · have h_ind : DenselyFills {s | ∃ t ⊆ Finset.Icc 2 (m + 1), s = ∑ i ∈ t, x i} 0 (∑ i ∈ Finset.Icc 2 (m + 1), x i) (x (m + 1)) := by
+  induction m generalizing x with
+  | zero => contradiction;
+  | succ m ih =>
+    have h_ind : DenselyFills {s | ∃ t ⊆ Finset.Icc 2 (m + 1), s = ∑ i ∈ t, x i} 0 (∑ i ∈ Finset.Icc 2 (m + 1), x i) (x (m + 1)) := by
       by_cases hm : m ≥ 1;
       · convert ih hm ( fun i => x ( i + 1 ) ) _ _ _ using 1;
         · ext s
@@ -205,9 +205,10 @@ lemma finite_seq_satisfies_condition (n : ℕ → ℕ) (m : ℕ → ℕ) (K : �
   (h_ineq_k : ∀ k : ℕ, ∀ i, m k ≤ i → i < m (k + 1) →
     (1 : ℝ) / n i ≤ (∑ j ∈ Finset.Ioc i (m (k + 1)), (1 : ℝ) / n j) + (1 : ℝ) / n (m (k + 1))) :
   ∀ i < m K, (1 : ℝ) / n i ≤ (∑ j ∈ Finset.Ioc i (m K), (1 : ℝ) / n j) + (1 : ℝ) / n (m K) := by
-  induction' K with K ih;
-  · assumption;
-  · intro i hi;
+  induction K with
+  | zero => assumption;
+  | succ K ih =>
+    intro i hi;
     by_cases hi' : i < m K;
     · refine le_trans ( ih i hi' ) ?_;
       rw [ show ( Finset.Ioc i ( m ( K + 1 ) ) ) = Finset.Ioc i ( m K ) ∪ Finset.Ioc ( m K ) ( m ( K + 1 ) ) from ?_, Finset.sum_union ] <;> norm_num [ h_m_mono.le_iff_le ];
@@ -368,10 +369,14 @@ lemma remark_cond (n : ℕ → ℕ) (M : ℕ)
   (h_n_growth : ∀ i, n (i + 1) ≤ 2 * n i)
   (i : ℕ) (hi : i < M) :
   (1 : ℝ) / n i ≤ (∑ j ∈ Finset.Ioc i M, (1 : ℝ) / n j) + (1 : ℝ) / n M := by
-  induction' hi with k hk ih <;> norm_num [ Finset.sum_Ioc_succ_top ] at *;
-  · field_simp;
+  induction hi with
+  | refl =>
+    norm_num [ Finset.sum_Ioc_succ_top ] at *;
+    field_simp;
     rw [ div_le_div_iff₀ ] <;> norm_cast <;> linarith [ h_n_pos i, h_n_pos ( i + 1 ), h_n_growth i ];
-  · rw [ Finset.sum_Ioc_succ_top ] <;> try linarith;
+  | @step k hk ih =>
+    norm_num [ Finset.sum_Ioc_succ_top ] at *;
+    rw [ Finset.sum_Ioc_succ_top ] <;> try linarith;
     linarith [ show ( n k : ℝ ) ⁻¹ ≤ ( n ( k + 1 ) : ℝ ) ⁻¹ + ( n ( k + 1 ) : ℝ ) ⁻¹ by rw [ inv_eq_one_div, inv_eq_one_div, ← add_div, div_le_div_iff₀ ] <;> norm_cast <;> linarith [ h_n_pos k, h_n_pos ( k + 1 ), h_n_growth k ] ]
 
 /-
@@ -653,9 +658,14 @@ $m_k \ge k$ for all $k$.
 -/
 lemma m_seq_ge_k (lambda : ℝ) (h_lambda : 1 < lambda ∧ lambda < 2) (k : ℕ) :
   m_seq lambda k ≥ k := by
-    induction' k with k ih <;> norm_num [ *, m_seq_one ];
-    induction' k with k ih <;> norm_num [ *, m_seq_zero, m_seq_one ];
-    linarith! [ m_seq_succ lambda k, M_at_pos lambda h_lambda ( k + 2 ) ( by linarith ) ]
+    induction k with
+    | zero => norm_num [ *, m_seq_one ];
+    | succ k ih =>
+      norm_num [ *, m_seq_one ];
+      induction k with
+      | zero => norm_num [ *, m_seq_zero, m_seq_one ];
+      | succ k ih =>
+        linarith! [ m_seq_succ lambda k, M_at_pos lambda h_lambda ( k + 2 ) ( by linarith ) ]
 
 /-
 Definition of `k_of_index` and its specification.
@@ -713,19 +723,20 @@ $n_i > 0$ for all $i$.
 -/
 lemma n_seq_pos (lambda : ℝ) (h_lambda : 1 < lambda ∧ lambda < 2) (n : ℕ) :
   0 < n_seq lambda h_lambda n := by
-    induction' n using Nat.strong_induction_on with n ih;
-    unfold n_seq; split_ifs <;> simp_all +decide;
-    refine' ⟨ _, ih _ _ ⟩;
-    · have := step_data_props lambda h_lambda ( k_of_index lambda h_lambda n );
-      refine' Nat.pos_of_dvd_of_pos ( this.2.2.2.1 _ _ ) _;
-      · have := k_of_index_spec lambda h_lambda n;
-        rcases k : k_of_index lambda h_lambda n with ( _ | _ | k ) <;> simp_all +decide [ m_seq ];
-        · linarith [ show M_at lambda 1 ≥ 1 from M_at_pos lambda h_lambda 1 ( by norm_num ) ];
-        · linarith;
-      · refine' Nat.pos_of_ne_zero _;
-        intro h; have := this.2.2.1; simp_all +decide ;
-        have := ‹d_at lambda ( k_of_index lambda h_lambda n ) 0 = 1 ∧ StrictMonoOn ( d_at lambda ( k_of_index lambda h_lambda n ) ) ( Icc 0 ( M_at lambda ( k_of_index lambda h_lambda n ) ) ) ∧ ∀ j < M_at lambda ( k_of_index lambda h_lambda n ), _›.2.1 ( show 0 ∈ Icc 0 ( M_at lambda ( k_of_index lambda h_lambda n ) ) from ⟨ by norm_num, Nat.zero_le _ ⟩ ) ( show M_at lambda ( k_of_index lambda h_lambda n ) ∈ Icc 0 ( M_at lambda ( k_of_index lambda h_lambda n ) ) from ⟨ Nat.zero_le _, le_rfl ⟩ ) ; aesop;
-    · exact k_of_index_spec lambda h_lambda n |>.2 _ ( Nat.pred_lt ( ne_bot_of_gt ( k_of_index_pos lambda h_lambda n ‹_› ) ) )
+    induction n using Nat.strong_induction_on with
+    | _ n ih =>
+      unfold n_seq; split_ifs <;> simp_all +decide;
+      refine' ⟨ _, ih _ _ ⟩;
+      · have := step_data_props lambda h_lambda ( k_of_index lambda h_lambda n );
+        refine' Nat.pos_of_dvd_of_pos ( this.2.2.2.1 _ _ ) _;
+        · have := k_of_index_spec lambda h_lambda n;
+          rcases k : k_of_index lambda h_lambda n with ( _ | _ | k ) <;> simp_all +decide [ m_seq ];
+          · linarith [ show M_at lambda 1 ≥ 1 from M_at_pos lambda h_lambda 1 ( by norm_num ) ];
+          · linarith;
+        · refine' Nat.pos_of_ne_zero _;
+          intro h; have := this.2.2.1; simp_all +decide ;
+          have := ‹d_at lambda ( k_of_index lambda h_lambda n ) 0 = 1 ∧ StrictMonoOn ( d_at lambda ( k_of_index lambda h_lambda n ) ) ( Icc 0 ( M_at lambda ( k_of_index lambda h_lambda n ) ) ) ∧ ∀ j < M_at lambda ( k_of_index lambda h_lambda n ), _›.2.1 ( show 0 ∈ Icc 0 ( M_at lambda ( k_of_index lambda h_lambda n ) ) from ⟨ by norm_num, Nat.zero_le _ ⟩ ) ( show M_at lambda ( k_of_index lambda h_lambda n ) ∈ Icc 0 ( M_at lambda ( k_of_index lambda h_lambda n ) ) from ⟨ Nat.zero_le _, le_rfl ⟩ ) ; aesop;
+      · exact k_of_index_spec lambda h_lambda n |>.2 _ ( Nat.pred_lt ( ne_bot_of_gt ( k_of_index_pos lambda h_lambda n ‹_› ) ) )
 
 /-
 $m_k - m_{k-1} \le M_k$.
@@ -897,9 +908,10 @@ $n_i \le 2^i$.
 -/
 lemma final_n_le_two_pow (lambda : ℝ) (h_lambda : 1 < lambda ∧ lambda < 2) (i : ℕ) :
   final_n lambda h_lambda i ≤ 2 ^ i := by
-    induction' i with i ih;
-    · unfold final_n n_seq; aesop;
-    · -- By definition of `final_n`, we have `final_n (i + 1) = n_seq (i + 2)`.
+    induction i with
+    | zero => unfold final_n n_seq; aesop;
+    | succ i ih =>
+      -- By definition of `final_n`, we have `final_n (i + 1) = n_seq (i + 2)`.
       unfold final_n;
       -- By definition of `n_seq`, we have `n_seq (i + 2) ≤ 2 * n_seq (i + 1)`.
       have h_n_seq_le : (n_seq lambda h_lambda (i + 2) : ℝ) ≤ 2 * (n_seq lambda h_lambda (i + 1) : ℝ) := by
@@ -945,11 +957,13 @@ lemma final_n_div_m (lambda : ℝ) (h_lambda : 1 < lambda ∧ lambda < 2) (k : �
     -- By Lemma 3, $n_{m_k}$ is divisible by all preceding terms $n_j$ for $j < m_k$.
     have h_div : ∀ k j, j < m_seq lambda (k + 1) → n_seq lambda h_lambda j ∣ n_seq lambda h_lambda (m_seq lambda (k + 1)) := by
       intros k j hj
-      induction' k with k ih generalizing j;
-      · rcases j with ( _ | _ | j ) <;> simp_all +arith +decide [ m_seq ];
+      induction k generalizing j with
+      | zero =>
+        rcases j with ( _ | _ | j ) <;> simp_all +arith +decide [ m_seq ];
         · unfold n_seq; aesop;
         · unfold n_seq; aesop;
-      · by_cases hj' : j < m_seq lambda (k + 1);
+      | succ k ih =>
+        by_cases hj' : j < m_seq lambda (k + 1);
         · exact dvd_trans ( ih j hj' ) ( n_seq_div_prev_m_seq _ _ _ );
         · -- Since $j \geq m_seq lambda (k + 1)$, we can write $j = m_seq lambda (k + 1) + t$ for some $t$.
           obtain ⟨t, ht⟩ : ∃ t, j = m_seq lambda (k + 1) + t := by
@@ -990,8 +1004,9 @@ lemma super_Q_dvd_final_n (lambda : ℝ) (h_lambda : 1 < lambda ∧ lambda < 2) 
     -- By definition of `n_seq`, we know that `n_seq lambda h_lambda (m_seq lambda (k + 1))` is divisible by `∏ j ∈ Finset.range (k + 1), Q_seq (j + 1)`.
     have h_div : ∀ k, (∏ j ∈ Finset.range (k + 1), Q_seq (j + 1)) ∣ n_seq lambda h_lambda (m_seq lambda (k + 1)) := by
       intro k;
-      induction' k with k ih;
-      · unfold n_seq Q_seq m_seq; norm_num;
+      induction k with
+      | zero =>
+        unfold n_seq Q_seq m_seq; norm_num;
         rw [ show k_of_index lambda h_lambda 2 = 1 from _ ] ; norm_num [ m_seq ];
         · unfold n_seq; norm_num [ m_seq ] ;
           have := step_data_props lambda h_lambda 1;
@@ -1004,7 +1019,8 @@ lemma super_Q_dvd_final_n (lambda : ℝ) (h_lambda : 1 < lambda ∧ lambda < 2) 
             exact ⟨ 1, by norm_num; exact le_antisymm ( mod_cast this.2 ) ( mod_cast by exact Nat.le_of_not_lt fun h => by interval_cases d_at lambda 1 1 <;> norm_num at * ) ⟩;
         · unfold k_of_index;
           simp +decide [ Nat.find_eq_iff, m_seq ];
-      · have h_div : n_seq lambda h_lambda (m_seq lambda (k + 2)) = N_at lambda (k + 2) * n_seq lambda h_lambda (m_seq lambda (k + 1)) := by
+      | succ k ih =>
+        have h_div : n_seq lambda h_lambda (m_seq lambda (k + 2)) = N_at lambda (k + 2) * n_seq lambda h_lambda (m_seq lambda (k + 1)) := by
           rw [ n_seq_formula ];
           rotate_left;
           exact k + 2;
@@ -1197,7 +1213,9 @@ $a_i$ is positive for all $i$.
 -/
 lemma a_seq_pos (lambda : ℝ) (h_lambda : 1 < lambda) (i : ℕ) :
   0 < a_seq lambda i := by
-    induction' i with i ih <;> [ exact Nat.zero_lt_one; exact Nat.ceil_pos.mpr ( mul_pos ( by linarith ) ( Nat.cast_pos.mpr ih ) ) ]
+    induction i with
+    | zero => exact Nat.zero_lt_one
+    | succ i ih => exact Nat.ceil_pos.mpr ( mul_pos ( by linarith ) ( Nat.cast_pos.mpr ih ) )
 
 /-
 Any $\lambda$-lacunary sequence satisfies $n_i \ge a_i$.
@@ -1207,10 +1225,12 @@ lemma n_ge_a_seq (lambda : ℝ) (n : ℕ → ℕ)
   (h_n_pos : ∀ i, 0 < n i)
   (h_lac : IsLambdaLacunary lambda (fun i => n i)) :
   ∀ i, n i ≥ a_seq lambda i := by
-    intro i; induction' i using Nat.strong_induction_on with i IH; rcases i with ( _ | i ) <;> simp_all +decide [ IsLambdaLacunary ] ;
-    · exact h_n_pos 0;
-    · have := h_lac i; rw [ le_div_iff₀ ( Nat.cast_pos.mpr ( h_n_pos _ ) ) ] at this; norm_num [ a_seq ] at *;
-      exact le_trans ( mul_le_mul_of_nonneg_left ( mod_cast IH i ( le_rfl ) ) ( by positivity ) ) this
+    intro i; induction i using Nat.strong_induction_on with
+    | _ i IH =>
+      rcases i with ( _ | i ) <;> simp_all +decide [ IsLambdaLacunary ] ;
+      · exact h_n_pos 0;
+      · have := h_lac i; rw [ le_div_iff₀ ( Nat.cast_pos.mpr ( h_n_pos _ ) ) ] at this; norm_num [ a_seq ] at *;
+        exact le_trans ( mul_le_mul_of_nonneg_left ( mod_cast IH i ( le_rfl ) ) ( by positivity ) ) this
 
 lemma R_lambda_le (lambda : ℝ) (h_lambda : 1 < lambda ∧ lambda < 2) :
   R_lambda lambda ≤ ∑' i, (1 : ℝ) / a_seq lambda i := by
@@ -1242,9 +1262,13 @@ lemma R_lambda_le (lambda : ℝ) (h_lambda : 1 < lambda ∧ lambda < 2) :
         · have h_le : ∀ i, (1 : ℝ) / a_seq lambda i ≤ (1 / lambda) ^ i := by
             intro i
             have h_ai_ge_lambda_i : (a_seq lambda i : ℝ) ≥ lambda ^ i := by
-              induction' i with i ih <;> norm_num [ *, pow_succ' ] at *;
-              · exact Nat.one_le_iff_ne_zero.mpr ( by norm_num [ show a_seq lambda 0 = 1 from rfl ] );
-              · exact le_trans ( mul_le_mul_of_nonneg_left ih <| by linarith ) <| Nat.le_ceil _ |> le_trans ( by norm_num [ a_seq ] ) ;
+              induction i with
+              | zero =>
+                norm_num [ *, pow_succ' ] at *;
+                exact Nat.one_le_iff_ne_zero.mpr ( by norm_num [ show a_seq lambda 0 = 1 from rfl ] );
+              | succ i ih =>
+                norm_num [ *, pow_succ' ] at *;
+                exact le_trans ( mul_le_mul_of_nonneg_left ih <| by linarith ) <| Nat.le_ceil _ |> le_trans ( by norm_num [ a_seq ] ) ;
             generalize_proofs at *; (
             simpa using inv_anti₀ ( pow_pos ( by linarith ) _ ) h_ai_ge_lambda_i |> le_trans <| by norm_num;)
           generalize_proofs at *; (
@@ -1410,38 +1434,40 @@ lemma n_seq_thm2_pos (lambda : ℝ) (K : ℕ) (h_lambda : 1 < lambda ∧ lambda 
   0 < n_seq_thm2 lambda K h_lambda hK i := by
     by_contra h_contra
     have h_neg : ∀ i, n_seq_thm2 lambda K h_lambda hK i = 0 → False := by
-      intro i hi; induction' i using Nat.strongRecOn with i ih; unfold n_seq_thm2 at hi; split_ifs at hi <;> simp_all +decide ;
-      · unfold base_n at hi;
-        unfold base_data at hi; simp_all +decide ;
-        have := Classical.choose_spec ( show ∃ n' : ℕ → ℕ, ( ∀ i < K, n' i = a_seq lambda i ) ∧ 1 ∣ n' ( base_M lambda K h_lambda hK - 1 ) ∧ ( ∀ i < base_M lambda K h_lambda hK, n' i ∣ n' ( base_M lambda K h_lambda hK - 1 ) ) ∧ StrictMonoOn n' ( Set.Icc 0 ( base_M lambda K h_lambda hK - 1 ) ) ∧ ( ∀ j, K - 1 ≤ j → j < base_M lambda K h_lambda hK - 1 → lambda ≤ ( n' ( j + 1 ) : ℝ ) / n' j ∧ ( n' ( j + 1 ) : ℝ ) / n' j ≤ 2 ) from by
-                                          have := Classical.choose_spec ( show ∃ n' : ℕ → ℕ, ( ∀ i < K, n' i = a_seq lambda i ) ∧ 1 ∣ n' ( base_M lambda K h_lambda hK - 1 ) ∧ ( ∀ i < base_M lambda K h_lambda hK, n' i ∣ n' ( base_M lambda K h_lambda hK - 1 ) ) ∧ StrictMonoOn n' ( Set.Icc 0 ( base_M lambda K h_lambda hK - 1 ) ) ∧ ( ∀ j, K - 1 ≤ j → j < base_M lambda K h_lambda hK - 1 → lambda ≤ ( n' ( j + 1 ) : ℝ ) / n' j ∧ ( n' ( j + 1 ) : ℝ ) / n' j ≤ 2 ) from by
-                                            have := Classical.choose_spec ( show ∃ M : ℕ, K ≤ M ∧ ∃ n' : ℕ → ℕ, ( ∀ i < K, n' i = a_seq lambda i ) ∧ 1 ∣ n' ( M - 1 ) ∧ ( ∀ i < M, n' i ∣ n' ( M - 1 ) ) ∧ StrictMonoOn n' ( Set.Icc 0 ( M - 1 ) ) ∧ ( ∀ j, K - 1 ≤ j → j < M - 1 → lambda ≤ ( n' ( j + 1 ) : ℝ ) / n' j ∧ ( n' ( j + 1 ) : ℝ ) / n' j ≤ 2 ) from by
-                                                                              have := lm_divisors2 lambda 1 K ( fun i => a_seq lambda i ) h_lambda Nat.one_pos hK ( show StrictMonoOn ( fun i => a_seq lambda i ) ( Set.Icc 0 ( K - 1 ) ) from by
-                                                                                                                                                                      exact fun i hi j hj hij => a_seq_strictMono lambda h_lambda.1 hij |> lt_of_le_of_lt ( by aesop ) |> lt_of_lt_of_le <| le_rfl; ) ( fun i hi => a_seq_pos lambda h_lambda.1 i ) ; simp_all +decide [ StrictMonoOn ] ; )
-                                            exact this.2 ) ; simp_all +decide [ StrictMonoOn ] ;
-                                          exact ⟨ _, this ⟩ ) ; simp_all +decide [ StrictMonoOn ] ;
-        have hbase0 : base_n lambda K h_lambda hK 0 = a_seq lambda 0 := this.1 0 (by linarith)
-        by_cases hi0 : i = 0
-        · subst i
-          change base_n lambda K h_lambda hK 0 = 0 at hi
-          norm_num [a_seq] at hbase0
-          omega
-        · have hmono := this.2.2.1
-            (show 0 ≤ base_M lambda K h_lambda hK - 1 from by linarith)
-            (show i ≤ base_M lambda K h_lambda hK - 1 from by linarith)
-            (Nat.pos_of_ne_zero hi0)
-          change base_n lambda K h_lambda hK i = 0 at hi
-          change base_n lambda K h_lambda hK 0 < base_n lambda K h_lambda hK i at hmono
-          norm_num [a_seq] at hbase0
-          omega
-      · refine' hi.elim _ _ <;> simp_all +decide ;
-        · have := step_data_props lambda h_lambda (k_of_index_thm2 lambda K h_lambda hK i);
-          exact Nat.ne_of_gt ( Nat.pos_of_dvd_of_pos ( this.2.2.2.1 _ ( by
-            have := k_of_index_thm2_spec_high lambda K h_lambda hK i ( by linarith ) ; simp_all +decide ;
-            cases k : k_of_index_thm2 lambda K h_lambda hK i <;> simp_all +decide [m_seq_thm2] ; linarith [ m_seq_thm2_strictMono lambda K h_lambda hK ( Nat.lt_succ_self ‹_› ) ] ; ) ) ( Nat.pos_of_ne_zero ( by
-            intro h; have := this.2.2.1; simp_all +decide ;
-            have := ‹d_at lambda ( k_of_index_thm2 lambda K h_lambda hK i ) 0 = 1 ∧ StrictMonoOn ( d_at lambda ( k_of_index_thm2 lambda K h_lambda hK i ) ) ( Icc 0 ( M_at lambda ( k_of_index_thm2 lambda K h_lambda hK i ) ) ) ∧ _›.2.1 ( show 0 ∈ Icc 0 ( M_at lambda ( k_of_index_thm2 lambda K h_lambda hK i ) ) from ⟨ by norm_num, Nat.zero_le _ ⟩ ) ( show M_at lambda ( k_of_index_thm2 lambda K h_lambda hK i ) ∈ Icc 0 ( M_at lambda ( k_of_index_thm2 lambda K h_lambda hK i ) ) from ⟨ Nat.zero_le _, le_rfl ⟩ ) ; aesop; ) ) );
-        · have := k_of_index_thm2_spec_high lambda K h_lambda hK i ( by linarith ) ; aesop;
+      intro i hi; induction i using Nat.strongRecOn with
+      | ind i ih =>
+        unfold n_seq_thm2 at hi; split_ifs at hi <;> simp_all +decide ;
+        · unfold base_n at hi;
+          unfold base_data at hi; simp_all +decide ;
+          have := Classical.choose_spec ( show ∃ n' : ℕ → ℕ, ( ∀ i < K, n' i = a_seq lambda i ) ∧ 1 ∣ n' ( base_M lambda K h_lambda hK - 1 ) ∧ ( ∀ i < base_M lambda K h_lambda hK, n' i ∣ n' ( base_M lambda K h_lambda hK - 1 ) ) ∧ StrictMonoOn n' ( Set.Icc 0 ( base_M lambda K h_lambda hK - 1 ) ) ∧ ( ∀ j, K - 1 ≤ j → j < base_M lambda K h_lambda hK - 1 → lambda ≤ ( n' ( j + 1 ) : ℝ ) / n' j ∧ ( n' ( j + 1 ) : ℝ ) / n' j ≤ 2 ) from by
+                                            have := Classical.choose_spec ( show ∃ n' : ℕ → ℕ, ( ∀ i < K, n' i = a_seq lambda i ) ∧ 1 ∣ n' ( base_M lambda K h_lambda hK - 1 ) ∧ ( ∀ i < base_M lambda K h_lambda hK, n' i ∣ n' ( base_M lambda K h_lambda hK - 1 ) ) ∧ StrictMonoOn n' ( Set.Icc 0 ( base_M lambda K h_lambda hK - 1 ) ) ∧ ( ∀ j, K - 1 ≤ j → j < base_M lambda K h_lambda hK - 1 → lambda ≤ ( n' ( j + 1 ) : ℝ ) / n' j ∧ ( n' ( j + 1 ) : ℝ ) / n' j ≤ 2 ) from by
+                                              have := Classical.choose_spec ( show ∃ M : ℕ, K ≤ M ∧ ∃ n' : ℕ → ℕ, ( ∀ i < K, n' i = a_seq lambda i ) ∧ 1 ∣ n' ( M - 1 ) ∧ ( ∀ i < M, n' i ∣ n' ( M - 1 ) ) ∧ StrictMonoOn n' ( Set.Icc 0 ( M - 1 ) ) ∧ ( ∀ j, K - 1 ≤ j → j < M - 1 → lambda ≤ ( n' ( j + 1 ) : ℝ ) / n' j ∧ ( n' ( j + 1 ) : ℝ ) / n' j ≤ 2 ) from by
+                                                                                have := lm_divisors2 lambda 1 K ( fun i => a_seq lambda i ) h_lambda Nat.one_pos hK ( show StrictMonoOn ( fun i => a_seq lambda i ) ( Set.Icc 0 ( K - 1 ) ) from by
+                                                                                                                                                                        exact fun i hi j hj hij => a_seq_strictMono lambda h_lambda.1 hij |> lt_of_le_of_lt ( by aesop ) |> lt_of_lt_of_le <| le_rfl; ) ( fun i hi => a_seq_pos lambda h_lambda.1 i ) ; simp_all +decide [ StrictMonoOn ] ; )
+                                              exact this.2 ) ; simp_all +decide [ StrictMonoOn ] ;
+                                            exact ⟨ _, this ⟩ ) ; simp_all +decide [ StrictMonoOn ] ;
+          have hbase0 : base_n lambda K h_lambda hK 0 = a_seq lambda 0 := this.1 0 (by linarith)
+          by_cases hi0 : i = 0
+          · subst i
+            change base_n lambda K h_lambda hK 0 = 0 at hi
+            norm_num [a_seq] at hbase0
+            omega
+          · have hmono := this.2.2.1
+              (show 0 ≤ base_M lambda K h_lambda hK - 1 from by linarith)
+              (show i ≤ base_M lambda K h_lambda hK - 1 from by linarith)
+              (Nat.pos_of_ne_zero hi0)
+            change base_n lambda K h_lambda hK i = 0 at hi
+            change base_n lambda K h_lambda hK 0 < base_n lambda K h_lambda hK i at hmono
+            norm_num [a_seq] at hbase0
+            omega
+        · refine' hi.elim _ _ <;> simp_all +decide ;
+          · have := step_data_props lambda h_lambda (k_of_index_thm2 lambda K h_lambda hK i);
+            exact Nat.ne_of_gt ( Nat.pos_of_dvd_of_pos ( this.2.2.2.1 _ ( by
+              have := k_of_index_thm2_spec_high lambda K h_lambda hK i ( by linarith ) ; simp_all +decide ;
+              cases k : k_of_index_thm2 lambda K h_lambda hK i <;> simp_all +decide [m_seq_thm2] ; linarith [ m_seq_thm2_strictMono lambda K h_lambda hK ( Nat.lt_succ_self ‹_› ) ] ; ) ) ( Nat.pos_of_ne_zero ( by
+              intro h; have := this.2.2.1; simp_all +decide ;
+              have := ‹d_at lambda ( k_of_index_thm2 lambda K h_lambda hK i ) 0 = 1 ∧ StrictMonoOn ( d_at lambda ( k_of_index_thm2 lambda K h_lambda hK i ) ) ( Icc 0 ( M_at lambda ( k_of_index_thm2 lambda K h_lambda hK i ) ) ) ∧ _›.2.1 ( show 0 ∈ Icc 0 ( M_at lambda ( k_of_index_thm2 lambda K h_lambda hK i ) ) from ⟨ by norm_num, Nat.zero_le _ ⟩ ) ( show M_at lambda ( k_of_index_thm2 lambda K h_lambda hK i ) ∈ Icc 0 ( M_at lambda ( k_of_index_thm2 lambda K h_lambda hK i ) ) from ⟨ Nat.zero_le _, le_rfl ⟩ ) ; aesop; ) ) );
+          · have := k_of_index_thm2_spec_high lambda K h_lambda hK i ( by linarith ) ; aesop;
     exact h_neg i (by
     exact Nat.eq_zero_of_not_pos h_contra)
 
@@ -1757,9 +1783,10 @@ $n_{m_k}$ is divisible by all preceding terms.
 -/
 lemma n_seq_thm2_div_all_prev (lambda : ℝ) (K : ℕ) (h_lambda : 1 < lambda ∧ lambda < 2) (hK : K ≥ 1) (k : ℕ) :
   ∀ j < m_seq_thm2 lambda K h_lambda hK k, n_seq_thm2 lambda K h_lambda hK j ∣ n_seq_thm2 lambda K h_lambda hK (m_seq_thm2 lambda K h_lambda hK k) := by
-    induction' k with k ih;
-    · exact fun j a => n_seq_thm2_base_div lambda K h_lambda hK j a;
-    · intro j hj
+    induction k with
+    | zero => exact fun j a => n_seq_thm2_base_div lambda K h_lambda hK j a;
+    | succ k ih =>
+      intro j hj
       by_cases hj' : j < m_seq_thm2 lambda K h_lambda hK k;
       · exact dvd_trans ( ih j hj' ) ( n_seq_thm2_div_prev_m _ _ _ _ _ );
       · apply n_seq_thm2_div_within_block;
@@ -1773,9 +1800,10 @@ def super_Q_thm2 (k : ℕ) : ℕ := ∏ j ∈ Finset.range k, Q_seq (j + 1)
 
 lemma super_Q_thm2_dvd_n_seq (lambda : ℝ) (K : ℕ) (h_lambda : 1 < lambda ∧ lambda < 2) (hK : K ≥ 1) (k : ℕ) :
   super_Q_thm2 k ∣ n_seq_thm2 lambda K h_lambda hK (m_seq_thm2 lambda K h_lambda hK k) := by
-    induction' k with k ih;
-    · exact one_dvd _;
-    · -- By definition of $super_Q_thm2$, we have $super_Q_thm2 (k + 1) = Q_seq (k + 1) * super_Q_thm2 k$.
+    induction k with
+    | zero => exact one_dvd _;
+    | succ k ih =>
+      -- By definition of $super_Q_thm2$, we have $super_Q_thm2 (k + 1) = Q_seq (k + 1) * super_Q_thm2 k$.
       have h_super_Q_succ : super_Q_thm2 (k + 1) = Q_seq (k + 1) * super_Q_thm2 k := by
         exact Finset.prod_range_succ _ _ |> Eq.trans <| by ac_rfl;
       -- By definition of $n_seq_thm2$, we have $n_seq_thm2 lambda K h_lambda hK (m_seq_thm2 lambda K h_lambda hK (k + 1)) = d_at lambda (k + 1) (M_at lambda (k + 1)) * n_seq_thm2 lambda K h_lambda hK (m_seq_thm2 lambda K h_lambda hK k)$.
@@ -1872,9 +1900,13 @@ lemma n_seq_thm2_summable (lambda : ℝ) (K : ℕ) (h_lambda : 1 < lambda ∧ la
     have h_le : ∀ i, (1 : ℝ) / n_seq_thm2 lambda K h_lambda hK i ≤ 1 / lambda ^ i := by
       intro i
       have h_ge : n_seq_thm2 lambda K h_lambda hK i ≥ lambda ^ i := by
-        induction' i with i ih <;> norm_num [ *, pow_succ' ] at *;
-        · exact n_seq_thm2_pos _ _ _ _ _;
-        · have := n_seq_thm2_growth lambda K h_lambda hK i; rw [ le_div_iff₀ ( Nat.cast_pos.mpr <| n_seq_thm2_pos _ _ _ _ _ ) ] at this; nlinarith;
+        induction i with
+        | zero =>
+          norm_num [ *, pow_succ' ] at *;
+          exact n_seq_thm2_pos _ _ _ _ _;
+        | succ i ih =>
+          norm_num [ *, pow_succ' ] at *;
+          have := n_seq_thm2_growth lambda K h_lambda hK i; rw [ le_div_iff₀ ( Nat.cast_pos.mpr <| n_seq_thm2_pos _ _ _ _ _ ) ] at this; nlinarith;
       exact (by
       exact one_div_le_one_div_of_le ( pow_pos ( zero_lt_one.trans h_lambda.1 ) _ ) h_ge);
     exact Summable.of_nonneg_of_le ( fun i => by positivity ) h_le ( by simpa using summable_geometric_of_lt_one ( by norm_num; linarith ) ( inv_lt_one_of_one_lt₀ h_lambda.1 ) )
@@ -1887,10 +1919,11 @@ lemma a_seq_summable (lambda : ℝ) (h_lambda : 1 < lambda) :
     -- We know $a_{i+1} \geq \lambda a_i$. Since $a_0 = 1$, we have $a_i \geq \lambda^i$.
     have h_ai_ge : ∀ i, (a_seq lambda i : ℝ) ≥ lambda ^ i := by
       intro i
-      induction' i with i ih
-      · simp [a_seq];
-      rw [ pow_succ' ];
-      exact le_trans ( mul_le_mul_of_nonneg_left ih <| by positivity ) ( Nat.le_ceil _ );
+      induction i with
+      | zero => simp [a_seq];
+      | succ i ih =>
+        rw [ pow_succ' ];
+        exact le_trans ( mul_le_mul_of_nonneg_left ih <| by positivity ) ( Nat.le_ceil _ );
     exact Summable.of_nonneg_of_le ( fun i => one_div_nonneg.2 <| Nat.cast_nonneg _ ) ( fun i => one_div_le_one_div_of_le ( by positivity ) <| h_ai_ge i ) <| by simpa using summable_geometric_of_lt_one ( by positivity ) <| inv_lt_one_of_one_lt₀ h_lambda;
 
 /-
@@ -2327,23 +2360,25 @@ lemma n_seq_thm3_final_v2_div_recurrence (Lambda : ℝ) (lambda : ℝ) (h_Lambda
         generalize_proofs at *; (
         have h_eq : ∀ j, k' ≤ j → j ≤ k → (thm3_seq_v2 Lambda lambda h_Lambda h_lambda j).n i = (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k').n i := by
           intros j hj₁ hj₂
-          induction' hj₁ with j hj ih
-          generalize_proofs at *; (
-          rfl);
-          rw [ ← ih ( Nat.le_of_succ_le hj₂ ), thm3_seq_v2 ];
-          have := step_thm3_strong_v2_props Lambda lambda ( U_thm3 Lambda lambda h_Lambda h_lambda ) j ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda j ).m ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda j ).n h_Lambda ⟨ h_lambda.1, lambda_lt_two Lambda lambda h_Lambda h_lambda.2 ⟩ ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda j ).h_m ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda j ).h_pos ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda j ).h_mono
-          generalize_proofs at *; (
-          convert this.2.1 i _ using 1
-          generalize_proofs at *; (
-          exact Eq.symm ( if_pos ( by linarith [ show ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda j ).m ≥ i + 1 from by linarith [ show ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda j ).m ≥ ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k' ).m from by exact Nat.le_induction ( by linarith ) ( fun n hn ih => by linarith [ show ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda ( n + 1 ) ).m > ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n ).m from by
-                                                                                                                                                                                                                                                                                                                                    have := step_thm3_strong_v2_props Lambda lambda ( U_thm3 Lambda lambda h_Lambda h_lambda ) n ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n ).m ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n ).n h_Lambda ⟨ h_lambda.1, lambda_lt_two Lambda lambda h_Lambda h_lambda.2 ⟩ ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n ).h_m ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n ).h_pos ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n ).h_mono
-                                                                                                                                                                                                                                                                                                                                    generalize_proofs at *; (
-                                                                                                                                                                                                                                                                                                                                    exact Nat.lt_of_lt_of_le ( by linarith [ show U_thm3 Lambda lambda h_Lambda h_lambda ≥ 0 from Nat.zero_le _ ] ) this.1) ] ) j hj ] ] ) ));
-          linarith [ show ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda j ).m ≥ ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k' ).m from by
-                      exact Nat.le_induction ( by norm_num ) ( fun n hn ih => by linarith [ show ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda ( n + 1 ) ).m > ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n ).m from by
-                                                                                              have := step_thm3_strong_v2_props Lambda lambda ( U_thm3 Lambda lambda h_Lambda h_lambda ) n ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n ).m ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n ).n h_Lambda ⟨ h_lambda.1, lambda_lt_two Lambda lambda h_Lambda h_lambda.2 ⟩ ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n ).h_m ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n ).h_pos ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n ).h_mono
-                                                                                              generalize_proofs at *; (
-                                                                                              exact Nat.lt_of_lt_of_le ( by linarith [ show U_thm3 Lambda lambda h_Lambda h_lambda ≥ 0 from Nat.zero_le _ ] ) this.1) ] ) j hj ])
+          induction hj₁ with
+          | refl =>
+            generalize_proofs at *; (
+            rfl);
+          | @step j hj ih =>
+            rw [ ← ih ( Nat.le_of_succ_le hj₂ ), thm3_seq_v2 ];
+            have := step_thm3_strong_v2_props Lambda lambda ( U_thm3 Lambda lambda h_Lambda h_lambda ) j ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda j ).m ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda j ).n h_Lambda ⟨ h_lambda.1, lambda_lt_two Lambda lambda h_Lambda h_lambda.2 ⟩ ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda j ).h_m ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda j ).h_pos ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda j ).h_mono
+            generalize_proofs at *; (
+            convert this.2.1 i _ using 1
+            generalize_proofs at *; (
+            exact Eq.symm ( if_pos ( by linarith [ show ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda j ).m ≥ i + 1 from by linarith [ show ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda j ).m ≥ ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k' ).m from by exact Nat.le_induction ( by linarith ) ( fun n hn ih => by linarith [ show ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda ( n + 1 ) ).m > ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n ).m from by
+                                                                                                                                                                                                                                                                                                                                      have := step_thm3_strong_v2_props Lambda lambda ( U_thm3 Lambda lambda h_Lambda h_lambda ) n ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n ).m ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n ).n h_Lambda ⟨ h_lambda.1, lambda_lt_two Lambda lambda h_Lambda h_lambda.2 ⟩ ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n ).h_m ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n ).h_pos ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n ).h_mono
+                                                                                                                                                                                                                                                                                                                                      generalize_proofs at *; (
+                                                                                                                                                                                                                                                                                                                                      exact Nat.lt_of_lt_of_le ( by linarith [ show U_thm3 Lambda lambda h_Lambda h_lambda ≥ 0 from Nat.zero_le _ ] ) this.1) ] ) j hj ] ] ) ));
+            linarith [ show ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda j ).m ≥ ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k' ).m from by
+                        exact Nat.le_induction ( by norm_num ) ( fun n hn ih => by linarith [ show ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda ( n + 1 ) ).m > ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n ).m from by
+                                                                                                have := step_thm3_strong_v2_props Lambda lambda ( U_thm3 Lambda lambda h_Lambda h_lambda ) n ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n ).m ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n ).n h_Lambda ⟨ h_lambda.1, lambda_lt_two Lambda lambda h_Lambda h_lambda.2 ⟩ ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n ).h_m ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n ).h_pos ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n ).h_mono
+                                                                                                generalize_proofs at *; (
+                                                                                                exact Nat.lt_of_lt_of_le ( by linarith [ show U_thm3 Lambda lambda h_Lambda h_lambda ≥ 0 from Nat.zero_le _ ] ) this.1) ] ) j hj ])
         generalize_proofs at *; (
         have h_eq : (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k).n i = (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k').n i := by
           exact h_eq k ( by linarith ) ( by linarith ) ▸ rfl
@@ -2374,9 +2409,9 @@ The term at index $m_k-1$ in the v2 sequence is divisible by the cumulative prim
 -/
 lemma super_Q_strong_dvd_n_v2 (Lambda : ℝ) (lambda : ℝ) (h_Lambda : Lambda ≥ 2) (h_lambda : 1 < lambda ∧ lambda < Lambda / (Lambda - 1)) (k : ℕ) :
   super_Q_strong k ∣ n_seq_thm3_final_v2 Lambda lambda h_Lambda h_lambda (m_seq_thm3_final_v2 Lambda lambda h_Lambda h_lambda k - 1) := by
-    induction' k with k ih;
-    · exact one_dvd _;
-    · exact dvd_trans ( by unfold super_Q_strong; simp +decide [ Finset.prod_range_succ ] ) ( dvd_trans ( mul_dvd_mul ih ( dvd_refl _ ) ) ( n_seq_thm3_final_v2_div_recurrence _ _ _ _ _ ) ) ;
+    induction k with
+    | zero => exact one_dvd _;
+    | succ k ih => exact dvd_trans ( by unfold super_Q_strong; simp +decide [ Finset.prod_range_succ ] ) ( dvd_trans ( mul_dvd_mul ih ( dvd_refl _ ) ) ( n_seq_thm3_final_v2_div_recurrence _ _ _ _ _ ) ) ;
 
 /-
 Every positive integer divides some term of the v2 sequence.
@@ -2414,13 +2449,15 @@ lemma thm3_seq_v2_div_m (Lambda : ℝ) (lambda : ℝ) (h_Lambda : Lambda ≥ 2) 
       generalize_proofs at *; (
       have h_consistent : ∀ k' k, k' ≤ k → ∀ j, j < (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k').m → (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k).n j = (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k').n j := by
         intros k' k hk' j hj
-        induction' hk' with k' hk' ih generalizing j
-        generalize_proofs at *; (
-        rfl);
-        rw [ thm3_seq_v2_consistent Lambda lambda h_Lambda h_lambda k' j ] ; aesop
-        generalize_proofs at *; (
-        exact lt_of_lt_of_le hj ( Nat.le_induction ( by tauto ) ( fun k hk ih => by linarith [ show ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda ( k + 1 ) ).m > ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k ).m from by
-                                                                                                exact step_thm3_strong_v2_props Lambda lambda ( U_thm3 Lambda lambda h_Lambda h_lambda ) k ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k ).m ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k ).n h_Lambda ⟨ h_lambda.1, lambda_lt_two Lambda lambda h_Lambda h_lambda.2 ⟩ ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k ).h_m ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k ).h_pos ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k ).h_mono |>.1 |> Nat.lt_of_lt_of_le ( by linarith [ show ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k ).m ≥ 1 from Nat.succ_le_of_lt ( by linarith [ ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k ).h_m ] ) ] ) |> Nat.lt_of_lt_of_le <| Nat.le_refl _; ] ) _ hk' ))
+        induction hk' generalizing j with
+        | refl =>
+          generalize_proofs at *; (
+          rfl);
+        | @step k' hk' ih =>
+          rw [ thm3_seq_v2_consistent Lambda lambda h_Lambda h_lambda k' j ] ; aesop
+          generalize_proofs at *; (
+          exact lt_of_lt_of_le hj ( Nat.le_induction ( by tauto ) ( fun k hk ih => by linarith [ show ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda ( k + 1 ) ).m > ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k ).m from by
+                                                                                                  exact step_thm3_strong_v2_props Lambda lambda ( U_thm3 Lambda lambda h_Lambda h_lambda ) k ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k ).m ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k ).n h_Lambda ⟨ h_lambda.1, lambda_lt_two Lambda lambda h_Lambda h_lambda.2 ⟩ ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k ).h_m ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k ).h_pos ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k ).h_mono |>.1 |> Nat.lt_of_lt_of_le ( by linarith [ show ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k ).m ≥ 1 from Nat.succ_le_of_lt ( by linarith [ ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k ).h_m ] ) ] ) |> Nat.lt_of_lt_of_le <| Nat.le_refl _; ] ) _ hk' ))
       generalize_proofs at *; (
       have h_exists_k : ∃ k', j < (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k').m ∧ ∀ k'', k'' < k' → ¬(j < (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k'').m) := by
         exact ⟨ Nat.find h_exists_k, Nat.find_spec h_exists_k, fun k'' hk'' => Nat.find_min h_exists_k hk'' ⟩
@@ -2475,9 +2512,13 @@ lemma thm3_seq_v2_div_m (Lambda : ℝ) (lambda : ℝ) (h_Lambda : Lambda ≥ 2) 
     generalize_proofs at *; (
     have h_div : ∀ i < m_k, (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k).n i ∣ (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k).n (m_k - 1) := by
       have h_div : ∀ k, ∀ i < (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k).m, (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k).n i ∣ (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k).n ((thm3_seq_v2 Lambda lambda h_Lambda h_lambda k).m - 1) := by
-        intro k i hi; induction' k with k ih generalizing i <;> simp_all +decide [ thm3_seq_v2 ] ;
-        · exact pow_dvd_pow _ ( Nat.le_sub_one_of_lt hi );
-        · apply (step_thm3_strong_v2_props Lambda lambda (U_thm3 Lambda lambda h_Lambda h_lambda) k (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k).m (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k).n h_Lambda ⟨h_lambda.1, lambda_lt_two Lambda lambda h_Lambda h_lambda.2⟩ (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k).h_m (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k).h_pos (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k).h_mono).2.2.2.1 i hi
+        intro k i hi; induction k generalizing i with
+        | zero =>
+          simp_all +decide [ thm3_seq_v2 ] ;
+          exact pow_dvd_pow _ ( Nat.le_sub_one_of_lt hi );
+        | succ k ih =>
+          simp_all +decide [ thm3_seq_v2 ] ;
+          apply (step_thm3_strong_v2_props Lambda lambda (U_thm3 Lambda lambda h_Lambda h_lambda) k (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k).m (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k).n h_Lambda ⟨h_lambda.1, lambda_lt_two Lambda lambda h_Lambda h_lambda.2⟩ (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k).h_m (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k).h_pos (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k).h_mono).2.2.2.1 i hi
       generalize_proofs at *; (
       exact h_div k)
     generalize_proofs at *; (
@@ -2506,13 +2547,15 @@ lemma n_seq_thm3_final_v2_mono (Lambda : ℝ) (lambda : ℝ) (h_Lambda : Lambda 
         generalize_proofs at *; (
         have h_eq : ∀ j ≥ k', (thm3_seq_v2 Lambda lambda h_Lambda h_lambda j).n i = (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k').n i := by
           intro j hj
-          induction' hj with j hj ih
-          generalize_proofs at *; (
-          rfl);
-          convert thm3_seq_v2_consistent Lambda lambda h_Lambda h_lambda j i _ using 1
-          generalize_proofs at *; (
-          exact ih.symm ▸ rfl);
-          exact lt_of_lt_of_le hk'.1 ( by exact monotone_nat_of_le_succ ( fun k => le_of_lt ( h_m_seq_growth k ) ) hj )
+          induction hj with
+          | refl =>
+            generalize_proofs at *; (
+            rfl);
+          | @step j hj ih =>
+            convert thm3_seq_v2_consistent Lambda lambda h_Lambda h_lambda j i _ using 1
+            generalize_proofs at *; (
+            exact ih.symm ▸ rfl);
+            exact lt_of_lt_of_le hk'.1 ( by exact monotone_nat_of_le_succ ( fun k => le_of_lt ( h_m_seq_growth k ) ) hj )
         generalize_proofs at *; (
         have h_eq : n_seq_thm3_final_v2 Lambda lambda h_Lambda h_lambda i = (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k').n i := by
           unfold n_seq_thm3_final_v2; aesop;
@@ -2543,9 +2586,10 @@ lemma n_seq_thm3_final_v2_eq_pre (Lambda : ℝ) (lambda : ℝ) (h_Lambda : Lambd
         exact Nat.find_min' h hi;
       have h_eq : ∀ j, Nat.find h ≤ j → j ≤ k → (thm3_seq_v2 Lambda lambda h_Lambda h_lambda j).n i = (thm3_seq_v2 Lambda lambda h_Lambda h_lambda (Nat.find h)).n i := by
         intros j hj₁ hj₂
-        induction' hj₁ with j hj₁ ih;
-        · rfl;
-        · rw [ ← ih ( Nat.le_of_succ_le hj₂ ), thm3_seq_v2_consistent ];
+        induction hj₁ with
+        | refl => rfl;
+        | @step j hj₁ ih =>
+          rw [ ← ih ( Nat.le_of_succ_le hj₂ ), thm3_seq_v2_consistent ];
           exact Nat.find_spec h |> fun x => lt_of_lt_of_le x ( h_mono.monotone hj₁ );
       rw [ h_eq k h_find_le_k le_rfl ];
     · exact False.elim <| h ⟨ k, hi ⟩
@@ -2604,9 +2648,10 @@ lemma n_seq_thm3_final_v2_eq (Lambda : ℝ) (lambda : ℝ) (h_Lambda : Lambda �
         exact Nat.find_min' h hi;
       have h_eq : ∀ j, Nat.find h ≤ j → j ≤ k → (thm3_seq_v2 Lambda lambda h_Lambda h_lambda j).n i = (thm3_seq_v2 Lambda lambda h_Lambda h_lambda (Nat.find h)).n i := by
         intros j hj₁ hj₂
-        induction' hj₁ with j hj₁ ih;
-        · rfl;
-        · rw [ ← ih ( Nat.le_of_succ_le hj₂ ), thm3_seq_v2_consistent ];
+        induction hj₁ with
+        | refl => rfl;
+        | @step j hj₁ ih =>
+          rw [ ← ih ( Nat.le_of_succ_le hj₂ ), thm3_seq_v2_consistent ];
           exact Nat.find_spec h |> fun x => lt_of_lt_of_le x ( h_mono.monotone hj₁ );
       rw [ h_eq k h_find_le_k le_rfl ];
     · exact False.elim <| h ⟨ k, hi ⟩
@@ -2619,11 +2664,13 @@ lemma thm3_seq_v2_lacunary_lower (Lambda : ℝ) (lambda : ℝ) (h_Lambda : Lambd
     -- By the properties of the sequence, we have that for any $i$, $n_{i+1} \geq \lambda n_i$ because the sequence is strictly monotonic and each term is a multiple of the previous term.
     have h_ratio : ∀ k i, i < (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k).m - 1 → (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k).n (i + 1) ≥ lambda * (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k).n i := by
       intro k
-      induction' k with k ih;
-      · -- For the base case when $k = 0$, the sequence is just $[1]$, so there are no $i$ to check.
+      induction k with
+      | zero =>
+        -- For the base case when $k = 0$, the sequence is just $[1]$, so there are no $i$ to check.
         simp [thm3_seq_v2, init_thm3_data] at *;
         intro i hi; rw [ pow_succ' ] ; nlinarith [ show ( 2 : ℝ ) ^ i > 0 by positivity, show ( 2 : ℝ ) ^ i ≥ 1 by exact one_le_pow₀ ( by norm_num ), lambda_lt_two Lambda lambda h_Lambda h_lambda.2 ] ;
-      · intro i hi
+      | succ k ih =>
+        intro i hi
         have h_ratio : (thm3_seq_v2 Lambda lambda h_Lambda h_lambda (k + 1)).n (i + 1) ≥ lambda * (thm3_seq_v2 Lambda lambda h_Lambda h_lambda (k + 1)).n i := by
           have := @step_thm3_strong_v2_props Lambda lambda ( U_thm3 Lambda lambda h_Lambda h_lambda ) k ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k |> Thm3Data.m ) ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k |> Thm3Data.n ) h_Lambda ⟨ h_lambda.1, by
             exact lambda_lt_two Lambda lambda h_Lambda h_lambda.2 |> lt_of_lt_of_le <| by norm_num; ⟩ ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k |> Thm3Data.h_m ) ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k |> Thm3Data.h_pos ) ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k |> Thm3Data.h_mono )
@@ -2725,7 +2772,10 @@ lemma thm3_seq_v2_jump_bound (Lambda : ℝ) (lambda : ℝ) (h_Lambda : Lambda �
         · exact epsilon_thm3_spec Lambda lambda h_Lambda h_lambda |>.1.1;
         · simpa using this.trans_le' ( by norm_num );
       · rw [ Nat.sub_add_cancel ];
-        · induction' k with k ih <;> norm_num [ m_seq_thm3_final_v2 ] at *;
+        · induction k with
+          | zero => norm_num [ m_seq_thm3_final_v2 ] at *;
+          | succ k ih =>
+          norm_num [ m_seq_thm3_final_v2 ] at *;
           have := @step_thm3_strong_v2_props Lambda lambda ( U_thm3 Lambda lambda h_Lambda h_lambda ) k ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k |> Thm3Data.m ) ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k |> Thm3Data.n ) h_Lambda ⟨ h_lambda.1, lambda_lt_two Lambda lambda h_Lambda h_lambda.2 ⟩ ( by
             exact Nat.one_le_of_lt ( Thm3Data.h_m ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k ) ) ) ( by
             exact fun i hi => ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda k |> Thm3Data.h_pos ) i hi ) ( by
@@ -2782,7 +2832,11 @@ lemma thm3_seq_v2_geo_bound (Lambda : ℝ) (lambda : ℝ) (h_Lambda : Lambda ≥
     have h_epsilon_mul_n : 1 < epsilon_thm3 Lambda lambda h_Lambda h_lambda * (n_seq_thm3_final_v2 Lambda lambda h_Lambda h_lambda (m_seq_thm3_final_v2 Lambda lambda h_Lambda h_lambda k + j) : ℝ) := by
       have h_eps : 1 < epsilon_thm3 Lambda lambda h_Lambda h_lambda * (n_seq_thm3_final_v2 Lambda lambda h_Lambda h_lambda (m_seq_thm3_final_v2 Lambda lambda h_Lambda h_lambda k + j)) := by
         have h_i : m_seq_thm3_final_v2 Lambda lambda h_Lambda h_lambda k + j ≥ m_seq_thm3_final_v2 Lambda lambda h_Lambda h_lambda 0 - 1 := by
-          refine' Nat.le_trans _ ( Nat.le_add_right _ _ ) ; induction' k with k ih <;> simp_all +decide [ m_seq_thm3_final_v2 ] ; (
+          refine' Nat.le_trans _ ( Nat.le_add_right _ _ )
+          induction k with
+          | zero => simp_all +decide [ m_seq_thm3_final_v2 ]
+          | succ k ih =>
+          simp_all +decide [ m_seq_thm3_final_v2 ] ; (
           -- By definition of `thm3_seq_v2`, we know that the m component is strictly increasing.
           have h_m_inc : ∀ k, (thm3_seq_v2 Lambda lambda h_Lambda h_lambda k).m < (thm3_seq_v2 Lambda lambda h_Lambda h_lambda (k + 1)).m := by
             intro k; exact (by
@@ -2813,9 +2867,13 @@ lemma thm3_seq_v2_upper_bound_explicit (Lambda : ℝ) (lambda : ℝ) (h_Lambda :
   let m_k := m_seq_thm3_final_v2 Lambda lambda h_Lambda h_lambda k
   let n := n_seq_thm3_final_v2 Lambda lambda h_Lambda h_lambda
   (n (m_k + j) : ℝ) < (Lambda + epsilon) * (lambda + epsilon) ^ j * n (m_k - 1) := by
-    induction' j with j ih generalizing k <;> simp_all +decide [ pow_succ' ];
-    · convert thm3_seq_v2_jump_bound Lambda lambda h_Lambda h_lambda k using 1;
-    · have h_geo_bound : let epsilon := epsilon_thm3 Lambda lambda h_Lambda h_lambda
+    induction j generalizing k with
+    | zero =>
+      simp_all +decide;
+      convert thm3_seq_v2_jump_bound Lambda lambda h_Lambda h_lambda k using 1;
+    | succ j ih =>
+      simp_all +decide [ pow_succ' ];
+      have h_geo_bound : let epsilon := epsilon_thm3 Lambda lambda h_Lambda h_lambda
         let m_k := m_seq_thm3_final_v2 Lambda lambda h_Lambda h_lambda k
         let n := n_seq_thm3_final_v2 Lambda lambda h_Lambda h_lambda
         (n (m_k + j + 1) : ℝ) < (lambda + epsilon) * n (m_k + j) := by
@@ -2912,10 +2970,12 @@ lemma remark_cond_local (n : ℕ → ℕ) (M : ℕ) (i : ℕ)
     have h_induction : ∀ j, i ≤ j → j ≤ M → (1 / (n i : ℝ)) ≤ (∑ k ∈ Finset.Ioc i j, (1 / (n k : ℝ))) + (1 / (n j : ℝ)) := by
       -- We proceed by induction on $j$.
       intro j hj₁ hj₂
-      induction' hj₁ with j hj ih
-      generalize_proofs at *; (
-      norm_num +zetaDelta at *);
-      rw [ Finset.sum_Ioc_succ_top ] <;> try linarith! [ Nat.succ_le_succ hj ] ; ; linarith! [ ih ( Nat.le_of_succ_le hj₂ ), h_inductive_step j hj ( Nat.lt_of_succ_le hj₂ ) ] ;
+      induction hj₁ with
+      | refl =>
+        generalize_proofs at *; (
+        norm_num +zetaDelta at *);
+      | @step j hj ih =>
+        rw [ Finset.sum_Ioc_succ_top ] <;> try linarith! [ Nat.succ_le_succ hj ] ; ; linarith! [ ih ( Nat.le_of_succ_le hj₂ ), h_inductive_step j hj ( Nat.lt_of_succ_le hj₂ ) ] ;
     generalize_proofs at *; (
     exact h_induction M hi.le le_rfl |> le_trans <| by norm_num;))
 
@@ -3157,7 +3217,10 @@ S is closed under multiplication by powers of 2.
 -/
 lemma pow_two_mul_mem_S (S : Set ℕ) (hS : S_cond S) (s : ℕ) (hs : s ∈ S) (k : ℕ) :
   2 ^ k * s ∈ S := by
-    induction' k with k ih <;> simp_all +decide [ pow_succ', mul_assoc ];
+    induction k with
+    | zero => simp_all +decide;
+    | succ k ih =>
+    simp_all +decide [ pow_succ', mul_assoc ];
     exact hS.2.1 _ ih
 
 /-
@@ -3832,7 +3895,10 @@ theorem Theorem_3 (Lambda : ℝ) (lambda : ℝ) (h_Lambda : Lambda ≥ 2) (h_lam
         obtain ⟨k, hk⟩ : ∃ k, a < m_seq_thm3_final_v2 Lambda lambda h_Lambda h_lambda k - 1 := by
           have h_unbounded : Filter.Tendsto (m_seq_thm3_final_v2 Lambda lambda h_Lambda h_lambda) Filter.atTop Filter.atTop := by
             refine' Filter.tendsto_atTop_mono _ tendsto_natCast_atTop_atTop;
-            intro n; induction' n with n ih <;> norm_num [ m_seq_thm3_final_v2 ] at *;
+            intro n; induction n with
+            | zero => norm_num [ m_seq_thm3_final_v2 ] at *;
+            | succ n ih =>
+            norm_num [ m_seq_thm3_final_v2 ] at *;
             exact Nat.succ_le_of_lt ( lt_of_le_of_lt ih ( by exact ( show ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n ).m < ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda ( n + 1 ) ).m from by { exact ( step_thm3_strong_v2_props Lambda lambda ( U_thm3 Lambda lambda h_Lambda h_lambda ) n ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n |> Thm3Data.m ) ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n |> Thm3Data.n ) h_Lambda ( by exact ⟨ h_lambda.1, by exact lambda_lt_two Lambda lambda h_Lambda h_lambda.2 ⟩ ) ( by exact ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n |> Thm3Data.h_m ) ) ( by exact ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n |> Thm3Data.h_pos ) ) ( by exact ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda n |> Thm3Data.h_mono ) ) |>.1 ) |> lt_of_lt_of_le ( by linarith ) } ) ) ) ;
           exact Filter.Eventually.exists ( h_unbounded.eventually_gt_atTop ( a + 1 ) ) |> fun ⟨ k, hk ⟩ => ⟨ k, lt_tsub_iff_right.mpr hk ⟩ ;
         use m_seq_thm3_final_v2 Lambda lambda h_Lambda h_lambda k - 1
@@ -3845,14 +3911,16 @@ theorem Theorem_3 (Lambda : ℝ) (lambda : ℝ) (h_Lambda : Lambda ≥ 2) (h_lam
         have h_pos : 0 < n_seq_thm3_final_v2 Lambda lambda h_Lambda h_lambda i := by
           have h_pos : StrictMono (n_seq_thm3_final_v2 Lambda lambda h_Lambda h_lambda) := by
             exact n_seq_thm3_final_v2_mono Lambda lambda h_Lambda h_lambda
-          generalize_proofs at *; (
-          induction' i with i ih <;> [ exact Nat.pos_of_ne_zero ( by
+          generalize_proofs at *
+          induction i with
+          | zero => exact Nat.pos_of_ne_zero ( by
             have h_pos : n_seq_thm3_final_v2 Lambda lambda h_Lambda h_lambda 0 = (thm3_seq_v2 Lambda lambda h_Lambda h_lambda 0).n 0 := by
               apply n_seq_thm3_final_v2_eq
               generalize_proofs at *; (
               exact Nat.succ_pos _ |> Nat.lt_of_le_of_lt ( Nat.le_refl _ ) |> Nat.lt_of_lt_of_le <| by exact ( init_thm3_data Lambda lambda h_Lambda h_lambda ) |>.h_m;)
             generalize_proofs at *; (
-            exact h_pos.symm ▸ Nat.ne_of_gt ( by exact ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda 0 ).h_pos 0 ( by linarith [ ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda 0 ).h_m ] ) )) ) ; exact lt_of_le_of_lt ( Nat.zero_le _ ) ( h_pos ( Nat.lt_succ_self _ ) ) ])
+            exact h_pos.symm ▸ Nat.ne_of_gt ( by exact ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda 0 ).h_pos 0 ( by linarith [ ( thm3_seq_v2 Lambda lambda h_Lambda h_lambda 0 ).h_m ] ) )) )
+          | succ i ih => exact lt_of_le_of_lt ( Nat.zero_le _ ) ( h_pos ( Nat.lt_succ_self _ ) )
         exact h_pos) (by
         exact n_seq_thm3_final_v2_mono Lambda lambda h_Lambda h_lambda) (by
         exact final_M_seq_strictMono Lambda lambda h_Lambda h_lambda) (by
