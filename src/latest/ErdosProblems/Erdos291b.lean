@@ -45,7 +45,6 @@ namespace Erdos291b
 
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option linter.flexible false
@@ -176,9 +175,10 @@ theorem bla_nonzero (p : ProblemParameters) (w : ℕ) (hw : w ∈ J1' p) (k : �
                 have h_val_L_local : Nat.factorization L_local p.q0 = Finset.sup (Finset.Icc (w + 1) (w + k)) (fun i => Nat.factorization i p.q0) := by
                   have h_val_L_local : ∀ {S : Finset ℕ}, (∀ i ∈ S, i ≠ 0) → Nat.factorization (Finset.lcm S id) p.q0 = Finset.sup S (fun i => Nat.factorization i p.q0) := by
                     intros S hS_nonzero
-                    induction' S using Finset.induction with i S hiS ih;
-                    · simp +decide [ Finset.lcm ];
-                    · simp_all +decide [ Finset.lcm_insert ];
+                    induction S using Finset.induction with
+                    | empty => simp +decide [ Finset.lcm ]
+                    | @insert i S hiS ih =>
+                      simp_all +decide [ Finset.lcm_insert ];
                       erw [ Nat.factorization_lcm ] <;> simp_all +decide;
                   exact h_val_L_local fun i hi => by linarith [ Finset.mem_Icc.mp hi ] ;
                 rw [ h_val_L_local ];
@@ -863,8 +863,9 @@ theorem valuation_lcm_le (n : ℕ) (hn : n ≥ 1) (p : ℕ) (hp : p.Prime) :
         have h_lcm_val : padicValNat p (Finset.lcm (Finset.Icc 1 n) id) = Finset.sup (Finset.Icc 1 n) (fun j => padicValNat p j) := by
           have h_lcm_val : ∀ {S : Finset ℕ}, (∀ x ∈ S, x ≠ 0) → padicValNat p (Finset.lcm S id) = Finset.sup S (fun x => padicValNat p x) := by
             intros S hS_nonzero
-            induction' S using Finset.induction with x S hxS ih
-            aesop
+            induction S using Finset.induction with
+            | empty => aesop
+            | @insert x S hxS ih =>
             generalize_proofs at *; (
             have h_lcm_val : padicValNat p (Nat.lcm x (Finset.lcm S id)) = max (padicValNat p x) (padicValNat p (Finset.lcm S id)) := by
               have h_lcm_val : ∀ {a b : ℕ}, a ≠ 0 → b ≠ 0 → padicValNat p (Nat.lcm a b) = max (padicValNat p a) (padicValNat p b) := by
@@ -1180,9 +1181,10 @@ The sequence n_seq_v4 is strictly increasing.
 theorem n_seq_v4_increasing (p : ProblemParameters) (j : ℕ) (hj : j ≥ 1) :
     n_seq_v4 p j < n_seq_v4 p (j + 1) := by
       -- By definition of $n_seq_v4$, we know that $n_seq_v4 p j < n_seq_v4 p (j + 1)$ for $j \geq 1$.
-      induction' j with j ih;
-      · contradiction;
-      · by_cases hj : j ≥ 1 <;> simp_all +decide [ n_seq_v4 ];
+      induction j with
+      | zero => contradiction
+      | succ j ih =>
+        by_cases hj : j ≥ 1 <;> simp_all +decide [ n_seq_v4 ];
         · split_ifs <;> simp_all +decide;
         · split_ifs <;> simp_all +decide
 
@@ -1199,18 +1201,18 @@ theorem n_seq_v4_step_bound (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset
       rw [ add_comm, add_comm ( ( p.m - 1 ) * p_i p ( sigma p ( n_seq_v4 p j ) ) ^ k_exp p ( sigma p ( n_seq_v4 p j ) ) j ) ];
       congr! 1;
       · congr! 1;
-        funext p j; induction' j using Nat.strong_induction_on with j ih; rcases j with ( _ | _ | j ) <;> simp +arith +decide [ *, n_seq_v2, n_seq_v4 ] ;
+        funext p j; induction j using Nat.strong_induction_on with | h j ih => rcases j with ( _ | _ | j ) <;> simp +arith +decide [ *, n_seq_v2, n_seq_v4 ] ;
       · congr! 1;
-        · induction' j using Nat.strong_induction_on with j ih;
+        · induction j using Nat.strong_induction_on with | h j ih =>
           rcases j with ( _ | _ | j ) <;> simp_all +decide [ n_seq_v2, n_seq_v4 ];
           rw [ ih _ ( Nat.lt_succ_self _ ) ( Nat.succ_pos _ ) ( by linarith ) ];
         · congr! 2;
           · congr! 2;
-            induction' j using Nat.strong_induction_on with j ih;
+            induction j using Nat.strong_induction_on with | h j ih =>
             rcases j with ( _ | _ | j ) <;> simp_all +decide [ n_seq_v2, n_seq_v4 ];
             rw [ ih _ ( Nat.lt_succ_self _ ) ( by linarith ) ( by linarith ) ];
           · congr! 2;
-            induction' j using Nat.strong_induction_on with j ih;
+            induction j using Nat.strong_induction_on with | h j ih =>
             rcases j with ( _ | _ | j ) <;> simp_all +decide [ n_seq_v2, n_seq_v4 ];
             rw [ ih _ ( Nat.lt_succ_self _ ) ( Nat.succ_pos _ ) ( by linarith ) ]
 
@@ -1387,7 +1389,7 @@ theorem n_seq_v4_prop (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Icc 1
       convert n_seq_v2_prop p j hj using 1;
       -- By definition of `n_seq_v2` and `n_seq_v4`, they are equal for all `j`.
       have h_eq : ∀ j, n_seq_v2 p j = n_seq_v4 p j := by
-        intro j; induction' j using Nat.strong_induction_on with j ih; rcases j with ( _ | _ | j ) <;> simp_all +decide [ n_seq_v2, n_seq_v4 ] ;
+        intro j; induction j using Nat.strong_induction_on with | h j ih => rcases j with ( _ | _ | j ) <;> simp_all +decide [ n_seq_v2, n_seq_v4 ] ;
       simp +decide only [h_eq]
 
 /-
@@ -1414,7 +1416,10 @@ theorem n_next_dvd_L_n_v4 (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.I
     n_next ∣ L n := by
       apply Nat.dvd_of_mod_eq_zero;
       have h_div : n_seq_v4 p (j + 1) ∈ Finset.Icc 1 n := by
-        induction' j with j ih generalizing n <;> simp_all +decide [ I_set_v4 ];
+        induction j generalizing n with
+        | zero => simp_all +decide
+        | succ j ih =>
+        simp_all +decide [ I_set_v4 ];
         -- Since $n$ is in $I_j_v4 p (j + 1)$, we have $n_seq_v4 p (j + 2) \leq n$.
         have h_le : n_seq_v4 p (j + 2) ≤ n := by
           exact Finset.mem_Ico.mp hn |>.1;
@@ -1432,9 +1437,11 @@ theorem n_seq_v4_1_pos (p : ProblemParameters) : n_seq_v4 p 1 > 0 := by
     -- Since $p.m \geq 4$, we have $p.tilde_m = p.m^{2*z+1}! > 20 * p.m^{2*z}$.
     have h_tilde_m_gt : p.tilde_m > 20 * p.m ^ (2 * z p.m) := by
       exact p.htilde_m;
-    refine lt_of_le_of_lt ?_ h_tilde_m_gt ; induction' p.m with p_m ih <;> norm_num [ Nat.mul_succ, Nat.pow_succ' ] at *;
-    · norm_num [ z ];
-    · exact le_trans ( pow_le_pow_right₀ ( by linarith ) ( Nat.sub_le _ _ ) ) ( le_mul_of_one_le_left ( by positivity ) ( by linarith ) );
+    refine lt_of_le_of_lt ?_ h_tilde_m_gt ; induction p.m with
+    | zero => norm_num [ Nat.mul_succ, Nat.pow_succ' ] at *; norm_num [ z ]
+    | succ p_m ih =>
+      norm_num [ Nat.mul_succ, Nat.pow_succ' ] at *;
+      exact le_trans ( pow_le_pow_right₀ ( by linarith ) ( Nat.sub_le _ _ ) ) ( le_mul_of_one_le_left ( by positivity ) ( by linarith ) );
   -- Since $n_seq_v4 p 1$ is the minimum of $I0 p$, and $I0 p$ is nonempty, $n_seq_v4 p 1$ must be positive.
   have h_min_pos : ∀ x ∈ I0 p, x ≥ p.tilde_m - p.m ^ (2 * z p.m - 1) := by
     unfold I0 at *; simp_all +decide ;
@@ -1449,7 +1456,7 @@ The sequences $n_j$ and $n_j'$ are equal up to index $z$.
 -/
 theorem n_seq_eq_n_seq_v4 (p : ProblemParameters) (j : ℕ) (hj : j ≤ z p.m) :
     n_seq p j = n_seq_v4 p j := by
-  induction' j using Nat.strong_induction_on with j ih
+  induction j using Nat.strong_induction_on with | h j ih =>
   rcases j with _ | _ | j
   · rfl
   · simp [n_seq, n_seq_v4]
@@ -1492,9 +1499,10 @@ The sequence $n_j$ consists of positive integers.
 -/
 theorem n_seq_v4_pos (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Icc 1 (z p.m)) :
     n_seq_v4 p j > 0 := by
-      induction' j with j ih;
-      · norm_num at hj;
-      · rcases j with ( _ | j ) <;> simp_all +decide;
+      induction j with
+      | zero => norm_num at hj
+      | succ j ih =>
+        rcases j with ( _ | j ) <;> simp_all +decide;
         · exact n_seq_v4_1_pos p;
         · exact lt_of_le_of_lt ( Nat.zero_le _ ) ( n_seq_v4_increasing' p ( j + 1 ) ( by linarith ) )
 
@@ -1557,8 +1565,9 @@ theorem d_dvd_X_int (p : ProblemParameters) (n : ℕ) :
       -- Apply the theorem that allows us to combine the coprime divisibilities.
       have h_prod_dvd : ∀ {S : Finset ℕ} {a : ℕ}, (∀ i ∈ S, (p_i p i) ^ (e p i (X_int p.r n)) ∣ a) → (∀ i ∈ S, ∀ j ∈ S, i ≠ j → Nat.Coprime ((p_i p i) ^ (e p i (X_int p.r n))) ((p_i p j) ^ (e p j (X_int p.r n)))) → (∏ i ∈ S, (p_i p i) ^ (e p i (X_int p.r n))) ∣ a := by
         intros S a h_div h_coprime
-        induction' S using Finset.induction with i S hi ih
-        aesop;
+        induction S using Finset.induction with
+        | empty => aesop
+        | @insert i S hi ih =>
         rw [ Finset.prod_insert hi ];
         exact Nat.Coprime.mul_dvd_of_dvd_of_dvd ( by exact Nat.Coprime.prod_right fun j hj => h_coprime i ( Finset.mem_insert_self _ _ ) j ( Finset.mem_insert_of_mem hj ) ( by aesop ) ) ( h_div i ( Finset.mem_insert_self _ _ ) ) ( ih ( fun j hj => h_div j ( Finset.mem_insert_of_mem hj ) ) ( fun j hj k hk => h_coprime j ( Finset.mem_insert_of_mem hj ) k ( Finset.mem_insert_of_mem hk ) ) );
       convert h_prod_dvd _ _ using 1;
@@ -2055,9 +2064,10 @@ theorem pfree (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Icc 1 (z p.m)
                     apply decreasing_intervals_v4 p k (Finset.mem_Icc.mpr ⟨by linarith [Finset.mem_Icc.mp hk], by linarith [Finset.mem_Icc.mp hk, Finset.mem_Icc.mp hj]⟩);
                   have h_subset : ∀ k ∈ Finset.Icc 1 j, I_set_v4 p k ⊆ I_set_v4 p 0 := by
                     intro k hk
-                    induction' k with k ih;
-                    · norm_num at hk;
-                    · exact Set.Subset.trans ( h_subset _ hk ) ( if h : 1 ≤ k then ih ( Finset.mem_Icc.mpr ⟨ by linarith, by linarith [ Finset.mem_Icc.mp hk ] ⟩ ) else by aesop );
+                    induction k with
+                    | zero => norm_num at hk
+                    | succ k ih =>
+                      exact Set.Subset.trans ( h_subset _ hk ) ( if h : 1 ≤ k then ih ( Finset.mem_Icc.mpr ⟨ by linarith, by linarith [ Finset.mem_Icc.mp hk ] ⟩ ) else by aesop );
                   exact h_subset j ( Finset.mem_Icc.mpr ⟨ Finset.mem_Icc.mp hj |>.1, le_rfl ⟩ );
                 exact h_n_in_I0 j hj hn
               have h_n_pos : n ∈ Finset.Ico (n_seq_v4 p 1) (n_seq_v4 p 1 + p.m ^ (2 * z p.m - 1)) := by
@@ -2179,9 +2189,11 @@ theorem sigma_distinct (p : ProblemParameters)
             generalize_proofs at *; (
             have h_nk_in_Ii : ∀ m, i ≤ m → m < l → I_set_v4 p i ⊇ I_set_v4 p m := by
               intros m hm₁ hm₂
-              induction' hm₁ with m hm ih
-              generalize_proofs at *; (
-              exact Set.Subset.refl _);
+              induction hm₁ with
+              | refl =>
+                generalize_proofs at *; (
+                exact Set.Subset.refl _)
+              | @step m hm ih =>
               exact Set.Subset.trans ( h_nk_in_Ii m hm ( Nat.lt_of_succ_lt hm₂ ) ) ( ih ( Nat.lt_of_succ_lt hm₂ ) )
             generalize_proofs at *; (
             grind))
@@ -2226,9 +2238,11 @@ theorem exists_n_le_pow (p : ProblemParameters) :
             generalize_proofs at *; (
             have h_decreasing : ∀ j k, j ∈ Finset.Icc 1 (z p.m) → k ∈ Finset.Icc 1 (z p.m) → j ≤ k → I_set_v4 p k ⊆ I_set_v4 p j := by
               intros j k hj hk hjk
-              induction' hjk with k hk ih
-              generalize_proofs at *; (
-              exact Set.Subset.rfl);
+              induction hjk with
+              | refl =>
+                generalize_proofs at *; (
+                exact Set.Subset.rfl)
+              | @step k hk ih =>
               exact Finset.Subset.trans ( decreasing_intervals_v4 p _ hk ) ( ih <| Finset.mem_Icc.mpr ⟨ by linarith [ Finset.mem_Icc.mp hj, Nat.succ_le_succ ‹j.le k› ], by linarith [ Finset.mem_Icc.mp hj, Finset.mem_Icc.mp hk ] ⟩ )
             generalize_proofs at *; (
             exact h_decreasing _ _ hj ( Finset.mem_Icc.mpr ⟨ by linarith [ Finset.mem_Icc.mp hj ], by linarith [ Finset.mem_Icc.mp hj ] ⟩ ) ( by linarith [ Finset.mem_Icc.mp hj ] ) h_nz1_in_Ij |> fun h => by simpa using h;));
@@ -2262,9 +2276,10 @@ theorem n_seq_mem_I0 (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Icc 1 
             exact sigma_in_range p (n_seq_v4 p k) ) ) ) _ ) );
         unfold I_set_v4; aesop;
       -- By induction on $j$, we can show that $n_seq_v4 p j \in I0 p$ for all $j \in \{1, \dots, z+1\}$.
-      induction' j with j ih;
-      · norm_num at hj;
-      · by_cases hj' : j = 0;
+      induction j with
+      | zero => norm_num at hj
+      | succ j ih =>
+        by_cases hj' : j = 0;
         · have h_min : n_seq_v4 p 1 ∈ I0 p := by
             have h_nonempty : (I0 p).Nonempty := by
               exact I0_nonempty p
@@ -2281,9 +2296,10 @@ theorem n_seq_mem_I0 (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Icc 1 
               exact fun k a => decreasing_intervals_v4 p k a;
             have h_subset_I0 : ∀ k ∈ Finset.Icc 1 (z p.m), I_set_v4 p k ⊆ I0 p := by
               intro k hk
-              induction' k with k ih;
-              · norm_num at hk;
-              · exact Set.Subset.trans ( h_subset_I0 _ hk ) ( if h : 1 ≤ k then ih ( Finset.mem_Icc.mpr ⟨ h, by linarith [ Finset.mem_Icc.mp hk ] ⟩ ) else by aesop );
+              induction k with
+              | zero => norm_num at hk
+              | succ k ih =>
+                exact Set.Subset.trans ( h_subset_I0 _ hk ) ( if h : 1 ≤ k then ih ( Finset.mem_Icc.mpr ⟨ h, by linarith [ Finset.mem_Icc.mp hk ] ⟩ ) else by aesop );
             exact h_subset_I0 j ( Finset.mem_Icc.mpr ⟨ Nat.pos_of_ne_zero hj', Nat.le_of_lt_succ ( Finset.mem_Icc.mp hj |>.2 ) ⟩ )
           exact h_subset_I0 h_subset
 
@@ -2353,8 +2369,12 @@ lemma periodic_mod_eq {r : ℕ → ℤ} {t : ℕ} (h : Function.Periodic r t) (a
         have h_periodic : ∀ k : ℕ, r (a + k * t) = r a := by
           exact fun k => Nat.recOn k ( by norm_num ) fun k ih => by rw [ Nat.succ_mul, ← add_assoc, h, ih ] ;
         rw [ ← Nat.mod_add_div a t, ← Nat.mod_add_div b t, hab ];
-        induction' a / t with k hk generalizing b <;> simp_all +decide [ Nat.mul_succ, ← add_assoc ];
-        exact Nat.recOn ( b / t ) rfl fun n hn => by rw [ Nat.mul_succ, ← add_assoc, h, hn ] ;
+        induction a / t generalizing b with
+        | zero =>
+          simp_all +decide;
+          exact Nat.recOn ( b / t ) rfl fun n hn => by rw [ Nat.mul_succ, ← add_assoc, h, hn ] ;
+        | succ k hk =>
+          simp_all +decide [ Nat.mul_succ, ← add_assoc ];
       exact h_periodic a b hab
 
 /-
