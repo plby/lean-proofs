@@ -36,7 +36,6 @@ namespace Erdos401
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.style.refine false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.flexible false
 
@@ -144,10 +143,12 @@ lemma P_squarefree (r : ℕ) : Squarefree (P r) := by
   have hP_r_prime_factors : P r = ∏ j ∈ Finset.range r, Nat.nth Nat.Prime j := by
     exact rfl;
   rw [ hP_r_prime_factors ];
-  induction' r with r ih;
-  · norm_num;
-  · induction' r + 1 with r ih <;> simp_all +decide [ Finset.prod_range_succ, Nat.squarefree_mul_iff ];
-    exact ⟨ Nat.Coprime.prod_left fun i hi => Nat.coprime_comm.mp <| Nat.Prime.coprime_iff_not_dvd ( Nat.prime_nth_prime _ ) |>.2 <| Nat.not_dvd_of_pos_of_lt ( Nat.Prime.pos <| Nat.prime_nth_prime _ ) <| Nat.nth_strictMono ( Nat.infinite_setOf_prime ) <| Finset.mem_range.mp hi, Nat.prime_nth_prime _ |> fun h => h.squarefree ⟩
+  induction r with
+  | zero =>
+    norm_num
+  | succ r ih =>
+    simp_all +decide [ Finset.prod_range_succ, Nat.squarefree_mul_iff ]
+    exact ⟨ Nat.Coprime.prod_left fun i hi => Nat.coprime_comm.mp <| Nat.Prime.coprime_iff_not_dvd ( Nat.prime_nth_prime _ ) |>.2 <| Nat.not_dvd_of_pos_of_lt ( Nat.Prime.pos <| Nat.prime_nth_prime _ ) <| Nat.nth_strictMono ( Nat.infinite_setOf_prime ) <| Finset.mem_range.mp hi, ih rfl, Nat.prime_nth_prime _ |> fun h => h.squarefree ⟩
 
 /-
 The p-adic valuation of P_r is 1 if p <= p_r, and 0 otherwise.
@@ -554,9 +555,11 @@ def digits_vec_equiv (p L : ℕ) [Fact p.Prime] : ZMod (p ^ L) ≃ (Fin L → Fi
       intro x
       simp [digits_vec];
       have h_digits : ∀ (x : ℕ), x < p ^ L → ∑ i ∈ Finset.range L, (x / p ^ i % p : ℕ) * p ^ i = x := by
-        induction' L with L ih;
-        · aesop;
-        · intro x hx; specialize ih ( x / p ) ; simp_all +decide [ Finset.sum_range_succ', pow_succ ] ;
+        induction L with
+        | zero =>
+          aesop
+        | succ L ih =>
+          intro x hx; specialize ih ( x / p ) ; simp_all +decide [ Finset.sum_range_succ', pow_succ ] ;
           convert congr_arg ( · * p + x % p ) ( ih ( x / p ) ( Nat.div_lt_of_lt_mul <| by linarith ) ) using 1;
           · simp +decide [ Nat.div_div_eq_div_mul, mul_assoc, mul_comm, Finset.mul_sum _ _ _ ];
           · rw [ Nat.div_add_mod' ];
@@ -591,9 +594,14 @@ def digits_vec_equiv (p L : ℕ) [Fact p.Prime] : ZMod (p ^ L) ≃ (Fin L → Fi
       convert h_digits_vec _ _;
       have h_sum_mod : (∑ i : Fin L, (f i : ℕ) * p ^ (i : ℕ)) < p ^ L := by
         have h_sum_lt_pL : ∀ (L : ℕ) (f : Fin L → Fin p), (∑ i : Fin L, (f i : ℕ) * p ^ (i : ℕ)) < p ^ L := by
-          intro L f; induction' L with L ih <;> simp_all +decide [ Fin.sum_univ_succ, pow_succ' ] ;
-          have := ih ( fun i => f i.succ );
-          rw [ show ( ∑ i : Fin L, ( f i.succ : ℕ ) * ( p * p ^ ( i : ℕ ) ) ) = p * ( ∑ i : Fin L, ( f i.succ : ℕ ) * p ^ ( i : ℕ ) ) by rw [ Finset.mul_sum _ _ _ ] ; exact Finset.sum_congr rfl fun _ _ => by ring ] ; nlinarith [ Fin.is_lt ( f 0 ), pow_pos ( Nat.Prime.pos Fact.out : 0 < p ) L ];
+          intro L f
+          induction L with
+          | zero =>
+            simp_all +decide
+          | succ L ih =>
+            simp_all +decide [ Fin.sum_univ_succ, pow_succ' ]
+            have := ih ( fun i => f i.succ );
+            rw [ show ( ∑ i : Fin L, ( f i.succ : ℕ ) * ( p * p ^ ( i : ℕ ) ) ) = p * ( ∑ i : Fin L, ( f i.succ : ℕ ) * p ^ ( i : ℕ ) ) by rw [ Finset.mul_sum _ _ _ ] ; exact Finset.sum_congr rfl fun _ _ => by ring ] ; nlinarith [ Fin.is_lt ( f 0 ), pow_pos ( Nat.Prime.pos Fact.out : 0 < p ) L ];
         exact h_sum_lt_pL L f;
       norm_cast;
       erw [ ZMod.val_cast_of_lt h_sum_mod ] }
@@ -613,9 +621,14 @@ lemma X_ZMod_eq_X_vec (p M : ℕ) [Fact p.Prime] (x : ZMod (Q_val p M)) :
     have h_digits : ∀ i : Fin (L p M), (Nat.digits p x.val)[i]! = (x.val / p ^ (i : ℕ)) % p := by
       -- By definition of `Nat.digits`, the i-th digit of `x.val` in base `p` is `(x.val / p^i) % p`.
       have h_digit_def : ∀ n i, (Nat.digits p n)[i]! = (n / p ^ i) % p := by
-        intro n i; induction' i with i ih generalizing n <;> simp_all +decide [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ] ;
-        · rcases p with ( _ | _ | p ) <;> rcases n with ( _ | _ | n ) <;> simp_all +decide [ Nat.mod_eq_of_lt ];
-        · rcases p with ( _ | _ | p ) <;> rcases n with ( _ | _ | n ) <;> simp_all +decide [ Nat.div_div_eq_div_mul ];
+        intro n i
+        induction i generalizing n with
+        | zero =>
+          simp_all +decide
+          rcases p with ( _ | _ | p ) <;> rcases n with ( _ | _ | n ) <;> simp_all +decide [ Nat.mod_eq_of_lt ]
+        | succ i ih =>
+          simp_all +decide [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ]
+          rcases p with ( _ | _ | p ) <;> rcases n with ( _ | _ | n ) <;> simp_all +decide [ Nat.div_div_eq_div_mul ]
       exact fun i => h_digit_def _ _;
     -- By definition of `List.countP`, we can rewrite the left-hand side of the equation.
     have h_countP : List.countP (fun d => p < 2 * d) (List.take (L p M) (Nat.digits p x.val)) = Finset.sum (Finset.range (L p M)) (fun i => if p < 2 * ((Nat.digits p x.val)[i]!) then 1 else 0) := by
@@ -832,10 +845,14 @@ lemma forced_carries_smallp (p m M : ℕ) [Fact p.Prime] (hp_ge_3 : p ≥ 3) :
                 · grind;
                 · exact fun x hx => Nat.digits_lt_base ( by linarith ) ( List.mem_of_mem_take hx );
             rw [ h_mod ];
-            induction' u + 1 with u ih <;> simp_all +decide [ Finset.sum_range_succ ];
-            rw [ List.take_add_one ];
-            cases h : ( Nat.digits p m)[u]? <;> simp_all +decide [ Nat.ofDigits_append, Nat.ofDigits_singleton ];
-            grind +ring;
+            induction u + 1 with
+            | zero =>
+              simp_all +decide
+            | succ u ih =>
+              simp_all +decide [ Finset.sum_range_succ ]
+              rw [ List.take_add_one ];
+              cases h : ( Nat.digits p m)[u]? <;> simp_all +decide [ Nat.ofDigits_append, Nat.ofDigits_singleton ];
+              grind +ring;
           -- Since $2 * ((Nat.digits p m).get! u) ≥ p + 1$, we have $2 * (m % p ^ (u + 1)) ≥ 2 * ((Nat.digits p m).get! u) * p ^ u$.
           have h_mod_ge : 2 * (m % p ^ (u + 1)) ≥ 2 * ((Nat.digits p m)[u]!) * p ^ u := by
             simp_all +decide [ mul_assoc, Finset.sum_range_succ ];
@@ -844,10 +861,14 @@ lemma forced_carries_smallp (p m M : ℕ) [Fact p.Prime] (hp_ge_3 : p ≥ 3) :
           have h_X_count : ∀ {l : List ℕ}, X p m M = List.countP (fun d => 2 * d ≥ p + 1) (List.take (L p M) (Nat.digits p m)) := by
             aesop;
           rw [ h_X_count ];
-          · induction' L p M with L ih <;> simp_all +decide [ List.take_add_one ];
-            by_cases h : p + 1 ≤ 2 * (Nat.digits p m)[L]?.getD 0 <;> simp_all +decide [ Finset.filter ];
-            · grind;
-            · cases h' : ( Nat.digits p m)[L]? <;> aesop;
+          · induction (L p M) with
+            | zero =>
+              simp_all +decide
+            | succ L ih =>
+              simp_all +decide [ List.take_add_one ]
+              by_cases h : p + 1 ≤ 2 * (Nat.digits p m)[L]?.getD 0 <;> simp_all +decide [ Finset.filter ];
+              · grind;
+              · cases h' : ( Nat.digits p m)[L]? <;> aesop;
           · exact [ ];
         exact h_X_count.trans ( Finset.card_mono <| fun x hx => by aesop );
       -- Since the set of indices $u$ such that $2 * (m % p^u) \geq p^u$ includes all $u$ such that $2 * (m % p^{u+1}) \geq p^{u+1}$, we have:
