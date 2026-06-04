@@ -22,7 +22,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.unusedVariables false
-set_option linter.style.induction false
 set_option linter.style.cases false
 set_option linter.style.refine false
 set_option linter.style.multiGoal false
@@ -143,18 +142,21 @@ lemma N_strict_mono (seq : NathansonSeq) (k : ℕ) : seq.N k < seq.N (k + 1) := 
   linarith
 
 lemma N_strict_mono_lt (seq : NathansonSeq) {i j : ℕ} (h : i < j) : seq.N i < seq.N j := by
-  induction' h with j hj ih;
-  · exact seq.N_strict_mono i;
-  · exact lt_trans ih ( seq.N_strict_mono _ )
+  induction h with
+  | refl =>
+    exact seq.N_strict_mono i;
+  | step h ih =>
+    exact lt_trans ih ( seq.N_strict_mono _ )
 
 lemma N_mono_le (seq : NathansonSeq) {i j : ℕ} (h : i ≤ j) : seq.N i ≤ seq.N j := by
   exact Nat.le_induction ( by norm_num )
     ( fun k hk ih => by linarith! [ Nat.le_of_lt ( seq.N_strict_mono k ) ] ) _ h
 
 lemma n_exponential_bound (seq : NathansonSeq) (j : ℕ) : seq.n j ≥ 8^j * seq.n 0 := by
-  induction' j with j ih;
+  induction j
   · norm_num;
-  · simpa only [ pow_succ', mul_assoc ] using
+  · rename_i j ih
+    simpa only [ pow_succ', mul_assoc ] using
       le_trans ( Nat.mul_le_mul_left 8 ih ) ( seq.exponential_growth _ ( Nat.succ_pos _ ) )
 
 lemma N_unbounded (seq : NathansonSeq) (M : ℕ) : ∃ k, M < seq.N k := by
@@ -603,9 +605,10 @@ lemma lemma3_case5_valid (seq : NathansonSeq) (k : ℕ) (hk : k ≥ 3) (n : ℕ)
               · rw [ tsub_le_iff_left ];
                 have h_n_ge_k : ∀ k, seq.n k ≥ k := by
                   intro k
-                  induction' k with k ih
+                  induction k
                   · norm_num
-                  · exact Nat.succ_le_of_lt
+                  · rename_i k ih
+                    exact Nat.succ_le_of_lt
                       ( lt_of_le_of_lt ih ( seq.n_strict_mono _ ( Nat.succ_pos _ ) ) )
                 have hNk_ge_k : k ≤ seq.N k := by
                   linarith [ show seq.N k = 2 * seq.n k + 1 from rfl, h_n_ge_k k ]
@@ -1542,9 +1545,12 @@ lemma concreteN_mono : ∀ k, concreteN k ≤ concreteN (k + 1) := by
 
 lemma concreteN_growth_bound : ∀ k ≥ 1, concreteN (k - 1) ≥ 3 * k^2 + 6 * k + 1 := by
   intro k hk
-  induction' hk with k ih;
-  · decide;
-  · simp [concreteN];
+  induction hk with
+  | refl =>
+    decide;
+  | step hk ih =>
+    rename_i k
+    simp [concreteN];
     exact Nat.recOn k ( by norm_num ) fun n ihn => by norm_num [ Nat.pow_succ' ] at * ; nlinarith
 
 lemma concreteN_exponential_growth : ∀ k ≥ 1, concreteN k ≥ 8 * concreteN (k - 1) := by
@@ -1598,9 +1604,10 @@ lemma enumerateB_mono (n : ℕ) : enumerateB n < enumerateB (n + 1) := by
   apply nextInB_gt
 
 lemma enumerateB_in_B (n : ℕ) (hn : n ≥ 1) : inB_concrete (enumerateB n) := by
-  induction' n with n ih;
+  induction n
   · grind;
-  · apply nextInB_in_B
+  · rename_i n ih
+    apply nextInB_in_B
 
 lemma enumerateB_covers (x : ℕ) (hx : inB_concrete x) : ∃ n ≥ 1, enumerateB n = x := by
   obtain ⟨n, hn⟩ : ∃ n, x = enumerateB n := by
@@ -1611,20 +1618,22 @@ lemma enumerateB_covers (x : ℕ) (hx : inB_concrete x) : ∃ n ≥ 1, enumerate
         ⟨ x + 1,
           Nat.recOn x ( by linarith! [ enumerateB_mono 0 ] ) fun n ihn => by
             linarith! [ enumerateB_mono ( n + 1 ) ] ⟩;
-    induction' n with n ih;
+    induction n
     · exact hn.not_ge ( Nat.zero_le _ );
-    · simp +zetaDelta at *;
+    · rename_i n ih
+      simp +zetaDelta at *;
       exact hn.not_ge
         ( Nat.find_min' ( B_has_next ( enumerateB n ) )
           ⟨ ih.lt_of_ne ( Ne.symm <| hx _ ), H ⟩ );
-  induction' n with n ih;
+  induction n
   · cases hx;
     rename_i k hk;
     unfold NathansonSeq.B_k at hk;
     unfold NathansonSeq.P NathansonSeq.Q NathansonSeq.R at hk;
     split_ifs at hk <;> simp_all +arith +decide;
     unfold enumerateB at hk; aesop;
-  · exact ⟨ n + 1, Nat.succ_pos _, hn.symm ⟩
+  · rename_i n ih
+    exact ⟨ n + 1, Nat.succ_pos _, hn.symm ⟩
 
 def K (m : ℕ) : ℕ := cumulativeCount simpleH m
 
@@ -1737,16 +1746,18 @@ noncomputable def nthSubsetOfIcc (n m i : ℕ) : Finset ℕ :=
 termination_by (n, m)
 
 lemma nthSubsetOfIcc_le (n m i : ℕ) : ∀ x ∈ nthSubsetOfIcc n m i, x ≤ n := by
-  induction' n with n ih generalizing m i;
+  induction n generalizing m i
   · unfold nthSubsetOfIcc; aesop;
   · unfold nthSubsetOfIcc;
     grind
 
 lemma nthSubsetOfIcc_ge_one (n m i : ℕ) (hn : n ≥ 1) :
     ∀ x ∈ nthSubsetOfIcc n m i, x ≥ 1 := by
-  induction' n with n ih generalizing m i;
-  · contradiction;
-  · rcases m with ( _ | m ) <;>
+  induction n generalizing m i with
+  | zero =>
+    contradiction;
+  | succ n ih =>
+    rcases m with ( _ | m ) <;>
       rcases n with ( _ | n ) <;>
       simp_all +arith +decide;
     · unfold nthSubsetOfIcc; aesop;
@@ -1757,7 +1768,8 @@ lemma nthSubsetOfIcc_ge_one (n m i : ℕ) (hn : n ≥ 1) :
 
 lemma nthSubsetOfIcc_card (n m i : ℕ) (hi : i < Nat.choose n m) :
     (nthSubsetOfIcc n m i).card = m := by
-  induction' n using Nat.strong_induction_on with n ih generalizing m i;
+  induction n using Nat.strong_induction_on generalizing m i
+  rename_i n ih
   rcases n with ( _ | _ | n ) <;> rcases m with ( _ | _ | m ) <;> simp_all +arith +decide;
   all_goals unfold nthSubsetOfIcc; simp +arith +decide [ Nat.choose_succ_succ ] at *;
   · unfold nthSubsetOfIcc; simp +decide ;
@@ -1811,9 +1823,10 @@ lemma nthSubsetOfIcc_exhaustive (n m : ℕ) (S : Finset ℕ)
               ∀ n m i j, i < Nat.choose n m → j < Nat.choose n m →
                 nthSubsetOfIcc n m i = nthSubsetOfIcc n m j → i = j := by
             intros n m i j hi hj h_eq;
-            induction' n with n ih generalizing m i j <;>
-              induction' m with m ih' generalizing i j <;>
+            induction n generalizing m i j <;>
+              induction m generalizing i j <;>
               simp_all +decide [ Nat.choose ];
+            rename_i n ih m ih'
             unfold nthSubsetOfIcc at h_eq; simp +decide at h_eq;
             split_ifs at h_eq;
             · simp_all +decide [ Nat.choose_eq_zero_of_lt ];
@@ -2127,9 +2140,10 @@ lemma K_lower_bound (m : ℕ) (hm : m ≥ 1) : K (m + 1) ≥ 2 * m := by
       Nat.choose_pos ( show ‹_› ≤ 2 * ‹_› + 1 by linarith ) ]
 
 lemma K_ge_self (m : ℕ) (hm : m ≥ 2) : K m ≥ m := by
-  induction' hm with m hm ih;
+  induction hm
   · decide
-  · rw [ show K ( m + 1 ) = K m + Nat.choose ( simpleH m ) m from K_succ m ( le_of_lt hm ) ];
+  · rename_i m hm ih
+    rw [ show K ( m + 1 ) = K m + Nat.choose ( simpleH m ) m from K_succ m ( le_of_lt hm ) ];
     exact Nat.succ_le_of_lt
       ( lt_add_of_le_of_pos ih
         ( Nat.choose_pos ( by
