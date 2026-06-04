@@ -13,7 +13,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.dupNamespace false
 set_option linter.style.cases false
-set_option linter.style.induction false
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
@@ -151,10 +150,12 @@ lemma hasQuadTower_finrank (K : IntermediateField ℚ ℝ) (h : HasQuadTower K) 
   -- By induction on $i$, we can show that for each $i$, the degree of $F i$ over $\mathbb{Q}$ is a power of 2.
   have h_ind : ∀ i ≤ k, ∃ n : ℕ, Module.finrank ℚ (F i) = 2 ^ n := by
     intro i hi
-    induction' i with i ih
-    · use 0
+    induction i with
+    | zero =>
+      use 0
       aesop
-    · simp +zetaDelta at *
+    | succ i ih =>
+      simp +zetaDelta at *
       obtain ⟨ x, hx₁, hx₂ ⟩ := hF₃ i ( Nat.lt_of_succ_le hi )
       have := finrank_adjoin_sq hx₁
       convert this ( ih ( Nat.le_of_succ_le hi ) ) using 1
@@ -248,9 +249,11 @@ lemma hasQuadTower_sup {K L : IntermediateField ℚ ℝ} (hK : HasQuadTower K) (
       subst hFk hGm h
       simp_all only [zero_add]
       apply And.intro
-      · induction' i with i ih
-        · aesop
-        · exact hF_step i ( Nat.lt_succ_self i ) |> fun ⟨ y, hy, hy' ⟩ => hy'.symm ▸ IntermediateField.subset_adjoin ℚ _ ( Set.mem_insert_of_mem _ ( ih fun j hj => hF_step j ( Nat.lt_succ_of_lt hj ) ) )
+      · induction i with
+        | zero =>
+          aesop
+        | succ i ih =>
+          exact hF_step i ( Nat.lt_succ_self i ) |> fun ⟨ y, hy, hy' ⟩ => hy'.symm ▸ IntermediateField.subset_adjoin ℚ _ ( Set.mem_insert_of_mem _ ( ih fun j hj => hF_step j ( Nat.lt_succ_of_lt hj ) ) )
       · refine' le_antisymm _ _ <;> simp_all +decide [ IntermediateField.adjoin_le_iff, Set.insert_subset_iff ]
         · exact ⟨ fun y hy => IntermediateField.subset_adjoin ℚ _ <| Set.mem_insert_of_mem _ <| by aesop, IntermediateField.subset_adjoin ℚ _ <| Set.mem_insert _ _ ⟩
         · exact ⟨ IntermediateField.subset_adjoin _ _ <| Set.mem_union_right _ <| IntermediateField.subset_adjoin _ _ <| Set.mem_insert _ _, fun y hy => IntermediateField.subset_adjoin _ _ <| Set.mem_union_left _ hy ⟩
@@ -281,17 +284,19 @@ lemma constructible_implies_hasQuadTower (x : ℝ) (hx : Constructible x) :
   -- By definition of constructibility, there exists a finite sequence of fields $K_0, K_1, \ldots, K_n$ such that $K_0 = \mathbb{Q}$, $K_n = \mathbb{R}$, and each $K_{i+1}$ is obtained from $K_i$ by adjoining the square root of some element in $K_i$.
   obtain ⟨K, hK⟩ : ∃ K : IntermediateField ℚ ℝ, x ∈ K ∧ K ∈ {K : IntermediateField ℚ ℝ | HasQuadTower K} := by
     -- We proceed by induction on the construction of x.
-    induction' hx with x hx ih
-    exact ⟨ ⊥, by simp_all only [SubfieldClass.ratCast_mem], hasQuadTower_bot ⟩
-    · rename_i hx_ih hy_ih
+    induction hx with
+    | rat q =>
+      exact ⟨ ⊥, by simp_all only [SubfieldClass.ratCast_mem], hasQuadTower_bot ⟩
+    | add hx hy hx_ih hy_ih =>
       simp_all only [Set.mem_setOf_eq]
       obtain ⟨w, h⟩ := hx_ih
       obtain ⟨w_1, h_1⟩ := hy_ih
       obtain ⟨left, right⟩ := h
       obtain ⟨left_1, right_1⟩ := h_1
       exact ⟨ _, add_mem ( IntermediateField.subset_adjoin ℚ _ <| Set.mem_union_left _ left ) ( IntermediateField.subset_adjoin ℚ _ <| Set.mem_union_right _ left_1 ), hasQuadTower_sup right right_1 ⟩
-    · simp_all only [Set.mem_setOf_eq, neg_mem_iff]
-    · rename_i hx_ih hy_ih
+    | neg hx hx_ih =>
+      simp_all only [Set.mem_setOf_eq, neg_mem_iff]
+    | mul hx hy hx_ih hy_ih =>
       simp_all only [Set.mem_setOf_eq]
       obtain ⟨w, h⟩ := hx_ih
       obtain ⟨w_1, h_1⟩ := hy_ih
@@ -299,8 +304,11 @@ lemma constructible_implies_hasQuadTower (x : ℝ) (hx : Constructible x) :
       obtain ⟨left_1, right_1⟩ := h_1
       use w ⊔ w_1
       exact ⟨ Subalgebra.mul_mem _ ( IntermediateField.subset_adjoin _ _ ( by aesop ) ) ( IntermediateField.subset_adjoin _ _ ( by aesop ) ), hasQuadTower_sup right right_1 ⟩
-    · aesop
-    · rcases ‹_› with ⟨ K, hK₁, hK₂ ⟩
+    | inv hx hx0 hx_ih =>
+      aesop
+    | sqrt hx hx0 hx_ih =>
+      rename_i y
+      rcases hx_ih with ⟨ K, hK₁, hK₂ ⟩
       exact ⟨ K ⊔ IntermediateField.adjoin ℚ { Real.sqrt ‹_› }, by aesop_cat, hasQuadTower_adjoin_sqrt hK₂ hK₁ ⟩
   aesop
 /-
@@ -497,18 +505,20 @@ If $K$ and $L$ are dyadic extensions, there exists a dyadic extension $M$ contai
 open IntermediateField
 lemma dyadic_sup (K L : IntermediateField ℚ ℝ) (hK : DyadicExtension K) (hL : DyadicExtension L) :
     ∃ M : IntermediateField ℚ ℝ, DyadicExtension M ∧ K ≤ M ∧ L ≤ M := by
-      induction' hL with L' L' hL' x hx hM'
-      · simp_all only [bot_le, and_true]
+      induction hL with
+      | base =>
+        simp_all only [bot_le, and_true]
         apply Exists.intro
         · apply And.intro
           on_goal 2 => { rfl
           }
           · simp_all only
-      · obtain ⟨ M, hM₁, hM₂, hM₃ ⟩ := hx
-        use M ⊔ IntermediateField.adjoin ℚ { L' }
+      | @step L' x hL' hx ih =>
+        obtain ⟨ M, hM₁, hM₂, hM₃ ⟩ := ih
+        use M ⊔ IntermediateField.adjoin ℚ { x }
         simp_all only [sup_le_iff, le_sup_right, and_true]
         apply And.intro
-        · exact DyadicExtension.step hM₁ ( by simpa using hM₃ x )
+        · exact DyadicExtension.step hM₁ ( by simpa using hM₃ hx )
         · apply And.intro
           · exact le_trans hM₂ le_sup_left
           · exact le_sup_of_le_left hM₃
