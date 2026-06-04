@@ -18,7 +18,6 @@ import Mathlib
 
 set_option linter.style.longLine false
 set_option linter.style.refine false
-set_option linter.style.induction false
 
 open Finset ArithmeticFunction Real
 open scoped BigOperators
@@ -161,7 +160,8 @@ lemma lcmRange_dvd_odd (r : ℕ) (hr : 1 ≤ r) :
 
 lemma lcmRange_le_four_pow (n : ℕ) (hn : 1 ≤ n) :
     lcmRange n ≤ 4 ^ n := by
-  induction' n using Nat.strong_induction_on with n ih;
+  induction n using Nat.strong_induction_on with
+  | h n ih =>
   by_cases h₂ : n ≤ 4;
   · interval_cases n <;> decide;
   · rcases Nat.even_or_odd' n with ⟨ k, rfl | rfl ⟩;
@@ -509,10 +509,13 @@ private lemma log_200_ge' : Real.log 200 ≥ 1418 / 270 := by
 set_option linter.flexible false in
 private lemma abel_identity_sumT (n : ℕ) (hn : 200 ≤ n) :
     ∑ m ∈ Finset.Icc 200 n, (Λ m) / (m * Real.log m) = ((sumS n) - (sumS 199)) / Real.log n + ∑ m ∈ Finset.Ico 200 n, ((sumS m) - (sumS 199)) * (1 / Real.log m - 1 / Real.log (m + 1)) := by
-  induction' hn with k hk
-  · simp [sumS]
+  induction hn with
+  | refl =>
+    simp [sumS]
     rw [ show ( Finset.Icc 2 200 : Finset ℕ ) = Finset.Icc 2 199 ∪ { 200 } by decide, Finset.sum_union ] <;> norm_num ; ring
-  · simp_all +decide [(Nat.succ_eq_succ ▸ Finset.Icc_succ_left_eq_Ioc)]
+  | step hk ih =>
+    rename_i k
+    simp_all +decide [(Nat.succ_eq_succ ▸ Finset.Icc_succ_left_eq_Ioc)]
     rw [ Finset.sum_Ioc_succ_top ( by linarith ), ‹∑ x ∈ Ioc 199 k, _ = _› ]
     rw [ Finset.sum_Ico_succ_top ( by linarith ), show sumS ( k + 1 ) = sumS k + Λ ( k + 1 ) / ( k + 1 : ℝ ) from ?_ ]
     · norm_num [ div_eq_mul_inv ] ; ring
