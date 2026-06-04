@@ -25,7 +25,6 @@ import PrimeNumberTheoremAnd.Consequences
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 
@@ -156,49 +155,53 @@ lemma length_le_card_q_union_card_P {n : ℕ} {l : List ℕ} (h : is_valid_seq n
     (hn : 2 ≤ n) :
   l.length ≤ (l.filter (fun m => (q m : ℝ) ≤ Real.sqrt (2 * n / Real.log n))).length +
              (l.filter (fun m => (P m : ℝ) ≤ Real.sqrt (n * Real.log n / 2))).length := by
-    induction' l with m l ih <;> simp +arith +decide [ * ] at *;
-    have := h.2.1 m; simp_all +decide [ is_valid_seq ] ;
-    by_cases h :
-        ( P m : ℝ ) ≤ Real.sqrt n * Real.sqrt ( Real.log n ) / Real.sqrt 2 <;>
-      by_cases h' :
-        ( q m : ℝ ) ≤ Real.sqrt 2 * Real.sqrt n / Real.sqrt ( Real.log n ) <;>
-      simp_all +decide
-    · linarith [
-        ih ( by exact List.isChain_cons.mp ( by tauto ) |>.2 )
-          ( by exact List.isChain_cons.mp ( by tauto ) |>.2 ) ];
-    · have hih := ih
-        ( by exact List.isChain_cons.mp ( by tauto ) |>.2 )
-        ( by exact List.isChain_cons.mp ( by tauto ) |>.2 )
-      omega
-    · specialize ih ( by
-        exact List.isChain_cons.mp ( by tauto ) |>.2 ) ( by
-        exact List.isChain_cons.mp ( by tauto ) |>.2 ) ;
-      linarith;
-    · contrapose! h';
-      -- Since $m = q m * P m$ and $m \leq n$, we have $q m \leq n / P m$.
-      have h_q_le_n_div_P : (q m : ℝ) ≤ n / P m := by
-        rw [ le_div_iff₀ ] <;> norm_cast;
-        · rw [ ← n_eq_q_mul_P ];
-          linarith [
-            ‹List.IsChain ( fun x1 x2 => x1 < x2 ) ( m :: l ) ∧
-              ( ( 0 < m ∧ m ≤ n ) ∧ ∀ a ∈ l, 0 < a ∧ a ≤ n ) ∧
-              List.IsChain ( fun x1 x2 => x2 < x1 )
-                ( P m :: List.map P l )›.2.1.1.2 ];
-        · exact P_pos;
-      refine le_trans h_q_le_n_div_P ?_;
-      rw [ div_le_div_iff₀ ];
-      · rw [ div_lt_iff₀ ] at h <;>
-          first
-          | positivity
-          | nlinarith [ Real.sqrt_nonneg 2, Real.sqrt_nonneg n,
-              Real.sqrt_nonneg ( Real.log n ),
-              Real.mul_self_sqrt ( show 0 ≤ 2 by norm_num ),
-              Real.mul_self_sqrt ( show 0 ≤ ( n : ℝ ) by positivity ),
-              Real.mul_self_sqrt
-                ( show 0 ≤ Real.log n by
-                  exact Real.log_nonneg ( by norm_cast; linarith ) ) ] ;
-      · exact lt_of_le_of_lt ( by positivity ) h;
-      · exact Real.sqrt_pos.mpr ( Real.log_pos ( by norm_cast ) )
+    induction l with
+    | nil =>
+      simp +arith +decide [ * ] at *
+    | cons m l ih =>
+      simp +arith +decide [ * ] at *;
+      have := h.2.1 m; simp_all +decide [ is_valid_seq ] ;
+      by_cases h :
+          ( P m : ℝ ) ≤ Real.sqrt n * Real.sqrt ( Real.log n ) / Real.sqrt 2 <;>
+        by_cases h' :
+          ( q m : ℝ ) ≤ Real.sqrt 2 * Real.sqrt n / Real.sqrt ( Real.log n ) <;>
+        simp_all +decide
+      · linarith [
+          ih ( by exact List.isChain_cons.mp ( by tauto ) |>.2 )
+            ( by exact List.isChain_cons.mp ( by tauto ) |>.2 ) ];
+      · have hih := ih
+          ( by exact List.isChain_cons.mp ( by tauto ) |>.2 )
+          ( by exact List.isChain_cons.mp ( by tauto ) |>.2 )
+        omega
+      · specialize ih ( by
+          exact List.isChain_cons.mp ( by tauto ) |>.2 ) ( by
+          exact List.isChain_cons.mp ( by tauto ) |>.2 ) ;
+        linarith;
+      · contrapose! h';
+        -- Since $m = q m * P m$ and $m \leq n$, we have $q m \leq n / P m$.
+        have h_q_le_n_div_P : (q m : ℝ) ≤ n / P m := by
+          rw [ le_div_iff₀ ] <;> norm_cast;
+          · rw [ ← n_eq_q_mul_P ];
+            linarith [
+              ‹List.IsChain ( fun x1 x2 => x1 < x2 ) ( m :: l ) ∧
+                ( ( 0 < m ∧ m ≤ n ) ∧ ∀ a ∈ l, 0 < a ∧ a ≤ n ) ∧
+                List.IsChain ( fun x1 x2 => x2 < x1 )
+                  ( P m :: List.map P l )›.2.1.1.2 ];
+          · exact P_pos;
+        refine le_trans h_q_le_n_div_P ?_;
+        rw [ div_le_div_iff₀ ];
+        · rw [ div_lt_iff₀ ] at h <;>
+            first
+            | positivity
+            | nlinarith [ Real.sqrt_nonneg 2, Real.sqrt_nonneg n,
+                Real.sqrt_nonneg ( Real.log n ),
+                Real.mul_self_sqrt ( show 0 ≤ 2 by norm_num ),
+                Real.mul_self_sqrt ( show 0 ≤ ( n : ℝ ) by positivity ),
+                Real.mul_self_sqrt
+                  ( show 0 ≤ Real.log n by
+                    exact Real.log_nonneg ( by norm_cast; linarith ) ) ] ;
+        · exact lt_of_le_of_lt ( by positivity ) h;
+        · exact Real.sqrt_pos.mpr ( Real.log_pos ( by norm_cast ) )
 
 /-
 The number of elements in l with q(m) <= sqrt(2n/log n) is at most
@@ -774,9 +777,11 @@ lemma construct_seq_length (primes : List ℕ) :
       ∀ (primes : List ℕ) (prev_a : ℕ),
         (construct_seq_aux primes prev_a).length = primes.length := by
     intros primes prev_a
-    induction' primes with p ps ih generalizing prev_a
-    · simp [construct_seq_aux]
-    · simp [construct_seq_aux]
+    induction primes generalizing prev_a with
+    | nil =>
+      simp [construct_seq_aux]
+    | cons p ps ih =>
+      simp [construct_seq_aux]
       exact ih _;
   exact h_len _ _
 
@@ -797,19 +802,23 @@ lemma construct_seq_increasing (primes : List ℕ) (h_primes_pos : ∀ p ∈ pri
         ∀ (primes : List ℕ) (prev_a : ℕ), (∀ p ∈ primes, 0 < p) →
           List.IsChain (· < ·) (construct_seq_aux primes prev_a) := by
       intros primes prev_a h_primes_pos
-      induction' primes with p primes ih generalizing prev_a <;> simp [construct_seq_aux]
-      rw [List.isChain_cons]
-      constructor
-      · cases primes with
-        | nil => simp [construct_seq_aux]
-        | cons q qs =>
-            intro y hy
-            simp [construct_seq_aux] at hy
-            subst hy
-            exact next_a_gt _ _ (h_primes_pos q (by simp))
-      · exact ih (next_a prev_a p) (by
-          intro q hq
-          exact h_primes_pos q (by simp [hq]))
+      induction primes generalizing prev_a with
+      | nil =>
+        simp [construct_seq_aux]
+      | cons p primes ih =>
+        simp [construct_seq_aux]
+        rw [List.isChain_cons]
+        constructor
+        · cases primes with
+          | nil => simp [construct_seq_aux]
+          | cons q qs =>
+              intro y hy
+              simp [construct_seq_aux] at hy
+              subst hy
+              exact next_a_gt _ _ (h_primes_pos q (by simp))
+        · exact ih (next_a prev_a p) (by
+            intro q hq
+            exact h_primes_pos q (by simp [hq]))
     exact h_ind _ _ h_primes_pos
 
 /-
@@ -828,9 +837,11 @@ lemma construct_seq_bound_aux (primes : List ℕ) (prev_a : ℕ)
     (h_primes_pos : ∀ p ∈ primes, 0 < p) :
   ∀ a ∈ construct_seq_aux primes prev_a, a ≤ prev_a + primes.sum := by
     -- We proceed by induction on the list `primes`.
-    induction' primes with p primes ih generalizing prev_a;
-    · tauto;
-    · simp +zetaDelta at *;
+    induction primes generalizing prev_a with
+    | nil =>
+      tauto;
+    | cons p primes ih =>
+      simp +zetaDelta at *;
       intro a ha;
       -- By definition of `construct_seq_aux`, `a` is either `next_a prev_a p` or an
       -- element from `construct_seq_aux primes (next_a prev_a p)`.
@@ -861,9 +872,11 @@ lemma construct_seq_pos (primes : List ℕ) (h_primes_pos : ∀ p ∈ primes, 0 
         ∀ (primes : List ℕ) (prev_a : ℕ), (∀ p ∈ primes, 0 < p) →
           (∀ a ∈ construct_seq_aux primes prev_a, 0 < a) := by
       intro primes prev_a h_primes_pos a ha
-      induction' primes with p primes ih generalizing prev_a a;
-      · cases ha;
-      · simp_all +decide [ construct_seq_aux ];
+      induction primes generalizing prev_a a with
+      | nil =>
+        cases ha;
+      | cons p primes ih =>
+        simp_all +decide [ construct_seq_aux ];
         exact ha.elim
           ( fun ha => ha.symm ▸ Nat.mul_pos ( Nat.succ_pos _ ) h_primes_pos.1 )
           fun ha => ih _ _ ha;
@@ -939,9 +952,11 @@ lemma construct_seq_aux_P_eq (primes : List ℕ) (n : ℕ) (prev_a : ℕ)
   (h_bound : primes.sum + prev_a ≤ n) :
   (construct_seq_aux primes prev_a).map P = primes := by
     -- By induction on the list primes.
-    induction' primes with p primes ih generalizing prev_a n;
-    · rfl;
-    · convert congr_arg ( fun l => p :: l )
+    induction primes generalizing prev_a n with
+    | nil =>
+      rfl;
+    | cons p primes ih =>
+      convert congr_arg ( fun l => p :: l )
           ( ih n ( next_a prev_a p ) ( fun q hq => ?_ ) ( fun q hq => ?_ )
             ( fun q hq => ?_ ) ( ?_ ) ) using 1;
       · rw [ show
@@ -1079,9 +1094,11 @@ lemma sum_primes_eq_integral (x : ℝ) (hx : 2 ≤ x) :
               ∑ k ∈ Finset.range n, (Nat.primeCounting k : ℝ) -
                 ∑ k ∈ Finset.range 2, (Nat.primeCounting k : ℝ) := by
         intro n hn
-        induction' n, hn using Nat.le_induction with n hn ih;
-        · norm_num;
-        · -- For the induction step, we can split the integral at $n$.
+        induction n, hn using Nat.le_induction with
+        | base =>
+          norm_num;
+        | succ n hn ih =>
+          -- For the induction step, we can split the integral at $n$.
           have h_split :
               ∫ t in (2 : ℝ)..(n + 1), (Nat.primeCounting (Nat.floor t) : ℝ) =
                 (∫ t in (2 : ℝ)..n, (Nat.primeCounting (Nat.floor t) : ℝ)) +
