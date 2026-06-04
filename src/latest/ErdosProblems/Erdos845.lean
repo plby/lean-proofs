@@ -25,7 +25,6 @@ namespace Erdos845
 set_option linter.unusedVariables false
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.induction false
 set_option linter.flexible false
 set_option linter.style.refine false
 
@@ -79,7 +78,8 @@ Any natural number n < 2^k can be written as a sum of distinct powers of 2 with 
 -/
 theorem binary_sum_subset (n k : ℕ) (h : n < 2 ^ k) :
   ∃ S : Finset ℕ, S ⊆ Finset.range k ∧ S.sum (2 ^ ·) = n := by
-    induction' k with k ih generalizing n <;> simp_all +decide [ pow_succ' ];
+    induction k generalizing n <;> simp_all +decide [ pow_succ' ]
+    rename_i k ih
     by_cases h₂ : n < 2 ^ k;
     · exact Exists.elim ( ih n h₂ ) fun S hS => ⟨ S, Finset.Subset.trans hS.1 ( Finset.range_mono ( Nat.le_succ _ ) ), hS.2 ⟩;
     · obtain ⟨ S, hS₁, hS₂ ⟩ := ih ( n - 2 ^ k ) ( by rw [ tsub_lt_iff_left ] <;> linarith );
@@ -419,9 +419,10 @@ theorem pow2_index_lt (p : ℕ) (hp : p > 1) (k : ℕ) :
     -- Since $a_seq$ is strictly increasing and its values are positive integers (>= 1), we have $a_seq n \geq n + 1$ for all $n$.
     have h_strict_mono : ∀ n, a_seq p n ≥ n + 1 := by
       intro n;
-      induction' n with n ih;
+      induction n
       · exact Nat.one_le_iff_ne_zero.mpr ( ne_of_gt ( a_seq_pos p hp 0 ) );
-      · exact Nat.succ_le_of_lt ( lt_of_le_of_lt ih ( a_seq_strict_mono p hp n.lt_succ_self ) );
+      · rename_i n ih
+        exact Nat.succ_le_of_lt ( lt_of_le_of_lt ih ( a_seq_strict_mono p hp n.lt_succ_self ) );
     exact lt_of_not_ge fun h => by linarith [ h_strict_mono ( pow2_index p hp k ), pow2_index_spec p hp k ] ;
 
 /-
@@ -471,7 +472,8 @@ k is in the bitIndices of n if and only if the k-th bit of n is set.
 -/
 theorem mem_bitIndices_iff_testBit (n k : ℕ) :
   k ∈ n.bitIndices ↔ n.testBit k := by
-    induction' n using Nat.strong_induction_on with n ih generalizing k;
+    induction n using Nat.strong_induction_on generalizing k
+    rename_i n ih
     rcases k with ( _ | k ) <;> simp_all +decide [ Nat.testBit ];
     · cases Nat.mod_two_eq_zero_or_one n <;> simp +decide [ *, Nat.bitIndices ];
       · rw [ Nat.binaryRec ] ; aesop;
@@ -600,7 +602,9 @@ theorem decompose_even_pow2_spec (x : ℕ) (hx : x > 1) :
     · unfold decompose_even_pow2;
       split_ifs <;> simp_all +decide [ Nat.even_iff ];
       · have h_binary_sum : ∑ k ∈ x.bitIndices.toFinset, 2^k = x := by
-          induction' ( Nat.digits 2 x ) using List.reverseRecOn with d _ ih <;> simp_all +decide;
+          induction ( Nat.digits 2 x ) using List.reverseRecOn with
+          | nil => simp_all +decide
+          | append_singleton d _ ih => simp_all +decide
         convert Or.inl h_binary_sum using 2;
         refine' Finset.sum_bij ( fun k hk => Nat.log 2 k ) _ _ _ _ <;> aesop;
       · -- By definition of `bitIndices`, the sum of the elements in the list `List.map (fun x => 2 ^ x) (x - 1).bitIndices` is equal to `x - 1`.
@@ -634,9 +638,10 @@ theorem u_mem_A (p : ℕ) (hp : Odd p ∧ p > 1) (k : ℕ) : u p k ∈ A p := by
 P_k is in A_p.
 -/
 theorem P_mem_A (p : ℕ) (hp : Odd p ∧ p > 1) (k : ℕ) : P p k ∈ A p := by
-  induction' k with k ihk;
+  induction k
   · exact one_mem_A p;
-  · -- By definition of $P$, we have $P p (k + 1) = P p k * u p (k + 1)$.
+  · rename_i k ihk
+    -- By definition of $P$, we have $P p (k + 1) = P p k * u p (k + 1)$.
     have hP_succ : P p (k + 1) = P p k * u p (k + 1) := by
       exact Finset.prod_range_succ _ _;
     exact hP_succ.symm ▸ A_mul_closed p _ _ ihk ( u_mem_A p hp _ )
@@ -768,7 +773,8 @@ M_k is at least 1 for k <= K.
 -/
 theorem M_ge_one_of_le_K (p : ℕ) (hp : Odd p ∧ p > 1) (k : ℕ) (hk : 1 ≤ k ∧ k ≤ K p) :
   M p k ≥ 1 := by
-    induction' k using Nat.strong_induction_on with k ih;
+    induction k using Nat.strong_induction_on
+    rename_i k ih
     rcases k with ( _ | _ | _ | k ) <;> simp +arith +decide [ * ] at *;
     · -- Since $M_0 p$ is positive and $|S p|$ is positive, their sum $M p 1$ is also positive.
       have hM0_pos : 0 < M_0 p := by
@@ -898,9 +904,10 @@ theorem v_ge_v2_of_ge_3 (p n : ℕ) (hp : Odd p ∧ p > 1) (k : ℕ) (hk : k ≥
     -- Since $v$ is strictly increasing (by `v_strict_mono`), we have $v_{k-1} \geq v_2$.
     have h_v_mono : ∀ (i j : ℕ), 1 ≤ i → i ≤ j → j ≤ K p → v p n hp i ≤ v p n hp j := by
       intros i j hi hj hjK
-      induction' hj with j hj ih;
+      induction hj
       · rfl;
-      · exact le_trans ( ih ( Nat.le_of_succ_le hjK ) ) ( Nat.le_of_lt ( v_strict_mono p n hp _ ⟨ by linarith [ Nat.succ_le_succ hj ], hjK ⟩ ) );
+      · rename_i j hj ih
+        exact le_trans ( ih ( Nat.le_of_succ_le hjK ) ) ( Nat.le_of_lt ( v_strict_mono p n hp _ ⟨ by linarith [ Nat.succ_le_succ hj ], hjK ⟩ ) );
     exact h_v_mono 2 ( k - 1 ) ( by decide ) ( by linarith ) ( by omega )
 
 /-
@@ -931,9 +938,10 @@ theorem c_init_eq_zero_of_gt_vK (p n : ℕ) (hp : Odd p ∧ p > 1) (j : ℕ) (hj
     have h_base_zero : m p n hp - 1 ≤ v p n hp (K p) := by
       have h_v_mono : ∀ k, 1 ≤ k → k ≤ K p → v p n hp k ≥ v p n hp 1 := by
         intros k hk1 hk2
-        induction' hk1 with k hk ih;
+        induction hk1
         · norm_num;
-        · exact le_trans ( ih ( Nat.le_of_succ_le hk2 ) ) ( Nat.le_of_lt ( v_strict_mono p n hp k ⟨ hk, Nat.lt_of_succ_le hk2 ⟩ ) );
+        · rename_i k hk ih
+          exact le_trans ( ih ( Nat.le_of_succ_le hk2 ) ) ( Nat.le_of_lt ( v_strict_mono p n hp k ⟨ hk, Nat.lt_of_succ_le hk2 ⟩ ) );
       exact le_trans ( by rw [ v_1_eq_m_sub_1 ] ) ( h_v_mono _ ( by linarith [ K_ge_2 p ] ) ( by linarith [ K_ge_2 p ] ) );
     grind
 
@@ -1125,9 +1133,10 @@ theorem lemma_v_ge_v1 (p n : ℕ) (hp : Odd p ∧ p > 1) (k : ℕ) (hk : 1 ≤ k
       have := @v_strict_mono;
       exact fun k hk hk' => this p n hp k ⟨ hk, hk' ⟩;
     -- We can prove this by induction on $k$.
-    induction' k with k ih;
+    induction k
     · contradiction;
-    · grind
+    · rename_i k ih
+      grind
 
 /-
 For indices in intervals k >= 3, the sequence value is strictly greater than R.
@@ -1212,9 +1221,12 @@ The sequence v is non-decreasing on the range [1, K].
 theorem lemma_v_le_v_of_le (p n : ℕ) (hp : Odd p ∧ p > 1) (k1 k2 : ℕ) (hk1 : 1 ≤ k1) (hk2 : k2 ≤ K p) (h : k1 ≤ k2) :
   v p n hp k1 ≤ v p n hp k2 := by
     -- We prove this by induction on $k2 - k1$.
-    induction' h with k h_ind;
-    · rfl;
-    · exact le_trans ( by solve_by_elim [ Nat.le_of_succ_le ] ) ( v_strict_mono p n hp k ⟨ Nat.pos_of_ne_zero ( by aesop ), by solve_by_elim [ Nat.le_of_succ_le ] ⟩ |> le_of_lt )
+    induction h with
+    | refl =>
+      rfl;
+    | step h h_ind =>
+      rename_i k
+      exact le_trans ( by solve_by_elim [ Nat.le_of_succ_le ] ) ( v_strict_mono p n hp k ⟨ Nat.pos_of_ne_zero ( by aesop ), by solve_by_elim [ Nat.le_of_succ_le ] ⟩ |> le_of_lt )
 
 /-
 Any index j less than v(K) falls into one of the intervals 1 to K.
@@ -1255,9 +1267,10 @@ The sequence M is non-increasing for k >= 1.
 theorem lemma_M_antitone (p : ℕ) (hp : Odd p ∧ p > 1) :
   ∀ k1 k2, 1 ≤ k1 → k1 ≤ k2 → M p k2 ≤ M p k1 := by
     intros k1 k2 hk1 hk2
-    induction' hk2 with k hk ih;
+    induction hk2
     · rfl;
-    · rcases k with ( _ | _ | k ) <;> simp_all +decide [ M ];
+    · rename_i k hk ih
+      rcases k with ( _ | _ | k ) <;> simp_all +decide [ M ];
       · grind;
       · refine' le_trans _ ih;
         exact Nat.log2_le_self (M p (k + 2))
@@ -1404,7 +1417,8 @@ theorem lemma_used_s_final_v2_sum_le (p n : ℕ) (hp : Odd p ∧ p > 1) (k : ℕ
         rw [ decompose_even_pow2 ];
         have h_sum_le : ∀ n : ℕ, n > 1 → (List.map (fun x => 2 ^ x) (n).bitIndices).toFinset.sum id ≤ n := by
           intro n hn;
-          induction' n using Nat.strong_induction_on with n ih;
+          induction n using Nat.strong_induction_on
+          rename_i n ih
           rcases Nat.even_or_odd' n with ⟨ c, rfl | rfl ⟩ <;> simp_all +decide [ Nat.pow_succ' ];
           · rcases c with ( _ | _ | c ) <;> simp_all +arith +decide;
             rw [ show ( List.map ( ( fun x => 2 ^ x ) ∘ fun x => x + 1 ) ( c + 2 ).bitIndices ).toFinset = Finset.image ( fun x => 2 ^ ( x + 1 ) ) ( List.toFinset ( List.map ( fun x => x ) ( c + 2 ).bitIndices ) ) from ?_ ];
@@ -1722,9 +1736,10 @@ theorem lemma_c_step_final_eq_init_plus_card (p n : ℕ) (hp : Odd p ∧ p > 1) 
     revert i j h_ge;
     -- Let's prove the main theorem by induction on j.
     intro j
-    induction' j with j ih;
+    induction j
     · unfold contributing_s_final_v2_up_to; aesop;
-    · intro i hi;
+    · rename_i j ih
+      intro i hi;
       -- By definition of `c_step_final_v2`, we have:
       have h_step : c_step_final_v2 p n hp (j + 1) i = c_step_final_v2 p n hp j i + (if ∃ s ∈ used_s_final_v2 p n hp j, target_index p j s = i then 1 else 0) := by
         rw [ show c_step_final_v2 p n hp ( j + 1 ) = step_transform_final_v2 p n hp ( c_step_final_v2 p n hp j ) j from rfl ];
@@ -1913,9 +1928,10 @@ theorem lemma_target_scalar_properties (p n : ℕ) (hp : Odd p ∧ p > 1) (j : �
         contrapose! h_interval;
         have h_interval : ∀ x, 1 ≤ x → x ≤ K p → j' ≥ v p n hp x := by
           intros x hx1 hx2
-          induction' x with x ih;
+          induction x
           · contradiction;
-          · grind +ring;
+          · rename_i x ih
+            grind +ring;
         exact h_interval _ ( by linarith ) ( by linarith );
       obtain ⟨ k', hk₁, hk₂, hk₃, hk₄ ⟩ := h_interval; use k'; unfold in_interval_final; aesop;
     -- Since $j'$ is in some interval $k'$, we have $k' \ge k-1$ and $k' \le k$.
@@ -2234,9 +2250,10 @@ theorem lemma_coeff_bound_final_step (p n : ℕ) (hp : Odd p ∧ p > 1) (hn : n 
       have h_coeff_bound_lt_j : c_step_final_v2 p n hp j i = c_step_final_v2 p n hp (i + 1) i := by
         have h_coeff_bound_lt_j : ∀ j' ≥ i + 1, c_step_final_v2 p n hp j' i = c_step_final_v2 p n hp (i + 1) i := by
           intro j' hj'
-          induction' hj' with j' hj' ih;
+          induction hj'
           · rfl;
-          · rw [ ← ih, show c_step_final_v2 p n hp ( j' + 1 ) i = c_step_final_v2 p n hp j' i from ?_ ];
+          · rename_i j' hj' ih
+            rw [ ← ih, show c_step_final_v2 p n hp ( j' + 1 ) i = c_step_final_v2 p n hp j' i from ?_ ];
             have h_coeff_bound_lt_j : c_step_final_v2 p n hp (j' + 1) i = c_step_final_v2 p n hp j' i + if ∃ s ∈ used_s_final_v2 p n hp j', target_index p j' s = i then 1 else 0 := by
               exact lemma_c_step_final_succ_eq p n hp j' i ( by aesop );
             rw [ h_coeff_bound_lt_j, if_neg ];
@@ -2253,7 +2270,8 @@ The invariant holds for all steps j.
 theorem lemma_invariant_final_holds (p n : ℕ) (hp : Odd p ∧ p > 1) (hn : n > 0) (j : ℕ) :
   Lemma3_invariant_final p n hp j := by
     -- We proceed by strong induction on $j$.
-    induction' j using Nat.strong_induction_on with j ih;
+    induction j using Nat.strong_induction_on
+    rename_i j ih
     -- Apply the lemma that states the coefficient bound holds for j if it holds for all previous steps.
     have h_coeff_bound : CoeffBound_final p n hp j := by
       apply lemma_coeff_bound_final_step p n hp hn j;
@@ -2299,9 +2317,10 @@ theorem lemma_c_final_v2_le_one (p n : ℕ) (hp : Odd p ∧ p > 1) (hn : n > 0) 
     convert h_step using 1;
     have h_stable : ∀ j ≥ i + 1, c_step_final_v2 p n hp j i = c_step_final_v2 p n hp (i + 1) i := by
       intro j hj
-      induction' hj with j hj ih;
+      induction hj
       · exact rfl;
-      · rw [ ← ih, lemma_c_step_final_v2_stable ] ; aesop;
+      · rename_i j hj ih
+        rw [ ← ih, lemma_c_step_final_v2_stable ] ; aesop;
     exact h_stable _ ( Nat.succ_le_of_lt hi )
 
 /-
@@ -2349,9 +2368,10 @@ theorem lemma_c_final_v2_eq_zero_of_lt_m_sub_1 (p n : ℕ) (hp : Odd p ∧ p > 1
     -- By definition of `final_step_index`, we know that `final_step_index > i`, so `c_step_final_v2` is stable for `j > i`.
     have h_stable : ∀ j ≥ i + 1, c_step_final_v2 p n hp j i = c_step_final_v2 p n hp (i + 1) i := by
       intro j hj
-      induction' hj with j hj ih;
+      induction hj
       · rfl;
-      · rw [ ← ih, lemma_c_step_final_v2_stable ] ; aesop;
+      · rename_i j hj ih
+        rw [ ← ih, lemma_c_step_final_v2_stable ] ; aesop;
     -- Apply the stability result to conclude that the final coefficient at index i is zero.
     have h_final_zero : c_step_final_v2 p n hp (final_step_index p n hp) i = c_step_final_v2 p n hp (i + 1) i := by
       exact h_stable _ h_final_step_gt_i;
@@ -2724,7 +2744,8 @@ For k < m - 1, the coefficient at step k is bounded and the used scalars are in 
 -/
 theorem lemma_c_step_final_v2_bound_lt_m (p n : ℕ) (hp : Odd p ∧ p > 1) (k : ℕ) (hk : k < m p n hp - 1) :
   BoundAndSubsetAt p n hp k := by
-    induction' k using Nat.strong_induction_on with k ih;
+    induction k using Nat.strong_induction_on
+    rename_i k ih
     have h_coeff_bound : c_step_final_v2 p n hp k k ≤ M_0 p + (S p).card := by
       apply lemma_c_step_final_v2_bound_lt_m_step p n hp k hk;
       exact fun j hj => ih j hj ( lt_trans hj hk );
@@ -2735,9 +2756,10 @@ The sequence a_seq grows at least linearly.
 -/
 theorem lemma_a_seq_ge_succ (p : ℕ) (hp : p > 1) (n : ℕ) : a_seq p n >= n + 1 := by
   -- We proceed by induction on $n$.
-  induction' n with n ih;
+  induction n
   · exact Nat.one_le_iff_ne_zero.mpr ( by exact ne_of_gt ( a_seq_pos p hp 0 ) );
-  · exact Nat.succ_le_of_lt ( lt_of_le_of_lt ih ( a_seq_strict_mono p hp ( Nat.lt_succ_self n ) ) )
+  · rename_i n ih
+    exact Nat.succ_le_of_lt ( lt_of_le_of_lt ih ( a_seq_strict_mono p hp ( Nat.lt_succ_self n ) ) )
 
 /-
 The initial coefficient is zero for indices greater than or equal to R + m.
@@ -2824,9 +2846,10 @@ theorem lemma_sum_at_step_final (p n : ℕ) (hp : Odd p ∧ p > 1) (hn : n > 0) 
     have h_ind : ∀ k ≤ final_step_index p n hp, sum_at_step p n hp k = n := by
       -- We proceed by induction on $k$.
       intro k hk
-      induction' k with k ih;
+      induction k
       · exact lemma_sum_at_step_zero p n hp hn;
-      · exact Eq.trans ( lemma_sum_at_step_succ p n hp hn k ( Nat.lt_of_succ_le hk ) ) ( ih ( Nat.le_of_succ_le hk ) );
+      · rename_i k ih
+        exact Eq.trans ( lemma_sum_at_step_succ p n hp hn k ( Nat.lt_of_succ_le hk ) ) ( ih ( Nat.le_of_succ_le hk ) );
     exact h_ind _ le_rfl
 
 /-
