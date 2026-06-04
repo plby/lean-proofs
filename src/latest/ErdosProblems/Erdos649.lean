@@ -299,16 +299,16 @@ lemma jacobi_of_factor_le_p (p q l : ℕ) (hp : p.Prime) (hq : q.Prime) (hl : l.
 If (l/q)=1 for all prime factors l of n, then (n/q)=1.
 -/
 set_option linter.flexible false in
-set_option linter.style.induction false in
 lemma jacobi_eq_one_of_prime_factors_eq_one {n q : ℕ} (hn : n ≠ 0)
     (h : ∀ l, l.Prime → l ∣ n → jacobiSym l q = 1) : jacobiSym n q = 1 := by
-      induction' n using Nat.strongRecOn with n ih;
-      by_cases h₁ : n = 1;
-      · aesop;
-      · obtain ⟨ l, hl₁, hl₂ ⟩ := Nat.exists_prime_and_dvd h₁;
-        obtain ⟨ k, rfl ⟩ := hl₂; simp_all +decide [ jacobiSym.mul_left ] ;
-        exact ih k ( lt_mul_of_one_lt_left ( Nat.pos_of_ne_zero hn.2 ) hl₁.one_lt )
-          hn.2 fun p hp hpk => h p hp ( dvd_mul_of_dvd_right hpk _ )
+      induction n using Nat.strongRecOn with
+      | ind n ih =>
+        by_cases h₁ : n = 1;
+        · aesop;
+        · obtain ⟨ l, hl₁, hl₂ ⟩ := Nat.exists_prime_and_dvd h₁;
+          obtain ⟨ k, rfl ⟩ := hl₂; simp_all +decide [ jacobiSym.mul_left ] ;
+          exact ih k ( lt_mul_of_one_lt_left ( Nat.pos_of_ne_zero hn.2 ) hl₁.one_lt )
+            hn.2 fun p hp hpk => h p hp ( dvd_mul_of_dvd_right hpk _ )
 
 /-
 If P(n)=p and q = -1 mod 4p#, then (n/q) = 1.
@@ -449,7 +449,6 @@ lemma P_eq_two_iff_pow_two {m : ℕ} (hm : m ≠ 0) : P m = 2 ↔ ∃ k > 0, m =
 /-
 If $18 \mid k$, then $73 \mid 2^k - 1$.
 -/
-set_option linter.style.induction false in
 lemma seventy_three_dvd_two_pow_sub_one_of_eighteen_dvd {k : ℕ} (hk : 18 ∣ k) :
     73 ∣ 2 ^ k - 1 := by
   -- Since $18 \mid k$, we can write $k = 18m$ for some integer $m$.
@@ -457,9 +456,12 @@ lemma seventy_three_dvd_two_pow_sub_one_of_eighteen_dvd {k : ℕ} (hk : 18 ∣ k
   rw [ pow_mul ] ;
   erw [ ← Nat.mod_add_div ( 2 ^ 18 ) 73 ] ;
   norm_num [ Nat.pow_mod, Nat.add_mod, Nat.mul_mod ] ;
-  induction' m with m IH <;>
+  induction m with
+  | zero =>
     norm_num [ pow_succ, pow_mul, Nat.mul_mod, Nat.pow_mod ] at * ;
-  omega;
+  | succ m IH =>
+    norm_num [ pow_succ, pow_mul, Nat.mul_mod, Nat.pow_mod ] at * ;
+    omega;
 
 /-
 If $2^k \equiv 1 \pmod{19}$, then $18 \mid k$.
