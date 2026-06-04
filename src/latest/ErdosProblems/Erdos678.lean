@@ -29,7 +29,6 @@ namespace Erdos678
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.induction false
 set_option linter.style.refine false
 set_option linter.style.multiGoal false
 set_option linter.style.cases false
@@ -139,9 +138,11 @@ lemma valuation_prod_div_lcm (S : Finset ℕ) (p : ℕ) (e : ℕ)
     have h_val_prod : padicValNat p (Finset.prod S id) = ∑ i ∈ S, padicValNat p i := by
       have h_padic_prod : ∀ (l : List ℕ), (∀ i ∈ l, i ≠ 0) → padicValNat p (List.prod l) = List.sum (List.map (fun i => padicValNat p i) l) := by
         intros l hl_nonzero
-        induction' l with i l ih;
-        · simp [padicValNat_one_right];
-        · by_cases hi : i = 0 <;> by_cases hl : l.prod = 0 <;> simp_all +decide [ padicValNat.mul ];
+        induction l with
+        | nil =>
+          simp [padicValNat_one_right];
+        | cons i l ih =>
+          by_cases hi : i = 0 <;> by_cases hl : l.prod = 0 <;> simp_all +decide [ padicValNat.mul ];
           norm_num [ ← ih ] at *;
           exact False.elim <| hl_nonzero.2 0 hl rfl;
       convert h_padic_prod ( S.toList ) _ ; aesop;
@@ -150,9 +151,11 @@ lemma valuation_prod_div_lcm (S : Finset ℕ) (p : ℕ) (e : ℕ)
     have h_val_lcm : padicValNat p (Finset.lcm S id) = Finset.sup S (padicValNat p) := by
       have h_val_lcm : ∀ {T : Finset ℕ}, (∀ i ∈ T, i ≠ 0) → padicValNat p (Finset.lcm T id) = Finset.sup T (padicValNat p) := by
         intros T hT_nonzero
-        induction' T using Finset.induction with i T hiT ih;
-        · aesop;
-        · -- By definition of lcm, we have $\text{lcm}(i, \text{lcm}(T)) = \frac{i \cdot \text{lcm}(T)}{\gcd(i, \text{lcm}(T))}$.
+        induction T using Finset.induction with
+        | empty =>
+          aesop;
+        | insert i T hiT ih =>
+          -- By definition of lcm, we have $\text{lcm}(i, \text{lcm}(T)) = \frac{i \cdot \text{lcm}(T)}{\gcd(i, \text{lcm}(T))}$.
           have h_lcm_def : padicValNat p (Nat.lcm i (Finset.lcm T id)) = max (padicValNat p i) (padicValNat p (Finset.lcm T id)) := by
             haveI := Fact.mk hp; rw [ ← Nat.factorization_def, ← Nat.factorization_def, Nat.factorization_lcm ] <;> simp_all +decide [ Nat.factorization_eq_zero_iff ] ;
             simp_all +decide [ Nat.factorization ];
@@ -277,9 +280,11 @@ lemma padicValNat_lcm_range (k p : ℕ) (hp : p.Prime) (hk : k ≥ 1) :
     -- The p-adic valuation of the least common multiple of a set of numbers is the maximum of the p-adic valuations of those numbers.
     have h_lcm_val : ∀ {S : Finset ℕ}, (∀ i ∈ S, i ≠ 0) → padicValNat p (Finset.lcm S id) = Finset.sup S (padicValNat p) := by
       intros S hS_nonzero
-      induction' S using Finset.induction with i S hiS ih;
-      · simp +decide [ Nat.lcm ];
-      · -- By definition of lcm, we know that $v_p(\text{lcm}(i, S)) = \max(v_p(i), v_p(\text{lcm}(S)))$.
+      induction S using Finset.induction with
+      | empty =>
+        simp +decide [ Nat.lcm ];
+      | insert i S hiS ih =>
+        -- By definition of lcm, we know that $v_p(\text{lcm}(i, S)) = \max(v_p(i), v_p(\text{lcm}(S)))$.
         have h_lcm_def : padicValNat p (Nat.lcm i (Finset.lcm S id)) = max (padicValNat p i) (padicValNat p (Finset.lcm S id)) := by
           haveI := Fact.mk hp;
           rw [ ← Nat.factorization_def, ← Nat.factorization_def, ← Nat.factorization_def ];
@@ -1049,9 +1054,13 @@ lemma m_dvd_M_prime (k p1 p2 : ℕ) (hp1 : p1.Prime) (hp2 : p2.Prime) (hp_ne : p
     have h_coprime_divisors : ∀ p q : ℕ, p ∈ (Finset.Icc 1 k).filter (fun p => p.Prime ∧ p * p ≤ k) → q ∈ (Finset.Icc 1 k).filter (fun p => p.Prime ∧ p * p ≤ k) → p ≠ q → Nat.Coprime (p ^ ((M k).factorization p)) (q ^ ((M k).factorization q)) := by
       intros p q hp hq hpq; exact Nat.coprime_pow_primes _ _ ( by aesop ) ( by aesop ) ( by aesop ) ;
     have h_prod_coprime_divisors : ∀ {S : Finset ℕ}, (∀ p ∈ S, p ∈ (Finset.Icc 1 k).filter (fun p => p.Prime ∧ p * p ≤ k)) → (∀ p ∈ S, ∀ q ∈ S, p ≠ q → Nat.Coprime (p ^ ((M k).factorization p)) (q ^ ((M k).factorization q))) → (∏ p ∈ S, p ^ ((M k).factorization p)) ∣ M_prime k p1 p2 := by
-      intros S hS h_coprime; induction' S using Finset.induction with p S hS ih; aesop;
-      rw [ Finset.prod_insert ‹p ∉ S› ];
-      exact Nat.Coprime.mul_dvd_of_dvd_of_dvd ( by exact Nat.Coprime.prod_right fun q hq => h_coprime p ( Finset.mem_insert_self _ _ ) q ( Finset.mem_insert_of_mem hq ) <| by aesop ) ( h_div_M p ( hS p <| Finset.mem_insert_self _ _ ) <| h_div p ( hS p <| Finset.mem_insert_self _ _ ) ) ( ih ( fun q hq => hS q <| Finset.mem_insert_of_mem hq ) ( fun q hq r hr hqr => h_coprime q ( Finset.mem_insert_of_mem hq ) r ( Finset.mem_insert_of_mem hr ) hqr ) );
+      intros S hS h_coprime
+      induction S using Finset.induction with
+      | empty =>
+        aesop
+      | insert p S hpS ih =>
+        rw [ Finset.prod_insert hpS ];
+        exact Nat.Coprime.mul_dvd_of_dvd_of_dvd ( by exact Nat.Coprime.prod_right fun q hq => h_coprime p ( Finset.mem_insert_self _ _ ) q ( Finset.mem_insert_of_mem hq ) <| by aesop ) ( h_div_M p ( hS p <| Finset.mem_insert_self _ _ ) <| h_div p ( hS p <| Finset.mem_insert_self _ _ ) ) ( ih ( fun q hq => hS q <| Finset.mem_insert_of_mem hq ) ( fun q hq r hr hqr => h_coprime q ( Finset.mem_insert_of_mem hq ) r ( Finset.mem_insert_of_mem hr ) hqr ) );
     exact h_prod_coprime_divisors ( fun p hp => hp ) ( fun p hp q hq hpq => h_coprime_divisors p q hp hq hpq )
 
 /-
@@ -2107,10 +2116,12 @@ lemma lcm_le_pow (x k : ℕ) : (Finset.Icc x (x + k - 1)).lcm id ≤ (x + k) ^ k
   -- The least common multiple (LCM) of a set of numbers is at most their product.
   have h_lcm_le_prod : ∀ (S : Finset ℕ), (S.lcm id) ≤ S.prod id := by
     intro S
-    induction' S using Finset.induction with p S ih;
-    · norm_num +zetaDelta at *;
-    · rw [ Finset.lcm_insert, Finset.prod_insert ih ];
-      exact Nat.le_trans ( Nat.div_le_self _ _ ) ( Nat.mul_le_mul_left _ ‹_› );
+    induction S using Finset.induction with
+    | empty =>
+      norm_num +zetaDelta at *;
+    | insert p S hpS ih =>
+      rw [ Finset.lcm_insert, Finset.prod_insert hpS ];
+      exact Nat.le_trans ( Nat.div_le_self _ _ ) ( Nat.mul_le_mul_left _ ih );
   refine le_trans ( h_lcm_le_prod _ ) ?_;
   rcases k with ( _ | k );
   · cases x <;> simp [Finset.prod_range_succ'];
