@@ -22,7 +22,6 @@ open scoped Nat
 
 set_option maxHeartbeats 50000000
 set_option linter.flexible false
-set_option linter.style.induction false
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
@@ -101,7 +100,11 @@ Proposition 2.1(1): Explicit formula for f_{u,r}(x).
 -/
 theorem prop_symbolic_1 (r : ℝ) (u : List (Fin 2)) (x : ℝ) :
     f_word u r x = (1 - r) * (∑ k ∈ Finset.range u.length, ((u[k]?).getD 0 : ℝ) * r ^ k) + r ^ u.length * x := by
-      induction' u with hd tl ih generalizing x <;> simp_all +decide [ pow_succ', Finset.mul_sum, Finset.sum_range_succ', f_word ] ; ring_nf at *;
+      induction u generalizing x with
+      | nil =>
+        simp [ f_word ]
+      | cons hd tl ih =>
+      simp_all +decide [ pow_succ', Finset.mul_sum, Finset.sum_range_succ', f_word ] ; ring_nf at *;
       unfold f; fin_cases hd <;> norm_num [ Finset.mul_sum _ _ _, mul_assoc ] <;> ring_nf;
       · simpa [ mul_add, mul_sub, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _, Finset.sum_add_distrib ] using by ring_nf;
       · simpa [ Finset.mul_sum _ _ _, mul_add, mul_assoc, mul_left_comm, Finset.sum_add_distrib ] using by ring_nf;
@@ -246,9 +249,11 @@ The map f_u is injective.
 -/
 theorem f_word_injective (r : ℝ) (hr : r ≠ 0) (u : List (Fin 2)) :
     Function.Injective (f_word u r) := by
-      induction' u with i u ih;
-      · exact Function.injective_id;
-      · -- By definition of $f_word$, we have $f_word (i :: u) r = f i r ∘ f_word u r$.
+      induction u with
+      | nil =>
+        exact Function.injective_id;
+      | cons i u ih =>
+        -- By definition of $f_word$, we have $f_word (i :: u) r = f i r ∘ f_word u r$.
         have h_f_word_cons : f_word (i :: u) r = f i r ∘ f_word u r := by
           exact rfl;
         unfold f at *;
@@ -259,9 +264,11 @@ Distinct words of the same length correspond to disjoint intervals.
 -/
 theorem disjoint_I_word (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (n : ℕ) (u v : List (Fin 2)) (hu : u ∈ Sigma_n n) (hv : v ∈ Sigma_n n) (hdiff : u ≠ v) :
     Disjoint (I_word u r) (I_word v r) := by
-      induction' n with n ih generalizing u v;
-      · cases u <;> cases v <;> simp_all +decide [ Sigma_n ];
-      · -- If u and v start with the same symbol, say u = i :: u' and v = i :: v', then by the induction hypothesis, I_word u' r and I_word v' r are disjoint. Since f_i is injective, applying f_i to these intervals will give disjoint intervals.
+      induction n generalizing u v with
+      | zero =>
+        cases u <;> cases v <;> simp_all +decide [ Sigma_n ];
+      | succ n ih =>
+        -- If u and v start with the same symbol, say u = i :: u' and v = i :: v', then by the induction hypothesis, I_word u' r and I_word v' r are disjoint. Since f_i is injective, applying f_i to these intervals will give disjoint intervals.
         by_cases h_start : u.head! = v.head!;
         · obtain ⟨i, u', v', hu', hv', huv'⟩ : ∃ i : Fin 2, ∃ u' v' : List (Fin 2), u = i :: u' ∧ v = i :: v' ∧ u' ≠ v' := by
             rcases u with ( _ | ⟨ i, u ⟩ ) <;> rcases v with ( _ | ⟨ j, v ⟩ ) <;> simp_all +decide [ Sigma_n ];
@@ -288,7 +295,12 @@ theorem disjoint_I_word (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (n : ℕ) (u v : Li
               obtain ⟨ y, hy, rfl ⟩ := hx;
               -- By definition of $f_word$, we know that $f_word u' r y$ is in the interval $[0, 1]$.
               have h_f_word_u'_r_y : ∀ u : List (Fin 2), ∀ r : ℝ, 0 < r ∧ r < 1 / 2 → ∀ y ∈ Set.Icc 0 1, f_word u r y ∈ Set.Icc 0 1 := by
-                intros u r hr y hy; induction' u with i u ih generalizing y <;> simp_all +decide [ f_word ] ;
+                intros u r hr y hy
+                induction u generalizing y with
+                | nil =>
+                  simp_all +decide [ f_word ]
+                | cons i u ih =>
+                simp_all +decide [ f_word ] ;
                 unfold f; fin_cases i <;> norm_num at * <;> constructor <;> nlinarith [ ih _ hy.1 hy.2 ] ;
               simp_all only [Set.mem_Icc, one_div, and_imp, Set.mem_preimage, Set.mem_image]
               obtain ⟨left_1, right_1⟩ := hy
@@ -304,7 +316,12 @@ theorem disjoint_I_word (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (n : ℕ) (u v : Li
               intro x hx; obtain ⟨ y, hy, rfl ⟩ := hx; exact (by
               -- By definition of $f_word$, we know that $f_word v' r y$ is in the interval $[0, 1]$.
               have h_f_word_v'_r_y : ∀ (v' : List (Fin 2)) (y : ℝ), y ∈ Set.Icc 0 1 → f_word v' r y ∈ Set.Icc 0 1 := by
-                intro v' y hy; induction' v' with i v' ih generalizing y <;> simp_all +decide [ f_word ] ;
+                intro v' y hy
+                induction v' generalizing y with
+                | nil =>
+                  simp_all +decide [ f_word ]
+                | cons i v' ih =>
+                simp_all +decide [ f_word ] ;
                 unfold f; fin_cases i <;> norm_num at * <;> constructor <;> nlinarith [ ih _ hy.1 hy.2 ] ;
               simp_all only [Set.mem_Icc, and_imp, Set.mem_preimage, Set.mem_image]
               obtain ⟨left_1, right_1⟩ := hy
@@ -375,13 +392,16 @@ theorem pi_code_of_mem_C (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (x : ℝ) (hx : x 
         generalize_proofs at *; (
         have h_subset_induction : ∀ k ≥ n, u_n n = (u_n k).take n := by
           intro k hk
-          induction' hk with k hk ih
-          generalize_proofs at *; (
-          have := Classical.choose_spec ( ‹∀ n : ℕ, ∃ x_1 : List ( Fin 2 ), ( fun u : List ( Fin 2 ) => u ∈ Sigma_n n ∧ x ∈ I_word u r ) x_1 ∧ ∀ y : List ( Fin 2 ), y ∈ Sigma_n n ∧ x ∈ I_word y r → y = x_1› n ) |>.1.1; aesop;);
-          have h_subset_step : u_n k = (u_n (k + 1)).take k := by
-            exact Eq.symm (compatible_words_of_mem_C r hr x hx k)
-          generalize_proofs at *; (
-          rw [ ih, h_subset_step, List.take_take ] ; aesop;)
+          induction hk with
+          | refl =>
+            generalize_proofs at *; (
+            have := Classical.choose_spec ( ‹∀ n : ℕ, ∃ x_1 : List ( Fin 2 ), ( fun u : List ( Fin 2 ) => u ∈ Sigma_n n ∧ x ∈ I_word u r ) x_1 ∧ ∀ y : List ( Fin 2 ), y ∈ Sigma_n n ∧ x ∈ I_word y r → y = x_1› n ) |>.1.1; aesop;)
+          | step hk ih =>
+            rename_i k
+            have h_subset_step : u_n k = (u_n (k + 1)).take k := by
+              exact Eq.symm (compatible_words_of_mem_C r hr x hx k)
+            generalize_proofs at *; (
+            rw [ ih, h_subset_step, List.take_take ] ; aesop;)
         generalize_proofs at *; (
         exact h_subset_induction m hnm ▸ rfl))
       have hu_n_limit : ∀ n, x ∈ I_word (u_n n) r := by
@@ -1334,7 +1354,12 @@ lemma dist_I_word_ge (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (n : ℕ)
         obtain ⟨w, hw⟩ : ∃ w : List (Fin 2), u = w ++ [0] ++ u.drop (k + 1) ∧ v = w ++ [1] ++ v.drop (k + 1) := by
           have h_split : u = u.take k ++ [u[k]!] ++ u.drop (k + 1) ∧ v = v.take k ++ [v[k]!] ++ v.drop (k + 1) := by
             have h_split : ∀ (l : List (Fin 2)) (k : ℕ), k < l.length → l = l.take k ++ [l[k]!] ++ l.drop (k + 1) := by
-              intros l k hk; induction' l with hd tl ih generalizing k <;> aesop;
+              intros l k hk
+              induction l generalizing k with
+              | nil =>
+                aesop
+              | cons hd tl ih =>
+                aesop
             exact ⟨ h_split u k ( by linarith [ hu.symm ] ), h_split v k ( by linarith [ hv.symm ] ) ⟩;
           have h_take_eq : List.take k u = List.take k v := by
             refine' List.ext_get _ _ <;> simp +decide
@@ -1361,9 +1386,11 @@ lemma dist_I_word_ge (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (n : ℕ)
         have h_subset : I_word u r ⊆ I_word (w ++ [0]) r ∧ I_word v r ⊆ I_word (w ++ [1]) r := by
           have h_subset : ∀ (u v : List (Fin 2)), I_word (u ++ v) r ⊆ I_word u r := by
             intros u v; exact (by
-            induction' v using List.reverseRecOn with v ih;
-            · simp +decide [ I_word ];
-            · convert Set.Subset.trans ( I_word_subset_of_append r hr ( u ++ v ) ih ) ‹I_word ( u ++ v ) r ⊆ I_word u r› using 1;
+            induction v using List.reverseRecOn with
+            | nil =>
+              simp +decide [ I_word ];
+            | append_singleton v x ih =>
+              convert Set.Subset.trans ( I_word_subset_of_append r hr ( u ++ v ) x ) ih using 1;
               simp +decide [ List.append_assoc ]);
           exact ⟨ hw.1 ▸ h_subset _ _, hw.2 ▸ h_subset _ _ ⟩;
         -- Since $w.length = k$, we have $r^w.length = r^k$.
@@ -1751,7 +1778,12 @@ lemma N_delta_ge_two_pow (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (n : ℕ) (δ : �
                 unfold C_n at hx; aesop;
               obtain ⟨ y, hy, rfl ⟩ := hu.2;
               have h_f_word_bounds : ∀ u : List (Fin 2), ∀ y ∈ Set.Icc 0 1, f_word u r y ∈ Set.Icc 0 1 := by
-                intro u y hy; induction' u with i u ih generalizing y <;> simp_all +decide [ f_word ] ;
+                intro u y hy
+                induction u generalizing y with
+                | nil =>
+                  simp_all +decide [ f_word ]
+                | cons i u ih =>
+                simp_all +decide [ f_word ] ;
                 unfold f; fin_cases i <;> norm_num at * <;> constructor <;> nlinarith [ ih _ hy.1 hy.2 ] ;
               exact h_f_word_bounds u y hy;
             exact isCompact_Icc.isBounded.subset ( Set.iInter_subset_of_subset 0 <| h_bounded 0 )
