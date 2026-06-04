@@ -35,7 +35,6 @@ Formalization of the disproof of a question by Erdős and Ingham regarding the n
 import Mathlib
 
 set_option linter.style.longLine false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 set_option aesop.warn.nonterminal false
@@ -254,8 +253,12 @@ lemma construction_disjoint (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) (k l : �
       -- Since $a \in S_k$, we have $a \leq M_k$ by definition of $M_k$.
       have h_ak_le_Mk : a ≤ (construction_seq t ht lambda_val k).2.2 := by
         have h_def : ∀ n ∈ (construction_seq t ht lambda_val k).1, n ≤ (construction_seq t ht lambda_val k).2.2 := by
-          induction' k with k ih <;> simp_all +decide [ construction_seq ];
-          exact fun n hn => Or.inr <| Finset.le_sup ( f := id ) hn
+          induction k with
+          | zero =>
+            simp_all +decide [ construction_seq ]
+          | succ k ih =>
+            simp_all +decide [ construction_seq ]
+            exact fun n hn => Or.inr <| Finset.le_sup ( f := id ) hn
         exact h_def a a_1;
       exact h_ak_le_Mk
     have h_al : a ≥ (construction_seq t ht lambda_val (l - 1)).2.2 + 1 := by
@@ -331,8 +334,16 @@ lemma sum_recip_bounded (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
     have h_rem_summable : Summable (fun k => ‖rem_seq t ht lambda_val (k + K)‖) := by
       -- Since $|rem_k|$ is non-increasing and converges to $0$, we can apply the comparison test with the geometric series $\sum_{k=0}^{\infty} (1/2)^k$.
       have h_comparison : ∀ k, ‖rem_seq t ht lambda_val (k + K)‖ ≤ ‖rem_seq t ht lambda_val K‖ * (1 / 2) ^ k := by
-        intro k; induction' k with k ih <;> norm_num [ pow_succ, ← mul_assoc ] at *;
-        cases h_rem_recurrence ( k + K ) <;> rw [ Nat.succ_add ] at * <;> nlinarith [ hK ( k + K ) ( by linarith ), hK ( k + K + 1 ) ( by linarith ), inv_pos.mpr ( show 0 < ( 2 + 2 * ‖1 + Complex.I * t‖ ) by positivity ) ];
+        intro k
+        induction k with
+        | zero =>
+          norm_num [ pow_succ, ← mul_assoc ] at *
+        | succ k ih =>
+          norm_num [ pow_succ, ← mul_assoc ] at *
+          cases h_rem_recurrence ( k + K ) <;> rw [ Nat.succ_add ] at * <;>
+            nlinarith [ hK ( k + K ) ( by linarith ),
+              hK ( k + K + 1 ) ( by linarith ),
+              inv_pos.mpr ( show 0 < ( 2 + 2 * ‖1 + Complex.I * t‖ ) by positivity ) ];
       exact Summable.of_nonneg_of_le ( fun k => norm_nonneg _ ) h_comparison ( Summable.mul_left _ ( summable_geometric_two ) );
     rw [ ← summable_nat_add_iff ( K + 1 ) ];
     exact Summable.of_nonneg_of_le ( fun n => Finset.sum_nonneg fun _ _ => inv_nonneg.2 <| Nat.cast_nonneg _ ) ( fun n => by simpa only [ add_comm, add_left_comm, add_assoc ] using h_sum_bound _ <| Nat.le_add_left _ _ ) h_rem_summable
@@ -342,10 +353,12 @@ The partial sum of the series over the first N+1 blocks equals lambda minus the 
 -/
 lemma partial_sum_eq (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) (N : ℕ) :
   ∑ k ∈ Finset.range (N + 1), ∑ n ∈ S_seq t ht lambda_val k, (n : ℂ) ^ (-(1 + Complex.I * t)) = lambda_val - rem_seq t ht lambda_val N := by
-    induction' N with N ih;
-    · unfold S_seq rem_seq; norm_num;
+    induction N with
+    | zero =>
+      unfold S_seq rem_seq; norm_num;
       unfold construction_seq; norm_num;
-    · -- By definition of `construction_seq`, we have `rem_seq t ht lambda_val (N + 1) = rem_seq t ht lambda_val N - ∑ n ∈ S_seq t ht lambda_val (N + 1), (n : ℂ) ^ (-(1 + Complex.I * t))`.
+    | succ N ih =>
+      -- By definition of `construction_seq`, we have `rem_seq t ht lambda_val (N + 1) = rem_seq t ht lambda_val N - ∑ n ∈ S_seq t ht lambda_val (N + 1), (n : ℂ) ^ (-(1 + Complex.I * t))`.
       have h_rem_succ : rem_seq t ht lambda_val (N + 1) = rem_seq t ht lambda_val N - ∑ n ∈ S_seq t ht lambda_val (N + 1), (n : ℂ) ^ (-(1 + Complex.I * t)) := by
         exact Complex.ext rfl rfl;
       rw [ Finset.sum_range_succ, ih, h_rem_succ ] ; ring_nf
@@ -510,7 +523,12 @@ lemma main_theorem_ge_2 (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
       rintro ( _ | k ) n hn <;> simp_all +decide [ construction_seq ];
       · exact absurd hn ( by erw [ show S_seq t ht lambda_val 0 = ∅ by rfl ] ; norm_num );
       · exact Classical.choose_spec ( step_exists t ht ( ( construction_seq t ht lambda_val k ).2.2 + 1 ) ( Nat.succ_pos _ ) ( ( construction_seq t ht lambda_val k ).2.1 ) ) |>.1 n hn;
-    exact le_trans ( Nat.succ_le_succ <| Nat.one_le_iff_ne_zero.mpr <| by induction' k - 1 with k ih <;> norm_num [ *, construction_seq ] ) ( h_M_seq k n hk )
+    exact le_trans ( Nat.succ_le_succ <| Nat.one_le_iff_ne_zero.mpr <| by
+      induction k - 1 with
+      | zero =>
+        norm_num [ *, construction_seq ]
+      | succ m ih =>
+        norm_num [ *, construction_seq ] ) ( h_M_seq k n hk )
 
 /-
 The infinite sum of the terms equals lambda.
