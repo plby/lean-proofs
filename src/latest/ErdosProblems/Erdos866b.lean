@@ -61,7 +61,6 @@ set_option linter.style.longLine false
 set_option linter.style.refine false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
-set_option linter.style.induction false
 set_option linter.style.whitespace false
 
 set_option maxHeartbeats 8000000
@@ -1111,7 +1110,8 @@ For any finset G of integers and d > 0, there exists S ⊆ G
 lemma exists_shift_independent_subset (G : Finset ℤ) (d : ℤ) (hd : 0 < d) :
     ∃ S : Finset ℤ, S ⊆ G ∧ 2 * S.card ≥ G.card ∧
       ∀ x ∈ S, x + d ∉ S := by
-        induction' G using Finset.strongInduction with G ih generalizing d;
+        induction G using Finset.strongInduction generalizing d
+        rename_i G ih
         by_cases hG : G.Nonempty;
         · -- Let $x = \min G$.
           obtain ⟨x, hx⟩ : ∃ x ∈ G, ∀ y ∈ G, y ≥ x := by
@@ -1838,9 +1838,10 @@ lemma sidon_T_bound (S : Finset ℤ) (hS : IsSidonSet S) (T : ℕ) (hT : 1 ≤ T
           have h_pair_count : Nat.choose (Y j) 2 = ∑ a ∈ Finset.filter (fun z => j - T ≤ z ∧ z < j) S_shifted, ∑ b ∈ Finset.filter (fun z => j - T ≤ z ∧ z < j) S_shifted, if a < b then 1 else 0 := by
             have h_pair_count : ∀ (s : Finset ℤ), Nat.choose s.card 2 = ∑ a ∈ s, ∑ b ∈ s, if a < b then 1 else 0 := by
               intros s
-              induction' s using Finset.induction with a s ha ih;
+              induction s using Finset.induction
               · rfl;
-              · simp_all +decide [ Finset.sum_insert ha, Nat.choose_succ_succ ];
+              · rename_i a s ha ih
+                simp_all +decide [ Finset.sum_insert ha, Nat.choose_succ_succ ];
                 simp +decide [ Finset.sum_add_distrib];
                 rw [ ← add_assoc, ← Finset.card_union_of_disjoint ];
                 · congr with x ; aesop;
@@ -2090,16 +2091,18 @@ fFun k x ≥ 1 for k ≥ 3 and x ≥ 2 (early copy).
 private lemma fFun_ge_one_early (k : ℕ) (hk : 3 ≤ k) (x : ℝ) (hx : 2 ≤ x) :
     1 ≤ fFun k x := by
   rcases k with ( _ | _ | _ | k ) <;> norm_num at *;
-  induction' k with k ih <;> norm_num [ *, fFun ] at *;
+  induction k <;> norm_num [ *, fFun ] at *
   · exact le_add_of_le_of_nonneg ( le_add_of_le_of_nonneg ( by rw [ one_le_div ( Real.sqrt_pos.mpr zero_lt_two ) ] ; exact Real.sqrt_le_sqrt hx ) ( by positivity ) ) ( by positivity );
-  · exact le_add_of_le_of_nonneg ( Real.le_sqrt_of_sq_le ( by nlinarith ) ) ( by norm_num )
+  · rename_i k ih
+    exact le_add_of_le_of_nonneg ( Real.le_sqrt_of_sq_le ( by nlinarith ) ) ( by norm_num )
 
 /-
 fFun is monotone for k ≥ 3 and x ≥ 2 (early copy).
 -/
 private lemma fFun_mono_early (k : ℕ) (hk : 3 ≤ k) (x y : ℝ)
     (hx : 2 ≤ x) (hxy : x ≤ y) : fFun k x ≤ fFun k y := by
-  induction' k using Nat.strong_induction_on with k ih generalizing x y;
+  induction k using Nat.strong_induction_on generalizing x y
+  rename_i k ih
   rcases k with ( _ | _ | _ | _ | k ) <;> simp_all +decide;
   · exact add_le_add ( add_le_add ( Real.sqrt_le_sqrt <| by gcongr ) <| Real.rpow_le_rpow ( by positivity ) ( by gcongr ) <| by positivity ) le_rfl;
   · refine' add_le_add ( Real.sqrt_le_sqrt _ ) le_rfl;
@@ -2447,15 +2450,21 @@ Monotonicity of f_k: if 2 ≤ x ≤ y then f_k(x) ≤ f_k(y) for k ≥ 3.
 -/
 lemma fFun_mono (k : ℕ) (hk : 3 ≤ k) (x y : ℝ) (hx : 2 ≤ x) (hxy : x ≤ y) :
     fFun k x ≤ fFun k y := by
-  induction' k using Nat.strong_induction_on with k ih;
+  induction k using Nat.strong_induction_on
+  rename_i k ih
   rcases k with ( _ | _ | _ | k ) <;> simp_all +decide [ fFun ];
   rcases k with ( _ | k ) <;> simp_all +decide [ fFun ];
   · gcongr;
   · -- Since $fFun (k + 3) x \geq 1$ for $x \geq 2$, we have $fFun (k + 3) x - 1 \geq 0$.
     have h_f_ge_one : 1 ≤ fFun (k + 3) x := by
-      induction' k with k ih <;> norm_num [ *, fFun ] at *;
-      · exact le_add_of_le_of_nonneg ( le_add_of_le_of_nonneg ( by rw [ one_le_div ( Real.sqrt_pos.mpr zero_lt_two ) ] ; exact Real.sqrt_le_sqrt hx ) ( by positivity ) ) ( by positivity );
-      · rename_i h; specialize h ( fun m hm₁ hm₂ => ih m ( by linarith ) hm₂ ) ; nlinarith [ Real.sqrt_nonneg ( 2 * x * fFun ( k + 3 ) x + 1 / 4 ), Real.mul_self_sqrt ( show 0 ≤ 2 * x * fFun ( k + 3 ) x + 1 / 4 by nlinarith [ show 0 ≤ fFun ( k + 3 ) x by linarith ] ) ] ;
+      induction k with
+      | zero =>
+        norm_num [ *, fFun ] at *
+        exact le_add_of_le_of_nonneg ( le_add_of_le_of_nonneg ( by rw [ one_le_div ( Real.sqrt_pos.mpr zero_lt_two ) ] ; exact Real.sqrt_le_sqrt hx ) ( by positivity ) ) ( by positivity );
+      | succ k ih =>
+        norm_num [ *, fFun ] at *
+        rename_i h
+        specialize h ( fun m hm₁ hm₂ => ih m ( by linarith ) hm₂ ) ; nlinarith [ Real.sqrt_nonneg ( 2 * x * fFun ( k + 3 ) x + 1 / 4 ), Real.mul_self_sqrt ( show 0 ≤ 2 * x * fFun ( k + 3 ) x + 1 / 4 by nlinarith [ show 0 ≤ fFun ( k + 3 ) x by linarith ] ) ] ;
     exact Real.sqrt_le_sqrt <| by nlinarith [ ih ( k + 3 ) ( by linarith ) ( by linarith ) ] ;
 
 /-
@@ -2463,7 +2472,7 @@ Sublinearity of f_k: f_k(2x) < 2 f_k(x) for k ≥ 3 and x ≥ 1
 -/
 lemma fFun_sublinear (k : ℕ) (hk : 3 ≤ k) (x : ℝ) (hx : 1 ≤ x) :
     fFun k (2 * x) < 2 * fFun k x := by
-  induction' hk with k hk ih;
+  induction hk
   · -- By simplifying, we can see that both sides of the inequality are equal when $x \geq 1$.
     simp [fFun] at *;
     rw [ Real.div_rpow ( by positivity ) ( by positivity ) ] ; ring_nf;
@@ -2471,7 +2480,8 @@ lemma fFun_sublinear (k : ℕ) (hk : 3 ≤ k) (x : ℝ) (hx : 1 ≤ x) :
     · nlinarith [ Real.sqrt_nonneg x, Real.sqrt_nonneg 2, Real.sq_sqrt zero_le_two, Real.sq_sqrt ( show 0 ≤ x by positivity ), inv_pos.2 ( Real.sqrt_pos.2 zero_lt_two ), mul_inv_cancel₀ ( ne_of_gt ( Real.sqrt_pos.2 zero_lt_two ) ), mul_pos ( Real.sqrt_pos.2 zero_lt_two ) ( Real.sqrt_pos.2 ( show 0 < x by positivity ) ) ];
     · rw [ mul_assoc ];
       exact lt_mul_of_one_lt_right ( by positivity ) ( by rw [ ← div_eq_inv_mul ] ; rw [ one_lt_div ( by positivity ) ] ; exact lt_of_lt_of_le ( Real.rpow_lt_rpow_of_exponent_lt ( by norm_num ) ( show ( 1 : ℝ ) / 4 < 1 by norm_num ) ) ( by norm_num ) );
-  · rcases k with ( _ | _ | _ | k ) <;> norm_num [ fFun ] at *;
+  · rename_i k hk ih
+    rcases k with ( _ | _ | _ | k ) <;> norm_num [ fFun ] at *;
     rw [ ← lt_sub_iff_add_lt ];
     rw [ Real.sqrt_lt' ] <;> ring_nf;
     · rw [ show 3 + k = k + 3 by ring ];
@@ -3199,17 +3209,25 @@ lemma ceslemprelim_pos_base3 (A₀ : Finset ℤ) (hne : A₀.Nonempty)
 
 private lemma fFunPos_ge_one_early (k : ℕ) (hk : 3 ≤ k) (x : ℝ) (hx : 2 ≤ x) :
     1 ≤ fFunPos k x := by
-  induction' k, Nat.succ_le_iff.mpr hk using Nat.le_induction with k ih <;> unfold fFunPos <;> norm_num at *;
-  · exact le_add_of_nonneg_of_le ( by positivity ) ( by norm_num );
-  · rcases k with ( _ | _ | _ | k ) <;> norm_num at *;
+  induction k, Nat.succ_le_iff.mpr hk using Nat.le_induction with
+  | base =>
+    unfold fFunPos
+    norm_num at *
+    exact le_add_of_nonneg_of_le ( by positivity ) ( by norm_num );
+  | succ k hk ih =>
+    unfold fFunPos
+    norm_num at *
+    rcases k with ( _ | _ | _ | k ) <;> norm_num at *;
     exact le_add_of_le_of_nonneg ( Real.le_sqrt_of_sq_le ( by nlinarith ) ) ( by norm_num )
 
 private lemma fFunPos_mono_early (k : ℕ) (hk : 3 ≤ k) (x y : ℝ)
     (hx : 2 ≤ x) (hxy : x ≤ y) :
     fFunPos k x ≤ fFunPos k y := by
-  induction' k, Nat.succ_le_iff.mpr hk using Nat.le_induction with k ih generalizing x y;
-  · unfold fFunPos; norm_num; gcongr;
-  · rcases k with ( _ | _ | _ | k ) <;> norm_num [ fFunPos ] at *;
+  induction k, Nat.succ_le_iff.mpr hk using Nat.le_induction generalizing x y with
+  | base =>
+    unfold fFunPos; norm_num; gcongr;
+  | succ k hk ih =>
+    rcases k with ( _ | _ | _ | k ) <;> norm_num [ fFunPos ] at *;
     gcongr;
     · exact le_trans ( by norm_num ) ( fFunPos_ge_one_early _ ( by linarith ) _ ( by linarith ) );
     · linarith;
@@ -3311,10 +3329,11 @@ theorem ceslemprelim_pos (k : ℕ) (hk : 3 ≤ k) (A₀ : Finset ℤ) (hne : A�
     (hcard : (A₀.card : ℝ) > fFunPos k (↑(A₀.max' hne - A₀.min' hne))) :
     HasPosSubsetSumsContaining A₀ k := by
   revert A₀;
-  induction' hk with k hk ih;
+  induction hk
   · exact fun A₀ hne heven hpos hrange hcard =>
     ceslemprelim_pos_base3 A₀ hne heven hpos hrange hcard;
-  · intro A₀ hne heven hpos hrange hcard
+  · rename_i k hk ih
+    intro A₀ hne heven hpos hrange hcard
     obtain ⟨d, hd1, hd2, hd3, hd4⟩ := ceslemgeneral_pos_pigeonhole_strong (k + 1) (by linarith [Nat.succ_le_succ hk]) A₀ hne heven hrange hcard
     obtain ⟨S, hS_sub, hS_card, hS_disj⟩ := disjoint_half_subset (A₀.filter (fun a => a + d ∈ A₀)) d (by linarith) (fFunPos k (A₀.max' hne - A₀.min' hne)) (by
     grind +qlia);
