@@ -21,7 +21,6 @@ namespace Erdos775
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.refine false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 
 /-!
@@ -294,24 +293,28 @@ theorem first_block_layered {t k C : ℕ} (T : OrderedRootedTree t)
   · have h_depth_T' : ∀ i : Fin (c₂ - 2 + 1), T'.depth i + 1 ≤ T.depth ⟨i.val + 1, by
       grind⟩ := by
       intro i
-      induction' i with i ih
+      rcases i with ⟨i, hi⟩
       generalize_proofs at *
-      induction' i using Nat.strong_induction_on with i ih
-      generalize_proofs at *
-      unfold OrderedRootedTree.depth; simp +decide [ * ]
-      split_ifs <;> simp_all +decide
-      convert ih _ _ _ _ using 1
-      all_goals generalize_proofs at *
-      · congr! 1
+      induction i using Nat.strong_induction_on with
+      | h i ih =>
         generalize_proofs at *
-        exact Eq.symm ( Fin.ext <| Nat.succ_pred_eq_of_pos <| Nat.pos_of_ne_zero <| by
-          exact fun h =>
-            h_no_child ( i + 1 )
-              ( Nat.succ_lt_succ ( Nat.pos_of_ne_zero ‹_› ) )
-              ( by omega ) ( by omega ) ( Fin.ext <| by aesop ) )
-      · grind
-      · exact Nat.le_of_lt_succ ( by solve_by_elim )
-      · grind +ring
+        unfold OrderedRootedTree.depth; simp +decide [ * ]
+        split_ifs <;> (simp_all +decide; try omega)
+        convert ih (T'.parent ⟨i, hi⟩).val
+          _
+          (Nat.le_of_lt_succ (T'.parent ⟨i, hi⟩).isLt)
+          (by
+            have hp_lt := (T'.parent ⟨i, hi⟩).isLt
+            omega) using 1
+        all_goals generalize_proofs at *
+        · congr! 1
+          generalize_proofs at *
+          exact Eq.symm ( Fin.ext <| Nat.succ_pred_eq_of_pos <| Nat.pos_of_ne_zero <| by
+            exact fun h =>
+              h_no_child ( i + 1 )
+                ( Nat.succ_lt_succ ( Nat.pos_of_ne_zero ‹_› ) )
+                ( by omega ) ( by omega ) ( Fin.ext <| by aesop ) )
+        · grind
     generalize_proofs at *
     linarith [
       h_depth_T' i,
@@ -500,30 +503,34 @@ lemma contractionTree_depth_le (k C : ℕ) (hT : IsKCLayeredTree (k + 1) C T)
             convert keptVertices_card T using 1
             omega) j).val := by
     intro j hj_pos
-    induction' j with j ih
+    rcases j with ⟨j, hj⟩
+    change j > 0 at hj_pos
     generalize_proofs at *
-    induction' j using Nat.strong_induction_on with j ih
+    revert hj hj_pos
+    induction j using Nat.strong_induction_on
+    rename_i j ih
+    intro hj hj_pos
     generalize_proofs at *
-    by_cases h_case : (T.parent ((keptVertices T).orderIsoOfFin ‹_› ⟨j, ih⟩).val) ∈ keptVertices T
+    by_cases h_case : (T.parent ((keptVertices T).orderIsoOfFin ‹_› ⟨j, hj⟩).val) ∈ keptVertices T
     · -- Let $p$ be the parent of $j$ in the contraction tree.
       obtain ⟨p, hp⟩ :
           ∃ p : Fin (t - T.numChildren ⟨0, Nat.zero_lt_succ t⟩ + 1),
-            (contractionTree T hm).parent ⟨j, ih⟩ = p ∧
+            (contractionTree T hm).parent ⟨j, hj⟩ = p ∧
               (keptVertices T).orderIsoOfFin ‹_› p =
-                T.parent ((keptVertices T).orderIsoOfFin ‹_› ⟨j, ih⟩).val := by
+                T.parent ((keptVertices T).orderIsoOfFin ‹_› ⟨j, hj⟩).val := by
         let φ := (keptVertices T).orderIsoOfFin ‹_›
-        refine ⟨φ.symm ⟨T.parent (φ ⟨j, ih⟩).val, h_case⟩, ?_, ?_⟩
+        refine ⟨φ.symm ⟨T.parent (φ ⟨j, hj⟩).val, h_case⟩, ?_, ?_⟩
         · unfold contractionTree contractionParentFn
           change
-            (if h : T.parent (φ ⟨j, ih⟩).val ∈ keptVertices T then
-                φ.symm ⟨T.parent (φ ⟨j, ih⟩).val, h⟩
+            (if h : T.parent (φ ⟨j, hj⟩).val ∈ keptVertices T then
+                φ.symm ⟨T.parent (φ ⟨j, hj⟩).val, h⟩
               else 0) =
-              φ.symm ⟨T.parent (φ ⟨j, ih⟩).val, h_case⟩
+              φ.symm ⟨T.parent (φ ⟨j, hj⟩).val, h_case⟩
           split_ifs with h
           · rfl
           · exact False.elim (h h_case)
         · exact congrArg Subtype.val
-            (OrderIso.apply_symm_apply φ ⟨T.parent (φ ⟨j, ih⟩).val, h_case⟩)
+            (OrderIso.apply_symm_apply φ ⟨T.parent (φ ⟨j, hj⟩).val, h_case⟩)
       generalize_proofs at *
       by_cases hp_pos : p.val > 0
       · have h_ind :
@@ -531,18 +538,18 @@ lemma contractionTree_depth_le (k C : ℕ) (hT : IsKCLayeredTree (k + 1) C T)
               T.depth ((keptVertices T).orderIsoOfFin ‹_› p).val := by
           apply_assumption
           generalize_proofs at *
-          · have := contractionParentFn_parent_lt T hm ⟨ j, ih ⟩ hj_pos; aesop
+          · have := contractionParentFn_parent_lt T hm ⟨ j, hj ⟩ hj_pos; aesop
           · exact hp_pos
         generalize_proofs at *
         have h_depth_j :
-            (contractionTree T hm).depth ⟨j, ih⟩ =
+            (contractionTree T hm).depth ⟨j, hj⟩ =
               (contractionTree T hm).depth p + 1 := by
           rw [ ← hp.1, OrderedRootedTree.depth_pos ] ; aesop
         generalize_proofs at *
         have h_depth_j :
-            T.depth ((keptVertices T).orderIsoOfFin ‹_› ⟨j, ih⟩).val =
+            T.depth ((keptVertices T).orderIsoOfFin ‹_› ⟨j, hj⟩).val =
               T.depth
-                (T.parent ((keptVertices T).orderIsoOfFin ‹_› ⟨j, ih⟩).val) + 1 := by
+                (T.parent ((keptVertices T).orderIsoOfFin ‹_› ⟨j, hj⟩).val) + 1 := by
           apply OrderedRootedTree.depth_pos
           have h_order_iso :
               ∀ i j : Fin (t - T.numChildren ⟨0, Nat.zero_lt_succ t⟩ + 1),
@@ -552,32 +559,32 @@ lemma contractionTree_depth_le (k C : ℕ) (hT : IsKCLayeredTree (k + 1) C T)
             exact fun i j hij => ((keptVertices T).orderIsoOfFin ‹_›).strictMono hij
           generalize_proofs at *
           exact lt_of_le_of_lt ( Nat.zero_le _ )
-            ( h_order_iso ⟨ 0, by linarith ⟩ ⟨ j, ih ⟩
+            ( h_order_iso ⟨ 0, by linarith ⟩ ⟨ j, hj ⟩
               ( Nat.pos_of_ne_zero ( by aesop ) ) )
         generalize_proofs at *
         grind +ring
       · have h_contra :
-            T.parent ((keptVertices T).orderIsoOfFin ‹_› ⟨j, ih⟩).val =
+            T.parent ((keptVertices T).orderIsoOfFin ‹_› ⟨j, hj⟩).val =
               ⟨0, Nat.zero_lt_succ t⟩ := by
           grind +suggestions
         generalize_proofs at *
-        have h_contra : ((keptVertices T).orderIsoOfFin ‹_› ⟨j, ih⟩).val > 0 := by
+        have h_contra : ((keptVertices T).orderIsoOfFin ‹_› ⟨j, hj⟩).val > 0 := by
           have h_contra :
-              ((keptVertices T).orderIsoOfFin ‹_› ⟨j, ih⟩).val >
+              ((keptVertices T).orderIsoOfFin ‹_› ⟨j, hj⟩).val >
                 ((keptVertices T).orderIsoOfFin ‹_› ⟨0, by omega⟩).val := by
             exact ( keptVertices T ).orderIsoOfFin ‹_› |>.strictMono hj_pos
           generalize_proofs at *
           exact lt_of_le_of_lt ( Nat.zero_le _ ) h_contra
         generalize_proofs at *
         grind +locals
-    · have h_contra : (contractionTree T hm).depth ⟨j, ih⟩ = 1 := by
+    · have h_contra : (contractionTree T hm).depth ⟨j, hj⟩ = 1 := by
         rw [ OrderedRootedTree.depth_pos ] <;> norm_num [ h_case ]
         · convert OrderedRootedTree.depth_root ( contractionTree T hm ) using 1
           generalize_proofs at *
           unfold contractionTree contractionParentFn; aesop
         · exact hj_pos
-      have h_contra : T.depth (T.parent ((keptVertices T).orderIsoOfFin ‹_› ⟨j, ih⟩).val) ≥ 1 := by
-        have h_contra : (T.parent ((keptVertices T).orderIsoOfFin ‹_› ⟨j, ih⟩).val).val ≠ 0 := by
+      have h_contra : T.depth (T.parent ((keptVertices T).orderIsoOfFin ‹_› ⟨j, hj⟩).val) ≥ 1 := by
+        have h_contra : (T.parent ((keptVertices T).orderIsoOfFin ‹_› ⟨j, hj⟩).val).val ≠ 0 := by
           intro h; simp_all +decide [ keptVertices ]
         have h_contra : ∀ i : Fin (t + 1), i.val ≠ 0 → T.depth i ≥ 1 := by
           intros i hi_nonzero
@@ -586,8 +593,8 @@ lemma contractionTree_depth_le (k C : ℕ) (hT : IsKCLayeredTree (k + 1) C T)
           exact h_contra.symm ▸ Nat.succ_pos _
         exact h_contra _ ‹_›
       have h_contra :
-          T.depth ((keptVertices T).orderIsoOfFin ‹_› ⟨j, ih⟩).val =
-            T.depth (T.parent ((keptVertices T).orderIsoOfFin ‹_› ⟨j, ih⟩).val) +
+          T.depth ((keptVertices T).orderIsoOfFin ‹_› ⟨j, hj⟩).val =
+            T.depth (T.parent ((keptVertices T).orderIsoOfFin ‹_› ⟨j, hj⟩).val) +
               1 := by
         apply OrderedRootedTree.depth_pos
         generalize_proofs at *
@@ -826,8 +833,11 @@ Depth in prefix equals depth in full tree.
 lemma prefixSubtree_depth (T : OrderedRootedTree t) (s : ℕ) (hs : s ≤ t)
     (i : Fin (s + 1)) :
     (prefixSubtree T s hs).depth i = T.depth ⟨i.val, by omega⟩ := by
-  induction' i with i ih
-  induction' i using Nat.strong_induction_on with i ih
+  rcases i with ⟨i, hi⟩
+  revert hi
+  induction i using Nat.strong_induction_on
+  rename_i i ih
+  intro hi
   by_cases hi : 0 < i
   · unfold OrderedRootedTree.depth
     split_ifs <;> simp_all +decide
@@ -1130,7 +1140,8 @@ theorem sum_rootChildren_le_iterBound {k C : ℕ}
     ∑ x ∈ rootChildrenFinset T, 2 ^ (C + x.val) ≤
     iterBoundFn C boundK (T.numChildren ⟨0, Nat.zero_lt_succ t⟩) := by
   revert T
-  induction' t using Nat.strong_induction_on with t ih generalizing k C
+  induction t using Nat.strong_induction_on generalizing k C
+  rename_i t ih
   intros T hT
   by_cases hm : T.numChildren ⟨0, Nat.zero_lt_succ t⟩ = 0
   · rw [ show rootChildrenFinset T = ∅ from _ ]
@@ -1498,9 +1509,10 @@ lemma walkDownAux_ge {n bound : ℕ} (X : ℕ → Finset (Fin n))
     (h_parent_le : ∀ (v : ℕ) (hv : v < bound), (rec v hv).1 ≤ v)
     (u : ℕ) (hu : u < bound) (fuel : ℕ) :
     u ≤ (walkDownAux X rec u hu fuel).val := by
-  induction' fuel with fuel ih generalizing u hu
+  induction fuel generalizing u hu
   · exact le_rfl
-  · by_cases h : ∃ v : ℕ, ∃ hv : v < bound, (rec v hv).1 = u ∧ v ≠ u ∧
+  · rename_i fuel ih
+    by_cases h : ∃ v : ℕ, ∃ hv : v < bound, (rec v hv).1 = u ∧ v ≠ u ∧
         X v ∩ (rec u hu).2.2 = X bound ∩ (rec u hu).2.2
     · grind +locals
     · simp [walkDownAux]; grind
@@ -1515,10 +1527,11 @@ lemma walkDownAux_stopping {n bound : ℕ} (X : ℕ → Finset (Fin n))
     ¬∃ (v : ℕ) (hv : v < bound),
       (rec v hv).1 = p.val ∧ v ≠ p.val ∧
       X v ∩ (rec p.val p.prop).2.2 = X bound ∩ (rec p.val p.prop).2.2 := by
-  induction' fuel with fuel fuel_ih generalizing u hu <;>
+  induction fuel generalizing u hu <;>
     simp +decide [*, walkDownAux] at *
   · omega
-  · split_ifs
+  · rename_i fuel fuel_ih
+    split_ifs
     · grind
     · grind
 
@@ -1634,7 +1647,8 @@ lemma walkDownAux_matching_at_result_parent {n bound : ℕ} (X : ℕ → Finset 
       (lt_of_le_of_lt (h_parent_le r.val r.prop) r.prop)).2.2 =
     X bound ∩ (rec ((rec r.val r.prop).1)
       (lt_of_le_of_lt (h_parent_le r.val r.prop) r.prop)).2.2 := by
-  induction' fuel with fuel fuel_ih generalizing u hu <;> simp +decide [ *, walkDownAux ] at *
+  induction fuel generalizing u hu <;> simp +decide [ *, walkDownAux ] at *
+  rename_i fuel fuel_ih
   split_ifs at * <;> norm_num at *
   have := ‹
     ∃ v, ( ∃ hv, ( rec v hv ).1 = u ) ∧ ¬v = u ∧
@@ -1704,9 +1718,10 @@ lemma clParent_iterate_strict_anti {n : ℕ} (X : ℕ → Finset (Fin n)) (r : �
       ∀ d₁ d₂, d₁ < d₂ → 0 < (clParent X)^[d₁] r →
         (clParent X)^[d₂] r < (clParent X)^[d₁] r := by
     intros d₁ d₂ h_lt h_pos
-    induction' h_lt with d₂ h_lt ih
+    induction h_lt
     · simpa only [ Function.iterate_succ_apply' ] using clParent_iterate_lt' X r d₁ h_pos
-    · rw [ Function.iterate_succ_apply' ]
+    · rename_i d₂ h_lt ih
+      rw [ Function.iterate_succ_apply' ]
       exact lt_of_le_of_lt ( clParent_le _ _ ) ih
   exact h_ind d₁ d₂ h hd
 
@@ -1730,9 +1745,10 @@ lemma walkDownAux_result_descendant {n : ℕ} (X : ℕ → Finset (Fin n))
     (b : ℕ) (u : ℕ) (hu : u < b) (fuel : ℕ) :
     ∃ d : ℕ, (clParent X)^[d]
       (walkDownAux X (fun j hj => clTreeState X j) u hu fuel).val = u := by
-  induction' fuel with fuel ih generalizing u hu
+  induction fuel generalizing u hu
   · exact ⟨ 0, rfl ⟩
-  · by_cases h : ∃ (v : ℕ) (hv : v < b),
+  · rename_i fuel ih
+    by_cases h : ∃ (v : ℕ) (hv : v < b),
       (clTreeState X v).fst = u ∧ v ≠ u ∧
       X v ∩ (clTreeState X u).snd.snd = X b ∩ (clTreeState X u).snd.snd
     · unfold walkDownAux
@@ -1767,7 +1783,8 @@ lemma ancestor_chain_squeeze {n : ℕ} (X : ℕ → Finset (Fin n))
   cases lt_or_gt_of_ne h_neq <;> simp_all +decide [ Function.iterate_succ_apply' ]
   · contrapose! h_lt
     rw [ ← Nat.sub_add_cancel ( by linarith : d + 1 ≤ d₀ ), Function.iterate_add_apply ]
-    induction' ( d₀ - ( d + 1 ) ) with k hk <;> simp_all +decide [ Function.iterate_succ_apply' ]
+    induction ( d₀ - ( d + 1 ) ) <;> simp_all +decide [ Function.iterate_succ_apply' ]
+    rename_i k hk
     exact le_trans ( clParent_le _ _ ) hk
   · -- Since $d > d₀$, we have $(clParent X)^[d] r \leq (clParent X)^[d₀+1] r$.
     have h_le : (clParent X)^[d] r ≤ (clParent X)^[d₀ + 1] r := by
@@ -1804,9 +1821,10 @@ lemma walkDownAux_ancestors_matching {n : ℕ} (X : ℕ → Finset (Fin n))
         (walkDownAux X (fun j hj => clTreeState X j) u hu fuel).val) := by
   revert h_gt
   revert d hd_pos hu_anc
-  induction' fuel with fuel ih generalizing u hu
+  induction fuel generalizing u hu
   · simp +decide [ walkDownAux ]
-  · intro d hd_pos hd_anc hd_gt
+  · rename_i fuel ih
+    intro d hd_pos hd_anc hd_gt
     rw [walkDownAux] at *
     split_ifs at *
     · have := ‹
@@ -1922,9 +1940,10 @@ lemma walkdown_ancestor_matching {n : ℕ} (X : ℕ → Finset (Fin n))
     (hpar_j : clParent X j = i)
     (d : ℕ) (hd : 0 < d) :
     X j ∩ clSetB X ((clParent X)^[d] i) = X i ∩ clSetB X ((clParent X)^[d] i) := by
-  induction' hd with d hd ih
+  induction hd
   · convert walkdown_B_matching_at_parent X i j hj hi hi_lt_j hpar_j using 1
-  · by_cases h : 0 < ( clParent X ) ^[ d ] i <;>
+  · rename_i d hd ih
+    by_cases h : 0 < ( clParent X ) ^[ d ] i <;>
       simp_all +decide [ Function.iterate_succ_apply' ]
     · have := walkdown_intermediate_matching X j hj d
       simp_all +decide [ ← Function.iterate_succ_apply' ]
@@ -1953,7 +1972,8 @@ lemma walkdown_empty_encoding_subset {n : ℕ} (X : ℕ → Finset (Fin n))
           ∀ i, x ∉ clSetA X i →
             x ∈ clSetB X i ∨ ∃ d > 0, x ∈ clSetB X ((clParent X)^[d] i) := by
         intro i hi
-        induction' i using Nat.strong_induction_on with i ih
+        induction i using Nat.strong_induction_on
+        rename_i i ih
         by_cases hi0 : 0 < i <;> simp_all +decide [ clSetB_pos ]
         · by_cases hxA : x ∈ clSetA X (clParent X i) <;> simp_all +decide [ clSetA_pos ]
           specialize ih ( clParent X i ) ( clParent_lt X i hi0 ) hxA
@@ -2006,9 +2026,10 @@ lemma path_iterate_pos_of_depth {n t : ℕ} (X : ℕ → Finset (Fin n))
     (i : Fin (t + 1)) (m : ℕ) (hm : m + 1 ≤ (clTree X t).depth i) :
     0 < (clParent X)^[m] i.val := by
   contrapose! hm
-  induction' m with m ih generalizing i <;> simp_all +decide [ Function.iterate_succ_apply' ]
+  induction m generalizing i <;> simp_all +decide [ Function.iterate_succ_apply' ]
   · unfold OrderedRootedTree.depth; aesop
-  · rw [ OrderedRootedTree.depth ]
+  · rename_i m ih
+    rw [ OrderedRootedTree.depth ]
     split_ifs <;> simp_all +decide
     convert ih ⟨ clParent X i.val, _ ⟩ _ using 1
     erw [ Function.iterate_succ_apply' ] ; aesop
@@ -2026,7 +2047,7 @@ lemma matching_chain_gives_membership {n : ℕ} (X : ℕ → Finset (Fin n))
     (hxB : x ∈ clSetB X ((clParent X)^[s] v))
     (r : ℕ) (hr : r ≤ s - 1) :
     x ∈ X ((clParent X)^[r] v) := by
-  induction' r with r ih
+  induction r
   · have h_chain_matching :
         X v ∩ clSetB X ((clParent X)^[s] v) =
           X (clParent X v) ∩ clSetB X ((clParent X)^[s] v) := by
@@ -2038,7 +2059,8 @@ lemma matching_chain_gives_membership {n : ℕ} (X : ℕ → Finset (Fin n))
       · cases s <;> aesop
       · cases s <;> aesop
     replace h_chain_matching := Finset.ext_iff.mp h_chain_matching x; aesop
-  · have h_chain_matching_step :
+  · rename_i r ih
+    have h_chain_matching_step :
         X ((clParent X)^[r] v) ∩ clSetB X ((clParent X)^[s] v) =
           X ((clParent X)^[r + 1] v) ∩ clSetB X ((clParent X)^[s] v) := by
       have := walkdown_ancestor_matching X
@@ -2080,9 +2102,10 @@ lemma a_in_ancestor_clique {n : ℕ} (X : ℕ → Finset (Fin n))
               ∀ j, m_1 ≤ j → j ≤ m - 1 →
                 (clParent X)^[j] v ≤ (clParent X)^[m_1] v := by
             intros j hj₁ hj₂
-            induction' hj₁ with j hj ih
+            induction hj₁
             · rfl
-            · simpa only [ Function.iterate_succ_apply' ] using
+            · rename_i j hj ih
+              simpa only [ Function.iterate_succ_apply' ] using
                 le_trans ( clParent_le _ _ ) ( ih ( Nat.le_of_succ_le hj₂ ) )
           exact h_iterate_pos _ ( by omega ) ( by omega )
         exact lt_of_lt_of_le ( hm_pos.resolve_left hm ) h_iterate_pos
@@ -2102,7 +2125,9 @@ lemma partition_contradiction {n : ℕ} (X : ℕ → Finset (Fin n)) (v : ℕ)
     False := by
   -- By induction on m, show x is not in A((clParent X)^[m] v).
   have h_ind : ∀ m, x ∉ clSetA X ((clParent X)^[m] v) := by
-    intro m; induction' m with m ih <;> simp_all +decide [ Function.iterate_succ_apply' ]
+    intro m
+    induction m <;> simp_all +decide [ Function.iterate_succ_apply' ]
+    rename_i m ih
     by_cases h : 0 < ( clParent X ) ^[ m ] v <;> simp_all +decide [ clSetA_pos ]
     · exact fun hx => hB m <| by rw [ clSetB_pos _ _ h ] ; aesop
     · convert ih using 1
@@ -2152,9 +2177,10 @@ lemma matching_chain_weak {n : ℕ} (X : ℕ → Finset (Fin n))
       cases s <;> aesop ( simp_config := { decide := true } )
       cases s <;> aesop ( simp_config := { decide := true } )
     replace h_walkdown := Finset.ext_iff.mp h_walkdown x; aesop
-  · induction' r with r ih
+  · induction r
     · aesop
-    · have h_walkdown :
+    · rename_i r ih
+      have h_walkdown :
           X (clParent X ((clParent X)^[r] v)) ∩ clSetB X ((clParent X)^[s] v) =
             X (clParent X ((clParent X)^[r + 1] v)) ∩
               clSetB X ((clParent X)^[s] v) := by
