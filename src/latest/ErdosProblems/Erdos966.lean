@@ -255,7 +255,6 @@ lemma nat_AP_in_bounded_range_is_const (k : ℕ) (f : Fin (k + 1) → ℕ)
 The set `hj_set n k` does not contain any non-trivial arithmetic progression of
 length `k+1`.
 -/
-set_option linter.style.induction false in
 theorem hj_set_no_AP (n k : ℕ) (hk : k ≥ 2) : ¬ HasAP (hj_set n k) (k + 1) := by
   unfold HasAP
   simp_all +decide only [ne_eq, Nat.exists_ne_zero, not_exists, not_forall]
@@ -311,18 +310,15 @@ theorem hj_set_no_AP (n k : ℕ) (hk : k ≥ 2) : ¬ HasAP (hj_set n k) (k + 1) 
         linarith⟩ j).val
       generalize_proofs at *
       intro i
-      induction' i with i ih
-      induction' i with i ih
-      · norm_num
-      · have := h_seq_const ⟨i, Nat.lt_pred_iff.mpr ih⟩
+      rcases i with ⟨i, hi⟩
+      induction i with
+      | zero =>
+        norm_num
+      | succ i ih =>
+        have := h_seq_const ⟨i, Nat.lt_pred_iff.mpr hi⟩
         norm_num at *
         linarith [
-          ‹∀ (ih : i < k),
-              (f ⟨i + 1, Nat.succ_lt_succ ih⟩ j : ℤ) =
-                (f ⟨i, Nat.lt_succ_of_lt ih⟩ j : ℤ) +
-                  (f ⟨1, Nat.succ_lt_succ (Nat.zero_lt_of_lt ih)⟩ j -
-                    f ⟨0, Nat.zero_lt_succ k⟩ j)›
-            (Nat.lt_of_succ_lt ih)]
+          ih (Nat.lt_of_succ_lt hi)]
     generalize_proofs at *
     obtain ⟨d, hd⟩ := h_seq_const
     -- By induction on $i$, we can show that $(f i j).val = (f 0 j).val + i * d$.
