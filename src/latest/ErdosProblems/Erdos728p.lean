@@ -37,7 +37,6 @@ set_option linter.style.emptyLine false
 set_option linter.flexible false
 set_option linter.style.refine false
 set_option linter.style.multiGoal false
-set_option linter.style.induction false
 
 attribute [local instance] Classical.propDecidable
 
@@ -210,11 +209,15 @@ Bound on the sum of binomial coefficients: sum_{j=0}^B binom(D, j) <= 2 * D^B fo
 -/
 theorem sum_binomial_bound (D B : ℕ) (hD : D ≥ 2) :
     ∑ j ∈ Finset.range (B + 1), (Nat.choose D j) ≤ 2 * D ^ B := by
-  induction' B with B ih <;> simp_all +decide [ Finset.sum_range_succ ];
-  -- Since $D \geq 2$, we have $D.choose (B + 1) \leq D^{B + 1}$.
-  have h_choose : D.choose (B + 1) ≤ D ^ (B + 1) := by
-    exact Nat.choose_le_pow D (B + 1);
-  nlinarith [ pow_succ' D B ]
+  induction B with
+  | zero =>
+    simp_all +decide [ Finset.sum_range_succ ]
+  | succ B ih =>
+    simp_all +decide [ Finset.sum_range_succ ];
+    -- Since $D \geq 2$, we have $D.choose (B + 1) \leq D^{B + 1}$.
+    have h_choose : D.choose (B + 1) ≤ D ^ (B + 1) := by
+      exact Nat.choose_le_pow D (B + 1);
+    nlinarith [ pow_succ' D B ]
 
 /-
 Bound on the number of integers less than p^D with at most B large digits.
@@ -1346,15 +1349,22 @@ The number of integers less than 2^D with binary digit sum k is binom(D, k).
 theorem card_popcount_eq_choose (D k : ℕ) :
     ((Finset.range (2 ^ D)).filter (fun m => (Nat.digits 2 m).sum = k)).card = Nat.choose D k := by
       -- We'll use induction on $D$. The base case is when $D = 0$.
-      induction' D with D ih generalizing k;
-      · cases k <;> simp +decide [ Nat.choose ];
-      · rcases k with ( _ | k );
-        · induction' D + 1 with D ih <;> simp_all +decide [ Nat.pow_succ', Nat.mul_mod, Nat.mul_div_assoc ];
-          rw [ Finset.card_eq_one ] at ih ⊢;
-          use 0; ext m; simp [Finset.mem_filter, Finset.mem_range];
-          induction' m using Nat.strong_induction_on with m ih;
-          rcases m with ( _ | _ | m ) <;> simp_all +decide [ Nat.pow_succ' ];
-          grind;
+      induction D generalizing k with
+      | zero =>
+        cases k <;> simp +decide [ Nat.choose ];
+      | succ D ih =>
+        rcases k with ( _ | k );
+        · induction D + 1 with
+          | zero =>
+            simp_all +decide [ Nat.pow_succ', Nat.mul_mod, Nat.mul_div_assoc ]
+          | succ D ih =>
+            simp_all +decide [ Nat.pow_succ', Nat.mul_mod, Nat.mul_div_assoc ];
+            rw [ Finset.card_eq_one ] at ih ⊢;
+            use 0; ext m; simp [Finset.mem_filter, Finset.mem_range];
+            induction m using Nat.strong_induction_on with
+            | h m ih =>
+              rcases m with ( _ | _ | m ) <;> simp_all +decide [ Nat.pow_succ' ];
+              grind;
         · -- For the inductive step, we can split the set into two parts: those numbers where the least significant bit is 0 and those where it is 1.
           have h_split : Finset.filter (fun m => (Nat.digits 2 m).sum = k + 1) (Finset.range (2 ^ (D + 1))) = Finset.image (fun m => 2 * m) (Finset.filter (fun m => (Nat.digits 2 m).sum = k + 1) (Finset.range (2 ^ D))) ∪ Finset.image (fun m => 2 * m + 1) (Finset.filter (fun m => (Nat.digits 2 m).sum = k) (Finset.range (2 ^ D))) := by
             ext m; simp [Finset.mem_union, Finset.mem_image];
@@ -1543,10 +1553,12 @@ The carry at position i corresponds to the overflow of the sum modulo p^(i+1).
 -/
 theorem carry_eq_one_iff (p : ℕ) [Fact p.Prime] (D : ℕ) (m : ℕ) (i : Fin D) (hm : m < p ^ D) :
     carries p D (digits_of p D m) i = 1 ↔ p ^ (i.val + 1) ≤ 2 * (m % p ^ (i.val + 1)) := by
-      induction' i with i ih;
-      induction' i with i ih generalizing m;
-      · unfold carries digits_of; aesop;
-      · unfold carries;
+      rcases i with ⟨i, hi⟩
+      induction i generalizing m with
+      | zero =>
+        unfold carries digits_of; aesop;
+      | succ i ih =>
+        unfold carries;
         simp +zetaDelta at *;
         rw [ show m % p ^ ( i + 1 + 1 ) = ( m % p ^ ( i + 1 ) ) + p ^ ( i + 1 ) * ( m / p ^ ( i + 1 ) % p ) from ?_, Nat.mul_comm ];
         · rw [ show carries p D ( digits_of p D m ) ⟨ i, by linarith ⟩ = if p ^ ( i + 1 ) ≤ 2 * ( m % p ^ ( i + 1 ) ) then 1 else 0 from ?_ ];
@@ -1554,17 +1566,17 @@ theorem carry_eq_one_iff (p : ℕ) [Fact p.Prime] (D : ℕ) (m : ℕ) (i : Fin D
             · constructor <;> intro <;> norm_num [ pow_succ, digits_of ] at *;
               · nlinarith [ Nat.zero_le ( m % ( p ^ i * p ) ), Nat.zero_le ( m / ( p ^ i * p ) % p ), Nat.mod_lt m ( show p ^ i * p > 0 from mul_pos ( pow_pos ( Nat.Prime.pos Fact.out ) _ ) ( Nat.Prime.pos Fact.out ) ), Nat.mod_lt ( m / ( p ^ i * p ) ) ( show p > 0 from Nat.Prime.pos Fact.out ) ];
               · nlinarith [ pow_pos ( Fact.out ( p := p.Prime ) |> Nat.Prime.pos ) i, pow_succ' p i, Nat.zero_le ( m % ( p ^ i * p ) ), Nat.mod_lt m ( show p ^ i * p > 0 from mul_pos ( pow_pos ( Fact.out ( p := p.Prime ) |> Nat.Prime.pos ) i ) ( Fact.out ( p := p.Prime ) |> Nat.Prime.pos ) ), Nat.zero_le ( m / ( p ^ i * p ) % p ) ];
-            · rw [ show digits_of p D m ⟨ i + 1, ih ⟩ = ⟨ m / p ^ ( i + 1 ) % p, Nat.mod_lt _ ( Nat.Prime.pos Fact.out ) ⟩ from ?_ ];
+            · rw [ show digits_of p D m ⟨ i + 1, hi ⟩ = ⟨ m / p ^ ( i + 1 ) % p, Nat.mod_lt _ ( Nat.Prime.pos Fact.out ) ⟩ from ?_ ];
               · constructor <;> intro <;> nlinarith [ pow_pos ( Fact.out ( p := p.Prime ) |> Nat.Prime.pos ) ( i + 1 ), pow_succ' p ( i + 1 ), Nat.zero_le ( m % p ^ ( i + 1 ) ), Nat.zero_le ( m / p ^ ( i + 1 ) % p ), Nat.mod_lt ( m / p ^ ( i + 1 ) ) ( Fact.out ( p := p.Prime ) |> Nat.Prime.pos ) ];
               · exact rfl;
           · split_ifs <;> simp_all +decide [ Nat.pow_succ' ];
             contrapose! ih;
             refine' ⟨ m, hm, _, _ ⟩;
-            (expose_names; exact Nat.lt_of_succ_lt ih_1);
+            (expose_names; exact Nat.lt_of_succ_lt hi);
             exact Or.inl ⟨ by exact Nat.le_antisymm ( by
               -- By definition of `carries`, each carry is either 0 or 1.
               have h_carries_le_one : ∀ i : Fin D, carries p D (digits_of p D m) i ≤ 1 := by
-                intro i; induction' i with i ih; unfold carries; aesop;
+                intro i; rcases i with ⟨i, hi⟩; unfold carries; aesop;
               exact h_carries_le_one _ ) ( Nat.pos_of_ne_zero ih ), by assumption ⟩;
         · exact Nat.mod_pow_succ
 
@@ -1690,16 +1702,16 @@ theorem num_carries_succ (p D : ℕ) (d : Fin (D + 1) → Fin p) :
       simp [num_carries, Fin.sum_univ_castSucc];
       congr! 1;
       -- By definition of carries, we can split the sum into the sum for the first D digits plus the carry from the last digit. We'll use induction on D.
-      induction' ‹Fin D› with i ih;
       -- By definition of `carries`, the carry at position `i` in `D + 1` digits is the same as the carry at position `i` in `D` digits.
       have h_carries_eq : ∀ (i : Fin D), carries p (D + 1) d (Fin.castSucc i) = carries p D (d ∘ Fin.castSucc) i := by
         intros i
-        induction' i with i ih;
-        induction' i using Nat.strong_induction_on with i ih;
-        unfold carries;
-        rcases i with ( _ | i ) <;> simp_all +decide
-        rw [ ih i le_rfl ( by linarith ) ];
-      exact h_carries_eq ⟨ i, ih ⟩
+        rcases i with ⟨i, hi⟩
+        induction i using Nat.strong_induction_on with
+        | h i ih =>
+          unfold carries;
+          rcases i with ( _ | i ) <;> simp_all +decide
+          rw [ ih i le_rfl ( by linarith ) ];
+      exact h_carries_eq ‹Fin D›
 
 /-
 The carry out of D+1 digits is the carry at the last position.
@@ -1725,9 +1737,11 @@ theorem carries_last_eq (p D : ℕ) (d : Fin (D + 1) → Fin p) :
         linarith [ Fin.is_lt i ]⟩ = carries p (D + 1) (d ∘ Fin.castSucc) ⟨i.val, by
         exact i.2⟩ := by
         intro i;
-        induction' i using Fin.inductionOn with i IH;
-        · unfold carries; aesop;
-        · unfold carries; aesop;
+        induction i using Fin.inductionOn with
+        | zero =>
+          unfold carries; aesop;
+        | succ i IH =>
+          unfold carries; aesop;
       generalize_proofs at *;
       exact h_carries_eq ⟨ D, by linarith ⟩
 
@@ -1836,15 +1850,20 @@ theorem weighted_sum_eq_sum_components (p D : ℕ) (z : ℝ) [Fact p.Prime] :
       · intro a₁ ha₁ a₂ ha₂ h; simp_all +decide [ funext_iff, digits_of ] ;
         -- By induction on $D$, we can show that if the digits of $a₁$ and $a₂$ are the same, then $a₁ = a₂$.
         have h_ind : ∀ D : ℕ, ∀ a₁ a₂ : ℕ, a₁ < p ^ D → a₂ < p ^ D → (∀ x : Fin D, a₁ / p ^ (x : ℕ) % p = a₂ / p ^ (x : ℕ) % p) → a₁ = a₂ := by
-          intro D a₁ a₂ ha₁ ha₂ h; induction' D with D ih generalizing a₁ a₂ <;> simp_all +decide [ Nat.pow_succ', Nat.div_div_eq_div_mul ] ;
-          -- By the induction hypothesis, since $a₁ < p * p^D$ and $a₂ < p * p^D$, and their digits are the same, we have $a₁ / p = a₂ / p$.
-          have h_div : a₁ / p = a₂ / p := by
-            apply ih (a₁ / p) (a₂ / p);
-            · exact Nat.div_lt_of_lt_mul <| by linarith;
-            · exact Nat.div_lt_of_lt_mul <| by linarith;
-            · intro x; specialize h ⟨ x + 1, by linarith [ Fin.is_lt x ] ⟩ ; simp_all +decide [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ] ;
-          have := h ⟨ 0, Nat.zero_lt_succ _ ⟩ ; simp_all +decide [ Nat.div_eq_of_lt ] ;
-          nlinarith [ Nat.mod_add_div a₁ p, Nat.mod_add_div a₂ p ];
+          intro D a₁ a₂ ha₁ ha₂ h
+          induction D generalizing a₁ a₂ with
+          | zero =>
+            simp_all +decide [ Nat.pow_succ', Nat.div_div_eq_div_mul ]
+          | succ D ih =>
+            simp_all +decide [ Nat.pow_succ', Nat.div_div_eq_div_mul ] ;
+            -- By the induction hypothesis, since $a₁ < p * p^D$ and $a₂ < p * p^D$, and their digits are the same, we have $a₁ / p = a₂ / p$.
+            have h_div : a₁ / p = a₂ / p := by
+              apply ih (a₁ / p) (a₂ / p);
+              · exact Nat.div_lt_of_lt_mul <| by linarith;
+              · exact Nat.div_lt_of_lt_mul <| by linarith;
+              · intro x; specialize h ⟨ x + 1, by linarith [ Fin.is_lt x ] ⟩ ; simp_all +decide [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ] ;
+            have := h ⟨ 0, Nat.zero_lt_succ _ ⟩ ; simp_all +decide [ Nat.div_eq_of_lt ] ;
+            nlinarith [ Nat.mod_add_div a₁ p, Nat.mod_add_div a₂ p ];
         exact h_ind D a₁ a₂ ha₁ ha₂ h;
       · intro b
         use Nat.ofDigits p (List.ofFn (fun i => (b i).val));
@@ -1855,12 +1874,16 @@ theorem weighted_sum_eq_sum_components (p D : ℕ) (z : ℝ) [Fact p.Prime] :
           · grind;
         · ext i; simp +decide [ List.ofFn_eq_map ] ;
           have h_digit : ∀ (L : List ℕ), (∀ d ∈ L, d < p) → ∀ i < List.length L, (Nat.ofDigits p L / p ^ i) % p = (L.getD i 0) := by
-            intros L hL i hi;
-            induction' L with d L ih generalizing i <;> simp_all +decide [ Nat.ofDigits ];
-            rcases i with ( _ | i ) <;> simp_all +decide [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ];
-            · exact Nat.mod_eq_of_lt hL.1;
-            · rw [ Nat.add_mul_div_left _ _ ( Nat.Prime.pos Fact.out ) ];
-              rw [ Nat.div_eq_of_lt hL.1 ] ; aesop;
+            intros L hL i hi
+            induction L generalizing i with
+            | nil =>
+              simp_all +decide [ Nat.ofDigits ]
+            | cons d L ih =>
+              simp_all +decide [ Nat.ofDigits ];
+              rcases i with ( _ | i ) <;> simp_all +decide [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ];
+              · exact Nat.mod_eq_of_lt hL.1;
+              · rw [ Nat.add_mul_div_left _ _ ( Nat.Prime.pos Fact.out ) ];
+                rw [ Nat.div_eq_of_lt hL.1 ] ; aesop;
           convert h_digit _ _ _ _ <;> aesop;
       · intro a ha; have := carry_out_le_one p D ( digits_of p D a ) ; interval_cases carry_out p D ( digits_of p D a ) <;> simp +decide ;
 
@@ -4100,9 +4123,11 @@ theorem lemma_2_3_descFactorial (m k p : ℕ) [Fact p.Prime] (hk : k > 0) :
       have h_val_prod : padicValNat p (∏ i ∈ Finset.Icc 1 k, (m + i)) ≤ ∑ i ∈ Finset.Icc 1 k, padicValNat p (m + i) := by
         have h_val_prod : ∀ {S : Finset ℕ} {f : ℕ → ℕ}, (∀ i ∈ S, f i ≠ 0) → padicValNat p (∏ i ∈ S, f i) ≤ ∑ i ∈ S, padicValNat p (f i) := by
           intros S f hf_nonzero
-          induction' S using Finset.induction with i S hiS ih;
-          · norm_num;
-          · rw [ Finset.prod_insert hiS, Finset.sum_insert hiS ];
+          induction S using Finset.induction with
+          | empty =>
+            norm_num;
+          | insert i S hiS ih =>
+            rw [ Finset.prod_insert hiS, Finset.sum_insert hiS ];
             rw [ padicValNat.mul ( hf_nonzero i ( Finset.mem_insert_self i S ) ) ( Finset.prod_ne_zero_iff.mpr fun x hx => hf_nonzero x ( Finset.mem_insert_of_mem hx ) ) ] ; aesop;
         exact h_val_prod fun i hi => by linarith [ Finset.mem_Icc.mp hi ] ;
       have := @valuation_sum_le_factorial_valuation m k p;
@@ -5121,9 +5146,13 @@ theorem count_large_digits_eq_count_large_seq (p D m : ℕ) [Fact p.Prime] (hm :
     count_large_digits p m = count_large_seq p D (digits_of p D m) := by
       unfold count_large_digits digits_of;
       rw [ ← Nat.ofDigits_digits p m ];
-      induction' D with D ih generalizing m <;> simp_all +decide [ Nat.ofDigits, pow_succ, mul_assoc ];
-      · rfl;
-      · convert congr_arg ( fun x : ℕ => x + ( if p ≤ 2 * ( m % p ) then 1 else 0 ) ) ( ih ( m / p ) ( Nat.div_lt_of_lt_mul <| by linarith ) ) using 1;
+      induction D generalizing m with
+      | zero =>
+        simp_all +decide [ Nat.ofDigits, pow_succ, mul_assoc ];
+        rfl;
+      | succ D ih =>
+        simp_all +decide [ Nat.ofDigits, pow_succ, mul_assoc ];
+        convert congr_arg ( fun x : ℕ => x + ( if p ≤ 2 * ( m % p ) then 1 else 0 ) ) ( ih ( m / p ) ( Nat.div_lt_of_lt_mul <| by linarith ) ) using 1;
         · rw [ Nat.ofDigits_digits, Nat.ofDigits_digits ];
           rcases p with ( _ | _ | p ) <;> rcases m with ( _ | _ | m ) <;> norm_num [ Nat.div_eq_of_lt, Nat.mod_eq_of_lt ] at *;
           · cases p <;> trivial;
@@ -5151,9 +5180,14 @@ theorem card_filter_digits_eq_card_filter_seqs (p D B : ℕ) [Fact p.Prime] :
         -- Since the digits of $a_1$ and $a_2$ are equal, their base-$p$ representations are equal.
         have h_base_eq : a₁ = ∑ i ∈ Finset.range D, (a₁ / p ^ i % p) * p ^ i ∧ a₂ = ∑ i ∈ Finset.range D, (a₂ / p ^ i % p) * p ^ i := by
           have h_base_eq : ∀ (n : ℕ) (D : ℕ), n < p ^ D → n = ∑ i ∈ Finset.range D, (n / p ^ i % p) * p ^ i := by
-            intro n D hn; induction' D with D ih generalizing n <;> simp +decide [ Finset.sum_range_succ', pow_succ, ← Nat.div_div_eq_div_mul ] at *;
-            · exact hn;
-            · have := ih ( n / p ) ( Nat.div_lt_of_lt_mul <| by linarith );
+            intro n D hn
+            induction D generalizing n with
+            | zero =>
+              simp +decide [ Finset.sum_range_succ', pow_succ, ← Nat.div_div_eq_div_mul ] at *;
+              exact hn;
+            | succ D ih =>
+              simp +decide [ Finset.sum_range_succ', pow_succ, ← Nat.div_div_eq_div_mul ] at *;
+              have := ih ( n / p ) ( Nat.div_lt_of_lt_mul <| by linarith );
               convert congr_arg ( · * p + n % p ) this using 1;
               · rw [ Nat.div_add_mod' ];
               · simp +decide [ Finset.sum_mul _ _ _, Nat.div_div_eq_div_mul, mul_assoc, mul_comm, mul_left_comm, pow_succ, Nat.div_eq_of_lt ];
@@ -5176,11 +5210,16 @@ theorem card_filter_digits_eq_card_filter_seqs (p D B : ℕ) [Fact p.Prime] :
             ext i; simp +decide [ Nat.ofDigits_digits, Nat.mod_eq_of_lt ] ;
             -- By definition of `Nat.ofDigits`, the i-th digit of the number formed by the list of f's values is exactly f i.
             have h_digit : ∀ (l : List ℕ), (∀ d ∈ l, d < p) → ∀ i < l.length, (Nat.ofDigits p l / p ^ i) % p = (l.getD i 0) := by
-              intro l hl i hi; induction' l with d l ih generalizing i <;> simp_all +decide [ Nat.ofDigits ] ;
-              rcases i <;> simp_all +decide [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ];
-              · exact Nat.mod_eq_of_lt hl.1;
-              · simp_all +decide [ Nat.add_mul_div_left _ _ ( Nat.Prime.pos Fact.out ) ];
-                rw [ Nat.div_eq_of_lt hl.1 ] ; aesop;
+              intro l hl i hi
+              induction l generalizing i with
+              | nil =>
+                simp_all +decide [ Nat.ofDigits ]
+              | cons d l ih =>
+                simp_all +decide [ Nat.ofDigits ];
+                rcases i <;> simp_all +decide [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ];
+                · exact Nat.mod_eq_of_lt hl.1;
+                · simp_all +decide [ Nat.add_mul_div_left _ _ ( Nat.Prime.pos Fact.out ) ];
+                  rw [ Nat.div_eq_of_lt hl.1 ] ; aesop;
             convert h_digit _ _ _ _ <;> aesop;
           · refine' Nat.ofDigits_lt_base_pow_length _ _ |> lt_of_lt_of_le <| _;
             · exact Nat.Prime.one_lt Fact.out;
@@ -5191,11 +5230,16 @@ theorem card_filter_digits_eq_card_filter_seqs (p D B : ℕ) [Fact p.Prime] :
           have h_digit : (Nat.ofDigits p (List.ofFn fun i => f i)) / p ^ (i : ℕ) % p = f i := by
             -- By definition of `Nat.ofDigits`, the i-th digit of the number formed by the list of f's values is exactly f i.
             have h_digit : ∀ (l : List ℕ), (∀ d ∈ l, d < p) → ∀ i < l.length, (Nat.ofDigits p l / p ^ i) % p = (l.getD i 0) := by
-              intro l hl i hi; induction' l with d l ih generalizing i <;> simp_all +decide [ Nat.ofDigits ] ;
-              rcases i <;> simp_all +decide [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ];
-              · exact Nat.mod_eq_of_lt hl.1;
-              · simp_all +decide [ Nat.add_mul_div_left _ _ ( Nat.Prime.pos Fact.out ) ];
-                rw [ Nat.div_eq_of_lt hl.1 ] ; aesop;
+              intro l hl i hi
+              induction l generalizing i with
+              | nil =>
+                simp_all +decide [ Nat.ofDigits ]
+              | cons d l ih =>
+                simp_all +decide [ Nat.ofDigits ];
+                rcases i <;> simp_all +decide [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ];
+                · exact Nat.mod_eq_of_lt hl.1;
+                · simp_all +decide [ Nat.add_mul_div_left _ _ ( Nat.Prime.pos Fact.out ) ];
+                  rw [ Nat.div_eq_of_lt hl.1 ] ; aesop;
             convert h_digit _ _ _ _ <;> aesop;
           exact Fin.ext h_digit
 
@@ -5253,8 +5297,12 @@ The sum of binomial coefficients binom(n, i) for i <= k is bounded by (k+1) * bi
 -/
 theorem sum_choose_le_mul_max (n k : ℕ) (hk : 2 * k ≤ n) :
     ∑ i ∈ Finset.range (k + 1), Nat.choose n i ≤ (k + 1) * Nat.choose n k := by
-      induction' k with k ih <;> simp_all +decide [ Finset.sum_range_succ, Nat.choose_succ_succ ];
-      nlinarith [ ih ( by linarith ), Nat.add_one_mul_choose_eq n k, Nat.choose_succ_succ n k ]
+      induction k with
+      | zero =>
+        simp_all +decide [ Finset.sum_range_succ, Nat.choose_succ_succ ]
+      | succ k ih =>
+        simp_all +decide [ Finset.sum_range_succ, Nat.choose_succ_succ ];
+        nlinarith [ ih ( by linarith ), Nat.add_one_mul_choose_eq n k, Nat.choose_succ_succ n k ]
 
 /-
 The cardinality of the bad set for Lemma 3.1 (v2) is bounded by L^D * (B+1) * D^B.
