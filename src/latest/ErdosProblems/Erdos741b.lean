@@ -34,7 +34,6 @@ We formalize three results about Erdős problem #741:
 import Mathlib
 
 set_option linter.style.setOption false
-set_option linter.style.induction false
 set_option linter.style.refine false
 set_option linter.style.multiGoal false
 set_option linter.flexible false
@@ -204,9 +203,11 @@ The basis property: [4, 6·5^k] ⊆ A_k + A_k.
 theorem basis_stage (k : ℕ) :
     Set.Icc 4 (6 * 5 ^ k) ⊆ syndeticA_prefix k + syndeticA_prefix k := by
   intro n hn
-  induction' k with k ih generalizing n;
-  · exact basis_stage_zero hn;
-  · -- By the induction hypothesis, [4, 6Q] is covered at stage k+1.
+  induction k generalizing n with
+  | zero =>
+    exact basis_stage_zero hn;
+  | succ k ih =>
+    -- By the induction hypothesis, [4, 6Q] is covered at stage k+1.
     have h_ind : Set.Icc 4 (6 * 5 ^ k) ⊆ syndeticA_prefix (k + 1) + syndeticA_prefix (k + 1) := by
       exact fun x hx => by
         rcases ih hx with ⟨ a, ha, b, hb, hab ⟩
@@ -1208,43 +1209,44 @@ B₁ + B₂ covers all natural numbers.
 -/
 theorem digitSetB1_add_digitSetB2 : digitSetB1 + digitSetB2 = Set.univ := by
   apply Set.eq_univ_of_forall; intro n;
-  induction' n using Nat.strong_induction_on with n ih;
-  -- Let's consider the four cases for $n$: $n = 4k$, $n = 4k + 1$, $n = 4k + 2$, or $n = 4k + 3$
-  -- for some $k$.
-  obtain ⟨k, rfl | rfl | rfl | rfl⟩ :
-      ∃ k, n = 4 * k ∨ n = 4 * k + 1 ∨
-        n = 4 * k + 2 ∨ n = 4 * k + 3 := by
-    exact ⟨ n / 4, by omega ⟩;
-  · by_cases hk : k = 0;
-    · exact ⟨ 0, by unfold digitSetB1; aesop, 0, by unfold digitSetB2; aesop, by aesop ⟩;
-    · obtain ⟨ a, ha, b, hb, hab ⟩ := ih k ( by linarith [ Nat.pos_of_ne_zero hk ] );
-      refine' ⟨ 4 * a, _, 4 * b, _, _ ⟩ <;> simp_all +decide [ digitSetB1, digitSetB2 ];
-      · rintro ( _ | r ) <;> simp_all +decide [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ];
-      · intro r
-        rcases r with ( _ | r ) <;>
-          norm_num [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ] at *
-        all_goals aesop
+  induction n using Nat.strong_induction_on with
+  | h n ih =>
+    -- Let's consider the four cases for $n$: $n = 4k$, $n = 4k + 1$, $n = 4k + 2$, or $n = 4k + 3$
+    -- for some $k$.
+    obtain ⟨k, rfl | rfl | rfl | rfl⟩ :
+        ∃ k, n = 4 * k ∨ n = 4 * k + 1 ∨
+          n = 4 * k + 2 ∨ n = 4 * k + 3 := by
+      exact ⟨ n / 4, by omega ⟩;
+    · by_cases hk : k = 0;
+      · exact ⟨ 0, by unfold digitSetB1; aesop, 0, by unfold digitSetB2; aesop, by aesop ⟩;
+      · obtain ⟨ a, ha, b, hb, hab ⟩ := ih k ( by linarith [ Nat.pos_of_ne_zero hk ] );
+        refine' ⟨ 4 * a, _, 4 * b, _, _ ⟩ <;> simp_all +decide [ digitSetB1, digitSetB2 ];
+        · rintro ( _ | r ) <;> simp_all +decide [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ];
+        · intro r
+          rcases r with ( _ | r ) <;>
+            norm_num [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ] at *
+          all_goals aesop
+        · linarith;
+    · obtain ⟨ a, ha, b, hb, hab ⟩ := ih k ( by linarith );
+      refine' ⟨ 4 * a + 1, _, 4 * b, _, _ ⟩ <;> simp_all +decide [ digitSetB1, digitSetB2 ];
+      · rintro ( _ | r ) <;> norm_num [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ];
+        norm_num [ Nat.add_div ] ; aesop;
+      · rintro ( _ | r ) <;> norm_num [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ];
+        exact hb r;
       · linarith;
-  · obtain ⟨ a, ha, b, hb, hab ⟩ := ih k ( by linarith );
-    refine' ⟨ 4 * a + 1, _, 4 * b, _, _ ⟩ <;> simp_all +decide [ digitSetB1, digitSetB2 ];
-    · rintro ( _ | r ) <;> norm_num [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ];
-      norm_num [ Nat.add_div ] ; aesop;
-    · rintro ( _ | r ) <;> norm_num [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ];
-      exact hb r;
-    · linarith;
-  · obtain ⟨ a, ha, b, hb, hab ⟩ := ih k ( by linarith );
-    refine' ⟨ 4 * a, _, 4 * b + 2, _, _ ⟩ <;> simp_all +decide [ digitSetB1, digitSetB2 ];
-    · rintro ( _ | r ) <;> norm_num [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ] at * ; aesop;
-    · intro r; rcases r with ( _ | r ) <;> norm_num [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ] ;
-      norm_num [ Nat.add_div ] ; aesop;
-    · bv_omega;
-  · obtain ⟨ a, ha, b, hb, hab ⟩ := ih k ( by linarith );
-    refine' ⟨ 4 * a + 1, _, 4 * b + 2, _, _ ⟩ <;> simp_all +decide [ digitSetB1, digitSetB2 ];
-    · rintro ( _ | r ) <;> norm_num [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ];
-      norm_num [ Nat.add_div ] ; aesop;
-    · intro r; rcases r with ( _ | r ) <;> norm_num [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ] ;
-      norm_num [ Nat.add_div ] ; aesop;
-    · linarith
+    · obtain ⟨ a, ha, b, hb, hab ⟩ := ih k ( by linarith );
+      refine' ⟨ 4 * a, _, 4 * b + 2, _, _ ⟩ <;> simp_all +decide [ digitSetB1, digitSetB2 ];
+      · rintro ( _ | r ) <;> norm_num [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ] at * ; aesop;
+      · intro r; rcases r with ( _ | r ) <;> norm_num [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ] ;
+        norm_num [ Nat.add_div ] ; aesop;
+      · bv_omega;
+    · obtain ⟨ a, ha, b, hb, hab ⟩ := ih k ( by linarith );
+      refine' ⟨ 4 * a + 1, _, 4 * b + 2, _, _ ⟩ <;> simp_all +decide [ digitSetB1, digitSetB2 ];
+      · rintro ( _ | r ) <;> norm_num [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ];
+        norm_num [ Nat.add_div ] ; aesop;
+      · intro r; rcases r with ( _ | r ) <;> norm_num [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ] ;
+        norm_num [ Nat.add_div ] ; aesop;
+      · linarith
 
 /-- The counterexample set for Theorem 2: A = B₁ ∪ B₂ ∪ ⋃_{k≥1} I_k
     where N_k = 4^(3^k) and I_k = [N_k, (k+1)·N_k). -/
@@ -1291,9 +1293,13 @@ lemma digit_decomp_unique (m : ℕ) (n : ℕ) (hn : n < 4 ^ m) :
             ∃ b₁ b₂ : ℕ,
               b₁ ∈ digitSetB1 ∧ b₁ < 4 ^ m ∧
                 b₂ ∈ digitSetB2 ∧ b₂ < 4 ^ m ∧ b₁ + b₂ = n := by
-          induction' m with m ih generalizing n <;> simp_all +decide [ pow_succ' ];
-          · exact ⟨ fun _ => by norm_num, fun _ => by norm_num ⟩;
-          · -- Let's consider the base-4 representation of $n$. We can write $n$ as $4q + r$ where
+          induction m generalizing n with
+          | zero =>
+            simp_all +decide [ pow_succ' ];
+            exact ⟨ fun _ => by norm_num, fun _ => by norm_num ⟩;
+          | succ m ih =>
+            simp_all +decide [ pow_succ' ];
+            -- Let's consider the base-4 representation of $n$. We can write $n$ as $4q + r$ where
             -- $q < 4^m$ and $r \in \{0, 1, 2, 3\}$.
             obtain ⟨q, r, hr⟩ : ∃ q r, n = 4 * q + r ∧ q < 4 ^ m ∧ r < 4 := by
               exact
@@ -1342,9 +1348,11 @@ lemma digit_decomp_unique (m : ℕ) (n : ℕ) (hn : n < 4 ^ m) :
               b₂ ∈ digitSetB2 → b₂ < 4 ^ m →
               a + b = b₁ + b₂ → a = b₁ ∧ b = b₂ := by
           intros m a b b₁ b₂ ha ha' hb hb' hb₁ hb₁' hb₂ hb₂' hab
-          induction' m with m ih generalizing a b b₁ b₂;
-          · aesop;
-          · -- By the properties of the digit sets, we know that $a \mod 4$ and $b \mod 4$ are in
+          induction m generalizing a b b₁ b₂ with
+          | zero =>
+            aesop;
+          | succ m ih =>
+            -- By the properties of the digit sets, we know that $a \mod 4$ and $b \mod 4$ are in
             -- $\{0, 1\}$ and $\{0, 2\}$ respectively.
             have h_mod :
                 a % 4 ∈ ({0, 1} : Set ℕ) ∧
@@ -1418,10 +1426,13 @@ lemma digit_add_injective (m : ℕ) :
               intro r hr; have := ha r; have := hb r; norm_num at *; aesop;
             have h_sum_lt : ∀ r ≤ m, (a / 4 ^ r) + (b / 4 ^ r) < 4 ^ (m - r) := by
               intro r hr;
-              induction' hr : m - r with k hk generalizing r <;>
+              induction hr : m - r generalizing r with
+              | zero =>
                 simp_all +decide [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ];
-              · rw [ Nat.sub_eq_iff_eq_add ] at hr <;> aesop;
-              · have := hk ( r + 1 ) ( by omega ) ( by omega );
+                rw [ Nat.sub_eq_iff_eq_add ] at hr <;> aesop;
+              | succ k hk =>
+                simp_all +decide [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ];
+                have := hk ( r + 1 ) ( by omega ) ( by omega );
                 rw [
                   show
                       a / 4 ^ r =
@@ -1478,9 +1489,11 @@ lemma cross_digit_count (S₁ S₂ : Set ℕ) (m : ℕ) :
             ∀ m : ℕ, ∀ a ∈ digitSetB1, ∀ b ∈ digitSetB2,
               a < 4 ^ m → b < 4 ^ m → a + b < 4 ^ m := by
           intros m a ha b hb ha_lt hb_lt;
-          induction' m with m ih generalizing a b;
-          · aesop;
-          · have h_no_carry : a / 4 ∈ digitSetB1 ∧ b / 4 ∈ digitSetB2 := by
+          induction m generalizing a b with
+          | zero =>
+            aesop;
+          | succ m ih =>
+            have h_no_carry : a / 4 ∈ digitSetB1 ∧ b / 4 ∈ digitSetB2 := by
               exact
                 ⟨ fun r => by
                     simpa [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ] using ha ( r + 1 ),
@@ -1542,10 +1555,13 @@ lemma digitSetB1_self_sum_count (m : ℕ) :
                     n < 4 ^ m →
                       n = ∑ i ∈ Finset.range m, (n / 4 ^ i) % 4 * 4 ^ i := by
                 intro n m hn
-                induction' m with m ih generalizing n <;>
+                induction m generalizing n with
+                | zero =>
                   norm_num [ Finset.sum_range_succ', pow_succ' ] at *
-                · exact hn;
-                · have := ih ( n / 4 ) ( Nat.div_lt_of_lt_mul <| by linarith );
+                  exact hn;
+                | succ m ih =>
+                  norm_num [ Finset.sum_range_succ', pow_succ' ] at *
+                  have := ih ( n / 4 ) ( Nat.div_lt_of_lt_mul <| by linarith );
                   norm_num [ Nat.div_div_eq_div_mul, Nat.mul_mod_mul_left ] at *;
                   norm_num [ mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _ ] at *;
                   rw [ ← Finset.mul_sum _ _ _, ← this ] ; linarith [ Nat.mod_add_div n 4 ];
@@ -1592,13 +1608,17 @@ lemma digitSetB2_self_sum_count (m : ℕ) :
                       4 ^ i +
                     (a / 4 ^ n) * 4 ^ n + (b / 4 ^ n) * 4 ^ n := by
             intro n
-            induction' n with n ih <;>
+            induction n with
+            | zero =>
               simp +decide [ Finset.sum_range_succ, pow_succ,
                 ← Nat.div_div_eq_div_mul ] at *
-            nlinarith [
-              Nat.mod_add_div (a / 4 ^ n) 4,
-              Nat.mod_add_div (b / 4 ^ n) 4,
-              pow_pos (show 0 < 4 by decide) n]
+            | succ n ih =>
+              simp +decide [ Finset.sum_range_succ, pow_succ,
+                ← Nat.div_div_eq_div_mul ] at *
+              nlinarith [
+                Nat.mod_add_div (a / 4 ^ n) 4,
+                Nat.mod_add_div (b / 4 ^ n) 4,
+                pow_pos (show 0 < 4 by decide) n]
           specialize h_sum m;
           nlinarith [
             Nat.div_eq_of_lt
@@ -1688,10 +1708,12 @@ lemma density_algebraic_bound (x y : ℝ) (hx : 0 ≤ x) (hx' : x ≤ 1) (hy : 0
 
 /-- B₁ has exactly 2^m elements below 4^m -/
 lemma digitSetB1_countIn (m : ℕ) : countIn digitSetB1 (4 ^ m) = 2 ^ m := by
-  induction' m with m ih
-  · unfold digitSetB1; unfold countIn; simp +decide;
+  induction m with
+  | zero =>
+    unfold digitSetB1; unfold countIn; simp +decide;
     rw [Finset.filter_singleton]; norm_num
-  · have h_split :
+  | succ m ih =>
+    have h_split :
         ∀ N : ℕ,
           countIn digitSetB1 (4 * N) =
             countIn (fun n => n ∈ digitSetB1 ∧ n % 4 = 0) (4 * N) +
@@ -1755,10 +1777,12 @@ lemma digitSetB1_countIn (m : ℕ) : countIn digitSetB1 (4 ^ m) = 2 ^ m := by
 B₂ has exactly 2^m elements below 4^m
 -/
 lemma digitSetB2_countIn (m : ℕ) : countIn digitSetB2 (4 ^ m) = 2 ^ m := by
-  induction' m with m ih;
-  · unfold digitSetB2; unfold countIn; simp +decide ;
+  induction m with
+  | zero =>
+    unfold digitSetB2; unfold countIn; simp +decide ;
     rw [ Finset.filter_singleton ] ; norm_num;
-  · -- We'll use the fact that numbers in `digitSetB2` can be split into those with last digit 0 and
+  | succ m ih =>
+    -- We'll use the fact that numbers in `digitSetB2` can be split into those with last digit 0 and
     -- those with last digit 2.
     have h_split :
         ∀ N : ℕ,
