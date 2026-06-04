@@ -33,7 +33,6 @@ namespace Erdos541
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.style.refine false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.whitespace false
 set_option linter.style.cdot false
@@ -166,7 +165,7 @@ lemma exists_partition_into_sets {G : Type*} [DecidableEq G] (S : Multiset G) (k
   · have h_count_x : ∀ x ∈ T, Multiset.count x (∑ i, (A i).val) = ∑ i, (if x ∈ A i then 1 else 0) := by
       intro x hx
       have h_count_x : Multiset.count x (∑ i, (A i).val) = ∑ i, Multiset.count x ((A i).val) := by
-        induction' ( Finset.univ : Finset ( Fin k ) ) using Finset.induction <;> aesop;
+        induction ( Finset.univ : Finset ( Fin k ) ) using Finset.induction <;> aesop;
       convert h_count_x using 2;
       split_ifs <;> simp_all +decide [ Multiset.count_eq_zero ];
       rw [ Multiset.count_eq_one_of_mem ];
@@ -186,63 +185,66 @@ lemma exists_nonempty_partition_into_sets {G : Type*} [DecidableEq G] (S : Multi
     ∃ A : Fin k → Finset G, (∀ i, (A i).Nonempty) ∧ ∑ i, (A i).val = S := by
   -- Let's apply the lemma h_partition and obtain the corresponding partition.
   obtain ⟨A, hA⟩ := exists_partition_into_sets S k h_mul;
-  induction' k with k ih;
-  · aesop;
-  · induction' i : Finset.card ( Finset.filter ( fun i => A i = ∅ ) Finset.univ ) using Nat.strong_induction_on with n ih generalizing A;
-    by_cases hn : n = 0;
-    · simp_all +decide [ Finset.ext_iff ];
-      exact Filter.frequently_principal.mp fun a ↦ a i hA;
-    · -- If there is an empty set $A_i$, since $\sum |A_j| = |S| \ge k + 1 > m$ (if $m < k + 1$), there must be some $A_j$ with $|A_j| \ge 2$.
-      obtain ⟨i, hi⟩ : ∃ i, A i = ∅ := by
-        exact Exists.elim ( Finset.card_pos.mp ( by linarith [ Nat.pos_of_ne_zero hn ] ) ) fun x hx => ⟨ x, by simpa using hx ⟩
-      obtain ⟨j, hj⟩ : ∃ j, 2 ≤ (A j).card := by
-        have h_sum_card : ∑ i, (A i).card = S.card := by
-          replace hA := congr_arg Multiset.card hA ; aesop;
-        by_contra h_no_j
-        push Not at h_no_j
-        have h_each_le_one : ∀ j, (A j).card ≤ 1 := fun j => Nat.le_of_lt_succ (h_no_j j)
-        have h_split : ∑ j, (A j).card = (A i).card + ∑ j ∈ (Finset.univ \ {i}), (A j).card := by
-          simpa using
-            (Finset.sum_eq_add_sum_diff_singleton (s := Finset.univ) i (fun j => (A j).card)
-              (by simp))
-        have h_tail_le : ∑ j ∈ (Finset.univ \ {i}), (A j).card ≤
-            ∑ j ∈ (Finset.univ \ {i}), (1 : ℕ) := by
-          exact Finset.sum_le_sum fun j _ => h_each_le_one j
-        have h_tail_sum : ∑ j ∈ (Finset.univ \ {i}), (1 : ℕ) = k := by
-          simp [Finset.card_sdiff]
-        have h_sum_le : ∑ j, (A j).card ≤ k := by
-          rw [h_split, hi]
-          simpa [h_tail_sum] using h_tail_le
-        omega
-      -- Pick $x \in A_j$. Move $x$ to $A_i$.
-      obtain ⟨x, hx⟩ : ∃ x, x ∈ A j := by
-        exact Finset.card_pos.mp ( pos_of_gt hj )
-      set A' : Fin (k + 1) → Finset G := fun l => if l = i then {x} else if l = j then A j \ {x} else A l;
-      refine' ih ( Finset.card ( Finset.filter ( fun l => A' l = ∅ ) Finset.univ ) ) _ A' _ _;
-      · refine' lt_of_le_of_lt ( Finset.card_le_card _ ) _;
-        exact Finset.filter ( fun l => A l = ∅ ) Finset.univ \ { i };
-        · intro l hl; contrapose! hl; aesop;
-        · grind;
-      · rw [ ← hA ];
-        rw [ show ∑ l, (A' l).val = (A' i).val + ∑ l ∈ (Finset.univ \ {i}), (A' l).val by
-          simpa using
-            (Finset.sum_eq_add_sum_diff_singleton (s := Finset.univ) i (fun l => (A' l).val)
-              (by simp)) ];
-        rw [ show ∑ l ∈ (Finset.univ \ {i}), (A' l).val =
-            (A' j).val + ∑ l ∈ ((Finset.univ \ {i}) \ {j}), (A' l).val by
-          simpa using
-            (Finset.sum_eq_add_sum_diff_singleton (s := Finset.univ \ {i}) j (fun l => (A' l).val)
-              (by intro hj; exact False.elim ((by aesop) : False))) ];
-        rw [ show ∑ l, (A l).val = (A j).val + ∑ l ∈ (Finset.univ \ {j}), (A l).val by
-          simpa using
-            (Finset.sum_eq_add_sum_diff_singleton (s := Finset.univ) j (fun l => (A l).val)
-              (by simp)) ];
-        rw [ show ( Finset.univ \ { j } : Finset ( Fin ( k + 1 ) ) ) = ( Finset.univ \ { i } ) \ { j } ∪ { i } from ?_, Finset.sum_union ] <;> norm_num;
-        · rw [ show A' i = { x } from if_pos rfl, show A' j = A j \ { x } from if_neg ( by aesop ) |> fun h => h.trans ( if_pos rfl ) ];
-          simp +decide [ ← add_assoc, ← Multiset.cons_coe, hx, hi ];
-          exact Finset.sum_congr rfl fun x hx => by aesop;
-        · grind;
-      · rfl
+  induction k with
+  | zero =>
+    aesop;
+  | succ k ih =>
+    induction i : Finset.card ( Finset.filter ( fun i => A i = ∅ ) Finset.univ ) using Nat.strong_induction_on generalizing A with
+    | h n ih =>
+      by_cases hn : n = 0;
+      · simp_all +decide [ Finset.ext_iff ];
+        exact Filter.frequently_principal.mp fun a ↦ a i hA;
+      · -- If there is an empty set $A_i$, since $\sum |A_j| = |S| \ge k + 1 > m$ (if $m < k + 1$), there must be some $A_j$ with $|A_j| \ge 2$.
+        obtain ⟨i, hi⟩ : ∃ i, A i = ∅ := by
+          exact Exists.elim ( Finset.card_pos.mp ( by linarith [ Nat.pos_of_ne_zero hn ] ) ) fun x hx => ⟨ x, by simpa using hx ⟩
+        obtain ⟨j, hj⟩ : ∃ j, 2 ≤ (A j).card := by
+          have h_sum_card : ∑ i, (A i).card = S.card := by
+            replace hA := congr_arg Multiset.card hA ; aesop;
+          by_contra h_no_j
+          push Not at h_no_j
+          have h_each_le_one : ∀ j, (A j).card ≤ 1 := fun j => Nat.le_of_lt_succ (h_no_j j)
+          have h_split : ∑ j, (A j).card = (A i).card + ∑ j ∈ (Finset.univ \ {i}), (A j).card := by
+            simpa using
+              (Finset.sum_eq_add_sum_diff_singleton (s := Finset.univ) i (fun j => (A j).card)
+                (by simp))
+          have h_tail_le : ∑ j ∈ (Finset.univ \ {i}), (A j).card ≤
+              ∑ j ∈ (Finset.univ \ {i}), (1 : ℕ) := by
+            exact Finset.sum_le_sum fun j _ => h_each_le_one j
+          have h_tail_sum : ∑ j ∈ (Finset.univ \ {i}), (1 : ℕ) = k := by
+            simp [Finset.card_sdiff]
+          have h_sum_le : ∑ j, (A j).card ≤ k := by
+            rw [h_split, hi]
+            simpa [h_tail_sum] using h_tail_le
+          omega
+        -- Pick $x \in A_j$. Move $x$ to $A_i$.
+        obtain ⟨x, hx⟩ : ∃ x, x ∈ A j := by
+          exact Finset.card_pos.mp ( pos_of_gt hj )
+        set A' : Fin (k + 1) → Finset G := fun l => if l = i then {x} else if l = j then A j \ {x} else A l;
+        refine' ih ( Finset.card ( Finset.filter ( fun l => A' l = ∅ ) Finset.univ ) ) _ A' _ _;
+        · refine' lt_of_le_of_lt ( Finset.card_le_card _ ) _;
+          exact Finset.filter ( fun l => A l = ∅ ) Finset.univ \ { i };
+          · intro l hl; contrapose! hl; aesop;
+          · grind;
+        · rw [ ← hA ];
+          rw [ show ∑ l, (A' l).val = (A' i).val + ∑ l ∈ (Finset.univ \ {i}), (A' l).val by
+            simpa using
+              (Finset.sum_eq_add_sum_diff_singleton (s := Finset.univ) i (fun l => (A' l).val)
+                (by simp)) ];
+          rw [ show ∑ l ∈ (Finset.univ \ {i}), (A' l).val =
+              (A' j).val + ∑ l ∈ ((Finset.univ \ {i}) \ {j}), (A' l).val by
+            simpa using
+              (Finset.sum_eq_add_sum_diff_singleton (s := Finset.univ \ {i}) j (fun l => (A' l).val)
+                (by intro hj; exact False.elim ((by aesop) : False))) ];
+          rw [ show ∑ l, (A l).val = (A j).val + ∑ l ∈ (Finset.univ \ {j}), (A l).val by
+            simpa using
+              (Finset.sum_eq_add_sum_diff_singleton (s := Finset.univ) j (fun l => (A l).val)
+                (by simp)) ];
+          rw [ show ( Finset.univ \ { j } : Finset ( Fin ( k + 1 ) ) ) = ( Finset.univ \ { i } ) \ { j } ∪ { i } from ?_, Finset.sum_union ] <;> norm_num;
+          · rw [ show A' i = { x } from if_pos rfl, show A' j = A j \ { x } from if_neg ( by aesop ) |> fun h => h.trans ( if_pos rfl ) ];
+            simp +decide [ ← add_assoc, ← Multiset.cons_coe, hx, hi ];
+            exact Finset.sum_congr rfl fun x hx => by aesop;
+          · grind;
+        · rfl
 
 /-
 Generalized Cauchy-Davenport for k sets.
@@ -253,9 +255,11 @@ lemma cauchy_davenport_finset_sum {p : ℕ} [Fact p.Prime] {k : ℕ} (hk : k ≠
   have h_cauchy : ∀ (A₁ A₂ : Finset (ZMod p)), A₁.Nonempty → A₂.Nonempty → Finset.card (A₁ + A₂) ≥ min p (Finset.card A₁ + Finset.card A₂ - 1) := by
     intro A₁ A₂ hA₁ hA₂; have := @ZMod.cauchy_davenport;
     exact this Fact.out hA₁ hA₂;
-  induction' k with k ih;
-  · contradiction;
-  · rcases eq_or_ne k 0 <;> simp_all +decide [ Fin.sum_univ_succ ];
+  induction k with
+  | zero =>
+    contradiction;
+  | succ k ih =>
+    rcases eq_or_ne k 0 <;> simp_all +decide [ Fin.sum_univ_succ ];
     · aesop;
     · cases' ih ( fun i => A i.succ ) ( fun i => hA i.succ ) with h h
       · have h_card_ge_p : Finset.card (A 0 + ∑ i : Fin k, A (Fin.succ i)) ≥ Finset.card (∑ i : Fin k, A (Fin.succ i)) := by
@@ -307,15 +311,27 @@ lemma lem_setpartition {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) (k : ℕ
     intro x hx
     obtain ⟨a, ha⟩ : ∃ a : Fin k → ZMod p, (∀ i, a i ∈ A i) ∧ x = ∑ i, a i := by
       have h_exists_a : ∀ (k : ℕ) (A : Fin k → Finset (ZMod p)), (∀ i, (A i).Nonempty) → ∀ x ∈ ∑ i, A i, ∃ a : Fin k → ZMod p, (∀ i, a i ∈ A i) ∧ x = ∑ i, a i := by
-        intro k A hA₁ x hx; induction' k with k ih generalizing x <;> simp_all +decide [ Fin.sum_univ_succ ] ;
-        rw [ Finset.mem_add ] at hx; obtain ⟨ a, ha, b, hb, rfl ⟩ := hx; obtain ⟨ a', ha', rfl ⟩ := ih _ ( fun i => hA₁ i.succ ) _ hb; exact ⟨ Fin.cons a a', fun i => by cases i using Fin.inductionOn <;> aesop, by simp +decide [ Fin.sum_univ_succ ] ⟩ ;
+        intro k A hA₁ x hx
+        induction k generalizing x with
+        | zero =>
+          simp_all +decide [ Fin.sum_univ_succ ]
+        | succ k ih =>
+          simp_all +decide [ Fin.sum_univ_succ ]
+          rw [ Finset.mem_add ] at hx
+          obtain ⟨ a, ha, b, hb, rfl ⟩ := hx
+          obtain ⟨ a', ha', rfl ⟩ := ih _ ( fun i => hA₁ i.succ ) _ hb
+          exact ⟨ Fin.cons a a', fun i => by cases i using Fin.inductionOn <;> aesop, by simp +decide [ Fin.sum_univ_succ ] ⟩
       exact h_exists_a k A hA₁ x hx;
     -- Since $a_i \in A_i$ for all $i$, the multiset $\{a_1, \dots, a_k\}$ is a sub-multiset of $S$.
     have h_sub_multiset : Multiset.ofList (List.ofFn a) ≤ S := by
       rw [ ← hA₂ ];
       simp +decide [ List.ofFn_eq_map, Finset.sum ];
-      induction' ( List.finRange k ) with i hi <;> simp_all +decide [ List.map ];
-      exact add_le_add ( Multiset.singleton_le.mpr ( ha.1 i ) ) ‹_›;
+      induction ( List.finRange k ) with
+      | nil =>
+        simp_all +decide [ List.map ]
+      | cons i hi ih =>
+        simp_all +decide [ List.map ]
+        exact add_le_add ( Multiset.singleton_le.mpr ( ha.1 i ) ) ih
     unfold seq_sigma
     rw [Multiset.mem_toFinset, Multiset.mem_map]
     refine ⟨Multiset.ofList (List.ofFn a), ?_, ?_⟩
@@ -630,9 +646,11 @@ The set of all subsums of a multiset $S$ (including the empty sum) is equal to t
 lemma subsums_eq_sum_pair_sets {G : Type*} [AddCommMonoid G] [DecidableEq G] (S : Multiset G) :
     seq_sigma_ge S 0 = (S.map (fun x => ({0, x} : Finset G))).sum := by
       ext x
-      induction' S using Multiset.induction with a S ih generalizing x
-      · simp [seq_sigma_ge, seq_sigma]
-      · have ihset : seq_sigma_ge S 0 = (S.map (fun x => ({0, x} : Finset G))).sum := by
+      induction S using Multiset.induction generalizing x with
+      | empty =>
+        simp [seq_sigma_ge, seq_sigma]
+      | cons a S ih =>
+        have ihset : seq_sigma_ge S 0 = (S.map (fun x => ({0, x} : Finset G))).sum := by
           ext y
           exact ih y
         simp only [Multiset.map_cons, sum_cons]
@@ -691,14 +709,18 @@ lemma cauchy_davenport_multiset_sum {p : ℕ} [Fact p.Prime] (S : Multiset (Fins
     min p ((S.map Finset.card).sum - S.card + 1) ≤ S.sum.card := by
       -- By the induction hypothesis, the theorem holds for S'.
       have ih : ∀ (S' : Multiset (Finset (ZMod p))) (hS' : S' ≠ 0) (h_nonempty' : ∀ s ∈ S', s.Nonempty), min p ((Multiset.map Finset.card S').sum - S'.card + 1) ≤ (S').sum.card := by
-        intro S' hS' h_nonempty'; induction' S' using Multiset.induction with s S' ih ; aesop;
-        by_cases hS'' : S' = 0 <;> simp_all +decide;
-        have h_cauchy_davenport : (s + S'.sum).card ≥ min p (s.card + S'.sum.card - 1) := by
-          have := @cauchy_davenport_finset_sum p;
-          specialize this ( show 2 ≠ 0 by decide ) ( fun i => if i = 0 then s else S'.sum ) ; simp_all +decide [ Fin.forall_fin_two ];
-          contrapose! this;
-          exact ⟨ Finset.nonempty_of_ne_empty ( by aesop_cat ), this.1, by omega ⟩;
-        grind;
+        intro S' hS' h_nonempty'
+        induction S' using Multiset.induction with
+        | empty =>
+          aesop
+        | cons s S' ih =>
+          by_cases hS'' : S' = 0 <;> simp_all +decide;
+          have h_cauchy_davenport : (s + S'.sum).card ≥ min p (s.card + S'.sum.card - 1) := by
+            have := @cauchy_davenport_finset_sum p;
+            specialize this ( show 2 ≠ 0 by decide ) ( fun i => if i = 0 then s else S'.sum ) ; simp_all +decide [ Fin.forall_fin_two ];
+            contrapose! this;
+            exact ⟨ Finset.nonempty_of_ne_empty ( by aesop_cat ), this.1, by omega ⟩;
+          grind;
       exact ih S hS h_nonempty
 
 /-
@@ -2534,9 +2556,11 @@ lemma prefix_sums_swap_almost_same {G : Type*} [AddCommGroup G]
       classical
       intro L' j hj
       generalize_proofs at *;
-      induction' j with j ih generalizing i;
-      · rfl;
-      · rcases j with ( _ | j ) <;> simp_all +decide [ List.take_add_one ];
+      induction j generalizing i with
+      | zero =>
+        rfl;
+      | succ j ih =>
+        rcases j with ( _ | j ) <;> simp_all +decide [ List.take_add_one ];
         · cases i <;> aesop;
         · unfold L'; simp +decide [ List.getElem?_set ] ;
           rcases eq_or_ne i j with ( rfl | hne ) <;> simp_all +decide [ add_comm, add_left_comm ];
@@ -2886,9 +2910,19 @@ lemma constant_of_adjacent_eq_prefix {α : Type*} (L : List α) (k : ℕ) (hk : 
     ∀ i j, (hi : i < k) → (hj : j < k) → L.get ⟨i, by
       grind⟩ = L.get ⟨j, by
       linarith⟩ := by
-      intro i j hi hj; induction' i with i ih generalizing j; induction' j with j ih'; aesop;
-      · rw [ ih' ( Nat.lt_of_succ_lt hj ), h_adj _ hj ];
-      · grind
+      have h_zero : ∀ i, (hi : i < k) → L.get ⟨0, by omega⟩ = L.get ⟨i, by omega⟩ := by
+        intro i hi
+        induction i with
+        | zero =>
+          rfl
+        | succ i ih =>
+          calc
+            L.get ⟨0, by omega⟩ = L.get ⟨i, by omega⟩ := ih (by omega)
+            _ = L.get ⟨i + 1, by omega⟩ := h_adj i (by omega)
+      intro i j hi hj
+      calc
+        L.get ⟨i, by grind⟩ = L.get ⟨0, by omega⟩ := (h_zero i hi).symm
+        _ = L.get ⟨j, by linarith⟩ := h_zero j hj
 
 /-
 The list T is constant on the intervals [0, k) and [k, m).
@@ -2926,9 +2960,11 @@ lemma claim_2_T_piecewise_constant {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod 
       generalize_proofs at *;
       refine ⟨ h_const_prefix, ?_ ⟩;
       intro i j hi hi' hj hj';
-      induction' hi with i hi ih generalizing j;
-      · induction hj <;> aesop;
-      · grind
+      induction hi generalizing j with
+      | refl =>
+        induction hj <;> aesop;
+      | step hi ih =>
+        grind
 
 /-
 A list is piecewise constant if it can be split into two parts, each of which is constant.
@@ -3378,12 +3414,14 @@ If T is a sub-multiset of the values of a, then T corresponds to a subset of ind
     ∃ I : Finset (Fin n), T = Multiset.map a I.val := by
       classical
       revert T;
-      induction' n with n ih;
-      · intro T hT
+      induction n with
+      | zero =>
+        intro T hT
         have hT0 : T = 0 := by
           exact le_zero.mp hT
         exact ⟨ ∅, by simp [hT0] ⟩
-      · intro T hT
+      | succ n ih =>
+        intro T hT
         rw [Multiset.le_iff_count] at hT
         simp (config := { decide := Bool.true }) [List.ofFn_succ] at hT
         by_cases h0 : a 0 ∈ T;
