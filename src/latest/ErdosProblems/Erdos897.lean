@@ -36,7 +36,6 @@ namespace Erdos897
 
 set_option linter.style.longLine false
 set_option linter.style.refine false
-set_option linter.style.induction false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
 
@@ -92,12 +91,13 @@ lemma lemma2 (n : ℕ) (hn : n ≥ 2) : f n ≤ logStar n * Real.log n := by
     · intro m hm;
       -- By definition of $iteratedLog$, we know that $iteratedLog m (p ^ (n.factorization p)) \leq iteratedLog m n$.
       have h_iteratedLog_le : iteratedLog m (p ^ (n.factorization p)) ≤ iteratedLog m n := by
-        induction' m with m ih;
+        induction m
         · -- Since $p^{n.factorization p}$ is a divisor of $n$, we have $p^{n.factorization p} \leq n$.
           have h_div : (p : ℝ) ^ (n.factorization p) ≤ n := by
             exact_mod_cast Nat.le_of_dvd ( by positivity ) ( Nat.ordProj_dvd _ _ );
           exact h_div;
-        · exact Real.log_le_log ( by linarith [ hm m ( by linarith ) ] ) ( ih fun k hk => hm k ( by linarith ) );
+        · rename_i m ih
+          exact Real.log_le_log ( by linarith [ hm m ( by linarith ) ] ) ( ih fun k hk => hm k ( by linarith ) );
       exact lt_of_lt_of_le ( hm m le_rfl ) h_iteratedLog_le;
     · rename_i h₁ h₂;
       contrapose! h₂;
@@ -149,9 +149,10 @@ $\log^{(j)}(E_k) = E_{k-j}$ for $j \le k$.
 -/
 lemma iteratedLog_E {j k : ℕ} (h : j ≤ k) : iteratedLog j (E k) = E (k - j) := by
   -- We prove this by induction on $j$.
-  induction' j with j ih;
+  induction j
   · rfl;
-  · -- For the inductive step, we know that $\log^{(j+1)}(E_k) = \log(\log^{(j)}(E_k))$.
+  · rename_i j ih
+    -- For the inductive step, we know that $\log^{(j+1)}(E_k) = \log(\log^{(j)}(E_k))$.
     have h_log_succ : iteratedLog (j + 1) (E k) = Real.log (iteratedLog j (E k)) := by
       rfl;
     rw [ h_log_succ, ih ( Nat.le_of_succ_le h ) ];
@@ -180,7 +181,9 @@ lemma logStar_eq_iff {x : ℝ} {k : ℕ} (hk : k ≥ 1) :
             · exact fun n hn => by rw [ ← hn ] ; rfl;
           rcases k with ( _ | k ) <;> simp_all +decide
           have h_exp_iter : ∀ j ≤ k, Real.exp^[j] 1 < iteratedLog (k - j) x := by
-            intro j hj; induction' j with j ih <;> simp_all +decide [ Function.iterate_succ_apply' ] ;
+            intro j hj
+            induction j <;> simp_all +decide [ Function.iterate_succ_apply' ]
+            rename_i j ih
             specialize ih ( Nat.le_of_succ_le hj );
             rw [ show k - j = ( k - ( j + 1 ) ) + 1 by omega, iteratedLog ] at ih;
             rwa [ Real.lt_log_iff_exp_lt ( by linarith [ this.1 ( k - ( j + 1 ) ) ( by omega ) ] ) ] at ih;
@@ -191,9 +194,10 @@ lemma logStar_eq_iff {x : ℝ} {k : ℕ} (hk : k ≥ 1) :
           -- By definition of $E$, we know that $E k < x$ implies $\log^{(k)} x > 1$.
           have h_log_k_gt_1 : ∀ j ≤ k, iteratedLog j x > E (k - j) := by
             intro j hj;
-            induction' j with j ih;
+            induction j
             · exact this;
-            · have h_log_k_gt_1 : iteratedLog (j + 1) x = Real.log (iteratedLog j x) := by
+            · rename_i j ih
+              have h_log_k_gt_1 : iteratedLog (j + 1) x = Real.log (iteratedLog j x) := by
                 exact rfl;
               rw [ h_log_k_gt_1 ];
               refine' lt_of_le_of_lt _ ( Real.log_lt_log ( _ ) ( ih ( Nat.le_of_succ_le hj ) ) );
@@ -205,9 +209,10 @@ lemma logStar_eq_iff {x : ℝ} {k : ℕ} (hk : k ≥ 1) :
         have h_log_star_def : (∀ j < k, iteratedLog j x > 1) ∧ iteratedLog k x ≤ 1 := by
           have h_log_star_def : ∀ j < k, iteratedLog j x > E (k - j - 1) := by
             intro j hj
-            induction' j with j ih;
+            induction j
             · aesop;
-            · have h_log_star_def : iteratedLog (j + 1) x = Real.log (iteratedLog j x) := by
+            · rename_i j ih
+              have h_log_star_def : iteratedLog (j + 1) x = Real.log (iteratedLog j x) := by
                 rfl;
               have h_log_star_def : Real.log (iteratedLog j x) > Real.log (E (k - j - 1)) := by
                 exact Real.log_lt_log ( by exact show 0 < E ( k - j - 1 ) from Nat.recOn ( k - j - 1 ) ( by norm_num [ show E 0 = 1 from rfl ] ) fun n ihn => by rw [ show E ( n + 1 ) = Real.exp ( E n ) from rfl ] ; positivity ) ( ih ( Nat.lt_of_succ_lt hj ) );
@@ -221,9 +226,10 @@ lemma logStar_eq_iff {x : ℝ} {k : ℕ} (hk : k ≥ 1) :
             have h_log_star_def : iteratedLog k x ≤ iteratedLog k (E k) := by
               have h_log_star_def : ∀ j ≤ k, iteratedLog j x ≤ iteratedLog j (E k) := by
                 intro j hj
-                induction' j with j ih;
+                induction j
                 · exact hx.2;
-                · have h_log_star_def : Real.log (iteratedLog j x) ≤ Real.log (iteratedLog j (E k)) := by
+                · rename_i j ih
+                  have h_log_star_def : Real.log (iteratedLog j x) ≤ Real.log (iteratedLog j (E k)) := by
                     apply Real.log_le_log;
                     · exact lt_of_le_of_lt ( by exact le_of_lt ( show 0 < E ( k - j - 1 ) from Nat.recOn ( k - j - 1 ) ( by norm_num [ show E 0 = 1 from rfl ] ) fun n ihn => by rw [ show E ( n + 1 ) = Real.exp ( E n ) from rfl ] ; positivity ) ) ( h_log_star_def j ( Nat.lt_of_succ_le hj ) );
                     · exact ih ( Nat.le_of_succ_le hj );
@@ -336,9 +342,10 @@ lemma E_growth_inequality (k : ℕ) (hk : k ≥ 6) :
         -- By definition of $E$, we know that $E_j \ge j$ for all $j$.
         have h_E_ge_j : ∀ j : ℕ, E j ≥ j := by
           intro j;
-          induction' j with j ih;
+          induction j
           · norm_num [ show E 0 = 1 by rfl ];
-          · rw [ show E ( j + 1 ) = Real.exp ( E j ) by rfl ] ; norm_num ; linarith [ Real.add_one_le_exp ( E j ) ];
+          · rename_i j ih
+            rw [ show E ( j + 1 ) = Real.exp ( E j ) by rfl ] ; norm_num ; linarith [ Real.add_one_le_exp ( E j ) ];
         exact le_trans ( by norm_num [ Nat.cast_sub ( show 3 ≤ k by linarith ) ] ) ( h_E_ge_j _ );
       -- We'll use that $e^x \geq x^3$ for $x \geq E_3$.
       have h_exp_ge_x3 : Real.exp x ≥ x^3 := by
@@ -475,14 +482,16 @@ lemma logStar_ge_six_of_large_n : ∃ n₀, ∀ n ≥ n₀, logStar n ≥ 6 := b
           have h_logStar_def : Filter.Tendsto E Filter.atTop Filter.atTop := by
             refine' Filter.tendsto_atTop_mono _ tendsto_natCast_atTop_atTop;
             intro n;
-            induction' n with n ih;
+            induction n
             · norm_num [ show E 0 = 1 by rfl ];
-            · exact le_trans ( by norm_num ) ( Real.add_one_le_exp _ ) |> le_trans <| Real.exp_le_exp.mpr ih;
+            · rename_i n ih
+              exact le_trans ( by norm_num ) ( Real.add_one_le_exp _ ) |> le_trans <| Real.exp_le_exp.mpr ih;
           exact ( h_logStar_def.eventually_ge_atTop n ) |> fun h => h.exists;
         contrapose! hk;
-        induction' k with k ih;
+        induction k
         · unfold E; linarith [ show 1 < n₀ from by linarith [ show 1 < E 5 from by exact lt_of_le_of_lt ( by norm_num [ E ] ) ( E_strictMono ( show 5 > 0 by norm_num ) ) ] ] ;
-        · exact hk _ ih;
+        · rename_i k ih
+          exact hk _ ih;
       obtain ⟨k, hk⟩ := h_logStar_def
       have h_logStar_eq : logStar n = k := by
         apply (logStar_eq_iff (by
@@ -579,10 +588,14 @@ lemma limit_k_div_E_k_minus_2 : Filter.Tendsto (fun k : ℕ => (k : ℝ) / E (k 
   -- For $k \ge 4$, $E_{k-2} \ge 2^{k-2}$.
   have h_E_ge_pow : ∀ k ≥ 4, (E (k - 2)) ≥ 2 ^ (k - 2) := by
     intro k hk;
-    induction' k - 2 with k hk ih <;> norm_num [ pow_succ', E ] at *;
-    rw [ ← Real.rpow_one 2, Real.rpow_def_of_pos ] <;> norm_num;
-    rw [ ← Real.exp_nat_mul, ← Real.exp_add ];
-    exact Real.exp_le_exp.mpr ( by have := Real.log_two_lt_d9; norm_num1 at *; nlinarith [ Real.log_nonneg one_le_two, show ( 2:ℝ ) ^ k ≥ ↑k + 1 by exact mod_cast Nat.recOn k ( by norm_num ) fun n ihn => by rw [ pow_succ' ] ; nlinarith [ Real.log_nonneg one_le_two ] ] );
+    induction k - 2 with
+    | zero =>
+      norm_num [ pow_succ', E ] at *
+    | succ k ih =>
+      norm_num [ pow_succ', E ] at *
+      rw [ ← Real.rpow_one 2, Real.rpow_def_of_pos ] <;> norm_num;
+      rw [ ← Real.exp_nat_mul, ← Real.exp_add ];
+      exact Real.exp_le_exp.mpr ( by have := Real.log_two_lt_d9; norm_num1 at *; nlinarith [ Real.log_nonneg one_le_two, show ( 2:ℝ ) ^ k ≥ ↑k + 1 by exact mod_cast Nat.recOn k ( by norm_num ) fun n ihn => by rw [ pow_succ' ] ; nlinarith [ Real.log_nonneg one_le_two ] ] );
   refine' squeeze_zero_norm' _ _;
   use fun n => ( n : ℝ ) / 2 ^ ( n - 2 );
   · filter_upwards [ Filter.eventually_ge_atTop 4 ] with n hn using by rw [ Real.norm_of_nonneg ( by exact div_nonneg ( Nat.cast_nonneg _ ) ( by exact le_trans ( by positivity ) ( h_E_ge_pow n hn ) ) ) ] ; exact div_le_div_of_nonneg_left ( by positivity ) ( by positivity ) ( h_E_ge_pow n hn ) ;
@@ -645,16 +658,21 @@ lemma logStar_gt_of_gt_E (k : ℕ) (n : ℕ) (h : (n : ℝ) > E k) : logStar n >
           have h_logStar_def : ∃ k, x ≤ E k := by
             have h_unbounded : ∀ M : ℝ, ∃ k, E k > M := by
               intro M;
-              induction' exists_nat_gt M with k hk;
+              rcases exists_nat_gt M with ⟨k, hk⟩
               use k + 1;
               refine' lt_of_lt_of_le hk _;
               field_simp;
-              induction' k with k ih;
+              induction k
               · norm_num [ show E 1 = Real.exp 1 by rfl ];
                 positivity;
-              · induction' k + 1 with k ih <;> norm_num [ *, Nat.cast_succ ] at *;
-                · exact Real.exp_nonneg _;
-                · have h_exp : E (k + 1) + 1 ≤ E (k + 1 + 1) := by
+              · rename_i k ih
+                induction k + 1 with
+                | zero =>
+                  norm_num [ *, Nat.cast_succ ] at *
+                  exact Real.exp_nonneg _;
+                | succ k ih =>
+                  norm_num [ *, Nat.cast_succ ] at *
+                  have h_exp : E (k + 1) + 1 ≤ E (k + 1 + 1) := by
                     rw [show E (k + 1 + 1) = Real.exp (E (k + 1)) by rfl]
                     exact Real.add_one_le_exp (E (k + 1))
                   linarith;
@@ -688,9 +706,11 @@ lemma limit_k_plus_one_div_E_k_minus_2 : Filter.Tendsto (fun k : ℕ => (k + 1 :
   refine' Filter.tendsto_atTop_atTop.mpr _;
   -- We'll use that $E_k$ grows faster than any exponential function.
   have h_exp_growth : ∀ k, E k ≥ k := by
-    intro k; induction' k with k ih <;> norm_num [ * ];
+    intro k
+    induction k <;> norm_num [ * ]
     · exact zero_le_one;
-    · exact le_trans ( by linarith ) ( Real.add_one_le_exp _ ) |> le_trans <| Real.exp_le_exp.mpr ih;
+    · rename_i k ih
+      exact le_trans ( by linarith ) ( Real.add_one_le_exp _ ) |> le_trans <| Real.exp_le_exp.mpr ih;
   exact fun x => ⟨ ⌈x⌉₊ + 2, fun n hn => le_trans ( Nat.le_ceil _ ) ( by exact le_trans ( mod_cast by omega ) ( h_exp_growth _ ) ) ⟩
 
 /-
