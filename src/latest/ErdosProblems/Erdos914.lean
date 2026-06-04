@@ -40,7 +40,6 @@ import Mathlib
 namespace Erdos914
 
 set_option linter.style.setOption false
-set_option linter.style.induction false
 set_option linter.style.refine false
 -- Local generated proof budgets below exceed the style threshold but are scoped.
 set_option linter.style.maxHeartbeats false
@@ -79,10 +78,11 @@ lemma exists_nodup_chain'
     have h_contradiction : ∀ {x y : α}, Relation.ReflTransGen R x y → ∃ l : List α,
       List.IsChain R l ∧ l.head? = some x ∧ l.getLast? = some y := by
       intro x y hxy
-      induction' hxy with x y hxy ih;
-      · exact ⟨ [ x ], List.isChain_singleton _, rfl, rfl ⟩;
-      · rename_i h;
-        obtain ⟨ l, hl₁, hl₂, hl₃ ⟩ := h; use l ++ [ y ] ; simp_all +decide ;
+      induction hxy with
+      | refl =>
+        exact ⟨ [ x ], List.isChain_singleton _, rfl, rfl ⟩;
+      | @tail mid y hxy hstep ih =>
+        obtain ⟨ l, hl₁, hl₂, hl₃ ⟩ := ih; use l ++ [ y ] ; simp_all +decide ;
         exact List.isChain_append.mpr ⟨ hl₁, by aesop ⟩;
     exact h_contradiction h;
   -- Let's take the shortest such chain.
@@ -140,9 +140,11 @@ lemma chain_to_reflTransGen
     (hchain : l.IsChain R) (hhead : l.head? = some a)
     (hlast : l.getLast? = some b) :
     Relation.ReflTransGen R a b := by
-  induction' l with x l ih generalizing a b;
-  · cases hhead;
-  · cases l with
+  induction l generalizing a b with
+  | nil =>
+    cases hhead;
+  | cons x l ih =>
+    cases l with
     | nil => simp_all +decide; rfl
     | cons y l =>
       simp at hhead; subst hhead
@@ -160,10 +162,14 @@ lemma chain_to_restricted_reflTransGen
     (hlast : l.getLast? = some b)
     (hw : w ∉ l ∨ w = b) :
     Relation.ReflTransGen (fun x y => R x y ∧ x ≠ w) a b := by
-      induction' l with x xs hx generalizing a b w <;> simp_all +decide;
-      cases xs <;> simp_all +decide;
-      · rfl;
-      · grind +suggestions
+      induction l generalizing a b w with
+      | nil =>
+        simp_all +decide
+      | cons x xs hx =>
+        simp_all +decide
+        cases xs <;> simp_all +decide;
+        · rfl;
+        · grind +suggestions
 
 /-
 If l is a nodup chain from a to b, and w ∈ l with w ≠ a,
@@ -758,14 +764,17 @@ lemma exists_nodup_chain {α : Type*} [Finite α]
       have h_path : ∀ {a b : α}, Relation.ReflTransGen R a b → ∃ l : List α, l.head? =
         some a ∧ l.getLast? = some b ∧ List.IsChain R l := by
         intro a b h
-        induction' h with a b h ih;
-        · exact ⟨ [ a ], rfl, rfl, List.isChain_singleton _ ⟩;
-        · obtain ⟨ l, hl₁, hl₂, hl₃ ⟩ := ‹_›; use l ++ [ b ] ; simp_all +decide ;
+        induction h with
+        | refl =>
+          exact ⟨ [ a ], rfl, rfl, List.isChain_singleton _ ⟩;
+        | @tail mid b hprev hstep ih =>
+          obtain ⟨ l, hl₁, hl₂, hl₃ ⟩ := ih; use l ++ [ b ] ; simp_all +decide ;
           exact List.isChain_append.mpr ⟨ hl₃, by aesop ⟩;
       exact h_path h;
     have h_well_founded : WellFounded fun l l' : List α => l.length < l'.length := by
       refine' ⟨ fun l => _ ⟩;
-      induction' n : l.length using Nat.strong_induction_on with n ih generalizing l;
+      induction n : l.length using Nat.strong_induction_on generalizing l
+      rename_i n ih
       exact ⟨ _, fun l' hl' => ih _ ( by linarith ) _ rfl ⟩;
     have := h_well_founded.has_min { l : List α | l.head? = some a ∧ l.getLast? = some b ∧
       List.IsChain R l } ⟨ _, h_shortest.choose_spec ⟩ ; aesop;
@@ -810,9 +819,10 @@ lemma chain_preserved_after_recolor
     (hj_avoid : ∀ x ∈ path.tail, x ≠ c) :
     path.IsChain (AuxAdj G (recolor f v c)) := by
       classical
-      induction' path with x path ih;
+      induction path
       · exact List.isChain_nil;
-      · rcases path <;> simp_all +decide;
+      · rename_i x path ih
+        rcases path <;> simp_all +decide;
         exact auxAdj_preserved_by_recolor G hvc hchain.1 hi_avoid.1 hj_avoid.1
 
 omit [DecidableEq V] in
@@ -867,7 +877,8 @@ lemma equitable_from_nodup_chain
     HasEquitableColoring G k := by
       classical
       by_cases hs : 1 ≤ s;
-      · induction' n : path.length using Nat.strong_induction_on with n ih generalizing path ne;
+      · induction n : path.length using Nat.strong_induction_on generalizing path ne
+        rename_i n ih
         by_cases hpath : path.length ≤ 2;
         · rcases path with ( _ | ⟨ x, _ | ⟨ y, _ | path ⟩ ⟩ ) <;> simp_all +decide;
           · exact absurd hlast ne.ne_small_large.symm;
@@ -3298,7 +3309,7 @@ lemma A_plus_equitable
         Relation.ReflTransGen (fun c d => AuxAdj G ne.f c d ∧ c ≠ W_col ∧
           d ≠ X) c ne.small →
         Relation.ReflTransGen (AuxAdj (G.induce A_plus) f_A) (φ ⟨c, hc_acc⟩) small_idx := by
-      have h_ind :
+      have h_step :
           ∀ (c d : Fin (r + 1))
             (hc_acc : IsAccessible G ne.f ne.small c)
             (hd_acc : IsAccessible G ne.f ne.small d)
@@ -3314,25 +3325,24 @@ lemma A_plus_equitable
           ∀ (c d : Fin (r + 1))
             (hc_acc : IsAccessible G ne.f ne.small c)
             (hd_acc : IsAccessible G ne.f ne.small d)
-            (hc_ne_W : c ≠ W_col) (hd_ne_W : d ≠ W_col) (hd_ne_X : d ≠ X),
+            (hc_ne_W : c ≠ W_col) (hd_ne_W : d ≠ W_col),
             Relation.ReflTransGen
               (fun c d => AuxAdj G ne.f c d ∧ c ≠ W_col ∧ d ≠ X) c d →
               Relation.ReflTransGen (AuxAdj (induce A_plus G) f_A)
                 (φ ⟨c, hc_acc⟩) (φ ⟨d, hd_acc⟩) := by
-        intros c d hc_acc hd_acc hc_ne_W hd_ne_W hd_ne_X hc_chain
-        induction' hc_chain with c d hc hd ih
-        all_goals generalize_proofs at *;
-        · exact Relation.ReflTransGen.refl;
-        · have h_ind : Relation.ReflTransGen (AuxAdj (induce A_plus G) f_A) (φ ⟨c, by
-            contrapose! h_ind; simp_all +decide [ IsAccessible ] ;
-            exact False.elim
-              (h_ind (by
-                exact Relation.ReflTransGen.head hd.1 (by tauto)))⟩)
-            (φ ⟨d, hd_acc⟩) := by
-            all_goals generalize_proofs at *;
-            exact .single ( h_ind c d ‹_› ‹_› hd.2.1 hd_ne_W hd_ne_X hd.1 )
-          generalize_proofs at *; (
-          grind +extAll);
+        intros c d hc_acc hd_acc hc_ne_W hd_ne_W hc_chain
+        induction hc_chain with
+        | refl =>
+          all_goals generalize_proofs at *;
+          exact Relation.ReflTransGen.refl;
+        | @tail mid d hprev hd ih =>
+          all_goals generalize_proofs at *;
+          have hmid_acc : IsAccessible G ne.f ne.small mid := by
+            exact Relation.ReflTransGen.head hd.1 hd_acc
+          exact Relation.ReflTransGen.trans
+            (ih hmid_acc hd.2.1)
+            (Relation.ReflTransGen.single
+              (h_step mid d hmid_acc hd_acc hd.2.1 hd_ne_W hd.2.2 hd.1))
       grind
     -- Now extract nodup chain and show it avoids X in targets
     have hacc_X : IsAccessible (G.induce A_plus) f_A small_idx large_idx := by
@@ -3471,12 +3481,15 @@ lemma non_accessible_case1
 lemma transGen_exists_ne_first_step {α : Type*} {r : α → α → Prop} {a b : α}
     (h : Relation.TransGen r a b) (hne : a ≠ b) :
     ∃ c, c ≠ a ∧ r a c ∧ Relation.ReflTransGen r c b := by
-  induction' h with a b c h ih;
-  · exact ⟨ a, Ne.symm hne, b, by rfl ⟩;
-  · by_cases hac : a = c <;> simp_all +decide;
-    · grind;
-    · obtain ⟨ d, hd₁, hd₂, hd₃ ⟩ := ‹∃ d, ¬d = a ∧ r a d ∧
-      Relation.ReflTransGen r d c›; exact ⟨ d, hd₁, hd₂, hd₃.tail ‹_› ⟩ ;
+  induction h with
+  | single h =>
+    rename_i final
+    exact ⟨ final, Ne.symm hne, h, by rfl ⟩;
+  | @tail mid final hprev hstep ih =>
+    by_cases hac : a = mid <;> simp_all +decide;
+    · exact ⟨ final, Ne.symm hne, hstep, by rfl ⟩;
+    · obtain ⟨ d, hd₁, hd₂, hd₃ ⟩ := ih
+      exact ⟨ d, hd₁, hd₂, hd₃.tail hstep ⟩ ;
 
 omit [DecidableEq V] in
 -- The generated second non-accessible case needs extra heartbeats for split coloring.
@@ -3769,15 +3782,16 @@ lemma non_accessible_case2_paper
       c ≠ W) c d → IsAccessible G ne.f ne.small c → IsAccessible G ne.f ne.small d →
         d ≠ W → Relation.ReflTransGen (AuxAdj G f') c d := by
       intros c d h_path hc hd hdW
-      induction' h_path with c d hcd ih;
-      · exact Relation.ReflTransGen.refl;
-      · rename_i h;
+      induction h_path with
+      | refl =>
+        exact Relation.ReflTransGen.refl;
+      | @tail mid d hprev hstep h =>
         exact Relation.ReflTransGen.trans
           (h (by
-            exact Relation.ReflTransGen.head ih.1 (by tauto)) ih.2)
+            exact Relation.ReflTransGen.head hstep.1 (by tauto)) hstep.2)
           (Relation.ReflTransGen.single
-            (hAuxAdj_pres2 _ _ ih.1 (by
-              exact Relation.ReflTransGen.head ih.1 (by tauto)) hd hdW))
+            (hAuxAdj_pres2 _ _ hstep.1 (by
+              exact Relation.ReflTransGen.head hstep.1 (by tauto)) hd hdW))
     exact h_path_f' c ne.small h_path hc ( by exact Relation.ReflTransGen.refl ) ( by tauto )
   -- W accessible under f'
   have hacc_W : IsAccessible G f' ne.small W := by
@@ -3893,23 +3907,24 @@ lemma hajnal_szemeredi_edge_induction
   have h_ind : ∀ (G' : SimpleGraph V) [DecidableRel G'.Adj],
       G'.maxDegree ≤ r → HasEquitableColoring G' (r + 1) := by
     intro G' _ hG'
-    induction' n : G'.edgeFinset.card using Nat.strong_induction_on with n ih generalizing G'
-    by_cases h_edge : G'.edgeFinset.Nonempty
-    · obtain ⟨e, he⟩ := h_edge
-      have h_ind : HasEquitableColoring (G'.deleteEdges {e}) (r + 1) := by
-        apply ih (G'.deleteEdges {e}).edgeFinset.card
-        · rw [← n]; exact edgeFinset_card_deleteEdges_lt G' e he
-        · exact le_trans (maxDegree_deleteEdges_le _ _) hG'
-        · rfl
-      apply induction_step_with_callback G' r hdiv hG' e
-        (by rwa [SimpleGraph.mem_edgeFinset] at he) h_ind
-      intro s hs_eq hs0 ne
-      by_cases hacc : IsAccessible G' ne.f ne.small ne.large
-      · exact accessible_large_gives_equitable G' (r + 1) s ne hacc
-      · exact non_accessible_case G' r s hs_eq hG' hs0 ne ih_primary
-    · exact equitable_coloring_of_edgeless G' r (by
-        ext e; simp only [Set.mem_empty_iff_false, iff_false]
-        intro he; exact h_edge ⟨e, SimpleGraph.mem_edgeFinset.mpr he⟩)
+    induction n : G'.edgeFinset.card using Nat.strong_induction_on generalizing G' with
+    | h n ih =>
+      by_cases h_edge : G'.edgeFinset.Nonempty
+      · obtain ⟨e, he⟩ := h_edge
+        have h_ind : HasEquitableColoring (G'.deleteEdges {e}) (r + 1) := by
+          apply ih (G'.deleteEdges {e}).edgeFinset.card
+          · rw [← n]; exact edgeFinset_card_deleteEdges_lt G' e he
+          · exact le_trans (maxDegree_deleteEdges_le _ _) hG'
+          · rfl
+        apply induction_step_with_callback G' r hdiv hG' e
+          (by rwa [SimpleGraph.mem_edgeFinset] at he) h_ind
+        intro s hs_eq hs0 ne
+        by_cases hacc : IsAccessible G' ne.f ne.small ne.large
+        · exact accessible_large_gives_equitable G' (r + 1) s ne hacc
+        · exact non_accessible_case G' r s hs_eq hG' hs0 ne ih_primary
+      · exact equitable_coloring_of_edgeless G' r (by
+          ext e; simp only [Set.mem_empty_iff_false, iff_false]
+          intro he; exact h_edge ⟨e, SimpleGraph.mem_edgeFinset.mpr he⟩)
   exact h_ind G h
 
 -- The generated outer induction proof needs extra heartbeats for recursive specialization.
