@@ -46,7 +46,6 @@ namespace Erdos650
 -- linters; keep the suppressions scoped to this file to preserve the proof.
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.induction false
 set_option linter.style.multiGoal false
 set_option linter.style.refine false
 
@@ -202,11 +201,14 @@ lemma erdos_f_le_of_few_multiples (n k : ℕ)
 /-- Every k ≤ n with k ≥ 1 divides lcm_range n -/
 lemma dvd_lcm_range (n k : ℕ) (hk : 1 ≤ k) (hkn : k ≤ n) :
     k ∣ lcm_range n := by
-  induction' n with n ih generalizing k ; aesop;
-  by_cases hkn' : k = n + 1;
-  · exact hkn'.symm ▸ Nat.dvd_trans ( by norm_num ) ( Nat.dvd_lcm_left _ _ );
-  · exact dvd_trans ( ih k hk ( Nat.le_of_lt_succ ( lt_of_le_of_ne hkn hkn' ) ) )
-        ( Nat.dvd_lcm_right _ _ )
+  induction n generalizing k with
+  | zero =>
+    omega
+  | succ n ih =>
+    by_cases hkn' : k = n + 1;
+    · exact hkn'.symm ▸ Nat.dvd_trans ( by norm_num ) ( Nat.dvd_lcm_left _ _ );
+    · exact dvd_trans ( ih k hk ( Nat.le_of_lt_succ ( lt_of_le_of_ne hkn hkn' ) ) )
+          ( Nat.dvd_lcm_right _ _ )
 
 /-- For p ≤ n and q with q² ≤ n, we have v_p(lcm_range n) > v_p(q). -/
 lemma emultiplicity_lcm_range_gt
@@ -482,20 +484,24 @@ lemma gcd_lcm_dvd_of_all_gcd_dvd {ι : Type*} (S : Finset ι)
     (h : ∀ i ∈ S, (Nat.gcd (n i) m : ℤ) ∣ d) :
     (Nat.gcd (S.lcm n) m : ℤ) ∣ d := by
       classical
-      induction' S using Finset.induction with i S hi ih <;> simp_all +decide ;
-      have h_gcd_lcm : ∀ a b m : ℕ, (Nat.gcd (Nat.lcm a b) m : ℤ) ∣ Int.lcm (Nat.gcd a m : ℤ)
-            (Nat.gcd b m : ℤ) := by
-        intros a b m
-        have h_gcd_lcm : ∀ p : ℕ, Nat.Prime p → (Nat.factorization (Nat.gcd (Nat.lcm a b) m) p)
-              ≤ (Nat.factorization (Nat.lcm (Nat.gcd a m) (Nat.gcd b m)) p) := by
-          intro p pp; by_cases ha : a = 0 <;> by_cases hb : b = 0 <;> by_cases hm : m = 0 <;>
-                simp_all +decide [ Nat.factorization_gcd, Nat.factorization_lcm ] ;
-          omega;
-        by_cases h : Nat.gcd ( Nat.lcm a b ) m = 0 <;> simp_all +decide ;
-        exact_mod_cast Nat.factorization_le_iff_dvd ( by aesop ) ( by aesop ) |>.1 fun p =>
-              by by_cases hp : Nat.Prime p <;> aesop;
-      refine' dvd_trans ( h_gcd_lcm _ _ _ ) _;
-      exact Int.coe_lcm_dvd h.1 ih
+      induction S using Finset.induction with
+      | empty =>
+        simp_all +decide
+      | insert i S hi ih =>
+        simp_all +decide ;
+        have h_gcd_lcm : ∀ a b m : ℕ, (Nat.gcd (Nat.lcm a b) m : ℤ) ∣ Int.lcm (Nat.gcd a m : ℤ)
+              (Nat.gcd b m : ℤ) := by
+          intros a b m
+          have h_gcd_lcm : ∀ p : ℕ, Nat.Prime p → (Nat.factorization (Nat.gcd (Nat.lcm a b) m) p)
+                ≤ (Nat.factorization (Nat.lcm (Nat.gcd a m) (Nat.gcd b m)) p) := by
+            intro p pp; by_cases ha : a = 0 <;> by_cases hb : b = 0 <;> by_cases hm : m = 0 <;>
+                  simp_all +decide [ Nat.factorization_gcd, Nat.factorization_lcm ] ;
+            omega;
+          by_cases h : Nat.gcd ( Nat.lcm a b ) m = 0 <;> simp_all +decide ;
+          exact_mod_cast Nat.factorization_le_iff_dvd ( by aesop ) ( by aesop ) |>.1 fun p =>
+                by by_cases hp : Nat.Prime p <;> aesop;
+        refine' dvd_trans ( h_gcd_lcm _ _ _ ) _;
+        exact Int.coe_lcm_dvd h.1 ih
 
 /-- Generalized CRT: given finitely many congruences with pairwise compatible
     moduli, a simultaneous solution exists. -/
@@ -505,9 +511,11 @@ lemma generalized_crt (ι : Type*) (S : Finset ι)
     (compat : ∀ i ∈ S, ∀ j ∈ S, (Int.gcd (n i) (n j) : ℤ) ∣ (a i - a j)) :
     ∃ x₀ : ℤ, ∀ i ∈ S, (↑(n i) : ℤ) ∣ (x₀ - a i) := by
       classical
-      induction' S using Finset.induction with i S hi ih generalizing a;
-      · exact ⟨ 0, by simp +decide ⟩;
-      · obtain ⟨ x₁, hx₁ ⟩ := ih ( fun j hj => hn j ( Finset.mem_insert_of_mem hj ) )
+      induction S using Finset.induction generalizing a with
+      | empty =>
+        exact ⟨ 0, by simp +decide ⟩;
+      | insert i S hi ih =>
+        obtain ⟨ x₁, hx₁ ⟩ := ih ( fun j hj => hn j ( Finset.mem_insert_of_mem hj ) )
             a ( fun j hj k hk => compat j ( Finset.mem_insert_of_mem hj )
                   k ( Finset.mem_insert_of_mem hk ) );
         -- Set L = S.lcm n. For each j ∈ S, gcd(n(j), n(i)) | (x₁ - a(i)) because:
@@ -1350,9 +1358,12 @@ lemma lower_bound_case1 (m : ℕ) (hm : 0 < m) (A : Finset ℕ)
               have h_diff : ∀ t : ℕ, 1 ≤ t → ∀ u : ℕ,
                     t ≤ u → t - ⌈2 * Real.sqrt t⌉₊ ≤ u - ⌈2 * Real.sqrt u⌉₊ := by
                 intros t ht u hu
-                induction' hu with u hu ih;
-                · rfl;
-                · exact le_trans ih ( mod_cast h_diff u ( Nat.pos_of_ne_zero ( by aesop_cat ) ) );
+                induction hu with
+                | refl =>
+                  rfl;
+                | step hu ih =>
+                  rename_i u
+                  exact le_trans ih ( mod_cast h_diff u ( Nat.pos_of_ne_zero ( by aesop_cat ) ) );
               exact h_diff s ( Nat.pos_of_ne_zero ( by rintro rfl; norm_num at h_case ) )
                     m ( by linarith );
             grind +ring
@@ -1468,11 +1479,14 @@ lemma lower_bound_case2 (m : ℕ) (hm : 0 < m) (A : Finset ℕ)
                 s ≤ k → k ≤ m → s - min s (Nat.ceil (2 * Real.sqrt s))
                       ≤ k - min k (Nat.ceil (2 * Real.sqrt k)) := by
             intro k hk₁ hk₂
-            induction' hk₁ with k ih
-            generalize_proofs at *; (
-            rfl);
-            by_cases hk : k ≥ 1 <;> simp_all +decide [ Nat.succ_eq_add_one ];
-            grind +ring
+            induction hk₁ with
+            | refl =>
+              generalize_proofs at *; (
+              rfl)
+            | step hk₁ ih =>
+              rename_i k
+              by_cases hk : k ≥ 1 <;> simp_all +decide [ Nat.succ_eq_add_one ];
+              grind +ring
           generalize_proofs at *; (
           exact h_monotonicity_chain m hs le_rfl));
         have := matching_from_neighborhood_bound t (fun n => min n (Nat.ceil (2 * Real.sqrt n))) (by
