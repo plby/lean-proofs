@@ -94,40 +94,40 @@ Lemma: The coordinate v_i is equal to u_i plus the number of times direction i
 appears in the walk, modulo 2.
 -/
 set_option linter.flexible false in
-set_option linter.style.induction false in
 theorem walk_coordinate_change {n : ℕ} {u v : Fin n → ZMod 2}
     (p : (hypercubeGraph n).Walk u v) (i : Fin n) :
   v i = u i + ((walkIndices p).count i : ZMod 2) := by
-    induction' p with u v p ih generalizing i;
+    induction p generalizing i;
     · exact left_eq_add.mpr rfl;
-    · rename_i h hp ihp;
+    · rename_i v0 p0 w0 h hp ihp;
       -- Since $v$ and $p$ differ in exactly one coordinate, we have
       -- $p i = v i + 1$ if $i$ is the differing coordinate, and $p i = v i$
       -- otherwise.
-      have h_diff : ∀ i, p i = if i = edgeDirection v p h then v i + 1 else v i := by
+      have h_diff : ∀ i, p0 i = if i = edgeDirection v0 p0 h then v0 i + 1 else v0 i := by
         intro i
-        by_cases hi : i = edgeDirection v p h;
-        · have h_diff : v (edgeDirection v p h) ≠ p (edgeDirection v p h) := by
+        by_cases hi : i = edgeDirection v0 p0 h;
+        · have h_diff : v0 (edgeDirection v0 p0 h) ≠ p0 (edgeDirection v0 p0 h) := by
             have := Finset.min'_mem
-              (Finset.univ.filter fun i => v i ≠ p i)
-              ⟨edgeDirection v p h, by
+              (Finset.univ.filter fun i => v0 i ≠ p0 i)
+              ⟨edgeDirection v0 p0 h, by
                 exact Finset.min'_mem _ _⟩
             aesop
-          cases Fin.exists_fin_two.mp ⟨v (edgeDirection v p h), rfl⟩ <;>
-            cases Fin.exists_fin_two.mp ⟨p (edgeDirection v p h), rfl⟩ <;>
+          cases Fin.exists_fin_two.mp ⟨v0 (edgeDirection v0 p0 h), rfl⟩ <;>
+            cases Fin.exists_fin_two.mp ⟨p0 (edgeDirection v0 p0 h), rfl⟩ <;>
             aesop
-        · have h_diff : ∀ i, i ≠ edgeDirection v p h → v i = p i := by
+        · have h_diff : ∀ i, i ≠ edgeDirection v0 p0 h → v0 i = p0 i := by
             intros i hi
-            have h_diff : ∀ i, i ≠ edgeDirection v p h → v i = p i := by
+            have h_diff : ∀ i, i ≠ edgeDirection v0 p0 h → v0 i = p0 i := by
               intro i hi
               have h_diff :
-                  Finset.filter (fun j => v j ≠ p j) Finset.univ =
-                    {edgeDirection v p h} := by
-                have h_diff : Finset.card (Finset.filter (fun j => v j ≠ p j) Finset.univ) = 1 := by
+                  Finset.filter (fun j => v0 j ≠ p0 j) Finset.univ =
+                    {edgeDirection v0 p0 h} := by
+                have h_diff :
+                    Finset.card (Finset.filter (fun j => v0 j ≠ p0 j) Finset.univ) = 1 := by
                   convert h using 1;
                 rw [ Finset.card_eq_one ] at h_diff;
                 obtain ⟨ a, ha ⟩ := h_diff; simp_all +decide [ Finset.ext_iff ] ;
-                have h_diff : Finset.filter (fun j => v j ≠ p j) Finset.univ = {a} := by
+                have h_diff : Finset.filter (fun j => v0 j ≠ p0 j) Finset.univ = {a} := by
                   grind;
                 unfold edgeDirection; aesop;
               rw [ Finset.ext_iff ] at h_diff; specialize h_diff i; aesop;
@@ -176,13 +176,12 @@ Lemma: For any walk, all vertices in the walk agree with the starting vertex on
 coordinates that are not in the set of used directions.
 -/
 set_option linter.flexible false in
-set_option linter.style.induction false in
 set_option linter.style.refine false in
 theorem walk_support_in_subcube {n : ℕ} {u v : Fin n → ZMod 2}
     (p : (hypercubeGraph n).Walk u v) :
   ∀ w ∈ p.support, ∀ i ∉ directionsUsed p, w i = u i := by
     -- We proceed by induction on the length of the walk.
-    induction' p with p ih;
+    induction p;
     · simp +zetaDelta at *;
     · unfold directionsUsed at *; simp_all +decide
       -- Since the walkIndices of the cons is the edgeDirection of h plus the
@@ -740,14 +739,14 @@ If a list has exactly two occurrences of x, there are two distinct indices
 pointing to x.
 -/
 set_option linter.flexible false in
-set_option linter.style.induction false in
 set_option linter.style.refine false in
 theorem list_count_two_implies_exists_indices {α : Type*} [DecidableEq α]
     (l : List α) (x : α) (h : l.count x = 2) :
   ∃ i j : Fin l.length, i < j ∧ l.get i = x ∧ l.get j = x := by
-    induction' l with hd tl hl generalizing x;
+    induction l generalizing x;
     · cases h;
-    · by_cases h' : x = hd <;> simp_all +decide [ List.count_cons ];
+    · rename_i hd tl hl
+      by_cases h' : x = hd <;> simp_all +decide [ List.count_cons ];
       · obtain ⟨ i, hi ⟩ := List.get_of_mem ( List.count_pos_iff.mp ( by linarith ) );
         refine' ⟨ ⟨ 0, _ ⟩, ⟨ i + 1, _ ⟩, _, _, _ ⟩ <;> simp_all +decide
         exact Nat.succ_pos _;
@@ -758,11 +757,10 @@ theorem list_count_two_implies_exists_indices {α : Type*} [DecidableEq α]
 /-
 The length of the list of walk indices is equal to the length of the walk.
 -/
-set_option linter.style.induction false in
 theorem walkIndices_length {n : ℕ} {u v : Fin n → ZMod 2} (p : (hypercubeGraph n).Walk u v) :
   (walkIndices p).length = p.length := by
     -- We can prove this by induction on the walk.
-    induction' p with p' hp' ih;
+    induction p;
     · rfl;
     · (expose_names; exact Nat.succ_inj.mpr p_ih)
 
@@ -770,14 +768,13 @@ theorem walkIndices_length {n : ℕ} {u v : Fin n → ZMod 2} (p : (hypercubeGra
 The i-th element of walkIndices is the direction of the i-th edge in the walk.
 -/
 set_option linter.flexible false in
-set_option linter.style.induction false in
 theorem walkIndices_get {n : ℕ} {u v : Fin n → ZMod 2}
     (p : (hypercubeGraph n).Walk u v) (i : ℕ) (hi : i < p.length) :
   (walkIndices p).get ⟨i, by rw [walkIndices_length]; exact hi⟩ =
   edgeDirection (p.getVert i) (p.getVert (i + 1)) (p.adj_getVert_succ hi) := by
     generalize_proofs at *
     generalize_proofs at *;
-    induction' p with u v p ih generalizing i;
+    induction p generalizing i;
     · contradiction;
     · rcases i with ( _ | i ) <;> simp_all +decide [ walkIndices ]
       rename_i h₁ h₂ h₃ h₄ h₅
