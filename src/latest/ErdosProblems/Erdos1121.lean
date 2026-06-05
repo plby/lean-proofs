@@ -30,11 +30,8 @@ A. W. Goodman and R. E. Goodman, "A Circle Covering Theorem",
 -/
 import Mathlib
 
--- The legacy proof blocks below rely on nonterminal flexible tactics, `refine'`,
--- and induction patterns whose direct replacements changed generated goals.
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.refine false
 set_option linter.style.multiGoal false
 
 namespace Erdos1121
@@ -154,7 +151,7 @@ lemma sum_weighted_Iio_eq_sq {n : ℕ} (a : Fin n → ℝ) :
     convert congr_arg (· + a (Fin.last n) * (2 * ∑ k, a (Fin.castSucc k) + a (Fin.last n)))
       (ih fun i ↦ a (Fin.castSucc i)) using 1; ring_nf!
     · simp +decide [add_comm, add_assoc]
-      refine' Finset.sum_congr rfl fun i hi => _
+      refine Finset.sum_congr rfl fun i hi => ?_
       rw [show (Iio (Fin.castSucc i) : Finset (Fin (n + 1))) =
         Finset.image (Fin.castSucc) (Iio i) from ?_, Finset.sum_image] <;> aesop
     · ring
@@ -262,7 +259,7 @@ theorem one_dim_covering_lower {n : ℕ} (s r : Fin n → ℝ) (hr : ∀ i, 0 �
           obtain ⟨m, hm⟩ : ∃ m : Fin (n + 1), ∀ i : Fin (n + 1), f i ≥ f m := by
             simpa using Finset.exists_min_image Finset.univ (fun i => f i) ⟨0, Finset.mem_univ 0⟩
           obtain ⟨σ, hσ₁, hσ₂⟩ := ih (fun i => f (Fin.succAbove m i))
-          refine' ⟨Fin.cons m (fun i => Fin.succAbove m (σ i)), _, _⟩ <;>
+          refine ⟨Fin.cons m (fun i => Fin.succAbove m (σ i)), ?_, ?_⟩ <;>
             simp_all +decide [Function.Injective]
           · intro i j hij
             induction i using Fin.inductionOn <;> induction j using Fin.inductionOn <;> aesop
@@ -328,7 +325,7 @@ lemma circlesNonseparable_implies_internal {n : ℕ} (circles : Fin n → Circle
   contrapose! hns
   unfold CirclesNonseparable
   simp +zetaDelta at *
-  refine' ⟨ ⟨ c • w, perp2D w, _ ⟩, _, i, j, _ ⟩ <;>
+  refine ⟨ ⟨ c • w, perp2D w, ?_ ⟩, ?_, i, j, ?_ ⟩ <;>
     simp_all +decide [Circle2D.disjointFromLine, Circle2D.onDifferentSidesOfLine]
   · intro i
     specialize hc i
@@ -430,7 +427,7 @@ theorem goodman_circle_covering_internal {n : ℕ}
             inner ℝ w (center i - center ⟨0, Nat.pos_of_ne_zero hn⟩) ≠ 0 := by
           exact ⟨center i - center ⟨0, Nat.pos_of_ne_zero hn⟩,
             by simp [sub_eq_zero, hi]⟩
-        refine' ⟨‖w‖⁻¹ • w, _, i, ⟨0, Nat.pos_of_ne_zero hn⟩, _⟩ <;>
+        refine ⟨‖w‖⁻¹ • w, ?_, i, ⟨0, Nat.pos_of_ne_zero hn⟩, ?_⟩ <;>
           simp_all +decide [norm_smul, inner_smul_left]
         · rw [inv_mul_cancel₀ (norm_ne_zero_iff.mpr
             (show w ≠ 0 from by
