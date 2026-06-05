@@ -176,7 +176,6 @@ Lemma: For any walk, all vertices in the walk agree with the starting vertex on
 coordinates that are not in the set of used directions.
 -/
 set_option linter.flexible false in
-set_option linter.style.refine false in
 theorem walk_support_in_subcube {n : ℕ} {u v : Fin n → ZMod 2}
     (p : (hypercubeGraph n).Walk u v) :
   ∀ w ∈ p.support, ∀ i ∉ directionsUsed p, w i = u i := by
@@ -199,7 +198,7 @@ theorem walk_support_in_subcube {n : ℕ} {u v : Fin n → ZMod 2}
               ∀ i, i ≠ edgeDirection x y h → x i = y i := by
           intros x y h i hi; unfold edgeDirection at hi; simp_all +decide [ Finset.min' ] ;
           contrapose! hi; simp_all +decide
-          refine' le_antisymm _ _ <;> simp_all +decide
+          refine le_antisymm ?_ ?_ <;> simp_all +decide
           · intro j hj
             have := Finset.card_eq_one.mp h
             obtain ⟨ k, hk ⟩ := this
@@ -242,7 +241,6 @@ Lemma: The number of distinct vertices in a walk is at most 2 raised to the
 power of the number of distinct directions used.
 -/
 set_option linter.flexible false in
-set_option linter.style.refine false in
 theorem support_card_le_two_pow_directions_card {n : ℕ}
     {u v : Fin n → ZMod 2} (p : (hypercubeGraph n).Walk u v) :
   p.support.toFinset.card ≤ 2 ^ (directionsUsed p).card := by
@@ -266,8 +264,8 @@ theorem support_card_le_two_pow_directions_card {n : ℕ}
         cases Fin.exists_fin_two.mp ⟨w i, rfl⟩ <;>
           cases Fin.exists_fin_two.mp ⟨u i, rfl⟩ <;>
           aesop
-      refine' Finset.mem_image.mpr
-        ⟨Finset.univ.filter (fun i => w i ≠ u i), _, _⟩ <;>
+      refine Finset.mem_image.mpr
+        ⟨Finset.univ.filter (fun i => w i ≠ u i), ?_, ?_⟩ <;>
         simp +decide [ Finset.subset_iff ]
       · exact fun i hi => Classical.not_not.1 fun hi' => hi <| hw_eq i hi';
       · exact hw_diff.symm;
@@ -416,7 +414,6 @@ in direction q equals the sum of their p-coordinates, and similarly for R and
 r-coordinates.
 -/
 set_option linter.flexible false in
-set_option linter.style.refine false in
 set_option maxHeartbeats 50000000 in
 -- Needed for the generated coordinate-splitting proof over the Q3 slice.
 theorem L_R_differences_in_Q3 {n : ℕ} {p q r : Fin n} (hpq : p < q) (hqr : q < r)
@@ -489,7 +486,7 @@ theorem L_R_differences_in_Q3 {n : ℕ} {p q r : Fin n} (hpq : p < q) (hqr : q <
           (∑ t ∈ {t | q < t ∧ t ≠ r}, (if x₂ q = 0 then x₂ else y₂) t) =
               ∑ t ∈ {t | q < t ∧ t ≠ r}, u t := by
         constructor <;>
-          refine' Finset.sum_congr rfl fun i hi => _ <;>
+          refine Finset.sum_congr rfl fun i hi => ?_ <;>
           simp_all +decide [ Finset.mem_filter ]
         · cases eq_or_ne i p <;> cases eq_or_ne i q <;> cases eq_or_ne i r <;> simp_all +decide
           · exact False.elim <| hi.1.not_gt hpq;
@@ -529,7 +526,6 @@ Lemma: In a Q3 determined by p < q < r, edges in direction q with the same
 (L, R) labels are identical.
 -/
 set_option linter.flexible false in
-set_option linter.style.refine false in
 theorem distinct_labels_in_Q3_slice {n : ℕ} {p q r : Fin n} (hpq : p < q) (hqr : q < r)
   (u : Fin n → ZMod 2)
   (x₁ y₁ x₂ y₂ : Fin n → ZMod 2)
@@ -618,8 +614,8 @@ theorem distinct_labels_in_Q3_slice {n : ℕ} {p q r : Fin n} (hpq : p < q) (hqr
                 Finset.card (Finset.filter (fun i => x₂ i ≠ y₂ i) Finset.univ) = 1 := by
               exact h₂;
             contrapose! h_lower_eq_y₂;
-            refine' ne_of_gt
-              (Finset.one_lt_card.mpr ⟨i, _, q, _, _⟩) <;>
+            refine ne_of_gt
+              (Finset.one_lt_card.mpr ⟨i, ?_, q, ?_, ?_⟩) <;>
               simp_all +decide [ Finset.mem_filter, eq_comm ]
             have h_lower_eq_y₂ : x₂ (edgeDirection x₂ y₂ h₂) ≠ y₂ (edgeDirection x₂ y₂ h₂) := by
               have h_diff : ∃ i, x₂ i ≠ y₂ i := by
@@ -739,7 +735,6 @@ If a list has exactly two occurrences of x, there are two distinct indices
 pointing to x.
 -/
 set_option linter.flexible false in
-set_option linter.style.refine false in
 theorem list_count_two_implies_exists_indices {α : Type*} [DecidableEq α]
     (l : List α) (x : α) (h : l.count x = 2) :
   ∃ i j : Fin l.length, i < j ∧ l.get i = x ∧ l.get j = x := by
@@ -748,7 +743,7 @@ theorem list_count_two_implies_exists_indices {α : Type*} [DecidableEq α]
     · rename_i hd tl hl
       by_cases h' : x = hd <;> simp_all +decide [ List.count_cons ];
       · obtain ⟨ i, hi ⟩ := List.get_of_mem ( List.count_pos_iff.mp ( by linarith ) );
-        refine' ⟨ ⟨ 0, _ ⟩, ⟨ i + 1, _ ⟩, _, _, _ ⟩ <;> simp_all +decide
+        refine ⟨ ⟨ 0, ?_ ⟩, ⟨ i + 1, ?_ ⟩, ?_, ?_, ?_ ⟩ <;> simp_all +decide
         exact Nat.succ_pos _;
       · obtain ⟨ i, j, hij, hi, hj ⟩ := hl x ( by aesop );
         exact ⟨ ⟨ i + 1, by simp ⟩, ⟨ j + 1, by simp ⟩,
@@ -825,7 +820,6 @@ lemma same_edge_of_lowerEndpoint_eq {n : ℕ} {u v x y : Fin n → ZMod 2}
 A 6-cycle contained in a Q3 cannot have all its edges in the same partition class G_ab.
 -/
 set_option linter.flexible false in
-set_option linter.style.refine false in
 set_option linter.style.multiGoal false in
 lemma C6_in_Q3_impossible {n : ℕ} {ab : Fin 2 × Fin 2} {u : Fin n → ZMod 2}
   (C : (hypercubeGraph n).Walk u u) (hC : C.IsCycle) (hlen : C.length = 6)
@@ -880,7 +874,7 @@ lemma C6_in_Q3_impossible {n : ℕ} {ab : Fin 2 × Fin 2} {u : Fin n → ZMod 2}
                 convert (walkIndices_get C i
                   (by fin_cases i <;> simp +decide [ hlen ])).symm using 1)
             generalize_proofs at *;
-            refine' List.ext_get _ _ <;> simp +decide [ h_count_q ];
+            refine List.ext_get ?_ ?_ <;> simp +decide [ h_count_q ];
             rw [ walkIndices_length, hlen ];
           rw [h_count_q];
         convert cycle_uses_each_direction_twice C hC hlen q _;
@@ -916,7 +910,7 @@ lemma C6_in_Q3_impossible {n : ℕ} {ab : Fin 2 × Fin 2} {u : Fin n → ZMod 2}
                       edgeDirection (C.getVert j) (C.getVert (j + 1))
                         (partitionGraph_le_hypercube n ab (h_partition j)))
                     (List.finRange 6) := by
-              refine' List.ext_get _ _ <;> simp +decide
+              refine List.ext_get ?_ ?_ <;> simp +decide
               · rw [ walkIndices_length, hlen ];
               · intro j hj₁ hj₂; exact (by
                 convert walkIndices_get C j ( by linarith ) using 1);
@@ -974,7 +968,7 @@ lemma C6_in_Q3_impossible {n : ℕ} {ab : Fin 2 × Fin 2} {u : Fin n → ZMod 2}
                 List.map
                   (fun i : Fin 6 => s(C.getVert i, C.getVert (i + 1)))
                   (List.finRange 6) := by
-            refine' List.ext_get _ _ <;> simp +decide [ hlen ];
+            refine List.ext_get ?_ ?_ <;> simp +decide [ hlen ];
             intro n hn; fin_cases i <;> simp +decide [ *, SimpleGraph.Walk.edges ] ;
             all_goals interval_cases n <;> simp +decide
             all_goals
