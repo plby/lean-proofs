@@ -33,7 +33,6 @@ namespace Theorem61
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 set_option linter.unusedSimpArgs false
 set_option aesop.warn.nonterminal false
 
@@ -69,7 +68,7 @@ lemma mem_affineSegment_iff_barycentric_coords_zero
     · exact left.trans ( by simp +decide [ AffineMap.lineMap_apply ] )
   · have := b.sum_coord_apply_eq_one p
     rw [ Fin.sum_univ_three ] at this
-    refine' ⟨ ( b.coord 2 ) p, _, _ ⟩ <;> aesop
+    refine ⟨ ( b.coord 2 ) p, ?_, ?_ ⟩ <;> aesop
     · linarith
     · convert b.affineCombination_coord_eq_self p using 1
       rw [ Finset.affineCombination_eq_weightedVSubOfPoint_vadd_of_sum_eq_one ] <;>
@@ -303,7 +302,7 @@ noncomputable def triangleBasis
     · exact 2
     · simp +decide [ linearIndependent_iff', Subtype.ext_iff ])
     (by
-    refine' AffineSubspace.ext_of_direction_eq _ _
+    refine AffineSubspace.ext_of_direction_eq ?_ ?_
     · ext x
       generalize_proofs at *
       simp +decide [ direction_affineSpan ]
@@ -541,7 +540,7 @@ lemma mem_line_iff_barycentric_proportional_C
             rw [ Fin.sum_univ_three, Fin.sum_univ_three ] at h_sum
             aesop
             linear_combination' left - right * t
-          refine' b.ext_elem _
+          refine b.ext_elem ?_
           intro i
           rw [ h_coords i ]
           simp +decide [ hC₁_on_AB ]
@@ -554,7 +553,7 @@ lemma mem_line_iff_barycentric_proportional_C
           ]
           simp +decide [ Finset.sum_add_distrib, mul_add, add_mul, sub_eq_add_neg ]
           ring
-        refine' Or.inl ⟨ t • ( C₁ -ᵥ b 2 ), _, _ ⟩
+        refine Or.inl ⟨ t • ( C₁ -ᵥ b 2 ), ?_, ?_ ⟩
         · exact
             Submodule.smul_mem _ _
               ( Submodule.subset_span
