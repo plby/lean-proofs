@@ -27,9 +27,6 @@ import Mathlib
 
 namespace Erdos844
 
--- Several long legacy proof blocks rely on `refine'`, `induction'`, broad
--- simplification, and unfocused tactic chains. Rewriting them would be a
--- proof refactor rather than a cleanup.
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
