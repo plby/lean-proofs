@@ -59,7 +59,6 @@ namespace Erdos264b
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 set_option linter.flexible false
 
 open scoped BigOperators
@@ -340,7 +339,7 @@ theorem main_theorem : ∃ b : ℕ → ℕ, (∀ k, b k ∈ ({1, 2, 3, 4, 5} : S
         obtain ⟨ b_next, hb_next ⟩ : ∃ b_next ∈ ({1, 2, 3, 4, 5} : Set ℕ), (∑ k ∈ Finset.range n, (1 / ((2 : ℝ)^(k + 1) + (b (k + 1))))) + (1 / ((2 : ℝ)^(n + 1) + (b_next : ℝ))) + (alpha (n + 1) : ℝ) ≤ x ∧ x ≤ (∑ k ∈ Finset.range n, (1 / ((2 : ℝ)^(k + 1) + (b (k + 1))))) + (1 / ((2 : ℝ)^(n + 1) + (b_next : ℝ))) + (beta (n + 1) : ℝ) := by
           convert recursive_step n _ _ _ using 1
           exact hb₂ n le_rfl
-        refine' ⟨ fun k => if k = n + 1 then b_next else b k, _, _ ⟩ <;> simp_all +decide
+        refine ⟨ fun k => if k = n + 1 then b_next else b k, ?_, ?_ ⟩ <;> simp_all +decide
         · grind +ring;
         · intro m hm; cases hm <;> simp_all +decide [ Finset.sum_range_succ ]
           · convert hb_next.2 using 2 <;> rw [Finset.sum_congr rfl] <;> aesop
@@ -371,7 +370,7 @@ theorem main_theorem : ∃ b : ℕ → ℕ, (∀ k, b k ∈ ({1, 2, 3, 4, 5} : S
             simpa [one_div] using
               (hf2 _ _ (le_trans hm (hw_strict.id_le _ |> le_trans hk))).1⟩
         have h_subseq : Filter.Tendsto (fun n => ∑ k ∈ Finset.range m, (2 ^ (k + 1) + (f (w n) (k + 1) : ℝ))⁻¹ + alpha m) Filter.atTop (nhds (∑ k ∈ Finset.range m, (2 ^ (k + 1) + (b (k + 1) : ℝ))⁻¹ + alpha m)) := by
-          refine' Filter.Tendsto.add _ tendsto_const_nhds
+          refine Filter.Tendsto.add ?_ tendsto_const_nhds
           exact tendsto_finset_sum _ fun i hi => Filter.Tendsto.inv₀ ( tendsto_const_nhds.add <| tendsto_const_nhds.congr' <| by filter_upwards [ Filter.eventually_ge_atTop ( h_eventually_eq ( i + 1 ) |> Classical.choose ) ] with n hn; rw [ h_eventually_eq ( i + 1 ) |> Classical.choose_spec |> fun h => h n hn ] ) <| by positivity;
         exact le_of_tendsto h_subseq (by
           simp_all only [Set.mem_insert_iff, Set.mem_singleton_iff, one_div, nhds_discrete,
@@ -443,7 +442,7 @@ theorem erdos_264.parts.i : ¬IsIrrationalitySequence (2 ^ ·) := by
       rw [hb'_eq]
       rcases hb_mem n with h | h | h | h | h <;> norm_num at h <;> omega
   have hb'_bdd : BddAbove (Set.range b') := by
-    refine' ⟨5, Set.forall_mem_range.mpr fun n => _⟩
+    refine ⟨5, Set.forall_mem_range.mpr fun n => ?_⟩
     by_cases hn : n = 0
     · subst n
       norm_num [b']
