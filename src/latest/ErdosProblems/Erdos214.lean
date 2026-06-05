@@ -28,7 +28,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.refine false
 
 namespace Erdos214
 
@@ -5516,7 +5515,7 @@ lemma config_X_finite : config_X.Finite := by
   obtain ⟨M, hM⟩ : ∃ M : ℝ, ∀ p ∈ config_lattice, dist p config_center < config_radius → ‖p‖ ≤ M := h_bounded;
   have h_finite_pairs : ∃ M' : ℝ, ∀ m n : ℤ, ‖m • config_lattice_basis_1 + n • config_lattice_basis_2‖ ≤ M → abs m ≤ M' ∧ abs n ≤ M' := by
     norm_num [ EuclideanSpace.norm_eq, config_lattice_basis_1, config_lattice_basis_2 ];
-    refine' ⟨ M * 2 + 1, fun m n hmn => ⟨ _, _ ⟩ ⟩ <;> rw [ Real.sqrt_le_iff ] at hmn <;> ring_nf at * <;> norm_num at *;
+    refine ⟨ M * 2 + 1, fun m n hmn => ⟨ ?_, ?_ ⟩ ⟩ <;> rw [ Real.sqrt_le_iff ] at hmn <;> ring_nf at * <;> norm_num at *;
     · exact abs_le.mpr ⟨ by nlinarith [ sq_nonneg ( m + n : ℝ ) ], by nlinarith [ sq_nonneg ( m + n : ℝ ) ] ⟩;
     · exact abs_le.mpr ⟨ by nlinarith [ sq_nonneg ( m + n : ℝ ) ], by nlinarith [ sq_nonneg ( m + n : ℝ ) ] ⟩;
   obtain ⟨ M', hM' ⟩ := h_finite_pairs; have h_finite_pairs : Set.Finite { p : Point | ∃ m n : ℤ, p = m • config_lattice_basis_1 + n • config_lattice_basis_2 ∧ ‖p‖ ≤ M } := by
@@ -5558,7 +5557,7 @@ lemma config_X_eq_list : config_X = { p | ∃ c ∈ config_points_list, p = c.1 
   · intro p hp
     obtain ⟨c, hc, rfl⟩ := hp
     generalize_proofs at *;
-    refine' ⟨ ⟨ c.1, c.2, rfl ⟩, _ ⟩;
+    refine ⟨ ⟨ c.1, c.2, rfl ⟩, ?_ ⟩
     unfold config_center config_radius config_lattice_basis_1 config_lattice_basis_2; norm_num [ dist_eq_norm, EuclideanSpace.norm_eq ] ; ring_nf ; norm_num;
     rw [ Real.sqrt_lt' ] <;> ring_nf <;> norm_num;
     · fin_cases hc <;> norm_num <;> nlinarith [ Real.sqrt_nonneg 3, Real.sq_sqrt ( show 0 ≤ 3 by norm_num ) ];
@@ -5588,7 +5587,7 @@ lemma lattice_covering_radius (P : Point) :
         intro hb' hm' hn';
         nlinarith only [ hb, hk, hl, ha, hb', mul_nonneg ha hk, mul_nonneg ha ( sub_nonneg_of_le hl.le ), mul_nonneg ha ( sub_nonneg_of_le hb'.le ), mul_nonneg hk ( sub_nonneg_of_le hl.le ), mul_nonneg hk ( sub_nonneg_of_le hb'.le ), mul_nonneg ( sub_nonneg_of_le hl.le ) ( sub_nonneg_of_le hb'.le ) ];
       rcases h_dist with h|h|h|h <;> simp_all +decide [ dist_eq_norm ];
-      · refine' ⟨ k, l, _ ⟩ ; convert h using 1 ; ring_nf!; norm_num [ EuclideanSpace.norm_eq ] ; ring_nf!;
+      · refine ⟨ k, l, ?_ ⟩ ; convert h using 1 ; ring_nf!; norm_num [ EuclideanSpace.norm_eq ] ; ring_nf!;
       · use k + 1, l;
         convert h using 2 ; ext i ; fin_cases i <;> norm_num <;> ring;
       · use k, l + 1;
@@ -5740,7 +5739,7 @@ lemma lemma_lattice_cover_cases (P : Point) :
               exact fun x y => ⟨ ( x - ( y * ( 4 / 3 ) ) * ( Real.sqrt 3 / 4 ) ) / ( Real.sqrt 3 / 2 ), y * ( 4 / 3 ), by rw [ div_mul_cancel₀ _ ( by positivity ) ] ; ring, by ring ⟩;
             obtain ⟨ u, v, hu, hv ⟩ := h_solve ( P 0 ) ( P 1 ) ; use u, v; ext i; fin_cases i <;> norm_num [ config_lattice_basis_1, config_lattice_basis_2 ] <;> linarith!;
           exact ⟨ 0, 0, u, v, by simpa using hu ⟩;
-        refine' ⟨ m + ⌊u⌋, n + ⌊v⌋, u - ⌊u⌋, v - ⌊v⌋, _, _, _, _, _ ⟩ <;> norm_num;
+        refine ⟨ m + ⌊u⌋, n + ⌊v⌋, u - ⌊u⌋, v - ⌊v⌋, ?_, ?_, ?_, ?_, ?_ ⟩ <;> norm_num;
         · exact Int.fract_lt_one u;
         · exact Int.fract_lt_one v;
         · rw [ Int.fract, Int.fract ] ; ext i ; norm_num ; ring_nf;
@@ -5751,14 +5750,14 @@ lemma lemma_lattice_cover_cases (P : Point) :
         obtain h_dist | h_dist : (∃ V ∈ ({0, config_lattice_basis_1, config_lattice_basis_2} : Set Point), dist (u • config_lattice_basis_1 + v • config_lattice_basis_2) V < 0.5) ∨ (∀ V ∈ ({0, config_lattice_basis_1, config_lattice_basis_2} : Set Point), dist (u • config_lattice_basis_1 + v • config_lattice_basis_2) V ≥ 0.5) := by
           exact Classical.or_iff_not_imp_left.2 fun h => by push Not at h; exact h;
         · obtain ⟨ V, hV₁, hV₂ ⟩ := h_dist;
-          refine' h_no_close_lattice <| Or.inl ⟨ m • config_lattice_basis_1 + n • config_lattice_basis_2 + V, _, _ ⟩ <;> simp_all +decide [ dist_eq_norm ];
+          refine h_no_close_lattice <| Or.inl ⟨ m • config_lattice_basis_1 + n • config_lattice_basis_2 + V, ?_, ?_ ⟩ <;> simp_all +decide [ dist_eq_norm ];
           · rcases hV₁ with ( rfl | rfl | rfl ) <;> [ exact ⟨ m, n, by norm_num ⟩ ; exact ⟨ m + 1, n, by ext i ; fin_cases i <;> norm_num <;> ring ⟩ ; exact ⟨ m, n + 1, by ext i ; fin_cases i <;> norm_num <;> ring ⟩ ];
           · convert hV₂ using 2 ; abel_nf;
         · -- If $dist(P', V) \geq 0.5$ for all $V \in \{0, b_1, b_2\}$, then by `lemma_fundamental_triangle_unique_max`, $u = v = 1/3$.
           have h_u_v : u = 1 / 3 ∧ v = 1 / 3 := by
             apply lemma_fundamental_triangle_unique_max u v hu h_eq.left h_case;
             exact ⟨ h_dist 0 ( by norm_num ), h_dist config_lattice_basis_1 ( by norm_num ), h_dist config_lattice_basis_2 ( by norm_num ) ⟩;
-          refine' h_no_close_lattice <| Or.inr ⟨ m • config_lattice_basis_1 + n • config_lattice_basis_2, m • config_lattice_basis_1 + n • config_lattice_basis_2 + config_lattice_basis_1, m • config_lattice_basis_1 + n • config_lattice_basis_2 + config_lattice_basis_2, _, _, _, _, _ ⟩ <;> norm_num [ h_u_v, h_eq ];
+          refine h_no_close_lattice <| Or.inr ⟨ m • config_lattice_basis_1 + n • config_lattice_basis_2, m • config_lattice_basis_1 + n • config_lattice_basis_2 + config_lattice_basis_1, m • config_lattice_basis_1 + n • config_lattice_basis_2 + config_lattice_basis_2, ?_, ?_, ?_, ?_, ?_ ⟩ <;> norm_num [ h_u_v, h_eq ];
           · exact ⟨ m, n, rfl ⟩;
           · exact ⟨ m + 1, n, by ext i; fin_cases i <;> norm_num [ config_lattice_basis_1, config_lattice_basis_2 ] ; ring ⟩;
           · exact ⟨ m, n + 1, by ext i; fin_cases i <;> norm_num [ config_lattice_basis_1, config_lattice_basis_2 ] <;> ring ⟩;
@@ -5798,7 +5797,7 @@ lemma lemma_lattice_cover_cases (P : Point) :
             linarith);
             exact ⟨ le_of_not_gt fun h => h_case2_cover <| Or.inl h, le_of_not_gt fun h => h_case2_cover <| Or.inr <| Or.inl h, le_of_not_gt fun h => h_case2_cover <| Or.inr <| Or.inr h ⟩;
           norm_num [ show u = 2 / 3 by linear_combination -h_case2_unique.1, show v = 2 / 3 by linear_combination -h_case2_unique.2 ] at *;
-          refine' h_no_close_lattice.2 ( m • config_lattice_basis_1 + n • config_lattice_basis_2 + config_lattice_basis_1 ) _ ( m • config_lattice_basis_1 + n • config_lattice_basis_2 + config_lattice_basis_2 ) _ ( m • config_lattice_basis_1 + n • config_lattice_basis_2 + config_lattice_basis_1 + config_lattice_basis_2 ) _ _ _ _ _ _ _ <;> norm_num [ h_eq, dist_eq_norm ];
+          refine h_no_close_lattice.2 ( m • config_lattice_basis_1 + n • config_lattice_basis_2 + config_lattice_basis_1 ) ?_ ( m • config_lattice_basis_1 + n • config_lattice_basis_2 + config_lattice_basis_2 ) ?_ ( m • config_lattice_basis_1 + n • config_lattice_basis_2 + config_lattice_basis_1 + config_lattice_basis_2 ) ?_ ?_ ?_ ?_ ?_ ?_ ?_ <;> norm_num [ h_eq, dist_eq_norm ];
           any_goals rw [ EuclideanSpace.norm_eq ] ; norm_num [ config_lattice_basis_1, config_lattice_basis_2 ];
           any_goals rw [ Real.sqrt_eq_iff_mul_self_eq ] <;> ring_nf <;> norm_num;
           · exact ⟨ m + 1, n, by ext i; fin_cases i <;> norm_num [ config_lattice_basis_1, config_lattice_basis_2 ] ; ring ⟩;
@@ -5851,7 +5850,7 @@ lemma lemma_config_intersects_blue (f : Point ≃ᵃⁱ[ℝ] Point) :
           exact Or.inl hL₃;
         have hL₆ : dist (f L) (f config_center) = dist L config_center := by
           exact f.isometry.dist_eq _ _;
-        refine' lt_of_le_of_ne ( hL₆ ▸ hL₅ ) ?_;
+        refine lt_of_le_of_ne ( hL₆ ▸ hL₅ ) ?_
         apply lemma_boundary_irrational
         · assumption
         · rfl
@@ -5870,13 +5869,13 @@ lemma lemma_config_intersects_blue (f : Point ≃ᵃⁱ[ℝ] Point) :
         · exact ⟨ by rw [ h_fL1L2.1 ] ; ring, by rw [ h_fL1L2.2.1 ] ; ring, by rw [ h_fL1L2.2.2 ] ; ring ⟩;
       obtain h | h | h := h_fL1_blue <;> simp_all +decide [ Blue ];
       · apply h_contra L1;
-        · refine' ⟨ hL1, _ ⟩;
+        · refine ⟨ hL1, ?_ ⟩
           have := hL_color.2 ( f L1 ) h; simp_all +decide [ dist_comm ] ;
-          refine' lt_of_le_of_ne this _;
+          refine lt_of_le_of_ne this ?_
           apply_rules [ lemma_boundary_irrational ];
         · unfold coloring_theorem_2; aesop;
       · have h_fL2_in_X : dist (f L2) (f config_center) < config_radius := by
-          refine' lt_of_le_of_ne ( hL_color.2 _ h ) _;
+          refine lt_of_le_of_ne ( hL_color.2 _ h ) ?_
           have h_fL2_in_X : dist (f L2) (f config_center) ≠ config_radius := by
             have h_fL2_in_X : dist L2 config_center ≠ config_radius := by
               apply lemma_boundary_irrational
@@ -5907,7 +5906,7 @@ theorem theorem_2 :
     X.Finite ∧ X.ncard = 12 ∧
     ∀ (X' : Set Point), (∃ f : Point ≃ᵃⁱ[ℝ] Point, f '' X = X') → ∃ P ∈ X', c P = Color.Blue := by
       use coloring_theorem_2, config_X;
-      refine' ⟨ _, _, _, _ ⟩;
+      refine ⟨ ?_, ?_, ?_, ?_ ⟩
       · exact fun P Q h => fun h' => coloring_theorem_2_no_blue_dist_1 P Q h h'.1 h'.2;
       · exact config_X_finite;
       · exact lemma_config_X_card;
