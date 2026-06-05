@@ -30,7 +30,6 @@ import Mathlib
 
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.refine false
 set_option linter.flexible false
 set_option linter.unusedVariables false
 
@@ -97,10 +96,11 @@ lemma sparse_extension_fixing (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.at
     -- Choose $k$ large enough such that $x = x₀ + kP > \max(M, N₀)$.
     obtain ⟨k, hk⟩ : ∃ k : ℕ, x₀ + k * P > max M N₀ := by
       exact ⟨ Max.max M N₀ + 1, by nlinarith [ Nat.zero_le x₀, Nat.zero_le P, show P > 0 from Finset.prod_pos fun q hq => Nat.Prime.pos ( h_primes q hq ), le_max_left M N₀, le_max_right M N₀ ] ⟩
-    refine' ⟨ k, lt_of_le_of_lt ( le_max_left _ _ ) hk, fun N => _ ⟩ ; by_cases hN : N < x₀ + k * P <;> simp_all +decide [ Finset.inter_comm ]
-    refine' le_trans _ ( hN₀ N ( by linarith ) )
+    refine ⟨ k, lt_of_le_of_lt ( le_max_left _ _ ) hk, fun N => ?_ ⟩
+    by_cases hN : N < x₀ + k * P <;> simp_all +decide [ Finset.inter_comm ]
+    refine le_trans ?_ ( hN₀ N ( by linarith ) )
     exact le_trans ( Finset.card_le_card ( show Finset.Icc 1 N ∩ Insert.insert ( x₀ + k * ∏ q ∈ constraints, q ) B₀ ⊆ Insert.insert ( x₀ + k * ∏ q ∈ constraints, q ) B₀ from Finset.inter_subset_right ) ) ( Finset.card_insert_le _ _ ) |> le_trans <| by norm_num
-  refine' ⟨ x₀ + k * P, hk.1, _, hk.2 ⟩
+  refine ⟨ x₀ + k * P, hk.1, ?_, hk.2 ⟩
   intro q hq; specialize hx₀ q hq; simp_all +decide [Finset.prod_eq_prod_diff_singleton_mul hq]
   simp +zetaDelta at *
   simp +decide [hq]
@@ -192,7 +192,7 @@ lemma sparse_extension_mixed_odd (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter
           obtain ⟨x, hx⟩ : ∃ x > M, (∀ p ∈ constraints.image Prod.fst ∪ {q, 2}, (x : ZMod p) = (if p = q then -target_n else if p = 2 then 1 else (if (p, (if p = 2 then 0 else 0)) ∈ constraints then (if (p, (if p = 2 then 0 else 0)).1 = 2 then 1 else 1) else 0))) ∧ ∀ N, ((B₀ ∪ {x}) ∩ Finset.Icc 1 N).card ≤ f N := by
             convert sparse_extension_fixing f hf B₀ hB₀ M ( constraints.image Prod.fst ∪ { q, 2 } ) _ _ using 4 ; simp +decide [ * ]
             exact fun a x hx => h_prime _ hx
-          refine' ⟨ x, hx.1, _, _, _, hx.2.2 ⟩ <;> simp_all +decide [ ← ZMod.intCast_zmod_eq_zero_iff_dvd ]
+          refine ⟨ x, hx.1, ?_, ?_, ?_, hx.2.2 ⟩ <;> simp_all +decide [ ← ZMod.intCast_zmod_eq_zero_iff_dvd ]
           · rw [ ← ZMod.val_natCast ] ; aesop
           · intro a b hab; specialize hx; have := hx.2.1.2.2 a b hab; split_ifs at this <;> simp_all +decide [ ← ZMod.val_natCast ]
             · exact False.elim <| hq_not_in _ _ hab rfl
@@ -231,7 +231,8 @@ lemma add_admissibility_constraint (state : ConstructionStateV2)
           have := exists_admissible_residue_respecting_2 state.B state.h_odd target_p h_target_p h_card
           obtain ⟨ r, hr₁, hr₂ ⟩ := this; use r.val; haveI := Fact.mk h_target_p; simp_all +decide
           haveI := Fact.mk h_target_p; exact ⟨ ZMod.val_lt r, fun b hb => fun h => hr₁ b hb <| by simpa [ ← ZMod.natCast_eq_natCast_iff' ] using congr_arg ( fun x : ℕ => x : ℕ → ZMod target_p ) h ⟩
-        refine' ⟨ ⟨ state.B, state.constraints ∪ { ( target_p, r ) }, _, _, _, _ ⟩, rfl, _, _, _ ⟩ <;> simp_all +decide [ Finset.subset_iff ]
+        refine ⟨ ⟨ state.B, state.constraints ∪ { ( target_p, r ) }, ?_, ?_, ?_, ?_ ⟩,
+          rfl, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ Finset.subset_iff ]
         · exact fun b hb => state.h_odd b hb
         · exact fun a b hab x hx => mod_cast state.h_respects _ hab _ hx
         · exact fun a b hab => state.h_prime _ hab
@@ -372,7 +373,7 @@ lemma min_unconstrained_eq_nth (constraints : Finset (ℕ × ℕ)) (k : ℕ)
       unfold min_unconstrained_prime
       generalize_proofs at *
       rw [ Nat.nth_eq_sInf ]
-      refine' le_antisymm ( Nat.sInf_le _ ) ( le_csInf _ _ )
+      refine le_antisymm ( Nat.sInf_le ?_ ) ( le_csInf ?_ ?_ )
       · simp +zetaDelta at *
         intro a b hab H; replace h := Finset.ext_iff.mp h a; simp_all +decide [ first_k_primes ]
         exact absurd ( h.mp ⟨ b, hab ⟩ ) ( by rintro ⟨ a, ha, ha' ⟩ ; exact absurd ha' ( ne_of_lt ( Nat.nth_strictMono ( Nat.infinite_setOf_prime ) ha ) ) )
@@ -381,14 +382,14 @@ lemma min_unconstrained_eq_nth (constraints : Finset (ℕ × ℕ)) (k : ℕ)
           exact Exists.imp ( by tauto ) ( Nat.exists_infinite_primes ( Finset.sup constraints Prod.fst + 1 ) )
         exact ⟨ p, ⟨ ⟨ hp.1, fun x hx => ne_of_lt <| lt_of_le_of_lt ( Finset.le_sup ( f := Prod.fst ) hx ) hp.2 ⟩, by norm_num ⟩ ⟩
       · intro b hb; have := hb.1.2; simp_all +decide [ Finset.ext_iff ]
-        refine' Nat.le_of_not_lt fun h => _
+        refine Nat.le_of_not_lt fun h => ?_
         -- Since $b < \text{Nat.nth Nat.Prime } k$, $b$ must be one of the first $k$ primes.
         have hb_first_k : b ∈ Finset.image (Nat.nth Nat.Prime) (Finset.range k) := by
           have hb_first_k : ∃ i < k, b = Nat.nth Nat.Prime i := by
-            refine' ⟨ Nat.count ( Nat.Prime ) b, _, _ ⟩
+            refine ⟨ Nat.count ( Nat.Prime ) b, ?_, ?_ ⟩
             · contrapose! h
               rw [ Nat.nth_eq_sInf ]
-              refine' Nat.sInf_le ⟨ hb.1, _ ⟩
+              refine Nat.sInf_le ⟨ hb.1, ?_ ⟩
               intro i hi; exact Nat.nth_lt_of_lt_count <| by linarith
             · rw [ Nat.nth_count ] ; aesop
           aesop
@@ -546,7 +547,7 @@ lemma step_strict_minimal_valid (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.
       unfold step_strict_minimal_state
       field_simp
       split_ifs <;> norm_num +zetaDelta at *
-      · refine' ⟨ _, _, _ ⟩
+      · refine ⟨ ?_, ?_, ?_ ⟩
         · convert Classical.choose_spec ( Classical.choose_spec ( find_blocking_element f hf gs.state.B gs.h_dens gs.state.constraints gs.state.h_prime gs.state.h_coprime gs.h_consistent_2 n ) ) |>.2.2.2.2.2.2.2 using 1
           congr! 2
           ext; simp [Finset.mem_inter]
