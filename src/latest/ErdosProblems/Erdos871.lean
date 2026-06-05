@@ -23,7 +23,6 @@ set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.unusedVariables false
 set_option linter.style.cases false
-set_option linter.style.refine false
 set_option linter.style.multiGoal false
 namespace Erdos871
 
@@ -512,7 +511,7 @@ lemma lemma3_case2_existence (seq : NathansonSeq) (k : ℕ) (hk : k ≥ 3) (n : 
                  exact ⟨hL1R1, hL2R2, hL1R2, hL2R1⟩;
                exact h_intersect;
              use max L1 L2;
-             refine' ⟨ n - Max.max L1 L2, _, _, _, _, _ ⟩ <;> omega
+             refine ⟨ n - Max.max L1 L2, ?_, ?_, ?_, ?_, ?_ ⟩ <;> omega
 
 theorem lemma3_case2 (seq : NathansonSeq) (k : ℕ) (hk : k ≥ 3) (n : ℕ)
     (hn_lo : seq.N k - 2 * seq.N (k - 1) - 2 * k + 2 ≤ n)
@@ -600,7 +599,7 @@ lemma lemma3_case5_valid (seq : NathansonSeq) (k : ℕ) (hk : k ≥ 3) (n : ℕ)
                 seq.lemma3_case5_y k u (seq.N k - n) ≤ seq.n k + seq.N (k - 1) := by
             unfold lemma3_case5_y;
             constructor;
-            · refine' Nat.le_sub_of_add_le' _;
+            · refine Nat.le_sub_of_add_le' ?_
               rw [ tsub_add_eq_add_tsub ];
               · rw [ tsub_le_iff_left ];
                 have h_n_ge_k : ∀ k, seq.n k ≥ k := by
@@ -788,10 +787,10 @@ lemma lemma3_case6_valid (seq : NathansonSeq) (k : ℕ) (hk : k ≥ 3) (n : ℕ)
       unfold NathansonSeq.Q NathansonSeq.R;
       rcases k with ( _ | _ | k ) <;> simp_all +arith +decide;
       unfold lemma3_case6_x lemma3_case6_y;
-      refine' ⟨ _, _, _, _ ⟩;
+      refine ⟨ ?_, ?_, ?_, ?_ ⟩
       · exact ⟨ u, hu, rfl ⟩;
       · simp +zetaDelta at *;
-        refine' ⟨ ⟨ _, _ ⟩, _ ⟩;
+        refine ⟨ ⟨ ?_, ?_ ⟩, ?_ ⟩
         · grind;
         · unfold NathansonSeq.N at *;
           have := seq.growth_bound ( k + 1 ) ( by linarith );
@@ -843,7 +842,7 @@ theorem lemma3_case6 (seq : NathansonSeq) (k : ℕ) (hk : k ≥ 3) (n : ℕ)
                 (seq.Q (k - 1) ∪ seq.R (k - 1))) := by
         intro p hp
         aesop;
-      refine' le_trans _ ( Finset.card_mono h_image );
+      refine le_trans ?_ ( Finset.card_mono h_image )
       rw [ Finset.card_image_of_injOn ];
       · norm_num;
       · intros u hu v hv huv;
@@ -880,11 +879,11 @@ theorem lemma3_part2 (seq : NathansonSeq) (k : ℕ) (hk : k ≥ 3) (n : ℕ)
     apply_rules [ countReps_mono ];
     unfold NathansonSeq.B_k; aesop_cat;
   · rcases h_case2 with ( h_case2 | h_case2 | h_case2 | h_case2 | h_case2 );
-    · refine' le_trans _
+    · refine le_trans ?_
         ( countReps_mono
           ( show
               seq.S ( k - 1 ) ⊆
-                seq.B_k k ∪ ( seq.B_k ( k - 1 ) ∪ seq.B_k ( k - 2 ) ) from _ )
+                seq.B_k k ∪ ( seq.B_k ( k - 1 ) ∪ seq.B_k ( k - 2 ) ) from ?_ )
           _ );
       · convert lemma3_case3 seq k hk n _ _;
         · omega;
@@ -893,14 +892,14 @@ theorem lemma3_part2 (seq : NathansonSeq) (k : ℕ) (hk : k ≥ 3) (n : ℕ)
           Finset.mem_union_right _ <|
             Finset.mem_union_left _ <|
               S_subset_B _ _ ( Nat.sub_pos_of_lt <| by linarith ) hx;
-    · refine' le_trans _ ( countReps_mono _ _ );
+    · refine le_trans (b := countReps (seq.P k ∪ seq.P (k - 2)) n) ?_ ( countReps_mono ?_ _ );
       convert lemma3_case4 seq k hk n h_case2.1 h_case2.2 using 1;
       intro x hx; unfold NathansonSeq.B_k; aesop;
-    · refine' le_trans ( lemma3_case1 seq k hk n h_case2.1 h_case2.2 ) _;
+    · refine le_trans ( lemma3_case1 seq k hk n h_case2.1 h_case2.2 ) ?_
       apply_rules [ countReps_mono ];
       exact fun x hx =>
         Finset.mem_union_left _ <| Finset.mem_union_left _ <| Finset.mem_union_left _ hx;
-    · refine' le_trans _ ( countReps_mono _ _ );
+    · refine le_trans (b := countReps (seq.P k ∪ seq.T k) n) ?_ ( countReps_mono ?_ _ );
       convert lemma3_case2 seq k hk n h_case2.1 h_case2.2 using 1;
       simp +decide [ Finset.subset_iff, NathansonSeq.B_k ];
       intro x hx
@@ -1806,7 +1805,7 @@ lemma nthSubsetOfIcc_exhaustive (n m : ℕ) (S : Finset ℕ)
   have h_subset_index :
       Finset.image (fun i => nthSubsetOfIcc n m i) (Finset.range (Nat.choose n m)) =
         Finset.powersetCard m (Finset.Icc 1 n) := by
-    refine' Finset.eq_of_subset_of_card_le ( Finset.image_subset_iff.mpr _ ) _;
+    refine Finset.eq_of_subset_of_card_le ( Finset.image_subset_iff.mpr ?_ ) ?_
     · simp +zetaDelta at *;
       intro x hx
       exact
@@ -1845,7 +1844,7 @@ lemma nthSubsetOfIcc_exhaustive (n m : ℕ) (S : Finset ℕ)
             · specialize ih m ( i - n.choose ( m + 1 ) ) ( j - n.choose ( m + 1 ) )
               simp_all +decide;
               contrapose! ih;
-              refine' ⟨ _, _, _, _ ⟩;
+              refine ⟨ ?_, ?_, ?_, ?_ ⟩
               · omega;
               · omega;
               · rw [ Finset.ext_iff ] at h_eq;
@@ -2176,7 +2175,7 @@ lemma exhaustive_prop (m : ℕ) (hm : m ≥ 1) (S : Finset ℕ)
           ∃ T : Finset ℕ,
             T ⊆ Finset.Icc 1 (2 * m) ∧ S = T.image enumerateB ∧ T.card = m := by
         choose! f hf using hS_range;
-        refine' ⟨ Finset.image f S, _, _, _ ⟩;
+        refine ⟨ Finset.image f S, ?_, ?_, ?_ ⟩
         · exact Finset.image_subset_iff.mpr fun x hx =>
             Finset.mem_Icc.mpr ⟨ hf x hx |>.1, hf x hx |>.2.1 ⟩;
         · ext x; aesop;
