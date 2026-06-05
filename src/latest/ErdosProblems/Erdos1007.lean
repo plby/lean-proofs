@@ -50,7 +50,6 @@ namespace Erdos1007
 
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.refine false
 set_option linter.flexible false
 
 attribute [local instance] Classical.propDecidable
@@ -83,13 +82,13 @@ lemma exists_embedding {V : Type*} [Finite V] (G : SimpleGraph V) : ∃ d, HasUn
     obtain ⟨basis, hbasis⟩ : ∃ basis : V → EuclideanSpace ℝ (Fin (Fintype.card V)), Function.Injective basis ∧ ∀ u v, u ≠ v → dist (basis u) (basis v) = Real.sqrt 2 := by
       -- We can construct such a basis using the standard basis vectors in Euclidean space.
       obtain ⟨basis, hbasis⟩ : ∃ basis : Fin (Fintype.card V) → EuclideanSpace ℝ (Fin (Fintype.card V)), Function.Injective basis ∧ ∀ i j, i ≠ j → dist (basis i) (basis j) = Real.sqrt 2 := by
-        refine' ⟨ fun i => WithLp.toLp 2 (fun j => if i = j then (1 : ℝ) else 0), _, _ ⟩ <;> simp +decide [ Function.Injective, dist_eq_norm, EuclideanSpace.norm_eq ];
+        refine ⟨ fun i => WithLp.toLp 2 (fun j => if i = j then (1 : ℝ) else 0), ?_, ?_ ⟩ <;> simp +decide [ Function.Injective, dist_eq_norm, EuclideanSpace.norm_eq ];
         · intro i j h; replace h := congr_fun h j; aesop;
         · intro i j hij; rw [ Finset.sum_eq_add_sum_diff_singleton_of_mem ( Finset.mem_univ i ) ] ; simp +decide [ Finset.sum_add_distrib, sub_sq, hij ] ;
           grind;
       have := Fintype.truncEquivFin V;
       obtain ⟨ e ⟩ := Trunc.exists_rep this; exact ⟨ fun u => basis ( e u ), fun u v huv => by simpa [ e.injective.eq_iff ] using hbasis.1 huv, fun u v huv => hbasis.2 _ _ ( by simpa [ e.injective.eq_iff ] using huv ) ⟩ ;
-    refine' ⟨ fun u => ( 1 / Real.sqrt 2 ) • basis u, _, _ ⟩ <;> simp_all +decide [ Function.Injective, dist_eq_norm ];
+    refine ⟨ fun u => ( 1 / Real.sqrt 2 ) • basis u, ?_, ?_ ⟩ <;> simp_all +decide [ Function.Injective, dist_eq_norm ];
     · exact fun u v h => hbasis.1 h;
     · intro u v huv; rw [ ← smul_sub, norm_smul, Real.norm_of_nonneg ( by positivity ) ] ; simp +decide [ hbasis.2 u v huv ] ;
   exact ⟨ h_regular_simplex.choose, h_regular_simplex.choose_spec.1, fun { u v } huv => h_regular_simplex.choose_spec.2 u v huv.ne ⟩
@@ -112,7 +111,7 @@ lemma sphere_intersection_infinite {a b : EuclideanSpace ℝ (Fin 3)} (h : dist 
           obtain ⟨u, hu⟩ : ∃ u : EuclideanSpace ℝ (Fin 3), u ≠ 0 ∧ (u 0 * (a 0 - b 0) + u 1 * (a 1 - b 1) + u 2 * (a 2 - b 2) = 0) ∧ (u 0 ^ 2 + u 1 ^ 2 + u 2 ^ 2 = 1) := by
             by_cases h_cases : a 0 = b 0;
             · exact ⟨ WithLp.toLp 2 (fun i : Fin 3 => if i = 0 then (1 : ℝ) else if i = 1 then 0 else 0), by intros h; simpa using congr_arg (fun x : EuclideanSpace ℝ (Fin 3) => x 0) h, by simp +decide [ h_cases ], by simp +decide ⟩;
-            · refine' ⟨ WithLp.toLp 2 (fun i : Fin 3 => if i = 0 then ( a 1 - b 1 ) / Real.sqrt ( ( a 1 - b 1 ) ^ 2 + ( a 0 - b 0 ) ^ 2 ) else if i = 1 then - ( a 0 - b 0 ) / Real.sqrt ( ( a 1 - b 1 ) ^ 2 + ( a 0 - b 0 ) ^ 2 ) else 0), _, _, _ ⟩ <;> simp +decide
+            · refine ⟨ WithLp.toLp 2 (fun i : Fin 3 => if i = 0 then ( a 1 - b 1 ) / Real.sqrt ( ( a 1 - b 1 ) ^ 2 + ( a 0 - b 0 ) ^ 2 ) else if i = 1 then - ( a 0 - b 0 ) / Real.sqrt ( ( a 1 - b 1 ) ^ 2 + ( a 0 - b 0 ) ^ 2 ) else 0), ?_, ?_, ?_ ⟩ <;> simp +decide
               · intro H; have := congr_fun H 0; have := congr_fun H 1; simp_all +decide [ sub_eq_iff_eq_add ] ;
                 exact absurd ( this.resolve_left ( Ne.symm h_cases ) ) ( by exact ne_of_gt ( Real.sqrt_pos.mpr ( by nlinarith only [ mul_self_pos.mpr ( sub_ne_zero.mpr h_cases ) ] ) ) );
               · ring;
@@ -121,7 +120,7 @@ lemma sphere_intersection_infinite {a b : EuclideanSpace ℝ (Fin 3)} (h : dist 
           obtain ⟨v, hv⟩ : ∃ v : EuclideanSpace ℝ (Fin 3), v ≠ 0 ∧ (v 0 * (a 0 - b 0) + v 1 * (a 1 - b 1) + v 2 * (a 2 - b 2) = 0) ∧ (v 0 ^ 2 + v 1 ^ 2 + v 2 ^ 2 = 1) ∧ (u 0 * v 0 + u 1 * v 1 + u 2 * v 2 = 0) := by
             -- Let $v$ be a vector perpendicular to both $u$ and $ab$ with length 1. We can construct such a vector using the cross product.
             use WithLp.toLp 2 ![u 1 * (a 2 - b 2) - u 2 * (a 1 - b 1), u 2 * (a 0 - b 0) - u 0 * (a 2 - b 2), u 0 * (a 1 - b 1) - u 1 * (a 0 - b 0)];
-            refine' ⟨ _, _, _, _ ⟩;
+            refine ⟨ ?_, ?_, ?_, ?_ ⟩;
             · intro H
               have H0 := congr_arg (fun x : EuclideanSpace ℝ (Fin 3) => x 0) H
               have H1 := congr_arg (fun x : EuclideanSpace ℝ (Fin 3) => x 1) H
@@ -151,7 +150,7 @@ lemma sphere_intersection_infinite {a b : EuclideanSpace ℝ (Fin 3)} (h : dist 
             linear_combination' hu' * Real.sqrt 3 * Real.cos θ / 2 + hv' * Real.sqrt 3 * Real.sin θ / 2;
         -- Since these points are parameterized by $\theta$, and $\theta$ can take infinitely many values, the set is infinite.
         have h_infinite : Set.Infinite (Set.image (fun θ : ℝ => WithLp.toLp 2 (fun i : Fin 3 => c i + (Real.sqrt 3 / 2) * (Real.cos θ * u i + Real.sin θ * v i))) (Set.Ioo 0 (Real.pi / 2))) := by
-          refine' Set.Infinite.image _ ( Set.Ioo_infinite ( by positivity ) );
+          refine Set.Infinite.image ?_ ( Set.Ioo_infinite ( by positivity ) );
           intros θ₁ hθ₁ θ₂ hθ₂ h_eq; simp_all +decide [ funext_iff, Fin.forall_fin_succ ] ;
           -- Since $u$ and $v$ are linearly independent, the only solution to the system of equations is $\cos \theta_1 = \cos \theta_2$ and $\sin \theta_1 = \sin \theta_2$.
           have h_cos_sin : Real.cos θ₁ = Real.cos θ₂ ∧ Real.sin θ₁ = Real.sin θ₂ := by
@@ -161,7 +160,7 @@ lemma sphere_intersection_infinite {a b : EuclideanSpace ℝ (Fin 3)} (h : dist 
           exact Real.injOn_cos ⟨ by linarith, by linarith ⟩ ⟨ by linarith, by linarith ⟩ h_cos_sin.1;
         field_simp;
         exact h_infinite.mono fun x hx => by obtain ⟨ θ, hθ, rfl ⟩ := hx; specialize h_circle_param θ; exact ⟨ by linear_combination h_circle_param.1 * 4, h_circle_param.2 ⟩ ;
-      refine' h_circle.mono _;
+      refine h_circle.mono ?_;
       norm_num [ Set.subset_def, Metric.mem_sphere ];
       norm_num [ EuclideanSpace.norm_eq, Fin.sum_univ_three ];
       grind
@@ -220,7 +219,7 @@ lemma planes_inter_is_line {n1 n2 : EuclideanSpace ℝ (Fin 3)} (h : LinearIndep
             grind;
         simp_all +decide [ Fin.sum_univ_three, inner ];
         obtain ⟨ a, b, c, h1, h2 ⟩ := h_sol; exact ⟨ WithLp.toLp 2 (fun i : Fin 3 => if i = 0 then a else if i = 1 then b else c), by simpa [ mul_comm ] using h1, by simpa [ mul_comm ] using h2 ⟩ ;
-      refine' ⟨ p, v, hv.1, Set.Subset.antisymm _ _ ⟩ <;> intro x hx <;> simp_all +decide
+      refine ⟨ p, v, hv.1, Set.Subset.antisymm ?_ ?_ ⟩ <;> intro x hx <;> simp_all +decide
       · -- Since $n1$ and $n2$ are linearly independent, the vector $x - p$ is orthogonal to both $n1$ and $n2$, and hence lies in the span of $v$.
         have h_orthogonal : ∃ t : ℝ, x - p = t • v := by
           have h_orthogonal : ∀ w : EuclideanSpace ℝ (Fin 3), inner ℝ n1 w = 0 ∧ inner ℝ n2 w = 0 → ∃ t : ℝ, w = t • v := by
@@ -239,7 +238,7 @@ lemma planes_inter_is_line {n1 n2 : EuclideanSpace ℝ (Fin 3)} (h : LinearIndep
               · exact Eq.symm (Matrix.range_cons_cons_empty n1 n2 ![]);
               · aesop;
             have h_orthogonal_complement : Submodule.span ℝ {v} = (Submodule.span ℝ {n1, n2})ᗮ := by
-              refine' Submodule.eq_of_le_of_finrank_eq _ _ <;> norm_num [ h_orthogonal_complement ];
+              refine Submodule.eq_of_le_of_finrank_eq ?_ ?_ <;> norm_num [ h_orthogonal_complement ];
               · simp_all +decide [ Submodule.mem_orthogonal' ];
                 intro u hu
                 rw [ Submodule.mem_span_pair ] at hu
@@ -274,7 +273,7 @@ lemma three_spheres_intersection {a b c : EuclideanSpace ℝ (Fin 3)}
       · -- Since $a$, $b$, and $c$ are not collinear, the planes $P_{ab}$ and $P_{ac}$ intersect in a line $L$.
         obtain ⟨p, v, hv_ne_zero, hL⟩ : ∃ p v : EuclideanSpace ℝ (Fin 3), v ≠ 0 ∧ {x | inner ℝ (b - a) x = inner ℝ (b - a) a + (1 / 2) * (‖b - a‖ ^ 2)} ∩ {x | inner ℝ (c - a) x = inner ℝ (c - a) a + (1 / 2) * (‖c - a‖ ^ 2)} = {p + t • v | t : ℝ} := by
           have h_planes_inter : LinearIndependent ℝ ![b - a, c - a] := by
-            refine' linearIndependent_fin2.mpr _;
+            refine linearIndependent_fin2.mpr ?_;
             simp_all +decide [ sub_eq_iff_eq_add ];
             exact ⟨ Ne.symm hac, fun x hx => h_collinear x <| by ext i; have := congr_arg (fun y : EuclideanSpace ℝ (Fin 3) => y i) hx; norm_num at *; linarith ⟩;
           have := planes_inter_is_line h_planes_inter ( inner ℝ ( b - a ) a + 2⁻¹ * ‖b - a‖ ^ 2 ) ( inner ℝ ( c - a ) a + 2⁻¹ * ‖c - a‖ ^ 2 ) ; aesop;
@@ -305,7 +304,7 @@ lemma three_spheres_intersection {a b c : EuclideanSpace ℝ (Fin 3)}
 The dimension of K_{3,3} is at most 4.
 -/
 lemma dim_K33_le_4 : GraphDimension (completeBipartiteGraph (Fin 3) (Fin 3)) ≤ 4 := by
-  refine' Nat.sInf_le _;
+  refine Nat.sInf_le ?_;
   -- Define the function f that maps the vertices of K_{3,3} to points in R^4.
   use fun v => if v = (Sum.inl 0) then WithLp.toLp 2 ![1 / Real.sqrt 2, 0, 0, 0] else if v = (Sum.inl 1) then WithLp.toLp 2 ![0, 1 / Real.sqrt 2, 0, 0] else if v = (Sum.inl 2) then WithLp.toLp 2 ![-1 / Real.sqrt 2, 0, 0, 0] else if v = (Sum.inr 0) then WithLp.toLp 2 ![0, 0, 1 / Real.sqrt 2, 0] else if v = (Sum.inr 1) then WithLp.toLp 2 ![0, 0, 0, 1 / Real.sqrt 2] else WithLp.toLp 2 ![0, 0, -1 / Real.sqrt 2, 0];
   constructor <;> simp +decide [ Function.Injective, Fin.forall_fin_succ ];
@@ -319,7 +318,7 @@ If a graph has a unit-distance embedding in dimension n, it has one in any dimen
 lemma embedding_dim_mono {V : Type*} (G : SimpleGraph V) {n m : ℕ} (h : n ≤ m)
     (h_emb : HasUnitDistanceEmbedding G n) : HasUnitDistanceEmbedding G m := by
       obtain ⟨ f, hf ⟩ := h_emb;
-      refine' ⟨ _, _, _ ⟩
+      refine ⟨ ?_, ?_, ?_ ⟩
       · exact fun v => ( f v ) |> fun x => WithLp.toLp 2 (fun i : Fin m => if hi : (i : ℕ) < n then x ⟨ i, hi ⟩ else 0);
       · intro v w h_eq;
         exact hf.1 ( by ext i; simpa using congr_arg (fun y : EuclideanSpace ℝ (Fin m) => y ⟨ i, by linarith [ Fin.is_lt i ] ⟩) h_eq );
@@ -520,10 +519,10 @@ lemma embed_extend_deg_1 {V : Type*} [Fintype V] (G : SimpleGraph V) (v : V)
           have h_sphere_infinite : Set.Infinite (Metric.sphere (0 : EuclideanSpace ℝ (Fin 3)) 1) := by
             intro h;
             have := h.image ( fun x => x 0 );
-            refine' this.not_infinite _;
-            refine' Set.Infinite.mono _ ( Set.Ioo_infinite ( show -1 < 1 by norm_num ) );
+            refine this.not_infinite ?_;
+            refine Set.Infinite.mono ?_ ( Set.Ioo_infinite ( show -1 < 1 by norm_num ) );
             intro x hx;
-            refine' ⟨ WithLp.toLp 2 (fun i : Fin 3 => if i = 0 then x else if i = 1 then Real.sqrt ( 1 - x ^ 2 ) else 0), _, _ ⟩ <;> simp +decide [ EuclideanSpace.norm_eq, Fin.sum_univ_three ];
+            refine ⟨ WithLp.toLp 2 (fun i : Fin 3 => if i = 0 then x else if i = 1 then Real.sqrt ( 1 - x ^ 2 ) else 0), ?_, ?_ ⟩ <;> simp +decide [ EuclideanSpace.norm_eq, Fin.sum_univ_three ];
             rw [ Real.sq_sqrt ] <;> nlinarith [ hx.1, hx.2 ]
           convert h_sphere_infinite.image (f := fun x => f' ⟨ u, hu.1 ⟩ + x) _ using 1
           · simp +decide
@@ -535,7 +534,7 @@ lemma embed_extend_deg_1 {V : Type*} [Fintype V] (G : SimpleGraph V) (v : V)
       -- Thus there exists a point p on the sphere not in the image of other vertices.
       obtain ⟨p, hp_sphere, hp_not_in_image⟩ : ∃ p : EuclideanSpace ℝ (Fin 3), p ∈ Metric.sphere (f' ⟨u, hu.1⟩) 1 ∧ p ∉ Set.image f' Set.univ := by
         exact Set.Infinite.nonempty ( h_sphere_infinite.diff h_finite );
-      refine' h_contra ⟨ fun w => if hw : w = v then p else f' ⟨ w, hw ⟩, _, _ ⟩ <;> simp_all +decide [ IsUnitDistanceEmbedding ];
+      refine h_contra ⟨ fun w => if hw : w = v then p else f' ⟨ w, hw ⟩, ?_, ?_ ⟩ <;> simp_all +decide [ IsUnitDistanceEmbedding ];
       · intro w w' h_eq; by_cases hw : w = v <;> by_cases hw' : w' = v <;> simp_all +decide [ Function.Injective.eq_iff hf'.1 ] ;
         (expose_names; exact False.elim (hp_not_in_image w' hw'_1 rfl));
       · intro a b hab; split_ifs <;> simp_all +decide [ dist_eq_norm ] ;
@@ -568,7 +567,7 @@ lemma embed_extend_deg_2_adj {V : Type*} [Fintype V] (G : SimpleGraph V) (v : V)
           ext; simp +decide
           simp +decide only [dist_eq_norm'];
         exact Exists.imp ( by aesop ) ( h_inter_infinite.exists_notMem_finset ( Set.toFinset ( Set.range f' ) ) );
-      refine' ⟨ fun x => if hx : x = v then p else f' ⟨ x, hx ⟩, _, _ ⟩ <;> simp_all +decide
+      refine ⟨ fun x => if hx : x = v then p else f' ⟨ x, hx ⟩, ?_, ?_ ⟩ <;> simp_all +decide
       · intro x y hxy; by_cases hx : x = v <;> by_cases hy : y = v <;> simp_all +decide [ hf'.1.eq_iff ] ;
         grind;
       · intro x y hxy; cases eq_or_ne x v <;> cases eq_or_ne y v <;> simp_all +decide
@@ -604,7 +603,7 @@ lemma embed_extend_deg_2_not_adj {V : Type*} [Fintype V] (G : SimpleGraph V) (v 
           apply sphere_intersection_infinite;
           exact this.2 ( by simp +decide [ addEdge, huw ] );
         exact h_infinite.exists_notMem_finset ( Set.toFinset ( Set.range h_emb.choose ) ) |> fun ⟨ p, hp₁, hp₂ ⟩ => ⟨ p, hp₁, by simpa using hp₂ ⟩;
-      refine' ⟨ fun x => if hx : x = v then p else h_emb.choose ⟨ x, _ ⟩, _, _ ⟩
+      refine ⟨ fun x => if hx : x = v then p else h_emb.choose ⟨ x, ?_ ⟩, ?_, ?_ ⟩
       · exact hx
       · intro x y hxy;
         by_cases hx : x = v <;> by_cases hy : y = v <;> simp_all +decide;
@@ -639,7 +638,7 @@ lemma dim_le_3_of_card_le_4 {V : Type*} [Fintype V] (G : SimpleGraph V)
           -- Let's choose any four points in $\mathbb{R}^3$ that are pairwise at a distance of 1.
           obtain ⟨f, hf⟩ : ∃ (f : Fin (Fintype.card V) → EuclideanSpace ℝ (Fin 3)), ∀ i j : Fin (Fintype.card V), i ≠ j → dist (f i) (f j) = 1 := by
             interval_cases _ : Fintype.card V <;> simp_all +decide;
-            · refine' ⟨ fun i => if i = 0 then 0 else EuclideanSpace.single 0 1, _, _ ⟩ <;> norm_num;
+            · refine ⟨ fun i => if i = 0 then 0 else EuclideanSpace.single 0 1, ?_, ?_ ⟩ <;> norm_num;
             · -- For the case when $n = 3$, we can construct the embedding explicitly.
               use ![ WithLp.toLp 2 ![0, 0, 0], WithLp.toLp 2 ![1, 0, 0], WithLp.toLp 2 ![1/2, Real.sqrt 3 / 2, 0] ];
               norm_num [ Fin.forall_fin_succ, dist_eq_norm, EuclideanSpace.norm_eq ];
@@ -650,7 +649,7 @@ lemma dim_le_3_of_card_le_4 {V : Type*} [Fintype V] (G : SimpleGraph V)
               repeat erw [ Matrix.cons_val_succ' ] ; norm_num ; ring_nf ; norm_num;
           exact ⟨ fun v => f ( Fintype.equivFin V v ), fun v w hvw => hf _ _ ( by simpa [ Fintype.equivFin ] using hvw ) ⟩;
         obtain ⟨ f, hf ⟩ := h_subgraph;
-        refine' ⟨ f, _, _ ⟩;
+        refine ⟨ f, ?_, ?_ ⟩;
         · intro v w h; specialize hf v w; aesop;
         · exact fun { u v } huv => hf u v huv.ne;
       exact csInf_le ⟨ 0, fun d hd => Nat.zero_le _ ⟩ ⟨ h_subgraph.choose, h_subgraph.choose_spec ⟩
@@ -681,7 +680,7 @@ lemma regular_triangle_sphere_intersection_avoid {x y z u : EuclideanSpace ℝ (
         -- Let $p₂$ be the reflection of $p₁$ over the plane containing $x$, $y$, and $z$.
         use 2 • (1 / 3 : ℝ) • (x + y + z) - p₁;
         norm_num [ dist_eq_norm, EuclideanSpace.norm_eq, Fin.sum_univ_three ] at *;
-        refine' ⟨ _, _, _, _ ⟩ <;> ring_nf at * <;> norm_num at *;
+        refine ⟨ ?_, ?_, ?_, ?_ ⟩ <;> ring_nf at * <;> norm_num at *;
         · linarith;
         · linarith;
         · linarith;
@@ -724,7 +723,7 @@ lemma exists_embedding_with_regular_neighbors {V : Type*} [Fintype V] (G : Simpl
                    exact ⟨ _, Nat.sInf_mem ( show ∃ d, HasUnitDistanceEmbedding H d from exists_embedding H ), h ⟩;
                  exact embedding_dim_mono H ( by linarith [ h_embedding.choose_spec ] ) h_embedding.choose_spec.1;
                obtain ⟨ f, hf ⟩ := h_H_embedding;
-               refine' ⟨ f, ⟨ hf.1, fun { u v } huv => _ ⟩, _ ⟩;
+               refine ⟨ f, ⟨ hf.1, fun { u v } huv => ?_ ⟩, ?_ ⟩;
                · exact hf.2 ( by aesop );
                · field_simp;
                  intro x y hx hy hxy;
@@ -773,7 +772,7 @@ lemma embedding_extension {V : Type*} [Finite V] (G : SimpleGraph V) (v : V)
     HasUnitDistanceEmbedding G 3 := by
       classical
       letI := Fintype.ofFinite V
-      refine' ⟨ fun u => if hu : u = v then p else f' ⟨ u, hu ⟩, _, _ ⟩ <;> simp_all +decide [ IsUnitDistanceEmbedding ];
+      refine ⟨ fun u => if hu : u = v then p else f' ⟨ u, hu ⟩, ?_, ?_ ⟩ <;> simp_all +decide [ IsUnitDistanceEmbedding ];
       · intro u w h_eq; by_cases hu : u = v <;> by_cases hw : w = v <;> simp_all +decide [ Function.Injective.eq_iff hf'.1 ] ;
         · contrapose! hp_not_adj;
           exact ⟨ w, hw, by rintro H; specialize hp_adj _ H; aesop, rfl ⟩;
