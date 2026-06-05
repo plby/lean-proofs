@@ -36,7 +36,6 @@ import Mathlib
 
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 set_option aesop.warn.nonterminal false
 
 open scoped BigOperators
@@ -74,8 +73,13 @@ lemma mvt_estimate (t : ℝ) (x : ℝ) (hx : 0 < x) (n : ℝ) (hn : x ≤ n) :
       rw [ div_le_iff₀ ] <;> nlinarith [ show 0 < ‖1 + Complex.I * t‖ by norm_num [ Complex.ext_iff ], show x ^ 2 ≤ u ^ 2 by nlinarith ];
     -- Using the bound on the integrand, we can bound the integral.
     have h_integral_bound : ‖∫ u in (x)..n, (1 + Complex.I * t) * Complex.ofReal u ^ (-(2 + Complex.I * t))‖ ≤ ‖1 + Complex.I * t‖ * x ^ (-2 : ℝ) * (n - x) := by
-      refine' le_trans ( intervalIntegral.norm_integral_le_of_norm_le_const _ ) _;
-      exacts [ ‖1 + Complex.I * t‖ * x ^ ( -2 : ℝ ), fun u hu => h_bound u <| by constructor <;> cases Set.mem_uIoc.mp hu <;> linarith, by rw [ abs_of_nonneg ( by linarith ) ] ];
+      refine le_trans
+        (intervalIntegral.norm_integral_le_of_norm_le_const
+          (C := ‖1 + Complex.I * t‖ * x ^ (-2 : ℝ)) ?_)
+        ?_
+      · exact fun u hu => h_bound u <| by
+          constructor <;> cases Set.mem_uIoc.mp hu <;> linarith
+      · rw [ abs_of_nonneg ( by linarith ) ]
     simp_all +decide [ Real.rpow_neg hx.le ];
     exact le_trans ( mul_le_mul_of_nonneg_right h_integral_bound ( sq_nonneg _ ) ) ( by nlinarith [ inv_mul_cancel_left₀ ( ne_of_gt ( sq_pos_of_pos hx ) ) ( ‖1 + Complex.I * t‖ * ( n - x ) ) ] )
 
@@ -97,7 +101,7 @@ lemma exist_x_parallel (t : ℝ) (ht : t ≠ 0) (N : ℝ) (c : ℂ) (_hc : c ≠
         by_cases hN : N > 0;
         · exact ⟨ k, by rw [ ge_iff_le ] ; rw [ ← Real.log_le_log_iff ( by positivity ) ( by positivity ), Real.log_exp ] ; rw [ le_div_iff₀ ( lt_of_le_of_ne ( le_of_not_gt ht_neg ) ht.symm ) ] ; linarith ⟩;
         · exact ⟨ k, le_trans ( le_of_not_gt hN ) ( Real.exp_nonneg _ ) ⟩;
-    refine' ⟨ Real.exp ( - ( Complex.arg c + 2 * k * Real.pi ) / t ), hk, _ ⟩;
+    refine ⟨ Real.exp ( - ( Complex.arg c + 2 * k * Real.pi ) / t ), hk, ?_ ⟩
     rw [ Complex.cpow_def_of_ne_zero ] <;> norm_num [ ht ];
     rw [ Complex.log_exp ] <;> norm_num [ Complex.ext_iff, Complex.exp_re, Complex.exp_im, mul_assoc, ht, mul_left_comm ];
     · positivity;
@@ -120,7 +124,7 @@ lemma lemma_2_1 (t : ℝ) (ht : t ≠ 0) (N : ℕ) (_hN : N > 0) (c : ℂ) :
       -- Let $s = \lfloor x \|c\| \rfloor$. Let $S' = \{n \in \mathbb{N} \mid \lceil x \rceil \leq n < \lceil x \rceil + s\}$.
       set s := Nat.floor (x * ‖c‖)
       set S' := Finset.Ico (Nat.ceil x) (Nat.ceil x + s);
-      refine' ⟨ S', _, _, _ ⟩;
+      refine ⟨ S', ?_, ?_, ?_ ⟩
       · exact fun n hn => Nat.cast_le.mp ( le_trans ( show ( N : ℝ ) ≤ ⌈x⌉₊ by exact_mod_cast Nat.le_of_lt_succ <| by { rw [ ← @Nat.cast_lt ℝ ] ; push_cast; nlinarith [ Nat.le_ceil x, inv_pos.mpr ( norm_pos_iff.mpr hc ) ] } ) <| Nat.cast_le.mpr <| Finset.mem_Ico.mp hn |>.1 );
       · -- Since $n \geq x$ for all $n \in S'$, we have $\sum_{n \in S'} \frac{1}{n} \leq \sum_{n \in S'} \frac{1}{x} = \frac{s}{x}$.
         have h_sum_le_s_over_x : ∑ n ∈ S', (n : ℝ)⁻¹ ≤ s / x := by
@@ -189,7 +193,7 @@ lemma step_exists (t : ℝ) (ht : t ≠ 0) (N : ℕ) (hN : N > 0) (rem : ℂ) :
   ‖rem - ∑ n ∈ S', (n : ℂ) ^ (-(1 + Complex.I * (t : ℂ)))‖ ≤ max (‖rem‖ / 2) (‖rem‖ - (2 + 2 * ‖1 + Complex.I * (t : ℂ)‖)⁻¹ / 2) := by
     -- Let's first apply Lemma 2.1 to the complex number $c = \text{step\_target}(t, \text{rem})$.
     obtain ⟨S', hS₁, hS₂, hS₃⟩ := lemma_2_1 t ht N hN (step_target t rem);
-    refine' ⟨ S', hS₁, hS₂, _ ⟩;
+    refine ⟨ S', hS₁, hS₂, ?_ ⟩
     -- Let's consider the two cases: $|rem| \le r$ and $|rem| > r$.
     by_cases h_case : ‖rem‖ ≤ (2 + 2 * ‖1 + Complex.I * t‖)⁻¹;
     · unfold step_target at * ; aesop;
@@ -368,13 +372,13 @@ The sum of the series grouped by blocks equals lambda.
 -/
 lemma grouped_sum_eq_lambda (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
   (∑' k, ∑ n ∈ S_seq t ht lambda_val k, (n : ℂ) ^ (-(1 + Complex.I * t))) = lambda_val := by
-    refine' HasSum.tsum_eq _;
+    refine HasSum.tsum_eq ?_
     rw [ hasSum_iff_tendsto_nat_of_summable_norm ];
     · have h_partial_sum : ∀ N, ∑ k ∈ Finset.range (N + 1), ∑ n ∈ S_seq t ht lambda_val k, (n : ℂ) ^ (-(1 + Complex.I * t)) = lambda_val - rem_seq t ht lambda_val N := by
         exact fun N ↦ partial_sum_eq t ht lambda_val N;
       rw [ ← Filter.tendsto_add_atTop_iff_nat 1 ] ; aesop;
       simpa using tendsto_const_nhds.sub ( rem_convergence t ht lambda_val );
-    · refine' .of_nonneg_of_le ( fun k => norm_nonneg _ ) ( fun k => _ ) ( show Summable fun k => ∑ n ∈ S_seq t ht lambda_val k, ( n : ℝ ) ⁻¹ from _ );
+    · refine .of_nonneg_of_le ( fun k => norm_nonneg _ ) ( fun k => ?_ ) ( show Summable fun k => ∑ n ∈ S_seq t ht lambda_val k, ( n : ℝ ) ⁻¹ from ?_ )
       · -- Apply the triangle inequality to the sum.
         have h_triangle : ∀ n ∈ S_seq t ht lambda_val k, ‖(n : ℂ) ^ (-(1 + Complex.I * t))‖ ≤ (n : ℝ)⁻¹ := by
           -- Apply the lemma norm_complex_pow with σ = 1 and τ = t.
@@ -392,8 +396,9 @@ The sum of reciprocals over the constructed set S is summable.
 open Classical in
 lemma summable_constructed_S (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
   Summable (fun n => if n ∈ constructed_S t ht lambda_val then (n : ℝ)⁻¹ else 0) := by
-    refine' summable_of_sum_le _ _;
-    exact ∑' k, ∑ n ∈ S_seq t ht lambda_val k, ( n : ℝ ) ⁻¹;
+    refine summable_of_sum_le
+      (c := ∑' k, ∑ n ∈ S_seq t ht lambda_val k, ( n : ℝ ) ⁻¹)
+      ?_ ?_
     · exact fun n => by positivity;
     · intro u;
       -- Since $u$ is finite, we can find a maximum index $M$ such that all elements of $u$ are in $S_k$ for some $k \leq M$.
@@ -412,7 +417,8 @@ lemma summable_constructed_S (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
         refine le_trans h_bound ?_;
         gcongr ; aesop;
         exact Finset.sum_le_sum_of_subset_of_nonneg ( Finset.inter_subset_right ) fun _ _ _ => by positivity;
-      refine' le_trans h_bound ( Summable.sum_le_tsum _ _ _ );
+      refine le_trans h_bound
+        (Summable.sum_le_tsum (Finset.range (M + 1)) ?_ ?_)
       · exact fun _ _ => Finset.sum_nonneg fun _ _ => inv_nonneg.2 <| Nat.cast_nonneg _;
       · exact sum_recip_bounded t ht lambda_val
 
@@ -539,7 +545,7 @@ lemma tsum_eq_lambda (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
     -- Apply the lemma `grouped_sum_eq_lambda` to conclude that the sum of the series is lambda.
     have h_sum : ∑' n, (if n ∈ constructed_S t ht lambda_val then (n : ℂ) ^ (-(1 + Complex.I * t)) else 0) = ∑' k, ∑ n ∈ S_seq t ht lambda_val k, (n : ℂ) ^ (-(1 + Complex.I * t)) := by
       convert tsum_constructed_S_eq t ht lambda_val _ _ _ using 1;
-      · refine' tsum_congr fun k => Finset.sum_congr rfl fun n hn => _;
+      · refine tsum_congr fun k => Finset.sum_congr rfl fun n hn => ?_
         rw [ if_pos ];
         exact Set.mem_iUnion.mpr ⟨ k, hn ⟩;
       · aesop;
@@ -568,7 +574,7 @@ theorem main_theorem (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
   ∃ S : Set ℕ, (∀ n ∈ S, n ≥ 2) ∧
   Summable (fun n => if n ∈ S then (n : ℝ)⁻¹ else 0) ∧
   (∑' n, if n ∈ S then (n : ℂ) ^ (-(1 + Complex.I * t)) else 0) = lambda_val := by
-    refine' ⟨ constructed_S t ht lambda_val, _, _, _ ⟩;
+    refine ⟨ constructed_S t ht lambda_val, ?_, ?_, ?_ ⟩
     · exact main_theorem_ge_2 t ht lambda_val
     · exact summable_constructed_S t ht lambda_val
     · exact tsum_eq_lambda t ht lambda_val
