@@ -386,8 +386,7 @@ lemma edge_endpoint_degree_sum_eq_sum_sq
   classical
   simp +decide [edge_endpoint_degree_sum_eq_neighbor_sum, pow_two]
 
--- This finite-set cardinality estimate uses `refine'` to expose nested goals.
-set_option linter.style.refine false in
+-- This finite-set cardinality estimate exposes nested goals.
 /--
 For a fixed edge `e = s(u, v)`, the number of vertices whose adjacency pattern to
 `u, v` is concordant is at most `n + 2t(e) - d(u) - d(v)`.
@@ -417,11 +416,11 @@ lemma concordant_vertex_count_le_card_add_two_mul_triangleDegree_sub_degree
           (Finset.filter (fun y => y ∈ G.commonNeighbors e.out.1 e.out.2)
             (Finset.univ : Finset V)).card := by
     rw [tsub_add_eq_add_tsub]
-    · refine' le_tsub_of_add_le_left _
+    · refine le_tsub_of_add_le_left ?_
       rw [← Finset.card_union_add_card_inter]
-      refine' add_le_add _ _
+      refine add_le_add ?_ ?_
       · exact Finset.card_le_univ _
-      · refine' Finset.card_le_card _
+      · refine Finset.card_le_card ?_
         intro y hy
         aesop
     · exact Finset.card_le_univ _
@@ -503,7 +502,6 @@ set_option maxHeartbeats 800000 in
 -- injection. The heartbeat bump avoids timeouts in the large `simp`/`grind`
 -- blocks handling `Sym2` and filtered products.
 set_option linter.flexible false in
-set_option linter.style.refine false in
 lemma injection_counting_bound [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj] :
     (G.cliqueFinset 3).card * Fintype.card V +
@@ -552,7 +550,7 @@ lemma injection_counting_bound [DecidableEq V]
             by_cases hyv : G.Adj y v
             · exact Or.inl ⟨hyv, hvw_y.mp hyv⟩
             · exact Or.inr ⟨hyv, fun hyw => hyv (hvw_y.mpr hyw)⟩
-      refine' ⟨e, _, _, he.2⟩ <;> simp_all +decide [SimpleGraph.edgeSet]
+      refine ⟨e, ?_, ?_, he.2⟩ <;> simp_all +decide [SimpleGraph.edgeSet]
       · rcases he.1 with (rfl | rfl | rfl) <;> simp +decide [*, SimpleGraph.edgeSetEmbedding]
       · rcases he.1 with (rfl | rfl | rfl) <;> simp +decide [Sym2.mem_iff]
     have concordant_pair_count_le :
@@ -591,12 +589,12 @@ lemma injection_counting_bound [DecidableEq V]
           · grind
           · grind
           · grind
-        refine' le_trans (Finset.card_le_card triangle_to_commonNeighbor) _
+        refine le_trans (Finset.card_le_card triangle_to_commonNeighbor) ?_
         refine le_trans Finset.card_image_le ?_
         exact le_of_eq <| (Fintype.card_of_finset'
           (Finset.filter (fun w => G.Adj u w ∧ G.Adj v w) (Finset.univ : Finset V))
           (by simp [SimpleGraph.commonNeighbors])).symm
-      refine' le_trans _ (Nat.mul_le_mul triangle_count_through_edge_le concordant_vertex_count_le)
+      refine le_trans ?_ (Nat.mul_le_mul triangle_count_through_edge_le concordant_vertex_count_le)
       rw [← Finset.card_product]
       exact Finset.card_le_card fun p hp => by aesop
     have total_pair_count_le :
