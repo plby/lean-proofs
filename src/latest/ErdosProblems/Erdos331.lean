@@ -29,7 +29,6 @@ namespace Erdos331
 
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 
 open scoped BigOperators
 open scoped Real
@@ -165,11 +164,11 @@ lemma unique_decomposition {n a b : ℕ} (ha : a ∈ A) (hb : b ∈ B)
     grind
   -- Recover `a` and `b` from their non-overlapping bit positions.
   have h_partA_eq : partA (a ||| b) = a := by
-    refine' Nat.eq_of_testBit_eq fun k => _
+    refine Nat.eq_of_testBit_eq fun k => ?_
     by_cases hk : Even k <;> simp +decide [hk, h_partA]
     exact ha k (by simpa using hk)
   have h_partB_eq : partB (a ||| b) = b := by
-    refine' Nat.eq_of_testBit_eq fun k => _
+    refine Nat.eq_of_testBit_eq fun k => ?_
     by_cases hk : Even k <;> simp +decide [h_partB]
     · exact fun h => absurd h (by simpa [hk] using hb k hk)
     · exact fun _ =>
@@ -271,7 +270,7 @@ lemma expandB_in_B (n : ℕ) : expandB n ∈ B := by
 expandA is strictly monotonic.
 -/
 lemma expandA_strict_mono : StrictMono expandA := by
-  refine' strictMono_nat_of_lt_succ _
+  refine strictMono_nat_of_lt_succ ?_
   intro n
   induction n using Nat.strong_induction_on with
   | h n ih =>
@@ -377,7 +376,7 @@ lemma card_A_ge_of_pow {N m : ℕ} (h : 2 ^ m ≤ N) :
       intro
       norm_num +zetaDelta at *
       rintro x hx₁ hx₂ rfl
-      refine' ⟨ ⟨ Nat.one_le_iff_ne_zero.mpr _, _ ⟩, expandA_in_A x ⟩
+      refine ⟨ ⟨ Nat.one_le_iff_ne_zero.mpr ?_, ?_ ⟩, expandA_in_A x ⟩
       · -- By definition of expandA, we know that expandA x is strictly increasing.
         have h_expandA_mono : StrictMono expandA := by
           exact expandA_strict_mono
@@ -401,18 +400,18 @@ lemma card_B_ge_of_pow {N m : ℕ} (h : 2 ^ m ≤ N) :
     have h_B_ge_expandB :
         ((Finset.Icc 1 N).filter (· ∈ B)).card ≥
           Finset.card (Finset.image expandB (Finset.Icc 1 (2 ^ (m / 2) - 1))) := by
-      refine' Finset.card_le_card ?_
+      refine Finset.card_le_card ?_
       intro aesop
       simp +zetaDelta at *
       rintro x hx₁ hx₂ rfl
-      refine' ⟨⟨_, _⟩, _⟩ <;>
+      refine ⟨⟨?_, ?_⟩, ?_⟩ <;>
         try
           linarith [
             Nat.sub_add_cancel (Nat.one_le_pow (m / 2) 2 zero_lt_two),
             expandB_lt_pow_two
               (show x < 2 ^ (m / 2) from
                 lt_of_le_of_lt hx₂ (Nat.sub_lt (by positivity) (by positivity)))]
-      · refine' Nat.mul_pos ( by decide ) ( _ )
+      · refine Nat.mul_pos ( by decide ) ?_
         -- By definition of $expandA$, we know that $expandA x$ is strictly increasing.
         have h_expandA_mono : StrictMono expandA := by
           exact expandA_strict_mono
@@ -428,7 +427,7 @@ There exists N0 >= 2 such that for all N >= N0, the number of elements of A in
 lemma density_lemma : ∃ N₀ ≥ 2, ∀ N ≥ N₀,
   ((Finset.Icc 1 N).filter (· ∈ A)).card ≥ (1/4 : ℝ) * Real.sqrt N ∧
   ((Finset.Icc 1 N).filter (· ∈ B)).card ≥ (1/4 : ℝ) * Real.sqrt N := by
-    refine' ⟨ 2 ^ 10, _, _ ⟩ <;> norm_num
+    refine ⟨ 2 ^ 10, ?_, ?_ ⟩ <;> norm_num
     intro N hN
     obtain ⟨m, hm⟩ : ∃ m : ℕ, 2^m ≤ N ∧ N < 2^(m+1) := by
       exact ⟨
@@ -506,11 +505,11 @@ lemma density_to_bigO {A : Set ℕ} {c : ℝ} (hc : 0 < c)
       · linarith
       · field_simp
         rw [ Nat.count_eq_card_filter_range ]
-        refine' le_trans _
+        refine le_trans ?_
           (mul_le_mul_of_nonneg_left
             (Nat.cast_le.mpr <| Finset.card_mono <|
               show Finset.filter (fun x => A x) (Finset.range (n + 1 + 1)) ≥
-                  Finset.filter (fun x => A x) (Finset.Icc 1 (n + 1)) from _)
+                  Finset.filter (fun x => A x) (Finset.Icc 1 (n + 1)) from ?_)
             zero_le_two)
         · nlinarith! [
             sq_nonneg (Real.sqrt (n + 1) - Real.sqrt (n + 1 + 1)),
@@ -546,7 +545,7 @@ theorem main_theorem : ∃ (A' B' : Set ℕ),
     a₁ ≠ a₂ → a₁ - (a₂ : ℤ) ≠ b₁ - (b₂ : ℤ)) := by
     -- Let's choose $A' = A \setminus \{0\}$ and $B' = B \setminus \{0\}$.
     use {n | n ∈ A ∧ n > 0}, {n | n ∈ B ∧ n > 0}
-    refine' ⟨ _, _, _, _ ⟩
+    refine ⟨ ?_, ?_, ?_, ?_ ⟩
     · exact fun x hx => hx.2
     · exact fun x hx => hx.2
     · obtain ⟨ N₀, hN₀ ⟩ := density_lemma
@@ -587,7 +586,7 @@ theorem erdos_331 :
   push Not
   -- Let's choose any $A$ and $B$ that satisfy the conditions.
   obtain ⟨A, B, hA, hB⟩ := main_theorem
-  refine' ⟨ A, B, _, _, _ ⟩
+  refine ⟨ A, B, ?_, ?_, ?_ ⟩
   · apply density_to_bigO
     exacts [
       show 0 < (1 / 4 : ℝ) by norm_num,
