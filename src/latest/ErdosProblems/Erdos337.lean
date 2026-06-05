@@ -19,7 +19,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 set_option linter.unusedVariables false
 set_option aesop.warn.nonterminal false
 
@@ -228,7 +227,7 @@ theorem sum_L_bound (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r C)
     -- By definition of $d$, we know that $(d n : ℝ)^{1/h} \leq (d n : ℝ)^r$ for sufficiently
     -- large $n$.
     have h_exp_le : ∀ᶠ n in Filter.atTop, (S.d n : ℝ)^(1 / h : ℝ) ≤ (S.d n : ℝ)^r := by
-      refine' Filter.eventually_atTop.mpr ⟨ 1, fun n hn => _ ⟩;
+      refine Filter.eventually_atTop.mpr ⟨ 1, fun n hn => ?_ ⟩;
       exact Real.rpow_le_rpow_of_exponent_le ( mod_cast Nat.one_le_iff_ne_zero.mpr <| ne_of_gt
         <| S.d_pos n ) <| by nlinarith [ show ( h : ℝ ) ≥ 3 by norm_cast,
         one_div_mul_cancel <| show ( h : ℝ ) ≠ 0 by positivity ] ;
@@ -637,8 +636,8 @@ theorem intervals_bound (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r C)
         hr1 hr2 ) ; obtain ⟨ N₃, hN₃ ⟩ := Filter.eventually_atTop.mp (
         card_decomposition h r C S h_ge_3 hr1 hr2 ) ; use Max.max N₁ ( Max.max N₂ N₃ ) ;
         aesop;
-    rcases Filter.eventually_atTop.mp hN.2.2 with ⟨ M, hM ⟩ ; refine'
-    Filter.eventually_atTop.mpr ⟨ M + S.d N + 1, fun x hx => _ ⟩ ; specialize hM ( ⌊x⌋₊ ) (
+    rcases Filter.eventually_atTop.mp hN.2.2 with ⟨ M, hM ⟩ ; refine
+    Filter.eventually_atTop.mpr ⟨ M + S.d N + 1, fun x hx => ?_ ⟩ ; specialize hM ( ⌊x⌋₊ ) (
     Nat.le_floor <| by linarith ) ; aesop;
     -- Let's choose any $n$ such that $S.d n \leq \lfloor x \rfloor < S.d (n + 1)$.
     obtain ⟨n, hn⟩ : ∃ n, S.d n ≤ ⌊x⌋₊ ∧ ⌊x⌋₊ < S.d (n + 1) ∧ N ≤ n := by
@@ -653,7 +652,7 @@ theorem intervals_bound (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r C)
         S.d 0 : ℝ ) ≤ M + S.d N + 1 by norm_cast; linarith [ S.d_pos N,
         S.d_strict_mono.monotone <| show 0 ≤ N from Nat.zero_le _ ] ] ] ] ) h_unbounded
         ⟩;
-      refine' ⟨ n, hn.1, hn.2, _ ⟩ ; contrapose! hx ; aesop;
+      refine ⟨ n, hn.1, hn.2, ?_ ⟩ ; contrapose! hx ; aesop;
       exact lt_of_not_ge fun h => right.not_le <| Nat.le_floor <| by linarith [ show ( S.d
       N : ℝ ) ≥ S.d ( n + 1 ) from mod_cast S.d_strict_mono.monotone <| by linarith ] ;
     -- By combining the results from `hM`, `left`, and `left_1`, we can conclude the proof.
@@ -662,7 +661,7 @@ theorem intervals_bound (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r C)
     : ℝ)^r) := by
       bound;
       · refine le_trans ( hM n left_2 left_3 ) ?_;
-        refine' add_le_add ( left n right ) _;
+        refine add_le_add ( left n right ) ?_;
         rw [ Set.ncard_def ] ; aesop;
         exact Or.inl <| Set.eq_empty_of_forall_not_mem fun y hy => by linarith [ hy.1.1,
         hy.1.2, hy.2.1, hy.2.2, Nat.sub_add_cancel <| show L r ( S.d ( n + 1 ) ) ≤ S.d (
@@ -670,10 +669,10 @@ theorem intervals_bound (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r C)
         Real.rpow_le_rpow_of_exponent_le ( mod_cast Nat.one_le_iff_ne_zero.mpr <|
         ne_of_gt <| S.d_pos _ ) hr2.le ) <| by norm_num ] ;
       · refine le_trans ( hM n left_2 left_3 ) ?_;
-        refine' add_le_add ( left n right ) _;
-        refine' le_trans ( Nat.cast_le.mpr <| Set.ncard_le_ncard <| show I ( S.d ( n + 1
+        refine add_le_add ( left n right ) ?_;
+        refine le_trans ( Nat.cast_le.mpr <| Set.ncard_le_ncard <| show I ( S.d ( n + 1
         ) ) ( L r ( S.d ( n + 1 ) ) ) ∩ Set.Icc 1 ⌊x⌋₊ ⊆ Set.Icc ( S.d ( n + 1 ) - L r (
-        S.d ( n + 1 ) ) + 1 ) ( S.d ( n + 1 ) ) from fun y hy => by aesop ) _ ; norm_num
+        S.d ( n + 1 ) ) + 1 ) ( S.d ( n + 1 ) ) from fun y hy => by aesop ) ?_ ; norm_num
         [ Set.ncard_eq_toFinset_card' ];
         rw [ Nat.cast_sub ] <;> norm_num;
         · rw [ show ( L r ( S.d ( n + 1 ) ) : ℝ ) = ⌊ ( S.d ( n + 1 ) : ℝ ) ^ r⌋₊ by rfl
@@ -773,7 +772,7 @@ theorem A_dn_lower_bound (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSequen
             Nat.floor_le_of_le ( by exact le_trans ( Real.rpow_le_rpow_of_exponent_le ( mod_cast
             Nat.one_le_iff_ne_zero.mpr <| ne_of_gt <| S.d_pos n ) hr2.le ) <| by norm_num ) ) ];
         · grind;
-      refine' mod_cast h_interval ▸ _;
+      refine mod_cast h_interval ▸ ?_;
       fapply Set.ncard_le_ncard;
       · intro x hx; unfold constructed_A; aesop;
       · exact Set.finite_iff_bddAbove.mpr ⟨ ⌊ ( S.d n : ℝ ) ⌋₊, fun x hx => hx.2.2 ⟩;
@@ -990,7 +989,7 @@ theorem S1_card_bound (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r C)
           linarith
         · obtain ⟨ a, ⟨ ha₁, ha₂ ⟩, ha₃ ⟩ := hx.2
           linarith [ hx.1.2 ]
-    refine' le_trans ( Set.ncard_le_ncard h_subset ) _;
+    refine le_trans ( Set.ncard_le_ncard h_subset ) ?_;
     norm_num [ Set.ncard_eq_toFinset_card' ];
     omega
 
@@ -1275,7 +1274,7 @@ theorem Ah_minus_1_bound (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSequen
           S.d r) (h - 1)) ∩ Set.Icc 1 (S.d n))) ≤ (Set.ncard ((iterated_sumset ((constructed_A
           TB.B S.d r) \ I (S.d n) (L r (S.d n))) (h - 1)) ∩ Set.Icc 1 (S.d n)))
           + (Set.ncard ({s ∈ Set.Icc 1 (S.d n) | ∃ a ∈ I (S.d n) (L r (S.d n)), a ≤ s})) := by
-          refine' Filter.eventually_atTop.mpr ⟨ 0, fun n hn => _ ⟩;
+          refine Filter.eventually_atTop.mpr ⟨ 0, fun n hn => ?_ ⟩;
           have h_decomp : (Set.ncard ((iterated_sumset (constructed_A TB.B S.d r) (h - 1))
             ∩ Set.Icc 1 (S.d n))) ≤ (Set.ncard (((iterated_sumset (constructed_A TB.B S.d r \ I
             (S.d n) (L r (S.d n))) (h - 1)) ∪ {s | ∃ a ∈ I (S.d n) (L r (S.d n)), a ≤ s})
@@ -1332,7 +1331,7 @@ theorem S2_card_bound (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSequence 
         (S.d n) (L r (S.d n))) (h - 1)) ∩ Set.Icc 1 (S.d n) : Set ℕ)) ≤ (Set.ncard
         ((iterated_sumset (constructed_A TB.B S.d r ∩ Set.Icc 1 (S.d n - L r (S.d n))) (h - 1))
         : Set ℕ)) := by
-        refine' Filter.Eventually.of_forall fun n => _;
+        refine Filter.Eventually.of_forall fun n => ?_;
         apply Set.ncard_le_ncard;
         · apply_rules [ S2_subset_lemma ];
           unfold constructed_A; aesop;
@@ -1356,7 +1355,7 @@ theorem S2_card_bound (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSequence 
           exact h_sumset_finite _ h_finite _;
       refine Filter.Eventually.mono h_subset ?_;
       unfold count_in_range; aesop;
-      refine' le_trans ( Nat.cast_le.mpr a ) _;
+      refine le_trans ( Nat.cast_le.mpr a ) ?_;
       exact_mod_cast card_iterated_sumset_le _ _
 
 /-
@@ -1548,7 +1547,7 @@ theorem A_is_o_x (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSequence h r T
         refine h_frac_zero.congr' ?_
         filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx
         rw [ Real.rpow_sub_one hx.ne' ]
-      refine' squeeze_zero_norm' _ ( by simpa using h_frac_zero.const_mul ( 2 * ( TB.C + 2 ) ) );
+      refine squeeze_zero_norm' ?_ ( by simpa using h_frac_zero.const_mul ( 2 * ( TB.C + 2 ) ) );
       filter_upwards [ h_o, Filter.eventually_gt_atTop 0 ] with x hx₁ hx₂
       rw [ Real.norm_of_nonneg ( by positivity ) ]
       rw [ mul_div ]
@@ -1642,7 +1641,7 @@ theorem A_constructed_is_basis : iterated_sumset A_constructed 3 = Set.univ := b
           · rcases j with ( _ | j ) <;> simp_all +decide [ Nat.pow_succ',
             ← Nat.div_div_eq_div_mul ];
             grind;
-        · refine' ⟨ by ring, _, _, _ ⟩ <;> intro j hj <;> rcases j with ( _ | j ) <;>
+        · refine ⟨ by ring, ?_, ?_, ?_ ⟩ <;> intro j hj <;> rcases j with ( _ | j ) <;>
           simp_all +decide [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ];
           · specialize ha2 j hj; omega;
           · specialize ha0 j hj; omega;
@@ -1737,8 +1736,9 @@ The cardinality of J_i(x) is at most (log_2 x)/3 + 1.
 -/
 theorem card_J_le (i : ℕ) (x : ℝ) (hx : x ≥ 1) :
   (J i x).card ≤ (Nat.log 2 (Nat.floor x)) / 3 + 1 := by
-    refine' le_trans ( Finset.card_le_card _ ) _;
-    exact Finset.image ( fun j => j * 3 + i % 3 ) ( Finset.range ( Nat.log 2 ⌊x⌋₊ / 3 + 1 ) );
+    refine le_trans (Finset.card_le_card
+      (t := Finset.image (fun j => j * 3 + i % 3)
+        (Finset.range (Nat.log 2 ⌊x⌋₊ / 3 + 1))) ?_) ?_;
     · intro j hj; aesop;
       unfold J at hj; aesop;
       unfold W at right; aesop;
@@ -1877,7 +1877,7 @@ theorem A_constructed_is_thin : ∃ C > 0, ∀ x : ℝ, x ≥ 1 → (count_in_ra
     A_part_bound_explicit 2 x hx]
 /-
   use 6;
-  refine' ⟨ by norm_num, fun x hx => _ ⟩;
+  refine ⟨ by norm_num, fun x hx => _ ⟩;
   have h_subadd : (count_in_range (A_part 0 ∪ A_part 1 ∪ A_part 2) x : ℝ) ≤ (count_in_range
   (A_part 0) x : ℝ) + (count_in_range (A_part 1) x : ℝ) + (count_in_range (A_part 2) x : ℝ) :=
   by
@@ -2034,7 +2034,7 @@ theorem not_erdos_337 : ¬ erdos_337 := by
     exists_thin_basis_order_three_positive;
   -- Let's choose a valid sequence `S` with `h=3` and `r=3/4`.
   obtain ⟨S, hS⟩ : ∃ S : ValidSequence h r TB.C, True := by
-    refine' ⟨ _, trivial ⟩;
+    refine ⟨ ?_, trivial ⟩;
     exact Exists.choose ( exists_valid_sequence h ( by norm_num ) r ( by norm_num )
       ( by norm_num ) TB.C TB.C_pos );
   -- Define `A` as `constructed_A TB.B S.d r`.
