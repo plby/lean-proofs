@@ -36,7 +36,6 @@ set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
 
@@ -587,7 +586,7 @@ lemma greedy_cover_size {I J : Finset ℕ} {A : Set ℕ}
   -- Apply the unsorted greedy-list construction to obtain the set B and the list L.
   obtain ⟨B, L, hB_sub, hI_cover, hB_card, hL_sum, hL_pos, hL_bound⟩ :=
     exists_greedy_list_unsorted k hk h_cover
-  refine' ⟨ B, hB_sub, hI_cover, _ ⟩
+  refine ⟨ B, hB_sub, hI_cover, ?_ ⟩
   convert greedy_list_bound _ _ _ using 1
   -- The first part follows directly from hB_card.
   rw [hB_card]
@@ -622,7 +621,7 @@ lemma local_construction (A : Set ℕ) (hA : A.Infinite) :
             Filter.Tendsto
               (fun x : ℕ => (Finset.filter (· ∈ A) (Finset.Icc 1 x)).card)
               Filter.atTop Filter.atTop := by
-          refine' Filter.tendsto_atTop_atTop.mpr _
+          refine Filter.tendsto_atTop_atTop.mpr ?_
           -- Since $A$ is infinite, for any $b$, there exists an $i$ such that the
           -- set $\{x \in A \mid x \leq i\}$ has at least $b$ elements.
           have h_inf :
@@ -714,7 +713,7 @@ lemma local_construction (A : Set ℕ) (hA : A.Infinite) :
     obtain ⟨B_l, hB_l⟩ :=
       greedy_cover_size (counting_function A (2 ^ l)) (hl₀ l hl).right
         (fun u hu => h_cover l hl u hu)
-    refine' ⟨ B_l, hB_l.1, hB_l.2.1, hB_l.2.2.trans _ ⟩
+    refine ⟨ B_l, hB_l.1, hB_l.2.1, hB_l.2.2.trans ?_ ⟩
     have hcf_pos : 0 < (counting_function A (2 ^ l) : ℝ) :=
       Nat.cast_pos.mpr (hl₀ l hl).2
     have hlog_nonneg : 0 ≤ Real.log (counting_function A (2 ^ l)) :=
@@ -905,7 +904,7 @@ lemma counting_function_tendsto_atTop {A : Set ℕ} (hA : A.Infinite) :
     obtain ⟨m, hm⟩ := h_exists_subset k
     use m
     simp [counting_function, hm]
-  refine' Filter.tendsto_atTop_atTop.mpr _
+  refine Filter.tendsto_atTop_atTop.mpr ?_
   intro k
   rcases h_unbounded k with ⟨x, hx⟩
   use x
@@ -962,7 +961,7 @@ lemma dyadic_term_bound {A : Set ℕ} (hA : A.Infinite) :
   have h_monotone :
       counting_function A (2 ^ (b - 1)) ≤ counting_function A k ∧
         counting_function A k ≤ counting_function A (2 ^ b) := by
-    constructor <;> refine' Finset.card_mono _ <;> aesop
+    constructor <;> refine Finset.card_mono ?_ <;> aesop
     · intro x hx; aesop
       exact right_1.trans ( Nat.floor_le_of_le ( mod_cast hk₁ ) )
     · exact fun x hx =>
@@ -1106,7 +1105,7 @@ theorem Lorentz_theorem (A : Set ℕ) (hA : A.Infinite) :
             (2 ^ (l - 1) : ℝ) * Real.log (counting_function A (2 ^ l)) /
               (counting_function A (2 ^ l))) := by
     choose! B_hB₁ B_hB₂ B_hB₃ using hB
-    refine' ⟨ ⋃ l ≥ max l₀ l₁, B_hB₁ l, _, _ ⟩ <;> aesop
+    refine ⟨ ⋃ l ≥ max l₀ l₁, B_hB₁ l, ?_, ?_ ⟩ <;> aesop
     · use 2 ^ (max l₀ l₁ + 2) + 1
       intro b hb
       obtain ⟨l, hl₁, hl₂⟩ :
@@ -1131,7 +1130,7 @@ theorem Lorentz_theorem (A : Set ℕ) (hA : A.Infinite) :
           · exact ⟨l - 1,
               by cases l <;> norm_num [pow_succ'] at * <;> omega,
               by cases l <;> norm_num [pow_succ'] at * <;> omega⟩
-        refine' ⟨ l, _, hl ⟩
+        refine ⟨ l, ?_, hl ⟩
         contrapose! hb
         exact Nat.lt_succ_of_le
           (le_trans hl.2 (pow_le_pow_right₀ (by decide) (by linarith)))
@@ -1156,18 +1155,18 @@ theorem Lorentz_theorem (A : Set ℕ) (hA : A.Infinite) :
                 (fun l => B_hB₁ l) := by
           intro a ha
           aesop
-          refine' ⟨ w, ⟨ ⟨ left_1, right_2 ⟩, _ ⟩, right ⟩
+          refine ⟨ w, ⟨ ⟨ left_1, right_2 ⟩, ?_ ⟩, right ⟩
           have hpow_le : 2 ^ w ≤ n := by
             exact le_trans (B_hB₂ w left_1 a right).1.le right_1
           exact Nat.le_log_of_pow_le (by norm_num : 1 < 2) hpow_le
         exact le_trans ( Finset.card_le_card hB_subset ) ( Finset.card_biUnion_le )
-      refine' le_trans ( Nat.cast_le.mpr hB_subset ) _
+      refine le_trans ( Nat.cast_le.mpr hB_subset ) ?_
       push_cast [ Finset.mul_sum _ _ _ ]
       exact Finset.sum_le_sum fun i hi => by
         have := B_hB₃ i (le_trans (le_max_left _ _) (Finset.mem_Ico.mp hi |>.1))
         ring_nf at this ⊢
         linarith
-  refine' ⟨ B, _, 7, by norm_num, _ ⟩
+  refine ⟨ B, ?_, 7, by norm_num, ?_ ⟩
   · exact Filter.eventually_atTop.mp hB.1
   · intro n; specialize hB; specialize h₁ n; aesop
     refine le_trans ?_ ( mul_le_mul_of_nonneg_left h₁ <| by norm_num )
@@ -1389,10 +1388,10 @@ theorem Erdos_Straus_conjecture (A : Set ℕ) (hA : A.Infinite) :
                 ∑ k ∈ Finset.Ico N n, |u (k + 1)| := by
             exact Finset.abs_sum_le_sum_abs _ _
           grind
-        refine' ⟨
+        refine ⟨
           N + ⌈(|∑ k ∈ Finset.range N, u (k + 1)| + 1) /
               (ε / 2)⌉₊ + 1,
-          fun n hn => _⟩
+          fun n hn => ?_⟩
         rw [ div_lt_iff₀ ] <;>
           nlinarith [
             Nat.le_ceil
@@ -1413,7 +1412,7 @@ theorem Erdos_Straus_conjecture (A : Set ℕ) (hA : A.Infinite) :
                 (by simp +decide [Nat.cast_sub (show N ≤ n by linarith)])]
       convert h_avg_zero h_log_A_inf using 2
       erw [ Finset.sum_Ico_eq_sub _ _ ] <;> norm_num [ Finset.sum_range_succ' ]
-    refine' squeeze_zero
+    refine squeeze_zero
       (fun n => by positivity)
       (fun n => by
         simpa [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm ] using
@@ -1452,9 +1451,9 @@ lemma cesaro_mean_zero {u : ℕ → ℝ} (h : Filter.Tendsto u Filter.atTop (nhd
         (Finset.sum_le_sum fun i hi =>
           le_of_lt (hN i (by linarith [Finset.mem_Icc.mp hi])))
         (by simp +decide [hn])
-  refine' ⟨
+  refine ⟨
     N + ⌈(|∑ k ∈ Finset.Icc 1 N, u k| + 1) / (ε / 2)⌉₊ + 1,
-    fun n hn => _⟩
+    fun n hn => ?_⟩
   rw [ div_lt_iff₀ ] <;>
     nlinarith [
       Nat.le_ceil ((|∑ k ∈ Finset.Icc 1 N, u k| + 1) / (ε / 2)),
@@ -1551,13 +1550,13 @@ theorem erdos_31 (A : Set ℕ) (hA : A.Infinite) :
             ((Finset.filter (fun a => a ∈ B) (Finset.Icc 1 n)).card : ℝ) /
               (n + 1))
           Filter.atTop (nhds 0) := by
-      refine' squeeze_zero_norm' _ a
+      refine squeeze_zero_norm' ?_ a
       filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn using by
         rw [ Real.norm_of_nonneg (by positivity) ]
         gcongr
         linarith
     simpa [ add_div ] using h_diff.add ( tendsto_one_div_add_atTop_nhds_zero_nat )
-  · refine' squeeze_zero_norm' _ a
+  · refine squeeze_zero_norm' ?_ a
     filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn using by
       rw [ Real.norm_of_nonneg (by positivity) ]
       gcongr
