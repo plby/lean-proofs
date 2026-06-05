@@ -237,9 +237,8 @@ lemma sum_pair_injective
 
 /-! ## Part 3: Sub-lemmas for Lemma 2.3 -/
 
--- The generated energy bijection proof uses broad simplification and `refine'`.
+-- The generated energy bijection proof uses broad simplification.
 set_option linter.flexible false in
-set_option linter.style.refine false in
 lemma energy_equiv
     (A : Finset ℝ)
     (hpos : ∀ a ∈ A, (0 : ℝ) < a) :
@@ -290,10 +289,10 @@ lemma energy_equiv
           simp_all +decide [Finset.disjoint_left]
       convert h_bij using 1
     convert h_bij using 1
-    refine' Finset.card_bij
+    refine Finset.card_bij
       (fun x hx =>
         ((x.1.1, x.2.2), x.2.1, x.1.2))
-      _ _ _ <;> simp +contextual
+      ?_ ?_ ?_ <;> simp +contextual
     · exact fun _ _ _ _ _ _ _ _ _ =>
         mul_comm _ _
     · exact fun _ _ _ _ _ _ _ _ _ =>
@@ -352,8 +351,8 @@ lemma energy_equiv
             (A ×ˢ A)) := by
       intros s hs
       simp [ratioRep]
-      refine' Finset.card_bij
-        (fun x hx => (s * x, x)) _ _ _ <;>
+      refine Finset.card_bij
+        (fun x hx => (s * x, x)) ?_ ?_ ?_ <;>
         simp +contextual
           [div_eq_iff, ne_of_gt (hpos _ _)]
       exact fun a b ha hb hab => hab ▸ ha
@@ -488,9 +487,8 @@ lemma slopes_contribution_bound
       hD_nonempty.card_pos]
   · simp_all only [not_nonempty_iff_eq_empty, card_empty, zero_mul, zero_le]
 
--- The dyadic decomposition proof uses generated broad simplifications and `refine'`.
+-- The dyadic decomposition proof uses generated broad simplifications.
 set_option linter.flexible false in
-set_option linter.style.refine false in
 lemma ratio_energy_bound
     (A : Finset ℝ)
     (hpos : ∀ a ∈ A, (0 : ℝ) < a)
@@ -531,7 +529,7 @@ lemma ratio_energy_bound
         obtain ⟨a, ha, b, hb, rfl⟩ := hs
         exact div_pos (hpos _ ha) (hpos _ hb)
       · bound
-    refine' le_trans
+    refine le_trans
       (Finset.sum_le_sum fun x hx =>
         show ratioRep A x ^ 2 ≤
             4 * (2 ^ i) ^ 2 by
@@ -541,7 +539,7 @@ lemma ratio_energy_bound
               Finset.mem_filter.mp hx |>.2.2,
             show ratioRep A x ≥ 2 ^ i from
               Finset.mem_filter.mp hx |>.2.1,
-            pow_succ' (2 : ℕ) i]) _
+            pow_succ' (2 : ℕ) i]) ?_
     norm_num [Finset.sum_add_distrib,
       mul_assoc] at *
     nlinarith [pow_pos (zero_lt_two' ℕ) i]
@@ -561,11 +559,11 @@ lemma ratio_energy_bound
     · refine le_trans ?_
         (mul_le_mul_of_nonneg_left
           this zero_le_four)
-      refine' le_trans
+      refine le_trans
         (Finset.sum_le_sum fun x hx =>
           Nat.pow_le_pow_left
             (show ratioRep A x ≤ 2 ^ k
-              from _) 2) _
+              from ?_) 2) ?_
       · exact le_trans
           (ratioRep_le_card A x)
           (Nat.le_pow_clog (by norm_num) _)
@@ -635,13 +633,13 @@ lemma ratio_energy_bound
             (by norm_num : (1 : ℕ) ≤ 2)
             (by linarith : j ≥ i + 1)])
   refine le_trans h_sum_bound ?_
-  refine' le_trans (add_le_add
+  refine le_trans (add_le_add
     (Finset.sum_le_sum fun i hi =>
       h_class_bound i <|
         Nat.lt_of_lt_of_le
           (Finset.mem_range.mp hi)
           (Nat.pred_le _))
-    h_last_class_bound) _
+    h_last_class_bound) ?_
   norm_num
   ring_nf
   nlinarith only [Nat.sub_add_cancel hk_pos]
