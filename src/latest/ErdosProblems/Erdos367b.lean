@@ -281,7 +281,6 @@ theorem j_t_well_defined (t : ℕ) : 2 ∣ 3 * 5^(t-1) - 1 := by
   norm_num [ ← even_iff_two_dvd, Nat.one_le_iff_ne_zero, parity_simps ]
 
 set_option aesop.warn.nonterminal false in
-set_option linter.style.refine false in
 theorem alpha_pow_K_t (t : ℕ) (ht : t ≥ 1) :
   ∃ a b : ℤ,
     alpha ^ (3 * 5^(t-1)) = -1 + 5^t * (a + b * Real.sqrt 8) ∧
@@ -349,10 +348,10 @@ theorem alpha_pow_K_t (t : ℕ) (ht : t ≥ 1) :
       ring_nf at *
       norm_cast at *
       aesop
-      refine' ⟨
+      refine ⟨
         a ^ 5 + a ^ 3 * b ^ 2 * 80 + a * b ^ 4 * 320,
         a ^ 4 * b * 5 + a ^ 2 * b ^ 3 * 80 + b ^ 5 * 64,
-        _, _, _, _ ⟩ <;>
+        ?_, ?_, ?_, ?_ ⟩ <;>
         push_cast <;>
         ring_nf at * <;>
         norm_cast at * <;>
