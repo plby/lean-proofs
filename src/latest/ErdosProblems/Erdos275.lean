@@ -256,7 +256,6 @@ lemma shiftedPolynomial_mem_span_support (P : Polynomial ℂ) (m : ℤ) (q : ℕ
 /-
 Lemma bounding the dimension of the span of the shifted polynomials by $2^{|A|}$.
 -/
-set_option linter.style.refine false in
 lemma dimension_span_shiftedPolynomial_le (A : List ArithmeticProgression) (q : ℕ) :
     Module.finrank ℂ
         (Submodule.span ℂ
@@ -293,10 +292,10 @@ lemma dimension_span_shiftedPolynomial_le (A : List ArithmeticProgression) (q : 
           Finset.card
             (Finset.image (fun n => Polynomial.X ^ n : ℕ → Polynomial ℂ)
               (exponents_list A q)) := by
-      refine' le_trans ( finrank_span_le_card _ ) _
+      refine le_trans ( finrank_span_le_card _ ) ?_
       exact Finset.card_le_card fun x hx => by aesop
     exact hV_dim_le.trans ( Finset.card_image_le )
-  refine' le_trans _ ( hV_dim_le.trans _ )
+  refine le_trans ?_ ( hV_dim_le.trans ?_ )
   · apply_rules [ Submodule.finrank_mono ]
     exact Module.Finite.span_of_finite _ <| Set.Finite.image _ <| Set.toFinite _
   · exact exponents_list_card_le A q
@@ -306,7 +305,6 @@ Lemma stating that the associated polynomial evaluates to zero at $\omega^x$
 if and only if $x$ is covered by the family of arithmetic progressions.
 -/
 set_option linter.flexible false in
-set_option linter.style.refine false in
 lemma associatedPolynomial_eval_eq_zero_iff_covered
     (A : List ArithmeticProgression) (q : ℕ) (hq : q > 0)
     (h_dvd : ∀ ap ∈ A, ap.d.natAbs ∣ q) (x : ℤ) :
@@ -362,10 +360,10 @@ lemma associatedPolynomial_eval_eq_zero_iff_covered
       have h_div : (q : ℤ) ∣ ((x - ap.a) * (q / ap.d.natAbs : ℤ)) := by
         convert h_cong.symm.dvd using 1
         ring
-      refine' Int.dvd_of_mul_dvd_mul_right
+      refine Int.dvd_of_mul_dvd_mul_right
         (Nat.cast_ne_zero.mpr <| Nat.ne_of_gt <|
           Nat.div_pos (Nat.le_of_dvd hq <| h_dvd ap hapA)
-            (Nat.pos_of_dvd_of_pos (h_dvd ap hapA) hq)) _
+            (Nat.pos_of_dvd_of_pos (h_dvd ap hapA) hq)) ?_
       convert h_div using 1
       norm_cast
       rw [Nat.mul_div_cancel' (h_dvd ap hapA)]
@@ -490,7 +488,6 @@ The main theorem: if a family of arithmetic progressions covers $2^k$
 consecutive integers, it covers all integers.
 -/
 set_option linter.flexible false in
-set_option linter.style.refine false in
 theorem theorem_1 (A : List ArithmeticProgression)
     (h : ∃ a, Set.Ioc a (a + (2 : ℤ) ^ A.length) ⊆ ⋃ ap ∈ A, (ap : Set ℤ)) :
     IsCoveringSystem A := by
@@ -537,7 +534,7 @@ theorem theorem_1 (A : List ArithmeticProgression)
               ∀ t : ℕ, 0 < t → t < s → P.eval (omega q ^ t) = 0 := by
         have h_exists_s :
             ∃ s : ℕ, 0 < s ∧ s ≤ q ∧ P.eval (omega q ^ s) ≠ 0 := by
-          refine' ⟨ Int.natAbs c, _, _, _ ⟩
+          refine ⟨ Int.natAbs c, ?_, ?_, ?_ ⟩
           · exact Int.natAbs_pos.mpr
               (by linarith [pow_pos (zero_lt_two' ℤ) A.length])
           · linarith [
@@ -606,7 +603,6 @@ def IsMinimalCoveringSystem (A : List ArithmeticProgression) : Prop :=
   IsCoveringSystem A ∧ ∀ ap ∈ A, ¬ IsCoveringSystem (A.erase ap)
 
 set_option linter.flexible false in
-set_option linter.style.refine false in
 open Classical in
 theorem corollary_2 (A : List ArithmeticProgression) (h_min : IsMinimalCoveringSystem A) :
     ∀ ap ∈ A, ap.d.natAbs ≤ 2 ^ (A.length - 1) := by
@@ -626,8 +622,8 @@ theorem corollary_2 (A : List ArithmeticProgression) (h_min : IsMinimalCoveringS
   have h_A'_covers : IsCoveringSystem (A.erase ap) := by
     apply theorem_1
     use ap.a
-    refine' Set.Subset.trans _ h_I
-    refine' Set.Ioc_subset_Ioc_right _
+    refine Set.Subset.trans ?_ h_I
+    refine Set.Ioc_subset_Ioc_right ?_
     grind
   exact absurd h_A'_covers (by
     have := h_min.2 ( by aesop )
@@ -692,7 +688,6 @@ Lemma stating that the number of integers in $[0, q)$ covered by $A$ is at
 most the sum of $q/d_i$.
 -/
 set_option linter.flexible false in
-set_option linter.style.refine false in
 open Classical in
 lemma card_intersection_le_sum_div (A : List ArithmeticProgression) (q : ℕ) (hq : q > 0)
     (h_dvd : ∀ ap ∈ A, ap.d.natAbs ∣ q) :
@@ -708,7 +703,7 @@ lemma card_intersection_le_sum_div (A : List ArithmeticProgression) (q : ℕ) (h
         Finset.sum A.toFinset
           (fun ap => Finset.card
             ((Finset.Ico 0 q).filter (fun x => x ∈ (ap : Set ℤ)))) := by
-    refine' le_trans ( Finset.card_le_card _ ) ( Finset.card_biUnion_le )
+    refine le_trans ( Finset.card_le_card ?_ ) ( Finset.card_biUnion_le )
     intro x hx
     aesop
   -- For each $ap \in A$, the number of elements in $[0, q)$ that are in $ap$
@@ -894,7 +889,6 @@ lemma erdos_275_helper (A : List ArithmeticProgression) (S : Finset ℤ) (k : �
       exact ⟨ a - 1, fun x hx => ha ⟨ by linarith [ hx.1 ], by linarith [ hx.2 ] ⟩ ⟩
 
 set_option linter.flexible false in
-set_option linter.style.refine false in
 open Classical in
 /--
 If a finite system of $r$ congruences $\{ a_i\pmod{n_i} : 1\leq i\leq r\}$ (the $n_i$ are not
@@ -908,7 +902,7 @@ theorem erdos_275 (r : ℕ) (a : Fin r → ℤ) (n : Fin r → ℕ)
     ∃ i, x ≡ a i [ZMOD n i] := by
   have := @erdos_275_helper
   contrapose! this
-  refine' ⟨ _, _, H.choose, _, _ ⟩
+  refine ⟨ ?_, ?_, H.choose, ?_, ?_ ⟩
   · exact List.map ( fun i => ⟨ a i, if n i = 0 then 1 else n i, by
       grind ⟩ ) ( List.filter ( fun i => n i ≠ 0 ) ( List.finRange r ) )
   all_goals generalize_proofs at *
@@ -916,7 +910,7 @@ theorem erdos_275 (r : ℕ) (a : Fin r → ℤ) (n : Fin r → ℕ)
   · intro x hx
     obtain ⟨ i, hi ⟩ := H.choose_spec x ⟨ hx.1, hx.2.trans_le <| by
       simp +zetaDelta at *
-      refine' pow_le_pow_right₀ ( by decide ) _
+      refine pow_le_pow_right₀ ( by decide ) ?_
       have h_image :
           (Finset.image (fun i : Fin r => a i)
               (Finset.filter (fun i : Fin r => n i = 0) Finset.univ)).card
