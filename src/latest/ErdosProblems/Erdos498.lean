@@ -59,7 +59,6 @@ The following was proved by Aristotle (and also everything which I wrote "by Ari
 import Mathlib
 
 set_option linter.style.setOption false
-set_option linter.style.refine false
 set_option linter.flexible false
 set_option maxHeartbeats 2000000
 -- Several generated Littlewood-Offord estimates time out at the default heartbeat limit.
@@ -399,7 +398,7 @@ lemma chain_extension_is_chain {α : Type*} [DecidableEq α] {C : Finset (Finset
   unfold chain_extension;
   split_ifs <;> simp_all +decide [ IsChain ];
   split_ifs <;> simp_all +decide [ Set.Pairwise ];
-  · refine' ⟨ ⟨ _, _ ⟩, _ ⟩;
+  · refine ⟨ ⟨ ?_, ?_ ⟩, ?_ ⟩;
     · intro a ha hne
       have h_subset :
           a ⊆ Classical.choose (Finset.exists_max_image C Finset.card ‹_›) ∨
@@ -420,7 +419,7 @@ lemma chain_extension_is_chain {α : Type*} [DecidableEq α] {C : Finset (Finset
             (not_lt_of_ge hcard) <|
               Finset.card_lt_card <|
                 Finset.ssubset_iff_subset_ne.2 ⟨h_subset, by aesop⟩
-    · intro x hx; refine' ⟨ _, _ ⟩;
+    · intro x hx; refine ⟨ ?_, ?_ ⟩;
       · intro hx';
         by_cases h : x ⊆ Classical.choose ( Finset.exists_max_image C Finset.card ‹_› ) <;>
           simp_all +decide [ Finset.subset_iff ];
@@ -523,7 +522,7 @@ lemma check_symmetric {α : Type*} [Fintype α] (C : Finset (Finset α)) (start 
     (h_card_diff : C.card = last.card - start.card + 1) :
     Erdos498.IsSymmetricChain C := by
       have hle : start.card ≤ last.card := Finset.card_le_card (h_min last h_last)
-      refine' ⟨start, last.card - start.card, h_chain, h_card_diff, h_start, h_min, ?_, ?_⟩
+      refine ⟨start, last.card - start.card, h_chain, h_card_diff, h_start, h_min, ?_, ?_⟩
       · rw [Nat.add_sub_of_le hle]
         exact h_card_sum
       · exact ⟨last, h_last, h_max, by rw [Nat.add_sub_of_le hle]⟩
@@ -550,7 +549,7 @@ lemma symmetric_chain_extension_C1 {α : Type*} [Fintype α] [DecidableEq α]
         (C.map (Finset.mapEmbedding Function.Embedding.some).toEmbedding)) := by
       cases' hS with start k hS;
       rcases k with ⟨ k, hk₁, hk₂, hk₃, hk₄, hk₅, hk₆ ⟩;
-      refine' ⟨ start.map Function.Embedding.some, k + 1, _, _, _, _, _ ⟩ <;> simp_all +decide;
+      refine ⟨ start.map Function.Embedding.some, k + 1, ?_, ?_, ?_, ?_, ?_ ⟩ <;> simp_all +decide;
       · intro x hx y hy hxy; simp_all +decide [ Finset.subset_iff ] ;
         rcases hx with ( rfl | ⟨ x, hx, rfl ⟩ ) <;>
           rcases hy with ( rfl | ⟨ y, hy, rfl ⟩ ) <;>
@@ -572,7 +571,7 @@ lemma symmetric_chain_extension_C1 {α : Type*} [Fintype α] [DecidableEq α]
       · exact Or.inr ⟨ start, hk₃, rfl ⟩;
       · simp_all +decide [ Finset.subset_iff, Finset.mapEmbedding ];
         exact fun X hX x hx => Finset.mem_map_of_mem _ ( hk₄ X hX hx );
-      · refine' ⟨ by linarith, Or.inl ⟨ _, _ ⟩ ⟩;
+      · refine ⟨ by linarith, Or.inl ⟨ ?_, ?_ ⟩ ⟩;
         · simp_all +decide [ Finset.subset_iff ];
           rintro X hX x hx
           rcases Finset.mem_map.mp hx with ⟨ y, hy, rfl ⟩
@@ -609,7 +608,7 @@ lemma card_image_eq_Icc_of_chain_card_diff {α : Type*} (C : Finset (Finset α))
     (h_max : ∀ X ∈ C, X ⊆ last)
     (h_len : C.card = last.card - start.card + 1) :
     C.image Finset.card = Finset.Icc start.card last.card := by
-      refine' Finset.eq_of_subset_of_card_le ( fun x hx => _ ) _;
+      refine Finset.eq_of_subset_of_card_le ( fun x hx => ?_ ) ?_;
       · simp +zetaDelta at *;
         exact ⟨
           by
@@ -874,7 +873,7 @@ lemma chain_extension_disjoint {α : Type*} [DecidableEq α] {C : Finset (Finset
           fun a ha x hx hx' => h_second_part x hx' hx a ha ⟩;
     · intro x y hy₁ hy₂ hx; subst hx; simp_all +decide [ Finset.ext_iff ] ;
       obtain ⟨ x, hx ⟩ := hy₁;
-      refine' ⟨ ⟨ Option.some x, _ ⟩, _ ⟩ <;> simp_all +decide [ Finset.mapEmbedding ];
+      refine ⟨ ⟨ Option.some x, ?_ ⟩, ?_ ⟩ <;> simp_all +decide [ Finset.mapEmbedding ];
       · simp_all +decide [ OrderEmbedding.ofMapLEIff ];
       · intro z hz; use Option.none; simp +decide ;
         exact fun h => by have := Finset.mem_map.mp h; aesop;
@@ -910,11 +909,13 @@ lemma option_finset_cases {α : Type*} [DecidableEq α] (S : Finset (Option α))
       S = A.map Function.Embedding.some ∨ S = insert none (A.map Function.Embedding.some) := by
       -- Let `A` be the set of `x` such that `some x ∈ S`.
       set A := S.filterMap id;
-      by_cases h : Option.none ∈ S <;>
-        [ refine' ⟨ A _, Or.inr _ ⟩ ; refine' ⟨ A _, Or.inl _ ⟩ ];
-      any_goals intros; subst_vars; rfl;
-      · ext ( _ | x ) <;> aesop;
-      · ext ( _ | x ) <;> aesop
+      by_cases h : Option.none ∈ S
+      · refine ⟨ A ?_, Or.inr ?_ ⟩;
+        · intros; subst_vars; rfl
+        · ext ( _ | x ) <;> aesop
+      · refine ⟨ A ?_, Or.inl ?_ ⟩;
+        · intros; subst_vars; rfl
+        ext ( _ | x ) <;> aesop
 
 end AristotleLemmas
 
@@ -923,7 +924,7 @@ lemma chain_extension_partition {α : Type*} [Fintype α] (D : Finset (Finset (F
     IsSymmetricChainDecomposition (D.biUnion chain_extension) := by
   -- Let's unfold the definition of `IsSymmetricChainDecomposition`.
   unfold IsSymmetricChainDecomposition at *;
-  refine' ⟨ _, _ ⟩;
+  refine ⟨ ?_, ?_ ⟩;
   · simp +zetaDelta at *;
     exact fun C x hx hC => chain_extension_is_symmetric ( hD.1 x hx ) C hC;
   · intro A;
@@ -940,7 +941,7 @@ lemma chain_extension_partition {α : Type*} [Fintype α] (D : Finset (Finset (F
       obtain ⟨C', hC'⟩ : ∃ C' ∈ chain_extension C, A ∈ C' := by
         apply (chain_extension_covers_base).mpr;
         exact Or.imp ( fun h => ⟨ A', hC.1.2, h ⟩ ) ( fun h => ⟨ A', hC.1.2, h ⟩ ) hA';
-      refine' ⟨ C', hC', fun C'' hC'' => _ ⟩;
+      refine ⟨ C', hC', fun C'' hC'' => ?_ ⟩;
       have h_disjoint :
           Disjoint (C' : Set (Finset (Option α))) (C'' : Set (Finset (Option α))) ∨
             C' = C'' := by
@@ -949,7 +950,7 @@ lemma chain_extension_partition {α : Type*} [Fintype α] (D : Finset (Finset (F
             h <| chain_extension_disjoint _ _ hC'.1 hC''.1 hne;
       exact h_disjoint.resolve_left
         ( Set.not_disjoint_iff_nonempty_inter.mpr ⟨ A, hC'.2, hC''.2 ⟩ ) ▸ rfl;
-    refine' ⟨ C', _, _ ⟩ <;> simp_all +decide [ Finset.mem_biUnion ];
+    refine ⟨ C', ?_, ?_ ⟩ <;> simp_all +decide [ Finset.mem_biUnion ];
     · exact ⟨ C, hC.1.1, hC'.1.1 ⟩;
     · intro y x hx hy hyA
       have hx_eq_C : x = C := by
@@ -986,7 +987,7 @@ lemma scd_equiv {α β : Type*} [Fintype α] [Fintype β] (e : α ≃ β)
     obtain ⟨ C', hC', rfl ⟩ := Finset.mem_image.mp hC;
     obtain ⟨ start, k, h_chain, h_card, h_start_in, h_start_min, h_symm,
       ⟨ last, h_last_in, h_last_max, h_last_card ⟩ ⟩ := hD.1 C' hC';
-    refine' ⟨ start.image e, k, _, _, _, _, _, ⟨ last.image e, _, _, _ ⟩ ⟩;
+    refine ⟨ start.image e, k, ?_, ?_, ?_, ?_, ?_, ⟨ last.image e, ?_, ?_, ?_ ⟩ ⟩;
     · intro x hx y hy aesop;
       obtain ⟨ A, hA, rfl ⟩ := Finset.mem_image.mp hx
       obtain ⟨ B, hB, rfl ⟩ := Finset.mem_image.mp hy
@@ -1008,7 +1009,7 @@ lemma scd_equiv {α β : Type*} [Fintype α] [Fintype β] (e : α ≃ β)
   · intro A;
     obtain ⟨ C, hC₁, hC₂ ⟩ := hD.2 ( A.image e.symm );
     use Finset.image (fun A => Finset.image e A) C;
-    refine' ⟨ ⟨ Finset.mem_image_of_mem _ hC₁.1, _ ⟩, _ ⟩;
+    refine ⟨ ⟨ Finset.mem_image_of_mem _ hC₁.1, ?_ ⟩, ?_ ⟩;
     · simp +decide;
       exact ⟨ _, hC₁.2, by rw [ Finset.image_image ] ; aesop ⟩;
     · rintro y ⟨ hy₁, hy₂ ⟩;
@@ -1124,7 +1125,7 @@ lemma kleitman_grid_bound {α : Type*} [Finite α] (T : Set α)
         apply kleitman_bound_unique_proj_C T C D hD h_suppC h_suppD F_part
           h_inter h_subset X Y hX hY;
         simp_all +decide [ Finset.ext_iff, Set.ext_iff ];
-    refine' h_card_le_C.trans ( Finset.card_le_card _ );
+    refine h_card_le_C.trans ( Finset.card_le_card ?_ );
     intro aesop;
     simp +zetaDelta at *;
     intro x hx hx'
@@ -1132,7 +1133,7 @@ lemma kleitman_grid_bound {α : Type*} [Finite α] (T : Set α)
     simp_all +decide [ Finset.ext_iff, Set.subset_def ] ;
     convert hU using 1;
     grind;
-  refine' le_min h_card_le_C ( _ : F_part.ncard ≤ D.card );
+  refine le_min h_card_le_C ( ?_ : F_part.ncard ≤ D.card );
   -- By definition of $F_part$, every $X \in F_part$ has the form $U \cup V$.
   have h_exists_UV : ∀ X ∈ F_part, ∃ U ∈ C, ∃ V ∈ D, X = U ∪ V := by
     exact fun X hX => by
@@ -1144,7 +1145,7 @@ lemma kleitman_grid_bound {α : Type*} [Finite α] (T : Set α)
         (∀ X ∈ F_part, f X ∈ D) ∧
           (∀ X Y, X ∈ F_part → Y ∈ F_part → X ≠ Y → f X ≠ f Y) := by
     choose! U hU V hV hUV using h_exists_UV;
-    refine' ⟨ V, hV, fun X Y hX hY hne h => _ ⟩;
+    refine ⟨ V, hV, fun X Y hX hY hne h => ?_ ⟩;
     -- Since $V X = V Y$, the chain order puts one chosen U below the other.
     have h_subset : X ⊂ Y ∨ Y ⊂ X := by
       have h_subset : U X ⊆ U Y ∨ U Y ⊆ U X := by
@@ -1251,7 +1252,9 @@ lemma scd_partition_cover {α : Type*} [Fintype α] (T : Set α) [DecidablePred 
     ‹∀ A : Finset ( Tᶜ : Set α ),
       ∃! C : Finset ( Finset ( Tᶜ : Set α ) ), C ∈ DTC ∧ A ∈ C›
       ( Finset.filter ( fun y => y.val ∈ x ) Finset.univ );
-  refine' ⟨ U, hU.1.1, V, hV.1.1, _, hU.1.2, _, hV.1.2, _ ⟩;
+  refine ⟨ U, hU.1.1, V, hV.1.1,
+    Finset.filter ( fun y : T => y.val ∈ x ) Finset.univ, hU.1.2,
+    Finset.filter ( fun y : ( Tᶜ : Set α ) => y.val ∈ x ) Finset.univ, hV.1.2, ?_ ⟩;
   intro a; by_cases ha : a ∈ T <;> simp +decide [ ha ] ;
 
 /-- The set of elements of rank `k` in the power set of `α`. -/
