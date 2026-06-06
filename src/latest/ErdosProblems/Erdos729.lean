@@ -32,7 +32,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 set_option linter.flexible false
 
 namespace Erdos729
@@ -103,7 +102,7 @@ lemma forced_carries_large_p (p m i j : ℕ) (hp : p.Prime) (hi_pos : 1 ≤ i) (
     have h_sum_ge_j : ∑ k ∈ Finset.Ico 1 (Nat.log p (2 * m) + 1), ((Nat.floor ((2 * m) / p ^ k)) - 2 * (Nat.floor (m / p ^ k))) ≥ ∑ k ∈ Finset.Icc 1 j, ((Nat.floor ((2 * m) / p ^ k)) - 2 * (Nat.floor (m / p ^ k))) := by
       refine Finset.sum_le_sum_of_subset ?_
       simp +zetaDelta at *
-      refine' fun x hx => Finset.mem_Ico.mpr ⟨ Finset.mem_Icc.mp hx |>.1, Nat.lt_succ_of_le ( Nat.le_log_of_pow_le hp.one_lt _ ) ⟩
+      refine fun x hx => Finset.mem_Ico.mpr ⟨ Finset.mem_Icc.mp hx |>.1, Nat.lt_succ_of_le ( Nat.le_log_of_pow_le hp.one_lt ?_ ) ⟩
       contrapose! h_floor_ineq
       exact ⟨ x, Finset.mem_Icc.mp hx |>.1, Finset.mem_Icc.mp hx |>.2, by rw [ Nat.div_eq_of_lt h_floor_ineq ] ; norm_num ⟩
     exact h_kappa_def.symm ▸ h_sum_ge_j.trans' ( le_trans ( by norm_num ) ( Finset.sum_le_sum h_floor_ineq ) )
@@ -177,13 +176,13 @@ lemma W_le_k_div_p_sub_one_add_V (m k p : ℕ) (hp : p.Prime) :
         obtain ⟨ a, ha ⟩ := hi.2
         exact ⟨ a, ⟨ by rw [ Nat.div_le_iff_le_mul_add_pred ( pow_pos hp.pos _ ) ] ; nlinarith [ Nat.sub_add_cancel ( show 1 ≤ p ^ j from pow_pos hp.pos _ ) ], by rw [ Nat.le_div_iff_mul_le ( pow_pos hp.pos _ ) ] ; nlinarith ⟩, Nat.sub_eq_of_eq_add <| by linarith ⟩
       refine le_trans ( Finset.card_le_card hS_j_form ) ?_
-      refine' Finset.card_image_le.trans _
+      refine Finset.card_image_le.trans ?_
       rw [ show m + k = k + m by ring_nf ] ; rw [ Nat.add_div ] <;> norm_num [ hp.pos ] ; ring_nf
       split_ifs <;> linarith
     -- Therefore, $W_p(m) \leq \sum_{j=1}^{V_p(m)} \left(\frac{k}{p^j} + 1\right) = k \sum_{j=1}^{V_p(m)} \frac{1}{p^j} + V_p(m)$.
     have hW_bound : W p m k ≤ k * (∑ j ∈ Finset.Icc 1 (V p m k), (1 / p ^ j : ℝ)) + V p m k := by
       rw [ hN, Finset.mul_sum _ _ _ ]
-      refine' le_trans ( Nat.cast_le.mpr <| Finset.sum_le_sum hN_bound ) _ ; norm_num [ Finset.sum_add_distrib ]
+      refine le_trans ( Nat.cast_le.mpr <| Finset.sum_le_sum hN_bound ) ?_ ; norm_num [ Finset.sum_add_distrib ]
       exact Finset.sum_le_sum fun _ _ => by rw [ ← div_eq_mul_inv ] ; rw [ le_div_iff₀ ( pow_pos ( Nat.cast_pos.mpr hp.pos ) _ ) ] ; norm_cast; linarith [ Nat.div_mul_le_self k ( p ^ ‹_› ) ]
     -- Since $\sum_{j=1}^{\infty} \frac{1}{p^j} = \frac{1}{p-1}$, we have $k \sum_{j=1}^{V_p(m)} \frac{1}{p^j} \leq \frac{k}{p-1}$.
     have h_sum_bound : k * (∑ j ∈ Finset.Icc 1 (V p m k), (1 / p ^ j : ℝ)) ≤ k / (p - 1) := by
@@ -197,7 +196,7 @@ lemma W_le_k_div_p_sub_one_add_V (m k p : ℕ) (hp : p.Prime) :
       exact h_geo_series.symm ▸ mul_le_mul_of_nonneg_left ( mul_le_of_le_one_right ( one_div_nonneg.mpr ( sub_nonneg.mpr ( Nat.one_le_cast.mpr hp.pos ) ) ) ( sub_le_self _ ( by positivity ) ) ) ( Nat.cast_nonneg _ ) |> le_trans <| by ring_nf; norm_num
     rcases p with ( _ | _ | p ) <;> norm_num at *
     rw [ Nat.le_iff_lt_or_eq ]
-    refine' lt_or_eq_of_le ( Nat.le_of_lt_succ _ )
+    refine lt_or_eq_of_le ( Nat.le_of_lt_succ ?_ )
     rw [ ← @Nat.cast_lt ℝ ] ; norm_num
     linarith [ show ( k : ℝ ) / ( p + 1 ) < ↑ ( k / ( p + 1 ) ) + 1 by rw [ div_lt_iff₀ ] <;> norm_cast <;> linarith [ Nat.div_add_mod k ( p + 1 ), Nat.mod_lt k ( Nat.succ_pos p ) ] ]
 
@@ -220,7 +219,7 @@ lemma mod_uniform (M Q : ℕ) (A : Finset ℕ) (η : ℝ) (hM : M > 0) (hQ : Q >
         have h_residue_class : Finset.filter (fun m => m % Q = r) (Finset.Icc M (2 * M)) ⊆ Finset.image (fun k => Q * k + r) (Finset.Icc ((M + Q - 1 - r) / Q) ((2 * M - r) / Q)) := by
           intro m hm
           simp +zetaDelta at *
-          refine' ⟨ m / Q, ⟨ _, _ ⟩, _ ⟩
+          refine ⟨ m / Q, ⟨ ?_, ?_ ⟩, ?_ ⟩
           · rw [ Nat.div_le_iff_le_mul_add_pred ]
             · rw [ tsub_tsub, tsub_le_iff_left ]
               linarith [ Nat.mod_add_div m Q, Nat.sub_add_cancel hQ, show m / Q ≥ 0 by positivity ]
@@ -242,7 +241,7 @@ lemma mod_uniform (M Q : ℕ) (A : Finset ℕ) (η : ℝ) (hM : M > 0) (hQ : Q >
         · exact Finset.card_le_card fun x hx => by aesop
         · exact fun x hx y hy hxy => Finset.disjoint_left.mpr fun m hm₁ hm₂ => hxy <| by aesop
       refine le_trans ( Nat.cast_le.mpr h_sum_residue_classes ) ?_
-      refine' le_trans ( Nat.cast_le.mpr ( Finset.sum_le_sum fun x hx => h_residue_classes x ( Finset.mem_range.mpr ( hA x hx ) ) ) ) _ ; norm_num
+      refine le_trans ( Nat.cast_le.mpr ( Finset.sum_le_sum fun x hx => h_residue_classes x ( Finset.mem_range.mpr ( hA x hx ) ) ) ) ?_ ; norm_num
       rw [ div_add', le_div_iff₀ ] <;> norm_cast ; nlinarith [ Nat.div_mul_le_self ( M + 1 ) Q, show A.card ≤ Q from le_trans ( Finset.card_le_card ( show A ⊆ Finset.range Q from fun x hx => Finset.mem_range.mpr ( hA x hx ) ) ) ( by simp ) ]
       linarith
     rw [ div_add', le_div_iff₀ ] at h_card_bound <;> try positivity
@@ -262,7 +261,7 @@ lemma kappa_eq_sum_carries (p m : ℕ) (hp : p.Prime) :
       have h_sum_digits : ∀ n, (Nat.digits p n).sum = n - (p - 1) * Nat.factorization (Nat.factorial n) p := by
         intro n
         have h_sum_digits : (Nat.digits p n).sum = n - (p - 1) * (∑ k ∈ Finset.Ico 1 (Nat.log p n + 1), (n / p ^ k)) := by
-          refine' eq_tsub_of_add_eq _
+          refine eq_tsub_of_add_eq ?_
           have h_sum_digits : ∀ (n : ℕ), (Nat.digits p n).sum + (p - 1) * (∑ k ∈ Finset.Ico 1 (Nat.log p n + 1), (n / p ^ k)) = n := by
             intro n
             induction n using Nat.strong_induction_on with
@@ -568,8 +567,7 @@ lemma V_p_tail (M k t p : ℕ) (η : ℝ) (hM : M > 0) (hp : p.Prime) (ht : t �
       intro m hm hV
       obtain ⟨i, hi⟩ : ∃ i ∈ Finset.Icc 1 k, p^t ∣ (m + i) := by
         contrapose! hV
-        refine' lt_of_le_of_lt ( Finset.sup_le _ ) _
-        exact t - 1
+        refine lt_of_le_of_lt ( Finset.sup_le (a := t - 1) ?_ ) ?_
         · intro x hx
           specialize hV x hx
           by_contra h_le
@@ -577,7 +575,7 @@ lemma V_p_tail (M k t p : ℕ) (η : ℝ) (hM : M > 0) (hp : p.Prime) (ht : t �
           haveI := Fact.mk hp
           exact hV ((pow_dvd_pow p h_t_le).trans (pow_padicValNat_dvd : p ^ padicValNat p (m + x) ∣ m + x))
         · exact Nat.pred_lt ( ne_bot_of_gt ht )
-      refine' ⟨ i, hi.1, _ ⟩ ; simp_all +decide [ Nat.dvd_iff_mod_eq_zero ]
+      refine ⟨ i, hi.1, ?_ ⟩ ; simp_all +decide [ Nat.dvd_iff_mod_eq_zero ]
       refine Nat.modEq_of_dvd ?_
       obtain ⟨ a, ha ⟩ := Nat.modEq_zero_iff_dvd.mp hi.2; use -a + ( i / p ^ t ) + 1; push_cast; linarith [ Nat.div_add_mod i ( p ^ t ), Nat.sub_add_cancel ( show i % p ^ t ≤ p ^ t from Nat.le_of_lt ( Nat.mod_lt _ ( pow_pos hp.pos _ ) ) ) ]
     -- Let $Q=p^t$ and let $A:=\{-1,-2,\dots,-k\}\subseteq \Z/Q\Z,$ so $|A|\le k$.
@@ -779,7 +777,7 @@ lemma exists_good_K (C : ℝ) (η : ℝ) (hC : C > 0) (h_eta : 0 < η) (h_eta_lt
     -- Since $\lim_{x \to \infty} \frac{x-1}{\log x} = \infty$, there exists $K$ such that for all $x \ge K$, $\frac{x-1}{\log x} \ge \frac{4C}{\gamma}$.
     obtain ⟨K, hK⟩ : ∃ K : ℝ, ∀ x ≥ K, (x - 1) / Real.log x ≥ 4 * C / (gamma η) := by
       exact Filter.eventually_atTop.mp ( h_limit.eventually_ge_atTop _ )
-    refine' ⟨ Nat.ceil ( Max.max K 3 ), _, _ ⟩ <;> norm_num
+    refine ⟨ Nat.ceil ( Max.max K 3 ), ?_, ?_ ⟩ <;> norm_num
     · exact Nat.le_trans ( by norm_num ) ( Nat.ceil_mono ( le_max_right _ _ ) )
     · intro p hp hp_prime; specialize hK p ( le_trans ( le_max_left _ _ ) ( Nat.le_of_ceil_le hp ) ) ; rw [ ge_iff_le, div_le_div_iff₀ ] at * <;> norm_num at *
       · linarith
@@ -801,13 +799,13 @@ lemma failure_bound_tendsto_zero (C η : ℝ) (hC : C > 0) (h_eta : 0 < η) (h_e
     unfold failure_bound
     -- We'll use the fact that $k \approx c \log M$ and $\exp(-c_1 \frac{\log M}{\log(2k)}) \approx \exp(-c_1 \frac{\log M}{\log \log M})$.
     suffices h_approx : Filter.Tendsto (fun M : ℕ => 2 * (C + 1) * Real.log M * (Real.exp (-c1 η * (Real.log M / Real.log (2 * (C + 1) * Real.log M))) + 4 / (M : ℝ) ^ η + (C + 1) * Real.log M / (M : ℝ) ^ (gamma η / 4))) Filter.atTop (nhds 0) by
-      refine' squeeze_zero_norm' _ h_approx
-      refine' Filter.eventually_atTop.mpr ⟨ 3, fun n hn => _ ⟩ ; rw [ Real.norm_of_nonneg ]
-      · refine' mul_le_mul _ _ _ _
+      refine squeeze_zero_norm' ?_ h_approx
+      refine Filter.eventually_atTop.mpr ⟨ 3, fun n hn => ?_ ⟩ ; rw [ Real.norm_of_nonneg ]
+      · refine mul_le_mul ?_ ?_ ?_ ?_
         · nlinarith [ Nat.floor_le ( show 0 ≤ ( C + 1 ) * Real.log n by exact mul_nonneg ( by positivity ) ( Real.log_nonneg ( by norm_cast; linarith ) ) ) ]
         · field_simp
           rw [ show ( Real.log n * 2 * ( C + 1 ) ) = ( 2 * ( Real.log n * ( C + 1 ) ) ) by ring_nf ] ; ring_nf ; norm_num
-          refine' add_le_add _ _
+          refine add_le_add ?_ ?_
           · nlinarith [ Nat.floor_le ( show 0 ≤ Real.log n + Real.log n * C by exact add_nonneg ( Real.log_nonneg ( by norm_cast; linarith ) ) ( mul_nonneg ( Real.log_nonneg ( by norm_cast; linarith ) ) hC.le ) ), Real.log_nonneg ( by norm_cast; linarith : ( n : ℝ ) ≥ 1 ), Real.rpow_pos_of_pos ( by positivity : 0 < ( n : ℝ ) ) η ]
           · rw [ mul_assoc, mul_comm ] ; gcongr
             · exact mul_nonneg ( div_nonneg ( by linarith ) ( by norm_num ) ) ( Real.log_nonneg ( by norm_cast; linarith ) )
@@ -820,13 +818,13 @@ lemma failure_bound_tendsto_zero (C η : ℝ) (hC : C > 0) (h_eta : 0 < η) (h_e
     -- Let's simplify the expression inside the limit.
     suffices h_simplify : Filter.Tendsto (fun M : ℕ => Real.log M * Real.exp (-c1 η * (Real.log M / Real.log (2 * (C + 1) * Real.log M)))) Filter.atTop (nhds 0) ∧ Filter.Tendsto (fun M : ℕ => Real.log M / (M : ℝ) ^ η) Filter.atTop (nhds 0) ∧ Filter.Tendsto (fun M : ℕ => (Real.log M) ^ 2 / (M : ℝ) ^ (gamma η / 4)) Filter.atTop (nhds 0) by
       convert Filter.Tendsto.const_mul ( 2 * ( C + 1 ) ) ( h_simplify.1.add ( h_simplify.2.1.const_mul 4 ) |> Filter.Tendsto.add <| h_simplify.2.2.const_mul ( C + 1 ) ) using 2 <;> ring_nf
-    refine' ⟨ _, _, _ ⟩
+    refine ⟨ ?_, ?_, ?_ ⟩
     · -- Let $y = \log M$. Then we need to show that $y \exp(-c_1 \frac{y}{\log(2(C+1)y)}) \to 0$ as $y \to \infty$.
       suffices h_y : Filter.Tendsto (fun y : ℝ => y * Real.exp (-c1 η * (y / Real.log (2 * (C + 1) * y)))) Filter.atTop (nhds 0) by
         exact h_y.comp ( Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop )
       -- We'll use the fact that $y \exp(-c_1 \frac{y}{\log(2(C+1)y)}) \leq y \exp(-c_1 \frac{y}{\log y + \log(2(C+1))})$.
       suffices h_y_le : Filter.Tendsto (fun y : ℝ => y * Real.exp (-c1 η * (y / (Real.log y + Real.log (2 * (C + 1)))))) Filter.atTop (nhds 0) by
-        refine' squeeze_zero_norm' _ h_y_le
+        refine squeeze_zero_norm' ?_ h_y_le
         filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx using by rw [ Real.norm_of_nonneg ( by positivity ) ] ; rw [ Real.log_mul ( by positivity ) ( by positivity ) ] ; ring_nf; norm_num
       -- Let $z = \log y$. Then we need to show that $e^z \exp(-c_1 \frac{e^z}{z + \log(2(C+1))}) \to 0$ as $z \to \infty$.
       suffices h_z : Filter.Tendsto (fun z : ℝ => Real.exp z * Real.exp (-c1 η * (Real.exp z / (z + Real.log (2 * (C + 1)))))) Filter.atTop (nhds 0) by
@@ -935,13 +933,16 @@ lemma prob_union_bad_events_bound (M K : ℕ) (C η : ℝ) (hM : M > 0) (hC : C 
     have h_union_bound : ((Finset.biUnion (Finset.filter Nat.Prime (Finset.Ioc K (2 * k_M (C + 1) M))) (fun p => bad_event_p p M (C + 1) η)).card : ℝ) / (M + 1) ≤
       (∑ p ∈ Finset.filter Nat.Prime (Finset.Ioc K (2 * k_M (C + 1) M)),
         (Real.exp (-c1 η * (Real.log M / Real.log p)) + 4 / (M : ℝ) ^ η + (k_M (C + 1) M) / (M : ℝ) ^ (gamma η / 4))) := by
-          refine' le_trans ( div_le_div_of_nonneg_right ( Nat.cast_le.mpr <| Finset.card_biUnion_le ) <| by positivity ) _
+          refine le_trans ( div_le_div_of_nonneg_right ( Nat.cast_le.mpr <| Finset.card_biUnion_le ) <| by positivity ) ?_
           rw [ Nat.cast_sum ]
           rw [ Finset.sum_div _ _ _ ] ; exact Finset.sum_le_sum fun p hp => by simpa [ div_eq_mul_inv ] using prob_bad_event_p_bound p M ( C + 1 ) η ( Finset.mem_filter.mp hp |>.2 ) ( by linarith [ Finset.mem_Ioc.mp ( Finset.mem_filter.mp hp |>.1 ) ] ) hM h_eta h_eta_lt_one ( h_log_large p hp ) ( h_pow_bound p hp ) ( ht_p_ge_1 p hp )
     refine le_trans h_union_bound ?_
-    refine' le_trans ( Finset.sum_le_sum fun p hp => add_le_add_three ( Real.exp_le_exp.mpr <| mul_le_mul_of_nonpos_left ( div_le_div_of_nonneg_left ( by positivity ) ( Real.log_pos <| Nat.one_lt_cast.mpr <| Nat.Prime.one_lt <| Finset.mem_filter.mp hp |>.2 ) <| Real.log_le_log ( by norm_cast; linarith [ Finset.mem_Ioc.mp <| Finset.mem_filter.mp hp |>.1 ] ) <| Nat.cast_le.mpr <| Finset.mem_Ioc.mp ( Finset.mem_filter.mp hp |>.1 ) |>.2 ) <| neg_nonpos.mpr <| by exact div_nonneg ( by linarith ) <| by linarith ) le_rfl le_rfl ) _
-    refine' le_trans ( Finset.sum_le_sum_of_subset_of_nonneg _ _ ) _
-    exact Finset.Icc 1 ( 2 * k_M ( C + 1 ) M )
+    refine le_trans ( Finset.sum_le_sum fun p hp => add_le_add_three ( Real.exp_le_exp.mpr <| mul_le_mul_of_nonpos_left ( div_le_div_of_nonneg_left ( by positivity ) ( Real.log_pos <| Nat.one_lt_cast.mpr <| Nat.Prime.one_lt <| Finset.mem_filter.mp hp |>.2 ) <| Real.log_le_log ( by norm_cast; linarith [ Finset.mem_Ioc.mp <| Finset.mem_filter.mp hp |>.1 ] ) <| Nat.cast_le.mpr <| Finset.mem_Ioc.mp ( Finset.mem_filter.mp hp |>.1 ) |>.2 ) <| neg_nonpos.mpr <| by exact div_nonneg ( by linarith ) <| by linarith ) le_rfl le_rfl ) ?_
+    refine le_trans
+      ( Finset.sum_le_sum_of_subset_of_nonneg
+        (t := Finset.Icc 1 ( 2 * k_M ( C + 1 ) M ))
+        ?_ ?_ )
+      ?_
     · exact fun x hx => Finset.mem_Icc.mpr ⟨ Nat.Prime.pos ( Finset.mem_filter.mp hx |>.2 ), Finset.mem_Ioc.mp ( Finset.mem_filter.mp hx |>.1 ) |>.2 ⟩
     · exact fun _ _ _ => by positivity
     · unfold failure_bound; norm_num; ring_nf; norm_num
@@ -998,7 +999,7 @@ lemma exists_good_m_for_large_M (C η : ℝ) (K : ℕ) (hC : C > 0) (h_eta : 0 <
             -- Since $k_M (C + 1) M \leq (C + 1) \log M$, we have $\log (2k_M (C + 1) M) \leq \log (2(C + 1) \log M)$.
             have h_log_2k_le_log_2C1_logM : ∀ᶠ M in Filter.atTop, Real.log (2 * k_M (C + 1) M) ≤ Real.log (2 * (C + 1) * Real.log M) := by
               simp_all +decide [ mul_assoc ]
-              refine' ⟨ 3, fun n hn => Real.log_le_log _ _ ⟩ <;> norm_num [ k_M ]
+              refine ⟨ 3, fun n hn => Real.log_le_log ?_ ?_ ⟩ <;> norm_num [ k_M ]
               · exact Nat.floor_pos.mpr ( by nlinarith [ show 1 ≤ Real.log n from by rw [ Real.le_log_iff_exp_le ( by positivity ) ] ; exact Real.exp_one_lt_d9.le.trans ( by norm_num; linarith [ show ( n : ℝ ) ≥ 3 by norm_cast ] ) ] )
               · exact Nat.floor_le ( by positivity )
             -- Since $\log (2(C + 1) \log M) \leq \log M$ for sufficiently large $M$, we have $\log p \leq \log M$.
@@ -1036,7 +1037,7 @@ lemma exists_good_m_for_large_M (C η : ℝ) (K : ℕ) (hC : C > 0) (h_eta : 0 <
               intro p hp; specialize hM₁ p hp; rw [ ← Real.log_le_log_iff ( by exact pow_pos ( Nat.cast_pos.mpr <| Nat.Prime.pos <| Finset.mem_filter.mp hp |>.2 ) _ ) ( by exact Real.rpow_pos_of_pos ( Nat.cast_pos.mpr hM₂ ) _ ), Real.log_pow, Real.log_rpow ( Nat.cast_pos.mpr hM₂ ) ] ; linarith
             convert h_pow_bound using 1
           filter_upwards [ h_log_large, h_pow_bound, Filter.eventually_gt_atTop 1 ] with M hM₁ hM₂ hM₃
-          refine' ⟨ 1, zero_lt_one, fun p hp => ⟨ hM₁ p hp, hM₂ p hp, Nat.ceil_pos.mpr <| _ ⟩ ⟩
+          refine ⟨ 1, zero_lt_one, fun p hp => ⟨ hM₁ p hp, hM₂ p hp, Nat.ceil_pos.mpr <| ?_ ⟩ ⟩
           exact mul_pos ( div_pos ( div_pos ( sub_pos.mpr h_eta_lt_one ) ( by norm_num ) ) ( by norm_num ) ) ( div_pos ( Real.log_pos ( Nat.one_lt_cast.mpr hM₃ ) ) ( Real.log_pos ( Nat.one_lt_cast.mpr ( Nat.Prime.one_lt ( Finset.mem_filter.mp hp |>.2 ) ) ) ) )
         filter_upwards [ h_prob_zero, Filter.eventually_gt_atTop 0 ] with M hM₁ hM₂
         norm_num +zetaDelta at *
@@ -1112,7 +1113,7 @@ theorem main_theorem (C : ℝ) (hC : C > 0) :
       have h_solution : ∀ᶠ M in Filter.atTop, ∃ m ∈ Finset.Icc M (2 * M), m ∉ union_bad_events M K C η ∧ k_M (C + 1) M > C * Real.log (2 * m) ∧ ∃ a b n : ℕ, a = m + k_M (C + 1) M ∧ b = m ∧ n = 2 * m ∧ a > 0 ∧ b > 0 ∧ n > 0 ∧ (a : ℝ) + b > n + C * Real.log n ∧ ∀ p : ℕ, p.Prime → p > K → padicValNat p ((n ! : ℚ) / (a ! * b !)).den = 0 := by
         filter_upwards [ h_infinite, Filter.eventually_gt_atTop 0 ] with M hM₁ hM₂
         obtain ⟨ m, hm₁, hm₂, hm₃ ⟩ := hM₁; use m; simp_all +decide
-        refine' ⟨ Or.inl ( by linarith ), by linarith, by linarith, _ ⟩
+        refine ⟨ Or.inl ( by linarith ), by linarith, by linarith, ?_ ⟩
         intro p hp hpK
         have hW_le_kappa : W p m (k_M (C + 1) M) ≤ kappa p m := by
           by_cases hp_le_2k : p ≤ 2 * k_M (C + 1) M
