@@ -31,7 +31,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.refine false
 set_option linter.style.multiGoal false
 
 namespace Erdos221
@@ -113,7 +112,7 @@ theorem lem_order_lift_explicit (n : ℕ) (h : n ≥ 1)
                     exists (2 ^ 4 - 1) / 5
                   case succ n hn ih =>
                     rcases ih ‹_› with ⟨ k, hk₁, hk₂ ⟩ ; rcases n <;> simp_all +decide [ pow_succ, pow_mul ];
-                    refine' ⟨ k + k ^ 2 * 5 ^ ‹_› * 10 + k ^ 3 * 5 ^ ( ‹_› * 2 ) * 50 + k ^ 4 * 5 ^ ( ‹_› * 3 ) * 125 + k ^ 5 * 5 ^ ( ‹_› * 4 ) * 125, _, _ ⟩ <;> ring_nf at * ; norm_num [ Nat.dvd_iff_mod_eq_zero, Nat.add_mod, Nat.mul_mod, Nat.pow_mod ] at * ; aesop ( simp_config := { decide := true } ) ;
+                    refine ⟨ k + k ^ 2 * 5 ^ ‹_› * 10 + k ^ 3 * 5 ^ ( ‹_› * 2 ) * 50 + k ^ 4 * 5 ^ ( ‹_› * 3 ) * 125 + k ^ 5 * 5 ^ ( ‹_› * 4 ) * 125, ?_, ?_ ⟩ <;> ring_nf at * ; norm_num [ Nat.dvd_iff_mod_eq_zero, Nat.add_mod, Nat.mul_mod, Nat.pow_mod ] at * ; aesop ( simp_config := { decide := true } ) ;
                 exact h_ind n h
               rcases h_cong with ⟨k, hk₁, hk₂⟩
               rw [hk₁]
@@ -147,7 +146,7 @@ theorem lem_order_lift_explicit (n : ℕ) (h : n ≥ 1)
       have h_u5 : (1 + 5 ^ n * s) ^ 5 ≡ 1 + 5 ^ (n + 1) * s [MOD 5 ^ (n + 1)] := by
         refine Nat.ModEq.symm ( Nat.modEq_of_dvd ?_ );
         norm_num [ ← geom_sum_mul ] ; ring_nf ;
-        refine' dvd_add ( dvd_add ( dvd_add _ _ ) _ ) _;
+        refine dvd_add ( dvd_add ( dvd_add ?_ ?_ ) ?_ ) ?_;
         · exact ⟨ s ^ 2 * 5 ^ n * 2, by ring ⟩;
         · exact ⟨ s ^ 3 * 5 ^ ( n * 2 ) * 2, by ring ⟩;
         · exact ⟨ s ^ 4 * 5 ^ ( n * 3 ), by ring ⟩;
@@ -199,7 +198,7 @@ theorem cor_surject_powers (n : ℕ) (h : n ≥ 1) (r : ZMod (5 ^ n)) (hr : IsUn
     have ⟨k, hk⟩ : ∃ k, 0 ≤ k ∧ k < 4 * 5^(n-1) ∧ (2 : ZMod (5^n)) ^ k = r := by
       -- Since $\text{orderOf}(2) = 4 \cdot 5^{n-1}$, the powers of $2$ modulo $5^n$ generate all units modulo $5^n$.
       have h_order : (Finset.image (fun k => (2 : ZMod (5^n)) ^ k) (Finset.range (4 * 5^(n-1)))) = Finset.filter (fun x => IsUnit x) (Finset.univ : Finset (ZMod (5^n))) := by
-        refine' Finset.eq_of_subset_of_card_le ( Finset.image_subset_iff.mpr _ ) _;
+        refine Finset.eq_of_subset_of_card_le ( Finset.image_subset_iff.mpr ?_ ) ?_;
         · -- Since $2$ is a unit modulo $5^n$, any power of $2$ is also a unit modulo $5^n$.
           have h_unit : IsUnit (2 : ZMod (5 ^ n)) := by
             -- Since $2$ is coprime to $5^n$, it is a unit modulo $5^n$.
@@ -224,7 +223,7 @@ theorem cor_surject_powers (n : ℕ) (h : n ≥ 1) (r : ZMod (5 ^ n)) (hr : IsUn
                   ext x; simp [IsUnit];
                   constructor <;> intro hx;
                   · obtain ⟨ a, rfl ⟩ := hx;
-                    refine' ⟨ a.val.val, ⟨ _, _ ⟩, _ ⟩;
+                    refine ⟨ a.val.val, ⟨ ?_, ?_ ⟩, ?_ ⟩;
                     · exact ZMod.val_lt _;
                     · exact ZMod.val_coe_unit_coprime a;
                     · cases n <;> aesop;
@@ -266,17 +265,17 @@ For x >= 2 and n >= 1, the number of elements in A_n less than or equal to x is 
 -/
 lemma lem_two_bounds_AnN (x : ℕ) (n : ℕ) :
   Set.ncard {a ∈ A_n n | a ≤ x} ≤ min (2 * (x / 5^n)) (2 * (2^(5^(n+1)) - 1)) := by
-    refine' le_min _ _;
+    refine le_min ?_ ?_;
     · -- By definition of $A_n$, we know that every element in $A_n$ is of the form $5^n m$ or $5^n m + 1$ for some $m$.
       have h_A_n : {a : ℕ | a ∈ A_n n ∧ a ≤ x} ⊆ Finset.image (fun m => 5^n * m) (Finset.Ico 1 (x / 5^n + 1)) ∪ Finset.image (fun m => 5^n * m + 1) (Finset.Ico 1 (x / 5^n + 1)) := by
         simp +zetaDelta at *;
         rintro a ⟨ ⟨ m, hm₁, hm₂, rfl | rfl ⟩, ha ⟩ <;> [ exact Or.inl ⟨ m, ⟨ hm₁, Nat.lt_succ_of_le ( Nat.le_div_iff_mul_le ( by positivity ) |>.2 <| by nlinarith ) ⟩, rfl ⟩ ; exact Or.inr ⟨ m, ⟨ hm₁, Nat.lt_succ_of_le ( Nat.le_div_iff_mul_le ( by positivity ) |>.2 <| by nlinarith ) ⟩, rfl ⟩ ];
-      refine' le_trans ( Set.ncard_le_ncard h_A_n ) _;
+      refine le_trans ( Set.ncard_le_ncard h_A_n ) ?_;
       rw [ Set.ncard_eq_toFinset_card' ] ; norm_num [ two_mul ];
       exact le_trans ( Finset.card_union_le _ _ ) ( by rw [ Finset.card_image_of_injective, Finset.card_image_of_injective ] <;> norm_num [ Function.Injective ] );
-    · refine' le_trans ( Set.ncard_le_ncard <| show { a : ℕ | a ∈ A_n n ∧ a ≤ x } ⊆ Set.image ( fun m ↦ 5 ^ n * m ) ( Set.Ico 1 ( 2 ^ 5 ^ ( n + 1 ) ) ) ∪ Set.image ( fun m ↦ 5 ^ n * m + 1 ) ( Set.Ico 1 ( 2 ^ 5 ^ ( n + 1 ) ) ) from _ ) _;
+    · refine le_trans ( Set.ncard_le_ncard <| show { a : ℕ | a ∈ A_n n ∧ a ≤ x } ⊆ Set.image ( fun m ↦ 5 ^ n * m ) ( Set.Ico 1 ( 2 ^ 5 ^ ( n + 1 ) ) ) ∪ Set.image ( fun m ↦ 5 ^ n * m + 1 ) ( Set.Ico 1 ( 2 ^ 5 ^ ( n + 1 ) ) ) from ?_ ) ?_;
       · intro a ha; unfold A_n at ha; aesop;
-      · refine' le_trans ( Set.ncard_union_le _ _ ) _;
+      · refine le_trans ( Set.ncard_union_le _ _ ) ?_;
         rw [ Set.ncard_image_of_injective, Set.ncard_image_of_injective ] <;> norm_num [ Function.Injective ];
         omega
 
@@ -290,7 +289,7 @@ lemma lem_choose_n_k_m (N : ℕ) (hN : N ≥ 32) :
     -- By definition of exponentiation, we know that $2^{5^n} \leq N < 2^{5^{n+1}}$.
     obtain ⟨n, hn1, hn2⟩ : ∃ n, 5^n ≤ Real.logb 2 N ∧ Real.logb 2 N < 5^(n+1) ∧ n ≥ 1 := by
       use Nat.floor (Real.logb 5 (Real.logb 2 N));
-      refine' ⟨ _, _, Nat.floor_pos.mpr _ ⟩;
+      refine ⟨ ?_, ?_, Nat.floor_pos.mpr ?_ ⟩;
       · have := Nat.floor_le ( Real.logb_nonneg ( show ( 5 : ℝ ) > 1 by norm_num ) ( show ( Real.logb 2 N : ℝ ) ≥ 1 by rw [ ge_iff_le, Real.le_logb_iff_rpow_le ] <;> norm_num <;> linarith [ show ( N : ℝ ) ≥ 32 by norm_cast ] ) ) ; rw [ Real.le_logb_iff_rpow_le ] at this <;> norm_cast at *;
         exact Real.logb_pos ( by norm_num ) ( by norm_cast; linarith );
       · have := Nat.lt_floor_add_one ( Real.logb 5 ( Real.logb 2 N ) );
@@ -316,7 +315,7 @@ lemma lem_choose_n_k_m (N : ℕ) (hN : N ≥ 32) :
             rcases n with ( _ | n ) <;> simp_all +decide;
             rw [ ← Nat.mod_add_div N 5 ] ; have := Nat.mod_lt N ( by decide : 5 > 0 ) ; interval_cases N % 5 <;> simp +arith +decide;
           rcases h_coprime with h | h;
-          · refine' ⟨ _, Or.inl ⟨ rfl, _ ⟩ ⟩;
+          · refine ⟨ (N : ZMod (5^n)), Or.inl ⟨ rfl, ?_ ⟩ ⟩;
             exact (ZMod.isUnit_iff_coprime N (5 ^ n)).mpr h;
           · have h_unit : IsUnit ((N - 1 : ℕ) : ZMod (5^n)) := by
               exact (ZMod.isUnit_iff_coprime (N - 1) (5 ^ n)).mpr h;
@@ -328,7 +327,7 @@ lemma lem_choose_n_k_m (N : ℕ) (hN : N ≥ 32) :
         · obtain ⟨ k, hk₁, hk₂, hk₃ ⟩ := h_surject _ hr; use k; simp_all +decide ;
           norm_cast at *;
           erw [ ← ZMod.intCast_eq_intCast_iff ] at * ; aesop;
-      refine' ⟨ k, hk1, _, _ ⟩ <;> rcases n <;> simp_all +decide [ pow_succ' ];
+      refine ⟨ k, hk1, ?_, ?_ ⟩ <;> rcases n <;> simp_all +decide [ pow_succ' ];
       · linarith [ pow_pos ( by decide : 0 < 5 ) ‹_› ];
       · rcases N <;> simp_all +decide [ ← Int.natCast_modEq_iff ];
     -- Thus there exists an integer $m \geq 0$ with $N - 2^k = 5^n m$ or $N - 2^k = 5^n m + 1$.
@@ -405,7 +404,7 @@ theorem prop_upper_linear :
     by_cases h_log : Real.log x ≤ 5^(n+1);
     · refine le_trans h_bound ?_;
       rw [ le_div_iff₀ ( Real.log_pos <| by norm_cast ) ];
-      refine' le_trans ( mul_le_mul_of_nonneg_left h_log <| Nat.cast_nonneg _ ) _;
+      refine le_trans ( mul_le_mul_of_nonneg_left h_log <| Nat.cast_nonneg _ ) ?_;
       norm_cast;
       cases min_cases ( 2 * ( x / 5 ^ n ) ) ( 2 * ( 2 ^ 5 ^ ( n + 1 ) - 1 ) ) <;> nlinarith [ Nat.div_mul_le_self x ( 5 ^ n ), pow_pos ( show 0 < 5 by decide ) n, pow_succ' 5 n ];
     · -- Since $x > \exp(5^{n+1})$, we have $x / \log x > \exp(5^{n+1}) / 5^{n+1}$.
@@ -425,7 +424,7 @@ theorem prop_upper_linear :
         · norm_num [ mul_comm, ← Real.log_rpow, ← Real.log_mul, Real.log_le_iff_le_exp ];
           have := Real.exp_one_gt_d9.le ; norm_num at * ; rw [ show Real.exp 25 = ( Real.exp 1 ) ^ 25 by rw [ ← Real.exp_nat_mul ] ; norm_num ] ; exact le_trans ( by norm_num ) ( pow_le_pow_left₀ ( by positivity ) this _ );
         · rename_i k hk ih;
-          refine' Nat.recOn k _ _ <;> norm_num [ pow_succ' ] at *;
+          refine Nat.recOn k ?_ ?_ <;> norm_num [ pow_succ' ] at *;
           · norm_num [ mul_comm, ← Real.log_rpow, ← Real.log_mul, Real.log_le_iff_le_exp ];
             have := Real.exp_one_gt_d9.le ; norm_num1 at * ; rw [ show Real.exp 25 = ( Real.exp 1 ) ^ 25 by rw [ ← Real.exp_nat_mul ] ; norm_num ] ; exact le_trans ( by norm_num ) ( pow_le_pow_left₀ ( by positivity ) this _ );
           · intro n hn; nlinarith [ Real.log_pos ( show 2 > 1 by norm_num ), Real.log_lt_log ( by norm_num ) ( show 5 > 2 by norm_num ), pow_pos ( by norm_num : ( 0 : ℝ ) < 5 ) n ] ;
@@ -442,7 +441,7 @@ def M (n : ℕ) : ℕ := 5^n * 2^(5^(n+1))
 lemma lemma_A_succ_subset_A_n (n : ℕ) :
   {a ∈ A_n (n+1) | a ≤ M n} ⊆ A_n n := by
     rintro a ⟨ ⟨ m, hm₁, hm₂, rfl | rfl ⟩, ha ⟩ <;> simp_all +decide [ A_n ];
-    · refine' ⟨ 5 * m, _, _, _ ⟩ <;> ring_nf at *;
+    · refine ⟨ 5 * m, ?_, ?_, ?_ ⟩ <;> ring_nf at *;
       · grind;
       · unfold M at ha;
         -- Dividing both sides of the inequality $m * 5^n * 5 \leq 5^n * 2^{5^{n+1}}$ by $5^n$, we get $m * 5 \leq 2^{5^{n+1}}$.
@@ -453,7 +452,7 @@ lemma lemma_A_succ_subset_A_n (n : ℕ) :
         · have := congr_arg ( · % 5 ) ‹_›; norm_num [ Nat.add_mod, Nat.mul_mod, Nat.pow_mod ] at this;
           rw [ ← Nat.mod_add_div ( 5 ^ n ) 4 ] at this; norm_num [ Nat.pow_add, Nat.pow_mul, Nat.mul_mod, Nat.pow_mod ] at this;
       · norm_num;
-    · refine' ⟨ 5 * m, _, _, _ ⟩ <;> ring_nf at *;
+    · refine ⟨ 5 * m, ?_, ?_, ?_ ⟩ <;> ring_nf at *;
       · linarith;
       · unfold M at ha;
         norm_num [ pow_succ, pow_mul ] at *;
@@ -472,7 +471,7 @@ lemma lemma_Ak_subset_An (n k : ℕ) (hk : k > n) :
     case step k hk ih =>
       -- Since $M_n < M_k$, we have $\{a \in A_{k+1} \mid a \leq M_n\} \subseteq \{a \in A_{k+1} \mid a \leq M_k\}$.
       have h_subset_Mk : {a ∈ A_n (k + 1) | a ≤ M n} ⊆ {a ∈ A_n (k + 1) | a ≤ M k} := by
-        refine' fun x hx => ⟨ hx.1, le_trans hx.2 _ ⟩;
+        refine fun x hx => ⟨ hx.1, le_trans hx.2 ?_ ⟩;
         exact Nat.mul_le_mul ( pow_le_pow_right₀ ( by decide ) ( by linarith [ Nat.succ_le_iff.mp hk ] ) ) ( pow_le_pow_right₀ ( by decide ) ( by linarith [ Nat.succ_le_iff.mp hk, Nat.pow_le_pow_right ( by decide : 1 ≤ 5 ) ( by linarith [ Nat.succ_le_iff.mp hk ] : n + 1 ≤ k + 1 ) ] ) );
       -- By lemma_A_succ_subset_A_n, we have {a ∈ A_{k+1} | a ≤ M_k} ⊆ A_k.
       have h_subset_Ak : {a ∈ A_n (k + 1) | a ≤ M k} ⊆ A_n k := by
@@ -533,7 +532,11 @@ lemma lemma_sum_Ak_bound (n : ℕ) (hn : n ≥ 2) :
     refine le_trans ( Finset.sum_le_sum h_card_bound ) ?_;
     induction hn <;> simp_all +decide [pow_succ, pow_mul];
     rename_i k hk ih; rw [ Finset.sum_Ico_succ_top ] ;
-    · refine' le_trans ( add_le_add_left ( ih fun x hx₁ hx₂ => h_card_bound x hx₁ ( by linarith ) ) _ ) _;
+    · refine le_trans
+        ( add_le_add_left
+          ( ih fun x hx₁ hx₂ => h_card_bound x hx₁ ( by linarith ) )
+          ( 2 * ( 2 ^ 5 ^ k * 2 ^ 5 ^ k * 2 ^ 5 ^ k * 2 ^ 5 ^ k * 2 ^ 5 ^ k ) ) )
+        ?_;
       nlinarith only [ show 0 < ( 2 ^ 5 ^ k : ℕ ) by positivity, show ( 2 ^ 5 ^ k : ℕ ) ^ 2 > 0 by positivity, show ( 2 ^ 5 ^ k : ℕ ) ^ 3 > 0 by positivity, show ( 2 ^ 5 ^ k : ℕ ) ^ 4 > 0 by positivity, show ( 2 ^ 5 ^ k : ℕ ) ^ 5 > 0 by positivity, show ( 2 ^ 5 ^ k : ℕ ) > 1 by exact one_lt_pow₀ ( by decide ) ( by positivity ) ];
     · linarith
 
@@ -541,7 +544,7 @@ lemma lemma_sum_Ak_bound (n : ℕ) (hn : n ≥ 2) :
 The sequence M_n is strictly increasing.
 -/
 lemma lemma_M_increasing : StrictMono M := by
-  refine' strictMono_nat_of_lt_succ _;
+  refine strictMono_nat_of_lt_succ ?_;
   intro n
   unfold M
   ring_nf
@@ -559,7 +562,7 @@ lemma lemma_sum_term_bound :
       -- Since $x > M_{n-1} = 5^{n-1} * 2^{5^n}$, we have $x = y * 2^{5^n}$ with $y > 5^{n-1}$.
       intro n hn x hx
       obtain ⟨y, hy⟩ : ∃ y : ℝ, x = y * (2 : ℝ) ^ (5 ^ n) ∧ y > 5 ^ (n - 1) := by
-        refine' ⟨ x / 2 ^ 5 ^ n, _, _ ⟩ <;> norm_num;
+        refine ⟨ x / 2 ^ 5 ^ n, ?_, ?_ ⟩ <;> norm_num;
         rw [ lt_div_iff₀ ] <;> norm_cast <;> norm_num [ M ] at *;
         cases n <;> aesop;
       -- Substitute $x = y * 2^{5^n}$ into the inequality.
@@ -609,7 +612,7 @@ theorem density_bound : ∃ c > 0, ∃ x₀, ∀ x ≥ x₀, Set.ncard {a ∈ A 
     use M ( hC2.2.choose + 1 ) + x₀ + 1;
     intro x hx;
     obtain ⟨ n, hn₁, hn₂ ⟩ := hx₀ x ( by linarith [ show M ( hC2.2.choose + 1 ) ≥ 0 by exact Nat.zero_le _ ] );
-    refine' ⟨ n, _, hn₁, hn₂ ⟩;
+    refine ⟨ n, ?_, hn₁, hn₂ ⟩;
     contrapose! hx;
     exact lt_of_le_of_lt hn₂ ( Nat.lt_succ_of_le ( Nat.le_trans ( show M n ≤ M ( hC2.2.choose + 1 ) from by exact monotone_nat_of_le_succ ( fun n => by exact Nat.mul_le_mul ( pow_le_pow_right₀ ( by decide ) ( Nat.le_succ _ ) ) ( pow_le_pow_right₀ ( by decide ) ( Nat.pow_le_pow_right ( by decide ) ( Nat.le_succ _ ) ) ) ) ( by linarith ) ) ( Nat.le_add_right _ _ ) ) );
   use x₀ + 2;
@@ -631,7 +634,7 @@ theorem thm_main : ∃ A : Set ℕ,
   (∃ c > 0, ∃ x₀, ∀ x ≥ x₀, Set.ncard {a ∈ A | a ≤ x} ≤ c * x / Real.log x) ∧
   (∃ N₀, ∀ N ≥ N₀, ∃ k a, k ≥ 1 ∧ a ∈ A ∧ N = 2^k + a) := by
     obtain ⟨ c, hc, x₀, hx₀ ⟩ := density_bound;
-    refine' ⟨ A, ⟨ c, hc, x₀, hx₀ ⟩, 32, _ ⟩;
+    refine ⟨ A, ⟨ c, hc, x₀, hx₀ ⟩, 32, ?_ ⟩;
     exact fun N a => thm_covering_explicit N a
 
 
