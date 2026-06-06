@@ -76,14 +76,13 @@ def calc_b (M : ℕ) : ℕ :=
   M.factorization.support.prod (fun p => p ^ ((split_exponent (M.factorization p)).2 / 2))
 
 set_option linter.flexible false in
-set_option linter.style.refine false in
 -- Generated case splits use flexible simplification across several goals.
 theorem M_eq_d_b_sq (M : ℕ) (hM : M > 0) : M = calc_d M * (calc_b M)^2 := by
   unfold calc_d calc_b
   conv_lhs => rw [← Nat.prod_factorization_pow_eq_self hM.ne']
   simp +decide only [Finsupp.prod, ← Finset.prod_pow]
   rw [ ← Finset.prod_mul_distrib ]
-  refine' Finset.prod_congr rfl fun p hp => _
+  refine Finset.prod_congr rfl fun p hp => ?_
   rcases Nat.even_or_odd' (M.factorization p) with ⟨k, hk | hk⟩ <;>
     simp_all +decide [pow_add, pow_mul]
   · unfold split_exponent
@@ -131,7 +130,6 @@ def pell_seq (d : ℤ) (sol : Pell.Solution₁ d) (n : ℕ) : Pell.Solution₁ d
 set_option maxHeartbeats 1000000 in
 -- The Pell-solution structure proof needs extra heartbeats and flexible generated casework.
 set_option linter.flexible false in
-set_option linter.style.refine false in
 /-
 Every solution (x,y) in N^2 of x^2 - dy^2 = 1 equals (a_n, b_n) for a unique n >= 1.
 -/
@@ -150,7 +148,7 @@ theorem pell_solutions_structure (d : ℤ) (hd : d > 1)
         obtain ⟨ n, rfl ⟩ := h_sol_form
         use n
         cases n <;> aesop
-      refine' ⟨ n, hn, fun m hm => _ ⟩
+      refine ⟨ n, hn, fun m hm => ?_ ⟩
       -- By definition of $pell_seq$, we know that $fund^m = fund^n$ implies $m = n$.
       have h_exp : fund ^ m = fund ^ n := by
         aesop
@@ -158,12 +156,12 @@ theorem pell_solutions_structure (d : ℤ) (hd : d > 1)
         intros m n hm hn h_exp
         have h_exp : (fund.x + fund.y * Real.sqrt d) ^ m = (fund.x + fund.y * Real.sqrt d) ^ n := by
           convert congr_arg ( fun x : Pell.Solution₁ d => x.x + x.y * Real.sqrt d ) h_exp using 1
-          · refine' Nat.recOn m _ _ <;> simp_all +decide [ pow_succ' ]
+          · refine Nat.recOn m ?_ ?_ <;> simp_all +decide [ pow_succ' ]
             intro n hn
             ring_nf
             norm_num [ show d ≥ 0 by positivity ]
             ring
-          · refine' Nat.recOn n _ _ <;> simp_all +decide [ pow_succ' ]
+          · refine Nat.recOn n ?_ ?_ <;> simp_all +decide [ pow_succ' ]
             intro n hn
             ring_nf
             norm_num [ show d ≥ 0 by positivity ]
@@ -238,8 +236,6 @@ c_p = b_p / b_1 is a d-number.
 def c_p (d : ℤ) (fund : Pell.Solution₁ d) (p : ℕ) : ℕ :=
   (pell_seq d fund p).y.natAbs / fund.y.natAbs
 
-set_option linter.style.refine false in
--- Generated divisibility proof relies on refine' placeholder synthesis.
 theorem c_p_is_d_number (d : ℤ) (fund : Pell.Solution₁ d) (p : ℕ)
     (h_d_num : is_d_number (d.toNat) (pell_seq d fund p).y.toNat) :
     is_d_number (d.toNat) (c_p d fund p) := by
@@ -249,12 +245,12 @@ theorem c_p_is_d_number (d : ℤ) (fund : Pell.Solution₁ d) (p : ℕ)
         convert pell_c_p_is_int d fund p using 1
         norm_num [ ← Int.natCast_dvd_natCast ]
       rw [ gt_iff_lt, Nat.div_pos_iff ]
-      refine' ⟨ ⟨ _, Nat.le_of_dvd _ h_div ⟩, _ ⟩
+      refine ⟨ ⟨ ?_, Nat.le_of_dvd ?_ h_div ⟩, ?_ ⟩
       · contrapose! h_d_num
         aesop
       · grind
       · intro q hq hq'
-        refine' h_d_num.2 q hq _
+        refine h_d_num.2 q hq ?_
         convert hq'.trans ( Nat.div_dvd_of_dvd h_div ) using 1
         grind
 
@@ -368,14 +364,12 @@ def pell_y_div_y_sum (n : ℕ) (a b d : ℤ) : ℤ :=
   Finset.sum (Finset.range ((n+1)/2)) fun k =>
     (Nat.choose n (2*k+1) : ℤ) * a^(n-(2*k+1)) * b^(2*k) * d^k
 
-set_option linter.style.refine false in
--- Generated sum proof relies on refine' placeholder synthesis.
 theorem pell_y_eq_y_mul_div_sum (d : ℤ) (fund : Pell.Solution₁ d) (n : ℕ) :
     (pell_seq d fund n).y = fund.y * pell_y_div_y_sum n fund.x fund.y d := by
       unfold pell_y_div_y_sum
       convert Zsqrtd_pow_im ( fund : Zsqrtd d ) n using 1
       rw [ Finset.mul_sum _ _ _ ]
-      refine' Finset.sum_congr rfl fun i hi => _
+      refine Finset.sum_congr rfl fun i hi => ?_
       ring!
 
 /-
@@ -464,7 +458,6 @@ theorem dvd_p_mul_pow_of_dvd_c_p (d : ℤ) (hd : d > 1)
 Every prime divisor of c_p is p.
 -/
 set_option linter.flexible false in
-set_option linter.style.refine false in
 -- Generated absolute-value and parity casework relies on flexible simplification.
 theorem c_p_prime_factors (d : ℤ) (hd : d > 1) (fund : Pell.Solution₁ d) (p : ℕ) (hp : p.Prime)
     (h_fund_y_pos : fund.y > 0)
@@ -480,7 +473,7 @@ theorem c_p_prime_factors (d : ℤ) (hd : d > 1) (fund : Pell.Solution₁ d) (p 
       have h_coprime : Nat.gcd (Int.natAbs fund.x) (Int.natAbs d) = 1 := by
         have := pell_fund_x_coprime_d d fund
         aesop
-      refine' Nat.Coprime.coprime_dvd_right _ h_coprime
+      refine Nat.Coprime.coprime_dvd_right ?_ h_coprime
       convert q_dvd_d_nat_of_dvd_c_p d fund p h_d_num q hq hq_dvd using 1
       cases d <;> trivial
 
@@ -525,7 +518,6 @@ theorem c_p_eq_pow_p (d : ℤ) (hd : d > 1) (fund : Pell.Solution₁ d) (p : ℕ
 The sum defining c_p is congruent to p*a^(p-1) modulo p^2.
 -/
 set_option linter.flexible false in
-set_option linter.style.refine false in
 -- Generated congruence proof relies on flexible simplification in the term split.
 theorem pell_y_div_y_sum_congruence_p_square (p : ℕ) (hp : p.Prime) (hp_ge_5 : p ≥ 5)
     (a b d : ℤ) (h_p_dvd_d : (p : ℤ) ∣ d) :
@@ -557,8 +549,8 @@ theorem pell_y_div_y_sum_congruence_p_square (p : ℕ) (hp : p.Prime) (hp_ge_5 :
           simp_all +decide [ ← mul_assoc ]
           exact dvd_trans (mul_dvd_mul h_binom_div h_p_dvd_d)
             (by exact ⟨a ^ (p - 3) * b * b, by ring⟩)
-        · refine' dvd_mul_of_dvd_right _ _
-          refine' dvd_mul_of_dvd_right _ _
+        · apply dvd_mul_of_dvd_right
+          apply dvd_mul_of_dvd_right
           exact dvd_mul_of_dvd_right
             (dvd_mul_of_dvd_right
               (by
@@ -572,7 +564,6 @@ theorem pell_y_div_y_sum_congruence_p_square (p : ℕ) (hp : p.Prime) (hp_ge_5 :
 The prime p cannot be 2.
 -/
 set_option linter.flexible false in
-set_option linter.style.refine false in
 -- The generated parity contradiction uses flexible simplification across nested cases.
 theorem pell_p_ne_2 (d : ℤ) (hd : d > 1) (fund : Pell.Solution₁ d) (h_fund_y_pos : fund.y > 0)
     (h_d_num : is_d_number (d.toNat) (pell_seq d fund 2).y.toNat) :
@@ -652,7 +643,7 @@ theorem pell_p_ne_2 (d : ℤ) (hd : d > 1) (fund : Pell.Solution₁ d) (h_fund_y
       unfold is_d_number at *
       simp_all +decide [ mul_assoc ]
       obtain ⟨ p, hp₁, hp₂, hp₃ ⟩ := h_c2_not_d_num
-      refine' hp₃ ( h_d_num.2 p hp₁ _ )
+      refine hp₃ (h_d_num.2 p hp₁ ?_)
       convert hp₂.mul_right ( Int.toNat fund.y ) using 1
       grind
 
@@ -660,7 +651,6 @@ theorem pell_p_ne_2 (d : ℤ) (hd : d > 1) (fund : Pell.Solution₁ d) (h_fund_y
 The prime p cannot be 3.
 -/
 set_option linter.flexible false in
-set_option linter.style.refine false in
 -- The generated power-of-three contradiction uses flexible simplification across cases.
 theorem pell_p_ne_3 (d : ℤ) (hd : d > 1) (fund : Pell.Solution₁ d) (h_fund_y_pos : fund.y > 0)
     (h_d_num : is_d_number (d.toNat) (pell_seq d fund 3).y.toNat) :
@@ -694,7 +684,7 @@ theorem pell_p_ne_3 (d : ℤ) (hd : d > 1) (fund : Pell.Solution₁ d) (h_fund_y
       · -- Since $2 * fund.x - 1$ and $2 * fund.x + 1$ are consecutive odd
         -- numbers, they are coprime.
         have h_coprime : Nat.gcd (2 * fund.x - 1).natAbs (2 * fund.x + 1).natAbs = 1 := by
-          refine' Nat.coprime_of_dvd' _
+          refine Nat.coprime_of_dvd' ?_
           intro k hk hk₁ hk₂
           have h_k_dvd_two : k ∣ 2 := by
             have h_int : (k : ℤ) ∣ (2 * fund.x + 1) - (2 * fund.x - 1) :=
@@ -736,8 +726,6 @@ theorem pell_p_ne_3 (d : ℤ) (hd : d > 1) (fund : Pell.Solution₁ d) (h_fund_y
 /-
 The sum defining c_p is strictly greater than its first term.
 -/
-set_option linter.style.refine false in
--- Generated positivity proof relies on refine' placeholder synthesis.
 theorem pell_y_div_y_sum_gt_term_zero (d : ℤ) (hd : d > 1) (fund : Pell.Solution₁ d)
     (h_fund_x_pos : fund.x > 0) (h_fund_y_pos : fund.y > 0)
     (p : ℕ) (hp_ge_5 : p ≥ 5) :
@@ -746,8 +734,8 @@ theorem pell_y_div_y_sum_gt_term_zero (d : ℤ) (hd : d > 1) (fund : Pell.Soluti
       rw [ Finset.sum_eq_add_sum_diff_singleton 0 _ (by
         intro h_not_mem
         exact False.elim (h_not_mem (Finset.mem_range.mpr (by omega : 0 < (p + 1) / 2))) ) ]
-      refine' lt_add_of_le_of_pos _ _ <;> norm_num
-      refine' Finset.sum_pos _ _
+      refine lt_add_of_le_of_pos ?_ ?_ <;> norm_num
+      refine Finset.sum_pos ?_ ?_
       · exact fun i hi =>
           mul_pos
             (mul_pos
@@ -892,7 +880,6 @@ Among all solutions (x,y) of Pell equation, at most one has y a d-number. If suc
 a solution exists, it is (a1,b1).
 -/
 set_option linter.flexible false in
-set_option linter.style.refine false in
 set_option linter.unusedVariables false in
 -- Generated Pell uniqueness proof uses flexible simplification in nested positivity cases.
 theorem pell_solution_unique_d_number (d : ℤ) (hd : d > 1) (h_nonsquare : ¬ IsSquare d)
@@ -944,8 +931,8 @@ theorem pell_solution_unique_d_number (d : ℤ) (hd : d > 1) (h_nonsquare : ¬ I
                         (mul_nonneg (h_b_p_pos k hk |>.2) h_fund_pos.1.le)
                   exact h_b_p_pos p hp_prime.pos
               · grind
-            refine' ⟨ _, _ ⟩
-            · refine' Nat.pos_of_dvd_of_pos h_b_p_d_num _
+            refine ⟨ ?_, ?_ ⟩
+            · refine Nat.pos_of_dvd_of_pos h_b_p_d_num ?_
               grind
             · intro q hq hq_div
               have hq_div_d : q ∣ sol.y.toNat := by
@@ -1010,7 +997,6 @@ def primes_le_B (B : ℕ) : Finset ℕ :=
 set_option maxHeartbeats 1000000 in
 -- The prime-factor support proof needs extra heartbeats and flexible generated divisibility goals.
 set_option linter.flexible false in
-set_option linter.style.refine false in
 theorem calc_d_mem_possible_ds (n : ℕ) (B : ℕ)
     (h : P_plus (n * (n + 1)) ≤ B) (hn : n ≥ 1) :
     calc_d ((2 * n + 1) ^ 2 - 1) ∈ possible_ds (primes_le_B B) := by
@@ -1056,19 +1042,19 @@ theorem calc_d_mem_possible_ds (n : ℕ) (B : ℕ)
           have := Nat.le_of_dvd ( by decide ) h_div
           interval_cases p <;> simp_all +decide
           omega
-      refine' Finset.mem_image.mpr _
-      refine'
+      refine Finset.mem_image.mpr ?_
+      refine
         ⟨ fun p hp =>
             if p ∈ (Nat.factorization ((2 * n + 1) ^ 2 - 1) |> Finsupp.support) then
               (split_exponent (Nat.factorization ((2 * n + 1) ^ 2 - 1) p) |>
                 Prod.fst)
             else
               0,
-          _, _ ⟩ <;> simp_all +decide [ Finset.prod_ite ]
+          ?_, ?_ ⟩ <;> simp_all +decide [ Finset.prod_ite ]
       · intro p hp
         split_ifs <;> simp_all +decide [ split_exponent ]
         split_ifs <;> simp_all +decide [ Nat.factorization_eq_zero_iff ]
-      · refine' Finset.prod_bij ( fun p hp => p ) _ _ _ _ <;> simp_all +decide
+      · refine Finset.prod_bij ( fun p hp => p ) ?_ ?_ ?_ ?_ <;> simp_all +decide
 
 /-
 The calculated d is greater than 1.
@@ -1078,7 +1064,6 @@ def bad_set (B : ℕ) : Set ℕ := {n | n ≥ 1 ∧ P_plus (n * (n + 1)) ≤ B}
 set_option maxHeartbeats 1000000 in
 -- The uniqueness proof needs extra heartbeats and flexible generated Pell-equation reductions.
 set_option linter.flexible false in
-set_option linter.style.refine false in
 /-
 For a fixed d, there is at most one n such that calc_d((2n+1)^2-1) = d.
 -/
@@ -1097,7 +1082,7 @@ theorem unique_n_for_d (d : ℕ) (hd : d > 1) (h_nonsquare : ¬ IsSquare d) :
           · rw [ add_tsub_cancel_of_le ( Nat.one_le_pow _ _ ( Nat.succ_pos _ ) ) ]
           · exact Nat.sub_pos_of_lt ( by nlinarith only [ hn.1 ] )
         rw [ Nat.sub_eq_iff_eq_add ] at h_sol1
-        · refine' ⟨ ⟨ ⟨ 2 * n + 1, calc_b ( ( 2 * n + 1 ) ^ 2 - 1 ) ⟩, _ ⟩, _, _ ⟩
+        · refine ⟨ ⟨ ⟨ 2 * n + 1, calc_b ( ( 2 * n + 1 ) ^ 2 - 1 ) ⟩, ?_ ⟩, ?_, ?_ ⟩
           all_goals norm_num [ Pell.Solution₁.x, Pell.Solution₁.y ]
           constructor <;> ext <;> norm_num <;> nlinarith
         · exact le_of_lt ( Nat.lt_of_sub_eq_succ h_sol1 )
@@ -1120,7 +1105,7 @@ theorem unique_n_for_d (d : ℕ) (hd : d > 1) (h_nonsquare : ¬ IsSquare d) :
             norm_num [ h_sol2 ]
             constructor <;> intro <;> linarith
           · exact Nat.sub_pos_of_lt ( by nlinarith only [ hm.1 ] )
-        refine' ⟨ ⟨ ⟨ 2 * m + 1, calc_b ( ( 2 * m + 1 ) ^ 2 - 1 ) ⟩, _ ⟩, rfl, rfl ⟩
+        refine ⟨ ⟨ ⟨ 2 * m + 1, calc_b ( ( 2 * m + 1 ) ^ 2 - 1 ) ⟩, ?_ ⟩, rfl, rfl ⟩
         rw [ unitary ]
         simp +decide [ mul_comm ]
         ext <;> norm_num
@@ -1221,8 +1206,6 @@ theorem bad_set_finite (B : ℕ) : (bad_set B).Finite := by
 /-
 The largest prime factor of n(n+1) tends to infinity as n tends to infinity.
 -/
-set_option linter.style.refine false in
--- Generated final filter proof relies on refine' placeholder synthesis.
 theorem n_n_plus_one_inf :
     Filter.Tendsto (fun n => P_plus (n * (n + 1))) Filter.atTop Filter.atTop := by
   -- By definition of $P^+$, we know that $P^+(n(n+1)) \ge B$ for all
@@ -1230,7 +1213,7 @@ theorem n_n_plus_one_inf :
   have h_eq : ∀ B : ℕ, {n : ℕ | n ≥ 1 ∧ P_plus (n * (n + 1)) ≤ B}.Finite := by
     intro B
     convert bad_set_finite B using 1
-  refine' Filter.tendsto_atTop_atTop.mpr fun B => _
+  refine Filter.tendsto_atTop_atTop.mpr fun B => ?_
   exact Exists.elim (Set.Finite.bddAbove (h_eq B)) fun N hN =>
     ⟨N + 1, fun n hn =>
       not_lt.1 fun contra =>
