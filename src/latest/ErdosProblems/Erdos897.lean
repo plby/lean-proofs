@@ -35,7 +35,6 @@ namespace Erdos897
 
 
 set_option linter.style.longLine false
-set_option linter.style.refine false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
 
@@ -138,7 +137,7 @@ noncomputable def E (j : ℕ) : ℝ :=
 The sequence $E_j$ is strictly increasing.
 -/
 lemma E_strictMono : StrictMono E := by
-  refine' strictMono_nat_of_lt_succ _;
+  refine strictMono_nat_of_lt_succ ?_;
   intro n;
   -- By definition of $E$, we know that $E (n + 1) = e^{E n}$.
   rw [show E (n + 1) = Real.exp (E n) from rfl];
@@ -176,7 +175,7 @@ lemma logStar_eq_iff {x : ℝ} {k : ℕ} (hk : k ≥ 1) :
           have := h_log_star_def.mp h;
           -- By definition of $E$, we know that $E (k - 1) = \exp^{(k - 1)}(1)$.
           have h_E_def : E (k - 1) = Real.exp^[k - 1] 1 := by
-            refine' Nat.recOn ( k - 1 ) _ _ <;> simp_all +decide [ Function.iterate_succ_apply' ];
+            refine Nat.recOn ( k - 1 ) ?_ ?_ <;> simp_all +decide [ Function.iterate_succ_apply' ];
             · rfl;
             · exact fun n hn => by rw [ ← hn ] ; rfl;
           rcases k with ( _ | k ) <;> simp_all +decide
@@ -200,7 +199,7 @@ lemma logStar_eq_iff {x : ℝ} {k : ℕ} (hk : k ≥ 1) :
               have h_log_k_gt_1 : iteratedLog (j + 1) x = Real.log (iteratedLog j x) := by
                 exact rfl;
               rw [ h_log_k_gt_1 ];
-              refine' lt_of_le_of_lt _ ( Real.log_lt_log ( _ ) ( ih ( Nat.le_of_succ_le hj ) ) );
+              refine lt_of_le_of_lt ?_ ( Real.log_lt_log ( ?_ ) ( ih ( Nat.le_of_succ_le hj ) ) );
               · rw [ show k - j = ( k - ( j + 1 ) ) + 1 by omega, show E ( ( k - ( j + 1 ) ) + 1 ) = Real.exp ( E ( k - ( j + 1 ) ) ) by rfl ] ; norm_num;
               · exact Nat.recOn ( k - j ) ( by norm_num [ show E 0 = 1 from rfl ] ) fun n ihn => by rw [ show E ( n + 1 ) = Real.exp ( E n ) from rfl ] ; positivity;
           specialize h_log_k_gt_1 k ; aesop
@@ -272,7 +271,7 @@ lemma sum_S_bound (n : ℕ) (k : ℕ) (hk : k ≥ 6) :
           refine Finset.card_le_card ?_;
           exact fun p hp => Finset.mem_Icc.mpr ⟨ Nat.pos_of_ne_zero <| by unfold S_set at hp; aesop, Nat.le_floor <| h_prime_bound p hp ⟩;
         exact le_trans ( Nat.cast_le.mpr h_card_bound ) ( by simpa using Nat.floor_le ( show 0 ≤ E ( k - 3 ) by exact Nat.recOn ( k - 3 ) ( by norm_num [ E ] ) fun n ihn => by rw [ E ] ; positivity ) );
-      refine' le_trans ( Finset.sum_le_sum fun p hp => show Real.log ( ( p : ℝ ) ^ ( n.factorization p ) ) ≤ E ( k - 4 ) from _ ) _;
+      refine le_trans ( Finset.sum_le_sum fun p hp => show Real.log ( ( p : ℝ ) ^ ( n.factorization p ) ) ≤ E ( k - 4 ) from ?_ ) ?_;
       · -- For $i \in \mathcal{S}$ we have $\log(p^a) \le \log(E_{k-3}) = E_{k-4}$.
         have h_log_S : Real.log ((p : ℝ) ^ (n.factorization p)) ≤ Real.log (E (k - 3)) := by
           exact Real.log_le_log ( mod_cast pow_pos ( Nat.pos_of_mem_primeFactors ( Finset.filter_subset _ _ hp ) ) _ ) ( mod_cast Finset.mem_filter.mp hp |>.2 );
@@ -352,7 +351,7 @@ lemma E_growth_inequality (k : ℕ) (hk : k ≥ 6) :
         -- We'll use that $e^x \geq x^3$ for $x \geq E_3$. This follows from the fact that the exponential function grows faster than any polynomial function.
         have h_exp_growth : ∀ x ≥ 10, Real.exp x ≥ x^3 := by
           intro x hx; rw [ Real.exp_eq_exp_ℝ ] ; norm_num [ NormedSpace.exp_eq_tsum_div ];
-          refine' le_trans _ ( Summable.sum_le_tsum ( Finset.range 10 ) ( fun _ _ => by positivity ) ( by simpa using Real.summable_pow_div_factorial x ) ) ; norm_num [ Finset.sum_range_succ, Nat.factorial ] ; ring_nf ; norm_num;
+          refine le_trans ?_ ( Summable.sum_le_tsum ( Finset.range 10 ) ( fun _ _ => by positivity ) ( by simpa using Real.summable_pow_div_factorial x ) ) ; norm_num [ Finset.sum_range_succ, Nat.factorial ] ; ring_nf ; norm_num;
           nlinarith [ pow_nonneg ( by linarith : 0 ≤ x ) 2, pow_nonneg ( by linarith : 0 ≤ x ) 3, pow_nonneg ( by linarith : 0 ≤ x ) 4, pow_nonneg ( by linarith : 0 ≤ x ) 5, pow_nonneg ( by linarith : 0 ≤ x ) 6, pow_nonneg ( by linarith : 0 ≤ x ) 7, pow_nonneg ( by linarith : 0 ≤ x ) 8 ];
         refine h_exp_growth x ?_;
         refine le_trans ?_ hx_ge_E3;
@@ -480,7 +479,7 @@ lemma logStar_ge_six_of_large_n : ∃ n₀, ∀ n ≥ n₀, logStar n ≥ 6 := b
         -- Since $E_j$ is strictly increasing and tends to infinity, there exists $k$ such that $E_k \geq n$.
         obtain ⟨k, hk⟩ : ∃ k : ℕ, E k ≥ n := by
           have h_logStar_def : Filter.Tendsto E Filter.atTop Filter.atTop := by
-            refine' Filter.tendsto_atTop_mono _ tendsto_natCast_atTop_atTop;
+            refine Filter.tendsto_atTop_mono ?_ tendsto_natCast_atTop_atTop;
             intro n;
             induction n
             · norm_num [ show E 0 = 1 by rfl ];
@@ -536,7 +535,7 @@ lemma logStar_succ_le (n : ℕ) : logStar (n + 1) ≤ logStar n + 1 := by
     · contrapose! hk;
       -- Since $E_0 = 1$ and $n$ is a natural number, $n \geq 1$. Therefore, $\log^* n \geq 1$.
       have h_logStar_pos : 1 ≤ logStar n := by
-        refine' Nat.one_le_iff_ne_zero.mpr _;
+        refine Nat.one_le_iff_ne_zero.mpr ?_;
         intro h; simp_all +decide [ logStar ] ;
         contrapose! h;
         -- Since $n \geq 2$, we can choose $x$ such that $\log^{(x)} n \leq 1$.
@@ -560,7 +559,7 @@ lemma logStar_succ_le (n : ℕ) : logStar (n + 1) ≤ logStar n + 1 := by
               linarith [ Real.log_le_sub_one_of_pos ( show 0 < L by exact lt_of_lt_of_le zero_lt_one ( le_of_tendsto_of_tendsto' tendsto_const_nhds hL fun m => le_of_lt ( h_exists_x m ) ) ) ];
             · aesop;
           exact h_exists_x;
-        refine' ⟨ x, hx, _ ⟩ ; rcases n with ( _ | _ | n ) <;> norm_num at *;
+        refine ⟨ x, hx, ?_ ⟩ ; rcases n with ( _ | _ | n ) <;> norm_num at *;
         · exact False.elim <| (not_le_of_gt hk) <| by exact Nat.recOn k ( by norm_num [ show E 0 = 1 from rfl ] ) fun n ihn => by rw [ show E ( n + 1 ) = Real.exp ( E n ) from rfl ] ; positivity;
         · exact absurd hk ( not_lt_of_ge <| by exact Nat.recOn k ( by norm_num [ show E 0 = 1 from rfl ] ) fun n ihn => by rw [ show E ( n + 1 ) = Real.exp ( E n ) from rfl ] ; exact Real.one_le_exp <| by positivity );
         · exact lt_add_of_pos_of_le ( by positivity ) ( by norm_num );
@@ -596,11 +595,10 @@ lemma limit_k_div_E_k_minus_2 : Filter.Tendsto (fun k : ℕ => (k : ℝ) / E (k 
       rw [ ← Real.rpow_one 2, Real.rpow_def_of_pos ] <;> norm_num;
       rw [ ← Real.exp_nat_mul, ← Real.exp_add ];
       exact Real.exp_le_exp.mpr ( by have := Real.log_two_lt_d9; norm_num1 at *; nlinarith [ Real.log_nonneg one_le_two, show ( 2:ℝ ) ^ k ≥ ↑k + 1 by exact mod_cast Nat.recOn k ( by norm_num ) fun n ihn => by rw [ pow_succ' ] ; nlinarith [ Real.log_nonneg one_le_two ] ] );
-  refine' squeeze_zero_norm' _ _;
-  use fun n => ( n : ℝ ) / 2 ^ ( n - 2 );
+  refine squeeze_zero_norm' (a := fun n : ℕ => ( n : ℝ ) / 2 ^ ( n - 2 )) ?_ ?_;
   · filter_upwards [ Filter.eventually_ge_atTop 4 ] with n hn using by rw [ Real.norm_of_nonneg ( by exact div_nonneg ( Nat.cast_nonneg _ ) ( by exact le_trans ( by positivity ) ( h_E_ge_pow n hn ) ) ) ] ; exact div_le_div_of_nonneg_left ( by positivity ) ( by positivity ) ( h_E_ge_pow n hn ) ;
   · rw [ ← Filter.tendsto_add_atTop_iff_nat 2 ] ; norm_num;
-    refine' squeeze_zero_norm' _ tendsto_inv_atTop_nhds_zero_nat ; norm_num;
+    refine squeeze_zero_norm' (a := fun n : ℕ => (n : ℝ)⁻¹) ?_ tendsto_inv_atTop_nhds_zero_nat ; norm_num;
     exact ⟨ 8, fun n hn => by rw [ inv_eq_one_div, div_le_div_iff₀ ] <;> norm_cast <;> induction hn <;> norm_num [ Nat.pow_succ ] at * ; nlinarith ⟩
 
 /-
@@ -660,7 +658,7 @@ lemma logStar_gt_of_gt_E (k : ℕ) (n : ℕ) (h : (n : ℝ) > E k) : logStar n >
               intro M;
               rcases exists_nat_gt M with ⟨k, hk⟩
               use k + 1;
-              refine' lt_of_lt_of_le hk _;
+              refine lt_of_lt_of_le hk ?_;
               field_simp;
               induction k
               · norm_num [ show E 1 = Real.exp 1 by rfl ];
@@ -692,7 +690,7 @@ lemma logStar_gt_of_gt_E (k : ℕ) (n : ℕ) (h : (n : ℝ) > E k) : logStar n >
 $\log^* n \to \infty$ as $n \to \infty$.
 -/
 lemma logStar_tendsto_atTop : Filter.Tendsto (fun n : ℕ => logStar n) Filter.atTop Filter.atTop := by
-  refine' Filter.tendsto_atTop_atTop.mpr _;
+  refine Filter.tendsto_atTop_atTop.mpr ?_;
   intro k; use ⌊E k⌋₊ + 1; intro n hn; exact (by
   have := logStar_gt_of_gt_E k n ( Nat.lt_of_floor_lt hn );
   linarith);
@@ -703,7 +701,7 @@ The limit of $\frac{k+1}{E_{k-2}}$ as $k \to \infty$ is 0.
 lemma limit_k_plus_one_div_E_k_minus_2 : Filter.Tendsto (fun k : ℕ => (k + 1 : ℝ) / E (k - 2)) Filter.atTop (nhds 0) := by
   have := @limit_k_div_E_k_minus_2;
   convert this.add ( show Filter.Tendsto ( fun k : ℕ => ( 1 : ℝ ) / E ( k - 2 ) ) Filter.atTop ( nhds 0 ) from tendsto_const_nhds.div_atTop <| ?_ ) using 2 <;> ring_nf;
-  refine' Filter.tendsto_atTop_atTop.mpr _;
+  refine Filter.tendsto_atTop_atTop.mpr ?_;
   -- We'll use that $E_k$ grows faster than any exponential function.
   have h_exp_growth : ∀ k, E k ≥ k := by
     intro k
@@ -725,10 +723,11 @@ lemma limit_logStar_div_log : Filter.Tendsto (fun n : ℕ => (logStar n + 1 : �
   -- Since $\frac{k+1}{E_{k-2}} \to 0$ as $k \to \infty$, the composition tends to 0.
   have h_comp : Filter.Tendsto (fun k : ℕ => (k + 1 : ℝ) / E (k - 2)) Filter.atTop (nhds 0) := by
     exact limit_k_plus_one_div_E_k_minus_2;
-  refine' squeeze_zero_norm' _ ( h_comp.comp _ );
+  refine squeeze_zero_norm'
+    (a := (fun k : ℕ => (k + 1 : ℝ) / E (k - 2)) ∘ fun n : ℕ => logStar n)
+    ?_ ( h_comp.comp logStar_tendsto_atTop );
   norm_num +zetaDelta at *;
   exact ⟨ h_upper_bound.choose, fun n hn => by rw [ abs_of_nonneg ( by positivity ), abs_of_nonneg ( Real.log_natCast_nonneg _ ) ] ; exact h_upper_bound.choose_spec n hn ⟩;
-  exact logStar_tendsto_atTop
 
 /-
 The sequence 4 + (logStar n + 1)/log n tends to 4 in EReal.
@@ -759,7 +758,7 @@ lemma corollary1 : Filter.limsup (fun n : ℕ => ((f (n + 1) - f n) / Real.log n
     norm_num [ ← EReal.coe_le_coe_iff ];
   have h_limsup_le : Filter.limsup (fun n => (u n : EReal)) Filter.atTop ≤ Filter.limsup (fun n => (v n : EReal)) Filter.atTop := by
     apply_rules [ Filter.limsup_le_limsup ];
-    · refine' ⟨ ⊥, _ ⟩ ; aesop;
+    · refine ⟨ ⊥, ?_ ⟩ ; aesop;
     · exact Filter.Tendsto.isBoundedUnder_le h_v_tendsto;
   convert h_limsup_le.trans _;
   rw [ h_v_tendsto.limsup_eq ]
@@ -824,7 +823,7 @@ lemma f_hypothesis : ((Filter.atTop ⊓ Filter.principal {(p, _k) : ℕ × ℕ |
     norm_cast;
   -- Since $\log^*$ tends to infinity, the limit superior of $\log^* (p^k)$ as $p$ and $k$ tend to infinity is also infinity.
   have h_logStar_inf : Filter.Tendsto (fun p : ℕ × ℕ => logStar ((p.1 : ℝ) ^ p.2)) (Filter.atTop ⊓ Filter.principal {(p, _k) : ℕ × ℕ | Nat.Prime p}) Filter.atTop := by
-    refine' Filter.tendsto_atTop.mpr _;
+    refine Filter.tendsto_atTop.mpr ?_;
     intro b;
     -- Since $\log^*$ tends to infinity, for any $b$, there exists $N$ such that for all $n \geq N$, $\log^* n \geq b$.
     obtain ⟨N, hN⟩ : ∃ N : ℕ, ∀ n ≥ N, logStar n ≥ b := by
@@ -838,13 +837,13 @@ lemma f_hypothesis : ((Filter.atTop ⊓ Filter.principal {(p, _k) : ℕ × ℕ |
     rw [ EReal.tendsto_nhds_top_iff_real ];
     intro x; specialize h_logStar_inf ( ⌈x⌉₊ + 1 ) ; filter_upwards [ h_logStar_inf ] with a ha; exact EReal.coe_lt_coe_iff.mpr ( lt_of_le_of_lt ( Nat.le_ceil _ ) ( mod_cast ha ) ) ;
   convert h_limsup_inf.limsup_eq using 1;
-  · refine' Filter.limsup_congr _;
+  · refine Filter.limsup_congr ?_;
     rw [ Filter.eventually_inf_principal ];
     rw [ Filter.eventually_atTop ];
     use (2, 1);
     intro p hp hp'; specialize h_eq p.1 p.2 hp'.out ( Nat.pos_of_ne_zero ( by aesop ) ) ; norm_cast at *;
     convert congr_arg ( ( ↑ ) : ℝ → EReal ) h_eq using 1;
-  · refine' Filter.neBot_iff.mpr _;
+  · refine Filter.neBot_iff.mpr ?_;
     norm_num [ Filter.inf_principal_eq_bot ];
     exact fun n m => by rcases Nat.exists_infinite_primes ( n + m + 1 ) with ⟨ p, hp₁, hp₂ ⟩ ; exact ⟨ p, by linarith, ⟨ m, by linarith ⟩, hp₂ ⟩ ;
 
@@ -893,11 +892,11 @@ lemma f_limsup_condition : ((Filter.atTop ⊓ Filter.principal {(p, _k) : ℕ ×
             norm_num +zetaDelta at *;
             rw [ EReal.tendsto_nhds_top_iff_real ];
             intro x; filter_upwards [ h_logStar_inf.eventually_gt_atTop x ] with y hy; exact_mod_cast hy;
-          refine' h_eq.congr' _;
+          refine h_eq.congr' ?_;
           rw [ Filter.EventuallyEq, Filter.eventually_inf_principal ];
           filter_upwards [ Filter.eventually_ge_atTop ( 1, 1 ) ] with x hx hx' using Eq.symm ( h_def x.1 x.2 hx' ( Nat.one_le_iff_ne_zero.mpr <| by aesop ) );
         convert h_eq.limsup_eq using 1;
-        refine' Filter.neBot_iff.mpr _;
+        refine Filter.neBot_iff.mpr ?_;
         norm_num [ Filter.inf_principal_eq_bot ];
         exact fun n m => by rcases Nat.exists_infinite_primes ( n + m + 1 ) with ⟨ p, hp₁, hp₂ ⟩ ; exact ⟨ p, by linarith, ⟨ m, by linarith ⟩, hp₂ ⟩ ;
 
@@ -912,13 +911,13 @@ theorem erdos_897.parts.i : (∀ (f : ℕ → ℝ),
       (fun (p, k) => (f (p^k) / (p^k : ℝ).log : EReal)) = ⊤) →
     Filter.atTop.limsup (fun (n : ℕ) => ((f (n+1) - f n) / (n : ℝ).log : EReal)) = ⊤) ↔
     false := by
-  refine' iff_of_false _ ( by decide );
+  refine iff_of_false ?_ ( by decide );
   push Not;
   use f;
-  refine' ⟨ _, _, _ ⟩;
+  refine ⟨ ?_, ?_, ?_ ⟩;
   · intro a ha b hb hab; unfold f; simp +decide
     rw [ Nat.primeFactors_mul ha.ne' hb.ne', Finset.sum_union ];
-    · refine' congrArg₂ ( · + · ) ( Finset.sum_congr rfl fun p hp => _ ) ( Finset.sum_congr rfl fun p hp => _ ) <;> simp_all +decide [ Nat.factorization_mul, ha.ne', hb.ne' ];
+    · refine congrArg₂ ( · + · ) ( Finset.sum_congr rfl fun p hp => ?_ ) ( Finset.sum_congr rfl fun p hp => ?_ ) <;> simp_all +decide [ Nat.factorization_mul, ha.ne', hb.ne' ];
       · rw [ Nat.factorization_eq_zero_of_not_dvd ( fun h => hp.1.not_dvd_one <| hab.gcd_eq_one ▸ Nat.dvd_gcd hp.2 h ) ] ; aesop;
       · rw [ Nat.factorization_eq_zero_of_not_dvd ( fun h => hp.1.not_dvd_one <| hab.gcd_eq_one ▸ Nat.dvd_gcd h hp.2 ) ] ; aesop;
     · exact hab.disjoint_primeFactors;
@@ -935,17 +934,17 @@ theorem erdos_897.parts.ii : (∀ (f : ℕ → ℝ),
     ((Filter.atTop ⊓ Filter.principal {(p, _k) : ℕ × ℕ | p.Prime}).limsup
       (fun (p, k) => (f (p^k) / (p^k : ℝ).log : EReal)) = ⊤) →
     Filter.atTop.limsup (fun (n : ℕ) => (f (n+1) / f n : EReal)) = ⊤) ↔ false := by
-  refine' iff_of_false _ ( by decide );
+  refine iff_of_false ?_ ( by decide );
   push Not;
-  refine' ⟨ f, _, _, _ ⟩;
+  refine ⟨ f, ?_, ?_, ?_ ⟩;
   · exact fun a ha b hb hab => f_additive ha.ne' hb.ne' hab;
   · convert f_limsup_condition using 1;
   · -- The ratio $f(n+1)/f(n)$ is eventually bounded by a real number $C$.
     have h_ratio_bounded : ∃ C : ℝ, ∀ᶠ n in Filter.atTop, f (n + 1) / f n ≤ C := by
       exact ⟨ _, ratio_bounded.choose_spec ⟩;
     obtain ⟨ C, hC ⟩ := h_ratio_bounded;
-    refine' ne_of_lt ( lt_of_le_of_lt ( Filter.limsup_le_of_le _ _ ) _ );
-    exact ↑C;
+    refine ne_of_lt
+      (lt_of_le_of_lt (Filter.limsup_le_of_le (a := (↑C : EReal)) ?_ ?_) ?_);
     · use ⊥;
       aesop;
     · filter_upwards [ hC ] with n hn;
