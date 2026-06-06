@@ -30,7 +30,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 
 namespace Erdos26
 
@@ -162,8 +161,8 @@ lemma arithmetic_progression_density (m : ℕ) (r : ℤ) (hm : m ≥ 1) :
   have h_bound : ∀ n : ℕ, abs ((f n : ℝ) - (n : ℝ) / m) ≤ 1 := by
     intro n; convert count_congruent_bound n m r hm using 1;
     convert rfl;
-    refine' Finset.card_bij (fun x hx => Int.toNat x) _ _ _ <;>
-      aesop;
+    refine Finset.card_bij (fun x hx => Int.toNat x) ?_ ?_ ?_ <;>
+      aesop
   -- Applying `limit_of_quasi_linear` with `c = 1/m` and `C = 1`, we get the limit.
   have h_limit :
       Filter.Tendsto
@@ -176,15 +175,14 @@ lemma arithmetic_progression_density (m : ℕ) (r : ℤ) (hm : m ≥ 1) :
         Filter.Tendsto
           (fun b : ℕ => ((f (b - 1) : ℝ) - (b - 1) / m) / b)
           Filter.atTop (𝓝 0) := by
-      refine' squeeze_zero_norm' _ _;
-      use fun n => 1 / (n : ℝ);
+      refine squeeze_zero_norm' (a := fun n : ℕ => 1 / (n : ℝ)) ?_ ?_
       · filter_upwards [Filter.eventually_gt_atTop 0] with n hn using by
           simpa [abs_div, abs_of_nonneg (by positivity : (0 : ℝ) ≤ n)] using
             div_le_div_of_nonneg_right
               (show |(f (n - 1) : ℝ) - (n - 1) / m| ≤ 1 from by
                 simpa [hn] using h_bound (n - 1))
               (by positivity)
-      · exact tendsto_one_div_atTop_nhds_zero_nat;
+      · exact tendsto_one_div_atTop_nhds_zero_nat
     convert h_lim_zero.add
       (show Filter.Tendsto
           (fun b : ℕ =>
@@ -203,7 +201,7 @@ lemma arithmetic_progression_density (m : ℕ) (r : ℤ) (hm : m ≥ 1) :
           (tendsto_const_nhds.mul tendsto_inv_atTop_nhds_zero_nat))
         (tendsto_inv_atTop_nhds_zero_nat.mul tendsto_const_nhds))
       (by norm_num);
-  refine' h_limit.congr' _;
+  refine h_limit.congr' ?_
   filter_upwards [ Filter.eventually_gt_atTop 0 ] with b hb;
   unfold partialDensity;
   simp +decide [ Set.ncard_eq_toFinset_card' ];
@@ -239,7 +237,7 @@ lemma exists_next_congruence (l : ℕ) (n : ℕ) (h : SatisfiesCongruences n l) 
           Nat.gcd
             (∏ k ∈ Finset.range l, Nat.nth Nat.Prime k)
             (Nat.nth Nat.Prime l) = 1 := by
-        refine' Nat.Coprime.prod_left fun i hi => _;
+        refine Nat.Coprime.prod_left fun i hi => ?_
         have h_distinct : Nat.nth Nat.Prime i ≠ Nat.nth Nat.Prime l := by
           exact fun h => by
             have := Nat.nth_injective (Nat.infinite_setOf_prime) h
@@ -256,10 +254,10 @@ lemma exists_next_congruence (l : ℕ) (n : ℕ) (h : SatisfiesCongruences n l) 
         Int.emod_nonneg _
           (Nat.cast_ne_zero.mpr <| Nat.Prime.ne_zero <| Nat.prime_nth_prime l)
       ]
-    refine'
+    refine
       ⟨ x + (∏ k ∈ Finset.range l, Nat.nth Nat.Prime k) *
             (Nat.nth Nat.Prime l) * (n + 1),
-        _, _, _ ⟩ <;>
+        ?_, ?_, ?_ ⟩ <;>
       simp_all +decide [← ZMod.intCast_eq_intCast_iff];
     · simp_all +decide [← ZMod.natCast_eq_natCast_iff];
     · nlinarith [
@@ -269,7 +267,7 @@ lemma exists_next_congruence (l : ℕ) (n : ℕ) (h : SatisfiesCongruences n l) 
             (Finset.prod_pos fun _ _ => Nat.Prime.pos (by aesop))
             (Nat.Prime.pos (by aesop))
       ];
-  refine' ⟨n', hn'.2.2, _⟩;
+  refine ⟨n', hn'.2.2, ?_⟩;
   intro j hj
   rcases hj with ⟨hj₁, hj₂⟩
   rcases hj₂.eq_or_lt with rfl | hj₂' <;>
@@ -283,8 +281,8 @@ lemma exists_next_congruence (l : ℕ) (n : ℕ) (h : SatisfiesCongruences n l) 
         (n' + (j - 1)) ≡ (n + (j - 1))
           [MOD ∏ k ∈ Finset.range l, Nat.nth Nat.Prime k] := by
       exact Nat.ModEq.add_right _ hn'.1;
-    refine' Nat.dvd_of_mod_eq_zero
-      (h_cong.of_dvd _ ▸ Nat.mod_eq_zero_of_dvd (h j hj₁ hj₂'));
+    refine Nat.dvd_of_mod_eq_zero
+      (h_cong.of_dvd ?_ ▸ Nat.mod_eq_zero_of_dvd (h j hj₁ hj₂'));
     convert
         Finset.dvd_prod_of_mem _
           (Finset.mem_range.mpr (show j - 1 < l from by omega)) using 1;
@@ -472,11 +470,11 @@ theorem ruzsa_counterexample :
       contradiction;
     apply_rules [ Filter.liminf_le_liminf ];
     · field_simp;
-      refine' Filter.Eventually.of_forall fun n => _;
+      refine Filter.Eventually.of_forall fun n => ?_
       gcongr;
       · exact Set.finite_iff_bddAbove.mpr ⟨ n, fun x hx => le_of_lt hx.2 ⟩;
       · intro x hx; aesop;
-    · refine' ⟨ 0, Filter.eventually_atTop.mpr ⟨ 1, fun n hn => _ ⟩ ⟩;
+    · refine ⟨ 0, Filter.eventually_atTop.mpr ⟨ 1, fun n hn => ?_ ⟩ ⟩
       simp +decide [ partialDensity ];
       positivity;
     · unfold partialDensity;
@@ -495,7 +493,7 @@ theorem ruzsa_counterexample :
                     Set.ncard_le_ncard (by intro n hn; exact hn.2) (Set.finite_Iio x)
                   _ = x := by simp)
               (Nat.cast_nonneg _)) ⟩;
-  refine' ⟨ ruzsa_sequence '' Set.Ici 1, _, _ ⟩;
+  refine ⟨ ruzsa_sequence '' Set.Ici 1, ?_, ?_ ⟩;
   · exact Set.Infinite.image
       (fun n => by
         have := ruzsa_sequence_strict_mono.injective
@@ -564,15 +562,15 @@ lemma card_pos_multiples_bound {ι : Type*}
     ((MultiplesOf A ∩ Set.Ioo 0 N).ncard : ℝ) ≤ N * (∑' i, 1 / (A i : ℝ)) := by
   rcases N.eq_zero_or_pos with hN | hN <;>
     simp_all +decide [Set.ncard_eq_toFinset_card'];
-  refine' le_trans _
-    (mul_le_mul_of_nonneg_left (Summable.sum_le_tsum _ _ h) <| Nat.cast_nonneg _);
-  rotate_left;
-  exact
-    Finset.filter (fun i => A i ≠ 0)
-      (h.tendsto_cofinite_zero.eventually
-        (gt_mem_nhds <| show (0 : ℝ) < 1 / N by positivity) |>
-        fun h => h.toFinset);
-  · exact fun _ _ => by positivity;
+  refine le_trans ?_
+    (mul_le_mul_of_nonneg_left
+      (Summable.sum_le_tsum
+        (Finset.filter (fun i => A i ≠ 0)
+          (h.tendsto_cofinite_zero.eventually
+            (gt_mem_nhds <| show (0 : ℝ) < 1 / N by positivity) |>
+            fun h => h.toFinset))
+        ?_ h)
+      <| Nat.cast_nonneg _);
   · -- Count the number of elements in the set of multiples of $A$ that are less than $N$.
     have h_count :
         (Finset.filter
@@ -614,7 +612,7 @@ lemma card_pos_multiples_bound {ι : Type*}
                 hi₁ ⟩,
               hi₂ ⟩;
         exact le_trans (Finset.card_le_card h_count) (Finset.card_biUnion_le);
-      refine' le_trans h_count (Finset.sum_le_sum fun i hi => _);
+      refine le_trans h_count (Finset.sum_le_sum fun i hi => ?_);
       have h_count :
           Finset.filter (fun n => A i ∣ n) (Finset.Ioo 0 N) ⊆
             Finset.image (fun n => A i * n) (Finset.Ico 1 (N / A i + 1)) := by
@@ -630,15 +628,21 @@ lemma card_pos_multiples_bound {ι : Type*}
         (Finset.card_le_card h_count)
         (Finset.card_image_le.trans (by simp +decide));
     simp +zetaDelta at *;
-    refine' le_trans (Nat.cast_le.mpr (le_trans (Finset.card_mono _) h_count)) _;
-    · simp +contextual [Finset.subset_iff, MultiplesOf];
-      exact fun x hx₁ hx₂ y i hi => ⟨i, by aesop_cat, hi ▸ dvd_mul_left _ _⟩;
-    · norm_num [Finset.mul_sum _ _ _];
-      exact Finset.sum_le_sum fun i hi => by
-        rw [← div_eq_mul_inv]
-        rw [le_div_iff₀ (Nat.cast_pos.mpr <| Nat.pos_of_ne_zero <| by aesop)]
-        norm_cast
-        linarith [Nat.div_mul_le_self N (A i)]
+    refine le_trans
+      (Nat.cast_le.mpr
+        (le_trans
+          (Finset.card_mono (by
+            simp +contextual [Finset.subset_iff, MultiplesOf]
+            exact fun x hx₁ hx₂ y i hi => ⟨i, by aesop_cat, hi ▸ dvd_mul_left _ _⟩))
+          h_count))
+      ?_
+    norm_num [Finset.mul_sum _ _ _]
+    exact Finset.sum_le_sum fun i hi => by
+      rw [← div_eq_mul_inv]
+      rw [le_div_iff₀ (Nat.cast_pos.mpr <| Nat.pos_of_ne_zero <| by aesop)]
+      norm_cast
+      linarith [Nat.div_mul_le_self N (A i)]
+  · exact fun _ _ => by positivity
 
 lemma upperDensity_le_sum_inv {ι : Type*} {A : ι → ℕ}
     (h : Summable (fun i => 1 / (A i : ℝ))) :
@@ -661,7 +665,7 @@ lemma upperDensity_le_sum_inv {ι : Type*} {A : ι → ℕ}
         exact
           (le_trans (Set.ncard_le_ncard h_card) (Set.ncard_union_le _ _)).trans
             (by simp +decide);
-      refine' le_trans (Nat.cast_le.mpr h_card) _;
+      refine le_trans (Nat.cast_le.mpr h_card) ?_;
       simpa using card_pos_multiples_bound A h b;
     rw [div_le_iff₀] <;>
       norm_num [Set.ncard_eq_toFinset_card'] at * <;>
@@ -673,9 +677,9 @@ lemma upperDensity_le_sum_inv {ι : Type*} {A : ι → ℕ}
     have h_one_div : Filter.Tendsto (fun b : ℕ => (1 : ℝ) / b) Filter.atTop (𝓝 0) :=
       tendsto_one_div_atTop_nhds_zero_nat;
     simpa using h_one_div.add (tendsto_const_nhds (x := (∑' i, 1 / (A i : ℝ))));
-  refine' le_of_tendsto_of_tendsto tendsto_const_nhds h_lim_partial_density_bound _;
+  refine le_of_tendsto_of_tendsto tendsto_const_nhds h_lim_partial_density_bound ?_;
   filter_upwards [ Filter.eventually_gt_atTop 0 ] with b hb;
-  refine' csInf_le _ _;
+  refine csInf_le ?_ ?_;
   · exact ⟨0, fun x hx => by
       rcases Filter.eventually_atTop.mp hx with ⟨N, hN⟩
       exact le_trans (by positivity) (hN _ le_rfl)⟩;
@@ -706,20 +710,20 @@ lemma upperDensity_lt_one_of_compl_myLowerDensity_pos {S : Set ℕ} (h : lowerDe
     have h_density_S :
         ∀ᶠ b in Filter.atTop,
           partialDensity S Set.univ b + partialDensity Sᶜ Set.univ b ≤ 1 := by
-      refine' Filter.eventually_atTop.mpr ⟨ 1, fun b hb => _ ⟩;
+      refine Filter.eventually_atTop.mpr ⟨ 1, fun b hb => ?_ ⟩;
       field_simp;
       rw [ div_le_iff₀ ] <;> norm_cast <;> norm_num [ Set.ncard_eq_toFinset_card' ];
-      · rw [ Finset.card_filter_add_card_filter_not ] ; aesop;
+      · rw [ Finset.card_filter_add_card_filter_not ]
+        aesop
       · linarith;
     filter_upwards [ hε, h_density_S ] with b hb₁ hb₂ using by linarith;
-  refine' lt_of_le_of_lt ( csInf_le _ _ ) _;
-  exact 1 - ε;
+  refine lt_of_le_of_lt (csInf_le (a := 1 - ε) ?_ ?_) ?_;
   · exact ⟨0, fun x hx => by
       rcases Filter.eventually_atTop.mp hx with ⟨b, hb⟩
       exact le_trans
         (by exact div_nonneg (Nat.cast_nonneg _) (Nat.cast_nonneg _))
         (hb _ le_rfl)⟩;
-  · aesop;
+  · simpa using h_density_S;
   · linarith
 
 lemma isBehrend_implies_upperDensity_eq_one {ι : Type*} {A : ι → ℕ} (h : IsBehrend A) :
@@ -770,7 +774,7 @@ theorem erdos_26.variants.rusza : ∃ A : ℕ → ℕ,
         have h_sum_bound :
             ∑' i, (1 : ℝ) / (2 ^ (2 ^ i) + k) ≤
               ∑' i, (1 : ℝ) / (2 ^ (2 ^ i)) := by
-          refine' Summable.tsum_le_tsum _ _ _;
+          refine Summable.tsum_le_tsum ?_ ?_ ?_;
           · exact fun i => by gcongr ; norm_num;
           · exact
               Summable.of_nonneg_of_le
