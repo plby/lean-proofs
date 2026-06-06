@@ -26,7 +26,6 @@ namespace Erdos246
 -- are too interdependent to remove locally without changing the proof structure.
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.refine false
 set_option linter.flexible false
 
 /-
@@ -48,7 +47,7 @@ If p, q >= 2 are coprime, then log p / log q is irrational.
 -/
 theorem log_ratio_irrational {p q : ℕ} (hp : 2 ≤ p) (hq : 2 ≤ q) (h_coprime : Nat.Coprime p q) :
   Irrational (Real.log p / Real.log q) := by
-    refine' fun ⟨ a, ha ⟩ => _;
+    refine fun ⟨ a, ha ⟩ => ?_;
     -- Then $p^b = q^a$.
     have h_exp : (p : ℝ) ^ (a.den) = (q : ℝ) ^ (a.num.natAbs) := by
       have h_exp : (Real.log p) * (a.den : ℝ) = (Real.log q) * (a.num.natAbs : ℝ) := by
@@ -72,7 +71,7 @@ theorem exists_small_fract_mul (α : ℝ) (h_irr : Irrational α) (ε : ℝ) (h�
     obtain ⟨j, k, hk_pos, hk_le_N, h_approx⟩ : ∃ j k : ℤ, 0 < k ∧ k ≤ N ∧ |k * α - j| < 1 / (N + 1) := by
       have := Real.exists_int_int_abs_mul_sub_le ( α : ℝ ) hN.1;
       obtain ⟨ j, k, hk₁, hk₂, hk₃ ⟩ := this;
-      refine' ⟨ j, k, hk₁, hk₂, lt_of_le_of_ne hk₃ _ ⟩;
+      refine ⟨ j, k, hk₁, hk₂, lt_of_le_of_ne hk₃ ?_ ⟩;
       intro h;
       -- If $|k\alpha - j| = \frac{1}{N+1}$, then $k\alpha = j \pm \frac{1}{N+1}$, which implies $\alpha = \frac{j \pm \frac{1}{N+1}}{k}$.
       have h_alpha_eq : α = (j + 1 / (N + 1)) / k ∨ α = (j - 1 / (N + 1)) / k := by
@@ -129,7 +128,7 @@ theorem lem_dense (α : ℝ) (h_irr : Irrational α) :
         rw [ mul_assoc, Int.fract_eq_iff ];
         exact ⟨ by nlinarith, by nlinarith, ⟨ k * ⌊ ( m : ℝ ) * α⌋, by push_cast; rw [ Int.fract ] ; ring ⟩ ⟩;
       exact abs_sub_lt_iff.mpr ⟨ by push_cast; linarith, by push_cast; linarith ⟩;
-    refine' Set.Subset.antisymm _ _;
+    refine Set.Subset.antisymm ?_ ?_;
     · exact closure_minimal ( Set.range_subset_iff.mpr fun n => ⟨ Int.fract_nonneg _, Int.fract_lt_one _ |> le_of_lt ⟩ ) isClosed_Icc;
     · intro x hx; rcases eq_or_lt_of_le hx.2 <;> simp_all +decide [ Metric.mem_closure_iff ] ;
       · intro ε hε; obtain ⟨ n, hn ⟩ := h_dense ( Min.min ε 1 / 2 ) ( by positivity ) ( 1 - Min.min ε 1 / 2 ) ( by linarith [ show 0 < Min.min ε 1 / 2 by positivity, min_le_left ε 1, min_le_right ε 1 ] ) ( by linarith [ show 0 < Min.min ε 1 / 2 by positivity, min_le_left ε 1, min_le_right ε 1 ] ) ; use n; rw [ dist_comm ] ; exact abs_lt.mpr ⟨ by linarith [ abs_lt.mp hn, min_le_left ε 1, min_le_right ε 1 ], by linarith [ abs_lt.mp hn, min_le_left ε 1, min_le_right ε 1 ] ⟩ ;
@@ -161,7 +160,7 @@ theorem exists_bounded_n_fract_lt (β : ℝ) (h_irr : Irrational β) (δ : ℝ) 
         exact fun k => ⟨ ⌊T⌋ - k * ⌊ ( m : ℝ ) * β⌋, by push_cast; nlinarith [ Int.fract_add_floor T, Int.fract_add_floor ( ( m : ℝ ) * β ) ] ⟩;
       -- Since $\{m\beta\} < \delta'$, we have $\{y - k \{m\beta\}\} < \delta'$ for some $k \leq \lceil 1 / \{m\beta\} \rceil$.
       obtain ⟨k, hk⟩ : ∃ k : ℕ, k ≤ Nat.ceil (1 / Int.fract (m * β)) ∧ y - k * Int.fract (m * β) < δ' ∧ y - k * Int.fract (m * β) ≥ 0 := by
-        refine' ⟨ ⌊y / Int.fract ( m * β ) ⌋₊, _, _, _ ⟩;
+        refine ⟨ ⌊y / Int.fract ( m * β ) ⌋₊, ?_, ?_, ?_ ⟩;
         · exact Nat.floor_le_of_le ( by rw [ div_le_iff₀ ( Int.fract_pos.mpr <| by exact mod_cast h_irr.ratCast_mul ( Nat.cast_ne_zero.mpr hm_pos.ne' ) |> fun h => h.ne_rat _ ) ] ; nlinarith [ Nat.le_ceil ( 1 / Int.fract ( m * β ) ), Int.fract_nonneg T, Int.fract_lt_one T, Int.fract_nonneg ( m * β ), Int.fract_lt_one ( m * β ), mul_div_cancel₀ 1 ( show ( Int.fract ( m * β ) ) ≠ 0 from ne_of_gt <| Int.fract_pos.mpr <| by exact mod_cast h_irr.ratCast_mul ( Nat.cast_ne_zero.mpr hm_pos.ne' ) |> fun h => h.ne_rat _ ) ] );
         · nlinarith [ Nat.lt_floor_add_one ( y / Int.fract ( m * β ) ), Int.fract_nonneg ( m * β ), Int.fract_lt_one ( m * β ), mul_div_cancel₀ y ( show Int.fract ( m * β ) ≠ 0 from ne_of_gt <| Int.fract_pos.mpr <| mod_cast h_irr.ratCast_mul ( Nat.cast_ne_zero.mpr hm_pos.ne' ) |> fun h => h.ne_int _ ) ];
         · nlinarith [ Nat.floor_le ( show 0 ≤ y / Int.fract ( m * β ) by exact div_nonneg ( Int.fract_nonneg _ ) ( Int.fract_nonneg _ ) ), Int.fract_nonneg ( m * β ), Int.fract_lt_one ( m * β ), mul_div_cancel₀ y ( show Int.fract ( m * β ) ≠ 0 from ne_of_gt ( Int.fract_pos.mpr ( mod_cast h_irr.ratCast_mul ( Nat.cast_ne_zero.mpr hm_pos.ne' ) |> fun h => h.ne_rat _ ) ) ) ];
@@ -181,17 +180,17 @@ theorem lem_halfinterval {p q : ℕ} (hp : 2 ≤ p) (hq : 2 ≤ q) (h_coprime : 
         apply_mod_cast log_ratio_irrational hq hp h_coprime.symm;
       convert exists_bounded_n_fract_lt _ h_irr _ _;
       exact div_pos ( Real.log_pos ( by norm_num ) ) ( Real.log_pos ( by norm_cast ) );
-    refine' ⟨ Real.rpow p ( B * ( Real.log q / Real.log p ) + 1 ), Real.one_le_rpow ( by norm_cast; linarith ) ( by positivity ), fun X hX => _ ⟩;
+    refine ⟨ Real.rpow p ( B * ( Real.log q / Real.log p ) + 1 ), Real.one_le_rpow ( by norm_cast; linarith ) ( by positivity ), fun X hX => ?_ ⟩;
     obtain ⟨ n, hn₁, hn₂ ⟩ := hB ( Real.log X / Real.log p );
     -- Let $u = \lfloor T - n\beta \rfloor$.
     obtain ⟨ u, hu ⟩ : ∃ u : ℕ, u = ⌊Real.log X / Real.log p - n * (Real.log q / Real.log p)⌋ := by
-      refine' ⟨ Int.toNat <| ⌊Real.log X / Real.log p - n * ( Real.log q / Real.log p ) ⌋, _ ⟩;
+      refine ⟨ Int.toNat <| ⌊Real.log X / Real.log p - n * ( Real.log q / Real.log p ) ⌋, ?_ ⟩;
       rw [ Int.toNat_of_nonneg ( Int.floor_nonneg.mpr <| sub_nonneg.mpr <| ?_ ) ];
-      refine' le_trans _ ( div_le_div_of_nonneg_right ( Real.log_le_log ( _ ) hX ) ( Real.log_nonneg ( by norm_cast; linarith ) ) );
+      refine le_trans ?_ ( div_le_div_of_nonneg_right ( Real.log_le_log ( ?_ ) hX ) ( Real.log_nonneg ( by norm_cast; linarith ) ) );
       · norm_num [ Real.log_rpow ( by positivity : 0 < ( p : ℝ ) ) ];
         rw [ mul_div_cancel_right₀ _ ( ne_of_gt ( Real.log_pos ( by norm_cast ) ) ) ] ; nlinarith [ show ( n : ℝ ) ≤ B by norm_cast, show 0 ≤ Real.log q / Real.log p by positivity ];
       · exact Real.rpow_pos_of_pos ( by positivity ) _;
-    refine' ⟨ u, n, _, _ ⟩;
+    refine ⟨ u, n, ?_, ?_ ⟩;
     · -- Using the properties of exponents, we can rewrite the inequality as $X < 2 \cdot p^u \cdot q^n$.
       have h_exp : Real.log X < Real.log 2 + u * Real.log p + n * Real.log q := by
         rw [ eq_comm, Int.floor_eq_iff ] at hu;
@@ -265,10 +264,11 @@ theorem exists_large_N_inequality (M : ℝ) (hM : M > 1) :
             intro N hN; rw [ ← Real.log_rpow, ← Real.log_mul, Real.log_le_log_iff ] <;> norm_num <;> nlinarith [ ( by norm_cast : ( 2 :ℝ ) ≤ N ) ] ;
           -- We can use the fact that $\frac{\log(N)}{N^2}$ tends to $0$ as $N$ tends to infinity.
           have h_log_div_N2 : Filter.Tendsto (fun N : ℕ => Real.log N / (N^2 : ℝ)) Filter.atTop (nhds 0) := by
-            refine' squeeze_zero_norm' _ tendsto_inv_atTop_nhds_zero_nat;
+            refine squeeze_zero_norm' ?_ tendsto_inv_atTop_nhds_zero_nat;
             filter_upwards [ Filter.eventually_gt_atTop 1 ] with n hn using by rw [ Real.norm_of_nonneg ( by positivity ) ] ; rw [ inv_eq_one_div, div_le_div_iff₀ ] <;> first | positivity | nlinarith [ Real.log_le_sub_one_of_pos ( by positivity : 0 < ( n : ℝ ) ) ] ;
-          refine' squeeze_zero_norm' _ _;
-          exacts [ fun N => ( 2 * Real.log N + Real.log 2 ) / N ^ 2, Filter.eventually_atTop.mpr ⟨ 2, fun N hN => by rw [ Real.norm_of_nonneg ( div_nonneg ( Real.log_nonneg <| by rw [ le_div_iff₀ <| by positivity ] ; nlinarith ) <| sq_nonneg _ ) ] ; exact div_le_div_of_nonneg_right ( h_log_bound N hN ) <| sq_nonneg _ ⟩, by simpa [ add_div, mul_div_assoc ] using Filter.Tendsto.add ( h_log_div_N2.const_mul 2 ) <| tendsto_const_nhds.mul <| tendsto_inv_atTop_nhds_zero_nat.pow 2 ];
+          refine squeeze_zero_norm' (a := fun N : ℕ => ( 2 * Real.log N + Real.log 2 ) / N ^ 2) ?_ ?_;
+          · exact Filter.eventually_atTop.mpr ⟨ 2, fun N hN => by rw [ Real.norm_of_nonneg ( div_nonneg ( Real.log_nonneg <| by rw [ le_div_iff₀ <| by positivity ] ; nlinarith ) <| sq_nonneg _ ) ] ; exact div_le_div_of_nonneg_right ( h_log_bound N hN ) <| sq_nonneg _ ⟩;
+          · simpa [ add_div, mul_div_assoc ] using Filter.Tendsto.add ( h_log_div_N2.const_mul 2 ) <| tendsto_const_nhds.mul <| tendsto_inv_atTop_nhds_zero_nat.pow 2;
         simpa using Filter.Tendsto.div ( Filter.Tendsto.add ( Filter.Tendsto.add h_log ( tendsto_const_nhds.mul tendsto_inv_atTop_nhds_zero_nat ) ) ( tendsto_const_nhds.mul ( tendsto_inv_atTop_nhds_zero_nat.pow 2 ) ) ) ( Filter.Tendsto.div_const ( Filter.Tendsto.mul ( tendsto_const_nhds.add ( tendsto_one_div_atTop_nhds_zero_nat ) ) ( tendsto_const_nhds.add ( tendsto_const_nhds.mul tendsto_inv_atTop_nhds_zero_nat ) ) ) _ ) ( by norm_num );
       refine h_div.congr' ?_;
       filter_upwards [ Filter.eventually_gt_atTop 0 ] with N hN;
@@ -350,19 +350,19 @@ lemma exists_subset_sum_lt_pow_card (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) :
               exact fun k hk => mul_le_mul_of_nonneg_left ( pow_le_pow_left₀ ( by positivity ) ( le_of_lt ( hN k hk ) ) _ ) ( sq_nonneg _ );
             -- We'll use the fact that $k^2 * (1 / 2)^k$ tends to $0$ as $k$ tends to infinity.
             have h_lim : Filter.Tendsto (fun k : ℕ => (k^2 : ℝ) * (1 / 2)^k) Filter.atTop (nhds 0) := by
-              refine' squeeze_zero_norm' _ tendsto_inv_atTop_nhds_zero_nat ; norm_num;
-              refine' ⟨ 20, fun n hn => _ ⟩ ; rw [ inv_eq_one_div, div_eq_mul_inv ] ; induction hn <;> norm_num [ pow_succ' ] at *;
+              refine squeeze_zero_norm' ?_ tendsto_inv_atTop_nhds_zero_nat ; norm_num;
+              refine ⟨ 20, fun n hn => ?_ ⟩ ; rw [ inv_eq_one_div, div_eq_mul_inv ] ; induction hn <;> norm_num [ pow_succ' ] at *;
               rw [ inv_eq_one_div, le_div_iff₀ ] at * <;> nlinarith [ ( by norm_cast : ( 20 : ℝ ) ≤ ↑‹ℕ› ), pow_pos ( by norm_num : ( 0 : ℝ ) < 1 / 2 ) ‹ℕ› ];
             exact squeeze_zero_norm' ( Filter.eventually_atTop.mpr ⟨ N, fun k hk => by rw [ Real.norm_of_nonneg ( by positivity ) ] ; exact h_bound k hk ⟩ ) h_lim;
           simpa [ add_div ] using h_div.add ( tendsto_inv_atTop_zero.comp ( tendsto_pow_atTop_atTop_of_one_lt one_lt_two |> Filter.Tendsto.comp <| by norm_num ) );
         simpa only [ mul_pow, mul_assoc ] using h_factor;
       have := h_exp_growth.eventually ( gt_mem_nhds zero_lt_one );
       rw [ Filter.eventually_atTop ] at this; rcases this with ⟨ k, hk ⟩ ; exact ⟨ k + 2, by linarith, by have := hk ( k + 2 ) ( by linarith ) ; rw [ div_lt_one ( by positivity ) ] at this; exact_mod_cast this ⟩ ;
-    refine' ⟨ Finset.image ( fun x : ℕ × ℕ => ( x.1, x.2 ) ) ( Finset.product ( Finset.range k ) ( Finset.range k ) ), _, _ ⟩ <;> simp_all +decide [ Finset.card_image_of_injective, Function.Injective ];
+    refine ⟨ Finset.image ( fun x : ℕ × ℕ => ( x.1, x.2 ) ) ( Finset.product ( Finset.range k ) ( Finset.range k ) ), ?_, ?_ ⟩ <;> simp_all +decide [ Finset.card_image_of_injective, Function.Injective ];
     · exact fun x hx => ⟨ Nat.cast_nonneg _, Nat.cast_nonneg _ ⟩;
     · -- The sum of elements in $S_k$ is bounded by $k^2 \cdot p^k \cdot q^k$.
       have h_sum_bound : ∑ x ∈ Finset.range k ×ˢ Finset.range k, p ^ x.1 * q ^ x.2 ≤ k^2 * p^k * q^k := by
-        refine' le_trans ( Finset.sum_le_sum fun x hx => Nat.mul_le_mul ( pow_le_pow_right₀ ( by linarith ) ( show x.1 ≤ k from by linarith [ Finset.mem_range.mp ( Finset.mem_product.mp hx |>.1 ) ] ) ) ( pow_le_pow_right₀ ( by linarith ) ( show x.2 ≤ k from by linarith [ Finset.mem_range.mp ( Finset.mem_product.mp hx |>.2 ) ] ) ) ) _ ; norm_num ; ring_nf ; norm_num;
+        refine le_trans ( Finset.sum_le_sum fun x hx => Nat.mul_le_mul ( pow_le_pow_right₀ ( by linarith ) ( show x.1 ≤ k from by linarith [ Finset.mem_range.mp ( Finset.mem_product.mp hx |>.1 ) ] ) ) ( pow_le_pow_right₀ ( by linarith ) ( show x.2 ≤ k from by linarith [ Finset.mem_range.mp ( Finset.mem_product.mp hx |>.2 ) ] ) ) ) ?_ ; norm_num ; ring_nf ; norm_num;
       simpa only [ sq ] using lt_of_le_of_lt ( Nat.succ_le_succ h_sum_bound ) hk.2
 
 /-
@@ -421,7 +421,7 @@ lemma lem_equal (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) :
         have h_sum_eq : ∑ x ∈ U', f x = ∑ x ∈ U' \ V', f x + ∑ x ∈ U' ∩ V', f x ∧ ∑ x ∈ V', f x = ∑ x ∈ V' \ U', f x + ∑ x ∈ U' ∩ V', f x := by
           exact ⟨ by rw [ ← Finset.sum_union ( Finset.disjoint_right.mpr fun x => by aesop ) ] ; congr; ext x; by_cases hx : x ∈ V' <;> aesop, by rw [ ← Finset.sum_union ( Finset.disjoint_right.mpr fun x => by aesop ) ] ; congr; ext x; by_cases hx : x ∈ U' <;> aesop ⟩;
         linarith;
-      refine' ⟨ U, V, _, _, h_disjoint, h_nonempty_U, h_nonempty_V, _ ⟩ <;> simp_all +decide [ Phi ];
+      refine ⟨ U, V, ?_, ?_, h_disjoint, h_nonempty_U, h_nonempty_V, ?_ ⟩ <;> simp_all +decide [ Phi ];
       · exact fun x hx => hS.1 <| hU'V'.1 <| Finset.mem_sdiff.mp hx |>.1;
       · exact fun x hx => hS.1 <| hU'V'.2.1 <| Finset.mem_sdiff.mp hx |>.1;
       · convert congr_arg ( ( ↑ ) : ℕ → ℚ ) h_sum_eq using 1;
@@ -478,7 +478,7 @@ lemma lem_unit (P Q : ℕ) (hP : 2 ≤ P) (hQ : 2 ≤ Q) :
         -- Define $E = \text{translate\_set}(U, (A,B))$ and $F = \text{translate\_set}(V', (A,B))$.
         set E : Finset (ℤ × ℤ) := translate_set U (A, B)
         set F : Finset (ℤ × ℤ) := translate_set V' (A, B);
-        refine' ⟨ E, F, _, _, _ ⟩ <;> simp_all +decide [ Finset.disjoint_left ];
+        refine ⟨ E, F, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ Finset.disjoint_left ];
         · simp +zetaDelta at *;
           unfold translate_set; aesop;
         · -- By `Phi_translate`, $\Phi(E) = P^{-A} Q^{-B} \Phi(U)$ and $\Phi(F) = P^{-A} Q^{-B} \Phi(V')$.
@@ -502,7 +502,7 @@ lemma lem_unit (P Q : ℕ) (hP : 2 ≤ P) (hQ : 2 ≤ Q) :
           unfold Phi; aesop;
         -- Define $E = \text{translate\_set}(V, (A,B))$ and $F = \text{translate\_set}(U', (A,B))$.
         use translate_set V (A, B), translate_set U' (A, B);
-        refine' ⟨ _, _, _ ⟩;
+        refine ⟨ ?_, ?_, ?_ ⟩;
         · simp_all +decide [ Finset.disjoint_left ];
           unfold translate_set; aesop;
         · -- By `Phi_translate`, $\Phi(E) = P^{-A} Q^{-B} \Phi(V)$ and $\Phi(F) = P^{-A} Q^{-B} \Phi(U')$.
@@ -572,10 +572,10 @@ lemma exists_sequence_EF (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) (k : ℕ) :
             -- Let $E_{n} = \text{scale\_set } M E'$ and $F_{n} = \text{scale\_set } M F'$.
             use Fin.cons (scale_set M E') E, Fin.cons (scale_set M F') F;
             simp_all +decide [ Fin.forall_fin_succ, Finset.disjoint_left, Set.disjoint_left ];
-            refine' ⟨ _, _, _, _, _ ⟩;
+            refine ⟨ ?_, ?_, ?_, ?_, ?_ ⟩;
             · unfold scale_set; simp +contextual;
               intro a b x y hx hy hxy z w hz hz' hw'; specialize hE' x y hx; specialize hF' ; aesop;
-            · refine' ⟨ _, hF ⟩;
+            · refine ⟨ ?_, hF ⟩;
               rw [ ← Phi_scale, ← Phi_scale ];
               · linarith;
               · linarith;
@@ -593,9 +593,9 @@ lemma exists_sequence_EF (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) (k : ℕ) :
               · constructor <;> intro H <;> specialize hM <;> have := hM.2 _ _ i ( by tauto ) <;> simp_all +decide [ Int.natAbs_mul ];
                 · linarith [ hQ _ _ ( Or.inl H ) ( by norm_num ) ];
                 · linarith [ hQ _ _ ( Or.inr H ) ( by norm_num ) ];
-            · intro i; refine' ⟨ _, _ ⟩;
+            · intro i; refine ⟨ ?_, ?_ ⟩;
               · simp_all +decide [ scale_set ];
-                intro a b hab; refine' ⟨ _, _ ⟩ <;> intro x y hx hy <;> specialize hM <;> specialize hQ' x y <;> simp_all +decide [ Q_set ] ;
+                intro a b hab; refine ⟨ ?_, ?_ ⟩ <;> intro x y hx hy <;> specialize hM <;> specialize hQ' x y <;> simp_all +decide [ Q_set ] ;
                 · contrapose! hQ';
                   constructor <;> nlinarith [ hM.2 _ _ i hab, abs_lt.mp ( show |a| < M by linarith [ hM.2 _ _ i hab ] ), abs_lt.mp ( show |b| < M by linarith [ hM.2 _ _ i hab ] ) ];
                 · contrapose! hQ';
@@ -748,7 +748,7 @@ theorem prop_AP (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) (h_coprime : Nat.Copri
           exact fun i hi => hi;
       -- Let $S_m = \text{translate\_set } U_m (-A, -B)$.
       set S_m : Finset (ℤ × ℤ) := translate_set U_m (-A, -B);
-      refine' ⟨ S_m, _, _ ⟩;
+      refine ⟨ S_m, ?_, ?_ ⟩;
       · intro x hx
         obtain ⟨u, hu⟩ : ∃ u ∈ U_m, x = (u.1 - (-A), u.2 - (-B)) := by
           norm_num +zetaDelta at *;
@@ -906,7 +906,7 @@ lemma exists_good_sets (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) (h_coprime : Na
       -- Let $E = \varphi(p^{A+1})$. Define $Q = \{ q^{B+1 + (B+1)E k} \mid k \in \{0, \dots, p^{A+1}-1\} \}$.
       set E := Nat.totient (p ^ (A + 1))
       set Q := Finset.image (fun k => q ^ (B + 1 + (B + 1) * E * k)) (Finset.range (p ^ (A + 1)));
-      refine' ⟨ P, Q, _, _, _, _, hP_cover, _ ⟩;
+      refine ⟨ P, Q, ?_, ?_, ?_, ?_, hP_cover, ?_ ⟩;
       · aesop;
       · aesop;
       · exact fun x hx => by obtain ⟨ k, hk, rfl ⟩ := Finset.mem_image.mp hx; exact pow_dvd_pow _ ( by nlinarith [ show 0 ≤ D * k by positivity ] ) ;
@@ -978,7 +978,7 @@ lemma decompose_N (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) (h_coprime : Nat.Cop
       have h_pos : N - p * q * R - (∑ x ∈ P₀, x + ∑ y ∈ Q₀, y) > 0 := by
         cases abs_cases R <;> push_cast [ * ] at * <;> nlinarith [ show 0 < p * q by positivity, show ∑ x ∈ P₀, x ≤ ∑ x ∈ P, x from Finset.sum_le_sum_of_subset hP₀, show ∑ y ∈ Q₀, y ≤ ∑ y ∈ Q, y from Finset.sum_le_sum_of_subset hQ₀ ];
       obtain ⟨m, hm⟩ : ∃ m : ℤ, N - p * q * R - (∑ x ∈ P₀, x + ∑ y ∈ Q₀, y) = m * (p ^ (A + 1) * q ^ (B + 1)) := by
-        refine' exists_eq_mul_left_of_dvd _;
+        refine exists_eq_mul_left_of_dvd ?_;
         convert Nat.modEq_iff_dvd.mp h_sum using 1;
         · rw [ Int.toNat_of_nonneg ]
           · norm_cast
@@ -1081,7 +1081,7 @@ theorem prop_APtoComplete (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) (h_coprime :
       have hN_sum : N = ∑ x ∈ S_m' ∪ P₀ ∪ Q₀, x := by
         rw [ Finset.sum_union, Finset.sum_union ] <;> norm_num [ h_disjoint ];
         push_cast [ ← @Nat.cast_inj ℤ ] at * ; linarith;
-      refine' hN_sum ▸ ⟨ _, _, rfl ⟩;
+      refine hN_sum ▸ ⟨ S_m' ∪ P₀ ∪ Q₀, ?_, rfl ⟩;
       simp_all +decide [ Set.subset_def, Gamma ];
       rintro x ( ⟨ a, b, hx, rfl ⟩ | hx | hx ) <;> [ exact ⟨ _, _, rfl ⟩ ; exact hP_prop x ( hP₀ hx ) |> fun ⟨ k, hk ⟩ => ⟨ k, 0, by simpa using hk ⟩ ; exact hQ_prop.1 x ( hQ₀ hx ) |> fun ⟨ k, hk ⟩ => ⟨ 0, k, by simpa using hk ⟩ ];
     exact Set.finite_iff_bddAbove.mpr ⟨ C, fun N hN => not_lt.1 fun contra => hN <| h_all_gt_C N contra ⟩
