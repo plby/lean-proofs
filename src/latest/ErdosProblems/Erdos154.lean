@@ -30,7 +30,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.refine false
 set_option linter.style.multiGoal false
 
 open scoped BigOperators
@@ -244,7 +243,7 @@ theorem card_diffs_le_s_set (A : Finset ℕ) (s : ℕ) (hA : IsSidonSetNat A) (h
   (diffs_le_s_set A s).card = count_diffs A.card s := by
     have h_inj : Finset.card (Finset.biUnion (Finset.range s) (fun v => Finset.image (fun j => (A.sort (· ≤ ·))[j + (v + 1)]! - (A.sort (· ≤ ·))[j]!) (Finset.range (A.card - (v + 1))))) = ∑ v ∈ Finset.range s, (A.card - (v + 1)) := by
       rw [ Finset.card_biUnion ];
-      · refine' Finset.sum_congr rfl fun v hv => _;
+      · refine Finset.sum_congr rfl fun v hv => ?_;
         rw [ Finset.card_image_of_injOn, Finset.card_range ];
         intro j hj j' hj' h_eq;
         have := sidon_diff_map_injective A hA ( v + 1 ) ( v + 1 ) j j' ( by linarith [ Finset.mem_range.mp hv ] ) ( by linarith [ Finset.mem_range.mp hv, Finset.mem_range.mp hj, Nat.sub_add_cancel ( show v + 1 ≤ A.card from by linarith [ Finset.mem_range.mp hv ] ) ] ) ( by linarith [ Finset.mem_range.mp hv ] ) ( by linarith [ Finset.mem_range.mp hv, Finset.mem_range.mp hj', Nat.sub_add_cancel ( show v + 1 ≤ A.card from by linarith [ Finset.mem_range.mp hv ] ) ] ) ; aesop;
@@ -336,7 +335,11 @@ theorem disjoint_diffs_le_s_set (A : Finset ℕ) (m : ℕ) (hm : 2 ≤ m) (s : �
   obtain ⟨x, y, hx, hy, hxy⟩ : ∃ x y : ℕ, x ∈ B_finset_new A m i ∧ y ∈ B_finset_new A m i ∧ x > y ∧ a = x - y := by
     unfold diffs_le_s_set at ha; simp_all +decide [ Finset.mem_biUnion, Finset.mem_image ] ;
     rcases ha with ⟨ k, hk₁, l, hl₁, rfl ⟩;
-    refine' ⟨ _, _, _, _, _, rfl ⟩;
+    refine
+      ⟨ ((B_finset_new A m i).sort fun x1 x2 => x1 ≤ x2)[l + (k + 1)]?.getD 0,
+        ?_,
+        ((B_finset_new A m i).sort fun x1 x2 => x1 ≤ x2)[l]?.getD 0,
+        ?_, ?_, rfl ⟩;
     · by_cases h : l + ( k + 1 ) < List.length ( (B_finset_new A m i).sort (fun x1 x2 => x1 ≤ x2) ) <;> simp_all +decide;
       · exact Finset.mem_sort ( α := ℕ ) ( fun x1 x2 => x1 ≤ x2 ) |>.1 ( by aesop );
       · omega;
@@ -356,7 +359,11 @@ theorem disjoint_diffs_le_s_set (A : Finset ℕ) (m : ℕ) (hm : 2 ≤ m) (s : �
     unfold diffs_le_s_set at hb_diff_disjoint;
     simp +zetaDelta at *;
     obtain ⟨ k, hk₁, l, hl₁, hl₂ ⟩ := hb_diff_disjoint;
-    refine' ⟨ _, _, _, _, _, hl₂.symm ⟩;
+    refine
+      ⟨ ((B_finset_new A m j).sort fun x1 x2 => x1 ≤ x2)[l + (k + 1)]?.getD 0,
+        ?_,
+        ((B_finset_new A m j).sort fun x1 x2 => x1 ≤ x2)[l]?.getD 0,
+        ?_, ?_, hl₂.symm ⟩;
     · by_cases h : l + ( k + 1 ) < List.length ( (B_finset_new A m j).sort (fun x1 x2 => x1 ≤ x2) ) <;> simp_all +decide;
       · exact Finset.mem_sort ( α := ℕ ) ( · ≤ · ) |>.1 ( by aesop );
       · omega;
@@ -395,7 +402,7 @@ theorem sum_diffs_order_eq_complement (A : Finset ℕ) (s : ℕ) (hs : s < A.car
   convert Finset.sum_congr rfl h_sum_eq using 2;
   · rename_i v hv
     norm_num +zetaDelta at *;
-    refine' eq_tsub_of_add_eq _;
+    refine eq_tsub_of_add_eq ?_;
     rw [ ← Finset.sum_add_distrib ];
     have h_sorted : ∀ i j : ℕ, i < j → i < (A.sort (· ≤ ·)).length → j < (A.sort (· ≤ ·)).length → ((A.sort (· ≤ ·))[i]?).getD 0 ≤ ((A.sort (· ≤ ·))[j]?).getD 0 := by
       intros i j hij hi hj;
@@ -405,14 +412,14 @@ theorem sum_diffs_order_eq_complement (A : Finset ℕ) (s : ℕ) (hs : s < A.car
       convert this ⟨ i, hi ⟩ ⟨ j, hj ⟩ hij using 1 <;> simp +decide;
       · rw [ List.getElem?_eq_getElem ] ; aesop;
       · grind;
-    refine' Finset.sum_congr rfl fun j hj => _;
+    refine Finset.sum_congr rfl fun j hj => ?_;
     have hj_lt : j < A.card - (v + 1) := Finset.mem_range.mp hj;
     have hlen : (A.sort (· ≤ ·)).length = A.card := Finset.length_sort (s := A) (· ≤ ·);
     exact tsub_add_cancel_of_le <| h_sorted j (j + (v + 1)) (by omega) (by rw [hlen]; omega) (by rw [hlen]; omega);
   · simp +decide [Finset.sum_range];
-    refine' eq_tsub_of_add_eq _;
+    refine eq_tsub_of_add_eq ?_;
     rw [ ← Finset.sum_add_distrib ];
-    refine' Finset.sum_congr rfl fun i hi => _;
+    refine Finset.sum_congr rfl fun i hi => ?_;
     rw [ Nat.sub_add_cancel ];
     have h_sorted : ∀ i j : Fin (A.card), i < j → (A.sort (· ≤ ·))[i]?.getD 0 ≤ (A.sort (· ≤ ·))[j]?.getD 0 := by
       intros i j hij;
@@ -440,7 +447,7 @@ theorem sum_diffs_le_s_eq_sum_set (A : Finset ℕ) (s : ℕ) (hA : IsSidonSetNat
         convert h_eq using 1;
     unfold sum_diffs_le_s diffs_le_s_set;
     rw [ Finset.sum_biUnion ];
-    · refine' Finset.sum_congr rfl fun v hv => _;
+    · refine Finset.sum_congr rfl fun v hv => ?_;
       rw [ Finset.sum_image ];
       intro j hj j' hj' h_eq; specialize h_inj ( v + 1 ) ( v + 1 ) j j'; simp_all +decide ;
       exact h_inj ( by omega ) ( by omega ) ( by omega ) ( by simpa [ List.getElem?_eq_getElem ( show j + ( v + 1 ) < List.length ( A.sort ( fun x1 x2 => x1 ≤ x2 ) ) from by simpa using by omega ), List.getElem?_eq_getElem ( show j < List.length ( A.sort ( fun x1 x2 => x1 ≤ x2 ) ) from by simpa using by omega ), List.getElem?_eq_getElem ( show j' + ( v + 1 ) < List.length ( A.sort ( fun x1 x2 => x1 ≤ x2 ) ) from by simpa using by omega ), List.getElem?_eq_getElem ( show j' < List.length ( A.sort ( fun x1 x2 => x1 ≤ x2 ) ) from by simpa using by omega ) ] using h_eq );
@@ -449,7 +456,7 @@ theorem sum_diffs_le_s_eq_sum_set (A : Finset ℕ) (s : ℕ) (hA : IsSidonSetNat
       simp +zetaDelta at *;
       intro a ha x hx h; specialize h_inj ( v + 1 ) ( w + 1 ) a x; simp_all +decide ;
       contrapose! h_inj;
-      refine' ⟨ _, _, _, _, _ ⟩;
+      refine ⟨ ?_, ?_, ?_, ?_, ?_ ⟩;
       any_goals omega;
       convert h.symm using 1;
       · rw [ List.getElem?_eq_getElem ];
@@ -475,7 +482,7 @@ theorem sum_diffs_le_s_bound (A : Finset ℕ) (s : ℕ) (M : ℕ) (_hA : IsSidon
       rw [ this, Finset.sum_Ico_eq_sum_range ];
       simp +arith +decide [ Nat.sub_sub_self hs.le ];
       rw [ ← Finset.sum_range_reflect ];
-      refine' Finset.sum_congr rfl fun i hi => _;
+      refine Finset.sum_congr rfl fun i hi => ?_;
       rw [ show A.card - ( s - 1 - i + 1 ) = A.card - s + i by exact Nat.sub_eq_of_eq_add <| by linarith [ Nat.sub_add_cancel <| show 1 ≤ s from by linarith [ Finset.mem_range.mp hi ], Nat.sub_add_cancel <| show i ≤ s - 1 from Nat.le_sub_one_of_lt <| Finset.mem_range.mp hi, Nat.sub_add_cancel <| show s ≤ A.card from by linarith [ Finset.mem_range.mp hi ] ] ] ; simp [ add_comm, add_left_comm, add_assoc ];
     -- Each difference is at most $M$, so the sum of differences of order $k$ is at most $(A.card - k) * M$.
     have h_diff_bound : ∀ k ∈ Finset.Ico (A.card - s) A.card, ∑ j ∈ Finset.range (A.card - k), (((A.sort (· ≤ ·))[j + k]?).getD 0 - ((A.sort (· ≤ ·))[j]?).getD 0) ≤ (A.card - k) * M := by
@@ -547,7 +554,7 @@ The size of B_i equals the number of elements in A congruent to i mod m.
 -/
 lemma card_B_eq_card_A_filter (A : Finset ℕ) (m i : ℕ) (hm : m > 0) :
   (B_finset_new A m i).card = (A.filter (fun a => a % m = i)).card := by
-    refine' Finset.card_image_of_injOn fun x hx y hy => _;
+    refine Finset.card_image_of_injOn fun x hx y hy => ?_;
     simp +zetaDelta at *;
     rw [ show x = m * ( x / m ) + i by linarith [ Nat.mod_add_div x m ], show y = m * ( y / m ) + i by linarith [ Nat.mod_add_div y m ] ] ; aesop
 
@@ -598,21 +605,20 @@ lemma cluster_point_is_const_fin (m : ℕ) (hm : 2 ≤ m)
       have h_sum_le_limsup : (∑ i, (ρ i) ^ (3 / 2 : ℝ)) ^ 2 ≤ Filter.limsup (fun k => (∑ i, (v k i) ^ (3 / 2 : ℝ)) ^ 2) Filter.atTop := by
         have h_sum_le_limsup : Filter.Tendsto (fun j => (∑ i, (v (k_j j) i) ^ (3 / 2 : ℝ)) ^ 2) Filter.atTop (nhds ((∑ i, (ρ i) ^ (3 / 2 : ℝ)) ^ 2)) := by
           exact Filter.Tendsto.pow ( tendsto_finset_sum _ fun i _ => Filter.Tendsto.rpow ( tendsto_pi_nhds.mp hk_j.2 i ) tendsto_const_nhds <| by norm_num ) _;
-        refine' le_csInf _ _ <;> norm_num;
+        refine le_csInf ?_ ?_ <;> norm_num;
         · have h_bounded : ∃ M, ∀ k, (∑ i, (v k i) ^ (3 / 2 : ℝ)) ^ 2 ≤ M := by
             have h_bounded : ∃ M, ∀ k, (∑ i, (v k i) ^ (3 / 2 : ℝ)) ≤ M := by
               have h_bounded : ∃ M, ∀ k, (∑ i, v k i) ≤ M := by
                 exact ⟨ _, fun k => le_ciSup ( h_sum.bddAbove_range ) k ⟩;
               obtain ⟨ M, hM ⟩ := h_bounded;
               use M * M ^ (1 / 2 : ℝ);
-              intro k; rw [ ← Real.sqrt_eq_rpow ] ; refine' le_trans ( Finset.sum_le_sum fun i _ => _ ) _;
-              use fun i => v k i * Real.sqrt ( ∑ i, v k i );
+              intro k; rw [ ← Real.sqrt_eq_rpow ] ; refine le_trans ( Finset.sum_le_sum (g := fun i => v k i * Real.sqrt ( ∑ i, v k i )) fun i _ => ?_ ) ?_;
               · rw [ show v k i ^ ( 3 / 2 : ℝ ) = v k i * Real.sqrt ( v k i ) by rw [ Real.sqrt_eq_rpow, ← Real.rpow_one_add' ] <;> norm_num ; linarith [ h_nonneg k i ] ] ; exact mul_le_mul_of_nonneg_left ( Real.sqrt_le_sqrt <| Finset.single_le_sum ( fun i _ => h_nonneg k i ) <| Finset.mem_univ i ) <| h_nonneg k i;
               · rw [ ← Finset.sum_mul _ _ _ ] ; exact mul_le_mul ( hM k ) ( Real.sqrt_le_sqrt ( hM k ) ) ( Real.sqrt_nonneg _ ) ( by linarith [ show 0 ≤ M by exact le_trans ( Finset.sum_nonneg fun _ _ => h_nonneg k _ ) ( hM k ) ] );
             exact ⟨ h_bounded.choose ^ 2, fun k => pow_le_pow_left₀ ( Finset.sum_nonneg fun _ _ => Real.rpow_nonneg ( h_nonneg _ _ ) _ ) ( h_bounded.choose_spec k ) 2 ⟩;
           exact ⟨ h_bounded.choose, ⟨ 0, fun k hk => h_bounded.choose_spec k ⟩ ⟩;
         · exact fun b x hx => le_of_tendsto h_sum_le_limsup ( Filter.eventually_atTop.mpr ⟨ x, fun j hj => hx _ ( hk_j.1.id_le _ |> le_trans hj ) ⟩ );
-      refine' le_trans ( mul_le_mul_of_nonneg_left h_sum_le_limsup <| Nat.cast_nonneg _ ) _;
+      refine le_trans ( mul_le_mul_of_nonneg_left h_sum_le_limsup <| Nat.cast_nonneg _ ) ?_;
       convert h_ineq using 1;
       rw [ Filter.limsup_eq, Filter.limsup_eq ];
       rw [ ← smul_eq_mul, ← Real.sInf_smul_of_nonneg ];
@@ -714,7 +720,7 @@ lemma eventually_inequality_premises
           exact h_card_large.congr' ( by filter_upwards [ h_n_tendsto.eventually_gt_atTop 0 ] with k hk using by rw [ div_mul_cancel₀ _ ( ne_of_gt ( Real.sqrt_pos.mpr ( Nat.cast_pos.mpr ( Nat.pos_of_ne_zero ( by aesop ) ) ) ) ) ] );
         exact Filter.eventually_atTop.mp ( h_card_inf.eventually_ge_atTop ( 4 * m ) ) |> fun ⟨ K, hK ⟩ ↦ ⟨ K, fun k hk ↦ by exact_mod_cast hK k hk ⟩;
       obtain ⟨ K, hK ⟩ := h_card_bound;
-      refine' Filter.eventually_atTop.mpr ⟨ K, fun k hk => ⟨ _, _ ⟩ ⟩;
+      refine Filter.eventually_atTop.mpr ⟨ K, fun k hk => ⟨ ?_, ?_ ⟩ ⟩;
       · -- By the pigeonhole principle, since $|A_k| \geq 4m$, there exists some $i$ such that $|B_i| \geq 2$.
         obtain ⟨i, hi⟩ : ∃ i < m, 2 ≤ (B_finset_new (A_seq k) m i).card := by
           have h_pigeonhole : ∑ i ∈ Finset.range m, (B_finset_new (A_seq k) m i).card = (A_seq k).card := by
@@ -724,10 +730,10 @@ lemma eventually_inequality_premises
             · exact fun i hi j hj hij => Finset.disjoint_left.mpr fun x hx₁ hx₂ => hij <| by aesop;
           contrapose! hK;
           exact ⟨ k, hk, by rw [ ← h_pigeonhole ] ; exact lt_of_le_of_lt ( Finset.sum_le_sum fun _ _ => Nat.le_of_lt_succ ( hK _ ( Finset.mem_range.mp ‹_› ) ) ) ( by norm_num; linarith ) ⟩;
-        refine' Finset.card_pos.mpr _;
-        refine' ⟨ _, Finset.mem_biUnion.mpr ⟨ i, Finset.mem_range.mpr hi.1, _ ⟩ ⟩;
+        refine Finset.card_pos.mpr ?_;
+        refine ⟨ ?_, Finset.mem_biUnion.mpr ⟨ i, Finset.mem_range.mpr hi.1, ?_ ⟩ ⟩;
         exact ((B_finset_new (A_seq k) m i).sort (· ≤ ·))[1]! - ((B_finset_new (A_seq k) m i).sort (· ≤ ·))[0]!;
-        refine' Finset.mem_biUnion.mpr ⟨ 0, _, _ ⟩ <;> norm_num;
+        refine Finset.mem_biUnion.mpr ⟨ 0, ?_, ?_ ⟩ <;> norm_num;
         · exact Nat.div_pos ( Nat.le_sub_one_of_lt ( Nat.le_sqrt.mpr ( by linarith ) ) ) zero_lt_two;
         · exact ⟨ 0, Nat.sub_pos_of_lt hi.2, rfl ⟩;
       · -- Since $\sum_{i=0}^{m-1} r_{k,i} = |A_k|$, we have $\sum_{i=0}^{m-1} r_{k,i}^{3/2} \geq |A_k|^{3/2} / \sqrt{m}$.
@@ -770,7 +776,7 @@ lemma eventually_inequality_premises
             · congr with x ; simp +decide [ Nat.mod_lt _ ( by linarith : 0 < m ) ];
             · exact fun i hi j hj hij => Finset.disjoint_left.mpr fun x hx₁ hx₂ => hij <| by aesop;
           grind;
-        refine' le_trans _ h_sum_r_pow_minus_two_sum;
+        refine le_trans ?_ h_sum_r_pow_minus_two_sum;
         rw [ sub_nonneg, le_div_iff₀ ] <;> norm_num;
         · rw [ show ( 3 / 2 : ℝ ) = 1 + 1 / 2 by norm_num, Real.rpow_add' ] <;> norm_num;
           rw [ ← Real.sqrt_eq_rpow ];
@@ -829,7 +835,7 @@ theorem S_subset_lower_bound (A : Finset ℕ) (m : ℕ) (hm : 2 ≤ m) (s : ℕ 
     have h_sum_bound : ∑ x ∈ total_diffs_subset A m s I, x ≥ (total_diffs_subset A m s I).card * ((total_diffs_subset A m s I).card + 1) / 2 := by
       exact sum_distinct_pos_ints_ge (total_diffs_subset A m s I) h_term_bound;
     rw [ ← Nat.cast_sum ] at *;
-    refine' lt_of_le_of_lt ( pow_le_pow_left₀ h_sum_nonneg h_card_bound 2 ) _;
+    refine lt_of_le_of_lt ( pow_le_pow_left₀ h_sum_nonneg h_card_bound 2 ) ?_;
     norm_cast ; nlinarith [ Nat.div_mul_cancel ( show 2 ∣ ( total_diffs_subset A m s I |> Finset.card ) * ( ( total_diffs_subset A m s I |> Finset.card ) + 1 ) from even_iff_two_dvd.mp ( by simp +arith +decide [ mul_add, parity_simps ] ) ) ]
 
 /-
@@ -896,8 +902,11 @@ lemma limsup_le_of_sub_sq_le (m : ℝ) (S E Z : ℕ → ℝ) (hm : 0 < m)
     have h_rhs_tendsto : Filter.Tendsto (fun k => m * (|E k| + Real.sqrt (Z k / m)) ^ 2) Filter.atTop (nhds 1) := by
       convert Filter.Tendsto.mul tendsto_const_nhds ( Filter.Tendsto.pow ( Filter.Tendsto.add ( hE.abs ) ( Filter.Tendsto.sqrt ( hZ.div_const m ) ) ) 2 ) using 2 ; norm_num [ hm.ne' ];
       rw [ Real.sq_sqrt hm.le, mul_inv_cancel₀ hm.ne' ];
-    refine' le_trans ( Filter.limsup_le_limsup _ _ _ ) _;
-    use fun k => m * ( |E k| + Real.sqrt ( Z k / m ) ) ^ 2;
+    refine le_trans
+      ( Filter.limsup_le_limsup
+        (v := fun k => m * ( |E k| + Real.sqrt ( Z k / m ) ) ^ 2)
+        ?_ ?_ ?_ )
+      ?_;
     · filter_upwards [ h_sq_bound ] with k hk using le_of_lt hk;
     · exact ⟨ 0, fun x hx => by rcases Filter.eventually_atTop.mp hx with ⟨ k, hk ⟩ ; exact le_trans ( by positivity ) ( hk _ le_rfl ) ⟩;
     · exact Filter.Tendsto.isBoundedUnder_le h_rhs_tendsto;
