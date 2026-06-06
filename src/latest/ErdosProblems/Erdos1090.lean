@@ -41,7 +41,6 @@ namespace Erdos1090
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.refine false
 set_option linter.style.multiGoal false
 
 open scoped BigOperators
@@ -70,17 +69,17 @@ lemma image_of_line_is_collinear {ι : Type*} [Fintype ι] (k : ℕ) (v : ι →
         -- Let $c$ be the sum of the fixed coordinates of $l$ and $d$ be the sum of the moving coordinates of $l$.
         obtain ⟨c, d, hcd⟩ : ∃ c d : Fin 2 → ℝ, ∀ x : Fin k, ∑ i, (l x i : ℕ) • v i = c + x.val • d := by
           obtain ⟨ c, d, hcd ⟩ := l;
-          refine' ⟨ ∑ i : ι, if h : c i = Option.none then 0 else ( c i |> Option.get! : ℕ ) • v i, ∑ i : ι, if h : c i = Option.none then v i else 0, fun x => _ ⟩ ; simp +decide [ Finset.sum_ite ] ; ring_nf;
+          refine ⟨ ∑ i : ι, if h : c i = Option.none then 0 else ( c i |> Option.get! : ℕ ) • v i, ∑ i : ι, if h : c i = Option.none then v i else 0, fun x => ?_ ⟩ ; simp +decide [ Finset.sum_ite ] ; ring_nf;
           simp +decide [ Finset.sum_filter, Finset.mul_sum ];
           rw [ ← Finset.sum_add_distrib ] ; congr ; ext i ; cases c i <;> simp +decide [ * ] ;
         exact ⟨ c, d, by rintro _ ⟨ x, rfl ⟩ ; exact ⟨ x, by aesop ⟩ ⟩;
       use c, d;
     -- Since the range of the projection is contained in a one-dimensional subspace, its rank is at most 1.
     have h_subspace : vectorSpan ℝ (Set.range (fun x : Fin k => Proj k v (l x))) ≤ Submodule.span ℝ {d} := by
-      refine' Submodule.span_le.mpr _;
+      refine Submodule.span_le.mpr ?_;
       rintro x ⟨ y, z, hy, hz, rfl ⟩;
       rcases hcd y z with ⟨ t, rfl ⟩ ; rcases hcd hy hz with ⟨ u, rfl ⟩ ; exact Submodule.mem_span_singleton.mpr ⟨ t - u, by ext i; simp +decide ; ring ⟩;
-    refine' le_trans ( Submodule.rank_mono h_subspace ) _;
+    refine le_trans ( Submodule.rank_mono h_subspace ) ?_;
     exact le_trans ( rank_span_le _ ) ( by simp +decide )
 
 /-
@@ -164,7 +163,7 @@ lemma exists_linear_map_preserving_independence {V : Type*} [AddCommGroup V] [Mo
           obtain ⟨ i, hi ⟩ := Finsupp.ne_iff.mp ( show ( this.repr w ) ≠ 0 from by simpa [ this.repr_self ] using h_contra ) ; use this.coord i; simp_all +decide ;
         simpa [ hw_zero ] using h.ne_zero 1;
       by_cases h_cases : f w = 0 ∧ g u = 0;
-      · refine' ⟨ f + g, _, _ ⟩ <;> simp_all +decide;
+      · refine ⟨ f + g, ?_, ?_ ⟩ <;> simp_all +decide;
       · grind;
     obtain ⟨g, hg⟩ : ∃ g : V →ₗ[ℝ] ℝ, g u ≠ 0 ∧ g w = 0 := by
       have h_dual : ∃ g : V →ₗ[ℝ] ℝ, g u ≠ 0 ∧ g w = 0 := by
@@ -178,9 +177,9 @@ lemma exists_linear_map_preserving_independence {V : Type*} [AddCommGroup V] [Mo
         use g;
         aesop;
       exact h_dual;
-    refine' ⟨ _, _ ⟩;
+    refine ⟨ ?_, ?_ ⟩;
     exact ( LinearMap.pi fun i => if i = 0 then g else f );
-    refine' Fintype.linearIndependent_iff.2 _;
+    refine Fintype.linearIndependent_iff.2 ?_;
     simp_all +decide [ Fin.forall_fin_two, funext_iff ]
 
 /-
@@ -211,7 +210,7 @@ lemma exists_proj_preserving_independence {ι : Type*} [Fintype ι] (k : ℕ) (x
     -- By `exists_linear_map_preserving_independence`, there exists a linear map $f$ such that $f(u)$ and $f(w)$ are linearly independent.
     obtain ⟨f, hf⟩ : ∃ f : (ι → ℝ) →ₗ[ℝ] (Fin 2 → ℝ), LinearIndependent ℝ ![f (fun i => (y i : ℝ) - (x i : ℝ)), f (fun i => (z i : ℝ) - (x i : ℝ))] := by
       convert exists_linear_map_preserving_independence _ _ h using 1;
-    refine' ⟨ fun i => f ( Pi.single i 1 ), _ ⟩;
+    refine ⟨ fun i => f ( Pi.single i 1 ), ?_ ⟩;
     convert hf using 2 <;> simp +decide [ proj_eq_linear_map_apply ];
     · rw [ ← map_sub ];
       rfl;
@@ -224,7 +223,7 @@ The affine span of the projection of a line is the line through the projections 
 lemma affine_span_image_line_eq_span_pair {ι : Type*} [Fintype ι] (k : ℕ) (hk : 3 ≤ k) (v : ι → Fin 2 → ℝ) (l : Combinatorics.Line (Fin k) ι) :
   affineSpan ℝ (Set.range (fun t => Proj k v (l t))) = affineSpan ℝ {Proj k v (l ⟨0, by linarith⟩), Proj k v (l ⟨1, by linarith⟩)} := by
     classical
-    refine' le_antisymm _ _ <;> simp_all +decide [ affineSpan_le ];
+    refine le_antisymm ?_ ?_ <;> simp_all +decide [ affineSpan_le ];
     · rintro _ ⟨ t, rfl ⟩ ; simp +decide [ spanPoints ] ; (
       -- By definition of $Proj$, we know that $Proj k v (l t) = Proj k v (l ⟨0, by linarith⟩) + t \cdot (Proj k v (l ⟨1, by linarith⟩) - Proj k v (l ⟨0, by linarith⟩))$.
       have h_proj : ∀ t : Fin k, Proj k v (l t) = Proj k v (l ⟨0, by linarith⟩) + t.val • (Proj k v (l ⟨1, by linarith⟩) - Proj k v (l ⟨0, by linarith⟩)) := by
@@ -233,7 +232,7 @@ lemma affine_span_image_line_eq_span_pair {ι : Type*} [Fintype ι] (k : ℕ) (h
         generalize_proofs at *;
         simp +decide [ Proj, smul_sub ];
         rw [ Finset.mul_sum _ _ _, Finset.mul_sum _ _ _ ] ; rw [ ← Finset.sum_sub_distrib ] ; rw [ ← Finset.sum_add_distrib ] ; congr ; ext x ; cases h : l_val x <;> aesop;);
-      refine' Or.inl ⟨ _, _, _ ⟩ <;> norm_num [ h_proj t ];
+      refine Or.inl ⟨ ?_, ?_, ?_ ⟩ <;> norm_num [ h_proj t ];
       exact ( t : ℝ ) • ( Proj k v ( l ⟨ 1, by linarith ⟩ ) - Proj k v ( l ⟨ 0, by linarith ⟩ ) );
       · exact Submodule.smul_mem _ _ ( Submodule.subset_span ( Set.mem_vsub.mpr ⟨ _, Set.mem_insert_of_mem _ ( Set.mem_singleton _ ), _, Set.mem_insert _ _, rfl ⟩ ) );
       · exact add_comm _ _);
@@ -250,7 +249,7 @@ lemma exists_not_root_of_finite_product {σ R : Type*} [CommRing R] [IsDomain R]
     -- The product of non-zero polynomials is non-zero.
     have h_prod_nonzero : ∏ p ∈ s, p ≠ 0 := by
       exact Finset.prod_ne_zero_iff.mpr h;
-    refine' h_prod_nonzero ( MvPolynomial.funext fun x => _ );
+    refine h_prod_nonzero ( MvPolynomial.funext fun x => ?_ );
     simp +decide [ Finset.prod_eq_zero_iff, h_contra x ]
 
 
@@ -322,7 +321,7 @@ lemma exists_good_proj_for_line {ι : Type*} [Fintype ι] (k : ℕ) (hk : 3 ≤ 
     have h_affine_indep : ¬(fun i => (x i : ℝ)) ∈ affineSpan ℝ (Set.range (fun (t : Fin k) => (fun i => (l t i : ℝ)))) := by
       intro h;
       exact hx ( mem_affine_span_line_implies_mem_range k l x h );
-    refine' linearIndependent_fin2.mpr ⟨ _, _ ⟩;
+    refine linearIndependent_fin2.mpr ⟨ ?_, ?_ ⟩;
     · exact sub_ne_zero_of_ne fun h => h_affine_indep <| h.symm ▸ mem_affineSpan ℝ ( Set.mem_range_self _ );
     · intro a ha;
       by_cases ha : a = 0 <;> simp_all +decide;
@@ -331,13 +330,13 @@ lemma exists_good_proj_for_line {ι : Type*} [Fintype ι] (k : ℕ) (hk : 3 ≤ 
         simp_all +decide [ funext_iff, sub_eq_zero ];
         rcases l with ⟨l, hl⟩;
         grind;
-      · refine' h_affine_indep _;
-        refine' ⟨ _, _, _ ⟩;
+      · refine h_affine_indep ?_;
+        refine ⟨ ?_, ?_, ?_ ⟩;
         exact fun i => ( l.idxFun i |> Option.getD ) ⟨ 0, by linarith ⟩;
         · exact ⟨ ⟨ 0, by linarith ⟩, rfl ⟩;
-        · refine' ⟨ fun i => ( a⁻¹ : ℝ ) • ( ( l.idxFun i |> Option.getD ) ⟨ 1, by linarith ⟩ - ( l.idxFun i |> Option.getD ) ⟨ 0, by linarith ⟩ ), _, _ ⟩ <;> simp_all +decide [ funext_iff, vectorSpan ];
-          · refine' Submodule.smul_mem _ _ _;
-            exact Submodule.subset_span ⟨ _, Set.mem_range_self ⟨ 1, by linarith ⟩, _, Set.mem_range_self ⟨ 0, by linarith ⟩, rfl ⟩;
+        · refine ⟨ fun i => ( a⁻¹ : ℝ ) • ( ( l.idxFun i |> Option.getD ) ⟨ 1, by linarith ⟩ - ( l.idxFun i |> Option.getD ) ⟨ 0, by linarith ⟩ ), ?_, ?_ ⟩ <;> simp_all +decide [ funext_iff, vectorSpan ];
+          · exact Submodule.smul_mem _ _
+              (Submodule.subset_span ⟨ _, Set.mem_range_self ⟨ 1, by linarith ⟩, _, Set.mem_range_self ⟨ 0, by linarith ⟩, rfl ⟩);
           · grind
 
 /-
@@ -386,7 +385,7 @@ lemma exists_generic_proj {ι : Type*} [Fintype ι] (k : ℕ) (hk : 3 ≤ k) : �
       · obtain ⟨ l, x, hx, rfl ⟩ := hS.symm.subset hp |> fun ⟨ x, y, hxy ⟩ => hxy.resolve_left fun h => h_inj ⟨ x, y, h ⟩;
         exact collinearity_poly_ne_zero k hk l x hx );
     exact ⟨ v_raw, fun x y hxy => hv_raw _ <| hS.subset ⟨ x, y, Or.inl ⟨ hxy, rfl ⟩ ⟩, fun l x hx => hv_raw _ <| hS.subset ⟨ x, x, Or.inr ⟨ l, x, hx, rfl ⟩ ⟩ ⟩;
-  refine' h_contra ⟨ fun i j => v_raw ( i, j ), _, _ ⟩;
+  refine h_contra ⟨ fun i j => v_raw ( i, j ), ?_, ?_ ⟩;
   · intro x y hxy
     have h_eval : (InjectivityPoly k x y).eval v_raw = 0 := by
       unfold InjectivityPoly; simp_all +decide [ funext_iff, Fin.forall_fin_two ] ;
@@ -426,9 +425,9 @@ theorem exists_set_with_monochromatic_line_property (k : ℕ) (hk : 3 ≤ k) :
         obtain ⟨ _, hι ⟩ := hι;
         -- Use `exists_generic_proj` to find a generic projection `v : ι → Fin 2 → ℝ`.
         obtain ⟨v, hv⟩ : ∃ v : ι → Fin 2 → ℝ, IsGenericProj k v := exists_generic_proj k hk;
-        refine' h ⟨ Finset.image ( fun x : ι → Fin k => ∑ i, ( x i : ℕ ) • v i ) Finset.univ, fun C => _ ⟩;
+        refine h ⟨ Finset.image ( fun x : ι → Fin k => ∑ i, ( x i : ℕ ) • v i ) Finset.univ, fun C => ?_ ⟩;
         obtain ⟨ l, hl ⟩ := hι ( fun x => C ⟨ ∑ i, ( x i : ℕ ) • v i, Finset.mem_image_of_mem _ ( Finset.mem_univ _ ) ⟩ );
-        refine' ⟨ Finset.image ( fun x => ∑ i, ( l x i : ℕ ) • v i ) Finset.univ, _, _, _, _ ⟩;
+        refine ⟨ Finset.image ( fun x => ∑ i, ( l x i : ℕ ) • v i ) Finset.univ, ?_, ?_, ?_, ?_ ⟩;
         exact Finset.image_subset_iff.mpr fun x _ => Finset.mem_image.mpr ⟨ l x, Finset.mem_univ _, rfl ⟩;
         · convert image_of_line_is_collinear k v l using 1;
           ext; simp [Proj];
