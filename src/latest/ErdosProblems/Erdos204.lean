@@ -36,7 +36,6 @@ namespace Erdos204
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 set_option linter.flexible false
 set_option linter.unusedVariables false
 
@@ -136,7 +135,7 @@ theorem sum_reciprocals_ge_one (S : Finset Congruence) (h : IsCovering S) : sum_
   have h_divided : ∀ N : ℕ, N > 0 → (∑ c ∈ S, (1 / (c.d : ℚ))) + (∑ c ∈ S, (1 : ℚ)) / N ≥ 1 := by
     intro N hN_pos
     have h_divided_step : (∑ c ∈ S, (N / (c.d : ℕ) + 1) : ℚ) ≥ N := by
-      refine' le_trans _ ( Finset.sum_le_sum fun x hx => add_le_add ( Nat.cast_div_le .. ) le_rfl ) ; norm_cast ; aesop;
+      refine le_trans ?_ ( Finset.sum_le_sum fun x hx => add_le_add ( Nat.cast_div_le .. ) le_rfl ) ; norm_cast ; aesop;
     simp_all +decide [Finset.sum_add_distrib, div_eq_mul_inv];
     rw [ ← Finset.mul_sum _ _ _ ] at * ; nlinarith [ ( by norm_cast : ( 1 : ℚ ) ≤ N ), mul_inv_cancel₀ ( by positivity : ( N : ℚ ) ≠ 0 ) ];
   -- Taking the limit as $N$ approaches infinity, we get $\sum_{c \in S} \frac{1}{c.d} \geq 1$.
@@ -227,7 +226,7 @@ theorem non_intersecting_prime_divisors_bound (n : ℕ) (h_ni : IsNonIntersectin
             exact Nat.cast_ne_zero.mpr ( Nat.ne_of_gt ( Nat.minFac_pos _ ) )), Int.emod_lt_of_pos _ (by
             exact Nat.cast_pos.mpr ( Nat.minFac_pos _ ))⟩, by
               simp_all +decide [ Int.ModEq ]⟩;
-          refine' le_trans ( Finset.card_le_card h_pigeonhole ) _ ; simp +decide [ Finset.card_sdiff, * ] ;
+          refine le_trans ( Finset.card_le_card h_pigeonhole ) ?_ ; simp +decide [ Finset.card_sdiff, * ] ;
           rw [ Finset.inter_eq_left.mpr ] <;> norm_num [ Int.emod_nonneg _ ( Nat.cast_ne_zero.mpr <| Nat.ne_of_gt <| Nat.minFac_pos _ ), Int.emod_lt_of_pos _ ( Nat.cast_pos.mpr <| Nat.minFac_pos _ ) ] ; omega;
         by_cases h_eq : ∀ q1 q2 : ℕ, q1 ∈ S → q2 ∈ S → q1 ≠ q2 → a (n.minFac * q1) % n.minFac ≠ a (n.minFac * q2) % n.minFac;
         · exact absurd h_pigeonhole ( by rw [ Finset.card_image_of_injOn fun q1 hq1 q2 hq2 h => by specialize h_eq q1 q2 hq1 hq2; aesop ] ; exact not_le_of_gt ( Nat.sub_lt ( Nat.minFac_pos _ ) zero_lt_one |> lt_of_lt_of_le <| by linarith ) );
@@ -358,7 +357,7 @@ lemma sum_divisors_reciprocal_lt_prod_geometric (n : ℕ) (hn : n > 1) :
           have h_geo_series : ∑ k ∈ Finset.range (Nat.factorization n p + 1), (1 / (p : ℚ) ^ k) < (p : ℚ) / (p - 1) := by
             convert geometric_series_prime_bound p ( Nat.prime_of_mem_primeFactors hp ) ( Nat.factorization n p ) using 1
           exact h_geo_series.le;
-        · refine' ⟨ n.minFac, _, _ ⟩;
+        · refine ⟨ n.minFac, ?_, ?_ ⟩;
           · exact Nat.mem_primeFactors.mpr ⟨ Nat.minFac_prime hn.ne', Nat.minFac_dvd n, by aesop ⟩;
           · convert geometric_series_prime_bound n.minFac ( Nat.minFac_prime hn.ne' ) ( n.factorization n.minFac ) using 1;
       · linarith
@@ -479,7 +478,7 @@ lemma case_1a_sum_bound (n : ℕ) (h_n_gt_1 : n > 1)
       · have h_sigma_np : sum_divisors_reciprocal (n / p) < (p + s + 1 : ℚ) / (p + 1) := by
           apply sum_reciprocal_m_bound p (n / p) s hp_ge_3 hp_prime hs.left (by
           intro q hq; have := Nat.dvd_of_mem_primeFactors hq; simp_all +decide ;
-          refine' lt_of_le_of_ne _ _;
+          refine lt_of_le_of_ne ?_ ?_;
           · exact Nat.minFac_le_of_dvd hq.1.two_le ( dvd_trans hq.2.1 ( Nat.div_dvd_of_dvd ( Nat.minFac_dvd n ) ) );
           · rintro rfl; simp_all +decide [ Nat.dvd_div_iff_mul_dvd ( Nat.minFac_dvd n ) ] ;
             exact h_case1.2.1 ( by simpa only [ sq ] using hq.1 )) h_np_gt_1;
@@ -523,7 +522,7 @@ theorem density_of_covering (S : Finset Congruence) (m : ℕ) (hm : m > 0)
       field_simp;
       norm_cast;
       convert Finset.card_range m;
-      refine' Finset.card_bij ( fun x hx => Int.toNat x ) _ _ _ <;> aesop
+      refine Finset.card_bij ( fun x hx => Int.toNat x ) ?_ ?_ ?_ <;> aesop
 
 /-
 If a subset of a CD congruence set is not pairwise coprime, its intersection is empty.
@@ -543,7 +542,7 @@ theorem pairwise_coprime_subset {S : Finset Congruence} {I : Finset Congruence} 
     ¬ pairwise_coprime I → ∀ x : ℤ, ¬ (∀ c ∈ I, x ≡ c.a [ZMOD c.d]) := by
       intro h_not_pairwise_coprime x hx;
       contrapose! h_not_pairwise_coprime;
-      refine' fun a ha b hb hab => _;
+      refine fun a ha b hb hab => ?_;
       exact hS a ( h ha ) b ( h hb ) hab ( by exact ⟨ x, hx a ha, hx b hb ⟩ )
 
 /-
@@ -600,11 +599,11 @@ theorem intersection_count_pairwise_coprime (S : Finset Congruence) (I : Finset 
               simp_all +decide [ Int.ModEq ];
               rw [ Int.emod_eq_emod_iff_emod_sub_eq_zero ];
               simp +zetaDelta at *;
-              refine' Finset.prod_dvd_of_coprime _ _;
+              refine Finset.prod_dvd_of_coprime ?_ ?_;
               · intro c hc d hd hcd; specialize h_coprime c hc d hd hcd; aesop;
               · exact fun c hc => Int.dvd_of_emod_eq_zero ( by rw [ Int.sub_emod, hx_congr c hc, hx₀ c hc ] ; norm_num );
             exact h_congr.symm.dvd.imp fun k hk => by linarith;
-          refine' ⟨ Int.toNat k, _, _ ⟩;
+          refine ⟨ Int.toNat k, ?_, ?_ ⟩;
           · have h_k_lt : k < (S.lcm (fun c => c.d)) / P := by
               nlinarith [ Int.emod_nonneg x₀ ( show ( P : ℤ ) ≠ 0 from mod_cast Finset.prod_ne_zero_iff.mpr fun c hc => Nat.ne_of_gt <| c.d_pos ), Int.emod_lt_of_pos x₀ ( show ( P : ℤ ) > 0 from mod_cast Finset.prod_pos fun c hc => c.d_pos ), Nat.div_mul_cancel hP_div_D ];
             nlinarith [ Int.toNat_of_nonneg ( show 0 ≤ k from by nlinarith [ Int.emod_nonneg x₀ ( show ( P : ℤ ) ≠ 0 from mod_cast Finset.prod_ne_zero_iff.mpr fun c hc => Nat.ne_of_gt ( c.d_pos ) ), Int.emod_lt_of_pos x₀ ( show ( P : ℤ ) > 0 from mod_cast Finset.prod_pos fun c hc => c.d_pos ) ] ), Nat.div_mul_le_self ( S.lcm fun c => c.d ) P ];
@@ -615,9 +614,9 @@ theorem intersection_count_pairwise_coprime (S : Finset Congruence) (I : Finset 
         have h_card_solutions : (Finset.filter (fun x : ℕ => ∀ c ∈ I, (x : ℤ) ≡ c.a [ZMOD c.d]) (Finset.range (S.lcm (fun c => c.d)))).card ≤ (S.lcm (fun c => c.d)) / P := by
           exact le_trans ( Finset.card_le_card fun x hx => show x ∈ Finset.image ( fun k : ℕ => Int.toNat ( x₀ % P + k * P ) ) ( Finset.range ( ( S.lcm fun c => c.d ) / P ) ) from by obtain ⟨ k, hk₁, rfl ⟩ := h_solutions x ( Finset.mem_range.mp ( Finset.mem_filter.mp hx |>.1 ) ) ( Finset.mem_filter.mp hx |>.2 ) ; exact Finset.mem_image.mpr ⟨ k, Finset.mem_range.mpr hk₁, rfl ⟩ ) ( Finset.card_image_le.trans ( by simp ) );
         convert h_card_solutions using 1;
-        refine' Finset.card_bij ( fun x hx => Int.toNat x ) _ _ _ <;> simp +decide;
+        refine Finset.card_bij ( fun x hx => Int.toNat x ) ?_ ?_ ?_ <;> simp +decide;
         · tauto;
-      · refine' Nat.le_of_not_lt fun h => _;
+      · refine Nat.le_of_not_lt fun h => ?_;
         -- Since $I$ is pairwise coprime, there exists an integer $x_0$ such that $x_0 \equiv c.a \pmod{c.d}$ for all $c \in I$.
         obtain ⟨x₀, hx₀⟩ : ∃ x₀ : ℤ, ∀ c ∈ I, x₀ ≡ c.a [ZMOD c.d] := by
           -- Applying the Chinese Remainder Theorem.
@@ -638,9 +637,9 @@ theorem intersection_count_pairwise_coprime (S : Finset Congruence) (I : Finset 
         -- The solutions in $\{0, \dots, D-1\}$ are exactly those $x$ such that $x \equiv x_0 \pmod P$.
         have h_solutions : (Finset.range (S.lcm (fun c => c.d))).filter (fun x => ∀ c ∈ I, (x : ℤ) ≡ c.a [ZMOD c.d]) ⊇ Finset.image (fun m => Int.toNat (x₀ % (Finset.prod I (fun c => c.d)) + m * (Finset.prod I (fun c => c.d)))) (Finset.range ((S.lcm (fun c => c.d)) / (Finset.prod I (fun c => c.d)))) := by
           simp +decide [ Finset.subset_iff ];
-          intro a ha; refine' ⟨ _, _ ⟩;
-          · refine' ⟨ Int.toNat ( max ( x₀ % ∏ i ∈ I, ( i.d : ℤ ) + a * ∏ i ∈ I, ( i.d : ℤ ) ) 0 ), _, _ ⟩ <;> norm_num [ Int.toNat_of_nonneg ( le_max_right _ _ ) ];
-            refine' ⟨ _, Nat.pos_of_ne_zero _ ⟩;
+          intro a ha; refine ⟨ ?_, ?_ ⟩;
+          · refine ⟨ Int.toNat ( max ( x₀ % ∏ i ∈ I, ( i.d : ℤ ) + a * ∏ i ∈ I, ( i.d : ℤ ) ) 0 ), ?_, ?_ ⟩ <;> norm_num [ Int.toNat_of_nonneg ( le_max_right _ _ ) ];
+            refine ⟨ ?_, Nat.pos_of_ne_zero ?_ ⟩;
             · have hP_pos_nat : 0 < ∏ c ∈ I, c.d := by
                 exact Finset.prod_pos fun c _ => c.d_pos
               have hP_pos_int : 0 < ∏ c ∈ I, (c.d : ℤ) := by
@@ -662,7 +661,7 @@ theorem intersection_count_pairwise_coprime (S : Finset Congruence) (I : Finset 
             · intro H; simp_all +decide ;
           · intro c hc; rw [ max_eq_left ( by nlinarith [ Int.emod_nonneg x₀ ( show ( ∏ i ∈ I, ( i.d : ℤ ) ) ≠ 0 from Finset.prod_ne_zero_iff.mpr fun i hi => Nat.cast_ne_zero.mpr <| Nat.ne_of_gt <| i.d_pos ), show ( ∏ i ∈ I, ( i.d : ℤ ) ) > 0 from Finset.prod_pos fun i hi => Nat.cast_pos.mpr <| i.d_pos ] ) ] ; simp_all +decide [ Int.ModEq ] ;
             simp +decide [ ← hx₀ c hc, Int.add_emod, Int.mul_emod, Finset.prod_eq_prod_diff_singleton_mul hc ];
-        refine' h.not_ge ( le_trans _ ( Finset.card_mono h_solutions ) );
+        refine h.not_ge ( le_trans ?_ ( Finset.card_mono h_solutions ) );
         rw [ Finset.card_image_of_injOn ];
         · norm_num [ Finset.card_image_of_injective, Function.Injective ];
         · intro m hm m' hm' h_eq; simp_all +decide ;
@@ -687,7 +686,7 @@ theorem lemma_good (S : Finset Congruence) (h_cd : IsCD S) :
           have h_inclusion_exclusion_step : (∑ I ∈ S.powerset, (-1 : ℚ) ^ I.card * (if ∀ c ∈ I, x ≡ c.a [ZMOD c.d] then 1 else 0)) = if ∃ c ∈ S, x ≡ c.a [ZMOD c.d] then 0 else 1 := by
             have h_inclusion_exclusion_step : (∑ I ∈ S.powerset, (-1 : ℚ) ^ I.card * (if ∀ c ∈ I, x ≡ c.a [ZMOD c.d] then 1 else 0)) = (∏ c ∈ S, (1 - if x ≡ c.a [ZMOD c.d] then 1 else 0)) := by
               simp +decide [ sub_eq_neg_add, Finset.prod_add ];
-              refine' Finset.sum_congr rfl fun I hI => _;
+              refine Finset.sum_congr rfl fun I hI => ?_;
               split_ifs <;> simp_all +decide;
               rw [ Finset.prod_eq_zero_iff.mpr ] ; aesop;
             split_ifs <;> simp_all +decide [ Finset.prod_eq_zero_iff ];
@@ -704,7 +703,7 @@ theorem lemma_good (S : Finset Congruence) (h_cd : IsCD S) :
         rw [ ← h_inclusion_exclusion_sum, Finset.sum_congr rfl fun x hx => h_inclusion_exclusion x ( Finset.mem_range.mp hx ) ];
         simp +decide [ count_covered ];
         rw [ Finset.card_filter, Finset.card_filter ];
-        refine' Finset.sum_bij ( fun x hx => Int.toNat x ) _ _ _ _ <;> simp +decide;
+        refine Finset.sum_bij ( fun x hx => Int.toNat x ) ?_ ?_ ?_ ?_ <;> simp +decide;
       -- By `intersection_count_pairwise_coprime`, if $I$ is pairwise coprime, then $intersection_count I D = D / \prod_{c \in I} c.d$.
       have h_inter_count : ∀ I ∈ S.powerset.filter (fun I => I.Nonempty), (intersection_count I D : ℚ) = if pairwise_coprime I then (D : ℚ) / (∏ c ∈ I, (c.d : ℚ)) else 0 := by
         intro I hI;
@@ -730,7 +729,7 @@ theorem lemma_good (S : Finset Congruence) (h_cd : IsCD S) :
       · exact absurd ‹∃ x ∈ S, x.d = 0› ( by rintro ⟨ x, hx, hx' ⟩ ; exact absurd hx' ( ne_of_gt ( x.d_pos ) ) );
       · rw [ Finset.sum_congr rfl fun x hx => by rw [ h_inter_count x ( Finset.mem_powerset.mp ( Finset.mem_filter.mp hx |>.1 ) ) ( Finset.mem_filter.mp hx |>.2 ) ] ] ; simp +decide [ Finset.sum_ite, Finset.filter_and ] ; ring_nf;
         simp +decide [ Finset.sum_mul _ _ _, mul_comm, mul_left_comm ];
-        rw [ ← Finset.sum_neg_distrib ] ; refine' Finset.sum_congr _ _ ; aesop;
+        rw [ ← Finset.sum_neg_distrib ] ; refine Finset.sum_congr ?_ ?_ ; aesop;
         intro x hx; rcases k : Finset.card x with ( _ | k ) <;> simp_all +decide [pow_succ',
           ne_of_gt] ;
 
@@ -778,7 +777,7 @@ theorem case_1b_density_lt_one (q k : ℕ) (hq : q.Prime) (hq_odd : Odd q) (hk :
         unfold density_formula;
         rw [ show ( Finset.powerset ( congruences ( 2 * q ^ k ) a ) |> Finset.filter fun I => I.Nonempty ∧ pairwise_coprime I ) = Finset.image ( fun c => { c } ) ( congruences ( 2 * q ^ k ) a ) ∪ Finset.filter ( fun I => pairwise_coprime I ∧ I.card = 2 ) ( Finset.powersetCard 2 ( congruences ( 2 * q ^ k ) a ) ) from ?_, Finset.sum_union ];
         · rw [ Finset.sum_filter ] ; norm_num [ sub_eq_add_neg ];
-          rw [ ← Finset.sum_neg_distrib ] ; refine' Finset.sum_congr rfl fun x hx => _ ; aesop;
+          rw [ ← Finset.sum_neg_distrib ] ; refine Finset.sum_congr rfl fun x hx => ?_ ; aesop;
         · norm_num [ Finset.disjoint_left ];
         · ext I; simp [Finset.mem_union, Finset.mem_image];
           constructor <;> intro hI;
@@ -802,13 +801,10 @@ theorem case_1b_density_lt_one (q k : ℕ) (hq : q.Prime) (hq_odd : Odd q) (hk :
           simp_all +decide [ pairwise_coprime ];
           grind;
         choose! c1 c2 hc1 hc2 hne hd1 hd2 hcoprime using h_pairs;
-        refine' le_trans _ ( Finset.sum_le_sum_of_subset_of_nonneg _ _ );
-        rotate_left;
-        exact Finset.image ( fun j : Finset.range k => { c1 j j.2, c2 j j.2 } ) Finset.univ;
-        · simp_all +decide [ Finset.subset_iff, Finset.mem_powersetCard ];
-          rintro x j hj rfl; exact ⟨ fun y hy => by aesop, by rw [ Finset.card_pair ( hne j hj ) ] ⟩ ;
-        · intro i hi hi'; split_ifs <;> norm_num;
-          exact Finset.prod_nonneg fun _ _ => Nat.cast_nonneg _;
+        refine le_trans ?_
+          ( Finset.sum_le_sum_of_subset_of_nonneg
+            (s := Finset.image ( fun j : Finset.range k => { c1 j j.2, c2 j j.2 } ) Finset.univ)
+            ?_ ?_ );
         · rw [ Finset.sum_image ];
           · rw [ ← Finset.sum_attach ];
             refine le_of_eq ?_;
@@ -837,10 +833,14 @@ theorem case_1b_density_lt_one (q k : ℕ) (hq : q.Prime) (hq_odd : Odd q) (hk :
               have h_exp : (j : ℕ) + 1 = (j' : ℕ) + 1 :=
                 Nat.pow_right_injective hq.one_lt hd;
               omega;
+        · simp_all +decide [ Finset.subset_iff ];
+          rintro x j hj rfl; exact ⟨ fun y hy => by aesop, by rw [ Finset.card_pair ( hne j hj ) ] ⟩ ;
+        · intro i hi hi'; split_ifs <;> norm_num;
+          exact Finset.prod_nonneg fun _ _ => Nat.cast_nonneg _;
       -- Let's calculate the sum of the reciprocals of the divisors of $2q^k$ greater than 1.
       have h_sum_reciprocals_divisors : ∑ c ∈ congruences (2 * q ^ k) a, (1 / (c.d : ℚ)) = (1 / 2 : ℚ) + ∑ j ∈ Finset.range k, (1 / (q ^ (j + 1) : ℚ)) + ∑ j ∈ Finset.range k, (1 / (2 * q ^ (j + 1) : ℚ)) := by
         have h_sum_reciprocals_divisors : ∑ c ∈ congruences (2 * q ^ k) a, (1 / (c.d : ℚ)) = ∑ d ∈ (Nat.divisors (2 * q ^ k)).filter (fun d => 1 < d), (1 / (d : ℚ)) := by
-            refine' Finset.sum_bij ( fun c hc => c.d ) _ _ _ _ <;> simp +decide [ congruences ];
+            refine Finset.sum_bij ( fun c hc => c.d ) ?_ ?_ ?_ ?_ <;> simp +decide [ congruences ];
             · bound;
             · aesop;
         rw [ h_sum_reciprocals_divisors, h_divisors, Finset.sum_union, Finset.sum_union ] <;> norm_num;
@@ -851,7 +851,7 @@ theorem case_1b_density_lt_one (q k : ℕ) (hq : q.Prime) (hq_odd : Odd q) (hk :
         · intro x hx H; have := congr_arg Even H; norm_num [ hq_odd, parity_simps ] at this;
           exact absurd this ( by simpa using hq_odd );
         · norm_num [ Finset.disjoint_right ];
-          refine' ⟨ fun x hx => hq.ne_one, fun a ha x hx => _ ⟩;
+          refine ⟨ fun x hx => hq.ne_one, fun a ha x hx => ?_ ⟩;
           intro H; have := congr_arg ( ·.factorization ( 2 : ℕ ) ) H; norm_num [ hq.ne_zero, hq.ne_one, Nat.factorization_pow ] at this;
           rw [ Nat.factorization_eq_zero_of_not_dvd ] at this <;> simp_all +decide [ ← even_iff_two_dvd, parity_simps ];
       -- Let's calculate the sum of the reciprocals of the divisors of $2q^k$ greater than 1, excluding the term $\frac{1}{2}$.
@@ -878,11 +878,11 @@ theorem case_2_sum_bound (n : ℕ) (h_ni : IsNonIntersecting n) (h_n_gt_1 : n > 
       obtain ⟨α, m, hm⟩ : ∃ α m, n = p^α * m ∧ α ≥ 2 ∧ (m.primeFactors.card ≤ p - 2) ∧ (∀ q ∈ m.primeFactors, q > p) := by
         obtain ⟨α, m, hm⟩ : ∃ α m, n = p^α * m ∧ α ≥ 2 ∧ ¬(p ∣ m) := by
           use Nat.factorization n p;
-          refine' ⟨ n / p ^ n.factorization p, Eq.symm ( Nat.mul_div_cancel' ( Nat.ordProj_dvd _ _ ) ), _, _ ⟩;
+          refine ⟨ n / p ^ n.factorization p, Eq.symm ( Nat.mul_div_cancel' ( Nat.ordProj_dvd _ _ ) ), ?_, ?_ ⟩;
           · rw [ ← Nat.factorization_le_iff_dvd ] at hp <;> aesop;
           · rw [ Nat.dvd_div_iff_mul_dvd ( Nat.ordProj_dvd _ _ ) ];
             exact Nat.pow_succ_factorization_not_dvd h_n_gt_1.ne_bot hp.1;
-        refine' ⟨ α, m, hm.1, hm.2.1, _, _ ⟩;
+        refine ⟨ α, m, hm.1, hm.2.1, ?_, ?_ ⟩;
         · -- Since $p$ is the smallest prime factor of $n$, we have $n / p = p^{\alpha - 1} * m$.
           have h_div : n / p = p^(α - 1) * m := by
             exact Nat.div_eq_of_eq_mul_left hp.1.pos ( by rw [ hm.1 ] ; rw [ ← mul_right_comm, ← pow_succ, Nat.sub_add_cancel ( by linarith ) ] );
@@ -914,7 +914,7 @@ theorem case_2_sum_bound (n : ℕ) (h_ni : IsNonIntersecting n) (h_n_gt_1 : n > 
             · rintro rfl; simp_all +singlePass;
           · exact Finset.disjoint_singleton_left.mpr fun h => by linarith [ hm.2.2.2 p h ] ;
         simpa only [ h_prod_bound_total, Finset.prod_singleton, mul_div_assoc ] using mul_le_mul_of_nonneg_left h_prod_bound ( div_nonneg ( Nat.cast_nonneg _ ) ( sub_nonneg.mpr ( Nat.one_le_cast.mpr hp.1.pos ) ) );
-      refine' lt_of_lt_of_le ( sum_divisors_reciprocal_lt_prod_geometric n h_n_gt_1 ) ( h_prod_bound_total.trans _ );
+      refine lt_of_lt_of_le ( sum_divisors_reciprocal_lt_prod_geometric n h_n_gt_1 ) ( h_prod_bound_total.trans ?_ );
       rw [ div_mul_eq_mul_div, div_div, div_le_iff₀ ] <;> nlinarith only [ show ( p : ℚ ) ≥ 2 by exact_mod_cast hp.1.two_le ]
 
 /-
@@ -923,7 +923,7 @@ The sum of reciprocals of moduli in a congruence set for $n$ is the sum of recip
 theorem sum_reciprocals_eq_sum_divisors_gt_1 (n : ℕ) (a : ℕ → ℤ) :
     sum_reciprocals (congruences n a) = sum_divisors_gt_1_reciprocal n := by
       unfold sum_reciprocals sum_divisors_gt_1_reciprocal congruences;
-      refine' Finset.sum_bij ( fun x hx => x.d ) _ _ _ _ <;> aesop
+      refine Finset.sum_bij ( fun x hx => x.d ) ?_ ?_ ?_ ?_ <;> aesop
 
 /-
 The density value of a covering set is 1.
