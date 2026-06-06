@@ -33,7 +33,6 @@ namespace Erdos476
 -- These generated proof scripts still rely on style-heavy tactic automation.
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.refine false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
 
@@ -94,7 +93,7 @@ lemma L_s_natDegree (S : Finset F) (s : F) (hs : s ∈ S) :
         simp +decide [ Polynomial.natDegree_sub_eq_left_of_natDegree_lt ];
       rw [ hL_s, Polynomial.natDegree_mul' ] <;> norm_num [ hP_S_deg ];
       · rw [ Polynomial.natDegree_divByMonic _ ( Polynomial.monic_X_sub_C s ), Polynomial.natDegree_X_sub_C, hP_S_deg ];
-      · refine' ⟨ _, _ ⟩;
+      · refine ⟨ ?_, ?_ ⟩;
         · intro h; simp_all +singlePass ;
           exact hP_S_deg.not_lt ( Finset.card_pos.mpr ⟨ s, hs ⟩ );
         · rw [ P_S_derivative_eval_eq_prod _ _ hs ];
@@ -137,13 +136,13 @@ lemma univariate_leading_coeff_identity (S : Finset F) (g : F[X]) (hS : S.Nonemp
     g.coeff (S.card - 1) = ∑ s ∈ S, g.eval s / (derivative (P_S S)).eval s := by
       -- By Lagrange interpolation, we have $g(x) = \sum_{s \in S} g(s) L_s(x)$.
       have h_interpolate : g = ∑ s ∈ S, Polynomial.C (g.eval s) * L_s S s := by
-        refine' Polynomial.eq_of_degree_sub_lt_of_eval_finset_eq _ _ _;
-        exact S;
-        · refine' lt_of_le_of_lt ( Polynomial.degree_sub_le _ _ ) ( max_lt ( lt_of_le_of_lt Polynomial.degree_le_natDegree ( WithBot.coe_lt_coe.mpr ( Nat.lt_of_le_of_lt hg ( Nat.pred_lt ( ne_bot_of_gt ( Finset.card_pos.mpr hS ) ) ) ) ) ) ( lt_of_le_of_lt ( Polynomial.degree_sum_le _ _ ) _ ) );
+        refine Polynomial.eq_of_degree_sub_lt_of_eval_finset_eq S ?_ ?_;
+        · refine lt_of_le_of_lt ( Polynomial.degree_sub_le _ _ ) ( max_lt ( lt_of_le_of_lt Polynomial.degree_le_natDegree ( WithBot.coe_lt_coe.mpr ( Nat.lt_of_le_of_lt hg ( Nat.pred_lt ( ne_bot_of_gt ( Finset.card_pos.mpr hS ) ) ) ) ) ) ( lt_of_le_of_lt ( Polynomial.degree_sum_le _ _ ) ?_ ) );
           erw [ Finset.sup_lt_iff ];
           · intro s hs;
-            refine' lt_of_le_of_lt ( Polynomial.degree_mul_le _ _ ) _;
-            refine' lt_of_le_of_lt ( add_le_add ( Polynomial.degree_C_le ) ( Polynomial.degree_le_of_natDegree_le ( L_s_natDegree S s hs |> le_of_eq ) ) ) _ ; aesop;
+            refine lt_of_le_of_lt ( Polynomial.degree_mul_le _ _ ) ?_;
+            refine lt_of_le_of_lt ( add_le_add ( Polynomial.degree_C_le ) ( Polynomial.degree_le_of_natDegree_le ( L_s_natDegree S s hs |> le_of_eq ) ) ) ?_
+            aesop;
           · exact WithBot.bot_lt_coe _;
         · intro s hs; simp +decide [ Polynomial.eval_finset_sum ] ;
           rw [ Finset.sum_eq_single s ];
@@ -207,8 +206,8 @@ lemma two_variable_functional_eq_coeff (S T : Finset F) (f : MvPolynomial (Fin 2
             contrapose! hne;
             ext i; fin_cases i <;> norm_num <;> omega;
           contrapose! hf;
-          refine' lt_of_lt_of_le h_deg _;
-          refine' le_trans _ ( Finset.le_sup hm );
+          refine lt_of_lt_of_le h_deg ?_;
+          refine le_trans ?_ ( Finset.le_sup hm );
           simp +decide [ Finsupp.sum_fintype ];
       · aesop
 
@@ -320,7 +319,7 @@ lemma prod_linear_factors_degree_sub_leading {p : ℕ} (S : Finset (ZMod p)) :
             intro a ha; rw [ Finset.inter_eq_left.mpr ha ] ; rw [ Finset.prod_congr rfl fun x hx => neg_eq_neg_one_mul _, Finset.prod_mul_distrib ] ; aesop;
         rw [ h_expand, Finset.sum_powerset ];
         rw [ ← Finset.sum_flip ];
-        refine' Finset.sum_congr rfl fun k hk => _;
+        refine Finset.sum_congr rfl fun k hk => ?_;
         rw [ Finset.sum_congr rfl fun x hx => by rw [ Finset.mem_powersetCard.mp hx |>.2 ] ] ; norm_num [ mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _ ];
         rw [ Nat.sub_sub_self ( Finset.mem_range_succ_iff.mp hk ) ];
       -- Let's simplify the expression for the total degree.
@@ -328,11 +327,11 @@ lemma prod_linear_factors_degree_sub_leading {p : ℕ} (S : Finset (ZMod p)) :
         -- Each term in the sum has total degree at most $S.card - 1$.
         have h_term_deg : ∀ k ∈ Finset.range S.card, ((MvPolynomial.X 0 + MvPolynomial.X 1) ^ k * MvPolynomial.C (∑ T ∈ Finset.powersetCard (S.card - k) S, (-1) ^ (S.card - k) * ∏ c ∈ T, c)).totalDegree ≤ S.card - 1 := by
           intro k hk;
-          refine' le_trans ( MvPolynomial.totalDegree_mul _ _ ) _;
-          refine' le_trans ( add_le_add ( MvPolynomial.totalDegree_pow _ _ ) ( MvPolynomial.totalDegree_C _ |> le_of_eq ) ) _;
+          refine le_trans ( MvPolynomial.totalDegree_mul _ _ ) ?_;
+          refine le_trans ( add_le_add ( MvPolynomial.totalDegree_pow _ _ ) ( MvPolynomial.totalDegree_C _ |> le_of_eq ) ) ?_;
           simp +zetaDelta at *;
-          refine' le_trans ( Nat.mul_le_mul_right _ ( Nat.le_sub_one_of_lt hk ) ) _;
-          refine' mul_le_of_le_one_right ( Nat.zero_le _ ) _;
+          refine le_trans ( Nat.mul_le_mul_right _ ( Nat.le_sub_one_of_lt hk ) ) ?_;
+          refine mul_le_of_le_one_right ( Nat.zero_le _ ) ?_;
           norm_num [ MvPolynomial.totalDegree ];
           intro b hb; rw [ MvPolynomial.coeff_X', MvPolynomial.coeff_X' ] at hb; aesop;
         exact totalDegree_finsetSum_le h_term_deg;
@@ -382,9 +381,9 @@ lemma F_poly_coeff {p : ℕ} (C : Finset (ZMod p)) (n : ℕ) (hC : C.card = 2 * 
           -- The total degree of a polynomial is invariant under the choice of variables.
           have h_total_degree_invariant : ∀ (p : MvPolynomial (Fin 2) (ZMod p)), MvPolynomial.totalDegree p = MvPolynomial.totalDegree (MvPolynomial.rename (fun i => if i = 0 then 0 else 1) p) := by
             intro p; exact (by
-            refine' le_antisymm _ _;
+            refine le_antisymm ?_ ?_;
             · simp +decide [ MvPolynomial.totalDegree ];
-              intro b hb; refine' le_trans _ ( Finset.le_sup <| show ( Finsupp.mapDomain ( fun i => if i = 0 then 0 else 1 ) b ) ∈ ( MvPolynomial.rename ( fun i => if i = 0 then 0 else 1 ) p |> MvPolynomial.support ) from _ ) ; simp +decide [ Finsupp.sum_mapDomain_index ] ;
+              intro b hb; refine le_trans ?_ ( Finset.le_sup <| show ( Finsupp.mapDomain ( fun i => if i = 0 then 0 else 1 ) b ) ∈ ( MvPolynomial.rename ( fun i => if i = 0 then 0 else 1 ) p |> MvPolynomial.support ) from ?_ ) ; simp +decide [ Finsupp.sum_mapDomain_index ] ;
               simp +decide [ MvPolynomial.rename, Finsupp.mapDomain ];
               erw [ MvPolynomial.aeval_def ];
               erw [ MvPolynomial.eval₂_eq' ];
@@ -400,8 +399,8 @@ lemma F_poly_coeff {p : ℕ} (C : Finset (ZMod p)) (n : ℕ) (hC : C.card = 2 * 
         rw [ MvPolynomial.coeff_eq_zero_of_totalDegree_lt ];
         -- The total degree of $(x-y)g(x,y)$ is at most $1 + (2n-5) = 2n-4$.
         have h_total_deg : ((MvPolynomial.X 0 - MvPolynomial.X 1) * (∏ c ∈ C, (MvPolynomial.X 0 + MvPolynomial.X 1 - MvPolynomial.C c) - (MvPolynomial.X 0 + MvPolynomial.X 1) ^ C.card) : MvPolynomial (Fin 2) (ZMod p)).totalDegree ≤ 1 + (C.card - 1) := by
-          refine' le_trans ( MvPolynomial.totalDegree_mul _ _ ) _;
-          refine' add_le_add _ h_deg;
+          refine le_trans ( MvPolynomial.totalDegree_mul _ _ ) ?_;
+          refine add_le_add ?_ h_deg;
           norm_num [ MvPolynomial.totalDegree ];
           intro b hb; rw [ MvPolynomial.coeff_X', MvPolynomial.coeff_X' ] at hb; aesop;
         rcases n with ( _ | _ | _ | n ) <;> simp_all +arith +decide;
@@ -478,8 +477,8 @@ theorem erdos_heilbronn_small (p : ℕ) [Fact p.Prime] (A : Finset (ZMod p))
           exact Finset.card_pos.mp ( by rw [ Finset.card_erase_of_mem ha₀, k ] ; simp +arith +decide );
         · -- The total degree of $F$ is $1 + |C| = 1 + (2n-4) = 2n-3$.
           have h_deg_F : (F_poly C).totalDegree ≤ 1 + C.card := by
-            refine' le_trans ( MvPolynomial.totalDegree_mul _ _ ) _;
-            refine' add_le_add _ _;
+            refine le_trans ( MvPolynomial.totalDegree_mul _ _ ) ?_;
+            refine add_le_add ?_ ?_;
             · norm_num [ MvPolynomial.totalDegree ];
               intro b hb; rw [ MvPolynomial.coeff_X', MvPolynomial.coeff_X' ] at hb; aesop;
             · -- The total degree of a product of polynomials is the sum of their total degrees.
@@ -489,8 +488,8 @@ theorem erdos_heilbronn_small (p : ℕ) [Fact p.Prime] (A : Finset (ZMod p))
                 | empty => norm_num;
                 | insert c S' hc ih =>
                   rw [ Finset.prod_insert hc ];
-                  refine' le_trans ( MvPolynomial.totalDegree_mul _ _ ) _;
-                  refine' le_trans ( add_le_add ( MvPolynomial.totalDegree_sub _ _ ) ih ) _;
+                  refine le_trans ( MvPolynomial.totalDegree_mul _ _ ) ?_;
+                  refine le_trans ( add_le_add ( MvPolynomial.totalDegree_sub _ _ ) ih ) ?_;
                   simp +decide [ Finset.card_insert_of_notMem hc ];
                   rw [ add_comm ];
                   norm_num [ MvPolynomial.totalDegree ];
