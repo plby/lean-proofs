@@ -30,7 +30,6 @@ namespace Erdos844
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 
 /-!
 # Erdős Problem 844: The Erdős–Sárközy Problem
@@ -261,11 +260,11 @@ lemma min_weight_shiftN (N : ℕ)
   -- By minimality, H cannot be intersecting.
   have hH_not_int : ¬∀ X ∈ H, ∀ Y ∈ H, (X ∩ Y).Nonempty := by
     contrapose! hG_min;
-    refine' ⟨ H, _, hH_card, hG_min, _ ⟩;
+    refine ⟨ H, ?_, hH_card, hG_min, ?_ ⟩;
     · intro Y hy; simp_all +decide [ Finset.subset_iff ] ;
       rcases hy with ( ⟨ hy₁, hy₂ ⟩ | ⟨ a, ⟨ ha₁, ha₂, ha₃, ha₄ ⟩, rfl ⟩ );
       · exact hG_sub hy₁;
-      · refine' hF_hered _ ( hG_sub ha₁ ) _ _ _;
+      · refine hF_hered a ( hG_sub ha₁ ) (insert k (a.erase N)) ?_ ?_;
         · simp +zetaDelta at *;
           exact ⟨ ⟨ hk1, hkN.le ⟩, fun x hx₁ hx₂ => hF_sub _ ( hG_sub ha₁ ) hx₂ ⟩;
         · use fun x => if x = k then N else x;
@@ -313,7 +312,7 @@ private lemma F_nonsc_hered (N : ℕ)
     (X : Finset ℕ) (hXF : X ∈ F) (hXsc : Finset.Icc 1 N \ X ∉ F)
     (Y : Finset ℕ) (hYsub : Y ⊆ Finset.Icc 1 N) (hYX : Dominated Y X) :
     Y ∈ F ∧ Finset.Icc 1 N \ Y ∉ F := by
-  refine' ⟨ hF_hered X hXF Y hYsub hYX, _ ⟩;
+  refine ⟨ hF_hered X hXF Y hYsub hYX, ?_ ⟩;
   contrapose! hXsc;
   convert hF_hered _ hXsc _ _ _;
   · exact sdiff_subset
@@ -331,21 +330,18 @@ private lemma compl_pair_bound (N : ℕ) (hN : 2 ≤ N)
     (hG_int : ∀ X ∈ G, ∀ Y ∈ G, (X ∩ Y).Nonempty) :
     (G.filter (fun X => Finset.Icc 1 N \ X ∈ F)).card ≤
     (F.filter (fun X => (1 : ℕ) ∈ X ∧ Finset.Icc 1 N \ X ∈ F)).card := by
-  refine' le_trans _ ( Finset.card_le_card _ );
   nontriviality;
-  convert Finset.card_le_card_of_injOn _ _ _;
-  use fun X => if 1 ∈ X then X else Icc 1 N \ X;
-  rotate_left;
-  intro X hX Y hy hxy;
-  grind;
-  exact Finset.coe_subset.mp fun ⦃a⦄ a_1 ↦ a_1
-  intro X hX;
-  by_cases h1 : 1 ∈ X <;> simp_all +decide;
-  · exact hG_sub hX.1;
-  · have h := hF_sub _ (hG_sub hX.1)
-    exact ⟨by linarith,
-      by simpa [Finset.inter_eq_right.mpr h]
-        using hG_sub hX.1⟩
+  refine Finset.card_le_card_of_injOn
+    (fun X => if 1 ∈ X then X else Icc 1 N \ X) ?_ ?_;
+  · intro X hX;
+    by_cases h1 : 1 ∈ X <;> simp_all +decide;
+    · exact hG_sub hX.1;
+    · have h := hF_sub _ (hG_sub hX.1)
+      exact ⟨by linarith,
+        by simpa [Finset.inter_eq_right.mpr h]
+          using hG_sub hX.1⟩
+  · intro X hX Y hy hxy;
+    grind;
 
 /-
 Non-self-complementary elements containing N have intersecting link
@@ -374,7 +370,7 @@ private lemma nonsc_link_int (N : ℕ)
         aesop;
       exact False.elim <| hYsc <| hF_hered _ ( hG_sub hZ ) _ ( by aesop ) h_compl;
     · grind +qlia;
-  refine' ⟨ Y, hY, hYN, k, _, _, _, _ ⟩ <;> simp_all +decide [ Finset.ext_iff ];
+  refine ⟨ Y, hY, hYN, k, ?_, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ Finset.ext_iff ];
   · grind;
   · grind +splitIndPred
 
@@ -462,7 +458,7 @@ private lemma chvatal_case_B (N : ℕ) (hN : 2 ≤ N)
       (F.filter (fun X =>
         X ⊆ Icc 1 (N - 1) ∧ Icc 1 N \ X ∉ F))
       _ _ G'_0 _ _ using 1;
-    · refine' Finset.card_bij ( fun x hx => x ) _ _ _ <;> simp +contextual;
+    · refine Finset.card_bij ( fun x hx => x ) ?_ ?_ ?_ <;> simp +contextual;
       · grind;
       · grind;
     · grind +qlia;
@@ -513,7 +509,7 @@ private lemma chvatal_case_B (N : ℕ) (hN : 2 ≤ N)
         obtain ⟨ f, hf₁, hf₂, hf₃ ⟩ := hY_dom;
         use fun x => if x = N then N else f x;
         simp +zetaDelta at *;
-        refine' ⟨ _, _, _ ⟩;
+        refine ⟨ ?_, ?_, ?_ ⟩;
         · intro x hx y hy; simp +decide [ Set.InjOn ] at *;
           grind;
         · grind;
@@ -569,7 +565,7 @@ private lemma chvatal_case_B (N : ℕ) (hN : 2 ≤ N)
     · rw [ Finset.card_image_of_injOn ];
       intro X hX Y hy hXY; simp_all +decide [ Finset.ext_iff ] ;
       grind;
-    · refine' Finset.card_bij ( fun X hX => X.erase N ) _ _ _ <;> simp +contextual [ hK_def ];
+    · refine Finset.card_bij ( fun X hX => X.erase N ) ?_ ?_ ?_ <;> simp +contextual [ hK_def ];
       · grind +locals;
       · simp +contextual [ Finset.ext_iff ];
         grind;
@@ -654,7 +650,7 @@ theorem chvatal_theorem_ground_set (N : ℕ) (hN : 0 < N)
           rintro X x hx hxN rfl Y hy hY;
           use Insert.insert N Y;
           simp +zetaDelta at *;
-          refine' ⟨ hF_hered _ hx _ _ _, _ ⟩;
+          refine ⟨ hF_hered x hx (insert N Y) ?_ ?_, ?_ ⟩;
           · exact Finset.insert_subset_iff.mpr
               ⟨Finset.mem_Icc.mpr ⟨hN, le_rfl⟩,
                 hy.trans
@@ -734,7 +730,7 @@ private lemma rankFun_strictMonoOn (S : Finset ℕ) :
 
 private lemma rankFun_image (S : Finset ℕ) :
     S.image (rankFun S) = Finset.Icc 1 S.card := by
-  refine' Finset.eq_of_subset_of_card_le _ _;
+  refine Finset.eq_of_subset_of_card_le ?_ ?_;
   · exact Finset.image_subset_iff.mpr fun x hx => rankFun_mem_Icc hx;
   · rw [ Finset.card_image_of_injOn ];
     · norm_num;
@@ -792,7 +788,7 @@ private lemma dominated_image_rankFun {S Y X : Finset ℕ} (hY : Y ⊆ S) (hX : 
     Dominated (Y.image (rankFun S)) (X.image (rankFun S)) := by
   rcases h with ⟨f, hf⟩;
   use fun k => rankFun S ( f ( unrankFun S k ) );
-  refine' ⟨ _, _, _ ⟩;
+  refine ⟨ ?_, ?_, ?_ ⟩;
   · intro k hk l hl hkl;
     obtain ⟨y, hyY, rfl⟩ := Finset.mem_image.mp hk
     obtain ⟨z, hzY, rfl⟩ := Finset.mem_image.mp hl
@@ -817,8 +813,8 @@ private lemma dominated_image_unrankFun {S : Finset ℕ} {Y' X' : Finset ℕ}
     (h : Dominated Y' X') :
     Dominated (Y'.image (unrankFun S)) (X'.image (unrankFun S)) := by
   obtain ⟨ f, hf₁, hf₂, hf₃ ⟩ := h;
-  refine' ⟨fun x =>
-    unrankFun S (f (rankFun S x)), _, _, _⟩ <;>
+  refine ⟨fun x =>
+    unrankFun S (f (rankFun S x)), ?_, ?_, ?_⟩ <;>
     simp_all +decide [Set.InjOn];
   · intro x hx y hy hxy
     have h_eq : f (rankFun S (unrankFun S x)) = f (rankFun S (unrankFun S y)) := by
@@ -1083,7 +1079,7 @@ lemma primes_Icc_nonempty {N : ℕ} (hN : 2 ≤ N) :
 
 lemma min_primes_Icc_eq_two {N : ℕ} (hN : 2 ≤ N) :
     ((Finset.Icc 1 N).filter Nat.Prime).min' (primes_Icc_nonempty hN) = 2 := by
-  refine' le_antisymm _ _ <;> norm_num [ Finset.min' ];
+  refine le_antisymm ?_ ?_ <;> norm_num [ Finset.min' ];
   · exact ⟨ 2, ⟨ ⟨ by norm_num, hN ⟩, by norm_num ⟩, by norm_num ⟩;
   · exact fun b hb₁ hb₂ hb₃ => hb₃.two_le
 
@@ -1119,10 +1115,10 @@ lemma hereditary_squarefree_primeFactors (N : ℕ) :
   use ∏ p ∈ Y, p;
   have hprime : ∀ p, p ∈ Y → Nat.Prime p :=
     fun p hp => (Finset.mem_filter.mp (hy₁ hp)).2
-  refine' ⟨⟨⟨one_le_prod_primes hprime, _⟩,
-    squarefree_prod_primes hprime⟩, _⟩;
+  refine ⟨⟨⟨one_le_prod_primes hprime, ?_⟩,
+    squarefree_prod_primes hprime⟩, ?_⟩;
   · obtain ⟨ f, hf₁, hf₂, hf₃ ⟩ := hy₂;
-    refine' le_trans _ ( show ∏ p ∈ Finset.image f Y, p ≤ N from _ );
+    refine le_trans ?_ ( show ∏ p ∈ Finset.image f Y, p ≤ N from ?_ );
     · rw [ Finset.prod_image <| by tauto ];
       exact Finset.prod_le_prod' hf₃;
     · have h_prod_le_N : ∏ p ∈ X, p ≤ N := by
@@ -1173,7 +1169,7 @@ theorem chvatal_squarefree (N : ℕ) (B : Finset ℕ)
           (Finset.mem_filter.mp (hB hx) |>.2)
           (Finset.mem_filter.mp (hB hy) |>.2) hxy;
     · rw [ show S.min' ( primes_Icc_nonempty hN ) = 2 from min_primes_Icc_eq_two hN ];
-      refine' Finset.card_bij ( fun x hx => Nat.primeFactors x ) _ _ _;
+      refine Finset.card_bij ( fun x hx => Nat.primeFactors x ) ?_ ?_ ?_;
       · simp +zetaDelta at *;
         exact fun a ha₁ ha₂ ha₃ ha₄ =>
           ⟨⟨a, ⟨⟨ha₁, ha₂⟩, ha₃⟩, rfl⟩,
