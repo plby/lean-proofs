@@ -20,7 +20,6 @@ namespace Erdos775
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.refine false
 set_option linter.style.multiGoal false
 
 /-!
@@ -289,7 +288,7 @@ theorem first_block_layered {t k C : ℕ} (T : OrderedRootedTree t)
       ( by simp )
     grind⟩
   generalize_proofs at *
-  refine' ⟨ T', ⟨ _, _ ⟩ ⟩ <;> intro i <;> simp_all +decide [ IsKCLayeredTree ]
+  refine ⟨ T', ⟨ ?_, ?_ ⟩ ⟩ <;> intro i <;> simp_all +decide [ IsKCLayeredTree ]
   · have h_depth_T' : ∀ i : Fin (c₂ - 2 + 1), T'.depth i + 1 ≤ T.depth ⟨i.val + 1, by
       grind⟩ := by
       intro i
@@ -320,27 +319,27 @@ theorem first_block_layered {t k C : ℕ} (T : OrderedRootedTree t)
       h_depth_T' i,
       hT.1 ⟨ i + 1, by
         linarith [ Fin.is_lt i, Nat.sub_add_cancel ( by linarith : 2 ≤ c₂ ) ] ⟩ ]
-  · refine' le_trans _
+  · refine le_trans ?_
       ( pow_le_pow_right₀ ( by decide )
         ( show C + 1 + ( i : ℕ ) ≥ C + ( i + 1 : ℕ ) by linarith ) )
-    refine' le_trans _
+    refine le_trans ?_
       ( hT.2 ⟨ i + 1, by
         linarith [ Fin.is_lt i, Nat.sub_add_cancel ( by linarith : 2 ≤ c₂ ) ] ⟩ )
-    refine' add_le_add _ _
-    · refine' le_trans _ ( Finset.card_mono _ )
-      rotate_left
-      exact Finset.image
-        ( fun j : Fin ( c₂ - 2 + 1 ) =>
-          ⟨ j + 1, by
-            linarith [ Fin.is_lt j, Nat.sub_add_cancel ( by linarith : 2 ≤ c₂ ) ] ⟩ )
-        ( Finset.filter ( fun j : Fin ( c₂ - 2 + 1 ) =>
-          T'.parent j = i ∧ j ≠ i ) Finset.univ )
-      · simp +decide [ Finset.subset_iff ]
-        grind
+    refine add_le_add ?_ ?_
+    · refine le_trans
+        (b := (Finset.image
+          ( fun j : Fin ( c₂ - 2 + 1 ) =>
+            ⟨ j + 1, by
+              linarith [ Fin.is_lt j, Nat.sub_add_cancel ( by linarith : 2 ≤ c₂ ) ] ⟩ )
+          ( Finset.filter ( fun j : Fin ( c₂ - 2 + 1 ) =>
+            T'.parent j = i ∧ j ≠ i ) Finset.univ )).card)
+        ?_ ( Finset.card_mono ?_ )
       · rw [
           Finset.card_image_of_injective _ fun x y hxy => by
             simpa [ Fin.ext_iff ] using hxy ]
         aesop
+      · simp +decide [ Finset.subset_iff ]
+        grind
     · grind
 
 end
@@ -628,25 +627,25 @@ lemma contractionTree_degree_nonroot (k C : ℕ) (hT : IsKCLayeredTree (k + 1) C
     all_goals generalize_proofs at *
     unfold OrderedRootedTree.degree contractionTree
     split_ifs <;> simp_all +decide
-    · refine' le_trans _ ( Finset.card_mono _ )
-      rotate_left
-      exact Finset.image
-        ( fun j => ( keptVertices T ).orderEmbOfFin ‹_› j )
-        ( Finset.filter
-          ( fun j =>
-            ( if h :
-                T.parent ( ( keptVertices T ).orderEmbOfFin ‹_› j ) ∈ keptVertices T
-              then
-                ( keptVertices T ).orderIsoOfFin ‹_› |>.symm
-                  ⟨ T.parent ( ( keptVertices T ).orderEmbOfFin ‹_› j ), h ⟩
-              else
-                0 ) = i ∧ ¬j = i )
-          ( Finset.univ :
-            Finset ( Fin ( t - T.numChildren ⟨ 0, Nat.zero_lt_succ t ⟩ + 1 ) ) ) )
-      · intro j hj
-        grind +suggestions
+    · refine le_trans
+        (b := (Finset.image
+          ( fun j => ( keptVertices T ).orderEmbOfFin ‹_› j )
+          ( Finset.filter
+            ( fun j =>
+              ( if h :
+                  T.parent ( ( keptVertices T ).orderEmbOfFin ‹_› j ) ∈ keptVertices T
+                then
+                  ( keptVertices T ).orderIsoOfFin ‹_› |>.symm
+                    ⟨ T.parent ( ( keptVertices T ).orderEmbOfFin ‹_› j ), h ⟩
+                else
+                  0 ) = i ∧ ¬j = i )
+            ( Finset.univ :
+              Finset ( Fin ( t - T.numChildren ⟨ 0, Nat.zero_lt_succ t ⟩ + 1 ) ) ) )).card)
+        ?_ ( Finset.card_mono ?_ )
       · rw [ Finset.card_image_of_injective _ fun x y hxy => by simpa [ Fin.ext_iff ] using hxy ]
         exact le_rfl
+      · intro j hj
+        grind +suggestions
     · convert phi_zero_eq_root T hm using 1
       grind +suggestions
   generalize_proofs at *
@@ -666,11 +665,12 @@ lemma contractionTree_degree_nonroot (k C : ℕ) (hT : IsKCLayeredTree (k + 1) C
                 j.val ≠ 0 ∧ (T.parent j).val = 0)
             (Finset.univ : Finset (Fin (t + 1)))) ≤
           T.numChildren ⟨0, Nat.zero_lt_succ t⟩ := by
-      refine' le_trans ( Finset.card_le_card _ ) _
-      exact Finset.filter
-        ( fun j => T.parent j = ⟨ 0, Nat.zero_lt_succ t ⟩ ∧
-          j ≠ ⟨ 0, Nat.zero_lt_succ t ⟩ )
-        Finset.univ
+      refine le_trans
+        (b := (Finset.filter
+          ( fun j => T.parent j = ⟨ 0, Nat.zero_lt_succ t ⟩ ∧
+            j ≠ ⟨ 0, Nat.zero_lt_succ t ⟩ )
+          Finset.univ).card)
+        ( Finset.card_le_card ?_ ) ?_
       · grind
       · exact Finset.card_le_card fun x hx => by aesop
     generalize_proofs at *
@@ -706,14 +706,16 @@ lemma contractionTree_degree_nonroot (k C : ℕ) (hT : IsKCLayeredTree (k + 1) C
               ( fun j : Fin ( t - T.numChildren ⟨ 0, Nat.zero_lt_succ t ⟩ + 1 ) =>
                 ( keptVertices T ).orderIsoOfFin ‹_› j )
               ( Finset.Iic i ) from ?_ ]
-      · refine' le_trans ( Finset.card_le_card _ ) _
-        exact Finset.image
-          ( fun j : Fin ( t - T.numChildren ⟨ 0, Nat.zero_lt_succ t ⟩ + 1 ) =>
-            ( keptVertices T ).orderIsoOfFin ‹_› j )
-          ( Finset.Iic i )
-        · simp +decide [ Finset.subset_iff ]
-          exact fun x j hj hx => ⟨ j, hj, hx.symm ⟩
-        · exact Finset.card_image_le.trans (by rw [Fin.card_Iic])
+      · change (((Finset.image
+          (fun j : Fin ( t - T.numChildren ⟨ 0, Nat.zero_lt_succ t ⟩ + 1 ) =>
+            (keptVertices T).orderIsoOfFin ‹_› j)
+          (Finset.Iic i)) >>= fun a => pure (a : Fin (t + 1))).card ≤ i.val + 1)
+        simp only [Finset.bind_def, Finset.pure_def, Finset.sup_singleton_apply]
+        letI : DecidableEq (Fin (t + 1)) := Classical.decEq _
+        refine Finset.card_image_le.trans ?_
+        letI : DecidableEq (Fin (t + 1)) := instDecidableEqFin (t + 1)
+        refine Finset.card_image_le.trans ?_
+        rw [Fin.card_Iic]
       · ext x
         simp
         let φ := (keptVertices T).orderIsoOfFin ‹_›
@@ -857,16 +859,16 @@ lemma prefixSubtree_layered (T : OrderedRootedTree t) {k C : ℕ}
     have h_deg_le : (prefixSubtree T s hs).degree i ≤ T.degree ⟨i.val, by omega⟩ := by
       unfold OrderedRootedTree.degree
       simp +decide [ OrderedRootedTree.numChildren ]
-      refine' le_trans _ ( Finset.card_le_card _ )
-      rotate_left
-      exact Finset.image
-        ( fun j : Fin ( s + 1 ) => ⟨ j, by linarith [ Fin.is_lt j ] ⟩ )
-        ( Finset.filter
-          ( fun j : Fin ( s + 1 ) => ( prefixSubtree T s hs ).parent j = i ∧ ¬j = i )
-          Finset.univ )
+      refine le_trans
+        (b := (Finset.image
+          ( fun j : Fin ( s + 1 ) => ⟨ j, by linarith [ Fin.is_lt j ] ⟩ )
+          ( Finset.filter
+            ( fun j : Fin ( s + 1 ) => ( prefixSubtree T s hs ).parent j = i ∧ ¬j = i )
+            Finset.univ )).card)
+        ?_ ( Finset.card_le_card ?_ )
+      · rw [ Finset.card_image_of_injective _ fun x y hxy => by simpa [ Fin.ext_iff ] using hxy ]
       · simp +decide [ Finset.subset_iff ]
         rintro x j hj₁ hj₂ rfl; simp_all +decide [ Fin.ext_iff, prefixSubtree ]
-      · rw [ Finset.card_image_of_injective _ fun x y hxy => by simpa [ Fin.ext_iff ] using hxy ]
     exact le_trans h_deg_le ( hT.2 _ ) ⟩
 
 /-! ## Root Children -/
@@ -902,7 +904,7 @@ lemma card_children_of_rootChildren (T : OrderedRootedTree t) :
   exact fun x => ∑ i ∈ Finset.univ, if T.parent i = x ∧ i ≠ x then 1 else 0
   · rw [ ← Finset.sum_product' ]
     simp +zetaDelta at *
-    refine' Finset.card_bij ( fun x hx => x.2 ) _ _ _ <;> aesop
+    refine Finset.card_bij ( fun x hx => x.2 ) ?_ ?_ ?_ <;> aesop
   · unfold OrderedRootedTree.numChildren; aesop
 
 /-
@@ -1055,14 +1057,14 @@ lemma prefix_contraction_layered {k C : ℕ}
             ( prefixSubtree T s hs ) ( prefixSubtree_layered T hT s hs ) ( by omega )
           |> le_trans <| ?_
       refine le_trans hS ?_
-      refine' le_trans _
+      refine le_trans ?_
         ( Nat.pow_le_pow_right ( by decide )
-          ( show 2 ^ C + C + S + i.val ≥ S + 1 from _ ) )
+          ( show 2 ^ C + C + S + i.val ≥ S + 1 from by
+            nlinarith [ Nat.one_le_pow C 2 zero_lt_two ] ) )
       · exact le_trans ( Nat.le_succ _ )
           ( Nat.recOn S ( by norm_num ) fun n ihn => by
             norm_num [ Nat.pow_succ' ] at *
             linarith )
-      · linarith [ Nat.one_le_pow C 2 zero_lt_two ]
     · refine le_trans
         ( contractionTree_degree_nonroot
           ( prefixSubtree T s hs ) k C ?_ hm_pref i ( Nat.pos_of_ne_zero hi ) ) ?_
@@ -1077,7 +1079,7 @@ lemma prefix_rootChildren_sum_eq (T : OrderedRootedTree t) (s : ℕ) (hs : s ≤
     ∑ x ∈ rootChildrenFinset (prefixSubtree T s hs), f x.val =
     ∑ x ∈ (rootChildrenFinset T).filter (fun x => x.val ≤ s), f x.val := by
   unfold rootChildrenFinset
-  refine' Finset.sum_bij ( fun x hx => ⟨ x, by omega ⟩ ) _ _ _ _ <;> simp_all +decide
+  refine Finset.sum_bij ( fun x hx => ⟨ x, by omega ⟩ ) ?_ ?_ ?_ ?_ <;> simp_all +decide
   · intro a ha ha'; have := congr_arg Fin.val ha; simp_all +decide [ prefixSubtree ]
     exact Nat.le_of_lt_succ a.2
   · exact fun a₁ ha₁ ha₂ a₂ ha₃ ha₄ h => Fin.ext h
@@ -1089,7 +1091,7 @@ Root children of the prefix have count = root children of T with index ≤ s.
 lemma prefix_numChildren_root_eq (T : OrderedRootedTree t) (s : ℕ) (hs : s ≤ t) :
     (prefixSubtree T s hs).numChildren ⟨0, Nat.zero_lt_succ s⟩ =
     ((rootChildrenFinset T).filter (fun x => x.val ≤ s)).card := by
-  refine' Finset.card_bij _ _ _ _
+  refine Finset.card_bij ?_ ?_ ?_ ?_
   use fun a ha => ⟨ a.val, by linarith [ Fin.is_lt a ] ⟩
   · simp +contextual [ prefixSubtree, rootChildrenFinset ]
     exact fun a ha₁ ha₂ => Nat.le_of_lt_succ a.2
@@ -1250,7 +1252,7 @@ theorem sum_rootChildren_le_iterBound {k C : ℕ}
 Monotonicity of iterBoundFn.
 -/
 lemma iterBoundFn_mono (C : ℕ) (boundK : ℕ → ℕ) : Monotone (iterBoundFn C boundK) := by
-  refine' monotone_nat_of_le_succ _
+  refine monotone_nat_of_le_succ ?_
   exact fun n => Nat.le_add_right _ _
 
 /-! ## Final bound -/
@@ -1304,11 +1306,14 @@ lemma root_children_le {k C t : ℕ} (T : OrderedRootedTree t)
 /-- The number of root children is at most t. -/
 lemma root_children_le_t {t : ℕ} (T : OrderedRootedTree t) :
     T.numChildren ⟨0, Nat.zero_lt_succ t⟩ ≤ t := by
-  refine' le_trans _ (Nat.le_of_lt_succ _)
-  convert Finset.card_le_card _
-  exact Finset.univ.erase ⟨0, Nat.zero_lt_succ t⟩
-  · grind +revert
-  · simp +arith +decide
+  refine le_trans
+    (b := (Finset.univ.erase ⟨0, Nat.zero_lt_succ t⟩ : Finset (Fin (t + 1))).card)
+    ?_ ?_
+  · unfold OrderedRootedTree.numChildren
+    refine Finset.card_le_card ?_
+    intro x hx
+    simp_all +decide
+  · simp
 
 /-- **Full contraction lemma**: Given a (k+1, C)-layered tree T on t+1
     vertices, there exists a (k, C')-layered tree on t - m + 1 vertices
@@ -1396,7 +1401,7 @@ theorem helly_complete {k : ℕ} (H : KUniformHypergraph α k)
     intro i
     by_contra h_contra_i
     push Not at h_contra_i
-    refine' h_contra ( h i _ _ _ )
+    refine h_contra ( h i e ?_ ?_ )
     · intro x hx; specialize h_contra_i x hx; aesop
     · exact hek
   choose f hf using h_exists_x
@@ -2013,8 +2018,8 @@ lemma clSetA_iterate_mono {n : ℕ} (X : ℕ → Finset (Fin n)) (v : ℕ)
   induction h
   · grind
   · rename_i k hk₁ hk₂
-    refine' Finset.Subset.trans
-      ( hk₂ fun m hm₁ hm₂ => h_pos m hm₁ ( Nat.lt_succ_of_lt hm₂ ) ) _
+    refine Finset.Subset.trans
+      ( hk₂ fun m hm₁ hm₂ => h_pos m hm₁ ( Nat.lt_succ_of_lt hm₂ ) ) ?_
     convert clSetA_mono_parent X ( ( clParent X ) ^[ k ] v )
       ( h_pos k hk₁ ( Nat.lt_succ_self k ) ) using 1
     rw [ Function.iterate_succ_apply' ]
@@ -2109,7 +2114,7 @@ lemma a_in_ancestor_clique {n : ℕ} (X : ℕ → Finset (Fin n))
                 le_trans ( clParent_le _ _ ) ( ih ( Nat.le_of_succ_le hj₂ ) )
           exact h_iterate_pos _ ( by omega ) ( by omega )
         exact lt_of_lt_of_le ( hm_pos.resolve_left hm ) h_iterate_pos
-    refine' Finset.mem_of_subset ( clSetA_sub_X _ _ ) ( h_clSetA_iterate_mono _ )
+    refine Finset.mem_of_subset ( clSetA_sub_X _ _ ) ( h_clSetA_iterate_mono ?_ )
     rw [ clSetB_pos ] at ha_B
     · exact Finset.mem_sdiff.mp ha_B |>.1
     · assumption
@@ -2136,7 +2141,7 @@ lemma partition_contradiction {n : ℕ} (X : ℕ → Finset (Fin n)) (v : ℕ)
     by_contra h_contra; push Not at h_contra; (
     -- The iterated parent chain is strictly decreasing while nonzero.
     have h_seq_decreasing : StrictAnti (fun m => (clParent X)^[m] v) := by
-      refine' strictAnti_nat_of_succ_lt fun m => _
+      refine strictAnti_nat_of_succ_lt fun m => ?_
       simpa only [ Function.iterate_succ_apply' ] using
         clParent_lt X _ ( Nat.pos_of_ne_zero ( h_contra m ) )
     exact absurd ( Set.infinite_range_of_injective h_seq_decreasing.injective )
@@ -2459,7 +2464,7 @@ lemma depth_bound_pigeonhole {k n t : ℕ} (hk : k ≥ 3)
           ( by simp [ Finset.card_sdiff, * ] )
     contrapose! h_pigeonhole
     rw [ Finset.card_biUnion ]
-    · refine' lt_of_lt_of_le _ ( Finset.sum_le_sum fun m hm => Finset.card_pos.mpr _ )
+    · refine lt_of_lt_of_le ?_ ( Finset.sum_le_sum fun m hm => Finset.card_pos.mpr ?_ )
       · rcases k with ( _ | _ | k ) <;> simp_all +arith +decide [ Finset.card_sdiff ]
       · exact Exists.elim
           ( h_witness m
