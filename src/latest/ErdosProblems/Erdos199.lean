@@ -69,7 +69,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.refine false
 set_option linter.style.multiGoal false
 
 open scoped BigOperators
@@ -253,7 +252,7 @@ lemma spaced_implies_no_3AP_case2 {ι : Type*} [LinearOrder ι] {V : Type*} [Add
         rw [ ← hb ] at hr₁; rw [ List.mem_map ] at hr₁; obtain ⟨ i, hi, rfl ⟩ := hr₁; use i; aesop;
       obtain ⟨i, hi⟩ : ∃ i ∈ (b.repr b_vec).support, |b.repr b_vec i| > 3 * t n ∧ ∀ j ∈ (b.repr b_vec).support, j < i → |b.repr b_vec j| ≤ 3 * t n := by
         exact ⟨ Finset.min' ( ( b.repr b_vec ).support.filter fun j => |( b.repr b_vec ) j| > 3 * t n ) ⟨ i, by aesop ⟩, Finset.mem_filter.mp ( Finset.min'_mem ( ( b.repr b_vec ).support.filter fun j => |( b.repr b_vec ) j| > 3 * t n ) ⟨ i, by aesop ⟩ ) |>.1, Finset.mem_filter.mp ( Finset.min'_mem ( ( b.repr b_vec ).support.filter fun j => |( b.repr b_vec ) j| > 3 * t n ) ⟨ i, by aesop ⟩ ) |>.2, fun j hj hj' => not_lt.1 fun contra => hj'.not_ge ( Finset.min'_le _ _ <| by aesop ) ⟩;
-      refine' ⟨ i, hi.1, hi.2.1, fun j hj hj' => _ ⟩;
+      refine ⟨ i, hi.1, hi.2.1, fun j hj hj' => ?_ ⟩;
       cases this.2.1 ( b.repr b_vec j ) ( by rw [ ← hb ] ; exact List.mem_map.mpr ⟨ j, Finset.mem_sort ( α := ι ) ( · ≤ · ) |>.2 ( by aesop ), rfl ⟩ ) <;> linarith [ hi.2.2 j hj hj' ];
     -- By case2_key_step, b_i = c_i.
     have h_bi_ci : b.repr b_vec i = b.repr c i := by
@@ -303,7 +302,7 @@ lemma case3_first_diff {ι : Type*} [LinearOrder ι] {V : Type*} [AddCommGroup V
         have h_support_finite : Set.Finite {j : ι | (b.repr a) j ≠ (b.repr c) j} := by
           exact Set.Finite.subset ( b.repr a |> Finsupp.support |> Finset.finite_toSet |> Set.Finite.union <| b.repr c |> Finsupp.support |> Finset.finite_toSet ) fun x hx => by by_cases ha : b.repr a x = 0 <;> by_cases hc : b.repr c x = 0 <;> aesop;
         exact ⟨ Finset.min' ( h_support_finite.toFinset ) ⟨ i, h_support_finite.mem_toFinset.mpr hi ⟩, h_support_finite.mem_toFinset.mp ( Finset.min'_mem _ _ ), fun j hj => Classical.not_not.1 fun hji => hj.not_ge ( Finset.min'_le _ _ ( h_support_finite.mem_toFinset.mpr hji ) ) ⟩;
-      refine' ⟨ i, _, _ ⟩;
+      refine ⟨ i, ?_, ?_ ⟩;
       · contrapose! hi; simp_all +decide [ two_smul ] ;
       · intro j hj; have := congr_arg ( b.repr ) h_ap; norm_num at this; simp_all +decide [ two_smul ] ;
         replace this := congr_arg ( fun f => f j ) this; simp_all +decide [ ← two_smul ℚ ] ;
@@ -472,7 +471,7 @@ lemma spaced_implies_no_3AP_max_unique {ι : Type*} [LinearOrder ι] {V : Type*}
         have := h_spaced p; aesop;
       have h_v_le_tp : ∀ r ∈ coeffSeq b v, |r| ≤ t p := by
         intro r hr; specialize h_spaced p; aesop;
-      refine' ⟨ _, _ ⟩;
+      refine ⟨ ?_, ?_ ⟩;
       · by_cases hj : j ∈ (b.repr u).support;
         · unfold coeffSeq at h_u_le_tp; aesop;
         · simp_all +decide [ Finsupp.mem_support_iff ];
@@ -754,7 +753,7 @@ def GoodSequence {ι : Type*} [LinearOrder ι] {V : Type*} [AddCommGroup V] [Mod
 lemma exists_set_if_good_sequence {ι : Type*} [LinearOrder ι] {V : Type*} [AddCommGroup V] [Module ℚ V]
   (b : Module.Basis ι ℚ V) (σ : ℕ → List ℚ) (t : ℕ → ℚ) (h : GoodSequence b σ t) :
   ∃ A : Set V, (¬ ∃ a ∈ A, ∃ b_vec ∈ A, ∃ c ∈ A, IsThreeTermAP_V a b_vec c) ∧ (∀ S, IsInfiniteAP_V S → (S ∩ A).Nonempty) := by
-    refine' ⟨ { x | ∃ n, coeffSeq b x = σ n }, _, _ ⟩;
+    refine ⟨ { x | ∃ n, coeffSeq b x = σ n }, ?_, ?_ ⟩;
     · simp +zetaDelta at *;
       intro x n hx y m hy z p hz h_ap; exact spaced_implies_no_3AP b σ t h.1 x y z ⟨ n, hx ⟩ ⟨ m, hy ⟩ ⟨ p, hz ⟩ h_ap;
     · obtain ⟨ h₁, h₂ ⟩ := h;
@@ -780,13 +779,13 @@ lemma exists_next_pattern {ι : Type*} [LinearOrder ι] {V : Type*} [AddCommGrou
           exact Set.Finite.subset ( h_finite_support.image ( fun j => |( b.repr A_start ) j| ) |> Set.Finite.union <| Set.finite_singleton 0 ) fun x hx => by rcases hx with ⟨j, hj⟩; by_cases hj' : ( b.repr A_start ) j = 0 <;> aesop;
         generalize_proofs at *;
         have h_finite_prev : Set.Finite (Set.range (fun r => |r|) ∩ {r | ∃ σ ∈ prev_patterns, ∃ r' ∈ σ, r = |r'|}) := by
-          refine' Set.Finite.subset ( Set.toFinite ( Finset.image ( fun r : ℚ => |r| ) ( Finset.biUnion ( List.toFinset prev_patterns ) fun σ => List.toFinset σ ) ) ) _ ; intro x ; aesop;
+          refine Set.Finite.subset ( Set.toFinite ( Finset.image ( fun r : ℚ => |r| ) ( Finset.biUnion ( List.toFinset prev_patterns ) fun σ => List.toFinset σ ) ) ) ?_ ; intro x ; aesop;
         generalize_proofs at *;
         obtain ⟨ t, ht ⟩ := Set.Finite.bddAbove ( h_finite_support.union h_finite_prev );
         exact ⟨ t, fun σ hσ r hr => ht <| Or.inr ⟨ Set.mem_range_self _, σ, hσ, r, hr, rfl ⟩, fun j => ht <| Or.inl <| Set.mem_range_self _ ⟩;
       obtain ⟨k, hk⟩ : ∃ k : ℕ, ∀ j ∈ (b.repr A_step).support, |(b.repr A_start) j + k * (b.repr A_step) j| > 3 * max t 1 := by
         have := exists_large_coeff_in_AP b A_start A_step h_step ( 3 * max t 1 ) ; aesop;
-      refine' ⟨ max t 1, A_start + k • A_step, ⟨ k, rfl ⟩, _, _, _ ⟩ <;> simp_all +decide [ coeffSeq ];
+      refine ⟨ max t 1, A_start + k • A_step, ⟨ k, rfl ⟩, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ coeffSeq ];
       · exact fun σ hσ r hr => Or.inl ( ht.1 σ hσ r hr );
       · intro j hj; by_cases hj' : ( b.repr A_step ) j = 0 <;> aesop;
       · -- Since $A_step \neq 0$, there exists some $j$ such that $(b.repr A_step) j \neq 0$.
@@ -862,11 +861,11 @@ lemma exists_good_sequence_countable {ι : Type*} [LinearOrder ι] {V : Type*} [
           intro n;
           convert hσ n n le_rfl using 1;
           congr! 2;
-          refine' List.ext_get _ _ <;> simp +decide
+          refine List.ext_get ?_ ?_ <;> simp +decide
           exact fun m mn => h_rec m n mn.le m le_rfl;
         exact ⟨ h_rec.choose, _, _, _, hA_start, fun n => by rw [ hA_step ] ; exact ⟨ A_start n, A_step n, hA_start n, rfl ⟩, hA_step, h_rec.choose_spec, fun n => rfl ⟩;
     obtain ⟨ σ, t_seq, A_start, A_step, hA_step, hS₁, hS₂, hσ, ht_seq ⟩ := h_rec;
-    refine' ⟨ σ, t_seq, _, _ ⟩;
+    refine ⟨ σ, t_seq, ?_, ?_ ⟩;
     · intro n;
       simp +decide [ hσ, ht_seq, hc _ _ _ ( hA_step n ) ];
       grind;
@@ -888,8 +887,8 @@ lemma exists_monotone_embedding_from_finite_to_infinite {α : Type*} [LinearOrde
     -- Since $t_subset$ is a finite subset of $t$, we can order its elements.
     obtain ⟨t_sorted, ht_sorted⟩ : ∃ t_sorted : Fin t_subset.card → α, StrictMono t_sorted ∧ ∀ i, t_sorted i ∈ t_subset := by
       exact ⟨ fun i => t_subset.orderEmbOfFin rfl i, by simp +decide [ StrictMono ], fun i => t_subset.orderEmbOfFin_mem rfl _ ⟩;
-    refine' h_contra ⟨ _, _ ⟩;
-    refine' fun x => ⟨ t_sorted ⟨ s.orderIsoOfFin rfl |>.symm x, _ ⟩, ht_subset.2 _ ( ht_sorted.2 _ ) ⟩;
+    refine h_contra ⟨ ?_, ?_ ⟩;
+    refine fun x => ⟨ t_sorted ⟨ s.orderIsoOfFin rfl |>.symm x, ?_ ⟩, ht_subset.2 _ ( ht_sorted.2 _ ) ⟩;
     exact lt_of_lt_of_le ( Fin.is_lt _ ) ( by simp +decide [ ht_subset.1 ] );
     simp +decide [ StrictMono, ht_sorted.1.lt_iff_lt ]
 
@@ -928,8 +927,8 @@ lemma liftVector_coeffSeq {ι : Type*} [LinearOrder ι] {V : Type*} [AddCommGrou
           · exact fun x hx y hy hxy => hf_mono.eq_iff_eq ( by aesop ) ( by aesop ) |>.1 hxy;
           · exact Finset.sort_nodup _ _;
         · aesop;
-      refine' List.Perm.eq_of_pairwise (fun a b _ _ hab hba => le_antisymm hab hba) h_sorted _ h_sorted_eq;
-      refine' List.pairwise_map.mpr _;
+      refine List.Perm.eq_of_pairwise (fun a b _ _ hab hba => le_antisymm hab hba) h_sorted ?_ h_sorted_eq;
+      refine List.pairwise_map.mpr ?_;
       exact List.Pairwise.imp_of_mem ( fun x y hxy => hf_mono.monotoneOn ( by aesop ) ( by aesop ) hxy ) ( Finset.pairwise_sort _ (· ≤ ·) );
     have h_coeff_eq : ∀ i ∈ (b.repr v).support, b.repr (liftVector b v f) (f i) = b.repr v i := by
       intro i hi; rw [ show liftVector b v f = ∑ j ∈ ( b.repr v ).support, ( b.repr v j ) • b ( f j ) from ?_ ] ; simp +decide [ Finset.sum_apply', Finsupp.single_apply]
@@ -953,10 +952,10 @@ lemma lift_good_sequence {ι : Type*} [LinearOrder ι] {V : Type*} [AddCommGroup
     obtain ⟨f, hf_mono, hf_image⟩ : ∃ f : ι → ι, StrictMonoOn f I ∧ ∀ i ∈ I, f i ∈ ι' := by
       have := exists_monotone_embedding_from_finite_to_infinite I ι' h_inf;
       obtain ⟨ f, hf_mono ⟩ := this;
-      refine' ⟨ fun i => if hi : i ∈ I then f ⟨ i, hi ⟩ else i, _, _ ⟩ <;> simp_all +decide [ StrictMono, StrictMonoOn ];
+      refine ⟨ fun i => if hi : i ∈ I then f ⟨ i, hi ⟩ else i, ?_, ?_ ⟩ <;> simp_all +decide [ StrictMono, StrictMonoOn ];
     obtain ⟨n, x, hx⟩ : ∃ n : ℕ, ∃ x ∈ {x | ∃ n : ℕ, x = liftVector b u f + n • liftVector b v f}, coeffSeq b x = σ n := by
       apply h_good;
-      · refine' ⟨ liftVector b u f, liftVector b v f, _, _ ⟩;
+      · refine ⟨ liftVector b u f, liftVector b v f, ?_, ?_ ⟩;
         · contrapose! hv;
           rw [ ← b.repr.injective.eq_iff ];
           ext i; by_cases hi : i ∈ I <;> simp_all +decide [ liftVector ] ;
@@ -968,15 +967,15 @@ lemma lift_good_sequence {ι : Type*} [LinearOrder ι] {V : Type*} [AddCommGroup
       · rintro x ⟨ n, rfl ⟩;
         simp +decide [ liftVector, Submodule.mem_span ];
         intro p hp;
-        refine' p.add_mem _ _;
+        refine p.add_mem ?_ ?_;
         · exact p.sum_mem fun i hi => p.smul_mem _ ( hp ( hf_image i ( hI.1 hi ) ) );
-        · refine' p.nsmul_mem _ _;
+        · refine p.nsmul_mem ?_ ?_;
           exact p.sum_mem fun i hi => p.smul_mem _ ( hp ( hf_image i ( hI.2 hi ) ) );
     obtain ⟨ ⟨ k, rfl ⟩, hk ⟩ := hx;
-    refine' ⟨ n, u + k • v, hS_def.symm ▸ ⟨ k, rfl ⟩, _ ⟩;
+    refine ⟨ n, u + k • v, hS_def.symm ▸ ⟨ k, rfl ⟩, ?_ ⟩;
     rw [ ← hk, show liftVector b u f + k • liftVector b v f = liftVector b ( u + k • v ) f from ?_ ];
     · rw [ liftVector_coeffSeq ];
-      refine' hf_mono.mono _;
+      refine hf_mono.mono ?_;
       simp_all +decide [ Finset.subset_iff, Finsupp.mem_support_iff ];
       grind;
     · unfold liftVector; simp +decide [ Finsupp.sum_add_index', add_smul ] ;
@@ -1155,9 +1154,9 @@ theorem exists_baumgartner_set_real : ∃ A : Set ℝ, IsBaumgartnerSet A := by
   obtain ⟨b', hb'⟩ : ∃ b' : Module.Basis ι' ℚ (Submodule.span ℚ (Set.image (Module.Basis.ofVectorSpace ℚ ℝ) ι')), ∀ i : ι', (b' i : ℝ) = (Module.Basis.ofVectorSpace ℚ ℝ) i.val := by
     have h_basis_subspace : LinearIndependent ℚ (fun i : ι' => (Module.Basis.ofVectorSpace ℚ ℝ) i.val) := by
       exact ( Module.Basis.ofVectorSpace ℚ ℝ ).linearIndependent.comp _ Subtype.coe_injective
-    refine' ⟨ _, _ ⟩;
-    refine' Module.Basis.span h_basis_subspace |> fun h => h.map _;
-    refine' LinearEquiv.ofEq _ _ _;
+    refine ⟨ ?_, ?_ ⟩;
+    refine Module.Basis.span h_basis_subspace |> fun h => h.map ?_;
+    refine LinearEquiv.ofEq _ _ ?_;
     exact congr_arg _ ( by ext; simp +decide );
     simp +zetaDelta at *;
   -- Let's obtain the good sequence (σ, t) for the subspace spanned by ι'.
@@ -1165,7 +1164,7 @@ theorem exists_baumgartner_set_real : ∃ A : Set ℝ, IsBaumgartnerSet A := by
     convert exists_good_sequence_countable b';
     · convert countable_of_basis b';
       exact h_count.to_subtype;
-    · refine' ⟨ _, _ ⟩;
+    · refine ⟨ ?_, ?_ ⟩;
       exact ⟨ 0, Submodule.zero_mem _ ⟩;
       by_contra! h;
       have := h ( b' ⟨ Classical.choose ( h_inf.nonempty ), Classical.choose_spec ( h_inf.nonempty ) ⟩ ) ; simp_all +decide [ Subtype.ext_iff ] ;
