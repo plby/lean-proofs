@@ -497,7 +497,6 @@ noncomputable def u_seq_general (n : ℕ) (i : ℕ) : ℝ :=
 /-
 The comparison sequence u_i satisfies the conditions of Lemma 6 (pac_sou) for n >= 2.
 -/
-set_option linter.style.refine false in
 set_option linter.flexible false in
 set_option linter.style.multiGoal false in
 lemma u_seq_satisfies_pac_sou (n : ℕ) (hn : 2 ≤ n) :
@@ -506,12 +505,12 @@ lemma u_seq_satisfies_pac_sou (n : ℕ) (hn : 2 ≤ n) :
   (∀ i, 0 < u i) ∧
   Antitone u ∧
   (∀ k ≥ 2, ∑ i ∈ Finset.range k, u i + C * ∏ i ∈ Finset.range k, u i = C) := by
-    refine' ⟨ _, _, _ ⟩
+    refine ⟨ ?_, ?_, ?_ ⟩
     · unfold u_seq_general
       intro i
       split_ifs <;> first | positivity | exact one_div_pos.mpr <|
         Nat.cast_pos.mpr <| generalized_sylvester_pos _ _
-    · refine' antitone_nat_of_succ_le _
+    · refine antitone_nat_of_succ_le ?_
       intro i_general
       rcases i_general with ( _ | _ | i_general ) <;> unfold u_seq_general <;> norm_num
       · rw [ inv_eq_one_div, div_le_div_iff₀ ] <;> norm_cast <;> nlinarith
@@ -592,7 +591,6 @@ lemma u_seq_satisfies_pac_sou (n : ℕ) (hn : 2 ≤ n) :
 If partial sums of v are <= partial sums of u, and total sums are equal, then v_k >= u_k for
 infinitely many k.
 -/
-set_option linter.style.refine false in
 lemma infinitely_often_ge_of_sum_le_sum_eq (u v : ℕ → ℝ)
   (h_sum_le : ∀ k, ∑ i ∈ Finset.range k, v i ≤ ∑ i ∈ Finset.range k, u i)
   (h_sum_eq : ∑' i, v i = ∑' i, u i)
@@ -604,7 +602,7 @@ lemma infinitely_often_ge_of_sum_le_sum_eq (u v : ℕ → ℝ)
     · rw [
         show (∑' i : ℕ, u i) =
           ∑ i ∈ Finset.range N, u i + ∑' i : ℕ, u (i + N) from ?_]
-      · refine' ne_of_lt ( add_lt_add_of_le_of_lt ( h_sum_le N ) ( _ ) )
+      · refine ne_of_lt ( add_lt_add_of_le_of_lt ( h_sum_le N ) ?_ )
         apply_rules [ Summable.tsum_lt_tsum ]
         · exact fun n => le_of_lt ( h_sum_eq _ ( Nat.le_add_left _ _ ) )
         · linarith
@@ -666,10 +664,9 @@ lemma upper_seq_decreasing (n : ℕ) (hn : 0 < n) :
 /-
 The sequence (s_i(n)-1)^(2^{-(i+1)}) is strictly increasing.
 -/
-set_option linter.style.refine false in
 lemma lower_seq_increasing (n : ℕ) (hn : 0 < n) :
   StrictMono (lower_seq n) := by
-    refine' strictMono_nat_of_lt_succ _
+    refine strictMono_nat_of_lt_succ ?_
     intro i
     -- We need to show that $(s_{i+1}-1)^{2^{-(i+2)}} > (s_i-1)^{2^{-(i+1)}}$.
     have h_exp :
@@ -704,7 +701,7 @@ lemma lower_seq_increasing (n : ℕ) (hn : 0 < n) :
     have h_exp_pow :
       ((generalized_sylvester n (i + 1) - 1) : ℝ) ^ ((1 / 2 : ℝ) ^ (i + 2)) >
         ((generalized_sylvester n i - 1) : ℝ) ^ ((1 / 2 : ℝ) ^ (i + 1)) := by
-      refine' lt_of_le_of_lt _ ( Real.rpow_lt_rpow ( _ ) h_exp ( by positivity ) )
+      refine lt_of_le_of_lt ?_ ( Real.rpow_lt_rpow ?_ h_exp ( by positivity ) )
       · rw [
           ← Real.rpow_natCast _ 2,
           ← Real.rpow_mul
@@ -718,7 +715,6 @@ lemma lower_seq_increasing (n : ℕ) (hn : 0 < n) :
 /-
 The lower bound sequence converges to c_n.
 -/
-set_option linter.style.refine false in
 set_option linter.flexible false in
 lemma lower_seq_tendsto_c (n : ℕ) (hn : 0 < n) :
   Filter.Tendsto (lower_seq n) Filter.atTop (nhds (c n)) := by
@@ -768,7 +764,7 @@ lemma lower_seq_tendsto_c (n : ℕ) (hn : 0 < n) :
           div_self (Nat.cast_ne_zero.mpr <| ne_of_gt <| generalized_sylvester_pos _ _)]
         grind
       simp_all +decide [ lower_seq, sylvester_seq_pow ]
-      refine' Filter.Tendsto.congr' _ ( h_ratio_tendsto_one n hn )
+      refine Filter.Tendsto.congr' ?_ ( h_ratio_tendsto_one n hn )
       filter_upwards [ Filter.eventually_gt_atTop 0 ] with i hi using
         Real.div_rpow
           (sub_nonneg.mpr <| mod_cast Nat.one_le_iff_ne_zero.mpr <|
@@ -987,7 +983,6 @@ noncomputable def u_seq_one (i : ℕ) : ℝ :=
   else if i = 2 then 3/10
   else 1 / (generalized_sylvester 30 (i - 3) : ℝ)
 
-set_option linter.style.refine false in
 set_option linter.flexible false in
 lemma u_seq_one_satisfies_pac_sou :
   let u := u_seq_one
@@ -996,12 +991,12 @@ lemma u_seq_one_satisfies_pac_sou :
   Antitone u ∧
   (∀ k ≥ 3, ∑ i ∈ Finset.range k, u i + C * ∏ i ∈ Finset.range k, u i = C) := by
     unfold u_seq_one
-    refine' ⟨ _, _, _ ⟩
+    refine ⟨ ?_, ?_, ?_ ⟩
     · intro i
       norm_num
       split_ifs <;> norm_num
       exact generalized_sylvester_pos 30 (i - 3)
-    · refine' antitone_nat_of_succ_le _
+    · refine antitone_nat_of_succ_le ?_
       rintro ( _ | _ | _ | n ) <;> norm_num [ generalized_sylvester ]
       simp +arith +decide
       gcongr
@@ -1078,7 +1073,6 @@ lemma c_strict_mono (n m : ℕ) (hn : 0 < n) (hnm : n < m) : c n < c m := by
 /-
 The sequence of reciprocals satisfies the sum-product inequality condition of Lemma 6.
 -/
-set_option linter.style.refine false in
 set_option linter.flexible false in
 lemma v_satisfies_pac_sou_condition (n : ℕ) (hn : 0 < n) (a : ℕ → ℕ)
   (h_pos : ∀ i, 0 < a i)
@@ -1105,10 +1099,10 @@ lemma v_satisfies_pac_sou_condition (n : ℕ) (hn : 0 < n) (a : ℕ → ℕ)
       intro k
       obtain ⟨m, hm⟩ := hq_int k
       have hq_pos : q k > 0 := by
-        refine' sub_pos_of_lt ( h_sum ▸ _ )
-        refine' lt_of_lt_of_le _
+        refine sub_pos_of_lt ( h_sum ▸ ?_ )
+        refine lt_of_lt_of_le ?_
           ( Summable.sum_le_tsum ( Finset.range ( k + 1 ) )
-            ( fun _ _ => by positivity ) _ )
+            ( fun _ _ => by positivity ) ?_ )
         · simpa [ Finset.sum_range_succ ] using by linarith [ h_pos k ]
         · exact (by
             contrapose! h_sum
@@ -1232,13 +1226,13 @@ lemma limit_u_seq_one :
 /-
 Inequality relating c_30 and c_1.
 -/
-set_option linter.style.refine false in
 lemma c_30_lt_c_1_pow_8 : c 30 < c 1 ^ 8 := by
   -- By definition of $c$, we know that $c_1^8 = c_{s_3(1)-1}$.
   have hc1_8 : c 1 ^ 8 = c (generalized_sylvester 1 3 - 1) := by
     convert prop_syl_4 1 3 using 1
   rw [ hc1_8 ]
-  refine' c_strict_mono _ _ _ _ <;> norm_num [ generalized_sylvester ]
+  exact c_strict_mono 30 (generalized_sylvester 1 3 - 1)
+    (by norm_num) (by norm_num [ generalized_sylvester ])
 
 /-
 Partial sums of reciprocals are bounded by partial sums of the comparison sequence for n=1.
@@ -1336,7 +1330,6 @@ lemma u_seq_one_summable_and_sum_eq_one :
 /-
 The liminf of the sequence is bounded by c_30^(1 / 8).
 -/
-set_option linter.style.refine false in
 lemma liminf_le_c30_pow_8 (a : ℕ → ℕ)
   (h_pos : ∀ i, 0 < a i)
   (h_mono : Monotone a)
@@ -1390,7 +1383,7 @@ lemma liminf_le_c30_pow_8 (a : ℕ → ℕ)
       Filter.Tendsto (fun i => (u_seq_one i) ^ (-(1 / 2 : ℝ) ^ (i +
         1))) Filter.atTop (nhds (c 30 ^ (1 / 8 : ℝ))) := by
       convert limit_u_seq_one using 1
-    refine' csSup_le _ _ <;> norm_num
+    refine csSup_le ?_ ?_ <;> norm_num
     · exact ⟨ 0, ⟨ 0, fun _ _ => by positivity ⟩ ⟩
     · intro b x hx
       contrapose! h_inf_often
@@ -1573,7 +1566,6 @@ lemma pac_sou_refined (C : ℝ) (t : ℕ) (u_seq v_seq : ℕ → ℝ)
 Helper lemma: existence of a partition point p such that suffix sum of v is <= suffix sum of u, and
 prefix product of v is >= prefix product of u.
 -/
-set_option linter.style.refine false in
 set_option linter.flexible false in
 lemma exists_partition_sum_le (n : ℕ) (u v : ℕ → ℝ)
   (hu_pos : ∀ i < n, 0 < u i) (hv_pos : ∀ i < n, 0 < v i)
@@ -1599,7 +1591,7 @@ lemma exists_partition_sum_le (n : ℕ) (u v : ℕ → ℝ)
         Finset.mem_range_succ_iff.mp hp.1,
         hp.2 n ( Finset.mem_range.mpr ( Nat.lt_succ_self _ ) ),
         fun q hq => hp.2 q ( Finset.mem_range.mpr ( Nat.lt_succ_of_le hq ) ) ⟩
-    refine' ⟨ p, lt_of_le_of_ne hp.1 _, _, _ ⟩
+    refine ⟨ p, lt_of_le_of_ne hp.1 ?_, ?_, ?_ ⟩
     · rintro rfl
       simp_all +decide [ div_eq_mul_inv ]
       specialize hp 0
@@ -1713,7 +1705,6 @@ lemma exists_partition_sum_le_v4 (n : ℕ) (u v : ℕ → ℝ)
 /-
 Base case inequality for the general case n >= 2.
 -/
-set_option linter.style.refine false in
 set_option linter.flexible false in
 lemma v_le_u_base_case_general (n : ℕ) (hn : 2 ≤ n) (a : ℕ → ℕ)
   (h_pos : ∀ i, 0 < a i)
@@ -1735,8 +1726,8 @@ lemma v_le_u_base_case_general (n : ℕ) (hn : 2 ≤ n) (a : ℕ → ℕ)
       rw [ div_le_div_iff₀ ] at h_a0_ge_n <;> norm_cast at * <;> linarith [ h_pos 0 ]
     by_cases h : a 0 = n <;> simp_all +decide [ u_seq ]
     · have h_contra : ∑' i, (1 / (a i) : ℝ) > (1 / (a 0) : ℝ) := by
-        refine' lt_of_lt_of_le _
-          ( Summable.sum_le_tsum ( Finset.range 2 ) ( fun _ _ => by positivity ) _ ) <;>
+        refine lt_of_lt_of_le ?_
+          ( Summable.sum_le_tsum ( Finset.range 2 ) ( fun _ _ => by positivity ) ?_ ) <;>
           norm_num [ Finset.sum_range_succ, h ]
         · exact h_pos 1
         · exact (by
@@ -1923,7 +1914,6 @@ lemma l_lt_s2_sub_one (n : ℕ) (hn : 2 ≤ n) :
 /-
 Main theorem for n >= 2 without shifting (assuming a_1 != n+1).
 -/
-set_option linter.style.refine false in
 set_option linter.style.multiGoal false in
 theorem main_theorem_no_shift_n_ge_2 (n : ℕ) (hn : 2 ≤ n) (a : ℕ → ℕ)
   (h_pos : ∀ i, 0 < a i)
@@ -1971,7 +1961,7 @@ theorem main_theorem_no_shift_n_ge_2 (n : ℕ) (hn : 2 ≤ n) (a : ℕ → ℕ)
         Filter.Tendsto (fun i => (u_seq n i) ^ (-((1 / 2 : ℝ) ^ (i +
           1)))) Filter.atTop (nhds ((c (l_val n)) ^ (1/4 : ℝ))) := by
         convert limit_u_seq_general n using 1
-      refine' le_of_forall_pos_le_add fun ε ε_pos => _
+      refine le_of_forall_pos_le_add fun ε ε_pos => ?_
       -- Since $u_i^{-2^{-(i+1)}}$ converges to $c_l^{1/4}$, there exists $N$ such that for
       -- all $i \geq N$, $u_i^{-2^{-(i+1)}} \leq c_l^{1/4} + \epsilon$.
       obtain ⟨N, hN⟩ : ∃ N,
@@ -1980,14 +1970,14 @@ theorem main_theorem_no_shift_n_ge_2 (n : ℕ) (hn : 2 ≤ n) (a : ℕ → ℕ)
               (c (l_val n)) ^ (1/4 : ℝ) + ε := by
         exact Filter.eventually_atTop.mp
           ( h_lim_u.eventually ( ge_mem_nhds <| lt_add_of_pos_right _ ε_pos ) )
-      refine' csSup_le _ _ <;> norm_num
+      refine csSup_le ?_ ?_ <;> norm_num
       · exact ⟨ 0, ⟨ 0, fun _ _ => by positivity ⟩ ⟩
       · intro b x hx
         obtain ⟨ k, hk₁, hk₂ ⟩ := h_inf_ge ( Max.max N x )
         specialize hx k ( le_trans ( le_max_right _ _ ) hk₁ )
         specialize hN k ( le_trans ( le_max_left _ _ ) hk₁ )
         norm_num at *
-        refine' le_trans hx ( le_trans _ hN )
+        refine le_trans hx ( le_trans ?_ hN )
         rw [ Real.rpow_neg_eq_inv_rpow ]
         gcongr
         exact le_trans ( by norm_num )
@@ -2075,7 +2065,6 @@ lemma sum_shift_lemma (n k : ℕ) (hn : 1 ≤ n) (a : ℕ → ℕ)
 /-
 The infimum of the p-th powers of a set of non-negative numbers is the p-th power of the infimum.
 -/
-set_option linter.style.refine false in
 lemma csInf_image_rpow {S : Set ℝ} (hS_nonempty : S.Nonempty)
     (hS_nonneg : ∀ x ∈ S, 0 ≤ x) (p : ℝ) (hp : 0 < p) :
   sInf ((fun x => x ^ p) '' S) = (sInf S) ^ p := by
@@ -2089,9 +2078,9 @@ lemma csInf_image_rpow {S : Set ℝ} (hS_nonempty : S.Nonempty)
     have h_eps : ∀ ε > 0, ∃ x ∈ S, x < m + ε := by
       exact fun ε ε_pos => by
         simpa using exists_lt_of_csInf_lt ( hS_nonempty ) ( lt_add_of_pos_right m ε_pos )
-    refine' le_antisymm
-      ( le_of_forall_pos_le_add fun ε ε_pos => _ )
-      ( le_csInf ( Set.Nonempty.image _ hS_nonempty ) fun x hx => _ )
+    refine le_antisymm
+      ( le_of_forall_pos_le_add fun ε ε_pos => ?_ )
+      ( le_csInf ( Set.Nonempty.image _ hS_nonempty ) fun x hx => ?_ )
     · -- Choose $\delta$ such that $(m + \delta)^p < m^p + \epsilon$.
       obtain ⟨δ, δ_pos, hδ⟩ : ∃ δ > 0, (m + δ) ^ p < m ^ p + ε := by
         have h_cont :
@@ -2131,12 +2120,11 @@ lemma csInf_image_rpow {S : Set ℝ} (hS_nonempty : S.Nonempty)
 /-
 The supremum of the p-th powers of a set of non-negative numbers is the p-th power of the supremum.
 -/
-set_option linter.style.refine false in
 lemma csSup_image_rpow {S : Set ℝ} (hS_nonempty : S.Nonempty)
     (hS_nonneg : ∀ x ∈ S, 0 ≤ x) (hS_bdd : BddAbove S)
     (p : ℝ) (hp : 0 < p) :
   sSup ((fun x => x ^ p) '' S) = (sSup S) ^ p := by
-    refine' csSup_eq_of_forall_le_of_forall_lt_exists_gt _ _ _
+    refine csSup_eq_of_forall_le_of_forall_lt_exists_gt ?_ ?_ ?_
     · exact hS_nonempty.image _
     · rintro _ ⟨ x, hx, rfl ⟩
       exact Real.rpow_le_rpow ( hS_nonneg x hx ) ( le_csSup hS_bdd hx ) hp.le
@@ -2253,12 +2241,11 @@ lemma eventually_le_rpow_iff {u : ℕ → ℝ} (hu : ∀ n, 0 ≤ u n)
 /-
 Characterization of liminf as the supremum of partial infimums.
 -/
-set_option linter.style.refine false in
 lemma liminf_eq_ciSup_sInf_Ici {u : ℕ → ℝ}
     (h_bdd_below : ∃ b, ∀ n, b ≤ u n)
     (h_bdd_above : ∃ B, ∀ n, sInf (u '' Set.Ici n) ≤ B) :
   Filter.liminf u Filter.atTop = ⨆ n, sInf (u '' Set.Ici n) := by
-    refine' csSup_eq_of_forall_le_of_forall_lt_exists_gt _ _ _ <;>
+    refine csSup_eq_of_forall_le_of_forall_lt_exists_gt ?_ ?_ ?_ <;>
       norm_num [ Filter.eventually_atTop ]
     · exact ⟨ h_bdd_below.choose, ⟨ 0, fun n hn => h_bdd_below.choose_spec n ⟩ ⟩
     · exact fun a n hn =>
