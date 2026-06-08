@@ -31,7 +31,6 @@ import Mathlib
 
 set_option linter.style.setOption false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 set_option linter.deprecated false
 set_option linter.flexible false
 
@@ -137,7 +136,7 @@ theorem _root_.SimpleGraph.exists_maximal_triangle_free_extension {V : Type*} [F
         fun K hK₁ hK₂ =>
           h_maximal.choose_spec.2 K
             ⟨ h_maximal.choose_spec.1.1.trans hK₁, hK₂ ⟩ hK₁ ⟩;
-    refine' ⟨ H, hH.1, ⟨ hH.2.1, hH.2.2 ⟩, _ ⟩;
+    refine ⟨ H, hH.1, ⟨ hH.2.1, hH.2.2 ⟩, ?_ ⟩;
     apply SimpleGraph.indepNum_le_of_le; exact hH.left;
 
 /-
@@ -181,7 +180,7 @@ theorem _root_.SimpleGraph.maxDegree_le_indepNum {V : Type*} [Fintype V] (G : Si
         intro v
         simpa [ SimpleGraph.card_neighborFinset_eq_degree ] using hH_neighbor_indep v;
       exact SimpleGraph.maxDegree_le_of_forall_degree_le H H.indepNum hH_degree_le_indep;
-    refine' le_trans _ ( hH_max_deg.trans hH.2.2 );
+    refine le_trans ?_ ( hH_max_deg.trans hH.2.2 );
     have := @SimpleGraph.degree_le_of_le V;
     simp_all +decide [ SimpleGraph.maxDegree ];
     have h_max_deg_le : ∀ v : V, G.degree v ≤ H.degree v := by
@@ -212,7 +211,7 @@ theorem _root_.SimpleGraph.deterministic_reduction {V : Type*} [Fintype V] (G : 
       obtain ⟨G', hG'_sup, hG'_max, hG'_indep⟩ :=
         SimpleGraph.exists_maximal_triangle_free_extension G_m (by
           exact hG_m.2.1);
-      refine' ⟨ G', le_trans hG_m.1 hG'_sup, _, _, _ ⟩;
+      refine ⟨ G', le_trans hG_m.1 hG'_sup, ?_, ?_, ?_ ⟩;
       · exact hG'_max.1;
       · exact fun x y a => SimpleGraph.maximal_triangle_free_diam_two G' hG'_max x y a;
       · -- By `maxDegree_le_indepNum`, $\Delta(G') \le \alpha(G')$.
@@ -310,7 +309,7 @@ theorem subset_eligible_pairs_corrected {V : Type*} [Fintype V] [DecidableEq V] 
       SimpleGraph.eligiblePairsIn,
       SimpleGraph.commonNeighborPairsIn ]
     simp_all +decide [ SimpleGraph.eligibleFinset, SimpleGraph.commonNeighborFinset ];
-    refine' ⟨ h₂, _, _, _, _ ⟩;
+    refine ⟨ h₂, ?_, ?_, ?_, ?_ ⟩;
     · exact h_indep h₁.1.1 h₁.2.1 h₂;
     · exact h_S_deg u h₁.1.1 h₁.1.2;
     · exact h_S_deg v h₁.2.1 h₁.2.2;
@@ -353,8 +352,8 @@ theorem common_neighbor_bound {V : Type*} [Fintype V] (G : SimpleGraph V) [Decid
         exact hP_subset p hp;
       obtain ⟨ w, hu, hv, rfl ⟩ := hw.2.2; simp +decide [ * ] ;
       exact ⟨ w, u, v, ⟨ ⟨ hu.symm, hw.1 ⟩, ⟨ hv.symm, hw.2.1 ⟩, huv ⟩, Or.inl ⟨ rfl, rfl ⟩ ⟩;
-    refine' le_trans ( Finset.card_le_card hP_subset ) _;
-    refine' le_trans ( Finset.card_biUnion_le ) ( Finset.sum_le_sum fun w _ => _ );
+    refine le_trans ( Finset.card_le_card hP_subset ) ?_;
+    refine le_trans ( Finset.card_biUnion_le ) ( Finset.sum_le_sum fun w _ => ?_ );
     -- The number of pairs in the off-diagonal of a set is given by the binomial coefficient.
     have h_off_diag_card :
       Finset.card (Finset.offDiag (G.neighborFinset w ∩ U)) =
@@ -369,7 +368,7 @@ theorem common_neighbor_bound {V : Type*} [Fintype V] (G : SimpleGraph V) [Decid
             (Finset.filter
               (fun q => s(q.1, q.2) = s(p.1, p.2))
               (Finset.offDiag (G.neighborFinset w ∩ U))) ≥ 2 := by
-        intro p hp; refine' Finset.one_lt_card.mpr ⟨ p, _, ( p.2, p.1 ), _, _ ⟩ <;> aesop;
+        intro p hp; refine Finset.one_lt_card.mpr ⟨ p, ?_, ( p.2, p.1 ), ?_, ?_ ⟩ <;> aesop;
       have h_image_card :
         Finset.card (Finset.offDiag (G.neighborFinset w ∩ U)) =
           Finset.sum (Finset.image (fun p => s(p.1, p.2)) (Finset.offDiag (G.neighborFinset w ∩ U)))
@@ -398,7 +397,7 @@ theorem card_distinctPairsIn {V : Type*} [Fintype V] [DecidableEq V] (U : Finset
     -- Let's simplify the goal using the definition of `distinctPairsIn`.
     unfold SimpleGraph.distinctPairsIn;
     convert Finset.card_powersetCard 2 U using 1;
-    refine' Finset.card_bij ( fun e he => Finset.filter ( fun x => x ∈ e ) U ) _ _ _;
+    refine Finset.card_bij ( fun e he => Finset.filter ( fun x => x ∈ e ) U ) ?_ ?_ ?_;
     · simp +contextual [ Finset.mem_powersetCard, Sym2.forall ];
       intro x y hx hy hxy
       rw [
@@ -549,7 +548,7 @@ theorem degree_increase_bound {V : Type*} [Fintype V] [DecidableEq V]
           Finset.sum_le_sum fun x hx =>
             show ((Gₘ.degree x : ℝ) - G₀.degree x) ≥ k from by
               aesop
-      refine' le_trans h_markov
+      refine le_trans h_markov
         (Finset.sum_le_sum_of_subset_of_nonneg (Finset.filter_subset _ _) ?_)
       intro x _ _
       exact sub_nonneg_of_le ( by exact_mod_cast SimpleGraph.degree_le_of_le h_le );
@@ -586,7 +585,7 @@ theorem high_degree_subset_bound {V : Type*} [Fintype V] [DecidableEq V]
         (mod_cast Finset.card_mono <|
           Finset.filter_subset_filter _ <| Finset.subset_univ _)
         h_degree_increase_bound
-    refine' le_trans ( mod_cast Finset.card_mono _ ) ( h_degree_increase_bound.trans _ );
+    refine le_trans ( mod_cast Finset.card_mono ?_ ) ( h_degree_increase_bound.trans ?_ );
     · rw [ div_le_iff₀ ] <;> ring_nf <;> norm_num [ h_c_pos, h_n_pos ];
       exact le_trans (Nat.floor_le (by positivity)) <| by
         rw [
@@ -1098,7 +1097,7 @@ theorem mem_NextGraphsState_diff_HitGraphsState {V : Type*} [Fintype V] [Decidab
          rcases hG' with ⟨e, he, rfl⟩
          specialize this e he
          simp_all +decide [SimpleGraph.fromEdgeSet]
-         refine' ⟨e, _, rfl, _⟩ <;>
+         refine ⟨e, ?_, rfl, ?_⟩ <;>
            simp_all +decide [SimpleGraph.eligibleFinset, SimpleGraph.eligiblePairsIn]
          · convert he using 1;
            constructor <;> intro h <;> simp_all +decide [ Sym2.fromRel ];
@@ -1261,13 +1260,12 @@ The number of hit states equals the number of hit graphs.
 theorem card_HitGraphsState_eq {V : Type*} [Fintype V] [DecidableEq V]
   (c : ℝ) (n : ℕ) (U : Finset V) (s : ProcessState V) :
   (HitGraphsState c n U s).card = (HitGraphs c n s.1 U).card := by
-    refine' le_antisymm _ _;
-    · exact Finset.card_image_le;
-    · refine' le_trans _ ( Finset.card_le_card _ );
-      rotate_left;
-      exact Finset.image ( fun G' => ( G', s.2 + 1 ) ) ( HitGraphs c n s.1 U );
-      · exact Finset.image_subset_iff.mpr fun x hx => Finset.mem_image.mpr ⟨ x, hx, rfl ⟩;
-      · rw [ Finset.card_image_of_injective _ fun x y hxy => by injection hxy ]
+    refine le_antisymm ?_ ?_
+    · exact Finset.card_image_le
+    · exact le_of_eq (by
+        unfold HitGraphsState
+        rw [Finset.card_image_of_injective _ fun x y hxy => by
+          injection hxy])
 
 /-
 The set of hit states is a subset of the set of next states.
@@ -1401,7 +1399,7 @@ theorem eligible_pairs_count_lower_bound_ceil {V : Type*} [Fintype V] [Decidable
               rw [ Int.subNatNat_eq_coe ] ; omega
             exact h_subset;
           convert h_subset using 1;
-        refine' le_trans _ h_subset;
+        refine le_trans ?_ h_subset;
         gcongr;
         exact_mod_cast
           common_neighbor_count_upper_bound_ceil G c n U h_n
@@ -1412,7 +1410,7 @@ theorem eligible_pairs_count_lower_bound_ceil {V : Type*} [Fintype V] [Decidable
           high_degree_subset_bound G₀ G n c U h_le h_G₀_max_deg h_edges_added
             h_c_pos (by linarith)
           using 1
-      refine' le_trans _ h_subset;
+      refine le_trans ?_ h_subset;
       gcongr
       · rw [ h_U_card ];
       · exact Nat.le_floor h_card_S
@@ -1457,10 +1455,10 @@ theorem hit_ratio_bound_ceil {V : Type*} [Fintype V] [DecidableEq V]
           h_G₀_max_deg h_G_max_deg h_edges_added h_c_pos h_n_large h_c_lower
         using 1
       convert card_HitGraphs_eq c n G U using 1;
-    refine' le_div_iff₀' _ |>.2 _;
+    refine le_div_iff₀' ?_ |>.2 ?_;
     · rw [ card_NextGraphs_eq ];
       have h_card_pos : (G.eligibleFinset c n).card ≥ (Nat.floor (2 * c^2 * n^2) : ℝ) := by
-        refine' le_trans ( Nat.cast_le.mpr h_hit_ratio_bound ) _;
+        refine le_trans ( Nat.cast_le.mpr h_hit_ratio_bound ) ?_;
         convert Set.ncard_le_ncard
           (show (G.eligiblePairsIn c n U : Set (Sym2 V)) ⊆ G.eligibleFinset c n from ?_)
           using 1
@@ -1477,25 +1475,30 @@ theorem hit_ratio_bound_ceil {V : Type*} [Fintype V] [DecidableEq V]
                 show (c : ℝ) * Real.sqrt n ≥ 4 by assumption,
                 Real.mul_self_sqrt (Nat.cast_nonneg n) ] ])
         h_card_pos
-    · refine' le_trans _ ( Nat.cast_le.mpr h_hit_ratio_bound );
-      refine' le_trans
+    · refine le_trans ?_ ( Nat.cast_le.mpr h_hit_ratio_bound );
+      have h_next_card_le :
+          (NextGraphs c n G).card ≤
+            (Finset.image
+              (fun e => SimpleGraph.fromEdgeSet (G.edgeSet ∪ {e}))
+              (Finset.filter (fun e => ¬e.IsDiag)
+                (Finset.univ : Finset (Sym2 V)))).card := by
+        refine Finset.card_le_card ?_
+        unfold NextGraphs
+        exact Finset.image_subset_iff.mpr (by
+          simp +decide [SimpleGraph.eligibleFinset]
+          rintro ⟨a, b⟩ ⟨h₁, h₂⟩
+          use s(a, b)
+          aesop)
+      refine le_trans
         (mul_le_mul_of_nonneg_right
-          (Nat.cast_le.mpr
-            (Finset.card_le_card (Finset.image_subset_iff.mpr _)))
-          _)
-        _
-      exact Finset.image
-        (fun e => SimpleGraph.fromEdgeSet (G.edgeSet ∪ {e}))
-        (Finset.filter (fun e => ¬e.IsDiag) (Finset.univ : Finset (Sym2 V)))
-      · simp +decide [ SimpleGraph.eligibleFinset ];
-        rintro ⟨ a, b ⟩ ⟨ h₁, h₂ ⟩ ; use s(a, b) ; aesop;
-      · exact div_nonneg ( Nat.cast_nonneg _ ) ( Nat.cast_nonneg _ );
-      · refine' le_trans
+          (Nat.cast_le.mpr h_next_card_le)
+          (div_nonneg ( Nat.cast_nonneg _ ) ( Nat.cast_nonneg _ )))
+        ?_
+      · refine le_trans
           (mul_le_mul_of_nonneg_right
             (Nat.cast_le.mpr <| Finset.card_image_le)
-            _)
-          _
-        · exact div_nonneg ( Nat.cast_nonneg _ ) ( Nat.cast_nonneg _ );
+            (div_nonneg ( Nat.cast_nonneg _ ) ( Nat.cast_nonneg _ )))
+          ?_
         · unfold p_val; norm_num [ Finset.filter_not, Finset.card_sdiff ] ; ring_nf;
           rw [ Nat.cast_sub ];
           · rw [
@@ -1533,7 +1536,7 @@ theorem p_val_le_one (n : ℕ) (c : ℝ) (h_n : n ≥ 1000) (h_c : c ≤ 1 / 10)
         show (n : ℝ) ^ 2 ≥ 1000 ^ 2 by
           exact_mod_cast Nat.pow_le_pow_left h_n 2,
         mul_le_mul_of_nonneg_left h_c (by positivity : (0 : ℝ) ≤ n ^ 2) ]
-  refine' div_le_one_of_le₀ _ ( Nat.cast_nonneg _ );
+  refine div_le_one_of_le₀ ?_ ( Nat.cast_nonneg _ );
   rw [ Nat.choose_two_right ];
   rw [ Nat.cast_div ] <;> norm_num;
   · rw [ Nat.cast_sub ] <;> push_cast <;> nlinarith [ ( by norm_cast : ( 1000 : ℝ ) ≤ n ) ];
@@ -1623,16 +1626,18 @@ theorem process_progress {V : Type} [Fintype V] [DecidableEq V]
         · cases h_inv ; aesop;
       -- Since there's at least one eligible pair, the NextGraphs is nonempty.
       have h_next_nonempty : ∃ e ∈ s.1.eligiblePairsIn c n U, True := by
-        refine' Exists.elim
-          (Finset.card_pos.mp (lt_of_lt_of_le _ h_eligible_pairs)) fun e he =>
+        refine Exists.elim
+          (Finset.card_pos.mp
+            (lt_of_lt_of_le
+              (Nat.floor_pos.mpr <| by
+                nlinarith [
+                  show (n : ℝ) ≥ 1000 by norm_cast,
+                  show (c : ℝ) ^ 2 * n ≥ 16 by
+                    nlinarith [
+                      show (n : ℝ) ≥ 1000 by norm_cast,
+                      Real.mul_self_sqrt (Nat.cast_nonneg n) ] ])
+              h_eligible_pairs)) fun e he =>
             ⟨e, he, trivial⟩
-        exact Nat.floor_pos.mpr <| by
-          nlinarith [
-            show (n : ℝ) ≥ 1000 by norm_cast,
-            show (c : ℝ) ^ 2 * n ≥ 16 by
-              nlinarith [
-                show (n : ℝ) ≥ 1000 by norm_cast,
-                Real.mul_self_sqrt (Nat.cast_nonneg n) ] ]
       obtain ⟨e, he₁, he₂⟩ := h_next_nonempty
       exact
         ⟨_, Finset.mem_image.mpr
@@ -2077,18 +2082,17 @@ theorem SafeProcess_eq_NextGraphsState {V : Type} [Fintype V] [DecidableEq V]
           · convert card_HitGraphs_eq c n s.1 U using 1;
           · exact_mod_cast h_inv.2.2.2.1;
           · cases h_inv ; aesop;
-        refine' pos_of_gt
-          (lt_of_lt_of_le _
-            (h_next_nonempty.trans
-              (Finset.card_mono <| hit_subset_next c n s.1 U)))
-        exact 0;
-        exact Nat.floor_pos.mpr <| by
-          nlinarith [
-            show (n : ℝ) ≥ 1000 by norm_cast,
-            show (c : ℝ) ^ 2 * n ≥ 16 by
+        exact pos_of_gt <|
+          lt_of_lt_of_le
+            (Nat.floor_pos.mpr <| by
               nlinarith [
                 show (n : ℝ) ≥ 1000 by norm_cast,
-                Real.mul_self_sqrt (Nat.cast_nonneg n) ] ]
+                show (c : ℝ) ^ 2 * n ≥ 16 by
+                  nlinarith [
+                    show (n : ℝ) ≥ 1000 by norm_cast,
+                    Real.mul_self_sqrt (Nat.cast_nonneg n) ] ])
+            (h_next_nonempty.trans
+              (Finset.card_mono <| hit_subset_next c n s.1 U))
       exact Exists.elim ( Finset.card_pos.mp h_card ) fun x hx => ⟨ x, hx, trivial ⟩;
     -- Since there's at least one next graph, the safe process will choose from them, making it
     -- equal to the original process.
@@ -2164,7 +2168,7 @@ theorem prob_avoid_eq_general {V : Type} [Fintype V] [DecidableEq V]
       -- By definition of `prob_avoid`, we have:
       rw [ SafeProcess_eq_TheProcess, SafeHit_eq_HitGraphsState ] <;> try omega
       congr! 2
-      refine' Finset.sum_congr _ _ <;> simp +contextual [ *, TheProcess, TheHit ]
+      refine Finset.sum_congr ?_ ?_ <;> simp +contextual [ *, TheProcess, TheHit ]
       · grind
       · intro x hx hx'
         split_ifs at hx hx' <;> simp_all +decide [ TheProcess ]
@@ -2237,7 +2241,7 @@ theorem BaseInvariant_preserves_step {V : Type} [Fintype V] [DecidableEq V]
   (h_g2 : g.2 = s.2 + 1)
   (h_lt_m : s.2 < m) :
   BaseInvariant G₀ c n m g := by
-    refine' ⟨ _, _, _, _, _ ⟩;
+    refine ⟨ ?_, ?_, ?_, ?_, ?_ ⟩;
     · exact h_g1 ▸ le_trans h_inv.1 ( by aesop_cat );
     · -- Since $e$ is eligible, adding it to $s.1$ does not create any new triangles.
       have h_triangle_free :
@@ -2599,23 +2603,40 @@ theorem sum_relevant_G0_lt_one {V : Type} [Fintype V] [DecidableEq V]
                 by simp +decide,
                 by simp +decide [h_m]⟩
         · exact Finset.mem_filter.mpr ⟨ Finset.mem_univ _, hU.1 ⟩;
-      refine' le_trans _
+      have h_card_bound : Finset.card (RelevantUsG0 G₀ c n) ≤
+          Nat.choose n (Nat.floor (5 * c * n)) := by
+        have h_card_bound' : Finset.card (RelevantUsG0 G₀ c n) ≤
+            Finset.card
+              (Finset.powersetCard (Nat.floor (5 * c * n)) (Finset.univ : Finset V)) := by
+          exact Finset.card_le_card fun x hx => by unfold RelevantUsG0 at hx; aesop
+        aesop
+      refine le_trans ?_
         (mul_le_mul_of_nonneg_right
           (Nat.cast_le.mpr <|
             show
               Finset.card (RelevantUsG0 G₀ c n) ≤
                 Nat.choose n (Nat.floor (5 * c * n))
-            from _)
+            from h_card_bound)
           <| Real.exp_nonneg _)
-      · refine' le_trans ( Finset.sum_le_sum fun x hx => _ ) _;
-        use fun x => Real.exp ( -3 * c ^ 4 * n ^ ( 3 / 2 : ℝ ) );
-        · unfold SafeAllHitsG0 at hx; aesop;
-        · simp +zetaDelta at *;
-          exact mul_le_mul_of_nonneg_right ( mod_cast Finset.card_image_le ) ( Real.exp_nonneg _ );
-      · have h_card_bound : Finset.card (RelevantUsG0 G₀ c n) ≤
-        Finset.card (Finset.powersetCard (Nat.floor (5 * c * n)) (Finset.univ : Finset V)) := by
-          exact Finset.card_le_card fun x hx => by unfold RelevantUsG0 at hx; aesop;
-        aesop
+      · calc
+          ∑ H ∈ SafeAllHitsG0 G₀ c n m, prob_avoid (SafeProcess c n m) H m (G₀, 0) ≤
+              ∑ H ∈ SafeAllHitsG0 G₀ c n m,
+                Real.exp (-3 * c ^ 4 * n ^ (3 / 2 : ℝ)) := by
+            refine Finset.sum_le_sum fun H hH => ?_
+            rcases Finset.mem_image.mp (by simpa [SafeAllHitsG0] using hH) with ⟨U, hU, rfl⟩
+            exact h_sum_bound U hU
+          _ = (SafeAllHitsG0 G₀ c n m).card *
+              Real.exp (-3 * c ^ 4 * n ^ (3 / 2 : ℝ)) := by
+            simp
+          _ ≤ (RelevantUsG0 G₀ c n).card *
+              Real.exp (-3 * c ^ 4 * n ^ (3 / 2 : ℝ)) := by
+            have hcard_image :
+                (SafeAllHitsG0 G₀ c n m).card ≤ (RelevantUsG0 G₀ c n).card := by
+              unfold SafeAllHitsG0
+              exact Finset.card_image_le
+            exact mul_le_mul_of_nonneg_right
+              (Nat.cast_le.mpr hcard_image)
+              (Real.exp_nonneg _)
 
 /-
 There exists a valid path in the safe process starting from G0 that hits all safe hit sets
@@ -2700,7 +2721,7 @@ theorem exists_Gm_bounded_indep {V : Type} [Fintype V]
       BaseInvariant G c n (Nat.floor (c ^ 2 * n ^ (3 / 2 : ℝ))) (path.getLastD (G, 0)) := by
       apply IsValidPath_preserves_BaseInvariant G c n
         (Nat.floor (c ^ 2 * n ^ (3 / 2 : ℝ))) path h_valid
-      refine' ⟨ le_rfl, h_clique_free, _, _, _ ⟩ <;> norm_num;
+      refine ⟨ le_rfl, h_clique_free, ?_, ?_, ?_ ⟩ <;> norm_num;
       exact fun v =>
         Nat.le_of_lt_succ <| by
           rw [← @Nat.cast_lt ℝ]
@@ -2766,7 +2787,7 @@ theorem erdos_134
         Filter.Tendsto (fun n : ℕ => 2 * (Real.log n) ^ (1 / 3 : ℝ) / (n : ℝ) ^ (1 / 6 : ℝ))
         Filter.atTop (nhds 0) ∧ Filter.Tendsto (fun n : ℕ => (min (1 / 10) (δ / 3)) * Real.sqrt n)
         Filter.atTop Filter.atTop := by
-      refine' ⟨ _, _, _ ⟩;
+      refine ⟨ ?_, ?_, ?_ ⟩;
       · simpa using tendsto_rpow_neg_atTop hε |> Filter.Tendsto.comp <| tendsto_natCast_atTop_atTop;
       · -- We can factor out the fixed $2$ and use the fact that $\frac{(\log n)^{1/3}}{n^{1/6}}$
         -- tends to $0$ as $n$ tends to infinity.
@@ -2802,7 +2823,7 @@ theorem erdos_134
                 rw [Real.mul_rpow (by positivity) (by positivity)]
                 ring
           have := Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 1;
-          refine' squeeze_zero_norm' _ this;
+          refine squeeze_zero_norm' ?_ this;
           filter_upwards [Filter.eventually_gt_atTop 1] with x hx using by
             rw [Real.norm_of_nonneg (by positivity), Real.exp_neg]
             exact mul_le_mul_of_nonneg_right
@@ -2855,8 +2876,8 @@ theorem erdos_134
               cases min_cases (1 / 10 : ℝ) (δ / 3) <;> linarith)
             (by positivity)
       · linarith;
-  refine' ⟨ G', hG'_sub, hG'_clique_free, hG'_diameter, _ ⟩;
-  refine' le_trans _ ( hG'_edges.trans _ );
+  refine ⟨ G', hG'_sub, hG'_clique_free, hG'_diameter, ?_ ⟩;
+  refine le_trans ?_ ( hG'_edges.trans ?_ );
   · exact_mod_cast Finset.card_le_card fun x hx => by aesop;
   · exact mul_le_mul_of_nonneg_right
       (by
