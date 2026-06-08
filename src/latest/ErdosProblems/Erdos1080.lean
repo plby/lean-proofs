@@ -40,7 +40,6 @@ namespace Erdos1080
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.refine false
 set_option linter.style.multiGoal false
 set_option linter.unusedSectionVars false
 
@@ -284,10 +283,10 @@ theorem B_transitive_on_P
     generalize_proofs at *;
     exact rfl;
   have h_comp : ∃ (phi : B F q ≃g B F q), (phi : Point F q ⊕ Line F q → Point F q ⊕ Line F q) (Sum.inl (tau2_P (-p.p2) (tau0_P (-p.p1) h_neg_p1 h_add p))) = Sum.inl (tau3_P (-p.p3) h_neg_p3 h_add (tau2_P (-p.p2) (tau0_P (-p.p1) h_neg_p1 h_add p))) := by
-    refine' ⟨ _, _ ⟩;
+    refine ⟨ ?_, ?_ ⟩;
     constructor;
     rotate_left;
-    refine' Equiv.sumCongr ( Equiv.ofBijective ( tau3_P ( -p.p3 ) h_neg_p3 h_add ) ⟨ _, _ ⟩ ) ( Equiv.ofBijective ( tau3_L ( -p.p3 ) h_neg_p3 h_add ) ⟨ _, _ ⟩ );
+    refine Equiv.sumCongr ( Equiv.ofBijective ( tau3_P ( -p.p3 ) h_neg_p3 h_add ) ⟨ ?_, ?_ ⟩ ) ( Equiv.ofBijective ( tau3_L ( -p.p3 ) h_neg_p3 h_add ) ⟨ ?_, ?_ ⟩ );
     all_goals norm_num [ Function.Injective, Function.Surjective, tau3_P, tau3_L ];
     all_goals norm_num [ SimpleGraph.adj_comm, B ];
     all_goals norm_num [ Sum.inl_ne_inr, Sum.inr_ne_inl, is_adjacent ];
@@ -592,7 +591,7 @@ theorem unique_neighbor_with_x_coord
   (h_S : ∀ a ∈ S, a^q = a) :
   ∃! p : Point F q, p.p1 = x ∧ is_adjacent F q p l := by
   classical
-  refine' ⟨ ⟨ x, l.l2 - l.l1 * x, l.l3 - ( l.l1 ^ q ) * ( l.l2 - l.l1 * x ) - l.l1 * ( l.l2 - l.l1 * x ) ^ q, h_S x hx, _ ⟩, ⟨ rfl, _ ⟩, _ ⟩;
+  refine ⟨ ⟨ x, l.l2 - l.l1 * x, l.l3 - ( l.l1 ^ q ) * ( l.l2 - l.l1 * x ) - l.l1 * ( l.l2 - l.l1 * x ) ^ q, h_S x hx, ?_ ⟩, ⟨ rfl, ?_ ⟩, ?_ ⟩;
   all_goals simp_all +decide [ is_adjacent ]
   all_goals generalize_proofs at *;
   · have := h_F l.l3; have := h_F l.l1; have := h_F l.l2; simp_all +decide [ pow_mul', mul_comm ] ;
@@ -647,8 +646,8 @@ theorem card_neighbors_in_P_S
   Set.ncard { p : Point F q | p ∈ P_S S ∧ is_adjacent F q p l } = Set.ncard S := by
   classical
   rw [ Set.ncard_def, Set.ncard_def, Set.encard_congr ];
-  refine' Equiv.symm ( Equiv.ofBijective _ ⟨ _, _ ⟩ );
-  refine' fun x => ⟨ Classical.choose ( unique_neighbor_with_x_coord S l x x.2 h_add h_mul h_F h_sub h_S ), _ ⟩;
+  refine Equiv.symm ( Equiv.ofBijective ?_ ⟨ ?_, ?_ ⟩ );
+  refine fun x => ⟨ Classical.choose ( unique_neighbor_with_x_coord S l x x.2 h_add h_mul h_F h_sub h_S ), ?_ ⟩;
   all_goals norm_num [ Function.Injective, Function.Surjective ];
   · have := Classical.choose_spec ( unique_neighbor_with_x_coord S l x x.2 h_add h_mul h_F h_sub h_S ) |>.1
     generalize_proofs at *;
@@ -678,8 +677,8 @@ theorem card_Line
     have h_card_lines : Fintype.card (Line F q) = Fintype.card F * Fintype.card F * Fintype.card { x : F // x^q = x } := by
       rw [ ← Fintype.card_prod ];
       rw [ ← Fintype.card_prod ];
-      refine' Fintype.card_congr _;
-      refine' Equiv.ofBijective ( fun l => ⟨ ⟨ l.l1, l.l2 ⟩, ⟨ l.l3, l.h3 ⟩ ⟩ ) ⟨ fun a b h => _, fun a => _ ⟩;
+      refine Fintype.card_congr ?_;
+      refine Equiv.ofBijective ( fun l => ⟨ ⟨ l.l1, l.l2 ⟩, ⟨ l.l3, l.h3 ⟩ ⟩ ) ⟨ fun a b h => ?_, fun a => ?_ ⟩;
       · cases a ; cases b ; aesop;
       · exact ⟨ ⟨ a.1.1, a.1.2, a.2.1, a.2.2 ⟩, rfl ⟩;
     exact h_card_lines.trans ( by rw [ h_card_F, h_card_fixed ] ; ring )
@@ -739,7 +738,7 @@ theorem B_C6_free
           use w.map phi.toHom;
           simp_all +decide [ SimpleGraph.Walk.isCycle_def ];
           simp_all +decide [ SimpleGraph.Walk.isTrail_def, List.nodup_map_iff_inj_on ];
-          refine' ⟨ _, _, _ ⟩;
+          refine ⟨ ?_, ?_, ?_ ⟩;
           · intro x hx y hy hxy; rcases x with ⟨ u, v ⟩ ; rcases y with ⟨ u', v' ⟩ ; aesop;
           · cases w <;> simp_all +decide [ SimpleGraph.Walk.map ];
           · rw [ List.nodup_iff_injective_get ] at *;
@@ -758,7 +757,7 @@ theorem B_C6_free
       rename_i v hv hw;
       rcases v with ( v | v ) <;> simp_all +decide [ SimpleGraph.Walk.edges ];
       · rename_i w;
-        refine' ⟨ v, w.append ( SimpleGraph.Walk.cons hv SimpleGraph.Walk.nil ), _, _ ⟩ <;> simp_all +decide [ SimpleGraph.Walk.length_append ];
+        refine ⟨ v, w.append ( SimpleGraph.Walk.cons hv SimpleGraph.Walk.nil ), ?_, ?_ ⟩ <;> simp_all +decide [ SimpleGraph.Walk.length_append ];
         simp_all +decide [ List.nodup_append, SimpleGraph.Walk.support_append ];
         rcases w with ( _ | ⟨ _, _, w ⟩ ) <;> simp_all +decide [ SimpleGraph.Walk.support ];
         grind +ring;
@@ -809,7 +808,7 @@ theorem B_G_C6_free
     have h_cycle_in_B : ∃ c : (B F q).Walk w.val w.val, c.IsCycle ∧ c.length = 6 := by
       let f : (B_G (q := q) S D) →g (B F q) :=
         SimpleGraph.Hom.comap (fun x : V_G (q := q) S D => x.val) (B F q)
-      refine' ⟨hw.map f, hw_cycle.map ?_, ?_⟩
+      refine ⟨hw.map f, hw_cycle.map ?_, ?_⟩
       · intro a b hab
         exact Subtype.ext hab
       · exact (SimpleGraph.Walk.length_map f hw).trans hw_length
@@ -851,7 +850,7 @@ theorem B_G_edge_count
         rw [ Finset.sum_sigma' ];
         rw [ ← Finset.sum_filter ];
         rw [ ← Finset.sum_filter ];
-        refine' Finset.sum_bij ( fun x hx => ⟨ x.2, x.1 ⟩ ) _ _ _ _ <;> simp +contextual;
+        refine Finset.sum_bij ( fun x hx => ⟨ x.2, x.1 ⟩ ) ?_ ?_ ?_ ?_ <;> simp +contextual;
         exact fun b hb₁ hb₂ hb₃ => ⟨ _, _, ⟨ hb₂, hb₁, hb₃ ⟩, rfl ⟩;
       have hDcard : (Finset.filter (fun l : Line F q => l ∈ D) Finset.univ).card = Fintype.card { l : Line F q // l ∈ D } := by
         exact (Fintype.card_subtype (fun l : Line F q => l ∈ D)).symm
@@ -934,7 +933,7 @@ lemma exists_parameters (c : ℝ) (_hc : c > 0) :
     k * q^3 = ⌊((k * q^3 : ℝ) + y) ^ (2/3 : ℝ)⌋₊ ∧
     (y * k : ℝ) ≥ c * (k * q^3 + y) := by
       simp +zetaDelta at *;
-      refine' ⟨ 2, Nat.prime_two, 0, 0, _, _, _ ⟩ <;> norm_num
+      refine ⟨ 2, Nat.prime_two, 0, 0, ?_, ?_, ?_ ⟩ <;> norm_num
 
 /-
 For any $c > 0$, there exist $q, k, y$ such that $q$ is prime, $k \ge 1$, $k \le q$, $y \le q^5$, the partition size condition is met, and the edge density is at least $c$.
@@ -955,14 +954,16 @@ lemma exists_parameters_useful (c : ℝ) (hc : c > 0) :
       set k := Nat.floor (2 * c) + 1;
       -- Let $y$ be an integer in the interval $[x^{3/2} - x, (x+1)^{3/2} - x)$.
       obtain ⟨y, hy_bounds⟩ : ∃ y : ℕ, (k * q^3 : ℝ)^(3 / 2 : ℝ) - k * q^3 ≤ y ∧ y < ((k * q^3 + 1) : ℝ)^(3 / 2 : ℝ) - k * q^3 := by
-        refine' ⟨ ⌈ ( ( k : ℝ ) * q ^ 3 ) ^ ( 3 / 2 : ℝ ) - ( k : ℝ ) * q ^ 3⌉₊, _, _ ⟩ <;> norm_num;
+        refine ⟨ ⌈ ( ( k : ℝ ) * q ^ 3 ) ^ ( 3 / 2 : ℝ ) - ( k : ℝ ) * q ^ 3⌉₊, ?_, ?_ ⟩ <;> norm_num;
         · linarith [ Nat.le_ceil ( ( ( k : ℝ ) * q ^ 3 ) ^ ( 3 / 2 : ℝ ) - ( k : ℝ ) * q ^ 3 ) ];
-        · refine' lt_of_le_of_lt ( Nat.ceil_lt_add_one _ |> le_of_lt ) _;
-          · exact sub_nonneg_of_le ( by exact le_trans ( by norm_num ) ( Real.rpow_le_rpow_of_exponent_le ( mod_cast Nat.one_le_iff_ne_zero.mpr <| by aesop ) <| show ( 3 : ℝ ) / 2 ≥ 1 by norm_num ) );
+        · refine lt_of_le_of_lt ( ( Nat.ceil_lt_add_one ( sub_nonneg_of_le ( by
+              exact le_trans ( by norm_num ) ( Real.rpow_le_rpow_of_exponent_le
+                ( mod_cast Nat.one_le_iff_ne_zero.mpr <| by aesop )
+                <| show ( 3 : ℝ ) / 2 ≥ 1 by norm_num ) ) ) ).le ) ?_;
           · rw [ show ( 3 / 2 : ℝ ) = 1 + 1 / 2 by norm_num, Real.rpow_add', Real.rpow_add' ] <;> norm_num <;> try positivity;
             rw [ ← Real.sqrt_eq_rpow, ← Real.sqrt_eq_rpow ];
             nlinarith only [ show 1 ≤ ( k : ℝ ) * q ^ 3 by exact one_le_mul_of_one_le_of_one_le ( mod_cast Nat.succ_pos _ ) ( mod_cast pow_pos hq_prime.pos _ ), Real.sqrt_nonneg ( ( k : ℝ ) * q ^ 3 ), Real.sqrt_le_sqrt ( show ( k : ℝ ) * q ^ 3 ≤ ( k : ℝ ) * q ^ 3 + 1 by linarith ), Real.mul_self_sqrt ( show 0 ≤ ( k : ℝ ) * q ^ 3 by positivity ), Real.mul_self_sqrt ( show 0 ≤ ( k : ℝ ) * q ^ 3 + 1 by positivity ) ];
-      refine' ⟨ q, k, y, hq_prime, _, _, _, _, _ ⟩ <;> norm_num at * <;> try linarith;
+      refine ⟨ q, k, y, hq_prime, ?_, ?_, ?_, ?_, ?_ ⟩ <;> norm_num at * <;> try linarith;
       · exact Nat.succ_pos _;
       · -- Since $q$ is large, we have $((k * q^3 + 1) : ℝ)^(3 / 2 : ℝ) - k * q^3 < q^5$.
         have hy_bound : ((k * q^3 + 1) : ℝ)^(3 / 2 : ℝ) - k * q^3 < q^5 := by
@@ -995,7 +996,7 @@ lemma exists_parameters_useful (c : ℝ) (hc : c > 0) :
             · exact mul_pos ( by positivity ) ( pow_pos ( Nat.cast_pos.mpr hq_prime.pos ) _ );
             · exact add_pos_of_pos_of_nonneg ( mul_pos ( by positivity ) ( pow_pos ( Nat.cast_pos.mpr hq_prime.pos ) 3 ) ) ( Nat.cast_nonneg _ );
           · field_simp;
-            refine' lt_of_lt_of_le ( Real.rpow_lt_rpow ( by positivity ) ( show ( ( ⌊2 * c⌋₊ + 1 ) * q ^ 3 + y : ℝ ) < ( ( ⌊2 * c⌋₊ + 1 ) * q ^ 3 + 1 ) ^ ( 3 / 2 : ℝ ) by linarith ) ( by positivity ) ) _;
+            refine lt_of_lt_of_le ( Real.rpow_lt_rpow ( by positivity ) ( show ( ( ⌊2 * c⌋₊ + 1 ) * q ^ 3 + y : ℝ ) < ( ( ⌊2 * c⌋₊ + 1 ) * q ^ 3 + 1 ) ^ ( 3 / 2 : ℝ ) by linarith ) ( by positivity ) ) ?_;
             rw [ ← Real.rpow_mul ( by positivity ) ] ; norm_num;
         · positivity;
       · -- Since $q$ is large, we have $y \approx x^{3/2} = k^{1.5} q^{4.5}$.
@@ -1118,7 +1119,7 @@ lemma exists_field_and_sets (q k y : ℕ) (hq : Nat.Prime q) (hk : k ≤ q) (_hy
                 have h_splits : Polynomial.Splits (algebraMap (ZMod q) (GaloisField q 2)) (Polynomial.X ^ q - Polynomial.X : Polynomial (ZMod q)) := by
                   have h_splits : Polynomial.Splits (algebraMap (ZMod q) (GaloisField q 2)) (Polynomial.X ^ q - Polynomial.X : Polynomial (ZMod q)) := by
                     have h_poly : (Polynomial.X ^ q - Polynomial.X : Polynomial (ZMod q)) = Polynomial.C 1 * (∏ x ∈ Finset.univ, (Polynomial.X - Polynomial.C x)) := by
-                      refine' Polynomial.eq_of_degree_sub_lt_of_eval_finset_eq _ _ _;
+                      refine Polynomial.eq_of_degree_sub_lt_of_eval_finset_eq ?_ ?_ ?_;
                       exact Finset.univ;
                       · convert Polynomial.degree_sub_lt _ _ _ <;> norm_num [ Polynomial.degree_prod, Polynomial.degree_X_pow_sub_C ];
                         · rw [ Polynomial.degree_sub_eq_left_of_degree_lt ] <;> norm_num [ hq.one_lt ];
@@ -1138,8 +1139,8 @@ lemma exists_field_and_sets (q k y : ℕ) (hq : Nat.Prime q) (hk : k ≤ q) (_hy
               erw [ Polynomial.splits_iff_card_roots ] at h_poly;
               rw [ Multiset.toFinset_card_of_nodup ];
               · rw [ h_poly, Polynomial.natDegree_sub_eq_left_of_natDegree_lt ] <;> norm_num [ hq.one_lt ];
-              · refine' Polynomial.nodup_roots _;
-                refine' IsCoprime.symm _;
+              · refine Polynomial.nodup_roots ?_;
+                refine IsCoprime.symm ?_;
                 norm_num [ Polynomial.derivative_pow ];
                 exact isCoprime_one_left.neg_left
             exact ⟨ _, h_poly, fun x hx => by simpa [ sub_eq_zero ] using Polynomial.isRoot_of_mem_roots ( Multiset.mem_toFinset.mp hx ) ⟩;
@@ -1147,7 +1148,7 @@ lemma exists_field_and_sets (q k y : ℕ) (hq : Nat.Prime q) (hk : k ≤ q) (_hy
         -- Since $k \le q$, we can choose a subset $S \subseteq S_0$ of size $k$.
         obtain ⟨S, hS⟩ : ∃ S : Finset (GaloisField q 2), S ⊆ S₀ ∧ S.card = k := by
           exact Finset.exists_subset_card_eq ( by linarith );
-        refine' ⟨ _, _, _, S, _, _, _, hS.2 ⟩;
+        refine ⟨ ?_, ?_, ?_, S, ?_, ?_, ?_, hS.2 ⟩;
         all_goals try infer_instance
         generalize_proofs at *;
         exact Fintype.ofFinite _;
@@ -1185,7 +1186,7 @@ lemma exists_field_and_sets (q k y : ℕ) (hq : Nat.Prime q) (hk : k ≤ q) (_hy
                 have h_poly_roots : Multiset.card (Polynomial.roots (Polynomial.X^q - Polynomial.X : Polynomial F)) = Polynomial.natDegree (Polynomial.X^q - Polynomial.X : Polynomial F) := by
                   simp_all +decide [ Polynomial.splits_iff_card_roots ];
                 rw [ ← h_poly_roots, Multiset.toFinset_card_of_nodup ];
-                refine' Polynomial.nodup_roots _;
+                refine Polynomial.nodup_roots ?_;
                 have h_poly_separable : Polynomial.Separable (Polynomial.X^q - Polynomial.X : Polynomial F) := by
                   have h_poly_deriv : Polynomial.derivative (Polynomial.X^q - Polynomial.X : Polynomial F) = -1 := by
                     norm_num [ Polynomial.derivative_pow, hq.ne_zero ]
@@ -1264,9 +1265,9 @@ lemma card_fixed_points_of_card_eq_qsq
       have h_roots_count : (Polynomial.X ^ q - Polynomial.X : Polynomial F).roots.toFinset.card = Polynomial.natDegree (Polynomial.X ^ q - Polynomial.X : Polynomial F) := by
         erw [ Multiset.toFinset_card_of_nodup ];
         · erw [ Polynomial.splits_iff_card_roots ] at h_poly_splits ; aesop;
-        · refine' Polynomial.nodup_roots _;
-          refine' IsCoprime.symm _;
-          refine' ⟨ -1, Polynomial.C ( q : F ) ⁻¹, _ ⟩;
+        · refine Polynomial.nodup_roots ?_;
+          refine IsCoprime.symm ?_;
+          refine ⟨ -1, Polynomial.C ( q : F ) ⁻¹, ?_ ⟩;
           simp +decide [ Polynomial.derivative_pow, Polynomial.derivative_X, Polynomial.derivative_C ];
       rw [ h_roots_count, Polynomial.natDegree_sub_eq_left_of_natDegree_lt ] <;> norm_num [ Nat.Prime.one_lt Fact.out ];
     rw [ Fintype.card_subtype ];
@@ -1316,7 +1317,7 @@ lemma B_G_properties (q k y : ℕ)
         exact ⟨h_add, h_mul, h_sub, h_F, h_two, h_two_ne_zero, h_neg⟩;
       exact h_alg_id;
     norm_num +zetaDelta at *;
-    refine' ⟨ _, _, _, _ ⟩;
+    refine ⟨ ?_, ?_, ?_, ?_ ⟩;
     · convert B_G_card_V q k y hq_prime hk_le_q hy_le_lines F S D h_card_F h_fixed_points h_fixed h_card_S h_card_D using 1;
     · convert B_G_edge_count ( q := q ) ( S := S ) ( D := D ) ( fun a b => h_alg_id.1 a b ) ( fun a b => h_alg_id.2.1 a b ) ( fun a => h_alg_id.2.2.2.1 a ) ( fun a b => h_alg_id.2.2.1 a b ) ( fun a => by aesop ) h_card_F h_fixed_points using 1;
       · rw [Set.ncard_coe_finset, h_card_S, Set.ncard_coe_finset, h_card_D, Nat.sub_sub_self hy_le_lines]
@@ -1347,7 +1348,7 @@ lemma transfer_to_fin_n {V : Type*} [Fintype V]
       have h_bij : ∃ e : V ≃ Fin n, True := by
         exact ⟨ Fintype.equivOfCardEq ( by simp +decide [ hn ] ), trivial ⟩;
       obtain ⟨ e, - ⟩ := h_bij;
-      refine' ⟨ _, _, _, _, _, _, _ ⟩;
+      refine ⟨ ?_, ?_, ?_, ?_, ?_, ?_, ?_ ⟩;
       exact SimpleGraph.comap ( fun x => e.symm x ) G;
       exact Finset.image ( fun x => e x ) A;
       · aesop;
@@ -1397,11 +1398,11 @@ lemma exists_counterexample_graph (q k y : ℕ)
         rotate_left;
         exact Finset.univ.filter fun p => p.p1 ∈ S;
         · simp +decide [ P_S ];
-        · refine' Finset.card_bij ( fun p hp => p.val.elim ( fun p => p ) fun l => by
+        · refine Finset.card_bij ( fun p hp => p.val.elim ( fun p => p ) fun l => by
             exact ⟨ 0, 0, 0, by
               rw [ zero_pow hq_prime.ne_zero ], by
               rw [ zero_pow hq_prime.ne_zero ] ⟩
-            ) _ _ _ <;> simp +decide [ hA_orig_def ];
+            ) ?_ ?_ ?_ <;> simp +decide [ hA_orig_def ];
           · exact fun a b => b;
           · exact fun p hp => by exact Set.mem_setOf.mpr ( by simpa using hp ) ;
       have := transfer_to_fin_n (B_G (S : Set F) (D : Set (Line F q))) A_orig n (by
@@ -1455,7 +1456,7 @@ theorem thm_counterexamples_nonempty :
       have := exists_counterexample_graph q k y hq_prime hq_odd hy_le_lines hk_size;
       exact_mod_cast this _ rfl ( mod_cast hk_pos ) hk_le_q;
   simp +zetaDelta at *;
-  refine' ⟨ k * q ^ 3 + y, _, G, _, _, _ ⟩;
+  refine ⟨ k * q ^ 3 + y, ?_, G, ?_, ?_, ?_ ⟩;
   · exact ⟨ ⟨ 0, by positivity ⟩ ⟩;
   · exact ⟨ A, hA_card, hA_indep, by simpa using hA_c_indep ⟩;
   · exact ⟨ inferInstance, by push_cast; linarith ⟩;
@@ -1491,7 +1492,7 @@ def not_erdos_1080 : ¬erdos_1080 := by
   intro h;
   obtain ⟨ c, hc₀, hc ⟩ := h;
   apply thm_counterexamples_nonempty;
-  refine' ⟨ c, hc₀, fun n G _ _ h1 h2 => _ ⟩;
+  refine ⟨ c, hc₀, fun n G _ _ h1 h2 => ?_ ⟩;
   obtain ⟨ A, hA₁, hA₂, hA₃ ⟩ := h1;
   specialize hc ( Fin n ) G ( A : Set ( Fin n ) ) ( Aᶜ : Set ( Fin n ) ) ; simp_all +decide [ IsBipartition ];
   simp_all +decide [ Set.disjoint_left ];
