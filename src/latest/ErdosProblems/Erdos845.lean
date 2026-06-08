@@ -26,7 +26,6 @@ set_option linter.unusedVariables false
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.refine false
 
 open scoped BigOperators
 open scoped Real
@@ -117,7 +116,7 @@ theorem even_sum_subset_pow2 (n k : ℕ) (h_lt : n < 2 ^ (k + 1)) (h_even : Even
     -- Since $m < 2^k$, by binary_sum_subset, $m$ can be written as a sum of distinct powers of 2 with exponents in {0, ..., k-1}.
     obtain ⟨S', hS'_subset, hS'_sum⟩ : ∃ S' : Finset ℕ, S' ⊆ Finset.range k ∧ S'.sum (2 ^ ·) = m := by
       exact binary_sum_subset m k ( by rw [ pow_succ' ] at h_lt; linarith );
-    refine' ⟨ Finset.image ( fun x => x + 1 ) S', _, _ ⟩ <;> simp_all +decide [ Finset.subset_iff ];
+    refine ⟨ Finset.image ( fun x => x + 1 ) S', ?_, ?_ ⟩ <;> simp_all +decide [ Finset.subset_iff ];
     simp +decide [ ← hS'_sum, pow_succ', Finset.mul_sum _ _ _ ]
 
 /-
@@ -160,7 +159,7 @@ theorem S_p_covers_range (p : ℕ) (hp_odd : Odd p) (hp_gt_1 : p > 1) :
       -- These powers are in S_p \ {p}.
       have h_powers_subset : (Finset.image (fun x => 2 ^ x) S') ⊆ S_p p \ {p} := by
         grind;
-      refine' ⟨ { p } ∪ Finset.image ( fun x => 2 ^ x ) S', _, _ ⟩ <;> simp_all +decide [ Finset.subset_iff ];
+      refine ⟨ { p } ∪ Finset.image ( fun x => 2 ^ x ) S', ?_, ?_ ⟩ <;> simp_all +decide [ Finset.subset_iff ];
       · exact Finset.mem_union_left _ ( Finset.mem_singleton_self _ );
       · rw [ Finset.sum_image ] <;> aesop
 
@@ -175,7 +174,7 @@ theorem lemma_ssize (p : ℕ) (hp_odd : Odd p) (hp_gt_1 : p > 1) :
       ∀ x, M₀ ≤ x → x ≤ M₀ + S.card → is_sum_of_distinct_elements S x) ∧
     S.card ≤ 1 + Nat.clog 2 p ∧
     (∃ m ∈ S, p ≤ m ∧ ∀ x ∈ S, x ≤ m ∧ m ≤ 2^(Nat.clog 2 p)) := by
-      refine' ⟨ S_p p, _, _, _, _, _ ⟩;
+      refine ⟨ S_p p, ?_, ?_, ?_, ?_, ?_ ⟩;
       · unfold S_p A;
         norm_num +zetaDelta at *;
         exact ⟨ ⟨ ⟨ 0, 1, by norm_num ⟩, by linarith ⟩, fun a x hx₁ hx₂ hx₃ => ⟨ ⟨ x, 0, by aesop ⟩, by linarith [ Nat.pow_le_pow_right two_pos hx₁ ] ⟩ ⟩;
@@ -185,7 +184,7 @@ theorem lemma_ssize (p : ℕ) (hp_odd : Odd p) (hp_gt_1 : p > 1) :
         omega
       · unfold S_p;
         simp;
-        refine' Or.inr ⟨ Nat.clog 2 p, _, _, _, _ ⟩;
+        refine Or.inr ⟨ Nat.clog 2 p, ?_, ?_, ?_, ?_ ⟩;
         · norm_num;
           exact Nat.clog_pos ( by decide ) hp_gt_1;
         · exact Nat.le_pow_clog ( by decide ) _;
@@ -258,7 +257,7 @@ theorem iter_log_eventually_le_one (n : ℕ) : ∃ k, iter_log n k ≤ 1 := by
   by_contra h_contra;
   -- If for all $k$, $iter_log n k > 1$, then the sequence $iter_log n k$ is strictly decreasing and bounded below by 1.
   have h_decreasing : StrictAnti (fun k => iter_log n k) := by
-    refine' strictAnti_nat_of_succ_lt fun k => _;
+    refine strictAnti_nat_of_succ_lt fun k => ?_;
     -- By definition of $iter_log$, we have $iter_log n (k + 1) = Nat.log2 (iter_log n k)$.
     simp [iter_log];
     rw [ Nat.log2_lt ];
@@ -598,7 +597,7 @@ theorem decompose_even_pow2_spec (x : ℕ) (hx : x > 1) :
   let s := decompose_even_pow2 x
   (s.sum id = x ∨ s.sum id = x - 1) ∧
   (∀ y ∈ s, ∃ k ≥ 1, y = 2^k) := by
-    refine' ⟨ _, _ ⟩;
+    refine ⟨ ?_, ?_ ⟩;
     · unfold decompose_even_pow2;
       split_ifs <;> simp_all +decide [ Nat.even_iff ];
       · have h_binary_sum : ∑ k ∈ x.bitIndices.toFinset, 2^k = x := by
@@ -606,13 +605,13 @@ theorem decompose_even_pow2_spec (x : ℕ) (hx : x > 1) :
           | nil => simp_all +decide
           | append_singleton d _ ih => simp_all +decide
         convert Or.inl h_binary_sum using 2;
-        refine' Finset.sum_bij ( fun k hk => Nat.log 2 k ) _ _ _ _ <;> aesop;
+        refine Finset.sum_bij ( fun k hk => Nat.log 2 k ) ?_ ?_ ?_ ?_ <;> aesop;
       · -- By definition of `bitIndices`, the sum of the elements in the list `List.map (fun x => 2 ^ x) (x - 1).bitIndices` is equal to `x - 1`.
         have h_sum_bitIndices : ∑ x ∈ (List.map (fun x => 2 ^ x) (x - 1).bitIndices).toFinset, x = (x - 1) := by
           have h_sum_bitIndices : ∑ x ∈ (Nat.bitIndices (x - 1)).toFinset, 2 ^ x = x - 1 := by
             aesop;
           convert h_sum_bitIndices using 1;
-          refine' Finset.sum_bij ( fun y hy => Nat.log 2 y ) _ _ _ _ <;> aesop;
+          refine Finset.sum_bij ( fun y hy => Nat.log 2 y ) ?_ ?_ ?_ ?_ <;> aesop;
         exact Or.inr h_sum_bitIndices;
     · rcases Nat.even_or_odd' x with ⟨ c, rfl | rfl ⟩ <;> simp_all +decide [ decompose_even_pow2 ]
 
@@ -798,7 +797,7 @@ theorem v_strict_mono (p n : ℕ) (hp : Odd p ∧ p > 1) (k : ℕ) (hk : 1 ≤ k
         · have := S_properties p hp;
           exact ⟨ _, this.2.2.2.2.choose_spec.1, by linarith [ this.2.2.2.2.choose_spec.2.1, hp.2 ] ⟩;
         · exact absurd ‹_› ( Finset.Nonempty.ne_empty ( S_nonempty p hp ) );
-      · refine' Nat.le_self_pow _ _ ; norm_num;
+      · refine Nat.le_self_pow ?_ ?_ ; norm_num;
         -- Since $k + 1 + 1 < K p$, we have $M p (k + 1 + 1 + 1) \geq 1$.
         have h_M_ge_one : 1 ≤ M p (k + 1 + 1 + 1) := by
           apply M_ge_one_of_le_K p hp (k + 1 + 1 + 1) ⟨by linarith, by linarith⟩;
@@ -925,7 +924,7 @@ theorem c_init_eq_zero_of_gt_vK (p n : ℕ) (hp : Odd p ∧ p > 1) (j : ℕ) (hj
       have h_a_j_gt_R : a_seq p j > P p (K p) * a_seq p (m p n hp - 1) := by
         exact a_seq_strict_mono p hp.2 hj |> fun h => h.trans_le' <| by rw [ v_spec ] ;
       refine lt_of_le_of_lt ?_ h_a_j_gt_R;
-      refine' le_trans _ ( Nat.mul_le_mul_right _ ( show P p ( K p ) ≥ P p 2 from _ ) );
+      refine le_trans ?_ ( Nat.mul_le_mul_right _ ( show P p ( K p ) ≥ P p 2 from ?_ ) );
       · by_cases hn : n > 0;
         · exact le_of_lt ( R_lt_P2_am_sub_1 p n hp hn );
         · unfold R; aesop;
@@ -972,7 +971,7 @@ There exists an element in S that is not a power of 2.
 theorem exists_non_pow2_in_S (p : ℕ) (hp : Odd p ∧ p > 1) :
   ∃ x ∈ S p, ∀ k, x ≠ 2^k := by
     obtain ⟨ x, hx₁, hx₂ ⟩ := exists_odd_in_S p hp;
-    refine' ⟨ x, hx₁, fun k hk => _ ⟩;
+    refine ⟨ x, hx₁, fun k hk => ?_ ⟩;
     cases k <;> simp_all +decide;
     · have := S_properties p hp;
       exact this.1 1 hx₁ |>.2 rfl;
@@ -999,12 +998,11 @@ theorem target_index_gt_self (p : ℕ) (hp : p > 1) (k : ℕ) (s : ℕ) (hs : s 
     have h_target_eq : a_seq p (target_index p k s) = s * a_seq p k := by
       exact target_index_spec p hp k s hs_in_A;
     contrapose! h_target_eq;
-    refine' ne_of_lt ( lt_of_le_of_lt _ ( lt_mul_of_one_lt_left _ hs ) );
+    refine ne_of_lt ( lt_of_le_of_lt ?_ ( lt_mul_of_one_lt_left ( a_seq_pos p hp k ) hs ) );
     · -- Since $a_seq$ is strictly monotone, we have $a_seq p (target_index p k s) \leq a_seq p k$ if and only if $target_index p k s \leq k$.
       have h_mono : StrictMono (a_seq p) := by
         exact a_seq_strict_mono p hp;
       exact h_mono.monotone h_target_eq;
-    · exact a_seq_pos p hp k
 
 /-
 Recursive definition of P.
@@ -1249,9 +1247,9 @@ theorem lemma_c_init_eq_zero_of_ge_vK (p n : ℕ) (hp : Odd p ∧ p > 1) (hn : n
   c_init p n hp i = 0 := by
     -- If $i \geq v(K)$, then $a_i \geq a_{v(K)} = P(K) a_{m-1}$.
     have h_ai_ge_R : a_seq p i ≥ R p n hp + 1 := by
-      refine' lt_of_lt_of_le _ ( a_seq_strict_mono p hp.2 |> StrictMono.monotone |> fun h => h hi );
+      refine lt_of_lt_of_le ?_ ( a_seq_strict_mono p hp.2 |> StrictMono.monotone |> fun h => h hi );
       rw [ v_spec ];
-      refine' lt_of_lt_of_le ( R_lt_P2_am_sub_1 p n hp hn ) _;
+      refine lt_of_lt_of_le ( R_lt_P2_am_sub_1 p n hp hn ) ?_;
       exact Nat.mul_le_mul_right _ ( P_mono p ( by linarith [ K_ge_2 p ] ) );
     -- Since $a_i > R$, the coefficient from the binary representation is zero.
     have h_coeff_zero : coeff_from_binary p (R p n hp) i = 0 := by
@@ -1272,7 +1270,7 @@ theorem lemma_M_antitone (p : ℕ) (hp : Odd p ∧ p > 1) :
     · rename_i k hk ih
       rcases k with ( _ | _ | k ) <;> simp_all +decide [ M ];
       · grind;
-      · refine' le_trans _ ih;
+      · refine le_trans ?_ ih;
         exact Nat.log2_le_self (M p (k + 2))
 
 /-
@@ -1427,7 +1425,7 @@ theorem lemma_used_s_final_v2_sum_le (p n : ℕ) (hp : Odd p ∧ p > 1) (k : ℕ
             · ext; simp [Function.comp];
           · have h_ind : ∑ x ∈ (List.map ((fun x => 2 ^ x) ∘ fun x => x + 1) c.bitIndices).toFinset, x = 2 * ∑ x ∈ (List.map (fun x => 2 ^ x) c.bitIndices).toFinset, x := by
               rw [ Finset.mul_sum _ _ _ ];
-              refine' Finset.sum_bij ( fun x hx => x / 2 ) _ _ _ _ <;> simp_all +decide [ Function.comp, pow_succ' ];
+              refine Finset.sum_bij ( fun x hx => x / 2 ) ?_ ?_ ?_ ?_ <;> simp_all +decide [ Function.comp, pow_succ' ];
             by_cases hc : 1 < c;
             · grind;
             · interval_cases c ; simp_all +decide;
@@ -1544,7 +1542,7 @@ theorem lemma_scalar_bound_final_ge2 (p n : ℕ) (hp : Odd p ∧ p > 1) (j : ℕ
     have h_s_le_u : s ≤ u p (k + 1) := by
       rw [ lemma_u_eq_pow2_log2_M ];
       · rw [ hr.1 ];
-        refine' pow_le_pow_right₀ ( by decide ) _;
+        refine pow_le_pow_right₀ ( by decide ) ?_;
         rw [ Nat.le_log2 ] <;> linarith [ Nat.one_le_pow r 2 zero_lt_two ];
       · grind
     exact h_s_le_u
@@ -1641,7 +1639,7 @@ theorem lemma_contributing_subset_S_final (p n : ℕ) (hp : Odd p ∧ p > 1) (j 
       unfold index_in_A at hj'_lt_m_sub_1;
       split_ifs at hj'_lt_m_sub_1 <;> simp_all +decide;
       contrapose! hj'_lt_m_sub_1;
-      refine' ⟨ m p n hp - 1, _, _ ⟩ <;> norm_num [ Nat.sub_add_cancel ( show 1 ≤ m p n hp from _ ) ];
+      refine ⟨ m p n hp - 1, ?_, ?_ ⟩ <;> norm_num [ Nat.sub_add_cancel ( show 1 ≤ m p n hp from ?_ ) ];
       · linarith;
       · -- By definition of $P$, we know that $P p 1 = 1$.
         simp [P];
@@ -1940,7 +1938,7 @@ theorem lemma_target_scalar_properties (p n : ℕ) (hp : Odd p ∧ p > 1) (j : �
       specialize this k ( by linarith ) ( by linarith ) hi ( by linarith );
       contrapose! this;
       rcases k' with ( _ | _ | k' ) <;> simp_all +arith +decide [ in_interval_final ];
-      · refine' lt_of_lt_of_le hk'.2 _;
+      · refine lt_of_lt_of_le hk'.2 ?_;
         exact lemma_v_mono_final p n hp 1 ( k - 2 ) ( by norm_num ) ( by omega ) ( by omega );
       · exact lt_of_lt_of_le hk'.2.2 ( lemma_v_mono_final p n hp _ _ ( by omega ) ( by omega ) ( by omega ) )
     have hk'_le_k : k' ≤ k := by
@@ -1968,7 +1966,7 @@ theorem lemma_card_targets_eq_card_scalars (p n : ℕ) (hp : Odd p ∧ p > 1) (j
       rw [ h_union, Finset.card_biUnion ];
       intros j' hj' j'' hj'' hij''; exact lemma_contributing_scalars_disjoint_final p n hp i j' j'' hij'';
     rw [ h_card_union, Finset.card_eq_sum_ones ];
-    refine' Finset.sum_congr rfl _;
+    refine Finset.sum_congr rfl ?_;
     intros j' hj'
     have h_target : ∃ s ∈ used_s_final_v2 p n hp j', target_index p j' s = i := by
       aesop;
@@ -2150,7 +2148,7 @@ theorem lemma_card_contributing_le_S_sub_one_final_if_pow2_I2 (p n : ℕ) (hp : 
       obtain ⟨j', hj', hs_j'⟩ : ∃ j' < j, s ∈ used_s_final_v2 p n hp j' ∧ target_index p j' s = i := by
         unfold contributing_s_final_v2_up_to at hs; aesop;
       have := lemma_s_is_pow2_of_target_pow2 p hp.2 j' s (lemma_used_s_final_v2_properties p n hp j' s hs_j'.1 |>.1) i hs_j'.2 h_pow2; aesop;
-    refine' Nat.le_sub_one_of_lt ( Finset.card_lt_card _ );
+    refine Nat.le_sub_one_of_lt ( Finset.card_lt_card ?_ );
     exact ⟨ h_subset, fun h => hx_not_pow2 <| h_pow2_s x <| h hx_S ⟩
 
 /-
@@ -2622,7 +2620,7 @@ theorem lemma_final_summands_min (p n : ℕ) (hp : Odd p ∧ p > 1) (hn : n > 0)
     -- Since `b` is in the final summands list, there exists an index `i` such that `c_final_val_v2 i = 1` and `b = a_seq p i`.
     obtain ⟨i, hi_coeff, rfl⟩ : ∃ i, c_final_val_v2 p n hp i = 1 ∧ b = a_seq p i := by
       unfold final_summands_list_v2 at hb; aesop;
-    refine' a_seq_strict_mono p hp.2 |> ( fun h => h.monotone _ );
+    refine a_seq_strict_mono p hp.2 |> ( fun h => h.monotone ?_ );
     contrapose! hi_coeff;
     exact ne_of_lt ( lt_of_eq_of_lt ( lemma_c_final_v2_eq_zero_of_lt_m_sub_1 p n hp i hi_coeff ) ( by norm_num ) )
 
@@ -2862,7 +2860,7 @@ theorem lemma_final_sum_eq_n (p n : ℕ) (hp : Odd p ∧ p > 1) (hn : n > 0) :
       have h_sum_eq : (final_summands_list_v2 p n hp).sum = ∑ i ∈ Finset.filter (fun i => c_final_val_v2 p n hp i = 1) (Finset.range (final_step_index p n hp)), a_seq p i := by
         unfold final_summands_list_v2; aesop;
       rw [ h_sum_eq, Finset.sum_filter ];
-      refine' Finset.sum_congr rfl fun i hi => _;
+      refine Finset.sum_congr rfl fun i hi => ?_;
       have := lemma_c_final_v2_le_one p n hp hn i ( Finset.mem_range.mp hi ) ; interval_cases c_final_val_v2 p n hp i <;> simp +decide ;
     convert lemma_sum_at_step_final p n hp hn using 1
 
@@ -2958,30 +2956,37 @@ theorem main_theorem_consequence :
   {n : ℕ | n > 0} ⊆ { ∑ x ∈ B, f x | (B : Finset (ℕ × ℕ)) (h : B.Nonempty) (hB : ((B.sup f : ℕ) : ℝ) ≤ C * ((B.inf' h f : ℕ) : ℝ)) } := by
     -- Apply `main_theorem` with `p=3`.
     obtain ⟨C_nat, hC_nat⟩ := main_theorem 3 ⟨by decide, by decide⟩;
-    refine' ⟨ C_nat + 1, by positivity, fun n hn => _ ⟩;
+    refine ⟨ C_nat + 1, by positivity, fun n hn => ?_ ⟩;
     obtain ⟨ L, hL₁, hL₂, hL₃, hL₄, hL₅ ⟩ := hC_nat n hn;
     -- Let $B$ be the set of pairs $(k, l)$ such that $2^k * 3^l \in L$.
-    obtain ⟨B, hB⟩ : ∃ B : Finset (ℕ × ℕ), (∀ x ∈ B, 2 ^ x.1 * 3 ^ x.2 ∈ L) ∧ (∀ x ∈ L, ∃ y ∈ B, 2 ^ y.1 * 3 ^ y.2 = x) ∧ L.sum = ∑ x ∈ B, 2 ^ x.1 * 3 ^ x.2 := by
-      have hB : ∀ x ∈ L, ∃ y : ℕ × ℕ, 2 ^ y.1 * 3 ^ y.2 = x := by
+    obtain ⟨B, hB_props⟩ : ∃ B : Finset (ℕ × ℕ), (∀ x ∈ B, 2 ^ x.1 * 3 ^ x.2 ∈ L) ∧ (∀ x ∈ L, ∃ y ∈ B, 2 ^ y.1 * 3 ^ y.2 = x) ∧ L.sum = ∑ x ∈ B, 2 ^ x.1 * 3 ^ x.2 := by
+      have hB_repr : ∀ x ∈ L, ∃ y : ℕ × ℕ, 2 ^ y.1 * 3 ^ y.2 = x := by
         exact fun x hx => by obtain ⟨ k, l, rfl ⟩ := hL₂ x hx; exact ⟨ ⟨ k, l ⟩, rfl ⟩ ;
-      choose! f hf using hB;
-      refine' ⟨ L.toFinset.image f, _, _, _ ⟩ <;> simp_all +decide;
+      choose! f hf using hB_repr;
+      refine ⟨ L.toFinset.image f, ?_, ?_, ?_ ⟩ <;> simp_all +decide;
       · exact fun x hx => ⟨ x, hx, hf x hx ⟩;
       · rw [ Finset.sum_image ];
         · rw [ ← hL₃, List.sum_toFinset ];
           · rw [ List.map_congr_left hf ] ; aesop;
           · exact List.Pairwise.nodup hL₁;
         · intro x hx y hy; have := hf x; have := hf y; aesop;
-    refine' ⟨ B, _, _, _ ⟩ <;> simp_all +decide
-    · exact Exists.elim ( hB.2.1 _ ( Classical.choose_spec ( List.length_pos_iff_exists_mem.mp ( List.length_pos_iff.mpr hL₄ ) ) ) ) fun x hx => Exists.elim hx fun y hy => ⟨ ( x, y ), hy.1 ⟩
-    · refine' mod_cast le_trans _ ( Nat.mul_le_mul_left _ <| Finset.le_inf' _ _ _ )
-      rotate_left
-      · exact L.head!
+    have hB_nonempty : B.Nonempty :=
+      Exists.elim
+        ( hB_props.2.1 _ ( Classical.choose_spec ( List.length_pos_iff_exists_mem.mp
+          ( List.length_pos_iff.mpr hL₄ ) ) ) ) fun x hx =>
+        ⟨ x, hx.1 ⟩
+    refine ⟨ B, hB_nonempty, ?_, ?_ ⟩
+    · refine mod_cast le_trans ?_
+          ( Nat.mul_le_mul_left ( C_nat + 1 ) <| Finset.le_inf' (s := B)
+              (a := L.head!) hB_nonempty
+              ( fun i : ℕ × ℕ => 2 ^ i.1 * 3 ^ i.2 ) ?_ )
+      · exact Finset.sup_le fun x hx => by
+          nlinarith [ hL₅ _ ( hB_props.1 x hx ), Nat.zero_le ( L.head! ) ]
       · intro x hx
-        have hxL : 2 ^ x.1 * 3 ^ x.2 ∈ L := hB.1 x hx
+        have hxL : 2 ^ x.1 * 3 ^ x.2 ∈ L := hB_props.1 x hx
         have hLle : List.Pairwise (fun x y => x ≤ y) L := hL₁.imp fun h => le_of_lt h
         exact List.Pairwise.head!_le hLle hxL
-      · exact Finset.sup_le fun x hx => by nlinarith [ hL₅ _ ( hB.1 x hx ), Nat.zero_le ( L.head! ) ]
+    · exact hB_props.2.2.symm.trans hL₃
 
 /-
 Let $C > 0$. Is it true that the set of integers of the form $n = b_1 + \cdots + b_t$,
@@ -2995,20 +3000,20 @@ theorem erdos_845 : (false) ↔ ∀ᵉ (C : ℝ) (hC : 0 < C),
   norm_num;
   obtain ⟨C₀, hC₀_pos, hC₀⟩ : ∃ C₀ : ℝ, C₀ > 0 ∧ {n : ℕ | n > 0} ⊆ {∑ x ∈ B, 2 ^ x.1 * 3 ^ x.2 | (B : Finset (ℕ × ℕ)) (h : B.Nonempty) (hC₀ : (B.sup (fun (x : ℕ × ℕ) => 2 ^ x.1 * 3 ^ x.2) : ℕ) ≤ C₀ * (B.inf' h (fun (x : ℕ × ℕ) => 2 ^ x.1 * 3 ^ x.2) : ℕ))} := by
     convert main_theorem_consequence using 1;
-  refine' ⟨ C₀, hC₀_pos, _ ⟩;
+  refine ⟨ C₀, hC₀_pos, ?_ ⟩;
   intro h;
   -- Since $S_{C₀}$ contains all positive integers, its density is 1.
   have h_density_one : HasDensity {n : ℕ | n > 0} 1 := by
     convert density_of_pos_integers;
   have h_density_one : HasDensity {∑ x ∈ B, 2 ^ x.1 * 3 ^ x.2 | (B : Finset (ℕ × ℕ)) (h : B.Nonempty) (hC₀ : (B.sup (fun (x : ℕ × ℕ) => 2 ^ x.1 * 3 ^ x.2) : ℕ) ≤ C₀ * (B.inf' h (fun (x : ℕ × ℕ) => 2 ^ x.1 * 3 ^ x.2) : ℕ))} 1 := by
-    refine' tendsto_of_tendsto_of_tendsto_of_le_of_le' h_density_one tendsto_const_nhds _ _;
+    refine tendsto_of_tendsto_of_tendsto_of_le_of_le' h_density_one tendsto_const_nhds ?_ ?_;
     · simp +zetaDelta at *;
       use 1;
       intro b hb; rw [ partialDensity, partialDensity ] ;
       gcongr;
       · exact Set.finite_iff_bddAbove.mpr ⟨ b, fun x hx => le_of_lt hx.2 ⟩;
       · grind;
-    · refine' Filter.Eventually.of_forall fun b => div_le_one_of_le₀ _ _ <;> norm_num [ Set.ncard_eq_toFinset_card' ];
+    · refine Filter.Eventually.of_forall fun b => div_le_one_of_le₀ ?_ ?_ <;> norm_num [ Set.ncard_eq_toFinset_card' ];
       exact le_trans ( Finset.card_filter_le _ _ ) ( by simp );
   have := h_density_one.sub h; aesop;
 
@@ -3029,7 +3034,7 @@ theorem van_doorn_everts_asymptotic_inexact :
         intro b hb; specialize hL₂ b hb; unfold A at hL₂; aesop;
       choose! k l hkl using h_factor;
       exact ⟨ fun b => ( k b, l b ), hkl ⟩;
-    refine' ⟨ L.toFinset.image f, _, _ ⟩ <;> norm_num;
+    refine ⟨ L.toFinset.image f, ?_, ?_ ⟩ <;> norm_num;
     · intro x hx y hy
       rw [ ← hf x hx, ← hf y hy ]
       have hy_bound := hL₅ y hy
