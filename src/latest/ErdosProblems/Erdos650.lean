@@ -47,7 +47,6 @@ namespace Erdos650
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 
 open Finset Real Nat
 
@@ -109,8 +108,8 @@ lemma HasDivMatching_from_subset (A : Finset ℕ) (B : Finset ℤ)
       have h_equiv : Nonempty (Fin r ≃ T) := by
         exact ⟨ Fintype.equivOfCardEq <| by aesop ⟩;
       obtain ⟨ e ⟩ := h_equiv;
-      refine' ⟨ fun i => ( e i ).val.val, fun i => f ⟨ ⟨ ( e i ).val.val, ( e i ).val.prop ⟩,
-            hT.1 ( e i |>.2 ) ⟩, _, _, _, _, _ ⟩ <;> simp_all +decide [ Function.Injective ];
+      refine ⟨ fun i => ( e i ).val.val, fun i => f ⟨ ⟨ ( e i ).val.val, ( e i ).val.prop ⟩,
+            hT.1 ( e i |>.2 ) ⟩, ?_, ?_, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ Function.Injective ];
       intro i j hij; specialize hf_inj _ _ _ _ _ _ hij; aesop;
 
 noncomputable def largestMultiple (a : ℕ) (y : ℤ) : ℤ :=
@@ -137,7 +136,7 @@ lemma largestMultiple_gt (a : ℕ) (ha : 0 < a) (y : ℤ) :
 
 -- The trivial upper bound f(m) ≤ m.
 lemma erdos_f_le (m : ℕ) : erdos_f m ≤ m := by
-  refine' csSup_le' _
+  refine csSup_le' ?_
   intro r hr
   obtain ⟨A, hA⟩ : ∃ A : Finset ℕ, (∀ a ∈ A, 0 < a) ∧ A.card = m :=
     ⟨Finset.Icc 1 m, fun a ha => by linarith [Finset.mem_Icc.mp ha], by simp⟩
@@ -150,7 +149,7 @@ lemma erdos_f_le (m : ℕ) : erdos_f m ≤ m := by
 lemma erdos_f_mono : Monotone erdos_f := by
   intros m n hmn
   apply csSup_le_csSup
-  · refine' ⟨n, fun r hr => _⟩
+  · refine ⟨n, fun r hr => ?_⟩
     have := hr (Finset.Icc 1 n) (fun a ha => by linarith [Finset.mem_Icc.mp ha]) (by simp) (0 : ℝ)
     obtain ⟨c, b, hc, hb, hc', hb', h⟩ := this
     exact le_trans (by simpa [Finset.card_image_of_injective _ hc] using
@@ -184,7 +183,7 @@ lemma erdos_f_le_of_few_multiples (n k : ℕ)
       obtain ⟨r, hr⟩ : ∃ r > k, ∀ A : Finset ℕ, (∀ a ∈ A, 0 < a) → A.card = n → ∀ x : ℝ,
             HasDivMatching A (Finset.Ioo ⌊x⌋ ⌈x + 2 * (A.sup id)⌉) r := by
         contrapose! h_contra;
-        refine' csSup_le' _;
+        refine csSup_le' ?_;
         exact fun r hr => not_lt.1 fun contra => by
           obtain ⟨ A, hA_pos, hA_card, x, hx ⟩ := h_contra r contra
           exact hx <| hr A hA_pos hA_card x;
@@ -500,7 +499,7 @@ lemma gcd_lcm_dvd_of_all_gcd_dvd {ι : Type*} (S : Finset ι)
           by_cases h : Nat.gcd ( Nat.lcm a b ) m = 0 <;> simp_all +decide ;
           exact_mod_cast Nat.factorization_le_iff_dvd ( by aesop ) ( by aesop ) |>.1 fun p =>
                 by by_cases hp : Nat.Prime p <;> aesop;
-        refine' dvd_trans ( h_gcd_lcm _ _ _ ) _;
+        refine dvd_trans ( h_gcd_lcm _ _ _ ) ?_;
         exact Int.coe_lcm_dvd h.1 ih
 
 /-- Generalized CRT: given finitely many congruences with pairwise compatible
@@ -592,7 +591,7 @@ lemma M_exists (s t D : ℕ) (hs : 2 ≤ s) (ht : 2 ≤ t) (_hst : s ≤ t)
           obtain ⟨P, hP⟩ : ∃ P : Finset ℕ, badPrimes s t D = P := by
             have h_finite : Set.Finite (badPrimes s t D) := by
               exact badPrimes_finite s t D ( hD.symm ▸ by
-                refine' Nat.le_of_dvd ( Nat.pos_of_ne_zero _ ) _;
+                refine Nat.le_of_dvd ( Nat.pos_of_ne_zero ?_ ) ?_;
                 · induction s * t <;> simp_all +decide;
                   exact Nat.lcm_ne_zero ( Nat.succ_ne_zero _ ) ‹_›;
                 · exact dvd_lcm_range _ _ ( by linarith ) ( by nlinarith ) );
@@ -650,7 +649,7 @@ lemma M_exists (s t D : ℕ) (hs : 2 ≤ s) (ht : 2 ≤ t) (_hst : s ≤ t)
                 intros p hp
                 obtain ⟨y_p, hy_p⟩ : ∃ y_p : ℕ, y_p * (∏ q ∈ P.erase p, q) ≡ 1 [MOD p] := by
                   have h_coprime : Nat.gcd (∏ q ∈ P.erase p, q) p = 1 := by
-                    refine' Nat.Coprime.prod_left _;
+                    refine Nat.Coprime.prod_left ?_;
                     intro q hq; have := Nat.coprime_primes ( show Nat.Prime q from ?_ )
                           ( show Nat.Prime p from ?_ ) ; aesop;
                     · exact hP.symm.subset ( Finset.mem_of_mem_erase hq ) |>.1;
@@ -686,7 +685,7 @@ lemma M_exists (s t D : ℕ) (hs : 2 ≤ s) (ht : 2 ≤ t) (_hst : s ≤ t)
                 exact hP.symm.subset hp |>.1
               exact Nat.Prime.pos hp_prime;
             nlinarith [ mul_pos h_prod_pos ( show 0 < 2 * s + 2 * t * D + 1 by positivity ) ];
-          refine' ⟨ M₀ + N * ∏ p ∈ P, p, mod_cast hN, fun p hp₁ hp₂ hp₃ i j hi hj hi' hj' ↦ _ ⟩;
+          refine ⟨ M₀ + N * ∏ p ∈ P, p, mod_cast hN, fun p hp₁ hp₂ hp₃ i j hi hj hi' hj' ↦ ?_ ⟩;
           convert hM₀ p ( hP.subset ⟨ hp₁, hp₂, hp₃ ⟩ ) i j hi hj hi' hj' using 1 ; push_cast ;
                 ring_nf;
           rw [ Int.dvd_iff_emod_eq_zero, Int.dvd_iff_emod_eq_zero ] ; norm_num [ Int.add_emod,
@@ -703,8 +702,8 @@ lemma erdos_f_upper_bound_ge2 (s t : ℕ) (hs : 2 ≤ s) (ht : 2 ≤ t) (hst : s
             M + ( p.1.val + 1 ) + ( p.2.val + 1 ) * lcm_range ( s * t ) ) Finset.univ) ( by
         aesop ) ( by
         convert alpha_set_card s t ( lcm_range ( s * t ) ) M _;
-        refine' Nat.le_of_dvd ( Nat.pos_of_ne_zero _ ) ( dvd_lcm_range _ _ _ _ ) <;> norm_num [ hs,
-              ht, hst ];
+        refine Nat.le_of_dvd ( Nat.pos_of_ne_zero ?_ )
+              ( dvd_lcm_range _ _ ?_ ?_ ) <;> norm_num [ hs, ht, hst ];
         · exact Nat.ne_of_gt <| Nat.pos_of_ne_zero <| Nat.ne_of_gt <| Nat.recOn ( s * t )
               ( by decide ) fun n ihn => by exact Nat.lcm_pos ( Nat.succ_pos _ ) ihn;
         · nlinarith ) ( ↑ ( Classical.choose ( construction_crt s t ( lcm_range ( s * t ) )
@@ -734,7 +733,7 @@ lemma erdos_f_upper_bound_ge2 (s t : ℕ) (hs : 2 ≤ s) (ht : 2 ≤ t) (hst : s
                                 hM_large ( Classical.choose ( construction_crt s t ( lcm_range ( s *
                                       t ) ) M hs hst rfl hM_large hM_avoid ) )
                                             this b ( by linarith [ Finset.mem_Ioo.mp hb ] ) ( by
-          refine' lt_of_lt_of_le ( Finset.mem_Ioo.mp hb |>.2 ) _;
+          refine lt_of_lt_of_le ( Finset.mem_Ioo.mp hb |>.2 ) ?_;
           gcongr;
           simp +zetaDelta at *;
           exact fun a b => by
@@ -780,7 +779,7 @@ lemma multiples_in_interval_wide (M D i j : ℕ)
 lemma alpha_set_sup (s t D M : ℕ) (hs : 1 ≤ s) (ht : 1 ≤ t) (hD_large : s < D) :
     (Finset.image (fun p : Fin s × Fin t => M + (p.1.val + 1) + (p.2.val + 1) * D)
       Finset.univ).sup id = M + s + t * D := by
-  refine' le_antisymm _ _;
+  refine le_antisymm ?_ ?_;
   · simp +zetaDelta at *;
     exact fun a b => by nlinarith [ Fin.is_lt a, Fin.is_lt b ] ;
   · rcases s with ( _ | s ) <;> rcases t with ( _ | t ) <;> norm_num at *;
@@ -801,7 +800,7 @@ lemma M_exists_large (s t D : ℕ) (hs : 2 ≤ s) (ht : 2 ≤ t) (hst : s ≤ t)
           0 < |q| ∧ |q| < s ∧ |r| < t ∧ (p : ℤ) ∣ (q + r * D)} := by
       apply badPrimes_finite;
       rw [ hD ];
-      refine' Nat.le_of_dvd ( Nat.pos_of_ne_zero _ ) _;
+      refine Nat.le_of_dvd ( Nat.pos_of_ne_zero ?_ ) ?_;
       · induction s * t <;> simp_all +decide;
         exact Nat.lcm_ne_zero ( Nat.succ_ne_zero _ ) ‹_›;
       · exact dvd_lcm_range _ _ ( by nlinarith ) ( by nlinarith );
@@ -809,7 +808,7 @@ lemma M_exists_large (s t D : ℕ) (hs : 2 ≤ s) (ht : 2 ≤ t) (hst : s ≤ t)
           Nat.Prime.ne_zero <| by aesop, fun p hp₁ hp₂ hp₃ =>
                 mod_cast Finset.dvd_prod_of_mem _ <| h_bad_primes_finite.mem_toFinset.mpr ⟨ hp₁,
                       hp₂, hp₃ ⟩ ⟩;
-  refine' ⟨ M₀ + ( N + 1 ) * P, _, _, _ ⟩;
+  refine ⟨ M₀ + ( N + 1 ) * P, ?_, ?_, ?_ ⟩;
   · nlinarith [ Nat.pos_of_ne_zero hP.1 ];
   · nlinarith [ Nat.pos_of_ne_zero hP.1 ];
   · intro p pp p2 h; intros i j hi hj hi' hj'; specialize hM₀₂ p pp p2 h i j hi hj hi' hj'
@@ -905,12 +904,12 @@ lemma Lemma_3maxA_s1 (t : ℕ) (ht : 0 < t)
       push_cast
       nlinarith [ Nat.le_ceil ( ( 3 - ε ) * ( 1 + t ) / ε ),
         mul_div_cancel₀ ( ( 3 - ε ) * ( 1 + t ) ) hε.ne' ], by linarith ⟩;
-  refine' ⟨ Finset.image ( fun j : Fin t => M + 1 + ( j.val + 1 ) * 1 ) Finset.univ, _, _, _ ⟩ <;>
+  refine ⟨ Finset.image ( fun j : Fin t => M + 1 + ( j.val + 1 ) * 1 ) Finset.univ, ?_, ?_, ?_ ⟩ <;>
         norm_num [ Finset.card_image_of_injective, Function.Injective ];
   · rw [ Finset.card_image_of_injective ] <;> norm_num [ Function.Injective ];
     exact fun i j h => Fin.ext h;
-  · refine' ⟨ 1 - M, { 0 } ∪ Finset.image ( fun j : Fin t => ( 1 : ℤ ) + M + ( j.val + 1 ) * 1 )
-        Finset.univ, _, _ ⟩ <;> norm_num [ Finset.card_image_of_injective, Function.Injective ];
+  · refine ⟨ 1 - M, { 0 } ∪ Finset.image ( fun j : Fin t => ( 1 : ℤ ) + M + ( j.val + 1 ) * 1 )
+        Finset.univ, ?_, ?_ ⟩ <;> norm_num [ Finset.card_image_of_injective, Function.Injective ];
     · exact le_trans ( Finset.card_insert_le _ _ )
           ( by rw [ Finset.card_image_of_injective _ fun x y hxy => by simpa [ Fin.ext_iff ]
                 using hxy ] ; norm_num ) ;
@@ -926,7 +925,7 @@ lemma Lemma_3maxA_s1 (t : ℕ) (ht : 0 < t)
           exact Nat.succ_le_of_lt ( Fin.is_lt x )
         norm_num [ show ( Finset.univ.sup fun j : Fin t => M + 1 + ( j.val + 1 ) )
               = M + 1 + t from by
-                    refine' le_antisymm _ _ <;> norm_num [ Finset.sup_le_iff ];
+                    refine le_antisymm ?_ ?_ <;> norm_num [ Finset.sup_le_iff ];
                     exact ⟨ ⟨ t - 1, Nat.sub_lt ht zero_lt_one ⟩, by cases t <;> norm_num at * ⟩ ]
                           at *
         nlinarith [ hx_le_t ];
@@ -1034,9 +1033,9 @@ lemma deficient_hall {α : Type*} {ι : Type*} [DecidableEq α] [DecidableEq ι]
             exact le_trans ‹_› ( le_trans ( Finset.card_le_card hS_card )
                   ( Finset.card_image_le.trans ( by simp +decide ) ) );
           grind;
-        refine' ⟨ S, fun x =>
+        refine ⟨ S, fun x =>
               Classical.choose ( Finset.mem_image.mp ( Finset.mem_filter.mp ( by aesop : x.val ∈ S )
-                    |>.2 ) ), _, _, hS_card ⟩ <;> simp_all +decide [ Function.Injective ];
+                    |>.2 ) ), ?_, ?_, hS_card ⟩ <;> simp_all +decide [ Function.Injective ];
         · grind;
         · intro i x hx hx';
               have := Classical.choose_spec ( Finset.mem_image.mp ( Finset.mem_filter.mp ( by aesop
@@ -1128,7 +1127,7 @@ lemma case1_neighborhood_bound (A : Finset ℕ) (amax : ℕ)
                           S ⊆ Finset.filter (fun b => ∃ a ∈ S, (a : ℤ) ∣ b)
                                 (Finset.Ioo x (x + 2 * amax)) := by
           simp_all +decide [ Finset.subset_iff ]
-          constructor <;> intro a ha <;> refine' ⟨ _, _ ⟩
+          constructor <;> intro a ha <;> refine ⟨ ?_, ?_ ⟩
           · constructor <;> linarith [ u_gt_x a ( A.sup id ) ( hA_pos a ( hS ha ) )
                 ( Finset.le_sup ( f := id ) ( hS ha ) ) x, largestMultiple_le a ( hA_pos a ( hS ha )
                       ) ( x + A.sup id ), Finset.le_sup ( f := id ) ( hS ha ) ]
@@ -1324,10 +1323,10 @@ lemma lower_bound_case1 (m : ℕ) (hm : 0 < m) (A : Finset ℕ)
               ( a.1 : ℤ ) ∣ b ) ( Finset.Ioo x ( x + 2 * A.sup id ) ) ) ( fun n =>
                     min n ⌈2 * Real.sqrt n⌉₊ ) ?_ ?_ ?_ <;> norm_num at *;
         · obtain ⟨ S, f, hf_inj, hf_mem, hf_div ⟩ := g;
-          refine' HasDivMatching_from_subset _ _ S f hf_inj _ _ _ _ <;> aesop;
+          refine HasDivMatching_from_subset _ _ S f hf_inj ?_ ?_ ?_ ?_ <;> aesop;
         · intro S
           by_cases hS : S.Nonempty;
-          · refine' Classical.or_iff_not_imp_left.2 fun h => _;
+          · refine Classical.or_iff_not_imp_left.2 fun h => ?_;
             convert case1_neighborhood_bound A _ rfl hA_pos ?_ x hx ( S.image Subtype.val )
                   ?_ ?_ using 1 <;> norm_num [ Finset.card_image_of_injective, Function.Injective ]
                         at *;
@@ -1388,7 +1387,7 @@ lemma lower_bound_case2 (m : ℕ) (hm : 0 < m) (A : Finset ℕ)
                   ≥ Finset.card (Finset.filter (fun b =>
                         ∃ a ∈ (Finset.image Subtype.val S).erase amax, (a : ℤ) ∣ b)
                               (Finset.Ioo x (x + 2 * amax) \ {x + amax})) + 1 := by
-              refine' Finset.card_lt_card _;
+              refine Finset.card_lt_card ?_;
               constructor <;> simp_all +decide [ Finset.subset_iff ];
               · exact fun y hy₁ hy₂ hy₃ a ha₁ ha₂ ha₃ ha₄ => ⟨ a, ha₂, ha₃,
                     Finset.mem_filter.mpr ⟨ Finset.mem_Ioo.mpr ⟨ hy₁, hy₂ ⟩, ha₄ ⟩ ⟩ ;
@@ -1435,7 +1434,7 @@ lemma lower_bound_case2 (m : ℕ) (hm : 0 < m) (A : Finset ℕ)
                 ≥ min (Finset.card (Finset.image Subtype.val S))
                       (Nat.ceil (2 * Real.sqrt (Finset.card (Finset.image Subtype.val S)))) := by
             by_cases h : amax ∈ Finset.image Subtype.val S <;> simp_all +decide [ Nat.ceil_le ];
-            refine' Classical.or_iff_not_imp_left.2 fun h' => _;
+            refine Classical.or_iff_not_imp_left.2 fun h' => ?_;
             have h_sqrt : Real.sqrt (Finset.card (Finset.image Subtype.val S))
                   ≤ Real.sqrt (Finset.card (Finset.image Subtype.val S) - 1) + 1 / 2 := by
               rcases k : Finset.card ( Finset.image Subtype.val S ) with ( _ | _ | k ) <;>
@@ -1494,7 +1493,8 @@ lemma lower_bound_case2 (m : ℕ) (hm : 0 < m) (A : Finset ℕ)
         exact min_le_left _ _) (by
         aesop);
         obtain ⟨ S, f, hf₁, hf₂, hf₃ ⟩ := this; simp_all +decide ;
-        refine' HasDivMatching_from_subset A ( Finset.Ioo x ( x + 2 * amax ) ) S f hf₁ _ _ _ _ <;>
+        refine HasDivMatching_from_subset A ( Finset.Ioo x ( x + 2 * amax ) ) S f hf₁
+              ?_ ?_ ?_ ?_ <;>
               aesop ( simp_config := { singlePass := true } ) ;
 
 /-- Core lower bound combining both cases. -/
@@ -1509,10 +1509,10 @@ lemma lower_bound_core (m : ℕ) (hm : 0 < m) (A : Finset ℕ)
 -- f(m) ≥ min(m, ⌈2√m⌉) for all positive m.
 theorem erdos_f_lower_bound (m : ℕ) (hm : 0 < m) :
     min m ⌈(2 : ℝ) * Real.sqrt ↑m⌉₊ ≤ erdos_f m := by
-      refine' le_csSup ⟨ m, fun r hr => _ ⟩ _;
+      refine le_csSup ⟨ m, fun r hr => ?_ ⟩ ?_;
       · contrapose! hr;
         simp +zetaDelta at *;
-        refine' ⟨ Finset.Icc 1 m, _, _, (0 : ℝ), _ ⟩ <;> norm_num [ Finset.card_range ] at * ;
+        refine ⟨ Finset.Icc 1 m, ?_, ?_, (0 : ℝ), ?_ ⟩ <;> norm_num [ Finset.card_range ] at * ;
               aesop;
         rintro ⟨ c, b, hc, hb, hc', hb', h ⟩;
         exact absurd ( Finset.card_le_card ( show Finset.image c Finset.univ ⊆ Finset.Icc 1 m from
