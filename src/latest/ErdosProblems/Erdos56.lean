@@ -35,7 +35,6 @@ set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
 set_option linter.style.cases false
-set_option linter.style.refine false
 -- The generated proof script uses many nonterminal `aesop` calls followed by
 -- explicit cleanup tactics.
 set_option aesop.warn.nonterminal false
@@ -1623,7 +1622,7 @@ lemma B_disjoint_C (t n : ℕ) : Disjoint (B t n) (C t) := by
       -- Since the gcd of x and P(t-1) is greater than 1, there exists a prime q that divides both x
       -- and P(t-1).
       apply Nat.Prime.not_coprime_iff_dvd.mp; exact ne_of_gt h_gcd;
-    refine' ⟨ q, hq_prime, hq_div.1, _ ⟩;
+    refine ⟨ q, hq_prime, hq_div.1, ?_ ⟩
     -- Since $q$ divides $P(t-1)$, it must be one of the prime factors of $P(t-1)$.
     have hq_factor : q ∈ Finset.image (fun i => Nat.nth Nat.Prime i) (Finset.range (t - 1)) := by
       have hq_prime_div : q ∣ ∏ i ∈ Finset.range (t - 1), Nat.nth Nat.Prime i := by
@@ -1799,7 +1798,7 @@ lemma card_A (t n : ℕ) (h_disjoint : Disjoint (B t n) (C t)) (h : satisfies_H 
     -- Let's prove that the map $x \mapsto p_{t+x}$ is injective for $0 \leq x \leq 8$.
     have h_map_injective : Function.Injective (fun x : ℕ => p (t + x)) := by
       have h_inj : StrictMono (fun x => p (t + x)) := by
-        refine' strictMono_nat_of_lt_succ fun x => _;
+        refine strictMono_nat_of_lt_succ fun x => ?_
         apply Nat.nth_strictMono;
         · exact Nat.infinite_setOf_prime;
         · simp +zetaDelta at *;
@@ -2154,7 +2153,8 @@ lemma has_no_k_plus_1_coprime_union (B C : Finset ℕ) (k_B k_C : ℕ)
       rw [ ← Finset.card_union_of_disjoint ];
       · rw [ ← Finset.inter_union_distrib_left, Finset.inter_eq_left.mpr hS ];
       · simp_all +decide [ Finset.disjoint_left ];
-    refine' h_card_split ▸ add_le_add ( h_B _ _ _ ) ( h_C _ _ _ );
+    refine h_card_split ▸ add_le_add
+      ( h_B (S ∩ B) ?_ ?_ ) ( h_C (S ∩ C) ?_ ?_ )
     · exact Finset.inter_subset_right;
     · exact fun x hx y hy hxy =>
         h_coprime ( Finset.mem_of_mem_inter_left hx ) ( Finset.mem_of_mem_inter_left hy ) hxy;
@@ -2282,8 +2282,8 @@ lemma D_union_subset_D (t n : ℕ) (h_H : satisfies_H t) (h_n : interval_start t
               · exact Nat.infinite_setOf_prime;
               · omega;
           exact le_trans h_prod_le_interval_start h_n;
-        · refine' lt_of_lt_of_le _ ( Nat.le_of_dvd _ ( Nat.dvd_gcd ( dvd_mul_right _ _ ) (
-            Finset.dvd_prod_of_mem _ _ ) ) );
+        · refine lt_of_lt_of_le ?_ ( Nat.le_of_dvd ?_ ( Nat.dvd_gcd ( dvd_mul_right _ _ ) (
+            Finset.dvd_prod_of_mem _ ?_ ) ) );
           · exact Nat.Prime.one_lt ( Nat.prime_nth_prime _ );
           · exact Nat.gcd_pos_of_pos_right _ ( Finset.prod_pos fun i hi =>
               Nat.Prime.pos ( by aesop ) );
@@ -2295,7 +2295,7 @@ lemma D_union_subset_D (t n : ℕ) (h_H : satisfies_H t) (h_n : interval_start t
           · unfold D_primes at h; aesop;
             rw [ Nat.gcd_comm ];
             have h_coprime : Nat.nth Nat.Prime i ≠ p (t + w) := by
-              refine' ne_of_lt ( Nat.nth_strictMono _ _ );
+              refine ne_of_lt ( Nat.nth_strictMono ?_ ?_ )
               · exact Nat.infinite_setOf_prime;
               · omega;
             exact Nat.coprime_iff_gcd_eq_one.mpr (by
@@ -2305,8 +2305,8 @@ lemma D_union_subset_D (t n : ℕ) (h_H : satisfies_H t) (h_n : interval_start t
               aesop)
           · unfold D_squares at h; aesop;
             rw [ Nat.coprime_primes ] <;> norm_num;
-            · refine' ne_of_gt _;
-              refine' Nat.nth_strictMono _ _;
+            · refine ne_of_gt ?_
+              refine Nat.nth_strictMono ?_ ?_
               · exact Nat.infinite_setOf_prime;
               · omega;
             · exact Nat.prime_nth_prime _;
@@ -2413,11 +2413,11 @@ lemma D_squares_subset (t n : ℕ) (h_H : satisfies_H t) (h_n : interval_start t
         -- number less than or equal to $p(t - 1)$.
         intros i hi
         have h_prime_gt : p (t + w) > Nat.nth Nat.Prime i := by
-          refine' Nat.nth_strictMono _ _;
+          refine Nat.nth_strictMono ?_ ?_
           · exact Nat.infinite_setOf_prime;
           · omega;
         exact Nat.not_dvd_of_pos_of_lt ( Nat.Prime.pos ( by aesop ) ) h_prime_gt;
-      refine' Nat.Coprime.prod_right fun i hi => _;
+      refine Nat.Coprime.prod_right fun i hi => ?_
       exact Nat.Prime.coprime_iff_not_dvd ( show Nat.Prime ( p ( t + w ) ) from
           Nat.prime_nth_prime _ ) |>.2 ( h_not_div i ( Finset.mem_range.mp hi ) );
     simp_all +decide [ Nat.Coprime, Nat.Coprime.pow_left ]
@@ -2431,7 +2431,7 @@ lemma D_products_subset (t n : ℕ) (h_H : satisfies_H t) (h_n : interval_start 
     obtain ⟨i, j, hi, hj, h_prod⟩ : ∃ i j,
         0 ≤ i ∧ i ≤ 3 ∧ 1 ≤ j ∧ j ≤ 8 ∧ i < j ∧ x = p (t + i) * p (t + j) := by
       unfold D_products at hx; aesop;
-    refine' Finset.mem_sdiff.mpr ⟨ _, _ ⟩;
+    refine Finset.mem_sdiff.mpr ⟨ ?_, ?_ ⟩
     · -- Since $p(t+i)$ is a prime factor of $P(t+3)$ and $x = p(t+i) * p(t+j)$, it follows that $x$
       -- is not coprime with $P(t+3)$.
       have h_not_coprime : ¬Nat.Coprime x (P (t + 3)) := by
@@ -2489,7 +2489,7 @@ lemma D_products_subset (t n : ℕ) (h_H : satisfies_H t) (h_n : interval_start 
           Nat.gcd (p (t + j)) (P (t - 1)) = 1 := by
         have h_coprime : ∀ k, k ≥ t → Nat.gcd (p k) (P (t - 1)) = 1 := by
           unfold P p; aesop;
-          refine' Nat.Coprime.prod_right fun i hi => _;
+          refine Nat.Coprime.prod_right fun i hi => ?_
           rw [ Nat.coprime_primes ] <;> aesop;
           exact absurd a_3 ( ne_of_gt ( Nat.nth_strictMono ( Nat.infinite_setOf_prime ) ( by
               omega ) ) );
@@ -2720,7 +2720,7 @@ lemma m_structure (t : ℕ) (m : ℕ) (h_t : t = 209) (hm_le : m ≤ p (t + 9)) 
       subst h_t;
       unfold p;
       rw [ Nat.nth_eq_sInf ];
-      refine' le_csInf _ _;
+      refine le_csInf ?_ ?_
       · exact ⟨ _, Nat.prime_nth_prime 208,
           fun k hk => Nat.nth_strictMono ( Nat.infinite_setOf_prime ) hk ⟩;
       · -- Since the 208th prime is 1289, any prime greater than all the first 208 primes must be at
@@ -2950,18 +2950,20 @@ lemma card_D_plus_final (t : ℕ) (h_t : t = 209) : (D_plus t).card ≤ 35 := by
       have := Nat.nth_injective ( Nat.infinite_setOf_prime ) a ; aesop
     have hD_products_card : (D_products t).card ≤ 26 := by
       simp +arith +decide [ D_products ];
-      refine' le_trans ( Finset.card_le_card _ ) _;
-      · exact Finset.image ( fun x : ℕ × ℕ =>
+      refine le_trans
+        (b := (Finset.image ( fun x : ℕ × ℕ =>
             p ( t + x.1 ) * p ( t + x.2 ) ) ( Finset.filter ( fun x : ℕ × ℕ =>
                 x.1 ≤ 3 ∧ 1 ≤ x.2 ∧ x.2 ≤ 8 ∧ x.1 < x.2 ) ( Finset.range 4 ×ˢ
-                  Finset.range 9 ) );
+                  Finset.range 9 ) )).card)
+        ( Finset.card_le_card ?_ ) ?_
       · simp ( config := { contextual := Bool.true } ) [ Finset.subset_iff ];
         exact fun x i j hi hj hx k hk l hl hl' hkl hx' => ⟨ k, l, ⟨ ⟨ by linarith,
             by linarith ⟩, by linarith, by linarith, by linarith, by linarith ⟩, hx' ▸ rfl ⟩;
       · exact Finset.card_image_le.trans ( by decide );
-    refine' le_trans ( Finset.card_union_le _ _ ) _ ;
+    exact le_trans ( Finset.card_union_le _ _ ) (by
         linarith [ Finset.card_union_le ( D_primes t ∪ D_squares t ) ( D_products t ),
-            Finset.card_union_le ( D_primes t ) ( D_squares t ) ];
+            Finset.card_union_le ( D_primes t ) ( D_squares t ) ]
+      )
   -- Since $D_{\text{extra}} t$ is a singleton set, its cardinality is 1.
   have hD_extra_card : (D_extra t).card = 1 := by
     -- Since $p t$ and $p (t + 9)$ are primes, their product is a single element. Therefore, the set
@@ -3007,7 +3009,7 @@ lemma D_decomp_final (t n : ℕ) (h_t : t = 209) (h_n : n = interval_end t) (u :
           by
             rw [add_tsub_cancel_of_le hi_ge] ⟩
       obtain ⟨ w, hw, hq_eq ⟩ := hq_range
-      refine' ⟨ q, hq_prime, left, _ ⟩
+      refine ⟨ q, hq_prime, left, ?_ ⟩
       unfold D_primes
       exact Finset.mem_image.mpr ⟨ w, hw, by rw [hq_eq]; unfold p; congr; omega ⟩
     -- Since $u \in D t n$, we have $u \leq n = p t p (t + 9)$. Therefore, $m = u / q \leq p (t +
@@ -3171,7 +3173,7 @@ theorem erdos_56 :
     rw [hA_card, show (FirstPrimesMultiples (p 209 * p 218) 212).card =
         (B 209 (p 209 * p 218)).card + (D 209 (p 209 * p 218)).card from ?_];
     · have hD_lt_C : (D 209 (p 209 * p 218)).card < (C 209).card := by
-        refine' lt_of_le_of_lt ( Finset.card_le_card ( D_subset_D_plus_final_v4 _ _ rfl rfl ) ) _;
+        refine lt_of_le_of_lt ( Finset.card_le_card ( D_subset_D_plus_final_v4 _ _ rfl rfl ) ) ?_
         exact lt_of_le_of_lt (card_D_plus_final_v4 _ rfl) (by
           rw [card_C_209_final_v4 _ rfl]
           norm_num)
@@ -3184,17 +3186,17 @@ theorem erdos_56 :
         · -- Since $a$ is divisible by some prime in the first 208 primes, we can find such a $j$.
           obtain ⟨j, hj⟩ : ∃ j < 208, Nat.nth Nat.Prime j ∣ a := by
             contrapose! right;
-            refine' Nat.le_of_eq _;
-            refine' Nat.Coprime.prod_right fun i hi => _;
+            refine Nat.le_of_eq ?_
+            refine Nat.Coprime.prod_right fun i hi => ?_
             exact Nat.Coprime.symm ( Nat.Prime.coprime_iff_not_dvd ( Nat.prime_nth_prime i )
                 |>.2 ( right i ( Finset.mem_range.mp hi ) ) );
           exact ⟨ j, by linarith, hj.2 ⟩;
         · contrapose! right;
-          refine' Nat.le_of_eq ( Nat.coprime_prod_right_iff.mpr _ );
+          refine Nat.le_of_eq ( Nat.coprime_prod_right_iff.mpr ?_ )
           exact fun i hi => Nat.Coprime.symm <|
               Nat.Prime.coprime_iff_not_dvd ( Nat.prime_nth_prime i ) |>.2 <| right i <|
                   Finset.mem_range.mp hi;
-        · refine' Or.inr ( lt_of_lt_of_le ( Nat.Prime.one_lt ( Nat.prime_nth_prime w ) ) (
+        · refine Or.inr ( lt_of_lt_of_le ( Nat.Prime.one_lt ( Nat.prime_nth_prime w ) ) (
             Nat.le_of_dvd ( Nat.gcd_pos_of_pos_left _ left ) ( Nat.dvd_gcd right ( dvd_trans (
                 by norm_num ) ( Finset.dvd_prod_of_mem _ ( Finset.mem_range.mpr left_1 ) ) ) ) ) );
       rw [ ← h_union, Finset.card_union_of_disjoint ];
@@ -3206,7 +3208,7 @@ theorem erdos_56 :
   have h_max_ge_A : MaxWeaklyDivisible (p 209 * p 218) 212 ≥ (A 209 (p 209 * p 218)).card := by
     apply le_csSup;
     · exact ⟨ _, fun n hn => hn.choose_spec.2.2 ▸ Finset.card_le_card hn.choose_spec.1 ⟩;
-    · refine' ⟨ A 209 ( p 209 * p 218 ), _, _, rfl ⟩;
+    · refine ⟨ A 209 ( p 209 * p 218 ), ?_, ?_, rfl ⟩
       · simp +zetaDelta at *;
         apply Finset.union_subset;
         · exact Finset.filter_subset _ _;
@@ -3233,8 +3235,8 @@ theorem erdos_56 :
         exact le_trans ( by norm_num ) ( Nat.mul_le_mul ( h_prime_ge_two _ ) ( h_prime_ge_two _ ) );
       · norm_num;
       · unfold p;
-        refine' le_trans _ ( Nat.mul_le_mul ( Nat.nth_monotone _ <|
-            show 208 ≥ 208 by norm_num ) ( Nat.nth_monotone _ <| show 217 ≥ 212 by norm_num ) );
+        refine le_trans ?_ ( Nat.mul_le_mul ( Nat.nth_monotone ?_ <|
+            show 208 ≥ 208 by norm_num ) ( Nat.nth_monotone ?_ <| show 217 ≥ 212 by norm_num ) );
         · exact le_mul_of_one_le_left ( Nat.zero_le _ ) ( Nat.Prime.pos ( by norm_num ) );
         · exact Nat.infinite_setOf_prime;
         · exact Nat.infinite_setOf_prime;
