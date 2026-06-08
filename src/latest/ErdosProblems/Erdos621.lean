@@ -38,7 +38,6 @@ namespace Erdos621
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 set_option linter.unusedSectionVars false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
@@ -292,11 +291,11 @@ lemma P4_le_crossTermA (G : Trigraph V) : G.P4 ≤ G.crossTermA := by
     (G.n u v + G.c u v) * G.s u w * G.n v w * G.s v x * G.n u x * G.s x w;
   -- We need to show that $B \leq \text{crossTermA}$.
   have h_B_le_crossTermA : B ≤ G.crossTermA := by
-    refine' Finset.sum_le_sum fun u hu =>
+    refine Finset.sum_le_sum fun u hu =>
       Finset.sum_le_sum fun v hv =>
       Finset.sum_le_sum fun w hw =>
-      Finset.sum_le_sum fun x hx => _;
-    refine' mul_le_of_le_one_right _ _;
+      Finset.sum_le_sum fun x hx => ?_;
+    refine mul_le_of_le_one_right ?_ ?_;
     · apply_rules [ mul_nonneg, n_nonneg, c_nonneg, s_nonneg ];
       exact add_nonneg ( n_nonneg G u v ) ( c_nonneg G u v );
     · exact G.s_le_one x w;
@@ -313,10 +312,10 @@ lemma P4_le_crossTermA (G : Trigraph V) : G.P4 ≤ G.crossTermA := by
           simp_all +decide [ Trigraph.n ];
           grind
         exact h_simplify;
-      refine' Finset.sum_congr rfl fun u hu =>
+      refine Finset.sum_congr rfl fun u hu =>
         Finset.sum_congr rfl fun v hv =>
         Finset.sum_congr rfl fun w hw =>
-        Finset.sum_congr rfl fun x hx => _;
+        Finset.sum_congr rfl fun x hx => ?_;
       grind +suggestions;
   convert h_B_le_crossTermA using 1;
   rw [ h_B_simplified ];
@@ -488,7 +487,7 @@ lemma fbound4 (G : Trigraph V) :
         G.s u v * (G.s u w + G.s v w) *
         (G.n w x + G.s w x + G.c w x * G.s u x + G.c w x * G.s v x) := by
   rw [ ← Finset.sum_sub_distrib ];
-  refine' Finset.sum_congr rfl fun u hu => _;
+  refine Finset.sum_congr rfl fun u hu => ?_;
   rw [ ← Finset.sum_sub_distrib ];
   congr;
   ext v;
@@ -539,8 +538,8 @@ lemma symmetrize_aux2 (G : Trigraph V) :
     grind;
   simp +decide only [h_simp, sum_add_distrib, two_mul];
   simp +decide only [← sum_product'];
-  refine' congr rfl
-    (Finset.sum_bij (fun x _ => (x.2.1, x.1, x.2.2.1, x.2.2.2)) _ _ _ _)
+  refine congr rfl
+    (Finset.sum_bij (fun x _ => (x.2.1, x.1, x.2.2.1, x.2.2.2)) ?_ ?_ ?_ ?_)
     <;> simp +decide;
   exact fun u v w x => Or.inl <| Or.inl <| G.s_symm u v
 
@@ -555,10 +554,10 @@ lemma sum_svx_one_sub_swx_eq_P4 (G : Trigraph V) :
   have hP4 :
       G.P4 = ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
         G.s u v * G.s v w * G.s w x * (1 - G.s x u) := by
-    refine' Finset.sum_congr rfl fun u hu =>
+    refine Finset.sum_congr rfl fun u hu =>
       Finset.sum_congr rfl fun v hv =>
       Finset.sum_congr rfl fun w hw =>
-      Finset.sum_congr rfl fun x hx => _;
+      Finset.sum_congr rfl fun x hx => ?_;
     unfold Trigraph.n; ring_nf;
   simp +decide only [mul_sub, mul_one, hP4];
   simp +decide only [← sum_product'];
@@ -585,8 +584,8 @@ lemma sum_nvx_nwx_eq_K13_D (G : Trigraph V) :
     grind +suggestions;
   simp +decide only [h_simp, sum_add_distrib];
   simp +decide only [← sum_product'];
-  refine' congr rfl
-    (Finset.sum_bij (fun x _ => (x.1, x.2.2.2, x.2.2.1, x.2.1)) _ _ _ _)
+  refine congr rfl
+    (Finset.sum_bij (fun x _ => (x.1, x.2.2.2, x.2.2.1, x.2.1)) ?_ ?_ ?_ ?_)
     <;> simp +decide;
   simp +decide [ mul_assoc, mul_comm, mul_left_comm, Trigraph.n_symm ]
 
@@ -614,10 +613,10 @@ lemma aux2_combined (G : Trigraph V) :
   -- = s(vx)(1-s(wx)) + n(vx)n(wx) + c(vx)n(wx)
   convert congr_arg₂ ( · + · ) ( congr_arg₂ ( · + · ) h2 h1 ) h3 using 1;
   · simp +decide [ ← mul_assoc, ← Finset.sum_add_distrib, n ];
-    refine' Finset.sum_congr rfl fun u hu =>
+    refine Finset.sum_congr rfl fun u hu =>
       Finset.sum_congr rfl fun v hv =>
       Finset.sum_congr rfl fun w hw =>
-      Finset.sum_congr rfl fun x hx => _;
+      Finset.sum_congr rfl fun x hx => ?_;
     ring_nf;
   · grind
 
@@ -823,10 +822,10 @@ lemma fbound1 (G : Trigraph V) :
     simp +decide only [
       mul_comm, mul_left_comm, add_mul, mul_add, sub_mul, mul_sub, mul_assoc,
       ← sum_add_distrib];
-    refine' Finset.sum_congr rfl fun u hu =>
+    refine Finset.sum_congr rfl fun u hu =>
       Finset.sum_congr rfl fun v hv =>
       Finset.sum_congr rfl fun w hw =>
-      Finset.sum_congr rfl fun x hx => _;
+      Finset.sum_congr rfl fun x hx => ?_;
     have := G.triangle_free u w x; simp_all +decide [ mul_assoc, mul_comm, mul_left_comm ] ;
     rcases this with ( h | h | h ) <;>
       simp_all +decide [add_eq_zero_iff_of_nonneg, G.c_nonneg, G.s_nonneg];
@@ -854,10 +853,10 @@ lemma fbound1 (G : Trigraph V) :
   have h_sum2 :
       ∑ u, ∑ v, ∑ w, ∑ x,
         G.s u v * G.s v w * G.s w x * (1 - G.s u x) = G.P4 := by
-    refine' Finset.sum_congr rfl fun u hu =>
+    refine Finset.sum_congr rfl fun u hu =>
       Finset.sum_congr rfl fun v hv =>
       Finset.sum_congr rfl fun w hw =>
-      Finset.sum_congr rfl fun x hx => _;
+      Finset.sum_congr rfl fun x hx => ?_;
     simp +decide [ Trigraph.n, G.c_symm, G.s_symm ];
     exact Or.inl ( by ring_nf );
   grind
@@ -1040,8 +1039,8 @@ lemma exists_bipartition_edgesWithin_le (G : Trigraph V) :
       simp_all +decide [ Finset.card_univ ];
       exact Or.inl ( by linarith );
   contrapose! h_sum;
-  refine' ne_of_gt
-    (lt_of_le_of_lt _
+  refine ne_of_gt
+    (lt_of_le_of_lt ?_
       (Finset.sum_lt_sum_of_nonempty (Finset.univ_nonempty) fun χ _ => h_sum χ));
   simp +decide [ ← Finset.mul_sum _ _ _, ← Finset.sum_mul ];
   rw [ mul_comm ]
@@ -1124,9 +1123,9 @@ lemma exists_small_f2_sum (G : Trigraph V) (hS : 0 < G.S_total) :
         have h_sum :
             ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V, G.f2 u v w x >
             ∑ u : V, ∑ v : V, (G.s u v * (Fintype.card V) ^ 2) := by
-          refine' Finset.sum_lt_sum _ _;
+          refine Finset.sum_lt_sum ?_ ?_;
           · intro u hu;
-            refine' Finset.sum_le_sum fun v hv => _;
+            refine Finset.sum_le_sum fun v hv => ?_;
             by_cases huv : G.s u v = 1 <;> simp_all +decide [ mul_comm ] ;
             · exact le_of_lt ( h u v huv );
             · have huv0 : G.s u v = 0 :=
@@ -1145,8 +1144,8 @@ lemma exists_small_f2_sum (G : Trigraph V) (hS : 0 < G.S_total) :
                   push Not at h_zero
                   obtain ⟨ u, v, h ⟩ := h_zero
                   exact ⟨ u, v, Or.resolve_left (G.s_eq_zero_or_one u v) h ⟩
-            refine' ⟨ u₀, Finset.mem_univ _, _ ⟩;
-            refine' Finset.sum_lt_sum _ _;
+            refine ⟨ u₀, Finset.mem_univ _, ?_ ⟩;
+            refine Finset.sum_lt_sum ?_ ?_;
             · intro i hi;
               by_cases hi' : G.s u₀ i = 1 <;> simp_all +decide [ Trigraph.f2 ];
               · exact le_of_lt ( h u₀ i hi' );
@@ -1243,7 +1242,7 @@ private lemma sum_subtype_eq_sum_indicator (Z : Finset V) (f : V → V → ℤ) 
     ∑ w : V, ∑ x : V, f w x * (if w ∈ Z then 1 else 0) * (if x ∈ Z then 1 else 0) := by
   -- Rewrite the left-hand side as a sum over V with an indicator function for Z.
   have h_sum_coe_sort : ∑ w : ↥Z, ∑ x : ↥Z, f w.val x.val = ∑ w ∈ Z, ∑ x ∈ Z, f w x := by
-    refine' Finset.sum_bij ( fun x _ => x.val ) _ _ _ _ <;> simp +decide;
+    refine Finset.sum_bij ( fun x _ => x.val ) ?_ ?_ ?_ ?_ <;> simp +decide;
     exact fun x hx => by conv_rhs => rw [ ← Finset.sum_attach ] ;
   simp_all +decide [ Finset.sum_ite ]
 
@@ -1301,7 +1300,7 @@ private lemma IH_as_indicator_bound (G : Trigraph V) (u₀ v₀ : V) (huv : G.s 
   convert hIH using 2;
   convert restrict_sum_unfold G Z χ_Z |> Eq.symm using 1;
   rw [ ← Finset.sum_subset ( Finset.subset_univ Z ) ];
-  · refine' Finset.sum_bij ( fun w hw => ⟨ w, hw ⟩ ) _ _ _ _ <;> simp +decide [ hχ₁_on_Z ];
+  · refine Finset.sum_bij ( fun w hw => ⟨ w, hw ⟩ ) ?_ ?_ ?_ ?_ <;> simp +decide [ hχ₁_on_Z ];
     intro w hw; rw [ ← Finset.sum_attach ] ; simp +decide [ hχ₁_on_Z w hw ] ;
     grind;
   · aesop
@@ -1348,7 +1347,7 @@ private lemma two_coloring_sum_le (G : Trigraph V) (u₀ v₀ : V) (huv : G.s u�
         ∑ w : V, ∑ x : V,
           (G.f2 u₀ v₀ w x + G.f2 u₀ v₀ x w -
             2 * (if w ∈ Z then 1 else 0) * (if x ∈ Z then 1 else 0)) := by
-      refine' Finset.sum_le_sum fun w hw => Finset.sum_le_sum fun x hx => _;
+      refine Finset.sum_le_sum fun w hw => Finset.sum_le_sum fun x hx => ?_;
       have := pairwise_bound G u₀ v₀ w x huv (χ₁ w) (χ₁ x);
       grind +suggestions;
     convert h_sum using 1;
@@ -1423,7 +1422,7 @@ theorem partition_construction_bound (G : Trigraph V) (u₀ v₀ : V)
       · aesop;
       · aesop;
     · contrapose! h;
-      refine' ⟨ _, _, _ ⟩;
+      refine ⟨ ?_, ?_, ?_ ⟩;
       · aesop;
       · intro w hw; simp +decide [ hw ] ;
         have := G.triangle_free u₀ v₀ w; simp_all +decide ;
@@ -1565,7 +1564,7 @@ lemma mkTrigraph_S_total (G : SimpleGraph V) [DecidableRel G.Adj]
     have h_count_edges :
         ∑ e ∈ S, 2 =
         ∑ e ∈ S, ∑ u : V, ∑ v : V, (if e = s(u, v) then 1 else 0) := by
-      refine' Finset.sum_congr rfl fun e he => _;
+      refine Finset.sum_congr rfl fun e he => ?_;
       rcases e with ⟨ u, v ⟩ ; simp +decide ;
       rw [ Finset.sum_eq_add ( u ) ( v ) ] <;> simp +decide [ Finset.filter_eq, Finset.filter_or ];
       · by_cases hu : u = v <;> simp +decide [ hu ];
@@ -1590,11 +1589,14 @@ omit [DecidableEq V] in
 lemma tauB_le_noncut (G : SimpleGraph V) [DecidableRel G.Adj] (χ : V → Bool) :
     tauB G ≤ (G.edgeFinset.filter (fun e =>
       Sym2.lift ⟨fun u v => χ u = χ v, by intros; simp [eq_comm]⟩ e)).card := by
-  refine' csInf_le _ _;
+  refine csInf_le ?_ ?_;
   · exact ⟨ 0, Set.forall_mem_image.2 fun F hF => Nat.zero_le _ ⟩;
-  · refine' ⟨ _, ⟨ _, _ ⟩, rfl ⟩;
+  · refine ⟨
+        G.edgeFinset.filter (fun e =>
+          Sym2.lift ⟨fun u v => χ u = χ v, by intros; simp [eq_comm]⟩ e),
+        ⟨ ?_, ?_ ⟩, rfl ⟩;
     · exact Finset.filter_subset _ _;
-    · refine' ⟨ fun v => if χ v then 0 else 1, _ ⟩;
+    · refine ⟨ fun v => if χ v then 0 else 1, ?_ ⟩;
       intro u v huv; contrapose! huv; aesop;
 
 end TriangleIndep
@@ -1679,7 +1681,7 @@ theorem main_inequality (G : SimpleGraph V) [DecidableRel G.Adj] :
                   (Finset.univ : Finset (V × V)))) := by
           refine Finset.card_le_card ?_;
           simp +decide [ Finset.subset_iff ];
-        refine' le_trans _ h_card_filter;
+        refine le_trans ?_ h_card_filter;
         rw [ Finset.card_biUnion ];
         · rw [ Finset.sum_const_nat ];
           simp +decide;
@@ -1753,11 +1755,11 @@ lemma IsBipartite.isTriangleFree (G : SimpleGraph V) [DecidableRel G.Adj]
 -/
 theorem tau1_le_tauB (G : SimpleGraph V) [DecidableRel G.Adj] :
     tau1 G ≤ tauB G := by
-  refine' le_csInf _ _;
-  · refine' ⟨ _, ⟨ G.edgeFinset, ⟨ Finset.Subset.refl _, _ ⟩, rfl ⟩ ⟩;
+  refine le_csInf ?_ ?_;
+  · refine ⟨ G.edgeFinset.card, ⟨ G.edgeFinset, ⟨ Finset.Subset.refl _, ?_ ⟩, rfl ⟩ ⟩;
     use fun _ => 0; aesop;
   · rintro _ ⟨ F, ⟨ hF₁, hF₂ ⟩, rfl ⟩;
-    refine' Nat.sInf_le _;
+    refine Nat.sInf_le ?_;
     exact ⟨ F, ⟨ hF₁, IsBipartite.isTriangleFree _ hF₂ ⟩, rfl ⟩
 
 /-! ## Erdős Corollary -/
