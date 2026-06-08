@@ -40,7 +40,6 @@ namespace Erdos762
 
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.refine false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
 set_option linter.unusedSimpArgs false
@@ -141,7 +140,7 @@ theorem lemma_clique_free_5 : H.CliqueFree 5 := by
   have hKC : K.card = KA.card + KB.card + (K.filter (fun u => u = H_V.c)).card := by
     rw [ Finset.card_filter, Finset.card_filter, Finset.card_filter ];
     rw [ ← Finset.sum_add_distrib, ← Finset.sum_add_distrib ];
-    rw [ Finset.card_eq_sum_ones ] ; refine' Finset.sum_congr rfl fun x hx => _ ; rcases x with ( _ | _ | _ ) <;> simp +decide ;
+    rw [ Finset.card_eq_sum_ones ] ; refine Finset.sum_congr rfl fun x hx => ?_ ; rcases x with ( _ | _ | _ ) <;> simp +decide ;
   simp_all +decide [ Finset.filter_eq' ];
   split_ifs at hK <;> simp_all +decide;
   · -- Since $|K_A| = 2$ and $|K_B| = 2$, we have $K_A = \{a_i, a_j\}$ and $K_B = \{b_k, b_l\}$ for some $i, j, k, l$.
@@ -349,7 +348,7 @@ theorem lemma_obs_obvious_lifted (col : H.Coloring (Fin 6))
       fin_cases i <;> fin_cases j <;> simp +decide at hij ⊢
       all_goals unfold H; simp +decide [ SimpleGraph.cycleGraph ]
     · convert h_card using 2
-  refine' ⟨H_V.a v', _, H_V.a w', _, _, _⟩ <;> simp_all +decide [H];
+  refine ⟨H_V.a v', ?_, H_V.a w', ?_, ?_, ?_⟩ <;> simp_all +decide [H];
   · exact Finset.mem_image_of_mem _ (Finset.mem_univ _)
   · exact Finset.mem_image_of_mem _ (Finset.mem_univ _)
   · exact fun h => hw' <| by simpa [SimpleGraph.adj_comm] using h
@@ -399,7 +398,7 @@ theorem lemma_obs_obvious_lifted_B (col : H.Coloring (Fin 6))
           fin_cases i <;> fin_cases j <;> simp +decide at hij ⊢;
           all_goals unfold H; simp +decide [ SimpleGraph.cycleGraph ] ;
         · convert h_card using 2;
-      refine' ⟨ H_V.b v', _, H_V.b w', _, _, _ ⟩ <;> simp_all +decide [ H ];
+      refine ⟨ H_V.b v', ?_, H_V.b w', ?_, ?_, ?_ ⟩ <;> simp_all +decide [ H ];
       · exact Finset.mem_image_of_mem _ ( Finset.mem_univ _ );
       · exact Finset.mem_image_of_mem _ ( Finset.mem_univ _ );
       · exact fun h => hw' <| by simpa [ SimpleGraph.adj_comm ] using h;
@@ -460,7 +459,7 @@ theorem lemma_rainbow_clique_free_case_A (col : H.Coloring (Fin 6))
       -- By `lemma_B_cover`, there exist `w1, w2, w3 \in B` such that `{col w1, col w2, col w3} = col(B)$.
       obtain ⟨w1, w2, w3, hw1B, hw2B, hw3B, hw_colors⟩ : ∃ w1 w2 w3 : H_V, w1 ∈ B_Finset ∧ w2 ∈ B_Finset ∧ w3 ∈ B_Finset ∧ ({col w1, col w2, col w3} : Finset (Fin 6)) = Finset.image col B_Finset := by
         exact lemma_B_cover col hB_card;
-      refine' ⟨ { H_V.c, u, v, w1, w2, w3 }, _, _ ⟩;
+      refine ⟨ { H_V.c, u, v, w1, w2, w3 }, ?_, ?_ ⟩
       · -- By `lemma_clique_free_structure_A_aux`, any clique in $X$ has size at most 3.
         have h_clique_size : ∀ S : Finset H_V, S ⊆ {H_V.c, u, v, w1, w2, w3} → H.IsClique S → S.card ≤ 3 := by
           intros S hS_subset hS_clique;
@@ -518,7 +517,7 @@ theorem lemma_clique_free_structure_B_aux (u v w1 w2 w3 : H_V)
           exact Finset.eq_of_subset_of_card_le
             (show S ∩ {w1, w2, w3} ⊆ ({w1, w2, w3} : Finset H_V) from Finset.inter_subset_right)
             (by simpa [hS_inter_w_all] using h_three)
-        refine' ⟨_, _, _⟩
+        refine ⟨?_, ?_, ?_⟩
         · have : w1 ∈ S ∩ {w1, w2, w3} := by rw [h_eq]; simp
           exact (Finset.mem_inter.mp this).1
         · have : w2 ∈ S ∩ {w1, w2, w3} := by rw [h_eq]; simp
@@ -550,7 +549,7 @@ theorem lemma_rainbow_clique_free_case_B (col : H.Coloring (Fin 6))
       -- Use `lemma_obs_obvious_lifted_B` to get `u, v \in B` such that `u \not\sim v` and `{col u, col v} = col(B) \setminus \{k\}$.
       obtain ⟨u, v, hu, hv, huv, h_u_v⟩ : ∃ u v : H_V, u ∈ B_Finset ∧ v ∈ B_Finset ∧ ¬H.Adj u v ∧ {col u, col v} = (Finset.image col B_Finset).erase (col H_V.c) := by
         have := lemma_obs_obvious_lifted_B col hB_card ( col H_V.c ) ( by aesop ) ; aesop;
-      refine' ⟨ { H_V.c, u, v, w1, w2, w3 }, _, _ ⟩ <;> simp_all +decide [ SimpleGraph.CliqueFree ];
+      refine ⟨ { H_V.c, u, v, w1, w2, w3 }, ?_, ?_ ⟩ <;> simp_all +decide [ SimpleGraph.CliqueFree ];
       · intro t ht; have := ht.card_eq; simp_all +decide [ SimpleGraph.isNClique_iff ] ;
         -- Since $t$ is a clique in the induced subgraph, it must be a subset of $\{H_V.c, u, v, w1, w2, w3\}$.
         have ht_subset : t.image Subtype.val ⊆ {H_V.c, u, v, w1, w2, w3} := by
@@ -579,7 +578,7 @@ theorem lemma_rainbow_clique_free (col : H.Coloring (Fin 6)) :
         simp +decide only [eq_comm];
       -- By Lemma~\ref{lem:colors_structure}, we know that the union of the images of $A_Finset$ and $B_Finset$ is the universal set.
       have h_union : (Finset.image col A_Finset) ∪ (Finset.image col B_Finset) = Finset.univ := by
-        refine' Finset.eq_of_subset_of_card_le ( Finset.subset_univ _ ) _ ; simp_all +decide
+        refine Finset.eq_of_subset_of_card_le ( Finset.subset_univ _ ) ?_ ; simp_all +decide
         have h_union : Disjoint (Finset.image col A_Finset) (Finset.image col B_Finset) := by
           convert lemma_colors_structure col |>.1 using 1;
           · ext; simp [A_Finset, A_V];
@@ -692,7 +691,7 @@ theorem clique_old_part_size (sizes : X_collection → ℕ) (S : Finset (G_V siz
         simp_all +decide [ Set.Pairwise, Finset.subset_iff ];
         exact ⟨ by aesop, by rw [ Finset.filter_true_of_mem fun x hx => hX x ( hT₁ hx ) ] ; linarith ⟩;
       convert hS_H_card using 1;
-      refine' Finset.card_bij ( fun u hu => u.getLeft ( by aesop ) ) _ _ _ <;> aesop
+      refine Finset.card_bij ( fun u hu => u.getLeft ( by aesop ) ) ?_ ?_ ?_ <;> aesop
 
 /-
 The graph G does not contain a clique of size 5.
@@ -710,7 +709,7 @@ theorem G_clique_free_5 (sizes : X_collection → ℕ) : (G sizes).CliqueFree 5 
     have hS_old_clique : H.IsNClique 5 (S.preimage Sum.inl (Set.injOn_of_injective Sum.inl_injective)) := by
       have hS_old_clique : H.IsClique (S.preimage Sum.inl (Set.injOn_of_injective Sum.inl_injective)) := by
         convert old_vertices_form_clique_in_H sizes S ( hS.1 ) using 1;
-      refine' ⟨ _, _ ⟩;
+      refine ⟨ ?_, ?_ ⟩
       · grind;
       · convert hS.2 using 1;
         rw [ Finset.card_preimage ];
@@ -753,19 +752,19 @@ theorem H_alpha_le_3 (S : Finset H_V) (hS : H.IsIndepSet S) : S.card ≤ 3 := by
 The cochromatic number of G is at most 4.
 -/
 theorem G_cochromatic_le_4 (sizes : X_collection → ℕ) : cochromaticNumber (G sizes) ≤ 4 := by
-  refine' le_trans ( csInf_le _ _ ) ( le_refl _ );
+  refine le_trans ( csInf_le ?_ ?_ ) ( le_refl _ )
   · exact ⟨ 0, by rintro n ⟨ m, rfl, hm ⟩ ; exact zero_le _ ⟩;
-  · refine' ⟨ 4, rfl, _ ⟩;
+  · refine ⟨ 4, rfl, ?_ ⟩
     -- Let's obtain the partition of H into 3 cliques.
     obtain ⟨s1, s2, s3, hs_union, hs1, hs2, hs3⟩ := lemma_partition_3_cliques;
     use fun v => Sum.elim ( fun x => if x ∈ s1 then 0 else if x ∈ s2 then 1 else 2 ) ( fun _ => 3 ) v; intro i; by_cases hi : i = 3 <;> simp_all +decide [ Set.ext_iff ] ;
-    · refine' Or.inr _;
+    · refine Or.inr ?_
       intro x hx y hy hxy; simp_all +decide [ Set.preimage ] ;
       rcases x with ( x | ⟨ X, x ⟩ ) <;> rcases y with ( y | ⟨ Y, y ⟩ ) <;> simp_all +decide [ G ];
       · split_ifs at hx hy <;> contradiction;
       · split_ifs at hx <;> contradiction;
       · grind;
-    · refine' Or.inl _;
+    · refine Or.inl ?_
       intro x hx y hy hxy; simp_all +decide [ Set.Pairwise ] ;
       rcases x with ( x | ⟨ X, i ⟩ ) <;> rcases y with ( y | ⟨ Y, j ⟩ ) <;> simp_all +decide [ G ];
       grind +ring
@@ -787,8 +786,8 @@ theorem G_chromatic_ge_7 (sizes : X_collection → ℕ) (h_sizes : ∀ X, sizes 
         exact ⟨ h_colorable.some ⟩;
       -- Restrict c to H. This is a proper 6-coloring of H.
       obtain ⟨col_H, hcol_H⟩ : ∃ col_H : H.Coloring (Fin 6), ∀ u : H_V, col (Sum.inl u) = col_H u := by
-        refine' ⟨ _, _ ⟩;
-        refine' ⟨ fun u => col ( Sum.inl u ), _ ⟩;
+        refine ⟨ ?_, ?_ ⟩
+        refine ⟨ fun u => col ( Sum.inl u ), ?_ ⟩
         all_goals norm_num;
         intro a b hab; have := col.valid ( show ( G sizes ).Adj ( Sum.inl a ) ( Sum.inl b ) from by
                                             -- Since $a$ and $b$ are adjacent in $H$, they are also adjacent in $G$ by definition of $G$.
@@ -882,16 +881,14 @@ theorem G_chromatic_le_7 (sizes : X_collection → ℕ) : (G sizes).chromaticNum
     obtain ⟨c_H, hc_H⟩ := h_colorable
     use c_H
     aesop
-  refine' le_trans ( ciInf_le _ 7 ) _;
-  · exact ⟨ 0, Set.forall_mem_range.2 fun n => by exact zero_le _ ⟩;
-  · refine' ciInf_le_of_le _ _ _ <;> norm_num;
-    -- Let $c$ be a 7-coloring of $G$.
-    use fun u => Sum.elim (fun u => Fin.castLE (by decide) (c_H u)) (fun ⟨X, i⟩ => 6) u;
-    rintro ( u | ⟨ X, i ⟩ ) ( v | ⟨ Y, j ⟩ ) <;> simp +decide [ *, SimpleGraph.fromRel_adj ];
-    · unfold G; aesop;
-    · exact fun h => ne_of_lt ( Fin.castSucc_lt_last _ );
-    · exact fun h => ne_of_gt ( Fin.castSucc_lt_last _ );
-    · unfold G; aesop;
+  refine chromaticNumber_le_iff_colorable.mpr ?_
+  -- Let $c$ be a 7-coloring of $G$.
+  use fun u => Sum.elim (fun u => Fin.castLE (by decide) (c_H u)) (fun ⟨X, i⟩ => 6) u;
+  rintro ( u | ⟨ X, i ⟩ ) ( v | ⟨ Y, j ⟩ ) <;> simp +decide [ *, SimpleGraph.fromRel_adj ];
+  · unfold G; aesop;
+  · exact fun h => ne_of_lt ( Fin.castSucc_lt_last _ );
+  · exact fun h => ne_of_gt ( Fin.castSucc_lt_last _ );
+  · unfold G; aesop;
 
 /-
 H cannot be covered by 2 cliques.
@@ -997,7 +994,9 @@ theorem lemma_H_covered_by_2K_of_disjoint_clique (sizes : X_collection → ℕ)
         have := hk3 hx hy; simp_all +decide [ G ] ;
         cases eq_or_ne x y <;> simp_all +decide [ SimpleGraph.adj_comm ];
         grind;
-      refine' ⟨ _, _, _, h_clique_k2, h_clique_k3 ⟩
+      refine ⟨ k2 ∩ Set.range Sum.inl |> Set.preimage Sum.inl,
+        k3 ∩ Set.range Sum.inl |> Set.preimage Sum.inl, ?_,
+        h_clique_k2, h_clique_k3 ⟩
       ext x
       constructor
       · intro _
@@ -1221,7 +1220,7 @@ theorem lemma_G_no_cover_2K_1I_nonempty_I (sizes : X_collection → ℕ) (h_size
             exact CanLift.prf X hX_in_X_collection
           obtain ⟨X_mem, hX_mem⟩ := hX_in_X_collection
           use ⟨X_mem, ⟨0, h_sizes X_mem⟩⟩;
-        refine' ⟨ _, hv, v, rfl, _ ⟩;
+        refine ⟨ v.1, hv, v, rfl, ?_ ⟩
         apply_rules [ lemma_indep_inter_H_eq_X_implies_v_not_in_I ];
       have contradiction_of_mem
           (ka kb : Set (G_V sizes))
@@ -1462,9 +1461,9 @@ theorem steiner_graph (sizes : X_collection → ℕ) (h_sizes : ∀ X, sizes X >
     (G sizes).cliqueNum = 4 ∧
     cochromaticNumber (G sizes) = 4 ∧
     (G sizes).chromaticNumber = 7 := by
-  refine' ⟨ _, _, _ ⟩;
-  · refine' le_antisymm ( csSup_le _ _ ) ( le_csSup _ _ );
-    · refine' ⟨ 0, ⟨ ∅, _ ⟩ ⟩ ; simp +decide [ SimpleGraph.IsNClique ];
+  refine ⟨ ?_, ?_, ?_ ⟩
+  · refine le_antisymm ( csSup_le ?_ ?_ ) ( le_csSup ?_ ?_ )
+    · refine ⟨ 0, ⟨ ∅, ?_ ⟩ ⟩ ; simp +decide [ SimpleGraph.IsNClique ];
     · rintro n ⟨ s, hs ⟩;
       have := G_clique_free_5 sizes;
       contrapose! this;
@@ -1484,7 +1483,7 @@ theorem steiner_graph (sizes : X_collection → ℕ) (h_sizes : ∀ X, sizes X >
     · -- By definition of $G$, � we� know that it contains a clique of size 4.
       obtain ⟨K, hK⟩ : ∃ K : Finset H_V, H.IsClique K ∧ K.card = 4 := by
         exact lemma_H_has_clique_4;
-      refine' ⟨ Finset.image ( fun v => Sum.inl v ) K, _, _ ⟩ <;> simp_all +decide [ SimpleGraph.isClique_iff, Finset.card_image_of_injective, Function.Injective ];
+      refine ⟨ Finset.image ( fun v => Sum.inl v ) K, ?_, ?_ ⟩ <;> simp_all +decide [ SimpleGraph.isClique_iff, Finset.card_image_of_injective, Function.Injective ];
       · simp_all +decide [ Set.Pairwise ];
         unfold G; aesop;
       · rw [ Finset.card_image_of_injective _ fun x y hxy => by injection hxy, hK.2 ];
