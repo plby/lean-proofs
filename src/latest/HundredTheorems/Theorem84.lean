@@ -32,7 +32,6 @@ open scoped Pointwise
 set_option linter.style.longLine false
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.refine false
 set_option linter.style.multiGoal false
 
 open EuclideanGeometry Real InnerProductSpace
@@ -698,7 +697,7 @@ lemma similarity_decomposition (f : Similarity P) (O : P) :
           cases abs_cases c <;> simp +decide [ * ] <;> ring;
         exact sq_eq_zero_iff.mp h_map;
       exact sub_eq_zero.mp ( norm_eq_zero.mp h_map );
-    refine' ⟨ { toFun := w, map_add' := _, map_smul' := _, norm_map' := _ }, hw ⟩ <;> aesop;
+    refine ⟨ { toFun := w, map_add' := ?_, map_smul' := ?_, norm_map' := ?_ }, hw ⟩ <;> aesop
   obtain ⟨ L, hL ⟩ := h_map;
   -- Since L is a linear isometry, it is bijective, and hence an equivalence.
   have hL_equiv : Function.Bijective L := by
@@ -868,7 +867,7 @@ lemma similarity_map_trisectorVector (f : Similarity P) (A B C : P)
       · unfold NondegenerateTriangle at h_nd
         aesop (config := {warnOnNonterminal := false})
         rw [ collinear_iff_exists_forall_eq_smul_vadd ] at h_nd;
-        refine' h_nd ⟨ A, C -ᵥ A, fun p hp => _ ⟩
+        refine h_nd ⟨ A, C -ᵥ A, fun p hp => ?_ ⟩
         aesop (config := {warnOnNonterminal := false})
         · exact ⟨ 0, by simp +decide ⟩;
         · rw [ Orientation.oangle_eq_pi_iff_oangle_rev_eq_pi ] at a;
@@ -889,7 +888,7 @@ omit [Module.Oriented ℝ V (Fin 2)] [Nonempty P] in
 lemma similarity_map_line_eq (f : Similarity P) (p : P) (v : V) :
   f '' (AffineSubspace.mk' p (Submodule.span ℝ {v}) : Set P) =
   (AffineSubspace.mk' (f p) (Submodule.span ℝ {f (v +ᵥ p) -ᵥ f p}) : Set P) := by
-  refine' Set.Subset.antisymm _ _;
+  refine Set.Subset.antisymm ?_ ?_
   · intro y hy
     obtain ⟨x, hx, rfl⟩ := hy;
     simp_all +decide [ AffineSubspace.mem_mk', Submodule.mem_span_singleton ];
@@ -920,7 +919,7 @@ lemma similarity_map_lineIntersection (f : Similarity P) (p1 : P) (v1 : V) (p2 :
     exact ⟨ similarity_map_line_eq f p1 v1, similarity_map_line_eq f p2 v2 ⟩;
   have h_unique_image : ∃! p : P, p ∈ AffineSubspace.mk' (f p1) (Submodule.span ℝ {f (v1 +ᵥ p1) -ᵥ f p1}) ∧ p ∈ AffineSubspace.mk' (f p2) (Submodule.span ℝ {f (v2 +ᵥ p2) -ᵥ f p2}) := by
     obtain ⟨ p, hp₁, hp₂ ⟩ := h_unique;
-    refine' ⟨ f.toFun p, _, _ ⟩;
+    refine ⟨ f.toFun p, ?_, ?_ ⟩
     · exact ⟨ h_line_segments.1.subset ⟨ p, hp₁.1, rfl ⟩, h_line_segments.2.subset ⟨ p, hp₁.2, rfl ⟩ ⟩;
     · intro y hy;
       -- Since $f$ is a similarity transformation, it is injective.
@@ -1004,19 +1003,19 @@ lemma triangle_angle_ne_zero_or_pi (A B C : P) (h_nd : NondegenerateTriangle A B
   let val_A := (Orientation.oangle Module.Oriented.positiveOrientation (B -ᵥ A) (C -ᵥ A)).toReal
   val_A ≠ 0 ∧ val_A ≠ π ∧ val_A ≠ -π := by
     simp_all +decide [ NondegenerateTriangle ];
-    refine' ⟨ _, _, _ ⟩;
+    refine ⟨ ?_, ?_, ?_ ⟩
     · rw [ Orientation.oangle_eq_zero_iff_angle_eq_zero ];
       · rw [ InnerProductGeometry.angle_eq_zero_iff ]
         contrapose! h_nd
         rw [ collinear_iff_exists_forall_eq_smul_vadd ]
         use A
         aesop (config := {warnOnNonterminal := false})
-        refine' ⟨ B -ᵥ A, ⟨ 0, by simp +decide ⟩, ⟨ 1, by simp +decide ⟩, ⟨ w, by simpa [ vsub_eq_sub ] using right.symm ▸ by simp +decide ⟩ ⟩;
+        refine ⟨ B -ᵥ A, ⟨ 0, by simp +decide ⟩, ⟨ 1, by simp +decide ⟩, ⟨ w, by simpa [ vsub_eq_sub ] using right.symm ▸ by simp +decide ⟩ ⟩
       · exact vsub_ne_zero.mpr ( by rintro rfl; exact h_nd <| by simp +decide [ collinear_pair ] );
       · exact fun h => h_nd <| by rw [ show C = A by simpa [ sub_eq_zero ] using h ] ; norm_num [ collinear_pair ] ;
     · aesop (config := {warnOnNonterminal := false})
       rw [ collinear_iff_exists_forall_eq_smul_vadd ] at h_nd;
-      refine' h_nd ⟨ A, B -ᵥ A, _ ⟩;
+      refine h_nd ⟨ A, B -ᵥ A, ?_ ⟩
       aesop (config := {warnOnNonterminal := false})
       · exact ⟨ 0, by simp +decide ⟩;
       · exact ⟨ 1, by simp +decide ⟩;
@@ -1233,7 +1232,7 @@ lemma conway_oangle_P_B_C (P_pt Q R : P) (a b c : ℝ)
       all_goals assumption;
     have h_oangle_P_B_C : Orientation.oangle Module.Oriented.positiveOrientation (P_pt -ᵥ B) (C -ᵥ B) = -b := by
       have h_distinct : P_pt ≠ B ∧ B ≠ C ∧ C ≠ P_pt := by
-        refine' ⟨ _, _, _ ⟩ <;> intro h <;> simp_all +decide [ EuclideanGeometry.angle ];
+        refine ⟨ ?_, ?_, ?_ ⟩ <;> intro h <;> simp_all +decide [ EuclideanGeometry.angle ]
         · linarith [ Real.pi_pos ];
         · linarith [ Real.pi_pos ];
         · linarith
@@ -1280,7 +1279,7 @@ lemma conway_oangle_R_A_B (P_pt Q R : P) (a b c : ℝ)
   apply conway_triangle_orientation_lemma;
   any_goals linarith;
   any_goals exact angleShiftTwo c;
-  · refine' ⟨ _, _, _ ⟩;
+  · refine ⟨ ?_, ?_, ?_ ⟩
     · intro h;
       rw [ eq_comm ] at h;
       simp_all +decide [ EuclideanGeometry.angle ];
@@ -1764,7 +1763,7 @@ lemma oangle_triangle_sign_consistent (A B C : P) (h_nd : NondegenerateTriangle 
                        exact sin_oangle_triangle_same_sign A B C h_nd;
   unfold Real.sign at h_quad;
   split_ifs at h_quad <;> norm_num at h_quad;
-  · refine' Or.inr ⟨ _, _, _ ⟩ <;> contrapose! h_quad;
+  · refine Or.inr ⟨ ?_, ?_, ?_ ⟩ <;> contrapose! h_quad
     · exact absurd ‹Real.sin _ < 0› ( not_lt_of_ge ( Real.sin_nonneg_of_nonneg_of_le_pi h_quad ( by linarith [ Real.pi_pos, Real.Angle.toReal_le_pi ( Module.Oriented.positiveOrientation.oangle ( B -ᵥ A ) ( C -ᵥ A ) ) ] ) ) );
     · exact ‹Real.sin ( Module.Oriented.positiveOrientation.oangle ( C -ᵥ B ) ( A -ᵥ B ) |> Real.Angle.toReal ) < 0›.not_ge ( Real.sin_nonneg_of_nonneg_of_le_pi h_quad ( by linarith [ Real.pi_pos, ( show ( Module.Oriented.positiveOrientation.oangle ( C -ᵥ B ) ( A -ᵥ B ) |> Real.Angle.toReal ) ≤ Real.pi from by linarith [ Real.pi_pos, ( show ( Module.Oriented.positiveOrientation.oangle ( C -ᵥ B ) ( A -ᵥ B ) |> Real.Angle.toReal ) ≤ Real.pi from by linarith [ Real.pi_pos, ( show ( Module.Oriented.positiveOrientation.oangle ( C -ᵥ B ) ( A -ᵥ B ) |> Real.Angle.toReal ) ≤ Real.pi from by linarith [ Real.pi_pos, ( show ( Module.Oriented.positiveOrientation.oangle ( C -ᵥ B ) ( A -ᵥ B ) |> Real.Angle.toReal ) ≤ Real.pi from by linarith [ Real.pi_pos, Real.Angle.toReal_le_pi ( Module.Oriented.positiveOrientation.oangle ( C -ᵥ B ) ( A -ᵥ B ) ) ] ) ] ) ] ) ] ) ] ) );
     · exact ‹Real.sin ( Module.Oriented.positiveOrientation.oangle ( A -ᵥ C ) ( B -ᵥ C ) |> Real.Angle.toReal ) < 0›.not_ge ( Real.sin_nonneg_of_nonneg_of_le_pi h_quad ( by linarith [ Real.pi_pos, Real.Angle.toReal_le_pi ( Module.Oriented.positiveOrientation.oangle ( A -ᵥ C ) ( B -ᵥ C ) ) ] ) );
@@ -1859,7 +1858,7 @@ lemma lines_intersect_unique_of_linearIndependent (p1 p2 : P) (v1 v2 : V)
         · rw [ finrank_span_eq_card ] <;> norm_num [ h_indep ];
           exact Eq.symm ( Fact.out : Module.finrank ℝ V = 2 );
       have := Submodule.mem_span_range_iff_exists_fun ℝ |>.1 ( show p2 -ᵥ p1 ∈ Submodule.span ℝ ( Set.range ![v1, v2] ) from h_basis.symm ▸ Submodule.mem_top ) ; aesop;
-    refine' ⟨ a • v1 +ᵥ p1, _, _ ⟩ <;> simp_all +decide [ AffineSubspace.mem_mk' ];
+    refine ⟨ a • v1 +ᵥ p1, ?_, ?_ ⟩ <;> simp_all +decide [ AffineSubspace.mem_mk' ]
     · exact Submodule.smul_mem _ _ ( Submodule.mem_span_singleton_self _ );
     · simp_all +decide [ ← eq_sub_iff_add_eq' ];
       simp_all +decide [ Submodule.mem_span_singleton, vadd_vsub_assoc ];
@@ -1962,7 +1961,7 @@ lemma exists_equilateral_triangle_with_orientation :
     let A : P := Classical.choice inferInstance
     let Q : P := u +ᵥ A
     let R : P := Orientation.rotation Module.Oriented.positiveOrientation (Real.pi / 3 : ℝ) u +ᵥ A
-    refine' ⟨A, Q, R, ?_, ?_, ?_⟩
+    refine ⟨A, Q, R, ?_, ?_, ?_⟩
     · unfold isEquilateral
       constructor
       · rw [dist_eq_norm_vsub, dist_eq_norm_vsub]
@@ -2109,7 +2108,7 @@ lemma conway_P_on_trisector_C (P_pt Q R : P) (a b c : ℝ)
       · exact False.elim (h_nonzero h)
       · exact ⟨0, by simp [h]⟩
       · rcases hk with ⟨r₁, r₂, hr₁, hr₂, hscale⟩
-        refine' ⟨r₁ / r₂, ?_⟩
+        refine ⟨r₁ / r₂, ?_⟩
         apply smul_right_injective V hr₂.ne'
         calc
           r₂ • (P_pt -ᵥ C) = r₁ • trisectorVector C B A := hscale.symm
@@ -2451,7 +2450,7 @@ lemma exists_linear_isometry_of_gram_eq {ι : Type*} [Finite ι] (v : ι → V) 
           generalize_proofs at *;
           choose f hf using h_linear_map
           generalize_proofs at *;
-          refine' ⟨ { toFun := f, map_add' := _, map_smul' := _ }, fun l => hf _ _ rfl ⟩
+          refine ⟨ { toFun := f, map_add' := ?_, map_smul' := ?_ }, fun l => hf _ _ rfl ⟩
           generalize_proofs at *;
           · intro x y
             obtain ⟨l₁, hl₁⟩ := h_surjective x x.2
@@ -2470,7 +2469,7 @@ lemma exists_linear_isometry_of_gram_eq {ι : Type*} [Finite ι] (v : ι → V) 
         exact h_linear_map
       generalize_proofs at *;
       obtain ⟨ f, hf ⟩ := h_linear_map;
-      refine' ⟨ f, fun i => _ ⟩;
+      refine ⟨ f, fun i => ?_ ⟩
       convert hf ( Finsupp.single i 1 ) using 1 <;> simp +decide [ Finsupp.single_apply ];
     obtain ⟨ f, hf ⟩ := h_linear_map
     generalize_proofs at *;
@@ -2495,7 +2494,7 @@ lemma exists_linear_isometry_of_gram_eq {ι : Type*} [Finite ι] (v : ι → V) 
       generalize_proofs at *;
       simp_all only [Submodule.coe_norm]
     generalize_proofs at *;
-    refine' ⟨ { toLinearMap := f, norm_map' := h_isometry }, hf ⟩
+    refine ⟨ { toLinearMap := f, norm_map' := h_isometry }, hf ⟩
 
 /-
 For a nondegenerate triangle, the trisected angles are strictly between 0 and 60 degrees, and their sum is 60 degrees.
@@ -2508,8 +2507,8 @@ lemma angles_bounds_of_nondegenerate (A B C : P) (h_nd : NondegenerateTriangle A
   0 < a ∧ a < π / 3 ∧ 0 < b ∧ b < π / 3 ∧ 0 < c ∧ c < π / 3 ∧ a + b + c = π / 3 := by
   -- Since the triangle is nondegenerate, the angles are positive and their sum is π.
   have h_angles_pos : 0 < angle C A B ∧ 0 < angle A B C ∧ 0 < angle B C A := by
-    refine' ⟨ _, _, _ ⟩;
-    · refine' lt_of_le_of_ne _ ( Ne.symm _ );
+    refine ⟨ ?_, ?_, ?_ ⟩
+    · refine lt_of_le_of_ne ?_ ( Ne.symm ?_ )
       · exact angle_nonneg C A B;
       · intro h;
         rw [ angle, ] at h;
@@ -2523,7 +2522,7 @@ lemma angles_bounds_of_nondegenerate (A B C : P) (h_nd : NondegenerateTriangle A
         exact h_nd h_collinear;
     · exact angle_pos_of_not_collinear h_nd;
     · unfold NondegenerateTriangle at h_nd;
-      refine' lt_of_le_of_ne _ _;
+      refine lt_of_le_of_ne ?_ ?_
       · exact angle_nonneg B C A;
       · contrapose! h_nd;
         rw [ eq_comm, angle ] at h_nd;
@@ -2571,7 +2570,7 @@ lemma exists_linearIsometry_of_congruent_vectors (u v u' v' : V)
     obtain ⟨f, hf⟩ := exists_linear_isometry_of_gram_eq xs ys hgram
     let S : Submodule ℝ V := Submodule.span ℝ (Set.range xs)
     obtain ⟨L, hL⟩ := extend_isometry_to_equiv S f
-    refine' ⟨L, ?_, ?_⟩
+    refine ⟨L, ?_, ?_⟩
     · have hmem : u ∈ S := Submodule.subset_span (Set.mem_range_self (0 : Fin 2))
       have h := hL ⟨u, hmem⟩
       have hf0 := hf (0 : Fin 2)
@@ -2598,14 +2597,14 @@ lemma exists_similarity_of_equal_angles (A B C A' B' C' : P)
       have h_pos : 0 < dist A B ∧ 0 < dist B C ∧ 0 < dist C A ∧ 0 < dist A' B' ∧ 0 < dist B' C' ∧ 0 < dist C' A' := by
         simp_all +decide [ NondegenerateTriangle, dist_pos ];
         exact ⟨ by rintro rfl; exact h_nd <| by simp +decide [ collinear_pair ], by rintro rfl; exact h_nd <| by simp +decide [ collinear_pair ], by rintro rfl; exact h_nd <| by simp +decide [ collinear_pair ], by rintro rfl; exact h_nd' <| by simp +decide [ collinear_pair ], by rintro rfl; exact h_nd' <| by simp +decide [ collinear_pair ], by rintro rfl; exact h_nd' <| by simp +decide [ collinear_pair ] ⟩;
-      refine' ⟨ dist A' B' / dist A B, _, _, _, _ ⟩;
+      refine ⟨ dist A' B' / dist A B, ?_, ?_, ?_, ?_ ⟩
       · exact div_pos h_pos.2.2.2.1 h_pos.1;
       · rw [ div_mul_cancel₀ _ h_pos.1.ne' ];
       · grind;
       · grind;
     have := exists_linearIsometry_of_congruent_vectors ( k • ( B -ᵥ A ) ) ( k • ( C -ᵥ A ) ) ( B' -ᵥ A' ) ( C' -ᵥ A' ) ?_ ?_ ?_ <;> simp_all +decide [ norm_smul ];
     · obtain ⟨ L, hL₁, hL₂ ⟩ := this;
-      refine' ⟨ _, _ ⟩;
+      refine ⟨ ?_, ?_ ⟩
       constructor;
       exact hk.1;
       rotate_left;
@@ -2683,7 +2682,7 @@ theorem conway_Q_is_morley_vertex (P_pt Q R : P) (a b c : ℝ)
   let C := conwayConstructedVertexC P_pt Q R a b c
   Q = lineIntersection C (trisectorVector C A B) A (trisectorVector A C B) := by
   norm_num +zetaDelta at *;
-  refine' Eq.symm _;
+  refine Eq.symm ?_
   apply lineIntersection_unique_of_linearIndependent;
   · convert conway_Q_on_trisector_C P_pt Q R a b c h_equilateral h_side h_sum h_a_pos h_b_pos h_c_pos h_a_lt h_b_lt h_c_lt h_orientation h_gap_P h_gap_Q h_gap_R using 1;
   · apply_rules [ conway_Q_on_trisector_A ];
