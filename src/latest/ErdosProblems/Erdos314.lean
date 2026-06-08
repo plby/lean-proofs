@@ -36,7 +36,6 @@ noncomputable section
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 
 /-- The partial harmonic sum from n to m: ∑_{ℓ=n}^{m} 1/ℓ. -/
 def harmonicPartialSum (n m : ℕ) : ℝ :=
@@ -186,8 +185,8 @@ theorem taylor_error_bound (n : ℕ) (hn : 2 ≤ n) (u a : ℝ)
           ( by norm_num ) ) ( DifferentiableAt.log ( differentiableAt_id.const_add _ )
           ( by cases Set.mem_uIcc.mp hx <;> linarith [ abs_le.mp hu ] ) );
         · apply_rules [ ContinuousOn.intervalIntegrable ];
-          refine' ContinuousOn.congr _ _;
-          exacts [ fun t => 1 / ( 1 + t ) - 1 + t, ContinuousOn.add ( ContinuousOn.sub
+          refine ContinuousOn.congr (f := fun t => 1 / ( 1 + t ) - 1 + t) ?_ ?_
+          exacts [ ContinuousOn.add ( ContinuousOn.sub
             ( continuousOn_const.div ( continuousOn_const.add continuousOn_id )
             fun x hx => by cases Set.mem_uIcc.mp hx <;> linarith [ abs_le.mp hu ] )
             continuousOn_const ) continuousOn_id, fun x hx => by
@@ -215,9 +214,9 @@ theorem taylor_error_bound (n : ℕ) (hn : 2 ≤ n) (u a : ℝ)
             simpa [one_div, add_comm, add_left_comm, add_assoc] using hder.deriv ];
       intro u hu; rw [ h_ftc u hu ] ; rcases abs_cases u with ( h | h ) <;> simp +decide [ *,
         intervalIntegral ] ;
-      · refine' le_trans
+      · refine le_trans
           ( MeasureTheory.norm_integral_le_integral_norm ( _ : ℝ → ℝ ) )
-          ( MeasureTheory.integral_mono_of_nonneg _ _ _ );
+          ( MeasureTheory.integral_mono_of_nonneg ?_ ?_ ?_ );
         · exact Filter.Eventually.of_forall fun x => norm_nonneg _;
         · exact Continuous.integrableOn_Ioc ( by continuity );
         · filter_upwards [ MeasureTheory.ae_restrict_mem measurableSet_Ioc ] with x hx using
@@ -225,10 +224,10 @@ theorem taylor_error_bound (n : ℕ) (hn : 2 ≤ n) (u a : ℝ)
               by linarith [ hx.1, hx.2, abs_le.mp hu ],
               by linarith [ hx.1, hx.2, abs_le.mp hu ] ⟩;
       · simp_all +decide [ le_of_lt ];
-        refine' le_trans
+        refine le_trans
           ( MeasureTheory.norm_integral_le_integral_norm ( _ : ℝ → ℝ ) )
-          ( le_trans ( MeasureTheory.integral_mono_of_nonneg _ _ _ ) _ );
-        refine' fun t => 2 * t ^ 2;
+          ( le_trans
+            ( MeasureTheory.integral_mono_of_nonneg (g := fun t => 2 * t ^ 2) ?_ ?_ ?_ ) ?_ );
         · exact Filter.Eventually.of_forall fun x => norm_nonneg _;
         · exact Continuous.integrableOn_Ioc ( by continuity );
         · filter_upwards [ MeasureTheory.ae_restrict_mem measurableSet_Ioc ] with t ht using
@@ -276,8 +275,9 @@ theorem taylor_error_bound (n : ℕ) (hn : 2 ≤ n) (u a : ℝ)
     rw [ abs_of_nonneg ( by exact div_nonneg ( by ring_nf; positivity ) ( by ring_nf; positivity ) )
       ] ; rw [ mul_div, div_le_iff₀ ] <;> ring_nf <;> norm_cast <;> norm_num [ Nat.succ_eq_add_one ]
       ; ring_nf ; nlinarith only [ sq ( n ^ 2 ) ] ;
-  refine' le_trans ( abs_le.mpr _ ) _;
-  exact |u|^3 + 1 / n^3 + a * |u|^2 / n + 1 / n^3 + a^2 * |u|^2 / n^2 + 1 / n^4;
+  refine le_trans
+    (b := |u|^3 + 1 / n^3 + a * |u|^2 / n + 1 / n^3 + a^2 * |u|^2 / n^2 + 1 / n^4)
+    ( abs_le.mpr ?_ ) ?_
   · constructor <;> linarith [ abs_le.mp h1, abs_le.mp h2, abs_le.mp h3, abs_le.mp h4, abs_le.mp h5,
     abs_le.mp h6 ];
   · norm_num [ abs_mul, abs_div ] ; ring_nf ; norm_num;
@@ -294,7 +294,7 @@ theorem u_bound (x : ℝ) (hx : x > 0) (M : ℝ) (hM : M > 0) :
       let u := (-(1 + Real.exp x) / 2 + y / ↑n) / (Real.exp x * ↑n)
       |u| ≤ K / ↑n := by
   norm_num +zetaDelta at *
-  refine' ⟨ ( Real.exp x + 1 ) / 2 + M, by positivity, fun n hn y hy => _ ⟩
+  refine ⟨ ( Real.exp x + 1 ) / 2 + M, by positivity, fun n hn y hy => ?_ ⟩
   rw [ abs_div, abs_of_nonneg ( by positivity : 0 ≤ Real.exp x * n ) ]
   gcongr
   · exact
@@ -446,7 +446,7 @@ lemma padeBound_pos (k : ℕ) : 0 < padeBound k := by
   exact intervalIntegral.integral_nonneg ( by norm_num ) fun x hx => mul_nonneg ( mul_nonneg
     ( pow_nonneg hx.1 _ ) ( pow_nonneg ( sub_nonneg.2 hx.2 ) _ ) ) ( Real.exp_nonneg _ )); exact (by
   rw [ ne_comm ];
-  refine' ne_of_gt _;
+  refine ne_of_gt ?_
   apply_rules [ intervalIntegral.integral_pos ];
   · norm_num;
   · exact Continuous.continuousOn ( by continuity );
@@ -458,8 +458,8 @@ lemma padeBound_pos (k : ℕ) : 0 < padeBound k := by
 The secondary integral is positive.
 -/
 lemma secBound_pos (k : ℕ) : 0 < secBound k := by
-  refine' lt_of_lt_of_le _
-    ( intervalIntegral.integral_mono_on _ _ _ fun x hx =>
+  refine lt_of_lt_of_le ?_
+    ( intervalIntegral.integral_mono_on ?_ ?_ ?_ fun x hx =>
       mul_le_mul_of_nonneg_left ( Real.one_le_exp <| by linarith [ hx.1 ] ) <|
         mul_nonneg ( pow_nonneg ( by linarith [ hx.1 ] ) _ ) <|
           pow_nonneg ( by linarith [ hx.2 ] ) _ ) <;> norm_num;
@@ -553,7 +553,7 @@ lemma padeBound_ibp (k : ℕ) :
         have h_split : ∫ t in (0 : ℝ)..1, Real.exp t * deriv (fun t => t ^ (k + 2) * (1 - t) ^
           (k + 2)) t = ∫ t in (0 : ℝ)..1, Real.exp t * (k + 2) * t ^ (k + 1) * (1 - t) ^ (k + 1) *
           (1 - 2 * t) := by
-          refine' intervalIntegral.integral_congr fun t ht => _;
+          refine intervalIntegral.integral_congr fun t ht => ?_
           erw [ deriv_mul ] <;> norm_num [ sub_eq_add_neg ] ; ring_nf;
           · erw [ deriv_add, deriv_add ] <;> norm_num [ sub_eq_add_neg ] ; ring_nf;
             · erw [ deriv_mul, deriv_mul, deriv_pow ] <;> norm_num [ sub_eq_add_neg ] ; ring_nf;
@@ -784,7 +784,7 @@ Bound on eSecDen k / ePadeDen k: for k ≥ 1, it equals 1/2 + ePadeDen(k-1)/(2·
 -/
 lemma eSecDen_ePadeDen_ratio_bound (k : ℕ) (hk : 1 ≤ k) :
     (eSecDen k : ℝ) / (ePadeDen k : ℝ) ≤ 1 := by
-  refine' div_le_one_of_le₀ _ ( mod_cast ePadeDen_pos k |> le_of_lt );
+  refine div_le_one_of_le₀ ?_ ( mod_cast ePadeDen_pos k |> le_of_lt )
   norm_cast;
   -- We prove this by induction on $k$.
   induction k with
@@ -863,7 +863,7 @@ lemma error_coeff_inv_lower (k : ℕ) (hk : 1 ≤ k) :
       norm_num [ mul_div_assoc ];
     rw [ div_eq_iff ] at h_final <;> nlinarith [ show 0 < padeBound k * ePadeDen k from mul_pos
       ( padeBound_pos k ) ( mod_cast ePadeDen_pos k ) ];
-  · refine' mul_pos _ _;
+  · refine mul_pos ?_ ?_
     · grind +suggestions;
     · exact_mod_cast ePadeDen_pos k
 
@@ -983,7 +983,7 @@ lemma y_func_unbounded (k : ℕ) (hk : Even k) :
         ( by positivity ) |> Filter.Tendsto.comp <| tendsto_intCast_atTop_atTop ) ;
     exact Filter.eventually_atTop.mp ( h_num_unbounded.eventually_ge_atTop B ) |> fun ⟨ D, hD ⟩ ↦
       ⟨ Max.max D 1, by positivity, hD _ <| le_max_left _ _ ⟩;
-  refine' ⟨ 2 * D.natAbs + 1, _, _ ⟩ <;> norm_num [ abs_of_pos hD.1 ];
+  refine ⟨ 2 * D.natAbs + 1, ?_, ?_ ⟩ <;> norm_num [ abs_of_pos hD.1 ]
   unfold y_func;
   norm_num [ abs_of_pos hD.1 ];
   have := pade_error_pos_even k hk;
@@ -1188,7 +1188,7 @@ lemma construct_mn_from_d (k d : ℕ) (hk : 2 ≤ k)
           linarith [ Int.negSucc_lt_zero ‹_›, ePadeDen_pos k ])⟩;
     rcases h_odd_prod.1 with ⟨ m, hm ⟩ ; rcases h_odd_prod.2 with ⟨ n, hn ⟩ ; exact ⟨ m, n + 1,
       by linarith, by linarith ⟩ ;
-  refine' ⟨ m, n, _, _, _, _, _ ⟩;
+  refine ⟨ m, n, ?_, ?_, ?_, ?_, ?_ ⟩
   · grind +splitImp;
   · nlinarith [
       show ( ePadeNum k |> Int.toNat ) > ( ePadeDen k |> Int.toNat ) from by
@@ -1398,7 +1398,7 @@ theorem harmonicReal_approx :
         convert h_log_approx using 1 ; rw [ show ( n + 1 : ℝ ) = n * ( 1 + ( n : ℝ ) ⁻¹ )
           by nlinarith only [ mul_inv_cancel₀ ( by positivity : ( n : ℝ ) ≠ 0 ) ], Real.log_mul
           ( by positivity ) ( by positivity ) ] ; ring_nf;
-      refine' ⟨ 100, by norm_num, fun n hn => _ ⟩ ; specialize h_log_expand n hn ; rw [ abs_le ]
+      refine ⟨ 100, by norm_num, fun n hn => ?_ ⟩ ; specialize h_log_expand n hn ; rw [ abs_le ]
         at * ; constructor <;> ring_nf at * <;> norm_num at *;
       · field_simp at *;
         nlinarith [ ( by norm_cast : ( 1 :ℝ ) ≤ n ), pow_pos ( by positivity : 0 < ( n :ℝ ) ) 3,
@@ -1464,7 +1464,7 @@ theorem harmonicReal_approx :
     -- Using the bound on $R_n - R_{n+1}$, we can sum the series to get a bound on $R_n$.
     have h_sum_bound : ∀ n : ℕ, 1 ≤ n → |R n| ≤ C * ∑' k : ℕ, (1 / (n + k : ℝ) ^ 5) := by
       intro n hn; rw [ ← tsum_mul_left ] ; refine le_trans ( h_sum_bound n hn ) ?_;
-        refine' Summable.tsum_le_tsum _ _ _;
+        refine Summable.tsum_le_tsum ?_ ?_ ?_
       · exact fun k => le_trans ( hC_bound _ ( by linarith ) ) ( by push_cast; ring_nf; norm_num );
       · exact Summable.of_nonneg_of_le ( fun k => abs_nonneg _ )
           ( fun k => hC_bound ( n + k ) ( by linarith ) )
@@ -1566,11 +1566,11 @@ theorem second_order_expansion (x : ℝ) (hx : x > 0) (M : ℝ) (hM : M > 0) :
         let B := y * a
         |u|^3 + 2 / (n : ℝ) ^ 3 + a * u ^ 2 / (n : ℝ) + (a ^ 2 + 1) * u ^ 2 / (n : ℝ) ^ 2 + 1 /
           (n : ℝ) ^ 4 ≤ C₁ / (n : ℝ) ^ 3 := by
-          refine' ⟨ K ^ 3 + 2 + Real.exp ( -x ) * K ^ 2 + ( Real.exp ( -x ) ^ 2 + 1 ) * K ^ 2 + 1,
-            _, _ ⟩ <;> norm_num;
+          refine ⟨ K ^ 3 + 2 + Real.exp ( -x ) * K ^ 2 + ( Real.exp ( -x ) ^ 2 + 1 ) * K ^ 2 + 1,
+            ?_, ?_ ⟩ <;> norm_num;
           · positivity;
           · intro n hn y hy; specialize hK n ( by linarith ) y hy; norm_num at *;
-            refine' le_trans ( add_le_add ( add_le_add ( add_le_add ( add_le_add ( pow_le_pow_left₀
+            refine le_trans ( add_le_add ( add_le_add ( add_le_add ( add_le_add ( pow_le_pow_left₀
               ( abs_nonneg _ ) hK 3 ) ( le_rfl ) ) ( div_le_div_of_nonneg_right
               ( mul_le_mul_of_nonneg_left ( show ( ( ( -Real.exp x + -1 ) / 2 + y / n ) /
               ( Real.exp x * n ) ) ^ 2 ≤ K ^ 2 / n ^ 2 by
@@ -1579,7 +1579,7 @@ theorem second_order_expansion (x : ℝ) (hx : x > 0) (M : ℝ) (hM : M > 0) :
                   ( mul_le_mul_of_nonneg_left ( show ( ( ( -Real.exp x + -1 ) / 2 + y / n ) /
                   ( Real.exp x * n ) ) ^ 2 ≤ K ^ 2 / n ^ 2 by
                     convert pow_le_pow_left₀ ( abs_nonneg _ ) hK 2 using 1 <;> norm_num [ div_pow ]
-                      ) <| by positivity ) <| by positivity ) ) ( le_rfl ) ) _;
+                      ) <| by positivity ) <| by positivity ) ) ( le_rfl ) ) ?_
             ring_nf; norm_num;
             rcases n with ( _ | _ | n ) <;> norm_num at *;
             · linarith;
@@ -1587,7 +1587,7 @@ theorem second_order_expansion (x : ℝ) (hx : x > 0) (M : ℝ) (hM : M > 0) :
               nlinarith [ show 0 ≤ K ^ 2 * Real.exp ( -x ) by positivity, show 0 ≤ K ^ 2 * Real.exp
                 ( -x ) ^ 2 by positivity, show 0 ≤ K ^ 3 by positivity, Real.exp_pos ( -x ),
                 Real.exp_le_one_iff.mpr ( show -x ≤ 0 by linarith ) ];
-      refine' ⟨ C₁, hC₁.1, fun n hn y hy => le_trans _ ( hC₁.2 n hn y hy ) ⟩;
+      refine ⟨ C₁, hC₁.1, fun n hn y hy => le_trans ?_ ( hC₁.2 n hn y hy ) ⟩
       convert taylor_error_bound n ( by linarith ) _ _ _ _ _ using 1 <;> norm_num [ Real.exp_neg ];
       · ring;
       · positivity;
@@ -1621,8 +1621,8 @@ theorem second_order_expansion (x : ℝ) (hx : x > 0) (M : ℝ) (hM : M > 0) :
             let R₃ := -(A * B) - a * B / 2 + a ^ 2 * A / 6 + 1 / 6
             let R₄ := -B ^ 2 / 2 + a ^ 2 * B / 6
             |R₃| ≤ C₂ ∧ |R₄| ≤ C₂ := by
-              refine' ⟨ 1 + ( Real.exp ( -x ) + 1 ) ^ 2 * ( M + 1 ) ^ 2 + ( Real.exp ( -x ) + 1 )
-                ^ 2 * ( M + 1 ) ^ 2, by positivity, fun n hn y hy => ⟨ _, _ ⟩ ⟩ <;> norm_num
+              refine ⟨ 1 + ( Real.exp ( -x ) + 1 ) ^ 2 * ( M + 1 ) ^ 2 + ( Real.exp ( -x ) + 1 )
+                ^ 2 * ( M + 1 ) ^ 2, by positivity, fun n hn y hy => ⟨ ?_, ?_ ⟩ ⟩ <;> norm_num
                 [ abs_le ] at *;
               · constructor <;>
                   nlinarith [ Real.exp_pos ( -x ),
@@ -1640,7 +1640,7 @@ theorem second_order_expansion (x : ℝ) (hx : x > 0) (M : ℝ) (hM : M > 0) :
                     Real.exp_pos ( -x ), Real.exp_le_one_iff.mpr ( show -x ≤ 0 by linarith ),
                     mul_le_mul_of_nonneg_left hy.1 ( Real.exp_nonneg ( -x ) ),
                     mul_le_mul_of_nonneg_left hy.2 ( Real.exp_nonneg ( -x ) ) ];
-          refine' ⟨ C₂ + C₂, add_pos hC₂.1 hC₂.1, fun n hn y hy => _ ⟩ ; norm_num [ abs_le ] at *;
+          refine ⟨ C₂ + C₂, add_pos hC₂.1 hC₂.1, fun n hn y hy => ?_ ⟩ ; norm_num [ abs_le ] at *;
           rcases n with ( _ | _ | n ) <;> norm_num at *;
           · linarith [ hN₀.1 ];
           · field_simp;
@@ -1652,7 +1652,7 @@ theorem second_order_expansion (x : ℝ) (hx : x > 0) (M : ℝ) (hM : M > 0) :
       convert hC₂.2 n hn y hy using 1 ; ring_nf;
       norm_num [ sq, mul_assoc, Real.exp_ne_zero ] ; ring_nf;
       norm_num [ Real.exp_neg, Real.exp_mul ] ; ring_nf;
-  refine' ⟨ C₁ + C₂, add_pos hC₁.1 hC₂.1, N₀, fun n hn y hy => _ ⟩;
+  refine ⟨ C₁ + C₂, add_pos hC₁.1 hC₂.1, N₀, fun n hn y hy => ?_ ⟩
   have h_diff : let m := Real.exp x * n - Real.exp x / 2 - 1 / 2 + y / n
     eulerMaclaurinApprox m - eulerMaclaurinApprox (n - 1) - x =
     (Real.log (1 + (-(1 + Real.exp x) / 2 + y / (n : ℝ)) / (Real.exp x * (n : ℝ))) - Real.log
@@ -1792,14 +1792,14 @@ theorem main_theorem (c : ℝ) (hc : c > 0) :
       suffices h_factor : Filter.Tendsto (fun k : ℕ => (2 * k + 4 : ℝ) / 3 ^ k) Filter.atTop
         (nhds 0) by
         convert h_factor.const_mul ( ( C_E + 17 * C_H ) * Real.exp 1 ) using 2 <;> ring;
-      refine' squeeze_zero_norm' _ tendsto_inv_atTop_nhds_zero_nat;
+      refine squeeze_zero_norm' ?_ tendsto_inv_atTop_nhds_zero_nat
       norm_num;
       exact ⟨ 20, fun n hn => by rw [ inv_eq_one_div, div_le_div_iff₀ ]
         <;> norm_cast <;> induction hn <;> norm_num [ Nat.pow_succ ] at * ; nlinarith ⟩;
     obtain ⟨ k, hk ⟩ := Filter.eventually_atTop.mp ( h_exp_growth.eventually
       ( gt_mem_nhds zero_lt_one ) );
-    refine' ⟨ 2 * ( k + K₀ + N_E + N + ⌈4 * ( C₂ / Real.exp 1 + C_E + 20 * C_H + 1 )
-      ^ 2 / c ^ 2⌉₊ + 1 ), _, _, _, _, _, _ ⟩ <;> try linarith;
+    refine ⟨ 2 * ( k + K₀ + N_E + N + ⌈4 * ( C₂ / Real.exp 1 + C_E + 20 * C_H + 1 )
+      ^ 2 / c ^ 2⌉₊ + 1 ), ?_, ?_, ?_, ?_, ?_, ?_ ⟩ <;> try linarith;
     exact ⟨
       by
         have := hk
