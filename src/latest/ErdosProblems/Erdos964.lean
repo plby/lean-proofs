@@ -41,7 +41,6 @@ namespace Erdos964
 
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.refine false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
 set_option linter.unusedVariables false
@@ -153,7 +152,7 @@ lemma ratio_lemma_12 (a : ℕ) (r : Fin 3 → ℕ) (C : ℕ) (x : ℕ)
               intro p pp dp; rcases hE1 with ⟨ p1, p2, hp1, hp2, hne, hC1, hC2, he ⟩ ; simp_all +decide ;
               simp_all +decide [ Nat.Prime.dvd_mul ];
               rcases dp with ( dp | dp ) <;> have := Nat.prime_dvd_prime_iff_eq pp hp1 <;> have := Nat.prime_dvd_prime_iff_eq pp hp2 <;> aesop;
-            refine' Nat.coprime_of_dvd' _;
+            refine Nat.coprime_of_dvd' ?_;
             intro k hk hk' hk''; specialize h_prime_factors_E2 k hk hk''; specialize hC k hk; simp_all +decide [ Nat.Prime.dvd_mul ] ;
             grind;
           -- By definition of $L$, we know that $n + 1 = a_seq a 1 * r 0 * (L (a_seq a 0) x / r 0)$.
@@ -233,7 +232,7 @@ lemma ratio_lemma_23 (a : ℕ) (r : Fin 3 → ℕ) (C : ℕ) (x : ℕ)
         grind;
       -- Since $a_seq a 2 * r 1$ and $a_seq a 1 * r 2$ are coprime to $E0$ and $E1$ respectively, we can apply the multiplicativity of the divisor function.
       have h_coprime : Nat.gcd (a_seq a 2 * r 1) ((L (a_seq a 1) x) / r 1) = 1 ∧ Nat.gcd (a_seq a 1 * r 2) ((L (a_seq a 2) x) / r 2) = 1 := by
-        constructor <;> refine' Nat.coprime_of_dvd' _;
+        constructor <;> refine Nat.coprime_of_dvd' ?_;
         · intro k hk hk1 hk2; have := Nat.dvd_trans hk2 ( show L ( a_seq a 1 ) x / r 1 ∣ L ( a_seq a 1 ) x from Nat.div_dvd_of_dvd h1 ) ; simp_all +decide [ Nat.Prime.dvd_mul ] ;
           contrapose! hC;
           exact ⟨ k, hk, by aesop, by rcases hk2 with ( hk2 | hk2 ) <;> have := Nat.prime_dvd_prime_iff_eq hk hp1 <;> have := Nat.prime_dvd_prime_iff_eq hk hp2 <;> aesop ⟩;
@@ -307,8 +306,8 @@ lemma ratio_lemma_13 (a : ℕ) (r : Fin 3 → ℕ) (C : ℕ) (x : ℕ)
         -- Since $a_seq a 2 * r 0 / 2$ and $L (a_seq a 0) x / r 0$ are coprime, we can apply the multiplicativity of $\tau$.
         have h_coprime : Nat.gcd (a_seq a 2 * r 0 / 2) (L (a_seq a 0) x / r 0) = 1 := by
           obtain ⟨ p1, p2, hp1, hp2, hne, hC1, hC2, h ⟩ := hE1;
-          refine' Nat.Coprime.symm ( h.symm ▸ Nat.Coprime.mul_left _ _ );
-          · refine' hp1.coprime_iff_not_dvd.mpr _;
+          refine Nat.Coprime.symm ( h.symm ▸ Nat.Coprime.mul_left ?_ ?_ );
+          · refine hp1.coprime_iff_not_dvd.mpr ?_;
             intro H;
             -- Since $p1$ divides $a_seq a 2 * r 0 / 2$, it must also divide $a_seq a 2 * r 0$.
             have h_div : p1 ∣ a_seq a 2 * r 0 := by
@@ -317,7 +316,7 @@ lemma ratio_lemma_13 (a : ℕ) (r : Fin 3 → ℕ) (C : ℕ) (x : ℕ)
               exact dvd_mul_of_dvd_left ( even_iff_two_dvd.mp ( by unfold a_seq; simp +arith +decide [ *, parity_simps ] ) ) _;
             contrapose! hC1;
             exact hC p1 hp1 ( dvd_trans h_div ( by exact ⟨ a_seq a 0 * a_seq a 1 * r 1 * r 2, by ring ⟩ ) );
-          · refine' hp2.coprime_iff_not_dvd.mpr _;
+          · refine hp2.coprime_iff_not_dvd.mpr ?_;
             intro H;
             -- Since $p2$ divides $a_seq a 2 * r 0 / 2$, it must also divide $a_seq a 2 * r 0$.
             have h_div : p2 ∣ a_seq a 2 * r 0 := by
@@ -336,7 +335,7 @@ lemma ratio_lemma_13 (a : ℕ) (r : Fin 3 → ℕ) (C : ℕ) (x : ℕ)
             intro p pp dp; specialize hC p pp; simp_all +decide [ mul_assoc, Nat.Prime.dvd_mul ] ;
             exact hC <| by aesop;
           obtain ⟨ p1, p2, hp1, hp2, hne, hC1, hC2, h ⟩ := hE3;
-          refine' Nat.Coprime.coprime_dvd_left ( Nat.div_dvd_of_dvd _ ) _;
+          refine Nat.Coprime.coprime_dvd_left ( Nat.div_dvd_of_dvd ?_ ) ?_;
           · exact dvd_mul_of_dvd_left ( even_iff_two_dvd.mp ( by unfold a_seq; aesop ) ) _;
           · rw [ h ];
             exact Nat.Coprime.mul_right ( Nat.Coprime.symm <| hp1.coprime_iff_not_dvd.mpr fun h => by linarith [ h_coprime p1 hp1 h ] ) ( Nat.Coprime.symm <| hp2.coprime_iff_not_dvd.mpr fun h => by linarith [ h_coprime p2 hp2 h ] );
@@ -407,9 +406,12 @@ lemma R_contains_one_of_three (hGPY : GoldstonGrahamPintzYildirimStatement)
     have h_infinite_n : Set.Infinite {n : ℕ | ∃ x : ℕ, r i ∣ L (a_seq a i) x ∧ r j ∣ L (a_seq a j) x ∧ L (a_seq a i) x / r i ∈ E2 (Nat.findGreatest (fun p => p.Prime ∧ p ∣ a_seq a 0 * a_seq a 1 * a_seq a 2 * r 0 * r 1 * r 2) (a_seq a 0 * a_seq a 1 * a_seq a 2 * r 0 * r 1 * r 2)) ∧ L (a_seq a j) x / r j ∈ E2 (Nat.findGreatest (fun p => p.Prime ∧ p ∣ a_seq a 0 * a_seq a 1 * a_seq a 2 * r 0 * r 1 * r 2) (a_seq a 0 * a_seq a 1 * a_seq a 2 * r 0 * r 1 * r 2)) ∧ n = if i = 0 ∧ j = 1 then a_seq a 0 * L (a_seq a 1) x else if i = 1 ∧ j = 2 then a_seq a 1 * L (a_seq a 2) x else (a_seq a 0) * L (a_seq a 2) x / 2} := by
       intro H;
       apply h_inf;
-      refine' Set.Finite.subset ( H.preimage _ ) _;
-      use fun x => if i = 0 ∧ j = 1 then a_seq a 0 * L ( a_seq a 1 ) x else if i = 1 ∧ j = 2 then a_seq a 1 * L ( a_seq a 2 ) x else a_seq a 0 * L ( a_seq a 2 ) x / 2;
-      · intro x hx y hy; simp +decide [ Fin.forall_fin_succ ] at *;
+      let f : ℕ → ℕ := fun x =>
+        if i = 0 ∧ j = 1 then a_seq a 0 * L ( a_seq a 1 ) x
+        else if i = 1 ∧ j = 2 then a_seq a 1 * L ( a_seq a 2 ) x
+        else a_seq a 0 * L ( a_seq a 2 ) x / 2;
+      refine Set.Finite.subset ( H.preimage (f := f) ?_ ) ?_;
+      · intro x hx y hy; simp +decide [ f, Fin.forall_fin_succ ] at *;
         fin_cases i <;> fin_cases j <;> simp +decide at hij;
         · simp +decide [ L, a_seq ];
           aesop;
@@ -427,7 +429,7 @@ lemma R_contains_one_of_three (hGPY : GoldstonGrahamPintzYildirimStatement)
       fin_cases i <;> fin_cases j <;> simp +decide at hij;
       · intro x hx;
         convert ratio_lemma_12 a r _ x hr _ hx.1 hx.2.1 hx.2.2.1 hx.2.2.2 using 1;
-        intro p pp dp; refine' Nat.le_findGreatest _ _ <;> norm_num at *;
+        intro p pp dp; refine Nat.le_findGreatest ?_ ?_ <;> norm_num at *;
         · exact Nat.le_of_dvd ( Nat.mul_pos ( Nat.mul_pos ( Nat.mul_pos ( Nat.mul_pos ( Nat.mul_pos ( Nat.pos_of_ne_zero ( by unfold a_seq; aesop ) ) ( Nat.pos_of_ne_zero ( by unfold a_seq; aesop ) ) ) ( Nat.pos_of_ne_zero ( by unfold a_seq; aesop ) ) ) ( hr 0 ) ) ( hr 1 ) ) ( hr 2 ) ) dp;
         · grind;
       · simp +zetaDelta at *;
@@ -435,12 +437,12 @@ lemma R_contains_one_of_three (hGPY : GoldstonGrahamPintzYildirimStatement)
         convert ratio_lemma_13 a r _ x ha hr _ hx1 hx2 hx3 hx4 using 1;
         · unfold val3; ring_nf;
           rw [ Nat.mul_comm ( a_seq a 2 / 2 ), Nat.mul_comm ( a_seq a 0 / 2 ) ] ; rw [ Nat.mul_div_assoc _ ( even_iff_two_dvd.mp ( by unfold a_seq; simp +decide [ *, parity_simps ] ) ), Nat.mul_div_assoc _ ( even_iff_two_dvd.mp ( by unfold a_seq; simp +decide [ *, parity_simps ] ) ) ] ;
-        · intro p pp dp; refine' Nat.le_findGreatest _ _;
+        · intro p pp dp; refine Nat.le_findGreatest ?_ ?_;
           · exact Nat.le_of_dvd ( Nat.mul_pos ( Nat.mul_pos ( Nat.mul_pos ( Nat.mul_pos ( Nat.mul_pos ( Nat.pos_of_ne_zero ( by unfold a_seq; aesop ) ) ( Nat.pos_of_ne_zero ( by unfold a_seq; aesop ) ) ) ( Nat.pos_of_ne_zero ( by unfold a_seq; aesop ) ) ) ( hr 0 ) ) ( hr 1 ) ) ( hr 2 ) ) dp;
           · exact And.symm ⟨dp, pp⟩ );
       · intro x hx;
         convert ratio_lemma_23 a r _ x hr _ hx.1 hx.2.1 hx.2.2.1 hx.2.2.2 using 1;
-        intro p pp dp; refine' Nat.le_findGreatest _ _;
+        intro p pp dp; refine Nat.le_findGreatest ?_ ?_;
         · exact Nat.le_of_dvd ( Nat.mul_pos ( Nat.mul_pos ( Nat.mul_pos ( Nat.mul_pos ( Nat.mul_pos ( Nat.pos_of_ne_zero ( by unfold a_seq; aesop_cat ) ) ( Nat.pos_of_ne_zero ( by unfold a_seq; aesop_cat ) ) ) ( Nat.pos_of_ne_zero ( by unfold a_seq; aesop_cat ) ) ) ( Nat.pos_of_ne_zero ( by linarith [ hr 0 ] ) ) ) ( Nat.pos_of_ne_zero ( by linarith [ hr 1 ] ) ) ) ( Nat.pos_of_ne_zero ( by linarith [ hr 2 ] ) ) ) dp;
         · exact And.symm ⟨dp, pp⟩;
     contrapose! h_infinite_n;
@@ -478,13 +480,13 @@ lemma R_contains_modified_values (hGPY : GoldstonGrahamPintzYildirimStatement)
       have h1 : tau (a_seq a 1 * (r 0 * p 0 ^ (e 0 - 1))) = tau (a_seq a 1 * r 0) * tau (p 0 ^ (e 0 - 1)) := by
         rw [ ← h_mul ];
         · rw [ mul_assoc ];
-        · refine' Nat.Coprime.mul_left _ _;
+        · refine Nat.Coprime.mul_left ?_ ?_;
           · exact Nat.Coprime.pow_right _ ( Nat.Coprime.symm ( hp_coprime_a 0 1 ) );
           · exact Nat.Coprime.pow_right _ ( Nat.Coprime.symm ( hp_coprime_r 0 0 ) )
       have h2 : tau (a_seq a 0 * (r 1 * p 1 ^ (e 1 - 1))) = tau (a_seq a 0 * r 1) * tau (p 1 ^ (e 1 - 1)) := by
         rw [ ← h_mul ];
         · rw [ mul_assoc ];
-        · refine' Nat.Coprime.mul_left _ _;
+        · refine Nat.Coprime.mul_left ?_ ?_;
           · exact Nat.Coprime.pow_right _ ( Nat.Coprime.symm ( hp_coprime_a _ _ ) );
           · exact Nat.Coprime.pow_right _ ( Nat.Coprime.symm ( hp_coprime_r _ _ ) );
       -- Apply the formula for the number of divisors of a prime power.
@@ -502,7 +504,7 @@ lemma R_contains_modified_values (hGPY : GoldstonGrahamPintzYildirimStatement)
         simp_all +decide [ Nat.divisors_prime_pow, mul_comm ];
         exact h_tau_mul;
       have h_tau_mul : tau (a_seq a 2 * (r 1 * p 1 ^ (e 1 - 1))) = (e 1 - 1 + 1) * tau (a_seq a 2 * r 1) ∧ tau (a_seq a 1 * (r 2 * p 2 ^ (e 2 - 1))) = (e 2 - 1 + 1) * tau (a_seq a 1 * r 2) ∧ tau (a_seq a 2 / 2 * (r 0 * p 0 ^ (e 0 - 1))) = (e 0 - 1 + 1) * tau (a_seq a 2 / 2 * r 0) ∧ tau (a_seq a 0 / 2 * (r 2 * p 2 ^ (e 2 - 1))) = (e 2 - 1 + 1) * tau (a_seq a 0 / 2 * r 2) := by
-        refine' ⟨ _, _, _, _ ⟩;
+        refine ⟨ ?_, ?_, ?_, ?_ ⟩;
         · convert h_tau_mul ( a_seq a 2 * r 1 ) ( e 1 - 1 ) ( p 1 ) ( hp_prime 1 ) _ using 1;
           · rw [ mul_assoc ];
           · exact Nat.Coprime.mul_left ( hp_coprime_a _ _ |> Nat.Coprime.symm ) ( hp_coprime_r _ _ |> Nat.Coprime.symm );
@@ -516,7 +518,7 @@ lemma R_contains_modified_values (hGPY : GoldstonGrahamPintzYildirimStatement)
         · convert h_tau_mul ( a_seq a 0 / 2 * r 2 ) ( e 2 - 1 ) ( p 2 ) ( hp_prime 2 ) _ using 1;
           · ring_nf;
           · simp_all +decide [Nat.coprime_mul_iff_right, Nat.Coprime, Nat.gcd_comm];
-            refine' Nat.Coprime.coprime_dvd_left ( Nat.div_dvd_of_dvd _ ) _;
+            refine Nat.Coprime.coprime_dvd_left ( Nat.div_dvd_of_dvd ?_ ) ?_;
             · exact even_iff_two_dvd.mp ha;
             · exact Nat.Coprime.symm ( hp_coprime_a 2 0 );
       simp_all +decide [ Nat.sub_add_cancel ( he_pos _ ) ];
@@ -715,25 +717,25 @@ lemma exists_representation_odd_primes (q : ℚ) (hq : 0 < q) :
           have := List.mem_map.mp hp; obtain ⟨ i, hi, rfl ⟩ := this; exact ⟨ Nat.prime_nth_prime _, Nat.lt_of_le_of_lt ( Nat.Prime.two_le <| Nat.prime_nth_prime _ ) <| Nat.nth_strictMono ( Nat.infinite_setOf_prime ) <| Nat.lt_succ_self _ ⟩ ;, by
           norm_num [ List.pairwise_iff_get ];
           exact fun i j hij => fun h => hij.ne <| Fin.ext <| by have := Nat.nth_injective ( Nat.infinite_setOf_prime ) h; aesop; ⟩;
-      refine' ⟨ List.zipWith ( fun p x => ( p, x.2.1, x.2.2 ) ) ( List.take data_p.length ps ) data_p, List.zipWith ( fun p x => ( p, x.2.1, x.2.2 ) ) ( List.drop data_p.length ps ) data_q, _, _, _, _ ⟩ <;> simp_all +decide [ List.pairwise_append ];
+      refine ⟨ List.zipWith ( fun p x => ( p, x.2.1, x.2.2 ) ) ( List.take data_p.length ps ) data_p, List.zipWith ( fun p x => ( p, x.2.1, x.2.2 ) ) ( List.drop data_p.length ps ) data_q, ?_, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ List.pairwise_append ];
       · unfold target_val;
         congr! 2;
-        · refine' congr_arg _ ( List.ext_get _ _ ) <;> aesop;
-        · refine' List.ext_get _ _ <;> aesop;
+        · refine congr_arg _ ( List.ext_get ?_ ?_ ) <;> aesop;
+        · refine List.ext_get ?_ ?_ <;> aesop;
       · unfold construct_r; simp +decide [ Fin.forall_fin_succ ] ;
         -- Since the primes in `ps` are all odd, their powers are also odd.
         have h_odd_primes : ∀ p ∈ ps, Odd p := by
           exact fun p hp => Nat.Prime.odd_of_ne_two ( hps.2.1 p hp |>.1 ) ( ne_of_gt ( hps.2.1 p hp |>.2 ) );
         have h_odd_powers : ∀ {l : List ℕ}, (∀ p ∈ l, Odd p) → Odd (List.prod l) := by
           intro l hl; induction l <;> simp_all +decide [Nat.odd_iff] ;
-        refine' ⟨ h_odd_powers _, h_odd_powers _ ⟩;
+        refine ⟨ h_odd_powers ?_, h_odd_powers ?_ ⟩;
         · intro p hp; rw [ List.mem_iff_get ] at hp; obtain ⟨ i, hi ⟩ := hp; simp_all +decide ;
           exact hi ▸ Odd.pow ( h_odd_primes _ ( by simp ) );
         · intro p hp; rw [ List.mem_iff_get ] at hp; obtain ⟨ i, hi ⟩ := hp; simp_all +decide ;
           exact hi ▸ Odd.pow ( h_odd_primes _ ( by simp ) );
       · intro p hp; rcases hp with ( hp | hp ) <;> rw [ List.mem_iff_get ] at hp <;> aesop;
       · simp_all +decide [ List.pairwise_iff_get ];
-        refine' ⟨ _, _, _ ⟩;
+        refine ⟨ ?_, ?_, ?_ ⟩;
         · intro i j hij; specialize hps; have := hps.2.2 ⟨ i, by
             exact lt_of_lt_of_le i.2 ( by simp +decide [ hps.1 ] ) ⟩ ⟨ j, by
             exact lt_of_lt_of_le j.2 ( by simp [ hps.1 ] ) ⟩ hij; aesop;
@@ -741,7 +743,7 @@ lemma exists_representation_odd_primes (q : ℚ) (hq : 0 < q) :
             linarith [ Fin.is_lt i, Fin.is_lt j, show ( i : ℕ ) < List.length data_q from by simpa [ hps.1 ] using i.2, show ( j : ℕ ) < List.length data_q from by simpa [ hps.1 ] using j.2 ] ⟩ ⟨ data_p.length + j, by
             grind ⟩ ( by simpa [ Fin.ext_iff ] using hij ) using 1;
         · intro a ha b hb; rw [ List.mem_iff_get ] at ha hb; obtain ⟨ i, hi ⟩ := ha; obtain ⟨ j, hj ⟩ := hb; simp_all +decide ;
-          refine' hi ▸ hj ▸ hps.2.2 ⟨ i, by
+          refine hi ▸ hj ▸ hps.2.2 ⟨ i, by
             exact lt_of_lt_of_le i.2 ( by simp +decide [ hps.1 ] ) ⟩ ⟨ data_p.length + j, by
             grind ⟩ ( by
             exact Nat.lt_of_lt_of_le i.2 ( by simp ) )
@@ -788,7 +790,7 @@ lemma exists_representation_clean (q : ℚ) (hq : 0 < q) :
       obtain ⟨data_p, data_q, hq_eq, hr_odd, hp_prime, hp_distinct⟩ := exists_representation_odd_primes q hq;
       use data_p.filter (fun t => 0 < t.2.1 ∧ 0 < t.2.2), data_q.filter (fun t => 0 < t.2.1 ∧ 0 < t.2.2);
       unfold target_val construct_r at *; simp_all +decide ;
-      refine' ⟨ _, _, _, _ ⟩;
+      refine ⟨ ?_, ?_, ?_, ?_ ⟩;
       · -- By definition of `f_rat`, we know that `f_rat x y = 1` if `x = 0` or `y = 0`.
         have h_f_rat_zero : ∀ x y : ℕ, x = 0 ∨ y = 0 → f_rat x y = 1 := by
           rintro x y ( rfl | rfl ) <;> unfold f_rat <;> norm_num
@@ -936,7 +938,7 @@ lemma coprime_a_plus_one_R2 (data_p data_q : List (ℕ × ℕ × ℕ))
   let a := construct_a data_p data_q
   let r2 := R2_val data_q
   (a + 1).Coprime r2 := by
-    refine' Nat.coprime_of_dvd' _;
+    refine Nat.coprime_of_dvd' ?_;
     intros k hk hk_div_a hk_div_r2
     have hk_div_a_plus_one : k ∣ construct_a data_p data_q + 1 := hk_div_a
     have hk_div_a : k ∣ construct_a data_p data_q := by
@@ -966,7 +968,7 @@ lemma coprime_a_plus_two_R1 (data_p data_q : List (ℕ × ℕ × ℕ))
   let a := construct_a data_p data_q
   let r1 := R1_val data_p
   (a + 2).Coprime r1 := by
-    refine' Nat.coprime_of_dvd' _;
+    refine Nat.coprime_of_dvd' ?_;
     -- If a prime p divides R1, it must divide a (by prime_dvd_R1_imp_dvd_a). But p also divides a+2, so p divides (a+2) - a = 2. Since p is odd, this is impossible. Therefore, p can't divide both a+2 and R1, so their gcd must be 1.
     intros p hp_prime hp_div_a2 hp_div_r1
     have hp_div_2 : p ∣ 2 := by
@@ -993,9 +995,9 @@ lemma coprime_a_div_two_plus_one_R1 (data_p data_q : List (ℕ × ℕ × ℕ))
   let a := construct_a data_p data_q
   let r1 := R1_val data_p
   (a / 2 + 1).Coprime r1 := by
-    refine' Nat.Coprime.symm <| Nat.coprime_of_dvd' _;
+    refine Nat.Coprime.symm <| Nat.coprime_of_dvd' ?_;
     intro k hk hk' hk''; have := Nat.dvd_sub hk'' ( Nat.dvd_div_of_mul_dvd ( show 2 * k ∣ construct_a data_p data_q from ?_ ) ) ; simp_all +decide ;
-    refine' Nat.Coprime.mul_dvd_of_dvd_of_dvd _ _ _;
+    refine Nat.Coprime.mul_dvd_of_dvd_of_dvd ?_ ?_ ?_;
     · -- Since $k$ divides $R1_val$, and $R1_val$ is a product of primes from $data_p$, each of which is odd by $hp_odd$, $k$ must be one of those primes.
       have hk_prime : ∃ p ∈ data_p.map (fun x => x.1), k ∣ p := by
         have hk_prime : k ∣ (data_p.map (fun (p, _, y) => p ^ y)).prod := by
@@ -1164,7 +1166,7 @@ lemma tau_a_div_two_mul_R2 (data_p data_q : List (ℕ × ℕ × ℕ))
     -- By multiplicativity of tau, we can split the product into three parts: tau(2), tau(P_val), and tau(Q_val * r2).
     have h_mul : let a := construct_a data_p data_q; let r2 := R2_val data_q; tau (2 * P_val data_p * (Q_val data_q * r2)) = tau 2 * tau (P_val data_p) * tau (Q_val data_q * r2) := by
       have h_coprime : Nat.Coprime 2 (P_val data_p) ∧ Nat.Coprime 2 (Q_val data_q * R2_val data_q) ∧ Nat.Coprime (P_val data_p) (Q_val data_q * R2_val data_q) := by
-        refine' ⟨ Nat.prime_two.coprime_iff_not_dvd.mpr _, Nat.prime_two.coprime_iff_not_dvd.mpr _, _ ⟩;
+        refine ⟨ Nat.prime_two.coprime_iff_not_dvd.mpr ?_, Nat.prime_two.coprime_iff_not_dvd.mpr ?_, ?_ ⟩;
         · have h_odd_P_val : Odd (P_val data_p) := by
             apply odd_P_val; intro p hp; specialize hp_odd p; aesop;
           simpa [ ← even_iff_two_dvd ] using h_odd_P_val;
@@ -1400,7 +1402,7 @@ lemma suitable_primes_exist (a : ℕ) (r : Fin 3 → ℕ)
         · exact this;
         · simp +decide [ *, a_seq ];
           exact ⟨ ⟨ ⟨ ha.ne', ne_of_gt ( hr 0 ) ⟩, ne_of_gt ( hr 1 ) ⟩, ne_of_gt ( hr 2 ) ⟩;
-      refine' ⟨ p, hp_prime, hp_distinct, _, _ ⟩ <;> simp_all +decide [Nat.coprime_mul_iff_right];
+      refine ⟨ p, hp_prime, hp_distinct, ?_, ?_ ⟩ <;> simp_all +decide [Nat.coprime_mul_iff_right];
       · intro i j; specialize hp_coprime i; fin_cases j <;> tauto;
       · exact fun i j => by fin_cases j <;> simp_all +decide [ Nat.Coprime ] ;
 
@@ -1472,7 +1474,7 @@ lemma r2_coprime_a_plus_two (data_p data_q : List (ℕ × ℕ × ℕ))
   let a := construct_a data_p data_q
   let r2 := R2_val data_q
   r2.Coprime (a + 2) := by
-    refine' Nat.coprime_of_dvd' _;
+    refine Nat.coprime_of_dvd' ?_;
     intro k hk hk' hk''; have := Nat.dvd_sub hk'' ( prime_dvd_R2_imp_dvd_a data_p data_q h_pos k hk hk' ) ; simp_all +decide [ Nat.prime_dvd_prime_iff_eq ] ;
     contrapose! hk'; simp_all +decide ;
     exact Nat.odd_iff.mp ( odd_R2_val data_q fun p hp => hp_odd p <| by aesop ) |> fun h => h.symm ▸ rfl;
