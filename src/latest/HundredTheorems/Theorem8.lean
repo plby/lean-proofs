@@ -15,7 +15,6 @@ set_option linter.dupNamespace false
 set_option linter.style.cases false
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 set_option linter.unusedSimpArgs false
 set_option linter.flexible false
 namespace Theorem8
@@ -65,7 +64,7 @@ So it is 1 or 2.
 lemma degree_adjoin_sq (K : IntermediateField ℚ ℝ) (x : ℝ) (hx : x ^ 2 ∈ K) :
     Module.finrank K (IntermediateField.adjoin K {x}) = 1 ∨ Module.finrank K (IntermediateField.adjoin K {x}) = 2 := by
   have hxint : IsIntegral K x := by
-    refine' ⟨Polynomial.X ^ 2 - Polynomial.C (⟨x ^ 2, hx⟩ : K), ?_, ?_⟩
+    refine ⟨Polynomial.X ^ 2 - Polynomial.C (⟨x ^ 2, hx⟩ : K), ?_, ?_⟩
     · exact Polynomial.monic_X_pow_sub_C _ two_ne_zero
     · simp
   haveI : FiniteDimensional K (IntermediateField.adjoin K {x}) :=
@@ -75,13 +74,13 @@ lemma degree_adjoin_sq (K : IntermediateField ℚ ℝ) (x : ℝ) (hx : x ^ 2 ∈
   -- Since $x ^ 2 \in K$, the minimal polynomial of $x$ over $K$ divides $X ^ 2 - x ^ 2$, which has degree 2.
   have h_min_deg : Polynomial.degree (minpoly K x) ≤ 2 := by
     have h_min_div : minpoly K x ∣ (Polynomial.X ^ 2 - Polynomial.C (⟨x ^ 2, hx⟩ : K)) := by
-      refine' minpoly.dvd K x _
+      refine minpoly.dvd K x ?_
       bound
     exact le_trans ( Polynomial.degree_le_of_dvd h_min_div ( Polynomial.X_pow_sub_C_ne_zero ( by norm_num ) _ ) ) ( by erw [ Polynomial.degree_X_pow_sub_C ] <;> norm_num )
   -- Since the degree of the minimal polynomial is at most 2 and the extension is finite, it must be exactly 1 or 2.
   have h_finrank : Module.finrank (↥K) ↥(IntermediateField.adjoin K {x}) = (minpoly K x).natDegree := by
     convert ( IntermediateField.adjoin.finrank _ )
-    refine' ⟨ Polynomial.X ^ 2 - Polynomial.C ( ⟨ x ^ 2, hx ⟩ : K ), _, _ ⟩
+    refine ⟨ Polynomial.X ^ 2 - Polynomial.C ( ⟨ x ^ 2, hx ⟩ : K ), ?_, ?_ ⟩
     · rw [ Polynomial.Monic, Polynomial.leadingCoeff_X_pow_sub_C ] ; norm_num
     · aesop
   have h_deg_pos : 0 < (minpoly K x).natDegree := by
@@ -105,7 +104,7 @@ lemma finrank_adjoin_sq {K : IntermediateField ℚ ℝ} {x : ℝ} (hx : x ^ 2 �
     (hK : ∃ n : ℕ, Module.finrank ℚ K = 2 ^ n) :
     ∃ m : ℕ, Module.finrank ℚ (IntermediateField.adjoin ℚ ((K : Set ℝ) ∪ {x})) = 2 ^ m := by
   have hxint : IsIntegral K x := by
-    refine' ⟨Polynomial.X ^ 2 - Polynomial.C (⟨x ^ 2, hx⟩ : K), ?_, ?_⟩
+    refine ⟨Polynomial.X ^ 2 - Polynomial.C (⟨x ^ 2, hx⟩ : K), ?_, ?_⟩
     · exact Polynomial.monic_X_pow_sub_C _ two_ne_zero
     · simp
   haveI : FiniteDimensional K (IntermediateField.adjoin K {x}) :=
@@ -181,18 +180,18 @@ lemma hasQuadTower_adjoin_sqrt {K : IntermediateField ℚ ℝ} (hK : HasQuadTowe
     HasQuadTower (K ⊔ IntermediateField.adjoin ℚ {Real.sqrt x}) := by
   unfold HasQuadTower at *
   rcases hK with ⟨k, F, hF₀, hFk, hFstep⟩
-  refine' ⟨k + 1, fun i => if i ≤ k then F i else K ⊔ IntermediateField.adjoin ℚ {Real.sqrt x}, ?_, ?_, ?_⟩
+  refine ⟨k + 1, fun i => if i ≤ k then F i else K ⊔ IntermediateField.adjoin ℚ {Real.sqrt x}, ?_, ?_, ?_⟩
   · simp [hF₀]
   · simp
   · intro i hi
     by_cases hik : i < k
     · rcases hFstep i hik with ⟨y, hy, hstep⟩
-      refine' ⟨y, ?_, ?_⟩
+      refine ⟨y, ?_, ?_⟩
       · simpa [hik.le] using hy
       · have hi_succ : i + 1 ≤ k := Nat.succ_le_of_lt hik
         simp [hik.le, hi_succ, hstep]
     · have hi_eq : i = k := Nat.eq_of_lt_succ_of_not_lt hi hik
-      refine' ⟨Real.sqrt x, ?_, ?_⟩
+      refine ⟨Real.sqrt x, ?_, ?_⟩
       · have hsx : Real.sqrt x ^ 2 ∈ K := by
           by_cases hx_nonneg : 0 ≤ x
           · simpa [Real.sq_sqrt hx_nonneg] using hx
@@ -236,7 +235,7 @@ lemma hasQuadTower_sup {K L : IntermediateField ℚ ℝ} (hK : HasQuadTower K) (
   obtain ⟨hF0, hFk, hF_step⟩ := hF
   obtain ⟨hG0, hGm, hG_step⟩ := hG
   use k + m; (
-  refine' ⟨ fun i => if i < k then F i else if i = k then K else IntermediateField.adjoin ℚ ( ( F k : Set ℝ ) ∪ ( G ( i - k ) : Set ℝ ) ), _, _, _ ⟩ <;> simp_all +decide
+  refine ⟨ fun i => if i < k then F i else if i = k then K else IntermediateField.adjoin ℚ ( ( F k : Set ℝ ) ∪ ( G ( i - k ) : Set ℝ ) ), ?_, ?_, ?_ ⟩ <;> simp_all +decide
   · aesop
   · aesop
   · intro i hi
@@ -254,16 +253,16 @@ lemma hasQuadTower_sup {K L : IntermediateField ℚ ℝ} (hK : HasQuadTower K) (
           aesop
         | succ i ih =>
           exact hF_step i ( Nat.lt_succ_self i ) |> fun ⟨ y, hy, hy' ⟩ => hy'.symm ▸ IntermediateField.subset_adjoin ℚ _ ( Set.mem_insert_of_mem _ ( ih fun j hj => hF_step j ( Nat.lt_succ_of_lt hj ) ) )
-      · refine' le_antisymm _ _ <;> simp_all +decide [ IntermediateField.adjoin_le_iff, Set.insert_subset_iff ]
+      · refine le_antisymm ?_ ?_ <;> simp_all +decide [ IntermediateField.adjoin_le_iff, Set.insert_subset_iff ]
         · exact ⟨ fun y hy => IntermediateField.subset_adjoin ℚ _ <| Set.mem_insert_of_mem _ <| by aesop, IntermediateField.subset_adjoin ℚ _ <| Set.mem_insert _ _ ⟩
         · exact ⟨ IntermediateField.subset_adjoin _ _ <| Set.mem_union_right _ <| IntermediateField.subset_adjoin _ _ <| Set.mem_insert _ _, fun y hy => IntermediateField.subset_adjoin _ _ <| Set.mem_union_left _ hy ⟩
     · obtain ⟨ x, hx₁, hx₂ ⟩ := hG_step ( i - k ) ( by omega )
-      refine' ⟨ x, _, _ ⟩
+      refine ⟨ x, ?_, ?_ ⟩
       · exact IntermediateField.subset_adjoin _ _ ( Set.mem_union_right _ hx₁ )
       · rw [ show i + 1 - k = i - k + 1 by omega, hx₂ ]
-        refine' le_antisymm _ _ <;> simp_all +decide [ IntermediateField.adjoin_le_iff, Set.insert_subset_iff ]
+        refine le_antisymm ?_ ?_ <;> simp_all +decide [ IntermediateField.adjoin_le_iff, Set.insert_subset_iff ]
         · exact ⟨ fun y hy => IntermediateField.subset_adjoin _ _ <| by aesop, IntermediateField.subset_adjoin _ _ <| by aesop, fun y hy => IntermediateField.subset_adjoin _ _ <| by aesop ⟩
-        · refine' ⟨ _, _, _ ⟩
+        · refine ⟨ ?_, ?_, ?_ ⟩
           · exact IntermediateField.subset_adjoin _ _ ( Set.mem_union_right _ ( IntermediateField.subset_adjoin _ _ ( Set.mem_insert _ _ ) ) )
           · exact fun x hx => IntermediateField.subset_adjoin _ _ ( Set.mem_union_left _ hx )
           · intro y hy; exact IntermediateField.subset_adjoin _ _ ( Set.mem_union_right _ <| IntermediateField.subset_adjoin _ _ <| Set.mem_insert_of_mem _ hy ) ;)
@@ -342,7 +341,7 @@ lemma minpoly_degree_of_cube_root_two {x : ℝ} (h : x ^ 3 = 2) :
     Module.finrank ℚ (IntermediateField.adjoin ℚ {x}) = 3 := by
   -- The minimal polynomial of $x$ over $\mathbb{Q}$ is $x ^ 3 - 2$, which is irreducible over $\mathbb{Q}$.
   have h_min_poly : minpoly ℚ x = Polynomial.X ^ 3 - 2 := by
-    refine' Eq.symm ( minpoly.eq_of_irreducible_of_monic _ _ _ )
+    refine Eq.symm ( minpoly.eq_of_irreducible_of_monic ?_ ?_ ?_ )
     · -- We'll use that $x ^ 3 - 2$ is irreducible over $\mathbb{Q}$ because it has no rational roots and its degree is 3.
       have h_irred : Irreducible (Polynomial.X ^ 3 - 2 : Polynomial ℚ) := by
         have h_no_rational_roots : ¬∃ (q : ℚ), q ^ 3 = 2 := by
@@ -416,7 +415,7 @@ The polynomial $X ^ 3 - 3X - 1$ is irreducible over the rationals.
 -/
 open Polynomial in
 lemma trisection_poly_irreducible : Irreducible (X ^ 3 - 3 * X - 1 : ℚ[X]) := by
-  refine' Polynomial.irreducible_of_degree_le_three_of_not_isRoot ?_ ?_
+  refine Polynomial.irreducible_of_degree_le_three_of_not_isRoot ?_ ?_
   · rw [show (X ^ 3 - 3 * X - 1 : ℚ[X]).natDegree = 3 by compute_degree!]
     norm_num
   · intro r hr
@@ -454,7 +453,7 @@ open IntermediateField Polynomial
 lemma degree_adjoin_sq' (K : IntermediateField ℚ ℝ) (x : ℝ) (hx : x ^ 2 ∈ K) :
     Module.finrank K (adjoin K {x}) = 1 ∨ Module.finrank K (adjoin K {x}) = 2 := by
       have hxint : IsIntegral K x := by
-        refine' ⟨Polynomial.X ^ 2 - Polynomial.C (⟨x ^ 2, hx⟩ : K), ?_, ?_⟩
+        refine ⟨Polynomial.X ^ 2 - Polynomial.C (⟨x ^ 2, hx⟩ : K), ?_, ?_⟩
         · exact Polynomial.monic_X_pow_sub_C _ two_ne_zero
         · simp
       haveI : FiniteDimensional K (adjoin K {x}) :=
@@ -469,11 +468,11 @@ lemma degree_adjoin_sq' (K : IntermediateField ℚ ℝ) (x : ℝ) (hx : x ^ 2 �
         exact le_trans ( Polynomial.degree_le_of_dvd h_deg <| by exact ne_of_apply_ne Polynomial.degree <| by erw [ Polynomial.degree_X_pow_sub_C ] <;> norm_num ) <| by erw [ Polynomial.degree_X_pow_sub_C ] <;> norm_num
       have h_deg : Module.finrank K L = (minpoly K x).natDegree := by
         convert ( IntermediateField.adjoin.finrank <| show IsIntegral K x from ?_ )
-        refine' ⟨ Polynomial.X ^ 2 - Polynomial.C ( ⟨ x ^ 2, hx ⟩ : K ), _, _ ⟩ <;> norm_num
+        refine ⟨ Polynomial.X ^ 2 - Polynomial.C ( ⟨ x ^ 2, hx ⟩ : K ), ?_, ?_ ⟩ <;> norm_num
         erw [ Polynomial.Monic, Polynomial.leadingCoeff_X_pow_sub_C ] ; norm_num
       have h_deg_pos : 0 < (minpoly K x).natDegree := by
         apply minpoly.natDegree_pos
-        refine' ⟨ Polynomial.X ^ 2 - Polynomial.C ( ⟨ x ^ 2, hx ⟩ : K ), _, _ ⟩
+        refine ⟨ Polynomial.X ^ 2 - Polynomial.C ( ⟨ x ^ 2, hx ⟩ : K ), ?_, ?_ ⟩
         · erw [ Polynomial.Monic, Polynomial.leadingCoeff_X_pow_sub_C ] ; norm_num
         · simp_all only [eval₂_sub, eval₂_X_pow, eval₂_C, IntermediateField.algebraMap_apply, sub_self, L]
       have := Polynomial.natDegree_le_of_degree_le ‹_›; interval_cases _ : Polynomial.natDegree ( minpoly K x ) <;> aesop
@@ -493,7 +492,7 @@ lemma dyadic_degree_pow2 (K : IntermediateField ℚ ℝ) (h : DyadicExtension K)
   · rename_i K x hK hx ih
     rcases ih with ⟨n, hn⟩
     rcases finrank_adjoin_sq hx ⟨n, hn⟩ with ⟨m, hm⟩
-    refine' ⟨m, ?_⟩
+    refine ⟨m, ?_⟩
     have hfield :
         K ⊔ adjoin ℚ {x} = adjoin ℚ ((K : Set ℝ) ∪ {x}) := by
       rw [IntermediateField.adjoin_union, IntermediateField.adjoin_self]
@@ -550,7 +549,7 @@ lemma constructible_in_dyadic (x : ℝ) (hx : Constructible x) :
   | sqrt hx hx0 ihx =>
       rename_i y
       rcases ihx with ⟨K, hK, hxK⟩
-      refine' ⟨K ⊔ adjoin ℚ {Real.sqrt y}, DyadicExtension.step hK ?_, ?_⟩
+      refine ⟨K ⊔ adjoin ℚ {Real.sqrt y}, DyadicExtension.step hK ?_, ?_⟩
       · simpa [Real.sq_sqrt hx0] using hxK
       · exact SetLike.le_def.mp le_sup_right
           (IntermediateField.subset_adjoin ℚ {Real.sqrt y} (by simp))
@@ -573,7 +572,7 @@ theorem angle_trisection_impossible :
   rcases constructible_in_dyadic x hx with ⟨K, hK, hxK⟩
   rcases dyadic_degree_pow2 K hK with ⟨n, hn⟩
   have h_min_poly : minpoly ℚ x = Polynomial.X ^ 3 - 3 * Polynomial.X - 1 := by
-    refine' Eq.symm (minpoly.eq_of_irreducible_of_monic _ _ _)
+    refine Eq.symm (minpoly.eq_of_irreducible_of_monic ?_ ?_ ?_)
     · convert trisection_poly_irreducible using 1
     · norm_num +zetaDelta at *
       erw [Polynomial.aeval_C]
@@ -587,7 +586,7 @@ theorem angle_trisection_impossible :
       norm_num [Polynomial.coeff_one, Polynomial.coeff_X]
   have h_deg : Module.finrank ℚ (IntermediateField.adjoin ℚ {x}) = 3 := by
     have hxint : IsIntegral ℚ x := by
-      refine' ⟨Polynomial.X ^ 3 - 3 * Polynomial.X - 1, _, _⟩
+      refine ⟨Polynomial.X ^ 3 - 3 * Polynomial.X - 1, ?_, ?_⟩
       · erw [Polynomial.Monic, Polynomial.leadingCoeff, Polynomial.natDegree_sub_C,
           Polynomial.natDegree_sub_eq_left_of_natDegree_lt] <;> norm_num
         norm_num [Polynomial.coeff_one, Polynomial.coeff_X]
@@ -879,7 +878,7 @@ lemma RulerCompass.line_line_coords_constructible {cfg : RCBase} {A B C D P : Po
       -- Let's express the coordinates of P in terms of the coordinates of A, B, C, and D.
       obtain ⟨a, b, c, d, e, f, ha, hb, hc, hd, he, hf, h_det⟩ : ∃ a b c d e f : ℝ, a * (RulerCompass.RC_coords cfg P).1 + b * (RulerCompass.RC_coords cfg P).2 = e ∧ c * (RulerCompass.RC_coords cfg P).1 + d * (RulerCompass.RC_coords cfg P).2 = f ∧ a * d - b * c ≠ 0 ∧ Constructible a ∧ Constructible b ∧ Constructible c ∧ Constructible d ∧ Constructible e ∧ Constructible f := by
         use (RulerCompass.RC_coords cfg A).2 - (RulerCompass.RC_coords cfg B).2, (RulerCompass.RC_coords cfg B).1 - (RulerCompass.RC_coords cfg A).1, (RulerCompass.RC_coords cfg C).2 - (RulerCompass.RC_coords cfg D).2, (RulerCompass.RC_coords cfg D).1 - (RulerCompass.RC_coords cfg C).1, (RulerCompass.RC_coords cfg B).1 * (RulerCompass.RC_coords cfg A).2 - (RulerCompass.RC_coords cfg B).2 * (RulerCompass.RC_coords cfg A).1, (RulerCompass.RC_coords cfg D).1 * (RulerCompass.RC_coords cfg C).2 - (RulerCompass.RC_coords cfg D).2 * (RulerCompass.RC_coords cfg C).1
-        refine' ⟨ _, _, _, _ ⟩
+        refine ⟨ ?_, ?_, ?_, ?_ ⟩
         · exact line_equation hP₁
         · field_simp
           convert RulerCompass.line_equation hP₂ using 1 ; ring
@@ -983,7 +982,7 @@ lemma Constructible.coords_of_line_circle_inter {a b c x0 y0 r2 x y : ℝ}
         · convert hy.2 using 1 ; linarith
       · -- Substitute $y = \frac{c - ax}{b}$ into the circle equation to get a quadratic equation in $x$.
         have h_quad_x : ∃ A B C : ℝ, A ≠ 0 ∧ A * x ^ 2 + B * x + C = 0 ∧ Constructible A ∧ Constructible B ∧ Constructible C := by
-          refine' ⟨ 1 + ( a / b ) ^ 2, -2 * x0 - 2 * ( a / b ) * ( c / b - y0 ), x0 ^ 2 + ( c / b - y0 ) ^ 2 - r2, _, _, _, _, _ ⟩
+          refine ⟨ 1 + ( a / b ) ^ 2, -2 * x0 - 2 * ( a / b ) * ( c / b - y0 ), x0 ^ 2 + ( c / b - y0 ) ^ 2 - r2, ?_, ?_, ?_, ?_, ?_ ⟩
           · positivity
           · rw [ ← h_circle ]
             grind +ring
@@ -1143,7 +1142,7 @@ lemma RulerCompass.RC_coords_constructible (cfg : RCBase) (P : Point) (h : RCPoi
           have hP₂_const : ∃ x0 y0 r2 : ℝ, Constructible x0 ∧ Constructible y0 ∧ Constructible r2 ∧ ((RulerCompass.RulerCompass.RC_coords cfg P_1).1 - x0) ^ 2 + ((RulerCompass.RulerCompass.RC_coords cfg P_1).2 - y0) ^ 2 = r2 := by
             use (RulerCompass.RulerCompass.RC_coords cfg C).1, (RulerCompass.RulerCompass.RC_coords cfg C).2, ((RulerCompass.RulerCompass.RC_coords cfg C).1 - (RulerCompass.RulerCompass.RC_coords cfg D).1) ^ 2 + ((RulerCompass.RulerCompass.RC_coords cfg C).2 - (RulerCompass.RulerCompass.RC_coords cfg D).2) ^ 2
             simp +zetaDelta at *
-            refine' ⟨ hC_ih.1, hC_ih.2, _, _ ⟩
+            refine ⟨ hC_ih.1, hC_ih.2, ?_, ?_ ⟩
             · -- The square of a constructible number is constructible.
               have h_sq : ∀ x : ℝ, Constructible x → Constructible (x ^ 2) := by
                 exact fun x hx => by simpa only [ sq ] using Constructible.mul hx hx
@@ -1159,7 +1158,7 @@ lemma RulerCompass.RC_coords_constructible (cfg : RCBase) (P : Point) (h : RCPoi
         · unfold RulerCompass.RulerCompass.IsConstructibleCoords at *
           have h_line : ∃ a b c : ℝ, Constructible a ∧ Constructible b ∧ Constructible c ∧ a * (RulerCompass.RulerCompass.RC_coords cfg P_1).1 + b * (RulerCompass.RulerCompass.RC_coords cfg P_1).2 = c ∧ (a ≠ 0 ∨ b ≠ 0) := by
             use (RulerCompass.RulerCompass.RC_coords cfg A).2 - (RulerCompass.RulerCompass.RC_coords cfg B).2, (RulerCompass.RulerCompass.RC_coords cfg B).1 - (RulerCompass.RulerCompass.RC_coords cfg A).1, (RulerCompass.RulerCompass.RC_coords cfg B).1 * (RulerCompass.RulerCompass.RC_coords cfg A).2 - (RulerCompass.RulerCompass.RC_coords cfg A).1 * (RulerCompass.RulerCompass.RC_coords cfg B).2
-            refine' ⟨ _, _, _, _, _ ⟩
+            refine ⟨ ?_, ?_, ?_, ?_, ?_ ⟩
             · exact Constructible.add ( hA_ih.2 ) ( Constructible.neg hB_ih.2 )
             · exact Constructible.add ( hB_ih.1 ) ( Constructible.neg ( hA_ih.1 ) )
             · exact Constructible.add ( Constructible.mul hB_ih.1 hA_ih.2 ) ( Constructible.neg ( Constructible.mul hA_ih.1 hB_ih.2 ) )
@@ -1473,7 +1472,7 @@ theorem angle_trisection_impossible_plane (cfg : RCBase) :
     intros x hx h_root
     have h_deg : Module.finrank ℚ (IntermediateField.adjoin ℚ {x}) = 3 := by
       have h_deg : minpoly ℚ x = Polynomial.X ^ 3 - 3 * Polynomial.X - 1 := by
-        refine' Eq.symm ( minpoly.eq_of_irreducible_of_monic _ _ _ )
+        refine Eq.symm ( minpoly.eq_of_irreducible_of_monic ?_ ?_ ?_ )
         · exact h_irreducible
         · simp_all only [Polynomial.eval_sub, Polynomial.eval_pow, Polynomial.eval_X, Polynomial.eval_mul,
             Polynomial.eval_ofNat, Polynomial.eval_one, Polynomial.aeval_sub, map_pow, Polynomial.aeval_X, map_mul, map_one]
