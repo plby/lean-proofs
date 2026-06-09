@@ -29,7 +29,6 @@ The proof is verified by Lean.
 import Mathlib
 
 set_option linter.style.longLine false
-set_option linter.style.refine false
 set_option linter.style.setOption false
 set_option linter.flexible false
 
@@ -110,12 +109,13 @@ theorem orthProj_equiv_iff_rank {n : Type*} [Fintype n] [DecidableEq n]
             have h_diag : Matrix.IsHermitian P := by
               exact hP.2;
             have := h_diag.spectral_theorem;
-            refine' ⟨ _, _, _, _, this ⟩;
+            refine ⟨ h_diag.eigenvectorUnitary, ?_, ?_,
+              RCLike.ofReal ∘ h_diag.eigenvalues, this ⟩;
             · convert h_diag.eigenvectorUnitary.2.2 using 1;
             · simp +decide [ mul_eq_one_comm ];
               convert h_diag.eigenvectorUnitary.2.2 using 1;
           obtain ⟨ D, hD₁, hD₂, d, rfl ⟩ := h_diag;
-          refine' ⟨ D, hD₁, hD₂, d, _, rfl ⟩;
+          refine ⟨ D, hD₁, hD₂, d, ?_, rfl ⟩;
           intro i
           have h_diag_eq : (D * Matrix.diagonal d * Dᵀ) * (D * Matrix.diagonal d * Dᵀ) = D * Matrix.diagonal d * Dᵀ := by
             exact hP.1;
@@ -138,7 +138,7 @@ theorem orthProj_equiv_iff_rank {n : Type*} [Fintype n] [DecidableEq n]
                 generalize_proofs at *; (
                 rw [ Matrix.mul_assoc, h_eigenvalues ]);
               rw [ h_eigenvalues ];
-              refine' le_antisymm _ _;
+              refine le_antisymm ?_ ?_;
               · exact Matrix.rank_mul_le_left _ _ |> le_trans <| by simp +decide
               · have := Matrix.rank_mul_le ( diagonal d₁ * D₁ᵀ ) D₁; simp_all +decide [ Matrix.mul_assoc ] ;
             rw [ h_eigenvalues, Matrix.rank_diagonal ];
@@ -148,7 +148,7 @@ theorem orthProj_equiv_iff_rank {n : Type*} [Fintype n] [DecidableEq n]
             have h_eigenvalues' : Matrix.rank (D₂ * Matrix.diagonal d₂ * D₂ᵀ) = Matrix.rank (Matrix.diagonal d₂) := by
               have h_eigenvalues' : Matrix.rank (D₂ * Matrix.diagonal d₂ * D₂ᵀ) = Matrix.rank (Matrix.diagonal d₂ * D₂ᵀ) := by
                 rw [ Matrix.mul_assoc ];
-                refine' le_antisymm _ _ <;> simp_all +decide [ Matrix.rank_mul_le_right ];
+                refine le_antisymm ?_ ?_ <;> simp_all +decide [ Matrix.rank_mul_le_right ];
                 have := Matrix.rank_mul_le ( D₂ᵀ ) ( D₂ * ( diagonal d₂ * D₂ᵀ ) ) ; simp_all +decide [ Matrix.mul_assoc ] ;
                 grind +splitImp;
               have := Matrix.rank_mul_le ( diagonal d₂ * D₂ᵀ ) D₂; simp_all +decide [ Matrix.mul_assoc ] ;
@@ -192,7 +192,7 @@ theorem orthProj_equiv_iff_rank {n : Type*} [Fintype n] [DecidableEq n]
         use D₂ * (Matrix.of (fun i j => if σ j = i then 1 else 0)) * D₁ᵀ
         simp_all +decide [ Matrix.mul_assoc, mul_eq_one_comm ];
         simp_all +decide [ ← Matrix.mul_assoc, mul_eq_one_comm.mp hD₁₁, mul_eq_one_comm.mp hD₂₁ ];
-        refine' ⟨ _, _, _ ⟩;
+        refine ⟨ ?_, ?_, ?_ ⟩;
         · convert hD₂₁ using 1;
           ext i j; simp +decide [ Matrix.mul_apply, Matrix.transpose_apply ] ;
           rw [ ← Equiv.sum_comp σ ] ; simp +decide ;
@@ -207,7 +207,7 @@ theorem orthProj_equiv_iff_rank {n : Type*} [Fintype n] [DecidableEq n]
     exact h_similar;
   · rintro ⟨ Q, hQ₁, hQ₂, rfl ⟩;
     simp +decide [ Matrix.mul_assoc ];
-    refine' le_antisymm _ _;
+    refine le_antisymm ?_ ?_;
     · have := Matrix.rank_mul_le ( Qᵀ ) ( Q * ( P₁ * Qᵀ ) ) ; simp_all +decide [ ← mul_assoc ] ;
       have := Matrix.rank_mul_le ( P₁ * Qᵀ ) Q; simp_all +decide
       grind +extAll;
@@ -238,7 +238,7 @@ theorem trace_hadamardSquare_nonneg {n : Type*} [Fintype n] [DecidableEq n]
     0 ≤ (hadamardSquare P₁ P₂).trace := by
   unfold hadamardSquare;
   norm_num [ Matrix.trace ];
-  refine' Finset.sum_nonneg fun i _ => _;
+  refine Finset.sum_nonneg fun i _ => ?_;
   -- Since $P₁$ and $P₂$ are orthogonal projections, we have $(P₁P₂)^T = P₂P₁$.
   have h_transpose : (P₁ * P₂).transpose = P₂ * P₁ := by
     rw [ Matrix.transpose_mul, h₁.2, h₂.2 ];
@@ -327,11 +327,13 @@ lemma trace_pow_nonneg_of_isSymm_nonneg_trace_2x2
   -- By the spectral theorem, since A is symmetric, there exists an orthogonal matrix Q such that QᵀAQ is diagonal with eigenvalues λ₁ and λ₂.
   obtain ⟨Q, hQ⟩ : ∃ Q : Matrix (Fin 2) (Fin 2) ℝ, Q.transpose * Q = 1 ∧ Q * Q.transpose = 1 ∧ ∃ (eigenvalues : Fin 2 → ℝ), A = Q * Matrix.diagonal eigenvalues * Q.transpose := by
     have := Matrix.IsHermitian.spectral_theorem hA;
-    refine' ⟨ _, _, _, _, this ⟩;
+    refine ⟨ IsHermitian.eigenvectorUnitary hA, ?_, ?_,
+      RCLike.ofReal ∘ IsHermitian.eigenvalues hA, this ⟩;
     · simp +decide [ ← Matrix.ext_iff, mul_eq_one_comm ];
       have := ( IsHermitian.eigenvectorUnitary hA ).2.2;
       exact ⟨ ⟨ by simpa [ Matrix.mul_apply ] using congr_fun ( congr_fun this 0 ) 0, by simpa [ Matrix.mul_apply ] using congr_fun ( congr_fun this 0 ) 1 ⟩, by simpa [ Matrix.mul_apply ] using congr_fun ( congr_fun this 1 ) 0, by simpa [ Matrix.mul_apply ] using congr_fun ( congr_fun this 1 ) 1 ⟩;
-    · exact Units.mul_eq_one_iff_inv_eq.mpr rfl;
+    · have := ( IsHermitian.eigenvectorUnitary hA ).2.2;
+      convert this using 1;
   rcases hQ with ⟨ hQ₁, hQ₂, eigenvalues, rfl ⟩;
   -- Since eigenvalues are real, we have eigenvalues 0 + eigenvalues 1 ≥ 0.
   have h_eigenvalues_nonneg : eigenvalues 0 + eigenvalues 1 ≥ 0 := by
@@ -347,7 +349,7 @@ lemma trace_pow_nonneg_of_isSymm_nonneg_trace_2x2
       · linarith;
   -- Since $Q$ is orthogonal, we have $(Q * diagonal eigenvalues * Qᵀ)^m = Q * diagonal (eigenvalues^m) * Qᵀ$.
   have h_diag_pow : (Q * Matrix.diagonal eigenvalues * Qᵀ) ^ m = Q * Matrix.diagonal (fun i => eigenvalues i ^ m) * Qᵀ := by
-    refine' Nat.recOn m _ _ <;> simp_all +decide [ pow_succ, ← mul_assoc ];
+    refine Nat.recOn m ?_ ?_ <;> simp_all +decide [ pow_succ, ← mul_assoc ];
     simp +decide [ mul_assoc, hQ₁ ];
   simp_all +decide [ Matrix.trace_mul_comm, Matrix.mul_assoc ]
 
@@ -421,14 +423,15 @@ lemma isPowerNonneg_of_posSemidef
   -- By the spectral theorem, since A is positive semidefinite, there exists an orthogonal matrix Q and a diagonal matrix D such that A = Q D Qᵀ.
   obtain ⟨Q, D, hQ, hD⟩ : ∃ Q : Matrix (Fin 3) (Fin 3) ℝ, ∃ D : Fin 3 → ℝ, A = Q * Matrix.diagonal D * Q.transpose ∧ (∀ i, 0 ≤ D i) ∧ Q.transpose * Q = 1 := by
     have := hA.1.spectral_theorem;
-    refine' ⟨ _, _, this, _, _ ⟩ <;> norm_num [ ← Matrix.mul_assoc, ← Matrix.ext_iff ] at *;
+    refine ⟨ hA.1.eigenvectorUnitary, RCLike.ofReal ∘ hA.1.eigenvalues,
+      this, ?_, ?_ ⟩ <;> norm_num [ ← Matrix.mul_assoc, ← Matrix.ext_iff ] at *;
     · exact fun i => hA.eigenvalues_nonneg i;
     · intro i j; erw [ Matrix.mul_apply ] ; simp +decide [ Matrix.one_apply, Matrix.transpose_apply ] ;
       have := hA.1.eigenvectorBasis.orthonormal; simp_all +decide [ orthonormal_iff_ite ] ;
       convert this i j using 1 ; simp +decide [ Fin.sum_univ_three, inner ] ; ring!;
   -- Then $A^m = (Q D Q^T)^m = Q D^m Q^T$.
   have hA_pow : A ^ m = Q * Matrix.diagonal (fun i => D i ^ m) * Q.transpose := by
-    refine' Nat.recOn m _ _ <;> simp_all +decide [ pow_succ, mul_assoc ];
+    refine Nat.recOn m ?_ ?_ <;> simp_all +decide [ pow_succ, mul_assoc ];
     · rw [ mul_eq_one_comm.mp hD.2 ];
     · simp +decide [ ← mul_assoc, hD.2 ]
   simp_all +decide [ Matrix.trace_mul_comm, Matrix.mul_assoc ] ; (
@@ -542,7 +545,7 @@ lemma sum_pow_nonneg_of_bounds (a b c : ℝ) (ha : 1 / 3 ≤ a) (hb : -(1 / 8) �
   · have h_bounds : a ^ (2 * k + 1) ≥ (1 / 3) ^ (2 * k + 1) ∧
         b ^ (2 * k + 1) ≥ - (1 / 8) ^ (2 * k + 1) ∧
         c ^ (2 * k + 1) ≥ - (1 / 8) ^ (2 * k + 1) := by
-      refine' ⟨_, _, _⟩ <;> norm_num [pow_add, pow_mul] at *
+      refine ⟨?_, ?_, ?_⟩ <;> norm_num [pow_add, pow_mul] at *
       · exact mul_le_mul (pow_le_pow_left₀ (by norm_num) (by nlinarith) _) ha
           (by positivity) (by positivity)
       · by_cases hb_nonneg : 0 ≤ b
@@ -611,11 +614,10 @@ lemma IsHermitian.trace_pow_eq_sum_eigenvalues_pow {n : Type*} [Fintype n] [Deci
       U.transpose * U = 1 ∧ U * U.transpose = 1 ∧
       D = Matrix.diagonal (hA.eigenvalues) ∧ A = U * D * U.transpose := by
     have := hA.spectral_theorem
-    refine' ⟨_, _, _, _, rfl, this⟩
+    refine ⟨hA.eigenvectorUnitary, Matrix.diagonal hA.eigenvalues, ?_, ?_, rfl, this⟩
     · simp +decide [mul_eq_one_comm]
       convert hA.eigenvectorUnitary.2.2 using 1
-    · simp +decide
-      have := hA.eigenvectorUnitary.2.2
+    · have := hA.eigenvectorUnitary.2.2
       convert this using 1
   have hA_k : A ^ k = U * D ^ k * U.transpose := by
     induction k with
@@ -662,7 +664,7 @@ lemma eigenvalue_ge_neg_of_psd_shift
   -- Let $v_i$ be the eigenvector corresponding to the eigenvalue $\lambda_i$.
   obtain ⟨v, hv⟩ : ∃ v : Fin 3 → ℝ, v ≠ 0 ∧ A.mulVec v = hA.eigenvalues i • v := by
     have := hA.eigenvectorBasis.orthonormal;
-    refine' ⟨ hA.eigenvectorBasis i, _, _ ⟩;
+    refine ⟨ hA.eigenvectorBasis i, ?_, ?_ ⟩;
     · intro h; have := this.1 i; aesop;
     · convert hA.mulVec_eigenvectorBasis i using 1;
   -- Substitute $A.mulVec v = \lambda_i \cdot v$ into the inequality.
@@ -714,7 +716,7 @@ lemma proj_rank_two_eq_id_sub_outer
   have h_orthogonal : ∀ w : Fin 3 → ℝ, dotProduct n w = 0 → P.mulVec w = w := by
     -- Since P is symmetric and has rank 2, the range of P is the orthogonal complement of the kernel of P.
     have h_range : LinearMap.range (Matrix.mulVecLin P) = Submodule.span ℝ {w : Fin 3 → ℝ | dotProduct n w = 0} := by
-      refine' Submodule.eq_of_le_of_finrank_le _ _;
+      refine Submodule.eq_of_le_of_finrank_le ?_ ?_;
       · intro x hx; obtain ⟨ y, rfl ⟩ := hx; simp_all +decide [ dotProduct ] ;
         -- Since $P$ is symmetric and idempotent, we have $P.mulVec y \cdot n = y \cdot P.mulVec n = 0$.
         have h_dot : dotProduct (P.mulVec y) n = dotProduct y (P.mulVec n) := by
@@ -726,7 +728,7 @@ lemma proj_rank_two_eq_id_sub_outer
       · -- The orthogonal complement of a 1-dimensional subspace in a 3-dimensional space is 2-dimensional.
         have h_orthogonal_complement_dim : Module.finrank ℝ (Submodule.span ℝ {w : Fin 3 → ℝ | dotProduct n w = 0}) = 2 := by
           have h_orthogonal_complement : Submodule.span ℝ {w : Fin 3 → ℝ | dotProduct n w = 0} = LinearMap.ker (Matrix.mulVecLin (Matrix.of ![n])) := by
-            refine' le_antisymm _ _ <;> intro x hx <;> simp_all +decide [ dotProduct ];
+            refine le_antisymm ?_ ?_ <;> intro x hx <;> simp_all +decide [ dotProduct ];
             · rw [ Submodule.mem_span ] at hx;
               specialize hx ( LinearMap.ker ( Matrix.mulVecLin ( Matrix.of ![n] ) ) ) ; simp_all +decide [ Set.subset_def ];
               exact hx fun x hx => by simpa [ dotProduct ] using hx;
@@ -746,7 +748,7 @@ lemma proj_rank_two_eq_id_sub_outer
     intro w; specialize h_orthogonal ( w - ( n ⬝ᵥ w ) • n ) ; simp_all +decide [ Matrix.mulVec_sub, Matrix.mulVec_smul, dotProduct_smul ] ;
     simp_all +decide [ dotProduct, Fin.sum_univ_three ];
     exact h_orthogonal ( by rw [ show n 0 * n 0 + n 1 * n 1 + n 2 * n 2 = 1 by linarith ] ; ring );
-  refine' ⟨ n, hn.1, _ ⟩;
+  refine ⟨ n, hn.1, ?_ ⟩;
   ext i j;
   have := congr_fun ( h_decomp ( Pi.single j 1 ) ) i; simp_all +decide [ Matrix.mulVec, dotProduct ] ;
   fin_cases i <;> fin_cases j <;> simp_all +decide [ Pi.single_apply ] <;> linarith!
@@ -872,7 +874,7 @@ private lemma QtMQ_eq_M0_of_basis (a b : Fin 3 → ℝ) (Q : Matrix (Fin 3) (Fin
   have h_simp : (Q.transpose * (Matrix.of (fun i j => a i * a j)) * Q) = Matrix.of (fun i j => (Q.transpose.mulVec a) i * (Q.transpose.mulVec a) j) ∧
                  (Q.transpose * (Matrix.of (fun i j => b i * b j)) * Q) = Matrix.of (fun i j => (Q.transpose.mulVec b) i * (Q.transpose.mulVec b) j) ∧
                  (Q.transpose * (Matrix.of (fun i j => a i * b j)) * Q) = Matrix.of (fun i j => (Q.transpose.mulVec a) i * (Q.transpose.mulVec b) j) := by
-                   refine' ⟨ _, _, _ ⟩ <;> ext i j <;> simp +decide [ Matrix.mul_apply, Matrix.mulVec ] <;> ring_nf!;
+                   refine ⟨ ?_, ?_, ?_ ⟩ <;> ext i j <;> simp +decide [ Matrix.mul_apply, Matrix.mulVec ] <;> ring_nf!;
                    · simp +decide [ dotProduct, Finset.mul_sum _ _ _, mul_comm, mul_left_comm ];
                    · simp +decide [ dotProduct, mul_comm, mul_left_comm, Finset.mul_sum _ _ _ ];
                    · simp +decide [ dotProduct, Finset.mul_sum _ _ _, mul_comm, mul_left_comm ];
@@ -943,7 +945,7 @@ private lemma adapted_basis_exists (a b : Fin 3 → ℝ)
       -- By definition of $x$, $y$, and $a$, we know that $x \cdot x = 1$, $y \cdot y = 1$, $a \cdot a = 1$, $x \cdot y = 0$, $x \cdot a = 0$, and $y \cdot a = 0$.
       have h_ortho : x 0 ^ 2 + x 1 ^ 2 + x 2 ^ 2 = 1 ∧ y 0 ^ 2 + y 1 ^ 2 + y 2 ^ 2 = 1 ∧ a 0 ^ 2 + a 1 ^ 2 + a 2 ^ 2 = 1 ∧ x 0 * y 0 + x 1 * y 1 + x 2 * y 2 = 0 ∧ x 0 * a 0 + x 1 * a 1 + x 2 * a 2 = 0 ∧ y 0 * a 0 + y 1 * a 1 + y 2 * a 2 = 0 := by
         simp +zetaDelta at *;
-        refine' ⟨ _, _, _, _, _ ⟩;
+        refine ⟨ ?_, ?_, ?_, ?_, ?_ ⟩;
         · norm_num [ Fin.sum_univ_three ] at *;
           field_simp;
           rw [ Real.sq_sqrt ( by nlinarith only [ sq_nonneg ( a 0 * b 1 - a 1 * b 0 ), sq_nonneg ( a 0 * b 2 - a 2 * b 0 ), sq_nonneg ( a 1 * b 2 - a 2 * b 1 ), ha, hb ] ), div_eq_iff ] <;> nlinarith only [ hcross, ha, hb ];
@@ -960,7 +962,7 @@ private lemma adapted_basis_exists (a b : Fin 3 → ℝ)
       all_goals ring_nf
       all_goals simp +decide [ Q ] ; linarith!;
     exact ⟨ hQ_ortho, mul_eq_one_comm.mp hQ_ortho ⟩;
-  refine' ⟨ Q, hQ_ortho.1, hQ_ortho.2, _, _ ⟩ <;> simp_all +decide [ ← List.ofFn_inj, Matrix.mulVec ];
+  refine ⟨ Q, hQ_ortho.1, hQ_ortho.2, ?_, ?_ ⟩ <;> simp_all +decide [ ← List.ofFn_inj, Matrix.mulVec ];
   · simp +zetaDelta at *;
     simp_all +decide [ Fin.sum_univ_three, dotProduct, vecHead, vecTail ];
     grind;
@@ -1301,7 +1303,7 @@ lemma trace_sq_ge_one
     have h_char_poly : Matrix.charpoly M = Polynomial.X^3 - Polynomial.C trM * Polynomial.X^2 + Polynomial.C s₂ * Polynomial.X - Polynomial.C (Matrix.det M) := by
       simp +zetaDelta at *;
       simp +decide [ Matrix.charpoly, Matrix.det_fin_three, Matrix.trace_fin_three, pow_succ ];
-      refine' Polynomial.funext fun x => _ ; norm_num [ Matrix.mul_apply, Fin.sum_univ_three ] ; ring;
+      refine Polynomial.funext fun x => ?_ ; norm_num [ Matrix.mul_apply, Fin.sum_univ_three ] ; ring;
     have h_cayley_hamilton : M^3 - (trM) • M^2 + s₂ • M - (Matrix.det M) • 1 = 0 := by
       rw [ ← Matrix.aeval_self_charpoly M, h_char_poly ];
       norm_num [ Algebra.smul_def ];
@@ -1508,7 +1510,7 @@ theorem min_counterexample_dim :
   · -- Counterexample for n=4
     unfold IsOrthProj hadamardSquare IsPowerNonneg;
     simp +zetaDelta at *;
-    refine' ⟨ Matrix.of fun i j => ( P₁_example i j : ℝ ), _, Matrix.of fun i j => ( P₂_example i j : ℝ ), _, _, _ ⟩ <;> norm_cast;
+    refine ⟨ Matrix.of fun i j => ( P₁_example i j : ℝ ), ?_, Matrix.of fun i j => ( P₂_example i j : ℝ ), ?_, ?_, ?_ ⟩ <;> norm_cast;
     · norm_num [ ← Matrix.ext_iff, Fin.forall_fin_succ ];
       norm_num [ Fin.sum_univ_succ, Matrix.mul_apply, P₁_example ];
       repeat erw [ Matrix.cons_val_succ' ] ; norm_num;
@@ -1526,15 +1528,15 @@ theorem min_counterexample_dim :
               have h_symm : Matrix.IsHermitian P := by
                 exact hP.2
               have := h_symm.spectral_theorem;
-              refine' ⟨ _, _, _, _, this ⟩;
+              refine ⟨ h_symm.eigenvectorUnitary, ?_, ?_,
+                RCLike.ofReal ∘ h_symm.eigenvalues, this ⟩;
               · simp +decide [ mul_eq_one_comm ];
                 convert h_symm.eigenvectorUnitary.2.2 using 1;
-              · simp +decide
-                have := h_symm.eigenvectorUnitary.2.2;
+              · have := h_symm.eigenvectorUnitary.2.2;
                 convert this using 1;
             exact h_diag;
           obtain ⟨ D, hD₁, hD₂, d, rfl ⟩ := h_diag;
-          refine' ⟨ D, hD₁, hD₂, d, _, rfl ⟩;
+          refine ⟨ D, hD₁, hD₂, d, ?_, rfl ⟩;
           intro i; replace hP := congr_arg ( fun m => Dᵀ * m * D ) hP.1; simp_all +decide [ Matrix.mul_assoc ] ;
           simp_all +decide [ ← Matrix.mul_assoc ];
           exact or_iff_not_imp_left.mpr fun hi => mul_left_cancel₀ hi <| by linarith [ hP i ] ;
@@ -1545,7 +1547,7 @@ theorem min_counterexample_dim :
             have h_rank_diag : Matrix.rank (D * Matrix.diagonal d * Dᵀ) ≤ Matrix.rank (D * Matrix.diagonal d) := by
               exact Matrix.rank_mul_le_left _ _;
             exact h_rank_diag.trans ( Matrix.rank_mul_le_right _ _ );
-          refine' le_antisymm h_rank_diag _;
+          refine le_antisymm h_rank_diag ?_;
           have h_rank_diag : Matrix.rank (Dᵀ * (D * Matrix.diagonal d * Dᵀ) * D) ≤ Matrix.rank (D * Matrix.diagonal d * Dᵀ) := by
             exact Matrix.rank_mul_le_left _ _ |> le_trans <| Matrix.rank_mul_le_right _ _;
           simp_all +decide [ ← mul_assoc ];
@@ -1609,9 +1611,9 @@ theorem min_counterexample_exp :
     (∀ (n : ℕ) (P₁ P₂ : Matrix (Fin n) (Fin n) ℝ),
       IsOrthProj P₁ → IsOrthProj P₂ →
       (∀ k : ℕ, k ≤ 2 → 0 ≤ ((hadamardSquare P₁ P₂) ^ k).trace)) := by
-  refine' ⟨ _, fun n P₁ P₂ h₁ h₂ k hk => _ ⟩;
+  refine ⟨ ?_, fun n P₁ P₂ h₁ h₂ k hk => ?_ ⟩;
   · use 4, Matrix.of ( fun i j => ( P₁_example i j : ℝ ) ), Matrix.of ( fun i j => ( P₂_example i j : ℝ ) );
-    refine' ⟨ _, _, _, _ ⟩;
+    refine ⟨ ?_, ?_, ?_, ?_ ⟩;
     · constructor <;> ext i j <;> fin_cases i <;> fin_cases j <;> norm_num [ P₁_example ];
       all_goals norm_num [ Fin.sum_univ_succ, Matrix.mul_apply ] ;
     · constructor <;> ext i j <;> fin_cases i <;> fin_cases j <;> norm_num [ P₂_example ];
@@ -1626,13 +1628,14 @@ theorem min_counterexample_exp :
               have h_symm : Matrix.IsHermitian P := by
                 finiteness
               have := h_symm.spectral_theorem;
-              refine' ⟨ _, _, _, _, this ⟩;
+              refine ⟨ h_symm.eigenvectorUnitary, ?_, ?_,
+                RCLike.ofReal ∘ h_symm.eigenvalues, this ⟩;
               · simp +decide [ mul_eq_one_comm ];
                 convert h_symm.eigenvectorUnitary.2.2 using 1;
               · convert h_symm.eigenvectorUnitary.2.2 using 1;
             exact h_diag;
           obtain ⟨ D, hD₁, hD₂, d, rfl ⟩ := h_diag;
-          refine' ⟨ D, hD₁, hD₂, d, _, rfl ⟩;
+          refine ⟨ D, hD₁, hD₂, d, ?_, rfl ⟩;
           intro i; replace hP := congr_arg ( fun m => Dᵀ * m * D ) hP; simp_all +decide [ Matrix.mul_assoc ] ;
           simp_all +decide [ ← Matrix.mul_assoc, mul_eq_one_comm.mp hD₁ ];
           exact or_iff_not_imp_left.mpr fun hi => mul_left_cancel₀ hi <| by linarith [ hP i ] ;
@@ -1699,17 +1702,22 @@ theorem A_example_isCounterexample :
   have hP₂ : IsOrthProj (Matrix.of (fun i j => (P₂_example i j : ℝ))) := by
     constructor <;> ext i j <;> fin_cases i <;> fin_cases j <;> norm_num [ Matrix.mul_apply, P₂_example ];
     all_goals norm_num [ Fin.sum_univ_succ, Fin.sum_univ_zero ] ;
-  refine' ⟨ _, _, hP₁, hP₂, (orthProj_unitEquiv_iff_rank _ _ hP₁ hP₂).mp ?_, rfl, ?_ ⟩;
+  refine ⟨ Matrix.of fun i j => (P₁_example i j : ℝ),
+    Matrix.of fun i j => (P₂_example i j : ℝ),
+    hP₁, hP₂, (orthProj_unitEquiv_iff_rank _ _ hP₁ hP₂).mp ?_, rfl, ?_ ⟩;
   · -- Since these matrices are orthogonal projections, their ranks are equal to the number of independent rows or columns.
     have h_rank_eq : ∀ (P : Matrix (Fin 4) (Fin 4) ℝ), P * P = P → P.transpose = P → P.rank = P.trace := by
       intro P hP hP_symm
       have h_diag : ∃ Q : Matrix (Fin 4) (Fin 4) ℝ, Q.transpose * Q = 1 ∧ ∃ D : Matrix (Fin 4) (Fin 4) ℝ, D.IsDiag ∧ P = Q * D * Q.transpose := by
         have := Matrix.IsHermitian.spectral_theorem hP_symm
-        generalize_proofs at *; (
-        refine' ⟨ _, _, _, _, this ⟩ <;> norm_num [ Matrix.mul_assoc, mul_eq_one_comm ] at *; (
+        generalize_proofs at *
+        refine ⟨ IsHermitian.eigenvectorUnitary hP_symm, ?_,
+          Matrix.diagonal (RCLike.ofReal ∘ IsHermitian.eigenvalues hP_symm),
+          Matrix.isDiag_diagonal _, this ⟩
+        norm_num [ Matrix.mul_assoc, mul_eq_one_comm ] at *
         have := IsHermitian.eigenvectorUnitary hP_symm |>.2.2
-        generalize_proofs at *; (
-        convert this using 1)))
+        generalize_proofs at *
+        convert this using 1
       generalize_proofs at *;
       obtain ⟨ Q, hQ₁, D, hD₁, rfl ⟩ := h_diag
       have h_diag_trace : D.trace = D.rank := by
