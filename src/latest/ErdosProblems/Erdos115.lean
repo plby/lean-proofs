@@ -33,7 +33,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 set_option linter.style.show false
 set_option linter.flexible false
 
@@ -114,24 +113,24 @@ theorem eremenko_lempert_reduction (n : ℕ) :
           have := @Complex.exists_mem_frontier_isMaxOn_norm ℂ;
           specialize this ( show Bornology.IsBounded { z : ℂ | ‖Polynomial.eval z h₁‖ < 1 } from ?_ ) ( show { z : ℂ | ‖Polynomial.eval z h₁‖ < 1 }.Nonempty from ⟨ _, hz ⟩ ) ( show DiffContOnCl ℂ f { z : ℂ | ‖Polynomial.eval z h₁‖ < 1 } from ?_ );
           · exact h_compact.isBounded.subset fun x hx => hx.out.le;
-          · refine' ⟨ _, _ ⟩;
+          · refine ⟨ ?_, ?_ ⟩;
             · exact hf_diff;
-            · refine' hf_cont.mono _;
+            · refine hf_cont.mono ?_;
               exact closure_minimal ( fun x hx => hx.out.le ) ( isClosed_le ( continuous_norm.comp <| h₁.continuous ) continuous_const );
           · obtain ⟨ w, hw₁, hw₂ ⟩ := this;
-            refine' le_trans ( hw₂ <| subset_closure hz ) _;
-            refine' le_csSup _ _;
+            refine le_trans ( hw₂ <| subset_closure hz ) ?_;
+            refine le_csSup ?_ ?_;
             · have h_bdd_above : BddAbove (Set.image (fun z => ‖f z‖) {z : ℂ | ‖h₁.eval z‖ ≤ 1}) := by
                 exact IsCompact.bddAbove ( h_compact.image_of_continuousOn ( hf_cont.norm ) );
               exact ⟨ h_bdd_above.choose, by rintro x ⟨ z, hz, rfl ⟩ ; exact h_bdd_above.choose_spec ⟨ z, by simpa using hz.le, rfl ⟩ ⟩;
-            · refine' ⟨ w, _, rfl ⟩;
+            · refine ⟨ w, ?_, rfl ⟩;
               rw [ frontier_eq_closure_inter_closure ] at hw₁;
               simp_all +decide [ mem_closure_iff_seq_limit ];
               obtain ⟨ ⟨ x, hx₁, hx₂ ⟩, hx₃ ⟩ := hw₁;
               exact le_antisymm ( le_of_tendsto' ( Filter.Tendsto.norm ( h₁.continuous.continuousAt.tendsto.comp hx₂ ) ) fun n => le_of_lt ( hx₁ n ) ) ( le_of_not_gt fun h => hx₃ <| mem_interior_iff_mem_nhds.mpr <| Filter.mem_of_superset ( IsOpen.mem_nhds ( isOpen_lt ( continuous_norm.comp <| h₁.continuous ) continuous_const ) h ) fun y hy => hy )
         exact h_max_modulus z hz;
       by_cases hz' : ‖h₁.eval z‖ = 1;
-      · refine' le_csSup _ _;
+      · refine le_csSup ?_ ?_;
         · have h_compact : IsCompact {z : ℂ | ‖h₁.eval z‖ = 1} := by
             have h_compact : IsCompact {z : ℂ | ‖h₁.eval z‖ ≤ 1} := by
               have h_compact : ∃ R > 0, ∀ z : ℂ, ‖z‖ > R → ‖h₁.eval z‖ > 1 := by
@@ -151,7 +150,7 @@ theorem eremenko_lempert_reduction (n : ℕ) :
       · exact h_max_modulus z ( lt_of_le_of_ne hz hz' );
     exact h_max_modulus _ ( h₁.derivative.continuous.continuousOn ) ( h₁.derivative.differentiable.differentiableOn ) _ hz;
   refine fun z hz => le_trans ( h_max_modulus z hz ) ?_;
-  refine' csSup_le _ _ <;> norm_num;
+  refine csSup_le ?_ ?_ <;> norm_num;
   · -- Since $h₁$ is a monic polynomial of degree $n$, it has $n$ roots.
     obtain ⟨z₁, hz₁⟩ : ∃ z₁ : ℂ, ‖h₁.eval z₁‖ = 1 := by
       -- Since $h₁$ is a monic polynomial of degree $n$, it must have at least one root by the Fundamental Theorem of Algebra.
@@ -243,7 +242,7 @@ theorem polynomial_star_derivative_eval_zero (p : Polynomial ℂ) (hp : p.Monic)
           simp +decide [ mul_comm, Finset.sdiff_singleton_eq_erase ];
           rfl;
         rw [ h_deriv, Polynomial.eval_finset_sum, Finset.mul_sum ];
-        refine' Finset.sum_congr rfl fun x hx => _;
+        refine Finset.sum_congr rfl fun x hx => ?_;
         rw [ h_factor, Polynomial.eval_prod ];
         rw [ ← h_factor ];
         norm_num [ Polynomial.derivative_pow, Polynomial.eval_prod, Finset.prod_eq_prod_diff_singleton_mul hx ];
@@ -416,7 +415,7 @@ theorem boundary_component_subset_boundary_level_set (p : Polynomial ℂ) (z : �
             rw [ mem_closure_iff_nhds ] at h_inter;
             exact h_inter _ ( Metric.ball_mem_nhds _ ε_pos );
           · exact ⟨ Metric.nonempty_ball.mpr ε_pos, convex_ball _ _ |> Convex.isPreconnected ⟩;
-          · refine' ⟨ _, _ ⟩;
+          · refine ⟨ ?_, ?_ ⟩;
             · contrapose! hw; aesop;
             · exact isPreconnected_connectedComponentIn;
         have h_subset : Metric.ball w ε ∪ connectedComponentIn {w | ‖p.eval w‖ ≤ 1} z ⊆ connectedComponentIn {w | ‖p.eval w‖ ≤ 1} z := by
@@ -516,8 +515,8 @@ theorem exists_decreasing_path_near_point (p : Polynomial ℂ) (hp_deg : p.degre
             fun_prop (disch := norm_num);
           obtain ⟨ C, hC ⟩ := IsCompact.exists_bound_of_continuousOn ( CompactIccSpace.isCompact_Icc ) h_r_bound; use Max.max C 1; norm_num;
           exact fun t ht₁ ht₂ => Or.inl <| by simpa [ norm_div, norm_mul ] using hC t ⟨ ht₁, ht₂ ⟩ ;
-        obtain ⟨ C, hC₀, hC ⟩ := h_r_bound; use C; refine' ⟨ hC₀, fun t ht => _ ⟩ ; rw [ add_comm ] ; norm_cast; norm_num;
-        refine' le_trans ( norm_add_le _ _ ) _ ; norm_cast ; norm_num [ abs_of_nonneg, ht.1.le, ht.2.le ];
+        obtain ⟨ C, hC₀, hC ⟩ := h_r_bound; use C; refine ⟨ hC₀, fun t ht => ?_ ⟩ ; rw [ add_comm ] ; norm_cast; norm_num;
+        refine le_trans ( norm_add_le _ _ ) ?_ ; norm_cast ; norm_num [ abs_of_nonneg, ht.1.le, ht.2.le ];
         rw [ abs_of_nonneg ( sub_nonneg_of_le ( pow_le_one₀ ht.1.le ht.2.le ) ) ] ; have := hC t ⟨ ht.1.le, ht.2.le ⟩ ; norm_num at * ; nlinarith [ pow_pos ht.1 ( k + 1 ) ] ;
       -- Choose $\delta > 0$ such that for all $t \in (0, \delta)$, $1 - t^k + C t^{k+1} < 1$.
       obtain ⟨C, hC_pos, hC_bound⟩ := h_bound
@@ -625,7 +624,7 @@ theorem polynomial_star_derivative_roots_nonpositive (p : Polynomial ℂ) :
               exact ⟨ by rw [ ← Finset.sum_sub_distrib, ← Finset.sum_sub_distrib ] ; exact Finset.sum_congr rfl fun _ _ => by rw [ Real.sq_sqrt ( by nlinarith [ sq_nonneg ( z.re - ‹ℂ›.re ), sq_nonneg ( z.im - ‹ℂ›.im ) ] ) ] ; ring, by rw [ ← Finset.sum_sub_distrib, ← Finset.sum_sub_distrib ] ; exact Finset.sum_congr rfl fun _ _ => by rw [ Real.sq_sqrt ( by nlinarith [ sq_nonneg ( z.re - ‹ℂ›.re ), sq_nonneg ( z.im - ‹ℂ›.im ) ] ) ] ; ring ⟩;
             -- Since $z$ is a root of the derivative of $p$, we have $p'(z) = 0$. By the properties of polynomials, this implies that $z$ is a root of $p$ or a root of $p$ with multiplicity greater than 1. Therefore, $z$ must be in the convex hull of the roots of $p$. Hence, we can write $z$ as a convex combination of the roots of $p$.
             have h_convex_combination : ∃ (c : ℂ → ℝ), (∀ w ∈ p.roots.toFinset, 0 ≤ c w) ∧ (∑ w ∈ p.roots.toFinset, c w = 1) ∧ z = ∑ w ∈ p.roots.toFinset, c w • w := by
-              refine' ⟨ fun w => ( Polynomial.rootMultiplicity w p * ( 1 / ‖z - w‖ ^ 2 ) ) / ( ∑ w ∈ p.roots.toFinset, Polynomial.rootMultiplicity w p * ( 1 / ‖z - w‖ ^ 2 ) ), _, _, _ ⟩ <;> norm_num [ Finset.sum_div _ _ _ ] at *;
+              refine ⟨ fun w => ( Polynomial.rootMultiplicity w p * ( 1 / ‖z - w‖ ^ 2 ) ) / ( ∑ w ∈ p.roots.toFinset, Polynomial.rootMultiplicity w p * ( 1 / ‖z - w‖ ^ 2 ) ), ?_, ?_, ?_ ⟩ <;> norm_num [ Finset.sum_div _ _ _ ] at *;
               · exact fun _ _ _ => div_nonneg ( mul_nonneg ( Nat.cast_nonneg _ ) ( inv_nonneg.2 ( sq_nonneg _ ) ) ) ( Finset.sum_nonneg fun _ _ => mul_nonneg ( Nat.cast_nonneg _ ) ( inv_nonneg.2 ( sq_nonneg _ ) ) );
               · rw [ ← Finset.sum_div _ _ _, div_self ] ; norm_cast ; contrapose! h ; simp_all +decide [ Finset.sum_eq_zero_iff_of_nonneg, inv_nonneg ] ;
                 obtain ⟨ w, hw ⟩ := Complex.exists_root ( show p.degree > 0 from not_le.mp fun h => by rw [ Polynomial.eq_C_of_degree_le_zero h ] at hp hz; aesop ) ; specialize h w hw; simp_all +decide [ sub_eq_iff_eq_add ] ;
@@ -644,7 +643,7 @@ theorem polynomial_star_derivative_roots_nonpositive (p : Polynomial ℂ) :
         by_cases h : polynomial_star p = 0 <;> aesop;
       -- Since the roots of $f^*$ are real and non-positive, their convex hull is also contained in the interval $(-\infty, 0]$.
       have h_convex_hull_subset : (convexHull ℝ) (Multiset.toFinset (Polynomial.roots (polynomial_star p))) ⊆ {z : ℂ | z.im = 0 ∧ z.re ≤ 0} := by
-        refine' convexHull_min _ _;
+        refine convexHull_min ?_ ?_;
         · intro z hz;
           have := polynomial_star_roots_nonpositive p z; aesop;
         · exact convex_iff_forall_pos.mpr fun x hx y hy a b ha hb hab =>
@@ -858,7 +857,7 @@ lemma monic_norm_bound_on_unit_interval {n : ℕ} (hn : n ≠ 0) (p : Polynomial
       obtain ⟨ r, hr₁, hr₂ ⟩ := h_diff_roots;
       -- Since $u - q$ is a polynomial of degree less than $n$ and has at least $n$ roots, it must be the zero polynomial.
       have h_diff_zero : u - q = 0 := by
-        refine' Polynomial.eq_of_degree_sub_lt_of_eval_finset_eq _ _ _;
+        refine Polynomial.eq_of_degree_sub_lt_of_eval_finset_eq ?_ ?_ ?_;
         exact r;
         · simpa using lt_of_lt_of_le h_diff_deg ( WithBot.coe_le_coe.mpr hr₁ );
         · aesop;
@@ -888,7 +887,7 @@ lemma monic_norm_bound_on_interval {n : ℕ} (hn : n ≠ 0) (p : Polynomial ℂ)
           · erw [ Polynomial.degree_eq_iff_natDegree_eq_of_pos ( Nat.pos_of_ne_zero hn ) ] at * ; erw [ Polynomial.natDegree_comp, Polynomial.natDegree_add_C, Polynomial.natDegree_C_mul_X ] <;> aesop;
           · exact sub_ne_zero_of_ne <| by norm_cast; linarith;
         apply monic_norm_bound_on_unit_interval hn r hr_monic hr_deg;
-      refine' ⟨ phi t, _, _ ⟩ <;> norm_num at *;
+      refine ⟨ phi t, ?_, ?_ ⟩ <;> norm_num at *;
       · constructor <;> nlinarith [ show phi t = ( b - a ) / 2 * t + ( a + b ) / 2 from rfl ];
       · simp +zetaDelta at *;
         convert mul_le_mul_of_nonneg_left ht.2 ( show ( 0 : ℝ ) ≤ ( ( b - a ) / 2 ) ^ n by exact pow_nonneg ( by linarith ) _ ) using 1 <;> norm_cast <;> norm_num ; ring_nf;
@@ -1039,13 +1038,13 @@ lemma uniform_approx_explicit {n : ℕ} (K : Set ℂ) (hK : IsCompact K) (ε : �
       -- Since $K$ is compact, there exists $R \ge 1$ such that $K \subseteq B(0, R)$.
       obtain ⟨R, hR⟩ : ∃ R : ℝ, 1 ≤ R ∧ ∀ z ∈ K, ‖z‖ ≤ R := by
         exact Exists.elim ( hK.isBounded.exists_norm_le ) fun R hR => ⟨ Max.max R 1, le_max_right _ _, fun z hz => le_trans ( hR z hz ) ( le_max_left _ _ ) ⟩;
-      refine' ⟨ ε / ( ∑ i ∈ Finset.range ( n + 1 ), R ^ i + 1 ), div_pos hε <| add_pos_of_nonneg_of_pos ( Finset.sum_nonneg fun _ _ => pow_nonneg ( by linarith ) _ ) zero_lt_one, fun p q hp hq hδ z hz => _ ⟩;
+      refine ⟨ ε / ( ∑ i ∈ Finset.range ( n + 1 ), R ^ i + 1 ), div_pos hε <| add_pos_of_nonneg_of_pos ( Finset.sum_nonneg fun _ _ => pow_nonneg ( by linarith ) _ ) zero_lt_one, fun p q hp hq hδ z hz => ?_ ⟩;
       -- Then $|p(z) - q(z)| = |\sum_{k=0}^n (p_k - q_k) z^k| \le \sum_{k=0}^n |p_k - q_k| |z|^k$.
       have h_bound : ‖p.eval z - q.eval z‖ ≤ ∑ i ∈ Finset.range (n + 1), ‖p.coeff i - q.coeff i‖ * ‖z‖^i := by
         rw [ Polynomial.eval_eq_sum_range', Polynomial.eval_eq_sum_range' ];
         any_goals exact Nat.lt_succ_of_le ( Polynomial.natDegree_le_of_degree_le <| by assumption );
         simpa only [ ← Finset.sum_sub_distrib, ← sub_mul ] using le_trans ( norm_sum_le _ _ ) ( Finset.sum_le_sum fun i hi => by simp +decide );
-      refine' lt_of_le_of_lt h_bound ( lt_of_le_of_lt ( Finset.sum_le_sum fun i hi => mul_le_mul_of_nonneg_right ( le_of_lt ( hδ i hi ) ) ( by positivity ) ) _ );
+      refine lt_of_le_of_lt h_bound ( lt_of_le_of_lt ( Finset.sum_le_sum fun i hi => mul_le_mul_of_nonneg_right ( le_of_lt ( hδ i hi ) ) ( by positivity ) ) ?_ );
       rw [ ← Finset.mul_sum _ _ _, div_mul_eq_mul_div, div_lt_iff₀ ] <;> nlinarith [ show 0 < ∑ i ∈ Finset.range ( n + 1 ), R ^ i from Finset.sum_pos ( fun _ _ => pow_pos ( by linarith ) _ ) ( by norm_num ), show ∑ i ∈ Finset.range ( n + 1 ), ‖z‖ ^ i ≤ ∑ i ∈ Finset.range ( n + 1 ), R ^ i from Finset.sum_le_sum fun _ _ => pow_le_pow_left₀ ( by positivity ) ( hR.2 z hz ) _ ]
 
 /-
@@ -1109,12 +1108,12 @@ lemma level_set_upper_semicontinuous_on_valid {n : ℕ} (p : Polynomial ℂ) (hp
       obtain ⟨δ, hδ_pos, hδ⟩ : ∃ δ > 0, ∀ q : Polynomial ℂ, q.degree ≤ n → (∀ i ∈ Finset.range (n + 1), ‖q.coeff i - p.coeff i‖ < δ) → ∀ z ∈ K, ‖q.eval z - p.eval z‖ < m - 1 := by
         have := @uniform_approx_explicit n K hK_compact ( m - 1 ) ( sub_pos.mpr hm.1 );
         exact ⟨ this.choose, this.choose_spec.1, fun q hq hq' z hz => by simpa only [ norm_sub_rev ] using this.choose_spec.2 q p hq ( by rw [ hp_deg ] ) ( fun i hi => by simpa only [ norm_sub_rev ] using hq' i hi ) z hz ⟩;
-      refine' h_contra _;
+      refine h_contra ?_;
       rw [ nhds_induced ];
       rw [ Filter.eventually_comap ];
       rw [ nhds_pi ];
-      refine' Filter.mem_pi.mpr _;
-      refine' ⟨ Finset.range ( n + 1 ), Finset.finite_toSet _, fun i => Metric.ball ( p.coeff i ) ( Min.min δ 1 ), _, _ ⟩ <;> norm_num;
+      refine Filter.mem_pi.mpr ?_;
+      refine ⟨ Finset.range ( n + 1 ), Finset.finite_toSet _, fun i => Metric.ball ( p.coeff i ) ( Min.min δ 1 ), ?_, ?_ ⟩ <;> norm_num;
       · exact fun i => Metric.ball_mem_nhds _ ( lt_min hδ_pos zero_lt_one );
       · intro x hx q hq hq_monic hq_deg z hz; specialize hδ q ( by rw [ hq_deg ] ) ( fun i hi => by simpa [ hq, dist_eq_norm ] using lt_of_lt_of_le ( Metric.mem_ball.mp (hx i ( Finset.mem_range.mp hi )) ) ( min_le_left _ _ ) ) z; simp_all +decide [ Set.subset_def ] ;
         by_cases hzW : z ∈ W <;> simp_all +decide [ dist_eq_norm ];
@@ -1166,14 +1165,14 @@ lemma continuous_eval_on_degree_le (n : ℕ) (z : ℂ) : ContinuousOn (fun p : P
   set S : Set (Polynomial ℂ) := {p : Polynomial ℂ | Polynomial.degree p ≤ n} with hS_def;
   -- The function $F(p) = \sum_{k=0}^n p_k z^k$ is continuous on the whole space `Polynomial ℂ`.
   have hF_cont : Continuous (fun p : Polynomial ℂ => ∑ k ∈ Finset.range (n + 1), p.coeff k * z ^ k) := by
-    refine' continuous_finset_sum _ fun i hi => _;
-    refine' Continuous.mul _ continuous_const;
+    refine continuous_finset_sum (Finset.range (n + 1)) fun i hi => ?_;
+    refine Continuous.mul ?_ continuous_const;
     rw [ continuous_iff_continuousAt ];
     intro p; exact (by
     rw [ ContinuousAt ];
     rw [ nhds_induced ];
     exact tendsto_pi_nhds.mp ( Filter.tendsto_comap ) i);
-  refine' hF_cont.continuousOn.congr fun p hp => _;
+  refine hF_cont.continuousOn.congr fun p hp => ?_;
   rw [ Polynomial.eval_eq_sum_range' ];
   exact Nat.lt_succ_of_le ( Polynomial.natDegree_le_of_degree_le hp )
 
@@ -1553,8 +1552,8 @@ theorem polynomial_level_set_component_contains_root (p : Polynomial ℂ) (hp : 
       -- Let $C$ be the connected component of $z$ in $K$. $C$ is a closed subset of the compact set $K$, hence $C$ is compact.
       set C := connectedComponentIn K z with hC_def
       have hC_compact : IsCompact C := by
-        refine' hK_compact.of_isClosed_subset _ _;
-        · refine' isClosed_of_closure_subset fun x hx => _;
+        refine hK_compact.of_isClosed_subset ?_ ?_;
+        · refine isClosed_of_closure_subset fun x hx => ?_;
           -- Since $x$ is in the closure of $C$, and $C$ is a connected component of $K$, $x$ must be in $K$.
           have hx_in_K : x ∈ K := by
             exact hK_compact.isClosed.closure_subset_iff.mpr ( connectedComponentIn_subset _ _ ) hx;
@@ -1613,7 +1612,7 @@ theorem polynomial_star_level_set_connected (p : Polynomial ℂ) (hp : p.Monic) 
     obtain ⟨z_k, hz_k⟩ : ∃ z_k ∈ p.roots, w = -Complex.ofReal ‖z_k‖ := by
       unfold polynomial_star at hw; simp_all +decide
       simp_all +decide [ Polynomial.eval_multiset_prod, Multiset.prod_eq_zero_iff, add_eq_zero_iff_eq_neg ];
-    refine' ⟨ -‖z_k‖, _, _, _ ⟩ <;> simp_all +decide [ Option.getD ];
+    refine ⟨ -‖z_k‖, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ Option.getD ];
     · cases h : Finset.max ( Multiset.toFinset ( Multiset.map ( fun z => ‖z‖ ) p.roots ) ) <;> simp_all +decide [ Finset.max ];
       exact_mod_cast h ▸ Finset.le_sup ( f := WithBot.some ) ( Multiset.mem_toFinset.mpr ( Multiset.mem_map.mpr ⟨ z_k, Polynomial.mem_roots ( show p ≠ 0 from hp.ne_zero ) |>.2 hz_k.1.2, rfl ⟩ ) );
     · rw [ connectedComponentIn ] at *;
@@ -1636,7 +1635,7 @@ theorem polynomial_star_level_set_connected (p : Polynomial ℂ) (hp : p.Monic) 
       convert hz_in_component using 1;
       exact connectedComponentIn_eq hz₀_in_component
     exact hz_in_component_0;
-  refine' ⟨ _, _ ⟩;
+  refine ⟨ ?_, ?_ ⟩;
   · exact ⟨ 0, by simpa using polynomial_star_eval_zero p hp |> fun h => h.trans_le h_zero ⟩;
   · convert isPreconnected_of_forall_pair _;
     intro x hx y hy;
@@ -1679,8 +1678,8 @@ Proven by Aristotle
 theorem exists_sign_matching_poly {m : ℕ} (a : Fin (m + 1) → ℝ) (ha_inj : Function.Injective a)
     (y : Fin (m + 1) → ℝ) :
     ∃ q : Polynomial ℝ, q.degree ≤ m ∧ ∀ k, q.eval (a k) = y k := by
-  refine' ⟨ ∑ k : Fin ( m + 1 ), Polynomial.C ( y k / ∏ j ∈ Finset.univ.erase k, ( a k - a j ) ) * ∏ j ∈ Finset.univ.erase k, ( Polynomial.X - Polynomial.C ( a j ) ), _, _ ⟩ <;> norm_num [ Polynomial.degree_le_iff_coeff_zero ];
-  · intro n hn; refine' Finset.sum_eq_zero fun i hi => _; rw [ Polynomial.coeff_eq_zero_of_natDegree_lt ] <;> aesop;
+  refine ⟨ ∑ k : Fin ( m + 1 ), Polynomial.C ( y k / ∏ j ∈ Finset.univ.erase k, ( a k - a j ) ) * ∏ j ∈ Finset.univ.erase k, ( Polynomial.X - Polynomial.C ( a j ) ), ?_, ?_ ⟩ <;> norm_num [ Polynomial.degree_le_iff_coeff_zero ];
+  · intro n hn; refine Finset.sum_eq_zero fun i hi => ?_; rw [ Polynomial.coeff_eq_zero_of_natDegree_lt ] <;> aesop;
   · intro k; rw [ Polynomial.eval_finset_sum, Finset.sum_eq_single k ] <;> simp_all +decide [ Polynomial.eval_prod, Finset.prod_eq_zero_iff, sub_eq_zero, ha_inj.eq_iff ] ;
     exact fun b hb => Or.inr ( Ne.symm hb )
 /-
@@ -1750,7 +1749,7 @@ lemma perturbed_roots_in_nhd (n : ℕ) (p q : Polynomial ℂ)
         rw [ eq_neg_of_add_eq_zero_left h_eval ] ; norm_num [ hp_monic ] ; ring_nf;
         simp_all +decide [ mul_assoc, Polynomial.coeff_eq_zero_of_degree_lt ];
       rw [ h_eval ];
-      refine' le_trans ( norm_sum_le _ _ ) _;
+      refine le_trans ( norm_sum_le _ _ ) ?_;
       rw [ ← Finset.sum_add_distrib ] ; gcongr ; norm_num ; ring_nf ;
       rw [ mul_comm ] ; exact le_trans ( mul_le_mul_of_nonneg_left ( norm_add_le _ _ ) ( by positivity ) ) ( by linarith ) ;
     -- Since $q$ is a polynomial of degree less than $n$, the coefficients of $q$ are bounded.
@@ -1810,7 +1809,7 @@ lemma perturbed_small_on_nhd (p q : Polynomial ℂ) (r : ℝ)
       exact ⟨ Max.max M 1, by positivity, fun z hz => le_trans ( hM z ⟨ hz.choose, hz.choose_spec.1, le_of_lt hz.choose_spec.2 ⟩ ) ( le_max_left _ _ ) ⟩;
     exact ⟨ 1 / 4 / h_cont.choose, div_pos ( by norm_num ) h_cont.choose_spec.1, fun z hz => by nlinarith [ h_cont.choose_spec.2 z hz, h_cont.choose_spec.1, mul_div_cancel₀ ( 1 / 4 ) h_cont.choose_spec.1.ne' ] ⟩;
   norm_num +zetaDelta at *;
-  refine' ⟨ δ, δ_pos, fun δ hδ₁ hδ₂ z x hp hx hz => _ ⟩ ; refine' lt_of_le_of_lt ( norm_add_le _ _ ) _ ; norm_num [ mul_assoc, mul_comm, mul_left_comm ] at *;
+  refine ⟨ δ, δ_pos, fun δ hδ₁ hδ₂ z x hp hx hz => ?_ ⟩ ; refine lt_of_le_of_lt ( norm_add_le _ _ ) ?_ ; norm_num [ mul_assoc, mul_comm, mul_left_comm ] at *;
   rw [ abs_of_pos hδ₁ ] ; nlinarith [ h_small z x hp hx hz, hδ z x hp hx hz ] ;
 /-
 For small `δ`, `‖P(x)‖ ≤ 1` for all real `x` in the segment `[-max_root p, 0]`.
@@ -2750,7 +2749,7 @@ lemma level_set_connected_of_roots_in_connected_subset (p : Polynomial ℂ)
         rw [ Filter.eventually_iff ] at this;
         rw [ Filter.mem_cocompact ] at this;
         obtain ⟨ t, ht₁, ht₂ ⟩ := this; exact ht₁.isBounded.subset fun x hx => by_contra fun hx' => not_le_of_gt ( ht₂ hx' ) hx.out;
-      refine' ( Metric.isCompact_iff_isClosed_bounded.mpr _ );
+      refine ( Metric.isCompact_iff_isClosed_bounded.mpr ?_ );
       exact ⟨ isClosed_closure, h_bounded.closure.subset <| closure_mono <| connectedComponentIn_subset _ _ ⟩;
     have h_min_boundary : ∃ w ∈ closure (connectedComponentIn {z | ‖p.eval z‖ ≤ 1} z₀), ∀ z ∈ closure (connectedComponentIn {z | ‖p.eval z‖ ≤ 1} z₀), ‖p.eval w‖ ≤ ‖p.eval z‖ := by
       have h_min_boundary : ContinuousOn (fun z => ‖p.eval z‖) (closure (connectedComponentIn {z | ‖p.eval z‖ ≤ 1} z₀)) := by
@@ -2814,7 +2813,7 @@ theorem perturbed_level_set_connected (n : ℕ) (hn : n ≠ 0) (p q : Polynomial
     (h0_sign : (q.eval 0 * p.eval 0).re > 0) :
     ∃ ε : ℝ, ε > 0 ∧ ∀ δ, 0 < δ ∧ δ ≤ ε → IsConnected {z | ‖(p + Polynomial.C (δ:ℂ) * Polynomial.X * q).eval z‖ ≤ 1} := by
   obtain ⟨ ε₁, hε₁, h₁ ⟩ := combined_set_connected_in_level_set n p q hp_monic hp_deg hq_deg hp_real hq_real hp_roots hp_conn h_zero h_sign h0_sign;
-  refine' ⟨ ε₁, hε₁, fun δ hδ => _ ⟩;
+  refine ⟨ ε₁, hε₁, fun δ hδ => ?_ ⟩;
   obtain ⟨ S, hS₁, hS₂, hS₃ ⟩ := h₁ δ hδ;
   convert level_set_connected_of_roots_in_connected_subset ( p + Polynomial.C ( δ : ℂ ) * Polynomial.X * q ) _ _ S hS₁ hS₂ hS₃ using 1;
   · rw [ Polynomial.Monic, Polynomial.leadingCoeff, Polynomial.natDegree_add_eq_left_of_natDegree_lt ] <;> norm_num [ hp_monic, hp_deg ];
@@ -2840,14 +2839,14 @@ theorem perturbed_deriv_greater (p q : Polynomial ℂ)
     (hq0 : (q.eval 0).re > 0) :
     ∃ ε : ℝ, ε > 0 ∧ ∀ δ, 0 < δ ∧ δ ≤ ε → ‖p.derivative.eval 0‖ < ‖(p + Polynomial.C (δ:ℂ) * Polynomial.X * q).derivative.eval 0‖ := by
   norm_num [ Complex.normSq, Complex.norm_def ] at *;
-  refine' ⟨ 1, zero_lt_one, fun δ δ_pos δ_le => Real.sqrt_lt_sqrt _ _ ⟩;
+  refine ⟨ 1, zero_lt_one, fun δ δ_pos δ_le => Real.sqrt_lt_sqrt ?_ ?_ ⟩;
   · nlinarith;
   · have := hq_real 0; simp_all +decide ; nlinarith [ mul_pos δ_pos hq0 ] ;
 -- proven by Aristotle
 lemma chebyshev_T_ode (n : ℕ) :
     (Polynomial.derivative (Polynomial.Chebyshev.T ℂ (n : ℤ))) ^ 2 * (1 - Polynomial.X ^ 2) +
       Polynomial.C (↑(n : ℤ) ^ 2 : ℂ) * ((Polynomial.Chebyshev.T ℂ (n : ℤ)) ^ 2 - 1) = 0 := by
-  refine' Polynomial.funext fun x => _;
+  refine Polynomial.funext fun x => ?_;
   -- By definition of Chebyshev polynomials, we know that $T_n(\cos \theta) = \cos(n \theta)$ and $U_n(\cos \theta) = \frac{\sin((n+1)\theta)}{\sin \theta}$.
   have h_chebyshev : ∀ θ : ℝ, (Polynomial.Chebyshev.T ℂ n).eval (Complex.cos θ) = Complex.cos (n * θ) ∧ (Polynomial.derivative (Polynomial.Chebyshev.T ℂ n)).eval (Complex.cos θ) * (-Complex.sin θ) = -n * Complex.sin (n * θ) := by
     intro θ
@@ -2866,7 +2865,7 @@ lemma chebyshev_T_ode (n : ℕ) :
     have := congr_arg ( · ^ 2 ) h_chebyshev; ring_nf at *; norm_num [ Complex.sin_sq, Complex.cos_sq ] at *; linear_combination' this;
   -- Since these equalities hold for all $\theta$, the polynomials must be equal.
   have h_poly_eq : Set.Infinite {x : ℂ | ((Polynomial.derivative (Polynomial.Chebyshev.T ℂ n)).eval x)^2 * (1 - x^2) + (n : ℂ)^2 * ((Polynomial.Chebyshev.T ℂ n).eval x^2 - 1) = 0} := by
-    refine' Set.infinite_of_injective_forall_mem ( fun x y hxy => _ ) fun x : ℕ => h_chebyshev_all ( Real.arccos ( 1 - 1 / ( x + 1 ) ) );
+    refine Set.infinite_of_injective_forall_mem ( fun x y hxy => ?_ ) fun x : ℕ => h_chebyshev_all ( Real.arccos ( 1 - 1 / ( x + 1 ) ) );
     norm_cast at hxy;
     rw [ Real.cos_arccos, Real.cos_arccos ] at hxy <;> norm_num at * <;> nlinarith [ inv_mul_cancel₀ ( by linarith : ( x : ℝ ) + 1 ≠ 0 ), inv_mul_cancel₀ ( by linarith : ( y : ℝ ) + 1 ≠ 0 ) ];
   have h_poly_eq : ((Polynomial.derivative (Polynomial.Chebyshev.T ℂ n))^2 * (1 - Polynomial.X^2) + (Polynomial.C (n^2 : ℂ)) * ((Polynomial.Chebyshev.T ℂ n)^2 - 1)) = 0 := by
@@ -3035,7 +3034,7 @@ lemma exists_x_lt_roots_eval_eq_neg_one_pow (n : ℕ) (hn : n ≥ 2) (p : Polyno
             intro i hi
             have h_abs : Filter.Tendsto (fun x : ℝ => |(p.coeff i).re| / |x| ^ (p.natDegree - i)) Filter.atBot (nhds 0) := by
               exact tendsto_const_nhds.div_atTop ( Filter.tendsto_pow_atTop ( Nat.sub_ne_zero_of_lt ( Finset.mem_range.mp hi ) ) |> Filter.Tendsto.comp <| Filter.tendsto_abs_atBot_atTop );
-            refine' squeeze_zero_norm _ h_abs ; aesop;
+            refine squeeze_zero_norm ?_ h_abs ; aesop;
           simpa only [ Finset.sum_const_zero ] using tendsto_finset_sum _ h_sum_zero;
         have h_leading_pow : Filter.Tendsto (fun x : ℝ => x ^ p.natDegree) Filter.atBot (if Even n then Filter.atTop else Filter.atBot) := by
           by_cases h_even : Even n
@@ -3398,8 +3397,8 @@ lemma rescaled_satisfies_ode (n : ℕ) (hn : n ≥ 2) (g : Polynomial ℂ)
           exact Multiset.card_le_card <| Multiset.filter_le _ _;
         convert hP_roots using 1;
         rw [ ← Multiset.toFinset_sum_count_eq ];
-        refine' Finset.sum_bij ( fun x hx => x ) _ _ _ _ <;> simp +decide [ * ];
-        · refine' ⟨ _, _, _ ⟩
+        refine Finset.sum_bij ( fun x hx => x ) ?_ ?_ ?_ ?_ <;> simp +decide [ * ];
+        · refine ⟨ ?_, ?_, ?_ ⟩
           · convert h_nonzero using 1;
             norm_cast;
           · exact ⟨ by simpa using h_nonzero, Or.inr <| by norm_num [ ← pow_mul ] ⟩;
@@ -3408,9 +3407,9 @@ lemma rescaled_satisfies_ode (n : ℕ) (hn : n ≥ 2) (g : Polynomial ℂ)
       convert hP_roots using 1 ; rw [ Finset.sum_union ] <;> norm_num [ Finset.disjoint_left ] ; ring;
       exact fun z hz => ⟨ by rintro rfl; exact absurd ( h_crit_bounds 1 hz ) ( by norm_num ), by rintro rfl; exact absurd ( h_crit_bounds ( -1 ) hz ) ( by norm_num ) ⟩ ;
     have hP_roots_1 : Polynomial.rootMultiplicity 1 ((Polynomial.derivative g) ^ 2 * (1 - Polynomial.X ^ 2) + Polynomial.C ((n : ℂ) ^ 2) * (g ^ 2 - 1)) ≥ 1 := by
-      refine' Nat.pos_of_ne_zero _ ; aesop;
+      refine Nat.pos_of_ne_zero ?_ ; aesop;
     have hP_roots_neg1 : Polynomial.rootMultiplicity (-1) ((Polynomial.derivative g) ^ 2 * (1 - Polynomial.X ^ 2) + Polynomial.C ((n : ℂ) ^ 2) * (g ^ 2 - 1)) ≥ 1 := by
-      refine' Nat.pos_of_ne_zero _ ; simp_all +decide ; ring_nf ; aesop;
+      refine Nat.pos_of_ne_zero ?_ ; simp_all +decide ; ring_nf ; aesop;
     have hP_roots_sum : ∑ z ∈ S, Polynomial.rootMultiplicity z ((Polynomial.derivative g) ^ 2 * (1 - Polynomial.X ^ 2) + Polynomial.C ((n : ℂ) ^ 2) * (g ^ 2 - 1)) ≥ 2 * (n - 1) := by
       exact le_trans ( by norm_num [ mul_comm, hS_card ] ) ( Finset.sum_le_sum hS_mult_P )
     linarith [hP_roots, hP_roots_1, hP_roots_neg1, hP_roots_sum]
