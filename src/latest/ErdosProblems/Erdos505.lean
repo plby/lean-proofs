@@ -26,7 +26,6 @@ import Mathlib
 
 set_option linter.style.setOption false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 set_option linter.flexible false
 
 namespace Erdos505
@@ -140,8 +139,8 @@ There is a bijection between `SignVectorsProdOne (n + 1)` and `SignVectors n`.
 def SignVectorsProdOneEquiv (n : ℕ) : SignVectorsProdOne (n + 1) ≃ SignVectors n :=
   { toFun := fun x => ⟨fun i => x.1 (i.castSucc), fun i => (x.2.1 (i.castSucc))⟩
     invFun := fun y => ⟨Fin.snoc y.1 (∏ i, y.1 i), by
-      refine' ⟨ _, _ ⟩;
-      · intro i; refine' Fin.lastCases _ _ i <;> simp +decide [ Fin.snoc, * ] ;
+      refine ⟨ ?_, ?_ ⟩;
+      · intro i; refine Fin.lastCases ?_ ?_ i <;> simp +decide [ Fin.snoc, * ] ;
         · exact eq_or_eq_neg_of_abs_eq (by
             rw [Finset.abs_prod]
             exact Finset.prod_eq_one fun i _ => by
@@ -197,8 +196,8 @@ Map from `SignVectorsProdOne n` to `M (n + 1)`.
 def SignVectorsProdOne_to_M (n : ℕ) (y : SignVectorsProdOne n) : M (n + 1) :=
   ⟨WithLp.toLp 2 fun i : Fin (n + 1) =>
       show (fun _ : Fin (n + 1) => ℝ) i from Fin.cases 1 y.1 i, by
-    refine' ⟨ _, _ ⟩;
-    · intro i; refine' Fin.cases _ _ i <;> simp +decide [ * ] ;
+    refine ⟨ ?_, ?_ ⟩;
+    · intro i; refine Fin.cases ?_ ?_ i <;> simp +decide [ * ] ;
       exact y.2.1;
     · simp +decide [ Fin.prod_univ_succ, y.2.2 ]⟩
 
@@ -371,9 +370,9 @@ theorem exists_orthogonal_pair (n : ℕ) [NeZero n] (p : ℕ) (hp : n = 4 * p) :
           ⟨⟨WithLp.toLp 2 y,
               by simpa [M] using ⟨hy.1, hy.2.1, hy.2.2.1⟩⟩,
             by simpa using hy.2.2.2⟩;
-      refine'
+      refine
         ⟨WithLp.toLp 2 (fun _ : Fin n => (1 : ℝ)),
-          (y : EuclideanSpace ℝ (Fin n)), _, _, _⟩ <;>
+          (y : EuclideanSpace ℝ (Fin n)), ?_, ?_, ?_⟩ <;>
         simp_all +decide [M];
       convert hy using 1;
       norm_num [ inner ]
@@ -389,7 +388,7 @@ One has $\diam(X)=n$.
 -/
 theorem diam_X (n : ℕ) [NeZero n] (p : ℕ) (hp : n = 4 * p) (hp_odd : Odd p) :
     diam_general (X n) = n := by
-      refine' csSup_eq_of_forall_le_of_forall_lt_exists_gt _ _ _ <;> norm_num;
+      refine csSup_eq_of_forall_le_of_forall_lt_exists_gt ?_ ?_ ?_ <;> norm_num;
       · exact
           ⟨_, ⟨_,
               Set.mem_image_of_mem _
@@ -455,7 +454,7 @@ theorem small_diam_implies_no_orthogonal_pairs
         aesop
       -- Since $\Phi(x)$ and $\Phi(y)$ are in $Y$, we have $\norm{\Phi(x) - \Phi(y)} \leq \diam(Y)$.
       have h_le_diam : norm (Phi x - Phi y) ≤ diam_general Y := by
-        refine' le_csSup _ _;
+        refine le_csSup ?_ ?_;
         · -- Since $Y$ is a subset of $X$ and $X$ is bounded, $Y$ is also bounded.
           have hY_bounded : Bornology.IsBounded Y := by
             have hY_bounded : Bornology.IsBounded (X n) := by
@@ -651,7 +650,7 @@ theorem inner_not_divisible_by_p
           have hk4 : k = 4 * (p - t) := by
             exact_mod_cast (by rw [← hk, ht] : (k : ℝ) = 4 * (p - t))
           simpa [hk4] using h_div
-        refine' Int.dvd_of_dvd_mul_right_of_gcd_one h_div_pt _;
+        refine Int.dvd_of_dvd_mul_right_of_gcd_one h_div_pt ?_;
         rcases hp_odd with ⟨ m, rfl ⟩ ; norm_num [ Int.gcd, Int.natAbs ];
         rcases Nat.even_or_odd' m with ⟨ k, rfl | rfl ⟩ <;> ring_nf <;> norm_num;
       obtain ⟨ a, ha ⟩ := h_div_pt
@@ -770,8 +769,8 @@ theorem dim_multilinear_polynomials
                 (Finset.powerset (Finset.univ : Finset (Fin (n - 1))))) := by
         ext m; simp [Monomials];
         constructor <;> intro h;
-        · refine'
-            ⟨Finset.univ.filter fun i => m i = 1, _, _⟩ <;>
+        · refine
+            ⟨Finset.univ.filter fun i => m i = 1, ?_, ?_⟩ <;>
               simp_all +decide [Finsupp.sum_fintype];
           · exact le_trans
               (by
@@ -804,7 +803,7 @@ theorem dim_multilinear_polynomials
                 (Set.image
                   (fun m : (Fin (n - 1)) →₀ ℕ => MvPolynomial.monomial m 1)
                   Monomials) := by
-          refine' le_antisymm _ _ <;> intro x hx <;>
+          refine le_antisymm ?_ ?_ <;> intro x hx <;>
             simp_all +decide [MultilinearPolynomialsOfDegreeLE];
           · -- Since $x$ is in the submodule spanned by the monomials in
             -- $Monomials$, we can write $x$ as a linear combination of these
@@ -814,14 +813,14 @@ theorem dim_multilinear_polynomials
               simp +decide [ MvPolynomial.monomial_eq ] ; congr ; ext ; ring_nf;
               simp +decide [ MvPolynomial.smul_eq_C_mul ];
             rw [h_comb];
-            refine' Submodule.sum_mem _ _;
+            refine Submodule.sum_mem _ ?_;
             intro m hm
-            refine' Submodule.smul_mem _ _
-              (Submodule.subset_span <| Set.mem_image_of_mem _ _)
+            refine Submodule.smul_mem _ _
+              (Submodule.subset_span <| Set.mem_image_of_mem _ ?_)
             simp +decide
-            refine' ⟨ _, _ ⟩ <;>
+            refine ⟨ ?_, ?_ ⟩ <;>
               simp +decide [MvPolynomial.mem_restrictTotalDegree] at hx ⊢;
-            · refine' le_trans _ hx.2;
+            · refine le_trans ?_ hx.2;
               exact
                 (Finset.le_sup
                     (f := fun s => Finsupp.sum s fun x e => e)
@@ -830,12 +829,12 @@ theorem dim_multilinear_polynomials
                   le_trans (by simp +decide [Finsupp.sum_fintype]);
             · intro i; have := hx.1 i; simp +decide [ MvPolynomial.degreeOf_eq_sup ] at this;
               exact this m ( by simpa using hm );
-          · refine' Submodule.span_induction _ _ _ _ hx <;>
+          · refine Submodule.span_induction ?_ ?_ ?_ ?_ hx <;>
               simp +decide [MultilinearPolynomials];
             · rintro x m hm₁ hm₂ rfl; simp_all +decide [ MvPolynomial.degreeOf_eq_sup ] ;
               simp_all +decide [ MvPolynomial.mem_restrictTotalDegree ];
             · intro x y hx hy hx' hx'' hy' hy''
-              refine' ⟨ _, _ ⟩ <;> simp_all +decide [MvPolynomial.degreeOf_eq_sup];
+              refine ⟨ ?_, ?_ ⟩ <;> simp_all +decide [MvPolynomial.degreeOf_eq_sup];
               · grind;
               · exact Submodule.add_mem _ hx'' hy'';
             · intro a x hx hx' hx''
@@ -852,7 +851,7 @@ theorem dim_multilinear_polynomials
           replace h_eq := congr_arg (fun f => f i) h_eq
           simp_all +decide [Finsupp.single_apply];
           grind;
-        · refine' Fintype.linearIndependent_iff.2 _;
+        · refine Fintype.linearIndependent_iff.2 ?_;
           intro g hg i
           replace hg :=
             congr_arg (fun f => MvPolynomial.coeff (i : Fin (n - 1) →₀ ℕ) f) hg
@@ -947,7 +946,7 @@ The total degree of $L_a$ is at most 1.
 -/
 theorem La_degree_le_one (n : ℕ) [NeZero n] (p : ℕ) (a : EuclideanSpace ℝ (Fin n)) :
     MvPolynomial.totalDegree (La n p a) ≤ 1 := by
-      refine' le_trans ( MvPolynomial.totalDegree_add _ _ ) _;
+      refine le_trans ( MvPolynomial.totalDegree_add _ _ ) ?_;
       simp +decide [ MvPolynomial.totalDegree ];
       intro b hb
       contrapose! hb
@@ -982,8 +981,8 @@ theorem Pa_degree_le
           exact fun s f a => MvPolynomial.totalDegree_finsetSum_le a;
         convert h_sum_deg _ _ _ using 2;
         intro i hi;
-        refine' le_trans ( MvPolynomial.totalDegree_smul_le _ _ ) _;
-        refine' le_trans ( MvPolynomial.totalDegree_pow _ _ ) _;
+        refine le_trans ( MvPolynomial.totalDegree_smul_le _ _ ) ?_;
+        refine le_trans ( MvPolynomial.totalDegree_pow _ _ ) ?_;
         exact le_trans (Nat.mul_le_mul_left _ hLa_deg)
           (by
             linarith [Finset.mem_range.mp hi,
@@ -1150,7 +1149,7 @@ The total degree of `ml(P)` is at most the total degree of `P`.
 -/
 theorem totalDegree_ml_le {σ : Type*} {R : Type*} [CommRing R] (P : MvPolynomial σ R) :
     MvPolynomial.totalDegree (ml P) ≤ MvPolynomial.totalDegree P := by
-      refine' Finset.sup_le fun m hm => _;
+      refine Finset.sup_le fun m hm => ?_;
       -- Since $m$ is in the support of $ml P$, there exists a monomial $n$ in
       -- $P$ such that $m$ is obtained by replacing each exponent in $n$ with
       -- its modulo 2 value.
@@ -1166,7 +1165,7 @@ theorem totalDegree_ml_le {σ : Type*} {R : Type*} [CommRing R] (P : MvPolynomia
           rw [Finsupp.single_apply]
           specialize hm x
           aesop;
-      refine' le_trans _ ( Finset.le_sup ( f := fun n => Finsupp.sum n fun x e => e ) hn.1 );
+      refine le_trans ?_ ( Finset.le_sup ( f := fun n => Finsupp.sum n fun x e => e ) hn.1 );
       simp +decide [ hn.2, Finsupp.sum_mapRange_index ];
       exact Finset.sum_le_sum fun _ _ => Nat.mod_le _ _
 
@@ -1177,7 +1176,7 @@ theorem Fa_mem_subspace
     (n : ℕ) [NeZero n] (p : ℕ) [Fact (Nat.Prime p)]
     (a : EuclideanSpace ℝ (Fin n)) :
     Fa n p a ∈ MultilinearPolynomialsOfDegreeLE (Fin (n - 1)) (ZMod p) (p - 1) := by
-      refine' ⟨ ml_is_multilinear _, _ ⟩;
+      refine ⟨ ml_is_multilinear _, ?_ ⟩;
       convert Set.mem_setOf_eq.mpr
           (totalDegree_ml_le _ |> le_trans <| Pa_degree_le _ _ _) using 1;
       rotate_left;
@@ -1198,7 +1197,7 @@ theorem Fa_linearIndependent
     (A : Set (EuclideanSpace ℝ (Fin n))) (hA_subset : A ⊆ M n)
     (hA_no_orth : ∀ x y, x ∈ A → y ∈ A → x ≠ y → inner ℝ x y ≠ 0) :
     LinearIndependent (ZMod p) (fun (a : A) => Fa n p a) := by
-      refine' linearIndependent_iff'.mpr _;
+      refine linearIndependent_iff'.mpr ?_;
       intro s g hg i hi
       have := congr_arg (fun f => MvPolynomial.eval (proj_b n p i.val) f) hg
       simp_all +decide
@@ -1248,7 +1247,7 @@ theorem M_finite (n : ℕ) [NeZero n] : (M n).Finite := by
     refine Set.Finite.subset (Set.Finite.pi fun _ => Set.toFinite ({1, -1} : Set ℝ)) ?_
     intro x hx i hi
     rcases hx i with h | h <;> simp [h]
-  refine' Set.Finite.subset (h_sign_finite.image (WithLp.toLp 2)) ?_
+  refine Set.Finite.subset (h_sign_finite.image (WithLp.toLp 2)) ?_
   intro x hx
   exact ⟨WithLp.ofLp x, hx.1, (WithLp.toLp_ofLp 2 x).symm⟩
 
@@ -1402,7 +1401,7 @@ theorem BorsukProperty_implies_partition (d m : ℕ) (h : BorsukProperty d m)
     ∃ c : E → Fin m, ∀ i, diam {x | ∃ h, c ⟨x, h⟩ = i} < diam E := by
       have := h ( ( 1 / diam E ) • E ) ?_ ?_;
       · obtain ⟨ c, hc ⟩ := this;
-        refine' ⟨ fun ⟨ x, hx ⟩ => c ⟨ ( 1 / diam E ) • x, _ ⟩, _ ⟩;
+        refine ⟨ fun ⟨ x, hx ⟩ => c ⟨ ( 1 / diam E ) • x, ?_ ⟩, ?_ ⟩;
         exact Set.smul_mem_smul_set hx;
         intro i; specialize hc i; simp_all +decide [ Set.mem_smul_set ] ;
         convert mul_lt_mul_of_pos_left hc h_diam using 1;
@@ -1471,8 +1470,8 @@ theorem borsuk_implies_partition_X (n : ℕ) [NeZero n] (p : ℕ) (hp : n = 4 * 
     ∃ c : X n → Fin m, ∀ i, diam_general {x | ∃ h, c ⟨x, h⟩ = i} < diam_general (X n) := by
       -- By definition of `Pairs`, there exists a bijection between `Pairs n` and `Fin d`.
       obtain ⟨e, he⟩ : ∃ e : Pairs n ≃ Fin d, True := by
-        refine' ⟨ _, trivial ⟩;
-        refine' Fintype.equivOfCardEq _;
+        refine ⟨ ?_, trivial ⟩;
+        refine Fintype.equivOfCardEq ?_;
         convert card_Pairs n using 1 ; aesop;
       -- This induces an isometry $\psi: \mathbb{R}^{Pairs n} \to \mathbb{R}^{Fin d}$.
       set psi : EuclideanSpace ℝ (Pairs n) → EuclideanSpace ℝ (Fin d) := fun x =>
@@ -1495,7 +1494,7 @@ theorem borsuk_implies_partition_X (n : ℕ) [NeZero n] (p : ℕ) (hp : n = 4 * 
             simp +decide [ edist_dist, dist_eq_norm, EuclideanSpace.norm_eq ];
             conv_rhs => rw [ ← Equiv.sum_comp e.symm ] ;
           convert h_diam_eq.symm ▸ X_diam_pos n p hp hp_odd using 1;
-      refine' ⟨ fun x => c ⟨ psi x.1, Set.mem_image_of_mem _ x.2 ⟩, fun i => _ ⟩;
+      refine ⟨ fun x => c ⟨ psi x.1, Set.mem_image_of_mem _ x.2 ⟩, fun i => ?_ ⟩;
       have h_diam_eq_subset :
           diam_general
               (Set.image psi {x : EuclideanSpace ℝ (Pairs n) |
@@ -1561,15 +1560,19 @@ theorem unit_ball_cover_diam_lt_one (d : ℕ) [NeZero d] :
           ⟨t, ht₁, ht₂, ht₃⟩
         use ht₂.toFinset
         aesop;
-      refine' ⟨ Finset.image ( fun v => Metric.ball v ( 1 / 3 ) ) t, _, _ ⟩ <;> norm_num;
-      · refine' fun x hx => ⟨ Metric.isBounded_ball, _ ⟩;
-        refine' lt_of_le_of_lt ( csSup_le _ _ ) _ <;> norm_num;
-        exacts [
-          2 / 3,
-          ⟨_, ⟨x, by norm_num, x, by norm_num, rfl⟩⟩,
-          fun b y hy z hz h => by
-            linarith [dist_triangle_right y z x],
-          by norm_num];
+      refine ⟨ Finset.image ( fun v => Metric.ball v ( 1 / 3 ) ) t, ?_, ?_ ⟩ <;> norm_num;
+      · refine fun x hx => ⟨ Metric.isBounded_ball, ?_ ⟩;
+        refine lt_of_le_of_lt
+          (show diam_general (Metric.ball x (1 / 3)) ≤ 2 / 3 from ?_)
+          ?_ <;>
+          norm_num;
+        · refine csSup_le ?_ ?_
+          · exact ⟨_, ⟨x, by norm_num, x, by norm_num, rfl⟩⟩
+          · exact fun b hb => by
+              rcases hb with ⟨y, hy, z, hz, rfl⟩
+              have hy' := Metric.mem_ball.mp hy
+              have hz' := Metric.mem_ball.mp hz
+              nlinarith [dist_triangle_right y z x]
       · exact ht
 
 /-
@@ -1585,7 +1588,7 @@ theorem partition_refinement_indexed
       letI := Fintype.ofFinite ι
       -- Define $P_i$ as $U_i$ minus the union of $U_j$ for $j < i$.
       set P : ι → Set α := fun i => U i \ ⋃ j < i, U j;
-      refine' ⟨ P, _, _, _ ⟩;
+      refine ⟨ P, ?_, ?_, ?_ ⟩;
       · exact fun i => Set.diff_subset;
       · intro i j hij; cases lt_or_gt_of_ne hij <;> simp_all +decide [ Set.disjoint_left ] ;
         · aesop;
@@ -1691,7 +1694,7 @@ theorem unit_ball_partition_diam_lt_one_bounded (d : ℕ) [NeZero d] :
               (Pairwise (fun i j => Disjoint (P i) (P j))) ∧
                 (⋃ i, u i) = ⋃ i, P i := by
         convert partition_refinement_indexed u using 1;
-      refine' ⟨ m, P, _, _, hP.2.1, _ ⟩;
+      refine ⟨ m, P, ?_, ?_, hP.2.1, ?_ ⟩;
       · exact fun i => Bornology.IsBounded.subset ( hU.1 _ ( hu₁ i ) |>.1 ) ( hP.1 i );
       · intro i
         have hP_subset : P i ⊆ u i := hP.left i
@@ -1748,7 +1751,7 @@ theorem exists_borsuk_number (d : ℕ) [NeZero d] : ∃ m, BorsukProperty d m :=
     have h_diam_lt_one : diam (x +ᵥ P i) < 1 := by
       convert hP.2.1 i using 1;
       exact diam_vadd_eq (P i) x;
-    refine' lt_of_le_of_lt ( diam_mono _ _ ) h_diam_lt_one;
+    refine lt_of_le_of_lt ( diam_mono ?_ ?_ ) h_diam_lt_one;
     · assumption;
     · exact hP.1 i |> fun h => h.vadd _;
   use fun y => Fin.castSucc ( c y );
@@ -1766,7 +1769,7 @@ theorem exists_borsuk_number (d : ℕ) [NeZero d] : ∃ m, BorsukProperty d m :=
 The Borsuk number of dimension 946 is at least 1650.
 -/
 theorem f_946_ge_1650 : BorsukNumber 946 ≥ 1650 := by
-  refine' le_csInf _ _;
+  refine le_csInf ?_ ?_;
   · -- By definition of BorsukNumber, there exists some m such that BorsukProperty 946 m holds.
     apply exists_borsuk_number 946;
   · intro m hm_borsuk
