@@ -35,7 +35,6 @@ namespace Erdos1037
 -- substantial proof rewrite rather than local cleanup.
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.refine false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
 
@@ -104,10 +103,10 @@ theorem Lemma_Hoeffding_OneSided
       -- Applying Markov's inequality, we have:
       have h_markov : (MeasureTheory.MeasureSpace.volume {ω | X ω - (N : ℝ) / 2 ≥ t}).toReal ≤ (Real.exp (-t * 4 * t / (N : ℝ))) * (∫ ω in {ω | X ω - (N : ℝ) / 2 ≥ t}, Real.exp (4 * t / (N : ℝ) * (X ω - (N : ℝ) / 2)) ∂MeasureTheory.MeasureSpace.volume) := by
         have h_markov : ∫ ω in {ω | X ω - (N : ℝ) / 2 ≥ t}, Real.exp (4 * t / (N : ℝ) * (X ω - (N : ℝ) / 2)) ∂MeasureTheory.MeasureSpace.volume ≥ ∫ ω in {ω | X ω - (N : ℝ) / 2 ≥ t}, Real.exp (4 * t / (N : ℝ) * t) ∂MeasureTheory.MeasureSpace.volume := by
-          refine' MeasureTheory.setIntegral_mono_on _ _ _ _ <;> norm_num;
-          · refine' MeasureTheory.Integrable.integrableOn _;
-            refine' MeasureTheory.Integrable.mono' _ _ _;
-            refine' fun ω => Real.exp ( 4 * t / N * ( N : ℝ ) );
+          refine MeasureTheory.setIntegral_mono_on ?_ ?_ ?_ ?_ <;> norm_num;
+          · refine MeasureTheory.Integrable.integrableOn ?_;
+            refine MeasureTheory.Integrable.mono'
+              (g := fun ω => Real.exp ( 4 * t / N * ( N : ℝ ) )) ?_ ?_ ?_;
             · norm_num;
             · exact Measurable.aestronglyMeasurable ( by measurability );
             · filter_upwards [ MeasureTheory.ae_all_iff.2 h_range ] with ω hω;
@@ -118,9 +117,9 @@ theorem Lemma_Hoeffding_OneSided
           · exact fun ω hω => mul_le_mul_of_nonneg_left hω <| by positivity;
         simp_all +decide [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm, Real.exp_neg ];
         rwa [ inv_mul_eq_div, le_div_iff₀' ( Real.exp_pos _ ) ];
-      refine' le_trans h_markov ( mul_le_mul_of_nonneg_left ( MeasureTheory.setIntegral_le_integral _ _ ) ( Real.exp_nonneg _ ) );
-      · refine' MeasureTheory.Integrable.mono' _ _ _;
-        refine' fun ω => Real.exp ( 4 * t / N * ( N : ℝ ) );
+      refine le_trans h_markov ( mul_le_mul_of_nonneg_left ( MeasureTheory.setIntegral_le_integral ?_ ?_ ) ( Real.exp_nonneg _ ) );
+      · refine MeasureTheory.Integrable.mono'
+          (g := fun ω => Real.exp ( 4 * t / N * ( N : ℝ ) )) ?_ ?_ ?_;
         · norm_num;
         · exact Measurable.aestronglyMeasurable ( by measurability );
         · simp +zetaDelta at *;
@@ -162,7 +161,7 @@ theorem Lemma_Hoeffding_OneSided
         any_goals exact measurableSet_preimage ( show Measurable ( fun x => 4 * t / N * ( x - 1 / 2 ) ) from Measurable.mul ( measurable_const ) ( measurable_id.sub measurable_const ) ) ( hsets i hi );
         · simp +decide [ Set.preimage ];
         · exact rfl;
-    refine' h_markov.trans ( le_trans ( mul_le_mul_of_nonneg_left ( h_indep_mgf.le.trans <| Finset.prod_le_prod ( fun _ _ => MeasureTheory.integral_nonneg fun _ => Real.exp_nonneg _ ) fun _ _ => h_mgf_bound _ ) <| by positivity ) _ );
+    refine h_markov.trans ( le_trans ( mul_le_mul_of_nonneg_left ( h_indep_mgf.le.trans <| Finset.prod_le_prod ( fun _ _ => MeasureTheory.integral_nonneg fun _ => Real.exp_nonneg _ ) fun _ _ => h_mgf_bound _ ) <| by positivity ) ?_ );
     by_cases hN : N = 0 <;> simp_all +decide ; ring_nf ; norm_num;
     rw [ ← Real.exp_nat_mul, ← Real.exp_add ] ; ring_nf ; norm_num [ hN ];
     norm_num [ sq, mul_assoc, hN ] ; ring_nf ; norm_num
@@ -181,7 +180,7 @@ theorem Lemma_Hoeffding
   ∀ t > 0, (MeasureTheory.MeasureSpace.volume {ω | |X ω - N / 2| ≥ t}).toReal ≤ 2 * Real.exp (-2 * t^2 / N) := by
     have := @ h_range;
     have h_two_sided : ∀ t > 0, (MeasureTheory.MeasureSpace.volume {ω | (∑ i, Y i ω) - N / 2 ≥ t}).toReal ≤ Real.exp (-2 * t^2 / N) ∧ (MeasureTheory.MeasureSpace.volume {ω | -(∑ i, Y i ω) + N / 2 ≥ t}).toReal ≤ Real.exp (-2 * t^2 / N) := by
-      refine' fun t t_pos ↦ ⟨ _, _ ⟩;
+      refine fun t t_pos ↦ ⟨ ?_, ?_ ⟩;
       · convert Lemma_Hoeffding_OneSided N Y h_meas h_indep h_bernoulli this t t_pos using 1;
         simp +decide only [Finset.sum_apply];
       · convert Lemma_Hoeffding_OneSided N ( fun i ω => 1 - Y i ω ) ( fun i => Measurable.const_sub ( h_meas i ) _ ) _ _ _ t t_pos using 1;
@@ -198,7 +197,9 @@ theorem Lemma_Hoeffding
       rw [ ← ENNReal.toReal_add ];
       · gcongr;
         · exact ne_of_lt ( ENNReal.add_lt_top.mpr ⟨ MeasureTheory.measure_lt_top _ _, MeasureTheory.measure_lt_top _ _ ⟩ );
-        · refine' le_trans ( MeasureTheory.measure_mono _ ) ( MeasureTheory.measure_union_le _ _ );
+        · refine le_trans ( MeasureTheory.measure_mono ?_ )
+            ( MeasureTheory.measure_union_le
+              {ω | X ω - N / 2 ≥ t} {ω | -(X ω - N / 2) ≥ t} );
           exact fun x hx => by norm_num at *; cases abs_cases ( X x - N / 2 ) <;> [ left; right ] <;> linarith;
       · exact MeasureTheory.measure_ne_top _ _;
       · exact MeasureTheory.measure_ne_top _ _;
@@ -237,7 +238,7 @@ theorem incidentEdgeInd_Bernoulli {m : ℕ} (v : Fin m) (u : {x // x ≠ v}) :
       have h_uniform : (randomGraphMeasure {G : SimpleGraph (Fin m) | G.Adj u v}) = (randomGraphMeasure {G : SimpleGraph (Fin m) | ¬G.Adj u v}) := by
         have h_uniform : (randomGraphMeasure {G : SimpleGraph (Fin m) | G.Adj u v}) = (randomGraphMeasure {G : SimpleGraph (Fin m) | ¬G.Adj u v}) := by
           have h_bij : ∃ f : SimpleGraph (Fin m) ≃ SimpleGraph (Fin m), ∀ G, f G ∈ {G : SimpleGraph (Fin m) | G.Adj u v} ↔ G ∈ {G : SimpleGraph (Fin m) | ¬G.Adj u v} := by
-            refine' ⟨ Equiv.ofBijective ( fun G => SimpleGraph.fromRel fun x y => if x = u.val ∧ y = v ∨ x = v ∧ y = u.val then ¬G.Adj u.val v else G.Adj x y ) ⟨ _, _ ⟩, _ ⟩;
+            refine ⟨ Equiv.ofBijective ( fun G => SimpleGraph.fromRel fun x y => if x = u.val ∧ y = v ∨ x = v ∧ y = u.val then ¬G.Adj u.val v else G.Adj x y ) ⟨ ?_, ?_ ⟩, ?_ ⟩;
             all_goals simp +decide [ Function.Injective, Function.Surjective ];
             · simp +decide [ SimpleGraph.fromRel, funext_iff ];
               intro G₁ G₂ h; ext x y; specialize h x y; by_cases hx : x = y <;> simp_all +decide [ SimpleGraph.adj_comm ] ;
@@ -672,7 +673,7 @@ theorem measure_inter_incident_edges {m : ℕ} (v : Fin m) (S : Finset {x // x �
         rw [ one_div, inv_pow, mul_comm ];
         rw [ ← div_eq_mul_inv, div_eq_iff ] <;> norm_cast <;> ring_nf;
         · rw [ ← pow_add, Nat.sub_add_cancel ( show S.card ≤ m.choose 2 from _ ) ];
-          refine' le_trans ( Finset.card_le_univ _ ) _ ; norm_num [ Nat.choose_two_right ];
+          refine le_trans ( Finset.card_le_univ _ ) ?_ ; norm_num [ Nat.choose_two_right ];
           rcases m with ( _ | _ | m ) <;> simp +arith +decide [ Nat.mul_succ ];
           rw [ Nat.le_div_iff_mul_le ] <;> nlinarith;
         · positivity;
@@ -853,7 +854,7 @@ theorem degree_eq_sum_indicators (m : ℕ) (v : Fin m) (G : SimpleGraph (Fin m))
     rw [ SimpleGraph.degree ];
     rw [ show ( G.neighborFinset v ) = Finset.univ.filter ( fun u => G.Adj u v ) from ?_, Finset.card_filter ];
     · rw [ ← Finset.sum_filter ];
-      refine' Finset.sum_bij ( fun x hx => ⟨ x, _ ⟩ ) _ _ _ _ <;> aesop;
+      refine Finset.sum_bij ( fun x hx => ⟨ x, ?_ ⟩ ) ?_ ?_ ?_ ?_ <;> aesop;
     · ext; simp +decide [ SimpleGraph.adj_comm ]
 
 /-
@@ -917,7 +918,7 @@ theorem degree_concentration_at_vertex (m : ℕ) (hm : m > 1) (v : Fin m) (t : �
         · norm_num [ MeasureTheory.MeasureSpace.volume ];
       -- Let's choose any bijection between the set of neighbors of $v$ and the set $\{0, 1, ..., m-2\}$.
       obtain ⟨bij, hbij⟩ : ∃ bij : Fin (m - 1) ≃ {x : Fin m // x ≠ v}, True := by
-        refine' ⟨ Fintype.equivOfCardEq _, trivial ⟩ ; aesop;
+        refine ⟨ Fintype.equivOfCardEq ?_, trivial ⟩ ; aesop;
       convert h_hoeffding ( m - 1 ) ( fun i G => Y ( bij i ) G ) _ _ _ _ t ht using 1;
       · simp +zetaDelta at *;
         congr! 3;
@@ -1033,9 +1034,10 @@ The bound for the degree deviation probability tends to 0.
 -/
 theorem bound_degree_tendsto_zero : Filter.Tendsto bound_degree Filter.atTop (nhds 0) := by
   unfold bound_degree;
-  refine' squeeze_zero_norm' _ _;
-  use fun n => 2 * n * Real.exp ( -8 * Real.log n );
-  · refine' Filter.eventually_atTop.mpr ⟨ 2, fun n hn => _ ⟩ ; norm_num;
+  refine squeeze_zero_norm'
+    (f := fun n : ℕ => 2 * (n : ℝ) * Real.exp (-2 * (t_val n)^2 / ((n : ℝ) - 1)))
+    (a := fun n : ℕ => 2 * (n : ℝ) * Real.exp ( -8 * Real.log n )) ?_ ?_;
+  · refine Filter.eventually_atTop.mpr ⟨ 2, fun n hn => ?_ ⟩ ; norm_num;
     field_simp;
     exact Real.exp_le_exp.mpr ( neg_le_neg <| by rw [ div_eq_mul_inv ] ; nlinarith [ show ( n : ℝ ) ≥ 2 by norm_cast, Real.log_nonneg ( show ( n : ℝ ) ≥ 1 by norm_cast; linarith ), mul_inv_cancel₀ ( show ( n - 1 : ℝ ) ≠ 0 by linarith [ show ( n : ℝ ) ≥ 2 by norm_cast ] ), show ( t_val n : ℝ ) ^ 2 ≥ 4 * n * Real.log n by exact by rw [ show t_val n = 2 * Real.sqrt ( n * Real.log n ) by rfl ] ; nlinarith [ Real.mul_self_sqrt ( show 0 ≤ ( n : ℝ ) * Real.log n by positivity ) ] ] );
   · -- We can simplify the expression inside the limit.
@@ -1059,7 +1061,7 @@ theorem Lemma_Base :
       have h_exists_R : ∀ m ≥ m₀, ∃ R : SimpleGraph (Fin m), ¬(r_val m ≤ R.cliqueNum) ∧ ¬(r_val m ≤ R.indepNum) ∧ ¬(∃ v : Fin m, |(R.degree v : ℝ) - (m - 1 : ℝ) / 2| ≥ t_val m) := by
         intros m hm
         have h_prob_clique : (randomGraphMeasure {G : SimpleGraph (Fin m) | r_val m ≤ G.cliqueNum}).toReal < 1 / 3 := by
-          refine' lt_of_le_of_lt _ ( hm₀ m hm |>.1 );
+          refine lt_of_le_of_lt ?_ ( hm₀ m hm |>.1 );
           convert ENNReal.toReal_mono _ ( prob_cliqueNum_ge m ( r_val m ) ) using 1;
           · unfold bound_clique; norm_num [ ENNReal.toReal_mul, ENNReal.toReal_pow ] ;
           · norm_num [ ENNReal.mul_eq_top ]
@@ -1070,7 +1072,7 @@ theorem Lemma_Base :
             · norm_num [ ENNReal.mul_eq_top ];
           linarith [ hm₀ m hm ]
         have h_prob_degree : (randomGraphMeasure {G : SimpleGraph (Fin m) | ∃ v : Fin m, |(G.degree v : ℝ) - (m - 1 : ℝ) / 2| ≥ t_val m}).toReal < 1 / 3 := by
-          refine' lt_of_le_of_lt _ ( hm₀ m hm |>.2 );
+          refine lt_of_le_of_lt ?_ ( hm₀ m hm |>.2 );
           by_cases hm : m > 1;
           · convert degree_concentration_union_bound m hm ( t_val m ) ( show 0 < t_val m from mul_pos zero_lt_two <| Real.sqrt_pos.mpr <| mul_pos ( Nat.cast_pos.mpr <| pos_of_gt hm ) <| Real.log_pos <| Nat.one_lt_cast.mpr hm ) using 1;
           · interval_cases m <;> norm_num [ randomGraphMeasure ];
@@ -1083,7 +1085,7 @@ theorem Lemma_Base :
             · rw [add_assoc]; rfl
             · infer_instance;
             · infer_instance;
-          refine' lt_of_le_of_lt ( ENNReal.toReal_mono _ h_union_bound ) _;
+          refine lt_of_le_of_lt ( ENNReal.toReal_mono ?_ h_union_bound ) ?_;
           · unfold randomGraphMeasure; aesop;
           · rw [ ENNReal.toReal_add, ENNReal.toReal_add ] <;> norm_num at * ; linarith;
             · exact ne_of_lt ( lt_of_le_of_lt ( MeasureTheory.measure_mono ( Set.subset_univ _ ) ) ( by norm_num [ randomGraphMeasure ] ) );
@@ -1095,7 +1097,7 @@ theorem Lemma_Base :
       use m₀ + 2;
       intro m hm;
       obtain ⟨ R, hR₁, hR₂, hR₃ ⟩ := h_exists_R m ( by linarith );
-      refine' ⟨ R, _, _, _ ⟩;
+      refine ⟨ R, ?_, ?_, ?_ ⟩;
       · contrapose! hR₁;
         exact Nat.ceil_le.mpr ( mod_cast hR₁.le );
       · contrapose! hR₂;
@@ -1113,7 +1115,7 @@ theorem Lemma_Base :
               rw [ Finset.max_eq_sup_coe ];
               rw [ show ( Finset.image ( fun v => R.degree v ) Finset.univ ).sup WithBot.some = WithBot.some ( R.degree ( Classical.choose ( Finset.exists_max_image Finset.univ ( fun v => R.degree v ) ⟨ 0, Finset.mem_univ 0 ⟩ ) ) ) from ?_ ];
               · exact rfl;
-              · refine' le_antisymm _ _ <;> norm_num;
+              · refine le_antisymm ?_ ?_ <;> norm_num;
                 · intro v; have := Classical.choose_spec ( Finset.exists_max_image Finset.univ ( fun v => R.degree v ) ⟨ 0, Finset.mem_univ 0 ⟩ ) ; aesop;
                 · exact ⟨ _, le_rfl ⟩;
           have h_min_deg : ∃ v : Fin m, R.degree v = R.minDegree := by
@@ -1476,16 +1478,33 @@ theorem degree_at_most_twice (m : ℕ) (R : SimpleGraph (Fin m))
       have h_degrees_CD : ∀ i j : Fin (2 * m), i ≠ j → (H_graph m R σ_AB σ_CD).degree (Sum.inr (σ_CD i)) ≠ (H_graph m R σ_AB σ_CD).degree (Sum.inr (σ_CD j)) := by
         intro i j hij; cases lt_or_gt_of_ne hij <;> [ exact ne_of_gt ( distinct_degrees_CD m R σ_AB σ_CD h_ord_CD _ _ ‹_› ) ; exact ne_of_lt ( distinct_degrees_CD m R σ_AB σ_CD h_ord_CD _ _ ‹_› ) ] ;
       intro t;
-      refine' le_trans ( Finset.card_le_card _ ) _;
-      exact Finset.image ( fun i => Sum.inl ( σ_AB i ) ) ( Finset.univ.filter fun i => ( H_graph m R σ_AB σ_CD ).degree ( Sum.inl ( σ_AB i ) ) = t ) ∪ Finset.image ( fun i => Sum.inr ( σ_CD i ) ) ( Finset.univ.filter fun i => ( H_graph m R σ_AB σ_CD ).degree ( Sum.inr ( σ_CD i ) ) = t );
-      · intro v hv; rcases v with ( _ | _ ) <;> simp_all +decide
-        · have := σ_AB.surjective ‹_›; aesop;
-        · obtain ⟨ a, ha ⟩ := σ_CD.surjective ‹_›; use a; aesop;
-      · refine' le_trans ( Finset.card_union_le _ _ ) _;
+      refine le_trans
+        (b :=
+          (Finset.image ( fun i => Sum.inl ( σ_AB i ) )
+            ( Finset.univ.filter fun i =>
+              ( H_graph m R σ_AB σ_CD ).degree ( Sum.inl ( σ_AB i ) ) = t ) ∪
+            Finset.image ( fun i => Sum.inr ( σ_CD i ) )
+              ( Finset.univ.filter fun i =>
+                ( H_graph m R σ_AB σ_CD ).degree ( Sum.inr ( σ_CD i ) ) = t )).card)
+        ( Finset.card_le_card ?_ ) ?_;
+      · intro v hv
+        rcases v with v | v
+        · obtain ⟨w, rfl⟩ := σ_AB.surjective v
+          exact Finset.mem_union_left _
+            (Finset.mem_image.mpr ⟨w, by simpa using hv, rfl⟩)
+        · obtain ⟨w, rfl⟩ := σ_CD.surjective v
+          exact Finset.mem_union_right _
+            (Finset.mem_image.mpr ⟨w, by simpa using hv, rfl⟩)
+      · refine le_trans
+          ( Finset.card_union_le
+            (Finset.image ( fun i => Sum.inl ( σ_AB i ) )
+              ( Finset.univ.filter fun i =>
+                ( H_graph m R σ_AB σ_CD ).degree ( Sum.inl ( σ_AB i ) ) = t ))
+            (Finset.image ( fun i => Sum.inr ( σ_CD i ) )
+              ( Finset.univ.filter fun i =>
+                ( H_graph m R σ_AB σ_CD ).degree ( Sum.inr ( σ_CD i ) ) = t )) ) ?_;
         rw [ Finset.card_image_of_injective, Finset.card_image_of_injective ] <;> norm_num [ Function.Injective ];
         · exact le_trans ( add_le_add ( Finset.card_le_one.mpr fun i hi j hj => Classical.not_not.1 fun hi' => h_degrees_AB i j hi' <| by aesop ) ( Finset.card_le_one.mpr fun i hi j hj => Classical.not_not.1 fun hi' => h_degrees_CD i j hi' <| by aesop ) ) ( by norm_num );
-        · exact fun i j h => σ_CD.injective <| by injection h;
-        · exact fun i j h => σ_AB.injective <| by injection h;
 
 /-
 If j is large enough, the degree of w_j is not equal to the degree of any v_i.
@@ -1570,7 +1589,7 @@ theorem cliqueNum_H_le (m : ℕ) (R : SimpleGraph (Fin m))
               exact le_trans ( Finset.card_le_card h_partition ) ( by exact le_trans ( Finset.card_union_le _ _ ) ( add_le_add ( le_trans ( Finset.card_union_le _ _ ) ( add_le_add ( le_trans ( Finset.card_union_le _ _ ) ( add_le_add ( Finset.card_image_le ) ( Finset.card_image_le ) ) ) ( Finset.card_image_le ) ) ) ( Finset.card_image_le ) ) );
             linarith;
           · simp_all +decide [ H_graph ];
-            refine' ⟨ _, _, _, _ ⟩ <;> intros <;> have := hs_clique _ ‹_› _ ‹_› <;> simp_all +decide [ H_adj ];
+            refine ⟨ ?_, ?_, ?_, ?_ ⟩ <;> intros <;> have := hs_clique _ ‹_› _ ‹_› <;> simp_all +decide [ H_adj ];
             · grind;
             · grind;
             · grind;
@@ -1578,11 +1597,11 @@ theorem cliqueNum_H_le (m : ℕ) (R : SimpleGraph (Fin m))
         obtain ⟨ s1, s2, s3, s4, h1, h2, h3, h4, h5 ⟩ := h_partition;
         have h_clique_num : ∀ s : Finset (Fin m), (∀ u ∈ s, ∀ v ∈ s, u ≠ v → R.Adj u v) → s.card ≤ R.cliqueNum := by
           intros s hs_clique;
-          refine' le_csSup _ _;
+          refine le_csSup ?_ ?_;
           · exact ⟨ _, fun n hn => by obtain ⟨ s, hs ⟩ := hn; exact hs.card_eq ▸ Finset.card_le_univ _ ⟩;
           · exact ⟨ s, by rw [ SimpleGraph.isNClique_iff ] ; aesop ⟩;
         linarith [ h_clique_num s1 h2, h_clique_num s2 h3, h_clique_num s3 h4, h_clique_num s4 h5 ];
-      refine' csSup_le' _;
+      refine csSup_le' ?_;
       rintro n ⟨ s, hs ⟩;
       exact le_of_not_gt fun hn => h_clique_num s ( by linarith [ hs.2 ] ) hs.1
 
@@ -1718,7 +1737,7 @@ theorem indepNum_H_le (m : ℕ) (R : SimpleGraph (Fin m))
           · rw [ Set.ncard_eq_toFinset_card' ];
           · aesop;
         linarith [ h_partition { u : Fin m | Sum.inl ( Sum.inl u ) ∈ S } ( isIndepSet_preimage_A m R σ_AB σ_CD S hS ), h_partition { u : Fin m | Sum.inl ( Sum.inr u ) ∈ S } ( isIndepSet_preimage_B m R σ_AB σ_CD S hS ), h_partition { u : Fin m | Sum.inr ( Sum.inl u ) ∈ S } ( isIndepSet_preimage_C m R σ_AB σ_CD S hS ), h_partition { u : Fin m | Sum.inr ( Sum.inr u ) ∈ S } ( isIndepSet_preimage_D m R σ_AB σ_CD S hS ) ];
-      refine' csSup_le _ _ <;> norm_num;
+      refine csSup_le ?_ ?_ <;> norm_num;
       · exact ⟨ 0, ⟨ ∅, by simp +decide [ SimpleGraph.isNIndepSet_iff ] ⟩ ⟩;
       · intro b x hx; specialize h_partition x; simp_all +decide [ Set.ncard_eq_toFinset_card' ] ;
         cases hx ; aesop
@@ -1749,7 +1768,7 @@ lemma exists_ordering (m : ℕ) (R : SimpleGraph (Fin m)) :
         have h_sort : ∀ {l : List (Fin m ⊕ Fin m)}, List.Nodup l → ∃ sorted_l : List (Fin m ⊕ Fin m), List.length sorted_l = List.length l ∧ List.Pairwise (fun x y => degree_in_R_copies m R x ≥ degree_in_R_copies m R y) sorted_l ∧ List.Nodup sorted_l ∧ ∀ x ∈ sorted_l, x ∈ l := by
           intros l hl_nodup
           use List.insertionSort (fun x y => degree_in_R_copies m R x ≥ degree_in_R_copies m R y) l;
-          refine' ⟨ _, _, _, _ ⟩;
+          refine ⟨ ?_, ?_, ?_, ?_ ⟩;
           · rw [ List.length_insertionSort ];
           · convert List.pairwise_insertionSort _ _;
             · exact ⟨ fun x y => le_total _ _ ⟩;
@@ -1766,10 +1785,10 @@ lemma exists_ordering (m : ℕ) (R : SimpleGraph (Fin m)) :
           have h_sorted_list : ∃ l : Fin (2 * m) → Fin m ⊕ Fin m, List.Pairwise (fun x y => degree_in_R_copies m R x ≥ degree_in_R_copies m R y) (List.ofFn l) ∧ List.Nodup (List.ofFn l) := by
             have h_sorted_list : ∃ l : Fin (2 * m) → Fin m ⊕ Fin m, List.ofFn l = sorted_list := by
               use fun i => sorted_list.get ⟨ i, by linarith [ Fin.is_lt i ] ⟩;
-              refine' List.ext_get _ _ <;> aesop;
+              refine List.ext_get ?_ ?_ <;> aesop;
             aesop
           obtain ⟨ l, hl₁, hl₂ ⟩ := h_sorted_list;
-          refine' ⟨ l, _, _ ⟩ <;> simp_all +decide;
+          refine ⟨ l, ?_, ?_ ⟩ <;> simp_all +decide;
           intro i j hij; have := List.nodup_ofFn.mp hl₂; aesop;
         exact h_order;
       obtain ⟨σ, hσ_inj, hσ_sorted⟩ := h_order;
@@ -1985,13 +2004,13 @@ lemma Theorem_Main_Fixed_m (m : ℕ) (R : SimpleGraph (Fin m))
             (H.indepNum : ℝ) ≤ 12 * Real.logb 2 m := by
               obtain ⟨σ_AB, hσ_AB⟩ : ∃ σ_AB : Fin (2 * m) ≃ Fin m ⊕ Fin m, is_ordered m R σ_AB := exists_ordering m R
               obtain ⟨σ_CD, hσ_CD⟩ : ∃ σ_CD : Fin (2 * m) ≃ Fin m ⊕ Fin m, is_ordered m R σ_CD := exists_ordering m R
-              refine' ⟨ _, _, _, _, _ ⟩
+              refine ⟨ ?_, ?_, ?_, ?_, ?_ ⟩
               · exact H_graph m R σ_AB σ_CD
               · exact degree_at_most_twice m R σ_AB σ_CD hσ_AB hσ_CD;
               · have := num_distinct_degrees_ge m R σ_AB σ_CD hσ_AB hσ_CD;
                 norm_num [ NumDistinctDegrees ] at *;
                 norm_cast at *;
-                refine' le_trans ( Nat.cast_le.mpr this ) _;
+                refine le_trans ( Nat.cast_le.mpr this ) ?_;
                 norm_num [ degrees_of_H ];
                 convert h_deg using 1;
               · exact le_trans ( Nat.cast_le.mpr ( cliqueNum_H_le m R σ_AB σ_CD ) ) ( by norm_num; linarith );
@@ -2009,7 +2028,7 @@ lemma Theorem_Main_Fixed_m (m : ℕ) (R : SimpleGraph (Fin m))
           apply congrArg Finset.card
           ext w
           simp [SimpleGraph.neighborFinset_eq_filter]
-        refine' ⟨H.map e.toEmbedding, _, _, _, _⟩
+        refine ⟨H.map e.toEmbedding, ?_, ?_, ?_, ?_⟩
         · intro t
           have h := ((DegreeOccursAtMostTwice_map_equiv H e).2 hH.1) t
           convert h using 2
@@ -2090,7 +2109,7 @@ theorem Theorem_Main :
         exact ⟨ by linarith, by linarith, by linarith ⟩;
       obtain ⟨R, hR⟩ := hm₀ m hm_ge.left
       obtain ⟨H, hH⟩ := Theorem_Main_Fixed_m m R hR.left hR.right.left hR.right.right;
-      refine' ⟨ H, hH.1, _, _, _ ⟩ <;> norm_num at * <;> try linarith [ hm₁ m hm_ge.2.1 ];
+      refine ⟨ H, hH.1, ?_, ?_, ?_ ⟩ <;> norm_num at * <;> try linarith [ hm₁ m hm_ge.2.1 ];
       · have := log_inequality ( 4 * m ) ( by linarith ) ; norm_num [ Real.logb, Real.log_mul, show m ≠ 0 by linarith ] at * ; linarith;
       · have := log_inequality ( 4 * m ) ( by linarith ) ; norm_num [ Real.logb ] at * ; linarith;
 
