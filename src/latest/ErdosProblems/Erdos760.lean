@@ -29,7 +29,6 @@ namespace Erdos760
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 
 /-!
 # Erdős Problem 760: Subgraphs with a Large Cochromatic Number
@@ -150,20 +149,20 @@ theorem colorable_of_cochromPartable_of_cliqueNum_le {V : Type*} [Finite V]
     intro i
     rcases hf i with h | h
     · have hsize : (Finset.univ.filter (fun v => f v = i)).card ≤ ω := by
-        refine' le_trans _ hω
-        refine' le_csSup _ _
+        refine le_trans ?_ hω
+        refine le_csSup ?_ ?_
         · use Fintype.card V
           intro n hn
           obtain ⟨s, hs⟩ := hn
           exact hs.card_eq ▸ Finset.card_le_univ _
-        · refine' ⟨Finset.filter (fun v => f v = i) Finset.univ, _, _⟩ <;> simp_all +decide
+        · refine ⟨Finset.filter (fun v => f v = i) Finset.univ, ?_, ?_⟩ <;> simp_all +decide
           simpa [Set.preimage] using h
       have hequiv : Nonempty
           (Finset.univ.filter (fun v => f v = i) ≃
             Fin ((Finset.univ.filter (fun v => f v = i)).card)) :=
         ⟨Fintype.equivOfCardEq <| by simp +decide [Fintype.card_subtype]⟩
       obtain ⟨g⟩ := hequiv
-      refine' ⟨fun u => Fin.castLE hsize (g ⟨u, by aesop⟩), fun u v huv => _⟩
+      refine ⟨fun u => Fin.castLE hsize (g ⟨u, by aesop⟩), fun u v huv => ?_⟩
       simp_all +decide [Fin.ext_iff]
       left
       exact fun h => huv <| Subtype.ext <| by simpa using g.injective <| Fin.ext h
@@ -171,17 +170,16 @@ theorem colorable_of_cochromPartable_of_cliqueNum_le {V : Type*} [Finite V]
           rintro rfl
           apply absurd hω
           simp only [cliqueNum, nonpos_iff_eq_zero]
-          refine' ne_of_gt
-            (lt_of_lt_of_le _
-              (le_csSup _
-                ⟨{Classical.choose
-                    (show ∃ v : V, f v = i from by grind +revert)}, _, rfl⟩))
-          all_goals generalize_proofs at *
+          let v := Classical.choose (show ∃ v : V, f v = i from by grind +revert)
+          refine ne_of_gt ?_
+          refine lt_of_lt_of_le (b := ({v} : Finset V).card) ?_ ?_
           · simp +decide
-          · exact ⟨Fintype.card V, fun n hn => by
+          · refine le_csSup ?_
+              ⟨{v}, ?_, rfl⟩
+            · exact ⟨Fintype.card V, fun n hn => by
                 obtain ⟨s, hs⟩ := hn
                 exact hs.card_eq ▸ Finset.card_le_univ _⟩
-          · simp +decide [SimpleGraph.IsClique])⟩
+            · simp +decide [SimpleGraph.IsClique])⟩
       intro u v huv
       right
       have := h u.2 v.2
@@ -206,12 +204,11 @@ theorem chi_le_cochromaticNumber_mul_cliqueNum' {V : Type*} [Finite V]
     intro n hn
     have := colorable_of_cochromPartable_of_cliqueNum_le G n G.cliqueNum hn le_rfl
     exact_mod_cast this.chromaticNumber_le
-  refine' le_trans (h_le _ _) _
-  exact (InfSet.sInf {n : ℕ | CochromPartable G n})
+  refine le_trans (h_le (InfSet.sInf {n : ℕ | CochromPartable G n}) ?_) ?_
   · exact Nat.sInf_mem (show
         {n : ℕ | CochromPartable G n}.Nonempty from ⟨_, cochromPartable_card G⟩)
-  · refine' mul_le_mul_left _ _
-    refine' le_ciInf fun n => _
+  · gcongr
+    refine le_ciInf fun n => ?_
     by_cases hn : CochromPartable G n <;> simp +decide [hn]
     exact Nat.sInf_le hn
 
@@ -302,7 +299,7 @@ theorem six_choose_le_pow_choose2' (N L : ℕ) (hN : N ≤ 2 ^ L) (hL : 1 ≤ L)
     nlinarith [pow_le_pow_left' hN (4 * L + 1)]
   refine le_trans h6 ?_
   refine Nat.div_le_of_le_mul ?_
-  refine' Nat.mul_le_mul _ _
+  refine Nat.mul_le_mul ?_ ?_
   · exact le_trans (by decide) (Nat.factorial_le (show 4 * L + 1 ≥ 3 by linarith))
   · gcongr <;> norm_num [Nat.choose_two_right]
     grind
@@ -316,7 +313,7 @@ theorem cliqueNum_spanSub_le_of_no_large_clique {V : Type*} [Finite V] [Decidabl
   contrapose! h
   obtain ⟨S, hS⟩ : ∃ S : Finset V, S.card ≥ k + 1 ∧ (spanSub G T).IsNClique S.card S := by
     contrapose! h
-    refine' csSup_le' _
+    refine csSup_le' ?_
     rintro n ⟨s, hs⟩
     exact not_lt.1 fun contra => h s (by linarith [hs.2.symm]) (by simpa [hs.2.symm] using hs)
   obtain ⟨S', hS'⟩ := Finset.exists_subset_card_eq hS.1
@@ -350,7 +347,7 @@ theorem edgeFinset_within_ge_of_min_deg {V : Type*} [Fintype V] [DecidableEq V]
               (if v ∈ e.toFinset then 1 else 0) := by
         intro v hv
         simp
-        refine' Finset.card_bij ( fun w hw => s(v, w) ) _ _ _ <;> simp_all +decide
+        refine Finset.card_bij ( fun w hw => s(v, w) ) ?_ ?_ ?_ <;> simp_all +decide
         · grind
         · rintro ⟨ u, w ⟩ huv hS hvw; cases hvw; aesop
       rw [ Finset.sum_congr rfl h_double_count, Finset.sum_comm ]
@@ -407,15 +404,16 @@ theorem per_clique_bad_count {V : Type*} [Fintype V] [DecidableEq V]
     (hclique : G.IsClique ↑S) :
     (G.edgeFinset.powerset.filter (fun T => (spanSub G T).IsClique ↑S)).card ≤
       2 ^ (G.edgeFinset.card - k.choose 2) := by
-  refine' le_trans ( Finset.card_le_card _ ) _
-  exact Finset.image
-    (fun T => T ∪ edgesWithin G S)
-    (Finset.powerset (G.edgeFinset \ edgesWithin G S))
+  refine le_trans
+    (Finset.card_le_card
+      (t := Finset.image
+        (fun T => T ∪ edgesWithin G S)
+        (Finset.powerset (G.edgeFinset \ edgesWithin G S))) ?_) ?_
   · intro T hT; simp_all +decide [ Finset.subset_iff ]
-    refine' ⟨ T \ edgesWithin G S, _, _ ⟩ <;> simp_all +decide [ Finset.subset_iff, spanSub ]
+    refine ⟨ T \ edgesWithin G S, ?_, ?_ ⟩ <;> simp_all +decide [ Finset.subset_iff, spanSub ]
     rintro ⟨ u, v ⟩ huv; have := hT.2; simp_all +decide [ Set.Pairwise ]
     unfold edgesWithin at huv; aesop
-  · refine' Finset.card_image_le.trans _
+  · refine Finset.card_image_le.trans ?_
     rw [ Finset.card_powerset, Finset.card_sdiff ]
     rw [ Finset.inter_eq_left.mpr ]
     · exact pow_le_pow_right₀ (by decide)
@@ -431,29 +429,39 @@ theorem per_degen_bad_count {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleG
     (G.edgeFinset.powerset.filter (fun T =>
       ∀ u ∈ S, ∀ v ∈ S, u ≠ v → ¬(spanSub G T).Adj u v)).card ≤
       2 ^ (G.edgeFinset.card - d * S.card / 2) := by
-  refine' le_trans _ (pow_le_pow_right₀ (by decide) _)
-  rotate_left
-  · exact G.edgeFinset.card - (edgesWithin G S).card
-  · refine' Nat.sub_le_sub_left _ _
+  have h_exp :
+      G.edgeFinset.card - (edgesWithin G S).card ≤
+        G.edgeFinset.card - d * S.card / 2 := by
+    refine Nat.sub_le_sub_left ?_ ?_
     have := edgeFinset_within_ge_of_min_deg G S d hdense
     exact Nat.div_le_of_le_mul this
-  · refine' le_trans _ (le_of_eq _)
-    · convert Finset.card_le_card ?_
-      · show Finset (Finset (Sym2 V))
-        exact Finset.image (fun T => T)
-          (Finset.filter (fun T => Disjoint (edgesWithin G S) T) (Finset.powerset G.edgeFinset))
-      · simp +decide [Finset.subset_iff]
-        exact fun T hT₁ hT₂ => ⟨hT₁, indep_spanSub_edgesWithin_disjoint G T S hT₂⟩
-    · simp +decide
+  refine le_trans ?_
+    (show 2 ^ (G.edgeFinset.card - (edgesWithin G S).card) ≤
+        2 ^ (G.edgeFinset.card - d * S.card / 2) by
+      exact pow_le_pow_right₀ (by decide) h_exp)
+  · let imageSet : Finset (Finset (Sym2 V)) :=
+      Finset.image (fun T => T)
+        (Finset.filter (fun T => Disjoint (edgesWithin G S) T)
+          (Finset.powerset G.edgeFinset))
+    have h_sub :
+        G.edgeFinset.powerset.filter
+          (fun T => ∀ u ∈ S, ∀ v ∈ S, u ≠ v → ¬(spanSub G T).Adj u v) ⊆ imageSet := by
+      dsimp [imageSet]
+      simp +decide [Finset.subset_iff]
+      exact fun T hT₁ hT₂ => ⟨hT₁, indep_spanSub_edgesWithin_disjoint G T S hT₂⟩
+    have h_card_eq : imageSet.card = 2 ^ (G.edgeFinset.card - (edgesWithin G S).card) := by
+      dsimp [imageSet]
+      simp +decide
       convert card_filter_disjoint' G.edgeFinset (edgesWithin G S)
         (edgesWithin_sub_edgeFinset G S) using 1
+    exact (Finset.card_le_card h_sub).trans (le_of_eq h_card_eq)
 
 /-- Union bound for filters with existential quantifier. -/
 theorem card_filter_bexists_le_sum {α β : Type*}
     [Fintype β] (Ω : Finset α) (P : α → β → Prop) [∀ a b, Decidable (P a b)] :
     (Ω.filter (fun a => ∃ b, P a b)).card ≤ ∑ b : β, (Ω.filter (fun a => P a b)).card := by
   classical
-  refine' le_trans _ Finset.card_biUnion_le
+  refine le_trans ?_ Finset.card_biUnion_le
   exact Finset.card_le_card fun x hx => by aesop
 
 /-- When `G` has fewer than `2L` edges, `T = ∅` works. -/
@@ -466,7 +474,7 @@ theorem exists_good_edge_subset_of_few_edges {V : Type*} [Fintype V] [DecidableE
           ¬((spanSub G T).IsClique ↑S)) ∧
       (∀ S : Finset V, S.Nonempty → (∀ u ∈ S, ∀ v ∈ S, u ≠ v → ¬(spanSub G T).Adj u v) →
         ¬(∀ v ∈ S, 4 * Nat.clog 2 (Fintype.card V) ≤ (S.filter (fun w => G.Adj v w)).card)) := by
-  refine' ⟨∅, _, _, _⟩ <;>
+  refine ⟨∅, ?_, ?_, ?_⟩ <;>
     simp +decide [spanSub]
   · intro S hS hclique
     have := Finset.card_le_univ S
@@ -493,22 +501,25 @@ theorem clique_bad_total_bound {V : Type*} [Fintype V] [DecidableEq V]
     6 * (G.edgeFinset.powerset.filter (fun T =>
       ∃ S : Finset V, S.card = 4 * Nat.clog 2 (Fintype.card V) + 1 ∧
       (spanSub G T).IsClique ↑S)).card ≤ 2 ^ G.edgeFinset.card := by
-  refine' le_trans
-    (mul_le_mul_of_nonneg_left (card_filter_bexists_le_sum _ _) (by norm_num)) _
-  refine' le_trans
-    (mul_le_mul_of_nonneg_left (Finset.sum_le_sum fun S hS => _) (by norm_num)) _
-  use fun S =>
+  let bound : Finset V → ℕ := fun S =>
     if S.card = 4 * Nat.clog 2 (Fintype.card V) + 1 ∧ G.IsClique S then
       2 ^ (G.edgeFinset.card - S.card.choose 2)
     else
       0
-  · split_ifs with h
+  refine le_trans
+    (mul_le_mul_of_nonneg_left (card_filter_bexists_le_sum _ _) (by norm_num)) ?_
+  refine le_trans
+    (mul_le_mul_of_nonneg_left (Finset.sum_le_sum (g := bound) fun S hS => ?_)
+      (by norm_num)) ?_
+  · dsimp [bound]
+    split_ifs with h
     · have := per_clique_bad_count G S
         (4 * Nat.clog 2 (Fintype.card V) + 1) h.1 h.2
       aesop
     · simp_all +decide [ spanSub ]
       intro T hT hS hclique; specialize h hS; simp_all +decide [ Set.Pairwise ]
-  · by_cases h :
+  · dsimp [bound]
+    by_cases h :
         4 * Nat.clog 2 (Fintype.card V) + 1 ≤ Fintype.card V <;>
       simp_all +decide [Finset.sum_ite]
     · have h_card :
@@ -542,7 +553,7 @@ theorem clique_bad_total_bound {V : Type*} [Fintype V] [DecidableEq V]
         · exact Nat.le_trans one_le_clog_two_two ( Nat.clog_mono_right _ hn )
       by_cases h₂ : (4 * Nat.clog 2 (Fintype.card V) + 1).choose 2 ≤ G.edgeFinset.card
       · rw [ ← mul_assoc ]
-        refine' le_trans ( Nat.mul_le_mul_right _ ( Nat.mul_le_mul_left _ h_card ) ) _
+        refine le_trans ( Nat.mul_le_mul_right _ ( Nat.mul_le_mul_left _ h_card ) ) ?_
         exact le_trans
           (Nat.mul_le_mul_right _ h_exp)
           (by rw [← pow_add, Nat.add_sub_of_le h₂])
@@ -662,25 +673,36 @@ theorem degen_bad_total_bound {V : Type*} [Fintype V] [DecidableEq V] (G : Simpl
                     simp_all +decide [mul_comm]
                     grind
                   · rw [ Finset.card_eq_zero.mpr ] <;> aesop
-            refine' le_trans ( Finset.card_le_card _ ) _
-            exact Finset.biUnion
-              (Finset.powersetCard (s + 1) Finset.univ)
-              fun S =>
-                Finset.filter
-                  (fun T =>
-                    (∀ u ∈ S, ∀ v ∈ S,
-                      u ≠ v → ¬(spanSub G T).Adj u v) ∧
-                    ∀ v ∈ S,
-                      4 * Nat.clog 2 (Fintype.card V) ≤
-                        Finset.card (Finset.filter (fun w => G.Adj v w) S))
-                  (Finset.powerset G.edgeFinset)
+            refine le_trans
+              (Finset.card_le_card
+                (t := Finset.biUnion
+                  (Finset.powersetCard (s + 1) Finset.univ)
+                  fun S =>
+                    Finset.filter
+                      (fun T =>
+                        (∀ u ∈ S, ∀ v ∈ S,
+                          u ≠ v → ¬(spanSub G T).Adj u v) ∧
+                        ∀ v ∈ S,
+                          4 * Nat.clog 2 (Fintype.card V) ≤
+                            Finset.card (Finset.filter (fun w => G.Adj v w) S))
+                      (Finset.powerset G.edgeFinset)) ?_) ?_
             · simp +contextual [ Finset.subset_iff ]
-            · refine' le_trans ( Finset.card_biUnion_le ) _
+            · refine le_trans ( Finset.card_biUnion_le ) ?_
               exact le_trans
                 (Finset.sum_le_sum fun x hx =>
                   h_filter x <| Finset.mem_powersetCard.mp hx |>.2)
                 (by simp +decide [Finset.card_univ])
-      refine' le_trans (Finset.card_le_card _)
+      refine le_trans
+        (Finset.card_le_card
+          (t := (Finset.range
+            (Nat.floor (G.edgeFinset.card / (2 * Nat.clog 2 (Fintype.card V))))).biUnion fun i =>
+              G.edgeFinset.powerset.filter fun T =>
+                ∃ S : Finset V,
+                  S.card = i + 1 ∧
+                    (∀ u ∈ S, ∀ v ∈ S, u ≠ v → ¬(spanSub G T).Adj u v) ∧
+                      ∀ v ∈ S,
+                        4 * Nat.clog 2 (Fintype.card V) ≤
+                          (S.filter (fun w => G.Adj v w)).card) ?_)
         (Finset.card_biUnion_le.trans (Finset.sum_le_sum h_union_bound))
       intro T hT
       obtain ⟨S, hS_nonempty, hS_indep, hS_deg⟩ := (Finset.mem_filter.mp hT).right
@@ -794,7 +816,7 @@ theorem large_N_counting {V : Type*} [Fintype V]
           (S.filter (fun w => G.Adj v w)).card < 4 * Nat.clog 2 (Fintype.card V)) := by
   classical
   obtain ⟨T, hT⟩ := exists_good_edge_subset G hn hlarge
-  refine' ⟨ spanSub G T, _, _, _, _ ⟩
+  refine ⟨ spanSub G T, ?_, ?_, ?_, ?_ ⟩
   · infer_instance
   · exact fun u v h => h.2
   · apply cliqueNum_spanSub_le_of_no_large_clique G T
@@ -814,16 +836,16 @@ theorem exists_good_spanning_subgraph {V : Type*} [Fintype V]
   classical
   by_cases h_large : 4 * Nat.clog 2 ( Fintype.card V ) < Fintype.card V
   · convert large_N_counting G hn h_large using 1
-  · refine' ⟨ ⊥, _, _, _, _ ⟩ <;> norm_num
+  · refine ⟨ ⊥, ?_, ?_, ?_, ?_ ⟩ <;> norm_num
     · infer_instance
-    · refine' le_trans _ ( le_of_not_gt h_large )
+    · refine le_trans ?_ ( le_of_not_gt h_large )
       exact csSup_le' fun n hn => by
         obtain ⟨s, hs⟩ := hn
         exact hs.card_eq ▸ Finset.card_le_univ _
     · intro S hS
-      refine' ⟨hS.choose, hS.choose_spec,
+      refine ⟨hS.choose, hS.choose_spec,
         lt_of_lt_of_le
-          (Finset.card_lt_card (Finset.filter_ssubset.mpr _)) _⟩
+          (Finset.card_lt_card (Finset.filter_ssubset.mpr ?_)) ?_⟩
       · exact ⟨ hS.choose, hS.choose_spec, by simp +decide ⟩
       · exact le_trans ( Finset.card_le_univ _ ) ( le_of_not_gt h_large )
 
@@ -867,13 +889,13 @@ theorem colorable_of_cochrom_degen {V : Type*} [Finite V] (G H : SimpleGraph V)
     intro i
     by_cases h_clique : H.IsClique (f ⁻¹' {i})
     · have hsize : (Finset.card (Finset.filter (fun v => f v = i) Finset.univ)) ≤ d := by
-        refine' le_trans _ hω
-        refine' le_csSup _ _
+        refine le_trans ?_ hω
+        refine le_csSup ?_ ?_
         · exact ⟨Fintype.card V, fun n hn => by
             obtain ⟨s, hs⟩ := hn
             exact hs.card_eq ▸ Finset.card_le_univ _⟩
-        · refine' ⟨Finset.filter (fun v => f v = i)
-            Finset.univ, _, _⟩ <;> simp_all +decide
+        · refine ⟨Finset.filter (fun v => f v = i)
+            Finset.univ, ?_, ?_⟩ <;> simp_all +decide
           simpa [Set.preimage] using h_clique
       obtain ⟨g, hg⟩ : ∃ g : {v : V | f v = i} → Fin d, Function.Injective g := by
         have hle : Fintype.card {v : V | f v = i} ≤ d := by
@@ -888,7 +910,7 @@ theorem colorable_of_cochrom_degen {V : Type*} [Finite V] (G H : SimpleGraph V)
     · have := colorable_on_subset_of_degenerate G d hd (Finset.univ.filter fun v => f v = i) ?_
       · aesop
       · intro T hT hT'
-        refine' hdegen T hT _
+        refine hdegen T hT ?_
         intro u hu v hv huv
         specialize hf i
         simp_all +decide [Set.Pairwise]
@@ -913,11 +935,11 @@ theorem chromaticNumber_le_of_good_subgraph {V : Type*} [Finite V]
     G.chromaticNumber ≤ d * cochromaticNumber H := by
   classical
   letI := Fintype.ofFinite V
-  refine' le_of_forall_le _
+  refine le_of_forall_le ?_
   intro c hc
-  refine' le_trans hc _
+  refine le_trans hc ?_
   rw [cochromaticNumber, ENat.mul_iInf]
-  refine' le_iInf fun n => _
+  refine le_iInf fun n => ?_
   by_cases hn : CochromPartable H n <;>
     simp +decide [hn]
   · have :=
@@ -939,9 +961,9 @@ theorem exists_subgraph_from_clique_cochrom {V : Type*} [Finite V]
     -- Since $n \leq \omega(G)$, there exists a clique of size $n$ in $G$.
     have h_clique : ∃ S : Finset V, G.IsClique S ∧ S.card ≥ n := by
       contrapose! hn
-      refine' lt_of_le_of_lt ( csSup_le' _ ) _
-      exact n - 1
-      · rintro m ⟨ s, hs ⟩
+      refine lt_of_le_of_lt (b := n - 1) ?_ ?_
+      · refine csSup_le' ?_
+        rintro m ⟨ s, hs ⟩
         exact Nat.le_sub_one_of_lt ( by simpa [ hs.card_eq ] using hn s hs.isClique )
       · exact Nat.pred_lt ( ne_bot_of_gt ( hn ∅ ( by simp +decide ) ) )
     obtain ⟨ S, hS₁, hS₂ ⟩ := h_clique
@@ -950,7 +972,7 @@ theorem exists_subgraph_from_clique_cochrom {V : Type*} [Finite V]
   obtain ⟨S, hS_card, hS_clique⟩ := h_exists_clique
   obtain ⟨f, hf⟩ : ∃ f : Fin n ≃ S, True := by
     exact ⟨ Fintype.equivOfCardEq ( by simp +decide [ hS_card ] ), trivial ⟩
-  refine' ⟨S, inferInstance, R.comap f.symm, inferInstance, inferInstance, _, _, _⟩ <;>
+  refine ⟨S, inferInstance, R.comap f.symm, inferInstance, inferInstance, ?_, ?_, ?_⟩ <;>
     simp_all +decide
   · intro a ha b hb hab
     have := hS_clique ha hb
@@ -1070,8 +1092,8 @@ theorem exists_cochromPartable_nat {V : Type*} [Finite V]
     convert Nat.sInf_mem h_ne
     constructor <;> intro h
     · exact Nat.sInf_mem h_ne
-    · refine' ⟨_, h, le_antisymm _ _⟩
-      · refine' le_ciInf fun n => _
+    · refine ⟨InfSet.sInf {n : ℕ | CochromPartable G n}, h, le_antisymm ?_ ?_⟩
+      · refine le_ciInf fun n => ?_
         by_cases hn : CochromPartable G n <;> simp +decide [hn]
         exact Nat.sInf_le hn
       · exact cochromaticNumber_le_of_cochromPartable G h
@@ -1126,8 +1148,8 @@ theorem exists_subgraph_large_cochrom_of_small_omega' {V : Type*} [Finite V]
   obtain ⟨ζ, hζ_eq, hζ_part⟩ := exists_cochromPartable_nat G
   by_cases hζ_large : m ≤ L * ζ
   · -- ζ ≥ m/L: take H = G via Set.univ
-    refine' ⟨Set.univ, inferInstance, G.induce Set.univ, inferInstance, inferInstance,
-      by simp +decide, _⟩
+    refine ⟨Set.univ, inferInstance, G.induce Set.univ, inferInstance, inferInstance,
+      by simp +decide, ?_⟩
     have h_eq : cochromaticNumber (induce Set.univ G) = cochromaticNumber G := by
       unfold cochromaticNumber
       congr! 3
@@ -1168,10 +1190,10 @@ theorem exists_subgraph_large_cochrom_of_small_omega' {V : Type*} [Finite V]
     refine ⟨S, hfinS, H, hdeqS, hdecH, fun u v hadj => hsub u v (hHsub u v hadj), ?_⟩
     have h_m_le : (m : ℕ∞) ≤ (induce S G).chromaticNumber + ζ := by
       rw [← hchi]
-      refine' ciInf_le_of_le _ _ _
+      refine ciInf_le_of_le ?_ ?_ ?_
       · exact ⟨0, Set.forall_mem_range.2 fun n => zero_le _⟩
       · exact (induce S G).chromaticNumber.toNat + ζ
-      · refine' le_trans (ciInf_le _ _) _
+      · refine le_trans (ciInf_le ?_ ?_) ?_
         · exact ⟨0, Set.forall_mem_range.2 fun _ => zero_le _⟩
         · convert hcolor _ _
           exact colorable_chromaticNumber_of_fintype (induce S G)
@@ -1181,15 +1203,16 @@ theorem exists_subgraph_large_cochrom_of_small_omega' {V : Type*} [Finite V]
       refine hchi_bound.trans ?_
       gcongr
       norm_cast
-      refine' Nat.le_trans (Nat.clog_mono_right _ _) _
-      · exact m ^ 2
-      · nlinarith
-      · refine' Nat.le_of_lt_succ (Nat.lt_succ_of_le (Nat.le_trans (Nat.clog_mono_right _ _) _))
-        · exact 2 ^ (2 * L)
-        · rw [pow_mul']
-          gcongr
-          exact Nat.le_pow_clog (by decide) _
-        · rw [Nat.clog_pow]; norm_num
+      refine Nat.le_trans
+        (Nat.clog_mono_right 2 (show Fintype.card S ≤ m ^ 2 by nlinarith)) ?_
+      refine Nat.le_of_lt_succ
+        (Nat.lt_succ_of_le
+          (Nat.le_trans
+            (Nat.clog_mono_right 2 (show m ^ 2 ≤ 2 ^ (2 * L) by
+              rw [pow_mul']
+              gcongr
+              exact Nat.le_pow_clog (by decide) _)) ?_))
+      rw [Nat.clog_pow]; norm_num
     rcases k : cochromaticNumber H with
       _ | _ | k <;> simp_all +decide
     · change (m : ℕ∞) ≤ (16 * (Nat.clog 2 m : ℕ∞)) * (⊤ : ℕ∞)
