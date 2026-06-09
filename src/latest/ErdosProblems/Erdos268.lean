@@ -820,14 +820,22 @@ lemma eGameSeq_nonneg (K n : ℕ) : 0 ≤ eGameSeq K n := by
   unfold eGameSeq; positivity
 
 set_option linter.style.multiGoal false in
-set_option linter.style.refine false in
 lemma aGameSeq_summable (j : Fin 3) (K : ℕ) : Summable (aGameSeq j K) := by
-  refine' Summable.of_nonneg_of_le ?_ ?_ ?_
-  exact fun n => c_coeff j / ( ( n : ℝ ) + K + 1 ) ^ 2
+  refine Summable.of_nonneg_of_le
+    (f := fun n : ℕ => c_coeff j / ( ( n : ℝ ) + K + 1 ) ^ 2)
+    (g := aGameSeq j K) ?_ ?_ ?_
   · exact fun n => le_of_lt ( aGameSeq_pos j K n );
-  · intro n; rw [ aGameSeq ] ; gcongr ; norm_cast ;
-    · fin_cases j <;> norm_num [ c_coeff ];
-    · refine' le_trans ?_
+  · intro n
+    rw [ aGameSeq ]
+    have hc : 0 ≤ c_coeff j := le_of_lt ( c_coeff_pos j )
+    have hden :
+        0 < (( nScale ( K + n ) : ℝ ) ^ (( j : ℕ ) + 1)) := by
+      exact pow_pos ( nScale_cast_pos _ ) _
+    have hupper : 0 < (( n : ℝ ) + K + 1) ^ 2 := by positivity
+    have hpow :
+        (( n : ℝ ) + K + 1) ^ 2 ≤
+          (( nScale ( K + n ) : ℝ ) ^ (( j : ℕ ) + 1)) := by
+      refine le_trans ?_
         ( pow_le_pow_right₀ ?_ ( show ( j : ℕ ) + 1 ≥ 1 by linarith ) ) <;>
         norm_cast <;>
         ring_nf
@@ -835,6 +843,8 @@ lemma aGameSeq_summable (j : Fin 3) (K : ℕ) : Summable (aGameSeq j K) := by
           rw [ show nScale ( n + K ) = ( n + K ) ^ 2 * 2310 + 1 by rfl ]
           nlinarith
       · exact_mod_cast nScale_pos _;
+    rw [ div_le_div_iff₀ hden hupper ]
+    exact mul_le_mul_of_nonneg_left hpow hc
   · exact Summable.mul_left _ <| by
       exact_mod_cast summable_nat_add_iff ( K + 1 ) |>.2
         <| Real.summable_nat_pow_inv.2 one_lt_two;
@@ -863,7 +873,6 @@ Error domination: the total future error is smaller than the current main term.
 -/
 set_option maxHeartbeats 400000 in
 -- The integral comparison and final rational inequality need extra arithmetic search.
-set_option linter.style.refine false in
 set_option linter.flexible false in
 /-- The total future error `∑' e(k+l)` is smaller than the current main term `a_j(k)`.
 This is the key analytic estimate ensuring that Bob's perturbations are negligible
@@ -881,7 +890,7 @@ lemma error_domination (j : Fin 3) (k : ℕ) :
             ∑' l : ℕ, (1 : ℝ) / ((nScale (K₀ + k + l + 1))^4) := by
       rw [ Summable.tsum_eq_zero_add ];
       · norm_num [ add_assoc ];
-      · refine' Summable.of_nonneg_of_le
+      · refine Summable.of_nonneg_of_le
           ( fun l => by positivity ) ( fun l => ?_ )
           ( summable_nat_add_iff 1 |>.2
             <| Real.summable_one_div_nat_pow.2 one_lt_two );
@@ -904,7 +913,7 @@ lemma error_domination (j : Fin 3) (k : ℕ) :
     have h_geo_series_tail :
         (∑' l : ℕ, (1 : ℝ) / ((nScale (K₀ + k + l + 1))^4)) ≤
           ∑' l : ℕ, (1 : ℝ) / ((K₀ + k + l + 1)^8 * m_const^4) := by
-      refine' Summable.tsum_le_tsum ?_ ?_ ?_;
+      refine Summable.tsum_le_tsum ?_ ?_ ?_;
       · intro l; rw [ div_le_div_iff₀ ] <;> norm_cast <;> norm_num [ nScale ];
         · calc _ = ((500 + k + l + 1) ^ 2 * m_const) ^ 4 := by ring
             _ ≤ _ := Nat.pow_le_pow_left (Nat.le_succ _) 4
@@ -917,7 +926,7 @@ lemma error_domination (j : Fin 3) (k : ℕ) :
             exact_mod_cast Summable.comp_injective
               ( Real.summable_nat_pow_inv.2 <| by norm_num )
               fun a b h => by simpa using h;
-        refine' h_geo_series_tail.of_nonneg_of_le ( fun l => by positivity ) ( fun l => ?_ );
+        refine h_geo_series_tail.of_nonneg_of_le ( fun l => by positivity ) ( fun l => ?_ );
         rw [ div_le_div_iff₀ ] <;> norm_cast <;> norm_num [ nScale ];
         · calc _ = ((500 + k + l + 1) ^ 2 * m_const) ^ 4 := by ring
             _ ≤ _ := Nat.pow_le_pow_left (Nat.le_succ _) 4
@@ -942,7 +951,7 @@ lemma error_domination (j : Fin 3) (k : ℕ) :
               (1 : ℝ) / x^8) ≥
               ∫ x in (K₀ + k + l : ℝ).. (K₀ + k + l + 1 : ℝ),
                 (1 : ℝ) / ((K₀ + k + l + 1 : ℝ)^8) := by
-          refine' intervalIntegral.integral_mono_on ?_ ?_ ?_ ?_ <;> norm_num;
+          refine intervalIntegral.integral_mono_on ?_ ?_ ?_ ?_ <;> norm_num;
           · exact ContinuousOn.intervalIntegrable ( by
               exact continuousOn_of_forall_continuousAt fun x hx =>
                 ContinuousAt.inv₀ ( continuousAt_id.pow 8 )
@@ -1015,7 +1024,7 @@ lemma error_domination (j : Fin 3) (k : ℕ) :
       rw [ tsum_mul_left ] at *
       nlinarith [
         inv_pos.mpr ( show 0 < ( m_const : ℝ ) ^ 4 by norm_num [ m_const ] ) ] );
-  refine' lt_of_le_of_lt ?_ ( h_geo_sum.trans_le ?_ ) <;> norm_num [ Fin.forall_fin_succ ] at *;
+  refine lt_of_le_of_lt ?_ ( h_geo_sum.trans_le ?_ ) <;> norm_num [ Fin.forall_fin_succ ] at *;
   · unfold eGameSeq; norm_num [ add_comm, add_left_comm, add_assoc ] ;
   · fin_cases j <;> norm_num [ aGameSeq ];
     · rw [ inv_mul_eq_div, div_le_div_iff₀ ] <;>
@@ -1036,7 +1045,6 @@ Tail domination: the sum of future main terms exceeds 4 times the current.
 -/
 set_option maxHeartbeats 400000 in
 -- The finite lower-bound comparison checks 100 explicit nonlinear cases.
-set_option linter.style.refine false in
 set_option linter.flexible false in
 set_option linter.style.multiGoal false in
 /-- The tail sum of future main terms exceeds 4 times the current term.
@@ -1044,15 +1052,15 @@ This ensures Alice has enough "room" for future moves, which is needed
 to show she eventually skips (Claim 2). Proved by comparing against 100 explicit terms. -/
 lemma tail_domination (j : Fin 3) (k : ℕ) :
     4 * aGameSeq j K₀ k < ∑' l, aGameSeq j K₀ (k + 1 + l) := by
-  refine'
+  refine
     lt_of_lt_of_le ?_
       (Summable.sum_le_tsum (Finset.range 100) (fun _ _ => ?_) ?_)
   · fin_cases j <;> norm_num [ aGameSeq ];
     · norm_num [ nScale ];
       norm_num [ m_const, c_coeff ];
       rw [ Finset.sum_range_succ ];
-      refine' lt_add_of_le_of_pos ?_ ?_;
-      · refine'
+      refine lt_add_of_le_of_pos ?_ ?_;
+      · refine
           le_trans ?_
             (Finset.sum_le_sum fun i hi =>
               mul_le_mul_of_nonneg_left
@@ -1072,7 +1080,7 @@ lemma tail_domination (j : Fin 3) (k : ℕ) :
       · positivity;
     · unfold c_coeff nScale;
       norm_num [ m_const ];
-      refine'
+      refine
         lt_of_lt_of_le ?_
           (Finset.sum_le_sum fun i hi =>
             mul_le_mul_of_nonneg_left
@@ -1094,7 +1102,7 @@ lemma tail_domination (j : Fin 3) (k : ℕ) :
       nlinarith [ sq ( k : ℝ ) ];
     · unfold nScale c_coeff;
       norm_num [ m_const ];
-      refine'
+      refine
         lt_of_lt_of_le ?_
           (Finset.sum_le_sum fun i hi =>
             mul_le_mul_of_nonneg_left
@@ -1139,7 +1147,6 @@ Needed because each coordinate's perturbation in the 3D game has 3 contributing 
 -/
 set_option maxHeartbeats 400000 in
 -- This combines the earlier domination estimate with three explicit coordinate checks.
-set_option linter.style.refine false in
 set_option linter.flexible false in
 set_option linter.style.multiGoal false in
 /-- Strengthened error domination: `3 · ∑' e < a_j(k)`. Each coordinate's perturbation in the
@@ -1147,7 +1154,7 @@ set_option linter.style.multiGoal false in
 lemma error_domination_3x (j : Fin 3) (k : ℕ) :
     3 * ∑' l, eGameSeq K₀ (k + l) < aGameSeq j K₀ k := by
   fin_cases j <;> norm_num [ Fin.forall_fin_succ ] at *;
-  · refine' lt_of_lt_of_le ( mul_lt_mul_of_pos_left ( error_domination 2 k ) zero_lt_three ) ?_;
+  · refine lt_of_lt_of_le ( mul_lt_mul_of_pos_left ( error_domination 2 k ) zero_lt_three ) ?_;
     unfold aGameSeq;
     unfold c_coeff; norm_num; ring_nf; norm_num;
     erw [ Matrix.cons_val_succ' ] ; norm_num ; ring_nf ; norm_num;
@@ -1156,7 +1163,7 @@ lemma error_domination_3x (j : Fin 3) (k : ℕ) :
         (inv_anti₀ (by norm_cast; exact nScale_pos _)
           (mod_cast Nat.le_self_pow (by norm_num) _))
         (by norm_num) (by norm_num) (by positivity)
-  · refine' lt_of_lt_of_le ( mul_lt_mul_of_pos_left ( error_domination 2 k ) zero_lt_three ) ?_;
+  · refine lt_of_lt_of_le ( mul_lt_mul_of_pos_left ( error_domination 2 k ) zero_lt_three ) ?_;
     unfold aGameSeq;
     unfold c_coeff nScale; norm_num; ring_nf;
     unfold m_const; norm_num; ring_nf;
@@ -1175,11 +1182,11 @@ lemma error_domination_3x (j : Fin 3) (k : ℕ) :
             1 / (nScale (500 + k)) ^ 4 +
               ∑' l : ℕ, (1 : ℝ) / ((500 + k + l + 1) ^ 8 * 2310 ^ 4) := by
         rw [ Summable.tsum_eq_zero_add ];
-        · refine' add_le_add le_rfl ( Summable.tsum_le_tsum ?_ ?_ ?_ );
+        · refine add_le_add le_rfl ( Summable.tsum_le_tsum ?_ ?_ ?_ );
           · intro i; rw [ div_le_div_iff₀ ] <;> norm_cast <;> norm_num [ nScale ];
             norm_num [ m_const ] ; ring_nf;
             lia;
-          · refine'
+          · refine
               Summable.of_nonneg_of_le (fun _ => by positivity) (fun n => ?_)
                 (summable_nat_add_iff 1 |>.2 <|
                   Real.summable_one_div_nat_pow.2 one_lt_two)
@@ -1195,7 +1202,7 @@ lemma error_domination_3x (j : Fin 3) (k : ℕ) :
                   Summable.comp_injective
                     (Real.summable_nat_pow_inv.2 <| by norm_num)
                     fun x y h => by simpa using h
-        · refine'
+        · refine
             Summable.of_nonneg_of_le (fun _ => by positivity) (fun l => ?_)
               (summable_nat_add_iff 1 |>.2 <|
                 Real.summable_one_div_nat_pow.2 one_lt_two)
@@ -1216,7 +1223,7 @@ lemma error_domination_3x (j : Fin 3) (k : ℕ) :
               ∫ t in (x + l).. (x + l + 1), (1 : ℝ) / t ^ 8 ≥
                 ∫ t in (x + l).. (x + l + 1),
                   (1 : ℝ) / ((x + l + 1) ^ 8) := by
-            refine' intervalIntegral.integral_mono_on ?_ ?_ ?_ ?_ <;> norm_num;
+            refine intervalIntegral.integral_mono_on ?_ ?_ ?_ ?_ <;> norm_num;
             · exact
                 ContinuousOn.intervalIntegrable
                   (by
@@ -1287,7 +1294,7 @@ lemma error_domination_3x (j : Fin 3) (k : ℕ) :
               HasSum.tendsto_sum_nat)
             h_limit_integral_bound
             h_sum_integral_bound
-      refine' le_trans h_integral_bound ?_;
+      refine le_trans h_integral_bound ?_;
       norm_num [ tsum_mul_right ];
       rw [tsum_mul_left]
       specialize h_sum_bound (500 + k) (by positivity)
@@ -1473,7 +1480,6 @@ Key rearrangement: the tsum over constructA equals the structured double sum.
 -/
 set_option linter.flexible false in
 set_option linter.style.multiGoal false in
-set_option linter.style.refine false in
 lemma tsum_constructA_eq (ε : ℕ → Fin 3 → Bool) (f : ℕ → ℝ)
     (hf : Summable (fun m : ↑(constructA K₀ ε) => f m)) :
     ∑' (m : ↑(constructA K₀ ε)), f m =
@@ -1490,11 +1496,11 @@ lemma tsum_constructA_eq (ε : ℕ → Fin 3 → Bool) (f : ℕ → ℝ)
       Set.Subset.antisymm (constructA_subset_range K₀ ε)
         (Set.range_subset_iff.mpr fun p => structEmbed_mem_constructA K₀ ε p)
   · erw [ Summable.tsum_sigma ];
-    · refine' tsum_congr fun n => ?_;
+    · refine tsum_congr fun n => ?_;
       erw [ tsum_fintype ];
       erw [ Finset.sum_sigma' ];
-      refine' Finset.sum_bij ( fun x hx => ⟨ x.1, x.2, by
-        exact Finset.mem_sigma.mp hx |>.2 ⟩ ) _ _ _ _ <;> simp +decide [ structEmbed ];
+      refine Finset.sum_bij ( fun x hx => ⟨ x.1, x.2, by
+        exact Finset.mem_sigma.mp hx |>.2 ⟩ ) ?_ ?_ ?_ ?_ <;> simp +decide [ structEmbed ];
       · intro ⟨j1, a1⟩ _ ⟨j2, a2⟩ _ hj heq; simp at hj; subst hj; simpa using heq
       · exact fun b => ⟨ b.1, b.2.1, b.2.2, rfl ⟩;
     · convert hf.comp_injective _;
@@ -1508,7 +1514,6 @@ Algebraic simplification: the structured sum equals basePointM + swap sums.
 -/
 set_option linter.flexible false in
 set_option linter.style.multiGoal false in
-set_option linter.style.refine false in
 lemma structured_sum_eq_base_plus_swap (ε : ℕ → Fin 3 → Bool) (i : Fin 3) :
     (∑' n, ∑ j : Fin 3, ∑ a ∈ ActiveSet ε (K₀ + n) j,
       (M_mat.mulVec (fun l : Fin 3 =>
@@ -1523,7 +1528,7 @@ lemma structured_sum_eq_base_plus_swap (ε : ℕ → Fin 3 → Bool) (i : Fin 3)
   congr
   ext j
   split_ifs <;> norm_num
-  · refine' summable_sum fun j _ => ?_;
+  · refine summable_sum fun j _ => ?_;
     -- Each term is a fixed multiple of a summable sequence.
     have h_summable : Summable (fun n : ℕ => (1 : ℝ) / (nScale (K₀ + n) : ℝ)) := by
       norm_num [ nScale ];
@@ -1537,11 +1542,11 @@ lemma structured_sum_eq_base_plus_swap (ε : ℕ → Fin 3 → Bool) (i : Fin 3)
                   exact_mod_cast by decide])
           (summable_nat_add_iff 1 |>.2 <|
             Real.summable_one_div_nat_pow.2 one_lt_two)
-    refine' summable_sum fun a ha => ?_;
+    refine summable_sum fun a ha => ?_;
     simp_all +decide [ Matrix.mulVec, dotProduct ];
-    refine' summable_sum fun x _ => ?_;
-    refine' Summable.mul_left ?_ ?_;
-    refine'
+    refine summable_sum fun x _ => ?_;
+    refine Summable.mul_left _ ?_;
+    refine
       Summable.of_nonneg_of_le
         (fun n => inv_nonneg.2 <| by positivity) (fun n => ?_) h_summable
     gcongr;
@@ -1583,11 +1588,11 @@ lemma structured_sum_eq_base_plus_swap (ε : ℕ → Fin 3 → Bool) (i : Fin 3)
             le_trans
               (Finset.sum_le_sum fun _ _ => h_summable _)
               (by simp +decide [Finset.sum_add_distrib]));
-        refine'
+        refine
           Summable.of_nonneg_of_le
-            (fun n => Finset.sum_nonneg fun _ _ => abs_nonneg ?_)
+            (fun n => Finset.sum_nonneg fun _ _ => abs_nonneg _)
             (fun n => h_summable n) ?_
-        refine' Summable.add ?_ ?_;
+        refine Summable.add ?_ ?_;
         · exact Summable.mul_left _ ( eGameSeq_summable K₀ );
         · exact summable_sum fun j _ => Summable.abs ( aGameSeq_summable j K₀ );
       exact
@@ -1595,7 +1600,7 @@ lemma structured_sum_eq_base_plus_swap (ε : ℕ → Fin 3 → Bool) (i : Fin 3)
           (fun n => Finset.sum_nonneg fun _ _ => abs_nonneg _)
           (fun n => Finset.sum_le_sum fun _ _ => by split_ifs <;> norm_num)
           h_summable
-    refine' .of_norm ?_;
+    refine .of_norm ?_;
     exact h_summable.of_nonneg_of_le ( fun n => norm_nonneg _ ) fun n => norm_sum_le _ _
 
 /-
@@ -1716,7 +1721,6 @@ def gameDelta (q : Fin 3 → ℝ) (j : Fin 3) (n : ℕ) : ℝ :=
 
 set_option linter.flexible false in
 set_option linter.style.multiGoal false in
-set_option linter.style.refine false in
 lemma gameDelta_bound (q : Fin 3 → ℝ) (j : Fin 3) (n : ℕ) :
     |gameDelta q j n| ≤ 3 * eGameSeq K₀ n := by
   -- By definition of `gameDelta`, we have:
@@ -1752,9 +1756,17 @@ lemma gameDelta_bound (q : Fin 3 → ℝ) (j : Fin 3) (n : ℕ) :
          (if i = l then aGameSeq l K₀ n else 0) from by
       by_cases h : l = i <;> simp only [h, ite_true, ite_false, eq_comm] at *]
   rw [ h_gameDelta_def ];
-  refine'
-    le_trans (?_ : ?_ ≤ ?_)
+  refine
+    le_trans
+      (b := ∑ i : Fin 3,
+        |if game3D q n i + 3 * aGameSeq i K₀ n ≤ q i - basePointM K₀ i then
+            swapContribM K₀ n i j -
+              if i = j then aGameSeq j K₀ n else 0
+          else
+            0|)
+      ?_
       (le_trans
+        (b := ∑ i : Fin 3, eGameSeq K₀ n)
         (Finset.sum_le_sum fun i _ =>
           show
             |if game3D q n i + 3 * aGameSeq i K₀ n ≤ q i - basePointM K₀ i then
@@ -1765,7 +1777,6 @@ lemma gameDelta_bound (q : Fin 3 → ℝ) (j : Fin 3) (n : ℕ) :
         ?_)
   nontriviality;
   convert Finset.abs_sum_le_sum_abs _ _ using 2;
-  any_goals exact Finset.univ;
   · split_ifs <;> simp +decide [ *, Finset.sum_ite ];
   · infer_instance;
   · split_ifs <;> simp_all +decide [ abs_le ];
@@ -1813,7 +1824,6 @@ lemma game3D_converges (q : Fin 3 → ℝ) (hq : q ∈ targetBoxM K₀) (j : Fin
   · linarith [ hq j |>.2 ]
 
 set_option linter.flexible false in
-set_option linter.style.refine false in
 lemma game3D_limit_eq_tsum (q : Fin 3 → ℝ) (hq : q ∈ targetBoxM K₀) (i : Fin 3) :
     (∑' n, ∑ j : Fin 3,
       if gameEpsilon q (K₀ + n) j = true then swapContribM K₀ n j i else 0) =
@@ -1834,7 +1844,7 @@ lemma game3D_limit_eq_tsum (q : Fin 3 → ℝ) (hq : q ∈ targetBoxM K₀) (i :
     · rfl;
     · rw [ ← ‹game3D q _ i = ∑ x ∈ Finset.range _, _›, game3D ];
       unfold gameEpsilon; aesop;
-  refine' HasSum.tsum_eq ?_;
+  refine HasSum.tsum_eq ?_;
   rw [ hasSum_iff_tendsto_nat_of_summable_norm ];
   · simpa only [ ← h_game3D_sum ] using game3D_converges q hq i;
   · -- Bound each chosen swap contribution by a summable majorant.
@@ -1853,9 +1863,9 @@ lemma game3D_limit_eq_tsum (q : Fin 3 → ℝ) (hq : q ∈ targetBoxM K₀) (i :
         exact abs_le.mpr
           ⟨by linarith [abs_le.mp this, h_nonneg],
            by linarith [abs_le.mp this, h_nonneg]⟩
-    refine'
+    refine
       Summable.of_nonneg_of_le
-        (fun n => norm_nonneg ?_) (fun n => ?_)
+        (fun n => norm_nonneg _) (fun n => ?_)
         (show
           Summable fun n =>
             ∑ j : Fin 3, aGameSeq j K₀ n + ∑ j : Fin 3, eGameSeq K₀ n from ?_)
