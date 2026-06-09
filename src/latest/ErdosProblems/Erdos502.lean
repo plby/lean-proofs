@@ -413,7 +413,6 @@ Phi_m vanishes on Omega x Omega. By linearity, Phi_p vanishes on Omega x Omega.
 open Matrix LinearMap MvPolynomial BigOperators
 
 set_option linter.flexible false in
-set_option linter.style.refine false in
 theorem Phi_p_vanishes_on_Omega (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)))
     [Fintype A] [DecidableEq A]
     (p : MvPolynomial (Fin d ⊕ Fin d) ℝ) (hp : p.totalDegree ≤ 2 * s + 1)
@@ -434,13 +433,13 @@ theorem Phi_p_vanishes_on_Omega (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)
       simp +decide [Phi_p, matrix_p_A]
       simp +decide [eval_pair, MvPolynomial.eval_eq']
     simp_all +decide [Phi_p]
-    refine' Finset.sum_eq_zero fun m hm => _
+    refine Finset.sum_eq_zero fun m hm => ?_
     convert
       mul_eq_zero_of_right (MvPolynomial.coeff m x)
         (Phi_monomial_vanishes_on_Omega d s A m (hx m (by aesop)) f g hf hg) using 1
-  refine' h_sum_zero _ _
-  simp +decide [MvPolynomial.totalDegree] at hp ⊢
-  exact hp
+  exact h_sum_zero _ <| by
+    simp +decide [MvPolynomial.totalDegree] at hp ⊢
+    exact hp
 
 /-
 The dimension of Omega is |A| - dim_s(A).
@@ -489,7 +488,6 @@ Taking the supremum over all such P, we get r_plus <= dim(V) - dim(W).
 open Matrix LinearMap MvPolynomial BigOperators
 
 set_option linter.flexible false in
-set_option linter.style.refine false in
 theorem r_plus_le_codim_of_vanishes_on_subspace {n : Type*} [Fintype n] [DecidableEq n]
     (M : Matrix n n ℝ) (W : Submodule ℝ (n → ℝ))
     (hW : ∀ w ∈ W, (quadratic_form_of_matrix M) w = 0) :
@@ -498,9 +496,8 @@ theorem r_plus_le_codim_of_vanishes_on_subspace {n : Type*} [Fintype n] [Decidab
   -- Let P be a positive definite subspace
   -- P \cap W = {0}
   -- dim(P) + dim(W) <= dim(V)
-  refine' le_trans (csSup_le _ _) _
-  · exact Fintype.card n - Module.finrank ℝ W
-  · refine' ⟨0, ⟨⊥, _, _⟩⟩
+  refine csSup_le ?_ ?_
+  · refine ⟨0, ⟨⊥, ?_, ?_⟩⟩
     · simp +decide
     · simp +decide [QuadraticMap.PosDef]
   · rintro k ⟨ W', rfl, hW' ⟩
@@ -514,7 +511,6 @@ theorem r_plus_le_codim_of_vanishes_on_subspace {n : Type*} [Fintype n] [Decidab
       simp +decide
       exact le_trans (Submodule.finrank_le _) (by simp +decide)
     exact Nat.le_sub_of_add_le (by linarith)
-  · rfl
 
 /-
 Theorem 1.2: Let V be a finite-dimensional vector space over a field F, and let
