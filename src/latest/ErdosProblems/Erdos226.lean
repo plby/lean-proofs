@@ -38,7 +38,6 @@ end List
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.refine false
 set_option linter.style.multiGoal false
 
 namespace Erdos226
@@ -365,7 +364,8 @@ lemma M_val_pos (alpha : ℕ → ℝ) (n : ℕ) : 0 < M_val alpha n := by
           exact h_interval.mono fun x hx => by rcases hx with ⟨ y, hy, rfl ⟩ ; exact Set.mem_setOf.mpr <| by simpa [ abs_of_nonneg hy.1 ] using hy.2;
         exact Set.Infinite.nonempty ( h_compl_nonempty.diff <| Set.toFinite _ );
       exact ⟨ z, hz.1, fun x hx => sub_ne_zero_of_ne <| by aesop ⟩;
-  refine' lt_of_lt_of_le _ ( le_csSup _ <| Set.mem_image_of_mem _ hz.1 ) ; aesop;
+  refine lt_of_lt_of_le ?_
+    (le_csSup ?_ <| Set.mem_image_of_mem (fun z => ‖h_seq alpha n z‖) hz.1) ; aesop;
   -- The image of a compact set under a continuous function is compact.
   have h_compact : IsCompact {z : ℂ | ‖z‖ ≤ n + 1} := by
     convert ProperSpace.isCompact_closedBall ( 0 : ℂ ) ( n + 1 : ℝ ) using 1 ; ext ; simp +decide [ dist_eq_norm ];
@@ -410,7 +410,7 @@ lemma h_seq_deriv_structure (alpha : ℕ → ℝ) (n : ℕ) (hn : n ≥ 1) :
     · exact ⟨ by rw [ Polynomial.degree_prod, Finset.sum_congr rfl fun _ _ => Polynomial.degree_X_sub_C _ ] ; norm_num ; ring, fun z => h_deriv z ▸ by ring_nf ⟩;
     · exact Nat.cast_add_one_ne_zero _;
   · rw [ Polynomial.degree_C ] <;> norm_num;
-    · refine' lt_of_le_of_lt ( Polynomial.degree_derivative_le ) _;
+    · refine lt_of_le_of_lt ( Polynomial.degree_derivative_le ) ?_;
       rw [ Polynomial.degree_prod, Finset.sum_congr rfl fun _ _ => Polynomial.degree_X_sub_C _ ] ; norm_cast ; norm_num [ hn ];
     · exact Nat.cast_add_one_ne_zero _
 
@@ -425,12 +425,16 @@ lemma L_val_pos (alpha : ℕ → ℝ) (n : ℕ) (hn : n ≥ 1) : 0 < L_val alpha
       exact h_seq_deriv_structure alpha n hn;
     -- Since $Q$ is a non-zero polynomial of degree $n+1$, it has only finitely many roots.
     have hQ_roots_finite : Set.Finite {x : ℂ | Q.eval x = 0} := by
-      refine' Set.Finite.subset ( Q.roots.toFinset.finite_toSet ) _;
+      refine Set.Finite.subset ( Q.roots.toFinset.finite_toSet ) ?_;
       norm_num [ Set.subset_def ];
       exact fun x hx => ⟨ by rintro rfl; contradiction, hx ⟩;
     contrapose! hQ_roots_finite;
     exact Set.infinite_of_injective_forall_mem ( fun x y hxy => by simpa using hxy ) fun x : ℝ => show Polynomial.eval ( x : ℂ ) Q = 0 from by simpa [ hQ, Complex.exp_ne_zero ] using hQ_roots_finite x;
-  refine' lt_of_lt_of_le ( show 0 < ‖deriv ( h_seq alpha n ) ( x : ℂ )‖ from norm_pos_iff.mpr hx ) ( le_csSup _ <| Set.mem_image_of_mem _ <| Set.mem_univ _ );
+  refine lt_of_lt_of_le
+    (show 0 < ‖deriv ( h_seq alpha n ) ( x : ℂ )‖ from norm_pos_iff.mpr hx)
+    (le_csSup ?_ <|
+      Set.mem_image_of_mem (fun x : ℝ => ‖deriv (h_seq alpha n) (x : ℂ)‖) <|
+        Set.mem_univ x);
   have h_bdd_above : ContinuousOn (fun x : ℝ => ‖deriv (h_seq alpha n) (x : ℂ)‖) Set.univ := by
     have h_cont : ContinuousOn (fun z : ℂ => deriv (h_seq alpha n) z) (Set.univ : Set ℂ) := by
       have h_poly : ∃ Q : Polynomial ℂ, Q.degree = n + 1 ∧ ∀ z : ℂ, deriv (h_seq alpha n) z = Complex.exp (-z^2 / (n + 1)) * Q.eval z := h_seq_deriv_structure alpha n hn
@@ -446,11 +450,11 @@ lemma L_val_pos (alpha : ℕ → ℝ) (n : ℕ) (hn : n ≥ 1) : 0 < L_val alpha
             have h_poly_growth : ∀ d : ℕ, Filter.Tendsto (fun x : ℝ => x^d * Real.exp (-x^2 / (n + 1))) Filter.atTop (nhds 0) := by
               intro d;
               have := Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero d;
-              refine' squeeze_zero_norm' _ this;
+              refine squeeze_zero_norm' ?_ this;
               filter_upwards [ Filter.eventually_gt_atTop 0, Filter.eventually_gt_atTop ( n + 1 : ℝ ) ] with x hx₁ hx₂ using by rw [ Real.norm_of_nonneg ( by positivity ) ] ; exact mul_le_mul_of_nonneg_left ( Real.exp_le_exp.mpr <| by rw [ div_eq_mul_inv ] ; nlinarith [ inv_mul_cancel₀ ( by positivity : ( n : ℝ ) + 1 ≠ 0 ) ] ) ( by positivity ) ;
             have h_poly_growth : Filter.Tendsto (fun x : ℝ => (∑ i ∈ Finset.range (p.natDegree + 1), ‖p.coeff i‖ * x^i) * Real.exp (-x^2 / (n + 1))) Filter.atTop (nhds 0) := by
               simpa [ Finset.sum_mul _ _ _, mul_assoc ] using tendsto_finset_sum _ fun i hi => Filter.Tendsto.const_mul ( ‖p.coeff i‖ ) ( h_poly_growth i );
-            refine' squeeze_zero_norm' _ h_poly_growth;
+            refine squeeze_zero_norm' ?_ h_poly_growth;
             norm_num [ Polynomial.eval_eq_sum_range ];
             exact ⟨ 0, fun x hx => mul_le_mul_of_nonneg_right ( le_trans ( norm_sum_le _ _ ) <| by norm_num [ abs_of_nonneg hx ] ) <| Real.exp_nonneg _ ⟩;
           convert h_Q_growth using 1;
@@ -463,14 +467,20 @@ lemma L_val_pos (alpha : ℕ → ℝ) (n : ℕ) (hn : n ≥ 1) : 0 < L_val alpha
               intro k
               have h_poly_growth : Filter.Tendsto (fun x : ℝ => x^k * Real.exp (-x^2 / (n + 1))) Filter.atTop (nhds 0) := by
                 have := Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero k;
-                refine' squeeze_zero_norm' _ this;
+                refine squeeze_zero_norm' ?_ this;
                 filter_upwards [ Filter.eventually_gt_atTop 0, Filter.eventually_gt_atTop ( n + 1 : ℝ ) ] with x hx₁ hx₂ using by rw [ Real.norm_of_nonneg ( by positivity ) ] ; exact mul_le_mul_of_nonneg_left ( Real.exp_le_exp.mpr <| by rw [ div_eq_mul_inv ] ; nlinarith [ inv_mul_cancel₀ ( by positivity : ( n : ℝ ) + 1 ≠ 0 ) ] ) ( by positivity ) ;
               exact tendsto_zero_iff_norm_tendsto_zero.mpr ( by simpa using h_poly_growth.norm );
             have h_poly_growth : Filter.Tendsto (fun x : ℝ => (∑ k ∈ Finset.range (p.natDegree + 1), ‖p.coeff k‖ * |x|^k) * Real.exp (-x^2 / (n + 1))) Filter.atTop (nhds 0) := by
               simpa [ Finset.sum_mul _ _ _, mul_assoc ] using tendsto_finset_sum _ fun k hk => h_poly_growth k |> Filter.Tendsto.const_mul ( ‖p.coeff k‖ );
-            refine' squeeze_zero ( fun x => by positivity ) ( fun x => mul_le_mul_of_nonneg_right ( _ : _ ≤ _ ) ( Real.exp_nonneg _ ) ) h_poly_growth;
-            rw [ Polynomial.eval_eq_sum_range ];
-            exact le_trans ( norm_sum_le _ _ ) ( Finset.sum_le_sum fun _ _ => by simp +decide );
+            refine squeeze_zero ( fun x => by positivity )
+              ( fun x =>
+                mul_le_mul_of_nonneg_right
+                  (show ‖Polynomial.eval (x : ℂ) p‖ ≤
+                      ∑ k ∈ Finset.range (p.natDegree + 1), ‖p.coeff k‖ * |x|^k from ?_)
+                  ( Real.exp_nonneg _ ) )
+              h_poly_growth;
+            · rw [ Polynomial.eval_eq_sum_range ];
+              exact le_trans ( norm_sum_le _ _ ) ( Finset.sum_le_sum fun _ _ => by simp +decide );
           exact h_Q_growth_bot _;
         convert h_Q_growth_bot using 2 ; norm_num;
       exact ⟨ h_Q_growth, by convert h_Q_growth_bot.comp Filter.tendsto_neg_atBot_atTop using 2; aesop ⟩;
@@ -502,9 +512,12 @@ lemma exists_deriv_ne_zero (alpha : ℕ → ℝ) (n : ℕ) (hn : n ≥ 1) :
   obtain ⟨Q, hQ_deg, hQ_deriv⟩ : ∃ Q : Polynomial ℂ, Q.degree = n + 1 ∧ ∀ z : ℂ, deriv (h_seq alpha n) z = Complex.exp (-z^2 / (n + 1)) * Q.eval z := h_seq_deriv_structure alpha n hn;
   -- Since Q is a non-zero polynomial, it has finitely many roots.
   have hQ_roots_finite : Set.Finite {x : ℝ | Q.eval (x : ℂ) = 0} := by
-    refine' Set.Finite.subset ( Q.roots.toFinset.finite_toSet.preimage _ ) _;
-    use fun x => x;
-    · exact fun x hx y hy hxy => by simpa using hxy;
+    refine Set.Finite.subset
+      (Set.Finite.preimage
+        (f := fun x : ℝ => (x : ℂ))
+        (s := (Q.roots.toFinset : Set ℂ))
+        (fun x hx y hy hxy => by simpa using hxy)
+        Q.roots.toFinset.finite_toSet) ?_;
     · norm_num [ Set.subset_def ];
       exact fun x hx => ⟨ by rintro rfl; contradiction, hx ⟩;
   exact Exists.elim ( hQ_roots_finite.exists_notMem ) fun x hx => ⟨ x, by aesop ⟩
@@ -527,7 +540,7 @@ lemma h_seq_deriv_bounded (alpha : ℕ → ℝ) (n : ℕ) (hn : n ≥ 1) :
         have h_exp_decay_top : Filter.Tendsto (fun x : ℝ => |x|^d * Real.exp (-x^2 / (n + 1))) Filter.atTop (nhds 0) := by
           field_simp;
           have := Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero d;
-          refine' squeeze_zero_norm' _ this;
+          refine squeeze_zero_norm' ?_ this;
           filter_upwards [ Filter.eventually_gt_atTop 0, Filter.eventually_gt_atTop ( ( n : ℝ ) + 1 ) ] with x hx₁ hx₂ using by rw [ Real.norm_of_nonneg ( by positivity ) ] ; rw [ abs_of_nonneg hx₁.le ] ; gcongr ; nlinarith [ div_mul_cancel₀ ( x ^ 2 ) ( by positivity : ( n : ℝ ) + 1 ≠ 0 ) ] ;
         have h_exp_decay_bot : Filter.Tendsto (fun x : ℝ => |x|^d * Real.exp (-x^2 / (n + 1))) Filter.atBot (nhds 0) := by
           convert h_exp_decay_top.comp Filter.tendsto_neg_atBot_atTop using 2 ; norm_num
@@ -743,7 +756,10 @@ lemma alpha_from_hist_eq_alpha_seq' (n k : ℕ) (h : k < n) :
       unfold alpha_from_hist alpha_seq';
       -- By definition of `all_tuples'`, the `k`-th element is indeed the `k`-th element of `all_tuples' n`.
       have h_get : (all_tuples' n).get? k = (all_tuples' (k + 1)).get? k := by
-        refine' Nat.le_induction rfl ( fun m hm ih => _ ) _ h;
+        refine Nat.le_induction
+          (m := k + 1)
+          (P := fun m _ => (all_tuples' m).get? k = (all_tuples' (k + 1)).get? k)
+          rfl ( fun m hm ih => ?_ ) n (Nat.succ_le_of_lt h);
         -- By definition of `all_tuples'`, appending an element to a list does not change the elements before the appended element.
         have h_append : ∀ (l : List (ℚ × ℚ × ℝ)) (x : ℚ × ℚ × ℝ), ∀ k, k < l.length → (l ++ [x]).get? k = l.get? k := by
           simp +contextual;
@@ -778,7 +794,7 @@ lemma eta_in_next_step'_eq_eta_seq' (n : ℕ) :
         apply h_seq_eq_of_agree;
         exact fun k a ↦ alpha_from_hist_eq_alpha_seq' n k a;
       · congr! 3;
-        refine' Filter.EventuallyEq.deriv_eq _;
+        refine Filter.EventuallyEq.deriv_eq ?_;
         filter_upwards [ ] with x;
         exact h_seq_eq_of_agree n _ _ ( fun k hk => by exact_mod_cast alpha_from_hist_eq_alpha_seq' n k hk ) x
 
@@ -818,7 +834,7 @@ lemma lambda_seq'_bound (n : ℕ) : |lambda_seq' n| ≤ eta_seq' n := by
     unfold lambda_seq';
     unfold construction_seq' all_tuples';
     induction n <;> aesop;
-  refine' h_def.symm ▸ _;
+  refine h_def.symm ▸ ?_;
   unfold next_step';
   split_ifs <;> norm_num [ eta_in_next_step'_eq_eta_seq' ];
   · unfold eta_seq';
@@ -842,14 +858,14 @@ lemma lambda_seq'_bound (n : ℕ) : |lambda_seq' n| ≤ eta_seq' n := by
       exact abs_le.mpr ⟨ by linarith [ this.1.1 ], by linarith [ this.1.2 ] ⟩;
     · aesop;
     · exact le_of_lt ( eta_seq'_pos n ( Nat.pos_of_ne_zero ‹_› ) );
-  · split_ifs <;> norm_num;
-    any_goals linarith;
-    · aesop;
-    · aesop;
-    · rename_i h₁ h₂ h₃ h₄ h₅ h₆;
-      refine' le_of_lt ( h₆.choose_spec.2 _ _ );
-      have := choice_in_interval_spec ( Classical.choose h₃ - h₆.choose ) ( Classical.choose h₃ + h₆.choose ) ( by linarith [ h₆.choose_spec.1 ] ) ( alpha_set ( all_tuples' n ) ) ( alpha_set_finite ( all_tuples' n ) );
-      exact abs_lt.mpr ⟨ by linarith [ this.1.1 ], by linarith [ this.1.2 ] ⟩;
+  · split_ifs <;> norm_num
+    any_goals linarith
+    · aesop
+    · aesop
+    · rename_i h₁ h₂ h₃ h₄ h₅ h₆
+      refine le_of_lt ( h₆.choose_spec.2 _ ?_ )
+      have := choice_in_interval_spec ( Classical.choose h₃ - h₆.choose ) ( Classical.choose h₃ + h₆.choose ) ( by linarith [ h₆.choose_spec.1 ] ) ( alpha_set ( all_tuples' n ) ) ( alpha_set_finite ( all_tuples' n ) )
+      exact abs_lt.mpr ⟨ by linarith [ this.1.1 ], by linarith [ this.1.2 ] ⟩
     · exact le_of_lt ( eta_seq'_pos n ( Nat.one_le_iff_ne_zero.mpr ‹_› ) )
 
 /-
@@ -866,12 +882,12 @@ lemma term_bound_valid' (n : ℕ) (z : ℂ) (hz : ‖z‖ ≤ n + 1) :
           have h_compact : IsCompact {z : ℂ | ‖z‖ ≤ n + 1} := by
             convert ProperSpace.isCompact_closedBall ( 0 : ℂ ) ( n + 1 ) using 1 ; norm_num [ Set.ext_iff ];
           apply_rules [ IsCompact.bddAbove, h_compact.image_of_continuousOn ];
-          refine' Continuous.continuousOn _;
+          refine Continuous.continuousOn ?_;
           unfold h_seq;
           cases n <;> continuity;
         · exact ⟨ z, hz, rfl ⟩;
       have h_lambda_bound : |lambda_seq' n| ≤ epsilon_seq n / M_val (fun k => (alpha_seq' k : ℝ)) n := by
-        refine' le_trans ( lambda_seq'_bound n ) _;
+        refine le_trans ( lambda_seq'_bound n ) ?_;
         exact min_le_left _ _;
       rw [ le_div_iff₀ ] at h_lambda_bound;
       · simpa [ abs_mul ] using le_trans ( mul_le_mul_of_nonneg_left ( hM_val z hz ) ( abs_nonneg _ ) ) h_lambda_bound;
@@ -904,7 +920,7 @@ lemma term'_diff (n : ℕ) : Differentiable ℂ (term' n) := by
     unfold h_seq;
     norm_num;
   | succ n ih =>
-    refine' Differentiable.mul _ _;
+    refine Differentiable.mul ?_ ?_;
     · exact Complex.differentiable_exp.comp ( Differentiable.div_const ( Differentiable.neg ( differentiable_pow 2 ) ) _ );
     · induction ( List.range ( n + 1 ) ) using List.reverseRecOn <;> aesop
 
@@ -989,7 +1005,7 @@ theorem F_final'_entire : Differentiable ℂ F_final' := by
   -- On the ball $B(0, N+1)$, $F_final'(w) = w + F_head' N w + F_tail' N w$.
   have h_decomp : ∀ w ∈ Metric.ball 0 (N + 1), F_final' w = w + F_head' N w + F_tail' N w := by
     exact fun w a ↦ F_final'_eq_z_add_head_add_tail N w;
-  refine' DifferentiableAt.congr_of_eventuallyEq _ ( Filter.eventuallyEq_of_mem ( Metric.isOpen_ball.mem_nhds hN ) h_decomp );
+  refine DifferentiableAt.congr_of_eventuallyEq ?_ ( Filter.eventuallyEq_of_mem ( Metric.isOpen_ball.mem_nhds hN ) h_decomp );
   exact DifferentiableAt.add ( DifferentiableAt.add ( differentiableAt_id ) ( F_head'_entire N |> Differentiable.differentiableAt ) ) ( F_tail'_diff_on N |> DifferentiableOn.differentiableAt <| Metric.isOpen_ball.mem_nhds hN )
 
 /-
@@ -1205,7 +1221,7 @@ lemma F_seq_real_eq_F_seq_real' (n : ℕ) (x : ℝ) (hn : n ≥ 1) :
       field_simp;
       rw [ Nat.sub_add_cancel hn ];
       congr! 3;
-      refine' List.map_congr_left fun k hk => _;
+      refine List.map_congr_left fun k hk => ?_;
       rw [ h_alpha_lambda k ( List.mem_range.mp hk ) |>.2, h_seq_eq_of_agree ];
       exact fun i hi => h_alpha_lambda i ( lt_trans hi ( List.mem_range.mp hk ) ) |>.1
 
@@ -1236,7 +1252,7 @@ lemma F_seq_real_surjective_of_Invariant' (n : ℕ) (h : Invariant' n) :
       -- The invariant implies that the derivative of F_n is bounded below by 1/2.
       have h_deriv_bound : ∀ x : ℝ, deriv (fun t => F_seq_real (fun k => (alpha_seq' k : ℝ)) (fun k => lambda_seq' k) n t) x ≥ 1 / 2 := by
         have := h.2.2.2.1;
-        refine' fun x => le_trans _ ( this x );
+        refine fun x => le_trans ?_ ( this x );
         norm_num [ Finset.sum_range_succ', epsilon_seq ];
         rcases n with ( _ | _ | n ) <;> norm_num [ Finset.sum_range_succ', pow_succ' ] at *;
         norm_num [ ← Finset.mul_sum _ _ _, ← Finset.sum_mul ];
@@ -1303,8 +1319,8 @@ lemma Lambda_properties (n : ℕ) (h_inv : Invariant' (n - 1)) (hn : n ≥ 1)
     let Lambda := fun t => (beta_n - F_prev t) / h_curr t
     ContinuousAt Lambda x ∧ Lambda x = 0 := by
       have h_cont : ContinuousAt (fun t => F_seq_real (fun k => (alpha_seq' k : ℝ)) (fun k => lambda_seq' k) (n - 1) t) x ∧ ContinuousAt (fun t => h_seq_real (fun k => (alpha_seq' k : ℝ)) n t) x := by
-        refine' ⟨ _, _ ⟩;
-        · refine' Continuous.continuousAt _;
+        refine ⟨ ?_, ?_ ⟩;
+        · refine Continuous.continuousAt ?_;
           unfold F_seq_real;
           induction n - 1 with
           | zero =>
@@ -1318,7 +1334,7 @@ lemma Lambda_properties (n : ℕ) (h_inv : Invariant' (n - 1)) (hn : n ≥ 1)
               ring_nf
             · simpa [h_seq_real] using
                 continuous_const.mul (h_seq_real_continuous (fun k => (alpha_seq' k : ℝ)) (n + 1))
-        · refine' Continuous.continuousAt _;
+        · refine Continuous.continuousAt ?_;
           unfold h_seq_real;
           unfold h_seq;
           split_ifs <;> simp_all +decide [ Complex.exp_re, Complex.exp_im, div_eq_mul_inv ];
@@ -1441,7 +1457,7 @@ lemma next_step'_lambda_bound_odd (n : ℕ) (hn : n ≥ 1) (hodd : n % 2 = 1) (h
       · split_ifs <;> norm_num;
         any_goals linarith [ eta_seq'_pos n hn ];
         rename_i h₁ h₂ h₃ h₄ h₅ h₆;
-        refine' ne_of_lt ( lt_of_lt_of_le ( h₆.choose_spec.2 _ _ ) _ );
+        refine ne_of_lt ( lt_of_lt_of_le ( h₆.choose_spec.2 _ ?_ ) ?_ );
         · have := Classical.choose_spec h₆;
           rw [ abs_lt ];
           exact ⟨ by linarith [ Set.mem_Ioo.mp ( choice_in_interval_spec ( Classical.choose h₃ - h₆.choose ) ( Classical.choose h₃ + h₆.choose ) ( by linarith ) ( alpha_set ( all_tuples' n ) ) ( alpha_set_finite ( all_tuples' n ) ) |>.1 ) ], by linarith [ Set.mem_Ioo.mp ( choice_in_interval_spec ( Classical.choose h₃ - h₆.choose ) ( Classical.choose h₃ + h₆.choose ) ( by linarith ) ( alpha_set ( all_tuples' n ) ) ( alpha_set_finite ( all_tuples' n ) ) |>.1 ) ] ⟩;
@@ -1517,7 +1533,7 @@ lemma next_step'_interpolation_odd (n : ℕ) (hn : n ≥ 1) (hodd : n % 2 = 1) (
       rw [ add_assoc ];
       congr! 2;
       · congr! 2;
-        refine' List.map_congr_left _;
+        refine List.map_congr_left ?_;
         intro a ha; rw [ lambda_from_hist_eq_lambda_seq' ] ;
         · rw [ h_seq_eq_of_agree ];
           exact fun k hk => Eq.symm ( alpha_from_hist_eq_alpha_seq' n k ( by linarith [ List.mem_range.mp ha ] ) );
@@ -1529,7 +1545,7 @@ lemma next_step'_interpolation_odd (n : ℕ) (hn : n ≥ 1) (hodd : n % 2 = 1) (
           unfold all_tuples'; aesop;
         · unfold h_seq;
           congr! 3;
-          refine' List.map_congr_left _;
+          refine List.map_congr_left ?_;
           intro a ha; rw [ alpha_from_hist_eq_alpha_seq' ] ; aesop;
           exact List.mem_range.mp ha;
     linarith
@@ -1667,7 +1683,7 @@ lemma beta_seq'_succ_not_mem_prev (n : ℕ) (h_inv : Invariant' n) :
           · split_ifs <;> norm_num at *;
             · rename_i h₁ h₂ h₃ h₄ h₅;
               contrapose! h₅;
-              refine' h_seq_real_ne_zero_of_not_mem_alpha_set' _ _ _ _ _;
+              refine h_seq_real_ne_zero_of_not_mem_alpha_set' ?_ ?_ ?_ ?_ ?_;
               · rfl;
               · exact fun ⟨ q, hq, hq' ⟩ => first_unused_spec a_seq a_seq_surj ( alpha_set ( all_tuples' ( n + 1 ) ) ) ( alpha_set_finite ( all_tuples' ( n + 1 ) ) ) <| by aesop;
             · exact fun h => by have := choice_in_interval_spec ( F_seq_real ( alpha_from_hist ( all_tuples' ( n + 1 ) ) ) ( lambda_from_hist ( all_tuples' ( n + 1 ) ) ) n ( first_unused a_seq a_seq_surj ( alpha_set ( all_tuples' ( n + 1 ) ) ) ( alpha_set_finite ( all_tuples' ( n + 1 ) ) ) ) - eta_val ( alpha_from_hist ( all_tuples' ( n + 1 ) ) ) ( n + 1 ) ( epsilon_seq ( n + 1 ) ) * |h_seq_real ( alpha_from_hist ( all_tuples' ( n + 1 ) ) ) ( n + 1 ) ( first_unused a_seq a_seq_surj ( alpha_set ( all_tuples' ( n + 1 ) ) ) ( alpha_set_finite ( all_tuples' ( n + 1 ) ) ) )| ) ( F_seq_real ( alpha_from_hist ( all_tuples' ( n + 1 ) ) ) ( lambda_from_hist ( all_tuples' ( n + 1 ) ) ) n ( first_unused a_seq a_seq_surj ( alpha_set ( all_tuples' ( n + 1 ) ) ) ( alpha_set_finite ( all_tuples' ( n + 1 ) ) ) ) + eta_val ( alpha_from_hist ( all_tuples' ( n + 1 ) ) ) ( n + 1 ) ( epsilon_seq ( n + 1 ) ) * |h_seq_real ( alpha_from_hist ( all_tuples' ( n + 1 ) ) ) ( n + 1 ) ( first_unused a_seq a_seq_surj ( alpha_set ( all_tuples' ( n + 1 ) ) ) ( alpha_set_finite ( all_tuples' ( n + 1 ) ) ) )| ) ( by
@@ -1837,7 +1853,7 @@ lemma deriv_h_seq_real_le_L_val (alpha : ℕ → ℝ) (n : ℕ) (x : ℝ) (hn : 
       have h_deriv_eq : deriv (h_seq_real alpha n) x = (deriv (h_seq alpha n) (x : ℂ)).re := by
         simpa [h_seq_real] using
           (HasDerivAt.real_of_complex (h_seq_differentiableAt alpha n (x : ℂ)).hasDerivAt).deriv
-      refine' h_deriv_eq ▸ le_trans ( Complex.abs_re_le_norm _ ) _;
+      refine h_deriv_eq ▸ le_trans ( Complex.abs_re_le_norm _ ) ?_;
       exact le_csSup ( h_seq_deriv_bounded _ _ ( by aesop ) ) ( by aesop )
 
 /-
@@ -2353,7 +2369,7 @@ lemma summable_deriv_real' (x : ℝ) :
       -- By the bound on the derivatives and the summability of the series (epsilon_summable'), we can conclude that the series of derivatives converges absolutely.
       have h_abs_conv : Summable (fun n => |deriv (fun y => lambda_seq' n * h_seq_real (fun k => (alpha_seq' k : ℝ)) n y) x|) := by
         have h_abs_conv : Summable (fun n => if n < 2 then 0 else epsilon_seq n) := by
-          refine' Summable.of_nonneg_of_le ( fun n => _ ) ( fun n => _ ) ( epsilon_summable' );
+          refine Summable.of_nonneg_of_le ( fun n => ?_ ) ( fun n => ?_ ) ( epsilon_summable' );
           · split_ifs <;> norm_num [ epsilon_seq ];
           · split_ifs <;> norm_num;
             interval_cases n <;> norm_num [ epsilon_seq ];
@@ -2374,14 +2390,13 @@ lemma f_final'_deriv_eq_sum (x : ℝ) :
         use fun n => if n < 2 then 0 else epsilon_seq n;
         · rw [ ← summable_nat_add_iff 2 ];
           convert epsilon_summable.comp_injective ( add_left_injective 2 ) using 1;
-        · refine' fun n y => hasDerivAt_deriv_iff.mpr _;
-          refine' DifferentiableAt.const_mul _ _;
+        · refine fun n y => hasDerivAt_deriv_iff.mpr ?_;
           -- The function $h_seq_real$ is differentiable because it is a composition of differentiable functions.
           have h_diff : ∀ n x, DifferentiableAt ℝ
               (fun z : ℝ => Complex.re (h_seq (fun k => (alpha_seq' k : ℝ)) n (z : ℂ))) x := by
             intro n x
             simpa using h_seq_real_differentiableAt (fun k => (alpha_seq' k : ℝ)) n x
-          simpa [h_seq_real] using h_diff n y
+          simpa [h_seq_real] using (h_diff n y).const_mul (lambda_seq' n)
         · -- Apply the bound on the derivative of each term in the series.
           intros n y
           apply f_final'_term_bound;
@@ -2403,9 +2418,9 @@ theorem f_final'_deriv_bound (x : ℝ) : deriv f_final' x > 1/2 := by
   -- Apply the bound on the sum of derivatives.
   have h_sum_derivs : ∑' n, deriv (fun y => lambda_seq' n * h_seq_real (fun k => (alpha_seq' k : ℝ)) n y) x ≥ -∑' n, epsilon_seq n := by
     rw [ ← tsum_neg ];
-    refine' Summable.tsum_le_tsum _ _ _;
+    refine Summable.tsum_le_tsum ?_ ?_ ?_;
     · intro n;
-      refine' neg_le_of_abs_le _;
+      refine neg_le_of_abs_le ?_;
       have := f_final'_term_bound n x;
       split_ifs at this <;> linarith [ show 0 ≤ epsilon_seq n from by unfold epsilon_seq; positivity ];
     · exact Summable.neg ( by exact epsilon_summable' );
