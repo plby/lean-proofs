@@ -281,7 +281,6 @@ lemma hoeffding_upper_tail (M L : ℕ) (_hM : 0 < M) (f : Fin M → ℝ)
     · exact Real.one_le_exp (by nlinarith)
     · exact Real.exp_nonneg _
 
-set_option linter.style.refine false in
 /-- Combined two-sided Hoeffding bound. -/
 lemma hoeffding_two_sided (M L : ℕ) (hM : 0 < M) (f : Fin M → ℝ)
     (hf : ∀ i, |f i| ≤ 1) (hf_mean : ∑ i, f i = 0) (ε : ℝ) (hε : 0 < ε) :
@@ -301,18 +300,18 @@ lemma hoeffding_two_sided (M L : ℕ) (hM : 0 < M) (f : Fin M → ℝ)
       using 1 <;>
       norm_num [*]
     exact congr_arg _ ( by ext; simp +decide [ le_neg ] )
-  refine' le_trans _ (add_le_add h_upper h_lower) |> le_trans <| by
-    ring_nf
-    norm_num
-  norm_cast
-  rw [ ← Finset.card_union_add_card_inter ]
-  exact le_add_right <|
-    Finset.card_le_card fun x hx => by
-      norm_num at *
-      cases abs_cases (∑ j, f (x j)) <;>
+  refine le_trans (le_trans ?_ (add_le_add h_upper h_lower)) ?_
+  · norm_cast
+    rw [ ← Finset.card_union_add_card_inter ]
+    exact le_add_right <|
+      Finset.card_le_card fun x hx => by
+        norm_num at *
+        cases abs_cases (∑ j, f (x j)) <;>
         first
         | left; linarith
         | right; linarith
+  · ring_nf
+    norm_num
 
 end
 
@@ -744,7 +743,6 @@ lemma max_poly_le_from_re_im (a : ℕ → ℝ) (d M : ℕ) (hM : 0 < M)
 
 set_option linter.flexible false in
 set_option linter.style.multiGoal false in
-set_option linter.style.refine false in
 /-- Count of tuples with a small element is less than half the total. -/
 lemma bad_min_count_lt (m : ℕ) (_hm : 20 ≤ m) :
     2 * (univ.filter (fun ω : Fin (shiftL m) → Fin (2 ^ m) =>
@@ -802,13 +800,13 @@ lemma bad_min_count_lt (m : ℕ) (_hm : 20 ≤ m) :
                     Finset.univ) := by
             intro ω hω
             simp_all +decide
-            refine' ⟨ ω j, hω, Fin.removeNth j ω, _ ⟩
+            refine ⟨ω j, hω, Fin.removeNth j ω, ?_⟩
             grind +suggestions
           refine le_trans ( Finset.card_le_card h_card_filter_j ) ?_
-          refine' Finset.card_image_le.trans _
+          refine Finset.card_image_le.trans ?_
           norm_num [ Finset.card_univ ]
         convert h_card_filter_j using 1
-      refine' le_trans _ ( Finset.sum_le_sum fun j _ => h_union_bound j )
+      refine le_trans ?_ ( Finset.sum_le_sum fun j _ => h_union_bound j )
       rw [
         show
           (Finset.univ.filter fun ω : Fin (shiftL m) → Fin (2 ^ m) =>
@@ -853,7 +851,6 @@ set_option maxHeartbeats 800000 in
 -- The Hoeffding/DFT union-bound proof times out at the default heartbeat limit.
 set_option linter.flexible false in
 set_option linter.style.multiGoal false in
-set_option linter.style.refine false in
 /-- Count of tuples with bad `maxPolyOnGrid` is less than half the total.
 The proof uses Hoeffding's inequality applied to centered trigonometric
 functions, followed by a union bound over all Fourier frequencies. -/
@@ -1174,9 +1171,7 @@ lemma bad_approx_count_lt (m : ℕ) (hm : 20 ≤ m) :
           1 / (2 * m))).card ≤
       2 * (2 ^ (m + 1)) * 2 * (2 ^ m) ^ shiftL m *
         Real.exp (-(shiftL m) / (32 * m ^ 2)) := by
-    refine' le_trans (Nat.cast_le.mpr <| Finset.card_le_card _) _
-    -- Embed into the union of per-frequency bad sets (real ∪ imaginary).
-    exact
+    let badUnion : Finset (Fin (shiftL m) → Fin (2 ^ m)) :=
       Finset.biUnion (Finset.range (2 ^ (m + 1))) (fun l =>
         Finset.filter (fun ω : Fin (shiftL m) → Fin (2 ^ m) =>
           |∑ s ∈ Finset.Icc 1 (2 ^ m),
@@ -1197,7 +1192,10 @@ lemma bad_approx_count_lt (m : ℕ) (hm : 20 ≤ m) :
              else 0) *
             (omegaPrim (2 ^ (m + 1)) ^ (s * l) |> Complex.im)| >
           1 / (2 * m)) Finset.univ)
-    · grind
+    refine le_trans (Nat.cast_le.mpr <| Finset.card_le_card (t := badUnion) ?_) ?_
+    -- Embed into the union of per-frequency bad sets (real ∪ imaginary).
+    · dsimp [badUnion]
+      grind
     · -- Bound the union cardinality by summing individual bounds.
       refine le_trans (Nat.cast_le.mpr <| Finset.card_union_le _ _) ?_
       refine le_trans (Nat.cast_le.mpr <|
@@ -1266,15 +1264,15 @@ lemma bad_approx_count_lt (m : ℕ) (hm : 20 ≤ m) :
     intro ω hω
     contrapose! hω
     simp +zetaDelta at *
-    refine' le_trans (max_poly_le_from_re_im _ _ _ _ _ _ _ _) _
-    exact (m : ℝ)⁻¹ * 2⁻¹
-    · positivity
-    · intro l hl
-      specialize hω l (Finset.mem_range.mp hl)
-      simp_all +decide [Finset.sum_ite]
-    · intro l hl
-      specialize hω l (Finset.mem_range.mp hl)
-      aesop
+    refine le_trans (b := 2 * ((m : ℝ)⁻¹ * 2⁻¹)) ?_ ?_
+    · apply max_poly_le_from_re_im
+      · positivity
+      · intro l hl
+        specialize hω l (Finset.mem_range.mp hl)
+        simp_all +decide [Finset.sum_ite]
+      · intro l hl
+        specialize hω l (Finset.mem_range.mp hl)
+        aesop
     · ring_nf
       norm_num
   -- ── Conclusion: combine all bounds ──
@@ -1317,7 +1315,6 @@ lemma good_tuple_exists (m : ℕ) (hm : 20 ≤ m) :
 
 /-! ## Assembly -/
 
-set_option linter.style.refine false in
 theorem per_m_good_shifts_hard (m : ℕ) (hm : 20 ≤ m) :
     ∃ S : Finset ℕ, S ⊆ Icc 1 (2 ^ m) ∧ S.Nonempty ∧ S.card ≤ shiftL m ∧
     (∀ s ∈ S, 2 ^ m < s * (2 * shiftL m + 2)) ∧
@@ -1339,7 +1336,8 @@ theorem per_m_good_shifts_hard (m : ℕ) (hm : 20 ≤ m) :
         (Finset.mem_univ ⟨0, by
           linarith [show 0 < shiftL m from Nat.succ_pos _]⟩)⟩
     (Finset.card_image_le.trans_eq ( Finset.card_fin _ )) (by grind)
-  refine' ⟨ m, by linarith, shiftL m, _, fun j => ( ω j : ℕ ) + 1, _, N, hN.1, _, _ ⟩ <;> norm_num
+  refine ⟨m, by linarith, shiftL m, ?_, fun j => (ω j : ℕ) + 1, ?_, N, hN.1, ?_, ?_⟩ <;>
+    norm_num
   · exact Nat.succ_pos _
   · rcases N with ( _ | N ) <;> norm_num at *
     exact hN ⟨ 0, by linarith [ show shiftL m > 0 from Nat.succ_pos _ ] ⟩
@@ -1449,7 +1447,6 @@ lemma per_m_good_shifts (m : ℕ) (hm : 0 < m) :
 
 /-! ## Sparsity from polylog count -/
 
-set_option linter.style.refine false in
 /-- If count up to N is bounded by C₀ + C₁ · (log₂ N)^4, then sparsity holds. -/
 lemma sparse_of_polylog_count (shifts : ℕ → Finset ℕ)
 (_h_range : ∀ m, 0 < m → shifts m ⊆ Icc 1 (2 ^ m))
@@ -1475,7 +1472,7 @@ Filter.atTop (nhds 0) := by
         exact h_log.comp <|
           Filter.tendsto_atTop_atTop.mpr fun x =>
             ⟨2 ^ x, fun n hn => Nat.le_log_of_pow_le (by norm_num) hn⟩
-      refine' squeeze_zero_norm' _ h_log
+      refine squeeze_zero_norm' ?_ h_log
       filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn using by
         rw [ Real.norm_of_nonneg (by positivity) ]
         gcongr
@@ -1663,7 +1660,6 @@ def constructB (d : ShiftApproxData) : Set ℕ :=
   {1} ∪ {n | ∃ m, 0 < m ∧ n ∈ d.shifts m}
 
 set_option linter.flexible false in
-set_option linter.style.refine false in
 /-- If |B ∩ [1,N]|^h / N → 0 for every h, then B is not an additive basis. -/
 lemma not_basis_of_sparse {B : Set ℕ}
     (hsparse : ∀ h : ℕ, Tendsto (fun N => (countIn B N : ℝ) ^ h / N) atTop (nhds 0)) :
@@ -1673,8 +1669,8 @@ lemma not_basis_of_sparse {B : Set ℕ}
   have h_sums : ∀ᶠ N in Filter.atTop, countIn (hSumset h B) N ≥ N / 2 := by
     obtain ⟨N₀, hN₀⟩ : ∃ N₀, ∀ n ≥ N₀, n ∈ hSumset h B := by
       aesop
-    refine' Filter.eventually_atTop.mpr ⟨ 2 * N₀ + 2, fun N hN => _ ⟩
-    refine' le_trans _ (Finset.card_mono <| show
+    refine Filter.eventually_atTop.mpr ⟨2 * N₀ + 2, fun N hN => ?_⟩
+    refine le_trans ?_ (Finset.card_mono <| show
       Finset.Icc (N₀ + 1) N ⊆
         Finset.filter (fun x => x ∈ hSumset h B) (Finset.Ioc 0 N) from
       fun x hx =>
@@ -1731,7 +1727,7 @@ lemma not_basis_of_sparse {B : Set ℕ}
                   (Finset.Icc (fun _ => 0) (fun _ => N) |>.filter
                     (fun f => ∀ i, f i ∈ B ∪ {0}))) := by
         intro N
-        exact (by refine' Finset.card_le_card _ ; grind)
+        exact (by refine Finset.card_le_card ?_ ; grind)
       have h_sums_bound_aux :
           ∀ N,
             Finset.card
@@ -1746,8 +1742,8 @@ lemma not_basis_of_sparse {B : Set ℕ}
             Finset.card
               (Finset.pi Finset.univ fun _ : Fin h =>
                 Finset.filter (fun x => x ∈ B ∪ {0}) (Finset.Icc 0 N)) := by
-          refine' le_of_eq _
-          refine' Finset.card_bij (fun f hf => fun i _ => f i) _ _ _ <;>
+          refine le_of_eq ?_
+          refine Finset.card_bij (fun f hf => fun i _ => f i) ?_ ?_ ?_ <;>
             simp +decide [funext_iff]
           · exact fun a ha₁ ha₂ ha₃ i => ⟨ ha₂ i, ha₃ i ⟩
           · exact fun b hb =>
@@ -1800,7 +1796,7 @@ lemma not_basis_of_sparse {B : Set ℕ}
             Filter.atTop (nhds 0)›.const_mul (2 ^ h))
         using 2 <;>
         ring
-    refine' squeeze_zero_norm' _ h_contradiction
+    refine squeeze_zero_norm' ?_ h_contradiction
     filter_upwards [
       ‹∀ᶠ N in atTop,
         (countIn B N + 1 : ℝ) ^ h ≤ 2 ^ h * (countIn B N ^ h + 1)›
@@ -1810,7 +1806,7 @@ lemma not_basis_of_sparse {B : Set ℕ}
   have h_contradiction :
       Filter.Tendsto (fun N => (countIn (hSumset h B) N : ℝ) / N)
         Filter.atTop (nhds 0) := by
-    refine' squeeze_zero_norm' _ h_contradiction
+    refine squeeze_zero_norm' ?_ h_contradiction
     filter_upwards [ h_sums_bound ] with N hN using by
       rw [Real.norm_of_nonneg (by positivity)]
       gcongr
@@ -1840,7 +1836,6 @@ lemma not_basis_of_sparse {B : Set ℕ}
         · positivity)
 
 set_option linter.flexible false in
-set_option linter.style.refine false in
 /-- The constructed B is not an additive basis. -/
 theorem constructB_not_basis (d : ShiftApproxData) : ¬IsAdditiveBasis (constructB d) := by
   -- To establish sparsity of B, we set A = {n | ∃ m, 0 < m ∧ n ∈ d.shifts m}.
@@ -1884,7 +1879,7 @@ theorem constructB_not_basis (d : ShiftApproxData) : ¬IsAdditiveBasis (construc
   apply not_basis_of_sparse
   intro h
   specialize hB_sparse h
-  refine' squeeze_zero ( fun N => by positivity ) ( fun N => _ ) hB_sparse
+  refine squeeze_zero (fun N => by positivity) (fun N => ?_) hB_sparse
   gcongr
   norm_cast
   aesop
@@ -1904,7 +1899,6 @@ The proof splits into cases based on m vs m₀(α).
 noncomputable section
 
 set_option linter.flexible false in
-set_option linter.style.refine false in
 /-- Double counting: Σ_{s=1}^{M} hitCount A C s = Σ_{c∈C} countIn A (c-1).
     Valid when all c ∈ C satisfy c ≤ M. -/
 lemma double_counting (A : Set ℕ) (C : Finset ℕ) (M : ℕ)
@@ -1923,7 +1917,7 @@ lemma double_counting (A : Set ℕ) (C : Finset ℕ) (M : ℕ)
     aesop
   · rename_i c hc
     rcases c with ( _ | c ) <;> simp_all +decide [ countIn ]
-    refine' Finset.card_bij ( fun x hx => c + 1 - x ) _ _ _ <;> simp_all +decide
+    refine Finset.card_bij (fun x hx => c + 1 - x) ?_ ?_ ?_ <;> simp_all +decide
     · exact fun a ha₁ ha₂ ha₃ =>
         ⟨⟨Nat.sub_pos_of_lt (by linarith),
             by linarith [hC _ hc]⟩,
