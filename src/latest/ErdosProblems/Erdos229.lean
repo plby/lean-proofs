@@ -38,7 +38,6 @@ namespace Erdos229
 -- rewrite mechanically in this cleanup pass.
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.refine false
 set_option linter.style.multiGoal false
 set_option linter.flexible false
 
@@ -149,12 +148,12 @@ lemma analytic_on_larger_disk (r : ℝ) (hr : r > 0) (f : ℂ → ℂ)
   obtain ⟨δ, hδ_pos, hδ⟩ : ∃ δ > 0, Metric.thickening δ (Metric.closedBall 0 r) ⊆ U := by
     apply_rules [ IsCompact.exists_thickening_subset_open ];
     exact ProperSpace.isCompact_closedBall _ _;
-  refine' ⟨ r + δ / 2, by linarith, hU_analytic.mono _ ⟩;
-  refine' Set.Subset.trans _ hδ;
+  refine ⟨ r + δ / 2, by linarith, hU_analytic.mono ?_ ⟩;
+  refine Set.Subset.trans ?_ hδ;
   intro x hx; simp_all +decide [ Metric.mem_thickening_iff ];
   by_cases hx' : ‖x‖ ≤ r;
   · exact ⟨ x, hx', by simpa using hδ_pos ⟩;
-  · refine' ⟨ r • ( ‖x‖⁻¹ • x ), _, _ ⟩ <;> simp_all +decide;
+  · refine ⟨ r • ( ‖x‖⁻¹ • x ), ?_, ?_ ⟩ <;> simp_all +decide;
     · rw [ abs_of_pos hr, inv_mul_cancel₀ ( by linarith ), mul_one ];
     · rw [ dist_eq_norm ] ; ring_nf;
       rw [ show x - x * ( r : ℂ ) * ( ‖x‖ : ℂ ) ⁻¹ = x * ( 1 - ( r : ℂ ) * ( ‖x‖ : ℂ ) ⁻¹ ) by ring, norm_mul ];
@@ -219,7 +218,7 @@ lemma polynomial_divisible_by_pow_sub_C (P : Polynomial ℂ) (a : ℂ) (L : ℕ)
   -- By definition of polynomial derivative, if $(X - a)^{L+1}$ divides $P$, then $P^{(l)}(a) = 0$ for all $l \leq L$.
   have h_deriv_zero : ∀ l : ℕ, l ≤ L → Polynomial.eval a (Polynomial.derivative^[l] P) = 0 := by
     exact fun l hl => h ⟨ l, Nat.lt_succ_of_le hl ⟩;
-  refine' Polynomial.X_sub_C_pow_dvd_iff.mpr _;
+  refine Polynomial.X_sub_C_pow_dvd_iff.mpr ?_;
   -- By definition of polynomial composition, if $(X - a)^{L+1}$ divides $P$, then $P^{(l)}(a) = 0$ for all $l \leq L$.
   have h_comp_deriv_zero : ∀ l : ℕ, l ≤ L → Polynomial.eval 0 (Polynomial.derivative^[l] (P.comp (Polynomial.X + Polynomial.C a))) = 0 := by
     -- By definition of polynomial composition, we know that $(P.comp (Polynomial.X + Polynomial.C a))^{(l)}(0) = P^{(l)}(a)$.
@@ -237,7 +236,7 @@ open Complex Polynomial Set Filter Topology Metric
 lemma polynomial_divisible_by_prod_pow_sub_C (P : Polynomial ℂ) (A : Finset ℂ) (L : ℕ)
     (h : ∀ a ∈ A, ∀ l : Fin (L + 1), (derivative^[l] P).eval a = 0) :
     (∏ a ∈ A, (X - C a)^(L+1)) ∣ P := by
-  refine' Finset.prod_dvd_of_coprime _ _;
+  refine Finset.prod_dvd_of_coprime ?_ ?_;
   · intro a ha b hb hab; exact IsCoprime.pow ( Polynomial.irreducible_X_sub_C _ |> fun h => h.coprime_iff_not_dvd.mpr fun h' => hab <| by simpa [ sub_eq_iff_eq_add ] using Polynomial.dvd_iff_isRoot.mp h' ) ;
   · exact fun i a => polynomial_divisible_by_pow_sub_C P i L (h i a)
 
@@ -276,9 +275,9 @@ lemma exists_poly_interpolating_and_divisible (A B : Finset ℂ) (hAB : Disjoint
   -- Use `hermite_interpolation_finset` on $S$ to find a polynomial $P_0$ such that $P_0^{(\ell)}(s) = \gamma(s, l)$ for all $s \in S$.
   obtain ⟨P₀, hP₀⟩ : ∃ P₀ : Polynomial ℂ, ∀ (s : S) (l : Fin (L + 1)), (Polynomial.derivative^[l] P₀).eval (s : ℂ) = γ s l := by
     apply hermite_interpolation_finset;
-  refine' ⟨ P₀, _ ⟩;
+  refine ⟨ P₀, ?_ ⟩;
   simp +zetaDelta at *;
-  refine' ⟨ fun a ha l => _, fun b hb l => _, _ ⟩;
+  refine ⟨ fun a ha l => ?_, fun b hb l => ?_, ?_ ⟩;
   · simpa [ ha ] using hP₀ a ( Or.inl ha ) l;
   · simpa [ show b ∉ A from fun h => Finset.disjoint_left.mp hAB h hb ] using hP₀ b ( Or.inr hb ) l;
   · apply_rules [ polynomial_divisible_by_prod_pow_sub_C ];
@@ -332,8 +331,7 @@ lemma annulus_uncountable (r₁ r₂ : ℝ) (h₀ : 0 ≤ r₁) (h : r₁ < r₂
     ¬ Set.Countable {z : ℂ | r₁ < ‖z‖ ∧ ‖z‖ < r₂} := by
       by_contra h;
       have := h.image Complex.re;
-      refine' absurd ( this.mono _ ) _;
-      exact Set.Ioo ( r₁ : ℝ ) r₂;
+      refine absurd (this.mono (show Set.Ioo (r₁ : ℝ) r₂ ⊆ Complex.re '' {z : ℂ | r₁ < ‖z‖ ∧ ‖z‖ < r₂} from ?_)) ?_;
       · exact fun x hx => ⟨ x, ⟨ by simpa [ abs_of_nonneg ( show 0 ≤ x by linarith [ hx.1 ] ) ] using hx.1, by simpa [ abs_of_nonneg ( show 0 ≤ x by linarith [ hx.1 ] ) ] using hx.2 ⟩, rfl ⟩;
       · exact fun H => absurd ( H.measure_zero <| MeasureTheory.MeasureSpace.volume ) ( by simp +decide [ * ] )
 
@@ -378,7 +376,7 @@ lemma small_polynomial_with_prescribed_jets (r : ℝ) (hr : 0 < r)
           obtain ⟨P₀, hP₀⟩ : ∃ P₀ : Polynomial ℂ, (∀ a ∈ A, ∀ l : Fin (L + 1), (Polynomial.derivative^[l] P₀).eval a = 0) ∧ (∀ b, (hb : b ∈ B) → ∀ l : Fin (L + 1), (Polynomial.derivative^[l] P₀).eval b = β ⟨b, hb⟩ l) ∧ U ∣ P₀ := by
             have := exists_poly_interpolating_and_divisible A B;
             exact Exists.elim ( this ( Finset.disjoint_left.mpr fun x hx₁ hx₂ => by have := hA x hx₁; have := hB x hx₂; linarith ) L β ) fun P₀ hP₀ => Exists.elim hP₀ fun H hH => ⟨ P₀, hH.1, hH.2.1, hH.2.2.symm ▸ dvd_mul_right _ _ ⟩;
-          refine' ⟨ P₀, hP₀.1, hP₀.2.1, _ ⟩;
+          refine ⟨ P₀, hP₀.1, hP₀.2.1, ?_ ⟩;
           rw [ EuclideanDomain.mul_div_cancel' _ hP₀.2.2 ];
           exact Finset.prod_ne_zero_iff.mpr fun x hx => pow_ne_zero _ <| Polynomial.X_sub_C_ne_zero x;
         -- Let $H(z) = P_0(z) / U(z)$.
@@ -388,7 +386,7 @@ lemma small_polynomial_with_prescribed_jets (r : ℝ) (hr : 0 < r)
           -- The function $G(z) = -H(z)/V(z)$ is holomorphic on a neighborhood of $\overline{D(0,r)}$.
           have hG_holomorphic : AnalyticOnNhd ℂ (fun z => -Polynomial.eval z H / Polynomial.eval z V) (Metric.closedBall 0 r) := by
             intro z hz;
-            refine' AnalyticAt.div _ _ _;
+            refine AnalyticAt.div ?_ ?_ ?_;
             · apply_rules [ AnalyticAt.neg, AnalyticAt.mul, analyticAt_id, analyticAt_const ];
               apply_rules [ Differentiable.analyticAt, Polynomial.differentiable ];
             · exact Polynomial.differentiable _ |> Differentiable.analyticAt <| _;
@@ -397,7 +395,7 @@ lemma small_polynomial_with_prescribed_jets (r : ℝ) (hr : 0 < r)
               exact fun h => by linarith [ hB z h ] ;
           have := polynomial_approx_on_disk r hr ( fun z => -Polynomial.eval z H / Polynomial.eval z V ) hG_holomorphic ( ε / ( sSup { ‖Polynomial.eval z ( U * V )‖ | z ∈ Metric.closedBall 0 r } + 1 ) ) ( div_pos hε ( add_pos_of_nonneg_of_pos ( by apply_rules [ Real.sSup_nonneg ] ; rintro x ⟨ z, hz, rfl ⟩ ; positivity ) zero_lt_one ) );
           exact ⟨ this.choose, fun z hz => by rw [ norm_sub_rev ] ; exact this.choose_spec z hz ⟩;
-        refine' ⟨ P₀ + U * V * W, _, _, _ ⟩ <;> norm_num at *;
+        refine ⟨ P₀ + U * V * W, ?_, ?_, ?_ ⟩ <;> norm_num at *;
         · intro a ha l;
           -- Since $U(a) = 0$, we have that $U * V * W$ is divisible by $(X - a)^{L+1}$.
           have h_div : (Polynomial.X - Polynomial.C a)^(L+1) ∣ U * V * W := by
@@ -412,10 +410,10 @@ lemma small_polynomial_with_prescribed_jets (r : ℝ) (hr : 0 < r)
         · intro b hb l; rw [ ← hP₀.2.1 b hb l ] ; simp +decide [ mul_assoc ] ;
           rw [ Polynomial.iterate_derivative_mul ];
           rw [ Polynomial.eval_finset_sum, Finset.sum_eq_zero ] ; intros ; norm_num [ Polynomial.eval_prod, Finset.prod_eq_zero hb ];
-          refine' Or.inr <| Or.inr <| _;
+          refine Or.inr <| Or.inr <| ?_;
           rw [ Polynomial.iterate_derivative_mul ];
           rw [ Polynomial.eval_finset_sum, Finset.sum_eq_zero ] ; intros ; norm_num [ Polynomial.eval_prod, Finset.prod_eq_zero hb ];
-          refine' Or.inr <| Or.inl <| _;
+          refine Or.inr <| Or.inl <| ?_;
           -- Since $V(z) = \prod_{b \in B} (z-b)^{L+1}$, we have $V^{(k)}(b) = 0$ for any $k \leq L$.
           have hV_deriv_zero : ∀ k ≤ L, Polynomial.eval b (Polynomial.derivative^[k] V) = 0 := by
             intro k hk; rw [ show V = ( ∏ b ∈ B, ( Polynomial.X - Polynomial.C b ) ^ ( L + 1 ) ) from rfl ] ; rw [ Finset.prod_eq_prod_diff_singleton_mul hb ] ;
@@ -435,10 +433,10 @@ lemma small_polynomial_with_prescribed_jets (r : ℝ) (hr : 0 < r)
           have h_bound : ‖Polynomial.eval z U * Polynomial.eval z V * (Polynomial.eval z W + Polynomial.eval z H / Polynomial.eval z V)‖ ≤ ‖Polynomial.eval z U * Polynomial.eval z V‖ * (ε / (sSup {‖Polynomial.eval z (U * V)‖ | z ∈ Metric.closedBall 0 r} + 1)) := by
             norm_num [ div_eq_mul_inv ] at *;
             exact mul_le_mul_of_nonneg_left ( le_of_lt ( hW z hz ) ) ( by positivity );
-          refine' lt_of_le_of_lt ( h_eval ▸ h_bound ) _;
+          refine lt_of_le_of_lt ( h_eval ▸ h_bound ) ?_;
           rw [ mul_div, div_lt_iff₀ ] <;> norm_num at *;
           · rw [ mul_comm ] ; gcongr;
-            refine' lt_of_le_of_lt ( le_csSup _ _ ) ( lt_add_one _ );
+            refine lt_of_le_of_lt ( le_csSup ?_ ?_ ) ( lt_add_one _ );
             · -- The set {‖eval z U‖ * ‖eval z V‖ | z ∈ Metric.closedBall 0 r} is bounded above because U and V are polynomials and the closed ball is compact.
               have h_bdd_above : BddAbove (Set.image (fun z => ‖Polynomial.eval z U‖ * ‖Polynomial.eval z V‖) (Metric.closedBall 0 r)) := by
                 exact IsCompact.bddAbove ( isCompact_closedBall 0 r |> IsCompact.image <| Continuous.mul ( Polynomial.continuous _ |> Continuous.norm ) ( Polynomial.continuous _ |> Continuous.norm ) );
@@ -474,22 +472,22 @@ lemma exists_correction_polynomial (m : ℕ) (hm : m > 0)
         have _hm := hm
         have _hr_pos := hr_pos
         have h_finite : Set.Finite (⋃ i ≤ m, S i ∩ Metric.ball 0 (r (m - 1))) ∧ Set.Finite (⋃ i ≤ m, S i ∩ {z | r (m - 1) < ‖z‖ ∧ ‖z‖ < r m}) := by
-          constructor <;> refine' Set.Finite.biUnion ( Set.finite_Iic _ ) fun i hi => _;
+          constructor <;> refine Set.Finite.biUnion ( Set.finite_Iic _ ) fun i hi => ?_;
           · have := hS i;
             exact this ( Metric.closedBall 0 ( r ( m - 1 ) ) ) ( ProperSpace.isCompact_closedBall _ _ ) |> Set.Finite.subset <| Set.inter_subset_inter_right _ <| Metric.ball_subset_closedBall;
-          · refine' Set.Finite.subset ( hS i ( Metric.closedBall 0 ( r m ) ) ( ProperSpace.isCompact_closedBall _ _ ) ) _;
+          · refine Set.Finite.subset ( hS i ( Metric.closedBall 0 ( r m ) ) ( ProperSpace.isCompact_closedBall _ _ ) ) ?_;
             exact fun x hx => ⟨ hx.1, mem_closedBall_zero_iff.mpr hx.2.2.le ⟩;
         have h_finite_union : Set.Finite (⋃ i ≤ m, S i ∩ Metric.ball 0 (r (m - 1))) ∧ Set.Finite (⋃ i ≤ m, S i ∩ {z | r (m - 1) < ‖z‖ ∧ ‖z‖ < r m}) ∧ Set.Finite (Set.image c (Finset.range (m - 1))) ∧ Set.Finite {c (m - 1)} := by
           exact ⟨ h_finite.1, h_finite.2, Set.toFinite _, Set.finite_singleton _ ⟩;
         obtain ⟨A, B, hA, hB, h_disjoint, h_union⟩ : ∃ A B : Finset ℂ, (∀ a ∈ A, ‖a‖ < r (m - 1)) ∧ (∀ b ∈ B, r (m - 1) < ‖b‖) ∧ (⋃ i ≤ m, S i ∩ Metric.ball 0 (r (m - 1))) ∪ (Set.image c (Finset.range (m - 1))) = A ∧ (⋃ i ≤ m, S i ∩ {z | r (m - 1) < ‖z‖ ∧ ‖z‖ < r m}) ∪ {c (m - 1)} = B := by
-          refine' ⟨ h_finite_union.1.toFinset ∪ Finset.image c ( Finset.range ( m - 1 ) ), h_finite_union.2.1.toFinset ∪ { c ( m - 1 ) }, _, _, _, _ ⟩ <;> simp_all +decide;
+          refine ⟨ h_finite_union.1.toFinset ∪ Finset.image c ( Finset.range ( m - 1 ) ), h_finite_union.2.1.toFinset ∪ { c ( m - 1 ) }, ?_, ?_, ?_, ?_ ⟩ <;> simp_all +decide;
           rintro a ( ⟨ i, hi₁, hi₂, hi₃ ⟩ | ⟨ i, hi₁, rfl ⟩ ) <;> [ exact hi₃; exact lt_of_lt_of_le ( hc_norm i |>.2.le ) ( hr.monotone ( by omega ) ) ];
           exact lt_of_lt_of_le ( hc_norm i |>.2 ) ( hr.monotone ( by omega ) );
         -- Define the values $\beta_{b,\ell}$ for $b \in B$ and $\ell \leq k_{next}$.
         set β : B → Fin (k_next + 1) → ℂ := fun b l => if b.val = c (m - 1) ∧ l.val = k_prev then 1 - (derivative^[l.val] F_prev).eval (c (m - 1)) else - (derivative^[l.val] F_prev).eval b.val;
         obtain ⟨T_next, hT_next⟩ : ∃ T_next : Polynomial ℂ, (∀ a ∈ A, ∀ l : Fin (k_next + 1), (derivative^[l.val] T_next).eval a = 0) ∧ (∀ b : { x // x ∈ B }, ∀ l : Fin (k_next + 1), (derivative^[l.val] T_next).eval b.val = β b l) ∧ (∀ z, ‖z‖ ≤ r (m - 1) → ‖T_next.eval z‖ < 2 ^ (-m + 1 : ℝ)) := by
           have := small_polynomial_with_prescribed_jets ( r ( m - 1 ) ) ( by linarith [ hr_gt ( m - 1 ), show ( m : ℝ ) ≥ 1 by norm_cast ] ) A B hA hB k_next β ( 2 ^ ( -m + 1 : ℝ ) ) ( by positivity ) ; aesop;
-        refine' ⟨ T_next, hT_next.2.2, _, _, _, _ ⟩;
+        refine ⟨ T_next, hT_next.2.2, ?_, ?_, ?_, ?_ ⟩;
         · intro i hi z hz l hl;
           exact hT_next.1 z ( h_disjoint.subset <| Or.inl <| Set.mem_iUnion₂.mpr ⟨ i, hi, hz ⟩ ) ⟨ l, by linarith ⟩;
         · intro i hi l hl;
@@ -541,7 +539,7 @@ lemma exists_next_step (m : ℕ) (hm : m > 0)
           apply exists_correction_polynomial m hm S hS r hr hr_pos hr_gt c hc_norm hc_mem (k (m - 1)) F_prev (k (m - 1) + F_prev.natDegree + 1) (by
           linarith);
         use k ( m - 1 ) + F_prev.natDegree + 1, T_next;
-        refine' ⟨ _, _, hT_next.1, _, _, _ ⟩;
+        refine ⟨ ?_, ?_, hT_next.1, ?_, ?_, ?_ ⟩;
         · linarith;
         · linarith;
         · intro i hi z hz
@@ -1068,7 +1066,7 @@ lemma f_tendsto_locally_uniformly (S : ℕ → Set ℂ) (hS : ∀ n, HasNoFinite
                 positivity;
               · exact csSup_le ( Set.Nonempty.image _ <| Set.nonempty_iff_ne_empty.mpr hK_empty ) <| Set.forall_mem_image.mpr fun z hz => h_uniform z hz n hn;
             rw [ ← summable_nat_add_iff ( M + 1 ) ];
-            refine' Summable.of_nonneg_of_le ( fun n => _ ) ( fun n => h_uniform _ <| by linarith ) _;
+            refine Summable.of_nonneg_of_le ( fun n => ?_ ) ( fun n => h_uniform _ <| by linarith ) ?_;
             · apply_rules [ Real.sSup_nonneg ] ; aesop;
             · norm_num [ Real.rpow_add, Real.rpow_neg ];
               exact Summable.mul_right _ ( Summable.mul_left _ ( by simpa using summable_geometric_two ) );
@@ -1085,7 +1083,7 @@ lemma f_tendsto_locally_uniformly (S : ℕ → Set ℂ) (hS : ∀ n, HasNoFinite
                       exact Summable.of_nonneg_of_le ( fun n => norm_nonneg _ ) ( fun n => h_uniform n z hz ) ‹_›;
                     exact h_uniform.of_norm;
                 rw [h_uniform];
-                refine' le_trans ( norm_tsum_le_tsum_norm _ ) _;
+                refine le_trans ( norm_tsum_le_tsum_norm ?_ ) ?_;
                 · exact Summable.of_nonneg_of_le ( fun n => norm_nonneg _ ) ( fun n => by solve_by_elim ) ( ‹Summable fun n => sSup ( ( fun z => ‖eval z ( T_seq S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem n )‖ ) '' K ) ›.comp_injective ( add_left_injective N ) );
                 · exact Summable.tsum_le_tsum ( fun n => by solve_by_elim ) ( by exact Summable.of_nonneg_of_le ( fun n => norm_nonneg _ ) ( fun n => by solve_by_elim ) ( ‹Summable fun n => sSup ( ( fun z => ‖eval z ( T_seq S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem n )‖ ) '' K ) ›.comp_injective ( add_left_injective N ) ) ) ( by exact ‹Summable fun n => sSup ( ( fun z => ‖eval z ( T_seq S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem n )‖ ) '' K ) ›.comp_injective ( add_left_injective N ) )
               have h_uniform : Filter.Tendsto (fun N => ∑' n, sSup (Set.image (fun z => ‖(T_seq S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem (n + N)).eval z‖) K)) Filter.atTop (nhds 0) := by
@@ -1119,7 +1117,7 @@ lemma f_iterated_deriv_eq_limit (S : ℕ → Set ℂ) (hS : ∀ n, HasNoFiniteLi
         | succ k ih =>
           simp_all +decide [ iteratedDeriv_succ ];
           apply_rules [ TendstoLocallyUniformlyOn.deriv ];
-          · refine' Filter.Eventually.of_forall fun N => _;
+          · refine Filter.Eventually.of_forall fun N => ?_;
             -- The sum of polynomials is a polynomial, and the k-th derivative of a polynomial is also a polynomial.
             have h_poly : ∀ N, ∃ P : Polynomial ℂ, ∀ z, ∑ n ∈ Finset.range N, (T_seq S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem n).eval z = P.eval z := by
               exact fun N => ⟨ ∑ n ∈ Finset.range N, T_seq S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem n, fun z => by simp +decide [ Polynomial.eval_finset_sum ] ⟩;
@@ -1137,7 +1135,7 @@ lemma f_iterated_deriv_eq_limit (S : ℕ → Set ℂ) (hS : ∀ n, HasNoFiniteLi
             obtain ⟨ Q, hQ ⟩ := h_poly_deriv k; rw [ hQ ] ; exact Differentiable.differentiableOn ( by exact Q.differentiable ) ;
           · exact isOpen_univ;
       rw [ eq_comm ];
-      refine' Filter.Tendsto.limUnder_eq _;
+      refine Filter.Tendsto.limUnder_eq ?_;
       exact h_deriv_conv.tendsto_at ( Set.mem_univ z )
 
 /-
@@ -1260,8 +1258,8 @@ lemma f_deriv_vanishes_on_Sn (S : ℕ → Set ℂ) (hS : ∀ n, HasNoFiniteLimit
       -- By `partial_sum_deriv_vanishes`, `(iteratedDeriv k S_N) z = 0` for all `N ≥ M`.
       obtain ⟨M, hM⟩ : ∃ M, ∀ N ≥ M, ‖z‖ < r N := by
         exact ⟨ ⌈‖z‖⌉₊, fun N hN => by linarith [ Nat.le_ceil ( ‖z‖ ), hr_gt N, show ( N : ℝ ) ≥ ⌈‖z‖⌉₊ by exact_mod_cast hN ] ⟩;
-      refine' Filter.Tendsto.limUnder_eq _;
-      refine' tendsto_const_nhds.congr' _;
+      refine Filter.Tendsto.limUnder_eq ?_;
+      refine tendsto_const_nhds.congr' ?_;
       filter_upwards [ Filter.eventually_ge_atTop ( M + n + 1 ) ] with N hN;
       have := partial_sum_deriv_vanishes S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem ( N - 1 ) n ( Nat.le_sub_one_of_lt ( by linarith ) ) z hz ( by simpa using hM ( N - 1 ) ( Nat.le_sub_one_of_lt ( by linarith ) ) ) ; rcases N <;> aesop;
 
@@ -1307,8 +1305,8 @@ lemma f_deriv_eq_one_on_cn (S : ℕ → Set ℂ) (hS : ∀ n, HasNoFiniteLimitPo
     (hc_mem : ∀ n, c n ∉ ⋃ j, S j) (n : ℕ) :
     (iteratedDeriv (k_seq S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem n) (f S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem)) (c n) = 1 := by
       rw [ f_iterated_deriv_eq_limit ];
-      refine' Filter.Tendsto.limUnder_eq _;
-      refine' tendsto_const_nhds.congr' _;
+      refine Filter.Tendsto.limUnder_eq ?_;
+      refine tendsto_const_nhds.congr' ?_;
       filter_upwards [ Filter.eventually_gt_atTop ( n + 1 ) ] with N hN;
       rw [ eq_comm, ← partial_sum_deriv_eq_one ];
       congr! 1;
@@ -1324,7 +1322,7 @@ lemma f_transcendental (S : ℕ → Set ℂ) (hS : ∀ n, HasNoFiniteLimitPoint 
     (c : ℕ → ℂ) (hc_norm : ∀ n, r n < ‖c n‖ ∧ ‖c n‖ < r (n + 1)) (hc_inj : Function.Injective c)
     (hc_mem : ∀ n, c n ∉ ⋃ j, S j) :
     TranscendentalEntire (f S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem) := by
-      refine' ⟨ _, _ ⟩;
+      refine ⟨ ?_, ?_ ⟩;
       · exact fun x => ( f_entire S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem |> AnalyticOn.differentiableOn ) |> DifferentiableOn.differentiableAt <| by simp;
       · intro h;
         -- Since `f` is a polynomial, there exists `N` such that for all `k > N`, `f^{(k)} = 0`.
@@ -1507,7 +1505,7 @@ lemma isPolynomial_of_isIntegral (f : ℂ → ℂ) (h_entire : AnalyticOn ℂ f 
             simp_all +decide [ Finset.sum_range_succ ];
             simpa [ add_eq_zero_iff_eq_neg ] using norm_sum_le ( Finset.range P.natDegree ) ( fun i => Polynomial.eval z ( P.coeff i ) * f z ^ i ) |> le_trans ( by norm_num [ eq_neg_of_add_eq_zero_left hP_root ] );
           contrapose! h_f_le_max_step;
-          refine' lt_of_le_of_lt ( Finset.sum_le_sum fun i hi => mul_le_mul_of_nonneg_left ( pow_le_pow_right₀ ( by linarith [ le_max_left 1 ( ∑ i ∈ Finset.range P.natDegree, ‖Polynomial.eval z ( P.coeff i )‖ ), le_max_right 1 ( ∑ i ∈ Finset.range P.natDegree, ‖Polynomial.eval z ( P.coeff i )‖ ) ] ) ( show i ≤ P.natDegree - 1 from Nat.le_pred_of_lt ( Finset.mem_range.mp hi ) ) ) ( norm_nonneg _ ) ) _;
+          refine lt_of_le_of_lt ( Finset.sum_le_sum fun i hi => mul_le_mul_of_nonneg_left ( pow_le_pow_right₀ ( by linarith [ le_max_left 1 ( ∑ i ∈ Finset.range P.natDegree, ‖Polynomial.eval z ( P.coeff i )‖ ), le_max_right 1 ( ∑ i ∈ Finset.range P.natDegree, ‖Polynomial.eval z ( P.coeff i )‖ ) ] ) ( show i ≤ P.natDegree - 1 from Nat.le_pred_of_lt ( Finset.mem_range.mp hi ) ) ) ( norm_nonneg _ ) ) ?_;
           rw [ ← Finset.sum_mul _ _ _ ];
           rcases n : P.natDegree with ( _ | _ | n ) <;> simp_all +decide [ pow_succ' ];
           exact mul_lt_mul_of_pos_right h_f_le_max_step.2 ( mul_pos ( by linarith ) ( pow_pos ( by linarith ) _ ) );
@@ -1626,12 +1624,12 @@ theorem theorem_1
   have := exists_radii S ( fun n => derivedSet_empty_imp_hasNoFiniteLimitPoint _ ( h n ) );
   obtain ⟨ r, hr₁, hr₂, hr₃ ⟩ := this;
   obtain ⟨ c, hc₁, hc₂, hc₃ ⟩ := exists_auxiliary_points S ( fun n => derivedSet_empty_imp_hasNoFiniteLimitPoint _ ( h n ) ) r hr₁ ( fun n => by linarith [ hr₂ n ] );
-  refine' ⟨ f S ( fun n => derivedSet_empty_imp_hasNoFiniteLimitPoint _ ( h n ) ) r hr₁ ( fun n => by linarith [ hr₂ n ] ) ( fun n => by linarith [ hr₂ n ] ) hr₃ c hc₁ hc₃ hc₂, fun n => k_seq S ( fun n => derivedSet_empty_imp_hasNoFiniteLimitPoint _ ( h n ) ) r hr₁ ( fun n => by linarith [ hr₂ n ] ) ( fun n => by linarith [ hr₂ n ] ) hr₃ c hc₁ hc₃ hc₂ n, _, _, _ ⟩;
+  refine ⟨ f S ( fun n => derivedSet_empty_imp_hasNoFiniteLimitPoint _ ( h n ) ) r hr₁ ( fun n => by linarith [ hr₂ n ] ) ( fun n => by linarith [ hr₂ n ] ) hr₃ c hc₁ hc₃ hc₂, fun n => k_seq S ( fun n => derivedSet_empty_imp_hasNoFiniteLimitPoint _ ( h n ) ) r hr₁ ( fun n => by linarith [ hr₂ n ] ) ( fun n => by linarith [ hr₂ n ] ) hr₃ c hc₁ hc₃ hc₂ n, ?_, ?_, ?_ ⟩;
   · exact fun z => ( f_entire S ( fun n => derivedSet_empty_imp_hasNoFiniteLimitPoint _ ( h n ) ) r hr₁ ( fun n => by linarith [ hr₂ n ] ) ( fun n => by linarith [ hr₂ n ] ) hr₃ c hc₁ hc₃ hc₂ |> fun h => h.differentiableOn.differentiableAt <| by simp );
   · apply_rules [ transcendental_of_transcendentalEntire ];
     apply_rules [ f_transcendental ];
   · intro k;
-    refine' ⟨ _, fun { z } hz => _ ⟩;
+    refine ⟨ ?_, fun { z } hz => ?_ ⟩;
     · induction k with
       | zero =>
         exact Nat.cast_pos.mpr ( by norm_num : 0 < 1 );
@@ -1647,10 +1645,10 @@ theorem erdos_229.not_polynomial :
   intro S hS;
   -- Apply the theorem with the given sequence S and n ≥ 1.
   obtain ⟨f, n, hf_diff, hf_transcendental, hf_zeros⟩ := theorem_1 hS;
-  refine' ⟨ f, _, hf_diff, fun n hn => _ ⟩;
+  refine ⟨ f, ?_, hf_diff, fun n hn => ?_ ⟩;
   · contrapose! hf_transcendental;
     obtain ⟨ p, rfl ⟩ := hf_transcendental;
-    refine' Classical.not_not.2 ⟨ Polynomial.X - Polynomial.C p, _, _ ⟩ <;> norm_num;
+    refine Classical.not_not.2 ⟨ Polynomial.X - Polynomial.C p, ?_, ?_ ⟩ <;> norm_num;
     exact ne_of_apply_ne Polynomial.derivative <| by norm_num;
   · exact ⟨ _, fun z hz => hf_zeros n |>.2 hz ⟩
 
@@ -1681,7 +1679,7 @@ theorem erdos_229 :
   intro S hS
   obtain ⟨f, hf⟩ : ∃ f : ℂ → ℂ, ¬ (∃ p : Polynomial ℂ, f = fun z => p.eval z) ∧ Differentiable ℂ f ∧ ∀ n ≥ 1, ∃ k : ℕ, ∀ z ∈ S n, iteratedDeriv k f z = 0 := by
     convert erdos_229.not_polynomial S hS using 1;
-  refine' ⟨ f, _, hf.2.1, hf.2.2 ⟩;
+  refine ⟨ f, ?_, hf.2.1, hf.2.2 ⟩;
   -- Apply the lemma that states if f is transcendental entire, then it's transcendental over the ring of polynomials.
   apply transcendental_of_transcendentalEntire f ⟨hf.2.1, by
     exact fun ⟨ p, hp ⟩ => hf.1 ⟨ p, funext fun z => by simpa using hp z ⟩⟩
