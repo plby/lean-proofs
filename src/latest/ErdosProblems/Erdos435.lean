@@ -29,7 +29,6 @@ set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 
 namespace Erdos435
 
@@ -459,7 +458,7 @@ lemma lemma1_lucas_step (n j p : ℕ) (hp : p.Prime) (hj : j ≥ 1)
   have h_digits : ∀ k ∈ Finset.range j, (n - 1) / p ^ k % p = p - 1 := by
     -- Since $p^j \mid n$, we have $n = p^j * m$ for some integer $m$.
     obtain ⟨m, hm⟩ : ∃ m, n = p ^ j * m := by
-      refine' Nat.dvd_trans ( pow_dvd_pow _ hjn ) _;
+      refine Nat.dvd_trans ( pow_dvd_pow _ hjn ) ?_;
       exact pow_padicValNat_dvd;
     -- Since $p^j \mid n`, divide `(p^j * m - 1)` by powers of `p`.
     have h_div :
@@ -583,14 +582,14 @@ lemma lemma1_equality (n j p : ℕ) (hp : p.Prime) (hj : j ≥ 1)
               padicValNat p (Nat.choose (n - 1) (p ^ j - 1)) := by
         convert padicValNat.mul _ _ using 1;
         · exact ⟨ hp ⟩;
-        · refine' Nat.ne_of_gt ( Nat.div_pos _ ( pow_pos hp.pos _ ) );
+        · refine Nat.ne_of_gt ( Nat.div_pos ?_ ( pow_pos hp.pos _ ) );
           have h_div : p ^ j ∣ n := by
             have h_div : p ^ padicValNat p n ∣ n := by
               exact pow_padicValNat_dvd;
             exact dvd_trans ( pow_dvd_pow _ ‹_› ) h_div;
           apply Nat.le_of_dvd (Nat.pos_of_ne_zero (by
           aesop)) h_div;
-        · refine' Nat.ne_of_gt ( Nat.choose_pos _ );
+        · refine Nat.ne_of_gt ( Nat.choose_pos ?_ );
           gcongr;
           have := Nat.ordProj_dvd n p;
           exact
@@ -795,7 +794,7 @@ lemma lemma_super_sequence_step (p m : ℕ) (A : ℕ → ℤ)
     (hA : IsSuperSequence p m A) :
     IsSuperSequence p (m - 1) (fun j => A j / p) := by
       rcases m with ( _ | m ) <;> simp_all +decide [ IsSuperSequence ];
-      refine' ⟨ _, _, _ ⟩;
+      refine ⟨ ?_, ?_, ?_ ⟩;
       · intro j hj₁ hj₂; specialize hA; have := hA.1 j hj₁ ( by linarith ) ; simp_all +decide [ Nat.succ_sub ( by linarith : j ≤ m ) ] ;
         exact lemma_val_div_int p (A j) (m - j) hp this;
       · intro j hj₁ hj₂; have := hA.2.1 j hj₁ ( by linarith ) ; rw [ Int.lt_ediv_iff_mul_lt ] at * <;> norm_num [ hp.pos ] at *;
@@ -921,7 +920,7 @@ lemma lemma_super_sequence_reduction_inequality (p m : ℕ) (A : ℕ → ℤ) (c
       -- Using the factorization theorem $A_j = p \cdot (A_j/p)$, simplify both sum expressions.
       have h_simplified_sums : ∑ j ∈ Finset.Icc 1 (m - 1), c j * A j = (p : ℤ) * ∑ j ∈ Finset.Icc 1 (m - 1), c j * (A j / p) ∧
                              ∑ j ∈ Finset.Icc 1 (m - 1), (p - 1) * A j = (p : ℤ) * ∑ j ∈ Finset.Icc 1 (m - 1), (p - 1) * (A j / p) := by
-                               constructor <;> rw [ Finset.mul_sum _ _ _ ] <;> refine' Finset.sum_congr rfl fun x hx => _ <;> obtain ⟨ k, hk ⟩ := h_div x ( Finset.mem_Icc.mp hx |>.1 ) ( Finset.mem_Icc.mp hx |>.2.trans_lt ( Nat.pred_lt ( ne_bot_of_gt hm ) ) ) <;> simp +decide [ hk, mul_left_comm, mul_div_cancel_left₀, hp.ne_zero ] ;
+                               constructor <;> rw [ Finset.mul_sum _ _ _ ] <;> refine Finset.sum_congr rfl fun x hx => ?_ <;> obtain ⟨ k, hk ⟩ := h_div x ( Finset.mem_Icc.mp hx |>.1 ) ( Finset.mem_Icc.mp hx |>.2.trans_lt ( Nat.pred_lt ( ne_bot_of_gt hm ) ) ) <;> simp +decide [ hk, mul_left_comm, mul_div_cancel_left₀, hp.ne_zero ] ;
       rcases m with ( _ | _ | m ) <;> simp_all +decide [ Finset.sum_Ioc_succ_top, (Nat.succ_eq_succ ▸ Finset.Icc_succ_left_eq_Ioc) ];
       exact mul_le_mul_of_nonneg_left h_reduced_ineq <| Nat.cast_nonneg _
 
@@ -966,7 +965,7 @@ lemma lemma_binom_is_super_sequence (n p : ℕ)
     (h_not_prime_pow : ∀ q k, Nat.Prime q → n ≠ q ^ k) :
     IsSuperSequence p (n.factorization p) (fun j => (Nat.choose n (p ^ j) : ℤ)) := by
       simp +zetaDelta at *;
-      refine' ⟨ _, _, _ ⟩;
+      refine ⟨ ?_, ?_, ?_ ⟩;
       · -- Apply the lemma1_equality to each j in the range 1 to the factorization of n at p.
         intros j hj
         have h_val : padicValNat p (Nat.choose n (p ^ j)) = n.factorization p - j := by
@@ -1006,9 +1005,9 @@ lemma lemma_decomposition_sum_additivity (n x y : ℕ)
       rw [ Finsupp.support_add_eq ];
       · rw [ Finset.sum_union ];
         · congr! 1;
-          · refine' Finset.sum_congr rfl fun p hp => _;
+          · refine Finset.sum_congr rfl fun p hp => ?_;
             rw [ Nat.factorization_eq_zero_of_not_dvd ( fun h => Nat.Prime.not_dvd_one ( Nat.prime_of_mem_primeFactors hp ) <| h_coprime.gcd_eq_one ▸ Nat.dvd_gcd ( Nat.dvd_of_mem_primeFactors hp ) h ) ] ; aesop;
-          · refine' Finset.sum_congr rfl fun p hp => _;
+          · refine Finset.sum_congr rfl fun p hp => ?_;
             rw [ Nat.factorization_eq_zero_of_not_dvd ( fun h => by have := Nat.dvd_gcd h ( Nat.dvd_of_mem_primeFactors hp ) ; aesop ) ] ; aesop;
         · exact h_coprime.disjoint_primeFactors;
       · exact h_coprime.disjoint_primeFactors
@@ -1086,7 +1085,7 @@ lemma lemma_decomposition_inequality (n m : ℕ)
                   exact Nat.exists_prime_and_dvd hm'_gt_one.ne';
                 exact False.elim <| hm'_not_prime_pow <| h_prime_pow p hp.1 hp.2 ▸ hp.1.isPrimePow.pow ( Nat.ne_of_gt <| Nat.pos_of_ne_zero <| Finsupp.mem_support_iff.mp <| by aesop );
               · exact by push Not at h_prime_pow; exact h_prime_pow;
-            refine' ⟨ p ^ ( Nat.factorization m' p ), m' / p ^ ( Nat.factorization m' p ), _, _, _, _ ⟩;
+            refine ⟨ p ^ ( Nat.factorization m' p ), m' / p ^ ( Nat.factorization m' p ), ?_, ?_, ?_, ?_ ⟩;
             · exact one_lt_pow₀ hp.1.one_lt ( Nat.ne_of_gt ( Nat.pos_of_ne_zero ( Finsupp.mem_support_iff.mp ( by aesop ) ) ) ) |> Nat.lt_of_lt_of_le <| Nat.le_refl _;
             · exact Nat.lt_of_le_of_ne ( Nat.div_pos ( Nat.le_of_dvd hm'_gt_one.le ( Nat.ordProj_dvd _ _ ) ) ( pow_pos hp.1.pos _ ) ) ( Ne.symm <| by intro t; have := Nat.div_mul_cancel ( Nat.ordProj_dvd m' p ) ; aesop );
             · exact Nat.Coprime.pow_left _ ( hp.1.coprime_iff_not_dvd.mpr <| Nat.not_dvd_ordCompl ( by aesop ) <| by aesop );
@@ -1113,7 +1112,7 @@ lemma lemma_decomposition_inequality (n m : ℕ)
           exact ⟨ p, Nat.factorization m p, hp_prime, Nat.pos_of_ne_zero ( Finsupp.mem_support_iff.mp ( by aesop ) ), Nat.ordProj_dvd _ _, Nat.pow_succ_factorization_not_dvd ( by aesop ) ( by aesop ) ⟩;
         obtain ⟨x, y, hx, hy, h_coprime, h_prod⟩ : ∃ x y : ℕ, x = p^a ∧ y = m / p^a ∧ Nat.Coprime x y ∧ m = x * y := by
           exact ⟨ _, _, rfl, rfl, Nat.Coprime.pow_left _ <| hp.coprime_iff_not_dvd.mpr fun h => ha.2.2 <| by convert Nat.mul_dvd_mul_left ( p ^ a ) h using 1; rw [ Nat.mul_div_cancel' ha.2.1 ], by rw [ Nat.mul_div_cancel' ha.2.1 ] ⟩;
-        refine' ⟨ x, y, _, _, h_coprime, h_prod ⟩ <;> subst_vars <;> norm_num at *;
+        refine ⟨ x, y, ?_, ?_, h_coprime, h_prod ⟩ <;> subst_vars <;> norm_num at *;
         · exact one_lt_pow₀ hp.one_lt ha.1.ne';
         · rcases y with ( _ | _ | y ) <;> norm_num at *;
           exact h_m_not_prime_pow <| hp.isPrimePow.pow <| by linarith;
@@ -1220,12 +1219,12 @@ lemma lemma_super_sequence_representation_induction_step (p m : ℕ) (A : ℕ �
                  generalize_proofs at *; (
                  simpa using h_combined.add_left ( c_m * A m ) |> Int.ModEq.trans <| by ring_nf; norm_num;)
                generalize_proofs at *; (
-               refine' ⟨ _, _ ⟩
+               refine ⟨ ?_, ?_ ⟩
                generalize_proofs at *; (
                grind);
                convert h_combined using 1 ; simp +decide [ Finset.sum_ite, Finset.filter_ne', Finset.filter_eq', Finset.mul_sum _ _ _, mul_left_comm, ] ; ring_nf;
                rw [ if_pos ( by linarith ) ] ; simp +decide [ mul_comm, mul_left_comm ] ;
-               refine' Finset.sum_bij ( fun x hx => x ) _ _ _ _ <;> simp +decide
+               refine Finset.sum_bij ( fun x hx => x ) ?_ ?_ ?_ ?_ <;> simp +decide
                · exact fun b hb₁ hb₂ => ⟨ ⟨ hb₁, lt_of_le_of_lt hb₂ ( Nat.pred_lt ( ne_bot_of_gt hm ) ) ⟩, hb₁, hb₂ ⟩;
                · intro a ha₁ ha₂ ha₃ ha₄; rw [ Int.mul_ediv_cancel' ] ; ring; exact ( by have := hA.1 a ( Finset.mem_Icc.mpr ⟨ by linarith, by linarith ⟩ ) ; exact ( by
                    have h_div : p ^ (m - a) ∣ Int.toNat (A a) := by
@@ -1361,7 +1360,7 @@ lemma lemma_canonical_representation_exists (n : ℕ) (x : ℤ)
             generalize_proofs at *; (
             convert lemma_super_sequence_representation p ( n.factorization p ) ( fun j => ( n.choose ( p ^ j ) : ℤ ) ) x ( Nat.prime_of_mem_primeFactors hp ) ( Nat.pos_of_ne_zero ( Finsupp.mem_support_iff.mp hp ) ) h_super_sequence using 1);
         choose! c hc using h_exists_c;
-        refine' ⟨ c, fun p hp j hj => hc p hp |>.1 j hj, _ ⟩;
+        refine ⟨ c, fun p hp j hj => hc p hp |>.1 j hj, ?_ ⟩;
         convert lemma_crt_implication n x ( ∑ p ∈ n.factorization.support, ∑ j ∈ Finset.Icc 1 ( n.factorization p ), c p j * Nat.choose n ( p ^ j ) ) hn _ using 1;
         intro p hp; specialize hc p hp;
         exact ((lemma_total_sum_congruence n c p hp).trans hc.2.symm).symm
@@ -1402,7 +1401,7 @@ lemma lemma_canonical_representation_gap (n : ℕ) (c : ℕ → ℕ → ℤ)
             unfold K; norm_num [ Finset.sum_add_distrib, mul_comm ] ;
             rw [ ← Finset.sum_add_distrib ] ; exact Finset.sum_le_sum fun p hp => by rw [ Finset.mul_sum _ _ _ ] ; exact by rw [ ← Finset.sum_add_distrib ] ; exact Finset.sum_le_sum fun i hi => by rw [ Nat.cast_sub ( Nat.one_le_iff_ne_zero.mpr <| Nat.ne_of_gt <| Nat.pos_of_mem_primeFactors hp ) ] ; ring_nf; norm_num;
           refine le_trans ?_ hD_ge_term;
-          refine' le_trans _ ( Finset.single_le_sum ( fun q hq => _ ) hp_mem );
+          refine le_trans ?_ ( Finset.single_le_sum ( fun q hq => ?_ ) hp_mem );
           · exact le_trans ( by aesop ) ( Finset.single_le_sum ( fun i hi => mul_nonneg ( sub_nonneg.2 <| by linarith [ hc p hp_mem i hi ] ) <| Nat.cast_nonneg _ ) hj_mem );
           · exact Finset.sum_nonneg fun i hi => mul_nonneg ( by linarith [ hc q hq i hi ] ) ( Nat.cast_nonneg _ );
         nlinarith [ hc p hp_mem j hj_mem, show ( p : ℤ ) - 1 - c p j ≥ 1 from by nlinarith [ hc p hp_mem j hj_mem ] ];
@@ -1528,7 +1527,7 @@ lemma lemma_super_sequence_sum_divisible_by_valuation (p m j : ℕ) (A : ℕ →
     (hA : IsSuperSequence p m A)
     (hj : j ∈ Finset.Icc 1 m) :
     (p : ℤ) ^ (m - j + 1) ∣ ∑ i ∈ Finset.Icc 1 (j - 1), c i * A i := by
-      refine' Finset.dvd_sum fun i hi => dvd_mul_of_dvd_right _ _;
+      refine Finset.dvd_sum fun i hi => dvd_mul_of_dvd_right ?_ (c i);
       -- Since $A$ is a SuperSequence, we have $v_p(A_i) = m - i$.
       have h_val : padicValNat p (A i).toNat = m - i := by
         exact hA.1 i ( Finset.mem_Icc.mpr ⟨ by linarith [ Finset.mem_Icc.mp hi ], by linarith [ Finset.mem_Icc.mp hi, Finset.mem_Icc.mp hj, Nat.sub_le j 1 ] ⟩ );
@@ -1569,7 +1568,7 @@ lemma lemma_super_sequence_valuation_implication (p m : ℕ) (A : ℕ → ℤ) (
       -- This implies $p^{m-j_{max}+1} \mid c_{j_{max}} A_{j_{max}} + S_{prev}$.
       have h_div : (p : ℤ) ^ (m - j_max + 1) ∣ c j_max * A j_max + ∑ i ∈ Finset.Icc 1 (j_max - 1), c i * A i := by
         have h_div : (p : ℤ) ^ (m - j_max + 1) ∣ ∑ i ∈ Finset.Icc 1 m, c i * A i - ∑ i ∈ Finset.Icc (j_max + 1) m, c i * A i := by
-          refine' dvd_sub h_total_div _;
+          refine dvd_sub h_total_div ?_;
           have h_div : ∀ i ∈ Finset.Icc (j_max + 1) m, c i = 0 := by
             simp +zetaDelta at *;
             grind;
@@ -1653,7 +1652,7 @@ lemma lemma_local_canonical_bound (n p k : ℕ) (c : ℕ → ℤ)
     (h_not_prime_pow : ∀ q l, Nat.Prime q → n ≠ q ^ l)
     (hc : ∀ j ∈ Finset.Icc 1 k, 0 ≤ c j ∧ c j ≤ p - 1) :
     ∑ j ∈ Finset.Icc 1 k, c j * (Nat.choose n (p ^ j) : ℤ) ≤ (p ^ k : ℤ) * (Nat.choose n (p ^ k) : ℤ) := by
-      refine' le_trans ( Finset.sum_le_sum fun i hi => mul_le_mul_of_nonneg_right ( hc i hi |>.2 ) <| Nat.cast_nonneg _ ) _;
+      refine le_trans ( Finset.sum_le_sum fun i hi => mul_le_mul_of_nonneg_right ( hc i hi |>.2 ) <| Nat.cast_nonneg _ ) ?_;
       convert lemma_prime_pow_binom_bound n p k hp hk hk_le h_not_prime_pow using 1
 
 /-
@@ -1847,7 +1846,7 @@ lemma lemma_binom_ge_canonical (n m : ℕ)
     (Nat.choose n m : ℤ) ≥ CanonicalSumValue n (Nat.choose n m) (by linarith) h_not_prime_pow := by
       have := lemma_global_canonical_bound n m
       generalize_proofs at *;
-      refine' le_trans ( this _ hn h_not_prime_pow _ _ ) _;
+      refine le_trans ( this _ hn h_not_prime_pow ?_ ?_ ) ?_;
       · exact Classical.choose_spec ( lemma_canonical_representation_exists n _ ‹_› h_not_prime_pow ) |>.1;
       · intros p hp j hj hj_gt
         have h_cong : (∑ j ∈ Finset.Icc 1 (n.factorization p), CanonicalRep n (Nat.choose n m) ‹_› h_not_prime_pow p j * (Nat.choose n (p ^ j) : ℤ)) ≡ (Nat.choose n m : ℤ) [ZMOD p ^ (n.factorization p)] := by
@@ -1870,7 +1869,7 @@ lemma lemma_binom_ge_canonical (n m : ℕ)
         exact Nat.pos_of_ne_zero ( Finsupp.mem_support_iff.mp hp )) (by
         exact lemma_binom_is_super_sequence n p hp h_not_prime_pow) (by
         exact fun j hj => Classical.choose_spec ( lemma_canonical_representation_exists n ( Nat.choose n m ) ‹_› h_not_prime_pow ) |>.1 p hp j hj |> fun h => ⟨ h.1, h.2 ⟩) (n.factorization p - padicValNat p m) (by
-        refine' h_cong.of_dvd _ |> Int.ModEq.trans <| Int.modEq_zero_iff_dvd.mpr _;
+        refine h_cong.of_dvd ?_ |> Int.ModEq.trans <| Int.modEq_zero_iff_dvd.mpr ?_;
         · exact pow_dvd_pow _ ( Nat.sub_le _ _ );
         · norm_cast
           generalize_proofs at *;
@@ -2132,7 +2131,7 @@ lemma lemma_generator_reduction_case_gt_half (n m : ℕ)
           obtain ⟨p, k, hp_prime, hk_pos, hm'_eq⟩ : ∃ p k : ℕ, p.Prime ∧ k ≥ 1 ∧ m' = p ^ k := by
             rw [ isPrimePow_nat_iff ] at h_m'_prime_pow ; aesop;
           use Nat.choose n (p ^ k);
-          refine' ⟨ _, _, _ ⟩;
+          refine ⟨ ?_, ?_, ?_ ⟩;
           · apply lemma_binom_basis_is_pps n p k (by
             exact Nat.mem_primeFactors.mpr ⟨ hp_prime, Nat.dvd_trans ( hm'_eq.symm ▸ dvd_pow_self _ ( by linarith ) ) h_m'_dvd, by linarith ⟩) hk_pos (by
             have h_div : p ^ k ∣ n := by
@@ -2147,7 +2146,7 @@ lemma lemma_generator_reduction_case_gt_half (n m : ℕ)
             grind) (by
             grind) h_not_prime_pow h_m'_prime_pow h_m'_dvd
           generalize_proofs at *;
-          refine' ⟨ CanonicalSumValue n ( Nat.choose n m' ) ‹_› h_not_prime_pow, _, _, _ ⟩;
+          refine ⟨ CanonicalSumValue n ( Nat.choose n m' ) ‹_› h_not_prime_pow, ?_, ?_, ?_ ⟩;
           · (expose_names; exact lemma_canonical_is_pps n (↑(n.choose m')) pf h_not_prime_pow);
           · rw [ Nat.choose_symm ( Nat.le_of_lt hm_lt_n ) ] at * ; linarith;
           · have h_cong : (Nat.choose n m' : ℤ) ≡ CanonicalSumValue n (Nat.choose n m') (by
@@ -2306,7 +2305,7 @@ lemma lemma_pps_lower_bound (n : ℕ) (y : ℤ)
       have h_local_congruence : ∀ p ∈ n.factorization.support, (∑ j ∈ Finset.Icc 1 (n.factorization p), c p j * (Nat.choose n (p ^ j) : ℤ)) ≡ (∑ j ∈ Finset.Icc 1 (n.factorization p), (p - 1) * (Nat.choose n (p ^ j) : ℤ)) [ZMOD p ^ (n.factorization p)] := by
         intro p hp
         have h_local_congruence : (∑ p ∈ n.factorization.support, ∑ j ∈ Finset.Icc 1 (n.factorization p), c p j * (Nat.choose n (p ^ j) : ℤ)) ≡ (∑ p ∈ n.factorization.support, ∑ j ∈ Finset.Icc 1 (n.factorization p), (p - 1) * (Nat.choose n (p ^ j) : ℤ)) [ZMOD p ^ (n.factorization p)] := by
-          refine' Int.ModEq.of_dvd _ ( hc.2 ▸ h_cong ) |> Int.ModEq.trans <| _;
+          refine Int.ModEq.of_dvd ?_ ( hc.2 ▸ h_cong ) |> Int.ModEq.trans <| ?_;
           · exact_mod_cast Nat.ordProj_dvd _ _;
           · unfold S_max;
             unfold K; simp +decide
