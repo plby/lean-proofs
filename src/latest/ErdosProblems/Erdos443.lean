@@ -41,7 +41,6 @@ open scoped Pointwise
 set_option maxHeartbeats 50000000
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 
 /-
 For any integer $k \ge 1$, $\log(k+1) \le k \log 2$.
@@ -84,7 +83,7 @@ lemma log_smooth_part_le (n : ℕ) (y : ℝ) (hy : 0 < y) :
   · field_simp;
     -- The number of terms in the sum is at most $y$.
     have h_num_terms : (Finset.filter (fun p : ℕ => (p : ℝ) ≤ y) n.primeFactors).card ≤ y := by
-      refine' le_trans _ ( Nat.floor_le hy.le );
+      refine le_trans ?_ ( Nat.floor_le hy.le );
       exact_mod_cast le_trans ( Finset.card_le_card <| show Finset.filter ( fun p : ℕ => ( p : ℝ ) ≤ y ) n.primeFactors ⊆ Finset.Icc 1 ( Nat.floor y ) from fun p hp => Finset.mem_Icc.mpr ⟨ Nat.pos_of_mem_primeFactors <| Finset.mem_filter.mp hp |>.1, Nat.le_floor <| Finset.mem_filter.mp hp |>.2 ⟩ ) <| by simp;
     -- Each term in the sum is bounded by $\log(\frac{\log n}{\log 2} + 1)$.
     have h_term_bound : ∀ p ∈ Finset.filter (fun p : ℕ => (p : ℝ) ≤ y) n.primeFactors, Real.log ((n.factorization p) + 1) ≤ Real.log ((Real.log n + Real.log 2) / Real.log 2) := by
@@ -158,7 +157,7 @@ lemma smooth_part_bound_asymptotic (ε : ℝ) (hε : 0 < ε) :
   -- By the definition of limit, for any ε' > 0, there exists an N such that for all n ≥ N, the ratio is less than ε'.
   obtain ⟨N, hN⟩ : ∃ N : ℕ, ∀ n ≥ N, (Real.log n) ^ (1 / (1 + ε / 2)) * Real.log (Real.log n / Real.log 2 + 1) / (Real.log n / Real.log (Real.log n)) < (ε / 2) * Real.log 2 := by
     simpa using h_lim.eventually ( gt_mem_nhds <| by positivity );
-  refine' ⟨ N + 3, fun n hn => _ ⟩ ; specialize hN n ( by linarith ) ; rw [ div_lt_iff₀ ] at hN;
+  refine ⟨ N + 3, fun n hn => ?_ ⟩ ; specialize hN n ( by linarith ) ; rw [ div_lt_iff₀ ] at hN;
   · grind;
   · exact div_pos ( Real.log_pos ( by norm_cast; linarith ) ) ( Real.log_pos ( show 1 < Real.log n from by rw [ Real.lt_log_iff_exp_lt ( by norm_cast; linarith ) ] ; exact Real.exp_one_lt_d9.trans_le ( by norm_num; linarith [ show ( n : ℝ ) ≥ 3 by norm_cast; linarith ] ) ) )
 
@@ -187,7 +186,7 @@ lemma log_divisor_bound_aux (ε : ℝ) (hε : 0 < ε) :
   -- By `log_smooth_part_le`, this is bounded by $y \log(\frac{\log n}{\log 2} + 1)$.
   have h_smooth_part_bound (n : ℕ) (hn_ge_3 : 3 ≤ n) (hn_ge_N_smooth : N_smooth ≤ n) : (∑ p ∈ n.primeFactors.filter (fun (p : ℕ) => (p : ℝ) ≤ y n), Real.log ((n.factorization p : ℝ) + 1)) ≤ y n * Real.log ((Real.log n) / Real.log 2 + 1) := by
     convert log_smooth_part_le n ( y n ) ( by linarith [ hy_ge_1 n hn_ge_3 ] ) using 1;
-  refine' ⟨ N_smooth + 3, fun n hn => _ ⟩ ; specialize hN_smooth n ( by linarith ) ; specialize h_rough_part_bound n ( by linarith ) ( by linarith ) ; specialize h_smooth_part_bound n ( by linarith ) ( by linarith ) ; simp_all +decide [ Finset.sum_filter ];
+  refine ⟨ N_smooth + 3, fun n hn => ?_ ⟩ ; specialize hN_smooth n ( by linarith ) ; specialize h_rough_part_bound n ( by linarith ) ( by linarith ) ; specialize h_smooth_part_bound n ( by linarith ) ( by linarith ) ; simp_all +decide [ Finset.sum_filter ];
   have h_smooth_lt := lt_of_le_of_lt h_smooth_part_bound hN_smooth;
   convert add_lt_add_of_le_of_lt h_rough_part_bound h_smooth_lt using 1;
   · simpa only [ ← Finset.sum_add_distrib ] using Finset.sum_congr rfl fun x hx => by split_ifs <;> linarith;
@@ -212,7 +211,7 @@ theorem divisor_bound (ε : ℝ) (hε : 0 < ε) :
           exact fun {m} a => Nat.card_divisors a;
         exact h_divisors_formula hn.ne';
       rw [ h_divisors_card, ← Real.log_prod ] <;> norm_cast ; aesop;
-    refine' ⟨ N + 2, fun n hn => _ ⟩ ; specialize hN n ( by linarith ) ; specialize log_divisors_card n ( by linarith ) ; rw [ Real.lt_rpow_iff_log_lt ] <;> norm_num <;> try linarith [ Nat.pos_of_ne_zero ( show n ≠ 0 by linarith ) ] ;
+    refine ⟨ N + 2, fun n hn => ?_ ⟩ ; specialize hN n ( by linarith ) ; specialize log_divisors_card n ( by linarith ) ; rw [ Real.lt_rpow_iff_log_lt ] <;> norm_num <;> try linarith [ Nat.pos_of_ne_zero ( show n ≠ 0 by linarith ) ] ;
     convert lt_of_le_of_lt log_divisors_card hN using 1 ; ring
 
 /-
@@ -282,14 +281,14 @@ The map $(k, r) \mapsto ((m - 2r) - (n - 2k), (m - 2r) + (n - 2k))$ maps solutio
 -/
 lemma to_T_pair_mem_T' (m n k r : ℕ) (hmn : n < m) (hk : 2 * k ≤ n) (hr : 2 * r ≤ m) (h_eq : k * (n - k) = r * (m - r)) (hk_pos : 0 < k) :
   to_T_pair' m n k r ∈ T m n := by
-    refine' Finset.mem_filter.mpr ⟨ _, _ ⟩;
+    refine Finset.mem_filter.mpr ⟨ ?_, ?_ ⟩;
     · rw [ Nat.mem_divisorsAntidiagonal ];
       zify [ to_T_pair' ];
       repeat rw [ Nat.cast_sub ] <;> push_cast <;> repeat nlinarith only [ hk, hr, hmn ] ;
       · zify at *;
         exact ⟨ by rw [ Nat.cast_sub ( by linarith ), Nat.cast_sub ( by linarith ) ] at h_eq; nlinarith, by nlinarith ⟩;
       · exact Nat.sub_le_of_le_add <| by linarith [ Nat.sub_add_cancel <| show 2 * r ≤ m from hr, Nat.sub_add_cancel <| show 2 * k ≤ n from hk, r_lt_k_of_eq m n k r hmn hk hr h_eq hk_pos ] ;
-    · refine' ⟨ _, _, _, _ ⟩;
+    · refine ⟨ ?_, ?_, ?_, ?_ ⟩;
       · zify;
         repeat rw [ Nat.cast_sub ] <;> push_cast <;> try linarith;
         · linarith [ show r > 0 from Nat.pos_of_ne_zero fun h => by subst h; nlinarith [ Nat.sub_pos_of_lt ( show k < n from by linarith ) ] ];
@@ -449,7 +448,7 @@ lemma from_T_pair_is_solution (m n M N : ℕ) (hmn : n < m) (hm : Even m) (hn : 
         exact Finset.mem_filter.mp hT |>.2.1;
       exact Nat.div_pos ( Nat.le_of_dvd ( Nat.sub_pos_of_lt ( by omega ) ) ( Nat.dvd_of_mod_eq_zero ( by rw [ Nat.mod_eq_zero_of_dvd ] ; exact Nat.dvd_of_mod_eq_zero ( by omega ) ) ) ) zero_lt_two;
     field_simp;
-    refine' ⟨ _, _, _, hk_pos, hr_pos ⟩;
+    refine ⟨ ?_, ?_, ?_, hk_pos, hr_pos ⟩;
     · unfold from_T_pair; aesop;
     · exact hr.le.trans ( Nat.sub_le _ _ );
     · unfold from_T_pair;
@@ -480,7 +479,7 @@ theorem card_intersection_eq (m n : ℕ) (hmn : n < m) (hm : Even m) (hn : Odd n
         exact ⟨ _, _, from_T_pair_is_solution m n M N hmn hm hn hMN |>.1, from_T_pair_is_solution m n M N hmn hm hn hMN |>.2.1, from_T_pair_is_solution m n M N hmn hm hn hMN |>.2.2.1, from_T_pair_is_solution m n M N hmn hm hn hMN |>.2.2.2.1, from_T_pair_is_solution m n M N hmn hm hn hMN |>.2.2.2.2, rfl, rfl ⟩;
       norm_num +zetaDelta at *;
       exact ⟨ Finset.mem_image.mpr ⟨ ( from_T_pair m n M N ).1, Finset.mem_Ioo.mpr ⟨ by linarith, by linarith ⟩, by simp +decide [ ← h_eq.2.2.2.1 ] ⟩, Finset.mem_image.mpr ⟨ r, Finset.mem_Ioo.mpr ⟨ by linarith, by linarith ⟩, by simp +decide [ ← h_eq.2.2.2.1, h_eq.1 ] ⟩ ⟩;
-    refine' le_antisymm h_le _;
+    refine le_antisymm h_le ?_;
     choose! f hf₁ hf₂ using h_ge;
     -- We'll use that $f$ is injective on $T_{m,n}$ to show that $|T_{m,n}| \le |A_n \cap A_m|$.
     have h_inj : ∀ (M N M' N' : ℕ), (M, N) ∈ T m n → (M', N') ∈ T m n → f M N = f M' N' → (M, N) = (M', N') := by
@@ -552,10 +551,10 @@ theorem corollary_1_2 (ε : ℝ) (hε : 0 < ε) :
       · exact le_tsub_of_add_le_left ( by nlinarith only [ hn, hm ] );
     -- Since $m^2 - n^2 < m^2$, we have $(m^2 - n^2)^{\frac{(1+\delta)\log 2}{\log\log(m^2-n^2)}} < (m^2)^{\frac{(1+\delta)\log 2}{\log\log m}}$.
     have h_exp : (m^2 - n^2 : ℝ) ^ ((1 + ε / 4) * Real.log 2 / Real.log (Real.log (m^2 - n^2))) < (m^2 : ℝ) ^ ((1 + ε / 4) * Real.log 2 / Real.log (Real.log m)) := by
-      refine' lt_of_le_of_lt ( Real.rpow_le_rpow ( _ ) ( sub_le_self _ <| by positivity ) <| _ ) _;
+      refine lt_of_le_of_lt ( Real.rpow_le_rpow ( ?_ ) ( sub_le_self _ <| by positivity ) <| ?_ ) ?_;
       · exact sub_nonneg_of_le ( by gcongr );
       · exact le_trans ( by norm_num ) ( div_nonneg ( by positivity ) ( Real.log_nonneg ( show 1 ≤ Real.log ( m ^ 2 - n ^ 2 ) from by rw [ Real.le_log_iff_exp_le ( sub_pos.mpr <| by norm_cast; nlinarith ) ] ; exact Real.exp_one_lt_d9.le.trans <| by norm_num; nlinarith [ show ( m : ℝ ) ≥ n + 1 by norm_cast, show ( n : ℝ ) ≥ N₀ + 2 by norm_cast ] ) ) );
-      · refine' Real.rpow_lt_rpow_of_exponent_lt _ _;
+      · refine Real.rpow_lt_rpow_of_exponent_lt ?_ ?_;
         · exact one_lt_pow₀ ( by norm_cast; linarith ) ( by norm_num );
         · gcongr;
           · exact Real.log_pos <| by rw [ Real.lt_log_iff_exp_lt <| by norm_cast; linarith ] ; exact Real.exp_one_lt_d9.trans_le <| by norm_num; linarith [ show ( m : ℝ ) ≥ 3 by norm_cast; linarith ] ;
@@ -563,15 +562,21 @@ theorem corollary_1_2 (ε : ℝ) (hε : 0 < ε) :
           · norm_cast ; linarith;
           · rcases n with ( _ | _ | n ) <;> rcases m with ( _ | _ | m ) <;> norm_num at *;
             exact lt_tsub_iff_left.mpr ( by norm_cast; nlinarith only [ hm ] );
-    refine' lt_of_le_of_lt _ ( h_div.trans h_exp ) |> lt_of_lt_of_le <| _;
+    refine lt_of_le_of_lt ?_ ( h_div.trans h_exp ) |> lt_of_lt_of_le <| ?_;
     · -- By definition of $A$, we know that $|A_n \cap A_m| \le \tau_{m,n}$.
       have h_card_le_tau : (A n ∩ A m).card ≤ τ m n := by
         exact card_intersection_le m n hm;
-      refine' mod_cast h_card_le_tau.trans _;
-      refine' Finset.card_filter_le _ _ |> le_trans <| _;
+      refine mod_cast h_card_le_tau.trans ?_;
+      refine
+        Finset.card_filter_le (Nat.divisorsAntidiagonal (m ^ 2 - n ^ 2))
+          (fun x : ℕ × ℕ =>
+            x.1 + x.2 < 2 * m ∧ 0 < x.1 ∧ x.1 ≤ x.2 ∧ x.2 < x.1 + 2 * n)
+          |> le_trans <| ?_;
       rw [ Nat.divisorsAntidiagonal ];
-      refine' le_trans ( Finset.card_le_card _ ) _;
-      exact Finset.image ( fun x => ( x, ( m ^ 2 - n ^ 2 ) / x ) ) ( Nat.divisors ( m ^ 2 - n ^ 2 ) );
+      refine le_trans
+        (b := (Finset.image (fun x => (x, (m ^ 2 - n ^ 2) / x))
+          (Nat.divisors (m ^ 2 - n ^ 2))).card)
+        ( Finset.card_le_card ?_ ) ?_;
       · simp +decide [ Finset.subset_iff ];
         exact fun a b x hx₁ hx₂ hx₃ hx₄ hx₅ => ⟨ ⟨ hx₄.symm ▸ Nat.dvd_of_mod_eq_zero ( by rw [ Nat.mod_eq_zero_of_dvd ] ; exact ⟨ ( m ^ 2 - n ^ 2 ) / x, by linarith ⟩ ), Nat.sub_ne_zero_of_lt ( by nlinarith ) ⟩, hx₄.symm ▸ hx₅ ⟩;
       · exact Finset.card_image_le;
@@ -628,14 +633,14 @@ lemma construction_pairs_in_T (s p α : ℕ) (hp : Odd p) (hp_ge_3 : 3 ≤ p) (h
     intro hx;
     simp +zetaDelta at *;
     rintro x hx rfl;
-    refine' Finset.mem_filter.mpr ⟨ _, _ ⟩;
+    refine Finset.mem_filter.mpr ⟨ ?_, ?_ ⟩;
     · rw [ Nat.mem_divisorsAntidiagonal ];
       zify;
       rw [ Nat.cast_sub ] <;> norm_num <;> ring_nf;
       · rw [ Nat.cast_sub <| Nat.one_le_iff_ne_zero.mpr <| by positivity ] ; push_cast ; ring_nf;
         exact ⟨ by rw [ ← pow_add, Nat.sub_add_cancel hx.le ], by positivity ⟩;
       · nlinarith [ Nat.sub_add_cancel ( show 1 ≤ p ^ s * 2 ^ α from Nat.mul_pos ( pow_pos ( by linarith ) _ ) ( pow_pos ( by linarith ) _ ) ), pow_mul p s 2, pow_mul 2 α 2 ];
-    · refine' ⟨ _, _, _, _ ⟩;
+    · refine ⟨ ?_, ?_, ?_, ?_ ⟩;
       · rw [ show p ^ s = p ^ ( s - x ) * p ^ x by rw [ ← pow_add, Nat.sub_add_cancel hx.le ] ] at *;
         ring_nf at *;
         nlinarith [ Nat.zero_le ( p ^ ( s - x ) * p ^ x ), Nat.zero_le ( p ^ x * 2 ^ α ), Nat.zero_le ( p ^ ( s - x ) * 2 ^ α ), Nat.zero_le ( p ^ x * 2 ), Nat.zero_le ( p ^ ( s - x ) * 2 ), Nat.zero_le ( p ^ x * 2 ^ α * 2 ), Nat.zero_le ( p ^ ( s - x ) * 2 ^ α * 2 ), Nat.pow_le_pow_right ( by linarith : 1 ≤ p ) ( show s - x ≥ 1 from Nat.sub_pos_of_lt hx ), Nat.pow_le_pow_right ( by linarith : 1 ≤ p ) ( show x ≥ 0 from Nat.zero_le x ) ];
@@ -793,7 +798,7 @@ lemma solution_from_parity (m n M N : ℕ) (hmn : n < m) (hT : (M, N) ∈ T m n)
           · nlinarith only [ hmn, h_eq, show M + N < 2 * m from by { have := Finset.mem_filter.mp hT; aesop } ];
         · gcongr;
       grind;
-    refine' ⟨ by linarith, _, _, _, _ ⟩;
+    refine ⟨ by linarith, ?_, ?_, ?_, ?_ ⟩;
     · exact hk.le.trans ( Nat.sub_le _ _ );
     · exact hr.le.trans ( Nat.sub_le _ _ );
     · unfold T at hT ; norm_num at hT ; omega;
@@ -967,7 +972,7 @@ lemma T_parity_subset_construction_pairs (s p α : ℕ) (hs : 0 < s) (hp : p.Pri
     have hi : i ≤ s := by
       exact Nat.sub_le _ _
     have hi_pos : i < s := by
-      refine' lt_of_le_of_ne hi _;
+      refine lt_of_le_of_ne hi ?_;
       intro H; simp_all +decide [ T_parity ] ;
       unfold T at hx; simp_all +decide [ Finset.mem_filter ] ;
       unfold construction_1_3 at *; simp_all +decide [ Nat.pow_succ', Nat.mul_assoc ] ;
@@ -1120,7 +1125,7 @@ lemma sum_degrees_eq_sum_card {α : Type*} [DecidableEq α] (E : Finset (Finset 
     simp +decide only [degree, Finset.card_eq_sum_ones];
     rw [ Finset.sum_sigma' ];
     rw [ Finset.sum_sigma' ];
-    refine' Finset.sum_bij ( fun x _ => ⟨ x.2, x.1 ⟩ ) _ _ _ _ <;> aesop
+    refine Finset.sum_bij ( fun x _ => ⟨ x.2, x.1 ⟩ ) ?_ ?_ ?_ ?_ <;> aesop
 
 /-
 The sum of squared degrees is the sum of intersection sizes of all pairs of edges.
@@ -1138,7 +1143,7 @@ lemma sum_sq_degrees_eq {α : Type*} [DecidableEq α] (E : Finset (Finset α)) :
       rw [ Finset.sum_congr rfl h_card, Finset.sum_comm ];
       simp +decide only [and_comm];
     simp_all +decide
-    refine' Finset.sum_congr rfl fun v hv => _;
+    refine Finset.sum_congr rfl fun v hv => ?_;
     simp +decide only [degree];
     simp +decide only [Finset.card_filter, pow_two];
     rw [ Finset.sum_mul _ _ _ ] ; exact Finset.sum_congr rfl fun _ _ => by split_ifs <;> simp +decide [ * ] ;
@@ -1199,7 +1204,7 @@ lemma hypergraph_bound {α : Type*} [DecidableEq α] (E : Finset (Finset α)) (m
           · exact mul_nonneg ( mul_nonneg ( Nat.cast_nonneg _ ) ( sub_nonneg.mpr ( Nat.one_le_cast.mpr ( Nat.pos_of_ne_zero h ) ) ) ) ( Nat.cast_nonneg _ );
           · convert h_sum_ge using 1;
       refine le_trans h_subst ?_;
-      refine' div_le_of_le_mul₀ _ _ _ <;> norm_cast;
+      refine div_le_of_le_mul₀ ?_ ?_ ?_ <;> norm_cast;
       · exact add_nonneg ( Nat.cast_nonneg _ ) ( mul_nonneg ( mul_nonneg ( Nat.cast_nonneg _ ) ( by rw [ Int.subNatNat_eq_coe ] ; norm_num; linarith [ Nat.pos_of_ne_zero h ] ) ) ( Nat.cast_nonneg _ ) );
       · exact Nat.zero_le _;
       · have h_sum_sq_degrees : ∑ v ∈ E.biUnion id, (degree E v)^2 ≤ (∑ e ∈ E, e.card) + m * (m - 1) * k := by
@@ -1286,7 +1291,7 @@ lemma heavy_indices_card_bound (A : Finset ℕ) (n : ℕ) (δ : ℝ) (hA : A.car
         convert sum_B_full_eq_sq A |> ge_of_eq;
       -- The sum of the sizes of the $B_{full}$ sets for the heavy indices is at least $n^2$ minus the sum of the sizes of the $B_{full}$ sets for the non-heavy indices.
       have h_sum_nonheavy : (∑ k ∈ (A + A) \ heavy_indices A δ, (B_full A k).card : ℝ) ≤ ((A + A).card : ℝ) * δ := by
-        refine' le_trans ( Finset.sum_le_sum fun x hx => show ( B_full A x |> Finset.card : ℝ ) ≤ δ from _ ) _;
+        refine le_trans ( Finset.sum_le_sum fun x hx => show ( B_full A x |> Finset.card : ℝ ) ≤ δ from ?_ ) ?_;
         · unfold heavy_indices at hx; aesop;
         · simp +zetaDelta at *;
           exact mul_le_mul_of_nonneg_right ( mod_cast Finset.card_le_card fun x hx => by aesop ) hδ;
@@ -1364,7 +1369,7 @@ theorem heavy_indices_lower_bound (c : ℝ) (hc0 : 0 < c) (hc1 : c < 1) :
       let L := Real.log (Real.log n)
       4 / L + 2 * Real.log 2 * L^(c - 1) ≤ 3 * L^(c - 1) := by
         exact exponent_inequality c hc0 hc1;
-    refine' ⟨ N + 4, fun n hn S hS hT => _ ⟩ ; specialize hN n ( by linarith ) ; norm_num at *;
+    refine ⟨ N + 4, fun n hn S hS hT => ?_ ⟩ ; specialize hN n ( by linarith ) ; norm_num at *;
     -- Applying the lemma heavy_indices_card_bound with δ = 0.5 * n^(2/3 - 2 / Real.log (Real.log n)), we get:
     have h_card_bound : (heavy_indices S (1 / 2 * (n : ℝ) ^ (2 / 3 - 2 / Real.log (Real.log n)))).card * n ≥ n^2 - (S + S).card * (1 / 2 * (n : ℝ) ^ (2 / 3 - 2 / Real.log (Real.log n))) := by
       convert heavy_indices_card_bound S n ( 1 / 2 * ( n : ℝ ) ^ ( 2 / 3 - 2 / Real.log ( Real.log n ) ) ) hS _ using 1 ; norm_num;
@@ -1507,7 +1512,7 @@ lemma exponent_bound_lemma (c : ℝ) (hc0 : 0 < c) (hc1 : c < 1) :
     obtain ⟨X, hX_pos, hX⟩ : ∃ X : ℝ, 0 < X ∧ ∀ x y : ℝ, X ≤ x → x ≤ y →
         Real.log x / Real.log (Real.log x) ≤ Real.log y / Real.log (Real.log y) := by
           exact log_div_log_log_increasing;
-    refine' ⟨ ⌈X⌉₊ + N1 + 1, fun n hn => ⟨ ⌈X⌉₊ + 1, fun m hm₁ hm₂ => _ ⟩ ⟩;
+    refine ⟨ ⌈X⌉₊ + N1 + 1, fun n hn => ⟨ ⌈X⌉₊ + 1, fun m hm₁ hm₂ => ?_ ⟩ ⟩;
     -- By `hN1`, we have $\frac{\log m}{\log \log m} \le \frac{2}{2.1 \log 2} \frac{\log n}{(\log \log n)^{1-c}}$.
     have h_log_ratio : Real.log m / Real.log (Real.log m) ≤ (2 / (2.1 * Real.log 2)) * Real.log n / (Real.log (Real.log n)) ^ (1 - c) := by
       refine le_trans ( hX _ _ ?_ hm₂ ) ( hN1 n ( by linarith ) );
@@ -1563,7 +1568,7 @@ lemma exponent_bound_lemma_const (c : ℝ) (hc0 : 0 < c) (hc1 : c < 1) :
     obtain ⟨ N₁, hN₁ ⟩ := algebraic_bound_step1 c hc0 hc1;
     -- By `log_div_log_log_increasing`, let $X$ be such that for $x, y \ge X$ with $x \le y$, we have $\frac{\log x}{\log \log x} \le \frac{\log y}{\log \log y}$.
     obtain ⟨ X, hX₀, hX₁ ⟩ := log_div_log_log_increasing;
-    refine' ⟨ N₁ + ⌈X⌉₊ + 1, X, fun n hn m hm₁ hm₂ => _ ⟩ ; norm_num at *;
+    refine ⟨ N₁ + ⌈X⌉₊ + 1, X, fun n hn m hm₁ hm₂ => ?_ ⟩ ; norm_num at *;
     -- By `hN₁`, we have $\frac{\log m}{\log \log m} \le \frac{2}{2.1 \log 2} \frac{\log n}{(\log \log n)^{1-c}}$.
     have h_log_ratio : Real.log m / Real.log (Real.log m) ≤ (2 / (2.1 * Real.log 2)) * Real.log n / (Real.log (Real.log n)) ^ (1 - c) := by
       convert le_trans ( hX₁ m ( 2 * ( n : ℝ ) ^ ( Real.log ( Real.log n ) ) ^ c ) hm₁ hm₂ ) ( hN₁ n ( by linarith ) ) using 1 ; ring;
@@ -1587,7 +1592,7 @@ theorem intersection_bound_large (c : ℝ) (hc0 : 0 < c) (hc1 : c < 1) :
     obtain ⟨N₁, K₁, hK₁⟩ : ∃ N₁ K₁ : ℕ, ∀ n ≥ N₁, ∀ k : ℕ, K₁ ≤ k → k ≤ 2 * (n : ℝ) ^ ((Real.log (Real.log n)) ^ c) → (k : ℝ) ^ (2.1 * Real.log 2 / Real.log (Real.log k)) ≤ (n : ℝ) ^ (2 / (Real.log (Real.log n)) ^ (1 - c)) := by
       have := exponent_bound_lemma_const c hc0 hc1;
       obtain ⟨ N, K, h ⟩ := this; exact ⟨ N, ⌈K⌉₊, fun n hn k hk₁ hk₂ => h n hn k ( Nat.le_of_ceil_le hk₁ ) hk₂ ⟩ ;
-    refine' ⟨ N₁ + n₀ + K₁ + 1, n₀ + K₁ + 1, fun n hn k j hj₁ hj₂ hj₃ => _ ⟩;
+    refine ⟨ N₁ + n₀ + K₁ + 1, n₀ + K₁ + 1, fun n hn k j hj₁ hj₂ hj₃ => ?_ ⟩;
     have := hn₀ k j ( by linarith ) ( by linarith );
     simpa only [ Finset.inter_comm ] using this.le.trans ( hK₁ n ( by linarith ) k ( by linarith ) hj₃ ) ;
 
@@ -1603,8 +1608,8 @@ lemma intersection_bound_small (c : ℝ) (K : ℝ) :
     obtain ⟨N, hN⟩ : ∃ N : ℕ, ∀ n : ℕ, N ≤ n → ∀ j : ℕ, j < K → (j : ℝ) ≤ (n : ℝ) ^ (2 / (Real.log (Real.log n)) ^ (1 - c)) := by
       have := eventually_bound_gt_K c ( K + 1 );
       exact ⟨ this.choose, fun n hn j hj => by linarith [ this.choose_spec n hn ] ⟩;
-    refine' ⟨ N, fun n hn k j hj => le_trans _ ( hN n hn j hj ) ⟩;
-    refine' mod_cast le_trans ( Finset.card_le_card <| Finset.inter_subset_right ) _;
+    refine ⟨ N, fun n hn k j hj => le_trans ?_ ( hN n hn j hj ) ⟩;
+    refine mod_cast le_trans ( Finset.card_le_card <| Finset.inter_subset_right ) ?_;
     exact le_trans ( Finset.card_image_le ) ( by simp +arith +decide )
 
 /-
@@ -1649,7 +1654,7 @@ lemma R_le_mk (c : ℝ) (hc0 : 0 < c) (hc1 : c < 1) :
   R ≤ m * k := by
     -- By simplifying the exponents, we can see that for sufficiently large $n$, the inequality holds.
     have h_exp : ∃ N : ℕ, ∀ n ≥ N, (2 / 3 - 2 / Real.log (Real.log n)) ≤ 1 + 2 / Real.log (Real.log n) ^ (1 - c) := by
-      refine' ⟨ 3, fun n hn => _ ⟩ ; ring_nf;
+      refine ⟨ 3, fun n hn => ?_ ⟩ ; ring_nf;
       exact le_add_of_le_of_nonneg ( by linarith [ inv_nonneg.2 ( Real.log_nonneg ( show 1 ≤ Real.log n by rw [ Real.le_log_iff_exp_le ( by positivity ) ] ; exact Real.exp_one_lt_d9.le.trans ( by norm_num; linarith [ show ( n:ℝ ) ≥ 3 by norm_cast ] ) ) ) ] ) ( by exact mul_nonneg ( inv_nonneg.2 ( Real.rpow_nonneg ( Real.log_nonneg ( show 1 ≤ Real.log n by rw [ Real.le_log_iff_exp_le ( by positivity ) ] ; exact Real.exp_one_lt_d9.le.trans ( by norm_num; linarith [ show ( n:ℝ ) ≥ 3 by norm_cast ] ) ) ) _ ) ) zero_le_two );
     field_simp;
     obtain ⟨ N, hN ⟩ := h_exp; use N + 3; intro n hn; specialize hN n ( by linarith ) ; rw [ ← Real.rpow_one_add' ] <;> norm_num at *;
@@ -1927,7 +1932,7 @@ theorem theorem_1_3 (s : ℕ) (hs : 0 < s) :
     (∀ k, n_seq k < m_seq k) ∧
     (∀ k, m_seq k < n_seq (k + 1)) ∧
     (∀ k, (A (n_seq k) ∩ A (m_seq k)).card = s) := by
-      refine' ⟨ fun k => seq_n s k, fun k => seq_m s k, _, _, _ ⟩ <;> intro k <;> simp +decide
+      refine ⟨ fun k => seq_n s k, fun k => seq_m s k, ?_, ?_, ?_ ⟩ <;> intro k <;> simp +decide
       · exact Nat.sub_lt ( Nat.succ_pos _ ) ( by positivity );
       · -- Since $p_{k+1} > p_k$, we have $p_{k+1}^s > p_k^s$ and $2^{s p_{k+1} + 1} > 2^{s p_k + 1}$.
         have h_exp : 2^(s * Nat.nth Nat.Prime (k + 2) + 1) > 2^(s * Nat.nth Nat.Prime (k + 1) + 1) ∧ Nat.nth Nat.Prime (k + 2)^s > Nat.nth Nat.Prime (k + 1)^s := by
@@ -2148,7 +2153,7 @@ lemma hypergraph_bound_real {α : Type*} [DecidableEq α] (E : Finset (Finset α
       convert h_algebraic_helper using 1 ; rw [ show R + K * ( m * ( m - 1 ) ) / m = ( R * m + K * ( m * ( m - 1 ) ) ) / m by rw [ add_div' ] ; ring_nf ; positivity ] ; rw [ div_div_eq_mul_div ] ; ring;
     -- Combining the inequalities from h_cauchy_schwarz, h_sum_inter_bound, and h_algebraic_helper, we get:
     have h_combined : (m * R) ^ 2 / ((m * R) + (m * (m - 1) * K)) ≤ (E.biUnion id).card := by
-      refine' le_trans h_algebraic_helper ( div_le_of_le_mul₀ _ _ _ );
+      refine le_trans h_algebraic_helper ( div_le_of_le_mul₀ ?_ ?_ ?_ );
       · exact add_nonneg ( Finset.sum_nonneg fun _ _ => Nat.cast_nonneg _ ) ( mul_nonneg ( mul_nonneg ( Nat.cast_nonneg _ ) ( sub_nonneg.mpr ( Nat.one_le_cast.mpr ( Finset.card_pos.mpr ⟨ _, Classical.choose_spec ( Finset.card_pos.mp ( by linarith ) ) ⟩ ) ) ) ) hK );
       · positivity;
       · exact h_cauchy_schwarz.trans ( mul_le_mul_of_nonneg_left ( by simpa [ ← @Nat.cast_le ℝ ] using h_sum_inter_bound ) ( Nat.cast_nonneg _ ) );
@@ -2271,7 +2276,7 @@ theorem sum_product_result_implication (c : ℝ) (hc0 : 0 < c) (hc1 : c < 1) :
       ∀ k j : ℕ, k ∈ heavy_indices A (0.5 * (n : ℝ) ^ (2 / 3 - 2 / L)) → j ∈ heavy_indices A (0.5 * (n : ℝ) ^ (2 / 3 - 2 / L)) → k ≠ j →
       ((C_set A k ∩ C_set A j).card : ℝ) ≤ K := by
         obtain ⟨ N2, hN2 ⟩ := intersection_bound_asymptotic c hc0 hc1;
-        refine' ⟨ N2, fun n hn A hnA hA₁ hA₂ hA₃ k j hk hj hkj => _ ⟩;
+        refine ⟨ N2, fun n hn A hnA hA₁ hA₂ hA₃ k j hk hj hkj => ?_ ⟩;
         refine le_trans ?_ ( hN2 n hn k j hkj ?_ ?_ ) <;> norm_num [ heavy_indices ] at *;
         · exact Finset.card_le_card fun x hx => C_set_inter_subset_A_inter A k j hA₁ |> fun h => h hx;
         · rcases Finset.mem_add.mp hk.1 with ⟨ x, hx, y, hy, rfl ⟩ ; exact_mod_cast ( by linarith [ hA₂ x hx, hA₂ y hy ] : ( x : ℝ ) + y ≤ 2 * n ^ Real.log ( Real.log n ) ^ c ) ;
@@ -2293,7 +2298,7 @@ theorem sum_product_result_implication (c : ℝ) (hc0 : 0 < c) (hc1 : c < 1) :
       let K := (n : ℝ) ^ (2 / L ^ (1 - c))
       K < R := by
         exact R_gt_K_adjusted c hc1;
-    refine' ⟨ N1 + N2 + N3 + N4 + 10, fun n hn A hA hA1 hA2 hA3 => _ ⟩;
+    refine ⟨ N1 + N2 + N3 + N4 + 10, fun n hn A hA hA1 hA2 hA3 => ?_ ⟩;
     -- Apply `hypergraph_consequence` to get $|\bigcup_{k \in U} C_k| \ge bound$.
     have h_union : ((heavy_indices A (0.5 * (n : ℝ) ^ (2 / 3 - 2 / Real.log (Real.log n)))).biUnion (fun k => C_set A k)).card ≥ (n : ℝ) ^ (4 / 3 - 3 / Real.log (Real.log n) ^ (1 - c)) := by
       apply hypergraph_consequence;
@@ -2311,7 +2316,7 @@ theorem sum_product_result_implication (c : ℝ) (hc0 : 0 < c) (hc1 : c < 1) :
       · exact hN4 n ( by linarith );
       · exact mul_pos ( by norm_num ) ( Real.rpow_pos_of_pos ( Nat.cast_pos.mpr ( by linarith ) ) _ );
     refine le_trans h_union ?_;
-    refine' mod_cast Finset.card_le_card _;
+    refine mod_cast Finset.card_le_card ?_;
     simp +decide [ Finset.subset_iff ];
     intro x k hk hx; unfold C_set at hx; obtain ⟨ a, ha, rfl ⟩ := Finset.mem_image.mp hx; exact ⟨ _, _, Finset.mem_product.mp ( Finset.mem_filter.mp ha |>.1 ) |>.1 |> fun h => ⟨ h, Finset.mem_product.mp ( Finset.mem_filter.mp ha |>.1 ) |>.2 ⟩, rfl ⟩ ;
 
