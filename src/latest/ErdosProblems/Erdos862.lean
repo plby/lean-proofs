@@ -45,7 +45,6 @@ namespace Erdos862
 set_option maxHeartbeats 1000000
 -- Several Sidon counting and covering proofs time out at the default heartbeat limit.
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 
 open scoped BigOperators
 
@@ -393,7 +392,7 @@ theorem ErdosTuran : ∀ ε : ℝ, 0 < ε → ∃ N0 : ℕ, ∀ N : ℕ, N0 ≤ 
             Filter.Tendsto
               (fun N : ℕ => Real.sqrt (N : ℝ) / ((N : ℝ) ^ (3 / 4 : ℝ) - 1))
               Filter.atTop (nhds 0) by
-          refine' squeeze_zero_norm' _ h_sqrt_div_floor_le;
+          refine squeeze_zero_norm' ?_ h_sqrt_div_floor_le;
           filter_upwards [Filter.eventually_gt_atTop 1] with n hn using by
             rw [Real.norm_of_nonneg (by positivity)]
             exact
@@ -464,8 +463,8 @@ theorem ErdosTuran : ∀ ε : ℝ, 0 < ε → ∃ N0 : ℕ, ∀ N : ℕ, N0 ≤ 
       exact
         ⟨h_max.choose, h_max.choose_spec.1.1, h_max.choose_spec.1.2,
           fun B hB₁ hB₂ => h_max.choose_spec.2 B ⟨hB₁, hB₂⟩⟩;
-    refine' ⟨ A, hA.1, hA.2.1, le_antisymm _ _ ⟩;
-    · refine' Finset.le_sup ( f := Finset.card ) _;
+    refine ⟨ A, hA.1, hA.2.1, le_antisymm ?_ ?_ ⟩;
+    · refine Finset.le_sup ( f := Finset.card ) ?_;
       aesop;
     · exact Finset.sup_le fun B hB => by aesop;
   have :=
@@ -863,7 +862,7 @@ lemma exists_field_extension_of_degree_two (q : ℕ) (hq : IsPrimePow q) :
     haveI := Fact.mk hp.nat_prime;
     -- By definition of finite fields, there exists a finite field Fq with cardinality p^k.
     use (GaloisField p k);
-    refine' ⟨ _, _, _ ⟩;
+    refine ⟨ ?_, ?_, ?_ ⟩;
     exact inferInstance;
     exact Fintype.ofFinite (GaloisField p k);
     convert GaloisField.card p k;
@@ -881,7 +880,7 @@ lemma exists_field_extension_of_degree_two (q : ℕ) (hq : IsPrimePow q) :
     -- $f$. We can construct $Fqh$ as the quotient ring $Fq[x]/(f(x))$.
     use AdjoinRoot f;
     haveI := Fact.mk hf.2;
-    refine' ⟨ _, _, _, _, _ ⟩;
+    refine ⟨ ?_, ?_, ?_, ?_, ?_ ⟩;
     all_goals try infer_instance;
     · convert Fintype.ofFinite ( AdjoinRoot f );
       have h_finite : FiniteDimensional Fq (AdjoinRoot f) := by
@@ -1040,7 +1039,7 @@ lemma lem_extend (N : ℕ) (S : Finset ℕ) (hS : S ⊆ Finset.range N) (hSidon 
               Set.finite_iff_bddAbove.mpr
                 ⟨Finset.range N, fun M hM => Finset.le_iff_subset.mpr hM.2.2⟩;
           · exact ⟨ S, ⟨ Finset.Subset.refl _, hSidon, hS ⟩ ⟩;
-        refine' ⟨ M, hM.1.1, hM.1.2.1, hM.1.2.2, fun M' hM' hM'' hM''' => _ ⟩;
+        refine ⟨ M, hM.1.1, hM.1.2.1, hM.1.2.2, fun M' hM' hM'' hM''' => ?_ ⟩;
         exact
           Finset.eq_of_subset_of_card_le hM''
             (by
@@ -1103,7 +1102,7 @@ lemma lem_cover (N : ℕ) : (A N : ℝ) ≤ (A1 N : ℝ) * (2 : ℝ) ^ (f N : �
     -- Since $\abs{M}\le f(N)$, each maximal Sidon set $M$ contains at most $2^{f(N)}$ subsets.
     intros M hM
     have h_card_M : M.card ≤ f N := by
-      refine' le_trans _ ( Finset.le_sup <| show M.image ( fun x => x + 1 ) ∈ _ from _ );
+      refine le_trans ?_ ( Finset.le_sup <| show M.image ( fun x => x + 1 ) ∈ _ from ?_ );
       · rw [ Finset.card_image_of_injective _ Nat.succ_injective ];
       · simp_all +decide [ Finset.subset_iff, MaximalSidonSubset ];
         intro a b c d ha hb hc hd habcd
@@ -1126,8 +1125,8 @@ lemma lem_cover (N : ℕ) : (A N : ℝ) ≤ (A1 N : ℝ) * (2 : ℝ) ^ (f N : �
         (Finset.filter (fun S => MaximalSidonSubset (Finset.range N) S)
           (Finset.powerset (Finset.range N))).card * 2 ^ (f N : ℕ) := by
     refine le_trans ( Finset.card_le_card h_union ) ?_;
-    refine' le_trans ( Finset.card_biUnion_le ) _;
-    refine' le_trans ( Finset.sum_le_sum fun x hx => show Finset.card _ ≤ 2 ^ f N from _ ) _;
+    refine le_trans ( Finset.card_biUnion_le ) ?_;
+    refine le_trans ( Finset.sum_le_sum fun x hx => show Finset.card _ ≤ 2 ^ f N from ?_ ) ?_;
     · convert h_max_subset x hx using 1;
       convert Finset.card_image_of_injective _ Finset.coe_injective;
       ext; simp [Finset.mem_image];
@@ -1202,14 +1201,14 @@ lemma lem_modular (p : ℕ) (hp : p.Prime) :
         have h_iso : Nonempty (ZMod (p - 1) × ZMod p ≃+ ZMod ((p - 1) * p)) := by
           have h_coprime : Nat.gcd (p - 1) p = 1 := by
             simp +decide [ hp.one_lt.le ]
-          refine' ⟨ _ ⟩;
+          refine ⟨ ?_ ⟩;
           exact ( ZMod.chineseRemainder h_coprime ).toAddEquiv.symm
         generalize_proofs at *;
         rwa [ Nat.mul_comm ] at h_iso;
       obtain ⟨ f ⟩ := h_iso;
-      refine' ⟨
+      refine ⟨
         Finset.image (fun x : ZMod (p - 1) × ZMod p => f x) (ruzsa_set p g),
-        _, _
+        ?_, ?_
       ⟩ <;> simp_all +decide [ Sidon ];
       · rw [ Finset.card_image_of_injective _ f.injective, Finset.card_eq_of_bijective ];
         use fun i hi => ( i, g ^ i );
@@ -1312,7 +1311,7 @@ lemma S_chi_injective (m : ℕ) (hm : m ≥ 1) (T : Finset ℕ) (hT : T ⊆ Fins
         by_cases h2 : chi2 t = 0 <;>
         simp_all +decide [Finset.ext_iff];
       · contrapose! h_eq; simp_all +decide [ S_chi ] ;
-        refine' ⟨ _, Or.inr ⟨ _, t, t.2, h2, rfl ⟩ ⟩;
+        refine ⟨ t.val + ((chi2 t).val - 1) * m, Or.inr ⟨ ?_, t, t.2, h2, rfl ⟩ ⟩;
         intro x hx hx' H
         have := congr_arg (· % m) H
         norm_num [
@@ -1322,10 +1321,10 @@ lemma S_chi_injective (m : ℕ) (hm : m ≥ 1) (T : Finset ℕ) (hT : T ⊆ Fins
         ] at this;
         cases t ; aesop;
       · contrapose! h_eq;
-        refine' ⟨ _,
+        refine ⟨ t.val + ((chi1 t).val - 1) * m,
           Or.inl
             ⟨Finset.mem_image.mpr
-              ⟨t, Finset.mem_filter.mpr ⟨Finset.mem_attach _ _, h1⟩, rfl⟩, _⟩⟩
+              ⟨t, Finset.mem_filter.mpr ⟨Finset.mem_attach _ _, h1⟩, rfl⟩, ?_⟩⟩
         simp_all +decide [ S_chi ];
         intro x hx hx' H
         have := congr_arg (· % m) H
@@ -1352,7 +1351,7 @@ lemma lem_four_block (m : ℕ) (hm : m ≥ 1) (T : Finset ℕ) (hT : T ⊆ Finse
           Set.ncard_univ
         ]
         norm_num [ Set.ncard_eq_toFinset_card' ] ;
-      refine' le_trans hA_ge _;
+      refine le_trans hA_ge ?_;
       have h_image_subset :
           Set.image (fun f : { x // x ∈ T } → Fin 5 => S_chi m T f)
             (Set.univ : Set (_ → Fin 5)) ⊆
@@ -1371,7 +1370,7 @@ lemma lem_four_block (m : ℕ) (hm : m ≥ 1) (T : Finset ℕ) (hT : T ⊆ Finse
             Finset.filter (fun S => Sidon (S : Set ℕ))
               (Finset.powerset (Finset.range (4 * m)));
         · aesop;
-        · refine' Finset.card_bij _ _ _ _;
+        · refine Finset.card_bij ?_ ?_ ?_ ?_;
           use fun S hS => Finset.filter ( fun x => x ∈ S ) ( Finset.range ( 4 * m ) );
           · simp +contextual [ Finset.subset_iff ];
             intro a ha hSidon x y z w hx hy hz hw h; specialize hSidon x y z w; aesop;
@@ -1455,7 +1454,7 @@ lemma A_mono {N M : ℕ} (h : N ≤ M) : A N ≤ A M := by
   -- By definition of $A$, we know that every Sidon subset of $[N]$ is also a subset of $[M]$.
   have h_subset : ∀ S : Finset ℕ, S ⊆ Finset.range N → Sidon (S : Set ℕ) → S ⊆ Finset.range M := by
     exact fun S hS hSidon => Finset.Subset.trans hS ( Finset.range_mono h );
-  refine' Finset.card_le_card _;
+  refine Finset.card_le_card ?_;
   intro S hS; aesop;
 
 /-
@@ -1523,7 +1522,7 @@ lemma eventually_lower_bound (c : ℝ) (hc : c < Real.log 5 / 2) :
                 p ≤ (1 / 2) * Real.sqrt N ∧ 4 * p * (p - 1) ≤ N := by
         filter_upwards [h_prime, Filter.eventually_gt_atTop 0] with N hN hN'
         rcases hN with ⟨ p, hp₁, hp₂, hp₃ ⟩
-        refine' ⟨ p, hp₁, hp₂, hp₃, _ ⟩
+        refine ⟨ p, hp₁, hp₂, hp₃, ?_ ⟩
         rcases p with (_ | _ | p) <;> norm_num at *
         exact_mod_cast
           (by
@@ -1553,7 +1552,7 @@ lemma eventually_lower_bound (c : ℝ) (hc : c < Real.log 5 / 2) :
         field_simp;
         filter_upwards [h_monotone, Filter.eventually_gt_atTop 0] with N hN hN'
         rcases hN with ⟨ p, hp₁, hp₂, hp₃, hp₄, hp₅ ⟩
-        refine' ⟨ p, hp₁, _, _, hp₄, _ ⟩ <;> try linarith;
+        refine ⟨ p, hp₁, ?_, ?_, hp₄, ?_ ⟩ <;> try linarith;
         -- Using the fact that $A(N) \geq 5^{p-1}$, we have $\log A(N) \geq (p-1) \log 5$.
         have h_log_bound : Real.log (A N) ≥ (p - 1) * Real.log 5 := by
           rcases p with ( _ | _ | p ) <;> norm_num at *;
@@ -1608,8 +1607,8 @@ theorem thm_main
         by_cases h : A N = 0 <;> simp_all +decide [ Real.rpow_def_of_pos ] ;
         · -- If $A N = 0$, the empty set gives a contradiction.
           have h_contra : A N ≠ 0 := by
-            refine' ne_of_gt ( Finset.card_pos.mpr _ );
-            refine' ⟨ ∅, _ ⟩ ; simp +decide [ Sidon ];
+            refine ne_of_gt ( Finset.card_pos.mpr ?_ );
+            refine ⟨ ∅, ?_ ⟩ ; simp +decide [ Sidon ];
           contradiction;
         · have := Real.log_le_log (by positivity) h_A1_lower_bound
           norm_num [Real.log_mul, Real.exp_ne_zero, h] at this ⊢
@@ -1845,9 +1844,9 @@ lemma f_ge_one_sub_eps_mul_sqrt (ε : ℝ) (hε : 0 < ε) :
         use Finset.image ZMod.val S;
         simp_all +decide [ Finset.subset_iff, Set.subset_def ];
         exact fun x hx => Nat.le_sub_of_add_le ( by linarith [ this.2.2 x hx ] );
-      refine' mod_cast le_trans _
+      refine mod_cast le_trans ?_
         (Finset.le_sup <|
-          Finset.mem_filter.mpr ⟨Finset.mem_powerset.mpr hT_sidon.2, _⟩);
+          Finset.mem_filter.mpr ⟨Finset.mem_powerset.mpr hT_sidon.2, ?_⟩);
       · linarith;
       · intro a b c d ha hb hc hd habcd;
         have := hT_sidon.1 ( ↑a ) ( ↑b ) ( ↑c ) ( ↑d ) ; simp_all +decide
