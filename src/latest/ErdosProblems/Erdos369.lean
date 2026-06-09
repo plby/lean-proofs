@@ -41,10 +41,9 @@ can be found below.
 
 import Mathlib
 
--- Generated proof blocks below still depend on multi-goal tactic sequencing and `refine'`;
+-- Generated proof blocks below still depend on multi-goal tactic sequencing;
 -- local rewrites are brittle in this file.
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 
 open Finset Nat BigOperators
 
@@ -90,8 +89,8 @@ lemma exists_prime_interval_small_euler_product (θ : ℝ) (hθ : 0 < θ) (X₀ 
           obtain ⟨i, hi⟩ : ∃ i : Finset ℕ, (∀ p ∈ i, Nat.Prime p) ∧ (∑ p ∈ i,
             (1 / (p : ℝ))) > b := by
             contrapose! h;
-            refine' summable_of_sum_le _ _;
-            exacts [ b, fun _ => by positivity, fun u => by
+            refine summable_of_sum_le (c := b) ?_ ?_;
+            exacts [ fun _ => by positivity, fun u => by
               simpa using
                 h ( u.image Subtype.val ) ( fun p hp => by
                   obtain ⟨ q, hq, rfl ⟩ := Finset.mem_image.mp hp
@@ -245,7 +244,7 @@ lemma exists_nat_mul_mod_near (α β : ℝ) (hβ : 0 < β)
     generalize_proofs at *; (
     use k
     left
-    refine' ⟨ ?_, ?_ ⟩
+    refine ⟨ ?_, ?_ ⟩
     · exact Nat.le_of_lt_succ <| by
         rw [ ← @Nat.cast_lt ℝ ]
         push_cast
@@ -258,7 +257,7 @@ lemma exists_nat_mul_mod_near (α β : ℝ) (hβ : 0 < β)
     generalize_proofs at *; (
     -- Since $γ < 0$, we can write $γ = -|γ|$ and consider the interval $[0, β)$.
     obtain ⟨k, hk⟩ : ∃ k : ℕ, k ≤ Nat.ceil (β / |γ|) ∧ |k * |γ| - (β - t)| < δ := by
-      refine' ⟨ ⌊ ( β - t ) / |γ|⌋₊, _, _ ⟩
+      refine ⟨ ⌊ ( β - t ) / |γ|⌋₊, ?_, ?_ ⟩
       generalize_proofs at *; (
       exact Nat.floor_le_ceil _ |> le_trans <| Nat.ceil_mono <| by gcongr ; linarith;);
       rw [ abs_lt ] at * ; constructor
@@ -274,8 +273,8 @@ lemma exists_nat_mul_mod_near (α β : ℝ) (hβ : 0 < β)
         ⟨ by linarith [ abs_lt.mp hk.2 ], by linarith [ abs_lt.mp hk.2 ] ⟩ ⟩ ⟩))
   generalize_proofs at *; (
   use U; intros t ht ht'; obtain ⟨ k, hk ⟩ := h_k_gamma t ht ht'; rcases hk with ( ⟨ hk₁,
-    hk₂ ⟩ | ⟨ k, hk₁, hk₂ ⟩ ) <;> [ refine' ⟨ k * ( u₂ - u₁ ), _, _ ⟩ ; refine' ⟨ k * ( u₂ - u₁ ),
-    _, _ ⟩ ] <;> norm_num [ Nat.cast_sub hu₁.le ] at *;
+    hk₂ ⟩ | ⟨ k, hk₁, hk₂ ⟩ ) <;> [ refine ⟨ k * ( u₂ - u₁ ), ?_, ?_ ⟩ ; refine ⟨ k * ( u₂ - u₁ ),
+    ?_, ?_ ⟩ ] <;> norm_num [ Nat.cast_sub hu₁.le ] at *;
   · exact Nat.mul_le_mul_right _ hk₁ |> le_trans <| Nat.mul_le_mul_left _
     <| Nat.sub_le_sub_right le_rfl _;
   · use k * (⌊(u₂ * α) / β⌋ - ⌊(u₁ * α) / β⌋) + 0; simp_all +decide [ mul_assoc ] ; ring_nf at *;
@@ -340,7 +339,7 @@ lemma exists_log_combination_in_interval (L : ℕ) (hL : 0 < L) :
   obtain ⟨ u, hu, w, hw ⟩ := hU ( T - ⌊T / β⌋ * β ) ( by
     nlinarith [ Int.floor_le ( T / β ), mul_div_cancel₀ T hβ_pos.ne' ] ) ( by
     nlinarith [ Int.lt_floor_add_one ( T / β ), mul_div_cancel₀ T hβ_pos.ne' ] );
-  refine' ⟨ u, Int.natAbs ( ⌊T / β⌋ - w ), _, _ ⟩ <;> norm_num at *;
+  refine ⟨ u, Int.natAbs ( ⌊T / β⌋ - w ), ?_, ?_ ⟩ <;> norm_num at *;
   · cases abs_cases ( ( ⌊T / β⌋ : ℝ ) - w ) <;> push_cast [ * ] at *
     <;> nlinarith [ show ( u : ℝ ) ≤ U by norm_cast, show ( L : ℝ ) * Real.log 2 > 0 by positivity,
     show ( L : ℝ ) * Real.log 3 > 0 by positivity ];
@@ -410,11 +409,11 @@ lemma erdos_369_eps_ge_one (k : ℕ) (hk : 2 ≤ k) (ε : ℝ) (hε : 1 ≤ ε) 
     ∃ N₀ : ℕ, ∀ N : ℕ, N₀ ≤ N →
       ∃ a : ℕ, N / 2 ≤ a - (k - 1) ∧ a ≤ N ∧ k ≤ a ∧
         ∀ j : ℕ, j < k → (Nat.largestPrimeFactor (a - j) : ℝ) ≤ ((a - j : ℕ) : ℝ) ^ ε := by
-  refine' ⟨ 2 * k, _ ⟩;
+  refine ⟨ 2 * k, ?_ ⟩;
   intro N hN
   use N
   simp;
-  refine' ⟨ _, _, _ ⟩;
+  refine ⟨ ?_, ?_, ?_ ⟩;
   · omega;
   · linarith;
   · intro j hj
@@ -484,7 +483,7 @@ lemma exists_coprime_moduli_small_totient (θ : ℝ) (hθ : 0 < θ) (m : ℕ) (h
                 (1 - (1 : ℝ) / p) < θ := by
                 have := exists_prime_interval_small_euler_product θ hθ_pos ( X₀ ) ; aesop;
               generalize_proofs at *; (
-              use N + 1; intros n hn; refine' lt_of_le_of_lt _ hN; (
+              use N + 1; intros n hn; refine lt_of_le_of_lt ?_ hN; (
               rw [ ← Finset.prod_sdiff
                 <| show Finset.filter Nat.Prime ( Finset.Icc ( X₀ + 1 ) N ) ⊆ Finset.filter
                 Nat.Prime ( Finset.Icc ( X₀ + 1 ) n ) from Finset.filter_subset_filter _
@@ -575,7 +574,7 @@ lemma exists_coprime_moduli_small_totient (θ : ℝ) (hθ : 0 < θ) (m : ℕ) (h
             hx₁ ⟩ ⟩;
       exact h_disjoint m;
     use fun i => ∏ p ∈ T i, p;
-    refine' ⟨ hT.2.2.2.1, _, _, _ ⟩;
+    refine ⟨ hT.2.2.2.1, ?_, ?_, ?_ ⟩;
     · exact fun i j hij =>
         Nat.Coprime.prod_left fun p hp => Nat.Coprime.prod_right fun q hq => by
           have := Nat.coprime_primes ( hT.1 i p hp ) ( hT.1 j q hq )
@@ -645,8 +644,8 @@ lemma exists_crt_multiplier (k : ℕ) (hk : 2 ≤ k) (m : ℕ) (hm : m = k - 1)
     obtain ⟨e_q, he_q⟩ := h_crt
     -- Let $M = \prod_{i=0}^{m-1} r_i$.
     set M := Finset.prod Finset.univ r with hM_def;
-    refine' ⟨ e_q + M * ( Finset.sup ( Finset.Ico 1 k ) ( fun j => Nat.factorization j q ) + 1 ), _,
-      _ ⟩ <;> simp_all +decide [ Nat.ModEq, Nat.dvd_iff_mod_eq_zero ];
+    refine ⟨ e_q + M * ( Finset.sup ( Finset.Ico 1 k ) ( fun j => Nat.factorization j q ) + 1 ), ?_,
+      ?_ ⟩ <;> simp_all +decide [ Nat.ModEq, Nat.dvd_iff_mod_eq_zero ];
     · intro j hj₁ hj₂ i hi; rw [ ← Nat.dvd_iff_mod_eq_zero ] ; simp +decide [ *,
       Finset.prod_eq_prod_diff_singleton_mul <| Finset.mem_univ i ] ;
       rw [ ← Nat.mod_add_div ( e_q + ( ∏ x ∈ Finset.univ \ { i },
@@ -659,15 +658,21 @@ lemma exists_crt_multiplier (k : ℕ) (hk : 2 ≤ k) (m : ℕ) (hm : m = k - 1)
       Nat.factorization j q ) ( Finset.mem_Ico.mpr ⟨ hb₁, hb₂ ⟩ ),
       show 0 < M from Finset.prod_pos fun i _ => zero_lt_one.trans ( hr_pos i ) ] ;
   choose! e he₁ he₂ using h_exp;
-  refine' ⟨ ∏ q ∈ Finset.filter Nat.Prime ( Finset.Icc 1 ( Max.max 3 ( k - 1 ) ) ), q ^ e q, _, _,
-    _, _ ⟩;
+  refine ⟨ ∏ q ∈ Finset.filter Nat.Prime ( Finset.Icc 1 ( Max.max 3 ( k - 1 ) ) ), q ^ e q, ?_, ?_,
+    ?_, ?_ ⟩;
   · exact Finset.prod_pos fun q hq => pow_pos ( Nat.Prime.pos ( Finset.mem_filter.mp hq |>.2 ) ) _;
   · intro j hj₁ hj₂; rw [ ← Nat.prod_factorization_pow_eq_self ( by linarith : j ≠ 0 ) ] ;
     rw [ ← Finset.prod_sdiff
       <| show j.factorization.support ⊆ Finset.filter Nat.Prime ( Finset.Icc 1 ( Max.max 3 ( k - 1 )
       ) ) from ?_ ];
-    · refine' dvd_mul_of_dvd_right _ _;
-      exact Finset.prod_dvd_prod_of_dvd _ _ fun p hp => pow_dvd_pow _
+    · refine dvd_mul_of_dvd_right ?_
+        (∏ p ∈
+          (Finset.filter Nat.Prime (Finset.Icc 1 (Max.max 3 (k - 1)))) \
+            j.factorization.support,
+          p ^ e p);
+      exact
+        Finset.prod_dvd_prod_of_dvd (fun p => p ^ j.factorization p) (fun p => p ^ e p)
+          fun p hp => pow_dvd_pow p
         <| le_trans ( Finset.le_sup ( f := fun j => j.factorization p ) <| Finset.mem_Ico.mpr ⟨ hj₁,
         hj₂ ⟩ ) <| he₂ p ( Nat.prime_of_mem_primeFactors hp )
         <| le_trans ( Nat.le_of_mem_primeFactors hp ) <| le_max_of_le_right <| Nat.le_sub_one_of_lt
@@ -688,9 +693,14 @@ lemma exists_crt_multiplier (k : ℕ) (hk : 2 ≤ k) (m : ℕ) (hm : m = k - 1)
       rw [ ← Finset.prod_sdiff
         <| show j.factorization.support ⊆ Finset.filter Nat.Prime ( Finset.Icc 1 ( Max.max 3 ( k - 1
         ) ) ) from ?_ ];
-      · refine' dvd_mul_of_dvd_right _ _;
-        exact Finset.prod_dvd_prod_of_dvd _ _ fun p hp =>
-          pow_dvd_pow p ( show Nat.factorization j p ≤ e p from
+      · refine dvd_mul_of_dvd_right ?_
+          (∏ p ∈
+            (Finset.filter Nat.Prime (Finset.Icc 1 (Max.max 3 (k - 1)))) \
+              j.factorization.support,
+            p ^ e p);
+        exact
+          Finset.prod_dvd_prod_of_dvd (fun p => p ^ j.factorization p) (fun p => p ^ e p)
+            fun p hp => pow_dvd_pow p ( show Nat.factorization j p ≤ e p from
             le_trans
               ( Finset.le_sup ( f := fun j => Nat.factorization j p )
                 ( Finset.mem_Ico.mpr ⟨ hj₁, hj₂ ⟩ ) )
@@ -771,7 +781,7 @@ lemma prime_factor_bound_of_perfect_power (a j b R : ℕ)
     -- Since $b \geq 1$, we have $b + 1 \leq 2b$.
     have h_b_plus_one_le_two_b : (b + 1 : ℝ) ≤ (2 * b : ℝ) := by
       norm_cast ; linarith;
-    refine' Or.inr ( le_trans h_p_bound _ );
+    refine Or.inr ( le_trans h_p_bound ?_ );
     exact_mod_cast
       ( le_trans
         ( pow_le_pow_left₀ ( by positivity ) h_b_plus_one_le_two_b _ )
@@ -798,11 +808,11 @@ lemma smooth_pair_exists (θ : ℝ) (hθ : 0 < θ) :
   -- Set $K = \max(3, 2^L)$.
   set K := max 3 (2 ^ L : ℝ) with hK_def;
   obtain ⟨ Y₀, hY₀ ⟩ := exists_smooth_power_in_interval L ( by linarith );
-  refine' ⟨ K, _, Y₀ + 1, _ ⟩ <;> norm_num;
+  refine ⟨ K, ?_, Y₀ + 1, ?_ ⟩ <;> norm_num;
   · positivity;
   · intro N hN
     obtain ⟨u, v, hu⟩ := hY₀ N (by linarith);
-    refine' ⟨ 2 ^ ( L * u ) * 3 ^ ( L * v ), _, _, _, _ ⟩ <;> norm_cast at *;
+    refine ⟨ 2 ^ ( L * u ) * 3 ^ ( L * v ), ?_, ?_, ?_, ?_ ⟩ <;> norm_cast at *;
     · exact Nat.div_le_of_le_mul <| by rw [ ← @Nat.cast_le ℝ ] ; push_cast at *; linarith;
     · linarith;
     · -- Since $a = 2^{Lu} \cdot 3^{Lv}$, its largest prime factor is at most 3.
@@ -848,8 +858,10 @@ lemma smooth_pair_exists (θ : ℝ) (hθ : 0 < θ) :
         · exact Nat.totient_le L;
         · exact_mod_cast Nat.one_le_iff_ne_zero.mpr ( by aesop_cat );
         · simpa [ div_eq_inv_mul ] using hL2.le;
-      refine' le_trans _ ( mul_le_mul_of_nonneg_right ( le_max_right _ _ ) ( by positivity ) );
-      refine' le_trans _ h_bound;
+      refine le_trans ?_
+        ( mul_le_mul_of_nonneg_right
+          ( le_max_right (3 : ℝ) (2 ^ L : ℝ) ) ( by positivity ) );
+      refine le_trans ?_ h_bound;
       by_cases h : 2 ^ ( L * u ) * 3 ^ ( L * v ) - 1 = 0
         <;> simp_all +decide [ Nat.largestPrimeFactor ];
       · positivity;
@@ -934,8 +946,8 @@ lemma exists_crt_multiplier_strong (k : ℕ) (hk : 2 ≤ k) (m : ℕ) (hm : m = 
         rw [ Finset.sum_eq_single i ] <;> simp_all +decide [ add_comm ] ; ring_nf;
         exact fun j hj => he₂ _ _ ( Ne.symm hj ) ▸ by norm_num;);))
       generalize_proofs at *; (
-      refine' ⟨ e_q + ( ∏ i : Fin m, r i ) * ( ∑ i : Fin m, Nat.factorization ( i.val + 1 ) q + 1 ),
-        fun i => ⟨ _, _ ⟩ ⟩ <;> simp_all +decide [ Nat.ModEq ];
+      refine ⟨ e_q + ( ∏ i : Fin m, r i ) * ( ∑ i : Fin m, Nat.factorization ( i.val + 1 ) q + 1 ),
+        fun i => ⟨ ?_, ?_ ⟩ ⟩ <;> simp_all +decide [ Nat.ModEq ];
       · rw [ ← Nat.mod_add_div ( e_q + ( ∏ i : Fin m, r i ) * ( ∑ i : Fin m, ( i.val + 1
         |> Nat.factorization ) q + 1 ) ) ( r i ), ← Nat.mod_add_div ( ( i.val + 1
         |> Nat.factorization ) q ) ( r i ) ] ; simp +decide [ Nat.add_mod, Nat.mul_mod,
@@ -954,7 +966,9 @@ lemma exists_crt_multiplier_strong (k : ℕ) (hk : 2 ≤ k) (m : ℕ) (hm : m = 
     generalize_proofs at *; (
     choose! e he using h_choose_e ; exact ⟨ e, fun q hq hq' i => he q hq hq' i ⟩ ;)
   generalize_proofs at *; (
-  refine' ⟨ ∏ q ∈ Finset.filter Nat.Prime ( Finset.Iic ( max 3 ( k - 1 ) ) ), q ^ e q, _, _, _, _ ⟩
+  refine
+    ⟨ ∏ q ∈ Finset.filter Nat.Prime ( Finset.Iic ( max 3 ( k - 1 ) ) ),
+        q ^ e q, ?_, ?_, ?_, ?_ ⟩
     <;> norm_num +zetaDelta at *; (
   exact fun _ _ _ => pow_pos ( Nat.Prime.pos ‹_› ) _;);
   · -- For any $j$ such that $1 \leq j < k$, $j$ can be written as a product of primes $q \leq
@@ -970,7 +984,9 @@ lemma exists_crt_multiplier_strong (k : ℕ) (hk : 2 ≤ k) (m : ℕ) (hm : m = 
         Nat.le_of_mem_primeFactors hp ) ( Nat.le_trans ( Nat.le_sub_one_of_lt hj2 ) (
         Nat.le_max_right _ _ ) ) ), Nat.prime_of_mem_primeFactors hp ⟩ ;)
     generalize_proofs at *; (
-    refine' h_factorization ▸ Finset.prod_dvd_prod_of_dvd _ _ fun q hq => pow_dvd_pow _ _ ;
+    refine h_factorization ▸
+      Finset.prod_dvd_prod_of_dvd (fun q => q ^ j.factorization q) (fun q => q ^ e q)
+        fun q hq => pow_dvd_pow q ?_ ;
       simp +decide at * ; (
     exact he q hq.2 hq.1 ⟨ j - 1, by omega ⟩ |>.2 |> le_trans ( by cases j <;> norm_num at * ) ;));
   · intro i q hq hq' ; erw [ Nat.factorization_prod ]
@@ -1077,7 +1093,7 @@ lemma two_mul_rpow_totient_le {b N R L : ℕ} {θ : ℝ}
   suffices h_suff : (2 * (b : ℝ)) ^ (Nat.totient R : ℝ) ≤ (2 * (N : ℝ) ^ (1 / R : ℝ)) ^ (Nat.totient
     R : ℝ) by
     simp_all +decide [mul_pow, Real.rpow_natCast];
-    refine' le_trans ( mul_le_mul_of_nonneg_left h_suff <| by positivity ) _;
+    refine le_trans ( mul_le_mul_of_nonneg_left h_suff <| by positivity ) ?_;
     gcongr <;> norm_cast;
     · exact le_trans ( Nat.totient_le _ ) hRL;
     · rw [ ← Real.rpow_natCast, ← Real.rpow_mul ] <;> norm_num [ hR ];
@@ -1186,11 +1202,11 @@ lemma smooth_consecutive_exists (θ : ℝ) (hθ : 0 < θ) (k : ℕ) (hk : 2 ≤ 
           Finset.mem_univ _ ) ) ) using 1 ; norm_num [ mul_pow, Real.mul_rpow ];
       refine le_trans ( Nat.cast_le.mpr h_largest_prime_factor_bound ) ?_;
       simp +zetaDelta at *;
-      refine' ⟨ _, _, _ ⟩;
-      · refine' le_trans _ ( le_mul_of_one_le_right _ _ ) <;> norm_num [ hθ.le ];
+      refine ⟨ ?_, ?_, ?_ ⟩;
+      · refine le_trans ?_ ( le_mul_of_one_le_right ?_ ?_ ) <;> norm_num [ hθ.le ];
         exact Real.one_le_rpow ( mod_cast by
           nlinarith [ Nat.div_add_mod N C, Nat.mod_lt N hC_pos ] ) hθ.le;
-      · refine' le_trans _ ( le_mul_of_one_le_right _ _ );
+      · refine le_trans ?_ ( le_mul_of_one_le_right ?_ ?_ );
         · exact le_max_of_le_left ( le_max_right _ _ );
         · positivity;
         · exact Real.one_le_rpow ( mod_cast by
@@ -1225,12 +1241,12 @@ lemma erdos_369_eps_lt_one (k : ℕ) (hk : 2 ≤ k) (ε : ℝ) (hε : 0 < ε) :
   use max (max N₀' N₁) (4 * k);
   intro N hN;
   obtain ⟨ a, ha₁, ha₂, ha₃ ⟩ := hN₀' N ( by aesop );
-  refine' ⟨ a, _, _, _, _ ⟩ <;> norm_num at *;
+  refine ⟨ a, ?_, ?_, ?_, ?_ ⟩ <;> norm_num at *;
   · omega;
   · linarith;
   · omega;
-  · intro j hj; refine' le_trans ( ha₃ j hj ) _;
-    refine' le_trans ( hN₁ N hN.2.1 ) _;
+  · intro j hj; refine le_trans ( ha₃ j hj ) ?_;
+    refine le_trans ( hN₁ N hN.2.1 ) ?_;
     gcongr;
     rw [ div_le_iff₀ ] <;> norm_cast ; omega
 
