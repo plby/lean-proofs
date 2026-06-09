@@ -43,7 +43,6 @@ import ErdosProblems.Axioms
 namespace Erdos659
 
 set_option linter.style.setOption false
-set_option linter.style.refine false
 set_option linter.flexible false
 set_option maxHeartbeats 50000000
 
@@ -110,7 +109,7 @@ theorem distinctDistances'_bound (m : ℕ) (hm : m ≥ 1) :
           rcases hq with ⟨ c, d, ⟨ hc, hd ⟩, rfl ⟩;
           cases max_cases ( |(a : ℝ) - c| ) ( |Real.sqrt 2 * b - Real.sqrt 2 * d| ) <;>
             simp_all +decide [ ← mul_sub, abs_mul ];
-          · refine' ⟨ (a : ℤ) - (c : ℤ), 0, _, _, _ ⟩ <;> norm_num;
+          · refine ⟨ (a : ℤ) - (c : ℤ), 0, ?_, ?_, ?_ ⟩ <;> norm_num;
             · have ha_le : a ≤ m - 1 := Nat.le_sub_one_of_lt ha
               have hc_le : c ≤ m - 1 := Nat.le_sub_one_of_lt hc
               have h_abs : ((a : ℤ) - (c : ℤ)).natAbs ≤ m - 1 :=
@@ -121,7 +120,7 @@ theorem distinctDistances'_bound (m : ℕ) (hm : m ≥ 1) :
               exact_mod_cast h_abs_lt;
             · linarith;
           · norm_num [ mul_pow, abs_of_nonneg ] at *;
-            refine' ⟨ 0, (b : ℤ) - (d : ℤ), by push_cast; ring, by norm_num; linarith, _ ⟩;
+            refine ⟨ 0, (b : ℤ) - (d : ℤ), by push_cast; ring, by norm_num; linarith, ?_ ⟩;
             have hb_le : b ≤ m - 1 := Nat.le_sub_one_of_lt hb
             have hd_le : d ≤ m - 1 := Nat.le_sub_one_of_lt hd
             have h_abs : ((b : ℤ) - (d : ℤ)).natAbs ≤ m - 1 :=
@@ -1134,7 +1133,7 @@ theorem main_theorem (h_perucca : PeruccaClassificationStatement)
                 nlinarith [ show z ≤ 2 by nlinarith, show z ≥ -2 by nlinarith ])
               |> fun ⟨ CΔ, hCΔ₁, hCΔ₂ ⟩ =>
                 ⟨ CΔ, hCΔ₁, hCΔ₂ _ Q_form_primitive Q_form_posDef Q_form_discr ⟩;
-          refine' ⟨ fun n => P_seq n, _, _, _ ⟩;
+          refine ⟨ fun n => P_seq n, ?_, ?_, ?_ ⟩;
           · exact fun n => P_seq_spec n |>.1;
           · intro n hn S hS hS_card
             have h_subset : S ⊆ P (m_of_n n) := by
@@ -1159,12 +1158,12 @@ theorem main_theorem (h_perucca : PeruccaClassificationStatement)
                   unfold distinctDistances'_euc; aesop;
                 exact_mod_cast h_bound.trans ( distinctDistances'_euc_bound _ <| Nat.succ_pos _ );
               refine le_trans h_bound ?_;
-              refine' Nat.cast_le.mpr _;
-              refine' Nat.card_mono _ _;
-              · refine' Set.finite_iff_bddAbove.mpr ⟨ ⌊3 * n + 6 * Real.sqrt n + 3⌋₊,
+              refine Nat.cast_le.mpr ?_;
+              refine Nat.card_mono ?_ ?_;
+              · refine Set.finite_iff_bddAbove.mpr ⟨ ⌊3 * n + 6 * Real.sqrt n + 3⌋₊,
                 fun x hx => Nat.le_floor <| hx.1 ⟩;
-              · refine' fun x hx => ⟨ _, hx.2 ⟩;
-                refine' le_trans hx.1 _;
+              · refine fun x hx => ⟨ ?_, hx.2 ⟩;
+                refine le_trans hx.1 ?_;
                 norm_num [ m_of_n ];
                 nlinarith only [ show ( n.sqrt : ℝ ) ^ 2 ≤ n by exact_mod_cast Nat.sqrt_le' n,
                   Real.sqrt_nonneg n, Real.sq_sqrt <| Nat.cast_nonneg n,
@@ -1328,7 +1327,7 @@ lemma configuration_3_3_implies_golden (p1 p2 p3 p4 : ℝ × ℝ) (a b : ℝ)
           - ( p4.1 - p2.1 ) * Real.sin θ + ( p4.2 - p2.2 ) * Real.cos θ )
         simp_all +decide ;
         unfold dist_euc at *; simp_all +decide ;
-        refine' ⟨ _, _, _, _, _ ⟩ <;>
+        refine ⟨ ?_, ?_, ?_, ?_, ?_ ⟩ <;>
           rw [ Real.sqrt_eq_iff_mul_self_eq_of_pos ] <;>
           try linarith;
         · nlinarith only [ h_sq_eqs.1, Real.sin_sq_add_cos_sq θ ];
@@ -1399,7 +1398,7 @@ lemma C4_2K2_implies_square (S : Finset (ℝ × ℝ)) (a b : ℝ) (ha : a > 0)
     apply configuration_4_2_implies_square p1 p2 p3 p4 a b
     · aesop
     all_goals tauto
-  refine' ⟨ p1, p2, p3, p4, _, _, _, _, _ ⟩ <;> aesop
+  refine ⟨ p1, p2, p3, p4, ?_, ?_, ?_, ?_, ?_ ⟩ <;> aesop
 
 /-
 Lemma: A P4+P4 configuration implies golden ratio distances.
@@ -1815,7 +1814,7 @@ lemma max_degree_le_2 (S : Finset (ℝ × ℝ)) (a b : ℝ)
             linarith );
         rcases Finset.card_eq_three.mp hs.2 with ⟨ q1, q2, q3, hq1, hq2, hq3 ⟩ ; use q1, q2,
           q3 ; simp_all +decide [ Finset.subset_iff ];
-        refine' ⟨ _, _, _ ⟩ <;> intro h <;> simp_all +decide;
+        refine ⟨ ?_, ?_, ?_ ⟩ <;> intro h <;> simp_all +decide;
         · unfold dist_euc at hs; norm_num at hs;
           have hpos : 0 < ( p.1 - q2.1 ) ^ 2 + ( p.2 - q2.2 ) ^ 2 := by
             exact not_le.mp fun h =>
@@ -1931,7 +1930,7 @@ lemma case_2_2_2_0_implies_triangle (S : Finset (ℝ × ℝ)) (a : ℝ)
                   Real.sqrt_inj ( by positivity ) ( by positivity ) |>.2 ( by ring );
               grind ), by
               rintro rfl; simp_all +decide [ dist_euc ] ⟩;
-          refine' Finset.eq_of_subset_of_card_le h_subset _;
+          refine Finset.eq_of_subset_of_card_le h_subset ?_;
           rw [ Finset.card_sdiff ] ; aesop;
         grind +ring;
       use x, y, z; simp_all +decide [ Finset.ext_iff ] ;
@@ -2164,7 +2163,7 @@ lemma degree_1_neighbors_distinct (S : Finset (ℝ × ℝ)) (a : ℝ)
         have h_y_x : dist_euc y x ≠ a := by
           intro H;
           have h_y_x : Finset.card (Finset.filter (fun q => dist_euc x q = a) S) ≥ 3 := by
-            refine' Finset.two_lt_card.mpr _;
+            refine Finset.two_lt_card.mpr ?_;
             use u, by
               simp_all +decide [ dist_euc ];
               rw [ ← h_ux, Real.sqrt_inj ( by positivity ) ( by positivity ) ] ; ring, v, by
@@ -2222,7 +2221,7 @@ lemma degree_1_connects_to_degree_2 (S : Finset (ℝ × ℝ)) (a : ℝ)
           exact fun a b c d ha hb hab => not_le.mp fun h =>
             hab ( by nlinarith only [ h ] ) ( by nlinarith only [ h ] );
         · exact ⟨ v, Finset.mem_filter.mp hv.1 |>.1, hvu, Finset.mem_filter.mp hv.1 |>.2 ⟩;
-      refine' ⟨ v, hv, _, h_deg_v.2 ⟩;
+      refine ⟨ v, hv, ?_, h_deg_v.2 ⟩;
       -- Since $v$ is not in the set of vertices with degree 1, its degree must be 2.
       have h_not_in_deg1 :
           v ∉ Finset.filter (fun p => (S.filter (fun q => dist_euc p q = a)).card = 1) S := by
@@ -2325,7 +2324,7 @@ lemma path_graph_structure (S : Finset (ℝ × ℝ)) (a b : ℝ)
           intro a b ha hb; subst h_set; simp_all +decide ;
           rcases ha with ( ha | ha | ha | ha ) <;> simp_all +decide;
           · contrapose! h_deg_v; simp_all +decide ;
-            refine' ne_of_gt ( Finset.one_lt_card.mpr _ );
+            refine ne_of_gt ( Finset.one_lt_card.mpr ?_ );
             use x, by
               simp +decide [ ← hb ];
               exact Real.sqrt_inj ( add_nonneg ( sq_nonneg _ ) ( sq_nonneg _ ) )
@@ -2346,7 +2345,7 @@ lemma path_graph_structure (S : Finset (ℝ × ℝ)) (a b : ℝ)
       -- Since $u$ and $v$ have degree 1, they must be connected to $x$ and $y$ respectively.
       have h_uv : dist_euc u y = b ∧ dist_euc v x = b ∧ dist_euc u v = b := by
         have h_uv : dist_euc u y ≠ a ∧ dist_euc v x ≠ a ∧ dist_euc u v ≠ a := by
-          refine' ⟨ _, _, _ ⟩ <;> intro h <;> simp_all +decide [ Finset.card_eq_one ];
+          refine ⟨ ?_, ?_, ?_ ⟩ <;> intro h <;> simp_all +decide [ Finset.card_eq_one ];
           · obtain ⟨ a, b, h ⟩ := h_deg_u
             simp_all +decide [ Finset.eq_singleton_iff_unique_mem ] ;
             grind +ring;
@@ -2357,7 +2356,7 @@ lemma path_graph_structure (S : Finset (ℝ × ℝ)) (a b : ℝ)
         grind;
       use u, x, y, v;
       simp_all +decide [ Finset.ext_iff ];
-      refine' ⟨ _, _, _, _, _, _, _, _ ⟩;
+      refine ⟨ ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_ ⟩;
       any_goals intro h; simp_all +decide;
       · intro a b; specialize h_set a b; aesop;
       · simp_all +decide [ dist_euc ];
@@ -2384,7 +2383,7 @@ lemma edge_count_even (S : Finset (ℝ × ℝ)) (r : ℝ) : Even (edge_count S r
   have h_pair : ∃ T : Finset ((ℝ × ℝ) × ℝ × ℝ),
       E = T ∪ Finset.image (fun p => (p.2, p.1)) T ∧
         Disjoint T (Finset.image (fun p => (p.2, p.1)) T) := by
-    refine' ⟨ E.filter fun p => p.1.1 < p.2.1 ∨ p.1.1 = p.2.1 ∧ p.1.2 < p.2.2, _, _ ⟩;
+    refine ⟨ E.filter fun p => p.1.1 < p.2.1 ∨ p.1.1 = p.2.1 ∧ p.1.2 < p.2.2, ?_, ?_ ⟩;
     · ext ⟨x, y⟩; simp [E];
       cases lt_trichotomy x.1 y.1 <;> cases lt_trichotomy x.2 y.2 <;> aesop;
     · norm_num [ Finset.disjoint_right ];
@@ -2592,7 +2591,7 @@ theorem PeruccaClassificationStatement_proof : PeruccaClassificationStatement :=
         (distinctDistances'_euc S).card = 2 := by
     have := Finset.card_eq_two.mp h_distinct;
     obtain ⟨ a, b, hab, h ⟩ := this; use a, b; simp_all +decide [ Finset.ext_iff ] ;
-    refine' ⟨ _, _, _, _ ⟩;
+    refine ⟨ ?_, ?_, ?_, ?_ ⟩;
     · contrapose! h;
       use a; simp;
       intro H;
@@ -2601,7 +2600,7 @@ theorem PeruccaClassificationStatement_proof : PeruccaClassificationStatement :=
       norm_num [ show p.1.1 = p.2.1 by nlinarith, show p.1.2 = p.2.2 by nlinarith ] at *;
       unfold distinctDistances'_euc at H; aesop;
     · contrapose! h;
-      refine' ⟨ b, Or.inr ⟨ _, Or.inr rfl ⟩ ⟩;
+      refine ⟨ b, Or.inr ⟨ ?_, Or.inr rfl ⟩ ⟩;
       simp [distinctDistances'_euc];
       exact fun x y z t hx hy hxy => le_antisymm h ( hxy ▸ Real.sqrt_nonneg _ );
     · intro x y hx z w hz hne; specialize h ( dist_euc ( x, y ) ( z,
@@ -2625,7 +2624,7 @@ theorem PeruccaClassificationStatement_proof : PeruccaClassificationStatement :=
         rw [ edge_count ] at h; simp_all +decide ;
         exact h_dist.resolve_left fun h' => h _ _ _ _ hp hq ( by aesop ) h';
       have h_contradiction : (distinctDistances'_euc S).card ≤ 1 := by
-        refine' Finset.card_le_one.mpr _;
+        refine Finset.card_le_one.mpr ?_;
         simp_all +decide [ distinctDistances'_euc ];
         intros a x x_1 x_2 x_3 hx hx' hx'' hx''' b x x_4 x_5 x_6 hx'''' hx''''' hx'''''' hx''''''';
         by_cases h : x = x_5 ∧ x_4 = x_6 <;> simp_all +decide [ dist_euc ];
