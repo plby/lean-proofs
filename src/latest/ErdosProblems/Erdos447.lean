@@ -30,7 +30,6 @@ set_option linter.style.docString false
 set_option linter.style.emptyLine false
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 set_option linter.style.show false
 set_option linter.style.whitespace false
 
@@ -232,7 +231,7 @@ lemma super_sets_bound {n : ℕ} (F : Finset (Finset (Fin n))) (hF : UnionFree F
     (A : Finset (Fin n)) (hA : A ∈ F) (k : ℕ) (hjk : A.card ≤ 2 * k) :
     (SuperSets F A k).card ≤ (A.card - 1).choose (A.card - k - 1) := by
       by_cases h : A.card ≤ k <;> simp_all +decide [ Nat.sub_sub ];
-      · refine' Finset.card_le_one.mpr _;
+      · refine Finset.card_le_one.mpr ?_;
         unfold SuperSets; aesop;
       · convert erdos_ko_rado_fintype ( A.card - k ) _ ( SuperSetsSubtype F A k ) _ _ using 1;
         · exact Eq.symm (SuperSetsSubtype_card F A k);
@@ -297,7 +296,7 @@ lemma bad_subsets_count {n : ℕ} (F : Finset (Finset (Fin n))) (hF : UnionFree 
       -- Each bad $k$-subset $D$ of $A$ corresponds to a unique $(A.card - k)$-subset $S$ of $A$ that is not disjoint from any member of $\mathcal{E}$.
       have h_bad_subset_to_S : Finset.filter (fun D => is_bad_subset F A D k) (Finset.powersetCard k A) ⊆ Finset.image (fun S => A \ S) (Finset.filter (fun S => S ⊆ A ∧ S.card = A.card - k ∧ ∃ E ∈ Finset.image (fun B => A \ B) (Finset.filter (fun B => k ≤ B.card ∧ B ⊂ A) F), E ⊆ S) (Finset.powersetCard (A.card - k) A)) := by
         intro D hD; simp_all +decide [ Finset.subset_iff, is_bad_subset ] ;
-        refine' ⟨ A \ D, _, _ ⟩ <;> simp_all +decide [ Finset.card_sdiff, Finset.subset_iff ];
+        refine ⟨ A \ D, ?_, ?_ ⟩ <;> simp_all +decide [ Finset.card_sdiff, Finset.subset_iff ];
         exact ⟨ by rw [ Finset.inter_eq_left.mpr hD.1.1, hD.1.2 ], by obtain ⟨ B, hB₁, hB₂, hB₃ ⟩ := hD.2.2.2; exact ⟨ B, ⟨ hB₁, by linarith [ Finset.card_le_card hB₂ ], hB₃ ⟩, by aesop ⟩ ⟩;
       refine le_trans ( Finset.card_le_card h_bad_subset_to_S ) <| Finset.card_image_le.trans ?_;
       by_cases h : A.card ≤ k <;> simp_all +decide
@@ -348,7 +347,7 @@ lemma not_bad_implies_starred {n : ℕ} (F : Finset (Finset (Fin n))) (A : Finse
     (h_prefix : prefix_set p A.card = A)
     (h_not_bad : ¬ is_bad_subset F A (prefix_set p k) k) :
     IsStarred F p A k := by
-      refine' ⟨ hA, A.card, hAk, hjk, h_prefix, _ ⟩;
+      refine ⟨ hA, A.card, hAk, hjk, h_prefix, ?_ ⟩;
       intros t ht1 ht2 ht3
       have hB : prefix_set p t ⊆ A := by
         exact h_prefix ▸ prefix_set_mono p _ _ ht2.le |> Finset.Subset.trans <| by aesop;
@@ -360,10 +359,10 @@ lemma not_bad_implies_starred {n : ℕ} (F : Finset (Finset (Fin n))) (A : Finse
         rw [ prefix_set_card ] <;> try linarith;
         exact le_trans ( Nat.le_of_lt ht2 ) ( le_trans ( Finset.card_le_univ _ ) ( by norm_num ) )
       have hB_bad : is_bad_subset F A (prefix_set p k) k := by
-        refine' ⟨ _, _, _ ⟩;
+        refine ⟨ ?_, ?_, ?_ ⟩;
         · exact Finset.Subset.trans ( prefix_set_mono p _ _ ht1 ) hB;
         · convert prefix_set_card p k _ ; linarith [ show k ≤ n from le_trans hAk ( le_trans ( Finset.card_le_univ _ ) ( by norm_num ) ) ] ;
-        · refine' ⟨ _, ht3, _, _ ⟩ <;> simp_all +decide [ Finset.ssubset_def, Finset.subset_iff ];
+        · refine ⟨ prefix_set p t, ht3, ?_, ?_ ⟩ <;> simp_all +decide [ Finset.ssubset_def, Finset.subset_iff ];
           · exact fun x hx => Finset.mem_map.mpr <| by obtain ⟨ y, hy, rfl ⟩ := Finset.mem_map.mp hx; exact ⟨ y, Finset.mem_filter.mpr ⟨ Finset.mem_univ _, by linarith [ Finset.mem_filter.mp hy ] ⟩, rfl ⟩ ;
           · exact Finset.exists_of_ssubset ( lt_of_le_of_ne hB hB_card ) |> Exists.imp fun x hx => by aesop;
       contradiction
@@ -391,7 +390,7 @@ lemma embeddings_with_range_card {n : ℕ} (A : Finset (Fin n)) (j : ℕ) (hA : 
         simp +zetaDelta at *;
         constructor <;> intro h;
         · use ⟨ fun i => ⟨ aesop i, by replace h := Finset.ext_iff.mp h ( aesop i ) ; aesop ⟩, fun i j hij => aesop.injective <| by simpa using hij ⟩ ; aesop;
-        · refine' Finset.eq_of_subset_of_card_le ( fun x hx => _ ) _ <;> aesop
+        · refine Finset.eq_of_subset_of_card_le ( fun x hx => ?_ ) ?_ <;> aesop
 
 /-
 Combining two embeddings with disjoint ranges yields an injective function.
@@ -480,7 +479,7 @@ def perm_to_embeddings_fwd {n : ℕ} (A : Finset (Fin n)) (j : ℕ) (hj : j ≤ 
     have h_prefix : prefix_set p.val j = A := by
       exact Finset.mem_filter.mp p.2 |>.2;
     convert h_prefix using 1;
-    refine' Finset.ext fun x => _;
+    refine Finset.ext fun x => ?_;
     simp +zetaDelta at *;
     unfold prefix_set; simp +decide [ Finset.mem_filter ] ;
     constructor <;> intro h;
@@ -491,7 +490,7 @@ def perm_to_embeddings_fwd {n : ℕ} (A : Finset (Fin n)) (j : ℕ) (hj : j ≤ 
     have hg_card : (Finset.univ.map g).card = (Finset.univ \ A).card := by
       simp +decide [ Finset.card_sdiff, * ];
       rw [ ← hf, Finset.card_map ] ; aesop;
-    refine' Finset.eq_of_subset_of_card_le ( fun x hx => _ ) ( by aesop );
+    refine Finset.eq_of_subset_of_card_le ( fun x hx => ?_ ) ( by aesop );
     simp +zetaDelta at *;
     obtain ⟨ a, rfl ⟩ := hx; intro H; replace hf := Finset.ext_iff.mp hf ( Equiv.symm p ( Fin.cast h ( Fin.natAdd j a ) ) ) ; simp_all +decide [ Finset.mem_map, Finset.mem_univ ] ;
     obtain ⟨ b, hb ⟩ := hf; replace hb := congr_arg Fin.val hb; simp_all +decide
@@ -833,7 +832,7 @@ lemma card_starred_ge {n : ℕ} (F : Finset (Finset (Fin n))) (hF : UnionFree F)
       -- The number of permutations where A is starred is at least $(j! (n-j)! - |bad| k! (j-k)! (n-j)!)$.
       have h_starred_count : (permutations_starred F A k).card ≥ (A.card.factorial * (n - A.card).factorial) - ((bad_k_subsets F A k).card * k.factorial * (A.card - k).factorial * (n - A.card).factorial) := by
         have h_starred_count : (permutations_starred F A k).card ≥ (permutations_with_prefix A A.card).card - ((permutations_where_Sk_is_bad F A A.card k).card) := by
-          refine' Nat.sub_le_of_le_add _;
+          refine Nat.sub_le_of_le_add ?_;
           have h_starred_count : (permutations_with_prefix A A.card) ⊆ (permutations_starred F A k) ∪ (permutations_where_Sk_is_bad F A A.card k) := by
             intro p hp;
             by_cases h : prefix_set p k ∈ bad_k_subsets F A k <;> simp_all +decide [ permutations_starred, permutations_where_Sk_is_bad ];
@@ -861,7 +860,7 @@ lemma card_starred_ge {n : ℕ} (F : Finset (Finset (Fin n))) (hF : UnionFree F)
         have h_starred_final : (A.card.factorial * (n - A.card).factorial) - ((bad_k_subsets F A k).card * k.factorial * (A.card - k).factorial * (n - A.card).factorial) ≥ (n - A.card).factorial * k * (A.card - 1).factorial := by
           -- Using the binomial coefficient identity, we can rewrite the inequality.
           have h_binom_identity : (A.card.choose k) * (n - A.card).factorial * k.factorial * (A.card - k).factorial - ((bad_k_subsets F A k).card * k.factorial * (A.card - k).factorial * (n - A.card).factorial) ≥ (A.card - 1).choose (k - 1) * (n - A.card).factorial * k.factorial * (A.card - k).factorial := by
-            refine' le_trans ( Nat.mul_le_mul_right _ ( Nat.mul_le_mul_right _ ( Nat.mul_le_mul_right _ h_binom ) ) ) _;
+            refine le_trans ( Nat.mul_le_mul_right _ ( Nat.mul_le_mul_right _ ( Nat.mul_le_mul_right _ h_binom ) ) ) ?_;
             simp +decide [ mul_assoc, mul_comm, mul_left_comm, tsub_mul ];
             rw [ Nat.mul_sub_left_distrib ] ; ring_nf ; norm_num;
           convert h_binom_identity using 1;
@@ -941,20 +940,20 @@ lemma LP_upper_bound {n : ℕ} (F : Finset (Finset (Fin n))) (hF : UnionFree F) 
   -- By definition of $x_j$, we know that $F.card = \sum_{j=0}^n x_j$.
   have h_sum : (F.card : ℝ) = ∑ j ∈ Finset.range (n + 1), (x_j F j : ℝ) := by
     rw_mod_cast [ show F = Finset.biUnion ( Finset.range ( n + 1 ) ) ( fun j => F.filter ( fun A => A.card = j ) ) from ?_, Finset.card_biUnion ];
-    · refine' Finset.sum_congr rfl fun j hj => _;
+    · refine Finset.sum_congr rfl fun j hj => ?_;
       exact congr_arg Finset.card ( Finset.ext fun x => by aesop );
     · exact fun i hi j hj hij => Finset.disjoint_left.mpr fun x hx₁ hx₂ => hij <| by aesop;
     · ext A; simp [Finset.mem_biUnion];
       exact fun _ => by simpa using Finset.card_le_univ A
-  refine' h_sum ▸ le_csSup _ _;
+  refine h_sum ▸ le_csSup ?_ ?_;
   · exact ⟨ ∑ j ∈ Finset.range ( n + 1 ), n.choose j, by rintro s ⟨ x, hx, rfl ⟩ ; exact Finset.sum_le_sum fun i hi => hx.1 i ( Nat.zero_le i ) ( Nat.le_of_lt_succ ( Finset.mem_range.mp hi ) ) |>.2 ⟩;
-  · refine' ⟨ _, _, rfl ⟩;
+  · refine ⟨ fun j => ( x_j F j : ℝ ), ?_, rfl ⟩;
     -- By definition of $x_j$, we know that $0 \leq x_j \leq \binom{n}{j}$ for all $j$.
     have h_bounds : ∀ j, 0 ≤ j → j ≤ n → 0 ≤ (x_j F j : ℝ) ∧ (x_j F j : ℝ) ≤ n.choose j := by
       intros j hj_nonneg hj_le_n
       simp [x_j];
       exact le_trans ( Finset.card_le_card ( show Finset.filter ( fun A => Finset.card A = j ) F ⊆ Finset.powersetCard j ( Finset.univ : Finset ( Fin n ) ) from fun x hx => Finset.mem_powersetCard.mpr ⟨ Finset.subset_univ _, by aesop ⟩ ) ) ( by simp +decide [ Finset.card_univ ] );
-    refine' ⟨ fun j hj₁ hj₂ => h_bounds j hj₁ hj₂, fun k hk₁ hk₂ => _ ⟩;
+    refine ⟨ fun j hj₁ hj₂ => h_bounds j hj₁ hj₂, fun k hk₁ hk₂ => ?_ ⟩;
     have := kleitman_inequality F hF k hk₁;
     rwa [ le_div_iff₀' ( by positivity ) ]
 
@@ -1028,7 +1027,7 @@ Weak duality: the optimal value of the primal is at most the value of the dual o
 theorem weak_duality {n : ℕ} {Y Z : ℕ → ℝ} (h_dual : is_dual_feasible n Y Z) :
     OPT n ≤ dual_obj n Y Z := by
       apply csSup_le;
-      · refine' ⟨ _, ⟨ fun _ => 0, _, rfl ⟩ ⟩ ; unfold is_feasible_LP ; aesop;
+      · refine ⟨ ∑ j ∈ Finset.range ( n + 1 ), (0 : ℝ), ⟨ fun _ => 0, ?_, rfl ⟩ ⟩ ; unfold is_feasible_LP ; aesop;
       · rintro _ ⟨ x, hx, rfl ⟩ ; exact weak_duality_lemma hx h_dual;
 
 /-
@@ -1107,7 +1106,7 @@ lemma block_sum_identities {n t : ℕ} (ht : 1 ≤ t) (h2t : 2 * t ≤ n / 2) :
               · omega;
               · linarith;
               · unfold Y_sol; norm_num; ring;
-      refine' ⟨ h_sum_even, fun h => _ ⟩;
+      refine ⟨ h_sum_even, fun h => ?_ ⟩;
       erw [ Finset.sum_Ico_succ_top ( by linarith ), h_sum_even ];
       rw [ Y_sol ]; ring_nf;
       norm_num [ Nat.add_mod, Nat.mul_mod, B_term ] ; ring_nf;
@@ -1198,7 +1197,7 @@ lemma sum_Bk_div_k {n m : ℕ} (hm : m ≥ 1) (hn : n = 2 * m) :
     ∑ k ∈ Finset.Icc 1 m, B_term n k / k = n.choose m + ∑ j ∈ Finset.Icc 1 (m - 1), (n.choose j : ℝ) / (j + 1) := by
       -- By definition of $B_k$, we can split the sum into two parts.
       have h_split : ∑ k ∈ Finset.Icc 1 m, (B_term n k : ℝ) / (k : ℝ) = ∑ k ∈ Finset.Icc 1 m, (n.choose k : ℝ) - ∑ k ∈ Finset.Icc 1 m, ((k - 1 : ℝ) * n.choose (k - 1) / (k : ℝ)) := by
-        rw [ ← Finset.sum_sub_distrib ] ; refine' Finset.sum_congr rfl fun x hx => _ ; rcases x with ( _ | x ) <;> norm_num [ Nat.choose ] at * ; ring_nf;
+        rw [ ← Finset.sum_sub_distrib ] ; refine Finset.sum_congr rfl fun x hx => ?_ ; rcases x with ( _ | x ) <;> norm_num [ Nat.choose ] at * ; ring_nf;
         unfold B_term; norm_num [ hn, Nat.cast_add, Nat.cast_mul, Nat.cast_one, Nat.cast_choose ] ; ring_nf;
         nlinarith [ inv_mul_cancel_left₀ ( by linarith : ( 1 + x : ℝ ) ≠ 0 ) ( Nat.choose ( m * 2 ) ( 1 + x ) : ℝ ) ];
       -- The second sum can be reindexed to start from 1.
@@ -1264,7 +1263,7 @@ lemma sum_Y_div_k_bound {n m : ℕ} (hm : m ≥ 1) (hn : n = 2 * m) :
       -- The second part is sum_{t=0}^{(m-1)/2} Y_t / (2t+1).
       have h_odd : ∑ k ∈ Finset.filter (fun k => k % 2 ≠ 0) (Finset.Icc 1 m), Y_sol n ((k - 1) / 2) / (k : ℝ) ≤ ∑ t ∈ Finset.Icc 1 (m / 2), Y_sol n t / (2 * t : ℝ) := by
         have h_odd : ∑ k ∈ Finset.filter (fun k => k % 2 ≠ 0) (Finset.Icc 1 m), Y_sol n ((k - 1) / 2) / (k : ℝ) = ∑ t ∈ Finset.Icc 0 ((m - 1) / 2), Y_sol n t / (2 * t + 1 : ℝ) := by
-          refine' Finset.sum_bij ( fun x hx => ( x - 1 ) / 2 ) _ _ _ _ <;> norm_num;
+          refine Finset.sum_bij ( fun x hx => ( x - 1 ) / 2 ) ?_ ?_ ?_ ?_ <;> norm_num;
           · intros; omega;
           · intro a₁ ha₁₁ ha₁₂ ha₁₃ a₂ ha₂₁ ha₂₂ ha₂₃ h; omega;
           · exact fun b hb => ⟨ 2 * b + 1, ⟨ ⟨ by linarith, by omega ⟩, by norm_num ⟩, by omega ⟩;
@@ -1784,7 +1783,7 @@ lemma binom_large_j_bound {m : ℕ} (hm : m ≥ 200) (n : ℕ) (hn : n = 2 * m) 
         have h_combined : (n.choose (107 * m / 100) : ℝ) ≤ (n.choose m : ℝ) := by
           exact_mod_cast binom_le_of_ge_mid hn ( by omega ) ( by omega );
         refine le_trans h_ratio2 <| le_trans ( mul_le_mul_of_nonneg_right h_ratio1 <| by positivity ) ?_;
-        refine' mul_le_mul _ _ _ _ <;> try positivity;
+        refine mul_le_mul ?_ ?_ ?_ ?_ <;> try positivity;
         · exact mul_le_mul h_combined ( pow_le_pow_of_le_one ( by norm_num ) ( by norm_num ) ( by omega ) ) ( by positivity ) ( by positivity );
         · exact pow_le_pow_of_le_one ( by norm_num ) ( by norm_num ) ( by omega );
       have := decay_bound_stronger hm;
@@ -1920,7 +1919,7 @@ lemma pow_two_div_n_little_o_binom_half :
                 rw [ Asymptotics.IsEquivalent ] at this;
                 rw [ Asymptotics.isLittleO_iff_tendsto' ] at this;
                 · have := this.const_add 1; simp_all +decide [ mul_comm, mul_left_comm ] ;
-                  refine' this.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx using by rw [ add_div' ] ; ring ; positivity );
+                  refine this.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx using by rw [ add_div' ] ; ring ; positivity );
                 · filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn h using absurd h <| by positivity;
               have h_stirling_2m : Filter.Tendsto (fun m : ℕ => (Nat.factorial (2 * m) : ℝ) / (Real.sqrt (2 * Real.pi * (2 * m)) * ((2 * m) / Real.exp 1) ^ (2 * m))) Filter.atTop (nhds 1) := by
                 exact_mod_cast h_stirling.comp ( Filter.tendsto_id.nsmul_atTop two_pos );
@@ -1940,13 +1939,13 @@ lemma pow_two_div_n_little_o_binom_half :
         have h_lim : Filter.Tendsto (fun m : ℕ => (2 ^ (2 * m) / (2 * m + 1) : ℝ) / (Nat.choose (2 * m) m)) Filter.atTop (nhds 0) := by
           have := h_lim.div h_binom;
           simp_all +decide [ division_def ];
-          refine' this.congr' _;
+          refine this.congr' ?_;
           filter_upwards [ Filter.eventually_gt_atTop 0 ] with m hm using by simp +decide [ mul_assoc, mul_comm, mul_left_comm, ne_of_gt ( Real.sqrt_pos.mpr Real.pi_pos ), ne_of_gt ( Real.sqrt_pos.mpr ( Nat.cast_pos.mpr hm ) ), ne_of_gt ( pow_pos ( zero_lt_four' ℝ ) m ) ] ;
         rw [ Metric.tendsto_nhds ] at *;
-        intro ε hε; rcases Filter.eventually_atTop.mp ( h_lim ε hε ) with ⟨ N, hN ⟩ ; refine' Filter.eventually_atTop.mpr ⟨ 2 * N, fun n hn => _ ⟩ ; rcases Nat.even_or_odd' n with ⟨ k, rfl | rfl ⟩ <;> norm_num at *;
+        intro ε hε; rcases Filter.eventually_atTop.mp ( h_lim ε hε ) with ⟨ N, hN ⟩ ; refine Filter.eventually_atTop.mpr ⟨ 2 * N, fun n hn => ?_ ⟩ ; rcases Nat.even_or_odd' n with ⟨ k, rfl | rfl ⟩ <;> norm_num at *;
         · exact hN k hn;
         · have := hN k ( by linarith ) ; norm_num [ Nat.add_div ] at *;
-          refine' lt_of_le_of_lt _ this;
+          refine lt_of_le_of_lt ?_ this;
           rw [ Nat.cast_choose, Nat.cast_choose ] <;> try linarith;
           norm_num [ two_mul, add_assoc, Nat.factorial ];
           field_simp;
@@ -2034,7 +2033,7 @@ lemma binom_quarter_little_o_binom_half :
       have h_bound : ∀ n : ℕ, 32 ≤ n → (n.choose (n / 4) : ℝ) ≤ (n.choose (n / 2) : ℝ) * (0.65 : ℝ) ^ (n / 8) := by
         exact fun n hn => by rw [ h_ratio_product ] ; exact mul_le_mul_of_nonneg_left ( ratio_product_bound n hn ) ( Nat.cast_nonneg _ ) ;
       rw [ Asymptotics.isLittleO_iff_tendsto' ];
-      · refine' squeeze_zero_norm' _ h_lim;
+      · refine squeeze_zero_norm' ?_ h_lim;
         filter_upwards [ Filter.eventually_ge_atTop 32 ] with n hn using by rw [ Real.norm_of_nonneg ( by positivity ) ] ; rw [ div_le_iff₀ ( Nat.cast_pos.mpr <| Nat.choose_pos <| by omega ) ] ; linarith [ h_bound n hn ] ;
       · filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn h using absurd h <| Nat.cast_ne_zero.mpr <| Nat.ne_of_gt <| Nat.choose_pos <| by omega;
 
@@ -2042,7 +2041,7 @@ lemma binom_quarter_little_o_binom_half :
 The size of the largest union-free family is at least $\binom{n}{n/2}$.
 -/
 lemma max_union_free_ge_binom (n : ℕ) : (n.choose (n / 2) : ℝ) ≤ MaxUnionFree n := by
-  refine' mod_cast le_trans _ ( Finset.le_sup <| show Finset.powersetCard ( n / 2 ) Finset.univ ∈ Finset.filter UnionFree ( Finset.univ : Finset ( Finset ( Finset ( Fin n ) ) ) ) from _ );
+  refine mod_cast le_trans ?_ ( Finset.le_sup <| show Finset.powersetCard ( n / 2 ) Finset.univ ∈ Finset.filter UnionFree ( Finset.univ : Finset ( Finset ( Finset ( Fin n ) ) ) ) from ?_ );
   · norm_num [ Finset.card_univ ];
   · simp_all +decide [ UnionFree ];
     intro A hA B hB C hC hAB hBC hAC h; have := Finset.card_union_add_card_inter A B; simp_all +decide ;
@@ -2097,7 +2096,7 @@ lemma binom_growth_065_070 {m : ℕ} (hm : m ≥ 200) (n : ℕ) (hn : n = 2 * m)
         have h_prod_ratio : ∀ k ∈ Finset.Ico (13 * m / 20) (7 * m / 10), ((n - k : ℝ) / (k + 1)) ≥ 1.85 := by
           norm_num [ hn ];
           intro k hk₁ hk₂; rw [ le_div_iff₀ ] <;> linarith [ show ( k : ℝ ) + 1 ≤ 7 * m / 10 by exact le_div_iff₀' ( by positivity ) |>.2 <| by norm_cast; linarith [ Nat.div_mul_le_self ( 7 * m ) 10 ], show ( m : ℝ ) ≥ 200 by norm_cast ] ;
-        refine' le_trans _ ( Finset.prod_le_prod _ h_prod_ratio ) ; norm_num;
+        refine le_trans ?_ ( Finset.prod_le_prod ?_ h_prod_ratio ) ; norm_num;
         · rw [ ← div_pow ];
         · norm_num +zetaDelta at *;
       -- Since $1.85^{0.05m}$ grows exponentially and $m$ grows linearly, for $m \geq 200$, $1.85^{0.05m} \geq m$.
@@ -2485,7 +2484,7 @@ lemma LHS_ge_RHS_all {n m : ℕ} (hm : m ≥ 200) (hn : n = 2 * m) :
       · by_cases hj_large : j > 13 * m / 10;
         · specialize h_odd_large j hj_large hj2 ( by simpa using hj_even );
           refine le_trans h_odd_large ?_;
-          refine' Finset.sum_le_sum_of_subset_of_nonneg _ _;
+          refine Finset.sum_le_sum_of_subset_of_nonneg ?_ ?_;
           · exact Finset.Icc_subset_Icc ( by omega ) le_rfl;
           · exact fun _ _ _ => Y_sol_nonneg;
         · exact h_odd_small j hj1 ( le_of_not_gt hj_large )
@@ -2568,10 +2567,10 @@ lemma sum_Y_decomposition {n m : ℕ} (hm : m ≥ 1) (hn : n = 2 * m) :
         have h_split : ∑ k ∈ Finset.Icc 1 m, Y_sol n k = ∑ k ∈ Finset.filter (fun k => k % 2 = 0) (Finset.Icc 1 m), Y_sol n k + ∑ k ∈ Finset.filter (fun k => k % 2 = 1) (Finset.Icc 1 m), Y_sol n k := by
           rw [ Finset.sum_filter, Finset.sum_filter ] ; rw [ ← Finset.sum_add_distrib ] ; congr ; ext x ; aesop;
         rw [ h_split ];
-        refine' congrArg₂ ( · + · ) _ _;
-        · refine' Finset.sum_congr rfl fun x hx => _;
+        refine congrArg₂ ( · + · ) ?_ ?_;
+        · refine Finset.sum_congr rfl fun x hx => ?_;
           unfold Y_sol; aesop;
-        · refine' Finset.sum_congr rfl fun x hx => _;
+        · refine Finset.sum_congr rfl fun x hx => ?_;
           rw [ Y_sol ] ; aesop;
       -- Let's simplify the sums over even and odd indices.
       have h_even_odd : ∑ k ∈ Finset.filter (fun k => k % 2 = 0) (Finset.Icc 1 m), B_term n k + ∑ k ∈ Finset.filter (fun k => k % 2 = 1) (Finset.Icc 1 m), B_term n k = m * n.choose m := by
@@ -2778,7 +2777,7 @@ lemma card_family_one {n : ℕ} (F : Finset (Finset (Fin (n + 1)))) :
 Recursive bound for the size of union-free families for odd n.
 -/
 lemma max_union_free_odd_bound (m : ℕ) : MaxUnionFree (2 * m + 1) ≤ 2 * MaxUnionFree (2 * m) := by
-  refine' Finset.sup_le fun F hF => _;
+  refine Finset.sup_le fun F hF => ?_;
   -- By definition of $F$, we can split it into two subfamilies based on the presence of the last element.
   have h_split : F.card = (F.filter (fun A => Fin.last (2 * m) ∉ A)).card + (F.filter (fun A => Fin.last (2 * m) ∈ A)).card := by
     rw [ Finset.card_filter, Finset.card_filter ];
@@ -2858,7 +2857,7 @@ lemma dual_feasible_sol {m : ℕ} (hm : m ≥ 200) :
     is_dual_feasible n (Y_sol n) (Z_final n) := by
       constructor;
       · exact fun k ↦ Y_sol_nonneg;
-      · refine' ⟨ fun j => _, fun k hk => _, fun j hj => _, fun j hj₁ hj₂ => _ ⟩;
+      · refine ⟨ fun j => ?_, fun k hk => ?_, fun j hj => ?_, fun j hj₁ hj₂ => ?_ ⟩;
         · apply_rules [ Z_final_nonneg ];
         · cases hk <;> unfold Y_sol <;> aesop;
         · unfold Z_final;
@@ -2921,7 +2920,7 @@ theorem erdos_447 :
           simpa [ mul_div_assoc ] using Filter.Tendsto.add ( Filter.Tendsto.add ( tendsto_const_nhds.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 0 ] with m hm; rw [ div_self <| Nat.cast_ne_zero.mpr <| Nat.ne_of_gt <| Nat.choose_pos <| by linarith ] ) ) h_even_bound.1 ) ( h_even_bound.2.const_mul _ );
         have h_even_bound : ∀ᶠ m in Filter.atTop, (MaxUnionFree (2 * m) : ℝ) / (2 * m).choose m ≤ (2 * m).choose m / (2 * m).choose m + 2 ^ (2 * m) / (2 * m + 1) / (2 * m).choose m + h_upper_bound.choose * (2 * m).choose (m / 2) / (2 * m).choose m := by
           filter_upwards [ Filter.eventually_ge_atTop 200 ] with m hm using by rw [ ← add_div, ← add_div, div_le_div_iff_of_pos_right ( Nat.cast_pos.mpr <| Nat.choose_pos <| by linarith ) ] ; exact h_upper_bound.choose_spec m hm;
-        refine' tendsto_of_tendsto_of_tendsto_of_le_of_le' tendsto_const_nhds ‹_› _ _;
+        refine tendsto_of_tendsto_of_tendsto_of_le_of_le' tendsto_const_nhds ‹_› ?_ ?_;
         · filter_upwards [ Filter.eventually_gt_atTop 0 ] with m hm;
           rw [ one_le_div ( Nat.cast_pos.mpr <| Nat.choose_pos <| by linarith ) ];
           convert max_union_free_ge_binom ( 2 * m ) using 1;
