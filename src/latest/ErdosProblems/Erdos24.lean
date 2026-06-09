@@ -64,7 +64,6 @@ set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 set_option linter.style.show false
 set_option maxHeartbeats 50000000
 -- Several generated pentagon-density arguments time out at the default heartbeat limit.
@@ -2185,8 +2184,8 @@ lemma sum_sum_psd_option {k : ℕ} {M : Matrix (Fin k) (Fin k) ℚ}
     convert this using 1
     simp only [Finset.mul_sum, sum_mul, mul_assoc]
     simp only [Finset.sum_sigma']
-    refine' Finset.sum_bij (fun x _ =>
-        ⟨x.snd.snd.snd, x.snd.snd.fst, x.fst, x.snd.fst⟩) _ _ _ _
+    refine Finset.sum_bij (fun x _ =>
+        ⟨x.snd.snd.snd, x.snd.snd.fst, x.fst, x.snd.fst⟩) ?_ ?_ ?_ ?_
       <;> simp
     · exact fun a ha₁ ha₂ => ⟨ha₂, ha₁⟩
     · bound
@@ -2399,7 +2398,7 @@ lemma non_injective_count_le {V : Type*} [Fintype V] :
         10 * n ^ 4 by
     obtain ⟨e⟩ : Nonempty (V ≃ Fin (Fintype.card V)) := ⟨Fintype.equivFin V⟩
     convert this (Fintype.card V) using 1
-    refine' Finset.card_bij (fun f _ i => e (f i)) _ _ _ <;>
+    refine Finset.card_bij (fun f _ i => e (f i)) ?_ ?_ ?_ <;>
       simp +decide [Function.Injective]
     · exact fun a₁ x y hxy hne a₂ u v huv hne' h =>
         funext fun i => e.injective <| congr_fun h i
