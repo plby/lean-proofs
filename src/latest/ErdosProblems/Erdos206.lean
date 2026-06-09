@@ -27,7 +27,6 @@ namespace Erdos206
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 
 /-!
 # Erdős Problem #206: Non-greedy Egyptian Underapproximations
@@ -161,7 +160,7 @@ lemma good_interval_length (i : ℕ) (k : ℕ) (hi : 2 ≤ i)
     1 / ↑(Nat.floor (x_seq i k)) - 1 / x_seq i k ≥ 25 / (108 * (i : ℝ)^4) := by
   by_cases h : ⌊x_seq i k⌋₊ = 0 <;> simp_all +decide [ Nat.floor_eq_zero ]
   · contrapose! h
-    refine' le_trans _ ( x_seq_ge i k _ )
+    refine le_trans ?_ ( x_seq_ge i k ?_ )
     · nlinarith only [ show ( i : ℝ ) ≥ 2 by norm_cast ]
     · contrapose! hfrac
       exact lt_of_le_of_lt
@@ -282,14 +281,14 @@ lemma good_interval_predicate_strict (i : ℕ) (k : ℕ) (hi : 1000 ≤ i)
       (1 : ℝ) / a + 1 / b < x ∧
       ∀ j : ℕ, 0 < j → j ≠ i → (1 : ℝ) / i + 1 / j < x →
         (1 : ℝ)/i + 1/j < 1/a + 1/b := by
-  refine' ⟨ i + 1, i * ( i + 1 ) / 2 + k, _, _, _, _, _, _ ⟩ <;> norm_num [ Nat.succ_div ]
+  refine ⟨ i + 1, i * ( i + 1 ) / 2 + k, ?_, ?_, ?_, ?_, ?_, ?_ ⟩ <;> norm_num [ Nat.succ_div ]
   · exact Or.inl ( by nlinarith only [ hi ] )
   · nlinarith [
       Nat.div_mul_cancel ( show 2 ∣ i * ( i + 1 ) from
         even_iff_two_dvd.mp ( by
           simp +arith +decide [ mul_add, parity_simps ] ) ) ]
   · nlinarith [ Nat.div_add_mod ( i * ( i + 1 ) ) 2, Nat.mod_lt ( i * ( i + 1 ) ) two_pos ]
-  · refine' ⟨ _, _ ⟩
+  · refine ⟨ ?_, ?_ ⟩
     · convert hx_lower using 1
       norm_num [ Nat.dvd_iff_mod_eq_zero, Nat.add_mod, Nat.mod_two_of_bodd ]
       ring_nf
@@ -343,17 +342,17 @@ lemma non_greedy_measure_bound_strict (i : ℕ) (hi : 1000 ≤ i) :
         ( x_seq i ( 2 * l ) ) ( x_seq i ( 2 * l + 1 ) ) ?_ ?_ ?_ <;>
         norm_num at *
       · exact this
-      · refine' div_nonneg _ _ <;> norm_num
+      · refine div_nonneg ?_ ?_ <;> norm_num
         · positivity
         · rw [Nat.le_floor_iff (by positivity)] at hl
           nlinarith [(by norm_cast : (1000 : ℝ) ≤ i)]
       · linarith
       · linarith
     choose! k hk₁ hk₂ using h_k_exists
-    refine' ⟨ Finset.image k
+    refine ⟨ Finset.image k
         ( Finset.Icc ⌈ ( i : ℝ ) * ( i + 1 ) / 100⌉₊
           ⌊3 * ( i : ℝ ) * ( i + 1 ) / 200⌋₊ ),
-        _, _ ⟩ <;>
+        ?_, ?_ ⟩ <;>
       norm_num
     · rw [ Finset.card_image_of_injOn ]
       · convert L_set_card_bound i hi using 1
@@ -363,10 +362,10 @@ lemma non_greedy_measure_bound_strict (i : ℕ) (hi : 1000 ≤ i) :
           cases hk₁ l' ( Nat.le_of_ceil_le hl'.1 ) hl'.2 <;>
           omega
     · rintro l x hx₁ hx₂ rfl
-      refine' ⟨ _,
+      refine ⟨ ?_,
         hk₂ x ( Finset.mem_Icc.mpr ⟨ Nat.ceil_le.mpr hx₁, hx₂ ⟩ ) |>
           le_trans <| le_rfl,
-        _ ⟩
+        ?_ ⟩
       · have := hk₁ x (Finset.mem_Icc.mpr ⟨Nat.ceil_le.mpr hx₁, hx₂⟩)
         norm_num at this
         rw [ Nat.le_floor_iff ( by positivity ) ] at hx₂
@@ -379,17 +378,17 @@ lemma non_greedy_measure_bound_strict (i : ℕ) (hi : 1000 ≤ i) :
         norm_num at *
         cases hk₁ x hx₁ hx₂ <;> simp_all +decide
         linarith
-  refine' ⟨ ⋃ l ∈ L,
+  refine ⟨ ⋃ l ∈ L,
       Set.Ioc ( 1 / ( i : ℝ ) + 1 / x_seq i l )
         ( 1 / ( i : ℝ ) + 1 / ⌊x_seq i l⌋₊ ),
-      _, _, _, _ ⟩ <;>
+      ?_, ?_, ?_, ?_ ⟩ <;>
     norm_num
   · exact MeasurableSet.iUnion fun l => MeasurableSet.iUnion fun hl => measurableSet_Ioc
   · intro l hl
     specialize hL
     have := hL.2 l hl
     norm_num at *
-    refine' Set.Ioc_subset_Ioc _ _ <;> norm_num at *
+    refine Set.Ioc_subset_Ioc ?_ ?_ <;> norm_num at *
     · exact le_of_lt ( x_seq_pos i l ( by linarith ) ( by linarith ) )
     · have h_floor : ⌊x_seq i l⌋₊ ≥ i * (i + 1) := by
         exact Nat.le_floor <| by
@@ -430,7 +429,7 @@ lemma non_greedy_measure_bound_strict (i : ℕ) (hi : 1000 ≤ i) :
           simp_all +decide [ Set.disjoint_iff_inter_eq_empty, Set.Ioc_inter_Ioc ]
         · rw [ Set.Ioc_eq_empty_of_le ]
           simp +zetaDelta at *
-          refine' Or.inl ( Or.inr _ )
+          refine Or.inl ( Or.inr ?_ )
           gcongr
           · exact x_seq_pos i l ( by linarith ) ( by linarith [ hL.2 l hl ] )
           · have h_diff : x_seq i l' - x_seq i l > 1 := by
@@ -454,8 +453,15 @@ lemma non_greedy_measure_bound_strict (i : ℕ) (hi : 1000 ≤ i) :
               exact h_diff l' ‹_› le_rfl
             exact le_trans ( by linarith ) ( Nat.sub_one_lt_floor _ |> le_of_lt )
         · rw [ Set.Ioc_eq_empty_of_le ]
-          refine' le_trans ( min_le_left _ _ ) _
-          refine' le_max_of_le_right _
+          refine le_trans
+            (show
+              min
+                ((i : ℝ)⁻¹ + (⌊x_seq i l⌋₊ : ℝ)⁻¹)
+                ((i : ℝ)⁻¹ + (⌊x_seq i l'⌋₊ : ℝ)⁻¹) ≤
+                  (i : ℝ)⁻¹ + (⌊x_seq i l⌋₊ : ℝ)⁻¹ from
+              min_le_left _ _)
+            ?_
+          refine le_max_of_le_right ?_
           gcongr
           · exact x_seq_pos i l' ( by linarith ) ( by linarith [ hL.2 l' hl' ] )
           · have h_floor : x_seq i l - x_seq i l' > 1 := by
@@ -482,7 +488,7 @@ lemma non_greedy_measure_bound_strict (i : ℕ) (hi : 1000 ≤ i) :
     have h_total_measure_bound :
         ENNReal.ofReal (L.card * (25 / (108 * (i : ℝ)^4))) ≥
           ENNReal.ofReal (1 / 1000 * ((1 : ℝ) / (i - 1) - 1 / i)) := by
-      refine' ENNReal.ofReal_le_ofReal _
+      refine ENNReal.ofReal_le_ofReal ?_
       convert total_measure_bound i hi |> le_trans <|
         mul_le_mul_of_nonneg_right hL.1 (by positivity) using 1
     convert h_total_measure_bound.trans h_measure_bound using 1
@@ -536,8 +542,8 @@ lemma valid_set_exists (n : ℕ) (a₀ : ℕ) (x : ℝ) (hx : 0 < x) :
               tendsto_natCast_atTop_atTop )
         ( by norm_num )
     exact ( h_sum_zero.eventually ( gt_mem_nhds hx ) ) |> fun h => h.exists
-  refine' ⟨ Finset.image ( fun k : ℕ => a₀ + M + k + 1 ) ( Finset.range n ),
-      _, _, _, _ ⟩ <;>
+  refine ⟨ Finset.image ( fun k : ℕ => a₀ + M + k + 1 ) ( Finset.range n ),
+      ?_, ?_, ?_, ?_ ⟩ <;>
     norm_num [ Finset.card_image_of_injective, Function.Injective, * ]
   · grind
   · exact fun m hm => by
@@ -601,7 +607,7 @@ lemma exists_bestNTerm_above (n : ℕ) (x : ℝ) (hx : 0 < x) (a₀ : ℕ) :
             egyptianSum T ≤ egyptianSum S := by
       exact Finset.exists_max_image _ _
         ⟨ S₀, Finset.mem_union_right _ ( Finset.mem_singleton_self _ ) ⟩
-    refine' h ⟨ S, _, _, _, _, _ ⟩
+    refine h ⟨ S, ?_, ?_, ?_, ?_, ?_ ⟩
     · grind
     · grind
     · simp +zetaDelta at *
@@ -637,7 +643,7 @@ lemma exists_bestNTerm_above (n : ℕ) (x : ℝ) (hx : 0 < x) (a₀ : ℕ) :
                 le_trans <| by norm_num [ hT₁ ]
           exact Nat.le_floor ha₃
         have ha₄ : 1 / (a : ℝ) < x := by
-          refine' lt_of_le_of_lt _ hT₄
+          refine lt_of_le_of_lt ?_ hT₄
           exact le_trans ( by norm_num )
             ( Finset.single_le_sum
               ( fun m _ => one_div_nonneg.mpr ( Nat.cast_nonneg m ) ) ha₁ )
@@ -766,7 +772,7 @@ lemma greedy_density (t : ℕ) (ht : 1 ≤ t) (l : ℕ) (δ : ℝ) (hδ_pos : 0 
       δ - egyptianSum S ≤ 1 / (((l : ℝ) + ↑t) * ((l : ℝ) + ↑t + 1)) := by
   induction ht generalizing l δ
   case refl =>
-    refine' ⟨ { ⌊δ⁻¹⌋₊ + 1 }, _, _, _, _, _ ⟩ <;> norm_num [ ValidEgyptian, egyptianSum ]
+    refine ⟨ { ⌊δ⁻¹⌋₊ + 1 }, ?_, ?_, ?_, ?_, ?_ ⟩ <;> norm_num [ ValidEgyptian, egyptianSum ]
     · exact Nat.succ_le_succ ( Nat.le_floor <| by
         rw [ inv_eq_one_div ]
         rw [ le_div_iff₀ hδ_pos ]
@@ -782,7 +788,7 @@ lemma greedy_density (t : ℕ) (ht : 1 ≤ t) (l : ℕ) (δ : ℝ) (hδ_pos : 0 
           m₀ ≥ l + 2 ∧ (1 : ℝ) / m₀ < δ ∧
             (δ - (1 : ℝ) / m₀) ≤ 1 / ((m₀ - 1 : ℝ) * m₀) := by
       use Nat.floor (1 / δ) + 1
-      refine' ⟨ _, _, _ ⟩
+      refine ⟨ ?_, ?_, ?_ ⟩
       · exact Nat.succ_le_succ (Nat.le_floor <| by
           rw [le_div_iff₀ hδ_pos]
           norm_num
@@ -818,7 +824,7 @@ lemma greedy_density (t : ℕ) (ht : 1 ≤ t) (l : ℕ) (δ : ℝ) (hδ_pos : 0 
               ( inv_le_one_of_one_le₀ ( by
                 norm_cast
                 linarith ) ) ) _ )
-    refine' ⟨ Insert.insert m₀ S', _, _, _, _, _ ⟩ <;> simp_all +decide [ ValidEgyptian ]
+    refine ⟨ Insert.insert m₀ S', ?_, ?_, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ ValidEgyptian ]
     · rw [ Finset.card_insert_of_notMem ( fun h => by linarith [ hS'.2.2.1 m₀ h ] ), hS'.1 ]
     · linarith
     · exact fun x hx => by
@@ -827,7 +833,7 @@ lemma greedy_density (t : ℕ) (ht : 1 ≤ t) (l : ℕ) (δ : ℝ) (hδ_pos : 0 
       grind
     · rw [ egyptianSum ]
       rw [ Finset.sum_insert ] <;> norm_num
-      · refine' le_trans hS'.2.2.2.2 _
+      · refine le_trans hS'.2.2.2.2 ?_
         rw [ ← mul_inv ]
         rw [← mul_inv]
         ring_nf
@@ -869,7 +875,10 @@ lemma exists_good_approx (t : ℕ) (ht : 2 ≤ t) (x : ℝ) (hx : 0 < x)
         (Nat.pred_lt (ne_bot_of_gt ht))))) (harmonicNumber l) using 1
       norm_num [harmonicNumber]
       norm_num [ Finset.sum_range_succ ]
-  refine' ⟨ Finset.image ( fun k => k + 1 ) ( Finset.range l ) ∪ S', _, _, _ ⟩ <;> simp_all +decide
+  refine ⟨
+    Finset.image ( fun k => k + 1 ) ( Finset.range l ) ∪ S',
+    ?_, ?_, ?_ ⟩ <;>
+    simp_all +decide
   · rw [ Finset.card_union_of_disjoint ]
     · rw [ Finset.card_image_of_injective ] <;> norm_num [ Function.Injective ]
       omega
@@ -975,10 +984,10 @@ lemma X_set_downward_closed_in_fiber (s t : ℕ) (ht : s ≤ t)
     (hy_upper : y ≤ x) :
     y ∈ X_set s t := by
   obtain ⟨ m, hm_mono, hm_pos, hm_best ⟩ := hx.2.2
-  refine' ⟨ hy_pos, hy_upper.trans hx.2.1, m, hm_mono, hm_pos, fun n hn₁ hn₂ => _ ⟩
+  refine ⟨ hy_pos, hy_upper.trans hx.2.1, m, hm_mono, hm_pos, fun n hn₁ hn₂ => ?_ ⟩
   apply IsBestNTerm_of_Ioc
   exact hm_best n hn₁ hn₂
-  · refine' lt_of_le_of_lt _ hy_lower
+  · refine lt_of_le_of_lt ?_ hy_lower
     have h_sum_le :
         egyptianSum (Finset.image m (Finset.range n)) ≤
           egyptianSum (Finset.image m (Finset.range t)) := by
@@ -1023,7 +1032,7 @@ noncomputable def X_fiber (s t : ℕ) (q : ℝ) : Set ℝ :=
 lemma fiber_sup_bestNTermSum (s t : ℕ)
     (q : ℝ) (hne : (X_fiber s t q).Nonempty) :
     bestNTermSum t (sSup (X_fiber s t q)) = q := by
-  refine' le_antisymm _ _
+  refine le_antisymm ?_ ?_
   · by_contra h_contra
     obtain ⟨T, hT⟩ :
         ∃ T : Finset ℕ,
@@ -1073,7 +1082,7 @@ lemma fiber_sup_mem_X_set (s t : ℕ)
   constructor
   · exact lt_of_lt_of_le ( hx₀.1.1 ) ( le_csSup ⟨ harmonicNumber s, fun x hx => hx.1.2.1 ⟩ hx₀ )
   · obtain ⟨ m, hm₁, hm₂, hm₃ ⟩ := hx₀.1.2.2
-    refine' ⟨ csSup_le _ _, m, hm₁, hm₂, fun n hn₁ hn₂ => _ ⟩
+    refine ⟨ csSup_le ?_ ?_, m, hm₁, hm₂, fun n hn₁ hn₂ => ?_ ⟩
     · exact ⟨ x₀, hx₀ ⟩
     · exact fun x hx => hx.1.2.1
     · have h_sup : bestNTermSum n x₀ = bestNTermSum n (sSup (X_fiber s t q)) := by
@@ -1093,7 +1102,7 @@ lemma fiber_sup_mem_X_set (s t : ℕ)
         rw [ ← h_sup, bestNTermSum_unique ]
         · exact hx₀.1.1
         · exact hm₃ n hn₁ hn₂
-      refine' ⟨ _, _, _ ⟩
+      refine ⟨ ?_, ?_, ?_ ⟩
       · rw [ Finset.card_image_of_injective _ hm₁.injective, Finset.card_range ]
       · have h_sup : bestNTermSum n (sSup (X_fiber s t q)) < sSup (X_fiber s t q) := by
           apply bestNTermSum_lt
@@ -1372,15 +1381,15 @@ lemma telescoping_sum_lower_bound
     erw [ Finset.sum_Ico_eq_sum_range ]
     convert Finset.sum_range_sub' _ _ using 3 <;> push_cast <;> ring_nf
     rw [ Nat.cast_sub ] <;> push_cast <;> nlinarith
-  have h_sum_bound :
+  have h_inter_sum_bound :
       ∑ i ∈ S ∩ Finset.Icc (i₀ + 1) (i₀ * i₀),
         (1 / (i - 1 : ℝ) - 1 / (i : ℝ)) ≤
       #S * (1 / (i₀ * (i₀ + 1) : ℝ)) := by
-    refine' le_trans
+    refine le_trans
       ( Finset.sum_le_sum fun x hx =>
         show ( 1 / ( x - 1 : ℝ ) - 1 / x ) ≤
-          1 / ( i₀ * ( i₀ + 1 ) : ℝ ) from _ )
-      _
+          1 / ( i₀ * ( i₀ + 1 ) : ℝ ) from ?_ )
+      ?_
     · rw [ div_sub_div, div_le_div_iff₀ ] <;>
         nlinarith only [
           show ( x : ℝ ) ≥ i₀ + 1 by
@@ -1401,7 +1410,16 @@ lemma telescoping_sum_lower_bound
     simp_all only [one_div, sum_sub_distrib, mul_inv_rev, tsub_le_iff_right,
       sdiff_inter_self_right, add_sub_cancel_right, ge_iff_le, Std.le_refl]
   refine le_trans ?_ h_sum_bound
-  refine le_trans ?_ ( sub_le_sub_left ‹_› _ )
+  refine le_trans ?_
+    (show
+      (∑ i ∈ Finset.Icc (i₀ + 1) (i₀ * i₀),
+          (1 / (i - 1 : ℝ) - 1 / (i : ℝ))) -
+        #S * (1 / (i₀ * (i₀ + 1) : ℝ)) ≤
+      (∑ i ∈ Finset.Icc (i₀ + 1) (i₀ * i₀),
+          (1 / (i - 1 : ℝ) - 1 / (i : ℝ))) -
+        ∑ i ∈ S ∩ Finset.Icc (i₀ + 1) (i₀ * i₀),
+          (1 / (i - 1 : ℝ) - 1 / (i : ℝ)) from
+      sub_le_sub_left h_inter_sum_bound _)
   field_simp
   rw [h_telescope]
   ring_nf
@@ -1426,7 +1444,7 @@ lemma i0_exists (t : ℕ) (ht : 100 < t) (rq : ℝ) (hrq : 0 < rq)
     ∃ i₀ : ℕ, 3 ≤ i₀ ∧ t * (t + 1) < i₀ ∧ 1000 ≤ i₀ ∧
       (1 : ℝ) / i₀ < rq ∧ rq ≤ 1 / ((i₀ : ℝ) - 1) ∧
       (t : ℕ) ≤ i₀ - 2 := by
-  refine' ⟨ ⌊1 / rq⌋₊ + 1, _, _, _, _, _, _ ⟩ <;> norm_num at *
+  refine ⟨ ⌊1 / rq⌋₊ + 1, ?_, ?_, ?_, ?_, ?_, ?_ ⟩ <;> norm_num at *
   any_goals
     rw [Nat.le_floor_iff (by positivity)]
     norm_num
@@ -1468,8 +1486,8 @@ lemma i0_exists (t : ℕ) (ht : 100 < t) (rq : ℝ) (hrq : 0 < rq)
             inv_pos.mpr ( by positivity : 0 < ( t : ℝ ) ),
             mul_inv_cancel₀ ( by positivity : ( t : ℝ ) ≠ 0 ) ] )
         <| Nat.floor_le <| inv_nonneg.mpr hrq.le )
-  · refine' Nat.le_sub_of_add_le _
-    refine' Nat.succ_le_succ ( Nat.le_floor _ )
+  · refine Nat.le_sub_of_add_le ?_
+    refine Nat.succ_le_succ ( Nat.le_floor ?_ )
     field_simp at *
     norm_num
     nlinarith [(by norm_cast : (100 : ℝ) < t)]
@@ -1503,9 +1521,9 @@ lemma exists_avoided_set
     choose! E hE₁ hE₂ hE₃ hE₄ using non_greedy_measure_bound_strict
     use fun i => if 1000 ≤ i then E i else ∅
     aesop
-  refine' ⟨ ⋃ i ∈ Finset.Icc ( i₀ + 1 ) ( i₀ * i₀ ) \ S,
+  refine ⟨ ⋃ i ∈ Finset.Icc ( i₀ + 1 ) ( i₀ * i₀ ) \ S,
       ( fun x => x - q ) ⁻¹' ( E i ),
-      _, _, _, _ ⟩
+      ?_, ?_, ?_, ?_ ⟩
   · exact MeasurableSet.biUnion ( Finset.countable_toSet _ ) fun i hi =>
       measurable_id.sub_const q ( hE_meas i )
   · simp_all +decide [ Set.subset_def ]
@@ -1602,7 +1620,7 @@ lemma exists_avoided_set
             exact sub_ne_zero_of_ne ( by
               norm_cast
               linarith ) ) ]
-    refine' le_trans _ ( le_trans ‹_› _ )
+    refine le_trans ?_ ( le_trans ‹_› ?_ )
     · exact ENNReal.ofReal_le_ofReal ( by linarith )
     · aesop
 
@@ -1635,12 +1653,12 @@ lemma X_set_eq_disjoint_union (s t : ℕ) (hs : 0 < s) (ht : s ≤ t) :
       (∀ j₁ j₂, j₁ ≠ j₂ → Disjoint (Set.Ioc (q j₁) (r j₁)) (Set.Ioc (q j₂) (r j₂))) ∧
       X_set s t = ⋃ j, Set.Ioc (q j) (r j) := by
   use {qv : ℝ | (X_fiber s t qv).Nonempty}
-  refine' ⟨ _, fun j => bestNTermSet t ( sSup ( X_fiber s t j ) ),
+  refine ⟨ ?_, fun j => bestNTermSet t ( sSup ( X_fiber s t j ) ),
     fun j => egyptianSum ( bestNTermSet t ( sSup ( X_fiber s t j ) ) ),
-    fun j => sSup ( X_fiber s t j ), _, _, _, _, _ ⟩
+    fun j => sSup ( X_fiber s t j ), ?_, ?_, ?_, ?_, ?_ ⟩
   any_goals tauto
-  · refine' Set.Countable.mono _
-      ( show Set.Countable ( Set.range ( fun S : Finset ℕ => egyptianSum S ) ) from _ )
+  · refine Set.Countable.mono ?_
+      ( show Set.Countable ( Set.range ( fun S : Finset ℕ => egyptianSum S ) ) from ?_ )
     · intro qv hqv
       obtain ⟨x, hx⟩ := hqv
       have hqv_eq : qv = bestNTermSum t x := by
@@ -1670,7 +1688,7 @@ lemma X_set_eq_disjoint_union (s t : ℕ) (hs : 0 < s) (ht : s ≤ t) :
       exact bestNTermSum_lt t _ h_pos |> fun h => by
         simpa only [ bestNTermSum_eq t _ h_pos ] using h
     exact h_lt
-  · refine' ⟨ _, _, _, _, _ ⟩
+  · refine ⟨ ?_, ?_, ?_, ?_, ?_ ⟩
     · exact fun j => csSup_le ( j.2 ) fun x hx => hx.1.2.1
     · intro j
       by_cases ht2 : 2 ≤ t
@@ -1705,16 +1723,19 @@ lemma X_set_eq_disjoint_union (s t : ℕ) (hs : 0 < s) (ht : s ≤ t) :
               linarith [ h_nonneg,
                 show x ≤ 1 by
                   exact hx.1.2.1.trans ( by norm_num [ harmonicNumber ] ) ] ⟩
-        refine' le_trans ( csSup_le _ _ ) _
-        exact 1 / 2 + egyptianSum ( bestNTermSet 1 ( sSup ( X_fiber 1 1 j.val ) ) )
-        · exact j.2
-        · grind +suggestions
+        refine le_trans
+          (show sSup (X_fiber 1 1 j.val) ≤
+              1 / 2 + egyptianSum (bestNTermSet 1 (sSup (X_fiber 1 1 j.val))) from ?_)
+          ?_
+        · refine csSup_le ?_ ?_
+          · exact j.2
+          · grind +suggestions
         · norm_num
     · intro j x hx₁ hx₂
       apply IsBestNTerm_of_Ioc
       apply bestNTermSet_isBest
-      · refine' lt_of_lt_of_le _ hx₂
-        refine' lt_of_le_of_lt _ hx₁
+      · refine lt_of_lt_of_le ?_ hx₂
+        refine lt_of_le_of_lt ?_ hx₁
         exact Finset.sum_nonneg fun _ _ => by positivity
       · exact hx₁
       · exact hx₂
@@ -1758,7 +1779,7 @@ lemma X_set_eq_disjoint_union (s t : ℕ) (hs : 0 < s) (ht : s ≤ t) :
       constructor
       · intro hx
         simp +zetaDelta at *
-        refine' ⟨ bestNTermSum t x, _, _, _ ⟩
+        refine ⟨ bestNTermSum t x, ?_, ?_, ?_ ⟩
         · have := fiber_sup_bestNTermSum s t ( bestNTermSum t x ) ?_
           · rw [ bestNTermSum_eq ] at this
             · exact this.symm ▸ bestNTermSum_lt t x hx.1
@@ -1775,7 +1796,7 @@ lemma X_set_eq_disjoint_union (s t : ℕ) (hs : 0 < s) (ht : s ≤ t) :
             ⟨ hx, rfl ⟩
       · simp +zetaDelta at *
         intro q hx₁ hx₂ hx₃
-        refine' X_set_downward_closed_in_fiber s t ht _ _ _ _ _ _
+        refine X_set_downward_closed_in_fiber s t ht ?_ ?_ ?_ ?_ ?_ ?_
         exact sSup ( X_fiber s t q )
         · exact fiber_sup_mem_X_set s t q hx₂
         · exact lt_of_le_of_lt ( Finset.sum_nonneg fun _ _ => by positivity ) hx₁
@@ -1865,7 +1886,7 @@ lemma eventuallyGreedy_subset :
               Real.not_summable_one_div_natCast )
       exact ( h_harmonic_unbounded.eventually_gt_atTop x ) |> fun h => h.exists
     exact ⟨ s + n₀, le_trans hs.le <| harmonicNumber_mono <| by linarith, by linarith ⟩
-  refine' Set.mem_iUnion.mpr ⟨ s, Set.mem_iInter₂.mpr fun t ht =>
+  refine Set.mem_iUnion.mpr ⟨ s, Set.mem_iInter₂.mpr fun t ht =>
     ⟨ by linarith [ hx.1 ], hs.1, m, hm_mono, hm_pos,
       fun n hn₁ hn₂ => hm_best n ( by linarith ) ⟩ ⟩
 
