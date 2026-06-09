@@ -25,7 +25,6 @@ set_option linter.style.setOption false
 set_option linter.style.maxHeartbeats false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 set_option linter.deprecated false
 
 /-!
@@ -497,7 +496,7 @@ lemma pow9_construction_step (N : ℕ)
     intro j hj;
     contrapose! hlam_not_bad;
     simp +zetaDelta at *;
-    refine' ⟨ j, hj, _ ⟩;
+    refine ⟨ j, hj, ?_ ⟩;
     rw [ Int.ediv_eq_of_eq_mul_left ];
     · exact mul_ne_zero ( baseP_coeff_ne_zero _ ( by linarith ) ) hf0;
     · linarith  -- Lambda avoidance: each linear equation has at most one root
@@ -606,11 +605,11 @@ lemma sq_prod_support_bound (g P : ℤ[X]) (R : Finset ℕ) (d a : ℕ)
         ((g ^ 2).support + (P ^ 2).support).card ≤
           ((R ∪ R.image (· + d) ∪ {2 * d}) +
             (Finset.range (2 * a - 1)).image (· * d)).card := by
-      refine' Finset.card_le_card ( Finset.add_subset_add hg_supp _ );
+      refine Finset.card_le_card ( Finset.add_subset_add hg_supp ?_ );
       -- By support_mul_subset_add, we have supp(P²) ⊆ supp(P) + supp(P).
       have h_support_P : (P ^ 2).support ⊆ P.support + P.support := by
         convert support_mul_subset_add P P using 1 ; ring_nf;
-      refine' h_support_P.trans _;
+      refine h_support_P.trans ?_;
       intro x hx
       obtain ⟨ y, hy, z, hz, rfl ⟩ := Finset.mem_add.mp hx
       have := hP_supp hy
@@ -647,9 +646,9 @@ lemma exists_complete_prod (g : ℤ[X]) (d a : ℕ)
         cases lt_or_gt_of_ne ( hg_comp d le_rfl ) <;>
           cases lt_or_gt_of_ne ( hg_comp 0 ( by linarith ) ) <;>
           nlinarith ⟩;
-  refine'
+  refine
     ⟨ ∑ j ∈ Finset.range a, Polynomial.monomial ( j * d ) ( lambda ^ j ),
-      _, _, _ ⟩ <;>
+      ?_, ?_, ?_ ⟩ <;>
     simp_all +decide ;
   · intro i hi; contrapose! hi; simp_all +decide [ Polynomial.coeff_monomial ] ;
     exact Finset.sum_eq_zero fun x hx => if_neg <| hi x <| Finset.mem_range.mp hx;
@@ -659,7 +658,7 @@ lemma exists_complete_prod (g : ℤ[X]) (d a : ℕ)
       · induction ha <;> simp_all +decide [ Finset.range_add_one ];
         grind;
       · intro i hi j hj hij; contrapose hij; aesop;
-    · refine' ⟨ by aesop_cat, _ ⟩;
+    · refine ⟨ by aesop_cat, ?_ ⟩;
       intro H
       replace H := congr_arg ( fun p => p.coeff ( ( a - 1 ) * d ) ) H
       rcases a with ( _ | _ | a ) <;> simp_all +decide [ Polynomial.coeff_monomial ] ;
@@ -944,7 +943,7 @@ lemma arithmetic_bound (n N a : ℕ) (_hn : 0 < n) (ha1 : 1 ≤ a) (ha8 : a ≤ 
   have h_exp :
       (n : ℝ) ^ (Real.log 6 / Real.log 9) ≥
         (a : ℝ) ^ (Real.log 6 / Real.log 9) * (6 : ℝ) ^ N := by
-    refine' le_trans _
+    refine le_trans ?_
       ( Real.rpow_le_rpow ( by positivity ) ( Nat.cast_le.mpr haN ) ( by positivity ) );
     norm_num [ Real.mul_rpow, Real.rpow_def_of_pos ];
     norm_num [ mul_assoc, mul_div_cancel₀, Real.exp_nat_mul, Real.exp_log ];
@@ -1104,8 +1103,8 @@ theorem exists_base_poly_deg12 :
     exact ⟨ 5 ^ ( 1/3 : ℝ ), by positivity, by
       rw [ ← Real.rpow_natCast, ← Real.rpow_mul ] <;> norm_num ⟩;
   use ∑ i ∈ Finset.range 13, Polynomial.monomial i ( c12 β i );
-  refine' ⟨ _, _, _ ⟩;
-  · refine' Polynomial.natDegree_eq_of_degree_eq_some _;
+  refine ⟨ ?_, ?_, ?_ ⟩;
+  · refine Polynomial.natDegree_eq_of_degree_eq_some ?_;
     rw [ Polynomial.degree_eq_of_le_of_coeff_ne_zero ] <;> norm_num [ Polynomial.coeff_monomial ];
     · rw [ Polynomial.degree_le_iff_coeff_zero ] ; norm_num [ Polynomial.coeff_monomial ];
       grind;
@@ -1173,7 +1172,7 @@ lemma pow13_construction_base :
       (0 : ℕ) ∈ R ∧
       R.card = (8 ^ (0 + 1) - 1) / 7 ∧
       (f ^ 2).support ⊆ R ∪ R.image (· + 13 ^ 0) ∪ {2 * 13 ^ 0} := by
-  refine' ⟨X + 1, {0}, _, _, _, _, _, _⟩ <;>
+  refine ⟨X + 1, {0}, ?_, ?_, ?_, ?_, ?_, ?_⟩ <;>
     norm_num [Polynomial.coeff_one, Polynomial.coeff_X,
              Polynomial.natDegree_add_eq_left_of_natDegree_lt]
   · intro i hi; interval_cases i <;> norm_num
@@ -1265,7 +1264,7 @@ lemma product_complete_13 (f : ℝ[X]) (d : ℕ) (lam : ℝ)
               Finset.mem_range.mpr <| by
                 nlinarith [Finset.mem_range.mp hj, Nat.sub_le k j]) ];
       · rw [ Finset.sum_image ];
-        · refine' Finset.sum_congr rfl fun j hj => _;
+        · refine Finset.sum_congr rfl fun j hj => ?_;
           rw [ Polynomial.comp, Polynomial.eval₂_eq_sum_range ];
           simp +decide [ mul_pow, ← mul_assoc, ← pow_mul, mul_comm d, baseP12_deg ];
           rw [ Finset.sum_eq_single j ] <;> simp +decide [mul_assoc];
@@ -1425,7 +1424,7 @@ lemma step_support_containment_13 (f : ℝ[X]) (R : Finset ℕ) (d : ℕ) (lam :
           ({0, 1, 2, 9, 10, 11, 12, 13, 14, 15, 22, 23, 24} * {d}) := by
     exact Finset.Subset.trans ( support_mul_subset_add_real _ _ )
       ( Finset.add_subset_add hf_supp h_support );
-  refine' Finset.Subset.trans _ ( Finset.Subset.trans h_support_mul _ );
+  refine Finset.Subset.trans ?_ ( Finset.Subset.trans h_support_mul ?_ );
   · simp +decide [ mul_pow ];
   · simp +decide [ Finset.subset_iff, Finset.mem_add, Finset.mem_mul ];
     rintro x ( ⟨ z, hz, rfl ⟩ | ⟨ a, ha, z, hz, rfl ⟩ ) <;> simp_all +decide [ R'_set13 ];
@@ -1487,7 +1486,7 @@ lemma pow13_construction_step (N : ℕ)
         ( Set.Finite.biUnion ( Finset.finite_toSet ( Finset.range 12 ) ) h_finite )
         fun x hx => by aesop;
     exact Exists.imp ( by aesop ) ( exists_nonzero_not_in_finite_real h_finite.toFinset );
-  refine' ⟨ f * baseP12.comp ( C lam * X ^ ( 13 ^ N ) ), R'_set13 R ( 13 ^ N ), _, _, _, _, _ ⟩;
+  refine ⟨ f * baseP12.comp ( C lam * X ^ ( 13 ^ N ) ), R'_set13 R ( 13 ^ N ), ?_, ?_, ?_, ?_, ?_ ⟩;
   · rw [ Polynomial.natDegree_mul' ] <;> simp_all +decide [ pow_succ' ];
     · rw [ natDegree_baseP12_comp ] <;> norm_num [ hlam ] ; ring;
     · exact ⟨ by rintro rfl; simpa using hf_comp 0 bot_le, by
@@ -1501,7 +1500,7 @@ lemma pow13_construction_step (N : ℕ)
   · convert R'_set13_range R ( 13 ^ N ) ( by positivity ) hR_range using 1;
     rw [ pow_succ' ];
   · exact R'_set13_zero _ _ hR_zero;
-  · refine' ⟨ _, _ ⟩;
+  · refine ⟨ ?_, ?_ ⟩;
     · grind +suggestions;
     · convert step_support_containment_13 f R ( 13 ^ N ) lam hR_range hR_zero hf_supp
         using 1
@@ -1549,8 +1548,8 @@ lemma sq_prod_support_bound_real (g P : ℝ[X]) (R : Finset ℕ) (d a : ℕ)
       (g ^ 2 * P ^ 2).support ⊆
         (R ∪ R.image (· + d) ∪ {2 * d}) +
           (Finset.range (2 * a - 1)).image (· * d) := by
-    refine' Finset.Subset.trans (support_mul_subset_add_real _ _)
-      (Finset.add_subset_add hg_supp _)
+    refine Finset.Subset.trans (support_mul_subset_add_real _ _)
+      (Finset.add_subset_add hg_supp ?_)
     intro x hx; simp_all +decide [ sq, Polynomial.coeff_mul ] ;
     obtain ⟨ i, j, hij ⟩ := Finset.exists_ne_zero_of_sum_ne_zero hx;
     simp_all +decide [ Finset.subset_iff ];
@@ -1579,7 +1578,7 @@ lemma exists_complete_prod_real (g : ℝ[X]) (d a : ℕ)
     · obtain ⟨lam, hlam⟩ : ∃ lam : ℝ, lam ≠ 0 ∧ lam * g.coeff 0 + g.coeff d ≠ 0 := by
         contrapose! h;
         linarith [ h 1 one_ne_zero, h 2 two_ne_zero ];
-      refine' ⟨ ∑ j ∈ Finset.range a, Polynomial.monomial ( j * d ) ( lam ^ j ), _, _, _ ⟩;
+      refine ⟨ ∑ j ∈ Finset.range a, Polynomial.monomial ( j * d ) ( lam ^ j ), ?_, ?_, ?_ ⟩;
       · intro i hi; simp_all +decide [ Polynomial.coeff_monomial ] ;
         contrapose! hi; simp_all +decide [ Finset.sum_ite ] ;
         exact Finset.sum_eq_zero fun x hx =>
@@ -1595,7 +1594,7 @@ lemma exists_complete_prod_real (g : ℝ[X]) (d a : ℕ)
             · ring;
             · exact ⟨ by linarith, fun b hb => by nlinarith ⟩;
           · intro i hi j hj hij; contrapose hij; aesop;
-        · refine' ⟨ by aesop_cat, _ ⟩;
+        · refine ⟨ by aesop_cat, ?_ ⟩;
           intro H
           replace H := congr_arg (fun p => p.coeff 0) H
           simp_all +decide [Polynomial.coeff_monomial]
@@ -1729,7 +1728,7 @@ lemma exists_complete_extension_linear_real (f : ℝ[X]) (m b : ℕ)
     exact Exists.imp (by aesop)
       (Set.Infinite.nonempty
         (h_bad_values.infinite_compl.diff (Set.finite_singleton 0)))
-  refine' ⟨ mu, hmu.1, _, _ ⟩;
+  refine ⟨ mu, hmu.1, ?_, ?_ ⟩;
   · rw [Polynomial.natDegree_mul'] <;>
       simp_all +decide [Polynomial.natDegree_add_eq_right_of_natDegree_lt]
     exact ⟨ by aesop_cat, by exact ne_of_apply_ne ( fun p => p.coeff b ) ( by aesop_cat ) ⟩;
@@ -1759,7 +1758,7 @@ lemma sq_with_linear_support_bound_real (f : ℝ[X]) (mu : ℝ) (b : ℕ)
     norm_num [ Polynomial.coeff_one, Polynomial.coeff_X_pow, mul_assoc, sq ];
     grind;
   refine le_trans ( Finset.card_mono h_support ) ?_;
-  refine' le_trans ( Finset.card_image₂_le _ _ _ ) _;
+  refine le_trans ( Finset.card_image₂_le _ _ _ ) ?_;
   grind
 
 /-
@@ -1813,8 +1812,8 @@ lemma exists_complete_extension_real (g : ℝ[X]) (R : Finset ℕ) (d n : ℕ)
       · nlinarith [ Nat.pos_of_ne_zero hb_zero ];
       · exact hP_deg;
       · exact hP_comp;
-    refine' ⟨g * P * (1 + C mu * X ^ b), hmu_deg.trans (h_n ▸ rfl),
-      fun i hi => hmu_comp i (h_n ▸ hi), _⟩
+    refine ⟨g * P * (1 + C mu * X ^ b), hmu_deg.trans (h_n ▸ rfl),
+      fun i hi => hmu_comp i (h_n ▸ hi), ?_⟩
     have :=
       sq_with_linear_support_bound_real (g * P) mu b hmu_ne_zero
         (Nat.pos_of_ne_zero hb_zero) (2 * a * R.card + 1) h_support_bound
@@ -1837,17 +1836,17 @@ lemma exists_complete_with_bound_small_improved (n : ℕ) (hn : 0 < n) (hn_small
   -- Consider two cases: $n \leq 12$ and $13 \leq n \leq 168$.
   by_cases hn_case : n ≤ 12;
   · use ∑ i ∈ Finset.range (n + 1), Polynomial.X ^ i;
-    refine' ⟨ 0, n, _, _, _, _, _ ⟩ <;> norm_num;
+    refine ⟨ 0, n, ?_, ?_, ?_, ?_, ?_ ⟩ <;> norm_num;
     · interval_cases n <;> erw [ Polynomial.natDegree_sum_eq_of_disjoint ] <;> norm_num;
       all_goals simp +decide [ Set.Pairwise ];
     · linarith;
     · linarith;
-    · refine' le_trans ( sq_support_card_le_real _ ) _;
+    · refine le_trans ( sq_support_card_le_real _ ) ?_;
       erw [ Polynomial.natDegree_sum_eq_of_disjoint ] <;> norm_num;
       · interval_cases n <;> trivial;
       · aesop_cat;
-  · refine' ⟨∑ i ∈ Finset.range (n + 1), (Polynomial.X : ℝ[X]) ^ i,
-      1, n / 13, _, _, _, _, _, _⟩ <;>
+  · refine ⟨∑ i ∈ Finset.range (n + 1), (Polynomial.X : ℝ[X]) ^ i,
+      1, n / 13, ?_, ?_, ?_, ?_, ?_, ?_⟩ <;>
       norm_num
     · interval_cases n <;> erw [ Polynomial.natDegree_sum_eq_of_disjoint ] <;> norm_num;
       all_goals norm_num [ Set.Pairwise ];
@@ -1855,8 +1854,7 @@ lemma exists_complete_with_bound_small_improved (n : ℕ) (hn : 0 < n) (hn_small
     · omega;
     · omega;
     · exact Nat.div_mul_le_self _ _;
-    · refine' le_trans ( Finset.card_le_card _ ) _;
-      exact Finset.range ( 2 * n + 1 );
+    · refine le_trans (b := (Finset.range (2 * n + 1)).card) ( Finset.card_le_card ?_ ) ?_;
       · intro i hi; simp_all +decide [ sq, Finset.sum_mul _ _ _ ] ;
         contrapose! hi;
         refine Finset.sum_eq_zero fun j hj => ?_ ; simp_all +decide [ Polynomial.coeff_mul ];
@@ -1890,7 +1888,7 @@ lemma exists_complete_with_bound_large_improved (n : ℕ) (hn : 169 ≤ n) :
       (by
         exact Nat.pow_log_le_self 13 (by linarith))
       hg_deg hg_comp hR_range hR_zero hg_supp
-  refine' ⟨ f, Nat.log 13 n, n / 13 ^ Nat.log 13 n, hf_deg, hf_comp, _, _, _, _ ⟩;
+  refine ⟨ f, Nat.log 13 n, n / 13 ^ Nat.log 13 n, hf_deg, hf_comp, ?_, ?_, ?_, ?_ ⟩;
   · exact Nat.div_pos ( Nat.pow_log_le_self 13 ( by linarith ) ) ( by positivity );
   · exact Nat.le_of_lt_succ <|
       Nat.div_lt_of_lt_mul <| by
@@ -1925,7 +1923,7 @@ lemma arithmetic_bound_improved (n N a : ℕ) (ha1 : 1 ≤ a) (ha12 : a ≤ 12)
   have h_n_alpha :
       (n : ℝ) ^ (Real.log 8 / Real.log 13) ≥
         (a : ℝ) ^ (Real.log 8 / Real.log 13) * 8 ^ N := by
-    refine' le_trans _
+    refine le_trans ?_
       (Real.rpow_le_rpow (by positivity) (Nat.cast_le.mpr haN) (by positivity))
     rw [ Nat.cast_mul, Real.mul_rpow ( by positivity ) ( by positivity ) ];
     norm_num [ Real.rpow_def_of_pos, mul_div ];
