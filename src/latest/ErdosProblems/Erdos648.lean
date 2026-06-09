@@ -26,7 +26,6 @@ import PrimeNumberTheoremAnd.Consequences
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 
 namespace Erdos648
 
@@ -73,7 +72,7 @@ lemma q_pos {n : ℕ} (hn : n ≠ 0) : 0 < q n := by
       grind
     have h_denom_pos : 0 < P n := by
       exact P_pos
-    refine' Nat.div_pos _ h_denom_pos;
+    refine Nat.div_pos ?_ h_denom_pos;
     convert Nat.le_of_dvd h_num_pos _;
     unfold P;
     cases h : n.primeFactors.max <;> simp_all +decide
@@ -317,7 +316,7 @@ g(n) is bounded by the sum of the bounds for q and P.
 lemma g_le_card_sum {n : ℕ} (hn : 2 ≤ n) :
     g n ≤ Nat.floor (Real.sqrt (2 * n / Real.log n)) +
       Nat.primeCounting (Nat.floor (Real.sqrt (n * Real.log n / 2))) + 1 := by
-    refine' csSup_le _ _;
+    refine csSup_le ?_ ?_;
     · -- The empty list is a valid sequence, so the set is nonempty.
       use 0
       simp [is_valid_seq];
@@ -424,7 +423,7 @@ lemma pi_le_theta_div_log_plus_sqrt {x : ℕ} (hx : 2 ≤ x) :
     have h_pi_sqrt : (Nat.primeCounting (Nat.sqrt x) : ℝ) ≤ Real.sqrt x := by
       rw [ Nat.primeCounting ];
       rw [ Nat.primeCounting', Nat.count_eq_card_filter_range ];
-      refine' le_trans _ ( Real.sqrt_le_sqrt <| Nat.cast_le.mpr <| Nat.sqrt_le' x );
+      refine le_trans ?_ ( Real.sqrt_le_sqrt <| Nat.cast_le.mpr <| Nat.sqrt_le' x );
       norm_num [ Real.sqrt_sq ( Nat.cast_nonneg _ ) ];
       exact le_trans ( Finset.card_le_card ( show
         Finset.filter Nat.Prime ( Finset.range ( x.sqrt + 1 ) ) ⊆
@@ -472,10 +471,10 @@ noncomputable def term1 (n : ℕ) : ℝ :=
 
 lemma term1_isBigO :
     term1 =O[atTop] (fun n => Real.sqrt ((n : ℝ) / Real.log (n : ℝ))) := by
-  refine' Asymptotics.isBigO_iff.mpr _;
+  refine Asymptotics.isBigO_iff.mpr ?_;
   use 2;
   norm_num [ term1 ];
-  refine' ⟨ 2, fun n hn => _ ⟩ ;
+  refine ⟨ 2, fun n hn => ?_ ⟩ ;
     rw [ abs_of_nonneg ( Real.sqrt_nonneg _ ),
       abs_of_nonneg ( Real.sqrt_nonneg _ ) ] ;
     ring_nf;
@@ -539,7 +538,7 @@ lemma primeCounting_isBigO :
         (fun x : ℕ => x / Real.log x) := by
     norm_num [ Asymptotics.isBigO_iff ];
     exact ⟨ 2 * |Real.log 4|, 2, fun n hn => by ring_nf; norm_num ⟩;
-  refine' Asymptotics.IsBigO.trans _ ( h_first_term.add h_sqrt.isBigO );
+  refine Asymptotics.IsBigO.trans ?_ ( h_first_term.add h_sqrt.isBigO );
   rw [ Asymptotics.isBigO_iff ];
   exact ⟨ 1, Filter.eventually_atTop.mpr ⟨ 2, fun x hx => by
     rw [ Real.norm_of_nonneg ( Nat.cast_nonneg _ ),
@@ -618,7 +617,7 @@ lemma xn_div_log_xn_isBigO :
                 nlinarith [ Nat.floor_le ( show 0 ≤ x by linarith ),
                   Nat.lt_floor_add_one x, mul_inv_cancel₀ hε.ne',
                   div_mul_cancel₀ ( Nat.floor x : ℝ ) ( show x ≠ 0 by linarith ) ] ⟩ ;
-        refine' this.comp _;
+        refine this.comp ?_;
         exact Filter.tendsto_atTop_atTop.mpr fun x =>
           ⟨ Real.exp ( x ^ 2 * 2 ), fun n hn =>
             Real.le_sqrt_of_sq_le <| by
@@ -743,9 +742,9 @@ noncomputable def upper_bound_func (n : ℕ) : ℝ := term1 n + term2 n + 1
 
 theorem upper_bound_asymptotic :
   upper_bound_func =O[atTop] (fun n => Real.sqrt ((n : ℝ) / Real.log (n : ℝ))) := by
-    refine' Asymptotics.IsBigO.add _ _;
+    refine Asymptotics.IsBigO.add ?_ ?_;
     · exact Asymptotics.IsBigO.add ( term1_isBigO ) ( term2_isBigO );
-    · refine' Asymptotics.isBigO_iff.mpr _;
+    · refine Asymptotics.isBigO_iff.mpr ?_;
       use 1;
       filter_upwards [ Filter.eventually_gt_atTop 2 ] with x hx using by
         rw [ Real.norm_of_nonneg ( Real.sqrt_nonneg _ ),
@@ -902,8 +901,8 @@ lemma P_eq_of_mul_lt (q p : ℕ) (h_prime : Nat.Prime p) (h_lt : q < p)
         exact Nat.le_of_dvd h_prime.pos hf₂ ];
   -- Since $p$ is a prime factor and the largest prime factor, $P(q * p) = p$.
   have h_max_prime_factor_eq : (Nat.primeFactors (q * p)).max = p := by
-    refine' le_antisymm
-      ( Finset.sup_le fun x hx => WithBot.coe_le_coe.mpr ( h_max_prime_factor x hx ) ) _;
+    refine le_antisymm
+      ( Finset.sup_le fun x hx => WithBot.coe_le_coe.mpr ( h_max_prime_factor x hx ) ) ?_;
     exact Finset.le_max ( Nat.mem_primeFactors.mpr ⟨ h_prime, by aesop ⟩ );
   unfold P; aesop;
 
@@ -995,7 +994,7 @@ lemma construct_seq_is_valid (primes : List ℕ) (n : ℕ)
   (h_primes_min : ∀ p ∈ primes, Nat.floor (Real.sqrt n) < p)
   (h_sum : primes.sum ≤ n) :
   is_valid_seq n (construct_seq primes) := by
-    refine' ⟨ _, _, _ ⟩;
+    refine ⟨ ?_, ?_, ?_ ⟩;
     · convert construct_seq_increasing primes _;
       exact fun p hp => Nat.Prime.pos ( h_primes_prime p hp );
     · exact fun m hm =>
@@ -1032,7 +1031,7 @@ theorem g_upper_bound_asymptotic :
           exact_mod_cast g_le_card_sum hn;
         convert h_g_le_upper_bound using 1;
       exact Filter.eventually_atTop.mpr ⟨ 2, h_g_le_upper_bound ⟩;
-    refine' Asymptotics.IsBigO.trans _ ( upper_bound_asymptotic );
+    refine Asymptotics.IsBigO.trans ?_ ( upper_bound_asymptotic );
     rw [ Asymptotics.isBigO_iff ];
     exact ⟨ 1, by
       filter_upwards [ h_g_le_upper_bound ] with n hn
@@ -1294,7 +1293,7 @@ lemma integral_t_div_log_t_asymp :
       have h_integral_first_part_le :
           ∫ t in (2 : ℝ)..Real.sqrt x, t / (2 * (Real.log t)^2) ≤
             ∫ t in (2 : ℝ)..Real.sqrt x, t / (2 * (Real.log 2)^2) := by
-        refine' intervalIntegral.integral_mono_on _ _ _ _ <;> norm_num;
+        refine intervalIntegral.integral_mono_on ?_ ?_ ?_ ?_ <;> norm_num;
         · exact Real.le_sqrt_of_sq_le ( by linarith );
         · apply_rules [ ContinuousOn.intervalIntegrable ];
           exact continuousOn_of_forall_continuousAt fun t ht =>
@@ -1325,7 +1324,7 @@ lemma integral_t_div_log_t_asymp :
           ∫ t in (Real.sqrt x : ℝ)..x, t / (2 * (Real.log t)^2) ≤
             ∫ t in (Real.sqrt x : ℝ)..x,
               t / (2 * (Real.log (Real.sqrt x))^2) := by
-        refine' intervalIntegral.integral_mono_on _ _ _ _ <;> norm_num;
+        refine intervalIntegral.integral_mono_on ?_ ?_ ?_ ?_ <;> norm_num;
         · rw [ Real.sqrt_le_left ] <;> nlinarith;
         · apply_rules [ ContinuousOn.intervalIntegrable ];
           exact continuousOn_of_forall_continuousAt fun t ht =>
@@ -1388,7 +1387,7 @@ lemma integral_t_div_log_t_asymp :
             ( by simpa using Real.continuous_mul_log.neg.tendsto 0 );
         simpa [ div_mul_eq_div_div ] using h_log_x_over_x.div_const ( Real.log 2 ^ 2 );
       · exact tendsto_const_nhds.div_atTop ( Real.tendsto_log_atTop );
-    refine' squeeze_zero_norm' _ ( by simpa using h_tendsto_zero.1.add h_tendsto_zero.2 );
+    refine squeeze_zero_norm' ?_ ( by simpa using h_tendsto_zero.1.add h_tendsto_zero.2 );
     filter_upwards [ Filter.eventually_ge_atTop 4 ] with x hx using by
       rw [ Real.norm_of_nonneg
         ( div_nonneg
@@ -1430,15 +1429,13 @@ lemma integral_t_div_log_t_asymp :
       -- Factor out $x^{-2}$ and use that $\log x / x^2 \to 0$.
       have h_log_x_over_x2 :
           Filter.Tendsto (fun x => Real.log x / x^2) Filter.atTop (nhds 0) := by
-        refine' squeeze_zero_norm' _ _;
-        exacts [
-          fun x => 1 / x,
-          Filter.eventually_atTop.mpr ⟨ 2, fun x hx => by
+        refine squeeze_zero_norm' (a := fun x => 1 / x) ?_ ?_;
+        · exact Filter.eventually_atTop.mpr ⟨ 2, fun x hx => by
             rw [ Real.norm_of_nonneg
               ( div_nonneg ( Real.log_nonneg ( by linarith ) ) ( sq_nonneg x ) ) ]
             rw [ div_le_div_iff₀ ] <;>
-              nlinarith [ Real.log_le_sub_one_of_pos ( by linarith : 0 < x ) ] ⟩,
-          tendsto_const_nhds.div_atTop Filter.tendsto_id ];
+              nlinarith [ Real.log_le_sub_one_of_pos ( by linarith : 0 < x ) ] ⟩
+        · exact tendsto_const_nhds.div_atTop Filter.tendsto_id;
       convert h_log_x_over_x2.const_mul ( 2 ^ 2 / Real.log 2 ) using 2 <;> ring;
     simpa using Filter.Tendsto.add ( tendsto_const_nhds.sub h_const ) h_integral_small;
   rw [ Asymptotics.isEquivalent_iff_exists_eq_mul ];
@@ -1495,12 +1492,12 @@ lemma integral_pi_asymp :
                 |(Nat.primeCounting (Nat.floor t) : ℝ) - t / Real.log t| := by
         rw [ intervalIntegral.integral_add_adjacent_intervals ];
         · apply_rules [ MeasureTheory.IntegrableOn.intervalIntegrable ];
-          refine' MeasureTheory.Integrable.abs _;
-          refine' MeasureTheory.Integrable.sub _ _;
-          · refine' MeasureTheory.Integrable.mono' _ _ _;
-            refine' fun t => ( Nat.primeCounting ( Nat.floor t ) : ℝ );
-            · refine' MeasureTheory.Integrable.mono' _ _ _;
-              refine' fun t => ( Nat.primeCounting ( Nat.floor ( Max.max T 2 ) ) : ℝ );
+          refine MeasureTheory.Integrable.abs ?_;
+          refine MeasureTheory.Integrable.sub ?_ ?_;
+          · refine MeasureTheory.Integrable.mono'
+              (g := fun t => ( Nat.primeCounting ( Nat.floor t ) : ℝ )) ?_ ?_ ?_;
+            · refine MeasureTheory.Integrable.mono'
+                (g := fun t => ( Nat.primeCounting ( Nat.floor ( Max.max T 2 ) ) : ℝ )) ?_ ?_ ?_;
               · exact Continuous.integrableOn_Icc ( by continuity );
               · fun_prop;
               · filter_upwards [ MeasureTheory.ae_restrict_mem measurableSet_Icc ] with t ht;
@@ -1522,8 +1519,8 @@ lemma integral_pi_asymp :
                           linarith [ le_max_right T 2 ] ) ) ) );
         · rw [ intervalIntegrable_iff_integrableOn_Ioc_of_le
             ( by linarith [ le_max_left T 2, le_max_right T 2 ] ) ];
-          refine' MeasureTheory.Integrable.mono' _ _ _;
-          refine' fun t => ε * ( t / Real.log t );
+          refine MeasureTheory.Integrable.mono'
+            (g := fun t => ε * ( t / Real.log t )) ?_ ?_ ?_;
           · exact ContinuousOn.integrableOn_Icc ( by
               exact ContinuousOn.mul continuousOn_const <|
                 ContinuousOn.div continuousOn_id
@@ -1533,7 +1530,7 @@ lemma integral_pi_asymp :
                   fun t ht =>
                     ne_of_gt <| Real.log_pos <| lt_of_lt_of_le ( by norm_num ) ht.1 ) |>
               fun h => h.mono_set <| Set.Ioc_subset_Icc_self;
-          · refine' Measurable.aestronglyMeasurable _;
+          · refine Measurable.aestronglyMeasurable ?_;
             fun_prop (disch := norm_num);
           · filter_upwards [ MeasureTheory.ae_restrict_mem measurableSet_Ioc ] with t ht
               using by
@@ -1547,7 +1544,7 @@ lemma integral_pi_asymp :
           intervalIntegral.integral_of_le
             ( by linarith [ le_max_left T 2, le_max_right T 2 ] ) ];
         rw [ ← MeasureTheory.integral_const_mul ];
-        refine' MeasureTheory.integral_mono_of_nonneg _ _ _;
+        refine MeasureTheory.integral_mono_of_nonneg ?_ ?_ ?_;
         · exact Filter.Eventually.of_forall fun t => abs_nonneg _;
         · exact ContinuousOn.integrableOn_Icc ( by
             exact ContinuousOn.mul continuousOn_const <|
@@ -1612,7 +1609,7 @@ lemma integral_pi_asymp :
             ∀ x : ℝ, 2 ≤ x →
               ∫ t in (2 : ℝ)..x, t / Real.log t ≥
                 ∫ t in (2 : ℝ)..x, t / Real.log x := by
-          intro x hx; refine' intervalIntegral.integral_mono_on _ _ _ _ <;> norm_num;
+          intro x hx; refine intervalIntegral.integral_mono_on ?_ ?_ ?_ ?_ <;> norm_num;
           · exact hx;
           · apply_rules [ ContinuousOn.intervalIntegrable ];
             exact continuousOn_of_forall_continuousAt fun t ht =>
@@ -1658,7 +1655,7 @@ lemma integral_pi_asymp :
                 ( Filter.Tendsto.const_mul_atTop zero_lt_two
                   ( Real.tendsto_log_atTop ) ) ) );
           exact h_integral_bound.congr fun x => by ring;
-        refine' Filter.tendsto_atTop_mono' _ _ h_integral_bound;
+        refine Filter.tendsto_atTop_mono' _ ?_ h_integral_bound;
         filter_upwards [ Filter.eventually_ge_atTop 2 ] with x hx using
           le_trans
             ( by norm_num [ div_eq_mul_inv ] ; ring_nf; norm_num )
@@ -1716,7 +1713,7 @@ lemma sum_primes_asymp_lemma :
         apply_rules [ Asymptotics.IsEquivalent.mul, h_pi ];
         rfl;
       exact h_combined.trans ( by
-        refine' Filter.EventuallyEq.isEquivalent _;
+        refine Filter.EventuallyEq.isEquivalent ?_;
         filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx using by ring );
     have h_combined :
         (fun x : ℝ =>
@@ -1751,7 +1748,7 @@ lemma sum_primes_asymp_lemma :
             Real.log_pos <| show 1 < x by linarith,
             mul_inv_cancel₀ <| ne_of_gt <| Real.log_pos <| show 1 < x by linarith ] ⟩;
     convert h_combined using 2 ; ring;
-  refine' h_combined.congr' _ _;
+  refine h_combined.congr' ?_ ?_;
   · filter_upwards [ Filter.eventually_gt_atTop 2 ] with x hx;
     have := sum_primes_eq_integral x hx.le;
     aesop;
@@ -1813,19 +1810,17 @@ lemma safe_primes_sum_le_n : ∀ᶠ n in atTop, (safe_primes n).sum ≤ n := by
     have h_sum_primes_lt_n_nat :
         ∀ᶠ n in Filter.atTop,
           (safe_primes n).sum ≤ sum_primes_upto (Real.sqrt (n * Real.log n / 2)) := by
-      refine' Filter.eventually_atTop.mpr ⟨ 2, fun n hn => _ ⟩ ;
+      refine Filter.eventually_atTop.mpr ⟨ 2, fun n hn => ?_ ⟩ ;
       unfold safe_primes ; norm_num [ sum_primes_upto ];
-      refine' le_trans _ ( Finset.sum_le_sum_of_subset_of_nonneg _ _ );
-      rotate_left;
-      exact Finset.filter Nat.Prime
-        ( Finset.Ioc n.sqrt
-          ⌊Real.sqrt n * Real.sqrt ( Real.log n ) / Real.sqrt 2⌋₊ );
-      · exact fun x hx => Finset.mem_filter.mpr ⟨
-          Finset.mem_range.mpr
-            ( Nat.lt_succ_of_le
-              ( Finset.mem_Ioc.mp ( Finset.mem_filter.mp hx |>.1 ) |>.2 ) ),
-          Finset.mem_filter.mp hx |>.2 ⟩;
-      · exact fun _ _ _ => Nat.cast_nonneg _;
+      refine le_trans ?_
+        ( Finset.sum_le_sum_of_subset_of_nonneg
+          (s := Finset.filter Nat.Prime
+            ( Finset.Ioc n.sqrt
+              ⌊Real.sqrt n * Real.sqrt ( Real.log n ) / Real.sqrt 2⌋₊ ))
+          (t := Finset.filter Nat.Prime
+            ( Finset.range
+              (⌊Real.sqrt n * Real.sqrt ( Real.log n ) / Real.sqrt 2⌋₊ + 1) ))
+          ?_ ?_ );
       · -- Since the sorted list is a permutation of the original list, their sums are equal.
         have h_perm :
             List.Perm
@@ -1841,6 +1836,12 @@ lemma safe_primes_sum_le_n : ∀ᶠ n in atTop, (safe_primes n).sum ≤ n := by
                 ⌊Real.sqrt n * Real.sqrt (Real.log n) / Real.sqrt 2⌋₊))
             (r := (· ≤ ·))
         simpa using h_perm.map ( fun x : ℕ => ( x : ℝ ) ) |> List.Perm.sum_eq |> le_of_eq;
+      · exact fun x hx => Finset.mem_filter.mpr ⟨
+          Finset.mem_range.mpr
+            ( Nat.lt_succ_of_le
+              ( Finset.mem_Ioc.mp ( Finset.mem_filter.mp hx |>.1 ) |>.2 ) ),
+          Finset.mem_filter.mp hx |>.2 ⟩;
+      · exact fun _ _ _ => Nat.cast_nonneg _;
     filter_upwards [ h_sum_primes_lt_n_nat, h_sum_primes_lt_n.natCast_atTop ] with
       n hn hn' using by exact_mod_cast hn.trans hn'.le;
   convert h_sum_le_n using 1
@@ -1860,7 +1861,7 @@ lemma pi_B_asymp :
           (fun n : ℕ =>
             Real.sqrt (n * Real.log n / 2) /
               Real.log (Real.sqrt (n * Real.log n / 2))) := by
-    refine' h_pi_asymp.comp_tendsto _;
+    refine h_pi_asymp.comp_tendsto ?_;
     exact Filter.tendsto_atTop_atTop.mpr fun x =>
       ⟨ ⌈x ^ 2 * 2⌉₊ + 2, fun n hn =>
         Real.le_sqrt_of_sq_le <| by
@@ -1873,7 +1874,7 @@ lemma pi_B_asymp :
             mul_inv_cancel₀ ( show ( n : ℝ ) ≠ 0 by
               norm_cast
               linarith ) ] ⟩;
-  refine' h_subst.trans _;
+  refine h_subst.trans ?_;
   have h_simplify :
       (fun n : ℕ =>
         Real.sqrt (n * Real.log n / 2) /
@@ -1957,9 +1958,9 @@ lemma pi_B_asymp :
             zero_le_two ) ]
         ring );
     rw [ Asymptotics.isEquivalent_iff_exists_eq_mul ];
-    refine' ⟨
+    refine ⟨
       fun n => ( Real.log ( Real.sqrt ( n * Real.log n / 2 ) ) /
-        ( Real.log n / 2 ) ) ⁻¹, _, _ ⟩ <;> norm_num [ div_eq_mul_inv ] at *;
+        ( Real.log n / 2 ) ) ⁻¹, ?_, ?_ ⟩ <;> norm_num [ div_eq_mul_inv ] at *;
     · simpa using h_log_simplify.inv₀ ( by norm_num ) |>
         Filter.Tendsto.congr ( by
           intros
@@ -2155,7 +2156,7 @@ lemma safe_primes_length_asymp :
     exact h_length_asymp.congr'
       ( by filter_upwards [ h_length ] with n hn; aesop )
       ( by filter_upwards [ h_length ] with n hn; aesop );
-  refine' ⟨ _, _ ⟩;
+  refine ⟨ ?_, ?_ ⟩;
   · rw [ Asymptotics.isBigO_iff ];
     rw [ Asymptotics.IsEquivalent ] at h_length_asymp;
     rw [ Asymptotics.isLittleO_iff ] at h_length_asymp;
@@ -2174,8 +2175,8 @@ lemma safe_primes_length_asymp :
     rw [ Asymptotics.isBigO_iff ];
     obtain ⟨ c, hc ⟩ :=
       Filter.eventually_atTop.mp ( h_length_asymp ( show 0 < 1 / 2 by norm_num ) );
-    refine' ⟨ 2 * Real.sqrt 2,
-      Filter.eventually_atTop.mpr ⟨ c + 2, fun n hn => _ ⟩ ⟩ ;
+    refine ⟨ 2 * Real.sqrt 2,
+      Filter.eventually_atTop.mpr ⟨ c + 2, fun n hn => ?_ ⟩ ⟩ ;
     specialize hc n ( by linarith ) ;
     norm_num [ abs_of_nonneg, Real.sqrt_nonneg ] at *;
     nlinarith [ abs_le.mp hc, Real.sqrt_nonneg 2, Real.sq_sqrt zero_le_two,
@@ -2189,7 +2190,7 @@ lemma safe_primes_is_valid : ∀ᶠ n in atTop, is_valid_seq n (construct_seq (s
       ⟨ N, fun n hn => hN n hn ⟩;
   use N + 2;
   intro n hn;
-  refine' construct_seq_is_valid _ _ _ _ _ _ <;> norm_num at *;
+  refine construct_seq_is_valid ?_ ?_ ?_ ?_ ?_ ?_ <;> norm_num at *;
   · -- Since the primes are distinct and sorted in descending order, the list is
     -- strictly decreasing.
     have h_sorted : List.Pairwise (fun x y => x > y) (safe_primes n) := by
@@ -2210,11 +2211,11 @@ theorem erdos_648 :
     have h_pnt_ineq : ∀ᶠ n in atTop, (safe_primes n).sum ≤ n := by
       convert safe_primes_sum_le_n using 1;
     apply hTheta;
-    refine' ⟨ _, _ ⟩;
+    refine ⟨ ?_, ?_ ⟩;
     · exact g_upper_bound_asymptotic;
     · have h_g_lower_bound : ∀ᶠ n in atTop, (safe_primes n).length ≤ (g n : ℝ) := by
         filter_upwards [ h_pnt_ineq, safe_primes_is_valid ] with n hn hn';
-        refine' mod_cast le_csSup _ _;
+        refine mod_cast le_csSup ?_ ?_;
         · use n + 1;
           rintro k ⟨ l, hl, rfl ⟩;
           have := hl.1;
@@ -2230,7 +2231,7 @@ theorem erdos_648 :
           (fun n : ℕ => (safe_primes n).length : ℕ → ℝ) =Θ[atTop]
             (fun n : ℕ => Real.sqrt ((n : ℝ) / Real.log (n : ℝ))) := by
         exact safe_primes_length_asymp;
-      refine' h_g_lower_bound.symm.trans_isBigO _;
+      refine h_g_lower_bound.symm.trans_isBigO ?_;
       rw [ Asymptotics.isBigO_iff ];
       exact ⟨ 1, by
         filter_upwards [
