@@ -20,7 +20,6 @@ import Mathlib
 
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.refine false
 set_option linter.style.emptyLine false
 set_option linter.style.multiGoal false
 set_option linter.style.cdot false
@@ -131,7 +130,7 @@ lemma exists_linear_map_coeff_sum_zero
               simp +decide [ ← hw₂ ]
             exact h_affine_span;
           exact h_kernel;
-        refine' ⟨ R - LinearMap.smulRight ( LinearMap.comp ( ∑ i, LinearMap.proj i ) R ) c, _, _ ⟩ <;> simp_all +decide [ LinearMap.ext_iff ];
+        refine ⟨ R - LinearMap.smulRight ( LinearMap.comp ( ∑ i, LinearMap.proj i ) R ) c, ?_, ?_ ⟩ <;> simp_all +decide [ LinearMap.ext_iff ];
         · simp +decide [ ← Finset.mul_sum _ _ _, hc ];
         · simp_all +decide [ sub_smul, Finset.sum_sub_distrib ];
           simp +decide [ SemigroupAction.mul_smul ];
@@ -181,7 +180,7 @@ lemma mem_interior_convexHull_of_pos_comb {V : Type*} [NormedAddCommGroup V] [No
           simp +decide [ Finset.sum_add_distrib, hw_sum, hL_sum ];
         rw [ mem_convexHull_iff ];
         exact fun t ht ht' => ht'.sum_mem ( fun i _ => hδ v hv i |> le_of_lt ) hz_plus_v.2 ( fun i _ => ht <| Set.mem_range_self i );
-      refine' mem_interior_iff_mem_nhds.mpr ( Filter.mem_of_superset ( Metric.ball_mem_nhds _ hδ_pos ) _ );
+      refine mem_interior_iff_mem_nhds.mpr ( Filter.mem_of_superset ( Metric.ball_mem_nhds _ hδ_pos ) ?_ );
       intro v hv
       obtain ⟨v', hv'⟩ : ∃ v' : V, v = ∑ i, w i • pts i + v' ∧ ‖v'‖ < δ := by
         exact ⟨ v - ∑ i, w i • pts i, by simp +decide, by simpa [ dist_eq_norm ] using hv ⟩;
@@ -214,10 +213,10 @@ lemma not_convexIndependent_of_finrank_affineSpan_lt_two
                 grind
               obtain ⟨ W, hW₁, hW₂ ⟩ := h_subspace;
               obtain ⟨ q, hq ⟩ := ( finrank_eq_one_iff'.mp hW₂ );
-              refine' ⟨ q, _, _ ⟩ <;> simp_all +decide [ Submodule.eq_bot_iff ];
+              refine ⟨ q, ?_, ?_ ⟩ <;> simp_all +decide [ Submodule.eq_bot_iff ];
               exact fun v hv => by obtain ⟨ t, ht ⟩ := hq.2 v hv; exact ⟨ t, by simpa [ Subtype.ext_iff ] using ht.symm ⟩ ;
             exact h_collinear;
-          refine' ⟨ pts 0, q, hq.1, fun i => _ ⟩;
+          refine ⟨ pts 0, q, hq.1, fun i => ?_ ⟩;
           obtain ⟨ t, ht ⟩ := hq.2 ( pts i - pts 0 ) ( by exact AffineSubspace.vsub_mem_direction ( show pts i ∈ affineSpan ℝ ( Set.range pts ) from mem_affineSpan ℝ ( Set.mem_range_self _ ) ) ( show pts 0 ∈ affineSpan ℝ ( Set.range pts ) from mem_affineSpan ℝ ( Set.mem_range_self _ ) ) );
           exact ⟨ t, eq_add_of_sub_eq' ht ⟩;
         obtain ⟨ p, q, hq, hpq ⟩ := h_collinear;
@@ -243,9 +242,9 @@ lemma not_convexIndependent_of_finrank_affineSpan_lt_two
             grind;
           rw [ convexIndependent_iff_notMem_convexHull_diff ];
           push Not;
-          refine' ⟨ j, { i, k }, _ ⟩;
+          refine ⟨ j, { i, k }, ?_ ⟩;
           rw [ convexHull_eq ];
-          refine' ⟨ Fin 2, { 0, 1 }, fun x => if x = 0 then 1 - ( t j - t i ) / ( t k - t i ) else ( t j - t i ) / ( t k - t i ), fun x => if x = 0 then pts i else pts k, _, _, _, _ ⟩ <;> simp +decide [ Finset.centerMass ];
+          refine ⟨ Fin 2, { 0, 1 }, fun x => if x = 0 then 1 - ( t j - t i ) / ( t k - t i ) else ( t j - t i ) / ( t k - t i ), fun x => if x = 0 then pts i else pts k, ?_, ?_, ?_, ?_ ⟩ <;> simp +decide [ Finset.centerMass ];
           · exact ⟨ div_le_one_of_le₀ ( by linarith ) ( by linarith ), div_nonneg ( by linarith ) ( by linarith ) ⟩;
           · grind;
           · exact h_convex_comb.symm;
@@ -273,7 +272,7 @@ lemma affineSpan_eq_top_of_convexIndependent_fin_4
           have h_dim_lt_two : (affineSpan ℝ (Set.range pts)).direction ≠ ⊤ := by
             intro h
             have h_eq : affineSpan ℝ (Set.range pts) = ⊤ := by
-              refine' AffineSubspace.ext_of_direction_eq _ _;
+              refine AffineSubspace.ext_of_direction_eq ?_ ?_;
               · aesop;
               · exact ⟨ _, Set.mem_inter ( subset_affineSpan ℝ _ <| Set.mem_range_self 0 ) trivial ⟩
             contradiction
@@ -307,10 +306,10 @@ lemma mem_openSegment_of_inter_segments_convexIndependent
       have h_not_endpoint_kl : z ≠ pts k ∧ z ≠ pts l := by
         constructor <;> intro h <;> simp_all +decide ;
         · rw [ convexIndependent_iff_notMem_convexHull_diff ] at h_indep;
-          refine' h_indep k { i, j } _;
+          refine h_indep k { i, j } ?_;
           rw [ convexHull_eq ];
           rcases hz_ij with ⟨ a, b, ha, hb, hab, h ⟩;
-          refine' ⟨ Fin 2, { 0, 1 }, fun x => if x = 0 then a else b, fun x => if x = 0 then pts i else pts j, _, _, _, _ ⟩ <;> simp +decide [ *, Finset.centerMass ];
+          refine ⟨ Fin 2, { 0, 1 }, fun x => if x = 0 then a else b, fun x => if x = 0 then pts i else pts j, ?_, ?_, ?_, ?_ ⟩ <;> simp +decide [ *, Finset.centerMass ];
           grind;
         · have := h_indep; simp_all +decide [ segment_eq_image ] ;
           rw [ convexIndependent_iff_notMem_convexHull_diff ] at this;
@@ -354,12 +353,12 @@ lemma mem_interior_of_convexIndependent_inter_segments
           contrapose! h_indep;
           use j, {k, l};
           rw [ convexHull_eq ];
-          refine' ⟨ Fin 2, { 0, 1 }, fun i => if i = 0 then b else 1 - b, fun i => if i = 0 then pts k else pts l, _, _, _, _ ⟩ <;> simp +decide [ *, Finset.centerMass ];
+          refine ⟨ Fin 2, { 0, 1 }, fun i => if i = 0 then b else 1 - b, fun i => if i = 0 then pts k else pts l, ?_, ?_, ?_, ?_ ⟩ <;> simp +decide [ *, Finset.centerMass ];
           constructor <;> linarith;
         · rw [ convexIndependent_iff_notMem_convexHull_diff ] at h_indep;
-          refine' h_indep l { i, j } _;
+          refine h_indep l { i, j } ?_;
           rw [ convexHull_eq ];
-          refine' ⟨ Fin 2, { 0, 1 }, fun x => if x = 0 then a else 1 - a, fun x => if x = 0 then pts i else pts j, _, _, _, _ ⟩ <;> simp +decide [ *, Finset.centerMass ];
+          refine ⟨ Fin 2, { 0, 1 }, fun x => if x = 0 then a else 1 - a, fun x => if x = 0 then pts i else pts j, ?_, ?_, ?_, ?_ ⟩ <;> simp +decide [ *, Finset.centerMass ];
           · constructor <;> linarith;
           · grind;
       -- The weighted sum is `(1/2)(a • pts i + (1-a) • pts j) + (1/2)(b • pts k + (1-b) • pts l) = (1/2)z + (1/2)z = z`.
@@ -408,7 +407,7 @@ lemma centroid_mem_convexHull {s : Finset V} (h : s.Nonempty) :
       rw [ mem_convexHull_iff ];
       intro t ht ht'
       have h_convex_comb : ∃ (w : V → ℝ), (∀ x ∈ s, 0 ≤ w x) ∧ (∑ x ∈ s, w x = 1) ∧ finset_centroid s = ∑ x ∈ s, w x • x := by
-        refine' ⟨ fun x => 1 / s.card, _, _, _ ⟩ <;> simp +decide [ h.ne_empty ];
+        refine ⟨ fun x => 1 / s.card, ?_, ?_, ?_ ⟩ <;> simp +decide [ h.ne_empty ];
         unfold finset_centroid; simp +decide [ Finset.smul_sum ] ;
       obtain ⟨ w, hw₁, hw₂, hw₃ ⟩ := h_convex_comb;
       exact hw₃.symm ▸ ht'.sum_mem ( by aesop ) ( by aesop ) ( by aesop )
@@ -441,7 +440,7 @@ lemma affine_independent_triangle_centroid_mem_interior {t : Finset V}
         exact h_span x);
       convert h_span x using 1;
       exact congr_arg _ ( by ext; simp +decide );
-    refine' ⟨ _, _ ⟩;
+    refine ⟨ ?_, ?_ ⟩;
     exact { toFun := Subtype.val, ind' := h_indep, tot' := h_span };
     aesop;
   convert b.centroid_mem_interior_convexHull using 1;
@@ -507,7 +506,7 @@ lemma convex_independent_triangle_is_affine_independent {s : Finset V}
         rcases h_order ( by aesop ) ( by aesop ) ( by aesop ) with ( ⟨ x, hx₁, hx₂, hx₃ ⟩ | ⟨ x, hx₁, hx₂, hx₃ ⟩ | ⟨ x, hx₁, hx₂, hx₃ ⟩ ) <;> simp_all +decide [ mul_comm ];
         · exact Or.inl <| Or.inl ⟨ x, ⟨ hx₁, hx₂ ⟩, by rw [ ← hx₃ ] ; simp +decide [ add_smul, sub_smul ] ; abel1 ⟩;
         · exact Or.inr <| Or.inl <| Or.inl ⟨ by tauto, x, ⟨ hx₁, hx₂ ⟩, by rw [ ← hx₃ ] ; simp +decide [ add_smul, sub_smul ] ; abel1 ⟩;
-        · refine' Or.inr ( Or.inl ( Or.inr ⟨ _, _, _ ⟩ ) );
+        · refine Or.inr ( Or.inl ( Or.inr ⟨ ?_, ?_, ?_ ⟩ ) );
           · exact fun a => hxz (id (Eq.symm a))
           · exact fun a => hxy (id (Eq.symm a));
           · exact ⟨ x, ⟨ hx₁, hx₂ ⟩, by rw [ ← hx₃ ] ; simp +decide [ add_smul, sub_smul ] ; abel1 ⟩;
@@ -518,9 +517,9 @@ lemma convex_independent_triangle_is_affine_independent {s : Finset V}
       · exact Or.inr <| Or.inr <| ⟨ ( r₃ - r₂ ) / ( r₁ - r₂ ), div_nonneg ( by linarith ) ( by linarith ), div_le_one_of_le₀ ( by linarith ) ( by linarith ), by linarith [ mul_div_cancel₀ ( r₃ - r₂ ) ( by linarith : ( r₁ - r₂ ) ≠ 0 ) ] ⟩;
     have := hs { ⟨ a, ha ⟩, ⟨ c, hc ⟩ } ; simp_all +decide [ segment_eq_image ] ;
     have := hs { ⟨ a, ha ⟩, ⟨ c, hc ⟩ } ; simp_all +decide [ convexIndependent_iff_notMem_convexHull_diff ] ;
-    refine' hs b hb { ⟨ a, ha ⟩, ⟨ c, by assumption ⟩ } _;
+    refine hs b hb { ⟨ a, ha ⟩, ⟨ c, by assumption ⟩ } ?_;
     rcases h_collinear.2.2.2 with ⟨ x, hx, rfl ⟩ ; rw [ convexHull_eq ] ; simp +decide;
-    refine' ⟨ Fin 2, { 0, 1 }, fun i => if i = 0 then 1 - x else x, _, _, fun i => if i = 0 then a else c, _, _ ⟩ <;> simp +decide [ *, Finset.centerMass ];
+    refine ⟨ Fin 2, { 0, 1 }, fun i => if i = 0 then 1 - x else x, ?_, ?_, fun i => if i = 0 then a else c, ?_, ?_ ⟩ <;> simp +decide [ *, Finset.centerMass ];
     exact Ne.symm h_collinear.2.1
 
 
@@ -569,10 +568,10 @@ lemma centroid_in_interior {s : Finset V}
       intro x y hx hy a b ha hb hab;
       rw [ mem_interior_iff_mem_nhds, Metric.mem_nhds_iff ] at *;
       obtain ⟨ ε, ε_pos, hε ⟩ := hx;
-      refine' ⟨ a * ε, mul_pos ha ε_pos, fun z hz => _ ⟩;
+      refine ⟨ a * ε, mul_pos ha ε_pos, fun z hz => ?_ ⟩;
       -- Since $z$ is within $a \epsilon$ of $a x + b y$, we can write $z$ as $a x' + b y$ for some $x'$ within $\epsilon$ of $x$.
       obtain ⟨x', hx'⟩ : ∃ x', z = a • x' + b • y ∧ dist x' x < ε := by
-        refine' ⟨ ( 1 / a ) • ( z - b • y ), _, _ ⟩ <;> simp_all +decide [ ne_of_gt, smul_smul ];
+        refine ⟨ ( 1 / a ) • ( z - b • y ), ?_, ?_ ⟩ <;> simp_all +decide [ ne_of_gt, smul_smul ];
         rw [ dist_eq_norm ] at *;
         rw [ show a⁻¹ • ( z - b • y ) - x = a⁻¹ • ( z - ( a • x + b • y ) ) by simp +decide [ smul_add, smul_sub, ← smul_assoc, ha.ne' ] ; abel1 ] ; rw [ norm_smul, Real.norm_of_nonneg ( inv_nonneg.2 ha.le ) ] ; rw [ inv_mul_lt_iff₀ ha ] ; linarith;
       rw [ hx'.1 ];
@@ -603,13 +602,13 @@ lemma unique_ray_intersection_frontier {V : Type*} [NormedAddCommGroup V] [Inner
             have h_y : y ∈ K := hy
             rw [ mem_interior_iff_mem_nhds, Metric.mem_nhds_iff ] at *;
             obtain ⟨ ε, ε_pos, hε ⟩ := h_interior;
-            refine' ⟨ ε * ( 1 - t ), mul_pos ε_pos ( sub_pos.mpr ht' ), fun z hz => _ ⟩;
+            refine ⟨ ε * ( 1 - t ), mul_pos ε_pos ( sub_pos.mpr ht' ), fun z hz => ?_ ⟩;
             -- Since $z$ is in the ball around $x + t • (y - x)$ with radius $\epsilon * (1 - t)$, we can write $z$ as $x + t • (y - x) + w$ where $w$ is in the ball around $0$ with radius $\epsilon * (1 - t)$.
             obtain ⟨w, hw⟩ : ∃ w : V, z = x + t • (y - x) + w ∧ ‖w‖ < ε * (1 - t) := by
               exact ⟨ z - ( x + t • ( y - x ) ), by simp +decide, by simpa [ dist_eq_norm ] using hz ⟩;
             -- Since $w$ is in the ball around $0$ with radius $\epsilon * (1 - t)$, we can write $w$ as $(1 - t) • u$ for some $u$ in the ball around $0$ with radius $\epsilon$.
             obtain ⟨u, hu⟩ : ∃ u : V, w = (1 - t) • u ∧ ‖u‖ < ε := by
-              refine' ⟨ ( 1 - t ) ⁻¹ • w, _, _ ⟩ <;> simp +decide [ norm_smul, abs_of_pos, ht', ne_of_gt ];
+              refine ⟨ ( 1 - t ) ⁻¹ • w, ?_, ?_ ⟩ <;> simp +decide [ norm_smul, abs_of_pos, ht', ne_of_gt ];
               rw [ inv_mul_lt_iff₀ ] <;> linarith;
             convert h_convex ( hε <| show x + u ∈ Metric.ball x ε from by simpa [ dist_eq_norm ] using hu.2 ) h_y ( show 0 ≤ 1 - t by linarith ) ( show 0 ≤ t by linarith ) ( by linarith ) using 1 ; simp +decide [ hw.1, hu.1 ] ; ring_nf;
             simp +decide [ smul_sub, sub_smul ] ; abel_nf;
@@ -691,7 +690,7 @@ lemma convex_combination_unique_at_vertex {s : Finset V}
       intro t ht ht_convex
       have h_comb : x = ∑ v ∈ s.erase x, (w v / (1 - w x)) • v := by
         exact hx_comb;
-      refine' h_comb ▸ ht_convex.sum_mem _ _ _;
+      refine h_comb ▸ ht_convex.sum_mem ?_ ?_ ?_;
       · exact fun v hv => div_nonneg ( hw_nonneg v ( Finset.mem_of_mem_erase hv ) ) ( sub_nonneg.2 h_wx_lt_1.le );
       · rw [ ← Finset.sum_div, ← Finset.sum_erase_add _ _ hx, add_comm ] at * ; nlinarith [ mul_div_cancel₀ ( ∑ v ∈ s.erase x, w v ) ( by linarith : ( 1 - w x ) ≠ 0 ) ];
       · exact fun v hv => ht hv;
@@ -714,7 +713,7 @@ lemma convexIndependent_implies_extremePoints {s : Finset V}
     (hc : ConvexIndependent ℝ (Subtype.val : s → V))
     {x : V} (hx : x ∈ s) :
     x ∈ Set.extremePoints ℝ (convexHull ℝ (s : Set V)) := by
-      refine' ⟨ _, _ ⟩;
+      refine ⟨ ?_, ?_ ⟩;
       · exact subset_convexHull ℝ _ ( Finset.mem_coe.2 hx );
       · intro y hy z hz hx
         obtain ⟨ a, ha_nonneg, ha_sum, ha_comb ⟩ : ∃ a : V → ℝ, (∀ v ∈ s, 0 ≤ a v) ∧ (∑ v ∈ s, a v = 1) ∧ (∑ v ∈ s, a v • v = y) := by
@@ -724,7 +723,7 @@ lemma convexIndependent_implies_extremePoints {s : Finset V}
         obtain ⟨ c, hc_nonneg, hc_sum, hc_comb ⟩ : ∃ c : V → ℝ, (∀ v ∈ s, 0 ≤ c v) ∧ (∑ v ∈ s, c v = 1) ∧ (∑ v ∈ s, c v • v = x) := by
           rw [ openSegment_eq_image ] at hx;
           rcases hx with ⟨ θ, ⟨ hθ₀, hθ₁ ⟩, rfl ⟩;
-          refine' ⟨ fun v => ( 1 - θ ) * a v + θ * b v, _, _, _ ⟩ <;> simp_all +decide [ Finset.sum_add_distrib, add_smul ];
+          refine ⟨ fun v => ( 1 - θ ) * a v + θ * b v, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ Finset.sum_add_distrib, add_smul ];
           · exact fun v hv => add_nonneg ( mul_nonneg ( sub_nonneg.2 hθ₁.le ) ( ha_nonneg v hv ) ) ( mul_nonneg hθ₀.le ( hb_nonneg v hv ) );
           · simp +decide [ ← Finset.mul_sum _ _ _, ha_sum, hb_sum ];
           · simp +decide only [mul_smul, ← ha_comb, Finset.smul_sum, ← hb_comb];
@@ -908,8 +907,8 @@ lemma segment_frontier_transfer {s t : Finset V}
   intro x x_1 hx_nonneg hx_le_one hx_eq
   have hx_convex_s : x ∈ convexHull ℝ (s : Set V) := by
     rw [ convexHull_eq ];
-    refine' ⟨ Fin 2, { 0, 1 }, fun i => if i = 0 then 1 - x_1 else x_1, fun i => if i = 0 then a else b, _, _, _, _ ⟩ <;> simp +decide [ *, Finset.centerMass ];
-  refine' ⟨ subset_closure hx_convex_s, _ ⟩;
+    refine ⟨ Fin 2, { 0, 1 }, fun i => if i = 0 then 1 - x_1 else x_1, fun i => if i = 0 then a else b, ?_, ?_, ?_, ?_ ⟩ <;> simp +decide [ *, Finset.centerMass ];
+  refine ⟨ subset_closure hx_convex_s, ?_ ⟩;
   intro hx_interior;
   have hx_interior_t : x ∈ interior (convexHull ℝ (t : Set V)) := by
     exact interior_mono ( convexHull_mono ( Finset.coe_subset.mpr h_sub ) ) hx_interior;
@@ -931,7 +930,7 @@ lemma exists_supporting_hyperplane_of_frontier {V : Type*} [NormedAddCommGroup V
               contrapose! h_empty;
               exact (Convex.interior_nonempty_iff_affineSpan_eq_top hs).mpr h_empty;
             exact ⟨ _, h_affine_hull, subset_spanPoints ℝ s ⟩;
-          refine' ⟨ W.direction, _, _ ⟩;
+          refine ⟨ W.direction, ?_, ?_ ⟩;
           · cases W.eq_bot_or_nonempty <;> aesop;
           · intro y hy; have := hW.2 hy; simp_all +decide;
             convert AffineSubspace.vsub_mem_direction this ( show x ∈ W from _ ) using 1 ; simp +decide;
@@ -943,8 +942,8 @@ lemma exists_supporting_hyperplane_of_frontier {V : Type*} [NormedAddCommGroup V
             exact not_forall.mp fun h => hW.1 <| eq_top_iff.mpr fun y _ => h y;
           obtain ⟨f, hf⟩ : ∃ f : V →ₗ[ℝ] ℝ, f y ≠ 0 ∧ ∀ z ∈ W, f z = 0 := by
             exact Submodule.exists_le_ker_of_notMem hy;
-          refine' ⟨ f.toContinuousLinearMap, _, _ ⟩ <;> aesop;
-        refine' ⟨ f, hf.1, fun y hy => _ ⟩;
+          refine ⟨ f.toContinuousLinearMap, ?_, ?_ ⟩ <;> aesop;
+        refine ⟨ f, hf.1, fun y hy => ?_ ⟩;
         have := hW.2 hy;
         rw [ Set.mem_add ] at this ; aesop;
       · -- By the geometric Hahn-Banach theorem, there exists a nonzero continuous linear functional $f$ such that $f(x) \geq f(y)$ for all $y \in \text{int}(s)$.
@@ -954,7 +953,7 @@ lemma exists_supporting_hyperplane_of_frontier {V : Type*} [NormedAddCommGroup V
               exact fun h => hx.2 h
             have := @geometric_hahn_banach_open_point;
             obtain ⟨ f, hf ⟩ := this ( show Convex ℝ ( interior s ) from hs.interior ) ( isOpen_interior ) h_not_in_interior;
-            refine' ⟨ f, _, fun y hy => le_of_lt ( hf y hy ) ⟩;
+            refine ⟨ f, ?_, fun y hy => le_of_lt ( hf y hy ) ⟩;
             exact fun h => h_not_in_interior <| by have := hf ( Classical.choose ( Set.nonempty_iff_ne_empty.2 h_empty ) ) ( Classical.choose_spec ( Set.nonempty_iff_ne_empty.2 h_empty ) ) ; simp_all +decide ;
           exact h_hahn_banach;
         -- Since $s$ is convex and $x \in \text{frontier}(s)$, for any $y \in s$, we have $y \in \overline{\text{int}(s)}$.
@@ -964,7 +963,7 @@ lemma exists_supporting_hyperplane_of_frontier {V : Type*} [NormedAddCommGroup V
             intro z hz t ht;
             rw [ mem_interior_iff_mem_nhds, Metric.mem_nhds_iff ] at *;
             obtain ⟨ ε, ε_pos, hε ⟩ := hz;
-            refine' ⟨ t * ε, mul_pos ht.1 ε_pos, fun w hw => _ ⟩;
+            refine ⟨ t * ε, mul_pos ht.1 ε_pos, fun w hw => ?_ ⟩;
             -- Since $w$ is in the ball around $(1 - t) • y + t • z$ with radius $t * ε$, we can write $w$ as $(1 - t) • y + t • z + v$ for some $v$ with $\|v\| < t * ε$.
             obtain ⟨ v, hv ⟩ : ∃ v : V, w = (1 - t) • y + t • z + v ∧ ‖v‖ < t * ε := by
               exact ⟨ w - ( ( 1 - t ) • y + t • z ), by simp +decide, by simpa [ dist_eq_norm ] using hw ⟩;
@@ -980,7 +979,7 @@ lemma exists_supporting_hyperplane_of_frontier {V : Type*} [NormedAddCommGroup V
           have h_seq : Filter.Tendsto (fun t : ℝ => (1 - t) • y + t • z) (nhdsWithin 0 (Set.Ioi 0)) (nhds y) := by
             exact tendsto_nhdsWithin_of_tendsto_nhds ( Continuous.tendsto' ( by continuity ) _ _ ( by simp +decide ) );
           exact mem_closure_of_tendsto h_seq ( Filter.eventually_of_mem ( Ioo_mem_nhdsGT_of_mem ⟨ le_rfl, zero_lt_one ⟩ ) fun t ht => h_closure z hz.1 t ht );
-        refine' ⟨ f, hf_ne_zero, fun y hy => _ ⟩;
+        refine ⟨ f, hf_ne_zero, fun y hy => ?_ ⟩;
         have := h_closure y hy;
         rw [ mem_closure_iff_seq_limit ] at this;
         exact le_of_tendsto_of_tendsto' ( f.continuous.continuousAt.tendsto.comp this.choose_spec.2 ) tendsto_const_nhds fun n => hf _ ( this.choose_spec.1 n )
@@ -1006,11 +1005,11 @@ lemma convex_chain_boundary_implies_support
             convert h_seg_frontier _;
             exact ⟨ 1 / 2, 1 / 2, by norm_num, by norm_num, by norm_num ⟩;
           exact exists_supporting_hyperplane_of_frontier h_convex h_midpoint_frontier;
-        refine' ⟨ L, hL_ne_zero, _, _, _ ⟩ <;> have := hL_le p ( subset_convexHull ℝ S hp ) <;> have := hL_le q ( subset_convexHull ℝ S hq ) <;> norm_num at *;
+        refine ⟨ L, hL_ne_zero, ?_, ?_, ?_ ⟩ <;> have := hL_le p ( subset_convexHull ℝ S hp ) <;> have := hL_le q ( subset_convexHull ℝ S hq ) <;> norm_num at *;
         · linarith;
         · linarith;
         · exact fun x hx => by linarith [ hL_le x hx ] ;
-      refine' ⟨ AffineMap.mk ( fun x => f x - f p ) ( f.toAffineMap.linear ) _, _, _, _, _ ⟩ <;> simp_all +decide [ sub_eq_iff_eq_add ];
+      refine ⟨ AffineMap.mk ( fun x => f x - f p ) ( f.toAffineMap.linear ) ?_, ?_, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ sub_eq_iff_eq_add ];
       · exact fun _ _ => by ring;
       · exact fun h => hf_linear <| ContinuousLinearMap.ext fun x => by simpa using congr_arg ( fun g => g x ) h;
       · exact fun x hx => hf_pq.1 ▸ hf_pq.2.2 x ( subset_convexHull ℝ S hx )
@@ -1029,7 +1028,7 @@ lemma segment_subset_frontier_of_supporting_hyperplane
     segment ℝ a b ⊆ frontier (convexHull ℝ S) := by
       -- Since $f$ is affine and non-positive on $S$, the convex hull of $S$ is contained in the half-space $\{x \mid f(x) \leq 0\}$.
       have h_convex_hull_subset_halfspace : convexHull ℝ S ⊆ {x | f x ≤ 0} := by
-        refine' convexHull_min _ _;
+        refine convexHull_min ?_ ?_;
         · exact hf_nonpos;
         · intro x hx y hy a b ha hb hab;
           have := f.map_vadd ( a • x ) ( b • y ) ; simp_all +decide [ ← eq_sub_iff_add_eq' ] ;
@@ -1038,7 +1037,7 @@ lemma segment_subset_frontier_of_supporting_hyperplane
       -- Any point $x$ in the convex hull with $f(x) = 0$ lies on the boundary of the half-space.
       have h_boundary : ∀ x ∈ convexHull ℝ S, f x = 0 → x ∈ frontier (convexHull ℝ S) := by
         intro x hx hx'; rw [ frontier_eq_closure_inter_closure ] ; simp_all +decide [ Set.subset_def ] ;
-        refine' ⟨ subset_closure hx, _ ⟩;
+        refine ⟨ subset_closure hx, ?_ ⟩;
         intro hx''; obtain ⟨ ε, εpos, hε ⟩ := Metric.mem_nhds_iff.mp ( mem_interior_iff_mem_nhds.mp hx'' ) ; have := hε ( Metric.mem_ball_self εpos ) ; simp_all +decide;
         -- Since $f$ is non-zero, there exists a direction $v$ such that $f(x + tv) > 0$ for small $t > 0$.
         obtain ⟨v, hv⟩ : ∃ v : V, f.linear v > 0 := by
@@ -1054,7 +1053,7 @@ lemma segment_subset_frontier_of_supporting_hyperplane
           · simp +decide [ add_comm, map_smul ];
         exact absurd ( h_convex_hull_subset_halfspace ( x + t • v ) ( hε ( by simpa [ norm_smul, abs_of_pos ht_pos ] using ht ) ) ) ( by nlinarith );
       intro x hx;
-      refine' h_boundary x _ _;
+      refine h_boundary x ?_ ?_;
       · exact convex_convexHull ℝ S |> fun h => h.segment_subset ha hb hx;
       · rcases hx with ⟨ u, v, hu, hv, huv, rfl ⟩;
         convert f.map_vadd 0 ( u • a + v • b ) using 1 ; simp +decide
@@ -1079,7 +1078,7 @@ lemma affine_functional_through_two_points {p q : V} (hpq : p ≠ q)
     have h_lin_ind : ∃ f : V →ₗ[ℝ] ℝ, f u ≠ 0 ∧ ∀ v ∈ Submodule.span ℝ {p - q}, f v = 0 := by
       exact Submodule.exists_le_ker_of_notMem hu;
     exact ⟨ h_lin_ind.choose, h_lin_ind.choose_spec.1, h_lin_ind.choose_spec.2 _ ( Submodule.mem_span_singleton_self _ ) ⟩;
-  refine' ⟨ { toFun := fun x => f ( x - q ), linear := f, map_vadd' := _ }, _, _, _ ⟩ <;> simp_all +decide [ sub_eq_iff_eq_add ];
+  refine ⟨ { toFun := fun x => f ( x - q ), linear := f, map_vadd' := ?_ }, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ sub_eq_iff_eq_add ];
   · exact fun _ _ => by ring;
   · aesop;
   · simp_all +decide [ sub_eq_zero ]
@@ -1107,7 +1106,7 @@ lemma convex_independent_not_all_on_affine_line {n : ℕ} {A : Fin n → V}
     -- Since the kernel of $f$ is 1-dimensional, there exists a non-zero vector $v$ such that the kernel is spanned by $v$.
     obtain ⟨v, hv⟩ : ∃ v : V, v ≠ 0 ∧ ∀ x, f.linear x = 0 ↔ ∃ t : ℝ, x = t • v := by
       obtain ⟨ v, hv ⟩ := finrank_eq_one_iff'.mp h_kernel_dim;
-      refine' ⟨ v, _, _ ⟩ <;> simp_all +decide ;
+      refine ⟨ v, ?_, ?_ ⟩ <;> simp_all +decide ;
       exact fun x => ⟨ fun hx => by obtain ⟨ t, ht ⟩ := hv.2 x hx; exact ⟨ t, by simpa [ Subtype.ext_iff ] using ht.symm ⟩, fun hx => by obtain ⟨ t, rfl ⟩ := hx; simp +decide ⟩;
     -- Since $f$ is non-zero, there exists a point $p$ such that $f(p) = 0$.
     obtain ⟨p, hp⟩ : ∃ p : V, f p = 0 := by
@@ -1140,9 +1139,9 @@ lemma convex_independent_not_all_on_affine_line {n : ℕ} {A : Fin n → V}
       have := h_indep;
       rw [ convexIndependent_iff_notMem_convexHull_diff ] at this;
       specialize this j { i, k };
-      refine' this _;
+      refine this ?_;
       rw [ convexHull_eq ];
-      refine' ⟨ _, { i, k }, fun x => if x = i then ( t k - t j ) / ( t k - t i ) else ( t j - t i ) / ( t k - t i ), fun x => if x = i then A i else A k, _, _, _, _ ⟩ <;> simp +decide [ *, Finset.centerMass ];
+      refine ⟨ ?_, { i, k }, fun x => if x = i then ( t k - t j ) / ( t k - t i ) else ( t j - t i ) / ( t k - t i ), fun x => if x = i then A i else A k, ?_, ?_, ?_, ?_ ⟩ <;> simp +decide [ *, Finset.centerMass ];
       · exact ⟨ div_nonneg ( by linarith ) ( by linarith ), by rw [ if_neg ( Ne.symm hik ) ] ; exact div_nonneg ( by linarith ) ( by linarith ) ⟩;
       · rw [ if_neg ( Ne.symm hik ), ← add_div, div_eq_iff ] <;> linarith;
       · grind;
@@ -1151,7 +1150,7 @@ lemma convex_independent_not_all_on_affine_line {n : ℕ} {A : Fin n → V}
   -- Since $A$ is convexly independent, the points $A_i$ cannot all lie on a single line, contradicting our assumption.
   obtain ⟨t, ht⟩ : ∃ t : Fin n → ℝ, ∀ i, A i = p + t i • v := by
     exact ⟨ fun i => Classical.choose ( h _ |>.1 ( h_hyperplane i ) ), fun i => Classical.choose_spec ( h _ |>.1 ( h_hyperplane i ) ) ⟩;
-  refine' h_convex_indep ⟨ t, ht, _ ⟩;
+  refine h_convex_indep ⟨ t, ht, ?_ ⟩;
   -- Since $A$ is convexly independent, the points $A_i$ cannot all lie on a single line, contradicting our assumption that $t_i$ are distinct.
   have h_distinct : Function.Injective t := by
     intro i j hij;
@@ -2416,11 +2415,11 @@ lemma triangle_inequality_via_intersection_strict {A : ℕ → V} {n : ℕ} (h_c
       have h_collinear : Collinear ℝ {A p, A y, A q} := by
         have h_collinear : affineSpan ℝ {A p, A q} = affineSpan ℝ {A y, A q} := by
           have h_collinear : affineSpan ℝ {A p, A q} = affineSpan ℝ {K, A q} ∧ affineSpan ℝ {A y, A q} = affineSpan ℝ {K, A q} := by
-            constructor <;> refine' le_antisymm _ _ <;> simp_all +decide [ affineSpan_le ];
+            constructor <;> refine le_antisymm ?_ ?_ <;> simp_all +decide [ affineSpan_le ];
             · simp_all +decide [ Set.insert_subset_iff, spanPoints ];
               obtain ⟨ t, ht ⟩ := hK_wbtw;
               simp_all +decide [ AffineMap.lineMap_apply ];
-              refine' Or.inl ⟨ -t • ( A q - A p ), _, _ ⟩ <;> simp_all +decide [ vectorSpan_pair ];
+              refine Or.inl ⟨ -t • ( A q - A p ), ?_, ?_ ⟩ <;> simp_all +decide [ vectorSpan_pair ];
               · rw [ Submodule.mem_span_singleton ];
                 use -t / (1 - t);
                 rw [ ← ht.2 ] ; simp +decide [ div_eq_inv_mul ] ; ring_nf;
@@ -2435,14 +2434,14 @@ lemma triangle_inequality_via_intersection_strict {A : ℕ → V} {n : ℕ} (h_c
               simp +decide [ Set.insert_subset_iff, vectorSpan_pair ];
               obtain ⟨ t, ht ⟩ := hK_YQ;
               rcases ht with ⟨ u, ht, hu, htu, rfl ⟩;
-              refine' Or.inr ⟨ ( 1 / t ) • ( t • A y + u • A q - A q ), _, _ ⟩ <;> simp_all +decide [ Submodule.mem_span_singleton ];
+              refine Or.inr ⟨ ( 1 / t ) • ( t • A y + u • A q - A q ), ?_, ?_ ⟩ <;> simp_all +decide [ Submodule.mem_span_singleton ];
               rw [ show u = 1 - t by linarith ] ; simp +decide [ smul_add, smul_sub, sub_smul ] ;
               by_cases ht : t = 0 <;> simp_all +decide [ smul_smul ];
               abel1;
             · simp_all +decide [ Set.insert_subset_iff, spanPoints ];
               obtain ⟨ t, ht ⟩ := hK_YQ;
               obtain ⟨ u, ht₀, hu₀, htu, rfl ⟩ := ht;
-              refine' Or.inl ⟨ t • A y + u • A q - A y, _, _ ⟩ <;> simp +decide [ vectorSpan_pair ];
+              refine Or.inl ⟨ t • A y + u • A q - A y, ?_, ?_ ⟩ <;> simp +decide [ vectorSpan_pair ];
               rw [ Submodule.mem_span_singleton ];
               exact ⟨ t - 1, by rw [ show u = 1 - t by linarith ] ; simp +decide [ sub_smul, smul_sub ] ; abel1 ⟩;
           rw [ h_collinear.1, h_collinear.2 ];
@@ -2917,23 +2916,23 @@ lemma dist_lt_of_angle_gt_pi_div_three_of_collinear {V : Type*} [NormedAddCommGr
             rw [ collinear_iff_exists_forall_eq_smul_vadd ] at h_col;
             obtain ⟨ p₀, v, h ⟩ := h_col;
             obtain ⟨ r₁, hr₁ ⟩ := h A ( by simp +decide ) ; obtain ⟨ r₂, hr₂ ⟩ := h B ( by simp +decide ) ; obtain ⟨ r₃, hr₃ ⟩ := h C ( by simp +decide ) ; simp_all +decide [ add_comm, add_assoc ];
-            refine' ⟨ ( r₂ - r₁ ) / ( r₃ - r₁ ), _ ⟩;
+            refine ⟨ ( r₂ - r₁ ) / ( r₃ - r₁ ), ?_ ⟩;
             simp +decide [ ← smul_assoc, ← sub_smul, div_eq_inv_mul ];
             rw [ inv_mul_eq_div, div_mul_cancel₀ _ ( sub_ne_zero_of_ne <| by aesop ) ] ; simp +decide [ sub_smul ];
-          refine' ⟨ t, _, _ ⟩ <;> simp_all +decide [ segment_eq_image ];
+          refine ⟨ t, ?_, ?_ ⟩ <;> simp_all +decide [ segment_eq_image ];
           · simp +decide [ sub_smul, smul_sub ] ; abel1;
           · exact Classical.or_iff_not_imp_left.2 fun h => not_le.1 fun h' => hStrBet t ( by linarith ) ( by linarith ) ( by simp +decide [ sub_smul, smul_sub ] ; abel1 );
         -- Since $B$ is not strictly between $A$ and $C$, we have $\angle ABC = 0$.
         have h_angle_zero : EuclideanGeometry.angle A B C = 0 := by
           simp_all +decide [ EuclideanGeometry.angle ];
           rw [ InnerProductGeometry.angle_eq_zero_iff ];
-          refine' ⟨ _, _ ⟩;
+          refine ⟨ ?_, ?_ ⟩;
           · intro h;
             rw [ sub_eq_zero ] at h;
             rw [ eq_comm ] at h;
             simp_all +decide [ sub_smul ];
             exact hStrBet ( left_mem_segment _ _ _ );
-          · cases' ht.2 with ht₂ ht₂ <;> [ refine' ⟨ - ( 1 - t ) / t, _, _ ⟩ ; refine' ⟨ ( t - 1 ) / t, _, _ ⟩ ] <;> simp_all +decide [ div_eq_inv_mul, sub_smul, smul_sub ];
+          · cases' ht.2 with ht₂ ht₂ <;> [ refine ⟨ - ( 1 - t ) / t, ?_, ?_ ⟩ ; refine ⟨ ( t - 1 ) / t, ?_, ?_ ⟩ ] <;> simp_all +decide [ div_eq_inv_mul, sub_smul, smul_sub ];
             · nlinarith [ inv_mul_cancel₀ ( ne_of_lt ht₂ ) ];
             · simp +decide [ sub_mul, mul_sub, ht₂.ne, smul_smul ];
               simp +decide [ sub_smul ] ; abel_nf;
@@ -2980,7 +2979,7 @@ lemma angle_gt_of_dist_gt {A B C : V} (hAB : A ≠ B) (hBC : B ≠ C) (hAC : A �
           have h_simplified : ‖A - B‖ < ‖A - C‖ + ‖B - C‖ := by
             rw [ show A - B = ( A - C ) - ( B - C ) by abel1, norm_sub_rev ];
             rw [ norm_sub_rev ];
-            refine' lt_of_le_of_ne ( norm_sub_le _ _ ) _;
+            refine lt_of_le_of_ne ( norm_sub_le _ _ ) ?_;
             intro h;
             have h_collinear : ∃ t : ℝ, A - C = t • (B - C) := by
               have h_collinear : ‖A - C - (B - C)‖^2 = ‖A - C‖^2 + ‖B - C‖^2 + 2 * ‖A - C‖ * ‖B - C‖ := by
@@ -2999,7 +2998,7 @@ lemma angle_gt_of_dist_gt {A B C : V} (hAB : A ≠ B) (hBC : B ≠ C) (hAC : A �
                 rw [ mul_assoc, mul_inv_cancel₀ ( norm_ne_zero_iff.mpr ( sub_ne_zero.mpr hBC ) ), mul_one, sub_self ];
               exact ⟨ - ( ‖A - C‖ / ‖B - C‖ ), by simpa [ neg_smul ] using eq_neg_of_add_eq_zero_left ( norm_eq_zero.mp ( sq_eq_zero_iff.mp h_collinear ) ) ⟩;
             obtain ⟨ t, ht ⟩ := h_collinear;
-            refine' h_not_col _;
+            refine h_not_col ?_;
             rw [ collinear_iff_exists_forall_eq_smul_vadd ];
             exact ⟨ C, B - C, fun p hp => by rcases hp with ( rfl | rfl | rfl ) <;> [ exact ⟨ t, by simpa [ sub_eq_iff_eq_add ] using ht ⟩ ; exact ⟨ 1, by simp +decide ⟩ ; exact ⟨ 0, by simp +decide ⟩ ] ⟩;
           gcongr;
@@ -3909,7 +3908,7 @@ lemma exists_intermediate_transversal {A : ℕ → V} {n : ℕ}
   · cases h_convex.1;
     contradiction;
   · have := h_convex.1; simp_all +decide ;
-  · refine' ⟨ Dist.dist ( A 0 ) ( A 1 ), _, _, _ ⟩;
+  · refine ⟨ Dist.dist ( A 0 ) ( A 1 ), ?_, ?_, ?_ ⟩;
     · simp +decide [ distinctDistances, Finset.mem_insert, Finset.mem_singleton ];
       exact ⟨ A 0, A 1, ⟨ ⟨ by tauto, by tauto ⟩, by have := h_convex.2.2.1 0 1; aesop ⟩, rfl ⟩;
     · have := h_convex.2.1 0 1 ( by decide ) ( by decide ) ; simp_all +decide ;
@@ -3920,9 +3919,9 @@ lemma exists_intermediate_transversal {A : ℕ → V} {n : ℕ}
     -- By `triangle_inequality_via_intersection_strict`, dist(A_0, A_{n-2}) + dist(A_1, A_{n-1}) > dist(A_0, A_{n-1}) + dist(A_1, A_{n-2}).
     have h_triangle : dist (A 0) (A (n + 2)) + dist (A 1) (A (n + 3)) > dist (A 0) (A (n + 3)) + dist (A 1) (A (n + 2)) := by
       apply triangle_inequality_via_intersection_strict h_convex hK_Ay hK_pq (by linarith) (by linarith) (by linarith) (by linarith) ⟨by linarith, by linarith, by linarith, by linarith⟩;
-    cases le_or_gt ( Dist.dist ( A 0 ) ( A ( n + 2 ) ) ) ( Dist.dist ( A 1 ) ( A ( n + 3 ) ) ) <;> [ refine' ⟨ Dist.dist ( A 1 ) ( A ( n + 3 ) ), _, _, _ ⟩ ; refine' ⟨ Dist.dist ( A 0 ) ( A ( n + 2 ) ), _, _, _ ⟩ ] <;> simp_all +decide [ distinctDistances ];
-    · refine' ⟨ A 1, A ( n + 3 ), _, _ ⟩ <;> simp +decide [ *];
-      refine' ⟨ _, _ ⟩;
+    cases le_or_gt ( Dist.dist ( A 0 ) ( A ( n + 2 ) ) ) ( Dist.dist ( A 1 ) ( A ( n + 3 ) ) ) <;> [ refine ⟨ Dist.dist ( A 1 ) ( A ( n + 3 ) ), ?_, ?_, ?_ ⟩ ; refine ⟨ Dist.dist ( A 0 ) ( A ( n + 2 ) ), ?_, ?_, ?_ ⟩ ] <;> simp_all +decide [ distinctDistances ];
+    · refine ⟨ A 1, A ( n + 3 ), ?_, ?_ ⟩ <;> simp +decide [ *];
+      refine ⟨ ?_, ?_ ⟩;
       · rcases n with ( _ | _ | n ) <;> simp_all +decide [ Nat.lt_succ_iff ];
         exact Or.inr <| Or.inr <| Or.inr <| Or.inr <| ⟨ 1, by linarith, rfl ⟩;
       · intro h; specialize h_max_unique 1 ( n + 3 ) ; simp_all +decide ;
@@ -4305,7 +4304,7 @@ lemma is_convex_polygon_consecutive_zero {A : ℕ → V} {n : ℕ} {len : ℕ}
     (h_len_le_n : len ≤ n) :
     IsConvexPolygon A len := by
   constructor <;> try linarith;
-  refine' ⟨ _, _, _ ⟩;
+  refine ⟨ ?_, ?_, ?_ ⟩;
   · have := h_poly.2.1;
     exact fun i j hi hj hij => this i j ( lt_of_lt_of_le hi h_len_le_n ) ( lt_of_lt_of_le hj h_len_le_n ) hij;
   · have h_convex_indep : ConvexIndependent ℝ (fun i : Fin n => A i) := by
@@ -4924,9 +4923,9 @@ lemma openSegment_subset_interior_convex_hull {s : Finset V} {C x : V}
   obtain ⟨a, ha, b, hb, hab, rfl⟩ := hy
   rw [mem_interior_iff_mem_nhds, Metric.mem_nhds_iff] at *
   obtain ⟨ε, ε_pos, hε⟩ := hC
-  refine' ⟨a * ε, mul_pos ha ε_pos, fun z hz => _⟩
+  refine ⟨a * ε, mul_pos ha ε_pos, fun z hz => ?_⟩
   obtain ⟨C', hC'⟩ : ∃ C', z = a • C' + b • x ∧ dist C' C < ε := by
-    refine' ⟨a⁻¹ • (z - b • x), _, _⟩
+    refine ⟨a⁻¹ • (z - b • x), ?_, ?_⟩
     · simp [smul_sub, smul_smul, ha.ne']
     · rw [dist_eq_norm, show a⁻¹ • (z - b • x) - C = a⁻¹ • (z - (a • C + b • x)) by
         simp [smul_sub, smul_add, ← smul_assoc, ha.ne']; abel]
@@ -4942,7 +4941,7 @@ lemma not_subset_halfplane_of_mem_interior_convexHull {V : Type*} [NormedAddComm
       contrapose! h_int;
       -- Since $f$ is continuous and $s \subseteq \{x \mid f x \le 0\}$, the convex hull of $s$ is also contained in $\{x \mid f x \le 0\}$.
       have h_convex_hull : convexHull ℝ s ⊆ {x | f x ≤ 0} := by
-        refine' convexHull_min h_int _;
+        refine convexHull_min h_int ?_;
         exact ( convex_iff_forall_pos.mpr fun x hx y hy a b ha hb hab => by simpa [ map_add, map_smul, hab.symm ] using by nlinarith [ hx.out, hy.out ] );
       simp_all +decide [ Set.subset_def, mem_interior_iff_mem_nhds, Metric.mem_nhds_iff ];
       intro ε ε_pos;
@@ -4952,7 +4951,7 @@ lemma not_subset_halfplane_of_mem_interior_convexHull {V : Type*} [NormedAddComm
       -- Choose $t$ such that $0 < t < \min(1, \frac{\epsilon}{\|x\|})$.
       obtain ⟨t, ht_pos, ht_lt⟩ : ∃ t : ℝ, 0 < t ∧ t < min 1 (ε / ‖x‖) := by
         exact exists_between ( lt_min zero_lt_one ( div_pos ε_pos ( norm_pos_iff.mpr ( show x ≠ 0 from by rintro rfl; simp +decide at hx ) ) ) );
-      refine' ⟨ t • x, _, _ ⟩ <;> simp_all +decide [ norm_smul, abs_of_pos ];
+      refine ⟨ t • x, ?_, ?_ ⟩ <;> simp_all +decide [ norm_smul, abs_of_pos ];
       · rw [ lt_div_iff₀ ] at ht_lt <;> nlinarith [ norm_pos_iff.2 ( show x ≠ 0 by rintro rfl; simp +decide at hx ) ];
       · intro H; have := h_convex_hull _ H; simp_all +decide ;
         exact this.not_gt ( mul_pos ht_pos hx )
@@ -4975,7 +4974,7 @@ lemma exists_halfplane_functional_of_angle_span {s : Set ℂ} (a b : ℝ)
             (z.arg - α) + (k : ℝ) * (2 * Real.pi) by ring]
         rw [Real.cos_add_int_mul_two_pi, Real.cos_sub]
         ring
-      refine' h_contra ⟨ _, _, _ ⟩;
+      refine h_contra ⟨ ?_, ?_, ?_ ⟩;
       exact - ( ContinuousLinearMap.smulRight ( Complex.reCLM ) 1 ) ∘L ( ContinuousLinearMap.mul ℝ ℂ ( Complex.exp ( -α * Complex.I ) ) );
       · intro h; have := congr_arg ( fun f => f ( Complex.exp ( α * Complex.I ) ) ) h; norm_num [ Complex.exp_re, Complex.exp_im ] at this;
         nlinarith [ Real.sin_sq_add_cos_sq α ];
@@ -5081,16 +5080,16 @@ lemma orientation_sweep_consecutive_pos {n : ℕ} {s : Finset V} {A : ℕ → V}
                 ext; simp [Set.mem_image];
                 exact ⟨ fun ⟨ x, hx, hx' ⟩ => ⟨ x - C, by simpa using hx, by simpa using hx' ⟩, fun ⟨ x, hx, hx' ⟩ => ⟨ x + C, by simpa using hx, by simpa using hx' ⟩ ⟩;
               exact h_arg_diff _ ( isOpen_interior );
-            refine' mem_interior.mpr _;
-            refine' ⟨ _, _, h_arg_diff, _ ⟩;
+            refine mem_interior.mpr ?_;
+            refine ⟨ _, ?_, h_arg_diff, ?_ ⟩;
             · exact Set.image_mono interior_subset;
             · exact ⟨ C, hC_int, by simp +decide ⟩;
-          refine' interior_mono _ h_arg_diff;
+          refine interior_mono ?_ h_arg_diff;
           intro x hx;
           obtain ⟨ y, hy, rfl ⟩ := hx;
           rw [ convexHull_eq ] at hy ⊢;
           rcases hy with ⟨ ι, t, w, z, hw, hw', hz, rfl ⟩;
-          refine' ⟨ ι, t, w, fun i => to_complex_map ( z i - C ), hw, hw', _, _ ⟩
+          refine ⟨ ι, t, w, fun i => to_complex_map ( z i - C ), hw, hw', ?_, ?_ ⟩
           · intro i hi
             exact ⟨z i, hz i hi, rfl⟩
           · simp_all +decide [ Finset.centerMass ]
@@ -5152,7 +5151,7 @@ lemma arg_convex_comb_lt {w : ℂ} (hw_im : 0 < w.im)
   any_goals nlinarith [ mul_pos hc0 hw_im ];
   · rw [ Real.arcsin_lt_iff_lt_sin, Real.sin_arcsin ];
     · field_simp;
-      refine' Real.lt_sqrt_of_sq_lt _;
+      refine Real.lt_sqrt_of_sq_lt ?_;
       rw [ mul_pow, Real.sq_sqrt ] <;> nlinarith [ mul_pos hc0 hw_im, mul_pos hc0 ( sub_pos.mpr hc1 ) ];
     · exact le_trans ( by norm_num ) ( div_nonneg hw_im.le ( Real.sqrt_nonneg _ ) );
     · exact div_le_one_of_le₀ ( Real.le_sqrt_of_sq_le ( by nlinarith ) ) ( Real.sqrt_nonneg _ );
@@ -5313,7 +5312,7 @@ lemma convex_polygon_supporting_line_property {n : ℕ} {s : Finset V} {A : ℕ 
         have hw_seg : A i ∈ openSegment ℝ P (A j) := by
           rw [openSegment_eq_image]; use -c / (1 - c)
           have h_den : 1 - c > 0 := by linarith
-          refine' ⟨⟨div_pos (neg_pos.mpr (lt_of_le_of_ne hc0 h0)) h_den, (div_lt_one h_den).mpr (by linarith)⟩, _⟩
+          refine ⟨⟨div_pos (neg_pos.mpr (lt_of_le_of_ne hc0 h0)) h_den, (div_lt_one h_den).mpr (by linarith)⟩, ?_⟩
           dsimp
           rw [hP_comb, smul_add, smul_smul, smul_smul]
           field_simp [h_den]; simp
@@ -5331,7 +5330,7 @@ lemma convex_polygon_supporting_line_property {n : ℕ} {s : Finset V} {A : ℕ 
         have hw_seg : A j ∈ openSegment ℝ P (A i) := by
           rw [openSegment_eq_image]; use (c - 1) / c
           have h_den : c > 0 := by linarith
-          refine' ⟨⟨div_pos (sub_pos.mpr (by linarith)) h_den, (div_lt_one h_den).mpr (by linarith)⟩, _⟩
+          refine ⟨⟨div_pos (sub_pos.mpr (by linarith)) h_den, (div_lt_one h_den).mpr (by linarith)⟩, ?_⟩
           dsimp
           rw [hP_comb, smul_add, smul_smul, smul_smul]
           field_simp [h_den]
@@ -5526,7 +5525,7 @@ lemma convex_polygon_supporting_line_property {n : ℕ} {s : Finset V} {A : ℕ 
       · rw [if_pos h_ordered] at h_between; exact h_between.1
       · rw [if_pos h_ordered] at h_between; exact h_between.2
     · right; constructor
-      · push Not at h_ordered; refine' lt_of_le_of_ne h_ordered (by
+      · push Not at h_ordered; refine lt_of_le_of_ne h_ordered (by
           intro h_eq
           -- This means arg z1 = arg z2.
           -- Since z1, z2 ≠ 0, this implies z1 and z2 are on the same ray from the origin.
