@@ -27,7 +27,6 @@ namespace Erdos1028
 
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.refine false
 set_option linter.style.multiGoal false
 set_option linter.flexible false
 
@@ -97,7 +96,7 @@ lemma rademacher_mgf_bound {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω} [I
               · exact ne_of_lt ( MeasureTheory.measure_lt_top _ _ )
             aesop
           filter_upwards [ MeasureTheory.measure_eq_zero_iff_ae_notMem.mp h_split ] with ω hω using by contrapose! hω; tauto
-        refine' MeasureTheory.integral_congr_ae _
+        refine MeasureTheory.integral_congr_ae ?_
         filter_upwards [ h_split ] with ω hω ; rcases hω with ( hω | hω ) <;> simp +decide [ hω ]
         · norm_num
         · norm_num
@@ -152,8 +151,8 @@ theorem hoeffding_rademacher_sum_one_sided {Ω : Type*} [MeasurableSpace Ω] {P 
       rw [ MeasureTheory.integral_eq_lintegral_of_nonneg_ae ]
       · rw [ MeasureTheory.integral_eq_lintegral_of_nonneg_ae ]
         · rw [ ← MeasureTheory.lintegral_indicator ]
-          · refine' ENNReal.toReal_mono _ _
-            · refine' ne_of_lt ( MeasureTheory.Integrable.lintegral_lt_top _ )
+          · refine ENNReal.toReal_mono ?_ ?_
+            · refine ne_of_lt ( MeasureTheory.Integrable.lintegral_lt_top ?_ )
               -- Since $\xi_i$ are Rademacher variables, we have $|\xi_i| \leq 1$ almost surely.
               have h_abs : ∀ i, ∀ᵐ ω ∂P, |ξ i ω| ≤ 1 := by
                 intro i
@@ -175,15 +174,15 @@ theorem hoeffding_rademacher_sum_one_sided {Ω : Type*} [MeasurableSpace Ω] {P 
                     aesop
                   filter_upwards [ MeasureTheory.measure_eq_zero_iff_ae_notMem.mp h_abs_i ] with ω hω using Classical.or_iff_not_imp_left.2 fun h => Classical.not_not.1 fun h' => hω ⟨ h, h' ⟩
                 filter_upwards [ h_abs_i ] with ω hω using by rcases hω with ( hω | hω ) <;> norm_num [ hω ]
-              refine' MeasureTheory.Integrable.mono' _ _ _
-              refine' fun ω => Real.exp ( lambda * ( M + |t| ) )
+              refine MeasureTheory.Integrable.mono'
+                (g := fun ω => Real.exp ( lambda * ( M + |t| ) )) ?_ ?_ ?_
               · norm_num
-              · refine' Measurable.aestronglyMeasurable _
+              · refine Measurable.aestronglyMeasurable ?_
                 have h_measurable : ∀ i, Measurable (ξ i) := by
                   exact fun i => ( h_rad i ).1
                 exact Measurable.exp ( Measurable.mul measurable_const ( Measurable.sub ( Finset.measurable_sum _ fun i _ => h_measurable i ) measurable_const ) )
               · filter_upwards [ MeasureTheory.ae_all_iff.2 h_abs ] with ω hω using by simpa using Real.exp_le_exp.2 ( mul_le_mul_of_nonneg_left ( show ∑ i, ξ i ω - t ≤ M + |t| by cases abs_cases t <;> linarith [ show ∑ i, ξ i ω ≤ M by exact le_trans ( Finset.sum_le_sum fun i _ => le_of_abs_le ( hω i ) ) ( by norm_num ) ] ) hlambda_pos.le )
-            · refine' MeasureTheory.lintegral_mono fun ω => _
+            · refine MeasureTheory.lintegral_mono fun ω => ?_
               rw [ Set.indicator_apply ] ; aesop
           · have h_measurable : ∀ i, Measurable (ξ i) := by
               exact fun i => ( h_rad i ).1
@@ -212,7 +211,7 @@ theorem hoeffding_rademacher_sum_one_sided {Ω : Type*} [MeasurableSpace Ω] {P 
       simpa only [ ← Real.exp_nat_mul, mul_comm ] using h_prod_exp_bound
     by_cases ht : t = 0 <;> simp_all +decide [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm ]
     · exact le_trans ( MeasureTheory.measure_mono ( Set.subset_univ _ ) ) ( by simp +decide )
-    · refine' le_trans ( h_markov ( t / M ) ( by positivity ) ) ( ENNReal.ofReal_le_ofReal _ )
+    · refine le_trans ( h_markov ( t / M ) ( by positivity ) ) ( ENNReal.ofReal_le_ofReal ?_ )
       convert mul_le_mul_of_nonneg_left ( h_exp_bound ( t / M ) ( by positivity ) ) ( Real.exp_nonneg _ ) using 1 ; ring_nf
       rw [ ← Real.exp_add ] ; norm_num [ sq, mul_assoc, hM ] ; ring
 
@@ -230,12 +229,14 @@ theorem hoeffding_rademacher_sum {Ω : Type*} [MeasurableSpace Ω] {P : Measure 
     norm_num [ Set.ext_iff, abs_eq_max_neg, max_le_iff ]
     exact fun x => or_congr Iff.rfl ⟨ fun h => by linarith, fun h => by linarith ⟩
   rw [ h_union, two_mul ]
-  refine' le_trans ( MeasureTheory.measure_union_le _ _ ) _
+  refine le_trans
+    ( MeasureTheory.measure_union_le
+      (μ := P) {ω : Ω | ∑ i, ξ i ω ≥ t} {ω : Ω | ∑ i, ξ i ω ≤ -t} ) ?_
   -- Since $\xi_i$ are independent Rademacher variables, $-\xi_i$ are also independent Rademacher variables.
   have h_neg_rad : ∀ i, IsRademacher P (fun ω => -ξ i ω) := by
     intro i
     obtain ⟨ h₁, h₂, h₃ ⟩ := h_rad i
-    refine' ⟨ _, _, _ ⟩
+    refine ⟨ ?_, ?_, ?_ ⟩
     · exact h₁.neg
     · simp_all +decide [ neg_eq_iff_eq_neg ]
     · simpa using h₂
@@ -247,7 +248,7 @@ theorem hoeffding_rademacher_sum {Ω : Type*} [MeasurableSpace Ω] {P : Measure 
       intro S sets hsets; specialize h_indep S ( fun i hi => hsets i hi |> MeasurableSet.preimage <| measurable_neg ) ; simp_all +decide [ Set.preimage ]
     · exact h_neg_rad
   simp_all +decide [ Finset.sum_neg_distrib, le_neg ]
-  refine' add_le_add _ h_neg
+  refine add_le_add ?_ h_neg
   convert hoeffding_rademacher_sum_one_sided ξ h_indep h_rad t ht using 1
 
 /-
@@ -293,7 +294,7 @@ lemma coloring_product_measure_independent (n : ℕ) :
     iIndepFun ξ P := by
   -- The projection maps are independent under the product measure.
   have h_indep : ProbabilityTheory.iIndepFun (fun e : Sym2 (Fin n) => (fun ω : Sym2 (Fin n) → Bool => ω e)) (Measure.pi (fun _ : Sym2 (Fin n) => (PMF.uniformOfFintype Bool).toMeasure)) := by
-    refine' ProbabilityTheory.iIndepFun_iff_measure_inter_preimage_eq_mul.mpr _
+    refine ProbabilityTheory.iIndepFun_iff_measure_inter_preimage_eq_mul.mpr ?_
     intro S sets hsets
     -- The measure of the intersection of these sets is equal to the product of the measures of the individual sets because the product measure is defined as the Cartesian product of the measures on each component.
     have h_prod_measure : ∀ (S : Finset (Sym2 (Fin n))) (sets : Sym2 (Fin n) → Set Bool), (∀ i ∈ S, MeasurableSet (sets i)) → (MeasureTheory.Measure.pi fun (x : Sym2 (Fin n)) => (PMF.uniformOfFintype Bool).toMeasure) (⋂ i ∈ S, (fun (ω : Sym2 (Fin n) → Bool) => ω i) ⁻¹' sets i) = ∏ i ∈ S, (PMF.uniformOfFintype Bool).toMeasure (sets i) := by
@@ -321,7 +322,7 @@ lemma coloring_product_measure_independent (n : ℕ) :
             grind
       exact h_prod_measure S sets hsets
     convert h_prod_measure S sets hsets using 1
-    refine' Finset.prod_congr rfl fun i hi => _
+    refine Finset.prod_congr rfl fun i hi => ?_
     convert h_prod_measure { i } ( fun _ => sets i ) ( by aesop ) using 1
     · simp +decide [ Set.preimage ]
     · norm_num
@@ -356,7 +357,7 @@ lemma coloring_product_measure_rademacher (n : ℕ) (e : Sym2 (Fin n)) :
         · simp [hie]
       · intro hω
         simpa using hω e (Set.mem_univ e)
-  refine' ⟨ _, _, _ ⟩
+  refine ⟨ ?_, ?_, ?_ ⟩
   · exact Measurable.ite ( measurableSet_eq_fun ( measurable_pi_apply e ) measurable_const ) measurable_const measurable_const
   · change coloringProductMeasure n {ω : Sym2 (Fin n) → Bool | (if ω e then (1 : ℝ) else -1) = 1} = 1 / 2
     exact h_measure1
@@ -401,7 +402,7 @@ lemma prob_induced_sum_ge (n : ℕ) (X : Finset (Fin n)) (t : ℝ) (ht : t ≥ 0
         · congr! 1
           ext; simp +decide [ he₁.eq_iff ]
         · rw [ Finset.prod_image ]
-          · refine' Finset.prod_congr rfl fun i hi => _
+          · refine Finset.prod_congr rfl fun i hi => ?_
             simp +decide [ he₁.eq_iff]
           · exact he₁.injOn
         · simp +zetaDelta at *
@@ -417,7 +418,7 @@ lemma prob_induced_sum_ge (n : ℕ) (X : Finset (Fin n)) (t : ℝ) (ht : t ≥ 0
     unfold inducedSum coloringToInt; aesop
   · have h_card : Finset.card (X.sym2.filter (fun e => ¬e.IsDiag)) = Nat.choose (Finset.card X) 2 := by
       have h_card : Finset.card (Finset.filter (fun e => ¬e.IsDiag) (Finset.sym2 X)) = Finset.card (Finset.powersetCard 2 X) := by
-        refine' Finset.card_bij ( fun x hx => Finset.filter ( fun y => y ∈ x ) X ) _ _ _
+        refine Finset.card_bij ( fun x hx => Finset.filter ( fun y => y ∈ x ) X ) ?_ ?_ ?_
         · simp +contextual [ Finset.mem_powersetCard, Finset.subset_iff ]
           intro a ha₁ ha₂; rcases a with ⟨ x, y ⟩ ; simp_all +decide [ Sym2.IsDiag ]
           rw [ show { y_1 ∈ X | y_1 = x ∨ y_1 = y } = { x, y } by ext; aesop ] ; rw [ Finset.card_insert_of_notMem, Finset.card_singleton ] ; aesop
@@ -486,7 +487,8 @@ The probability that the induced sum of X exceeds C n^(3/2) is bounded by 2 exp(
 lemma prob_induced_sum_le_uniform (n : ℕ) (X : Finset (Fin n)) (C : ℝ) (hC : C > 0) (hn : n ≥ 2) :
     (coloringMeasure n) {c | |inducedSum n (coloringToInt c) X| ≥ C * (n : ℝ)^(3/2 : ℝ)} ≤ 2 * ENNReal.ofReal (Real.exp (- C^2 * n)) := by
       by_cases hX : X.card.choose 2 > 0
-      · refine' le_trans ( prob_induced_sum_ge n X _ _ ) _
+      · refine le_trans
+          ( prob_induced_sum_ge n X ( C * ( n : ℝ ) ^ ( 3 / 2 : ℝ ) ) ?_ ) ?_
         · positivity
         · exact mul_le_mul_right ( ENNReal.ofReal_le_ofReal <| Real.exp_le_exp.mpr <| by nlinarith [ exponent_bound n X C hC ( by linarith ) hX ] ) _
       · -- Since the binomial coefficient is zero, X must have fewer than 2 elements. Therefore, the induced sum of X is zero.
@@ -507,7 +509,7 @@ The sum of a function bounded by K over all subsets is bounded by 2^n * K.
 -/
 lemma sum_le_pow_two_mul (n : ℕ) (f : Finset (Fin n) → ℝ≥0∞) (K : ℝ≥0∞) (h : ∀ X, f X ≤ K) :
     ∑ X, f X ≤ (2^n : ℝ≥0∞) * K := by
-      refine' le_trans ( Finset.sum_le_sum fun _ _ => h _ ) _
+      refine le_trans ( Finset.sum_le_sum fun X _ => h X ) ?_
       norm_num [ Finset.card_univ ]
 
 /-
@@ -563,8 +565,8 @@ If there exists a coloring such that all induced sums are bounded by B, then H(n
 lemma H_le_of_exists (n : ℕ) (B : ℝ) (h : ∃ c : Sym2 (Fin n) → Bool, ∀ X : Finset (Fin n), |(inducedSum n (coloringToInt c) X : ℝ)| ≤ B) :
     (H n : ℝ) ≤ B := by
       obtain ⟨ c, hc ⟩ := h
-      refine' le_trans _ ( show ( ⌊B⌋ : ℝ ) ≤ B by exact Int.floor_le _ )
-      refine' mod_cast le_trans ( Finset.min'_le _ _ <| Finset.mem_image_of_mem _ <| Finset.mem_univ c ) _
+      refine le_trans ?_ ( show ( ⌊B⌋ : ℝ ) ≤ B by exact Int.floor_le B )
+      refine mod_cast le_trans ( Finset.min'_le _ _ <| Finset.mem_image_of_mem _ <| Finset.mem_univ c ) ?_
       simp_all +decide [ Finset.max' ]
       exact fun X => Int.le_floor.2 <| mod_cast hc X
 
@@ -577,7 +579,7 @@ lemma exists_good_coloring (n : ℕ) (hn : n ≥ 2) (C : ℝ) (hC_pos : C > 0) (
       set Bad := {c : Sym2 (Fin n) → Bool | ∃ X : Finset (Fin n), |(inducedSum n (coloringToInt c) X : ℝ)| ≥ C * (n : ℝ)^(3/2 : ℝ)} with hBad_def
       -- By the probabilistic method, since the probability of Bad is less than 1, there exists a coloring not in Bad.
       have h_exists_not_bad : (coloringMeasure n) Bad < 1 := by
-        refine' lt_of_le_of_lt ( _ : _ ≤ _ ) ( bound_lt_one_of_large_C n hn C hC_sq )
+        refine lt_of_le_of_lt ?_ ( bound_lt_one_of_large_C n hn C hC_sq )
         convert prob_exists_induced_sum_ge n C hC_pos hn using 1
         norm_num +zetaDelta at *
       have := prob_lt_one_implies_exists_good_coloring n Bad h_exists_not_bad; aesop
@@ -601,19 +603,20 @@ lemma paley_zygmund_inequality {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω
       have h_split : E = ∫ ω, Z ω * (if Z ω < θ * E then 1 else 0) ∂P + ∫ ω, Z ω * (if Z ω ≥ θ * E then 1 else 0) ∂P := by
         rw [ ← MeasureTheory.integral_add ]
         · exact congr_arg _ ( funext fun ω => by split_ifs <;> linarith )
-        · refine' hZ_int.norm.mono' _ _
-          · refine' hZ_int.1.mul _
+        · refine hZ_int.norm.mono' ?_ ?_
+          · refine hZ_int.1.mul ?_
             have := hZ_int.aestronglyMeasurable.aemeasurable
             exact Measurable.aestronglyMeasurable ( Measurable.ite ( measurableSet_Iio.preimage ( measurable_id' ) ) measurable_const measurable_const ) |> fun h => h.comp_aemeasurable this
           · filter_upwards [ ] with ω using by split_ifs <;> simp +decide [ * ]
-        · refine' hZ_int.norm.mono' _ _
+        · refine hZ_int.norm.mono' ?_ ?_
           · have := hZ_int.aestronglyMeasurable
             exact this.mul ( Measurable.aestronglyMeasurable ( show Measurable fun x => if θ * E ≤ x then ( 1 : ℝ ) else 0 from Measurable.ite ( measurableSet_Ici ) measurable_const measurable_const ) |> fun h => h.comp_aemeasurable this.aemeasurable )
           · filter_upwards [ ] with ω using by split_ifs <;> simp +decide [ * ]
       -- The first term is bounded by $\theta E$.
       have h_first_term : ∫ ω, Z ω * (if Z ω < θ * E then 1 else 0) ∂P ≤ θ * E := by
-        refine' le_trans ( MeasureTheory.integral_mono_of_nonneg _ _ _ ) _
-        refine' fun ω => θ * E
+        refine le_trans
+          ( MeasureTheory.integral_mono_of_nonneg
+            (g := fun _ : Ω => θ * E) ?_ ?_ ?_ ) ?_
         · exact Filter.Eventually.of_forall fun ω => mul_nonneg ( hZ_nonneg ω ) ( by positivity )
         · fun_prop
         · filter_upwards [ ] with ω using by split_ifs <;> nlinarith [ hZ_nonneg ω, show 0 ≤ E by exact MeasureTheory.integral_nonneg hZ_nonneg ]
@@ -633,20 +636,19 @@ lemma paley_zygmund_inequality {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω
               simp +decide [ ← mul_assoc, MeasureTheory.integral_mul_const ] at h_cauchy_schwarz ⊢ ; nlinarith [ inv_mul_cancel_left₀ h ( ∫ ω, f ω * g ω ∂P ), inv_mul_cancel₀ h, show 0 ≤ ∫ ω, f ω ^ 2 ∂P from MeasureTheory.integral_nonneg fun _ => sq_nonneg _, show 0 ≤ ∫ ω, g ω ^ 2 ∂P from MeasureTheory.integral_nonneg fun _ => sq_nonneg _ ]
             · exact hf
             · convert hfg.mul_const ( 2 * ( ( ∫ ω, f ω * g ω ∂P ) / ∫ ω, g ω ^ 2 ∂P ) ) using 2 ; ring
-            · refine' MeasureTheory.Integrable.sub hf _
+            · refine MeasureTheory.Integrable.sub hf ?_
               convert hfg.mul_const ( 2 * ( ( ∫ ω, f ω * g ω ∂P ) / ∫ ω, g ω ^ 2 ∂P ) ) using 2 ; ring
             · exact hg.const_mul _
         convert h_cauchy_schwarz ( fun ω => Z ω ) ( fun ω => if Z ω ≥ θ * E then 1 else 0 ) hZ_sq_int _ _ using 1
         · exact congrArg _ ( by congr; ext; split_ifs <;> norm_num )
-        · refine' MeasureTheory.Integrable.mono' _ _ _
-          refine' fun ω => 1
+        · refine MeasureTheory.Integrable.mono' (g := fun ω => 1) ?_ ?_ ?_
           · norm_num
           · simp +zetaDelta at *
             have := hZ_int.aestronglyMeasurable
             exact Measurable.aestronglyMeasurable ( Measurable.ite ( measurableSet_le measurable_const measurable_id' ) measurable_const measurable_const ) |> fun h => h.comp_aemeasurable this.aemeasurable
           · exact Filter.Eventually.of_forall fun ω => by by_cases h : Z ω ≥ θ * E <;> norm_num [ h ]
-        · refine' hZ_int.norm.mono' _ _
-          · refine' hZ_int.1.mul _
+        · refine hZ_int.norm.mono' ?_ ?_
+          · refine hZ_int.1.mul ?_
             have := hZ_int.aestronglyMeasurable
             exact Measurable.aestronglyMeasurable ( show Measurable fun x : ℝ => if x ≥ θ * E then ( 1 : ℝ ) else 0 from Measurable.ite ( measurableSet_Ici ) measurable_const measurable_const ) |> fun h => h.comp_aemeasurable this.aemeasurable
           · filter_upwards [ ] with ω using by split_ifs <;> simp +decide [ * ]
@@ -656,11 +658,11 @@ lemma paley_zygmund_inequality {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω
         by_cases h : ∫ ω, Z ω ^ 2 ∂P = 0 <;> simp +decide [ h ] at h_cauchy_schwarz ⊢
         · exact MeasureTheory.integral_nonneg fun _ => by positivity
         · field_simp
-          refine' le_trans _ h_cauchy_schwarz
+          refine le_trans ?_ h_cauchy_schwarz
           have h_rearrange : (∫ ω, if θ * E ≤ Z ω then Z ω else 0 ∂P) ≥ (1 - θ) * E := by
             linarith
           convert pow_le_pow_left₀ ( mul_nonneg ( sub_nonneg.2 hθ_lt_1.le ) ( MeasureTheory.integral_nonneg hZ_nonneg ) ) h_rearrange 2 using 1 ; ring
-      refine' le_trans ( ENNReal.ofReal_le_ofReal h_rearrange ) _
+      refine le_trans ( ENNReal.ofReal_le_ofReal h_rearrange ) ?_
       rw [ MeasureTheory.integral_eq_lintegral_of_nonneg_ae ]
       · rw [ MeasureTheory.lintegral_congr_ae, MeasureTheory.lintegral_indicator₀ ]
         change ENNReal.ofReal ( ∫⁻ ω in { ω | θ * E ≤ Z ω }, 1 ∂P ).toReal ≤ P { ω | θ * E ≤ Z ω }
@@ -690,12 +692,12 @@ lemma integrable_pow_of_integrable_pow_four {Ω : Type*} [MeasurableSpace Ω] {P
     {X : Ω → ℝ} (hX_meas : AEStronglyMeasurable X P) (hX4 : Integrable (fun ω => (X ω) ^ 4) P) (k : ℕ) (hk : k ≤ 4) :
     Integrable (fun ω => (X ω) ^ k) P := by
       interval_cases k <;> norm_num at *
-      · refine' MeasureTheory.Integrable.mono' _ _ _
-        exacts [ fun ω => 1 + |X ω ^ 4|, by exact MeasureTheory.Integrable.add ( MeasureTheory.integrable_const _ ) ( hX4.norm ), hX_meas, Filter.Eventually.of_forall fun ω => by simpa using abs_pow_le_one_add_abs_pow_four ( X ω ) 1 ( by norm_num ) ]
-      · refine' MeasureTheory.Integrable.mono' _ _ _
-        exacts [ fun ω => X ω ^ 4 + 1, by exact MeasureTheory.Integrable.add hX4 ( MeasureTheory.integrable_const _ ), by exact hX_meas.pow 2, Filter.Eventually.of_forall fun ω => by simpa using by nlinarith [ sq_nonneg ( X ω ^ 2 - 1 ) ] ]
-      · refine' MeasureTheory.Integrable.mono' _ _ _
-        exacts [ fun ω => X ω ^ 4 + 1, hX4.add ( MeasureTheory.integrable_const _ ), hX_meas.pow 3, Filter.Eventually.of_forall fun ω => abs_le.mpr ⟨ by nlinarith only [ sq_nonneg ( X ω ^ 2 - 1 ), sq_nonneg ( X ω ^ 2 ) ], by nlinarith only [ sq_nonneg ( X ω ^ 2 - 1 ), sq_nonneg ( X ω ^ 2 ) ] ⟩ ]
+      · refine MeasureTheory.Integrable.mono' (g := fun ω => 1 + |X ω ^ 4|) ?_ ?_ ?_
+        exacts [ by exact MeasureTheory.Integrable.add ( MeasureTheory.integrable_const _ ) ( hX4.norm ), hX_meas, Filter.Eventually.of_forall fun ω => by simpa using abs_pow_le_one_add_abs_pow_four ( X ω ) 1 ( by norm_num ) ]
+      · refine MeasureTheory.Integrable.mono' (g := fun ω => X ω ^ 4 + 1) ?_ ?_ ?_
+        exacts [ by exact MeasureTheory.Integrable.add hX4 ( MeasureTheory.integrable_const _ ), by exact hX_meas.pow 2, Filter.Eventually.of_forall fun ω => by simpa using by nlinarith [ sq_nonneg ( X ω ^ 2 - 1 ) ] ]
+      · refine MeasureTheory.Integrable.mono' (g := fun ω => X ω ^ 4 + 1) ?_ ?_ ?_
+        exacts [ hX4.add ( MeasureTheory.integrable_const _ ), hX_meas.pow 3, Filter.Eventually.of_forall fun ω => abs_le.mpr ⟨ by nlinarith only [ sq_nonneg ( X ω ^ 2 - 1 ), sq_nonneg ( X ω ^ 2 ) ], by nlinarith only [ sq_nonneg ( X ω ^ 2 - 1 ), sq_nonneg ( X ω ^ 2 ) ] ⟩ ]
       · exact hX4
 
 /-
@@ -750,9 +752,9 @@ lemma rademacher_props {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω} [IsPro
             · exact MeasurableSet.union ( measurableSet_eq_fun ‹_› measurable_const ) ( measurableSet_eq_fun ‹_› measurable_const )
           filter_upwards [ MeasureTheory.measure_eq_zero_iff_ae_notMem.mp h_X_values ] with ω hω using by contrapose! hω; tauto
         filter_upwards [ h_X_sq ] with ω hω using by rcases hω with ( hω | hω ) <;> norm_num [ hω ]
-      refine' ⟨ _, _, _, _, _ ⟩
-      · refine' MeasureTheory.Integrable.mono' _ _ _
-        exacts [ fun ω => 1, MeasureTheory.integrable_const _, h.1.aestronglyMeasurable, by filter_upwards [ h_X_sq ] with ω hω using abs_le.mpr ⟨ by nlinarith, by nlinarith ⟩ ]
+      refine ⟨ ?_, ?_, ?_, ?_, ?_ ⟩
+      · refine MeasureTheory.Integrable.mono' (g := fun ω => 1) ?_ ?_ ?_
+        exacts [ MeasureTheory.integrable_const _, h.1.aestronglyMeasurable, by filter_upwards [ h_X_sq ] with ω hω using abs_le.mpr ⟨ by nlinarith, by nlinarith ⟩ ]
       · have h_E_X : ∫ ω, X ω ∂P = ∫ ω in {ω | X ω = 1}, (1 : ℝ) ∂P - ∫ ω in {ω | X ω = -1}, (1 : ℝ) ∂P := by
           rw [ ← MeasureTheory.integral_indicator ( show MeasurableSet { ω | X ω = 1 } from by exact h.1 ( MeasurableSingletonClass.measurableSet_singleton _ ) ), ← MeasureTheory.integral_indicator ( show MeasurableSet { ω | X ω = -1 } from by exact h.1 ( MeasurableSingletonClass.measurableSet_singleton _ ) ) ]
           rw [ ← MeasureTheory.integral_sub ]
@@ -779,20 +781,21 @@ lemma second_moment_rademacher_sum {Ω : Type*} [MeasurableSpace Ω] {P : Measur
       have h_expand : ∫ ω, (∑ i, ξ i ω) ^ 2 ∂P = ∑ i, ∑ j, ∫ ω, ξ i ω * ξ j ω ∂P := by
         simp +decide only [pow_two, Finset.sum_mul _ _ _, mul_sum]
         rw [ MeasureTheory.integral_finset_sum ]
-        · refine' Finset.sum_congr rfl fun i _ => MeasureTheory.integral_finset_sum _ _
+        · refine Finset.sum_congr rfl fun i _ =>
+            MeasureTheory.integral_finset_sum (Finset.univ : Finset (Fin m)) ?_
           intro j _
           have h_integrable : ∀ i, MeasureTheory.Integrable (fun ω => (ξ i ω)^2) P := by
             exact fun i => ( rademacher_props ( h_rad i ) ) |>.2.2.1
-          refine' MeasureTheory.Integrable.mono' ( h_integrable i |> fun hi => hi.add ( h_integrable j ) ) _ _
+          refine MeasureTheory.Integrable.mono' ( h_integrable i |> fun hi => hi.add ( h_integrable j ) ) ?_ ?_
           · have h_integrable : ∀ i, MeasureTheory.AEStronglyMeasurable (fun ω => ξ i ω) P := by
               intro i; specialize h_rad i; exact h_rad.1.aestronglyMeasurable
             exact MeasureTheory.AEStronglyMeasurable.mul ( h_integrable i ) ( h_integrable j )
           · filter_upwards [ ] with ω using abs_le.mpr ⟨ by norm_num; nlinarith only, by norm_num; nlinarith only ⟩
         · intro i _
-          refine' MeasureTheory.integrable_finset_sum _ _
+          refine MeasureTheory.integrable_finset_sum (Finset.univ : Finset (Fin m)) ?_
           intro j _
-          refine' MeasureTheory.Integrable.mono' _ _ _
-          exact fun ω => ( ξ i ω ) ^ 2 + ( ξ j ω ) ^ 2
+          refine MeasureTheory.Integrable.mono'
+            (g := fun ω => ( ξ i ω ) ^ 2 + ( ξ j ω ) ^ 2) ?_ ?_ ?_
           · exact MeasureTheory.Integrable.add ( by exact ( rademacher_props ( h_rad i ) ) |>.2.2.1 ) ( by exact ( rademacher_props ( h_rad j ) ) |>.2.2.1 )
           · exact MeasureTheory.AEStronglyMeasurable.mul ( h_rad i |>.1.aestronglyMeasurable ) ( h_rad j |>.1.aestronglyMeasurable )
           · filter_upwards [ ] with ω using abs_le.mpr ⟨ by nlinarith only, by nlinarith only ⟩
@@ -833,50 +836,52 @@ lemma expectation_add_pow_four {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω
         rw [ ← MeasureTheory.integral_const_mul, ← MeasureTheory.integral_const_mul, ← MeasureTheory.integral_const_mul, ← MeasureTheory.integral_add, ← MeasureTheory.integral_add ]
         · rw [ ← MeasureTheory.integral_add, ← MeasureTheory.integral_add ] <;> ring_nf
           · apply_rules [ MeasureTheory.Integrable.add, MeasureTheory.Integrable.mul_const, MeasureTheory.Integrable.const_mul ]
-            · refine' MeasureTheory.Integrable.mono' _ _ _
-              refine' fun ω => X ω ^ 4 + Y ω ^ 4
+            · refine MeasureTheory.Integrable.mono'
+                (g := fun ω => X ω ^ 4 + Y ω ^ 4) ?_ ?_ ?_
               · exact hX4.add hY4
               · exact hX.mul ( hY.pow 3 )
               · filter_upwards [ ] with ω using abs_le.mpr ⟨ by nlinarith only [ sq_nonneg ( X ω ^ 2 - Y ω ^ 2 ), sq_nonneg ( X ω * Y ω ), sq_nonneg ( X ω ^ 2 ), sq_nonneg ( Y ω ^ 2 ) ], by nlinarith only [ sq_nonneg ( X ω ^ 2 - Y ω ^ 2 ), sq_nonneg ( X ω * Y ω ), sq_nonneg ( X ω ^ 2 ), sq_nonneg ( Y ω ^ 2 ) ] ⟩
-            · refine' MeasureTheory.Integrable.mono' _ _ _
-              exacts [ fun ω => X ω ^ 4 + Y ω ^ 4, by exact MeasureTheory.Integrable.add hX4 hY4, by exact hX.pow 2 |> AEStronglyMeasurable.mul <| hY.pow 2, Filter.Eventually.of_forall fun ω => abs_le.mpr ⟨ by nlinarith only [ sq_nonneg ( X ω ^ 2 - Y ω ^ 2 ) ], by nlinarith only [ sq_nonneg ( X ω ^ 2 - Y ω ^ 2 ) ] ⟩ ]
-            · refine' MeasureTheory.Integrable.mono' _ _ _
-              exact fun ω => X ω ^ 4 + Y ω ^ 4
+            · refine MeasureTheory.Integrable.mono'
+                (g := fun ω => X ω ^ 4 + Y ω ^ 4) ?_ ?_ ?_
+              exacts [ by exact MeasureTheory.Integrable.add hX4 hY4, by exact hX.pow 2 |> AEStronglyMeasurable.mul <| hY.pow 2, Filter.Eventually.of_forall fun ω => abs_le.mpr ⟨ by nlinarith only [ sq_nonneg ( X ω ^ 2 - Y ω ^ 2 ) ], by nlinarith only [ sq_nonneg ( X ω ^ 2 - Y ω ^ 2 ) ] ⟩ ]
+            · refine MeasureTheory.Integrable.mono'
+                (g := fun ω => X ω ^ 4 + Y ω ^ 4) ?_ ?_ ?_
               · exact hX4.add hY4
               · exact MeasureTheory.AEStronglyMeasurable.mul ( hX.pow 3 ) hY
               · filter_upwards [ ] with ω using abs_le.mpr ⟨ by nlinarith only [ sq_nonneg ( X ω ^ 2 - Y ω ^ 2 ), sq_nonneg ( X ω * Y ω - X ω ^ 2 ), sq_nonneg ( X ω * Y ω + X ω ^ 2 ) ], by nlinarith only [ sq_nonneg ( X ω ^ 2 - Y ω ^ 2 ), sq_nonneg ( X ω * Y ω - X ω ^ 2 ), sq_nonneg ( X ω * Y ω + X ω ^ 2 ) ] ⟩
           · exact hY4
           · apply_rules [ MeasureTheory.Integrable.add, MeasureTheory.Integrable.mul_const, hX4, hY4 ]
-            · refine' MeasureTheory.Integrable.mono' _ _ _
-              exacts [ fun ω => X ω ^ 4 + Y ω ^ 4, by exact MeasureTheory.Integrable.add hX4 hY4, by exact hX.pow 2 |> AEStronglyMeasurable.mul <| hY.pow 2, Filter.Eventually.of_forall fun ω => abs_le.mpr ⟨ by nlinarith only [ sq_nonneg ( X ω ^ 2 - Y ω ^ 2 ) ], by nlinarith only [ sq_nonneg ( X ω ^ 2 - Y ω ^ 2 ) ] ⟩ ]
-            · refine' MeasureTheory.Integrable.mono' _ _ _
-              exact fun ω => X ω ^ 4 + Y ω ^ 4
+            · refine MeasureTheory.Integrable.mono'
+                (g := fun ω => X ω ^ 4 + Y ω ^ 4) ?_ ?_ ?_
+              exacts [ by exact MeasureTheory.Integrable.add hX4 hY4, by exact hX.pow 2 |> AEStronglyMeasurable.mul <| hY.pow 2, Filter.Eventually.of_forall fun ω => abs_le.mpr ⟨ by nlinarith only [ sq_nonneg ( X ω ^ 2 - Y ω ^ 2 ) ], by nlinarith only [ sq_nonneg ( X ω ^ 2 - Y ω ^ 2 ) ] ⟩ ]
+            · refine MeasureTheory.Integrable.mono'
+                (g := fun ω => X ω ^ 4 + Y ω ^ 4) ?_ ?_ ?_
               · exact hX4.add hY4
               · exact MeasureTheory.AEStronglyMeasurable.mul ( hX.pow 3 ) hY
               · filter_upwards [ ] with ω using abs_le.mpr ⟨ by nlinarith only [ sq_nonneg ( X ω ^ 2 - Y ω ^ 2 ), sq_nonneg ( X ω * Y ω - X ω ^ 2 ), sq_nonneg ( X ω * Y ω + X ω ^ 2 ) ], by nlinarith only [ sq_nonneg ( X ω ^ 2 - Y ω ^ 2 ), sq_nonneg ( X ω * Y ω - X ω ^ 2 ), sq_nonneg ( X ω * Y ω + X ω ^ 2 ) ] ⟩
-          · refine' MeasureTheory.Integrable.mul_const _ _
-            refine' MeasureTheory.Integrable.mono' _ _ _
-            refine' fun ω => X ω ^ 4 + Y ω ^ 4
+          · refine MeasureTheory.Integrable.mul_const ?_ (4 : ℝ)
+            refine MeasureTheory.Integrable.mono'
+              (g := fun ω => X ω ^ 4 + Y ω ^ 4) ?_ ?_ ?_
             · exact hX4.add hY4
             · exact hX.mul ( hY.pow 3 )
             · filter_upwards [ ] with ω using abs_le.mpr ⟨ by nlinarith only [ sq_nonneg ( X ω ^ 2 - Y ω ^ 2 ), sq_nonneg ( X ω - Y ω ), sq_nonneg ( X ω + Y ω ) ], by nlinarith only [ sq_nonneg ( X ω ^ 2 - Y ω ^ 2 ), sq_nonneg ( X ω - Y ω ), sq_nonneg ( X ω + Y ω ) ] ⟩
-        · refine' hX4.add _
-          refine' MeasureTheory.Integrable.const_mul _ _
-          refine' MeasureTheory.Integrable.mono' _ _ _
-          exact fun ω => X ω ^ 4 + Y ω ^ 4
+        · refine hX4.add ?_
+          refine MeasureTheory.Integrable.const_mul ?_ (4 : ℝ)
+          refine MeasureTheory.Integrable.mono'
+            (g := fun ω => X ω ^ 4 + Y ω ^ 4) ?_ ?_ ?_
           · exact hX4.add hY4
           · exact MeasureTheory.AEStronglyMeasurable.mul ( hX.pow 3 ) hY
           · filter_upwards [ ] with ω using abs_le.mpr ⟨ by nlinarith only [ sq_nonneg ( X ω ^ 2 - Y ω ^ 2 ), sq_nonneg ( X ω - Y ω ), sq_nonneg ( X ω + Y ω ) ], by nlinarith only [ sq_nonneg ( X ω ^ 2 - Y ω ^ 2 ), sq_nonneg ( X ω - Y ω ), sq_nonneg ( X ω + Y ω ) ] ⟩
-        · refine' MeasureTheory.Integrable.const_mul _ _
-          refine' MeasureTheory.Integrable.mono' _ _ _
-          refine' fun ω => X ω ^ 4 + Y ω ^ 4
+        · refine MeasureTheory.Integrable.const_mul ?_ (6 : ℝ)
+          refine MeasureTheory.Integrable.mono'
+            (g := fun ω => X ω ^ 4 + Y ω ^ 4) ?_ ?_ ?_
           · exact hX4.add hY4
           · exact MeasureTheory.AEStronglyMeasurable.mul ( hX.pow 2 ) ( hY.pow 2 )
           · filter_upwards [ ] with ω using abs_le.mpr ⟨ by nlinarith only [ sq_nonneg ( X ω ^ 2 - Y ω ^ 2 ) ], by nlinarith only [ sq_nonneg ( X ω ^ 2 - Y ω ^ 2 ) ] ⟩
         · exact hX4
-        · refine' MeasureTheory.Integrable.const_mul _ _
-          refine' MeasureTheory.Integrable.mono' _ _ _
-          exact fun ω => X ω ^ 4 + Y ω ^ 4
+        · refine MeasureTheory.Integrable.const_mul ?_ (4 : ℝ)
+          refine MeasureTheory.Integrable.mono'
+            (g := fun ω => X ω ^ 4 + Y ω ^ 4) ?_ ?_ ?_
           · exact hX4.add hY4
           · exact MeasureTheory.AEStronglyMeasurable.mul ( hX.pow 3 ) hY
           · filter_upwards [ ] with ω using abs_le.mpr ⟨ by nlinarith only [ sq_nonneg ( X ω ^ 2 - Y ω ^ 2 ), sq_nonneg ( X ω - Y ω ), sq_nonneg ( X ω + Y ω ) ], by nlinarith only [ sq_nonneg ( X ω ^ 2 - Y ω ^ 2 ), sq_nonneg ( X ω - Y ω ), sq_nonneg ( X ω + Y ω ) ] ⟩
@@ -935,15 +940,15 @@ lemma second_moment_rademacher_sum_finset {Ω : Type*} [MeasurableSpace Ω] {P :
             · ac_rfl
             · intro i hi j hj
               field_simp
-              refine' MeasureTheory.Integrable.mono' _ _ _
-              refine' fun ω => ( ξ j ω ) ^ 2 + ( ξ i ω ) ^ 2
+              refine MeasureTheory.Integrable.mono'
+                (g := fun ω => ( ξ j ω ) ^ 2 + ( ξ i ω ) ^ 2) ?_ ?_ ?_
               · exact MeasureTheory.Integrable.add ( by exact ( rademacher_props ( h_rad j ) ) |>.2.2.1 ) ( by exact ( rademacher_props ( h_rad i ) ) |>.2.2.1 )
               · exact MeasureTheory.AEStronglyMeasurable.mul ( h_rad j |>.1.aestronglyMeasurable ) ( h_rad i |>.1.aestronglyMeasurable )
               · filter_upwards [ ] with ω using abs_le.mpr ⟨ by nlinarith only, by nlinarith only ⟩
           · intro i hi
-            refine' MeasureTheory.integrable_finset_sum _ fun j hj => _
-            refine' MeasureTheory.Integrable.mono' _ _ _
-            exact fun ω => ( ξ j ω ) ^ 2 + ( ξ i ω ) ^ 2
+            refine MeasureTheory.integrable_finset_sum s fun j hj => ?_
+            refine MeasureTheory.Integrable.mono'
+              (g := fun ω => ( ξ j ω ) ^ 2 + ( ξ i ω ) ^ 2) ?_ ?_ ?_
             · exact MeasureTheory.Integrable.add ( by exact ( rademacher_props ( h_rad j ) ) |>.2.2.1 ) ( by exact ( rademacher_props ( h_rad i ) ) |>.2.2.1 )
             · exact MeasureTheory.AEStronglyMeasurable.mul ( h_rad j |>.1.aestronglyMeasurable ) ( h_rad i |>.1.aestronglyMeasurable )
             · filter_upwards [ ] with ω using abs_le.mpr ⟨ by nlinarith only, by nlinarith only ⟩
@@ -1025,14 +1030,14 @@ lemma fourth_moment_rademacher_sum_finset {Ω : Type*} [MeasurableSpace Ω] {P :
                     filter_upwards [ MeasureTheory.measure_eq_zero_iff_ae_notMem.mp hY_cube_mean ] with ω hω using by contrapose! hω; aesop
                   · exact Set.disjoint_left.mpr fun x hx₁ hx₂ => by linarith [ hx₁.symm, hx₂.symm ]
                   · exact h₁ ( MeasurableSingletonClass.measurableSet_singleton _ )
-                  · refine' MeasureTheory.Integrable.integrableOn _
-                    refine' MeasureTheory.Integrable.mono' _ _ _
-                    use fun ω => ξ a ω ^ 4 + 1
+                  · refine MeasureTheory.Integrable.integrableOn ?_
+                    refine MeasureTheory.Integrable.mono'
+                      (g := fun ω => ξ a ω ^ 4 + 1) ?_ ?_ ?_
                     · exact hY4.add ( MeasureTheory.integrable_const _ )
                     · exact h₁.pow_const 3 |> Measurable.aestronglyMeasurable
                     · filter_upwards [ ] with ω using abs_le.mpr ⟨ by nlinarith only [ sq_nonneg ( ξ a ω ^ 2 - 1 ), sq_nonneg ( ξ a ω + 1 ) ], by nlinarith only [ sq_nonneg ( ξ a ω ^ 2 - 1 ), sq_nonneg ( ξ a ω - 1 ) ] ⟩
-                  · refine' MeasureTheory.Integrable.mono' _ _ _
-                    use fun ω => ( ξ a ω ) ^ 4 + 1
+                  · refine MeasureTheory.Integrable.mono'
+                      (g := fun ω => ( ξ a ω ) ^ 4 + 1) ?_ ?_ ?_
                     · exact MeasureTheory.Integrable.add ( hY4.integrableOn ) ( MeasureTheory.integrable_const _ )
                     · exact h₁.pow_const 3 |> Measurable.aestronglyMeasurable
                     · filter_upwards [ MeasureTheory.ae_restrict_mem ( show MeasurableSet { ω | ξ a ω = -1 } from h₁ ( MeasurableSingletonClass.measurableSet_singleton _ ) ) ] with ω hω using by rw [ hω ] ; norm_num
@@ -1074,8 +1079,8 @@ lemma abs_rademacher_sum_lower_bound {Ω : Type*} [MeasurableSpace Ω] {P : Meas
             exact fun i hi => ( h_rad i ) |>.1 |> fun h => by have := rademacher_props ( h_rad i ) ; aesop
           have hY_integrable : ∀ i j : ι, i ∈ s → j ∈ s → Integrable (fun ω => ξ i ω * ξ j ω) P := by
             intro i j hi hj
-            refine' MeasureTheory.Integrable.mono' _ _ _
-            exact fun ω => ( ξ i ω ) ^ 2 + ( ξ j ω ) ^ 2
+            refine MeasureTheory.Integrable.mono'
+              (g := fun ω => ( ξ i ω ) ^ 2 + ( ξ j ω ) ^ 2) ?_ ?_ ?_
             · exact MeasureTheory.Integrable.add ( hY_integrable i hi ) ( hY_integrable j hj )
             · have := h_rad i
               have := this.1
@@ -1101,29 +1106,29 @@ lemma abs_rademacher_sum_lower_bound {Ω : Type*} [MeasurableSpace Ω] {P : Meas
       -- On the event $Y \ge m/2$, $|U| = \sqrt{Y} \ge \sqrt{m/2}$.
       have h_event : ∫ ω in {ω | (∑ i ∈ s, ξ i ω)^2 ≥ (1 / 2) * (s.card : ℝ)}, |∑ i ∈ s, ξ i ω| ∂P ≥ (1 / 12) * Real.sqrt ((s.card : ℝ) / 2) := by
         have h_event : ∫ ω in {ω | (∑ i ∈ s, ξ i ω)^2 ≥ (1 / 2) * (s.card : ℝ)}, |∑ i ∈ s, ξ i ω| ∂P ≥ ∫ ω in {ω | (∑ i ∈ s, ξ i ω)^2 ≥ (1 / 2) * (s.card : ℝ)}, Real.sqrt ((1 / 2) * (s.card : ℝ)) ∂P := by
-          refine' MeasureTheory.setIntegral_mono_on _ _ _ _ <;> norm_num
+          refine MeasureTheory.setIntegral_mono_on ?_ ?_ ?_ ?_ <;> norm_num
           · exact MeasureTheory.integrable_const _
           · -- The sum of Rademacher variables is bounded, hence integrable.
             have h_sum_integrable : Integrable (fun ω => ∑ i ∈ s, ξ i ω) P := by
-              refine' MeasureTheory.integrable_finset_sum _ fun i _ => _
+              refine MeasureTheory.integrable_finset_sum s fun i _ => ?_
               exact ( h_rad i ).1 |> fun h => by have := rademacher_props ( h_rad i ) ; exact this.1
             exact h_sum_integrable.abs.integrableOn
           · have h_measurable : ∀ i, Measurable (ξ i) := by
               intro i; specialize h_rad i; exact h_rad.1
             exact measurableSet_Ici.mem.comp ( Measurable.pow_const ( Finset.measurable_sum _ fun i _ => h_measurable i ) _ )
           · intro ω hω; rw [ ← Real.sqrt_inv, ← Real.sqrt_mul ( by positivity ) ] ; exact Real.sqrt_le_iff.mpr ⟨ by positivity, by simpa [ abs_mul ] using hω ⟩
-        refine' le_trans _ h_event
+        refine le_trans ?_ h_event
         by_cases hs : s = ∅ <;> simp_all +decide
-        refine' le_trans _ ( mul_le_mul_of_nonneg_right ( show P.real { ω | 2⁻¹ * ↑ ( #s ) ≤ ( ∑ i ∈ s, ξ i ω ) ^ 2 } ≥ 1 / 12 by
-                                                            refine' le_trans _ ( ENNReal.toReal_mono _ h_paley_zygmund )
+        refine le_trans ?_ ( mul_le_mul_of_nonneg_right ( show P.real { ω | 2⁻¹ * ↑ ( #s ) ≤ ( ∑ i ∈ s, ξ i ω ) ^ 2 } ≥ 1 / 12 by
+                                                            refine le_trans ?_ ( ENNReal.toReal_mono ?_ h_paley_zygmund )
                                                             · rw [ ENNReal.toReal_ofReal ] <;> norm_num
                                                               · rw [ le_div_iff₀ ] <;> nlinarith only [ show ( s.card : ℝ ) ≥ 1 by exact_mod_cast Finset.card_pos.mpr ( Finset.nonempty_of_ne_empty hs ) ]
                                                               · exact div_nonneg ( by positivity ) ( sub_nonneg_of_le ( by nlinarith only [ show ( s.card : ℝ ) ≥ 1 by exact_mod_cast Finset.card_pos.mpr ( Finset.nonempty_of_ne_empty hs ) ] ) )
                                                             · exact MeasureTheory.measure_ne_top _ _ ) ( by positivity ) ) ; ring_nf ; norm_num
-      refine' le_trans _ ( h_event.trans ( MeasureTheory.setIntegral_le_integral _ _ ) )
+      refine le_trans ?_ ( h_event.trans ( MeasureTheory.setIntegral_le_integral ?_ ?_ ) )
       · norm_num [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm ]
-      · refine' MeasureTheory.Integrable.abs _
-        refine' MeasureTheory.integrable_finset_sum _ _
+      · refine MeasureTheory.Integrable.abs ?_
+        refine MeasureTheory.integrable_finset_sum s ?_
         exact fun i _ => ( h_rad i ).1 |> fun h => by have := rademacher_props ( h_rad i ) ; aesop
       · exact Filter.Eventually.of_forall fun ω => abs_nonneg _
 
@@ -1238,7 +1243,7 @@ lemma vertex_measure_indep (n : ℕ) :
     let P := vertexMeasure n
     let ξ (i : Fin n) (ω : Ω) : ℝ := if ω i then 1 else -1
     iIndepFun ξ P := by
-      refine' ProbabilityTheory.iIndepFun_iff_measure_inter_preimage_eq_mul.mpr _
+      refine ProbabilityTheory.iIndepFun_iff_measure_inter_preimage_eq_mul.mpr ?_
       -- By definition of product measure, we can write the measure of the intersection as the product of the measures of the individual sets.
       have h_prod_measure : ∀ (S : Finset (Fin n)) {sets : Fin n → Set Bool}, (∀ i ∈ S, MeasurableSet (sets i)) → (Measure.pi (fun _ => (PMF.uniformOfFintype Bool).toMeasure)) (⋂ i ∈ S, (fun ω => ω i) ⁻¹' sets i) = ∏ i ∈ S, (Measure.pi (fun _ => (PMF.uniformOfFintype Bool).toMeasure)) ((fun ω => ω i) ⁻¹' sets i) := by
         intro S sets hsets
@@ -1270,7 +1275,7 @@ lemma vertex_measure_rademacher (n : ℕ) (i : Fin n) :
     let P := vertexMeasure n
     let ξ (i : Fin n) (ω : Ω) : ℝ := if ω i then 1 else -1
     IsRademacher P (ξ i) := by
-      refine' ⟨ _, _, _ ⟩
+      refine ⟨ ?_, ?_, ?_ ⟩
       · exact Measurable.ite ( measurableSet_eq_fun ( measurable_pi_apply i ) measurable_const ) measurable_const measurable_const
       · unfold vertexMeasure
         -- The set {ω | ω i = true} is a cylinder set, so its measure is the product of the measures of the individual coordinates.
@@ -1361,13 +1366,13 @@ lemma exists_large_bilinear {n : ℕ} (A : Matrix (Fin n) (Fin n) ℝ)
           · simp +zetaDelta at *
           · aesop
         aesop
-      refine' ⟨ fun i => if ω i then 1 else -1, fun j => if ∑ i, A j i * ( if ω i then 1 else -1 ) ≥ 0 then 1 else -1, _, _, _ ⟩ <;> norm_num
+      refine ⟨ fun i => if ω i then 1 else -1, fun j => if ∑ i, A j i * ( if ω i then 1 else -1 ) ≥ 0 then 1 else -1, ?_, ?_, ?_ ⟩ <;> norm_num
       · exact fun j => le_or_gt _ _
       · convert hω.le using 1
         · ring
         · simp +decide [ dotProduct, Matrix.mulVec, Finset.mul_sum _ _ _, mul_comm ]
           rw [ Finset.sum_comm ]
-          refine' Finset.sum_congr rfl fun i hi => _
+          refine Finset.sum_congr rfl fun i hi => ?_
           split_ifs <;> simp_all +decide [ abs_of_nonneg ]
           · exact Finset.sum_congr rfl fun j hj => by rw [ ← h_symm.apply ]
           · rw [ abs_of_neg ‹_› ]
@@ -1397,7 +1402,7 @@ Lower bound on H(n).
 -/
 theorem thm_lower : ∃ c > 0, ∀ᶠ n in Filter.atTop, (H n : ℝ) ≥ c * (n : ℝ)^(3/2 : ℝ) := by
   use 1 / 4608 / 2
-  refine' ⟨ by norm_num, _ ⟩
+  refine ⟨ by norm_num, ?_ ⟩
   -- By definition of $H$, we know that for any coloring $c$, the maximum induced sum is at least $\frac{1}{9216} n^{3/2}$.
   have h_lower_bound : ∀ n : ℕ, n ≥ 2 → ∀ c : Sym2 (Fin n) → Bool, ∃ X : Finset (Fin n), |(inducedSum n (coloringToInt c) X : ℝ)| ≥ (1 / 9216) * (n : ℝ) ^ (3 / 2 : ℝ) := by
     intro n hn c
@@ -1418,7 +1423,7 @@ theorem thm_lower : ∃ c > 0, ∀ᶠ n in Filter.atTop, (H n : ℝ) ≥ c * (n 
       obtain ⟨ P, Q, hPQ ⟩ := bilinear_to_rectangle A x y hx hy
       obtain ⟨ X, hX ⟩ := rect_to_induced A h_symm P Q ((1 / 4) * (1 / (12 * Real.sqrt 2)) * (n : ℝ) * Real.sqrt (n - 1)) (by
       cases abs_cases ( x ⬝ᵥ ( fun i j => if i = j then 0 else if c s(i, j) = true then 1 else -1 ) *ᵥ y ) <;> nlinarith [ show 0 ≤ ( Real.sqrt 2 ) ⁻¹ * ( 1 / 12 ) * ( n : ℝ ) * Real.sqrt ( n - 1 ) by positivity ])
-      refine' ⟨ X, hX.trans' _ ⟩
+      refine ⟨ X, hX.trans' ?_ ⟩
       rw [ show ( n : ℝ ) ^ ( 3 / 2 : ℝ ) = n * Real.sqrt n by rw [ Real.sqrt_eq_rpow, ← Real.rpow_one_add' ] <;> norm_num ] ; ring_nf ; norm_num
       rw [ ← Real.sqrt_div_self ] ; ring_nf ; norm_num
       rw [ mul_assoc, ← Real.sqrt_mul ( by positivity ) ] ; exact mul_le_mul_of_nonneg_left ( Real.sqrt_le_sqrt <| by nlinarith only [ show ( n : ℝ ) ≥ 2 by norm_cast ] ) <| by positivity
@@ -1429,12 +1434,12 @@ theorem thm_lower : ∃ c > 0, ∀ᶠ n in Filter.atTop, (H n : ℝ) ≥ c * (n 
         exact Finset.sum_congr rfl fun i hi => Finset.sum_congr rfl fun j hj => by aesop
       have h_sum_eq : ∑ i ∈ X, ∑ j ∈ X, (if i ≠ j then (if c s(i, j) then 1 else -1 : ℝ) else 0) = ∑ i ∈ X, ∑ j ∈ X, (if i < j then (if c s(i, j) then 1 else -1 : ℝ) else 0) + ∑ i ∈ X, ∑ j ∈ X, (if i > j then (if c s(i, j) then 1 else -1 : ℝ) else 0) := by
         simp +decide only [← sum_add_distrib]
-        refine' Finset.sum_congr rfl fun i hi => Finset.sum_congr rfl fun j hj => _
+        refine Finset.sum_congr rfl fun i hi => Finset.sum_congr rfl fun j hj => ?_
         grind
       have h_sum_eq : ∑ i ∈ X, ∑ j ∈ X, (if i < j then (if c s(i, j) then 1 else -1 : ℝ) else 0) = ∑ e ∈ X.sym2.filter (fun e => ¬e.IsDiag), (if c e then 1 else -1 : ℝ) := by
         rw [ Finset.sum_sigma' ]
         rw [ ← Finset.sum_filter ]
-        refine' Finset.sum_bij ( fun x hx => s(x.1, x.2) ) _ _ _ _ <;> simp +decide
+        refine Finset.sum_bij ( fun x hx => s(x.1, x.2) ) ?_ ?_ ?_ ?_ <;> simp +decide
         · exact fun a ha₁ ha₂ ha₃ => ⟨ ⟨ ha₁, ha₂ ⟩, ne_of_lt ha₃ ⟩
         · grind
         · rintro ⟨ a, b ⟩ hab h; cases lt_trichotomy a b <;> simp_all +decide
@@ -1470,7 +1475,9 @@ theorem thm_upper : ∃ C > 0, ∀ n ≥ 2, (H n : ℝ) ≤ C * (n : ℝ)^(3/2 :
   intro n hn
   obtain ⟨c, hc⟩ : ∃ c : Sym2 (Fin n) → Bool, ∀ X : Finset (Fin n), abs (inducedSum n (coloringToInt c) X) < 2 * (n : ℝ)^(3/2 : ℝ) := by
     exact Exists.elim ( exists_good_coloring n hn 2 ( by norm_num ) ( by norm_num; have := Real.log_two_lt_d9; norm_num1 at *; linarith ) ) fun c hc => ⟨ c, mod_cast hc ⟩
-  refine' le_trans ( H_le_of_exists n _ ⟨ c, fun X => le_of_lt ( mod_cast hc X ) ⟩ ) _
+  refine le_trans
+    ( H_le_of_exists n ( 2 * ( n : ℝ ) ^ ( 3 / 2 : ℝ ) )
+      ⟨ c, fun X => le_of_lt ( mod_cast hc X ) ⟩ ) ?_
   norm_num
 
 /-
