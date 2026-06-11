@@ -24,7 +24,6 @@ set_option maxHeartbeats 50000000
 set_option linter.flexible false
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 
 /-
 The contraction maps f_0 and f_1 for the middle-a Cantor set construction.
@@ -185,9 +184,8 @@ theorem pi_mem_I_word (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (ω : ℕ → Fin 2) 
         · exact Summable.of_nonneg_of_le ( fun n => mul_nonneg ( Nat.cast_nonneg _ ) ( pow_nonneg hr.1.le _ ) ) ( fun n => mul_le_of_le_one_left ( pow_nonneg hr.1.le _ ) ( mod_cast Fin.is_le _ ) ) ( summable_geometric_of_lt_one hr.1.le ( by linarith ) );
       -- By definition of $pi$, we know that $pi r (ω ∘ (Nat.add n))$ is in the interval $[0, 1]$.
       have h_pi_range : 0 ≤ pi r (fun k => ω (k + n)) ∧ pi r (fun k => ω (k + n)) ≤ 1 := by
-        refine' ⟨ mul_nonneg ( by linarith ) ( tsum_nonneg fun _ => mul_nonneg ( Nat.cast_nonneg _ ) ( pow_nonneg hr.1.le _ ) ), _ ⟩;
-        refine' le_trans ( mul_le_mul_of_nonneg_left ( Summable.tsum_le_tsum _ _ _ ) ( by linarith ) ) _;
-        use fun i => r ^ i;
+        refine ⟨ mul_nonneg ( by linarith ) ( tsum_nonneg fun _ => mul_nonneg ( Nat.cast_nonneg _ ) ( pow_nonneg hr.1.le _ ) ), ?_ ⟩;
+        refine le_trans ( mul_le_mul_of_nonneg_left ( Summable.tsum_le_tsum ( g := fun i : ℕ => r ^ i ) ?_ ?_ ?_ ) ( by linarith ) ) ?_;
         · exact fun i => mul_le_of_le_one_left ( pow_nonneg hr.1.le _ ) ( mod_cast Fin.is_le _ );
         · exact Summable.of_nonneg_of_le ( fun _ => mul_nonneg ( Nat.cast_nonneg _ ) ( pow_nonneg hr.1.le _ ) ) ( fun _ => mul_le_of_le_one_left ( pow_nonneg hr.1.le _ ) ( mod_cast Fin.is_le _ ) ) ( summable_geometric_of_lt_one hr.1.le ( by linarith ) );
         · exact summable_geometric_of_lt_one hr.1.le ( by linarith );
@@ -201,7 +199,7 @@ theorem range_pi_subset_C (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
     Set.range (pi r) ⊆ C r := by
       intro x;
       rintro ⟨ ω, rfl ⟩;
-      refine' Set.mem_iInter.mpr fun n => Set.mem_iUnion₂.mpr ⟨ take_word n ω, _, _ ⟩;
+      refine Set.mem_iInter.mpr fun n => Set.mem_iUnion₂.mpr ⟨ take_word n ω, ?_, ?_ ⟩;
       · exact show List.length ( List.ofFn ( fun i : Fin n => ω i ) ) = n from by simp +decide ;
       · exact pi_mem_I_word r hr ω n
 
@@ -286,7 +284,7 @@ theorem disjoint_I_word (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (n : ℕ) (u v : Li
               fin_cases i <;> fin_cases j <;> simp_all +decide [ Set.disjoint_left ];
               · unfold f; norm_num at *; intros; nlinarith;
               · unfold f; norm_num at *; intros; nlinarith;
-            refine' h_disjoint.mono _ _;
+            refine h_disjoint.mono ?_ ?_;
             · subst hi hj
               simp_all only [one_div, ne_eq, List.cons.injEq, not_and, List.head!_cons, Set.le_eq_subset,
                 Set.image_subset_iff, IsEmpty.forall_iff]
@@ -340,7 +338,7 @@ For every x in C and n, the word u of length n such that x is in I_u is unique.
 theorem unique_word_of_mem_C (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (x : ℝ) (hx : x ∈ C r) (n : ℕ) :
     ∃! u, u ∈ Sigma_n n ∧ x ∈ I_word u r := by
       obtain ⟨ u, hu ⟩ := exists_word_of_mem_C r x hx n;
-      refine' ⟨ u, hu, fun v hv => _ ⟩;
+      refine ⟨ u, hu, fun v hv => ?_ ⟩;
       by_contra h_neq
       have h_disjoint : Disjoint (I_word u r) (I_word v r) := by
         apply disjoint_I_word r hr n u v hu.1 hv.1 (Ne.symm h_neq)
@@ -365,7 +363,7 @@ theorem compatible_words_of_mem_C (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (x : ℝ)
           convert h_subset _;
           convert hxu using 1;
           congr! 1;
-          refine' List.ext_get _ _ <;> simp_all +decide [ Sigma_n ];
+          refine List.ext_get ?_ ?_ <;> simp_all +decide [ Sigma_n ];
         have := unique_word_of_mem_C r hr x hx n;
         exact this.unique ⟨ by rw [ show List.take n u = List.take n u from rfl ] ; exact show List.length ( List.take n u ) = n from by rw [ List.length_take, min_eq_left ( Nat.le_of_lt_succ <| by linarith [ hu.symm, List.length_pos_iff.mpr <| show u ≠ [ ] from by rintro rfl; exact absurd hu <| by simp +decide [ Sigma_n ] ] ) ], h_eq ⟩ ⟨ hv, hxv ⟩;
       exact h_unique _ _ h_restrict.1 h_restrict.2.1 h_restrict.2.2.1 h_restrict.2.2.2
@@ -433,7 +431,7 @@ theorem pi_code_of_mem_C (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (x : ℝ) (hx : x 
               exact Classical.choose_spec ( ‹∀ n : ℕ, ∃ u_1 : List ( Fin 2 ), ( fun u : List ( Fin 2 ) => u ∈ Sigma_n n ∧ x ∈ I_word u r ) u_1 ∧ ∀ y : List ( Fin 2 ), y ∈ Sigma_n n ∧ x ∈ I_word y r → y = u_1› n ) |>.1 |>.1 |> fun h => h.symm ▸ rfl
             generalize_proofs at *;
             rw [h_length];
-            refine' Finset.sum_congr rfl fun i hi => _ ; simp +decide [ code_of_mem_C ] ; ring_nf;
+            refine Finset.sum_congr rfl fun i hi => ?_ ; simp +decide [ code_of_mem_C ] ; ring_nf;
             simp +zetaDelta at *;
             grind +ring);
           · exact Summable.of_nonneg_of_le ( fun n => mul_nonneg ( Nat.cast_nonneg _ ) ( pow_nonneg hr.1.le _ ) ) ( fun n => mul_le_of_le_one_left ( pow_nonneg hr.1.le _ ) ( mod_cast Fin.is_le _ ) ) ( summable_geometric_of_lt_one hr.1.le ( by linarith ) )
@@ -450,9 +448,8 @@ The projection map pi is continuous.
 -/
 theorem continuous_pi' (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
     Continuous (pi r) := by
-      refine' continuous_const.mul _;
-      refine' continuous_tsum _ _ _;
-      use fun n => r ^ n;
+      refine continuous_const.mul ?_;
+      refine continuous_tsum ( u := fun n => r ^ n ) ?_ ?_ ?_;
       · fun_prop (disch := norm_num);
       · exact summable_geometric_of_lt_one hr.1.le ( by linarith );
       · exact fun n x => by simpa [ abs_of_nonneg hr.1.le ] using mul_le_mul_of_nonneg_right ( show ( x n : ℝ ) ≤ 1 by norm_cast; exact Fin.le_last _ ) ( pow_nonneg hr.1.le _ ) ;
@@ -480,16 +477,17 @@ theorem closedness_limit_Cantor (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) (r 
       have h_lim : Filter.Tendsto (fun k => pi (r (nk k)) (ω (nk k))) Filter.atTop (nhds (pi rho ω')) := by
         have h_joint_cont : ContinuousOn (fun p : ℝ × (ℕ → Fin 2) => pi p.1 p.2) (Set.Icc 0 (1 / 2) ×ˢ Set.univ) := by
           intros p hp;
-          refine' ContinuousWithinAt.mul _ _;
+          refine ContinuousWithinAt.mul ?_ ?_;
           · exact ContinuousWithinAt.sub continuousWithinAt_const continuousWithinAt_fst;
-          · refine' ( tendsto_tsum_of_dominated_convergence _ _ _ );
-            use fun k => ( 1 : ℝ ) * ( 1 / 2 ) ^ k;
+          · refine ( tendsto_tsum_of_dominated_convergence ( bound := fun k => ( 1 : ℝ ) * ( 1 / 2 ) ^ k ) ?_ ?_ ?_ );
             · exact Summable.mul_left _ ( summable_geometric_two );
             · intro k;
-              refine' tendsto_nhdsWithin_of_tendsto_nhds _;
-              refine' Continuous.tendsto' _ _ _ _;
+              refine tendsto_nhdsWithin_of_tendsto_nhds ?_;
+              refine Continuous.tendsto'
+                ( f := fun q : ℝ × ( ℕ → Fin 2 ) => ( q.2 k : ℝ ) * q.1 ^ k )
+                ?_ p ( ( p.2 k : ℝ ) * p.1 ^ k ) ?_;
               · fun_prop;
-              · norm_cast;
+              · rfl;
             · norm_num +zetaDelta at *;
               filter_upwards [ self_mem_nhdsWithin ] with n hn using fun k => le_trans ( mul_le_of_le_one_left ( by positivity ) ( mod_cast Fin.is_le _ ) ) ( pow_le_pow_left₀ ( by positivity ) ( by rw [ abs_of_nonneg ] <;> linarith [ hn.1.1, hn.1.2 ] ) _ );
         have h_joint_cont : Filter.Tendsto (fun k => (r (nk k), ω (nk k))) Filter.atTop (nhds (rho, ω')) := by
@@ -624,9 +622,8 @@ theorem not_mem_C_plus_of_R_u (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) (u : 
               have h_cont : ∀ ω : ℕ → Fin 2, ContinuousAt (fun r => pi r ω) rho := by
                 intro ω
                 have h_cont : ContinuousAt (fun r => (1 - r) * ∑' n : ℕ, (ω n : ℝ) * r ^ n) rho := by
-                  refine' ContinuousAt.mul ( continuousAt_const.sub continuousAt_id ) _;
-                  refine' ( tendsto_tsum_of_dominated_convergence _ _ _ );
-                  use fun k => ( 1 : ℝ ) * ( 1 / 2 ) ^ k
+                  refine ContinuousAt.mul ( continuousAt_const.sub continuousAt_id ) ?_;
+                  refine ( tendsto_tsum_of_dominated_convergence ( bound := fun k => ( 1 : ℝ ) * ( 1 / 2 ) ^ k ) ?_ ?_ ?_ );
                   all_goals generalize_proofs at *;
                   · exact Summable.mul_left _ ( summable_geometric_two );
                   · exact fun k => Continuous.tendsto ( by continuity ) _;
@@ -645,7 +642,7 @@ theorem not_mem_C_plus_of_R_u (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) (u : 
                       generalize_proofs at *; (
                       congr! 1
                       generalize_proofs at *; (
-                      refine' List.ext_get _ _ <;> simp +decide [ take_word ];
+                      refine List.ext_get ?_ ?_ <;> simp +decide [ take_word ];
                       intro n hn; unfold append_ones; aesop;)), h ⟩
                   generalize_proofs at *; (
                   convert h_not_in_I_v using 1
@@ -748,7 +745,7 @@ theorem not_mem_I_word_of_ne (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) (u : L
         -- Since $I_v(r)$ is continuous in $r$, there exists a neighborhood $U$ of $rho$ such that for all $r \in U$, $I_v(r)$ is within $\delta/2$ of $I_v(rho)$.
         obtain ⟨ε, hε⟩ : ∃ ε > 0, ∀ r, abs (r - rho) < ε → ∀ x ∈ I_word v r, ∃ y ∈ I_word v rho, abs (x - y) < δ / 2 := by
           have h_cont : ContinuousOn (fun p : ℝ × ℝ => f_word v p.1 p.2) (Set.Icc (rho - 1 / 4) (rho + 1 / 4) ×ˢ Set.Icc 0 1) := by
-            refine' Continuous.continuousOn _;
+            refine Continuous.continuousOn ?_;
             have h_cont : ∀ u : List (Fin 2), Continuous (fun p : ℝ × ℝ => f_word u p.1 p.2) := by
               intro u; induction u <;> simp_all +decide [ f_word ] ; continuity;
               rename_i k hk ih; unfold f; split_ifs <;> continuity;
@@ -760,7 +757,7 @@ theorem not_mem_I_word_of_ne (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) (u : L
             exact ⟨ Min.min ε ( 1 / 4 ), lt_min ε_pos ( by norm_num ), fun r hr x hx => hε ( r, x ) ⟨ ⟨ by linarith [ abs_lt.mp hr, min_le_left ε ( 1 / 4 ), min_le_right ε ( 1 / 4 ) ], by linarith [ abs_lt.mp hr, min_le_left ε ( 1 / 4 ), min_le_right ε ( 1 / 4 ) ] ⟩, hx ⟩ ( rho, x ) ⟨ ⟨ by linarith [ abs_lt.mp hr, min_le_left ε ( 1 / 4 ), min_le_right ε ( 1 / 4 ) ], by linarith [ abs_lt.mp hr, min_le_left ε ( 1 / 4 ), min_le_right ε ( 1 / 4 ) ] ⟩, hx ⟩ ( by simpa using lt_of_lt_of_le hr ( min_le_left _ _ ) ) ⟩;
           use ε, hε.1;
           rintro r hr x ⟨ y, hy, rfl ⟩ ; exact ⟨ _, ⟨ y, hy, rfl ⟩, hε.2 r hr y hy ⟩ ;
-        refine' ⟨ ε, hε.1, fun r hr => Set.disjoint_left.mpr fun x hxu hxv => _ ⟩;
+        refine ⟨ ε, hε.1, fun r hr => Set.disjoint_left.mpr fun x hxu hxv => ?_ ⟩;
         obtain ⟨ y, hyv, hyx ⟩ := hε.2 r hr x hxv ; exact not_lt_of_ge ( hδ.2 x hxu y hyv ) ( by cases abs_cases ( x - y ) <;> cases abs_cases ( x - x ) <;> linarith );
       filter_upwards [ Metric.ball_mem_nhds rho hε.1 ] with r hr using fun h => Set.disjoint_left.mp ( hε.2 r hr ) ( show pi rho ( append_ones u ) ∈ I_word u rho from by
                                                                                                                       rw [ prop_symbolic_3_interval rho hrho u ] ; norm_num [ hrho ];
@@ -826,7 +823,7 @@ theorem not_mem_C_plus_of_L_u (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) (u : 
         filter_upwards [ h_not_in_I_word, h_not_in_I_u ] with r hr₁ hr₂ using by intro hr₃; rcases Set.mem_iUnion₂.mp hr₃ with ⟨ v, hv₁, hv₂ ⟩ ; by_cases hv₃ : v = u <;> aesop;
       simp_all +decide [ C_plus ];
       obtain ⟨ ε, hε, H ⟩ := Metric.mem_nhdsWithin_iff.mp h_not_in_C_plus;
-      refine' ⟨ ε, hε, fun r hr₁ hr₂ => _ ⟩ ; specialize H ⟨ Metric.mem_ball.mpr <| abs_lt.mpr ⟨ by linarith, by linarith ⟩, hr₂ ⟩ ; simp_all +decide [ C ] ;
+      refine ⟨ ε, hε, fun r hr₁ hr₂ => ?_ ⟩ ; specialize H ⟨ Metric.mem_ball.mpr <| abs_lt.mpr ⟨ by linarith, by linarith ⟩, hr₂ ⟩ ; simp_all +decide [ C ] ;
       exact ⟨ u.length, fun h => by rcases Set.mem_iUnion₂.mp h with ⟨ x, hx, hx' ⟩ ; exact H x hx hx' ⟩
 
 /-
@@ -888,23 +885,23 @@ theorem pi_lt_R_word_of_not_eventually_one (rho : ℝ) (hrho : 0 < rho ∧ rho <
     pi rho ω < R_word (take_word n ω) rho := by
       obtain ⟨ k, hk₁, hk₂ ⟩ := h_not_ev_one n; simp_all +decide [ R_word ] ;
       unfold pi; norm_num [ Finset.sum_range_succ, take_word ] ;
-      refine' mul_lt_mul_of_pos_left _ ( sub_pos.mpr <| by norm_num at *; linarith );
+      refine mul_lt_mul_of_pos_left ?_ ( sub_pos.mpr <| by norm_num at *; linarith );
       fapply Summable.tsum_lt_tsum;
       use k;
       · intro m; by_cases hm : m < n <;> simp_all +decide [ append_ones ] ;
         exact Fin.is_le _;
       · cases Fin.exists_fin_two.mp ⟨ ω k, rfl ⟩ <;> simp_all +decide [ append_ones ];
       · exact Summable.of_nonneg_of_le ( fun n => mul_nonneg ( Nat.cast_nonneg _ ) ( pow_nonneg hrho.1.le _ ) ) ( fun n => mul_le_of_le_one_left ( pow_nonneg hrho.1.le _ ) ( mod_cast Fin.is_le _ ) ) ( summable_geometric_of_lt_one hrho.1.le ( by norm_num at *; linarith ) );
-      · refine' Summable.of_nonneg_of_le ( fun _ => mul_nonneg ( Nat.cast_nonneg _ ) ( pow_nonneg hrho.1.le _ ) ) ( fun _ => mul_le_of_le_one_left ( pow_nonneg hrho.1.le _ ) ( mod_cast Fin.is_le _ ) ) ( summable_geometric_of_lt_one hrho.1.le ( by norm_num at *; linarith ) )
+      · refine Summable.of_nonneg_of_le ( fun _ => mul_nonneg ( Nat.cast_nonneg _ ) ( pow_nonneg hrho.1.le _ ) ) ( fun _ => mul_le_of_le_one_left ( pow_nonneg hrho.1.le _ ) ( mod_cast Fin.is_le _ ) ) ( summable_geometric_of_lt_one hrho.1.le ( by norm_num at *; linarith ) )
 
 /-
 0 and 1 are in C_alpha^+.
 -/
 theorem endpoints_mem_C_plus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) :
     0 ∈ C_plus rho ∧ 1 ∈ C_plus rho := by
-      constructor <;> refine' Set.mem_iInter₂.mpr fun ε hε => _;
+      constructor <;> refine Set.mem_iInter₂.mpr fun ε hε => ?_;
       · simp +zetaDelta at *;
-        refine' ⟨ rho - Min.min ε rho / 2, _, _ ⟩;
+        refine ⟨ rho - Min.min ε rho / 2, ?_, ?_ ⟩;
         · constructor <;> linarith [ lt_min hε hrho.1, min_le_left ε rho, min_le_right ε rho ];
         · -- By definition of $C$, we know that $0 \in C(r)$ for any $r$.
           have h_zero_in_C : ∀ r : ℝ, 0 < r ∧ r < 1 / 2 → 0 ∈ C r := by
@@ -935,21 +932,26 @@ theorem pi_gt_L_word_of_not_eventually_zero (rho : ℝ) (hrho : 0 < rho ∧ rho 
         rw [ ← mul_sub, ← Summable.tsum_sub ];
         · rw [ ← Summable.sum_add_tsum_nat_add n ];
           · simp +decide [ add_comm n, Finset.sum_range, take_word ];
-          · refine' Summable.sub _ _;
+          · refine Summable.sub ?_ ?_;
             · exact Summable.of_nonneg_of_le ( fun _ => mul_nonneg ( Nat.cast_nonneg _ ) ( pow_nonneg hrho.1.le _ ) ) ( fun _ => mul_le_of_le_one_left ( pow_nonneg hrho.1.le _ ) ( mod_cast Fin.is_le _ ) ) ( summable_geometric_of_lt_one hrho.1.le ( by linarith ) );
-            · refine' Summable.of_nonneg_of_le ( fun _ => mul_nonneg ( Nat.cast_nonneg _ ) ( pow_nonneg hrho.1.le _ ) ) ( fun _ => mul_le_of_le_one_left ( pow_nonneg hrho.1.le _ ) ( mod_cast Fin.is_le _ ) ) ( summable_geometric_of_lt_one hrho.1.le ( by linarith ) );
+            · refine Summable.of_nonneg_of_le ( fun _ => mul_nonneg ( Nat.cast_nonneg _ ) ( pow_nonneg hrho.1.le _ ) ) ( fun _ => mul_le_of_le_one_left ( pow_nonneg hrho.1.le _ ) ( mod_cast Fin.is_le _ ) ) ( summable_geometric_of_lt_one hrho.1.le ( by linarith ) );
         · exact Summable.of_nonneg_of_le ( fun _ => mul_nonneg ( Nat.cast_nonneg _ ) ( pow_nonneg hrho.1.le _ ) ) ( fun _ => mul_le_of_le_one_left ( pow_nonneg hrho.1.le _ ) ( mod_cast Fin.is_le _ ) ) ( summable_geometric_of_lt_one hrho.1.le ( by linarith ) );
-        · refine' Summable.of_nonneg_of_le ( fun _ => mul_nonneg ( Nat.cast_nonneg _ ) ( pow_nonneg hrho.1.le _ ) ) ( fun _ => mul_le_of_le_one_left ( pow_nonneg hrho.1.le _ ) ( mod_cast Fin.is_le _ ) ) ( summable_geometric_of_lt_one hrho.1.le ( by linarith ) );
+        · refine Summable.of_nonneg_of_le ( fun _ => mul_nonneg ( Nat.cast_nonneg _ ) ( pow_nonneg hrho.1.le _ ) ) ( fun _ => mul_le_of_le_one_left ( pow_nonneg hrho.1.le _ ) ( mod_cast Fin.is_le _ ) ) ( summable_geometric_of_lt_one hrho.1.le ( by linarith ) );
       -- Since $\omega$ is not eventually zero, there exists some $k \geq 0$ such that $\omega (n + k) = 1$.
       obtain ⟨k, hk⟩ : ∃ k, ω (n + k) = 1 := by
         obtain ⟨ k, hk₁, hk₂ ⟩ := h_not_ev_zero n; use k - n; simp_all +decide [ add_tsub_cancel_of_le hk₁ ] ;
         exact Or.resolve_left ( Fin.exists_fin_two.mp ( by tauto ) ) hk₂;
       have h_pos : ∑' k, ((ω (n + k)) : ℝ) * rho ^ (n + k) ≥ rho ^ (n + k) := by
-        refine' le_trans _ ( Summable.le_tsum _ k _ );
+        refine le_trans ?_ ( Summable.le_tsum ?_ k ?_ );
         · aesop;
         · exact Summable.of_nonneg_of_le ( fun _ => mul_nonneg ( Nat.cast_nonneg _ ) ( pow_nonneg hrho.1.le _ ) ) ( fun _ => mul_le_of_le_one_left ( pow_nonneg hrho.1.le _ ) ( mod_cast Fin.is_le _ ) ) ( Summable.comp_injective ( summable_geometric_of_lt_one hrho.1.le ( by linarith ) ) ( add_right_injective n ) );
         · exact fun _ _ => mul_nonneg ( Nat.cast_nonneg _ ) ( pow_nonneg hrho.1.le _ );
-      nlinarith [ pow_pos hrho.1 ( n + k ) ]
+      have h_sum_pos : 0 < ∑' k, ((ω (n + k)) : ℝ) * rho ^ (n + k) :=
+        lt_of_lt_of_le ( pow_pos hrho.1 ( n + k ) ) h_pos;
+      have h_diff_pos : 0 < pi rho ω - pi rho ( append_zeros ( take_word n ω ) ) := by
+        rw [ h_expand ];
+        exact mul_pos ( sub_pos.mpr <| by linarith ) h_sum_pos;
+      exact sub_pos.mp h_diff_pos
 
 /-
 L_u(rho) is not in C_alpha^+ if u starts with 1.
@@ -970,7 +972,7 @@ theorem not_eventually_one_of_mem_diff (rho : ℝ) (_hrho : 0 < rho ∧ rho < 1 
       obtain ⟨u, hu⟩ : ∃ u : List (Fin 2), u ≠ [] ∧ ω = append_ones u := by
         norm_num +zetaDelta at *;
         obtain ⟨ n, hn ⟩ := Nat.findX h_contra;
-        refine' ⟨ List.ofFn fun i : Fin n => ω i, _, _ ⟩ <;> simp_all +decide [ funext_iff ];
+        refine ⟨ List.ofFn fun i : Fin n => ω i, ?_, ?_ ⟩ <;> simp_all +decide [ funext_iff ];
         · grind +ring;
         · intro x; by_cases hx : x < n <;> simp_all +decide [ append_ones ] ;
       simp_all +decide [ E_plus ];
@@ -1011,11 +1013,11 @@ The covering number of a set is the same as the covering number of its closure.
 -/
 lemma N_delta_closure_eq (E : Set ℝ) (δ : ℝ) :
   N_delta E δ = N_delta (closure E) δ := by
-    refine' congr_arg _ ( Set.ext _ );
+    refine congr_arg ?_ ( Set.ext ?_ );
     intro n
     constructor;
     · rintro ⟨ U, hU₁, hU₂ ⟩;
-      refine' ⟨ _, _, _ ⟩;
+      refine ⟨ ?_, ?_, ?_ ⟩;
       exact fun i => closure ( U i );
       · intro i; specialize hU₁ i; rw [ Metric.ediam_closure ] ; aesop;
       · exact closure_minimal ( Set.Subset.trans hU₂ <| Set.iUnion_mono fun _ => subset_closure ) <| isClosed_iUnion_of_finite fun _ => isClosed_closure;
@@ -1028,9 +1030,9 @@ theorem lem_closure_box (E : Set ℝ) :
     lower_box_dim E = lower_box_dim (closure E) ∧
     upper_box_dim E = upper_box_dim (closure E) := by
       apply And.intro;
-      · refine' Filter.liminf_congr _
+      · refine Filter.liminf_congr ?_
         filter_upwards [ self_mem_nhdsWithin ] with δ hδ using by rw [ N_delta_closure_eq E δ ]
-      · refine' Filter.limsup_congr _
+      · refine Filter.limsup_congr ?_
         filter_upwards [ self_mem_nhdsWithin ] with δ hδ using by rw [ N_delta_closure_eq E δ ]
 
 /-
@@ -1081,10 +1083,10 @@ theorem measure_le_condition (μ : MeasureTheory.Measure ℝ) [MeasureTheory.IsP
               rw [ Metric.ediam_eq_zero_iff ] at hU_pos;
               exact ⟨ Classical.choose ( Set.nonempty_iff_ne_empty.mpr hU_empty ), Set.eq_singleton_iff_nonempty_unique_mem.mpr ⟨ Set.nonempty_iff_ne_empty.mpr hU_empty, fun x hx => hU_pos hx ( Classical.choose_spec ( Set.nonempty_iff_ne_empty.mpr hU_empty ) ) ⟩ ⟩;
             contrapose! h_bound;
-            refine' ⟨ Metric.closedBall x ( δ₀ / 2 ), _, _, _ ⟩;
-            · refine' lt_of_lt_of_le _ ( Metric.edist_le_ediam_of_mem ( Metric.mem_closedBall_self <| by positivity ) ( Metric.mem_closedBall.mpr <| show |x + δ₀ / 2 - x| ≤ δ₀ / 2 by norm_num [ abs_of_pos, hδ₀ ] ) ) ; norm_num [ hδ₀ ];
+            refine ⟨ Metric.closedBall x ( δ₀ / 2 ), ?_, ?_, ?_ ⟩;
+            · refine lt_of_lt_of_le ?_ ( Metric.edist_le_ediam_of_mem ( Metric.mem_closedBall_self <| by positivity ) ( Metric.mem_closedBall.mpr <| show |x + δ₀ / 2 - x| ≤ δ₀ / 2 by norm_num [ abs_of_pos, hδ₀ ] ) ) ; norm_num [ hδ₀ ];
               linarith;
-            · refine' Metric.ediam_le _;
+            · refine Metric.ediam_le ?_;
               intro y hy z hz; rw [ edist_dist ] ; exact ENNReal.ofReal_le_ofReal ( by linarith [ dist_triangle_left y z x, dist_triangle_right y z x, Metric.mem_closedBall.mp hy, Metric.mem_closedBall.mp hz ] ) ;
             · exact h_bound.trans_le ( MeasureTheory.measure_mono <| by rw [ hx ] ; exact Set.singleton_subset_iff.mpr <| Metric.mem_closedBall.mpr <| by norm_num; linarith );
         · cases eq_or_ne ( μ U ) 0 <;> simp_all +decide
@@ -1093,16 +1095,15 @@ theorem measure_le_condition (μ : MeasureTheory.Measure ℝ) [MeasureTheory.IsP
             intros x hx
             have h_singleton : ∀ᶠ r in nhdsWithin 0 (Set.Ioi 0), μ U ≤ ENNReal.ofReal C * (ENNReal.ofReal (2 * r)) ^ s := by
               filter_upwards [ Ioo_mem_nhdsGT ( show 0 < δ₀ / 2 by positivity ) ] with r hr;
-              refine' le_trans ( MeasureTheory.measure_mono ( show U ⊆ Metric.closedBall x r from fun y hy => _ ) ) _;
+              refine le_trans ( MeasureTheory.measure_mono ( show U ⊆ Metric.closedBall x r from fun y hy => ?_ ) ) ?_;
               · exact hU_pos hy hx ▸ by simpa using hr.1.le;
-              · refine' le_trans ( h_bound _ _ _ ) _;
-                · refine' lt_of_lt_of_le _ ( Metric.edist_le_ediam_of_mem ( Metric.mem_closedBall_self hr.1.le ) ( Metric.mem_closedBall.mpr <| show Dist.dist ( x + r ) x ≤ r from by simp [ abs_of_pos hr.1 ] ) ) ; aesop;
-                · refine' le_trans ( Metric.ediam_le _ ) _;
-                  exact ENNReal.ofReal ( 2 * r );
+              · refine le_trans ( h_bound ( Metric.closedBall x r ) ?_ ?_ ) ?_;
+                · refine lt_of_lt_of_le ?_ ( Metric.edist_le_ediam_of_mem ( Metric.mem_closedBall_self hr.1.le ) ( Metric.mem_closedBall.mpr <| show Dist.dist ( x + r ) x ≤ r from by simp [ abs_of_pos hr.1 ] ) ) ; aesop;
+                · refine le_trans ( Metric.ediam_le ( d := ENNReal.ofReal ( 2 * r ) ) ?_ ) ?_;
                   · intro y hy z hz; rw [ edist_dist ] ; exact ENNReal.ofReal_le_ofReal ( by linarith [ dist_triangle_left y z x, dist_triangle_right y z x, Metric.mem_closedBall.mp hy, Metric.mem_closedBall.mp hz ] ) ;
                   · exact ENNReal.ofReal_le_ofReal ( by linarith [ hr.1, hr.2 ] );
                 · gcongr;
-                  refine' Metric.ediam_le _;
+                  refine Metric.ediam_le ?_;
                   intro y hy z hz; rw [ edist_dist ] ; exact ENNReal.ofReal_le_ofReal ( by linarith [ dist_triangle_left y z x, dist_triangle_right y z x, hy.out, hz.out ] ) ;
             have h_singleton : Filter.Tendsto (fun r : ℝ => ENNReal.ofReal C * (ENNReal.ofReal (2 * r)) ^ s) (nhdsWithin 0 (Set.Ioi 0)) (nhds 0) := by
               have h_singleton : Filter.Tendsto (fun r : ℝ => ENNReal.ofReal (2 * r) ^ s) (nhdsWithin 0 (Set.Ioi 0)) (nhds 0) := by
@@ -1141,14 +1142,14 @@ theorem mass_distribution_principle (E : Set ℝ) (μ : MeasureTheory.Measure �
         have := h_mass E; simp_all +decide
         rw [ show μ E = 1 by rw [ MeasureTheory.measure_congr ( MeasureTheory.ae_eq_univ.mpr <| MeasureTheory.ae_iff.mp <| by aesop ) ] ; norm_num ] at this ; aesop
       have h2 : dimH E ≥ ENNReal.ofReal s := by
-        refine' le_of_not_gt fun h => _;
+        refine le_of_not_gt fun h => ?_;
         -- Since $\dim_H E < s$, there exists $t < s$ such that $\mathcal{H}^t(E) < \infty$.
         obtain ⟨t, ht₁, ht₂⟩ : ∃ t < s, MeasureTheory.Measure.hausdorffMeasure t E < ⊤ := by
           contrapose! h;
           simp_all +decide [ dimH ];
-          refine' le_of_forall_lt fun x hx => _;
+          refine le_of_forall_lt fun x hx => ?_;
           rcases ENNReal.lt_iff_exists_real_btwn.mp hx with ⟨ y, hy₁, hy₂ ⟩;
-          refine' lt_of_lt_of_le hy₂.1 ( le_trans _ <| le_iSup₂_of_le ⟨ y, hy₁ ⟩ _ <| le_rfl );
+          refine lt_of_lt_of_le hy₂.1 ( le_trans ?_ <| le_iSup₂_of_le ⟨ y, hy₁ ⟩ ?_ <| le_rfl );
           · norm_num [ ENNReal.ofReal_le_iff_le_toReal ];
           · exact h y ( by simpa using ENNReal.ofReal_lt_ofReal_iff ( by linarith [ show 0 < s from lt_of_le_of_ne hs ( Ne.symm <| by aesop_cat ) ] ) |>.1 hy₂.2 );
         -- Since $\mathcal{H}^t(E) < \infty$, we have $\mathcal{H}^s(E) = 0$.
@@ -1219,10 +1220,10 @@ lemma dimH_C_le_s (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
             norm_num [ ENNReal.ofReal_mul ( pow_nonneg hr.1.le _ ) ];
             rw [ ENNReal.ofReal_rpow_of_pos ( pow_pos hr.1 _ ) ];
           convert h_sum using 1;
-          rw [ ← Real.rpow_natCast, ← Real.rpow_natCast, ← Real.rpow_mul ( by linarith ), mul_comm ];
-          rw [ show ( r ^ ( n * s ) * 2 ^ ( n : ℝ ) ) = ( 2 * r ^ s ) ^ n by rw [ mul_pow, ← Real.rpow_natCast, ← Real.rpow_natCast, ← Real.rpow_mul ( by linarith ) ] ; ring_nf, hs ] ; norm_num;
-        refine' le_trans ( MeasureTheory.Measure.hausdorffMeasure_apply _ _ |> le_of_eq ) _;
-        refine' iSup_le fun δ => iSup_le fun hδ => _;
+          rw [ ← Real.rpow_natCast, ← Real.rpow_natCast, ← Real.rpow_mul hr.1.le, mul_comm ];
+          rw [ show ( r ^ ( n * s ) * 2 ^ ( n : ℝ ) ) = ( 2 * r ^ s ) ^ n by rw [ mul_pow, ← Real.rpow_natCast, ← Real.rpow_natCast, ← Real.rpow_mul hr.1.le ] ; ring_nf, hs ] ; norm_num;
+        refine le_trans ( MeasureTheory.Measure.hausdorffMeasure_apply s ( C r ) |> le_of_eq ) ?_;
+        refine iSup_le fun δ => iSup_le fun hδ => ?_;
         -- Choose $n$ such that $r^n < \delta$.
         obtain ⟨n, hn⟩ : ∃ n : ℕ, ENNReal.ofReal (r ^ n) < δ := by
           -- Since $r^n \to 0$ as $n \to \infty$, we can choose $n$ such that $r^n < \delta$.
@@ -1230,16 +1231,18 @@ lemma dimH_C_le_s (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
             simpa using ENNReal.tendsto_ofReal ( tendsto_pow_atTop_nhds_zero_of_lt_one hr.1.le ( by linarith ) );
           exact ( h_lim.eventually ( gt_mem_nhds hδ ) ) |> fun h => h.exists;
         obtain ⟨ U, hU₁, hU₂ ⟩ := h_cover n;
-        refine' le_trans ( iInf_le _ ( fun i => if hi : i < 2 ^ n then U ⟨ i, hi ⟩ else ∅ ) ) _;
-        refine' le_trans ( iInf_le _ _ ) _;
+        refine le_trans ( iInf_le _ ( fun i => if hi : i < 2 ^ n then U ⟨ i, hi ⟩ else ∅ ) ) ?_;
+        refine le_trans ( iInf_le _ ?_ ) ?_;
         · intro x hx; specialize hU₂ hx; aesop;
-        · refine' le_trans ( iInf_le _ _ ) _;
+        · refine le_trans ( iInf_le _ ?_ ) ?_;
           · intro i; by_cases hi : i < 2 ^ n <;> simp +decide [ hi ]
             exact le_trans ( hU₁ _ ) hn.le;
           · rw [ tsum_eq_sum ];
             any_goals exact Finset.range ( 2 ^ n );
-            · refine' le_trans ( Finset.sum_le_sum fun i hi => _ ) _;
-              use fun i => ENNReal.ofReal ( r ^ n ) ^ s;
+            · refine le_trans
+                ( Finset.sum_le_sum
+                    ( g := fun _ : ℕ => ENNReal.ofReal ( r ^ n ) ^ s )
+                    fun i hi => ?_ ) ?_;
               · by_cases hi' : i < 2 ^ n <;> simp_all +decide
                 exact fun _ => ENNReal.rpow_le_rpow ( hU₁ _ ) ( by exact div_nonneg ( Real.log_nonneg ( by norm_num ) ) ( neg_nonneg.mpr ( Real.log_nonpos ( by linarith ) ( by norm_num at *; linarith ) ) ) );
               · simp_all +decide
@@ -1251,10 +1254,10 @@ lemma dimH_C_le_s (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
       have h_Hausdorff_infinite : MeasureTheory.Measure.hausdorffMeasure s (C r) = ⊤ := by
         contrapose! h_Hausdorff_le_one;
         rw [ dimH ];
-        refine' iSup_le fun d => iSup_le fun hd => _;
-        refine' le_of_not_gt fun h => hd.not_lt <| lt_of_le_of_lt ( MeasureTheory.Measure.hausdorffMeasure_mono _ _ ) _;
-        rotate_right;
-        use fun _ => s;
+        refine iSup_le fun d => iSup_le fun hd => ?_;
+        refine le_of_not_gt fun h => hd.not_lt <| lt_of_le_of_lt
+          ( MeasureTheory.Measure.hausdorffMeasure_mono
+            ( show s ≤ ( d : ℝ ) from ?_ ) ( C r ) ) ?_;
         · rw [ ENNReal.ofReal_lt_iff_lt_toReal ] at h <;> norm_num at * ; linarith [ show 0 < s by exact div_pos ( Real.log_pos one_lt_two ) ( neg_pos.mpr ( Real.log_neg hr.1 ( by linarith ) ) ) ] ;
           exact div_nonneg ( Real.log_nonneg ( by norm_num ) ) ( neg_nonneg.mpr ( Real.log_nonpos hr.1.le ( by linarith ) ) );
         · exact lt_top_iff_ne_top.mpr h_Hausdorff_le_one;
@@ -1362,7 +1365,7 @@ lemma dist_I_word_ge (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (n : ℕ)
                 aesop
             exact ⟨ h_split u k ( by linarith [ hu.symm ] ), h_split v k ( by linarith [ hv.symm ] ) ⟩;
           have h_take_eq : List.take k u = List.take k v := by
-            refine' List.ext_get _ _ <;> simp +decide
+            refine List.ext_get ?_ ?_ <;> simp +decide
             · rw [ hu, hv ];
             · intro n hn hn' hn'' hn'''; specialize hk; have := hk.2.2 n hn; simp +decide [ hn', hn''' ] at this ⊢; tauto;
           grind +ring;
@@ -1423,7 +1426,11 @@ lemma measure_le_two_pow_neg_n_of_diam_le (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (
         · simp +zetaDelta at *;
           exact ⟨ List.replicate n 0, by unfold Sigma_n; aesop, Or.inr h ⟩;
       have h_mu_le : (mu r) U ≤ (mu r) (I_word u r) + (mu r) (⋃ v ∈ Sigma_n n, I_word v r)ᶜ := by
-        refine' le_trans ( MeasureTheory.measure_mono _ ) ( MeasureTheory.measure_union_le _ _ );
+        refine le_trans
+          ( MeasureTheory.measure_mono
+            ( show U ⊆ I_word u r ∪ ( ⋃ v ∈ Sigma_n n, I_word v r )ᶜ from ?_ ) )
+          ( MeasureTheory.measure_union_le
+            ( μ := mu r ) ( I_word u r ) ( ( ⋃ v ∈ Sigma_n n, I_word v r )ᶜ ) );
         intro x hx; by_cases hx' : x ∈ ⋃ v ∈ Sigma_n n, I_word v r <;> simp_all +decide [ Set.ext_iff ] ;
         rcases hu.2 with h|h <;> simp_all +decide [ Set.disjoint_left ];
         grind;
@@ -1453,9 +1460,12 @@ lemma measure_le_two_pow_neg_n_of_diam_le (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (
           · unfold mu;
             rw [ MeasureTheory.Measure.map_apply_of_aemeasurable ] <;> norm_num;
             exact Continuous.aemeasurable ( continuous_pi' r hr );
-        · refine' MeasurableSet.iUnion fun v => MeasurableSet.iUnion fun hv => _;
+        · refine MeasurableSet.iUnion fun v => MeasurableSet.iUnion fun hv => ?_;
           rw [ prop_symbolic_1_interval r hr v ] ; exact measurableSet_Icc;
-        · refine' ne_of_lt ( lt_of_le_of_lt ( MeasureTheory.measure_mono ( Set.subset_univ _ ) ) _ ) ; norm_num [ mu ];
+        · refine ne_of_lt ( lt_of_le_of_lt
+            ( MeasureTheory.measure_mono
+              ( show ( ⋃ v ∈ Sigma_n n, I_word v r ) ⊆ Set.univ from Set.subset_univ _ ) ) ?_ ) ;
+          norm_num [ mu ];
       convert h_mu_le using 1 ; rw [ h_mu_compl ] ; norm_num [ mu_I_word r hr u, hu.1.symm ]
 
 /-
@@ -1506,7 +1516,7 @@ lemma mu_bound_specific (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
             · use 0;
               rw [ ENNReal.lt_ofReal_iff_toReal_lt ] at * <;> aesop;
             · exact ⟨ n, hn₁, hn₂ _ ( Nat.pred_lt hn ) ⟩;
-          refine' ⟨ n, _, _, _ ⟩ <;> norm_num at *;
+          refine ⟨ n, ?_, ?_, ?_ ⟩ <;> norm_num at *;
           · contrapose! hn; aesop;
           · rw [ ENNReal.lt_ofReal_iff_toReal_lt ] <;> aesop;
           · rw [ ENNReal.ofReal_le_iff_le_toReal ] <;> aesop;
@@ -1520,10 +1530,10 @@ lemma mu_bound_specific (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
         rw [ ← ENNReal.toReal_le_toReal ] <;> norm_num;
         · convert h_algebraic_bound using 1;
           rw [ ENNReal.toReal_ofReal ( Real.rpow_nonneg ( sub_nonneg.2 <| by linarith ) _ ), ENNReal.toReal_rpow ];
-        · refine' ENNReal.mul_ne_top _ _ <;> norm_num;
+        · refine ENNReal.mul_ne_top ?_ ?_ <;> norm_num;
           exact ⟨ fun h => False.elim <| hU_pos.ne' h, fun h => False.elim <| h.not_lt <| lt_of_le_of_lt hU_le_δ₀ <| ENNReal.ofReal_lt_top ⟩;
       · cases eq_or_lt_of_le hU_le_δ₀ <;> simp_all +decide
-        refine' le_trans ( MeasureTheory.measure_mono ( show U ⊆ Set.univ from Set.subset_univ _ ) ) _;
+        refine le_trans ( MeasureTheory.measure_mono ( show U ⊆ Set.univ from Set.subset_univ U ) ) ?_;
         erw [ MeasureTheory.Measure.map_apply ] <;> norm_num [ infiniteBernoulliMeasure ];
         · rw [ ← ENNReal.ofReal_rpow_of_pos ];
           · rw [ ← ENNReal.rpow_add ] <;> norm_num [ hU_pos ];
@@ -1535,13 +1545,13 @@ lemma mu_bound_specific (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
 The Cantor set C r is closed.
 -/
 theorem isClosed_C (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) : IsClosed (C r) := by
-  refine' isClosed_iInter _;
+  refine isClosed_iInter ?_;
   intro n
   unfold C_n;
   -- Since $\Sigma_n$ is finite, the union $\bigcup_{u \in \Sigma_n} I_u$ is a finite union of closed intervals, hence closed.
   have h_finite : Set.Finite (Sigma_n n) := by
     exact finite_Sigma_n n;
-  refine' h_finite.isClosed_biUnion fun u hu => _;
+  refine h_finite.isClosed_biUnion fun u hu => ?_;
   rw [ prop_symbolic_1_interval r hr u ] ; exact isClosed_Icc;
 
 /-
@@ -1551,10 +1561,10 @@ lemma dimH_C_ge_s (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
     dimH (C r) ≥ ENNReal.ofReal (Real.log 2 / -Real.log r) := by
       have := @mass_distribution_principle ( C r ) ( mu r ) ?_;
       · contrapose! this;
-        refine' ⟨ _, Real.log 2 / -Real.log r, div_nonneg ( Real.log_nonneg ( by norm_num ) ) ( neg_nonneg.mpr ( Real.log_nonpos ( by linarith ) ( by linarith ) ) ), ( 1 - 2 * r ) ^ ( - ( Real.log 2 / -Real.log r ) ), Real.rpow_pos_of_pos ( by linarith ) _, 1 - 2 * r, by linarith, _, _ ⟩;
+        refine ⟨ ?_, Real.log 2 / -Real.log r, div_nonneg ( Real.log_nonneg ( by norm_num ) ) ( neg_nonneg.mpr ( Real.log_nonpos ( by linarith ) ( by linarith ) ) ), ( 1 - 2 * r ) ^ ( - ( Real.log 2 / -Real.log r ) ), Real.rpow_pos_of_pos ( by linarith ) ( - ( Real.log 2 / -Real.log r ) ), 1 - 2 * r, by linarith, ?_, ?_ ⟩;
         · -- By definition of $C_r$, we know that $C_r$ is the image of the projection map $\pi_r$.
           have h_image : C r = Set.range (pi r) := by
-            refine' Set.Subset.antisymm _ _;
+            refine Set.Subset.antisymm ?_ ?_;
             · intro x hx
               obtain ⟨ω, hω⟩ : ∃ ω : ℕ → Fin 2, pi r ω = x := by
                 exact ⟨ code_of_mem_C r hr x hx, pi_code_of_mem_C r hr x hx ⟩
@@ -1575,7 +1585,7 @@ Upper bound on the covering number of the Cantor set.
 -/
 lemma N_delta_le (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (n : ℕ) :
     N_delta (C r) (r ^ n) ≤ 2 ^ n := by
-      refine' csInf_le _ _;
+      refine csInf_le ?_ ?_;
       · exact ⟨ 0, fun x hx => Nat.zero_le _ ⟩;
       · -- Let $U_i$ be the interval $I_{u_i}(r)$ for each $u_i \in \Sigma_n n$.
         obtain ⟨u, hu⟩ : ∃ u : Fin (2 ^ n) → List (Fin 2), (∀ i, u i ∈ Sigma_n n) ∧ (∀ u' ∈ Sigma_n n, ∃ i, u' = u i) := by
@@ -1588,7 +1598,7 @@ lemma N_delta_le (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (n : ℕ) :
           have h_equiv : Nonempty (Fin (2 ^ n) ≃ Sigma_n n) := by
             have := h_finite.fintype; exact ⟨ Fintype.equivOfCardEq <| by simpa [ Set.ncard_eq_toFinset_card' ] using h_card.symm ⟩ ;
           exact ⟨ fun i => h_equiv.some i |>.1, fun i => h_equiv.some i |>.2, fun u' hu' => ⟨ h_equiv.some.symm ⟨ u', hu' ⟩, by simp +decide ⟩ ⟩;
-        refine' ⟨ fun i => I_word ( u i ) r, _, _ ⟩;
+        refine ⟨ fun i => I_word ( u i ) r, ?_, ?_ ⟩;
         · intro i
           have h_interval : I_word (u i) r = Set.Icc ((1 - r) * ∑ k ∈ Finset.range (u i).length, ((u i)[k]?).getD 0 * r ^ k) ((1 - r) * (∑ k ∈ Finset.range (u i).length, ((u i)[k]?).getD 0 * r ^ k) + r ^ (u i).length) := by
             exact prop_symbolic_1_interval r hr _;
@@ -1685,7 +1695,7 @@ theorem upper_box_dim_le_s (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
       have h_upper_bound : ∀ δ > 0, δ < 1 → Real.log (N_delta (C r) δ) / -Real.log δ ≤ (Real.log 2 / -Real.log r) + (Real.log 2 / -Real.log δ) := by
         intros δ hδ_pos hδ_lt_1
         have h_covering_bound : N_delta (C r) δ ≤ 2 ^ (Nat.floor (-Real.log δ / -Real.log r) + 1) := by
-          refine' le_trans _ ( N_delta_le r hr ( ⌊-Real.log δ / -Real.log r⌋₊ + 1 ) );
+          refine le_trans ?_ ( N_delta_le r hr ( ⌊-Real.log δ / -Real.log r⌋₊ + 1 ) );
           apply_rules [ N_delta_antitone_on_pos ] ; aesop;
           have := Nat.lt_floor_add_one ( -Real.log δ / -Real.log r );
           rw [ div_lt_iff₀ ] at this <;> norm_num at *;
@@ -1708,7 +1718,7 @@ theorem upper_box_dim_le_s (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
       have h_limsup_sum : Filter.limsup (fun δ => Real.log (N_delta (C r) δ) / -Real.log δ) (nhdsWithin 0 (Set.Ioi 0)) ≤ Filter.limsup (fun δ => Real.log 2 / -Real.log r + Real.log 2 / -Real.log δ) (nhdsWithin 0 (Set.Ioi 0)) := by
         apply_rules [ Filter.limsup_le_limsup ];
         · filter_upwards [ Ioo_mem_nhdsGT zero_lt_one ] with δ hδ using h_upper_bound δ hδ.1 hδ.2;
-        · refine' ⟨ 0, _ ⟩ ; norm_num [ IsCoboundedUnder ];
+        · refine ⟨ 0, ?_ ⟩ ; norm_num [ IsCoboundedUnder ];
           intro a ha; have := ha.and ( Ioo_mem_nhdsGT zero_lt_one ) ; obtain ⟨ δ, hδ₁, hδ₂ ⟩ := this.exists; exact le_trans ( div_nonneg ( Real.log_natCast_nonneg _ ) ( neg_nonneg.mpr ( Real.log_nonpos ( by linarith ) ( by linarith ) ) ) ) hδ₁;
         · exact Filter.Tendsto.isBoundedUnder_le ( tendsto_const_nhds.add h_limsup );
       convert h_limsup_sum using 1;
@@ -1725,7 +1735,7 @@ lemma exists_n_sandwich (r : ℝ) (hr : 0 < r ∧ r < 1) (C : ℝ) (δ : ℝ) (h
       -- Let's choose the smallest such $n$.
       obtain ⟨n, hn1, hn2⟩ : ∃ n, C * r ^ n < δ ∧ ∀ m < n, C * r ^ m ≥ δ := by
         exact ⟨ Nat.find ( ⟨ N, hN N le_rfl ⟩ : ∃ n, C * r ^ n < δ ), Nat.find_spec ( ⟨ N, hN N le_rfl ⟩ : ∃ n, C * r ^ n < δ ), fun m mn => not_lt.1 fun contra => Nat.find_min ( ⟨ N, hN N le_rfl ⟩ : ∃ n, C * r ^ n < δ ) mn contra ⟩;
-      refine' ⟨ n, _, hn1, _ ⟩;
+      refine ⟨ n, ?_, hn1, ?_ ⟩;
       · contrapose! hn1; aesop;
       · rcases n <;> aesop
 
@@ -1744,7 +1754,7 @@ lemma N_delta_ge_two_pow (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (n : ℕ) (δ : �
           obtain ⟨x, hx⟩ : ∃ x ∈ C r, x ∈ I_word u r := by
             have h_inter : pi r (append_zeros u) ∈ C r := by
               exact range_pi_subset_C r hr |> Set.mem_of_mem_of_subset ( Set.mem_range_self _ );
-            refine' ⟨ _, h_inter, _ ⟩;
+            refine ⟨ pi r (append_zeros u), h_inter, ?_ ⟩;
             rw [ prop_symbolic_3_interval r hr u ] ; norm_num [ pi_append_zeros ];
             rw [ pi_append_ones ] ; norm_num [ hr ];
             · exact pow_nonneg hr.1.le _;
@@ -1756,7 +1766,7 @@ lemma N_delta_ge_two_pow (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (n : ℕ) (δ : �
           have h_dist : |x u - x v| ≥ (1 - 2 * r) * r ^ (n - 1) := by
             apply dist_I_word_ge r hr n u v hu hv huv (x u) (hx' u hu) (x v) (hx' v hv);
           have h_dist_le : Metric.ediam (S u) ≥ ENNReal.ofReal (|x u - x v|) := by
-            refine' le_trans _ ( Metric.edist_le_ediam_of_mem ( hx'' u hu ) ( h_eq.symm ▸ hx'' v hv ) );
+            refine le_trans ?_ ( Metric.edist_le_ediam_of_mem ( hx'' u hu ) ( h_eq.symm ▸ hx'' v hv ) );
             simp +decide [ edist_dist ];
             rw [ Real.dist_eq ];
           exact h_dist_le.not_gt <| lt_of_le_of_lt ( hU _ <| hS _ hu ) <| ENNReal.ofReal_lt_ofReal_iff ( by linarith ) |>.2 <| by linarith;
@@ -1766,7 +1776,7 @@ lemma N_delta_ge_two_pow (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (n : ℕ) (δ : �
             rw [ Finset.card_image_of_injective ] <;> norm_num [ Function.Injective ];
           · exact fun u hu v hv huv => Classical.not_not.1 fun h => h_inj u v ( by aesop ) ( by aesop ) h huv;
         exact h_card ▸ Finset.card_le_card ( Finset.image_subset_iff.mpr fun u hu => hS u <| Finset.mem_filter.mp hu |>.2 );
-      refine' le_csInf _ _ <;> norm_num;
+      refine le_csInf ?_ ?_ <;> norm_num;
       · -- Since $C_r$ is compact, it can be covered by finitely many sets of diameter $\le \delta$.
         have h_compact : IsCompact (C r) := by
           have h_closed : IsClosed (C r) := by
@@ -1791,7 +1801,7 @@ lemma N_delta_ge_two_pow (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (n : ℕ) (δ : �
           exact ( Metric.isCompact_iff_isClosed_bounded.mpr ⟨ h_closed, h_bounded ⟩ ));
         have := h_compact.elim_nhds_subcover;
         obtain ⟨ t, ht₁, ht₂ ⟩ := this ( fun x => Metric.closedBall x ( δ / 2 ) ) ( fun x hx => Metric.closedBall_mem_nhds _ ( half_pos hδ ) );
-        refine' ⟨ t.card, ⟨ fun i => Metric.closedBall ( t.orderEmbOfFin rfl i ) ( δ / 2 ), _, _ ⟩ ⟩ <;> norm_num;
+        refine ⟨ t.card, ⟨ fun i => Metric.closedBall ( t.orderEmbOfFin rfl i ) ( δ / 2 ), ?_, ?_ ⟩ ⟩ <;> norm_num;
         · intro i; rw [ Metric.ediam ] ; norm_num [ dist_eq_norm ] ; ring_nf; norm_num [ hδ.le ] ;
           exact fun x hx y hy => abs_le.mpr ⟨ by linarith [ abs_le.mp hx, abs_le.mp hy ], by linarith [ abs_le.mp hx, abs_le.mp hy ] ⟩;
         · intro x hx; specialize ht₂ hx; simp_all +decide [ Set.subset_def ] ;
@@ -1825,7 +1835,7 @@ lemma ratio_lower_bound (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (n : ℕ) (δ : ℝ
         exact Real.log_neg hδ ( by nlinarith [ pow_le_pow_of_le_one hr.1.le ( by norm_num at *; linarith ) ( Nat.zero_le ( n - 1 ) ) ] );
       · rw [ ← Real.log_pow ];
         gcongr;
-        refine' mod_cast N_delta_ge_two_pow r hr n δ hδ _;
+        refine mod_cast N_delta_ge_two_pow r hr n δ hδ ?_;
         nlinarith [ pow_pos hr.1 ( n - 1 ) ];
       · exact mul_pos ( by linarith ) ( pow_pos hr.1 _ )
 
@@ -1841,8 +1851,8 @@ theorem lower_box_dim_ge_s (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
         obtain ⟨ε, hε_pos, hε⟩ : ∃ ε > 0, lower_box_dim (C r) < (Real.log 2) / (-Real.log r) - ε := by
           exact ⟨ ( Real.log 2 / -Real.log r - lower_box_dim ( C r ) ) / 2, half_pos ( sub_pos.mpr this ), by linarith ⟩;
         contrapose! hε;
-        refine' le_csSup _ _;
-        · refine' ⟨ Real.log 2 / -Real.log r, fun x hx => _ ⟩;
+        refine le_csSup ?_ ?_;
+        · refine ⟨ Real.log 2 / -Real.log r, fun x hx => ?_ ⟩;
           -- Since $N_\delta(C_r) \leq 2^n$ for $\delta = r^n$, we have $\frac{\log(N_\delta(C_r))}{-\log(\delta)} \leq \frac{n \log 2}{-\log(r^n)} = \frac{\log 2}{-\log r}$.
           have h_bound : ∀ n : ℕ, n ≥ 1 → (Real.log (N_delta (C r) (r ^ n))) / (-Real.log (r ^ n)) ≤ (Real.log 2) / (-Real.log r) := by
             intros n hn
@@ -1867,7 +1877,7 @@ theorem lower_box_dim_ge_s (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
         have h_limit : Filter.Tendsto (fun n : ℕ => (n * Real.log 2) / (-Real.log ((1 - 2 * r) / 2 * r ^ n))) Filter.atTop (nhds ((Real.log 2) / (-Real.log r))) := by
           convert limit_lower_bound_aux r ⟨ hr.1, by linarith ⟩ ( ( 1 - 2 * r ) / 2 ) ( by linarith ) using 1;
         exact Filter.eventually_atTop.mp ( h_limit.eventually ( le_mem_nhds <| sub_lt_self _ hε_pos ) );
-      refine' ⟨ ( 1 - 2 * r ) / 2 * r ^ N, _, _ ⟩ <;> norm_num at *;
+      refine ⟨ ( 1 - 2 * r ) / 2 * r ^ N, ?_, ?_ ⟩ <;> norm_num at *;
       · exact mul_pos ( by linarith ) ( pow_pos hr.1 _ );
       · intro δ' hδ'_pos hδ'_lt
         obtain ⟨n, hn₁, hn₂, hn₃⟩ : ∃ n : ℕ, n ≥ 1 ∧ (1 - 2 * r) / 2 * r ^ n < δ' ∧ δ' ≤ (1 - 2 * r) / 2 * r ^ (n - 1) := by
@@ -1876,7 +1886,7 @@ theorem lower_box_dim_ge_s (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
           apply exists_n_sandwich r ⟨left, by linarith⟩ ((1 - 2 * r) / 2) δ' hδ'_pos (by
           exact hδ'_lt.le.trans ( mul_le_of_le_one_right ( by linarith ) ( pow_le_one₀ ( by linarith ) ( by norm_num at *; linarith ) ) ))
         have := hN n ?_;
-          · refine' le_trans this ?_;
+          · refine le_trans this ?_;
             simpa [add_comm] using add_le_add_right (ratio_lower_bound r hr n δ' hδ'_pos hn₂ hn₃) ε;
         · contrapose! hδ'_lt;
           exact le_trans ( mul_le_mul_of_nonneg_left ( pow_le_pow_of_le_one hr.1.le ( by linarith ) hδ'_lt.le ) ( by linarith ) ) hn₂.le
@@ -1915,14 +1925,14 @@ lemma ratio_eventually_bounded (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
       · have h_bound : ∀ᶠ δ in nhdsWithin 0 (Set.Ioi 0), (N_delta (C r) δ : ℝ) ≤ 2 ^ (Nat.ceil (-(Real.log δ) / (-Real.log r))) := by
           filter_upwards [ self_mem_nhdsWithin ] with δ hδ
           have h_bound : N_delta (C r) δ ≤ 2 ^ Nat.ceil (-(Real.log δ) / (-Real.log r)) := by
-            have h_bound : ∀ n : ℕ, N_delta (C r) (r ^ n) ≤ 2 ^ n := by
+            have h_cover_bound : ∀ n : ℕ, N_delta (C r) (r ^ n) ≤ 2 ^ n := by
               intro n
               apply N_delta_le r hr n;
             have h_bound : δ ≥ r ^ Nat.ceil (-(Real.log δ) / (-Real.log r)) := by
               have h_bound : Real.log δ ≥ Nat.ceil (-(Real.log δ) / (-Real.log r)) * Real.log r := by
                 nlinarith [ Nat.le_ceil ( -Real.log δ / -Real.log r ), Real.log_le_sub_one_of_pos hr.1, mul_div_cancel₀ ( -Real.log δ ) ( by linarith [ Real.log_le_sub_one_of_pos hr.1 ] : ( -Real.log r ) ≠ 0 ) ];
               rw [ ge_iff_le, ← Real.log_le_log_iff ( pow_pos hr.1 _ ) hδ, Real.log_pow ] ; aesop;
-            refine' le_trans _ ( ‹∀ n : ℕ, N_delta ( C r ) ( r ^ n ) ≤ 2 ^ n› _ );
+            refine le_trans ?_ ( h_cover_bound ( Nat.ceil ( - ( Real.log δ ) / ( -Real.log r ) ) ) );
             apply_rules [ N_delta_antitone_on_pos ];
             exact pow_pos hr.1 _
           exact_mod_cast h_bound;
@@ -1943,7 +1953,7 @@ lemma ratio_eventually_bounded (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
         have h_bound : Filter.Tendsto (fun δ => Real.log 2 / -Real.log r + Real.log 2 / -Real.log δ) (nhdsWithin 0 (Set.Ioi 0)) (nhds (Real.log 2 / -Real.log r)) := by
           simpa using tendsto_const_nhds.add h_bound;
         exact ⟨ _, Filter.eventually_map.mpr <| by filter_upwards [ ‹∀ᶠ δ in nhdsWithin 0 ( Set.Ioi 0 ), Real.log ↑ ( N_delta ( C r ) δ ) / -Real.log δ ≤ Real.log 2 / -Real.log r + Real.log 2 / -Real.log δ›, h_bound.eventually ( ge_mem_nhds <| show Real.log 2 / -Real.log r < Real.log 2 / -Real.log r + 1 by linarith ) ] with x hx₁ hx₂ using le_trans hx₁ hx₂ ⟩;
-      · refine' ⟨ 0, _ ⟩;
+      · refine ⟨ 0, ?_ ⟩;
         norm_num +zetaDelta at *;
         filter_upwards [ Ioo_mem_nhdsGT zero_lt_one ] with x hx using div_nonneg ( Real.log_natCast_nonneg _ ) ( neg_nonneg_of_nonpos ( Real.log_nonpos hx.1.le hx.2.le ) ) ;
 
@@ -1953,7 +1963,7 @@ The ratio log N_delta / -log delta is bounded below as delta -> 0.
 lemma ratio_bounded_below (r : ℝ) :
     Filter.IsBoundedUnder (· ≥ ·) (nhdsWithin 0 (Set.Ioi 0)) (fun δ => Real.log (N_delta (C r) δ) / -Real.log δ) := by
       field_simp;
-      refine' ⟨ 0, _ ⟩ ; simp +decide
+      refine ⟨ 0, ?_ ⟩ ; simp +decide
       filter_upwards [ Ioo_mem_nhdsGT zero_lt_one ] with x hx using div_nonpos_of_nonneg_of_nonpos ( Real.log_natCast_nonneg _ ) ( Real.log_nonpos hx.1.le hx.2.le ) ;
 
 /-
@@ -1977,7 +1987,7 @@ theorem theorem_dimension_Ca (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
       have h_upper : upper_box_dim (C r) ≤ s := upper_box_dim_le_s r hr
       have h_lower : lower_box_dim (C r) ≥ s := lower_box_dim_ge_s' r hr
       have h_neBot : (nhdsWithin (0 : ℝ) (Set.Ioi 0)).NeBot := by
-        refine' mem_closure_iff_nhdsWithin_neBot.mp _
+        refine mem_closure_iff_nhdsWithin_neBot.mp ?_
         rw [closure_Ioi]
         exact Set.self_mem_Ici
       have h_le : lower_box_dim (C r) ≤ upper_box_dim (C r) := by
@@ -2028,15 +2038,15 @@ lemma mem_C_plus_of_not_eventually_one (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 /
             · -- The function R_word (take_word n ω) is a composition of continuous functions, hence it is continuous.
               have h_cont : ContinuousOn (fun r => (1 - r) * (∑ k ∈ Finset.range (take_word n ω).length, ((take_word n ω)[k]?.getD 0 : ℝ) * r ^ k) + r ^ (take_word n ω).length) (Set.Icc s rho) := by
                 fun_prop;
-              refine' h_cont.congr fun r hr => _;
+              refine h_cont.congr fun r hr => ?_;
               convert pi_append_ones r ( show 0 < r ∧ r < 1 / 2 from ⟨ by linarith [ hr.1, hs.1.1, le_max_left 0 ( rho - ε ), le_max_right 0 ( rho - ε ) ], by linarith [ hr.2, hs.1.2 ] ⟩ ) ( take_word n ω ) using 1
           use s, hs.left, n, r, hr.left, hr.right.symm ▸ rfl;
-        refine' Set.mem_iInter₂.mpr fun ε hε => _;
+        refine Set.mem_iInter₂.mpr fun ε hε => ?_;
         obtain ⟨ s, hs₁, n, r, hr₁, hr₂ ⟩ := h_eps ( Min.min ε ( rho / 2 ) ) ( lt_min hε ( half_pos hrho.1 ) ) ( by linarith [ min_le_left ε ( rho / 2 ), min_le_right ε ( rho / 2 ) ] );
         simp +zetaDelta at *;
-        refine' ⟨ r, ⟨ by linarith [ min_le_left ε ( rho / 2 ), min_le_right ε ( rho / 2 ) ], by linarith ⟩, _ ⟩;
-        refine' Set.mem_iInter.mpr fun m => _;
-        refine' Set.mem_iUnion₂.mpr ⟨ take_word m ( append_ones ( take_word n ω ) ), _, _ ⟩ <;> norm_num [ hr₂ ];
+        refine ⟨ r, ⟨ by linarith [ min_le_left ε ( rho / 2 ), min_le_right ε ( rho / 2 ) ], by linarith ⟩, ?_ ⟩;
+        refine Set.mem_iInter.mpr fun m => ?_;
+        refine Set.mem_iUnion₂.mpr ⟨ take_word m ( append_ones ( take_word n ω ) ), ?_, ?_ ⟩ <;> norm_num [ hr₂ ];
         · unfold take_word Sigma_n; aesop;
         · convert pi_mem_I_word r ⟨ by linarith, by linarith ⟩ ( append_ones ( take_word n ω ) ) m using 1
 
@@ -2053,8 +2063,10 @@ lemma mem_C_plus_of_not_eventually_zero (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 
         have hx_lt_1 : x < 1 := by
           refine lt_of_le_of_ne ?_ hx1
           generalize_proofs at *;
-          refine' le_trans ( mul_le_mul_of_nonneg_left ( Summable.tsum_le_tsum _ _ _ ) ( by linarith ) ) _;
-          use fun n => rho ^ n
+          refine le_trans
+            ( mul_le_mul_of_nonneg_left
+              ( Summable.tsum_le_tsum ( g := fun n : ℕ => rho ^ n ) ?_ ?_ ?_ )
+              ( by linarith ) ) ?_;
           all_goals generalize_proofs at *; norm_num at *;
           · exact fun n => mul_le_of_le_one_left ( pow_nonneg hrho.1.le _ ) ( mod_cast Fin.is_le _ );
           · exact Summable.of_nonneg_of_le ( fun n => mul_nonneg ( Nat.cast_nonneg _ ) ( pow_nonneg hrho.1.le _ ) ) ( fun n => mul_le_of_le_one_left ( pow_nonneg hrho.1.le _ ) ( mod_cast Fin.is_le _ ) ) ( summable_geometric_of_lt_one hrho.1.le ( by linarith ) );
@@ -2081,7 +2093,7 @@ lemma mem_C_plus_of_not_eventually_zero (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 
                 convert pi_append_zeros s ( List.ofFn fun i : Fin n => ω i ) using 1;
                 simp +decide [ Finset.sum_range ]
               have h_lim : Filter.Tendsto (fun n => (1 - s) * ∑ k ∈ Finset.range n, (ω k : ℝ) * s ^ k) Filter.atTop (nhds ((1 - s) * ∑' k, (ω k : ℝ) * s ^ k)) := by
-                refine' tendsto_const_nhds.mul ( Summable.hasSum _ |> HasSum.tendsto_sum_nat );
+                refine tendsto_const_nhds.mul ( Summable.hasSum ?_ |> HasSum.tendsto_sum_nat );
                 exact Summable.of_nonneg_of_le ( fun n => mul_nonneg ( Nat.cast_nonneg _ ) ( pow_nonneg ( by linarith [ hs₁.1, le_max_left 0 ( rho - ε ), le_max_right 0 ( rho - ε ) ] ) _ ) ) ( fun n => mul_le_of_le_one_left ( pow_nonneg ( by linarith [ hs₁.1, le_max_left 0 ( rho - ε ), le_max_right 0 ( rho - ε ) ] ) _ ) ( mod_cast Fin.is_le _ ) ) ( summable_geometric_of_lt_one ( by linarith [ hs₁.1, le_max_left 0 ( rho - ε ), le_max_right 0 ( rho - ε ) ] ) ( by linarith [ hs₁.2, le_max_left 0 ( rho - ε ), le_max_right 0 ( rho - ε ) ] ) );
               convert h_lim using 2 ; aesop;
             exact ( h_lim.eventually ( lt_mem_nhds hs₂ ) ) |> fun h => h.exists;
@@ -2089,20 +2101,21 @@ lemma mem_C_plus_of_not_eventually_zero (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 
           obtain ⟨r, hr₁, hr₂⟩ : ∃ r ∈ Set.Ioo s rho, pi r (append_zeros (take_word n ω)) = x := by
             apply_rules [ intermediate_value_Ioo' ];
             · linarith [ hs₁.2 ];
-            · refine' ContinuousOn.mul _ _;
+            · refine ContinuousOn.mul ?_ ?_;
               · exact continuousOn_const.sub continuousOn_id;
-              · refine' continuousOn_tsum _ _ _;
-                use fun i => ( 1 : ℝ ) * ( rho ^ i );
+              · refine continuousOn_tsum
+                  ( f := fun i x => (append_zeros (take_word n ω) i : ℝ) * x ^ i )
+                  ( u := fun i => ( 1 : ℝ ) * rho ^ i ) ?_ ?_ ?_;
                 · exact fun i => Continuous.continuousOn ( by continuity );
                 · exact Summable.mul_left _ ( summable_geometric_of_lt_one hrho.1.le ( by linarith ) );
                 · norm_num +zetaDelta at *;
                   exact fun n x hx₁ hx₂ => le_trans ( mul_le_of_le_one_left ( by positivity ) ( mod_cast Fin.is_le _ ) ) ( pow_le_pow_left₀ ( by positivity ) ( by rw [ abs_of_nonneg ] <;> linarith ) _ )
             · exact ⟨ by simpa using pi_gt_L_word_of_not_eventually_zero rho hrho ω h_not_ev_zero n, hn ⟩;
           exact ⟨ s, hs₁, n, r, hr₁, hr₂ ⟩;
-        refine' Set.mem_iInter₂.mpr fun ε hε => _;
+        refine Set.mem_iInter₂.mpr fun ε hε => ?_;
         obtain ⟨ s, hs₁, n, r, hr₁, hr₂ ⟩ := h_eps ε hε;
         simp +zetaDelta at *;
-        refine' ⟨ r, ⟨ by linarith, by linarith ⟩, _ ⟩;
+        refine ⟨ r, ⟨ by linarith, by linarith ⟩, ?_ ⟩;
         rw [ ← hr₂ ];
         apply range_pi_subset_C' r ⟨ by linarith, by linarith ⟩ |> Set.mem_of_mem_of_subset <| Set.Subset.refl _;
         exact Set.mem_range_self _
@@ -2147,7 +2160,7 @@ theorem not_mem_C_minus_of_L_u (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) (u :
         exact fun v hv => if hv' : v = u then hv'.symm ▸ hr₁ else hr₂ v hv hv';
       simp_all +decide [ C_minus ];
       obtain ⟨ ε, hε, H ⟩ := Metric.mem_nhdsWithin_iff.mp h_not_mem_C_n;
-      refine' ⟨ ε, hε, fun r hr₁ hr₂ => _ ⟩;
+      refine ⟨ ε, hε, fun r hr₁ hr₂ => ?_ ⟩;
       intro h;
       exact H ⟨ Metric.mem_ball.mpr <| abs_lt.mpr ⟨ by linarith, by linarith ⟩, hr₁ ⟩ <| Set.mem_iInter.mp h u.length
 
@@ -2216,8 +2229,11 @@ theorem mem_C_minus_of_not_eventually_zero (rho : ℝ) (hrho : 0 < rho ∧ rho <
         have h_ivt : ∃ r ∈ Set.Ioo rho s, L_word (take_word n ω) r = pi rho ω := by
           apply_rules [ intermediate_value_Ioo ] <;> norm_num [ hs.1.1, hs.1.2 ];
           · linarith [ hs.1.1 ];
-          · refine' ContinuousOn.congr _ _;
-            use fun r => (1 - r) * ∑ k ∈ Finset.range n, ((take_word n ω)[k]?).getD 0 * r ^ k + r ^ n * 0;
+          · refine ContinuousOn.congr
+              ( s := ( Set.Icc rho ( show ℝ from s ) : Set ℝ ) )
+              ( f := fun r : ℝ =>
+                (1 - r) * ∑ k ∈ Finset.range n, ((take_word n ω)[k]?).getD 0 * r ^ k +
+                  r ^ n * 0 ) ?_ ?_;
             · fun_prop (disch := norm_num);
             · intro r hr; unfold L_word; simp +decide
               convert pi_append_zeros r ( take_word n ω ) using 1;
@@ -2260,10 +2276,16 @@ theorem mem_C_minus_of_not_eventually_one (rho : ℝ) (hrho : 0 < rho ∧ rho < 
       obtain ⟨r, hr⟩ : ∃ r ∈ Set.Ioo rho s, R_word (take_word n ω) r = pi rho ω := by
         apply_rules [ intermediate_value_Ioo' ];
         · linarith [ hs.1.1 ];
-        · refine' ContinuousOn.congr _ _;
-          use fun r => pi r (append_ones (take_word n ω));
-          · refine' ContinuousOn.congr _ _;
-            use fun r => (1 - r) * (∑ k ∈ Finset.range (take_word n ω).length, ((take_word n ω)[k]?).getD 0 * r ^ k) + r ^ (take_word n ω).length;
+        · refine ContinuousOn.congr
+            ( s := ( Set.Icc rho ( show ℝ from s ) : Set ℝ ) )
+            ( f := fun r => pi r (append_ones (take_word n ω)) ) ?_ ?_;
+          · refine ContinuousOn.congr
+              ( s := ( Set.Icc rho ( show ℝ from s ) : Set ℝ ) )
+              ( f := fun r : ℝ =>
+                (1 - r) *
+                    (∑ k ∈ Finset.range (take_word n ω).length,
+                      ((take_word n ω)[k]?).getD 0 * r ^ k) +
+                  r ^ (take_word n ω).length ) ?_ ?_;
             · fun_prop;
             · intro r hr; exact (by
               convert pi_append_ones r ⟨ by linarith [ hr.1 ], by linarith [ hr.2, hs.1.2, min_le_left ( rho + ε ) ( 1 / 2 ), min_le_right ( rho + ε ) ( 1 / 2 ) ] ⟩ ( take_word n ω ) using 1);
@@ -2271,7 +2293,7 @@ theorem mem_C_minus_of_not_eventually_one (rho : ℝ) (hrho : 0 < rho ∧ rho < 
       -- Since $r \in (\rho, s)$, we have $r \in (\rho, \rho + \varepsilon)$.
       have hr_interval : r ∈ Set.Ioo rho (rho + ε) := by
         exact ⟨ hr.1.1, hr.1.2.trans_le <| hs.1.2.le.trans <| min_le_left _ _ ⟩;
-      refine' hε.2 r hr_interval _;
+      refine hε.2 r hr_interval ?_;
       rw [ ← hr.2 ];
       -- Since $R_{u_n}(r) = \pi_r(\text{append\_ones}(u_n))$, and $\text{append\_ones}(u_n)$ is a sequence in $\{0,1\}^\infty$, we have $R_{u_n}(r) \in C_r$.
       have h_R_in_C : R_word (take_word n ω) r ∈ Set.range (pi r) := by
@@ -2286,7 +2308,7 @@ theorem theorem_minus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) :
       simp [C_minus, E_minus];
       constructor;
       · intro hx;
-        refine' ⟨ _, _, _ ⟩;
+        refine ⟨ ?_, ?_, ?_ ⟩;
         · -- Apply the closedness_limit_Cantor theorem to conclude that x is in C rho.
           apply closedness_limit_Cantor rho hrho (fun i => Classical.choose (hx (1 / (i + 1)) (by positivity))) (by
           exact tendsto_iff_dist_tendsto_zero.mpr <| squeeze_zero ( fun _ => abs_nonneg _ ) ( fun n => abs_le.mpr ⟨ by linarith [ Classical.choose_spec ( hx ( 1 / ( n + 1 ) ) ( by positivity ) ) ], by linarith [ Classical.choose_spec ( hx ( 1 / ( n + 1 ) ) ( by positivity ) ) ] ⟩ ) <| tendsto_one_div_add_atTop_nhds_zero_nat) x (by
@@ -2373,7 +2395,7 @@ theorem theorem_minus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) :
                     exact List.mem_of_getElem h;
                 contrapose! hx;
                 intro hx1 hx2; use u; simp_all +decide
-                refine' ⟨ _, _, _ ⟩;
+                refine ⟨ ?_, ?_, ?_ ⟩;
                 · aesop_cat;
                 · cases u <;> aesop;
                 · congr with n ; simp +decide [ append_ones ] ; aesop;
@@ -2384,9 +2406,9 @@ Theorem 2.5: Characterization of the one-sided limsup set C_plus.
 -/
 theorem theorem_plus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) :
     C_plus rho = C rho \ E_plus rho := by
-      refine' Set.Subset.antisymm _ _;
+      refine Set.Subset.antisymm ?_ ?_;
       · intro x hx;
-        refine' ⟨ _, _ ⟩;
+        refine ⟨ ?_, ?_ ⟩;
         · exact C_plus_subset_C rho hrho hx;
         · rintro ⟨ u, hu, hu', rfl ⟩;
           · exact not_mem_C_plus_of_R_u' rho hrho u hu hu' hx;
@@ -2420,8 +2442,8 @@ theorem theorem_plus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) :
 E_plus is a countable set.
 -/
 lemma countable_E_plus (rho : ℝ) : Set.Countable (E_plus rho) := by
-  refine' Set.Countable.union _ _;
-  · refine' Set.Countable.mono _ ( Set.countable_range ( fun u : List ( Fin 2 ) => pi rho ( append_ones u ) ) ) ; aesop_cat;
+  refine Set.Countable.union ?_ ?_;
+  · refine Set.Countable.mono ?_ ( Set.countable_range ( fun u : List ( Fin 2 ) => pi rho ( append_ones u ) ) ) ; aesop_cat;
   · convert Set.countable_range ( fun u : List ( Fin 2 ) => pi rho ( append_zeros u ) ) |> Set.Countable.mono _ using 1 ; aesop_cat;
 
 /-
@@ -2462,7 +2484,7 @@ theorem closure_C_plus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) :
           exact ⟨ y_n, hy_n.1, by simpa only [ ← hω ] using Filter.Tendsto.comp ( continuous_pi' rho hrho |> Continuous.continuousAt ) hy_n.2 ⟩)
         generalize_proofs at *; (
         rcases Metric.tendsto_atTop.mp hy_n.2 ε hε_pos with ⟨ n, hn ⟩ ; exact ⟨ _, hy_n.1 n, hn n le_rfl ⟩ ;);
-      refine' Set.Subset.antisymm _ _;
+      refine Set.Subset.antisymm ?_ ?_;
       · -- Since $C^\rho$ is closed, the closure of any subset of $C^\rho$ is also a subset of $C^\rho$.
         have h_closed : IsClosed (C rho) := by
           convert isClosed_C rho hrho using 1;
@@ -2502,8 +2524,8 @@ theorem closure_C_minus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) :
             exact Or.resolve_left ( Fin.exists_fin_two.mp ( by tauto ) ) h0) (by
             exact hω'_not_eventually.2);
         exact ⟨ _, hn ω' hω'_S, h_pi_omega'_in_C_minus ⟩;
-      refine' Set.Subset.antisymm _ _;
-      · refine' closure_minimal _ ( isClosed_C _ hrho );
+      refine Set.Subset.antisymm ?_ ?_;
+      · refine closure_minimal ?_ ( isClosed_C rho hrho );
         intro x hx
         rw [theorem_minus rho hrho] at hx
         aesop;
@@ -2517,8 +2539,8 @@ Hausdorff dimension of C_plus is s.
 lemma dimH_C_plus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) :
     let s := Real.log 2 / -Real.log rho
     dimH (C_plus rho) = ENNReal.ofReal s := by
-      refine' le_antisymm _ _;
-      · refine' le_trans _ ( theorem_dimension_Ca rho hrho |>.1.le );
+      refine le_antisymm ?_ ?_;
+      · refine le_trans ?_ ( theorem_dimension_Ca rho hrho |>.1.le );
         apply_rules [ dimH_mono, C_plus_subset_C ];
       · -- Since $C_\alpha^+ \subseteq C_\alpha$, we have $\dim_H(C_\alpha^+) \ge \dim_H(C_\alpha)$.
         have h_dim_ge : dimH (C_plus rho) ≥ dimH (C rho) := by
@@ -2529,7 +2551,7 @@ lemma dimH_C_plus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) :
           have h_subset : C rho ⊆ C_plus rho ∪ E_plus rho := by
             intro x hx; if h : x ∈ E_plus rho then exact Or.inr h else exact Or.inl (by
             exact Classical.not_not.1 fun hx' => h <| by have := theorem_plus rho hrho; rw [ Set.ext_iff ] at this; specialize this x; aesop;);
-          refine' le_trans ( dimH_mono h_subset ) _;
+          refine le_trans ( dimH_mono h_subset ) ?_;
           simp +decide [ *, dimH_union ];
         exact le_trans ( by rw [ theorem_dimension_Ca rho hrho |>.1 ] ) h_dim_ge
 
@@ -2570,7 +2592,7 @@ theorem corollary_dimensions_limsup (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2)
     upper_box_dim (C_plus rho) = s ∧
     lower_box_dim (C_minus rho) = s ∧
     upper_box_dim (C_minus rho) = s := by
-      refine' ⟨ _, _, _, _, _ ⟩;
+      refine ⟨ ?_, ?_, ?_, ?_, ?_ ⟩;
       · exact dimH_C_plus rho hrho;
       · exact dimH_C_minus rho hrho;
       · rw [ lem_closure_box _ |>.1, closure_C_plus _ hrho ] ; exact theorem_dimension_Ca _ hrho |>.2.1;
