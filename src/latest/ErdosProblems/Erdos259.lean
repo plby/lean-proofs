@@ -52,7 +52,6 @@ open ArithmeticFunction
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 
 /-! # Chapter 1: Definitions -/
 
@@ -229,8 +228,8 @@ private lemma ChenRusza_Lemma1_integrality
         simp [ show l ≠ 0 by linarith, mul_comm, mul_left_comm ]
       · field_simp
         rw [ mul_assoc, ← pow_add, Nat.add_sub_of_le (by omega ) ]
-      · refine' .of_norm _
-        refine' Summable.of_nonneg_of_le (fun n => by positivity) (fun n => _)
+      · refine .of_norm ?_
+        refine Summable.of_nonneg_of_le (fun n => by positivity) (fun n => ?_)
           (hSum.norm.mul_left (l ^ C : ℝ))
         split_ifs <;> simp_all [ div_eq_mul_inv, mul_left_comm ]
         · field_simp
@@ -239,8 +238,8 @@ private lemma ChenRusza_Lemma1_integrality
       · -- Since $a$ is injective, the set $\{n \mid C < a n \land a n ≤ C + t_val\}$ is finite.
         have h_finite : Set.Finite {n | C < a n ∧ a n ≤ C + t_val} := by
           exact Set.Finite.preimage (fun n => by aesop ) ( Set.finite_Ioc C ( C + t_val ) )
-        refine' summable_of_ne_finset_zero _
-        exacts [ h_finite.toFinset, fun n hn => if_neg <| by simpa using hn ]
+        refine summable_of_ne_finset_zero (s := h_finite.toFinset) ?_
+        exact fun n hn => if_neg <| by simpa using hn
     · have h_summable :
           Summable (fun n =>
             ((b n : ℝ) - d_val * l ^ t_val) / (l : ℝ) ^ (a n)) := by
@@ -252,7 +251,7 @@ private lemma ChenRusza_Lemma1_integrality
               (inv_lt_one_of_one_lt₀ <| Nat.one_lt_cast.mpr hl) |>
               Summable.comp_injective <| ha_inj
       rw [ ← summable_norm_iff ] at *
-      refine' .of_nonneg_of_le (fun n => norm_nonneg _) (fun n => _)
+      refine .of_nonneg_of_le (fun n => norm_nonneg _) (fun n => ?_)
         (h_summable.mul_left (l ^ C : ℝ))
       split_ifs <;> norm_num
       · rw [ mul_div, div_le_div_iff₀ ] <;> first | positivity | ring_nf
@@ -438,7 +437,7 @@ theorem primeSequence_for_ChenRusza (l : ℕ) (hl : l ≥ 2) :
             Int.modEq_of_dvd <| by
               simpa [← Int.natCast_dvd_natCast] using this.choose_spec.2⟩
         · nlinarith
-      refine' ⟨ p, hp_prime, _, _ ⟩
+      refine ⟨ p, hp_prime, ?_, ?_ ⟩
       · rintro ⟨ k, hk ⟩
         rcases k with ( _ | _ | k ) <;> simp_all [ Int.ModEq ]
         · subst hk; norm_num [ Int.emod_eq_emod_iff_emod_sub_eq_zero ] at hp_div
@@ -449,7 +448,10 @@ theorem primeSequence_for_ChenRusza (l : ℕ) (hl : l ≥ 2) :
           simpa using hp_div.symm.dvd |> dvd_trans (dvd_mul_right _ _))
     choose! p hp₁ hp₂ hp₃ using h_rec
     use fun i => p ( Nat.recOn i 1 fun i hi => hi * p hi )
-    refine' ⟨ fun i => hp₁ _ _, fun i => hp₂ _ _, fun i => _ ⟩
+    refine
+      ⟨ fun i => hp₁ (Nat.recOn i 1 fun i hi => hi * p hi) ?_,
+        fun i => hp₂ (Nat.recOn i 1 fun i hi => hi * p hi) ?_,
+        fun i => ?_ ⟩
     · induction i <;> simp [ *, Nat.Prime.pos ]
     · induction i <;> simp [ *, Nat.Prime.pos ]
     · convert hp₃ (Nat.rec 1 (fun i hi => hi * p hi) (i + 1))
@@ -459,7 +461,7 @@ theorem primeSequence_for_ChenRusza (l : ℕ) (hl : l ≥ 2) :
   obtain ⟨ p, hp₁, hp₂, hp₃ ⟩ := hp_exists
   specialize H p hp₁ hp₂ hp₃
   obtain ⟨i, j, hgcd⟩ := H
-  refine' hgcd _
+  refine hgcd ?_
   rcases lt_trichotomy i j with hij | rfl | hij <;> simp_all
   · -- Since `p_i ∣ p_j + 1`, it follows that `p_i ∣ p_j - 1`.
     have h_div : p i ∣ (p j + 1) := by
@@ -532,7 +534,7 @@ private lemma consecutive_non_rfree_non_squarefull (r : ℕ) (N : ℕ) :
         (∀ i, 3 ≤ q i) ∧
         (∀ i j, i ≠ j → q i ≠ q j) := by
     use fun i => Nat.nth Nat.Prime ( i + 2 );
-    refine' ⟨ fun i => Nat.prime_nth_prime _, fun i => _, fun i j hij => _ ⟩;
+    refine ⟨ fun i => Nat.prime_nth_prime (i + 2), fun i => ?_, fun i j hij => ?_ ⟩;
     · exact Nat.lt_of_le_of_lt (Nat.Prime.two_le <| Nat.prime_nth_prime _)
         (Nat.nth_strictMono Nat.infinite_setOf_prime <| Nat.lt_succ_self _);
     · exact fun h => hij <| by have := Nat.nth_injective ( Nat.infinite_setOf_prime ) h; aesop;
@@ -604,7 +606,7 @@ private lemma consecutive_non_rfree_non_squarefull (r : ℕ) (N : ℕ) :
               Nat.gcd
                 (∏ j ∈ Finset.erase (Finset.range N) i, (q j ^ r * s j ^ 2))
                 (q i ^ r * s i ^ 2) = 1 := by
-            refine' Nat.Coprime.prod_left _;
+            refine Nat.Coprime.prod_left ?_;
             simp_all [ Nat.coprime_mul_iff_left, Nat.coprime_mul_iff_right, Nat.coprime_primes ];
             intro j hj₁ hj₂
             have := Nat.coprime_primes (hq.1 j) (hq.1 i)
@@ -628,8 +630,8 @@ private lemma consecutive_non_rfree_non_squarefull (r : ℕ) (N : ℕ) :
       use ∑ i ∈ Finset.range N, y i;
       intro i hi; simp_all only [Int.ModEq];
       rw [ Finset.sum_int_mod, Finset.sum_eq_single i ] <;> aesop;
-    refine' ⟨Int.toNat (c % ∏ i ∈ Finset.range N, (q i ^ r * s i ^ 2)),
-      fun i hi => ⟨_, _⟩⟩ <;> simp_all [← Int.natCast_modEq_iff];
+    refine ⟨Int.toNat (c % ∏ i ∈ Finset.range N, (q i ^ r * s i ^ 2)),
+      fun i hi => ⟨?_, ?_⟩⟩ <;> simp_all [← Int.natCast_modEq_iff];
     · rw [max_eq_left (Int.emod_nonneg _ <| Finset.prod_ne_zero_iff.mpr
         fun _ _ => mul_ne_zero
           (pow_ne_zero _ <| Nat.cast_ne_zero.mpr <| Nat.Prime.ne_zero <| hq.1 _)
@@ -725,7 +727,8 @@ private lemma first_interval_periodic
           aesop⟩
     use fun i => P ⟨i.val, by linarith [Fin.is_lt i]⟩
     use fun i => P ⟨i.val + k, by linarith [Fin.is_lt i]⟩
-    refine ⟨fun i => hP_distinct.1 _, fun i => hP_distinct.1 _,
+    refine ⟨fun i => hP_distinct.1 ⟨i.val, by linarith [Fin.is_lt i]⟩,
+      fun i => hP_distinct.1 ⟨i.val + k, by linarith [Fin.is_lt i]⟩,
       fun i => hP_distinct.2.2 _ _ ?_,
       fun i j h => hP_distinct.2.2 _ _ ?_,
       fun i j h => hP_distinct.2.2 _ _ ?_,
@@ -809,7 +812,7 @@ private lemma first_interval_periodic
             linarith⟩⟩
         use x * y * (∏ j ∈ Finset.univ.erase i, (P j : ℤ) ^ r) *
           (∏ j ∈ Finset.univ.erase i, (Q j : ℤ) ^ 2)
-        refine' ⟨ _, _, _ ⟩
+        refine ⟨ ?_, ?_, ?_ ⟩
         · simpa [ mul_assoc ] using hx.1.mul ( hy.of_dvd <| dvd_mul_right _ _ )
         · have := hy.of_dvd ( dvd_mul_left _ _ ) ; simp_all [ mul_assoc ]
           simpa using hx.2.mul this
@@ -827,10 +830,10 @@ private lemma first_interval_periodic
       constructor <;> intro i <;> rw [ Finset.sum_eq_single i ] <;> simp_all
       · exact fun j hj => hf₃ j i ( Ne.symm hj ) |>.1
       · exact fun j hj => hf₃ _ _ ( Ne.symm hj ) |>.2
-    refine' ⟨
+    refine ⟨
       Int.toNat
         (h % (∏ i : Fin k, (P i ^ r : ℤ) * (Q i ^ 2 : ℤ)) +
-          ∏ i : Fin k, (P i ^ r : ℤ) * (Q i ^ 2 : ℤ)), _, _, _⟩ <;>
+          ∏ i : Fin k, (P i ^ r : ℤ) * (Q i ^ 2 : ℤ)), ?_, ?_, ?_⟩ <;>
       simp_all [Int.ModEq]
     · intro i
       rw [max_eq_left (add_nonneg
@@ -895,9 +898,9 @@ private lemma first_interval_periodic
         by simpa [← Int.natCast_modEq_iff] using
           Nat.ModEq.pow_totient h_coprime_Q⟩
     use ∏ i : Fin k, Nat.totient (P i ^ r) * Nat.totient (Q i ^ 2)
-    refine' ⟨Finset.prod_pos fun i _ => mul_pos
+    refine ⟨Finset.prod_pos fun i ?_ => mul_pos
       (Nat.totient_pos.mpr (pow_pos (Nat.Prime.pos (hPQ_distinct i)) _))
-      (Nat.totient_pos.mpr (pow_pos (Nat.Prime.pos (hPQ_prime.1 i)) _)), _, _⟩
+      (Nat.totient_pos.mpr (pow_pos (Nat.Prime.pos (hPQ_prime.1 i)) _)), ?_, ?_⟩
     · intro i
       specialize h_euler i
       have hdiv :
@@ -916,7 +919,7 @@ private lemma first_interval_periodic
       obtain ⟨q, hq⟩ := hdiv
       rw [hq, pow_mul]
       simpa using h_euler.2.pow q
-  refine' ⟨ h, M, hh.2.2, hM.1, fun m hm n hn₁ hn₂ => _ ⟩
+  refine ⟨ h, M, hh.2.2, hM.1, fun m hm n hn₁ hn₂ => ?_ ⟩
   -- Let $i$ be such that $n = h * l^m + (i + 1)$.
   obtain ⟨i, hi⟩ : ∃ i : Fin k, n = h * l ^ m + (i.val + 1) := by
     exact ⟨ ⟨ n - h * l ^ m - 1, by omega ⟩, by norm_num; omega ⟩
@@ -971,7 +974,7 @@ private lemma primeSeq_strictMono (p : ℕ → ℕ)
     (hp1 : ∀ i, (p i).Prime) (hp2 : ∀ i, ¬(p i ∣ 2 * l))
     (hp3 : ∀ i, (∏ j ∈ Finset.range (i + 1), p j) ∣ (p (i + 1) + 1)) :
     StrictMono p := by
-  refine' strictMono_nat_of_lt_succ _
+  refine strictMono_nat_of_lt_succ ?_
   intro n
   have := hp3 n
   rw [ Finset.prod_range_succ ] at this
@@ -1018,7 +1021,7 @@ private lemma multi_crt (nn : ℕ) (mods targets : Fin nn → ℕ) (L : ℕ) (_ 
               hcop 0 i.succ (ne_of_lt (Fin.succ_pos i)))
         have := Nat.chineseRemainder h_crt
         exact ⟨ _, this _ _ |>.2 ⟩
-      refine' ⟨ x, Fin.forall_fin_succ.mpr ⟨ hx₁, fun i => _ ⟩, _ ⟩
+      refine ⟨ x, Fin.forall_fin_succ.mpr ⟨ hx₁, fun i => ?_ ⟩, ?_ ⟩
       · exact Eq.trans
           (hx₂.of_dvd <|
             dvd_mul_of_dvd_right (Finset.dvd_prod_of_mem _ <| Finset.mem_univ _) _)
@@ -1110,7 +1113,7 @@ private lemma second_interval_exists
       (M * ∏ j : Fin (k + h),
         (p (N₀ + 2 * j) - 1) * (p (N₀ + 2 * j + 1) - 1)) ?_ ?_ ?_ ?_
     · obtain ⟨ m, hm₁, hm₂ ⟩ := this
-      refine' ⟨ m, hm₁, fun j => ⟨ _, _ ⟩ ⟩
+      refine ⟨ m, hm₁, fun j => ⟨ ?_, ?_ ⟩ ⟩
       · simpa [ j.2 ] using hm₂ ⟨ j, by linarith [ Fin.is_lt j ] ⟩
       · convert hm₂ ⟨ k + h + j, by linarith [ Fin.is_lt j ] ⟩ using 1 ; simp [two_mul]
         simp
@@ -1122,21 +1125,21 @@ private lemma second_interval_exists
           simpa [hi] using pow_pos (Nat.Prime.pos (hp1 _)) _
     · intro i j hij
       by_cases hi : ( i : ℕ ) < k + h <;> by_cases hj : ( j : ℕ ) < k + h <;> simp [ hi, hj ]
-      · refine' Nat.coprime_pow_primes _ _ ( hp1 _ ) ( hp1 _ ) _
+      · refine Nat.coprime_pow_primes ?_ ?_ ( hp1 _ ) ( hp1 _ ) ?_
         intro H
         have := primeSeq_strictMono p hp1 hp2 hp3
         have := this.injective H
         simp_all [ Fin.ext_iff ]
-      · refine' Nat.Coprime.pow_left _ _
-        refine' Nat.Coprime.symm ( hp1 _ |> Nat.Prime.coprime_iff_not_dvd |> Iff.mpr <| _ )
+      · refine Nat.Coprime.pow_left ?_ ?_
+        refine Nat.Coprime.symm ( hp1 _ |> Nat.Prime.coprime_iff_not_dvd |> Iff.mpr <| ?_ )
         intro H
         have := Nat.prime_dvd_prime_iff_eq
           (hp1 (N₀ + 2 * (j - (k + h)) + 1)) (hp1 (N₀ + 2 * i)) |>.1 H
         have := primeSeq_strictMono p hp1 hp2 hp3
         exact absurd ( this.injective ‹_› ) (by omega )
-      · refine' Nat.Coprime.pow_right _ _
-        refine' Nat.Coprime.symm _
-        refine' Nat.Coprime.symm ( hp1 _ |> Nat.Prime.coprime_iff_not_dvd |> Iff.mpr <| _ )
+      · refine Nat.Coprime.pow_right ?_ ?_
+        refine Nat.Coprime.symm ?_
+        refine Nat.Coprime.symm ( hp1 _ |> Nat.Prime.coprime_iff_not_dvd |> Iff.mpr <| ?_ )
         intro H
         have := Nat.prime_dvd_prime_iff_eq
           (hp1 (N₀ + 2 * (i - (k + h)) + 1)) (hp1 (N₀ + 2 * j)) |>.1 H
@@ -1152,17 +1155,17 @@ private lemma second_interval_exists
         · exact Nat.Coprime.pow_right _ <| Nat.Coprime.symm <| hp1 _ |>
             Nat.Prime.coprime_iff_not_dvd |> Iff.mpr <|
               Nat.not_dvd_of_pos_of_lt hM <| hN₀ _
-        · refine' Nat.Coprime.pow_right _ _
-          refine' Nat.Coprime.symm ( hp1 _ |> Nat.Prime.coprime_iff_not_dvd |> Iff.mpr <| _ )
+        · refine Nat.Coprime.pow_right ?_ ?_
+          refine Nat.Coprime.symm ( hp1 _ |> Nat.Prime.coprime_iff_not_dvd |> Iff.mpr <| ?_ )
           exact Nat.not_dvd_of_pos_of_lt hM ( hN₀ _ ) |> fun h => by simpa [ add_assoc ] using h
       · split_ifs
-        · refine' Nat.Coprime.prod_left _
+        · refine Nat.Coprime.prod_left ?_
           intro j _; rw [ Nat.coprime_mul_iff_left ] ; simp [ *, Nat.Coprime ]
           exact ⟨ Nat.Coprime.pow_right _ ( hp4 _ _ ), Nat.Coprime.pow_right _ ( hp4 _ _ ) ⟩
-        · refine' Nat.Coprime.prod_left _
+        · refine Nat.Coprime.prod_left ?_
           simp +zetaDelta at *
           intro j; rw [ Nat.coprime_mul_iff_left ] ; aesop
-  refine' ⟨ m, dvd_of_mul_right_dvd hm.1, fun n hn₁ hn₂ => _ ⟩
+  refine ⟨ m, dvd_of_mul_right_dvd hm.1, fun n hn₁ hn₂ => ?_ ⟩
   -- Let $j$ be such that $n = h * l^m + m + (j + 1)$.
   obtain ⟨j, hj⟩ : ∃ j : Fin (k + h), n = h * l ^ m + m + (j.val + 1) := by
     exact ⟨ ⟨ n - ( h * l ^ m + m ) - 1, by omega ⟩, by norm_num; omega ⟩
@@ -1253,8 +1256,7 @@ private lemma summable_injective_div_pow (a : ℕ → ℕ) (ha_inj : Function.In
     (l : ℕ) (hl : l ≥ 2) : Summable (fun n => (a n : ℝ) / (l : ℝ) ^ (a n)) := by
   -- The series $\sum_{n=0}^{\infty} \frac{n}{l^n}$ converges by the ratio test.
   have h_series : Summable (fun n : ℕ => (n : ℝ) / (l : ℝ) ^ n) := by
-    refine' summable_of_ratio_norm_eventually_le _ _
-    exact 3 / 4
+    refine summable_of_ratio_norm_eventually_le (r := 3 / 4) ?_ ?_
     · norm_num
     · norm_num [ pow_succ, ← div_div ]
       field_simp
@@ -1267,8 +1269,7 @@ private lemma tendsto_tail_sum_div_pow (l : ℕ) (hl : l ≥ 2) :
       Filter.atTop (nhds 0) := by
   -- The series $\sum_{m=N+1}^{\infty} \frac{m}{l^m}$ is summable.
   have h_summable : Summable (fun m : ℕ => (m : ℝ) / (l : ℝ) ^ m) := by
-    refine' summable_of_ratio_norm_eventually_le _ _
-    exact 3 / 4
+    refine summable_of_ratio_norm_eventually_le (r := 3 / 4) ?_ ?_
     · norm_num
     · norm_num [ pow_succ, mul_div_mul_comm ]
       field_simp
@@ -1299,8 +1300,7 @@ private lemma tail_sum_mono (f : ℕ → ℝ) (hf : ∀ m, 0 ≤ f m)
 /-- The geometric tail `h / l^{h+k}` tends to 0 as `k → ∞` uniformly in `h`. -/
 private lemma tendsto_geom_tail (l : ℕ) (hl : l ≥ 2) :
     Filter.Tendsto (fun N => (N : ℝ) / (l : ℝ) ^ N) Filter.atTop (nhds 0) := by
-  refine' squeeze_zero_norm' _ _
-  refine' fun n => n / Real.exp ( n * Real.log l )
+  refine squeeze_zero_norm' (a := fun n => n / Real.exp ( n * Real.log l )) ?_ ?_
   · norm_num [ Real.rpow_def_of_pos (by positivity : 0 < ( l : ℝ ) ), mul_comm ]
     exact ⟨ 0, fun x hx => by rw [ abs_of_nonneg hx ] ⟩
   · -- Let $y = n \log l$, therefore the limit becomes $\lim_{y \to \infty} \frac{y}{e^y}$.
@@ -1351,14 +1351,13 @@ private lemma first_sum_bound (a : ℕ → ℕ) (ha_inj : Function.Injective a)
           ∑ m ∈ Finset.image g s,
             if m > k then (m : ℝ) / (l : ℝ) ^ m else 0 := by
       exact Finset.sum_le_sum fun x hx => by rw [ if_pos ( h_image_subset x hx ) ] ;
-    refine' le_trans h_image_subset ( Summable.sum_le_tsum _ _ _ );
+    refine le_trans h_image_subset ( Summable.sum_le_tsum (Finset.image g s) ?_ ?_ );
     · exact fun _ _ => by positivity;
     · have h_summable : Summable (fun m : ℕ => (m : ℝ) / (l : ℝ) ^ m) := by
-        refine' summable_of_ratio_norm_eventually_le _ _;
-        exact 3 / 4;
+        refine summable_of_ratio_norm_eventually_le (r := 3 / 4) ?_ ?_;
         · norm_num;
         · norm_num [ pow_succ, div_eq_mul_inv ];
-          refine' ⟨ 8, fun n hn => _ ⟩ ; rw [ abs_of_nonneg ( by positivity ) ] ; ring_nf;
+          refine ⟨ 8, fun n hn => ?_ ⟩ ; rw [ abs_of_nonneg ( by positivity ) ] ; ring_nf;
           nlinarith only [
             show (l : ℝ) ≥ 2 by norm_cast,
             inv_pos.mpr (by positivity : 0 < (l : ℝ)),
@@ -1382,11 +1381,11 @@ private lemma first_sum_bound (a : ℕ → ℕ) (ha_inj : Function.Injective a)
     all_goals try infer_instance;
     · rfl;
     · simp [ Set.indicator ];
-  refine' h_subtype_sum ▸ _;
+  refine h_subtype_sum ▸ ?_;
   by_cases h_summable :
       Summable (fun n : {n // c < a n} =>
         ((a n : ℝ) - c) / (l : ℝ) ^ (a n - c));
-  · refine' le_of_tendsto_of_tendsto' ( h_summable.hasSum ) tendsto_const_nhds _;
+  · refine le_of_tendsto_of_tendsto' ( h_summable.hasSum ) tendsto_const_nhds ?_;
     exact fun s => le_trans ( h_sum_bound s ) ( h_image_bound s );
   · rw [ tsum_eq_zero_of_not_summable h_summable ] ; exact tsum_nonneg fun _ => by positivity;
 
@@ -1458,12 +1457,12 @@ private lemma first_sum_pos (a : ℕ → ℕ) (ha_inj : Function.Injective a)
     0 < (∑' n, if a n > c then ((a n : ℝ) - c) / (l : ℝ) ^ (a n - c) else 0) := by
   by_contra h_contra
   obtain ⟨ n₀, hn₀ ⟩ := exists_gt_of_injective a ha_inj c
-  refine' h_contra ( lt_of_lt_of_le _ ( Summable.le_tsum _ n₀ _ ) )
+  refine h_contra ( lt_of_lt_of_le ?_ ( Summable.le_tsum ?_ n₀ ?_ ) )
   · exact if_pos hn₀ ▸
       div_pos (sub_pos.mpr (Nat.cast_lt.mpr hn₀)) (pow_pos (by positivity) _)
   · have h_summable : Summable (fun n => (a n : ℝ) / (l : ℝ) ^ (a n)) := by
       exact summable_injective_div_pow a ha_inj l hl
-    refine' .of_nonneg_of_le (fun n => _ ) (fun n => _ ) ( h_summable.mul_left ( l ^ c : ℝ ) )
+    refine .of_nonneg_of_le (fun n => ?_ ) (fun n => ?_ ) ( h_summable.mul_left ( l ^ c : ℝ ) )
     · split_ifs <;> first
       | positivity
       | exact div_nonneg (sub_nonneg_of_le <| mod_cast by linarith) <| by positivity
@@ -1658,13 +1657,13 @@ theorem mobiusSeries_eq_squarefreeSeries :
   have h_sum_f :
       ∑' (n : ℕ), ((moebius n ^ 2 : ℤ) : ℝ) * (n : ℝ) / (2 : ℝ) ^ n =
         ∑' n, f n := by
-    refine' tsum_congr fun n => _
+    refine tsum_congr fun n => ?_
     simp [f, ArithmeticFunction.moebius]
     split_ifs <;> simp_all [ ← pow_mul ]
   convert h_sum_f using 1
   convert (Function.Injective.tsum_eq
     (show Function.Injective (Nat.nth (fun n => Squarefree n)) from ?_) ?_) using 1
-  · refine' tsum_congr fun n => _
+  · refine tsum_congr fun n => ?_
     exact Eq.symm (if_pos <|
       Nat.nth_mem_of_infinite
         (show Set.Infinite {n : ℕ | Squarefree n} from
