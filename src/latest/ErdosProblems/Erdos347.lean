@@ -35,7 +35,6 @@ namespace Erdos347
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 set_option linter.flexible false
 
 open scoped BigOperators
@@ -79,7 +78,7 @@ def A_val (n : ℕ) : ℕ :=
   use n;
   -- We'll use that $block\_start (n + 1)$ is strictly increasing.
   have h_block_start_inc : StrictMono (fun n => block_start n) := by
-    refine' strictMono_nat_of_lt_succ _;
+    refine strictMono_nat_of_lt_succ ?_;
     simp +arith +decide [ block_start ];
     unfold block; aesop;
   exact lt_of_lt_of_le ( Nat.lt_succ_self _ ) ( h_block_start_inc.id_le _ ))
@@ -108,7 +107,7 @@ lemma block_length_pos (n : ℕ) : 0 < (block n).length := by
 The start index of blocks is strictly increasing.
 -/
 lemma block_start_strict_mono : StrictMono block_start := by
-  refine' strictMono_nat_of_lt_succ _;
+  refine strictMono_nat_of_lt_succ ?_;
   -- By definition of `block_start`, we have `block_start (n + 1) = block_start n + (block n).length`.
   have h_block_start_succ : ∀ n, block_start (n + 1) = block_start n + (block n).length := by
     aesop;
@@ -124,7 +123,7 @@ lemma M_pos (n : ℕ) : 0 < M n := by
     -- By definition of $M$, we have $M (n + 1) = \frac{M n \cdot (2^{k n + 1} - 3)}{2}$.
     have hM_succ : M (n + 1) = (M n * (2^(k n + 1) - 3)) / 2 := by
       rfl;
-    refine' hM_succ.symm ▸ Nat.div_pos _ ( by decide );
+    refine hM_succ.symm ▸ Nat.div_pos ?_ ( by decide );
     -- Since $k_n \geq 4$, we have $2^{k_n + 1} \geq 2^5 = 32$, thus $2^{k_n + 1} - 3 \geq 29$.
     have h_exp : 2^(k n + 1) - 3 ≥ 29 := by
       exact le_tsub_of_add_le_left ( by linarith [ Nat.pow_le_pow_right two_pos ( show k n + 1 ≥ 5 by linarith [ show k n ≥ 4 by exact le_add_of_nonneg_right ( Nat.zero_le _ ) ] ) ] );
@@ -134,7 +133,7 @@ lemma M_pos (n : ℕ) : 0 < M n := by
 M_n is nondecreasing.
 -/
 lemma M_mono : Monotone M := by
-  refine' monotone_nat_of_le_succ _;
+  refine monotone_nat_of_le_succ ?_;
   intro n;
   refine Nat.le_div_iff_mul_le zero_lt_two |>.2 ?_;
   gcongr;
@@ -377,7 +376,7 @@ lemma block_ratio_cross :
               intro b; use 2 ^ b + 2; intro a ha; split_ifs <;> norm_num at *;
               · linarith [ Nat.one_le_pow b 2 zero_lt_two ];
               · rw [ Nat.le_iff_lt_or_eq ];
-                refine' lt_or_eq_of_le ( Nat.le_succ_of_le _ );
+                refine lt_or_eq_of_le ( Nat.le_succ_of_le ?_ );
                 rw [ Nat.le_log2 ] <;> omega;
             exact h_clog2_growth.comp <| h_clog2_growth.comp <| Filter.tendsto_add_atTop_nat 16;
           exact Filter.tendsto_atTop_mono ( fun n => Nat.le_add_left _ _ ) h_clog2_growth;
@@ -410,7 +409,7 @@ theorem A_ratio_limit : Filter.Tendsto (fun n => (A_val (n + 1) : ℝ) / A_val n
   have h_cases : ∀ n, block_index (n + 1) = block_index n ∨ block_index (n + 1) = block_index n + 1 := by
     intro n
     have h_block_index_succ : block_index (n + 1) ≤ block_index n + 1 := by
-      refine' Nat.find_min' _ _;
+      refine Nat.find_min' ?_ ?_;
       exact lt_of_le_of_lt ( Nat.succ_le_of_lt ( block_index_spec n |>.2 ) ) ( by exact strictMono_nat_of_lt_succ ( fun m => by exact ( show block_start ( m + 1 ) > block_start m from by { exact Nat.lt_of_le_of_lt ( by norm_num ) ( block_start_strict_mono ( Nat.lt_succ_self _ ) ) } ) ) ( Nat.lt_succ_self _ ) )
     have h_block_index_ge : block_index (n + 1) ≥ block_index n := by
       unfold block_index;
@@ -486,7 +485,7 @@ theorem A_ratio_limit : Filter.Tendsto (fun n => (A_val (n + 1) : ℝ) / A_val n
           convert block_ratio_last using 1;
           norm_num [ Nat.cast_sub ( show 1 ≤ 2 ^ ( k _ - 1 ) from Nat.one_le_pow _ _ ( by decide ) ) ];
         refine h_case1_limit.comp ?_;
-        refine' Filter.tendsto_atTop_atTop.mpr _;
+        refine Filter.tendsto_atTop_atTop.mpr ?_;
         intro b; use block_start b; intro a ha; exact (by
         contrapose! ha;
         exact lt_of_lt_of_le ( block_index_spec a |>.2 ) ( Nat.le_induction ( by norm_num ) ( fun n hn ih => by linarith [ block_start_strict_mono n.lt_succ_self ] ) _ ha ));
@@ -495,7 +494,7 @@ theorem A_ratio_limit : Filter.Tendsto (fun n => (A_val (n + 1) : ℝ) / A_val n
         refine h_limit.comp <| Filter.tendsto_atTop_atTop.mpr ?_;
         intro b; use block_start b; intro n hn; exact (by
         contrapose! hn;
-        refine' lt_of_lt_of_le ( block_index_spec n |>.2 ) _;
+        refine lt_of_lt_of_le ( block_index_spec n |>.2 ) ?_;
         exact monotone_nat_of_le_succ ( fun n => by exact Nat.le_add_right _ _ ) hn);
     rw [ Metric.tendsto_nhds ] at *;
     intro ε hε;
@@ -519,12 +518,12 @@ For every x in [0, M_{n+1}] there exists b in B_n such that 0 <= x - b <= M_n.
 lemma greedy_covering (n : ℕ) (x : ℕ) (hx : x ≤ M (n + 1)) :
   ∃ b ∈ B n, x - b ≤ M n ∧ b ≤ x := by
     by_cases hx' : x ≤ ( 2 ^ ( k n - 1 ) - 1 ) * M n;
-    · refine' ⟨ ⌊x / M n⌋₊ * M n, _, _, _ ⟩;
+    · refine ⟨ ⌊x / M n⌋₊ * M n, ?_, ?_, ?_ ⟩;
       · exact ⟨ Nat.floor ( x / M n ), Or.inl ⟨ Nat.le_sub_one_of_lt ( Nat.div_lt_of_lt_mul <| by nlinarith [ Nat.sub_add_cancel ( Nat.one_le_pow ( k n - 1 ) 2 zero_lt_two ), M_pos n ] ), rfl ⟩ ⟩;
       · exact Nat.sub_le_of_le_add <| by nlinarith [ Nat.div_add_mod x ( M n ), Nat.mod_lt x ( show M n > 0 from M_pos n ), show ⌊x / M n⌋₊ ≥ x / M n from Nat.le_ceil _ ] ;
       · exact Nat.div_mul_le_self _ _;
     · by_cases hx'' : x ≤ (2^(k n - 1) * M n);
-      · refine' ⟨ ( 2 ^ ( k n - 1 ) - 1 ) * M n, _, _, _ ⟩ <;> norm_num;
+      · refine ⟨ ( 2 ^ ( k n - 1 ) - 1 ) * M n, ?_, ?_, ?_ ⟩ <;> norm_num;
         · exact ⟨ 2 ^ ( k n - 1 ) - 1, Or.inl ⟨ by omega, rfl ⟩ ⟩;
         · nlinarith [ Nat.sub_add_cancel ( Nat.one_le_pow ( k n - 1 ) 2 zero_lt_two ) ];
         · grind;
@@ -534,13 +533,13 @@ lemma greedy_covering (n : ℕ) (x : ℕ) (hx : x ≤ M (n + 1)) :
           obtain ⟨j, hj⟩ : ∃ j, j * M n + 1 ≤ x ∧ x < (j + 1) * M n + 1 := by
             exact ⟨ ( x - 1 ) / M n, by linarith [ Nat.div_mul_le_self ( x - 1 ) ( M n ), Nat.sub_add_cancel ( show 1 ≤ x from Nat.pos_of_ne_zero ( by aesop_cat ) ) ], by linarith [ Nat.div_add_mod ( x - 1 ) ( M n ), Nat.mod_lt ( x - 1 ) ( show M n > 0 from M_pos n ), Nat.sub_add_cancel ( show 1 ≤ x from Nat.pos_of_ne_zero ( by aesop_cat ) ) ] ⟩;
           use j * M n + 1;
-          refine' ⟨ _, hj.1, by linarith ⟩;
-          refine' ⟨ j, Or.inr ⟨ _, _, rfl ⟩ ⟩;
+          refine ⟨ ?_, hj.1, by linarith ⟩;
+          refine ⟨ j, Or.inr ⟨ ?_, ?_, rfl ⟩ ⟩;
           · nlinarith [ Nat.sub_add_cancel ( Nat.one_le_pow ( k n - 1 ) 2 zero_lt_two ) ];
           · -- By definition of $M$, we know that $M (n + 1) \leq (2^{k n} - 1.5) * M n$.
             have hM_succ : M (n + 1) ≤ (2^(k n) - 1) * M n := by
               rw [ Nat.mul_comm ];
-              refine' Nat.div_le_of_le_mul _;
+              refine Nat.div_le_of_le_mul ?_;
               rw [ mul_left_comm, Nat.pow_succ' ];
               exact Nat.mul_le_mul_left _ ( by omega );
             nlinarith [ Nat.sub_add_cancel ( show 1 ≤ 2 ^ k n from Nat.one_le_pow _ _ ( by decide ) ), Nat.sub_add_cancel ( show 2 ≤ 2 ^ k n from le_trans ( by decide ) ( pow_le_pow_right₀ ( by decide ) ( show k n ≥ 1 from Nat.succ_le_of_lt ( Nat.pos_of_ne_zero ( by rintro h; simp_all +decide ) ) ) ) ) ];
@@ -638,7 +637,7 @@ lemma greedy_expansion_spec (n_0 N m : ℕ) (hm : m ≤ M (N + 1)) :
         exact ⟨ _, rfl, greedy_choice_spec n_0 d' hd'.2.1 ⟩;
       rw [ show greedy_expansion n_0 N m = ( b0 :: bs', d' - b0 ) from ?_ ];
       · simp +zetaDelta at *;
-        refine' ⟨ _, hb0.2.2.2, _, _ ⟩;
+        refine ⟨ ?_, hb0.2.2.2, ?_, ?_ ⟩;
         · linarith [ Nat.sub_add_cancel hb0.2.2.1 ];
         · omega;
         · intro i hi;
@@ -677,14 +676,14 @@ lemma mem_subset_sums_block (n x : ℕ) (hx : x ∈ B n) :
                 intro x hx; specialize hI₁ hx; contrapose! hm; simp_all +decide;
                 exact le_trans ( pow_le_pow_right₀ ( by decide ) ( show k n - 1 ≤ x + 1 by omega ) ) ( by rw [ pow_succ' ] ; linarith [ Finset.single_le_sum ( fun i _ => Nat.zero_le ( 2 ^ i ) ) hx ] );
             · obtain ⟨ I, hI₁, hI₂ ⟩ := ih c ( by linarith ) ( by linarith );
-              refine' ⟨ I.image ( fun i => i + 1 ) ∪ { 0 }, _, _ ⟩ <;> simp_all +decide [ Finset.subset_iff ];
+              refine ⟨ I.image ( fun i => i + 1 ) ∪ { 0 }, ?_, ?_ ⟩ <;> simp_all +decide [ Finset.subset_iff ];
               · rcases x : k n with ( _ | _ | k ) <;> simp_all +arith +decide [ Nat.pow_succ' ];
                 exact fun i hi => lt_of_le_of_ne ( hI₁ hi ) fun con => by have := Finset.single_le_sum ( fun x _ => Nat.zero_le ( 2 ^ x ) ) hi; norm_num [ con ] at this; linarith [ Nat.sub_add_cancel ( show 1 ≤ 2 ^ k from Nat.one_le_pow _ _ ( by decide ) ) ] ;
               · simp +arith +decide [ pow_succ', Finset.mul_sum _ _ _, add_comm ];
           exact h_binary j ( lt_of_le_of_lt hj.1 ( Nat.sub_lt ( by norm_num ) ( by norm_num ) ) );
-        refine' ⟨ I, Finset.Subset.trans hI.1 ( Finset.range_mono ( Nat.le_succ _ ) ), _ ⟩;
+        refine ⟨ I, Finset.Subset.trans hI.1 ( Finset.range_mono ( Nat.le_succ ( k n - 1 ) ) ), ?_ ⟩;
         rw [ hI.2, Finset.sum_mul _ _ _ ];
-        refine' Finset.sum_congr rfl fun i hi => _;
+        refine Finset.sum_congr rfl fun i hi => ?_;
         grind;
       · -- Let's choose the subset $a$ of indices corresponding to the binary representation of $j - 2^{k_n-1} + 1$.
         obtain ⟨a, ha⟩ : ∃ a : Finset ℕ, a ⊆ Finset.range (k n - 1) ∧ ∑ i ∈ a, 2^i = j - 2^(k n - 1) + 1 := by
@@ -715,7 +714,7 @@ lemma mem_subset_sums_block (n x : ℕ) (hx : x ∈ B n) :
           · linarith;
           · rw [ tsub_add_eq_add_tsub hj.1 ];
             rw [ tsub_lt_iff_left ] <;> linarith [ Nat.sub_add_cancel ( show 2 ≤ 2 * ( 2 * 2 ^ k ) from by linarith [ Nat.one_le_pow k 2 zero_lt_two ] ) ];
-        refine' ⟨ a ∪ { k n - 1 }, _, _ ⟩ <;> simp_all +decide [ Finset.subset_iff ];
+        refine ⟨ a ∪ { k n - 1 }, ?_, ?_ ⟩ <;> simp_all +decide [ Finset.subset_iff ];
         · exact fun x hx => Nat.le_of_lt ( ha.1 hx );
         · rw [ Finset.sum_insert ];
           · simp_all +decide [ List.getElem?_append ];
@@ -781,8 +780,8 @@ lemma exists_modified_coeffs (bs : List ℕ) (d : ℕ) (c_func : ℕ → ℕ)
         rw [ h_card, Finset.sum_boole ];
         rw [ Finset.filter_mem_eq_inter, Finset.inter_eq_right.mpr <| Finset.subset_iff.mpr fun x hx => Finset.mem_range.mpr <| hT.2 x hx |>.2 ] ; aesop;
       simp_all +decide;
-      refine' ⟨ _, _ ⟩;
-      · refine' congr_arg _ ( List.ext_get _ _ ) <;> aesop;
+      refine ⟨ ?_, ?_ ⟩;
+      · refine congr_arg ?_ ( List.ext_get ?_ ?_ ) <;> aesop;
       · grind
 
 /-
@@ -795,7 +794,7 @@ lemma T_seq_block_eq (n_0 k j : ℕ) (hj : j < (block (n_0 + k)).length) :
     rw [ ← add_assoc, add_tsub_cancel_of_le ];
     · -- By definition of `A_val`, we know that `A_val (block_start (n_0 + k) + j)` is the `j`-th element of the block at index `n_0 + k`.
       have h_block : block_index (block_start (n_0 + k) + j) = n_0 + k := by
-        refine' le_antisymm _ _ <;> contrapose! hj;
+        refine le_antisymm ?_ ?_ <;> contrapose! hj;
         · have := block_index_spec ( block_start ( n_0 + k ) + j );
           -- Since $block_start$ is strictly increasing, we have $block_start (block_index (block_start (n_0 + k) + j)) \geq block_start (n_0 + k + 1)$.
           have h_block_start_ge : block_start (block_index (block_start (n_0 + k) + j)) ≥ block_start (n_0 + k + 1) := by
@@ -867,9 +866,9 @@ lemma sum_of_subset_sums_mem_P_T (n_0 : ℕ) (L : List ℕ)
     have h_subset_sum : ∃ S : Finset ℕ, ∑ i ∈ S, T_seq n_0 i = ∑ i ∈ Finset.range L.length, ∑ j ∈ s i, (block (n_0 + i))[j]! := by
       use Finset.biUnion (Finset.range L.length) (fun i => Finset.image (fun j => map_index n_0 i j) (s i));
       rw [ Finset.sum_biUnion ];
-      · refine' Finset.sum_congr rfl fun i hi => _;
+      · refine Finset.sum_congr rfl fun i hi => ?_;
         rw [ Finset.sum_image ];
-        · refine' Finset.sum_congr rfl fun j hj => _;
+        · refine Finset.sum_congr rfl fun j hj => ?_;
           exact T_seq_block_eq n_0 i j ( Finset.mem_range.mp ( hs₁ i ( Finset.mem_range.mp hi ) hj ) );
         · intro j hj j' hj' h_eq; have := map_index_injective n_0 i j i j' ( Finset.mem_range.mp ( hs₁ i ( Finset.mem_range.mp hi ) hj ) ) ( Finset.mem_range.mp ( hs₁ i ( Finset.mem_range.mp hi ) hj' ) ) h_eq; aesop;
       · intros i hi j hj hij; simp_all +decide [ Finset.disjoint_left ] ;
@@ -999,7 +998,7 @@ lemma E_N_le_bad_functions (n_0 N : ℕ) :
       unfold greedy_expansion c_count count_matches_dep; simp +decide;
       rw [ ← Multiset.coe_card ];
       rw [ ← Multiset.toFinset_card_of_nodup ];
-      · refine' Finset.card_bij ( fun x hx => x.val - n_0 ) _ _ _ <;> simp +decide [ Finset.mem_filter, Finset.mem_attach ];
+      · refine Finset.card_bij ( fun x hx => x.val - n_0 ) ?_ ?_ ?_ <;> simp +decide [ Finset.mem_filter, Finset.mem_attach ];
         · intro a ha₁ ha₂ ha₃; rw [ Nat.add_sub_cancel' ha₁ ] ;
           exact ⟨ by rw [ show ( greedy_expansion n_0 N m ).1.length = N + 1 - n_0 from h_greedy.1 ] ; omega, ha₃ ⟩;
         · intros; omega;
@@ -1007,7 +1006,7 @@ lemma E_N_le_bad_functions (n_0 N : ℕ) :
           exact ⟨ hb', by linarith! [ Nat.sub_add_cancel ( show n_0 ≤ N + 1 from by linarith [ show n_0 ≤ N from by
                                                                                                 unfold greedy_expansion at hb; simp +decide at hb;
                                                                                                 grind ] ) ] ⟩;
-      · refine' List.Nodup.filter _ _;
+      · refine List.Nodup.filter ?_ ?_;
         exact List.nodup_range;
     -- Let's define the function that maps each $m \in S$ to its corresponding $(f, d)$ pair.
     set f_map : ℕ → ((a : ℕ) → a ∈ Finset.Icc n_0 N → ℕ) × ℕ := fun m =>
@@ -1028,7 +1027,7 @@ lemma E_N_le_bad_functions (n_0 N : ℕ) :
             grind ⟩ ) using 1 <;> simp +decide
         exact h_eq_i;
       have h_sum_eq : (greedy_expansion n_0 N m1).1 = (greedy_expansion n_0 N m2).1 := by
-        refine' List.ext_get _ _ <;> norm_num;
+        refine List.ext_get ?_ ?_ <;> norm_num;
         · have := greedy_expansion_spec n_0 N m1 ( by linarith ) ; have := greedy_expansion_spec n_0 N m2 ( by linarith ) ; norm_num at * ; linarith;
         · intro n hn1 hn2; specialize h_sum_eq n hn1; simp +decide [ hn2 ] at h_sum_eq ⊢;
           grind;
@@ -1105,7 +1104,7 @@ lemma sum_inv_B_card_diverges (n_0 : ℕ) :
           -- We can compare our sum to the harmonic series, which is known to diverge. We use the fact that $\frac{1}{\log(n + n_0 + 16)} \geq \frac{1}{n + n_0 + 16}$.
           have h_harmonic : Filter.Tendsto (fun N => ∑ n ∈ Finset.range (N + 1 - n_0), (1 : ℝ) / (n + n_0 + 16)) Filter.atTop Filter.atTop := by
             exact not_summable_iff_tendsto_nat_atTop_of_nonneg ( fun _ => by positivity ) |>.1 ( by exact_mod_cast mt ( summable_nat_add_iff ( n_0 + 16 ) |>.1 ) Real.not_summable_one_div_natCast ) |> Filter.Tendsto.comp <| Filter.tendsto_sub_atTop_nat n_0 |> Filter.Tendsto.comp <| Filter.tendsto_add_atTop_nat 1;
-          refine' Filter.tendsto_atTop_mono ( fun N => Finset.sum_le_sum fun _ _ => one_div_le_one_div_of_le ( Real.log_pos <| by linarith ) <| le_trans ( Real.log_le_sub_one_of_pos <| by linarith ) <| by linarith ) h_harmonic;
+          refine Filter.tendsto_atTop_mono ( fun N => Finset.sum_le_sum fun _ _ => one_div_le_one_div_of_le ( Real.log_pos <| by linarith ) <| le_trans ( Real.log_le_sub_one_of_pos <| by linarith ) <| by linarith ) h_harmonic;
         refine h_harmonic.congr' ?_;
         filter_upwards [ Filter.eventually_ge_atTop n_0 ] with N hN;
         erw [ Finset.sum_Ico_eq_sum_range ] ; norm_num [ add_comm, add_left_comm, add_assoc ];
@@ -1113,7 +1112,7 @@ lemma sum_inv_B_card_diverges (n_0 : ℕ) :
       · grind;
       · have := hC 0; norm_num at this;
         exact lt_of_not_ge fun h => by nlinarith [ show ( B_card 0 : ℝ ) > 0 from mod_cast B_card_zero_pos, Real.log_pos ( show 16 > 1 by norm_num ) ] ;
-    refine' Filter.tendsto_atTop_mono' _ _ h_diverge;
+    refine Filter.tendsto_atTop_mono' Filter.atTop ?_ h_diverge;
     filter_upwards [ Filter.eventually_ge_atTop n_0 ] with N hN;
     exact Finset.sum_le_sum fun i hi => one_div_le_one_div_of_le ( Nat.cast_pos.mpr <| Finset.card_pos.mpr ⟨ 0, by unfold B_finset; aesop ⟩ ) <| hC i
 
@@ -1211,7 +1210,7 @@ lemma bad_functions_eq_union (n_0 N : ℕ) :
       convert h.2 using 1;
     · unfold count_matches_dep;
       rintro ⟨ J, hJ₁, hJ₂, hJ₃ ⟩;
-      refine' ⟨ hJ₂, lt_of_le_of_lt _ hJ₁.2 ⟩;
+      refine ⟨ hJ₂, lt_of_le_of_lt ?_ hJ₁.2 ⟩;
       rw [ ← Finset.card_image_of_injective _ Subtype.coe_injective ] ; exact Finset.card_mono <| fun x hx => by aesop;
 
 /-
@@ -1229,7 +1228,7 @@ lemma esymm_recip_eq_sum_subsets {α : Type*} [DecidableEq α] (s : Finset α) (
     have h_esymm : (Multiset.map (fun x => 1 / f x) s.val).esymm k = ∑ t ∈ Finset.powersetCard k s, (∏ x ∈ t, (1 / f x)) := by
       exact Finset.esymm_map_val (fun x ↦ 1 / f x) s k;
     rw [ h_esymm, Finset.mul_sum _ _ _ ];
-    refine' Finset.sum_congr rfl fun t ht => _;
+    refine Finset.sum_congr rfl fun t ht => ?_;
     rw [ ← Finset.prod_sdiff ( Finset.mem_powersetCard.mp ht |>.1 ) ];
     simp +decide;
     rw [ mul_assoc, mul_inv_cancel₀ ( Finset.prod_ne_zero_iff.mpr fun x hx => hf x ( Finset.mem_powersetCard.mp ht |>.1 hx ) ), mul_one ]
@@ -1248,14 +1247,14 @@ theorem bad_functions_bound (n_0 N : ℕ) :
       have h_subst : (bad_functions n_0 N).card = ∑ J ∈ (Finset.powerset (Finset.Icc n_0 N)).filter (fun J => J.card < M n_0), ∏ n ∈ (Finset.Icc n_0 N) \ J, a_seq n := by
         convert congr_arg ( ( ↑ ) : ℕ → ℝ ) h_bad_functions using 1;
         push_cast [ bad_index_sets ];
-        refine' Finset.sum_congr rfl fun J hJ => _;
+        refine Finset.sum_congr rfl fun J hJ => ?_;
         convert exact_matches_card n_0 N J _ |> Eq.symm using 1;
         · unfold a_seq; norm_num [ ← @Nat.cast_inj ℝ ] ;
           rw [ Finset.prod_congr rfl fun x hx => Nat.cast_pred <| Nat.one_le_iff_ne_zero.mpr <| by
             exact ne_of_gt ( B_card_eq x ▸ Nat.sub_pos_of_lt ( one_lt_pow₀ ( by norm_num ) ( by unfold k; aesop ) ) ) ];
         · exact Finset.mem_powerset.mp ( Finset.mem_filter.mp hJ |>.1 );
       rw [ h_subst, Finset.sum_sigma' ];
-      refine' Finset.sum_bij ( fun J hJ => ⟨ J.card, J ⟩ ) _ _ _ _ <;> aesop;
+      refine Finset.sum_bij ( fun J hJ => ⟨ J.card, J ⟩ ) ?_ ?_ ?_ ?_ <;> aesop;
     -- By definition of $symmetric_bound$, we know that
     have h_symmetric_bound : symmetric_bound n_0 N = ∑ j ∈ Finset.range (M n_0), (∏ n ∈ Finset.Icc n_0 N, a_seq n) * ((Finset.Icc n_0 N).val.map (fun n => 1 / a_seq n)).esymm j := by
       exact Finset.mul_sum _ _ _;
@@ -1302,10 +1301,10 @@ lemma ratio_recurrence (n_0 n : ℕ) (hn : n ≥ n_0) :
         · exact fun i hi₁ hi₂ => add_nonneg ( le_of_lt ( a_seq_pos i ) ) ( by norm_num );
         · exact add_nonneg ( le_of_lt ( a_seq_pos n ) ) ( by norm_num );
       · rw [ mul_right_comm, mul_div_cancel_right₀ _ ( ne_of_gt <| ?_ ) ] ; linarith;
-        refine' Finset.prod_pos fun i hi => _;
+        refine Finset.prod_pos fun i hi => ?_;
         exact add_pos_of_nonneg_of_pos ( sub_nonneg_of_le ( mod_cast Nat.one_le_iff_ne_zero.mpr <| by { unfold B_card; unfold B_finset; aesop } ) ) ( by norm_num );
-    · refine' mul_ne_zero _ _;
-      · refine' Finset.prod_ne_zero_iff.mpr _;
+    · refine mul_ne_zero ?_ ?_;
+      · refine Finset.prod_ne_zero_iff.mpr ?_;
         exact fun x hx => ne_of_gt <| add_pos_of_nonneg_of_pos ( le_of_lt <| a_seq_pos x ) <| by norm_num;
       · exact ne_of_gt ( add_pos_of_nonneg_of_pos ( le_of_lt ( a_seq_pos n ) ) ( by norm_num ) )
 
@@ -1338,7 +1337,7 @@ theorem M_lower_bound (n_0 : ℕ) :
               gcongr ; aesop
             simp_all +decide [ div_eq_mul_inv, pow_succ' ];
             exact h_term_le.trans_eq ( mul_comm _ _ );
-          refine' le_trans ( Summable.tsum_le_tsum h_geo_series_bound _ _ ) _;
+          refine le_trans ( Summable.tsum_le_tsum h_geo_series_bound ?_ ?_ ) ?_;
           · exact Summable.of_nonneg_of_le ( fun k => div_nonneg ( one_div_nonneg.mpr ( Finset.prod_nonneg fun _ _ => le_trans ( by norm_num ) ( h_prod_term_ge_14 _ ( by linarith [ Finset.mem_Ico.mp ‹_› ] ) ) ) ) ( le_trans ( by norm_num ) ( h_prod_term_ge_14 _ ( by linarith ) ) ) ) h_geo_series_bound ( by simpa using summable_nat_add_iff 1 |>.2 <| summable_geometric_of_lt_one ( by norm_num ) <| show ( 1 : ℝ ) / 14 < 1 by norm_num );
           · exact Summable.comp_injective ( summable_geometric_of_lt_one ( by norm_num ) ( by norm_num ) ) ( Nat.succ_injective );
           · ring_nf; rw [ tsum_mul_right, tsum_geometric_of_lt_one ] <;> norm_num;
@@ -1366,10 +1365,10 @@ theorem M_lower_bound (n_0 : ℕ) :
             unfold partial_prod; erw [ Finset.prod_Ico_succ_top ( by linarith ), Finset.prod_Ico_succ_top ( by linarith ) ] ; ring;
           simp_all +decide [ Nat.succ_sub ( show n_0 ≤ N from hN ), Finset.sum_range_succ ];
           rw [ show n_0 + ( N - n_0 + 1 ) = N + 1 by linarith [ Nat.sub_add_cancel hN ] ] ; ring_nf at * ; linarith;
-      refine' ⟨ c, hc_pos, fun N hN => le_trans _ ( h_ratio_recurrence N hN ) ⟩;
-      refine' le_trans hc ( sub_le_sub_left _ _ );
+      refine ⟨ c, hc_pos, fun N hN => le_trans ?_ ( h_ratio_recurrence N hN ) ⟩;
+      refine le_trans hc ( sub_le_sub_left ?_ ( M n_0 : ℝ ) );
       field_simp;
-      refine' Summable.sum_le_tsum _ _ _;
+      refine Summable.sum_le_tsum ( Finset.range ( N - n_0 + 1 ) ) ?_ ?_;
       · intro i hi; exact div_nonneg zero_le_one ( mul_nonneg ( Finset.prod_nonneg fun _ _ => le_of_lt ( show 0 < product_term _ from add_pos_of_nonneg_of_pos ( le_of_lt ( a_seq_pos _ ) ) ( by norm_num ) ) ) ( le_of_lt ( show 0 < product_term _ from add_pos_of_nonneg_of_pos ( le_of_lt ( a_seq_pos _ ) ) ( by norm_num ) ) ) ) ;
       · -- We'll use the fact that the product of terms greater than 1 grows exponentially.
         have h_prod_growth : ∀ n ≥ n_0, product_term n ≥ 2.5 := by
@@ -1468,7 +1467,7 @@ lemma prod_ratio_tendsto_zero (n_0 : ℕ) :
     -- Since $\sum_{n=n_0}^\infty \log(1 + \frac{1}{2a_n})$ diverges, we have $\prod_{n=n_0}^N \frac{1}{1 + \frac{1}{2a_n}}$ tends to $0$.
     have h_prod_zero : Filter.Tendsto (fun N => Real.exp (-∑ n ∈ Finset.Icc n_0 N, Real.log (1 + 1 / (2 * a_seq n)))) Filter.atTop (nhds 0) := by
       aesop;
-    refine' h_prod_zero.congr' _;
+    refine h_prod_zero.congr' ?_;
     filter_upwards [ Filter.eventually_ge_atTop n_0 ] with N hN using by rw [ h_prod_ratio N hN, Real.exp_neg, Real.exp_sum, Finset.prod_congr rfl fun _ _ => Real.exp_log ( by exact add_pos_of_pos_of_nonneg zero_lt_one <| one_div_nonneg.mpr <| mul_nonneg zero_le_two <| le_of_lt <| a_seq_pos _ ) ] ; aesop;
 
 noncomputable def density_ratio (n_0 N : ℕ) : ℝ := (E_N n_0 N : ℝ) / M (N + 1)
@@ -1494,10 +1493,11 @@ lemma esymm_le_pow_sum (s : Finset ℕ) (f : ℕ → ℝ) (k : ℕ) (hf : ∀ i 
           rcases k with ( _ | k ) <;> simp_all +decide [ Multiset.powersetCard_cons ]
           rw [ add_pow ]
           simp_all +decide [ Finset.sum_range_succ', Nat.factorial_succ, mul_assoc, mul_comm, mul_left_comm ]
-          refine' le_trans ( add_le_add ( _ : _ ≤ _ ) ( _ : _ ≤ _ ) ) _
-          exact s.sum ^ ( k + 1 )
-          exact x * ( s.sum ^ k * ( k + 1 ) )
-          · convert ih ( k + 1 ) using 1;
+          refine le_trans
+            ( add_le_add
+              ( b := s.sum ^ ( k + 1 ) )
+              ( d := x * ( s.sum ^ k * ( k + 1 ) ) ) ?_ ?_ ) ?_
+          · convert ih ( k + 1 ) using 1
             norm_num [ Nat.factorial_succ, mul_assoc, mul_comm, mul_left_comm ]
           · rw [ Multiset.sum_map_mul_left ]
             exact mul_le_mul_of_nonneg_left ( by simpa [ mul_assoc, mul_comm, mul_left_comm, Multiset.sum_map_mul_right ] using mul_le_mul_of_nonneg_left ( ih k ) ( by positivity : 0 ≤ ( k + 1 : ℝ ) ) ) hs_nonneg.1
@@ -1514,7 +1514,7 @@ noncomputable def S_sum (n_0 N : ℕ) : ℝ := ∑ n ∈ Finset.Icc n_0 N, 1 / a
 
 lemma symmetric_bound_le_poly (n_0 N : ℕ) :
   symmetric_bound n_0 N ≤ (∏ n ∈ Finset.Icc n_0 N, a_seq n) * ∑ j ∈ Finset.range (M n_0), (S_sum n_0 N) ^ j / j ! := by
-    refine' mul_le_mul_of_nonneg_left _ ( Finset.prod_nonneg fun _ _ => le_of_lt ( a_seq_pos _ ) );
+    refine mul_le_mul_of_nonneg_left ?_ ( Finset.prod_nonneg fun _ _ => le_of_lt ( a_seq_pos _ ) );
     gcongr;
     apply_rules [ esymm_le_pow_sum ];
     exact fun _ _ => one_div_nonneg.mpr ( le_of_lt ( a_seq_pos _ ) )
@@ -1531,7 +1531,7 @@ lemma density_ratio_bound (n_0 : ℕ) :
   density_ratio n_0 N ≤ (C_val n_0 / c) * prod_ratio n_0 N * poly_S n_0 N := by
     have := M_lower_bound_proven n_0;
     obtain ⟨ c, hc₀, hc ⟩ := this;
-    refine' ⟨ c, hc₀, fun N hN => _ ⟩;
+    refine ⟨ c, hc₀, fun N hN => ?_ ⟩;
     have h_density_le : density_ratio n_0 N ≤ ((M n_0 + 1) : ℝ) * symmetric_bound n_0 N / (c * M n_0 * ∏ n ∈ Finset.Icc n_0 N, product_term n) := by
       have h_density_le : density_ratio n_0 N ≤ ((M n_0 + 1) : ℝ) * symmetric_bound n_0 N / (M (N + 1)) := by
         unfold density_ratio;
@@ -1631,9 +1631,9 @@ lemma main_bound_tendsto_zero (n_0 : ℕ) :
     have h_sum : Filter.Tendsto (fun N => ∑ j ∈ Finset.range (M n_0), (S_sum n_0 N)^j * Real.exp (-S_sum n_0 N / 4) / j !) Filter.atTop (nhds (∑ j ∈ Finset.range (M n_0), 0 / j !)) := by
       exact tendsto_finset_sum _ fun j hj => by simpa using h_term j ( Finset.mem_range.mp hj ) |> Filter.Tendsto.div_const <| j !;
     simp_all +decide [ div_eq_mul_inv, mul_comm, mul_left_comm ];
-    refine' squeeze_zero ( fun N => _ ) ( fun N => _ ) h_sum;
+    refine squeeze_zero ( fun N => ?_ ) ( fun N => ?_ ) h_sum;
     · exact mul_nonneg ( Finset.sum_nonneg fun _ _ => div_nonneg ( pow_nonneg ( Finset.sum_nonneg fun _ _ => one_div_nonneg.mpr ( show 0 ≤ a_seq _ from le_of_lt ( a_seq_pos _ ) ) ) _ ) ( Nat.cast_nonneg _ ) ) ( Finset.prod_nonneg fun _ _ => div_nonneg ( show 0 ≤ a_seq _ from le_of_lt ( a_seq_pos _ ) ) ( show 0 ≤ product_term _ from add_nonneg ( le_of_lt ( a_seq_pos _ ) ) ( by norm_num ) ) );
-    · refine' le_trans ( mul_le_mul_of_nonneg_left ( prod_ratio_bound n_0 N ) ( _ ) ) _;
+    · refine le_trans ( mul_le_mul_of_nonneg_left ( prod_ratio_bound n_0 N ) ( ?_ ) ) ?_;
       · exact Finset.sum_nonneg fun _ _ => div_nonneg ( pow_nonneg ( Finset.sum_nonneg fun _ _ => one_div_nonneg.mpr ( le_of_lt ( a_seq_pos _ ) ) ) _ ) ( Nat.cast_nonneg _ );
       · unfold poly_S; norm_num [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _ ] ;
 
@@ -1708,12 +1708,12 @@ lemma a_seq_mono : Monotone a_seq := by
     all_goals norm_cast at *;
     rw [ Nat.le_log2 ];
     · rw [ Nat.le_log2 ] <;> norm_num;
-      refine' le_trans _ ( Nat.add_le_add_right hnm 15 );
+      refine le_trans ?_ ( Nat.add_le_add_right hnm 15 );
       rw [ ← Nat.le_log2 ] <;> norm_num;
       rw [ ← Nat.le_log2 ] ; norm_num;
       grind;
     · aesop;
-  refine' fun m n mn => _;
+  refine fun m n mn => ?_;
   unfold a_seq;
   simp +decide [ B_card_eq ];
   exact pow_le_pow_right₀ ( by norm_num ) ( h_k_mono mn )
@@ -1797,11 +1797,11 @@ lemma a_seq_mul_exp_neg_S_sum_tendsto_zero (n_0 : ℕ) :
                     norm_num +zetaDelta at *;
                     exact tendsto_nhdsWithin_of_tendsto_nhds ( by simpa using Real.continuous_mul_log.neg.tendsto 0 );
                   simpa [ add_div, sub_div ] using Filter.Tendsto.add ( Filter.Tendsto.add ( tendsto_const_nhds.mul ( tendsto_inv_atTop_zero.comp ( Real.tendsto_log_atTop.comp ( Filter.tendsto_id.atTop_add tendsto_const_nhds ) ) ) ) h_log_log ) ( Filter.Tendsto.neg ( tendsto_const_nhds.mul ( tendsto_inv_atTop_zero.comp ( Real.tendsto_log_atTop.comp ( Filter.tendsto_id.atTop_add tendsto_const_nhds ) ) ) ) );
-                refine' this.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 0 ] with N hN using by rw [ Real.log_div ( by exact ne_of_gt ( mul_pos ( by norm_num ) ( Real.log_pos ( by linarith ) ) ) ) ( by positivity ), Real.log_mul ( by norm_num ) ( by exact ne_of_gt ( Real.log_pos ( by linarith ) ) ) ] )
+                refine this.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 0 ] with N hN using by rw [ Real.log_div ( by exact ne_of_gt ( mul_pos ( by norm_num ) ( Real.log_pos ( by linarith ) ) ) ) ( by positivity ), Real.log_mul ( by norm_num ) ( by exact ne_of_gt ( Real.log_pos ( by linarith ) ) ) ] )
               have : Filter.Tendsto (fun N => (Real.log (32 * Real.log (N + 16) / Real.log 2 + 1) - Real.log (32 * Real.log (N + 16) / Real.log 2)) / Real.log (N + 16)) Filter.atTop (nhds 0) := by
                 have : Filter.Tendsto (fun N => Real.log (1 + 1 / (32 * Real.log (N + 16) / Real.log 2)) / Real.log (N + 16)) Filter.atTop (nhds 0) := by
                   exact le_trans ( Filter.Tendsto.div_atTop ( Filter.Tendsto.log ( tendsto_const_nhds.add <| tendsto_const_nhds.div_atTop <| Filter.Tendsto.atTop_div_const ( by positivity ) <| Filter.Tendsto.const_mul_atTop ( by positivity ) <| Real.tendsto_log_atTop.comp <| Filter.tendsto_id.atTop_add tendsto_const_nhds ) <| by positivity ) <| Real.tendsto_log_atTop.comp <| Filter.tendsto_id.atTop_add tendsto_const_nhds ) <| by norm_num;
-                refine' this.congr' _;
+                refine this.congr' ?_;
                 filter_upwards [ Filter.eventually_gt_atTop 0 ] with N hN using by rw [ one_add_div ( by exact ne_of_gt ( div_pos ( mul_pos ( by norm_num ) ( Real.log_pos ( by linarith ) ) ) ( Real.log_pos ( by norm_num ) ) ) ), Real.log_div ( by exact ne_of_gt ( add_pos ( div_pos ( mul_pos ( by norm_num ) ( Real.log_pos ( by linarith ) ) ) ( Real.log_pos ( by norm_num ) ) ) zero_lt_one ) ) ( by exact ne_of_gt ( div_pos ( mul_pos ( by norm_num ) ( Real.log_pos ( by linarith ) ) ) ( Real.log_pos ( by norm_num ) ) ) ) ] ;
               convert this.add ‹Filter.Tendsto ( fun N => Real.log ( 32 * Real.log ( N + 16 ) / Real.log 2 ) / Real.log ( N + 16 ) ) Filter.atTop ( nhds 0 ) › using 2 <;> ring
             exact this;
@@ -1883,9 +1883,9 @@ lemma density_ratio_lower_tendsto_zero (n_0 : ℕ) :
       -- Since $Real.exp (- S_sum n_0 N / 4) \leq Real.exp (- S_sum n_0 N / 8) * Real.exp (- S_sum n_0 N / 8)$, we can bound the product.
       have h_exp_bound : ∀ N ≥ n_0, Real.exp (- S_sum n_0 N / 4) * poly_S n_0 N * (a_seq N + 1) ≤ Real.exp (- S_sum n_0 N / 8) * Real.exp (- S_sum n_0 N / 8) * poly_S n_0 N * (a_seq N + 1) := by
         exact fun N hN => by rw [ ← Real.exp_add ] ; ring_nf; norm_num;
-      refine' squeeze_zero_norm' _ h_prod_tendsto_zero;
+      refine squeeze_zero_norm' ?_ h_prod_tendsto_zero;
       filter_upwards [ Filter.eventually_ge_atTop n_0 ] with N hN using by rw [ Real.norm_of_nonneg ( by exact mul_nonneg ( mul_nonneg ( Finset.prod_nonneg fun _ _ => div_nonneg ( by exact le_of_lt ( by exact a_seq_pos _ ) ) ( by exact add_nonneg ( by exact le_of_lt ( by exact a_seq_pos _ ) ) ( by norm_num ) ) ) ( Finset.sum_nonneg fun _ _ => div_nonneg ( pow_nonneg ( Finset.sum_nonneg fun _ _ => one_div_nonneg.mpr ( by exact le_of_lt ( by exact a_seq_pos _ ) ) ) _ ) ( Nat.cast_nonneg _ ) ) ) ( by exact add_nonneg ( by exact le_of_lt ( by exact a_seq_pos _ ) ) zero_le_one ) ) ] ; linarith [ h_prod_le_exp N hN, h_exp_bound N hN ] ;
-    refine' squeeze_zero_norm' _ ( by simpa using h_prod_tendsto_zero.const_mul h_bound.choose );
+    refine squeeze_zero_norm' ?_ ( by simpa using h_prod_tendsto_zero.const_mul h_bound.choose );
     filter_upwards [ Filter.eventually_ge_atTop n_0 ] with N hN using by rw [ Real.norm_of_nonneg ( by positivity ) ] ; linarith [ h_bound.choose_spec.2 N hN ] ;
 
 /-
@@ -1946,7 +1946,7 @@ lemma N_of_mono : Monotone N_of := by
 N_of tends to infinity.
 -/
 lemma N_of_tendsto_atTop : Filter.Tendsto N_of Filter.atTop Filter.atTop := by
-  refine' Filter.tendsto_atTop_atTop.mpr fun x => _;
+  refine Filter.tendsto_atTop_atTop.mpr fun x => ?_;
   use M ( x + 1 ) + 1;
   -- By definition of $N_of$, we know that $N_of a$ is the smallest $k$ such that $a \leq M (k + 1)$.
   intros a ha
@@ -1995,8 +1995,8 @@ lemma bad_density_tendsto_zero (n_0 : ℕ) :
         filter_upwards [ h_N_of_ge_1, Filter.eventually_gt_atTop ( M 1 ) ] with m hm₁ hm₂;
         have := N_of_min m ( N_of m - 1 ) ; rcases k : N_of m with ( _ | _ | k ) <;> aesop;
       filter_upwards [ h_bound, ‹∀ᶠ m in Filter.atTop, ( bad_count n_0 m : ℝ ) ≤ E_N n_0 ( N_of m ) › ] with m hm₁ hm₂ using by rw [ div_le_div_iff₀ ] <;> nlinarith [ show ( M ( N_of m ) : ℝ ) > 0 from Nat.cast_pos.mpr ( M_pos _ ) ] ;
-    refine' squeeze_zero_norm' _ _;
-    use fun m => ( E_N n_0 ( N_of m ) : ℝ ) / M ( N_of m );
+    refine squeeze_zero_norm'
+      ( a := fun m => ( E_N n_0 ( N_of m ) : ℝ ) / M ( N_of m ) ) ?_ ?_;
     · filter_upwards [ h_bound ] with m hm using by rw [ Real.norm_of_nonneg ( by positivity ) ] ; exact hm;
     · exact Filter.Tendsto.comp ( density_ratio_lower_tendsto_zero n_0 ) ( N_of_tendsto_atTop )
 
@@ -2016,7 +2016,7 @@ lemma P_T_density_one (n_0 : ℕ) : has_asymptotic_density_one (P_T n_0) := by
     rw [ Nat.sub_sub_self ];
     · exact congr_arg Finset.card ( by ext; aesop );
     · exact le_trans ( Finset.card_le_card ( Finset.inter_subset_right ) ) ( by simp );
-  refine' h_density.congr' _;
+  refine h_density.congr' ?_;
   filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn;
   rw [ h_card_eq, Nat.cast_sub ];
   · rw [ sub_div, div_self ( by positivity ) ]
@@ -2032,7 +2032,7 @@ lemma density_superset {S1 S2 : Set ℕ} (h : S1 ⊆ S2) (h_dens : has_asymptoti
       exact fun n => Finset.card_mono fun x hx => by aesop;
     have h_ratio_ge : Filter.Tendsto (fun n => ((Finset.range n).filter (· ∈ S2)).card / (n : ℝ)) Filter.atTop (nhds 1) := by
       have h_lim_inf : Filter.Tendsto (fun n => ((Finset.range n).filter (· ∈ S1)).card / (n : ℝ)) Filter.atTop (nhds 1) := h_dens
-      refine' tendsto_of_tendsto_of_tendsto_of_le_of_le' h_lim_inf tendsto_const_nhds _ _;
+      refine tendsto_of_tendsto_of_tendsto_of_le_of_le' h_lim_inf tendsto_const_nhds ?_ ?_;
       · filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn using div_le_div_of_nonneg_right ( mod_cast h_ratio_le n ) ( Nat.cast_nonneg _ );
       · filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn using div_le_one_of_le₀ ( mod_cast le_trans ( Finset.card_filter_le _ _ ) ( by simp ) ) ( by positivity );
     exact h_ratio_ge
@@ -2064,7 +2064,7 @@ lemma P_T_density_one_proven (n_0 : ℕ) : has_asymptotic_density_one (P_T n_0) 
     rw [ Nat.sub_sub_self ];
     · exact congr_arg Finset.card ( by ext; aesop );
     · exact le_trans ( Finset.card_le_card ( Finset.inter_subset_right ) ) ( by simp );
-  refine' h_density.congr' _;
+  refine h_density.congr' ?_;
   filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn;
   rw [ h_card_eq, Nat.cast_sub ];
   · rw [ sub_div, div_self ( by positivity ) ]
