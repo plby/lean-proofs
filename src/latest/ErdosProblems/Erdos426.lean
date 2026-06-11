@@ -35,7 +35,6 @@ set_option linter.style.longLine false
 -- where possible.
 set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 set_option linter.unnecessarySeqFocus false
 set_option linter.unreachableTactic false
 set_option linter.unusedSimpArgs false
@@ -116,17 +115,17 @@ theorem isUniqueSubgraph_iff {n : ℕ} (G H : SimpleGraph (Fin n)) :
     IsUniqueSubgraph G H ↔ IsUniqueSubgraph' G H := by
   constructor <;> intro h;
   · obtain ⟨ S, hS₁, hS₂ ⟩ := h;
-    refine' ⟨ S.spanningCoe, _, _ ⟩ <;> norm_num +zetaDelta at *;
+    refine ⟨ S.spanningCoe, ?_, ?_ ⟩ <;> norm_num +zetaDelta at *;
     · exact ⟨ S.spanningCoe_le, hS₁.2.map ( fun f => f.symm ) ⟩;
     · intro y hy a; specialize hS₂ ( spanningSubgraphOf hy ) ?_ ?_ <;> simp_all +decide [ SimpleGraph.Subgraph.IsSpanning ] ;
       · exact fun v => Set.mem_univ v;
       · exact a.symm;
       · ext v w; aesop;
   · obtain ⟨ G', hG', hG'' ⟩ := h;
-    refine' ⟨ spanningSubgraphOf hG'.1, _, _ ⟩ <;> simp +decide;
-    · refine' ⟨ _, _ ⟩;
+    refine ⟨ spanningSubgraphOf hG'.1, ?_, ?_ ⟩ <;> simp +decide;
+    · refine ⟨ ?_, ?_ ⟩;
       · exact Subgraph.isSpanning_iff.mpr rfl;
-      · refine' ⟨ hG'.2.some.symm ⟩;
+      · refine ⟨ hG'.2.some.symm ⟩;
     · intro y hy a;
       have := hG'' ( y.spanningCoe ) ⟨ by
         exact Subgraph.spanningCoe_le y, ⟨ a.symm ⟩ ⟩
@@ -138,13 +137,13 @@ theorem isUniqueSubgraph_iso_invariant {n : ℕ} {G₁ G₂ H : SimpleGraph (Fin
     IsUniqueSubgraph G₁ H ↔ IsUniqueSubgraph G₂ H := by
   constructor;
   · rintro ⟨ S, ⟨ hS₁, hS₂ ⟩, hS₃ ⟩;
-    refine' ⟨ S, ⟨ hS₁, _ ⟩, _ ⟩;
+    refine ⟨ S, ⟨ hS₁, ?_ ⟩, ?_ ⟩;
     · exact ⟨ hS₂.some.trans hi.some ⟩;
     · intro y hy;
       obtain ⟨ f ⟩ := hy.2;
       exact hS₃ y ⟨ hy.1, ⟨ f.trans hi.some.symm ⟩ ⟩;
   · rintro ⟨ S, hS₁, hS₂ ⟩;
-    refine' ⟨ S, _, _ ⟩;
+    refine ⟨ S, ?_, ?_ ⟩;
     · exact ⟨ hS₁.1, ⟨ hS₁.2.some.trans hi.some.symm ⟩ ⟩;
     · rintro T ⟨ hT₁, ⟨ f ⟩ ⟩;
       exact hS₂ T ⟨ hT₁, ⟨ f.trans hi.some ⟩ ⟩
@@ -220,12 +219,14 @@ theorem probUniqueEmb_nonneg {n : ℕ} (H : SimpleGraph (Fin n)) :
 theorem probUniqueEmb_le_one {n : ℕ} (H : SimpleGraph (Fin n)) :
     probUniqueEmb H ≤ 1 := by
   have h_card_le : numUniquelyEmbedding H ≤ 2 ^ (n.choose 2) := by
-    refine' le_trans ( Finset.card_le_card _ ) _;
-    exact Finset.image ( fun s : Finset ( Sym2 ( Fin n ) ) => SimpleGraph.fromEdgeSet ( s.filter fun e => ¬e.IsDiag ) ) ( Finset.powerset ( Finset.univ.filter fun e => ¬e.IsDiag ) );
+    let S : Finset (SimpleGraph (Fin n)) := Finset.image ( fun s : Finset ( Sym2 ( Fin n ) ) =>
+      SimpleGraph.fromEdgeSet ( s.filter fun e => ¬e.IsDiag ) ) ( Finset.powerset (
+        Finset.univ.filter fun e => ¬e.IsDiag ) );
+    refine le_trans ( Finset.card_le_card (t := S) ?_ ) ?_;
     · intro G hG;
       simp +zetaDelta at *;
-      refine' ⟨ Finset.filter ( fun e => e ∈ G.edgeSet ) ( Finset.univ.filter fun e => ¬e.IsDiag ), _, _ ⟩ <;> aesop;
-    · refine' Finset.card_image_le.trans _;
+      refine ⟨ Finset.filter ( fun e => e ∈ G.edgeSet ) ( Finset.univ.filter fun e => ¬e.IsDiag ), ?_, ?_ ⟩ <;> aesop;
+    · refine Finset.card_image_le.trans ?_;
       rw [ show Finset.filter ( fun e => ¬e.IsDiag ) Finset.univ = Finset.univ \ Finset.image ( fun i => Sym2.mk i i ) Finset.univ from ?_, Finset.card_powerset, Finset.card_sdiff ] <;> norm_num [ Finset.card_image_of_injective, Function.Injective ];
       · rw [ Sym2.card ];
         simp +arith +decide [ Nat.choose_succ_succ ];
@@ -301,7 +302,7 @@ theorem orbitRel_eq_graphIsoSetoid (n : ℕ) :
   ext G H;
   constructor;
   · rintro ⟨ σ, rfl ⟩;
-    refine' ⟨ _, _ ⟩;
+    refine ⟨ ?_, ?_ ⟩;
     exacts [ σ⁻¹, by simp +decide [ SimpleGraph.adj_comm ] ];
   · rintro ⟨ f ⟩;
     use f.toEquiv.symm;
@@ -403,14 +404,14 @@ theorem nontrivial_aut_bound (n : ℕ) :
   have h_card_SimpleGraph : (Fintype.card (SimpleGraph (Fin n)) : ℝ) = 2 ^ (Nat.choose n 2) := by
     rw [ Fintype.card_eq_nat_card ];
     have h_card_simpleGraph : Fintype.card (SimpleGraph (Fin n)) = Finset.card (Finset.powerset (Finset.univ.filter (fun e : Fin n × Fin n => e.1 < e.2))) := by
-      refine' Finset.card_bij _ _ _ _;
+      refine Finset.card_bij ?_ ?_ ?_ ?_;
       use fun G _ => Finset.filter ( fun e => G.Adj e.1 e.2 ) ( Finset.univ.filter ( fun e : Fin n × Fin n => e.1 < e.2 ) );
       · grind +splitImp;
       · intro G₁ _ G₂ _ h; ext u v; by_cases hu : u < v <;> by_cases hv : v < u <;> simp_all +decide [ Finset.ext_iff ] ;
         · simpa [ SimpleGraph.adj_comm ] using h v u hv;
         · simp_all +decide [ le_antisymm hv hu ];
       · intro b hb;
-        refine' ⟨ SimpleGraph.mk fun u v => u < v ∧ ( u, v ) ∈ b ∨ v < u ∧ ( v, u ) ∈ b, _, _ ⟩ <;> simp_all +decide [ Finset.ext_iff ];
+        refine ⟨ SimpleGraph.mk fun u v => u < v ∧ ( u, v ) ∈ b ∨ v < u ∧ ( v, u ) ∈ b, ?_, ?_ ⟩ <;> simp_all +decide [ Finset.ext_iff ];
         grind;
     rw [ Nat.card_eq_fintype_card, h_card_simpleGraph, Finset.card_powerset ];
     rw [ show Finset.filter ( fun e : Fin n × Fin n => e.1 < e.2 ) Finset.univ = Finset.biUnion ( Finset.univ : Finset ( Fin n ) ) fun i => Finset.image ( fun j => ( i, j ) ) ( Finset.Ioi i ) from ?_, Finset.card_biUnion ];
@@ -433,15 +434,15 @@ Fintype.card (SimpleGraph (Fin n)) = 2^(n choose 2)
 theorem card_simpleGraph (n : ℕ) :
     Fintype.card (SimpleGraph (Fin n)) = 2 ^ n.choose 2 := by
   have h_bij : Fintype.card (SimpleGraph (Fin n)) = Fintype.card {s : Finset (Fin n × Fin n) | ∀ x y, (x, y) ∈ s → x < y} := by
-    refine' Fintype.card_congr _;
-    refine' Equiv.ofBijective ( fun G => ⟨ Finset.filter ( fun p => G.Adj p.1 p.2 ) ( Finset.univ.filter fun p => p.1 < p.2 ), _ ⟩ ) ⟨ _, _ ⟩;
+    refine Fintype.card_congr ?_;
+    refine Equiv.ofBijective ( fun G => ⟨ Finset.filter ( fun p => G.Adj p.1 p.2 ) ( Finset.univ.filter fun p => p.1 < p.2 ), ?_ ⟩ ) ⟨ ?_, ?_ ⟩;
     all_goals norm_num [ Function.Injective, Function.Surjective ];
     · aesop;
     · intro G₁ G₂ h; ext u v; by_cases hu : u < v <;> by_cases hv : v < u <;> simp_all +decide [ Finset.ext_iff, SimpleGraph.adj_comm ] ;
       · simpa [ SimpleGraph.adj_comm ] using h v u hv;
       · simp_all +decide [ le_antisymm hv hu ];
     · intro a ha;
-      refine' ⟨ SimpleGraph.mk fun x y => x < y ∧ ( x, y ) ∈ a ∨ y < x ∧ ( y, x ) ∈ a, _ ⟩;
+      refine ⟨ SimpleGraph.mk fun x y => x < y ∧ ( x, y ) ∈ a ∨ y < x ∧ ( y, x ) ∈ a, ?_ ⟩;
       grind;
   -- The number of subsets of the set of pairs (x, y) with x < y is 2^(n choose 2).
   have h_subsets : Fintype.card {s : Finset (Fin n × Fin n) | ∀ x y, (x, y) ∈ s → x < y} = 2 ^ (Finset.card (Finset.filter (fun p => p.1 < p.2) (Finset.univ : Finset (Fin n × Fin n)))) := by
@@ -706,7 +707,7 @@ lemma switch_pair_count_lower {n : ℕ} (Hc : SimpleGraph (Fin n)) (u v : Fin n)
       gcongr;
       · norm_num;
       · have h_card : Finset.card (Finset.filter (fun e => e.IsDiag = false) (Finset.univ : Finset (Sym2 (Fin n)))) = Finset.card (Finset.powersetCard 2 (Finset.univ : Finset (Fin n))) := by
-          refine' Finset.card_bij ( fun e he => Finset.filter ( fun x => x ∈ e ) Finset.univ ) _ _ _ <;> simp +decide [ Finset.mem_powersetCard ];
+          refine Finset.card_bij ( fun e he => Finset.filter ( fun x => x ∈ e ) Finset.univ ) ?_ ?_ ?_ <;> simp +decide [ Finset.mem_powersetCard ];
           · intro a ha; rw [ Finset.card_eq_two ] ;
             rcases a with ⟨ x, y ⟩ ; use x, y ; aesop;
           · simp +contextual [ Finset.ext_iff, Sym2.ext_iff ];
@@ -714,14 +715,18 @@ lemma switch_pair_count_lower {n : ℕ} (Hc : SimpleGraph (Fin n)) (u v : Fin n)
         aesop;
       · exact Finset.inter_subset_left;
     have h_edges : Finset.card (Finset.filter (fun G : SimpleGraph (Fin n) => ∀ e ∈ Finset.image (fun w => Sym2.mk v w) (Finset.filter (fun w => Hc.Adj u w ∧ ¬Hc.Adj v w) Finset.univ) ∪ Finset.image (fun w => Sym2.mk u w) (Finset.filter (fun w => Hc.Adj v w ∧ ¬Hc.Adj u w) Finset.univ), e ∈ G.edgeSet) (Finset.univ : Finset (SimpleGraph (Fin n)))) ≥ 2 ^ (Nat.choose n 2 - (Finset.card (Finset.filter (fun w => Hc.Adj u w ∧ ¬Hc.Adj v w) Finset.univ) + Finset.card (Finset.filter (fun w => Hc.Adj v w ∧ ¬Hc.Adj u w) Finset.univ))) := by
-      refine le_trans ?_ ( h_edges _ ?_ );
+      let S : Finset (Sym2 (Fin n)) := Finset.image (fun w => Sym2.mk v w) (Finset.filter (
+        fun w => Hc.Adj u w ∧ ¬Hc.Adj v w) Finset.univ) ∪ Finset.image (fun w => Sym2.mk u w) (
+          Finset.filter (fun w => Hc.Adj v w ∧ ¬Hc.Adj u w) Finset.univ);
+      refine le_trans ?_ ( h_edges S ?_ );
       · rw [ Finset.card_union_of_disjoint ];
         · rw [ Finset.card_image_of_injective, Finset.card_image_of_injective ] <;> norm_num [ Function.Injective ];
           · grind;
           · grind;
         · simp +decide [ Finset.disjoint_left, Sym2.eq ];
           rintro _ x hx₁ hx₂ rfl y hy₁ hy₂; contrapose! hnadj; aesop;
-      · simp +decide [ Finset.subset_iff ];
+      · dsimp [S];
+        simp +decide [ Finset.subset_iff ];
         rintro _ ( ⟨ a, ⟨ ha₁, ha₂ ⟩, rfl ⟩ | ⟨ a, ⟨ ha₁, ha₂ ⟩, rfl ⟩ ) <;> simp +decide [ *, Sym2.eq_swap ];
         · grind;
         · rintro rfl; tauto;
@@ -902,16 +907,16 @@ lemma switchCount_bounded_diff_edgeSlot {n : ℕ} (Hc : SimpleGraph (Fin n))
   split_ifs <;> simp_all +decide [ switchCount ];
   · -- Let's simplify the expression inside the absolute value.
     suffices h_simp : ∀ p ∈ T.offDiag, |switchIndicator Hc p.1 p.2 (graphDecode x) - switchIndicator Hc p.1 p.2 (graphDecode y)| ≤ if p.1 = e.val.1 ∧ Hc.Adj p.2 e.val.2 then 1 else if p.2 = e.val.1 ∧ Hc.Adj p.1 e.val.2 then 1 else 0 by
-      refine' le_trans ( by simpa only [ ← Finset.sum_sub_distrib ] using Finset.abs_sum_le_sum_abs _ _ ) ( le_trans ( Finset.sum_le_sum h_simp ) _ );
+      refine le_trans ( by simpa only [ ← Finset.sum_sub_distrib ] using Finset.abs_sum_le_sum_abs _ _ ) ( le_trans ( Finset.sum_le_sum h_simp ) ?_ );
       simp +decide [ Finset.sum_ite, Finset.filter_and ];
       rw [ two_mul ];
       gcongr;
-      · refine' le_trans ( Finset.card_le_card _ ) _;
-        exact Finset.image ( fun v => ( e.val.1, v ) ) ( Finset.filter ( fun v => Hc.Adj v e.val.2 ) T );
+      · refine le_trans ( Finset.card_le_card (t := Finset.image ( fun v => ( e.val.1, v ) ) (
+          Finset.filter ( fun v => Hc.Adj v e.val.2 ) T )) ?_ ) ?_;
         · intro p hp; aesop;
         · exact Finset.card_image_le;
-      · refine' le_trans ( Finset.card_le_card _ ) _;
-        exact Finset.image ( fun v => ( v, e.val.1 ) ) ( Finset.filter ( fun v => Hc.Adj v e.val.2 ) T );
+      · refine le_trans ( Finset.card_le_card (t := Finset.image ( fun v => ( v, e.val.1 ) ) (
+          Finset.filter ( fun v => Hc.Adj v e.val.2 ) T )) ?_ ) ?_;
         · grind;
         · exact Finset.card_image_le;
     intro p hp; split_ifs <;> simp_all +decide [ switchIndicator ] ;
@@ -922,7 +927,7 @@ lemma switchCount_bounded_diff_edgeSlot {n : ℕ} (Hc : SimpleGraph (Fin n))
   · -- The difference in switch counts is bounded by the number of pairs affected by the edge slot e.
     have h_diff_bound : |∑ p ∈ T.offDiag, (switchIndicator Hc p.1 p.2 (graphDecode x) - switchIndicator Hc p.1 p.2 (graphDecode y))| ≤ ∑ p ∈ T.offDiag, (if p.1 = e.val.2 ∧ Hc.Adj p.2 (e.val.1) then 1 else 0) + ∑ p ∈ T.offDiag, (if p.2 = e.val.2 ∧ Hc.Adj p.1 (e.val.1) then 1 else 0) := by
       rw [ ← Finset.sum_add_distrib ];
-      refine' le_trans ( Finset.abs_sum_le_sum_abs _ _ ) ( Finset.sum_le_sum _ );
+      refine le_trans ( Finset.abs_sum_le_sum_abs _ _ ) ( Finset.sum_le_sum ?_ );
       intro p hp; split_ifs <;> simp_all +decide [ switchIndicator ] ;
       · split_ifs <;> norm_num;
       · split_ifs <;> norm_num;
@@ -935,8 +940,8 @@ lemma switchCount_bounded_diff_edgeSlot {n : ℕ} (Hc : SimpleGraph (Fin n))
     · have h_card_filter : Finset.card (Finset.image (fun p => p.2) (Finset.filter (fun p => p.1 = e.val.2 ∧ Hc.Adj p.2 (e.val.1)) (T.offDiag))) ≤ Finset.card (Finset.filter (fun v => Hc.Adj v (e.val.1)) T) := by
         exact Finset.card_le_card fun x hx => by aesop;
       rwa [ Finset.card_image_of_injOn ] at h_card_filter ; intro p hp q hq ; aesop;
-    · refine' le_trans ( Finset.card_le_card _ ) _;
-      exact Finset.image ( fun v => ( v, e.val.2 ) ) ( Finset.filter ( fun v => Hc.Adj v e.val.1 ) T );
+    · refine le_trans ( Finset.card_le_card (t := Finset.image ( fun v => ( v, e.val.2 ) ) (
+        Finset.filter ( fun v => Hc.Adj v e.val.1 ) T )) ?_ ) ?_;
       · intro x hx; aesop;
       · exact Finset.card_image_le;
   · rw [ sub_eq_zero, Finset.sum_congr rfl ];
@@ -1090,7 +1095,7 @@ lemma pruningThresh_ge_two (C : ℕ) (hC : C ≥ 1) :
   -- Use `eventually_ge_mul_log_pow` with $M = 2$ and $k = 6^{4C+1}$ to get $n₀$ such that $n \geq 2 * (\log n)^{6^{4C+1}}$ for $n \geq n₀$.
   obtain ⟨n₀, hn₀⟩ : ∃ n₀ : ℕ, ∀ n : ℕ, n ≥ n₀ → (n : ℝ) ≥ 2 * (Real.log n) ^ (6 ^ (4 * C + 1)) := by
     convert eventually_ge_mul_log_pow 2 ( 6 ^ ( 4 * C + 1 ) ) ( by norm_num ) using 1;
-  refine' ⟨ n₀ + 3, fun n hn i hi => Nat.le_floor _ ⟩;
+  refine ⟨ n₀ + 3, fun n hn i hi => Nat.le_floor ?_ ⟩;
   rw [ le_div_iff₀ ] <;> norm_num;
   · refine le_trans ?_ ( hn₀ n ( by linarith ) );
     exact mul_le_mul_of_nonneg_left ( pow_le_pow_right₀ ( Real.le_log_iff_exp_le ( by norm_cast; linarith ) |>.2 <| by exact Real.exp_one_lt_d9.le.trans <| by norm_num; linarith [ show ( n : ℝ ) ≥ 3 by norm_cast; linarith ] ) <| pow_le_pow_right₀ ( by norm_num ) <| by linarith ) zero_le_two;
@@ -1111,8 +1116,8 @@ lemma pruningThresh_zero_le_B'_card (C : ℕ) (hC : C ≥ 1) :
       exact Filter.eventually_atTop.mp ( h_log_bound.eventually_ge_atTop _ );
     exact ⟨ h_eventually_ge_mul_log_pow.choose + 1, fun n hn => by gcongr ; exact h_eventually_ge_mul_log_pow.choose_spec n ( by linarith ) ⟩;
   cases' h_eventually_ge_mul_log_pow with n₀ hn₀;
-  refine' ⟨ n₀ + 2, fun n hn B'_card hB'_card => _ ⟩ ; norm_num [ pruningThresh ] at *;
-  refine' Nat.le_trans ( Nat.floor_mono <| hn₀ n <| by linarith ) _;
+  refine ⟨ n₀ + 2, fun n hn B'_card hB'_card => ?_ ⟩ ; norm_num [ pruningThresh ] at *;
+  refine Nat.le_trans ( Nat.floor_mono <| hn₀ n <| by linarith ) ?_;
   exact Nat.le_trans ( Nat.le_of_lt_succ <| by rw [ Nat.floor_lt', div_lt_iff₀ ] <;> norm_cast <;> nlinarith [ Nat.div_add_mod n ( 8 * C + 2 ), Nat.mod_lt n ( by linarith : 0 < ( 8 * C + 2 ) ) ] ) hB'_card
 
 /-
@@ -1145,7 +1150,7 @@ lemma not_controlled_exists_bad {n : ℕ}
     T.filter (fun v => Hc.Adj v w) ⊂ T := by
   simp +zetaDelta at *;
   obtain ⟨ x, hx₁, hx₂, hx₃ ⟩ := h_not;
-  refine' ⟨ x, _, _, hx₃, hx₂, _, _ ⟩;
+  refine ⟨ x, ?_, ?_, hx₃, hx₂, ?_, ?_ ⟩;
   · contrapose! hx₂;
     intro y hy; have := Finset.card_pos.mp ( by linarith ) ; obtain ⟨ z, hz ⟩ := this; specialize hIndep _ ( hTB <| Finset.mem_filter.mp hz |>.1 ) _ hx₂; aesop;
   · grind +qlia;
@@ -1312,11 +1317,11 @@ theorem claim_2_4_pruning_pos_result (C : ℕ) (hC : C ≥ 1) :
   obtain ⟨ n₁, hn₁ ⟩ := pruningThresh_ge_two C hC;
   obtain ⟨ n₂, hn₂ ⟩ := pruningThresh_zero_le_B'_card C hC;
   obtain ⟨ n₃, hn₃ ⟩ := pruning_ratio_bound C hC;
-  refine' ⟨ n₁ + n₂ + n₃ + 3, fun n hn Hc hHc B' hB' hB'' hB''' => _ ⟩;
+  refine ⟨ n₁ + n₂ + n₃ + 3, fun n hn Hc hHc B' hB' hB'' hB''' => ?_ ⟩;
   -- Apply the multi-level pruning chain to obtain the controlled set T and threshold.
   obtain ⟨ i, T, hi₁, hi₂, hi₃, hi₄, hi₅ ⟩ := pruning_chain_produces_controlled C hC Hc B' hB' hB'' (fun i => pruningThresh n i) (fun i hi => hn₁ n (by linarith) i hi) (by
   exact hn₂ n ( by linarith ) _ hB''') (fun i hi => pruningThresh_mono (by linarith) i);
-  refine' ⟨ T, pruningThresh n i, hi₂, hi₃, hi₅, _, _ ⟩;
+  refine ⟨ T, pruningThresh n i, hi₂, hi₃, hi₅, ?_, ?_ ⟩;
   · exact sub_pos_of_lt ( mod_cast hi₃ );
   · grind
 
@@ -1411,7 +1416,9 @@ lemma perm_prefix_fiber_card (m : ℕ) (S : Finset (Fin N)) (hS : S.card = m) (h
       have h_count_succ : Finset.filter (fun σ : Equiv.Perm (Fin N) => chainPrefix σ (m + 1) = S) Finset.univ = Finset.biUnion S (fun x => Finset.filter (fun σ : Equiv.Perm (Fin N) => chainPrefix σ m = S.erase x ∧ σ ⟨m, by linarith⟩ = x) Finset.univ) := by
         ext σ; simp [chainPrefix_succ];
         constructor <;> intro h <;> simp_all +decide [ Finset.ext_iff, chainPrefix ];
-        · refine' ⟨ h _ |>.1 ⟨ _, le_rfl, rfl ⟩, fun a => ⟨ fun ⟨ i, hi, hi' ⟩ => ⟨ _, h _ |>.1 ⟨ i, hi.le, hi' ⟩ ⟩, fun ⟨ hi, hi' ⟩ => _ ⟩ ⟩;
+        · refine ⟨ h (σ ⟨m, by linarith⟩) |>.1 ⟨ ⟨m, by linarith⟩, le_rfl, rfl ⟩,
+            fun a => ⟨ fun ⟨ i, hi, hi' ⟩ => ⟨ ?_, h a |>.1 ⟨ i, hi.le, hi' ⟩ ⟩,
+              fun ⟨ hi, hi' ⟩ => ?_ ⟩ ⟩;
           · intro H; have := σ.injective ( H.symm ▸ hi' ) ; aesop;
           · exact h a |>.2 hi' |> fun ⟨ i, hi, hi' ⟩ => ⟨ i, lt_of_le_of_ne hi ( by aesop ), hi' ⟩;
         · grind;
@@ -1506,7 +1513,7 @@ lemma count_perm_with_P_pair (P : Finset (Fin N) → Prop) [DecidablePred P]
         · exact fun x hx y hy hxy => Finset.disjoint_left.mpr fun σ hσ₁ hσ₂ => hxy <| by aesop;
       have h_fiber_size_succ : ∀ e₁ e₂ : Fin N, e₁ ∉ S₀ → e₂ ∉ S₀ → (Finset.univ.filter (fun σ : Equiv.Perm (Fin N) => chainPrefix σ m = S₀ ∧ σ ⟨m, hm'⟩ = e₁)).card = (Finset.univ.filter (fun σ : Equiv.Perm (Fin N) => chainPrefix σ m = S₀ ∧ σ ⟨m, hm'⟩ = e₂)).card := by
         intros e₁ e₂ he₁ he₂;
-        refine' Finset.card_bij ( fun σ hσ => Equiv.swap e₁ e₂ * σ ) _ _ _ <;> simp_all +decide [ Finset.mem_filter, Finset.mem_univ, Equiv.swap_apply_def ];
+        refine Finset.card_bij ( fun σ hσ => Equiv.swap e₁ e₂ * σ ) ?_ ?_ ?_ <;> simp_all +decide [ Finset.mem_filter, Finset.mem_univ, Equiv.swap_apply_def ];
         · intro σ hσ₁ hσ₂; simp_all +decide [ chainPrefix ] ;
           ext x; simp +decide [ Equiv.swap_apply_def, hσ₁, hσ₂ ] ;
           constructor;
@@ -1653,7 +1660,7 @@ theorem transition_sum_le_one_gen
     conv_rhs => rw [ ← Equiv.sum_comp e.symm ] ;
     grind;
   · intro m; rw [ hR ] ; unfold countP; simp +decide [ Finset.card_map ] ;
-    refine' Finset.card_bij ( fun S hS => S.map e.toEmbedding ) _ _ _ <;> simp +decide [ Finset.card_map ];
+    refine Finset.card_bij ( fun S hS => S.map e.toEmbedding ) ?_ ?_ ?_ <;> simp +decide [ Finset.card_map ];
     · simp +contextual [ Finset.map_map, Equiv.symm_apply_apply ];
     · exact fun b hb hb' => ⟨ _, ⟨ by simpa [ Finset.card_map ] using hb, hb' ⟩, by ext x; simp +decide ⟩
 
@@ -1790,7 +1797,7 @@ theorem card_invariant_bool_le {S : Type*} [Fintype S] [DecidableEq S]
       by_cases hx : x ∈ Finset.image (fun y => ⟦y⟧) (Finset.filter (fun y => σ y = y) (Finset.univ : Finset S));
       · obtain ⟨ y, hy, rfl ⟩ := Finset.mem_image.mp hx; exact if_pos hx ▸ Finset.card_pos.mpr ⟨ y, by aesop ⟩ ;
       · obtain ⟨ y, hy ⟩ := Quotient.exists_rep x; simp_all +decide [ Quotient.eq ] ;
-        refine' le_trans _ ( Finset.card_mono <| show { y, σ y } ⊆ Finset.filter ( fun z => ⟦z⟧ = x ) Finset.univ from _ );
+        refine le_trans ?_ ( Finset.card_mono <| show { y, σ y } ⊆ Finset.filter ( fun z => ⟦z⟧ = x ) Finset.univ from ?_ );
         · grind;
         · simp +decide [ ← hy, Finset.insert_subset_iff ];
           exact Quotient.sound ⟨ ⟨ σ, Subgroup.mem_zpowers σ ⟩, rfl ⟩;
@@ -1811,7 +1818,7 @@ theorem card_invariant_bool_le {S : Type*} [Fintype S] [DecidableEq S]
     · grind;
   -- Each σ-invariant function corresponds to a function on the orbits of σ.
   have h_invariant : { f : S → Bool // ∀ s, f (σ s) = f s } ≃ (Quotient (MulAction.orbitRel (Subgroup.zpowers σ) S) → Bool) := by
-    refine' Equiv.ofBijective ( fun f => fun q => f.val ( Classical.choose ( Quotient.exists_rep q ) ) ) ⟨ _, _ ⟩;
+    refine Equiv.ofBijective ( fun f => fun q => f.val ( Classical.choose ( Quotient.exists_rep q ) ) ) ⟨ ?_, ?_ ⟩;
     · intro f g hfg;
       ext s;
       have := Classical.choose_spec ( Quotient.exists_rep ( ⟦s⟧ : Quotient ( MulAction.orbitRel ( Subgroup.zpowers σ ) S ) ) );
@@ -1833,7 +1840,7 @@ theorem card_invariant_bool_le {S : Type*} [Fintype S] [DecidableEq S]
       ext q; have := Classical.choose_spec ( Quotient.exists_rep q ) ; aesop;
   have := Fintype.card_congr h_invariant;
   simp_all +decide [ Fintype.card_pi ];
-  refine' pow_le_pow_right₀ ( by decide ) _;
+  refine pow_le_pow_right₀ ( by decide ) ?_;
   have hfix_le : Fintype.card (Function.fixedPoints σ) ≤ Fintype.card S := by
     simpa [Fintype.card_subtype] using (Finset.card_filter_le (Finset.univ : Finset S) (fun x => x ∈ Function.fixedPoints σ))
   omega
@@ -1857,8 +1864,8 @@ theorem card_fixedPoints_edgePerm_le {n : ℕ} (σ : Equiv.Perm (Fin n)) :
     have h_fixed_points : (Finset.univ.filter (fun e : Sym2 (Fin n) => ¬ e.IsDiag ∧ Sym2.map σ e = e ∧ ∃ u v : Fin n, e = Sym2.mk u v ∧ u ∈ fixedPoints σ ∧ v ∈ fixedPoints σ)).card ≤ (Fintype.card (fixedPoints σ)).choose 2 := by
       have h_fixed_edges : (Finset.univ.filter (fun e : Sym2 (Fin n) => ¬ e.IsDiag ∧ e ∈ Finset.image (fun (uv : Fin n × Fin n) => Sym2.mk uv.1 uv.2) (Finset.offDiag (Finset.univ.filter (fun u => u ∈ fixedPoints σ))))).card ≤ (Finset.univ.filter (fun u => u ∈ fixedPoints σ)).card.choose 2 := by
         rw [ ← Finset.card_powersetCard ];
-        refine' le_of_eq _;
-        refine' Finset.card_bij ( fun e he => Finset.filter ( fun u => u ∈ e ) Finset.univ ) _ _ _ <;> simp +decide [ Finset.subset_iff ];
+        refine le_of_eq ?_;
+        refine Finset.card_bij ( fun e he => Finset.filter ( fun u => u ∈ e ) Finset.univ ) ?_ ?_ ?_ <;> simp +decide [ Finset.subset_iff ];
         · rintro a ha x y hx hy hxy rfl; simp_all +decide [ IsFixedPt ] ;
           exact Finset.card_eq_two.mpr ⟨ x, y, by aesop ⟩;
         · intro a₁ ha₁ x y hx hy hxy h₁ a₂ ha₂ u v hu hv huv h₂ h₃; ext w; replace h₃ := Finset.ext_iff.mp h₃ w; aesop;
@@ -1887,12 +1894,12 @@ theorem card_fixedPoints_edgePerm_le {n : ℕ} (σ : Equiv.Perm (Fin n)) :
       simp [Fintype.card_subtype]
     refine le_trans ?_ ( add_le_add h_fixed_points h_swap_points );
     rw [ ← Finset.card_union_add_card_inter ];
-    refine' le_add_right ( Finset.card_le_card _ );
+    refine le_add_right ( Finset.card_le_card ?_ );
     intro e he; simp_all +decide [ Sym2.forall ] ;
     rcases e with ⟨ u, v ⟩ ; simp_all +decide [ IsFixedPt, Sym2.eq_swap ] ;
     grind +ring;
   convert card_fixed_edges using 1;
-  refine' Finset.card_bij ( fun x hx => x.val ) _ _ _ <;> simp +decide [ edgePerm ];
+  refine Finset.card_bij ( fun x hx => x.val ) ?_ ?_ ?_ <;> simp +decide [ edgePerm ];
   · grind +suggestions;
   · exact fun b hb hb' => by
       have hfixed : edgePerm σ ⟨b, hb⟩ = ⟨b, hb⟩ := by
@@ -1968,9 +1975,10 @@ theorem saving_lower_bound {n : ℕ} (hn : 2 ≤ n) (σ : Equiv.Perm (Fin n)) (h
     (Fintype.card ↑(MulAction.fixedBy (SimpleGraph (Fin n)) σ) : ℝ) ≤
     (2 : ℝ) ^ (n.choose 2 : ℤ) / (2 : ℝ) ^ ((m * (n - 2) / 4 : ℕ) : ℤ) := by
   rw [ le_div_iff₀ ] <;> norm_cast;
-  · refine' le_trans ( Nat.mul_le_mul_right _ ( card_fixedBy_le_pow σ ) ) _;
+  · refine le_trans ( Nat.mul_le_mul_right ( 2 ^ ((n - Fintype.card (Function.fixedPoints σ)) *
+      (n - 2) / 4) ) ( card_fixedBy_le_pow σ ) ) ?_;
     rw [ ← pow_add ];
-    refine' pow_le_pow_right₀ ( by decide ) _;
+    refine pow_le_pow_right₀ ( by decide ) ?_;
     have h_exp_bound : Fintype.card (Function.fixedPoints (edgePerm σ)) ≤ (Fintype.card (Function.fixedPoints σ)).choose 2 + (n - Fintype.card (Function.fixedPoints σ)) / 2 := by
       convert card_fixedPoints_edgePerm_le σ using 1;
     rcases n with ( _ | _ | n ) <;> simp_all +decide [ Nat.choose_two_right ];
@@ -1996,16 +2004,16 @@ theorem count_perms_moving_m_le {n m : ℕ} :
   -- Each permutation with exactly $m$ non-fixed points can be constructed by choosing $m$ elements to permute and then permuting them.
   have h_construction : Finset.univ.filter (fun σ : Equiv.Perm (Fin n) => Finset.card (Finset.filter (fun x => x∉(Function.fixedPoints σ)) (Finset.univ : Finset (Fin n))) = m) ⊆ Finset.biUnion (Finset.powersetCard m (Finset.univ : Finset (Fin n))) (fun t => Finset.image (fun σ : Equiv.Perm {x // x ∈ t} => Equiv.Perm.ofSubtype σ) (Finset.univ : Finset (Equiv.Perm {x // x ∈ t}))) := by
     intro σ hσ; simp_all +decide [ Finset.subset_iff ] ;
-    refine' ⟨ Finset.filter ( fun x => ¬IsFixedPt σ x ) Finset.univ, hσ, _ ⟩;
-    refine' ⟨ Equiv.Perm.subtypePerm σ _, _ ⟩;
+    refine ⟨ Finset.filter ( fun x => ¬IsFixedPt σ x ) Finset.univ, hσ, ?_ ⟩;
+    refine ⟨ Equiv.Perm.subtypePerm σ ?_, ?_ ⟩;
     all_goals simp +decide [ Equiv.Perm.ext_iff, Equiv.Perm.ofSubtype ];
     all_goals simp +decide [ IsFixedPt, Equiv.Perm.extendDomain ];
     all_goals try rfl;
     intro x; by_cases hx : σ x = x <;> simp +decide [ hx, Equiv.Perm.subtypePerm ] <;> try rfl;
   refine le_trans h_count_fix <| le_trans ( Finset.card_le_card <| Finset.image_subset_iff.mpr fun σ hσ => h_construction hσ ) <| le_trans ( Finset.card_biUnion_le ) ?_;
-  refine' le_trans ( Finset.sum_le_sum fun _ _ => Finset.card_image_le ) _;
+  refine le_trans ( Finset.sum_le_sum fun _ _ => Finset.card_image_le ) ?_;
   simp +decide [ Finset.card_univ, Fintype.card_perm ];
-  refine' le_trans ( Finset.sum_le_sum fun x hx => Nat.factorial_le <| Finset.mem_powersetCard.mp hx |>.2.le ) _ ; norm_num [ Finset.card_univ ];
+  refine le_trans ( Finset.sum_le_sum fun x hx => Nat.factorial_le <| Finset.mem_powersetCard.mp hx |>.2.le ) ?_ ; norm_num [ Finset.card_univ ];
   rw [ Nat.mul_comm, ← Nat.descFactorial_eq_factorial_mul_choose ] ; exact Nat.descFactorial_le_pow _ _
 
 /-
@@ -2027,7 +2035,7 @@ theorem ratio_tendsto_zero :
         exact fun n => by rw [ sub_le_iff_le_add ] ; norm_cast; linarith [ Nat.div_add_mod n 4, Nat.mod_lt n zero_lt_four ] ;
       exact squeeze_zero ( fun n => div_nonneg ( sub_nonneg_of_le <| by norm_cast; linarith [ Nat.div_mul_le_self n 4 ] ) <| by positivity ) ( fun n => div_le_div_of_nonneg_right ( h_convert n ) <| by positivity ) <| tendsto_const_nhds.div_atTop <| tendsto_pow_atTop_atTop_of_one_lt one_lt_two |> Filter.Tendsto.comp <| Filter.tendsto_atTop_atTop.mpr fun x => ⟨ 4 * x, fun n hn => by linarith [ Nat.div_add_mod n 4, Nat.mod_lt n zero_lt_four ] ⟩;
     convert h_convert.add ‹Tendsto ( fun n : ℕ => 4 * ( n / 4 : ℕ ) / 2 ^ ( n / 4 ) : ℕ → ℝ ) Filter.atTop ( nhds 0 ) › using 2 <;> ring;
-  refine' squeeze_zero_norm' _ tendsto_inv_atTop_nhds_zero_nat ; norm_num;
+  refine squeeze_zero_norm' ?_ tendsto_inv_atTop_nhds_zero_nat ; norm_num;
   exact ⟨ 20, fun n hn => by rw [ inv_eq_one_div, div_le_div_iff₀ ] <;> norm_cast <;> induction hn <;> norm_num [ Nat.pow_succ ] at * ; nlinarith ⟩
 
 /-
@@ -2047,7 +2055,7 @@ theorem remainder_tendsto_zero :
     intros n hn
     have h_sum_bound : ∑ σ : Equiv.Perm (Fin n), (if σ ≠ 1 then (Fintype.card ↑(MulAction.fixedBy (SimpleGraph (Fin n)) σ) : ℝ) / 2 ^ (n.choose 2 : ℤ) else 0) ≤ ∑ m ∈ Finset.Icc 2 n, (∑ σ : Equiv.Perm (Fin n), if n - Fintype.card (Function.fixedPoints σ) = m then (Fintype.card ↑(MulAction.fixedBy (SimpleGraph (Fin n)) σ) : ℝ) / 2 ^ (n.choose 2 : ℤ) else 0) := by
       rw [ ← Finset.sum_comm ];
-      refine' Finset.sum_le_sum fun σ _ => _;
+      refine Finset.sum_le_sum fun σ _ => ?_;
       by_cases hσ : σ = 1 <;> simp +decide [ hσ ];
       -- Since σ is not the identity, there are at least two elements not fixed by σ.
       have h_not_fixed : ∃ x y : Fin n, x ≠ y ∧ σ x ≠ x ∧ σ y ≠ y := by
@@ -2095,8 +2103,7 @@ theorem remainder_tendsto_zero :
     · linarith;
   -- Using the bounds, we can show that the sum tends to 0.
   have h_tendsto_zero : Filter.Tendsto (fun n => (∑ σ : Equiv.Perm (Fin n), if σ ≠ 1 then (Fintype.card ↑(MulAction.fixedBy (SimpleGraph (Fin n)) σ) : ℝ) / 2 ^ (n.choose 2 : ℤ) else 0)) Filter.atTop (nhds 0) := by
-    refine' squeeze_zero_norm' _ _;
-    use fun n => 2 * r n ^ 2;
+    refine squeeze_zero_norm' (a := fun n => 2 * r n ^ 2) ?_ ?_;
     · filter_upwards [ h_geo_series, Filter.eventually_ge_atTop 4 ] with n hn hn' using by rw [ Real.norm_of_nonneg ( Finset.sum_nonneg fun _ _ => by positivity ) ] ; exact le_trans ( h_sum_bound n hn' ) hn;
     · simpa using tendsto_const_nhds.mul ( hr_zero.pow 2 );
   convert h_tendsto_zero using 2 ; norm_cast ; simp +decide [ Finset.sum_ite, Finset.filter_ne' ];
@@ -2253,7 +2260,7 @@ lemma lower_tail_bound (N : ℕ) (t : ℝ) (_ht : t ≥ 0) :
       rw [ Finset.card_filter, Finset.card_filter ];
       rw [ ← Equiv.sum_comp ( show ( Fin N → Bool ) ≃ ( Fin N → Bool ) from Equiv.ofBijective ( fun f => fun i => !f i ) ( by exact ChernoffBound.boolFlip_bijective N ) ) ];
       norm_num [ ChernoffBound.boolCount_not ];
-      refine' congr_arg _ ( Finset.filter_congr fun x hx => _ );
+      refine congr_arg _ ( Finset.filter_congr fun x hx => ?_ );
       rw [ Nat.cast_sub ( show boolCount x ≤ N from le_trans ( Finset.card_le_univ _ ) ( by norm_num ) ) ] ; constructor <;> intro <;> linarith
 
 /-! ## Step 7: Combining tails -/
@@ -2361,7 +2368,7 @@ lemma sum_fin_succ_eq {n : ℕ} (f : (Fin (n + 1) → Bool) → ℝ) :
     ∑ x : Fin (n + 1) → Bool, f x =
     ∑ b : Bool, ∑ y : Fin n → Bool, f (Fin.cons b y) := by
   rw [ ← Finset.sum_product' ];
-  refine' Finset.sum_bij ( fun x _ => ( x 0, x ∘ Fin.succ ) ) _ _ _ _ <;> simp +decide;
+  refine Finset.sum_bij ( fun x _ => ( x 0, x ∘ Fin.succ ) ) ?_ ?_ ?_ ?_ <;> simp +decide;
   · exact fun a₁ a₂ h₁ h₂ => funext fun i => by induction i using Fin.inductionOn <;> simp_all +decide [ funext_iff ] ;
   · exact ⟨ fun b => ⟨ Fin.cons false b, rfl, rfl ⟩, fun b => ⟨ Fin.cons true b, rfl, rfl ⟩ ⟩;
   · exact fun x => by congr; ext i; induction i using Fin.inductionOn <;> aesop;
@@ -2642,9 +2649,9 @@ theorem uniquelyEmbeds_iff_uniqueSub_trivialAut {n : ℕ} (G H : SimpleGraph (Fi
         exact fun u v huv => G.symm huv ⟩
       generalize_proofs at *;
       constructor;
-      · refine' ⟨ _, _ ⟩;
+      · refine ⟨ ?_, ?_ ⟩;
         · exact Subgraph.isSpanning_iff.mpr rfl;
-        · refine' ⟨ _, _ ⟩;
+        · refine ⟨ ?_, ?_ ⟩;
           exacts [ φ⁻¹, by simp +decide [ SimpleGraph.spanningCoe ] ];
       · rintro ⟨ S, hS ⟩ ⟨ hS₁, ⟨ f ⟩ ⟩;
         have h_iso : ∃ ψ : Equiv.Perm (Fin n), ∀ u v, G.Adj u v ↔ hS (ψ u) (ψ v) := by
@@ -2677,9 +2684,9 @@ theorem uniquelyEmbeds_iff_uniqueSub_trivialAut {n : ℕ} (G H : SimpleGraph (Fi
             exact fun _ => Set.mem_univ _, by
             exact fun u v h => G.symm h⟩
           generalize_proofs at *;
-          refine' ⟨ _, _, _ ⟩;
+          refine ⟨ ?_, ?_, ?_ ⟩;
           · exact Subgraph.isSpanning_iff.mpr rfl;
-          · refine' ⟨ _, _ ⟩;
+          · refine ⟨ ?_, ?_ ⟩;
             exact φ⁻¹;
             aesop;
           · simp +decide [ Equiv.Perm.inv_eq_iff_eq ];
@@ -2711,9 +2718,10 @@ lemma uniqueSubgraphClasses_card_le {n : ℕ} (H : SimpleGraph (Fin n)) :
     (uniqueSubgraphClasses H).card ≤
     numUniquelyEmbedding H + (Finset.univ.filter (fun G : SimpleGraph (Fin n) =>
       (autFinset G).card ≠ 1)).card := by
-  refine' le_trans _ ( Finset.card_union_le _ _ );
-  refine' le_trans ( Finset.card_image_le ) _;
-  refine' Finset.card_mono _;
+  refine le_trans ?_ ( Finset.card_union_le (Finset.univ.filter (fun G : SimpleGraph (Fin n) =>
+    UniquelyEmbeds G H)) (Finset.univ.filter (fun G : SimpleGraph (Fin n) => (autFinset G).card ≠ 1)) );
+  refine le_trans ( Finset.card_image_le ) ?_;
+  refine Finset.card_mono ?_;
   intro G hG;
   by_cases h : ( autFinset G ).card = 1 <;> simp_all +decide [ uniquelyEmbeds_iff_uniqueSub_trivialAut ]
 
@@ -2753,7 +2761,7 @@ lemma factorial_dvd_numUniquelyEmbedding {n : ℕ} (H : SimpleGraph (Fin n)) :
     rw [ Finset.card_eq_one ] at *;
     simp_all +decide [ Finset.eq_singleton_iff_unique_mem ];
     obtain ⟨ a, ha₁, ha₂ ⟩ := hG;
-    refine' ⟨ a * σ⁻¹, _, _ ⟩;
+    refine ⟨ a * σ⁻¹, ?_, ?_ ⟩;
     · intro u v; specialize ha₁ ( σ⁻¹ u ) ( σ⁻¹ v ) ; aesop;
     · intro x hx; specialize ha₂ ( x * σ ) ; simp_all +decide [ IsEmbedding ] ;
       simp +decide [ ← ha₂, mul_assoc ];
@@ -2782,7 +2790,7 @@ Automorphism count is an isomorphism invariant.
 lemma aut_card_iso_invariant {n : ℕ} {G₁ G₂ : SimpleGraph (Fin n)}
     (h : Nonempty (G₁.Iso G₂)) : (autFinset G₁).card = (autFinset G₂).card := by
   obtain ⟨ f ⟩ := h;
-  refine' Finset.card_bij _ _ _ _;
+  refine Finset.card_bij ?_ ?_ ?_ ?_;
   use fun a ha => f.toEquiv * a * f.symm.toEquiv;
   · unfold autFinset;
     simp +decide [ SimpleGraph.Iso.map_adj_iff ];
@@ -2790,7 +2798,7 @@ lemma aut_card_iso_invariant {n : ℕ} {G₁ G₂ : SimpleGraph (Fin n)}
     exact Iff.symm (Iso.map_adj_iff f.symm);
   · simp +contextual [ funext_iff, Equiv.Perm.ext_iff ];
   · intro b hb;
-    refine' ⟨ f.symm.toEquiv * b * f.toEquiv, _, _ ⟩ <;> simp_all +decide [ autFinset ];
+    refine ⟨ f.symm.toEquiv * b * f.toEquiv, ?_, ?_ ⟩ <;> simp_all +decide [ autFinset ];
     · exact fun u v => by simpa [ ← f.map_adj_iff ] using hb ( f u ) ( f v ) ;
     · ext x; simp +decide [ Equiv.Perm.mul_apply ] ;
 
@@ -2837,7 +2845,7 @@ lemma nontrivial_aut_classes_bound (n : ℕ) :
             use σ⁻¹;
             ext a b; simp +decide [ hσ ] ;
           · obtain ⟨ σ, rfl ⟩ := h;
-            refine' ⟨ _, _ ⟩;
+            refine ⟨ ?_, ?_ ⟩;
             exact σ⁻¹;
             aesop;
         have := orbit_card_mul_aut n G₀;
@@ -2858,7 +2866,7 @@ lemma nontrivial_aut_classes_bound (n : ℕ) :
   have h_sum_excess : ∑ q : Quotient (graphIsoSetoid n), ∑ G ∈ Finset.univ.filter (fun G => ⟦G⟧ = q), ((autFinset G).card - 1) = numIsoClasses n * n.factorial - 2 ^ n.choose 2 := by
     have h_sum_excess : ∑ q : Quotient (graphIsoSetoid n), ∑ G ∈ Finset.univ.filter (fun G => ⟦G⟧ = q), ((autFinset G).card - 1) = ∑ G : SimpleGraph (Fin n), ((autFinset G).card - 1) := by
       rw [ Finset.sum_sigma' ];
-      refine' Finset.sum_bij ( fun G _ => G.2 ) _ _ _ _ <;> aesop;
+      refine Finset.sum_bij ( fun G _ => G.2 ) ?_ ?_ ?_ ?_ <;> aesop;
     rw [ h_sum_excess, ← sum_autFinset_eq ];
     rw [ Nat.sub_eq_of_eq_add ];
     zify [ ← card_simpleGraph ];
@@ -2945,7 +2953,7 @@ lemma fH_le_probUniqueEmb_plus_error {n : ℕ} (H : SimpleGraph (Fin n)) :
             rw [ numUniquelyEmbedding_eq_factorial_mul ];
             rw [ mul_div_cancel_left₀ _ ( by positivity ) ];
             rw_mod_cast [ ← Finset.card_union_add_card_inter ];
-            refine' le_add_right ( Finset.card_le_card _ );
+            refine le_add_right ( Finset.card_le_card ?_ );
             intro q hq;
             by_cases h : ∃ G : SimpleGraph (Fin n), (autFinset G).card = 1 ∧ ⟦G⟧ = q;
             · grind +extAll;
@@ -3009,7 +3017,7 @@ lemma count_graphs_with_embedding {n : ℕ} (H : SimpleGraph (Fin n))
     · cases x ; aesop;
     · exact ⟨ fun hx' => False.elim <| hx <| hs x hx', fun hx' => False.elim <| hx <| ht x hx' ⟩;
   convert h_subgraph_count ( SimpleGraph.comap σ H ) using 1;
-  refine' congr_arg _ ( Finset.card_bij ( fun e he => Sym2.map σ.symm e ) _ _ _ ) <;> simp +decide [ SimpleGraph.comap ];
+  refine congr_arg ?_ ( Finset.card_bij ( fun e he => Sym2.map σ.symm e ) ?_ ?_ ?_ ) <;> simp +decide [ SimpleGraph.comap ];
   · rintro ⟨ u, v ⟩ huv; simp_all +decide [ SimpleGraph.adj_comm ] ;
   · intro a₁ ha₁ a₂ ha₂ h; rcases a₁ with ⟨ u₁, v₁ ⟩ ; rcases a₂ with ⟨ u₂, v₂ ⟩ ; aesop;
   · rintro ⟨ u, v ⟩ huv; use Sym2.mk (σ u) (σ v) ; aesop;
@@ -3214,22 +3222,22 @@ lemma supergraph_UE_count {n : ℕ} (G₀ H : SimpleGraph (Fin n))
       aesop;
   -- The set of valid G' corresponds to choosing k edges from a set of e(H) - m₀ available edges, which has C(e(H) - m₀, k) elements.
   have h_card : Finset.card (Finset.filter (fun G' : SimpleGraph (Fin n) => G₀ ≤ G' ∧ G' ≤ σ⁻¹ • H ∧ G'.edgeFinset.card = G₀.edgeFinset.card + k) Finset.univ) = Finset.card (Finset.powersetCard k (Finset.filter (fun e => e ∈ (σ⁻¹ • H).edgeFinset ∧ e ∉ G₀.edgeFinset) (Finset.univ : Finset (Sym2 (Fin n)))) ) := by
-    refine' Finset.card_bij ( fun G' _ => G'.edgeFinset \ G₀.edgeFinset ) _ _ _;
+    refine Finset.card_bij ( fun G' _ => G'.edgeFinset \ G₀.edgeFinset ) ?_ ?_ ?_;
     · simp +contextual [ Finset.mem_powersetCard, Finset.card_sdiff ];
       intro G' hG'₁ hG'₂ hG'₃; rw [ Finset.inter_comm ] ; simp_all +decide [ Finset.subset_iff ] ;
-      refine' ⟨ fun x hx₁ hx₂ => _, _ ⟩;
+      refine ⟨ fun x hx₁ hx₂ => ?_, ?_ ⟩;
       · cases x ; aesop;
       · rw [ Finset.inter_eq_right.mpr ] <;> aesop;
     · simp +contextual [ Finset.ext_iff ];
       intro a₁ ha₁ ha₂ ha₃ a₂ ha₄ ha₅ ha₆ h; ext u v; specialize h ( Sym2.mk u v ) ; by_cases hu : G₀.Adj u v <;> aesop;
     · intro b hb; use SimpleGraph.fromEdgeSet ( G₀.edgeFinset ∪ b ) ; simp_all +decide [ Finset.subset_iff ] ;
-      refine' ⟨ ⟨ ⟨ _, _ ⟩, _ ⟩, _ ⟩;
+      refine ⟨ ⟨ ⟨ ?_, ?_ ⟩, ?_ ⟩, ?_ ⟩;
       · intro u v; simp_all +decide [ embeddingFinset ] ;
         exact hσ u v;
       · grind;
       · rw [ Finset.card_union_of_disjoint ] <;> simp_all +decide [ Finset.disjoint_left ];
         · convert hb.2 using 1;
-          refine' Finset.card_bij ( fun x hx => x ) _ _ _ <;> simp +decide [ SimpleGraph.edgeSet ];
+          refine Finset.card_bij ( fun x hx => x ) ?_ ?_ ?_ <;> simp +decide [ SimpleGraph.edgeSet ];
           · grind;
           · intro x hx; specialize hb; have := hb.1 hx; simp_all +decide [ SimpleGraph.edgeSet ] ;
             exact fun h => by have := hb.1 hx; exact this.1 |> fun h' => by cases x; aesop;
@@ -3247,12 +3255,12 @@ lemma supergraph_UE_count {n : ℕ} (G₀ H : SimpleGraph (Fin n))
   · rw [ Finset.card_powersetCard, show Finset.filter ( fun e => e ∈ ( σ⁻¹ • H ).edgeFinset ∧ e∉G₀.edgeFinset ) Finset.univ = ( σ⁻¹ • H ).edgeFinset \ G₀.edgeFinset by ext; aesop ];
     -- Since σ is a permutation, the number of edges in σ⁻¹ • H is the same as in H.
     have h_edge_card : (σ⁻¹ • H).edgeFinset.card = H.edgeFinset.card := by
-      refine' Finset.card_bij ( fun e he => Sym2.map σ e ) _ _ _ <;> simp +decide [ Sym2.map ];
+      refine Finset.card_bij ( fun e he => Sym2.map σ e ) ?_ ?_ ?_ <;> simp +decide [ Sym2.map ];
       · intro e he; rcases e with ⟨ u, v ⟩ ; simp_all +decide [ SimpleGraph.adj_comm ] ;
         exact he;
       · intro a₁ ha₁ a₂ ha₂ h; rcases a₁ with ⟨ u₁, v₁ ⟩ ; rcases a₂ with ⟨ u₂, v₂ ⟩ ; simp_all +decide [ Quot.map ] ;
       · rintro ⟨ u, v ⟩ huv;
-        refine' ⟨ Quot.mk _ ( σ⁻¹ u, σ⁻¹ v ), _, _ ⟩ <;> simp_all +decide [ SimpleGraph.edgeSetEmbedding ];
+        refine ⟨ Quot.mk _ ( σ⁻¹ u, σ⁻¹ v ), ?_, ?_ ⟩ <;> simp_all +decide [ SimpleGraph.edgeSetEmbedding ];
         exact Quot.sound ( by aesop );
     rw [ Finset.card_sdiff ];
     rw [ h_edge_card, Finset.inter_eq_left.mpr ];
@@ -3327,7 +3335,7 @@ lemma chernoff_edge_tail (ε : ℝ) (hε : 0 < ε) :
           have h_edgeSlot : ∃ f : SimpleGraph (Fin n) ≃ (EdgeSlot n → Bool), ∀ G : SimpleGraph (Fin n), (Finset.univ.filter (fun i => f G i = true)).card = G.edgeFinset.card := by
             use UniqueSubgraphs.graphEquiv n;
             intro G; exact (by
-            refine' Finset.card_bij _ _ _ _;
+            refine Finset.card_bij ?_ ?_ ?_ ?_;
             use fun a ha => Sym2.mk a.val.1 a.val.2;
             · simp +decide [ graphEquiv ];
               unfold graphEncode; aesop;
@@ -3363,7 +3371,7 @@ lemma chernoff_edge_tail (ε : ℝ) (hε : 0 < ε) :
     have h_exp_bound : Filter.Tendsto (fun L : ℕ => 2 * Real.exp (-4 * (L : ℝ) ^ 2)) Filter.atTop (nhds 0) := by
       simpa using tendsto_const_nhds.mul ( Real.tendsto_exp_atBot.comp <| Filter.tendsto_neg_atTop_atBot.comp <| Filter.Tendsto.const_mul_atTop ( by norm_num ) <| Filter.tendsto_pow_atTop ( by norm_num ) |> Filter.Tendsto.comp <| tendsto_natCast_atTop_atTop );
     exact Filter.eventually_atTop.mp ( h_exp_bound.eventually ( ge_mem_nhds hε ) ) |> fun ⟨ L, hL ⟩ => ⟨ L + 1, Nat.succ_pos _, hL _ ( Nat.le_succ _ ) ⟩;
-  refine' ⟨ L, hL.1, fun n hn => le_trans ( h_chernoff L ( Nat.cast_pos.mpr hL.1 ) n hn ) _ ⟩;
+  refine ⟨ L, hL.1, fun n hn => le_trans ( h_chernoff L ( Nat.cast_pos.mpr hL.1 ) n hn ) ?_ ⟩;
   refine le_trans ?_ ( mul_le_mul_of_nonneg_right hL.2 <| by positivity );
   rw [ show ( n.choose 2 : ℝ ) = n * ( n - 1 ) / 2 by rw [ Nat.choose_two_right ] ; induction n <;> norm_num [ Nat.dvd_iff_mod_eq_zero, Nat.add_mod, Nat.mod_two_of_bodd ] at * ] ; ring_nf ; norm_num;
   field_simp;
@@ -3429,7 +3437,7 @@ lemma abstract_process_bound (N : ℕ) (f z : ℕ → ℝ) (p : ℝ) (k : ℕ) (
       · exact Finset.disjoint_filter.mpr fun _ _ _ _ => by linarith;
     have h_bound : ∑ m ∈ S.filter (fun m => j ≤ m ∧ m - j < k), p ^ (m - j) ≤ (min k (Finset.card (S.filter (fun m => j ≤ m)))) ∧ ∑ m ∈ S.filter (fun m => j ≤ m ∧ m - j ≥ k), p ^ (m - j) ≤ (Finset.card (S.filter (fun m => j ≤ m ∧ m - j ≥ k))) * p ^ (k - 1) := by
       constructor;
-      · refine' le_trans ( Finset.sum_le_sum fun x hx => pow_le_one₀ hp hp1 ) _ ; norm_num;
+      · refine le_trans ( Finset.sum_le_sum fun x hx => pow_le_one₀ hp hp1 ) ?_ ; norm_num;
         exact ⟨ le_trans ( Finset.card_le_card ( show { m ∈ S | j ≤ m ∧ m - j < k } ⊆ Finset.Ico j ( j + k ) from fun x hx => Finset.mem_Ico.mpr ⟨ by aesop, by linarith [ Finset.mem_filter.mp hx, Nat.sub_add_cancel ( show j ≤ x from by aesop ) ] ⟩ ) ) ( by simp +arith +decide ), Finset.card_mono ( fun x hx => by aesop ) ⟩;
       · exact le_trans ( Finset.sum_le_sum fun x hx => show p ^ ( x - j ) ≤ p ^ ( k - 1 ) by exact pow_le_pow_of_le_one hp hp1 ( by linarith [ Finset.mem_filter.mp hx, Nat.sub_add_cancel ( show 1 ≤ k from hk ) ] ) ) ( by norm_num );
     exact h_split.trans ( add_le_add h_bound.1 ( h_bound.2.trans ( mul_le_mul_of_nonneg_right ( mod_cast Finset.card_mono <| fun x hx => by aesop ) <| pow_nonneg hp _ ) ) );
@@ -3444,20 +3452,22 @@ lemma abstract_process_bound (N : ℕ) (f z : ℕ → ℝ) (p : ℝ) (k : ℕ) (
           simp_all +decide [ Finset.sum_range_succ ]
         | succ m ih =>
           simp_all +decide [ Finset.sum_range_succ ]
-          refine le_trans ( hrec _ ( Nat.succ_pos _ ) ( by linarith ) ) ?_;
+          refine le_trans ( hrec (m + 1) ( Nat.succ_pos m ) ( by linarith ) ) ?_;
           norm_num [ Nat.succ_eq_add_one, pow_add, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _ ] at *;
           exact le_trans ( mul_le_mul_of_nonneg_left ( ih hm.le ) hp ) ( by rw [ show ∑ j ∈ Finset.range m, z j * p ^ ( m + 1 - j ) = p * ∑ j ∈ Finset.range m, z j * p ^ ( m - j ) by rw [ Finset.mul_sum _ _ _ ] ; exact Finset.sum_congr rfl fun _ _ => by rw [ Nat.sub_add_comm ( by linarith [ Finset.mem_range.mp ‹_› ] ) ] ; ring ] ; linarith );
       exact h_induction m <| hS m hm;
     refine le_trans ( Finset.sum_le_sum h_interchange ) ?_;
     simp +decide only [Finset.mul_sum _ _ _];
     rw [ Finset.sum_sigma', Finset.sum_sigma' ];
-    refine' le_of_eq _;
-    refine' Finset.sum_bij ( fun x hx => ⟨ x.snd, x.fst ⟩ ) _ _ _ _ <;> simp +decide;
+    refine le_of_eq ?_;
+    refine Finset.sum_bij ( fun x hx => ⟨ x.snd, x.fst ⟩ ) ?_ ?_ ?_ ?_ <;> simp +decide;
     · exact fun a ha₁ ha₂ => ⟨ le_trans ha₂ ( hS _ ha₁ ), ha₁, ha₂ ⟩;
     · bound;
     · exact fun b hb₁ hb₂ hb₃ => ⟨ b.snd, b.fst, ⟨ hb₂, hb₃ ⟩, rfl ⟩;
   refine le_trans h_interchange <| le_trans ( Finset.sum_le_sum fun j hj => mul_le_mul_of_nonneg_left ( h_sum_bound j hj ) <| hz_nonneg j ) ?_;
-  refine' le_trans ( Finset.sum_le_sum fun i hi => mul_le_mul_of_nonneg_left ( add_le_add ( Nat.cast_le.mpr <| min_le_left _ _ ) <| mul_le_mul_of_nonneg_right ( Nat.cast_le.mpr <| Finset.card_filter_le _ _ ) <| pow_nonneg hp _ ) <| hz_nonneg _ ) _;
+  refine le_trans ( Finset.sum_le_sum fun i hi => mul_le_mul_of_nonneg_left ( add_le_add (
+    Nat.cast_le.mpr <| min_le_left _ _ ) <| mul_le_mul_of_nonneg_right ( Nat.cast_le.mpr <|
+      Finset.card_filter_le _ _ ) <| pow_nonneg hp _ ) <| hz_nonneg i ) ?_;
   rw [ ← Finset.sum_mul _ _ _ ] ; nlinarith [ show 0 ≤ ( k : ℝ ) + ( S.card : ℝ ) * p ^ ( k - 1 ) by positivity ] ;
 
 /-
@@ -3477,7 +3487,7 @@ lemma double_count_ue_pairs {n : ℕ} (hn : 2 ≤ n) (H : SimpleGraph (Fin n))
         exact ne_of_lt ( lt_of_le_of_lt ( Finset.card_eq_zero.mpr ( by aesop ) |> le_of_eq ) ( by norm_num ) );
       have := supergraph_UE_count G₀ H σ 1 hUE₀ hσ;
       by_cases h : 1 ≤ #H.edgeFinset - #G₀.edgeFinset <;> simp_all +decide [ and_comm, and_left_comm, and_assoc ];
-    refine' le_trans ( Finset.sum_le_sum fun G₀ hG₀ => h_pairs G₀ ( Finset.mem_filter.mp hG₀ |>.2.1 ) ( Finset.mem_filter.mp hG₀ |>.2.2 ) ) _;
+    refine le_trans ( Finset.sum_le_sum fun G₀ hG₀ => h_pairs G₀ ( Finset.mem_filter.mp hG₀ |>.2.1 ) ( Finset.mem_filter.mp hG₀ |>.2.2 ) ) ?_;
     simp +decide only [card_filter];
     rw [ Finset.sum_comm ];
     simp +decide [ Finset.sum_ite ];
@@ -3597,7 +3607,7 @@ private lemma UEPred_ext_count {n : ℕ} (hn : 2 ≤ n) (H : SimpleGraph (Fin n)
   have h_edge_set : G₀.edgeFinset = S.image Subtype.val := by
     unfold graphOfEdges at hG₀; aesop;
   convert h_card_supergraphs using 1;
-  · refine' Finset.card_bij ( fun e he => graphOfEdges ( insert e S ) ) _ _ _ <;> simp_all +decide [ Finset.subset_iff ];
+  · refine Finset.card_bij ( fun e he => graphOfEdges ( insert e S ) ) ?_ ?_ ?_ <;> simp_all +decide [ Finset.subset_iff ];
     · intro a ha hS hUE
       have hG₀_le : G₀ ≤ graphOfEdges (insert ⟨a, ha⟩ S) := by
         intro u v; simp_all +decide [ graphOfEdges ] ;
@@ -3622,7 +3632,7 @@ private lemma UEPred_ext_count {n : ℕ} (hn : 2 ≤ n) (H : SimpleGraph (Fin n)
         all_goals generalize_proofs at *;
         have := Finset.eq_of_subset_of_card_le ( show image Subtype.val S ∪ { e } ⊆ G'.edgeFinset from Finset.union_subset h_edge_set ( Finset.singleton_subset_iff.mpr <| by aesop ) ) ; simp_all +decide [ Finset.card_union ] ;
         intro a; replace this := Finset.ext_iff.mp this a; aesop;
-      refine' ⟨ e.val, e.property, ⟨ he.1, _ ⟩, _ ⟩ <;> simp_all +decide [ UEPred ];
+      refine ⟨ e.val, e.property, ⟨ he.1, ?_ ⟩, ?_ ⟩ <;> simp_all +decide [ UEPred ];
       · convert hG'_UE using 1;
         ext u v; simp [graphOfEdges, he];
         replace he := Finset.ext_iff.mp he.2 ( s(u, v) ) ; aesop;
@@ -3639,14 +3649,14 @@ private lemma UEPred_countP {n : ℕ} (H : SimpleGraph (Fin n)) (m : ℕ) :
     numUEWithEdges H m =
     (Finset.univ.filter (fun S : Finset {e : Sym2 (Fin n) // ¬ e.IsDiag} =>
       S.card = m ∧ UEPred H S)).card := by
-  refine' Finset.card_bij _ _ _ _;
+  refine Finset.card_bij ?_ ?_ ?_ ?_;
   use fun G hG => Finset.univ.filter (fun e => e.val ∈ G.edgeFinset);
   · simp +contextual [ UEPred ];
     intro G hG hUE
     constructor
     ·
       convert hG using 1;
-      refine' Finset.card_bij ( fun e he => e.val ) _ _ _ <;> simp +decide;
+      refine Finset.card_bij ( fun e he => e.val ) ?_ ?_ ?_ <;> simp +decide;
       exact fun e he => ⟨ he, by cases e; aesop ⟩
     ·
       convert hUE using 1;
@@ -3655,9 +3665,9 @@ private lemma UEPred_countP {n : ℕ} (H : SimpleGraph (Fin n)) (m : ℕ) :
   · simp +contextual [ Finset.ext_iff, Set.ext_iff ];
     intro a₁ ha₁ ha₂ a₂ ha₃ ha₄ h; ext u v; specialize h ( Sym2.mk u v ) ; aesop;
   · intro S hS;
-    refine' ⟨ graphOfEdges S, _, _ ⟩ <;> simp_all +decide [ UEPred ];
+    refine ⟨ graphOfEdges S, ?_, ?_ ⟩ <;> simp_all +decide [ UEPred ];
     · convert hS.1 using 1;
-      refine' Finset.card_bij ( fun e he => ⟨ e, _ ⟩ ) _ _ _ <;> simp_all +decide [ graphOfEdges ];
+      refine Finset.card_bij ( fun e he => ⟨ e, ?_ ⟩ ) ?_ ?_ ?_ <;> simp_all +decide [ graphOfEdges ];
       tauto;
     · ext e; simp [graphOfEdges];
       grind
@@ -3678,7 +3688,7 @@ lemma sum_z_refined_le_one {n : ℕ} (hn : 2 ≤ n) (H : SimpleGraph (Fin n)) :
   convert this ( fun m => numUEWithEdges H m ) ( fun m => H.edgeFinset.card - m ) ( fun S => UEPred H S ) _ _ _ _ using 1;
   · rw [ Sym2.card_subtype_not_diag ];
     norm_num [ fUE ];
-    refine' Finset.sum_congr rfl fun x hx => _;
+    refine Finset.sum_congr rfl fun x hx => ?_;
     rcases x with ( _ | x ) <;> norm_num;
     · exact Or.inr ( numUEWithEdges_zero hn H );
     · by_cases h : x ≤ H.edgeFinset.card;
@@ -3715,23 +3725,24 @@ lemma process_inequality {n : ℕ} (hn : 2 ≤ n) (H : SimpleGraph (Fin n))
     ↑k + ↑S.card * ((H.edgeFinset.card : ℝ) / ↑(n.choose 2)) ^ (k - 1) := by
   have := @abstract_process_bound;
   contrapose! this;
-  refine' ⟨ n.choose 2, fun m => if m ≤ n.choose 2 then ( numUEWithEdges H m : ℝ ) / ( Nat.choose ( n.choose 2 ) m : ℝ ) else 0, fun m => if m ≤ n.choose 2 then Max.max 0 ( ( numUEWithEdges H m : ℝ ) / ( Nat.choose ( n.choose 2 ) m : ℝ ) - ( ( H.edgeFinset.card : ℝ ) / ( n.choose 2 : ℝ ) ) * ( if m = 0 then 0 else ( numUEWithEdges H ( m - 1 ) : ℝ ) / ( Nat.choose ( n.choose 2 ) ( m - 1 ) : ℝ ) ) ) else 0, ( H.edgeFinset.card : ℝ ) / ( n.choose 2 : ℝ ), k, S, _, _, _, _, _ ⟩ <;> norm_num;
+  refine ⟨ n.choose 2, fun m => if m ≤ n.choose 2 then ( numUEWithEdges H m : ℝ ) / ( Nat.choose ( n.choose 2 ) m : ℝ ) else 0, fun m => if m ≤ n.choose 2 then Max.max 0 ( ( numUEWithEdges H m : ℝ ) / ( Nat.choose ( n.choose 2 ) m : ℝ ) - ( ( H.edgeFinset.card : ℝ ) / ( n.choose 2 : ℝ ) ) * ( if m = 0 then 0 else ( numUEWithEdges H ( m - 1 ) : ℝ ) / ( Nat.choose ( n.choose 2 ) ( m - 1 ) : ℝ ) ) ) else 0, ( H.edgeFinset.card : ℝ ) / ( n.choose 2 : ℝ ), k, S, ?_, ?_, ?_, ?_, ?_ ⟩ <;> norm_num;
   · exact numUEWithEdges_zero hn H;
   · intro m; split_ifs <;> positivity;
   · intro m; split_ifs <;> positivity;
   · grind +locals;
-  · refine' ⟨ div_nonneg ( Nat.cast_nonneg _ ) ( Nat.cast_nonneg _ ), div_le_one_of_le₀ _ ( Nat.cast_nonneg _ ), hk, hS, _, _, _ ⟩;
+  · refine ⟨ div_nonneg ( Nat.cast_nonneg _ ) ( Nat.cast_nonneg _ ), div_le_one_of_le₀ ?_ (
+      Nat.cast_nonneg _ ), hk, hS, ?_, ?_, ?_ ⟩;
     · convert H.card_edgeFinset_le_card_choose_two;
       norm_num;
-    · refine' le_trans _ ( sum_z_refined_le_one hn H );
-      refine' Finset.sum_le_sum fun m hm => _;
+    · refine le_trans ?_ ( sum_z_refined_le_one hn H );
+      refine Finset.sum_le_sum fun m hm => ?_;
       split_ifs <;> norm_num [ fUE ];
       · simp_all +decide [ numUEWithEdges_zero hn ];
       · constructor;
         · have := double_count_ue_pairs hn H m ( Nat.pos_of_ne_zero ‹_› ) ‹_›;
           rw [ div_mul_div_comm, div_le_div_iff₀ ] <;> norm_cast at * <;> simp_all +decide [ Nat.choose_succ_succ ];
           · rcases m <;> simp_all +decide [ Nat.add_one_mul_choose_eq, mul_assoc, mul_comm, mul_left_comm ];
-            refine' le_trans ( mul_le_mul_of_nonneg_left this ( Nat.cast_nonneg _ ) ) _;
+            refine le_trans ( mul_le_mul_of_nonneg_left this ( Nat.cast_nonneg _ ) ) ?_;
             rw [ ← mul_assoc, ← mul_assoc ];
             exact mul_le_mul_of_nonneg_right ( by nlinarith [ Nat.add_one_mul_choose_eq ( Nat.choose n 2 ) ‹_›, Nat.choose_succ_succ ( Nat.choose n 2 ) ‹_› ] ) ( Nat.cast_nonneg _ );
           · exact Nat.choose_pos ( Nat.sub_le_of_le_add <| by linarith );
@@ -3768,7 +3779,7 @@ lemma restricted_sum_lower_bound {n : ℕ} (hn : 4 ≤ n) (H : SimpleGraph (Fin 
         3 * δ * ↑n / 16 := by
   -- By definition of $probUniqueEmb$, we know that
   have h_prob_def : (∑ m ∈ Finset.range (n.choose 2 + 1), (numUEWithEdges H m : ℝ)) ≥ δ * 2 ^ (n.choose 2) := by
-    refine' le_trans ( mul_le_mul_of_nonneg_right hH ( by positivity ) ) _;
+    refine le_trans ( mul_le_mul_of_nonneg_right hH ( by positivity ) ) ?_;
     unfold probUniqueEmb numUEWithEdges; norm_num;
     rw_mod_cast [ ← Finset.card_biUnion ];
     · refine Finset.card_mono ?_;
@@ -3790,14 +3801,19 @@ lemma restricted_sum_lower_bound {n : ℕ} (hn : 4 ≤ n) (H : SimpleGraph (Fin 
     rw [ add_comm, ← Finset.sum_add_distrib ] ; congr ; ext ; split_ifs <;> linarith;
   -- Let's choose the set $S$ of edge counts $m$ such that $|m - N/2| < Ln$.
   obtain ⟨S, hS⟩ : ∃ S : Finset ℕ, (∀ m ∈ S, m ≤ n.choose 2) ∧ S.card ≤ 2 * L * n + 1 ∧ (∑ m ∈ S, (numUEWithEdges H m : ℝ)) ≥ (3 * δ / 4) * 2 ^ (n.choose 2) := by
-    refine' ⟨ Finset.filter ( fun m : ℕ => |( m : ℝ ) - n.choose 2 / 2| < L * n ) ( Finset.range ( n.choose 2 + 1 ) ), _, _, _ ⟩ <;> norm_num at *;
+    refine ⟨ Finset.filter ( fun m : ℕ => |( m : ℝ ) - n.choose 2 / 2| < L * n ) ( Finset.range ( n.choose 2 + 1 ) ), ?_, ?_, ?_ ⟩ <;> norm_num at *;
     · grind +revert;
-    · refine' le_trans ( Finset.card_le_card _ ) _;
-      exact Finset.Ico ( Nat.ceil ( ( n.choose 2 : ℝ ) / 2 - L * n ) ) ( Nat.ceil ( ( n.choose 2 : ℝ ) / 2 + L * n ) );
-      · intro m hm; simp_all +decide [ abs_lt ] ;
+    · let S : Finset ℕ := Finset.Ico ( Nat.ceil ( ( n.choose 2 : ℝ ) / 2 - L * n ) ) (
+        Nat.ceil ( ( n.choose 2 : ℝ ) / 2 + L * n ) );
+      refine le_trans ( Finset.card_le_card (t := S) ?_ ) ?_;
+      · intro m hm; dsimp [S];
+        simp_all +decide [ abs_lt ] ;
         exact ⟨ by linarith, Nat.lt_ceil.mpr <| by linarith ⟩;
-      · norm_num [ Nat.card_Ico ];
-        linarith [ Nat.le_ceil ( ( n.choose 2 : ℝ ) / 2 - L * n ) ];
+      · dsimp [S];
+        norm_num [ Nat.card_Ico ];
+        nlinarith [
+          Nat.le_ceil ( ( n.choose 2 : ℝ ) / 2 - L * n ),
+          Nat.ceil_lt_add_one ( show 0 ≤ ( n.choose 2 : ℝ ) / 2 + L * n by positivity ) ];
     · norm_num [ Finset.sum_ite ] at * ; linarith;
   -- Apply the binomial anticoncentration bound to each term in the sum.
   have h_binom_anticoncentration : ∀ m ∈ S, (numUEWithEdges H m : ℝ) / ((n.choose 2).choose m : ℝ) ≥ (numUEWithEdges H m : ℝ) * (n / (4 * 2 ^ (n.choose 2))) := by
@@ -3807,7 +3823,7 @@ lemma restricted_sum_lower_bound {n : ℕ} (hn : 4 ≤ n) (H : SimpleGraph (Fin 
     rw [ ge_iff_le, mul_div, div_le_div_iff₀ ] <;> try positivity;
     · rw [ div_le_div_iff₀ ] at h_binom_anticoncentration <;> first | positivity | nlinarith [ show ( 0 : ℝ ) ≤ numUEWithEdges H m by positivity ] ;
     · exact Nat.cast_pos.mpr ( Nat.choose_pos ( hS.1 m hm ) );
-  refine' ⟨ S, hS.1, hS.2.1, le_trans _ ( Finset.sum_le_sum h_binom_anticoncentration ) ⟩;
+  refine ⟨ S, hS.1, hS.2.1, le_trans ?_ ( Finset.sum_le_sum h_binom_anticoncentration ) ⟩;
   rw [ ← Finset.sum_mul _ _ _ ] ; nlinarith [ show ( n : ℝ ) ≥ 4 by norm_cast, show ( 2 ^ n.choose 2 : ℝ ) > 0 by positivity, mul_div_cancel₀ ( n : ℝ ) ( by positivity : ( 4 * 2 ^ n.choose 2 : ℝ ) ≠ 0 ) ] ;
 
 /-
@@ -3851,11 +3867,10 @@ lemma ue_implies_many_edges (δ : ℝ) (hδ : 0 < δ) :
               convert h_subst.div_const ( Real.log 2 ) using 2 <;> ring_nf;
               norm_num [ mul_assoc, mul_comm, mul_left_comm ];
             simpa [ mul_div_assoc, Real.exp_neg ] using tendsto_const_nhds.mul ( Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 1 );
-          refine' squeeze_zero_norm' _ h_lim_zero;
+          refine squeeze_zero_norm' ?_ h_lim_zero;
           filter_upwards [ Filter.eventually_gt_atTop 12 ] with n hn using by rw [ Real.norm_of_nonneg ( by positivity ) ] ; gcongr ; nlinarith [ Real.log_pos one_lt_two, show ( n : ℝ ) ≥ 13 by exact_mod_cast hn ] ;
         convert h_exp_growth using 2 ; norm_num [ Real.rpow_def_of_pos, mul_comm ];
-      refine' squeeze_zero_norm' _ _;
-      use fun n => ( n / 2 ^ ( ( n - 3 ) / 2 : ℝ ) ) ^ n;
+      refine squeeze_zero_norm' (a := fun n : ℕ => ( (n : ℝ) / 2 ^ ( ( (n : ℝ) - 3 ) / 2 ) ) ^ n) ?_ ?_;
       · filter_upwards [ Filter.eventually_ge_atTop 10 ] with n hn using by rw [ Real.norm_of_nonneg ( by positivity ) ] ; exact h_bound n hn;
       · rw [ Metric.tendsto_nhds ] at *;
         intro ε hε; filter_upwards [ h_lim_zero ( Min.min ε 1 ) ( lt_min hε zero_lt_one ), Filter.eventually_ge_atTop 10 ] with n hn hn'; simp_all +decide [ abs_div, abs_of_nonneg, Real.rpow_nonneg ] ;
@@ -3880,7 +3895,7 @@ lemma process_bound (δ : ℝ) (hδ : 0 < δ) :
   obtain ⟨n₁, hn₁⟩ := ue_implies_many_edges δ hδ
   set α := (δ / (20 * L)) ^ 2
   set n₀ := max n₁ (4 * L + Nat.ceil (64 / δ) + 1);
-  refine' ⟨ α, _, n₀, _ ⟩;
+  refine ⟨ α, ?_, n₀, ?_ ⟩;
   · exact sq_pos_of_pos ( div_pos hδ ( mul_pos ( by norm_num ) ( Nat.cast_pos.mpr hL.1 ) ) );
   · intro n hn H hH
     have hn_ge_4 : 4 ≤ n := by
@@ -3906,12 +3921,12 @@ lemma process_bound (δ : ℝ) (hδ : 0 < δ) :
       rw [ ge_iff_le, div_le_iff₀ ] <;> try norm_num ; linarith;
       have := Nat.floor_le ( show 0 ≤ δ * n / 32 by positivity );
       nlinarith [ show ( L : ℝ ) ≥ 1 by norm_cast; linarith, show ( n : ℝ ) ≥ 4 by norm_cast, show ( ⌊δ * n / 32⌋₊ : ℝ ) ≥ 1 by norm_cast, mul_le_mul_of_nonneg_left ( show ( L : ℝ ) ≥ 1 by norm_cast; linarith ) ( show ( 0 : ℝ ) ≤ n by positivity ) ];
-    refine' ⟨ Nat.choose_pos ( by linarith ), _ ⟩;
-    refine' le_trans ( pow_le_pow_left₀ ( by positivity ) h_combined 2 ) _;
+    refine ⟨ Nat.choose_pos ( by linarith ), ?_ ⟩;
+    refine le_trans ( pow_le_pow_left₀ ( by positivity ) h_combined 2 ) ?_;
     rw [ ← pow_mul ];
-    refine' pow_le_pow_of_le_one _ _ _;
+    refine pow_le_pow_of_le_one ?_ ?_ ?_;
     · positivity;
-    · refine' div_le_one_of_le₀ _ _ <;> norm_cast;
+    · refine div_le_one_of_le₀ ?_ ?_ <;> norm_cast;
       · convert H.card_edgeFinset_le_card_choose_two using 1;
         norm_num;
       · positivity;
@@ -3942,7 +3957,7 @@ lemma reduction_to_dense_large_n :
   use Nat.ceil (32 * (-Real.log α) / δ) + 1;
   -- Choose n₀ such that for n ≥ n₀, ⌊δn/32⌋₊ > 0 and the N/k bound holds.
   obtain ⟨n₁, hn₁⟩ : ∃ n₁ : ℕ, ∀ n ≥ n₁, ⌊δ * (n : ℝ) / 32⌋₊ > 0 ∧ (n.choose 2 : ℝ) / ⌊δ * (n : ℝ) / 32⌋₊ ≤ 32 * (n : ℝ) / δ := by
-    refine' ⟨ ⌈32 / δ⌉₊ + 1, fun n hn => ⟨ _, _ ⟩ ⟩ <;> norm_num [ Nat.choose_two_right ] at *;
+    refine ⟨ ⌈32 / δ⌉₊ + 1, fun n hn => ⟨ ?_, ?_ ⟩ ⟩ <;> norm_num [ Nat.choose_two_right ] at *;
     · exact Nat.floor_pos.mpr ( by nlinarith [ Nat.lt_of_ceil_lt hn, mul_div_cancel₀ 32 hδ.ne' ] );
     · rw [ div_le_div_iff₀ ] <;> try positivity;
       · rcases n with ( _ | _ | n ) <;> norm_num [ Nat.dvd_iff_mod_eq_zero, Nat.mod_two_of_bodd ] at *;
@@ -4014,7 +4029,7 @@ lemma switch_implies_two_embeddings {n : ℕ} {G H : SimpleGraph (Fin n)}
     (huv : u ≠ v) (hσ : IsEmbedding G H σ) (hswap : IsEmbedding G H (Equiv.swap u v * σ)) :
     numEmbeddings G H ≥ 2 := by
   refine Finset.one_lt_card.mpr ?_;
-  refine' ⟨ σ, _, Equiv.swap u v * σ, _, _ ⟩ <;> simp_all +decide [ embeddingFinset ]
+  refine ⟨ σ, ?_, Equiv.swap u v * σ, ?_, ?_ ⟩ <;> simp_all +decide [ embeddingFinset ]
 
 /-- The no-switch count is invariant under the base permutation σ. -/
 lemma no_switch_count_invariant {n : ℕ} (H : SimpleGraph (Fin n))
@@ -4047,7 +4062,7 @@ lemma numUniquelyEmbedding_le_factorial_mul_no_switch {n : ℕ} (H : SimpleGraph
     simp +zetaDelta at *;
     exact ⟨ σ, fun u v huv h => huv <| by have := hσ.2 ( Equiv.swap u v * σ ) h; simp_all +decide [ Equiv.swap_apply_def ] ⟩;
   refine le_trans ( Finset.card_le_card h_subset ) ?_;
-  refine' le_trans ( Finset.card_biUnion_le ) _;
+  refine le_trans ( Finset.card_biUnion_le ) ?_;
   rw [ Finset.sum_congr rfl fun σ _ => no_switch_count_invariant H σ ] ; simp +decide [ Fintype.card_perm ]
 
 /-- n! * exp(-n * log n) → 0. -/
@@ -4059,7 +4074,7 @@ lemma factorial_exp_tendsto_zero :
   have h_lim : Filter.Tendsto (fun n : ℕ => (n.factorial : ℝ) * Real.exp (-(↑n * Real.log ↑n))) Filter.atTop (nhds 0) := by
     have h_lim : Filter.Tendsto (fun n : ℕ => (n.factorial : ℝ) / (↑n ^ n : ℝ)) Filter.atTop (nhds 0) :=
       tendsto_factorial_div_pow_self_atTop
-    refine' squeeze_zero_norm' _ h_lim;
+    refine squeeze_zero_norm' ?_ h_lim;
     filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn using by rw [ Real.norm_of_nonneg ( by positivity ) ] ; rw [ ← Real.rpow_natCast, Real.rpow_def_of_pos ( by positivity ) ] ; ring_nf; norm_num [ Real.exp_neg, Real.exp_nat_mul, Real.exp_log ( Nat.cast_pos.mpr hn ) ] ;
   simpa using h_lim.eventually ( gt_mem_nhds hε_pos )
 
@@ -4083,7 +4098,7 @@ The number of embeddings of G into H equals the number of embeddings
 -/
 lemma numEmbeddings_compl {n : ℕ} (G H : SimpleGraph (Fin n)) :
     numEmbeddings G H = numEmbeddings Hᶜ Gᶜ := by
-  refine' Finset.card_bij ( fun σ hσ => σ⁻¹ ) _ _ _ <;> simp_all +decide [ IsEmbedding ];
+  refine Finset.card_bij ( fun σ hσ => σ⁻¹ ) ?_ ?_ ?_ <;> simp_all +decide [ IsEmbedding ];
   · exact fun σ hσ => Finset.mem_filter.mpr ⟨ Finset.mem_univ _, by simpa using embedding_iff_compl.mp <| Finset.mem_filter.mp hσ |>.2 ⟩;
   · intro b hb
     use b⁻¹
@@ -4185,7 +4200,7 @@ lemma unique_implies_no_switch {n : ℕ}
     (u v : Fin n) (huv : u ≠ v) :
     ¬IsIdSwitch Hc (π⁻¹ • G) (π⁻¹ u) (π⁻¹ v) := by
   contrapose! huniq;
-  refine' ⟨ Equiv.swap u v * π, switch_gives_second_embedding huv hπ huniq, _ ⟩;
+  refine ⟨ Equiv.swap u v * π, switch_gives_second_embedding huv hπ huniq, ?_ ⟩;
   simp +decide [ Equiv.swap_apply_def, huv ]
 
 /-
@@ -4214,8 +4229,7 @@ lemma complement_unique_le_factorial_mul_no_switch {n : ℕ} (Hc : SimpleGraph (
         rintro _ G hG hG' rfl u v huv; specialize hG' ( σ u ) ( σ v ) ; aesop;
       exact le_trans ( by rw [ Finset.card_image_of_injective _ fun x y hxy => by simpa using hxy ] ) ( Finset.card_mono this );
     convert h_card_bound using 1;
-  refine' le_trans _ ( le_trans ( Finset.sum_le_sum fun σ _ => h_card_bound σ ) _ );
-  any_goals exact Finset.univ;
+  refine le_trans ?_ ( le_trans ( Finset.sum_le_sum (s := Finset.univ) fun σ _ => h_card_bound σ ) ?_ );
   · exact le_trans ( Finset.card_le_card fun x hx => by aesop ) ( Finset.card_biUnion_le );
   · norm_num [ Finset.card_univ, Fintype.card_perm ]
 
@@ -4280,7 +4294,7 @@ lemma find_good_independent_set {n : ℕ} (C : ℕ) (Hc : SimpleGraph (Fin n))
   set B := Finset.univ.filter (fun v => Hc.degree v ≤ 4 * C);
   obtain ⟨I, hI⟩ : ∃ I : Finset (Fin n), I ⊆ B ∧ (∀ u ∈ I, ∀ v ∈ I, u ≠ v → ¬Hc.Adj u v) ∧ B.card ≤ I.card * (4 * C + 1) := by
     convert greedy_independent_set Hc B ( 4 * C ) ( fun v hv => Finset.mem_filter.mp hv |>.2 ) using 1;
-  refine' ⟨ I, hI.2.1, fun v hv => Finset.mem_filter.mp ( hI.1 hv ) |>.2, _, _ ⟩;
+  refine ⟨ I, hI.2.1, fun v hv => Finset.mem_filter.mp ( hI.1 hv ) |>.2, ?_, ?_ ⟩;
   · have hB_card : B.card ≥ n / 2 := by
       convert low_degree_set_large C Hc hCn using 1;
     rw [ ge_iff_le, Nat.div_le_iff_le_mul_add_pred ];
@@ -4310,7 +4324,7 @@ lemma switchCount_sum_sq_bound {n : ℕ} (Hc : SimpleGraph (Fin n))
   -- We can simplify the sum by considering the cases where $e.1 \in T$ and $e.2 \notin T$, and vice versa.
   have h_sum_cases : ∑ e : EdgeSlot n, (switchBound Hc T e) ^ 2 = ∑ e ∈ Finset.univ.filter (fun e : Fin n × Fin n => e.1 < e.2 ∧ e.1 ∈ T ∧ e.2 ∉ T), (2 * (T.filter (fun v => Hc.Adj v e.2)).card : ℝ) ^ 2 + ∑ e ∈ Finset.univ.filter (fun e : Fin n × Fin n => e.1 < e.2 ∧ e.2 ∈ T ∧ e.1 ∉ T), (2 * (T.filter (fun v => Hc.Adj v e.1)).card : ℝ) ^ 2 := by
     have h_simplified : ∑ e : EdgeSlot n, (switchBound Hc T e) ^ 2 = ∑ e ∈ Finset.univ.filter (fun e : Fin n × Fin n => e.1 < e.2), (if e.1 ∈ T ∧ e.2 ∉ T then (2 * (T.filter (fun v => Hc.Adj v e.2)).card : ℝ) ^ 2 else if e.2 ∈ T ∧ e.1 ∉ T then (2 * (T.filter (fun v => Hc.Adj v e.1)).card : ℝ) ^ 2 else 0) := by
-      refine' Finset.sum_bij ( fun e _ => e.val ) _ _ _ _ <;> simp +decide [ switchBound ];
+      refine Finset.sum_bij ( fun e _ => e.val ) ?_ ?_ ?_ ?_ <;> simp +decide [ switchBound ];
       · exact fun a => a.2;
       · exact fun a₁ a₂ h => Subtype.ext h;
       · exact fun a b hab => ⟨ ⟨ ( a, b ), hab ⟩, rfl ⟩;
@@ -4337,12 +4351,12 @@ lemma switchCount_sum_sq_bound {n : ℕ} (Hc : SimpleGraph (Fin n))
   convert h_sum_over_w.le using 1;
   · convert h_sum_cases using 2;
     · rw [ Finset.sum_sigma' ];
-      refine' Finset.sum_bij ( fun x hx => ( x.snd.1, x.fst ) ) _ _ _ _ <;> simp +decide;
+      refine Finset.sum_bij ( fun x hx => ( x.snd.1, x.fst ) ) ?_ ?_ ?_ ?_ <;> simp +decide;
       · grind;
       · grind +qlia;
       · tauto;
     · rw [ Finset.sum_sigma' ];
-      refine' Finset.sum_bij ( fun x hx => ( x.1, x.2.2 ) ) _ _ _ _ <;> simp +decide;
+      refine Finset.sum_bij ( fun x hx => ( x.1, x.2.2 ) ) ?_ ?_ ?_ ?_ <;> simp +decide;
       · exact fun a ha₁ ha₂ ha₃ ha₄ => ⟨ ha₄ ▸ ha₂, ha₃, ha₁ ⟩;
       · grind;
       · tauto;
@@ -4506,14 +4520,14 @@ lemma switchCount_sum_sq_tight {n : ℕ} (C : ℕ) (Hc : SimpleGraph (Fin n))
           · exact le_mul_of_one_le_left ( by positivity ) ( mod_cast Finset.card_pos.mpr ⟨ _, Finset.mem_filter.mpr ⟨ Finset.mem_filter.mpr ⟨ by tauto, by tauto ⟩, by tauto ⟩ ⟩ );
           · grind;
         · exact Finset.sum_nonneg fun _ _ => Finset.sum_nonneg fun _ _ => by split_ifs <;> positivity;
-      refine' le_trans ( Finset.sum_le_sum fun e _ => h_sum_bound e ) _;
+      refine le_trans ( Finset.sum_le_sum fun e _ => h_sum_bound e ) ?_;
       rw [ Finset.sum_comm ];
-      refine' Finset.sum_le_sum fun w hw => _;
+      refine Finset.sum_le_sum fun w hw => ?_;
       rw [ Finset.sum_comm ];
-      refine' Finset.sum_le_sum fun v hv => _;
+      refine Finset.sum_le_sum fun v hv => ?_;
       split_ifs <;> simp_all +decide [ Finset.sum_ite ];
-      refine' mul_le_of_le_one_left ( by positivity ) _;
-      refine' mod_cast Finset.card_le_one.mpr _;
+      refine mul_le_of_le_one_left ( by positivity ) ?_;
+      refine mod_cast Finset.card_le_one.mpr ?_;
       simp +contextual [ EdgeSlot ];
       grind;
     simp_all +decide [ Finset.sum_ite, mul_assoc ];
@@ -4569,18 +4583,18 @@ lemma azuma_for_switchCount_zero {n : ℕ} (C : ℕ) (Hc : SimpleGraph (Fin n))
     (2 : ℝ) ^ n.choose 2 * Real.exp (-(↑n * Real.log ↑n)) := by
   have := @azuma_for_zero_count;
   contrapose! this;
-  refine' ⟨ Fintype.card ( EdgeSlot n ), _, _, _, _, _, _ ⟩;
+  refine ⟨ Fintype.card ( EdgeSlot n ), ?_, ?_, ?_, ?_, ?_, ?_ ⟩;
   use fun x => switchCount Hc T ( graphDecode ( fun e => x ( Fintype.equivFin ( EdgeSlot n ) e ) ) );
   use fun i => b ( Fintype.equivFin ( EdgeSlot n ) |>.symm i );
   · exact fun x => switchCount_nonneg _ _ _;
   · intro i x y hxy; specialize hbd ( Fintype.equivFin ( EdgeSlot n ) |>.symm i ) ( fun e => x ( Fintype.equivFin ( EdgeSlot n ) e ) ) ( fun e => y ( Fintype.equivFin ( EdgeSlot n ) e ) ) ; aesop;
   · exact fun i => hb_nonneg _;
-  · refine' ⟨ _, n * Real.log n, _, _, _ ⟩;
+  · refine ⟨ ?_, n * Real.log n, ?_, ?_, ?_ ⟩;
     · convert hb_pos using 1;
       conv_rhs => rw [ ← Equiv.sum_comp ( Fintype.equivFin ( EdgeSlot n ) |> Equiv.symm ) ] ;
     · positivity;
     · convert hexp using 1;
-      refine' congrArg₂ _ ( congrArg₂ _ rfl ( congrArg₂ _ ( congr_arg ( fun x : ℝ => x / _ ) ( Finset.sum_bij ( fun x _ => fun e => x ( Fintype.equivFin ( EdgeSlot n ) e ) ) _ _ _ _ ) ) rfl ) ) ( Finset.sum_bij ( fun x _ => ( Fintype.equivFin ( EdgeSlot n ) ).symm x ) _ _ _ _ ) <;> simp +decide;
+      refine congrArg₂ _ ( congrArg₂ _ rfl ( congrArg₂ _ ( congr_arg ( fun x : ℝ => x / _ ) ( Finset.sum_bij ( fun x _ => fun e => x ( Fintype.equivFin ( EdgeSlot n ) e ) ) ?_ ?_ ?_ ?_ ) ) rfl ) ) ( Finset.sum_bij ( fun x _ => ( Fintype.equivFin ( EdgeSlot n ) ).symm x ) ?_ ?_ ?_ ?_ ) <;> simp +decide;
       · exact fun a₁ a₂ h => funext fun x => by simpa using congr_fun h ( Fintype.equivFin ( EdgeSlot n ) |>.symm x ) ;
       · exact fun b => ⟨ fun e => b ( Fintype.equivFin ( EdgeSlot n ) |>.symm e ), by ext; simp +decide ⟩;
       · exact fun e => ⟨ _, Equiv.apply_symm_apply _ _ ⟩;
@@ -4588,7 +4602,7 @@ lemma azuma_for_switchCount_zero {n : ℕ} (C : ℕ) (Hc : SimpleGraph (Fin n))
       · rw [ card_edgeSlot ];
       · convert rfl;
         convert graphEquiv_card_filter _;
-        refine' Finset.card_bij ( fun x hx => fun e => x ( Fintype.equivFin ( EdgeSlot n ) e ) ) _ _ _ <;> simp +decide;
+        refine Finset.card_bij ( fun x hx => fun e => x ( Fintype.equivFin ( EdgeSlot n ) e ) ) ?_ ?_ ?_ <;> simp +decide;
         · exact fun a₁ ha₁ a₂ ha₂ h => funext fun i => by simpa using congr_fun h ( Fintype.equivFin ( EdgeSlot n ) |>.symm i ) ;
         · exact fun b hb => ⟨ fun e => b ( Fintype.equivFin ( EdgeSlot n ) |>.symm e ), by simpa using hb, by ext; simp +decide ⟩
 
@@ -4628,7 +4642,7 @@ lemma azuma_exponent_sufficient {n : ℕ} (C : ℕ) (Hc : SimpleGraph (Fin n))
       · contrapose! h_sum_pos; simp_all +decide [ switchBoundTight ] ;
       · unfold switchBoundTight at h_sum_pos ; simp_all +decide;
         contrapose! h_sum_pos
-        refine' Finset.sum_nonpos fun x hx => _
+        refine Finset.sum_nonpos fun x hx => ?_
         by_cases hleft : x.val.1 ∈ T ∧ x.val.2 ∉ T
         · by_cases hadj : Hc.Adj x.val.1 x.val.2
           · simp [hleft, hadj]
