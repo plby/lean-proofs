@@ -43,7 +43,6 @@ set_option linter.style.setOption false
 --
 set_option linter.deprecated false
 set_option linter.flexible false
-set_option linter.style.refine false
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
 set_option linter.style.whitespace false
@@ -648,7 +647,7 @@ theorem growthBase_tendsto_two : Tendsto growthBase atTop (𝓝 2) := by
       · exact le_trans ( tendsto_const_nhds.mul ( Real.continuous_cos.continuousAt.tendsto.comp <| tendsto_const_nhds.div_atTop <| Filter.tendsto_atTop_add_const_right _ _ tendsto_natCast_atTop_atTop ) ) <| by norm_num;
       · exact le_trans ( Filter.Tendsto.mul ( tendsto_const_nhds.mul ( Real.continuous_cos.continuousAt.tendsto.comp <| tendsto_const_nhds.div_atTop <| Filter.tendsto_atTop_add_const_right _ _ tendsto_natCast_atTop_atTop ) ) <| Filter.Tendsto.rpow ( tendsto_const_nhds.mul <| Real.continuous_cos.continuousAt.tendsto.comp <| tendsto_const_nhds.div_atTop <| Filter.tendsto_atTop_add_const_right _ _ tendsto_natCast_atTop_atTop ) ( tendsto_one_div_atTop_nhds_zero_nat ) <| by norm_num ) <| by norm_num;
     exact ⟨ h_cos_lim.1.comp <| nSteps_tendsto_atTop, h_cos_lim.2.comp <| nSteps_tendsto_atTop ⟩;
-  refine' tendsto_of_tendsto_of_tendsto_of_le_of_le' h_lim.1 h_lim.2 _ _;
+  refine tendsto_of_tendsto_of_tendsto_of_le_of_le' h_lim.1 h_lim.2 ?_ ?_;
   · filter_upwards [ Filter.eventually_gt_atTop 1 ] with B hB using h_squeeze B hB |>.1;
   · filter_upwards [ Filter.eventually_gt_atTop 1 ] with B hB using h_squeeze B hB |>.2
 
@@ -678,9 +677,9 @@ If y is in the interval (x_{k-1}, x_k], then the hit index is k.
 lemma hitIndex_eq_of_mem_Ioc {s : Strategy} {k : ℕ} {y : ℝ} (hy1 : 1 ≤ y)
     (h_lt : if k = 0 then 1 < y else s.x (k - 1) < y) (h_le : y ≤ s.x k) :
     hitIndex s ⟨y, hy1⟩ = k := by
-      refine' le_antisymm _ _;
+      refine le_antisymm ?_ ?_;
       · exact Nat.find_min' _ h_le;
-      · refine' Nat.le_of_not_gt fun h => _;
+      · refine Nat.le_of_not_gt fun h => ?_;
         -- Since $k > hitIndex s ⟨y, hy1⟩$, we have $s.x (hitIndex s ⟨y, hy1⟩) \geq y$.
         have h_ge_y : s.x (hitIndex s ⟨y, hy1⟩) ≥ y := by
           exact Nat.find_spec ( s.hits hy1 );
@@ -714,9 +713,11 @@ The worst-case score is the supremum of the ratios S_{k+1}/x_k.
 -/
 lemma boundary_reduction (s : Strategy) :
     worstCaseScore s = ⨆ k : ℕ, ENNReal.ofReal (partialSum s k / if k = 0 then 1 else s.x (k - 1)) := by
-      refine' le_antisymm _ _ <;> norm_num [ worstCaseScore, score ];
+      refine le_antisymm ?_ ?_ <;> norm_num [ worstCaseScore, score ];
       · intro a ha;
-        refine' le_trans _ ( le_iSup _ ( hitIndex s ⟨ a, ha ⟩ ) );
+        refine le_trans ?_ ( le_iSup
+          ( fun k : ℕ => ENNReal.ofReal (partialSum s k / if k = 0 then 1 else s.x (k - 1)) )
+          ( hitIndex s ⟨ a, ha ⟩ ) );
         rcases k : hitIndex s ⟨ a, ha ⟩ with ( _ | k ) <;> simp_all +decide [ div_eq_mul_inv ];
         · exact ENNReal.ofReal_le_ofReal ( mul_le_of_le_one_right ( Finset.sum_nonneg fun _ _ => s.nonneg _ ) ( inv_le_one_of_one_le₀ ha ) );
         · gcongr;
@@ -726,7 +727,7 @@ lemma boundary_reduction (s : Strategy) :
             exact ne_of_lt ( Nat.lt_succ_of_le ( Nat.find_min' _ k.le ) );
       · intro k;
         by_cases hk : k = 0 <;> simp_all +decide [ partialSum ];
-        · refine' le_trans _ ( le_ciSup _ ⟨ 1, by norm_num ⟩ );
+        · refine le_trans ?_ ( le_ciSup ?_ ⟨ 1, by norm_num ⟩ );
           · norm_num [ Finset.sum_range_succ, hitIndex_one ];
           · bound;
         · -- Consider $y = s.x (k - 1) + \epsilon$ for some small $\epsilon > 0$.
@@ -737,14 +738,14 @@ lemma boundary_reduction (s : Strategy) :
               all_goals generalize_proofs at *;
               gcongr;
               · exact fun _ _ _ => s.nonneg _;
-              · refine' Nat.le_of_not_lt fun h => _;
+              · refine Nat.le_of_not_lt fun h => ?_;
                 have := Nat.find_spec ( s.hits ( show 1 ≤ s.x ( k - 1 ) + ε by linarith ) );
                 exact this.not_gt <| lt_of_le_of_lt ( s.mono <| Nat.le_sub_one_of_lt h ) <| lt_add_of_pos_right _ hε_pos
             generalize_proofs at *;
             exact le_trans h_eps_le ( le_iSup_of_le ⟨ s.x ( k - 1 ) + ε, by assumption ⟩ ( by aesop ) );
           -- Taking the limit as $\epsilon \to 0$, we get the desired inequality.
           have h_lim : Filter.Tendsto (fun ε => ENNReal.ofReal ((∑ i ∈ Finset.range (k + 1), s.x i) / (s.x (k - 1) + ε))) (nhdsWithin 0 (Set.Ioi 0)) (nhds (ENNReal.ofReal ((∑ i ∈ Finset.range (k + 1), s.x i) / s.x (k - 1)))) := by
-            refine' ENNReal.tendsto_ofReal _;
+            refine ENNReal.tendsto_ofReal ?_;
             exact tendsto_const_nhds.div ( tendsto_nhdsWithin_of_tendsto_nhds ( by norm_num [ Filter.Tendsto ] ) ) ( by linarith [ show 0 < s.x ( k - 1 ) from lt_of_lt_of_le zero_lt_one ( s.one_le.trans ( s.mono ( Nat.zero_le _ ) ) ) ] );
           exact le_of_tendsto h_lim ( Filter.eventually_of_mem self_mem_nhdsWithin fun ε hε => h_eps ε hε )
 
@@ -779,8 +780,8 @@ theorem doublingStrategy_worstCaseScore_eq_four : worstCaseScore doublingStrateg
     exact le_trans ( ENNReal.tendsto_ofReal ( tendsto_const_nhds.sub ( tendsto_const_nhds.div_atTop ( tendsto_pow_atTop_atTop_of_one_lt one_lt_two |> Filter.Tendsto.comp <| Filter.tendsto_sub_atTop_nat _ ) ) ) ) ( by norm_num );
   -- Since the supremum of a set of numbers that approach 4 is 4, we can conclude that the worst-case score is 4.
   have h_sup : ⨆ k : ℕ, ENNReal.ofReal (partialSum doublingStrategy k / if k = 0 then 1 else doublingStrategy.x (k - 1)) = ENNReal.ofReal 4 := by
-    refine' le_antisymm _ _;
-    · refine' iSup_le _;
+    refine le_antisymm ?_ ?_;
+    · refine iSup_le ?_;
       intro k; by_cases hk : k = 0 <;> simp_all +decide;
       unfold partialSum; norm_num [ doublingStrategy ];
     · exact le_of_tendsto h_limit ( Filter.eventually_atTop.mpr ⟨ 1, fun k hk => by rw [ ← h_simplify k ( by linarith ) ] ; exact le_iSup_of_le k le_rfl ⟩ );
@@ -798,10 +799,12 @@ lemma a_seq_recurrence {s : Strategy} {R : ℝ} (h_score : worstCaseScore s ≤ 
       have h_ak_le_R : ∀ k, partialSum s (k + 1) / s.x k ≤ R := by
         rw [ boundary_reduction ] at h_score;
         intro k; contrapose! h_score;
-        refine' lt_of_lt_of_le _ ( le_iSup _ ( k + 1 ) );
+        refine lt_of_lt_of_le ?_ ( le_iSup
+          ( fun k : ℕ => ENNReal.ofReal (partialSum s k / if k = 0 then 1 else s.x (k - 1)) )
+          ( k + 1 ) );
         rw [ ENNReal.ofReal_lt_ofReal_iff ];
         · exact h_score;
-        · refine' div_pos _ _ <;> norm_num [ partialSum ];
+        · refine div_pos ?_ ?_ <;> norm_num [ partialSum ];
           · exact lt_of_lt_of_le ( by linarith [ s.one_le ] ) ( Finset.single_le_sum ( fun i _ => s.nonneg i ) ( Finset.mem_range.mpr ( Nat.succ_pos _ ) ) );
           · exact lt_of_lt_of_le zero_lt_one ( s.one_le.trans ( s.mono ( Nat.zero_le _ ) ) );
       -- By definition of $a_seq$, we know that $a_{k+1} = 1 + a_k / t_{k+1}$ where $t_{k+1} = x_{k+1} / x_k$.
@@ -863,7 +866,7 @@ lemma b_seq_le_a_seq {s : Strategy} {R : ℝ} (h_score : worstCaseScore s ≤ EN
         -- By definition of $b_seq$, we have $b_seq R (k + 1) = g R (b_seq R k)$.
         have h_b_succ : b_seq R (k + 1) = g R (b_seq R k) := by
           rfl;
-        refine' h_b_succ ▸ le_trans ( g_monotone _ _ _ ih ) _;
+        refine h_b_succ ▸ le_trans ( g_monotone ?_ ?_ ?_ ih ) ?_;
         · linarith;
         · have := a_seq_recurrence h_score k;
           linarith;
@@ -887,7 +890,7 @@ lemma b_seq_unbounded_aux {R : ℝ} (hR1 : 1 < R) (hR4 : R < 4) (h_bound : ∀ n
   -- Since $b_n$ is strictly increasing and bounded above by $R-1$, it converges to some limit $L \le R-1$.
   obtain ⟨L, hL⟩ : ∃ L, Filter.Tendsto (fun n => b_seq R n) Filter.atTop (nhds L) := by
     have h_monotone : Monotone (fun n => b_seq R n) := by
-      refine' monotone_nat_of_le_succ _;
+      refine monotone_nat_of_le_succ ?_;
       intro n;
       exact le_of_lt ( g_gt_self_of_lt_R hR1 hR4 ( by linarith [ h_bound n ] ) );
     exact ⟨ _, tendsto_atTop_isLUB h_monotone ( isLUB_ciSup ⟨ R - 1, Set.forall_mem_range.mpr h_bound ⟩ ) ⟩;
@@ -903,8 +906,8 @@ lemma b_seq_unbounded_aux {R : ℝ} (hR1 : 1 < R) (hR4 : R < 4) (h_bound : ∀ n
 The value of the unbounded game is 4.
 -/
 theorem unbounded_value_eq_four : gameValue = 4 := by
-  refine' le_antisymm _ _;
-  · refine' csInf_le _ _;
+  refine le_antisymm ?_ ?_;
+  · refine csInf_le ?_ ?_;
     · exact ⟨ 0, Set.forall_mem_range.2 fun s => zero_le _ ⟩;
     · exact ⟨ doublingStrategy, doublingStrategy_worstCaseScore_eq_four ⟩;
   · -- By definition of $V_\infty$, if $V_\infty < 4$, then there exists a strategy $s$ with $W = \text{worstCaseScore}(s) < 4$.
@@ -914,7 +917,7 @@ theorem unbounded_value_eq_four : gameValue = 4 := by
     -- Let $r = \text{ENNReal.toReal}(W)$. Since $W < 4$, $r < 4$.
     obtain ⟨r, hr⟩ : ∃ r : ℝ, worstCaseScore s = ENNReal.ofReal r ∧ r < 4 := by
       have h_real : ∃ r : ℝ, worstCaseScore s = ENNReal.ofReal r := by
-        refine' ⟨ _, Eq.symm <| ENNReal.ofReal_toReal _ ⟩;
+        refine ⟨ (worstCaseScore s).toReal, ( ENNReal.ofReal_toReal ?_ ).symm ⟩;
         aesop;
       aesop;
     -- Let $R = \max(r, 2)$. Then $1 < R < 4$ and $W \le R$.
@@ -980,7 +983,11 @@ lemma bounded_boundary_reduction_le {s : Strategy} {B : ℝ} {n : ℕ}
         intros y
         by_cases hy1 : y.val = 1;
         · simp +zetaDelta at *;
-          refine' le_trans _ ( le_iSup₂_of_le 0 ( Nat.zero_le n ) _ ) <;> norm_num [ hy1 ];
+          refine le_iSup₂_of_le
+            ( f := fun k (_ : k ≤ n) =>
+              ENNReal.ofReal (partialSum s k / if k = 0 then 1 else s.x (k - 1)) )
+            0 ( Nat.zero_le n ) ?_
+          norm_num [ hy1 ]
           convert le_rfl;
           unfold score partialSum;
           rw [ hitIndex_one ] ; norm_num;
@@ -992,13 +999,16 @@ lemma bounded_boundary_reduction_le {s : Strategy} {B : ℝ} {n : ℕ}
             exact y.2.1⟩ = ENNReal.ofReal (partialSum s k / y.val) := by
             convert score_eq_of_mem_Ioc hk.2 _ using 1
           generalize_proofs at *;
-          refine' le_trans _ ( le_iSup₂_of_le k hk.1 _ );
-          exact h_score_eq.le;
-          gcongr;
-          · exact Finset.sum_nonneg fun _ _ => s.nonneg _;
-          · field_simp;
-            split_ifs <;> linarith [ s.nonneg ( k - 1 ), s.one_le, show ( 1 : ℝ ) ≤ s.x ( k - 1 ) from Nat.recOn ( k - 1 ) ( by linarith [ s.one_le ] ) fun n ihn => by linarith [ s.mono n.le_succ ] ];
-          · exact hk.2.1.le;
+          refine le_trans h_score_eq.le ( le_iSup₂_of_le
+            ( f := fun k (_ : k ∈ Finset.range (n + 1)) =>
+              ENNReal.ofReal (partialSum s k / if k = 0 then 1 else s.x (k - 1)) )
+            k hk.1 ?_ );
+          exact ENNReal.ofReal_le_ofReal (by
+            gcongr;
+            · exact Finset.sum_nonneg fun _ _ => s.nonneg _;
+            · field_simp;
+              split_ifs <;> linarith [ s.nonneg ( k - 1 ), s.one_le, show ( 1 : ℝ ) ≤ s.x ( k - 1 ) from Nat.recOn ( k - 1 ) ( by linarith [ s.one_le ] ) fun n ihn => by linarith [ s.mono n.le_succ ] ];
+            · exact hk.2.1.le);
       exact iSup_le fun y => h_score_le y
 
 /-
@@ -1008,10 +1018,10 @@ lemma bounded_boundary_reduction_ge {s : Strategy} {B : ℝ} {n : ℕ}
     (h_strict : StrictMono s.x)
     (h_n : s.x n = B) :
     boundedWorstCaseScore s B ≥ ⨆ k ∈ Finset.range (n + 1), ENNReal.ofReal (partialSum s k / if k = 0 then 1 else s.x (k - 1)) := by
-      refine' iSup₂_le _;
+      refine iSup₂_le ?_;
       intro i hi;
       by_cases hi0 : i = 0 <;> simp_all
-      · refine' le_trans _ ( le_ciSup _ ⟨ 1, _ ⟩ ) <;> norm_num [ partialSum ];
+      · refine le_trans ?_ ( le_ciSup ?_ ⟨ 1, ?_ ⟩ ) <;> norm_num [ partialSum ];
         all_goals norm_num [ boundedScore, score ];
         · exact ENNReal.ofReal_le_ofReal ( by exact le_trans ( by norm_num ) ( Finset.single_le_sum ( fun a _ => s.nonneg a ) ( Finset.mem_range.mpr ( Nat.succ_pos _ ) ) ) );
         linarith [ s.one_le, h_strict.monotone ( Nat.zero_le n ) ];
@@ -1047,12 +1057,12 @@ lemma bounded_boundary_reduction_ge {s : Strategy} {B : ℝ} {n : ℕ}
           convert h_lim using 2;
           rw [ score_eq_of_mem_Ioc ] ; aesop
         generalize_proofs at *;
-        refine' le_of_tendsto h_lim _;
-        refine' Filter.Eventually.of_forall fun m => _;
-        refine' le_iSup_of_le ⟨ y_m m, by
-          (expose_names; exact pf m), _ ⟩ le_rfl
-        generalize_proofs at *;
-        exact le_trans ( hy_m.1 m |>.2 ) ( h_n ▸ h_strict.monotone hi )
+        refine le_of_tendsto h_lim ?_;
+        refine Filter.Eventually.of_forall fun m => ?_;
+        refine le_iSup_of_le ⟨ y_m m, by
+          (expose_names; exact pf m), by
+            generalize_proofs at *;
+            exact le_trans ( hy_m.1 m |>.2 ) ( h_n ▸ h_strict.monotone hi ) ⟩ le_rfl
 
 /-
 If x_{k-1} = x_k, then the k-th term is less than or equal to the (k+1)-th term.
@@ -1141,7 +1151,7 @@ lemma recurrence_start {s : Strategy} {B R : ℝ}
         unfold score;
         unfold partialSum; norm_num [ hitIndex_one ] ;
       have h_le_R : ENNReal.ofReal (s.x 0) ≤ ENNReal.ofReal R := by
-        refine' le_trans _ h_score;
+        refine le_trans ?_ h_score;
         exact h_score_one ▸ le_iSup_of_le ⟨ 1, by norm_num, hB ⟩ ( le_rfl );
       rw [ ENNReal.ofReal_le_ofReal_iff ] at h_le_R <;> try linarith [ s.nonneg 0 ];
       contrapose! h_le_R;
@@ -1156,16 +1166,16 @@ lemma recurrence_strict {s : Strategy} {B R : ℝ} {n : ℕ}
     (h_score : boundedWorstCaseScore s B ≤ ENNReal.ofReal R) :
     s.x 0 ≤ R ∧ ∀ k, 1 ≤ k → k < n → s.x k ≤ R * s.x (k - 1) - partialSum s (k - 1) := by
       have := bounded_boundary_reduction_ge h_strict h_n;
-      refine' ⟨ _, _ ⟩;
+      refine ⟨ ?_, ?_ ⟩;
       · convert recurrence_start h_score _ _;
         · exact h_n ▸ s.one_le.trans ( h_strict.monotone ( Nat.zero_le _ ) );
         · exact h_n ▸ h_strict.monotone ( Nat.zero_le _ );
       · intro k hk₁ hk₂
         have h_partialSum : partialSum s k ≤ R * s.x (k - 1) := by
           have h_partialSum : ENNReal.ofReal (partialSum s k / s.x (k - 1)) ≤ ENNReal.ofReal R := by
-            refine' le_trans _ h_score;
-            refine' le_trans _ this;
-            refine' le_trans _ ( le_iSup₂_of_le k ( Finset.mem_range.mpr ( by omega ) ) le_rfl ) ; aesop;
+            refine le_trans ?_ h_score;
+            refine le_trans ?_ this;
+            refine le_trans ?_ ( le_iSup₂_of_le k ( Finset.mem_range.mpr ( by omega ) ) le_rfl ) ; aesop;
           rw [ ENNReal.ofReal_le_ofReal_iff ] at h_partialSum;
           · rwa [ div_le_iff₀ ( show 0 < s.x ( k - 1 ) from lt_of_lt_of_le zero_lt_one ( s.one_le.trans ( s.mono ( Nat.zero_le _ ) ) ) ) ] at h_partialSum;
           · contrapose! h_partialSum;
@@ -1188,25 +1198,29 @@ lemma boundedWorstCaseScore_ge_two {s : Strategy} {B : ℝ} (hB : 2 < B) :
         -- Since $x_1 \ge x_0$, this is $\ge 2x_0/x_0 = 2$.
         have h_score_ge_two : ∀ ε > 0, ε < B - s.x 0 → ENNReal.ofReal ((partialSum s 1) / (s.x 0 + ε)) ≤ boundedWorstCaseScore s B := by
           intros ε hε_pos hε_lt;
-          refine' le_trans _ ( le_ciSup _ ⟨ s.x 0 + ε, _, _ ⟩ ) <;> norm_num [ *, partialSum ];
+          refine le_trans ?_ ( le_ciSup ?_ ⟨ s.x 0 + ε, ?_, ?_ ⟩ ) <;> norm_num [ *, partialSum ];
           all_goals try linarith [ s.one_le ];
-          refine' ENNReal.ofReal_le_ofReal _;
+          refine ENNReal.ofReal_le_ofReal ?_;
           gcongr;
           · linarith [ s.nonneg 0 ];
-          · refine' Finset.sum_le_sum_of_subset_of_nonneg _ _ <;> norm_num [ Finset.sum_range_succ ];
+          · refine Finset.sum_le_sum_of_subset_of_nonneg ?_ ?_ <;> norm_num [ Finset.sum_range_succ ];
             · unfold hitIndex; aesop;
             · exact fun _ _ _ => s.nonneg _;
         -- Taking the limit as $\epsilon \to 0$, we get $(partialSum s 1) / s.x 0 \le boundedWorstCaseScore s B$.
         have h_limit : ENNReal.ofReal ((partialSum s 1) / s.x 0) ≤ boundedWorstCaseScore s B := by
           have h_limit : Filter.Tendsto (fun ε => ENNReal.ofReal ((partialSum s 1) / (s.x 0 + ε))) (nhdsWithin 0 (Set.Ioi 0)) (nhds (ENNReal.ofReal ((partialSum s 1) / s.x 0))) := by
-            refine' ENNReal.tendsto_ofReal _;
+            refine ENNReal.tendsto_ofReal ?_;
             exact tendsto_nhdsWithin_of_tendsto_nhds ( by simpa using tendsto_const_nhds.div ( Continuous.tendsto ( show Continuous fun ε : ℝ => s.x 0 + ε from continuous_const.add continuous_id' ) 0 ) ( show ( s.x 0 + 0 ) ≠ 0 from by linarith [ s.nonneg 0, s.one_le ] ) );
           exact le_of_tendsto h_limit ( Filter.eventually_of_mem ( Ioo_mem_nhdsGT <| show 0 < B - s.x 0 from sub_pos.mpr <| by linarith [ s.one_le ] ) fun ε hε => h_score_ge_two ε hε.1 hε.2 );
         simp_all +decide [ partialSum ];
         refine le_trans ?_ h_limit ; norm_num [ Finset.sum_range_succ ];
         rw [ le_div_iff₀ ] <;> linarith [ s.nonneg 0, s.nonneg 1, s.one_le, s.mono zero_le_one ];
-      · refine' le_trans _ ( le_ciSup _ ⟨ 1, by norm_num, by linarith ⟩ );
-        · refine' le_trans _ ( ENNReal.ofReal_le_ofReal <| div_le_div_of_nonneg_right ( Finset.single_le_sum ( fun a _ => s.nonneg a ) ( Finset.mem_range.mpr <| Nat.succ_pos _ ) ) <| by positivity ) ; norm_num;
+      · refine le_trans ?_ ( le_ciSup ?_ ⟨ 1, by norm_num, by linarith ⟩ );
+        · refine le_trans ?_ ( ENNReal.ofReal_le_ofReal <|
+            div_le_div_of_nonneg_right
+              ( Finset.single_le_sum ( fun a _ => s.nonneg a )
+                ( Finset.mem_range.mpr <| Nat.succ_pos ( hitIndex s ⟨ 1, by norm_num ⟩ ) ) )
+              <| by positivity ) ; norm_num;
           linarith;
         · exact OrderTop.bddAbove (Set.range fun y ↦ boundedScore s B y)
 
@@ -1219,8 +1233,8 @@ lemma R_ge_two_strict {s : Strategy} {B R : ℝ} {n : ℕ}
     (h_score : boundedWorstCaseScore s B ≤ ENNReal.ofReal R) : 2 ≤ R := by
       -- Since $n \ge 2$, the range $0 \dots n-1$ contains $k=1$. By `bounded_boundary_reduction_ge` (applied to $n-1$), $W_B \ge S_2/x_0$.
       have h_worst_case_ge_two : boundedWorstCaseScore s B ≥ ENNReal.ofReal ((partialSum s 1) / (s.x 0)) := by
-        refine' le_trans _ ( bounded_boundary_reduction_ge h_strict h_n );
-        refine' le_trans _ ( le_iSup₂ 1 _ ) <;> norm_num;
+        refine le_trans ?_ ( bounded_boundary_reduction_ge h_strict h_n );
+        refine le_trans ?_ ( le_iSup₂ 1 ?_ ) <;> norm_num;
         linarith;
       have h_worst_case_ge_two : ENNReal.ofReal ((partialSum s 1) / (s.x 0)) > ENNReal.ofReal 2 := by
         norm_num [ partialSum ];
@@ -1241,7 +1255,7 @@ lemma diff_sum_recurrence {s : Strategy} {B R : ℝ} {n : ℕ}
     diff_sum s R 0 = R - s.x 0 ∧
     (1 < n → diff_sum s R 1 ≥ R * diff_sum s R 0) ∧
     ∀ k, 2 ≤ k → k < n → diff_sum s R k ≥ R * diff_sum s R (k - 1) - R * diff_sum s R (k - 2) := by
-      refine' ⟨ _, _, _ ⟩;
+      refine ⟨ ?_, ?_, ?_ ⟩;
       · unfold diff_sum; aesop;
       · intro hn;
         have := recurrence_strict h_strict h_n h_score;
@@ -1272,7 +1286,7 @@ lemma diff_seq_recurrence_sum {s : Strategy} {B R : ℝ} {n : ℕ}
     diff_seq s R 0 = R - s.x 0 ∧
     ∀ k, 1 ≤ k → k < n → diff_seq s R k ≥ R * diff_seq s R (k - 1) - diff_sum s R (k - 1) := by
       unfold diff_seq diff_sum;
-      refine' ⟨ _, fun k hk₁ hk₂ => _ ⟩;
+      refine ⟨ ?_, fun k hk₁ hk₂ => ?_ ⟩;
       · rfl;
       · rcases k with ( _ | k ) <;> simp_all +decide [ Finset.sum_range_succ ];
         -- Apply the recurrence relation for the tight polynomial.
@@ -1319,7 +1333,7 @@ lemma strategy_recurrence_correct {s : Strategy} {B R : ℝ} {n : ℕ}
     (s.x 0 ≤ R) ∧
     (1 < n → s.x 1 ≤ (R - 1) * s.x 0) ∧
     (∀ k, 2 ≤ k → k < n → s.x k ≤ (R - 1) * s.x (k - 1) - partialSum s (k - 2)) := by
-      refine' ⟨ _, _, _ ⟩;
+      refine ⟨ ?_, ?_, ?_ ⟩;
       · apply recurrence_start h_score;
         · exact h_n ▸ s.one_le.trans ( h_strict.monotone ( Nat.zero_le _ ) );
         · exact h_n ▸ h_strict.monotone ( Nat.zero_le _ );
@@ -1408,7 +1422,7 @@ theorem tightPoly_monotone_of_small_angle (m : ℕ) (θ : ℝ)
     let R := 4 * (Real.cos θ) ^ 2
     tightPoly k R ≤ tightPoly (k + 1) R := by
       have h_diff_pos : 0 < (2 * Real.cos θ) ^ k * Real.sin ((k + 3) * θ) / Real.sin θ := by
-        refine' div_pos ( mul_pos ( pow_pos ( mul_pos zero_lt_two ( Real.cos_pos_of_mem_Ioo ⟨ _, _ ⟩ ) ) _ ) ( Real.sin_pos_of_mem_Ioo ⟨ _, _ ⟩ ) ) ( Real.sin_pos_of_mem_Ioo ⟨ hθ_pos, _ ⟩ );
+        refine div_pos ( mul_pos ( pow_pos ( mul_pos zero_lt_two ( Real.cos_pos_of_mem_Ioo ( x := θ ) ⟨ ?_, ?_ ⟩ ) ) k ) ( Real.sin_pos_of_mem_Ioo ⟨ ?_, ?_ ⟩ ) ) ( Real.sin_pos_of_mem_Ioo ⟨ hθ_pos, ?_ ⟩ );
         · linarith [ Real.pi_pos ];
         · rw [ le_div_iff₀ ] at hθ_le <;> nlinarith [ Real.pi_pos ];
         · positivity;
@@ -1470,7 +1484,7 @@ theorem tightPoly_strictMono_on_bracket (n : ℕ) (hn : 1 ≤ n) :
       have h_trig_decreasing : StrictAntiOn (fun θ => (2 * Real.cos θ) ^ n * Real.sin ((n + 1) * θ) / Real.sin θ) (Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2))) := by
         -- The factors $(2 \cos \theta)^n$, $\sin((n+1)\theta)$, and $1/\sin \theta$ are all strictly decreasing in $\theta$ on $[\pi/(n+3), \pi/(n+2)]$.
         have h_factors_decreasing : StrictAntiOn (fun θ => (2 * Real.cos θ) ^ n) (Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2))) ∧ StrictAntiOn (fun θ => Real.sin ((n + 1) * θ)) (Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2))) ∧ StrictAntiOn (fun θ => 1 / Real.sin θ) (Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2))) := by
-          refine' ⟨ _, _, _ ⟩;
+          refine ⟨ ?_, ?_, ?_ ⟩;
           · -- Since $\cos$ is strictly decreasing on $[0, \pi]$, multiplying by $2$ (which is positive) preserves the strict decrease.
             have h_cos_decreasing : StrictAntiOn Real.cos (Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2))) := by
               exact Real.strictAntiOn_cos.mono ( Set.Icc_subset_Icc ( by positivity ) ( by rw [ div_le_iff₀ ( by positivity ) ] ; nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] ) );
@@ -1479,16 +1493,16 @@ theorem tightPoly_strictMono_on_bracket (n : ℕ) (hn : 1 ≤ n) :
             have h_sin_decreasing : StrictAntiOn Real.sin (Set.Icc (Real.pi / 2) Real.pi) := by
               exact fun x hx y hy hxy => by rw [ ← Real.cos_sub_pi_div_two, ← Real.cos_sub_pi_div_two ] ; exact Real.cos_lt_cos_of_nonneg_of_le_pi ( by linarith [ Set.mem_Icc.mp hx, Set.mem_Icc.mp hy ] ) ( by linarith [ Set.mem_Icc.mp hx, Set.mem_Icc.mp hy ] ) ( by linarith [ Set.mem_Icc.mp hx, Set.mem_Icc.mp hy ] ) ;
             intro θ hθ θ' hθ' hθθ';
-            refine' h_sin_decreasing ⟨ _, _ ⟩ ⟨ _, _ ⟩ _;
+            refine h_sin_decreasing ⟨ ?_, ?_ ⟩ ⟨ ?_, ?_ ⟩ ?_;
             · rw [ Set.mem_Icc ] at hθ ; rw [ div_le_iff₀ ] at * <;> nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ];
             · nlinarith [ hθ.1, hθ.2, hθ'.1, hθ'.2, Real.pi_pos, mul_div_cancel₀ ( Real.pi : ℝ ) ( by positivity : ( n : ℝ ) + 3 ≠ 0 ), mul_div_cancel₀ ( Real.pi : ℝ ) ( by positivity : ( n : ℝ ) + 2 ≠ 0 ) ];
             · rw [ Set.mem_Icc ] at *;
               rw [ div_le_iff₀ ] at * <;> nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ];
             · nlinarith [ hθ'.1, hθ'.2, Real.pi_pos, mul_div_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 2 ≠ 0 ), mul_div_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 3 ≠ 0 ) ];
             · exact mul_lt_mul_of_pos_left hθθ' <| by positivity;
-          · refine' fun x hx y hy hxy => one_div_lt_one_div_of_lt _ _;
+          · refine fun x hx y hy hxy => one_div_lt_one_div_of_lt ?_ ?_;
             · exact Real.sin_pos_of_pos_of_lt_pi ( lt_of_lt_of_le ( by positivity ) hx.1 ) ( lt_of_le_of_lt hx.2 ( by rw [ div_lt_iff₀ ] <;> nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] ) );
-            · rw [ ← Real.cos_pi_div_two_sub, ← Real.cos_pi_div_two_sub ] ; refine' Real.cos_lt_cos_of_nonneg_of_le_pi _ _ _ <;> nlinarith [ Real.pi_pos, hx.1, hx.2, hy.1, hy.2, mul_div_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 3 ≠ 0 ), mul_div_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 2 ≠ 0 ) ];
+            · rw [ ← Real.cos_pi_div_two_sub, ← Real.cos_pi_div_two_sub ] ; refine Real.cos_lt_cos_of_nonneg_of_le_pi ?_ ?_ ?_ <;> nlinarith [ Real.pi_pos, hx.1, hx.2, hy.1, hy.2, mul_div_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 3 ≠ 0 ), mul_div_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 2 ≠ 0 ) ];
         have h_prod_decreasing : StrictAntiOn (fun θ => (2 * Real.cos θ) ^ n * Real.sin ((n + 1) * θ)) (Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2))) ∧ StrictAntiOn (fun θ => 1 / Real.sin θ) (Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2))) := by
           simp_all +decide [ StrictAntiOn ];
           intro a ha₁ ha₂ b hb₁ hb₂ hab; have := h_factors_decreasing.1 ha₁ ha₂ hb₁ hb₂ hab; have := h_factors_decreasing.2.1 ha₁ ha₂ hb₁ hb₂ hab; gcongr;
@@ -1556,7 +1570,7 @@ theorem tightPoly_step_limit (n : ℕ) (hn : 1 ≤ n) (R : ℝ)
         grind;
       have h_sin_le_zero : Real.sin ((n + 3) * θ) ≤ 0 := by
         rw [ ← Real.cos_sub_pi_div_two ];
-        refine' Real.cos_nonpos_of_pi_div_two_le_of_le _ _;
+        refine Real.cos_nonpos_of_pi_div_two_le_of_le ?_ ?_;
         · rw [ div_le_iff₀ ] at hθ <;> nlinarith [ Real.pi_pos ];
         · rw [ le_div_iff₀ ] at hθ <;> nlinarith [ Real.pi_pos ];
       have h_pn1_le_pn : tightPoly (n + 1) R - tightPoly n R ≤ 0 := by
@@ -1666,7 +1680,7 @@ theorem optimalStrategy_x_mono (n : ℕ) (R B : ℝ)
     (hR_range : R ∈ Set.Icc (ratioLower n) (ratioUpper n))
     (h_tight : tightPoly n R = B) :
     Monotone (optimalStrategy_x n R B) := by
-      refine' monotone_nat_of_le_succ fun k => _;
+      refine monotone_nat_of_le_succ fun k => ?_;
       by_cases hk : k < n <;> simp_all +decide [ optimalStrategy_x ];
       · -- Since $R \in [\rho_{n-1}, \rho_n]$, we have $R = 4 \cos^2(\theta)$ for some $\theta \in [\frac{\pi}{n+2}, \frac{\pi}{n+3}]$.
         obtain ⟨θ, hθ⟩ : ∃ θ : ℝ, 0 < θ ∧ θ ≤ Real.pi / (n + 2) ∧ R = 4 * (Real.cos θ) ^ 2 := by
@@ -1717,7 +1731,7 @@ theorem firstGuess_gt_ratioLower {B : ℝ} (hB : 1 < B) :
     ratioLower (nSteps B) < firstGuess B := by
       have := firstGuess_spec hB
       obtain ⟨hR_range, h_tight⟩ := this;
-      refine' hR_range.lt_of_ne' _;
+      refine hR_range.lt_of_ne' ?_;
       have := tightPoly_endpoints ( nSteps B ) ( by linarith [ nSteps_spec hB ] );
       have := nSteps_spec hB;
       unfold InStepRange at this; aesop;
@@ -1762,7 +1776,7 @@ theorem tightPoly_strictMono_in_k (n : ℕ) (hn : 1 ≤ n) (R : ℝ)
         · simp_all +decide [ ratioLower ];
         · exact ⟨ θ, ⟨ lt_of_lt_of_le ( by positivity ) hθ₁.1, lt_of_le_of_ne hθ₁.2 hθ_eq ⟩, hθ₂ ⟩;
       have h_pos : 0 < (2 * Real.cos θ) ^ j * Real.sin ((j + 3) * θ) / Real.sin θ := by
-        refine' div_pos ( mul_pos ( pow_pos ( mul_pos zero_lt_two ( Real.cos_pos_of_mem_Ioo ⟨ _, _ ⟩ ) ) _ ) ( Real.sin_pos_of_mem_Ioo ⟨ _, _ ⟩ ) ) ( Real.sin_pos_of_mem_Ioo ⟨ _, _ ⟩ );
+        refine div_pos ( mul_pos ( pow_pos ( mul_pos zero_lt_two ( Real.cos_pos_of_mem_Ioo ( x := θ ) ⟨ ?_, ?_ ⟩ ) ) j ) ( Real.sin_pos_of_mem_Ioo ⟨ ?_, ?_ ⟩ ) ) ( Real.sin_pos_of_mem_Ioo ⟨ ?_, ?_ ⟩ );
         all_goals nlinarith [ hθ.1.1, hθ.1.2, Real.pi_pos, mul_div_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 2 ≠ 0 ), show ( j : ℝ ) + 3 ≤ n + 2 by norm_cast; linarith ];
       have h_diff : tightPoly (j + 1) R - tightPoly j R = (2 * Real.cos θ) ^ j * Real.sin ((j + 3) * θ) / Real.sin θ := by
         have := tightPoly_diff_sign θ hθ.1.1 ( by linarith [ hθ.1.2, Real.pi_pos, div_le_self Real.pi_pos.le ( by linarith : ( n : ℝ ) + 2 ≥ 1 ) ] ) j; aesop;
@@ -1777,7 +1791,7 @@ theorem optimalStrategy_x_strictMono (n : ℕ) (R B : ℝ)
     (hR_gt : ratioLower n < R)
     (h_tight : tightPoly n R = B) :
     StrictMono (optimalStrategy_x n R B) := by
-      refine' strictMono_nat_of_lt_succ fun k => _;
+      refine strictMono_nat_of_lt_succ fun k => ?_;
       by_cases hk : k < n <;> by_cases hk' : k + 1 < n <;> simp +decide [ *, optimalStrategy_x ];
       · convert tightPoly_strictMono_in_k n hn R hR_range hR_gt ( k + 1 ) hk' using 1;
       · cases eq_or_lt_of_le ( Nat.succ_le_of_lt hk ) <;> aesop;
@@ -1845,11 +1859,11 @@ Lemma: The supremum of the ratios for the optimal strategy is equal to the first
 -/
 lemma optimalStrategy_sup_ratio (B : ℝ) (hB : 1 < B) :
     (⨆ k ∈ Finset.range (nSteps B), ENNReal.ofReal (partialSum (optimalStrategy B) k / if k = 0 then 1 else (optimalStrategy B).x (k - 1))) = ENNReal.ofReal (firstGuess B) := by
-      refine' le_antisymm _ _;
-      · refine' iSup_le fun k => iSup_le fun hk => _;
+      refine le_antisymm ?_ ?_;
+      · refine iSup_le fun k => iSup_le fun hk => ?_;
         rw [ optimalStrategy_ratio_eq_firstGuess B hB k ( Finset.mem_range.mp hk ) ];
       · field_simp;
-        refine' le_trans _ ( le_iSup₂_of_le ( nSteps B - 1 ) ( Finset.mem_range.mpr ( Nat.sub_lt ( by linarith [ show 1 ≤ nSteps B from Nat.succ_le_of_lt ( Nat.pos_of_ne_zero ( by { intro h; have := nSteps_spec hB; aesop } ) ) ] ) zero_lt_one ) ) le_rfl );
+        refine le_trans ?_ ( le_iSup₂_of_le ( nSteps B - 1 ) ( Finset.mem_range.mpr ( Nat.sub_lt ( by linarith [ show 1 ≤ nSteps B from Nat.succ_le_of_lt ( Nat.pos_of_ne_zero ( by { intro h; have := nSteps_spec hB; aesop } ) ) ] ) zero_lt_one ) ) le_rfl );
         rw [ optimalStrategy_ratio_eq_firstGuess ];
         · linarith;
         · exact Nat.pred_lt ( ne_bot_of_gt ( nSteps_spec hB |>.1 ) )
@@ -1956,7 +1970,7 @@ lemma formula_x_recurrence {s : Strategy} {R : ℝ} (hR : R ≠ 0) (k : ℕ) (hk
         field_simp [hR]
       · simp [hRRinv]
         ring
-      rw [ ← Finset.sum_add_distrib ] ; refine' Finset.sum_congr rfl fun x hx => _ ; rw [ show 1 + ( 1 + k - x ) = 1 + ( k - x ) + 1 by linarith [ Nat.sub_add_cancel ( show x ≤ k from Finset.mem_range_le hx ), Nat.sub_add_cancel ( show x ≤ 1 + k from by linarith [ Finset.mem_range_le hx ] ) ] ] ; rw [ show 1 + ( 2 + k - x ) = 1 + ( k - x ) + 2 by linarith [ Nat.sub_add_cancel ( show x ≤ k from Finset.mem_range_le hx ), Nat.sub_add_cancel ( show x ≤ 2 + k from by linarith [ Finset.mem_range_le hx ] ) ] ] ; ring_nf;
+      rw [ ← Finset.sum_add_distrib ] ; refine Finset.sum_congr rfl fun x hx => ?_ ; rw [ show 1 + ( 1 + k - x ) = 1 + ( k - x ) + 1 by linarith [ Nat.sub_add_cancel ( show x ≤ k from Finset.mem_range_le hx ), Nat.sub_add_cancel ( show x ≤ 1 + k from by linarith [ Finset.mem_range_le hx ] ) ] ] ; rw [ show 1 + ( 2 + k - x ) = 1 + ( k - x ) + 2 by linarith [ Nat.sub_add_cancel ( show x ≤ k from Finset.mem_range_le hx ), Nat.sub_add_cancel ( show x ≤ 2 + k from by linarith [ Finset.mem_range_le hx ] ) ] ] ; ring_nf;
       rw [ show 3 + ( k - x ) = 2 + ( k - x ) + 1 by ring, show 2 + ( k - x ) = 1 + ( k - x ) + 1 by ring ]
       rw [ h_recurrence ]
       field_simp [hR]
@@ -2031,7 +2045,7 @@ lemma tightPoly_pos_counterexample :
       use 10;
       use 2.25;
       norm_num +zetaDelta at *;
-      refine' ⟨ _, 6, _, _ ⟩ <;> norm_num [ tightPoly ]
+      refine ⟨ ?_, 6, ?_, ?_ ⟩ <;> norm_num [ tightPoly ]
 
 /-
 The first guess is at most R.
@@ -2042,8 +2056,8 @@ lemma strategy_recurrence_base {s : Strategy} {B R : ℝ}
     s.x 0 ≤ R := by
       -- Since $y = 1$ is in the interval $(1, x_0]$, the score for $y = 1$ is $s.x 0 / 1 = s.x 0$.
       have h_score_one : score s ⟨1, by norm_num⟩ ≤ ENNReal.ofReal R := by
-        refine' le_trans _ h_score;
-        refine' le_trans _ ( le_ciSup _ ⟨ 1, by norm_num, by linarith ⟩ );
+        refine le_trans ?_ h_score;
+        refine le_trans ?_ ( le_ciSup ?_ ⟨ 1, by norm_num, by linarith ⟩ );
         · exact
           Std.IsPreorder.le_refl
             (score s
@@ -2076,21 +2090,21 @@ lemma strategy_recurrence_simple {s : Strategy} {B R : ℝ} {k : ℕ}
           have h_score_y : score s ⟨y, by
             exact le_trans ( s.one_le ) ( h_strict.monotone ( Nat.zero_le _ ) ) |> le_trans <| hy.1.le⟩ ≤ ENNReal.ofReal R := by
             all_goals generalize_proofs at *;
-            refine' le_trans _ h_score;
+            refine le_trans ?_ h_score;
             exact le_iSup_of_le ⟨ y, by linarith [ hy.1, hy.2 ], by linarith [ hy.1, hy.2 ] ⟩ le_rfl
           generalize_proofs at *;
           rw [ score ] at h_score_y;
           rw [ ENNReal.ofReal_le_ofReal_iff ] at h_score_y;
-          · refine' le_trans _ h_score_y;
+          · refine le_trans ?_ h_score_y;
             gcongr;
-            refine' Finset.sum_le_sum_of_subset_of_nonneg _ _;
-            · refine' Finset.range_mono ( Nat.succ_le_succ _ );
+            refine Finset.sum_le_sum_of_subset_of_nonneg ?_ ?_;
+            · refine Finset.range_mono ( Nat.succ_le_succ ?_ );
               contrapose! hy;
               exact fun h => h.1.not_ge <| by linarith [ h_strict.monotone <| show hitIndex s ⟨ y, by linarith ⟩ ≤ k - 1 from Nat.le_pred_of_lt hy, show s.x ( hitIndex s ⟨ y, by linarith ⟩ ) ≥ y from Nat.find_spec ( s.hits <| by linarith ) |> le_trans ( by aesop ) ] ;
             · exact fun _ _ _ => s.nonneg _;
           · contrapose! h_score_y;
             rw [ ENNReal.ofReal_eq_zero.mpr h_score_y.le ] ; norm_num;
-            refine' div_pos _ ( by linarith );
+            refine div_pos ?_ ( by linarith );
             exact Finset.sum_pos ( fun i hi => by linarith [ s.nonneg i, h_strict.monotone ( show i ≥ 0 from Nat.zero_le i ), show s.x i > 0 from lt_of_lt_of_le ( by linarith ) ( s.one_le.trans ( h_strict.monotone ( show i ≥ 0 from Nat.zero_le i ) ) ) ] ) ( by norm_num );
         -- Taking the limit as $y$ approaches $s.x (k - 1)$ from the right, we get $\partialSum s k / s.x (k - 1) \le R$.
         have h_limit : Filter.Tendsto (fun y => partialSum s k / y) (nhdsWithin (s.x (k - 1)) (Set.Ioi (s.x (k - 1)))) (nhds (partialSum s k / s.x (k - 1))) := by
@@ -2478,7 +2492,7 @@ noncomputable def tightUnboundedStrategy : Strategy :=
       -- By definition of `tightUnboundedStrategyX`, we have `tightUnboundedStrategyX 0 = (0 + 2) * 2 ^ ((0 : ℤ) - 1)`.
       simp [tightUnboundedStrategyX]
     mono := by
-      refine' monotone_nat_of_le_succ fun n => _;
+      refine monotone_nat_of_le_succ fun n => ?_;
       unfold tightUnboundedStrategyX; ring_nf; norm_num;
       norm_num [ zpow_add₀, zpow_one ] ; ring_nf ; norm_num;
       nlinarith [ pow_pos ( zero_lt_two' ℝ ) n ]
@@ -2525,7 +2539,7 @@ The bounded worst-case score is at least 1.
 -/
 lemma boundedWorstCaseScore_ge_one {s : Strategy} {B : ℝ} (hB : 1 ≤ B) :
     1 ≤ boundedWorstCaseScore s B := by
-      refine' le_trans _ ( le_ciSup _ ⟨ 1, _ ⟩ );
+      refine le_trans ?_ ( le_ciSup ?_ ⟨ 1, ?_ ⟩ );
       all_goals norm_num [ hB ];
       unfold boundedScore;
       unfold score;
@@ -2555,8 +2569,8 @@ lemma partialSum_le_of_strict_step {s : Strategy} {B R : ℝ} {k : ℕ}
     (h_bound : s.x k ≤ B) :
     partialSum s k ≤ R * s.x (k - 1) := by
       have h_score_interval : ∀ y ∈ Set.Ioc (s.x (k - 1)) (s.x k), ENNReal.ofReal (partialSum s k / y) ≤ ENNReal.ofReal R := by
-        refine' fun y hy => le_trans _ h_score;
-        refine' le_trans _ ( le_ciSup _ ⟨ y, _ ⟩ );
+        refine fun y hy => le_trans ?_ h_score;
+        refine le_trans ?_ ( le_ciSup ?_ ⟨ y, ?_ ⟩ );
         all_goals norm_num [ boundedScore ];
         rw [ score_eq_of_mem_Ioc ];
         · aesop;
@@ -2686,7 +2700,7 @@ lemma recurrence_reconstruction {u : ℕ → ℝ} {R : ℝ} (k : ℕ) :
           ∑ i ∈ Finset.range k, R * (recurrence_error u R i * tightPoly (k - i) R) from ?_]
     · ring
     rw [← Finset.sum_add_distrib]
-    refine' Finset.sum_congr rfl fun i hi => _
+    refine Finset.sum_congr rfl fun i hi => ?_
     rw [show k + 2 - i = k + 1 - i + 1 from by
       rw [tsub_add_eq_add_tsub (by linarith [Finset.mem_range.mp hi])]]
     rw [show k + 1 - i = k - i + 1 from by
@@ -2722,7 +2736,7 @@ lemma exists_bracket_of_le_rho {n : ℕ} {W : ℝ} (hn : 1 ≤ n) (hW1 : 1 ≤ W
         have h_exists_j : ∃ j : ℕ, 1 ≤ j ∧ j ≤ n ∧ 4 * Real.cos (Real.pi / (j + 3)) ^ 2 ≥ W := by
           exact ⟨ n, hn, le_rfl, hW_le ⟩;
         exact ⟨ Nat.find h_exists_j, Nat.find_spec h_exists_j |>.1, Nat.find_spec h_exists_j |>.2.1, Nat.find_spec h_exists_j |>.2.2, fun i hi₁ hi₂ => not_le.1 fun hi₃ => Nat.find_min h_exists_j hi₂ ⟨ hi₁, by linarith [ Nat.find_spec h_exists_j |>.2.1 ], hi₃ ⟩ ⟩;
-      refine' ⟨ j, hj.1, hj.2.1, _, hj.2.2.1 ⟩;
+      refine ⟨ j, hj.1, hj.2.1, ?_, hj.2.2.1 ⟩;
       rcases j with ( _ | _ | j ) <;> norm_num at *;
       · linarith;
       · have := hj.2.2 ( j + 1 ) ( by linarith ) ( by linarith ) ; norm_num [ add_assoc ] at * ; linarith
@@ -2876,7 +2890,7 @@ lemma ratioLower_eq_ratioUpper_prev (n : ℕ) (hn : 1 ≤ n) :
 The sequence of breakpoints B_n is strictly increasing.
 -/
 lemma stepBreakpoint_strictMono : StrictMono stepBreakpoint := by
-  refine' strictMono_nat_of_lt_succ _;
+  refine strictMono_nat_of_lt_succ ?_;
   -- The base function $2 \cos(\pi/(n+3))$ is strictly increasing for $n \geq 0$, and the exponent $n+1$ is strictly increasing.
   intros n
   have h_base : 2 * Real.cos (Real.pi / (n + 3)) < 2 * Real.cos (Real.pi / (n + 4)) := by
@@ -3090,8 +3104,8 @@ lemma dominance_monotone_part {s : Strategy} {B R : ℝ} {n j : ℕ}
       -- By Lemma~\ref{lem:dominance_property_strict}, the hypotheses guarantee `x_trunc k ≤ p_{k+1} R` for `k ≤ j`.
       have h_truncated : ∀ k < j, s_trunc.x k ≤ tightPoly (k + 1) R := by
         have h_score_trunc : boundedWorstCaseScore s_trunc (s_trunc.x (j - 1)) ≤ ENNReal.ofReal R := by
-          refine' le_trans _ h_score;
-          refine' iSup_mono' _;
+          refine le_trans ?_ h_score;
+          refine iSup_mono' ?_;
           simp +zetaDelta at *;
           exact fun a ha hb => ⟨ a, ⟨ ha, hb.trans <| h_n ▸ h_strict.monotone ( Nat.sub_le_sub_right hj_le 1 ) ⟩, le_rfl ⟩
         have h_mono_trunc : ∀ k < j, tightPoly k R ≤ tightPoly (k + 1) R := by
@@ -3118,11 +3132,11 @@ lemma dominance_property_upto {s : Strategy} {B R : ℝ} {m : ℕ}
       exact h_contra <| strategy_eq_formula_x h_strict h_m h_score ( show R ≠ 0 by linarith ) k hk ▸ by
                                                                       unfold formula_x;
                                                                       norm_num [ Finset.sum_range_succ' ];
-                                                                      refine' add_nonneg _ _;
-                                                                      · refine' Finset.sum_nonneg fun i hi => mul_nonneg _ _;
+                                                                      refine add_nonneg ?_ ?_;
+                                                                      · refine Finset.sum_nonneg fun i hi => mul_nonneg ?_ ?_;
                                                                         · exact div_nonneg ( h_tight_nonneg _ ( by norm_num at *; omega ) ) ( by positivity );
                                                                         · apply slack_nonneg h_strict h_m h_score (i + 1) (by linarith [Finset.mem_range.mp hi]);
-                                                                      · refine' mul_nonneg ( div_nonneg ( _ ) ( by positivity ) ) ( _ );
+                                                                      · refine mul_nonneg ( div_nonneg ( ?_ ) ( by positivity ) ) ( ?_ );
                                                                         · induction k with
                                                                           | zero => exact le_of_lt ( by erw [ show tightPoly 1 R = R from rfl ] ; linarith );
                                                                           | succ k ih => exact mul_nonneg ( by positivity ) ( sub_nonneg_of_le ( h_mono _ ( Nat.lt_succ_self _ ) ) );
@@ -3160,9 +3174,9 @@ lemma tightPoly_nonneg_of_strict_strategy {s : Strategy} {B R : ℝ} {n : ℕ}
           norm_num [ show R ≠ 0 by linarith ];
         have h_tightPoly_nonneg : 0 ≤ tightPoly (k + 2) R * (s.x 0 / R) := by
           have h_nonneg : 0 ≤ s.x (k + 1) + ∑ j ∈ Finset.range (k + 1), (tightPoly (k + 1 - j) R / R) * slack s R (j + 1) := by
-            refine' add_nonneg _ _;
+            refine add_nonneg ?_ ?_;
             · exact s.nonneg _;
-            · refine' Finset.sum_nonneg fun j hj => mul_nonneg _ _;
+            · refine Finset.sum_nonneg fun j hj => mul_nonneg ?_ ?_;
               · exact div_nonneg ( ih _ ( by omega ) ( by omega ) ) ( by positivity );
               · apply slack_nonneg h_strict h_n h_score (j + 1) (by linarith [Finset.mem_range.mp hj]);
           linarith;
@@ -3181,7 +3195,7 @@ theorem boundedWorstCaseScore_ge_firstGuess_strict {s : Strategy} {B : ℝ} (hB 
           convert boundedWorstCaseScore_ge_one hB.le;
           rw [ ← ENNReal.ofReal_one, ENNReal.ofReal_le_iff_le_toReal ];
           aesop;
-        refine' ⟨ ENNReal.toReal ( boundedWorstCaseScore s B ), hR_ge_one, _, _ ⟩;
+        refine ⟨ ENNReal.toReal ( boundedWorstCaseScore s B ), hR_ge_one, ?_, ?_ ⟩;
         · rw [ ENNReal.ofReal_toReal ];
           aesop;
         · rw [ not_le, ENNReal.lt_ofReal_iff_toReal_lt ] at h_contra <;> aesop;
@@ -3218,13 +3232,13 @@ noncomputable def truncateStrategy (s : Strategy) (B : ℝ) (hB : 1 ≤ B) : Str
       · rw [ if_pos ( Nat.pos_of_ne_zero hN_zero ) ];
         exact s.one_le
     mono := by
-      refine' monotone_nat_of_le_succ _;
+      refine monotone_nat_of_le_succ ?_;
       intro n; split_ifs <;> norm_num at *;
       · exact s.mono ( Nat.le_succ _ );
       · -- Since $N \leq n + 1$, we have $B + (n + 1 - N) \geq B$.
         have h_ge_B : B + (n + 1 - N) ≥ B := by
           linarith [ show ( N : ℝ ) ≤ n + 1 by norm_cast ];
-        refine' le_trans _ h_ge_B;
+        refine le_trans ?_ h_ge_B;
         exact le_of_not_gt fun h => by linarith [ Nat.find_min ( show ∃ N, s.x N ≥ B from ⟨ _, h.le ⟩ ) ( by linarith : n < N ) ] ;
       · linarith
     hits := fun {y} hy => by
@@ -3245,7 +3259,7 @@ noncomputable def truncateStrategyAux (s : Strategy) (B : ℝ) (hB : 1 ≤ B) : 
         apply s.one_le;
       · linarith [ show ( N : ℝ ) = 0 by norm_cast; linarith ]
     mono := by
-      refine' monotone_nat_of_le_succ _;
+      refine monotone_nat_of_le_succ ?_;
       intro n; split_ifs <;> norm_num;
       · exact s.mono ( Nat.le_succ _ );
       · -- Since $s.x$ is strictly monotone, we have $s.x n < B$.
@@ -3276,7 +3290,7 @@ The truncated strategy hits any target y <= B at the same index as the original 
 lemma hitIndex_truncateStrategyAux_eq {s : Strategy} {B : ℝ} {hB : 1 ≤ B} {y : {y : ℝ // 1 ≤ y ∧ y ≤ B}} :
     hitIndex (truncateStrategyAux s B hB) ⟨y.1, y.2.1⟩ = hitIndex s ⟨y.1, y.2.1⟩ := by
       generalize_proofs at *;
-      refine' le_antisymm _ _;
+      refine le_antisymm ?_ ?_;
       · -- By definition of `truncateStrategyAux`, we know that for any `k`, if `k < truncateIndex s B hB`, then `(truncateStrategyAux s B hB).x k = s.x k`. Therefore, if `s.x k ≥ y`, then `(truncateStrategyAux s B hB).x k ≥ y` as well.
         have h_truncate_x_ge_s_x : ∀ k, (s.x k ≥ y.val) → ((truncateStrategyAux s B hB).x k ≥ y.val) := by
           intro k hk_ge_y
@@ -3313,7 +3327,7 @@ The partial sums of the truncated strategy are equal to the original strategy's 
 lemma partialSum_truncateStrategyAux_eq {s : Strategy} {B : ℝ} {hB : 1 ≤ B} {k : ℕ}
     (hk : k < truncateIndex s B hB) :
     partialSum (truncateStrategyAux s B hB) k = partialSum s k := by
-      refine' Finset.sum_congr rfl fun i hi => _;
+      refine Finset.sum_congr rfl fun i hi => ?_;
       -- Since $i \leq k < \text{truncateIndex}$, we have $i < \text{truncateIndex}$.
       have h_lt : i < truncateIndex s B hB := by
         linarith [ Finset.mem_range.mp hi ];
@@ -3345,9 +3359,9 @@ The truncated strategy has a worst-case score no worse than the original strateg
 -/
 lemma truncateStrategyAux_score_le {s : Strategy} {B : ℝ} (hB : 1 ≤ B) :
     boundedWorstCaseScore (truncateStrategyAux s B hB) B ≤ boundedWorstCaseScore s B := by
-      refine' iSup_le _;
+      refine iSup_le ?_;
       intro y;
-      refine' le_trans _ ( le_iSup _ y );
+      refine le_trans ?_ ( le_iSup ( fun y : {y : ℝ // 1 ≤ y ∧ y ≤ B} => boundedScore s B y ) y );
       unfold boundedScore;
       unfold score;
       gcongr;
@@ -3393,7 +3407,7 @@ noncomputable def strictifyStrategy (s : Strategy) (N : ℕ) : Strategy :=
           exact hL_unique_first_ge_1 x ( List.mem_dedup.mp hx ) ) hx;
       grind
     mono := by
-      refine' monotone_nat_of_le_succ fun n => _;
+      refine monotone_nat_of_le_succ fun n => ?_;
       split_ifs <;> norm_num at *;
       · have h_sorted : List.Sorted (· ≤ ·) L := by
           have h_sorted : Monotone s.x := by
@@ -3563,7 +3577,7 @@ lemma mem_strictifyStrategy_range {s : Strategy} {N : ℕ} (v : ℝ) :
           rw [List.mem_dedup]
           exact List.mem_map.mpr ⟨k, List.mem_range.mpr (by omega), rfl⟩
         obtain ⟨i, hi⟩ := List.mem_iff_get.mp h_mem
-        refine' ⟨i, i.2, _⟩
+        refine ⟨i, i.2, ?_⟩
         unfold strictifyStrategy
         simpa [hi]
       · rintro ⟨k, hk, hk_eq⟩
@@ -3678,7 +3692,7 @@ lemma IsLeast_ge_eq_of_inter_le_eq {S1 S2 : Set ℝ} {y B : ℝ}
         have h_m2_le_B : m2 ≤ B := by
           exact h_m2.2 ⟨ h_inter.subset ⟨ h_B1, le_rfl ⟩ |>.1, h_yB ⟩;
         exact h_m1.2 ⟨ h_inter.symm.subset ⟨ h_m2.1.1, h_m2_le_B ⟩ |>.1, h_m2.1.2 ⟩;
-      · refine' h_m2.2 ⟨ _, _ ⟩;
+      · refine h_m2.2 ⟨ ?_, ?_ ⟩;
         · -- Since $m1 \leq B$ and $m1 \in S1$, by $h_inter$, we have $m1 \in S2$.
           have h_m1_in_S2 : m1 ∈ S2 := by
             have h_m1_le_B : m1 ≤ B := by
@@ -3706,7 +3720,7 @@ lemma strictifyStrategy_hit_value_eq {s : Strategy} {B : ℝ} (hB : 1 ≤ B) {y 
         constructor <;> intro h;
         · grind;
         · rcases h with ⟨ ⟨ y, rfl ⟩, hy ⟩;
-          refine' ⟨ y, _, rfl ⟩;
+          refine ⟨ y, ?_, rfl ⟩;
           contrapose! hy;
           rw [ truncateStrategyAux ];
           field_simp;
@@ -3907,7 +3921,7 @@ lemma strictifyStrategy_eq_dedup_take {s : Strategy} {N : ℕ} {k : ℕ}
           rw [ List.map_congr_left ];
           unfold strictifyStrategy; aesop;
         convert h_perm using 1;
-        refine' List.ext_get _ _ <;> aesop;
+        refine List.ext_get ?_ ?_ <;> aesop;
       have h_perm_sorted : List.Sorted (· ≤ ·) (List.map (strictifyStrategy s N).x (List.range ((List.map s.x (List.range (N + 1))).dedup.length))) := by
         have h_perm_sorted : StrictMono (strictifyStrategy s N).x := by
           exact strictifyStrategy_strictMono;
@@ -3957,7 +3971,7 @@ lemma strictifyStrategy_hitIndex_lt_length {s : Strategy} {B : ℝ} (hB : 1 ≤ 
     hitIndex (strictStrategy s B hB) ⟨y.1, y.2.1⟩ < ((List.range (truncateIndex s B hB + 1)).map (truncateStrategyAux s B hB).x).dedup.length := by
       have h_hit_lt_dedup_length : (strictStrategy s B hB).x (hitIndex (strictStrategy s B hB) ⟨y.1, y.2.1⟩) ≤ (truncateStrategyAux s B hB).x (truncateIndex s B hB) := by
         rw [ strictifyStrategy_hit_value_eq ];
-        refine' ( truncateStrategyAux s B hB ).mono _;
+        refine ( truncateStrategyAux s B hB ).mono ?_;
         have h_hit_le_truncateIndex : hitIndex (truncateStrategyAux s B hB) ⟨y, y.2.1⟩ ≤ hitIndex s ⟨y, y.2.1⟩ := by
           rw [ hitIndex_truncateStrategyAux_eq ];
         exact le_trans h_hit_le_truncateIndex ( hitIndex_le_truncateIndex )
@@ -3998,7 +4012,7 @@ lemma strictStrategy_sum_lt_le_sum_trunc_lt {s : Strategy} {B : ℝ} (hB : 1 ≤
       have h_filter_eq_trunc : let L := (List.range (truncateIndex s B hB + 1)).map (truncateStrategyAux s B hB).x; let k := hitIndex (truncateStrategyAux s B hB) ⟨y.1, y.2.1⟩; (List.range k).map (truncateStrategyAux s B hB).x = L.filter (fun x => x < y.1) := by
         apply truncateStrategy_values_lt_eq_filter;
         · exact (truncateStrategyAux s B hB).mono;
-        · refine' Nat.find_min' _ _;
+        · refine Nat.find_min' ?_ ?_;
           exact le_trans y.2.2 ( truncateStrategyAux_at_N_eq_B hB |> fun h => h.symm ▸ le_rfl );
       simp_all
       apply List_dedup_filter_sum_le;
@@ -4023,7 +4037,7 @@ theorem strictStrategy_score_le {s : Strategy} {B : ℝ} (hB : 1 ≤ B) :
           gcongr;
           · exact le_trans zero_le_one y.2.1;
           · rw [ Finset.sum_range_succ, Finset.sum_range_succ ];
-            refine' add_le_add _ _;
+            refine add_le_add ?_ ?_;
             · convert strictStrategy_sum_lt_le_sum_trunc_lt hB using 1;
             · rw [ strictifyStrategy_hit_value_eq ];
         exact fun y => le_iSup_of_le y ( h_score_le y );
@@ -4038,13 +4052,13 @@ theorem boundedGameValue_eq_firstGuess {B : ℝ} (hB : 1 < B) :
       have h_inf : ∀ s : Strategy, boundedWorstCaseScore s B ≥ ENNReal.ofReal (firstGuess B) := by
         intro s
         set s' := strictStrategy s B hB.le;
-        refine' le_trans _ ( strictStrategy_score_le _ );
+        refine le_trans ?_ ( strictStrategy_score_le ?_ );
         apply_rules [ boundedWorstCaseScore_ge_firstGuess_strict ];
         refine strictStrategy_strictMono ?_;
         rotate_left;
         exact Exists.choose_spec ( strictStrategy_ends_at_B_valid hB.le ) |>.2;
         exact Exists.choose_spec ( strictStrategy_ends_at_B_valid hB.le ) |>.1;
-      refine' le_antisymm _ _;
+      refine le_antisymm ?_ ?_;
       · exact boundedGameValue_le_firstGuess hB;
       · exact le_csInf ⟨ _, ⟨ optimalStrategy B, rfl ⟩ ⟩ fun x hx => hx.choose_spec ▸ h_inf _
 
@@ -4064,8 +4078,8 @@ If 1 <= B <= 2, then V(B) = B.
 theorem value_B_le_2 {B : ℝ} (hB1 : 1 ≤ B) (hB2 : B ≤ 2) :
     boundedGameValue B = ENNReal.ofReal B := by
       by_cases hB3 : B = 1 <;> simp_all +decide [ boundedGameValue ];
-      · refine' le_antisymm _ _ <;> norm_num [ boundedWorstCaseScore ];
-        · refine' le_trans ( ciInf_le _ ( optimalStrategy 1 ) ) _ <;> norm_num [ optimalStrategy ];
+      · refine le_antisymm ?_ ?_ <;> norm_num [ boundedWorstCaseScore ];
+        · refine le_trans ( ciInf_le ?_ ( optimalStrategy 1 ) ) ?_ <;> norm_num [ optimalStrategy ];
           intro a ha₁ ha₂; rw [ boundedScore ] ; norm_num [ ha₁, ha₂ ] ;
           rw [ score ] ; norm_num [ ha₁, ha₂ ];
           rw [ show hitIndex doublingStrategy ⟨ a, by linarith ⟩ = 0 from _ ];
@@ -4073,7 +4087,7 @@ theorem value_B_le_2 {B : ℝ} (hB1 : 1 ≤ B) (hB2 : B ≤ 2) :
             norm_num [ show a = 1 by linarith, doublingStrategy ];
           · unfold hitIndex; aesop;
         · intro s
-          refine' le_trans _ ( le_ciSup _ ⟨ 1, by norm_num ⟩ )
+          refine le_trans ?_ ( le_ciSup ?_ ⟨ 1, by norm_num ⟩ )
           · norm_num [boundedScore]
             · simp [score]
               exact le_trans s.one_le
@@ -4109,7 +4123,7 @@ theorem value_three_step {B : ℝ} (hB1 : 2 + Real.sqrt 5 < B) (hB2 : B ≤ 9) :
           exact boundedGameValue_eq_firstGuess ( by linarith [ Real.sqrt_nonneg 5 ] );
         use firstGuess B;
         exact ⟨ h_R, firstGuess_eq_root_of_n_eq_three ( by linarith [ Real.sqrt_nonneg 5 ] ) ( nSteps_eq_three ( by linarith [ Real.sqrt_nonneg 5 ] ) hB2 ) ⟩;
-      refine' ⟨ R, hR.1, hR.2, _, _ ⟩;
+      refine ⟨ R, hR.1, hR.2, ?_, ?_ ⟩;
       · -- Since $B > 2 + \sqrt{5}$, we have $f((3 + \sqrt{5})/2) = 2 + \sqrt{5} < B$.
         have h_f_lt_B : ((3 + Real.sqrt 5) / 2) ^ 2 * (((3 + Real.sqrt 5) / 2) - 2) < B := by
           nlinarith [ Real.sqrt_nonneg 5, Real.sq_sqrt ( show 0 ≤ 5 by norm_num ) ];
@@ -4127,7 +4141,7 @@ theorem stepBreakpoint_tendsto_atTop : Tendsto stepBreakpoint atTop atTop := by
   -- Since $\sqrt{3} > 1$, we have $(\sqrt{3})^{n+1} \to \infty$ as $n \to \infty$.
   have h_sqrt3_pow_inf : Filter.Tendsto (fun n : ℕ => (Real.sqrt 3) ^ (n + 1)) Filter.atTop Filter.atTop := by
     exact tendsto_pow_atTop_atTop_of_one_lt ( Real.lt_sqrt_of_sq_lt ( by norm_num ) ) |> Filter.Tendsto.comp <| Filter.tendsto_add_atTop_nat 1;
-  refine' Filter.tendsto_atTop_mono' _ _ h_sqrt3_pow_inf;
+  refine Filter.tendsto_atTop_mono' Filter.atTop ?_ h_sqrt3_pow_inf;
   filter_upwards [ Filter.eventually_ge_atTop 3 ] with n hn using pow_le_pow_left₀ ( by positivity ) ( h_cos_bound n ( mod_cast hn ) ) _ |> le_trans <| by norm_cast;
 
 /-
