@@ -32,7 +32,6 @@ namespace Erdos541
 -- use specific suppressions rather than the broad `linter.mathlibStandardSet`.
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.refine false
 set_option linter.style.multiGoal false
 set_option linter.style.whitespace false
 set_option linter.style.cdot false
@@ -158,7 +157,7 @@ lemma exists_partition_into_sets {G : Type*} [DecidableEq G] (S : Multiset G) (k
         exact h_finset;
       exact h_dist;
     choose! A hA using h_dist;
-    refine' ⟨ fun i => Finset.filter ( fun x => i ∈ A x ) T, _, _ ⟩ <;> aesop;
+    refine ⟨ fun i => Finset.filter ( fun x => i ∈ A x ) T, ?_, ?_ ⟩ <;> aesop;
   use A;
   ext x;
   by_cases hx : x ∈ T;
@@ -220,9 +219,10 @@ lemma exists_nonempty_partition_into_sets {G : Type*} [DecidableEq G] (S : Multi
         obtain ⟨x, hx⟩ : ∃ x, x ∈ A j := by
           exact Finset.card_pos.mp ( pos_of_gt hj )
         set A' : Fin (k + 1) → Finset G := fun l => if l = i then {x} else if l = j then A j \ {x} else A l;
-        refine' ih ( Finset.card ( Finset.filter ( fun l => A' l = ∅ ) Finset.univ ) ) _ A' _ _;
-        · refine' lt_of_le_of_lt ( Finset.card_le_card _ ) _;
-          exact Finset.filter ( fun l => A l = ∅ ) Finset.univ \ { i };
+        refine ih ( Finset.card ( Finset.filter ( fun l => A' l = ∅ ) Finset.univ ) ) ?_ A' ?_ ?_;
+        · refine lt_of_le_of_lt
+            ( Finset.card_le_card
+              ( t := Finset.filter ( fun l => A l = ∅ ) Finset.univ \ { i } ) ?_ ) ?_;
           · intro l hl; contrapose! hl; aesop;
           · grind;
         · rw [ ← hA ];
@@ -366,7 +366,7 @@ lemma prop_rep {p : ℕ} [Fact p.Prime] (A B : Finset (ZMod p)) (x : ZMod p) :
   -- Let $r_{A,B}(x)=|\{(a,b)\in A\times B: a+b=x\}|$.
   set r := fun x => Finset.card (Finset.filter (fun (ab : ZMod p × ZMod p) => ab.1 + ab.2 = x) (A ×ˢ B)) with hr_def
   have hr_eq : r x = Finset.card (Finset.filter (fun a => x - a ∈ B) A) := by
-    refine' Finset.card_bij ( fun y hy => y.1 ) _ _ _ <;> aesop;
+    refine Finset.card_bij ( fun y hy => y.1 ) ?_ ?_ ?_ <;> aesop;
   have hr_bound : Finset.card (Finset.filter (fun a => x - a ∈ B) A) ≥ Finset.card A + Finset.card B - p := by
     have hr_bound : Finset.card (A ∩ (Finset.image (fun b => x - b) B)) ≥ Finset.card A + Finset.card (Finset.image (fun b => x - b) B) - p := by
       have hr_bound : Finset.card (A ∪ Finset.image (fun b => x - b) B) ≤ p := by
@@ -390,14 +390,14 @@ lemma subsums_card_ge_card {G : Type*} [AddCommGroup G] [DecidableEq G] (S : Mul
     have h_pigeonhole : ∃ T : Multiset G, T ≤ S ∧ T.card ≥ 1 ∧ T.sum = 0 := by
       have h_count : ∃ i j : Fin (S.card + 1), i < j ∧ (Multiset.sum (Multiset.ofList (List.take i S.toList))) = (Multiset.sum (Multiset.ofList (List.take j S.toList))) := by
         have h_pigeonhole : Finset.card (Finset.image (fun i : Fin (S.card + 1) => Multiset.sum (Multiset.ofList (List.take i S.toList))) (Finset.univ : Finset (Fin (S.card + 1)))) ≤ (seq_sigma_ge S 1).card + 1 := by
-          refine' le_trans ( Finset.card_le_card _ ) _;
-          exact insert 0 ( seq_sigma_ge S 1 );
+          refine le_trans
+            ( Finset.card_le_card ( t := insert 0 ( seq_sigma_ge S 1 ) ) ?_ ) ?_;
           · intro y hy;
             simp +zetaDelta at *;
             rcases hy with ⟨ a, rfl ⟩ ; rcases a with ⟨ _ | a, ha ⟩ <;> simp_all +decide [ seq_sigma_ge ] ;
-            refine' Or.inr ⟨ a + 1, ⟨ by linarith, by linarith ⟩, _ ⟩;
-            refine' Finset.mem_coe.2 ( Multiset.mem_toFinset.2 _ );
-            refine' Multiset.mem_map.2 ⟨ Multiset.ofList ( List.take ( a + 1 ) S.toList ), _, _ ⟩ <;> simp +decide [ List.take_append ];
+            refine Or.inr ⟨ a + 1, ⟨ by linarith, by linarith ⟩, ?_ ⟩;
+            refine Finset.mem_coe.2 ( Multiset.mem_toFinset.2 ?_ );
+            refine Multiset.mem_map.2 ⟨ Multiset.ofList ( List.take ( a + 1 ) S.toList ), ?_, ?_ ⟩ <;> simp +decide [ List.take_append ];
             exact ⟨ by simpa using Multiset.le_iff_exists_add.mpr ⟨ Multiset.ofList ( List.drop ( a + 1 ) S.toList ), by simp +decide [ List.take_append_drop ] ⟩, by linarith ⟩;
           · exact Finset.card_insert_le _ _;
         by_cases h_eq : ∀ i j : Fin (S.card + 1), i ≠ j → (Multiset.sum (Multiset.ofList (List.take i S.toList))) ≠ (Multiset.sum (Multiset.ofList (List.take j S.toList)));
@@ -405,7 +405,7 @@ lemma subsums_card_ge_card {G : Type*} [AddCommGroup G] [DecidableEq G] (S : Mul
         · push Not at h_eq;
           obtain ⟨ i, j, hij, h ⟩ := h_eq; exact hij.lt_or_gt.elim ( fun hi => ⟨ i, j, hi, h ⟩ ) fun hj => ⟨ j, i, hj, h.symm ⟩ ;
       obtain ⟨ i, j, hij, h ⟩ := h_count;
-      refine' ⟨ Multiset.ofList ( List.drop ( i : ℕ ) ( List.take ( j : ℕ ) S.toList ) ), _, _, _ ⟩ <;> simp_all +decide [ List.take_append_drop ];
+      refine ⟨ Multiset.ofList ( List.drop ( i : ℕ ) ( List.take ( j : ℕ ) S.toList ) ), ?_, ?_, ?_ ⟩ <;> simp_all +decide [ List.take_append_drop ];
       · rw [ Multiset.le_iff_count ];
         intro a;
         have h_count_le : List.count a (List.drop (i : ℕ) (List.take (j : ℕ) S.toList)) ≤ List.count a S.toList := by
@@ -450,7 +450,7 @@ lemma lem_zsfree_p_1 {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p))
               exact ⟨ Multiset.count_pos.mpr ( Multiset.mem_toFinset.mp hx ), Multiset.count_pos.mpr ( Multiset.mem_toFinset.mp hy ) ⟩;
             use S - {x, y};
             ext z; by_cases hz : z = x <;> by_cases hz' : z = y <;> aesop;
-          refine' ⟨ Sxy, hSxy, _ ⟩;
+          refine ⟨ Sxy, hSxy, ?_ ⟩;
           simp_all +decide [ seq_sigma_ge ];
           intro k hk₁ hk₂ hk₃; specialize h_zs k ( by linarith ) hk₂; simp_all +decide [ seq_sigma ] ;
           obtain ⟨ a, ⟨ ha₁, ha₂ ⟩, ha₃ ⟩ := hk₃; specialize h_zs a; simp_all +decide [ Multiset.le_iff_count ] ;
@@ -460,7 +460,7 @@ lemma lem_zsfree_p_1 {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p))
         have h_sigma_ge_0_Sxy : (seq_sigma_ge Sxy 0).card ≥ p - 2 := by
           have h_sigma_ge_0_Sxy : (seq_sigma_ge Sxy 0).card ≥ Sxy.card + 1 := by
             have h_sigma_ge_0_Sxy : (seq_sigma_ge Sxy 0).card ≥ (seq_sigma_ge Sxy 1).card + 1 := by
-              refine' Finset.card_lt_card _;
+              refine Finset.card_lt_card ?_;
               constructor;
               · intro z hz; unfold seq_sigma_ge at *; aesop;
               · simp_all +decide [ seq_sigma_ge ];
@@ -482,8 +482,8 @@ lemma lem_zsfree_p_1 {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p))
             obtain ⟨ T, ⟨ hT₁, hT₂ ⟩, hT₃ ⟩ := ha₂; use by linarith; ; use T + { x } ; aesop;
           simp_all +decide [ seq_sigma_ge ];
           obtain ⟨ a, ⟨ ha₁, ha₂ ⟩, ha₃ ⟩ := h_zero_in_S; use a; simp_all +decide [ add_comm, add_left_comm, add_assoc ] ;
-          refine' ⟨ by linarith, _ ⟩;
-          refine' Finset.mem_of_subset _ ha₃;
+          refine ⟨ by linarith, ?_ ⟩;
+          refine Finset.mem_of_subset ?_ ha₃;
           intro z hz; simp_all +decide [ seq_sigma ] ;
           obtain ⟨ a, ⟨ ha₁, ha₂ ⟩, ha₃ ⟩ := hz; use a; simp_all +decide [ Multiset.le_iff_count ] ;
           intro z; specialize ha₁ z; by_cases hz : z = x <;> by_cases hz' : z = y <;> simp_all +decide [ Multiset.count_cons ] ;
@@ -591,7 +591,7 @@ lemma card_union_bound {p : ℕ} [Fact p.Prime] (m h_nat : ℕ)
              · use a;
                norm_cast;
                exact ⟨ ⟨ by linarith, ha₂ ⟩, rfl ⟩;
-             · refine' ⟨ a - h_nat, _, _ ⟩ <;> norm_num [ Nat.cast_sub ( show h_nat ≤ a from _ ) ];
+             · refine ⟨ a - h_nat, ?_, ?_ ⟩ <;> norm_num [ Nat.cast_sub ( show h_nat ≤ a from ?_ ) ];
                exact ⟨ ha₁, by rw [ sub_lt_iff_lt_add ] ; norm_cast; linarith ⟩;
            · rintro ⟨ a, ⟨ ha₁, ha₂ ⟩, rfl ⟩;
              by_cases ha₃ : a < 0;
@@ -758,7 +758,7 @@ lemma subsums_card_upper_bound_of_interval {p : ℕ} [Fact p.Prime] (R : Multise
           -- Since $m \in \Sigma_{\ge 1}(R')$, there exists $U \subseteq R'$ with $\sigma(U)=m$. Then $R \setminus U$ is a subsequence of $R$ with sum $\sigma(R) - \sigma(U) = m - m = 0$.
           obtain ⟨U, hU_sub, hU_card, hU_sum⟩ := (mem_seq_sigma_ge_iff.mp h_m_in_R'_subsums)
           have h_contradiction : ∃ V : Multiset (ZMod p), V ≤ R ∧ V.sum = 0 ∧ V ≠ 0 := by
-            refine' ⟨ R - U, _, _, _ ⟩ <;> simp_all +decide [ Multiset.le_iff_count ];
+            refine ⟨ R - U, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ Multiset.le_iff_count ];
             · intro a; by_cases ha : a = h <;> simp_all +decide [ Multiset.count_cons ] ;
             · have h_contradiction : (h ::ₘ R' - U).sum = (h ::ₘ R').sum - U.sum := by
                 have h_contradiction : ∀ (A B : Multiset (ZMod p)), B ≤ A → (A - B).sum = A.sum - B.sum := by
@@ -804,7 +804,7 @@ lemma subsums_card_upper_bound_of_interval {p : ℕ} [Fact p.Prime] (R : Multise
         have h_subsums_subset : seq_sigma_ge R' 1 ⊆ ((Finset.Ico 1 m).image (Nat.cast : ℕ → ZMod p) ∩ ((Finset.Ico 1 (m + 1)).image (Nat.cast : ℕ → ZMod p)).image (fun x => x - h)) := by
           intro s hs;
           have h_s_in_Ico : s ∈ (Finset.Ico 1 (m + 1)).image (Nat.cast : ℕ → ZMod p) := by
-            refine' h_subsums _;
+            refine h_subsums ?_;
             rw [mem_seq_sigma_ge_iff] at hs ⊢
             rcases hs with ⟨U, hU_sub, hU_card, hU_sum⟩
             exact ⟨U, by rw [h_R_eq]; exact le_trans hU_sub (Multiset.le_cons_self _ _),
@@ -901,11 +901,11 @@ lemma seq_sigma_complement {G : Type*} [AddCommGroup G] [DecidableEq G] (S : Mul
       -- Let's choose any $x \in \Sigma_k(S)$.
       ext; simp [seq_sigma];
       constructor <;> rintro ⟨ a, ⟨ ha₁, ha₂ ⟩, rfl ⟩;
-      · refine' ⟨ S - a, ⟨ _, _ ⟩, _ ⟩;
+      · refine ⟨ S - a, ⟨ ?_, ?_ ⟩, ?_ ⟩;
         · exact tsub_le_self;
         · rw [ ← ha₂, Multiset.card_sub ha₁ ];
         · rw [ sub_eq_of_eq_add ] ; rw [ ← Multiset.sum_add ] ; rw [ add_comm ] ; rw [ tsub_add_cancel_of_le ha₁ ];
-      · refine' ⟨ S - a, ⟨ _, _ ⟩, _ ⟩;
+      · refine ⟨ S - a, ⟨ ?_, ?_ ⟩, ?_ ⟩;
         · exact Multiset.sub_le_self S a;
         · rw [ Multiset.card_sub ha₁, ha₂, tsub_tsub_cancel_of_le hk ];
         · have h_sum_diff : Multiset.sum (S - a) + Multiset.sum a = Multiset.sum S := by
@@ -946,7 +946,7 @@ lemma sigma_le_eq_sigma_pad {G : Type*} [AddCommMonoid G] [DecidableEq G] (S : M
           · exact (Multiset.sub_add_inter a S).symm
           · exact Multiset.sub_le_iff_le_add.mpr ha_le
         have ha_zero : a_zero = replicate (a_zero.card) 0 := by
-          refine' Multiset.eq_replicate.mpr ⟨ _, _ ⟩;
+          refine Multiset.eq_replicate.mpr ⟨ ?_, ?_ ⟩;
           · rfl;
           · intro b hb; have := Multiset.mem_of_le ha.2.1 hb; rw [ Multiset.mem_replicate ] at this; aesop;
         have h_zero_card_le : a_zero.card ≤ k - 1 := by
@@ -985,7 +985,7 @@ lemma max_multiplicity_le_iff_count_aux {G : Type*} [DecidableEq G] (S : Multise
       · constructor <;> intro hk
         · intro x
           by_cases hx : x ∈ S
-          · refine' le_trans _ hk
+          · refine le_trans ?_ hk
             have := Finset.le_max
               (Finset.mem_image_of_mem (fun x => count x S) (Multiset.mem_toFinset.mpr hx))
             cases hmax : Finset.max (Finset.image (fun x => count x S) S.toFinset) <;> aesop
@@ -1008,7 +1008,7 @@ lemma lem_max_multiplicity_case1 {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)
       -- Since $0 \notin \Sigma_{\le r-1}(S)$ and $r > 1$, we must have $0 \notin S$.
       have h_zero_not_in_S : 0 ∉ S := by
         contrapose! h_small; simp_all +decide [ seq_sigma_le ] ;
-        refine' ⟨ 0, _, _ ⟩ <;> norm_num [ seq_sigma ] ; aesop;
+        refine ⟨ 0, ?_, ?_ ⟩ <;> norm_num [ seq_sigma ] ; aesop;
         exact ⟨ { 0 }, by aesop ⟩;
       by_contra h_contra;
       -- Apply `lem_setpartition` with $k=r-1$.
@@ -1082,7 +1082,7 @@ lemma sigma_k_subset_sigma_le_union_zero {G : Type*} [AddCommMonoid G] [Decidabl
       -- Since $T$ is a subsequence of $0^k + S$, we can write $T$ as $0^j + T'$ where $T'$ is a subsequence of $S$.
       obtain ⟨j, T', hT_eq⟩ : ∃ j T', T = Multiset.replicate j 0 + T' ∧ T' ≤ S := by
         use Multiset.count 0 T;
-        refine' ⟨ T - Multiset.replicate ( Multiset.count 0 T ) 0, _, _ ⟩;
+        refine ⟨ T - Multiset.replicate ( Multiset.count 0 T ) 0, ?_, ?_ ⟩;
         · ext x;
           by_cases hx : x = 0 <;> simp_all +decide [ Multiset.count_replicate ];
           rw [ if_neg ( Ne.symm hx ), zero_add, Nat.sub_zero ];
@@ -1098,7 +1098,7 @@ lemma sigma_k_subset_sigma_le_union_zero {G : Type*} [AddCommMonoid G] [Decidabl
         omega
       by_cases hT'_zero : T' = 0
       · exact Or.inl (by simp [h_sum_eq, hT'_zero])
-      · refine' Or.inr ⟨T'.card - 1, ?_, ?_⟩
+      · refine Or.inr ⟨T'.card - 1, ?_, ?_⟩
         · have hT'_pos : 0 < T'.card :=
             Multiset.card_pos_iff_exists_mem.mpr (Multiset.exists_mem_of_ne_zero hT'_zero)
           omega
@@ -1323,16 +1323,16 @@ lemma lem_find_h_case2 {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) (l : ℕ
     (ht_case2 : t > l + R.card - r + s) :
     ∃ h ∈ seq_sigma_ge (Multiset.replicate l 1 + R₀) (r + 1),
       h ∉ (Finset.Ico 1 (l + R.card + 1)).image (Nat.cast : ℕ → ZMod p) := by
-        refine' ⟨ t + ( r + 1 - s ), _, _ ⟩ <;> norm_num;
+        refine ⟨ t + ( r + 1 - s ), ?_, ?_ ⟩ <;> norm_num;
         · -- Since $R₀$ is a subsequence of $R$ and $R$ is a subsequence of $T$, we can add $r + 1 - s$ ones to $R₀$ to get a subsequence of length $r + 1$.
           have h_subseq : ∃ U : Multiset (ZMod p), U ≤ replicate l 1 + R₀ ∧ U.card = r + 1 ∧ U.sum = t + (r + 1 - s) := by
-            refine' ⟨ Multiset.replicate ( r + 1 - s ) 1 + R₀, _, _, _ ⟩ <;> simp_all +decide [ Multiset.le_iff_count ];
+            refine ⟨ Multiset.replicate ( r + 1 - s ) 1 + R₀, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ Multiset.le_iff_count ];
             · intro a; by_cases ha : a = 1 <;> simp_all +decide [ Multiset.count_replicate ] ; omega;
               aesop;
             · omega;
             · rw [ Nat.cast_sub ] <;> push_cast <;> ring_nf ; omega;
           obtain ⟨ U, hU₁, hU₂, hU₃ ⟩ := h_subseq; simp_all +decide [ seq_sigma_ge ] ;
-          refine' ⟨ r + 1, ⟨ by omega, by omega ⟩, _ ⟩ ; unfold seq_sigma ; aesop;
+          refine ⟨ r + 1, ⟨ by omega, by omega ⟩, ?_ ⟩ ; unfold seq_sigma ; aesop;
         · intros x hx₁ hx₂ hx₃;
           -- Since $x \equiv t + r + 1 - s \pmod{p}$ and $x < l + R.card + 1$, we have $p \mid (t + r + 1 - s - x)$.
           have h_div : p ∣ Int.natAbs (t + r + 1 - s - x) := by
@@ -1390,7 +1390,9 @@ lemma lem_find_h_case1 {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) (l : ℕ
           have hU_ge_r1 : U.card ≥ r + 1 := by
             omega;
           apply Finset.mem_biUnion.mpr;
-          refine' ⟨ _, Finset.mem_image.mpr ⟨ U.card, _, rfl ⟩, _ ⟩ <;> simp_all +decide [ Finset.mem_filter, Finset.mem_range ];
+          refine ⟨ seq_sigma ( replicate l 1 + R₀ ) U.card,
+            Finset.mem_image.mpr ⟨ U.card, ?_, rfl ⟩, ?_ ⟩ <;>
+            simp_all +decide [ Finset.mem_filter, Finset.mem_range ];
           · omega;
           · convert Finset.mem_coe.mpr ( Multiset.mem_toFinset.mpr <| Multiset.mem_map.mpr ⟨ U, ?_, ?_ ⟩ ) <;> aesop;
         -- Since $l + |R| < p$, we have $l + |R| + 1 \le p$.
@@ -1401,14 +1403,14 @@ lemma lem_find_h_case1 {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) (l : ℕ
             by_cases hR_eq_T : R = T;
             · simp_all ( config := { decide := Bool.true } ) [ seq_sigma_ge ];
               contrapose! h_large;
-              refine' ⟨ p, _, _, _ ⟩ <;> norm_num [ h_l_R_lt_p ];
+              refine ⟨ p, ?_, ?_, ?_ ⟩ <;> norm_num [ h_l_R_lt_p ];
               · linarith;
               · simp_all ( config := { decide := Bool.true } ) [ seq_sigma ];
-                refine' ⟨ replicate l 1 + T, _, _ ⟩ <;> norm_num [ h_l_R_lt_p ];
+                refine ⟨ replicate l 1 + T, ?_, ?_ ⟩ <;> norm_num [ h_l_R_lt_p ];
                 rw [ hR_sum ] ; norm_cast ; aesop;
             · exact lt_of_le_of_ne ( Multiset.card_le_card hR ) fun h => hR_eq_T <| Multiset.eq_of_le_of_card_le hR <| by linarith;
           linarith;
-        refine' ⟨ _, hU_ge_r1, _ ⟩;
+        refine ⟨ U.sum, hU_ge_r1, ?_ ⟩;
         by_cases h : l + R.card + 1 = p <;> simp_all +decide [ Nat.mod_eq_of_lt ];
         · intro x hx₁ hx₂; norm_cast;
           rw [ ZMod.natCast_eq_natCast_iff ] ; norm_num [ Nat.modEq_iff_dvd, h ];
@@ -1535,7 +1537,7 @@ lemma lem_find_h_good_case {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) (l :
       h ∉ (Finset.Ico 1 (l + R.card + 1)).image (Nat.cast : ℕ → ZMod p) := by
         by_cases ht_case : t > l + R.card - r + s;
         · obtain ⟨h, hh₁, hh₂⟩ := lem_find_h_case2 S l T hS r hr h_large hl R hR R₀ hR₀ s hs t ht hs_bounds hR_card ht_bounds ht_case;
-          refine' ⟨ h, _, _ ⟩;
+          refine ⟨ h, ?_, ?_ ⟩;
           · rw [mem_seq_sigma_ge_iff] at hh₁ ⊢
             have hR₀_lift : Multiset.replicate l 1 + R₀ ≤ Multiset.replicate l 1 + R := by
               exact Multiset.add_le_add_left hR₀
@@ -1576,7 +1578,7 @@ lemma lem_find_h_bad_case_aux {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) (
     1 ≤ s₁ ∧ s₁ ≤ r - 2 ∧
     (t₁ : ZMod p) = R₁.sum ∧
     R.card + 1 ≤ t₁ ∧ t₁ ≤ p - r + s₁ - 1 := by
-      refine' ⟨ _, _, _, _, _ ⟩;
+      refine ⟨ ?_, ?_, ?_, ?_, ?_ ⟩;
       · simp_all +decide [ Multiset.le_iff_exists_add ];
         rcases hR₀ with ⟨ u, rfl ⟩ ; simp +arith +decide [ hs ];
         rcases u with ⟨ ⟨ _ | _ | u ⟩ ⟩ <;> simp_all +decide;
@@ -1620,7 +1622,7 @@ lemma thm_main_case_r_eq_1 {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p))
               by_cases h_eq : ∀ i j : ℕ, i < j → i ≤ p → j ≤ p → (Multiset.sum (Multiset.ofList (List.take i (Multiset.toList S)))) ≠ (Multiset.sum (Multiset.ofList (List.take j (Multiset.toList S))));
               · exact absurd h_pigeonhole ( by rw [ Finset.card_image_of_injOn fun i hi j hj hij => le_antisymm ( not_lt.mp fun hi' => h_eq _ _ hi' ( Finset.mem_range_succ_iff.mp hj ) ( Finset.mem_range_succ_iff.mp hi ) hij.symm ) ( not_lt.mp fun hj' => h_eq _ _ hj' ( Finset.mem_range_succ_iff.mp hi ) ( Finset.mem_range_succ_iff.mp hj ) hij ) ] ; simp +arith +decide );
               · aesop;
-            refine' h_no_zero_sum_subseq ⟨ Multiset.ofList ( List.drop i ( List.take j ( Multiset.toList S ) ) ), _, _, _ ⟩ <;> simp_all +decide [ List.take_drop ];
+            refine h_no_zero_sum_subseq ⟨ Multiset.ofList ( List.drop i ( List.take j ( Multiset.toList S ) ) ), ?_, ?_, ?_ ⟩ <;> simp_all +decide [ List.take_drop ];
             · have h_subseq : Multiset.ofList (List.drop i (List.take j S.toList)) ≤ Multiset.ofList (List.take j S.toList) := by
                 exact List.drop_sublist _ _ |> List.Sublist.subperm;
               exact le_trans h_subseq ( by simpa [ hp ] using Multiset.le_iff_exists_add.mpr ⟨ Multiset.ofList ( List.drop j S.toList ), by simp +decide [ ← hp ] ⟩ );
@@ -1735,10 +1737,10 @@ lemma lem_bad_case_impossible_if_large_r {p : ℕ} [Fact p.Prime] (S : Multiset 
     False := by
       -- Form the subsequence $W = R_1 \cup \{1\}^u$.
       obtain ⟨W, hW⟩ : ∃ W : Multiset (ZMod p), W ≤ S ∧ W ≠ 0 ∧ W.sum = 0 ∧ W.card ≤ r - 1 := by
-        refine' ⟨ R - R₀ + Multiset.replicate ( p - r - ( R.card - R₀.card ) ) 1, _, _, _, _ ⟩ <;> simp_all +decide [ Nat.sub_sub ];
+        refine ⟨ R - R₀ + Multiset.replicate ( p - r - ( R.card - R₀.card ) ) 1, ?_, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ Nat.sub_sub ];
         · simp_all ( config := { decide := Bool.true } ) [ Multiset.le_iff_exists_add ];
           rcases hR with ⟨ u, rfl ⟩ ; rcases hR₀ with ⟨ v, rfl ⟩ ; simp_all ( config := { decide := Bool.true } ) [ add_assoc, add_comm, add_left_comm, add_assoc ] ;
-          refine' ⟨ R₀ + replicate ( l - ( p - ( r + v.card ) ) ) 1 + u, _ ⟩ ; ext x ; simp ( config := { decide := Bool.true } ) [ add_comm, add_left_comm, add_assoc, Multiset.count_replicate ];
+          refine ⟨ R₀ + replicate ( l - ( p - ( r + v.card ) ) ) 1 + u, ?_ ⟩ ; ext x ; simp ( config := { decide := Bool.true } ) [ add_comm, add_left_comm, add_assoc, Multiset.count_replicate ];
           split_ifs <;> omega;
         · intro h; simp_all +decide [ Multiset.eq_zero_iff_forall_notMem ] ;
           exact ⟨ 1, Multiset.mem_replicate.mpr ⟨ by omega, by norm_num ⟩ ⟩;
@@ -1911,7 +1913,7 @@ lemma prefix_sums_set_card_eq_length_succ {G : Type*} [AddCommGroup G] [Decidabl
           aesop;
         -- The subsequence from i to j-1 in L is a subsequence of L, and its sum is zero.
         have h_subseq_in_L : ∃ T : Multiset G, T ≤ Multiset.ofList L ∧ T ≠ 0 ∧ T.sum = 0 := by
-          refine' ⟨ Multiset.ofList ( List.take ( j - i ) ( List.drop i L ) ), _, _, _ ⟩ <;> simp_all +decide [ List.take_append, List.drop_append ];
+          refine ⟨ Multiset.ofList ( List.take ( j - i ) ( List.drop i L ) ), ?_, ?_, ?_ ⟩ <;> simp_all +decide [ List.take_append, List.drop_append ];
           · exact List.Sublist.subperm ( List.take_sublist _ _ |> List.Sublist.trans <| List.drop_sublist _ _ );
           · exact ⟨ Nat.sub_ne_zero_of_lt hij, lt_of_lt_of_le hij hj ⟩;
         obtain ⟨ T, hT₁, hT₂, hT₃ ⟩ := h_subseq_in_L; simp_all +decide [ seq_sigma_ge ] ;
@@ -1983,8 +1985,8 @@ lemma claim_1_large_k_construction {p : ℕ} [Fact p.Prime] (l : ℕ) (R : Multi
     (k : ZMod p) ∈ seq_sigma_ge (Multiset.replicate l 1 + R) (r + 1) := by
       unfold seq_sigma_ge;
       norm_num [ seq_sigma ];
-      refine' ⟨ k, ⟨ by linarith, by linarith ⟩, _ ⟩;
-      refine' ⟨ Multiset.replicate ( k - R.card ) 1 + R, ⟨ _, _ ⟩, _ ⟩ <;> norm_num;
+      refine ⟨ k, ⟨ by linarith, by linarith ⟩, ?_ ⟩;
+      refine ⟨ Multiset.replicate ( k - R.card ) 1 + R, ⟨ ?_, ?_ ⟩, ?_ ⟩ <;> norm_num;
       · exact Multiset.le_iff_exists_add.mpr ⟨ Multiset.replicate ( l - ( k - R.card ) ) 1, by rw [ ← Multiset.replicate_add, Nat.add_sub_of_le ( by omega ) ] ⟩;
       · omega;
       · rw [ hR_sum, Nat.cast_sub ( by linarith [ Nat.sub_add_cancel hr.le ] ) ] ; ring
@@ -2010,7 +2012,7 @@ lemma claim_1_A_large_elements_in_sigma {p : ℕ} [Fact p.Prime] (l : ℕ) (R : 
         · convert claim_1_large_k_construction l R r hr hl hR_sum hR_card x ( by linarith ) ( by linarith ) using 1;
         · -- Since $x \leq l$, we can take the first $x$ ones, which forms a subsequence of length $x$.
           have h_subseq : ∃ T : Multiset (ZMod p), T ≤ replicate l 1 + R ∧ T.card = x ∧ T.sum = x := by
-            refine' ⟨ Multiset.replicate x 1, _, _, _ ⟩ <;> norm_num;
+            refine ⟨ Multiset.replicate x 1, ?_, ?_, ?_ ⟩ <;> norm_num;
             rw [ Multiset.le_iff_count ];
             intro a; by_cases ha : a = 1 <;> simp_all +decide [ Multiset.count_replicate ] ;
             · linarith;
@@ -2037,8 +2039,8 @@ lemma small_representation_implies_extension {p : ℕ} [Fact p.Prime] (S : Multi
         intro T hT hT_nonzero hT_sum
         apply zero_sum_len_must_be_r S r h_small h_large T hT hT_nonzero hT_sum;
       convert h_len ( Multiset.replicate a 1 + Multiset.ofList ( U_list.take s ) ) _ _ _ using 1 <;> simp_all ( config := { decide := Bool.true } ) [ add_comm ];
-      · refine' add_le_add _ _;
-        · refine' le_trans _ hU;
+      · refine add_le_add ?_ ?_;
+        · refine le_trans ?_ hU;
           exact Multiset.le_iff_exists_add.mpr ⟨ Multiset.ofList ( List.drop s U_list ), by simp ( config := { decide := Bool.true } ) ⟩;
         · exact Multiset.le_iff_exists_add.mpr ⟨ Multiset.replicate ( l - a ) 1, by rw [ ← Multiset.replicate_add, Nat.add_sub_of_le ( by linarith ) ] ⟩;
       · cases a <;> aesop_cat
@@ -2072,7 +2074,7 @@ lemma claim_1_A_elements_small {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) 
         -- Since $U \le T - R$, $1^l R$ and $U$ are disjoint parts of $S$.
         have h_disjoint : V + (Multiset.ofList (List.take s U_list)) ≤ S := by
           have h_disjoint : V + Multiset.ofList (List.take s U_list) ≤ Multiset.replicate l 1 + R + (Multiset.ofList U_list) := by
-            refine' add_le_add hV.1 _;
+            refine add_le_add hV.1 ?_;
             exact List.take_sublist _ _ |> List.Sublist.subperm;
           have h_disjoint : Multiset.replicate l 1 + R + Multiset.ofList U_list ≤ Multiset.replicate l 1 + T := by
             rw [ add_assoc ];
@@ -2084,10 +2086,10 @@ lemma claim_1_A_elements_small {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) 
             simpa [hQ, add_assoc] using hRQ
           exact hS.symm ▸ le_trans ‹_› h_disjoint;
         contrapose! h_large; simp_all +decide [ seq_sigma_ge ] ;
-        refine' ⟨ V.card + s, _, _ ⟩ <;> simp_all +decide [ seq_sigma ];
+        refine ⟨ V.card + s, ?_, ?_ ⟩ <;> simp_all +decide [ seq_sigma ];
         · have := Multiset.card_le_card h_disjoint; simp_all +decide ;
           omega;
-        · refine' ⟨ V + Multiset.ofList ( List.take s U_list ), _, _ ⟩ <;> simp_all +decide [ Multiset.le_iff_count ];
+        · refine ⟨ V + Multiset.ofList ( List.take s U_list ), ?_, ?_ ⟩ <;> simp_all +decide [ Multiset.le_iff_count ];
       · by_cases ha_in : a ∈ (Finset.Ico 1 (r + 1)).image (Nat.cast : ℕ → ZMod p);
         · rw [ Finset.mem_image ] at ha_in; obtain ⟨ k, hk₁, rfl ⟩ := ha_in; exact ⟨ k, Finset.mem_Ico.mp hk₁ |>.1, by linarith [ Finset.mem_Ico.mp hk₁ |>.2 ], rfl ⟩ ;
         · exact absurd ( claim_1_A_large_elements_in_sigma l R h r hr.1 hl hR_sum hR_card hh_ge a ha ( by aesop ) ) ‹_›
@@ -2117,7 +2119,7 @@ lemma claim_1_contradiction_step {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)
       have hW_card : (Multiset.ofList V + R).card ≤ R.card := by
         apply h_maximal;
         · have hW_subset : Multiset.ofList V ≤ T - R := by
-            refine' le_trans _ hU;
+            refine le_trans ?_ hU;
             -- Since $V$ is a sublist of $U_list$, we can apply the lemma that states a sublist is a subset.
             apply List.Sublist.subperm;
             exact List.Sublist.trans ( List.drop_sublist _ _ ) ( List.take_sublist _ _ );
@@ -2157,7 +2159,10 @@ lemma claim_1_pairs_exist_aux {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) (
         have h_card_B : (prefix_sums_set U_list).card = p - l - R.card + 1 := by
           convert claim_1_B_card S l T hS hp r hr h_small h_large hl h_one_not_in_T R hR U_list hU using 1;
         have h_rep : representation_count ((Finset.Ico 1 (l + R.card + 1)).image (Nat.cast : ℕ → ZMod p) ∪ {h}) (prefix_sums_set U_list) 0 ≥ 2 := by
-          refine' Nat.le_trans _ ( prop_rep _ _ _ );
+          refine Nat.le_trans ?_
+            ( prop_rep
+              ((Finset.Ico 1 (l + R.card + 1)).image (Nat.cast : ℕ → ZMod p) ∪ {h})
+              (prefix_sums_set U_list) 0 );
           omega;
         -- Since the representation count is at least 2, there exist two distinct pairs (a1, b1) and (a2, b2) in A × B that sum to zero.
         obtain ⟨a1, b1, a2, b2, h_distinct, h_sum1, h_sum2⟩ : ∃ a1 b1 a2 b2 : ZMod p, a1 ≠ a2 ∧ b1 ≠ b2 ∧ a1 ∈ (Finset.Ico 1 (l + R.card + 1)).image (Nat.cast : ℕ → ZMod p) ∪ {h} ∧ b1 ∈ prefix_sums_set U_list ∧ a2 ∈ (Finset.Ico 1 (l + R.card + 1)).image (Nat.cast : ℕ → ZMod p) ∪ {h} ∧ b2 ∈ prefix_sums_set U_list ∧ a1 + b1 = 0 ∧ a2 + b2 = 0 := by
@@ -2364,19 +2369,19 @@ lemma claim_2_a_le_r {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) (l : ℕ) 
       unfold seq_sigma_ge at h_large; simp_all ( config := { decide := Bool.true } ) ;
       contrapose! h_large;
       obtain ⟨ k, ⟨ hk₁, hk₂ ⟩, rfl ⟩ := ha;
-      refine' ⟨ k + s, _, _, _ ⟩;
+      refine ⟨ k + s, ?_, ?_, ?_ ⟩;
       · linarith [ show T.card = T_list.length from by simpa [ ← hT_list ] ];
       · exact Nat.le_of_not_lt fun h => h_large k hk₁ ( by linarith ) rfl;
       · -- Let's choose the subsequence of $S$ consisting of $k$ copies of $1$ and the first $s$ elements of $T_list$.
         obtain ⟨T_sub, hT_sub⟩ : ∃ T_sub : Multiset (ZMod p), T_sub ≤ Multiset.ofList T_list ∧ Multiset.card T_sub = s ∧ (T_sub.sum : ZMod p) = (List.take s T_list).sum := by
-          refine' ⟨ Multiset.ofList ( List.take s T_list ), _, _, _ ⟩;
+          refine ⟨ Multiset.ofList ( List.take s T_list ), ?_, ?_, ?_ ⟩;
           · simp ( config := { decide := Bool.true } ) [ Multiset.le_iff_count ];
             intro a; rw [ ← List.take_append_drop s T_list, List.count_append ] ; aesop;
           · aesop;
           · rfl;
         -- Let's choose the subsequence of $S$ consisting of $k$ copies of $1$ and the first $s$ elements of $T_list$, which sums to $0$.
         have h_subseq : ∃ T_sub' ≤ Multiset.replicate l 1 + T, Multiset.card T_sub' = k + s ∧ (T_sub'.sum : ZMod p) = 0 := by
-          refine' ⟨ Multiset.replicate k 1 + T_sub, _, _, _ ⟩ <;> simp_all ( config := { decide := Bool.true } ) [ Multiset.le_iff_count ];
+          refine ⟨ Multiset.replicate k 1 + T_sub, ?_, ?_, ?_ ⟩ <;> simp_all ( config := { decide := Bool.true } ) [ Multiset.le_iff_count ];
           intro a; by_cases ha : a = 1 <;> simp_all ( config := { decide := Bool.true } ) [ Multiset.count_replicate ] ;
           · linarith [ hT_sub.1 1 ];
           · grind +ring;
@@ -2511,7 +2516,7 @@ lemma claim_2_B_structure {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) (l : 
                 have hB_inter_negA : (prefix_sums_set T_list ∩ Finset.image (Nat.cast : ℕ → ZMod p) (Finset.Ico (p - l) p)).card = 1 := by
                   convert h_rep_count using 1;
                   unfold representation_count;
-                  refine' Finset.card_bij ( fun x hx => ( -x, x ) ) _ _ _ <;> simp_all +decide;
+                  refine Finset.card_bij ( fun x hx => ( -x, x ) ) ?_ ?_ ?_ <;> simp_all +decide;
                   · rintro a ha x hx₁ hx₂ rfl;
                     use p - x;
                     exact ⟨ ⟨ Nat.sub_pos_of_lt hx₂, by omega ⟩, by simp +decide [ Nat.cast_sub hx₂.le ] ⟩;
@@ -2522,7 +2527,7 @@ lemma claim_2_B_structure {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) (l : 
                     have hcast : ((p - x : ℕ) : ZMod p) = -(x : ZMod p) := by
                       rw [ Nat.cast_sub hx_le_p ]
                       simp +decide
-                    refine' ⟨ p - x, _, _, _ ⟩;
+                    refine ⟨ p - x, ?_, ?_, ?_ ⟩;
                     · exact ⟨ by simpa [hcast, ← hb_eq] using hb, by omega,
                         Nat.sub_lt_self hx₁ hx_le_p ⟩
                     · rw [hcast]
@@ -2534,15 +2539,15 @@ lemma claim_2_B_structure {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) (l : 
                 have hB_minus_negA_subset : prefix_sums_set T_list \ Finset.image (Nat.cast : ℕ → ZMod p) (Finset.Ico (p - l) p) ⊆ Finset.image (Nat.cast : ℕ → ZMod p) (Finset.Ico 0 T.card) := by
                   simp +decide [ Finset.subset_iff ];
                   intro x hx hx'; unfold prefix_sums_set at hx; simp_all +decide [ Finset.mem_map ] ;
-                  refine' ⟨ x.val, _, by simp +decide [ ZMod.natCast_zmod_val ] ⟩;
+                  refine ⟨ x.val, ?_, by simp +decide [ ZMod.natCast_zmod_val ] ⟩;
                   by_contra hlt
                   exact hx' x.val (by omega) (ZMod.val_lt x) (by simp +decide [ZMod.natCast_zmod_val])
                 have hB_minus_negA_eq : prefix_sums_set T_list \ Finset.image (Nat.cast : ℕ → ZMod p) (Finset.Ico (p - l) p) = Finset.image (Nat.cast : ℕ → ZMod p) (Finset.Ico 0 T.card) := by
-                  refine' Finset.eq_of_subset_of_card_le hB_minus_negA_subset _;
+                  refine Finset.eq_of_subset_of_card_le hB_minus_negA_subset ?_;
                   rw [ hB_minus_negA ];
                   simpa using (Finset.card_image_le (s := Finset.Ico 0 T.card) (f := (Nat.cast : ℕ → ZMod p)));
                 obtain ⟨ b_star, hb_star ⟩ := Finset.card_eq_one.mp hB_inter_negA;
-                refine' ⟨ b_star, _, _ ⟩ <;> simp_all +decide [ Finset.ext_iff ];
+                refine ⟨ b_star, ?_, ?_ ⟩ <;> simp_all +decide [ Finset.ext_iff ];
                 · grind;
                 · exact ((hb_star b_star).mpr rfl).2
 
@@ -2609,7 +2614,7 @@ lemma swap_prefix_sums_set_eq_implies_val_eq {G : Type*} [AddCommGroup G] [Decid
         replace h_set_eq := Finset.ext_iff.mp h_set_eq; have := h_set_eq ( ( List.take ( i + 1 ) L' ).sum ) ; have := h_set_eq ( ( List.take ( i + 1 ) L ).sum ) ; simp_all +decide ;
         specialize h_set_eq ( ( List.take ( i + 1 ) L ).sum ) ; simp_all +decide [ prefix_sums_set ] ;
         contrapose! h_set_eq;
-        refine' Or.inr ⟨ _, i + 1, _, _ ⟩;
+        refine Or.inr ⟨ ?_, i + 1, ?_, ?_ ⟩;
         · intro x hx; by_cases hx' : x = i + 1 <;> simp_all +decide ;
           have := Finset.card_image_iff.mp ( show Finset.card ( Finset.image ( fun j => ( List.take j L ).sum ) ( Finset.range ( L.length + 1 ) ) ) = Finset.card ( Finset.range ( L.length + 1 ) ) from ?_ ) ; simp_all +decide [ Finset.card_image_of_injective, Function.Injective ] ;
           · have := @this x ( by aesop ) ( i + 1 ) ( by aesop ) ; aesop;
@@ -3006,7 +3011,7 @@ lemma piecewise_constant_perm_implies_constant {α : Type*} (L : List α)
         obtain ⟨L', hL'⟩ : ∃ L' : List α, L'.Perm L ∧ L'.take 3 = [c, u, c] := by
           obtain ⟨L'', hL''⟩ : ∃ L'' : List α, L''.Perm (L.erase c |>.erase c |>.erase u) := by
             exact ⟨ _, List.Perm.refl _ ⟩;
-          refine' ⟨ [ c, u, c ] ++ L'', _, _ ⟩ <;> simp_all +decide [ List.perm_iff_count ];
+          refine ⟨ [ c, u, c ] ++ L'', ?_, ?_ ⟩ <;> simp_all +decide [ List.perm_iff_count ];
           grind;
         obtain ⟨ k, hk₁, hk₂, hk₃ ⟩ := h_all_perm L' hL'.1;
         rcases k with ( _ | _ | k ) <;> simp_all +decide [ List.take_add_one ];
@@ -3313,7 +3318,7 @@ lemma exists_zero_sum_subsequence_of_card_ge_order {G : Type*} [AddCommGroup G] 
       obtain ⟨i, j, hij, h_eq⟩ : ∃ i j : Fin (L.length + 1), i < j ∧ (L.take i).sum = (L.take j).sum := by
         by_contra h_contra;
         exact absurd ( Finset.card_le_univ ( Finset.image ( fun i : Fin ( L.length + 1 ) => ( List.take ( i : ℕ ) L ).sum ) Finset.univ ) ) ( by rw [ Finset.card_image_of_injective _ fun i j hij => le_antisymm ( not_lt.1 fun hi => h_contra ⟨ j, i, hi, hij.symm ⟩ ) ( not_lt.1 fun hj => h_contra ⟨ i, j, hj, hij ⟩ ) ] ; simp +decide ; linarith );
-      refine' ⟨ Multiset.ofList ( List.take j L |> List.drop i ), _, _, _ ⟩;
+      refine ⟨ Multiset.ofList ( List.take j L |> List.drop i ), ?_, ?_, ?_ ⟩;
       · rw [ ← hL.2 ];
         exact List.Sublist.subperm ( List.drop_sublist _ _ |> List.Sublist.trans <| List.take_sublist _ _ );
       · simp_all +decide [ ne_of_gt hij, List.drop_eq_nil_of_le ];
@@ -3433,7 +3438,7 @@ If T is a sub-multiset of the values of a, then T corresponds to a subset of ind
             simp_all ( config := { decide := Bool.true } ) [ Multiset.le_iff_count ];
             intro x; specialize hT x; by_cases hx : x = a 0 <;> simp_all ( config := { decide := Bool.true } ) [ List.count_cons ] ;
             aesop;
-          refine' ⟨ Finset.image ( Fin.succ ) I' ∪ { 0 }, _ ⟩ ; simp_all +decide [ Finset.sum_union, Finset.sum_singleton, Finset.mul_sum _ _ _ ] ;
+          refine ⟨ Finset.image ( Fin.succ ) I' ∪ { 0 }, ?_ ⟩ ; simp_all +decide [ Finset.sum_union, Finset.sum_singleton, Finset.mul_sum ?_ ?_ ?_ ] ;
           rw [ Multiset.dedup_eq_self.mpr ] ; aesop;
           exact Multiset.Nodup.map ( fun i j hij => by simpa [ Fin.ext_iff ] using hij ) ( Finset.nodup _ );
         · specialize ih ( fun i => a i.succ ) T ?_;
