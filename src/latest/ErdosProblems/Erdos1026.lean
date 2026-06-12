@@ -43,7 +43,6 @@ set_option linter.style.cdot false
 set_option linter.style.longLine false
 set_option linter.style.emptyLine false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 set_option linter.deprecated false
 set_option linter.flexible false
 set_option linter.unusedVariables false
@@ -89,7 +88,7 @@ theorem exists_max_increasing_subseq_sum {n : ℕ} (x : Fin n → ℝ) :
     (∀ i, S i ≥ x i) := by
       -- Define $S_i$ as the maximum sum of an increasing subsequence ending at $i$.
       set S : Fin n → ℝ := fun i => sSup {s : ℝ | ∃ m : ℕ, ∃ s' : Fin (m + 1) → Fin n, StrictMono s' ∧ Monotone (x ∘ s') ∧ s' (Fin.last m) = i ∧ s = ∑ j, x (s' j)};
-      refine' ⟨ S, _, _, fun i => _ ⟩;
+      refine ⟨ S, ?_, ?_, fun i => ?_ ⟩;
       · -- Since the set of possible sums is finite, the supremum must be achieved by some element in the set.
         have h_finite : ∀ i, ∃ m : ℕ, ∃ s' : Fin (m + 1) → Fin n, StrictMono s' ∧ Monotone (x ∘ s') ∧ s' (Fin.last m) = i ∧ ∑ j, x (s' j) = S i := by
           intro i
@@ -128,7 +127,7 @@ theorem exists_max_increasing_subseq_sum {n : ℕ} (x : Fin n → ℝ) :
           obtain ⟨m', s'', hs''_mono, hs''_monotone, hs''_last, hs''_sum⟩ := h_subseq m s' hs_mono hs_monotone hs_last
           have h_le_S : ∑ j, x (s'' j) ≤ S j := by
             apply le_csSup;
-            · refine' ⟨ ∑ i, |x i|, fun s hs => _ ⟩ ; aesop;
+            · refine ⟨ ∑ i, |x i|, fun s hs => ?_ ⟩ ; aesop;
               have h_sum_le : ∑ j : Fin (w + 1), x (w_1 j) ≤ ∑ i ∈ Finset.image w_1 Finset.univ, |x i| := by
                 rw [ Finset.sum_image <| by intros i hi j hj hij; exact left.injective hij ];
                 exact Finset.sum_le_sum fun _ _ => le_abs_self _;
@@ -137,13 +136,15 @@ theorem exists_max_increasing_subseq_sum {n : ℕ} (x : Fin n → ℝ) :
           linarith;
         -- Since $S_i$ is the supremum of the set, we have $S_i \leq S_j - x_j$.
         have h_Si_le_Sj_minus_xj : S i ≤ S j - x j := by
-          refine' csSup_le _ _ <;> norm_num;
+          refine csSup_le ?_ ?_ <;> norm_num;
           · exact ⟨ _, ⟨ 0, fun _ => i, by simp +decide [ StrictMono ], by simp +decide [ Monotone ], by simp +decide, rfl ⟩ ⟩;
           · exact fun b m s' hs' hs'' hs''' hb => by linarith [ h_sum_ge _ ⟨ m, s', hs', hs'', hs''', hb ⟩ ] ;
         linarith;
-      · refine' le_csSup _ _;
-        · refine' ⟨ ∑ j : Fin n, |x j|, fun s hs => _ ⟩ ; aesop;
-          refine' le_trans _ ( Finset.sum_le_sum_of_subset_of_nonneg ( Finset.subset_univ ( Finset.image w_1 Finset.univ ) ) fun _ _ _ => abs_nonneg _ );
+      · refine le_csSup ?_ ?_;
+        · refine ⟨ ∑ j : Fin n, |x j|, fun s hs => ?_ ⟩ ; aesop;
+          refine le_trans ?_ ( Finset.sum_le_sum_of_subset_of_nonneg
+            ( Finset.subset_univ ( Finset.image w_1 Finset.univ ) )
+            fun i _ _ => abs_nonneg (x i) );
           rw [ Finset.sum_image <| by intros i hi j hj hij; exact left.injective hij ] ; exact Finset.sum_le_sum fun i _ => le_abs_self _;
         · exact ⟨ 0, fun _ => i, by simp +decide [ StrictMono ], by simp +decide [ Monotone ], by simp +decide, by simp +decide ⟩
 
@@ -171,9 +172,9 @@ theorem exists_max_decreasing_subseq_sum {n : ℕ} (x : Fin n → ℝ) :
           exact ⟨ 0, fun _ => i, by simp ( config := { decide := Bool.true } ) [ StrictMono, Antitone ] ⟩;
         exact ⟨ Finset.max' ( hS_i_finite.toFinset ) ⟨ _, hS_i_finite.mem_toFinset.mpr h_singleton ⟩, hS_i_finite.mem_toFinset.mp ( Finset.max'_mem _ _ ), fun m s hs hs' hi => Finset.le_max' _ _ ( hS_i_finite.mem_toFinset.mpr ⟨ m, s, hs, hs', hi, rfl ⟩ ) ⟩;
       choose T hT₁ hT₂ using hT_def;
-      refine' ⟨ T, _, _, _ ⟩ <;> aesop;
+      refine ⟨ T, ?_, ?_, ?_ ⟩ <;> aesop;
       · obtain ⟨ m, s, hs₁, hs₂, hs₃, hs₄ ⟩ := hT₁ i;
-        refine' le_trans _ ( hT₂ j ( m + 1 ) ( Fin.snoc s j ) _ _ _ );
+        refine le_trans ?_ ( hT₂ j ( m + 1 ) ( Fin.snoc s j ) ?_ ?_ ?_ );
         · simp +decide [ Fin.sum_univ_castSucc, hs₄ ];
         · intro i j hij; cases i using Fin.lastCases <;> cases j using Fin.lastCases <;> aesop;
           · exact False.elim <| (not_lt_of_ge (Fin.le_last i_1.castSucc)) hij;
@@ -234,7 +235,7 @@ theorem area_inequality_tight {n : ℕ} (hn : n ≠ 0) (x : Fin n → ℝ) (S T 
     obtain ⟨iT, hiT⟩ := hT_max.2
     have h_area : ∑ i, (x i)^2 ≤ S_max * T_max := by
       rwa [ ENNReal.toReal_ofReal ( show 0 ≤ S_max by obtain ⟨ i, hi ⟩ := hS_max.2; linarith [ h_pos i, hS_base i ] ), ENNReal.toReal_ofReal ( show 0 ≤ T_max by obtain ⟨ i, hi ⟩ := hT_max.2; linarith [ h_pos i, hT_base i ] ) ] at h_total_area_le
-    refine' ⟨iS, ?_, iT, ?_, ?_⟩
+    refine ⟨iS, ?_, iT, ?_, ?_⟩
     · intro i
       simpa [hiS] using hS_max.1 i
     · intro i
@@ -257,7 +258,7 @@ theorem exists_monotone_subseq_sum_ge
   -- If $k=1$, the sequence has length 1 and sum 1, so the single element is a subsequence with sum $1 \ge 1/1$.
   by_cases hk1 : k = 1;
   · aesop;
-    refine' ⟨ 0, fun _ => 0, by simp +decide, Or.inl <| fun _ _ _ => by simp +decide, by simp +decide [ h_sum ] ⟩;
+    refine ⟨ 0, fun _ => 0, by simp +decide, Or.inl <| fun _ _ _ => by simp +decide, by simp +decide [ h_sum ] ⟩;
   · -- Let $S$ be the function from `exists_max_increasing_subseq_sum`.
     obtain ⟨S, hS⟩ := exists_max_increasing_subseq_sum x
     -- Let $T$ be the function from `exists_max_decreasing_subseq_sum`.
@@ -1701,7 +1702,7 @@ theorem sum_es_part_eq (num_blocks block_size : ℕ) (base_val : ℝ) (start_idx
         norm_num [ List.sum_map_add, List.sum_range_succ' ] at * ; ring_nf at * ; aesop
         linarith
     convert Finset.sum_congr rfl fun b hb => h_block_sum b ( Finset.mem_range.mp hb ) using 1;
-    · refine' congr_arg _ ( List.ext_get _ _ ) <;> aesop;
+    · refine congr_arg ?_ ( List.ext_get ?_ ?_ ) <;> aesop;
       convert h_block_sum n h₁ using 3 ; rw [ Nat.cast_sub <| Nat.le_sub_one_of_lt h₁ ] ; rw [ Nat.cast_sub <| by linarith ] ; push_cast ; ring;
     · norm_num [ Finset.sum_add_distrib, Finset.mul_sum _ _ _, Finset.sum_mul ];
       norm_num [ ← Finset.mul_sum _ _ _, ← Finset.sum_mul ];
@@ -1917,7 +1918,7 @@ theorem limit_values_eq (k : ℤ) (a : ℤ) (h_k : k ≥ 1) (h_a_le : -k ≤ a) 
   limit_M_dec k a = k * (a + 1).natAbs ∧
   limit_sum k a = (a + 1).natAbs * (k * k + a) := by
     unfold limit_M_inc limit_M_dec limit_sum;
-    refine' ⟨ _, _, _ ⟩;
+    refine ⟨ ?_, ?_, ?_ ⟩;
     · norm_num +zetaDelta at *;
       rw [ max_eq_right ] <;> norm_cast;
       · rw [ Int.toNat_of_nonneg ( by linarith ) ];
@@ -2087,7 +2088,7 @@ theorem limit_M_inc_correct_right (k : ℤ) (a : ℤ) (h_k : k ≥ 1) (h_a_le : 
     -- By the properties of limits, if the limits of the parts exist, then the limit of their combination also exists.
     have h_limit_comb : Filter.Tendsto (fun eps => max (M_inc (part1 { k := k, a := a, eps := eps }) + M_inc (part2 { k := k, a := a, eps := eps })) (M_inc (part3 { k := k, a := a, eps := eps }))) (nhdsWithin 0 (Set.Ioi 0)) (nhds (max (limit_part1 k a + limit_part2 k a) (limit_part3 k a))) := by
                                                                                                                                                                       exact Filter.Tendsto.max ( Filter.Tendsto.add ( limit_M_inc_part1_correct k a h_k h_a_le h_a_lt ) ( limit_M_inc_part2_correct k a h_k h_a_le h_a_lt ) ) ( limit_M_inc_part3_correct k a h_k h_a_le h_a_lt );
-    refine' Filter.Tendsto.congr' _ ( h_limit_comb.trans _ );
+    refine Filter.Tendsto.congr' ?_ ( h_limit_comb.trans ?_ );
     · filter_upwards [ M_inc_seq_eventually_eq_right k a h_k h_a_le h_a_lt ] with eps h_eps using h_eps.symm;
     · rw [ limit_parts_eq_limit_M_inc k a h_k h_a_le h_a_lt ]
 
@@ -2260,7 +2261,7 @@ theorem seq_eps_eventually_valid (k : ℤ) (a : ℤ) (h_k : k ≥ 1) (h_a_le : -
       -- We'll use that `seq_eps k a eps` is valid for small positive `eps` to show that the ratio converges to the target value.
       have h_valid : ∀ᶠ eps in nhdsWithin 0 (Set.Ioi 0), (seq_eps k a eps).Pairwise (· ≠ ·) ∧ ∀ x ∈ (seq_eps k a eps), 0 < x := by
         have h_pos : ∀ᶠ eps in nhdsWithin 0 (Set.Ioi 0), ∀ x ∈ (seq_eps k a eps), 0 < x := by
-          refine' Filter.eventually_of_mem self_mem_nhdsWithin fun eps h_eps => _;
+          refine Filter.eventually_of_mem self_mem_nhdsWithin fun eps h_eps => ?_;
           unfold seq_eps;
           unfold es_part; aesop;
           · exact add_pos_of_pos_of_nonneg ( abs_pos.mpr ( by linarith [ ( by norm_cast : ( a : ℝ ) < -1 ) ] ) ) ( mul_nonneg ( add_nonneg ( add_nonneg ( mul_nonneg ( Nat.cast_nonneg _ ) ( Nat.cast_nonneg _ ) ) ( by nlinarith [ ( by norm_cast : ( a : ℝ ) < -1 ) ] ) ) ( add_nonneg ( mul_nonneg ( Nat.cast_nonneg _ ) ( Nat.cast_nonneg _ ) ) ( Nat.cast_nonneg _ ) ) ) h_eps.le );
@@ -2597,8 +2598,7 @@ lemma construction_nodup (k a : ℕ) (eps : ℝ) (h_eps_pos : 0 < eps) (h_eps_sm
         rw [ List.nodup_map_iff_inj_on ] ; aesop;
         induction ( k - a ) <;> simp_all +decide [ List.range_succ ];
         rw [ List.nodup_append ] ; aesop;
-      · refine' List.Pairwise.imp_of_mem _ _;
-        use fun x y => x < y;
+      · refine List.Pairwise.imp_of_mem (R := fun x y => x < y) ?_ ?_;
         · intros; rw [ Function.onFun, List.disjoint_iff_ne ] ; aesop;
           unfold es_block at *; aesop;
           norm_cast at h;
@@ -2618,7 +2618,7 @@ lemma construction_nodup (k a : ℕ) (eps : ℝ) (h_eps_pos : 0 < eps) (h_eps_sm
         have hw_le : (w : ℝ) ≤ a := by exact_mod_cast left
         nlinarith
     have h_part3p_nodup : (es_partp (a + 1) (a * (k - a) + (a + 1) * (a + 1)) (k - a) k eps).Nodup := by
-      refine' List.nodup_flatMap.mpr _;
+      refine List.nodup_flatMap.mpr ?_;
       unfold es_block; aesop;
       · rw [ List.nodup_map_iff_inj_on ] ; aesop;
         rw [ List.nodup_flatMap ] ; aesop;
@@ -2633,7 +2633,7 @@ lemma construction_nodup (k a : ℕ) (eps : ℝ) (h_eps_pos : 0 < eps) (h_eps_sm
         aesop;
         -- Since $eps$ is positive and less than 1, the term $((a - x) * (k - a) + x_3 * (a + 1) + (a - x_5) + x_2 - k + a + 1) * eps$ must be less than 1.
         have h_coeff : ((a - x) * (k - a) + x_3 * (a + 1) + (a - x_5) + x_2 - k + a + 1) * eps < 1 := by
-          refine' lt_of_le_of_lt _ h_eps_small;
+          refine lt_of_le_of_lt ?_ h_eps_small;
           field_simp;
           nlinarith only [ show ( x : ℝ ) + 1 ≤ a by norm_cast, show ( x_2 : ℝ ) + 1 ≤ k - a by exact le_tsub_of_add_le_left ( by norm_cast; linarith [ Nat.sub_add_cancel ( show a ≤ k from le_of_lt ( Nat.lt_of_sub_ne_zero ( by aesop_cat ) ) ) ] ), show ( x_3 : ℝ ) + 1 ≤ a + 1 by exact_mod_cast Nat.succ_le_succ a_6, show ( x_5 : ℝ ) + 1 ≤ a + 1 by exact_mod_cast Nat.succ_le_succ a_7 ];
         rw [ Nat.cast_sub ( by linarith [ Nat.sub_add_cancel ( show a ≤ k from le_of_lt ( Nat.lt_of_sub_pos ( by linarith ) ) ) ] ) ] at * ; nlinarith;
@@ -2708,7 +2708,7 @@ es_block is strictly decreasing if epsilon is positive.
 lemma es_block_decreasing (base : ℝ) (start_idx : ℕ) (size : ℕ) (eps : ℝ) (heps : 0 < eps) :
   List.Sorted (· > ·) (es_block base start_idx size eps) := by
     unfold es_block;
-    refine' List.pairwise_iff_get.mpr _ ; aesop;
+    refine List.pairwise_iff_get.mpr ?_ ; aesop;
     -- The flatMap of the range size is just the list of natural numbers from 0 to size-1.
     have h_flatMap : List.flatMap (fun (a : ℕ) => [(↑a : ℝ)]) (List.range size) = List.map (fun (a : ℕ) => ↑a) (List.range size) := by
       exact Eq.symm List.map_eq_flatMap;
@@ -3131,7 +3131,7 @@ lemma part1p_gt_part2p (k a : ℕ) (eps : ℝ) (hak : a ≤ k) (heps_pos : 0 < e
     obtain ⟨ i, hi₁, hi₂, rfl ⟩ := exists_idx_of_mem_es_partp ( a + 1 ) 0 a ( k - a ) eps _ a_1 ; obtain ⟨ j, hj₁, hj₂, rfl ⟩ := exists_idx_of_mem_es_partp a ( a * ( k - a ) ) ( a + 1 ) ( a + 1 ) eps _ a_2;
     -- Since $j < a * (k - a) + (a + 1) * (a + 1)$ and $eps * (k^2 + 2 * a + 1) < 1$, we have $j * eps < 1$.
     have h_j_eps_lt_1 : (j : ℝ) * eps < 1 := by
-      refine' lt_of_le_of_lt _ heps_small;
+      refine lt_of_le_of_lt ?_ heps_small;
       rw [ mul_comm ] ; gcongr ; norm_cast ; nlinarith only [ hj₂, Nat.sub_add_cancel hak ];
     nlinarith
 
@@ -3195,7 +3195,7 @@ M(construction) is bounded by k(a+1) + O(eps).
 -/
 lemma M_construction_le (k a : ℕ) (eps : ℝ) (hak : a ≤ k) (heps_pos : 0 < eps) (heps_small : eps * ((k^2 + 2*a + 1 : ℕ) : ℝ) < 1) :
   Mp (construction k a eps) ≤ (k : ℝ) * ((a : ℝ) + 1) + eps * ((k^2 + 2*a + 1 : ℕ) : ℝ)^3 := by
-    refine' le_trans ( M_eq_max _ |> Eq.le ) _;
+    refine le_trans ( M_eq_max (construction k a eps) |> Eq.le ) ?_;
     -- Applying the lemmas for max_inc_sum and max_dec_sum constructions:
     have h_max_inc : max_inc_sum (construction k a eps) ≤ (k : ℝ) * (a + 1) + eps * (k^2 + 2*a + 1)^3 := by
       -- By Lemma 2, we know that the maximum increasing subsequence sum is bounded by the sum of the maximum increasing subsequences of each part.
@@ -3371,7 +3371,7 @@ lemma M_construction_pos_le (k a : ℕ) (eps : ℝ) (hak : a ≤ k) (heps_pos : 
     unfold construction_pos;
     have h_len : (construction k a eps).length = k^2 + 2*a + 1 := construction_length k a eps hak;
     rw [ ← h_len ];
-    refine' le_trans ( M_shift _ _ heps_pos.le ) _;
+    refine le_trans ( M_shift (construction k a eps) eps heps_pos.le ) ?_;
     rw [ h_len ];
     have := M_construction_le k a eps hak heps_pos heps_small;
     linarith
@@ -3384,13 +3384,13 @@ theorem main_theorem (k a : ℕ) (hk : 1 ≤ k) (hak : a ≤ k) :
   cp n ≤ (k : ℝ) / (k^2 + a) := by
     -- Consider the limit of $r_{\epsilon}$ as $\epsilon \to 0$.
     have h_limit : Filter.Tendsto (fun (ε' : ℝ) => (k * (a + 1) + ε' * ((k^2 + 2*a + 1 : ℕ) : ℝ)^3 + ((k^2 + 2*a + 1 : ℕ) : ℝ) * ε') / (((a : ℝ) + 1) * ((k : ℝ)^2 + (a : ℝ)) + ε' * ((k^2 + 2*a + 1 : ℕ) : ℝ) * (((k^2 + 2*a + 1 : ℕ) : ℝ) - 1) / 2)) (nhdsWithin 0 (Set.Ioi 0)) (nhds (k / ((k^2 + a : ℝ)))) := by
-      refine' tendsto_nhdsWithin_of_tendsto_nhds _;
+      refine tendsto_nhdsWithin_of_tendsto_nhds ?_;
       convert Filter.Tendsto.div ( Continuous.tendsto _ _ ) ( Continuous.tendsto _ _ ) _ using 2 <;> norm_num;
       exacts [ by rw [ div_eq_div_iff ] <;> ring_nf <;> positivity, by infer_instance, by infer_instance, by continuity, by continuity, ⟨ by positivity, by positivity ⟩ ];
-    refine' le_of_tendsto_of_tendsto tendsto_const_nhds h_limit _;
+    refine le_of_tendsto_of_tendsto tendsto_const_nhds h_limit ?_;
     rw [ Filter.EventuallyLE, eventually_nhdsWithin_iff ];
     filter_upwards [ gt_mem_nhds <| show 0 < 1 / ( ( k^2 + 2*a + 1 : ℝ ) ) from by positivity ] with x hx₁ hx₂ ; aesop;
-    refine' le_trans ( csInf_le _ ⟨ construction_pos k a x, _, _, _, rfl ⟩ ) _;
+    refine le_trans ( csInf_le ?_ ⟨ construction_pos k a x, ?_, ?_, ?_, rfl ⟩ ) ?_;
     · exact ⟨ 0, by rintro _ ⟨ L, hL₁, hL₂, hL₃, rfl ⟩ ; exact div_nonneg ( by
         unfold Mp;
         unfold Option.getD; aesop;
@@ -3399,9 +3399,9 @@ theorem main_theorem (k a : ℕ) (hk : 1 ≤ k) (hak : a ≤ k) :
         · exact List.sum_nonneg fun x hx => le_of_lt ( hL₃ x ( left.subset hx ) ) ) ( List.sum_nonneg fun x hx => le_of_lt ( hL₃ x hx ) ) ⟩;
     · unfold construction_pos;
       rw [ List.length_map, construction_length ] ; linarith;
-    · refine' List.Nodup.map _ _;
+    · refine List.Nodup.map ?_ ?_;
       · exact add_left_injective x;
-      · refine' construction_nodup k a x hx₂ _;
+      · refine construction_nodup k a x hx₂ ?_;
         rw [ inv_eq_one_div, lt_div_iff₀ ] at hx₁ <;> norm_cast at * ; nlinarith;
     · unfold construction_pos; aesop;
       exact add_pos_of_nonneg_of_pos ( construction_nonneg k a x ( by positivity ) _ left ) hx₂;
@@ -3527,20 +3527,20 @@ lemma integral_num_points (a b : ℝ) (hab : a ≤ b) :
         -- We can split the integral into two parts: $\int_0^\delta \lfloor b-x \rfloor dx$ and $\int_\delta^1 \lfloor b-x \rfloor dx$.
         have h_split : ∫ x in Set.Ioo 0 1, (⌊b - x⌋ : ℝ) = (∫ x in Set.Ioo 0 δ, (⌊b - x⌋ : ℝ)) + (∫ x in Set.Ioo δ 1, (⌊b - x⌋ : ℝ)) := by
           rw [ ← MeasureTheory.integral_Ioc_eq_integral_Ioo, ← MeasureTheory.integral_Ioc_eq_integral_Ioo, ← MeasureTheory.integral_Ioc_eq_integral_Ioo, ← MeasureTheory.setIntegral_union ] <;> norm_num [ hδ.1, hδ.2.le ];
-          · refine' MeasureTheory.Integrable.mono' _ _ _;
-            refine' fun x => 1 + |b| + |x|;
+          · refine MeasureTheory.Integrable.mono'
+              (g := fun x => 1 + |b| + |x|) ?_ ?_ ?_;
             · exact Continuous.integrableOn_Ioc ( by continuity );
             · apply_rules [ Measurable.aestronglyMeasurable, measurable_const ];
               exact Measurable.comp ( by measurability ) ( Measurable.floor ( measurable_const.sub measurable_id' ) );
             · filter_upwards [ MeasureTheory.ae_restrict_mem measurableSet_Ioc ] with x hx using abs_le.mpr ⟨ by cases abs_cases b <;> cases abs_cases x <;> linarith [ Int.floor_le ( b - x ), Int.lt_floor_add_one ( b - x ) ], by cases abs_cases b <;> cases abs_cases x <;> linarith [ Int.floor_le ( b - x ), Int.lt_floor_add_one ( b - x ) ] ⟩;
-          · refine' MeasureTheory.Integrable.mono' _ _ _;
-            refine' fun x => 1 + |b| + |x|;
+          · refine MeasureTheory.Integrable.mono'
+              (g := fun x => 1 + |b| + |x|) ?_ ?_ ?_;
             · exact Continuous.integrableOn_Ioc ( by continuity );
             · exact Measurable.aestronglyMeasurable ( by exact Measurable.comp ( by measurability ) ( measurable_id'.const_sub _ |> Measurable.floor ) );
             · filter_upwards [ MeasureTheory.ae_restrict_mem measurableSet_Ioc ] with x hx using abs_le.mpr ⟨ by cases abs_cases b <;> cases abs_cases x <;> linarith [ Int.floor_le ( b - x ), Int.lt_floor_add_one ( b - x ) ], by cases abs_cases b <;> cases abs_cases x <;> linarith [ Int.floor_le ( b - x ), Int.lt_floor_add_one ( b - x ) ] ⟩;
         -- In the first interval, $\lfloor b-x \rfloor = k$ and in the second interval, $\lfloor b-x \rfloor = k-1$.
         have h_floor_values : (∫ x in Set.Ioo 0 δ, (⌊b - x⌋ : ℝ)) = (∫ x in Set.Ioo 0 δ, (k : ℝ)) ∧ (∫ x in Set.Ioo δ 1, (⌊b - x⌋ : ℝ)) = (∫ x in Set.Ioo δ 1, (k - 1 : ℝ)) := by
-          constructor <;> refine' MeasureTheory.setIntegral_congr_fun measurableSet_Ioo fun x hx => _ <;> aesop;
+          constructor <;> refine MeasureTheory.setIntegral_congr_fun measurableSet_Ioo fun x hx => ?_ <;> aesop;
           · exact Int.floor_eq_iff.mpr ⟨ by linarith, by linarith ⟩;
           · exact_mod_cast Int.floor_eq_iff.mpr ⟨ by norm_num; linarith, by norm_num; linarith ⟩;
         aesop;
@@ -3552,13 +3552,13 @@ lemma integral_num_points (a b : ℝ) (hab : a ≤ b) :
         -- We can split the integral into two parts: $\int_0^\epsilon \lceil a-x \rceil dx$ and $\int_\epsilon^1 \lceil a-x \rceil dx$.
         have h_split : ∫ x in Set.Ioo 0 1, (⌈a - x⌉ : ℝ) = (∫ x in Set.Ioo 0 ε, (⌈a - x⌉ : ℝ)) + (∫ x in Set.Ioo ε 1, (⌈a - x⌉ : ℝ)) := by
           rw [ ← MeasureTheory.integral_Ioc_eq_integral_Ioo, ← MeasureTheory.integral_Ioc_eq_integral_Ioo, ← MeasureTheory.integral_Ioc_eq_integral_Ioo, ← MeasureTheory.setIntegral_union ] <;> norm_num [ hm, hε.1.le ];
-          · refine' MeasureTheory.Integrable.mono' _ _ _;
-            refine' fun x => 2 + |a| + ε;
+          · refine MeasureTheory.Integrable.mono'
+              (g := fun x => 2 + |a| + ε) ?_ ?_ ?_;
             · norm_num;
             · exact Measurable.aestronglyMeasurable ( by exact Measurable.comp ( by measurability ) ( by exact Measurable.ceil ( by exact measurable_const.sub measurable_id' ) ) );
             · filter_upwards [ MeasureTheory.ae_restrict_mem measurableSet_Ioc ] with x hx using by rw [ Real.norm_eq_abs, abs_le ] ; constructor <;> cases abs_cases a <;> linarith [ Int.le_ceil ( a - x ), Int.ceil_lt_add_one ( a - x ), hx.1, hx.2 ] ;
-          · refine' MeasureTheory.Integrable.mono' _ _ _;
-            refine' fun x => 2 + |a| + |x|;
+          · refine MeasureTheory.Integrable.mono'
+              (g := fun x => 2 + |a| + |x|) ?_ ?_ ?_;
             · exact Continuous.integrableOn_Ioc ( by continuity );
             · exact Measurable.aestronglyMeasurable ( by exact Measurable.comp ( by measurability ) ( measurable_id'.const_sub _ |> Measurable.ceil ) );
             · filter_upwards [ MeasureTheory.ae_restrict_mem measurableSet_Ioc ] with x hx using abs_le.mpr ⟨ by cases abs_cases a <;> cases abs_cases x <;> linarith [ Int.le_ceil ( a - x ), Int.ceil_lt_add_one ( a - x ) ], by cases abs_cases a <;> cases abs_cases x <;> linarith [ Int.le_ceil ( a - x ), Int.ceil_lt_add_one ( a - x ) ] ⟩;
@@ -3571,24 +3571,24 @@ lemma integral_num_points (a b : ℝ) (hab : a ≤ b) :
         linarith;
       rw [ h_integral, MeasureTheory.integral_add, MeasureTheory.integral_sub ] <;> norm_num [ h_floor, h_ceil ];
       · ring;
-      · refine' MeasureTheory.Integrable.mono' _ _ _;
-        refine' fun x => |b - x| + 1;
+      · refine MeasureTheory.Integrable.mono'
+          (g := fun x => |b - x| + 1) ?_ ?_ ?_;
         · exact Continuous.integrableOn_Icc ( by continuity ) |> fun h => h.mono_set <| Set.Ioo_subset_Icc_self;
         · exact Measurable.aestronglyMeasurable ( by exact Measurable.comp ( by measurability ) ( by exact measurable_id'.const_sub _ |> Measurable.floor ) );
         · filter_upwards [ MeasureTheory.ae_restrict_mem measurableSet_Ioo ] with x hx using abs_le.mpr ⟨ by cases abs_cases ( b - x ) <;> linarith [ Int.floor_le ( b - x ), Int.lt_floor_add_one ( b - x ) ], by cases abs_cases ( b - x ) <;> linarith [ Int.floor_le ( b - x ), Int.lt_floor_add_one ( b - x ) ] ⟩;
-      · refine' MeasureTheory.Integrable.mono' _ _ _;
-        refine' fun x => 2 + |a| + |b|;
+      · refine MeasureTheory.Integrable.mono'
+          (g := fun x => 2 + |a| + |b|) ?_ ?_ ?_;
         · norm_num;
         · exact Measurable.aestronglyMeasurable ( by exact Measurable.comp ( by measurability ) ( by exact measurable_id'.const_sub _ |> Measurable.ceil ) );
         · filter_upwards [ MeasureTheory.ae_restrict_mem measurableSet_Ioo ] with x hx using by rw [ Real.norm_eq_abs, abs_le ] ; constructor <;> cases abs_cases a <;> cases abs_cases b <;> linarith [ Int.le_ceil ( a - x ), Int.ceil_lt_add_one ( a - x ), hx.1, hx.2 ] ;
-      · refine' MeasureTheory.Integrable.sub _ _;
-        · refine' MeasureTheory.Integrable.mono' _ _ _;
-          refine' fun x => 2 + |b|;
+      · refine MeasureTheory.Integrable.sub ?_ ?_;
+        · refine MeasureTheory.Integrable.mono'
+            (g := fun x => 2 + |b|) ?_ ?_ ?_;
           · norm_num;
           · exact Measurable.aestronglyMeasurable ( by exact Measurable.comp ( by measurability ) ( by exact measurable_id'.const_sub _ |> Measurable.floor ) );
           · filter_upwards [ MeasureTheory.ae_restrict_mem measurableSet_Ioo ] with x hx using abs_le.mpr ⟨ by cases abs_cases b <;> linarith [ Int.floor_le ( b - x ), Int.lt_floor_add_one ( b - x ), hx.1, hx.2 ], by cases abs_cases b <;> linarith [ Int.floor_le ( b - x ), Int.lt_floor_add_one ( b - x ), hx.1, hx.2 ] ⟩;
-        · refine' MeasureTheory.Integrable.mono' _ _ _;
-          refine' fun x => 2 + |a| + |b|;
+        · refine MeasureTheory.Integrable.mono'
+            (g := fun x => 2 + |a| + |b|) ?_ ?_ ?_;
           · norm_num;
           · exact Measurable.aestronglyMeasurable ( by exact Measurable.comp ( by measurability ) ( by exact Measurable.ceil ( measurable_const.sub measurable_id' ) ) );
           · filter_upwards [ MeasureTheory.ae_restrict_mem measurableSet_Ioo ] with x hx using abs_le.mpr ⟨ by cases abs_cases a <;> cases abs_cases b <;> linarith [ Int.le_ceil ( a - x ), Int.ceil_lt_add_one ( a - x ), hx.1, hx.2 ], by cases abs_cases a <;> cases abs_cases b <;> linarith [ Int.le_ceil ( a - x ), Int.ceil_lt_add_one ( a - x ), hx.1, hx.2 ] ⟩
@@ -3602,15 +3602,15 @@ lemma exists_shift_sum_ge (n : ℕ) (a b : Fin n → ℝ) (hab : ∀ i, a i ≤ 
     have h_integral : ∫ x in (Set.Ioo 0 1), (∑ i, (num_points (a i) (b i) x : ℝ)) = ∑ i, (b i - a i) := by
       rw [ MeasureTheory.integral_finset_sum ] <;> aesop;
       · rw [ ← Finset.sum_sub_distrib, Finset.sum_congr rfl ] ; intros ; rw [ integral_num_points ] ; aesop_cat;
-      · refine' MeasureTheory.Integrable.mono' _ _ _;
-        refine' fun x => |b i - a i| + 1;
+      · refine MeasureTheory.Integrable.mono'
+          (g := fun x => |b i - a i| + 1) ?_ ?_ ?_;
         · norm_num;
         · -- The function num_points is a composition of measurable functions (floor and ceiling), hence it is measurable.
           have h_num_points_measurable : Measurable (fun x => num_points (a i) (b i) x) := by
             exact Measurable.add ( Measurable.sub ( Measurable.floor ( measurable_const.sub measurable_id' ) ) ( Measurable.ceil ( measurable_const.sub measurable_id' ) ) ) measurable_const;
           exact Measurable.aestronglyMeasurable ( by measurability );
-        · refine' MeasureTheory.ae_of_all _ _ ; aesop;
-          refine' abs_le.mpr ⟨ _, _ ⟩ <;> norm_num [ num_points ] <;> cases abs_cases ( b i - a i ) <;> linarith [ Int.floor_le ( b i - a_1 ), Int.lt_floor_add_one ( b i - a_1 ), Int.le_ceil ( a i - a_1 ), Int.ceil_lt_add_one ( a i - a_1 ) ] ;
+        · filter_upwards with a_1
+          refine abs_le.mpr ⟨ ?_, ?_ ⟩ <;> norm_num [ num_points ] <;> cases abs_cases ( b i - a i ) <;> linarith [ Int.floor_le ( b i - a_1 ), Int.lt_floor_add_one ( b i - a_1 ), Int.le_ceil ( a i - a_1 ), Int.ceil_lt_add_one ( a i - a_1 ) ] ;
     -- By contradiction, assume that for all $x \in [0, 1) \setminus Bad$, $\sum_{i=1}^n num\_points(a_i, b_i, x) < \sum_{i=1}^n (b_i - a_i)$.
     by_contra h_contra;
     have h_integral_lt : ∫ x in (Set.Ioo 0 1) \ Bad, (∑ i, (num_points (a i) (b i) x : ℝ)) < ∫ x in (Set.Ioo 0 1) \ Bad, (∑ i, (b i - a i) : ℝ) := by
@@ -3618,43 +3618,44 @@ lemma exists_shift_sum_ge (n : ℕ) (a b : Fin n → ℝ) (hab : ∀ i, a i ≤ 
       rw [ ← MeasureTheory.integral_sub ];
       · rw [ MeasureTheory.integral_pos_iff_support_of_nonneg_ae ];
         · simp_all ( config := { decide := Bool.true } ) [ Function.support ];
-          refine' ( lt_of_lt_of_le _ ( MeasureTheory.measure_mono _ ) );
-          rotate_left;
-          exact Set.Ioo 0 1 \ Bad;
-          · exact fun x hx => ne_of_gt <| sub_pos_of_lt <| by linarith [ h_contra x hx.1.1.le hx.1.2 hx.2 ] ;
+          refine lt_of_lt_of_le
+            ( b := (MeasureTheory.volume.restrict (Set.Ioo 0 1 \ Bad)) (Set.Ioo 0 1 \ Bad) )
+            ?_ ( MeasureTheory.measure_mono ?_ );
           · simp +zetaDelta at *;
             rw [ MeasureTheory.measure_diff_null ] <;> norm_num;
             exact hBad.measure_zero MeasureTheory.MeasureSpace.volume;
+          · exact fun x hx => ne_of_gt <| sub_pos_of_lt <| by linarith [ h_contra x hx.1.1.le hx.1.2 hx.2 ] ;
         · filter_upwards [ MeasureTheory.ae_restrict_mem ( measurableSet_Ioo.diff hBad.measurableSet ) ] with x hx using sub_nonneg_of_le <| le_of_not_ge fun hx' => h_contra ⟨ x, hx.1.1.le, hx.1.2, hx.2, hx' ⟩;
-        · refine' MeasureTheory.Integrable.sub _ _;
+        · refine MeasureTheory.Integrable.sub ?_ ?_;
           · exact Continuous.integrableOn_Icc ( by continuity ) |> fun h => h.mono_set <| Set.diff_subset.trans <| Set.Ioo_subset_Icc_self;
-          · refine' MeasureTheory.Integrable.mono' _ _ _;
-            refine' fun x => ∑ i, ( b i - a i + 2 );
+          · refine MeasureTheory.Integrable.mono'
+              (g := fun x => ∑ i, ( b i - a i + 2 )) ?_ ?_ ?_;
             · exact Continuous.integrableOn_Icc ( by continuity ) |> fun h => h.mono_set <| Set.diff_subset.trans <| Set.Ioo_subset_Icc_self;
-            · refine' Measurable.aestronglyMeasurable _;
-              refine' Finset.measurable_sum _ fun i _ => _;
-              refine' Measurable.comp ( show Measurable fun x : ℤ => ( x : ℝ ) from by measurability ) _;
-              exact Measurable.add ( Measurable.sub ( Measurable.floor ( measurable_const.sub measurable_id' ) ) ( Measurable.ceil ( measurable_const.sub measurable_id' ) ) ) measurable_const;
+            · refine Measurable.aestronglyMeasurable ?_;
+              refine Finset.measurable_sum Finset.univ fun i _ => ?_;
+              unfold num_points
+              measurability
             · filter_upwards [ MeasureTheory.ae_restrict_mem <| measurableSet_Ioo.diff hBad.measurableSet ] with x hx;
               rw [ Real.norm_of_nonneg ];
               · refine Finset.sum_le_sum fun i _ => ?_;
                 simp +zetaDelta at *;
                 exact le_trans ( Int.cast_le.mpr <| show num_points ( a i ) ( b i ) x ≤ ⌊b i - x⌋ - ⌈a i - x⌉ + 1 from le_rfl ) <| by push_cast [ num_points ] ; linarith [ Int.floor_le ( b i - x ), Int.lt_floor_add_one ( b i - x ), Int.le_ceil ( a i - x ), Int.ceil_lt_add_one ( a i - x ) ] ;
-              · refine' Finset.sum_nonneg fun i _ => _;
+              · refine Finset.sum_nonneg fun i _ => ?_;
                 unfold num_points;
                 exact_mod_cast Int.le_of_lt_add_one ( by rw [ ← @Int.cast_lt ℝ ] ; push_cast; linarith [ Int.floor_le ( b i - x ), Int.lt_floor_add_one ( b i - x ), Int.le_ceil ( a i - x ), Int.ceil_lt_add_one ( a i - x ), hab i ] );
       · exact Continuous.integrableOn_Icc ( by continuity ) |> fun h => h.mono_set <| Set.diff_subset.trans <| Set.Ioo_subset_Icc_self;
-      · refine' MeasureTheory.Integrable.mono' _ _ _;
-        refine' fun x => ∑ i, ( b i - a i + 1 );
+      · refine MeasureTheory.Integrable.mono'
+          (g := fun x => ∑ i, ( b i - a i + 1 )) ?_ ?_ ?_;
         · norm_num +zetaDelta at *;
           exact Continuous.integrableOn_Icc ( by continuity ) |> fun h => h.mono_set ( Set.diff_subset.trans <| Set.Ioo_subset_Icc_self );
-        · refine' Measurable.aestronglyMeasurable _;
-          refine' Finset.measurable_sum _ fun i _ => _;
-          exact Measurable.comp ( by measurability ) ( show Measurable fun x => num_points ( a i ) ( b i ) x from by exact Measurable.sub ( Int.measurable_floor.comp ( measurable_const.sub measurable_id' ) ) ( Int.measurable_ceil.comp ( measurable_const.sub measurable_id' ) ) |> Measurable.add <| measurable_const );
+        · refine Measurable.aestronglyMeasurable ?_;
+          refine Finset.measurable_sum Finset.univ fun i _ => ?_;
+          unfold num_points
+          measurability
         · filter_upwards [ MeasureTheory.ae_restrict_mem <| measurableSet_Ioo.diff <| hBad.measurableSet ] with x hx;
           rw [ Real.norm_of_nonneg ];
           · exact le_trans ( le_of_not_gt fun h => h_contra ⟨ x, hx.1.1.le, hx.1.2, hx.2, h.le ⟩ ) ( Finset.sum_le_sum fun i _ => show ( b i - a i : ℝ ) ≤ b i - a i + 1 by linarith );
-          · refine' Finset.sum_nonneg fun i _ => _;
+          · refine Finset.sum_nonneg fun i _ => ?_;
             unfold num_points;
             exact_mod_cast Int.le_of_lt_add_one ( by rw [ ← @Int.cast_lt ℝ ] ; push_cast; linarith [ Int.floor_le ( b i - x ), Int.lt_floor_add_one ( b i - x ), Int.le_ceil ( a i - x ), Int.ceil_lt_add_one ( a i - x ), hab i ] );
     rw [ MeasureTheory.setIntegral_congr_set ] at h_integral_lt;
@@ -3714,7 +3715,7 @@ lemma lattice_points_disjoint_sum (n : ℕ) (k : ℤ) (hk : 0 < k) (P : Packing 
     have h_card_union : Finset.card (Finset.biUnion Finset.univ (fun i => Finset.product (Finset.Icc (⌈k * (P i).x - x⌉) (⌊k * ((P i).x + (P i).s) - x⌋)) (Finset.Icc (⌈k * (P i).y - y⌉) (⌊k * ((P i).y + (P i).s) - y⌋)))) = ∑ i : Fin n, (⌊k * ((P i).x + (P i).s) - x⌋ - ⌈k * (P i).x - x⌉ + 1) * (⌊k * ((P i).y + (P i).s) - y⌋ - ⌈k * (P i).y - y⌉ + 1) := by
       rw [ Finset.card_biUnion ];
       · norm_num [ Finset.card_product ];
-        refine' Finset.sum_congr rfl fun i _ => _;
+        refine Finset.sum_congr rfl fun i _ => ?_;
         rw [ max_eq_left, max_eq_left ];
         · ring;
         · simp +zetaDelta at *;
@@ -3737,7 +3738,7 @@ lemma num_points_bounds (a b x : ℝ) (hx : 0 ≤ x ∧ x < 1)
     -- Since `Int.fract a ≠ x` and `Int.fract b ≠ x`, `a - x` and `b - x` are not integers. Thus, `⌈a - x⌉ = ⌊a - x⌋ + 1`.
     have h_ceil_floor : ⌈a - x⌉ = ⌊a - x⌋ + 1 := by
       rw [ Int.ceil_eq_iff ] ; aesop;
-      · refine' lt_of_le_of_ne ( Int.floor_le _ ) _;
+      · refine lt_of_le_of_ne ( Int.floor_le (a - x) ) ?_;
         exact fun h => ha <| by linarith [ Int.fract_add_floor a, Int.fract_add_floor ( a - x ), show ( ⌊a⌋ : ℝ ) = ⌊a - x⌋ by exact_mod_cast Int.floor_eq_iff.mpr ⟨ by linarith [ Int.floor_le ( a - x ), Int.lt_floor_add_one ( a - x ) ], by linarith [ Int.floor_le ( a - x ), Int.lt_floor_add_one ( a - x ) ] ⟩ ] ;
       · linarith [ Int.lt_floor_add_one ( a - x ) ];
     unfold num_points at h_contra; simp_all +decide [ Int.ceil_eq_iff ] ;
@@ -3789,7 +3790,7 @@ lemma key_geometric_lemma (n : ℕ) (k : ℤ) (hk : 0 < k) (P : Packing n) (h_va
           · exact Set.Finite.union ( Set.Finite.union ( Set.toFinite ( Set.range fun i => Int.fract ( ( k : ℝ ) * ( P i |> Square.y ) ) ) ) ( Set.toFinite ( Set.range fun i => Int.fract ( ( k : ℝ ) * ( ( P i |> Square.y ) + ( P i |> Square.s ) ) ) ) ) ) ( Set.finite_singleton 0 );
         -- Define q_i as the number of integer points in the shifted interval [ky_i - y₀, k(y_i+s_i) - y₀].
         set q : Fin n → ℤ := fun i => num_points ((k : ℝ) * (P i).y) ((k : ℝ) * ((P i).y + (P i).s)) y₀;
-        refine' ⟨ p, q, _, _, _, _, _ ⟩;
+        refine ⟨ p, q, ?_, ?_, ?_, ?_, ?_ ⟩;
         · intro i
           constructor
           · unfold p
@@ -3885,7 +3886,7 @@ theorem baek_koizumi_ueoro (k c : ℤ) (hk : 0 < k) (hc : -k^2 ≤ c) : g (k ^ 2
     exact csSup_le ⟨ _, ⟨ fun _ => ⟨ 0, 0, 0, by norm_num, by norm_num, by norm_num, by norm_num, by norm_num ⟩, by exact fun _ _ _ => by norm_num [ Square.disjoint ], rfl ⟩ ⟩ fun L hL => by aesop;
   · unfold g; aesop;
     rw [ show ( k ^ 2 + 2 * c + 1 |> Int.toNat ) = 0 by nlinarith [ Int.toNat_of_nonpos h_pos.le ] ];
-    refine' csSup_le _ _ <;> norm_num;
+    refine csSup_le ?_ ?_ <;> norm_num;
     · exact ⟨ 0, ⟨ fun _ => ⟨ 0, 0, 0, by norm_num, by norm_num, by norm_num, by norm_num, by norm_num ⟩, by unfold Packing.is_valid; aesop ⟩ ⟩;
     · unfold Packing.total_side_length; aesop;
       rw [ add_div', le_div_iff₀ ] <;> norm_cast ; nlinarith;
@@ -4010,8 +4011,8 @@ theorem exists_monotone_subseq_sum_ge_general
     · exact fun i => le_max_of_le_right <| le_csSup ( Set.finite_range T |> Set.Finite.bddAbove ) <| Set.mem_range_self i;
 
   have hL_le_g : (∑ i, (P i).s) ≤ g n := by
-    refine' le_csSup _ _;
-    · refine' ⟨ n, fun L hL => _ ⟩ ; aesop;
+    refine le_csSup ?_ ?_;
+    · refine ⟨ n, fun L hL => ?_ ⟩ ; aesop;
       exact le_trans ( Finset.sum_le_sum fun _ _ => show ( w _ |> Square.s ) ≤ 1 from by linarith [ w ‹_› |> Square.s_nonneg, w ‹_› |> Square.x_nonneg, w ‹_› |> Square.y_nonneg, w ‹_› |> Square.x_plus_s_le_one, w ‹_› |> Square.y_plus_s_le_one ] ) ( by norm_num );
     · exact ⟨ P, hP_valid, rfl ⟩
   have hg_le_k_plus_a_div_k : g n ≤ k + a / k := by
@@ -4570,17 +4571,19 @@ theorem c_opt_eq_k_div_sq_add_a
     (ha_high : a ≤ k)
     (hn : (n : ℤ) = k^2 + 1 + 2 * a) :
     c_opt n = (k : ℝ) / (k^2 + a) := by
-      refine' le_antisymm _ _;
+      refine le_antisymm ?_ ?_;
       · -- By `exists_seq_with_monotone_subseq_sum_le_general_range`, there exists a sequence $x$ with score ≤ K + ε for any ε > 0.
         have h_exists_seq : ∀ ε > 0, ∃ x : Fin n → ℝ, (∀ i, 0 < x i) ∧ Function.Injective x ∧ (∑ i, x i = 1) ∧ score x ≤ (k : ℝ) / ((k : ℝ) ^ 2 + a) + ε := by
           intro ε hε_pos;
           have := exists_seq_with_monotone_subseq_sum_le_general_range k n a ( by linarith ) ( by linarith ) ( by linarith ) hn ε hε_pos;
           obtain ⟨ x, hx₁, hx₂, hx₃, hx₄ ⟩ := this; use x; unfold score; aesop;
-          refine' csSup_le _ _;
-          · refine' ⟨ _, ⟨ 0, fun _ => ⟨ 0, Nat.pos_of_ne_zero ( by aesop_cat ) ⟩, _, rfl ⟩ ⟩;
+          refine csSup_le ?_ ?_;
+          · let s0 : Fin (0 + 1) → Fin n :=
+              fun _ => ⟨ 0, Nat.pos_of_ne_zero ( by aesop_cat ) ⟩
+            refine ⟨ ∑ i, x (s0 i), ⟨ 0, s0, ?_, rfl ⟩ ⟩;
             exact ⟨ by simp +decide [ StrictMono ], Or.inl <| by simp +decide [ Monotone ] ⟩;
           · rintro _ ⟨ m, s, ⟨ hs₁, hs₂ ⟩, rfl ⟩ ; linarith [ hx₄ m s hs₁ hs₂ ] ;
-        refine' le_of_forall_pos_le_add _;
+        refine le_of_forall_pos_le_add ?_;
         intro ε hε; obtain ⟨ x, hx₁, hx₂, hx₃, hx₄ ⟩ := h_exists_seq ε hε; exact le_trans ( csInf_le ⟨ 0, by rintro _ ⟨ y, hy₁, hy₂, rfl ⟩ ; exact div_nonneg ( by apply_rules [ Real.sSup_nonneg ] ; rintro x ⟨ m, s, hs₁, hs₂, rfl ⟩ ; exact Finset.sum_nonneg fun _ _ => le_of_lt ( hy₁ _ ) ) ( Finset.sum_nonneg fun _ _ => le_of_lt ( hy₁ _ ) ) ⟩ ⟨ x, hx₁, hx₂, rfl ⟩ ) ( by simpa [ hx₃ ] using hx₄ ) ;
       · -- By definition of $c_{opt}$, we know that for any sequence $x$ of $n$ distinct positive real numbers, $\text{score}(x) \geq \frac{k}{k^2 + a}$.
         have h_score_ge : ∀ x : Fin n → ℝ, (∀ i, 0 < x i) → Function.Injective x → (maxMonoSubseqSum x) / (∑ i, x i) ≥ (k : ℝ) / ((k^2 + a) : ℝ) := by
@@ -4597,13 +4600,13 @@ theorem c_opt_eq_k_div_sq_add_a
           obtain ⟨m, s, hs_mono, hs_monotone, hs_sum⟩ := h_monotone_subseq
           have h_monotone_subseq_x : ∃ (m : ℕ) (s : Fin (m + 1) → Fin n), StrictMono s ∧ (Monotone (fun i => x (s i)) ∨ Antitone (fun i => x (s i))) ∧ (∑ i, x (s i)) ≥ (k : ℝ) / ((k^2 + a) : ℝ) * (∑ i, x i) := by
             use m, s;
-            refine' ⟨ hs_mono, _, _ ⟩;
+            refine ⟨ hs_mono, ?_, ?_ ⟩;
             · exact Or.imp ( fun h => fun i j hij => by have := h hij; rw [ div_le_div_iff_of_pos_right ( Finset.sum_pos ( fun _ _ => hx_pos _ ) ⟨ s i, Finset.mem_univ _ ⟩ ) ] at this; linarith ) ( fun h => fun i j hij => by have := h hij; rw [ div_le_div_iff_of_pos_right ( Finset.sum_pos ( fun _ _ => hx_pos _ ) ⟨ s i, Finset.mem_univ _ ⟩ ) ] at this; linarith ) hs_monotone;
             · rw [ ← Finset.sum_div _ _ _ ] at * ; rw [ ge_iff_le, le_div_iff₀ ] at * <;> linarith [ Finset.sum_pos ( fun i _ => hx_pos i ) ⟨ ⟨ 0, Nat.pos_of_ne_zero <| by aesop_cat ⟩, Finset.mem_univ _ ⟩ ] ;
           obtain ⟨m, s, hs_mono, hs_monotone, hs_sum⟩ := h_monotone_subseq_x
           have h_max_mono_subseq_sum : maxMonoSubseqSum x ≥ (k : ℝ) / ((k^2 + a) : ℝ) * (∑ i, x i) := by
-            refine' le_trans hs_sum ( le_csSup _ _ );
-            · refine' ⟨ ∑ i, x i, _ ⟩;
+            refine le_trans hs_sum ( le_csSup ?_ ?_ );
+            · refine ⟨ ∑ i, x i, ?_ ⟩;
               rintro _ ⟨ m, s, hs_mono, rfl ⟩;
               have h_sum_le : ∑ i ∈ Finset.image s Finset.univ, x i ≤ ∑ i, x i := by
                 exact Finset.sum_le_sum_of_subset_of_nonneg ( Finset.subset_univ _ ) fun _ _ _ => le_of_lt ( hx_pos _ );
@@ -4612,10 +4615,15 @@ theorem c_opt_eq_k_div_sq_add_a
           have h_score_ge : (maxMonoSubseqSum x) / (∑ i, x i) ≥ (k : ℝ) / ((k^2 + a) : ℝ) := by
             exact le_div_iff₀ ( Finset.sum_pos ( fun _ _ => hx_pos _ ) ⟨ ⟨ 0, Nat.pos_of_ne_zero ( by aesop_cat ) ⟩, Finset.mem_univ _ ⟩ ) |>.2 h_max_mono_subseq_sum
           exact h_score_ge;
-        refine' le_csInf _ _ <;> aesop;
-        refine' ⟨ _, ⟨ fun i => i + 1, _, _, rfl ⟩ ⟩ <;> norm_num [ Function.Injective ];
-        · exact fun i => Nat.cast_add_one_pos _;
-        · exact fun i j h => Fin.ext h
+        refine le_csInf ?_ ?_ <;> aesop;
+        let x0 : Fin n → ℝ := fun i => (i : ℝ) + 1
+        refine ⟨ score x0, ⟨ x0, ?_, ?_, rfl ⟩ ⟩;
+        · intro i
+          simp [x0]
+          positivity
+        · intro i j h
+          simp [x0] at h
+          exact Fin.ext (by exact_mod_cast h)
 
 #print axioms c_opt_eq_k_div_sq_add_a
 -- 'Erdos1026.c_opt_eq_k_div_sq_add_a' depends on axioms: [propext, Classical.choice, Quot.sound]
