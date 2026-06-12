@@ -33,7 +33,6 @@ namespace Erdos1071
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.longLine false
-set_option linter.style.refine false
 set_option linter.style.cases false
 set_option linter.style.multiGoal false
 set_option linter.unnecessarySeqFocus false
@@ -77,7 +76,7 @@ theorem maximal_iff_blocking (S : Set (Set Point)) (R : Set Point) (hS : IsDisjo
       push Not at h_contra;
       -- Since $L$ is a unit segment in $R$ and is disjoint from all segments in $S$, the collection $S \cup \{L\}$ is a disjoint collection in $R$.
       have h_add_L : IsDisjointCollection (insert L S) := by
-        refine' ⟨ _, _ ⟩;
+        refine ⟨ ?_, ?_ ⟩;
         · exact fun s hs => hs.elim ( fun hs => hs.symm ▸ hL1 ) fun hs => hS.1 s hs;
         · rintro s t ( rfl | hs ) ( rfl | ht ) <;> simp_all +decide [ Set.disjoint_left ];
           · exact fun h x hx hx' => h_contra t ht hx' hx;
@@ -91,7 +90,7 @@ theorem maximal_iff_blocking (S : Set (Set Point)) (R : Set Point) (hS : IsDisjo
         exact Set.Nonempty.ne_empty ( Set.nonempty_Ioo.mpr zero_lt_one ) hy2;
       exact hL.2.2 ( Insert.insert L S ) h_add_L ( by exact fun s hs => by cases hs <;> aesop ) ( by exact fun s hs => by aesop ) |> fun h => h_add_L_subset.ne h;
     · intro h;
-      refine' ⟨ hS, hR, fun S' hS' hR' hSS' => Set.Subset.antisymm hSS' _ ⟩;
+      refine ⟨ hS, hR, fun S' hS' hR' hSS' => Set.Subset.antisymm hSS' ?_ ⟩;
       intro L hL;
       contrapose! h;
       cases hS'
@@ -528,7 +527,7 @@ lemma unique_diam_of_triangle (A B C : Point) (hAB : dist A B = 1) (hBC : dist B
             rcases hp with ⟨ i, hi, x, hx, rfl ⟩ ; exact ⟨ 1 - x, x * ( 1 - i ), x * i, by linarith, by nlinarith, by nlinarith, by linarith, by ext ; simpa using by ring ⟩ ;
           · norm_num;
         simp_all +decide [ dist_eq_norm ];
-        refine' ⟨ _, _, _ ⟩;
+        refine ⟨ ?_, ?_, ?_ ⟩;
         · -- By the properties of the norm, we can bound the expression.
           have h_norm_bound : ‖t1 • A + t2 • B + t3 • C - A‖ ≤ t2 * ‖B - A‖ + t3 * ‖C - A‖ := by
             convert norm_add_le ( t2 • ( B - A ) ) ( t3 • ( C - A ) ) using 1;
@@ -543,7 +542,7 @@ lemma unique_diam_of_triangle (A B C : Point) (hAB : dist A B = 1) (hBC : dist B
           · rw [ norm_sub_rev C B ];
             nlinarith [ norm_nonneg ( A - B ), norm_nonneg ( B - C ) ];
         · rw [ show t1 • A + t2 • B + t3 • C - C = t1 • ( A - C ) + t2 • ( B - C ) by ext i; simpa using by rw [ show t3 = 1 - t1 - t2 by linarith ] ; simpa using by ring ];
-          refine' le_trans ( norm_add_le _ _ ) _;
+          refine le_trans ( norm_add_le ( t1 • ( A - C ) ) ( t2 • ( B - C ) ) ) ?_;
           rw [ norm_smul, norm_smul, Real.norm_of_nonneg ht1, Real.norm_of_nonneg ht2 ];
           rw [ norm_sub_rev C A ] at hCA;
           nlinarith [ norm_nonneg ( A - C ), norm_nonneg ( B - C ) ]
@@ -573,7 +572,7 @@ lemma unique_diam_of_triangle (A B C : Point) (hAB : dist A B = 1) (hBC : dist B
       have h_simplified : 1 ≤ a * b' + a * c' + b * a' + b * c' + c * a' + c * b' := by
         nlinarith [ mul_nonneg ha ha', mul_nonneg ha hb', mul_nonneg ha hc', mul_nonneg hb ha', mul_nonneg hb hb', mul_nonneg hb hc', mul_nonneg hc ha', mul_nonneg hc hb', mul_nonneg hc hc' ];
       have h_simplified : a * c' = 0 ∧ b * c' = 0 ∧ c * a' = 0 ∧ c * b' = 0 := by
-        refine' ⟨ _, _, _, _ ⟩ <;> nlinarith only [ ha, hb, hc, ha', hb', hc', hx_comb, hy_comb, h_simplified, h_line_segment, hCA, hBC, hAB, mul_nonneg ha hc', mul_nonneg hb hc', mul_nonneg hc ha', mul_nonneg hc hb' ];
+        refine ⟨ ?_, ?_, ?_, ?_ ⟩ <;> nlinarith only [ ha, hb, hc, ha', hb', hc', hx_comb, hy_comb, h_simplified, h_line_segment, hCA, hBC, hAB, mul_nonneg ha hc', mul_nonneg hb hc', mul_nonneg hc ha', mul_nonneg hc hb' ];
       cases lt_or_eq_of_le ha <;> cases lt_or_eq_of_le hb <;> cases lt_or_eq_of_le ha' <;> cases lt_or_eq_of_le hb' <;> first | nlinarith | aesop;
     exact fun x hx y hy hxy => h_boundary x y hx hy hxy
 
@@ -668,7 +667,7 @@ lemma Parallelogram_seq_subset (n : ℕ) : Parallelogram_seq (n + 1) ⊆ Paralle
   have h_A_seq_succ_reflection : reflection (A_seq (n + 1)) ∈ segment ℝ O_point (A_seq n) := by
     obtain ⟨ a, b, ha, hb, hab, h ⟩ := h_A_seq_succ;
     rw [ ← h, segment_eq_image ];
-    refine' ⟨ b, ⟨ hb, by linarith ⟩, _ ⟩ ;
+    refine ⟨ b, ⟨ hb, by linarith ⟩, ?_ ⟩ ;
     ext i <;> fin_cases i <;> norm_num [ reflection, O_point, O_prime ] <;> nlinarith
   -- By definition of $A_seq$, we know that $A_{n+1}$ lies on the segment $O'A'_n$, and $A'_{n+1}$ lies on the segment $OA_n$.
   have h_vertices : {O_point, A_seq (n + 1), O_prime, reflection (A_seq (n + 1))} ⊆ {O_point, A_seq n, O_prime, reflection (A_seq n)} ∪ segment ℝ O_point (A_seq n) ∪ segment ℝ O_prime (reflection (A_seq n)) := by
@@ -678,7 +677,7 @@ lemma Parallelogram_seq_subset (n : ℕ) : Parallelogram_seq (n + 1) ⊆ Paralle
     exact convexHull_mono h_vertices;
   -- Since the convex hull of the union of the segments is contained in the convex hull of the vertices, we have:
   have h_convex_hull_union : convexHull ℝ ({O_point, A_seq n, O_prime, reflection (A_seq n)} ∪ segment ℝ O_point (A_seq n) ∪ segment ℝ O_prime (reflection (A_seq n))) ⊆ convexHull ℝ {O_point, A_seq n, O_prime, reflection (A_seq n)} := by
-    refine' convexHull_min _ _;
+    refine convexHull_min ?_ ?_;
     · simp +decide [ Set.insert_subset_iff, segment_subset_convexHull ];
       exact ⟨ subset_convexHull ℝ _ <| Set.mem_insert _ _, subset_convexHull ℝ _ <| Set.mem_insert_of_mem _ <| Set.mem_insert _ _, subset_convexHull ℝ _ <| Set.mem_insert_of_mem _ <| Set.mem_insert_of_mem _ <| Set.mem_insert _ _, subset_convexHull ℝ _ <| Set.mem_insert_of_mem _ <| Set.mem_insert_of_mem _ <| Set.mem_insert_of_mem _ <| Set.mem_singleton _ ⟩;
     · exact convex_convexHull ℝ _;
@@ -695,14 +694,14 @@ The union of the triangle, the next parallelogram, and the reflected triangle is
 lemma Parallelogram_decomposition_subset (n : ℕ) :
   Triangle_OA_prime_P n ∪ Parallelogram_seq (n + 1) ∪ Triangle_seq_refl n ⊆ Parallelogram_seq n := by
     have h_Tn_sub_Pn : Triangle_OA_prime_P n ⊆ Parallelogram_seq n := by
-      refine' convexHull_min _ _;
+      refine convexHull_min ?_ ?_;
       · rintro x ( rfl | rfl | rfl ) <;> norm_num [ Parallelogram_seq ];
         · exact subset_convexHull ℝ _ ( Set.mem_insert _ _ );
         · exact subset_convexHull ℝ _ ( by norm_num [ Parallelogram ] );
         · -- By definition of $A_{n+1}$, we know that $A_{n+1}$ lies on the segment $O'A'_n$.
           have h_A_seq_in_segment : A_seq (n + 1) ∈ segment ℝ O_prime (reflection (A_seq n)) := by
             exact A_seq_mem_closed_segment n;
-          refine' segment_subset_convexHull _ _ h_A_seq_in_segment;
+          refine segment_subset_convexHull ?_ ?_ h_A_seq_in_segment;
           · norm_num;
           · grind;
       · exact convex_convexHull ℝ _
@@ -734,15 +733,15 @@ lemma Triangle_seq_refl_unit_segment_eq_S_seq_refl (n : ℕ) :
     · ext; simp [S_seq_refl, S_seq];
       constructor;
       · rintro ⟨ a, b, ha, hb, hab, rfl ⟩;
-        refine' ⟨ a • O_point + b • A_seq ( n + 1 ), _, _ ⟩ <;> norm_num [ openSegment_eq_image ];
+        refine ⟨ a • O_point + b • A_seq ( n + 1 ), ?_, ?_ ⟩ <;> norm_num [ openSegment_eq_image ];
         · exact ⟨ b, ⟨ hb, by linarith ⟩, by rw [ ← eq_sub_iff_add_eq' ] at hab; subst hab; ext i; fin_cases i <;> norm_num ⟩;
         · ext i <;> fin_cases i <;> norm_num [ reflection, O_point, O_prime ] <;> nlinarith
       · rintro ⟨ x, hx, rfl ⟩;
         obtain ⟨ a, b, ha, hb, hab, rfl ⟩ := hx;
-        refine' ⟨ a, b, ha, hb, hab, _ ⟩;
+        refine ⟨ a, b, ha, hb, hab, ?_ ⟩;
         ext i <;> fin_cases i <;> norm_num [ reflection, O_point, O_prime ] <;> nlinarith
     · obtain ⟨ x, y, hxy, rfl ⟩ := hL;
-      refine' ⟨ reflection x, reflection y, _, _ ⟩;
+      refine ⟨ reflection x, reflection y, ?_, ?_ ⟩;
       · rw [ reflection_dist, hxy ];
       · exact reflection_openSegment x y
     · assumption
@@ -993,7 +992,7 @@ lemma endpoints_in_segment_of_subset (x y : Point) (h : openSegment ℝ x y ⊆ 
         exact CompactIccSpace.isCompact_Icc.image ( Continuous.add ( continuous_const.sub continuous_id' |> Continuous.smul <| continuous_const ) ( continuous_id'.smul <| continuous_const ) );
       exact h_compact.isClosed;
     exact h_closed.closure_subset_iff.mpr h;
-  refine' ⟨ h_closure _, h_closure _ ⟩;
+  refine ⟨ h_closure ?_, h_closure ?_ ⟩;
   · by_cases hx : x = y <;> simp_all +decide [ segment_eq_image ];
     exact ⟨ 0, by norm_num ⟩;
   · rw [ closure_openSegment ];
@@ -1040,7 +1039,7 @@ lemma mem_S_inf_of_mem_segment_and_dist (p : Point) (hp : p ∈ segment ℝ O_po
     obtain ⟨ t, ht₀, ht₁, rfl ⟩ := h_segment;
     -- Since $t \leq \frac{2}{\sqrt{5}}$, we can write $t = s \cdot \frac{2}{\sqrt{5}}$ for some $s \in [0, 1]$.
     obtain ⟨ s, hs₀, hs₁ ⟩ : ∃ s : ℝ, 0 ≤ s ∧ s ≤ 1 ∧ t = s * (2 / Real.sqrt 5) := by
-      refine' ⟨ t / ( 2 / Real.sqrt 5 ), _, _, _ ⟩ <;> norm_num;
+      refine ⟨ t / ( 2 / Real.sqrt 5 ), ?_, ?_, ?_ ⟩ <;> norm_num;
       · positivity;
       · rw [ dist_eq_norm, EuclideanSpace.norm_eq ] at * ; norm_num at *;
         rw [ Real.sqrt_lt' ] at h_lt <;> norm_num [ O_point, O_prime ] at * ; nlinarith [ Real.sqrt_nonneg 5, Real.sq_sqrt ( show 0 ≤ 5 by norm_num ) ];
@@ -1049,7 +1048,7 @@ lemma mem_S_inf_of_mem_segment_and_dist (p : Point) (hp : p ∈ segment ℝ O_po
     ext i ; fin_cases i <;> norm_num [ hs₁, O_point, O_prime, A_inf ] ; ring;
   rw [ segment_eq_image ] at *;
   rcases h_segment with ⟨ θ, ⟨ hθ₀, hθ₁ ⟩, rfl ⟩ ; simp_all +decide [ S_inf ] ;
-  refine' ⟨ 1 - θ, θ, _, _, _ ⟩ <;> norm_num [ EuclideanSpace.norm_eq ] at *;
+  refine ⟨ 1 - θ, θ, ?_, ?_, ?_ ⟩ <;> norm_num [ EuclideanSpace.norm_eq ] at *;
   · contrapose! h_lt;
     norm_num [ show θ = 1 by linarith, dist_eq_norm ];
     norm_num [ EuclideanSpace.norm_eq, O_point, A_inf ];
@@ -1093,7 +1092,7 @@ lemma reflection_A_seq_next_mem_segment_O_A_seq (n : ℕ) :
       exact A_seq_between n;
     rw [ openSegment_eq_image ] at h_A_n1_in_openSegment;
     obtain ⟨ θ, hθ, h ⟩ := h_A_n1_in_openSegment; simp_all +decide [ reflection, segment_eq_image ] ;
-    refine' ⟨ θ, ⟨ hθ.1.le, hθ.2.le ⟩, _ ⟩ ; rw [ ← h ] ; ext i ; fin_cases i <;> norm_num [ O_prime, O_point ];
+    refine ⟨ θ, ⟨ hθ.1.le, hθ.2.le ⟩, ?_ ⟩ ; rw [ ← h ] ; ext i ; fin_cases i <;> norm_num [ O_prime, O_point ];
     · ring!;
     · ring!
 
@@ -1106,7 +1105,7 @@ lemma convex_hull_split_triangle (A B C : Point) (E : Point) (hE : E ∈ segment
     intro x hx hi; rw [ segment_eq_image ] at *;
     rintro ⟨ θ, ⟨ hθ₀, hθ₁ ⟩, rfl ⟩ ; rcases hE with ⟨ θ', ⟨ hθ'₀, hθ'₁ ⟩, rfl ⟩ ; rcases hx with ⟨ θ'', ⟨ hθ''₀, hθ''₁ ⟩, rfl ⟩ ; simp +decide [ segment_eq_image ] ;
     by_cases hθ''_le : θ'' ≤ θ';
-    · refine' Or.inl ⟨ θ'' / θ', _, θ, _, _ ⟩;
+    · refine Or.inl ⟨ θ'' / θ', ?_, θ, ?_, ?_ ⟩;
       · exact ⟨ div_nonneg hθ''₀ hθ'₀, div_le_one_of_le₀ hθ''_le hθ'₀ ⟩;
       · grind;
       · by_cases h : θ' = 0 <;> simp_all +decide [ div_eq_inv_mul ];
@@ -1121,7 +1120,7 @@ The reflected triangle is the convex hull of O', A_n, and the reflection of A_{n
 -/
 lemma Triangle_seq_refl_eq_convexHull (n : ℕ) :
   Triangle_seq_refl n = convexHull ℝ {O_prime, A_seq n, reflection (A_seq (n + 1))} := by
-    refine' Set.ext fun x => ⟨ _, _ ⟩ <;> intro hx;
+    refine Set.ext fun x => ⟨ ?_, ?_ ⟩ <;> intro hx;
     · obtain ⟨ y, hy, rfl ⟩ := hx;
       -- By definition of $Triangle\_OA\_prime\_P$, we know that $y$ is in the convex hull of $\{O\_point, reflection (A\_seq n), A\_seq (n + 1)\}$.
       have hy_convex : y ∈ convexHull ℝ {O_point, reflection (A_seq n), A_seq (n + 1)} := by
@@ -1139,7 +1138,7 @@ lemma Triangle_seq_refl_eq_convexHull (n : ℕ) :
         · unfold reflection; norm_num; ring_nf;
           rw [ show O_point 1 = 0 by rfl ] ; rw [ show A_seq n 1 = A_seq n 1 by rfl ] ; rw [ show A_seq ( 1 + n ) 1 = A_seq ( n + 1 ) 1 by ring_nf ] ; rw [ ← eq_sub_iff_add_eq' ] at habc ; linarith;
       rw [ h_reflection_y, convexHull_eq ];
-      refine' ⟨ Fin 3, { 0, 1, 2 }, fun i => if i = 0 then a else if i = 1 then b else c, fun i => if i = 0 then reflection O_point else if i = 1 then reflection ( reflection ( A_seq n ) ) else reflection ( A_seq ( n + 1 ) ), _, _, _, _ ⟩ <;> simp +decide [ *, Finset.centerMass ];
+      refine ⟨ Fin 3, { 0, 1, 2 }, fun i => if i = 0 then a else if i = 1 then b else c, fun i => if i = 0 then reflection O_point else if i = 1 then reflection ( reflection ( A_seq n ) ) else reflection ( A_seq ( n + 1 ) ), ?_, ?_, ?_, ?_ ⟩ <;> simp +decide [ *, Finset.centerMass ];
       · linarith;
       · exact ⟨ Or.inl <| O_prime_reflection_O, Or.inr <| Or.inl <| reflection_involution _ ⟩;
       · norm_num [ ← add_assoc, habc.1 ];
@@ -1147,7 +1146,7 @@ lemma Triangle_seq_refl_eq_convexHull (n : ℕ) :
       obtain ⟨y, hy⟩ : ∃ y ∈ convexHull ℝ {O_point, reflection (A_seq n), A_seq (n + 1)}, reflection y = x := by
         simp_all +decide [ convexHull_insert ];
         rcases hx with ⟨ y, hy, hx ⟩;
-        refine' ⟨ reflection x, _, _ ⟩ <;> simp_all +decide [ segment_eq_image ];
+        refine ⟨ reflection x, ?_, ?_ ⟩ <;> simp_all +decide [ segment_eq_image ];
         · rcases hy with ⟨ a, ⟨ ha₁, ha₂ ⟩, rfl ⟩ ; rcases hx with ⟨ b, ⟨ hb₁, hb₂ ⟩, rfl ⟩ ; use a, ⟨ ha₁, ha₂ ⟩, b, ⟨ hb₁, hb₂ ⟩ ; ext i <;> fin_cases i <;> norm_num [ reflection, O_point, O_prime ] <;> ring_nf
         · exact reflection_involution x;
       exact Set.mem_image_of_mem _ hy.1 |> fun h => hy.2 ▸ h
@@ -1158,10 +1157,10 @@ The triangle O O' A'_n splits into Triangle_OA_prime_P n and O O' A_{n+1}.
 lemma Triangle_split_1 (n : ℕ) : convexHull ℝ {O_point, O_prime, reflection (A_seq n)} = Triangle_OA_prime_P n ∪ convexHull ℝ {O_point, O_prime, A_seq (n + 1)} := by
   have h_convex_hull_split : convexHull ℝ {O_point, O_prime, reflection (A_seq n)} = convexHull ℝ {O_point, A_seq (n + 1), reflection (A_seq n)} ∪ convexHull ℝ {O_point, O_prime, A_seq (n + 1)} := by
     apply Set.Subset.antisymm _;
-    · refine' Set.union_subset _ _;
-      · refine' convexHull_min _ _;
+    · refine Set.union_subset ?_ ?_;
+      · refine convexHull_min ?_ ?_;
         · norm_num [ Set.insert_subset_iff, convexHull_insert ];
-          refine' ⟨ ⟨ O_prime, _, _ ⟩, ⟨ A_seq ( n + 1 ), _, _ ⟩, ⟨ reflection ( A_seq n ), _, _ ⟩ ⟩ <;> norm_num [ segment_eq_image ];
+          refine ⟨ ⟨ O_prime, ?_, ?_ ⟩, ⟨ A_seq ( n + 1 ), ?_, ?_ ⟩, ⟨ reflection ( A_seq n ), ?_, ?_ ⟩ ⟩ <;> norm_num [ segment_eq_image ];
           exact ⟨ 0, by norm_num ⟩;
           · exact ⟨ 0, by norm_num ⟩;
           · have := A_seq_mem_closed_segment n;
@@ -1170,15 +1169,16 @@ lemma Triangle_split_1 (n : ℕ) : convexHull ℝ {O_point, O_prime, reflection 
           · exact ⟨ 1, by norm_num ⟩;
           · exact ⟨ 1, by norm_num ⟩;
         · exact convex_convexHull ℝ _;
-      · refine' convexHull_min _ _;
+      · refine convexHull_min ?_ ?_;
         · simp +decide [ Set.insert_subset_iff ];
-          refine' ⟨ subset_convexHull ℝ _ ( Set.mem_insert _ _ ), subset_convexHull ℝ _ ( Set.mem_insert_of_mem _ ( Set.mem_insert _ _ ) ), _ ⟩;
+          refine ⟨ subset_convexHull ℝ {O_point, O_prime, reflection (A_seq n)} (by simp),
+            subset_convexHull ℝ {O_point, O_prime, reflection (A_seq n)} (by simp), ?_ ⟩;
           -- By definition of $A_{n+1}$, we know that it lies on the segment $O' A'_n$.
           have h_A_seq_next_on_segment : A_seq (n + 1) ∈ segment ℝ O_prime (reflection (A_seq n)) := by
             exact A_seq_mem_closed_segment n;
           rw [ convexHull_eq ];
           rcases h_A_seq_next_on_segment with ⟨ a, b, ha, hb, hab, h ⟩;
-          refine' ⟨ Fin 2, { 0, 1 }, fun i => if i = 0 then a else b, fun i => if i = 0 then O_prime else reflection ( A_seq n ), _, _, _, _ ⟩ <;> simp +decide [ *, Finset.centerMass ];
+          refine ⟨ Fin 2, { 0, 1 }, fun i => if i = 0 then a else b, fun i => if i = 0 then O_prime else reflection ( A_seq n ), ?_, ?_, ?_, ?_ ⟩ <;> simp +decide [ *, Finset.centerMass ];
         · exact convex_convexHull ℝ _;
     · have h_convex_hull_split : A_seq (n + 1) ∈ segment ℝ O_prime (reflection (A_seq n)) := by
         exact A_seq_mem_closed_segment n;
@@ -1203,17 +1203,18 @@ lemma Triangle_split_2 (n : ℕ) : convexHull ℝ {O_point, A_seq n, O_prime} = 
           simp +decide [ segment_symm, Set.union_comm ];
       assumption;
     · norm_num [ Set.insert_subset_iff, convexHull_union ];
-      constructor <;> refine' convexHull_min _ _;
+      constructor <;> refine convexHull_min ?_ ?_;
       · norm_num [ Set.insert_subset_iff, convexHull_pair ];
-        refine' ⟨ subset_convexHull ℝ _ ( Set.mem_insert _ _ ), _, subset_convexHull ℝ _ ( Set.mem_insert_of_mem _ ( Set.mem_insert_of_mem _ ( Set.mem_singleton _ ) ) ) ⟩;
+        refine ⟨ subset_convexHull ℝ {O_prime, A_seq n, O_point} (by simp), ?_,
+          subset_convexHull ℝ {O_prime, A_seq n, O_point} (by simp) ⟩;
         rw [ convexHull_insert ] <;> norm_num;
-        refine' ⟨ reflection ( A_seq ( n + 1 ) ), _, _ ⟩;
+        refine ⟨ reflection ( A_seq ( n + 1 ) ), ?_, ?_ ⟩;
         · convert reflection_A_seq_next_mem_segment_O_A_seq n using 1;
           exact segment_symm ℝ (A_seq n) O_point;
         · exact right_mem_segment _ _ _;
       · exact convex_convexHull ℝ _;
       · norm_num [ Set.insert_subset_iff, convexHull_insert ];
-        refine' ⟨ ⟨ O_point, _, _ ⟩, ⟨ A_seq n, _, _ ⟩, ⟨ reflection ( A_seq ( n + 1 ) ), _, _ ⟩ ⟩ <;> norm_num [ segment_symm ];
+        refine ⟨ ⟨ O_point, ?_, ?_ ⟩, ⟨ A_seq n, ?_, ?_ ⟩, ⟨ reflection ( A_seq ( n + 1 ) ), ?_, ?_ ⟩ ⟩ <;> norm_num [ segment_symm ];
         exact left_mem_segment ℝ O_point (A_seq n);
         · exact right_mem_segment _ _ _;
         · exact right_mem_segment _ _ _;
@@ -1240,7 +1241,7 @@ If A + A' = O', then the parallelogram defined by O, A, O', A' is the union of t
 -/
 lemma Parallelogram_decomposition_algebraic (A : Point) (h_sum : A + reflection A = O_prime) :
   Parallelogram A = convexHull ℝ {O_point, A, O_prime} ∪ convexHull ℝ {O_point, O_prime, reflection A} := by
-    refine' Set.Subset.antisymm _ _;
+    refine Set.Subset.antisymm ?_ ?_;
     · intro x hx;
       -- By definition of $Parallelogram$, we know that $x$ can be written as $\alpha O + \beta A + \gamma O' + \delta A'$ for some $\alpha, \beta, \gamma, \delta \geq 0$ with $\alpha + \beta + \gamma + \delta = 1$.
       obtain ⟨α, β, γ, δ, hαβγδ⟩ : ∃ α β γ δ : ℝ, α ≥ 0 ∧ β ≥ 0 ∧ γ ≥ 0 ∧ δ ≥ 0 ∧ α + β + γ + δ = 1 ∧ x = α • O_point + β • A + γ • O_prime + δ • reflection A := by
@@ -1271,7 +1272,7 @@ lemma Parallelogram_decomposition_algebraic (A : Point) (h_sum : A + reflection 
         -- Since $x' + y' \leq 1$, we have $x \in \text{conv}(O, A, O')$.
         have hx'_conv : x ∈ convexHull ℝ {O_point, A, O_prime} := by
           rw [ convexHull_eq ];
-          refine' ⟨ Fin 3, { 0, 1, 2 }, fun i => if i = 0 then 1 - x' - y' else if i = 1 then x' else y', fun i => if i = 0 then O_point else if i = 1 then A else O_prime, _, _, _, _ ⟩ <;> simp +decide [ Finset.centerMass ];
+          refine ⟨ Fin 3, { 0, 1, 2 }, fun i => if i = 0 then 1 - x' - y' else if i = 1 then x' else y', fun i => if i = 0 then O_point else if i = 1 then A else O_prime, ?_, ?_, ?_, ?_ ⟩ <;> simp +decide [ Finset.centerMass ];
           · exact ⟨ by linarith, hx'_nonneg, hy'_nonneg ⟩;
           · rw [ hx'_eq ] ; ext i ; norm_num ; ring_nf;
             exact Or.inr ( by fin_cases i <;> rfl );
@@ -1282,9 +1283,9 @@ lemma Parallelogram_decomposition_algebraic (A : Point) (h_sum : A + reflection 
           rw [ show O_prime i = A i + reflection A i by rw [ ← this ] ] ; norm_num ; ring_nf;
           rw [ show O_prime i = A i + reflection A i by rw [ ← this ] ] ; ring_nf;
           fin_cases i <;> norm_num [ O_point ];
-        refine' Or.inr _;
+        refine Or.inr ?_;
         rw [ hx_comb, convexHull_eq ];
-        refine' ⟨ Fin 3, { 0, 1, 2 }, fun i => if i = 0 then α + β else if i = 1 then γ + β else δ - β, fun i => if i = 0 then O_point else if i = 1 then O_prime else reflection A, _, _, _, _ ⟩ <;> simp +decide [ *, Finset.centerMass ];
+        refine ⟨ Fin 3, { 0, 1, 2 }, fun i => if i = 0 then α + β else if i = 1 then γ + β else δ - β, fun i => if i = 0 then O_point else if i = 1 then O_prime else reflection A, ?_, ?_, ?_, ?_ ⟩ <;> simp +decide [ *, Finset.centerMass ];
         · exact ⟨ by linarith, by linarith, by linarith ⟩;
         · linarith;
         · norm_num [ show α + β + ( γ + δ ) = 1 by linarith ];
@@ -1323,7 +1324,7 @@ lemma connected_subset_union_disjoint_inter {α : Type*} [TopologicalSpace α] (
     exact hL_conn.isPreconnected;
   contrapose! h_connected;
   simp_all +decide [ IsPreconnected, Set.subset_def, Set.disjoint_left ];
-  refine' ⟨ ( B ) ᶜ, isOpen_compl_iff.mpr hB, ( A ) ᶜ, isOpen_compl_iff.mpr hA, _, _, _, _ ⟩ <;> simp_all +decide [ Set.Nonempty ];
+  refine ⟨ ( B ) ᶜ, isOpen_compl_iff.mpr hB, ( A ) ᶜ, isOpen_compl_iff.mpr hA, ?_, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ Set.Nonempty ];
   · grind +ring;
   · exact fun x hx hx' => Or.resolve_right ( hL_sub x hx ) hx'
 
@@ -1472,25 +1473,25 @@ lemma S_seq_refl_disjoint (n m : ℕ) (h : n ≠ m) : Disjoint (S_seq_refl n) (S
     ext; simp [reflection];
     constructor;
     · rintro ⟨ a, b, ha, hb, hab, rfl ⟩;
-      refine' ⟨ a • O_point + b • A_seq ( n + 1 ), _, _ ⟩ <;> norm_num [ openSegment_eq_image, hab ];
+      refine ⟨ a • O_point + b • A_seq ( n + 1 ), ?_, ?_ ⟩ <;> norm_num [ openSegment_eq_image, hab ];
       · exact ⟨ b, ⟨ hb, by linarith ⟩, by rw [ ← eq_sub_iff_add_eq' ] at hab; aesop ⟩;
       · ext i ; fin_cases i <;> norm_num [ O_point, O_prime ] <;> ring_nf;
         · linarith;
         · rw [ ← eq_sub_iff_add_eq' ] at hab ; subst_vars ; ring;
     · rintro ⟨ x, ⟨ a, b, ha, hb, hab, rfl ⟩, rfl ⟩;
-      refine' ⟨ a, b, ha, hb, hab, _ ⟩ ; ext i <;> fin_cases i <;> norm_num [ O_point, O_prime, A_seq ] <;> nlinarith;
+      refine ⟨ a, b, ha, hb, hab, ?_ ⟩ ; ext i <;> fin_cases i <;> norm_num [ O_point, O_prime, A_seq ] <;> nlinarith;
   · unfold S_seq_refl S_seq;
     ext; simp [reflection];
     constructor;
     · rintro ⟨ a, b, ha, hb, hab, rfl ⟩;
-      refine' ⟨ a • O_point + b • A_seq ( m + 1 ), _, _ ⟩ <;> norm_num [ openSegment_eq_image ];
+      refine ⟨ a • O_point + b • A_seq ( m + 1 ), ?_, ?_ ⟩ <;> norm_num [ openSegment_eq_image ];
       · exact ⟨ b, ⟨ hb, by linarith ⟩, by rw [ ← eq_sub_iff_add_eq' ] at hab; aesop ⟩;
       · ext i ; fin_cases i <;> norm_num [ O_point, O_prime ] <;> ring_nf;
         · linarith;
         · rw [ ← eq_sub_iff_add_eq' ] at hab ; subst_vars ; ring;
     · rintro ⟨ x, hx, rfl ⟩;
       obtain ⟨ a, b, ha, hb, hab, rfl ⟩ := hx;
-      refine' ⟨ a, b, ha, hb, hab, _ ⟩ ; ext i <;> fin_cases i <;> norm_num [ O_point, O_prime, A_0, reflection ] <;> nlinarith;
+      refine ⟨ a, b, ha, hb, hab, ?_ ⟩ ; ext i <;> fin_cases i <;> norm_num [ O_point, O_prime, A_0, reflection ] <;> nlinarith;
   · exact reflection_involution p ▸ reflection_involution q ▸ h ▸ rfl
 
 /-
@@ -1553,7 +1554,7 @@ lemma S_seq_refl_disjoint_diagonal (n : ℕ) : Disjoint (S_seq_refl n) {p | sign
     ext; simp
     constructor <;> intro h;
     · obtain ⟨ a, ha, b, hb, hab, rfl ⟩ := h;
-      refine' ⟨ _, ⟨ a, ha, b, hb, hab, rfl ⟩, _ ⟩;
+      refine ⟨ a • O_point + ha • A_seq (n + 1), ⟨ a, ha, b, hb, hab, rfl ⟩, ?_ ⟩;
       unfold reflection; ext i; fin_cases i <;> norm_num [ O_point, O_prime, A_0 ] ; ring_nf;
       · linarith;
       · rw [ ← eq_sub_iff_add_eq' ] at hab ; subst_vars ; ring;
@@ -1621,7 +1622,7 @@ lemma S_seq_refl_sign (n : ℕ) :
     have h_reflection : ∀ p ∈ S_seq_refl n, ∃ q ∈ S_seq n, p = reflection q := by
       unfold S_seq;
       rintro p ⟨ a, b, ha, hb, hab, rfl ⟩;
-      refine' ⟨ a • O_point + b • A_seq ( n + 1 ), _, _ ⟩ <;> norm_num [ openSegment_eq_image ];
+      refine ⟨ a • O_point + b • A_seq ( n + 1 ), ?_, ?_ ⟩ <;> norm_num [ openSegment_eq_image ];
       · exact ⟨ b, ⟨ hb, by linarith ⟩, by rw [ ← eq_sub_iff_add_eq' ] at hab; subst hab; ext i; fin_cases i <;> norm_num ⟩;
       · unfold reflection; ext i; fin_cases i <;> norm_num <;> ring_nf;
         · unfold O_prime O_point; norm_num; rw [ ← eq_sub_iff_add_eq' ] at hab; subst hab; ring;
@@ -1749,7 +1750,7 @@ lemma S_seq_refl_disjoint_S_seq_of_lt (n m : ℕ) (h : n < m) : Disjoint (S_seq_
   · ext; simp [S_seq_refl, S_seq];
     constructor <;> intro h;
     · rcases h with ⟨ a, b, ha, hb, hab, rfl ⟩;
-      refine' ⟨ a • O_point + b • A_seq ( n + 1 ), _, _ ⟩ <;> simp_all +decide [ openSegment_eq_image, reflection ];
+      refine ⟨ a • O_point + b • A_seq ( n + 1 ), ?_, ?_ ⟩ <;> simp_all +decide [ openSegment_eq_image, reflection ];
       · exact ⟨ b, ⟨ hb, by linarith ⟩, by rw [ ← eq_sub_iff_add_eq' ] at hab; aesop ⟩;
       · ext i; fin_cases i <;> norm_num [ O_prime, O_point ] <;> ring_nf;
         · linarith;
@@ -1762,7 +1763,7 @@ lemma S_seq_refl_disjoint_S_seq_of_lt (n m : ℕ) (h : n < m) : Disjoint (S_seq_
   · ext; simp [S_seq, S_seq_refl];
     constructor;
     · rintro ⟨ a, b, ha, hb, hab, rfl ⟩;
-      refine' ⟨ a • O_prime + b • reflection ( A_seq ( m + 1 ) ), _, _ ⟩ <;> norm_num [ openSegment_eq_image ];
+      refine ⟨ a • O_prime + b • reflection ( A_seq ( m + 1 ) ), ?_, ?_ ⟩ <;> norm_num [ openSegment_eq_image ];
       · exact ⟨ b, ⟨ hb, by linarith ⟩, by rw [ ← eq_sub_iff_add_eq' ] at hab; subst hab; ext i; fin_cases i <;> norm_num ⟩;
       · unfold reflection; norm_num [ ← eq_sub_iff_add_eq' ] at *; ring_nf;
         ext i ; fin_cases i <;> norm_num [ O_point, O_prime ] <;> ring_nf;
@@ -1770,7 +1771,7 @@ lemma S_seq_refl_disjoint_S_seq_of_lt (n m : ℕ) (h : n < m) : Disjoint (S_seq_
         · linarith!;
     · rintro ⟨ x, hx, rfl ⟩;
       obtain ⟨ a, b, ha, hb, hab, rfl ⟩ := hx;
-      refine' ⟨ a, b, ha, hb, hab, _ ⟩ ; ext i ; fin_cases i <;> norm_num [ reflection ] ; ring_nf!;
+      refine ⟨ a, b, ha, hb, hab, ?_ ⟩ ; ext i ; fin_cases i <;> norm_num [ reflection ] ; ring_nf!;
       · unfold O_point O_prime; norm_num; ring_nf;
         linarith;
       · unfold O_point O_prime; norm_num; ring_nf;
@@ -1829,7 +1830,7 @@ lemma Region_subset_P0 : Region_R ⊆ Parallelogram_seq 0 := by
   have h_p_convex : p ∈ convexHull ℝ {!₂[0, 0], !₂[1, 0], !₂[1, 1/2], !₂[0, 1/2]} := by
     rw [ convexHull_eq ];
     use Fin 4;
-    refine' ⟨ { 0, 1, 2, 3 }, fun i => if i = 0 then ( 1 - p 0 ) * ( 1 - p 1 * 2 ) else if i = 1 then p 0 * ( 1 - p 1 * 2 ) else if i = 2 then p 0 * p 1 * 2 else ( 1 - p 0 ) * p 1 * 2, fun i => if i = 0 then !₂[0, 0] else if i = 1 then !₂[1, 0] else if i = 2 then !₂[1, 1 / 2] else !₂[0, 1 / 2], _, _, _, _ ⟩ <;> simp +decide [ Finset.centerMass ];
+    refine ⟨ { 0, 1, 2, 3 }, fun i => if i = 0 then ( 1 - p 0 ) * ( 1 - p 1 * 2 ) else if i = 1 then p 0 * ( 1 - p 1 * 2 ) else if i = 2 then p 0 * p 1 * 2 else ( 1 - p 0 ) * p 1 * 2, fun i => if i = 0 then !₂[0, 0] else if i = 1 then !₂[1, 0] else if i = 2 then !₂[1, 1 / 2] else !₂[0, 1 / 2], ?_, ?_, ?_, ?_ ⟩ <;> simp +decide [ Finset.centerMass ];
     · exact ⟨ mul_nonneg ( by linarith ) ( by linarith ), mul_nonneg ( by linarith ) ( by linarith ), mul_nonneg ( by linarith ) ( by linarith ), mul_nonneg ( by linarith ) ( by linarith ) ⟩;
     · ring;
     · ext i <;> fin_cases i <;> norm_num <;> ring_nf
@@ -1937,7 +1938,7 @@ lemma Tn_inter_Pn_subset_closure_S_seq (n : ℕ) : Triangle_OA_prime_P n ∩ Par
         grind;
       norm_num [ show c = 0 by linarith, show d = 0 by linarith ] at *;
       exact ⟨ a, b, ha, hb, habcd.1, by simp [ habcd.2 ] ⟩;
-    · refine' ⟨ _, _ ⟩;
+    · refine ⟨ ?_, ?_ ⟩;
       · -- Since $p$ is in the segment connecting $O$ and $A_{n+1}$, it is also in the parallelogram defined by $O$, $A_{n+1}$, $O'$, and $A_{n+1}'$.
         have h_segment_in_parallelogram : segment ℝ O_point (A_seq (n + 1)) ⊆ Parallelogram (A_seq (n + 1)) := by
           exact segment_subset_convexHull ( by norm_num ) ( by norm_num );
@@ -2328,7 +2329,7 @@ lemma S_shifted_is_blocking : IsBlocking S_shifted Region_Upper := by
       have hL'_subset : p + v ∈ Region_Upper := by
         exact hL_subset hp;
       exact ⟨ by have := hL'_subset.1; norm_num [ v ] at this; linarith, by have := hL'_subset.2.1; norm_num [ v ] at this; linarith, by have := hL'_subset.2.2.1; norm_num [ v ] at this; linarith, by have := hL'_subset.2.2.2; norm_num [ v ] at this; linarith ⟩;
-  refine' ⟨ _, ⟨ s, hs.1, rfl ⟩, _ ⟩
+  refine ⟨ (fun p => p + v) '' s, ⟨ s, hs.1, rfl ⟩, ?_ ⟩
   rw [Set.not_disjoint_iff_nonempty_inter] at hs ⊢
   obtain ⟨p, hp_s, hp_L'⟩ := hs.2
   exact ⟨p + v, ⟨⟨p, hp_s, rfl⟩, hp_L'⟩⟩
@@ -2344,7 +2345,7 @@ lemma connected_subset_split (L : Set Point) (hL_conn : IsConnected L) (hL_sub :
     constructor <;> intro h <;> simp_all +decide [ openSegment_eq_image ];
     · contrapose! h;
       exact fun hp => ⟨ p 0, hp.1, hp.2.1, by ext i; fin_cases i <;> norm_num <;> linarith! ⟩;
-    · rcases h with ( ⟨ h₀, h₁, h₂, h₃ ⟩ | ⟨ h₀, h₁, h₂, h₃ ⟩ ) <;> refine' ⟨ ⟨ h₀, h₁, by linarith, by linarith ⟩, _ ⟩ <;> intro x hx₁ hx₂ hx₃ <;> have := congr_arg (fun p : Point => p 0) hx₃ <;> have := congr_arg (fun p : Point => p 1) hx₃ <;> norm_num at * <;> linarith;
+    · rcases h with ( ⟨ h₀, h₁, h₂, h₃ ⟩ | ⟨ h₀, h₁, h₂, h₃ ⟩ ) <;> refine ⟨ ⟨ h₀, h₁, by linarith, by linarith ⟩, ?_ ⟩ <;> intro x hx₁ hx₂ hx₃ <;> have := congr_arg (fun p : Point => p 0) hx₃ <;> have := congr_arg (fun p : Point => p 1) hx₃ <;> norm_num at * <;> linarith;
   -- Since L is connected and a subset of the union of two disjoint open sets, it must be entirely in one of them.
   have h_connected_subset : IsConnected L → L ⊆ Region_R ∪ Region_Upper → L ⊆ Region_R ∨ L ⊆ Region_Upper := by
     intro hL_conn hL_sub
@@ -2381,7 +2382,7 @@ lemma connected_subset_split (L : Set Point) (hL_conn : IsConnected L) (hL_sub :
 The horizontal middle segment is a unit segment.
 -/
 lemma H_mid_is_unit_segment : IsUnitSegment H_mid := by
-  refine' ⟨ _, _, _, rfl ⟩;
+  refine ⟨ !₂[0, 0.5], !₂[1, 0.5], ?_, rfl ⟩;
   norm_num [ dist_eq_norm, EuclideanSpace.norm_eq ]
 
 /-
@@ -2574,7 +2575,7 @@ lemma S_sides_is_disjoint_collection : IsDisjointCollection S_sides := by
     unfold IsUnitSegment;
     norm_num [ dist_eq_norm, EuclideanSpace.norm_eq ];
     exact ⟨ ⟨ _, _, by norm_num, rfl ⟩, ⟨ _, _, by norm_num, rfl ⟩, ⟨ _, _, by norm_num, rfl ⟩, ⟨ _, _, by norm_num, rfl ⟩ ⟩;
-  refine' ⟨ h_unit_segments, _ ⟩;
+  refine ⟨ h_unit_segments, ?_ ⟩;
   rintro s t ( rfl | rfl | rfl | rfl ) ( rfl | rfl | rfl | rfl ) <;> norm_num [ openSegment_eq_image ];
   all_goals rw [ Set.disjoint_left ] ; norm_num [ Set.mem_image ];
   all_goals
@@ -3160,7 +3161,6 @@ namespace Erdos1071b
 
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.refine false
 set_option linter.style.cases false
 set_option linter.style.multiGoal false
 set_option linter.flexible false
@@ -3344,7 +3344,7 @@ theorem sigma_V_on_segment5 : sigma V_point ∈ segment5 := by
   ext; simp
   constructor;
   · rintro ⟨ a, ha, b, hb, hab, rfl ⟩;
-    refine' ⟨ _, ⟨ a, ha, b, hb, hab, rfl ⟩, _ ⟩;
+    refine ⟨ a • X_point + ha • Y_point, ⟨ a, ha, b, hb, hab, rfl ⟩, ?_ ⟩;
     ext i ; fin_cases i <;> norm_num [ sigma ];
   · rintro ⟨ x, ⟨ a, ha, b, hb, hab, rfl ⟩, rfl ⟩;
     exact ⟨ a, ha, b, hb, hab, by ext i; fin_cases i <;> norm_num [ sigma ] ⟩
@@ -3370,13 +3370,13 @@ theorem dist_eq_one_implies_vertex (A B C : Point) (V : Point) (hV : V ∈ ({A, 
     x ∈ ({A, B, C} : Set Point) := by
       -- By the distances, $convexHull {A, B, C} \subseteq B(V, 1)$.
       have h_convexHull_ball : convexHull ℝ {A, B, C} ⊆ Metric.closedBall V (1 : ℝ) := by
-        refine' convexHull_min _ _;
+        refine convexHull_min ?_ ?_;
         · simp_all +decide [ Set.insert_subset_iff, dist_comm ];
           rcases hV with ( rfl | rfl | rfl ) <;> simp_all +decide [ dist_comm ];
         · exact convex_closedBall _ _;
       -- By the distances, $convexHull {A, B, C}$ is a subset of $B(V, 1)$, and since $x$ is on the boundary of $B(V, 1)$, $x$ must be an extreme point of $convexHull {A, B, C}$.
       have h_extreme : x ∈ Set.extremePoints ℝ (convexHull ℝ {A, B, C}) := by
-        refine' ⟨ hx, _ ⟩;
+        refine ⟨ hx, ?_ ⟩;
         intro y hy z hz hxy
         have hxy_ball : y ∈ Metric.closedBall V (1 : ℝ) ∧ z ∈ Metric.closedBall V (1 : ℝ) := by
           exact ⟨ h_convexHull_ball hy, h_convexHull_ball hz ⟩;
@@ -3698,7 +3698,7 @@ Every segment in S_finite is a unit segment.
 theorem S_finite_consists_of_unit_segments : ∀ s ∈ S_finite, IsUnitSegment s := by
   unfold S_finite;
   simp +zetaDelta at *;
-  refine' ⟨ _, _, _, _, _ ⟩;
+  refine ⟨ ?_, ?_, ?_, ?_, ?_ ⟩;
   · exact ⟨ O_point, V_point, dist_O_V, rfl ⟩;
   · exact ⟨ O_point, sigma V_point, by simpa using dist_O_sigma_V, rfl ⟩;
   · use V_point, sigma V_point;
@@ -3784,7 +3784,7 @@ lemma segment5_in_square : segment5 ⊆ Region_Square := by
     ext; simp [openSegment];
     constructor;
     · rintro ⟨ a, ha, b, hb, hab, rfl ⟩;
-      refine' ⟨ _, ⟨ a, ha, b, hb, hab, rfl ⟩, _ ⟩;
+      refine ⟨ a • X_point + ha • Y_point, ⟨ a, ha, b, hb, hab, rfl ⟩, ?_ ⟩;
       ext i; fin_cases i <;> norm_num [ sigma ] ;
     · rintro ⟨ x, ⟨ a, ha, b, hb, hab, rfl ⟩, rfl ⟩;
       exact ⟨ a, ha, b, hb, hab, by ext i; fin_cases i <;> norm_num [ sigma ] ⟩;
@@ -3805,7 +3805,7 @@ theorem S_finite_in_region : IsInRegion S_finite Region_Square := by
 segment1 and segment5 are disjoint.
 -/
 lemma disjoint_1_5 : Disjoint segment1 segment5 := by
-  refine' Set.disjoint_left.mpr _;
+  refine Set.disjoint_left.mpr ?_;
   intro p hp hp'; obtain ⟨ u, v, hu, hv, huv, rfl ⟩ := hp; obtain ⟨ w, z, hw, hz, hwz, hp' ⟩ := hp';
   unfold sigma at hp';
   unfold X_point Y_point at * ; norm_num at *;
@@ -3873,7 +3873,7 @@ lemma disjoint_4_5 : Disjoint segment4 segment5 := by
 segment1 and segment4 are disjoint.
 -/
 lemma disjoint_1_4 : Disjoint segment1 segment4 := by
-  refine' Set.disjoint_left.mpr _;
+  refine Set.disjoint_left.mpr ?_;
   intro x hx1 hx4;
   -- Since $x$ is in both $segment1$ and $segment4$, it must lie on the line segment $OV$ and also on the line segment $XY$.
   obtain ⟨t, ht⟩ : ∃ t ∈ Set.Ioo (0 : ℝ) 1, x = t • O_point + (1 - t) • V_point := by
@@ -3919,8 +3919,8 @@ segment2 and segment5 are disjoint.
 lemma disjoint_2_5 : Disjoint segment2 segment5 := by
   have := @unit_segment_endpoints_are_vertices;
   contrapose! this;
-  refine' ⟨ 0, EuclideanSpace.single 1 1, EuclideanSpace.single 1 1, _, _, _, _ ⟩ <;> norm_num;
-  refine' ⟨ EuclideanSpace.single 1 ( 1 / 2 ), _, EuclideanSpace.single 1 ( 1 / 2 + 1 / 2 ), _, _ ⟩ <;> norm_num [ segment_eq_image ];
+  refine ⟨ 0, EuclideanSpace.single 1 1, EuclideanSpace.single 1 1, ?_, ?_, ?_, ?_ ⟩ <;> norm_num;
+  refine ⟨ EuclideanSpace.single 1 ( 1 / 2 ), ?_, EuclideanSpace.single 1 ( 1 / 2 + 1 / 2 ), ?_, ?_ ⟩ <;> norm_num [ segment_eq_image ];
   · exact ⟨ 1 / 2, by norm_num, by ext i; fin_cases i <;> norm_num ⟩;
   · exact ⟨ 1, by norm_num ⟩;
   · norm_num [ dist_eq_norm, EuclideanSpace.norm_eq ];
@@ -4107,7 +4107,7 @@ lemma Region6b_diameter_lt_1 : ∀ x y : Point, x ∈ Region6b → y ∈ Region6
   -- By the triangle diameter lemma, since the sides of Region6b are all less than 1, any two points in Region6b are also less than 1 apart.
   have h_triangle_diameter : ∀ x y : Point, x ∈ convexHull ℝ {sigma V_point, Y_point, sigma Y_point} → y ∈ convexHull ℝ {sigma V_point, Y_point, sigma Y_point} → dist x y ≤ max (dist (sigma V_point) Y_point) (max (dist Y_point (sigma Y_point)) (dist (sigma Y_point) (sigma V_point))) := by
     apply dist_le_max_vertices;
-  refine' lt_of_le_of_lt ( h_triangle_diameter x y hx hy ) _;
+  refine lt_of_le_of_lt ( h_triangle_diameter x y hx hy ) ?_;
   simp_all +decide [ dist_comm ];
   exact ⟨ by simpa only [ dist_comm ] using dist_sigma_V_Y_lt_1, by simpa only [ dist_comm ] using dist_Y_sigma_Y_lt_1 ⟩
 
@@ -4223,7 +4223,7 @@ lemma Region2_blocking : IsBlocking S_finite Region2 := by
     · exact hL_sub;
   rcases hL_segment with ( rfl | rfl | rfl );
   · use openSegment ℝ O_point V_point;
-    refine' ⟨ _, _ ⟩;
+    refine ⟨ ?_, ?_ ⟩;
     · exact Set.mem_insert _ _;
     · norm_num [ openSegment_eq_image ];
       exact Set.Nonempty.ne_empty ⟨ 1 / 2, by norm_num ⟩;
@@ -4274,7 +4274,7 @@ lemma Region5_blocking : IsBlocking S_finite Region5 := by
     exact False.elim <| not_isUnitSegment_of_dist_lt_1 h_dist_lt_1 <| hL_cases ▸ hL);
   · use segment5; simp [hL_cases, S_finite];
     unfold segment5; simp +decide [ Set.disjoint_left ] ;
-    refine' ⟨ ( 1 / 2 : ℝ ) • sigma X_point + ( 1 / 2 : ℝ ) • sigma Y_point, _, _ ⟩ <;> norm_num [ openSegment_eq_image ];
+    refine ⟨ ( 1 / 2 : ℝ ) • sigma X_point + ( 1 / 2 : ℝ ) • sigma Y_point, ?_, ?_ ⟩ <;> norm_num [ openSegment_eq_image ];
     · exact ⟨ 1 / 2, by norm_num ⟩;
     · exact ⟨ 1 / 2, by norm_num, by ext i; fin_cases i <;> norm_num <;> ring ⟩
 
@@ -4333,7 +4333,10 @@ lemma dist_convex_combination_le {ι : Type*} {s : Finset ι} {v : ι → Point}
         simp +decide only [smul_sub, Finset.sum_sub_distrib];
         simp +decide [ ← Finset.mul_sum _ _ _, ← Finset.sum_mul, ← Finset.smul_sum, ← Finset.sum_smul, ha_sum, hb_sum ];
       rw [ h_fubini ];
-      refine' le_trans ( norm_sum_le _ _ ) ( Finset.sum_le_sum fun i hi => norm_sum_le _ _ |> le_trans <| Finset.sum_le_sum fun j hj => _ );
+      refine le_trans ( norm_sum_le s fun i => ∑ j ∈ s, a i • b j • (v i - v j) )
+        ( Finset.sum_le_sum fun i hi => le_trans
+          ( norm_sum_le s fun j => a i • b j • (v i - v j) )
+          ( Finset.sum_le_sum fun j hj => ?_ ) );
       simp +decide [ norm_smul, mul_assoc, abs_of_nonneg ( ha i hi ), abs_of_nonneg ( hb j hj ) ]
 
 /-
@@ -4350,8 +4353,8 @@ lemma convex_combination_dist_eq_one_implies_support_dist_eq_one
     have h_dist_le : ∑ i ∈ s, ∑ j ∈ s, a i * b j * dist (v i) (v j) = 1 := by
       have h_dist_le : 1 ≤ ∑ i ∈ s, ∑ j ∈ s, a i * b j * dist (v i) (v j) := by
         convert dist_convex_combination_le ha hb ha_sum hb_sum |> le_trans h_dist.ge using 1;
-      refine' le_antisymm _ h_dist_le;
-      refine' le_trans ( Finset.sum_le_sum fun i hi => Finset.sum_le_sum fun j hj => mul_le_mul_of_nonneg_left ( h_diam i hi j hj ) ( mul_nonneg ( ha i hi ) ( hb j hj ) ) ) _;
+      refine le_antisymm ?_ h_dist_le;
+      refine le_trans ( Finset.sum_le_sum fun i hi => Finset.sum_le_sum fun j hj => mul_le_mul_of_nonneg_left ( h_diam i hi j hj ) ( mul_nonneg ( ha i hi ) ( hb j hj ) ) ) ?_;
       simp +decide [ ← Finset.mul_sum _ _ _, ← Finset.sum_mul, ha_sum, hb_sum ];
     intro i hi j hj hi_pos hj_pos
     have h_eq : a i * b j * dist (v i) (v j) = a i * b j := by
@@ -4359,7 +4362,7 @@ lemma convex_combination_dist_eq_one_implies_support_dist_eq_one
       have h_eq : ∑ i ∈ s, ∑ j ∈ s, a i * b j * dist (v i) (v j) < ∑ i ∈ s, ∑ j ∈ s, a i * b j := by
         apply Finset.sum_lt_sum;
         · exact fun i hi => Finset.sum_le_sum fun j hj => mul_le_of_le_one_right ( mul_nonneg ( ha i hi ) ( hb j hj ) ) ( h_diam i hi j hj );
-        · refine' ⟨ i, hi, Finset.sum_lt_sum _ _ ⟩;
+        · refine ⟨ i, hi, Finset.sum_lt_sum ?_ ?_ ⟩;
           · exact fun k hk => mul_le_of_le_one_right ( mul_nonneg hi_pos.le ( hb k hk ) ) ( h_diam i hi k hk );
           · exact ⟨ j, hj, lt_of_le_of_ne ( mul_le_of_le_one_right ( mul_nonneg hi_pos.le hj_pos.le ) ( h_diam i hi j hj ) ) h_neq ⟩;
       simp_all +decide [ ← Finset.mul_sum _ _ _, ← Finset.sum_mul ];
@@ -4459,7 +4462,7 @@ lemma in_Region4_of_coords (p : Point) (hp : p ∈ Region_Square)
       -- By definition of $Region4$, we know that $p$ is a convex combination of the vertices $X_point$, $A_0$, and $Y_point$.
       have h_convex_comb : ∃ a b c : ℝ, 0 ≤ a ∧ 0 ≤ b ∧ 0 ≤ c ∧ a + b + c = 1 ∧ p = a • X_point + b • A_0 + c • Y_point := by
         use (1 - p 0) / (1 - x1), 1 - (1 - p 0) / (1 - x1) - p 1 / y1, p 1 / y1;
-        refine' ⟨ div_nonneg ( by linarith [ hp.2.1 ] ) ( by linarith [ show x1 < 1 by exact lt_of_lt_of_le ( Classical.choose_spec exists_root_x1 |>.2.1 ) ( by norm_num ) ] ), _, _, _, _ ⟩ <;> norm_num [ X_point, A_0, Y_point ];
+        refine ⟨ div_nonneg ( by linarith [ hp.2.1 ] ) ( by linarith [ show x1 < 1 by exact lt_of_lt_of_le ( Classical.choose_spec exists_root_x1 |>.2.1 ) ( by norm_num ) ] ), ?_, ?_, ?_, ?_ ⟩ <;> norm_num [ X_point, A_0, Y_point ];
         · rw [ div_le_iff₀ ] <;> nlinarith [ show 0 < y1 by exact y1_bounds.1, show x1 < 1 by exact lt_of_lt_of_le ( Classical.choose_spec exists_root_x1 |>.2.1 ) ( by norm_num ), mul_div_cancel₀ ( 1 - p 0 ) ( by linarith [ show x1 < 1 by exact lt_of_lt_of_le ( Classical.choose_spec exists_root_x1 |>.2.1 ) ( by norm_num ) ] : ( 1 - x1 ) ≠ 0 ) ];
         · exact div_nonneg ( by linarith [ hp.2.2.1 ] ) ( by linarith [ y1_bounds.1 ] );
         · ring;
@@ -4642,7 +4645,7 @@ lemma S_total_is_disjoint_collection : IsDisjointCollection S_total := by
             · rcases hp with ⟨ a, b, ha, hb, hab, rfl ⟩ ; norm_num [ UnitSquare ];
               exact Or.inr <| Or.inr <| Or.inr ⟨ ⟨ ⟨ by linarith, by linarith ⟩, by linarith, by linarith ⟩, by linarith ⟩;
           exact ⟨ h_boundary_s, by rcases ht with ( rfl | rfl | rfl | rfl | rfl ) <;> [ exact segment_from_corner_in_square _ ( V_in_Region_Square ) ; exact segment_from_corner_in_square _ ( sigma_V_in_Region_Square ) ; exact segment_inside_square _ _ ( V_in_Region_Square ) ( sigma_V_in_Region_Square ) ; exact segment4_in_square; exact segment5_in_square ] ⟩
-        refine' Set.disjoint_left.mpr fun x hx hx' => _;
+        refine Set.disjoint_left.mpr fun x hx hx' => ?_;
         have := h_disjoint.1 hx; have := h_disjoint.2 hx'; simp_all +decide [ SquareBoundary, Region_Square ] ;
         rcases ‹x ∈ UnitSquare ∧ x 0 = 0 ∨ x ∈ UnitSquare ∧ x 0 = 1 ∨ x ∈ UnitSquare ∧ x 1 = 0 ∨ x ∈ UnitSquare ∧ x 1 = 1› with ( ⟨ hx₁, hx₂ ⟩ | ⟨ hx₁, hx₂ ⟩ | ⟨ hx₁, hx₂ ⟩ | ⟨ hx₁, hx₂ ⟩ ) <;> linarith;
       exact Disjoint.symm (h_boundary_segments t ht s hs)
@@ -4662,7 +4665,7 @@ lemma S_total_is_disjoint_collection : IsDisjointCollection S_total := by
             · rcases hp with ⟨ a, b, ha, hb, hab, rfl ⟩ ; norm_num [ UnitSquare ];
               exact Or.inr <| Or.inr <| Or.inr ⟨ ⟨ ⟨ by linarith, by linarith ⟩, by linarith, by linarith ⟩, by linarith ⟩;
           exact ⟨ h_boundary_s, by rcases ht with ( rfl | rfl | rfl | rfl | rfl ) <;> [ exact segment_from_corner_in_square _ ( V_in_Region_Square ) ; exact segment_from_corner_in_square _ ( sigma_V_in_Region_Square ) ; exact segment_inside_square _ _ ( V_in_Region_Square ) ( sigma_V_in_Region_Square ) ; exact segment4_in_square; exact segment5_in_square ] ⟩
-        refine' Set.disjoint_left.mpr fun x hx hx' => _;
+        refine Set.disjoint_left.mpr fun x hx hx' => ?_;
         have := h_disjoint.1 hx; have := h_disjoint.2 hx'; simp_all +decide [ SquareBoundary, Region_Square ] ;
         rcases ‹x ∈ UnitSquare ∧ x 0 = 0 ∨ x ∈ UnitSquare ∧ x 0 = 1 ∨ x ∈ UnitSquare ∧ x 1 = 0 ∨ x ∈ UnitSquare ∧ x 1 = 1› with ( ⟨ hx₁, hx₂ ⟩ | ⟨ hx₁, hx₂ ⟩ | ⟨ hx₁, hx₂ ⟩ | ⟨ hx₁, hx₂ ⟩ ) <;> linarith;
       grind;
@@ -4699,7 +4702,7 @@ lemma Region6_Total_diameter_le_1 : ∀ x y : Point, x ∈ Region6_Total → y �
       simp_all +decide [ convexHull_insert ];
       rcases hx with ⟨ i, hi, j, hj, k, hk, hx ⟩;
       rcases hx with ⟨ a, b, ha, hb, hab, rfl ⟩ ; rcases hk with ⟨ c, d, hc, hd, hcd, rfl ⟩ ; rcases hj with ⟨ e, f, he, hf, hef, rfl ⟩ ; rcases hi with ⟨ g, h, hg, hh, hgh, rfl ⟩ ; norm_num [ Fin.sum_univ_succ ] at *;
-      refine' ⟨ fun i => if i = 0 then a else if i = 1 then b * c else if i = 2 then b * d * e else if i = 3 then b * d * f * g else b * d * f * h, _, _, _ ⟩ <;> simp +decide [ Fin.forall_fin_succ, * ] ; ring_nf;
+      refine ⟨ fun i => if i = 0 then a else if i = 1 then b * c else if i = 2 then b * d * e else if i = 3 then b * d * f * g else b * d * f * h, ?_, ?_, ?_ ⟩ <;> simp +decide [ Fin.forall_fin_succ, * ] ; ring_nf;
       · exact ⟨ mul_nonneg hb hc, mul_nonneg ( mul_nonneg hb hd ) he, mul_nonneg ( mul_nonneg ( mul_nonneg hb hd ) hf ) hg, mul_nonneg ( mul_nonneg ( mul_nonneg hb hd ) hf ) hh ⟩;
       · grind +ring;
       · ext i ; fin_cases i <;> norm_num [ Matrix.vecHead, Matrix.vecTail ] <;> ring!;
@@ -4710,7 +4713,7 @@ lemma Region6_Total_diameter_le_1 : ∀ x y : Point, x ∈ Region6_Total → y �
       have hz_vertices : ∀ i ∈ t, ∃ j : Fin 5, z i = ![V_point, sigma V_point, Y_point, sigma Y_point, !₂[1, 1]] j := by
         intro i hi; specialize hz i hi; rcases hz with ( h | h | h | h | h ) <;> [ exact ⟨ 0, h ⟩ ; exact ⟨ 1, h ⟩ ; exact ⟨ 2, h ⟩ ; exact ⟨ 3, h ⟩ ; exact ⟨ 4, h ⟩ ] ;
       choose! j hj using hz_vertices;
-      refine' ⟨ fun i => ∑ j ∈ t.filter ( fun k => j k = i ), w j, _, _, _ ⟩ <;> simp_all +decide [ Finset.centerMass ];
+      refine ⟨ fun i => ∑ j ∈ t.filter ( fun k => j k = i ), w j, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ Finset.centerMass ];
       · exact fun i => Finset.sum_nonneg fun j hj => hw j <| Finset.mem_filter.mp hj |>.1;
       · rw [ ← hw', Finset.sum_fiberwise ];
       · simp +decide [ Finset.sum_filter, Finset.sum_smul ];
@@ -4725,7 +4728,7 @@ lemma Region6_Total_diameter_le_1 : ∀ x y : Point, x ∈ Region6_Total → y �
     have h_dist_le : ∀ i j, dist (![V_point, sigma V_point, Y_point, sigma Y_point, !₂[1, 1]] i) (![V_point, sigma V_point, Y_point, sigma Y_point, !₂[1, 1]] j) ≤ max (max (max (max (dist V_point (sigma V_point)) (dist V_point Y_point)) (dist V_point (sigma Y_point))) (dist V_point !₂[1, 1])) (max (max (max (dist (sigma V_point) Y_point) (dist (sigma V_point) (sigma Y_point))) (dist (sigma V_point) !₂[1, 1])) (max (max (dist Y_point (sigma Y_point)) (dist Y_point !₂[1, 1])) (dist (sigma Y_point) !₂[1, 1]))) := by
       simp +decide [ Fin.forall_fin_succ ];
       simp +decide [ dist_comm ];
-    refine' le_trans ( Finset.sum_le_sum fun i _ => Finset.sum_le_sum fun j _ => mul_le_mul_of_nonneg_left ( h_dist_le i j ) ( mul_nonneg ( ha_nonneg i ) ( hb_nonneg j ) ) ) _;
+    refine le_trans ( Finset.sum_le_sum fun i _ => Finset.sum_le_sum fun j _ => mul_le_mul_of_nonneg_left ( h_dist_le i j ) ( mul_nonneg ( ha_nonneg i ) ( hb_nonneg j ) ) ) ?_;
     simp +decide [ ← Finset.mul_sum _ _ _, ← Finset.sum_mul, ha_sum, hb_sum ];
   -- By calculating the distances between each pair of points, we can verify that they are all less than or equal to 1.
   have h_dist_V_sigma_V : dist V_point (sigma V_point) = 1 := by
@@ -4786,9 +4789,9 @@ lemma Region6_Total_blocking : IsBlocking S_finite Region6_Total := by
         intros x y hx hy hxy_dist
         have hxy_segment3 : ∀ i ∈ ({V_point, sigma V_point, Y_point, sigma Y_point, !₂[1, 1]} : Finset Point), ∀ j ∈ ({V_point, sigma V_point, Y_point, sigma Y_point, !₂[1, 1]} : Finset Point), dist i j = 1 → i = V_point ∧ j = sigma V_point ∨ i = sigma V_point ∧ j = V_point := by
           simp +zetaDelta at *;
-          refine' ⟨ _, _, _, _, _ ⟩;
+          refine ⟨ ?_, ?_, ?_, ?_, ?_ ⟩;
           · exact ⟨ fun h => False.elim <| absurd h <| ne_of_lt <| dist_V_Y_lt_1, fun h => False.elim <| absurd h <| ne_of_lt <| dist_V_sigma_Y_lt_1, fun h => False.elim <| absurd h <| ne_of_lt <| dist_V_Corner_lt_1 ⟩;
-          · refine' ⟨ _, _, _ ⟩;
+          · refine ⟨ ?_, ?_, ?_ ⟩;
             · intro h_dist
               have hxy_segment3 : dist (sigma V_point) Y_point < 1 := by
                 exact dist_sigma_V_Y_lt_1
@@ -4800,7 +4803,7 @@ lemma Region6_Total_blocking : IsBlocking S_finite Region6_Total := by
             · norm_num [ dist_eq_norm, EuclideanSpace.norm_eq ];
               unfold sigma V_point; norm_num [ Fin.sum_univ_succ ] ; ring_nf ;
               exact fun h => absurd h ( by nlinarith only [ Real.sqrt_nonneg 6, Real.sq_sqrt ( show 6 ≥ 0 by norm_num ), Real.sqrt_nonneg 2, Real.sq_sqrt ( show 2 ≥ 0 by norm_num ) ] );
-          · refine' ⟨ _, _, _, _ ⟩;
+          · refine ⟨ ?_, ?_, ?_, ?_ ⟩;
             · intro h;
               exact absurd h ( by rw [ dist_comm ] ; exact ne_of_lt ( dist_V_Y_lt_1 ) );
             · intro h;
@@ -4811,7 +4814,7 @@ lemma Region6_Total_blocking : IsBlocking S_finite Region6_Total := by
               exact absurd hxy_dist (by linarith [hxy_segment3]);
             · intro h; have := dist_Y_Corner_lt_1; norm_num [ dist_eq_norm, EuclideanSpace.norm_eq ] at *;
               rw [ Real.sqrt_lt' ] at this <;> norm_num [ Corner_point ] at * ; nlinarith [ this, h ];
-          · refine' ⟨ _, _, _, _ ⟩;
+          · refine ⟨ ?_, ?_, ?_, ?_ ⟩;
             · intro hxy_dist
               have hxy_segment3 : dist (sigma Y_point) V_point < 1 := by
                 convert dist_V_sigma_Y_lt_1 using 1;
@@ -4838,7 +4841,7 @@ lemma Region6_Total_blocking : IsBlocking S_finite Region6_Total := by
             intro x hx;
             rw [ convexHull_eq ] at hx;
             obtain ⟨ ι, t, w, z, hw, hw', hz, rfl ⟩ := hx;
-            refine' ⟨ fun i => ∑ j ∈ t.filter ( fun j => z j = i ), w j, _, _, _ ⟩;
+            refine ⟨ fun i => ∑ j ∈ t.filter ( fun j => z j = i ), w j, ?_, ?_, ?_ ⟩;
             · exact fun i hi => Finset.sum_nonneg fun j hj => hw j <| Finset.mem_filter.mp hj |>.1;
             · rw [ ← hw', Finset.sum_fiberwise_of_maps_to ];
               aesop;
@@ -4960,7 +4963,7 @@ lemma L2_sigma_V_neg : L2 (sigma V_point) < 0 := by
   unfold L2;
   unfold y1 sigma V_point;
   field_simp;
-  refine' mul_neg_of_pos_of_neg _ _;
+  refine mul_neg_of_pos_of_neg ?_ ?_;
   · linarith [ x1_prop.2.1 ];
   · rw [ sub_neg, div_lt_iff₀ ] <;> ring_nf <;> norm_num;
     · nlinarith [ Real.sqrt_nonneg 6, Real.sqrt_nonneg 2, Real.sq_sqrt ( show 6 ≥ 0 by norm_num ), Real.sq_sqrt ( show 2 ≥ 0 by norm_num ), mul_pos ( Real.sqrt_pos.mpr ( show 6 > 0 by norm_num ) ) ( Real.sqrt_pos.mpr ( show 2 > 0 by norm_num ) ), x1_prop ];
@@ -5417,7 +5420,7 @@ lemma I_cross_in_segment_OV : I_cross ∈ openSegment ℝ O_point V_point := by
       unfold L_OV at hL_OV_I_cross;
       use I_cross 0 / V_point 0;
       ext i; fin_cases i <;> norm_num <;> rw [ div_mul_eq_mul_div, eq_div_iff ] <;> linarith! [ V_bounds ] ;
-    refine' ⟨ k, _, _, hk ⟩;
+    refine ⟨ k, ?_, ?_, hk ⟩;
     · have hcoord0 := congrArg (fun p : Point => p 0) hk;
       have hcoord1 := congrArg (fun p : Point => p 1) hk;
       norm_num [ I_cross, s_cross ] at *;
@@ -5475,7 +5478,7 @@ lemma convexHull_sub_Region1_of_pos :
       convert hp_subst using 1 ; rw [ hαβ.2 ] ; ext ; norm_num ; ring;
     -- The coefficients of $O$, $V$, and $\sigma V$ in the expression for $p$ are non-negative and sum to 1.
     have h_coeff_nonneg : 0 ≤ a + d / (1 - s_cross) * α ∧ 0 ≤ b + d / (1 - s_cross) * β ∧ 0 ≤ c - d * (s_cross / (1 - s_cross)) ∧ (a + d / (1 - s_cross) * α) + (b + d / (1 - s_cross) * β) + (c - d * (s_cross / (1 - s_cross))) = 1 := by
-      refine' ⟨ _, _, _, _ ⟩;
+      refine ⟨ ?_, ?_, ?_, ?_ ⟩;
       · exact add_nonneg ha ( mul_nonneg ( div_nonneg hd ( sub_nonneg.mpr ( by linarith [ s_cross_bounds ] ) ) ) hα );
       · exact add_nonneg hb ( mul_nonneg ( div_nonneg hd ( sub_nonneg.mpr ( by linarith [ s_cross_bounds ] ) ) ) hβ );
       · have h_coeff_nonneg : c * w_sigmaV - d * w_X ≥ 0 := by
@@ -5489,7 +5492,7 @@ lemma convexHull_sub_Region1_of_pos :
     rw [hp_final];
     rw [Region1];
     rw [ convexHull_eq ];
-    refine' ⟨ Fin 3, { 0, 1, 2 }, fun i => if i = 0 then a + d / ( 1 - s_cross ) * α else if i = 1 then b + d / ( 1 - s_cross ) * β else c - d * ( s_cross / ( 1 - s_cross ) ), fun i => if i = 0 then O_point else if i = 1 then V_point else sigma V_point, _, _, _, _ ⟩ <;> simp +decide [ *, Fin.sum_univ_three, Finset.centerMass ];
+    refine ⟨ Fin 3, { 0, 1, 2 }, fun i => if i = 0 then a + d / ( 1 - s_cross ) * α else if i = 1 then b + d / ( 1 - s_cross ) * β else c - d * ( s_cross / ( 1 - s_cross ) ), fun i => if i = 0 then O_point else if i = 1 then V_point else sigma V_point, ?_, ?_, ?_, ?_ ⟩ <;> simp +decide [ *, Fin.sum_univ_three, Finset.centerMass ];
     · linarith;
     · norm_num [ ← add_assoc, h_coeff_nonneg.2.2.2 ];
       norm_num [ show a + d / ( 1 - s_cross ) * α + b + d / ( 1 - s_cross ) * β + ( c - d * ( s_cross / ( 1 - s_cross ) ) ) = 1 by linarith ]
@@ -5554,13 +5557,13 @@ lemma convexHull_sub_Region2_of_neg :
     -- Since the coefficients sum to 1 and are non-negative, p is a convex combination of O, V, and X.
     have h_convex_comb : ∃ a' b' c' : ℝ, 0 ≤ a' ∧ 0 ≤ b' ∧ 0 ≤ c' ∧ a' + b' + c' = 1 ∧ p = a' • O_point + b' • V_point + c' • X_point := by
       use a + c / s_cross * e, b + c / s_cross * f, d - c * (1 - s_cross) / s_cross;
-      refine' ⟨ _, _, _, _, hp_simplified ⟩ <;> try nlinarith;
+      refine ⟨ ?_, ?_, ?_, ?_, hp_simplified ⟩ <;> try nlinarith;
       rw [ ← eq_sub_iff_add_eq' ] at hef ; subst_vars ; ring_nf;
       rw [ mul_assoc, mul_inv_cancel₀ ( ne_of_gt ( show 0 < s_cross from by linarith [ s_cross_bounds ] ) ), mul_one ] ; linarith;
     obtain ⟨ a', b', c', ha', hb', hc', habcd', rfl ⟩ := h_convex_comb; exact (by
     rw [ show Region2 = convexHull ℝ { O_point, V_point, X_point } from rfl ];
     rw [ convexHull_eq ];
-    refine' ⟨ Fin 3, { 0, 1, 2 }, fun i => if i = 0 then a' else if i = 1 then b' else c', fun i => if i = 0 then O_point else if i = 1 then V_point else X_point, _, _, _, _ ⟩ <;> simp +decide [ *, Fin.sum_univ_three, Finset.centerMass ];
+    refine ⟨ Fin 3, { 0, 1, 2 }, fun i => if i = 0 then a' else if i = 1 then b' else c', fun i => if i = 0 then O_point else if i = 1 then V_point else X_point, ?_, ?_, ?_, ?_ ⟩ <;> simp +decide [ *, Fin.sum_univ_three, Finset.centerMass ];
     · linarith;
     · simp +decide [ ← add_assoc, habcd' ] at * ; aesop ( simp_config := { singlePass := true } ) ;);
 
@@ -5577,9 +5580,9 @@ lemma L2_A0_pos : L2 A_0 > 0 := by
   unfold L2 A_0;
   -- Substitute the values of y1 and x1 from their definitions.
   simp [y1, x1];
-  refine' mul_pos _ _;
-  · refine' div_pos _ _;
-    · refine' mul_pos _ _;
+  refine mul_pos ?_ ?_;
+  · refine div_pos ?_ ?_;
+    · refine mul_pos ?_ ?_;
       · exact V_bounds.2.2.1.trans_le' <| by norm_num;
       · have := Classical.choose_spec exists_root_x1;
         norm_num at * ; linarith;
@@ -5596,7 +5599,7 @@ lemma L2_O_neg : L2 O_point < 0 := by
   unfold O_point x1 y1;
   have := Classical.choose_spec exists_root_x1; ( unfold V_point; norm_num; );
   rw [ div_mul_eq_mul_div, div_pos_iff ];
-  refine' Or.inl ⟨ _, _ ⟩;
+  refine Or.inl ⟨ ?_, ?_ ⟩;
   · exact mul_pos ( mul_pos ( by nlinarith [ Real.sqrt_nonneg 6, Real.sqrt_nonneg 2, Real.sq_sqrt ( show 6 ≥ 0 by norm_num ), Real.sq_sqrt ( show 2 ≥ 0 by norm_num ) ] ) ( by unfold x1; norm_num; linarith ) ) ( by linarith );
   · unfold x1; nlinarith [ Real.sqrt_nonneg 6, Real.sqrt_nonneg 2, Real.sq_sqrt ( show 6 ≥ 0 by norm_num ), Real.sq_sqrt ( show 2 ≥ 0 by norm_num ), mul_pos ( Real.sqrt_pos.mpr ( show 6 > 0 by norm_num ) ) ( Real.sqrt_pos.mpr ( show 2 > 0 by norm_num ) ) ] ;
 
@@ -5612,8 +5615,8 @@ L3 is positive at sigma A0.
 lemma L3_sigma_A0_pos : L3 (sigma A_0) > 0 := by
   unfold L3 sigma A_0 ; norm_num;
   unfold y1 x1;
-  refine' mul_pos _ _;
-  · refine' div_pos _ _;
+  refine mul_pos ?_ ?_;
+  · refine div_pos ?_ ?_;
     · -- Since $V_point$ is in the open unit square, its coordinates are positive.
       have hV_pos : 0 < V_point 1 := by
         exact V_bounds.2.2.1.trans_le' <| by norm_num;
@@ -5717,7 +5720,7 @@ L3 is negative at V.
 lemma L3_V_neg : L3 V_point < 0 := by
   unfold L3 y1 V_point x1;
   field_simp;
-  refine' mul_neg_of_pos_of_neg _ _;
+  refine mul_neg_of_pos_of_neg ?_ ?_;
   · exact sub_pos_of_lt ( by have := Classical.choose_spec exists_root_x1; nlinarith [ Real.sqrt_nonneg 3, Real.sq_sqrt ( show 0 ≤ 3 by norm_num ) ] );
   · have := Classical.choose_spec exists_root_x1 ; norm_num;
     rw [ div_lt_iff₀ ] <;> norm_num at *;
@@ -5884,7 +5887,7 @@ lemma mu_sum_p1_coeff_eq_zero :
     any_goals constructor <;> try linarith [ y1_bounds ];
     grind +ring [ y1_bounds, V_bounds, algebraic_identity_for_p0_coeff ];
     any_goals nlinarith [ y1_bounds, V_bounds, algebraic_identity_for_p0_coeff, root1_lt_y1 ];
-    · refine' ⟨ _, _, _ ⟩ <;> try linarith [ y1_bounds, V_bounds ];
+    · refine ⟨ ?_, ?_, ?_ ⟩ <;> try linarith [ y1_bounds, V_bounds ];
       · exact ne_of_lt ( by have := root1_lt_y1; norm_num at *; linarith );
       · unfold y1 x1;
         have := Classical.choose_spec exists_root_x1;
@@ -6010,7 +6013,7 @@ lemma Region2_of_ineq (p : Point) (hp : p ∈ Region_Square) (hL2 : L2 p < 0) (h
       skip
     generalize_proofs at *; exact (by
     rcases h_convex with ⟨ a, b, c, ha, hb, hc, habc, rfl ⟩ ; rw [ convexHull_eq ] ; norm_num [ ha, hb, hc, habc ] ;
-    refine' ⟨ Fin 3, { 0, 1, 2 }, fun i => if i = 0 then a else if i = 1 then b else c, _, _, fun i => if i = 0 then O_point else if i = 1 then V_point else X_point, _, _ ⟩ <;> simp +decide [ *, Fin.sum_univ_three, Finset.centerMass ];
+    refine ⟨ Fin 3, { 0, 1, 2 }, fun i => if i = 0 then a else if i = 1 then b else c, ?_, ?_, fun i => if i = 0 then O_point else if i = 1 then V_point else X_point, ?_, ?_ ⟩ <;> simp +decide [ *, Fin.sum_univ_three, Finset.centerMass ];
     · linarith;
     · norm_num [ ← add_assoc, habc ]);
   grind
@@ -6110,7 +6113,7 @@ lemma Region1_of_ineq (p : Point) (hp : p ∈ Region_Square) (hL1 : L1 p ≤ 0) 
       use Region1_alpha p, Region1_beta p, Region1_gamma p;
       exact ⟨ Region1_alpha_nonneg p hL1, Region1_beta_nonneg p hOVsigma, Region1_gamma_nonneg p hOV, by unfold Region1_alpha; ring, Region1_decomp p ⟩;
     rcases h_convex with ⟨ a, b, c, ha, hb, hc, habc, rfl ⟩ ; rw [ convexHull_eq ] ; norm_num [ ha, hb, hc, habc ] ;
-    refine' ⟨ Fin 3, { 0, 1, 2 }, fun i => if i = 0 then a else if i = 1 then b else c, _, _, fun i => if i = 0 then O_point else if i = 1 then V_point else sigma V_point, _, _ ⟩ <;> simp +decide [ *, Finset.centerMass ];
+    refine ⟨ Fin 3, { 0, 1, 2 }, fun i => if i = 0 then a else if i = 1 then b else c, ?_, ?_, fun i => if i = 0 then O_point else if i = 1 then V_point else sigma V_point, ?_, ?_ ⟩ <;> simp +decide [ *, Finset.centerMass ];
     · linarith;
     · norm_num [ ← add_assoc, habc ];
   · assumption
@@ -6259,7 +6262,7 @@ Points satisfying the inequalities for Region6a are in Region6a.
 lemma Cover_Part4b_Region6a : ∀ p ∈ Region_Square, L2 p < 0 → L3 p < 0 → L4 p < 0 → L1 p ≥ 0 → sep p ≤ 0 → p ∈ Region6a := by
   intros p hp_mem hpL2 hpL3 hpL4 hpL1 hpsep
   have hp_coeffs : 0 ≤ lambda_V p ∧ 0 ≤ lambda_sigma_V p ∧ 0 ≤ lambda_Y p ∧ lambda_V p + lambda_sigma_V p + lambda_Y p = 1 := by
-    refine' ⟨ _, _, _, _ ⟩
+    refine ⟨ ?_, ?_, ?_, ?_ ⟩
     all_goals generalize_proofs at *;
     · exact div_nonneg_of_nonpos hpsep ( by linarith [ sep_V_neg ] );
     · exact div_nonneg_of_nonpos ( by linarith ) ( by linarith [ L2_sigma_V_neg ] );
@@ -6268,7 +6271,7 @@ lemma Cover_Part4b_Region6a : ∀ p ∈ Region_Square, L2 p < 0 → L3 p < 0 →
   rw [ show p = lambda_V p • V_point + lambda_sigma_V p • ( sigma V_point ) + lambda_Y p • Y_point from ?_ ];
   · rw [ show Region6a = convexHull ℝ { V_point, sigma V_point, Y_point } from ?_ ];
     · rw [ convexHull_eq ];
-      refine' ⟨ Fin 3, { 0, 1, 2 }, fun i => if i = 0 then lambda_V p else if i = 1 then lambda_sigma_V p else lambda_Y p, fun i => if i = 0 then V_point else if i = 1 then sigma V_point else Y_point, _, _, _, _ ⟩ <;> simp +decide [ *, Fin.sum_univ_three, Finset.centerMass ];
+      refine ⟨ Fin 3, { 0, 1, 2 }, fun i => if i = 0 then lambda_V p else if i = 1 then lambda_sigma_V p else lambda_Y p, fun i => if i = 0 then V_point else if i = 1 then sigma V_point else Y_point, ?_, ?_, ?_, ?_ ⟩ <;> simp +decide [ *, Fin.sum_univ_three, Finset.centerMass ];
       · linarith;
       · norm_num [ ← add_assoc, hp_coeffs.2.2.2 ];
     · exact rfl;
@@ -6515,7 +6518,7 @@ lemma Cover_Part4b_Region6b : ∀ p ∈ Region_Square, L2 p < 0 → L3 p < 0 →
     exact ⟨ h_mu_nonneg.1, h_mu_nonneg.2.1, h_mu_nonneg.2.2, h_mu_sum, by ext i; fin_cases i <;> tauto ⟩;
   obtain ⟨ a, b, c, ha, hb, hc, habc, rfl ⟩ := h_convex; ( rw [ show Region6b = convexHull ℝ { sigma V_point, Y_point, sigma Y_point } from rfl ] ; );
   rw [ convexHull_eq ];
-  refine' ⟨ _, { 0, 1, 2 }, fun i => if i = 0 then a else if i = 1 then b else c, fun i => if i = 0 then sigma V_point else if i = 1 then Y_point else sigma Y_point, _, _, _, _ ⟩ <;> simp +decide [ *, Finset.centerMass ];
+  refine ⟨ ?_, { 0, 1, 2 }, fun i => if i = 0 then a else if i = 1 then b else c, fun i => if i = 0 then sigma V_point else if i = 1 then Y_point else sigma Y_point, ?_, ?_, ?_, ?_ ⟩ <;> simp +decide [ *, Finset.centerMass ];
   · linarith;
   · norm_num [ ← add_assoc, habc ]
 
@@ -6577,7 +6580,7 @@ lemma Region1_inter_Region2 : Region1 ∩ Region2 = segment ℝ O_point V_point 
     exact ⟨ a, ha, b, hb, habc.1, rfl ⟩));
   · rw [ @convexHull_insert ] <;> norm_num [ convexHull_insert ];
     rcases h with ⟨ a, ha, b, hb, hab, rfl ⟩ ; simp_all +decide [ segment_eq_image ] ;
-    refine' ⟨ ⟨ 0, ⟨ by norm_num, by norm_num ⟩, b, ⟨ hb, by linarith ⟩, _ ⟩, ⟨ 0, ⟨ by norm_num, by norm_num ⟩, b, ⟨ hb, by linarith ⟩, _ ⟩ ⟩ <;> ext i <;> fin_cases i <;> norm_num [ O_point, V_point, X_point ]
+    refine ⟨ ⟨ 0, ⟨ by norm_num, by norm_num ⟩, b, ⟨ hb, by linarith ⟩, ?_ ⟩, ⟨ 0, ⟨ by norm_num, by norm_num ⟩, b, ⟨ hb, by linarith ⟩, ?_ ⟩ ⟩ <;> ext i <;> fin_cases i <;> norm_num [ O_point, V_point, X_point ]
 
 /-
 The union of Region1 and Region2 is the convex hull of {O, V, sigma V, X}.
@@ -6755,7 +6758,7 @@ lemma Region12_max_sum_implies_segment : ∀ p ∈ Region1 ∪ Region2, p 0 + p 
       nlinarith [hsum_weights, hw_sum]
     constructor <;> nlinarith [hwO, hwX, h_S_V_pos, h_S_V_gt_x1, h_eq]
   rw [ segment_eq_image ]
-  refine' ⟨ w_SV, ⟨ hwSV, by nlinarith [ hw_sum, h_weights_zero.1, h_weights_zero.2 ] ⟩, _ ⟩
+  refine ⟨ w_SV, ⟨ hwSV, by nlinarith [ hw_sum, h_weights_zero.1, h_weights_zero.2 ] ⟩, ?_ ⟩
   rw [ hp_eq, h_weights_zero.1, h_weights_zero.2 ]
   simp only [ zero_smul, zero_add, add_zero ]
   have hwV_eq : 1 - w_SV = w_V := by nlinarith [ hw_sum, h_weights_zero.1, h_weights_zero.2 ]
@@ -7070,7 +7073,7 @@ lemma Region12_blocking_thm : IsBlocking S_finite Region12 := by
 Region3 is contained in the first quadrant.
 -/
 lemma Region3_subset_FirstQuadrant : Region3 ⊆ FirstQuadrant := by
-  refine' convexHull_min _ _;
+  refine convexHull_min ?_ ?_;
   · rintro p ( rfl | rfl | rfl ) <;> unfold FirstQuadrant <;> norm_num [ O_point, sigma, V_point, X_point ];
     · constructor <;> nlinarith [ Real.sqrt_nonneg 6, Real.sqrt_nonneg 2, Real.sq_sqrt ( show 6 ≥ 0 by norm_num ), Real.sq_sqrt ( show 2 ≥ 0 by norm_num ) ];
     · linarith [ x1_prop.1 ];
@@ -7157,11 +7160,11 @@ lemma Region12_inter_L1_zero : Region12 ∩ {p | L1 p = 0} = segment ℝ V_point
   · intro p hp;
     -- Since $p$ is in the segment between $V_point$ and $sigma V_point$, it is in $Region1$.
     have hp_region1 : p ∈ Region1 := by
-      refine' convexHull_mono _ _;
-      exact { V_point, sigma V_point };
-      · norm_num [ Set.insert_subset_iff ];
-      · exact convex_convexHull ℝ _ |> fun h => h.segment_subset ( subset_convexHull ℝ _ <| Set.mem_insert _ _ ) ( subset_convexHull ℝ _ <| Set.mem_insert_of_mem _ <| Set.mem_singleton _ ) hp;
-    refine' ⟨ Or.inl hp_region1, _ ⟩;
+      rw [Region1]
+      exact (convex_convexHull ℝ {O_point, V_point, sigma V_point}).segment_subset
+        (subset_convexHull ℝ {O_point, V_point, sigma V_point} (by simp))
+        (subset_convexHull ℝ {O_point, V_point, sigma V_point} (by simp)) hp
+    refine ⟨ Or.inl hp_region1, ?_ ⟩;
     obtain ⟨ a, b, ha, hb, hab, rfl ⟩ := hp;
     unfold L1; norm_num [ ← eq_sub_iff_add_eq' ] at *; ring_nf;
     unfold V_point sigma; norm_num; ring_nf;
@@ -7172,9 +7175,8 @@ The intersection of Region3 and the line L1=0 is the singleton {sigma V}.
 -/
 lemma Region3_inter_L1_zero : Region3 ∩ {p | L1 p = 0} = {sigma V_point} := by
   apply Set.eq_singleton_iff_unique_mem.mpr;
-  refine' ⟨ ⟨ _, _ ⟩, _ ⟩;
-  · refine' subset_convexHull ℝ _ _;
-    exact Set.mem_insert_of_mem _ ( Set.mem_insert _ _ );
+  refine ⟨ ⟨ ?_, ?_ ⟩, ?_ ⟩;
+  · exact subset_convexHull ℝ {O_point, sigma V_point, sigma X_point} (by simp);
   · -- Since sigma V_point is (V_point 1, V_point 0), we can substitute these values into L1.
     simp [L1, sigma];
     ring;
@@ -7313,7 +7315,7 @@ lemma blocking_union_restricted {S : Set (Set Point)} {R1 R2 U : Set Point}
             exact h_connected.isPreconnected;
           contrapose! h_inter;
           norm_num [ IsPreconnected ];
-          refine' ⟨ Set.univ \ R2, isOpen_univ.sdiff h_closed2, Set.univ \ R1, isOpen_univ.sdiff h_closed1, _, _, _, _ ⟩ <;> simp_all +decide [ Set.subset_def ];
+          refine ⟨ Set.univ \ R2, isOpen_univ.sdiff h_closed2, Set.univ \ R1, isOpen_univ.sdiff h_closed1, ?_, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ Set.subset_def ];
           · grind +ring;
           · exact ⟨ x1, hx1.1, by aesop ⟩;
           · exact ⟨ x2, hx2.1, by aesop ⟩;
@@ -7465,8 +7467,8 @@ lemma Region2_inter_L2_zero : Region2 ∩ {p | L2 p = 0} = segment ℝ V_point X
     -- Since $a + b = 1$, the point $a • V_point + b • X_point$ is a convex combination of $V_point$ and $X_point$, which are both in the set $\{O_point, V_point, X_point\}$. Therefore, it is in the convex hull.
     have h_convex : a • V_point + b • X_point ∈ convexHull ℝ {O_point, V_point, X_point} := by
       rw [ convexHull_eq ];
-      refine' ⟨ Fin 2, { 0, 1 }, fun i => if i = 0 then a else b, fun i => if i = 0 then V_point else X_point, _, _, _, _ ⟩ <;> simp +decide [ *, Finset.centerMass ];
-    refine' ⟨ h_convex, _ ⟩;
+      refine ⟨ Fin 2, { 0, 1 }, fun i => if i = 0 then a else b, fun i => if i = 0 then V_point else X_point, ?_, ?_, ?_, ?_ ⟩ <;> simp +decide [ *, Finset.centerMass ];
+    refine ⟨ h_convex, ?_ ⟩;
     convert L2_affine V_point X_point a b hab using 1 ; norm_num [ L2_V, L2_X ]
 
 /-
@@ -7588,7 +7590,7 @@ lemma segment_XV_covered_by_S_finite : ∀ x ∈ segment ℝ X_point V_point, x 
         convert V_on_segment4 using 1;
       obtain ⟨ a, b, ha, hb, hab, rfl ⟩ := hx_openSegment;
       obtain ⟨ c, d, hc, hd, hcd, h ⟩ := hV_openSegment;
-      refine' ⟨ a + b * c, b * d, _, _, _, _ ⟩ <;> try nlinarith;
+      refine ⟨ a + b * c, b * d, ?_, ?_, ?_, ?_ ⟩ <;> try nlinarith;
       rw [ ← h ] ; ext i ; norm_num ; ring;
     exact ⟨ _, Set.mem_insert_of_mem _ ( Set.mem_insert_of_mem _ ( Set.mem_insert_of_mem _ ( Set.mem_insert _ _ ) ) ), hx_openSegment_Y ⟩
 
@@ -7699,9 +7701,9 @@ lemma Region5_inter_L3_zero : Region5 ∩ {p | L3 p = 0} = segment ℝ (sigma X_
       exact Or.resolve_right ( mul_eq_zero.mp hb_zero ) ( ne_of_gt ( L3_sigma_A0_pos ) );
     exact ⟨ a, ha, c, hc, by linarith, by simpa [ hb_zero ] ⟩;
   · rintro ⟨ a, ha, b, hb, hab, rfl ⟩;
-    refine' ⟨ _, _ ⟩;
+    refine ⟨ ?_, ?_ ⟩;
     · rw [ convexHull_eq ];
-      refine' ⟨ Fin 2, { 0, 1 }, fun i => if i = 0 then a else b, fun i => if i = 0 then sigma X_point else sigma Y_point, _, _, _, _ ⟩ <;> simp +decide [ *, Finset.centerMass ];
+      refine ⟨ Fin 2, { 0, 1 }, fun i => if i = 0 then a else b, fun i => if i = 0 then sigma X_point else sigma Y_point, ?_, ?_, ?_, ?_ ⟩ <;> simp +decide [ *, Finset.centerMass ];
     · unfold L3; norm_num [ show a = 1 - b by linarith ] ; ring_nf;
       unfold sigma; norm_num [ X_point, Y_point ] ; ring;
 
@@ -7760,7 +7762,7 @@ lemma Region12345_blocking_in_Square : ∀ L, IsUnitSegment L → L ⊆ Region_S
             exact h_connected.isPreconnected;
           contrapose! h_connected;
           norm_num [ IsPreconnected ];
-          refine' ⟨ Region1234ᶜ, _, Region5ᶜ, _, _, _, _ ⟩;
+          refine ⟨ Region1234ᶜ, ?_, Region5ᶜ, ?_, ?_, ?_, ?_ ⟩;
           · exact isOpen_compl_iff.mpr ( show IsClosed Region1234 from by exact Region1234_isClosed );
           · exact isOpen_compl_iff.mpr ( show IsClosed Region5 from by exact Region5_isClosed );
           · exact fun z hz => by specialize hL_union hz; aesop;;
@@ -8044,7 +8046,7 @@ lemma Region4_inter_L2_zero : Region4 ∩ {p | L2 p = 0} = segment ℝ X_point Y
     -- Since $p$ is in the segment $X_point Y_point$, it is also in the convex hull of $\{X_point, A_0, Y_point\}$, which is $Region4$.
     have hp_region4 : p ∈ convexHull ℝ {X_point, A_0, Y_point} := by
       exact convexHull_mono ( by aesop_cat ) ( segment_subset_convexHull ( by aesop_cat ) ( by aesop_cat ) hp );
-    refine' ⟨ hp_region4, _ ⟩;
+    refine ⟨ hp_region4, ?_ ⟩;
     rw [ segment_eq_image ] at hp;
     rcases hp with ⟨ θ, ⟨ hθ₀, hθ₁ ⟩, rfl ⟩ ; norm_num [ L2 ] ; ring_nf;
     unfold X_point Y_point; norm_num; ring;
@@ -8242,7 +8244,7 @@ lemma segment_V_Y_diff_Y_subset_segment4 : segment ℝ V_point Y_point \ {Y_poin
     convert V_on_segment4 using 1;
   obtain ⟨ a, b, ha, hb, hab, h ⟩ := hV_between_XY;
   intro x hx; obtain ⟨ u, v, hu, hv, huv, rfl ⟩ := hx.1; simp_all +decide [ ← eq_sub_iff_add_eq' ] ;
-  refine' ⟨ u * a, 1 - u * a, _, _, _ ⟩ <;> try nlinarith;
+  refine ⟨ u * a, 1 - u * a, ?_, ?_, ?_ ⟩ <;> try nlinarith;
   · cases lt_or_eq_of_le hu <;> aesop;
   · exact ⟨ by linarith, by rw [ show V_point = a • X_point + ( 1 - a ) • Y_point by ext i; have := congrArg (fun p : Point => p i) h; norm_num at *; linarith ] ; ext i; norm_num; ring ⟩
 
@@ -8476,7 +8478,7 @@ The unit square is a closed set.
 lemma UnitSquare_isClosed : IsClosed UnitSquare := by
   unfold UnitSquare
   simp +decide only [setOf_forall]
-  refine' isClosed_iInter fun i => _
+  refine isClosed_iInter fun i => ?_
   change IsClosed {p : Point | p i ∈ Set.Icc (0 : ℝ) 1}
   exact (isClosed_Icc : IsClosed (Set.Icc (0 : ℝ) 1)).preimage
     (by
@@ -8594,7 +8596,7 @@ theorem maximal_iff_blocking (S : Set (Set Point)) (R : Set Point) (hS : IsDisjo
       push Not at h_contra;
       -- Since $L$ is a unit segment in $R$ and is disjoint from all segments in $S$, the collection $S \cup \{L\}$ is a disjoint collection in $R$.
       have h_add_L : IsDisjointCollection (insert L S) := by
-        refine' ⟨ _, _ ⟩;
+        refine ⟨ ?_, ?_ ⟩;
         · exact fun s hs => hs.elim ( fun hs => hs.symm ▸ hL1 ) fun hs => hS.1 s hs;
         · rintro s t ( rfl | hs ) ( rfl | ht ) <;> simp_all +decide [ Set.disjoint_left ];
           · exact fun h x hx hx' => h_contra t ht hx' hx;
@@ -8608,7 +8610,7 @@ theorem maximal_iff_blocking (S : Set (Set Point)) (R : Set Point) (hS : IsDisjo
         exact Set.Nonempty.ne_empty ( Set.nonempty_Ioo.mpr zero_lt_one ) hy2;
       exact hL.2.2 ( Insert.insert L S ) h_add_L ( by exact fun s hs => by cases hs <;> aesop ) ( by exact fun s hs => by aesop ) |> fun h => h_add_L_subset.ne h;
     · intro h;
-      refine' ⟨ hS, hR, fun S' hS' hR' hSS' => Set.Subset.antisymm hSS' _ ⟩;
+      refine ⟨ hS, hR, fun S' hS' hR' hSS' => Set.Subset.antisymm hSS' ?_ ⟩;
       intro L hL;
       contrapose! h;
       cases hS' ; aesop
