@@ -57,7 +57,6 @@ open Finset Complex MeasureTheory
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.longLine false
-set_option linter.style.refine false
 set_option linter.style.multiGoal false
 -- The generated analytic proof blocks need a larger heartbeat budget throughout.
 set_option maxHeartbeats 10000000
@@ -292,7 +291,7 @@ lemma G_eq_P_mul_correction {n : ℕ} (z : Fin n → ℂ)
 G_gen z is a differentiable (entire) function: it's exp of a polynomial.
 -/
 lemma G_gen_differentiable {n : ℕ} (z : Fin n → ℂ) : Differentiable ℂ (G_gen z) := by
-  refine' Differentiable.cexp (Differentiable.neg _)
+  refine Differentiable.cexp (Differentiable.neg ?_)
   fun_prop
 
 /-- The Lean polynomial corresponding to P_poly. -/
@@ -311,9 +310,28 @@ P_as_poly has degree at most n.
 -/
 lemma P_as_poly_natDegree_le {n : ℕ} (z : Fin n → ℂ) :
     (P_as_poly z).natDegree ≤ n := by
-  refine' le_trans (Polynomial.natDegree_prod_le _ _) _
-  refine' le_trans (Finset.sum_le_sum fun i _ => Polynomial.natDegree_sub_le _ _) _; norm_num
-  exact le_trans (Finset.sum_le_sum fun _ _ => Polynomial.natDegree_C_mul_le _ _) (by simp +arith +decide)
+  unfold P_as_poly
+  let f : Fin n → Polynomial ℂ := fun r =>
+    Polynomial.C 1 - Polynomial.C (z r) * Polynomial.X
+  have hprod :
+      (∏ r ∈ (Finset.univ : Finset (Fin n)), f r).natDegree ≤
+        ∑ r ∈ (Finset.univ : Finset (Fin n)), (f r).natDegree :=
+    Polynomial.natDegree_prod_le (Finset.univ : Finset (Fin n)) f
+  have hfactor : ∀ r : Fin n, (f r).natDegree ≤ 1 := by
+    intro r
+    dsimp [f]
+    refine le_trans (Polynomial.natDegree_sub_le _ _) ?_
+    refine max_le ?_ ?_
+    · simp
+    · exact le_trans Polynomial.natDegree_mul_le (by simp [Polynomial.natDegree_X])
+  have hsum :
+      ∑ r ∈ (Finset.univ : Finset (Fin n)), (f r).natDegree ≤ n := by
+    calc
+      ∑ r ∈ (Finset.univ : Finset (Fin n)), (f r).natDegree
+          ≤ ∑ r ∈ (Finset.univ : Finset (Fin n)), 1 :=
+            Finset.sum_le_sum fun r _ => hfactor r
+      _ = n := by simp
+  exact le_trans (by simpa [f] using hprod) hsum
 
 /-
 Circle integral of y^(k-m-1): extracts the m-th coefficient.
@@ -408,7 +426,7 @@ lemma poly_circle_integral_sum_eq_eval_one {n : ℕ} (p : Polynomial ℂ)
   rw [ Finset.sum_congr rfl fun i hi => Finset.sum_eq_single i _ _ ] <;> norm_num
   · rw [ Polynomial.eval_eq_sum_range' ]
     any_goals exact Nat.lt_succ_of_le hp
-    rw [ ← Finset.sum_neg_distrib ]; refine' Finset.sum_congr rfl fun i hi => _; rw [ show (∮ y in C(0, 1), (y ^ (i + 1)) ⁻¹ * y ^ i) = 2 * Real.pi * Complex.I by simpa [ mul_assoc, mul_comm, mul_left_comm ] using circleIntegral_zpow_coeff i i ]; ring_nf; norm_num [ Real.pi_ne_zero ]
+    rw [ ← Finset.sum_neg_distrib ]; refine Finset.sum_congr rfl fun i hi => ?_; rw [ show (∮ y in C(0, 1), (y ^ (i + 1)) ⁻¹ * y ^ i) = 2 * Real.pi * Complex.I by simpa [ mul_assoc, mul_comm, mul_left_comm ] using circleIntegral_zpow_coeff i i ]; ring_nf; norm_num [ Real.pi_ne_zero ]
   · intro i hi j hj hij; have := circleIntegral_zpow_coeff i j; simp_all +decide [ mul_comm ]
     tauto
   · intros; linarith
@@ -442,13 +460,15 @@ lemma correction_g_analyticAt {n : ℕ} (z : Fin n → ℂ) (hz : ∀ i, ‖z i�
   -- Show that each inner sum is analytic.
   have h_inner_analytic (r :
       Fin n) : AnalyticAt ℂ (fun y : ℂ => ∑' j, z r ^ (j + n + 1) / (j + n + 1) * y ^ j) 0 := by
-    refine' HasFPowerSeriesAt.analyticAt _
-    exact (FormalMultilinearSeries.ofScalars ℂ fun j => (z r ^ (j + n + 1) / (j + n + 1)))
+    refine (show HasFPowerSeriesAt
+      (fun y : ℂ => ∑' j, z r ^ (j + n + 1) / (j + n + 1) * y ^ j)
+      (FormalMultilinearSeries.ofScalars ℂ fun j => (z r ^ (j + n + 1) / (j + n + 1)))
+      0 from ?_).analyticAt
     rw [ hasFPowerSeriesAt_iff ]
     filter_upwards [ Metric.ball_mem_nhds _ zero_lt_one ] with x hx
     simp +decide [ mul_comm ]
-    refine' Summable.hasSum _
-    refine' .of_norm _
+    refine Summable.hasSum ?_
+    refine .of_norm ?_
     norm_num at *
     exact Summable.of_nonneg_of_le (fun _ => by positivity) (fun _ => mul_le_of_le_one_right (by positivity) <| div_le_one_of_le₀ (by exact le_trans (pow_le_one₀ (by positivity) <| hz _) <| mod_cast by linarith) <| by positivity) <| summable_geometric_of_lt_one (by positivity) hx
   simp +zetaDelta at *
@@ -462,7 +482,7 @@ lemma exp_pow_mul_sub_one_factors {n : ℕ} {g : ℂ → ℂ} (hg : AnalyticAt �
     (∀ᶠ y in nhds (0 : ℂ), Complex.exp (y ^ (n + 1) * g y) - 1 = y ^ (n + 1) * F y) := by
   -- Let $\psi(t) = \frac{\exp(t) - 1}{t}$ for $t \neq 0$ and $\psi(0) = 1$.
   set ψ : ℂ → ℂ := fun t => if t = 0 then 1 else (Complex.exp t - 1) / t
-  refine' ⟨fun y => ψ (y ^ (n + 1) * g y) * g y, _, _⟩
+  refine ⟨fun y => ψ (y ^ (n + 1) * g y) * g y, ?_, ?_⟩
   · -- We need to show that $\psi$ is analytic at $0$.
     have h_psi_analytic : AnalyticAt ℂ ψ 0 := by
       -- We'll use the fact that ψ(t) is the sum of a power series converging everywhere.
@@ -473,14 +493,15 @@ lemma exp_pow_mul_sub_one_factors {n : ℕ} {g : ℂ → ℂ} (hg : AnalyticAt �
         · rw [ Summable.tsum_eq_zero_add ]
           · simp +decide [ht, pow_succ', div_eq_mul_inv, mul_assoc, mul_comm, tsum_mul_left]
           · exact Summable.of_norm <| by simpa using Real.summable_pow_div_factorial (Complex.normSq t |> Real.sqrt)
-      refine' (HasFPowerSeriesAt.analyticAt _)
-      exact (FormalMultilinearSeries.ofScalars ℂ fun k => ((k + 1).factorial : ℂ) ⁻¹)
+      refine (show HasFPowerSeriesAt ψ
+        (FormalMultilinearSeries.ofScalars ℂ fun k => ((k + 1).factorial : ℂ) ⁻¹)
+        0 from ?_).analyticAt
       rw [ hasFPowerSeriesAt_iff ]
       filter_upwards [ Metric.ball_mem_nhds _ zero_lt_one ] with t ht
       convert Summable.hasSum _ using 1
       · aesop
       · exact Summable.of_norm <| by simpa [ inv_mul_eq_div ] using Summable.of_nonneg_of_le (fun n => by positivity) (fun n => by simpa [ inv_mul_eq_div ] using div_le_self (by positivity) <| mod_cast Nat.factorial_pos _) <| summable_geometric_of_lt_one (by positivity) <| show ‖t‖ < 1 from by simpa using ht
-    refine' ContDiffAt.mul _ _
+    refine ContDiffAt.mul ?_ ?_
     · have h_cont_diff : ContDiffAt ℂ (↑n) (fun y => ψ y) (0 ^ (n + 1) * g 0) := by
         simpa using h_psi_analytic.contDiffAt
       exact h_cont_diff.comp 0 (ContDiffAt.mul (contDiffAt_id.pow _) (hg.contDiffAt))
@@ -528,7 +549,7 @@ lemma G_iteratedDeriv_eq_P {n : ℕ} (z : Fin n → ℂ)
     constructor
     · norm_num [ P_poly_eq_eval ]
       exact ContDiffAt.congr_of_eventuallyEq (show ContDiffAt ℂ n (fun y => ∑ i ∈ Finset.range (Polynomial.natDegree (P_as_poly z) + 1), Polynomial.coeff (P_as_poly z) i * y ^ i) 0 from ContDiffAt.sum fun i hi => ContDiffAt.mul (contDiffAt_const) (contDiffAt_id.pow i)) (Filter.eventuallyEq_of_mem (Metric.ball_mem_nhds _ zero_lt_one) fun x hx => by simp +decide [ Polynomial.eval_eq_sum_range ])
-    · refine' ContDiffAt.cexp _
+    · refine ContDiffAt.cexp ?_
       -- The sum of analytic functions is analytic.
       have h_analytic : ∀ r : Fin n, AnalyticAt ℂ (fun y => ∑' j : ℕ, (z r * y) ^ (j + n + 1) / (↑(j + n + 1) : ℂ)) 0 := by
         intro r
@@ -542,14 +563,14 @@ lemma G_iteratedDeriv_eq_P {n : ℕ} (z : Fin n → ℂ)
               · bv_omega
             · rw [ ← summable_nat_add_iff (n + 1) ]
               simp +decide []
-              refine' Summable.of_norm _
-              refine' Summable.of_nonneg_of_le (fun a => norm_nonneg _) (fun a => _) (summable_nat_add_iff (n + 1) |>.2 <| summable_geometric_of_lt_one (by positivity) <| show ‖y‖ < 1 from by simpa using hy)
+              refine Summable.of_norm ?_
+              refine Summable.of_nonneg_of_le (fun a => by positivity) (fun a => ?_) (summable_nat_add_iff (n + 1) |>.2 <| summable_geometric_of_lt_one (by positivity) <| show ‖y‖ < 1 from by simpa using hy)
               split_ifs <;> norm_num
               exact mul_le_of_le_one_right (by positivity) (div_le_one_of_le₀ (le_trans (pow_le_one₀ (by positivity) (hz r)) (by norm_cast; linarith)) (by positivity))
           · rw [ ← summable_nat_add_iff (n + 1) ]
             simp +decide []
-            refine' Summable.of_norm _
-            refine' Summable.of_nonneg_of_le (fun a => by positivity) (fun a => _) (summable_nat_add_iff (n + 1) |>.2 <| summable_geometric_of_lt_one (by positivity) <| show ‖y‖ < 1 from by simpa using hy)
+            refine Summable.of_norm ?_
+            refine Summable.of_nonneg_of_le (fun a => by positivity) (fun a => ?_) (summable_nat_add_iff (n + 1) |>.2 <| summable_geometric_of_lt_one (by positivity) <| show ‖y‖ < 1 from by simpa using hy)
             split_ifs <;> norm_num
             exact mul_le_of_le_one_right (by positivity) (div_le_one_of_le₀ (le_trans (pow_le_one₀ (by positivity) (hz r)) (by norm_cast; linarith)) (by positivity))
         exact h_exp_analytic.analyticAt
@@ -734,8 +755,8 @@ lemma ibp_fourier_mode {n : ℕ} (z : Fin n → ℂ) (m : ℕ) (_hm : 0 < m) :
       · exact Complex.continuous_exp.comp <| by unfold g_fun; continuity
       · continuity
     · apply_rules [ Continuous.intervalIntegrable ]
-      refine' Continuous.mul _ _
-      · refine' Complex.continuous_exp.comp _
+      refine Continuous.mul ?_ ?_
+      · refine Complex.continuous_exp.comp ?_
         exact continuous_neg.comp <| continuous_finset_sum _ fun _ _ => Continuous.mul (continuous_const) <| Complex.continuous_exp.comp <| by continuity
       · fun_prop
   -- Since $u$ is $2\pi$-periodic, we have $u(\pi) = u(-\pi)$.
@@ -791,12 +812,12 @@ lemma interval_integral_eq_circle {n : ℕ} (z : Fin n → ℂ) (m : ℕ) :
   have h_periodic : ∫ θ in (0 : ℝ)..2 * Real.pi, Complex.exp (g_fun z θ) * Complex.exp (-(m : ℂ) * θ * I) = ∫ θ in (-Real.pi)..Real.pi, Complex.exp (g_fun z θ) * Complex.exp (-(m : ℂ) * θ * I) := by
     have h_periodic : ∫ θ in (0 : ℝ)..2 * Real.pi, Complex.exp (g_fun z θ) * Complex.exp (-(m : ℂ) * θ * I) = (∫ θ in (0 : ℝ)..Real.pi, Complex.exp (g_fun z θ) * Complex.exp (-(m : ℂ) * θ * I)) + (∫ θ in (Real.pi)..2 * Real.pi, Complex.exp (g_fun z θ) * Complex.exp (-(m : ℂ) * θ * I)) := by
       rw [ intervalIntegral.integral_add_adjacent_intervals ] <;> apply_rules [ Continuous.intervalIntegrable ]
-      · refine' Continuous.mul _ _
-        · refine' Complex.continuous_exp.comp _
+      · refine Continuous.mul ?_ ?_
+        · refine Complex.continuous_exp.comp ?_
           exact continuous_neg.comp <| continuous_finset_sum _ fun _ _ => Continuous.mul (continuous_const) <| Complex.continuous_exp.comp <| by continuity
         · continuity
-      · refine' Continuous.mul _ _
-        · refine' Complex.continuous_exp.comp _
+      · refine Continuous.mul ?_ ?_
+        · refine Complex.continuous_exp.comp ?_
           exact continuous_neg.comp <| continuous_finset_sum _ fun _ _ => Continuous.mul (continuous_const) <| Complex.continuous_exp.comp <| by continuity
         · continuity
     -- Using the periodicity of the integrand, we can shift the interval of integration from $[\pi, 2\pi]$ to $[-\pi, 0]$.
@@ -804,21 +825,21 @@ lemma interval_integral_eq_circle {n : ℕ} (z : Fin n → ℂ) (m : ℕ) :
       convert intervalIntegral.integral_comp_sub_right _ (2 * Real.pi) using 2 <;> norm_num; ring
     -- Using the periodicity of the integrand, we can simplify the expression.
     have h_simplify : ∫ θ in (-Real.pi)..0, Complex.exp (g_fun z (θ + 2 * Real.pi)) * Complex.exp (-(m : ℂ) * (θ + 2 * Real.pi) * I) = ∫ θ in (-Real.pi)..0, Complex.exp (g_fun z θ) * Complex.exp (-(m : ℂ) * θ * I) := by
-      refine' intervalIntegral.integral_congr fun x hx => _
+      refine intervalIntegral.integral_congr fun x hx => ?_
       rw [ show g_fun z (x + 2 * Real.pi) = g_fun z x from _ ]
       · exact congrArg _ (Complex.exp_eq_exp_iff_exists_int.mpr ⟨-m, by push_cast; ring⟩)
       · exact g_fun_periodic z x
     rw [ h_periodic, h_shift, h_simplify ]
     rw [add_comm,
         intervalIntegral.integral_add_adjacent_intervals] <;> apply_rules [ Continuous.intervalIntegrable ]
-    · refine' Continuous.mul _ _
-      · refine' Complex.continuous_exp.comp _
-        refine' continuous_neg.comp _
+    · refine Continuous.mul ?_ ?_
+      · refine Complex.continuous_exp.comp ?_
+        refine continuous_neg.comp ?_
         fun_prop
       · fun_prop
-    · refine' Continuous.mul _ _
-      · refine' Complex.continuous_exp.comp _
-        refine' continuous_neg.comp _
+    · refine Continuous.mul ?_ ?_
+      · refine Complex.continuous_exp.comp ?_
+        refine continuous_neg.comp ?_
         fun_prop
       · fun_prop
   rw [ ← h_periodic, h_circle ]
@@ -913,7 +934,7 @@ lemma circleIntegral_G_minus_P_eq_zero {n : ℕ} (z : Fin n → ℂ)
         intro f hf y hy; have := @Complex.circleIntegral_sub_inv_smul_of_differentiable_on_off_countable
         simpa using @this ℂ _ _ _ 1 0 y f ∅ (by norm_num) (by simpa using hy) (hf.continuous.continuousOn) (by simpa using fun x hx => hf.differentiableAt)
       apply h_cauchy
-      · refine' Differentiable.sub _ _
+      · refine Differentiable.sub ?_ ?_
         · grind +suggestions
         · unfold P_poly
           fun_prop
@@ -926,13 +947,13 @@ lemma circleIntegral_G_minus_P_eq_zero {n : ℕ} (z : Fin n → ℂ)
     have h_coeff : iteratedDeriv m (fun y => G_gen z y - P_poly z y) 0 = iteratedDeriv m (G_gen z) 0 - iteratedDeriv m (P_poly z) 0 := by
       apply_rules [ iteratedDeriv_sub ]
       · exact Differentiable.contDiff (G_gen_differentiable z) |> ContDiff.contDiffAt
-      · refine' ContDiffAt.congr_of_eventuallyEq _ _
-        exact fun y => ∏ r : Fin n, (1 - z r * y)
+      · refine ContDiffAt.congr_of_eventuallyEq
+          (f := fun y => ∏ r : Fin n, (1 - z r * y)) ?_ ?_
         · fun_prop (disch := norm_num)
         · exact Filter.Eventually.of_forall fun y => rfl
     rw [ h_coeff, G_P_iteratedDeriv_eq z hz m hm, sub_self ]
   contrapose! h_coeff
-  refine' ⟨m, hm, _⟩
+  refine ⟨m, hm, ?_⟩
   have h_integral_eq : ∀ y : ℂ, ‖y‖ < 1 → (G_gen z y - P_poly z y) = ∑' k : ℕ, (∮ w in C(0, 1), (w ^ (k + 1))⁻¹ • (G_gen z w - P_poly z w)) / (2 * Real.pi * I) * y ^ k := by
     intro y hy
     have h_integral_eq : (∮ w in C(0, 1), (w - y)⁻¹ • (G_gen z w - P_poly z w)) = ∑' k : ℕ, (∮ w in C(0, 1), (w ^ (k + 1))⁻¹ • (G_gen z w - P_poly z w)) * y ^ k := by
@@ -981,56 +1002,59 @@ lemma circleIntegral_G_minus_P_eq_zero {n : ℕ} (z : Fin n → ℂ)
                             P_poly z (circleMap 0 1 θ)) *
                           (circleMap 0 1 θ ^ (i + 1))⁻¹)))
         · intro i hi; apply_rules [ ContinuousOn.intervalIntegrable ]; norm_num [ circleMap ]
-          refine' ContinuousOn.mul continuousOn_const _
-          refine' ContinuousOn.mul continuousOn_const _
-          refine' ContinuousOn.mul _ _
+          refine ContinuousOn.mul continuousOn_const ?_
+          refine ContinuousOn.mul continuousOn_const ?_
+          refine ContinuousOn.mul ?_ ?_
           · exact Continuous.continuousOn (by continuity)
-          · refine' ContinuousOn.mul _ _
-            · refine' ContinuousOn.sub _ _
+          · refine ContinuousOn.mul ?_ ?_
+            · refine ContinuousOn.sub ?_ ?_
               · exact Continuous.continuousOn (by exact Complex.continuous_exp.comp <| by continuity)
               · exact Continuous.continuousOn (by exact continuous_finset_prod _ fun _ _ => continuous_const.sub (continuous_const.mul (Complex.continuous_exp.comp (by continuity))))
             · exact ContinuousOn.inv₀ (Continuous.continuousOn (by continuity)) fun x hx => pow_ne_zero _ (Complex.exp_ne_zero _)
       have h_integral_eq : Filter.Tendsto (fun N : ℕ => (∮ w in C(0, 1), (∑ k ∈ Finset.range N, (w ^ (k + 1))⁻¹ * y ^ k) • (G_gen z w - P_poly z w))) Filter.atTop (nhds (∮ w in C(0, 1), (w - y)⁻¹ • (G_gen z w - P_poly z w))) := by
-        refine' intervalIntegral.tendsto_integral_filter_of_dominated_convergence _ _ _ _ _
+        refine intervalIntegral.tendsto_integral_filter_of_dominated_convergence ?_ ?_ ?_ ?_ ?_
         use fun x => ‖deriv (circleMap 0 1) x‖ * (∑' k : ℕ, ‖y‖ ^ k) * ‖G_gen z (circleMap 0 1 x) - P_poly z (circleMap 0 1 x)‖
-        · refine' Filter.Eventually.of_forall fun N => Continuous.aestronglyMeasurable _
-          refine' Continuous.smul _ _
+        · refine Filter.Eventually.of_forall fun N => Continuous.aestronglyMeasurable ?_
+          refine Continuous.smul ?_ ?_
           · unfold deriv; norm_num [ fderiv_apply_one_eq_deriv ]; continuity
-          · refine' Continuous.smul _ _
+          · refine Continuous.smul ?_ ?_
             · exact continuous_finset_sum _ fun _ _ => Continuous.mul (Continuous.inv₀ (by continuity) fun x => by norm_num [ Complex.exp_ne_zero ]) (continuous_const.pow _)
-            · refine' Continuous.sub _ _
+            · refine Continuous.sub ?_ ?_
               · exact Complex.continuous_exp.comp <| Continuous.neg <| continuous_finset_sum _ fun _ _ => Continuous.mul (continuous_const) <| Continuous.pow (continuous_circleMap _ _) _
               · exact continuous_finset_prod _ fun _ _ => continuous_const.sub (continuous_const.mul (by continuity))
         · simp +zetaDelta at *
-          refine' ⟨0, fun N hN => Filter.Eventually.of_forall fun x hx => mul_le_mul_of_nonneg_right _ (norm_nonneg _)⟩
-          refine' le_trans (norm_sum_le _ _) _
+          refine ⟨0, fun N hN => Filter.Eventually.of_forall fun x hx => mul_le_mul_of_nonneg_right ?_ (by positivity)⟩
+          refine le_trans
+            (norm_sum_le (Finset.range N)
+              (fun k => (circleMap 0 1 x ^ (k + 1))⁻¹ * y ^ k)) ?_
           norm_num [ circleMap ]
           exact Summable.sum_le_tsum (Finset.range N) (fun _ _ => by positivity) (summable_geometric_of_lt_one (by positivity) hy)
         · apply_rules [ ContinuousOn.intervalIntegrable ]
-          refine' ContinuousOn.mul _ _
+          refine ContinuousOn.mul ?_ ?_
           · norm_num [ circleMap ]
             exact continuousOn_const
-          · refine' ContinuousOn.norm _
-            refine' ContinuousOn.sub _ _
+          · refine ContinuousOn.norm ?_
+            refine ContinuousOn.sub ?_ ?_
             · exact Continuous.continuousOn (by exact Complex.continuous_exp.comp <| by continuity)
             · exact Continuous.continuousOn (by exact continuous_finset_prod _ fun _ _ => continuous_const.sub (continuous_const.mul (by continuity)))
-        · refine' Filter.Eventually.of_forall fun x hx => _
-          refine' Filter.Tendsto.smul tendsto_const_nhds _
-          refine' Filter.Tendsto.smul _ tendsto_const_nhds
+        · refine Filter.Eventually.of_forall fun x hx => ?_
+          refine Filter.Tendsto.smul tendsto_const_nhds ?_
+          refine Filter.Tendsto.smul ?_ tendsto_const_nhds
           convert Summable.hasSum _ |> HasSum.tendsto_sum_nat using 1
           rw [‹∀ w : ℂ, ‖w‖ = 1 → (w - y) ⁻¹ = ∑' k : ℕ,
               (w ^ (k + 1)) ⁻¹ * y ^ k› (circleMap 0 1 x) (by norm_num [ Complex.norm_exp ])]
           exact Summable.of_norm <| by simpa [ Complex.norm_exp ] using summable_geometric_of_lt_one (by positivity) hy
-      refine' tendsto_nhds_unique h_integral_eq _
+      refine tendsto_nhds_unique h_integral_eq ?_
       rw [ Filter.tendsto_congr ‹_› ]
-      refine' (Summable.hasSum _) |> HasSum.tendsto_sum_nat
+      refine (Summable.hasSum ?_) |> HasSum.tendsto_sum_nat
       have h_integral_eq :
           ∃ C : ℝ, ∀ k : ℕ, ‖(∮ w in C(0, 1), (w ^ (k + 1))⁻¹ • (G_gen z w - P_poly z w))‖ ≤ C := by
         use (2 * Real.pi) * (SupSet.sSup (Set.image (fun w : ℂ => ‖G_gen z w - P_poly z w‖) (Metric.sphere 0 1)))
         intro k
-        refine' le_trans (circleIntegral.norm_integral_le_of_norm_le_const _ _) _
-        exact sSup (Set.image (fun w => ‖G_gen z w - P_poly z w‖) (Metric.sphere 0 1))
-        · norm_num
+        refine le_trans
+          (circleIntegral.norm_integral_le_of_norm_le_const
+            (C := sSup (Set.image (fun w => ‖G_gen z w - P_poly z w‖)
+              (Metric.sphere 0 1))) (by norm_num) ?_) ?_
         · simp +zetaDelta at *
           exact fun w hw => by rw [hw, one_pow, inv_one,
                                    one_mul]; exact le_csSup (by exact (IsCompact.bddAbove (isCompact_sphere 0 1 |> IsCompact.image <| continuous_norm.comp <| by exact Continuous.sub (show Continuous fun w => G_gen z w from by exact Complex.continuous_exp.comp <| by continuity) <| show Continuous fun w => P_poly z w from by exact continuous_finset_prod _ fun _ _ => continuous_const.sub <| continuous_const.mul continuous_id'))) <| Set.mem_image_of_mem _ <| by simp [ hw ]
@@ -1054,15 +1078,16 @@ lemma circleIntegral_G_minus_P_eq_zero {n : ℕ} (z : Fin n → ℂ)
     rw [ hasFPowerSeriesAt_iff ]
     filter_upwards [ Metric.ball_mem_nhds _ zero_lt_one ] with y hy
     simp_all +decide [ div_eq_inv_mul, mul_assoc, mul_comm, mul_left_comm ]
-    refine' Summable.hasSum _
-    refine' Summable.of_norm _
+    refine Summable.hasSum ?_
+    refine Summable.of_norm ?_
     have h_integral_bound :
         ∃ C : ℝ, ∀ k : ℕ, ‖∮ w in C(0, 1), (G_gen z w - P_poly z w) * (w ^ (k + 1))⁻¹‖ ≤ C := by
       use (2 * Real.pi) * (SupSet.sSup (Set.image (fun w : ℂ => ‖G_gen z w - P_poly z w‖) (Metric.sphere 0 1)))
       intro k
-      refine' le_trans (circleIntegral.norm_integral_le_of_norm_le_const _ _) _
-      exact sSup (Set.image (fun w => ‖G_gen z w - P_poly z w‖) (Metric.sphere 0 1))
-      · norm_num
+      refine le_trans
+        (circleIntegral.norm_integral_le_of_norm_le_const
+          (C := sSup (Set.image (fun w => ‖G_gen z w - P_poly z w‖)
+            (Metric.sphere 0 1))) (by norm_num) ?_) ?_
       · simp +zetaDelta at *
         exact fun w hw => by rw [hw, one_pow, inv_one,
                                  mul_one]; exact le_csSup (by exact (IsCompact.bddAbove (isCompact_sphere 0 1 |> IsCompact.image <| continuous_norm.comp <| by exact Continuous.sub (show Continuous fun w => G_gen z w from by exact Complex.continuous_exp.comp <| by continuity) <| show Continuous fun w => P_poly z w from by exact continuous_finset_prod _ fun _ _ => continuous_const.sub <| continuous_const.mul continuous_id'))) <| Set.mem_image_of_mem _ <| by simp [ hw ]
@@ -1092,7 +1117,7 @@ lemma cauchy_poly_recovery {n : ℕ} (z : Fin n → ℂ) (y : ℂ) :
         simp +decide [ circleIntegral ]
         rw [ intervalIntegral.integral_congr fun x hx => by rw [ Finset.mul_sum _ _ _ ] ]
         rw [ intervalIntegral.integral_finset_sum ]
-        · refine' Finset.sum_subset _ _ <;> intro i hi <;> simp_all +decide [ Polynomial.coeff_eq_zero_of_natDegree_lt ]
+        · refine Finset.sum_subset ?_ ?_ <;> intro i hi <;> simp_all +decide [ Polynomial.coeff_eq_zero_of_natDegree_lt ]
           exact le_trans hi (Polynomial.natDegree_le_of_degree_le hp)
         · intro i hi; apply_rules [ ContinuousOn.intervalIntegrable ]; norm_num [ circleMap ]
           have h_exp : Continuous fun x : ℝ => Complex.exp ((x : ℂ) * I) := by
@@ -1131,15 +1156,13 @@ lemma cauchy_poly_recovery {n : ℕ} (z : Fin n → ℂ) (y : ℂ) :
           exact Eq.symm (div_eq_zero_iff.mpr <| Or.inl <| sub_eq_zero.mpr <| Complex.exp_eq_one_iff.mpr ⟨k - m, by push_cast; ring⟩)
       simp_all +decide [ mul_comm ]
     rw [ Polynomial.eval_eq_sum_range' ]
-    refine' Finset.sum_congr rfl fun m hm => _
+    refine Finset.sum_congr rfl fun m hm => ?_
     · rw [ h_poly_eval m hm ]; norm_num [ mul_assoc, mul_comm, mul_left_comm, Real.pi_ne_zero ]
       ring_nf; norm_num
     · exact Nat.lt_succ_of_le (Polynomial.natDegree_le_of_degree_le hp)
-  convert h_poly (∏ r : Fin n, (1 - Polynomial.C (z r) * Polynomial.X)) _ using 1 <;> norm_num [ Polynomial.degree_prod ]
-  · unfold P_poly; norm_num [ Polynomial.eval_prod ]
-  · simp +decide [ P_poly, Polynomial.eval_prod ]
-  · refine' le_trans (Finset.sum_le_sum fun _ _ => Polynomial.degree_sub_le _ _) _; norm_num
-    exact le_trans (Finset.sum_le_sum fun _ _ => show Max.max 0 _ ≤ 1 by by_cases h : z ‹_› = 0 <;> simp +decide [ h ]) (by norm_num)
+  have hdeg : (P_as_poly z).degree ≤ n := by
+    exact le_trans Polynomial.degree_le_natDegree (by exact_mod_cast P_as_poly_natDegree_le z)
+  simpa [P_poly_eq_eval] using h_poly (P_as_poly z) hdeg
 
 /-
 The Taylor sum of G through degree n equals P (Newton's identity):
@@ -1153,20 +1176,20 @@ lemma G_taylor_partial_eq_P {n : ℕ} (hn : 0 < n) (z : Fin n → ℂ)
       y ^ m * ((2 * ↑Real.pi * I)⁻¹ • ∮ w in C(0, 1), (w ^ (m + 1))⁻¹ • G_gen z w) =
     P_poly z y := by
   convert cauchy_poly_recovery z y using 1
-  refine' Finset.sum_congr rfl fun m hm => _
+  refine Finset.sum_congr rfl fun m hm => ?_
   have h_split : (∮ w in C(0, 1), (w ^ (m + 1))⁻¹ • (G_gen z w - P_poly z w)) = 0 := by
     convert circleIntegral_G_minus_P_eq_zero z hz m (Finset.mem_range_succ_iff.mp hm) using 1
   simp_all +decide [ circleIntegral, mul_sub ]
   rw [ intervalIntegral.integral_sub ] at h_split
   · exact Or.inl <| eq_of_sub_eq_zero h_split
   · apply_rules [ ContinuousOn.intervalIntegrable ]
-    refine' ContinuousOn.mul _ _
+    refine ContinuousOn.mul ?_ ?_
     · exact Continuous.continuousOn (by continuity)
-    · refine' ContinuousOn.mul _ _
+    · refine ContinuousOn.mul ?_ ?_
       · exact ContinuousOn.inv₀ (Continuous.continuousOn (by continuity)) fun x hx => pow_ne_zero _ (ne_of_apply_ne Complex.normSq <| by norm_num [ Complex.normSq_eq_norm_sq, circleMap ])
       · exact Continuous.continuousOn (by exact Complex.continuous_exp.comp <| by continuity)
   · apply_rules [ ContinuousOn.intervalIntegrable ]
-    refine' ContinuousOn.mul (Continuous.continuousOn (by continuity)) (ContinuousOn.mul (ContinuousOn.inv₀ (Continuous.continuousOn (by continuity)) fun x hx => _) (Continuous.continuousOn (by continuity)))
+    refine ContinuousOn.mul (Continuous.continuousOn (by continuity)) (ContinuousOn.mul (ContinuousOn.inv₀ (Continuous.continuousOn (by continuity)) fun x hx => ?_) (Continuous.continuousOn (by continuity)))
     norm_num [ circleMap ]
 
 /-
@@ -1188,10 +1211,12 @@ lemma G_taylor_tail_eq {n : ℕ} (hn : 0 < n) (z : Fin n → ℂ)
       have h_circle_integral_bound : ∀ w ∈ Metric.sphere 0 1, ‖(w ^ (m + 1))⁻¹ • G_gen z w‖ ≤ sSup (Set.image (fun w => ‖G_gen z w‖) (Metric.sphere 0 1)) := by
         intro w hw; rw [ norm_smul ]; norm_num [ hw ]
         exact le_trans (by aesop) (le_csSup (by exact (IsCompact.bddAbove (isCompact_sphere 0 1 |> IsCompact.image <| continuous_norm.comp <| show Continuous fun w => G_gen z w from by exact Complex.continuous_exp.comp <| by continuity))) <| Set.mem_image_of_mem _ hw)
-      refine' le_trans (circleIntegral.norm_integral_le_of_norm_le_const _ _) _
-      exacts [sSup ((fun w => ‖G_gen z w‖) '' Metric.sphere 0 1), by norm_num,
-              h_circle_integral_bound, by norm_num]
-    refine' .of_norm _
+      refine le_trans
+        (circleIntegral.norm_integral_le_of_norm_le_const
+          (C := sSup ((fun w => ‖G_gen z w‖) '' Metric.sphere 0 1))
+          (by norm_num) h_circle_integral_bound) ?_
+      norm_num
+    refine .of_norm ?_
     norm_num +zetaDelta at *
     exact Summable.of_nonneg_of_le (fun m => mul_nonneg (pow_nonneg (abs_nonneg r) m) (norm_nonneg _)) (fun m => mul_le_mul_of_nonneg_left (h_circle_integral_bound m) (pow_nonneg (abs_nonneg r) m)) (Summable.mul_right _ <| summable_geometric_of_lt_one (abs_nonneg r) <| by rwa [ abs_of_pos hr ])
   have h_series_conv : ∑' m : ℕ, (r : ℂ) ^ m * (∮ w in C(0, 1), (w ^ (m + 1))⁻¹ • G_gen z w) = 2 * Real.pi * I * G_gen z r := by
@@ -1226,31 +1251,33 @@ lemma G_taylor_tail_eq {n : ℕ} (hn : 0 < n) (z : Fin n → ℂ)
                 refine intervalIntegral.integral_congr fun θ hθ => ?_
                 ring
         · intro i hi; apply_rules [ ContinuousOn.intervalIntegrable ]
-          refine' ContinuousOn.mul continuousOn_const _
-          refine' ContinuousOn.mul continuousOn_const _
-          refine' ContinuousOn.mul (Continuous.continuousOn (by continuity)) (ContinuousOn.mul (Continuous.continuousOn (by exact G_gen_differentiable z |> Differentiable.continuous |> Continuous.comp <| by continuity)) (ContinuousOn.inv₀ (Continuous.continuousOn (by continuity)) fun x hx => by norm_num [ Complex.exp_ne_zero ]))
+          refine ContinuousOn.mul continuousOn_const ?_
+          refine ContinuousOn.mul continuousOn_const ?_
+          refine ContinuousOn.mul (Continuous.continuousOn (by continuity)) (ContinuousOn.mul (Continuous.continuousOn (by exact G_gen_differentiable z |> Differentiable.continuous |> Continuous.comp <| by continuity)) (ContinuousOn.inv₀ (Continuous.continuousOn (by continuity)) fun x hx => by norm_num [ Complex.exp_ne_zero ]))
       have h_series_conv : Filter.Tendsto (fun N : ℕ => ∮ w in C(0, 1), (∑ m ∈ Finset.range N, (r : ℂ) ^ m * (w ^ (m + 1))⁻¹) • G_gen z w) Filter.atTop (nhds (∮ w in C(0, 1), (∑' m : ℕ, (r : ℂ) ^ m * (w ^ (m + 1))⁻¹) • G_gen z w)) := by
-        refine' intervalIntegral.tendsto_integral_filter_of_dominated_convergence _ _ _ _ _
+        refine intervalIntegral.tendsto_integral_filter_of_dominated_convergence ?_ ?_ ?_ ?_ ?_
         use fun x => ‖deriv (circleMap 0 1) x‖ * (∑' m : ℕ, r ^ m) * ‖G_gen z (circleMap 0 1 x)‖
-        · refine' Filter.Eventually.of_forall fun N => Continuous.aestronglyMeasurable _
-          refine' Continuous.smul _ _
+        · refine Filter.Eventually.of_forall fun N => Continuous.aestronglyMeasurable ?_
+          refine Continuous.smul ?_ ?_
           · exact by rw [ show deriv (circleMap 0 1) = fun x => I * circleMap 0 1 x from funext fun x => by simp +decide [ circleMap, mul_comm ] ]; continuity
-          · refine' Continuous.smul _ _
+          · refine Continuous.smul ?_ ?_
             · exact continuous_finset_sum _ fun _ _ => Continuous.mul (continuous_const) (Continuous.inv₀ (by continuity) fun x => by norm_num [ Complex.exp_ne_zero ])
             · exact Complex.continuous_exp.comp <| Continuous.neg <| continuous_finset_sum _ fun _ _ => Continuous.mul (continuous_const) <| Continuous.pow (by continuity) _
         · simp +decide [ mul_assoc ]
-          refine' ⟨0, fun N hN => Filter.Eventually.of_forall fun x hx => mul_le_mul_of_nonneg_right _ (norm_nonneg _)⟩
-          refine' le_trans (norm_sum_le _ _) _
+          refine ⟨0, fun N hN => Filter.Eventually.of_forall fun x hx => mul_le_mul_of_nonneg_right ?_ (by positivity)⟩
+          refine le_trans
+            (norm_sum_le (Finset.range N)
+              (fun m => (r : ℂ) ^ m * (circleMap 0 1 x ^ (m + 1))⁻¹)) ?_
           norm_num [ circleMap ]
           exact le_trans (Finset.sum_le_sum fun _ _ => by rw [ abs_of_pos hr ]) (Summable.sum_le_tsum (Finset.range N) (fun _ _ => by positivity) (summable_geometric_of_lt_one hr.le hr1))
         · apply_rules [ ContinuousOn.intervalIntegrable ]
-          refine' ContinuousOn.mul _ _
+          refine ContinuousOn.mul ?_ ?_
           · exact Continuous.continuousOn (by continuity)
           · exact Continuous.continuousOn (by exact Continuous.norm <| by exact G_gen_differentiable z |> Differentiable.continuous |> Continuous.comp <| by continuity)
-        · refine' Filter.Eventually.of_forall fun x hx => _
-          refine' Filter.Tendsto.smul tendsto_const_nhds _
-          refine' Filter.Tendsto.smul _ tendsto_const_nhds
-          refine' (Summable.hasSum _) |> HasSum.tendsto_sum_nat
+        · refine Filter.Eventually.of_forall fun x hx => ?_
+          refine Filter.Tendsto.smul tendsto_const_nhds ?_
+          refine Filter.Tendsto.smul ?_ tendsto_const_nhds
+          refine (Summable.hasSum ?_) |> HasSum.tendsto_sum_nat
           exact Summable.of_norm <| by simpa [ abs_of_pos hr ] using summable_geometric_of_lt_one (by positivity) hr1
       exact tendsto_nhds_unique (Summable.hasSum (by assumption) |> HasSum.tendsto_sum_nat) (h_series_conv.congr (by aesop))
     -- The series $\sum_{m=0}^\infty r^m w^{-m-1}$ is a geometric series with sum $\frac{1}{w-r}$.
@@ -1454,18 +1481,18 @@ lemma regularized_limit {n : ℕ} (_hn : 0 < n) (z : Fin n → ℂ)
     (nhdsWithin 1 (Set.Iio 1))
     (nhds (∫ θ in (-Real.pi)..Real.pi,
         g_deriv_fun z θ * Complex.exp (g_fun z θ) * h_fun n θ)) := by
-  refine' intervalIntegral.tendsto_integral_filter_of_dominated_convergence _ _ _ _ _
-  refine' fun θ => ‖g_deriv_fun z θ * Complex.exp (g_fun z θ)‖ * (|Real.log (|Real.sin (θ / 2)|)| + 2 * Real.pi + ∑ k ∈ Finset.range n, (1 / (k + 1) : ℝ))
-  · refine' Filter.Eventually.of_forall fun r => Measurable.aestronglyMeasurable _
-    refine' Measurable.mul _ _
-    · refine' Measurable.mul _ _
-      · refine' Measurable.mul _ _
+  refine intervalIntegral.tendsto_integral_filter_of_dominated_convergence ?_ ?_ ?_ ?_ ?_
+  refine fun θ => ‖g_deriv_fun z θ * Complex.exp (g_fun z θ)‖ * (|Real.log (|Real.sin (θ / 2)|)| + 2 * Real.pi + ∑ k ∈ Finset.range n, (1 / (k + 1) : ℝ))
+  · refine Filter.Eventually.of_forall fun r => Measurable.aestronglyMeasurable ?_
+    refine Measurable.mul ?_ ?_
+    · refine Measurable.mul ?_ ?_
+      · refine Measurable.mul ?_ ?_
         · exact measurable_const
         · fun_prop
-      · refine' Complex.continuous_exp.measurable.comp _
-        refine' Measurable.neg _
+      · refine Complex.continuous_exp.measurable.comp ?_
+        refine Measurable.neg ?_
         fun_prop
-    · refine' Measurable.sub _ _
+    · refine Measurable.sub ?_ ?_
       · fun_prop
       · fun_prop
   · -- The term h_fun_reg n r θ is bounded by |log(|sin(θ/2)|)| + 2π + ∑ k ∈ Finset.range n, (1/(k+1)) for r in [1/2, 1).
@@ -1499,12 +1526,22 @@ lemma regularized_limit {n : ℕ} (_hn : 0 < n) (z : Fin n → ℂ)
         linarith [Real.pi_gt_three,
                   show |Real.log 2| ≤ Real.pi by rw [ abs_of_nonneg (Real.log_nonneg one_le_two) ]; linarith [ Real.pi_gt_three, Real.log_le_sub_one_of_pos zero_lt_two ]]
       have h_sum_bound : ‖∑ k ∈ Finset.range n, (r : ℂ) ^ (k + 1) * Complex.exp (-(↑(k + 1 : ℕ) : ℂ) * ↑θ * I) / (↑(k + 1 : ℕ) : ℂ)‖ ≤ ∑ k ∈ Finset.range n, (1 / (k + 1) : ℝ) := by
-        refine' le_trans (norm_sum_le _ _) _
+        refine le_trans
+          (norm_sum_le (Finset.range n)
+            (fun k => (r : ℂ) ^ (k + 1) *
+              Complex.exp (-(↑(k + 1 : ℕ) : ℂ) * ↑θ * I) /
+                (↑(k + 1 : ℕ) : ℂ))) ?_
         norm_num [ Complex.norm_exp ]
         exact Finset.sum_le_sum fun i hi => by rw [ abs_of_nonneg (by linarith [ hr.1 ]) ]; exact mul_le_of_le_one_left (by positivity) (pow_le_one₀ (by linarith [ hr.1 ]) (by linarith [ hr.2 ])) |> le_trans <| by norm_cast
-      refine' le_trans (norm_sub_le _ _) _
-      simpa using add_le_add h_log_bound h_sum_bound
-    refine' Filter.eventually_of_mem (Ioo_mem_nhdsLT <| show 1 / 2 < 1 by norm_num) fun r hr => Filter.eventually_of_mem (MeasureTheory.measure_eq_zero_iff_ae_notMem.mp <| MeasureTheory.measure_singleton 0) fun x hx => _
+      unfold h_fun_reg
+      refine le_trans
+        (norm_sub_le
+          (-Complex.log (1 - r * Complex.exp (-(θ : ℂ) * I)))
+          (∑ k ∈ Finset.range n, (r : ℂ) ^ (k + 1) *
+            Complex.exp (-(↑(k + 1 : ℕ) : ℂ) * ↑θ * I) /
+              (↑(k + 1 : ℕ) : ℂ))) ?_
+      simpa [norm_neg] using add_le_add h_log_bound h_sum_bound
+    refine Filter.eventually_of_mem (Ioo_mem_nhdsLT <| show 1 / 2 < 1 by norm_num) fun r hr => Filter.eventually_of_mem (MeasureTheory.measure_eq_zero_iff_ae_notMem.mp <| MeasureTheory.measure_singleton 0) fun x hx => ?_
     simp +zetaDelta at *
     exact fun hx' => mul_le_mul_of_nonneg_left (h_h_fun_reg_bound r (by norm_num at *; linarith) (by norm_num at *; linarith) x (by cases Set.mem_uIoc.mp hx' <;> linarith [ Real.pi_pos ]) (by cases Set.mem_uIoc.mp hx' <;> linarith [ Real.pi_pos ]) hx) (by positivity)
   · -- The function inside the integral is bounded and continuous, hence integrable.
@@ -1536,9 +1573,9 @@ lemma regularized_limit {n : ℕ} (_hn : 0 < n) (z : Fin n → ℂ)
                                                                                             Real.log_div (show θ ≠ 0 from hθ.1.ne') (show (2 : ℝ) ≠ 0 from by norm_num)]
               · cases abs_cases (Real.log θ) <;> cases abs_cases (Real.log 2) <;> linarith [Real.log_le_log (by linarith [ hθ.1 ]) h_sin_le,
                                                                                             Real.log_le_log (by linarith [ hθ.1 ]) (show Real.sin θ ≤ θ from le_of_lt (Real.sin_lt <| by linarith [ hθ.1 ]))]
-            refine' MeasureTheory.Integrable.mono' _ _ _
-            exacts [fun θ => |Real.log θ| + |Real.log 2|,
-                    by exact MeasureTheory.Integrable.add ‹_› (MeasureTheory.integrable_const _),
+            refine MeasureTheory.Integrable.mono'
+              (g := fun θ => |Real.log θ| + |Real.log 2|) ?_ ?_ ?_
+            exacts [by exact MeasureTheory.Integrable.add ‹_› (MeasureTheory.integrable_const _),
                     by exact Measurable.aestronglyMeasurable (by exact Measurable.norm (Measurable.log (Real.continuous_sin.measurable))),
                     Filter.eventually_of_mem (MeasureTheory.ae_restrict_mem measurableSet_Ioc) fun x hx => by simpa using h_integrable x hx]
           have h_integrable : MeasureTheory.IntegrableOn (fun θ => |Real.log (Real.sin θ)|) (Set.Ioc (-Real.pi / 2) (Real.pi / 2)) := by
@@ -1556,31 +1593,31 @@ lemma regularized_limit {n : ℕ} (_hn : 0 < n) (z : Fin n → ℂ)
         field_simp
       exact MeasureTheory.Integrable.add (MeasureTheory.Integrable.add h_integrable (MeasureTheory.integrable_const _)) (MeasureTheory.integrable_const _)
     rw [ intervalIntegrable_iff_integrableOn_Icc_of_le (by linarith [ Real.pi_pos ]) ]
-    refine' h_integrable.const_mul _ |> fun h => h.mono' _ _
+    refine h_integrable.const_mul ?_ |> fun h => h.mono' ?_ ?_
     exact (SupSet.sSup (Set.image (fun θ => ‖g_deriv_fun z θ * Complex.exp (g_fun z θ)‖) (Set.Icc (-Real.pi) Real.pi)))
-    · refine' MeasureTheory.AEStronglyMeasurable.mul _ _
-      · refine' Continuous.aestronglyMeasurable _
-        refine' Continuous.norm _
-        refine' Continuous.mul _ _
-        · refine' continuous_const.mul _
+    · refine MeasureTheory.AEStronglyMeasurable.mul ?_ ?_
+      · refine Continuous.aestronglyMeasurable ?_
+        refine Continuous.norm ?_
+        refine Continuous.mul ?_ ?_
+        · refine continuous_const.mul ?_
           fun_prop
-        · refine' Complex.continuous_exp.comp _
-          refine' Continuous.neg _
+        · refine Complex.continuous_exp.comp ?_
+          refine Continuous.neg ?_
           fun_prop
       · exact h_integrable.aestronglyMeasurable
     · filter_upwards [ MeasureTheory.ae_restrict_mem measurableSet_Icc ] with x hx
       rw [ Real.norm_of_nonneg (by positivity) ]
       gcongr
-      refine' le_csSup _ _
-      · refine' IsCompact.bddAbove (isCompact_Icc.image _)
+      refine le_csSup ?_ ?_
+      · refine IsCompact.bddAbove (isCompact_Icc.image ?_)
         unfold g_deriv_fun g_fun; norm_num [Complex.exp_ne_zero, Finset.sum_range_succ']; continuity
       · grind
-  · refine' MeasureTheory.measure_mono_null _ _
-    exact { 0 } ∪ { x : ℝ | Real.sin (x / 2) = 0 }
+  · refine MeasureTheory.measure_mono_null
+      (t := { 0 } ∪ { x : ℝ | Real.sin (x / 2) = 0 }) ?_ ?_
     · intro x hx; contrapose! hx; simp_all +decide []
-      refine' fun hx => Filter.Tendsto.mul tendsto_const_nhds _
-      refine' Filter.Tendsto.sub _ _
-      · refine' Filter.Tendsto.neg (Filter.Tendsto.comp (Complex.differentiableAt_log _ |> DifferentiableAt.continuousAt) _)
+      refine fun hx => Filter.Tendsto.mul tendsto_const_nhds ?_
+      refine Filter.Tendsto.sub ?_ ?_
+      · refine Filter.Tendsto.neg (Filter.Tendsto.comp (Complex.differentiableAt_log ?_ |> DifferentiableAt.continuousAt) ?_)
         · norm_num [ Complex.slitPlane, Complex.exp_re, Complex.exp_im ]
           exact Or.inl (by rw [ show x = 2 * (x / 2) by ring, Real.cos_two_mul ]; nlinarith [ Real.sin_sq_add_cos_sq (x / 2), mul_self_pos.mpr ‹_› ])
         · exact tendsto_nhdsWithin_of_tendsto_nhds (Continuous.tendsto' (by continuity) _ _ <| by norm_num)
@@ -1701,11 +1738,11 @@ lemma cauchy_schwarz_intervalIntegral (f g : ℝ → ℂ) (a b : ℝ) (hab : a �
                    v x ^ 2 from MeasureTheory.integral_nonneg fun _ => sq_nonneg _]
       · exact hu
       · convert huv.mul_const (2 * ((∫ x in Set.Ioc a b, u x * v x) / ∫ x in Set.Ioc a b, v x ^ 2)) using 2; ring
-      · refine' MeasureTheory.Integrable.sub hu _
+      · refine MeasureTheory.Integrable.sub hu ?_
         convert huv.mul_const (2 * ((∫ x in Set.Ioc a b, u x * v x) / ∫ x in Set.Ioc a b, v x ^ 2)) using 2; ring
       · simpa only [ mul_pow ] using hv.mul_const _
-  refine' le_trans h_inner (h_cauchy_schwarz _ _ _) <;> simp_all +decide [ intervalIntegrable_iff ]
-  refine' MeasureTheory.Integrable.mono' (hf2.add hg2) _ _
+  refine le_trans h_inner (h_cauchy_schwarz ?_ ?_ ?_) <;> simp_all +decide [ intervalIntegrable_iff ]
+  refine MeasureTheory.Integrable.mono' (hf2.add hg2) ?_ ?_
   · exact hf.norm.aestronglyMeasurable.mul hg.norm.aestronglyMeasurable
   · filter_upwards [ MeasureTheory.ae_restrict_mem measurableSet_Ioc ] with x hx using by simpa using by nlinarith only [ norm_nonneg (f x), norm_nonneg (g x) ]
 
@@ -1726,11 +1763,19 @@ lemma exp_g_h_sq_intervalIntegrable {n : ℕ} (_hn : 0 < n) (z : Fin n → ℂ)
     IntervalIntegrable (fun θ => (‖Complex.exp (g_fun z θ - g_fun z 0) * h_fun n θ‖ ^ 2 : ℝ))
       volume (-Real.pi) Real.pi := by
   rw [ intervalIntegrable_iff_integrableOn_Ioo_of_le (by linarith [ Real.pi_pos ]) ]
-  refine' MeasureTheory.Integrable.mono' _ _ _
-  refine' fun θ => (SupSet.sSup (Set.image (fun θ => ‖Complex.exp (g_fun z θ - g_fun z 0)‖ ^ 2) (Set.Icc (-Real.pi) Real.pi))) * ‖h_fun n θ‖ ^ 2
-  · refine' MeasureTheory.Integrable.const_mul _ _
-    refine' MeasureTheory.Integrable.mono' _ _ _
-    refine' fun θ => (Real.pi ^ 2 + (∑ k ∈ Finset.range n, (1 : ℝ) / (k + 1)) ^ 2) * 2 + 2 * Real.log (1 / |Real.sin (θ / 2)|) ^ 2
+  refine MeasureTheory.Integrable.mono'
+    (g := fun θ =>
+      (SupSet.sSup (Set.image
+        (fun θ => ‖Complex.exp (g_fun z θ - g_fun z 0)‖ ^ 2)
+        (Set.Icc (-Real.pi) Real.pi))) * ‖h_fun n θ‖ ^ 2) ?_ ?_ ?_
+  · refine MeasureTheory.Integrable.const_mul ?_
+      (SupSet.sSup (Set.image
+        (fun θ => ‖Complex.exp (g_fun z θ - g_fun z 0)‖ ^ 2)
+        (Set.Icc (-Real.pi) Real.pi)) : ℝ)
+    refine MeasureTheory.Integrable.mono'
+      (g := fun θ =>
+        (Real.pi ^ 2 + (∑ k ∈ Finset.range n, (1 : ℝ) / (k + 1)) ^ 2) * 2 +
+          2 * Real.log (1 / |Real.sin (θ / 2)|) ^ 2) ?_ ?_ ?_
     · -- The integral of $(\log |\sin(\theta/2)|)^2$ over $(-\pi, \pi)$ is finite.
       have h_log_sin_sq_integrable : MeasureTheory.IntegrableOn (fun θ => (Real.log |Real.sin (θ / 2)|) ^ 2) (Set.Ioo (-Real.pi) Real.pi) := by
         have h_integrable : MeasureTheory.IntegrableOn (fun θ => (Real.log (Real.sin θ)) ^ 2) (Set.Ioo 0 (Real.pi / 2)) := by
@@ -1753,9 +1798,9 @@ lemma exp_g_h_sq_intervalIntegrable {n : ℕ} (_hn : 0 < n) (z : Fin n → ℂ)
                     nlinarith [Real.add_one_le_exp (Real.log θ * (-1 / 4)),
                                Real.log_le_sub_one_of_pos hθ.1]
                   exact le_trans (pow_le_pow_left₀ (abs_nonneg _) h_log_sq_le 2) (by rw [ mul_pow ]; norm_num [ sq, ← Real.rpow_add hθ.1 ])
-                refine' MeasureTheory.Integrable.mono' _ _ _
-                exacts [fun θ => h_log_sq_le.choose * θ ^ (-1 / 2 : ℝ),
-                        by exact h_integrable.const_mul _,
+                refine MeasureTheory.Integrable.mono'
+                  (g := fun θ => h_log_sq_le.choose * θ ^ (-1 / 2 : ℝ)) ?_ ?_ ?_
+                exacts [by exact h_integrable.const_mul _,
                         by exact Measurable.aestronglyMeasurable (by exact Measurable.pow_const (Real.measurable_log) _),
                         Filter.eventually_of_mem (MeasureTheory.ae_restrict_mem measurableSet_Ioc) fun x hx => by simpa [abs_mul,
                                                                                                                          abs_of_nonneg (Real.rpow_nonneg hx.1.le _)] using h_log_sq_le.choose_spec x hx]
@@ -1774,8 +1819,8 @@ lemma exp_g_h_sq_intervalIntegrable {n : ℕ} (_hn : 0 < n) (z : Fin n → ℂ)
             rw [ Real.log_div hθ.1.ne' two_ne_zero ] at h_log_sin_le
             nlinarith [sq_nonneg (Real.log θ + Real.log 2),
                        Real.log_nonpos (Real.sin_nonneg_of_nonneg_of_le_pi hθ.1.le (by linarith [ Real.pi_pos, hθ.2 ])) (Real.sin_le_one θ)]
-          refine' MeasureTheory.Integrable.mono' _ _ _
-          refine' fun θ => 4 * Real.log θ ^ 2 + 4 * Real.log 2 ^ 2
+          refine MeasureTheory.Integrable.mono'
+            (g := fun θ => 4 * Real.log θ ^ 2 + 4 * Real.log 2 ^ 2) ?_ ?_ ?_
           · exact MeasureTheory.Integrable.add (MeasureTheory.Integrable.const_mul ‹_› _) (MeasureTheory.integrable_const _)
           · exact Measurable.aestronglyMeasurable (by exact Measurable.pow_const (Measurable.log (Real.continuous_sin.measurable)) _)
           · filter_upwards [ MeasureTheory.ae_restrict_mem measurableSet_Ioo ] with x hx using by rw [ Real.norm_of_nonneg (sq_nonneg _) ]; exact h_integrable x hx
@@ -1801,10 +1846,10 @@ lemma exp_g_h_sq_intervalIntegrable {n : ℕ} (_hn : 0 < n) (z : Fin n → ℂ)
           exact MeasureTheory.IntegrableOn.union (MeasureTheory.IntegrableOn.union h_integrable ‹_›) (by norm_num)
         aesop
       exact MeasureTheory.Integrable.add (MeasureTheory.integrable_const _) (MeasureTheory.Integrable.const_mul (by simpa using h_log_sin_sq_integrable) _)
-    · refine' Measurable.aestronglyMeasurable _
-      refine' Measurable.pow_const _ _
-      refine' Measurable.norm _
-      refine' Measurable.sub _ _
+    · refine Measurable.aestronglyMeasurable ?_
+      refine Measurable.pow_const ?_ 2
+      refine Measurable.norm ?_
+      refine Measurable.sub ?_ ?_
       · fun_prop
       · fun_prop
     · filter_upwards [ MeasureTheory.ae_restrict_mem measurableSet_Ioo ] with θ hθ
@@ -1837,22 +1882,22 @@ lemma exp_g_h_sq_intervalIntegrable {n : ℕ} (_hn : 0 < n) (z : Fin n → ℂ)
       norm_num [ h_fun ] at *
       have := norm_add_le (-log (1 - Complex.exp (- (θ * I)))) (-∑ x ∈ Finset.range n, Complex.exp ((-1 + -x) * θ * I) / (x + 1)); norm_num at *
       exact le_trans (pow_le_pow_left₀ (norm_nonneg _) this 2) (by nlinarith [ sq_nonneg (‖log (1 - cexp (- (θ * I)))‖ - ‖∑ x ∈ Finset.range n, cexp ((-1 + -x) * θ * I) / (x + 1)‖) ])
-  · refine' Measurable.aestronglyMeasurable _
-    refine' Measurable.pow_const _ _
-    refine' Measurable.norm (Measurable.mul _ _)
-    · refine' Continuous.measurable _
-      refine' Complex.continuous_exp.comp _
-      refine' Continuous.sub _ continuous_const
-      refine' continuous_neg.comp _
+  · refine Measurable.aestronglyMeasurable ?_
+    refine Measurable.pow_const ?_ 2
+    refine Measurable.norm (Measurable.mul ?_ ?_)
+    · refine Continuous.measurable ?_
+      refine Complex.continuous_exp.comp ?_
+      refine Continuous.sub ?_ continuous_const
+      refine continuous_neg.comp ?_
       fun_prop
-    · refine' Measurable.sub _ _
+    · refine Measurable.sub ?_ ?_
       · fun_prop
       · fun_prop
   · filter_upwards [ MeasureTheory.ae_restrict_mem measurableSet_Ioo ] with θ hθ
     norm_num [ mul_pow ]
     gcongr
-    refine' le_csSup _ _
-    · refine' IsCompact.bddAbove (isCompact_Icc.image _)
+    refine le_csSup ?_ ?_
+    · refine IsCompact.bddAbove (isCompact_Icc.image ?_)
       unfold g_fun; continuity
     · exact ⟨θ, ⟨hθ.1.le, hθ.2.le⟩, rfl⟩
 
@@ -2098,7 +2143,7 @@ private lemma g_r_parseval (n : ℕ) (r : ℝ) (hr : 0 < r) (hr1 : r < 1) :
   -- By Fubini's theorem, we can interchange the sum and the integral.
   have h_fubini : ∫ θ in (-Real.pi)..Real.pi, ∑' k : ℕ, ∑' l : ℕ, (r ^ (k + n + 1) / (k + n + 1 : ℂ)) * (r ^ (l + n + 1) / (l + n + 1 : ℂ)) * Complex.exp (-(k - l) * θ * I) = ∑' k : ℕ, ∑' l : ℕ, (r ^ (k + n + 1) / (k + n + 1 : ℂ)) * (r ^ (l + n + 1) / (l + n + 1 : ℂ)) * ∫ θ in (-Real.pi)..Real.pi, Complex.exp (-(k - l) * θ * I) := by
     rw [intervalIntegral.integral_of_le (by linarith [ Real.pi_pos ]), MeasureTheory.integral_tsum]
-    · refine' tsum_congr fun k => _
+    · refine tsum_congr fun k => ?_
       rw [ MeasureTheory.integral_tsum ]
       · norm_num [intervalIntegral.integral_of_le (neg_le_self Real.pi_pos.le),
                   MeasureTheory.integral_const_mul]
@@ -2110,10 +2155,20 @@ private lemma g_r_parseval (n : ℕ) (r : ℝ) (hr : 0 < r) (hr1 : r < 1) :
               ((r : ℂ) ^ (i + n + 1) / ((i : ℂ) + (n : ℂ) + 1)))
             (fun θ : ℝ => Complex.exp (((i : ℂ) - (k : ℂ)) * (θ : ℂ) * I)))
       · exact fun i => Continuous.aestronglyMeasurable (by continuity)
-      · refine' ne_of_lt (lt_of_le_of_lt (ENNReal.tsum_le_tsum fun i => _) _)
-        use fun i => ENNReal.ofReal (r ^ (k + n + 1) / (k + n + 1) * r ^ (i + n + 1) / (i + n + 1) * (2 * Real.pi))
-        · refine' le_trans (MeasureTheory.lintegral_mono fun x => _) _
-          use fun x => ENNReal.ofReal (r ^ (k + n + 1) / (k + n + 1) * r ^ (i + n + 1) / (i + n + 1))
+      · refine ne_of_lt (lt_of_le_of_lt
+          (ENNReal.tsum_le_tsum
+            (g := fun i =>
+              ENNReal.ofReal
+                (r ^ (k + n + 1) / (k + n + 1) *
+                  r ^ (i + n + 1) / (i + n + 1) * (2 * Real.pi)))
+            fun i => ?_) ?_)
+        · refine le_trans
+            (MeasureTheory.lintegral_mono
+              (g := fun x =>
+                ENNReal.ofReal
+                  (r ^ (k + n + 1) / (k + n + 1) *
+                    r ^ (i + n + 1) / (i + n + 1)))
+              fun x => ?_) ?_
           · rw [ ENNReal.le_ofReal_iff_toReal_le ] <;> norm_num
             · norm_num [ abs_of_pos hr, Complex.norm_exp ]; ring_nf
               norm_cast
@@ -2123,33 +2178,107 @@ private lemma g_r_parseval (n : ℕ) (r : ℝ) (hr : 0 < r) (hr1 : r < 1) :
             rw [ ← ENNReal.ofReal_mul (by positivity) ]; ring_nf; norm_num
         · rw [ ← ENNReal.ofReal_tsum_of_nonneg ] <;> norm_num
           · exact fun _ => by positivity
-          · refine' Summable.mul_right _ _
+          · have hbase :
+                Summable (fun i : ℕ => r ^ (i + n + 1) / (i + n + 1 : ℝ)) := by
+              exact Summable.of_nonneg_of_le
+                (f := fun i : ℕ => r ^ (i + n + 1))
+                (g := fun i : ℕ => r ^ (i + n + 1) / (i + n + 1 : ℝ))
+                (fun _ => by positivity)
+                (fun i => by
+                  exact div_le_self
+                    (by positivity : 0 ≤ r ^ (i + n + 1))
+                    (by norm_cast; omega : (1 : ℝ) ≤ (i + n + 1 : ℝ)))
+                (Summable.comp_injective
+                  (summable_geometric_of_lt_one hr.le hr1)
+                  (by
+                    intro a b h
+                    have hnat : a + n + 1 = b + n + 1 := by exact_mod_cast h
+                    omega))
+            convert
+              (Summable.mul_right (2 * Real.pi)
+                (Summable.mul_left (r ^ (k + n + 1) / (k + n + 1)) hbase))
+              using 1
+            ext a
             ring_nf
-            exact Summable.of_nonneg_of_le (fun _ => by positivity) (fun _ => mul_le_of_le_one_right (by positivity) (inv_le_one_of_one_le₀ (by linarith))) (Summable.mul_right _ <| Summable.mul_left _ <| summable_geometric_of_lt_one hr.le hr1)
     · intro i
-      refine' Continuous.aestronglyMeasurable _
-      refine' continuous_tsum _ _ _
-      use fun k => (r ^ (i + n + 1) / (i + n + 1)) * (r ^ (k + n + 1) / (k + n + 1))
+      refine Continuous.aestronglyMeasurable ?_
+      refine continuous_tsum
+        (u := fun k =>
+          (r ^ (i + n + 1) / (i + n + 1)) *
+            (r ^ (k + n + 1) / (k + n + 1))) ?_ ?_ ?_
       · fun_prop
-      · exact Summable.mul_left _ <| Summable.of_nonneg_of_le (fun _ => by positivity) (fun k => by exact div_le_self (by positivity) <| by linarith) <| Summable.comp_injective (summable_geometric_of_lt_one (by positivity) hr1) <| by intros a b; aesop
+      · exact Summable.mul_left _ <| Summable.of_nonneg_of_le
+          (f := fun k : ℕ => r ^ (k + n + 1))
+          (g := fun k : ℕ => r ^ (k + n + 1) / (k + n + 1 : ℝ))
+          (fun _ => by positivity)
+          (fun k => by
+            exact div_le_self
+              (by positivity : 0 ≤ r ^ (k + n + 1))
+              (by norm_cast; omega : (1 : ℝ) ≤ (k + n + 1 : ℝ)))
+          (Summable.comp_injective
+            (summable_geometric_of_lt_one (by positivity) hr1)
+            (by intro a b h; norm_num at h; omega))
       · norm_num [ Complex.norm_exp, abs_of_pos hr ]
         norm_cast; norm_num
-    · refine' ne_of_lt (lt_of_le_of_lt (ENNReal.tsum_le_tsum fun i => _) _)
-      use fun i => ENNReal.ofReal (∑' l : ℕ, (r ^ (i + n + 1) / (i + n + 1)) * (r ^ (l + n + 1) / (l + n + 1)) * (2 * Real.pi))
-      · refine' le_trans (MeasureTheory.lintegral_mono fun x => _) _
-        use fun x => ENNReal.ofReal (∑' l : ℕ, (r ^ (i + n + 1) / (i + n + 1)) * (r ^ (l + n + 1) / (l + n + 1)))
+    · refine ne_of_lt (lt_of_le_of_lt
+        (ENNReal.tsum_le_tsum
+          (g := fun i =>
+            ENNReal.ofReal
+              (∑' l : ℕ,
+                (r ^ (i + n + 1) / (i + n + 1)) *
+                  (r ^ (l + n + 1) / (l + n + 1)) * (2 * Real.pi)))
+          fun i => ?_) ?_)
+      · refine le_trans
+          (MeasureTheory.lintegral_mono
+            (g := fun x =>
+              ENNReal.ofReal
+                (∑' l : ℕ,
+                  (r ^ (i + n + 1) / (i + n + 1)) *
+                    (r ^ (l + n + 1) / (l + n + 1))))
+            fun x => ?_) ?_
         · rw [ ENNReal.le_ofReal_iff_toReal_le ] <;> norm_num
           · convert norm_tsum_le_tsum_norm _ <;> norm_num [ Complex.norm_exp ]
             · norm_cast; norm_num [ abs_of_pos hr ]
-            · refine' Summable.mul_left _ _
-              exact Summable.of_nonneg_of_le (fun _ => by positivity) (fun _ => by exact div_le_self (by positivity) (mod_cast Nat.le_add_left _ _)) (Summable.comp_injective (summable_geometric_of_lt_one (by positivity) (by rw [ abs_of_pos hr ]; linarith)) (by intros a b; aesop))
+            · simpa [abs_of_pos hr] using
+                (Summable.mul_left
+                  (r ^ (i + n + 1) / ‖(i : ℂ) + (n : ℂ) + 1‖)
+                  (Summable.of_nonneg_of_le
+                    (f := fun l : ℕ => r ^ (l + n + 1))
+                    (g := fun l : ℕ => r ^ (l + n + 1) /
+                      ‖(l : ℂ) + (n : ℂ) + 1‖)
+                    (fun _ => by positivity)
+                    (fun l => by
+                      exact div_le_self
+                        (by positivity : 0 ≤ r ^ (l + n + 1))
+                        (by
+                          rw [show ((l : ℂ) + (n : ℂ) + 1) =
+                              ((l + n + 1 : ℝ) : ℂ) by norm_num]
+                          rw [Complex.norm_of_nonneg
+                            (by positivity : 0 ≤ (l + n + 1 : ℝ))]
+                          norm_cast
+                          omega))
+                    (Summable.comp_injective
+                      (summable_geometric_of_lt_one (by positivity) hr1)
+                      (by
+                        intro a b h
+                        have hnat : a + n + 1 = b + n + 1 := by exact_mod_cast h
+                        omega))))
           · exact tsum_nonneg fun _ => by positivity
         · simp +decide [ mul_assoc, mul_comm, mul_left_comm, tsum_mul_left, tsum_mul_right ]
           rw [ ← ENNReal.ofReal_mul (by positivity) ]; ring_nf; norm_num
       · rw [ ← ENNReal.ofReal_tsum_of_nonneg ] <;> norm_num [ mul_assoc, tsum_mul_left, tsum_mul_right ]
         · exact fun _ => mul_nonneg (div_nonneg (pow_nonneg hr.le _) (by positivity)) (mul_nonneg (tsum_nonneg fun _ => div_nonneg (pow_nonneg hr.le _) (by positivity)) (by positivity))
-        · refine' Summable.mul_right _ _
-          exact Summable.of_nonneg_of_le (fun _ => by positivity) (fun _ => by exact div_le_self (by positivity) (by linarith)) (Summable.comp_injective (summable_geometric_of_lt_one hr.le hr1) (by intros a b; aesop))
+        · simpa [mul_assoc, mul_comm, mul_left_comm] using
+            (Summable.mul_right
+              ((∑' l : ℕ, r ^ (l + n + 1) / (l + n + 1)) * (2 * Real.pi))
+              (Summable.of_nonneg_of_le (fun _ => by positivity)
+                (fun i => by
+                  exact div_le_self
+                    (by positivity : 0 ≤ r ^ (i + n + 1))
+                    (by norm_cast; omega : (1 : ℝ) ≤ (i + n + 1 : ℝ)))
+                (Summable.comp_injective
+                  (summable_geometric_of_lt_one hr.le hr1)
+                  (by intro a b h; norm_num at h; omega))))
   convert congr_arg Complex.re h_fubini using 1
   · rw [ intervalIntegral.integral_congr fun x hx => ?_ ]
     rotate_left
@@ -2169,25 +2298,69 @@ private lemma g_r_parseval (n : ℕ) (r : ℝ) (hr : 0 < r) (hr1 : r < 1) :
           intervalIntegral.integral_of_le (by linarith [ Real.pi_pos ])]
       convert integral_re _
       any_goals tauto
-      refine' Continuous.integrableOn_Ioc _
-      refine' continuous_tsum _ _ _
-      use fun k => (r ^ (k + n + 1) / (k + n + 1)) * ∑' l : ℕ, (r ^ (l + n + 1) / (l + n + 1))
+      refine Continuous.integrableOn_Ioc ?_
+      refine continuous_tsum
+        (u := fun k => (r ^ (k + n + 1) / (k + n + 1)) *
+          ∑' l : ℕ, (r ^ (l + n + 1) / (l + n + 1))) ?_ ?_ ?_
       · intro i
-        refine' continuous_tsum _ _ _
-        use fun k => (r ^ (i + n + 1) / (i + n + 1)) * (r ^ (k + n + 1) / (k + n + 1))
+        refine continuous_tsum
+          (u := fun k => (r ^ (i + n + 1) / (i + n + 1)) *
+            (r ^ (k + n + 1) / (k + n + 1))) ?_ ?_ ?_
         · fun_prop
-        · refine' Summable.mul_left _ _
-          exact Summable.of_nonneg_of_le (fun _ => div_nonneg (pow_nonneg hr.le _) (by positivity)) (fun _ => div_le_self (pow_nonneg hr.le _) (by linarith)) (Summable.comp_injective (summable_geometric_of_lt_one hr.le hr1) (by intros a b; aesop))
+        · refine Summable.mul_left
+            (r ^ (i + n + 1) / (i + n + 1)) ?_
+          exact Summable.of_nonneg_of_le
+            (fun _ => div_nonneg (pow_nonneg hr.le _) (by positivity))
+            (fun k => by
+              exact div_le_self
+                (pow_nonneg hr.le _)
+                (by norm_cast; omega : (1 : ℝ) ≤ (k + n + 1 : ℝ)))
+            (Summable.comp_injective
+              (summable_geometric_of_lt_one hr.le hr1)
+              (by intro a b h; norm_num at h; omega))
         · norm_num [ Complex.norm_exp, abs_of_pos hr ]
           norm_cast; norm_num
-      · refine' Summable.mul_right _ _
-        exact Summable.of_nonneg_of_le (fun k => div_nonneg (pow_nonneg hr.le _) (by positivity)) (fun k => div_le_self (pow_nonneg hr.le _) (by linarith)) (Summable.comp_injective (summable_geometric_of_lt_one hr.le hr1) (by intros a b; aesop))
-      · intro k x; rw [ ← tsum_mul_left ]; refine' le_trans (norm_tsum_le_tsum_norm _) _
+      · refine Summable.mul_right
+          (∑' l : ℕ, r ^ (l + n + 1) / (l + n + 1)) ?_
+        exact Summable.of_nonneg_of_le
+          (fun k => div_nonneg (pow_nonneg hr.le _) (by positivity))
+          (fun k => by
+            exact div_le_self
+              (pow_nonneg hr.le _)
+              (by norm_cast; omega : (1 : ℝ) ≤ (k + n + 1 : ℝ)))
+          (Summable.comp_injective
+            (summable_geometric_of_lt_one hr.le hr1)
+            (by intro a b h; norm_num at h; omega))
+      · intro k x
+        refine le_trans (norm_tsum_le_tsum_norm ?_) ?_
         · norm_num [ Complex.norm_exp ]
-          refine' Summable.mul_left _ _
-          exact Summable.of_nonneg_of_le (fun _ => by positivity) (fun _ => by exact div_le_self (by positivity) (mod_cast Nat.le_add_left _ _)) (Summable.comp_injective (summable_geometric_of_lt_one (by positivity) (by rw [ abs_of_pos hr ]; linarith)) (by intros a b; aesop))
+          simpa [abs_of_pos hr] using
+            (Summable.mul_left
+              (r ^ (k + n + 1) / ‖(k : ℂ) + (n : ℂ) + 1‖)
+              (Summable.of_nonneg_of_le
+                (f := fun l : ℕ => r ^ (l + n + 1))
+                (g := fun l : ℕ => r ^ (l + n + 1) /
+                  ‖(l : ℂ) + (n : ℂ) + 1‖)
+                (fun _ => by positivity)
+                (fun l => by
+                  exact div_le_self
+                    (by positivity : 0 ≤ r ^ (l + n + 1))
+                    (by
+                      rw [show ((l : ℂ) + (n : ℂ) + 1) =
+                          ((l + n + 1 : ℝ) : ℂ) by norm_num]
+                      rw [Complex.norm_of_nonneg
+                        (by positivity : 0 ≤ (l + n + 1 : ℝ))]
+                      norm_cast
+                      omega))
+                (Summable.comp_injective
+                  (summable_geometric_of_lt_one (by positivity) hr1)
+                  (by
+                    intro a b h
+                    have hnat : a + n + 1 = b + n + 1 := by exact_mod_cast h
+                    omega))))
         · norm_num [ Complex.norm_exp, abs_of_pos hr ]
           norm_cast
+          rw [tsum_mul_left]
   · rw [ tsum_congr fun k => tsum_eq_single k fun l hl => ?_ ]
     · norm_num [ ← sq, ← mul_pow ]
       norm_cast
@@ -2226,16 +2399,16 @@ private lemma h_parseval_fatou_bound (n : ℕ) (hn : 0 < n) :
       intro m
       have h_f_m_eq : ∫ θ in (-Real.pi)..Real.pi, ‖-Complex.log (1 - (1 - 1 / (m + 2)) * Complex.exp (-θ * Complex.I)) - ∑ k ∈ Finset.range n, ((1 - 1 / (m + 2)) * Complex.exp (-θ * Complex.I)) ^ (k + 1) / (k + 1)‖ ^ 2 = 2 * Real.pi * (∑' k : ℕ, ((1 - 1 / (m + 2)) ^ (2 * (k + n + 1)) / (k + n + 1 : ℝ) ^ 2)) := by
         convert g_r_parseval n (1 - 1 / (m + 2)) ?_ ?_ using 1 <;> norm_num
-        · refine' intervalIntegral.integral_congr fun θ _ => _
+        · refine intervalIntegral.integral_congr fun θ _ => ?_
           have := g_r_eq_tail_series n (1 - (m + 2 : ℝ) ⁻¹) (by exact sub_pos.mpr <| inv_lt_one_of_one_lt₀ <| by linarith) (by exact sub_lt_self _ <| by positivity) θ; aesop
         · exact inv_lt_one_of_one_lt₀ (by linarith)
         · positivity
       rw [← h_f_m_eq, intervalIntegral.integral_of_le (by linarith [ Real.pi_pos ]),
           MeasureTheory.ofReal_integral_eq_lintegral_ofReal]
-      · refine' ContinuousOn.integrableOn_Icc _ |> fun h => h.mono_set <| Set.Ioc_subset_Icc_self
-        refine' ContinuousOn.pow _ _
-        refine' ContinuousOn.norm (ContinuousOn.sub _ _)
-        · refine' ContinuousOn.neg (ContinuousOn.clog _ _)
+      · refine ContinuousOn.integrableOn_Icc ?_ |> fun h => h.mono_set <| Set.Ioc_subset_Icc_self
+        refine ContinuousOn.pow ?_ 2
+        refine ContinuousOn.norm (ContinuousOn.sub ?_ ?_)
+        · refine ContinuousOn.neg (ContinuousOn.clog ?_ ?_)
           · fun_prop
           · norm_num [ Complex.slitPlane, Complex.exp_re, Complex.exp_im ]
             norm_num [ Complex.normSq ]
@@ -2246,7 +2419,7 @@ private lemma h_parseval_fatou_bound (n : ℕ) (hn : 0 < n) :
     have h_f_m_pointwise : ∀ θ ∈ Set.Ioc (-Real.pi) Real.pi, θ ≠ 0 → Filter.Tendsto (fun m : ℕ => ‖-Complex.log (1 - (1 - 1 / (m + 2)) * Complex.exp (-θ * Complex.I)) - ∑ k ∈ Finset.range n, ((1 - 1 / (m + 2)) * Complex.exp (-θ * Complex.I)) ^ (k + 1) / (k + 1)‖ ^ 2) Filter.atTop (nhds (‖h_fun n θ‖ ^ 2)) := by
       intro θ hθ hθ_ne_zero
       have h_log : Filter.Tendsto (fun m : ℕ => -Complex.log (1 - (1 - 1 / (m + 2)) * Complex.exp (-θ * Complex.I))) Filter.atTop (nhds (-Complex.log (1 - Complex.exp (-θ * Complex.I)))) := by
-        refine' Filter.Tendsto.neg (Filter.Tendsto.comp (Complex.differentiableAt_log _ |> DifferentiableAt.continuousAt) _)
+        refine Filter.Tendsto.neg (Filter.Tendsto.comp (Complex.differentiableAt_log ?_ |> DifferentiableAt.continuousAt) ?_)
         · norm_num [ Complex.slitPlane, Complex.ext_iff, Complex.exp_re, Complex.exp_im ]
           contrapose! hθ_ne_zero
           rw [ Real.sin_eq_zero_iff_of_lt_of_lt ] at hθ_ne_zero <;> try linarith [ hθ.1, hθ.2 ]
@@ -2255,25 +2428,25 @@ private lemma h_parseval_fatou_bound (n : ℕ) (hn : 0 < n) :
       convert Filter.Tendsto.pow (Filter.Tendsto.norm (h_log.sub (show Filter.Tendsto (fun m : ℕ => ∑ k ∈ Finset.range n, ((1 - 1 / (m + 2 : ℂ)) * Complex.exp (-θ * Complex.I)) ^ (k + 1) / (k + 1 : ℂ)) Filter.atTop (nhds (∑ k ∈ Finset.range n, (Complex.exp (-θ * Complex.I)) ^ (k + 1) / (k + 1 : ℂ))) from ?_))) 2 using 2
       · unfold h_fun; norm_num [ ← Complex.exp_nat_mul ]
         exact congr_arg Norm.norm (by congr; ext; ring_nf)
-      · refine' tendsto_finset_sum _ fun i hi => _
-        refine' Filter.Tendsto.div_const _ _
-        refine' Filter.Tendsto.pow _ _
+      · refine tendsto_finset_sum (Finset.range n) fun i hi => ?_
+        refine Filter.Tendsto.div_const ?_ ((i + 1 : ℂ))
+        refine Filter.Tendsto.pow ?_ (i + 1)
         rw [ tendsto_iff_norm_sub_tendsto_zero ]
         norm_num [ sub_mul ]
         norm_num [ Complex.norm_exp ]
         exact tendsto_inv_atTop_zero.comp <| Filter.tendsto_atTop_mono (fun m => by norm_cast; linarith) tendsto_natCast_atTop_atTop
     -- Apply Fatou's lemma to the sequence of functions $f_m$ to conclude the proof.
     have h_fatou : ∫⁻ θ in Set.Ioc (-Real.pi) Real.pi, ENNReal.ofReal (‖h_fun n θ‖ ^ 2) ≤ ∫⁻ θ in Set.Ioc (-Real.pi) Real.pi, Filter.liminf (fun m : ℕ => ENNReal.ofReal (‖-Complex.log (1 - (1 - 1 / (m + 2)) * Complex.exp (-θ * Complex.I)) - ∑ k ∈ Finset.range n, ((1 - 1 / (m + 2)) * Complex.exp (-θ * Complex.I)) ^ (k + 1) / (k + 1)‖ ^ 2)) Filter.atTop := by
-      refine' MeasureTheory.lintegral_mono_ae _
+      refine MeasureTheory.lintegral_mono_ae ?_
       filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioc,
                       MeasureTheory.measure_eq_zero_iff_ae_notMem.mp (MeasureTheory.measure_singleton 0)] with θ hθ hθ' using by simpa using Filter.Tendsto.liminf_eq (ENNReal.tendsto_ofReal (h_f_m_pointwise θ hθ hθ')) |> ge_of_eq
-    refine' le_trans h_fatou (le_trans (MeasureTheory.lintegral_liminf_le _) _)
+    refine le_trans h_fatou (le_trans (MeasureTheory.lintegral_liminf_le ?_) ?_)
     · fun_prop
     · rw [ Filter.liminf_congr (Filter.eventuallyEq_of_mem (Filter.Ioi_mem_atTop 0) fun m hm => h_f_m_def m) ]
-      refine' Filter.Tendsto.liminf_eq _ |> le_of_eq
-      refine' ENNReal.tendsto_ofReal (tendsto_const_nhds.mul _)
-      refine' (tendsto_tsum_of_dominated_convergence _ _ _)
-      use fun k => 1 / (k + n + 1) ^ 2
+      refine Filter.Tendsto.liminf_eq ?_ |> le_of_eq
+      refine ENNReal.tendsto_ofReal (tendsto_const_nhds.mul ?_)
+      refine (tendsto_tsum_of_dominated_convergence
+        (bound := fun k => 1 / (k + n + 1) ^ 2) ?_ ?_ ?_)
       · exact_mod_cast summable_nat_add_iff (n + 1) |>.2 <| Real.summable_one_div_nat_pow.2 one_lt_two
       · exact fun k => le_trans (Filter.Tendsto.div_const (Filter.Tendsto.pow (tendsto_const_nhds.sub <| tendsto_const_nhds.div_atTop <| Filter.tendsto_atTop_add_const_right _ _ tendsto_natCast_atTop_atTop) _) _) <| by norm_num
       · norm_num +zetaDelta at *
@@ -2283,10 +2456,10 @@ private lemma h_parseval_fatou_bound (n : ℕ) (hn : 0 < n) :
   · convert ENNReal.toReal_mono _ h_fatou using 1 <;> norm_num
     rw [ ENNReal.toReal_ofReal (by positivity) ]; ring
   · exact Filter.Eventually.of_forall fun x => sq_nonneg _
-  · refine' Measurable.aestronglyMeasurable _
-    refine' Measurable.pow_const _ _
-    refine' Measurable.norm _
-    refine' Measurable.sub _ _
+  · refine Measurable.aestronglyMeasurable ?_
+    refine Measurable.pow_const ?_ 2
+    refine Measurable.norm ?_
+    refine Measurable.sub ?_ ?_
     · fun_prop
     · fun_prop
 
@@ -2343,26 +2516,29 @@ private lemma one_sub_mul_neg_log_eq {θ : ℝ} (hθ : θ ∈ Set.Ioo (-Real.pi)
       · rw [ sub_eq_add_neg, ← tsum_neg ]; congr; ext k; ring_nf
         field_simp
         rw [ div_sub_div ] <;> ring_nf <;> norm_cast <;> norm_num
-      · refine' Summable.of_norm _
+      · refine Summable.of_norm ?_
         norm_num +zetaDelta at *
         exact Summable.of_nonneg_of_le (fun k => by positivity) (fun k => mul_le_of_le_one_right (by positivity) <| inv_le_one_of_one_le₀ <| by norm_cast; linarith) <| Summable.mul_left _ <| summable_geometric_of_lt_one (by positivity) hz
       · exact Summable.of_norm <| by simpa [ mul_assoc ] using Summable.mul_left _ <| Summable.of_nonneg_of_le (fun n => by positivity) (fun n => by simpa [ abs_of_nonneg, add_nonneg ] using mul_le_of_le_one_right (by positivity) <| inv_le_one_of_one_le₀ <| mod_cast by linarith) <| summable_geometric_of_lt_one (by positivity) hz
     · exact Summable.of_norm <| by simpa using Summable.of_nonneg_of_le (fun n => by positivity) (fun n => by simpa using div_le_self (by positivity) (mod_cast Nat.le_add_left _ _)) (summable_nat_add_iff 1 |>.2 <| summable_geometric_of_lt_one (by positivity) hz)
   have h_cont : Filter.Tendsto (fun r : ℝ => (1 - r * Complex.exp (-θ * I)) * (-Complex.log (1 - r * Complex.exp (-θ * I)))) (nhdsWithin 1 (Set.Iio 1)) (nhds ((1 - Complex.exp (-θ * I)) * (-Complex.log (1 - Complex.exp (-θ * I))))) := by
-    refine' Filter.Tendsto.mul _ _
+    refine Filter.Tendsto.mul ?_ ?_
     · exact tendsto_nhdsWithin_of_tendsto_nhds (Continuous.tendsto' (by continuity) _ _ <| by norm_num)
-    · refine' Filter.Tendsto.neg (Filter.Tendsto.comp (Complex.differentiableAt_log _ |> DifferentiableAt.continuousAt) _)
+    · refine Filter.Tendsto.neg (Filter.Tendsto.comp (Complex.differentiableAt_log ?_ |> DifferentiableAt.continuousAt) ?_)
       · norm_num [ Complex.slitPlane, Complex.exp_re, Complex.exp_im ]
         exact Or.inr (by exact fun h => hθ_ne <| by rw [ Real.sin_eq_zero_iff_of_lt_of_lt ] at h <;> linarith [ hθ.1, hθ.2 ])
       · exact tendsto_nhdsWithin_of_tendsto_nhds (Continuous.tendsto' (by continuity) _ _ <| by norm_num)
   have h_cont_sum : Filter.Tendsto (fun r : ℝ => r * Complex.exp (-θ * I) - ∑' k : ℕ, (r * Complex.exp (-θ * I))^(k + 2) / ((k + 2) * (k + 1))) (nhdsWithin 1 (Set.Iio 1)) (nhds (Complex.exp (-θ * I) - ∑' k : ℕ, Complex.exp (- (k + 2) * θ * I) / ((k + 2) * (k + 1)))) := by
-    refine' Filter.Tendsto.sub _ _
+    refine Filter.Tendsto.sub ?_ ?_
     · exact tendsto_nhdsWithin_of_tendsto_nhds (Continuous.tendsto' (by continuity) _ _ (by norm_num))
-    · refine' tendsto_tsum_of_dominated_convergence _ _ _
-      use fun k => 1 / ((k + 2) * (k + 1))
+    · refine tendsto_tsum_of_dominated_convergence
+        (bound := fun k => 1 / ((k + 2) * (k + 1))) ?_ ?_ ?_
       · exact Summable.of_nonneg_of_le (fun k => by positivity) (fun k => by rw [ div_le_div_iff₀ ] <;> norm_cast <;> ring_nf <;> nlinarith) (summable_nat_add_iff 1 |>.2 <| Real.summable_one_div_nat_pow.2 one_lt_two)
-      · intro k; refine' Filter.Tendsto.div_const _ _; refine' Filter.Tendsto.mono_left _ nhdsWithin_le_nhds; norm_num [mul_pow,
-                                                                                                                        ← Complex.exp_nat_mul]; ring_nf
+      · intro k
+        refine Filter.Tendsto.div_const ?_ (((k + 2 : ℂ) * (k + 1 : ℂ)))
+        refine Filter.Tendsto.mono_left ?_ nhdsWithin_le_nhds
+        norm_num [mul_pow, ← Complex.exp_nat_mul]
+        ring_nf
         exact Continuous.tendsto' (by continuity) _ _ (by norm_num)
       · norm_num [ Complex.norm_exp ]
         norm_cast; norm_num [ div_eq_mul_inv, mul_comm ]
@@ -2467,14 +2643,19 @@ private lemma h_mul_one_sub_exp_bound (n : ℕ) (hn : 0 < n) {θ : ℝ}
   -- Now use the given equality and bound the terms accordingly. We'll first bound the sum.
   have h_sum_bound : ∑' k : ℕ, (1 : ℝ) / ((↑(k + n + 2 : ℕ) : ℝ) * (↑(k + n + 1 : ℕ) : ℝ)) ≤ 1 / (↑(n + 1 : ℕ) : ℝ) := by
     have h_sum_bound : ∀ N : ℕ, ∑ k ∈ Finset.range N, (1 : ℝ) / ((↑(k + n + 2 : ℕ) : ℝ) * (↑(k + n + 1 : ℕ) : ℝ)) ≤ 1 / (↑(n + 1 : ℕ) : ℝ) - 1 / (↑(N + n + 1 : ℕ) : ℝ) := by
-      intro N; induction N <;> norm_num [ add_assoc, Finset.sum_range_succ ] at *
-      nlinarith [inv_pos.mpr (by positivity : 0 < ((Nat.cast:ℕ → ℝ) ‹_›) + (n + 1)),
-                 inv_pos.mpr (by positivity : 0 < ((Nat.cast:ℕ → ℝ) ‹_›) + (n + 2)),
-                 inv_pos.mpr (by positivity : 0 < ((Nat.cast:ℕ → ℝ) ‹_›) + (1 + (n + 1))),
-                 mul_inv_cancel₀ (by positivity : ((Nat.cast:ℕ → ℝ) ‹_›) + (n + 1) ≠ 0),
-                 mul_inv_cancel₀ (by positivity : ((Nat.cast:ℕ → ℝ) ‹_›) + (n + 2) ≠ 0),
-                 mul_inv_cancel₀ (by positivity : ((Nat.cast:ℕ → ℝ) ‹_›) + (1 + (n + 1)) ≠ 0)]
-    refine' le_of_tendsto_of_tendsto' (Summable.hasSum (by exact Summable.of_nonneg_of_le (fun _ => by positivity) (fun k => by rw [ div_le_div_iff₀ ] <;> norm_cast <;> ring_nf <;> nlinarith) <| summable_nat_add_iff 1 |>.2 <| Real.summable_one_div_nat_pow.2 one_lt_two) |> HasSum.tendsto_sum_nat) tendsto_const_nhds fun N => le_trans (h_sum_bound N) <| sub_le_self _ <| by positivity
+      intro N
+      induction N with
+      | zero =>
+          norm_num
+      | succ N ih =>
+          norm_num [add_assoc, Finset.sum_range_succ] at *
+          nlinarith [inv_pos.mpr (by positivity : 0 < (N : ℝ) + (n + 1)),
+                     inv_pos.mpr (by positivity : 0 < (N : ℝ) + (n + 2)),
+                     inv_pos.mpr (by positivity : 0 < (N : ℝ) + (1 + (n + 1))),
+                     mul_inv_cancel₀ (by positivity : (N : ℝ) + (n + 1) ≠ 0),
+                     mul_inv_cancel₀ (by positivity : (N : ℝ) + (n + 2) ≠ 0),
+                     mul_inv_cancel₀ (by positivity : (N : ℝ) + (1 + (n + 1)) ≠ 0)]
+    refine le_of_tendsto_of_tendsto' (Summable.hasSum (by exact Summable.of_nonneg_of_le (fun _ => by positivity) (fun k => by rw [ div_le_div_iff₀ ] <;> norm_cast <;> ring_nf <;> nlinarith) <| summable_nat_add_iff 1 |>.2 <| Real.summable_one_div_nat_pow.2 one_lt_two) |> HasSum.tendsto_sum_nat) tendsto_const_nhds fun N => le_trans (h_sum_bound N) <| sub_le_self (1 / (↑(n + 1 : ℕ) : ℝ)) <| by positivity
   exact h_eq_bound.trans (by convert add_le_add h_first_term (h_second_term.trans h_sum_bound) using 1; push_cast; ring)
 
 /-
@@ -2513,15 +2694,15 @@ lemma h_pointwise_far_bound (n : ℕ) (hn : 0 < n) {θ : ℝ}
     by_cases hθ_eq : θ = Real.pi ∨ θ = -Real.pi
     · obtain rfl | rfl := hθ_eq <;> norm_num [ neg_div ] at *
       · have h_cont : Filter.Tendsto (fun ε => h_fun n (Real.pi - ε) * (1 - Complex.exp (-(Real.pi - ε) * Complex.I))) (nhdsWithin 0 (Set.Ioi 0)) (nhds (h_fun n Real.pi * (1 - Complex.exp (-Real.pi * Complex.I)))) := by
-          refine' Filter.Tendsto.mul _ _
-          · refine' tendsto_nhdsWithin_of_tendsto_nhds _
-            refine' ContinuousAt.tendsto _ |> fun h => h.comp (Continuous.tendsto' _ _ _ _) <;> norm_num
-            · refine' ContinuousAt.sub _ _
-              · refine' ContinuousAt.neg (ContinuousAt.clog _ _)
+          refine Filter.Tendsto.mul ?_ ?_
+          · refine tendsto_nhdsWithin_of_tendsto_nhds ?_
+            refine (ContinuousAt.tendsto ?_).comp ?_
+            · refine ContinuousAt.sub ?_ ?_
+              · refine ContinuousAt.neg (ContinuousAt.clog ?_ ?_)
                 · exact Continuous.continuousAt (by continuity)
                 · norm_num [ Complex.slitPlane, Complex.exp_re, Complex.exp_im ]
               · exact tendsto_finset_sum _ fun _ _ => Continuous.continuousAt (by continuity)
-            · exact continuous_const.sub continuous_id
+            · simpa using ((continuous_const.sub continuous_id).tendsto (0 : ℝ))
           · exact tendsto_nhdsWithin_of_tendsto_nhds (Continuous.tendsto' (by continuity) _ _ <| by norm_num)
         have h_bound : ∀ᶠ ε in nhdsWithin 0 (Set.Ioi 0), ‖h_fun n (Real.pi - ε) * (1 - Complex.exp (-(Real.pi - ε) * Complex.I))‖ ≤ 2 / (n + 1) := by
           filter_upwards [ Ioo_mem_nhdsGT_of_mem ⟨le_rfl, Real.pi_pos⟩ ] with ε hε
@@ -2533,9 +2714,9 @@ lemma h_pointwise_far_bound (n : ℕ) (hn : 0 < n) {θ : ℝ}
         linarith
       · -- By continuity of $h_fun$, we can extend the bound to $\theta = -\pi$.
         have h_cont : Filter.Tendsto (fun θ => ‖h_fun n θ‖) (nhdsWithin (-Real.pi) (Set.Ioi (-Real.pi))) (nhds (‖h_fun n (-Real.pi)‖)) := by
-          refine' Filter.Tendsto.norm _
-          refine' Filter.Tendsto.sub _ _
-          · refine' Filter.Tendsto.neg (Filter.Tendsto.comp (Complex.differentiableAt_log _ |> DifferentiableAt.continuousAt) _)
+          refine Filter.Tendsto.norm ?_
+          refine Filter.Tendsto.sub ?_ ?_
+          · refine Filter.Tendsto.neg (Filter.Tendsto.comp (Complex.differentiableAt_log ?_ |> DifferentiableAt.continuousAt) ?_)
             · norm_num [ Complex.slitPlane, Complex.exp_re, Complex.exp_im ]
             · exact tendsto_const_nhds.sub (Complex.continuous_exp.continuousAt.tendsto.comp <| Continuous.continuousWithinAt <| by continuity)
           · exact tendsto_finset_sum _ fun _ _ => Continuous.continuousWithinAt (by continuity)
@@ -2609,7 +2790,12 @@ private lemma g_deviation_far {n : ℕ} (hn : 0 < n) (z : Fin n → ℂ)
       nlinarith [hs_max k, norm_nonneg (powerSum z (k.val + 1)),
                  norm_nonneg (Complex.exp ((k.val + 1) * θ * I) - 1)]
     have h_near_sum : ‖∑ k : Fin n, (powerSum z (k.val + 1) / (k.val + 1 : ℂ)) * (Complex.exp ((k.val + 1 : ℂ) * θ * I) - 1) * (if (k.val + 1 : ℝ) ≤ Real.pi / |θ| then 1 else 0)‖ ≤ ∑ k : Fin n, (if (k.val + 1 : ℝ) ≤ Real.pi / |θ| then s * |θ| else 0) := by
-      refine' le_trans (norm_sum_le _ _) _
+      refine le_trans
+        (norm_sum_le (Finset.univ : Finset (Fin n))
+          (fun k =>
+            (powerSum z (k.val + 1) / (k.val + 1 : ℂ)) *
+              (Complex.exp ((k.val + 1 : ℂ) * θ * I) - 1) *
+                (if (k.val + 1 : ℝ) ≤ Real.pi / |θ| then 1 else 0))) ?_
       gcongr; aesop
     -- The number of terms in the sum is at most $\pi / |\theta|$.
     have h_num_terms :
@@ -2627,13 +2813,25 @@ private lemma g_deviation_far {n : ℕ} (hn : 0 < n) (z : Fin n → ℂ)
   have h_far : ‖∑ k : Fin n, (powerSum z (k.val + 1) / (k.val + 1 : ℂ)) * (Complex.exp ((k.val + 1 : ℂ) * θ * I) - 1) * (if (k.val + 1 : ℝ) > Real.pi / |θ| then 1 else 0)‖ ≤ 2 * s * ∑ k ∈ Finset.Ico (Nat.floor (Real.pi / |θ|) + 1) (n + 1), (1 / (k : ℝ)) := by
     have h_far : ∀ k : Fin n, ‖(powerSum z (k.val + 1) / (k.val + 1 : ℂ)) * (Complex.exp ((k.val + 1 : ℂ) * θ * I) - 1) * (if (k.val + 1 : ℝ) > Real.pi / |θ| then 1 else 0)‖ ≤ 2 * s * (if (k.val + 1 : ℝ) > Real.pi / |θ| then 1 / (k.val + 1 : ℝ) else 0) := by
       intro k; split_ifs <;> simp_all +decide [ div_eq_mul_inv, mul_comm, mul_left_comm ]
-      norm_cast; norm_num [ mul_assoc, mul_comm, mul_left_comm ]
-      refine' le_trans (mul_le_mul_of_nonneg_right (norm_sub_le _ _) (by positivity)) _; norm_num [ Complex.norm_exp ]
+      have h_norm_sub :=
+        norm_sub_le (Complex.exp ((k.val + 1 : ℂ) * θ * I)) (1 : ℂ)
+      norm_cast
+      norm_num [ mul_assoc, mul_comm, mul_left_comm ] at h_norm_sub ⊢
+      refine le_trans
+        (mul_le_mul_of_nonneg_right
+          h_norm_sub (by positivity)) ?_
+      norm_num [ Complex.norm_exp ]
       nlinarith [ hs_max k, inv_pos.mpr (by positivity : 0 < (k : ℝ) + 1) ]
-    refine' le_trans (norm_sum_le _ _) (le_trans (Finset.sum_le_sum fun _ _ => h_far _) _)
+    refine le_trans
+      (norm_sum_le (Finset.univ : Finset (Fin n))
+        (fun k =>
+          (powerSum z (k.val + 1) / (k.val + 1 : ℂ)) *
+            (Complex.exp ((k.val + 1 : ℂ) * θ * I) - 1) *
+              (if (k.val + 1 : ℝ) > Real.pi / |θ| then 1 else 0))) ?_
+    refine le_trans (Finset.sum_le_sum fun k _ => h_far k) ?_
     norm_num [ Finset.sum_ite, Finset.mul_sum _ _ _ ]
-    refine' le_of_eq _
-    refine' Finset.sum_bij (fun x hx => x + 1) _ _ _ _ <;> norm_num
+    refine le_of_eq ?_
+    refine Finset.sum_bij (fun x hx => x + 1) ?_ ?_ ?_ ?_ <;> norm_num
     · exact fun k hk => Nat.le_of_lt_succ <| by rw [ Nat.floor_lt' ] <;> norm_num; linarith
     · exact fun a₁ ha₁ a₂ ha₂ h => Fin.ext h
     · exact fun b hb₁ hb₂ => ⟨⟨b - 1, Nat.lt_of_lt_of_le (Nat.sub_lt (by linarith) zero_lt_one) hb₂⟩, by simpa [ Nat.cast_sub (show 1 ≤ b by linarith) ] using Nat.lt_of_floor_lt hb₁, by cases b <;> aesop⟩
@@ -2760,8 +2958,8 @@ private lemma neg_log_one_sub_cexp_tendsto {θ : ℝ} (hθ : θ ≠ 0) (hθ_rang
     convert h_series.tsum_eq using 2; ring_nf
     exact funext fun _ => by ring
   have h_abel_limit : Filter.Tendsto (fun r : ℝ => -Complex.log (1 - r * Complex.exp (-(↑θ : ℂ) * I))) (nhdsWithin 1 (Set.Iio 1)) (nhds (-Complex.log (1 - Complex.exp (-(↑θ : ℂ) * I)))) := by
-    refine' Filter.Tendsto.neg _
-    refine' Filter.Tendsto.comp (Complex.differentiableAt_log _ |> DifferentiableAt.continuousAt) _
+    refine Filter.Tendsto.neg ?_
+    refine Filter.Tendsto.comp (Complex.differentiableAt_log ?_ |> DifferentiableAt.continuousAt) ?_
     · norm_num [ Complex.slitPlane, Complex.exp_re, Complex.exp_im ]
       by_cases h_sin_zero : Real.sin θ = 0
       · rw [ Real.sin_eq_zero_iff ] at h_sin_zero
@@ -2840,7 +3038,7 @@ private lemma near_integral_bound {n : ℕ} (hn : 0 < n) (z : Fin n → ℂ) {s 
                                                                                                                                             ← Real.exp_nat_mul]; ring_nf
         norm_num
       rw [ ← MeasureTheory.integral_const_mul ]
-      refine' MeasureTheory.integral_mono_of_nonneg _ _ _
+      refine MeasureTheory.integral_mono_of_nonneg ?_ ?_ ?_
       · exact Filter.Eventually.of_forall fun x => sq_nonneg _
       · have h_integrable : IntervalIntegrable (fun θ => ‖h_fun n θ‖ ^ 2) volume (-Real.pi) Real.pi := by
           convert exp_g_h_sq_intervalIntegrable hn (fun _ => 0) _ using 1
@@ -2882,7 +3080,10 @@ private lemma far_pos_integral_bound {n : ℕ} (hn : 0 < n) (z : Fin n → ℂ)
   revert z
   intro z hz h_pow
   have h_integral_bound : ∫ θ in (Real.pi / n)..Real.pi, ‖Complex.exp (g_fun z θ - g_fun z 0) * h_fun n θ‖ ^ 2 ≤ ∫ θ in (Real.pi / n)..Real.pi, Real.exp (2 * s * (Real.pi + 2) + 4 * s * Real.log (n * θ / Real.pi)) * (Real.pi / (n * θ)) ^ 2 := by
-    refine' intervalIntegral.integral_mono_on _ _ _ _
+    refine intervalIntegral.integral_mono_on
+      (g := fun θ =>
+        Real.exp (2 * s * (Real.pi + 2) + 4 * s * Real.log (n * θ / Real.pi)) *
+          (Real.pi / (n * θ)) ^ 2) ?_ ?_ ?_ ?_
     · exact div_le_self Real.pi_pos.le <| mod_cast hn
     · have := exp_g_h_sq_intervalIntegrable hn z hz
       apply_rules [ this.mono_set, Set.Icc_subset_Icc ] <;> norm_num
@@ -2918,7 +3119,7 @@ private lemma far_pos_integral_bound {n : ℕ} (hn : 0 < n) (z : Fin n → ℂ)
       · grind +splitImp
       · norm_num [ mul_assoc, mul_comm, mul_left_comm, Real.pi_ne_zero, hn.ne' ]
     rw [ h_integral_simplified, ← intervalIntegral.integral_const_mul ]
-    rw [ ← intervalIntegral.integral_const_mul ]; refine' intervalIntegral.integral_congr fun x hx => _; by_cases hx' : x = 0 <;> simp +decide [ hx', mul_assoc, mul_comm, mul_left_comm, div_eq_mul_inv, Real.exp_add, hn.ne', Real.pi_ne_zero ]; ring_nf
+    rw [ ← intervalIntegral.integral_const_mul ]; refine intervalIntegral.integral_congr fun x hx => ?_; by_cases hx' : x = 0 <;> simp +decide [ hx', mul_assoc, mul_comm, mul_left_comm, div_eq_mul_inv, Real.exp_add, hn.ne', Real.pi_ne_zero ]; ring_nf
     · rw [ Real.zero_rpow (by linarith) ]
     · rw [Real.rpow_sub (by cases Set.mem_uIcc.mp hx <;> linarith [ show (n : ℝ) ≥ 1 by norm_cast ]),
           Real.rpow_two]; ring_nf
@@ -2944,8 +3145,12 @@ private lemma far_neg_integral_bound {n : ℕ} (hn : 0 < n) (z : Fin n → ℂ)
       (‖Complex.exp (g_fun z θ - g_fun z 0) * h_fun n θ‖ ^ 2 : ℝ) ≤
       Real.pi / ↑n * Real.exp (2 * s * (Real.pi + 2)) / (1 - 4 * s) := by
   by_contra h_contra
-  refine' h_contra (le_trans (intervalIntegral.integral_mono_on _ _ _ _) _)
-  refine' fun θ => (Real.exp (s * (Real.pi + 2) + 2 * s * Real.log (n * |θ| / Real.pi))) ^ 2 * (Real.pi / (n * |θ|)) ^ 2
+  refine h_contra (le_trans
+    (intervalIntegral.integral_mono_on
+      (g := fun θ =>
+        (Real.exp (s * (Real.pi + 2) + 2 * s *
+          Real.log (n * |θ| / Real.pi))) ^ 2 *
+            (Real.pi / (n * |θ|)) ^ 2) ?_ ?_ ?_ ?_) ?_)
   · exact neg_le_neg (div_le_self Real.pi_pos.le (mod_cast hn))
   · apply_rules [ MeasureTheory.IntegrableOn.intervalIntegrable ]
     contrapose! h_contra
@@ -2955,16 +3160,16 @@ private lemma far_neg_integral_bound {n : ℕ} (hn : 0 < n) (z : Fin n → ℂ)
       · rwa [ Set.uIcc_of_le (neg_le_neg <| div_le_self Real.pi_pos.le <| mod_cast hn) ] at h_contra
       · exact neg_le_neg (div_le_self Real.pi_pos.le (mod_cast hn))
   · apply_rules [ ContinuousOn.intervalIntegrable ]
-    refine' ContinuousOn.mul _ _
-    · refine' ContinuousOn.pow _ _
-      refine' ContinuousOn.rexp (ContinuousOn.add continuousOn_const <| ContinuousOn.mul continuousOn_const <| ContinuousOn.log _ _)
+    refine ContinuousOn.mul ?_ ?_
+    · refine ContinuousOn.pow ?_ 2
+      refine ContinuousOn.rexp (ContinuousOn.add continuousOn_const <| ContinuousOn.mul continuousOn_const <| ContinuousOn.log ?_ ?_)
       · exact Continuous.continuousOn (by continuity)
       · norm_num [ Real.pi_ne_zero, hn.ne' ]
         intro x hx; cases Set.mem_uIcc.mp hx <;> nlinarith [Real.pi_pos,
                                                             show (n : ℝ) ≥ 1 by norm_cast,
                                                             mul_div_cancel₀ Real.pi (by positivity : (n : ℝ) ≠ 0)]
-    · refine' ContinuousOn.pow _ _
-      refine' continuousOn_of_forall_continuousAt fun x hx => ContinuousAt.div continuousAt_const _ _
+    · refine ContinuousOn.pow ?_ 2
+      refine continuousOn_of_forall_continuousAt fun x hx => ContinuousAt.div continuousAt_const ?_ ?_
       · exact ContinuousAt.mul continuousAt_const (continuousAt_id.abs)
       · simp +zetaDelta at *
         exact ⟨hn.ne', by cases Set.mem_uIcc.mp hx <;> nlinarith [ Real.pi_pos, show (n : ℝ) ≥ 1 by norm_cast, div_mul_cancel₀ Real.pi (by positivity : (n : ℝ) ≠ 0) ]⟩
@@ -2987,19 +3192,19 @@ private lemma far_neg_integral_bound {n : ℕ} (hn : 0 < n) (z : Fin n → ℂ)
     suffices h_simp : ∫ u in (Real.pi / n)..Real.pi, (Real.exp (s * (Real.pi + 2) + 2 * s * Real.log (n * u / Real.pi))) ^ 2 * (Real.pi / (n * u)) ^ 2 ≤ (Real.pi / n) * Real.exp (2 * s * (Real.pi + 2)) / (1 - 4 * s) by
       convert h_simp using 1
       rw [ ← intervalIntegral.integral_comp_neg ]; norm_num
-      refine' intervalIntegral.integral_congr fun x hx => _
+      refine intervalIntegral.integral_congr fun x hx => ?_
       rw [ abs_of_nonneg (by cases Set.mem_uIcc.mp hx <;> nlinarith [ Real.pi_pos, show (n : ℝ) ≥ 1 by norm_cast, div_mul_cancel₀ Real.pi (by positivity : (n : ℝ) ≠ 0) ]) ]
     -- Simplify the integral expression further.
     suffices h_simp' : ∫ u in (Real.pi / n)..Real.pi, (Real.exp (2 * s * (Real.pi + 2))) * (n * u / Real.pi) ^ (4 * s) * (Real.pi ^ 2 / (n ^ 2 * u ^ 2)) ≤ (Real.pi / n) * Real.exp (2 * s * (Real.pi + 2)) / (1 - 4 * s) by
       convert h_simp' using 1
-      refine' intervalIntegral.integral_congr fun u hu => _
+      refine intervalIntegral.integral_congr fun u hu => ?_
       rw [ ← Real.exp_nat_mul ]; ring_nf
       rw [ Real.rpow_def_of_pos (mul_pos (mul_pos (Nat.cast_pos.mpr hn) (show 0 < u by cases Set.mem_uIcc.mp hu <;> nlinarith [ Real.pi_pos, show (n : ℝ) ≥ 1 by norm_cast, div_mul_cancel₀ Real.pi (by positivity : (n : ℝ) ≠ 0) ])) (inv_pos.mpr Real.pi_pos)) ]; ring_nf
       rw [ Real.exp_add ]; ring
     -- Simplify the integral expression further by combining constants and powers of $u$.
     suffices h_simp'' : ∫ u in (Real.pi / n)..Real.pi, (Real.exp (2 * s * (Real.pi + 2))) * (n ^ (4 * s) / Real.pi ^ (4 * s)) * (Real.pi ^ 2 / n ^ 2) * u ^ (4 * s - 2) ≤ (Real.pi / n) * Real.exp (2 * s * (Real.pi + 2)) / (1 - 4 * s) by
       convert h_simp'' using 1
-      refine' intervalIntegral.integral_congr fun u hu => _
+      refine intervalIntegral.integral_congr fun u hu => ?_
       rw [Real.div_rpow (by exact mul_nonneg (Nat.cast_nonneg _) (by cases Set.mem_uIcc.mp hu <;> nlinarith [ Real.pi_pos, show (n : ℝ) ≥ 1 by norm_cast, div_mul_cancel₀ Real.pi (by positivity : (n : ℝ) ≠ 0) ])) (by positivity),
           Real.mul_rpow (by positivity) (by cases Set.mem_uIcc.mp hu <;> nlinarith [ Real.pi_pos, show (n : ℝ) ≥ 1 by norm_cast, div_mul_cancel₀ Real.pi (by positivity : (n : ℝ) ≠ 0) ])]
       rw [ Real.rpow_sub (by cases Set.mem_uIcc.mp hu <;> nlinarith [ Real.pi_pos, show (n : ℝ) ≥ 1 by norm_cast, div_mul_cancel₀ Real.pi (by positivity : (n : ℝ) ≠ 0) ]) ]; norm_cast; ring
@@ -3036,15 +3241,15 @@ lemma exp_h_integral_bound {n : ℕ} (hn : 0 < n) (z : Fin n → ℂ)
         apply_rules [ exp_g_h_sq_intervalIntegrable ]
       rw [ intervalIntegrable_iff_integrableOn_Icc_of_le (by linarith [ Real.pi_pos, show (Real.pi : ℝ) / n ≥ 0 by positivity ]) ] at h_integrable
       exact h_integrable.mono_set (by rw [ Set.uIcc_of_le (by rw [ div_le_iff₀ (by positivity) ]; nlinarith [ Real.pi_pos, show (n : ℝ) ≥ 1 by norm_cast ]) ]; exact Set.Icc_subset_Icc (by linarith [ Real.pi_pos, show (Real.pi : ℝ) / n ≥ 0 by positivity ]) le_rfl)
-    · refine' MeasureTheory.IntegrableOn.mono_set _ _
-      exact Set.Icc (-Real.pi) Real.pi
+    · refine MeasureTheory.IntegrableOn.mono_set
+        (t := Set.Icc (-Real.pi) Real.pi) ?_ ?_
       · contrapose! h_contra
         rw [ intervalIntegral.integral_undef ]
         · exact mul_pos (mul_pos (by positivity) (Real.exp_pos _)) (add_pos_of_pos_of_nonneg zero_lt_one (div_nonneg (Real.exp_nonneg _) (by linarith)))
         · rw [ intervalIntegrable_iff_integrableOn_Icc_of_le (by linarith [ Real.pi_pos ]) ]; aesop
       · exact fun x hx => ⟨by cases Set.mem_uIcc.mp hx <;> nlinarith [ Real.pi_pos, show (n : ℝ) ≥ 1 by norm_cast, mul_div_cancel₀ (-Real.pi) (by positivity : (n : ℝ) ≠ 0) ], by cases Set.mem_uIcc.mp hx <;> nlinarith [ Real.pi_pos, show (n : ℝ) ≥ 1 by norm_cast, mul_div_cancel₀ (-Real.pi) (by positivity : (n : ℝ) ≠ 0) ]⟩
-    · refine' MeasureTheory.IntegrableOn.mono_set _ _
-      exact Set.Icc (-Real.pi) Real.pi
+    · refine MeasureTheory.IntegrableOn.mono_set
+        (t := Set.Icc (-Real.pi) Real.pi) ?_ ?_
       · rw [ intervalIntegral.integral_of_le (by linarith [ Real.pi_pos ]) ] at h_contra
         exact (by rw [ MeasureTheory.IntegrableOn, MeasureTheory.Measure.restrict_congr_set MeasureTheory.Ioc_ae_eq_Icc ] at *; exact (by exact (by exact (by exact (by exact (by exact (by exact by { by_contra h; rw [ MeasureTheory.integral_undef h ] at h_contra; exact absurd h_contra (by exact not_le_of_gt (by exact mul_pos (mul_pos (by positivity) (Real.exp_pos _)) (by exact add_pos_of_pos_of_nonneg zero_lt_one (div_nonneg (Real.exp_nonneg _) (by linarith))))) })))))))
       · exact fun x hx => ⟨by cases Set.mem_uIcc.mp hx <;> nlinarith [ Real.pi_pos, show (n : ℝ) ≥ 1 by norm_cast, mul_div_cancel₀ (-Real.pi) (by positivity : (n : ℝ) ≠ 0), mul_div_cancel₀ (Real.pi) (by positivity : (n : ℝ) ≠ 0) ], by cases Set.mem_uIcc.mp hx <;> nlinarith [ Real.pi_pos, show (n : ℝ) ≥ 1 by norm_cast, mul_div_cancel₀ (-Real.pi) (by positivity : (n : ℝ) ≠ 0), mul_div_cancel₀ (Real.pi) (by positivity : (n : ℝ) ≠ 0) ]⟩
