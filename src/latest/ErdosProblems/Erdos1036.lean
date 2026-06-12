@@ -249,7 +249,6 @@ namespace Erdos1036
 
 set_option linter.style.setOption false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 set_option linter.style.cases false
 set_option linter.flexible false
 
@@ -288,7 +287,7 @@ def I_num {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V) : ℕ :=
     use Equiv.refl x
     simp
   · rintro x y ⟨ f, hf ⟩;
-    refine' ⟨ f.symm, _ ⟩;
+    refine ⟨ f.symm, ?_ ⟩;
     grind;
   · rintro x y z ⟨ f, hf ⟩ ⟨ g, hg ⟩;
     exact ⟨ f.trans g, by aesop ⟩)))
@@ -326,23 +325,23 @@ theorem ramsey_prop_mono {a b N N' : ℕ} (h : Ramsey_prop a b N)
   specialize h G';
   contrapose! h;
   constructor <;> rw [ SimpleGraph.cliqueNum, SimpleGraph.indepNum ] at *;
-  · refine' lt_of_le_of_lt ( csSup_le _ _ ) h.1;
+  · refine lt_of_le_of_lt ( csSup_le ?_ ?_ ) h.1;
     · exact ⟨ 0, ⟨ ∅, by simp +decide [ SimpleGraph.isNClique_iff ] ⟩ ⟩;
     · rintro n ⟨ s, hs ⟩;
-      refine' le_csSup _ _;
+      refine le_csSup ?_ ?_;
       · exact
           ⟨ N', fun n hn => by
             obtain ⟨ s, hs ⟩ := hn
             exact hs.card_eq.symm ▸ le_trans (Finset.card_le_univ _) (by simp) ⟩
-      · refine' ⟨ s.image ( Fin.castLE h_le ), _ ⟩;
+      · refine ⟨ s.image ( Fin.castLE h_le ), ?_ ⟩;
         simp_all +decide [ SimpleGraph.isNClique_iff ];
         simp_all +decide [ SimpleGraph.IsClique, Finset.card_image_of_injective,
           Function.Injective ];
         intro x hx y hy hxy; aesop;
-  · refine' lt_of_le_of_lt ( csSup_le _ _ ) h.2;
+  · refine lt_of_le_of_lt ( csSup_le ?_ ?_ ) h.2;
     · exact ⟨ 0, ⟨ ∅, by simp +decide [ SimpleGraph.isNIndepSet_iff ] ⟩ ⟩;
     · rintro n ⟨ s, hs ⟩;
-      refine' le_csSup _ _;
+      refine le_csSup ?_ ?_;
       · exact
           ⟨ N', fun n hn => by
             obtain ⟨ s, hs ⟩ := hn
@@ -470,8 +469,7 @@ theorem ramsey_step (a b N1 N2 : ℕ) (ha : 2 ≤ a) (hb : 2 ≤ b)
         obtain ⟨K, hK⟩ :
             ∃ K : Finset (Fin (N1 + N2)), K ⊆ S ∧ K.card = a - 1 ∧ G.IsClique K := by
           contrapose! h;
-          refine' lt_of_le_of_lt ( csSup_le _ _ ) _;
-          exact a - 2;
+          refine lt_of_le_of_lt ( csSup_le (a := a - 2) ?_ ?_ ) ?_;
           · exact ⟨ 0, ⟨ ∅, by simp +decide [ SimpleGraph.isNClique_iff ] ⟩ ⟩;
           · rintro n ⟨ s, hs ⟩;
             rcases a with ( _ | _ | a ) <;> simp_all +decide [ SimpleGraph.isNClique_iff ];
@@ -500,7 +498,7 @@ theorem ramsey_step (a b N1 N2 : ℕ) (ha : 2 ≤ a) (hb : 2 ≤ b)
               exact ht.2.symm ▸ Finset.card_le_univ _ ⟩
             ⟨ _, h_clique ⟩
       · refine Or.inr <| le_trans h ?_;
-        refine' le_csSup _ _;
+        refine le_csSup ?_ ?_;
         · exact ⟨ _, fun n hn => hn.choose_spec.card_eq ▸ Finset.card_le_univ _ ⟩;
         · obtain ⟨ s, hs ⟩ := (show
               ∃ s : Finset S,
@@ -530,12 +528,11 @@ theorem ramsey_step (a b N1 N2 : ℕ) (ha : 2 ≤ a) (hb : 2 ≤ b)
             ∃ K : Finset (Fin (N1 + N2)),
               K.card = a ∧ K ⊆ T ∧ ∀ x ∈ K, ∀ y ∈ K, x ≠ y → G.Adj x y := by
           contrapose! h;
-          refine' lt_of_le_of_lt ( csSup_le _ _ ) _;
-          exact a - 1;
+          refine lt_of_le_of_lt ( csSup_le (a := a - 1) ?_ ?_ ) ?_;
           · exact ⟨ 0, ⟨ ∅, by simp +decide [ SimpleGraph.isNClique_iff ] ⟩ ⟩;
           · rintro n ⟨ s, hs ⟩;
-            refine' Nat.le_sub_one_of_lt _;
-            refine' lt_of_not_ge fun hn => _;
+            refine Nat.le_sub_one_of_lt ?_;
+            refine lt_of_not_ge fun hn => ?_;
             obtain ⟨ t, ht ⟩ :=
               Finset.exists_subset_card_eq (show a ≤ s.card from by
                 linarith [ hs.2 ])
@@ -555,7 +552,7 @@ theorem ramsey_step (a b N1 N2 : ℕ) (ha : 2 ≤ a) (hb : 2 ≤ b)
             simp_all +decide
           · exact Nat.pred_lt ( ne_bot_of_gt ha );
         refine Or.inl ?_;
-        refine' le_csSup _ _;
+        refine le_csSup ?_ ?_;
         · exact ⟨ _, fun n hn => hn.choose_spec.card_eq ▸ Finset.card_le_univ _ ⟩;
         · exact ⟨ K, by rw [ SimpleGraph.isNClique_iff ] ; aesop ⟩;
       · -- Let $I$ be an independent set of size $b-1$ in $G[T]$.
@@ -563,8 +560,7 @@ theorem ramsey_step (a b N1 N2 : ℕ) (ha : 2 ≤ a) (hb : 2 ≤ b)
             ∃ I : Finset (Fin (N1 + N2)),
               I.card = b - 1 ∧ I ⊆ T ∧ ∀ x ∈ I, ∀ y ∈ I, x ≠ y → ¬G.Adj x y := by
           contrapose! h;
-          refine' lt_of_le_of_lt ( csSup_le' _ ) _;
-          exact b - 2;
+          refine lt_of_le_of_lt ( csSup_le' (a := b - 2) ?_ ) ?_;
           · rintro n ⟨ s, hs ⟩;
             rcases hs with ⟨ hs₁, hs₂ ⟩;
             contrapose! h;
@@ -600,7 +596,7 @@ theorem ramsey_step (a b N1 N2 : ℕ) (ha : 2 ≤ a) (hb : 2 ≤ b)
               tauto ⟩
         obtain ⟨ I', hI'₁, hI'₂, hI'₃ ⟩ := h_indep;
         refine Or.inr ?_;
-        refine' le_csSup _ _;
+        refine le_csSup ?_ ?_;
         · exact
             ⟨ _, fun n hn => by
               obtain ⟨ s, hs ⟩ := hn
@@ -622,7 +618,7 @@ theorem ramsey_upper_bound_prop (a b : ℕ) (ha : 2 ≤ a) (hb : 2 ≤ b) :
     have h_ind_a : Ramsey_prop (a + 1) (b + 2) ((a + b + 1).choose (a)) := by
       rcases a with ( _ | a ) <;> simp_all +arith +decide;
       · intro G; simp +decide [ SimpleGraph.cliqueNum, SimpleGraph.indepNum ] ;
-        refine' Or.inl ( le_csSup _ _ );
+        refine Or.inl ( le_csSup ?_ ?_ );
         · exact ⟨ 1, by rintro n ⟨ s, hs ⟩ ; exact hs.card_eq ▸ Finset.card_le_univ _ ⟩;
         · exact ⟨ { 0 }, by simp +decide [ SimpleGraph.isNClique_iff ] ⟩;
       · convert
@@ -637,8 +633,8 @@ theorem ramsey_upper_bound_prop (a b : ℕ) (ha : 2 ≤ a) (hb : 2 ≤ b) :
       · exact ih _ le_rfl hb;
       · interval_cases _ : b + 1 <;> simp_all +decide;
         intro G; simp +decide [ SimpleGraph.cliqueNum ] ;
-        refine' Or.inr _;
-        refine' le_csSup _ _ <;> norm_num;
+        refine Or.inr ?_;
+        refine le_csSup ?_ ?_ <;> norm_num;
         · exact
             ⟨ 1, by
               rintro n ⟨ s, hs ⟩
@@ -689,14 +685,13 @@ theorem cor_ramsey_km (k m : ℕ) (hk : 1 ≤ k) (hm : 1 ≤ m) :
     -- binomial coefficients.
     have h_ES : R (k * m) m ≤ Nat.choose (k * m + m - 2) (k * m - 1) := by
       by_cases hkm : 2 ≤ k * m <;> by_cases hm₂ : 2 ≤ m <;> simp_all +decide [ R ];
-      · refine' Nat.sInf_le _;
+      · refine Nat.sInf_le ?_;
         exact ramsey_upper_bound_prop _ _ hkm hm₂;
       · interval_cases m ; simp_all +decide;
-        refine' Nat.le_trans ( Nat.sInf_le _ ) _;
-        exact 1;
+        refine Nat.le_trans ( Nat.sInf_le (m := 1) ?_ ) ?_;
         · intro G;
-          refine' Or.inr _;
-          refine' le_csSup _ _ <;> norm_num;
+          refine Or.inr ?_;
+          refine le_csSup ?_ ?_ <;> norm_num;
           · exact
               ⟨ 1, by
                 rintro n ⟨ s, hs ⟩
@@ -706,7 +701,7 @@ theorem cor_ramsey_km (k m : ℕ) (hk : 1 ≤ k) (hm : 1 ≤ m) :
       · nlinarith;
       · interval_cases m ; simp_all +decide;
         interval_cases k ; simp_all +decide [ Ramsey_prop ];
-        refine' Nat.sInf_le _;
+        refine Nat.sInf_le ?_;
         intro G
         exact Or.inl (by
           exact
@@ -723,7 +718,7 @@ theorem cor_ramsey_km (k m : ℕ) (hk : 1 ≤ k) (hm : 1 ≤ m) :
       any_goals exact m + 1 + 1 - 1;
       · simp +arith +decide [ Nat.choose_succ_succ ];
       · grind;
-    refine' le_trans ( Nat.cast_le.mpr ( h_ES.trans h_binom ) ) _;
+    refine le_trans ( Nat.cast_le.mpr ( h_ES.trans h_binom ) ) ?_;
     convert lemma_binom ( ( k + 1 ) * m ) m hm using 1 ; norm_num [ mul_pow, mul_comm ];
     rw [ mul_assoc, mul_div_cancel_left₀ _ ( by positivity ) ];
     rw [ mul_pow, ← Real.exp_nat_mul ] ; ring_nf
@@ -783,7 +778,7 @@ theorem sum_bernoulli_weight_disjoint {V : Type*} [Fintype V] [DecidableEq V]
                 p ^ A.card * (1 - p) ^ ((Finset.univ \ D).card - A.card) := by
         simp +decide only [bernoulli_weight];
         rw [ Finset.mul_sum _ _ _ ];
-        refine' Finset.sum_congr rfl fun x hx => _;
+        refine Finset.sum_congr rfl fun x hx => ?_;
         simp_all +decide [ Finset.card_sdiff, Finset.subset_iff ];
         rw [show
             Fintype.card V - x.card =
@@ -870,7 +865,7 @@ theorem expectation_card {V : Type*} [Fintype V] (p : ℝ) :
         simp +decide only [mul_assoc, tsub_tsub, Finset.mul_sum _ _ _];
       rw [ ← Finset.sum_filter ];
       convert h_vertex_sum using 1;
-      refine' Finset.sum_bij ( fun A hA => A.erase v ) _ _ _ _ <;> simp +decide;
+      refine Finset.sum_bij ( fun A hA => A.erase v ) ?_ ?_ ?_ ?_ <;> simp +decide;
       · exact fun A hv => Finset.erase_subset_erase _ ( Finset.subset_univ _ );
       · intro a₁ hv₁ a₂ hv₂ h
         rw [ ← Finset.insert_erase hv₁, ← Finset.insert_erase hv₂, h ]
@@ -921,15 +916,15 @@ theorem sum_ge_k_le_expectation {V : Type*} [Fintype V]
     classical
     unfold prob_event;
     rw [ Finset.mul_sum _ _ _ ];
-    refine' le_trans ( Finset.sum_le_sum_of_subset_of_nonneg _ _ ) _;
-    exact Finset.univ.filter fun A => k ≤ A.card;
+    refine le_trans
+      ( Finset.sum_le_sum_of_subset_of_nonneg
+        (t := Finset.univ.filter fun A : Finset V => k ≤ A.card) ?_ ?_ ) ?_;
     · aesop_cat;
     · aesop;
-    · refine' le_trans
+    · refine le_trans
         (Finset.sum_le_sum fun A hA =>
           mul_le_mul_of_nonneg_right (Finset.mem_filter.mp hA |>.2)
-            (show 0 ≤ bernoulli_weight p A from _)) _;
-      · exact mul_nonneg ( pow_nonneg hp _ ) ( pow_nonneg ( sub_nonneg.2 hp1 ) _ );
+            (mul_nonneg (pow_nonneg hp _) (pow_nonneg (sub_nonneg.2 hp1) _))) ?_;
       · exact
           Finset.sum_le_sum_of_subset_of_nonneg (Finset.filter_subset _ _) fun _ _ _ =>
             mul_nonneg (Nat.cast_nonneg _)
@@ -1086,7 +1081,7 @@ theorem lemma_prob_empty_small (γ : ℝ) (hγ : 0 < γ) :
             Filter.Tendsto (fun n : ℕ => Real.exp (-γ * (n : ℝ) / Real.logb 2 n))
               Filter.atTop (nhds 0) := by
           simpa [ neg_div ] using h_gamma_n_log2_n_inf;
-        refine' squeeze_zero_norm' _ h_exp_zero;
+        refine squeeze_zero_norm' ?_ h_exp_zero;
         -- Since $1 - \frac{\gamma}{\log_2 n}$ is positive for sufficiently large $n$, we can drop
         -- the absolute value.
         have h_pos : ∀ᶠ n in Filter.atTop, 0 < 1 - γ / Real.logb 2 n := by
@@ -1139,8 +1134,8 @@ theorem lemma_prob_bad_pairs_small (γ : ℝ) (hγ : 0 < γ ∧ γ < 1) :
             ring_nf);
         simpa using h_exp.eventually ( gt_mem_nhds <| by norm_num );
       obtain ⟨ n₀, hn₀ ⟩ := h_exp;
-      refine' ⟨ ⌈n₀⌉₊ + 2, fun n hn =>
-        lt_of_le_of_lt _ (hn₀ n (Nat.le_of_ceil_le (by linarith))) ⟩;
+      refine ⟨ ⌈n₀⌉₊ + 2, fun n hn =>
+        lt_of_le_of_lt ?_ (hn₀ n (Nat.le_of_ceil_le (by linarith))) ⟩;
       gcongr;
       convert prob_bound_main_v3 γ n hγ ( by linarith ) using 1
 
@@ -1160,8 +1155,10 @@ theorem lemma_prob_size_large {V : Type*} [Fintype V] (n : ℕ)
             (γ * n / Real.logb 2 n) / (2 * γ * n / Real.logb 2 n) := by
         have := @markov_inequality_card V;
         by_cases h : γ / Real.logb 2 n ≤ 1;
-        · refine' le_trans ( Finset.sum_le_sum_of_subset_of_nonneg _ _ ) _;
-          exact Finset.univ.filter fun A => ( A.card : ℝ ) ≥ 2 * γ * n / Real.logb 2 n;
+        · refine le_trans
+            ( Finset.sum_le_sum_of_subset_of_nonneg
+              (t := Finset.univ.filter fun A : Finset V =>
+                ( A.card : ℝ ) ≥ 2 * γ * n / Real.logb 2 n) ?_ ?_ ) ?_;
           · grind;
           · exact fun _ _ _ =>
               mul_nonneg
@@ -1180,7 +1177,7 @@ theorem lemma_prob_size_large {V : Type*} [Fintype V] (n : ℕ)
                   (Real.logb_pos (by norm_num) (by norm_cast));
             · exact
                 div_nonneg hγ.le (Real.logb_nonneg (by norm_num) (by norm_cast; linarith));
-        · refine' le_trans ( Finset.sum_nonpos _ ) _;
+        · refine le_trans ( Finset.sum_nonpos ?_ ) ?_;
           · simp +zetaDelta at *;
             intro A hA;
             rw [ div_lt_iff₀ ( Real.logb_pos ( by norm_num ) ( by norm_cast ) ) ] at hA;
@@ -1359,12 +1356,12 @@ theorem lemma_distinguish (γ : ℝ) (hγ : 0 < γ ∧ γ < 1) :
             have h_sum : ∑ A : Finset V, bernoulli_weight (param_p γ n) A = 1 := by
               exact sum_bernoulli_weight (param_p γ n);
             exact h_sum.ge;
-          refine' ⟨ A, _, _, _ ⟩ <;> simp_all +decide [ not_or ];
+          refine ⟨ A, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ not_or ];
           · exact Finset.nonempty_of_ne_empty hA.1;
           · intro x y hx hy hxy;
             contrapose! hA;
             intro hA₁ hA₂;
-            refine' ⟨ x, y, _, _, _ ⟩ <;> simp_all +decide [ same_adj_to_A ];
+            refine ⟨ x, y, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ same_adj_to_A ];
             · rintro rfl; simp_all +decide [ dif_size ];
               simp_all +decide [ param_T, symmDiff ];
               norm_num [ Finset.sdiff_self ] at hA;
@@ -1396,10 +1393,10 @@ def A_iso_setoid {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V) (A 
   · simp [A_iso];
     exact fun x => ⟨ 1, fun a ha => rfl ⟩;
   · rintro x y ⟨ f, hf ⟩;
-    refine' ⟨ f.symm, fun a => _ ⟩;
+    refine ⟨ f.symm, fun a => ?_ ⟩;
     have := f.symm_apply_apply ⟨ a, x.2 a.2 ⟩ ; aesop;
   · rintro ⟨ B, hB ⟩ ⟨ C, hC ⟩ ⟨ D, hD ⟩ ⟨ f ⟩ ⟨ g ⟩;
-    refine' ⟨ g.comp f, _ ⟩;
+    refine ⟨ g.comp f, ?_ ⟩;
     aesop)
 
 noncomputable def num_A_iso {V : Type*} [Fintype V] [DecidableEq V]
@@ -1629,9 +1626,9 @@ theorem lemma_fiber_bound {V : Type*} [Fintype V] [DecidableEq V]
             exact h_iso;
           exact ⟨ h_iso.some, trivial ⟩;
         choose ϕ hϕ using h_iso;
-        refine'
+        refine
           ⟨ fun x => fun a => (ϕ x) ⟨ a.1, (f x).2 a.2 ⟩ |>.1,
-            fun x y hxy => _ ⟩;
+            fun x y hxy => ?_ ⟩;
         -- Since $\phi_x$ and $\phi_y$ are isomorphisms, we have $\phi_x(a) = \phi_y(a)$ for all $a
         -- \in A$.
         have h_iso_eq :
@@ -1673,8 +1670,8 @@ theorem lemma_eqclasses_part2 {V : Type*} [Fintype V] [DecidableEq V]
         simp +decide only [h_fiber];
         simp +decide only [Finset.card_filter];
         rw [ Finset.sum_comm ] ; aesop;
-      refine' mod_cast h_card_eq.le.trans
-        (le_trans (Finset.sum_le_sum fun y _ => lemma_fiber_bound G A y) _);
+      refine mod_cast h_card_eq.le.trans
+        (le_trans (Finset.sum_le_sum fun y _ => lemma_fiber_bound G A y) ?_);
       simp +decide [ I_num ];
       rfl
 
@@ -1871,7 +1868,7 @@ theorem lemma_indset_edges {V : Type*} [Fintype V]
         have h_sum_deg : ∑ v, (H.degree v + 1) = 2 * H.edgeFinset.card + N := by
           simp +decide [ Finset.sum_add_distrib,
             SimpleGraph.sum_degrees_eq_twice_card_edges, hN ];
-        refine' le_trans _ h_jensen
+        refine le_trans ?_ h_jensen
         rw [ h_sum_deg ]
         push_cast
         rcases N with ( _ | _ | N ) <;> norm_num at *;
@@ -1927,7 +1924,7 @@ theorem lemma_greedy_homogeneous {V : Type*} [Finite V] [DecidableEq V]
                   ∃ H : Finset (Fin (R m m)),
                     H.card = m ∧ (SimpleGraph.comap f G).IsNClique m H := by
                 contrapose! h;
-                refine' lt_of_not_ge fun h' => _;
+                refine lt_of_not_ge fun h' => ?_;
                 obtain ⟨H, hH⟩ :
                     ∃ H : Finset (Fin (R m m)),
                       (SimpleGraph.comap f G).IsClique H ∧ H.card ≥ m := by
@@ -1955,7 +1952,7 @@ theorem lemma_greedy_homogeneous {V : Type*} [Finite V] [DecidableEq V]
                     ⟨ H', hH'.1, hH'.2,
                       fun x hx y hy hxy => hH.1 (hH'.1 hx) (hH'.1 hy) hxy ⟩;
                 exact h H' hH'.2.1 ⟨ hH'.2.2, hH'.2.1 ⟩;
-              refine' ⟨ Finset.image f H, _, _, _ ⟩ <;>
+              refine ⟨ Finset.image f H, ?_, ?_, ?_ ⟩ <;>
                 simp_all +decide [ SimpleGraph.isNClique_iff, SimpleGraph.isNIndepSet_iff ];
               · exact Finset.image_subset_iff.mpr fun i hi => hf.2 i;
               · rw [ Finset.card_image_of_injective _ hf.1, hH.1 ];
@@ -2010,7 +2007,7 @@ theorem lemma_greedy_homogeneous {V : Type*} [Finite V] [DecidableEq V]
               grind );
             use H :: B;
             simp +zetaDelta at *;
-            refine'
+            refine
               ⟨ ⟨ hH₁, fun b hb =>
                     Finset.Subset.trans (hB₁ b hb) Finset.sdiff_subset ⟩,
                 ⟨ hH₂, hB₂ ⟩, ⟨ hH₃, hB₃ ⟩,
@@ -2018,7 +2015,7 @@ theorem lemma_greedy_homogeneous {V : Type*} [Finite V] [DecidableEq V]
                     have := hB₁ b hb
                     have := this hx₂
                     aesop,
-                  hB₄ ⟩, _ ⟩;
+                  hB₄ ⟩, ?_ ⟩;
             convert hB₅ using 2 ; ext ; aesop;
           · exact ⟨ [ ], by aesop ⟩;
         exact h_exists_B
@@ -2212,7 +2209,7 @@ theorem lemma_uniform_subset_existence {V : Type*} [Fintype V]
                   exact Finset.exists_max_image _ _ ⟨ ∅, by simp +decide ⟩;
                 aesop
               obtain ⟨ W, hW₁, hW₂ ⟩ := h_max;
-              refine' ⟨ W, hW₁, le_antisymm _ _ ⟩;
+              refine ⟨ W, hW₁, le_antisymm ?_ ?_ ⟩;
               · exact SimpleGraph.IsIndepSet.card_le_indepNum hW₁;
               · exact csSup_le' fun n hn => by
                   obtain ⟨ W', hW'₁, hW'₂ ⟩ := hn
@@ -2304,7 +2301,7 @@ theorem all_blocks_props {V : Type*} [Fintype V] [DecidableEq V]
     (∀ b ∈ B, ∃ p, ∀ x ∈ b, pattern G A x = p) ∧
     ((B.length : ℝ) * m ≥
       (Fintype.card V : ℝ) - A.card - (patterns_set G A).card * (R m m)) := by
-      refine' ⟨ _, _, _, _, _ ⟩;
+      refine ⟨ ?_, ?_, ?_, ?_, ?_ ⟩;
       · unfold all_blocks_list;
         norm_num +zetaDelta at *;
         intro b x hx hb;
@@ -2405,7 +2402,7 @@ theorem all_blocks_props {V : Type*} [Fintype V] [DecidableEq V]
                     exact h_block_prop ‹_›;
                   exact h_block_prop;
                 grind;
-              refine' Nat.le_trans _ h_block_prop;
+              refine Nat.le_trans ?_ h_block_prop;
               have := greedy_blocks_props G ( vertices_with_pattern G A p ) m hm;
               exact Nat.sub_le_sub_left this.2.2.2.2.le _;
             simp +zetaDelta at *;
@@ -2672,8 +2669,8 @@ lemma lemma_R_rs_bound (c : ℝ) (hc : c > 0)
               rcases m₁ with ( _ | _ | m₁ ) <;> rcases s with ( _ | _ | s ) <;> norm_num at *;
               · linarith;
               · linarith;
-              · refine' Or.inr _;
-                refine' le_csSup _ _;
+              · refine Or.inr ?_;
+                refine le_csSup ?_ ?_;
                 · exact
                     ⟨ _, fun n hn => hn.choose_spec.card_eq.symm ▸ Finset.card_le_univ _ ⟩;
                 · exact
@@ -2737,7 +2734,7 @@ lemma lemma_R_rs_bound (c : ℝ) (hc : c > 0)
             ring_nf;
           rw [h_exp] at lemma4
           exact lemma4;
-        refine' ⟨ Max.max 2 n₀, fun n hn => le_trans ( lemma5 n hn ) _ ⟩;
+        refine ⟨ Max.max 2 n₀, fun n hn => le_trans ( lemma5 n hn ) ?_ ⟩;
         exact
           Real.rpow_le_rpow_of_exponent_le
             (by linarith [le_max_left 2 n₀, le_max_right 2 n₀])
@@ -2788,7 +2785,7 @@ lemma lemma_W_large_enough (c : ℝ) (hc : c > 0)
               2 * (2 * ((m₁ - 1) * (20 / γ * (Real.logb 2 n) ^ 2)) + 1) ≤
                 (0.9 / m₁) * n ^ (2 / 3 : ℝ) by
                 obtain ⟨ n₁, hn₁ ⟩ := h_div;
-                refine' ⟨ Max.max n₁ 1, fun n hn => _ ⟩
+                refine ⟨ Max.max n₁ 1, fun n hn => ?_ ⟩
                 specialize hn₁ n (le_trans (le_max_left _ _) hn)
                 rw [ le_div_iff₀ ] <;> norm_num at *;
                 · convert
@@ -2951,35 +2948,34 @@ lemma lemma_ramsey_on_subset {V : Type*} [Finite V]
         (ramsey_prop_mono (lemma_ramsey_prop_R a b ha hb) hS) (G.induce S);
       cases' this with h h;
       · contrapose! h;
-        refine' lt_of_not_ge fun ha' => _;
+        refine lt_of_not_ge fun ha' => ?_;
         obtain ⟨ K, hK ⟩ := show
             ∃ K : Finset (↥S), (SimpleGraph.induce (↑S) G).IsNClique a K from by
           contrapose! ha';
-          refine' lt_of_le_of_lt (csSup_le' _) (Nat.pred_lt (ne_bot_of_gt ha));
+          refine lt_of_le_of_lt (csSup_le' ?_) (Nat.pred_lt (ne_bot_of_gt ha));
           rintro n ⟨ s, hs ⟩;
-          refine' Nat.le_pred_of_lt (lt_of_not_ge fun hn => ha' s _);
+          refine Nat.le_pred_of_lt (lt_of_not_ge fun hn => ha' s ?_);
           obtain ⟨ t, ht ⟩ :=
             Finset.exists_subset_card_eq (show a ≤ s.card from
               hn.trans (hs.card_eq.symm ▸ le_rfl));
           simp_all +decide [ SimpleGraph.isNClique_iff ];
-          refine' False.elim (ha' t _ ht.2);
+          refine False.elim (ha' t ?_ ht.2);
           exact fun x hx y hy hxy => hs.1 (ht.1 hx) (ht.1 hy) hxy;
-        refine' h.1 (Finset.image Subtype.val K)
-          (Finset.image_subset_iff.mpr fun x hx => x.2) _;
+        refine h.1 (Finset.image Subtype.val K)
+          (Finset.image_subset_iff.mpr fun x hx => x.2) ?_;
         convert hK using 1;
         simp +decide [ SimpleGraph.isNClique_iff, Finset.card_image_of_injective,
           Function.Injective ];
         simp +decide [ SimpleGraph.isClique_iff, Set.Pairwise ];
       · contrapose! h;
-        refine' lt_of_le_of_lt ( csSup_le' _ ) _;
-        exact b - 1;
+        refine lt_of_le_of_lt (csSup_le' (a := b - 1) ?_) ?_;
         · rintro n ⟨ s, hs ⟩;
-          refine' Nat.le_sub_one_of_lt _;
+          refine Nat.le_sub_one_of_lt ?_;
           contrapose! h;
           intro h;
           obtain ⟨ t, ht ⟩ :=
             Finset.exists_subset_card_eq (show b ≤ s.card from by linarith [ hs.2 ]);
-          refine' ⟨ t.image Subtype.val, _, _ ⟩ <;>
+          refine ⟨ t.image Subtype.val, ?_, ?_ ⟩ <;>
             simp_all +decide [ Finset.subset_iff, SimpleGraph.isNIndepSet_iff ];
           simp_all +decide [ SimpleGraph.IsIndepSet, Finset.card_image_of_injective,
             Function.Injective ];
@@ -3018,8 +3014,8 @@ lemma lemma_hom_from_uniform_W_cliques {V : Type*} [Finite V]
         have := @lemma_ramsey_on_subset ( Fin N );
         specialize this ( R_graph G rep ) W' s r hs hr_ge_2;
         rcases this (mod_cast hW') with ( ⟨ K, hK₁, hK₂ ⟩ | ⟨ I, hI₁, hI₂ ⟩ ) <;>
-          [ refine' ⟨ K, hK₁, Or.inl ⟨ _, _ ⟩ ⟩;
-            refine' ⟨ I, hI₁, Or.inr ⟨ _, _ ⟩ ⟩ ] <;>
+          [ refine ⟨ K, hK₁, Or.inl ⟨ ?_, ?_ ⟩ ⟩;
+            refine ⟨ I, hI₁, Or.inr ⟨ ?_, ?_ ⟩ ⟩ ] <;>
           simp_all +decide [ SimpleGraph.isNClique_iff, SimpleGraph.isNIndepSet_iff ];
       rcases hK with ⟨ hK₁, hK₂ | hK₂ ⟩ <;>
         simp_all +decide [ SimpleGraph.isNClique_iff ];
@@ -3046,7 +3042,7 @@ lemma lemma_hom_from_uniform_W_cliques {V : Type*} [Finite V]
                   · exact
                       h_uniform i (hK₁ hi) j (hK₁ hj) ‹_› x hx y hy |>.2
                         (h_K_clique i hi j hj ‹_›);
-                refine' ⟨ _, _ ⟩;
+                refine ⟨ ?_, ?_ ⟩;
                 · exact fun x hx y hy hxy => h_union x hx y hy hxy;
                 · rw [ Finset.card_biUnion ] ; aesop;
                   exact fun i hi j hj hij => h_disjoint i j hij;
@@ -3066,7 +3062,7 @@ lemma lemma_hom_from_uniform_W_cliques {V : Type*} [Finite V]
             simp_all +decide [ SimpleGraph.isNIndepSet_iff ];
             simp_all +decide [ Finset.subset_iff, SimpleGraph.IsIndepSet ];
             simp_all +decide [ Set.Pairwise ];
-            refine' ⟨ fun i hi => ⟨ i, hi, h_rep i ⟩, _, _ ⟩;
+            refine ⟨ fun i hi => ⟨ i, hi, h_rep i ⟩, ?_, ?_ ⟩;
             · intro i hi j hj hij
               specialize hK₂
               have := hK₂.1 hi hj
@@ -3126,8 +3122,8 @@ lemma lemma_hom_from_uniform_W_indep {V : Type*} [Finite V]
       · have h_clique : G.cliqueNum ≥ K.card := by
           have h_clique_def :
               ∃ K' ⊆ Finset.biUnion K B, G.IsClique K' ∧ K'.card = K.card := by
-            refine'
-              ⟨ Finset.image ( fun i => rep i ) K, _, _, _ ⟩ <;>
+            refine
+              ⟨ Finset.image ( fun i => rep i ) K, ?_, ?_, ?_ ⟩ <;>
                 simp_all +decide [ Finset.subset_iff ];
             · exact fun i hi => ⟨ i, hi, h_rep i ⟩;
             · simp_all +decide [ SimpleGraph.IsClique, Set.Pairwise ];
@@ -3142,7 +3138,7 @@ lemma lemma_hom_from_uniform_W_indep {V : Type*} [Finite V]
                   Finset.disjoint_left.1 (h_disjoint i j hi') (h_rep i)
                     (hij.symm ▸ h_rep j)
           obtain ⟨ K', hK'₁, hK'₂, hK'₃ ⟩ := h_clique_def;
-          refine' le_trans _ ( le_csSup _ ⟨ K', hK'₂, hK'₃ ⟩ );
+          refine le_trans ?_ ( le_csSup ?_ ⟨ K', hK'₂, hK'₃ ⟩ );
           · rfl;
           · exact
               ⟨ Fintype.card V, fun n hn => by
@@ -3275,11 +3271,11 @@ lemma lemma_good_blocks_and_reps {V : Type*} [Fintype V] [DecidableEq V]
               simp_all +decide [ vertices_with_pattern ] ⟩;
         have hL_length : (L.length : ℝ) * m ≥ 0.9 * n := by
           convert lemma_blocks_count G n hn m hm m₂ hm₂ ε γ hε hγ A hA hI n_large using 1;
-        refine'
+        refine
           ⟨ L.length, fun i => L.get i,
             fun i => Classical.choose
               (Finset.card_pos.mp (by linarith [ hL_prop _ (List.get_mem L i) ])),
-            _, _, _, _, _ ⟩ <;>
+            ?_, ?_, ?_, ?_, ?_ ⟩ <;>
           simp_all +decide [ Fin.ext_iff ];
         · have := all_blocks_props G A m hm;
           have := List.pairwise_iff_get.mp this.2.2.1;
@@ -3321,10 +3317,10 @@ lemma lemma_rs_properties (c : ℝ) (hc : c > 0) (m : ℕ) (hm : m ≥ 1) :
     2 ≤ r ∧ 2 ≤ s ∧
       (r : ℝ) ≤ (m : ℝ) * s ∧
         (r : ℝ) > c * Real.logb 2 n := by
-      refine'
-        ⟨ 2 ^ ( m / c ), fun n hn => ⟨ _, _, _, _ ⟩ ⟩ <;>
+      refine
+        ⟨ 2 ^ ( m / c ), fun n hn => ⟨ ?_, ?_, ?_, ?_ ⟩ ⟩ <;>
           norm_num [ Nat.floor_add_natCast ];
-      · refine' Nat.succ_le_succ ( Nat.floor_pos.mpr _ );
+      · refine Nat.succ_le_succ ( Nat.floor_pos.mpr ?_ );
         rw [ Real.logb, mul_div, le_div_iff₀ ] <;> try positivity;
         have := Real.log_le_log ( by positivity ) hn;
         rw [ Real.log_rpow ] at this <;>
@@ -3332,9 +3328,9 @@ lemma lemma_rs_properties (c : ℝ) (hc : c > 0) (m : ℕ) (hm : m ≥ 1) :
             mul_div_cancel₀ ( m : ℝ ) hc.ne',
             Real.log_pos one_lt_two,
             show ( m : ℝ ) ≥ 1 by norm_cast ];
-      · refine' Nat.lt_ceil.mpr _;
+      · refine Nat.lt_ceil.mpr ?_;
         rw [ lt_div_iff₀ ] <;> norm_cast;
-        refine' Nat.lt_succ_of_le ( Nat.le_floor _ );
+        refine Nat.lt_succ_of_le ( Nat.le_floor ?_ );
         rw [ Real.logb, mul_div, le_div_iff₀ ] <;> norm_num;
         · have := Real.log_le_log ( by positivity ) hn
           rw [ Real.log_rpow ( by positivity ) ] at this
@@ -3402,8 +3398,8 @@ noncomputable def shelah_n0 (c : ℝ) (hc : c > 0) : ℕ :=
                 have := Finset.card_le_univ S
                 aesop)
             hN_lt_k;
-      · refine' lt_of_le_of_lt _ hN_lt_k;
-        refine' csSup_le' _;
+      · refine lt_of_le_of_lt ?_ hN_lt_k;
+        refine csSup_le' ?_;
         rintro n ⟨ s, hs ⟩;
         rcases hs with ⟨ hs₁, hs₂ ⟩;
         exact hs₂ ▸ le_trans ( Finset.card_le_univ _ ) ( by simp );
@@ -3434,7 +3430,7 @@ noncomputable def shelah_n0 (c : ℝ) (hc : c > 0) : ℕ :=
       contrapose! h_R_ge_2;
       interval_cases R m1 m1 <;> simp_all +decide [ Ramsey_prop ];
       · use ⊥;
-        constructor <;> refine' lt_of_le_of_lt ( csSup_le _ _ ) h_m1_ge_2 <;> norm_num;
+        constructor <;> refine lt_of_le_of_lt ( csSup_le ?_ ?_ ) h_m1_ge_2 <;> norm_num;
         · exact ⟨ 0, by norm_num, ∅, by norm_num ⟩;
         · exact fun b a x h => a;
         · exact ⟨ 0, ⟨ ∅, by simp +decide ⟩ ⟩;
@@ -3446,7 +3442,7 @@ noncomputable def shelah_n0 (c : ℝ) (hc : c > 0) : ℕ :=
             lt_of_le_of_lt
               (csSup_le ⟨ 0, by norm_num ⟩ fun n hn => hn.1)
               (by linarith);
-        · refine' lt_of_le_of_lt ( csSup_le _ _ ) h_m1_ge_2;
+        · refine lt_of_le_of_lt ( csSup_le ?_ ?_ ) h_m1_ge_2;
           · exact ⟨ 0, ⟨ ∅, by simp +decide ⟩ ⟩;
           · simp +decide [ SimpleGraph.isNIndepSet_iff ];
     exact h_R_ge_2;
@@ -3469,7 +3465,7 @@ noncomputable def shelah_n0 (c : ℝ) (hc : c > 0) : ℕ :=
   -- R(k, k)$.
   have h_R_pos : ∀ k : ℕ, 2 ≤ k → 0 < R k k := by
     intros k hk;
-    refine' lt_of_lt_of_le zero_lt_one ( le_csInf _ _ );
+    refine lt_of_lt_of_le zero_lt_one ( le_csInf ?_ ?_ );
     · -- By the definition of Ramsey numbers, R(k, k) exists and is finite for any k ≥ 2.
       have h_ramsey_exists : ∀ k : ℕ, 2 ≤ k → ∃ N : ℕ, Ramsey_prop k k N := by
         intro k hk; exact ⟨ _, lemma_ramsey_prop_R k k hk hk ⟩ ;
@@ -3477,10 +3473,10 @@ noncomputable def shelah_n0 (c : ℝ) (hc : c > 0) : ℕ :=
     · rintro ( _ | _ | N ) <;> simp +arith +decide [ Ramsey_prop ];
       use ⊥;
       constructor <;> norm_num [ SimpleGraph.cliqueNum, SimpleGraph.indepNum ];
-      · refine' lt_of_le_of_lt ( csSup_le _ _ ) hk;
+      · refine lt_of_le_of_lt ( csSup_le ?_ ?_ ) hk;
         · exact ⟨ 0, by norm_num, ∅, by norm_num ⟩;
         · exact fun n hn => hn.1;
-      · refine' lt_of_le_of_lt ( csSup_le _ _ ) hk;
+      · refine lt_of_le_of_lt ( csSup_le ?_ ?_ ) hk;
         · exact ⟨ 0, ⟨ ∅, by simp +decide ⟩ ⟩;
         · simp +decide [ SimpleGraph.isNIndepSet_iff ];
   exact_mod_cast h_R_pos k ( shelah_k_spec c |>.1 ))
@@ -3511,13 +3507,13 @@ lemma shelah_n0_arithmetic_bound (c : ℝ) (hc : c > 0) (n : ℕ) (hn : n ≥ sh
       have h_R_ge_k : ∀ N, N < k → ¬Ramsey_prop k k N := by
         intros N hN_lt_k
         simp [Ramsey_prop];
-        refine' ⟨ ⊥, _, _ ⟩ <;> norm_num [ SimpleGraph.cliqueNum, SimpleGraph.indepNum ];
+        refine ⟨ ⊥, ?_, ?_ ⟩ <;> norm_num [ SimpleGraph.cliqueNum, SimpleGraph.indepNum ];
         · exact
             lt_of_le_of_lt
               (csSup_le ⟨ 0, by norm_num, ∅, by norm_num ⟩ fun n hn => hn.1)
               (by linarith);
-        · refine'
-            lt_of_le_of_lt (csSup_le _ _) hN_lt_k <;>
+        · refine
+            lt_of_le_of_lt (csSup_le ?_ ?_) hN_lt_k <;>
               norm_num [ SimpleGraph.isNIndepSet_iff ];
           · exact ⟨ 0, ⟨ ∅, by simp +decide ⟩ ⟩;
           · exact fun a ha => le_trans ( Finset.card_le_univ _ ) ( by simp );
@@ -3542,11 +3538,11 @@ lemma shelah_gamma_bounds (c : ℝ) :
         have h_R_ge_k : ∀ N, N < k → ¬Ramsey_prop k k N := by
           intros N hN_lt_k
           simp [Ramsey_prop];
-          refine' ⟨ ⊥, _, _ ⟩ <;>
+          refine ⟨ ⊥, ?_, ?_ ⟩ <;>
             norm_num [ SimpleGraph.cliqueNum, SimpleGraph.indepNum ];
           · exact lt_of_le_of_lt ( csSup_le' fun n hn => hn.1 ) ( by linarith );
-          · refine'
-              lt_of_le_of_lt (csSup_le _ _) hN_lt_k <;>
+          · refine
+              lt_of_le_of_lt (csSup_le ?_ ?_) hN_lt_k <;>
                 norm_num [ SimpleGraph.isNIndepSet_iff ];
             · exact ⟨ 0, ⟨ ∅, by simp +decide ⟩ ⟩;
             · exact fun a ha => le_trans ( Finset.card_le_univ _ ) ( by simp );
@@ -3585,7 +3581,7 @@ lemma shelah_n0_distinguish (c : ℝ) (hc : c > 0) (n : ℕ) (hn : n ≥ shelah_
           convert Classical.choose_spec
             (lemma_distinguish ( shelah_gamma c ) ( shelah_gamma_bounds c ));
           any_goals exact Fin n;
-          refine' ⟨ fun h => _, fun h => _ ⟩;
+          refine ⟨ fun h => ?_, fun h => ?_ ⟩;
           any_goals try infer_instance;
           · intro G _ n_1 hn_1 hn_1';
             convert Classical.choose_spec
@@ -3640,7 +3636,7 @@ lemma shelah_n0_distinguish (c : ℝ) (hc : c > 0) (n : ℕ) (hn : n ≥ shelah_
                       (le_trans (Nat.cast_le.mpr (le_max_right _ _))
                         (le_trans (le_max_left _ _) hn)));
             use Finset.image (fun x => (Fintype.equivFinOfCardEq hn_card).symm x) A;
-            refine' ⟨ _, _, _ ⟩;
+            refine ⟨ ?_, ?_, ?_ ⟩;
             · exact ⟨ _, Finset.mem_image_of_mem _ hA_nonempty.choose_spec ⟩;
             · rwa [
                 Finset.card_image_of_injective _
@@ -3654,14 +3650,14 @@ lemma shelah_n0_distinguish (c : ℝ) (hc : c > 0) (n : ℕ) (hn : n ≥ shelah_
                 using 1;
               · simp +decide [ dif_size ];
                 simp +decide [ SimpleGraph.neighborFinset, symmDiff ];
-                refine' Finset.card_bij ( fun z hz => e z ) _ _ _;
+                refine Finset.card_bij ( fun z hz => e z ) ?_ ?_ ?_;
                 · intro z hz
                   simp [e, Finset.mem_symmDiff, SimpleGraph.mem_neighborFinset, h_adj_iff] at hz ⊢
                   exact hz
                 · intro z₁ hz₁ z₂ hz₂ h
                   exact e.injective h
                 · intro w hw
-                  refine' ⟨ e.symm w, _, by simp [e] ⟩
+                  refine ⟨ e.symm w, ?_, by simp [e] ⟩
                   simp [e, Finset.mem_symmDiff, SimpleGraph.mem_neighborFinset, h_adj_iff] at hw ⊢
                   exact hw
               · intro hxA
@@ -3843,13 +3839,13 @@ lemma shelah_epsilon_pos (c : ℝ) : shelah_epsilon c > 0 := by
       contrapose! h_R_ge_k;
       interval_cases _ : R k k <;> simp_all +decide [ Ramsey_prop ];
       · use ⊥;
-        constructor <;> refine' lt_of_le_of_lt ( csSup_le _ _ ) hk <;> norm_num;
+        constructor <;> refine lt_of_le_of_lt ( csSup_le ?_ ?_ ) hk <;> norm_num;
         · exact ⟨ 0, by norm_num, ∅, by norm_num ⟩;
         · exact fun b a x h => a;
         · exact ⟨ 0, ⟨ ∅, by simp +decide ⟩ ⟩;
         · simp +decide [ SimpleGraph.isNIndepSet_iff ];
       · use ⊥; simp +decide [ SimpleGraph.cliqueNum, SimpleGraph.indepNum ] ;
-        constructor <;> refine' lt_of_le_of_lt ( csSup_le _ _ ) hk <;> norm_num;
+        constructor <;> refine lt_of_le_of_lt ( csSup_le ?_ ?_ ) hk <;> norm_num;
         · exact ⟨ 0, by norm_num, ∅, by norm_num ⟩;
         · exact fun b a x h => a;
         · exact ⟨ 0, ⟨ ∅, by simp +decide ⟩ ⟩;
