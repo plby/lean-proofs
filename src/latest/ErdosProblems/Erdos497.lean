@@ -40,7 +40,6 @@ open Real
 set_option maxHeartbeats 50000000
 set_option linter.style.cases false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 
 /-
 Definitions of PP(n), antichains, and A(n).
@@ -194,7 +193,7 @@ lemma chain_top_mem {n : ℕ} {C : Finset (Finset (Fin n))} (hC : IsChain' C) (h
   have := Finset.exists_maximal hne;
   obtain ⟨ i, hi ⟩ := this;
   convert hi.1;
-  refine' le_antisymm _ _;
+  refine le_antisymm ?_ ?_;
   · exact Finset.sup_le fun x hx => hi.2 hx |> fun h => by cases hC.total hx hi.1 <;> aesop;
   · exact Finset.le_sup ( f := id ) hi.1
 
@@ -506,7 +505,7 @@ lemma lift_chain_disjoint_of_disjoint (n : ℕ) (C1 C2 : Finset (Finset (Fin n))
     (h_disjoint : Disjoint C1 C2) (hC1 : IsChain' C1) (hC1_ne : C1.Nonempty)
     (hC2 : IsChain' C2) (hC2_ne : C2.Nonempty) :
     Disjoint ((lift_chain n C1).biUnion id) ((lift_chain n C2).biUnion id) := by
-  refine' disjoint_iff_inf_le.mpr _;
+  refine disjoint_iff_inf_le.mpr ?_;
   intro x hx;
   have hx_cases :
       x ∈ (C1.image (embed n)) ∪ (C1.image (embed_plus n))
@@ -575,7 +574,7 @@ theorem exists_SCD (n : ℕ) : ∃ X, IsSymmetricChainDecomposition n X := by
       · decide +revert;
   | succ n ih =>
       obtain ⟨ X, hX ⟩ := ih;
-      refine' ⟨ _, _, _, _ ⟩;
+      refine ⟨ ?_, ?_, ?_, ?_ ⟩;
       exact lift_SCD n X;
       · exact fun C hC => lift_SCD_is_symmetric n X ( fun C hC => hX.1 C hC ) C hC;
       · convert lift_SCD_pairwise_disjoint n X _ _ _ using 1
@@ -730,7 +729,7 @@ lemma sum_choose_two_ge_x (n : ℕ) (X : Finset (Finset (Finset (Fin n))))
     intro C hC;
       rcases k : Finset.card ( 𝒜 ∩ C ) with ( _ | _ | k ) <;> simp_all +decide [ Nat.choose ] ;
     grind;
-  refine' le_trans _ ( Finset.sum_le_sum h_binom_ge_sub_one );
+  refine le_trans ?_ ( Finset.sum_le_sum h_binom_ge_sub_one );
   have h_sum_card_sub_one : ∑ C ∈ X, (𝒜 ∩ C).card - ∑ C ∈ X, 1 ≥ x := by
     simp_all +decide
     exact le_tsub_of_add_le_left h_card;
@@ -845,7 +844,7 @@ lemma num_chains_covering_le_choose (n : ℕ) (X : Finset (Finset (Finset (Fin n
         grind;
       refine le_trans ?_ h_card_chains_covering_a;
       rw [ Finset.card_biUnion ];
-      · refine' le_trans _ ( Finset.sum_le_sum fun x hx => Nat.one_le_iff_ne_zero.mpr _ );
+      · refine le_trans ?_ ( Finset.sum_le_sum fun x hx => Nat.one_le_iff_ne_zero.mpr ?_ );
         · norm_num;
         · aesop;
       · intro C hC D hD hCD; simp_all +decide [ Finset.disjoint_left ] ;
@@ -862,8 +861,8 @@ lemma num_chains_covering_le_choose (n : ℕ) (X : Finset (Finset (Finset (Fin n
     have h_card_b :
         (Finset.biUnion {C ∈ X | (∃ A ∈ C, A.card = a) ∧ ∃ B ∈ C, B.card = b} (fun C =>
           Finset.filter (fun B => B.card = b) C)).card ≤ Nat.choose n b := by
-      refine' le_trans ( Finset.card_le_card _ ) _;
-      exact Finset.powersetCard b ( Finset.univ : Finset ( Fin n ) );
+      refine le_trans
+        (Finset.card_le_card (t := Finset.powersetCard b (Finset.univ : Finset (Fin n))) ?_) ?_;
       · intro x hx; aesop;
       · simp +decide [ Finset.card_univ ];
     rw [ Finset.card_biUnion ] at h_card_b;
@@ -917,7 +916,7 @@ def container_algorithm {V : Type*} [Fintype V] [DecidableEq V] [LinearOrder V]
     A
 termination_by A.card
 decreasing_by
-refine' Finset.card_lt_card _;
+refine Finset.card_lt_card ?_;
 simp +decide [ Finset.ssubset_def, Finset.subset_iff ];
 exact ⟨ fun _ _ _ _ => by
   assumption, v, Finset.mem_filter.mp ( Finset.min'_mem _ h ) |>.1, fun _ _ =>
@@ -945,7 +944,7 @@ def generate_S_and_A {V : Type*} [Fintype V] [DecidableEq V] [LinearOrder V]
     (S_acc, A)
 termination_by A.card
 decreasing_by
-  refine' Finset.card_lt_card _;
+  refine Finset.card_lt_card ?_;
   simp +decide [ Finset.ssubset_def, Finset.subset_iff ];
   exact ⟨ fun _ _ _ _ => by
     assumption, v, Finset.mem_filter.mp ( Finset.min'_mem _ h ) |>.1, fun _ _ =>
@@ -975,12 +974,13 @@ lemma get_S_subset_I {V : Type*} [Fintype V] [DecidableEq V] [LinearOrder V]
             split_ifs <;> simp_all +decide [ Finset.subset_iff ];
             · convert ih _ _ _ _ _ rfl using 1;
               · rw [ ← hcard, Finset.card_sdiff ];
-                refine' Nat.sub_lt _ _;
+                refine Nat.sub_lt ?_ ?_;
                 · exact Finset.card_pos.mpr ( by
                   obtain ⟨ v, hv ⟩ := ‹ { v ∈ A | Δ ≤ degree_in G A v }.Nonempty ›;
                   exact ⟨ v, Finset.mem_filter.mp hv |>.1 ⟩ );
-                · refine' Finset.card_pos.mpr ⟨ _,
-                    Finset.mem_inter.mpr ⟨ Finset.mem_insert_self _ _, _ ⟩ ⟩;
+                · refine Finset.card_pos.mpr
+                    ⟨ Finset.min' (Finset.filter (fun v => Δ ≤ degree_in G A v) A) ‹_›,
+                      Finset.mem_inter.mpr ⟨ Finset.mem_insert_self _ _, ?_ ⟩ ⟩;
                   exact Finset.mem_filter.mp ( Finset.min'_mem _ ‹_› ) |>.1;
               · grind;
             · exact ih _ ( by
@@ -1007,13 +1007,21 @@ lemma generate_S_and_A_size_bound {V : Type*} [Fintype V] [DecidableEq V] [Linea
           by_cases h : Finset.Nonempty ( Finset.filter ( fun v => degree_in G A v ≥ Δ ) A )<;>
             simp_all +decide;
           · split_ifs;
-            · refine' le_trans ( ih _ _ _ _ rfl ) _;
-              · refine' lt_of_lt_of_le
-                  ( Finset.card_lt_card ( Finset.ssubset_iff_subset_ne.mpr _ ) ) _;
-                exact A;
-                · simp +decide [ Finset.subset_iff ];
-                  exact ⟨ fun x hx hx' hx'' => hx, fun hx =>
-                    False.elim <| hx <| Finset.mem_filter.mp ( Finset.min'_mem _ h ) |>.1 ⟩;
+            · let v := Finset.min' (Finset.filter (fun v => Δ ≤ degree_in G A v) A) ‹_›
+              refine le_trans
+                (ih (Finset.card (A \ insert v (Finset.univ.filter (G.Adj v ·)))) ?_
+                  (insert v S_acc) (A \ insert v (Finset.univ.filter (G.Adj v ·))) rfl) ?_;
+              · refine lt_of_lt_of_le
+                  ( Finset.card_lt_card (t := A) ( Finset.ssubset_iff_subset_ne.mpr ?_ ) ) ?_;
+                · constructor
+                  · intro y hy
+                    exact Finset.mem_sdiff.mp hy |>.1
+                  · intro h_eq
+                    have hvA : v ∈ A :=
+                      Finset.mem_filter.mp (Finset.min'_mem _ h) |>.1
+                    have hv_not : v ∉ A \ insert v (Finset.univ.filter (G.Adj v ·)) := by
+                      simp
+                    exact hv_not (h_eq.symm ▸ hvA)
                 · exact le_of_eq hcard;
               · rw [ Finset.card_sdiff ];
                 have h_removed :
@@ -1044,23 +1052,26 @@ lemma generate_S_and_A_size_bound {V : Type*} [Fintype V] [DecidableEq V] [Linea
                     · exact Finset.card_le_card hsub
                     · simp
                   exact (Nat.succ_le_succ hdeg).trans hsmall
-                refine' le_trans ( add_le_add_right ( Nat.sub_le_sub_left h_removed A.card ) _ ) _;
-                · by_cases h : Finset.min' ( Finset.filter ( fun v =>
-                  degree_in G A v ≥ Δ ) A ) ‹_› ∈ S_acc<;>
-                  simp_all +decide [ Finset.card_insert_of_notMem ];
-                  have h_delta_le_card : Δ + 1 ≤ k := by
+                refine le_trans
+                  ( add_le_add_right ( Nat.sub_le_sub_left h_removed A.card )
+                    ((Δ + 1) * (insert v S_acc).card) ) ?_;
+                · have h_delta_le_card : Δ + 1 ≤ k := by
                     let v := Finset.min' ( Finset.filter ( fun v =>
                       degree_in G A v ≥ Δ ) A ) ‹_›
                     have h_deg_ge : degree_in G A v ≥ Δ := by
                       exact Finset.mem_filter.mp ( Finset.min'_mem _ ‹_› ) |>.2;
                     have h_deg_lt : degree_in G A v < Finset.card A := by
-                      refine' lt_of_lt_of_le
-                        ( Finset.card_lt_card ( Finset.filter_ssubset.mpr _ ) ) _;
+                      refine lt_of_lt_of_le
+                        ( Finset.card_lt_card ( Finset.filter_ssubset.mpr ?_ ) ) ?_;
                       · exact ⟨ _, Finset.min'_mem _ ‹_›
                           |> Finset.mem_filter.mp |>.1, G.loopless.1 v ⟩;
                       · rfl;
                     linarith;
-                  linarith [ Nat.sub_add_cancel h_delta_le_card ];
+                  by_cases hvS : v ∈ S_acc
+                  · simp [hvS]
+                    omega
+                  · simp [hvS, Nat.mul_succ, Nat.add_assoc, Nat.add_comm]
+                    omega
             · have :=
               ih ( Finset.card ( A.erase ( Finset.min' ( Finset.filter ( fun v =>
                 Δ ≤ degree_in G A v ) A ) h ) ) ) ?_ S_acc
@@ -1088,7 +1099,9 @@ lemma generate_S_subset_union {V : Type*} [Fintype V] [DecidableEq V] [LinearOrd
           unfold generate_S_and_A;
           norm_num +zetaDelta at *;
           split_ifs;
-          · refine' Finset.Subset.trans ( ih _ _ _ ) _;
+          · let v := Finset.min' (Finset.filter (fun v => Δ ≤ degree_in G A v) A) ‹_›
+            refine Finset.Subset.trans
+              (ih (A \ insert v (Finset.univ.filter (G.Adj v ·))) ?_ (insert v S_acc)) ?_;
             · simp +decide [ Finset.ssubset_def, Finset.subset_iff ];
               exact ⟨ fun x hx hx' hx'' =>
                 hx, _, Finset.min'_mem _ ‹_› |> Finset.mem_filter.mp |>.1, fun _ => by tauto ⟩;
@@ -1111,13 +1124,19 @@ lemma S_acc_subset_generate_S {V : Type*} [Fintype V] [DecidableEq V] [LinearOrd
           split_ifs <;> simp_all +decide [ Finset.subset_iff ];
           · intro x hx;
             convert ih _ _ _ _ rfl ( Finset.mem_insert_of_mem hx ) using 1;
-            refine' lt_of_lt_of_le ( Finset.card_lt_card _ ) _;
-            exact A;
-            · simp +decide [ Finset.ssubset_def, Finset.subset_iff ];
-              exact ⟨ fun _ _ _ _ =>
-                by assumption, _, Finset.min'_mem _ ‹_› |> Finset.mem_filter.mp |>.1, fun _ _ =>
-                  by tauto ⟩;
-            · linarith;
+            refine lt_of_lt_of_le
+              ( Finset.card_lt_card (t := A) ( Finset.ssubset_iff_subset_ne.mpr ?_ ) ) ?_;
+            · constructor
+              · intro y hy
+                exact Finset.mem_sdiff.mp hy |>.1
+              · intro h_eq
+                let v := Finset.min' (Finset.filter (fun v => Δ ≤ degree_in G A v) A) ‹_›
+                have hvA : v ∈ A :=
+                  Finset.mem_filter.mp (Finset.min'_mem _ ‹_›) |>.1
+                have hv_not : v ∉ A \ insert v (Finset.univ.filter (G.Adj v ·)) := by
+                  simp
+                exact hv_not (h_eq.symm ▸ hvA)
+            · exact le_of_eq hcard;
           · exact ih _ ( by
             rw [ Finset.card_erase_of_mem ( Finset.mem_filter.mp ( Finset.min'_mem _ ‹_› ) |>.1 ) ];
             exact Nat.sub_lt ( Finset.card_pos.mpr ⟨ _,
@@ -1143,19 +1162,25 @@ lemma generate_S_and_A_invariant {V : Type*} [Fintype V] [DecidableEq V] [Linear
           · intro x hx hx';
             by_cases hx'' :
                 x = Finset.min' ( Finset.filter ( fun v => Δ ≤ degree_in G A v ) A ) ‹_›;
-            · refine' Or.inl ⟨ _, _ ⟩;
+            · refine Or.inl ⟨ ?_, ?_ ⟩;
               · exact S_acc_subset_generate_S _ _ _ _ _ |> fun h =>
                 h ( Finset.mem_insert_self _ _ ) |> fun h => hx''.symm ▸ h;
               · exact fun h => Finset.disjoint_left.mp h_disjoint h hx';
             · convert ih _ _ _ _ _ rfl hx _ using 1;
               · grind;
-              · refine' lt_of_lt_of_le
-                  ( Finset.card_lt_card ( Finset.ssubset_iff_subset_ne.mpr _ ) ) _;
-                exact A;
-                · simp_all +decide [ Finset.subset_iff ];
-                  exact fun h => False.elim <| h <|
-                    Finset.mem_filter.mp ( Finset.min'_mem _ ‹_› ) |>.1;
-                · rw [ hcard ];
+              · refine lt_of_lt_of_le
+                  ( Finset.card_lt_card (t := A) ( Finset.ssubset_iff_subset_ne.mpr ?_ ) ) ?_;
+                · constructor
+                  · intro y hy
+                    exact Finset.mem_sdiff.mp hy |>.1
+                  · intro h_eq
+                    let v := Finset.min' (Finset.filter (fun v => Δ ≤ degree_in G A v) A) ‹_›
+                    have hvA : v ∈ A :=
+                      Finset.mem_filter.mp (Finset.min'_mem _ ‹_›) |>.1
+                    have hv_not : v ∉ A \ insert v (Finset.univ.filter (G.Adj v ·)) := by
+                      simp
+                    exact hv_not (h_eq.symm ▸ hvA)
+                · exact le_of_eq hcard;
               · simp_all +decide [ Finset.disjoint_left ];
               · simp_all +decide [ Finset.disjoint_left, SimpleGraph.adj_comm ];
                 (expose_names; exact hI hx h_1 hx'');
@@ -1297,9 +1322,9 @@ theorem graph_container_lemma {V : Type*} [Fintype V] [DecidableEq V] [LinearOrd
              S.card ≤ Fintype.card V / (Δ + 1) ∧
              I ⊆ S ∪ f S ∧
              (G.induce (f S)).maxDegree < Δ := by
-               refine' ⟨ _, fun I hI => _ ⟩;
+               refine ⟨ ?_, fun I hI => ?_ ⟩;
                exact fun S => container_algorithm G Δ S Finset.univ;
-               refine' ⟨ get_S G Δ I, get_S_subset_I G Δ I, _, _, _ ⟩;
+               refine ⟨ get_S G Δ I, get_S_subset_I G Δ I, ?_, ?_, ?_ ⟩;
                · have := generate_S_and_A_size_bound G Δ I ∅ Finset.univ;
                  rw [ Nat.le_div_iff_mul_le ] <;> norm_num at * ; linarith!;
                · -- By definition of `get_S`, we know that `get_S G Δ I` is the first component of
@@ -1466,7 +1491,7 @@ lemma card_filter_perm_map_pair_eq_card_stabilizer_pair {n : ℕ} {A B A' B' : F
       -- $\tau(B)=B'$.
       obtain ⟨τ, hτ⟩ : ∃ τ : Perm (Fin n), permute_set τ A = A' ∧ permute_set τ B = B' := by
         exact exists_perm_mapping_pair hA hA' h_card_A h_card_B;
-      refine' Finset.card_bij ( fun σ _ => τ⁻¹ * σ ) _ _ _ <;> simp_all +decide
+      refine Finset.card_bij ( fun σ _ => τ⁻¹ * σ ) ?_ ?_ ?_ <;> simp_all +decide
       · intro σ hσA hσB; have :=
         congr_arg ( fun x => permute_set ( τ⁻¹ ) x ) hσA; have :=
           congr_arg ( fun x => permute_set ( τ⁻¹ ) x ) hσB; simp_all +decide [ permute_set_mul ] ;
@@ -1722,7 +1747,7 @@ lemma max_binom_ge_m_plus_one (n : ℕ) (a b : ℕ) (hab : a < b) (hb : b ≤ n)
       by_cases ha : a = 0;
       · rcases b with ( _ | _ | b ) <;> simp_all +arith +decide
         · omega;
-        · refine' Or.inr _;
+        · refine Or.inr ?_;
           induction hb with
           | refl =>
               simp +arith +decide at *
@@ -1738,12 +1763,12 @@ lemma max_binom_ge_m_plus_one (n : ℕ) (a b : ℕ) (hab : a < b) (hb : b ≤ n)
                   Nat.choose_pos ( by linarith : b + 1
                 ≤ n ) ];
       · by_cases hb : b ≤ n / 2;
-        · refine' le_max_of_le_right _;
-          refine' le_trans _ ( Nat.choose_le_choose _ ( show n - a ≥ b - a + ( n / 2 ) from _ ) );
-          · refine' Nat.le_induction _ _ _ ( show b - a ≥ 1 from Nat.sub_pos_of_lt hab )<;>
-            intros<;>
-            simp_all +decide
-            · grind;
+        · refine le_max_of_le_right ?_;
+          refine le_trans ?_
+            ( Nat.choose_le_choose (b - a) ( show n - a ≥ b - a + ( n / 2 ) from ?_ ) );
+          · exact
+              (show n / 2 + 1 ≤ b - a + n / 2 from by omega).trans
+                (self_le_choose_of_pos_lt (Nat.sub_pos_of_lt hab) (by omega))
           · omega;
         · -- Since $b > n/2$, we have $\binom{b}{a} \geq b$.
           have h_binom_b_a : b.choose a ≥ b := by
@@ -1766,7 +1791,7 @@ lemma count_pair_in_same_chain_le_mul (n : ℕ) (X : Finset (Finset (Finset (Fin
             pair_in_same_chain n X A B σ)).card * (n / 2 + 1)
               ≤ (num_chains_covering n X A.card B.card) * (Nat.factorial A.card) * (Nat.factorial
                 (B.card - A.card)) * (Nat.factorial (n - B.card)) * (n / 2 + 1) := by
-        refine' Nat.mul_le_mul_right _ _;
+        refine Nat.mul_le_mul_right (n / 2 + 1) ?_;
         convert count_permutations_in_same_chain_bound n X hX A B hAB.subset using 1 ; ring;
       -- We want to show $N_{chains} \cdot (m+1) \le \frac{n!}{a! (b-a)! (n-b)!}$.
       have h_ineq :
@@ -1796,7 +1821,7 @@ lemma count_pair_in_same_chain_le_mul (n : ℕ) (X : Finset (Finset (Finset (Fin
       cases' h_ineq with h h<;>
         simp_all +decide [ Nat.choose_eq_factorial_div_factorial ( show A.card ≤ B.card from
           Finset.card_le_card hAB.1 ) ];
-      · refine le_trans ( Nat.mul_le_mul_right _ h_count_bound ) ?_;
+      · refine le_trans ( Nat.mul_le_mul_right (n / 2 + 1) h_count_bound ) ?_;
         convert Nat.mul_le_mul_right ( ( #A ) ! * ( #B - #A ) ! * ( n - #B ) ! ) h using 1 ; ring;
         rw [ ← Nat.choose_mul_factorial_mul_factorial ( show #B ≤ n from
           le_trans ( Finset.card_le_univ _ ) ( by
@@ -1806,7 +1831,7 @@ lemma count_pair_in_same_chain_le_mul (n : ℕ) (X : Finset (Finset (Finset (Fin
         · exact Eq.symm ( Nat.div_eq_of_eq_mul_left ( Nat.mul_pos ( Nat.factorial_pos _ ) (
           Nat.factorial_pos _ ) ) ( by ring ) );
         · exact Nat.factorial_mul_factorial_dvd_factorial ( Finset.card_le_card hAB.1 );
-      · refine le_trans ( Nat.mul_le_mul_right _ h_count_bound ) ?_;
+      · refine le_trans ( Nat.mul_le_mul_right (n / 2 + 1) h_count_bound ) ?_;
         convert Nat.mul_le_mul_right ( ( A.card ! * ( B.card - A.card ) ! * ( n - B.card ) ! ) ) h
           using 1 ;
           ring;
@@ -2024,9 +2049,9 @@ in U.
 lemma card_edges_induce_G_eq_card_comparable_pairs (n : ℕ) (U : Finset (Finset (Fin n))) :
     ((G n).induce (U : Set (Finset (Fin n)))).edgeFinset.card = (comparable_pairs U).card := by
       unfold G comparable_pairs
-      refine' Eq.symm ( Finset.card_bij (fun p hp =>
+      refine Eq.symm ( Finset.card_bij (fun p hp =>
         s(⟨p.1, (Finset.mem_product.mp (Finset.mem_filter.mp hp).1).1⟩,
-          ⟨p.2, (Finset.mem_product.mp (Finset.mem_filter.mp hp).1).2⟩)) _ _ _ );
+          ⟨p.2, (Finset.mem_product.mp (Finset.mem_filter.mp hp).1).2⟩)) ?_ ?_ ?_ );
       · simp +contextual [ SimpleGraph.fromRel_adj ];
         exact fun a b hp hq hq' =>
           ⟨ ne_of_lt hq', Or.inl <| by simpa [ Finset.subset_iff ] using hq'.1 ⟩;
@@ -2086,7 +2111,7 @@ lemma low_degree_forces_near_extremal_size (n : ℕ) (ε : ℝ) (hε_pos : 0 < �
           rw [ card_edges_induce_G_eq_card_comparable_pairs ];
         exact h_card_edges.trans ( mul_le_mul_of_nonneg_left h_delta.le <| Nat.cast_nonneg _ );
       contrapose! h_card_edges;
-      refine' lt_of_lt_of_le _ ( mul_le_mul_of_nonneg_left ( Nat.cast_le.mpr h_supersaturation )
+      refine lt_of_lt_of_le ?_ ( mul_le_mul_of_nonneg_left ( Nat.cast_le.mpr h_supersaturation )
         zero_le_two );
       rw [ Nat.cast_mul, Nat.cast_add, Nat.cast_one, Nat.cast_sub ];
       · rcases Nat.even_or_odd' n with ⟨ k, rfl | rfl ⟩ <;> norm_num at *;
@@ -2124,7 +2149,7 @@ lemma lower_bound_A (n : ℕ) : (2 : ℝ) ^ (n.choose (n / 2)) ≤ A n := by
         ext
         simp +decide [ Finset.mem_powersetCard ] ]
     simp +decide [ Finset.card_univ ]
-  refine' mod_cast h_num_subsets ▸ _;
+  refine mod_cast h_num_subsets ▸ ?_;
   have h_num_subsets : (Finset.powerset (Finset.filter (fun A : Finset (Fin n) =>
     A.card
       = n / 2) (Finset.univ : Finset (Finset (Fin n))))).card
@@ -2134,7 +2159,7 @@ lemma lower_bound_A (n : ℕ) : (2 : ℝ) ^ (n.choose (n / 2)) ≤ A n := by
     refine Finset.card_le_card ?_;
     grind;
   convert h_num_subsets using 1;
-  refine' Finset.card_bij ( fun S _ => S ) _ _ _ <;> simp +decide
+  refine Finset.card_bij ( fun S _ => S ) ?_ ?_ ?_ <;> simp +decide
   · exact fun a ha => (fun n ℱ => (antichain_iff_independent_set n ℱ).mp) n a ha;
   · exact fun b a => (fun n ℱ => (antichain_iff_independent_set n ℱ).mpr) n b a
 
@@ -2181,12 +2206,13 @@ lemma count_independent_sets_via_container (n : ℕ) (k : ℕ) (M : ℝ)
         grind;
       refine le_trans h_A_def <| le_trans ( Nat.cast_le.mpr
         <| Finset.card_le_card h_indep_subset ) ?_;
-      refine' le_trans ( Nat.cast_le.mpr <| Finset.card_biUnion_le ) _;
-      refine' le_trans ( Nat.cast_le.mpr <| Finset.sum_le_sum fun x hx => Finset.card_image_le ) _;
-      refine' le_trans ( Nat.cast_le.mpr <| Finset.sum_le_sum fun x hx => _ ) _;
-      use fun S => 2 ^ ( f S |> Finset.card );
+      refine le_trans ( Nat.cast_le.mpr <| Finset.card_biUnion_le ) ?_;
+      refine le_trans ( Nat.cast_le.mpr <| Finset.sum_le_sum fun x hx => Finset.card_image_le ) ?_;
+      refine le_trans
+        ( Nat.cast_le.mpr <|
+          Finset.sum_le_sum (g := fun S => 2 ^ ( f S |> Finset.card )) fun x hx => ?_ ) ?_;
       · simp +decide [ Finset.card_image_of_injective, Function.Injective ];
-      · refine' le_trans ( Nat.cast_le.mpr <| Finset.sum_le_sum fun x hx =>
+      · refine le_trans ( Nat.cast_le.mpr <| Finset.sum_le_sum fun x hx =>
         pow_le_pow_right₀ ( by norm_num ) <| show Finset.card ( f x ) ≤ ⌊M⌋₊ from
         Nat.le_floor <| h_size x (by
             rw [Finset.mem_union] at hx
@@ -2195,7 +2221,7 @@ lemma count_independent_sets_via_container (n : ℕ) (k : ℕ) (M : ℝ)
             · rw [Finset.mem_biUnion] at hx
               rcases hx with ⟨s, hs, hxs⟩
               rw [(Finset.mem_powersetCard.mp hxs).2]
-              exact Nat.le_of_lt (Finset.mem_range.mp hs)) ) _;
+              exact Nat.le_of_lt (Finset.mem_range.mp hs)) ) ?_;
           · norm_num [ Finset.sum_union, Finset.sum_biUnion ];
             gcongr;
             · have hbiUnion :
@@ -2208,7 +2234,11 @@ lemma count_independent_sets_via_container (n : ℕ) (k : ℕ) (M : ℝ)
                   (Finset.powersetCard k (PP n) ∪
                     Finset.biUnion (Finset.range k) (fun s => Finset.powersetCard s (PP n))).card ≤
                     ∑ s ∈ Finset.range (k + 1), (PP n).card.choose s := by
-                refine (Finset.card_union_le _ _).trans ?_
+                refine
+                  (Finset.card_union_le
+                    (s := Finset.powersetCard k (PP n))
+                    (t := Finset.biUnion (Finset.range k)
+                      (fun s => Finset.powersetCard s (PP n)))).trans ?_
                 rw [Finset.card_powersetCard, Finset.sum_range_succ, add_comm]
                 exact Nat.add_le_add_right hbiUnion ((PP n).card.choose k)
               exact_mod_cast hsmall_card
@@ -2425,14 +2455,14 @@ lemma t_n_le_half_M_n (n : ℕ) (h : n ≥ 1000) : t_n n ≤ M_n n / 2 := by
 t_n is at least 1 for large n.
 -/
 lemma t_n_ge_one (n : ℕ) (h : n ≥ 1000) : 1 ≤ t_n n := by
-  refine' Nat.div_pos _ ( Nat.succ_pos _ );
-  refine' Nat.succ_le_of_lt ( Nat.floor_lt ( _ ) |>.2 _ );
+  refine Nat.div_pos ?_ ( Nat.succ_pos (Delta_nat n) );
+  refine Nat.succ_le_of_lt ( Nat.floor_lt ( ?_ ) |>.2 ?_ );
   · exact div_nonneg ( mul_nonneg ( Real.rpow_nonneg ( Nat.cast_nonneg _ ) _ ) ( Nat.cast_nonneg _
     ) ) ( by norm_num );
   · unfold Delta M_n; norm_num [ epsilon ];
     rw [ Real.rpow_neg ( by positivity ) ];
     rw [ inv_mul_eq_div, div_div, div_lt_iff₀ ] <;> norm_num;
-    · refine' lt_of_lt_of_le _ ( le_mul_of_one_le_right _ _ );
+    · refine lt_of_lt_of_le ?_ ( le_mul_of_one_le_right ?_ ?_ );
       · exact mod_cast Nat.recOn n ( by norm_num ) fun n ih => by
           rw [ pow_succ' ];
           linarith [ Nat.one_le_pow n 2 zero_lt_two ]
@@ -2595,7 +2625,7 @@ lemma Delta_nat_is_Theta : (fun n => (Delta_nat n : ℝ)) =Θ[atTop] (fun n => (
     ∧ (Delta_nat n : ℝ) / (n : ℝ)^(2/3 :
       ℝ) ≤ 1/5 := by
     exact h_deltaías.eventually ( Icc_mem_nhds ( by norm_num ) ( by norm_num ) );
-  refine' ⟨ _, _ ⟩;
+  refine ⟨ ?_, ?_ ⟩;
   · exact Asymptotics.isBigO_atTop_natCast_rpow_of_tendsto_div_rpow h_deltaías;
   · rw [ Asymptotics.isBigO_iff ];
     use 20;
@@ -2649,7 +2679,7 @@ lemma Delta_nat_plus_one_is_Theta : (fun n => (Delta_nat n + 1 : ℝ)) =Θ[atTop
   have Delta_nat_plus_one_is_Theta : (fun n => (Delta_nat n + 1 : ℝ)) =Θ[atTop] (fun n =>
     (Delta_nat n :
       ℝ)) := by
-    refine' ⟨ _, _ ⟩;
+    refine ⟨ ?_, ?_ ⟩;
     · rw [ Asymptotics.isBigO_iff ];
       exact ⟨ 2, by
         filter_upwards [ Delta_nat_similar.eventually ( Metric.ball_mem_nhds _ zero_lt_one ) ]
@@ -2715,7 +2745,7 @@ lemma log_Delta_nat_plus_one_is_Theta_log_n :
             Real.logb 2 (Real.exp 1 * ((Delta_nat n) + 1)) / Real.log n) Filter.atTop (nhds (2 / 3
               / Real.log 2)) := by
         convert h_log_simplify.div_const ( Real.log 2 ) using 2 ; norm_num [ Real.logb ] ; ring;
-      refine' ⟨ _, _ ⟩;
+      refine ⟨ ?_, ?_ ⟩;
       · rw [ Asymptotics.isBigO_iff ];
         have := h_log_simplify.bddAbove_range;
         obtain ⟨ c, hc ⟩ :=
@@ -2731,7 +2761,7 @@ lemma log_Delta_nat_plus_one_is_Theta_log_n :
               rw [ div_le_iff₀ <| Real.log_pos <| Nat.one_lt_cast.mpr hn ] at this;
               linarith;
       · have := h_log_simplify.inv₀ ; norm_num at *;
-        refine' Asymptotics.IsBigO.of_bound ( Real.log 2 / ( 2 / 3 ) + 1 ) _;
+        refine Asymptotics.IsBigO.of_bound ( Real.log 2 / ( 2 / 3 ) + 1 ) ?_;
         filter_upwards [ this.eventually ( gt_mem_nhds <| show Real.log 2 / ( 2 / 3 )
           < Real.log 2 / ( 2 / 3 ) + 1 by linarith ),
             Filter.eventually_gt_atTop 1 ] with n hn hn'
@@ -2767,7 +2797,7 @@ lemma simplified_term_is_little_o :
             norm_num ; ring_nf;
         simpa [ mul_assoc ] using Filter.Tendsto.const_mul 6 (
           Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 1 );
-      refine' Asymptotics.isLittleO_iff.mpr _;
+      refine Asymptotics.isLittleO_iff.mpr ?_;
       intro c hc;
         filter_upwards
           [ h_div.eventually ( Metric.ball_mem_nhds _ hc ), Filter.eventually_gt_atTop 0 ] with x
@@ -2832,7 +2862,7 @@ lemma log_sum_bound_refined_is_little_o_N :
         convert this.comp_tendsto tendsto_natCast_atTop_atTop using 1;
         · exact funext fun n => by rw [ Function.comp_apply ] ; norm_num;
         · exact funext fun n => by rw [ Function.comp_apply ] ; norm_num;
-      refine' h_trans.trans_isBigO _;
+      refine h_trans.trans_isBigO ?_;
       -- We'll use the fact that $\binom{n}{n/2} = \Theta(\frac{2^n}{\sqrt{n}})$.
       have h_binom : (fun n => (Nat.choose n (n / 2) :
           ℝ)) =Θ[atTop] (fun n => (2:ℝ)^n / Real.sqrt n) := by
@@ -2854,7 +2884,7 @@ The number A(n) of antichains in PP(n) satisfies A(n) = 2^((1+o(1))N).
 theorem erdos_497 :
     Asymptotics.IsEquivalent Filter.atTop (fun n => Real.logb 2 (A n)) (fun n =>
       (n.choose (n / 2) : ℝ)) := by
-      refine' Asymptotics.isEquivalent_of_tendsto_one _;
+      refine Asymptotics.isEquivalent_of_tendsto_one ?_;
       have h_log_A : ∀ᶠ n in Filter.atTop, (n.choose (n / 2) : ℝ) ≤ Real.logb 2 (A n)
         ∧ Real.logb 2 (A n) ≤ (1 + epsilon n) * (n.choose (n / 2) :
           ℝ) + log_sum_bound_refined n := by
@@ -2904,7 +2934,7 @@ theorem erdos_497 :
           filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn;
           rw [ add_div, mul_div_cancel_right₀ _ ( Nat.cast_ne_zero.mpr <| Nat.ne_of_gt
             <| Nat.choose_pos <| Nat.div_le_self _ _ ) ] );
-      refine' tendsto_of_tendsto_of_tendsto_of_le_of_le' tendsto_const_nhds h_ratio _ _;
+      refine tendsto_of_tendsto_of_tendsto_of_le_of_le' tendsto_const_nhds h_ratio ?_ ?_;
       · filter_upwards [ h_log_A, Filter.eventually_gt_atTop 0 ] with n hn hn'
         rw [ Pi.div_apply,
           le_div_iff₀ ( Nat.cast_pos.mpr <| Nat.choose_pos <| Nat.div_le_self _ _ ) ]
