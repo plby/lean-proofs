@@ -34,7 +34,6 @@ We formalize three results about Erdős problem #741:
 import Mathlib
 
 set_option linter.style.setOption false
-set_option linter.style.refine false
 set_option linter.style.multiGoal false
 set_option linter.flexible false
 set_option linter.unusedSimpArgs false
@@ -226,12 +225,12 @@ theorem basis_stage (k : ℕ) :
               syndeticA_prefix (k + 1) ∧
                 Set.Icc (10 * 5 ^ k - 1) (15 * 5 ^ k) ⊆
                   syndeticA_prefix (k + 1) := by
-      refine' ⟨ interval_in_prefix k, _, _, _ ⟩ <;> simp_all +decide [ syndeticA_prefix ];
+      refine ⟨ interval_in_prefix k, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ syndeticA_prefix ];
       · exact Or.inr
           ⟨ k + 1, ⟨ by linarith, by linarith ⟩,
             Or.inl <| Or.inl <| by unfold ck; simp +decide [ pow_succ' ] ⟩;
       · intro x hx; simp_all +decide [ Set.subset_def ] ;
-        refine' Or.inr ⟨ k + 1, ⟨ by linarith, by linarith ⟩, _ ⟩ ; simp_all +decide [ Bk, Fk ];
+        refine Or.inr ⟨ k + 1, ⟨ by linarith, by linarith ⟩, ?_ ⟩ ; simp_all +decide [ Bk, Fk ];
       · intro x hx; simp_all +decide [ Set.subset_def ] ;
         exact Or.inr
           ⟨ k + 1, ⟨ by linarith, by linarith ⟩,
@@ -257,33 +256,33 @@ theorem basis_stage (k : ℕ) :
           ∀ (a b c d : ℕ), a ≤ b → c ≤ d →
             Set.Icc a b + Set.Icc c d = Set.Icc (a + c) (b + d) := by
         exact fun a b c d hab hcd => Icc_add_Icc_eq a b c d hab hcd;
-      refine' ⟨ _, _, _, _, _ ⟩;
-      · refine' Set.Subset.trans _ ( Set.add_subset_add h_intervals.1 h_intervals.2.1 );
+      refine ⟨ ?_, ?_, ?_, ?_, ?_ ⟩;
+      · refine Set.Subset.trans ?_ ( Set.add_subset_add h_intervals.1 h_intervals.2.1 );
         norm_num [ Set.subset_def, h_sums ];
         exact fun x hx₁ hx₂ => ⟨ by linarith, by linarith ⟩;
-      · refine' Set.Subset.trans _ ( Set.add_subset_add h_intervals.1 h_intervals.2.2.1 );
+      · refine Set.Subset.trans ?_ ( Set.add_subset_add h_intervals.1 h_intervals.2.2.1 );
         rw [ h_sums ] <;> norm_num;
         · exact Set.Icc_subset_Icc ( by ring_nf; norm_num ) ( by omega );
         · exact Nat.le_sub_one_of_lt ( by linarith [ pow_pos ( by decide : 0 < 5 ) k ] );
-      · refine' Set.Subset.trans _ ( Set.add_subset_add h_intervals.2.1 h_intervals.2.2.1 );
+      · refine Set.Subset.trans ?_ ( Set.add_subset_add h_intervals.2.1 h_intervals.2.2.1 );
         norm_num [ Set.subset_def, Set.mem_add ];
         exact fun x hx₁ hx₂ => ⟨ by linarith, by omega ⟩;
-      · refine' Set.Subset.trans _ ( Set.add_subset_add h_intervals.2.2.1 h_intervals.2.2.1 );
+      · refine Set.Subset.trans ?_ ( Set.add_subset_add h_intervals.2.2.1 h_intervals.2.2.1 );
         rw [ h_sums ];
         · exact Set.Icc_subset_Icc ( by ring_nf; norm_num ) ( by omega );
         · exact Nat.le_sub_one_of_lt ( by linarith [ pow_pos ( by decide : 0 < 5 ) k ] );
         · exact Nat.le_sub_one_of_lt ( by linarith [ pow_pos ( by decide : 0 < 5 ) k ] );
-      · refine' ⟨ _, _, _ ⟩;
-        · refine' Set.Subset.trans _ ( Set.add_subset_add h_intervals.1 h_intervals.2.2.2 );
+      · refine ⟨ ?_, ?_, ?_ ⟩;
+        · refine Set.Subset.trans ?_ ( Set.add_subset_add h_intervals.1 h_intervals.2.2.2 );
           rw [ h_sums ] <;> norm_num;
           · exact Set.Icc_subset_Icc ( by omega ) ( by omega );
           · linarith [ pow_pos ( by decide : 0 < 5 ) k ];
-        · refine' Set.Subset.trans _ ( Set.add_subset_add h_intervals.2.2.1 h_intervals.2.2.2 );
+        · refine Set.Subset.trans ?_ ( Set.add_subset_add h_intervals.2.2.1 h_intervals.2.2.2 );
           rw [ h_sums ] <;> norm_num;
           · exact Set.Icc_subset_Icc ( by omega ) ( by omega );
           · exact Nat.le_sub_one_of_lt ( by linarith [ pow_pos ( by decide : 0 < 5 ) k ] );
           · linarith [ pow_pos ( by decide : 0 < 5 ) k ];
-        · refine' Set.Subset.trans _ ( Set.add_subset_add h_intervals.2.2.2 h_intervals.2.2.2 );
+        · refine Set.Subset.trans ?_ ( Set.add_subset_add h_intervals.2.2.2 h_intervals.2.2.2 );
           rw [ h_sums ] <;> norm_num;
           · exact Set.Icc_subset_Icc ( by omega ) ( by omega );
           · linarith [ pow_pos ( by decide : 0 < 5 ) k ];
@@ -523,11 +522,11 @@ For counting-based upper density, limsup along a strict-mono subsequence
 theorem countIn_upperDensity_le_of_subseq (S : Set ℕ) (f : ℕ → ℕ) (hf : StrictMono f)
     (hf_pos : ∀ k, 0 < f k) :
     Filter.limsup (fun k => (countIn S (f k) : ℝ) / (f k)) Filter.atTop ≤ upperDensity S := by
-  refine' le_csInf _ _ <;> norm_num;
+  refine le_csInf ?_ ?_ <;> norm_num;
   · use 1;
     use 1; intro b hb; rw [ div_le_iff₀ ] <;> norm_cast ;
     grind +locals;
-  · intro b x hx; refine' csInf_le _ _ <;> norm_num;
+  · intro b x hx; refine csInf_le ?_ ?_ <;> norm_num;
     · exact ⟨ 0, by rintro _ ⟨ k, hk ⟩ ; exact le_trans ( by positivity ) ( hk _ le_rfl ) ⟩;
     · exact ⟨ x, fun n hn => hx _ <| hn.trans <| hf.id_le _ ⟩
 
@@ -553,7 +552,11 @@ theorem alternating_block_count (A : Set ℕ) (M : ℕ → ℕ) (hM : StrictMono
     let A₁ := A ∩ ⋃ j, Set.Ioc (M (2 * j)) (M (2 * j + 1))
     countIn A₁ (M (2 * k + 1)) ≥ countIn A (M (2 * k + 1)) - countIn A (M (2 * k) + 1) := by
   norm_num [ countIn ];
-  refine' le_trans _ ( Finset.card_union_le _ _ );
+  refine le_trans ?_
+    (Finset.card_union_le
+      {x ∈ Finset.range (M (2 * k + 1)) |
+        x ∈ A ∧ ∃ i, M (2 * i) < x ∧ x ≤ M (2 * i + 1)}
+      {x ∈ Finset.range (M (2 * k) + 1) | x ∈ A});
   refine Finset.card_mono ?_;
   intro x hx; by_cases hx' : x ≤ M ( 2 * k ) <;> simp_all +decide [ Finset.subset_iff ] ;
   exact Or.inl ⟨ k, hx', hx.1.le ⟩
@@ -573,7 +576,7 @@ theorem split_positive_upper_density (A : Set ℕ) (hA : upperDensity A > 0) :
     have h_limsup_le :
         Filter.limsup (fun N => (countIn A N : ℝ) / N) Filter.atTop ≤
           upperDensity A / 2 := by
-      refine' csInf_le _ _ <;> norm_num;
+      refine csInf_le ?_ ?_ <;> norm_num;
       · exact ⟨ 0, by rintro x ⟨ N, hN ⟩ ; exact le_trans ( by positivity ) ( hN _ le_rfl ) ⟩;
       · exact Filter.eventually_atTop.mp h_limsup_le;
     linarith!;
@@ -636,7 +639,7 @@ theorem split_positive_upper_density (A : Set ℕ) (hA : upperDensity A > 0) :
         nlinarith [
           show ( M ( 2 * k + 1 ) : ℝ ) > 0 from Nat.cast_pos.mpr <| by
             linarith [ hM.1 ( show 2 * k < 2 * k + 1 from Nat.lt_succ_self _ ) ] ]
-    refine' le_csInf _ _ <;> norm_num;
+    refine le_csInf ?_ ?_ <;> norm_num;
     · use 1;
       use 1;
       intro k hk
@@ -659,7 +662,10 @@ theorem split_positive_upper_density (A : Set ℕ) (hA : upperDensity A > 0) :
           countIn A (M (2 * k + 2)) - countIn A (M (2 * k + 1) + 1) := by
       intro k
       simp [A₂, countIn];
-      refine' le_trans _ ( Finset.card_union_le _ _ );
+      refine le_trans ?_
+        (Finset.card_union_le
+          {x ∈ Finset.range (M (2 * k + 2)) | x ∈ A ∧ x ∉ A₁}
+          {x ∈ Finset.range (M (2 * k + 1) + 1) | x ∈ A});
       refine Finset.card_mono ?_;
       intro x hx; by_cases hx' : x ∈ A₁ <;> simp_all +decide [ Finset.subset_iff ] ;
       simp +zetaDelta at *;
@@ -704,7 +710,7 @@ theorem split_positive_upper_density (A : Set ℕ) (hA : upperDensity A > 0) :
             linarith [ hM.1 ( show 0 < 2 * k + 2 from Nat.succ_pos _ ) ],
           mul_div_cancel₀ ( 2 * ( countIn A ( M ( 2 * k + 1 ) + 1 ) : ℝ ) )
             ( ne_of_gt ( half_pos hA ) ) ]
-    refine' le_csInf _ _ <;> norm_num;
+    refine le_csInf ?_ ?_ <;> norm_num;
     · exact
         ⟨ 1, ⟨ 0, fun n hn =>
           div_le_one_of_le₀
@@ -725,7 +731,7 @@ theorem split_positive_upper_density (A : Set ℕ) (hA : upperDensity A > 0) :
     apply countIn_upperDensity_le_of_subseq;
     · exact hM.1.comp ( strictMono_nat_of_lt_succ fun k => by linarith );
     · exact fun k => by linarith [ hM.1 ( show 2 * k + 2 > 0 by linarith ) ] ;
-  refine' ⟨ ⟨ A₁, A₂, _, _ ⟩, _, _ ⟩;
+  refine ⟨ ⟨ A₁, A₂, ?_, ?_ ⟩, ?_, ?_ ⟩;
   all_goals norm_num [ Set.disjoint_left ];
   · aesop;
   · exact Set.union_diff_cancel ( Set.inter_subset_left );
@@ -788,8 +794,9 @@ theorem upperDensity_sumset_ge (X : Set ℕ) :
             (Finset.image_subset_iff.mpr fun x hx =>
               Finset.add_mem_add hx hy_max.1)
     by_cases hX : (Finset.filter (· ∈ X) (Finset.range N)).Nonempty
-    · refine' le_trans (h_cauchy_davenport _ hX) _
-      refine' Finset.card_mono _
+    · refine le_trans
+        (h_cauchy_davenport {x ∈ Finset.range N | x ∈ X} hX) ?_
+      refine Finset.card_mono ?_
       simp +decide [ Finset.subset_iff, Finset.mem_add ];
       exact fun x a ha ha' b hb hb' hx =>
         ⟨ by linarith, hx ▸ Set.add_mem_add ha' hb' ⟩
@@ -815,8 +822,8 @@ theorem upperDensity_sumset_ge (X : Set ℕ) :
             (2 : ℝ) * ↑‹ℕ› + 1 ≤ countIn (X + X) (2 * N) := by
           norm_cast
         nlinarith [h_cast, pow_pos (by positivity : 0 < (N : ℝ)) 2]
-    refine' le_of_forall_pos_le_add fun ε ε_pos => _;
-    refine' csInf_le _ _ <;> norm_num;
+    refine le_of_forall_pos_le_add fun ε ε_pos => ?_;
+    refine csInf_le ?_ ?_ <;> norm_num;
     · exact ⟨ 0, by rintro x ⟨ N, hN ⟩ ; exact le_trans ( by positivity ) ( hN _ le_rfl ) ⟩;
     · obtain ⟨ N, hN ⟩ := Filter.eventually_atTop.mp (show
           ∀ᶠ N : ℕ in Filter.atTop,
@@ -846,7 +853,7 @@ theorem upperDensity_sumset_ge (X : Set ℕ) :
             · exact Filter.eventually_atTop.mp this.choose_spec.1 |>
                 fun ⟨N, hN⟩ =>
                   ⟨N, fun n hn => le_trans (hN n hn) this.choose_spec.2.le⟩
-            · refine' ⟨1, Filter.eventually_atTop.mpr ⟨1, fun n hn => _⟩⟩
+            · refine ⟨1, Filter.eventually_atTop.mpr ⟨1, fun n hn => ?_⟩⟩
               rw [ div_le_iff₀ ] <;> norm_cast <;> norm_num [ countIn ];
               · grind
               · linarith)
@@ -861,15 +868,15 @@ theorem upperDensity_sumset_ge (X : Set ℕ) :
             (by
               norm_cast
               linarith : (2 * n : ℝ) ≠ 0)] ⟩
-  refine' le_trans h_limsup _;
+  refine le_trans h_limsup ?_;
   unfold upperDensity;
   rw [ Filter.limsup_eq, Filter.limsup_eq ];
-  refine' le_csInf _ _;
-  · refine' ⟨ 2, Filter.eventually_atTop.mpr ⟨ 1, fun n hn => _ ⟩ ⟩;
+  refine le_csInf ?_ ?_;
+  · refine ⟨ 2, Filter.eventually_atTop.mpr ⟨ 1, fun n hn => ?_ ⟩ ⟩;
     rw [ div_le_iff₀ ] <;> norm_cast;
     grind +locals;
   · intro b hb;
-    refine' csInf_le _ _;
+    refine csInf_le ?_ ?_;
     · exact ⟨ 0, fun a ha => by
         rcases Filter.eventually_atTop.mp ha with ⟨N, hN⟩
         exact le_trans (by positivity) (hN _ le_rfl) ⟩
@@ -887,7 +894,10 @@ theorem small_summand_bound (A A₁ A₂ : Set ℕ) (hcover : A₁ ∪ A₂ = A)
     countIn (A + A) N ≤ countIn (A₁ + A₁) N + K * countIn A N := by
   -- By definition of $countIn$, we have:
   have h_count_def : countIn (A + A) N ≤ countIn (A₁ + A₁) N + countIn (A + A₂) N := by
-    refine' le_trans _ ( Finset.card_union_le _ _ );
+    refine le_trans ?_
+      (Finset.card_union_le
+        {x ∈ Finset.range N | x ∈ A₁ + A₁}
+        {x ∈ Finset.range N | x ∈ A + A₂});
     refine Finset.card_mono ?_;
     simp +contextual [ Finset.subset_iff, Set.mem_add ];
     grind;
@@ -972,9 +982,9 @@ lemma upperDensity_le_zero_tendsto (S : Set ℕ) (h : ¬ upperDensity S > 0) :
           rw [ div_le_iff₀ ] at this
           · nlinarith [show (N : ℝ) ≥ N₀ + 1 by exact_mod_cast hN]
           · exact_mod_cast lt_of_lt_of_le (Nat.succ_pos N₀) hN ⟩
-      · refine'
+      · refine
           ⟨ 1, Filter.eventually_atTop.mpr
-            ⟨ 1, fun n hn => div_le_one_of_le₀ _ <| Nat.cast_nonneg _ ⟩ ⟩
+            ⟨ 1, fun n hn => div_le_one_of_le₀ ?_ <| Nat.cast_nonneg _ ⟩ ⟩
         norm_cast;
         grind +locals
 
@@ -989,7 +999,7 @@ lemma upperDensity_pos_frequently (S : Set ℕ) (h : upperDensity S > 0) :
           have h_limsup :
               Filter.limsup (fun N => (countIn S N : ℝ) / N) Filter.atTop ≤
                 upperDensity S / 2 := by
-            refine' csInf_le _ _;
+            refine csInf_le ?_ ?_;
             · exact ⟨ 0, fun x hx => by
                 rcases Filter.eventually_atTop.mp hx with ⟨N, hN⟩
                 exact le_trans (by positivity) (hN _ le_rfl) ⟩
@@ -1052,11 +1062,12 @@ theorem erdos741_upper_density_case2 (A : Set ℕ) (hA : ¬ upperDensity A > 0)
                   hN.2, hN₂.2 N
                     (by linarith [le_max_left N₁ N₂, le_max_right N₁ N₂])⟩
           choose f hf using h_seq;
-          refine'
+          refine
             ⟨ fun k => Nat.recOn k 1 fun k ih => f ih,
-              strictMono_nat_of_lt_succ fun k => _, fun k => _ ⟩ <;>
+              strictMono_nat_of_lt_succ fun k => ?_, fun k => ?_ ⟩ <;>
             norm_num [ hf ]
-          refine' lt_of_lt_of_le ( hf _ |>.2.2 ) _;
+          refine lt_of_lt_of_le
+            (hf (Nat.recOn k 1 fun k ih => f ih) |>.2.2) ?_;
           gcongr;
           · exact mul_pos zero_lt_two <|
               Nat.cast_pos.mpr <|
@@ -1132,14 +1143,16 @@ theorem erdos741_upper_density_case2 (A : Set ℕ) (hA : ¬ upperDensity A > 0)
         -- Using countIn_upperDensity_le_of_subseq, limsup along M(2k+1) ≤ ūd(A₁+A₁). Since limsup ≥
         -- δ/2 (all terms ≥ δ/2), ūd(A₁+A₁) ≥ δ/2 > 0.
         have hA₁_upperDensity : upperDensity (A₁ + A₁) ≥ δ / 2 := by
-          refine' le_trans _ <|
+          refine le_trans ?_ <|
             countIn_upperDensity_le_of_subseq _
               (fun k => M (2 * k + 1))
               (hM.1.comp (strictMono_nat_of_lt_succ fun k => by linarith))
-              fun k => Nat.pos_of_ne_zero _
-          · refine' le_csInf _ _ <;> norm_num;
-            · refine' ⟨ 1, ⟨ 0, fun n hn => _ ⟩ ⟩;
-              refine' div_le_one_of_le₀ _ _ <;> norm_cast;
+              fun k =>
+                lt_of_le_of_lt (Nat.zero_le _) <|
+                  hM.1 (show 0 < 2 * k + 1 by linarith)
+          · refine le_csInf ?_ ?_ <;> norm_num;
+            · refine ⟨ 1, ⟨ 0, fun n hn => ?_ ⟩ ⟩;
+              refine div_le_one_of_le₀ ?_ ?_ <;> norm_cast;
               · grind +locals;
               · exact Nat.zero_le _;
             · intro b x hx
@@ -1152,17 +1165,16 @@ theorem erdos741_upper_density_case2 (A : Set ℕ) (hA : ¬ upperDensity A > 0)
                 nlinarith [hA₁_bound x, hx_pos]
               · exact Nat.cast_pos.mpr <| Nat.pos_of_ne_zero <| by
                   linarith [hM.1 (show 0 < 2 * x + 1 from Nat.succ_pos _)]
-          · linarith [ hM.1 ( show 0 < 2 * k + 1 from Nat.succ_pos _ ), hM.2 0 ];
         -- Similarly, using countIn_upperDensity_le_of_subseq, limsup along M(2k+2) ≤ ūd(A₂+A₂).
         -- Since limsup ≥ δ/2 (all terms ≥ δ/2), ūd(A₂+A₂) ≥ δ/2 > 0.
         have hA₂_upperDensity : upperDensity (A₂ + A₂) ≥ δ / 2 := by
-          refine' le_trans _ <|
+          refine le_trans ?_ <|
             countIn_upperDensity_le_of_subseq _
               (fun k => M (2 * k + 2))
               (hM.1.comp (strictMono_nat_of_lt_succ fun k => by linarith))
               fun k => by
                 linarith [hM.1 <| show 2 * k + 2 > 0 from Nat.succ_pos _]
-          refine' le_csInf _ _ <;> norm_num;
+          refine le_csInf ?_ ?_ <;> norm_num;
           · use 1;
             use 1;
             intro k hk; rw [ div_le_iff₀ ] <;> norm_cast <;> norm_num [ countIn ];
@@ -1220,7 +1232,7 @@ theorem digitSetB1_add_digitSetB2 : digitSetB1 + digitSetB2 = Set.univ := by
     · by_cases hk : k = 0;
       · exact ⟨ 0, by unfold digitSetB1; aesop, 0, by unfold digitSetB2; aesop, by aesop ⟩;
       · obtain ⟨ a, ha, b, hb, hab ⟩ := ih k ( by linarith [ Nat.pos_of_ne_zero hk ] );
-        refine' ⟨ 4 * a, _, 4 * b, _, _ ⟩ <;> simp_all +decide [ digitSetB1, digitSetB2 ];
+        refine ⟨ 4 * a, ?_, 4 * b, ?_, ?_ ⟩ <;> simp_all +decide [ digitSetB1, digitSetB2 ];
         · rintro ( _ | r ) <;> simp_all +decide [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ];
         · intro r
           rcases r with ( _ | r ) <;>
@@ -1228,20 +1240,20 @@ theorem digitSetB1_add_digitSetB2 : digitSetB1 + digitSetB2 = Set.univ := by
           all_goals aesop
         · linarith;
     · obtain ⟨ a, ha, b, hb, hab ⟩ := ih k ( by linarith );
-      refine' ⟨ 4 * a + 1, _, 4 * b, _, _ ⟩ <;> simp_all +decide [ digitSetB1, digitSetB2 ];
+      refine ⟨ 4 * a + 1, ?_, 4 * b, ?_, ?_ ⟩ <;> simp_all +decide [ digitSetB1, digitSetB2 ];
       · rintro ( _ | r ) <;> norm_num [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ];
         norm_num [ Nat.add_div ] ; aesop;
       · rintro ( _ | r ) <;> norm_num [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ];
         exact hb r;
       · linarith;
     · obtain ⟨ a, ha, b, hb, hab ⟩ := ih k ( by linarith );
-      refine' ⟨ 4 * a, _, 4 * b + 2, _, _ ⟩ <;> simp_all +decide [ digitSetB1, digitSetB2 ];
+      refine ⟨ 4 * a, ?_, 4 * b + 2, ?_, ?_ ⟩ <;> simp_all +decide [ digitSetB1, digitSetB2 ];
       · rintro ( _ | r ) <;> norm_num [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ] at * ; aesop;
       · intro r; rcases r with ( _ | r ) <;> norm_num [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ] ;
         norm_num [ Nat.add_div ] ; aesop;
       · bv_omega;
     · obtain ⟨ a, ha, b, hb, hab ⟩ := ih k ( by linarith );
-      refine' ⟨ 4 * a + 1, _, 4 * b + 2, _, _ ⟩ <;> simp_all +decide [ digitSetB1, digitSetB2 ];
+      refine ⟨ 4 * a + 1, ?_, 4 * b + 2, ?_, ?_ ⟩ <;> simp_all +decide [ digitSetB1, digitSetB2 ];
       · rintro ( _ | r ) <;> norm_num [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ];
         norm_num [ Nat.add_div ] ; aesop;
       · intro r; rcases r with ( _ | r ) <;> norm_num [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ] ;
@@ -1272,7 +1284,7 @@ lemma counterexA_sumset_univ : counterexA + counterexA = Set.univ := by
 Natural density of Set.univ is 1
 -/
 lemma hasNatDensity_univ : HasNatDensity Set.univ 1 := by
-  refine' tendsto_const_nhds.congr' _;
+  refine tendsto_const_nhds.congr' ?_;
   filter_upwards [ Filter.eventually_gt_atTop 0 ] with N hN using by
     rw [ show countIn Set.univ (N + 1) = N + 1 by
       unfold countIn
@@ -1306,7 +1318,7 @@ lemma digit_decomp_unique (m : ℕ) (n : ℕ) (hn : n < 4 ^ m) :
                 ⟨ n / 4, n % 4, by rw [ Nat.div_add_mod ],
                   Nat.div_lt_of_lt_mul <| by linarith, Nat.mod_lt _ <| by decide ⟩
             obtain ⟨b₁, hb₁, hb₁', b₂, hb₂, hb₂', h⟩ := ih q hr.2.1
-            refine' ⟨
+            refine ⟨
               4 * b₁ +
                 (if r = 0 then 0 else if r = 1 then 1 else if r = 2 then 0 else 1),
               ?_, ?_,
@@ -1337,7 +1349,7 @@ lemma digit_decomp_unique (m : ℕ) (n : ℕ) (hn : n < 4 ^ m) :
                   norm_num [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ];
             · split_ifs <;> linarith;
             · split_ifs <;> omega;
-        refine' ⟨ ⟨ b₁, b₂ ⟩, _, _ ⟩ <;> simp_all +decide [ ExistsUnique ];
+        refine ⟨ ⟨ b₁, b₂ ⟩, ?_, ?_ ⟩ <;> simp_all +decide [ ExistsUnique ];
         intro a b ha ha' hb hb' hab;
         -- By induction on $m$, we can show that $a = b₁$ and $b = b₂$.
         have h_ind :
@@ -1478,13 +1490,13 @@ The count of (S₁ ∩ B₁) + (S₂ ∩ B₂) in [0, 4^m) equals
 lemma cross_digit_count (S₁ S₂ : Set ℕ) (m : ℕ) :
     countIn ((S₁ ∩ digitSetB1) + (S₂ ∩ digitSetB2)) (4 ^ m) =
     countIn (S₁ ∩ digitSetB1) (4 ^ m) * countIn (S₂ ∩ digitSetB2) (4 ^ m) := by
-      refine' Eq.symm _;
+      refine Eq.symm ?_;
       unfold countIn;
       rw [ ← Finset.card_product ];
-      refine' Finset.card_bij _ _ _ _;
+      refine Finset.card_bij ?_ ?_ ?_ ?_;
       use fun p hp => p.1 + p.2;
       · simp +contextual [ Set.mem_add ];
-        intro a b ha ha₁ ha₂ hb hb₁ hb₂; refine' ⟨ _, a, ⟨ ha₁, ha₂ ⟩, b, ⟨ hb₁, hb₂ ⟩, rfl ⟩ ;
+        intro a b ha ha₁ ha₂ hb hb₁ hb₂; refine ⟨ ?_, a, ⟨ ha₁, ha₂ ⟩, b, ⟨ hb₁, hb₂ ⟩, rfl ⟩ ;
         have h_no_carry :
             ∀ m : ℕ, ∀ a ∈ digitSetB1, ∀ b ∈ digitSetB2,
               a < 4 ^ m → b < 4 ^ m → a + b < 4 ^ m := by
@@ -1521,13 +1533,15 @@ The B₁+B₁ self-sumset (digits in {0,1,2}) has at most 3^m elements in [0, 4^
 -/
 lemma digitSetB1_self_sum_count (m : ℕ) :
     countIn (digitSetB1 + digitSetB1) (4 ^ m) ≤ 3 ^ m := by
-      refine' le_trans ( Finset.card_le_card _ ) _;
-      exact
-        Finset.image
-          (fun s : Fin m → Fin 3 =>
-            ∑ i : Fin m, (if s i = 0 then 0 else if s i = 1 then 1 else 2) *
-              4 ^ (i : ℕ))
-          (Finset.univ : Finset (Fin m → Fin 3))
+      refine le_trans
+        (Finset.card_le_card
+          (t := Finset.image
+            (fun s : Fin m → Fin 3 =>
+              ∑ i : Fin m, (if s i = 0 then 0 else if s i = 1 then 1 else 2) *
+                4 ^ (i : ℕ))
+            (Finset.univ : Finset (Fin m → Fin 3)))
+          ?_)
+        ?_;
       · intro x hx; simp_all +decide [ Finset.mem_image, Set.mem_add ] ;
         rcases hx with ⟨ hx₁, a, ha, b, hb, rfl ⟩;
         -- By definition of $digitSetB1$, we know that $a$ and $b$ have base-4 digits in $\{0,1\}$.
@@ -1574,7 +1588,7 @@ lemma digitSetB1_self_sum_count (m : ℕ) :
           else if (a / 4 ^ (i : ℕ)) % 4 + (b / 4 ^ (i : ℕ)) % 4 = 1 then 1
           else 2
         rw [ h_sum_digits ];
-        refine' Finset.sum_congr rfl fun i hi => _
+        refine Finset.sum_congr rfl fun i hi => ?_
         specialize h_digits i
         norm_num at h_digits ⊢
         rcases h_digits with ⟨ ha | ha, hb | hb ⟩ <;> norm_num [ ha, hb ];
@@ -1586,13 +1600,15 @@ The B₂+B₂ self-sumset (digits in {0,2,4 mod 4}) has at most 3^m elements in 
 -/
 lemma digitSetB2_self_sum_count (m : ℕ) :
     countIn (digitSetB2 + digitSetB2) (4 ^ m) ≤ 3 ^ m := by
-      refine' le_trans ( Finset.card_le_card _ ) _;
-      exact
-        Finset.image
-          (fun s : Fin m → Fin 3 =>
-            ∑ i : Fin m, (if s i = 0 then 0 else if s i = 1 then 2 else 4) *
-              4 ^ (i : ℕ))
-          (Finset.univ : Finset (Fin m → Fin 3))
+      refine le_trans
+        (Finset.card_le_card
+          (t := Finset.image
+            (fun s : Fin m → Fin 3 =>
+              ∑ i : Fin m, (if s i = 0 then 0 else if s i = 1 then 2 else 4) *
+                4 ^ (i : ℕ))
+            (Finset.univ : Finset (Fin m → Fin 3)))
+          ?_)
+        ?_;
       · intro x hx; simp_all +decide [ Finset.mem_image, Set.mem_add ] ;
         obtain ⟨ hx₁, a, ha, b, hb, rfl ⟩ := hx
         use fun i =>
@@ -1629,7 +1645,7 @@ lemma digitSetB2_self_sum_count (m : ℕ) :
         rw [ Finset.sum_filter, Finset.sum_filter ];
         rw [ Finset.sum_filter, Finset.sum_filter ]
         rw [ ← Finset.sum_add_distrib ]
-        refine' Finset.sum_congr rfl fun i hi => _
+        refine Finset.sum_congr rfl fun i hi => ?_
         have := ha i
         have := hb i
         simp_all +decide [ Nat.div_eq_of_lt ]
@@ -1693,8 +1709,10 @@ lemma gap_scale_lower (P : BiPartition counterexA) (k : ℕ) :
             countIn (P.left ∩ digitSetB1) (counterexN k) *
               countIn (P.left ∩ digitSetB2) (counterexN k) := by
             convert cross_digit_count ( P.left ) ( P.left ) ( 3 ^ k ) using 1;
-      refine h_cross_digit_count ▸ countIn_mono ?_ _;
-      exact Set.add_subset_add ( Set.inter_subset_left ) ( Set.inter_subset_left )
+      exact h_cross_digit_count ▸
+        countIn_mono
+          (Set.add_subset_add Set.inter_subset_left Set.inter_subset_left)
+          (counterexN k)
 
 /-
 The algebraic bound: x*y + (1-x)*(1-y) ≤ 1 - x*y*(1-x)*(1-y).
@@ -1732,7 +1750,7 @@ lemma digitSetB1_countIn (m : ℕ) : countIn digitSetB1 (4 ^ m) = 2 ^ m := by
     have h_last_digit_zero :
         countIn (fun n => n ∈ digitSetB1 ∧ n % 4 = 0) (4 * 4 ^ m) =
           countIn digitSetB1 (4 ^ m) := by
-      refine' Finset.card_bij (fun x hx => x / 4) _ _ _ <;> simp_all +decide [Nat.div_eq_of_lt]
+      refine Finset.card_bij (fun x hx => x / 4) ?_ ?_ ?_ <;> simp_all +decide [Nat.div_eq_of_lt]
       · intro a ha h
         have := h.2
         rw [← Nat.mod_add_div a 4] at *
@@ -1756,7 +1774,7 @@ lemma digitSetB1_countIn (m : ℕ) : countIn digitSetB1 (4 ^ m) = 2 ^ m := by
           ⟨by linarith [Nat.mod_add_div n 4], fun r => by
             have := hn.1 (r + 1)
             simp_all +decide [Nat.pow_succ', ← Nat.div_div_eq_div_mul]⟩
-      refine' Finset.card_bij (fun n hn => n / 4) _ _ _ <;> simp_all +decide [Nat.div_add_mod]
+      refine Finset.card_bij (fun n hn => n / 4) ?_ ?_ ?_ <;> simp_all +decide [Nat.div_add_mod]
       · exact fun n hn hn' =>
           ⟨Nat.div_lt_of_lt_mul <| by linarith, by
             obtain ⟨k, rfl, hk⟩ := h_last_digit_one n hn'.1 hn'.2
@@ -1766,7 +1784,7 @@ lemma digitSetB1_countIn (m : ℕ) : countIn digitSetB1 (4 ^ m) = 2 ^ m := by
         obtain ⟨k₂, rfl, hk₂⟩ := h_last_digit_one a₂ ha₄.1 ha₄.2
         simp_all +decide [Nat.add_div]
       · intro b hb hb'; use 4 * b + 1; simp_all +decide [Nat.add_div]
-        refine' ⟨by linarith, _, _⟩ <;> norm_num [Nat.add_mod, Nat.mul_mod]
+        refine ⟨by linarith, ?_, ?_⟩ <;> norm_num [Nat.add_mod, Nat.mul_mod]
         intro r
         rcases r with (_ | r) <;> simp_all +decide [Nat.pow_succ', ← Nat.div_div_eq_div_mul]
         norm_num [Nat.add_div]
@@ -1805,7 +1823,8 @@ lemma digitSetB2_countIn (m : ℕ) : countIn digitSetB2 (4 ^ m) = 2 ^ m := by
     have h_last_digit_zero :
         countIn (fun n => n ∈ digitSetB2 ∧ n % 4 = 0) (4 * 4 ^ m) =
           countIn digitSetB2 (4 ^ m) := by
-      refine' Finset.card_bij ( fun x hx => x / 4 ) _ _ _ <;> simp_all +decide [ Nat.div_eq_of_lt ];
+      refine Finset.card_bij (fun x hx => x / 4) ?_ ?_ ?_ <;>
+        simp_all +decide [Nat.div_eq_of_lt];
       · intro a ha h
         have := h.2
         rw [ ← Nat.mod_add_div a 4 ] at *
@@ -1836,7 +1855,7 @@ lemma digitSetB2_countIn (m : ℕ) : countIn digitSetB2 (4 ^ m) = 2 ^ m := by
           ⟨ by linarith [ Nat.mod_add_div n 4 ], fun r => by
               have := hn.1 ( r + 1 )
               simp_all +decide [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ] ⟩
-      refine' Finset.card_bij ( fun n hn => n / 4 ) _ _ _ <;>
+      refine Finset.card_bij ( fun n hn => n / 4 ) ?_ ?_ ?_ <;>
         simp_all +decide [ Nat.div_add_mod ];
       · exact fun n hn hn' =>
           ⟨ Nat.div_lt_of_lt_mul <| by linarith, by
@@ -1849,7 +1868,7 @@ lemma digitSetB2_countIn (m : ℕ) : countIn digitSetB2 (4 ^ m) = 2 ^ m := by
       · intro b hb hb'
         use 4 * b + 2
         simp_all +decide [ Nat.add_div ]
-        refine' ⟨ by linarith, _, _ ⟩ <;> norm_num [ Nat.add_mod, Nat.mul_mod]
+        refine ⟨ by linarith, ?_, ?_ ⟩ <;> norm_num [ Nat.add_mod, Nat.mul_mod]
         intro r
         rcases r with ( _ | r ) <;>
           simp_all +decide [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ]
@@ -1945,15 +1964,18 @@ lemma interval_count_below_Nk (k : ℕ) (hk : k ≥ 2) :
       ∀ j ∈ Finset.Icc 1 (k - 1),
         countIn (counterexI j) (counterexN k) ≤ j * counterexN j := by
     intros j hj;
-    refine' le_trans ( Finset.card_le_card _ ) _;
-    exact Finset.Ico ( counterexN j ) ( ( j + 1 ) * counterexN j );
+    refine le_trans
+      (Finset.card_le_card
+        (t := Finset.Ico (counterexN j) ((j + 1) * counterexN j))
+        ?_)
+      ?_;
     · intro x hx; aesop;
     · simp +arith +decide [ Nat.succ_mul ];
   refine le_trans h_union_bound <| le_trans ( Finset.sum_le_sum h_interval_card ) ?_;
-  refine' le_trans (Finset.sum_le_sum fun i hi =>
+  refine le_trans (Finset.sum_le_sum fun i hi =>
     Nat.mul_le_mul
       (Finset.mem_Icc.mp hi |>.2)
-      (show counterexN i ≤ counterexN (k - 1) from _)) _;
+      (show counterexN i ≤ counterexN (k - 1) from ?_)) ?_;
   · exact Nat.pow_le_pow_right (by decide) <|
       Nat.pow_le_pow_right (by decide) (Finset.mem_Icc.mp hi |>.2)
   · norm_num [ ← Finset.mul_sum _ _ _ ];
@@ -2044,22 +2066,52 @@ lemma sumset_upper_bound (P : BiPartition counterexA) (k : ℕ) (hk : k ≥ 2) :
             countIn (L_I + L_I) N ≤ countIn L_I N * countIn L_I N := by
       have h_sumset_bound : ∀ (S T : Finset ℕ), (S + T).card ≤ S.card * T.card := by
         exact fun S T => Finset.card_add_le.trans ( by norm_num );
-      refine' ⟨ _, _, _ ⟩;
-      · refine' le_trans _ ( h_sumset_bound _ _ );
-        refine' Finset.card_mono _;
-        simp +decide [ Finset.subset_iff ];
-        simp +decide [ Finset.mem_add, Set.mem_add ];
-        exact fun x hx y hy z hz h => ⟨ y, ⟨ hy.2, hy ⟩, z, ⟨ hz.2, hz ⟩, h ⟩;
-      · refine' le_trans _ ( h_sumset_bound _ _ );
-        refine' Finset.card_mono _;
-        simp +decide [ Finset.subset_iff ];
-        simp +contextual [ Finset.mem_add, Set.mem_add ];
-        exact fun x hx y hy z hz h => ⟨ y, ⟨ hy.2, hy ⟩, z, ⟨ hz.2, hz ⟩, h ⟩;
-      · refine' le_trans _ ( h_sumset_bound _ _ );
-        refine' Finset.card_mono _;
-        simp +decide [ Finset.subset_iff ];
-        simp +contextual [ Finset.mem_add, Set.mem_add ];
-        exact fun x hx y hy z hz h => ⟨ y, ⟨ hy.2, hy ⟩, z, ⟨ hz.2, hz ⟩, h ⟩;
+      refine ⟨ ?_, ?_, ?_ ⟩;
+      · refine le_trans
+          (b := ((Finset.range N).filter (· ∈ L) +
+            (Finset.range N).filter (· ∈ L_I)).card)
+          ?_ ?_;
+        · refine Finset.card_mono ?_;
+          simp +decide [ Finset.subset_iff ];
+          simp +decide [ Finset.mem_add, Set.mem_add ];
+          exact fun x hx y hy z hz h => ⟨ y, ⟨ hy.2, hy ⟩, z, ⟨ hz.2, hz ⟩, h ⟩;
+        · unfold countIn
+          convert
+            h_sumset_bound
+              ((Finset.range N).filter (· ∈ L))
+              ((Finset.range N).filter (· ∈ L_I))
+            using 1
+          congr 1 <;> apply congrArg Finset.card <;> ext x <;> simp +decide
+      · refine le_trans
+          (b := ((Finset.range N).filter (· ∈ L_I) +
+            (Finset.range N).filter (· ∈ L)).card)
+          ?_ ?_;
+        · refine Finset.card_mono ?_;
+          simp +decide [ Finset.subset_iff ];
+          simp +contextual [ Finset.mem_add, Set.mem_add ];
+          exact fun x hx y hy z hz h => ⟨ y, ⟨ hy.2, hy ⟩, z, ⟨ hz.2, hz ⟩, h ⟩;
+        · unfold countIn
+          convert
+            h_sumset_bound
+              ((Finset.range N).filter (· ∈ L_I))
+              ((Finset.range N).filter (· ∈ L))
+            using 1
+          congr 1 <;> apply congrArg Finset.card <;> ext x <;> simp +decide
+      · refine le_trans
+          (b := ((Finset.range N).filter (· ∈ L_I) +
+            (Finset.range N).filter (· ∈ L_I)).card)
+          ?_ ?_;
+        · refine Finset.card_mono ?_;
+          simp +decide [ Finset.subset_iff ];
+          simp +contextual [ Finset.mem_add, Set.mem_add ];
+          exact fun x hx y hy z hz h => ⟨ y, ⟨ hy.2, hy ⟩, z, ⟨ hz.2, hz ⟩, h ⟩;
+        · unfold countIn
+          convert
+            h_sumset_bound
+              ((Finset.range N).filter (· ∈ L_I))
+              ((Finset.range N).filter (· ∈ L_I))
+            using 1
+          congr 1 <;> apply congrArg Finset.card <;> ext x <;> simp +decide
     lia;
   -- The countIn of L + L is bounded by the sum of the counts of B₁+B₁, B₂+B₂, and the cross-digit
   -- count.
@@ -2091,7 +2143,10 @@ lemma sumset_upper_bound (P : BiPartition counterexA) (k : ℕ) (hk : k ≥ 2) :
   -- The countIn of L is bounded by the sum of the counts of B₁ and B₂.
   have h_L_bound : countIn L N ≤ 2 ^ (3 ^ k + 1) := by
     have h_L_bound : countIn L N ≤ countIn (digitSetB1) N + countIn (digitSetB2) N := by
-      refine' le_trans _ ( Finset.card_union_le _ _ );
+      refine le_trans ?_
+        (Finset.card_union_le
+          {x ∈ Finset.range N | x ∈ digitSetB1}
+          {x ∈ Finset.range N | x ∈ digitSetB2});
       refine Finset.card_mono ?_;
       intro x hx; aesop;
     have h_digitSetB1_count : countIn digitSetB1 N = 2 ^ (3 ^ k) := by
@@ -2103,7 +2158,7 @@ lemma sumset_upper_bound (P : BiPartition counterexA) (k : ℕ) (hk : k ≥ 2) :
   -- The countIn of L_I is bounded by the count of interval elements.
   have h_L_I_bound : countIn L_I N ≤ k ^ 2 * counterexN (k - 1) := by
     refine le_trans ?_ ( interval_count_below_Nk k hk );
-    refine' Finset.card_mono _;
+    refine Finset.card_mono ?_;
     intro x hx; aesop;
   nlinarith [ Nat.zero_le ( countIn L_I N ) ]
 
@@ -2157,7 +2212,7 @@ lemma cross_digit_density_limit (P : BiPartition counterexA) (d : ℝ) (hd : d >
         Filter.Tendsto
           (fun k : ℕ => (k ^ 2 : ℝ) / 2 ^ (3 ^ (k - 1)))
           Filter.atTop (nhds 0) := by
-      refine' squeeze_zero_norm' _ tendsto_inv_atTop_nhds_zero_nat;
+      refine squeeze_zero_norm' ?_ tendsto_inv_atTop_nhds_zero_nat;
       filter_upwards [ Filter.eventually_gt_atTop 3 ] with n hn;
       rw [ Real.norm_of_nonneg ( by positivity ), inv_eq_one_div, div_le_div_iff₀ ] <;>
         norm_cast <;>
@@ -2185,7 +2240,7 @@ lemma cross_digit_density_limit (P : BiPartition counterexA) (d : ℝ) (hd : d >
                 countIn (P.left ∩ digitSetB2) (counterexN k) : ℝ)) /
             (counterexN k))
         Filter.atTop (nhds 0) := by
-    refine' squeeze_zero_norm' _ h_bound_zero;
+    refine squeeze_zero_norm' ?_ h_bound_zero;
     filter_upwards [ Filter.eventually_ge_atTop 2 ] with k hk;
     rw [ Real.norm_of_nonneg
       (div_nonneg
@@ -2251,7 +2306,7 @@ lemma prop_base4_scale (P : BiPartition counterexA)
           Filter.Tendsto (fun k : ℕ => p k * q k) Filter.atTop (nhds d₁) ∧
             Filter.Tendsto (fun k : ℕ => (1 - p k) * (1 - q k))
               Filter.atTop (nhds d₂) := by
-        refine' ⟨ h_lim_pos₁.congr fun k => _, h_lim_pos₂.congr fun k => _ ⟩;
+        refine ⟨ h_lim_pos₁.congr fun k => ?_, h_lim_pos₂.congr fun k => ?_ ⟩;
         · rw [ div_mul_div_comm, show
               (counterexN k : ℝ) = 2 ^ 3 ^ k * 2 ^ 3 ^ k by
             norm_cast
@@ -2271,11 +2326,11 @@ lemma prop_base4_scale (P : BiPartition counterexA)
       -- By definition of $p_k$ and $q_k$, we have $0 \leq p_k \leq 1$ and $0 \leq q_k \leq 1$.
       have h_bounds : ∀ k : ℕ, 0 ≤ p k ∧ p k ≤ 1 ∧ 0 ≤ q k ∧ q k ≤ 1 := by
         intro k
-        refine'
+        refine
           ⟨ div_nonneg (Nat.cast_nonneg _) (by positivity),
-            div_le_one_of_le₀ _ (by positivity),
+            div_le_one_of_le₀ ?_ (by positivity),
             div_nonneg (Nat.cast_nonneg _) (by positivity),
-            div_le_one_of_le₀ _ (by positivity) ⟩ <;>
+            div_le_one_of_le₀ ?_ (by positivity) ⟩ <;>
           norm_cast
         · have := bipartition_B1_count P ( 3 ^ k ) ; norm_num [ counterexN ] at * ; omega;
         · exact le_trans
@@ -2344,12 +2399,26 @@ lemma prop_interval_scale (P : BiPartition counterexA)
           · exact interval_self_sum_bound k S hS hS_empty;
           · aesop;
         constructor <;> simp_all +decide [ countIn ];
-        · refine le_trans ( h_cauchy_davenport_step _ fun x hx => by aesop ) ?_;
-          refine' Nat.succ_le_succ ( Finset.card_mono _ );
+        · refine le_trans
+            (h_cauchy_davenport_step
+              {x ∈ Finset.range ((k + 1) * counterexN k) |
+                x ∈ P.left ∧ x ∈ counterexI k}
+              fun x hx => by
+                simp +decide at hx
+                exact hx.2.2)
+            ?_;
+          refine Nat.succ_le_succ ( Finset.card_mono ?_ );
           simp +decide [ Finset.subset_iff, Finset.mem_add ];
           rintro x a ha₁ ha₂ ha₃ b hb₁ hb₂ hb₃ rfl; exact ⟨ by linarith, Set.add_mem_add ha₂ hb₂ ⟩ ;
-        · refine le_trans ( h_cauchy_davenport_step _ fun x hx => by aesop ) ?_;
-          refine' Nat.succ_le_succ ( Finset.card_mono _ );
+        · refine le_trans
+            (h_cauchy_davenport_step
+              {x ∈ Finset.range ((k + 1) * counterexN k) |
+                x ∈ P.right ∧ x ∈ counterexI k}
+              fun x hx => by
+                simp +decide at hx
+                exact hx.2.2)
+            ?_;
+          refine Nat.succ_le_succ ( Finset.card_mono ?_ );
           simp +decide [ Finset.subset_iff, Finset.mem_add ];
           rintro x y hy₁ hy₂ hy₃ z hz₁ hz₂ hz₃ rfl; exact ⟨ by linarith, Set.add_mem_add hy₂ hz₂ ⟩ ;
       -- Adding these inequalities and dividing by $2(k+1)N_k$, we get:
