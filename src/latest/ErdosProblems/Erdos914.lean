@@ -40,7 +40,6 @@ import Mathlib
 namespace Erdos914
 
 set_option linter.style.setOption false
-set_option linter.style.refine false
 -- Local generated proof budgets below exceed the style threshold but are scoped.
 set_option linter.style.maxHeartbeats false
 set_option linter.style.multiGoal false
@@ -105,8 +104,8 @@ lemma exists_nodup_chain'
   · obtain ⟨ i, j, hij, h_eq ⟩ := h_dup;
     have h_shorter : ∃ l' : List α, List.IsChain R l' ∧ l'.head? = some a ∧ l'.getLast? =
       some b ∧ l'.length < l.length := by
-      refine' ⟨ l.take i.val ++ l.drop j.val, _, _, _, _ ⟩ <;> simp_all +decide;
-      · refine' List.isChain_append.mpr ⟨ _, _, _ ⟩;
+      refine ⟨ l.take i.val ++ l.drop j.val, ?_, ?_, ?_, ?_ ⟩ <;> simp_all +decide;
+      · refine List.isChain_append.mpr ⟨ ?_, ?_, ?_ ⟩;
         · have := hl_min.1;
           exact List.IsChain.take this ↑i;
         · have := hl_min.1;
@@ -125,7 +124,7 @@ lemma exists_nodup_chain'
       · linarith [ show ( i : ℕ ) < j from hij, Nat.sub_add_cancel ( show ( j : ℕ ) ≤
         l.length from j.2.le ) ];
     grind;
-  · refine' ⟨ l, _, hl_min.1, hl_min.2.1, hl_min.2.2.1, _ ⟩;
+  · refine ⟨ l, ?_, hl_min.1, hl_min.2.1, hl_min.2.2.1, ?_ ⟩;
     · exact List.nodup_iff_injective_get.mpr fun i j hij => le_antisymm ( not_lt.mp fun hi =>
       h_dup ⟨ j, i, hi, hij.symm ⟩ ) ( not_lt.mp fun hj => h_dup ⟨ i, j, hj, hij ⟩ );
     · rcases l with ( _ | ⟨ x, _ | ⟨ y, l ⟩ ⟩ ) <;> simp_all +decide;
@@ -186,7 +185,7 @@ lemma nodup_chain_suffix
       l'.getLast? = some b ∧ l'.length < l.length ∧ a ∉ l' := by
   obtain ⟨l₁, l₂, hl₁, hl₂⟩ : ∃ l₁ l₂ : List α, l = l₁ ++ w :: l₂ := by
     exact List.mem_iff_append.mp hw_mem;
-  refine' ⟨ w :: l₂, _, _, _, _, _, _ ⟩ <;> simp_all +decide;
+  refine ⟨ w :: l₂, ?_, ?_, ?_, ?_, ?_, ?_ ⟩ <;> simp_all +decide;
   · exact List.IsChain.suffix hchain ( List.suffix_append _ _ );
   · grind;
   · cases l₁ <;> aesop;
@@ -261,7 +260,7 @@ theorem exists_terminal_vertex
         have hC_reach_r : Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W_star) C r := by
           exact chain_to_reflTransGen hl'_chain hl'_head hl'_last;
         exact hC.2.2 hC_reach_r;
-      · refine' hD_not_reach_C _;
+      · refine hD_not_reach_C ?_;
         have h_chain_to_restricted_reflTransGen : Relation.ReflTransGen (fun a b => R a b ∧
           a ≠ W_star ∧ a ≠ C) D r := by
           have h_chain_to_restricted_reflTransGen : ∀ {l : List α}, l.Nodup →
@@ -313,7 +312,7 @@ lemma weight_sum_lower_bound {ι : Type*}
     exact fun i hi => by
       rw [le_div_iff₀] <;> norm_cast <;>
         linarith [hs_pos i hi, hs_le i hi]
-  refine' le_trans _ ( Finset.sum_le_sum h_term_bound );
+  refine le_trans ?_ ( Finset.sum_le_sum h_term_bound );
   simp +zetaDelta at *;
   rw [ mul_div, le_div_iff₀ ] <;> norm_cast;
   nlinarith [ Nat.sub_add_cancel ht.le ]
@@ -342,8 +341,7 @@ lemma weight_function_contradiction
   -- Define the weight function total computed by the "z-side".
   set μ := ∑ a ∈ A, ∑ b ∈ Solo a, (q : ℚ) / ((Solo a).card : ℚ)
   have mu_upper : μ ≤ q * (t * s) := by
-    refine' le_trans ( Finset.sum_le_sum _ ) _;
-    use fun a => q;
+    refine le_trans ( Finset.sum_le_sum (g := fun _ => (q : ℚ)) ?_ ) ?_;
     · intro a ha; by_cases ha' : Solo a = ∅ <;> simp_all +decide ;
       rw [
         mul_div_cancel₀ _
@@ -462,11 +460,11 @@ lemma terminal_set_members_are_terminal {α : Type*} [Finite α] [DecidableEq α
   classical
   letI := Fintype.ofFinite α
   intro C hC hCW; contrapose! hT_U_min; simp_all +decide ;
-  refine' ⟨ W, hW.1, ⟨ C, hC, hCW, hT_U_min ⟩, _ ⟩;
-  refine' Finset.card_lt_card _;
+  refine ⟨ W, hW.1, ⟨ C, hC, hCW, hT_U_min ⟩, ?_ ⟩;
+  refine Finset.card_lt_card ?_;
   constructor;
   · intro c hc; simp_all +decide ;
-    refine' ⟨ _, _ ⟩;
+    refine ⟨ ?_, ?_ ⟩;
     · grind +suggestions;
     · intro h;
       apply cannot_reach_transitive R target U W c;
@@ -629,7 +627,7 @@ lemma equitable_coloring_of_edgeless (G : SimpleGraph V)
         have h_card_classes : (Finset.filter (fun v : Fin n => v.val % (r + 1) =
           c.val) Finset.univ).card = Finset.card (Finset.filter (fun v : ℕ => v % (r + 1) =
             c.val) (Finset.range n)) := by
-          refine' Finset.card_bij (fun x hx => x) _ _ _ <;> simp +decide [Fin.ext_iff]
+          refine Finset.card_bij (fun x hx => x) ?_ ?_ ?_ <;> simp +decide [Fin.ext_iff]
           exact fun b hb hb' => ⟨⟨b, hb⟩, hb', rfl⟩
         simp [h_card_classes] at *
         have h_set_eq : {v ∈ Finset.range n | v % (r + 1) = c.val} = Finset.image (fun k => k *
@@ -708,7 +706,7 @@ lemma one_step_equitable
     HasEquitableColoring G k := by
   classical
   obtain ⟨ v, hv ⟩ := hdirect;
-  refine' ⟨ recolor ne.f v ne.small, _, _ ⟩ <;> simp_all +decide [ IsProper, IsEquitable ];
+  refine ⟨ recolor ne.f v ne.small, ?_, ?_ ⟩ <;> simp_all +decide [ IsProper, IsEquitable ];
   · intro u w huw; by_cases hu : u = v <;> by_cases hw : w = v <;> simp_all +decide [ recolor,
     SimpleGraph.adj_comm ] ;
     · grind +splitIndPred;
@@ -742,7 +740,7 @@ lemma auxAdj_preserved_by_recolor
     AuxAdj G (recolor f v c) i j := by
   classical
   obtain ⟨ u, hu ⟩ := hij;
-  refine' ⟨ u, _, _ ⟩ <;> simp_all +decide [ recolor ];
+  refine ⟨ u, ?_, ?_ ⟩ <;> simp_all +decide [ recolor ];
   · rw [ Function.update_apply ] ; aesop;
   · intro w hw; by_cases hw' : w = v <;> simp_all +decide [ update_apply ] ;
 
@@ -772,13 +770,13 @@ lemma exists_nodup_chain {α : Type*} [Finite α]
           exact List.isChain_append.mpr ⟨ hl₃, by aesop ⟩;
       exact h_path h;
     have h_well_founded : WellFounded fun l l' : List α => l.length < l'.length := by
-      refine' ⟨ fun l => _ ⟩;
+      refine ⟨ fun l => ?_ ⟩;
       induction n : l.length using Nat.strong_induction_on generalizing l
       rename_i n ih
       exact ⟨ _, fun l' hl' => ih _ ( by linarith ) _ rfl ⟩;
     have := h_well_founded.has_min { l : List α | l.head? = some a ∧ l.getLast? = some b ∧
       List.IsChain R l } ⟨ _, h_shortest.choose_spec ⟩ ; aesop;
-  refine' ⟨ l, _, hl.2.2.1, hl.1, hl.2.1, _ ⟩;
+  refine ⟨ l, ?_, hl.2.2.1, hl.1, hl.2.1, ?_ ⟩;
   · -- If the list had duplicates, we could remove the cycle between the duplicates and
     -- create a shorter path, contradicting the assumption that l is the shortest.
     by_contra h_dup
@@ -788,12 +786,12 @@ lemma exists_nodup_chain {α : Type*} [Finite α]
       grind;
     -- Let's remove the cycle between the duplicates and create a shorter path.
     set l' : List α := l.take i.val ++ l.drop j.val;
-    refine' hl.2.2.2 ⟨ l', _, _, _, _ ⟩;
+    refine hl.2.2.2 ⟨ l', ?_, ?_, ?_, ?_ ⟩;
     · rcases i with ⟨ _ | i, hi ⟩ <;> rcases j with ⟨ _ | j, hj ⟩ <;> simp_all +decide;
       · cases l <;> aesop;
       · cases l <;> aesop;
     · grind +suggestions;
-    · refine' List.isChain_append.mpr ⟨ _, _, _ ⟩;
+    · refine List.isChain_append.mpr ⟨ ?_, ?_, ?_ ⟩;
       · have := hl.2.2.1;
         exact List.IsChain.take this _;
       · have := hl.2.2.1;
@@ -1015,11 +1013,11 @@ lemma induction_step_with_callback
       have h_card_f : ∀ c' : Fin (r + 1), (cClass f c').card = s := by
         apply equitable_all_same_size hf.2 hs
       aesop
-    refine' h_ne s hs (Nat.pos_of_ne_zero _) ⟨f', hf'_proper, f x, c, _, _, _, _, _⟩ <;>
+    refine h_ne s hs (Nat.pos_of_ne_zero ?_) ⟨f', hf'_proper, f x, c, ?_, ?_, ?_, ?_, ?_⟩ <;>
       simp_all +decide
     · rintro rfl; simp_all +decide [Fintype.card_eq_zero_iff]; exact hs.elim x
     · exact Ne.symm hc_ne
-  · refine' ⟨f, _, hf.2⟩
+  · refine ⟨f, ?_, hf.2⟩
     intro v w hvw; by_cases h : v = x ∧ w = y ∨ v = y ∧ w = x <;>
       simp_all +decide [SimpleGraph.deleteEdges]
     · grind +ring
@@ -1028,7 +1026,7 @@ lemma induction_step_with_callback
 lemma edgeFinset_card_deleteEdges_lt (G : SimpleGraph V) [DecidableRel G.Adj]
     (e : Sym2 V) (he : e ∈ G.edgeFinset) :
     (G.deleteEdges {↑e}).edgeFinset.card < G.edgeFinset.card := by
-  refine' Finset.card_lt_card _;
+  refine Finset.card_lt_card ?_;
   simp +decide [SimpleGraph.deleteEdges];
   rw [ lt_iff_le_and_ne ] ; aesop
 
@@ -1316,7 +1314,7 @@ lemma solo_weight_contradiction
             obtain ⟨z₂, hz₂⟩ : ∃ z₂ ∈ W₀_class, G.Adj y z₂ ∧ z₂ ≠ z₁ := by
               grind;
             simp [h_exists_z];
-            refine' Finset.one_lt_card.mpr ⟨ z₁, _, z₂, _, _ ⟩ <;> simp +decide [ hz₁,
+            refine Finset.one_lt_card.mpr ⟨ z₁, ?_, z₂, ?_, ?_ ⟩ <;> simp +decide [ hz₁,
               hz₂ ];
             exact Ne.symm hz₂.2.2;
         have h_edge_count : ∑ y ∈ B_verts, (if ∃ z ∈ W₀_class, G.Adj y z ∧
@@ -1332,8 +1330,8 @@ lemma solo_weight_contradiction
               intros z hz
               by_cases hz_solo : ∃ y₁, y₁ ∈ B_verts ∧ G.Adj y₁ z ∧
                 ∀ w ∈ W₀_class, w ≠ z → ¬G.Adj y₁ w;
-              · refine' le_trans _ ( h_solo_deg_bound z _ _ );
-                · refine' Finset.card_le_card _;
+              · refine le_trans ?_ ( h_solo_deg_bound z ?_ ?_ );
+                · refine Finset.card_le_card ?_;
                   simp +contextual [ Finset.subset_iff, SimpleGraph.adj_comm ];
                   exact fun x hx hx' hx'' => Finset.mem_filter.mp hx |>.2;
                 · exact Finset.mem_filter.mp hz |>.2;
@@ -1533,10 +1531,11 @@ lemma solo_weight_contradiction
                       G.Adj y w) Finset.univ)).card + dB ≤ G.degree y := by
                   rw [ ← Finset.card_biUnion, ← Finset.card_union_of_disjoint,
                     ← Finset.card_union_of_disjoint ];
-                  · refine' le_trans ( Finset.card_le_card _ ) _;
-                    any_goals exact Finset.filter ( fun w => G.Adj y w ) Finset.univ;
+                  · refine le_trans ( Finset.card_le_card ?_ )
+                      ( Finset.card_le_card
+                        (s := Finset.filter ( fun w => G.Adj y w ) Finset.univ) ?_ );
                     · grind;
-                    · exact Finset.card_le_card fun x hx => by simpa using hx;
+                    · exact fun x hx => by simpa using hx;
                   · simp +contextual [ Finset.disjoint_left ];
                     grind +ring;
                   · simp +contextual [ Finset.disjoint_left ];
@@ -1546,7 +1545,7 @@ lemma solo_weight_contradiction
                       Finset.disjoint_left.mpr fun z => by
                         simp +contextual [hxy] ;
                 generalize_proofs at *; (
-                refine' le_trans _ h_multi_count
+                refine le_trans ?_ h_multi_count
                 generalize_proofs at *; (
                 simp +zetaDelta at *;
                 exact Exists.elim ( hB_has_nbr y hy ne.small hsmall_mem ) fun w hw => ⟨ w,
@@ -1584,7 +1583,7 @@ lemma solo_weight_contradiction
               simp +decide [ Finset.eq_singleton_iff_unique_mem ];
               grind;
             rw [ h_solo_set, Finset.card_biUnion ];
-            · refine' le_trans _ ( Finset.sum_le_sum fun c hc => Finset.card_pos.mpr _ );
+            · refine le_trans ?_ ( Finset.sum_le_sum fun c hc => Finset.card_pos.mpr ?_ );
               · simp +zetaDelta at *;
                 rw [ show ( Finset.filter ( fun c => Finset.card ( Finset.filter ( fun w => ne.f w =
                   c ) ( Finset.filter ( fun w => G.Adj y w ) Finset.univ ) ) =
@@ -1779,10 +1778,10 @@ lemma T_solo_vertex_B_degree_bound
   have h_image : Finset.card (Finset.image (fun w => ne.f w) (Finset.univ.filter (fun w =>
     G.Adj z w ∧ IsAccessible G ne.f ne.small (ne.f w)))) ≥
       Finset.card (Finset.univ.filter (fun c => IsAccessible G ne.f ne.small c)) - 1 := by
-    refine' le_trans _ ( Finset.card_mono <| show Finset.image ( fun w =>
+    refine le_trans ?_ ( Finset.card_mono <| show Finset.image ( fun w =>
       ne.f w ) ( Finset.filter ( fun w => G.Adj z w ∧
         IsAccessible G ne.f ne.small ( ne.f w ) ) Finset.univ ) ≥ Finset.univ.filter ( fun c =>
-          IsAccessible G ne.f ne.small c ) \ { W } from _ );
+          IsAccessible G ne.f ne.small c ) \ { W } from ?_ );
     · grind;
     · intro c hc; specialize h_nbr_all c; aesop;
   have h_card_le_image : Finset.card (Finset.univ.filter (fun w => G.Adj z w ∧
@@ -1818,7 +1817,7 @@ lemma B_card_eq_aux
   have h_union_accessible_size : ∑ c ∈ Finset.univ.filter (fun c =>
     IsAccessible G ne.f ne.small c), (cClass ne.f c).card = (Finset.univ.filter (fun c =>
       IsAccessible G ne.f ne.small c)).sum (fun c => if c = ne.small then s - 1 else s) := by
-    refine' Finset.sum_congr rfl fun c hc => _;
+    refine Finset.sum_congr rfl fun c hc => ?_;
     split_ifs <;> simp_all +decide [ NearlyEquitable.card_small ];
     exact ne.card_other c ‹_› ( by rintro rfl; exact hacc hc );
   -- The total number of vertices is the sum of the sizes of all color classes.
@@ -1938,7 +1937,7 @@ lemma restricted_T_card_gt_q
           using 1;
         simp +decide [ SimpleGraph.adj_comm ];
         exact congr_arg Finset.card ( by ext; aesop );
-    refine' le_trans ( Finset.sum_le_sum h_upper_bound ) _;
+    refine le_trans ( Finset.sum_le_sum h_upper_bound ) ?_;
     simp +zetaDelta at *;
     simp +decide [ Finset.sum_ite ];
     rw [ show ( Finset.filter ( fun x => ∀ x_1 : V,
@@ -1981,8 +1980,8 @@ lemma restricted_T_card_gt_q
           have := Classical.choose_spec ( Finset.mem_filter.mp hz |>.2 );
           exact fun w hw hwz => this.2.2 w ( Finset.mem_filter.mpr ⟨ Finset.mem_univ _,
             hw ⟩ ) hwz)
-          refine' le_trans _ ( this _ );
-          · refine' Finset.card_le_card _;
+          refine le_trans ?_ ( this ?_ );
+          · refine Finset.card_le_card ?_;
             simp +contextual [ Finset.subset_iff, SimpleGraph.adj_comm ];
             exact fun x hx hx' hx'' => Finset.mem_filter.mp hx |>.2;
           · exact fun X hX₁ hX₂ =>
@@ -2009,11 +2008,11 @@ lemma restricted_T_card_gt_q
             rw [ Finset.eq_singleton_iff_unique_mem ] at hz;
             simp +zetaDelta at *;
             rw [ if_pos h ];
-            refine' Finset.card_pos.mpr ⟨ z, _ ⟩ ; simp +decide [ hz ];
+            refine Finset.card_pos.mpr ⟨ z, ?_ ⟩ ; simp +decide [ hz ];
             exact ⟨ ⟨ y, hy, hz.1.2, fun w hw hw' hw'' => hw' <| hz.2 w hw hw'' ⟩,
               fun w hw hw' hw'' => hw' <| hz.2 w hw hw'' ⟩;
           · lia;
-        refine' le_trans ( Finset.sum_le_sum h_B_one_neighbor ) _;
+        refine le_trans ( Finset.sum_le_sum h_B_one_neighbor ) ?_;
         rw [ Finset.sum_comm ];
         simp +decide ;
       exact h_B_one_neighbor.trans ( Finset.sum_le_card_nsmul _ _ _ fun x hx => by solve_by_elim );
@@ -2050,7 +2049,7 @@ lemma restricted_T_card_gt_q
   contrapose! h_lower_bound;
   rw [ Nat.lt_sub_iff_add_lt ];
   rw [ ← h_fubini ];
-  refine' lt_of_le_of_lt ( Nat.add_le_add_right h_upper_bound _ ) _;
+  refine lt_of_le_of_lt ( Nat.add_le_add_right h_upper_bound _ ) ?_;
   rw [ hB_card ];
   have hp_le_s : p ≤ s := by
     have hp_le_s : W₀_class.card = s := by
@@ -2224,7 +2223,7 @@ lemma sy_card_lower_bound
         · simp +zetaDelta at *;
           exact non_acc_has_acc_neighbor G hc hy_nacc |> fun ⟨ w, hw₁, hw₂ ⟩ => ⟨ w,
             by aesop ⟩;
-      refine' le_trans _ ( Finset.sum_le_sum h_multi_colors_card );
+      refine le_trans ?_ ( Finset.sum_le_sum h_multi_colors_card );
       simp +decide [ Finset.sum_add_distrib ];
       exact Finset.card_le_card fun x hx =>
         Finset.mem_inter.mpr ⟨ Finset.mem_filter.mpr ⟨ Finset.mem_univ _, by aesop ⟩, hx ⟩;
@@ -2238,7 +2237,7 @@ lemma sy_card_lower_bound
   -- Step 3: solo_colors + multi_colors = T
   have h_partition : solo_colors.card + multi_colors.card = T.card := by
     rw [ ← Finset.card_union_of_disjoint, Finset.filter_union_right ];
-    · refine' congr_arg Finset.card ( Finset.filter_true_of_mem fun x hx => _ );
+    · refine congr_arg Finset.card ( Finset.filter_true_of_mem fun x hx => ?_ );
       exact Classical.or_iff_not_imp_left.2 fun h => Nat.lt_of_le_of_ne ( Finset.card_pos.2 <|
         by obtain ⟨ w, hw₁, hw₂ ⟩ := h_has_nbr x hx; exact ⟨ w,
           by aesop ⟩ ) ( Ne.symm h );
@@ -2302,7 +2301,7 @@ lemma restricted_Solo_lower_bound
       have h_deg_y_acc : Finset.card (Finset.image (fun w => ne.f w) (Finset.filter (fun w =>
         IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset y))) ≥ Finset.card acc_colors
           := by
-        refine' Finset.card_le_card _;
+        refine Finset.card_le_card ?_;
         intro c hc; obtain ⟨ w, rfl, hw ⟩ := h_has_nbr c ( Finset.mem_filter.mp hc |>.2 ) ;
           aesop;
       exact h_deg_y_acc.trans ( Finset.card_image_le );
@@ -2429,8 +2428,8 @@ lemma restricted_solo_weight_contradiction
       c) Finset.univ) := by
       ext v; simp [A'_verts, Finset.mem_biUnion];
     rw [ hA'_verts_union, Finset.card_biUnion ];
-    · refine' le_trans ( Finset.sum_le_sum fun x hx => show Finset.card ( Finset.filter ( fun v =>
-      ne.f v = x ) Finset.univ ) ≤ s from _ ) _;
+    · refine le_trans ( Finset.sum_le_sum fun x hx => show Finset.card ( Finset.filter ( fun v =>
+      ne.f v = x ) Finset.univ ) ≤ s from ?_ ) ?_;
       · exact ne.card_other x ( hT_ne_small x hx ) ( hT_ne_large x hx ) |> fun h => h.le;
       · simp +decide;
     · exact fun x hx y hy hxy => Finset.disjoint_left.mpr fun v hvx hvy => hxy <| by aesop;
@@ -2776,7 +2775,7 @@ lemma combine_disjoint_equitable
   classical
   use fun v => if h : v ∈ A_set then Fin.castAdd b ( fA ⟨ v, h ⟩ )
     else Fin.natAdd a ( fB ⟨ v, by simpa using h ⟩ );
-  refine' ⟨ fun v w hvw => _, fun c₁ c₂ => _ ⟩;
+  refine ⟨ fun v w hvw => ?_, fun c₁ c₂ => ?_ ⟩;
   · by_cases hv : v ∈ A_set <;> by_cases hw : w ∈ A_set <;> simp +decide [ hv, hw ];
     · exact hfA_proper _ _ ( by simpa [ hv, hw ] using hvw );
     · simp +decide [ Fin.ext_iff ];
@@ -2792,14 +2791,14 @@ lemma combine_disjoint_equitable
       exact h⟩).card else (cClass fB ⟨c.val - a, by
       rw [ tsub_lt_iff_left ] <;> linarith [ Fin.is_lt c ]⟩).card := by
       intro c; split_ifs <;> simp_all +decide [ cClass ] ;
-      · refine' Finset.card_bij ( fun v hv => ⟨ v, _ ⟩ ) _ _ _ <;>
+      · refine Finset.card_bij ( fun v hv => ⟨ v, ?_ ⟩ ) ?_ ?_ ?_ <;>
         simp_all +decide [Fin.ext_iff];
         grind +locals;
         grind +splitImp;
       · rw [ Finset.card_filter, Finset.card_filter ];
         rw [ ← Finset.sum_subset ( Finset.subset_univ ( Finset.filter ( fun x =>
           x∉A_set ) Finset.univ ) ) ];
-        · refine' Finset.sum_bij ( fun x hx => ⟨ x, by aesop ⟩ ) _ _ _ _ <;>
+        · refine Finset.sum_bij ( fun x hx => ⟨ x, by aesop ⟩ ) ?_ ?_ ?_ ?_ <;>
           simp +decide [Fin.ext_iff];
           grind;
         · grind
@@ -2833,7 +2832,7 @@ lemma non_acc_verts_card
     have h_sum : ∑ c ∈ Finset.univ.filter (fun c => ¬IsAccessible G ne.f ne.small c),
       (cClass ne.f c).card = ∑ c ∈ Finset.univ.filter (fun c =>
         ¬IsAccessible G ne.f ne.small c), (if c = ne.large then s + 1 else s) := by
-      refine' Finset.sum_congr rfl fun c hc => _;
+      refine Finset.sum_congr rfl fun c hc => ?_;
       split_ifs <;> simp_all +decide;
       · exact ne.card_large;
       · exact ne.card_other c
@@ -3052,7 +3051,7 @@ lemma auxadj_transfer_step
     AuxAdj (G.induce A_plus) f_A (φ ⟨c, hc_acc⟩) (φ ⟨d, hd_acc⟩) := by
   classical
   obtain ⟨ v, hv, hv' ⟩ := hadj_cd;
-  refine' ⟨ ⟨ v, _ ⟩, _, _ ⟩ <;> simp_all +decide;
+  refine ⟨ ⟨ v, ?_ ⟩, ?_, ?_ ⟩ <;> simp_all +decide;
   · grind;
   · grind
 
@@ -3164,7 +3163,7 @@ lemma A_plus_equitable
       #(cClass f_A (φ c)) = s := by
       intro c
       have h_card : #(cClass f_A (φ c)) = #(cClass g (c.val)) := by
-        refine' Finset.card_bij ( fun x hx => x.val ) _ _ _ <;> simp +decide [ cClass ];
+        refine Finset.card_bij ( fun x hx => x.val ) ?_ ?_ ?_ <;> simp +decide [ cClass ];
         · aesop;
         · grind;
       by_cases hc : c.val = ne.small <;> by_cases hc' : c.val = W_col <;>
@@ -3202,7 +3201,7 @@ lemma A_plus_equitable
       exact hX_eq (Subtype.ext_iff.mp (φ.injective h)).symm
     have card_small : (cClass f_A small_idx).card = s - 1 := by
       convert ne.card_small using 1;
-      refine' Finset.card_bij ( fun v hv => v ) _ _ _ <;> simp +decide ;
+      refine Finset.card_bij ( fun v hv => v ) ?_ ?_ ?_ <;> simp +decide ;
       · simp +zetaDelta at *;
         grind +ring;
       · grind
@@ -3216,7 +3215,7 @@ lemma A_plus_equitable
           z) (Finset.univ : Finset ↑A_plus)).card + (Finset.filter (fun v => v.val ≠ z ∧
             g v.val = X) (Finset.univ : Finset ↑A_plus)).card := by
           rw [ ← Finset.card_union_of_disjoint ];
-          · refine' congr_arg Finset.card ( Finset.ext fun x => _ );
+          · refine congr_arg Finset.card ( Finset.ext fun x => ?_ );
             simp +decide [ cClass, f_A, large_idx ];
             grind;
           · exact Finset.disjoint_filter.mpr ( by aesop );
@@ -3244,7 +3243,7 @@ lemma A_plus_equitable
         v ≠ z ∧ v ≠ y₁)).card + 1 := by
           have h_card_fA_W : (cClass f_A c).card = (Finset.univ.filter (fun v : A_plus => g v =
             W_col)).card := by
-            refine' Finset.card_bij ( fun v hv => v ) _ _ _ <;> simp +decide;
+            refine Finset.card_bij ( fun v hv => v ) ?_ ?_ ?_ <;> simp +decide;
             · intro v hv hv'; have := φ.injective ( hv'.trans ha.symm ) ; aesop;
             · grind;
           rw [ h_card_fA_W, show ( Finset.filter ( fun v : A_plus => g v = W_col ) Finset.univ ) =
@@ -3265,7 +3264,7 @@ lemma A_plus_equitable
         have := ne.card_other W_col hW_ne_small hW_ne_large; simp_all +decide [ cClass ] ;
         rw [ Nat.sub_add_cancel hs0 ];
       · convert ne.card_other a.val _ _ using 1;
-        · refine' Finset.card_bij ( fun v hv => v.val ) _ _ _ <;> simp +decide [ cClass ];
+        · refine Finset.card_bij ( fun v hv => v.val ) ?_ ?_ ?_ <;> simp +decide [ cClass ];
           · intro v hv hv'; replace hv' := congr_arg φ.symm hv'; aesop;
           · grind;
         · grind;
@@ -3353,8 +3352,8 @@ lemma A_plus_equitable
       -- Each tail element d has d ≠ X since l.Nodup and X = head
       -- Strengthen the chain to include d ≠ X
       contrapose! h_transfer;
-      refine' ⟨ X, hXacc, hXW, _, _ ⟩;
-      · refine' hchain_orig.recOn _ _;
+      refine ⟨ X, hXacc, hXW, ?_, ?_ ⟩;
+      · refine hchain_orig.recOn ?_ ?_;
         · rfl;
         · grind;
       · exact Not.imp h_transfer fun a => a
@@ -3465,10 +3464,10 @@ lemma non_accessible_case1
     exact fun v w hvw => hfB_proper _ _ hvw) hfA_equitable (by
     intro c₁ c₂; exact (by
     convert hfB_equitable c₁ c₂ using 1;
-    · refine' Finset.card_bij ( fun x hx => ⟨ x, by
+    · refine Finset.card_bij ( fun x hx => ⟨ x, by
         grind ⟩ ) _ _ _ <;> simp +decide [ cClass ];
       grind;
-    · refine' congr_arg₂ _ ( Finset.card_bij ( fun x hx => ⟨ x, by
+    · refine congr_arg₂ _ ( Finset.card_bij ( fun x hx => ⟨ x, by
         grind ⟩ ) _ _ _ ) rfl
       all_goals generalize_proofs at *;
       · simp +decide [ cClass ];
@@ -3612,7 +3611,7 @@ lemma non_accessible_case2_paper
       ¬IsAccessible G ne.f ne.small (ne.f w)))) ≥ Finset.card (Finset.filter (fun w =>
         G.Adj z w) (Finset.univ.filter (fun w => ¬IsAccessible G ne.f ne.small (ne.f w) ∧
           w ≠ y₁))) + 1 := by
-      refine' Finset.card_lt_card _;
+      refine Finset.card_lt_card ?_;
       simp +decide [ Finset.ssubset_def, Finset.subset_iff ];
       exact ⟨ fun x hx₁ hx₂ hx₃ => ⟨ hx₁, hx₃ ⟩, y₁, hy₁_nacc, hadj_y₁_z.symm,
         by tauto ⟩;
@@ -3622,8 +3621,8 @@ lemma non_accessible_case2_paper
       ∀ w : ↥B_minus_set, g w = Y → ¬G.Adj z w.val := by
     contrapose! hz_B_deg;
     choose f hf using hz_B_deg;
-    refine' lt_of_lt_of_le _ ( Finset.card_le_card _ );
-    any_goals exact Finset.image ( fun Y => ( f Y : V ) ) Finset.univ;
+    refine lt_of_lt_of_le ?_
+      ( Finset.card_le_card (s := Finset.image ( fun Y => ( f Y : V ) ) Finset.univ) ?_ );
     · rw [ Finset.card_image_of_injective _ fun x y hxy => _ ] <;>
       simp_all +decide [Fin.ext_iff];
       grind;
@@ -3712,7 +3711,7 @@ lemma non_accessible_case2_paper
             add_tsub_cancel_of_le ( Nat.succ_le_of_lt hs0 ) ];
         · grind +ring;
       · convert ne.card_other c hc_ne_small ( show c ≠ ne.large from _ ) using 1;
-        · refine' Finset.card_bij ( fun v hv => v ) _ _ _ <;> simp +decide [ * ];
+        · refine Finset.card_bij ( fun v hv => v ) ?_ ?_ ?_ <;> simp +decide [ * ];
           · grind;
           · grind +revert;
         · exact fun h => hacc <| h ▸ hc_acc;
@@ -4008,7 +4007,7 @@ lemma paddedGraph_card (p : ℕ) :
 omit [DecidableEq V] in
 lemma paddedGraph_degree_inl (G : SimpleGraph V) [DecidableRel G.Adj] (p : ℕ) (v : V) :
     (paddedGraph G p).degree (Sum.inl v) = G.degree v := by
-  refine' Finset.card_bij (fun w _hw => Sum.elim id (fun i => by tauto) w) _ _ _ <;>
+  refine Finset.card_bij (fun w _hw => Sum.elim id (fun i => by tauto) w) ?_ ?_ ?_ <;>
     simp +decide
 
 omit [DecidableEq V] in
@@ -4060,8 +4059,7 @@ lemma equitable_classes_equal_of_dvd {W : Type*} [Fintype W]
     rw [Fintype.card_eq_sum_ones]
   have h_min : ∀ c : Fin k, m ≤ (cClass f c).card := by
     contrapose! h_sum
-    refine' ne_of_lt (lt_of_lt_of_le (Finset.sum_lt_sum _ _) _)
-    use fun i => m
+    refine ne_of_lt (lt_of_lt_of_le (Finset.sum_lt_sum (g := fun _ => m) ?_ ?_) ?_)
     · exact fun i _ => by obtain ⟨j, hj⟩ := h_sum; linarith [hequit i j]
     · aesop
     · simp +decide [hm]
@@ -4079,7 +4077,7 @@ lemma cClass_comp_inl_card {k : ℕ} {p : ℕ}
     (cClass (f ∘ Sum.inl) c).card =
       (cClass f c).card - (Finset.univ.filter (fun i : Fin p => f (Sum.inr i) = c)).card := by
   unfold cClass
-  refine' eq_tsub_of_add_eq _
+  refine eq_tsub_of_add_eq ?_
   rw [Finset.card_filter, Finset.card_filter, Finset.card_filter]
   exact Eq.symm (Fintype.sum_sum_type fun x => if f x = c then 1 else 0)
 
@@ -4174,7 +4172,7 @@ theorem hajnal_szemeredi_clique_cover (G : SimpleGraph V) [DecidableRel G.Adj]
           simp_all +decide [SimpleGraph.degree_compl]
           cases r <;> cases m <;> norm_num at * ; linarith
         exact SimpleGraph.maxDegree_le_of_forall_degree_le Gᶜ (m - 1) h_deg_complement
-  refine' ⟨fun i => cClass f i, _, _, _⟩ <;> simp_all +decide [IsProper, IsEquitable]
+  refine ⟨fun i => cClass f i, ?_, ?_, ?_⟩ <;> simp_all +decide [IsProper, IsEquitable]
   · have h_sum : ∑ i : Fin m, (cClass f i).card = r * m := by
       rw [← hcard, ← Finset.card_biUnion]
       · congr with v; aesop
