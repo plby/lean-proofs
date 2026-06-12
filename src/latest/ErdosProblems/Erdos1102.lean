@@ -58,7 +58,6 @@ import Mathlib
 -- The concatenated generated proof sections need these focused linter
 -- suppressions and resource budgets while avoiding broad linter disables.
 set_option linter.style.setOption false
-set_option linter.style.refine false
 set_option linter.style.cases false
 set_option linter.style.multiGoal false
 set_option linter.style.emptyLine false
@@ -138,7 +137,7 @@ def a_seq (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.atTop Filter.atTop) : 
         intros r hr
         obtain ⟨y_r, hy_r⟩ : ∃ y_r : ℤ, y_r * (∏ s ∈ Finset.Icc 1 (k_func f hf (j + 1)) \ {r}, (Nat.nth Nat.Prime (s - 1))^2) ≡ 1 [ZMOD (Nat.nth Nat.Prime (r - 1))^2] := by
           have h_coprime : Nat.gcd (∏ s ∈ Finset.Icc 1 (k_func f hf (j + 1)) \ {r}, (Nat.nth Nat.Prime (s - 1))^2) ((Nat.nth Nat.Prime (r - 1))^2) = 1 := by
-            refine' Nat.Coprime.prod_left _
+            refine Nat.Coprime.prod_left ?_
             simp +contextual [Nat.Prime.coprime_iff_not_dvd]
             intro i hi₁ hi₂ hi₃
             rw [ Nat.Prime.dvd_iff_eq ]
@@ -171,7 +170,7 @@ def a_seq (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.atTop Filter.atTop) : 
       use Int.toNat ( x % M + M * ( aj + 1 ) )
       norm_num [ Int.ModEq ]
       exact ⟨ by nlinarith [ Int.emod_nonneg x ( show ( M : ℤ ) ≠ 0 from mod_cast Finset.prod_ne_zero_iff.mpr fun i hi => pow_ne_zero 2 <| Nat.Prime.ne_zero <| by aesop ), Int.emod_lt_of_pos x ( show ( M : ℤ ) > 0 from mod_cast Finset.prod_pos fun i hi => pow_pos ( Nat.Prime.pos <| by aesop ) 2 ) ], by rw [ max_eq_left ( by nlinarith [ Int.emod_nonneg x ( show ( M : ℤ ) ≠ 0 from mod_cast Finset.prod_ne_zero_iff.mpr fun i hi => pow_ne_zero 2 <| Nat.Prime.ne_zero <| by aesop ), Int.emod_lt_of_pos x ( show ( M : ℤ ) > 0 from mod_cast Finset.prod_pos fun i hi => pow_pos ( Nat.Prime.pos <| by aesop ) 2 ) ] ) ] ; simp +decide [Int.add_emod] ⟩
-    refine' ⟨ y, hy.1, fun r hr => _ ⟩
+    refine ⟨ y, hy.1, fun r hr => ?_ ⟩
     rw [ ← Int.natCast_inj ]
     simp_all +decide [ Int.ModEq, Int.emod_eq_emod_iff_emod_sub_eq_zero ]
     convert dvd_add ( dvd_trans ( Finset.dvd_prod_of_mem _ ( Finset.mem_Icc.mpr hr ) ) hy.2 ) ( hx r hr.1 hr.2 ) using 1
@@ -206,7 +205,9 @@ k(j) is a monotonic function of j.
 -/
 lemma k_func_mono (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.atTop Filter.atTop) : Monotone (k_func f hf) := by
   intro j k hjk
-  refine' Finset.le_max' _ _ _
+  refine Finset.le_max'
+    ((Finset.range (k + 1)).filter (fun r => l_seq f hf r ≤ k))
+    (k_func f hf j) ?_
   have h_range : k_func f hf j ∈ Finset.filter (fun r => l_seq f hf r ≤ j) (Finset.range (j + 1)) := by
     convert Finset.max'_mem _ _
   grind
@@ -225,7 +226,7 @@ lemma a_seq_step_le (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.atTop Filter
           intros r hr
           obtain ⟨y_r, hy_r⟩ : ∃ y_r : ℤ, y_r * (∏ s ∈ Finset.Icc 1 (k_func f hf (j + 1)) \ {r}, (Nat.nth Nat.Prime (s - 1))^2) ≡ 1 [ZMOD (Nat.nth Nat.Prime (r - 1))^2] := by
             have h_coprime : Nat.gcd (∏ s ∈ Finset.Icc 1 (k_func f hf (j + 1)) \ {r}, (Nat.nth Nat.Prime (s - 1))^2) ((Nat.nth Nat.Prime (r - 1))^2) = 1 := by
-              refine' Nat.Coprime.prod_left _
+              refine Nat.Coprime.prod_left ?_
               simp +contextual [Nat.Prime.coprime_iff_not_dvd]
               intro i hi₁ hi₂ hi₃
               rw [ Nat.prime_dvd_prime_iff_eq ]
@@ -265,14 +266,14 @@ lemma a_seq_step_le (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.atTop Filter
     obtain ⟨z, hz⟩ : ∃ z ∈ Set.Ioo (a_seq f hf j) (a_seq f hf j + W (k_func f hf (j + 1)) + 1), ∀ r ∈ Finset.Icc 1 (k_func f hf (j + 1)), (z + r) % (Nat.nth Nat.Prime (r - 1))^2 = 0 := by
       -- By the Chinese Remainder Theorem, there exists a $z$ in the interval $(a_j, a_j + W(k(j+1))]$ that satisfies the congruences. Let $z = y - m \cdot W(k(j+1))$ for some integer $m$.
       obtain ⟨m, hm⟩ : ∃ m : ℕ, a_seq f hf j < y - m * W (k_func f hf (j + 1)) ∧ y - m * W (k_func f hf (j + 1)) < a_seq f hf j + W (k_func f hf (j + 1)) + 1 := by
-        refine' ⟨ ( y - ( a_seq f hf j + 1 ) ) / W ( k_func f hf ( j + 1 ) ), _, _ ⟩
+        refine ⟨ ( y - ( a_seq f hf j + 1 ) ) / W ( k_func f hf ( j + 1 ) ), ?_, ?_ ⟩
         · rw [ Nat.lt_iff_add_one_le, Nat.le_sub_iff_add_le ]
           · linarith [ Nat.div_mul_le_self ( y - ( a_seq f hf j + 1 ) ) ( W ( k_func f hf ( j + 1 ) ) ), Nat.sub_add_cancel ( by linarith : a_seq f hf j + 1 ≤ y ) ]
           · exact le_trans ( Nat.div_mul_le_self _ _ ) ( Nat.sub_le _ _ ) |> le_trans <| by linarith
         · rw [ tsub_lt_iff_left ]
           · linarith [ Nat.div_add_mod ( y - ( a_seq f hf j + 1 ) ) ( W ( k_func f hf ( j + 1 ) ) ), Nat.mod_lt ( y - ( a_seq f hf j + 1 ) ) ( show W ( k_func f hf ( j + 1 ) ) > 0 from pow_pos ( Finset.prod_pos fun i hi => Nat.Prime.pos ( by aesop ) ) 2 ), Nat.sub_add_cancel ( by linarith : a_seq f hf j + 1 ≤ y ) ]
           · exact le_trans ( Nat.div_mul_le_self _ _ ) ( Nat.sub_le_of_le_add <| by linarith )
-      refine' ⟨ y - m * W ( k_func f hf ( j + 1 ) ), ⟨ hm.1, hm.2 ⟩, fun r hr => _ ⟩
+      refine ⟨ y - m * W ( k_func f hf ( j + 1 ) ), ⟨ hm.1, hm.2 ⟩, fun r hr => ?_ ⟩
       rw [ ← Nat.dvd_iff_mod_eq_zero ] at *
       convert Nat.dvd_sub ( Nat.dvd_of_mod_eq_zero ( hy.2 r hr ) ) ( dvd_mul_of_dvd_right ( show Nat.nth Nat.Prime ( r - 1 ) ^ 2 ∣ W ( k_func f hf ( j + 1 ) ) from _ ) m ) using 1
       · grind
@@ -334,7 +335,7 @@ lemma k_func_tendsto_atTop (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.atTop
       intro M
       obtain ⟨j, hj⟩ : ∃ j, l_seq f hf (M + 1) ≤ j := by
         use l_seq f hf (M + 1)
-      refine' ⟨ j, _ ⟩
+      refine ⟨ j, ?_ ⟩
       generalize_proofs at *
       (
       exact Finset.le_max' ( Finset.filter ( fun r => l_seq f hf r ≤ j ) ( Finset.range ( j + 1 ) ) ) ( M + 1 ) ( Finset.mem_filter.mpr ⟨ Finset.mem_range.mpr ( by linarith [ show M + 1 ≤ j from hj.trans' ( show l_seq f hf ( M + 1 ) ≥ M + 1 from Nat.recOn ( M + 1 ) ( by norm_num ) fun r hr => Nat.find_spec ( _ : ∃ n, n > l_seq f hf r ∧ ∀ j ≥ n, f j ≥ W ( r + 1 ) ) |>.1.trans_le' <| by linarith ) ] ), hj ⟩ ) |> le_trans ( by norm_num ) ;)
@@ -405,7 +406,7 @@ a_seq is strictly monotonic.
 -/
 lemma a_seq_strict_mono (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.atTop Filter.atTop) :
   StrictMono (a_seq f hf) := by
-    refine' strictMono_nat_of_lt_succ _
+    refine strictMono_nat_of_lt_succ ?_
     intro n
     -- By definition of $a_seq$, we have $a_{j+1} > a_j$ for all $j$.
     have h_a_seq_strict_mono : ∀ j, a_seq f hf (j + 1) > a_seq f hf j := by
@@ -413,7 +414,7 @@ lemma a_seq_strict_mono (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.atTop Fi
       -- By definition of $a_seq$, we have $a_seq f hf (j + 1) > a_seq f hf j$ because $a_seq f hf (j + 1)$ is the smallest integer greater than $a_seq f hf j$ that satisfies the congruence conditions.
       have h_a_seq_gt : ∀ j, a_seq f hf (j + 1) > a_seq f hf j := by
         intro j
-        refine' Nat.lt_of_not_ge fun h => _
+        refine Nat.lt_of_not_ge fun h => ?_
         induction j with
         | zero =>
           simp_all +decide [ a_seq ]
@@ -471,7 +472,7 @@ lemma card_S_r (r : ℕ) : (S_r r).card = ∏ i ∈ Finset.range r, ((Nat.nth Na
           have h_crt_step : x ≡ y [MOD (Nat.nth Nat.Prime i ^ 2 * ∏ j ∈ rs, Nat.nth Nat.Prime j ^ 2)] := by
             rw [ Nat.modEq_and_modEq_iff_modEq_mul ] at h_crt_step
             aesop
-            refine' Nat.Coprime.prod_right fun j hj => _
+            refine Nat.Coprime.prod_right fun j hj => ?_
             simp +decide [Nat.Prime.coprime_iff_not_dvd, Nat.prime_dvd_prime_iff_eq]
             exact fun h => hi <| by
               have := Nat.nth_injective ( Nat.infinite_setOf_prime ) h
@@ -536,7 +537,7 @@ lemma density_S_r_tendsto : Filter.Tendsto (fun r => ((S_r r).card : ℝ) / W r)
         · intro m n h
           ring
         · convert this.tprod_eq using 1
-          refine' tprod_congr fun p => _
+          refine tprod_congr fun p => ?_
           ring_nf
           norm_num [ pow_mul' ]
           rw [ ← tsum_geometric_of_lt_one ( by positivity ) ( inv_lt_one_of_one_lt₀ ( one_lt_pow₀ ( mod_cast p.2.one_lt ) two_ne_zero ) ) ]
@@ -553,9 +554,9 @@ lemma density_S_r_tendsto : Filter.Tendsto (fun r => ((S_r r).card : ℝ) / W r)
             nlinarith only [ Real.log_inv ( 1 - ( p ^ 2 : ℝ ) ⁻¹ ), Real.log_le_sub_one_of_pos ( inv_pos.mpr ( show 0 < 1 - ( p ^ 2 : ℝ ) ⁻¹ by exact sub_pos.mpr ( inv_lt_one_of_one_lt₀ ( one_lt_pow₀ ( mod_cast p.2.one_lt ) two_ne_zero ) ) ) ), inv_mul_cancel₀ ( show ( 1 - ( p ^ 2 : ℝ ) ⁻¹ ) ≠ 0 by exact ne_of_gt ( sub_pos.mpr ( inv_lt_one_of_one_lt₀ ( one_lt_pow₀ ( mod_cast p.2.one_lt ) two_ne_zero ) ) ) ), inv_pos.mpr ( show 0 < ( p ^ 2 : ℝ ) by exact sq_pos_of_pos ( Nat.cast_pos.mpr p.2.pos ) ), inv_mul_cancel₀ ( show ( p ^ 2 : ℝ ) ≠ 0 by exact pow_ne_zero 2 ( Nat.cast_ne_zero.mpr p.2.ne_zero ) ), show ( p ^ 2 : ℝ ) ≥ 4 by exact_mod_cast Nat.pow_le_pow_left p.2.two_le 2 ]
           exact Summable.of_nonneg_of_le ( fun p => Real.log_nonneg <| by rw [ inv_eq_one_div, le_div_iff₀ ] <;> nlinarith only [ show ( p : ℝ ) ≥ 2 by exact_mod_cast Nat.Prime.two_le p.2, one_div_mul_cancel <| show ( p : ℝ ) ^ 2 ≠ 0 by exact pow_ne_zero 2 <| Nat.cast_ne_zero.mpr p.2.ne_zero ] ) ( fun p => h_abs_conv p ) <| by simpa [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm ] using Summable.mul_left 2 ‹Summable fun p : Nat.Primes => ( 1 : ℝ ) / p ^ 2›
         have h_exp_conv : Filter.Tendsto (fun r => Real.exp (∑ i ∈ Finset.range r, Real.log ((1 - (1 : ℝ) / (Nat.nth Nat.Prime i)^2)⁻¹))) Filter.atTop (nhds (Real.exp (∑' p : Nat.Primes, Real.log ((1 - (1 : ℝ) / p^2)⁻¹)))) := by
-          refine' Real.continuous_exp.continuousAt.tendsto.comp _
+          refine Real.continuous_exp.continuousAt.tendsto.comp ?_
           have h_exp_conv : Filter.Tendsto (fun r => ∑ i ∈ Finset.range r, Real.log ((1 - (1 : ℝ) / (Nat.nth Nat.Prime i)^2)⁻¹)) Filter.atTop (nhds (∑' p : ℕ, Real.log ((1 - (1 : ℝ) / (Nat.nth Nat.Prime p)^2)⁻¹))) := by
-            refine' ( Summable.hasSum _ ) |> HasSum.tendsto_sum_nat
+            refine ( Summable.hasSum ?_ ) |> HasSum.tendsto_sum_nat
             convert h_abs_conv.comp_injective ( show Function.Injective ( fun i : ℕ => ⟨ Nat.nth Nat.Prime i, Nat.prime_nth_prime i ⟩ : ℕ → Nat.Primes ) from fun i j hij => by simpa using Nat.nth_injective ( Nat.infinite_setOf_prime ) <| Subtype.ext_iff.mp hij ) using 1
           convert h_exp_conv using 1
           rw [ ← Equiv.tsum_eq ( Equiv.ofBijective ( fun p : ℕ => ⟨ Nat.nth Nat.Prime p, Nat.prime_nth_prime p ⟩ ) ⟨ fun p => ?_, fun p => ?_ ⟩ ) ]
@@ -625,10 +626,10 @@ lemma non_squarefree_in_T_implies_large_prime_sq_dvd (N r : ℕ) (n : ℕ) (hn :
         simpa [ sq ] using hns
       by_cases hp_lt : p < Nat.nth Nat.Prime r
       · obtain ⟨ i, hi ⟩ : ∃ i < r, p = Nat.nth Nat.Prime i := by
-          refine' ⟨ Nat.count ( Nat.Prime ) p, _, _ ⟩
+          refine ⟨ Nat.count ( Nat.Prime ) p, ?_, ?_ ⟩
           · contrapose! hp_lt
             rw [ Nat.nth_eq_sInf ]
-            refine' Nat.sInf_le ⟨ hp_prime, _ ⟩
+            refine Nat.sInf_le ⟨ hp_prime, ?_ ⟩
             intro k hk
             exact Nat.nth_lt_of_lt_count <| by linarith
           · rw [ Nat.nth_count ]
@@ -667,7 +668,7 @@ lemma card_non_squarefree_in_T_bound (c : ℝ) (hc : c > 0) :
           exact le_trans ( mod_cast Finset.card_mono <| Finset.filter_subset_filter _ <| Finset.filter_subset _ _ ) h_multiples_bound
         refine le_trans h_non_squarefree_bound ?_
         rw [ ← tsum_mul_left ]
-        refine' le_trans _ ( Summable.sum_le_tsum ( Finset.Icc ( Nat.nth Nat.Prime r ) N ) ( fun _ _ => by positivity ) _ )
+        refine le_trans ?_ ( Summable.sum_le_tsum ( Finset.Icc ( Nat.nth Nat.Prime r ) N ) ( fun _ _ => by positivity ) ?_ )
         · rw [ Finset.sum_filter ]
           exact Finset.sum_le_sum fun x hx => by aesop
         · exact Summable.mul_left _ <| Summable.of_nonneg_of_le ( fun x => by positivity ) ( fun x => by aesop ) <| Real.summable_one_div_nat_pow.2 one_lt_two
@@ -877,10 +878,10 @@ lemma exists_good_shift_for_N (A : Set ℕ) (N r : ℕ) (δ : ℝ)
       obtain ⟨s, hs₁, hs₂⟩ : ∃ s ∈ S_r r, ((translate_set A N r l s).filter Squarefree).card > δ * N / (8 * (S_r r).card) := by
         apply exists_s_many_squarefree
         all_goals norm_cast at *
-      refine' ⟨ W r + s - l, _, _ ⟩ <;> simp_all +decide [ S_shifts ]
+      refine ⟨ W r + s - l, ?_, ?_ ⟩ <;> simp_all +decide [ S_shifts ]
       · exact ⟨ l, s, ⟨ hl₁, hs₁ ⟩, rfl ⟩
-      · refine' hs₂.trans_le ( mod_cast _ )
-        refine' le_trans ( Finset.card_le_card <| show Finset.filter Squarefree ( translate_set A N r l s ) ⊆ Finset.image ( fun a => W r + s - l + a ) ( Finset.filter ( fun a => a ∈ A ∧ Squarefree ( W r + s - l + a ) ) ( Finset.Icc 1 ( N - 2 * W r ) ) ) from _ ) _
+      · refine hs₂.trans_le ( mod_cast ?_ )
+        refine le_trans ( Finset.card_le_card <| show Finset.filter Squarefree ( translate_set A N r l s ) ⊆ Finset.image ( fun a => W r + s - l + a ) ( Finset.filter ( fun a => a ∈ A ∧ Squarefree ( W r + s - l + a ) ) ( Finset.Icc 1 ( N - 2 * W r ) ) ) from ?_ ) ?_
         · simp +decide [ Finset.subset_iff, translate_set ]
           unfold A_l
           aesop
@@ -900,8 +901,9 @@ lemma exists_large_N_with_density (A : Set ℕ) (δ : ℝ) (hδ : upperDensity A
             unfold upperDensity
             norm_num [ Set.ncard_eq_toFinset_card' ]
           contrapose! h_lim_sup
-          refine' ne_of_lt ( lt_of_le_of_lt ( csInf_le _ _ ) _ )
-          exact δ - ε
+          refine ne_of_lt ( lt_of_le_of_lt
+            (b := δ - ε)
+            ( csInf_le (a := δ - ε) ?_ ?_ ) ?_ )
           · exact ⟨ 0, fun x hx => by rcases Filter.eventually_atTop.mp hx with ⟨ N, hN ⟩ ; exact le_trans ( by positivity ) ( hN N le_rfl ) ⟩
           · exact Filter.eventually_atTop.mpr ( by obtain ⟨ N, hN₁, hN₂ ⟩ := h_lim_sup 0; exact ⟨ N, fun n hn => le_of_lt ( hN₂ n hn ) ⟩ )
           · linarith
@@ -909,7 +911,7 @@ lemma exists_large_N_with_density (A : Set ℕ) (δ : ℝ) (hδ : upperDensity A
       intro k
       obtain ⟨k', hk'⟩ : ∃ k', ∀ N ≥ k', ∃ n ≥ N, ((Finset.Icc 1 n).filter (fun a => a ∈ A)).card ≥ (δ - δ / 4) * n := h_upper_density (δ / 4) (by linarith)
       obtain ⟨ n, hn₁, hn₂ ⟩ := hk' ( k' + k + 4 * C + 1 ) ( by linarith )
-      refine' ⟨ n + C, by linarith, _ ⟩ ; norm_num at *
+      refine ⟨ n + C, by linarith, ?_ ⟩ ; norm_num at *
       nlinarith [ show ( n : ℝ ) ≥ k' + k + 4 * C + 1 by norm_cast ]
 
 /-
@@ -941,7 +943,7 @@ lemma exists_suitable_r (δ : ℝ) (hδ : δ > 0) :
               norm_num [ Finset.prod_range_succ ]
               exact fun r => mul_le_of_le_one_right ( Finset.prod_nonneg fun _ _ => sub_nonneg.2 <| inv_le_one_of_one_le₀ <| mod_cast Nat.one_le_pow _ _ <| Nat.Prime.pos <| by aesop ) <| sub_le_self _ <| inv_nonneg.2 <| sq_nonneg _
             exact le_of_tendsto ‹_› ( Filter.eventually_atTop.mpr ⟨ r, fun n hn => by induction hn <;> [ tauto; linarith [ h_prod_gt_half ‹_› ] ] ⟩ )
-          refine' lt_of_lt_of_le _ ( h_prod_gt_half r )
+          refine lt_of_lt_of_le ?_ ( h_prod_gt_half r )
           rw [ div_lt_div_iff₀ ]
           all_goals
             nlinarith only [ Real.pi_gt_three, show Real.pi < 3.4 by pi_upper_bound [ 7 / 5 ] ]
@@ -963,9 +965,9 @@ lemma frequent_dense_shifts_of_positive_density (A : Set ℕ) (h_density : upper
     ∃ r, ∃ c : ℝ, c > 0 ∧ ∀ k, ∃ N ≥ k, ∃ n ∈ S_shifts r, ((Finset.Icc 1 N).filter (fun a => a ∈ A ∧ Squarefree (n + a))).card > c * N := by
       obtain ⟨r, hr⟩ : ∃ r : ℕ, ((S_r r).card : ℝ) > (W r : ℝ) / 2 ∧ ∀ N : ℕ, ((T_finset N r).filter (fun n => ¬ Squarefree n)).card ≤ (upperDensity A / 8) * N := by
         exact exists_suitable_r (upperDensity A) h_density
-      refine' ⟨ r, upperDensity A / ( 8 * ( S_r r |> Finset.card ) ), _, fun k => _ ⟩
+      refine ⟨ r, upperDensity A / ( 8 * ( S_r r |> Finset.card ) ), ?_, fun k => ?_ ⟩
       · exact div_pos h_density ( mul_pos ( by norm_num ) ( Nat.cast_pos.mpr ( Finset.card_pos.mpr ⟨ 1, by
-          refine' Finset.mem_filter.mpr ⟨ _, _ ⟩ <;> norm_num [ W ]
+          refine Finset.mem_filter.mpr ⟨ ?_, ?_ ⟩ <;> norm_num [ W ]
           · exact Nat.one_le_pow _ _ ( Finset.prod_pos fun _ _ => Nat.Prime.pos ( by aesop ) )
           · exact fun i hi => Nat.Prime.ne_one <| Nat.prime_nth_prime i ⟩ ) ) )
       · obtain ⟨ N, hN₁, hN₂ ⟩ := exists_large_N_with_density A ( upperDensity A ) rfl h_density ( 2 * W r ) k
@@ -986,7 +988,7 @@ lemma tendsto_div_of_density_zero (A : ℕ → ℕ) (h_inc : StrictMono A) (h_de
     have h_range : Set.range A ∩ Set.Icc 1 (A j) ⊇ Finset.image A (Finset.Icc 1 j) := by
       simp +decide [ Set.subset_def ]
       exact fun x y hy₁ hy₂ hx => ⟨ ⟨ y, hx ⟩, hx ▸ Nat.one_le_iff_ne_zero.mpr ( by linarith [ h_inc <| show 0 < y from hy₁ ] ), hx ▸ h_inc.monotone hy₂ ⟩
-    refine' mod_cast le_trans _ ( Set.ncard_le_ncard h_range )
+    refine mod_cast le_trans ?_ ( Set.ncard_le_ncard h_range )
     rw [ Set.ncard_coe_finset, Finset.card_image_of_injective _ h_inc.injective ]
     aesop
   -- This implies $A(j) / (j+1) \to \infty$, so $A(j) / j \to \infty$.
@@ -1016,8 +1018,8 @@ theorem Theorem1_i (A : Set ℕ) (hA : PropertyP A) : HasNaturalDensity A 0 := b
   obtain ⟨r, c, hc_pos, h_freq⟩ : ∃ r, ∃ c : ℝ, c > 0 ∧ ∀ k, ∃ N ≥ k, ∃ n ∈ S_shifts r, ((Finset.Icc 1 N).filter (fun a => a ∈ A ∧ Squarefree (n + a))).card > c * N := by
     convert frequent_dense_shifts_of_positive_density A _
     unfold upperDensity
-    refine' lt_of_not_ge fun h => h_contra _
-    refine' tendsto_order.2 ⟨ _, _ ⟩
+    refine lt_of_not_ge fun h => h_contra ?_
+    refine tendsto_order.2 ⟨ ?_, ?_ ⟩
     · exact fun x hx => Filter.Eventually.of_forall fun n => hx.trans_le <| by positivity
     · rw [ Filter.limsup_eq ] at h
       rw [ Real.sInf_le_iff ] at h
@@ -1037,10 +1039,10 @@ Property P exists that satisfies the growth condition a_j/j <= f(j).
 -/
 theorem Theorem1_ii (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.atTop Filter.atTop) (hf_pos : ∀ n, 1 ≤ f n) :
     PropertyP_positive (A_constructed f hf) ∧ ∀ j ≥ 1, (a_seq f hf j : ℝ) / j ≤ f j := by
-      refine' ⟨ A_constructed_PropertyP_positive f hf, fun j hj => _ ⟩
+      refine ⟨ A_constructed_PropertyP_positive f hf, fun j hj => ?_ ⟩
       -- By combining the results from a_seq_upper_bound and W_k_le_f_proof, we get the desired inequality.
       have h_combined : a_seq f hf j ≤ j * f j := by
-        refine' le_trans ( a_seq_upper_bound f hf j hj ) _
+        refine le_trans ( a_seq_upper_bound f hf j hj ) ?_
         exact Nat.mul_le_mul_left _ ( W_k_le_f_proof f hf hf_pos j )
       rw [ div_le_iff₀ ] <;> norm_cast ; linarith
 
@@ -1063,9 +1065,9 @@ theorem erdos_1102.density_zero_of_P
   apply Classical.byContradiction
   intro h_nonzero_density
   obtain ⟨δ, hδ_pos, hδ⟩ : ∃ δ > 0, upperDensity (Set.range A) = δ := by
-    refine' ⟨ _, _, rfl ⟩
+    refine ⟨ upperDensity (Set.range A), ?_, rfl ⟩
     contrapose! h_nonzero_density
-    refine' tendsto_order.2 ⟨ _, _ ⟩
+    refine tendsto_order.2 ⟨ ?_, ?_ ⟩
     · exact fun x hx => Filter.Eventually.of_forall fun n => hx.trans_le <| by positivity
     · intro a ha
       have := h_nonzero_density
@@ -1086,7 +1088,7 @@ theorem erdos_1102.exists_sequence_with_P
     ∃ A : ℕ → ℕ, StrictMono A ∧
     HasPropertyP (range A) ∧
     ∀ j : ℕ, (A j : ℝ) / j ≤ f j := by
-  refine' ⟨ fun j => a_seq f h_inf j, _, _, _ ⟩
+  refine ⟨ fun j => a_seq f h_inf j, ?_, ?_, ?_ ⟩
   · exact a_seq_strict_mono f h_inf
   · intro n hn
     have h_finite : ∀ n ≥ 1, {a ∈ Set.range (a_seq f h_inf) | Squarefree (n + a)}.Finite := by
@@ -1195,7 +1197,7 @@ Every set with property Q is admissible.
 theorem PropertyQ_implies_Admissible (A : Set ℕ) (h : PropertyQ A) : Admissible A := by
   intro p hp
   obtain ⟨S, hS_inf, hS⟩ : ∃ S : Set ℕ, S.Infinite ∧ ∀ n ∈ S, ∀ a ∈ A, a < n → ¬(n + a) % p^2 = 0 := by
-    refine' ⟨ _, h, fun n hn a ha ha' => _ ⟩
+    refine ⟨ {n | ∀ a ∈ A, a < n → Squarefree (n + a)}, h, fun n hn a ha ha' => ?_ ⟩
     intro H
     have := hn a ha ha'
     rw [ ← Nat.dvd_iff_mod_eq_zero ] at H
@@ -1208,7 +1210,7 @@ theorem PropertyQ_implies_Admissible (A : Set ℕ) (h : PropertyQ A) : Admissibl
       have := Nat.mod_lt x ( pow_pos hp.pos 2 )
       aesop
   use ( p^2 - b % p^2 ) % p^2
-  refine' ⟨ Nat.mod_lt _ ( pow_pos hp.pos _ ), fun a ha ha' => _ ⟩
+  refine ⟨ Nat.mod_lt (p ^ 2 - b % p ^ 2) ( pow_pos hp.pos 2 ), fun a ha ha' => ?_ ⟩
   -- Since there are infinitely many $n \in S$ such that $n \equiv b \pmod{p^2}$, we can choose $n$ large enough so that $n > a$.
   obtain ⟨n, hnS, hn_gt⟩ : ∃ n ∈ S, n > a ∧ n % p^2 = b := by
     exact Exists.elim ( hb.2.exists_gt a ) fun n hn => ⟨ n, hn.1.1, hn.2, hn.1.2 ⟩
@@ -1272,14 +1274,14 @@ lemma sum_moebius_sq_dvd_eq_indicator (n : ℕ) (hn : n > 0) :
                 exact fun p hp => by
                   rw [ Nat.le_div_iff_mul_le zero_lt_two ]
                   linarith [ h_exp p hp ]
-              refine' ⟨ _, Finset.prod_ne_zero_iff.mpr fun p hp => pow_ne_zero _ <| Nat.ne_of_gt <| Nat.pos_of_mem_primeFactors hp ⟩
+              refine ⟨ ?_, Finset.prod_ne_zero_iff.mpr fun p hp => pow_ne_zero (n.factorization p / 2) <| Nat.ne_of_gt <| Nat.pos_of_mem_primeFactors hp ⟩
               conv_lhs => rw [ ← Nat.prod_factorization_pow_eq_self ( by linarith : d ≠ 0 ) ]
               rw [ ← Finset.prod_sdiff <| show d.primeFactors ⊆ n.primeFactors from Nat.primeFactors_mono ( dvd_of_mul_left_dvd hd.2 ) <| by aesop ]
               exact dvd_mul_of_dvd_right ( Finset.prod_dvd_prod_of_dvd _ _ fun p hp => pow_dvd_pow p ( h_exp_le p hp ) ) _
-            · refine' ⟨ ⟨ Nat.pos_of_dvd_of_pos hd.1 ( Finset.prod_pos fun p hp => pow_pos ( Nat.pos_of_mem_primeFactors hp ) _ ), Nat.le_trans ( Nat.le_of_dvd ( Finset.prod_pos fun p hp => pow_pos ( Nat.pos_of_mem_primeFactors hp ) _ ) hd.1 ) _ ⟩, _ ⟩
+            · refine ⟨ ⟨ Nat.pos_of_dvd_of_pos hd.1 ( Finset.prod_pos fun p hp => pow_pos ( Nat.pos_of_mem_primeFactors hp ) (n.factorization p / 2) ), Nat.le_trans ( Nat.le_of_dvd ( Finset.prod_pos fun p hp => pow_pos ( Nat.pos_of_mem_primeFactors hp ) (n.factorization p / 2) ) hd.1 ) ?_ ⟩, ?_ ⟩
               · conv_rhs => rw [ ← Nat.prod_factorization_pow_eq_self hn.ne' ]
                 exact Finset.prod_le_prod' fun p hp => pow_le_pow_right₀ ( Nat.pos_of_mem_primeFactors hp ) ( Nat.div_le_self _ _ )
-              · refine' dvd_trans ( pow_dvd_pow_of_dvd hd.1 2 ) _
+              · refine dvd_trans ( pow_dvd_pow_of_dvd hd.1 2 ) ?_
                 conv_rhs => rw [ ← Nat.prod_factorization_pow_eq_self hn.ne' ]
                 rw [ ← Finset.prod_pow ]
                 exact Finset.prod_dvd_prod_of_dvd _ _ fun p hp => by
@@ -1326,7 +1328,7 @@ lemma sum_squarefree_indicator_eq_sum_moebius_floor (N : ℕ) :
         rw [ Finset.sum_comm, Finset.sum_congr rfl fun _ _ => Finset.mul_sum _ _ _ ]
       convert h_interchange using 1
       · exact Finset.sum_congr rfl h_sum_eq
-      · refine' Finset.sum_congr rfl fun x hx => _
+      · refine Finset.sum_congr rfl fun x hx => ?_
         simp +zetaDelta at *
         rw [
           show Finset.filter ( fun y => x ^ 2 ∣ y ) ( Finset.Icc 1 N ) = Finset.image ( fun y => x ^ 2 * y ) ( Finset.Icc 1 ( N / x ^ 2 ) ) from ?_,
@@ -1383,8 +1385,8 @@ lemma card_filter_modEq_Icc (u L a m : ℕ) (hm : m > 0) :
   let I := Finset.Icc u (u + L - 1)
   let S := I.filter (fun x => x ≡ a [MOD m])
   abs ((S.card : ℝ) - (L : ℝ) / m) ≤ 2 := by
-    refine' abs_sub_le_iff.mpr ⟨ _, _ ⟩
-    · refine' le_trans ( sub_le_sub_right ( Nat.cast_le.mpr <| Finset.card_le_card <| show Finset.filter ( fun x => x ≡ a [MOD m] ) ( Finset.Icc u ( u + L - 1 ) ) ⊆ Finset.image ( fun k => m * k + a % m ) ( Finset.Icc ( u / m ) ( ( u + L - 1 ) / m ) ) from _ ) _ ) _
+    refine abs_sub_le_iff.mpr ⟨ ?_, ?_ ⟩
+    · refine le_trans ( sub_le_sub_right ( Nat.cast_le.mpr <| Finset.card_le_card <| show Finset.filter ( fun x => x ≡ a [MOD m] ) ( Finset.Icc u ( u + L - 1 ) ) ⊆ Finset.image ( fun k => m * k + a % m ) ( Finset.Icc ( u / m ) ( ( u + L - 1 ) / m ) ) from ?_ ) ((L : ℝ) / m) ) ?_
       · intro x hx
         simp_all +decide [ Nat.ModEq ]
         exact ⟨ x / m, ⟨ Nat.div_le_div_right hx.1.1, Nat.div_le_div_right hx.1.2 ⟩, by linarith [ Nat.mod_add_div x m ] ⟩
@@ -1440,7 +1442,7 @@ lemma lemma_freq :
     let N_intersect := (S.filter (fun n => n ≡ c [MOD q])).card
     N_S > 0 →
     (N_intersect : ℝ) / N_S ≤ C * (1 / (q : ℝ) + (W : ℝ) / L) := by
-      refine' ⟨ 4, by norm_num, fun W q b c u L hWq hL hS => _ ⟩
+      refine ⟨ 4, by norm_num, fun W q b c u L hWq hL hS => ?_ ⟩
       -- Let's consider the two cases: $L \geq 4W$ and $W \leq L < 4W$.
       by_cases h_case : L ≥ 4 * W
       · -- Using the bounds from card_filter_modEq_Icc and card_intersect_bound, we have:
@@ -1471,7 +1473,7 @@ lemma lemma_freq :
               try linarith [ Nat.pos_of_ne_zero hW, Nat.pos_of_ne_zero hq ]
             nlinarith [ Nat.pos_of_ne_zero hW, Nat.pos_of_ne_zero hq, mul_pos ( Nat.pos_of_ne_zero hW ) ( Nat.pos_of_ne_zero hq ) ]
           · exact Nat.cast_pos.mpr ( Finset.card_pos.mpr hS )
-      · refine' le_trans ( div_le_one_of_le₀ _ _ ) _
+      · refine le_trans ( div_le_one_of_le₀ ?_ ?_ ) ?_
         · exact_mod_cast Finset.card_mono <| Finset.filter_subset _ _
         · positivity
         · rcases q with ( _ | _ | q )
@@ -1496,10 +1498,10 @@ If A is a subset of a periodic set B with period M, then the upper density of A 
 lemma density_of_subset_periodic (A B : Set ℕ) (M : ℕ) (hM : M > 0) (hB_per : ∀ n, n ∈ B ↔ n + M ∈ B) (hsub : A ⊆ B) :
   upperDensity A ≤ ((B ∩ Set.Icc 1 M).ncard : ℝ) / M := by
     field_simp
-    refine' le_trans ( mul_le_mul_of_nonneg_right ( show upperDensity A ≤ upperDensity ( B ) from _ ) ( Nat.cast_nonneg _ ) ) _
+    refine le_trans ( mul_le_mul_of_nonneg_right ( show upperDensity A ≤ upperDensity ( B ) from ?_ ) ( Nat.cast_nonneg M ) ) ?_
     · apply_rules [ Filter.limsup_le_limsup ]
       · filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn using div_le_div_of_nonneg_right ( mod_cast Set.ncard_le_ncard <| Set.inter_subset_inter_left _ hsub ) <| Nat.cast_nonneg _
-      · refine' ⟨ 0, fun x hx => _ ⟩
+      · refine ⟨ 0, fun x hx => ?_ ⟩
         norm_num at *
         exact le_trans ( by positivity ) ( hx.choose_spec _ le_rfl ) |> le_trans <| by norm_num
       · use 1
@@ -1586,7 +1588,7 @@ lemma density_of_subset_periodic (A B : Set ℕ) (M : ℕ) (hM : M > 0) (hB_per 
                 · intro hx
                   use x - i * M
                   simp
-                  refine' ⟨ ⟨ _, _, _ ⟩, Nat.sub_add_cancel ( by linarith ) ⟩
+                  refine ⟨ ⟨ ?_, ?_, ?_ ⟩, Nat.sub_add_cancel ( by linarith ) ⟩
                   · induction i generalizing x with
                     | zero =>
                       norm_num at *
@@ -1609,11 +1611,10 @@ lemma density_of_subset_periodic (A B : Set ℕ) (M : ℕ) (hM : M > 0) (hB_per 
           field_simp
           rw [ sub_le_iff_le_add ]
           norm_cast ; nlinarith [ Nat.div_add_mod N M, Nat.mod_lt N hM, show ( B ∩ Set.Icc 1 M |> Set.ncard ) ≤ M from le_trans ( Set.ncard_le_ncard <| show B ∩ Set.Icc 1 M ⊆ Set.Icc 1 M from Set.inter_subset_right ) <| by simp +decide [ Set.ncard_eq_toFinset_card' ] ]
-        refine' tendsto_iff_norm_sub_tendsto_zero.mpr _
-        refine' squeeze_zero_norm' _ _
-        use fun n => ( M : ℝ ) / n + ( M : ℝ ) / n
+        refine tendsto_iff_norm_sub_tendsto_zero.mpr ?_
+        refine squeeze_zero_norm' (a := fun n : ℕ => ( M : ℝ ) / n + ( M : ℝ ) / n) ?_ ?_
         · norm_num +zetaDelta at *
-          refine' ⟨ M + 1, fun n hn => abs_sub_le_iff.mpr ⟨ _, _ ⟩ ⟩ <;> ring_nf at * <;> norm_num at *
+          refine ⟨ M + 1, fun n hn => abs_sub_le_iff.mpr ⟨ ?_, ?_ ⟩ ⟩ <;> ring_nf at * <;> norm_num at *
           · field_simp
             rw [ div_add', div_le_div_iff_of_pos_right ] <;> try norm_num ; linarith
             have := hB_card n
@@ -1650,7 +1651,7 @@ lemma prod_primes_inv_sq_tendsto : Filter.Tendsto (fun k => ∏ p ∈ Finset.fil
             rotate_right
             use fun p => 1 / ( 1 - 1 / ( p : ℝ ) ^ s )
             · simp +decide [ Set.mulIndicator ]
-            · refine' tprod_congr fun p => _
+            · refine tprod_congr fun p => ?_
               rw [ one_div, ← tsum_geometric_of_lt_one ( by positivity ) ]
               · norm_num [ Real.inv_rpow ( pow_nonneg ( Nat.cast_nonneg _ ) _ ) ]
                 norm_num [ ← Real.rpow_natCast, ← Real.rpow_mul ( Nat.cast_nonneg _ ), mul_comm ]
@@ -1680,7 +1681,7 @@ lemma prod_primes_inv_sq_tendsto : Filter.Tendsto (fun k => ∏ p ∈ Finset.fil
               rw [ Real.log_inv ]
               ring_nf
               nlinarith only [ Real.log_inv ( 1 - ( p : ℝ ) ⁻¹ ^ 2 ), Real.log_le_sub_one_of_pos ( inv_pos.mpr ( show 0 < 1 - ( p : ℝ ) ⁻¹ ^ 2 by exact sub_pos.mpr ( by simpa using inv_lt_one_of_one_lt₀ ( one_lt_pow₀ ( Nat.one_lt_cast.mpr hp.one_lt ) two_ne_zero ) ) ) ), inv_mul_cancel₀ ( show ( 1 - ( p : ℝ ) ⁻¹ ^ 2 ) ≠ 0 by exact ne_of_gt ( sub_pos.mpr ( by simpa using inv_lt_one_of_one_lt₀ ( one_lt_pow₀ ( Nat.one_lt_cast.mpr hp.one_lt ) two_ne_zero ) ) ) ), show ( p : ℝ ) ⁻¹ ^ 2 ≤ 1 / 4 by exact le_trans ( pow_le_pow_left₀ ( by positivity ) ( inv_anti₀ ( by norm_num ) ( Nat.cast_le.mpr hp.two_le ) ) 2 ) ( by norm_num ) ]
-            refine' Summable.of_nonneg_of_le ( fun p => _ ) ( fun p => _ ) ( Real.summable_nat_pow_inv.2 one_lt_two |> Summable.mul_left 2 )
+            refine Summable.of_nonneg_of_le ( fun p => ?_ ) ( fun p => ?_ ) ( Real.summable_nat_pow_inv.2 one_lt_two |> Summable.mul_left 2 )
             · split_ifs <;> first | positivity | exact Real.log_nonneg <| by rw [ inv_eq_one_div, le_div_iff₀ ] <;> nlinarith [ show ( p : ℝ ) ≥ 2 by exact_mod_cast Nat.Prime.two_le ‹_›, one_div_mul_cancel <| show ( p : ℝ ) ^ 2 ≠ 0 by exact pow_ne_zero 2 <| Nat.cast_ne_zero.mpr <| Nat.Prime.ne_zero ‹_› ]
             · aesop
           exact h_sum_log.congr fun p => by split_ifs <;> simp +decide [ * ]
@@ -1745,9 +1746,9 @@ lemma admissible_subset_periodic (A : Set ℕ) (h : Admissible A) (C : ℕ) :
          aesop
        choose! b hb using h_choose_residues
        tauto
-     refine' ⟨ { n | ∀ p ∈ Finset.filter Nat.Prime ( Finset.range ( C + 1 ) ), ¬n ≡ b p [MOD p ^ 2] }, _, _ ⟩
+     refine ⟨ { n | ∀ p ∈ Finset.filter Nat.Prime ( Finset.range ( C + 1 ) ), ¬n ≡ b p [MOD p ^ 2] }, ?_, ?_ ⟩
      · aesop_cat
-     · refine' ⟨ ∏ p ∈ Finset.filter Nat.Prime ( Finset.range ( C + 1 ) ), p ^ 2, Finset.prod_pos fun p hp => pow_pos ( Nat.Prime.pos ( Finset.mem_filter.mp hp |>.2 ) ) _, _, _ ⟩
+     · refine ⟨ ∏ p ∈ Finset.filter Nat.Prime ( Finset.range ( C + 1 ) ), p ^ 2, Finset.prod_pos fun p hp => pow_pos ( Nat.Prime.pos ( Finset.mem_filter.mp hp |>.2 ) ) 2, ?_, ?_ ⟩
        ·
          simp +decide [ Nat.ModEq ]
          intro n
@@ -1770,7 +1771,7 @@ lemma admissible_subset_periodic (A : Set ℕ) (h : Admissible A) (C : ℕ) :
                  have h_card_insert : Finset.card (Finset.filter (fun n => ¬(n ≡ b p [MOD p^2]) ∧ ∀ q ∈ ps, ¬(n ≡ b q [MOD q^2])) (Finset.range (p^2 * ∏ q ∈ ps, q^2))) = (p^2 - 1) * Finset.card (Finset.filter (fun n => ∀ q ∈ ps, ¬(n ≡ b q [MOD q^2])) (Finset.range (∏ q ∈ ps, q^2))) := by
                    have h_card_insert : Finset.card (Finset.filter (fun n => ¬(n ≡ b p [MOD p^2]) ∧ ∀ q ∈ ps, ¬(n ≡ b q [MOD q^2])) (Finset.range (p^2 * ∏ q ∈ ps, q^2))) = Finset.card (Finset.filter (fun n => ¬(n ≡ b p [MOD p^2])) (Finset.range (p^2))) * Finset.card (Finset.filter (fun n => ∀ q ∈ ps, ¬(n ≡ b q [MOD q^2])) (Finset.range (∏ q ∈ ps, q^2))) := by
                      rw [ ← Finset.card_product ]
-                     refine' Finset.card_bij ( fun n hn => ( n % p ^ 2, n % ∏ q ∈ ps, q ^ 2 ) ) _ _ _
+                     refine Finset.card_bij ( fun n hn => ( n % p ^ 2, n % ∏ q ∈ ps, q ^ 2 ) ) ?_ ?_ ?_
                      · simp +contextual
                        exact fun a ha₁ ha₂ ha₃ => ⟨ ⟨ Nat.mod_lt _ ( pow_pos ( Nat.Prime.pos ( hps p ( Finset.mem_insert_self _ _ ) ) ) 2 ), by simpa [ Nat.ModEq, Nat.mod_mod ] using ha₂ ⟩, Nat.mod_lt _ ( Finset.prod_pos fun q hq => pow_pos ( Nat.Prime.pos ( hps q ( Finset.mem_insert_of_mem hq ) ) ) 2 ), fun q hq => by simpa [ Nat.ModEq, Nat.mod_mod, Finset.prod_eq_prod_diff_singleton_mul hq ] using ha₃ q hq ⟩
                      · simp +zetaDelta at *
@@ -1806,7 +1807,7 @@ lemma admissible_subset_periodic (A : Set ℕ) (h : Admissible A) (C : ℕ) :
                  simp_all +decide [Finset.prod_insert]
              exact h_card _ fun p hp => Finset.mem_filter.mp hp |>.2
            rw [ ← h_card ]
-           refine' Finset.card_bij ( fun x hx => if x = ∏ p ∈ Finset.filter Nat.Prime ( Finset.range ( C + 1 ) ), p ^ 2 then 0 else x ) _ _ _
+           refine Finset.card_bij ( fun x hx => if x = ∏ p ∈ Finset.filter Nat.Prime ( Finset.range ( C + 1 ) ), p ^ 2 then 0 else x ) ?_ ?_ ?_
            · simp +zetaDelta at *
              intro a ha₁ ha₂ ha₃
              split_ifs
@@ -1821,7 +1822,7 @@ lemma admissible_subset_periodic (A : Set ℕ) (h : Admissible A) (C : ℕ) :
              split_ifs
              all_goals
                simp_all +decide
-             · refine' ⟨ Finset.prod_pos fun p hp => hn p ( Finset.mem_range_succ_iff.mp ( Finset.mem_filter.mp hp |>.1 ) ) ( Finset.mem_filter.mp hp |>.2 ), fun p hp hp' => _ ⟩
+             · refine ⟨ Finset.prod_pos fun p hp => hn p ( Finset.mem_range_succ_iff.mp ( Finset.mem_filter.mp hp |>.1 ) ) ( Finset.mem_filter.mp hp |>.2 ), fun p hp hp' => ?_ ⟩
                simp_all +decide [ Nat.ModEq, Finset.prod_eq_prod_diff_singleton_mul <| Finset.mem_filter.mpr ⟨ Finset.mem_range.mpr <| Nat.lt_succ_of_le hp, hp' ⟩ ]
              · exact ⟨ Nat.pos_of_ne_zero ‹_›, hn.le ⟩
          rw [ show ( { n | ∀ p ∈ Finset.filter Nat.Prime ( Finset.range ( C + 1 ) ), ¬n ≡ b p [MOD p ^ 2] } ∩ Set.Icc 1 ( ∏ p ∈ Finset.range ( C + 1 ) with Nat.Prime p, p ^ 2 ) ).ncard = ( Finset.filter ( fun n => ∀ p ∈ Finset.filter Nat.Prime ( Finset.range ( C + 1 ) ), ¬n ≡ b p [MOD p ^ 2] ) ( Finset.Icc 1 ( ∏ p ∈ Finset.range ( C + 1 ) with Nat.Prime p, p ^ 2 ) ) ).card from ?_ ]
@@ -1926,7 +1927,7 @@ lemma bad_candidates_prob_bound :
         · have := hC ( W_sq n ) ( p ^ 2 ) 0 ( -a % ( p ^ 2 ) |> Int.toNat ) ( x / 2 ) ( x - x / 2 + 1 ) ?_ ?_ ?_ <;> norm_num at *
           · rw [ div_le_iff₀ ] at this
             · refine le_trans ?_ ( this.trans ?_ )
-              · refine' mod_cast Finset.card_le_card _
+              · refine mod_cast Finset.card_le_card ?_
                 simp +decide [ Finset.subset_iff ]
                 simp +contextual [Nat.ModEq]
                 simp +contextual [ bad_candidates, candidates ]
@@ -1943,7 +1944,7 @@ lemma bad_candidates_prob_bound :
                 · rw [ div_le_iff₀ ] <;> norm_cast ; omega
             · simp_all +decide [ Finset.ext_iff, candidates ]
               exact ⟨ h.choose, Finset.mem_filter.mpr ⟨ Finset.mem_Icc.mpr ⟨ by linarith [ h.choose_spec ], by linarith [ h.choose_spec, Nat.sub_add_cancel ( show x / 2 ≤ x from Nat.div_le_self _ _ ) ] ⟩, Nat.modEq_zero_iff_dvd.mpr h.choose_spec.2.2 ⟩ ⟩
-          · refine' Nat.Coprime.prod_left fun q hq => _
+          · refine Nat.Coprime.prod_left fun q hq => ?_
             exact Nat.Coprime.pow_left 2 ( Nat.Coprime.symm <| hp_prime.coprime_iff_not_dvd.mpr <| Nat.not_dvd_of_pos_of_lt ( Nat.Prime.pos <| Finset.mem_filter.mp hq |>.2 ) <| by nlinarith [ Finset.mem_range.mp <| Finset.mem_filter.mp hq |>.1 ] )
           · omega
           · contrapose! h
@@ -1969,7 +1970,7 @@ lemma bad_candidates_i_bound :
     n > 0 → x / 2 ≥ W_sq n →
     ((bad_candidates_i n x).card : ℝ) / (candidates x (W_sq n)).card ≤ C * (1 / (n : ℝ) + (W_sq n : ℝ) * n / (Nat.sqrt x)) := by
       obtain ⟨ C, hC₀, hC ⟩ := bad_candidates_prob_bound
-      refine' ⟨ C * 4, by positivity, fun n x hn hx => _ ⟩
+      refine ⟨ C * 4, by positivity, fun n x hn hx => ?_ ⟩
       -- Apply the bound from `hC` to each term in the sum.
       have h_sum_bound : ((bad_candidates_i n x).card : ℝ) / (candidates x (W_sq n)).card ≤ C * (∑ p ∈ Finset.filter Nat.Prime (Finset.Ioc (n^2) (Nat.sqrt (2 * x))), (1 / (p : ℝ)^2)) * n + C * (W_sq n : ℝ) / (x / 2) * n * (Nat.sqrt (2 * x)) := by
         have h_sum_bound : ((bad_candidates_i n x).card : ℝ) / (candidates x (W_sq n)).card ≤ ∑ a ∈ Finset.Icc 1 n, ∑ p ∈ Finset.filter Nat.Prime (Finset.Ioc (n^2) (Nat.sqrt (2 * x))), (C * (1 / (p : ℝ)^2 + (W_sq n : ℝ) / (x / 2))) := by
@@ -2077,10 +2078,13 @@ lemma sum_bad_a_ii_bound_explicit :
         ((bad_candidates x (W_sq n) a p).card : ℝ) / (candidates x (W_sq n)).card ≤ C * (1 / (p : ℝ)^2 + (W_sq n : ℝ) / (x / 2)) := by
           -- Apply the lemma bad_candidates_prob_bound to obtain the constant C.
           apply bad_candidates_prob_bound
-      refine' h ⟨ C, hC_pos, _ ⟩
+      refine h ⟨ C, hC_pos, ?_ ⟩
       intros n x R ε hn hx hR hx' hε_pos
       have h_sum : (∑ n' ∈ candidates x (W_sq n), ((bad_a_ii n' R x n ε).card : ℝ)) ≤ ∑ a ∈ I_R_eps R ε, ∑ p ∈ relevant_primes n R x, if a ∈ SF then C * (1 / (p : ℝ)^2 + (W_sq n : ℝ) / (x / 2)) * (candidates x (W_sq n)).card else 0 := by
-        refine' le_trans _ ( Finset.sum_le_sum fun a ha => Finset.sum_le_sum fun p hp => _ )
+        refine le_trans
+          (b := ∑ a ∈ I_R_eps R ε, ∑ p ∈ relevant_primes n R x,
+            if a ∈ SF then ((bad_candidates x (W_sq n) a p).card : ℝ) else 0)
+          ?_ ( Finset.sum_le_sum fun a ha => Finset.sum_le_sum fun p hp => ?_ )
         convert sum_bad_a_ii_le_sum_bad_candidates n x R ε using 1
         split_ifs
         all_goals
@@ -2088,13 +2092,13 @@ lemma sum_bad_a_ii_bound_explicit :
         have := hC n x a p hn ( Finset.mem_Ioc.mp ( Finset.mem_filter.mp hp |>.1 ) |>.1.trans_le' <| le_max_left _ _ ) ( Finset.mem_filter.mp hp |>.2 ) hx
         rw [ div_le_iff₀ ] at this <;> norm_num at * ; linarith
         exact Finset.card_pos.mp ( candidates_card_pos x ( W_sq n ) ( W_sq_pos n ) ( by linarith [ Nat.div_mul_le_self x 2 ] ) )
-      refine' div_le_of_le_mul₀ _ _ _
+      refine div_le_of_le_mul₀ ?_ ?_ ?_
       · positivity
       · exact mul_nonneg ( mul_nonneg hC_pos.le ( Nat.cast_nonneg _ ) ) ( Finset.sum_nonneg fun _ _ => by positivity )
-      · refine' le_trans h_sum _
+      · refine le_trans h_sum ?_
         norm_num [ Finset.sum_ite, Finset.mul_sum _ _ _, Finset.sum_mul ]
-        refine' Finset.sum_le_sum fun p hp => _
-        refine' le_trans ( mul_le_mul_of_nonneg_right ( Nat.cast_le.mpr <| Finset.card_filter_le _ _ ) <| by positivity ) _ ; ring_nf ; norm_num
+        refine Finset.sum_le_sum fun p hp => ?_
+        refine le_trans ( mul_le_mul_of_nonneg_right ( Nat.cast_le.mpr <| Finset.card_filter_le (I_R_eps R ε) (fun x => x ∈ SF) ) <| by positivity ) ?_ ; ring_nf ; norm_num
 
 /-
 The sum of $1/p^2$ for relevant primes is $O(1/\sqrt{R})$.
@@ -2209,7 +2213,7 @@ lemma sum_inv_sq_tail_bound (n : ℕ) (hn : n > 0) :
         · exact Summable.of_nonneg_of_le ( fun k => by positivity ) ( fun k => by aesop ) ( Real.summable_one_div_nat_pow.2 one_lt_two )
       intro n hn
       rw [ h_shift n hn ]
-      refine' Summable.tsum_le_tsum _ _ _
+      refine Summable.tsum_le_tsum ?_ ?_ ?_
       · exact fun k => by
           gcongr
           nlinarith
@@ -2239,8 +2243,8 @@ lemma count_multiples_in_interval (a b k : ℕ) (hk : k > 0) :
       intro x hx
       simp +zetaDelta at *
       exact ⟨ x / k, ⟨ Nat.succ_le_of_lt ( Nat.div_lt_of_lt_mul <| by linarith [ Nat.div_mul_cancel hx.2 ] ), Nat.div_le_div_right hx.1.2 ⟩, by rw [ mul_comm, Nat.div_mul_cancel hx.2 ] ⟩
-    refine' le_trans ( Finset.card_le_card h_multiples ) _ |> le_trans <| _
-    exact ( b / k ) - ( a / k )
+    refine le_trans ( Finset.card_le_card h_multiples ) ?_
+    refine le_trans (b := ( b / k ) - ( a / k )) ?_ ?_
     · exact Finset.card_image_le.trans ( by simp +arith +decide )
     · rw [ Nat.sub_le_iff_le_add ]
       rw [ Nat.div_le_iff_le_mul_add_pred hk ]
@@ -2268,7 +2272,7 @@ lemma bad_small_card_bound_sum (n' R : ℕ) (ε : ℝ) (n : ℕ) :
       refine le_trans ( Nat.cast_le.mpr <| h_multiples.trans ‹_› ) ?_
       norm_num [ I_R_eps ]
       exact Nat.cast_div_le .. |> le_trans <| by norm_num
-    refine' le_trans _ ( Finset.sum_le_sum h_card_S_p )
+    refine le_trans ?_ ( Finset.sum_le_sum h_card_S_p )
     norm_cast
     convert Finset.card_biUnion_le
     all_goals try infer_instance
@@ -2284,10 +2288,10 @@ lemma sum_inv_sq_small_primes_bound (n R : ℕ) (hn : n > 0) :
     -- The sum is over primes $p \in (n^2, \sqrt{R}]$.
     -- This is bounded by the sum over all integers $k \in (n^2, \sqrt{R}]$.
     have h_sum_bound : ∑ p ∈ small_primes n R, (1 / (p : ℝ)^2) ≤ ∑' k : ℕ, (if k > n^2 then 1 / (k : ℝ)^2 else 0) := by
-      refine' le_trans _ ( Summable.sum_le_tsum _ _ _ )
+      refine le_trans ?_ ( Summable.sum_le_tsum ?_ ?_ ?_ )
       any_goals exact Finset.filter ( fun p => Nat.Prime p ∧ n ^ 2 < p ∧ p ≤ Nat.sqrt R ) ( Finset.Ioc ( n ^ 2 ) ( Nat.sqrt R ) )
       · simp +decide [ Finset.sum_ite ]
-        refine' Finset.sum_le_sum_of_subset_of_nonneg _ fun _ _ _ => by positivity
+        refine Finset.sum_le_sum_of_subset_of_nonneg ?_ fun _ _ _ => by positivity
         simp +decide [ Finset.subset_iff ]
         unfold small_primes
         aesop
@@ -2308,7 +2312,7 @@ lemma bad_small_bound :
   ∀ n' : ℕ,
   ((bad_small n' R ε n).card : ℝ) ≤ C * ε^2 * R := by
     use 2
-    refine' ⟨ by norm_num, fun ε hε_pos hε_lt_one => ⟨ ⌈ε⁻¹ ^ 4⌉₊ + 1, fun n hn R hR n' => _ ⟩ ⟩
+    refine ⟨ by norm_num, fun ε hε_pos hε_lt_one => ⟨ ⌈ε⁻¹ ^ 4⌉₊ + 1, fun n hn R hR n' => ?_ ⟩ ⟩
     -- By `bad_small_card_bound_sum`, the cardinality is bounded by $|I_{R,\epsilon}| \sum_{p \in small} \frac{1}{p^2} + |small|$.
     have h_card_bound : ((bad_small n' R ε n).card : ℝ) ≤ (I_R_eps R ε).card * (∑ p ∈ small_primes n R, (1 / (p : ℝ)^2)) + (small_primes n R).card := by
       refine le_trans ( bad_small_card_bound_sum n' R ε n ) ?_
@@ -2371,17 +2375,21 @@ lemma sum_moebius_div_sq_tail_bound (k : ℕ) (hk : k > 0) :
     -- By Lemma `sum_inv_sq_tail_bound`, we know that $\sum_{d > k} \frac{1}{d^2} \le \frac{1}{k}$.
     have h_sum_inv_sq_tail_bound : (∑' (d : ℕ), if k < d then (1 : ℝ) / d ^ 2 else 0) ≤ 1 / (k : ℝ) := by
       exact sum_inv_sq_tail_bound k hk
-    refine' le_trans ( le_of_eq <| _ ) ( h_sum_inv_sq_tail_bound.trans' _ )
-    rw [ ← Real.norm_eq_abs ]
-    refine' le_trans ( norm_tsum_le_tsum_norm _ ) _
-    · refine' Summable.of_nonneg_of_le ( fun i => norm_nonneg _ ) ( fun i => _ ) ( Real.summable_one_div_nat_pow.2 one_lt_two )
+    refine le_trans
+      (b := ‖∑' d : ℕ, (if d > k then (ArithmeticFunction.moebius d : ℝ) / d ^ 2 else 0)‖)
+      ( le_of_eq <| ?_ ) ?_
+    · rw [ ← Real.norm_eq_abs ]
+    refine le_trans
+      (b := ∑' d : ℕ, ‖if d > k then (ArithmeticFunction.moebius d : ℝ) / d ^ 2 else 0‖)
+      ( norm_tsum_le_tsum_norm ?_ ) ?_
+    · refine Summable.of_nonneg_of_le ( fun i => norm_nonneg (if i > k then (ArithmeticFunction.moebius i : ℝ) / i ^ 2 else 0) ) ( fun i => ?_ ) ( Real.summable_one_div_nat_pow.2 one_lt_two )
       split_ifs
       all_goals
         norm_num [ ArithmeticFunction.moebius ]
       split_ifs
       all_goals
         norm_num
-    · refine' Summable.tsum_le_tsum _ _ _
+    · refine (Summable.tsum_le_tsum ?_ ?_ ?_).trans h_sum_inv_sq_tail_bound
       · intro i
         split_ifs
         all_goals
@@ -2389,7 +2397,7 @@ lemma sum_moebius_div_sq_tail_bound (k : ℕ) (hk : k > 0) :
         split_ifs
         all_goals
           norm_num
-      · refine' Summable.of_nonneg_of_le ( fun i => _ ) ( fun i => _ ) ( Real.summable_one_div_nat_pow.2 one_lt_two )
+      · refine Summable.of_nonneg_of_le ( fun i => ?_ ) ( fun i => ?_ ) ( Real.summable_one_div_nat_pow.2 one_lt_two )
         · positivity
         · split_ifs
           all_goals
@@ -2446,7 +2454,7 @@ lemma sum_moebius_div_sq_tsum_eq :
     have h_abs_conv : Summable (fun d : ℕ => |(ArithmeticFunction.moebius d : ℝ) / d^2|) := by
       norm_num [ abs_div, ArithmeticFunction.moebius ]
       exact Summable.of_nonneg_of_le ( fun _ => by positivity ) ( fun n => by split_ifs <;> norm_num ) ( Real.summable_one_div_nat_pow.2 one_lt_two )
-    refine' tendsto_nhds_unique _ ( sum_moebius_div_sq_tendsto )
+    refine tendsto_nhds_unique ?_ ( sum_moebius_div_sq_tendsto )
     convert h_abs_conv.of_abs.hasSum.tendsto_sum_nat.comp ( Filter.tendsto_add_atTop_nat 1 ) using 1
     exact funext fun n => by erw [ Function.comp_apply, Finset.sum_Ico_eq_sub _ ] <;> norm_num
 
@@ -2470,8 +2478,8 @@ lemma partial_sum_diff_bound (k : ℕ) (hk : k > 0) :
       rw [ ← h_tsum_eq ] ; erw [ Finset.sum_Ico_eq_sub _ _ ] <;> norm_num [ Finset.sum_range_succ' ]
       rw [ Finset.sum_congr rfl fun i hi => if_pos <| by linarith [ Finset.mem_range.mp hi ] ]
       rw [ tsum_congr fun i => if_neg ( by linarith ) ] ; norm_num
-    · refine' summable_of_ne_finset_zero _
-      exacts [ Finset.range ( k + 1 ), fun b hb => if_neg fun h => hb <| Finset.mem_range_succ_iff.mpr h ]
+    · refine summable_of_ne_finset_zero (s := Finset.range ( k + 1 )) ?_
+      exact fun b hb => if_neg fun h => hb <| Finset.mem_range_succ_iff.mpr h
 
 /-
 The difference between n times the partial sum of mu(d)/d^2 and n times 6/pi^2 is at most 3 * sqrt(n).
@@ -2502,8 +2510,13 @@ lemma SF_count_bound :
       convert le_trans ( abs_sub_le _ _ _ ) _ using 1
       exact Real.instIsOrderedAddMonoid
       exact ( n : ℝ ) * ∑ d ∈ Finset.Icc 1 ( Nat.sqrt n ), ( ArithmeticFunction.moebius d : ℝ ) / d ^ 2
-      refine' le_trans ( add_le_add ( sum_moebius_floor_approx n |> le_trans <| _ ) ( bound_diff_partial_sum_limit n hn |> le_trans <| _ ) ) _
-      exacts [ ↑n.sqrt, le_rfl, 3 * ↑n.sqrt, le_rfl, by linarith ]
+      refine le_trans
+        (b := (n.sqrt : ℝ) + 3 * (n.sqrt : ℝ))
+        ( add_le_add
+          ((sum_moebius_floor_approx n).trans (le_rfl : (n.sqrt : ℝ) ≤ n.sqrt))
+          ((bound_diff_partial_sum_limit n hn).trans (le_rfl : (3 * (n.sqrt : ℝ)) ≤ 3 * n.sqrt)) )
+        ?_
+      linarith
     convert h_sum_floor using 2
     convert congr_arg ( fun x : ℤ => ( x : ℝ ) - 6 / Real.pi ^ 2 * n ) ( sum_squarefree_indicator_eq_sum_moebius_floor n ) using 1
     · norm_num [ SF ]
@@ -2597,7 +2610,7 @@ lemma bad_upto_subset (n : ℕ) (n' : ℕ) (R : ℕ) (ε : ℝ) (m : ℕ)
         obtain ⟨ k, hk₁, hk₂, hk₃ ⟩ := h_seq
         use k - 1; rcases k <;> aesop
     simp_all +decide [ bad_upto, bad_in_interval ]
-    refine' ⟨ k, hk.1, _ ⟩
+    refine ⟨ k, hk.1, ?_ ⟩
     unfold I_R_eps
     aesop
 
@@ -2639,7 +2652,7 @@ lemma bad_in_interval_bound_rec :
         intro x hx n' hn' R hR hR'
         have := hn'.2.2 ( Finset.mem_image.mp hR |> Classical.choose ) ?_ <;> simp_all +decide [ GeometricGood_rec ]
         · contrapose! this
-          refine' Finset.mem_filter.mpr ⟨ _, _ ⟩ <;> norm_num [ bad_candidates_ii_R ]
+          refine Finset.mem_filter.mpr ⟨ ?_, ?_ ⟩ <;> norm_num [ bad_candidates_ii_R ]
           · exact hn'.1
           · have := Classical.choose_spec ( Finset.mem_image.mp hR )
             aesop
@@ -2653,7 +2666,7 @@ lemma bad_in_interval_bound_rec :
         intro x hx n' hn' R hR hR_le
         apply bad_very_large_empty
         exact hR_le
-      refine' ⟨ C₁ + 1, by linarith, fun ε hε₁ hε₂ => _ ⟩
+      refine ⟨ C₁ + 1, by linarith, fun ε hε₁ hε₂ => ?_ ⟩
       obtain ⟨ N₀₁, hN₀₁ ⟩ := hC₁.2 ε hε₁ hε₂
       obtain ⟨ N₀₂, hN₀₂ ⟩ := hC₂.2 ε hε₁ hε₂
       obtain ⟨ N₀₃, hN₀₃ ⟩ := h_bad_very_large ε hε₁ hε₂
@@ -2774,7 +2787,7 @@ lemma geometric_covers_x :
       obtain ⟨N₀, hN₀⟩ : ∃ N₀ : ℕ, ∀ n ≥ N₀, (n - 1/ε : ℝ) ≥ n / (1 + ε) := by
         simp +zetaDelta at *
         exact ⟨ ⌈ε⁻¹ * ( 1 + ε ) / ε⌉₊ + 1, fun n hn => by rw [ div_le_iff₀ ] <;> nlinarith [ Nat.le_ceil ( ε⁻¹ * ( 1 + ε ) / ε ), show ( n : ℝ ) ≥ ⌈ε⁻¹ * ( 1 + ε ) / ε⌉₊ + 1 by exact_mod_cast hn, mul_div_cancel₀ ( ε⁻¹ * ( 1 + ε ) ) hε_pos.ne', mul_inv_cancel₀ hε_pos.ne' ] ⟩
-      refine' ⟨ N₀ + 1, fun n hn x hx => _ ⟩ ; specialize hN₀ n ( by linarith ) ; specialize h_max_k n x ( by linarith ) ( by linarith ) ; simp_all +decide [ pow_add ]
+      refine ⟨ N₀ + 1, fun n hn x hx => ?_ ⟩ ; specialize hN₀ n ( by linarith ) ; specialize h_max_k n x ( by linarith ) ( by linarith ) ; simp_all +decide [ pow_add ]
       rw [ div_div, div_le_iff₀ ] at *
       all_goals
         try positivity
@@ -2822,16 +2835,15 @@ lemma expected_bad_a_bound_R :
           have h_sum_bound : ∃ C > 0, ∀ n x R : ℕ, n > 0 → x / 2 ≥ W_sq n → R ≥ n → R ≤ x →
             ∑ p ∈ relevant_primes n R x, (W_sq n : ℝ) / (x / 2) ≤ C * (W_sq n : ℝ) * n / (Nat.sqrt x : ℝ) := by
               use 2 * Real.sqrt 2 + 1
-              refine' ⟨ by positivity, fun n x R hn hx hR hx' => _ ⟩
+              refine ⟨ by positivity, fun n x R hn hx hR hx' => ?_ ⟩
               -- The number of relevant primes is at most $\sqrt{2x}$.
               have h_num_primes : (relevant_primes n R x).card ≤ Nat.sqrt (2 * x) := by
-                refine' le_trans ( Finset.card_le_card _ ) _
-                exact Finset.Icc 1 ( Nat.sqrt ( 2 * x ) )
+                refine le_trans ( Finset.card_le_card (t := Finset.Icc 1 ( Nat.sqrt ( 2 * x ) )) ?_ ) ?_
                 · exact fun p hp => Finset.mem_Icc.mpr ⟨ Nat.Prime.pos ( Finset.mem_filter.mp hp |>.2 ), Finset.mem_Ioc.mp ( Finset.mem_filter.mp hp |>.1 ) |>.2 ⟩
                 · norm_num
               by_cases hx : x = 0 <;> simp_all +decide [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm ]
               field_simp
-              refine' le_trans ( mul_le_mul_of_nonneg_right ( mul_le_mul_of_nonneg_right ( mul_le_mul_of_nonneg_left ( Nat.cast_le.mpr h_num_primes ) <| Nat.cast_nonneg _ ) zero_le_two ) <| Nat.cast_nonneg _ ) _
+              refine le_trans ( mul_le_mul_of_nonneg_right ( mul_le_mul_of_nonneg_right ( mul_le_mul_of_nonneg_left ( Nat.cast_le.mpr h_num_primes ) <| Nat.cast_nonneg (W_sq n) ) zero_le_two ) <| Nat.cast_nonneg (Nat.sqrt x) ) ?_
               -- By simplifying, we can see that the inequality holds.
               have h_simplify : 2 * Nat.sqrt (x * 2) * Nat.sqrt x ≤ x * n * (2 * Real.sqrt 2 + 1) := by
                 have h_simplify : 2 * Nat.sqrt (x * 2) * Nat.sqrt x ≤ x * (2 * Real.sqrt 2 + 1) := by
@@ -2845,7 +2857,7 @@ lemma expected_bad_a_bound_R :
           obtain ⟨ C₂, hC₂₀, hC₂ ⟩ := h_sum_bound
           use max C₁ C₂ + 1
           simp
-          refine' ⟨ by positivity, fun n x R hn hx₁ hx₂ hx₃ => _ ⟩ ; simp_all +decide [ Finset.sum_add_distrib ]
+          refine ⟨ by positivity, fun n x R hn hx₁ hx₂ hx₃ => ?_ ⟩ ; simp_all +decide [ Finset.sum_add_distrib ]
           refine le_trans ( add_le_add ( hC₁ n x R hn hx₁ hx₂ hx₃ ) ( hC₂ n x R hn hx₁ hx₂ hx₃ ) ) ?_
           ring_nf
           nlinarith [ show 0 ≤ ( R.sqrt : ℝ ) ⁻¹ by positivity, show 0 ≤ ( x.sqrt : ℝ ) ⁻¹ by positivity, show 0 ≤ ( W_sq n : ℝ ) * n * ( x.sqrt : ℝ ) ⁻¹ by positivity, le_max_left C₁ C₂, le_max_right C₁ C₂ ]
@@ -2878,7 +2890,7 @@ lemma prob_bad_candidates_ii_R_bound :
         rw [ div_right_comm ]
         gcongr
         rwa [ le_div_iff₀ ( mul_pos ( sq_pos_of_pos hε_pos ) ( Nat.cast_pos.mpr ( by linarith ) ) ) ]
-      refine' ⟨ C, hC_pos, fun n x R ε hn hx hR hx' hε => le_trans ( h_markov n x R ε hn hx hR hx' hε ) _ ⟩
+      refine ⟨ C, hC_pos, fun n x R ε hn hx hR hx' hε => le_trans ( h_markov n x R ε hn hx hR hx' hε ) ?_ ⟩
       convert div_le_div_of_nonneg_right ( hC n x R ε hn hx hR hx' hε ) ( by positivity : 0 ≤ ε ^ 2 * R ) using 1 ; ring
 
 /-
@@ -2925,7 +2937,7 @@ lemma geometric_R_rec_lower_bound (n k : ℕ) (ε : ℝ)
           have h_geometric_R_rec_succ : geometric_R_rec n ε (k + 1) = Nat.floor ((1 + ε) * (geometric_R_rec n ε k : ℝ)) := by
             exact rfl
           rw [ h_geometric_R_rec_succ ]
-          refine' le_trans _ ( Nat.sub_one_lt_floor _ |> le_of_lt )
+          refine le_trans ?_ ( Nat.sub_one_lt_floor ((1 + ε) * (geometric_R_rec n ε k : ℝ)) |> le_of_lt )
           rw [ div_lt_iff₀ ] at hn
           all_goals
             nlinarith [ pow_le_pow_right₀ ( by linarith : ( 1 + ε / 2 ) ≥ 1 ) ( show k ≥ 0 by linarith ) ]
@@ -2966,11 +2978,11 @@ lemma sum_inv_sqrt_R_bound :
       norm_num [ Real.sqrt_eq_rpow, ← Real.rpow_mul ( by positivity : ( 0 :ℝ ) ≤ 1 + ε / 2 ) ]
       ring_nf
       · rw [ Finset.sum_mul _ _ _ ]
-        refine' Finset.sum_congr rfl fun _ _ => _ ; rw [ Real.mul_rpow ( by positivity ) ( by positivity ), ← Real.rpow_natCast, ← Real.rpow_mul ( by positivity ) ] ; ring_nf; norm_num [ ← Real.sqrt_eq_rpow ] ; ring_nf
+        refine Finset.sum_congr rfl fun _ _ => ?_ ; rw [ Real.mul_rpow ( by positivity ) ( by positivity ), ← Real.rpow_natCast, ← Real.rpow_mul ( by positivity ) ] ; ring_nf; norm_num [ ← Real.sqrt_eq_rpow ] ; ring_nf
         exact Or.inl ( by rw [ ← Real.rpow_neg ( by positivity ) ] ; ring_nf )
       · ring
     obtain ⟨ C, hC₀, hC ⟩ := h_sum_bound
-    refine' ⟨ C, hC₀, fun ε hε₁ hε₂ n hn m => le_trans _ ( hC ε hε₁ hε₂ n hn m ) ⟩
+    refine ⟨ C, hC₀, fun ε hε₁ hε₂ n hn m => le_trans ?_ ( hC ε hε₁ hε₂ n hn m ) ⟩
     gcongr
     · exact Real.sqrt_pos.mpr ( mul_pos ( pow_pos ( by positivity ) _ ) ( Nat.cast_pos.mpr ( Nat.pos_of_ne_zero ( by rintro rfl; norm_num at hn; linarith [ div_pos zero_lt_two hε₁ ] ) ) ) )
     · (expose_names; exact geometric_R_rec_lower_bound n i ε hε₁ hε₂ hn)
@@ -3023,9 +3035,9 @@ lemma term_2_tendsto_zero (n : ℕ) (ε : ℝ) (hε : ε > 0) :
           convert h_log_sqrt.div_const ( Real.log ( 1 + ε ) ) |> Filter.Tendsto.congr' _ using 2
           · ring
           · filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx using by rw [ Real.log_div ( by positivity ) ( by positivity ) ] ; ring
-        refine' squeeze_zero_norm' _ ( h_max_k_log.comp tendsto_natCast_atTop_atTop )
+        refine squeeze_zero_norm' ?_ ( h_max_k_log.comp tendsto_natCast_atTop_atTop )
         simp +zetaDelta at *
-        refine' ⟨ n + 1, fun x hx => _ ⟩
+        refine ⟨ n + 1, fun x hx => ?_ ⟩
         rw [ abs_of_nonneg ( Real.sqrt_nonneg _ ) ]
         gcongr
         exact Nat.floor_le ( div_nonneg ( Real.log_nonneg <| by rw [ le_div_iff₀ <| by positivity ] ; norm_cast ; linarith ) <| Real.log_nonneg <| by linarith )
@@ -3044,7 +3056,7 @@ lemma prob_bad_candidates_ii_R_bound_simplified :
   ((bad_candidates_ii_R R x n ε (W_sq n)).card : ℝ) / (candidates x (W_sq n)).card ≤
   C / ε * (1 / Real.sqrt R + (W_sq n : ℝ) * n / Real.sqrt x) := by
     obtain ⟨ C, hC₀, hC ⟩ := prob_bad_candidates_ii_R_bound
-    refine' ⟨ 6 * C, by positivity, fun ε hε₁ hε₂ => ⟨ ⌈2 / ε⌉₊ + 1, fun n hn x hx R hR₁ hR₂ => le_trans ( hC n x R ε ( by linarith [ Nat.le_ceil ( 2 / ε ), div_pos zero_lt_two hε₁ ] ) hx hR₁ hR₂ hε₁ ) _ ⟩ ⟩
+    refine ⟨ 6 * C, by positivity, fun ε hε₁ hε₂ => ⟨ ⌈2 / ε⌉₊ + 1, fun n hn x hx R hR₁ hR₂ => le_trans ( hC n x R ε ( by linarith [ Nat.le_ceil ( 2 / ε ), div_pos zero_lt_two hε₁ ] ) hx hR₁ hR₂ hε₁ ) ?_ ⟩ ⟩
     -- Using the bound $|I_R|/R \le \epsilon + 1/R$ and the fact that $R \ge n \ge 1$, we get $|I_R|/R \le 1.5 \epsilon$.
     have h_I_R_bound : ((I_R_eps R ε).card : ℝ) / R ≤ 1.5 * ε := by
       have h_I_R_bound : ((I_R_eps R ε).card : ℝ) ≤ ε * R + 1 := by
@@ -3108,7 +3120,7 @@ lemma sum_relevant_primes_bound_case_mid :
           exact relevant_primes_subset n R x hR.le
         have h_sum_bound : ∃ C : ℝ, C > 0 ∧ ∀ n x : ℕ, n > 0 → x / 2 ≥ W_sq n → ∑ p ∈ relevant_primes n x x, (1 / (p : ℝ)^2) ≤ C / Real.sqrt x := by
           obtain ⟨ C, hC₀, hC ⟩ := sum_inv_sq_relevant_primes_bound_R
-          refine' ⟨ C * 2, mul_pos hC₀ zero_lt_two, fun n x hn hx => _ ⟩
+          refine ⟨ C * 2, mul_pos hC₀ zero_lt_two, fun n x hn hx => ?_ ⟩
           by_cases hx_ge_n : x ≥ n
           · refine le_trans ( hC n x x hn hx hx_ge_n le_rfl ) ?_
             rw [ div_le_div_iff₀ ]
@@ -3131,16 +3143,16 @@ lemma sum_relevant_primes_bound_case_mid :
         -- Since the number of relevant primes is at most sqrt(2x), we can bound it by 2*sqrt(x).
         have relevant_primes_card_bound_R : ∀ n x R : ℕ, n > 0 → x / 2 ≥ W_sq n → x < R → R ≤ 2 * x → (relevant_primes n R x).card ≤ 2 * Real.sqrt x := by
           intros n x R hn hx hx' hx''
-          refine' le_trans ( Nat.cast_le.mpr <| Finset.card_le_card <| show relevant_primes n R x ⊆ Finset.Icc 1 ( Nat.sqrt ( 2 * x ) ) from _ ) _
+          refine le_trans ( Nat.cast_le.mpr <| Finset.card_le_card <| show relevant_primes n R x ⊆ Finset.Icc 1 ( Nat.sqrt ( 2 * x ) ) from ?_ ) ?_
           · exact fun p hp => Finset.mem_Icc.mpr ⟨ Nat.Prime.pos <| Finset.mem_filter.mp hp |>.2, Finset.mem_Ioc.mp ( Finset.mem_filter.mp hp |>.1 ) |>.2 ⟩
           · norm_num +zetaDelta at *
             nlinarith only [ Real.sqrt_nonneg x, Real.sq_sqrt ( Nat.cast_nonneg x ), show ( Nat.sqrt ( 2 * x ) : ℝ ) ^ 2 ≤ 2 * x by norm_cast; linarith [ Nat.sqrt_le ( 2 * x ) ] ]
         exact ⟨ 4, by norm_num, fun n x R hn hx hx' hx'' => le_trans ( relevant_primes_card_bound_R n x R hn hx hx' hx'' ) ( by nlinarith [ show ( n : ℝ ) ≥ 1 by norm_cast, Real.sqrt_nonneg x ] ) ⟩
       obtain ⟨ C₁, hC₁_pos, hC₁ ⟩ := sum_relevant_primes_bound_R
       obtain ⟨ C₂, hC₂_pos, hC₂ ⟩ := relevant_primes_card_bound_R
-      refine' ⟨ 8 * ( C₁ + C₂ + 1 ), by positivity, fun n x R hn hx hx' hx'' => _ ⟩ ; specialize hC₁ n x R hn hx hx' hx'' ; specialize hC₂ n x R hn hx hx' hx'' ; simp_all +decide [ Finset.sum_add_distrib ]
+      refine ⟨ 8 * ( C₁ + C₂ + 1 ), by positivity, fun n x R hn hx hx' hx'' => ?_ ⟩ ; specialize hC₁ n x R hn hx hx' hx'' ; specialize hC₂ n x R hn hx hx' hx'' ; simp_all +decide [ Finset.sum_add_distrib ]
       refine le_trans ( add_le_add hC₁ ( mul_le_mul_of_nonneg_right hC₂ <| by positivity ) ) ?_
-      refine' le_trans _ ( mul_le_mul_of_nonneg_left ( le_add_of_nonneg_left <| by positivity ) <| by positivity )
+      refine le_trans ?_ ( mul_le_mul_of_nonneg_left ( le_add_of_nonneg_left <| by positivity ) <| by positivity )
       field_simp
       rw [ Real.sq_sqrt ( Nat.cast_nonneg _ ) ]
       rw [ div_le_div_iff_of_pos_right ( Real.sqrt_pos.mpr <| Nat.cast_pos.mpr <| Nat.pos_of_ne_zero <| by aesop_cat ) ]
@@ -3166,7 +3178,7 @@ lemma expected_bad_a_bound_mid :
               convert sum_bad_a_ii_le_sum_bad_candidates _ _ _ _ using 1
             gcongr
       obtain ⟨ C', hC' ⟩ := bad_candidates_prob_bound
-      refine' ⟨ C' * C, mul_pos hC'.1 hC.1, fun n x R ε hn hx hR hR' hε => le_trans ( h_bound n x R ε hn hx hR hR' hε ) _ ⟩
+      refine ⟨ C' * C, mul_pos hC'.1 hC.1, fun n x R ε hn hx hR hR' hε => le_trans ( h_bound n x R ε hn hx hR hR' hε ) ?_ ⟩
       -- Apply the bound from `bad_candidates_prob_bound` to each term in the sum.
       have h_term_bound : ∀ a ∈ I_R_eps R ε, ∀ p ∈ relevant_primes n R x, (if a ∈ SF then ((bad_candidates x (W_sq n) a p).card : ℝ) else 0) / (candidates x (W_sq n)).card ≤ C' * (1 / (p : ℝ)^2 + (W_sq n : ℝ) / (x / 2)) := by
         intros a ha p hp
@@ -3214,7 +3226,7 @@ lemma prob_bad_candidates_ii_R_bound_mid :
     C / ε^2 * ((I_R_eps R ε).card : ℝ) / R * (1 / (Nat.sqrt R : ℝ) + (W_sq n : ℝ) * n / (Nat.sqrt x)) := by
       obtain ⟨C₁, hC₁⟩ : ∃ C₁ > 0, ∀ n x R ε, n > 0 → x / 2 ≥ W_sq n → x < R → R ≤ 2 * x → ε > 0 → ((∑ n' ∈ candidates x (W_sq n), ((bad_a_ii n' R x n ε).card : ℝ)) / (candidates x (W_sq n)).card ≤ C₁ * ((I_R_eps R ε).card : ℝ) * (1 / (Nat.sqrt R : ℝ) + (W_sq n : ℝ) * n / (Nat.sqrt x))) := by
         exact expected_bad_a_bound_mid
-      refine' ⟨ C₁, hC₁.1, fun n x R ε hn hx hx' hx'' hε => _ ⟩
+      refine ⟨ C₁, hC₁.1, fun n x R ε hn hx hx' hx'' hε => ?_ ⟩
       have h_markov : ((bad_candidates_ii_R R x n ε (W_sq n)).card : ℝ) ≤ (∑ n' ∈ candidates x (W_sq n), ((bad_a_ii n' R x n ε).card : ℝ)) / (ε^2 * R) := by
         apply markov_bound
         exact mul_pos ( sq_pos_of_pos hε ) ( Nat.cast_pos.mpr ( by linarith ) )
@@ -3256,7 +3268,7 @@ lemma prob_bad_candidates_ii_R_bound_mid_simplified :
       exact ⟨ 2, by norm_num, fun ε hε => by obtain ⟨ N₀, hN₀ ⟩ := card_I_R_eps_ratio_bound ε hε; exact ⟨ N₀, fun n hn R hR => by linarith [ hN₀ n hn R hR ] ⟩ ⟩
     generalize_proofs at *
     (
-    refine' ⟨ 2 * C₁ * C₂, mul_pos ( mul_pos two_pos hC₁.1 ) hC₂.1, fun ε hε₁ hε₂ => _ ⟩ ; obtain ⟨ N₀, hN₀ ⟩ := hC₂.2 ε hε₁ ; use Max.max N₀ 1 ; intros n hn x hx R hn' hx' hx'' ; by_cases hn'' : n = 0 <;> simp_all +decide [ division_def ]
+    refine ⟨ 2 * C₁ * C₂, mul_pos ( mul_pos two_pos hC₁.1 ) hC₂.1, fun ε hε₁ hε₂ => ?_ ⟩ ; obtain ⟨ N₀, hN₀ ⟩ := hC₂.2 ε hε₁ ; use Max.max N₀ 1 ; intros n hn x hx R hn' hx' hx'' ; by_cases hn'' : n = 0 <;> simp_all +decide [ division_def ]
     refine le_trans ( hC₁.2 n x R ε ( Nat.pos_of_ne_zero hn'' ) hx hx' hx'' hε₁ ) ?_
     -- Apply the bounds from hC₁ and hC₂ to simplify the expression.
     have h_simp : C₁ * (ε^2)⁻¹ * (C₂ * ε) * ((R.sqrt : ℝ)⁻¹ + (W_sq n : ℝ) * n * (x.sqrt : ℝ)⁻¹) ≤ 2 * C₁ * C₂ * ε⁻¹ * ((Real.sqrt R)⁻¹ + (W_sq n : ℝ) * n * (Real.sqrt x)⁻¹) := by
@@ -3300,7 +3312,7 @@ lemma prob_bad_candidates_ii_R_bound_combined :
     obtain ⟨C1, hC1⟩ := prob_bad_candidates_ii_R_bound_simplified
     obtain ⟨C2, hC2⟩ := prob_bad_candidates_ii_R_bound_mid_simplified
     use Max.max C1 C2 + 1
-    refine' ⟨ by linarith [ le_max_left C1 C2, le_max_right C1 C2 ], fun ε hε₁ hε₂ => _ ⟩
+    refine ⟨ by linarith [ le_max_left C1 C2, le_max_right C1 C2 ], fun ε hε₁ hε₂ => ?_ ⟩
     obtain ⟨ N₀₁, hN₀₁ ⟩ := hC1.2 ε hε₁ hε₂
     obtain ⟨ N₀₂, hN₀₂ ⟩ := hC2.2 ε hε₁ hε₂
     use Max.max N₀₁ N₀₂ + 1
@@ -3450,11 +3462,9 @@ lemma density_interpolation_lemma (S : Set ℕ) (R1 R2 R : ℕ) (ε C : ℝ)
       have h_frac_R1_R : (R1 : ℝ) / R ≥ 1 - ε := by
         rw [ ge_iff_le, le_div_iff₀ ] <;> nlinarith [ show ( R1 : ℝ ) ≥ 1 by norm_cast, show ( R : ℝ ) ≥ R1 by norm_cast; linarith, show ( R2 : ℝ ) ≥ R by norm_cast; linarith ]
       contrapose! h_dens
-      refine' lt_of_le_of_lt _ ( lt_sub_iff_add_lt'.mpr _ )
-      rotate_left
-      exact 1
-      · nlinarith [ show ( R1 : ℝ ) / R ≤ 1 by rw [ div_le_iff₀ ] <;> norm_cast <;> linarith ]
+      refine lt_of_le_of_lt (b := 1) ?_ ( lt_sub_iff_add_lt'.mpr ?_ )
       · exact div_le_one_of_le₀ ( mod_cast le_trans ( Set.ncard_le_ncard <| Set.inter_subset_right ) <| by simp [ Set.ncard_eq_toFinset_card' ] ) <| by positivity
+      · nlinarith [ show ( R1 : ℝ ) / R ≤ 1 by rw [ div_le_iff₀ ] <;> norm_cast <;> linarith ]
 
 /-
 If n' is a good candidate, then n' + a is squarefree for all squarefree a <= n.
@@ -3476,7 +3486,7 @@ lemma GeometricGood_rec_implies_condition_i (n n' x : ℕ) (ε : ℝ)
       · assumption
       · exact ha₃
     simp_all +decide [ candidates, bad_candidates_i ]
-    refine' ⟨ a, ha₁, p, ⟨ ⟨ hp₂, _ ⟩, hp₁ ⟩, _ ⟩
+    refine ⟨ a, ha₁, p, ⟨ ⟨ hp₂, ?_ ⟩, hp₁ ⟩, ?_ ⟩
     · rw [ Nat.le_sqrt ]
       nlinarith [ show hp₃ > 0 from Nat.pos_of_ne_zero ( by aesop_cat ) ]
     · exact Finset.mem_filter.mpr ⟨ Finset.mem_filter.mpr ⟨ Finset.mem_Icc.mpr ⟨ by linarith, by linarith ⟩, this.2 ⟩, by aesop ⟩
@@ -3553,7 +3563,7 @@ lemma bad_upto_bound_rec :
     -- Let $C_{sum}$ be the constant from `geometric_sum_bound`.
     obtain ⟨C_sum, hC_sum_pos, hC_sum⟩ := geometric_sum_bound
     use C_interval * C_sum
-    refine' ⟨ mul_pos hC_interval_pos hC_sum_pos, _ ⟩
+    refine ⟨ mul_pos hC_interval_pos hC_sum_pos, ?_ ⟩
     intro ε hε hε1
     obtain ⟨N₀, hN₀⟩ := hC_interval ε hε hε1
     obtain ⟨N₀', hN₀'⟩ := hC_sum ε hε hε1
@@ -3569,7 +3579,7 @@ lemma bad_upto_bound_rec :
         · exact GeometricGood_rec_implies_condition_i n n' x ε hn' |> fun h => by simpa using h
       exact_mod_cast le_trans ( Finset.card_le_card h_sum ) ( Finset.card_biUnion_le )
     refine le_trans h_sum ?_
-    refine' le_trans ( Finset.sum_le_sum fun i hi => hx₀ x ( by linarith [ Nat.le_max_left x₀ ( 2 * n ) ] ) n' hn' i ( Finset.mem_range.mpr ( by linarith [ Finset.mem_range.mp hi ] ) ) _ ) _
+    refine le_trans ( Finset.sum_le_sum fun i hi => hx₀ x ( by linarith [ Nat.le_max_left x₀ ( 2 * n ) ] ) n' hn' i ( Finset.mem_range.mpr ( by linarith [ Finset.mem_range.mp hi ] ) ) ?_ ) ?_
     · have h_bound : n' ≤ x := by
         exact hn'.1 |> fun h => by linarith [ Finset.mem_Icc.mp ( Finset.mem_filter.mp h |>.1 ) ]
       have h_bound : ⌊(1 + ε) * (geometric_R_rec n ε i : ℝ)⌋₊ ≤ x := by
@@ -3622,7 +3632,7 @@ lemma GeometricGood_rec_implies_density_at_points_strong :
   ((S ∩ Finset.Icc 1 R).ncard : ℝ) / R ≥ 6 / Real.pi^2 - C * ε := by
     obtain ⟨C₁, hC₁⟩ := bad_upto_bound_rec
     field_simp
-    refine' ⟨ 6 + C₁, by linarith, fun ε hε₁ hε₂ => _ ⟩
+    refine ⟨ 6 + C₁, by linarith, fun ε hε₁ hε₂ => ?_ ⟩
     obtain ⟨ N₀, hN₀ ⟩ := SF_density_lower_bound ( ε / 2 ) ( half_pos hε₁ )
     obtain ⟨ N₁, hN₁ ⟩ := hC₁.2 ε hε₁ hε₂
     use Max.max N₀ N₁ + 1
@@ -3680,7 +3690,7 @@ lemma GeometricGood_rec_implies_condition_ii :
   (numerator : ℝ) / R ≥ 6 / Real.pi^2 - C_ii * ε := by
     -- Set C_ii = C + 1.
     obtain ⟨C, hC_pos, hC⟩ := GeometricGood_rec_implies_density_at_points_strong
-    refine' ⟨ C + 1, _, _ ⟩ <;> try linarith
+    refine ⟨ C + 1, ?_, ?_ ⟩ <;> try linarith
     intro ε hε₁ hε₂
     obtain ⟨N₀, hN₀⟩ := hC ε hε₁ hε₂
     obtain ⟨N₀', hN₀'⟩ := geometric_covers_x ε hε₁ hε₂
@@ -3750,7 +3760,7 @@ theorem PropositionKey :
       intro x hx
       obtain ⟨n', hn'⟩ := hx₀ x (by linarith)
       exact ⟨ n', hn', Nat.le_of_not_lt fun h => by have := hn'.1; unfold candidates at this; norm_num at this; omega ⟩
-    refine' ⟨ hC_key_pos, fun ε hε₁ hε₂ => _ ⟩
+    refine ⟨ hC_key_pos, fun ε hε₁ hε₂ => ?_ ⟩
     obtain ⟨ N₀, hN₀ ⟩ := h_combined ε hε₁ hε₂
     obtain ⟨ N₁, hN₁ ⟩ := hC_key ε hε₁ hε₂
     use Max.max N₀ N₁
@@ -3906,14 +3916,14 @@ lemma exists_sequence :
       have := n_seq_growth ( k + 1 )
       norm_num at *
       nlinarith [ n_seq_pos k, n_seq_pos ( k + 1 ) ]
-    · refine' ⟨ _, _, _ ⟩
+    · refine ⟨ ?_, ?_, ?_ ⟩
       · intro k hk a ha ha'
         have := n_seq_prop_key k hk
         unfold PropositionKey_conclusion at this
         aesop
       · intro k hk R hR₁ hR₂
         have := n_seq_prop_key k hk
-        refine' le_trans _ ( this.2 R hR₁ hR₂ )
+        refine le_trans ?_ ( this.2 R hR₁ hR₂ )
         unfold epsilon_seq
         gcongr
         norm_num
@@ -3951,7 +3961,7 @@ lemma A_lower_property_Q : PropertyQ A_lower := by
     intro k hk a ha hlt
     obtain ⟨j, hj⟩ : ∃ j < k + 1, a ∈ Set.Ioc (n_lower j) (n_lower (j + 1)) ∧ a ∈ SF ∧ n_lower (j + 1) + a ∈ SF := by
       obtain ⟨ j, hj ⟩ := Set.mem_iUnion.mp ha
-      refine' ⟨ j, _, hj ⟩
+      refine ⟨ j, ?_, hj ⟩
       contrapose! hlt
       -- Since $n_lower$ is strictly increasing, we have $n_lower (k + 1) \leq n_lower j$ for $j \geq k + 1$.
       have h_inc : ∀ j k, j ≥ k + 1 → n_lower (k + 1) ≤ n_lower j := by
@@ -3982,7 +3992,7 @@ lemma A_lower_property_Q : PropertyQ A_lower := by
     refine Set.infinite_of_forall_exists_gt ?_
     intro a
     use n_lower (a + 2)
-    refine' ⟨ ⟨ a + 1, by linarith, rfl ⟩, _ ⟩
+    refine ⟨ ⟨ a + 1, by linarith, rfl ⟩, ?_ ⟩
     have h_seq_growth : ∀ k ≥ 1, n_lower (k + 1) ≥ (k + 1) * n_lower k := by
       exact fun k hk => n_lower_properties.2.2.2 k hk
     induction a with
@@ -3990,7 +4000,7 @@ lemma A_lower_property_Q : PropertyQ A_lower := by
       nlinarith! [ h_seq_growth 1 le_rfl, n_lower_properties.1 1 le_rfl ]
     | succ a ih =>
       nlinarith [ h_seq_growth ( a + 2 ) ( by linarith ), n_seq_pos ( a + 2 ) ]
-  refine' h_inf.mono _
+  refine h_inf.mono ?_
   aesop
 
 /-
@@ -4058,7 +4068,7 @@ lemma A_lower_density_lower_bound_explicit (k : ℕ) (hk : k ≥ 2) (R : ℕ) (h
   6 / Real.pi^2 - C_lower / k -
   (C_lower / (k - 1) * n_lower k + (Classical.choose SF_count_bound) * Real.sqrt (n_lower k) + n_lower (k - 1)) / R := by
     have := n_lower_properties.2.2.1 k ( by linarith ) R hR1 hR2
-    refine' le_trans ( sub_le_sub_right this _ ) _
+    refine le_trans ( sub_le_sub_right this ((C_lower / (k - 1) * n_lower k + (Classical.choose SF_count_bound) * Real.sqrt (n_lower k) + n_lower (k - 1)) / R) ) ?_
     have h_card_ineq : ((A_lower ∩ Finset.Icc 1 R).ncard : ℝ) ≥
       ((Finset.Icc 1 R).filter (fun a => a ∈ SF ∧ n_lower (k + 1) + a ∈ SF)).card -
       ((Finset.Icc 1 (n_lower k)).filter (fun a => a ∈ SF ∧ n_lower k + a ∉ SF)).card -
@@ -4077,7 +4087,7 @@ The sequence n_lower tends to infinity.
 lemma n_lower_tendsto_atTop : Filter.Tendsto n_lower Filter.atTop Filter.atTop := by
   -- By definition of $n_lower$, we know that it satisfies the properties of $SequenceProperties$.
   obtain ⟨C, hC⟩ := n_lower_properties
-  refine' Filter.tendsto_atTop_atTop.mpr _
+  refine Filter.tendsto_atTop_atTop.mpr ?_
   intro b
   use b + 1
   intro a ha
@@ -4142,12 +4152,12 @@ lemma natural_density_of_densities (A : Set ℕ) (d : ℝ)
     (h_upper : upperDensity A ≤ d)
     (h_lower : lowerDensity A ≥ d) :
     HasNaturalDensity A d := by
-      refine' tendsto_order.2 ⟨ _, _ ⟩
+      refine tendsto_order.2 ⟨ ?_, ?_ ⟩
       · intro a' ha'
         contrapose! ha'
         simp_all +decide [ upperDensity, lowerDensity ]
-        refine' le_trans h_lower _
-        refine' csSup_le _ _ <;> norm_num
+        refine le_trans h_lower ?_
+        refine csSup_le ?_ ?_ <;> norm_num
         · exact ⟨ 0, ⟨ 1, fun n hn => by positivity ⟩ ⟩
         · exact fun b x hx => by
             rw [Filter.frequently_atTop] at ha'
@@ -4156,8 +4166,8 @@ lemma natural_density_of_densities (A : Set ℕ) (d : ℝ)
       · unfold upperDensity lowerDensity at *
         rw [ Filter.limsup_eq ] at h_upper
         contrapose! h_upper
-        refine' lt_of_lt_of_le h_upper.choose_spec.1 ( le_csInf _ _ )
-        · refine' ⟨ 1, _ ⟩
+        refine lt_of_lt_of_le h_upper.choose_spec.1 ( le_csInf ?_ ?_ )
+        · refine ⟨ 1, ?_ ⟩
           filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn using div_le_one_of_le₀ ( mod_cast le_trans ( Set.ncard_le_ncard <| Set.inter_subset_right ) <| by simp +decide [ Set.ncard_eq_toFinset_card' ] ) <| by positivity
         · intro b hb
           exact le_of_not_gt fun h => h_upper.choose_spec.2 <| hb.mono fun n hn => by linarith [ h_upper.choose_spec.1 ]
@@ -4176,7 +4186,7 @@ lemma lower_density_of_interval_bound (A : Set ℕ) (n : ℕ → ℕ) (C : ℝ) 
       intro d hd
       obtain ⟨N, hN⟩ : ∃ N, ∀ k ≥ N, ε k < C - d := by
         simpa using h_lim.eventually ( gt_mem_nhds <| by linarith )
-      refine' le_csSup _ _ <;> norm_num [ lowerDensity ]
+      refine le_csSup ?_ ?_ <;> norm_num [ lowerDensity ]
       · exact ⟨ 1, by rintro x ⟨ k, hk ⟩ ; exact le_trans ( hk ( k + 1 ) ( by linarith ) ) ( div_le_one_of_le₀ ( mod_cast Nat.le_trans ( Set.ncard_le_ncard ( Set.inter_subset_right ) ) ( by simp +decide [ Set.ncard_eq_toFinset_card' ] ) ) ( by positivity ) ) ⟩
       · -- Choose $a = n_N$.
         use n N + 1
@@ -4245,13 +4255,13 @@ lemma density_contradiction_abstract (n : ℕ → ℕ) (C : ℝ)
         have h_sqrt_factorial : Filter.Tendsto (fun k : ℕ => (k : ℝ) / Real.sqrt (k !)) Filter.atTop (nhds 0) := by
           -- We can use the fact that $\sqrt{k!}$ grows faster than $k$.
           have h_sqrt_factorial : Filter.Tendsto (fun k : ℕ => (k : ℝ) ^ 2 / (k !)) Filter.atTop (nhds 0) := by
-            refine' squeeze_zero_norm' _ (show Filter.Tendsto (fun n : ℕ => (n : ℝ)⁻¹) Filter.atTop (nhds 0) from tendsto_inv_atTop_nhds_zero_nat)
+            refine squeeze_zero_norm' ?_ (show Filter.Tendsto (fun n : ℕ => (n : ℝ)⁻¹) Filter.atTop (nhds 0) from tendsto_inv_atTop_nhds_zero_nat)
             norm_num +zetaDelta at *
             exact ⟨ 8, fun k hk => by rw [ inv_eq_one_div, div_le_div_iff₀ ] <;> norm_cast <;> first | positivity | induction hk <;> norm_num [ Nat.factorial_succ ] at * ; nlinarith ⟩
           have := h_sqrt_factorial.sqrt
           simpa [ Real.sqrt_div ( sq_nonneg _ ), Real.sqrt_sq ( Nat.cast_nonneg _ ) ] using this
         exact squeeze_zero ( fun k => by positivity ) ( fun k => by gcongr ; linarith ) h_sqrt_factorial
-      refine' squeeze_zero_norm' _ h_sqrt_factorial
+      refine squeeze_zero_norm' ?_ h_sqrt_factorial
       filter_upwards [ Filter.eventually_ge_atTop 1 ] with k hk using by rw [ Real.norm_of_nonneg ( by positivity ) ] ; exact div_le_div_of_nonneg_left ( by positivity ) ( by positivity ) ( h_sqrt_bound k hk )
     -- From `h_dens`, we have $6/\pi^2 + D/k \le 6/\pi^2 + C_{SF}/\sqrt{n_{k+1}}$.
     have h_ineq : ∀ k : ℕ, k ≥ 1 → 6 / Real.pi^2 + (-C) / (k : ℝ) ≤ 6 / Real.pi^2 + (Classical.choose SF_count_bound) / Real.sqrt (n (k + 1)) := by
@@ -4380,11 +4390,11 @@ theorem erdos_1102.upper_density_Q
           exact ⟨ Set.mem_range_self _, ⟨ Nat.one_le_iff_ne_zero.mpr <| by linarith [ h_inc <| show 0 < y from Finset.mem_Icc.mp hy |>.1 ], h_inc.monotone <| Finset.mem_Icc.mp hy |>.2 ⟩ ⟩
     rw [ Finset.card_image_of_injective _ h_inc.injective ] at h_card_ge_j_div_Aj
     aesop
-  refine' le_trans _ h_upper_density
-  refine' le_csInf _ _ <;> norm_num +zetaDelta at *
+  refine le_trans ?_ h_upper_density
+  refine le_csInf ?_ ?_ <;> norm_num +zetaDelta at *
   · exact ⟨ 1, ⟨ 1, fun n hn => div_le_one_of_le₀ ( mod_cast h_card_le_j n ) ( Nat.cast_nonneg _ ) ⟩ ⟩
   · intro b x hx
-    refine' csInf_le _ _ <;> norm_num +zetaDelta at *
+    refine csInf_le ?_ ?_ <;> norm_num +zetaDelta at *
     · exact ⟨ 0, by rintro a ⟨ k, hk ⟩ ; exact le_trans ( by positivity ) ( hk _ le_rfl ) ⟩
     · use x + 1
       -- By combining the results from hx and h_card_ge_j_div_Aj, we can conclude the proof.
@@ -4583,10 +4593,10 @@ theorem PropertyP_bar_infty_finite_diff (A B : Set ℕ) (h : (A \ B).Finite ∧ 
     have h_finite : {a ∈ B | ¬Squarefree (n + a)} ⊆ ({a ∈ A | ¬Squarefree (n + a)} ∪ (B \ A)) := by
       exact fun x hx => if hx' : x ∈ A then Or.inl ⟨ hx', hx.2 ⟩ else Or.inr ⟨ hx.1, hx' ⟩
     exact Set.Finite.subset ( hn.union h.2 ) h_finite
-  · refine' h'.diff ( h.1.union h.2 |> Set.Finite.image fun x => x ) |> fun h'' => h''.mono _
+  · refine h'.diff ( h.1.union h.2 |> Set.Finite.image fun x => x ) |> fun h'' => h''.mono ?_
     intro n hn
     simp_all +decide
-    refine' Set.Finite.subset ( hn.1.union ( h.1.union h.2 ) ) _
+    refine Set.Finite.subset ( hn.1.union ( h.1.union h.2 ) ) ?_
     intro a ha
     by_cases ha' : a ∈ B <;> aesop
 
@@ -4671,14 +4681,14 @@ lemma sum_moebius_sq_dvd_eq_indicator (n : ℕ) (hn : n > 0) :
                 exact fun p hp => by
                   rw [ Nat.le_div_iff_mul_le zero_lt_two ]
                   linarith [ h_exp p hp ]
-              refine' ⟨ _, Finset.prod_ne_zero_iff.mpr fun p hp => pow_ne_zero _ <| Nat.ne_of_gt <| Nat.pos_of_mem_primeFactors hp ⟩
+              refine ⟨ ?_, Finset.prod_ne_zero_iff.mpr fun p hp => pow_ne_zero (n.factorization p / 2) <| Nat.ne_of_gt <| Nat.pos_of_mem_primeFactors hp ⟩
               conv_lhs => rw [ ← Nat.prod_factorization_pow_eq_self ( by linarith : d ≠ 0 ) ]
               rw [ ← Finset.prod_sdiff <| show d.primeFactors ⊆ n.primeFactors from Nat.primeFactors_mono ( dvd_of_mul_left_dvd hd.2 ) <| by aesop ]
               exact dvd_mul_of_dvd_right ( Finset.prod_dvd_prod_of_dvd _ _ fun p hp => pow_dvd_pow p ( h_exp_le p hp ) ) _
-            · refine' ⟨ ⟨ Nat.pos_of_dvd_of_pos hd.1 ( Finset.prod_pos fun p hp => pow_pos ( Nat.pos_of_mem_primeFactors hp ) _ ), Nat.le_trans ( Nat.le_of_dvd ( Finset.prod_pos fun p hp => pow_pos ( Nat.pos_of_mem_primeFactors hp ) _ ) hd.1 ) _ ⟩, _ ⟩
+            · refine ⟨ ⟨ Nat.pos_of_dvd_of_pos hd.1 ( Finset.prod_pos fun p hp => pow_pos ( Nat.pos_of_mem_primeFactors hp ) (n.factorization p / 2) ), Nat.le_trans ( Nat.le_of_dvd ( Finset.prod_pos fun p hp => pow_pos ( Nat.pos_of_mem_primeFactors hp ) (n.factorization p / 2) ) hd.1 ) ?_ ⟩, ?_ ⟩
               · conv_rhs => rw [ ← Nat.prod_factorization_pow_eq_self hn.ne' ]
                 exact Finset.prod_le_prod' fun p hp => pow_le_pow_right₀ ( Nat.pos_of_mem_primeFactors hp ) ( Nat.div_le_self _ _ )
-              · refine' dvd_trans ( pow_dvd_pow_of_dvd hd.1 2 ) _
+              · refine dvd_trans ( pow_dvd_pow_of_dvd hd.1 2 ) ?_
                 conv_rhs => rw [ ← Nat.prod_factorization_pow_eq_self hn.ne' ]
                 rw [ ← Finset.prod_pow ]
                 exact Finset.prod_dvd_prod_of_dvd _ _ fun p hp => by
@@ -4725,7 +4735,7 @@ lemma sum_squarefree_indicator_eq_sum_moebius_floor (N : ℕ) :
         rw [ Finset.sum_comm, Finset.sum_congr rfl fun _ _ => Finset.mul_sum _ _ _ ]
       convert h_interchange using 1
       · exact Finset.sum_congr rfl h_sum_eq
-      · refine' Finset.sum_congr rfl fun x hx => _
+      · refine Finset.sum_congr rfl fun x hx => ?_
         simp +zetaDelta at *
         rw [
           show Finset.filter ( fun y => x ^ 2 ∣ y ) ( Finset.Icc 1 N ) = Finset.image ( fun y => x ^ 2 * y ) ( Finset.Icc 1 ( N / x ^ 2 ) ) from ?_,
@@ -4791,7 +4801,7 @@ theorem SF_density : HasNaturalDensity SF (6 / Real.pi ^ 2) := by
         -- Apply the equality of the integer and real sums to rewrite the left-hand side.
         have h_rewrite : (∑ d ∈ Finset.Icc 1 (Nat.sqrt N), (ArithmeticFunction.moebius d : ℝ) * (N / d ^ 2 : ℤ)) = (∑ d ∈ Finset.Icc 1 (Nat.sqrt N), (ArithmeticFunction.moebius d : ℝ) * (N / d ^ 2 : ℝ)) - (∑ d ∈ Finset.Icc 1 (Nat.sqrt N), (ArithmeticFunction.moebius d : ℝ) * (Int.fract (N / d ^ 2 : ℝ))) := by
           rw [ ← Finset.sum_sub_distrib ]
-          refine' Finset.sum_congr rfl fun x hx => _
+          refine Finset.sum_congr rfl fun x hx => ?_
           rw [ Int.fract ]
           ring_nf
           field_simp
@@ -4805,9 +4815,13 @@ theorem SF_density : HasNaturalDensity SF (6 / Real.pi ^ 2) := by
       have h_second_term_abs : ∀ N : ℕ, |(∑ d ∈ Finset.Icc 1 (Nat.sqrt N), (ArithmeticFunction.moebius d : ℝ) * Int.fract (N / d ^ 2 : ℝ)) / N| ≤ (Nat.sqrt N : ℝ) / N := by
         intros N
         have h_abs : |∑ d ∈ Finset.Icc 1 (Nat.sqrt N), (ArithmeticFunction.moebius d : ℝ) * Int.fract (N / d ^ 2 : ℝ)| ≤ Nat.sqrt N := by
-          refine' le_trans ( Finset.abs_sum_le_sum_abs _ _ ) _
-          refine' le_trans ( Finset.sum_le_sum fun i hi => _ ) _
-          use fun i => 1
+          refine le_trans
+            ( Finset.abs_sum_le_sum_abs
+              (fun d => (ArithmeticFunction.moebius d : ℝ) * Int.fract (N / d ^ 2 : ℝ))
+              (Finset.Icc 1 (Nat.sqrt N)) ) ?_
+          refine le_trans
+            (b := ∑ i ∈ Finset.Icc 1 (Nat.sqrt N), (1 : ℝ))
+            ( Finset.sum_le_sum fun i hi => ?_ ) ?_
           · norm_num [ abs_mul, ArithmeticFunction.moebius ]
             split_ifs
             all_goals
@@ -4816,16 +4830,13 @@ theorem SF_density : HasNaturalDensity SF (6 / Real.pi ^ 2) := by
           · norm_num
         rw [ abs_div, abs_of_nonneg ( by positivity : ( 0 : ℝ ) ≤ N ) ]
         gcongr
-      refine' squeeze_zero_norm h_second_term_abs _
-      refine' squeeze_zero_norm' _ _
-      use fun n => 1 / Real.sqrt n
+      refine squeeze_zero_norm h_second_term_abs ?_
+      refine squeeze_zero_norm' (a := fun n : ℕ => 1 / Real.sqrt (n : ℝ)) ?_ ?_
       · filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn using by rw [ Real.norm_of_nonneg ( by positivity ) ] ; rw [ div_le_div_iff₀ ] <;> first | positivity | nlinarith [ Real.sqrt_nonneg n, Real.sq_sqrt <| Nat.cast_nonneg n, show ( n :ℝ ) ≥ 1 by exact_mod_cast hn, show ( Nat.sqrt n :ℝ ) ^ 2 ≤ n by exact_mod_cast Nat.sqrt_le' n ]
       · simpa using tendsto_inv_atTop_nhds_zero_nat.sqrt
-    refine' Filter.Tendsto.congr' _ ( by simpa using h_limit.sub h_second_term )
+    refine Filter.Tendsto.congr' ?_ ( by simpa using h_limit.sub h_second_term )
     filter_upwards [ Filter.eventually_gt_atTop 0 ] with N hN
-    simp_all +decide [div_eq_mul_inv,
-      mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _, Set.ncard_eq_toFinset_card']
-    simp_all +decide [← Finset.mul_sum _ _ _, hN.ne']
+    simp_all +decide [div_eq_mul_inv, mul_comm, Set.ncard_eq_toFinset_card']
     rw [
       show ( Finset.filter ( fun a => a ∈ SF ) ( Finset.Icc 1 N ) ) = Finset.filter ( fun x => Squarefree x ) ( Finset.Icc 1 N ) by
         ext
@@ -4833,7 +4844,6 @@ theorem SF_density : HasNaturalDensity SF (6 / Real.pi ^ 2) := by
     ]
     rw [ h_card ]
     ring_nf
-    norm_num [ hN.ne' ]
   -- We'll use the fact that $\sum_{d=1}^{\sqrt{N}} \frac{\mu(d)}{d^2} \left\lfloor \frac{N}{d^2} \right\rfloor$ is approximately $\frac{6}{\pi^2} N$.
   have h_sum_approx : Filter.Tendsto (fun N : ℕ => (∑ d ∈ Finset.Icc 1 (Nat.sqrt N), (ArithmeticFunction.moebius d : ℝ) / d ^ 2)) Filter.atTop (nhds (6 / Real.pi ^ 2)) := by
     convert sum_moebius_div_sq_tendsto.comp ( Filter.tendsto_atTop_atTop.mpr _ ) using 1
@@ -4850,8 +4860,8 @@ lemma card_filter_modEq_Icc (u L a m : ℕ) (hm : m > 0) :
   let I := Finset.Icc u (u + L - 1)
   let S := I.filter (fun x => x ≡ a [MOD m])
   abs ((S.card : ℝ) - (L : ℝ) / m) ≤ 2 := by
-    refine' abs_sub_le_iff.mpr ⟨ _, _ ⟩
-    · refine' le_trans ( sub_le_sub_right ( Nat.cast_le.mpr <| Finset.card_le_card <| show Finset.filter ( fun x => x ≡ a [MOD m] ) ( Finset.Icc u ( u + L - 1 ) ) ⊆ Finset.image ( fun k => m * k + a % m ) ( Finset.Icc ( u / m ) ( ( u + L - 1 ) / m ) ) from _ ) _ ) _
+    refine abs_sub_le_iff.mpr ⟨ ?_, ?_ ⟩
+    · refine le_trans ( sub_le_sub_right ( Nat.cast_le.mpr <| Finset.card_le_card <| show Finset.filter ( fun x => x ≡ a [MOD m] ) ( Finset.Icc u ( u + L - 1 ) ) ⊆ Finset.image ( fun k => m * k + a % m ) ( Finset.Icc ( u / m ) ( ( u + L - 1 ) / m ) ) from ?_ ) ((L : ℝ) / m) ) ?_
       · intro x hx
         simp_all +decide [ Nat.ModEq ]
         exact ⟨ x / m, ⟨ Nat.div_le_div_right hx.1.1, Nat.div_le_div_right hx.1.2 ⟩, by linarith [ Nat.mod_add_div x m ] ⟩
@@ -4901,10 +4911,10 @@ If A is a subset of a periodic set B with period M, then the upper density of A 
 lemma density_of_subset_periodic (A B : Set ℕ) (M : ℕ) (hM : M > 0) (hB_per : ∀ n, n ∈ B ↔ n + M ∈ B) (hsub : A ⊆ B) :
   upperDensity A ≤ ((B ∩ Set.Icc 1 M).ncard : ℝ) / M := by
     field_simp
-    refine' le_trans ( mul_le_mul_of_nonneg_right ( show upperDensity A ≤ upperDensity ( B ) from _ ) ( Nat.cast_nonneg _ ) ) _
+    refine le_trans ( mul_le_mul_of_nonneg_right ( show upperDensity A ≤ upperDensity ( B ) from ?_ ) ( Nat.cast_nonneg M ) ) ?_
     · apply_rules [ Filter.limsup_le_limsup ]
       · filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn using div_le_div_of_nonneg_right ( mod_cast Set.ncard_le_ncard <| Set.inter_subset_inter_left _ hsub ) <| Nat.cast_nonneg _
-      · refine' ⟨ 0, fun x hx => _ ⟩
+      · refine ⟨ 0, fun x hx => ?_ ⟩
         norm_num at *
         exact le_trans ( by positivity ) ( hx.choose_spec _ le_rfl ) |> le_trans <| by norm_num
       · use 1
@@ -4991,7 +5001,7 @@ lemma density_of_subset_periodic (A B : Set ℕ) (M : ℕ) (hM : M > 0) (hB_per 
                 · intro hx
                   use x - i * M
                   simp
-                  refine' ⟨ ⟨ _, _, _ ⟩, Nat.sub_add_cancel ( by linarith ) ⟩
+                  refine ⟨ ⟨ ?_, ?_, ?_ ⟩, Nat.sub_add_cancel ( by linarith ) ⟩
                   · induction i generalizing x with
                     | zero =>
                       norm_num at *
@@ -5014,11 +5024,10 @@ lemma density_of_subset_periodic (A B : Set ℕ) (M : ℕ) (hM : M > 0) (hB_per 
           field_simp
           rw [ sub_le_iff_le_add ]
           norm_cast ; nlinarith [ Nat.div_add_mod N M, Nat.mod_lt N hM, show ( B ∩ Set.Icc 1 M |> Set.ncard ) ≤ M from le_trans ( Set.ncard_le_ncard <| show B ∩ Set.Icc 1 M ⊆ Set.Icc 1 M from Set.inter_subset_right ) <| by simp +decide [ Set.ncard_eq_toFinset_card' ] ]
-        refine' tendsto_iff_norm_sub_tendsto_zero.mpr _
-        refine' squeeze_zero_norm' _ _
-        use fun n => ( M : ℝ ) / n + ( M : ℝ ) / n
+        refine tendsto_iff_norm_sub_tendsto_zero.mpr ?_
+        refine squeeze_zero_norm' (a := fun n : ℕ => ( M : ℝ ) / n + ( M : ℝ ) / n) ?_ ?_
         · norm_num +zetaDelta at *
-          refine' ⟨ M + 1, fun n hn => abs_sub_le_iff.mpr ⟨ _, _ ⟩ ⟩ <;> ring_nf at * <;> norm_num at *
+          refine ⟨ M + 1, fun n hn => abs_sub_le_iff.mpr ⟨ ?_, ?_ ⟩ ⟩ <;> ring_nf at * <;> norm_num at *
           · field_simp
             rw [ div_add', div_le_div_iff_of_pos_right ] <;> try norm_num ; linarith
             have := hB_card n
@@ -5055,7 +5064,7 @@ lemma prod_primes_inv_sq_tendsto : Filter.Tendsto (fun k => ∏ p ∈ Finset.fil
             rotate_right
             use fun p => 1 / ( 1 - 1 / ( p : ℝ ) ^ s )
             · simp +decide [ Set.mulIndicator ]
-            · refine' tprod_congr fun p => _
+            · refine tprod_congr fun p => ?_
               rw [ one_div, ← tsum_geometric_of_lt_one ( by positivity ) ]
               · norm_num [ Real.inv_rpow ( pow_nonneg ( Nat.cast_nonneg _ ) _ ) ]
                 norm_num [ ← Real.rpow_natCast, ← Real.rpow_mul ( Nat.cast_nonneg _ ), mul_comm ]
@@ -5085,7 +5094,7 @@ lemma prod_primes_inv_sq_tendsto : Filter.Tendsto (fun k => ∏ p ∈ Finset.fil
               rw [ Real.log_inv ]
               ring_nf
               nlinarith only [ Real.log_inv ( 1 - ( p : ℝ ) ⁻¹ ^ 2 ), Real.log_le_sub_one_of_pos ( inv_pos.mpr ( show 0 < 1 - ( p : ℝ ) ⁻¹ ^ 2 by exact sub_pos.mpr ( by simpa using inv_lt_one_of_one_lt₀ ( one_lt_pow₀ ( Nat.one_lt_cast.mpr hp.one_lt ) two_ne_zero ) ) ) ), inv_mul_cancel₀ ( show ( 1 - ( p : ℝ ) ⁻¹ ^ 2 ) ≠ 0 by exact ne_of_gt ( sub_pos.mpr ( by simpa using inv_lt_one_of_one_lt₀ ( one_lt_pow₀ ( Nat.one_lt_cast.mpr hp.one_lt ) two_ne_zero ) ) ) ), show ( p : ℝ ) ⁻¹ ^ 2 ≤ 1 / 4 by exact le_trans ( pow_le_pow_left₀ ( by positivity ) ( inv_anti₀ ( by norm_num ) ( Nat.cast_le.mpr hp.two_le ) ) 2 ) ( by norm_num ) ]
-            refine' Summable.of_nonneg_of_le ( fun p => _ ) ( fun p => _ ) ( Real.summable_nat_pow_inv.2 one_lt_two |> Summable.mul_left 2 )
+            refine Summable.of_nonneg_of_le ( fun p => ?_ ) ( fun p => ?_ ) ( Real.summable_nat_pow_inv.2 one_lt_two |> Summable.mul_left 2 )
             · split_ifs <;> first | positivity | exact Real.log_nonneg <| by rw [ inv_eq_one_div, le_div_iff₀ ] <;> nlinarith [ show ( p : ℝ ) ≥ 2 by exact_mod_cast Nat.Prime.two_le ‹_›, one_div_mul_cancel <| show ( p : ℝ ) ^ 2 ≠ 0 by exact pow_ne_zero 2 <| Nat.cast_ne_zero.mpr <| Nat.Prime.ne_zero ‹_› ]
             · aesop
           exact h_sum_log.congr fun p => by split_ifs <;> simp +decide [ * ]
@@ -5158,7 +5167,7 @@ lemma upperDensity_finite_diff (A B : Set ℕ) (h : (A \ B).Finite ∧ (B \ A).F
             intro x hx
             by_cases hxB : x ∈ B <;> aesop
           exact le_trans ( Set.ncard_le_ncard h_card_diff ) ( Set.ncard_union_le _ _ )
-        refine' mod_cast h_card_diff.trans ( add_le_add_right _ _ )
+        refine mod_cast h_card_diff.trans ( add_le_add_right ?_ (B ∩ Set.Icc 1 n).ncard )
         rw [ ← Set.ncard_coe_finset ]
         exact Set.ncard_le_ncard fun x hx => by aesop
       obtain ⟨C₂, hC₂⟩ : ∃ C₂ : ℕ, ∀ n : ℕ, ((B ∩ Set.Icc 1 n).ncard : ℝ) ≤ ((A ∩ Set.Icc 1 n).ncard : ℝ) + C₂ := by
@@ -5178,14 +5187,14 @@ lemma upperDensity_finite_diff (A B : Set ℕ) (h : (A \ B).Finite ∧ (B \ A).F
     intro ε hε
     obtain ⟨ C, hC ⟩ := h_card_diff
     use ⌈ε⁻¹ * ( C + 1 ) ⌉₊ + 1; intro n hn; rw [ abs_lt ] ; constructor <;> nlinarith [ Nat.le_ceil ( ε⁻¹ * ( C + 1 ) ), mul_inv_cancel₀ hε.ne', show ( n : ℝ ) ≥ ⌈ε⁻¹ * ( C + 1 ) ⌉₊ + 1 by exact_mod_cast hn, hC n, div_mul_cancel₀ ( ( A ∩ Set.Icc 1 n |> Set.ncard : ℝ ) : ℝ ) ( show ( n : ℝ ) ≠ 0 by norm_cast; linarith ), div_mul_cancel₀ ( ( B ∩ Set.Icc 1 n |> Set.ncard : ℝ ) : ℝ ) ( show ( n : ℝ ) ≠ 0 by norm_cast; linarith ) ]
-  refine' le_antisymm _ _ <;> rw [ upperDensity ]
-  · refine' le_csInf _ _
-    · refine' ⟨ 1, _ ⟩
+  refine le_antisymm ?_ ?_ <;> rw [ upperDensity ]
+  · refine le_csInf ?_ ?_
+    · refine ⟨ 1, ?_ ⟩
       norm_num
       exact ⟨ 1, fun n hn => div_le_one_of_le₀ ( mod_cast le_trans ( Set.ncard_le_ncard ( show B ∩ Set.Icc 1 n ⊆ Set.Icc 1 n from Set.inter_subset_right ) ) ( by simp +decide [ Set.ncard_eq_toFinset_card' ] ) ) ( by positivity ) ⟩
     · intro b hb
-      refine' le_of_forall_pos_le_add fun ε ε_pos => _
-      refine' csInf_le _ _
+      refine le_of_forall_pos_le_add fun ε ε_pos => ?_
+      refine csInf_le ?_ ?_
       · exact ⟨ 0, fun x hx => by rcases Filter.eventually_atTop.mp hx with ⟨ N, hN ⟩ ; exact le_trans ( by positivity ) ( hN _ le_rfl ) ⟩
       · simp only at hb
         obtain ⟨ N, hN ⟩ := h_prop ε ε_pos
@@ -5196,11 +5205,11 @@ lemma upperDensity_finite_diff (A B : Set ℕ) (h : (A \ B).Finite ∧ (B \ A).F
           have := hM n ( le_trans ( le_max_right _ _ ) hn )
           simp at *
           linarith ⟩
-  · refine' le_csInf _ _ <;> norm_num
+  · refine le_csInf ?_ ?_ <;> norm_num
     · exact ⟨ 1, ⟨ 1, fun n hn => by rw [ div_le_iff₀ ] <;> norm_cast ; linarith [ show Set.ncard ( A ∩ Set.Icc 1 n ) ≤ n by exact le_trans ( Set.ncard_le_ncard <| Set.inter_subset_right ) <| by norm_num [ Set.ncard_eq_toFinset_card' ] ] ⟩ ⟩
     · intro b x hx
-      refine' le_of_forall_pos_le_add fun ε ε_pos => _
-      refine' csInf_le _ _ <;> norm_num
+      refine le_of_forall_pos_le_add fun ε ε_pos => ?_
+      refine csInf_le ?_ ?_ <;> norm_num
       · exact ⟨ 0, by rintro _ ⟨ N, hN ⟩ ; exact le_trans ( by positivity ) ( hN _ le_rfl ) ⟩
       · obtain ⟨ N, hN ⟩ := h_prop ε ε_pos
         exact ⟨ Max.max x N, fun n hn => by linarith [ abs_lt.mp ( hN n ( le_trans ( le_max_right _ _ ) hn ) ), hx n ( le_trans ( le_max_left _ _ ) hn ) ] ⟩
@@ -5216,7 +5225,7 @@ lemma density_of_coprime_mod_sieve (S : Finset ℕ) (hS : ∀ p ∈ S, Nat.Prime
     M > 0 ∧
     (∀ n, n ∈ B ↔ n + M ∈ B) ∧
     ((B ∩ Set.Icc 1 M).ncard : ℝ) / M = ∏ p ∈ S, ((R p).card : ℝ) / p^2 := by
-      refine' ⟨ Finset.prod_pos fun p hp => pow_pos ( Nat.Prime.pos ( hS p hp ) ) _, _, _ ⟩
+      refine ⟨ Finset.prod_pos fun p hp => pow_pos ( Nat.Prime.pos ( hS p hp ) ) 2, ?_, ?_ ⟩
       · simp +zetaDelta at *
         intro n
         congr! 2
@@ -5230,7 +5239,7 @@ lemma density_of_coprime_mod_sieve (S : Finset ℕ) (hS : ∀ p ∈ S, Nat.Prime
             have h_crt : ∀ (a b : ℕ), Nat.Coprime a b → ∀ (A : Finset ℕ), A ⊆ Finset.range a → ∀ (B : Finset ℕ), B ⊆ Finset.range b → Finset.card (Finset.filter (fun n => n % a ∈ A ∧ n % b ∈ B) (Finset.range (a * b))) = Finset.card A * Finset.card B := by
               intros a b hab A hA B hB
               have h_crt : Finset.card (Finset.filter (fun n => n % a ∈ A ∧ n % b ∈ B) (Finset.range (a * b))) = Finset.card (Finset.product A B) := by
-                refine' Finset.card_bij ( fun n hn => ( n % a, n % b ) ) _ _ _
+                refine Finset.card_bij ( fun n hn => ( n % a, n % b ) ) ?_ ?_ ?_
                 · aesop
                 · simp +zetaDelta at *
                   intro a₁ ha₁ ha₂ ha₃ a₂ ha₄ ha₅ ha₆ ha₇ ha₈
@@ -5254,10 +5263,14 @@ lemma density_of_coprime_mod_sieve (S : Finset ℕ) (hS : ∀ p ∈ S, Nat.Prime
             simp_all +decide [Finset.prod_insert]
             convert h_crt ( p ^ 2 ) ( ∏ p ∈ S, p ^ 2 ) _ ( R p ) hR.1 ( Finset.filter ( fun n => ∀ p ∈ S, n % p ^ 2 ∈ R p ) ( Finset.range ( ∏ p ∈ S, p ^ 2 ) ) ) _ using 1
             · congr! 2
-              ext
+              ext x
               simp +decide
               intro hx
-              refine' ⟨ fun h => ⟨ Nat.mod_lt _ ( Finset.prod_pos fun q hq => pow_pos ( Nat.Prime.pos ( hS.2 q hq ) ) 2 ), fun q hq => _ ⟩, fun h => _ ⟩ <;> simp_all +decide [ Nat.mod_mod_of_dvd _ ( Finset.dvd_prod_of_mem _ _ ) ]
+              refine ⟨ fun h => ?_, fun h => ?_ ⟩
+              · refine ⟨ Nat.mod_lt x ( Finset.prod_pos fun q hq => pow_pos ( Nat.Prime.pos ( hS.2 q hq ) ) 2 ), fun q hq => ?_ ⟩
+                simpa [ Nat.mod_mod_of_dvd x ( Finset.dvd_prod_of_mem (fun q : ℕ => q ^ 2) hq ) ] using h q hq
+              · intro q hq
+                simpa [ Nat.mod_mod_of_dvd x ( Finset.dvd_prod_of_mem (fun q : ℕ => q ^ 2) hq ) ] using h.2 q hq
             · rw [ ih ]
             · exact Nat.Coprime.prod_right fun q hq => Nat.Coprime.pow _ _ <| hS.1.coprime_iff_not_dvd.mpr fun h => ‹p ∉ S› <| by have := Nat.prime_dvd_prime_iff_eq hS.1 ( hS.2 q hq ) ; aesop
             · exact Finset.filter_subset _ _
@@ -5296,7 +5309,7 @@ lemma sieve_finite_bound (A : Set ℕ) (C K : ℕ) (hK : K > C)
         obtain ⟨R, hR⟩ : ∃ R : ℕ → Finset ℕ, (∀ p ∈ S, R p ⊆ Finset.range (p^2)) ∧ (∀ p ∈ S, (R p).card = if p ≤ C then p^2 - 1 else p^2 - 2) ∧ A ⊆ {n : ℕ | ∀ p ∈ S, n % p^2 ∈ R p} := by
           choose! b hb₁ hb₂ using h1
           choose! b1 b2 hb3 hb4 hb5 hb6 hb7 using h2
-          refine' ⟨ fun p => if p ≤ C then Finset.range ( p ^ 2 ) \ { b p } else Finset.range ( p ^ 2 ) \ { b1 p, b2 p }, _, _, _ ⟩ <;> simp_all +decide
+          refine ⟨ fun p => if p ≤ C then Finset.range ( p ^ 2 ) \ { b p } else Finset.range ( p ^ 2 ) \ { b1 p, b2 p }, ?_, ?_, ?_ ⟩ <;> simp_all +decide
           · intro p hp₁ hp₂ hp₃
             split_ifs
             all_goals
@@ -5311,20 +5324,20 @@ lemma sieve_finite_bound (A : Set ℕ) (C K : ℕ) (hK : K > C)
               simp_all +decide [ Finset.mem_sdiff, Finset.mem_singleton ]
             · exact Nat.mod_lt _ ( by positivity )
             · exact Nat.mod_lt _ ( by positivity )
-        refine' ⟨ { n | ∀ p ∈ S, n % p ^ 2 ∈ R p }, hR.2.2, ∏ p ∈ S, p ^ 2, _, _, _ ⟩
+        refine ⟨ { n | ∀ p ∈ S, n % p ^ 2 ∈ R p }, hR.2.2, ∏ p ∈ S, p ^ 2, ?_, ?_, ?_ ⟩
         · exact Finset.prod_pos fun p hp => pow_pos ( Nat.Prime.pos ( Finset.mem_filter.mp hp |>.2 ) ) 2
         · simp +decide [ Nat.add_mod ]
           intro n
-          refine' forall₂_congr fun p hp => _
+          refine forall₂_congr fun p hp => ?_
           simp +decide [ Nat.mod_eq_zero_of_dvd ( Finset.dvd_prod_of_mem _ hp ) ]
         · convert density_of_coprime_mod_sieve S ( fun p hp => Finset.mem_filter.mp hp |>.2 ) R ( fun p hp => hR.1 p hp ) |> And.right |> And.right using 1
-          refine' Finset.prod_congr rfl fun p hp => _
+          refine Finset.prod_congr rfl fun p hp => ?_
           rw [ hR.2.1 p hp ]
           split_ifs <;> norm_num [ Nat.cast_sub ( show 1 ≤ p ^ 2 from pow_pos ( Nat.Prime.pos ( Finset.mem_filter.mp hp |>.2 ) ) 2 ), Nat.cast_sub ( show 2 ≤ p ^ 2 from by nlinarith only [ Nat.Prime.two_le ( Finset.mem_filter.mp hp |>.2 ) ] ) ] ; ring_nf
           · norm_num [ Nat.Prime.ne_zero ( Finset.mem_filter.mp hp |>.2 ) ]
           · rw [ sub_div, div_self ( by norm_cast; nlinarith only [ Nat.Prime.two_le ( Finset.mem_filter.mp hp |>.2 ) ] ) ]
       obtain ⟨ M, hM₁, hM₂, hM₃ ⟩ := hB.2
-      refine' le_trans ( density_of_subset_periodic A B M hM₁ hM₂ hB.1 ) _
+      refine le_trans ( density_of_subset_periodic A B M hM₁ hM₂ hB.1 ) ?_
       convert hM₃.le using 1
       rw [ show ( Finset.filter Nat.Prime ( Finset.Icc 1 K ) ) = Finset.filter Nat.Prime ( Finset.Icc 1 C ) ∪ Finset.filter Nat.Prime ( Finset.Icc ( C + 1 ) K ) from ?_, Finset.prod_union ]
       · exact congrArg₂ _ ( Finset.prod_congr rfl fun x hx => by rw [ if_pos ( Finset.mem_Icc.mp ( Finset.mem_filter.mp hx |>.1 ) |>.2 ) ] ) ( Finset.prod_congr rfl fun x hx => by rw [ if_neg ( by linarith [ Finset.mem_Icc.mp ( Finset.mem_filter.mp hx |>.1 ) |>.1 ] ) ] )
@@ -5365,7 +5378,7 @@ lemma prod_inequality (C : ℕ) :
               rw [ abs_of_nonpos ( Real.log_nonpos ( by linarith ) ( by linarith ) ) ]
               nlinarith [ Real.log_inv ( 1 - x ), Real.log_le_sub_one_of_pos ( inv_pos.mpr ( by linarith : 0 < 1 - x ) ), mul_inv_cancel₀ ( by linarith : ( 1 - x ) ≠ 0 ) ]
             convert h_log_bound ( 2 / ( p : ℝ ) ^ 2 ) ⟨ by exact div_pos zero_lt_two ( sq_pos_of_pos ( Nat.cast_pos.mpr hp.pos ) ), by rw [ div_le_div_iff₀ ] <;> norm_cast <;> nlinarith [ hp.two_le ] ⟩ using 1 ; ring
-          refine' Summable.of_nonneg_of_le ( fun p => _ ) ( fun p => _ ) ( Summable.mul_left 4 <| Real.summable_nat_pow_inv.2 one_lt_two )
+          refine Summable.of_nonneg_of_le ( fun p => ?_ ) ( fun p => ?_ ) ( Summable.mul_left 4 <| Real.summable_nat_pow_inv.2 one_lt_two )
           · positivity
           · split_ifs <;> [ exact h_log_bound p ( by tauto ) ( by tauto ) ; exact by positivity ]
         exact Summable.of_norm <| h_abs_conv.congr fun p => by split_ifs <;> norm_num
@@ -5423,7 +5436,7 @@ lemma sieve_strict_bound (A : Set ℕ) (C : ℕ)
     (h2 : ∀ p, Nat.Prime p → p > C → ∃ b1 b2, b1 < p^2 ∧ b2 < p^2 ∧ b1 ≠ b2 ∧ (∀ a ∈ A, a % p^2 ≠ b1) ∧ (∀ a ∈ A, a % p^2 ≠ b2)) :
     upperDensity A < 6 / Real.pi^2 := by
       have h_limit : Filter.Tendsto (fun K => (∏ p ∈ Finset.filter Nat.Prime (Finset.Icc 1 C), (1 - 1 / (p : ℝ)^2)) * (∏ p ∈ Finset.filter Nat.Prime (Finset.Icc (C + 1) K), (1 - 2 / (p : ℝ)^2))) Filter.atTop (nhds ((∏ p ∈ Finset.filter Nat.Prime (Finset.Icc 1 C), (1 - 1 / (p : ℝ)^2)) * (∏' p : ℕ, if Nat.Prime p ∧ p > C then (1 - 2 / (p : ℝ)^2) else 1))) := by
-        refine' Filter.Tendsto.mul tendsto_const_nhds _
+        refine Filter.Tendsto.mul tendsto_const_nhds ?_
         have h_partial_prod : Filter.Tendsto (fun K => ∏ p ∈ Finset.filter (fun p => Nat.Prime p ∧ p > C) (Finset.range (K + 1)), (1 - 2 / (p : ℝ)^2)) Filter.atTop (nhds (∏' p : ℕ, if Nat.Prime p ∧ p > C then (1 - 2 / (p : ℝ)^2) else 1)) := by
           have h_partial_prod : Filter.Tendsto (fun K => ∏ p ∈ Finset.range (K + 1), (if Nat.Prime p ∧ p > C then (1 - 2 / (p : ℝ)^2) else 1)) Filter.atTop (nhds (∏' p : ℕ, (if Nat.Prime p ∧ p > C then (1 - 2 / (p : ℝ)^2) else 1))) := by
             have h_limit : Multipliable (fun p : ℕ => if Nat.Prime p ∧ p > C then (1 - 2 / (p : ℝ)^2) else 1) := by
@@ -5447,7 +5460,7 @@ lemma sieve_strict_bound (A : Set ℕ) (C : ℕ)
                 convert h_prod_conv using 2
                 aesop
               have h_abs_conv : Multipliable (fun p : ℕ => Real.exp (Real.log (if Nat.Prime p ∧ p > C then (1 - 2 / (p : ℝ)^2) else 1))) := by
-                refine' ⟨ _, _ ⟩
+                refine ⟨ ?_, ?_ ⟩
                 exact Real.exp ( ∑' p : ℕ, Real.log ( if Nat.Prime p ∧ p > C then 1 - 2 / ( p : ℝ ) ^ 2 else 1 ) )
                 convert h_abs_conv.of_abs.hasSum.exp using 1 <;>
                 first | rfl | infer_instance | (ext; simp only [Function.comp_apply, Real.exp_eq_exp_ℝ]) | simp +decide [ Real.exp_eq_exp_ℝ ]
@@ -5475,12 +5488,12 @@ lemma sieve_strict_bound (A : Set ℕ) (C : ℕ)
               rw [ ← Multipliable.tprod_mul ]
               · congr with p
                 by_cases hp : Nat.Prime p <;> by_cases hp' : p ≤ C <;> simp +decide [ hp, hp' ]
-              · refine' multipliable_of_ne_finset_one _
-                exacts [ Finset.range ( C + 1 ), fun p hp => if_neg fun h => hp <| Finset.mem_range.mpr <| by linarith ]
+              · refine multipliable_of_ne_finset_one (s := Finset.range ( C + 1 )) ?_
+                exact fun p hp => if_neg fun h => hp <| Finset.mem_range.mpr <| by linarith
               · have h_prod_conv : Summable (fun p : ℕ => if Nat.Prime p ∧ p > C then (1 / (p : ℝ)^2) else 0) := by
                   exact Summable.of_nonneg_of_le ( fun p => by positivity ) ( fun p => by aesop ) ( Real.summable_one_div_nat_pow.2 one_lt_two )
                 have h_prod_conv : Multipliable (fun p : ℕ => 1 - (if Nat.Prime p ∧ p > C then (1 / (p : ℝ)^2) else 0)) := by
-                  refine' multipliable_one_add_of_summable _
+                  refine multipliable_one_add_of_summable ?_
                   exact h_prod_conv.norm.congr fun n => by split_ifs <;> norm_num
                 convert h_prod_conv using 2
                 aesop
@@ -5496,14 +5509,14 @@ lemma sieve_strict_bound (A : Set ℕ) (C : ℕ)
             have h_prod : Summable (fun p : ℕ => if Nat.Prime p then (1 / (p : ℝ)^2) else 0) := by
               exact Summable.of_nonneg_of_le ( fun p => by positivity ) ( fun p => by aesop ) ( Real.summable_one_div_nat_pow.2 one_lt_two )
             have h_prod : Multipliable (fun p : ℕ => 1 - (if Nat.Prime p then (1 / (p : ℝ)^2) else 0)) := by
-              refine' multipliable_one_add_of_summable _
+              refine multipliable_one_add_of_summable ?_
               exact h_prod.norm.congr fun _ => by split_ifs <;> norm_num
             convert h_prod using 2
             aesop
           convert h_prod.hasProd.tendsto_prod_nat using 1
           exact funext fun n => by rw [ Finset.prod_filter ]
         linarith
-      refine' lt_of_le_of_lt _ h_limit
+      refine lt_of_le_of_lt ?_ h_limit
       exact le_of_tendsto_of_tendsto tendsto_const_nhds ‹_› ( Filter.eventually_atTop.mpr ⟨ C + 1, fun K hK => sieve_finite_bound A C K ( by linarith ) h1 h2 ⟩ )
 
 open Finset Filter Asymptotics
@@ -5521,7 +5534,7 @@ lemma sum_log_primes_eq_theta (x : ℝ) (hx : 0 ≤ x) :
 lemma theta_bound_chebyshev :
     (fun x => ∑ p ∈ Finset.filter (fun p => Nat.Prime p ∧ (p : ℝ) ≤ x)
       (Finset.range (Nat.floor x + 1)), Real.log p) =O[atTop] (fun x => x) := by
-  refine' Asymptotics.IsBigO.of_bound ( Real.log 4 ) _
+  refine Asymptotics.IsBigO.of_bound ( Real.log 4 ) ?_
   filter_upwards [ Filter.eventually_ge_atTop 0 ] with x hx using by rw [ Real.norm_of_nonneg ( Finset.sum_nonneg fun _ _ => Real.log_nonneg <| mod_cast Nat.Prime.pos <| by aesop ) ] ; rw [ Real.norm_of_nonneg hx ] ; exact sum_log_primes_eq_theta x hx ▸ Chebyshev.theta_le_log4_mul_x hx
 
 /-- The number of primes up to y, as a real, is O(y / log y). -/
@@ -5540,7 +5553,7 @@ lemma sum_primes_le_y_bound :
       (∑ p ∈ (Finset.range (Nat.floor y + 1)).filter (fun p => Nat.Prime p ∧ (p : ℝ) ≤ y),
         (p : ℝ)) ≤ (Real.log 4 + 1) * y ^ 2 / Real.log y := by
   filter_upwards [ Filter.eventually_gt_atTop 1, pi_le_const_mul_div_log ] with y hy₁ hy₂
-  refine' le_trans ( Finset.sum_le_sum fun i hi => show ( i : ℝ ) ≤ y from _ ) _
+  refine le_trans ( Finset.sum_le_sum fun i hi => show ( i : ℝ ) ≤ y from ?_ ) ?_
   · aesop
   · convert mul_le_mul_of_nonneg_left hy₂ ( show 0 ≤ y by positivity ) using 1 ; ring_nf
     · norm_num [ add_comm, mul_comm ]
@@ -5570,14 +5583,14 @@ lemma error_term_small_chebyshev :
           exact this.filter_mono ( show Filter.Tendsto ( fun x : ℝ => Real.sqrt ( 2 * x ) ) Filter.atTop Filter.atTop from Filter.tendsto_atTop_atTop.mpr fun x => ⟨ x ^ 2 / 2, fun y hy => Real.le_sqrt_of_sq_le <| by linarith ⟩ )
         filter_upwards [ h_sum_bound ] with x hx using le_trans ( Finset.sum_le_sum_of_subset_of_nonneg ( fun p hp => by aesop ) fun _ _ _ => Nat.cast_nonneg _ ) hx
       filter_upwards [ h_sum_bound ] with x hx
-      refine' le_trans _ ( mul_le_mul_of_nonneg_right hx <| le_of_lt h_bound.choose_spec.1 )
+      refine le_trans ?_ ( mul_le_mul_of_nonneg_right hx <| le_of_lt h_bound.choose_spec.1 )
       rw [ Finset.sum_mul _ _ _ ]
       exact Finset.sum_le_sum fun p hp => by simpa only [ mul_comm ] using h_bound.choose_spec.2 p ( Finset.mem_filter.mp hp |>.2.1 ) ( Finset.mem_filter.mp hp |>.2.2.2 )
     filter_upwards [ h_sum_bound, Filter.eventually_gt_atTop 256 ] with x hx₁ hx₂
     rw [ show ( Finset.filter ( fun p : ℕ => Nat.Prime p ∧ ( p : ℝ ) ≤ Real.sqrt ( 2 * x ) ) ( Finset.range ( ⌊Real.sqrt ( 2 * x ) ⌋₊ + 1 ) ) ) = Finset.filter ( fun p : ℕ => Nat.Prime p ∧ ( p : ℝ ) ≤ Real.sqrt ( 2 * x ) ∧ p ≥ 16 ) ( Finset.range ( ⌊Real.sqrt ( 2 * x ) ⌋₊ + 1 ) ) ∪ Finset.filter ( fun p : ℕ => Nat.Prime p ∧ ( p : ℝ ) ≤ Real.sqrt ( 2 * x ) ∧ p < 16 ) ( Finset.range ( ⌊Real.sqrt ( 2 * x ) ⌋₊ + 1 ) ) from ?_, Finset.sum_union ]
-    · refine' add_le_add hx₁ _
-      refine' le_trans ( Finset.sum_le_sum_of_subset_of_nonneg _ _ ) _
-      exact Finset.filter Nat.Prime ( Finset.range 16 )
+    · refine add_le_add hx₁ ?_
+      refine le_trans ( Finset.sum_le_sum_of_subset_of_nonneg
+        (t := Finset.filter Nat.Prime ( Finset.range 16 )) ?_ ?_ ) ?_
       · grind
       · exact fun _ _ _ => div_nonneg ( Nat.cast_nonneg _ ) ( sq_nonneg _ )
       · norm_num [ Finset.sum_filter, Finset.sum_range_succ ]
@@ -5595,7 +5608,7 @@ lemma error_term_small_chebyshev :
       refine h_simplify'.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx using by rw [ eq_div_iff hx.ne' ] ; ring )
     exact tendsto_const_nhds.div_atTop ( Real.tendsto_log_atTop.comp <| Filter.tendsto_atTop_atTop.mpr fun x => ⟨ x ^ 2 / 2, fun y hy => Real.le_sqrt_of_sq_le <| by linarith ⟩ )
   rw [ Asymptotics.isLittleO_iff_tendsto' ]
-  · refine' squeeze_zero_norm' _ h_simplify
+  · refine squeeze_zero_norm' ?_ h_simplify
     filter_upwards [ h_sum_bound, Filter.eventually_gt_atTop 0 ] with x hx₁ hx₂ using by rw [ Real.norm_of_nonneg ( div_nonneg ( Finset.sum_nonneg fun _ _ => div_nonneg ( Nat.cast_nonneg _ ) ( sq_nonneg _ ) ) hx₂.le ) ] ; exact div_le_div_of_nonneg_right hx₁ hx₂.le
   · filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx hx' using absurd hx' hx.ne'
 
@@ -5623,7 +5636,7 @@ The series ∑_{n≥3} 1/(n·(log n)²) is summable (bounded by 1/log 2).
 -/
 lemma summable_inv_mul_log_sq :
     Summable (fun n : ℕ => if 3 ≤ n then 1 / ((n : ℝ) * (Real.log n)^2) else 0) := by
-  refine' summable_nat_add_iff 3 |>.1 _
+  refine summable_nat_add_iff 3 |>.1 ?_
   -- Apply the integral test to show that the series converges.
   have h_integral_test : Summable (fun n : ℕ => ∫ x in (n + 3 : ℝ)..((n + 4) : ℝ), 1 / (x * (Real.log x)^2)) := by
     -- Evaluate the integral $\int_{n+3}^{n+4} \frac{dx}{x (\ln x)^2}$.
@@ -5654,7 +5667,7 @@ lemma summable_inv_mul_log_sq :
     have h_integral_bound : ∀ x ∈ Set.Icc (n + 3 : ℝ) (n + 4 : ℝ), 1 / (x * (Real.log x)^2) ≥ 1 / ((n + 4 : ℝ) * (Real.log (n + 4))^2) := by
       simp +zetaDelta at *
       bound
-    refine' le_trans _ ( intervalIntegral.integral_mono_on _ _ _ h_integral_bound ) <;> norm_num
+    refine le_trans ?_ ( intervalIntegral.integral_mono_on ?_ ?_ ?_ h_integral_bound ) <;> norm_num
     apply_rules [ ContinuousOn.intervalIntegrable ]
     exact continuousOn_of_forall_continuousAt fun x hx => ContinuousAt.mul ( ContinuousAt.inv₀ ( ContinuousAt.pow ( Real.continuousAt_log ( by cases Set.mem_uIcc.mp hx <;> linarith ) ) _ ) ( ne_of_gt ( sq_pos_of_pos ( Real.log_pos ( by cases Set.mem_uIcc.mp hx <;> linarith ) ) ) ) ) ( ContinuousAt.inv₀ ( continuousAt_id ) ( ne_of_gt ( by cases Set.mem_uIcc.mp hx <;> linarith ) ) )
   exact summable_nat_add_iff 1 |>.1 <| h_integral_test.of_nonneg_of_le ( fun n => by positivity ) fun n => by exact_mod_cast h_integral_bound n
@@ -5706,7 +5719,7 @@ lemma tail_sum_bound_chebyshev :
       · grind
       · grind
     · exact Summable.of_nonneg_of_le ( fun n => by positivity ) ( fun n => by split_ifs <;> first | positivity | aesop ) h_summable
-  · refine' tendsto_const_nhds.congr' _
+  · refine tendsto_const_nhds.congr' ?_
     filter_upwards [ Filter.eventually_gt_atTop 1 ] with P hP
     rw [ tsum_eq_zero_of_not_summable ]
     rw [ ← summable_nat_add_iff ( P + 1 ) ] at *
@@ -5723,11 +5736,12 @@ lemma chebyshev_pi_bound_concrete :
   have := Chebyshev.eventually_primeCounting_le hεpos
   rw [ Filter.eventually_atTop ] at this
   rcases this with ⟨ N₀, hN₀ ⟩
-  refine' ⟨ ⌈N₀⌉₊ + 1, fun N hN ↦ _ ⟩
-  specialize hN₀ N ( Nat.le_of_ceil_le <| by linarith )
-  simp_all +decide [ Nat.primeCounting ]
-  convert hN₀ using 1
-  rw [ Nat.primeCounting', Nat.count_eq_card_filter_range ]
+  refine ⟨ ⌈N₀⌉₊ + 1, ?_ ⟩
+  intro N hN
+  have hceil : ⌈N₀⌉₊ ≤ N := by omega
+  have hN₀N : N₀ ≤ (N : ℝ) := Nat.le_of_ceil_le hceil
+  simpa [ε, Nat.primeCounting, Nat.primeCounting', Nat.count_eq_card_filter_range]
+    using hN₀ (N : ℝ) hN₀N
 
 /-- For k ≥ 8, log(k * log 2) ≥ (log k)/2. -/
 lemma log_k_log2_ge_half_logk (k : ℕ) (hk : k ≥ 8) :
@@ -5777,7 +5791,7 @@ lemma block_sum_bound (k : ℕ) (hk : k ≥ 8) (N₀ : ℕ)
     intro p hp
     convert term_bound_in_block p k hk ( Finset.mem_Ico.mp ( Finset.mem_filter.mp hp |>.1 ) |>.1 ) using 1
   have h_prime_count : (Finset.filter Nat.Prime (Finset.Ico (2^k) (2^(k+1)))).card ≤ (Real.log 4 + 1) * 2^(k+1) / ((k+1) * Real.log 2) := by
-    refine' le_trans _ ( le_trans ( hcheb _ hk_large ) _ )
+    refine le_trans ?_ ( le_trans ( hcheb (2 ^ (k + 1)) hk_large ) ?_ )
     · exact_mod_cast Finset.card_mono <| Finset.filter_subset_filter _ <| Finset.subset_iff.mpr fun x hx => Finset.mem_range.mpr <| by linarith [ Finset.mem_Ico.mp hx ]
     · norm_num [ Real.log_pow ]
   refine le_trans ( Finset.sum_le_sum h_term_bound ) ?_
@@ -5844,7 +5858,7 @@ The tail sum (with p > P condition) is summable for any P.
 theorem tail_summable_from_chebyshev (P : ℕ) :
     Summable (fun p : ℕ => if p > P ∧ Nat.Prime p then
       1 / ((p : ℝ) * (Real.log (Real.log p))^2) else 0) := by
-  refine' .of_nonneg_of_le ( fun p => _ ) ( fun p => _ ) ( prime_loglog_summable )
+  refine .of_nonneg_of_le ( fun p => ?_ ) ( fun p => ?_ ) ( prime_loglog_summable )
   · positivity
   · split_ifs <;> norm_num ; aesop
     positivity
@@ -6002,8 +6016,11 @@ The sum over relevant primes is bounded by the tail value.
 -/
 lemma sum_subset_le_tail (P : ℕ) (x : ℝ) (assumps : SieveAssumptions) :
   ∑ p ∈ relevant_primes P x, 1 / ((p : ℝ) * (Real.log (Real.log p))^2) ≤ tail_val P := by
-    refine' le_trans _ ( Summable.sum_le_tsum _ _ _ )
-    refine' Finset.sum_le_sum fun p hp => _
+    refine le_trans
+      (b := ∑ p ∈ relevant_primes P x,
+        if p > P ∧ Nat.Prime p then 1 / ((p : ℝ) * (Real.log (Real.log p))^2) else 0)
+      ?_ ( Summable.sum_le_tsum (relevant_primes P x) ?_ ?_ )
+    refine Finset.sum_le_sum fun p hp => ?_
     · unfold relevant_primes at hp
       aesop
     · intro i hi
@@ -6026,7 +6043,7 @@ lemma sum_S2_is_littleO (P : ℕ):
     -- By definition of `sum_S2`, we have `sum_S2 P x ≤ ∑ p ∈ relevant_primes P x, p / (Real.log (Real.log p))^2`.
     have h_sum_S2_le : ∀ x : ℝ, sum_S2 P x ≤ ∑ p ∈ relevant_primes P x, (p : ℝ) / (Real.log (Real.log p))^2 := by
       intro x
-      refine' Finset.sum_le_sum fun p hp => _
+      refine Finset.sum_le_sum fun p hp => ?_
       exact Nat.floor_le ( div_nonneg ( Nat.cast_nonneg _ ) ( sq_nonneg _ ) )
     -- The sum over relevant primes is bounded by the sum over all primes $p \le \sqrt{2x}$ by definition of `relevant_primes`.
     have h_relevant_primes_le_all_primes : ∀ x : ℝ, ∑ p ∈ relevant_primes P x, (p : ℝ) / (Real.log (Real.log p))^2 ≤ ∑ p ∈ Finset.filter (fun p => Nat.Prime p ∧ (p : ℝ) ≤ Real.sqrt (2 * x)) (Finset.range (Nat.floor (Real.sqrt (2 * x)) + 1)), (p : ℝ) / (Real.log (Real.log p))^2 := by
@@ -6055,7 +6072,7 @@ lemma bad_n_card_bound (P : ℕ) (x : ℝ) (W : ℕ) (hW : W > 0)
   (bad_n_total P x W).card ≤ (L_x x : ℝ) / W * (sum_S1 P x) + 2 * (sum_S2 P x) := by
     -- The cardinality of the union is at most the sum of cardinalities.
     have h_union_card : ((bad_n_total P x W).card : ℝ) ≤ ∑ p ∈ (relevant_primes P x), ∑ a ∈ (Finset.Icc 1 (a_bound p)), ((bad_n_for_pair x W p a).card : ℝ) := by
-      refine' mod_cast le_trans ( Finset.card_biUnion_le ) _
+      refine mod_cast le_trans ( Finset.card_biUnion_le ) ?_
       erw [ Finset.sum_biUnion ]
       · exact Finset.sum_le_sum fun p hp => by
           rw [ Finset.sum_image ]
@@ -6122,8 +6139,8 @@ lemma large_P_bound_satisfied (assumps : SieveAssumptions) :
         -- Choose x₀ such that for all x ≥ x₀, (L_x x : ℝ) / W_P P > 8.
         obtain ⟨x₁, hx₁⟩ : ∃ x₁ : ℝ, ∀ x ≥ x₁, (L_x x : ℝ) / W_P P > 8 := by
           have hL_x_growth : Filter.Tendsto (fun x => (L_x x : ℝ)) Filter.atTop Filter.atTop := by
-            refine' tendsto_natCast_atTop_atTop.comp _
-            refine' Filter.tendsto_atTop_atTop.mpr _
+            refine tendsto_natCast_atTop_atTop.comp ?_
+            refine Filter.tendsto_atTop_atTop.mpr ?_
             intro b
             use 2 * b + 2
             intro a ha
@@ -6303,7 +6320,7 @@ lemma lemma_largeP (assumps : SieveAssumptions) :
     (∀ p, Nat.Prime p → p ≤ P → n % p^2 = 0) ∧
     (∀ p, Nat.Prime p → p > P → ∀ (a : ℕ), 1 ≤ a → (a : ℝ) ≤ (p : ℝ) / (Real.log (Real.log p))^2 → (n + a) % p^2 ≠ 0) := by
       obtain ⟨ P₀, hP₀ ⟩ := large_P_bound_satisfied assumps
-      refine' ⟨ P₀ + 3, by linarith, fun P hP M => _ ⟩
+      refine ⟨ P₀ + 3, by linarith, fun P hP M => ?_ ⟩
       obtain ⟨ x₀, hx₀ ⟩ := hP₀ P ( by linarith )
       -- Choose $x$ large enough such that $x \geq \max(x₀, \max(200, 2M))$.
       obtain ⟨ x, hx₁, hx₂ ⟩ : ∃ x : ℝ, x ≥ x₀ ∧ x ≥ 200 ∧ x ≥ 2 * M := by
@@ -6358,7 +6375,7 @@ lemma p_bound_lemma_v2 (x : ℝ) (hx : x ≥ 100) (p : ℕ) (a : ℕ) (ha : a �
         have h_log_bound : Real.log (Real.log (4 * x * (Real.log (Real.log x))^2)) ≤ Real.log (Real.log x) + Real.log 4 := by
           rw [ ← Real.log_mul ( by exact ne_of_gt <| Real.log_pos <| by linarith ) ( by positivity ) ]
           gcongr
-          · refine' Real.log_pos _
+          · refine Real.log_pos ?_
             -- Since $x \geq 100$, we have $\log x \geq \log 100 = 2 \log 10$. Therefore, $\log (\log x) \geq \log (2 \log 10)$.
             have h_log_log_x_ge_log_2_log_10 : Real.log (Real.log x) ≥ Real.log (2 * Real.log 10) := by
               exact Real.log_le_log ( by positivity ) ( by rw [ ← Real.log_rpow, Real.log_le_log_iff ] <;> norm_num <;> linarith )
@@ -6396,7 +6413,7 @@ lemma p_bound_lemma_v2 (x : ℝ) (hx : x ≥ 100) (p : ℕ) (a : ℕ) (ha : a �
           rw [ gt_iff_lt, lt_div_iff₀ ] <;> nlinarith [ show 0 < x by positivity, show 0 < Real.log ( Real.log x ) by exact Real.log_pos <| show 1 < Real.log x from by rw [ Real.lt_log_iff_exp_lt <| by positivity ] ; exact Real.exp_one_lt_d9.trans_le <| by norm_num; linarith, show 0 < Real.log 4 by positivity, mul_lt_mul_of_pos_left h_log_log_x_gt_log_4 <| show 0 < x by positivity ]
         refine lt_of_lt_of_le h_subst ?_
         gcongr
-        · refine' sq_pos_of_pos ( Real.log_pos _ )
+        · refine sq_pos_of_pos ( Real.log_pos ?_ )
           rw [ Real.lt_log_iff_exp_lt ]
           · -- Since $x \geq 100$, we have $\log x \geq \log 100 = 2 \log 10 \approx 4.605$.
             have h_log_x : Real.log x ≥ 4 := by
@@ -6404,7 +6421,7 @@ lemma p_bound_lemma_v2 (x : ℝ) (hx : x ≥ 100) (p : ℕ) (a : ℕ) (ha : a �
               exact le_trans ( by have := Real.exp_one_lt_d9.le; norm_num1 at *; rw [ show Real.exp 4 = ( Real.exp 1 ) ^ 4 by rw [ ← Real.exp_nat_mul ] ; norm_num ] ; exact le_trans ( pow_le_pow_left₀ ( by positivity ) this 4 ) ( by norm_num ) ) hx
             exact lt_of_lt_of_le ( Real.exp_one_lt_d9.trans_le ( by norm_num ) ) ( mul_le_mul ( mul_le_mul_of_nonneg_left hx ( by norm_num ) ) ( pow_le_pow_left₀ ( by positivity ) ( show Real.log ( Real.log x ) ≥ 1 by rw [ ge_iff_le ] ; rw [ Real.le_log_iff_exp_le ( by positivity ) ] ; exact Real.exp_one_lt_d9.le.trans ( by norm_num; linarith ) ) 2 ) ( by positivity ) ( by positivity ) )
           · exact mul_pos ( by positivity ) ( sq_pos_of_pos ( Real.log_pos ( show 1 < Real.log x from by rw [ Real.lt_log_iff_exp_lt ( by positivity ) ] ; exact Real.exp_one_lt_d9.trans_le ( by norm_num; linarith ) ) ) )
-        · refine' Real.log_nonneg _
+        · refine Real.log_nonneg ?_
           rw [ Real.le_log_iff_exp_le ( by exact mul_pos ( by positivity ) ( sq_pos_of_pos ( Real.log_pos ( show 1 < Real.log x from by rw [ Real.lt_log_iff_exp_lt ( by positivity ) ] ; exact Real.exp_one_lt_d9.trans_le ( by norm_num; linarith ) ) ) ) ) ]
           have h_exp_log : Real.log (Real.log x) ≥ 1 / 2 := by
             have h_log_bound : Real.log x ≥ 4 := by
@@ -6435,7 +6452,7 @@ lemma p_bound_lemma_v2 (x : ℝ) (hx : x ≥ 100) (p : ℕ) (a : ℕ) (ha : a �
             · simp only [id_eq, Pi.pow_apply]
               field_simp [ht_ne, hlog_ne, hloglog_ne]
               ring_nf
-          refine' h_deriv_pos.symm ▸ mul_pos ( one_div_pos.mpr ( sq_pos_of_pos ( Real.log_pos ( show 1 < Real.log t from by rw [ Real.lt_log_iff_exp_lt ( by positivity ) ] ; exact Real.exp_one_lt_d9.trans_le ( by norm_num; linarith ) ) ) ) ) ( sub_pos.mpr _ )
+          refine h_deriv_pos.symm ▸ mul_pos ( one_div_pos.mpr ( sq_pos_of_pos ( Real.log_pos ( show 1 < Real.log t from by rw [ Real.lt_log_iff_exp_lt ( by positivity ) ] ; exact Real.exp_one_lt_d9.trans_le ( by norm_num; linarith ) ) ) ) ) ( sub_pos.mpr ?_ )
           rw [ div_lt_iff₀ ]
           all_goals
             norm_num
@@ -6510,7 +6527,7 @@ lemma card_bad_a_for_p_le (n : ℕ → ℕ) (K : ℕ) (x : ℝ) (p : ℕ) (hK : 
     -- The set `bad_a_for_p` consists of $a \in [1, \lfloor x \rfloor]$ such that $a \pmod{p^2}$ belongs to the set of residues $R = \{ (-n_j) \pmod{p^2} \mid P_j < p \}$.
     set R := Finset.image (fun j => (-n j : ZMod (p^2))) (Finset.filter (fun j => P_seq K j < p) (Finset.range p)) with hR_def
     have hR_card : R.card ≤ Real.log (Real.log p) + 1 := by
-      refine' le_trans ( Nat.cast_le.mpr <| Finset.card_image_le ) _
+      refine le_trans ( Nat.cast_le.mpr <| Finset.card_image_le ) ?_
       convert card_relevant_indices_bound K p hK hp using 1
     -- For each residue $r \in R$, the number of $a \in [1, \lfloor x \rfloor]$ with $a \equiv r \pmod{p^2}$ is at most $\lfloor x \rfloor / p^2 + 1 \le x/p^2 + 1$.
     have h_residue_count : ∀ r ∈ R, ((Finset.Icc 1 (Nat.floor x)).filter (fun a => a ≡ r.val [MOD p^2])).card ≤ x / p^2 + 1 := by
@@ -6520,7 +6537,7 @@ lemma card_bad_a_for_p_le (n : ℕ → ℕ) (K : ℕ) (x : ℝ) (p : ℕ) (hK : 
         have h_subset : Finset.filter (fun a => a ≡ r.val [MOD p^2]) (Finset.Icc 1 (Nat.floor x)) ⊆ Finset.image (fun k => r.val + k * p^2) (Finset.range (Nat.floor x / p^2 + 1)) := by
           intro a ha
           simp_all +decide [ Nat.ModEq ]
-          refine' ⟨ a / p ^ 2, _, _ ⟩
+          refine ⟨ a / p ^ 2, ?_, ?_ ⟩
           · exact Nat.div_le_div_right ha.1.2
           · linarith [ Nat.mod_add_div a ( p ^ 2 ), Nat.mod_eq_of_lt ( show r.val < p ^ 2 from by { haveI := Fact.mk ( show p ^ 2 > 1 from one_lt_pow₀ ( by linarith ) two_ne_zero ) ; exact ZMod.val_lt r } ) ]
         exact le_trans ( Finset.card_le_card h_subset ) ( Finset.card_image_le.trans ( by norm_num ) )
@@ -6547,7 +6564,7 @@ lemma card_bad_a_for_p_le (n : ℕ → ℕ) (K : ℕ) (x : ℝ) (p : ℕ) (hK : 
         , by
         exact Finset.mem_filter.mp ha |>.1 |> Finset.mem_Icc.mp |>.2⟩, h_residue⟩⟩
     refine le_trans ( Nat.cast_le.mpr <| Finset.card_le_card h_bad_subset_union ) ?_
-    refine' le_trans ( Nat.cast_le.mpr <| Finset.card_biUnion_le ) _
+    refine le_trans ( Nat.cast_le.mpr <| Finset.card_biUnion_le ) ?_
     push_cast [ bound_sum_term ]
     exact le_trans ( Finset.sum_le_sum h_residue_count ) ( by simpa [ mul_add ] using mul_le_mul_of_nonneg_right hR_card ( by positivity : 0 ≤ x / p ^ 2 + 1 ) )
 
@@ -6661,7 +6678,7 @@ lemma sum_part1_tendsto (K : ℕ) :
       filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx
       congr! 3
       rw [ Nat.le_floor_iff ( by exact mul_nonneg ( mul_nonneg zero_le_four ( by positivity ) ) ( sq_nonneg _ ) ) ]
-    refine' h_tail_limit.congr' _
+    refine h_tail_limit.congr' ?_
     filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx
     simp +decide [ sum_part1, p_upper_bound ]
     rw [ tsum_eq_sum ]
@@ -6701,7 +6718,7 @@ lemma pi_bound :
       -- Since $\pi(\sqrt{x}) \leq \sqrt{x}$, we have $\pi(x) \leq \theta(x) / \log(\sqrt{x}) + \sqrt{x}$.
       have h_pi_le_theta_step2 : (Finset.filter Nat.Prime (Finset.range (Nat.floor x + 1))).card ≤ (∑ p ∈ Finset.filter (fun p => Nat.Prime p ∧ (p : ℝ) > Real.sqrt x ∧ (p : ℝ) ≤ x) (Finset.range (Nat.floor x + 1)), 1) + Real.sqrt x := by
         have h_pi_le_theta_step2 : (Finset.filter Nat.Prime (Finset.range (Nat.floor (Real.sqrt x) + 1))).card ≤ Real.sqrt x := by
-          refine' le_trans _ ( Nat.floor_le <| Real.sqrt_nonneg x )
+          refine le_trans ?_ ( Nat.floor_le <| Real.sqrt_nonneg x )
           exact_mod_cast le_trans ( Finset.card_le_card <| show Finset.filter Nat.Prime ( Finset.range ( ⌊Real.sqrt x⌋₊ + 1 ) ) ⊆ Finset.Ico 2 ( ⌊Real.sqrt x⌋₊ + 1 ) from fun p hp => Finset.mem_Ico.mpr ⟨ Nat.Prime.two_le <| Finset.mem_filter.mp hp |>.2, Finset.mem_range.mp <| Finset.mem_filter.mp hp |>.1 ⟩ ) <| by simp +arith +decide
         norm_num at *
         exact le_trans ( Nat.cast_le.mpr h_prime_count ) ( by
@@ -6739,7 +6756,7 @@ lemma pi_bound :
       norm_num [ abs_div, abs_mul, abs_of_nonneg, Real.log_nonneg hx₂.le ] at *
       convert mul_le_mul_of_nonneg_right ( mul_le_mul_of_nonneg_left hx₁ zero_le_two ) ( inv_nonneg.mpr ( Real.log_nonneg hx₂.le ) ) using 1
       ring
-    refine' Asymptotics.IsBigO.trans _ ( h_card_O.add h_sqrt_o.isBigO )
+    refine Asymptotics.IsBigO.trans ?_ ( h_card_O.add h_sqrt_o.isBigO )
     rw [ Asymptotics.isBigO_iff ]
     use 1
     filter_upwards [ Filter.eventually_ge_atTop 100 ] with x hx using by rw [ Real.norm_of_nonneg ( Nat.cast_nonneg _ ), Real.norm_of_nonneg ( add_nonneg ( div_nonneg ( mul_nonneg zero_le_two <| Finset.sum_nonneg fun _ _ => Real.log_nonneg <| Nat.one_le_cast.mpr <| Nat.Prime.pos <| by aesop ) <| Real.log_nonneg <| by linarith ) <| Real.sqrt_nonneg _ ) ] ; linarith [ h_pi_le_theta x hx ]
@@ -6757,13 +6774,18 @@ lemma sum_loglog_bound :
         exact ⟨ 2, Real.exp ( Real.exp 1 ), fun x hx => by rw [ abs_le ] ; constructor <;> cases abs_cases ( Real.log ( Real.log x ) ) <;> linarith [ show 1 ≤ Real.log ( Real.log x ) from by rw [ Real.le_log_iff_exp_le ( Real.log_pos <| by linarith [ Real.add_one_le_exp 1, Real.add_one_le_exp ( Real.exp 1 ) ] ) ] ; rw [ Real.le_log_iff_exp_le ] <;> linarith [ Real.add_one_le_exp 1, Real.add_one_le_exp ( Real.exp 1 ) ] ] ⟩
       convert h_sum_bound.mul h_mul_bound using 2
       ring
-    refine' Asymptotics.IsBigO.trans _ h_sum_bound
-    refine' Asymptotics.isBigO_iff.mpr _
-    refine' ⟨ 1, Filter.eventually_atTop.mpr ⟨ 3, fun x hx => _ ⟩ ⟩
+    refine Asymptotics.IsBigO.trans ?_ h_sum_bound
+    refine Asymptotics.isBigO_iff.mpr ?_
+    refine ⟨ 1, Filter.eventually_atTop.mpr ⟨ 3, fun x hx => ?_ ⟩ ⟩
     norm_num
-    refine' le_trans ( Finset.abs_sum_le_sum_abs _ _ ) _
-    refine' le_trans ( Finset.sum_le_sum fun i hi => _ ) _
-    use fun i => |Real.log ( Real.log x ) + 1|
+    refine le_trans
+      ( Finset.abs_sum_le_sum_abs
+        (fun i : ℕ => Real.log (Real.log (i : ℝ)) + 1)
+        (Finset.filter (fun p => Nat.Prime p ∧ (p : ℝ) ≤ x) (Finset.range (Nat.floor x + 1))) ) ?_
+    refine le_trans
+      (b := ∑ i ∈ Finset.filter (fun p => Nat.Prime p ∧ (p : ℝ) ≤ x) (Finset.range (Nat.floor x + 1)),
+        |Real.log ( Real.log x ) + 1|)
+      ( Finset.sum_le_sum fun i hi => ?_ ) ?_
     · rw [ abs_of_nonneg, abs_of_nonneg ]
       all_goals
         norm_num at *
@@ -6797,7 +6819,7 @@ lemma log_p_upper_bound_div_log_x_tendsto_one :
         have := h_log_z.comp Real.tendsto_log_atTop
         exact this.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx using by rw [ Function.comp_apply, Real.exp_log hx ] )
       have := Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 1
-      refine' squeeze_zero_norm' _ this
+      refine squeeze_zero_norm' ?_ this
       norm_num [ Real.exp_neg ]
       exact ⟨ 2, fun x hx => by rw [ ← div_eq_mul_inv ] ; gcongr ; rw [ abs_of_nonneg ( Real.log_nonneg ( by linarith ) ) ] ; linarith [ Real.log_le_sub_one_of_pos ( by linarith : 0 < x ) ] ⟩
     ring_nf
@@ -6825,7 +6847,7 @@ lemma log_log_pow_div_log_tendsto_zero (k : ℝ) :
     have h_exp_growth : Filter.Tendsto (fun z => z ^ k / Real.exp z) Filter.atTop (nhds 0) := by
       have : Filter.Tendsto (fun z => z ^ (⌈k⌉₊ : ℝ) / Real.exp z) Filter.atTop (nhds 0) := by
         simpa [ Real.exp_neg ] using Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero ⌈k⌉₊ |> Filter.Tendsto.comp <| Filter.tendsto_id
-      refine' squeeze_zero_norm' _ this
+      refine squeeze_zero_norm' ?_ this
       filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx using by rw [ Real.norm_of_nonneg ( by positivity ) ] ; exact div_le_div_of_nonneg_right ( by simpa using Real.rpow_le_rpow_of_exponent_le hx.le <| Nat.le_ceil k ) <| by positivity
     generalize_proofs at *
     (
@@ -6865,7 +6887,7 @@ lemma p_upper_bound_term_asymptotics :
 p_upper_bound x tends to infinity as x tends to infinity.
 -/
 lemma p_upper_bound_tendsto_atTop : Filter.Tendsto p_upper_bound Filter.atTop Filter.atTop := by
-  refine' Filter.Tendsto.atTop_mul_atTop₀ _ _
+  refine Filter.Tendsto.atTop_mul_atTop₀ ?_ ?_
   · exact Filter.tendsto_id.const_mul_atTop zero_lt_four
   · exact Filter.Tendsto.comp ( Filter.tendsto_pow_atTop ( by norm_num ) ) ( Real.tendsto_log_atTop.comp ( Real.tendsto_log_atTop ) )
 
@@ -6890,7 +6912,7 @@ sum_part2 is bounded by (1/x) * S_loglog(p_upper_bound x).
 -/
 lemma sum_part2_le (K : ℕ) :
   ∀ᶠ x in Filter.atTop, sum_part2 K x ≤ (1/x) * S_loglog (p_upper_bound x) := by
-    refine' Filter.eventually_atTop.mpr ⟨ 800, fun x hx => _ ⟩
+    refine Filter.eventually_atTop.mpr ⟨ 800, fun x hx => ?_ ⟩
     unfold sum_part2 S_loglog
     gcongr
     · exact fun p hp₁ hp₂ => le_of_lt ( log_log_p_plus_one_pos p ( by aesop ) )
@@ -6907,9 +6929,9 @@ lemma S_loglog_is_BigO :
 sum_part2 is non-negative for large x.
 -/
 lemma sum_part2_nonneg (K : ℕ) : ∀ᶠ x in Filter.atTop, 0 ≤ sum_part2 K x := by
-  refine' Filter.eventually_atTop.mpr ⟨ 1, fun x hx => _ ⟩
+  refine Filter.eventually_atTop.mpr ⟨ 1, fun x hx => ?_ ⟩
   unfold sum_part2
-  refine' mul_nonneg ( by positivity ) ( Finset.sum_nonneg fun p hp => _ )
+  refine mul_nonneg ( by positivity ) ( Finset.sum_nonneg fun p hp => ?_ )
   exact le_of_lt ( log_log_p_plus_one_pos p ( by aesop ) )
 
 /-
@@ -6924,7 +6946,7 @@ lemma bound_asymptotics :
       · exact Asymptotics.isBigO_refl _ _
       · exact Asymptotics.isBigO_refl _ _
       · exact p_upper_bound_tendsto_atTop
-    refine' h_sum_part2_le.trans _
+    refine h_sum_part2_le.trans ?_
     have h_sum_part2_le : (fun x => (p_upper_bound x * Real.log (Real.log (p_upper_bound x)) / Real.log (p_upper_bound x)) / x) =O[Filter.atTop] (fun x => x * (Real.log (Real.log x))^3 / Real.log x * (1 / x)) := by
       have h_sum_part2_le : (fun x => p_upper_bound x * Real.log (Real.log (p_upper_bound x)) / Real.log (p_upper_bound x)) =O[Filter.atTop] (fun x => x * (Real.log (Real.log x))^3 / Real.log x) := by
         exact p_upper_bound_term_asymptotics
@@ -6987,7 +7009,7 @@ lemma liminf_ge_limit_sub_limit {f g h : ℕ → ℝ} {Lg Lh : ℝ}
         apply_rules [ Filter.liminf_le_liminf ]
         · exact Filter.Tendsto.isBoundedUnder_ge ( hg.sub hh )
         · exact Filter.IsBoundedUnder.isCoboundedUnder_ge hf_bdd_above
-      refine' le_trans _ h_liminf_ge
+      refine le_trans ?_ h_liminf_ge
       rw [ Filter.Tendsto.liminf_eq ( hg.sub hh ) ]
 
 /-
@@ -7045,17 +7067,25 @@ lemma exists_sequence_n_nat (K P₀ : ℕ) (hK : K ≥ P₀)
       obtain ⟨n, hn⟩ : ∃ n : ℕ → ℕ, StrictMono n ∧ (∀ j, (∀ p : ℕ, Nat.Prime p → p ≤ P_seq K j → n j % p^2 = 0) ∧ (∀ p : ℕ, Nat.Prime p → P_seq K j < p → ∀ a : ℕ, 1 ≤ a → (a : ℝ) ≤ (p : ℝ) / (Real.log (Real.log p))^2 → (n j + a) % p^2 ≠ 0)) := by
         choose! f hf₁ hf₂ hf₃ using h_prop
         use fun j => Nat.recOn j ( f ( P_seq K 0 ) 0 ) fun j ih => f ( P_seq K ( j + 1 ) ) ( ih + 1 )
-        refine' ⟨ strictMono_nat_of_lt_succ fun j => _, fun j => _ ⟩
+        refine ⟨ strictMono_nat_of_lt_succ fun j => ?_, fun j => ?_ ⟩
         · exact lt_of_lt_of_le ( Nat.lt_succ_self _ ) ( hf₁ _ ( by linarith [ P_seq_ge_K K ( j + 1 ) ] ) _ )
-        · induction j
-          all_goals
-            simp_all +decide [ P_seq ]
-          · refine' ⟨ fun p hp hp' => hf₂ _ _ _ _ hp hp', fun p hp hp' a ha ha' => hf₃ _ _ _ _ hp hp' _ ha ha' ⟩
-            · exact le_trans hK ( Nat.le_floor <| by nlinarith [ Real.add_one_le_exp 1 ] )
-            · exact Nat.le_floor <| by nlinarith [ Real.add_one_le_exp 1, show ( K : ℝ ) ≥ P₀ by norm_cast ]
-          · refine' ⟨ fun p hp hp' => hf₂ _ _ _ _ hp hp', fun p hp hp' a ha ha' => hf₃ _ _ _ _ hp hp' _ ha ha' ⟩
-            · exact le_trans hK ( Nat.le_floor <| by exact le_trans ( mod_cast by linarith ) <| le_mul_of_one_le_right ( by positivity ) <| Real.one_le_exp <| by positivity )
-            · exact le_trans hK <| Nat.le_floor <| by exact le_trans ( by norm_num ) <| mul_le_mul_of_nonneg_left ( Real.one_le_exp <| by positivity ) <| by positivity
+        · cases j with
+          | zero =>
+            simp_all +decide
+            refine ⟨
+              fun p hp hp' => hf₂ (P_seq K 0)
+                (le_trans hK (P_seq_ge_K K 0))
+                0 p hp hp',
+              fun p hp hp' a ha ha' => hf₃ (P_seq K 0)
+                (le_trans hK (P_seq_ge_K K 0))
+                0 p hp hp' a ha ha' ⟩
+          | succ j =>
+            simp_all +decide
+            let m_j : ℕ := Nat.recOn (motive := fun _ => ℕ) j ( f ( P_seq K 0 ) 0 ) fun j ih => f ( P_seq K ( j + 1 ) ) ( ih + 1 )
+            refine ⟨ fun p hp hp' => hf₂ (P_seq K (j + 1))
+                (le_trans hK (P_seq_ge_K K (j + 1))) (m_j + 1) p hp hp',
+              fun p hp hp' a ha ha' => hf₃ (P_seq K (j + 1))
+                (le_trans hK (P_seq_ge_K K (j + 1))) (m_j + 1) p hp hp' a ha ha' ⟩
       exact ⟨ n, hn.1, fun j p hp hle => hn.2 j |>.1 p hp hle, fun j p hp hgt a ha₁ ha₂ => hn.2 j |>.2 p hp hgt a ha₁ ha₂ ⟩
 
 lemma bad_prime_properties_nat (n : ℕ → ℕ) (K : ℕ) (h_good : GoodSeqNat n K) (j : ℕ) (a : ℕ)
@@ -7070,7 +7100,7 @@ lemma bad_prime_properties_nat (n : ℕ → ℕ) (K : ℕ) (h_good : GoodSeqNat 
         have hp_div_a : p^2 ∣ a := by
           simpa [ ← hp_div ] using Nat.dvd_sub ( dvd_of_mul_right_eq _ hp_div.symm ) hp_div_n
         exact absurd ( ha_sf.squarefree_of_dvd hp_div_a ) ( by rw [ sq, Nat.squarefree_mul_iff ] ; aesop )
-      · refine' ⟨ p, hp_prime, hp_div.symm ▸ dvd_mul_right _ _, not_le.mp hp_le, _ ⟩
+      · refine ⟨ p, hp_prime, hp_div.symm ▸ dvd_mul_right (p ^ 2) hp_sq, not_le.mp hp_le, ?_ ⟩
         have := h_good.2.2 j p hp_prime ( not_le.mp hp_le )
         exact not_le.mp fun h => this a ( Nat.pos_of_ne_zero fun ha => by subst ha; simp_all +decide ) h <| Nat.mod_eq_zero_of_dvd <| hp_div.symm ▸ dvd_mul_right _ _
 
@@ -7094,7 +7124,7 @@ lemma removed_subset_subset_union_nat (n : ℕ → ℕ) (K : ℕ) (x : ℝ) (h_g
       exact le_trans ( Nat.cast_le.mpr <| Finset.mem_Icc.mp ( Finset.mem_filter.mp ha |>.1 ) |>.2 ) <| Nat.floor_le <| by positivity;) (by
       exact ha_gt)
     generalize_proofs at *
-    refine' Finset.mem_biUnion.mpr ⟨ p, _, _ ⟩ <;> simp_all +decide
+    refine Finset.mem_biUnion.mpr ⟨ p, ?_, ?_ ⟩ <;> simp_all +decide
     · exact Finset.mem_filter.mpr ⟨ Finset.mem_range.mpr ( Nat.lt_succ_of_le ( Nat.le_floor hp_le ) ), hp_prime, by linarith [ show K ≤ P_seq K j from Nat.le_floor <| by nlinarith [ Real.add_one_le_exp ( Real.exp j ), Real.add_one_le_exp j ] ] ⟩
     · exact Finset.mem_filter.mpr ⟨ Finset.mem_Icc.mpr ⟨ Finset.mem_Icc.mp ( Finset.mem_filter.mp ha |>.1 ) |>.1, Finset.mem_Icc.mp ( Finset.mem_filter.mp ha |>.1 ) |>.2 ⟩, j, hp_gt, Nat.mod_eq_zero_of_dvd hp_sq ⟩)
 
@@ -7103,25 +7133,43 @@ Bound on the size of the removed subset for GoodSeqNat.
 -/
 lemma removed_subset_card_le_nat (n : ℕ → ℕ) (K : ℕ) (x : ℝ) (h_good : GoodSeqNat n K) (hx : x ≥ 100) (hK : K ≥ 3) :
   (removed_subset n x).card ≤ total_removed_bound K x := by
-    refine' le_trans _ ( Finset.sum_le_sum fun p hp => _ )
-    case refine'_2 => exact fun p => ( removed_subset n x ∩ bad_a_for_p n K x p |> Finset.card : ℝ )
+    unfold total_removed_bound
+    rw [ show
+      Finset.filter (fun p => Nat.Prime p ∧ K < p ∧ (p : ℝ) ≤ p_upper_bound x)
+        (Finset.range (⌊p_upper_bound x⌋₊ + 1)) =
+      relevant_primes_for_bound K x by
+        have hp_upper_nonneg : 0 ≤ p_upper_bound x := by
+          unfold p_upper_bound
+          nlinarith [sq_nonneg (Real.log (Real.log x))]
+        ext p
+        constructor
+        · intro hp
+          simp [relevant_primes_for_bound] at hp ⊢
+          exact ⟨ hp.1, hp.2.1, hp.2.2.1 ⟩
+        · intro hp
+          simp [relevant_primes_for_bound] at hp ⊢
+          exact ⟨ hp.1, hp.2.1, hp.2.2,
+            le_trans (Nat.cast_le.mpr hp.1) (Nat.floor_le hp_upper_nonneg) ⟩ ]
+    refine le_trans
+      (b := ∑ p ∈ relevant_primes_for_bound K x,
+        ((removed_subset n x ∩ bad_a_for_p n K x p).card : ℝ))
+      ?_ ( Finset.sum_le_sum fun p hp => ?_ )
     · have h_card_le : (removed_subset n x).card ≤ (Finset.biUnion (relevant_primes_for_bound K x) (fun p => removed_subset n x ∩ bad_a_for_p n K x p)).card := by
         refine Finset.card_le_card ?_
         intro a ha
         have := removed_subset_subset_union_nat n K x h_good hx
         specialize this ha
         aesop
-      refine' le_trans ( Nat.cast_le.mpr h_card_le ) _
-      convert Nat.cast_le.mpr ( Finset.card_biUnion_le ) using 1
-      · norm_num +zetaDelta at *
-        congr! 1
-        ext
-        simp [relevant_primes_for_bound]
-        exact fun _ _ _ => le_trans ( Nat.cast_le.mpr ‹_› ) ( Nat.floor_le ( by exact mul_nonneg ( by positivity ) ( sq_nonneg _ ) ) )
-      · infer_instance
-      · infer_instance
-      · infer_instance
-    · refine' le_trans _ ( card_bad_a_for_p_le n K x p hK ( by aesop ) ( by linarith ) )
+      refine le_trans ( Nat.cast_le.mpr h_card_le ) ?_
+      exact_mod_cast (Finset.card_biUnion_le :
+        (Finset.biUnion (relevant_primes_for_bound K x)
+          (fun p => removed_subset n x ∩ bad_a_for_p n K x p)).card ≤
+        ∑ p ∈ relevant_primes_for_bound K x,
+          (removed_subset n x ∩ bad_a_for_p n K x p).card)
+    · have hpK : p > K := by
+        rw [ relevant_primes_for_bound ] at hp
+        exact (Finset.mem_filter.mp hp).2.2
+      refine le_trans ?_ ( card_bad_a_for_p_le n K x p hK hpK ( by linarith ) )
       exact_mod_cast Finset.card_le_card fun x hx => by aesop
 
 /-
@@ -7133,7 +7181,7 @@ lemma lowerDensity_A_seq_bound_nat (n : ℕ → ℕ) (K : ℕ) (hK : K ≥ 3) (h
     have := @liminf_ge_limit_sub_limit
     contrapose! this
     obtain ⟨ a, ha₁, ha₂ ⟩ := this
-    refine' ⟨ _, _, _, _, _, _, _, _, _ ⟩
+    refine ⟨ ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_ ⟩
     use fun x => ( Set.ncard ( A_seq n ∩ Set.Icc 1 x ) : ℝ ) / x
     use fun x => ( Set.ncard ( SF ∩ Set.Icc 1 x ) : ℝ ) / x - total_removed_bound K x / x
     use fun x => 0
@@ -7148,8 +7196,8 @@ lemma lowerDensity_A_seq_bound_nat (n : ℕ → ℕ) (K : ℕ) (hK : K ≥ 3) (h
       linarith
     · convert u_tendsto K using 1
     · exact tendsto_const_nhds
-    · refine' ⟨ _, _ ⟩
-      · refine' ⟨ 1, Filter.eventually_atTop.mpr ⟨ 1, fun x hx => _ ⟩ ⟩
+    · refine ⟨ ?_, ?_ ⟩
+      · refine ⟨ 1, Filter.eventually_atTop.mpr ⟨ 1, fun x hx => ?_ ⟩ ⟩
         simp +zetaDelta at *
         exact div_le_one_of_le₀ ( mod_cast le_trans ( Set.ncard_le_ncard ( show A_seq n ∩ Set.Icc 1 x ⊆ Set.Icc 1 x from fun y hy => hy.2 ) ) ( by norm_num [ Set.ncard_eq_toFinset_card' ] ) ) ( by positivity )
       · convert ha₁.trans_le _ using 1
@@ -7168,7 +7216,7 @@ theorem theorem_overp_i (A : Set ℕ) (h : PropertyP_bar_infty A) :
       have h_sieve : ∀ p, Nat.Prime p → ∃ b, b < p^2 ∧ ∀ a ∈ {a ∈ A | Squarefree (n₁ + a) ∧ Squarefree (n₂ + a)}, a % p^2 ≠ b := by
         intro p hp
         use (p^2 - n₁ % p^2) % p^2
-        refine' ⟨ Nat.mod_lt _ ( pow_pos hp.pos _ ), fun a ha ha' => _ ⟩
+        refine ⟨ Nat.mod_lt (p ^ 2 - n₁ % p ^ 2) ( pow_pos hp.pos 2 ), fun a ha ha' => ?_ ⟩
         -- Since $a \equiv -n_1 \pmod{p^2}$, we have $n_1 + a \equiv 0 \pmod{p^2}$, which implies $p^2 \mid (n_1 + a)$.
         have h_div : p^2 ∣ (n₁ + a) := by
           rw [ Nat.dvd_iff_mod_eq_zero ]
@@ -7178,7 +7226,7 @@ theorem theorem_overp_i (A : Set ℕ) (h : PropertyP_bar_infty A) :
       have h_sieve_strict : ∀ p, Nat.Prime p → p > n₂ - n₁ → ∃ b1 b2, b1 < p^2 ∧ b2 < p^2 ∧ b1 ≠ b2 ∧ (∀ a ∈ {a ∈ A | Squarefree (n₁ + a) ∧ Squarefree (n₂ + a)}, a % p^2 ≠ b1) ∧ (∀ a ∈ {a ∈ A | Squarefree (n₁ + a) ∧ Squarefree (n₂ + a)}, a % p^2 ≠ b2) := by
         intro p hp hp_gt
         use (p^2 - n₁ % p^2) % p^2, (p^2 - n₂ % p^2) % p^2
-        refine' ⟨ Nat.mod_lt _ ( pow_pos hp.pos _ ), Nat.mod_lt _ ( pow_pos hp.pos _ ), _, _, _ ⟩
+        refine ⟨ Nat.mod_lt (p ^ 2 - n₁ % p ^ 2) ( pow_pos hp.pos 2 ), Nat.mod_lt (p ^ 2 - n₂ % p ^ 2) ( pow_pos hp.pos 2 ), ?_, ?_, ?_ ⟩
         · intro h_mod_eq
           have h_div : p^2 ∣ (n₂ - n₁) := by
             have h_div : n₂ % p^2 = n₁ % p^2 := by
@@ -7228,9 +7276,9 @@ theorem theorem_overp_ii_conditional (assumps : SieveAssumptions) :
       exact le_max_of_le_right ( le_max_left _ _ )) hP₀
       generalize_proofs at *
       use A_seq n
-      refine' ⟨ _, _ ⟩
+      refine ⟨ ?_, ?_ ⟩
       · exact PropertyP_bar_A_seq n hn.1
-      · refine' le_trans _ ( lowerDensity_A_seq_bound_nat n K _ hn )
+      · refine le_trans ?_ ( lowerDensity_A_seq_bound_nat n K ?_ hn )
         · exact sub_le_sub_left ( le_of_lt ( hK₁ K ( le_max_left _ _ ) ) ) _
         · exact le_trans ( by linarith ) ( le_max_right _ _ ) |> le_trans ( le_max_right _ _ )
 
@@ -7327,7 +7375,7 @@ lemma A1_admissible : Admissible A1 := by
   simp +decide [h_cases]
   rintro a ⟨ j, hj, rfl ⟩
   rcases j with ( _ | _ | j ) <;> norm_num [ Nat.pow_succ', ← mul_assoc, Nat.mul_mod ] at *)
-  refine' ⟨ 1, _, _ ⟩ <;> norm_num +zetaDelta at *
+  refine ⟨ 1, ?_, ?_ ⟩ <;> norm_num +zetaDelta at *
   · exact hp.one_lt
   · rintro a ⟨ j, hj₁, rfl ⟩
     intro H
@@ -7350,7 +7398,7 @@ lemma A2_admissible : Admissible A2 := by
   have : 4 ∣ 2^(j+2) := ⟨2^j, by ring⟩
   omega)
   use p^2 - 1
-  refine' ⟨ Nat.sub_lt ( pow_pos hp.pos _ ) zero_lt_one, _ ⟩
+  refine ⟨ Nat.sub_lt ( pow_pos hp.pos 2 ) zero_lt_one, ?_ ⟩
   rintro a ⟨ j, hj, rfl ⟩
   intro h_mod
   have h_div : p^2 ∣ 2^j := by
@@ -7376,7 +7424,9 @@ lemma A3_admissible : Admissible A3 := by
       rw [ Nat.mod_eq_of_lt ( by nlinarith [ hp_prime.two_le ] ) ]
     -- Therefore, for odd primes p, A3 occupies at most 2p < p^2 residue classes modulo p^2 (the values for j < 2p, plus the value 1).
     have h_odd_primes_bound : Finset.card (Finset.image (fun j => (Nat.factorial j + 1) % p^2) (Finset.range (2 * p)) ∪ {1}) < p^2 := by
-      refine' lt_of_le_of_lt ( Finset.card_union_le _ _ ) _
+      refine lt_of_le_of_lt ( Finset.card_union_le
+        (Finset.image (fun j => (Nat.factorial j + 1) % p^2) (Finset.range (2 * p)))
+        {1} ) ?_
       exact lt_of_le_of_lt ( add_le_add ( Finset.card_image_le ) le_rfl ) ( by norm_num; nlinarith [ hp_prime.two_le, show p > 2 from lt_of_le_of_ne hp_prime.two_le ( Ne.symm <| by omega ) ] )
     -- Therefore, there exists a residue class modulo p^2 that A3 avoids.
     obtain ⟨b, hb⟩ : ∃ b < p^2, b ∉ Finset.image (fun j => (Nat.factorial j + 1) % p^2) (Finset.range (2 * p)) ∪ {1} := by
@@ -7428,13 +7478,13 @@ lemma A4_admissible : Admissible A4 := by
       linarith
     -- Thus, for odd p, A4 occupies at most 2p residue classes modulo p^2 (the values for j < 2p, plus the value -1).
     have h_odd_primes_classes : Finset.image (fun j => (Nat.factorial j - 1) % p^2) (Finset.range (2 * p)) ∪ {p^2 - 1} ⊂ Finset.range (p^2) := by
-      refine' ⟨ _, _ ⟩
-      · exact Finset.union_subset ( Finset.image_subset_iff.mpr fun x hx => Finset.mem_range.mpr <| Nat.mod_lt _ <| pow_pos hp.pos _ ) ( Finset.singleton_subset_iff.mpr <| Finset.mem_range.mpr <| Nat.sub_lt ( pow_pos hp.pos _ ) zero_lt_one )
+      refine ⟨ ?_, ?_ ⟩
+      · exact Finset.union_subset ( Finset.image_subset_iff.mpr fun x hx => Finset.mem_range.mpr <| Nat.mod_lt _ <| pow_pos hp.pos 2 ) ( Finset.singleton_subset_iff.mpr <| Finset.mem_range.mpr <| Nat.sub_lt ( pow_pos hp.pos 2 ) zero_lt_one )
       · intro h
         have := Finset.card_le_card h
         simp_all +decide [ Finset.subset_iff ]
-        refine' this.not_gt ( lt_of_le_of_lt ( Finset.card_insert_le _ _ ) _ )
-        refine' lt_of_le_of_lt ( Nat.add_le_add_right ( Finset.card_image_le ) _ ) _
+        refine this.not_gt ( lt_of_le_of_lt ( Finset.card_insert_le (p ^ 2 - 1) (Finset.image (fun j => (Nat.factorial j - 1) % p^2) (Finset.range (2 * p))) ) ?_ )
+        refine lt_of_le_of_lt ( Nat.add_le_add_right ( Finset.card_image_le ) 1 ) ?_
         norm_num
         rcases p with ( _ | _ | _ | p ) <;> norm_num at * ; nlinarith
     obtain ⟨ b, hb ⟩ := Finset.exists_of_ssubset h_odd_primes_classes
@@ -7477,13 +7527,13 @@ lemma A1_nth (n : ℕ) : Nat.nth (· ∈ A1) n = 2^(n + 1) + 1 := by
     exact le_antisymm ( Nat.sInf_le ⟨ 1, by norm_num, rfl ⟩ ) ( le_csInf ⟨ 3, ⟨ 1, by norm_num, rfl ⟩ ⟩ fun n hn => by obtain ⟨ j, hj, rfl ⟩ := hn; exact Nat.succ_le_succ ( Nat.succ_le_of_lt ( lt_of_lt_of_le ( by norm_num ) ( Nat.pow_le_pow_right ( by norm_num ) hj ) ) ) )
   | succ n ih =>
     rw [ Nat.nth_eq_sInf ]
-    refine' le_antisymm _ _
-    · refine' Nat.sInf_le ⟨ _, _ ⟩
+    refine le_antisymm ?_ ?_
+    · refine Nat.sInf_le ⟨ ?_, ?_ ⟩
       · exact ⟨ n + 1 + 1, by norm_num, rfl ⟩
       · intro k hk
         exact lt_of_le_of_lt ( Nat.nth_monotone ( show { x | x ∈ A1 }.Infinite from A1_infinite ) ( Nat.le_of_lt_succ hk ) ) ( by rw [ ih ] ; exact Nat.succ_lt_succ ( pow_lt_pow_right₀ ( by decide ) ( by linarith ) ) )
-    · refine' le_csInf _ _ <;> norm_num
-      · refine' ⟨ 2 ^ ( n + 2 ) + 1, _, _ ⟩
+    · refine le_csInf ?_ ?_ <;> norm_num
+      · refine ⟨ 2 ^ ( n + 2 ) + 1, ?_, ?_ ⟩
         · exact ⟨ n + 2, by norm_num, rfl ⟩
         · intro k hk
           exact lt_of_le_of_lt ( Nat.nth_monotone ( show { x | x ∈ A1 }.Infinite from A1_infinite ) ( hk ) ) ( by rw [ ih ] ; exact by linarith [ pow_lt_pow_right₀ ( by decide : 1 < 2 ) ( by linarith : n + 1 < n + 2 ) ] )
@@ -7526,18 +7576,18 @@ lemma A2_nth (n : ℕ) : Nat.nth (· ∈ A2) n = 2^(n + 1) - 1 := by
         aesop
       exact hj.1.symm ▸ Nat.sub_le_sub_right ( pow_le_pow_right₀ ( by decide ) ( Nat.succ_le_of_lt ( Nat.lt_of_not_ge fun h => hm_gt.not_ge <| by rw [ hj.1 ] ; exact Nat.sub_le_sub_right ( pow_le_pow_right₀ ( by decide ) h ) _ ) ) ) _
     rw [ Nat.nth_eq_sInf ]
-    refine' le_antisymm _ _
-    · refine' Nat.sInf_le ⟨ _, _ ⟩
+    refine le_antisymm ?_ ?_
+    · refine Nat.sInf_le ⟨ ?_, ?_ ⟩
       · exact ⟨ n + 2, by norm_num, rfl ⟩
       · intro k hk
-        refine' lt_of_le_of_lt ( Nat.nth_monotone _ ( Nat.le_of_lt_succ hk ) ) _
+        refine lt_of_le_of_lt ( Nat.nth_monotone ?_ ( Nat.le_of_lt_succ hk ) ) ?_
         · exact A2_infinite
         · exact ih.symm ▸ by rw [ tsub_lt_tsub_iff_right ( Nat.one_le_pow _ _ ( by decide ) ) ] ; ring_nf; norm_num
-    · refine' le_csInf _ _
-      · refine' ⟨ 2 ^ ( n + 2 ) - 1, _, _ ⟩
+    · refine le_csInf ?_ ?_
+      · refine ⟨ 2 ^ ( n + 2 ) - 1, ?_, ?_ ⟩
         · exact ⟨ n + 2, by norm_num, rfl ⟩
         · intro k hk
-          refine' lt_of_le_of_lt ( Nat.nth_monotone _ ( Nat.le_of_lt_succ hk ) ) _
+          refine lt_of_le_of_lt ( Nat.nth_monotone ?_ ( Nat.le_of_lt_succ hk ) ) ?_
           · exact A2_infinite
           · rw [ ih ]
             rw [ tsub_lt_tsub_iff_right ( Nat.one_le_pow _ _ ( by decide ) ) ]
@@ -7601,8 +7651,8 @@ lemma A1_growth (C : ℝ) : GrowthCondition A1 C := by
   -- By definition of $A1$, we know that $Nat.nth (· ∈ A1) n = 2^(n + 1) + 1$ for all $n$.
   have h_nth_A1 : ∀ n : ℕ, Nat.nth (· ∈ A1) n = 2^(n + 1) + 1 := by
     exact fun n => A1_nth n
-  refine' Filter.frequently_atTop.mpr fun n => _
-  refine' ⟨ n + ⌈a⌉₊ + 1, _, _ ⟩ <;> norm_num [ h_nth_A1 ]
+  refine Filter.frequently_atTop.mpr fun n => ?_
+  refine ⟨ n + ⌈a⌉₊ + 1, ?_, ?_ ⟩ <;> norm_num [ h_nth_A1 ]
   · linarith
   · exact_mod_cast ha ( n + ⌈a⌉₊ ) ( by linarith [ Nat.le_ceil a ] )
 
@@ -7687,15 +7737,15 @@ lemma A4_nth (n : ℕ) : Nat.nth (· ∈ A4) n = Nat.factorial (n + 2) - 1 := by
   | succ n ih =>
     simp_all +decide
     rw [ Nat.nth_eq_sInf ]
-    refine' le_antisymm _ _
-    · refine' Nat.sInf_le ⟨ ⟨ n + 3, by linarith, rfl ⟩, fun k hk => _ ⟩
-      refine' lt_of_le_of_lt ( Nat.nth_monotone _ ( Nat.le_of_lt_succ hk ) ) _
-      · exact Set.infinite_of_forall_exists_gt fun x => ⟨ _, ⟨ x + 2, by linarith, rfl ⟩, lt_tsub_iff_right.mpr <| by nlinarith [ Nat.self_le_factorial ( x + 2 ) ] ⟩
+    refine le_antisymm ?_ ?_
+    · refine Nat.sInf_le ⟨ ⟨ n + 3, by linarith, rfl ⟩, fun k hk => ?_ ⟩
+      refine lt_of_le_of_lt ( Nat.nth_monotone ?_ ( Nat.le_of_lt_succ hk ) ) ?_
+      · exact Set.infinite_of_forall_exists_gt fun x => ⟨ (x + 2)! - 1, ⟨ x + 2, by linarith, rfl ⟩, lt_tsub_iff_right.mpr <| by nlinarith [ Nat.self_le_factorial ( x + 2 ) ] ⟩
       · exact ih.symm ▸ by rw [ tsub_lt_tsub_iff_right ( Nat.one_le_iff_ne_zero.mpr <| by positivity ) ] ; gcongr ; linarith
-    · refine' le_csInf _ _
-      · refine' ⟨ _, ⟨ ⟨ n + 3, by linarith, rfl ⟩, fun k hk => _ ⟩ ⟩
-        refine' lt_of_le_of_lt ( Nat.nth_monotone _ ( Nat.le_of_lt_succ hk ) ) _
-        · exact Set.infinite_of_forall_exists_gt fun x => ⟨ _, ⟨ x + 2, by linarith, rfl ⟩, lt_tsub_iff_right.mpr <| by nlinarith [ Nat.self_le_factorial ( x + 2 ) ] ⟩
+    · refine le_csInf ?_ ?_
+      · refine ⟨ (n + 3)! - 1, ⟨ ⟨ n + 3, by linarith, rfl ⟩, fun k hk => ?_ ⟩ ⟩
+        refine lt_of_le_of_lt ( Nat.nth_monotone ?_ ( Nat.le_of_lt_succ hk ) ) ?_
+        · exact Set.infinite_of_forall_exists_gt fun x => ⟨ (x + 2)! - 1, ⟨ x + 2, by linarith, rfl ⟩, lt_tsub_iff_right.mpr <| by nlinarith [ Nat.self_le_factorial ( x + 2 ) ] ⟩
         · exact ih.symm ▸ by rw [ tsub_lt_tsub_iff_right ( Nat.one_le_iff_ne_zero.mpr <| by positivity ) ] ; gcongr ; linarith
       · intro b hb
         obtain ⟨ ⟨ j, hj₁, rfl ⟩, hb' ⟩ := hb
@@ -7712,8 +7762,8 @@ lemma card_filter_modEq_Icc (u L a m : ℕ) (hm : m > 0) :
   let I := Finset.Icc u (u + L - 1)
   let S := I.filter (fun x => x ≡ a [MOD m])
   abs ((S.card : ℝ) - (L : ℝ) / m) ≤ 2 := by
-    refine' abs_sub_le_iff.mpr ⟨ _, _ ⟩
-    · refine' le_trans ( sub_le_sub_right ( Nat.cast_le.mpr <| Finset.card_le_card <| show Finset.filter ( fun x => x ≡ a [MOD m] ) ( Finset.Icc u ( u + L - 1 ) ) ⊆ Finset.image ( fun k => m * k + a % m ) ( Finset.Icc ( u / m ) ( ( u + L - 1 ) / m ) ) from _ ) _ ) _
+    refine abs_sub_le_iff.mpr ⟨ ?_, ?_ ⟩
+    · refine le_trans ( sub_le_sub_right ( Nat.cast_le.mpr <| Finset.card_le_card <| show Finset.filter ( fun x => x ≡ a [MOD m] ) ( Finset.Icc u ( u + L - 1 ) ) ⊆ Finset.image ( fun k => m * k + a % m ) ( Finset.Icc ( u / m ) ( ( u + L - 1 ) / m ) ) from ?_ ) ((L : ℝ) / m) ) ?_
       · intro x hx
         simp_all +decide [ Nat.ModEq ]
         exact ⟨ x / m, ⟨ Nat.div_le_div_right hx.1.1, Nat.div_le_div_right hx.1.2 ⟩, by linarith [ Nat.mod_add_div x m ] ⟩
@@ -7769,7 +7819,7 @@ lemma lemma_freq :
     let N_intersect := (S.filter (fun n => n ≡ c [MOD q])).card
     N_S > 0 →
     (N_intersect : ℝ) / N_S ≤ C * (1 / (q : ℝ) + (W : ℝ) / L) := by
-      refine' ⟨ 4, by norm_num, fun W q b c u L hWq hL hS => _ ⟩
+      refine ⟨ 4, by norm_num, fun W q b c u L hWq hL hS => ?_ ⟩
       -- Let's consider the two cases: $L \geq 4W$ and $W \leq L < 4W$.
       by_cases h_case : L ≥ 4 * W
       · -- Using the bounds from card_filter_modEq_Icc and card_intersect_bound, we have:
@@ -7800,7 +7850,7 @@ lemma lemma_freq :
               try linarith [ Nat.pos_of_ne_zero hW, Nat.pos_of_ne_zero hq ]
             nlinarith [ Nat.pos_of_ne_zero hW, Nat.pos_of_ne_zero hq, mul_pos ( Nat.pos_of_ne_zero hW ) ( Nat.pos_of_ne_zero hq ) ]
           · exact Nat.cast_pos.mpr ( Finset.card_pos.mpr hS )
-      · refine' le_trans ( div_le_one_of_le₀ _ _ ) _
+      · refine le_trans ( div_le_one_of_le₀ ?_ ?_ ) ?_
         · exact_mod_cast Finset.card_mono <| Finset.filter_subset _ _
         · positivity
         · rcases q with ( _ | _ | q )
@@ -7834,7 +7884,7 @@ lemma W_bound :
       have theta_bound : ∀ y : ℝ, 0 ≤ y → (∑ p ∈ (Finset.range (Nat.floor y + 1)).filter Nat.Prime, Real.log p) ≤ Real.log 4 * y := by
         intro y hy
         convert Chebyshev.theta_le_log4_mul_x hy using 1
-        refine' Finset.sum_bij ( fun p hp => p ) _ _ _ _ <;> simp_all +decide [ Finset.mem_filter, Finset.mem_range ]
+        refine Finset.sum_bij ( fun p hp => p ) ?_ ?_ ?_ ?_ <;> simp_all +decide [ Finset.mem_filter, Finset.mem_range ]
         exact fun a ha ha' => Nat.Prime.pos ha'
       -- Use the bound on $\theta(y)$ to bound $\log(W_val(x))$.
       have log_W_val_bound : ∀ᶠ x in Filter.atTop, Real.log (W_val x) ≤ 2 * Real.log 4 * (0.1 * Real.log x) := by
@@ -7906,7 +7956,7 @@ lemma tail_sum_inv_prime_sq_isBigO :
           have h_prime_counting_bound : ∃ C > 0, ∀ m : ℕ, m ≥ 2 → (Nat.primeCounting m : ℝ) ≤ C * (m / Real.log m) := by
             have := @Chebyshev.eventually_primeCounting_le
             obtain ⟨ C, hC ⟩ := Filter.eventually_atTop.mp ( this zero_lt_one )
-            refine' ⟨ Max.max ( Real.log 4 + 1 ) ( ∑ m ∈ Finset.Icc 2 ( Nat.ceil C ), ( Nat.primeCounting m : ℝ ) * Real.log m / m ) + 1, by positivity, fun m hm => _ ⟩
+            refine ⟨ Max.max ( Real.log 4 + 1 ) ( ∑ m ∈ Finset.Icc 2 ( Nat.ceil C ), ( Nat.primeCounting m : ℝ ) * Real.log m / m ) + 1, by positivity, fun m hm => ?_ ⟩
             by_cases hm' : m ≤ Nat.ceil C
             · have := Finset.single_le_sum ( fun x ( hx : x ∈ Finset.Icc 2 ⌈C⌉₊ ) => show 0 ≤ ( Nat.primeCounting x : ℝ ) * Real.log x / x from div_nonneg ( mul_nonneg ( Nat.cast_nonneg _ ) ( Real.log_nonneg ( by norm_cast; linarith [ Finset.mem_Icc.mp hx ] ) ) ) ( Nat.cast_nonneg _ ) ) ( Finset.mem_Icc.mpr ⟨ hm, hm' ⟩ )
               rw [ div_le_iff₀ ( by positivity ) ] at this
@@ -7917,7 +7967,7 @@ lemma tail_sum_inv_prime_sq_isBigO :
               exact this.trans ( by rw [ mul_div_assoc ] ; exact mul_le_mul_of_nonneg_right ( by linarith [ le_max_left ( Real.log 4 + 1 ) ( ∑ m ∈ Finset.Icc 2 ⌈C⌉₊, ( m.primeCounting : ℝ ) * Real.log m / m ) ] ) ( by positivity ) )
           exact ⟨ h_prime_counting_bound.choose, h_prime_counting_bound.choose_spec.1, fun x hx N hN m hm => h_prime_counting_bound.choose_spec.2 m <| by linarith [ Finset.mem_Icc.mp hm, Nat.ceil_le.mp <| Finset.mem_Icc.mp hm |>.1, show ⌈x⌉₊ ≥ 4 by exact Nat.succ_le_of_lt <| Nat.lt_ceil.mpr <| by norm_num; linarith ] ⟩
         obtain ⟨ C, hC₀, hC ⟩ := h_prime_counting_bound
-        refine' ⟨ C * 3, mul_pos hC₀ zero_lt_three, fun x hx N hN => _ ⟩
+        refine ⟨ C * 3, mul_pos hC₀ zero_lt_three, fun x hx N hN => ?_ ⟩
         rw [ Finset.mul_sum _ _ _ ]
         refine Finset.sum_le_sum fun m hm => le_trans ( mul_le_mul_of_nonneg_right ( hC x hx N hN m hm ) <| sub_nonneg.mpr <| one_div_le_one_div_of_le ( by norm_cast; nlinarith [ Finset.mem_Icc.mp hm, Nat.ceil_pos.mpr ( show 0 < x by linarith ) ] ) <| by gcongr ; linarith ) ?_
         rcases m with ( _ | _ | m )
@@ -7961,12 +8011,12 @@ lemma tail_sum_inv_prime_sq_isBigO :
           have := @Chebyshev.eventually_primeCounting_le
           obtain ⟨ M, hM ⟩ := Filter.eventually_atTop.mp ( this zero_lt_one )
           use Max.max ( Real.log 4 + 1 ) ( ∑ N ∈ Finset.Icc 4 ( Nat.floor M ), ( Nat.primeCounting N : ℝ ) * Real.log N / N )
-          refine' ⟨ lt_max_of_lt_left ( by positivity ), fun N hN => _ ⟩
+          refine ⟨ lt_max_of_lt_left ( by positivity ), fun N hN => ?_ ⟩
           by_cases hN' : N ≤ Nat.floor M
           · rw [ le_div_iff₀ ( Real.log_pos <| by norm_cast; linarith ) ]
-            refine' le_trans _ ( mul_le_mul_of_nonneg_right ( le_max_right _ _ ) ( Nat.cast_nonneg _ ) )
+            refine le_trans ?_ ( mul_le_mul_of_nonneg_right ( le_max_right (Real.log 4 + 1) (∑ N ∈ Finset.Icc 4 ( Nat.floor M ), ( Nat.primeCounting N : ℝ ) * Real.log N / N) ) ( Nat.cast_nonneg N ) )
             rw [ Finset.sum_mul _ _ _ ]
-            refine' le_trans _ ( Finset.single_le_sum ( fun i hi => by positivity ) ( Finset.mem_Icc.mpr ⟨ hN, hN' ⟩ ) )
+            refine le_trans ?_ ( Finset.single_le_sum ( fun i hi => by positivity ) ( Finset.mem_Icc.mpr ⟨ hN, hN' ⟩ ) )
             rw [ div_mul_cancel₀ _ ( by positivity ) ]
           · have := hM N ( Nat.lt_of_floor_lt ( not_le.mp hN' ) |> le_of_lt )
             simp_all +decide [ mul_div_assoc ]
@@ -7982,7 +8032,7 @@ lemma tail_sum_inv_prime_sq_isBigO :
         · convert ‹∀ N : ℕ, 4 ≤ N → ( N.primeCounting : ℝ ) ≤ C * N * ( Real.log N ) ⁻¹› N ( by exact_mod_cast hx.trans hN ) using 1 ; by_cases hN : N = 0 <;> simp +decide [ sq, mul_assoc, hN ]
         · exact sq_pos_of_pos ( by linarith )
       obtain ⟨ D, hD₀, hD ⟩ := h_prime_counting_bound
-      refine' ⟨ D + C * 2, by positivity, fun x hx N hN => le_trans ( h_abel x hx N hN ) _ ⟩
+      refine ⟨ D + C * 2, by positivity, fun x hx N hN => le_trans ( h_abel x hx N hN ) ?_ ⟩
       refine le_trans ( add_le_add ( hD x hx N hN ) ( hC x hx N hN ) ) ?_
       refine le_trans ( add_le_add ( show D / ( N * Real.log N ) ≤ D / ( x * Real.log x ) from ?_ ) ( mul_le_mul_of_nonneg_left ( h_sum_bound x hx N hN ) hC₀.le ) ) ?_
       · gcongr
@@ -7993,12 +8043,12 @@ lemma tail_sum_inv_prime_sq_isBigO :
       · ring_nf
         norm_num
     obtain ⟨ C, hC₀, hC ⟩ := h_tail_bound
-    refine' ⟨ C, hC₀, fun x hx => _ ⟩
+    refine ⟨ C, hC₀, fun x hx => ?_ ⟩
     have h_tail_bound : Filter.Tendsto (fun N : ℕ => ∑ p ∈ Finset.Icc (Nat.ceil x) N, if Nat.Prime p then (1 / (p : ℝ)^2) else 0) Filter.atTop (nhds (∑' p : ℕ, if Nat.Prime p ∧ x ≤ (p : ℝ) then (1 / (p : ℝ)^2) else 0)) := by
       have h_tail_bound : Filter.Tendsto (fun N : ℕ => ∑ p ∈ Finset.range (N + 1), if Nat.Prime p ∧ x ≤ (p : ℝ) then (1 / (p : ℝ)^2) else 0) Filter.atTop (nhds (∑' p : ℕ, if Nat.Prime p ∧ x ≤ (p : ℝ) then (1 / (p : ℝ)^2) else 0)) := by
-        refine' ( Summable.hasSum _ ) |> HasSum.tendsto_sum_nat |> Filter.Tendsto.comp <| Filter.tendsto_add_atTop_nat 1
+        refine ( Summable.hasSum ?_ ) |> HasSum.tendsto_sum_nat |> Filter.Tendsto.comp <| Filter.tendsto_add_atTop_nat 1
         exact Summable.of_nonneg_of_le ( fun p => by positivity ) ( fun p => by aesop ) ( Real.summable_one_div_nat_pow.2 one_lt_two )
-      refine' h_tail_bound.congr' _
+      refine h_tail_bound.congr' ?_
       filter_upwards [ Filter.eventually_ge_atTop ⌈x⌉₊ ] with N hN
       rw [ ← Finset.sum_filter ]
       rw [ ← Finset.sum_filter ]
@@ -8021,8 +8071,8 @@ lemma sum_inv_sq_part_O :
       intro x hx
       have h_subset : Finset.filter (fun p : ℕ => 0.1 * Real.log x < p ∧ p ≤ Real.sqrt (2 * x) ∧ Nat.Prime p) (Finset.range (Nat.floor (Real.sqrt (2 * x)) + 1)) ⊆ Finset.filter (fun p : ℕ => Nat.Prime p ∧ 0.1 * Real.log x ≤ p) (Finset.range (Nat.floor (Real.sqrt (2 * x)) + 1)) := by
         exact fun p hp => Finset.mem_filter.mpr ⟨ Finset.mem_filter.mp hp |>.1, Finset.mem_filter.mp hp |>.2.2.2, le_of_lt ( Finset.mem_filter.mp hp |>.2.1 ) ⟩
-      refine' le_trans ( Finset.sum_le_sum_of_subset_of_nonneg h_subset fun _ _ _ => by positivity ) _
-      refine' le_trans _ ( Summable.sum_le_tsum _ _ _ )
+      refine le_trans ( Finset.sum_le_sum_of_subset_of_nonneg h_subset fun _ _ _ => by positivity ) ?_
+      refine le_trans ?_ ( Summable.sum_le_tsum ?_ ?_ ?_ )
       any_goals exact Finset.range ( ⌊Real.sqrt ( 2 * x ) ⌋₊ + 1 )
       · rw [ Finset.sum_filter ]
         exact Finset.sum_le_sum fun _ _ => by aesop
@@ -8043,7 +8093,7 @@ lemma sum_inv_sq_part_O :
             exact Real.tendsto_log_atTop.comp Real.tendsto_log_atTop
           exact h_log_simplify.eventually_ge_atTop _
         filter_upwards [ ‹∀ᶠ x in Filter.atTop, Real.log ( 0.1 * Real.log x ) ≥ Real.log ( Real.log x ) - Real.log 10›, h_log_simplify ] with x hx₁ hx₂ using by linarith
-      refine' ⟨ 20, _ ⟩ ; filter_upwards [ h_log_simplify, Filter.eventually_gt_atTop 2, Filter.eventually_gt_atTop ( Real.exp 1 ) ] with x hx₁ hx₂ hx₃ ; rw [ Real.norm_of_nonneg, Real.norm_of_nonneg ] <;> norm_num at *
+      refine ⟨ 20, ?_ ⟩ ; filter_upwards [ h_log_simplify, Filter.eventually_gt_atTop 2, Filter.eventually_gt_atTop ( Real.exp 1 ) ] with x hx₁ hx₂ hx₃ ; rw [ Real.norm_of_nonneg, Real.norm_of_nonneg ] <;> norm_num at *
       · rw [ inv_mul_eq_div, div_le_iff₀ ]
         · field_simp
           rw [ div_le_div_iff₀ ]
@@ -8057,7 +8107,7 @@ lemma sum_inv_sq_part_O :
         · exact lt_of_lt_of_le ( mul_pos ( by norm_num ) ( Real.log_pos ( show 1 < Real.log x from by rw [ Real.lt_log_iff_exp_lt ] <;> linarith [ Real.add_one_le_exp 1 ] ) ) ) hx₁
       · exact mul_nonneg ( inv_nonneg.2 ( Real.log_nonneg ( show 1 ≤ Real.log x from by rw [ Real.le_log_iff_exp_le ( by positivity ) ] ; linarith [ Real.add_one_le_exp 1 ] ) ) ) ( inv_nonneg.2 ( Real.log_nonneg ( show 1 ≤ x from by linarith [ Real.add_one_le_exp 1 ] ) ) )
       · exact mul_nonneg ( inv_nonneg.mpr ( le_trans ( mul_nonneg ( by norm_num ) ( Real.log_nonneg ( show 1 ≤ Real.log x from by rw [ Real.le_log_iff_exp_le ( by linarith ) ] ; linarith [ Real.add_one_le_exp 1 ] ) ) ) hx₁ ) ) ( mul_nonneg ( inv_nonneg.mpr ( Real.log_nonneg ( by linarith ) ) ) ( by norm_num ) )
-    refine' Asymptotics.IsBigO.trans _ ( h_tail_sum.trans h_simplify )
+    refine Asymptotics.IsBigO.trans ?_ ( h_tail_sum.trans h_simplify )
     rw [ Asymptotics.isBigO_iff ]
     exact ⟨ 1, Filter.eventually_atTop.mpr ⟨ 2, fun x hx => by rw [ Real.norm_of_nonneg ( Finset.sum_nonneg fun _ _ => by positivity ), Real.norm_of_nonneg ( tsum_nonneg fun _ => by positivity ) ] ; simpa using h_sum_bound x hx ⟩ ⟩
 
@@ -8116,9 +8166,9 @@ lemma sum_W_div_x_bound :
       filter_upwards [ h_simp, h_final, Filter.eventually_gt_atTop 1, W_bound ] with x hx₁ hx₂ hx₃ hx₄
       refine le_trans ?_ hx₂
       gcongr
-    refine' Filter.eventually_atTop.mpr ⟨ 4, fun x hx => _ ⟩
+    refine Filter.eventually_atTop.mpr ⟨ 4, fun x hx => ?_ ⟩
     norm_num [ Nat.floor_le ] at *
-    refine' le_trans _ ( Nat.floor_le <| by positivity )
+    refine le_trans ?_ ( Nat.floor_le <| by positivity )
     exact_mod_cast le_trans ( Finset.card_le_card <| show Finset.filter ( fun p : ℕ => 1 / 10 * Real.log x < ( p : ℝ ) ∧ ( p : ℝ ) ≤ Real.sqrt 2 * Real.sqrt x ∧ Nat.Prime p ) ( Finset.range ( ⌊Real.sqrt 2 * Real.sqrt x⌋₊ + 1 ) ) ⊆ Finset.Ico 1 ( ⌊Real.sqrt 2 * Real.sqrt x⌋₊ + 1 ) from fun p hp => Finset.mem_Ico.mpr ⟨ Nat.Prime.pos <| by aesop, Finset.mem_range.mp <| Finset.mem_filter.mp hp |>.1 ⟩ ) <| by simp +arith +decide
 
 /-
@@ -8242,9 +8292,9 @@ lemma prob_condition_of_growth :
       -- We know `failure_prob_sum_2` is $O(\text{bound\_func})$.
       have h_bound : ∃ K > 0, ∀ᶠ x in Filter.atTop, failure_prob_sum_2 x ≤ K * bound_func x := by
         obtain ⟨ K, hK ⟩ := Asymptotics.isBigO_iff.mp ( failure_prob_sum_2_bound_O )
-        refine' ⟨ Max.max K 1, by positivity, _ ⟩
+        refine ⟨ Max.max K 1, by positivity, ?_ ⟩
         filter_upwards [ hK, Filter.eventually_gt_atTop 1, Filter.eventually_gt_atTop ( Real.exp 1 ) ] with x hx₁ hx₂ hx₃
-        refine' le_trans ( le_abs_self _ ) ( le_trans hx₁ _ )
+        refine le_trans ( le_abs_self (failure_prob_sum_2 x) ) ( le_trans hx₁ ?_ )
         rw [ Real.norm_of_nonneg ( one_div_nonneg.mpr ( mul_nonneg ( Real.log_nonneg hx₂.le ) ( Real.log_nonneg ( show 1 ≤ Real.log x from by rw [ Real.le_log_iff_exp_le ( by positivity ) ] ; linarith [ Real.add_one_le_exp 1 ] ) ) ) ) ]
         exact mul_le_mul_of_nonneg_right ( le_max_left _ _ ) ( one_div_nonneg.mpr ( mul_nonneg ( Real.log_nonneg hx₂.le ) ( Real.log_nonneg ( show 1 ≤ Real.log x from by rw [ Real.le_log_iff_exp_le ( by positivity ) ] ; linarith [ Real.add_one_le_exp 1 ] ) ) ) )
       -- Let $x_{min}(j) = \exp(C j / \log j)$.
@@ -8298,7 +8348,7 @@ lemma prob_condition_of_growth :
         have h_final : ∀ᶠ j in Filter.atTop, ∀ x ≥ Real.exp (C * j / Real.log j), failure_prob_sum_2 x ≤ K * bound_func x := by
           have h_final : ∀ᶠ j in Filter.atTop, Real.exp (C * j / Real.log j) ≥ Classical.choose (Filter.eventually_atTop.mp hK_bound) := by
             have h_final : Filter.Tendsto (fun j => Real.exp (C * j / Real.log j)) Filter.atTop Filter.atTop := by
-              refine' Real.tendsto_exp_atTop.comp _
+              refine Real.tendsto_exp_atTop.comp ?_
               -- We can use the change of variables $u = \log j$ to transform the limit expression.
               suffices h_log : Filter.Tendsto (fun u => C * Real.exp u / u) Filter.atTop Filter.atTop by
                 have := h_log.comp Real.tendsto_log_atTop
@@ -8492,7 +8542,7 @@ lemma BadSet_card_bound (x_nat : ℕ) (W : ℕ) (b : ℕ) (a : ℕ) (p : ℕ)
           · rw [ ← mul_assoc, mul_comm ]
             rw [ mul_comm ]
             norm_num [CandidateSet_eq_modEq, hW]
-          · refine' Finset.card_pos.mpr _
+          · refine Finset.card_pos.mpr ?_
             obtain ⟨ n, hn ⟩ := exists_mod_in_interval ⌈ ( x_nat : ℝ ) / 2⌉₊ ( ⌊ ( x_nat : ℝ ) ⌋₊ - ⌈ ( x_nat : ℝ ) / 2⌉₊ + 1 ) W ( ( W - b % W ) % W ) ( by linarith ) ( by linarith )
             use n
             aesop
@@ -8515,8 +8565,8 @@ lemma UnionBadSets_card_bound (x_nat : ℕ) (W : ℕ) (b : ℕ) (A : Finset ℕ)
     let U := UnionBadSets x_nat W b A
     let L_nat := Nat.floor (x_nat : ℝ) - Nat.ceil ((x_nat : ℝ) / 2) + 1
     (U.card : ℝ) ≤ (S.card : ℝ) * C_freq * (A.card : ℝ) * ∑ p ∈ PrimesInInterval (x_nat : ℝ), (1 / (p^2 : ℝ) + (W : ℝ) / (L_nat : ℝ)) := by
-      refine' le_trans ( Nat.cast_le.mpr <| Finset.card_biUnion_le ) _
-      refine' le_trans ( Nat.cast_le.mpr <| Finset.sum_le_sum fun a ha => Finset.card_biUnion_le ) _
+      refine le_trans ( Nat.cast_le.mpr <| Finset.card_biUnion_le ) ?_
+      refine le_trans ( Nat.cast_le.mpr <| Finset.sum_le_sum fun a ha => Finset.card_biUnion_le ) ?_
       push_cast [ Finset.mul_sum _ _ _ ]
       rw [ Finset.sum_comm ]
       refine Finset.sum_le_sum fun p hp => ?_
@@ -8578,7 +8628,7 @@ lemma exists_good_n_final (x_nat : ℕ) (hx : (x_nat : ℝ) ≥ 100) (W : ℕ) (
           · exact Finset.card_pos
           · exact hW.symm ▸ Finset.prod_pos fun p hp => pow_pos ( Nat.Prime.pos ( Finset.mem_filter.mp hp |>.2 ) ) 2)
         exact Finset.not_subset.mp fun h => h_card_lt_S_card.not_ge <| Finset.card_le_card h
-      refine' ⟨ n, _, _, _ ⟩ <;> simp_all +decide
+      refine ⟨ n, ?_, ?_, ?_ ⟩ <;> simp_all +decide
       · unfold CandidateSet at hn
         aesop
       · unfold CandidateSet at hn
@@ -8589,7 +8639,7 @@ lemma exists_good_n_final (x_nat : ℕ) (hx : (x_nat : ℝ) ≥ 100) (W : ℕ) (
           by_cases hp_le : p ≤ Nat.floor (0.1 * Real.log x_nat)
           · -- Since $p \leq \lfloor 0.1 \log x_nat \rfloor$, we have $p^2 \mid W$.
             have hp_sq_div_W : p^2 ∣ W_val x_nat := by
-              refine' Finset.dvd_prod_of_mem _ _
+              refine Finset.dvd_prod_of_mem (fun p : ℕ => p ^ 2) ?_
               exact Finset.mem_filter.mpr ⟨ Finset.mem_range.mpr ( Nat.lt_succ_of_le hp_le ), hp ⟩
             -- Since $p^2 \mid W$, we have $n \equiv -b \pmod{p^2}$.
             have hn_mod_p2 : n ≡ -b [ZMOD p^2] := by
@@ -8605,7 +8655,7 @@ lemma exists_good_n_final (x_nat : ℕ) (hx : (x_nat : ℝ) ≥ 100) (W : ℕ) (
           · by_cases hp_ge : p ≤ Nat.floor (Real.sqrt (2 * x_nat))
             · contrapose! hn
               simp_all +decide [ CandidateSet, UnionBadSets, BadSet ]
-              refine' fun _ _ _ => ⟨ a, ha, p, _, _ ⟩ <;> norm_num [ PrimesInInterval ] at *
+              refine fun _ _ _ => ⟨ a, ha, p, ?_, ?_ ⟩ <;> norm_num [ PrimesInInterval ] at *
               · constructor
                 · omega
                 · exact ⟨Nat.lt_of_floor_lt hp_le, Nat.floor_le ( by positivity ) |> le_trans ( Nat.cast_le.mpr hp_ge ), hp⟩
@@ -8638,24 +8688,24 @@ lemma sufficient_condition_for_Q  (A : Set ℕ) (hA_adm : Admissible A) (hA_inf 
           have h_exists_good_n : ∀ᶠ k in Filter.atTop, (Nat.nth (· ∈ A) (J k - 1) : ℝ) ≥ 100 ∧ (J k : ℝ) * C_freq * failure_prob_sum_2 (Nat.nth (· ∈ A) (J k - 1)) < 1 := by
             have h_exists_good_n : ∀ᶠ k in Filter.atTop, (Nat.nth (· ∈ A) (J k - 1) : ℝ) ≥ 100 := by
               have h_exists_good_n : Filter.Tendsto (fun k => (Nat.nth (· ∈ A) (J k - 1) : ℝ)) Filter.atTop Filter.atTop := by
-                refine' tendsto_natCast_atTop_atTop.comp ( Nat.nth_strictMono hA_inf |> StrictMono.tendsto_atTop |> Filter.Tendsto.comp <| Filter.tendsto_sub_atTop_nat 1 |> Filter.Tendsto.comp <| hJ.1.tendsto_atTop )
+                refine tendsto_natCast_atTop_atTop.comp ( Nat.nth_strictMono hA_inf |> StrictMono.tendsto_atTop |> Filter.Tendsto.comp <| Filter.tendsto_sub_atTop_nat 1 |> Filter.Tendsto.comp <| hJ.1.tendsto_atTop )
               exact h_exists_good_n.eventually_ge_atTop 100
             filter_upwards [ h_exists_good_n, h_prob.natCast_atTop.filter_mono hJ.1.tendsto_atTop ] with k hk₁ hk₂ using ⟨ hk₁, hk₂ _ ( hJ.2 k ) ⟩
           have h_length_condition : ∀ᶠ x in Filter.atTop, (Nat.floor x - Nat.ceil (x / 2) + 1 : ℝ) ≥ W_val x := by
             convert length_condition using 1
           have h_length_condition : Filter.Tendsto (fun k => (Nat.nth (· ∈ A) (J k - 1) : ℝ)) Filter.atTop Filter.atTop := by
-            refine' tendsto_natCast_atTop_atTop.comp ( Filter.tendsto_atTop_atTop.mpr _ )
+            refine tendsto_natCast_atTop_atTop.comp ( Filter.tendsto_atTop_atTop.mpr ?_ )
             intro b
             use b + 1
             intro a ha
-            refine' le_trans _ ( Nat.le_nth _ )
+            refine le_trans ?_ ( Nat.le_nth ?_ )
             · exact Nat.le_sub_one_of_lt ( lt_of_lt_of_le ha ( hJ.1.id_le _ ) )
             · exact fun hf => False.elim <| hA_inf <| hf.subset fun x hx => hx
           filter_upwards [ h_exists_good_n, h_length_condition.eventually ‹_› ] with k hk₁ hk₂ using ⟨ hk₁.1, hk₁.2, hk₂ ⟩
         filter_upwards [ h_exists_good_n ] with k hk
         have := exists_good_n_final ( Nat.nth ( fun x => x ∈ A ) ( J k - 1 ) ) hk.1 ( W_val ( Nat.nth ( fun x => x ∈ A ) ( J k - 1 ) ) ) rfl ( Classical.choose ( admissible_to_b_W_val A hA_adm ( Nat.nth ( fun x => x ∈ A ) ( J k - 1 ) ) ) ) ( Finset.filter ( fun a => a < Nat.nth ( fun x => x ∈ A ) ( J k - 1 ) ) ( Finset.image ( fun n => Nat.nth ( fun x => x ∈ A ) n ) ( Finset.range ( J k ) ) ) ) ?_ ?_ ?_ ?_
         · obtain ⟨ n, hn₁, hn₂, hn₃ ⟩ := this
-          refine' ⟨ n, hn₁, fun a ha ha' => _ ⟩
+          refine ⟨ n, hn₁, fun a ha ha' => ?_ ⟩
           by_cases ha'' : a < Nat.nth (fun x => x ∈ A) (J k - 1)
           · have := Nat.nth_mem_of_infinite hA_inf ( Nat.count ( fun x => x ∈ A ) a )
             simp_all +decide
@@ -8663,8 +8713,8 @@ lemma sufficient_condition_for_Q  (A : Set ℕ) (hA_adm : Admissible A) (hA_inf 
             · rw [ Nat.nth_count ]
               aesop
             · contrapose! ha''
-              refine' Nat.le_of_lt_succ _
-              refine' Nat.nth_lt_of_lt_count _
+              refine Nat.le_of_lt_succ ?_
+              refine Nat.nth_lt_of_lt_count ?_
               grind
             · rw [ Nat.nth_count ]
               aesop
@@ -8681,18 +8731,18 @@ lemma sufficient_condition_for_Q  (A : Set ℕ) (hA_adm : Admissible A) (hA_inf 
           rw [ Nat.ceil_le ]
           rw [ Nat.floor_natCast ]
           linarith
-        · refine' lt_of_le_of_lt _ hk.2.1
+        · refine lt_of_le_of_lt ?_ hk.2.1
           gcongr
           · exact Finset.sum_nonneg fun _ _ => add_nonneg ( one_div_nonneg.mpr ( sq_nonneg _ ) ) ( div_nonneg ( mul_nonneg zero_le_two ( Nat.cast_nonneg _ ) ) ( Nat.cast_nonneg _ ) )
           · exact le_of_lt ( C_freq_pos )
           · exact le_trans ( Finset.card_filter_le _ _ ) ( Finset.card_image_le.trans ( by simp ) )
       have h_inf_good_n : Set.Infinite {n : ℕ | ∃ k, n ∈ Finset.Icc (Nat.ceil ((Nat.nth (· ∈ A) (J k - 1) : ℝ) / 2)) (Nat.floor (Nat.nth (· ∈ A) (J k - 1) : ℝ)) ∧ ∀ a ∈ A, a < n → Squarefree (n + a)} := by
         have h_inf_good_n : Filter.Tendsto (fun k => Nat.nth (· ∈ A) (J k - 1)) Filter.atTop Filter.atTop := by
-          refine' Filter.tendsto_atTop_atTop.mpr _
+          refine Filter.tendsto_atTop_atTop.mpr ?_
           intro b
           use b + 1
           intro a ha
-          refine' le_trans _ ( Nat.le_nth _ )
+          refine le_trans ?_ ( Nat.le_nth ?_ )
           · exact Nat.le_sub_one_of_lt ( lt_of_lt_of_le ha ( hJ.1.id_le _ ) )
           · exact fun hf => False.elim <| hA_inf <| hf.subset fun x hx => hx
         rw [ Filter.tendsto_atTop_atTop ] at h_inf_good_n
@@ -8717,7 +8767,7 @@ theorem Theorem_suff :
     -- Apply the lemma prob_condition_of_growth_v2 to obtain the constant C.
     obtain ⟨C, hC_pos, hC⟩ : ∃ C > 0, ∀ᶠ j in Filter.atTop, ∀ x, x ≥ Real.exp (C * j / Real.log j) → (j : ℝ) * C_freq * failure_prob_sum_2 x < 1 := by
       exact prob_condition_of_growth_v2
-    refine' ⟨ C, hC_pos, _ ⟩
+    refine ⟨ C, hC_pos, ?_ ⟩
     intro A hA_adm hA_inf h_growth
     apply sufficient_condition_for_Q A hA_adm hA_inf C
     · exact hC
@@ -8767,14 +8817,14 @@ theorem A4_PropertyQ : PropertyQ A4 := by
             have := Real.summable_pow_div_factorial ( Real.exp C )
             simpa [ Real.exp_mul ] using this
           convert h_factorial_growth.tendsto_atTop_zero
-        refine' squeeze_zero_norm' _ h_factorial_growth
+        refine squeeze_zero_norm' ?_ h_factorial_growth
         exact Filter.eventually_atTop.mpr ⟨ 3, fun n hn => by
           rw [Real.norm_of_nonneg (div_nonneg (Real.exp_nonneg _) (Nat.cast_nonneg _))]
           exact div_le_div_of_nonneg_right (Real.exp_le_exp_of_le (div_le_self (by positivity) (Real.le_log_iff_exp_le (by positivity) |>.2 <| by exact Real.exp_one_lt_d9.le.trans <| by norm_num; linarith [show (n : ℝ) ≥ 3 by norm_cast]))) (Nat.cast_nonneg _) ⟩
       filter_upwards [ h_factorial_growth.eventually ( gt_mem_nhds zero_lt_one ), Filter.eventually_gt_atTop 0 ] with j hj₁ hj₂
       rw [ div_lt_one ( by positivity ) ] at hj₁
       exact le_trans hj₁.le ( le_tsub_of_add_le_right <| mod_cast by nlinarith [ Nat.factorial_pos j, Nat.factorial_succ j ] )
-    refine' Filter.Eventually.frequently _
+    refine Filter.Eventually.frequently ?_
     filter_upwards [ h_growth_A4, Filter.eventually_gt_atTop 1 ] with j hj₁ hj₂
     rw [ A4_nth ]
     rw [ Nat.cast_sub <| Nat.factorial_pos _ ]
