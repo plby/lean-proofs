@@ -31,7 +31,6 @@ namespace Erdos582
 set_option linter.unusedSectionVars false
 set_option linter.unusedVariables false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 set_option linter.style.setOption false
 set_option linter.flexible false
 
@@ -95,22 +94,33 @@ lemma ramsey_trans
                 ⟨f (hS.right.some w), h_f_lt_n _ (hS.right.some w).2⟩) w = j) ∧
               Nonempty (G ≃g K.induce T) := by
         convert hK _;
-      refine' ⟨ ⟨ j, by linarith [ Fin.is_lt j ] ⟩,
-        Set.image (fun w : T => (hS.2.some w : U)) (Set.univ : Set T), _, _ ⟩ <;>
-        simp_all +decide
-      · exact fun w hw =>
-          Fin.ext <| by
-            simpa [ Fin.ext_iff ] using congr_arg Fin.val ( hT.1 w hw ) ;
-      · refine' ⟨ hT.2.some.trans _ ⟩;
-        refine' ⟨ _, _, _ ⟩;
-        refine' Equiv.ofBijective
-          (fun x => ⟨ _, Set.mem_image_of_mem _ (Set.mem_univ x) ⟩)
-          ⟨ fun x y hxy => _, fun x => _ ⟩;
-        all_goals simp_all +decide
-        · have := hS.2.some.injective ( Subtype.ext hxy ) ; aesop;
-        · rcases x with ⟨ x, hx ⟩ ; aesop;
-        · intro h; have := hS.2.some.symm.map_adj_iff.2 h; aesop;
-        · intro h; have := hS.2.some.map_adj_iff.2 h; aesop;
+      refine ⟨ ⟨ j, by linarith [ Fin.is_lt j ] ⟩,
+        Set.image (fun w : T => (hS.2.some w : U)) (Set.univ : Set T), ?_, ?_ ⟩
+      · intro w hw
+        rcases hw with ⟨ a, _, rfl ⟩
+        exact Fin.ext <| by
+          simpa [ Fin.ext_iff ] using congr_arg Fin.val ( hT.1 a a.2 ) ;
+      · simp_all +decide
+        refine ⟨ hT.2.some.trans ?_ ⟩
+        refine
+          { toEquiv := Equiv.ofBijective
+              (fun x => ⟨ (hS.2.some x : U), Set.mem_image_of_mem _ (Set.mem_univ x) ⟩)
+              ⟨ ?_, ?_ ⟩
+            map_rel_iff' := ?_ }
+        · intro x y hxy
+          simp_all +decide
+          have := hS.2.some.injective ( Subtype.ext hxy ) ; aesop
+        · intro x
+          simp_all +decide
+          rcases x with ⟨ x, hx ⟩ ; aesop
+        · intro a b
+          constructor
+          · intro h
+            have := hS.2.some.symm.map_adj_iff.2 h
+            aesop
+          · intro h
+            have := hS.2.some.map_adj_iff.2 h
+            aesop
     · -- Since $i = 1$, for all $w \in S$, we have $f w = n$.
       have h_f_eq_n : ∀ w ∈ S, f w = n := by
         grind;
@@ -120,30 +130,42 @@ lemma ramsey_trans
         obtain ⟨ ϕ ⟩ := hS.2;
         obtain ⟨ T, hT ⟩ := hK ( fun w => ⟨ 0, by linarith ⟩ );
         obtain ⟨ S, hS₁, hS₂ ⟩ := hT;
-        refine' ⟨ ϕ '' S, _ ⟩;
-        refine' ⟨ hS₂.some.trans _ ⟩;
-        refine' ⟨ _, _, _ ⟩;
-        refine' Equiv.ofBijective
-          (fun x => ⟨ ϕ x, Set.mem_image_of_mem _ x.2 ⟩)
-          ⟨ fun x y hxy => _, fun x => _ ⟩;
-        all_goals simp_all +decide [ SimpleGraph.induce ];
-        · grind;
-        · rcases x with ⟨ x, hx ⟩ ; aesop;
-        · exact fun h => ϕ.map_adj_iff.mp h;
-        · exact fun h => ϕ.map_adj_iff.mpr h;
-      refine' ⟨ ⟨ n, Nat.lt_succ_self _ ⟩, T.image Subtype.val, _, _ ⟩ <;>
+        refine ⟨ ϕ '' S, ?_ ⟩;
+        refine ⟨ hS₂.some.trans ?_ ⟩
+        refine
+          { toEquiv := Equiv.ofBijective
+              (fun x => ⟨ ϕ x, Set.mem_image_of_mem _ x.2 ⟩)
+              ⟨ ?_, ?_ ⟩
+            map_rel_iff' := ?_ }
+        · intro x y hxy
+          exact Subtype.ext (by simpa using congrArg Subtype.val hxy)
+        · intro x
+          simp_all +decide [ SimpleGraph.induce ]
+          rcases x with ⟨ x, hx ⟩ ; aesop
+        · intro a b
+          constructor
+          · exact fun h => ϕ.map_adj_iff.mp h
+          · exact fun h => ϕ.map_adj_iff.mpr h
+      refine ⟨ ⟨ n, Nat.lt_succ_self n ⟩, T.image Subtype.val, ?_, ?_ ⟩ <;>
         simp_all +decide [ SimpleGraph.induce, Set.image ];
       · exact fun w hw hw' => Fin.ext ( h_f_eq_n w hw );
       · obtain ⟨ e ⟩ := hT;
-        refine' ⟨ e.trans _ ⟩;
-        refine' ⟨ _, _ ⟩;
-        · refine' Equiv.ofBijective
-            (fun x => ⟨ x.val, x, x.2, rfl ⟩)
-            ⟨ fun x y hxy => _, fun x => _ ⟩;
-          · simp_all +decide [ SimpleGraph.comap ];
-            grind;
-          · simp_all +decide [ SimpleGraph.comap ];
-            rcases x with ⟨ x, ⟨ a, ha, rfl ⟩ ⟩ ; aesop;
+        refine ⟨ e.trans ?_ ⟩;
+        refine ⟨ ?_, ?_ ⟩;
+        · let F : T → { x : U // ∃ a ∈ T, (a : U) = x } :=
+            fun x => ⟨ x.val, x, x.2, rfl ⟩
+          have h_inj : Function.Injective F := by
+            intro x y hxy
+            have hU : ((x : S) : U) = ((y : S) : U) :=
+              congrArg
+                (fun z : { x : U // ∃ a ∈ T, (a : U) = x } => z.1)
+                hxy
+            exact Subtype.ext (Subtype.ext hU)
+          have h_surj : Function.Surjective F := by
+            intro x
+            rcases x with ⟨ x, ⟨ a, ha, rfl ⟩ ⟩
+            exact ⟨ ⟨ a, ha ⟩, rfl ⟩
+          exact Equiv.ofBijective F ⟨ h_inj, h_surj ⟩
         · intro a b
           rfl
 
@@ -171,7 +193,7 @@ theorem exists_H_n_of_exists_H_2
           use V, inferInstance, inferInstance, G
           simp [VertexPartitionRamsey];
           intro f; use Set.univ; simp +decide [ Fin.eq_zero ] ;
-          refine' ⟨ _, _ ⟩;
+          refine ⟨ ?_, ?_ ⟩;
           exacts [
             Equiv.ofBijective (fun x => ⟨ x, trivial ⟩)
               ⟨ fun x y hxy => by
@@ -208,11 +230,11 @@ lemma X_nonempty (h : VertexPartitionRamsey 2 H' (G_prime G v0)) : (X_set G v0 H
   obtain ⟨S, hS⟩ := h (fun _ => 0);
   obtain ⟨ S', hS' ⟩ := hS;
   obtain ⟨ f, hf ⟩ := hS'.2;
-  refine' ⟨ _, _, _ ⟩;
+  refine ⟨ ?_, ?_, ?_ ⟩;
   exact Set.image ( fun x : { x : V // x ≠ v0 ∧ G.Adj x v0 } => f ⟨ x, by
     exact x.2.1 ⟩ ) ( Set.univ : Set { x : V // x ≠ v0 ∧ G.Adj x v0 } );
   all_goals generalize_proofs at *;
-  refine' Equiv.ofBijective _ ⟨ _, _ ⟩;
+  refine Equiv.ofBijective ?_ ⟨ ?_, ?_ ⟩;
   use fun x => ⟨ f.symm ⟨ x, by
     grind ⟩, by
     rcases x with ⟨ x, hx ⟩;
@@ -328,16 +350,16 @@ lemma GraphH_cliqueNum_ge
         ∃ (f : V → VertexH G v0 H'),
           Function.Injective f ∧
             ∀ u v, G.Adj u v → (GraphH G v0 H').Adj (f u) (f v) := by
-      refine' ⟨ fun v => Sum.inl ( v, ⟨ S, hS ⟩, T ), _, _ ⟩ <;>
+      refine ⟨ fun v => Sum.inl ( v, ⟨ S, hS ⟩, T ), ?_, ?_ ⟩ <;>
         simp +decide [ Function.Injective ];
       · grind;
       · exact fun u v huv => by exact ⟨ rfl, rfl, huv ⟩ ;
     obtain ⟨ f, hf_inj, hf_adj ⟩ := h_embedding;
-    refine' le_csSup (α := ℕ) _ _;
+    refine le_csSup (α := ℕ) ?_ ?_;
     · exact ⟨ _, fun n hn => hn.choose_spec.card_eq ▸ Finset.card_le_univ _ ⟩;
     · obtain ⟨ s, hs ⟩ := ( show ∃ s : Finset V, G.IsNClique ( G.cliqueNum ) s from by
                               exact exists_isNClique_cliqueNum );
-      refine' ⟨ Finset.image f s, _, _ ⟩ <;> simp_all +decide [ SimpleGraph.isNClique_iff ];
+      refine ⟨ Finset.image f s, ?_, ?_ ⟩ <;> simp_all +decide [ SimpleGraph.isNClique_iff ];
       · intro x hx y hy hxy; aesop;
       · rw [ Finset.card_image_of_injective _ hf_inj, hs.2 ]
 
@@ -429,7 +451,7 @@ lemma clique_case_two_A
           ∀ (S : Finset V),
             (∀ u ∈ S, ∀ v ∈ S, u ≠ v → G.Adj u v) → S.card ≤ G.cliqueNum := by
         intro S hS; exact (by
-        refine' le_csSup _ _ <;> norm_num +zetaDelta at *;
+        refine le_csSup ?_ ?_ <;> norm_num +zetaDelta at *;
         · exact ⟨ Fintype.card V, fun n hn => by
             obtain ⟨ s, hs ⟩ := hn
             exact hs.card_eq ▸ Finset.card_le_univ _ ⟩;
@@ -454,7 +476,7 @@ lemma cliqueNum_G_double_prime_le [Finite V] :
     classical
     letI := Fintype.ofFinite V
     simp +decide [ SimpleGraph.cliqueNum ];
-    refine' (le_csSup (α := ℕ) _ _);
+    refine (le_csSup (α := ℕ) ?_ ?_);
     · exact ⟨ Fintype.card V, fun n hn => by
         rcases hn with ⟨ s, hs ⟩
         exact hs.card_eq ▸ Finset.card_le_univ _ ⟩;
@@ -479,7 +501,7 @@ lemma cliqueNum_G_double_prime_le [Finite V] :
         · simp_all +decide [ SimpleGraph.isNClique_iff ];
           intro x hx₁ hx₂ hx₃; have := hK.1 hx₃; aesop;
         · aesop_cat;
-      refine' ⟨ Insert.insert v0 K', _, _ ⟩ <;> simp_all +decide [ SimpleGraph.isNClique_iff ];
+      refine ⟨ Insert.insert v0 K', ?_, ?_ ⟩ <;> simp_all +decide [ SimpleGraph.isNClique_iff ];
       · exact ⟨ fun x hx y hy hxy =>
             hK'.2 x hx |>.2.2 y hy ( Ne.symm hxy ),
           fun x hx hx' => hK'.2 x hx |>.2.1.symm ⟩;
@@ -523,7 +545,7 @@ lemma clique_case_one_A_type_B_is_clique_in_S
               ∀ y ∈ Q, (∃ w i, y = Sum.inr (w, i)) →
                 ∃ w i, y = Sum.inr (w, i) ∧ i = i0 := by
           obtain ⟨ y, hy, w, i, rfl ⟩ := hQB;
-          refine' ⟨ w, i, _, hy, rfl, fun y hy' hy'' => _ ⟩;
+          refine ⟨ w, i, Sum.inr (w, i), hy, rfl, fun y hy' hy'' => ?_ ⟩;
           rcases hy'' with ⟨ w', i', rfl ⟩
           have := hQ hy hy'
           simp_all +decide [ SimpleGraph.IsClique ]
@@ -575,14 +597,14 @@ lemma clique_case_one_A_type_B_is_clique_in_S
             exact ⟨y.val, (Finset.mem_filter.mp y.property).1,
               hf1 y.val (Finset.mem_filter.mp y.property).1 (Finset.mem_filter.mp y.property).2,
               hf2 y.val (Finset.mem_filter.mp y.property).1 (Finset.mem_filter.mp y.property).2⟩
-        refine' ⟨ W_B, hW_B.1, _, _ ⟩ <;> simp_all +decide [ SimpleGraph.IsClique ];
+        refine ⟨ W_B, hW_B.1, ?_, ?_ ⟩ <;> simp_all +decide [ SimpleGraph.IsClique ];
         intro w hw w' hw' hne
         have := hQ (hW_B.2 w hw |>.1) (hW_B.2 w' hw' |>.1)
         simp_all +decide
         unfold GraphH at this; simp_all +decide
         unfold AdjH at this; simp_all +decide
         grind;
-      · refine' ⟨ ∅, _, _, _ ⟩
+      · refine ⟨ ∅, ?_, ?_, ?_ ⟩
         · have hfilter_empty : Q.filter (fun y => ∃ w i, y = Sum.inr (w, i)) = ∅ := by
             apply Finset.eq_empty_iff_forall_notMem.mpr
             intro y hy
@@ -604,7 +626,7 @@ lemma clique_subset_le_cliqueNum_induce
     classical
     letI := Fintype.ofFinite V
     letI := Fintype.ofFinite S
-    refine' le_csSup _ _;
+    refine le_csSup ?_ ?_;
     · exact ⟨ _, fun n hn => by
         rcases hn with ⟨ s, hs ⟩
         exact hs.card_eq.symm ▸ Finset.card_le_univ _ ⟩;
@@ -613,7 +635,7 @@ lemma clique_subset_le_cliqueNum_induce
       · intro x hx y hy hxy
         specialize hC (by aesop : (x : V) ∈ C) (by aesop : (y : V) ∈ C)
         aesop;
-      · refine' Finset.card_bij ( fun v hv => v ) _ _ _ <;> aesop
+      · refine Finset.card_bij ( fun v hv => v ) ?_ ?_ ?_ <;> aesop
 
 /-
 If a clique contains exactly one type A vertex, its size is at most the clique number of G'' plus 1.
@@ -647,8 +669,8 @@ lemma clique_case_one_A
     have h_cliqueNum_H'_induce_S :
         (H'.induce S.val).cliqueNum = (G_double_prime G v0).cliqueNum := by
       obtain ⟨ f, hf ⟩ := S.2;
-      refine' le_antisymm _ _ <;> simp +decide [ SimpleGraph.cliqueNum ];
-      · refine' csSup_le _ _ <;> norm_num +zetaDelta at *;
+      refine le_antisymm ?_ ?_ <;> simp +decide [ SimpleGraph.cliqueNum ];
+      · refine csSup_le ?_ ?_ <;> norm_num +zetaDelta at *;
         · exact ⟨ 0, ⟨ ∅, by simp +decide ⟩ ⟩;
         · intro b x hx
           obtain ⟨hx_card, hx_clique⟩ := hx
@@ -664,11 +686,11 @@ lemma clique_case_one_A
           exact ⟨ Fintype.card ( V_double_prime G v0 ), fun n hn => by
             obtain ⟨ s, hs ⟩ := hn
             exact hs.card_eq ▸ Finset.card_le_univ _ ⟩) ⟨_, h_image_clique⟩
-      · refine' csSup_le _ _ <;> norm_num +zetaDelta at *;
+      · refine csSup_le ?_ ?_ <;> norm_num +zetaDelta at *;
         · exact ⟨ 0, ⟨ ∅, by simp +decide ⟩ ⟩;
-        · intro b x hx; refine' le_csSup _ _ <;> norm_num +zetaDelta at *;
+        · intro b x hx; refine le_csSup ?_ ?_ <;> norm_num +zetaDelta at *;
           · exact ⟨ _, fun n hn => hn.choose_spec.card_eq ▸ Finset.card_le_univ _ ⟩;
-          · refine' ⟨ Finset.image ( fun y => ⟨ f.symm y |>.1, f.symm y |>.2 ⟩ ) x, _ ⟩;
+          · refine ⟨ Finset.image ( fun y => ⟨ f.symm y |>.1, f.symm y |>.2 ⟩ ) x, ?_ ⟩;
             simp +decide [ SimpleGraph.isNClique_iff, SimpleGraph.isClique_iff ] at hx ⊢;
             simp +decide [ Set.Pairwise, Finset.card_image_of_injective, Function.Injective, hx.2 ];
             exact fun a ha ha' b hb hb' hab => hf a ha b hb |>.1 ( hx.1 ha' hb' ( by aesop ) );
@@ -759,11 +781,11 @@ lemma clique_case_zero_A
           exact h_adj0
         change i = i ∧ H'.Adj (f x.1 x.2) (f y.1 y.2) at h_adj
         exact h_adj.2
-      refine' le_csSup _ _;
+      refine le_csSup ?_ ?_;
       · exact ⟨ Fintype.card W, fun n hn => by
           obtain ⟨ s, hs ⟩ := hn
           exact hs.card_eq ▸ Finset.card_le_univ _ ⟩;
-      · refine' ⟨ Finset.image ( fun x : { x // x ∈ Q } => f x.1 x.2 ) Q.attach, _, _ ⟩;
+      · refine ⟨ Finset.image ( fun x : { x // x ∈ Q } => f x.1 x.2 ) Q.attach, ?_, ?_ ⟩;
         · intro x hx y hy hxy;
           grind;
         · convert rfl;
@@ -803,9 +825,9 @@ lemma GraphH_cliqueNum_le
             exact cliqueNum_G_double_prime_le G v0
           linarith [h_card, h_card_le];
         · by_cases h_no_A : ∀ x ∈ Q, ∀ a, x ≠ Sum.inl a;
-          · refine' le_trans ( clique_case_zero_A G v0 H' Q hQ h_no_A ) _;
+          · refine le_trans ( clique_case_zero_A G v0 H' Q hQ h_no_A ) ?_;
             rw [ h_clique ];
-            refine' csSup_le _ _ <;> norm_num +zetaDelta at *;
+            refine csSup_le ?_ ?_ <;> norm_num +zetaDelta at *;
             · exact ⟨ 0, ⟨ ∅, by simp +decide [ SimpleGraph.isNClique_iff ] ⟩ ⟩;
             · intro b x hx
               have h_induce :
@@ -844,7 +866,7 @@ lemma GraphH_cliqueNum_eq
   (h_clique : H'.cliqueNum = (G_prime G v0).cliqueNum) :
   (GraphH G v0 H').cliqueNum = G.cliqueNum := by
     classical
-    refine' le_antisymm _ _;
+    refine le_antisymm ?_ ?_;
     · exact GraphH_cliqueNum_le G v0 H' h_clique;
     · convert GraphH_cliqueNum_ge G v0 H' h_ramsey using 1
 
@@ -888,11 +910,11 @@ lemma exists_uniform_subset
               (Finset.filter (fun i => induced_partition G v0 H' f i = c)
                 Finset.univ).card := by
         simp +decide only [Finset.card_eq_sum_ones, Finset.sum_fiberwise];
-      refine' h_pigeonhole.not_lt
+      refine h_pigeonhole.not_lt
         (h_card.symm ▸
           lt_of_le_of_lt
-            (Finset.sum_le_sum fun _ _ =>
-              Nat.le_sub_one_of_lt (lt_of_not_ge fun h => h_contra ⟨ _, h ⟩)) _);
+            (Finset.sum_le_sum fun c _ =>
+              Nat.le_sub_one_of_lt (lt_of_not_ge fun h => h_contra ⟨ c, h ⟩)) ?_);
       simp +decide [ mul_comm, t_param ];
     obtain ⟨ T, hT ⟩ := Finset.exists_subset_card_eq hc;
     exact ⟨ ⟨ T, hT.2 ⟩, c, fun i hi => Finset.mem_filter.mp ( hT.1 hi ) |>.2 ⟩
@@ -1092,8 +1114,12 @@ lemma psi_map_case_1_is_iso
   (v1 : V) :
   Nonempty (G ≃g (GraphH G v0 H').induce (U_case_1 G v0 H' T S' phi S'' v1)) := by
     classical
-    refine' ⟨ _ ⟩;
-    refine' { Equiv.ofBijective ( fun x => ⟨ _, ⟨ x, rfl ⟩ ⟩ ) ⟨ _, _ ⟩ with .. };
+    refine ⟨ ?_ ⟩;
+    refine
+      { toEquiv := Equiv.ofBijective
+          (fun x => ⟨ psi_map_case_1 G v0 H' T S' phi S'' v1 x, ⟨ x, rfl ⟩ ⟩)
+          ⟨ ?_, ?_ ⟩
+        map_rel_iff' := ?_ };
     all_goals norm_num [ Function.Injective, Function.Surjective ];
     · exact fun x y hxy => psi_map_case_1_injective G v0 H' T S' phi S'' v1 hxy;
     · exact fun x hx => by obtain ⟨ y, rfl ⟩ := hx; exact ⟨ y, rfl ⟩ ;
@@ -1118,15 +1144,22 @@ lemma psi_map_case_2_is_iso
   (T : J_type V W) :
   Nonempty (G ≃g (GraphH G v0 H').induce (U_case_2 G v0 H' S'' T)) := by
     classical
-    refine' ⟨ _, _, _ ⟩;
-    refine' Equiv.ofBijective
-      (fun v => ⟨ Sum.inl ( v, S'', T ), _ ⟩)
-      ⟨ fun v w h => _, fun x => _ ⟩;
-    all_goals norm_num [ U_case_2 ] at *;
-    · grind +ring;
-    · rcases x with ⟨ x, hx ⟩ ; aesop;
-    · exact fun h => by cases h; tauto;
-    · exact fun h => ⟨ rfl, rfl, h ⟩
+    refine ⟨
+      { toEquiv := Equiv.ofBijective
+          (fun v => ⟨ Sum.inl (v, S'', T), ⟨ v, rfl ⟩ ⟩)
+          ⟨ ?_, ?_ ⟩
+        map_rel_iff' := ?_ } ⟩
+    · intro v w h
+      norm_num [ U_case_2 ] at *
+      grind +ring
+    · intro x
+      rcases x with ⟨ x, hx ⟩
+      rcases hx with ⟨ v, rfl ⟩
+      exact ⟨ v, rfl ⟩
+    · intro a b
+      constructor
+      · exact fun h => by cases h; tauto
+      · exact fun h => ⟨ rfl, rfl, h ⟩
 
 /-
 Case 1 of the Ramsey proof: if we find a vertex $v_1$ of the same color as the
@@ -1150,7 +1183,7 @@ lemma GraphH_ramsey_2_case_1
   ∃ (U : Set (VertexH G v0 H')),
     (∀ x ∈ U, f x = k) ∧ Nonempty (G ≃g (GraphH G v0 H').induce U) := by
     classical
-    refine' ⟨ _, _, _ ⟩;
+    refine ⟨ ?_, ?_, ?_ ⟩;
     exact Set.range ( psi_map_case_1 G v0 H' T S' phi S'' v1 );
     · exact fun x a =>
       U_case_1_monochromatic G v0 H' f T k c h_uniform S' h_S'_mono phi S'' v1 h_v1_color x a;
@@ -1182,7 +1215,7 @@ lemma GraphH_ramsey_2
               (G_prime G v0).Adj x y ↔ H'.Adj (phi x).val (phi y).val) := by
       have := h_ramsey c;
       obtain ⟨ k, S, hS, ⟨ phi ⟩ ⟩ := this;
-      refine' ⟨ k, S, _, hS, _ ⟩;
+      refine ⟨ k, S, ?_, hS, ?_ ⟩;
       exact phi.toEquiv;
       exact fun x y => phi.map_adj_iff.symm;
     -- Define $S''$ as the image of $V''$ under $\phi`. It is in `X` because
@@ -1194,8 +1227,8 @@ lemma GraphH_ramsey_2
           Nonempty
             ((H'.induce (Subtype.val '' (phi '' (V_double_prime G v0)))) ≃g
               (G_double_prime G v0)) := by
-        refine' ⟨ _, _ ⟩;
-        refine' Equiv.ofBijective ( fun x => ⟨ phi.symm ⟨ x.val, _ ⟩, _ ⟩ ) ⟨ _, _ ⟩;
+        refine ⟨ ?_, ?_ ⟩;
+        refine Equiv.ofBijective ( fun x => ⟨ phi.symm ⟨ x.val, ?_ ⟩, ?_ ⟩ ) ⟨ ?_, ?_ ⟩;
         grind;
         all_goals norm_num [ Function.Injective, Function.Surjective ];
         all_goals norm_num [ V_double_prime, G_double_prime ];
@@ -1234,7 +1267,7 @@ required properties.
 -/
 lemma PropH2_base : PropH2 1 := by
   intro V _ _ G hV;
-  refine' ⟨ V, inferInstance, inferInstance, G, _, _ ⟩;
+  refine ⟨ V, inferInstance, inferInstance, G, ?_, ?_ ⟩;
   · rfl;
   · -- Since V has only one vertex, the only possible partition is {v} and the
     -- empty set. The empty set cannot contain G, but {v} does.
@@ -1242,7 +1275,7 @@ lemma PropH2_base : PropH2 1 := by
       rw [ Fintype.card_eq_one_iff ] at hV; tauto;
     intro f;
     use f v, {v};
-    refine' ⟨ by aesop, ⟨ _, _, _ ⟩ ⟩;
+    refine ⟨ by aesop, ⟨ ?_, ?_, ?_ ⟩ ⟩;
     exact (Equiv.subtypeUnivEquiv hv).symm;
     · exact fun a => a;
     · aesop
@@ -1303,7 +1336,7 @@ lemma PropH2_0 : PropH2 0 := by
   intro V _ _ G hG
   have h_emptyV : IsEmpty V := Fintype.card_eq_zero_iff.mp hG
   letI := h_emptyV
-  refine' ⟨ PEmpty, inferInstance, inferInstance, ⊥, _, _ ⟩
+  refine ⟨ PEmpty, inferInstance, inferInstance, ⊥, ?_, ?_ ⟩
   · -- Since $V$ is empty, both clique numbers are zero.
     have h_empty : G.cliqueNum = 0 := by
       simp +decide [ SimpleGraph.cliqueNum ];
@@ -1313,7 +1346,7 @@ lemma PropH2_0 : PropH2 0 := by
       · exact fun a ha => Finset.eq_empty_of_forall_notMem fun x hx => isEmptyElim x
     rw [h_empty]
     apply le_antisymm
-    · refine' csSup_le' _
+    · refine csSup_le' ?_
       rintro n ⟨s, hs⟩
       have hs_empty : s = ∅ := by
         ext x
@@ -1323,10 +1356,10 @@ lemma PropH2_0 : PropH2 0 := by
       omega
     · exact Nat.zero_le _
   · intro f
-    refine' ⟨ 0, Set.univ, _, _ ⟩
+    refine ⟨ 0, Set.univ, ?_, ?_ ⟩
     · intro w hw
       cases w
-    · refine' ⟨ { toEquiv := Fintype.equivOfCardEq (by simp), map_rel_iff' := _ } ⟩
+    · refine ⟨ { toEquiv := Fintype.equivOfCardEq (by simp), map_rel_iff' := ?_ } ⟩
       intro a b
       exact False.elim (isEmptyElim a)
 
@@ -1429,7 +1462,7 @@ lemma H1_props :
       (Classical.choose_spec (Classical.choose_spec H1_witness_proof)))
 
 lemma TwoK3_cliqueNum_le_three : TwoK3.cliqueNum ≤ 3 := by
-  refine' csSup_le' _
+  refine csSup_le' ?_
   rintro n ⟨Q, hQ⟩
   rw [SimpleGraph.isNClique_iff] at hQ
   rw [← hQ.2]
@@ -1757,7 +1790,7 @@ lemma clique_with_X_le_three
 The clique number of $G$ is at most 3.
 -/
 lemma GraphG_cliqueNum_le_three : GraphG.cliqueNum ≤ 3 := by
-  refine' csSup_le' _;
+  refine csSup_le' ?_;
   rintro n ⟨ s, hs ⟩;
   by_cases hX : ∃ S : X_type_G, Sum.inr S ∈ s;
   · exact hs.2 ▸ clique_with_X_le_three _ hs.1 _ hX.choose_spec;
@@ -1782,18 +1815,16 @@ lemma GraphG_cliqueNum_ge_three : GraphG.cliqueNum ≥ 3 := by
     have h_clique_H1 : H1.cliqueNum ≥ 3 := by
       have := H1_props.1;
       rw [ this ];
-      refine' le_csSup _ _;
+      refine le_csSup ?_ ?_;
       · exact ⟨ _, fun n hn => hn.choose_spec.card_eq ▸ Finset.card_le_univ _ ⟩;
       · exists { Sum.inl 0, Sum.inl 1, Sum.inl 2 };
         simp +decide [ SimpleGraph.isNClique_iff ];
         simp +decide [ TwoK3 ];
     have h_clique_H1 : ∃ C : Finset V1, H1.IsClique C ∧ C.card ≥ 3 := by
       contrapose! h_clique_H1;
-      refine' lt_of_le_of_lt ( csSup_le _ _ ) _ <;> norm_num;
-      exact 2;
+      refine lt_of_le_of_lt (csSup_le (a := 2) ?_ ?_) ?_ <;> norm_num;
       · exact ⟨ 0, ⟨ ∅, by simp +decide ⟩ ⟩;
       · exact fun b x hx => Nat.le_of_lt_succ ( by linarith [ h_clique_H1 x hx.1, hx.2.symm ] );
-      · norm_num;
     obtain ⟨ C, hC₁, hC₂ ⟩ := h_clique_H1;
     exact Exists.elim ( Finset.exists_subset_card_eq hC₂ ) fun s hs =>
       ⟨ s, hs.2, hC₁.subset <| by aesop ⟩;
@@ -1828,7 +1859,7 @@ lemma GraphG_cliqueNum_ge_three : GraphG.cliqueNum ≥ 3 := by
         rw [huu]
       exact hv u u' hu hu' hne
   obtain ⟨ C', hC'₁, hC'₂ ⟩ := h_embedding;
-  refine' le_csSup _ _;
+  refine le_csSup ?_ ?_;
   · exact ⟨ _, fun n hn => hn.choose_spec.card_eq ▸ Finset.card_le_univ _ ⟩;
   · exact ⟨ C', by simpa [ SimpleGraph.isNClique_iff ] using hC'₂, hC'₁ ⟩
 
@@ -1882,7 +1913,7 @@ lemma exists_monochromatic_U
       have := H1_props.2;
       contrapose! this;
       unfold VertexPartitionRamsey; simp +decide ;
-      refine' ⟨ _, _ ⟩;
+      refine ⟨ ?_, ?_ ⟩;
       exact fun u =>
         Fintype.equivFinOfCardEq
           (show Fintype.card ( H2.edgeSet → Bool ) = N_param from by
@@ -2403,23 +2434,68 @@ lemma extract_disjoint_cliques
         simp +decide [ TwoK3 ];
       obtain ⟨g, hg⟩ : ∃ g : U ≃ Fin 3 ⊕ Fin 3, ∀ u v : U, H1.Adj u v ↔ TwoK3.Adj (g u) (g v) := by
         exact ⟨ h_iso.some.toEquiv, fun u v => by simp +decide [ SimpleGraph.Iso.map_adj_iff ] ⟩;
-      refine' ⟨
-        Finset.image (fun x : Fin 3 ⊕ Fin 3 => (g.symm x : V1)) A,
-        Finset.image (fun x : Fin 3 ⊕ Fin 3 => (g.symm x : V1)) B,
-        _, _, _, _, _, _, _ ⟩ <;> simp_all +decide [ Finset.disjoint_left ];
-      any_goals
+      let A' : Finset V1 := Finset.image (fun x : Fin 3 ⊕ Fin 3 => (g.symm x : V1)) A
+      let B' : Finset V1 := Finset.image (fun x : Fin 3 ⊕ Fin 3 => (g.symm x : V1)) B
+      refine ⟨ A', B', ?_, ?_, ?_, ?_, ?_, ?_, ?_ ⟩
+      · intro x hx
+        change x ∈ Finset.image (fun x : Fin 3 ⊕ Fin 3 => (g.symm x : V1)) A at hx
+        rcases Finset.mem_image.mp hx with ⟨ a, ha, hxa ⟩
+        rw [← hxa]
+        exact (g.symm a).2
+      · intro x hx
+        change x ∈ Finset.image (fun x : Fin 3 ⊕ Fin 3 => (g.symm x : V1)) B at hx
+        rcases Finset.mem_image.mp hx with ⟨ b, hb, hxb ⟩
+        rw [← hxb]
+        exact (g.symm b).2
+      · intro x hx y hy hxy
+        change x ∈ Finset.image (fun x : Fin 3 ⊕ Fin 3 => (g.symm x : V1)) A at hx
+        change y ∈ Finset.image (fun x : Fin 3 ⊕ Fin 3 => (g.symm x : V1)) A at hy
+        rcases Finset.mem_image.mp hx with ⟨ a, ha, hxa ⟩
+        rcases Finset.mem_image.mp hy with ⟨ b, hb, hyb ⟩
+        have hab : a ≠ b := by
+          intro h
+          apply hxy
+          rw [← hxa, ← hyb, h]
+        exact
+          by
+          rw [← hxa, ← hyb]
+          exact (hg (g.symm a) (g.symm b)).2 (by
+            simpa using h_disjoint.2.1 ha hb hab)
+      · change (Finset.image (fun x : Fin 3 ⊕ Fin 3 => (g.symm x : V1)) A).card = 3
         rw [ Finset.card_image_of_injective _ fun x y hxy => by
-          simpa using g.symm.injective <| Subtype.ext hxy ]
-        aesop;
-      · exact fun x hx => by simp;
-      · grind;
-      · intro x hx y hy; aesop;
-      · intro x hx y hy hxy; aesop;
-      · intro a ha
-        rcases ha with ( ⟨ x, hx, rfl ⟩ | ⟨ x, hx, rfl ⟩ ) <;>
-          simp_all +decide [ Finset.ext_iff ] ;
-        · grind;
-        · grind
+          exact g.symm.injective <| Subtype.ext hxy ]
+        exact hA
+      · intro x hx y hy hxy
+        change x ∈ Finset.image (fun x : Fin 3 ⊕ Fin 3 => (g.symm x : V1)) B at hx
+        change y ∈ Finset.image (fun x : Fin 3 ⊕ Fin 3 => (g.symm x : V1)) B at hy
+        rcases Finset.mem_image.mp hx with ⟨ a, ha, hxa ⟩
+        rcases Finset.mem_image.mp hy with ⟨ b, hb, hyb ⟩
+        have hab : a ≠ b := by
+          intro h
+          apply hxy
+          rw [← hxa, ← hyb, h]
+        exact
+          by
+          rw [← hxa, ← hyb]
+          exact (hg (g.symm a) (g.symm b)).2 (by
+            simpa using h_disjoint.2.2 ha hb hab)
+      · change (Finset.image (fun x : Fin 3 ⊕ Fin 3 => (g.symm x : V1)) B).card = 3
+        rw [ Finset.card_image_of_injective _ fun x y hxy => by
+          exact g.symm.injective <| Subtype.ext hxy ]
+        exact hB
+      · rw [Finset.disjoint_left]
+        intro x hxA hxB
+        change x ∈ Finset.image (fun x : Fin 3 ⊕ Fin 3 => (g.symm x : V1)) A at hxA
+        change x ∈ Finset.image (fun x : Fin 3 ⊕ Fin 3 => (g.symm x : V1)) B at hxB
+        rcases Finset.mem_image.mp hxA with ⟨ a, ha, hxa ⟩
+        rcases Finset.mem_image.mp hxB with ⟨ b, hb, hxb ⟩
+        have hab : a = b := by
+          apply g.symm.injective
+          exact Subtype.ext (hxa.trans hxb.symm)
+        have hmem : a ∈ A ∩ B := by
+          exact Finset.mem_inter.mpr ⟨ ha, by simpa [hab] using hb ⟩
+        rw [h_disjoint.1] at hmem
+        simp at hmem
 
 /-
 If U is a set of vertices such that all rows u in U induce the same coloring chi on
