@@ -46,7 +46,6 @@ namespace Erdos291b
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 set_option linter.flexible false
 
 open scoped BigOperators
@@ -182,23 +181,23 @@ theorem bla_nonzero (p : ProblemParameters) (w : ℕ) (hw : w ∈ J1' p) (k : �
                       erw [ Nat.factorization_lcm ] <;> simp_all +decide;
                   exact h_val_L_local fun i hi => by linarith [ Finset.mem_Icc.mp hi ] ;
                 rw [ h_val_L_local ];
-                refine' le_antisymm _ _;
+                refine le_antisymm ?_ ?_;
                 · simp +zetaDelta at *;
                   intro i hi₁ hi₂; by_cases hi₃ : i = p.tilde_m <;> simp_all +decide [ Nat.factorization_eq_zero_of_not_dvd ] ;
-                · refine' Finset.le_sup ( f := fun i => Nat.factorization i p.q0 ) _;
+                · refine Finset.le_sup ( f := fun i => Nat.factorization i p.q0 ) ?_;
                   unfold J1' J2' at * ; aesop;
               rw [ ← Nat.factorization_le_iff_dvd ] <;> norm_cast;
               · rw [ Nat.factorization_div ];
                 · intro H; have := H p.q0; simp_all +decide [ Nat.factorization_eq_zero_iff ] ;
                   exact absurd ( this.resolve_right ( Nat.ne_of_gt ( Nat.pos_of_ne_zero ( by rintro h; have := p.hq0_prime; aesop ) ) ) ) ( by exact fun h => absurd h ( by exact fun h' => absurd ( p.hq0_prime ) ( by aesop ) ) );
-                · refine' Finset.dvd_lcm ( Finset.mem_Icc.mpr ⟨ _, _ ⟩ );
+                · refine Finset.dvd_lcm ( Finset.mem_Icc.mpr ⟨ ?_, ?_ ⟩ );
                   · linarith [ Finset.mem_Ico.mp hw ];
                   · unfold J2' at hk; aesop;
               · exact Nat.Prime.ne_zero p.hq0_prime;
-              · refine' Nat.ne_of_gt ( Nat.div_pos _ _ );
-                · refine' Nat.le_of_dvd ( Nat.pos_of_ne_zero _ ) _;
+              · refine Nat.ne_of_gt ( Nat.div_pos ?_ ?_ );
+                · refine Nat.le_of_dvd ( Nat.pos_of_ne_zero ?_ ) ?_;
                   · norm_num +zetaDelta at *;
-                  · refine' Finset.dvd_lcm ( Finset.mem_Icc.mpr ⟨ _, _ ⟩ );
+                  · refine Finset.dvd_lcm ( Finset.mem_Icc.mpr ⟨ ?_, ?_ ⟩ );
                     · linarith [ Finset.mem_Ico.mp hw ];
                     · exact Finset.mem_Ico.mp hk |>.1;
                 · linarith [ p.htilde_m, pow_pos ( by linarith [ p.hm4 ] : 0 < p.m ) ( 2 * z p.m ) ];
@@ -214,9 +213,9 @@ theorem bla_nonzero (p : ProblemParameters) (w : ℕ) (hw : w ∈ J1' p) (k : �
               unfold J1' J2' at * ; aesop;
             exact dvd_trans ( p.hq0_dvd ) ( Finset.dvd_lcm h_div_L_local );
           rw [ Int.natAbs_mul ];
-          refine' dvd_mul_of_dvd_right _ _;
-          refine' Nat.dvd_div_of_mul_dvd _;
-          refine' Nat.Coprime.mul_dvd_of_dvd_of_dvd _ _ h_div_L_local;
+          refine dvd_mul_of_dvd_right ?_ (Int.natAbs (p.r i));
+          refine Nat.dvd_div_of_mul_dvd ?_;
+          refine Nat.Coprime.mul_dvd_of_dvd_of_dvd ?_ ?_ h_div_L_local;
           · exact Nat.Coprime.symm ( p.hq0_prime.coprime_iff_not_dvd.mpr ( h_unique i hi hi_ne_tilde_m ) );
           · exact Finset.dvd_lcm hi;
         -- Therefore, $N \equiv r_{\tilde{m}} \frac{L_{local}}{\tilde{m}} \not\equiv 0 \pmod{q_0}$.
@@ -302,7 +301,7 @@ theorem lcm_le_pow (w k : ℕ) : Finset.lcm (Finset.Ioc w (w + k)) id ≤ (w + k
   -- The length of the interval $[w+1, w+k]$ is $k$, so the product of the elements is at most $(w+k)^k$.
   have prod_le : ∏ x ∈ Finset.Ioc w (w + k), x ≤ (w + k) ^ k := by
     exact le_trans ( Finset.prod_le_prod' fun x hx => show x ≤ w + k by linarith [ Finset.mem_Ioc.mp hx ] ) ( by norm_num );
-  refine' le_trans _ prod_le;
+  refine le_trans ?_ prod_le;
   exact Nat.le_of_dvd ( Finset.prod_pos fun x hx => by linarith [ Finset.mem_Ioc.mp hx ] ) ( Finset.lcm_dvd fun x hx => Finset.dvd_prod_of_mem _ hx )
 
 /-
@@ -365,7 +364,7 @@ theorem boring_log_ineq (p : ProblemParameters) (w : ℕ) (hw : w ∈ J1' p) (k 
     (w + k : ℝ) / Real.log (w + k) > 1 / Real.log (w + k) + (z p.m) / Real.log 2 + 2 * k / Real.log 2 := by
       -- By transitivity of inequalities, we can chain the steps together.
       have h_chain : (w + k : ℝ) / (Real.log (w + k)) > 6 * (p.m : ℝ)^(2 * (z p.m) - 1) ∧ 6 * (p.m : ℝ)^(2 * (z p.m) - 1) > 2 * p.m + 5.8 * (p.m : ℝ)^(2 * (z p.m) - 1) ∧ 2 * p.m + 5.8 * (p.m : ℝ)^(2 * (z p.m) - 1) > 2 * (z p.m) + 4 * (p.m : ℝ)^(2 * (z p.m) - 1) / (Real.log 2) ∧ 2 * (z p.m) + 4 * (p.m : ℝ)^(2 * (z p.m) - 1) / (Real.log 2) > 1 + (z p.m : ℝ) / (Real.log 2) + 2 * k / (Real.log 2) ∧ 1 + (z p.m : ℝ) / (Real.log 2) + 2 * k / (Real.log 2) > 1 / (Real.log (w + k)) + (z p.m : ℝ) / (Real.log 2) + 2 * k / (Real.log 2) := by
-        refine' ⟨ _, _, _, _, _ ⟩;
+        refine ⟨ ?_, ?_, ?_, ?_, ?_ ⟩;
         · -- Apply the lemma `bound_step1` to get the inequality.
           have h_bound_step1 : (20 * (p.m : ℝ) ^ (2 * (z p.m)) : ℝ) / (Real.log 20 + 2.52 * p.m) > 6 * (p.m : ℝ) ^ (2 * (z p.m) - 1) := by
             apply bound_step1 p.m p.hm4 ( z p.m ) ( z_ge_two p.m p.hm4 );
@@ -375,7 +374,7 @@ theorem boring_log_ineq (p : ProblemParameters) (w : ℕ) (hw : w ∈ J1' p) (k 
             · exact_mod_cast le_trans ( by norm_num ) ( Nat.mul_le_mul_left _ ( Nat.one_le_pow _ _ ( by linarith [ p.hm4 ] ) ) );
             · norm_cast;
               linarith [ Finset.mem_Ico.mp hw, Finset.mem_Ico.mp hk, show p.tilde_m > 20 * p.m ^ ( 2 * z p.m ) from p.htilde_m ];
-          refine' lt_of_lt_of_le h_bound_step1 ( le_trans _ h_x_div_log_mono );
+          refine lt_of_lt_of_le h_bound_step1 ( le_trans ?_ h_x_div_log_mono );
           gcongr;
           · exact Real.log_pos ( one_lt_mul_of_lt_of_le ( by norm_num ) ( one_le_pow₀ ( mod_cast p.hm4.trans' ( by norm_num ) ) ) );
           · rw [ Real.log_mul ( by positivity ) ( by exact ne_of_gt ( pow_pos ( Nat.cast_pos.mpr ( by linarith [ p.hm4 ] ) ) _ ) ), Real.log_pow ] ; norm_num;
@@ -384,18 +383,19 @@ theorem boring_log_ineq (p : ProblemParameters) (w : ℕ) (hw : w ∈ J1' p) (k 
         · convert bound_step2 p.m p.hm4 ( z p.m ) ( z_ge_two p.m p.hm4 ) using 1;
         · convert bound_step3 p.m p.hm4 ( z p.m ) _ using 1;
           exact le_trans ( Finset.card_le_card ( show Finset.filter Nat.Prime ( Finset.range p.m ) ⊆ Finset.Ico 2 p.m from fun x hx => Finset.mem_Ico.mpr ⟨ Nat.Prime.two_le ( Finset.mem_filter.mp hx |>.2 ), Finset.mem_range.mp ( Finset.mem_filter.mp hx |>.1 ) ⟩ ) ) ( by simp +arith +decide );
-        · refine' bound_step4 p.m p.hm4 ( z p.m ) ( z_ge_two p.m p.hm4 ) k _ |> lt_of_le_of_lt _;
+        · refine bound_step4 p.m p.hm4 ( z p.m ) ( z_ge_two p.m p.hm4 ) k ?_ |> lt_of_le_of_lt ?_;
           · bound;
           · unfold J1' J2' at * ; norm_num at * ; linarith;
         · norm_num +zetaDelta at *;
-          refine' inv_lt_one_of_one_lt₀ _;
+          refine inv_lt_one_of_one_lt₀ ?_;
           rw [ Real.lt_log_iff_exp_lt ( by norm_cast; linarith [ Finset.mem_Ico.mp hw, Finset.mem_Ico.mp hk ] ) ];
           -- Since $w + k \geq \tilde{m} - m^{2z-1}$ and $\tilde{m} > 20m^{2z}$, we have $w + k > 20m^{2z} - m^{2z-1}$.
           have h_wk_lower_bound : (w + k : ℝ) > 20 * (p.m : ℝ)^(2 * (z p.m)) - (p.m : ℝ)^(2 * (z p.m) - 1) := by
             norm_cast;
             rw [ Int.subNatNat_eq_coe ] ; push_cast ; linarith [ Finset.mem_Ico.mp hw, Finset.mem_Ico.mp hk, p.htilde_m ];
-          refine' lt_of_le_of_lt _ h_wk_lower_bound;
-          refine' le_trans _ ( sub_le_sub_left ( pow_le_pow_right₀ ( mod_cast by linarith [ p.hm4 ] ) ( show 2 * z p.m - 1 ≤ 2 * z p.m from Nat.sub_le _ _ ) ) _ );
+          refine lt_of_le_of_lt ?_ h_wk_lower_bound;
+          refine le_trans ?_ ( sub_le_sub_left ( pow_le_pow_right₀ ( mod_cast by linarith [ p.hm4 ] ) ( show 2 * z p.m - 1 ≤ 2 * z p.m from Nat.sub_le _ _ ) )
+            (20 * (p.m : ℝ) ^ (2 * z p.m)) );
           exact le_tsub_of_add_le_left ( by have := Real.exp_one_lt_d9.le; norm_num1 at *; nlinarith [ show ( p.m : ℝ ) ^ ( 2 * z p.m ) ≥ 4 ^ ( 2 * z p.m ) by gcongr ; norm_cast ; linarith [ p.hm4 ], show ( 4 : ℝ ) ^ ( 2 * z p.m ) ≥ 16 by exact le_trans ( by norm_num ) ( pow_le_pow_right₀ ( by norm_num ) ( Nat.mul_le_mul_left 2 ( show z p.m ≥ 1 by exact Nat.one_le_iff_ne_zero.mpr <| by exact ne_of_gt <| z_ge_two p.m p.hm4 |> lt_of_lt_of_le ( by norm_num ) ) ) ) ] );
       linarith
 
@@ -453,8 +453,8 @@ theorem L_ratio_le (w k : ℕ) : L (w + k) / L w ≤ (w + k)^k := by
       exact if h : x ≤ w then Finset.mem_union_left _ ( Finset.mem_Icc.mpr ⟨ by linarith [ Finset.mem_Icc.mp hx ], h ⟩ ) else Finset.mem_union_right _ ( Finset.mem_Ioc.mpr ⟨ by linarith [ Finset.mem_Icc.mp hx ], by linarith [ Finset.mem_Icc.mp hx ] ⟩ );
     refine dvd_trans h_div ?_;
     rw [ Finset.lcm_union ] ; aesop;
-  refine' Nat.div_le_of_le_mul _;
-  refine' Nat.le_trans ( Nat.le_of_dvd ( Nat.mul_pos ( Nat.pos_of_ne_zero _ ) ( Nat.pos_of_ne_zero _ ) ) h_div ) _;
+  refine Nat.div_le_of_le_mul ?_;
+  refine Nat.le_trans ( Nat.le_of_dvd ( Nat.mul_pos ( Nat.pos_of_ne_zero ?_ ) ( Nat.pos_of_ne_zero ?_ ) ) h_div ) ?_;
   · aesop;
   · norm_num [ Finset.lcm_eq_zero_iff ];
   · exact Nat.mul_le_mul_left _ ( lcm_le_pow _ _ )
@@ -624,7 +624,7 @@ def X_int (r : ℕ → ℤ) (n : ℕ) : ℤ := ∑ i ∈ Finset.Icc 1 n, r i * (
 theorem X_eq_X_int (r : ℕ → ℤ) (n : ℕ) : X r n = (X_int r n : ℚ) := by
   unfold X X_int;
   push_cast [ Finset.mul_sum _ _ _ ];
-  refine' Finset.sum_congr rfl fun i hi => _;
+  refine Finset.sum_congr rfl fun i hi => ?_;
   rw [ Int.cast_div ] <;> norm_num;
   · ring;
   · exact_mod_cast Finset.dvd_lcm ( Finset.mem_Icc.mpr ⟨ by linarith [ Finset.mem_Icc.mp hi ], by linarith [ Finset.mem_Icc.mp hi ] ⟩ );
@@ -787,7 +787,7 @@ Bound on the valuation of r_x.
 -/
 theorem valuation_r_bound (p : ProblemParameters) (s : ℕ) (hs : s ∈ Finset.Icc 1 (z p.m)) (x : ℕ) :
     e p s (p.r x) ≤ Nat.log (p_i p s) (p.m - 1) := by
-      refine' Nat.le_log_of_pow_le ( Nat.Prime.one_lt ( p_i_prime p s hs ) ) _;
+      refine Nat.le_log_of_pow_le ( Nat.Prime.one_lt ( p_i_prime p s hs ) ) ?_;
       have h_r_lt_m : Int.natAbs (p.r x) < p.m := by
         simpa [ ← Int.ofNat_lt ] using p.h_r_bdd x;
       have h_e_le_log : (p_i p s) ^ e p s (p.r x) ≤ Int.natAbs (p.r x) := by
@@ -835,8 +835,8 @@ theorem I0_eq_Ico (p : ProblemParameters) :
       have h_n_seq_p1 : n_seq p 1 = if ∀ n ∈ J1' p, |X p.r n| > n ^ (z p.m) then p.tilde_m - p.m ^ (2 * z p.m - 1) else p.tilde_m := by
         split_ifs <;> simp_all +decide [ n_seq ];
         · split_ifs <;> simp_all +decide [ Finset.min' ];
-          · refine' le_antisymm _ _ <;> norm_num;
-            · refine' ⟨ p.tilde_m - p.m ^ ( 2 * z p.m - 1 ), _, _ ⟩ <;> norm_num;
+          · refine le_antisymm ?_ ?_ <;> norm_num;
+            · refine ⟨ p.tilde_m - p.m ^ ( 2 * z p.m - 1 ), ?_, ?_ ⟩ <;> norm_num;
               exact ⟨ by rw [ tsub_add_cancel_of_le ( show p.m ^ ( 2 * z p.m - 1 ) ≤ p.tilde_m from by linarith [ show p.m ^ ( 2 * z p.m - 1 ) ≤ p.tilde_m from by linarith [ show p.tilde_m > 20 * p.m ^ ( 2 * z p.m ) from p.htilde_m, show p.m ^ ( 2 * z p.m ) ≥ p.m ^ ( 2 * z p.m - 1 ) from pow_le_pow_right₀ ( by linarith [ p.hm4 ] ) ( Nat.sub_le _ _ ) ] ] ) ], by linarith, by linarith ⟩;
             · exact fun b a a_1 => a;
           · rename_i h₁ h₂;
@@ -858,7 +858,7 @@ theorem valuation_lcm_le (n : ℕ) (hn : n ≥ 1) (p : ℕ) (hp : p.Prime) :
         -- By definition of $L(n)$, there exists some $i \in \{1, 2, \ldots, n\}$ such that $v_p(i) = v_p(L(n))$.
         obtain ⟨i, hi⟩ : ∃ i ∈ Finset.Icc 1 n, ∀ j ∈ Finset.Icc 1 n, padicValNat p j ≤ padicValNat p i := by
           exact Finset.exists_max_image _ _ ⟨ 1, Finset.mem_Icc.mpr ⟨ by norm_num, hn ⟩ ⟩;
-        refine' ⟨ _, rfl, i, hi.1, _ ⟩;
+        refine ⟨ _, rfl, i, hi.1, ?_ ⟩;
         -- By definition of $L(n)$, we know that $v_p(L(n))$ is the maximum of $v_p(j)$ for $j \in \{1, ..., n\}$.
         have h_lcm_val : padicValNat p (Finset.lcm (Finset.Icc 1 n) id) = Finset.sup (Finset.Icc 1 n) (fun j => padicValNat p j) := by
           have h_lcm_val : ∀ {S : Finset ℕ}, (∀ x ∈ S, x ≠ 0) → padicValNat p (Finset.lcm S id) = Finset.sup S (fun x => padicValNat p x) := by
@@ -921,7 +921,7 @@ theorem part1_valuation (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Icc
             have h_n_seq_1_min : n_seq p 1 = (I0 p).min' (I0_nonempty p) := by
               exact dif_pos ( I0_nonempty p );
             rw [ h_n_seq_1_min ];
-            refine' Nat.pos_of_ne_zero _;
+            refine Nat.pos_of_ne_zero ?_;
             intro h; have := Finset.min'_mem ( I0 p ) ( I0_nonempty p ) ; simp_all +decide [ I0 ] ;
             split_ifs at this <;> simp_all +decide [ J1', J2' ];
             exact absurd this.1 ( Nat.sub_ne_zero_of_lt ( by linarith [ show p.m ^ ( 2 * z p.m - 1 ) < p.tilde_m from by linarith [ show p.tilde_m > 20 * p.m ^ ( 2 * z p.m ) from by linarith [ p.htilde_m ], show p.m ^ ( 2 * z p.m - 1 ) ≤ p.m ^ ( 2 * z p.m ) from pow_le_pow_right₀ ( by linarith [ p.hm4 ] ) ( Nat.sub_le _ _ ) ] ] ) );
@@ -966,9 +966,9 @@ theorem k_ge_one (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Icc 1 (z p
       -- For k_exp to be zero, m^(2z-2j) must be less than p_s. Since p_s is a prime less than m, p_s ≤ m.
       have h_m_pow_gt_p (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Icc 1 (z p.m - 1)) (n : ℕ) (s : ℕ) (hs : s ∈ Finset.Icc 1 (z p.m)) :
         (p.m ^ (2 * z p.m - 2 * j) : ℕ) ≥ (p_i p s : ℕ) := by
-          refine' le_trans _ ( Nat.pow_le_pow_right ( by linarith [ p.hm4 ] ) ( show 2 * z p.m - 2 * j ≥ 2 by exact Nat.le_sub_of_add_le <| by linarith [ Finset.mem_Icc.mp hj, Nat.sub_add_cancel <| show 1 ≤ z p.m from Finset.card_pos.mpr ⟨ 2, Finset.mem_filter.mpr ⟨ Finset.mem_range.mpr <| by linarith [ p.hm4 ], by decide ⟩ ⟩ ] ) );
+          refine le_trans ?_ ( Nat.pow_le_pow_right ( by linarith [ p.hm4 ] ) ( show 2 * z p.m - 2 * j ≥ 2 by exact Nat.le_sub_of_add_le <| by linarith [ Finset.mem_Icc.mp hj, Nat.sub_add_cancel <| show 1 ≤ z p.m from Finset.card_pos.mpr ⟨ 2, Finset.mem_filter.mpr ⟨ Finset.mem_range.mpr <| by linarith [ p.hm4 ], by decide ⟩ ⟩ ] ) );
           exact le_trans ( Nat.le_of_lt ( p_i_lt_m p s hs ) ) ( Nat.le_self_pow ( by norm_num ) _ );
-      refine' Nat.le_log_of_pow_le ( Nat.Prime.one_lt ( p_i_prime p ( sigma p n ) _ ) ) _;
+      refine Nat.le_log_of_pow_le ( Nat.Prime.one_lt ( p_i_prime p ( sigma p n ) ?_ ) ) ?_;
       · unfold sigma;
         split_ifs <;> simp_all +decide;
         · exact ⟨ _, Finset.mem_Icc.mp ( Classical.choose_spec ‹∃ i ∈ Finset.Icc 1 ( z p.m ), p_i p i ^ e p i ( X_int p.r n ) > n› |>.1 ) |>.2, Finset.mem_Icc.mp ( Classical.choose_spec ‹∃ i ∈ Finset.Icc 1 ( z p.m ), p_i p i ^ e p i ( X_int p.r n ) > n› |>.1 ), Classical.choose_spec ‹∃ i ∈ Finset.Icc 1 ( z p.m ), p_i p i ^ e p i ( X_int p.r n ) > n› |>.2 ⟩;
@@ -987,7 +987,7 @@ theorem part1_sum_eq (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Icc 1 
         exact Finset.lcm_dvd fun i hi => Finset.dvd_lcm ( Finset.mem_Icc.mpr ⟨ Finset.mem_Icc.mp hi |>.1, by linarith [ Finset.mem_Icc.mp hi |>.2 ] ⟩ )
       generalize_proofs at *; (
       have h_sum_rewrite : ∑ i ∈ Finset.Icc 1 (n_seq p j), (p.r i : ℚ) * (L n / i : ℕ) = (L n / L (n_seq p j) : ℚ) * ∑ i ∈ Finset.Icc 1 (n_seq p j), (p.r i : ℚ) * (L (n_seq p j) / i : ℕ) := by
-        rw [ Finset.mul_sum _ _ _ ] ; refine' Finset.sum_congr rfl fun i hi => _ ; rw [ Nat.cast_div, Nat.cast_div ] <;> norm_num ; ring_nf;
+        rw [ Finset.mul_sum _ _ _ ] ; refine Finset.sum_congr rfl fun i hi => ?_ ; rw [ Nat.cast_div, Nat.cast_div ] <;> norm_num ; ring_nf;
         · by_cases h : L ( n_seq p j ) = 0 <;> aesop;
         · exact Finset.dvd_lcm ( Finset.mem_Icc.mpr ⟨ by linarith [ Finset.mem_Icc.mp hi ], by linarith [ Finset.mem_Icc.mp hi ] ⟩ ) |> dvd_trans ( by aesop ) ;
         · linarith [ Finset.mem_Icc.mp hi ];
@@ -1018,7 +1018,7 @@ theorem part1_valuation_eq (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.
           · convert h_val using 1;
             unfold e; norm_cast;
             rw [ Int.natAbs_mul, Int.natAbs_natCast ];
-          · refine' ⟨ _ ⟩;
+          · refine ⟨ ?_ ⟩;
             apply p_i_prime;
             unfold sigma;
             split_ifs <;> simp_all +decide;
@@ -1423,7 +1423,7 @@ theorem n_next_dvd_L_n_v4 (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.I
         -- Since $n$ is in $I_j_v4 p (j + 1)$, we have $n_seq_v4 p (j + 2) \leq n$.
         have h_le : n_seq_v4 p (j + 2) ≤ n := by
           exact Finset.mem_Ico.mp hn |>.1;
-        refine' ⟨ _, h_le ⟩;
+        refine ⟨ ?_, h_le ⟩;
         exact Nat.one_le_iff_ne_zero.mpr ( by linarith [ n_seq_v4_increasing' p ( j + 1 ) ( by linarith ) ] );
       exact Nat.mod_eq_zero_of_dvd <| Finset.dvd_lcm h_div
 
@@ -1433,7 +1433,7 @@ The first term of the sequence $n_j$ is positive.
 theorem n_seq_v4_1_pos (p : ProblemParameters) : n_seq_v4 p 1 > 0 := by
   -- Since $p.tilde_m$ is much larger than $p.m^{2*z p.m - 1}$, the lower bound $p.tilde_m - p.m^{2*z p.m - 1}$ is positive.
   have h_lower_bound_pos : p.tilde_m - p.m ^ (2 * z p.m - 1) > 0 := by
-    refine' Nat.sub_pos_of_lt _;
+    refine Nat.sub_pos_of_lt ?_;
     -- Since $p.m \geq 4$, we have $p.tilde_m = p.m^{2*z+1}! > 20 * p.m^{2*z}$.
     have h_tilde_m_gt : p.tilde_m > 20 * p.m ^ (2 * z p.m) := by
       exact p.htilde_m;
@@ -1589,7 +1589,7 @@ theorem valuation_d_eq_valuation_X_int (p : ProblemParameters) (n : ℕ) (q : �
           have hq_in_list : q ∈ primes_lt_m p := by
             exact Finset.mem_sort ( α := ℕ ) ( · ≤ · ) |>.2 hq_in_list;
           obtain ⟨ k, hk ⟩ := List.mem_iff_get.1 hq_in_list; use k; aesop;
-        refine' ⟨ k + 1, _, _ ⟩;
+        refine ⟨ k + 1, ?_, ?_ ⟩;
         · unfold z primes_lt_m at *; aesop;
         · unfold p_i; aesop;
       -- By definition of $d(n)$, we have $d(n) = q^{e_k} \cdot \prod_{j \ne k} p_j^{e_j}$.
@@ -1890,8 +1890,8 @@ theorem S4_term_valuation_ge (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finse
           have h_valuation_term : e p (sigma p (n_seq_v4 p j)) (i * ((L n) / i : ℕ)) = e p (sigma p (n_seq_v4 p j)) i + e p (sigma p (n_seq_v4 p j)) ((L n) / i : ℕ) := by
             apply_assumption;
             · linarith [ Finset.mem_Ioc.mp hi, n_seq_v4_increasing' p j ( by linarith [ Finset.mem_Icc.mp hj ] ) ];
-            · refine' Nat.ne_of_gt ( Nat.div_pos _ _ );
-              · refine' le_trans ( Finset.mem_Ioc.mp hi |>.2 ) _;
+            · refine Nat.ne_of_gt ( Nat.div_pos ?_ ?_ );
+              · refine le_trans ( Finset.mem_Ioc.mp hi |>.2 ) ?_;
                 exact Nat.le_of_dvd ( Nat.pos_of_ne_zero ( by exact ne_of_gt ( Nat.pos_of_ne_zero ( by exact mt Finset.lcm_eq_zero_iff.mp ( by aesop ) ) ) ) ) ( Finset.dvd_lcm ( Finset.mem_Icc.mpr ⟨ Nat.one_le_iff_ne_zero.mpr ( by aesop ), le_rfl ⟩ ) );
               · linarith [ Finset.mem_Ioc.mp hi, n_seq_v4_increasing' p j ( Finset.mem_Icc.mp hj |>.1 ) ];
           grind;
@@ -1911,7 +1911,7 @@ theorem S4_divisible_int (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Ic
       -- By definition of $S4$, each term in the sum has valuation at least $e_s(L_n) - k + 1$.
       have h_S4_term_val : ∀ i ∈ Finset.Ioc (n_seq_v4 p (j + 1)) n, e p (sigma p (n_seq_v4 p j)) (p.r i * ((L n) / i : ℕ)) ≥ e p (sigma p (n_seq_v4 p j)) (L n) - k_exp p (sigma p (n_seq_v4 p j)) j + 1 := by
         convert S4_term_valuation_ge p j hj n hn using 1;
-      refine' Finset.dvd_sum fun i hi => _;
+      refine Finset.dvd_sum fun i hi => ?_;
       have h_div : ∀ {x : ℤ}, x ≠ 0 → (p_i p (sigma p (n_seq_v4 p j))) ^ (e p (sigma p (n_seq_v4 p j)) x) ∣ Int.natAbs x := by
         intros x hx_nonzero
         have h_div : (p_i p (sigma p (n_seq_v4 p j))) ^ (padicValNat (p_i p (sigma p (n_seq_v4 p j))) (Int.natAbs x)) ∣ Int.natAbs x := by
@@ -1972,7 +1972,7 @@ theorem sum_S1_S2_S4_divisible (p : ProblemParameters) (j : ℕ) (hj : j ∈ Fin
 The term $T3$ is non-zero.
 -/
 theorem T3_ne_zero (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Icc 1 (z p.m)) (n : ℕ) (hn : n ∈ I_set_v4 p j) : T3 p j n ≠ 0 := by
-  refine' mul_ne_zero _ ( Nat.cast_ne_zero.mpr <| Nat.ne_of_gt <| Nat.div_pos _ _ );
+  refine mul_ne_zero ?_ ( Nat.cast_ne_zero.mpr <| Nat.ne_of_gt <| Nat.div_pos ?_ ?_ );
   · exact p.h_r_nz (n_seq_v4 p (j + 1));
   · exact Nat.le_of_dvd ( Nat.pos_of_ne_zero ( by
       exact Nat.ne_of_gt <| Nat.pos_of_ne_zero <| mt Finset.lcm_eq_zero_iff.mp <| by aesop; ) ) ( n_next_dvd_L_n_v4 p j hj n hn );
@@ -1986,7 +1986,7 @@ theorem padicValNat_add_eq_of_dvd (p : ℕ) (hp : p.Prime) (a b : ℤ) (hb : b �
     padicValNat p (Int.natAbs (a + b)) = padicValNat p (Int.natAbs b) := by
       have h_val : padicValNat p (Int.natAbs (a + b)) = padicValNat p (Int.natAbs b) := by
         have h_div : (p : ℤ) ^ padicValNat p (Int.natAbs b) ∣ (a + b) := by
-          refine' dvd_add ( dvd_trans ( pow_dvd_pow _ hk.le ) ha ) _;
+          refine dvd_add ( dvd_trans ( pow_dvd_pow _ hk.le ) ha ) ?_;
           have h_div : (p : ℕ) ^ (padicValNat p (Int.natAbs b)) ∣ Int.natAbs b := by
             exact pow_padicValNat_dvd;
           simpa [ ← Int.natCast_dvd_natCast ] using h_div.modEq_zero_nat.dvd
@@ -2076,8 +2076,8 @@ theorem pfree (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Icc 1 (z p.m)
             exact h_n_pos;
           · exact p_i_prime p ( sigma p ( n_seq_v4 p j ) ) ( sigma_in_range p ( n_seq_v4 p j ) );
         gcongr;
-        refine' le_trans _ h_val;
-        refine' pow_le_pow_right₀ ( Nat.Prime.pos ( p_i_prime p ( sigma p ( n_seq_v4 p j ) ) ( sigma_in_range p ( n_seq_v4 p j ) ) ) ) _;
+        refine le_trans ?_ h_val;
+        refine pow_le_pow_right₀ ( Nat.Prime.pos ( p_i_prime p ( sigma p ( n_seq_v4 p j ) ) ( sigma_in_range p ( n_seq_v4 p j ) ) ) ) ?_;
         exact le_trans ‹_› ( Nat.sub_le _ _ );
       · rw [ Nat.mul_div_cancel _ ( pow_pos ( Nat.Prime.pos ( p_i_prime p ( sigma p ( n_seq_v4 p j ) ) ( sigma_in_range p ( n_seq_v4 p j ) ) ) ) _ ) ]
 
@@ -2254,7 +2254,7 @@ theorem exists_n_le_pow (p : ProblemParameters) :
       -- Since $\sigma(n_j)$ runs through all indices $1 \dots z$, the product of these prime powers is exactly $d(n_{z+1})$.
       have h_prod : ∏ j ∈ Finset.Icc 1 (z p.m), (p_i p (sigma p (n_seq_v4 p j))) ^ (e p (sigma p (n_seq_v4 p j)) (X_int p.r (n_seq_v4 p (z p.m + 1)))) = d p (n_seq_v4 p (z p.m + 1)) := by
         have h_prod : Finset.image (fun j => sigma p (n_seq_v4 p j)) (Finset.Icc 1 (z p.m)) = Finset.Icc 1 (z p.m) := by
-          refine' Finset.eq_of_subset_of_card_le ( Finset.image_subset_iff.mpr fun j hj => _ ) _;
+          refine Finset.eq_of_subset_of_card_le ( Finset.image_subset_iff.mpr fun j hj => ?_ ) ?_;
           · exact sigma_in_range p _;
           · rw [ Finset.card_image_of_injOn fun i hi j hj hij => le_antisymm ( le_of_not_gt fun hi' => h_distinct _ _ hj hi hi' hij.symm ) ( le_of_not_gt fun hj' => h_distinct _ _ hi hj hj' hij ) ];
         have h_prod : ∏ j ∈ Finset.Icc 1 (z p.m), (p_i p (sigma p (n_seq_v4 p j))) ^ (e p (sigma p (n_seq_v4 p j)) (X_int p.r (n_seq_v4 p (z p.m + 1)))) = ∏ s ∈ Finset.Icc 1 (z p.m), (p_i p s) ^ (e p s (X_int p.r (n_seq_v4 p (z p.m + 1)))) := by
@@ -2398,7 +2398,8 @@ lemma X_b_congruence (r : ℕ → ℤ) (t : ℕ) (n : ℕ) (p : ℕ)
                   exact_mod_cast pow_totient_dvd_Lb n p t hp ht hn_pos |> dvd_trans <| by aesop;
                 generalize_proofs at *; (
                 norm_cast at *; simp_all +decide [ Nat.Prime.dvd_iff_not_coprime hp ] ;
-                refine' fun h => h_not_div <| Nat.Coprime.dvd_of_dvd_mul_left _ _;
+                refine fun h => h_not_div <| Nat.Coprime.dvd_of_dvd_mul_left
+                  (m := L (n * p ^ (Nat.totient t)) / i) ?_ ?_;
                 convert Nat.Coprime.pow_left _ h using 1
                 generalize_proofs at *; (
                 rw [ Nat.div_mul_cancel ] ; aesop
@@ -2431,9 +2432,9 @@ lemma X_b_congruence (r : ℕ → ℤ) (t : ℕ) (n : ℕ) (p : ℕ)
           intro j hj
           have h_div : (L (n * p ^ (Nat.totient t))) = (L n) * (p ^ (Nat.totient t)) * ((L (n * p ^ (Nat.totient t))) / ((L n) * (p ^ (Nat.totient t)))) := by
             rw [ Nat.mul_div_cancel' ];
-            refine' Nat.Coprime.mul_dvd_of_dvd_of_dvd _ _ _;
-            · refine' Nat.Coprime.pow_right _ _;
-              refine' Nat.Coprime.symm ( hp.coprime_iff_not_dvd.mpr _ );
+            refine Nat.Coprime.mul_dvd_of_dvd_of_dvd ?_ ?_ ?_;
+            · refine Nat.Coprime.pow_right ?_ ?_;
+              refine Nat.Coprime.symm ( hp.coprime_iff_not_dvd.mpr ?_ );
               -- Since $p$ is prime and $n < p$, $p$ cannot divide any number in the range $1$ to $n$, hence $p$ cannot divide $L(n)$.
               have h_not_div : ∀ k ∈ Finset.Icc 1 n, ¬(p ∣ k) := by
                 exact fun k hk => Nat.not_dvd_of_pos_of_lt ( Finset.mem_Icc.mp hk |>.1 ) ( lt_of_le_of_lt ( Finset.mem_Icc.mp hk |>.2 ) hn_lt_p );
@@ -2463,12 +2464,12 @@ lemma exists_b_gcd_ge_p (r : ℕ → ℤ) (t : ℕ) (ht : t > 0) (h_per : Functi
       by_cases hn_lt_p : n < p;
       · -- Let $b = n p^{\varphi(t)}$.
         use n * p ^ Nat.totient t;
-        refine' Nat.dvd_gcd _ _;
+        refine Nat.dvd_gcd ?_ ?_;
         · convert X_b_congruence r t n p ht hp hp_gt_t hn hn_lt_p h_per h_div using 1;
         · have h_pow_totient_dvd_Lb : p ^ (Nat.totient t) ∣ L (n * p ^ (Nat.totient t)) := by
             apply pow_totient_dvd_Lb n p t hp ht hn;
           exact dvd_trans ( dvd_pow_self _ ( by linarith [ Nat.totient_pos.mpr ht ] ) ) h_pow_totient_dvd_Lb;
-      · refine' ⟨ n, Nat.dvd_gcd h_div _ ⟩;
+      · refine ⟨ n, Nat.dvd_gcd h_div ?_ ⟩;
         exact Nat.dvd_trans ( by aesop ) ( Finset.dvd_lcm ( Finset.mem_Icc.mpr ⟨ by linarith, by linarith ⟩ : p ∈ Finset.Icc 1 n ) )
 
 /-
@@ -2514,7 +2515,7 @@ theorem generalErdos291 (r : ℕ → ℤ) (t : ℕ) (ht : t > 0) (h_per : Functi
         linarith [ hn.2.choose_spec.2.1, abs_of_nonneg ( by linarith : 0 ≤ m ) ]) (by
         simpa only [ hp.1 ] using hn.2.choose_spec.2.2);
       use b;
-      refine' lt_of_lt_of_le _ ( Nat.le_of_dvd ( Nat.gcd_pos_of_pos_right _ <| Nat.pos_of_ne_zero <| _ ) hb );
+      refine lt_of_lt_of_le ?_ ( Nat.le_of_dvd ( Nat.gcd_pos_of_pos_right _ <| Nat.pos_of_ne_zero <| ?_ ) hb );
       · linarith [ hn.2.choose_spec.2.1, abs_of_nonneg ( by linarith : 0 ≤ m ) ];
       · exact ne_of_gt <| Nat.pos_of_ne_zero <| mt Finset.lcm_eq_zero_iff.mp <| by aesop;
 
