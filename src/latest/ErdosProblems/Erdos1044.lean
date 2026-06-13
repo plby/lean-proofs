@@ -32,7 +32,6 @@ set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.longLine false
 set_option linter.style.multiGoal false
-set_option linter.style.refine false
 
 /-! ### From Defs.lean -/
 
@@ -135,7 +134,7 @@ theorem closed_curve_length_ge_two_diam {E : Type*} [PseudoEMetricSpace E]
       · -- By the properties of the variation, we have:
         have h_var : eVariationOn γ (Set.Icc a b) ≥ eVariationOn γ (Set.Icc a x) + eVariationOn γ (Set.Icc x y) + eVariationOn γ (Set.Icc y b) := by
           rw [ ← eVariationOn.union, ← eVariationOn.union ];
-          refine' eVariationOn.mono _ _;
+          refine eVariationOn.mono _ ?_;
           grind +splitImp;
           exacts [ y, ⟨ Or.inr ⟨ by linarith [ hx.1, hx.2, hy.1, hy.2 ], by linarith [ hx.1, hx.2, hy.1, hy.2 ] ⟩, fun z hz => by cases hz <;> linarith [ Set.mem_Icc.mp ‹_› ] ⟩, ⟨ by constructor <;> linarith [ hx.1, hx.2, hy.1, hy.2 ], fun z hz => by linarith [ Set.mem_Icc.mp hz ] ⟩, x, ⟨ by constructor <;> linarith [ hx.1, hx.2, hy.1, hy.2 ], fun z hz => by linarith [ Set.mem_Icc.mp hz ] ⟩, ⟨ by constructor <;> linarith [ hx.1, hx.2, hy.1, hy.2 ], fun z hz => by linarith [ Set.mem_Icc.mp hz ] ⟩ ];
         -- By the properties of the variation, we have $eVariationOn γ (Icc a x) ≥ edist (γ a) (γ x)$ and $eVariationOn γ (Icc y b) ≥ edist (γ y) (γ b)$.
@@ -153,10 +152,10 @@ theorem closed_curve_length_ge_two_diam {E : Type*} [PseudoEMetricSpace E]
           · aesop;
           · aesop;
         rw [ ENNReal.le_div_iff_mul_le ] <;> norm_num;
-        refine' le_trans _ h_var;
+        refine le_trans ?_ h_var;
         rw [ mul_two ];
         rw [ add_right_comm ];
-        refine' le_trans _ ( add_le_add ( add_le_add h_var_ax h_var_yb ) h_var_xy );
+        refine le_trans ?_ ( add_le_add ( add_le_add h_var_ax h_var_yb ) h_var_xy );
         gcongr;
         rw [ ← hclosed ];
         simpa only [ edist_comm ] using edist_triangle ( γ x ) ( γ a ) ( γ y );
@@ -164,7 +163,7 @@ theorem closed_curve_length_ge_two_diam {E : Type*} [PseudoEMetricSpace E]
           have h_sum_ge : eVariationOn γ (Set.Icc a y ∪ Set.Icc y x ∪ Set.Icc x b) ≤ eVariationOn γ (Set.Icc a b) := by
             apply_rules [ eVariationOn.mono ];
             exact Set.union_subset ( Set.union_subset ( Set.Icc_subset_Icc le_rfl hy.2 ) ( Set.Icc_subset_Icc hy.1 hx.2 ) ) ( Set.Icc_subset_Icc hx.1 le_rfl );
-          refine' le_trans _ h_sum_ge;
+          refine le_trans ?_ h_sum_ge;
           rw [ eVariationOn.union, eVariationOn.union ] <;> norm_num [ Set.Icc_subset_Icc, hx.1, hx.2, hy.1, hy.2, le_of_not_ge hxy ];
           exacts [ y, ⟨ ⟨ by linarith [ hy.1 ], by linarith [ hy.2 ] ⟩, fun z hz => by linarith [ hz.2 ] ⟩, ⟨ ⟨ by linarith [ hy.1 ], by linarith [ hy.2 ] ⟩, fun z hz => by linarith [ hz.1 ] ⟩, x, ⟨ ⟨ by linarith [ hx.1 ], by linarith [ hx.2 ] ⟩, fun z hz => by linarith [ hz.2 ] ⟩, ⟨ ⟨ by linarith [ hx.1 ], by linarith [ hx.2 ] ⟩, fun z hz => by linarith [ hz.1 ] ⟩ ];
         have h_sum_ge : eVariationOn γ (Set.Icc a y) ≥ edist (γ a) (γ y) ∧ eVariationOn γ (Set.Icc y x) ≥ edist (γ y) (γ x) ∧ eVariationOn γ (Set.Icc x b) ≥ edist (γ x) (γ b) := by
@@ -174,8 +173,8 @@ theorem closed_curve_length_ge_two_diam {E : Type*} [PseudoEMetricSpace E]
           rw [ edist_comm ( γ x ) ( γ b ) ] ; exact edist_triangle_left _ _ _;
         rw [ ENNReal.le_div_iff_mul_le ] <;> norm_num;
         rw [ mul_two, edist_comm ];
-        refine' le_trans _ ‹_›;
-        refine' le_trans _ ( add_le_add_three ( show eVariationOn γ ( Icc a y ) ≥ edist ( γ a ) ( γ y ) from _ ) ( show eVariationOn γ ( Icc y x ) ≥ edist ( γ y ) ( γ x ) from _ ) ( show eVariationOn γ ( Icc x b ) ≥ edist ( γ x ) ( γ b ) from _ ) );
+        refine le_trans ?_ ‹_›;
+        refine le_trans ?_ ( add_le_add_three ( show eVariationOn γ ( Icc a y ) ≥ edist ( γ a ) ( γ y ) from ?_ ) ( show eVariationOn γ ( Icc y x ) ≥ edist ( γ y ) ( γ x ) from ?_ ) ( show eVariationOn γ ( Icc x b ) ≥ edist ( γ x ) ( γ b ) from ?_ ) );
         · rw [ add_right_comm ] ; gcongr;
         · grobner;
         · lia;
@@ -205,7 +204,7 @@ lemma dist_lt_diam_of_interior {E : Type*} [NormedAddCommGroup E]
           exact sub_ne_zero_of_ne hab
         set δ := min (ε / 2) 1 with hδ_def
         use a + δ • (‖v‖⁻¹ • v);
-        refine' ⟨ hε _, _ ⟩;
+        refine ⟨ hε ?_, ?_ ⟩;
         · simp +decide [ norm_smul, hv_ne_zero ];
           rw [ abs_of_nonneg ] <;> cases min_cases ( ε / 2 ) 1 <;> linarith;
         · rw [ dist_eq_norm, dist_eq_norm ];
@@ -213,9 +212,10 @@ lemma dist_lt_diam_of_interior {E : Type*} [NormedAddCommGroup E]
                 simp +decide [ add_smul, smul_smul ];
                 abel1, norm_smul, Real.norm_of_nonneg ( by positivity ) ];
           exact lt_mul_of_one_lt_left ( norm_pos_iff.mpr hv_ne_zero ) ( lt_add_of_pos_right _ ( mul_pos ( lt_min ( half_pos hε_pos ) zero_lt_one ) ( inv_pos.mpr ( norm_pos_iff.mpr hv_ne_zero ) ) ) );
-      refine' lt_of_lt_of_le h_dist ( _ : dist a' b ≤ diam ( closure U ) );
-      refine' le_trans ( dist_le_diam_of_mem _ _ _ ) _;
-      exacts [ closure U, hU_bdd.closure, subset_closure ha', hb, le_rfl ]
+      refine lt_of_lt_of_le h_dist ( ?_ : dist a' b ≤ diam ( closure U ) );
+      refine le_trans
+        (dist_le_diam_of_mem (s := closure U) hU_bdd.closure (subset_closure ha') hb) ?_;
+      exact le_rfl
 
 /-
 **Lemma 4.2**. If U is a bounded open set in a proper normed space, then
@@ -237,9 +237,9 @@ theorem diam_closure_eq_diam_frontier {E : Type*} [NormedAddCommGroup E]
         have h_continuous : ContinuousOn (fun p : E × E => dist p.1 p.2) (closure U ×ˢ closure U) := by
           fun_prop;
         obtain ⟨ p, hp ⟩ := h_compact.exists_isMaxOn ( Set.Nonempty.prod hU_ne.closure hU_ne.closure ) h_continuous;
-        refine' ⟨ p.1, p.2, hp.1.1, hp.1.2, le_antisymm _ _ ⟩;
+        refine ⟨ p.1, p.2, hp.1.1, hp.1.2, le_antisymm ?_ ?_ ⟩;
         · exact Metric.dist_le_diam_of_mem ( hU_bdd.closure ) hp.1.1 hp.1.2;
-        · refine' Metric.diam_le_of_forall_dist_le _ _;
+        · refine Metric.diam_le_of_forall_dist_le ?_ ?_;
           · exact dist_nonneg;
           · exact fun x hx y hy => hp.2 ( Set.mk_mem_prod hx hy );
       by_cases haU : a ∈ U <;> by_cases hbU : b ∈ U;
@@ -254,24 +254,26 @@ theorem diam_closure_eq_diam_frontier {E : Type*} [NormedAddCommGroup E]
             have h_diam_finite : ∃ M : ℝ, ∀ x ∈ U, ∀ y ∈ U, dist x y ≤ M := by
               exact isBounded_iff.mp hU_bdd
             obtain ⟨ M, hM ⟩ := h_diam_finite;
-            refine' absurd ‹⨆ x ∈ U, ⨆ y ∈ U, edist x y = ⊤› ( ne_of_lt _ );
-            refine' lt_of_le_of_lt ( iSup_le fun x => iSup_le fun hx => iSup_le fun y => iSup_le fun hy => _ ) _;
-            exacts [ ENNReal.ofReal M, by simpa [ edist_dist ] using ENNReal.ofReal_le_ofReal ( hM x hx y hy ), ENNReal.ofReal_lt_top ];
+            refine absurd ‹⨆ x ∈ U, ⨆ y ∈ U, edist x y = ⊤› ( ne_of_lt ?_ );
+            refine lt_of_le_of_lt (b := ENNReal.ofReal M)
+              (iSup_le fun x => iSup_le fun hx => iSup_le fun y => iSup_le fun hy => ?_) ?_;
+            · simpa [edist_dist] using ENNReal.ofReal_le_ofReal (hM x hx y hy);
+            · exact ENNReal.ofReal_lt_top;
         · exact absurd hab ( ne_of_lt ( dist_lt_diam_of_interior hU_open hU_bdd haU hb hab' ) );
       · have := dist_lt_diam_of_interior hU_open hU_bdd haU hb ( by aesop );
         linarith;
       · have := dist_lt_diam_of_interior hU_open hU_bdd hbU ha ( by aesop );
         simp_all +decide [ dist_comm ];
       · rw [ ← hab, frontier_eq_closure_inter_closure ];
-        refine' le_antisymm _ _;
-        · refine' le_trans _ ( Metric.dist_le_diam_of_mem _ _ _ );
+        refine le_antisymm ?_ ?_;
+        · refine le_trans (b := dist a b) ?_ ( Metric.dist_le_diam_of_mem
+            (s := closure U ∩ closure Uᶜ)
+            (hU_bdd.closure.subset Set.inter_subset_left) ?_ ?_ );
           exact le_rfl;
-          · exact hU_bdd.closure.subset ( Set.inter_subset_left );
           · exact ⟨ ha, subset_closure ( by aesop ) ⟩;
           · exact ⟨ hb, subset_closure ( by simpa using hbU ) ⟩;
-        · refine' le_trans ( Metric.diam_le_of_forall_dist_le _ _ ) _;
-          exact diam ( closure U );
-          · exact Metric.diam_nonneg;
+        · refine le_trans (b := diam (closure U))
+            (Metric.diam_le_of_forall_dist_le (s := closure U ∩ closure Uᶜ) Metric.diam_nonneg ?_) ?_;
           · exact fun x hx y hy => Metric.dist_le_diam_of_mem ( hU_bdd.closure ) ( by aesop ) ( by aesop );
           · rw [ hab ]
 
@@ -375,7 +377,7 @@ lemma frontier_maximal_component_sub_compl
       -- Since $z \in \text{closure } U$, there exists a point $w \in U$ such that $w \in B(z, \epsilon)$.
       obtain ⟨w, hwU, hwε⟩ : ∃ w ∈ U, w ∈ Metric.ball z ε := by
         exact Exists.elim ( mem_closure_iff_nhds_basis ( Metric.nhds_basis_ball ) |>.1 hz.1.1 ε hε_pos ) fun w hw => ⟨ w, hw.1, hw.2 ⟩;
-      refine' ⟨ U ∪ Metric.ball z ε, _, _, _, _, _ ⟩;
+      refine ⟨ U ∪ Metric.ball z ε, ?_, ?_, ?_, ?_, ?_ ⟩;
       · apply_rules [ IsPreconnected.union, hU ];
         exact convex_ball _ _ |> Convex.isPreconnected;
       · exact IsOpen.union hU_open ( Metric.isOpen_ball );
@@ -415,7 +417,7 @@ lemma diffContOnCl_inv_eval {f : Polynomial ℂ}
     {U : Set ℂ} (_hU_open : IsOpen U)
     (hne : ∀ z ∈ closure U, f.eval z ≠ 0) :
     DiffContOnCl ℂ (fun z => (f.eval z)⁻¹) U := by
-      refine' ⟨ DifferentiableOn.inv ( _ ) _, _ ⟩;
+      refine ⟨ DifferentiableOn.inv ( ?_ ) ?_, ?_ ⟩;
       · exact f.differentiable.differentiableOn;
       · exact fun x hx => hne x <| subset_closure hx;
       · exact ContinuousOn.inv₀ ( f.continuous.continuousOn ) hne
@@ -488,11 +490,11 @@ private abbrev imSlice (U : Set ℂ) (t : ℝ) : Set ℝ :=
 
 lemma im_slice_isOpen {U : Set ℂ} (hU : IsOpen U) (t : ℝ) :
     IsOpen (imSlice U t) := by
-      refine' isOpen_iff_forall_mem_open.mpr _;
+      refine isOpen_iff_forall_mem_open.mpr ?_;
       intro x hx
       obtain ⟨ε, hε⟩ : ∃ ε > 0, Metric.ball (⟨t, x⟩ : ℂ) ε ⊆ U := by
         exact Metric.isOpen_iff.mp hU _ hx;
-      refine' ⟨ Metric.ball x ε, _, Metric.isOpen_ball, _ ⟩ <;> simp_all +decide [ Set.subset_def, Complex.dist_eq ];
+      refine ⟨ Metric.ball x ε, ?_, Metric.isOpen_ball, ?_ ⟩ <;> simp_all +decide [ Set.subset_def, Complex.dist_eq ];
       exact fun y hy => hε.2 _ <| by simpa [ Complex.normSq, Complex.norm_def ] using Real.sqrt_lt' hε.1 |>.2 <| by nlinarith [ abs_lt.mp hy ] ;
 
 lemma im_slice_bddAbove {U : Set ℂ} (hU : Bornology.IsBounded U) (t : ℝ) :
@@ -514,7 +516,7 @@ lemma slice_inf_not_mem {U : Set ℂ} (hU_open : IsOpen U) (hU_bdd : Bornology.I
       use ⟨t, sInf {y | ⟨t, y⟩ ∈ U}⟩;
       simp_all +decide [ Set.not_subset ];
       intro ε ε_pos;
-      refine' ⟨ ⟨ t, sInf { y | { re := t, im := y } ∈ U } - ε / 2 ⟩, _, _ ⟩ <;> norm_num [ Complex.dist_eq, Complex.normSq, Complex.norm_def ];
+      refine ⟨ ⟨ t, sInf { y | { re := t, im := y } ∈ U } - ε / 2 ⟩, ?_, ?_ ⟩ <;> norm_num [ Complex.dist_eq, Complex.normSq, Complex.norm_def ];
       · rw [ Real.sqrt_mul_self ] <;> linarith;
       · intro h;
         exact absurd ( csInf_le ( show BddBelow { y : ℝ | { re := t, im := y } ∈ U } from by
@@ -529,8 +531,8 @@ lemma slice_inf_mem_closure {U : Set ℂ} (_hU_open : IsOpen U) (hU_bdd : Bornol
         have h_seq : ∀ ε > 0, ∃ y ∈ imSlice U t, |y - sInf (imSlice U t)| < ε := by
           exact fun ε ε_pos => by rcases exists_lt_of_csInf_lt ( ht ) ( lt_add_of_pos_right _ ε_pos ) with ⟨ y, hy, hy' ⟩ ; exact ⟨ y, hy, abs_lt.mpr ⟨ by linarith [ hy', csInf_le ( show BddBelow ( imSlice U t ) from im_slice_bddBelow hU_bdd t ) hy ], by linarith [ hy', csInf_le ( show BddBelow ( imSlice U t ) from im_slice_bddBelow hU_bdd t ) hy ] ⟩ ⟩ ;
         exact ⟨ fun n => Classical.choose ( h_seq ( 1 / ( n + 1 ) ) ( by positivity ) ), fun n => Classical.choose_spec ( h_seq ( 1 / ( n + 1 ) ) ( by positivity ) ) |>.1, tendsto_iff_norm_sub_tendsto_zero.mpr <| squeeze_zero ( fun _ => by positivity ) ( fun n => Classical.choose_spec ( h_seq ( 1 / ( n + 1 ) ) ( by positivity ) ) |>.2.le ) <| tendsto_one_div_add_atTop_nhds_zero_nat ⟩;
-      refine' mem_closure_iff_seq_limit.mpr _;
-      refine' ⟨ fun n => ⟨ t, y_n n ⟩, _, _ ⟩ <;> simp_all +decide [  ];
+      refine mem_closure_iff_seq_limit.mpr ?_;
+      refine ⟨ fun n => ⟨ t, y_n n ⟩, ?_, ?_ ⟩ <;> simp_all +decide [  ];
       rw [ tendsto_iff_norm_sub_tendsto_zero ] at *;
       convert hy_n.2 using 2 ; norm_num [ Complex.normSq, Complex.norm_def ];
       rw [ Real.sqrt_mul_self_eq_abs ]
@@ -550,7 +552,7 @@ lemma slice_sup_not_mem {U : Set ℂ} (hU_open : IsOpen U) (hU_bdd : Bornology.I
       obtain ⟨ ε, ε_pos, hε ⟩ := Metric.isOpen_iff.mp hU_open _ h;
       -- Consider the point $(t, sSup (imSlice U t) + \frac{\epsilon}{2})$.
       have h_point : (⟨t, sSup (imSlice U t) + ε / 2⟩ : ℂ) ∈ U := by
-        refine' hε _;
+        refine hε ?_;
         norm_num [ Complex.dist_eq, Complex.normSq, Complex.norm_def ];
         rw [ Real.sqrt_mul_self ] <;> linarith;
       exact absurd ( le_csSup ( show BddAbove ( imSlice U t ) from im_slice_bddAbove hU_bdd t ) <| show sSup ( imSlice U t ) + ε / 2 ∈ imSlice U t from h_point ) ( by linarith )
@@ -584,7 +586,7 @@ lemma slice_inf_lt_sup {U : Set ℂ} (hU_open : IsOpen U) (hU_bdd : Bornology.Is
     sInf (imSlice U t) < sSup (imSlice U t) := by
       obtain ⟨ x, hx ⟩ := ht;
       obtain ⟨ ε, ε_pos, hε ⟩ := Metric.isOpen_iff.mp ( im_slice_isOpen hU_open t ) x hx;
-      refine' lt_of_le_of_lt ( csInf_le _ ( hε ( Metric.mem_ball_self ε_pos ) ) ) _;
+      refine lt_of_le_of_lt ( csInf_le ?_ ( hε ( Metric.mem_ball_self ε_pos ) ) ) ?_;
       · exact im_slice_bddBelow hU_bdd t;
       · exact lt_of_lt_of_le ( show x < x + ε / 2 by linarith ) ( le_csSup ( show BddAbove ( imSlice U t ) from im_slice_bddAbove hU_bdd t ) ( hε ( Metric.mem_ball.mpr <| abs_lt.mpr ⟨ by linarith, by linarith ⟩ ) ) )
 
@@ -658,7 +660,7 @@ private def highSet (U : Set ℂ) : Set ℂ :=
 lowSet U is closed when U is open, because its complement is open.
 -/
 lemma lowSet_isClosed {U : Set ℂ} (hU : IsOpen U) : IsClosed (lowSet U) := by
-  refine' isClosed_iff_clusterPt.mpr _;
+  refine isClosed_iff_clusterPt.mpr ?_;
   intro a ha; by_contra h; simp_all +decide [ lowSet ] ;
   rcases h with ⟨ x, hx₁, hx₂ ⟩ ; rcases Metric.mem_nhds_iff.1 ( hU.mem_nhds hx₂ ) with ⟨ ε, εpos, hε ⟩ ; simp_all +decide  ;
   -- Choose δ = min(ε, (a.im - x) / 2).
@@ -667,10 +669,10 @@ lemma lowSet_isClosed {U : Set ℂ} (hU : IsOpen U) : IsClosed (lowSet U) := by
   obtain ⟨ z, hz₁, hz₂ ⟩ : ∃ z ∈ Metric.ball a δ, ∀ y : ℝ, y < z.im → (⟨z.re, y⟩ : ℂ) ∉ U := by
     rw [ clusterPt_principal_iff ] at ha;
     exact ha _ ( Metric.ball_mem_nhds _ <| lt_min εpos <| half_pos <| sub_pos.mpr hx₁ ) |> fun ⟨ z, hz₁, hz₂ ⟩ => ⟨ z, hz₁, hz₂ ⟩;
-  refine' hz₂ x _ _;
+  refine hz₂ x ?_ ?_;
   · simp_all +decide [ Complex.dist_eq, Complex.normSq, Complex.norm_def ];
     nlinarith [ Real.sqrt_nonneg ( ( z.re - a.re ) * ( z.re - a.re ) + ( z.im - a.im ) * ( z.im - a.im ) ), Real.mul_self_sqrt ( add_nonneg ( mul_self_nonneg ( z.re - a.re ) ) ( mul_self_nonneg ( z.im - a.im ) ) ) ];
-  · refine' hε _;
+  · refine hε ?_;
     simp_all +decide [ Complex.dist_eq, Complex.normSq, Complex.norm_def ];
     exact lt_of_le_of_lt ( Real.sqrt_le_sqrt <| by nlinarith ) hz₁.1
 
@@ -680,11 +682,11 @@ highSet U is closed when U is open.
 lemma highSet_isClosed {U : Set ℂ} (hU : IsOpen U) : IsClosed (highSet U) := by
   unfold highSet;
   simp +decide only [setOf_forall];
-  refine' isClosed_iInter fun i => _;
+  refine isClosed_iInter fun i => ?_;
   rw [ show { x : ℂ | i > x.im → { re := x.re, im := i } ∉ U } = { x : ℂ | i ≤ x.im } ∪ { x : ℂ | { re := x.re, im := i } ∉ U } by ext; by_cases hi : i ≤ ‹ℂ›.im <;> aesop ];
-  refine' IsClosed.union _ _;
+  refine IsClosed.union ?_ ?_;
   · exact isClosed_le continuous_const Complex.continuous_im;
-  · refine' isClosed_compl_iff.mpr _;
+  · refine isClosed_compl_iff.mpr ?_;
     convert hU.preimage ( show Continuous fun x : ℂ => { re := x.re, im := i } from ?_ ) using 1;
     norm_num [ Complex.mk_eq_add_mul_I ];
     fun_prop
@@ -809,8 +811,8 @@ lemma frontier_hausdorff_ge_two_edist_pair {U : Set ℂ}
       obtain ⟨a, ha⟩ : ∃ a : ℂ, ‖a‖ = 1 ∧ (a * (z - w)).re = ‖z - w‖ := by
         by_cases h : z = w <;> simp_all +decide [ Complex.normSq, Complex.norm_def ];
         · exact ⟨ 1, by norm_num ⟩;
-        · refine' ⟨ ⟨ ( z.re - w.re ) / Real.sqrt ( ( z.re - w.re ) * ( z.re - w.re ) + ( z.im - w.im ) * ( z.im - w.im ) ), - ( z.im - w.im ) / Real.sqrt ( ( z.re - w.re ) * ( z.re - w.re ) + ( z.im - w.im ) * ( z.im - w.im ) ) ⟩, _, _ ⟩ <;> norm_num [ Complex.normSq, Complex.norm_def ];
-          · rw [ div_mul_div_comm, div_mul_div_comm, ← add_div, div_eq_iff ] <;> nlinarith [ Real.mul_self_sqrt ( add_nonneg ( mul_self_nonneg ( z.re - w.re ) ) ( mul_self_nonneg ( z.im - w.im ) ) ), show 0 < ( z.re - w.re ) * ( z.re - w.re ) + ( z.im - w.im ) * ( z.im - w.im ) from not_le.mp fun h' => h <| by refine' Complex.ext _ _ <;> nlinarith ];
+        · refine ⟨ ⟨ ( z.re - w.re ) / Real.sqrt ( ( z.re - w.re ) * ( z.re - w.re ) + ( z.im - w.im ) * ( z.im - w.im ) ), - ( z.im - w.im ) / Real.sqrt ( ( z.re - w.re ) * ( z.re - w.re ) + ( z.im - w.im ) * ( z.im - w.im ) ) ⟩, ?_, ?_ ⟩ <;> norm_num [ Complex.normSq, Complex.norm_def ];
+          · rw [ div_mul_div_comm, div_mul_div_comm, ← add_div, div_eq_iff ] <;> nlinarith [ Real.mul_self_sqrt ( add_nonneg ( mul_self_nonneg ( z.re - w.re ) ) ( mul_self_nonneg ( z.im - w.im ) ) ), show 0 < ( z.re - w.re ) * ( z.re - w.re ) + ( z.im - w.im ) * ( z.im - w.im ) from not_le.mp fun h' => h <| by refine Complex.ext ?_ ?_ <;> nlinarith ];
           · grind;
       -- Let $V := (fun x => a * x) '' U$. Then:
       set V := (fun x => a * x) '' U with hV_def
@@ -844,7 +846,7 @@ lemma frontier_hausdorff_ge_two_edist_pair {U : Set ℂ}
         · exact hV_re_connected.Icc_subset ( Set.mem_image_of_mem _ <| Set.mem_image_of_mem _ hw ) ( Set.mem_image_of_mem _ <| Set.mem_image_of_mem _ hz );
       -- So, μH[1](re '' V) ≥ |re(a*z) - re(a*w)| = |re(a*(z-w))| = ‖z-w‖ = dist(z,w).
       have hV_re_measure : μH[1] (re '' V) ≥ ENNReal.ofReal (|re (a * z) - re (a * w)|) := by
-        refine' le_trans _ ( MeasureTheory.measure_mono hV_re_interval );
+        refine le_trans ?_ ( MeasureTheory.measure_mono hV_re_interval );
         simp +decide [ Real.volume_Icc ];
         cases max_cases ( a.re * z.re - a.im * z.im ) ( a.re * w.re - a.im * w.im ) <;> cases min_cases ( a.re * z.re - a.im * z.im ) ( a.re * w.re - a.im * w.im ) <;> cases abs_cases ( a.re * z.re - a.im * z.im - ( a.re * w.re - a.im * w.im ) ) <;> linarith;
       simp_all +decide [ mul_sub ];
@@ -891,7 +893,7 @@ lemma norm_eval_eq_one_on_frontier (f : Polynomial ℂ) (_hf : IsAdmissible f)
     {z₀ : ℂ} (hz₀ : z₀ ∈ OmegaSet f)
     {w : ℂ} (hw : w ∈ frontier (connectedComponentIn (OmegaSet f) z₀)) :
     ‖f.eval w‖ = 1 := by
-      refine' le_antisymm _ _;
+      refine le_antisymm ?_ ?_;
       · -- By definition of frontier, we know that $w \in \overline{\text{component}}$.
         have hw_closure : w ∈ closure (connectedComponentIn (OmegaSet f) z₀) := by
           exact hw.1;
@@ -904,7 +906,7 @@ lemma norm_eval_eq_one_on_frontier (f : Polynomial ℂ) (_hf : IsAdmissible f)
         · exact connectedComponentIn_subset _ _;
         · exact ⟨ z₀, mem_connectedComponentIn ( by aesop ) ⟩;
         · intro V hV₁ hV₂ hV₃ hV₄;
-          refine' Set.Subset.antisymm _ hV₃;
+          refine Set.Subset.antisymm ?_ hV₃;
           grind +suggestions
 
 /-! ## Product of norms: if nonempty product of nonneg reals = 1, some factor ≥ 1 -/
@@ -939,7 +941,7 @@ lemma diam_gt_of_interior_closure_dist {U : Set ℂ}
       obtain ⟨z', hz'⟩ : ∃ z' ∈ ball z ε, dist z' w > dist z w := by
         by_cases hzw : z = w;
         · exact ⟨ z + ε / 2, by simpa [ abs_of_pos ε_pos ] using by linarith, by simpa [ hzw, abs_of_pos ε_pos ] using by linarith ⟩;
-        · refine' ⟨ z + ( ε / 2 ) * ( z - w ) / ‖z - w‖, _, _ ⟩ <;> norm_num [ hzw, dist_eq_norm ];
+        · refine ⟨ z + ( ε / 2 ) * ( z - w ) / ‖z - w‖, ?_, ?_ ⟩ <;> norm_num [ hzw, dist_eq_norm ];
           · rw [ mul_div_cancel_right₀ _ ( norm_ne_zero_iff.mpr ( sub_ne_zero.mpr hzw ) ) ] ; linarith [ abs_of_pos ε_pos ];
           · rw [ show z + ↑ε / 2 * ( z - w ) / ↑‖z - w‖ - w = ( z - w ) * ( 1 + ↑ε / 2 / ↑‖z - w‖ ) by ring, norm_mul ];
             norm_cast;
@@ -1117,19 +1119,19 @@ lemma ediam_curve_image_le_integral {a b s t : ℝ} (_hab : a ≤ b) (hst : s �
       · rw [ intervalIntegrable_iff_integrableOn_Ioo_of_le hy ];
         have h_integrable : MeasureTheory.IntegrableOn (fun u => ‖deriv γ u‖) (Set.Ioo x y) := by
           exact hγ_deriv_cont.integrableOn_Icc.mono_set ( Set.Ioo_subset_Icc_self.trans ( Set.Icc_subset_Icc ( by linarith [ hs.1 ] ) ( by linarith [ ht, ‹t ∈ Icc a b›.2 ] ) ) );
-        refine' h_integrable.mono' _ _;
+        refine h_integrable.mono' ?_ ?_;
         · fun_prop;
         · exact Filter.Eventually.of_forall fun u => le_rfl
     rw [h_ftc];
     apply_rules [ intervalIntegral.norm_integral_le_integral_norm ];
   -- Since $γ$ is continuous on $[s, t]$, the image $γ '' [s, t]$ is also connected.
   have h_connected : ∀ x y : ℝ, s ≤ x → x ≤ y → y ≤ t → dist (γ y) (γ x) ≤ ∫ u in s..t, ‖deriv γ u‖ := by
-    intro x y hx hy ht; rw [ dist_eq_norm ] ; refine' le_trans ( h_dist_le_integral x y hx hy ht ) _;
+    intro x y hx hy ht; rw [ dist_eq_norm ] ; refine le_trans ( h_dist_le_integral x y hx hy ht ) ?_;
     apply_rules [ intervalIntegral.integral_mono_interval ];
     · exact Filter.Eventually.of_forall fun u => norm_nonneg _;
     · apply_rules [ ContinuousOn.intervalIntegrable, hγ_deriv_cont ];
       exact hγ_deriv_cont.mono ( by rw [ uIcc_of_le hst ] ; exact Set.Icc_subset_Icc hs.1 ( by linarith [ Set.mem_Icc.mp ‹t ∈ Icc a b› ] ) );
-  refine' Metric.ediam_le _;
+  refine Metric.ediam_le ?_;
   rintro _ ⟨ x, hx, rfl ⟩ _ ⟨ y, hy, rfl ⟩ ; cases le_total x y <;> simp_all +decide [ edist_dist ];
   · simpa only [ dist_comm ] using ENNReal.ofReal_le_ofReal ( h_connected x y hx.1 ‹_› hy.2 );
   · exact ENNReal.ofReal_le_ofReal ( h_connected _ _ hy.1 ‹_› hx.2 )
@@ -1181,7 +1183,7 @@ lemma norm_sub_ge_of_deriv_approx {s t : ℝ} (hst : s ≤ t)
   -- For the error term:
   have h_error_term : ‖∫ u in s..t, (deriv γ u - deriv γ s)‖ ≤ ∫ u in s..t, ε := by
     rw [ intervalIntegral.integral_of_le hst, intervalIntegral.integral_of_le hst ];
-    refine' le_trans ( MeasureTheory.norm_integral_le_integral_norm _ ) ( MeasureTheory.integral_mono_of_nonneg _ _ _ );
+    refine le_trans ( MeasureTheory.norm_integral_le_integral_norm _ ) ( MeasureTheory.integral_mono_of_nonneg ?_ ?_ ?_ );
     · exact Filter.Eventually.of_forall fun x => norm_nonneg _;
     · norm_num;
     · filter_upwards [ MeasureTheory.ae_restrict_mem measurableSet_Ioc ] with u hu using hγ_deriv_bound u <| Set.Ioc_subset_Icc_self hu;
@@ -1213,7 +1215,7 @@ lemma integral_le_eVariationOn {a b : ℝ} (hab : a < b)
           (isCompact_Icc.uniformContinuousOn_of_continuous hγ_deriv_cont)
           (ε / (2 * (b - a)))
           (div_pos hε_pos (mul_pos zero_lt_two (sub_pos.mpr hab)));
-      refine' ⟨δ, δ_pos, _⟩;
+      refine ⟨δ, δ_pos, ?_⟩;
       intro t ht u hu htu;
       have hdist : dist t u < δ := by simpa [Real.dist_eq] using htu;
       simpa [Complex.dist_eq] using hδ t ht u hu hdist;
@@ -1230,14 +1232,14 @@ lemma integral_le_eVariationOn {a b : ℝ} (hab : a < b)
               grind +splitImp;
             have := hδ t ⟨ by nlinarith [ ht.1, show ( k : ℝ ) + 1 ≤ N by norm_cast; linarith [ Finset.mem_range.mp hk ], div_mul_cancel₀ ( ( k : ℝ ) * ( b - a ) ) ( Nat.cast_ne_zero.mpr hN.1 ) ], by nlinarith [ ht.2, show ( k : ℝ ) + 1 ≤ N by norm_cast; linarith [ Finset.mem_range.mp hk ], div_mul_cancel₀ ( ( k + 1 : ℝ ) * ( b - a ) ) ( Nat.cast_ne_zero.mpr hN.1 ) ] ⟩ ( a + k * ( b - a ) / N ) ⟨ by nlinarith [ show ( k : ℝ ) + 1 ≤ N by norm_cast; linarith [ Finset.mem_range.mp hk ], div_mul_cancel₀ ( ( k : ℝ ) * ( b - a ) ) ( Nat.cast_ne_zero.mpr hN.1 ) ], by nlinarith [ show ( k : ℝ ) + 1 ≤ N by norm_cast; linarith [ Finset.mem_range.mp hk ], div_mul_cancel₀ ( ( k : ℝ ) * ( b - a ) ) ( Nat.cast_ne_zero.mpr hN.1 ) ] ⟩ h_dist;
             exact le_trans ( abs_norm_sub_norm_le _ _ ) this.le;
-          refine' le_trans ( intervalIntegral.abs_integral_le_integral_abs _ ) _;
+          refine le_trans ( intervalIntegral.abs_integral_le_integral_abs ?_ ) ?_;
           · bound;
-          · refine' le_trans ( intervalIntegral.integral_mono_on _ _ _ h_integral_approx ) _ <;> norm_num;
+          · refine le_trans ( intervalIntegral.integral_mono_on ?_ ?_ ?_ h_integral_approx ) ?_ <;> norm_num;
             · bound;
             · apply_rules [ ContinuousOn.intervalIntegrable ];
               exact ContinuousOn.abs ( ContinuousOn.sub ( ContinuousOn.norm ( hγ_deriv_cont.mono ( by rw [ uIcc_of_le ( by nlinarith [ show ( k : ℝ ) + 1 ≤ N by norm_cast; linarith [ Finset.mem_range.mp hk ], div_mul_cancel₀ ( ( k : ℝ ) * ( b - a ) ) ( Nat.cast_ne_zero.mpr hN.1 ), div_mul_cancel₀ ( ( ( k : ℝ ) + 1 ) * ( b - a ) ) ( Nat.cast_ne_zero.mpr hN.1 ) ] ) ] ; exact fun x hx => ⟨ by nlinarith [ show ( k : ℝ ) + 1 ≤ N by norm_cast; linarith [ Finset.mem_range.mp hk ], div_mul_cancel₀ ( ( k : ℝ ) * ( b - a ) ) ( Nat.cast_ne_zero.mpr hN.1 ), div_mul_cancel₀ ( ( ( k : ℝ ) + 1 ) * ( b - a ) ) ( Nat.cast_ne_zero.mpr hN.1 ), hx.1, hx.2 ], by nlinarith [ show ( k : ℝ ) + 1 ≤ N by norm_cast; linarith [ Finset.mem_range.mp hk ], div_mul_cancel₀ ( ( k : ℝ ) * ( b - a ) ) ( Nat.cast_ne_zero.mpr hN.1 ), div_mul_cancel₀ ( ( ( k : ℝ ) + 1 ) * ( b - a ) ) ( Nat.cast_ne_zero.mpr hN.1 ), hx.1, hx.2 ] ⟩ ) ) ) continuousOn_const );
             · ring_nf; norm_num;
-        refine' le_trans ( Finset.abs_sum_le_sum_abs _ _ ) ( le_trans ( Finset.sum_le_sum h_integral_approx ) _ );
+        refine le_trans ( Finset.abs_sum_le_sum_abs _ _ ) ( le_trans ( Finset.sum_le_sum h_integral_approx ) ?_ );
         norm_num [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm, hN.1 ];
         norm_num [ ne_of_gt ( sub_pos.mpr hab ) ];
       convert h_integral_approx using 1;
@@ -1271,29 +1273,31 @@ lemma integral_le_eVariationOn {a b : ℝ} (hab : a < b)
           · apply_rules [ ContinuousOn.intervalIntegrable, hγ_deriv_cont ];
             exact hγ_deriv_cont.mono ( by rw [ uIcc_of_le ( by nlinarith [ show ( k : ℝ ) + 1 ≤ N by norm_cast; linarith [ Finset.mem_range.mp hk ], mul_div_cancel₀ ( ( k : ℝ ) * ( b - a ) ) ( Nat.cast_ne_zero.mpr hN.1 ), mul_div_cancel₀ ( ( ( k : ℝ ) + 1 ) * ( b - a ) ) ( Nat.cast_ne_zero.mpr hN.1 ) ] ) ] ; exact Set.Icc_subset_Icc ( by nlinarith [ show ( k : ℝ ) + 1 ≤ N by norm_cast; linarith [ Finset.mem_range.mp hk ], mul_div_cancel₀ ( ( k : ℝ ) * ( b - a ) ) ( Nat.cast_ne_zero.mpr hN.1 ), mul_div_cancel₀ ( ( ( k : ℝ ) + 1 ) * ( b - a ) ) ( Nat.cast_ne_zero.mpr hN.1 ) ] ) ( by nlinarith [ show ( k : ℝ ) + 1 ≤ N by norm_cast; linarith [ Finset.mem_range.mp hk ], mul_div_cancel₀ ( ( k : ℝ ) * ( b - a ) ) ( Nat.cast_ne_zero.mpr hN.1 ), mul_div_cancel₀ ( ( ( k : ℝ ) + 1 ) * ( b - a ) ) ( Nat.cast_ne_zero.mpr hN.1 ) ] ) );
       exact h_approx;
-    refine' ⟨ N, hN.1, _ ⟩;
-    refine' le_trans _ ( Finset.sum_le_sum h_sum_approx );
+    refine ⟨ N, hN.1, ?_ ⟩;
+    refine le_trans ?_ ( Finset.sum_le_sum h_sum_approx );
     norm_num [ div_eq_mul_inv, Finset.sum_mul _ _ _ ] at *;
     nlinarith [ abs_le.mp h_integral_approx, mul_inv_cancel_left₀ ( Nat.cast_ne_zero.mpr hN.1 ) ε ];
   have h_eVariationOn_ge_Riemann_sum : ∀ N : ℕ, N ≠ 0 → eVariationOn γ (Icc a b) ≥ ENNReal.ofReal (∑ k ∈ Finset.range N, ‖γ (a + (k + 1) * (b - a) / N) - γ (a + k * (b - a) / N)‖) := by
     intro N hN_nonzero
     have h_partition : ∃ p : Fin (N + 1) → ℝ, Monotone p ∧ ∀ i : Fin (N + 1), p i ∈ Set.Icc a b ∧ p i = a + i * (b - a) / N := by
-      refine' ⟨ fun i => a + i * ( b - a ) / N, _, _ ⟩ <;> norm_num [ Monotone ];
+      refine ⟨ fun i => a + i * ( b - a ) / N, ?_, ?_ ⟩ <;> norm_num [ Monotone ];
       · field_simp;
         exact fun i j hij => by rw [ mul_comm ] ; exact mul_le_mul_of_nonneg_left ( Nat.cast_le.mpr hij ) ( sub_nonneg.mpr hab.le ) ;
       · exact fun i => ⟨ div_nonneg ( mul_nonneg ( Nat.cast_nonneg _ ) ( sub_nonneg.mpr hab.le ) ) ( Nat.cast_nonneg _ ), by nlinarith [ show ( i : ℝ ) ≤ N by norm_cast; linarith [ Fin.is_le i ], show ( N : ℝ ) ≥ 1 by exact Nat.one_le_cast.mpr ( Nat.pos_of_ne_zero hN_nonzero ), mul_div_cancel₀ ( ( i : ℝ ) * ( b - a ) ) ( Nat.cast_ne_zero.mpr hN_nonzero ) ] ⟩;
     obtain ⟨ p, hp₁, hp₂ ⟩ := h_partition; simp_all +decide [ Finset.sum_range, Fin.sum_univ_castSucc ] ;
-    refine' le_csSup _ _ <;> norm_num [ hp₂ ];
-    refine' ⟨ N, fun i => if hi : i < N + 1 then p ⟨ i, hi ⟩ else b, _, _ ⟩ <;> simp_all +decide [ Monotone ];
-    · constructor <;> intro i <;> split_ifs <;> norm_num [ hp₂ ];
-      · intro j hj; split_ifs <;> simp_all +decide  ;
-        · exact div_le_div_of_nonneg_right ( mul_le_mul_of_nonneg_right ( Nat.cast_le.mpr hj ) ( sub_nonneg.mpr hab.le ) ) ( Nat.cast_nonneg _ );
-        · exact hp₂ ⟨ i, by linarith ⟩ |>.2 ▸ hp₂ ⟨ i, by linarith ⟩ |>.1 |>.2;
-      · intro j hj; split_ifs <;> linarith;
-      · exact ⟨ div_nonneg ( mul_nonneg ( Nat.cast_nonneg _ ) ( sub_nonneg.mpr hab.le ) ) ( Nat.cast_nonneg _ ), by rw [ add_div', div_le_iff₀ ] <;> nlinarith [ show ( i : ℝ ) ≤ N by norm_cast, show ( N : ℝ ) > 0 by positivity ] ⟩;
-      · linarith;
-    · rw [ ENNReal.ofReal_sum_of_nonneg ] <;> norm_num [ edist_dist ];
-      rw [ Finset.sum_range ] ; congr ; ext i ; simp +decide [ dist_eq_norm ] ;
+    refine le_csSup ?_ ?_;
+    · exact ⟨ ⊤, fun _ _ => le_top ⟩
+    · norm_num [ hp₂ ];
+      refine ⟨ N, fun i => if hi : i < N + 1 then p ⟨ i, hi ⟩ else b, ?_, ?_ ⟩ <;> simp_all +decide [ Monotone ];
+      · constructor <;> intro i <;> split_ifs <;> norm_num [ hp₂ ];
+        · intro j hj; split_ifs <;> simp_all +decide  ;
+          · exact div_le_div_of_nonneg_right ( mul_le_mul_of_nonneg_right ( Nat.cast_le.mpr hj ) ( sub_nonneg.mpr hab.le ) ) ( Nat.cast_nonneg _ );
+          · exact hp₂ ⟨ i, by linarith ⟩ |>.2 ▸ hp₂ ⟨ i, by linarith ⟩ |>.1 |>.2;
+        · intro j hj; split_ifs <;> linarith;
+        · exact ⟨ div_nonneg ( mul_nonneg ( Nat.cast_nonneg _ ) ( sub_nonneg.mpr hab.le ) ) ( Nat.cast_nonneg _ ), by rw [ add_div', div_le_iff₀ ] <;> nlinarith [ show ( i : ℝ ) ≤ N by norm_cast, show ( N : ℝ ) > 0 by positivity ] ⟩;
+        · linarith;
+      · rw [ ENNReal.ofReal_sum_of_nonneg ] <;> norm_num [ edist_dist ];
+        rw [ Finset.sum_range ] ; congr ; ext i ; simp +decide [ dist_eq_norm ] ;
   have h_eVariationOn_ge_integral : ∀ ε > 0, eVariationOn γ (Icc a b) ≥ ENNReal.ofReal ((∫ t in a..b, ‖deriv γ t‖) - ε) := by
     exact fun ε hε => by obtain ⟨ N, hN₁, hN₂ ⟩ := h_riemann_sum ε hε; exact le_trans ( ENNReal.ofReal_le_ofReal hN₂ ) ( h_eVariationOn_ge_Riemann_sum N hN₁ ) ;
   have h_eVariationOn_ge_integral : Filter.Tendsto (fun ε : ℝ => ENNReal.ofReal ((∫ t in a..b, ‖deriv γ t‖) - ε)) (nhdsWithin 0 (Set.Ioi 0)) (nhds (ENNReal.ofReal (∫ t in a..b, ‖deriv γ t‖))) := by
@@ -1324,7 +1328,7 @@ lemma eVariationOn_le_hausdorffMeasure_injective {a b : ℝ} (_hab : a < b)
     (hγ_inj : InjOn γ (Ioo a b)) :
     eVariationOn γ (Icc a b) ≤
       μH[(1 : ℝ)] (γ '' Icc a b) := by
-  refine' iSup_le _;
+  refine iSup_le ?_;
   intro ⟨ n, ⟨ u, hu ⟩ ⟩;
   -- Claim 1: edist(γ(u i), γ(u(i+1))) ≤ μH[1](sᵢ).
   have h_edist_le_measure (i : ℕ) (hi : i < n) : edist (γ (u (i + 1))) (γ (u i)) ≤ μH[1] (γ '' Set.Ioo (u i) (u (i + 1))) := by
@@ -1344,29 +1348,29 @@ lemma eVariationOn_le_hausdorffMeasure_injective {a b : ℝ} (_hab : a < b)
         rw [ h_diff, MeasureTheory.measure_union₀ ] <;> norm_num;
         · rw [ Set.insert_eq, MeasureTheory.measure_union_null ] <;> norm_num;
           · simp +decide [ MeasureTheory.Measure.hausdorffMeasure_apply ];
-            intro ε hε; refine' le_antisymm _ _;
-            · refine' le_trans ( ciInf_le _ ( fun _ => { γ ( u i ) } ) ) _ <;> norm_num;
+            intro ε hε; refine le_antisymm ?_ ?_;
+            · refine le_trans ( ciInf_le ?_ ( fun _ => { γ ( u i ) } ) ) ?_ <;> norm_num;
             · exact zero_le _;
           · simp +decide [ MeasureTheory.Measure.hausdorffMeasure_apply ];
-            intro ε hε; refine' le_antisymm _ _;
-            · refine' le_trans ( ciInf_le _ ( fun _ => { γ ( u ( i + 1 ) ) } ) ) _ <;> norm_num;
+            intro ε hε; refine le_antisymm ?_ ?_;
+            · refine le_trans ( ciInf_le ?_ ( fun _ => { γ ( u ( i + 1 ) ) } ) ) ?_ <;> norm_num;
             · exact zero_le _;
-        · refine' MeasureTheory.measure_mono_null _ _;
-          exact { γ ( u i ), γ ( u ( i + 1 ) ) };
+        · refine MeasureTheory.measure_mono_null
+            (t := { γ ( u i ), γ ( u ( i + 1 ) ) }) ?_ ?_;
           · exact Set.inter_subset_right;
           · rw [ Set.insert_eq, MeasureTheory.measure_union_null ];
             · simp +decide [ MeasureTheory.Measure.hausdorffMeasure_apply ];
-              intro ε hε; refine' le_antisymm _ _;
-              · refine' le_trans ( ciInf_le _ ( fun _ => { γ ( u i ) } ) ) _ <;> norm_num;
+              intro ε hε; refine le_antisymm ?_ ?_;
+              · refine le_trans ( ciInf_le ?_ ( fun _ => { γ ( u i ) } ) ) ?_ <;> norm_num;
               · exact zero_le _;
             · simp +decide [ MeasureTheory.Measure.hausdorffMeasure_apply ];
-              intro ε hε; refine' le_antisymm _ _;
-              · refine' le_trans ( ciInf_le _ ( fun _ => { γ ( u ( i + 1 ) ) } ) ) _ <;> norm_num;
+              intro ε hε; refine le_antisymm ?_ ?_;
+              · refine le_trans ( ciInf_le ?_ ( fun _ => { γ ( u ( i + 1 ) ) } ) ) ?_ <;> norm_num;
               · exact zero_le _;
       exact h_eq_measure ▸ h_edist_le_measure;
-  refine' le_trans ( Finset.sum_le_sum fun i hi => h_edist_le_measure i ( Finset.mem_range.mp hi ) ) _;
+  refine le_trans ( Finset.sum_le_sum fun i hi => h_edist_le_measure i ( Finset.mem_range.mp hi ) ) ?_;
   rw [ ← MeasureTheory.measure_biUnion_finset ];
-  · refine' MeasureTheory.measure_mono _;
+  · refine MeasureTheory.measure_mono ?_;
     simp +decide [ Set.subset_def ];
     exact fun x i hi y hy₁ hy₂ hx => ⟨ y, ⟨ by linarith [ hu.2 i |>.1 ], by linarith [ hu.2 ( i + 1 ) |>.2 ] ⟩, hx ⟩;
   · intros i hi j hj hij;
@@ -1499,13 +1503,13 @@ lemma petal_curve_connected_to_one (n : ℕ) (hn : n ≥ 1)
       connectedComponentIn (OmegaSet (modelPoly n)) 1 := by
   have h_real_axis_path : ∃ γ : ℝ → ℂ, Continuous γ ∧ γ 0 = 1 ∧ γ 1 = (((1 - ε) * (2 * Real.cos (n * θ))) ^ ((1 : ℝ) / n) : ℝ) * Complex.exp (θ * Complex.I) ∧ ∀ t ∈ Set.Icc 0 1, γ t ∈ OmegaSet (modelPoly n) := by
     have h_real_axis_path : ∃ γ : ℝ → ℂ, Continuous γ ∧ γ 0 = (((1 - ε) * 2) ^ ((1 : ℝ) / n) : ℝ) ∧ γ 1 = (((1 - ε) * (2 * Real.cos (n * θ))) ^ ((1 : ℝ) / n) : ℝ) * Complex.exp (θ * Complex.I) ∧ ∀ t ∈ Set.Icc 0 1, γ t ∈ OmegaSet (modelPoly n) := by
-      refine' ⟨ fun t => ( ( ( 1 - ε ) * ( 2 * Real.cos ( n * ( t * θ ) ) ) ) ^ ( ( 1 : ℝ ) / n ) : ℝ ) * Complex.exp ( t * θ * Complex.I ), _, _, _, _ ⟩ <;> norm_num [ Complex.exp_ne_zero ]
+      refine ⟨ fun t => ( ( ( 1 - ε ) * ( 2 * Real.cos ( n * ( t * θ ) ) ) ) ^ ( ( 1 : ℝ ) / n ) : ℝ ) * Complex.exp ( t * θ * Complex.I ), ?_, ?_, ?_, ?_ ⟩ <;> norm_num [ Complex.exp_ne_zero ]
       · exact Continuous.mul ( Complex.continuous_ofReal.comp <| Continuous.rpow_const ( by continuity ) <| by continuity ) <| Complex.continuous_exp.comp <| by continuity
       · intro t ht₁ ht₂; convert scaled_petal_in_omegaSet n hn ( t * θ ) ⟨ by nlinarith [ hθ.1, hθ.2, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ Real.pi ( by positivity : ( 2 * n : ℝ ) ≠ 0 ) ], by nlinarith [ hθ.1, hθ.2, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ Real.pi ( by positivity : ( 2 * n : ℝ ) ≠ 0 ) ] ⟩ ε hε₁ hε₂ using 1; ring_nf
         norm_num [ mul_assoc, mul_comm, mul_left_comm ]
     obtain ⟨γ, hγ_cont, hγ₀, hγ₁, hγ⟩ := h_real_axis_path
     have h_real_axis_path : ∃ γ' : ℝ → ℂ, Continuous γ' ∧ γ' 0 = 1 ∧ γ' 1 = (((1 - ε) * 2) ^ ((1 : ℝ) / n) : ℝ) ∧ ∀ t ∈ Set.Icc 0 1, γ' t ∈ OmegaSet (modelPoly n) := by
-      refine' ⟨ fun t => ( 1 - t ) + t * ( ( ( 1 - ε ) * 2 ) ^ ( 1 / ( n : ℝ ) ) : ℝ ), _, _, _, _ ⟩ <;> norm_num
+      refine ⟨ fun t => ( 1 - t ) + t * ( ( ( 1 - ε ) * 2 ) ^ ( 1 / ( n : ℝ ) ) : ℝ ), ?_, ?_, ?_, ?_ ⟩ <;> norm_num
       · fun_prop
       · intro t ht₁ ht₂; unfold OmegaSet; norm_num [ modelPoly ]
         have h_bound : 0 < ((1 - ε) * 2) ^ (1 / n : ℝ) ∧ ((1 - ε) * 2) ^ (1 / n : ℝ) < 2 ^ (1 / n : ℝ) := by
@@ -1519,7 +1523,7 @@ lemma petal_curve_connected_to_one (n : ℕ) (hn : n ≥ 1)
         constructor <;> linarith [ pow_pos h_bound.1 n, abs_of_pos h_bound.1, pow_le_pow_left₀ ( by linarith ) ( show |1 - t + t * ( ( 1 - ε ) * 2 ) ^ ( n : ℝ ) ⁻¹| ≥ 1 - t + t * ( ( 1 - ε ) * 2 ) ^ ( n : ℝ ) ⁻¹ by rw [ abs_of_pos h_bound.1 ] ) n ]
     obtain ⟨γ', hγ'_cont, hγ'_0, hγ'_1, hγ'⟩ := h_real_axis_path
     use fun t => if t ≤ 1 / 2 then γ' (2 * t) else γ (2 * t - 1)
-    refine' ⟨ _, _, _, _ ⟩ <;> norm_num [ hγ'_0, hγ'_1, hγ₀, hγ₁ ]
+    refine ⟨ ?_, ?_, ?_, ?_ ⟩ <;> norm_num [ hγ'_0, hγ'_1, hγ₀, hγ₁ ]
     · apply_rules [ Continuous.if_le, Continuous.sub, Continuous.mul, continuous_id, continuous_const ] <;> norm_num
       · exact hγ'_cont.comp ( continuous_const.mul continuous_id' )
       · exact hγ_cont.comp <| Continuous.sub ( continuous_const.mul continuous_id' ) continuous_const
@@ -1544,7 +1548,7 @@ lemma petal_curve_sub_closure (n : ℕ) (hn : n ≥ 1) :
     by_cases hθ' : θ = - ( Real.pi / ( 2 * n ) ) ∨ θ = Real.pi / ( 2 * n )
     · obtain ⟨seq, hseq⟩ : ∃ seq : ℕ → ℝ, (∀ k, seq k ∈ Set.Ioo (-(Real.pi / (2 * n))) (Real.pi / (2 * n))) ∧ Filter.Tendsto seq Filter.atTop (nhds θ) := by
         rcases hθ' with hθ' | hθ'
-        · refine' ⟨ fun k => - ( Real.pi / ( 2 * n ) ) + ( Real.pi / ( 2 * n ) ) / ( k + 1 ), _, _ ⟩ <;> norm_num
+        · refine ⟨ fun k => - ( Real.pi / ( 2 * n ) ) + ( Real.pi / ( 2 * n ) ) / ( k + 1 ), ?_, ?_ ⟩ <;> norm_num
           · exact fun k => ⟨ by positivity, lt_add_of_le_of_pos ( div_le_self ( by positivity ) ( by linarith ) ) ( by positivity ) ⟩
           · exact hθ'.symm ▸ le_trans ( tendsto_const_nhds.add ( tendsto_const_nhds.div_atTop ( Filter.tendsto_atTop_add_const_right _ _ tendsto_natCast_atTop_atTop ) ) ) ( by norm_num )
         · use fun k => Real.pi / ( 2 * n ) - 1 / ( k + 1 ) * ( Real.pi / ( 2 * n ) )
@@ -1568,9 +1572,9 @@ lemma petal_curve_sub_closure (n : ℕ) (hn : n ≥ 1) :
         · exact Or.inr hn
     · have h_seq : ∀ ε : ℝ, 0 < ε → ε < 1 → (((1 - ε) * (2 * Real.cos (n * θ))) ^ ((1 : ℝ) / n) : ℝ) * Complex.exp (θ * Complex.I) ∈ connectedComponentIn (OmegaSet (modelPoly n)) 1 := by
         grind +suggestions
-      refine' ⟨ fun k => ( ( ( 1 - 1 / ( k + 2 ) ) * ( 2 * Real.cos ( n * θ ) ) ) ^ ( 1 / n : ℝ ) : ℝ ) * Complex.exp ( θ * Complex.I ), _, _ ⟩ <;> norm_num
+      refine ⟨ fun k => ( ( ( 1 - 1 / ( k + 2 ) ) * ( 2 * Real.cos ( n * θ ) ) ) ^ ( 1 / n : ℝ ) : ℝ ) * Complex.exp ( θ * Complex.I ), ?_, ?_ ⟩ <;> norm_num
       · exact fun k => by simpa using h_seq ( ( k + 2 : ℝ ) ⁻¹ ) ( by positivity ) ( inv_lt_one_of_one_lt₀ ( by linarith ) )
-      · refine' Filter.Tendsto.mul _ tendsto_const_nhds
+      · refine Filter.Tendsto.mul ?_ tendsto_const_nhds
         convert Filter.Tendsto.comp ( Complex.continuous_ofReal.tendsto _ ) ( Filter.Tendsto.rpow ( Filter.Tendsto.mul ( tendsto_const_nhds.sub ( tendsto_inv_atTop_zero.comp ( Filter.tendsto_atTop_add_const_right _ _ tendsto_natCast_atTop_atTop ) ) ) tendsto_const_nhds ) tendsto_const_nhds _ ) using 2 <;> norm_num
         · rw [ max_eq_right ( mul_nonneg zero_le_two ( Real.cos_nonneg_of_mem_Icc ⟨ by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, hθ.1, mul_div_cancel₀ ( Real.pi : ℝ ) ( by positivity : ( 2 * n : ℝ ) ≠ 0 ) ], by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, hθ.2, mul_div_cancel₀ ( Real.pi : ℝ ) ( by positivity : ( 2 * n : ℝ ) ≠ 0 ) ] ⟩ ) ) ]
         · exact Or.inr hn
@@ -1681,7 +1685,7 @@ lemma component_in_positive_sector (n : ℕ) (hn : n ≥ 1)
     · exact isOpen_re_lt_norm_mul _;
     · grind +revert;
     · exact fun x hx => lt_or_gt_of_ne ( omegaSet_no_boundary_arg n hn x <| connectedComponentIn_subset _ _ hx ) |> Or.symm;
-    · refine' ⟨ 1, _, _ ⟩ <;> norm_num;
+    · refine ⟨ 1, ?_, ?_ ⟩ <;> norm_num;
       · exact mem_connectedComponentIn ( by norm_num [ OmegaSet, modelPoly ] );
       · nlinarith [ Real.sin_sq_add_cos_sq ( Real.pi / ( 2 * n ) ), Real.sin_pos_of_pos_of_lt_pi ( by positivity ) ( by rw [ div_lt_iff₀ ( by positivity ) ] ; nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] : Real.pi / ( 2 * n ) < Real.pi ) ];
     · exact isPreconnected_connectedComponentIn;
@@ -1778,7 +1782,7 @@ theorem frontier_component_one_eq_lemniscate_arc' (n : ℕ) (hn : n ≥ 1) :
     · -- z ≠ 0: use arg bound
       have h_arg := component_closure_arg_bound n hn z hz.1 hz_ne
       -- z = ‖z‖ · exp(i · arg z), and from |z^n - 1| = 1 + arg bound, z = γ(arg z)
-      refine' ⟨ Complex.arg z, h_arg, _ ⟩;
+      refine ⟨ Complex.arg z, h_arg, ?_ ⟩;
       -- From ‖z^n - 1‖ = 1: expand to get ‖z‖^{2n} - 2*‖z‖^n*cos(nθ) + 1 = 1.
       -- So ‖z‖^n(‖z‖^n - 2cos(nθ)) = 0. Since ‖z‖ > 0, ‖z‖^n = 2cos(nθ).
       have h_norm_eq : ‖z‖ ^ n = 2 * Real.cos (n * Complex.arg z) := by
@@ -1913,47 +1917,53 @@ lemma hausdorffMeasure_curve_le_integral {a b : ℝ} (hab : a < b)
     (hγ_deriv_cont : ContinuousOn (fun t => ‖deriv γ t‖) (Icc a b)) :
     μH[(1 : ℝ)] (γ '' Icc a b) ≤
       ENNReal.ofReal (∫ t in a..b, ‖deriv γ t‖) := by
-  refine' le_trans _ ( _ : ENNReal.ofReal ( ∫ t in a..b, ‖deriv γ t‖ ) ≤ _ );
+  refine le_trans ?_ ( ?_ : ENNReal.ofReal ( ∫ t in a..b, ‖deriv γ t‖ ) ≤ _ );
   · have := @MeasureTheory.Measure.hausdorffMeasure_le_liminf_sum;
     specialize @this ℂ _ _ _ ℕ ( fun n => Fin ( n + 1 ) ) _ 1 ( γ '' Icc a b ) Filter.atTop ( fun n => ENNReal.ofReal ( ( b - a ) / ( n + 1 ) ) * ENNReal.ofReal ( SupSet.sSup ( Set.image ( fun t => ‖deriv γ t‖ ) ( Set.Icc a b ) ) + 1 ) ) _;
     · convert ENNReal.Tendsto.mul_const ( ENNReal.tendsto_ofReal ( tendsto_const_nhds.div_atTop <| Filter.tendsto_atTop_add_const_right _ _ tendsto_natCast_atTop_atTop ) ) _ using 1;
       · norm_num;
       · norm_num;
-    · refine' le_trans ( this _ _ _ ) _;
-      use fun n i => γ '' Set.Icc ( a + ( b - a ) * i / ( n + 1 ) ) ( a + ( b - a ) * ( i + 1 ) / ( n + 1 ) );
-      · refine' Filter.Eventually.of_forall fun n i => _;
-        refine' le_trans ( ediam_curve_image_le_integral _ _ _ _ _ _ _ ) _;
-        exact a;
-        exact b;
+    · refine le_trans
+        (this
+          (fun n i => γ '' Set.Icc ( a + ( b - a ) * i / ( n + 1 ) )
+            ( a + ( b - a ) * ( i + 1 ) / ( n + 1 ) ))
+          ?_ ?_) ?_;
+      · refine Filter.Eventually.of_forall fun n i => ?_;
+        refine le_trans ( ediam_curve_image_le_integral (a := a) (b := b)
+          ?_ ?_ ?_ ?_ ?_ ?_ ?_ ) ?_;
         any_goals assumption;
         · linarith;
         · bound;
         · exact ⟨ by nlinarith [ show ( i : ℝ ) ≤ n by norm_cast; linarith [ Fin.is_le i ], div_mul_cancel₀ ( ( b - a ) * i ) ( by linarith : ( n : ℝ ) + 1 ≠ 0 ) ], by nlinarith [ show ( i : ℝ ) ≤ n by norm_cast; linarith [ Fin.is_le i ], div_mul_cancel₀ ( ( b - a ) * i ) ( by linarith : ( n : ℝ ) + 1 ≠ 0 ) ] ⟩;
         · exact ⟨ by nlinarith [ show ( i : ℝ ) + 1 ≤ n + 1 by norm_cast; linarith [ Fin.is_lt i ], mul_div_cancel₀ ( ( b - a ) * ( i + 1 ) ) ( by linarith : ( n : ℝ ) + 1 ≠ 0 ) ], by nlinarith [ show ( i : ℝ ) + 1 ≤ n + 1 by norm_cast; linarith [ Fin.is_lt i ], mul_div_cancel₀ ( ( b - a ) * ( i + 1 ) ) ( by linarith : ( n : ℝ ) + 1 ≠ 0 ) ] ⟩;
         · rw [ ← ENNReal.ofReal_mul ( by exact div_nonneg ( sub_nonneg.mpr hab.le ) ( by positivity ) ) ];
-          refine' ENNReal.ofReal_le_ofReal _;
-          refine' le_trans ( intervalIntegral.integral_mono_on _ _ _ _ ) _;
-          use fun t => sSup ( Set.image ( fun t => ‖deriv γ t‖ ) ( Set.Icc a b ) ) + 1;
+          refine ENNReal.ofReal_le_ofReal ?_;
+          refine le_trans
+            (b := ∫ u in a + (b - a) * i / (n + 1)..a + (b - a) * (i + 1) / (n + 1),
+              (fun _ : ℝ => sSup ( Set.image ( fun t => ‖deriv γ t‖ ) ( Set.Icc a b ) ) + 1) u)
+            (intervalIntegral.integral_mono_on
+              (g := fun _ : ℝ => sSup ( Set.image ( fun t => ‖deriv γ t‖ ) ( Set.Icc a b ) ) + 1)
+              ?_ ?_ ?_ ?_) ?_;
           · bound;
           · apply_rules [ ContinuousOn.intervalIntegrable ];
-            refine' hγ_deriv_cont.mono _;
+            refine hγ_deriv_cont.mono ?_;
             rw [ uIcc_of_le ( by rw [ add_div', add_div', div_le_div_iff_of_pos_right ] <;> nlinarith ) ];
             exact Set.Icc_subset_Icc ( by nlinarith [ show ( i : ℝ ) ≤ n by norm_cast; linarith [ Fin.is_le i ], div_mul_cancel₀ ( ( b - a ) * ( i : ℝ ) ) ( by linarith : ( n : ℝ ) + 1 ≠ 0 ) ] ) ( by nlinarith [ show ( i : ℝ ) ≤ n by norm_cast; linarith [ Fin.is_le i ], div_mul_cancel₀ ( ( b - a ) * ( i + 1 : ℝ ) ) ( by linarith : ( n : ℝ ) + 1 ≠ 0 ) ] );
           · norm_num;
           · intro x hx;
-            refine' le_add_of_le_of_nonneg ( le_csSup _ _ ) zero_le_one;
+            refine le_add_of_le_of_nonneg ( le_csSup ?_ ?_ ) zero_le_one;
             · exact IsCompact.bddAbove ( isCompact_Icc.image_of_continuousOn hγ_deriv_cont );
             · exact ⟨ x, ⟨ by nlinarith [ hx.1, show ( i : ℝ ) ≤ n by norm_cast; linarith [ Fin.is_le i ], div_mul_cancel₀ ( ( b - a ) * ( i : ℝ ) ) ( by linarith : ( n : ℝ ) + 1 ≠ 0 ) ], by nlinarith [ hx.2, show ( i : ℝ ) ≤ n by norm_cast; linarith [ Fin.is_le i ], div_mul_cancel₀ ( ( b - a ) * ( i + 1 : ℝ ) ) ( by linarith : ( n : ℝ ) + 1 ≠ 0 ) ] ⟩, rfl ⟩;
           · norm_num [ mul_div_assoc ];
             ring_nf; norm_num;
-      · refine' Filter.Eventually.of_forall fun n => _;
+      · refine Filter.Eventually.of_forall fun n => ?_;
         intro x hx;
         obtain ⟨ y, hy, rfl ⟩ := hx;
         simp +zetaDelta at *;
         by_cases hy' : y = b;
-        · refine' ⟨ ⟨ n, by linarith ⟩, b, _, _ ⟩ <;> norm_num [ hy' ];
+        · refine ⟨ ⟨ n, by linarith ⟩, b, ?_, ?_ ⟩ <;> norm_num [ hy' ];
           exact ⟨ by rw [ add_div', div_le_iff₀ ] <;> nlinarith, by rw [ mul_div_cancel_right₀ _ ( by linarith ) ] ; linarith ⟩;
-        · refine' ⟨ ⟨ ⌊ ( y - a ) * ( n + 1 ) / ( b - a ) ⌋₊, _ ⟩, y, _, rfl ⟩;
+        · refine ⟨ ⟨ ⌊ ( y - a ) * ( n + 1 ) / ( b - a ) ⌋₊, ?_ ⟩, y, ?_, rfl ⟩;
           all_goals norm_num [ Nat.floor_lt', div_lt_iff₀, lt_div_iff₀, hab, hy, hy' ];
           · exact Nat.le_of_lt_succ <| by rw [ Nat.floor_lt', div_lt_iff₀ ] <;> norm_num <;> nlinarith [ mul_self_pos.mpr <| sub_ne_zero.mpr hy' ] ;
           · field_simp;
@@ -1966,23 +1976,23 @@ lemma hausdorffMeasure_curve_le_integral {a b : ℝ} (hab : a < b)
           · bound;
           · exact ⟨ by nlinarith [ show ( i : ℝ ) ≤ n by norm_cast; linarith [ Fin.is_le i ], div_mul_cancel₀ ( ( b - a ) * i ) ( by linarith : ( n : ℝ ) + 1 ≠ 0 ) ], by nlinarith [ show ( i : ℝ ) ≤ n by norm_cast; linarith [ Fin.is_le i ], div_mul_cancel₀ ( ( b - a ) * i ) ( by linarith : ( n : ℝ ) + 1 ≠ 0 ) ] ⟩;
           · exact ⟨ by nlinarith [ show ( i : ℝ ) + 1 ≤ n + 1 by norm_cast; linarith [ Fin.is_lt i ], mul_div_cancel₀ ( ( b - a ) * ( i + 1 ) ) ( by linarith : ( n : ℝ ) + 1 ≠ 0 ) ], by nlinarith [ show ( i : ℝ ) + 1 ≤ n + 1 by norm_cast; linarith [ Fin.is_lt i ], mul_div_cancel₀ ( ( b - a ) * ( i + 1 ) ) ( by linarith : ( n : ℝ ) + 1 ≠ 0 ) ] ⟩;
-        refine' Filter.liminf_le_of_frequently_le _ _;
-        · refine' Filter.frequently_atTop.mpr fun n => _;
-          refine' ⟨ n, le_rfl, _ ⟩;
-          refine' le_trans ( Finset.sum_le_sum fun i _ => by simpa using h_diam_bound n i ) _;
+        refine Filter.liminf_le_of_frequently_le ?_ ?_;
+        · refine Filter.frequently_atTop.mpr fun n => ?_;
+          refine ⟨ n, le_rfl, ?_ ⟩;
+          refine le_trans ( Finset.sum_le_sum fun i _ => by simpa using h_diam_bound n i ) ?_;
           rw [ ← ENNReal.ofReal_sum_of_nonneg ];
-          · convert ENNReal.ofReal_le_ofReal _;
+          · convert ENNReal.ofReal_le_ofReal ?_;
             have h_sum_integral : ∑ i ∈ Finset.range (n + 1), ∫ t in (a + (b - a) * i / (n + 1))..(a + (b - a) * (i + 1) / (n + 1)), ‖deriv γ t‖ = ∫ t in a..b, ‖deriv γ t‖ := by
               convert intervalIntegral.sum_integral_adjacent_intervals _ <;> norm_num;
               · rw [ mul_div_cancel_right₀ _ ( by positivity ), add_sub_cancel ];
               · intro k hk;
                 apply_rules [ ContinuousOn.intervalIntegrable ];
-                refine' hγ_deriv_cont.mono _;
+                refine hγ_deriv_cont.mono ?_;
                 rw [ uIcc_of_le ( by rw [ add_div', add_div', div_le_div_iff_of_pos_right ] <;> nlinarith [ show ( k : ℝ ) ≤ n by norm_cast ] ) ];
                 exact Set.Icc_subset_Icc ( by nlinarith [ show ( k : ℝ ) ≤ n by norm_cast, mul_div_cancel₀ ( ( b - a ) * k ) ( by linarith : ( n : ℝ ) + 1 ≠ 0 ) ] ) ( by nlinarith [ show ( k : ℝ ) ≤ n by norm_cast, mul_div_cancel₀ ( ( b - a ) * ( k + 1 ) ) ( by linarith : ( n : ℝ ) + 1 ≠ 0 ) ] );
             rw [ ← h_sum_integral, Finset.sum_range ];
           · exact fun _ _ => intervalIntegral.integral_nonneg ( by nlinarith [ show ( ↑‹Fin ( n + 1 ) › : ℝ ) + 1 ≤ n + 1 by norm_cast; linarith [ Fin.is_lt ‹_› ], mul_div_cancel₀ ( ( b - a ) * ( ↑‹Fin ( n + 1 ) › : ℝ ) ) ( by linarith : ( n : ℝ ) + 1 ≠ 0 ), mul_div_cancel₀ ( ( b - a ) * ( ↑‹Fin ( n + 1 ) › + 1 : ℝ ) ) ( by linarith : ( n : ℝ ) + 1 ≠ 0 ) ] ) fun _ _ => norm_nonneg _;
-        · refine' ⟨ 0, Filter.eventually_atTop.mpr ⟨ 0, fun n hn => _ ⟩ ⟩ ; aesop;
+        · refine ⟨ 0, Filter.eventually_atTop.mpr ⟨ 0, fun n hn => ?_ ⟩ ⟩ ; aesop;
   · rfl
 
 /-- Lower bound: μH[1](γ([a,b])) ≥ ∫ ‖γ'‖ for injective curves.
@@ -2075,7 +2085,7 @@ lemma integral_cos_rpow_eq_betaFn (α : ℝ) (hα : α > -1) :
       have h_subst : ∫ x in (Set.Ioo 0 (Real.pi / 2)), (Real.cos x) ^ α = ∫ x in (Set.image (fun θ => Real.sin θ ^ 2) (Set.Ioo 0 (Real.pi / 2))), (Real.cos (Real.arcsin (Real.sqrt x))) ^ α * (1 / (2 * Real.sqrt (x * (1 - x)))) := by
         rw [ MeasureTheory.integral_image_eq_integral_abs_deriv_smul ];
         any_goals intro x hx; exact DifferentiableAt.hasDerivAt ( DifferentiableAt.pow ( Real.differentiableAt_sin ) 2 ) |> HasDerivAt.hasDerivWithinAt;
-        · refine' MeasureTheory.setIntegral_congr_fun measurableSet_Ioo fun x hx => _;
+        · refine MeasureTheory.setIntegral_congr_fun measurableSet_Ioo fun x hx => ?_;
           norm_num [ Real.sin_sq, Real.cos_arcsin ];
           rw [ Real.sq_sqrt ( by nlinarith [ Real.cos_sq' x ] ) ] ; ring_nf;
           rw [ show Real.cos x ^ 2 - Real.cos x ^ 4 = ( Real.cos x ^ 2 ) * ( 1 - Real.cos x ^ 2 ) by ring, Real.sqrt_mul ( sq_nonneg _ ), Real.sqrt_sq ( Real.cos_nonneg_of_mem_Icc ⟨ by linarith [ Real.pi_pos, hx.1 ], by linarith [ Real.pi_pos, hx.2 ] ⟩ ) ] ; ring_nf;
@@ -2091,7 +2101,7 @@ lemma integral_cos_rpow_eq_betaFn (α : ℝ) (hα : α > -1) :
     rw [ h_subst, ← intervalIntegral.integral_const_mul ];
     rw [ intervalIntegral.integral_of_le zero_le_one, intervalIntegral.integral_of_le zero_le_one ];
     rw [ MeasureTheory.integral_Ioc_eq_integral_Ioo, MeasureTheory.integral_Ioc_eq_integral_Ioo ];
-    refine' MeasureTheory.setIntegral_congr_fun measurableSet_Ioo fun x hx => _;
+    refine MeasureTheory.setIntegral_congr_fun measurableSet_Ioo fun x hx => ?_;
     rw [ Real.cos_arcsin ] ; ring_nf;
     rw [ Real.sq_sqrt hx.1.le ] ; rw [ show x - x ^ 2 = x * ( 1 - x ) by ring, Real.sqrt_mul hx.1.le ] ; norm_num [ Real.rpow_neg hx.1.le, Real.rpow_neg ( sub_nonneg.2 hx.2.le ) ] ; ring_nf;
     rw [ Real.sqrt_eq_rpow, Real.sqrt_eq_rpow, ← Real.rpow_mul ( by linarith [ hx.1, hx.2 ] ), ← Real.rpow_neg ( by linarith [ hx.1, hx.2 ] ) ] ; ring_nf;
@@ -2102,7 +2112,7 @@ lemma integral_cos_rpow_eq_betaFn (α : ℝ) (hα : α > -1) :
     convert rfl using 2 ; norm_num [ Complex.ofReal_cpow ] ; ring_nf;
     convert Complex.ofReal_re _;
     convert intervalIntegral.integral_ofReal using 1 ; norm_num;
-    refine' intervalIntegral.integral_congr fun x hx => _ ; norm_num [ Complex.ofReal_cpow, show x ≥ 0 from by norm_num at hx ; linarith, show ( 1 - x ) ≥ 0 from by norm_num at hx ; linarith ];
+    refine intervalIntegral.integral_congr fun x hx => ?_ ; norm_num [ Complex.ofReal_cpow, show x ≥ 0 from by norm_num at hx ; linarith, show ( 1 - x ) ≥ 0 from by norm_num at hx ; linarith ];
   have h_beta_eq : Complex.betaIntegral (1 / 2 : ℂ) ((α + 1) / 2 : ℂ) = (Real.Gamma (1 / 2) * Real.Gamma ((α + 1) / 2)) / Real.Gamma ((α + 1) / 2 + 1 / 2) := by
     convert Complex.betaIntegral_eq_Gamma_mul_div ( 1 / 2 : ℂ ) ( ( α + 1 ) / 2 : ℂ ) _ _ using 1 <;> norm_num;
     · rw [ ← Complex.Gamma_ofReal, ← Complex.Gamma_ofReal, ← Complex.Gamma_ofReal ] ; ring_nf;
@@ -2145,8 +2155,9 @@ lemma lemniscate_arc_integral_eq (n : ℕ) (hn : n ≥ 1) :
                 exact le_trans ( by ring_nf; norm_num ) ( Real.mul_le_sin hu.1.le hu.2.le );
               rw [ ← Real.mul_rpow ( by positivity ) ( by linarith [ hu.1 ] ) ];
               exact Real.rpow_le_rpow_of_nonpos ( mul_pos ( by positivity ) hu.1 ) h_sin_le ( sub_nonpos_of_le <| by rw [ div_le_iff₀ ] <;> norm_cast ; linarith );
-            refine' MeasureTheory.Integrable.mono' _ _ _;
-            refine' fun u => ( 2 / Real.pi ) ^ ( 1 / n - 1 : ℝ ) * u ^ ( 1 / n - 1 : ℝ );
+            refine MeasureTheory.Integrable.mono'
+              (g := fun u => ( 2 / Real.pi ) ^ ( 1 / n - 1 : ℝ ) * u ^ ( 1 / n - 1 : ℝ ))
+              ?_ ?_ ?_;
             · exact MeasureTheory.Integrable.const_mul ‹_› _;
             · exact Measurable.aestronglyMeasurable ( by exact Measurable.pow_const ( Real.continuous_sin.measurable ) _ );
             · filter_upwards [ MeasureTheory.ae_restrict_mem measurableSet_Ioo ] with u hu using by rw [ Real.norm_of_nonneg ( Real.rpow_nonneg ( Real.sin_nonneg_of_nonneg_of_le_pi hu.1.le ( by linarith [ hu.2, Real.pi_pos ] ) ) _ ) ] ; exact h_integrable u hu;
@@ -2162,9 +2173,10 @@ lemma lemniscate_arc_integral_eq (n : ℕ) (hn : n ≥ 1) :
         norm_num [ Set.ext_iff ];
       · linarith [ Real.pi_pos ];
     · rw [ intervalIntegrable_iff_integrableOn_Ioo_of_le ];
-      · refine' MeasureTheory.Integrable.mono' _ _ _;
-        refine' fun u => 2 ^ ( 1 / ( n : ℝ ) - 1 ) * ( Real.cos u ) ^ ( 1 / ( n : ℝ ) - 1 );
-        · refine' MeasureTheory.Integrable.const_mul _ _;
+      · refine MeasureTheory.Integrable.mono'
+          (g := fun u => 2 ^ ( 1 / ( n : ℝ ) - 1 ) * ( Real.cos u ) ^ ( 1 / ( n : ℝ ) - 1 ))
+          ?_ ?_ ?_;
+        · refine MeasureTheory.Integrable.const_mul ?_ _;
           have h_integrable : MeasureTheory.IntegrableOn (fun u => Real.cos u ^ ((1 / n : ℝ) - 1)) (Set.Ioo 0 (Real.pi / 2)) := by
             have h_beta : ∫ u in (0 : ℝ)..(Real.pi / 2), Real.cos u ^ ((1 / n : ℝ) - 1) = betaFn (1 / 2) ((1 / n : ℝ) / 2) / 2 := by
               convert integral_cos_rpow_eq_betaFn _ _ using 1 <;> ring_nf;
@@ -2212,7 +2224,7 @@ lemma petal_continuousOn (n : ℕ) (hn : n ≥ 1) :
     ContinuousOn (lemniscatePetalCurve n)
       (Icc (-(Real.pi / (2 * ↑n))) (Real.pi / (2 * ↑n))) := by
         refine ContinuousOn.mul ?_ <| Continuous.continuousOn <| by continuity;
-        refine' Continuous.continuousOn _;
+        refine Continuous.continuousOn ?_;
         exact Complex.continuous_ofReal.comp <| Continuous.rpow ( continuous_const.max <| continuous_const.mul <| Real.continuous_cos.comp <| by continuity ) continuous_const <| by continuity;
 
 /-
@@ -2236,11 +2248,11 @@ lemma petal_differentiableAt (n : ℕ) (hn : n ≥ 1) :
                 mul_lt_mul_of_pos_left ht.2 hn_pos
               _ = Real.pi / 2 := by
                 field_simp [hn_pos.ne']
-        intro t ht; refine' DifferentiableAt.mul _ _ ;
-        · refine' DifferentiableAt.congr_of_eventuallyEq _ _;
-          exact fun θ => ↑ ( ( 2 * Real.cos ( n * θ ) ) ^ ( 1 / n : ℝ ) );
-          · refine' Complex.ofRealCLM.differentiableAt.comp _ _;
-            refine' DifferentiableAt.rpow _ _ _;
+        intro t ht; refine DifferentiableAt.mul ?_ ?_ ;
+        · refine DifferentiableAt.congr_of_eventuallyEq
+            (f := fun θ => ↑ ( ( 2 * Real.cos ( n * θ ) ) ^ ( 1 / n : ℝ ) )) ?_ ?_;
+          · refine Complex.ofRealCLM.differentiableAt.comp _ ?_;
+            refine DifferentiableAt.rpow ?_ ?_ ?_;
             · fun_prop;
             · fun_prop;
             · exact ne_of_gt (mul_pos zero_lt_two (Real.cos_pos_of_mem_Ioo (harg_mem t ht)));
@@ -2289,13 +2301,15 @@ lemma petal_deriv_continuousOn_interior (n : ℕ) (hn : n ≥ 1) :
           have h_cont_deriv : ∀ θ ∈ Ioo (-(Real.pi / (2 * n))) (Real.pi / (2 * n)), deriv (fun θ => ((2 * Real.cos (n * θ)) ^ ((1 : ℝ) / n) : ℝ) * Complex.exp (θ * Complex.I)) θ = (deriv (fun θ => ((2 * Real.cos (n * θ)) ^ ((1 : ℝ) / n) : ℝ)) θ) * Complex.exp (θ * Complex.I) + ((2 * Real.cos (n * θ)) ^ ((1 : ℝ) / n) : ℝ) * Complex.exp (θ * Complex.I) * Complex.I := by
             intro θ hθ; convert HasDerivAt.deriv ( HasDerivAt.mul ( HasDerivAt.ofReal_comp ( hasDerivAt_deriv_iff.mpr ?_ ) ) ( HasDerivAt.comp θ ( Complex.hasDerivAt_exp _ ) ( HasDerivAt.mul ( hasDerivAt_id _ |> HasDerivAt.ofReal_comp ) <| hasDerivAt_const _ _ ) ) ) using 1 <;> norm_num ; ring;
             exact DifferentiableAt.rpow ( DifferentiableAt.mul ( differentiableAt_const _ ) ( Real.differentiableAt_cos.comp _ ( differentiableAt_id.const_mul _ ) ) ) ( by norm_num ) ( by exact ne_of_gt ( mul_pos zero_lt_two ( Real.cos_pos_of_mem_Ioo ⟨ by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ Real.pi ( by positivity : ( 2 * n : ℝ ) ≠ 0 ), hθ.1 ], by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ Real.pi ( by positivity : ( 2 * n : ℝ ) ≠ 0 ), hθ.2 ] ⟩ ) ) );
-          refine' ContinuousOn.congr _ h_cont_deriv;
-          refine' ContinuousOn.add _ _;
-          · refine' ContinuousOn.mul _ _;
-            · refine' Complex.continuous_ofReal.comp_continuousOn _;
-              refine' ContinuousOn.congr _ _;
-              use fun θ => ( 1 / n : ℝ ) * ( 2 * Real.cos ( n * θ ) ) ^ ( ( 1 : ℝ ) / n - 1 ) * ( -2 * n * Real.sin ( n * θ ) );
-              · refine' ContinuousOn.mul ( ContinuousOn.mul continuousOn_const _ ) _;
+          refine ContinuousOn.congr ?_ h_cont_deriv;
+          refine ContinuousOn.add ?_ ?_;
+          · refine ContinuousOn.mul ?_ ?_;
+            · refine Complex.continuous_ofReal.comp_continuousOn ?_;
+              refine ContinuousOn.congr
+                (f := fun θ => ( 1 / n : ℝ ) *
+                  ( 2 * Real.cos ( n * θ ) ) ^ ( ( 1 : ℝ ) / n - 1 ) *
+                  ( -2 * n * Real.sin ( n * θ ) )) ?_ ?_;
+              · refine ContinuousOn.mul ( ContinuousOn.mul continuousOn_const ?_ ) ?_;
                 · exact continuousOn_of_forall_continuousAt fun x hx => ContinuousAt.rpow ( continuousAt_const.mul ( Real.continuous_cos.continuousAt.comp ( continuousAt_const.mul continuousAt_id ) ) ) continuousAt_const <| Or.inl <| ne_of_gt <| mul_pos zero_lt_two <| Real.cos_pos_of_mem_Ioo ⟨ by nlinarith [ Real.pi_pos, hx.1, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ Real.pi ( by positivity : ( 2 * n : ℝ ) ≠ 0 ) ], by nlinarith [ Real.pi_pos, hx.2, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ Real.pi ( by positivity : ( 2 * n : ℝ ) ≠ 0 ) ] ⟩;
                 · fun_prop;
               · intro θ hθ;
@@ -2335,9 +2349,9 @@ lemma petal_deriv_continuousOn_interior (n : ℕ) (hn : n ≥ 1) :
                 simpa [mul_comm, add_comm, add_left_comm, add_assoc] using hderiv;
             · exact Continuous.continuousOn ( by continuity );
           · exact ContinuousOn.mul ( ContinuousOn.mul ( Complex.continuous_ofReal.comp_continuousOn <| ContinuousOn.rpow ( continuousOn_const.mul <| Real.continuous_cos.comp_continuousOn <| continuousOn_const.mul continuousOn_id ) continuousOn_const <| by intro x hx; exact Or.inr <| by positivity ) <| Complex.continuous_exp.comp_continuousOn <| ContinuousOn.mul ( Complex.continuous_ofReal.comp_continuousOn <| continuousOn_id ) continuousOn_const ) continuousOn_const;
-        refine' h_cont_deriv.congr _;
+        refine h_cont_deriv.congr ?_;
         intro θ hθ;
-        refine' Filter.EventuallyEq.deriv_eq _;
+        refine Filter.EventuallyEq.deriv_eq ?_;
         filter_upwards [ Ioo_mem_nhds hθ.1 hθ.2 ] with x hx using by rw [ show lemniscatePetalCurve n x = ( ( 2 * Real.cos ( n * x ) ) ^ ( 1 / n : ℝ ) : ℝ ) * Complex.exp ( x * Complex.I ) from by rw [ lemniscatePetalCurve ] ; rw [ max_eq_right ( mul_nonneg zero_le_two ( Real.cos_nonneg_of_mem_Icc ⟨ by nlinarith [ Real.pi_pos, hx.1, hx.2, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ ( Real.pi : ℝ ) ( by positivity : ( 2 * n : ℝ ) ≠ 0 ) ], by nlinarith [ Real.pi_pos, hx.1, hx.2, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ ( Real.pi : ℝ ) ( by positivity : ( 2 * n : ℝ ) ≠ 0 ) ] ⟩ ) ) ] ] ;
 
 /-- On any truncated closed subinterval [a+ε, b-ε] with ε > 0,
@@ -2387,15 +2401,22 @@ lemma hausdorffMeasure_petal_ge_truncated (n : ℕ) (hn : n ≥ 1)
     let b := Real.pi / (2 * ↑n)
     ENNReal.ofReal (∫ t in (a + ε)..(b - ε), ‖deriv (lemniscatePetalCurve n) t‖) ≤
       μH[(1 : ℝ)] (lemniscatePetalCurve n '' Icc a b) := by
+        let a := -(Real.pi / (2 * ↑n))
+        let b := Real.pi / (2 * ↑n)
         have := @Erdos1044.eVariationOn_le_hausdorffMeasure_injective;
-        refine' le_trans _ ( this _ _ _ );
-        · refine' le_trans _ ( eVariationOn.mono _ _ );
-          convert integral_le_eVariationOn _ _ _ _ using 1;
-          · linarith;
-          · exact ContinuousOn.mono ( petal_continuousOn n hn ) ( Set.Icc_subset_Icc ( by linarith ) ( by linarith ) );
-          · exact fun t ht => petal_differentiableAt n hn t ⟨ by linarith [ ht.1 ], by linarith [ ht.2 ] ⟩;
-          · exact petal_deriv_continuousOn_truncated n hn ε hε hε_small
-          · exact Set.Icc_subset_Icc ( by linarith ) ( by linarith );
+        refine le_trans ?_ ( this ?_ ?_ ?_ );
+        · refine le_trans
+            (b := eVariationOn (lemniscatePetalCurve n) (Icc (a + ε) (b - ε))) ?_
+            ( eVariationOn.mono (lemniscatePetalCurve n) ?_ );
+          · exact integral_le_eVariationOn (by linarith)
+              (ContinuousOn.mono (petal_continuousOn n hn)
+                (Set.Icc_subset_Icc (by linarith) (by linarith)))
+              (fun t ht => petal_differentiableAt n hn t
+                ⟨by linarith [ht.1], by linarith [ht.2]⟩)
+              (petal_deriv_continuousOn_truncated n hn ε hε hε_small)
+          · exact Set.Icc_subset_Icc
+              ( by dsimp [a, b]; nlinarith [hε] )
+              ( by dsimp [a, b]; nlinarith [hε] );
         · grind;
         · exact petal_continuousOn n hn
         · exact petal_injOn n hn
@@ -2408,11 +2429,11 @@ lemma petal_integral_limit (n : ℕ) (hn : n ≥ 1) :
     let b := Real.pi / (2 * ↑n)
     ENNReal.ofReal (∫ t in a..b, ‖deriv (lemniscatePetalCurve n) t‖) ≤
       μH[(1 : ℝ)] (lemniscatePetalCurve n '' Icc a b) := by
-        refine' le_of_forall_lt_imp_le_of_dense fun r hr ↦ _;
+        refine le_of_forall_lt_imp_le_of_dense fun r hr ↦ ?_;
         -- Choose $\varepsilon$ small enough such that the integral over $[a + \varepsilon, b - \varepsilon]$ is close to the integral over $[a, b]$.
         obtain ⟨ε, hε_pos, hε_small⟩ : ∃ ε > 0, ε < Real.pi / (2 * n) ∧ ENNReal.ofReal (∫ t in (-(Real.pi / (2 * n)) + ε)..(Real.pi / (2 * n) - ε), ‖deriv (lemniscatePetalCurve n) t‖) > r := by
           have h_cont : Filter.Tendsto (fun ε => ENNReal.ofReal (∫ t in (-(Real.pi / (2 * n)) + ε)..(Real.pi / (2 * n) - ε), ‖deriv (lemniscatePetalCurve n) t‖)) (nhdsWithin 0 (Set.Ioi 0)) (nhds (ENNReal.ofReal (∫ t in (-(Real.pi / (2 * n)))..(Real.pi / (2 * n)), ‖deriv (lemniscatePetalCurve n) t‖))) := by
-            refine' ENNReal.tendsto_ofReal _;
+            refine ENNReal.tendsto_ofReal ?_;
             have h_integrable : IntervalIntegrable (fun t => ‖deriv (lemniscatePetalCurve n) t‖) MeasureTheory.volume (-(Real.pi / (2 * n))) (Real.pi / (2 * n)) := by
               contrapose! hr;
               rw [ intervalIntegral.integral_undef hr ] ; norm_num;
@@ -2422,7 +2443,7 @@ lemma petal_integral_limit (n : ℕ) (hn : n ≥ 1) :
                 cases max_cases ( - ( Real.pi / ( 2 * n ) ) ) ( Real.pi / ( 2 * n ) ) <;> aesop;
               have h_cont : ContinuousOn (fun ε => (∫ t in (-(Real.pi / (2 * n)))..(Real.pi / (2 * n) - ε), ‖deriv (lemniscatePetalCurve n) t‖) - (∫ t in (-(Real.pi / (2 * n)))..(-(Real.pi / (2 * n)) + ε), ‖deriv (lemniscatePetalCurve n) t‖)) (Set.Icc 0 (Real.pi / (2 * n))) := by
                 exact ContinuousOn.sub ( h_cont.comp ( continuousOn_const.sub continuousOn_id ) fun x hx => ⟨ by linarith [ hx.1, hx.2, Real.pi_pos, show ( Real.pi : ℝ ) / ( 2 * n ) ≥ 0 by positivity ], by linarith [ hx.1, hx.2, Real.pi_pos, show ( Real.pi : ℝ ) / ( 2 * n ) ≥ 0 by positivity ] ⟩ ) ( h_cont.comp ( continuousOn_const.add continuousOn_id ) fun x hx => ⟨ by linarith [ hx.1, hx.2, Real.pi_pos, show ( Real.pi : ℝ ) / ( 2 * n ) ≥ 0 by positivity ], by linarith [ hx.1, hx.2, Real.pi_pos, show ( Real.pi : ℝ ) / ( 2 * n ) ≥ 0 by positivity ] ⟩ );
-              refine' h_cont.congr fun ε hε => _;
+              refine h_cont.congr fun ε hε => ?_;
               rw [ eq_sub_iff_add_eq', intervalIntegral.integral_add_adjacent_intervals ] <;> apply_rules [ h_integrable.mono_set, Set.Icc_subset_Icc ] <;> norm_num [ hε.1, hε.2 ];
               · exact Or.inr ( by linarith [ hε.2, show 0 ≤ Real.pi / ( 2 * n ) by positivity ] );
               · exact ⟨ by cases min_cases ( - ( Real.pi / ( 2 * n ) ) ) ( Real.pi / ( 2 * n ) ) <;> linarith [ hε.1, hε.2 ], Or.inl <| by cases min_cases ( - ( Real.pi / ( 2 * n ) ) ) ( Real.pi / ( 2 * n ) ) <;> linarith [ hε.1, hε.2 ] ⟩;
@@ -2446,10 +2467,10 @@ lemma hausdorffMeasure_petal_le_truncated (n : ℕ) (hn : n ≥ 1)
     let b := Real.pi / (2 * ↑n)
     μH[(1 : ℝ)] (lemniscatePetalCurve n '' Icc (a + ε) (b - ε)) ≤
       ENNReal.ofReal (∫ t in a..b, ‖deriv (lemniscatePetalCurve n) t‖) := by
-        refine' le_trans ( hausdorffMeasure_curve_le_integral _ _ _ _ ) _;
+        refine le_trans ( hausdorffMeasure_curve_le_integral ?_ ?_ ?_ ?_ ) ?_;
         · linarith;
-        · refine' Continuous.continuousOn _;
-          refine' Continuous.mul _ _;
+        · refine Continuous.continuousOn ?_;
+          refine Continuous.mul ?_ ?_;
           · exact Complex.continuous_ofReal.comp <| Continuous.rpow ( continuous_const.max <| continuous_const.mul <| Real.continuous_cos.comp <| by continuity ) continuous_const <| by continuity;
           · continuity;
         · exact fun t ht => petal_differentiableAt n hn t ⟨ by linarith [ ht.1 ], by linarith [ ht.2 ] ⟩;
@@ -2470,7 +2491,7 @@ lemma hausdorffMeasure_petal_Icc_eq_Ioo (n : ℕ) (hn : n ≥ 1) :
     let b := Real.pi / (2 * ↑n)
     μH[(1 : ℝ)] (lemniscatePetalCurve n '' Icc a b) =
       μH[(1 : ℝ)] (lemniscatePetalCurve n '' Ioo a b) := by
-        refine' le_antisymm _ _;
+        refine le_antisymm ?_ ?_;
         · have h_image_eq : lemniscatePetalCurve n '' Icc (-(Real.pi / (2 * n))) (Real.pi / (2 * n)) ⊆ lemniscatePetalCurve n '' Ioo (-(Real.pi / (2 * n))) (Real.pi / (2 * n)) ∪ {0} := by
             rintro _ ⟨ x, hx, rfl ⟩;
             by_cases hx' : x = -(Real.pi / (2 * n)) ∨ x = Real.pi / (2 * n);
@@ -2501,13 +2522,13 @@ lemma hausdorffMeasure_petal_le (n : ℕ) (hn : n ≥ 1) :
           exact fun ε a a_1 ↦ hausdorffMeasure_petal_le_truncated n hn ε a a_1
         have h_integral_bound : μH[(1 : ℝ)] (lemniscatePetalCurve n '' Set.Ioo (-(Real.pi / (2 * n))) (Real.pi / (2 * n))) ≤ ENNReal.ofReal (∫ t in (-(Real.pi / (2 * n)))..(Real.pi / (2 * n)), ‖deriv (lemniscatePetalCurve n) t‖) := by
           have h_integral_bound : μH[(1 : ℝ)] (⋃ k : ℕ, lemniscatePetalCurve n '' Set.Icc (-(Real.pi / (2 * n)) + (Real.pi / (2 * n)) / (k + 2)) (Real.pi / (2 * n) - (Real.pi / (2 * n)) / (k + 2))) ≤ ENNReal.ofReal (∫ t in (-(Real.pi / (2 * n)))..(Real.pi / (2 * n)), ‖deriv (lemniscatePetalCurve n) t‖) := by
-            refine' le_of_tendsto_of_tendsto' ( MeasureTheory.tendsto_measure_iUnion_atTop _ ) ( tendsto_const_nhds ) _;
+            refine le_of_tendsto_of_tendsto' ( MeasureTheory.tendsto_measure_iUnion_atTop ?_ ) ( tendsto_const_nhds ) ?_;
             · intro k l hkl;
-              refine' Set.image_mono _;
+              refine Set.image_mono ?_;
               exact Set.Icc_subset_Icc ( by gcongr ) ( by gcongr );
             · intro k; specialize h_integral_bound ( Real.pi / ( 2 * n ) / ( k + 2 ) ) ( by positivity ) ( by rw [ div_lt_iff₀ ] <;> nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ ( Real.pi : ℝ ) ( by positivity : ( 2 * n : ℝ ) ≠ 0 ) ] ) ; aesop;
-          refine' le_trans _ h_integral_bound;
-          refine' MeasureTheory.measure_mono _;
+          refine le_trans ?_ h_integral_bound;
+          refine MeasureTheory.measure_mono ?_;
           intro x hx;
           obtain ⟨ t, ht, rfl ⟩ := hx;
           simp +zetaDelta at *;
@@ -2583,7 +2604,7 @@ lemma connectedComponent_rotation (n : ℕ) (ω : ℂ) (hω : ω ^ n = 1) (hω_n
   -- The map φ(w) = ω * w is a homeomorphism of ℂ (continuous bijection with continuous inverse w → ω⁻¹ * w, since ω ≠ 0 as |ω| = 1). It maps OmegaSet(z^n-1) to itself (by omegaSet_modelPoly_rotation). Therefore it maps connected components to connected components.
   have h_homeomorphism : Continuous (fun w : ℂ => ω * w) ∧ Continuous (fun w : ℂ => ω⁻¹ * w) ∧ Function.Bijective (fun w : ℂ => ω * w) := by
     exact ⟨ continuous_const.mul continuous_id', continuous_const.mul continuous_id', ⟨ mul_right_injective₀ <| by aesop_cat, mul_left_surjective₀ <| by aesop_cat ⟩ ⟩;
-  refine' Set.Subset.antisymm _ _;
+  refine Set.Subset.antisymm ?_ ?_;
   · apply_rules [ IsPreconnected.subset_connectedComponentIn ];
     · exact isPreconnected_connectedComponentIn.image _ h_homeomorphism.1.continuousOn;
     · exact ⟨ z, mem_connectedComponentIn ( by aesop ), rfl ⟩;
@@ -2691,8 +2712,8 @@ lemma modelPoly_uniform_boundary_length (n : ℕ) (hn : n ≥ 1)
     have h_connected : IsConnected (Set.image (fun t : ℝ => ω^k * (1 + t * v)^(1/n : ℂ)) (Set.Icc (0 : ℝ) 1)) := by
       apply_rules [ IsConnected.image, isConnected_Icc ];
       · norm_num;
-      · refine' ContinuousOn.mul continuousOn_const _;
-        refine' ContinuousOn.cpow _ _ _;
+      · refine ContinuousOn.mul continuousOn_const ?_;
+        refine ContinuousOn.cpow ?_ ?_ ?_;
         · fun_prop;
         · exact continuousOn_const;
         · norm_num [ Complex.ext_iff, slitPlane ];
@@ -2816,7 +2837,7 @@ lemma holomorphic_constant_of_norm_bounds
         have h_inv_diff : DifferentiableOn ℂ (fun z => (Φ z)⁻¹) U := by
           exact DifferentiableOn.inv hΦ_diff hc
         have h_inv_cont : ContinuousOn (fun z => (Φ z)⁻¹) (closure U) := by
-          refine' ContinuousOn.inv₀ hΦ_cont _;
+          refine ContinuousOn.inv₀ hΦ_cont ?_;
           intro z hz;
           exact fun h => absurd ( ha z <| by rw [ frontier_eq_closure_inter_closure ] ; aesop ) ( by norm_num [ h ] );
         have := @Complex.exists_mem_frontier_isMaxOn_norm;
@@ -2877,7 +2898,7 @@ lemma component_sub_ball_of_diam_le
       have hU_subset_closedBall : U ⊆ Metric.closedBall 0 1 := by
         intro z hz
         have h_dist_le_one : dist z 0 ≤ 1 := by
-          refine' le_trans _ h_le;
+          refine le_trans ?_ h_le;
           apply_rules [ dist_le_diam_of_mem ]
         exact h_dist_le_one;
       have hU_subset_interior : U ⊆ interior (Metric.closedBall 0 1) := by
@@ -2952,7 +2973,7 @@ lemma diam_gt_one_if_all_roots_zero
             exact IsAlgClosed.splits f
           rw [ h_f_form, show f.roots = Multiset.replicate f.natDegree 0 from ?_ ];
           · norm_num [ Polynomial.natDegree_mul', Polynomial.leadingCoeff_mul, Polynomial.leadingCoeff_X_pow, Polynomial.leadingCoeff_C, show f ≠ 0 by rintro rfl; contradiction ];
-          · refine' Multiset.eq_replicate.mpr ⟨ _, _ ⟩;
+          · refine Multiset.eq_replicate.mpr ⟨ ?_, ?_ ⟩;
             · replace h_f_form := congr_arg Polynomial.natDegree h_f_form; rw [ Polynomial.natDegree_mul' ] at h_f_form <;> norm_num at *;
               · linarith;
               · exact ⟨ by rintro rfl; contradiction, fun x hx hx' => Polynomial.X_sub_C_ne_zero x ⟩;
@@ -2971,9 +2992,13 @@ lemma diam_gt_one_if_all_roots_zero
         apply_rules [ IsPreconnected.connectedComponentIn, convex_ball ];
         · exact convex_ball _ _ |> Convex.isPreconnected;
         · norm_num;
-      refine' lt_of_lt_of_le _ ( Metric.dist_le_diam_of_mem _ _ _ ) <;> norm_num [ h_connectedComponent ];
-      rotate_left;
-      exacts [ 3 / 4, -3 / 4, Metric.isBounded_ball, by norm_num, by norm_num, by norm_num [ dist_eq_norm ] ]
+      rw [h_connectedComponent];
+      refine lt_of_lt_of_le
+        (show 1 < dist (3 / 4 : ℂ) (-3 / 4 : ℂ) by norm_num [dist_eq_norm])
+        (Metric.dist_le_diam_of_mem (s := Metric.ball (0 : ℂ) 1)
+          Metric.isBounded_ball
+          (show (3 / 4 : ℂ) ∈ Metric.ball (0 : ℂ) 1 by norm_num [dist_eq_norm])
+          (show (-3 / 4 : ℂ) ∈ Metric.ball (0 : ℂ) 1 by norm_num [dist_eq_norm]))
 
 /-
 If the Blaschke-modified function Φ is globally constant, then either
@@ -2994,7 +3019,7 @@ lemma phi_not_const_or_all_roots_zero
           intro z hz; specialize hc z; rcases hc with ( ⟨ a, ha, ha' ⟩ | ha ) <;> simp_all +decide [ eq_comm ] ;
           replace ha' := congr_arg Norm.norm ha'; norm_num at ha'; nlinarith [ hS_norm a ha, norm_nonneg a, norm_nonneg z ] ;
         have hT_inf : Set.Infinite {z : ℂ | ‖z‖ < 1} := by
-          refine' Set.infinite_of_injective_forall_mem ( fun x y hxy => _ ) fun n : ℕ => show ( 1 / 2 : ℂ ) ^ ( n + 1 ) ∈ { z : ℂ | ‖z‖ < 1 } from _ <;> norm_num [ pow_succ' ] at *;
+          refine Set.infinite_of_injective_forall_mem ( fun x y hxy => ?_ ) fun n : ℕ => show ( 1 / 2 : ℂ ) ^ ( n + 1 ) ∈ { z : ℂ | ‖z‖ < 1 } from ?_ <;> norm_num [ pow_succ' ] at *;
           · apply_fun Complex.normSq at hxy ; norm_num [ Complex.normSq_eq_norm_sq ] at hxy ; aesop;
           · exact lt_of_le_of_lt ( mul_le_of_le_one_right ( by norm_num ) ( pow_le_one₀ ( by norm_num ) ( by norm_num ) ) ) ( by norm_num );
         exact False.elim <| hT_inf <| Set.Finite.subset ( T.finite_toSet ) fun x hx => hT_zero x hx;
@@ -3146,9 +3171,9 @@ theorem modelPoly_boundary_length (n : ℕ) (hn : n ≥ 1) :
 -/
 theorem lambdaInf_le_two : lambdaInf ≤ 2 := by
   unfold lambdaInf;
-  refine' le_trans _ ( show 2 ≥ ENNReal.ofReal 2 by norm_num );
+  refine le_trans ?_ ( show 2 ≥ ENNReal.ofReal 2 by norm_num );
   have h_lim : Filter.Tendsto (fun n : ℕ => ENNReal.ofReal (lemniscateLength n)) Filter.atTop (nhds (ENNReal.ofReal 2)) := by
-    refine' ENNReal.tendsto_ofReal _;
+    refine ENNReal.tendsto_ofReal ?_;
     unfold lemniscateLength;
     -- We'll use the fact that $\Gamma(x) \approx \frac{1}{x}$ for $x$ close to $0$.
     have h_gamma_approx : Filter.Tendsto (fun n : ℕ => Real.Gamma (1 / (2 * (n : ℝ))) * (1 / (2 * (n : ℝ)))) Filter.atTop (nhds 1) := by
@@ -3156,7 +3181,7 @@ theorem lambdaInf_le_two : lambdaInf ≤ 2 := by
         have h_gamma_approx : Filter.Tendsto (fun x : ℝ => Real.Gamma (x + 1)) (nhdsWithin 0 (Set.Ioi 0)) (nhds 1) := by
           convert Filter.Tendsto.comp ( Real.differentiableAt_Gamma ?_ |> DifferentiableAt.continuousAt ) ( Filter.tendsto_id.add_const 1 |> Filter.Tendsto.mono_left <| nhdsWithin_le_nhds ) using 2 <;> norm_num;
           exact fun m => by linarith;
-        refine' h_gamma_approx.congr' ( by filter_upwards [ self_mem_nhdsWithin ] with x hx using by rw [ Real.Gamma_add_one hx.out.ne', mul_comm ] );
+        refine h_gamma_approx.congr' ( by filter_upwards [ self_mem_nhdsWithin ] with x hx using by rw [ Real.Gamma_add_one hx.out.ne', mul_comm ] );
       refine h_gamma_approx.comp <| Filter.tendsto_inf.mpr ⟨ tendsto_const_nhds.div_atTop <| tendsto_natCast_atTop_atTop.const_mul_atTop zero_lt_two, Filter.tendsto_principal.mpr <| Filter.eventually_atTop.mpr ⟨ 1, fun n hn => by norm_num; linarith ⟩ ⟩;
     have h_gamma_approx : Filter.Tendsto (fun n : ℕ => Real.Gamma (1 / 2) * Real.Gamma (1 / (2 * (n : ℝ))) / Real.Gamma (1 / 2 + 1 / (2 * (n : ℝ))) * (1 / (2 * (n : ℝ)))) Filter.atTop (nhds (Real.Gamma (1 / 2) * 1 / Real.Gamma (1 / 2))) := by
       convert Filter.Tendsto.div ( h_gamma_approx.const_mul ( Real.Gamma ( 1 / 2 ) ) ) ( Filter.Tendsto.comp ( Real.differentiableAt_Gamma ?_ |> DifferentiableAt.continuousAt ) ( tendsto_const_nhds.add ( tendsto_one_div_atTop_nhds_zero_nat.mul_const _ ) ) ) _ using 2 <;> norm_num;
@@ -3164,10 +3189,10 @@ theorem lambdaInf_le_two : lambdaInf ≤ 2 := by
     convert h_gamma_approx.mul ( show Filter.Tendsto ( fun n : ℕ => ( 2 : ℝ ) ^ ( 1 / ( n : ℝ ) ) * 2 ) Filter.atTop ( nhds 2 ) from ?_ ) using 2 <;> norm_num [ betaFn ] ; ring;
     · positivity;
     · simpa using Filter.Tendsto.mul ( tendsto_const_nhds.rpow tendsto_inv_atTop_nhds_zero_nat ( by norm_num ) ) tendsto_const_nhds;
-  refine' le_of_tendsto_of_tendsto tendsto_const_nhds h_lim _;
+  refine le_of_tendsto_of_tendsto tendsto_const_nhds h_lim ?_;
   filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn
   have h_admissible : IsAdmissible (modelPoly n) ∧ (modelPoly n).natDegree ≥ 1 := by
-    refine' ⟨ ⟨ _, _ ⟩, _ ⟩;
+    refine ⟨ ⟨ ?_, ?_ ⟩, ?_ ⟩;
     · exact Polynomial.monic_X_pow_sub_C _ hn.ne';
     · unfold modelPoly;
       intro z hz; have := congr_arg Norm.norm ( show z ^ n = 1 by simpa [ sub_eq_iff_eq_add ] using hz ) ; norm_num at this ; rw [ pow_eq_one_iff_of_nonneg ] at this <;> aesop;
@@ -3257,7 +3282,7 @@ theorem lambda_ge_two_of_roots_on_circle (f : Polynomial ℂ) (hf : f.Monic)
                 · exact hV₃);
             contrapose! h_pigeonhole;
             exact Set.Finite.biUnion ( Finset.finite_toSet _ ) h_pigeonhole;
-          refine' ⟨ r, _, _ ⟩;
+          refine ⟨ r, ?_, ?_ ⟩;
           · unfold OmegaSet; aesop;
           · rw [ mem_closure_iff_seq_limit ];
             have := hr.2.exists_gt;
@@ -3393,7 +3418,7 @@ lemma roots_on_circle_of_eval_zero_ge_one (f : Polynomial ℂ) (hf : IsAdmissibl
           have := IsAlgClosed.splits f;
           rw [ Polynomial.splits_iff_exists_multiset ] at this;
           exact ⟨ this.choose, by simpa [ hf.1.leadingCoeff ] using this.choose_spec ⟩;
-        refine' ⟨ z_k, hz_k, _ ⟩;
+        refine ⟨ z_k, hz_k, ?_ ⟩;
         intro z hz;
         exact hf.2 z ( by rw [ hz_k ] ; exact Multiset.exists_cons_of_mem hz |> fun ⟨ w, hw ⟩ => by simp +decide [ hw, Polynomial.eval_multiset_prod ] );
       -- Since $|f(0)| = \prod |z_k|$, and $|f(0)| \geq 1$, we have $\prod |z_k| \geq 1$.
@@ -3428,7 +3453,7 @@ lemma roots_on_circle_of_eval_zero_ge_one (f : Polynomial ℂ) (hf : IsAdmissibl
     Case 2: |f(0)| = 1. Then all |z_k| = 1, and Theorem 3.2 applies.
 -/
 theorem lambdaInf_ge_two : (2 : ENNReal) ≤ lambdaInf := by
-  refine' le_ciInf _;
+  refine le_ciInf ?_;
   intro f
   by_cases h_deg : f.natDegree ≥ 1;
   · by_cases hf : IsAdmissible f <;> simp_all +decide;
@@ -3453,12 +3478,12 @@ theorem lambdaInf_ge_two : (2 : ENNReal) ≤ lambdaInf := by
             exact hC_bounded.subset ( connectedComponentIn_subset _ _ );
           · exact ⟨ 0, mem_connectedComponentIn ( by aesop ) ⟩;
           · exact ⟨ ⟨ 0, mem_connectedComponentIn ( by aesop ) ⟩, isPreconnected_connectedComponentIn ⟩;
-        refine' le_trans _ hC_boundary_length;
-        refine' le_mul_of_one_le_right ( by norm_num ) _;
-        refine' le_trans _ ( Metric.ediam_mono hU_subset_C );
+        refine le_trans ?_ hC_boundary_length;
+        refine le_mul_of_one_le_right ( by norm_num ) ?_;
+        refine le_trans ?_ ( Metric.ediam_mono hU_subset_C );
         contrapose! hU₃;
         convert ENNReal.toReal_mono _ hU₃.le using 1 ; norm_num [ ediam ];
-      refine' le_trans _ ( le_iSup₂_of_le 0 _ le_rfl );
+      refine le_trans ?_ ( le_iSup₂_of_le 0 ?_ le_rfl );
       · exact hC_boundary_length;
       · exact hU₁ hU₀;
   · aesop
