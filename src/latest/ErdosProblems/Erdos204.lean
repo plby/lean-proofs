@@ -35,7 +35,6 @@ namespace Erdos204
 
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.multiGoal false
 set_option linter.flexible false
 set_option linter.unusedVariables false
 
@@ -729,8 +728,9 @@ theorem lemma_good (S : Finset Congruence) (h_cd : IsCD S) :
       · exact absurd ‹∃ x ∈ S, x.d = 0› ( by rintro ⟨ x, hx, hx' ⟩ ; exact absurd hx' ( ne_of_gt ( x.d_pos ) ) );
       · rw [ Finset.sum_congr rfl fun x hx => by rw [ h_inter_count x ( Finset.mem_powerset.mp ( Finset.mem_filter.mp hx |>.1 ) ) ( Finset.mem_filter.mp hx |>.2 ) ] ] ; simp +decide [ Finset.sum_ite, Finset.filter_and ] ; ring_nf;
         simp +decide [ Finset.sum_mul _ _ _, mul_comm, mul_left_comm ];
-        rw [ ← Finset.sum_neg_distrib ] ; refine Finset.sum_congr ?_ ?_ ; aesop;
-        intro x hx; rcases k : Finset.card x with ( _ | k ) <;> simp_all +decide [pow_succ',
+        rw [ ← Finset.sum_neg_distrib ] ; refine Finset.sum_congr ?_ ?_
+        · aesop
+        · intro x hx; rcases k : Finset.card x with ( _ | k ) <;> simp_all +decide [pow_succ',
           ne_of_gt] ;
 
 /-
@@ -845,7 +845,8 @@ theorem case_1b_density_lt_one (q k : ℕ) (hq : q.Prime) (hq_odd : Odd q) (hk :
             · aesop;
         rw [ h_sum_reciprocals_divisors, h_divisors, Finset.sum_union, Finset.sum_union ] <;> norm_num;
         · ring_nf;
-          rw [ Finset.sum_image, Finset.sum_image ] <;> norm_num [ hq.ne_zero ] ; ring_nf;
+          rw [ Finset.sum_image, Finset.sum_image ] <;> norm_num [ hq.ne_zero ]
+          · ring_nf
           · exact fun x hx y hy hxy => by simpa [ hq.ne_zero ] using StrictMono.injective ( show StrictMono fun j => q * q ^ j * 2 from fun i j hij => mul_lt_mul_of_pos_right ( mul_lt_mul_of_pos_left ( pow_lt_pow_right₀ hq.one_lt hij ) hq.pos ) zero_lt_two ) hxy;
           · exact fun x hx y hy hxy => Nat.pow_right_injective hq.one_lt <| mul_left_cancel₀ hq.ne_zero hxy;
         · intro x hx H; have := congr_arg Even H; norm_num [ hq_odd, parity_simps ] at this;
@@ -888,8 +889,9 @@ theorem case_2_sum_bound (n : ℕ) (h_ni : IsNonIntersecting n) (h_n_gt_1 : n > 
             exact Nat.div_eq_of_eq_mul_left hp.1.pos ( by rw [ hm.1 ] ; rw [ ← mul_right_comm, ← pow_succ, Nat.sub_add_cancel ( by linarith ) ] );
           rw [ h_div, Nat.primeFactors_mul, Nat.primeFactors_pow ] at hp <;> norm_num at *;
           · rcases p with ( _ | _ | p ) <;> simp +arith +decide [ hp.1 ] at *;
-            rw [ Finset.card_insert_of_notMem ] at hp <;> norm_num at * ; linarith;
-            tauto;
+            rw [ Finset.card_insert_of_notMem ] at hp <;> norm_num at *
+            · linarith
+            · tauto
           · omega;
           · exact fun h => absurd h hp.1.ne_zero;
           · rintro rfl; simp_all +singlePass;
@@ -932,10 +934,13 @@ theorem density_val_eq_one_of_covering (S : Finset Congruence) (h_cov : IsCoveri
     density_val S = 1 := by
       -- By definition of density_val, we have density_val S = (count_covered S D : ℚ) / D.
       rw [density_val];
-      split_ifs ; simp_all +decide [ Finset.lcm_eq_zero_iff ];
-      · obtain ⟨ x, hx, hx' ⟩ := ‹_›; have := x.d_pos; aesop;
-      · convert density_of_covering S _ _ h_cov;
-        exact Nat.pos_of_ne_zero ‹_›
+      split_ifs with hD
+      · simp_all +decide [ Finset.lcm_eq_zero_iff ]
+        obtain ⟨ x, hx, hx' ⟩ := ‹_›; have := x.d_pos; aesop;
+      · simp_all +decide [ Finset.lcm_eq_zero_iff ]
+        convert density_of_covering S _ _ h_cov;
+        exact Nat.pos_of_ne_zero (by
+          simpa [ Finset.lcm_eq_zero_iff ] using hD)
 
 /-
 If $n$ is a CD covering number, then $n > 1$.
