@@ -32,7 +32,6 @@ open scoped Pointwise
 set_option linter.style.longLine false
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 
 open EuclideanGeometry Real InnerProductSpace
 
@@ -423,8 +422,12 @@ lemma oangle_of_constructed_triangle_variant (u : V) (a b c : ℝ)
           have h_trig_identity : (Real.sin b * Real.cos a / Real.sin c - 1) = -(Real.sin a * Real.cos b / Real.sin c) := by
             rw [ div_sub_one, div_eq_iff ] <;> nlinarith [ Real.sin_pos_of_pos_of_lt_pi left_2 right_2, mul_div_cancel₀ ( Real.sin a * Real.cos b ) ( ne_of_gt ( Real.sin_pos_of_pos_of_lt_pi left_2 right_2 ) ) ];
           grind;
-        convert h_trig_identity using 1 <;> norm_num [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm, Real.sin_neg, Real.cos_neg, Orientation.rotation ] ; abel_nf;
-        · simp +decide [ add_smul, smul_smul, mul_comm ] ; abel_nf;
+        convert h_trig_identity using 1 <;>
+          norm_num [
+            div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm, Real.sin_neg,
+            Real.cos_neg, Orientation.rotation ]
+        · abel_nf
+          simp +decide [ add_smul, smul_smul, mul_comm ] ; abel_nf;
         · simp +decide [ mul_comm, mul_left_comm, smul_smul ] ; abel_nf;
       exact h_v_u;
     have h_oangle_pos : positiveOrientation.oangle u ((Real.sin a / Real.sin c) • (Orientation.rotation (Module.Oriented.positiveOrientation) b u)) = positiveOrientation.oangle u ((Orientation.rotation (Module.Oriented.positiveOrientation) b u)) := by
@@ -768,16 +771,16 @@ lemma oangle_map_eq_oangle_of_det_one (L : V ≃ₗᵢ[ℝ] V)
   Orientation.oangle Module.Oriented.positiveOrientation (L u) (L v) = Orientation.oangle Module.Oriented.positiveOrientation u v := by
   have h_map : Orientation.map (Fin 2) L.toLinearEquiv Module.Oriented.positiveOrientation = Module.Oriented.positiveOrientation := by
     convert Orientation.map_eq_iff_det_pos _ _ _;
-    rotate_left;
-    exact ℝ;
-    all_goals try infer_instance;
-    exact V;
-    all_goals try infer_instance;
-    exact Fin 2;
-    all_goals try infer_instance;
-    exact FiniteDimensional.of_fact_finrank_eq_succ 1;
-    exact Module.Oriented.positiveOrientation;
-    exact L.toLinearEquiv;
+    rotate_left
+    · exact ℝ
+    all_goals try infer_instance
+    · exact V
+    all_goals try infer_instance
+    · exact Fin 2
+    all_goals try infer_instance
+    · exact FiniteDimensional.of_fact_finrank_eq_succ 1
+    · exact Module.Oriented.positiveOrientation
+    · exact L.toLinearEquiv
     · exact Eq.symm ( Fact.out : Module.finrank ℝ V = 2 );
     · aesop;
   rw [ ← h_map, Orientation.oangle_map ];
@@ -1399,31 +1402,31 @@ lemma conway_oangle_C_A_Q (P_pt Q R : P) (a b c : ℝ)
     have h_cyclic_sum : let A := conwayConstructedVertexA P_pt Q R a b c;
       let C := conwayConstructedVertexC P_pt Q R a b c;
       positiveOrientation.oangle (C -ᵥ Q) (A -ᵥ Q) + positiveOrientation.oangle (A -ᵥ C) (Q -ᵥ C) + positiveOrientation.oangle (Q -ᵥ A) (C -ᵥ A) = ↑Real.pi := by
-        convert oangle_add_oangle_add_oangle_eq_pi _ _ _ using 1;
-        congr! 1;
-        · exact
-          AddCommMagma.add_comm
-            (positiveOrientation.oangle (conwayConstructedVertexC P_pt Q R a b c -ᵥ Q)
-              (conwayConstructedVertexA P_pt Q R a b c -ᵥ Q))
-            (positiveOrientation.oangle
-              (conwayConstructedVertexA P_pt Q R a b c -ᵥ conwayConstructedVertexC P_pt Q R a b c)
-              (Q -ᵥ conwayConstructedVertexC P_pt Q R a b c));
+        convert oangle_add_oangle_add_oangle_eq_pi _ _ _ using 1
+        · congr! 1
+          exact
+            AddCommMagma.add_comm
+              (positiveOrientation.oangle (conwayConstructedVertexC P_pt Q R a b c -ᵥ Q)
+                (conwayConstructedVertexA P_pt Q R a b c -ᵥ Q))
+              (positiveOrientation.oangle
+                (conwayConstructedVertexA P_pt Q R a b c -ᵥ conwayConstructedVertexC P_pt Q R a b c)
+                (Q -ᵥ conwayConstructedVertexC P_pt Q R a b c))
         · erw [ Real.Angle.angle_eq_iff_two_pi_dvd_sub ] at h_oangle_Q_C_A_neg
           aesop (config := {warnOnNonterminal := false})
-          rcases w with ⟨ _ | _ | w ⟩ <;> norm_num at * <;> nlinarith [ Real.pi_pos ];
-        · intro h_eq;
-          rw [ eq_comm ] at h_eq;
-          simp_all +decide [ conwayConstructedVertexC ];
+          rcases w with ⟨ _ | _ | w ⟩ <;> norm_num at * <;> nlinarith [ Real.pi_pos ]
+        · intro h_eq
+          rw [ eq_comm ] at h_eq
+          simp_all +decide [ conwayConstructedVertexC ]
           erw [ Real.Angle.coe_eq_zero_iff ] at h_oangle_Q_C_A_neg
           aesop (config := {warnOnNonterminal := false})
-          rcases w with ⟨ _ | _ | w ⟩ <;> norm_num at * <;> nlinarith [ Real.pi_pos ];
-        · intro h;
-          simp_all +decide [ conwayConstructedVertexA ];
+          rcases w with ⟨ _ | _ | w ⟩ <;> norm_num at * <;> nlinarith [ Real.pi_pos ]
+        · intro h
+          simp_all +decide [ conwayConstructedVertexA ]
           rw [ Real.Angle.coe_eq_zero_iff ] at h_oangle_Q_C_A_neg
           simp_all only [zsmul_eq_mul]
           obtain ⟨w, h_1⟩ := h_oangle_Q_C_A_neg
           subst h_1
-          rcases w with ⟨ _ | _ | w ⟩ <;> norm_num at * <;> nlinarith [ Real.pi_pos ];
+          rcases w with ⟨ _ | _ | w ⟩ <;> norm_num at * <;> nlinarith [ Real.pi_pos ]
     have h_oangle_gap_Q : let A := conwayConstructedVertexA P_pt Q R a b c;
       let C := conwayConstructedVertexC P_pt Q R a b c;
       positiveOrientation.oangle (C -ᵥ Q) (A -ᵥ Q) = angleShiftTwo b := by
@@ -1489,12 +1492,16 @@ lemma conway_oangle_Q_A_R (P_pt Q R : P) (a b c : ℝ)
     have h_angle_sum : Orientation.oangle Module.Oriented.positiveOrientation (R -ᵥ Q) (conwayConstructedVertexA P_pt Q R a b c -ᵥ R) = Orientation.oangle Module.Oriented.positiveOrientation (-(Q -ᵥ R)) (conwayConstructedVertexA P_pt Q R a b c -ᵥ R) := by
       rw [ neg_vsub_eq_vsub_rev ];
     simp_all +decide;
-    rw [ show R -ᵥ Q = - ( Q -ᵥ R ) by rw [ neg_vsub_eq_vsub_rev ], Orientation.oangle_neg_left ] ; aesop;
-    · simp_all +decide;
-      rintro rfl; simp_all +decide [ isEquilateral ];
-    · intro h; simp_all +decide;
-      erw [ Real.Angle.angle_eq_iff_two_pi_dvd_sub ] at h_conway_vertex_A;
-      rcases h_conway_vertex_A with ⟨ k, hk ⟩ ; rcases k with ⟨ _ | _ | k ⟩ <;> norm_num at hk <;> nlinarith [ Real.pi_pos ];
+    rw [ show R -ᵥ Q = - ( Q -ᵥ R ) by rw [ neg_vsub_eq_vsub_rev ], Orientation.oangle_neg_left ]
+    · aesop
+    · simp_all +decide
+      rintro rfl
+      simp_all +decide [ isEquilateral ]
+    · intro h
+      simp_all +decide
+      erw [ Real.Angle.angle_eq_iff_two_pi_dvd_sub ] at h_conway_vertex_A
+      rcases h_conway_vertex_A with ⟨ k, hk ⟩
+      rcases k with ⟨ _ | _ | k ⟩ <;> norm_num at hk <;> nlinarith [ Real.pi_pos ]
   simp_all +decide [ neg_add_eq_sub ];
   rw [ show a = Real.pi / 3 - b - c by linarith ] ; norm_num [ Real.Angle ] ; ring_nf;
   erw [ Real.Angle.angle_eq_iff_two_pi_dvd_sub ] ; norm_num ; ring_nf;
@@ -2447,18 +2454,18 @@ lemma exists_linear_isometry_of_gram_eq {ι : Type*} [Finite ι] (v : ι → V) 
               exact h_linear_map _ h_eq
             generalize_proofs at *;
             simp_all +decide [ sub_eq_zero, Finset.sum_sub_distrib, sub_smul ] ;
-          generalize_proofs at *;
+          all_goals generalize_proofs at *
           choose f hf using h_linear_map
-          generalize_proofs at *;
+          all_goals generalize_proofs at *
           refine ⟨ { toFun := f, map_add' := ?_, map_smul' := ?_ }, fun l => hf _ _ rfl ⟩
-          generalize_proofs at *;
+          all_goals generalize_proofs at *
           · intro x y
             obtain ⟨l₁, hl₁⟩ := h_surjective x x.2
             obtain ⟨l₂, hl₂⟩ := h_surjective y y.2
             have h_sum : f (x + y) = ∑ i, (l₁ i + l₂ i) • v' i := by
               convert hf ( x + y ) ( l₁ + l₂ ) _ using 1
-              generalize_proofs at *;
-              simp +decide [ hl₁, hl₂, Finset.sum_add_distrib, add_smul ]
+              all_goals generalize_proofs at *
+              all_goals simp +decide [ hl₁, hl₂, Finset.sum_add_distrib, add_smul ]
             generalize_proofs at *;
             simp +decide [ h_sum, hf x l₁ hl₁, hf y l₂ hl₂, add_smul, Finset.sum_add_distrib ];
           · intro m x
@@ -2472,7 +2479,7 @@ lemma exists_linear_isometry_of_gram_eq {ι : Type*} [Finite ι] (v : ι → V) 
       refine ⟨ f, fun i => ?_ ⟩
       convert hf ( Finsupp.single i 1 ) using 1 <;> simp +decide [ Finsupp.single_apply ];
     obtain ⟨ f, hf ⟩ := h_linear_map
-    generalize_proofs at *;
+    all_goals generalize_proofs at *
     have h_isometry : ∀ x : Submodule.span ℝ (Set.range v), ‖f x‖ = ‖x‖ := by
       intro x
       obtain ⟨l, hl⟩ : ∃ l : ι → ℝ, x = ∑ i, l i • v i := by
@@ -2493,7 +2500,7 @@ lemma exists_linear_isometry_of_gram_eq {ι : Type*} [Finite ι] (v : ι → V) 
         exact Finset.sum_congr rfl fun i _ => by rw [ ← hf i, ← map_smul ] ; rfl;)
       generalize_proofs at *;
       simp_all only [Submodule.coe_norm]
-    generalize_proofs at *;
+    all_goals generalize_proofs at *
     refine ⟨ { toLinearMap := f, norm_map' := h_isometry }, hf ⟩
 
 /-
@@ -2605,10 +2612,10 @@ lemma exists_similarity_of_equal_angles (A B C A' B' C' : P)
     have := exists_linearIsometry_of_congruent_vectors ( k • ( B -ᵥ A ) ) ( k • ( C -ᵥ A ) ) ( B' -ᵥ A' ) ( C' -ᵥ A' ) ?_ ?_ ?_ <;> simp_all +decide [ norm_smul ];
     · obtain ⟨ L, hL₁, hL₂ ⟩ := this;
       refine ⟨ ?_, ?_ ⟩
-      constructor;
-      exact hk.1;
-      rotate_left;
-      exact fun x => ( k • L ( x -ᵥ A ) ) +ᵥ A';
+      constructor
+      · exact hk.1
+      rotate_left
+      · exact fun x => ( k • L ( x -ᵥ A ) ) +ᵥ A'
       all_goals simp_all +decide [ dist_eq_norm_vsub ];
       simp +decide [ ← smul_sub, norm_smul ];
       intro x y; rw [ abs_of_pos hk.1 ] ; rw [ ← L.map_sub ] ; simp +decide;
@@ -2768,7 +2775,7 @@ theorem morley_theorem (A B C : P) (h_nd : NondegenerateTriangle A B C) :
   -- Obtain the equilateral triangle PQR from a, b, c.
   obtain ⟨P_pt, Q, R, h_equilateral, h_side, h_orientation⟩ : ∃ P_pt Q R : P, isEquilateral P_pt Q R ∧ dist P_pt Q = 1 ∧ Orientation.oangle Module.Oriented.positiveOrientation (Q -ᵥ P_pt) (R -ᵥ P_pt) = (Real.pi / 3 : ℝ) := by
     exact exists_equilateral_triangle_with_orientation
-  generalize_proofs at *;
+  all_goals generalize_proofs at *
   -- Apply the lemma that states the constructed triangle is nondegenerate and has the correct angles.
   have h_conway_triangle : let A := conwayConstructedVertexA P_pt Q R a b c
     let B := conwayConstructedVertexB P_pt Q R a b c
@@ -2783,7 +2790,7 @@ theorem morley_theorem (A B C : P) (h_nd : NondegenerateTriangle A B C) :
   -- Apply the lemma that states any equilateral triangle is similar to another equilateral triangle with a specific side length and orientation.
   obtain ⟨f, hf⟩ : ∃ f : Similarity P, f (conwayConstructedVertexA P_pt Q R a b c) = A ∧ f (conwayConstructedVertexB P_pt Q R a b c) = B ∧ f (conwayConstructedVertexC P_pt Q R a b c) = C := by
     apply exists_similarity_of_equal_angles
-    generalize_proofs at *;
+    all_goals generalize_proofs at *
     · exact h_conway_triangle.1;
     · exact h_nd;
     · rename_i pf
