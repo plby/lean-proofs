@@ -46,7 +46,6 @@ namespace Erdos650
 -- linters; keep the suppressions scoped to this file to preserve the proof.
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 
 open Finset Real Nat
 
@@ -221,7 +220,9 @@ lemma emultiplicity_lcm_range_gt
       rw [ emultiplicity_le_emultiplicity_iff ]
       exact fun k hk => dvd_trans hk hq_sq_div_lcm
     have h_emultiplicity_q_sq : emultiplicity p (q^2) = 2 * emultiplicity p q := by
-      rw [ emultiplicity_pow ] ; aesop; exact Nat.prime_iff.mp hp
+      rw [ emultiplicity_pow ]
+      · aesop
+      · exact Nat.prime_iff.mp hp
     cases h : emultiplicity p q <;> simp_all +decide [ two_mul ];
     · exact absurd ( h ( Nat.log p q ) )
           ( Nat.not_dvd_of_pos_of_lt hq_pos ( Nat.lt_pow_succ_log_self hp.one_lt _ ) );
@@ -423,10 +424,11 @@ lemma gcd_claim (s t : ℕ) (hs : 2 ≤ s) (hst : s ≤ t)
           -- in $q$'s factorization.
           intros p
           by_cases hp : p ∣ g
-          generalize_proofs at *; (
-          by_cases hp_prime : Nat.Prime p <;> simp +decide [ hp_prime, Nat.factorization ] at hp ⊢ ;
-                aesop ( simp_config := { singlePass := true } ) ;);
-          simp +decide [ hp, Nat.factorization_eq_zero_of_not_dvd ];
+          · generalize_proofs at *
+            by_cases hp_prime : Nat.Prime p <;>
+              simp +decide [ hp_prime, Nat.factorization ] at hp ⊢ ;
+              aesop ( simp_config := { singlePass := true } )
+          · simp +decide [ hp, Nat.factorization_eq_zero_of_not_dvd ];
         · positivity;);
       simpa [ ← Int.natCast_dvd_natCast ] using h_divides_q
   exact hg_div_q.trans (by norm_num)
@@ -446,10 +448,11 @@ lemma alpha_distinct (s t D M : ℕ) (hD_large : s < D)
 lemma alpha_set_card (s t D M : ℕ) (hD_large : s < D) :
     (Finset.image (fun p : Fin s × Fin t => M + (p.1.val + 1) + (p.2.val + 1) * D)
           Finset.univ).card = s * t := by
-      rw [ Finset.card_image_of_injOn, Finset.card_univ ] ; aesop;
-      intro p hp q hq h_eq;
-      have := alpha_distinct s t D M hD_large ( p.1 + 1 ) ( p.2 + 1 ) ( q.1 + 1 ) ( q.2 + 1 ) ;
-            aesop;
+      rw [ Finset.card_image_of_injOn, Finset.card_univ ]
+      · aesop
+      · intro p hp q hq h_eq;
+        have := alpha_distinct s t D M hD_large ( p.1 + 1 ) ( p.2 + 1 ) ( q.1 + 1 ) ( q.2 + 1 ) ;
+        aesop;
 
 -- The multiples of α_{i,j} in the interval (x₀-M, x₀-M+2(M+s+tD)) are x₀-i and x₀+M+jD.
 lemma multiples_in_interval (M D s t i j : ℕ)
@@ -651,7 +654,8 @@ lemma M_exists (s t D : ℕ) (hs : 2 ≤ s) (ht : 2 ≤ t) (_hst : s ≤ t)
                   have h_coprime : Nat.gcd (∏ q ∈ P.erase p, q) p = 1 := by
                     refine Nat.Coprime.prod_left ?_;
                     intro q hq; have := Nat.coprime_primes ( show Nat.Prime q from ?_ )
-                          ( show Nat.Prime p from ?_ ) ; aesop;
+                          ( show Nat.Prime p from ?_ )
+                    · aesop
                     · exact hP.symm.subset ( Finset.mem_of_mem_erase hq ) |>.1;
                     · exact hP.symm.subset hp |>.1;
                   have := Nat.exists_mul_mod_eq_one_of_coprime h_coprime;
@@ -752,8 +756,9 @@ theorem erdos_f_upper_bound (s t : ℕ) (hs : 0 < s) (ht : 0 < t) :
       · by_cases ht2 : t ≥ 2;
         · by_cases hst : s ≤ t;
           · exact erdos_f_upper_bound_ge2 s t hs2 ht2 hst;
-          · convert erdos_f_upper_bound_ge2 t s ht2 hs2 ( by linarith ) using 1 ; ring_nf;
-            ring;
+          · convert erdos_f_upper_bound_ge2 t s ht2 hs2 ( by linarith ) using 1
+            · ring_nf
+            · ring;
         · interval_cases t ; simp_all +decide;
           exact le_trans ( erdos_f_le s ) ( by linarith );
       · interval_cases s ; simp_all +decide [ add_comm ];
@@ -1513,11 +1518,11 @@ theorem erdos_f_lower_bound (m : ℕ) (hm : 0 < m) :
       · contrapose! hr;
         simp +zetaDelta at *;
         refine ⟨ Finset.Icc 1 m, ?_, ?_, (0 : ℝ), ?_ ⟩ <;> norm_num [ Finset.card_range ] at * ;
-              aesop;
-        rintro ⟨ c, b, hc, hb, hc', hb', h ⟩;
-        exact absurd ( Finset.card_le_card ( show Finset.image c Finset.univ ⊆ Finset.Icc 1 m from
-              Finset.image_subset_iff.mpr fun i _ => hc' i ) )
-                    ( by rw [ Finset.card_image_of_injective _ hc ] ; simpa using by linarith );
+        · aesop;
+        · rintro ⟨ c, b, hc, hb, hc', hb', h ⟩;
+          exact absurd ( Finset.card_le_card ( show Finset.image c Finset.univ ⊆ Finset.Icc 1 m from
+                Finset.image_subset_iff.mpr fun i _ => hc' i ) )
+                      ( by rw [ Finset.card_image_of_injective _ hc ] ; simpa using by linarith );
       · -- Apply the lower bound core theorem to conclude the proof.
         intros A hA_pos hA_card x
         exact (lower_bound_core m hm A hA_pos hA_card ⌊x⌋).mono (intIoo_int_sub_real x (A.sup id))
