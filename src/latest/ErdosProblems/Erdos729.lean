@@ -31,7 +31,6 @@ import Mathlib
 
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.multiGoal false
 set_option linter.flexible false
 
 namespace Erdos729
@@ -120,7 +119,8 @@ lemma p_gt_2k_good (m k p : ℕ) (hp : p.Prime) (hp_gt : p > 2 * k) :
     · -- By Lemma 25, if $p \mid (m + i)$ for some $i \in \{1, \ldots, k\}$, then $\kappa_p(m) \geq \mathsf{v}_p(m + i)$.
       obtain ⟨i, hi₁, hi₂⟩ := h_div
       have h_kappa_ge_vp : kappa p m ≥ padicValNat p (m + i) := by
-        convert forced_carries_large_p p m i _ hp _ _ _ _ using 1 ; aesop
+        convert forced_carries_large_p p m i _ hp _ _ _ _ using 1
+        · aesop
         · linarith [ Finset.mem_Icc.mp hi₁ ]
         · exact pow_padicValNat_dvd
         · rw [ Nat.le_div_iff_mul_le ] <;> linarith [ Finset.mem_Icc.mp hi₁, Nat.sub_add_cancel hp.pos ]
@@ -242,8 +242,9 @@ lemma mod_uniform (M Q : ℕ) (A : Finset ℕ) (η : ℝ) (hM : M > 0) (hQ : Q >
         · exact fun x hx y hy hxy => Finset.disjoint_left.mpr fun m hm₁ hm₂ => hxy <| by aesop
       refine le_trans ( Nat.cast_le.mpr h_sum_residue_classes ) ?_
       refine le_trans ( Nat.cast_le.mpr ( Finset.sum_le_sum fun x hx => h_residue_classes x ( Finset.mem_range.mpr ( hA x hx ) ) ) ) ?_ ; norm_num
-      rw [ div_add', le_div_iff₀ ] <;> norm_cast ; nlinarith [ Nat.div_mul_le_self ( M + 1 ) Q, show A.card ≤ Q from le_trans ( Finset.card_le_card ( show A ⊆ Finset.range Q from fun x hx => Finset.mem_range.mpr ( hA x hx ) ) ) ( by simp ) ]
-      linarith
+      rw [ div_add', le_div_iff₀ ] <;> norm_cast
+      · nlinarith [ Nat.div_mul_le_self ( M + 1 ) Q, show A.card ≤ Q from le_trans ( Finset.card_le_card ( show A ⊆ Finset.range Q from fun x hx => Finset.mem_range.mpr ( hA x hx ) ) ) ( by simp ) ]
+      · linarith
     rw [ div_add', le_div_iff₀ ] at h_card_bound <;> try positivity
     -- Using the bound $Q \le M^{1-\eta}$, we get $Q * M^\eta \le M$.
     have h_QM_eta : (Q : ℝ) * M ^ η ≤ M := by
@@ -342,12 +343,12 @@ lemma forced_carries_small_p (p m L : ℕ) (hp : p.Prime) (hp_ge_3 : p ≥ 3) :
       have h_kummer : padicValNat p (Nat.choose (2 * m) m) = (Finset.range (Nat.log p (2 * m) + 1)).sum (fun i => if p ^ (i + 1) ≤ m % p ^ (i + 1) + m % p ^ (i + 1) then 1 else 0) := by
         haveI := Fact.mk hp
         rw [ padicValNat_choose ]
-        rw [ Finset.card_filter ]
-        rw [ Finset.sum_Ico_eq_sum_range ]
-        rotate_left
-        exact Nat.log p ( 2 * m ) + 2
-        · grind
-        · norm_num
+        · rw [ Finset.card_filter ]
+          rw [ Finset.sum_Ico_eq_sum_range ]
+          rotate_left
+          · exact Nat.log p ( 2 * m ) + 2
+          · grind
+        · omega
         · grind
       exact h_kummer
     -- For each $u \in S$, $f(u) = u+1$ satisfies the carry condition.
@@ -362,8 +363,8 @@ lemma forced_carries_small_p (p m L : ℕ) (hp : p.Prime) (hp_ge_3 : p ≥ 3) :
       exact ⟨ Nat.le_log_of_pow_le hp.one_lt ((Nat.pow_le_pow_right hp.pos (Nat.le_succ u)).trans hpow_le), h_contribution ⟩
     simp_all +decide [ Finset.subset_iff ]
     convert Finset.card_mono _ using 1
-    exact Nat.add_right_cancel (congrFun (congrArg HAdd.hAdd (h_kummer hp)) p)
-    intro x hx; specialize h_carries hp ( Finset.mem_range.mp ( Finset.mem_filter.mp hx |>.1 ) ) ( Finset.mem_filter.mp hx |>.2 ) ; aesop
+    · exact Nat.add_right_cancel (congrFun (congrArg HAdd.hAdd (h_kummer hp)) p)
+    · intro x hx; specialize h_carries hp ( Finset.mem_range.mp ( Finset.mem_filter.mp hx |>.1 ) ) ( Finset.mem_filter.mp hx |>.2 ) ; aesop
 
 /-
 The number of integers $m \in [0, p^L)$ having exactly $k$ digits $\ge (p+1)/2$ in base $p$ is $\binom{L}{k} (\frac{p-1}{2})^k (\frac{p+1}{2})^{L-k}$.
@@ -440,7 +441,7 @@ lemma card_X_p_L_eq (p L k : ℕ) (hp : p.Prime) (hp_ge_3 : p ≥ 3) :
       have h_inner_sum : ∀ m < p ^ L, ∀ k : ℕ, ∑ i ∈ Finset.range p, (if X_p_L p m L + (if i ≥ (p + 1) / 2 then 1 else 0) = k then 1 else 0) = if X_p_L p m L = k then (p + 1) / 2 else if X_p_L p m L + 1 = k then (p - 1) / 2 else 0 := by
         intro m hm k; split_ifs <;> simp_all +decide
         · rw [ Finset.card_eq_of_bijective ]
-          use fun i hi => i
+          · use fun i hi => i
           · aesop
           · exact fun i hi => Finset.mem_filter.mpr ⟨ Finset.mem_range.mpr ( by linarith [ Nat.div_mul_le_self ( p + 1 ) 2 ] ), hi ⟩
           · aesop
@@ -509,8 +510,9 @@ lemma chernoff_digits (p L : ℕ) (hp : p.Prime) (hp_ge_3 : p ≥ 3) (hL : L ≥
         have h_card_S : ((Finset.filter (fun m => X_p_L p m L ≤ (1 / 2 : ℝ) * mu p L) (Finset.range (p ^ L))).card : ℝ) =
           ∑ k ∈ Finset.range (Nat.floor ((mu p L) / 2) + 1), ((Finset.filter (fun m => X_p_L p m L = k) (Finset.range (p ^ L))).card : ℝ) := by
             rw [ show ( Finset.filter ( fun m => ( X_p_L p m L : ℝ ) ≤ 1 / 2 * mu p L ) ( Finset.range ( p ^ L ) ) ) = Finset.biUnion ( Finset.range ( ⌊mu p L / 2⌋₊ + 1 ) ) ( fun k => Finset.filter ( fun m => X_p_L p m L = k ) ( Finset.range ( p ^ L ) ) ) from ?_ ]
-            · rw [ Finset.card_biUnion ] ; aesop
-              exact fun i hi j hj hij => Finset.disjoint_left.mpr fun x => by aesop
+            · rw [ Finset.card_biUnion ]
+              · aesop
+              · exact fun i hi j hj hij => Finset.disjoint_left.mpr fun x => by aesop
             · ext m; simp [Finset.mem_biUnion]
               have hmu_half_nonneg : 0 ≤ mu p L / 2 := by
                 unfold mu theta
@@ -1075,8 +1077,8 @@ theorem main_theorem (C : ℝ) (hC : C > 0) :
       set η : ℝ := 1 / 10 with hη_def
       -- By `exists_good_K`, there exists $K \ge 3$ such that `is_good_K K (C+1) η`.
       obtain ⟨K, hK_ge_3, hK⟩ : ∃ K ≥ 3, is_good_K K (C + 1) η := by
-        convert exists_good_K ( C + 1 ) η _ _ _ using 1 ; norm_num [ hC ]
-        · positivity
+        convert exists_good_K ( C + 1 ) η _ _ _ using 1
+        · linarith
         · norm_num [ hη_def ]
         · norm_num [ hη_def ]
       -- We need to show the set of solutions is infinite.
@@ -1147,8 +1149,9 @@ theorem main_theorem (C : ℝ) (hC : C > 0) :
               have h_den_valuation : padicValNat p (Nat.factorial (2 * m)) = padicValNat p (Nat.factorial m * Nat.factorial m * Nat.choose (2 * m) m) := by
                 rw [ ← Nat.choose_mul_factorial_mul_factorial ( show m ≤ 2 * m by linarith ) ] ; ring_nf
                 rw [ show m * 2 - m = m by rw [ Nat.sub_eq_of_eq_add ] ; ring_nf ] ; ring_nf
-              haveI := Fact.mk hp; rw [ h_den_valuation, padicValNat.mul, padicValNat.mul ] <;> simp +decide [ Nat.factorial_ne_zero ] ; ring_nf
-              exact Nat.ne_of_gt <| Nat.choose_pos <| by linarith
+              haveI := Fact.mk hp; rw [ h_den_valuation, padicValNat.mul, padicValNat.mul ] <;> simp +decide [ Nat.factorial_ne_zero ]
+              · ring_nf
+              · exact Nat.ne_of_gt <| Nat.choose_pos <| by linarith
             exact h_den_valuation
           have h_den_valuation : padicValNat p (Nat.factorial (m + k_M (C + 1) M) * Nat.factorial m) = padicValNat p (Nat.factorial (m + k_M (C + 1) M)) + padicValNat p (Nat.factorial m) := by
             haveI := Fact.mk hp; rw [ padicValNat.mul ( by positivity ) ( by positivity ) ]
