@@ -14,7 +14,6 @@ set_option linter.style.setOption false
 set_option linter.dupNamespace false
 set_option linter.style.cases false
 set_option linter.style.longLine false
-set_option linter.style.multiGoal false
 set_option linter.unusedSimpArgs false
 set_option linter.flexible false
 namespace Theorem8
@@ -85,8 +84,9 @@ lemma degree_adjoin_sq (K : IntermediateField ℚ ℝ) (x : ℝ) (hx : x ^ 2 ∈
     · aesop
   have h_deg_pos : 0 < (minpoly K x).natDegree := by
     by_cases h : minpoly K x = 0
-    · have := minpoly.ne_zero ( show IsIntegral K x from ?_ ) ; aesop
-      exact ⟨ Polynomial.X ^ 2 - Polynomial.C ( ⟨ x ^ 2, hx ⟩ : K ), Polynomial.monic_X_pow_sub_C _ two_ne_zero, by aesop ⟩
+    · have := minpoly.ne_zero ( show IsIntegral K x from ?_ )
+      · aesop
+      · exact ⟨ Polynomial.X ^ 2 - Polynomial.C ( ⟨ x ^ 2, hx ⟩ : K ), Polynomial.monic_X_pow_sub_C _ two_ne_zero, by aesop ⟩
     · exact Polynomial.natDegree_pos_iff_degree_pos.mpr ( Polynomial.degree_pos_of_irreducible ( minpoly.irreducible ( show IsIntegral K x from by exact ( show IsIntegral K x from by exact ( by by_contra h; simp_all +decide [] ) ) ) ) )
   have := Polynomial.natDegree_le_of_degree_le h_min_deg; interval_cases ( minpoly K x |> Polynomial.natDegree ) <;> simp_all +decide
 set_option maxHeartbeats 8000000 in
