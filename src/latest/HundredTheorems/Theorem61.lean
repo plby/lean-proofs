@@ -32,7 +32,6 @@ namespace Theorem61
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 set_option linter.unusedSimpArgs false
 set_option aesop.warn.nonterminal false
 
@@ -74,7 +73,7 @@ lemma mem_affineSegment_iff_barycentric_coords_zero
       rw [ Finset.affineCombination_eq_weightedVSubOfPoint_vadd_of_sum_eq_one ] <;>
         norm_num [ Fin.sum_univ_three, this ]
       swap
-      exact b 1
+      · exact b 1
       simp +decide [ left, left_1, right, AffineMap.lineMap_apply ]
 
 /-
