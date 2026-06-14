@@ -250,7 +250,6 @@ The sum of triangle-degrees is `3` times the number of triangles.
 -/
 -- This incidence-counting proof relies on broad finite-set simplification.
 set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 lemma sum_triangleDegree_eq_three_mul_cliqueFinset [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj] :
     ∑ e ∈ G.edgeFinset, triangleDegree G e = 3 * (G.cliqueFinset 3).card := by
@@ -279,7 +278,7 @@ lemma sum_triangleDegree_eq_three_mul_cliqueFinset [DecidableEq V]
       simp_all +decide
       grind +suggestions
   · rw [Finset.sum_comm, Finset.sum_congr rfl]
-    rw [Finset.sum_const, smul_eq_mul, mul_comm]
+    all_goals try rw [Finset.sum_const, smul_eq_mul, mul_comm]
     simp +decide [SimpleGraph.isNClique_iff]
     intro x hx hx'
     rw [Finset.card_eq_three] at hx'
