@@ -35,7 +35,6 @@ set_option maxHeartbeats 50000000
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
 set_option synthInstance.maxSize 128
-set_option linter.style.multiGoal false
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
 
@@ -555,13 +554,13 @@ lemma cons_greedy_list {L' : List ℕ} {K s_new : ℕ} {C : ℝ}
   -- Let's split into cases based on whether $s_{new} \leq s$ or not.
   intros s hs hsK
   by_cases h_s_new_le_s : s_new ≤ s
-  · convert h_total.trans _ using 1 ; ring_nf at * ; aesop
+  · convert h_total.trans _ using 1
     · -- Since every element in $L'$ is less than or equal to $s$, the filter
       -- condition is always true, so the filtered list is just $L'$ itself.
       have h_filter_eq : List.filter (fun x => x ≤ s) L' = L' := by
         exact List.filter_eq_self.mpr fun x hx => by
           simpa using le_trans (h_max x hx) h_s_new_le_s
-      rw [h_filter_eq]
+      simp [h_s_new_le_s, h_filter_eq]
     · gcongr
       norm_cast at *
       linarith [
@@ -587,15 +586,14 @@ lemma greedy_cover_size {I J : Finset ℕ} {A : Set ℕ}
   obtain ⟨B, L, hB_sub, hI_cover, hB_card, hL_sum, hL_pos, hL_bound⟩ :=
     exists_greedy_list_unsorted k hk h_cover
   refine ⟨ B, hB_sub, hI_cover, ?_ ⟩
-  convert greedy_list_bound _ _ _ using 1
-  -- The first part follows directly from hB_card.
-  rw [hB_card]
-  rw [ hL_sum ]
-  · grind
-  · intro s hs₁ hs₂
+  have h_bound' :
+      ∀ s, 1 ≤ s → s ≤ k →
+        (((L.filter (· ≤ s)).sum : ℝ) ≤ (J.card : ℝ) / k * s) := by
+    intro s hs₁ hs₂
     rw [ div_mul_eq_mul_div, le_div_iff₀ ] <;> norm_cast
     nlinarith [hL_bound s, Nat.div_mul_le_self (J.card * s) k]
-  · linarith
+  simpa [hB_card, hL_sum] using
+    greedy_list_bound (L := L) (K := k) (C := (J.card : ℝ) / k) hL_pos h_bound' hk
 
 
 lemma local_construction (A : Set ℕ) (hA : A.Infinite) :
