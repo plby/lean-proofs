@@ -36,7 +36,6 @@ namespace Erdos897
 
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 
 attribute [local instance] Classical.propDecidable
 
@@ -735,9 +734,10 @@ The sequence 4 + (logStar n + 1)/log n tends to 4 in EReal.
 lemma limit_helper_RHS : Filter.Tendsto (fun n : ℕ => ((4 : ℝ) + (logStar n + 1) / Real.log n : EReal)) Filter.atTop (nhds 4) := by
   have h_cont : Filter.Tendsto (fun n : ℕ => (logStar n + 1) / Real.log n : ℕ → ℝ) Filter.atTop (nhds 0) := by
     exact limit_logStar_div_log;
-  convert tendsto_const_nhds.add h_cont using 2 ; norm_num;
-  erw [ ← EReal.tendsto_coe ] ; norm_num;
-  convert Iff.rfl
+  convert tendsto_const_nhds.add h_cont using 2
+  · erw [ ← EReal.tendsto_coe ]
+    · norm_num
+      convert Iff.rfl
 
 /-
 The limit superior of (f(n+1)-f(n))/log(n) is at most 4 (in EReal).
