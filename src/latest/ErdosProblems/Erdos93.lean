@@ -21,7 +21,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.style.emptyLine false
-set_option linter.style.multiGoal false
 set_option linter.style.cdot false
 set_option linter.style.whitespace false
 set_option linter.style.cases false
@@ -440,9 +439,9 @@ lemma affine_independent_triangle_centroid_mem_interior {t : Finset V}
         exact h_span x);
       convert h_span x using 1;
       exact congr_arg _ ( by ext; simp +decide );
-    refine ⟨ ?_, ?_ ⟩;
-    exact { toFun := Subtype.val, ind' := h_indep, tot' := h_span };
-    aesop;
+    refine ⟨ ?_, ?_ ⟩
+    · exact { toFun := Subtype.val, ind' := h_indep, tot' := h_span }
+    · aesop
   convert b.centroid_mem_interior_convexHull using 1;
   · congr! 2;
     ext; aesop;
@@ -469,11 +468,11 @@ lemma convex_independent_triangle_is_affine_independent {s : Finset V}
         contrapose! h_not_affine_indep;
         rw [ affineIndependent_iff_linearIndependent_vsub ];
         swap;
-        exact ⟨ Classical.choose ( Finset.card_pos.mp ( by linarith ) ), Classical.choose_spec ( Finset.card_pos.mp ( by linarith ) ) ⟩;
+        · exact ⟨ Classical.choose ( Finset.card_pos.mp ( by linarith ) ), Classical.choose_spec ( Finset.card_pos.mp ( by linarith ) ) ⟩;
         have h_lin_ind : Module.finrank ℝ (vectorSpan ℝ (s : Set V)) = Module.finrank ℝ (Submodule.span ℝ (Set.image (fun x : { x : V // x ∈ s } => (x : V) -ᵥ (Classical.choose (Finset.card_pos.mp (by linarith : 0 < s.card))) : { x : V // x ∈ s } → V) {x : { x : V // x ∈ s } | x ≠ ⟨Classical.choose (Finset.card_pos.mp (by linarith : 0 < s.card)), Classical.choose_spec (Finset.card_pos.mp (by linarith : 0 < s.card))⟩})) := by
           rw [ vectorSpan_eq_span_vsub_set_right ];
           rotate_left;
-          exact Classical.choose ( Finset.card_pos.mp ( by linarith ) );
+          · exact Classical.choose ( Finset.card_pos.mp ( by linarith ) );
           · exact Classical.choose_spec ( Finset.card_pos.mp ( by linarith ) );
           · rw [ show ( fun x : V => x -ᵥ Classical.choose ( Finset.card_pos.mp ( by linarith ) ) ) '' ( s : Set V ) = ( fun x : { x : V // x ∈ s } => ( x : V ) -ᵥ Classical.choose ( Finset.card_pos.mp ( by linarith ) ) ) '' { x : { x : V // x ∈ s } | x ≠ ⟨ Classical.choose ( Finset.card_pos.mp ( by linarith ) ), Classical.choose_spec ( Finset.card_pos.mp ( by linarith ) ) ⟩ } ∪ { 0 } from ?_ ];
             · rw [ Submodule.span_union ];
@@ -698,8 +697,8 @@ lemma convex_combination_unique_at_vertex {s : Finset V}
       grind;
     convert hc _ _;
     rotate_left;
-    exact Set.image ( fun v : s => v ) ( { y : s | y.val ≠ x } );
-    exact ⟨ x, hx ⟩;
+    · exact Set.image ( fun v : s => v ) ( { y : s | y.val ≠ x } );
+    · exact ⟨ x, hx ⟩;
     simp +decide [ h_wx_lt_1.ne ];
     convert h_contradiction.2 using 1;
     congr with y ; simp +decide;
@@ -933,8 +932,9 @@ lemma exists_supporting_hyperplane_of_frontier {V : Type*} [NormedAddCommGroup V
           refine ⟨ W.direction, ?_, ?_ ⟩;
           · cases W.eq_bot_or_nonempty <;> aesop;
           · intro y hy; have := hW.2 hy; simp_all +decide;
-            convert AffineSubspace.vsub_mem_direction this ( show x ∈ W from _ ) using 1 ; simp +decide;
-            · rw [ sub_eq_add_neg ];
+            convert AffineSubspace.vsub_mem_direction this ( show x ∈ W from _ ) using 1
+            · simp +decide
+              rw [ sub_eq_add_neg ];
             · exact closure_minimal hW.2 ( W.closed_of_finiteDimensional ) hx.1;
         -- Since $W$ is a proper subspace of $V$, there exists a non-zero continuous linear functional $f$ such that $f(y) = 0$ for all $y \in W$.
         obtain ⟨f, hf⟩ : ∃ f : V →L[ℝ] ℝ, f ≠ 0 ∧ ∀ y ∈ W, f y = 0 := by
@@ -1048,17 +1048,19 @@ lemma segment_subset_frontier_of_supporting_hyperplane
           exact ⟨ ε / ( ‖v‖ + 1 ), div_pos εpos ( add_pos_of_nonneg_of_pos ( norm_nonneg v ) zero_lt_one ), by rw [ div_mul_eq_mul_div, div_lt_iff₀ ] <;> nlinarith [ norm_nonneg v ] ⟩;
         -- Since $f$ is affine, we have $f(x + tv) = f(x) + t f(v)$.
         have h_affine : f (x + t • v) = f x + t * f.linear v := by
-          convert f.map_vadd x ( t • v ) using 1 ; simp +decide;
-          · rw [ add_comm ];
+          convert f.map_vadd x ( t • v ) using 1
+          · simp +decide
+            rw [ add_comm ];
           · simp +decide [ add_comm, map_smul ];
         exact absurd ( h_convex_hull_subset_halfspace ( x + t • v ) ( hε ( by simpa [ norm_smul, abs_of_pos ht_pos ] using ht ) ) ) ( by nlinarith );
       intro x hx;
       refine h_boundary x ?_ ?_;
       · exact convex_convexHull ℝ S |> fun h => h.segment_subset ha hb hx;
       · rcases hx with ⟨ u, v, hu, hv, huv, rfl ⟩;
-        convert f.map_vadd 0 ( u • a + v • b ) using 1 ; simp +decide
-        have := f.map_vadd 0 a; have := f.map_vadd 0 b; simp_all +decide
-        rw [ ← add_mul, huv, one_mul ]
+        convert f.map_vadd 0 ( u • a + v • b ) using 1
+        · simp +decide
+        · have := f.map_vadd 0 a; have := f.map_vadd 0 b; simp_all +decide
+          rw [ ← add_mul, huv, one_mul ]
 
 -- proven by Aristotle
 lemma affine_functional_through_two_points {p q : V} (hpq : p ≠ q)
@@ -1114,8 +1116,9 @@ lemma convex_independent_not_all_on_affine_line {n : ℕ} {A : Fin n → V}
     use p, v;
     simp_all +decide;
     intro x; rw [ ← sub_eq_zero ] ; simp +decide;
-    convert hv.2 ( x - p ) using 1 ; simp +decide ;
-    · have := f.map_vadd p ( x - p ) ; aesop;
+    convert hv.2 ( x - p ) using 1
+    · simp +decide
+      have := f.map_vadd p ( x - p ) ; aesop;
     · grind;
   obtain ⟨ p, v, hv, h ⟩ := h_line;
   -- Since $A$ is convexly independent, the points $A_i$ cannot all lie on a single line.
@@ -1124,7 +1127,7 @@ lemma convex_independent_not_all_on_affine_line {n : ℕ} {A : Fin n → V}
     -- Without loss of generality, assume $t_i < t_j < t_k$.
     wlog h_wlog : t i < t j ∧ t j < t k generalizing i j k;
     · cases lt_or_gt_of_ne hti <;> cases lt_or_gt_of_ne htj <;> cases lt_or_gt_of_ne htk <;> simp +decide [ * ] at h_wlog ⊢;
-      grind;
+      · grind;
       · grind;
       · exact this j i k ( by tauto ) ( by tauto ) ( by tauto ) ( by tauto ) ( by tauto ) ( by tauto ) ⟨ by linarith, by linarith ⟩;
       · linarith;
@@ -2528,8 +2531,9 @@ lemma angle_le_of_mem_segment {V : Type*} [NormedAddCommGroup V] [InnerProductSp
       rcases hK with ⟨ θ, ⟨ hθ₀, hθ₁ ⟩, rfl ⟩;
       by_cases hθ₂ : θ = 0 ∨ θ = 1 <;> simp_all +decide;
       · rcases hθ₂ with ( rfl | rfl ) <;> simp +decide [ angle ];
-        rw [ InnerProductGeometry.angle_self ] ; exact Real.arccos_nonneg _;
-        exact sub_ne_zero_of_ne fun h => hO 0 ( by norm_num ) ( by norm_num ) ( by simp +decide [ h ] );
+        rw [ InnerProductGeometry.angle_self ]
+        · exact Real.arccos_nonneg _;
+        · exact sub_ne_zero_of_ne fun h => hO 0 ( by norm_num ) ( by norm_num ) ( by simp +decide [ h ] );
       · -- By the properties of the angle function, we know that $\angle AOK = \angle u (u' + v')$ and $\angle KOB = \angle (u' + v') v'$.
         set u : V := A - O
         set v : V := B - O
@@ -4975,7 +4979,7 @@ lemma exists_halfplane_functional_of_angle_span {s : Set ℂ} (a b : ℝ)
         rw [Real.cos_add_int_mul_two_pi, Real.cos_sub]
         ring
       refine h_contra ⟨ ?_, ?_, ?_ ⟩;
-      exact - ( ContinuousLinearMap.smulRight ( Complex.reCLM ) 1 ) ∘L ( ContinuousLinearMap.mul ℝ ℂ ( Complex.exp ( -α * Complex.I ) ) );
+      · exact - ( ContinuousLinearMap.smulRight ( Complex.reCLM ) 1 ) ∘L ( ContinuousLinearMap.mul ℝ ℂ ( Complex.exp ( -α * Complex.I ) ) );
       · intro h; have := congr_arg ( fun f => f ( Complex.exp ( α * Complex.I ) ) ) h; norm_num [ Complex.exp_re, Complex.exp_im ] at this;
         nlinarith [ Real.sin_sq_add_cos_sq α ];
       · intro z hz; specialize hw z hz; by_cases hz' : z = 0 <;> simp_all +decide [ Complex.exp_re, Complex.exp_im ] ;
@@ -4990,7 +4994,8 @@ lemma consecutive_angle_diff_lt_pi {n : ℕ} {z : Fin n → ℂ}
     let diff := if i.val < n - 1 then Complex.arg (z next) - Complex.arg (z i)
                 else 2 * Real.pi + Complex.arg (z next) - Complex.arg (z i)
     diff < Real.pi := by
-      rcases n with ( _ | _ | n ) <;> simp_all +decide ; aesop;
+      rcases n with ( _ | _ | n ) <;> simp_all +decide
+      · aesop;
       split_ifs <;> simp_all +decide [Nat.mod_eq_of_lt ];
       · by_contra h_contra;
         -- By `exists_halfplane_functional_of_angle_span`, there exists `f ≠ 0` such that `f(z j) ≤ 0` for all `j`.
@@ -4998,8 +5003,8 @@ lemma consecutive_angle_diff_lt_pi {n : ℕ} {z : Fin n → ℂ}
           have h_angle_span : ∀ j : Fin (n + 1 + 1), ∃ k : ℤ, Complex.arg (z j) + k * 2 * Real.pi ∈ Set.Icc (Complex.arg (z ⟨i.val + 1, by linarith⟩)) (Complex.arg (z i) + 2 * Real.pi) := by
             intro j
             by_cases hj : j ≤ i
-            generalize_proofs at *;
-            · use 1
+            · generalize_proofs at *;
+              use 1
               generalize_proofs at *;
               constructor <;> norm_num <;> linarith [ Complex.neg_pi_lt_arg ( z j ), Complex.arg_le_pi ( z j ), Complex.neg_pi_lt_arg ( z i ), Complex.arg_le_pi ( z i ), Complex.neg_pi_lt_arg ( z ⟨ i + 1, by linarith ⟩ ), Complex.arg_le_pi ( z ⟨ i + 1, by linarith ⟩ ), show ( z j |> Complex.arg ) ≤ ( z i |> Complex.arg ) from by exact le_of_not_gt fun h => by linarith [ h_sorted _ _ <| lt_of_le_of_ne hj <| Ne.symm <| by aesop ] ];
             · use 0
@@ -5135,10 +5140,11 @@ lemma orientation_sweep_consecutive_pos {n : ℕ} {s : Finset V} {A : ℕ → V}
     rw [ ← sub_div, lt_div_iff₀ ];
     · have h_sin_pos : 0 < Real.sin ((if i.val < n - 1 then Complex.arg (z (⟨(i + 1) % n, Nat.mod_lt _ (lt_of_lt_of_le (by norm_num) h_n)⟩)) - Complex.arg (z i) else 2 * Real.pi + Complex.arg (z (⟨(i + 1) % n, Nat.mod_lt _ (lt_of_lt_of_le (by norm_num) h_n)⟩)) - Complex.arg (z i))) := by
         exact Real.sin_pos_of_pos_of_lt_pi h_arg_diff.1 h_arg_diff.2;
-      convert mul_pos h_sin_pos ( mul_pos ( norm_pos_iff.mpr ( h_z_ne_zero i ) ) ( norm_pos_iff.mpr ( h_z_ne_zero ⟨ ( i + 1 ) % n, Nat.mod_lt _ ( by linarith ) ⟩ ) ) ) using 1 ; simp +decide [ Complex.normSq ] ; ring_nf;
-      split_ifs <;> simp +decide [ *, mul_two, Real.sin_add, Real.sin_sub ] <;> ring_nf;
-      · rw [ ← Complex.norm_mul_cos_arg, ← Complex.norm_mul_sin_arg, ← Complex.norm_mul_cos_arg, ← Complex.norm_mul_sin_arg ] ; ring_nf;
-      · rw [ ← Complex.norm_mul_cos_arg, ← Complex.norm_mul_sin_arg, ← Complex.norm_mul_cos_arg, ← Complex.norm_mul_sin_arg ] ; ring_nf;
+      convert mul_pos h_sin_pos ( mul_pos ( norm_pos_iff.mpr ( h_z_ne_zero i ) ) ( norm_pos_iff.mpr ( h_z_ne_zero ⟨ ( i + 1 ) % n, Nat.mod_lt _ ( by linarith ) ⟩ ) ) ) using 1
+      · simp +decide [ Complex.normSq ]
+      · split_ifs <;> simp +decide [ *, mul_two, Real.sin_add, Real.sin_sub, Real.cos_add ] <;> ring_nf;
+        · rw [ ← Complex.norm_mul_cos_arg, ← Complex.norm_mul_sin_arg, ← Complex.norm_mul_cos_arg, ← Complex.norm_mul_sin_arg ] ; ring_nf;
+        · rw [ ← Complex.norm_mul_cos_arg, ← Complex.norm_mul_sin_arg, ← Complex.norm_mul_cos_arg, ← Complex.norm_mul_sin_arg ] ; ring_nf;
     · exact Complex.normSq_pos.mpr ( h_z_ne_zero i );
   convert h_im_pos using 1
 
@@ -5797,11 +5803,15 @@ lemma exists_supporting_line_of_angular_sorted {n : ℕ} {s : Finset V} (h_n : 3
                 right
                 have h_arg_zi : zi_val.arg = Real.pi := by
                   have : zi_val = (zi_val.re : ℂ) := by
-                    apply Complex.ext; simp; simp [h_im_zero]
+                    apply Complex.ext
+                    · simp
+                    · simp [h_im_zero]
                   rw [this, Complex.arg_ofReal_of_neg h_re_neg]
                 have h_arg_neg_zi : (-zi_val).arg = 0 := by
                   have : -zi_val = ((-zi_val.re : ℝ) : ℂ) := by
-                    apply Complex.ext; simp; simp [h_im_zero]
+                    apply Complex.ext
+                    · simp
+                    · simp [h_im_zero]
                   rw [this, Complex.arg_ofReal_of_nonneg (by linarith)]
                 rw [h_arg_zi, h_arg_neg_zi]; ring
               · -- arg zi = 0, arg(-zi) = pi
@@ -5809,11 +5819,15 @@ lemma exists_supporting_line_of_angular_sorted {n : ℕ} {s : Finset V} (h_n : 3
                 have h_re_pos : 0 < zi_val.re := lt_of_le_of_ne (le_of_not_gt h_re_neg) h_re_nz.symm
                 have h_arg_zi : zi_val.arg = 0 := by
                   have : zi_val = (zi_val.re : ℂ) := by
-                    apply Complex.ext; simp; simp [h_im_zero]
+                    apply Complex.ext
+                    · simp
+                    · simp [h_im_zero]
                   rw [this, Complex.arg_ofReal_of_nonneg h_re_pos.le]
                 have h_arg_neg_zi : (-zi_val).arg = Real.pi := by
                   have : -zi_val = ((-zi_val.re : ℝ) : ℂ) := by
-                    apply Complex.ext; simp; simp [h_im_zero]
+                    apply Complex.ext
+                    · simp
+                    · simp [h_im_zero]
                   rw [this, Complex.arg_ofReal_of_neg (by linarith)]
                 rw [h_arg_zi, h_arg_neg_zi]; ring
 
