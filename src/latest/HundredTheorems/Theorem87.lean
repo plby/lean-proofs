@@ -503,7 +503,6 @@ lemma desargues_plane_A_eq_O
 end AristotleLemmas
 
 set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 set_option maxHeartbeats 8000000 in
 -- The main proof combines the affine Desargues reduction with generated algebraic cases.
 theorem desargues_plane
@@ -521,7 +520,41 @@ theorem desargues_plane
 by
   -- Consider two cases: $A \neq O$, $B \neq O$, and $C \neq O$.
   by_cases hAO : A ≠ O
+  swap
+  · convert desargues_plane_A_eq_O
+      (Classical.not_not.mp hAO) hO_BB' hO_CC' hPab hPbc hPca using 1
   by_cases hBO : B ≠ O
+  swap
+  · have hPabA' : Pab = A' := by
+      have := hPab.2 A' ?_ <;>
+        aesop (config := {warnOnNonterminal := false}) (simp_config := { singlePass := true })
+      unfold IntersectsIn
+      aesop (config := {warnOnNonterminal := false})
+      · rw [collinear_iff_exists_forall_eq_smul_vadd] at *
+        obtain ⟨p₀, v, hv⟩ := hO_AA'
+        use p₀, v
+        intro p hp
+        specialize hv p
+        aesop (config := {warnOnNonterminal := false})
+      · exact collinear_pair _ _ _
+    have hPbcC' : Pbc = C' := by
+      -- `C'` lies on both side lines in this degenerate case.
+      have hC'_intersection :
+          Collinear ℝ ({B, C, C'} : Set Plane) ∧
+            Collinear ℝ ({B', C', C'} : Set Plane) := by
+        simp_all +decide [collinear_pair]
+        rw [collinear_iff_exists_forall_eq_smul_vadd] at *
+        exact
+          ⟨hO_CC'.choose, hO_CC'.choose_spec.choose, fun p hp => by
+            obtain ⟨r, hr⟩ := hO_CC'.choose_spec.choose_spec p (by aesop)
+            exact ⟨r, hr⟩⟩
+      exact hPbc.2 C' hC'_intersection ▸ rfl
+    aesop (config := {warnOnNonterminal := false})
+    have := hPca.1.2
+    simp_all +decide [collinear_iff_exists_forall_eq_smul_vadd]
+    exact
+      ⟨this.choose, this.choose_spec.choose, this.choose_spec.choose_spec.2.1,
+        this.choose_spec.choose_spec.1, this.choose_spec.choose_spec.2.2⟩
   by_cases hCO : C ≠ O
   · -- Since A, B, C are distinct from O, we can apply the affine Desargues theorem.
     obtain ⟨α, β, γ, hα, hβ, hγ⟩ :
@@ -639,39 +672,6 @@ by
     exact
       ⟨this.choose, this.choose_spec.choose, fun p hp =>
         this.choose_spec.choose_spec p (by aesop)⟩
-  · have hPabA' : Pab = A' := by
-      have := hPab.2 A' ?_ <;>
-        aesop (config := {warnOnNonterminal := false}) (simp_config := { singlePass := true })
-      unfold IntersectsIn
-      aesop (config := {warnOnNonterminal := false})
-      · rw [collinear_iff_exists_forall_eq_smul_vadd] at *
-        obtain ⟨p₀, v, hv⟩ := hO_AA'
-        use p₀, v
-        intro p hp
-        specialize hv p
-        aesop (config := {warnOnNonterminal := false})
-      · exact collinear_pair _ _ _
-    have hPbcC' : Pbc = C' := by
-      -- `C'` lies on both side lines in this degenerate case.
-      have hC'_intersection :
-          Collinear ℝ ({B, C, C'} : Set Plane) ∧
-            Collinear ℝ ({B', C', C'} : Set Plane) := by
-        simp_all +decide [collinear_pair]
-        rw [collinear_iff_exists_forall_eq_smul_vadd] at *
-        exact
-          ⟨hO_CC'.choose, hO_CC'.choose_spec.choose, fun p hp => by
-            obtain ⟨r, hr⟩ := hO_CC'.choose_spec.choose_spec p (by aesop)
-            exact ⟨r, hr⟩⟩
-      exact hPbc.2 C' hC'_intersection ▸ rfl
-    aesop (config := {warnOnNonterminal := false})
-    have := hPca.1.2
-    simp_all +decide [collinear_iff_exists_forall_eq_smul_vadd]
-    exact
-      ⟨this.choose, this.choose_spec.choose, this.choose_spec.choose_spec.2.1,
-        this.choose_spec.choose_spec.1, this.choose_spec.choose_spec.2.2⟩
-  · convert desargues_plane_A_eq_O
-      (Classical.not_not.mp hAO) hO_BB' hO_CC' hPab hPbc hPca using 1
-
 #print axioms desargues_plane
 -- 'Theorem87.desargues_plane' depends on axioms: [propext, Classical.choice, Quot.sound]
 
