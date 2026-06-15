@@ -44,7 +44,6 @@ set_option linter.style.setOption false
 set_option linter.deprecated false
 set_option linter.flexible false
 set_option linter.style.longLine false
-set_option linter.style.multiGoal false
 set_option linter.style.whitespace false
 
 /-
@@ -243,8 +242,9 @@ lemma tightPoly_lower_val {n : ℕ} (hn : 1 ≤ n) :
     tightPoly n (ratioLower n) = stepBreakpoint (n - 1) := by
       -- Apply the trigonometric closed form with θ = π / (n+2).
       have h_trig : tightPoly n (4 * (Real.cos (Real.pi / (n + 2))) ^ 2) = (2 * Real.cos (Real.pi / (n + 2))) ^ n * (Real.sin (((n + 1) : ℝ) * (Real.pi / (n + 2))) / Real.sin (Real.pi / (n + 2))) := by
-        convert tightPoly_eq_trig n ( Real.pi / ( n + 2 ) ) _ using 1 ; norm_num;
-        exact ne_of_gt ( Real.sin_pos_of_pos_of_lt_pi ( by positivity ) ( div_lt_self Real.pi_pos ( by norm_cast; linarith ) ) );
+        convert tightPoly_eq_trig n ( Real.pi / ( n + 2 ) ) _ using 1
+        · norm_num
+        · exact ne_of_gt ( Real.sin_pos_of_pos_of_lt_pi ( by positivity ) ( div_lt_self Real.pi_pos ( by norm_cast; linarith ) ) );
       convert h_trig using 1;
       · unfold ratioLower; norm_num;
       · rw [ show ( ( n + 1 ) : ℝ ) * ( Real.pi / ( n + 2 ) ) = Real.pi - Real.pi / ( n + 2 ) by nlinarith [ Real.pi_pos, mul_div_cancel₀ Real.pi ( by positivity : ( n + 2 : ℝ ) ≠ 0 ) ], Real.sin_pi_sub ] ; ring_nf;
@@ -327,7 +327,7 @@ lemma tightPoly_trig_strictAntiOn {n : ℕ} (hn : 1 ≤ n) :
           n * (2 * Real.cos θ) ^ (n - 1) * (2 * (-Real.sin θ)) by
         change deriv ((fun x => 2 * Real.cos x) ^ n) θ = _
         rw [deriv_pow]
-        rw [show deriv (fun x => 2 * Real.cos x) θ = 2 * (-Real.sin θ) by
+        all_goals try rw [show deriv (fun x => 2 * Real.cos x) θ = 2 * (-Real.sin θ) by
           rw [deriv_const_mul, deriv_cos] <;> simp]
         simp]
       rw [show deriv (fun x => Real.sin ((n + 1) * x) / Real.sin x) θ =
@@ -1128,7 +1128,9 @@ lemma exists_strict_ge {s : Strategy} {n k : ℕ} (hk : k < n) (h_n : s.x (n - 1
         by_cases h_eq : s.x (k - 1) = s.x k ∧ k > 0;
         · -- Since $s.x (k - 1) = s.x k$, we have $scoreTerm s k ≤ scoreTerm s (k + 1)$.
           have h_score_term_le : scoreTerm s k ≤ scoreTerm s (k + 1) := by
-            apply scoreTerm_mono_of_eq; exact h_eq.left; exact h_eq.right;
+            apply scoreTerm_mono_of_eq
+            · exact h_eq.left
+            · exact h_eq.right;
           obtain ⟨ m, hm₁, hm₂, hm₃, hm₄ ⟩ := ih ( show k + 1 < n from lt_of_le_of_ne hk ( by aesop_cat ) ) ( by omega ) ; exact ⟨ m, by linarith, by linarith, hm₃, h_score_term_le.trans hm₄ ⟩;
         · by_cases hk0 : k = 0
           · subst k
@@ -1579,7 +1581,8 @@ theorem tightPoly_step_limit (n : ℕ) (hn : 1 ≤ n) (R : ℝ)
         exact h_diff.symm ▸ div_nonpos_of_nonpos_of_nonneg ( mul_nonpos_of_nonneg_of_nonpos ( pow_nonneg ( mul_nonneg zero_le_two ( Real.cos_nonneg_of_mem_Icc ⟨ by linarith [ Real.pi_pos, show 0 ≤ θ by exact le_trans ( by positivity ) hθ.2.1 ], by rw [ le_div_iff₀ ] at * <;> nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] ⟩ ) ) _ ) h_sin_le_zero ) ( Real.sin_nonneg_of_mem_Icc ⟨ by linarith [ Real.pi_pos, show 0 ≤ θ by exact le_trans ( by positivity ) hθ.2.1 ], by rw [ le_div_iff₀ ] at * <;> nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] ⟩ )
       have h_pn2_le_zero : tightPoly (n + 2) R ≤ 0 := by
         have h_pn2_le_zero : tightPoly (n + 2) R = (2 * Real.cos θ) ^ (n + 2) * Real.sin ((n + 3) * θ) / Real.sin θ := by
-          convert tightPoly_trig_form θ _ ( n + 2 ) using 1 ; aesop;
+          convert tightPoly_trig_form θ _ ( n + 2 ) using 1
+          · aesop
           · norm_cast;
           · exact ne_of_gt ( Real.sin_pos_of_pos_of_lt_pi ( by exact lt_of_lt_of_le ( by positivity ) hθ.2.1 ) ( by exact lt_of_le_of_lt hθ.2.2 ( by rw [ div_lt_iff₀ ] <;> nlinarith [ Real.pi_pos ] ) ) );
         exact h_pn2_le_zero ▸ div_nonpos_of_nonpos_of_nonneg ( mul_nonpos_of_nonneg_of_nonpos ( pow_nonneg ( mul_nonneg zero_le_two ( Real.cos_nonneg_of_mem_Icc ⟨ by linarith [ Real.pi_pos, show 0 ≤ θ by exact le_trans ( by positivity ) hθ.2.1 ], by linarith [ Real.pi_pos, show θ ≤ Real.pi / 2 by exact hθ.2.2.trans ( by rw [ div_le_iff₀ <| by positivity ] ; nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] ) ] ⟩ ) ) _ ) h_sin_le_zero ) ( Real.sin_nonneg_of_mem_Icc ⟨ by linarith [ Real.pi_pos, show 0 ≤ θ by exact le_trans ( by positivity ) hθ.2.1 ], by linarith [ Real.pi_pos, show θ ≤ Real.pi / 2 by exact hθ.2.2.trans ( by rw [ div_le_iff₀ <| by positivity ] ; nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] ) ] ⟩ )
@@ -1966,9 +1969,9 @@ lemma formula_x_recurrence {s : Strategy} {R : ℝ} (hR : R ≠ 0) (k : ℕ) (hk
       rw [ show tightPoly ( k + 1 + 1 - k + 1 ) R = tightPoly 3 R by rw [ show k + 1 + 1 - k = 2 by rw [ Nat.sub_eq_of_eq_add ] ; ring ] ] ; rw [ show tightPoly 3 R = R * ( tightPoly 2 R - tightPoly 1 R ) by exact h_recurrence 1 ] ; rw [ show tightPoly 2 R = R * ( tightPoly 1 R - tightPoly 0 R ) by exact h_recurrence 0 ] ; norm_num [ Finset.sum_range_succ', hR ] ; ring_nf;
       rw [ show tightPoly 1 R = R by rfl, show tightPoly 0 R = 1 by rfl ] ; norm_num [ hR, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _ ] ; ring_nf;
       rw [ show ( Finset.range k ).sum ( fun x => slack s R x * tightPoly ( 1 + ( 1 + k - x ) ) R ) = ( Finset.range k ).sum ( fun x => R * R⁻¹ * slack s R x * tightPoly ( 1 + ( k - x ) ) R ) + ( Finset.range k ).sum ( fun x => R⁻¹ * slack s R x * tightPoly ( 1 + ( 2 + k - x ) ) R ) from ?_ ]
-      have hRRinv : R * R⁻¹ = 1 := by
-        field_simp [hR]
-      · simp [hRRinv]
+      · have hRRinv : R * R⁻¹ = 1 := by
+          field_simp [hR]
+        simp [hRRinv]
         ring
       rw [ ← Finset.sum_add_distrib ] ; refine Finset.sum_congr rfl fun x hx => ?_ ; rw [ show 1 + ( 1 + k - x ) = 1 + ( k - x ) + 1 by linarith [ Nat.sub_add_cancel ( show x ≤ k from Finset.mem_range_le hx ), Nat.sub_add_cancel ( show x ≤ 1 + k from by linarith [ Finset.mem_range_le hx ] ) ] ] ; rw [ show 1 + ( 2 + k - x ) = 1 + ( k - x ) + 2 by linarith [ Nat.sub_add_cancel ( show x ≤ k from Finset.mem_range_le hx ), Nat.sub_add_cancel ( show x ≤ 2 + k from by linarith [ Finset.mem_range_le hx ] ) ] ] ; ring_nf;
       rw [ show 3 + ( k - x ) = 2 + ( k - x ) + 1 by ring, show 2 + ( k - x ) = 1 + ( k - x ) + 1 by ring ]
@@ -2411,7 +2414,7 @@ lemma dominance_property_proof {s : Strategy} {B R : ℝ} {n : ℕ}
       have h_diffSeq_nonneg : ∀ k < n, 0 ≤ diffSeq s R k := by
         intros k hk_lt_n
         apply nonneg_of_diffSeq_recurrence_bounded;
-        exact zero_lt_one.trans_le hR;
+        · exact zero_lt_one.trans_le hR;
         all_goals norm_cast;
         · -- By definition of `diffSeq`, we have `diffSeq s R 0 = tightPoly 1 R - s.x 0`.
           simp [diffSeq];
@@ -2572,7 +2575,7 @@ lemma partialSum_le_of_strict_step {s : Strategy} {B R : ℝ} {k : ℕ}
         refine fun y hy => le_trans ?_ h_score;
         refine le_trans ?_ ( le_ciSup ?_ ⟨ y, ?_ ⟩ );
         all_goals norm_num [ boundedScore ];
-        rw [ score_eq_of_mem_Ioc ];
+        all_goals try rw [ score_eq_of_mem_Ioc ];
         · aesop;
         · exact ⟨ by linarith [ hy.1, show 1 ≤ s.x ( k - 1 ) from Nat.recOn ( k - 1 ) ( by linarith [ s.one_le ] ) fun n ihn => by linarith [ s.mono n.le_succ ] ], by linarith [ hy.2 ] ⟩;
       -- Taking the limit as $y$ approaches $x_{k-1}$ from the right, we get $S_k / x_{k-1} \le R$.
@@ -3987,8 +3990,8 @@ lemma strictifyStrategy_hitIndex_lt_length {s : Strategy} {B : ℝ} (hB : 1 ≤ 
         generalize_proofs at *; (
         have h_last_eq : (List.map (truncateStrategyAux s B hB).x (List.range (truncateIndex s B hB + 1))).dedup.getLast ‹_› = (truncateStrategyAux s B hB).x (truncateIndex s B hB) := by
           convert List_dedup_getLast_eq_getLast_of_sorted _ _ using 1
-          generalize_proofs at *; (
-          simp +decide [ List.range_succ ]);
+          · generalize_proofs at *
+            simp +decide [ List.range_succ ]
           · have h_sorted : Monotone (truncateStrategyAux s B hB).x := by
               exact monotone_nat_of_le_succ fun n => by simpa using ( truncateStrategyAux s B hB ).mono n.le_succ;
             generalize_proofs at *; (
@@ -4052,12 +4055,12 @@ theorem boundedGameValue_eq_firstGuess {B : ℝ} (hB : 1 < B) :
       have h_inf : ∀ s : Strategy, boundedWorstCaseScore s B ≥ ENNReal.ofReal (firstGuess B) := by
         intro s
         set s' := strictStrategy s B hB.le;
-        refine le_trans ?_ ( strictStrategy_score_le ?_ );
-        apply_rules [ boundedWorstCaseScore_ge_firstGuess_strict ];
-        refine strictStrategy_strictMono ?_;
-        rotate_left;
-        exact Exists.choose_spec ( strictStrategy_ends_at_B_valid hB.le ) |>.2;
-        exact Exists.choose_spec ( strictStrategy_ends_at_B_valid hB.le ) |>.1;
+        refine le_trans ?_ ( strictStrategy_score_le hB.le );
+        exact boundedWorstCaseScore_ge_firstGuess_strict hB
+          (strictStrategy_strictMono hB.le)
+          (Exists.choose (strictStrategy_ends_at_B_valid hB.le))
+          (Exists.choose_spec (strictStrategy_ends_at_B_valid hB.le)).1
+          (Exists.choose_spec (strictStrategy_ends_at_B_valid hB.le)).2;
       refine le_antisymm ?_ ?_;
       · exact boundedGameValue_le_firstGuess hB;
       · exact le_csInf ⟨ _, ⟨ optimalStrategy B, rfl ⟩ ⟩ fun x hx => hx.choose_spec ▸ h_inf _
