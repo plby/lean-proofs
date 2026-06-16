@@ -35,7 +35,6 @@ noncomputable section
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 
 /-- The partial harmonic sum from n to m: ∑_{ℓ=n}^{m} 1/ℓ. -/
 def harmonicPartialSum (n m : ℕ) : ℝ :=
@@ -179,8 +178,9 @@ theorem taylor_error_bound (n : ℕ) (hn : 2 ≤ n) (u a : ℝ)
         nlinarith [sq_nonneg t, abs_le.mp ht]
       have h_ftc : ∀ u : ℝ, |u| ≤ 1 / 2 → Real.log (1 + u) - u + u ^ 2 / 2 = ∫ t in (0 : ℝ)..u,
         deriv (fun t => Real.log (1 + t) - t + t ^ 2 / 2) t := by
-        intros u hu; rw [ intervalIntegral.integral_deriv_eq_sub ] ; norm_num [ add_comm ] ;
-          ring_nf;
+        intros u hu; rw [ intervalIntegral.integral_deriv_eq_sub ]
+        focus norm_num [ add_comm ]
+        focus ring_nf
         · exact fun x hx => DifferentiableAt.add ( DifferentiableAt.add ( differentiableAt_id.neg )
           ( by norm_num ) ) ( DifferentiableAt.log ( differentiableAt_id.const_add _ )
           ( by cases Set.mem_uIcc.mp hx <;> linarith [ abs_le.mp hu ] ) );
@@ -442,17 +442,19 @@ def mixedBound (k : ℕ) : ℝ :=
 The Padé integral is positive: the integrand t^{k+1}(1-t)^{k+1}eᵗ > 0 on (0,1).
 -/
 lemma padeBound_pos (k : ℕ) : 0 < padeBound k := by
-  apply lt_of_le_of_ne; exact (by
-  exact intervalIntegral.integral_nonneg ( by norm_num ) fun x hx => mul_nonneg ( mul_nonneg
-    ( pow_nonneg hx.1 _ ) ( pow_nonneg ( sub_nonneg.2 hx.2 ) _ ) ) ( Real.exp_nonneg _ )); exact (by
-  rw [ ne_comm ];
-  refine ne_of_gt ?_
-  apply_rules [ intervalIntegral.integral_pos ];
-  · norm_num;
-  · exact Continuous.continuousOn ( by continuity );
-  · exact fun x hx => mul_nonneg ( mul_nonneg ( pow_nonneg hx.1.le _ ) ( pow_nonneg
-    ( sub_nonneg.2 hx.2 ) _ ) ) ( Real.exp_nonneg _ );
-  · exact ⟨ 1 / 2, ⟨ by norm_num, by norm_num ⟩, by positivity ⟩)
+  apply lt_of_le_of_ne
+  · exact (by
+    exact intervalIntegral.integral_nonneg ( by norm_num ) fun x hx => mul_nonneg ( mul_nonneg
+      ( pow_nonneg hx.1 _ ) ( pow_nonneg ( sub_nonneg.2 hx.2 ) _ ) ) ( Real.exp_nonneg _ ))
+  · exact (by
+    rw [ ne_comm ];
+    refine ne_of_gt ?_
+    apply_rules [ intervalIntegral.integral_pos ];
+    · norm_num;
+    · exact Continuous.continuousOn ( by continuity );
+    · exact fun x hx => mul_nonneg ( mul_nonneg ( pow_nonneg hx.1.le _ ) ( pow_nonneg
+      ( sub_nonneg.2 hx.2 ) _ ) ) ( Real.exp_nonneg _ );
+    · exact ⟨ 1 / 2, ⟨ by norm_num, by norm_num ⟩, by positivity ⟩)
 
 /-
 The secondary integral is positive.
@@ -466,8 +468,9 @@ lemma secBound_pos (k : ℕ) : 0 < secBound k := by
   · rw [ intervalIntegral.integral_of_le zero_le_one ];
     rw [ MeasureTheory.integral_pos_iff_support_of_nonneg_ae ];
     · simp +decide [ Function.support ];
-      rw [ show { x : ℝ | ( x = 0 → k = 0 ) ∧ ¬1 - x = 0 } ∩ Set.Ioc 0 1 = Set.Ioo 0 1 from ?_ ] ;
-        rw [ Real.volume_Ioo ] ; norm_num;
+      rw [ show { x : ℝ | ( x = 0 → k = 0 ) ∧ ¬1 - x = 0 } ∩ Set.Ioc 0 1 = Set.Ioo 0 1 from ?_ ]
+      focus rw [ Real.volume_Ioo ]
+      focus norm_num
       grind;
     · filter_upwards [ MeasureTheory.ae_restrict_mem measurableSet_Ioc ] with x hx using
         mul_nonneg ( pow_nonneg hx.1.le _ ) ( pow_nonneg ( sub_nonneg.2 hx.2 ) _ );
@@ -522,7 +525,11 @@ Polynomial decomposition: S(k+1) = P(k) - T(k), since
 lemma secBound_decomp (k : ℕ) :
     secBound (k + 1) = padeBound k - mixedBound k := by
       unfold secBound padeBound mixedBound ; ring_nf;
-      rw [ ← intervalIntegral.integral_sub ] ; congr ; ext ; ring;
+      rw [ ← intervalIntegral.integral_sub ]
+      focus
+        congr
+        ext
+        ring
       · exact Continuous.intervalIntegrable ( by continuity ) _ _;
       · exact Continuous.intervalIntegrable ( by continuity ) _ _
 
@@ -541,7 +548,7 @@ lemma padeBound_ibp (k : ℕ) :
         have h_parts : ∫ t in (0 : ℝ)..1, t ^ (k + 2) * (1 - t) ^ (k + 2) * Real.exp t = -∫ t in
           (0 : ℝ)..1, Real.exp t * deriv (fun t => t ^ (k + 2) * (1 - t) ^ (k + 2)) t := by
           rw [ intervalIntegral.integral_mul_deriv_eq_deriv_mul ] <;> norm_num [ mul_comm ];
-          congr! 1;
+          focus congr! 1
           · exact fun x _ _ =>
               hasDerivAt_deriv_iff.mpr (by
                 exact DifferentiableAt.mul ( differentiableAt_pow _ )
@@ -554,9 +561,12 @@ lemma padeBound_ibp (k : ℕ) :
           (k + 2)) t = ∫ t in (0 : ℝ)..1, Real.exp t * (k + 2) * t ^ (k + 1) * (1 - t) ^ (k + 1) *
           (1 - 2 * t) := by
           refine intervalIntegral.integral_congr fun t ht => ?_
-          erw [ deriv_mul ] <;> norm_num [ sub_eq_add_neg ] ; ring_nf;
-          · erw [ deriv_add, deriv_add ] <;> norm_num [ sub_eq_add_neg ] ; ring_nf;
-            · erw [ deriv_mul, deriv_mul, deriv_pow ] <;> norm_num [ sub_eq_add_neg ] ; ring_nf;
+          erw [ deriv_mul ] <;> norm_num [ sub_eq_add_neg ]
+          focus ring_nf
+          · erw [ deriv_add, deriv_add ] <;> norm_num [ sub_eq_add_neg ]
+            focus ring_nf
+            · erw [ deriv_mul, deriv_mul, deriv_pow ] <;> norm_num [ sub_eq_add_neg ]
+              focus ring_nf
               · erw [ deriv_sub ] <;> norm_num ; ring_nf;
                 cases k <;> norm_num [ Nat.succ_eq_add_one, pow_add ] ; ring;
               · exact differentiableAt_id.const_sub _;
@@ -1740,7 +1750,8 @@ lemma harmonic_upper_bound_from_coeff
     have h_coeff_upper_bound : (24 * Real.exp (-1) * ((m - Real.exp 1 * n + Real.exp 1 / 2 + 1 / 2)
       * n) + Real.exp (-2) - 1) / 24 ≤ (C₂ / (Real.exp 1 * Real.sqrt k)) := by
       convert mul_le_mul_of_nonneg_left h_coeff_upper ( show 0 ≤ Real.exp ( -1 ) by positivity )
-        using 1 <;> norm_num [ Real.exp_neg, Real.sinh_eq ] ; ring_nf;
+        using 1 <;> norm_num [ Real.exp_neg, Real.sinh_eq ]
+      focus ring_nf
       · norm_num [ ← Real.exp_nat_mul ];
       · ring;
     nlinarith [ abs_le.mp h_euler, show ( 0 : ℝ ) ≤ 1 / n ^ 2 by positivity ];
@@ -1752,7 +1763,8 @@ lemma harmonic_upper_bound_from_coeff
     ring_nf at *; linarith;
   refine le_trans h_simplified ?_;
   convert add_le_add_left ( mul_le_mul_of_nonneg_right h_bound ( by positivity : ( 0 : ℝ )
-    ≤ 1 / n ^ 2 ) ) 1 using 1 ; ring;
+    ≤ 1 / n ^ 2 ) ) 1 using 1
+  focus ring
   ring
 
 set_option maxHeartbeats 6400000 in
