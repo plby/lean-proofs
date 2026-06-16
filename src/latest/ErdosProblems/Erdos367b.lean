@@ -162,7 +162,6 @@ def x_j (j : ℕ) : ℕ := Pell.xn (show 1 < 3 by norm_num) j
 def y_j (j : ℕ) : ℕ := Pell.yn (show 1 < 3 by norm_num) j
 
 set_option aesop.warn.nonterminal false in
-set_option linter.style.multiGoal false in
 theorem n_nat_eq_8_y_sq (j : ℕ) : n_nat j = 8 * (y_j j)^2 := by
   -- By definition of $n_real$, we know that
   -- $n_real j = ((alpha^(2*j) - 2 + alpha^(-(2*j))) / 4)$.
