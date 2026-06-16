@@ -40,7 +40,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option aesop.warn.nonterminal false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 set_option linter.unusedSimpArgs false
 
 namespace Erdos264
@@ -589,7 +588,7 @@ theorem exists_bounded_seq_rational_sum :
     -- Compare terms to show `min_tail 0 < max_tail 0`.
     have h_min_lt_max : min_tail 0 < max_tail 0 := by
       apply_rules [ Summable.tsum_lt_tsum ];
-      exact fun n => one_div_le_one_div_of_le ( by positivity ) ( by linarith );
+      · exact fun n => one_div_le_one_div_of_le ( by positivity ) ( by linarith );
       any_goals exact Nat.zero;
       · norm_num;
       · -- Compare with the convergent geometric series.
@@ -804,8 +803,10 @@ theorem sum_recip_asymptotic
                 (∑' k, (1 : ℝ) / ((a (n + k)) + (b (n + k)))) =
               1 + (a n + b n : ℝ) *
                 (∑' k, (1 : ℝ) / ((a (n + k + 1)) + (b (n + k + 1)))) := by
-        intro n; rw [ Summable.tsum_eq_zero_add ] ; aesop;
-        · rw [
+        intro n
+        rw [ Summable.tsum_eq_zero_add ]
+        · aesop
+          rw [
             mul_add,
             mul_inv_cancel₀ ( by norm_cast; linarith [ ha_pos n, Nat.zero_le ( b n ) ] )
           ];
@@ -1178,7 +1179,7 @@ theorem erdos_264.variants.example : IsIrrationalitySequence (fun n ↦ 2 ^ (2 ^
             (∑ k ∈ Finset.range n, (1 : ℝ) / x k) +
               ∑' k, (1 : ℝ) / x (n + k) := by
         rw [ ← Summable.sum_add_tsum_nat_add ];
-        congr! 2;
+        all_goals try congr! 2;
         · ac_rfl;
         · aesop;
           exact
