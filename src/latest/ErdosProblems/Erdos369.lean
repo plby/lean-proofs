@@ -41,10 +41,6 @@ can be found below.
 
 import Mathlib
 
--- Generated proof blocks below still depend on multi-goal tactic sequencing;
--- local rewrites are brittle in this file.
-set_option linter.style.multiGoal false
-
 open Finset Nat BigOperators
 
 namespace Erdos369
@@ -105,7 +101,9 @@ lemma exists_prime_interval_small_euler_product (θ : ℝ) (hθ : 0 < θ) (X₀ 
         (1 / (p : ℝ))) - (∑ p ∈ Finset.filter Nat.Prime (Finset.range (X₀ + 1)),
         (1 / (p : ℝ))) := by
         intro X₁ hX₁; erw [ eq_sub_iff_add_eq' ] ; erw [ Finset.sum_filter, Finset.sum_filter,
-          Finset.sum_filter ] ; erw [ Finset.sum_Ico_eq_sub _ ] ; aesop;
+          Finset.sum_filter ] ; erw [ Finset.sum_Ico_eq_sub _ ]
+        focus
+          aesop
         linarith;
       exact Filter.Tendsto.congr' ( by
         filter_upwards [ Filter.eventually_ge_atTop ( X₀ + 1 ) ] with X₁ hX₁
@@ -233,44 +231,44 @@ lemma exists_nat_mul_mod_near (α β : ℝ) (hβ : 0 < β)
     ∨ ∃ k : ℕ, k ≤ Nat.ceil (β / |γ|) ∧ |k * γ - (t - β)| < δ := by
     intro t ht₁ ht₂
     by_cases hγ_pos : 0 < γ
-    generalize_proofs at *; (
-    -- Let $k$ be the integer such that $k\gamma \leq t < (k+1)\gamma$.
-    obtain ⟨k, hk⟩ : ∃ k : ℕ, k * γ ≤ t ∧ t < (k + 1) * γ := by
-      exact ⟨ ⌊t / γ⌋₊, by
-        nlinarith [
-          Nat.floor_le ( show 0 ≤ t / γ by exact div_nonneg ht₁ hγ_pos.le ),
-          mul_div_cancel₀ t hγ_pos.ne' ], by
-        nlinarith [ Nat.lt_floor_add_one ( t / γ ), mul_div_cancel₀ t hγ_pos.ne' ] ⟩
-    generalize_proofs at *; (
-    use k
-    left
-    refine ⟨ ?_, ?_ ⟩
-    · exact Nat.le_of_lt_succ <| by
-        rw [ ← @Nat.cast_lt ℝ ]
-        push_cast
-        nlinarith [ Nat.le_ceil ( β / |γ| ), abs_of_pos hγ_pos,
-          mul_div_cancel₀ β ( ne_of_gt <| abs_pos.mpr hγ_ne_zero ) ]
-    · grind;));
-    -- Since $γ < 0$, we can write $γ = -|γ|$.
-    have hγ_neg : γ = -|γ| := by
-      rw [ abs_of_nonpos ( le_of_not_gt hγ_pos ), neg_neg ]
-    generalize_proofs at *; (
-    -- Since $γ < 0$, we can write $γ = -|γ|$ and consider the interval $[0, β)$.
-    obtain ⟨k, hk⟩ : ∃ k : ℕ, k ≤ Nat.ceil (β / |γ|) ∧ |k * |γ| - (β - t)| < δ := by
-      refine ⟨ ⌊ ( β - t ) / |γ|⌋₊, ?_, ?_ ⟩
-      generalize_proofs at *; (
-      exact Nat.floor_le_ceil _ |> le_trans <| Nat.ceil_mono <| by gcongr ; linarith;);
-      rw [ abs_lt ] at * ; constructor
-        <;> nlinarith [
-          Nat.floor_le ( show 0 ≤ ( β - t ) / |γ| by
-            exact div_nonneg ( by linarith ) ( abs_nonneg _ ) ),
-          Nat.lt_floor_add_one ( ( β - t ) / |γ| ),
-          mul_div_cancel₀ ( β - t ) ( ne_of_gt ( abs_pos.mpr hγ_ne_zero ) ) ] ;
-    generalize_proofs at *; (
-    exact ⟨ k, Or.inr ⟨ k, hk.1, by
-      rw [ hγ_neg ]
-      exact abs_lt.mpr
-        ⟨ by linarith [ abs_lt.mp hk.2 ], by linarith [ abs_lt.mp hk.2 ] ⟩ ⟩ ⟩))
+    · generalize_proofs at *
+      -- Let $k$ be the integer such that $k\gamma \leq t < (k+1)\gamma$.
+      obtain ⟨k, hk⟩ : ∃ k : ℕ, k * γ ≤ t ∧ t < (k + 1) * γ := by
+        exact ⟨ ⌊t / γ⌋₊, by
+          nlinarith [
+            Nat.floor_le ( show 0 ≤ t / γ by exact div_nonneg ht₁ hγ_pos.le ),
+            mul_div_cancel₀ t hγ_pos.ne' ], by
+          nlinarith [ Nat.lt_floor_add_one ( t / γ ), mul_div_cancel₀ t hγ_pos.ne' ] ⟩
+      generalize_proofs at *
+      use k
+      left
+      refine ⟨ ?_, ?_ ⟩
+      · exact Nat.le_of_lt_succ <| by
+          rw [ ← @Nat.cast_lt ℝ ]
+          push_cast
+          nlinarith [ Nat.le_ceil ( β / |γ| ), abs_of_pos hγ_pos,
+            mul_div_cancel₀ β ( ne_of_gt <| abs_pos.mpr hγ_ne_zero ) ]
+      · grind
+    · -- Since $γ < 0$, we can write $γ = -|γ|$.
+      have hγ_neg : γ = -|γ| := by
+        rw [ abs_of_nonpos ( le_of_not_gt hγ_pos ), neg_neg ]
+      generalize_proofs at *
+      -- Since $γ < 0$, we can write $γ = -|γ|$ and consider the interval $[0, β)$.
+      obtain ⟨k, hk⟩ : ∃ k : ℕ, k ≤ Nat.ceil (β / |γ|) ∧ |k * |γ| - (β - t)| < δ := by
+        refine ⟨ ⌊ ( β - t ) / |γ|⌋₊, ?_, ?_ ⟩
+        · generalize_proofs at *
+          exact Nat.floor_le_ceil _ |> le_trans <| Nat.ceil_mono <| by gcongr ; linarith
+        · rw [ abs_lt ] at * ; constructor
+            <;> nlinarith [
+              Nat.floor_le ( show 0 ≤ ( β - t ) / |γ| by
+                exact div_nonneg ( by linarith ) ( abs_nonneg _ ) ),
+              Nat.lt_floor_add_one ( ( β - t ) / |γ| ),
+              mul_div_cancel₀ ( β - t ) ( ne_of_gt ( abs_pos.mpr hγ_ne_zero ) ) ]
+      generalize_proofs at *
+      exact ⟨ k, Or.inr ⟨ k, hk.1, by
+        rw [ hγ_neg ]
+        exact abs_lt.mpr
+          ⟨ by linarith [ abs_lt.mp hk.2 ], by linarith [ abs_lt.mp hk.2 ] ⟩ ⟩ ⟩
   generalize_proofs at *; (
   use U; intros t ht ht'; obtain ⟨ k, hk ⟩ := h_k_gamma t ht ht'; rcases hk with ( ⟨ hk₁,
     hk₂ ⟩ | ⟨ k, hk₁, hk₂ ⟩ ) <;> [ refine ⟨ k * ( u₂ - u₁ ), ?_, ?_ ⟩ ; refine ⟨ k * ( u₂ - u₁ ),
@@ -378,7 +376,9 @@ lemma exists_smooth_power_in_interval (L : ℕ) (hL : 0 < L) :
   have h_exp : (Real.exp (Real.log y - Real.log (4 / 3))) < (2 : ℝ) ^ (L * u) * (3 : ℝ) ^ (L * v)
     ∧ (2 : ℝ) ^ (L * u) * (3 : ℝ) ^ (L * v) < Real.exp (Real.log y) := by
     convert Real.exp_lt_exp.mpr huv.1 |> And.intro <| Real.exp_lt_exp.mpr huv.2 using 1
-      <;> norm_num [ Real.exp_add, Real.exp_nat_mul, Real.exp_log ] ; ring_nf;
+      <;> norm_num [ Real.exp_add, Real.exp_nat_mul, Real.exp_log ]
+    focus
+      ring_nf
     · norm_num [ ← Real.exp_add, mul_assoc, mul_comm, mul_left_comm ];
       rw [ ← Real.log_lt_log_iff ( by positivity ) ( by positivity ),
         Real.log_mul ( by positivity ) ( by positivity ), Real.log_pow, Real.log_pow ] ; ring_nf ;
@@ -865,7 +865,9 @@ lemma smooth_pair_exists (θ : ℝ) (hθ : 0 < θ) :
       by_cases h : 2 ^ ( L * u ) * 3 ^ ( L * v ) - 1 = 0
         <;> simp_all +decide [ Nat.largestPrimeFactor ];
       · positivity;
-      · split_ifs <;> norm_cast at * ; aesop;
+      · split_ifs <;> norm_cast at *
+        focus
+          aesop
         exact Finset.sup_le fun p hp =>
           h_prime_factor_bound p ( Nat.prime_of_mem_primeFactors hp ) ( Nat.dvd_of_mem_primeFactors
           hp )
@@ -970,7 +972,8 @@ lemma exists_crt_multiplier_strong (k : ℕ) (hk : 2 ≤ k) (m : ℕ) (hm : m = 
     ⟨ ∏ q ∈ Finset.filter Nat.Prime ( Finset.Iic ( max 3 ( k - 1 ) ) ),
         q ^ e q, ?_, ?_, ?_, ?_ ⟩
     <;> norm_num +zetaDelta at *; (
-  exact fun _ _ _ => pow_pos ( Nat.Prime.pos ‹_› ) _;);
+  focus
+    exact fun _ _ _ => pow_pos ( Nat.Prime.pos ‹_› ) _);
   · -- For any $j$ such that $1 \leq j < k$, $j$ can be written as a product of primes $q \leq
     -- \max(3, k-1)$. Each prime $q$ in the factorization of $j$ will have an exponent in $j$ that
     -- is less than or equal to $e_q$ (since $e_q$ is chosen to be at least the maximum exponent of
@@ -993,8 +996,12 @@ lemma exists_crt_multiplier_strong (k : ℕ) (hk : 2 ≤ k) (m : ℕ) (hm : m = 
     <;> simp_all +decide [ Nat.Prime.dvd_iff_not_coprime ] ; (
     by_cases hq'' : q ≤ max 3 ( k - 1 ) <;> simp_all +decide [ Nat.coprime_prod_right_iff ] ; (
     rw [ Finset.sum_eq_single q ] <;> simp_all +decide ;);
-    obtain ⟨ x, hx₁, hx₂, hx₃ ⟩ := hq'; simp_all +decide [ Nat.Prime.coprime_iff_not_dvd ] ;
-    exact absurd ( hq.dvd_of_dvd_pow hx₃ ) ( Nat.not_dvd_of_pos_of_lt hx₂.pos ( by omega ) ) ;);
+    focus
+      obtain ⟨ x, hx₁, hx₂, hx₃ ⟩ := hq'
+    focus
+      simp_all +decide [ Nat.Prime.coprime_iff_not_dvd ]
+    focus
+      exact absurd ( hq.dvd_of_dvd_pow hx₃ ) ( Nat.not_dvd_of_pos_of_lt hx₂.pos ( by omega ) ));
     aesop;
   · intro p pp dp; contrapose! dp; simp_all +decide [Nat.Prime.dvd_iff_not_coprime,
     Nat.coprime_prod_right_iff] ;
