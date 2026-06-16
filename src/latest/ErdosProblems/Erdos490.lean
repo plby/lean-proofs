@@ -46,7 +46,6 @@ import ErdosProblems.Axioms
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.longLine false
-set_option linter.style.multiGoal false
 
 noncomputable section
 
@@ -541,7 +540,9 @@ lemma mu_val_sdiff_le (lam : ℝ) (m : ℕ → ℕ) (g : ℕ → ℝ)
     · convert mu_val_summable lam m g hadm ( S \ sdiv S p ) using 1;
     · exact ⟨ _, hasSum_single k <| by aesop ⟩;
   convert Summable.tsum_le_tsum ‹∀ j, ( layerWeight lam m g j * ↑ ( # ( { q ∈ I_layer lam j | ( sdiv ( S \ sdiv S p ) q ).Nonempty } ) ) + if j = k then layerWeight lam m g k else 0 ) ≤ layerWeight lam m g j * ↑ ( # ( { q ∈ I_layer lam j | ( sdiv S q ).Nonempty } ) ) › h_sum_weight _ using 1;
-  · rw [ Summable.tsum_add ] ; aesop;
+  · rw [ Summable.tsum_add ]
+    focus
+      aesop
     · convert h_sum_weight.sub ( show Summable fun j => if j = k then layerWeight lam m g k else 0 from ⟨ _, hasSum_single k <| by aesop ⟩ ) using 1 ; aesop;
     · exact ⟨ _, hasSum_single k <| by aesop ⟩;
   · convert mu_val_summable lam m g hadm S using 1
@@ -759,7 +760,9 @@ theorem block_estimate (A : ℝ) (hA : A > Real.log 2) (f : ℕ → ℝ)
           · exact fun _ _ _ => ArithmeticFunction.vonMangoldt_nonneg;
         exact mul_le_mul_of_nonneg_left h_chebyshevPsi_le <| by cases hf.1 a <;> linarith;
       convert Finset.sum_le_sum h_split_sum using 1;
-      rw [ Finset.sum_Ico_eq_sub _ ] <;> norm_num [ Finset.sum_range_succ, F_count ] ; ring_nf;
+      rw [ Finset.sum_Ico_eq_sub _ ] <;> norm_num [ Finset.sum_range_succ, F_count ]
+      focus
+        ring_nf
       · simpa only [ ← Finset.mul_sum _ _ _ ] using by ring;
       · exact Nat.floor_mono <| mul_le_of_le_one_right ( by linarith [ Real.exp_pos ( A + chebyshevPsi ( Real.exp A ) ) ] ) <| Real.exp_le_one_iff.mpr <| by linarith [ Real.log_nonneg one_le_two ] ;
     rw [ ← Finset.sum_range_add_sum_Ico _ ( show ⌊X * Real.exp ( -A ) ⌋₊ + 1 ≤ ⌊X⌋₊ + 1 from Nat.succ_le_succ <| Nat.floor_mono <| mul_le_of_le_one_right ( by linarith [ Real.exp_pos ( A + chebyshevPsi ( Real.exp A ) ) ] ) <| Real.exp_le_one_iff.mpr <| by linarith [ Real.log_nonneg one_le_two ] ) ] ; linarith;
@@ -1065,7 +1068,9 @@ theorem sieve_bound (ε : ℝ) (hε : ε > 0) :
       simpa only [ div_eq_inv_mul ] using this;
     have := h_mertens_inv.eventually ( gt_mem_nhds <| show Real.exp γ < Real.exp γ + ε / 2 by linarith );
     rw [ Filter.eventually_atTop ] at this; rcases this with ⟨ X₂, hX₂ ⟩ ; exact ⟨ Max.max X₂ 2, fun X hX => by have := hX₂ X ( le_trans ( le_max_left _ _ ) hX ) ; rw [ div_lt_iff₀ ( Real.log_pos <| by linarith [ le_max_right X₂ 2 ] ) ] at this; linarith ⟩ ;
-  refine ⟨ Max.max X₁ ( Max.max X₂ 2 ), fun X hX P hP => ?_ ⟩ ; specialize hX₁ X ( le_trans ( le_max_left ?_ ?_ ) hX ) ( fun m => if ∀ p ∈ P, ¬p ∣ m then 1 else 0 ) ?_ ; simp_all +decide [ F_count, H_count ];
+  refine ⟨ Max.max X₁ ( Max.max X₂ 2 ), fun X hX P hP => ?_ ⟩ ; specialize hX₁ X ( le_trans ( le_max_left ?_ ?_ ) hX ) ( fun m => if ∀ p ∈ P, ¬p ∣ m then 1 else 0 ) ?_
+  focus
+    simp_all +decide [ F_count, H_count ]
   · constructor <;> norm_num;
     · exact fun m => Classical.or_iff_not_imp_left.2 fun h => by push Not at h; exact h;
     · constructor;
@@ -1517,17 +1522,23 @@ theorem weighted_small_alternative (ε : ℝ) (hε : ε > 0)
       rcases h with h | h <;> have := hN₀₁ n ( by linarith [ le_max_left N₀₁ N₀₂ ] ) A B hadm k hk <;> simp_all +decide [ mul_assoc, mul_comm, mul_left_comm ];
       · refine le_trans ( mul_le_mul h.le this.2 ( by positivity ) ( by exact le_trans ( by positivity ) h.le ) ) ?_ ; ring_nf ; norm_num;
       · convert mul_le_mul this.1 h.le ( by positivity ) ( by
-          grind +splitImp ) using 1 ; ring;
+          grind +splitImp ) using 1
+        focus
+          ring
     refine le_trans h_combined ?_;
     convert mul_le_mul_of_nonneg_left h_prod ( show 0 ≤ ( Real.exp γ + ε ) * ( Real.exp γ + ε₁ ) * ( M_layer lam k / g k ) * n ^ 2 by
-                                                exact mul_nonneg ( mul_nonneg ( mul_nonneg ( by positivity ) ( by positivity ) ) ( div_nonneg ( by exact M_layer_nonneg lam k ) ( by linarith [ show 1 ≤ g k from by { have := ‹AdmissibleTriple lam m g›; exact this.2.2.2.2.2.1 k } ] ) ) ) ( sq_nonneg _ ) ) using 1 ; ring;
+                                                exact mul_nonneg ( mul_nonneg ( mul_nonneg ( by positivity ) ( by positivity ) ) ( div_nonneg ( by exact M_layer_nonneg lam k ) ( by linarith [ show 1 ≤ g k from by { have := ‹AdmissibleTriple lam m g›; exact this.2.2.2.2.2.1 k } ] ) ) ) ( sq_nonneg _ ) ) using 1
+    focus
+      ring
     ring;
   have h_combined : (A.card : ℝ) * (B.card : ℝ) ≤ (Real.exp γ + ε) * (Real.exp γ + ε₁) * (Real.exp (-γ) + ε₁) * n^2 * D_val lam m / Real.log n := by
     refine le_trans h_combined ?_;
     convert mul_le_mul_of_nonneg_right ( mul_le_mul_of_nonneg_left ( hN₀₂ n ( by linarith [ Nat.le_max_right N₀₁ N₀₂ ] ) k ) ( show 0 ≤ ( Real.exp γ + ε ) * ( Real.exp γ + ε₁ ) * n ^ 2 * D_val lam m by
                                                                                                                                 exact mul_nonneg ( mul_nonneg ( mul_nonneg ( by positivity ) ( by positivity ) ) ( by positivity ) ) ( by exact Real.exp_nonneg _ ) ) ) ( show 0 ≤ 1 by norm_num ) using 1 <;> ring;
   refine le_trans h_combined ?_;
-  convert mul_le_mul_of_nonneg_right hε₁ ( show 0 ≤ ( n : ℝ ) ^ 2 * D_val lam m / Real.log n by exact div_nonneg ( mul_nonneg ( sq_nonneg _ ) ( show 0 ≤ D_val lam m by exact Real.exp_nonneg _ ) ) ( Real.log_natCast_nonneg _ ) ) using 1 ; ring;
+  convert mul_le_mul_of_nonneg_right hε₁ ( show 0 ≤ ( n : ℝ ) ^ 2 * D_val lam m / Real.log n by exact div_nonneg ( mul_nonneg ( sq_nonneg _ ) ( show 0 ≤ D_val lam m by exact Real.exp_nonneg _ ) ) ( Real.log_natCast_nonneg _ ) ) using 1
+  focus
+    ring
   norm_num [ mul_assoc, ← Real.exp_add ] ; ring
 
 /-
@@ -1590,7 +1601,9 @@ lemma sinv_sum_exceeds_union (ε : ℝ) (hε : ε > 0)
         rw [ gt_iff_lt, lt_div_iff₀ ] <;> try positivity;
         nlinarith [ show 0 < Real.exp γ * Real.sqrt ( m k + 1 ) by positivity, show 0 < ε * Real.sqrt ( m k + 1 ) by positivity, Real.mul_self_sqrt ( show ( m k:ℝ ) + 1 ≥ 0 by positivity ), Real.exp_pos γ, Real.sqrt_nonneg ( m k + 1 ), Nat.floor_le ( Real.sqrt_nonneg ( m k + 1 ) ), Nat.lt_floor_add_one ( Real.sqrt ( m k + 1 ) ) ];
       refine mul_lt_mul_of_pos_right ?_ ?_;
-      · convert mul_lt_mul_of_pos_right h_mult ( show 0 < ( n : ℝ ) / Y_val lam k by exact div_pos ( Nat.cast_pos.mpr <| Nat.pos_of_ne_zero <| by rintro rfl; exact absurd hn₁ <| by linarith [ show N₀ > 0 from Nat.pos_of_ne_zero <| by rintro rfl; exact absurd ( h_contra 0 ) <| by aesop ] ) <| by exact mul_pos zero_lt_two <| pow_pos ( by linarith ) _ ) using 1 ; ring;
+      · convert mul_lt_mul_of_pos_right h_mult ( show 0 < ( n : ℝ ) / Y_val lam k by exact div_pos ( Nat.cast_pos.mpr <| Nat.pos_of_ne_zero <| by rintro rfl; exact absurd hn₁ <| by linarith [ show N₀ > 0 from Nat.pos_of_ne_zero <| by rintro rfl; exact absurd ( h_contra 0 ) <| by aesop ] ) <| by exact mul_pos zero_lt_two <| pow_pos ( by linarith ) _ ) using 1
+        focus
+          ring
         ring;
       · refine Finset.prod_pos fun p hp => sub_pos.mpr ?_;
         simp +zetaDelta at *;
@@ -1801,7 +1814,9 @@ theorem small_interval_case (ε : ℝ) (hε : ε > 0)
       · exact inv_nonneg.mpr ( Finset.prod_nonneg fun x hx => sub_nonneg.mpr <| inv_le_one_of_one_le₀ <| mod_cast Nat.Prime.pos <| by aesop );
       · exact add_nonneg ( mul_nonneg ( Real.exp_nonneg _ ) ( inv_nonneg.mpr ( Real.log_nonneg ( Nat.one_le_cast.mpr ( by linarith [ Nat.le_max_left N₁ N₂, Nat.le_max_right N₁ N₂ ] ) ) ) ) ) ( mul_nonneg hε₁_pos.le ( inv_nonneg.mpr ( Real.log_nonneg ( Nat.one_le_cast.mpr ( by linarith [ Nat.le_max_left N₁ N₂, Nat.le_max_right N₁ N₂ ] ) ) ) ) );
   refine le_trans h_final ?_;
-  convert mul_le_mul_of_nonneg_right hε₁.le ( show 0 ≤ ( n : ℝ ) ^ 2 * D_val lam m / Real.log n by exact div_nonneg ( mul_nonneg ( sq_nonneg _ ) ( show 0 ≤ D_val lam m by exact Real.exp_nonneg _ ) ) ( Real.log_nonneg ( Nat.one_le_cast.mpr ( by linarith [ Nat.le_max_left N₁ N₂, Nat.le_max_right N₁ N₂ ] ) ) ) ) using 1 ; ring;
+  convert mul_le_mul_of_nonneg_right hε₁.le ( show 0 ≤ ( n : ℝ ) ^ 2 * D_val lam m / Real.log n by exact div_nonneg ( mul_nonneg ( sq_nonneg _ ) ( show 0 ≤ D_val lam m by exact Real.exp_nonneg _ ) ) ( Real.log_nonneg ( Nat.one_le_cast.mpr ( by linarith [ Nat.le_max_left N₁ N₂, Nat.le_max_right N₁ N₂ ] ) ) ) ) using 1
+  focus
+    ring
   ring
 
 /-
@@ -2031,7 +2046,11 @@ lemma N_layer_ge_pi_diff (k : ℕ) (hk : 1 ≤ k) :
   have h_not_int : ∀ k ≥ 1, ¬∃ m : ℕ, Y_val lam0 k = m := by
     intros k hk
     simp [Y_val, lam0];
-    intro x hx; rw [ div_pow, mul_div, div_eq_iff ] at hx <;> norm_cast at * ; have := congr_arg ( · % 1000 ) hx ; norm_num [ Nat.mul_mod, Nat.pow_mod ] at this;
+    intro x hx; rw [ div_pow, mul_div, div_eq_iff ] at hx <;> norm_cast at *
+    focus
+      have := congr_arg ( · % 1000 ) hx
+    focus
+      norm_num [ Nat.mul_mod, Nat.pow_mod ] at this
     · replace hx := congr_arg ( · % 5 ) hx ; norm_num [ Nat.mul_mod, Nat.pow_mod, show k ≠ 0 by linarith ] at hx;
     · positivity;
   -- For any prime p ≤ ⌊Y_{k+1}⌋, either p ≤ ⌊Y_k⌋ or p ∈ I_layer(k).
@@ -2144,7 +2163,9 @@ lemma piL_minus_piU_large (k : ℕ) (hk : 25 ≤ k) :
     have := Real.exp_one_gt_d9.le ; norm_num1 at * ; rw [ show Real.exp ( 11 / 3 ) = ( Real.exp 1 ) ^ 3 * Real.exp ( 2 / 3 ) by rw [ ← Real.exp_nat_mul, ← Real.exp_add ] ; ring_nf ] ; norm_num at *;
     rw [ show ( 3 : ℝ ) = 1 + 1 + 1 by norm_num, Real.exp_add, Real.exp_add ] ; norm_num [ mu0 ] at * ; nlinarith [ Real.add_one_le_exp ( 2 / 3 : ℝ ), pow_le_pow_left₀ ( by positivity ) this 3 ] ;
   convert h_final.trans_le _ using 1;
-  convert mul_le_mul_of_nonneg_right h_exp_div ( show ( 0 : ℝ ) ≤ 950161 / 121000 by norm_num ) using 1 ; ring;
+  convert mul_le_mul_of_nonneg_right h_exp_div ( show ( 0 : ℝ ) ≤ 950161 / 121000 by norm_num ) using 1
+  focus
+    ring
   grind
 
 /-
@@ -2325,7 +2346,9 @@ lemma geom_series_tight :
     ∑' k, (if 25 ≤ k then (Y_val lam0 k) ^ (-(1:ℝ)/3) else 0) < 1/57 := by
   -- We'll use the fact that the sum of the series is less than 1/57.
   have h_sum_lt : (∑' k, if 25 ≤ k then (Y_val lam0 k) ^ (-(1:ℝ)/3) else 0) = (∑' k, (Y_val lam0 (k + 25)) ^ (-(1:ℝ)/3)) := by
-    rw [ ←Summable.sum_add_tsum_nat_add 25 ] ; norm_num [ Finset.sum_range_succ ];
+    rw [ ←Summable.sum_add_tsum_nat_add 25 ]
+    focus
+      norm_num [ Finset.sum_range_succ ]
     -- The series is a geometric series with ratio less than 1, so it converges.
     have h_geo_series : Summable (fun k : ℕ => (Y_val lam0 (k + 25)) ^ (-(1:ℝ)/3)) := by
       -- We'll use the fact that if the denominator grows faster than the numerator, the series converges.
@@ -2660,7 +2683,13 @@ lemma tail_excess_bound :
     intro x hx
     have h_series : ∑' j : ℕ, (j + 1 : ℝ) ^ 2 * x ^ j = (∑' j : ℕ, x ^ j) + 2 * (∑' j : ℕ, j * x ^ j) + (∑' j : ℕ, j ^ 2 * x ^ j) := by
       nontriviality;
-      rw [ ← tsum_mul_left, ← Summable.tsum_add, ← Summable.tsum_add ] ; congr ; ext j ; ring;
+      rw [ ← tsum_mul_left, ← Summable.tsum_add, ← Summable.tsum_add ]
+      focus
+        congr
+      focus
+        ext j
+      focus
+        ring
       · refine Summable.add ( summable_geometric_of_abs_lt_one hx ) ?_;
         refine summable_of_ratio_norm_eventually_le (r := (( 1 + |x| ) / 2)) ?_ ?_;
         · linarith;
@@ -2683,7 +2712,9 @@ lemma tail_excess_bound :
       exact tsum_coe_mul_geometric_of_norm_lt_one hx
     have h_series_j2 : ∑' j : ℕ, (j : ℝ) ^ 2 * x ^ j = x * (1 + x) / (1 - x) ^ 3 := by
       have h_series_j2 : ∑' j : ℕ, (j : ℝ) ^ 2 * x ^ j = x * (∑' j : ℕ, (j + 1 : ℝ) ^ 2 * x ^ j) := by
-        rw [ ← tsum_mul_left ] ; rw [ Summable.tsum_eq_zero_add ] ; norm_num;
+        rw [ ← tsum_mul_left ] ; rw [ Summable.tsum_eq_zero_add ]
+        focus
+          norm_num
         · exact tsum_congr fun n => by ring;
         · refine summable_of_ratio_norm_eventually_le (r := (( 1 + |x| ) / 2)) ?_ ?_;
           · linarith;
@@ -2823,7 +2854,9 @@ lemma gs_summable : Summable (fun k => gSeq k * s_val lam0 k (mSeq k)) := by
           · intro k hk; convert h_sqrt_bound k hk |> le_trans _ using 1; rw [ Real.sqrt_mul <| by exact div_nonneg ( by norm_num ) <| by norm_num ] ; rw [ Real.sqrt_eq_rpow, Real.sqrt_eq_rpow, ← Real.rpow_mul ( by exact mul_nonneg zero_le_two <| pow_nonneg ( by norm_num [ lam0 ] ) _ ) ] ; norm_num;
         refine ⟨ C / C', div_pos hC.1 hC'.1, fun k hk => ?_ ⟩ ; simp_all +decide [ s_val ] ;
         split_ifs <;> simp_all +decide [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm ];
-        · convert mul_le_mul_of_nonneg_right ( hC.2 k hk ) ( inv_nonneg.2 ( show 0 ≤ Real.sqrt ( mSeq k + 1 ) by positivity ) ) |> le_trans <| mul_le_mul_of_nonneg_left ( inv_anti₀ ( show 0 < C' * Y_val lam0 k ^ ( 3⁻¹ : ℝ ) by exact mul_pos hC'.1 <| Real.rpow_pos_of_pos ( show 0 < Y_val lam0 k by exact mul_pos zero_lt_two <| pow_pos ( show 0 < lam0 by exact by unfold lam0; norm_num ) _ ) _ ) <| hC'.2 k hk ) <| show 0 ≤ C * k by exact mul_nonneg hC.1.le <| Nat.cast_nonneg _ using 1 ; ring;
+        · convert mul_le_mul_of_nonneg_right ( hC.2 k hk ) ( inv_nonneg.2 ( show 0 ≤ Real.sqrt ( mSeq k + 1 ) by positivity ) ) |> le_trans <| mul_le_mul_of_nonneg_left ( inv_anti₀ ( show 0 < C' * Y_val lam0 k ^ ( 3⁻¹ : ℝ ) by exact mul_pos hC'.1 <| Real.rpow_pos_of_pos ( show 0 < Y_val lam0 k by exact mul_pos zero_lt_two <| pow_pos ( show 0 < lam0 by exact by unfold lam0; norm_num ) _ ) _ ) <| hC'.2 k hk ) <| show 0 ≤ C * k by exact mul_nonneg hC.1.le <| Nat.cast_nonneg _ using 1
+          focus
+            ring
           ring;
         · exact mul_nonneg ( Nat.cast_nonneg _ ) ( inv_nonneg.2 ( Real.rpow_nonneg ( by exact mul_nonneg zero_le_two ( pow_nonneg ( by norm_num [ lam0 ] ) _ ) ) _ ) );
       obtain ⟨ C, hC₀, hC ⟩ := h_comparison
@@ -2836,7 +2869,9 @@ lemma gs_summable : Summable (fun k => gSeq k * s_val lam0 k (mSeq k)) := by
     refine le_trans ( mul_le_mul_of_nonneg_left ( hC.2 k hk ) ( show 0 ≤ gSeq k from ?_ ) ) ?_;
     · exact le_trans ( by norm_num ) ( gSeq_ge_one k );
     · have h_gSeq_bound : gSeq k ≤ k^2 := by
-        unfold gSeq; split_ifs <;> norm_num ; nlinarith;
+        unfold gSeq; split_ifs <;> norm_num
+        focus
+          nlinarith
         nlinarith only [ show ( k : ℝ ) ≥ 151 by norm_cast; linarith ];
       convert mul_le_mul_of_nonneg_right h_gSeq_bound ( show 0 ≤ C * ( k : ℝ ) / lam0 ^ ( k / 3 : ℝ ) by exact div_nonneg ( mul_nonneg hC.1.le ( Nat.cast_nonneg _ ) ) ( Real.rpow_nonneg ( by norm_num [ lam0 ] ) _ ) ) using 1 ; ring_nf;
       norm_num [ Real.rpow_neg ( by norm_num [ lam0 ] : 0 ≤ lam0 ), Real.rpow_mul ( by norm_num [ lam0 ] : 0 ≤ lam0 ) ];
@@ -2861,7 +2896,11 @@ lemma gs_summable : Summable (fun k => gSeq k * s_val lam0 k (mSeq k)) := by
       refine div_nonneg ( Nat.cast_nonneg _ ) ( mul_nonneg ( mul_nonneg ?_ ?_ ) ( Real.sqrt_nonneg _ ) );
       · exact mul_nonneg zero_le_two ( pow_nonneg ( by norm_num [ lam0 ] ) _ );
       · exact Finset.prod_nonneg fun p hp => sub_nonneg.2 <| div_le_self zero_le_one <| mod_cast Nat.Prime.pos <| Finset.mem_filter.mp hp |>.2;
-  · convert Summable.mul_left C ( h_series_conv ( lam0 ^ ( -1 / 3 : ℝ ) ) _ |> Summable.comp_injective <| add_left_injective 25 ) using 2 ; norm_num ; ring;
+  · convert Summable.mul_left C ( h_series_conv ( lam0 ^ ( -1 / 3 : ℝ ) ) _ |> Summable.comp_injective <| add_left_injective 25 ) using 2
+    focus
+      norm_num
+    focus
+      ring
     rw [ abs_of_pos ( by exact Real.rpow_pos_of_pos ( by exact div_pos ( by norm_num ) ( by norm_num ) ) _ ), Real.rpow_lt_one_iff_of_pos ] <;> norm_num [ lam0 ]
 
 /-
@@ -2894,7 +2933,9 @@ theorem logD_bound :
         refine Finset.sup'_le (f := fun T : Finset ℕ => ∏ p ∈ T, (1 - 1 / (p : ℝ))⁻¹) ?_ ?_;
         simp +zetaDelta at *;
         exact fun T hT₁ hT₂ => le_trans ( h_E_val_bound T hT₁ hT₂ ) ( inv_anti₀ ( pow_pos ( sub_pos.mpr <| inv_lt_one_of_one_lt₀ <| by exact one_lt_mul_of_lt_of_le one_lt_two <| one_le_pow₀ <| by norm_num [ lam0 ] ) _ ) <| pow_le_pow_of_le_one ( sub_nonneg.mpr <| inv_le_one_of_one_le₀ <| by exact one_le_mul_of_one_le_of_one_le one_le_two <| one_le_pow₀ <| by norm_num [ lam0 ] ) ( sub_le_self _ <| inv_nonneg.mpr <| by exact mul_nonneg zero_le_two <| pow_nonneg ( by norm_num [ lam0 ] ) _ ) hT₂ );
-      convert Real.log_le_log ( show 0 < E_val lam0 k ( mSeq k ) from ?_ ) h_E_val_bound using 1 ; norm_num [ Real.log_pow ];
+      convert Real.log_le_log ( show 0 < E_val lam0 k ( mSeq k ) from ?_ ) h_E_val_bound using 1
+      focus
+        norm_num [ Real.log_pow ]
       exact lt_of_lt_of_le zero_lt_one ( E_val_ge_one _ _ _ );
     have h_log_ineq : Real.log (1 / (1 - 1 / (Y_val lam0 k))) ≤ 1 / (Y_val lam0 k - 1) := by
       have h_log_ineq : ∀ x : ℝ, 0 < x ∧ x < 1 → Real.log (1 / (1 - x)) ≤ x / (1 - x) := by
