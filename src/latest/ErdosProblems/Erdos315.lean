@@ -172,7 +172,6 @@ theorem c_exists (n : ℕ) : Filter.Tendsto (sylvester_seq_pow n) Filter.atTop (
 /-
 Identity for the limit value: c_n^{2^k} = c_{s_k(n)-1}.
 -/
-set_option linter.style.multiGoal false in
 theorem prop_syl_4 (n k : ℕ) :
   c n ^ (2 ^ k) = c (generalized_sylvester n k - 1) := by
     -- Taking the limit as $j$ tends to infinity, we have:
@@ -205,7 +204,7 @@ theorem prop_syl_4 (n k : ℕ) :
       convert Filter.Tendsto.rpow ( c_exists n ) tendsto_const_nhds _ using 1
       all_goals norm_num
     convert h_lim_eq using 2
-    rw [ ← Real.rpow_natCast, ← Real.rpow_mul ( Nat.cast_nonneg _ ) ]
+    focus rw [ ← Real.rpow_natCast, ← Real.rpow_mul ( Nat.cast_nonneg _ ) ]
     ring_nf
     norm_cast
 
@@ -498,7 +497,6 @@ noncomputable def u_seq_general (n : ℕ) (i : ℕ) : ℝ :=
 The comparison sequence u_i satisfies the conditions of Lemma 6 (pac_sou) for n >= 2.
 -/
 set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 lemma u_seq_satisfies_pac_sou (n : ℕ) (hn : 2 ≤ n) :
   let u := u_seq_general n
   let C := 1 / (n : ℝ)
@@ -577,7 +575,7 @@ lemma u_seq_satisfies_pac_sou (n : ℕ) (hn : 2 ≤ n) :
               ring_nf!
               rw [ show l_val n = n * (n + 1) ^ 2 * (n + 2) / 2 from rfl ]
               rw [ Nat.cast_div ] <;> norm_num
-              ring
+              focus ring
               norm_num [ ← even_iff_two_dvd, mul_add, parity_simps ]
               exact Or.inl <| Nat.even_or_odd n
             · exact ne_of_gt <| generalized_sylvester_pos _ _
@@ -866,7 +864,6 @@ lemma u_prod_init_eq_inv_l (n : ℕ) :
 Helper lemma: Product of u_seq terms relates to Sylvester sequence product.
 -/
 set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 lemma u_prod_eq_syl_prod (n : ℕ) (k : ℕ) (hk : k ≥ 2) :
   (1 / (n : ℝ)) * ∏ i ∈ Finset.range k, u_seq n i = 1 / (l_val n *
     ∏ j ∈ Finset.range (k - 2), (generalized_sylvester (l_val n) j : ℝ)) := by
@@ -879,7 +876,7 @@ lemma u_prod_eq_syl_prod (n : ℕ) (k : ℕ) (hk : k ≥ 2) :
         Finset.prod_congr rfl fun i hi =>
           show u_seq n (i + 1 + 1) =
             ((generalized_sylvester (l_val n) i : ℝ))⁻¹ from ?_]
-      ring_nf!
+      focus ring_nf!
       · norm_num [ mul_assoc, mul_comm, mul_left_comm, Finset.prod_mul_distrib ]
       · unfold u_seq
         aesop
@@ -887,7 +884,7 @@ lemma u_prod_eq_syl_prod (n : ℕ) (k : ℕ) (hk : k ≥ 2) :
     convert congr_arg
       (· * (∏ x ∈ Finset.range (k - 2), (generalized_sylvester (l_val n) x : ℝ))⁻¹)
       (u_prod_init_eq_inv_l n) using 1
-    ring
+    focus ring
     ring
 
 /-
@@ -1128,7 +1125,6 @@ lemma v_satisfies_pac_sou_condition (n : ℕ) (hn : 0 < n) (a : ℕ → ℕ)
 For n=1, the reciprocal sequence is bounded by the comparison sequence for the first 3 terms.
 -/
 set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 lemma v_le_u_base_case_one (a : ℕ → ℕ)
   (h_pos : ∀ i, 0 < a i)
   (h_mono : Monotone a)
@@ -1185,7 +1181,7 @@ lemma v_le_u_base_case_one (a : ℕ → ℕ)
     · rw [ inv_le_comm₀ ] <;> norm_num <;> linarith [ show ( a 0 : ℝ ) ≥ 3 by norm_cast ]
     · rw [ inv_eq_one_div, div_le_div_iff₀ ] <;> norm_cast <;> linarith
     · rw [ inv_eq_one_div, div_le_div_iff₀ ] <;> norm_cast
-      linarith
+      focus linarith
       grind
 
 /-
@@ -1237,7 +1233,6 @@ lemma c_30_lt_c_1_pow_8 : c 30 < c 1 ^ 8 := by
 /-
 Partial sums of reciprocals are bounded by partial sums of the comparison sequence for n=1.
 -/
-set_option linter.style.multiGoal false in
 lemma sum_v_le_sum_u_one (a : ℕ → ℕ)
   (h_pos : ∀ i, 0 < a i)
   (h_mono : Monotone a)
@@ -1250,10 +1245,11 @@ lemma sum_v_le_sum_u_one (a : ℕ → ℕ)
     any_goals exact u_seq_one_satisfies_pac_sou.1
     any_goals exact u_seq_one_satisfies_pac_sou.2.1
     any_goals exact fun i => one_div_pos.mpr ( Nat.cast_pos.mpr ( h_pos i ) )
-    exact fun i j hij =>
-      one_div_le_one_div_of_le
-        ( Nat.cast_pos.mpr ( h_pos _ ) )
-        ( Nat.cast_le.mpr ( h_mono hij ) )
+    focus
+      exact fun i j hij =>
+        one_div_le_one_div_of_le
+          ( Nat.cast_pos.mpr ( h_pos _ ) )
+          ( Nat.cast_le.mpr ( h_mono hij ) )
     any_goals exact u_seq_one_satisfies_pac_sou.2.2
     · intro k hk
       have := v_satisfies_pac_sou_condition 1 zero_lt_one a h_pos ( by aesop ) k
@@ -1914,7 +1910,6 @@ lemma l_lt_s2_sub_one (n : ℕ) (hn : 2 ≤ n) :
 /-
 Main theorem for n >= 2 without shifting (assuming a_1 != n+1).
 -/
-set_option linter.style.multiGoal false in
 theorem main_theorem_no_shift_n_ge_2 (n : ℕ) (hn : 2 ≤ n) (a : ℕ → ℕ)
   (h_pos : ∀ i, 0 < a i)
   (h_mono : Monotone a)
@@ -1928,7 +1923,7 @@ theorem main_theorem_no_shift_n_ge_2 (n : ℕ) (hn : 2 ≤ n) (a : ℕ → ℕ)
           (∑ i ∈ Finset.range k, (u_seq n i)) := by
       -- Apply the lemma pac_sou_refined with the given conditions.
       apply pac_sou_refined
-      exact one_div_pos.mpr ( by positivity : 0 < ( n : ℝ ) )
+      focus exact one_div_pos.mpr ( by positivity : 0 < ( n : ℝ ) )
       any_goals exact u_seq_satisfies_pac_sou_final n hn |>.1
       any_goals exact u_seq_satisfies_pac_sou_final n hn |>.2.1
       any_goals exact u_seq_satisfies_pac_sou_final n hn |>.2.2
@@ -2285,13 +2280,12 @@ lemma partial_inf_le_eventually_lower_bound {u : ℕ → ℝ} (n : ℕ)
 /-
 For a non-negative sequence with bounded partial infimums, liminf (u^p) = (liminf u)^p for p > 0.
 -/
-set_option linter.style.multiGoal false in
 lemma liminf_rpow {u : ℕ → ℝ} (hu_pos : ∀ n, 0 ≤ u n) (p : ℝ) (hp : 0 < p)
   (h_bdd : ∃ B, ∀ n, sInf (u '' Set.Ici n) ≤ B) :
   Filter.liminf (fun n => u n ^ p) Filter.atTop = (Filter.liminf u Filter.atTop) ^ p := by
     convert liminf_eq_ciSup_sInf_Ici _ _ using 2
     · convert ( ciSup_rpow _ _ _ _ ) |> Eq.symm using 1
-      rw [ liminf_eq_ciSup_sInf_Ici ]
+      focus rw [ liminf_eq_ciSup_sInf_Ici ]
       any_goals tauto
       · congr! 2
         convert csInf_image_rpow _ _ _ _ using 1
@@ -2327,7 +2321,6 @@ The liminf of the shifted sequence raised to the appropriate power relates to th
 raised to 2^k.
 -/
 set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 lemma liminf_shift_pow (a : ℕ → ℕ) (k : ℕ)
   (h_bdd : ∃ B, ∀ n,
     sInf ((fun i => (a i : ℝ) ^ ((1 / 2 : ℝ) ^ (i + 1))) '' Set.Ici n) ≤ B) :
@@ -2346,7 +2339,8 @@ lemma liminf_shift_pow (a : ℕ → ℕ) (k : ℕ)
         convert ( liminf_rpow _ _ _ _ ) |> Eq.symm using 1
         rotate_left 1
         rotate_left
-        use fun i => ( a i : ℝ ) ^ ( 1 / 2 : ℝ ) ^ ( i + 1 )
+        focus
+          use fun i => ( a i : ℝ ) ^ ( 1 / 2 : ℝ ) ^ ( i + 1 )
         exacts [
           fun n => Real.rpow_nonneg ( Nat.cast_nonneg _ ) _,
           2 ^ k,
@@ -2366,8 +2360,8 @@ lemma liminf_shift_pow (a : ℕ → ℕ) (k : ℕ)
           ⟨ N + k, fun n hn => by
             convert hN ( n + k ) ( by linarith ) using 1 ⟩ ⟩
     convert h_liminf_shifted using 3
-    norm_num [ ← Real.rpow_natCast, ← Real.rpow_mul ( Nat.cast_nonneg _ ) ]
-    ring_nf
+    focus norm_num [ ← Real.rpow_natCast, ← Real.rpow_mul ( Nat.cast_nonneg _ ) ]
+    focus ring_nf
     · norm_num [ Real.rpow_add, Real.rpow_neg ]
       ring_nf
       norm_num [ mul_assoc ]
@@ -2543,7 +2537,6 @@ s_i(0)$ for some $i$, and that $1 = \sum_{i=1}^\infty \frac{1}{a_i}$. Then $\lim
 a_i^{2^{-i}} < c_1$, where $c_1$ is the Vardi value.
 -/
 set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 theorem erdos_315 (a : ℕ → ℕ)
   (h_pos : ∀ i, 0 < a i)
   (h_mono : Monotone a)
