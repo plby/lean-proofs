@@ -51,7 +51,6 @@ open ArithmeticFunction
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 
 /-! # Chapter 1: Definitions -/
 
@@ -149,7 +148,8 @@ private lemma rational_tail_integer
           then (b n : ℝ) / l ^ (a n - C) else 0) := by
     rw [ ← mul_add, ← Summable.tsum_add ]
     · rw [← tsum_mul_left] ; rw [← tsum_mul_left] ; congr ; ext n
-      split_ifs <;> simp_all [Nat.sub_eq_zero_of_le] ; ring_nf
+      split_ifs <;> simp_all [Nat.sub_eq_zero_of_le]
+      focus ring_nf
       · linarith
       · field_simp
         rw [ mul_assoc, ← pow_add, Nat.add_sub_of_le ‹_›, mul_comm ]
@@ -218,8 +218,9 @@ private lemma ChenRusza_Lemma1_integrality
           else 0 := by
     rw [ ← Summable.tsum_add ]
     · rw [← Summable.tsum_sub]
-      congr
-      ext n
+      focus
+        congr
+        ext n
       split_ifs <;> ring_nf <;> norm_num at *
       any_goals omega
       · rw [show a n - C = (a n - C - t_val) + t_val by
@@ -386,7 +387,10 @@ theorem ChenRusza_Lemma3 (l : ℕ) (a b r : ℕ) (q : ℕ) (hq : q.Prime) (hql :
           exact ⟨ m, by ring ⟩
         use k
         rw [ Nat.mod_eq_zero_of_dvd ]
-        convert Nat.mul_dvd_mul ( Nat.dvd_of_mod_eq_zero hk ) ( dvd_refl ( q ^ r ) ) using 1 ; ring
+        convert
+            Nat.mul_dvd_mul (Nat.dvd_of_mod_eq_zero hk) (dvd_refl (q ^ r))
+          using 1 <;>
+          ring_nf
         linarith [hm]
       obtain ⟨ k, hk ⟩ := h_subst; use k; simp_all [ ← ZMod.val_natCast, pow_add, pow_mul' ]
       simp_all [ ← ZMod.natCast_eq_natCast_iff ]
@@ -1115,8 +1119,7 @@ private lemma second_interval_exists
     · obtain ⟨ m, hm₁, hm₂ ⟩ := this
       refine ⟨ m, hm₁, fun j => ⟨ ?_, ?_ ⟩ ⟩
       · simpa [ j.2 ] using hm₂ ⟨ j, by linarith [ Fin.is_lt j ] ⟩
-      · convert hm₂ ⟨ k + h + j, by linarith [ Fin.is_lt j ] ⟩ using 1 ; simp [two_mul]
-        simp
+      · convert hm₂ ⟨ k + h + j, by linarith [ Fin.is_lt j ] ⟩ using 1 <;> simp [two_mul]
     · exact mul_pos hM (Finset.prod_pos fun _ _ => mul_pos
         (Nat.sub_pos_of_lt (Nat.Prime.one_lt (hp1 _)))
         (Nat.sub_pos_of_lt (Nat.Prime.one_lt (hp1 _))))
@@ -1200,7 +1203,8 @@ private lemma second_interval_exists
           Nat.Coprime
             (p (N₀ + 2 * j + 1) - 1) (p (N₀ + 2 * j + 1) ^ 2) := by
         exact ⟨ Nat.Coprime.pow_right _ ( hp4 _ _ ), Nat.Coprime.pow_right _ ( hp4 _ _ ) ⟩
-      rw [ ← Nat.modEq_and_modEq_iff_modEq_mul, ← Nat.modEq_and_modEq_iff_modEq_mul ] ; aesop
+      rw [ ← Nat.modEq_and_modEq_iff_modEq_mul, ← Nat.modEq_and_modEq_iff_modEq_mul ]
+      focus aesop
       · exact h_euler.2
       · exact h_euler.1
     apply And.intro
@@ -1230,7 +1234,7 @@ private lemma second_interval_exists
     apply not_rfree_of_prime_pow_dvd (hp1 (N₀ + 2 * j)) (Nat.dvd_of_mod_eq_zero h_cong.left)
   have h_not_squarefull : ¬IsSquarefull n := by
     apply not_squarefull_of_prime_dvd_sq_not
-    exact hp1 ( N₀ + 2 * j + 1 )
+    · exact hp1 ( N₀ + 2 * j + 1 )
     · exact Nat.dvd_of_mod_eq_zero
         (h_cong.2.of_dvd (dvd_pow_self _ two_ne_zero) ▸
           Nat.mod_eq_zero_of_dvd (dvd_refl _))
@@ -1403,15 +1407,17 @@ private lemma second_sum_bound (a : ℕ → ℕ) (ha_inj : Function.Injective a)
   convert Summable.tsum_subtype_le _ _ _ _ using 1;
   any_goals try infer_instance;
   rotate_left;
-  exact { n | ∃ m, a m > c + m_val ∧ n = a m - c - m_val };
+  focus
+    exact { n | ∃ m, a m > c + m_val ∧ n = a m - c - m_val };
   · exact fun _ => by positivity;
   · exact Summable.mul_left _ <|
       Summable.of_nonneg_of_le (fun _ => by positivity) (fun n => by aesop) <|
         summable_geometric_of_lt_one (by positivity) <|
           inv_lt_one_of_one_lt₀ <| Nat.one_lt_cast.mpr hl;
   · rw [ ← tsum_eq_tsum_of_ne_zero_bij ];
-    use fun x => ⟨ a x - c - m_val, ⟨ x, by
-      aesop ⟩ ⟩
+    focus
+      use fun x => ⟨ a x - c - m_val, ⟨ x, by
+        aesop ⟩ ⟩
     all_goals generalize_proofs at *;
     · intro x y hxy;
       grind;
