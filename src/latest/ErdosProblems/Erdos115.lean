@@ -32,7 +32,6 @@ import Mathlib
 
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.multiGoal false
 set_option linter.style.show false
 set_option linter.flexible false
 
@@ -170,7 +169,8 @@ theorem eremenko_lempert_reduction (n : ℕ) :
       · simpa using ha;
       · convert hz₀.image _ _ using 1 <;> norm_num [ Set.image ];
         rotate_left;
-        use fun z => z - a;
+        focus
+          use fun z => z - a
         · exact continuousOn_id.sub continuousOn_const;
         · exact Set.ext fun x => ⟨ fun hx => ⟨ x + a, hx, by ring ⟩, by rintro ⟨ y, hy, rfl ⟩ ; simpa using hy ⟩;
     simp_all +decide [ Polynomial.derivative_comp ]
@@ -257,7 +257,11 @@ theorem polynomial_star_derivative_eval_zero (p : Polynomial ℂ) (hp : p.Monic)
             erw [ Polynomial.derivative_prod ];
             simp +decide [ mul_comm, Finset.sdiff_singleton_eq_erase ];
             rfl;
-          convert congr_arg ( Polynomial.eval 0 ) h_prod_rule using 1 ; norm_num [ Polynomial.eval_prod, Polynomial.eval_finset_sum ] ; ring_nf!;
+          convert congr_arg ( Polynomial.eval 0 ) h_prod_rule using 1
+          focus
+            norm_num [ Polynomial.eval_prod, Polynomial.eval_finset_sum ]
+          focus
+            ring_nf!
           · unfold polynomial_star ;
             rw [ Finset.prod_multiset_map_count ] ; aesop;
           · simp +decide [ Polynomial.eval_finset_sum, Polynomial.eval_mul, Polynomial.eval_prod, Polynomial.eval_add, Polynomial.eval_X, Polynomial.eval_C, Polynomial.derivative_pow ] ; ring_nf;
@@ -377,8 +381,9 @@ For any $r \ge 0$, $|p^*(-r)| \le \min_{|z|=r} |p(z)|$.
 -/
 theorem polynomial_star_neg_r_le_min_modulus (p : Polynomial ℂ) (hp : p.Monic) (r : ℝ) (hr : 0 ≤ r) :
     ‖(polynomial_star p).eval (-r : ℂ)‖ ≤ min_modulus p r := by
-      apply le_csInf; (
-      exact ⟨ _, ⟨ r, by norm_num [ hr ], rfl ⟩ ⟩);
+      apply le_csInf
+      focus
+        exact ⟨ _, ⟨ r, by norm_num [ hr ], rfl ⟩ ⟩
       simp +zetaDelta at *;
       intro z hz; have := polynomial_star_neg_norm_le p hp z; aesop;
 
@@ -468,7 +473,9 @@ theorem exists_decreasing_path_near_point (p : Polynomial ℂ) (hp_deg : p.degre
       have hq0 : q.eval 0 = p.eval z := by
         aesop
       have hq_nonconst : q.degree ≠ 0 := by
-        rw [ hq, Polynomial.degree_eq_natDegree ] at * <;> norm_num [ Polynomial.natDegree_comp, Polynomial.natDegree_add_eq_left_of_natDegree_lt ] at * ; aesop;
+        rw [ hq, Polynomial.degree_eq_natDegree ] at * <;> norm_num [ Polynomial.natDegree_comp, Polynomial.natDegree_add_eq_left_of_natDegree_lt ] at *
+        focus
+          aesop
         · aesop_cat;
         · rw [ Polynomial.comp_eq_zero_iff ] ; aesop;
       -- Let $q(x) = a_0 + a_k x^k + x^{k+1} r(x)$ where $a_k \neq 0$ and $k \geq 1$.
@@ -729,7 +736,9 @@ theorem polynomial_star_critical_points_subset_segment (p : Polynomial ℂ) :
               simp_all +decide
             | insert z S hzS ih =>
               simp_all +decide [ Finset.prod_insert hzS, Finset.sum_insert hzS ];
-              convert HasDerivAt.deriv ( HasDerivAt.mul ( hf_diff.1.hasDerivAt ) ( hasDerivAt_deriv_iff.mpr ( show DifferentiableAt ℝ ( fun x => ∏ z ∈ S, f z x ) x.re from ?_ ) ) ) using 1 <;> norm_num [ ih, hf_ne_zero, mul_assoc, mul_comm, mul_left_comm, div_eq_mul_inv ] ; ring_nf!;
+              convert HasDerivAt.deriv ( HasDerivAt.mul ( hf_diff.1.hasDerivAt ) ( hasDerivAt_deriv_iff.mpr ( show DifferentiableAt ℝ ( fun x => ∏ z ∈ S, f z x ) x.re from ?_ ) ) ) using 1 <;> norm_num [ ih, hf_ne_zero, mul_assoc, mul_comm, mul_left_comm, div_eq_mul_inv ]
+              focus
+                ring_nf!
               · grind;
               · have h_prod_diff : ∀ {S : Finset ℂ} {f : ℂ → ℝ → ℝ}, (∀ z ∈ S, DifferentiableAt ℝ (fun x => f z x) x.re) → DifferentiableAt ℝ (fun x => ∏ z ∈ S, f z x) x.re := by
                   intros S f hf_diff
@@ -834,7 +843,9 @@ lemma monic_norm_bound_on_unit_interval {n : ℕ} (hn : n ≠ 0) (p : Polynomial
           intro k hk;
           have h_ivt : (u - q).eval (Real.cos ((k + 1) * Real.pi / n)) * (u - q).eval (Real.cos (k * Real.pi / n)) < 0 := by
             have := h_diff_sign k ( Finset.mem_range.mpr ( by linarith [ Finset.mem_range.mp hk ] ) ) ; have := h_diff_sign ( k + 1 ) ( Finset.mem_range.mpr ( by linarith [ Finset.mem_range.mp hk ] ) ) ; simp_all +decide [ pow_succ' ] ;
-            by_cases h : Even k <;> simp_all +decide ; nlinarith [ inv_pos.mpr ( pow_pos ( zero_lt_two' ℝ ) ( n - 1 ) ) ] ;
+            by_cases h : Even k <;> simp_all +decide
+            focus
+              nlinarith [ inv_pos.mpr ( pow_pos ( zero_lt_two' ℝ ) ( n - 1 ) ) ]
             nlinarith [ inv_pos.mpr ( pow_pos ( zero_lt_two' ℝ ) ( n - 1 ) ) ];
           rw [ mul_neg_iff ] at h_ivt;
           rcases h_ivt with h | h;
@@ -858,7 +869,8 @@ lemma monic_norm_bound_on_unit_interval {n : ℕ} (hn : n ≠ 0) (p : Polynomial
       -- Since $u - q$ is a polynomial of degree less than $n$ and has at least $n$ roots, it must be the zero polynomial.
       have h_diff_zero : u - q = 0 := by
         refine Polynomial.eq_of_degree_sub_lt_of_eval_finset_eq ?_ ?_ ?_;
-        exact r;
+        focus
+          exact r
         · simpa using lt_of_lt_of_le h_diff_deg ( WithBot.coe_le_coe.mpr hr₁ );
         · aesop;
       simp_all +decide [ sub_eq_iff_eq_add ];
@@ -878,7 +890,9 @@ lemma monic_norm_bound_on_interval {n : ℕ} (hn : n ≠ 0) (p : Polynomial ℂ)
           rw [ Polynomial.Monic, Polynomial.leadingCoeff_mul, Polynomial.leadingCoeff_C ];
           rw [ Polynomial.leadingCoeff_comp ] <;> norm_num [ hp_monic, hp_deg ];
           · rw [ Polynomial.leadingCoeff, Polynomial.natDegree_add_C, Polynomial.natDegree_C_mul_X ] <;> norm_num [ hn, hp_deg, Polynomial.natDegree_eq_of_degree_eq_some hp_deg ];
-            · rw [ ← mul_pow, div_mul_div_cancel₀ ] <;> norm_cast ; aesop;
+            · rw [ ← mul_pow, div_mul_div_cancel₀ ] <;> norm_cast
+              focus
+                aesop
               linarith;
             · exact sub_ne_zero_of_ne <| mod_cast h_lt.ne';
           · rw [ Polynomial.natDegree_C_mul_X ] <;> norm_num [ sub_ne_zero.2 ( by norm_cast; linarith : ( b : ℂ ) ≠ a ) ]
@@ -890,7 +904,9 @@ lemma monic_norm_bound_on_interval {n : ℕ} (hn : n ≠ 0) (p : Polynomial ℂ)
       refine ⟨ phi t, ?_, ?_ ⟩ <;> norm_num at *;
       · constructor <;> nlinarith [ show phi t = ( b - a ) / 2 * t + ( a + b ) / 2 from rfl ];
       · simp +zetaDelta at *;
-        convert mul_le_mul_of_nonneg_left ht.2 ( show ( 0 : ℝ ) ≤ ( ( b - a ) / 2 ) ^ n by exact pow_nonneg ( by linarith ) _ ) using 1 <;> norm_cast <;> norm_num ; ring_nf;
+        convert mul_le_mul_of_nonneg_left ht.2 ( show ( 0 : ℝ ) ≤ ( ( b - a ) / 2 ) ^ n by exact pow_nonneg ( by linarith ) _ ) using 1 <;> norm_cast <;> norm_num
+        focus
+          ring_nf
         · cases n <;> norm_num [ pow_succ' ] at * ; ring_nf at *;
           simpa only [ mul_assoc, ← mul_pow ] using by ring;
         · norm_num [ ← mul_assoc, ← mul_pow, abs_of_pos ( sub_pos.mpr h_lt ) ];
@@ -994,17 +1010,18 @@ lemma max_root_bound {n : ℕ} {p : Polynomial ℂ} (hp_deg : p.degree = n) (hp_
     (h_conn : IsConnected {z | ‖p.eval z‖ ≤ 1}) (h_zero : ‖p.eval 0‖ ≤ 1) :
     max_root p ≤ 2 * n := by
   by_contra h_contra; contrapose! h_contra with h_contra; simp_all +decide [ max_root ] ; (
-  by_cases hn : n ≥ 2 <;> simp_all +decide [ Option.getD ] ; (
-  have h_roots_subset_ball : ∀ z ∈ p.roots.toFinset, ‖z‖ ≤ 4 := by
-    exact fun z hz => le_trans ( level_set_subset_ball_four ( by linarith ) hp_deg hp_monic h_conn h_zero z <| by aesop ) ( by norm_num ) ;
-  rcases h : Finset.max ( Multiset.toFinset ( Multiset.map ( fun z => ‖z‖ ) p.roots ) ) with ( _ | x ) <;> simp_all +decide [ Finset.max ];
-  -- Since $x$ is the maximum of the norms of the roots of $p$, and each root's norm is at most 4, we have $x \leq 4$.
-  have hx_le_4 : x ≤ 4 := by
-    have hx_le_4 : ∀ y ∈ Multiset.toFinset (Multiset.map (fun z => ‖z‖) p.roots), y ≤ 4 := by
-      aesop
-    generalize_proofs at *; (
-    exact hx_le_4 x ( by exact Finset.mem_of_max h ) |> le_trans ( by norm_num ) ;)
-  exact hx_le_4.trans (by linarith [show (n : ℝ) ≥ 2 by norm_cast]));
+  by_cases hn : n ≥ 2 <;> simp_all +decide [ Option.getD ] ;
+  focus
+    have h_roots_subset_ball : ∀ z ∈ p.roots.toFinset, ‖z‖ ≤ 4 := by
+      exact fun z hz => le_trans ( level_set_subset_ball_four ( by linarith ) hp_deg hp_monic h_conn h_zero z <| by aesop ) ( by norm_num )
+    rcases h : Finset.max ( Multiset.toFinset ( Multiset.map ( fun z => ‖z‖ ) p.roots ) ) with ( _ | x ) <;> simp_all +decide [ Finset.max ];
+    -- Since $x$ is the maximum of the norms of the roots of $p$, and each root's norm is at most 4, we have $x \leq 4$.
+    have hx_le_4 : x ≤ 4 := by
+      have hx_le_4 : ∀ y ∈ Multiset.toFinset (Multiset.map (fun z => ‖z‖) p.roots), y ≤ 4 := by
+        aesop
+      generalize_proofs at *; (
+      exact hx_le_4 x ( by exact Finset.mem_of_max h ) |> le_trans ( by norm_num ) ;)
+    exact hx_le_4.trans (by linarith [show (n : ℝ) ≥ 2 by norm_cast])
   interval_cases n <;> simp_all +decide [ Polynomial.Monic.def, Polynomial.leadingCoeff, Polynomial.natDegree_eq_of_degree_eq_some hp_deg ] ;
   · rw [ Polynomial.eq_C_of_degree_eq_zero hp_deg ] at hp_monic ⊢ ; aesop;
   · -- Since $p$ is a monic polynomial of degree 1, we can write it as $p(z) = z + c$ for some constant $c$.
@@ -1151,9 +1168,13 @@ lemma isClosed_monic_degree_n (n : ℕ) : IsClosed {p : Polynomial ℂ | p.Monic
     exact isClosed_eq h_coeff_cont continuous_const;
   rw [ h_def ];
   convert isClosed_iInter fun k => isClosed_iInter fun hk => h_closed k using 1;
-  ext; simp
+  focus
+    ext
+  focus
+    simp
   swap;
-  exact fun k => if k = n then True else n < k;
+  focus
+    exact fun k => if k = n then True else n < k
   grind +ring
 
 /-
@@ -1606,7 +1627,11 @@ theorem polynomial_star_level_set_connected (p : Polynomial ℂ) (hp : p.Monic) 
     intro z hz
     obtain ⟨w, hw⟩ : ∃ w : ℂ, w ∈ connectedComponentIn {w | ‖(polynomial_star p).eval w‖ ≤ 1} z ∧ (polynomial_star p).eval w = 0 := by
       apply polynomial_level_set_component_contains_root (polynomial_star p) (by
-      rw [ polynomial_star_degree ] ; contrapose! hp_deg ; aesop;
+      rw [ polynomial_star_degree ]
+      focus
+        contrapose! hp_deg
+      focus
+        aesop
       assumption) z hz;
     -- Since $w$ is a root of $f^*$, we have $w = -|z_k|$ for some root $z_k$ of $p$.
     obtain ⟨z_k, hz_k⟩ : ∃ z_k ∈ p.roots, w = -Complex.ofReal ‖z_k‖ := by
@@ -1763,7 +1788,9 @@ lemma perturbed_roots_in_nhd (n : ℕ) (p q : Polynomial ℂ)
       exact ⟨ ∑ i ∈ Finset.range n, ‖p.coeff i‖, fun i hi => Finset.single_le_sum ( fun i _ => norm_nonneg ( p.coeff i ) ) hi ⟩;
     -- Using the bounds on the coefficients, we can bound the right-hand side of the inequality.
     have hw_k_bounded_rhs : ∀ k, ‖w_k k‖ ^ n ≤ (M_q + M_p) * ∑ i ∈ Finset.range n, ‖w_k k‖ ^ i := by
-      intro k; rw [ add_mul ] ; refine le_trans ( hw_k_bounded k ) ?_; rw [ Finset.mul_sum _ _ _ ] ; rw [ Finset.mul_sum _ _ _ ] ; gcongr ; aesop;
+      intro k; rw [ add_mul ] ; refine le_trans ( hw_k_bounded k ) ?_; rw [ Finset.mul_sum _ _ _ ] ; rw [ Finset.mul_sum _ _ _ ] ; gcongr
+      focus
+        aesop
       exact hM_p _ ‹_›;
     use Max.max ( M_q + M_p + 1 ) 1;
     intro k; specialize hw_k_bounded_rhs k; contrapose! hw_k_bounded_rhs;
@@ -1927,7 +1954,10 @@ lemma h_crit_nhd_zero {n : ℕ} {p q : Polynomial ℂ}
           apply Complex.ext
           · simp
             have h_z_re_norm : ‖z‖ = -z.re := by
-              have h0 : z = ↑z.re := by apply Complex.ext; rfl; simp [hz_val.1]
+              have h0 : z = ↑z.re := by
+                apply Complex.ext
+                · rfl
+                · simp [hz_val.1]
               rw [h0]
               have : ‖(z.re : ℂ)‖ = |z.re| := Complex.norm_real z.re
               rw [this, abs_of_nonpos hz_val.2]
@@ -1958,9 +1988,14 @@ lemma h_crit_nhd_zero {n : ℕ} {p q : Polynomial ℂ}
   have hP_expand : ‖(p + Polynomial.C (δ : ℂ) * Polynomial.X * q).eval (x : ℂ)‖ ^ 2 = (p.eval (x : ℂ)).re ^ 2 + δ * (2 * x * (p.eval (x : ℂ) * q.eval (x : ℂ)).re + δ * ‖(x : ℂ) * q.eval (x : ℂ)‖ ^ 2) := by
     have hx_real_p : (p.eval (x : ℂ)).im = 0 := hp_real x
     have hx_real_q : (q.eval (x : ℂ)).im = 0 := hq_real x
-    have hA : p.eval (x : ℂ) = ↑(p.eval (x : ℂ)).re := by apply Complex.ext; rfl; simp [hx_real_p]
+    have hA : p.eval (x : ℂ) = ↑(p.eval (x : ℂ)).re := by
+      apply Complex.ext
+      · rfl
+      · simp [hx_real_p]
     have hB : (x : ℂ) * q.eval (x : ℂ) = ↑((x : ℂ) * q.eval (x : ℂ)).re := by
-      apply Complex.ext; rfl; simp [hx_real_q]
+      apply Complex.ext
+      · rfl
+      · simp [hx_real_q]
     let P_val : ℂ := (p + Polynomial.C (δ : ℂ) * Polynomial.X * q).eval (x : ℂ)
     have h_val : P_val = ↑(p.eval (x : ℂ)).re + (δ : ℂ) * ↑((x : ℂ) * q.eval (x : ℂ)).re := by
       unfold P_val
@@ -2311,7 +2346,10 @@ lemma perturbed_le_one_on_segment (n : ℕ) (p q : Polynomial ℂ)
               apply Complex.ext
               · simp
                 have h_z_re_norm : ‖z‖ = -z.re := by
-                  have h_real : z = ↑z.re := by apply Complex.ext; rfl; simp [hz_val.1]
+                  have h_real : z = ↑z.re := by
+                    apply Complex.ext
+                    · rfl
+                    · simp [hz_val.1]
                   rw [h_real, Complex.norm_real, Real.norm_eq_abs, abs_of_nonpos hz_val.2]
                   rfl
                 have h_max_m : max_root p = m := by
@@ -2346,9 +2384,14 @@ lemma perturbed_le_one_on_segment (n : ℕ) (p q : Polynomial ℂ)
         -- ‖A + B‖^2 = ‖A‖^2 + 2Re(A B*) + ‖B‖^2
         -- Here A = p(x), B = δ x q(x)
         -- Since all are real, it's just (A+B)^2 = A^2 + 2AB + B^2
-        have hA : (p.eval (x : ℂ)) = (p.eval (x : ℂ)).re := by apply Complex.ext; rfl; simp [hx_real_p]
+        have hA : (p.eval (x : ℂ)) = (p.eval (x : ℂ)).re := by
+          apply Complex.ext
+          · rfl
+          · simp [hx_real_p]
         have hB : (x : ℂ) * q.eval (x : ℂ) = ((x : ℂ) * q.eval (x : ℂ)).re := by
-          apply Complex.ext; rfl; simp [hx_real_q]
+          apply Complex.ext
+          · rfl
+          · simp [hx_real_q]
         have hP_val : P δ x = (p.eval (x : ℂ)).re + δ * ((x : ℂ) * q.eval (x : ℂ)).re := by
           unfold P
           have hp_eval_add : Polynomial.eval (↑x) (p + (Polynomial.C (↑δ : ℂ)) * Polynomial.X * q) = p.eval (x : ℂ) + δ * (x : ℂ) * q.eval (x : ℂ) := by
@@ -3347,7 +3390,10 @@ lemma degree_ode_poly_lt_2n (n : ℕ) (hn : n ≠ 0) (g : Polynomial ℂ) (hg_de
       intro m hm; rcases eq_or_lt_of_le hm with ( rfl | hm' ) <;> simp_all +decide;
       rw [ Polynomial.coeff_eq_zero_of_degree_lt, Polynomial.coeff_eq_zero_of_degree_lt ] <;> norm_num [ Polynomial.degree_sub_eq_right_of_degree_lt, Polynomial.degree_sub_eq_left_of_degree_lt, hg_deg, hn ];
       · erw [ Polynomial.degree_C ] <;> norm_num [ hn ];
-        erw [ Polynomial.degree_sub_eq_left_of_degree_lt ] <;> norm_num [ hg_deg, hn ] ; norm_cast ; linarith [ Nat.pos_of_ne_zero hn ];
+        erw [ Polynomial.degree_sub_eq_left_of_degree_lt ] <;> norm_num [ hg_deg, hn ]
+        focus
+          norm_cast
+        linarith [ Nat.pos_of_ne_zero hn ];
       · rcases n with ( _ | _ | n ) <;> simp_all +decide [ Polynomial.natDegree_eq_of_degree_eq_some hg_deg ];
         norm_cast ; linarith
 -- proven by Aristotle
@@ -3404,7 +3450,9 @@ lemma rescaled_satisfies_ode (n : ℕ) (hn : n ≥ 2) (g : Polynomial ℂ)
           · exact ⟨ by simpa using h_nonzero, Or.inr <| by norm_num [ ← pow_mul ] ⟩;
           · intro a ha₁ ha₂; specialize h_crit_val a; aesop;
         · intro z hz hz'; rw [ Multiset.count_filter ] ; aesop;
-      convert hP_roots using 1 ; rw [ Finset.sum_union ] <;> norm_num [ Finset.disjoint_left ] ; ring;
+      convert hP_roots using 1 ; rw [ Finset.sum_union ] <;> norm_num [ Finset.disjoint_left ]
+      focus
+        ring
       exact fun z hz => ⟨ by rintro rfl; exact absurd ( h_crit_bounds 1 hz ) ( by norm_num ), by rintro rfl; exact absurd ( h_crit_bounds ( -1 ) hz ) ( by norm_num ) ⟩ ;
     have hP_roots_1 : Polynomial.rootMultiplicity 1 ((Polynomial.derivative g) ^ 2 * (1 - Polynomial.X ^ 2) + Polynomial.C ((n : ℂ) ^ 2) * (g ^ 2 - 1)) ≥ 1 := by
       refine Nat.pos_of_ne_zero ?_ ; aesop;
@@ -3446,9 +3494,14 @@ lemma chebyshev_T_satisfies_second_order_ode (n : ℕ) :
       · -- The derivative of $T_n(x)$ is non-zero since $T_n(x)$ is a polynomial of degree $n$.
         have h_deriv_nonzero : Polynomial.degree (Polynomial.Chebyshev.T ℂ n) = n := by
           simp
-        intro h; rw [ Polynomial.eq_C_of_derivative_eq_zero h ] at h_deriv_nonzero; rw [ Polynomial.degree_C ] at h_deriv_nonzero <;> norm_cast at * ; aesop;
+        intro h; rw [ Polynomial.eq_C_of_derivative_eq_zero h ] at h_deriv_nonzero; rw [ Polynomial.degree_C ] at h_deriv_nonzero <;> norm_cast at *
+        focus
+          aesop
         aesop_cat;
-      · convert chebyshev_T_ode n using 3 ; ring_nf ; aesop;
+      · convert chebyshev_T_ode n using 3
+        focus
+          ring_nf
+        aesop;
 /-
 If a polynomial `g` satisfies the Chebyshev differential equation, then its coefficients satisfy the recurrence relation `(k+1)(k+2)a_{k+2} + (n^2 - k^2)a_k = 0`.
 proven and stated by Aristotle
