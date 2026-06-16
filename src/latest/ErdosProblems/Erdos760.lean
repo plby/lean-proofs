@@ -28,7 +28,6 @@ namespace Erdos760
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 
 /-!
 # Erdős Problem 760: Subgraphs with a Large Cochromatic Number
@@ -354,7 +353,7 @@ theorem edgeFinset_within_ge_of_min_deg {V : Type*} [Fintype V] [DecidableEq V]
       simp +decide [Finset.filter_mem_eq_inter]
       exact Finset.sum_congr rfl fun x hx => congr_arg Finset.card ( by ext; aesop )
     rw [ h_double_count, Finset.sum_const_nat ]
-    rw [ mul_comm ]
+    focus rw [ mul_comm ]
     intro e he; rcases e with ⟨ u, v ⟩ ; simp_all +decide
     rw [ Finset.card_eq_two ] ; use u, v ; aesop
   simpa [ mul_comm, h_double_count ] using Finset.sum_le_sum hmin
