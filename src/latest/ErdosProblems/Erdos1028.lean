@@ -27,7 +27,6 @@ namespace Erdos1028
 
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.multiGoal false
 set_option linter.flexible false
 
 attribute [local instance] Classical.propDecidable Classical.decEq
@@ -396,8 +395,11 @@ lemma prob_induced_sum_ge (n : ℕ) (X : Finset (Fin n)) (t : ℝ) (ht : t ≥ 0
         have h_indep : iIndepFun (fun e ω => if ω e then 1 else -1 : Sym2 (Fin n) → (Sym2 (Fin n) → Bool) → ℝ) (coloringProductMeasure n) := by
           exact coloring_product_measure_independent n
         rw [ ProbabilityTheory.iIndepFun_iff_measure_inter_preimage_eq_mul ] at *
-        intro S sets hsets; specialize h_indep ( Finset.image e S ) ; simp_all +decide
-        use fun i => if h : ∃ j, e j = i then sets ( Classical.choose h ) else Set.univ
+        intro S sets hsets; specialize h_indep ( Finset.image e S )
+        focus
+          simp_all +decide
+        focus
+          use fun i => if h : ∃ j, e j = i then sets ( Classical.choose h ) else Set.univ
         convert h_indep _ using 1
         · congr! 1
           ext; simp +decide [ he₁.eq_iff ]
@@ -665,7 +667,8 @@ lemma paley_zygmund_inequality {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω
       refine le_trans ( ENNReal.ofReal_le_ofReal h_rearrange ) ?_
       rw [ MeasureTheory.integral_eq_lintegral_of_nonneg_ae ]
       · rw [ MeasureTheory.lintegral_congr_ae, MeasureTheory.lintegral_indicator₀ ]
-        change ENNReal.ofReal ( ∫⁻ ω in { ω | θ * E ≤ Z ω }, 1 ∂P ).toReal ≤ P { ω | θ * E ≤ Z ω }
+        focus
+          change ENNReal.ofReal ( ∫⁻ ω in { ω | θ * E ≤ Z ω }, 1 ∂P ).toReal ≤ P { ω | θ * E ≤ Z ω }
         · simp +decide [ ENNReal.ofReal ]
         · exact hZ_int.1.aemeasurable.nullMeasurable measurableSet_Ici
         · filter_upwards [ ] with ω using by by_cases h : θ * E ≤ Z ω <;> simp +decide [ h ]
@@ -1255,7 +1258,9 @@ lemma vertex_measure_indep (n : ℕ) :
               congr with ω ; simp +decide [ Set.mem_iInter, Set.mem_preimage ]
               exact ⟨ fun h i => by by_cases hi : i ∈ S <;> simp +decide [ hi, h ], fun h i hi => by simpa [ hi ] using h i ⟩
             rw [ h_prod_measure, MeasureTheory.Measure.pi_pi ]
-            rw [ ← Finset.prod_subset ( Finset.subset_univ S ) ] ; aesop
+            rw [ ← Finset.prod_subset ( Finset.subset_univ S ) ]
+            focus
+              aesop
             simp +contextual [ PMF.uniformOfFintype ]
             norm_num [ ENNReal.mul_inv_cancel ]
           exact h_prod_measure S hsets
@@ -1287,7 +1292,9 @@ lemma vertex_measure_rademacher (n : ℕ) (i : Fin n) :
             exact congr_arg₂ _ ( by simp +decide ) ( Finset.prod_congr rfl fun j hj => by aesop )
           convert h_cylinder using 2
           grind
-        convert h_cylinder using 1 ; norm_num [ PMF.uniformOfFintype ]
+        convert h_cylinder using 1
+        focus
+          norm_num [ PMF.uniformOfFintype ]
         norm_num [ PMF.uniformOfFintype ]
         erw [ ENNReal.mul_inv_cancel ] <;> norm_num
       · erw [ show { ω : Fin n → Bool | ( if ω i = true then ( 1 : ℝ ) else -1 ) = -1 } = ( Set.pi Set.univ fun j => if j = i then { false } else Set.univ ) from ?_ ]
@@ -1321,8 +1328,11 @@ lemma expectation_abs_row_sum {n : ℕ} (A : Matrix (Fin n) (Fin n) ℝ)
           · have h_indep : iIndepFun (fun i ω => if ω i then 1 else -1 : Fin n → (Fin n → Bool) → ℝ) (vertexMeasure n) := by
               exact vertex_measure_indep n
             rw [ iIndepFun_iff_measure_inter_preimage_eq_mul ] at *
-            intro S sets hsets; specialize h_indep S ( fun i hi => ?_ ) ; simp_all +decide [ Set.preimage ]
-            use fun i => ( fun x => ( if A j i = 1 then 1 else -1 ) * x ) ⁻¹' sets i
+            intro S sets hsets; specialize h_indep S ( fun i hi => ?_ )
+            focus
+              simp_all +decide [ Set.preimage ]
+            focus
+              use fun i => ( fun x => ( if A j i = 1 then 1 else -1 ) * x ) ⁻¹' sets i
             · exact measurable_const.mul measurable_id' ( hsets i hi )
             · convert h_indep using 3
           · intro i
@@ -1451,7 +1461,9 @@ theorem thm_lower : ∃ c > 0, ∀ᶠ n in Filter.atTop, (H n : ℝ) ≥ c * (n 
         simp +decide [ Sym2.eq_swap ]
       linarith
     obtain ⟨ X, hX ⟩ := h_exists; use X; simp_all +decide [ inducedSum ]
-    convert mul_le_mul_of_nonneg_left hX ( show ( 0 : ℝ ) ≤ 1 / 2 by norm_num ) using 1 <;> norm_num [ coloringToInt ] ; ring
+    convert mul_le_mul_of_nonneg_left hX ( show ( 0 : ℝ ) ≤ 1 / 2 by norm_num ) using 1 <;> norm_num [ coloringToInt ]
+    focus
+      ring
     ring
   -- Therefore, $H(n) \geq \frac{1}{9216} n^{3/2}$ for all $n \geq 2$.
   have h_H_lower_bound : ∀ n : ℕ, n ≥ 2 → (H n : ℝ) ≥ (1 / 9216) * (n : ℝ) ^ (3 / 2 : ℝ) := by
