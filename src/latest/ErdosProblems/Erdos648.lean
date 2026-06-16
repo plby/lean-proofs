@@ -25,7 +25,6 @@ import PrimeNumberTheoremAnd.Consequences
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 
 namespace Erdos648
 
@@ -963,7 +962,7 @@ lemma construct_seq_aux_P_eq (primes : List ℕ) (n : ℕ) (prev_a : ℕ)
               next_a prev_a p :: construct_seq_aux primes ( next_a prev_a p ) from rfl,
           List.map_cons ];
         rw [ P_next_a_eq ];
-        exact n;
+        · exact n
         · exact h_primes_prime p ( by simp +decide );
         · grind;
         · aesop;
@@ -1076,8 +1075,7 @@ lemma sum_primes_eq_integral (x : ℝ) (hx : 2 ≤ x) :
         induction n <;> simp_all +decide [ Finset.sum_range_succ, Nat.primeCounting ];
         · norm_num [ Finset.sum_filter ];
         · simp_all +decide [ Finset.sum_range_succ, Finset.sum_filter, Nat.primeCounting' ];
-          split_ifs <;> simp_all +decide [ Nat.count_succ ] ; ring;
-          ring;
+          split_ifs <;> simp_all +decide [ Nat.count_succ ] <;> ring;
       apply h_sum_parts;
     -- We'll use that $\int_2^x \pi(t) dt =
     -- \sum_{k=2}^{\lfloor x \rfloor - 1} \pi(k)$.
@@ -1126,7 +1124,7 @@ lemma sum_primes_eq_integral (x : ℝ) (hx : 2 ≤ x) :
           ( fun y : ℝ => y + ( Nat.primeCounting ⌊x⌋₊ : ℝ ) * ( x - ⌊x⌋₊ ) )
           ( h_integral_step ⌊x⌋₊ ( Nat.le_floor hx ) ) using 1;
       rw [ ← intervalIntegral.integral_add_adjacent_intervals ];
-      congr! 1;
+      all_goals try congr! 1;
       · rw [ intervalIntegral.integral_of_le ( Nat.floor_le ( by positivity ) ) ];
         rw [ MeasureTheory.setIntegral_congr_fun measurableSet_Ioc fun y hy => by
           rw [ show ⌊y⌋₊ = ⌊x⌋₊ from
@@ -1161,8 +1159,9 @@ lemma integral_t_div_log_t_asymp :
               ∫ t in a..b, t / (2 * (Real.log t)^2) := by
       intros a b _ _; rw [ intervalIntegral.integral_eq_sub_of_hasDerivAt ];
       rotate_right;
-      use fun x =>
-        x^2 / ( 2 * Real.log x ) + ∫ t in ( 2 : ℝ )..x, t / ( 2 * Real.log t ^ 2 );
+      focus
+        use fun x =>
+          x^2 / ( 2 * Real.log x ) + ∫ t in ( 2 : ℝ )..x, t / ( 2 * Real.log t ^ 2 );
       · rw [ ← intervalIntegral.integral_add_adjacent_intervals ] <;>
           ring_nf <;>
           apply_rules [ ContinuousOn.intervalIntegrable ] <;>
