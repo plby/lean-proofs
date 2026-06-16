@@ -35,7 +35,6 @@ namespace Erdos401
 -- `linter.mathlibStandardSet` switch.
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.multiGoal false
 set_option linter.flexible false
 
 attribute [local instance] Classical.propDecidable
@@ -157,7 +156,9 @@ lemma padicValNat_P (r : ℕ) (hr : r ≥ 1) (pp : ℕ) (hp : pp.Prime) :
   have h_padic_val : padicValNat pp (P r) ≤ 1 := by
     have := P_squarefree r;
     have := this.natFactorization_le_one pp;
-    rw [ Nat.factorization_def ] at this ; aesop;
+    rw [ Nat.factorization_def ] at this
+    focus
+      aesop
     assumption;
   split_ifs <;> simp_all [ Nat.Prime.dvd_iff_not_coprime ];
   · have h_div : pp ∣ P r := by
@@ -363,9 +364,18 @@ lemma W_le_V (p m k : ℕ) (hp : p.Prime) : W p m k ≤ k / (p - 1) + V p m k :=
       apply W_eq_val_factorial;
       assumption;
     have hW_sum : padicValNat p (Nat.factorial (m + k)) = ∑ i ∈ Finset.Ico 1 b, (m + k) / p ^ i ∧ padicValNat p (Nat.factorial m) = ∑ i ∈ Finset.Ico 1 b, m / p ^ i := by
-      haveI := Fact.mk hp; rw [ padicValNat_factorial, padicValNat_factorial ] ; aesop;
-      · exact Nat.lt_succ_of_le ( Nat.le_succ_of_le ( Nat.log_mono_right ( Nat.le_add_right _ _ ) ) );
-      · linarith;
+      haveI := Fact.mk hp
+      rw [
+        padicValNat_factorial (p := p) (n := m + k) (b := b) (by
+          rw [hb]
+          omega),
+        padicValNat_factorial (p := p) (n := m) (b := b) (by
+          rw [hb]
+          exact Nat.lt_succ_of_le
+            (Nat.le_succ_of_le (Nat.log_mono_right (Nat.le_add_right _ _)))
+        )
+      ]
+      constructor <;> rfl
     rw [ ‹W p m k = _›, hW_sum.1, hW_sum.2, Nat.sub_eq_of_eq_add ];
     rw [ ← Finset.sum_add_distrib, Finset.sum_congr rfl fun _ _ => tsub_add_cancel_of_le <| Nat.div_le_div_right <| by linarith ];
   have hsum_bound : ∑ i ∈ Finset.Ico 1 b, ((m + k) / p ^ i - m / p ^ i) ≤ ∑ i ∈ Finset.Ico 1 (V p m k + 1), (k / p ^ i + 1) := by
@@ -435,7 +445,10 @@ lemma prob_event_le_prob_ZMod (M Q : ℕ) (P : ZMod Q → Prop) [DecidablePred P
         have h_full_block : Finset.image (fun m : ℕ => m : ℕ → ZMod Q) (Finset.filter (fun m : ℕ => P (m : ZMod Q)) (Finset.Ico (M + i * Q) (M + (i + 1) * Q))) ⊆ Finset.filter P (Finset.univ : Finset (ZMod Q)) := by
           intro x hx
           aesop;
-        have := Finset.card_le_card h_full_block; rw [ Finset.card_image_of_injOn ] at this; aesop;
+        have := Finset.card_le_card h_full_block
+        rw [ Finset.card_image_of_injOn ] at this
+        focus
+          aesop
         intros m hm m' hm' h; simp_all +decide [ ZMod.natCast_eq_natCast_iff' ] ;
         exact le_antisymm ( Nat.le_of_not_lt fun hnm => by have := Nat.modEq_iff_dvd.mp h.symm; norm_num at this; nlinarith [ Int.le_of_dvd ( by linarith ) this ] ) ( Nat.le_of_not_lt fun hnm => by have := Nat.modEq_iff_dvd.mp h; norm_num at this; nlinarith [ Int.le_of_dvd ( by linarith ) this ] );
       rw [ Finset.filter_biUnion ] ; exact le_trans ( Finset.card_biUnion_le ) ( by simpa [ mul_comm ] using Finset.sum_le_sum h_full_blocks ) ;
@@ -683,8 +696,8 @@ lemma card_X_vec_eq (p L k : ℕ) (hp : p.Prime) (hp_ge_3 : p ≥ 3) :
     have h_subset : (Finset.filter (fun f : Fin L → Fin p => ∀ i, f i ∈ S ↔ i ∈ A) (Finset.univ : Finset (Fin L → Fin p))).card = (∏ i : Fin L, if i ∈ A then S.card else (p - S.card)) := by
       have h_subset : (Finset.filter (fun f : Fin L → Fin p => ∀ i, f i ∈ S ↔ i ∈ A) (Finset.univ : Finset (Fin L → Fin p))).card = (∏ i : Fin L, (Finset.filter (fun d : Fin p => d ∈ S ↔ i ∈ A) (Finset.univ : Finset (Fin p))).card) := by
         have h_subset : (Finset.filter (fun f : Fin L → Fin p => ∀ i, f i ∈ S ↔ i ∈ A) (Finset.univ : Finset (Fin L → Fin p))).card = (Finset.pi Finset.univ fun i : Fin L => Finset.filter (fun d : Fin p => d ∈ S ↔ i ∈ A) (Finset.univ : Finset (Fin p))).card := by
-          refine Finset.card_bij ?_ ?_ ?_ ?_;
-          use fun a ha i _ => a i;
+          refine Finset.card_bij ?_ ?_ ?_ ?_
+          · use fun a ha i _ => a i
           · aesop;
           · simp +contextual [ funext_iff ];
           · simp +zetaDelta at *;
@@ -755,7 +768,9 @@ lemma chernoff_bound_X_fixed (p M : ℕ) [Fact p.Prime] (hp_ge_3 : p ≥ 3) :
     -- Applying the Chernoff bound with $n = L p M$ and $p = \frac{p-1}{2p}$.
     have h_apply_chernoff : (∑ k ∈ Finset.range (Nat.floor ((1 / 2) * (L p M * ((p - 1) / (2 * p) : ℝ))) + 1), Nat.choose (L p M) k * ((p - 1) / (2 * p) : ℝ) ^ k * (1 - (p - 1) / (2 * p) : ℝ) ^ (L p M - k)) ≤ Real.exp (-1 / 8 * (L p M * ((p - 1) / (2 * p) : ℝ))) := by
       exact h_chernoff _ _ ⟨ div_pos ( by norm_num; linarith ) ( by positivity ), by rw [ div_lt_iff₀ ] <;> linarith [ show ( p : ℝ ) ≥ 3 by norm_cast ] ⟩;
-    convert mul_le_mul_of_nonneg_right h_apply_chernoff ( pow_nonneg ( Nat.cast_nonneg p : ( 0 : ℝ ) ≤ p ) ( L p M ) ) using 1 <;> norm_num [ theta ] ; ring_nf;
+    convert mul_le_mul_of_nonneg_right h_apply_chernoff ( pow_nonneg ( Nat.cast_nonneg p : ( 0 : ℝ ) ≤ p ) ( L p M ) ) using 1 <;> norm_num [ theta ]
+    focus
+      ring_nf
     · rw [ Finset.mul_sum _ _ _ ] ; refine Finset.sum_congr rfl fun x hx => ?_ ; rw [ Nat.cast_div ( show 2 ∣ p - 1 from even_iff_two_dvd.mp ( Nat.Prime.even_sub_one Fact.out ( by linarith ) ) ) ( by norm_num ) ] ; rw [ Nat.cast_div ( show 2 ∣ 1 + p from even_iff_two_dvd.mp ( by simpa [ parity_simps ] using Nat.Prime.odd_of_ne_two Fact.out ( by linarith ) ) ) ( by norm_num ) ] ; norm_num ; ring_nf;
       rw [ Nat.cast_sub ( by linarith ) ] ; ring_nf;
       field_simp;
@@ -917,8 +932,9 @@ theorem uniform_carry_threshold (r : ℕ) :
             have h_log_log : Filter.Tendsto (fun M : ℕ => (Real.log M / Real.log (Real.log M)) / (1 + Real.log (2 * (c r)) / Real.log (Real.log M))) Filter.atTop Filter.atTop := by
               have h_log_log : Filter.Tendsto (fun M : ℕ => 1 + Real.log (2 * (c r)) / Real.log (Real.log M)) Filter.atTop (nhds 1) := by
                 exact le_trans ( tendsto_const_nhds.add <| tendsto_const_nhds.div_atTop <| Real.tendsto_log_atTop.comp <| Real.tendsto_log_atTop.comp <| tendsto_natCast_atTop_atTop ) <| by norm_num;
-              apply_rules [ Filter.Tendsto.atTop_mul_pos, h_log_log.inv₀ ] ; norm_num;
-              norm_num;
+              apply_rules [ Filter.Tendsto.atTop_mul_pos, h_log_log.inv₀ ]
+              · norm_num
+              · norm_num
             refine h_log_log.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 2 ] with M hM using by rw [ div_div, mul_add, mul_div_cancel₀ _ ( ne_of_gt <| Real.log_pos <| show 1 < Real.log M from by rw [ Real.lt_log_iff_exp_lt <| by positivity ] ; exact Real.exp_one_lt_d9.trans_le <| by norm_num; linarith [ show ( M : ℝ ) ≥ 3 by norm_cast ] ) ] ; ring );
           exact Filter.eventually_atTop.mp ( h_log_ratio_bound.eventually_ge_atTop _ );
         refine ⟨ Max.max M0 2, fun M hM p hp hp' hp'' => le_trans ( hM0 M ( le_trans ( le_max_left _ _ ) hM ) ) ?_ ⟩;
@@ -1057,8 +1073,9 @@ lemma k_div_p_minus_one_le (r M p : ℕ) (hr : r ≥ 1) (hp : p.Prime) (hp_ge_q 
         · exact_mod_cast hp_ge_q;
       rw [ div_le_iff₀ ];
       · convert h_subst_c.trans _ using 1;
-        convert mul_le_mul_of_nonneg_right ( mul_le_mul_of_nonneg_left h_subst_q <| show 0 ≤ γ / 8 by exact div_nonneg ( by norm_num [ γ ] ) <| by norm_num ) <| Real.log_nonneg <| Nat.one_le_cast.mpr <| pos_of_gt hM using 1 ; ring;
-        ring;
+        convert mul_le_mul_of_nonneg_right ( mul_le_mul_of_nonneg_left h_subst_q <| show 0 ≤ γ / 8 by exact div_nonneg ( by norm_num [ γ ] ) <| by norm_num ) <| Real.log_nonneg <| Nat.one_le_cast.mpr <| pos_of_gt hM using 1
+        · ring
+        · ring
       · exact sub_pos_of_lt ( Nat.one_lt_cast.mpr hp.one_lt )
 
 /-
@@ -1424,7 +1441,9 @@ lemma p_gt_2k (m k p : ℕ) (hp : p.Prime) (hp_gt : p > 2 * k) :
       · exact ⟨ hp ⟩;
       · linarith;
       · rw [ Nat.le_div_iff_mul_le ] <;> linarith [ Finset.mem_range.mp hi, Nat.sub_add_cancel hp.pos ];
-      · convert Nat.ordProj_dvd ( m + 1 + i ) p using 1 ; ring_nf;
+      · convert Nat.ordProj_dvd ( m + 1 + i ) p using 1
+        focus
+          ring_nf
         · rw [ Nat.factorization_def ] ; aesop;
         · ring
     exact Finset.sup_le h_def;
