@@ -34,7 +34,6 @@ namespace Erdos347
 
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.multiGoal false
 set_option linter.flexible false
 
 open scoped BigOperators
@@ -288,7 +287,8 @@ lemma block_ratio_last :
   Filter.Tendsto (fun n => (((2^(k n - 1) - 1) * M n + 1 : ℕ) : ℝ) / ((2^(k n - 2) * M n : ℕ) : ℝ)) Filter.atTop (nhds (2 : ℝ)) := by
     -- Simplify the expression inside the limit.
     suffices h_simp : Filter.Tendsto (fun n => (2 - 1 / 2^(k n - 2) + 1 / (2^(k n - 2) * M n) : ℝ)) Filter.atTop (nhds 2) by
-      refine h_simp.congr' ?_ ; filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn ; rcases k_n : k n with ( _ | _ | k ) <;> simp_all +decide [ pow_succ', div_eq_mul_inv ] ; ring_nf;
+      refine h_simp.congr' ?_ ; filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn ; rcases k_n : k n with ( _ | _ | k ) <;> simp_all +decide [ pow_succ', div_eq_mul_inv ]
+      focus ring_nf
       · unfold k at k_n ; aesop;
       · unfold k at k_n;
         omega;
@@ -710,7 +710,8 @@ lemma mem_subset_sums_block (n x : ℕ) (hx : x ∈ B n) :
                 have := ha₂ ▸ Finset.single_le_sum ( fun x _ => Nat.zero_le ( 2 ^ x ) ) H;
                 omega;
           apply h_binary;
-          rcases u : k n with ( _ | _ | k ) <;> simp_all +decide [ pow_succ' ] ; omega;
+          rcases u : k n with ( _ | _ | k ) <;> simp_all +decide [ pow_succ' ]
+          focus omega
           · linarith;
           · rw [ tsub_add_eq_add_tsub hj.1 ];
             rw [ tsub_lt_iff_left ] <;> linarith [ Nat.sub_add_cancel ( show 2 ≤ 2 * ( 2 * 2 ^ k ) from by linarith [ Nat.one_le_pow k 2 zero_lt_two ] ) ];
@@ -1108,7 +1109,8 @@ lemma sum_inv_B_card_diverges (n_0 : ℕ) :
         refine h_harmonic.congr' ?_;
         filter_upwards [ Filter.eventually_ge_atTop n_0 ] with N hN;
         erw [ Finset.sum_Ico_eq_sum_range ] ; norm_num [ add_comm, add_left_comm, add_assoc ];
-      convert h_harmonic.const_mul_atTop ( show 0 < ( C : ℝ ) ⁻¹ from inv_pos.mpr <| ?_ ) using 2 ; norm_num [ div_eq_mul_inv, Finset.mul_sum _ _ _ ];
+      convert h_harmonic.const_mul_atTop ( show 0 < ( C : ℝ ) ⁻¹ from inv_pos.mpr <| ?_ ) using 2
+      focus norm_num [ div_eq_mul_inv, Finset.mul_sum _ _ _ ]
       · grind;
       · have := hC 0; norm_num at this;
         exact lt_of_not_ge fun h => by nlinarith [ show ( B_card 0 : ℝ ) > 0 from mod_cast B_card_zero_pos, Real.log_pos ( show 16 > 1 by norm_num ) ] ;
@@ -1275,7 +1277,10 @@ lemma M_recurrence_ineq (n : ℕ) : (M (n + 1) : ℝ) ≥ M n * product_term n -
     rfl;
   unfold product_term; norm_num [ hM_def ] ; ring_nf; norm_num;
   unfold a_seq ; ring_nf; norm_num;
-  rw [ show B_card n = 2 ^ k n - 1 from ?_ ] ; norm_num [ Nat.cast_sub ( show 3 ≤ 2 ^ k n * 2 from by linarith [ Nat.pow_le_pow_right two_pos ( show k n ≥ 1 from by exact Nat.succ_le_of_lt ( by exact add_pos_of_pos_of_nonneg zero_lt_four ( Nat.zero_le _ ) ) ) ] ) ] ; ring_nf ; norm_num;
+  rw [ show B_card n = 2 ^ k n - 1 from ?_ ]
+  focus norm_num [ Nat.cast_sub ( show 3 ≤ 2 ^ k n * 2 from by linarith [ Nat.pow_le_pow_right two_pos ( show k n ≥ 1 from by exact Nat.succ_le_of_lt ( by exact add_pos_of_pos_of_nonneg zero_lt_four ( Nat.zero_le _ ) ) ) ] ) ]
+  focus ring_nf
+  focus norm_num
   · field_simp;
     norm_cast ; nlinarith [ Nat.div_add_mod ( M n * ( 2 ^ k n * 2 - 3 ) ) 2, Nat.mod_lt ( M n * ( 2 ^ k n * 2 - 3 ) ) two_pos, Nat.sub_add_cancel ( show 3 ≤ 2 ^ k n * 2 from by linarith [ Nat.pow_le_pow_right two_pos ( show k n ≥ 1 from by exact Nat.succ_le_of_lt ( by exact add_pos_of_pos_of_nonneg zero_lt_four ( Nat.zero_le _ ) ) ) ] ) ];
   · exact B_card_eq n
@@ -1300,7 +1305,8 @@ lemma ratio_recurrence (n_0 n : ℕ) (hn : n ≥ n_0) :
       · apply_rules [ mul_nonneg, Finset.prod_nonneg ] <;> norm_num [ product_term ];
         · exact fun i hi₁ hi₂ => add_nonneg ( le_of_lt ( a_seq_pos i ) ) ( by norm_num );
         · exact add_nonneg ( le_of_lt ( a_seq_pos n ) ) ( by norm_num );
-      · rw [ mul_right_comm, mul_div_cancel_right₀ _ ( ne_of_gt <| ?_ ) ] ; linarith;
+      · rw [ mul_right_comm, mul_div_cancel_right₀ _ ( ne_of_gt <| ?_ ) ]
+        focus linarith
         refine Finset.prod_pos fun i hi => ?_;
         exact add_pos_of_nonneg_of_pos ( sub_nonneg_of_le ( mod_cast Nat.one_le_iff_ne_zero.mpr <| by { unfold B_card; unfold B_finset; aesop } ) ) ( by norm_num );
     · refine mul_ne_zero ?_ ?_;
@@ -1400,7 +1406,8 @@ lemma M_ratio_lower_bound (n_0 N : ℕ) (hN : N ≥ n_0) :
     | refl => convert this le_rfl using 1 ; norm_num [ partial_prod ];
     | @step N hN ih =>
       erw [ Finset.sum_Ico_succ_top ( by linarith [ Nat.succ_le_succ hN ] ) ];
-      have := ih ( fun _ => ?_ ) ; simp_all +decide [ Finset.sum_Ico_succ_top ] ;
+      have := ih ( fun _ => ?_ )
+      focus simp_all +decide [ Finset.sum_Ico_succ_top ]
       · rw [ Finset.Icc_eq_cons_Ico ( by linarith ), Finset.sum_cons ] at this ; linarith [ ‹n_0 ≤ N + 1 → _› ( by linarith ) ];
       · exact ratio_recurrence n_0 N hN
 
@@ -1587,7 +1594,8 @@ lemma log_ineq (n : ℕ) : Real.log (a_seq n / product_term n) ≤ -1 / (4 * a_s
   -- Substitute y = 1/(2*a_n) into the inequality.
   have h_sub : Real.log (1 / (1 + y)) ≤ -y / 2 := by
     norm_num at * ; linarith;
-  convert h_sub using 1 <;> norm_num [ y, product_term ] ; ring_nf;
+  convert h_sub using 1 <;> norm_num [ y, product_term ]
+  focus ring_nf
   · rw [ ← Real.log_inv ] ; ring_nf;
     field_simp;
     rw [ show a_seq n * 2 / ( 1 + a_seq n * 2 ) = 2 / ( 2 + 1 / a_seq n ) by rw [ div_eq_div_iff ] <;> nlinarith [ a_seq_pos n, one_div_mul_cancel ( ne_of_gt ( a_seq_pos n ) ) ] ];
