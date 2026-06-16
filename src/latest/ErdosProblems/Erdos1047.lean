@@ -556,12 +556,11 @@ noncomputable def root_of_index : Fin 6 → ℂ
 | 5 => Complex.exp (Complex.I * (2 * 2 * Real.pi / 5))
 
 set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 lemma root_of_index_mem_U (i : Fin 6) : root_of_index i ∈ U i := by
   fin_cases i <;> simp +decide [ U ];
   all_goals unfold root_of_index; norm_num [ Complex.norm_exp, Complex.arg ];
   all_goals unfold r_c; norm_num [ Complex.exp_re, Complex.exp_im ];
-  bound;
+  · bound
   · norm_num [
       show 6 * Real.pi / 5 = Real.pi + Real.pi / 5 by ring,
       Real.sin_add, Real.cos_add
