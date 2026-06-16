@@ -42,7 +42,6 @@ namespace Erdos964
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 set_option linter.unusedVariables false
 
 open scoped BigOperators
@@ -416,7 +415,9 @@ lemma R_contains_one_of_three (hGPY : GoldstonGrahamPintzYildirimStatement)
         · simp +decide [ L, a_seq ];
           aesop;
         · simp +decide [L] at *;
-          intro h; rw [ Nat.div_eq_iff_eq_mul_left zero_lt_two ] at h; simp_all +decide [ Nat.mul_assoc, Nat.mul_comm, Nat.mul_left_comm ] ;
+          intro h; rw [ Nat.div_eq_iff_eq_mul_left zero_lt_two ] at h
+          focus
+            simp_all +decide [ Nat.mul_assoc, Nat.mul_comm, Nat.mul_left_comm ]
           · rw [ Nat.mul_div_cancel' ] at h;
             · simp_all +decide [ a_seq ];
               exact h.resolve_right ha_pos.ne';
@@ -905,7 +906,8 @@ lemma tau_R1 (data_p : List (ℕ × ℕ × ℕ))
   tau (R1_val data_p) = (data_p.map (fun (_, _, y) => y + 1)).prod := by
     convert tau_P _ _ using 1;
     rotate_left;
-    exact data_p.map fun x => ( x.1, x.2.2, x.2.1 );
+    focus
+      exact data_p.map fun x => ( x.1, x.2.2, x.2.1 )
     · aesop;
     · unfold P_val R1_val; aesop;
 
@@ -996,7 +998,9 @@ lemma coprime_a_div_two_plus_one_R1 (data_p data_q : List (ℕ × ℕ × ℕ))
   let r1 := R1_val data_p
   (a / 2 + 1).Coprime r1 := by
     refine Nat.Coprime.symm <| Nat.coprime_of_dvd' ?_;
-    intro k hk hk' hk''; have := Nat.dvd_sub hk'' ( Nat.dvd_div_of_mul_dvd ( show 2 * k ∣ construct_a data_p data_q from ?_ ) ) ; simp_all +decide ;
+    intro k hk hk' hk''; have := Nat.dvd_sub hk'' ( Nat.dvd_div_of_mul_dvd ( show 2 * k ∣ construct_a data_p data_q from ?_ ) )
+    focus
+      simp_all +decide
     refine Nat.Coprime.mul_dvd_of_dvd_of_dvd ?_ ?_ ?_;
     · -- Since $k$ divides $R1_val$, and $R1_val$ is a product of primes from $data_p$, each of which is odd by $hp_odd$, $k$ must be one of those primes.
       have hk_prime : ∃ p ∈ data_p.map (fun x => x.1), k ∣ p := by
@@ -1247,7 +1251,9 @@ lemma tau_a_plus_two (data_p data_q : List (ℕ × ℕ × ℕ)) :
     -- Since `construct_a / 2 + 1` is odd, it is coprime to 2.
     have h_coprime : Nat.Coprime (construct_a data_p data_q / 2 + 1) 2 := by
       rw [ Nat.Coprime, Nat.gcd_comm, Nat.gcd_rec ];
-      rw [ Nat.add_mod, Nat.mod_eq_zero_of_dvd ( Nat.dvd_div_of_mul_dvd _ ) ] ; norm_num;
+      rw [ Nat.add_mod, Nat.mod_eq_zero_of_dvd ( Nat.dvd_div_of_mul_dvd _ ) ]
+      focus
+        norm_num
       unfold construct_a; norm_num [ Nat.mul_mod, Nat.dvd_iff_mod_eq_zero ] ;
     -- Since `tau` is multiplicative and `2` and `construct_a / 2 + 1` are coprime, we have `tau(2 * (construct_a / 2 + 1)) = tau(2) * tau(construct_a / 2 + 1)`.
     have h_mul : ∀ {m n : ℕ}, Nat.Coprime m n → tau (m * n) = tau m * tau n := by
@@ -1504,7 +1510,10 @@ lemma target_val_in_R_set (hGPY : GoldstonGrahamPintzYildirimStatement)
       · convert r1_coprime_a_plus_one data_p data_q h_pos using 1;
       · convert r2_coprime_a_plus_two data_p data_q hp_odd h_pos using 1
     have hp_exists : ∃ p : Fin 3 → ℕ, (∀ i, Nat.Prime (p i)) ∧ (∀ i j, i ≠ j → p i ≠ p j) ∧ (∀ i j, Nat.Coprime (p i) (a_seq (construct_a data_p data_q) j)) ∧ (∀ i j, Nat.Coprime (p i) (construct_r data_p data_q j)) := by
-      apply suitable_primes_exist; assumption; exact hr_gt_one;
+      apply suitable_primes_exist
+      focus
+        assumption
+      exact hr_gt_one;
     obtain ⟨p, hp_prime, hp_distinct, hp_coprime_a, hp_coprime_r⟩ := hp_exists
     generalize_proofs at *; (
     have hR : ∃ v1 v2 v3, v1 ∈ R_set ∧ v2 ∈ R_set ∧ v3 ∈ R_set ∧
@@ -1557,7 +1566,11 @@ lemma target_val_in_R_set (hGPY : GoldstonGrahamPintzYildirimStatement)
       let d5 := tau (a_seq (construct_a data_p data_q) 2 / 2 * construct_r data_p data_q 0)
       let d6 := tau (a_seq (construct_a data_p data_q) 0 / 2 * construct_r data_p data_q 2)
       (d1 * d3 * d6 : ℚ) / (d2 * d4 * d5 : ℚ) = target_val data_p data_q := by
-        apply target_eq_target_val; assumption; assumption; assumption; assumption
+        apply target_eq_target_val
+        · assumption
+        · assumption
+        · assumption
+        · assumption
     generalize_proofs at *; (
     grind)))
 
@@ -1580,7 +1593,9 @@ lemma R_set_contains_pos_rationals (q : ℚ) (hq : 0 < q) (hGPY : GoldstonGraham
     · have hp_div_R1 : p ∣ R1_val data_p := by
         exact dvd_trans ( dvd_pow_self _ ( ne_of_gt ( h_pos.1 _ _ _ hp_p.choose_spec.choose_spec |>.2 ) ) ) ( List.dvd_prod ( List.mem_map.mpr ⟨ _, hp_p.choose_spec.choose_spec, rfl ⟩ ) ) ;
       exact hp_odd.1.of_dvd_nat hp_div_R1;
-    · obtain ⟨ a, b, h ⟩ := hp_q; specialize hp_odd; replace hp_odd := hp_odd.2.of_dvd_nat ( show p ∣ R2_val data_q from ?_ ) ; simp_all +decide ;
+    · obtain ⟨ a, b, h ⟩ := hp_q; specialize hp_odd; replace hp_odd := hp_odd.2.of_dvd_nat ( show p ∣ R2_val data_q from ?_ )
+      focus
+        simp_all +decide
       exact dvd_trans ( dvd_pow_self _ ( by linarith [ h_pos.2 _ _ _ h ] ) ) ( List.dvd_prod ( List.mem_map.mpr ⟨ _, h, rfl ⟩ ) )
   exact hp_odd) hp_distinct (by
   grind) hr_odd
