@@ -42,7 +42,6 @@ set_option linter.style.whitespace false
 set_option linter.style.cdot false
 set_option linter.style.longLine false
 set_option linter.style.emptyLine false
-set_option linter.style.multiGoal false
 set_option linter.deprecated false
 set_option linter.flexible false
 set_option linter.unusedVariables false
@@ -1309,7 +1308,8 @@ theorem es_part_blocks_decreasing (num_blocks block_size : ℕ) (base_val : ℝ)
     let B := es_part_blocks num_blocks block_size base_val start_idx eps
     ∀ x ∈ B[i]!, ∀ y ∈ B[j]!, x > y := by
       unfold es_part_blocks; aesop;
-      rw [ List.getElem?_range ] at a_2 ; aesop;
+      rw [ List.getElem?_range ] at a_2
+      focus aesop
       · norm_cast;
         nlinarith [ Nat.sub_add_cancel ( by linarith : 1 ≤ num_blocks ), Nat.sub_add_cancel ( by omega : j ≤ num_blocks - 1 ), Nat.sub_add_cancel ( by omega : i ≤ num_blocks - 1 ) ];
       · linarith
@@ -2595,7 +2595,8 @@ lemma construction_nodup (k a : ℕ) (eps : ℝ) (h_eps_pos : 0 < eps) (h_eps_sm
     have h_part1p_nodup : (es_partp (a + 1) 0 a (k - a) eps).Nodup := by
       unfold es_partp; norm_num [ List.nodup_flatMap ] ; aesop;
       · unfold es_block;
-        rw [ List.nodup_map_iff_inj_on ] ; aesop;
+        rw [ List.nodup_map_iff_inj_on ]
+        focus aesop
         induction ( k - a ) <;> simp_all +decide [ List.range_succ ];
         rw [ List.nodup_append ] ; aesop;
       · refine List.Pairwise.imp_of_mem (R := fun x y => x < y) ?_ ?_;
@@ -2620,7 +2621,8 @@ lemma construction_nodup (k a : ℕ) (eps : ℝ) (h_eps_pos : 0 < eps) (h_eps_sm
     have h_part3p_nodup : (es_partp (a + 1) (a * (k - a) + (a + 1) * (a + 1)) (k - a) k eps).Nodup := by
       refine List.nodup_flatMap.mpr ?_;
       unfold es_block; aesop;
-      · rw [ List.nodup_map_iff_inj_on ] ; aesop;
+      · rw [ List.nodup_map_iff_inj_on ]
+        focus aesop
         rw [ List.nodup_flatMap ] ; aesop;
         norm_num [ List.pairwise_iff_get ];
         exact fun i j hij => ne_of_gt hij;
@@ -3889,7 +3891,8 @@ theorem baek_koizumi_ueoro (k c : ℤ) (hk : 0 < k) (hc : -k^2 ≤ c) : g (k ^ 2
     refine csSup_le ?_ ?_ <;> norm_num;
     · exact ⟨ 0, ⟨ fun _ => ⟨ 0, 0, 0, by norm_num, by norm_num, by norm_num, by norm_num, by norm_num ⟩, by unfold Packing.is_valid; aesop ⟩ ⟩;
     · unfold Packing.total_side_length; aesop;
-      rw [ add_div', le_div_iff₀ ] <;> norm_cast ; nlinarith;
+      rw [ add_div', le_div_iff₀ ] <;> norm_cast
+      focus nlinarith
       linarith
 
 /-
