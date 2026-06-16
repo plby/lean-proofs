@@ -63,7 +63,6 @@ noncomputable section
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.maxHeartbeats false
-set_option linter.style.multiGoal false
 set_option linter.style.show false
 set_option maxHeartbeats 50000000
 -- Several generated pentagon-density arguments time out at the default heartbeat limit.
@@ -2140,7 +2139,7 @@ lemma sum_sum_psd_nonneg {k : ℕ} {M : Matrix (Fin k) (Fin k) ℚ}
     (0 : ℚ) ≤ S.sum fun d => S.sum fun e => M (flag d) (flag e) := by
   convert hM _
   swap
-  exact fun i => (S.filter fun x => flag x = i).card
+  · exact fun i => (S.filter fun x => flag x = i).card
   · simp [dotProduct, Matrix.mulVec, Finset.mul_sum]
     have : ∑ d ∈ S, ∑ e ∈ S, M (flag d) (flag e) =
         ∑ i, ∑ d ∈ S.filter (fun x => flag x = i),
@@ -3299,15 +3298,16 @@ theorem numC5_eq_numC5Copies_of_triangleFree {V : Type*} [Fintype V]
       have := @labeledC5_fiber_card
       rw [eq_comm, SimpleGraph.numC5, SimpleGraph.numC5Copies]
       rw [Nat.div_eq_of_eq_mul_left]
-      decide +revert
+      focus decide +revert
       rw [← Finset.sum_const_nat]
-      nontriviality
-      convert Finset.card_biUnion _
+      focus nontriviality
+      focus convert Finset.card_biUnion _
       rotate_left
-      infer_instance
+      focus infer_instance
       rotate_left
-      intro S hS
-      convert this hG (Finset.mem_filter.mp hS |>.2)
+      focus
+        intro S hS
+        convert this hG (Finset.mem_filter.mp hS |>.2)
       · ext f
         simp [SimpleGraph.IsC5Copy]
         grind +qlia
