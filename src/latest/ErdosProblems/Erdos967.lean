@@ -35,7 +35,6 @@ Formalization of the disproof of a question by Erdős and Ingham regarding the n
 import Mathlib
 
 set_option linter.style.longLine false
-set_option linter.style.multiGoal false
 set_option aesop.warn.nonterminal false
 
 open scoped BigOperators
@@ -56,7 +55,8 @@ lemma mvt_estimate (t : ℝ) (x : ℝ) (hx : 0 < x) (n : ℝ) (hn : x ≤ n) :
     have h_ftc : Complex.ofReal n ^ (-(1 + Complex.I * t)) - Complex.ofReal x ^ (-(1 + Complex.I * t)) = -∫ u in (x)..n, (1 + Complex.I * t) * Complex.ofReal u ^ (-(2 + Complex.I * t)) := by
       rw [ intervalIntegral.integral_eq_sub_of_hasDerivAt ];
       rotate_right;
-      use fun u => - ( u : ℂ ) ^ ( - ( 1 + Complex.I * t ) );
+      focus
+        use fun u => - ( u : ℂ ) ^ ( - ( 1 + Complex.I * t ) )
       · ring_nf;
       · intro u hu; convert HasDerivAt.neg ( HasDerivAt.comp u ( hasDerivAt_id' _ |> HasDerivAt.cpow_const <| _ ) <| HasDerivAt.ofReal_comp <| hasDerivAt_id' _ ) using 1 <;> aesop;
         · ring_nf;
