@@ -18,7 +18,6 @@ URLs:
 import Mathlib
 
 set_option linter.style.setOption false
-set_option linter.style.multiGoal false
 set_option linter.flexible false
 
 namespace Erdos418
@@ -368,7 +367,8 @@ lemma n_le_four_m (n : ℕ) (h : n - n.totient = 2 * m_BS) : n ≤ 4 * m_BS := b
           Finset.card (Finset.filter (fun x => x % 2 = 1) (Finset.range n)) =
             n / 2 := by
         rw [ Finset.card_eq_of_bijective ];
-        use fun i hi => 2 * i + 1;
+        focus
+          use fun i hi => 2 * i + 1
         · intro a ha
           rw [Finset.mem_filter] at ha
           rw [Finset.mem_range] at ha
