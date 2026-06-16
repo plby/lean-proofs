@@ -177,7 +177,6 @@ lemma sum_odd_length_even_start (n i j : ℕ) (hi : 1 ≤ i) (hij : i ≤ j)
 set_option maxHeartbeats 2000000 in
 -- The parity case split below needs extra heartbeats for its arithmetic subgoals.
 set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 /-
 If two odd-length segments have the same sum, they must be the same segment.
 -/
@@ -190,7 +189,7 @@ theorem distinct_odd_sums (n : ℕ) {i j k l : ℕ}
     i = k ∧ j = l := by
   -- Let's consider the four cases based on the parity of $i$ and $k$.
   by_cases hi_odd : i % 2 = 1
-  by_cases hk_odd : k % 2 = 1
+  focus by_cases hk_odd : k % 2 = 1
   · -- By Lemma 2, the sums have the same paired part and final term.
     have h_eq_odd :
         (j - i) / 2 * (n + 1) + construction n j =
@@ -610,7 +609,6 @@ If $p(i)+1 = a_{i+1}$, then the set of consecutive sums of $p$ is the same as th
 set of consecutive sums of the sequence $a$.
 -/
 set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 lemma perm_sums_eq_construction_sums (n : ℕ) (p : Equiv.Perm (Fin n))
     (hp : ∀ i : Fin n, (p i : ℕ) + 1 = construction n (i + 1)) :
     perm_consecutive_sums n p =
@@ -626,10 +624,11 @@ lemma perm_sums_eq_construction_sums (n : ℕ) (p : Equiv.Perm (Fin n))
       any_goals
         intros
         omega
-      exact lt_of_lt_of_le
-        (Nat.pred_lt (ne_bot_of_gt (Finset.mem_Icc.mp hx |>.1)))
-        (Finset.mem_Icc.mp hx |>.2.trans
-          (Nat.succ_le_of_lt (Fin.is_lt b)))
+      focus
+        exact lt_of_lt_of_le
+          (Nat.pred_lt (ne_bot_of_gt (Finset.mem_Icc.mp hx |>.1)))
+          (Finset.mem_Icc.mp hx |>.2.trans
+            (Nat.succ_le_of_lt (Fin.is_lt b)))
       · exact fun x hx₁ hx₂ =>
           ⟨Nat.le_sub_one_of_lt hx₁,
             Nat.sub_le_of_le_add <| by linarith [Fin.is_lt b]⟩
