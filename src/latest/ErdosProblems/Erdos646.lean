@@ -73,7 +73,6 @@ import Mathlib
 namespace Erdos646
 
 set_option linter.style.longLine false
-set_option linter.style.multiGoal false
 set_option linter.unusedVariables false
 
 open scoped BigOperators
@@ -436,7 +435,8 @@ lemma lemma_2_case_2 (p : ℕ) (hp : p.Prime) (b m : ℕ) (hb : b > 0) (hm : m >
         · -- Using the properties of p-adic valuations, we can simplify the expression for the valuation of $m + k0 + t * Q$.
           have h_val_simplified : padicValNat p (m + k0 + t * Q) = padicValNat p (u + t) + (M_next + 1) := by
             haveI := Fact.mk hp; rw [ hu ] ; ring_nf;
-            rw [ show u * Q + Q * t = Q * ( u + t ) by ring, padicValNat.mul ] <;> norm_num [ hQ.1, hp.ne_zero ] ; ring_nf;
+            rw [ show u * Q + Q * t = Q * ( u + t ) by ring, padicValNat.mul ] <;> norm_num [ hQ.1, hp.ne_zero ]
+            focus ring_nf
             grind +ring;
           grind +ring;
         · -- Since $k \ne k0$, we have $v_p(m+k) \le M_{next}$.
@@ -451,8 +451,10 @@ lemma lemma_2_case_2 (p : ℕ) (hp : p.Prime) (b m : ℕ) (hb : b > 0) (hm : m >
       -- By `exists_shift_with_parity`, there exists $t \in \{1, \dots, 2p\}$ such that $v_p(m+t)$ has the same parity as $v_p(m)$.
       obtain ⟨t, ht⟩ : ∃ t ∈ Finset.Icc 1 (2 * p), (padicValNat p (m + t)) % 2 = (padicValNat p m) % 2 := by
         convert exists_shift_with_parity p hp m _;
-        erw [ ← ZMod.natCast_eq_natCast_iff' ] ; norm_num;
-        erw [ show ( 2 : ZMod 2 ) = 0 by rfl ] ; norm_num;
+        focus erw [ ← ZMod.natCast_eq_natCast_iff' ]
+        focus norm_num
+        focus erw [ show ( 2 : ZMod 2 ) = 0 by rfl ]
+        focus norm_num
         convert Iff.rfl;
       exact ⟨ t, Finset.mem_Icc.mp ht.1 |>.1, by nlinarith [ Finset.mem_Icc.mp ht.1 |>.2, hp.two_le ], ht.2.symm ⟩
 
