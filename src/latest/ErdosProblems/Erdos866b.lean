@@ -59,7 +59,6 @@ namespace Erdos866b
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 set_option linter.style.whitespace false
 
 set_option maxHeartbeats 8000000
@@ -804,7 +803,8 @@ lemma energy_bound (A : Finset ℤ) (n : ℕ) (hA : IsWeakSidonSet A) (hn : 0 < 
     simp +decide [ Finset.sum_ite, mul_comm ];
     simp +decide [ mul_comm, diffRepr ];
     simp +decide [ ← Finset.mul_sum _ _ _, sub_eq_iff_eq_add ];
-    rw [ Finset.sum_congr rfl fun x hx => Nat.cast_inj.mpr <| show # ( Finset.filter ( fun y => x = d + y ) A ) = if x - d ∈ A then 1 else 0 from ?_ ] ; aesop;
+    rw [ Finset.sum_congr rfl fun x hx => Nat.cast_inj.mpr <| show # ( Finset.filter ( fun y => x = d + y ) A ) = if x - d ∈ A then 1 else 0 from ?_ ]
+    focus aesop
     split_ifs <;> simp_all +decide;
     · exact Finset.card_eq_one.mpr ⟨ x - d, by ext y; aesop ⟩;
     · exact fun y hy hxy => ‹x - d ∉ A› <| by convert hy using 1; linarith;
@@ -933,7 +933,8 @@ lemma weak_sidon_key_ineq (A : Finset ℤ) (N n : ℕ)
       exact le_trans ( Nat.cast_le.mpr ( sumset_card_bound A N n hn hAN ) ) ( by omega );
     gcongr;
     linarith;
-  cases N <;> cases n <;> norm_num at * ; nlinarith;
+  cases N <;> cases n <;> norm_num at *
+  focus nlinarith
   nlinarith
 
 /-- Any weak Sidon set $A ⊆ [1,N]$ satisfies $|A| \leq N^{1/2} + 4N^{1/4} + 11$. -/
@@ -1483,7 +1484,7 @@ lemma has_pps_large_n (A : Finset ℤ) (n : ℕ) (hn : 3404 ≤ n)
               · exact fun x hx => by linarith [ Finset.mem_Icc.mp ( hA ( Finset.mem_filter.mp ( Finset.mem_filter.mp hx |>.1 ) |>.1 ) ) ] ;
               · grind;
           apply ceslem_k4_chain A A₁;
-          grind +extAll;
+          focus grind +extAll
           any_goals exact 8 * t + 4;
           any_goals omega;
           · exact hA₁.2.2.1;
@@ -1573,7 +1574,8 @@ lemma h5lower_card (n : ℕ) (hn : 1 ≤ n) : n + Nat.log 2 n + 1 ≤ (A5set n).
   · rw [ Finset.card_image_of_injective ] <;> norm_num [ Function.Injective ];
     refine add_lt_add_of_le_of_lt ?_ ?_;
     · rw [ Finset.card_eq_of_bijective ];
-      use fun i hi => 2 * i + 1;
+      focus
+        use fun i hi => 2 * i + 1;
       · simp +zetaDelta at *;
         exact fun a ha₁ ha₂ ha₃ => ⟨ Int.toNat ( a / 2 ), by linarith [ Int.emod_add_mul_ediv a 2, Int.toNat_of_nonneg ( Int.ediv_nonneg ( by linarith : 0 ≤ a ) zero_le_two ) ], by linarith [ Int.emod_add_mul_ediv a 2, Int.toNat_of_nonneg ( Int.ediv_nonneg ( by linarith : 0 ≤ a ) zero_le_two ) ] ⟩;
       · grind;
@@ -1652,7 +1654,7 @@ The counterexample set for g₅ lower bound: odd integers ∪ {2n-4, 2n-2, 2n}.
 -/
 lemma g5lower_counterexample (n : ℕ) (hn : 3 ≤ n) :
     ∃ A : Finset ℤ, A ⊆ Icc (1 : ℤ) (2 * ↑n) ∧ n + 3 ≤ A.card ∧ ¬HasPairwiseSums A 5 := by
-      constructor;
+      use Finset.filter (fun x : ℤ => x % 2 = 1 ∨ x = 2 * n - 4 ∨ x = 2 * n - 2 ∨ x = 2 * n) (Finset.Icc 1 (2 * n))
       -- Show that the chosen set is a subset of {1,...,2n}.
       have h_subset : (Finset.filter (fun x : ℤ => x % 2 = 1 ∨ x = 2 * n - 4 ∨ x = 2 * n - 2 ∨ x = 2 * n) (Finset.Icc 1 (2 * n))) ⊆ Finset.Icc 1 (2 * n) := by
         exact Finset.filter_subset _ _;
@@ -1881,7 +1883,8 @@ lemma sidon_T_bound (S : Finset ℤ) (hS : IsSidonSet S) (T : ℕ) (hT : 1 ≤ T
           · exact fun a ha₁ ha₂ => ⟨ by linarith [ Int.toNat_of_nonneg ( by linarith : 0 ≤ a ) ], ha₂ ⟩;
           · exact fun a₁ ha₁ ha₂ a₂ ha₃ ha₄ h => by linarith [ Int.toNat_of_nonneg ( by linarith : 0 ≤ a₁ ), Int.toNat_of_nonneg ( by linarith : 0 ≤ a₂ ) ] ;
           · exact fun b hb₁ hb₂ => ⟨ b, ⟨ mod_cast hb₁, mod_cast hb₂ ⟩, rfl ⟩;
-          · intro a ha₁ ha₂; rw [ Nat.cast_sub ] <;> norm_num ; linarith [ Int.toNat_of_nonneg ( by linarith : 0 ≤ a ) ] ;
+          · intro a ha₁ ha₂; rw [ Nat.cast_sub ] <;> norm_num
+            focus linarith [ Int.toNat_of_nonneg ( by linarith : 0 ≤ a ) ]
             linarith;
       exact_mod_cast h_pair_count.le.trans h_diff_bound;
     -- By the properties of binomial coefficients, we have $\sum_{j=1}^{y+T} \binom{Y_j}{2} = \frac{1}{2} \sum_{j=1}^{y+T} Y_j^2 - \frac{1}{2} \sum_{j=1}^{y+T} Y_j$.
@@ -1946,7 +1949,10 @@ lemma sidon_counting (S : Finset ℤ) (hS : IsSidonSet S) (hcard : 2 ≤ S.card)
   obtain ⟨T₀, hT₀⟩ : ∃ T₀ : ℕ, 1 ≤ T₀ ∧ (T₀ : ℝ) ≤ S.card * (Real.sqrt S.card) - S.card + 1 ∧ (S.card * (Real.sqrt S.card) - S.card) < (T₀ : ℝ) := by
     exact ⟨ ⌊ ( S.card : ℝ ) * Real.sqrt S.card - S.card⌋₊ + 1, by linarith, by push_cast; linarith [ Nat.floor_le ( show 0 ≤ ( S.card : ℝ ) * Real.sqrt S.card - S.card by exact sub_nonneg.mpr <| by exact le_mul_of_one_le_right ( by positivity ) <| Real.le_sqrt_of_sq_le <| mod_cast by linarith ) ], by push_cast; linarith [ Nat.lt_floor_add_one ( ( S.card : ℝ ) * Real.sqrt S.card - S.card ) ] ⟩;
   have hT₀_bound : ((S.card : ℝ) ^ 2 - 2 * S.card * Real.sqrt S.card + S.card + Real.sqrt S.card - 1 + T₀) * (T₀ + S.card - 1) ≤ (S.card : ℝ) ^ 2 * T₀ := by
-    apply sidon_algebra_identity; assumption; exact_mod_cast hT₀.right.left; exact_mod_cast hT₀.right.right;
+    apply sidon_algebra_identity
+    · assumption
+    · exact_mod_cast hT₀.right.left
+    · exact_mod_cast hT₀.right.right
   have hT₀_bound_int : (S.card : ℤ) ^ 2 * T₀ ≤ (spreadZ S (Finset.card_pos.mp (by omega)) + T₀) * (T₀ + S.card - 1) := by
     convert sidon_T_bound S hS T₀ hT₀.1 hcard using 1;
   norm_num [ ← @Int.cast_le ℝ ] at * ; nlinarith [ ( by norm_cast : ( 2 : ℝ ) ≤ #S ) ] ;
@@ -2121,9 +2127,9 @@ lemma ceslemprelim_base3 (A₀ : Finset ℤ) (hne : A₀.Nonempty)
       · exact fun x hx y hy hxy => by linarith [ Int.ediv_mul_cancel ( heven x hx ), Int.ediv_mul_cancel ( heven y hy ) ] ;
     contrapose! h_not_sidon;
     convert Sidonbound ( A₀.image ( fun x => x / 2 ) ) h_not_sidon _ |> le_of_lt using 1;
-    rw [ show spreadZ ( image ( fun x => x / 2 ) A₀ ) ( Finset.card_pos.mp <| by
+    focus rw [ show spreadZ ( image ( fun x => x / 2 ) A₀ ) ( Finset.card_pos.mp <| by
           exact Finset.card_pos.mpr ⟨ _, Finset.mem_image_of_mem _ hne.choose_spec ⟩ ) = ( A₀.max' hne - A₀.min' hne ) / 2 from ?_ ]
-    generalize_proofs at *;
+    focus generalize_proofs at *
     · rw [ Int.cast_div ] <;> norm_num;
       · norm_num [ Real.sqrt_eq_rpow, ← Real.rpow_mul ];
         rw [ Real.div_rpow ( by exact sub_nonneg_of_le <| mod_cast Finset.min'_le _ _ <| Finset.max'_mem _ _ ) ( by norm_num ), ← Real.rpow_mul ( by exact sub_nonneg_of_le <| mod_cast Finset.min'_le _ _ <| Finset.max'_mem _ _ ) ] ; norm_num;
@@ -2190,7 +2196,8 @@ lemma ceslemgeneral_pigeonhole_strong (k : ℕ) (hk : 4 ≤ k)
         simp +zetaDelta at *;
         exact ⟨ fun h => ⟨ ‹_› / 2, ⟨ by omega, by omega ⟩, by omega ⟩, by rintro ⟨ a, ⟨ ha₁, ha₂ ⟩, rfl ⟩ ; exact ⟨ ⟨ by omega, by omega ⟩, by omega ⟩ ⟩;
     rw [ Int.le_ediv_iff_mul_le ] at h_even_count <;> norm_num at *;
-    rw [ ← mul_assoc ] ; gcongr ; norm_cast;
+    rw [ ← mul_assoc ] ; gcongr
+    focus norm_cast
     · rcases k with ( _ | _ | _ | _ | k ) <;> norm_num [ fFun ] at *;
       exact le_trans ( by norm_num ) ( fFun_ge_one_early _ ( by linarith ) _ ( by norm_cast ) );
     · norm_cast;
@@ -2542,7 +2549,8 @@ lemma fFun5_tight_bound_v2 (x : ℝ) (hx : 1 ≤ x) :
     have h_step : 2 * x * fFun 4 x + 1 / 4 ≤ 2 ^ ((5:ℝ)/4) * x ^ ((7:ℝ)/4) + 2 * x ^ ((3:ℝ)/2) + x + 1 / 4 := by
       have h_step : fFun 4 x ≤ 2 ^ ((1:ℝ)/4) * x ^ ((3:ℝ)/4) + Real.sqrt x + 1 / 2 := by
         exact fFun4_tight_bound x hx;
-      convert add_le_add_right ( mul_le_mul_of_nonneg_left h_step ( show ( 0 : ℝ ) ≤ 2 * x by positivity ) ) ( 1 / 4 : ℝ ) using 1 ; ring;
+      convert add_le_add_right ( mul_le_mul_of_nonneg_left h_step ( show ( 0 : ℝ ) ≤ 2 * x by positivity ) ) ( 1 / 4 : ℝ ) using 1
+      focus ring
       rw [ show ( 5 / 4 : ℝ ) = 1 + 1 / 4 by norm_num, show ( 7 / 4 : ℝ ) = 3 / 4 + 1 by norm_num, show ( 3 / 2 : ℝ ) = 1 + 1 / 2 by norm_num, Real.sqrt_eq_rpow, Real.rpow_add, Real.rpow_add, Real.rpow_add ] <;> norm_num <;> ring_nf <;> linarith;
     -- Combine like terms and simplify the inequality.
     have h_simplify : Real.sqrt 5 * 2 ^ ((5:ℝ)/8) * x ^ ((3:ℝ)/2) + (5 / 4) * x ^ ((5:ℝ)/4) ≥ 2 * x ^ ((3:ℝ)/2) + x + 1 / 4 := by
@@ -2832,7 +2840,8 @@ lemma g5upper_conc_edge (A : Finset ℤ)
     _ ≤ ↑E.card := hE_card
 
 lemma nat_div2_cast_ge (n : ℕ) : ((↑n : ℝ) - 1) / 2 ≤ ↑(n / 2) := by
-  rcases Nat.even_or_odd' n with ⟨ k, rfl | rfl ⟩ <;> norm_num ; ring_nf;
+  rcases Nat.even_or_odd' n with ⟨ k, rfl | rfl ⟩ <;> norm_num
+  focus ring_nf
   · linarith;
   · omega
 
@@ -3143,7 +3152,8 @@ lemma ceslemprelim_pos_base3 (A₀ : Finset ℤ) (hne : A₀.Nonempty)
           simp +decide only [← sum_add_distrib];
           rw [ Finset.sum_congr rfl fun x hx => Finset.sum_congr rfl fun y hy => ?_ ];
           rotate_left;
-          use fun x y => 1;
+          focus
+            use fun x y => 1;
           · grind;
           · norm_num;
         simp_all +decide;
@@ -3334,8 +3344,8 @@ theorem ceslemprelim_pos (k : ℕ) (hk : 3 ≤ k) (A₀ : Finset ℤ) (hne : A�
     · exact fun x hx => Finset.mem_filter.mp ( hS_sub hx ) |>.2;
     · assumption;
     · apply ih S;
-      exact fun a ha => heven a <| Finset.mem_filter.mp ( hS_sub ha ) |>.1;
-      exact fun a ha => hpos a <| Finset.mem_filter.mp ( hS_sub ha ) |>.1;
+      focus exact fun a ha => heven a <| Finset.mem_filter.mp ( hS_sub ha ) |>.1
+      focus exact fun a ha => hpos a <| Finset.mem_filter.mp ( hS_sub ha ) |>.1
       any_goals exact Finset.nonempty_of_ne_empty ( by rintro rfl; norm_num at hS_card; linarith [ show ( 0 : ℝ ) < fFunPos k ( A₀.max' hne - A₀.min' hne ) from by
                                                                                                     exact lt_of_lt_of_le zero_lt_one ( fFunPos_ge_one_early k hk _ ( by norm_cast ) ) ] );
       · all_goals generalize_proofs at *;
@@ -3520,7 +3530,9 @@ theorem generalupper (k : ℕ) (hk : 3 ≤ k) :
         norm_num [ ne_of_gt ( Real.rpow_pos_of_pos ( Nat.cast_pos.mpr hn ) _ ) ] ; ring_nf;
         rw [ mul_assoc, ← Real.rpow_neg ( by positivity ), ← Real.rpow_add ( by positivity ) ] ; ring_nf;
       have h_exp : Filter.Tendsto (fun n : ℕ => (n : ℝ) ^ (1 - 3 / (2 ^ (k - 1) : ℝ) - e)) Filter.atTop (nhds 0) := by
-        convert tendsto_rpow_neg_atTop ( show 0 < - ( 1 - 3 / ( 2 ^ ( k - 1 ) : ℝ ) - e ) from neg_pos_of_neg ?_ ) |> Filter.Tendsto.comp <| tendsto_natCast_atTop_atTop using 2 ; ring_nf! ; norm_num [ Nat.succ_eq_add_one, pow_add ] at *;
+        convert tendsto_rpow_neg_atTop ( show 0 < - ( 1 - 3 / ( 2 ^ ( k - 1 ) : ℝ ) - e ) from neg_pos_of_neg ?_ ) |> Filter.Tendsto.comp <| tendsto_natCast_atTop_atTop using 2
+        focus ring_nf!
+        focus norm_num [ Nat.succ_eq_add_one, pow_add ] at *
         rcases k with ( _ | _ | k ) <;> norm_num [ pow_succ' ] at *;
         simp +zetaDelta at *;
         rw [ inv_eq_one_div, div_lt_div_iff₀ ] <;> linarith [ pow_le_pow_right₀ ( by norm_num : ( 1 : ℝ ) ≤ 2 ) hk ];
