@@ -38,7 +38,6 @@ end List
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 
 namespace Erdos226
 
@@ -365,7 +364,8 @@ lemma M_val_pos (alpha : ℕ → ℝ) (n : ℕ) : 0 < M_val alpha n := by
         exact Set.Infinite.nonempty ( h_compl_nonempty.diff <| Set.toFinite _ );
       exact ⟨ z, hz.1, fun x hx => sub_ne_zero_of_ne <| by aesop ⟩;
   refine lt_of_lt_of_le ?_
-    (le_csSup ?_ <| Set.mem_image_of_mem (fun z => ‖h_seq alpha n z‖) hz.1) ; aesop;
+    (le_csSup ?_ <| Set.mem_image_of_mem (fun z => ‖h_seq alpha n z‖) hz.1)
+  focus aesop
   -- The image of a compact set under a continuous function is compact.
   have h_compact : IsCompact {z : ℂ | ‖z‖ ≤ n + 1} := by
     convert ProperSpace.isCompact_closedBall ( 0 : ℂ ) ( n + 1 : ℝ ) using 1 ; ext ; simp +decide [ dist_eq_norm ];
@@ -393,10 +393,10 @@ lemma h_seq_deriv_structure (alpha : ℕ → ℝ) (n : ℕ) (hn : n ≥ 1) :
     change deriv ((fun x : ℂ => Complex.exp (-x ^ 2 / (n + 1))) *
         fun x : ℂ => Polynomial.eval x P) z = _
     rw [deriv_mul]
-    change deriv (Complex.exp ∘ fun x : ℂ => -x ^ 2 / (n + 1)) z *
+    focus change deriv (Complex.exp ∘ fun x : ℂ => -x ^ 2 / (n + 1)) z *
         Polynomial.eval z P + Complex.exp (-z ^ 2 / (n + 1)) *
         deriv (fun x : ℂ => Polynomial.eval x P) z = _
-    rw [deriv_comp, Complex.deriv_exp, Polynomial.deriv]
+    focus rw [deriv_comp, Complex.deriv_exp, Polynomial.deriv]
     · have h_inner :
           deriv (fun x : ℂ => -x ^ 2 / (n + 1)) z = -2 * z / (n + 1) := by
         norm_num [deriv_const_mul, deriv_mul, deriv_pow, differentiableAt_id]
@@ -972,7 +972,11 @@ lemma F_final'_eq_z_add_head_add_tail (N : ℕ) (z : ℂ) : F_final' z = z + F_h
   -- By definition of $F_final'$, we can split the sum into the sum up to $N-1$ and the sum from $N$ onwards.
   have h_split : ∑' n, term' n z = ∑ n ∈ Finset.range N, term' n z + ∑' n, term_tail' N n z := by
     have h_split : ∑' n, term' n z = ∑' n, (if n < N then term' n z else 0) + ∑' n, (if n < N then 0 else term' n z) := by
-      rw [ ← Summable.tsum_add ] ; congr ; ext n ; aesop;
+      rw [ ← Summable.tsum_add ]
+      focus
+        congr
+        ext n
+        aesop
       · rw [ ← summable_nat_add_iff N ];
         exact ⟨ _, hasSum_single 0 fun n hn => if_neg <| by linarith ⟩;
       · rw [ ← summable_nat_add_iff N ];
@@ -980,7 +984,7 @@ lemma F_final'_eq_z_add_head_add_tail (N : ℕ) (z : ℂ) : F_final' z = z + F_h
           exact F_final'_converges z;
         simpa using h_summable.comp_injective ( add_left_injective N );
     rw [ h_split, tsum_eq_sum ];
-    congr! 1;
+    focus congr! 1
     exacts [ Finset.sum_congr rfl fun n hn => if_pos <| Finset.mem_range.mp hn, fun n hn => if_neg <| by simpa using hn ];
   simpa only [ add_assoc ] using congr_arg _ h_split
 
@@ -1398,7 +1402,8 @@ lemma h_seq_real_ne_zero_of_not_mem_alpha_set' (n : ℕ) (x : ℝ) (hist : List 
       intros l hl; induction l <;> simp_all +decide [ List.prod_cons ] ;
     convert h_prod_real_nonzero _;
     rotate_left;
-    exact List.map ( fun k => x - alpha_from_hist ( all_tuples' n ) k ) ( List.range n );
+    focus
+      exact List.map ( fun k => x - alpha_from_hist ( all_tuples' n ) k ) ( List.range n )
     · grind;
     · induction ( List.range n ) <;> aesop
 
@@ -1427,7 +1432,8 @@ lemma next_step'_beta_odd (n : ℕ) (hn : n ≥ 1) (hodd : n % 2 = 1) (h_inv : I
     · subst_vars;
       rw [ first_unused_val_eq ];
       rotate_left;
-      exact 1;
+      focus
+        exact 1
       · unfold beta_set; simp +decide [ all_tuples' ] ;
         rintro ( _ | _ | n ) <;> simp +decide [ next_step' ];
         unfold b_seq; norm_num;
@@ -1546,7 +1552,8 @@ lemma next_step'_interpolation_odd (n : ℕ) (hn : n ≥ 1) (hodd : n % 2 = 1) (
         · unfold h_seq;
           congr! 3;
           refine List.map_congr_left ?_;
-          intro a ha; rw [ alpha_from_hist_eq_alpha_seq' ] ; aesop;
+          intro a ha; rw [ alpha_from_hist_eq_alpha_seq' ]
+          focus aesop
           exact List.mem_range.mp ha;
     linarith
 
@@ -1710,7 +1717,7 @@ lemma beta_seq'_distinct_succ (n : ℕ) (h : Invariant' n) :
       -- Let's split into cases based on whether i and j are less than or equal to n or equal to n+1.
       intro i j hi hj hij
       by_cases hi_le_n : i ≤ n
-      by_cases hj_le_n : j ≤ n;
+      focus by_cases hj_le_n : j ≤ n
       · exact h.2.1 i j hi_le_n hj_le_n hij;
       · have := beta_seq'_succ_not_mem_prev n h; simp_all +decide [ Finset.mem_image ] ;
         rw [ show j = n + 1 by linarith ] ; exact this i ( by linarith );
@@ -1896,7 +1903,13 @@ lemma derivative_bound_succ' (n : ℕ) (h : Invariant' n) :
       -- By definition of $F_{n+1}$, we have $F_{n+1}(x) = F_n(x) + \lambda_{n+1} h_{n+1}(x)$.
       have h_F_succ : deriv (fun t => F_seq_real (fun i => (alpha_seq' i : ℝ)) (fun i => lambda_seq' i) (n + 1) t) x = deriv (fun t => F_seq_real (fun i => (alpha_seq' i : ℝ)) (fun i => lambda_seq' i) n t) x + deriv (fun t => (lambda_seq' (n + 1) : ℝ) * h_seq_real (fun i => (alpha_seq' i : ℝ)) (n + 1) t) x := by
         unfold F_seq_real;
-        rw [ ← deriv_add ] ; congr ; ext ; unfold F_seq ; norm_num ; ring_nf;
+        rw [ ← deriv_add ]
+        focus
+          congr
+          ext
+          unfold F_seq
+          norm_num
+          ring_nf
         · rw [ show 2 + n = 1 + n + 1 by ring, List.range_succ ] ; norm_num ; ring_nf;
           rfl;
         · norm_num [ F_seq ];
@@ -2387,7 +2400,8 @@ lemma f_final'_deriv_eq_sum (x : ℝ) :
         apply_rules [ HasDerivAt.add, hasDerivAt_id ];
         apply_rules [ hasDerivAt_tsum ];
         rotate_right;
-        use fun n => if n < 2 then 0 else epsilon_seq n;
+        focus
+          use fun n => if n < 2 then 0 else epsilon_seq n
         · rw [ ← summable_nat_add_iff 2 ];
           convert epsilon_summable.comp_injective ( add_left_injective 2 ) using 1;
         · refine fun n y => hasDerivAt_deriv_iff.mpr ?_;
@@ -2404,7 +2418,8 @@ lemma f_final'_deriv_eq_sum (x : ℝ) :
       unfold f_final';
       convert h_deriv_sum using 2;
       ext x; unfold F_final'; norm_num [ Complex.re_sum, Complex.im_sum ] ;
-      rw [ Complex.re_tsum ] ; aesop;
+      rw [ Complex.re_tsum ]
+      focus aesop
       convert F_final'_converges x using 1
 
 /-
