@@ -133,7 +133,7 @@ theorem f_prime {p : ℕ} (hp : p.Prime) : f p = p ^ 2 := by
       obtain ⟨k, hk⟩ : ∃ k, v = p^k := by
         rw [ ← Nat.prod_factorization_pow_eq_self ( by linarith : v ≠ 0 ) ]
         rw [ Finsupp.prod ]
-        aesop
+        focus aesop
       exact hk.symm ▸ Nat.pow_le_pow_right hp.pos
         (show k ≥ 2 by
           contrapose! hv
@@ -357,7 +357,6 @@ lemma density_coprime (k : ℕ) (hk : k > 0) :
 If a set $A$ has natural density $d$, then the set scaled by $p$ has natural density $d/p$.
 -/
 set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 lemma density_scaled (A : Set ℕ) (d : ℝ) (p : ℕ) (hp : p > 0)
     (hA : has_natural_density A d) :
   has_natural_density {n | ∃ a ∈ A, n = p * a} (d / p) := by
@@ -516,7 +515,7 @@ lemma density_scaled (A : Set ℕ) (d : ℝ) (p : ℕ) (hp : p > 0)
               ( Finset.filter ( fun k => ∃ a ∈ A, k = a ∨ p = 0 )
                 ( Finset.range ‹_› ) ) from ?_,
       Finset.card_image_of_injective _ fun x y hxy => mul_left_cancel₀ hp.ne' hxy]
-    ring
+    focus ring
     aesop
 
 /-
@@ -616,7 +615,6 @@ lemma density_no_prime (S : Finset ℕ) (hS : ∀ p ∈ S, p.Prime) :
 If two disjoint sets have natural densities, their union has the sum of their densities.
 -/
 set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 lemma density_disjoint_union (A B : Set ℕ) (dA dB : ℝ)
     (hA : has_natural_density A dA) (hB : has_natural_density B dB)
     (hdisj : Disjoint A B) :
@@ -625,7 +623,8 @@ lemma density_disjoint_union (A B : Set ℕ) (dA dB : ℝ)
     unfold has_natural_density;
     congr! 1;
     ext; simp +decide [Finset.filter_or] ;
-    rw [ ← add_div, Finset.card_union_of_disjoint ] ; aesop;
+    rw [ ← add_div, Finset.card_union_of_disjoint ]
+    focus aesop
     exact Finset.disjoint_filter.mpr fun _ _ _ _ =>
       hdisj.le_bot ⟨ by assumption, by assumption ⟩
 
@@ -743,7 +742,6 @@ density $\prod_{p < M} (1 - 1/p) \times
 (1 + \sum_{p < M} \frac{1}{p-1})$.
 -/
 set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 lemma density_at_most_one_prime (M : ℕ) :
   let S := (Finset.range M).filter Nat.Prime
   has_natural_density {n : ℕ | (n.primeFactors.filter (fun p => p < M)).card ≤ 1}
@@ -781,10 +779,10 @@ lemma density_at_most_one_prime (M : ℕ) :
               · exact tendsto_one_div_atTop_nhds_zero_nat;
             convert density_disjoint_union _ _ _ _ _ _ using 1;
             rotate_left;
-            exact { n | n = 0 };
-            exact { n | ∀ p ∈ S, ¬p ∣ n } \ { 0 };
-            exact 0;
-            exact ∏ p ∈ S, ( 1 - ( p : ℝ ) ⁻¹ );
+            focus exact { n | n = 0 }
+            focus exact { n | ∀ p ∈ S, ¬p ∣ n } \ { 0 }
+            focus exact 0
+            focus exact ∏ p ∈ S, ( 1 - ( p : ℝ ) ⁻¹ )
             · assumption;
             · convert density_diff_singleton_zero _ _
                 ‹has_natural_density { n | ∀ p ∈ S, ¬p ∣ n }
@@ -834,7 +832,7 @@ lemma density_at_most_one_prime (M : ℕ) :
                 (1 + ∑ p ∈ S, (1 / (p - 1 : ℝ)))) := by
           convert density_disjoint_union _ _ _ _ h_density h_density_one _ using 1 <;>
             norm_num [ Set.disjoint_left ]
-          ring!
+          focus ring!
           intro n hn; rw [ Finset.card_eq_zero.mpr ] <;> aesop;
         exact (by
         convert h_union using 1;
@@ -1082,7 +1080,7 @@ lemma dense_diff_submonoid_of_irrational_ratio (u v : ℝ) (hu : 0 < u)
               (b : ℝ) * (v / u) - (a : ℝ) < ε / u := by
         have := exists_nat_mul_sub_nat_small ( v / u ) ( by positivity )
           ( by simpa [ div_eq_mul_inv ] using h_irr.inv ) ( ε / u ) ( by positivity )
-        aesop
+        focus aesop
       exact ⟨
         a,
         b,
@@ -1274,7 +1272,6 @@ for every integer $n \ge K$ divisible by both $p$ and $q$, there exists an
 integer $m \in (n,(1+\epsilon)n]$ whose prime divisors are contained in
 $\{p,q\}$.
 -/
-set_option linter.style.multiGoal false in
 lemma lemma_3 (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p ≠ q)
     (ε : ℝ) (hε : 0 < ε) :
   ∃ K : ℕ, ∀ n : ℕ, K ≤ n → p ∣ n → q ∣ n →
@@ -1290,7 +1287,7 @@ lemma lemma_3 (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p ≠ q)
           ( Real.log_pos <| Nat.one_lt_cast.mpr hp.one_lt )
           ( Real.log_pos <| Nat.one_lt_cast.mpr hq.one_lt ) ?_
           ( Real.log ( 1 + ε ) ) ( Real.log_pos <| by linarith )
-        aesop
+        focus aesop
         exact irrational_log_ratio p q hp hq hpq;
       use ⌈Real.exp K_log⌉₊ + 1;
       intro n hn hpq hnpq
