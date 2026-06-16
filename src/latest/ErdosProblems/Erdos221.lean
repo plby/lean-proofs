@@ -31,7 +31,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 
 namespace Erdos221
 
@@ -236,7 +235,9 @@ theorem cor_surject_powers (n : ℕ) (h : n ≥ 1) (r : ZMod (5 ^ n)) (hr : IsUn
             rw [ h_units, Nat.totient_prime_pow ] <;> norm_num;
             · ring;
             · linarith;
-          rw [ Finset.card_image_of_injOn ] ; aesop;
+          rw [ Finset.card_image_of_injOn ]
+          focus
+            aesop
           -- Since $2$ is a primitive root modulo $5^n$, the powers of $2$ modulo $5^n$ are distinct.
           have h_distinct : ∀ k l : ℕ, k < l → k < 4 * 5^(n-1) → l < 4 * 5^(n-1) → (2 : ZMod (5^n)) ^ k ≠ (2 : ZMod (5^n)) ^ l := by
             intros k l hkl hk hl h_eq
@@ -359,7 +360,9 @@ lemma lem_choose_n_k_m (N : ℕ) (hN : N ≥ 32) :
     have hm_lt_2_pow_5_pow_succ : m < 2^(5^(n+1)) := by
       -- From the choice of $n$, $\log_2 N < 5^{n+1}$ implies $N < 2^{5^{n+1}}$.
       have hN_lt_2_pow_5_pow_succ : N < 2^(5^(n+1)) := by
-        rw [ Real.logb_lt_iff_lt_rpow ] at * <;> norm_cast at * ; linarith;
+        rw [ Real.logb_lt_iff_lt_rpow ] at * <;> norm_cast at *
+        focus
+          linarith
         linarith;
       cases hm <;> nlinarith [ Nat.sub_le N ( 2 ^ k ), pow_pos ( show 0 < 5 by decide ) n ] ;
     exact ⟨ n, k, m, hn2.2, hn1, hn2.1, hk1, hk2.1, hm_ge_1, hm_lt_2_pow_5_pow_succ, by
