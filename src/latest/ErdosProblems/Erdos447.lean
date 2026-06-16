@@ -29,7 +29,6 @@ set_option linter.style.commandStart false
 set_option linter.style.docString false
 set_option linter.style.emptyLine false
 set_option linter.style.longLine false
-set_option linter.style.multiGoal false
 set_option linter.style.show false
 set_option linter.style.whitespace false
 
@@ -331,11 +330,12 @@ lemma prefix_set_card {n : ℕ} (p : Equiv.Perm (Fin n)) (j : ℕ) (hj : j ≤ n
     (prefix_set p j).card = j := by
       -- Since `p` is a permutation, the set `{x | p x < j}` has exactly `j` elements.
       have h_card : (Finset.filter (fun x => p x < j) Finset.univ).card = j := by
-        rw [ Finset.card_eq_of_bijective ];
-        use fun i hi => p.symm ⟨ i, by linarith ⟩;
-        · exact fun x hx => ⟨ p x, Finset.mem_filter.mp hx |>.2, p.symm_apply_apply x ⟩;
-        · aesop;
-        · aesop;
+        rw [ Finset.card_eq_of_bijective ]
+        focus
+          use fun i hi => p.symm ⟨ i, by linarith ⟩
+        · exact fun x hx => ⟨ p x, Finset.mem_filter.mp hx |>.2, p.symm_apply_apply x ⟩
+        · aesop
+        · aesop
       unfold prefix_set; aesop;
 
 /-
@@ -701,7 +701,8 @@ def embeddings_equiv_split {n : ℕ} (A : Finset (Fin n)) (D : Finset (Fin n)) (
         exact congrArg Fin.val (congrArg (fun x : Fin j => (f : Fin j ↪ Fin n) x) (hidx _))
     · intro pair
       ext i
-      simp [embeddings_split_fwd, embeddings_split_inv, combine_embeddings_general, Fin.addCases]
+      focus
+        simp [embeddings_split_fwd, embeddings_split_inv, combine_embeddings_general, Fin.addCases]
       · rfl
       · dsimp [embeddings_split_fwd, embeddings_split_inv, combine_embeddings_general, Fin.addCases]
         simp [Fin.natAdd, Fin.subNat]
@@ -785,9 +786,10 @@ lemma card_permutations_with_prefix_and_subprefix {n : ℕ} (A : Finset (Fin n))
     (permutations_with_prefix_and_subprefix A D j k).card = k.factorial * (j - k).factorial * (n - j).factorial := by
       have h_card : (permutations_with_prefix_and_subprefix A D j k).card = (embeddings_with_range_and_subrange A D j k).card * (embeddings_with_range (Finset.univ \ A) (n - j)).card := by
         convert Fintype.card_prod _ _ using 1;
-        convert Fintype.card_congr ( permutations_equiv_embeddings_subprefix A D j k hj hk hA ) using 1;
-        · rw [ Fintype.card_coe ];
-        · rw [ Fintype.card_coe, Fintype.card_coe ];
+        focus
+          convert Fintype.card_congr ( permutations_equiv_embeddings_subprefix A D j k hj hk hA ) using 1
+        · rw [ Fintype.card_coe ]
+        · rw [ Fintype.card_coe, Fintype.card_coe ]
       rw [ h_card, card_embeddings_with_range_and_subrange A D j k hk hA hD hDA, card_embeddings_with_range ];
       simp +decide [ Finset.card_sdiff, * ]
 
@@ -1101,10 +1103,12 @@ lemma block_sum_identities {n t : ℕ} (ht : 1 ≤ t) (h2t : 2 * t ≤ n / 2) :
                 exact h_Y_sol_even.trans ( by unfold B_term; norm_num );
               rw [ show ( Finset.Ioc t ( 2 * t + 2 ) : Finset ℕ ) = Finset.Icc ( t + 1 ) ( 2 * t + 2 ) by ext; aesop ] ; linarith!;
             · unfold Y_sol; norm_num; ring_nf;
-              unfold B_term; split_ifs <;> norm_num [ Nat.choose_two_right ] ; ring_nf;
-              · omega;
-              · omega;
-              · linarith;
+              unfold B_term; split_ifs <;> norm_num [ Nat.choose_two_right ]
+              focus
+                ring_nf
+              · omega
+              · omega
+              · linarith
               · unfold Y_sol; norm_num; ring;
       refine ⟨ h_sum_even, fun h => ?_ ⟩;
       erw [ Finset.sum_Ico_succ_top ( by linarith ), h_sum_even ];
@@ -1206,7 +1210,11 @@ lemma sum_Bk_div_k {n m : ℕ} (hm : m ≥ 1) (hn : n = 2 * m) :
         cases m <;> norm_num [ add_comm, add_left_comm, Finset.sum_range_succ' ] at *;
       -- Recognize that the sum $\sum_{j=1}^{m-1} \frac{j \binom{n}{j}}{j+1}$ can be rewritten using the identity $\frac{j}{j+1} = 1 - \frac{1}{j+1}$.
       have h_identity : ∑ j ∈ Finset.Icc 1 (m - 1), ((j : ℝ) * n.choose j / (j + 1 : ℝ)) = ∑ j ∈ Finset.Icc 1 (m - 1), ((n.choose j : ℝ) - (n.choose j / (j + 1 : ℝ))) := by
-        exact Finset.sum_congr rfl fun x hx => by rw [ sub_div' ] ; ring ; positivity;
+        exact Finset.sum_congr rfl fun x hx => by
+          rw [ sub_div' ]
+          focus
+            ring
+          positivity
       rcases m with ( _ | _ | m ) <;> simp_all +decide [ Finset.sum_Ioc_succ_top, (Nat.succ_eq_succ ▸ Finset.Icc_succ_left_eq_Ioc) ]
 
 /-
@@ -1373,7 +1381,9 @@ lemma base_case {n m : ℕ} (hm : m ≥ 1) (hn : n = 2 * m) : LHS n m (m + 1) �
     -- By definition of $LHS$ and $RHS$, we know that $LHS(n, m, m+1) = \sum_{k=(m+1)/2}^m Y_k$ and $RHS(n, m+1) = (m+1) \binom{n}{m+1}$.
     simp [LHS, RHS];
     have h_sum : ∑ k ∈ Finset.Icc ((2 * k + 1 + 1) / 2) (2 * k + 1), Y_sol n k = (2 * k + 1 + 1) * n.choose (2 * k + 1 + 1) := by
-      convert sum_Y_mid ( show 1 ≤ 2 * k + 1 from by linarith ) using 1 ; aesop;
+      convert sum_Y_mid ( show 1 ≤ 2 * k + 1 from by linarith ) using 1
+      focus
+        aesop
       norm_num [ Nat.add_div, hn ] ; ring_nf
     linarith
 
@@ -1609,7 +1619,9 @@ lemma dual_constraint_m_plus_1 {m : ℕ} (hm : m ≥ 1) :
         have h_ineq : (∑ k ∈ Finset.Icc ((m + 1) / 2) m, Y_sol (2 * m) k) ≥ ((m + 1) : ℝ) * (2 * m).choose (m + 1) := by
           convert dual_ineq_m_plus_1 hm rfl using 1;
         simp_all +decide [ ← Finset.sum_div _ _ _, Nat.mul_div_cancel_left _ ( by positivity : 0 < 2 ) ];
-        rw [ le_div_iff₀ ( mul_pos ( by positivity ) ( Nat.cast_pos.mpr ( Nat.choose_pos ( by linarith ) ) ) ) ] ; convert h_ineq using 1 ; norm_num [ Nat.add_div, heven ];
+        rw [ le_div_iff₀ ( mul_pos ( by positivity ) ( Nat.cast_pos.mpr ( Nat.choose_pos ( by linarith ) ) ) ) ] ; convert h_ineq using 1
+        focus
+          norm_num [ Nat.add_div, heven ]
         grind
 
 /-
@@ -1624,7 +1636,9 @@ lemma sum_Bk_telescope {n m t : ℕ} (hn : n = 2 * m) (ht : 1 ≤ t) (htm : t �
           · rename_i k hk ih; rw [ ih ( by linarith ) ] ; unfold B_term; ring_nf;
             cases k <;> norm_num at * ; linarith;
         · have h_telescope : ∀ t, ∑ k ∈ Finset.range (t + 1), B_term n k = t * (n.choose t : ℝ) := by
-            intro t; induction t <;> simp_all +decide [ Finset.sum_range_succ ] ; ring_nf;
+            intro t; induction t <;> simp_all +decide [ Finset.sum_range_succ ]
+            focus
+              ring_nf
             · unfold B_term; norm_num;
             · unfold B_term; ring_nf;
               norm_num ; ring;
@@ -1919,7 +1933,12 @@ lemma pow_two_div_n_little_o_binom_half :
                 rw [ Asymptotics.IsEquivalent ] at this;
                 rw [ Asymptotics.isLittleO_iff_tendsto' ] at this;
                 · have := this.const_add 1; simp_all +decide [ mul_comm, mul_left_comm ] ;
-                  refine this.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx using by rw [ add_div' ] ; ring ; positivity );
+                  refine this.congr' ( by
+                    filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx using by
+                      rw [ add_div' ]
+                      focus
+                        ring
+                      positivity )
                 · filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn h using absurd h <| by positivity;
               have h_stirling_2m : Filter.Tendsto (fun m : ℕ => (Nat.factorial (2 * m) : ℝ) / (Real.sqrt (2 * Real.pi * (2 * m)) * ((2 * m) / Real.exp 1) ^ (2 * m))) Filter.atTop (nhds 1) := by
                 exact_mod_cast h_stirling.comp ( Filter.tendsto_id.nsmul_atTop two_pos );
@@ -2096,7 +2115,9 @@ lemma binom_growth_065_070 {m : ℕ} (hm : m ≥ 200) (n : ℕ) (hn : n = 2 * m)
         have h_prod_ratio : ∀ k ∈ Finset.Ico (13 * m / 20) (7 * m / 10), ((n - k : ℝ) / (k + 1)) ≥ 1.85 := by
           norm_num [ hn ];
           intro k hk₁ hk₂; rw [ le_div_iff₀ ] <;> linarith [ show ( k : ℝ ) + 1 ≤ 7 * m / 10 by exact le_div_iff₀' ( by positivity ) |>.2 <| by norm_cast; linarith [ Nat.div_mul_le_self ( 7 * m ) 10 ], show ( m : ℝ ) ≥ 200 by norm_cast ] ;
-        refine le_trans ?_ ( Finset.prod_le_prod ?_ h_prod_ratio ) ; norm_num;
+        refine le_trans ?_ ( Finset.prod_le_prod ?_ h_prod_ratio )
+        focus
+          norm_num
         · rw [ ← div_pow ];
         · norm_num +zetaDelta at *;
       -- Since $1.85^{0.05m}$ grows exponentially and $m$ grows linearly, for $m \geq 200$, $1.85^{0.05m} \geq m$.
@@ -2278,7 +2299,8 @@ lemma LHS_ge_RHS_step_small_j_no_parity {n m j : ℕ} (hm : m ≥ 200) (hn : n =
       -- By the recurrence relation for LHS, we have LHS n m (j + 2) = LHS n m j - Y_sol n (j / 2).
       have h_recurrence : LHS n m (j + 2) = LHS n m j - Y_sol n (j / 2) := by
         rw [ ← LHS_recurrence_simpler ];
-        exact Eq.symm (sub_sub_self (LHS n m j) (LHS n m (j + 2)));
+        focus
+          exact Eq.symm (sub_sub_self (LHS n m j) (LHS n m (j + 2)))
         omega;
       -- By combining the results from the previous steps, we can conclude the proof.
       have h_combined : LHS n m j - Y_sol n (j / 2) ≥ RHS n j - 4 * n.choose j := by
@@ -2630,7 +2652,8 @@ lemma LHS_ge_RHS_odd_small_j {n m j : ℕ} (hm : m ≥ 200) (hn : n = 2 * m)
         convert LHS_recurrence hn _ using 1;
         rotate_left;
         rotate_left;
-        exact j - 1;
+        focus
+          exact j - 1
         · omega;
         · rw [ show j - 1 + 2 = j + 1 by omega ];
         · grind +ring;
@@ -2806,8 +2829,11 @@ lemma dual_feasible_le_m {m : ℕ} :
             unfold B_term Y_sol; norm_num [ Nat.choose_two_right ] ; ring_nf; norm_cast;
             aesop;
           · erw [ Finset.sum_Ico_eq_sub _ _ ] at * <;> norm_num at *;
-            · have := this ( by linarith ) |>.2 ( by linarith ) ; erw [ Finset.sum_Ico_eq_sub _ _ ] at this <;> norm_num [ Finset.sum_range_succ ] at * ; linarith;
-              linarith;
+            · have := this ( by linarith ) |>.2 ( by linarith )
+              erw [ Finset.sum_Ico_eq_sub _ _ ] at this <;> norm_num [ Finset.sum_range_succ ] at *
+              focus
+                linarith
+              linarith
             · linarith;
             · linarith
 
@@ -2878,9 +2904,11 @@ lemma kleitman_upper_bound_even :
             have h_max_le_opt : (MaxUnionFree (2 * m) : ℝ) ≤ (OPT (2 * m)) := by
               have := @LP_upper_bound ( 2 * m );
               convert this _ _;
-              convert rfl;
+              focus
+                convert rfl
               rotate_left;
-              exact Classical.choose ( Finset.exists_max_image ( Finset.filter UnionFree ( Finset.univ : Finset ( Finset ( Finset ( Fin ( 2 * m ) ) ) ) ) ) ( fun F => F.card ) ( Finset.filter_nonempty_iff.mpr ⟨ ∅, by simp +decide [ UnionFree ] ⟩ ) );
+              focus
+                exact Classical.choose ( Finset.exists_max_image ( Finset.filter UnionFree ( Finset.univ : Finset ( Finset ( Finset ( Fin ( 2 * m ) ) ) ) ) ) ( fun F => F.card ) ( Finset.filter_nonempty_iff.mpr ⟨ ∅, by simp +decide [ UnionFree ] ⟩ ) )
               · have := Classical.choose_spec ( Finset.exists_max_image ( Finset.filter UnionFree ( Finset.univ : Finset ( Finset ( Finset ( Fin ( 2 * m ) ) ) ) ) ) ( fun F => F.card ) ( Finset.filter_nonempty_iff.mpr ⟨ ∅, by simp +decide [ UnionFree ] ⟩ ) ) ; aesop;
               · exact Classical.choose_spec ( Finset.exists_max_image ( Finset.filter UnionFree ( Finset.univ : Finset ( Finset ( Finset ( Fin ( 2 * m ) ) ) ) ) ) ( fun F => F.card ) ( Finset.filter_nonempty_iff.mpr ⟨ ∅, by simp +decide [ UnionFree ] ⟩ ) ) |>.2 |> fun h => le_antisymm ( Finset.le_sup ( f := Finset.card ) ( Finset.mem_filter.mpr ⟨ Finset.mem_univ _, Classical.choose_spec ( Finset.exists_max_image ( Finset.filter UnionFree ( Finset.univ : Finset ( Finset ( Finset ( Fin ( 2 * m ) ) ) ) ) ) ( fun F => F.card ) ( Finset.filter_nonempty_iff.mpr ⟨ ∅, by simp +decide [ UnionFree ] ⟩ ) ) |>.1 |> Finset.mem_filter.mp |>.2 ⟩ ) ) ( Finset.sup_le fun F hF => Finset.mem_filter.mp hF |>.2 |> fun h => Classical.choose_spec ( Finset.exists_max_image ( Finset.filter UnionFree ( Finset.univ : Finset ( Finset ( Finset ( Fin ( 2 * m ) ) ) ) ) ) ( fun F => F.card ) ( Finset.filter_nonempty_iff.mpr ⟨ ∅, by simp +decide [ UnionFree ] ⟩ ) ) |>.2 F ( Finset.mem_filter.mpr ⟨ Finset.mem_univ _, h ⟩ ) );
             refine le_trans h_max_le_opt ?_;
