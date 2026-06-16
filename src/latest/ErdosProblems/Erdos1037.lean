@@ -36,7 +36,6 @@ namespace Erdos1037
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 
 attribute [local instance] Classical.propDecidable
 
@@ -666,7 +665,8 @@ theorem measure_inter_incident_edges {m : ℕ} (v : Fin m) (S : Finset {x // x �
         rw [ ENNReal.div_eq_inv_mul ];
         rw [ ProbabilityTheory.cond ];
         simp +decide [ Set.indicator ];
-      convert congr_arg ENNReal.toReal h_measure using 1 ; norm_num;
+      convert congr_arg ENNReal.toReal h_measure using 1
+      · norm_num
       rw [ ENNReal.toReal_div ] ; norm_num [ card_SimpleGraph ];
       rw [ show ( Finset.univ.filter fun G : SimpleGraph ( Fin m ) => ∀ a : Fin m, ∀ b : a ≠ v, ⟨ a, b ⟩ ∈ S → ( G.Adj v a ↔ f ⟨ a, b ⟩ = Bool.true ) ).card = 2 ^ ( m.choose 2 - S.card ) from ?_, div_eq_mul_inv ];
       · field_simp;
@@ -812,16 +812,19 @@ theorem prob_cliqueNum_ge (m r : ℕ) :
     -- Substitute the count into the measure inequality.
     have h_measure : (randomGraphMeasure {G : SimpleGraph (Fin m) | r ≤ G.cliqueNum}) ≤ (Nat.choose m r * 2 ^ (Nat.choose m 2 - Nat.choose r 2)) / 2 ^ (Nat.choose m 2) := by
       rw [ randomGraphMeasure_eq_card_div ];
-      gcongr ; norm_cast;
+      gcongr
+      · norm_cast
       rw [ card_SimpleGraph ] ; norm_num;
     refine h.not_ge <| h_measure.trans ?_;
     by_cases h : r.choose 2 ≤ m.choose 2 <;> simp_all +decide [ div_eq_mul_inv, mul_comm, mul_left_comm ];
     · rw [ show ( 2 ^ m.choose 2 : ENNReal ) = ( 2 ^ ( m.choose 2 - r.choose 2 ) ) * ( 2 ^ r.choose 2 ) by rw [ ← pow_add, Nat.sub_add_cancel h ] ] ; norm_num [ mul_assoc, mul_comm, mul_left_comm, ENNReal.inv_mul_cancel ];
-      rw [ ENNReal.mul_inv ] ; norm_num [ ← mul_assoc, ← pow_add ];
-      · rw [ mul_right_comm ] ; norm_num [ mul_assoc, mul_comm, mul_left_comm, ENNReal.mul_inv_cancel ];
-        rw [ ENNReal.inv_pow ];
-      · exact Or.inl <| by positivity;
-      · exact Or.inl <| ne_of_lt <| ENNReal.pow_lt_top <| by norm_num;
+      rw [ ENNReal.mul_inv ]
+      focus
+        norm_num [ ← mul_assoc, ← pow_add ]
+        · rw [ mul_right_comm ] ; norm_num [ mul_assoc, mul_comm, mul_left_comm, ENNReal.mul_inv_cancel ];
+          rw [ ENNReal.inv_pow ];
+      · exact Or.inl <| by positivity
+      · exact Or.inl <| ne_of_lt <| ENNReal.pow_lt_top <| by norm_num
     · rw [ Nat.choose_eq_zero_of_lt ] <;> norm_num;
       exact not_le.mp fun contra => h.not_ge <| Nat.choose_le_choose _ contra
 
@@ -910,10 +913,12 @@ theorem degree_concentration_at_vertex (m : ℕ) (hm : m > 1) (v : Fin m) (t : �
     have h_hoeffding : (randomGraphMeasure {G : SimpleGraph (Fin m) | |X G - N / 2| ≥ t}).toReal ≤ 2 * Real.exp (-2 * t ^ 2 / N) := by
       -- Apply the Hoeffding inequality to the sum of independent Bernoulli random variables.
       have h_hoeffding : ∀ (N : ℕ) (Y : Fin N → SimpleGraph (Fin m) → ℝ), (∀ i, Measurable (Y i)) → (ProbabilityTheory.iIndepFun Y randomGraphMeasure) → (∀ i, (randomGraphMeasure {G : SimpleGraph (Fin m) | Y i G = 1} = 1 / 2 ∧ randomGraphMeasure {G : SimpleGraph (Fin m) | Y i G = 0} = 1 / 2)) → (∀ i, ∀ᵐ ω ∂randomGraphMeasure, Y i ω = 0 ∨ Y i ω = 1) → let X := ∑ i, Y i; ∀ t > 0, (randomGraphMeasure {ω | |X ω - N / 2| ≥ t}).toReal ≤ 2 * Real.exp (-2 * t ^ 2 / N) := by
-        convert Lemma_Hoeffding using 1;
-        rotate_left;
-        exact SimpleGraph ( Fin m );
-        exact ⟨ randomGraphMeasure ⟩;
+        convert Lemma_Hoeffding using 1
+        rotate_left
+        focus
+          exact SimpleGraph ( Fin m )
+        focus
+          exact ⟨ randomGraphMeasure ⟩
         · constructor ; norm_num [ randomGraphMeasure ];
         · norm_num [ MeasureTheory.MeasureSpace.volume ];
       -- Let's choose any bijection between the set of neighbors of $v$ and the set $\{0, 1, ..., m-2\}$.
@@ -931,11 +936,17 @@ theorem degree_concentration_at_vertex (m : ℕ) (hm : m > 1) (v : Fin m) (t : �
       · have h_indep : ProbabilityTheory.iIndepFun (fun u : {x : Fin m // x ≠ v} => Y u) randomGraphMeasure := by
           convert edge_indicators_independent m v using 1;
         rw [ ProbabilityTheory.iIndepFun_iff_measure_inter_preimage_eq_mul ] at *;
-        intro S sets hsets; specialize h_indep ( S.image bij ) ; simp_all +decide
-        use fun u => sets ( bij.symm u );
+        intro S sets hsets
+        specialize h_indep ( S.image bij )
+        focus
+          simp_all +decide
+        focus
+          use fun u => sets ( bij.symm u )
         convert h_indep _ using 1;
         · simp +decide [ Finset.mem_image, Set.preimage ];
-        · rw [ Finset.prod_image ] ; aesop;
+        · rw [ Finset.prod_image ]
+          focus
+            aesop
           exact bij.injective.injOn;
         · grind;
       · intro i; convert incidentEdgeInd_classical_Bernoulli v ( bij i ) using 1;
@@ -970,7 +981,13 @@ theorem degree_concentration_union_bound (m : ℕ) (hm : m > 1) (t : ℝ) (ht : 
         infer_instance;
       convert ENNReal.toReal_mono _ h_union_bound;
       · field_simp;
-        rw [ ENNReal.toReal_sum ] ; congr ; ext ; ring_nf;
+        rw [ ENNReal.toReal_sum ]
+        focus
+          congr
+        focus
+          ext
+        focus
+          ring_nf
         · ac_rfl;
         · unfold randomGraphMeasure; aesop;
       · exact ENNReal.sum_ne_top.mpr fun v _ => ne_of_lt <| lt_of_le_of_lt ( MeasureTheory.measure_mono <| Set.subset_univ _ ) <| by simp +decide [ randomGraphMeasure ] ;
@@ -1021,7 +1038,11 @@ theorem bound_clique_tendsto_zero : Filter.Tendsto bound_clique Filter.atTop (nh
     have h_bound : bound_clique m ≤ 2 ^ (Nat.ceil (3 * Real.logb 2 m) * Real.logb 2 m) * 2 ^ (-(Nat.ceil (3 * Real.logb 2 m) * (Nat.ceil (3 * Real.logb 2 m) - 1) / 2 : ℝ)) := by
       exact mul_le_mul h_binom h_exp ( by positivity ) ( by positivity )
     have h_final : bound_clique m ≤ 2 ^ (Nat.ceil (3 * Real.logb 2 m) * Real.logb 2 m - (Nat.ceil (3 * Real.logb 2 m) * (Nat.ceil (3 * Real.logb 2 m) - 1) / 2 : ℝ)) := by
-      convert h_bound using 1 ; rw [ ← Real.rpow_add ] ; ring_nf ; norm_num
+      convert h_bound using 1
+      rw [ ← Real.rpow_add ]
+      focus
+        ring_nf
+      norm_num
     exact h_final;
   -- Since the exponent tends to negative infinity, the bound tends to zero.
   have h_bound_zero : Filter.Tendsto (fun m : ℕ => (2 : ℝ) ^ (Nat.ceil (3 * Real.logb 2 m) * Real.logb 2 m - (Nat.ceil (3 * Real.logb 2 m) * (Nat.ceil (3 * Real.logb 2 m) - 1) / 2 : ℝ))) Filter.atTop (nhds 0) := by
@@ -1087,7 +1108,8 @@ theorem Lemma_Base :
             · infer_instance;
           refine lt_of_le_of_lt ( ENNReal.toReal_mono ?_ h_union_bound ) ?_;
           · unfold randomGraphMeasure; aesop;
-          · rw [ ENNReal.toReal_add, ENNReal.toReal_add ] <;> norm_num at * ; linarith;
+          · rw [ ENNReal.toReal_add, ENNReal.toReal_add ] <;> norm_num at *
+            · linarith
             · exact ne_of_lt ( lt_of_le_of_lt ( MeasureTheory.measure_mono ( Set.subset_univ _ ) ) ( by norm_num [ randomGraphMeasure ] ) );
             · exact ne_of_lt ( lt_of_le_of_lt ( MeasureTheory.measure_mono ( Set.subset_univ _ ) ) ( by simp +decide [ randomGraphMeasure ] ) );
             · exact ⟨ ne_of_lt ( lt_of_le_of_lt ( MeasureTheory.measure_mono ( Set.subset_univ _ ) ) ( by simp +decide [ randomGraphMeasure ] ) ), ne_of_lt ( lt_of_le_of_lt ( MeasureTheory.measure_mono ( Set.subset_univ _ ) ) ( by simp +decide [ randomGraphMeasure ] ) ) ⟩;
@@ -1317,7 +1339,7 @@ The number of j such that i + j <= 2m - 2 is 2m - 1 - i.
 theorem card_filter_le_sum (m : ℕ) (i : Fin (2 * m)) :
     (Finset.univ.filter (fun j : Fin (2 * m) => (i : ℕ) + (j : ℕ) ≤ 2 * m - 2)).card = 2 * m - 1 - (i : ℕ) := by
       rw [ Finset.card_eq_of_bijective ];
-      use fun j hj => ⟨ j, by omega ⟩;
+      · use fun j hj => ⟨ j, by omega ⟩
       · grind;
       · grind;
       · aesop
