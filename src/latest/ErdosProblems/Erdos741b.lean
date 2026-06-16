@@ -34,7 +34,6 @@ We formalize three results about Erdős problem #741:
 import Mathlib
 
 set_option linter.style.setOption false
-set_option linter.style.multiGoal false
 set_option linter.flexible false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
@@ -1091,7 +1090,8 @@ theorem erdos741_upper_density_case2 (A : Set ℕ) (hA : ¬ upperDensity A > 0)
                 countIn (A₁ + A₁) (M (2 * k + 1)) +
                   M (2 * k) * countIn A (M (2 * k + 1)) := by
             apply small_summand_bound;
-            exact Set.union_diff_cancel ( Set.inter_subset_left );
+            focus
+              exact Set.union_diff_cancel ( Set.inter_subset_left )
             intro x hx hx'; contrapose! hx; aesop;
           -- Using the bounds from hM, we can derive the inequality.
           have h_bound :
@@ -1121,7 +1121,8 @@ theorem erdos741_upper_density_case2 (A : Set ℕ) (hA : ¬ upperDensity A > 0)
                 countIn (A₂ + A₂) (M (2 * k + 2)) +
                   M (2 * k + 1) * countIn A (M (2 * k + 2)) := by
             apply small_summand_bound;
-            exact Set.diff_union_of_subset ( Set.inter_subset_left );
+            focus
+              exact Set.diff_union_of_subset ( Set.inter_subset_left )
             simp +zetaDelta at *;
             intro x hx j hj₁ hj₂ hj₃; contrapose! hj₃;
             have hj_ge : j ≥ k + 1 := by
@@ -1345,7 +1346,8 @@ lemma digit_decomp_unique (m : ℕ) (n : ℕ) (hn : n < 4 ^ m) :
                 · norm_num [ Nat.add_div ] ; specialize hb₂ 0 ; aesop;
                 · norm_num [ Nat.add_div ];
                   convert hb₂ ( r + 1 ) using 1
-                  norm_num [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ]
+                  focus
+                    norm_num [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ]
                   norm_num [ Nat.pow_succ', ← Nat.div_div_eq_div_mul ];
             · split_ifs <;> linarith;
             · split_ifs <;> omega;
@@ -1494,7 +1496,8 @@ lemma cross_digit_count (S₁ S₂ : Set ℕ) (m : ℕ) :
       unfold countIn;
       rw [ ← Finset.card_product ];
       refine Finset.card_bij ?_ ?_ ?_ ?_;
-      use fun p hp => p.1 + p.2;
+      focus
+        use fun p hp => p.1 + p.2
       · simp +contextual [ Set.mem_add ];
         intro a b ha ha₁ ha₂ hb hb₁ hb₂; refine ⟨ ?_, a, ⟨ ha₁, ha₂ ⟩, b, ⟨ hb₁, hb₂ ⟩, rfl ⟩ ;
         have h_no_carry :
