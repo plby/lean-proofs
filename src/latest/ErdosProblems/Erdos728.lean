@@ -44,8 +44,6 @@ open scoped Nat Topology
 
 attribute [local instance] Classical.propDecidable
 
-set_option linter.style.multiGoal false
-
 /-
 Definitions of W and kappa. W_p(m) is the p-adic valuation of the product of m+1 to m+k. kappa_p(m)
 is the p-adic valuation of binom(2m, m).
@@ -263,7 +261,9 @@ lemma lemma_W_eq_sum_N_pj (p m k : ℕ) (hp : p.Prime) :
         · exact fun _ => by linarith [ Finset.mem_Icc.mp hi ] ;
     · intro x hx₁ hx₂ hx₃; have := Nat.factorization_le_iff_dvd (by aesop ) (by
         aesop ) |>.2 hx₃; simp +decide [ hp ] at this;
-      rw [ Nat.factorization_def ] at this ; aesop;
+      rw [ Nat.factorization_def ] at this
+      focus
+        aesop
       assumption;
   rw [ h_W_def, Finset.sum_congr rfl h_inner, Finset.sum_comm ] ; aesop;
 
@@ -302,7 +302,9 @@ lemma lemma_spike_count_bound (p M k t : ℕ) (hp : p.Prime) (hk : k > 0) :
       intros m hm h_sup
       obtain ⟨i, hi⟩ : ∃ i ∈ Finset.Icc 1 k, padicValNat p (m + i) ≥ J_p p k + t := by
         contrapose! h_sup;
-        rw [ Finset.sup_lt_iff ] ; aesop;
+        rw [ Finset.sup_lt_iff ]
+        focus
+          aesop
         exact Nat.zero_lt_of_lt ( h_sup 1 ( Finset.mem_Icc.mpr ⟨ by linarith, by linarith ⟩ ) );
       have h_div : p ^ (padicValNat p (m + i)) ∣ m + i := by
         exact pow_padicValNat_dvd;
@@ -832,9 +834,11 @@ lemma lemma_term2_bound_uniform (M : ℕ) (c : ℝ) (hM : M > 1)
       refine le_trans ?_ (show Real.exp (theta p / 8) * (M : ℝ) ^ ( - ( 1 - eta ) / (
         24 * Real.log ( 2 * k_val c M ) ) ) ≤ Real.exp (1 / 16) * (M : ℝ) ^ ( - ( 1 - eta ) / (
           24 * Real.log ( 2 * k_val c M ) ) ) from ?_);
-      refine le_trans ( lemma_exp_mu_bound p M hp ( pos_of_gt hM ) ) ?_;
-      refine mul_le_mul_of_nonneg_left ( Real.rpow_le_rpow_of_exponent_le (
-        mod_cast hM.le ) ?_ ) ( by positivity );
+      focus
+        refine le_trans ( lemma_exp_mu_bound p M hp ( pos_of_gt hM ) ) ?_
+      focus
+        refine mul_le_mul_of_nonneg_left ( Real.rpow_le_rpow_of_exponent_le (
+          mod_cast hM.le ) ?_ ) ( by positivity )
       · have := lemma_exponent_bound p hp;
         rw [ show ( -coeff_lhs p / 4 : ℝ ) = - ( coeff_lhs p / 4 ) by ring, neg_div ];
         refine neg_le_neg ( this.trans' ?_ );
@@ -939,7 +943,8 @@ lemma lemma_log_ratio_two_k_val_tendsto_atTop (c : ℝ) (hc : c > 0) :
         k_val c M : ℝ)) / (1 + Real.log 2 / Real.log (
           k_val c M : ℝ))) Filter.atTop Filter.atTop := by
         apply Filter.Tendsto.atTop_mul_pos;
-        exact zero_lt_one;
+        focus
+          exact zero_lt_one
         · convert h_log_ratio using 1;
         · exact le_trans ( Filter.Tendsto.inv₀ (
           tendsto_const_nhds.add <| tendsto_const_nhds.div_atTop <| Real.tendsto_log_atTop.comp
@@ -1796,7 +1801,9 @@ lemma lemma_small_primes_good (c : ℝ) (M m : ℕ)
       p ^ j : ℝ)) ≤ padicValNat p (Nat.factorial (k_val c M)) := by
       have h_w_le_kappa : padicValNat p (Nat.factorial (k_val c M)) = ∑ j ∈ Finset.Icc 1 (
         Nat.log p (k_val c M)), (k_val c M / p ^ j) := by
-        haveI := Fact.mk hp_prime; rw [ padicValNat_factorial ] ; aesop;
+        haveI := Fact.mk hp_prime; rw [ padicValNat_factorial ]
+        focus
+          aesop
         norm_num;
       rw [h_w_le_kappa];
       by_cases hV : V_p p m (k_val c M) ≤ Nat.log p (k_val c M);
