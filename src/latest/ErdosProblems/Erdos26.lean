@@ -29,7 +29,6 @@ import Mathlib
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 
 namespace Erdos26
 
@@ -190,17 +189,17 @@ lemma arithmetic_progression_density (m : ℕ) (r : ℤ) (hm : m ≥ 1) :
               (if 0 ∈ {n : ℕ | (n : ℤ) ≡ r [ZMOD m]} then 1 else 0) / b)
           Filter.atTop (𝓝 (1 / m)) from ?_) using 2 <;>
       norm_num;
-    ring_nf;
-    ring_nf;
-    exact le_trans
-      (Filter.Tendsto.add
-        (Filter.Tendsto.sub
-          (tendsto_const_nhds.congr' (by
-            filter_upwards [Filter.eventually_ne_atTop 0] with x hx
-            rw [mul_right_comm, mul_inv_cancel₀ (Nat.cast_ne_zero.mpr hx), one_mul]))
-          (tendsto_const_nhds.mul tendsto_inv_atTop_nhds_zero_nat))
-        (tendsto_inv_atTop_nhds_zero_nat.mul tendsto_const_nhds))
-      (by norm_num);
+    · ring_nf
+    · ring_nf
+      exact le_trans
+        (Filter.Tendsto.add
+          (Filter.Tendsto.sub
+            (tendsto_const_nhds.congr' (by
+              filter_upwards [Filter.eventually_ne_atTop 0] with x hx
+              rw [mul_right_comm, mul_inv_cancel₀ (Nat.cast_ne_zero.mpr hx), one_mul]))
+            (tendsto_const_nhds.mul tendsto_inv_atTop_nhds_zero_nat))
+          (tendsto_inv_atTop_nhds_zero_nat.mul tendsto_const_nhds))
+        (by norm_num);
   refine h_limit.congr' ?_
   filter_upwards [ Filter.eventually_gt_atTop 0 ] with b hb;
   unfold partialDensity;
@@ -209,7 +208,7 @@ lemma arithmetic_progression_density (m : ℕ) (r : ℤ) (hm : m ≥ 1) :
     show (Finset.Iio b : Finset ℕ) = Finset.Icc 1 (b - 1) ∪ {0} from ?_,
     Finset.filter_union, Finset.filter_singleton
   ];
-  aesop;
+  · aesop
   ext ( _ | i ) <;> cases b <;> aesop
 
 /-
@@ -741,7 +740,7 @@ theorem erdos_26.variants.rusza : ∃ A : ℕ → ℕ,
     StrictMono A ∧ ¬IsThick A ∧ ∀ k, ¬IsBehrend (A · + k) := by
   constructor;
   swap;
-  exact fun n => 2 ^ ( 2 ^ n );
+  · exact fun n => 2 ^ ( 2 ^ n )
   constructor;
   · exact fun m n hmn =>
       pow_lt_pow_right₀ (by decide) (pow_lt_pow_right₀ (by decide) hmn);
@@ -795,7 +794,7 @@ theorem erdos_26.variants.rusza : ∃ A : ℕ → ℕ,
             ∑' i, (1 : ℝ) / (2 ^ (2 ^ i)) <
               ∑' i, (1 : ℝ) / (2 ^ (i + 1)) := by
           fapply Summable.tsum_lt_tsum;
-          use 2;
+          · use 2
           · intro n
             rcases n with (_ | _ | n) <;>
               norm_num [Nat.pow_succ', Nat.pow_mul];
