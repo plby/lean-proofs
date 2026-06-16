@@ -23,7 +23,6 @@ set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.unusedVariables false
 set_option linter.style.cases false
-set_option linter.style.multiGoal false
 namespace Erdos871
 
 def shiftedPairs (x y k : ℕ) : Finset (ℕ × ℕ) :=
@@ -191,13 +190,14 @@ lemma S_subset_R (seq : NathansonSeq) (k : ℕ) (hk : 1 ≤ k) :
     seq.S k ⊆ seq.R k := by
   intro x hx
   simp [NathansonSeq.S, NathansonSeq.R] at hx ⊢;
-  split_ifs at * ; aesop;
-  simp_all +decide [ Finset.mem_Icc, Nat.add_assoc ];
-  constructor;
-  · unfold NathansonSeq.N;
-    have := seq.growth_bound k hk;
-    nlinarith only [ this, hx.2 ];
-  · intro u hu₁ hu₂; nlinarith [ seq.growth_bound k hk ] ;
+  split_ifs at *
+  · aesop
+  · simp_all +decide [ Nat.add_assoc ];
+    constructor;
+    · unfold NathansonSeq.N;
+      have := seq.growth_bound k hk;
+      nlinarith only [ this, hx.2 ];
+    · intro u hu₁ hu₂; nlinarith [ seq.growth_bound k hk ] ;
 
 lemma S_subset_B (seq : NathansonSeq) (k : ℕ) (hk : 1 ≤ k) :
     seq.S k ⊆ seq.B_k k := by
@@ -244,18 +244,19 @@ lemma B_k_lower_bound (seq : NathansonSeq) (k : ℕ) (hk : 1 ≤ k) :
   rcases hx with ( hx | hx | hx ) <;>
     simp_all +decide [ NathansonSeq.P, NathansonSeq.Q, NathansonSeq.R ];
   · aesop;
-  · split_ifs at hx ; aesop;
-    rw [ Finset.mem_image ] at hx
-    obtain ⟨ u, hu, rfl ⟩ := hx
-    unfold NathansonSeq.N
-    simp +arith +decide [ * ] ;
-    have h_growth := seq.growth_bound k hk;
-    have h_exp := seq.exponential_growth k hk;
-    have hu_le : u ≤ k + 1 := (Finset.mem_Icc.mp hu).2
-    have h_bound :
-        2 * seq.n (k - 1) + 2 + (seq.n (k - 1) + 3 * k * u) ≤ seq.n k + 1 := by
-      nlinarith [h_growth, h_exp, hu_le]
-    omega
+  · split_ifs at hx
+    · aesop
+    · rw [ Finset.mem_image ] at hx
+      obtain ⟨ u, hu, rfl ⟩ := hx
+      unfold NathansonSeq.N
+      simp +arith +decide [ * ] ;
+      have h_growth := seq.growth_bound k hk;
+      have h_exp := seq.exponential_growth k hk;
+      have hu_le : u ≤ k + 1 := (Finset.mem_Icc.mp hu).2
+      have h_bound :
+          2 * seq.n (k - 1) + 2 + (seq.n (k - 1) + 3 * k * u) ≤ seq.n k + 1 := by
+        nlinarith [h_growth, h_exp, hu_le]
+      omega
   · split_ifs at hx <;> norm_num at hx;
     unfold NathansonSeq.N at *;
     have h_n_k_ge_8n_k_minus_1 : seq.n k ≥ 8 * seq.n (k - 1) := by
@@ -893,24 +894,24 @@ theorem lemma3_part2 (seq : NathansonSeq) (k : ℕ) (hk : k ≥ 3) (n : ℕ)
             Finset.mem_union_left _ <|
               S_subset_B _ _ ( Nat.sub_pos_of_lt <| by linarith ) hx;
     · refine le_trans (b := countReps (seq.P k ∪ seq.P (k - 2)) n) ?_ ( countReps_mono ?_ _ );
-      convert lemma3_case4 seq k hk n h_case2.1 h_case2.2 using 1;
-      intro x hx; unfold NathansonSeq.B_k; aesop;
+      · convert lemma3_case4 seq k hk n h_case2.1 h_case2.2 using 1;
+      · intro x hx; unfold NathansonSeq.B_k; aesop;
     · refine le_trans ( lemma3_case1 seq k hk n h_case2.1 h_case2.2 ) ?_
       apply_rules [ countReps_mono ];
       exact fun x hx =>
         Finset.mem_union_left _ <| Finset.mem_union_left _ <| Finset.mem_union_left _ hx;
     · refine le_trans (b := countReps (seq.P k ∪ seq.T k) n) ?_ ( countReps_mono ?_ _ );
-      convert lemma3_case2 seq k hk n h_case2.1 h_case2.2 using 1;
-      simp +decide [ Finset.subset_iff, NathansonSeq.B_k ];
-      intro x hx
-      rcases hx with ( hx | hx ) <;>
-        simp_all +decide [ NathansonSeq.T, NathansonSeq.R ] ;
-      split_ifs at hx <;> simp_all +decide [ Nat.sub_sub ];
-      exact Or.inr <| Or.inr <| Or.inl
-        ⟨ by
-            nlinarith only [ hx.1, hx.2, seq.n_pos k, seq.n_pos ( k - 1 ) ],
-          fun u hu₁ hu₂ => by
-            nlinarith only [ hx.1, hx.2, hu₁, hu₂ ] ⟩;
+      · convert lemma3_case2 seq k hk n h_case2.1 h_case2.2 using 1;
+      · simp +decide [ Finset.subset_iff, NathansonSeq.B_k ];
+        intro x hx
+        rcases hx with ( hx | hx ) <;>
+          simp_all +decide [ NathansonSeq.T, NathansonSeq.R ] ;
+        split_ifs at hx <;> simp_all +decide [ Nat.sub_sub ];
+        exact Or.inr <| Or.inr <| Or.inl
+          ⟨ by
+              nlinarith only [ hx.1, hx.2, seq.n_pos k, seq.n_pos ( k - 1 ) ],
+            fun u hu₁ hu₂ => by
+              nlinarith only [ hx.1, hx.2, hu₁, hu₂ ] ⟩;
     · refine le_trans ( lemma3_case5 seq k hk n h_case2.1 h_case2.2 ) ?_;
       apply_rules [ countReps_mono ];
       unfold NathansonSeq.B_k; aesop_cat;
@@ -1192,21 +1193,21 @@ lemma N_representations (k : ℕ) (hk : k ≥ 2) :
       a ∈ gc.F k ∧ b ∈ gc.G k ∨ a ∈ gc.G k ∧ b ∈ gc.F k := by
   intro a b ha hb hab
   cases' ha with ha ha_cases
-  cases' hb with hb hb_cases;
-  · exact False.elim <| gc.seq.lemma4_part1 k a b ha hb hab;
-  · obtain ⟨ j, hj, hb ⟩ := hb_cases;
-    by_cases hjk : j = k;
-    · obtain ⟨f, hfF, hf⟩ : ∃ f ∈ gc.F k, b = gc.seq.N k - f := by
-        unfold GrowingConstruction.G at hb; aesop;
-      have hf_le_Nk : f ≤ gc.seq.N k := by
-        exact le_of_lt ( gc.F_lt_N k hk f hfF )
-      simp_all +decide;
-      exact Or.inl ( by
-        convert hfF using 1
-        linarith [ Nat.sub_add_cancel hf_le_Nk ] );
-    · exact False.elim
-        ( GrowingConstruction.B_plus_G_ne_Nk gc k hk a b ha
-          ⟨ j, hj, hjk, hb ⟩ hab );
+  · cases' hb with hb hb_cases
+    · exact False.elim <| gc.seq.lemma4_part1 k a b ha hb hab;
+    · obtain ⟨ j, hj, hb ⟩ := hb_cases
+      by_cases hjk : j = k;
+      · obtain ⟨f, hfF, hf⟩ : ∃ f ∈ gc.F k, b = gc.seq.N k - f := by
+          unfold GrowingConstruction.G at hb; aesop;
+        have hf_le_Nk : f ≤ gc.seq.N k := by
+          exact le_of_lt ( gc.F_lt_N k hk f hfF )
+        simp_all +decide;
+        exact Or.inl ( by
+          convert hfF using 1
+          linarith [ Nat.sub_add_cancel hf_le_Nk ] );
+      · exact False.elim
+          ( GrowingConstruction.B_plus_G_ne_Nk gc k hk a b ha
+            ⟨ j, hj, hjk, hb ⟩ hab );
   · cases' hb with hb hb_cases;
     · rcases ha_cases with ⟨ j, hj, hj' ⟩;
       by_cases hjk : j = k;
@@ -1533,9 +1534,9 @@ def concreteN (k : ℕ) : ℕ := 100 * 8^k
 lemma concreteN_pos : ∀ k, 0 < concreteN k := by
   intro k
   apply mul_pos
-  norm_num
-  apply pow_pos
-  norm_num
+  · norm_num
+  · apply pow_pos
+    norm_num
 
 lemma concreteN_mono : ∀ k, concreteN k ≤ concreteN (k + 1) := by
   intro k
@@ -1728,8 +1729,8 @@ lemma stageAssign_pos (k : ℕ) (hk : k ≥ 1) : stageAssign k ≥ 1 := by
 lemma stageAssign_unbounded : ∀ M, ∃ k₀, ∀ k ≥ k₀, stageAssign k > M := by
   simp_all +decide [ stageAssign ];
   intro M; use K ( M + 1 ) + 1; intro k hk; split_ifs <;> norm_num at *;
-  generalize_proofs at *;
-  · linarith [ Nat.zero_le ( K ( M + 1 ) ) ];
+  · generalize_proofs at *
+    linarith [ Nat.zero_le ( K ( M + 1 ) ) ];
   · intro m hm₁ hm₂; linarith [ K_mono m, K_mono_le ( by linarith : m + 1 ≤ M + 1 ) ] ;
 
 noncomputable def nthSubsetOfIcc (n m i : ℕ) : Finset ℕ :=
@@ -1979,33 +1980,34 @@ lemma UnionB_card_lower (m : ℕ) (hm : m ≥ 1) :
           simp +decide [ Finset.subset_iff ];
           unfold NathansonSeq.B_k; aesop;
         refine le_trans ?_ h_card_lower;
-        rw [ Finset.card_biUnion ] ; aesop;
-        intros i hi j hj hij;
-        cases lt_or_gt_of_ne hij <;> simp_all +decide [ Finset.disjoint_left ];
-        · intro x hx₁ hx₂
-          have := P_subset concreteSeq ( i + 1 ) ( by linarith ) x hx₁
-          have := P_subset concreteSeq ( j + 1 ) ( by linarith ) x hx₂
-          simp_all +decide;
-          have h_N_j_ge_N_i_plus_1 : concreteSeq.N j ≥ concreteSeq.N (i + 1) := by
-            exact Nat.le_induction ( by norm_num )
-              ( fun k hk ih => by
-                linarith!
-                  [ Nat.pow_le_pow_right ( by norm_num : 1 ≤ 8 )
-                      ( by linarith : k ≥ i + 1 ),
-                    Nat.pow_le_pow_right ( by norm_num : 1 ≤ 8 )
-                      ( by linarith : k + 1 ≥ i + 1 ),
-                    concreteSeq.N_strict_mono k ] ) j ( by linarith : i + 1 ≤ j );
-          unfold NathansonSeq.N at * ; linarith;
-        · intro x hx₁ hx₂;
-          have := concreteSeq.P_subset ( i + 1 ) ( by linarith ) x hx₁
-          have := concreteSeq.P_subset ( j + 1 ) ( by linarith ) x hx₂
-          simp_all +decide;
-          unfold NathansonSeq.N at *;
-          unfold concreteSeq at *; norm_num at *;
-          unfold concreteN at *
-          linarith
-            [ pow_le_pow_right₀ ( show 1 ≤ 8 by norm_num )
-                ( show i ≥ j + 1 by linarith ) ];
+        rw [ Finset.card_biUnion ]
+        · aesop
+        · intros i hi j hj hij;
+          cases lt_or_gt_of_ne hij <;> simp_all +decide [ Finset.disjoint_left ];
+          · intro x hx₁ hx₂
+            have := P_subset concreteSeq ( i + 1 ) ( by linarith ) x hx₁
+            have := P_subset concreteSeq ( j + 1 ) ( by linarith ) x hx₂
+            simp_all +decide;
+            have h_N_j_ge_N_i_plus_1 : concreteSeq.N j ≥ concreteSeq.N (i + 1) := by
+              exact Nat.le_induction ( by norm_num )
+                ( fun k hk ih => by
+                  linarith!
+                    [ Nat.pow_le_pow_right ( by norm_num : 1 ≤ 8 )
+                        ( by linarith : k ≥ i + 1 ),
+                      Nat.pow_le_pow_right ( by norm_num : 1 ≤ 8 )
+                        ( by linarith : k + 1 ≥ i + 1 ),
+                      concreteSeq.N_strict_mono k ] ) j ( by linarith : i + 1 ≤ j );
+            unfold NathansonSeq.N at * ; linarith;
+          · intro x hx₁ hx₂;
+            have := concreteSeq.P_subset ( i + 1 ) ( by linarith ) x hx₁
+            have := concreteSeq.P_subset ( j + 1 ) ( by linarith ) x hx₂
+            simp_all +decide;
+            unfold NathansonSeq.N at *;
+            unfold concreteSeq at *; norm_num at *;
+            unfold concreteN at *
+            linarith
+              [ pow_le_pow_right₀ ( show 1 ≤ 8 by norm_num )
+                  ( show i ≥ j + 1 by linarith ) ];
       refine lt_of_lt_of_le ( P_sum_dominates_K m hm ) ?_;
       unfold UnionB; aesop;
 
