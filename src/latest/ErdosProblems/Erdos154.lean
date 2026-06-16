@@ -30,7 +30,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 
 open scoped BigOperators
 open scoped Real
@@ -459,13 +458,13 @@ theorem sum_diffs_le_s_eq_sum_set (A : Finset ℕ) (s : ℕ) (hA : IsSidonSetNat
       refine ⟨ ?_, ?_, ?_, ?_, ?_ ⟩;
       any_goals omega;
       convert h.symm using 1;
-      · rw [ List.getElem?_eq_getElem ];
-        rw [ List.getElem?_eq_getElem ];
+      · focus rw [ List.getElem?_eq_getElem ];
+        focus rw [ List.getElem?_eq_getElem ];
         all_goals norm_num;
         · omega;
         · omega;
-      · rw [ List.getElem?_eq_getElem ];
-        rw [ List.getElem?_eq_getElem ];
+      · focus rw [ List.getElem?_eq_getElem ];
+        focus rw [ List.getElem?_eq_getElem ];
         all_goals norm_num;
         · omega;
         · omega
@@ -732,7 +731,8 @@ lemma eventually_inequality_premises
           exact ⟨ k, hk, by rw [ ← h_pigeonhole ] ; exact lt_of_le_of_lt ( Finset.sum_le_sum fun _ _ => Nat.le_of_lt_succ ( hK _ ( Finset.mem_range.mp ‹_› ) ) ) ( by norm_num; linarith ) ⟩;
         refine Finset.card_pos.mpr ?_;
         refine ⟨ ?_, Finset.mem_biUnion.mpr ⟨ i, Finset.mem_range.mpr hi.1, ?_ ⟩ ⟩;
-        exact ((B_finset_new (A_seq k) m i).sort (· ≤ ·))[1]! - ((B_finset_new (A_seq k) m i).sort (· ≤ ·))[0]!;
+        focus
+          exact ((B_finset_new (A_seq k) m i).sort (· ≤ ·))[1]! - ((B_finset_new (A_seq k) m i).sort (· ≤ ·))[0]!
         refine Finset.mem_biUnion.mpr ⟨ 0, ?_, ?_ ⟩ <;> norm_num;
         · exact Nat.div_pos ( Nat.le_sub_one_of_lt ( Nat.le_sqrt.mpr ( by linarith ) ) ) zero_lt_two;
         · exact ⟨ 0, Nat.sub_pos_of_lt hi.2, rfl ⟩;
@@ -757,7 +757,8 @@ lemma eventually_inequality_premises
               simpa only [ Finset.sum_range ] using h_jensen _ fun i => Nat.cast_nonneg _;
             rwa [ ge_iff_le, div_le_iff₀ ( by positivity ) ] at h_sum_r_pow;
           field_simp;
-          convert h_sum_r_pow.le using 1 <;> norm_num [ Real.sqrt_eq_rpow ] ; ring_nf;
+          convert h_sum_r_pow.le using 1 <;> norm_num [ Real.sqrt_eq_rpow ]
+          focus ring_nf
           · norm_cast;
             rw [ Finset.sum_congr rfl fun i hi => card_B_eq_card_A_filter _ _ _ ( by linarith ) ];
             rw [ ← Finset.card_biUnion ];
@@ -957,7 +958,8 @@ lemma S_total_upper_bound_relaxed (A : Finset ℕ) (m : ℕ) (hm : 2 ≤ m) (s :
             exact B_finset_new_eq_B A m i ( by linarith );
           · exact calc_s_lt_r _ ( Finset.card_pos.mpr hi' );
           · exact fun x a => B_finset_bound A m i n hA_bound x a;
-        rw [ ← sum_diffs_le_s_eq_sum_set ] ; aesop;
+        rw [ ← sum_diffs_le_s_eq_sum_set ]
+        focus aesop
         · have hB_sidon : IsSidonSetNat (B (A : Set ℕ) m i) := by
             exact B_is_sidon (↑A) m i hm hA;
           convert hB_sidon using 1;
@@ -1027,12 +1029,14 @@ lemma transformed_inequality_eventually
     convert inequality_algebraic_transform_v2 m ( fun i => ( B_finset_new ( A_seq k ) m i |> Finset.card : ℝ ) ) ( n_seq k ) ( A_seq k |> Finset.card ) ( Nat.cast_pos.mpr <| Nat.pos_of_ne_zero <| by aesop_cat ) ( fun i hi => Nat.cast_nonneg _ ) ?_ using 1;
     · rw [ Finset.sum_congr rfl fun i hi => ?_ ];
       rotate_left;
-      use fun i => ( ( B_finset_new ( A_seq k ) m i |> Finset.card : ℝ ) / Real.sqrt ( n_seq k ) ) ^ ( 3 / 2 : ℝ );
+      focus
+        use fun i => ( ( B_finset_new ( A_seq k ) m i |> Finset.card : ℝ ) / Real.sqrt ( n_seq k ) ) ^ ( 3 / 2 : ℝ )
       · rw [ card_B_eq_card_A_filter ];
         linarith;
       · simp +decide [Finset.sum_range];
         norm_num [ ← Finset.mul_sum _ _ _, ← Finset.sum_div ];
-        rw [ show ( ∑ i : Fin m, ( B_finset_new ( A_seq k ) m i |> Finset.card : ℝ ) ) = ( A_seq k |> Finset.card : ℝ ) from mod_cast ?_ ] ; norm_num [ mul_div_assoc ];
+        rw [ show ( ∑ i : Fin m, ( B_finset_new ( A_seq k ) m i |> Finset.card : ℝ ) ) = ( A_seq k |> Finset.card : ℝ ) from mod_cast ?_ ]
+        focus norm_num [ mul_div_assoc ]
         convert sum_card_B_eq_card_A ( A_seq k ) m ( by linarith ) using 1;
         rw [ Finset.sum_range ];
     · convert inequality_2_6_relaxed ( A_seq k ) m hm ( fun i => calc_s ( B_finset_new ( A_seq k ) m i |> Finset.card ) ) ( n_seq k ) ( h_sidon k ) ( fun x hx => h_subset k x hx ) ( fun i hi => rfl ) hk₁.1 hk₁.2 using 1
