@@ -44,7 +44,6 @@ import Mathlib
 import ErdosProblems.Erdos447
 
 set_option linter.style.setOption false
-set_option linter.style.multiGoal false
 set_option linter.flexible false
 
 namespace Erdos487
@@ -182,7 +181,7 @@ lemma sum_density_lower_bound (b : ℕ → ℕ) (δ' : ℝ) (k1 K : ℕ) (hk1 : 
           Finset.sum_Ioc_succ_top,
           (Nat.succ_eq_succ ▸ Finset.Icc_succ_left_eq_Ioc),
           pow_succ'] at *
-      ring;
+      · ring
       field_simp;
       rename_i m hm ih
       rw [Finset.sum_Ioc_succ_top (by linarith)]
@@ -198,7 +197,8 @@ lemma sum_density_lower_bound (b : ℕ → ℕ) (δ' : ℝ) (k1 K : ℕ) (hk1 : 
           show (Finset.Ioc k1 m : Finset ℕ) =
               Finset.Ioc k1 (m - 1) ∪ {m} from ?_,
           Finset.sum_union] <;> norm_num
-        ring_nf;
+        focus
+          ring_nf
         · simp +zetaDelta at *;
         · exact fun _ => by linarith;
         · exact Eq.symm (Finset.insert_Ioc_sub_one_right_eq_Ioc hm);
@@ -283,14 +283,14 @@ theorem helper {b : ℕ} (hb : 1 < b) {x y : ℕ} (hy : y ≠ 0) :
   apply Iff.intro
   · intro a
     rw [Nat.log_lt_iff_lt_pow]
-    simp_all only
-    exact hb
-    exact hy
+    · simp_all only
+    · exact hb
+    · exact hy
   · intro a
     rw [Nat.log_lt_iff_lt_pow] at a
-    simp_all only
-    exact hb
-    exact hy
+    · simp_all only
+    · exact hb
+    · exact hy
 
 /-
 Lemma 2: A harmonic lower bound from lower density. If A has positive lower density, then the sum of
@@ -1317,7 +1317,9 @@ lemma sum_f_explicit_bound :
                 nlinarith)
               (Nat.cast_nonneg _))
             (add_nonneg ( Real.log_natCast_nonneg _ ) zero_le_one))
-    using 1 ; ring_nf;
+    using 1
+  focus
+    ring_nf
   · rw [ Finset.mul_sum _ _ _, Finset.mul_sum _ _ _ ]
     rw [ ← Finset.sum_add_distrib ]
     exact Finset.sum_congr rfl fun _ _ => by ring;
@@ -2665,22 +2667,23 @@ lemma exists_t_upper_log_density_At_pos (A : Set ℕ) (h : lowerDensity A > 0) :
         refine lt_of_lt_of_le h_lower_log_density_U_pos ?_;
         -- By definition of `lower_log_density` and `upper_log_density`, we know that
         -- `lower_log_density U ≤ upper_log_density U`.
-        apply Filter.liminf_le_limsup; exact (by
-        use 1 + 1 / Real.log 2;
-        simp +zetaDelta at *;
-        refine ⟨ 2, fun n hn => ?_ ⟩
-        rw [ div_le_iff₀ ( Real.log_pos <| by norm_cast ) ]
-        have := log_density_sum_le_log ( ⋃ t, ⋃ ( _ : t < T ), At A t ) n ( by
-          linarith )
-        norm_num at *
-        nlinarith [
-          inv_pos.mpr ( Real.log_pos one_lt_two ),
-          mul_inv_cancel₀ ( ne_of_gt ( Real.log_pos one_lt_two ) ),
-          Real.log_le_log ( by positivity ) ( by norm_cast : ( 2 : ℝ ) ≤ n ) ]);
-        refine ⟨ 0, Filter.eventually_atTop.mpr ⟨ 2, fun N hN =>
-          div_nonneg
-            (Finset.sum_nonneg fun _ _ => by positivity)
-            (Real.log_nonneg (by norm_cast; linarith)) ⟩ ⟩;
+        apply Filter.liminf_le_limsup
+        · exact (by
+            use 1 + 1 / Real.log 2;
+            simp +zetaDelta at *;
+            refine ⟨ 2, fun n hn => ?_ ⟩
+            rw [ div_le_iff₀ ( Real.log_pos <| by norm_cast ) ]
+            have := log_density_sum_le_log ( ⋃ t, ⋃ ( _ : t < T ), At A t ) n ( by
+              linarith )
+            norm_num at *
+            nlinarith [
+              inv_pos.mpr ( Real.log_pos one_lt_two ),
+              mul_inv_cancel₀ ( ne_of_gt ( Real.log_pos one_lt_two ) ),
+              Real.log_le_log ( by positivity ) ( by norm_cast : ( 2 : ℝ ) ≤ n ) ])
+        · refine ⟨ 0, Filter.eventually_atTop.mpr ⟨ 2, fun N hN =>
+            div_nonneg
+              (Finset.sum_nonneg fun _ _ => by positivity)
+              (Real.log_nonneg (by norm_cast; linarith)) ⟩ ⟩;
       exact not_forall_not.mp fun h' =>
         h_upper_log_density_U_pos.not_ge <|
           le_trans (upper_log_density_subadd (Finset.range T) (fun t => At A t)) <|
@@ -2892,7 +2895,8 @@ lemma limsup_log_density_stretch_aux (A : Set ℕ) (k : ℕ) (hk : k > 0) :
       refine Filter.limsup_congr ?_;
       filter_upwards [ Filter.eventually_gt_atTop ( k * 2 ) ] with N hN
       rw [ div_mul_div_cancel₀ ]
-      aesop;
+      focus
+        aesop
       exact ne_of_gt <| Real.log_pos <| Nat.one_lt_cast.mpr <|
         Nat.le_floor <| Nat.le_div_iff_mul_le hk |>.2 <| by linarith;
 
