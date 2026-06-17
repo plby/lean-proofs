@@ -118,7 +118,6 @@ theorem my_g_mapsTo : Set.MapsTo my_g my_D my_S := by
 /-
 The diameter of $g(D)$ is at most $0.2$.
 -/
-set_option linter.style.multiGoal false in
 theorem my_g_diam : Metric.ediam (my_g '' my_D) ≤ ENNReal.ofReal (2/10) := by
   refine Metric.ediam_le ?_
   -- By definition of $g$, we know that for any $w \in D$, $g(w) = (w + 2)^{1/10}$.
@@ -142,7 +141,7 @@ theorem my_g_diam : Metric.ediam (my_g '' my_D) ≤ ENNReal.ofReal (2/10) := by
         field_simp
         rw [ intervalIntegral.integral_eq_sub_of_hasDerivAt ]
         rotate_right
-        use fun t => ( w * t + w' * ( 1 - t ) + 2 ) ^ ( 1 / 10 : ℂ )
+        · use fun t => ( w * t + w' * ( 1 - t ) + 2 ) ^ ( 1 / 10 : ℂ )
         · norm_num
         · intro t ht
           convert
