@@ -58,7 +58,6 @@ namespace Erdos264b
 
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.multiGoal false
 set_option linter.flexible false
 
 open scoped BigOperators
@@ -228,24 +227,24 @@ theorem recursive_step (n : ℕ) (current_sum : ℝ) (x : ℝ)
       by_cases hb_next_eq_5 : b_next = 5
       · refine ⟨5, by norm_num, ?_, ?_⟩
         -- By definition of $alpha$, we know that
-        have h_alpha : alpha n = 1 / ((2 : ℝ)^(n + 1) + 5) + alpha (n + 1) := by
-          unfold alpha
-          rw [Summable.tsum_eq_zero_add]
-          · norm_num
-            ring_nf
-          · exact Summable.of_nonneg_of_le
-              (fun _ => by positivity)
-              (fun k => by
-                rw [one_div]
-                rw [show ((1 / 2 : ℝ) ^ k) = ((2 : ℝ) ^ k)⁻¹ by
-                  rw [one_div, inv_pow]]
-                exact inv_anti₀ (by positivity)
-                  (by
-                    have hpow : (2 : ℝ) ^ k ≤ (2 : ℝ) ^ (n + 1 + k) := by
-                      exact pow_le_pow_right₀ (by norm_num : (1 : ℝ) ≤ 2) (by omega)
-                    linarith))
-              summable_geometric_two
-        · rw [h_alpha] at h_bounds
+        · have h_alpha : alpha n = 1 / ((2 : ℝ)^(n + 1) + 5) + alpha (n + 1) := by
+            unfold alpha
+            rw [Summable.tsum_eq_zero_add]
+            · norm_num
+              ring_nf
+            · exact Summable.of_nonneg_of_le
+                (fun _ => by positivity)
+                (fun k => by
+                  rw [one_div]
+                  rw [show ((1 / 2 : ℝ) ^ k) = ((2 : ℝ) ^ k)⁻¹ by
+                    rw [one_div, inv_pow]]
+                  exact inv_anti₀ (by positivity)
+                    (by
+                      have hpow : (2 : ℝ) ^ k ≤ (2 : ℝ) ^ (n + 1 + k) := by
+                        exact pow_le_pow_right₀ (by norm_num : (1 : ℝ) ≤ 2) (by omega)
+                      linarith))
+                summable_geometric_two
+          rw [h_alpha] at h_bounds
           nlinarith
         · simpa [hb_next_eq_5] using hb_next_def.2.1
       · -- Otherwise, if $b_{n+1}\in\{1,2,3,4\}$, then the maximality from its definition gives
