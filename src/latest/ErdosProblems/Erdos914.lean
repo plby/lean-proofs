@@ -42,7 +42,6 @@ namespace Erdos914
 set_option linter.style.setOption false
 -- Local generated proof budgets below exceed the style threshold but are scoped.
 set_option linter.style.maxHeartbeats false
-set_option linter.style.multiGoal false
 set_option linter.style.cases false
 set_option linter.flexible false
 set_option linter.unusedSectionVars false
@@ -269,8 +268,9 @@ theorem exists_terminal_vertex
                 a ≠ C) D r := by
             intros l hl_nodup hl_chain hl_head hl_last hC_in_l;
             convert chain_to_restricted_reflTransGen hl_chain hl_head hl_last _ using 1;
-            rotate_left;
-            exact C;
+            rotate_left
+            focus
+              exact C
             · exact Or.inl hC_in_l;
             · simp +decide only [and_assoc];
           exact h_chain_to_restricted_reflTransGen hl_nodup hl_chain hl_head hl_last hC_in_l;
@@ -657,7 +657,10 @@ lemma equitable_coloring_of_edgeless (G : SimpleGraph V)
     obtain ⟨e, he⟩ : ∃ e : V ≃ Fin (Fintype.card V), True := ⟨Fintype.equivFin V,
       trivial⟩
     use fun v => f (e v)
-    intro c₁ c₂; convert hf c₁ c₂ using 1; simp +decide [cClass]
+    intro c₁ c₂
+    convert hf c₁ c₂ using 1
+    focus
+      simp +decide [cClass]
     · rw [Finset.card_filter, Finset.card_filter]; conv_rhs => rw [← Equiv.sum_comp e]
     · rw [show cClass (fun v => f (e v)) c₂ = Finset.image (fun v =>
       e.symm v) (Finset.filter (fun v => f v = c₂) Finset.univ) from ?_,
@@ -717,7 +720,9 @@ lemma one_step_equitable
       then (cClass ne.f ne.large).card - 1 else if c = ne.small then (cClass ne.f ne.small).card + 1
         else (cClass ne.f c).card := by
       intro c; split_ifs <;> simp_all +decide [cClass_recolor_other_card] ;
-      · convert cClass_recolor_old_card _ ; aesop;
+      · convert cClass_recolor_old_card _
+        focus
+          aesop
         · rw [ hv.1 ];
         · infer_instance;
         · exact hv.1.symm ▸ ne.ne_small_large.symm;
@@ -910,7 +915,9 @@ lemma accessible_large_gives_equitable
   -- class in the auxiliary digraph.
   obtain ⟨l, hl⟩ : ∃ l : List (Fin k), l.Nodup ∧ l.IsChain (AuxAdj G ne.f) ∧ l.head? =
     some ne.large ∧ l.getLast? = some ne.small ∧ 2 ≤ l.length := by
-    apply exists_nodup_chain; assumption; exact ne.ne_small_large.symm;
+    apply exists_nodup_chain
+    · assumption
+    · exact ne.ne_small_large.symm
   -- Apply Lemma 2.1 to the chain l.
   apply
     equitable_from_nodup_chain G k s ne l hl.left hl.right.left hl.right.right.left
@@ -1002,7 +1009,10 @@ lemma induction_step_with_callback
           else (cClass f c').card := by
         intro c'
         by_cases hc'_eq_fx : c' = f x
-        · rw [hc'_eq_fx, cClass_recolor_old_card]; aesop; exact Ne.symm hc_ne
+        · rw [hc'_eq_fx, cClass_recolor_old_card]
+          focus
+            aesop
+          exact Ne.symm hc_ne
         · by_cases hc'_eq_c : c' = c <;>
             simp_all +decide
           · rw [cClass_recolor_new_card]; aesop
@@ -2207,7 +2217,13 @@ lemma sy_card_lower_bound
         have h_accessible_neighbors : ∑ c ∈ acc_colors, (nbrs_of_y_in c).card =
           (Finset.filter (fun w => IsAccessible G ne.f ne.small (ne.f w)) (G.neighborFinset y)).card
             := by
-          rw [ ← Finset.card_biUnion ] ; congr ; ext ; aesop;
+          rw [ ← Finset.card_biUnion ]
+          focus
+            congr
+          focus
+            ext
+          focus
+            aesop
           exact fun x hx y hy hxy => Finset.disjoint_left.mpr fun z hz₁ hz₂ => hxy <| by aesop;
         rw [ h_accessible_neighbors, ← Finset.card_union_of_disjoint ];
         · exact Finset.card_le_card fun x hx => by aesop;
@@ -2793,7 +2809,8 @@ lemma combine_disjoint_equitable
       intro c; split_ifs <;> simp_all +decide [ cClass ] ;
       · refine Finset.card_bij ( fun v hv => ⟨ v, ?_ ⟩ ) ?_ ?_ ?_ <;>
         simp_all +decide [Fin.ext_iff];
-        grind +locals;
+        focus
+          grind +locals
         grind +splitImp;
       · rw [ Finset.card_filter, Finset.card_filter ];
         rw [ ← Finset.sum_subset ( Finset.subset_univ ( Finset.filter ( fun x =>
@@ -3230,7 +3247,9 @@ lemma A_plus_equitable
           grind +ring;
       have := ne.card_other X ( by tauto ) ; simp_all +decide ;
       rw [ add_comm, show ( Finset.univ.filter fun v => ne.f v = X ∧ v ∈ A_plus ) =
-        Finset.univ.filter fun v => ne.f v = X from ?_, Finset.card_filter ] ; simp_all +decide;
+        Finset.univ.filter fun v => ne.f v = X from ?_, Finset.card_filter ]
+      focus
+        simp_all +decide
       · convert this ( by rintro rfl; exact hacc hXacc ) using 1;
       · grind
     have card_other : ∀ c, c ≠ small_idx → c ≠ large_idx → (cClass f_A c).card = s := by
