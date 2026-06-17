@@ -248,7 +248,6 @@ end Harmonic
 namespace Erdos1036
 
 set_option linter.style.setOption false
-set_option linter.style.multiGoal false
 set_option linter.style.cases false
 set_option linter.flexible false
 
@@ -460,8 +459,9 @@ theorem ramsey_step (a b N1 N2 : ℕ) (ha : 2 ≤ a) (hb : 2 ≤ b)
       -- `ramsey_prop_general` and `h1`, $G[S]$ has either a clique of size $a-1$ or an
       -- independent set of size $b$.
       have h_induced_S : (a - 1) ≤ (G.induce S).cliqueNum ∨ b ≤ (G.induce S).indepNum := by
-        apply ramsey_prop_general;
-        simp +zetaDelta at *;
+        apply ramsey_prop_general
+        focus
+          simp +zetaDelta at *
         exacts [ hS.2, h1 ];
       cases' h_induced_S with h h;
       · -- If $G[S]$ has a clique $K$ of size $a-1$, then $K \subseteq S \subseteq N(v)$,
@@ -714,7 +714,9 @@ theorem cor_ramsey_km (k m : ℕ) (hk : 1 ≤ k) (hm : 1 ≤ m) :
         Nat.choose (k * m + m - 2) (k * m - 1) ≤
           Nat.choose ((k + 1) * m) m := by
       rcases m with ( _ | _ | m ) <;> simp_all +decide [ add_mul ];
-      rw [ Nat.choose_symm_of_eq_add ] ; simp +arith +decide
+      rw [ Nat.choose_symm_of_eq_add ]
+      focus
+        simp +arith +decide
       any_goals exact m + 1 + 1 - 1;
       · simp +arith +decide [ Nat.choose_succ_succ ];
       · grind;
@@ -889,7 +891,8 @@ theorem prob_bound_main_v3 (γ : ℝ) (n : ℕ) (hγ : 0 < γ ∧ γ < 1) (hn : 
         (1 - param_p γ n) ^ (param_T γ n) ≤
           Real.exp (-param_p γ n * param_T γ n) := by
       convert Real.rpow_le_rpow _ _ _ using 1;
-      rw [ ← Real.exp_mul ];
+      focus
+        rw [ ← Real.exp_mul ]
       · exact
           sub_nonneg.2
             (div_le_one_of_le₀
@@ -2245,8 +2248,9 @@ theorem lemma_partition_sum {V : Type*} [Fintype V] [DecidableEq V]
     ∑ p ∈ patterns_set G A, (vertices_with_pattern G A p).card = Fintype.card V - A.card := by
       simp +decide [ vertices_with_pattern, patterns_set ];
       rw [ Finset.sum_image' ];
-      rotate_left;
-      use fun v => if v ∈ A then 0 else 1;
+      rotate_left
+      focus
+        use fun v => if v ∈ A then 0 else 1
       · simp +decide [ Finset.sum_ite ];
         intro i hi; congr 1 with j ; aesop;
       · simp +decide [ Finset.filter_not ];
@@ -2792,7 +2796,8 @@ lemma lemma_W_large_enough (c : ℝ) (hc : c > 0)
                     mul_le_mul_of_nonneg_left hn₁
                       (Real.rpow_nonneg (by linarith : 0 ≤ n) (1 / 3 : ℝ))
                     using 1
-                  ring;
+                  focus
+                    ring
                   field_simp;
                   rw [ ← Real.rpow_add ] <;> norm_num ; linarith;
                 · exact
@@ -3044,7 +3049,9 @@ lemma lemma_hom_from_uniform_W_cliques {V : Type*} [Finite V]
                         (h_K_clique i hi j hj ‹_›);
                 refine ⟨ ?_, ?_ ⟩;
                 · exact fun x hx y hy hxy => h_union x hx y hy hxy;
-                · rw [ Finset.card_biUnion ] ; aesop;
+                · rw [ Finset.card_biUnion ]
+                  focus
+                    aesop
                   exact fun i hi j hj hij => h_disjoint i j hij;
               exact ⟨ _, Finset.Subset.refl _, h_union ⟩
             obtain ⟨ K', hK'₁, hK'₂ ⟩ := h_union;
@@ -3159,7 +3166,9 @@ lemma lemma_hom_from_uniform_W_indep {V : Type*} [Finite V]
               exact fun h => hI₂ hi hj hij <| by tauto;
             have h_indep_union : G.IsNIndepSet (I.card * m) (Finset.biUnion I B) := by
               have h_card : (Finset.biUnion I B).card = I.card * m := by
-                rw [ Finset.card_biUnion ] ; aesop;
+                rw [ Finset.card_biUnion ]
+                focus
+                  aesop
                 exact fun i hi j hj hij => h_disjoint i j hij
               have h_indep_union :
                   ∀ x ∈ Finset.biUnion I B, ∀ y ∈ Finset.biUnion I B,
@@ -3498,9 +3507,10 @@ lemma shelah_n0_arithmetic_bound (c : ℝ) (hc : c > 0) (n : ℕ) (hn : n ≥ sh
     have := Classical.choose_spec
       (arithmetic_bound ( shelah_m2 c )
         (Nat.succ_le_of_lt (show 0 < shelah_m2 c from ?_)));
-    exact this n
-      (Nat.le_of_ceil_le <|
-        le_trans (le_max_of_le_left <| le_max_left _ _) hn);
+    focus
+      exact this n
+        (Nat.le_of_ceil_le <|
+          le_trans (le_max_of_le_left <| le_max_left _ _) hn);
     -- Since $R(k, k) \geq 2$ for any $k \geq 2$, and $k \geq 2$, we have $R(k, k) \geq 2$.
     have h_R_ge_2 : ∀ k : ℕ, 2 ≤ k → 2 ≤ R k k := by
       intros k hk_ge_2
@@ -3581,7 +3591,8 @@ lemma shelah_n0_distinguish (c : ℝ) (hc : c > 0) (n : ℕ) (hn : n ≥ shelah_
           convert Classical.choose_spec
             (lemma_distinguish ( shelah_gamma c ) ( shelah_gamma_bounds c ));
           any_goals exact Fin n;
-          refine ⟨ fun h => ?_, fun h => ?_ ⟩;
+          focus
+            refine ⟨ fun h => ?_, fun h => ?_ ⟩
           any_goals try infer_instance;
           · intro G _ n_1 hn_1 hn_1';
             convert Classical.choose_spec
