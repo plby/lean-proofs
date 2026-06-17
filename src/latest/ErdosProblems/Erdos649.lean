@@ -52,7 +52,6 @@ It is not true that for any two primes $p,q$, there exists some integer $n$ such
 $P(n)=p$ and $P(n+1)=q$. Specifically, there is no solution for $p=2$ and $q=7$.
 -/
 set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 theorem conjecture_false :
     ¬ ∀ (p q : ℕ), p.Prime → q.Prime → ∃ (n : ℕ),
       P n = p ∧ P (n + 1) = q := by
@@ -70,11 +69,15 @@ theorem conjecture_false :
           exact Finset.le_max hp
         cases h : Finset.max x.primeFactors <;> aesop
       interval_cases p <;> simp_all +decide
-    rw [ ← Nat.prod_primeFactorsList ( show x ≠ 0 from _ ) ] ;
+    rw [ ← Nat.prod_primeFactorsList ( show x ≠ 0 from by
+      rintro rfl
+      rw [Nat.primeFactors_zero, Finset.max_empty] at hx
+      change (0 : ℕ) = 2 at hx
+      norm_num at hx ) ] ;
     rw [ List.prod_eq_pow_single 2 ] ;
-    aesop;
+    focus
+      aesop
     · exact fun p hp h => False.elim <| hp <| h_pow_2 p <| by simpa using h;
-    · aesop_cat;
   -- Then $P(x+1)=7$ implies that the greatest prime factor of $2^k+1$ is 7.
   obtain ⟨k, rfl⟩ := h_pow_2
   have h_max_prime_factor : (2 ^ k + 1).primeFactors.max = some 7 := by
@@ -335,7 +338,6 @@ lemma jacobi_of_P_eq_p (p q n : ℕ) (hp : p.Prime) (hq : q.Prime) (hn : n ≠ 0
 /-
 If P(n)=p and q = -1 mod 4p#, then n is not -1 mod q.
 -/
-set_option linter.style.multiGoal false in
 lemma n_not_equiv_neg_one_mod_q (p q n : ℕ) (hp : p.Prime) (hq : q.Prime) (hn : n ≠ 0)
     (h_max_prime : P n = p) (h_q_mod : (q : ℤ) ≡ -1 [ZMOD (4 * primorial p)]) :
     ¬ ((n : ℤ) ≡ -1 [ZMOD q]) := by
@@ -349,7 +351,9 @@ lemma n_not_equiv_neg_one_mod_q (p q n : ℕ) (hp : p.Prime) (hq : q.Prime) (hn 
         -- \pmod{4}$.
         have h_q_mod_four : (q : ℤ) ≡ -1 [ZMOD 4] := by
           exact h_q_mod.of_dvd <| dvd_mul_right _ _;
-        rw [ jacobiSym.mod_right ] ; norm_num;
+        rw [ jacobiSym.mod_right ]
+        focus
+          norm_num
         · rw [ ← Nat.mod_add_div q 4 ] at *;
           have := Nat.mod_lt q zero_lt_four;
           interval_cases q % 4 <;> norm_num [ Int.ModEq ] at *;
@@ -421,7 +425,6 @@ private lemma P_zero_eq_zero : P 0 = 0 := by
   change (0 : ℕ) = 0
   rfl
 
-set_option linter.style.multiGoal false in
 lemma P_eq_two_iff_pow_two {m : ℕ} (hm : m ≠ 0) : P m = 2 ↔ ∃ k > 0, m = 2 ^ k := by
   constructor <;> intro h;
   · -- If $P(m)=2$, then the greatest prime factor of $m$ is 2. This means all prime
@@ -437,7 +440,8 @@ lemma P_eq_two_iff_pow_two {m : ℕ} (hm : m ≠ 0) : P m = 2 ↔ ∃ k > 0, m =
         cases h' : Finset.max m.primeFactors <;> aesop;
       rw [ ← Nat.prod_primeFactorsList hm ] ;
       rw [ List.prod_eq_pow_single 2 ] ;
-      aesop;
+      focus
+        aesop
       intro p hp hprime;
       have := h_prime_factors p ( by aesop ) ;
       interval_cases p <;> simp_all +decide ;
