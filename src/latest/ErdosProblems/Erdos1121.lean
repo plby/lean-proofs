@@ -32,7 +32,6 @@ import Mathlib
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 
 namespace Erdos1121
 
@@ -149,7 +148,9 @@ lemma sum_weighted_Iio_eq_sq {n : ℕ} (a : Fin n → ℝ) :
   | succ n ih =>
     simp +decide [Fin.sum_univ_castSucc]
     convert congr_arg (· + a (Fin.last n) * (2 * ∑ k, a (Fin.castSucc k) + a (Fin.last n)))
-      (ih fun i ↦ a (Fin.castSucc i)) using 1; ring_nf!
+      (ih fun i ↦ a (Fin.castSucc i)) using 1
+    focus
+      ring_nf!
     · simp +decide [add_comm, add_assoc]
       refine Finset.sum_congr rfl fun i hi => ?_
       rw [show (Iio (Fin.castSucc i) : Finset (Fin (n + 1))) =
