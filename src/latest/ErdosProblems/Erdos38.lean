@@ -442,7 +442,6 @@ private lemma indicator_parseval (M N : ℕ) (hM : 0 < M) (hMN : 2 * N ≤ M)
 set_option maxHeartbeats 800000 in
 -- The DFT expansion and Parseval calculation time out at the default heartbeat limit.
 set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 /--
 **Von Neumann's Inequality** (specialized to indicator vectors):
     For M ≥ 2N and polynomial of degree ≤ M/2:
@@ -600,7 +599,8 @@ lemma von_neumann_indicator (M N d : ℕ) (hM : 0 < M) (hMN : 2 * N ≤ M)
     refine Finset.sum_congr rfl fun x hx => ?_
     split_ifs <;> simp_all +decide
     · rw [Finset.card_eq_one.mpr]
-      aesop
+      focus
+        aesop
       exact ⟨x - _, Finset.eq_singleton_iff_unique_mem.mpr
         ⟨Finset.mem_filter.mpr ⟨by tauto,
           by rw [Nat.add_sub_of_le (by linarith)]⟩,
@@ -631,7 +631,6 @@ noncomputable section
 /-! ## Part 1: Von Neumann Bridge -/
 
 set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 lemma vn_bridge (m : ℕ) (_hm : 0 < m) (L : ℕ) (hL : 0 < L)
     (ω : Fin L → ℕ) (hω : ∀ j, ω j ∈ Icc 1 (2 ^ m))
     (N : ℕ) (_hN : N ≤ 2 ^ m) (_hN0 : 0 < N)
@@ -666,7 +665,8 @@ lemma vn_bridge (m : ℕ) (_hm : 0 < m) (L : ℕ) (hL : 0 < L)
           (mul_le_mul_of_nonneg_right h_poly <| Real.sqrt_nonneg _)
           <| Real.sqrt_nonneg _)
       using 1
-    norm_num [ shiftBilinForm ]
+    focus
+      norm_num [ shiftBilinForm ]
     · unfold hitCount
       aesop
     · rw [ Real.sqrt_mul ( Nat.cast_nonneg _ ), mul_assoc ]
@@ -742,7 +742,6 @@ lemma max_poly_le_from_re_im (a : ℕ → ℝ) (d M : ℕ) (hM : 0 < M)
         by nlinarith only [abs_le.mp (h_re l hl), abs_le.mp (h_im l hl)]⟩
 
 set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 /-- Count of tuples with a small element is less than half the total. -/
 lemma bad_min_count_lt (m : ℕ) (_hm : 20 ≤ m) :
     2 * (univ.filter (fun ω : Fin (shiftL m) → Fin (2 ^ m) =>
@@ -757,7 +756,8 @@ lemma bad_min_count_lt (m : ℕ) (_hm : 20 ≤ m) :
         2 ^ m / (2 * shiftL m + 2) := by
     intro j
     rw [ Finset.card_eq_of_bijective ]
-    use fun i hi => ⟨ i, by linarith [ Nat.div_le_self ( 2 ^ m ) ( 2 * shiftL m + 2 ) ] ⟩
+    focus
+      use fun i hi => ⟨ i, by linarith [ Nat.div_le_self ( 2 ^ m ) ( 2 * shiftL m + 2 ) ] ⟩
     · aesop
     · aesop
     · aesop
@@ -844,13 +844,13 @@ lemma bad_min_count_lt (m : ℕ) (_hm : 20 ≤ m) :
   convert lt_of_le_of_lt ( Nat.mul_le_mul_left 2 h_union_bound ) _ using 1
   · norm_num [ Nat.le_div_iff_mul_le ( by positivity : 0 < ( 2 * shiftL m + 2 ) ) ]
   · convert h_simplify using 1
-    ring
+    focus
+      ring
     norm_num [ Fintype.card_pi ]
 
 set_option maxHeartbeats 800000 in
 -- The Hoeffding/DFT union-bound proof times out at the default heartbeat limit.
 set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 /-- Count of tuples with bad `maxPolyOnGrid` is less than half the total.
 The proof uses Hoeffding's inequality applied to centered trigonometric
 functions, followed by a union bound over all Fourier frequencies. -/
@@ -976,7 +976,11 @@ lemma bad_approx_count_lt (m : ℕ) (hm : 20 ≤ m) :
             Real.exp (-(shiftL m : ℝ) / (32 * m ^ 2)) := by
         convert hoeffding_two_sided (2 ^ m) (shiftL m) (by positivity)
             f hf_bound hf_sum_zero (1 / (4 * m)) (by positivity)
-          using 1 ; norm_num ; ring_nf
+          using 1
+        focus
+          norm_num
+        focus
+          ring_nf
         norm_num ; ring
       refine le_trans ?_ h_hoeffding
       exact_mod_cast Finset.card_mono fun x hx =>
@@ -985,11 +989,12 @@ lemma bad_approx_count_lt (m : ℕ) (hm : 20 ≤ m) :
     -- Instantiate Hoeffding with the centered cosine function.
     convert h_hoeffding _ _ _ using 3
     rotate_left
-    use fun t =>
-      ((omegaPrim (2 ^ (m + 1)) ^ (((t : ℕ) + 1) * l) : ℂ).re -
-       (∑ t : Fin (2 ^ m),
-         (omegaPrim (2 ^ (m + 1)) ^ (((t : ℕ) + 1) * l) : ℂ).re) /
-       2 ^ m) / 2
+    focus
+      use fun t =>
+        ((omegaPrim (2 ^ (m + 1)) ^ (((t : ℕ) + 1) * l) : ℂ).re -
+         (∑ t : Fin (2 ^ m),
+           (omegaPrim (2 ^ (m + 1)) ^ (((t : ℕ) + 1) * l) : ℂ).re) /
+         2 ^ m) / 2
     · -- Bound |g(t)| ≤ 1
       intro t
       have h_bound :
@@ -1038,7 +1043,9 @@ lemma bad_approx_count_lt (m : ℕ) (hm : 20 ≤ m) :
       rw [h_centered ω]
       ring_nf
       field_simp
-      rw [lt_div_iff₀] <;> norm_cast ; ring_nf
+      rw [lt_div_iff₀] <;> norm_cast
+      focus
+        ring_nf
       · norm_num [add_comm, mul_comm]
       · exact Nat.succ_pos _
   -- ── Step 2. Hoeffding bound for the imaginary part ──
@@ -1984,7 +1991,6 @@ lemma sum_ge_triangular (C : Finset ℕ) (hC : ∀ c ∈ C, c ≥ 1) :
     rfl
 
 set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 /-- Lower bound on the full average of hit counts when C ⊆ [N] \ A, |C| = q.
     Uses: countIn A (c-1) ≥ α*c (since c ∉ A), Σ c ≥ q(q+1)/2 ≥ q²/2. -/
 lemma full_average_lower_bound {A : Set ℕ} {α : ℝ}
@@ -2047,10 +2053,10 @@ lemma full_average_lower_bound {A : Set ℕ} {α : ℝ}
   · -- Degenerate case: `α < 0`, so the LHS is non-positive.
     have hlhs_nonpos : α * (1 - α) ^ 2 * N / 16 ≤ 0 := by
       apply div_nonpos_of_nonpos_of_nonneg
-      exact mul_nonpos_of_nonpos_of_nonneg
-        (mul_nonpos_of_nonpos_of_nonneg (le_of_not_ge hα_nonneg) (sq_nonneg _))
-        (Nat.cast_nonneg _)
-      norm_num
+      · exact mul_nonpos_of_nonpos_of_nonneg
+          (mul_nonpos_of_nonpos_of_nonneg (le_of_not_ge hα_nonneg) (sq_nonneg _))
+          (Nat.cast_nonneg _)
+      · norm_num
     have hrhs_nonneg : 0 ≤ (∑ s ∈ Icc 1 M, (hitCount A C s : ℝ)) / M :=
       div_nonneg (Finset.sum_nonneg fun _ _ => Nat.cast_nonneg _) (Nat.cast_nonneg _)
     linarith
