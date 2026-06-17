@@ -29,7 +29,6 @@ namespace Erdos844
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 
 /-!
 # Erdős Problem 844: The Erdős–Sárközy Problem
@@ -286,7 +285,9 @@ lemma min_weight_shiftN (N : ℕ)
         · exact Finset.sum_lt_sum_of_nonempty ⟨ X, by aesop ⟩ h_weight_decr;
         · intros Y hy Z hz h_eq; simp_all +decide [ Finset.ext_iff ] ;
           grind +suggestions;
-      unfold familyWeight; rw [Finset.sum_union]; simp_all +decide
+      unfold familyWeight; rw [Finset.sum_union]
+      focus
+        simp_all +decide
       · rw [← Finset.sum_sdiff
             (Finset.filter_subset
               (fun Y => N ∈ Y ∧ k ∉ Y ∧
@@ -801,7 +802,9 @@ private lemma dominated_image_rankFun {S Y X : Finset ℕ} (hY : Y ⊆ S) (hX : 
     exact congrArg (rankFun S) (hf.1 hyY hzY hf_eq)
   · simp +zetaDelta at *;
     intro y hy;
-    rw [ unrankFun_rankFun ] ; aesop;
+    rw [ unrankFun_rankFun ]
+    focus
+      aesop
     exact hY hy;
   · simp_all +decide [ Set.InjOn ];
     intro y hy; rw [ unrankFun_rankFun ( hY hy ) ] ;
@@ -1208,10 +1211,15 @@ theorem erdos_sarkozy (N : ℕ) (A : Finset ℕ)
   convert Nat.add_le_add hB_card hC_card using 1;
   · rw [ Finset.card_filter_add_card_filter_not ];
   · unfold erdosSarkozySet
-    rw [← Finset.card_union_of_disjoint]; congr
-    ext x
-    simp only [Finset.mem_filter, Finset.mem_union]
-    tauto
+    rw [← Finset.card_union_of_disjoint]
+    focus
+      congr
+    focus
+      ext x
+    focus
+      simp only [Finset.mem_filter, Finset.mem_union]
+    focus
+      tauto
     exact Finset.disjoint_filter.mpr (by tauto)
 
 end Erdos844
