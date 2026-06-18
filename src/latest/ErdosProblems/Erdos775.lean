@@ -20,7 +20,6 @@ namespace Erdos775
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 
 /-!
 # On Cliques in Hypergraphs
@@ -536,9 +535,11 @@ lemma contractionTree_depth_le (k C : ℕ) (hT : IsKCLayeredTree (k + 1) C T)
             (contractionTree T hm).depth p + 1 ≤
               T.depth ((keptVertices T).orderIsoOfFin ‹_› p).val := by
           apply_assumption
-          generalize_proofs at *
-          · have := contractionParentFn_parent_lt T hm ⟨ j, hj ⟩ hj_pos; aesop
-          · exact hp_pos
+          · generalize_proofs at *
+            have := contractionParentFn_parent_lt T hm ⟨ j, hj ⟩ hj_pos
+            aesop
+          · generalize_proofs at *
+            exact hp_pos
         generalize_proofs at *
         have h_depth_j :
             (contractionTree T hm).depth ⟨j, hj⟩ =
@@ -901,7 +902,7 @@ lemma card_children_of_rootChildren (T : OrderedRootedTree t) :
     ∑ x ∈ rootChildrenFinset T, T.numChildren x := by
   rw [ eq_comm, Finset.sum_congr rfl ]
   rotate_right
-  exact fun x => ∑ i ∈ Finset.univ, if T.parent i = x ∧ i ≠ x then 1 else 0
+  · exact fun x => ∑ i ∈ Finset.univ, if T.parent i = x ∧ i ≠ x then 1 else 0
   · rw [ ← Finset.sum_product' ]
     simp +zetaDelta at *
     refine Finset.card_bij ( fun x hx => x.2 ) ?_ ?_ ?_ <;> aesop
@@ -1092,7 +1093,7 @@ lemma prefix_numChildren_root_eq (T : OrderedRootedTree t) (s : ℕ) (hs : s ≤
     (prefixSubtree T s hs).numChildren ⟨0, Nat.zero_lt_succ s⟩ =
     ((rootChildrenFinset T).filter (fun x => x.val ≤ s)).card := by
   refine Finset.card_bij ?_ ?_ ?_ ?_
-  use fun a ha => ⟨ a.val, by linarith [ Fin.is_lt a ] ⟩
+  · use fun a ha => ⟨ a.val, by linarith [ Fin.is_lt a ] ⟩
   · simp +contextual [ prefixSubtree, rootChildrenFinset ]
     exact fun a ha₁ ha₂ => Nat.le_of_lt_succ a.2
   · grind +splitImp
@@ -1614,8 +1615,9 @@ lemma clSetA_pos {n : ℕ} (X : ℕ → Finset (Fin n)) (i : ℕ) (hi : 0 < i) :
   rw [ clSetA, clParent ]
   rw [ clTreeState ]
   rw [ WellFounded.fix_eq ]
-  split_ifs ; simp_all +decide
-  rfl
+  split_ifs
+  · simp_all +decide
+  · rfl
 
 lemma clSetB_pos {n : ℕ} (X : ℕ → Finset (Fin n)) (i : ℕ) (hi : 0 < i) :
     clSetB X i = clSetA X (clParent X i) \ (clSetA X (clParent X i) ∩ X i) := by
