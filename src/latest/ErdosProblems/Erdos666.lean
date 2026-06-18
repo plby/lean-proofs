@@ -712,7 +712,6 @@ theorem card_eq_three_iff_exists_sorted {α : Type*} [LinearOrder α]
 If two edges in the partition graph lie in the same Q3 slice (direction q),
 they must have the same lower endpoint.
 -/
-set_option linter.style.multiGoal false in
 lemma partition_q_edges_eq_lowerEndpoint {n : ℕ} {ab : Fin 2 × Fin 2}
   {p q r : Fin n} (hpq : p < q) (hqr : q < r)
   (u : Fin n → ZMod 2)
@@ -726,9 +725,13 @@ lemma partition_q_edges_eq_lowerEndpoint {n : ℕ} {ab : Fin 2 × Fin 2}
   lowerEndpoint v1 w1 (partitionGraph_le_hypercube n ab h1) =
     lowerEndpoint v2 w2 (partitionGraph_le_hypercube n ab h2) := by
     apply distinct_labels_in_Q3_slice hpq hqr u v1 w1 v2 w2 h1.1 h2.1 hq1 hq2 hsupp1 hsupp2
-    generalize_proofs at *;
-    · cases h1 ; cases h2 ; aesop;
-    · unfold partitionGraph at h1 h2; aesop;
+    · generalize_proofs at *
+      cases h1
+      cases h2
+      aesop
+    · generalize_proofs at *
+      unfold partitionGraph at h1 h2
+      aesop
 
 /-
 If a list has exactly two occurrences of x, there are two distinct indices
@@ -820,7 +823,6 @@ lemma same_edge_of_lowerEndpoint_eq {n : ℕ} {u v x y : Fin n → ZMod 2}
 A 6-cycle contained in a Q3 cannot have all its edges in the same partition class G_ab.
 -/
 set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 lemma C6_in_Q3_impossible {n : ℕ} {ab : Fin 2 × Fin 2} {u : Fin n → ZMod 2}
   (C : (hypercubeGraph n).Walk u u) (hC : C.IsCycle) (hlen : C.length = 6)
   (S : Finset (Fin n)) (hS : S.card = 3)
@@ -949,9 +951,11 @@ lemma C6_in_Q3_impossible {n : ℕ} {ab : Fin 2 × Fin 2} {u : Fin n → ZMod 2}
     have h_edge_eq :
         ({C.getVert i1, C.getVert (i1 + 1)} : Set (Fin n → ZMod 2)) =
           {C.getVert i2, C.getVert (i2 + 1)} := by
-      apply same_edge_of_lowerEndpoint_eq;
-      grind;
-      exact h_lower_eq;
+      exact same_edge_of_lowerEndpoint_eq
+        (partitionGraph_le_hypercube n ab (h_partition i1))
+        (partitionGraph_le_hypercube n ab (h_partition i2))
+        (by rw [hi2, h_eq])
+        h_lower_eq
     -- Since $C$ is a simple cycle, it cannot contain the same edge twice.
     have h_simple_cycle :
         ∀ i j : Fin 6, i ≠ j →
