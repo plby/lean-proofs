@@ -111,7 +111,6 @@ lemma y_val_pos (ε : ℝ) (hε : ε < 1 / 2) :
 /-
 Lemma: For sufficiently large x, and n defined as product of primes in (x, 2x], the divisors with y prime factors are strictly between x^y and (2x)^y.
 -/
-set_option linter.style.multiGoal false in
 set_option linter.flexible false in
 lemma D_set_bounds_Ioc (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2) :
     ∃ N, ∀ x ≥ N, ∀ d ∈ D_set_Ioc x ε,
@@ -148,15 +147,21 @@ lemma D_set_bounds_Ioc (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2) :
               rw [ Nat.prod_primeFactors_of_squarefree h_square_free ];
             refine ⟨ d.primeFactors, ?_, ?_, h_divisors d ?_ ?_ ⟩ <;> norm_num at *;
             · exact Finset.mem_filter.mp hd |>.2;
-            · intro p pp dp _; have := Nat.dvd_trans dp ( show d ∣ n_val_Ioc x from ?_ ) ; simp_all +decide [ Nat.Prime.dvd_iff_not_coprime ] ;
+            · intro p pp dp _
+              have hdn : d ∣ n_val_Ioc x := by
+                exact Finset.mem_filter.mp hd |>.1 |> fun h => Nat.dvd_of_mem_divisors h
+              have := Nat.dvd_trans dp hdn
+              simp_all +decide [ Nat.Prime.dvd_iff_not_coprime ] ;
               · unfold n_val_Ioc at this; simp_all +decide [Nat.coprime_prod_right_iff]
                 obtain ⟨ q, hq₁, hq₂, hq₃, hq₄ ⟩ := this; have := Nat.coprime_primes pp hq₃; aesop;
-              · exact Finset.mem_filter.mp hd |>.1 |> fun h => Nat.dvd_of_mem_divisors h;
             · exact ⟨ Nat.dvd_of_mem_divisors <| Finset.mem_filter.mp hd |>.1, Finset.prod_ne_zero_iff.mpr fun p hp => Nat.Prime.ne_zero <| Finset.mem_filter.mp hp |>.2 ⟩;
-            · intro p pp dp hd; have := Nat.dvd_trans dp ( show d ∣ n_val_Ioc x from ?_ ) ; simp_all +decide [ Nat.Prime.dvd_iff_not_coprime ] ;
+            · intro p pp dp hd
+              have hdn : d ∣ n_val_Ioc x := by
+                exact Nat.dvd_of_mem_divisors <| Finset.mem_filter.mp ‹_› |>.1
+              have := Nat.dvd_trans dp hdn
+              simp_all +decide [ Nat.Prime.dvd_iff_not_coprime ] ;
               · unfold n_val_Ioc at this; simp_all +decide [ Nat.coprime_prod_right_iff ] ;
                 obtain ⟨ q, hq₁, hq₂, hq₃, hq₄ ⟩ := this; have := Nat.coprime_primes pp hq₃; aesop;
-              · exact Nat.dvd_of_mem_divisors <| Finset.mem_filter.mp ‹_› |>.1;
           use s;
           field_simp;
           exact ⟨ hs.1, fun p hp => ⟨ hs.2.1 p hp |>.1, by have := hs.2.1 p hp |>.2; rw [ Finset.mem_Ioc ] at this; exact Nat.lt_of_floor_lt this.1, by have := hs.2.1 p hp |>.2; rw [ Finset.mem_Ioc ] at this; exact by rw [ mul_comm ] ; exact Nat.floor_le ( show 0 ≤ 2 * x from le_of_not_gt fun h => by { rw [ Nat.floor_of_nonpos h.le ] at this; linarith } ) |> le_trans ( mod_cast this.2 ) ⟩, hs.2.2 ⟩;
@@ -322,7 +327,6 @@ Definition of count_primes_Ioc(x) and lemma stating that the size of D_set_Ioc i
 noncomputable def count_primes_Ioc (x : ℝ) : ℕ :=
   ((Finset.Ioc (Nat.floor x) (Nat.floor (2 * x))).filter Nat.Prime).card
 
-set_option linter.style.multiGoal false in
 set_option linter.flexible false in
 lemma card_D_set_Ioc_eq_choose (x : ℝ) (ε : ℝ) :
     (D_set_Ioc x ε).card = Nat.choose (count_primes_Ioc x) (y_val x ε) := by
@@ -347,10 +351,12 @@ lemma card_D_set_Ioc_eq_choose (x : ℝ) (ε : ℝ) :
           refine ⟨ ⟨ ?_, ?_ ⟩, ?_ ⟩;
           · apply_rules [ Finset.prod_dvd_prod_of_subset ];
           · exact Finset.prod_ne_zero_iff.mpr fun p hp => Nat.Prime.ne_zero <| Finset.mem_filter.mp hp |>.2;
-          · rw [ Nat.primeFactors_prod ] ; aesop;
-            exact fun p hp => Finset.mem_filter.mp ( hs₁ hp ) |>.2;
-      unfold count_primes_Ioc; rw [ h_divisors, Finset.card_image_of_injOn ] ; aesop;
-      intro s hs t ht h_eq; apply_fun fun s => Nat.primeFactors s at h_eq; simp_all +decide [ Finset.subset_iff, Nat.primeFactors_prod ] ;
+          · rw [ Nat.primeFactors_prod ]
+            · aesop
+            · exact fun p hp => Finset.mem_filter.mp ( hs₁ hp ) |>.2;
+      unfold count_primes_Ioc; rw [ h_divisors, Finset.card_image_of_injOn ]
+      · aesop
+      · intro s hs t ht h_eq; apply_fun fun s => Nat.primeFactors s at h_eq; simp_all +decide [ Finset.subset_iff, Nat.primeFactors_prod ] ;
 
 /-
 Lemma: The divisors in D_set are consecutive in the set of all divisors.
@@ -975,7 +981,6 @@ lemma tau_perp_lower_bound_explicit (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2
 /-
 For sufficiently large x, bound(n, epsilon) < exp((1 / 2 - epsilon + delta) * (log x)^2 / log log x).
 -/
-set_option linter.style.multiGoal false in
 lemma bound_asymptotic (hPNT : PNT_statement) (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2) (δ : ℝ) (hδ : δ > 0) :
     ∃ N, ∀ x ≥ N, bound (n_val_Ioc x) ε < Real.exp ((1 / 2 - ε + δ) * (Real.log x)^2 / Real.log (Real.log x)) := by
       -- By definition of $bound$, we know that for sufficiently large $x$, $(1 / 2 - ε) * (log (log n))^2 / log (log (log n)) < (1 / 2 - ε + δ) * (log x)^2 / log (log x)$.
@@ -989,7 +994,10 @@ lemma bound_asymptotic (hPNT : PNT_statement) (ε : ℝ) (hε : ε > 0) (hε2 : 
           have h_log_log_log_n : Filter.Tendsto (fun x => (Real.log (Real.log (Real.log (n_val_Ioc x))) - Real.log (Real.log x)) / Real.log (Real.log x)) Filter.atTop (nhds 0) := by
             refine h_log_log_log_n.congr' ( by filter_upwards [ h_log_log_n.eventually ( lt_mem_nhds one_pos ) ] with x hx using by rw [ Real.log_div ( by aesop ) ( by aesop ) ] );
           have := h_log_log_log_n.const_add 1;
-          simpa using this.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 1, Filter.eventually_gt_atTop ( Real.exp 1 ) ] with x hx₁ hx₂ using by rw [ add_div' ] ; ring ; exact ne_of_gt <| Real.log_pos <| show 1 < Real.log x from by rw [ Real.lt_log_iff_exp_lt ] <;> linarith [ Real.add_one_le_exp 1 ] );
+          simpa using this.congr' ( by
+            filter_upwards [ Filter.eventually_gt_atTop 1, Filter.eventually_gt_atTop ( Real.exp 1 ) ] with x hx₁ hx₂
+            rw [ add_div' _ _ _ (ne_of_gt <| Real.log_pos <| show 1 < Real.log x from by rw [ Real.lt_log_iff_exp_lt ] <;> linarith [ Real.add_one_le_exp 1 ]) ]
+            ring );
         convert h_log_log_n.pow 2 |> Filter.Tendsto.mul <| h_log_log_log_n.inv₀ one_ne_zero |> Filter.Tendsto.const_mul ( 1 / 2 - ε ) using 2 <;> ring;
       -- By the definition of limit, there exists an N such that for all x ≥ N, the ratio is within δ of (1 / 2 - ε).
       obtain ⟨N, hN⟩ : ∃ N, ∀ x ≥ N, ((1 / 2 - ε) * (Real.log (Real.log (n_val_Ioc x)))^2 / Real.log (Real.log (Real.log (n_val_Ioc x)))) / ((Real.log x)^2 / Real.log (Real.log x)) < (1 / 2 - ε) + δ := by
@@ -1001,7 +1009,6 @@ lemma bound_asymptotic (hPNT : PNT_statement) (ε : ℝ) (hε : ε > 0) (hε2 : 
 /-
 The ratio of the error term to the lower bound of r tends to 0.
 -/
-set_option linter.style.multiGoal false in
 set_option linter.flexible false in
 lemma error_term_ratio_tendsto_zero (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2) :
     Filter.Tendsto (fun x => ((2 * x) ^ (y_val x ε) / x) / ((x / (2 * (y_val x ε) * Real.log x)) ^ (y_val x ε))) Filter.atTop (nhds 0) := by
@@ -1216,7 +1223,6 @@ lemma tau_perp_gt_half_card_D_set (hPNT : PNT_statement) (ε : ℝ) (hε : ε > 
 /-
 For sufficiently large x, |D_set| > exp((1 / 2 - epsilon - delta) * (log x)^2 / log log x).
 -/
-set_option linter.style.multiGoal false in
 lemma card_D_set_lower_bound_explicit (hPNT : PNT_statement) (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2) (δ : ℝ) (hδ : δ > 0) :
     ∃ N, ∀ x ≥ N, ((D_set_Ioc x ε).card : ℝ) > Real.exp ((1 / 2 - ε - δ) * (Real.log x)^2 / Real.log (Real.log x)) := by
       -- By the properties of logarithms and exponentials, if $\log(LB(x))$ tends to infinity, then $LB(x)$ itself tends to infinity.
@@ -1227,7 +1233,7 @@ lemma card_D_set_lower_bound_explicit (hPNT : PNT_statement) (ε : ℝ) (hε : �
               convert log_r_lower_bound_asymptotic ε hε hε2 using 1;
             have h_exp_gt_one : Filter.Tendsto (fun x => ((Real.log (r_lower_bound_val x ε)) / ((Real.log x)^2 / Real.log (Real.log x)) - (1 / 2 - ε - δ)) * ((Real.log x)^2 / Real.log (Real.log x))) Filter.atTop Filter.atTop := by
               apply Filter.Tendsto.pos_mul_atTop;
-              exact show 0 < δ by linarith;
+              · exact show 0 < δ by linarith;
               · convert h_exp_gt_one.sub_const ( 1 / 2 - ε - δ ) using 2 ; ring;
               · -- We can use the change of variables $u = \log x$ to transform the limit expression.
                 suffices h_log : Filter.Tendsto (fun u => u^2 / Real.log u) Filter.atTop Filter.atTop by
@@ -1248,7 +1254,6 @@ lemma card_D_set_lower_bound_explicit (hPNT : PNT_statement) (ε : ℝ) (hε : �
 /-
 For sufficiently large x, tau_perp(n) > bound(n, epsilon).
 -/
-set_option linter.style.multiGoal false in
 lemma tau_perp_gt_bound (hPNT : PNT_statement) (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2) :
     ∃ N, ∀ x ≥ N, (tau_perp (n_val_Ioc x) : ℝ) > bound (n_val_Ioc x) ε := by
       -- Let $\epsilon' = \epsilon / 2$. Let $\delta = \epsilon / 8$.
@@ -1261,7 +1266,8 @@ lemma tau_perp_gt_bound (hPNT : PNT_statement) (ε : ℝ) (hε : ε > 0) (hε2 :
       -- By combining the results from hN₁, h_lower_bound, and h_bound, we can conclude that for sufficiently large x, tau_perp is greater than the bound.
       obtain ⟨N₂, hN₂⟩ : ∃ N₂, ∀ x ≥ N₂, ((D_set_Ioc x ε').card : ℝ) > 2 * Real.exp ((1 / 2 - ε + δ) * (Real.log x)^2 / Real.log (Real.log x)) := by
         obtain ⟨N₂, hN₂⟩ : ∃ N₂, ∀ x ≥ N₂, ((D_set_Ioc x ε').card : ℝ) > Real.exp ((1 / 2 - ε' - δ) * (Real.log x)^2 / Real.log (Real.log x)) := by
-          apply_rules [ card_D_set_lower_bound_explicit ] ; aesop;
+          apply_rules [ card_D_set_lower_bound_explicit ]
+          · aesop
           · exact lt_of_le_of_lt ( div_le_self hε.le ( by norm_num ) ) hε2;
           · positivity;
         -- We'll use that exponential functions grow faster than polynomial functions to find such an $N₂$.
