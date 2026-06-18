@@ -29,7 +29,6 @@ namespace Erdos678
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 set_option linter.style.cases false
 set_option maxHeartbeats 1000000
 -- The generated analytic and valuation proofs in this file exceed the default heartbeat limit.
@@ -144,7 +143,7 @@ lemma valuation_prod_div_lcm (S : Finset ℕ) (p : ℕ) (e : ℕ)
           by_cases hi : i = 0 <;> by_cases hl : l.prod = 0 <;> simp_all +decide [ padicValNat.mul ];
           norm_num [ ← ih ] at *;
           exact False.elim <| hl_nonzero.2 0 hl rfl;
-      convert h_padic_prod ( S.toList ) _ ; aesop;
+      convert h_padic_prod ( S.toList ) _ ; focus aesop;
       · simp +decide [ Finset.sum_map_toList ];
       · aesop
     have h_val_lcm : padicValNat p (Finset.lcm S id) = Finset.sup S (padicValNat p) := by
@@ -162,7 +161,7 @@ lemma valuation_prod_div_lcm (S : Finset ℕ) (p : ℕ) (e : ℕ)
       apply h_val_lcm; assumption;
     -- By the properties of p-adic valuations, we have $v_p(\prod_{i \in S} i / \text{lcm} S) = v_p(\prod_{i \in S} i) - v_p(\text{lcm} S)$.
     have h_val_ratio : padicValNat p ((∏ i ∈ S, i) / (Finset.lcm S id)) = (∑ i ∈ S, padicValNat p i) - (Finset.sup S (padicValNat p)) := by
-      haveI := Fact.mk hp; rw [ ← h_val_prod, ← h_val_lcm, padicValNat.div_of_dvd ] ; aesop;
+      haveI := Fact.mk hp; rw [ ← h_val_prod, ← h_val_lcm, padicValNat.div_of_dvd ] ; focus aesop;
       exact Finset.lcm_dvd fun x hx => Finset.dvd_prod_of_mem _ hx;
     rw [ h_val_ratio, sum_sub_max_eq_sum_min_sub_e ] <;> aesop
 
@@ -301,7 +300,7 @@ lemma padicValNat_lcm_range (k p : ℕ) (hp : p.Prime) (hk : k ≥ 1) :
         · exact Nat.le_log_of_pow_le hp.one_lt ( Nat.le_trans ( Nat.le_of_dvd hb₁ ( Nat.ordProj_dvd _ _ ) ) hb₂ );
         · assumption;
       · refine le_trans ?_ ( Finset.le_sup <| Finset.mem_Icc.mpr ⟨ Nat.one_le_pow _ _ hp.pos, Nat.pow_log_le_self _ <| by linarith ⟩ );
-        haveI := Fact.mk hp; rw [ padicValNat.pow ] ; aesop;
+        haveI := Fact.mk hp; rw [ padicValNat.pow ] ; focus aesop;
         exact hp.ne_zero;
     exact h_max_val ▸ h_lcm_val fun i hi => by linarith [ Finset.mem_Icc.mp hi ] ;
 
@@ -637,8 +636,8 @@ theorem ratio_equality_final (k : ℕ) (x y : ℕ) (hk : k ≥ 2)
           · -- Apply the appropriate lemma based on the value of p relative to k and the modular conditions.
             have h_val_large_p : padicValNat p ((∏ i ∈ Finset.Icc y (y + k), i) / (Finset.Icc y (y + k)).lcm id) = (Finset.filter (fun i => p ∣ i) (Finset.Icc y (y + k))).card - 1 := by
               apply valuation_large_p_le;
-              exact hp;
-              exact rfl;
+              · exact hp
+              · exact rfl
               · exact ⟨ y, by simp +arith +decide ⟩;
               · norm_num;
                 nlinarith only [ h_case, h_case2, Nat.lt_succ_sqrt k ];
@@ -1145,7 +1144,7 @@ lemma exists_y_if_large_interval (C : ℝ) (hC : C ≥ 1) (k : ℕ) (p1 p2 : ℕ
       · exact B_set_star_subset k p1 ( M_prime k p1 p2 );
       · exact B_set_star_subset k p2 ( M_prime k p1 p2 );
       · convert h_B_density.1 using 1;
-        rw [ B_set_star_ncard ] ; aesop;
+        rw [ B_set_star_ncard ] ; focus aesop;
         · exact h_M_prime_coprime.1;
         · grind;
       · convert h_B_density.2 using 1;
@@ -1160,9 +1159,9 @@ lemma exists_y_if_large_interval (C : ℝ) (hC : C ≥ 1) (k : ℕ) (p1 p2 : ℕ
     refine ⟨ y, ?_, ?_ ⟩;
     · convert hstart z hz_bounds using 1 ; norm_cast ; aesop;
     · apply good_y_of_mod_conditions;
-      exact hp1;
-      exact hp2;
-      exact ne_of_lt hp_lt;
+      · exact hp1
+      · exact hp2
+      · exact ne_of_lt hp_lt
       any_goals tauto;
       · exact ⟨ Nat.sqrt_lt.mpr ( by nlinarith [ Nat.div_add_mod k 2, Nat.mod_lt k two_pos ] ), h_range1.2 ⟩;
       · exact ⟨ Nat.sqrt_lt.mpr ( by nlinarith [ Nat.div_add_mod k 2, Nat.mod_lt k two_pos ] ), h_range2.2 ⟩
@@ -1827,7 +1826,7 @@ lemma construct_xy (C : ℝ) (hC : C ≥ 1) (k : ℕ) (p1 p2 q1 q2 q3 : ℕ)
         grind)).right ⟩ ⟨ by
         have := B_set_density_bound k p1 ( 1 / ( 40 * C ) ) hp1 ( by positivity ) ( by nlinarith [ mul_div_cancel₀ ( 1 : ℝ ) ( by positivity : ( 40 * C ) ≠ 0 ) ] ) ⟨ by linarith, by linarith ⟩ ; norm_num at * ; linarith;, by
         have := B_set_density_bound k p2 ( 1 / ( 40 * C ) ) hp2 ( by positivity ) ( by nlinarith [ one_div_mul_cancel ( by positivity : ( 40 * C : ℝ ) ≠ 0 ) ] ) ⟨ by linarith, by linarith ⟩ ; norm_num at * ; linarith; ⟩
-      generalize_proofs at *;
+      focus generalize_proofs at *;
       linarith [ epsilon_condition_y C hC k p1 p2 h_range_p1.1 h_range_p2.2 ( by linarith ) ];
     -- Apply `exists_x_if_large_interval` with `q1`, `q2`, `q3`.
     obtain ⟨x, hx⟩ : ∃ x : ℕ, (x : ℝ) ∈ x_interval k y C ∧ good_x k x := by
@@ -1838,8 +1837,8 @@ lemma construct_xy (C : ℝ) (hC : C ≥ 1) (k : ℕ) (p1 p2 q1 q2 q3 : ℕ)
         exact_mod_cast h_range_q2.2 ⟩ ⟨ by
         nlinarith [ show ( k : ℝ ) ≥ 10 by norm_cast, one_div_mul_cancel ( by positivity : ( 40 * C : ℝ ) ≠ 0 ), one_div_mul_cancel ( by positivity : ( 20 * C : ℝ ) ≠ 0 ) ], by
         exact_mod_cast h_range_q3.2 ⟩ h_len_x
-      generalize_proofs at *;
-      · apply M_prime3_coprime k q1 q2 q3 hq1 hq2 hq3 hq_distinct ⟨ by
+      · generalize_proofs at *
+        apply M_prime3_coprime k q1 q2 q3 hq1 hq2 hq3 hq_distinct ⟨ by
           exact Nat.div_lt_of_lt_mul <| by rw [ ← @Nat.cast_lt ℝ ] ; push_cast; nlinarith [ show ( 0 : ℝ ) < 1 / ( 40 * C ) by positivity, one_div_mul_cancel ( show ( 40 * C : ℝ ) ≠ 0 by positivity ) ] ;, by
           exact_mod_cast h_range_q1.2.le ⟩ ⟨ by
           exact Nat.div_lt_of_lt_mul <| by rw [ ← @Nat.cast_lt ℝ ] ; push_cast; nlinarith [ show ( 1 : ℝ ) / ( 40 * C ) ≤ 1 / 40 by gcongr ; linarith ] ;, by
@@ -2039,7 +2038,7 @@ lemma prime_counting_interval_tendsto_atTop (a b : ℝ) (ha : 0 < a) (hb : a < b
       have h_inv_one : Filter.Tendsto (fun x => 1 + Real.log b / Real.log x) Filter.atTop (nhds 1) ∧ Filter.Tendsto (fun x => 1 + Real.log a / Real.log x) Filter.atTop (nhds 1) := by
         exact ⟨ by simpa using tendsto_const_nhds.add ( tendsto_const_nhds.div_atTop ( Real.tendsto_log_atTop ) ), by simpa using tendsto_const_nhds.add ( tendsto_const_nhds.div_atTop ( Real.tendsto_log_atTop ) ) ⟩;
       apply Filter.Tendsto.atTop_mul_pos;
-      exact sub_pos_of_lt ( by nlinarith : b > a );
+      · exact sub_pos_of_lt ( by nlinarith : b > a )
       · exact h_frac_inf;
       · convert Filter.Tendsto.sub ( Filter.Tendsto.div ( tendsto_const_nhds.mul ( tendsto_const_nhds.add h_c_zero.1 ) ) h_inv_one.1 _ ) ( Filter.Tendsto.div ( tendsto_const_nhds.mul ( tendsto_const_nhds.add h_c_zero.2 ) ) h_inv_one.2 _ ) using 2 <;> norm_num;
     grind
@@ -2369,7 +2368,9 @@ lemma k_3_finite : {p : ℕ × ℕ | p.2 + 3 ≤ p.1 ∧ lcmInterval p.1 4 < lcm
         -- If $n \geq 21$, then by `lcm_ineq_large_n`, `lcmInterval m 4 > lcmInterval n 3`, contradicting `hlt`.
         by_contra h_contra
         have h_contra' : lcmInterval p.1 4 > lcmInterval p.2 3 := by
-          apply lcm_ineq_large_n; linarith; linarith;
+          apply lcm_ineq_large_n
+          · linarith
+          · linarith
         linarith;
       simp +zetaDelta at *;
       exact ⟨ p.2, hn_lt_21, p.1, by linarith [ show lcmInterval p.1 4 ≥ p.1 + 1 from lcm_4_ge_succ_m p.1 ], rfl ⟩;
