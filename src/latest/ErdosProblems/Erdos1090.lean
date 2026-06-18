@@ -41,7 +41,6 @@ namespace Erdos1090
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 
 open scoped BigOperators
 open scoped Real
@@ -177,10 +176,10 @@ lemma exists_linear_map_preserving_independence {V : Type*} [AddCommGroup V] [Mo
         use g;
         aesop;
       exact h_dual;
-    refine ⟨ ?_, ?_ ⟩;
-    exact ( LinearMap.pi fun i => if i = 0 then g else f );
-    refine Fintype.linearIndependent_iff.2 ?_;
-    simp_all +decide [ Fin.forall_fin_two, funext_iff ]
+    refine ⟨ ?_, ?_ ⟩
+    · exact ( LinearMap.pi fun i => if i = 0 then g else f )
+    · refine Fintype.linearIndependent_iff.2 ?_
+      simp_all +decide [ Fin.forall_fin_two, funext_iff ]
 
 /-
 The projection defined by a linear map on basis vectors acts as the linear map on the whole vector.
@@ -189,11 +188,11 @@ open Classical in
 lemma proj_eq_linear_map_apply {ι : Type*} [Fintype ι] (k : ℕ) (f : (ι → ℝ) →ₗ[ℝ] Fin 2 → ℝ) (x : ι → Fin k) :
   Proj k (fun i => f (Pi.single i 1)) x = f (fun i => (x i : ℝ)) := by
     classical
-    unfold Proj;
-    convert f.pi_apply_eq_sum_univ _ using 1;
-    convert f.pi_apply_eq_sum_univ _ using 1;
-    rw [ f.pi_apply_eq_sum_univ ];
-    congr! 2;
+    unfold Proj
+    convert f.pi_apply_eq_sum_univ _ using 1
+    focus convert f.pi_apply_eq_sum_univ _ using 1
+    focus rw [ f.pi_apply_eq_sum_univ ]
+    focus congr! 2
     any_goals exact fun i => ( x i : ℝ );
     · ext; simp +decide
     · exact congr_arg f ( funext fun j => by aesop );
@@ -232,8 +231,8 @@ lemma affine_span_image_line_eq_span_pair {ι : Type*} [Fintype ι] (k : ℕ) (h
         generalize_proofs at *;
         simp +decide [ Proj, smul_sub ];
         rw [ Finset.mul_sum _ _ _, Finset.mul_sum _ _ _ ] ; rw [ ← Finset.sum_sub_distrib ] ; rw [ ← Finset.sum_add_distrib ] ; congr ; ext x ; cases h : l_val x <;> aesop;);
-      refine Or.inl ⟨ ?_, ?_, ?_ ⟩ <;> norm_num [ h_proj t ];
-      exact ( t : ℝ ) • ( Proj k v ( l ⟨ 1, by linarith ⟩ ) - Proj k v ( l ⟨ 0, by linarith ⟩ ) );
+      refine Or.inl ⟨ ?_, ?_, ?_ ⟩ <;> norm_num [ h_proj t ]
+      · exact ( t : ℝ ) • ( Proj k v ( l ⟨ 1, by linarith ⟩ ) - Proj k v ( l ⟨ 0, by linarith ⟩ ) )
       · exact Submodule.smul_mem _ _ ( Submodule.subset_span ( Set.mem_vsub.mpr ⟨ _, Set.mem_insert_of_mem _ ( Set.mem_singleton _ ), _, Set.mem_insert _ _, rfl ⟩ ) );
       · exact add_comm _ _);
     · rintro x ( rfl | rfl ) <;> [ exact subset_affineSpan ℝ _ ⟨ _, rfl ⟩ ; exact subset_affineSpan ℝ _ ⟨ _, rfl ⟩ ]
@@ -331,8 +330,8 @@ lemma exists_good_proj_for_line {ι : Type*} [Fintype ι] (k : ℕ) (hk : 3 ≤ 
         rcases l with ⟨l, hl⟩;
         grind;
       · refine h_affine_indep ?_;
-        refine ⟨ ?_, ?_, ?_ ⟩;
-        exact fun i => ( l.idxFun i |> Option.getD ) ⟨ 0, by linarith ⟩;
+        refine ⟨ ?_, ?_, ?_ ⟩
+        · exact fun i => ( l.idxFun i |> Option.getD ) ⟨ 0, by linarith ⟩
         · exact ⟨ ⟨ 0, by linarith ⟩, rfl ⟩;
         · refine ⟨ fun i => ( a⁻¹ : ℝ ) • ( ( l.idxFun i |> Option.getD ) ⟨ 1, by linarith ⟩ - ( l.idxFun i |> Option.getD ) ⟨ 0, by linarith ⟩ ), ?_, ?_ ⟩ <;> simp_all +decide [ funext_iff, vectorSpan ];
           · exact Submodule.smul_mem _ _
@@ -427,8 +426,8 @@ theorem exists_set_with_monochromatic_line_property (k : ℕ) (hk : 3 ≤ k) :
         obtain ⟨v, hv⟩ : ∃ v : ι → Fin 2 → ℝ, IsGenericProj k v := exists_generic_proj k hk;
         refine h ⟨ Finset.image ( fun x : ι → Fin k => ∑ i, ( x i : ℕ ) • v i ) Finset.univ, fun C => ?_ ⟩;
         obtain ⟨ l, hl ⟩ := hι ( fun x => C ⟨ ∑ i, ( x i : ℕ ) • v i, Finset.mem_image_of_mem _ ( Finset.mem_univ _ ) ⟩ );
-        refine ⟨ Finset.image ( fun x => ∑ i, ( l x i : ℕ ) • v i ) Finset.univ, ?_, ?_, ?_, ?_ ⟩;
-        exact Finset.image_subset_iff.mpr fun x _ => Finset.mem_image.mpr ⟨ l x, Finset.mem_univ _, rfl ⟩;
+        refine ⟨ Finset.image ( fun x => ∑ i, ( l x i : ℕ ) • v i ) Finset.univ, ?_, ?_, ?_, ?_ ⟩
+        · exact Finset.image_subset_iff.mpr fun x _ => Finset.mem_image.mpr ⟨ l x, Finset.mem_univ _, rfl ⟩
         · convert image_of_line_is_collinear k v l using 1;
           ext; simp [Proj];
         · rw [ Finset.card_image_of_injective ];
