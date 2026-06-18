@@ -30,7 +30,6 @@ path in the process.
 import Mathlib
 
 set_option linter.style.setOption false
-set_option linter.style.multiGoal false
 set_option linter.deprecated false
 set_option linter.flexible false
 
@@ -1046,9 +1045,9 @@ theorem degree_bound_preserved {V : Type*} [Fintype V] [DecidableEq V]
     intro G' w;
     by_cases hw : w = u ∨ w = v;
     · convert Nat.succ_le_of_lt ( Nat.lt_ceil.mpr _ ) using 1;
-      rotate_left;
-      exact if w = u then G.degree u else G.degree v;
-      · grind;
+      rotate_left
+      · exact if w = u then G.degree u else G.degree v
+      · grind
       · convert degree_add_edge G u v h_eligible.1 h_eligible.2.1 w using 1;
         aesop;
     · convert h_bound w using 1;
@@ -1506,17 +1505,17 @@ theorem hit_ratio_bound_ceil {V : Type*} [Fintype V] [DecidableEq V]
                 Finset.image (fun v => s(v, v)) Finset.univ from ?_,
               Finset.card_image_of_injective _ fun x y hxy => by
                 simpa using hxy ]
-            simp +decide [Sym2.card]
-            · rw [ Nat.choose_two_right ];
-              rw [ Nat.cast_div ] <;> norm_num;
+            · simp +decide [Sym2.card]
               · rw [ Nat.choose_two_right ];
                 rw [ Nat.cast_div ] <;> norm_num;
-                · field_simp;
-                  rw [ div_le_iff₀ ] <;> norm_num [ h_n ];
-                  · rw [ Nat.cast_sub ] <;> push_cast <;> linarith;
-                  · linarith;
-                · exact even_iff_two_dvd.mp ( Nat.even_mul_pred_self _ );
-              · exact Nat.dvd_of_mod_eq_zero ( by norm_num [ Nat.add_mod, Nat.mod_two_of_bodd ] );
+                · rw [ Nat.choose_two_right ];
+                  rw [ Nat.cast_div ] <;> norm_num;
+                  · field_simp;
+                    rw [ div_le_iff₀ ] <;> norm_num [ h_n ];
+                    · rw [ Nat.cast_sub ] <;> push_cast <;> linarith;
+                    · linarith;
+                  · exact even_iff_two_dvd.mp ( Nat.even_mul_pred_self _ );
+                · exact Nat.dvd_of_mod_eq_zero ( by norm_num [ Nat.add_mod, Nat.mod_two_of_bodd ] );
             · ext ⟨ x, y ⟩ ; aesop;
           · exact Finset.card_le_univ _
 
@@ -2174,9 +2173,9 @@ theorem prob_avoid_eq_general {V : Type} [Fintype V] [DecidableEq V]
         split_ifs at hx hx' <;> simp_all +decide [ TheProcess ]
         apply ih x _ _
         · apply invariant_preservation
-          exact hs
-          unfold TheProcess TheHit
-          aesop
+          · exact hs
+          · unfold TheProcess TheHit
+            aesop
         · -- Since $x$ is in the next graphs state of $s$, we have $x.2 = s.2 + 1$.
           have hx2 : x.2 = s.2 + 1 := by
             unfold NextGraphsState at hx
@@ -2573,12 +2572,12 @@ theorem sum_relevant_G0_lt_one {V : Type} [Fintype V] [DecidableEq V]
   (h_clique_free : G₀.CliqueFree 3)
   (h_binom_bound : (n.choose (Nat.floor (5 * c * n)) : ℝ) ≤ 2 ^ (10 * c * n * Real.log (1 / c))) :
   ∑ H ∈ SafeAllHitsG0 G₀ c n m, prob_avoid (SafeProcess c n m) H m (G₀, 0) < 1 := by
-    apply lt_of_le_of_lt;
-    swap;
-    rotate_right;
-    exact
-      (Nat.choose n (Nat.floor (5 * c * n)) : ℝ) *
-        Real.exp (-3 * c ^ 4 * n ^ (3 / 2 : ℝ))
+    apply lt_of_le_of_lt
+    swap
+    rotate_right
+    · exact
+        (Nat.choose n (Nat.floor (5 * c * n)) : ℝ) *
+          Real.exp (-3 * c ^ 4 * n ^ (3 / 2 : ℝ))
     · convert union_bound_numeric n c h_n_large h_c_pos h_c_small h_c_lower_bound using 1
       aesop
     · have h_sum_bound :
