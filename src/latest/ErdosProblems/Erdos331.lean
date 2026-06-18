@@ -28,7 +28,6 @@ import Mathlib
 namespace Erdos331
 
 set_option linter.style.longLine false
-set_option linter.style.multiGoal false
 
 open scoped BigOperators
 open scoped Real
@@ -237,8 +236,9 @@ lemma expandA_in_A (n : ℕ) : expandA n ∈ A := by
     · grind
     · grind
     · split_ifs <;> simp_all +decide [Nat.pow_succ', ← Nat.div_div_eq_div_mul]
-      convert ih ( n / 2 ) ( Nat.div_lt_self ( Nat.pos_of_ne_zero ‹_› ) ( by decide ) ) k using 1 ; norm_num [ Nat.add_div, Nat.mul_div_assoc, Nat.pow_succ', ← Nat.div_div_eq_div_mul ]
-      · norm_num [Nat.mul_div_assoc, Nat.mul_mod, Nat.mul_comm]
+      convert ih ( n / 2 ) ( Nat.div_lt_self ( Nat.pos_of_ne_zero ‹_› ) ( by decide ) ) k using 1
+      · norm_num [ Nat.add_div, Nat.mul_div_assoc, Nat.pow_succ', ← Nat.div_div_eq_div_mul ]
+        norm_num [Nat.mul_div_assoc, Nat.mul_mod, Nat.mul_comm]
         cases Nat.mod_two_eq_zero_or_one n <;> simp +decide [*]
         · split_ifs <;> omega
         · split_ifs <;> omega
