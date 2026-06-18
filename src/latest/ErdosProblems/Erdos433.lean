@@ -27,7 +27,6 @@ import ErdosProblems.Axioms
 
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.multiGoal false
 set_option linter.style.cases false
 set_option linter.style.cdot false
 set_option linter.style.show false
@@ -1217,9 +1216,12 @@ lemma lemma_3_1_kneser_step (a b : ℕ) (ha : a > 0) (E : Finset ℕ) (k : ℕ)
     apply Eq.symm; apply Set.InjOn.ncard_image (h_Sk_inj_m (k + 1) (by omega))
   have hF_sub : (F : Set (ZMod a)) ⊆ (fun (n : ℕ) => (n : ZMod a)) '' S_k a S_set 1 := by
     rw [hF_eq, h_F_coe]; intro z hz; obtain ⟨n, hn, rfl⟩ := hz
-    use n; constructor; swap; exact rfl
-    constructor; · exact AddSubsemigroup.subset_closure hn
-    · rw [Set.mem_Icc]; have : a ∈ E := hE_max; have := hE_sub hn; rw [Finset.mem_Icc] at this; omega
+    use n
+    constructor
+    · constructor
+      · exact AddSubsemigroup.subset_closure hn
+      · rw [Set.mem_Icc]; have : a ∈ E := hE_max; have := hE_sub hn; rw [Finset.mem_Icc] at this; omega
+    · exact rfl
   have h_Sk_F_sub : (F : Set (ZMod a)) + Sk_bar ⊆ ((fun n : ℕ => (n : ZMod a)) '' S_k a S_set (k + 1)) := by
     have h_l := lemma_2_3 a (↑E : Set ℕ) hE_max 1 k (by omega) hk
     rw [add_comm 1 k] at h_l
@@ -1895,7 +1897,11 @@ lemma lemma_2_2_same_sum (p q : ℕ) (a : ℕ) (ha : a = p * q) (hp : p > 1) (hq
           have h_E'_to_F_local : ∀ w ∈ E', (w : ZMod p) ∈ F_fin := by
             intro w hw
             let r := if (w % p = 0) then p else w % p
-            have hr_mod : r ≡ w [MOD p] := by dsimp [r]; split_ifs with h0; simp [Nat.ModEq, h0]; simp [Nat.ModEq]
+            have hr_mod : r ≡ w [MOD p] := by
+              dsimp [r]
+              split_ifs with h0
+              · simp [Nat.ModEq, h0]
+              · simp [Nat.ModEq]
             have hr_range : r ∈ Finset.Icc 1 p := by
               dsimp [r]; split_ifs with h0
               · exact Finset.mem_Icc.mpr ⟨Nat.pos_of_ne_zero (by omega), le_rfl⟩
@@ -3513,7 +3519,8 @@ lemma lemma_3_1_case_3_gap_calc (a p q k x s₁ n : ℕ) (ha : a > 0) (E : Finse
           ≤ (n + 1) * (x + s₁ * p) := Nat.sub_le _ _
         _ ≤ k * a := h_n1_le
     · use n + 2
-      constructor; exact Or.inr rfl
+      constructor
+      · exact Or.inr rfl
       constructor
       · -- (k-1)*a < (n+2)*(x+s1*p)
         apply h_n_def.2.trans
@@ -4296,8 +4303,8 @@ lemma lemma_3_1 (a b : ℕ) (E : Finset ℕ) (hE_sub : (E : Set ℕ) ⊆ Set.Icc
       simp at h_range
       exact h_range
     · apply Set.subset_add_left
-      exact AddSubgroup.zero_mem G
-      use x;
+      · exact AddSubgroup.zero_mem G
+      · use x;
   have hE_nonempty_val : S1_finset.Nonempty := by
     use a
   have hE'_card_val : E'_finset.card ≤ S1_finset.card + q - 2 := by
@@ -5164,7 +5171,9 @@ lemma mem_closure_lower_bound_set (a b : ℕ) (hb_ge_2 : b ≥ 2) (hb_lt_a : b <
             · grind;
             · split_ifs <;> nlinarith [ Nat.sub_add_cancel ( by nlinarith : k * ( a - b + 1 ) ≤ n ) ];
           have h_sum : n - x + x ∈ S (lower_bound_set a b : Set ℕ) := by
-            apply AddSubsemigroup.add_mem; exact ih (n - x) hx.right.left hx.right.right; exact AddSubsemigroup.subset_closure hx.left;
+            apply AddSubsemigroup.add_mem
+            · exact ih (n - x) hx.right.left hx.right.right
+            · exact AddSubsemigroup.subset_closure hx.left;
           grind
       exact h_ind k hk₁ n hk₂ hk₃
 -- proven and stated by Aristotle
