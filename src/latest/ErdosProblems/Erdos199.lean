@@ -69,7 +69,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 
 open scoped BigOperators
 open scoped Real
@@ -721,7 +720,8 @@ lemma spaced_implies_no_3AP {ι : Type*} [LinearOrder ι] {V : Type*} [AddCommGr
     by_cases h_case1 : i2 < i3;
     · obtain ⟨u, v, w, hu, hv, hw, h_order⟩ : ∃ u v w : V, (coeffSeq b u = σ i1 ∧ coeffSeq b v = σ i2 ∧ coeffSeq b w = σ i3) ∧ i1 < i3 ∧ i2 < i3 ∧ (u + v = 2 • w ∨ u + w = 2 • v ∨ v + w = 2 • u) := by
         rcases hi with ⟨ hi1, hi2, hi3 | hi3 | hi3 | hi3 | hi3 | hi3 ⟩ <;> simp_all +decide [ IsThreeTermAP_V ];
-        grind;
+        focus
+          grind;
         · exact ⟨ a, c, b_vec, ⟨ hm, hp, hn ⟩, by linarith, by simp_all +decide [ two_smul ] ⟩;
         · grind;
         · grind +ring;
@@ -888,8 +888,10 @@ lemma exists_monotone_embedding_from_finite_to_infinite {α : Type*} [LinearOrde
     obtain ⟨t_sorted, ht_sorted⟩ : ∃ t_sorted : Fin t_subset.card → α, StrictMono t_sorted ∧ ∀ i, t_sorted i ∈ t_subset := by
       exact ⟨ fun i => t_subset.orderEmbOfFin rfl i, by simp +decide [ StrictMono ], fun i => t_subset.orderEmbOfFin_mem rfl _ ⟩;
     refine h_contra ⟨ ?_, ?_ ⟩;
-    refine fun x => ⟨ t_sorted ⟨ s.orderIsoOfFin rfl |>.symm x, ?_ ⟩, ht_subset.2 _ ( ht_sorted.2 _ ) ⟩;
-    exact lt_of_lt_of_le ( Fin.is_lt _ ) ( by simp +decide [ ht_subset.1 ] );
+    focus
+      refine fun x => ⟨ t_sorted ⟨ s.orderIsoOfFin rfl |>.symm x, ?_ ⟩, ht_subset.2 _ ( ht_sorted.2 _ ) ⟩;
+    focus
+      exact lt_of_lt_of_le ( Fin.is_lt _ ) ( by simp +decide [ ht_subset.1 ] );
     simp +decide [ StrictMono, ht_sorted.1.lt_iff_lt ]
 
 /-
@@ -931,7 +933,9 @@ lemma liftVector_coeffSeq {ι : Type*} [LinearOrder ι] {V : Type*} [AddCommGrou
       refine List.pairwise_map.mpr ?_;
       exact List.Pairwise.imp_of_mem ( fun x y hxy => hf_mono.monotoneOn ( by aesop ) ( by aesop ) hxy ) ( Finset.pairwise_sort _ (· ≤ ·) );
     have h_coeff_eq : ∀ i ∈ (b.repr v).support, b.repr (liftVector b v f) (f i) = b.repr v i := by
-      intro i hi; rw [ show liftVector b v f = ∑ j ∈ ( b.repr v ).support, ( b.repr v j ) • b ( f j ) from ?_ ] ; simp +decide [ Finset.sum_apply', Finsupp.single_apply]
+      intro i hi; rw [ show liftVector b v f = ∑ j ∈ ( b.repr v ).support, ( b.repr v j ) • b ( f j ) from ?_ ]
+      focus
+        simp +decide [ Finset.sum_apply', Finsupp.single_apply]
       · rw [ Finset.sum_eq_single i ] <;> simp_all +decide [ hf_mono.eq_iff_eq ];
       · exact rfl;
     aesop
@@ -1155,9 +1159,12 @@ theorem exists_baumgartner_set_real : ∃ A : Set ℝ, IsBaumgartnerSet A := by
     have h_basis_subspace : LinearIndependent ℚ (fun i : ι' => (Module.Basis.ofVectorSpace ℚ ℝ) i.val) := by
       exact ( Module.Basis.ofVectorSpace ℚ ℝ ).linearIndependent.comp _ Subtype.coe_injective
     refine ⟨ ?_, ?_ ⟩;
-    refine Module.Basis.span h_basis_subspace |> fun h => h.map ?_;
-    refine LinearEquiv.ofEq _ _ ?_;
-    exact congr_arg _ ( by ext; simp +decide );
+    focus
+      refine Module.Basis.span h_basis_subspace |> fun h => h.map ?_;
+    focus
+      refine LinearEquiv.ofEq _ _ ?_;
+    focus
+      exact congr_arg _ ( by ext; simp +decide );
     simp +zetaDelta at *;
   -- Let's obtain the good sequence (σ, t) for the subspace spanned by ι'.
   obtain ⟨σ, t, h_good⟩ : ∃ σ : ℕ → List ℚ, ∃ t : ℕ → ℚ, GoodSequence b' σ t := by
@@ -1165,7 +1172,8 @@ theorem exists_baumgartner_set_real : ∃ A : Set ℝ, IsBaumgartnerSet A := by
     · convert countable_of_basis b';
       exact h_count.to_subtype;
     · refine ⟨ ?_, ?_ ⟩;
-      exact ⟨ 0, Submodule.zero_mem _ ⟩;
+      focus
+        exact ⟨ 0, Submodule.zero_mem _ ⟩;
       by_contra! h;
       have := h ( b' ⟨ Classical.choose ( h_inf.nonempty ), Classical.choose_spec ( h_inf.nonempty ) ⟩ ) ; simp_all +decide [ Subtype.ext_iff ] ;
       rw [ eq_comm ] at this ; specialize h ( 2 * ( Classical.choose ( h_inf.nonempty ) ) ) ; simp_all +decide;
@@ -1175,7 +1183,8 @@ theorem exists_baumgartner_set_real : ∃ A : Set ℝ, IsBaumgartnerSet A := by
     apply And.intro;
     · apply And.intro h_good.left;
       apply lift_good_sequence;
-      exact h_inf;
+      focus
+        exact h_inf;
       apply good_sequence_lift_lemma (Module.Basis.ofVectorSpace ℚ ℝ) ι' b' σ hb' h_good.2
     · apply good_sequence_lift_lemma (Module.Basis.ofVectorSpace ℚ ℝ) ι' b' σ hb' h_good.2;
   obtain ⟨A, hA⟩ : ∃ A : Set ℝ, (¬ ∃ a ∈ A, ∃ b_vec ∈ A, ∃ c ∈ A, IsThreeTermAP_V a b_vec c) ∧ (∀ S, IsInfiniteAP_V S → (S ∩ A).Nonempty) := by
