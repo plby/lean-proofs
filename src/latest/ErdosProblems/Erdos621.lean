@@ -37,7 +37,6 @@ namespace Erdos621
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 set_option linter.unusedSectionVars false
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
@@ -263,8 +262,8 @@ lemma sos_eq_2D_sub_2A (G : Trigraph V) :
             ((G.n x x_1 + G.c x x_1) * (G.s x x_2 * G.s x x_3)))
       from ?_
   ];
-  ring_nf;
-  · congr! 3;
+  · ring_nf
+    congr! 3;
     exact Finset.sum_congr rfl fun _ _ =>
       Finset.sum_comm.trans (Finset.sum_congr rfl fun _ _ =>
         Finset.sum_congr rfl fun _ _ => by ring_nf);
@@ -939,8 +938,9 @@ lemma F2_eq (G : Trigraph V) :
           2 * G.s u v * (3 * G.s w x) * (G.s u w + G.s v w) *
             (1 - G.s u x - G.s v x) =
         12 * G.P4 := by
-      convert congr_arg ( · * 6 ) ( fbound1 G ) using 1 ; ring_nf;
-      · simp +decide only [Finset.sum_mul _ _ _];
+      convert congr_arg ( · * 6 ) ( fbound1 G ) using 1
+      · ring_nf
+        simp +decide only [Finset.sum_mul _ _ _];
         congr;
         ext;
         congr;
@@ -1401,18 +1401,18 @@ theorem partition_construction_bound (G : Trigraph V) (u₀ v₀ : V)
       2 * (G.edgesWithin χ + G.S_total) ≤ ∑ w : V, ∑ x : V, G.f2 u₀ v₀ w x := by
   convert two_coloring_sum_le G u₀ v₀ huv _ rfl χ_Z hIH _ _ _ _ _ using 1;
   rotate_left;
-  exact fun w =>
-    if hw :
-        w ∈ Finset.univ \ (Finset.filter (fun w => G.s v₀ w = 1) Finset.univ ∪
-          Finset.filter (fun w => G.s u₀ w = 1) Finset.univ) then
-      χ_Z ⟨ w, hw ⟩
-    else if G.s v₀ w = 1 then Bool.false else Bool.true;
-  use fun w =>
-    if hw :
-        w ∈ Finset.univ \ (Finset.filter (fun w => G.s v₀ w = 1) Finset.univ ∪
-          Finset.filter (fun w => G.s u₀ w = 1) Finset.univ) then
-      !χ_Z ⟨ w, hw ⟩
-    else if G.s v₀ w = 1 then false else true;
+  · exact fun w =>
+      if hw :
+          w ∈ Finset.univ \ (Finset.filter (fun w => G.s v₀ w = 1) Finset.univ ∪
+            Finset.filter (fun w => G.s u₀ w = 1) Finset.univ) then
+        χ_Z ⟨ w, hw ⟩
+      else if G.s v₀ w = 1 then Bool.false else Bool.true
+  · use fun w =>
+      if hw :
+          w ∈ Finset.univ \ (Finset.filter (fun w => G.s v₀ w = 1) Finset.univ ∪
+            Finset.filter (fun w => G.s u₀ w = 1) Finset.univ) then
+        !χ_Z ⟨ w, hw ⟩
+      else if G.s v₀ w = 1 then false else true
   · aesop;
   · aesop;
   · aesop;
@@ -1574,7 +1574,7 @@ lemma mkTrigraph_S_total (G : SimpleGraph V) [DecidableRel G.Adj]
       · exact fun c hc₁ hc₂ => ⟨ Ne.symm hc₁, Ne.symm hc₂ ⟩;
     rw [ h_count_edges, Finset.sum_comm ];
     rw [ Finset.sum_comm, Finset.sum_congr rfl ];
-    rw [ Finset.sum_comm ];
+    focus rw [ Finset.sum_comm ];
     intro u hu; rw [ ← Finset.sum_comm ] ; simp +decide ;
   convert h_count_edges using 1 ; norm_cast ; simp +decide [ mul_comm ];
   norm_cast
