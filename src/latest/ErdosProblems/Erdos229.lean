@@ -38,7 +38,6 @@ namespace Erdos229
 -- rewrite mechanically in this cleanup pass.
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.multiGoal false
 set_option linter.flexible false
 
 attribute [local instance] Classical.propDecidable
@@ -425,10 +424,11 @@ lemma small_polynomial_with_prescribed_jets (r : ℝ) (hr : 0 < r)
         · intro z hz
           have h_eval : Polynomial.eval z P₀ + Polynomial.eval z U * Polynomial.eval z V * Polynomial.eval z W = Polynomial.eval z U * Polynomial.eval z V * (Polynomial.eval z W + Polynomial.eval z H / Polynomial.eval z V) := by
             rw [ hP₀.2.2 ] ; ring_nf;
-            by_cases hV : Polynomial.eval z V = 0 <;> simp +decide [ hV, mul_assoc, mul_comm, mul_left_comm ] ; ring_nf
-            · rw [ Polynomial.eval_prod ] at hV; simp +decide [ Finset.prod_eq_zero_iff, sub_eq_zero ] at hV;
+            by_cases hV : Polynomial.eval z V = 0 <;> simp +decide [ hV, mul_assoc, mul_comm, mul_left_comm ]
+            · ring_nf
+              rw [ Polynomial.eval_prod ] at hV; simp +decide [ Finset.prod_eq_zero_iff, sub_eq_zero ] at hV;
               exact absurd ( hB z hV ) ( by linarith );
-            · ring;
+            · ring_nf
           -- Since $|W(z) - (-H(z)/V(z))| < \varepsilon / M$, we have $|U(z)V(z)(W(z) + H(z)/V(z))| < \varepsilon$.
           have h_bound : ‖Polynomial.eval z U * Polynomial.eval z V * (Polynomial.eval z W + Polynomial.eval z H / Polynomial.eval z V)‖ ≤ ‖Polynomial.eval z U * Polynomial.eval z V‖ * (ε / (sSup {‖Polynomial.eval z (U * V)‖ | z ∈ Metric.closedBall 0 r} + 1)) := by
             norm_num [ div_eq_mul_inv ] at *;
@@ -549,8 +549,9 @@ lemma exists_next_step (m : ℕ) (hm : m > 0)
           · have := hT_next.2.2.2.1 i ( by linarith ) z ⟨ hz.1, ⟨ by linarith, by simpa using hz.2.out ⟩ ⟩ ( k i ) ( by linarith [ hk_mono.le_iff_le ( show i ≤ m - 1 from Nat.le_sub_one_of_lt hi ) ( show m - 1 ≤ m - 1 from le_rfl ) |>.2 ( Nat.le_sub_one_of_lt hi ) ] ) ; simp_all +decide [ Polynomial.eval_add ] ;
         · intro z hz
           have hF_prev_zero : (derivative^[k (m - 1) + F_prev.natDegree + 1] F_prev).eval z = 0 := by
-            rw [ Polynomial.iterate_derivative_eq_zero ] ; aesop;
-            linarith;
+            rw [ Polynomial.iterate_derivative_eq_zero ]
+            · aesop
+            · linarith
           by_cases hz' : ‖z‖ < r ( m - 1 ) <;> simp_all +decide [ Polynomial.eval_add ];
           · convert hT_next.2.1 m ( by linarith ) z hz.1 hz' _ le_rfl using 1;
           · cases eq_or_lt_of_le hz' <;> simp_all +decide [ Set.ext_iff ];
@@ -1000,7 +1001,14 @@ lemma f_diff_on_ball (S : ℕ → Set ℂ) (hS : ∀ n, HasNoFiniteLimitPoint (S
     DifferentiableOn ℂ (f S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem) (Metric.ball 0 (r N)) := by
       apply differentiableOn_tsum_of_summable_norm;
       rotate_right;
-      use fun n => if n > N then 2 ^ (-(n : ℝ) + 1) else ( SupSet.sSup ( Set.image ( fun z => ‖( T_seq S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem n ).eval z‖ ) ( closedBall 0 ( r N ) ) ) );
+      · use (fun n : ℕ =>
+          if n > N then (2 : ℝ) ^ (-(n : ℝ) + 1)
+          else
+            SupSet.sSup
+              (Set.image
+                (fun z => ‖(T_seq S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem n).eval z‖)
+                (closedBall 0 (r N)))
+        )
       · have h_summable : Summable (fun n : ℕ => if n > N then (2 : ℝ) ^ (-(n : ℝ) + 1) else 0) := by
           have h_summable : Summable (fun n : ℕ => (2 : ℝ) ^ (-(n : ℝ) + 1)) := by
             norm_num [ Real.rpow_add ];
@@ -1309,7 +1317,7 @@ lemma f_deriv_eq_one_on_cn (S : ℕ → Set ℂ) (hS : ∀ n, HasNoFiniteLimitPo
       refine tendsto_const_nhds.congr' ?_;
       filter_upwards [ Filter.eventually_gt_atTop ( n + 1 ) ] with N hN;
       rw [ eq_comm, ← partial_sum_deriv_eq_one ];
-      congr! 1;
+      focus congr! 1;
       rotate_left;
       exacts [ N - 1, Nat.lt_pred_iff.mpr hN, by cases N <;> trivial ]
 
@@ -1335,8 +1343,9 @@ lemma f_transcendental (S : ℕ → Set ℂ) (hS : ∀ n, HasNoFiniteLimitPoint 
             -- Since $P$ is a polynomial of degree $n$, its $k$-th derivative is zero for $k > n$.
             have h_poly_deriv : deriv^[k] (fun x => P.eval x) = fun x => Polynomial.eval x (Polynomial.derivative^[k] P) := by
               exact Nat.recOn k ( by norm_num ) fun n ih => by ext; simp +decide [ *, Function.iterate_succ_apply' ] ;
-            rw [ h_poly_deriv, Polynomial.iterate_derivative_eq_zero ] ; aesop;
-            linarith;
+            rw [ h_poly_deriv, Polynomial.iterate_derivative_eq_zero ]
+            · aesop
+            · linarith
           exact ⟨ N, fun k hk z => by simpa only [ ← hP ] using hN k hk z ⟩;
         -- Choose `n` such that `k_seq n > N`.
         obtain ⟨n, hn⟩ : ∃ n : ℕ, k_seq S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem n > N := by
@@ -1585,11 +1594,11 @@ lemma isPolynomial_of_isAlgebraic (f : ℂ → ℂ) (h_entire : AnalyticOn ℂ f
         · exact h_a_n_f_entire;
         · convert isIntegral_leadingCoeff_smul _;
           rotate_left;
-          exact ℂ[X];
-          exact ℂ → ℂ;
-          exact inferInstance;
-          exact Pi.commRing;
-          exact P;
+          · exact ℂ[X]
+          · exact ℂ → ℂ
+          · exact inferInstance
+          · exact Pi.commRing
+          · exact P
           field_simp;
           constructor <;> intro h;
           · exact fun x [Algebra ℂ[X] (ℂ → ℂ)] h => isIntegral_leadingCoeff_smul P x h;
