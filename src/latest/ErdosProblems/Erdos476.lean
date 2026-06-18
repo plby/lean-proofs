@@ -34,7 +34,6 @@ namespace Erdos476
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 
 attribute [local instance] Classical.propDecidable
 
@@ -181,8 +180,9 @@ lemma two_variable_functional_eq_coeff (S T : Finset F) (f : MvPolynomial (Fin 2
                       simp +decide [ MvPolynomial.eval_eq' ];
                       simp +decide only [div_eq_mul_inv, sum_mul, mul_assoc, Finset.mul_sum _ _ _,
                                                 mul_left_comm];
-                      rw [ Finset.sum_comm, Finset.sum_congr rfl ] ; rw [ Finset.sum_comm ] ; ring_nf;
-                      exact fun _ _ => Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by ring );
+                      rw [ Finset.sum_comm, Finset.sum_congr rfl ]
+                      · rw [ Finset.sum_comm ]
+                      · exact fun _ _ => Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by ring );
       -- By Lemma 4, we know that $\sum_{s \in S} \frac{s^i}{P_S'(s)} = 0$ for $i < m-1$ and $\sum_{t \in T} \frac{t^j}{Q_T'(t)} = 0$ for $j < n-1$.
       have h_zero_sum : ∀ i < S.card - 1, ∑ s ∈ S, s ^ i / ((derivative (P_S S)).eval s) = 0 := by
         intro i hi;
@@ -249,8 +249,9 @@ lemma large_set_full (p : ℕ) [Fact p.Prime] (hp : p ≠ 2) (A : Finset (ZMod p
           contrapose! h_inter;
           -- If for every $x \in A \cap (t - A)$, we have $x = t - x$, then $2x = t$, which implies $x = t/2$.
           have h_eq : ∀ x ∈ A ∩ (A.image (fun x => t - x)), x = t / 2 := by
-            intro x hx; specialize h_inter x hx; rw [ eq_div_iff ] <;> norm_num ; linear_combination' h_inter;
-            erw [ ZMod.natCast_eq_zero_iff ] ; exact Nat.not_dvd_of_pos_of_lt ( by decide ) ( lt_of_le_of_ne ( Nat.Prime.two_le Fact.out ) ( Ne.symm hp ) );
+            intro x hx; specialize h_inter x hx; rw [ eq_div_iff ] <;> norm_num
+            · linear_combination' h_inter
+            · erw [ ZMod.natCast_eq_zero_iff ] ; exact Nat.not_dvd_of_pos_of_lt ( by decide ) ( lt_of_le_of_ne ( Nat.Prime.two_le Fact.out ) ( Ne.symm hp ) );
           exact lt_of_le_of_lt ( Finset.card_le_one.mpr fun x hx y hy => by rw [ h_eq x hx, h_eq y hy ] ) ( by norm_num )
         generalize_proofs at *;
         use x, t - x; simp_all
@@ -337,10 +338,11 @@ lemma prod_linear_factors_degree_sub_leading {p : ℕ} (S : Finset (ZMod p)) :
         exact totalDegree_finsetSum_le h_term_deg;
       simp_all +decide [ Finset.sum_range_succ ];
       convert h_simplify using 1;
-      rw [ show ( ∏ c ∈ S, ( MvPolynomial.X 0 + MvPolynomial.X 1 - MvPolynomial.C c ) : MvPolynomial ℕ ( ZMod p ) ) = ∑ x ∈ Finset.range S.card, ( MvPolynomial.X 0 + MvPolynomial.X 1 ) ^ x * ∑ x_1 ∈ Finset.powersetCard ( S.card - x ) S, ( -1 ) ^ ( S.card - x ) * ∏ x ∈ x_1, ( MvPolynomial.C : ZMod p → MvPolynomial ℕ ( ZMod p ) ) x + ( MvPolynomial.X 0 + MvPolynomial.X 1 ) ^ S.card from ?_ ] ; ring_nf;
-      convert congr_arg ( MvPolynomial.eval₂ MvPolynomial.C ( fun i => if i = 0 then MvPolynomial.X 0 else MvPolynomial.X 1 ) ) h_expand using 1;
-      · simp +decide [ MvPolynomial.eval₂_prod ];
-      · norm_num [ MvPolynomial.eval₂_sum, MvPolynomial.eval₂_mul, MvPolynomial.eval₂_pow, MvPolynomial.eval₂_X ]
+      rw [ show ( ∏ c ∈ S, ( MvPolynomial.X 0 + MvPolynomial.X 1 - MvPolynomial.C c ) : MvPolynomial ℕ ( ZMod p ) ) = ∑ x ∈ Finset.range S.card, ( MvPolynomial.X 0 + MvPolynomial.X 1 ) ^ x * ∑ x_1 ∈ Finset.powersetCard ( S.card - x ) S, ( -1 ) ^ ( S.card - x ) * ∏ x ∈ x_1, ( MvPolynomial.C : ZMod p → MvPolynomial ℕ ( ZMod p ) ) x + ( MvPolynomial.X 0 + MvPolynomial.X 1 ) ^ S.card from ?_ ]
+      · ring_nf
+      · convert congr_arg ( MvPolynomial.eval₂ MvPolynomial.C ( fun i => if i = 0 then MvPolynomial.X 0 else MvPolynomial.X 1 ) ) h_expand using 1;
+        · simp +decide [ MvPolynomial.eval₂_prod ];
+        · norm_num [ MvPolynomial.eval₂_sum, MvPolynomial.eval₂_mul, MvPolynomial.eval₂_pow, MvPolynomial.eval₂_X ]
 
 /-
 The coefficient of $x^{n-1}y^{n-2}$ in $(x-y)(x+y)^{2n-4}$ over $\mathbb{Z}_p$ is $\binom{2n-4}{n-2} - \binom{2n-4}{n-1}$.
@@ -383,16 +385,17 @@ lemma F_poly_coeff {p : ℕ} (C : Finset (ZMod p)) (n : ℕ) (hC : C.card = 2 * 
             intro p; exact (by
             refine le_antisymm ?_ ?_;
             · simp +decide [ MvPolynomial.totalDegree ];
-              intro b hb; refine le_trans ?_ ( Finset.le_sup <| show ( Finsupp.mapDomain ( fun i => if i = 0 then 0 else 1 ) b ) ∈ ( MvPolynomial.rename ( fun i => if i = 0 then 0 else 1 ) p |> MvPolynomial.support ) from ?_ ) ; simp +decide [ Finsupp.sum_mapDomain_index ] ;
-              simp +decide [ MvPolynomial.rename, Finsupp.mapDomain ];
-              erw [ MvPolynomial.aeval_def ];
-              erw [ MvPolynomial.eval₂_eq' ];
-              simp +decide [ MvPolynomial.coeff_sum, MvPolynomial.coeff_C_mul, Finsupp.sum_fintype ];
-              rw [ Finset.sum_eq_single b ] <;> simp +contextual [ MvPolynomial.coeff_mul, MvPolynomial.coeff_X_pow ];
-              · rw [ Finset.sum_eq_single ( ( Finsupp.single 0 ( b 0 ), Finsupp.single 1 ( b 1 ) ) ) ] <;> aesop;
-              · intro c hc hbc; rw [ Finset.sum_eq_zero ] <;> simp
-                intro a b_1 h₁ h₂ h₃; subst_vars; simp_all +decide [ Finsupp.ext_iff, Fin.forall_fin_two ] ;
-                have := h₁ 0; have := h₁ 1; simp_all +decide [ Finsupp.single_apply ] ;
+              intro b hb; refine le_trans ?_ ( Finset.le_sup <| show ( Finsupp.mapDomain ( fun i => if i = 0 then 0 else 1 ) b ) ∈ ( MvPolynomial.rename ( fun i => if i = 0 then 0 else 1 ) p |> MvPolynomial.support ) from ?_ )
+              · simp +decide [ Finsupp.sum_mapDomain_index ]
+              · simp +decide [ MvPolynomial.rename, Finsupp.mapDomain ];
+                erw [ MvPolynomial.aeval_def ];
+                erw [ MvPolynomial.eval₂_eq' ];
+                simp +decide [ MvPolynomial.coeff_sum, MvPolynomial.coeff_C_mul, Finsupp.sum_fintype ];
+                rw [ Finset.sum_eq_single b ] <;> simp +contextual [ MvPolynomial.coeff_mul, MvPolynomial.coeff_X_pow ];
+                · rw [ Finset.sum_eq_single ( ( Finsupp.single 0 ( b 0 ), Finsupp.single 1 ( b 1 ) ) ) ] <;> aesop;
+                · intro c hc hbc; rw [ Finset.sum_eq_zero ] <;> simp
+                  intro a b_1 h₁ h₂ h₃; subst_vars; simp_all +decide [ Finsupp.ext_iff, Fin.forall_fin_two ] ;
+                  have := h₁ 0; have := h₁ 1; simp_all +decide [ Finsupp.single_apply ] ;
             · exact totalDegree_rename_le (fun i => if i = 0 then 0 else 1) p);
           convert h_total_degree_invariant _ |> Eq.symm using 2;
           simp +decide [ MvPolynomial.rename_X ];
@@ -436,12 +439,14 @@ lemma binomial_coeff_nonzero {p : ℕ} [Fact p.Prime] (n : ℕ) (h_small : 2 * n
             have h_identity : (Nat.choose (2 * n) (n + 1) : ℚ) = (Nat.choose (2 * n) n : ℚ) * (n : ℚ) / (n + 1 : ℚ) := by
               rw [ eq_div_iff ] <;> norm_cast;
               nlinarith [ Nat.add_one_mul_choose_eq ( 2 * n ) n, Nat.choose_succ_succ ( 2 * n ) n ];
-            rw [ eq_div_iff ] at * <;> norm_cast at * ; aesop;
-            rw [ ZMod.natCast_eq_zero_iff ] ; exact Nat.not_dvd_of_pos_of_lt ( Nat.succ_pos _ ) ( by omega );
+            rw [ eq_div_iff ] at * <;> norm_cast at *
+            · aesop
+            · rw [ ZMod.natCast_eq_zero_iff ] ; exact Nat.not_dvd_of_pos_of_lt ( Nat.succ_pos _ ) ( by omega );
           rw [ h_identity, mul_sub, mul_one, mul_div_assoc ];
-        rw [ h_identity, one_sub_div ] ; aesop;
-        norm_cast;
-        rw [ ZMod.natCast_eq_zero_iff ] ; exact Nat.not_dvd_of_pos_of_lt ( Nat.succ_pos _ ) ( by omega );
+        rw [ h_identity, one_sub_div ]
+        · aesop
+        · norm_cast;
+          rw [ ZMod.natCast_eq_zero_iff ] ; exact Nat.not_dvd_of_pos_of_lt ( Nat.succ_pos _ ) ( by omega );
       simp_all +decide [ Nat.mul_succ ];
       constructor;
       · rw [ ZMod.natCast_eq_zero_iff ];
@@ -518,9 +523,10 @@ theorem erdos_476 (p : ℕ) [Fact p.Prime] (A : Finset (ZMod p)) :
       · rw [ min_eq_left h_case.le ];
         exact erdos_heilbronn_small p A h_case;
       · by_cases hA : A.card ≥ (p + 3) / 2;
-        · have := large_set_full p ( show p ≠ 2 from ?_ ) A hA; aesop;
-          rintro rfl ; norm_num at *;
-          fin_cases A <;> contradiction;
+        · have := large_set_full p ( show p ≠ 2 from ?_ ) A hA
+          · aesop
+          · rintro rfl ; norm_num at *;
+            fin_cases A <;> contradiction;
         · omega
 
 end Erdos476
