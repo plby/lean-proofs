@@ -819,7 +819,6 @@ lemma aGameSeq_pos (j : Fin 3) (K n : ℕ) : 0 < aGameSeq j K n := by
 lemma eGameSeq_nonneg (K n : ℕ) : 0 ≤ eGameSeq K n := by
   unfold eGameSeq; positivity
 
-set_option linter.style.multiGoal false in
 lemma aGameSeq_summable (j : Fin 3) (K : ℕ) : Summable (aGameSeq j K) := by
   refine Summable.of_nonneg_of_le
     (f := fun n : ℕ => c_coeff j / ( ( n : ℝ ) + K + 1 ) ^ 2)
@@ -1046,7 +1045,6 @@ Tail domination: the sum of future main terms exceeds 4 times the current.
 set_option maxHeartbeats 400000 in
 -- The finite lower-bound comparison checks 100 explicit nonlinear cases.
 set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 /-- The tail sum of future main terms exceeds 4 times the current term.
 This ensures Alice has enough "room" for future moves, which is needed
 to show she eventually skips (Claim 2). Proved by comparing against 100 explicit terms. -/
@@ -1148,7 +1146,6 @@ Needed because each coordinate's perturbation in the 3D game has 3 contributing 
 set_option maxHeartbeats 400000 in
 -- This combines the earlier domination estimate with three explicit coordinate checks.
 set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 /-- Strengthened error domination: `3 · ∑' e < a_j(k)`. Each coordinate's perturbation in the
 3D game receives contributions from all 3 swap operations, hence the factor of 3. -/
 lemma error_domination_3x (j : Fin 3) (k : ℕ) :
@@ -1319,9 +1316,12 @@ lemma error_domination_3x (j : Fin 3) (k : ℕ) :
                 1 / (7 * (500 + k) ^ 7 * 2310 ^ 4) from ?_)
           zero_le_three)
         _ using 1
-    · simpa only [ add_assoc ] using h_bound;
-    · convert h_ineq using 1 ; ring!;
-      unfold c_coeff; norm_num; ring;
+    · simpa only [ add_assoc ] using h_bound
+    · convert h_ineq using 1
+      · ring!
+      · unfold c_coeff
+        norm_num
+        ring
 
 /-! ## The swap contribution and its bound -/
 
@@ -1479,7 +1479,6 @@ lemma structEmbed_injective (K : ℕ) (ε : ℕ → Fin 3 → Bool) :
 Key rearrangement: the tsum over constructA equals the structured double sum.
 -/
 set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 lemma tsum_constructA_eq (ε : ℕ → Fin 3 → Bool) (f : ℕ → ℝ)
     (hf : Summable (fun m : ↑(constructA K₀ ε) => f m)) :
     ∑' (m : ↑(constructA K₀ ε)), f m =
@@ -1503,32 +1502,32 @@ lemma tsum_constructA_eq (ε : ℕ → Fin 3 → Bool) (f : ℕ → ℝ)
         exact Finset.mem_sigma.mp hx |>.2 ⟩ ) ?_ ?_ ?_ ?_ <;> simp +decide [ structEmbed ];
       · intro ⟨j1, a1⟩ _ ⟨j2, a2⟩ _ hj heq; simp at hj; subst hj; simpa using heq
       · exact fun b => ⟨ b.1, b.2.1, b.2.2, rfl ⟩;
-    · convert hf.comp_injective _;
-      rotate_left;
-      use fun p => ⟨ structEmbed K₀ ε p, structEmbed_mem_constructA K₀ ε p ⟩;
-      · exact fun p q h => by simpa using structEmbed_injective K₀ ε <| Subtype.ext_iff.mp h;
+    · convert hf.comp_injective _
+      rotate_left
+      · use fun p => ⟨ structEmbed K₀ ε p, structEmbed_mem_constructA K₀ ε p ⟩
+      · exact fun p q h => by simpa using structEmbed_injective K₀ ε <| Subtype.ext_iff.mp h
       · rfl
 
 /-
 Algebraic simplification: the structured sum equals basePointM + swap sums.
 -/
 set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 lemma structured_sum_eq_base_plus_swap (ε : ℕ → Fin 3 → Bool) (i : Fin 3) :
     (∑' n, ∑ j : Fin 3, ∑ a ∈ ActiveSet ε (K₀ + n) j,
       (M_mat.mulVec (fun l : Fin 3 =>
         1 / (((a * nScale (K₀ + n) : ℕ) : ℝ) + ((l : ℕ) : ℝ)))) i) =
     basePointM K₀ i +
     ∑' n, ∑ j : Fin 3, if ε (K₀ + n) j then swapContribM K₀ n j i else 0 := by
-  unfold ActiveSet swapContribM basePointM;
+  unfold ActiveSet swapContribM basePointM
   rw [← Summable.tsum_add]
-  congr
-  ext n
-  rw [← Finset.sum_add_distrib]
-  congr
-  ext j
-  split_ifs <;> norm_num
-  · refine summable_sum fun j _ => ?_;
+  focus
+    congr
+    ext n
+    rw [← Finset.sum_add_distrib]
+    congr
+    ext j
+    split_ifs <;> norm_num
+  · refine summable_sum fun j _ => ?_
     -- Each term is a fixed multiple of a summable sequence.
     have h_summable : Summable (fun n : ℕ => (1 : ℝ) / (nScale (K₀ + n) : ℝ)) := by
       norm_num [ nScale ];
@@ -1720,7 +1719,6 @@ def gameDelta (q : Fin 3 → ℝ) (j : Fin 3) (n : ℕ) : ℝ :=
      then aGameSeq j K₀ n else 0)
 
 set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 lemma gameDelta_bound (q : Fin 3 → ℝ) (j : Fin 3) (n : ℕ) :
     |gameDelta q j n| ≤ 3 * eGameSeq K₀ n := by
   -- By definition of `gameDelta`, we have:
@@ -1775,14 +1773,16 @@ lemma gameDelta_bound (q : Fin 3 → ℝ) (j : Fin 3) (n : ℕ) :
               else
                 0| ≤ eGameSeq K₀ n from ?_)
         ?_)
-  nontriviality;
-  convert Finset.abs_sum_le_sum_abs _ _ using 2;
-  · split_ifs <;> simp +decide [ *, Finset.sum_ite ];
-  · infer_instance;
-  · split_ifs <;> simp_all +decide [ abs_le ];
-    · simpa using h_swapContribM_bound j j;
-    · have := h_swapContribM_bound i j; simp [if_neg ‹_›] at this; exact ⟨by linarith, by linarith⟩
-    · exact eGameSeq_nonneg K₀ n;
+  · nontriviality
+    convert Finset.abs_sum_le_sum_abs _ _ using 2
+    · split_ifs <;> simp +decide [ *, Finset.sum_ite ]
+    · infer_instance
+  · split_ifs <;> simp_all +decide [ abs_le ]
+    · simpa using h_swapContribM_bound j j
+    · have := h_swapContribM_bound i j
+      simp [if_neg ‹_›] at this
+      exact ⟨by linarith, by linarith⟩
+    · exact eGameSeq_nonneg K₀ n
   · norm_num
 
 lemma game3D_eq_gameSeq (q : Fin 3 → ℝ) (j : Fin 3) (n : ℕ) :
