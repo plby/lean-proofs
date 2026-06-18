@@ -44,7 +44,6 @@ namespace Erdos862
 
 set_option maxHeartbeats 1000000
 -- Several Sidon counting and covering proofs time out at the default heartbeat limit.
-set_option linter.style.multiGoal false
 
 open scoped BigOperators
 
@@ -314,9 +313,9 @@ lemma erdos_turan_limit_lemma_nat {m : ℕ → ℝ} (hm_pos : ∀ᶠ n in atTop,
                   (hm2.add (tendsto_inv_atTop_nhds_zero_nat.sqrt)) 2)
                 (tendsto_const_nhds.mul (tendsto_const_nhds.add hm1)))))
           2 using 2
-      norm_num;
-      congr! 1;
-      norm_num
+      all_goals norm_num
+      all_goals try congr! 1
+      all_goals norm_num
 
 /-
 Explicit algebraic bound for the size of a Sidon set using the Erdős-Turán inequality.
@@ -862,11 +861,11 @@ lemma exists_field_extension_of_degree_two (q : ℕ) (hq : IsPrimePow q) :
     haveI := Fact.mk hp.nat_prime;
     -- By definition of finite fields, there exists a finite field Fq with cardinality p^k.
     use (GaloisField p k);
-    refine ⟨ ?_, ?_, ?_ ⟩;
-    exact inferInstance;
-    exact Fintype.ofFinite (GaloisField p k);
-    convert GaloisField.card p k;
-    simp +decide [ hk.ne', Fintype.card_eq_nat_card ];
+    refine ⟨ ?_, ?_, ?_ ⟩
+    · exact inferInstance
+    · exact Fintype.ofFinite (GaloisField p k)
+    · convert GaloisField.card p k
+      simp +decide [ hk.ne', Fintype.card_eq_nat_card ]
   obtain ⟨x, x_1, hx⟩ := hFq;
   -- Let $f(x)$ be an irreducible polynomial of degree 2 over $Fq$.
   obtain ⟨f, hf⟩ : ∃ f : Polynomial Fq, Polynomial.natDegree f = 2 ∧ Irreducible f := by
@@ -1211,7 +1210,7 @@ lemma lem_modular (p : ℕ) (hp : p.Prime) :
         ?_, ?_
       ⟩ <;> simp_all +decide [ Sidon ];
       · rw [ Finset.card_image_of_injective _ f.injective, Finset.card_eq_of_bijective ];
-        use fun i hi => ( i, g ^ i );
+        · use fun i hi => ( i, g ^ i );
         · unfold ruzsa_set; aesop;
         · exact fun i hi => Finset.mem_image.mpr ⟨ i, Finset.mem_range.mpr hi, rfl ⟩;
         · simp +contextual [ ZMod.natCast_eq_natCast_iff' ];
@@ -1236,7 +1235,7 @@ lemma S_chi_subset (m : ℕ) (hm : m ≥ 1) (T : Finset ℕ) (hT : T ⊆ Finset.
       have := Finset.mem_range.mp (hT y.2)
       rcases x : (chi y : Fin 5) with (_ | _ | _ | _ | _ | k) <;>
         simp_all +decide
-      linarith;
+      · linarith
       · grind;
       · linarith;
       · grind;
@@ -1371,7 +1370,7 @@ lemma lem_four_block (m : ℕ) (hm : m ≥ 1) (T : Finset ℕ) (hT : T ⊆ Finse
               (Finset.powerset (Finset.range (4 * m)));
         · aesop;
         · refine Finset.card_bij ?_ ?_ ?_ ?_;
-          use fun S hS => Finset.filter ( fun x => x ∈ S ) ( Finset.range ( 4 * m ) );
+          · use fun S hS => Finset.filter ( fun x => x ∈ S ) ( Finset.range ( 4 * m ) );
           · simp +contextual [ Finset.subset_iff ];
             intro a ha hSidon x y z w hx hy hz hw h; specialize hSidon x y z w; aesop;
           · simp +contextual [ Finset.ext_iff, Set.ext_iff ];
