@@ -41,7 +41,6 @@ namespace Erdos762
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 set_option linter.unusedSimpArgs false
 
 attribute [local instance] Classical.propDecidable
@@ -205,17 +204,20 @@ theorem lemma_colors_structure (col : H.Coloring (Fin 6)) :
       cases h 0 <;> cases h 1 <;> cases h 2 <;> cases h 3 <;> cases h 4 <;> simp_all ( config := { decide := Bool.true } ) only [ ];
     convert hB_cycle ( SimpleGraph.Coloring.mk ?_ ?_ ) using 1;
     rotate_left;
-    exact fun x => col ( H_V.b x );
-    intro v w hvw; have := col.valid ( show H.Adj ( H_V.b v ) ( H_V.b w ) from ?_ ) ; simp_all +decide
-    all_goals norm_num [ H ];
-    decide +revert;
+    focus exact fun x => col ( H_V.b x );
+    focus
+      intro v w hvw
+      have hAdj : H.Adj ( H_V.b v ) ( H_V.b w ) := by
+        norm_num [ H ]
+        decide +revert
+      exact col.valid hAdj
     congr! 1;
     ext; simp [B_V];
     aesop;
   -- Since $A$ and $B$ are disjoint, their images under $col$ are also disjoint.
   have h_disjoint : Disjoint (Finset.image (fun x => col x) (Finset.filter (fun v => v ∈ A_V) Finset.univ)) (Finset.image (fun x => col x) (Finset.filter (fun v => v ∈ B_V) Finset.univ)) := by
     simp +contextual [ Finset.disjoint_left ];
-    intro a ha b hb; have := col.valid ( show H.Adj a b from ?_ ) ; aesop;
+    intro a ha b hb; have := col.valid ( show H.Adj a b from ?_ ) ; focus aesop;
     rcases ha with ⟨ i, rfl ⟩ ; rcases hb with ⟨ j, rfl ⟩ ; simp +decide [ H ] ;
   have h_card_union : (Finset.image (fun x => col x) (Finset.filter (fun v => v ∈ A_V) Finset.univ)).card + (Finset.image (fun x => col x) (Finset.filter (fun v => v ∈ B_V) Finset.univ)).card ≤ 6 := by
     rw [ ← Finset.card_union_of_disjoint h_disjoint ] ; exact Finset.card_le_univ _;
@@ -394,7 +396,7 @@ theorem lemma_obs_obvious_lifted_B (col : H.Coloring (Fin 6))
         have h_obs : ∀ (c : Fin 5 → Fin 6), (∀ i j, (SimpleGraph.cycleGraph 5).Adj i j → c i ≠ c j) → (Finset.image c (Finset.univ : Finset (Fin 5))).card = 3 → ∀ (k : Fin 5), ∃ v' w' : Fin 5, v' ≠ w' ∧ ¬(SimpleGraph.cycleGraph 5).Adj v' w' ∧ {c v', c w'} = (Finset.image c (Finset.univ : Finset (Fin 5))).erase (c k) := by
           exact cycle5_three_color_erase_pair
         apply h_obs;
-        · intro i j hij; have := col.valid ( show H.Adj ( H_V.b i ) ( H_V.b j ) from ?_ ) ; aesop;
+        · intro i j hij; have := col.valid ( show H.Adj ( H_V.b i ) ( H_V.b j ) from ?_ ) ; focus aesop;
           fin_cases i <;> fin_cases j <;> simp +decide at hij ⊢;
           all_goals unfold H; simp +decide [ SimpleGraph.cycleGraph ] ;
         · convert h_card using 2;
@@ -671,7 +673,7 @@ theorem clique_old_part_size (sizes : X_collection → ℕ) (S : Finset (G_V siz
       set S_H := S.preimage Sum.inl (Set.injOn_of_injective Sum.inl_injective) with hS_H;
       -- By `clique_old_vertices_subset_X`, S_H is a subset of X (where v corresponds to X).
       obtain ⟨X, hX⟩ : ∃ X : X_collection, ∀ u ∈ S_H, u ∈ X.val := by
-        rcases v with ⟨ u, u ⟩ ; aesop;
+        rcases v with ⟨ u, u ⟩ ; focus aesop;
         · cases hv_new;
         · cases hv_new;
         · have := clique_old_vertices_subset_X sizes S hS ( Sum.inr ‹_› ) hv hv_new; aesop;
@@ -787,7 +789,7 @@ theorem G_chromatic_ge_7 (sizes : X_collection → ℕ) (h_sizes : ∀ X, sizes 
       -- Restrict c to H. This is a proper 6-coloring of H.
       obtain ⟨col_H, hcol_H⟩ : ∃ col_H : H.Coloring (Fin 6), ∀ u : H_V, col (Sum.inl u) = col_H u := by
         refine ⟨ ?_, ?_ ⟩
-        refine ⟨ fun u => col ( Sum.inl u ), ?_ ⟩
+        focus refine ⟨ fun u => col ( Sum.inl u ), ?_ ⟩
         all_goals norm_num;
         intro a b hab; have := col.valid ( show ( G sizes ).Adj ( Sum.inl a ) ( Sum.inl b ) from by
                                             -- Since $a$ and $b$ are adjacent in $H$, they are also adjacent in $G$ by definition of $G$.
@@ -1035,7 +1037,7 @@ theorem lemma_G_no_cover_3K (sizes : X_collection → ℕ) (h_sizes : ∀ X, siz
         have h_contradiction : ∃ (c2 c3 : Set H_V), c2 ∪ c3 = Set.univ ∧ H.IsClique c2 ∧ H.IsClique c3 := by
           apply lemma_H_covered_by_2K_of_disjoint_clique;
           rotate_left;
-          exact h;
+          focus exact h;
           exacts [ hk1, hk2, by simpa only [ Set.union_comm, Set.union_left_comm ] using h_cover ];
         exact H_no_cover_2K h_contradiction
 
@@ -1366,8 +1368,8 @@ theorem lemma_G_not_cochromatic_3 (sizes : X_collection → ℕ) (h_sizes : ∀ 
         exact fun i => hc i;
       -- We can count the number of cliques.
       by_cases h0 : (G sizes).IsClique S0
-      by_cases h1 : (G sizes).IsClique S1
-      by_cases h2 : (G sizes).IsClique S2;
+      focus by_cases h1 : (G sizes).IsClique S1
+      focus by_cases h2 : (G sizes).IsClique S2;
       · apply lemma_G_no_cover_3K sizes h_sizes;
         grind;
       · apply lemma_G_no_cover_2K_1I sizes h_sizes;
@@ -1382,9 +1384,9 @@ theorem lemma_G_not_cochromatic_3 (sizes : X_collection → ℕ) (h_sizes : ∀ 
             exact fun h => lemma_G_no_cover_1K_2I sizes h_sizes ⟨ S0, S1, S2, h, h0, by simpa using h_clique_indep 1 |> Or.resolve_left <| h1, by simpa using h_clique_indep 2 |> Or.resolve_left <| h2 ⟩;
           grind;
       · cases h_clique_indep 0 <;> cases h_clique_indep 1 <;> cases h_clique_indep 2 <;> simp_all +decide only [Fin.forall_fin_succ];
-        grind;
-        grind;
-        grind +ring;
+        focus grind;
+        focus grind;
+        focus grind +ring;
         · contradiction;
         · have := lemma_G_no_cover_2K_1I sizes h_sizes;
           grind;
