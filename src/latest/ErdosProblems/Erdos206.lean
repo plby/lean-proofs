@@ -26,7 +26,6 @@ namespace Erdos206
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 
 /-!
 # Erdős Problem #206: Non-greedy Egyptian Underapproximations
@@ -492,8 +491,8 @@ lemma non_greedy_measure_bound_strict (i : ℕ) (hi : 1000 ≤ i) :
       convert total_measure_bound i hi |> le_trans <|
         mul_le_mul_of_nonneg_right hL.1 (by positivity) using 1
     convert h_total_measure_bound.trans h_measure_bound using 1
-    norm_num [ENNReal.ofReal_mul]
-    norm_num
+    · norm_num [ENNReal.ofReal_mul]
+    · norm_num
   · intro x l hx₁ hl hx₂
     have := good_interval_predicate_strict i l hi ( hL.2 l hl |>.1 ) x
       ( by simpa using hx₁ ) ( by simpa using hx₂ )
@@ -986,7 +985,7 @@ lemma X_set_downward_closed_in_fiber (s t : ℕ) (ht : s ≤ t)
   obtain ⟨ m, hm_mono, hm_pos, hm_best ⟩ := hx.2.2
   refine ⟨ hy_pos, hy_upper.trans hx.2.1, m, hm_mono, hm_pos, fun n hn₁ hn₂ => ?_ ⟩
   apply IsBestNTerm_of_Ioc
-  exact hm_best n hn₁ hn₂
+  · exact hm_best n hn₁ hn₂
   · refine lt_of_le_of_lt ?_ hy_lower
     have h_sum_le :
         egyptianSum (Finset.image m (Finset.range n)) ≤
@@ -1171,7 +1170,7 @@ lemma X_fiber_eq_Ioc (s t : ℕ) (ht : s ≤ t)
       · have := bestNTermSet_isBest t y (by
         exact hy.1.1.1)
         apply IsBestNTerm_of_Ioc
-        exact this
+        · exact this
         · have := bestNTermSum_eq t y (by
           exact hy.1.1.1)
           linarith [ hx.1, hy.1.2 ]
@@ -1733,8 +1732,8 @@ lemma X_set_eq_disjoint_union (s t : ℕ) (hs : 0 < s) (ht : s ≤ t) :
         · norm_num
     · intro j x hx₁ hx₂
       apply IsBestNTerm_of_Ioc
-      apply bestNTermSet_isBest
-      · refine lt_of_lt_of_le ?_ hx₂
+      · apply bestNTermSet_isBest
+        refine lt_of_lt_of_le ?_ hx₂
         refine lt_of_le_of_lt ?_ hx₁
         exact Finset.sum_nonneg fun _ _ => by positivity
       · exact hx₁
@@ -1797,7 +1796,7 @@ lemma X_set_eq_disjoint_union (s t : ℕ) (hs : 0 < s) (ht : s ≤ t) :
       · simp +zetaDelta at *
         intro q hx₁ hx₂ hx₃
         refine X_set_downward_closed_in_fiber s t ht ?_ ?_ ?_ ?_ ?_ ?_
-        exact sSup ( X_fiber s t q )
+        · exact sSup ( X_fiber s t q )
         · exact fiber_sup_mem_X_set s t q hx₂
         · exact lt_of_le_of_lt ( Finset.sum_nonneg fun _ _ => by positivity ) hx₁
         · convert hx₁ using 1
