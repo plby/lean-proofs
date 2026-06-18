@@ -139,8 +139,6 @@ private lemma estimate_at_one_for_power_of_two_plus_one {k : ℕ} (hk : 1 ≤ k)
     omega
   grobner
 
-set_option linter.style.setOption false in
-set_option linter.style.multiGoal false in
 /-- Backward propagation from two consecutive bounds. -/
 private lemma backward_propagation_from_two_consecutive_bounds {n : ℕ}
     {f : ℕ → ℝ} (hf : IsF n f)
