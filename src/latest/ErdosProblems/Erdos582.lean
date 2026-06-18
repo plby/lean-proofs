@@ -30,7 +30,6 @@ namespace Erdos582
 
 set_option linter.unusedSectionVars false
 set_option linter.unusedVariables false
-set_option linter.style.multiGoal false
 set_option linter.style.setOption false
 set_option linter.flexible false
 
@@ -231,22 +230,28 @@ lemma X_nonempty (h : VertexPartitionRamsey 2 H' (G_prime G v0)) : (X_set G v0 H
   obtain ⟨ S', hS' ⟩ := hS;
   obtain ⟨ f, hf ⟩ := hS'.2;
   refine ⟨ ?_, ?_, ?_ ⟩;
-  exact Set.image ( fun x : { x : V // x ≠ v0 ∧ G.Adj x v0 } => f ⟨ x, by
-    exact x.2.1 ⟩ ) ( Set.univ : Set { x : V // x ≠ v0 ∧ G.Adj x v0 } );
+  focus
+    exact Set.image ( fun x : { x : V // x ≠ v0 ∧ G.Adj x v0 } => f ⟨ x, by
+      exact x.2.1 ⟩ ) ( Set.univ : Set { x : V // x ≠ v0 ∧ G.Adj x v0 } );
   all_goals generalize_proofs at *;
-  refine Equiv.ofBijective ?_ ⟨ ?_, ?_ ⟩;
-  use fun x => ⟨ f.symm ⟨ x, by
-    grind ⟩, by
-    rcases x with ⟨ x, hx ⟩;
-    rcases hx with ⟨ y, -, rfl ⟩;
-    simp +decide [ V_double_prime ];
-    exact y.2.2 ⟩
-  all_goals generalize_proofs at *
-  all_goals generalize_proofs at *;
-  all_goals norm_num [ Function.Injective, Function.Surjective ];
-  exact fun a ha ha' => ⟨ _, ⟨ a, ⟨ ha, ha' ⟩, rfl ⟩, by simp +decide ⟩;
-  intro a x hx hx' hx'' a' x' hx'' hx''' hx''''; subst_vars; simp +decide
+  focus
+    refine Equiv.ofBijective ?_ ⟨ ?_, ?_ ⟩;
+    focus
+      use fun x => ⟨ f.symm ⟨ x, by
+        grind ⟩, by
+        rcases x with ⟨ x, hx ⟩;
+        rcases hx with ⟨ y, -, rfl ⟩;
+        simp +decide [ V_double_prime ];
+        exact y.2.2 ⟩
+    all_goals generalize_proofs at *
+    all_goals generalize_proofs at *;
+    all_goals norm_num [ Function.Injective, Function.Surjective ];
+    focus
+      exact fun a ha ha' => ⟨ _, ⟨ a, ⟨ ha, ha' ⟩, rfl ⟩, by simp +decide ⟩
+  intro a x
+  simp +decide
   convert hf.symm using 1
+  simp +decide [SimpleGraph.induce]
 
 /-
 Definitions of parameters and f_map.
@@ -316,13 +321,14 @@ Definition of GraphH using the previously defined AdjH.
 noncomputable def GraphH : SimpleGraph (VertexH G v0 H') where
   Adj := AdjH G v0 H'
   symm := by
-    intro x y hxy; induction y; simp +decide [ AdjH ] ;
+    intro x y hxy; induction y
     · rcases x with ( ⟨ v', S', T' ⟩ | ⟨ w', i' ⟩ ) <;> simp +decide [ AdjH ] at hxy ⊢
       all_goals generalize_proofs at *;
       · exact ⟨ hxy.1.symm, hxy.2.1.symm, hxy.2.2.symm ⟩;
       · exact hxy;
     · cases x <;> simp +decide [ AdjH ] at hxy ⊢ ;
-      aesop ( simp_config := { singlePass := true } ) ;
+      focus
+        aesop ( simp_config := { singlePass := true } ) ;
       exact ⟨ hxy.1.symm, hxy.2.symm ⟩
   loopless := ⟨fun x h => by
     rcases x with ⟨v, S, T⟩ | ⟨w, i⟩ <;> simp [AdjH] at h⟩
@@ -414,7 +420,8 @@ lemma clique_case_two_A
         by_cases hac : a = c <;>
         by_cases hbc : b = c <;>
         simp_all +decide [ AdjH ] ;
-        aesop ( simp_config := { singlePass := true } ) ;
+        focus
+          aesop ( simp_config := { singlePass := true } ) ;
         · exact ⟨ c.1, by aesop ⟩;
         · grind)
       generalize_proofs at *; (
@@ -1184,7 +1191,8 @@ lemma GraphH_ramsey_2_case_1
     (∀ x ∈ U, f x = k) ∧ Nonempty (G ≃g (GraphH G v0 H').induce U) := by
     classical
     refine ⟨ ?_, ?_, ?_ ⟩;
-    exact Set.range ( psi_map_case_1 G v0 H' T S' phi S'' v1 );
+    focus
+      exact Set.range ( psi_map_case_1 G v0 H' T S' phi S'' v1 );
     · exact fun x a =>
       U_case_1_monochromatic G v0 H' f T k c h_uniform S' h_S'_mono phi S'' v1 h_v1_color x a;
     · apply_rules [ psi_map_case_1_is_iso ]
@@ -1216,8 +1224,8 @@ lemma GraphH_ramsey_2
       have := h_ramsey c;
       obtain ⟨ k, S, hS, ⟨ phi ⟩ ⟩ := this;
       refine ⟨ k, S, ?_, hS, ?_ ⟩;
-      exact phi.toEquiv;
-      exact fun x y => phi.map_adj_iff.symm;
+      · exact phi.toEquiv;
+      · exact fun x y => phi.map_adj_iff.symm;
     -- Define $S''$ as the image of $V''$ under $\phi`. It is in `X` because
     -- $H'[S''] \cong G''$.
     obtain ⟨S'', h_S''_eq⟩ :
@@ -1228,15 +1236,28 @@ lemma GraphH_ramsey_2
             ((H'.induce (Subtype.val '' (phi '' (V_double_prime G v0)))) ≃g
               (G_double_prime G v0)) := by
         refine ⟨ ?_, ?_ ⟩;
-        refine Equiv.ofBijective ( fun x => ⟨ phi.symm ⟨ x.val, ?_ ⟩, ?_ ⟩ ) ⟨ ?_, ?_ ⟩;
-        grind;
-        all_goals norm_num [ Function.Injective, Function.Surjective ];
-        all_goals norm_num [ V_double_prime, G_double_prime ];
-        · rcases x with ⟨ x, ⟨ y, ⟨ z, hz, rfl ⟩, rfl ⟩ ⟩ ; aesop;
-        · intro a ha h; use phi ⟨ a, ha ⟩ ; aesop;
-        · intro a ha ha' b hb hb';
-          simpa [G_prime, G_double_prime] using
-            (h_S'_mono (phi.symm ⟨a, ha⟩) (phi.symm ⟨b, hb⟩));
+        focus
+          refine Equiv.ofBijective ( fun x => ⟨ phi.symm ⟨ x.val, ?_ ⟩, ?_ ⟩ ) ⟨ ?_, ?_ ⟩;
+          focus
+            grind;
+          all_goals norm_num [ Function.Injective, Function.Surjective ];
+          all_goals norm_num [ V_double_prime, G_double_prime ];
+          · rcases x with ⟨ x, ⟨ y, ⟨ z, hz, rfl ⟩, rfl ⟩ ⟩
+            aesop
+          · intro a ha h
+            use phi ⟨ a, ha ⟩
+            aesop
+        intro a b
+        rcases a with ⟨a, ha⟩
+        rcases b with ⟨b, hb⟩
+        have haS : a ∈ S' := by
+          rcases ha with ⟨a', -, rfl⟩
+          exact a'.property
+        have hbS : b ∈ S' := by
+          rcases hb with ⟨b', -, rfl⟩
+          exact b'.property
+        simpa [G_prime, G_double_prime] using
+          (h_S'_mono (phi.symm ⟨a, haS⟩) (phi.symm ⟨b, hbS⟩))
       exact ⟨ ⟨ _, h_iso ⟩, rfl ⟩;
     -- Consider the vertices $(v, S'', T)$ for $v \in V$.
     -- Case 1: There exists $v_1 \in V$ such that $f(v_1, S'', T) = k$.
@@ -1276,7 +1297,8 @@ lemma PropH2_base : PropH2 1 := by
     intro f;
     use f v, {v};
     refine ⟨ by aesop, ⟨ ?_, ?_, ?_ ⟩ ⟩;
-    exact (Equiv.subtypeUnivEquiv hv).symm;
+    focus
+      exact (Equiv.subtypeUnivEquiv hv).symm;
     · exact fun a => a;
     · aesop
 
@@ -1914,11 +1936,12 @@ lemma exists_monochromatic_U
       contrapose! this;
       unfold VertexPartitionRamsey; simp +decide ;
       refine ⟨ ?_, ?_ ⟩;
-      exact fun u =>
-        Fintype.equivFinOfCardEq
-          (show Fintype.card ( H2.edgeSet → Bool ) = N_param from by
-            simp +decide [ N_param ])
-          (row_coloring_map c u);
+      focus
+        exact fun u =>
+          Fintype.equivFinOfCardEq
+            (show Fintype.card ( H2.edgeSet → Bool ) = N_param from by
+              simp +decide [ N_param ])
+            (row_coloring_map c u);
       intro x U hx; specialize this U; simp_all +decide [ SimpleGraph.comap, SimpleGraph.induce ] ;
       exact ⟨ fun f => by
         obtain ⟨ u, hu, hu' ⟩ := this f.symm
