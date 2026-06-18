@@ -25,7 +25,6 @@ the conjecture that f(d) = d + 1.
 import Mathlib
 
 set_option linter.style.setOption false
-set_option linter.style.multiGoal false
 set_option linter.flexible false
 
 namespace Erdos505
@@ -251,8 +250,7 @@ theorem distance_formula
         simp +decide [ Finset.sum_ite, sq ];
         rw [ ← sq, ← real_inner_self_eq_norm_sq ];
         erw [ Finset.sum_subtype ];
-        exact rfl;
-        aesop;
+        all_goals first | exact rfl | aesop
       -- Expanding the sum, we can rewrite it as
       -- $\sum_{1 \leq i < j \leq n} (x_i x_j - y_i y_j)^2 =
       -- \sum_{1 \leq i < j \leq n} (2 - 2 x_i y_i x_j y_j)$.
@@ -288,7 +286,8 @@ theorem distance_formula
               ∑ i : Fin n, (x i * y i) ^ 2) := by
         erw [ Finset.sum_product ] ; norm_num [ Finset.sum_ite, Finset.filter_lt_eq_Ioi ] ; ring_nf;
         clear h_norm_sq h_expand hx hy;
-        induction hn <;> simp +decide [ Fin.sum_univ_succ, * ] ; ring;
+        induction hn <;> simp +decide [ Fin.sum_univ_succ, * ]
+        · ring
         rename_i k hk ih;
         have htail := ih
           (WithLp.toLp 2 fun i : Fin k => x (Fin.succ i))
@@ -343,9 +342,9 @@ theorem exists_orthogonal_pair (n : ℕ) [NeZero n] (p : ℕ) (hp : n = 4 * p) :
             use Finset.univ.filter (fun i => i.val < 2 * p + 1 ∧ i.val ≠ 0);
             rw [ Finset.card_eq_of_bijective ];
             rotate_right;
-            exact 2 * p;
+            · exact 2 * p
             all_goals norm_num at *;
-            use fun i hi => ⟨ i + 1, by linarith ⟩;
+            · use fun i hi => ⟨ i + 1, by linarith ⟩
             · exact fun a ha ha' =>
                 ⟨a - 1,
                   by
@@ -1180,11 +1179,11 @@ theorem Fa_mem_subspace
       convert Set.mem_setOf_eq.mpr
           (totalDegree_ml_le _ |> le_trans <| Pa_degree_le _ _ _) using 1;
       rotate_left;
-      exact n;
-      grind;
-      exact p;
-      exact ⟨ Fact.out ⟩;
-      exact a;
+      · exact n
+      · grind
+      · exact p
+      · exact ⟨ Fact.out ⟩
+      · exact a
       simp +decide [ MvPolynomial.mem_restrictTotalDegree ];
       rfl
 
@@ -1285,10 +1284,10 @@ theorem indep_bound
                   (↥(Submodule.span (ZMod p)
                     (Set.range (fun a : A => Fa n p a)))) =
                 Set.ncard A := by
-            convert ( finrank_span_eq_card h_lin_ind );
-            convert Set.ncard_eq_toFinset_card' A;
-            convert Fintype.card_ofFinset _ _;
-            simp +zetaDelta at *;
+            convert ( finrank_span_eq_card h_lin_ind )
+            focus convert Set.ncard_eq_toFinset_card' A
+            focus convert Fintype.card_ofFinset _ _
+            focus simp +zetaDelta at *
             exact Set.Finite.fintype ( Set.Finite.subset ( M_finite n ) hA_subset )
           rw [h_card_eq_dim];
         exact h_card_le_dim;
@@ -1401,18 +1400,19 @@ theorem BorsukProperty_implies_partition (d m : ℕ) (h : BorsukProperty d m)
     ∃ c : E → Fin m, ∀ i, diam {x | ∃ h, c ⟨x, h⟩ = i} < diam E := by
       have := h ( ( 1 / diam E ) • E ) ?_ ?_;
       · obtain ⟨ c, hc ⟩ := this;
-        refine ⟨ fun ⟨ x, hx ⟩ => c ⟨ ( 1 / diam E ) • x, ?_ ⟩, ?_ ⟩;
-        exact Set.smul_mem_smul_set hx;
-        intro i; specialize hc i; simp_all +decide [ Set.mem_smul_set ] ;
-        convert mul_lt_mul_of_pos_left hc h_diam using 1;
-        · convert diam_scaling _ _ _ using 2;
-          · ext; simp [Set.mem_smul_set];
-            constructor;
-            · exact fun ⟨ h₁, h₂ ⟩ => ⟨ _, ⟨ ⟨ _, h₁, rfl ⟩, h₂ ⟩, by simp +decide [ h_diam.ne' ] ⟩;
-            · rintro ⟨ y, ⟨ ⟨ z, hz, rfl ⟩, hy ⟩, rfl ⟩ ; use by simpa [ h_diam.ne' ] using hz;
-              convert hy using 2 ; ext ; simp +decide [ h_diam.ne' ];
-          · exact h_diam;
-        · ring;
+        refine ⟨ fun ⟨ x, hx ⟩ => c ⟨ ( 1 / diam E ) • x, ?_ ⟩, ?_ ⟩
+        · exact Set.smul_mem_smul_set hx
+        · intro i; specialize hc i; simp_all +decide [ Set.mem_smul_set ] ;
+          convert mul_lt_mul_of_pos_left hc h_diam using 1;
+          · convert diam_scaling _ _ _ using 2;
+            · ext; simp [Set.mem_smul_set];
+              constructor;
+              · exact fun ⟨ h₁, h₂ ⟩ =>
+                  ⟨ _, ⟨ ⟨ _, h₁, rfl ⟩, h₂ ⟩, by simp +decide [ h_diam.ne' ] ⟩;
+              · rintro ⟨ y, ⟨ ⟨ z, hz, rfl ⟩, hy ⟩, rfl ⟩ ; use by simpa [ h_diam.ne' ] using hz;
+                convert hy using 2 ; ext ; simp +decide [ h_diam.ne' ];
+            · exact h_diam;
+          · ring;
       · exact Bornology.IsBounded.smul₀ hE (1 / diam E);
       · convert diam_scaling _ _ _ using 1;
         · rw [ div_mul_cancel₀ _ h_diam.ne' ];
