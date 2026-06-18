@@ -16,7 +16,6 @@ URLs:
 import Mathlib
 
 set_option linter.style.cases false
-set_option linter.style.multiGoal false
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.unusedSimpArgs false
@@ -128,19 +127,21 @@ lemma SpecialSet_iff (n : ℕ) : n ∈ SpecialSet ↔ Squarefree n ∧ ∀ p q, 
   · intro hn
     obtain ⟨hn_sqf, hn_chain⟩ := hn
     constructor
-    exact hn_sqf
-    intro p q hq hdiv
-    have hsp : 2 * p < q := by
-      have hsp : p ∈ n.primeFactorsList ∧ q ∈ n.primeFactorsList := by
-        rw [ Nat.mem_primeFactorsList ];
-        · exact ⟨ ⟨ hq.1, dvd_of_mul_right_dvd hdiv ⟩, Nat.mem_primeFactorsList ( by aesop ) |>.2 ⟨
-          hq.2.1, Nat.dvd_trans ( by aesop ) hdiv ⟩ ⟩;
-        · aesop;
-      have hsp_sorted : n.primeFactorsList.SortedLE := by
-        exact Nat.primeFactorsList_sorted n;
-      apply List.IsChain_spread hsp_sorted hn_chain hsp.left hsp.right hq.right.right.left
-    exact absurd hsp (by
-    linarith [ hq.2.2.2 ]);
+    · exact hn_sqf
+    · intro p q hq hdiv
+      have hsp : 2 * p < q := by
+        have hsp : p ∈ n.primeFactorsList ∧ q ∈ n.primeFactorsList := by
+          rw [ Nat.mem_primeFactorsList ];
+          · exact
+              ⟨ ⟨ hq.1, dvd_of_mul_right_dvd hdiv ⟩,
+                Nat.mem_primeFactorsList ( by aesop ) |>.2
+                  ⟨ hq.2.1, Nat.dvd_trans ( by aesop ) hdiv ⟩ ⟩;
+          · aesop;
+        have hsp_sorted : n.primeFactorsList.SortedLE := by
+          exact Nat.primeFactorsList_sorted n;
+        apply List.IsChain_spread hsp_sorted hn_chain hsp.left hsp.right hq.right.right.left
+      exact absurd hsp (by
+      linarith [ hq.2.2.2 ]);
   · rintro ⟨ hn, h ⟩;
     refine ⟨ hn, ?_ ⟩;
     refine List.isChain_iff_getElem.mpr ?_;
@@ -325,12 +326,19 @@ lemma lem_prime_series (hChebyshev : ChebyshevUpperBound) : Summable (fun p : �
         1) * Real.log 2)) * 2^(k-1) := by
         convert lem_dyadicprimecount hChebyshev ( 2 ^ ( k - 1 ) ) (by
           exact le_trans ( by norm_num )
-            ( pow_le_pow_right₀ ( by norm_num ) ( Nat.le_sub_one_of_lt hk ) ) ) using 1 ;
-          norm_num [ Real.log_pow ] ;
-          ring_nf;
-        · cases k <;> trivial;
-        · norm_num [ div_mul_eq_mul_div ];
-          rw [ Nat.cast_pred ( by linarith ) ];
+            ( pow_le_pow_right₀ ( by norm_num ) ( Nat.le_sub_one_of_lt hk ) ) ) using 1
+        · exact congrArg
+            (fun n => ((pi_real n : ℝ) - (pi_real (2 ^ (k - 1)) : ℝ)))
+            (by
+              rw [mul_comm, ← pow_succ]
+              congr
+              omega)
+        · norm_num [ Real.log_pow ]
+          exact congrArg
+            (fun x : ℝ => 2 * Real.log 4 / (x * Real.log 2))
+            (by
+              rw [Nat.cast_sub (by omega : 1 ≤ k)]
+              norm_num)
       convert h_prime_count using 1;
       unfold pi_real;
       rw [ show ( Finset.filter Nat.Prime ( Finset.range ( ⌊ ( 2 : ℝ ) ^ k⌋₊ + 1 ) ) ) =
@@ -366,7 +374,8 @@ lemma lem_prime_series (hChebyshev : ChebyshevUpperBound) : Summable (fun p : �
           ( mul_nonneg
             ( inv_nonneg.2 ( sub_nonneg.2 ( Nat.one_le_cast.2 ( by linarith ) ) ) )
             ( inv_nonneg.2 ( pow_nonneg ( by norm_num ) _ ) ) ) )
-        ( sq_nonneg _ ) ) using 1 ; ring;
+        ( sq_nonneg _ ) ) using 1
+    · ring
     field_simp;
   -- By comparison, it suffices to show that $\sum_{k=2}^{\infty} \frac{2 \log 4}{(k-1)^2 (\log
   -- 2)^2}$ converges.
@@ -559,8 +568,10 @@ theorem prop_Dsum (hChebyshev : ChebyshevUpperBound) : Summable (fun d : ℕ => 
         · intro u;
           refine le_trans ?_ ( Summable.sum_le_tsum ?_ ?_ h_summable_bad_pairs );
           rotate_left;
-          exact Finset.biUnion u fun x => Finset.filter ( fun y => y.1 * y.2 = x ) ( Finset.product
-            ( Finset.range ( x + 1 ) ) ( Finset.range ( x + 1 ) ) );
+          · exact
+              Finset.biUnion u fun x =>
+                Finset.filter ( fun y => y.1 * y.2 = x )
+                  ( Finset.product ( Finset.range ( x + 1 ) ) ( Finset.range ( x + 1 ) ) );
           · exact fun _ _ => by positivity;
           · rw [ Finset.sum_biUnion ];
             intro x hx y hy hxy; simp_all +decide [ Finset.disjoint_left ] ;
@@ -723,8 +734,9 @@ lemma crt_ap_intersection (L d : ℕ) (a b : ℕ) (hL : L > 0) (hd : d > 0) (hgc
     · -- By the Chinese Remainder Theorem, since $n \equiv x \pmod{L}$ and
       -- $n \equiv x \pmod{d}$, we have $n \equiv x \pmod{Ld}$.
       have h_crt : n ≡ x [MOD L] ∧ n ≡ x [MOD d] → n ≡ x [MOD (L * d)] := by
-        rw [ Nat.modEq_and_modEq_iff_modEq_mul ] ; aesop;
-        assumption;
+        rw [ Nat.modEq_and_modEq_iff_modEq_mul ]
+        · aesop
+        · assumption;
       exact h_crt ⟨ hn.1.trans hx.2.1.symm, hn.2.trans hx.2.2.symm ⟩ ▸ Nat.mod_eq_of_lt hx.1;
     · exact ⟨ by rw [ ← Nat.mod_mod_of_dvd n ( dvd_mul_right L d ), hn, hx.2.1 ],
       by rw [ ← Nat.mod_mod_of_dvd n ( dvd_mul_left d L ), hn, hx.2.2 ] ⟩
@@ -1141,10 +1153,13 @@ lemma upper_density_multiples_tail_bound (F : Set ℕ) (T : ℕ) (hF_subset : F 
         ∈ F) then (1 / (f : ℝ)) else 0) = ∑' f : ℕ, (if f ∈ F ∧ f > T then (1 / (f : ℝ)) else 0) -
         ∑' f : ℕ, (if f ∈ F ∧ f > T ∧ f ∈ s.filter (fun f => f > T ∧ f ∈ F) then (1 / (f : ℝ)) else
         0) := by
-        rw [ ← Summable.tsum_sub ] ; congr ; ext f ; by_cases hf : f ∈ F <;>
-          by_cases hf' : f > T <;>
-          by_cases hf'' : f ∈ { f ∈ s | f > T ∧ f ∈ F } <;>
-          simp +decide [ hf, hf', hf'' ] ;
+        rw [ ← Summable.tsum_sub ]
+        · congr
+          ext f
+          by_cases hf : f ∈ F <;>
+            by_cases hf' : f > T <;>
+            by_cases hf'' : f ∈ { f ∈ s | f > T ∧ f ∈ F } <;>
+            simp +decide [ hf, hf', hf'' ] ;
         · exact
             Summable.of_nonneg_of_le
               ( fun f => by positivity ) ( fun f => by aesop ) h_summable;
@@ -1183,8 +1198,8 @@ lemma tendsto_density_of_has_natural_density (E : Set ℕ) (h : HasNaturalDensit
       : ℝ) / n) Filter.atTop = Filter.liminf (fun n : ℕ => ((Finset.filter (· ∈ E) (Finset.Icc 1
       n)).card : ℝ) / n) Filter.atTop := by
       exact h;
-    convert tendsto_order.2 ⟨ _, _ ⟩;
-    exact Real.instPreorder;
+    convert tendsto_order.2 ⟨ _, _ ⟩
+    · exact Real.instPreorder;
     · infer_instance;
     · intro a ha;
       contrapose! ha;
@@ -1623,24 +1638,16 @@ lemma lower_density_safe_set_pos (Y : ℕ) (hChebyshev : ChebyshevUpperBound)
     -- By `lower_density_diff_bound`, $\underline{d}(B) \ge d(P) - \overline{d}(P \cap Bad)$.
     have h_lower_density_B : lowerDensity ({n | n ≡ 1 [MOD L_val Y]} \ BadMultiples Y) ≥
       naturalDensity {n | n ≡ 1 [MOD L_val Y]} - upperDensity (BadMultiples Y) := by
-      convert lower_density_diff_bound _ using 1;
-      congr! 1;
-      · congr! 1;
-        ext; simp [BadMultiples];
-      · convert lem_APdensity ( L_val Y ) 1 ( L_val_pos Y ) ( Nat.one_lt_iff_ne_zero_and_ne_one.mpr
-        ⟨ by linarith [ L_val_pos Y ], by
-          exact ne_of_gt ( lt_of_lt_of_le ( by decide ) ( L_val_ge_two Y hY_ge_1 ) ) ⟩ ) using 1
-        generalize_proofs at *;
-        constructor <;> intro h <;> simp_all +decide [ Nat.ModEq ];
-        · convert lem_APdensity ( L_val Y ) 1 ( L_val_pos Y ) (
-          Nat.one_lt_iff_ne_zero_and_ne_one.mpr ⟨ by linarith [ L_val_pos Y ], by
-            exact ne_of_gt ( L_val_ge_two Y hY_ge_1 ) ⟩ ) using 1
-          generalize_proofs at *;
-          norm_num [ Nat.mod_eq_of_lt ( show 1 < L_val Y from lt_of_lt_of_le ( by decide ) (
-            L_val_ge_two Y hY_ge_1 ) ) ];
-        · convert h.1 using 1;
-          norm_num [ Nat.mod_eq_of_lt ( show 1 < L_val Y from lt_of_lt_of_le ( by decide ) (
-            L_val_ge_two Y hY_ge_1 ) ) ];
+      convert lower_density_diff_bound _ using 1
+      · congr! 1
+        · congr! 1;
+          ext; simp [BadMultiples];
+      · convert (lem_APdensity ( L_val Y ) 1 ( L_val_pos Y )
+          (lt_of_lt_of_le ( by decide ) ( L_val_ge_two Y hY_ge_1 ))).1 using 1
+        ext n
+        simp [Nat.ModEq,
+          Nat.mod_eq_of_lt (show 1 < L_val Y from
+            lt_of_lt_of_le (by decide) (L_val_ge_two Y hY_ge_1))]
     -- By `lem_APdensity`, $d(P) = 1/L$.
     have h_density_P : naturalDensity {n | n ≡ 1 [MOD L_val Y]} = 1 / (L_val Y : ℝ) := by
       convert lem_APdensity ( L_val Y ) 1 _ _ using 1 <;> norm_num [ Nat.mod_eq_of_lt, L_val_pos ];
@@ -1750,8 +1757,10 @@ lemma chebyshev_upper_bound_holds : ChebyshevUpperBound := by
       ( mod_cast primorial_le_four_pow _ );
   unfold vartheta;
   convert le_trans h_log_prod _ using 1;
-  · unfold primorial; rw [ ← Real.log_prod ] ; aesop;
-    exact fun p hp => Nat.cast_ne_zero.mpr <| Nat.Prime.ne_zero <| Finset.mem_filter.mp hp |>.2;
+  · unfold primorial
+    rw [ ← Real.log_prod ]
+    · aesop
+    · exact fun p hp => Nat.cast_ne_zero.mpr <| Nat.Prime.ne_zero <| Finset.mem_filter.mp hp |>.2;
   · rw [ mul_comm, Real.log_pow ] ; gcongr ; linarith [ Nat.floor_le ( by positivity : 0 ≤ x ) ]
 
 lemma density_implies_interval_bound {S : Set ℕ} (d : ℝ) (hd : d > 0) (h : HasNaturalDensity S ∧
@@ -1771,9 +1780,9 @@ lemma density_implies_interval_bound {S : Set ℕ} (d : ℝ) (hd : d > 0) (h : H
     (nhds (d / 2)) := by
     convert ha_tendsto.sub ( Filter.Tendsto.div_const ( ha_tendsto.comp (
       Filter.tendsto_atTop_atTop.mpr _ ) |> Filter.Tendsto.mul_const ( 1 / 2 : ℝ ) ) 1 ) using 2 <;>
-      norm_num ; ring_nf;
+      norm_num
+    all_goals try ring_nf
     · by_cases h : ‹_› = 0 <;> aesop;
-    · ring;
     · exact fun b => ⟨ 2 * b, fun n hn =>
       by linarith [ Nat.div_add_mod n 2, Nat.mod_lt n two_pos ] ⟩;
   -- Since $d > 0$, $d/2 > 0$. So eventually $u_N \ge d/4$.
@@ -1831,9 +1840,10 @@ theorem erdos_537 : ¬(∀ ε > 0, ∃ N₀, ∀ N ≥ N₀, ∀ A, A ⊆ Finset
       exact this;
     use c, hc_pos, N₀ + 1;
     intro N hN; specialize hN₀ N ( by linarith ) ; rw [ show SpecialFinset N = Finset.filter ( fun x
-      => x ∈ SpecialSet ) ( Finset.Ioc ( N / 2 ) N ) from ?_ ] ; aesop;
-    ext; simp [SpecialFinset];
-    exact ⟨ fun h => ⟨ ⟨ h.2.2, by linarith ⟩, h.2.1 ⟩, fun h => ⟨ by linarith, h.2, h.1.1 ⟩ ⟩;
+      => x ∈ SpecialSet ) ( Finset.Ioc ( N / 2 ) N ) from ?_ ]
+    · aesop
+    · ext; simp [SpecialFinset];
+      exact ⟨ fun h => ⟨ ⟨ h.2.2, by linarith ⟩, h.2.1 ⟩, fun h => ⟨ by linarith, h.2, h.1.1 ⟩ ⟩;
   · exact h_contra
 
 end Erdos537
