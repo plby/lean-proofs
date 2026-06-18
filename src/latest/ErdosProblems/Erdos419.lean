@@ -545,12 +545,11 @@ noncomputable def large_prime (n : ℕ) : ℕ := ((n + 1).primeFactors \ small_p
 noncomputable def approx_u (n : ℕ) : ℝ :=
   if large_prime n > 0 then 1 + 1 / ((n + 1 : ℝ) / (large_prime n : ℝ)) else 1
 
-set_option linter.style.multiGoal false in
 lemma u_eq_u_small_mul_u_large (n : ℕ) : u n = u_small n * u_large n := by
   convert Finset.prod_union ?_ using 2;
-  rw [ Finset.union_sdiff_of_subset ];
-  · exact u_eq_prod n;
-  · exact Finset.filter_subset _ _;
+  · rw [ Finset.union_sdiff_of_subset ];
+    · exact u_eq_prod n;
+    · exact Finset.filter_subset _ _;
   · exact Finset.disjoint_sdiff
 
 /-
@@ -562,7 +561,6 @@ lemma u_small_tendsto_one :
   small_prime_contribution_tendsto_one
 
 set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 lemma large_prime_eq_iff (n : ℕ) (p : ℕ) :
     large_prime n = p ↔
       (p = 0 ∧ ((n + 1).primeFactors \ small_primes n) = ∅) ∨
@@ -588,10 +586,10 @@ lemma large_prime_eq_iff (n : ℕ) (p : ℕ) :
             WithBot.some q from
           ?_
       ] at this
-      aesop;
-      exact le_antisymm
-        (Finset.sup_le fun x hx => WithBot.coe_le_coe.mpr (hq₂ x hx))
-        (Finset.le_sup (f := WithBot.some) hq₁);
+      · aesop
+      · exact le_antisymm
+          (Finset.sup_le fun x hx => WithBot.coe_le_coe.mpr (hq₂ x hx))
+          (Finset.le_sup (f := WithBot.some) hq₁);
   · cases h <;> simp_all +decide [ Finset.max ];
     · rw [ Finset.sdiff_eq_empty_iff_subset.mpr ] <;> aesop;
     · rw [
@@ -600,8 +598,8 @@ lemma large_prime_eq_iff (n : ℕ) (p : ℕ) :
             WithBot.some p from
           ?_
       ]
-      aesop;
-      refine le_antisymm ?_ ?_ <;> aesop
+      · aesop
+      · refine le_antisymm ?_ ?_ <;> aesop
 
 /-
 If there are no large primes, `u_large` is 1.
@@ -1008,7 +1006,6 @@ lemma large_prime_of_kp_minus_1 (k : ℕ) (hk : k ≥ 1) :
 For any $k \ge 1$, $1 + 1/k$ is a cluster point of the sequence $u(n)$.
 -/
 set_option linter.flexible false in
-set_option linter.style.multiGoal false in
 lemma cluster_point_of_k (k : ℕ) (hk : k ≥ 1) :
     MapClusterPt (1 + 1 / (k : ℝ)) Filter.atTop u := by
   -- Since $p$ is a prime such that $p > \max(1000, k^2)$ and
@@ -1041,8 +1038,8 @@ lemma cluster_point_of_k (k : ℕ) (hk : k ≥ 1) :
             Filter.principal {p | Nat.Prime p ∧ large_prime (k * p - 1) = p})
           (nhds (1 + 1 / (k : ℝ))) := by
       rw [ Filter.tendsto_congr' ];
-      exact tendsto_const_nhds;
-      rw [ Filter.EventuallyEq, Filter.eventually_inf_principal ] ; aesop;
+      · exact tendsto_const_nhds;
+      · rw [ Filter.EventuallyEq, Filter.eventually_inf_principal ] ; aesop;
     have h_error_tendsto :
         Filter.Tendsto (fun p : ℕ => |u (k * p - 1) - approx_u (k * p - 1)|)
           (Filter.atTop ⊓
