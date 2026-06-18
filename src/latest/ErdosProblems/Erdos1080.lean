@@ -40,7 +40,6 @@ namespace Erdos1080
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 set_option linter.unusedSectionVars false
 
 attribute [local instance] Classical.propDecidable
@@ -286,7 +285,7 @@ theorem B_transitive_on_P
     refine ⟨ ?_, ?_ ⟩;
     constructor;
     rotate_left;
-    refine Equiv.sumCongr ( Equiv.ofBijective ( tau3_P ( -p.p3 ) h_neg_p3 h_add ) ⟨ ?_, ?_ ⟩ ) ( Equiv.ofBijective ( tau3_L ( -p.p3 ) h_neg_p3 h_add ) ⟨ ?_, ?_ ⟩ );
+    focus refine Equiv.sumCongr ( Equiv.ofBijective ( tau3_P ( -p.p3 ) h_neg_p3 h_add ) ⟨ ?_, ?_ ⟩ ) ( Equiv.ofBijective ( tau3_L ( -p.p3 ) h_neg_p3 h_add ) ⟨ ?_, ?_ ⟩ );
     all_goals norm_num [ Function.Injective, Function.Surjective, tau3_P, tau3_L ];
     all_goals norm_num [ SimpleGraph.adj_comm, B ];
     all_goals norm_num [ Sum.inl_ne_inr, Sum.inr_ne_inl, is_adjacent ];
@@ -647,7 +646,7 @@ theorem card_neighbors_in_P_S
   classical
   rw [ Set.ncard_def, Set.ncard_def, Set.encard_congr ];
   refine Equiv.symm ( Equiv.ofBijective ?_ ⟨ ?_, ?_ ⟩ );
-  refine fun x => ⟨ Classical.choose ( unique_neighbor_with_x_coord S l x x.2 h_add h_mul h_F h_sub h_S ), ?_ ⟩;
+  focus refine fun x => ⟨ Classical.choose ( unique_neighbor_with_x_coord S l x x.2 h_add h_mul h_F h_sub h_S ), ?_ ⟩;
   all_goals norm_num [ Function.Injective, Function.Surjective ];
   · have := Classical.choose_spec ( unique_neighbor_with_x_coord S l x x.2 h_add h_mul h_F h_sub h_S ) |>.1
     generalize_proofs at *;
@@ -865,8 +864,8 @@ theorem B_G_edge_count
           Fintype.card { e : (Line F q) × (Point F q) // e.2 ∈ P_S S ∧ e.1 ∉ D ∧ is_adjacent F q e.2 e.1 } := by
       rw [ ← Set.ncard_coe_finset ];
       rw [ ← Set.ncard_congr ];
-      convert Set.ncard_coe_finset _;
-      use fun a _ => Sym2.mk ⟨ Sum.inr a.val.1, by simp [ V_G ] ; exact a.2.2.1 ⟩ ⟨ Sum.inl a.val.2, by simp [ V_G ] ; exact a.2.1 ⟩;
+      focus convert Set.ncard_coe_finset _;
+      focus use fun a _ => Sym2.mk ⟨ Sum.inr a.val.1, by simp [ V_G ] ; exact a.2.2.1 ⟩ ⟨ Sum.inl a.val.2, by simp [ V_G ] ; exact a.2.1 ⟩;
       · rintro ⟨⟨l, p⟩, hpS, hlD, hadj⟩ -
         apply SimpleGraph.mem_edgeFinset.mpr
         rw [SimpleGraph.mem_edgeSet]
@@ -1220,7 +1219,7 @@ lemma B_G_card_V (q k y : ℕ)
       rw [ Finset.card_filter, Finset.card_filter, Finset.card_filter ];
       rw [ ← Finset.sum_add_sum_compl ];
       swap;
-      exact Finset.image ( fun x : Point F q => Sum.inl x ) Finset.univ ∪ Finset.image ( fun x : Line F q => Sum.inr x ) Finset.univ;
+      · exact Finset.image ( fun x : Point F q => Sum.inl x ) Finset.univ ∪ Finset.image ( fun x : Line F q => Sum.inr x ) Finset.univ
       rw [ Finset.sum_union, Finset.sum_image, Finset.sum_image ] <;> simp +decide [ Finset.disjoint_right ];
       all_goals try (intro a b h; cases h; rfl)
       simp +decide [ V_G, Set.diff ];
@@ -1348,9 +1347,9 @@ lemma transfer_to_fin_n {V : Type*} [Fintype V]
       have h_bij : ∃ e : V ≃ Fin n, True := by
         exact ⟨ Fintype.equivOfCardEq ( by simp +decide [ hn ] ), trivial ⟩;
       obtain ⟨ e, - ⟩ := h_bij;
-      refine ⟨ ?_, ?_, ?_, ?_, ?_, ?_, ?_ ⟩;
-      exact SimpleGraph.comap ( fun x => e.symm x ) G;
-      exact Finset.image ( fun x => e x ) A;
+      refine ⟨ ?_, ?_, ?_, ?_, ?_, ?_, ?_ ⟩
+      · exact SimpleGraph.comap ( fun x => e.symm x ) G
+      · exact Finset.image ( fun x => e x ) A
       · aesop;
       · simp_all +decide [ Finset.mem_image, SimpleGraph.comap ];
         exact fun x y hx hy => h_indep_Ac _ _ ( fun h => hx _ h ( by simp +decide ) ) ( fun h => hy _ h ( by simp +decide ) );
@@ -1396,7 +1395,7 @@ lemma exists_counterexample_graph (q k y : ℕ)
         convert this.2.2.2 using 1;
         rw [ Fintype.card_of_subtype ];
         rotate_left;
-        exact Finset.univ.filter fun p => p.p1 ∈ S;
+        · exact Finset.univ.filter fun p => p.p1 ∈ S
         · simp +decide [ P_S ];
         · refine Finset.card_bij ( fun p hp => p.val.elim ( fun p => p ) fun l => by
             exact ⟨ 0, 0, 0, by
