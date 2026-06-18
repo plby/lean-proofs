@@ -18,7 +18,6 @@ import Mathlib
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 set_option linter.unusedVariables false
 set_option aesop.warn.nonterminal false
 
@@ -389,7 +388,7 @@ theorem final_inequality (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r C)
     filter_upwards [ h_div, Filter.eventually_gt_atTop 0 ] with n hn hn';
     convert mul_le_mul_of_nonneg_right hn ( Real.rpow_nonneg ( Nat.cast_nonneg ( S.d ( n + 1 ) )
       ) r ) using 1 <;> norm_num [ Real.div_rpow ( Nat.cast_nonneg _ ) ( Nat.cast_nonneg _ ),
-      Real.rpow_sub ( Nat.cast_pos.mpr <| S.d_pos _ ) ] ; ring_nf;
+      Real.rpow_sub ( Nat.cast_pos.mpr <| S.d_pos _ ) ] ; focus ring_nf;
     · rw [ mul_inv_cancel_right₀ ( ne_of_gt ( Real.rpow_pos_of_pos ( Nat.cast_pos.mpr ( S.d_pos
       _ ) ) _ ) ) ];
     · rw [
