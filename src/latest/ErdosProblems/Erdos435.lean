@@ -28,7 +28,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 
 namespace Erdos435
 
@@ -618,8 +617,8 @@ lemma lemma1_equality (n j p : ℕ) (hp : p.Prime) (hj : j ≥ 1)
                   padicValNat p (p ^ j * (n / p ^ j)) =
                     padicValNat p (p ^ j) + padicValNat p (n / p ^ j) := by
                 convert padicValNat.mul _ _ using 1
-                generalize_proofs at *; (
-                exact ⟨ hp ⟩);
+                · generalize_proofs at *
+                  exact ⟨ hp ⟩
                 · exact pow_ne_zero _ hp.ne_zero;
                 · intro h; simp_all +singlePass ;
               generalize_proofs at *; (
@@ -628,8 +627,10 @@ lemma lemma1_equality (n j p : ℕ) (hp : p.Prime) (hj : j ≥ 1)
             exact h_div)
           generalize_proofs at *;
           exact h_div;
-        haveI := Fact.mk hp; rw [ h_div, padicValNat.pow ] ; aesop;
-        exact hp.ne_zero;
+        haveI := Fact.mk hp
+        rw [ h_div, padicValNat.pow ]
+        · aesop
+        · exact hp.ne_zero
       have h_div : padicValNat p (Nat.choose (n - 1) (p ^ j - 1)) = 0 := by
         exact lemma1_lucas_step n j p hp hj hjn;
       linarith [ Nat.sub_add_cancel hjn ]
@@ -741,8 +742,10 @@ lemma lemma_val_div_int (p : ℕ) (n : ℤ) (k : ℕ) (hp : p.Prime)
     padicValNat p (n / p).toNat = k := by
       have h_div : Int.toNat (n / p) = Int.toNat n / p := by
         cases n <;> aesop;
-      haveI := Fact.mk hp; rw [ h_div, padicValNat.div_of_dvd ] ; aesop;
-      exact ( by contrapose! h_val; simp_all +decide [ padicValNat.eq_zero_of_not_dvd ] )
+      haveI := Fact.mk hp
+      rw [ h_div, padicValNat.div_of_dvd ]
+      · aesop
+      · exact ( by contrapose! h_val; simp_all +decide [ padicValNat.eq_zero_of_not_dvd ] )
 
 /-
 If the highest coefficient matches p-1, we can reduce the congruence by dividing by p.
@@ -815,7 +818,8 @@ lemma lemma_super_sequence_step (p m : ℕ) (A : ℕ → ℤ)
             contrapose! this;
             rw [ padicValNat.eq_zero_of_not_dvd this ] ; omega;
           simpa [ ← Int.natCast_dvd_natCast, Int.toNat_of_nonneg ( le_of_lt ( hA.2.2 ( j + 1 ) ( by linarith ) ( by linarith ) ) ) ] using h_div;
-      · intro j hj₁ hj₂; specialize hA; have := hA.2.2 j hj₁ ( by linarith ) ; rw [ Int.lt_ediv_iff_mul_lt ] <;> norm_num [ hp.pos ] ; aesop;
+      · intro j hj₁ hj₂; specialize hA; have := hA.2.2 j hj₁ ( by linarith ) ; rw [ Int.lt_ediv_iff_mul_lt ] <;> norm_num [ hp.pos ]
+        · aesop
         have h_div : padicValNat p (A j).toNat ≥ 1 := by
           grind
         generalize_proofs at *;
@@ -858,7 +862,9 @@ lemma lemma_abstract_coeff_congruence (p m : ℕ) (A : ℕ → ℤ) (c : ℕ →
         convert Int.natCast_dvd.mpr ( Nat.dvd_of_mod_eq_zero _ ) using 1;
         rw [ ← Nat.dvd_iff_mod_eq_zero ];
         contrapose! this; simp_all +decide
-        cases h : A j <;> simp_all +decide [ padicValNat.eq_zero_of_not_dvd ] ; omega;
+        cases h : A j <;> simp_all +decide [ padicValNat.eq_zero_of_not_dvd ]
+        focus
+          omega
         exact ne_of_lt ( Nat.sub_pos_of_lt ( lt_of_le_of_lt hj.2 ( Nat.pred_lt ( ne_bot_of_gt hm ) ) ) );
       -- Since $A_m$ is not divisible by $p$, we can cancel $A_m$ to get $c_m \equiv p-1 \pmod p$.
       have hA_m_not_div_p : ¬(p : ℤ) ∣ A m := by
@@ -970,8 +976,9 @@ lemma lemma_binom_is_super_sequence (n p : ℕ)
         intros j hj
         have h_val : padicValNat p (Nat.choose n (p ^ j)) = n.factorization p - j := by
           have h_val : padicValNat p n ≥ j := by
-            rw [ ← Nat.factorization_def ] ; aesop;
-            exact hp.1;
+            rw [ ← Nat.factorization_def ]
+            · aesop
+            · exact hp.1
           convert lemma1_equality n j p hp.1 ( Finset.mem_Icc.mp hj |>.1 ) h_val using 1;
           rw [ Nat.factorization_def ] ; aesop;
         exact h_val;
@@ -1212,26 +1219,32 @@ lemma lemma_super_sequence_representation_induction_step (p m : ℕ) (A : ℕ �
                -- By combining the results from the induction hypothesis and the definition of y, we can conclude the proof.
                have h_combined : x ≡ c_m * A m + p * (∑ j ∈ Finset.Icc 1 (m - 1), c' j * (A j / p)) [ZMOD p ^ m] := by
                  have h_combined : x - c_m * A m ≡ p * (∑ j ∈ Finset.Icc 1 (m - 1), c' j * (A j / p)) [ZMOD p ^ m] := by
-                   rw [ Int.modEq_iff_dvd ] at *;
-                   convert mul_dvd_mul_left ( p : ℤ ) hc'.2 using 1 ; ring_nf;
-                   · rw [ ← pow_succ', Nat.sub_add_cancel ( by linarith ) ];
-                   · rw [ mul_sub, Int.mul_ediv_cancel' hc_m.2.2 ]
+                  rw [ Int.modEq_iff_dvd ] at *;
+                  convert mul_dvd_mul_left ( p : ℤ ) hc'.2 using 1
+                  · ring_nf
+                    rw [ ← pow_succ', Nat.sub_add_cancel ( by linarith ) ]
+                  · ring_nf
+                    dsimp [y]
+                    rw [ Int.mul_ediv_cancel' hc_m.2.2 ]
+                    ring
                  generalize_proofs at *; (
                  simpa using h_combined.add_left ( c_m * A m ) |> Int.ModEq.trans <| by ring_nf; norm_num;)
                generalize_proofs at *; (
-               refine ⟨ ?_, ?_ ⟩
-               generalize_proofs at *; (
-               grind);
-               convert h_combined using 1 ; simp +decide [ Finset.sum_ite, Finset.filter_ne', Finset.filter_eq', Finset.mul_sum _ _ _, mul_left_comm, ] ; ring_nf;
-               rw [ if_pos ( by linarith ) ] ; simp +decide [ mul_comm, mul_left_comm ] ;
-               refine Finset.sum_bij ( fun x hx => x ) ?_ ?_ ?_ ?_ <;> simp +decide
-               · exact fun b hb₁ hb₂ => ⟨ ⟨ hb₁, lt_of_le_of_lt hb₂ ( Nat.pred_lt ( ne_bot_of_gt hm ) ) ⟩, hb₁, hb₂ ⟩;
-               · intro a ha₁ ha₂ ha₃ ha₄; rw [ Int.mul_ediv_cancel' ] ; ring; exact ( by have := hA.1 a ( Finset.mem_Icc.mpr ⟨ by linarith, by linarith ⟩ ) ; exact ( by
-                   have h_div : p ^ (m - a) ∣ Int.toNat (A a) := by
-                     rw [ ← this ] ; exact pow_padicValNat_dvd;
-                   generalize_proofs at *; (
-                   rw [ ← Int.natCast_dvd_natCast ] at *; simp_all +decide [ Int.toNat_of_nonneg ( show 0 ≤ A a from hA.2.2 a ( Finset.mem_Icc.mpr ⟨ by linarith, by linarith ⟩ ) |> le_of_lt ) ] ;
-                   exact dvd_trans ( dvd_pow_self _ ( Nat.sub_ne_zero_of_lt ha₂ ) ) h_div) ) ) ;)))
+              refine ⟨ ?_, ?_ ⟩
+              · generalize_proofs at *
+                grind
+              · convert h_combined using 1 ; simp +decide [ Finset.sum_ite, Finset.filter_ne', Finset.filter_eq', Finset.mul_sum _ _ _, mul_left_comm, ] ; ring_nf;
+                rw [ if_pos ( by linarith ) ] ; simp +decide [ mul_comm, mul_left_comm ] ;
+                refine Finset.sum_bij ( fun x hx => x ) ?_ ?_ ?_ ?_ <;> simp +decide
+                · exact fun b hb₁ hb₂ => ⟨ ⟨ hb₁, lt_of_le_of_lt hb₂ ( Nat.pred_lt ( ne_bot_of_gt hm ) ) ⟩, hb₁, hb₂ ⟩;
+                · intro a ha₁ ha₂ ha₃ ha₄; rw [ Int.mul_ediv_cancel' ]
+                  · ring
+                  · exact ( by have := hA.1 a ( Finset.mem_Icc.mpr ⟨ by linarith, by linarith ⟩ ) ; exact ( by
+                     have h_div : p ^ (m - a) ∣ Int.toNat (A a) := by
+                       rw [ ← this ] ; exact pow_padicValNat_dvd;
+                     generalize_proofs at *; (
+                     rw [ ← Int.natCast_dvd_natCast ] at *; simp_all +decide [ Int.toNat_of_nonneg ( show 0 ≤ A a from hA.2.2 a ( Finset.mem_Icc.mpr ⟨ by linarith, by linarith ⟩ ) |> le_of_lt ) ] ;
+                     exact dvd_trans ( dvd_pow_self _ ( Nat.sub_ne_zero_of_lt ha₂ ) ) h_div) ) ) ;)))
 
 /-
 For any SuperSequence A of length m and any integer x, there exist coefficients c_j in [0, p-1] such that the linear combination matches x modulo p^m.
@@ -1292,8 +1305,9 @@ lemma lemma_cross_term_vanishes (n : ℕ) (p q : ℕ) (j : ℕ)
         have h_congr_zero : p ^ (Nat.factorization (Nat.choose n (q ^ j)) p) ∣ Nat.choose n (q ^ j) := by
           exact Nat.ordProj_dvd _ _;
         convert Nat.dvd_trans ( pow_dvd_pow _ _ ) h_congr_zero;
-        rw [ Nat.factorization_def ] ; aesop;
-        exact Nat.prime_of_mem_primeFactors hp;
+        rw [ Nat.factorization_def ]
+        · aesop
+        · exact Nat.prime_of_mem_primeFactors hp
       convert Int.modEq_zero_iff_dvd.mpr ( Int.natCast_dvd_natCast.mpr h_div ) using 1;
       norm_num [ Nat.factorization ] at * ; aesop ( simp_config := { singlePass := true } ) ;
 
@@ -1313,7 +1327,9 @@ lemma lemma_total_sum_congruence (n : ℕ) (c : ℕ → ℕ → ℤ) (p : ℕ) (
       have h_split_sum : ∑ q ∈ n.primeFactors \ {p}, ∑ j ∈ Finset.Icc 1 (n.factorization q), c q j * (Nat.choose n (q ^ j) : ℤ) ≡ 0 [ZMOD p ^ (n.factorization p)] := by
         exact Int.modEq_zero_iff_dvd.mpr <| Finset.dvd_sum fun q hq => Finset.dvd_sum fun j hj => dvd_mul_of_dvd_right ( Int.dvd_of_emod_eq_zero <| h_cross_term_vanishes q ( Nat.prime_of_mem_primeFactors <| Finset.mem_sdiff.mp hq |>.1 ) ( Nat.dvd_of_mem_primeFactors <| Finset.mem_sdiff.mp hq |>.1 ) ( by aesop ) j ( Finset.mem_Icc.mp hj |>.1 ) ( Finset.mem_Icc.mp hj |>.2 ) ) _;
       generalize_proofs at *; (
-      convert h_split_sum.add_left ( ∑ j ∈ Finset.Icc 1 ( n.factorization p ), c p j * ( n.choose ( p ^ j ) : ℤ ) ) using 1 ; rw [ Finset.sum_eq_add_sum_diff_singleton p ( fun q => ∑ j ∈ Finset.Icc 1 ( n.factorization q ), c q j * ( n.choose ( q ^ j ) : ℤ ) ) ( by intro hp_not; exact False.elim ( hp_not ( show p ∈ n.primeFactors from by aesop ) ) ) ] ; ring;))
+      convert h_split_sum.add_left ( ∑ j ∈ Finset.Icc 1 ( n.factorization p ), c p j * ( n.choose ( p ^ j ) : ℤ ) ) using 1
+      · rw [ Finset.sum_eq_add_sum_diff_singleton p ( fun q => ∑ j ∈ Finset.Icc 1 ( n.factorization q ), c q j * ( n.choose ( q ^ j ) : ℤ ) ) ( by intro hp_not; exact False.elim ( hp_not ( show p ∈ n.primeFactors from by aesop ) ) ) ]
+      · ring))
 
 /-
 If A is congruent to x modulo each prime power factor of n (where n is non-zero), then A is congruent to x modulo n.
@@ -1575,8 +1591,9 @@ lemma lemma_super_sequence_valuation_implication (p m : ℕ) (A : ℕ → ℤ) (
           exact Finset.dvd_sum fun i hi => by rw [ h_div i hi ] ; norm_num;
         convert h_div using 1;
         erw [ Finset.sum_Ico_eq_sub _ _, Finset.sum_Ico_eq_sub _ _ ] <;> norm_num;
-        erw [ Finset.sum_Ico_eq_sub _ _ ] <;> norm_num [ Finset.sum_range_succ ] ; ring_nf;
-        · cases j_max <;> simp_all +decide [ Finset.sum_range_succ ] ; ring;
+        erw [ Finset.sum_Ico_eq_sub _ _ ] <;> norm_num [ Finset.sum_range_succ ]
+        · ring_nf
+          cases j_max <;> simp_all +decide [ Finset.sum_range_succ ] ; ring;
         · exact Finset.mem_Icc.mp ( Finset.mem_filter.mp hj_max.1 |>.1 ) |>.2;
       -- We apply `lemma_coeff_vanishes_of_valuation_bound` with $v = m-j_{max}$, $A = A_{j_{max}}$, $c = c_{j_{max}}$, $S_{higher} = S_{prev}$.
       have h_coeff_vanishes : c j_max = 0 := by
@@ -1600,8 +1617,10 @@ lemma lemma_valuation_binom_lower_bound (n m p : ℕ)
         have h_identity : m * Nat.choose n m = n * Nat.choose (n - 1) (m - 1) := by
           cases n <;> cases m <;> simp_all +decide [ Nat.add_one_mul_choose_eq ];
           ring;
-        haveI := Fact.mk hp; rw [ h_identity, padicValNat.mul ] ; aesop;
-        exact ne_of_gt <| Nat.choose_pos <| by omega;
+        haveI := Fact.mk hp
+        rw [ h_identity, padicValNat.mul ]
+        · aesop
+        · exact ne_of_gt <| Nat.choose_pos <| by omega
       have h_identity : padicValNat p (m * Nat.choose n m) = padicValNat p m + padicValNat p (Nat.choose n m) := by
         haveI := Fact.mk hp; rw [ padicValNat.mul ( by positivity ) ( Nat.ne_of_gt ( Nat.choose_pos hn ) ) ] ;
       grind
@@ -1616,7 +1635,8 @@ lemma lemma_sum_super_sequence_bound (n p k : ℕ)
     ∑ j ∈ Finset.Icc 1 k, (p - 1) * (Nat.choose n (p ^ j) : ℤ) < p * (Nat.choose n (p ^ k) : ℤ) := by
       -- Apply the super-increasing property repeatedly.
       have h_super_increasing : ∀ j ∈ Finset.Icc 1 (k - 1), (Nat.choose n (p ^ (j + 1)) : ℤ) > (p - 1) * (∑ l ∈ Finset.Icc 1 j, (Nat.choose n (p ^ l) : ℤ)) := by
-        intro j hj; apply lemma_super_increasing; aesop;
+        intro j hj; apply lemma_super_increasing
+        · aesop
         · linarith [ Finset.mem_Icc.mp hj ];
         · exact lt_of_le_of_lt ( Finset.mem_Icc.mp hj |>.2 ) ( Nat.lt_of_lt_of_le ( Nat.pred_lt ( ne_bot_of_gt hk ) ) hk_le );
         · grind;
@@ -1708,7 +1728,7 @@ lemma lemma_sum_le_min_term_case1 (n p e f : ℕ) (c : ℕ → ℤ)
         rw [ ← Finset.sum_subset ( Finset.Icc_subset_Icc_right hf_le ) fun x hx₁ hx₂ => by aesop ];
       convert lemma_local_canonical_bound n p f _ _ _ _ _ using 1;
       rotate_left;
-      use fun j => if j ∈ Finset.Icc 1 f then c j else 0;
+      · use fun j => if j ∈ Finset.Icc 1 f then c j else 0;
       · assumption;
       · linarith;
       · linarith;
@@ -1804,7 +1824,8 @@ lemma lemma_global_canonical_bound (n m : ℕ) (c : ℕ → ℕ → ℤ)
       -- The terms where $p \in m$ contribute to both the canonical sum and the decomposition sum. We can apply `lemma_term_wise_bound_v3` to each of these terms.
       have h_sum_nonzero : ∑ p ∈ n.factorization.support ∩ m.factorization.support, ∑ j ∈ Finset.Icc 1 (n.factorization p), (c p j : ℤ) * (Nat.choose n (p ^ j) : ℤ) ≤ ∑ p ∈ m.factorization.support, (p ^ (m.factorization p) : ℤ) * (Nat.choose n (p ^ (m.factorization p)) : ℤ) := by
         have h_sum_nonzero : ∀ p ∈ n.factorization.support ∩ m.factorization.support, ∑ j ∈ Finset.Icc 1 (n.factorization p), (c p j : ℤ) * (Nat.choose n (p ^ j) : ℤ) ≤ (p ^ (m.factorization p) : ℤ) * (Nat.choose n (p ^ (m.factorization p)) : ℤ) := by
-          intros p hp_mem; apply_rules [ lemma_term_wise_bound ] ; aesop;
+          intros p hp_mem; apply_rules [ lemma_term_wise_bound ]
+          · aesop
           · aesop;
           · exact Finset.mem_of_mem_inter_left hp_mem;
           · grind;
@@ -1990,10 +2011,11 @@ lemma lemma_binom_prime_pow_lower_bound (n p k : ℕ)
               exact ⟨ Nat.Prime.two_le ( Nat.prime_of_mem_primeFactors hp ), Nat.le_self_pow ( by linarith [ Nat.pos_of_ne_zero ( show n.factorization p ≠ 0 from Finsupp.mem_support_iff.mp hp ) ] ) _, le_trans ( pow_le_pow_right₀ ( Nat.Prime.pos ( Nat.prime_of_mem_primeFactors hp ) ) ( by linarith ) ) hk_le_half ⟩ ;
             generalize_proofs at *; (
             grind)
-          have := @lemma2 n p ( p ^ n.factorization p ) ?_ ?_ ?_ ?_ <;> norm_cast at * ; aesop
-          generalize_proofs at *; (
-          grind);
-          grind
+          have := @lemma2 n p ( p ^ n.factorization p ) ?_ ?_ ?_ ?_ <;> norm_cast at *
+          · aesop
+          · generalize_proofs at *
+            grind
+          · grind
         generalize_proofs at *; (
         simpa only [ pow_succ' ] using h_lemma2)
       generalize_proofs at *; (
@@ -2278,10 +2300,10 @@ lemma lemma_local_sum_ge_target_explicit (n : ℕ) (c : ℕ → ℕ → ℤ) (p 
         apply_rules [ lemma_binom_is_super_sequence ];
       convert lemma_super_sequence_induction _ _ _ _ _ _ _ _ using 1;
       rotate_left;
-      exact p;
-      exact n.factorization p;
-      exact fun j => A j;
-      exact fun j => if j ∈ Finset.Icc 1 ( n.factorization p ) then c p j else 0;
+      · exact p;
+      · exact n.factorization p;
+      · exact fun j => A j;
+      · exact fun j => if j ∈ Finset.Icc 1 ( n.factorization p ) then c p j else 0;
       · exact Nat.prime_of_mem_primeFactors hp;
       · exact Nat.pos_of_ne_zero ( Finsupp.mem_support_iff.mp hp );
       · exact h_super_sequence_induction;
@@ -2320,8 +2342,9 @@ lemma lemma_pps_lower_bound (n : ℕ) (y : ℤ)
       -- By summing the inequalities from `h_local_ge_target` over all primes $p$ in the support of $n$, we obtain $y \ge S_{max}(n)$.
       have h_sum_ge_target : ∑ p ∈ n.factorization.support, ∑ j ∈ Finset.Icc 1 (n.factorization p), c p j * (Nat.choose n (p ^ j) : ℤ) ≥ ∑ p ∈ n.factorization.support, ∑ j ∈ Finset.Icc 1 (n.factorization p), (p - 1) * (Nat.choose n (p ^ j) : ℤ) := by
         exact Finset.sum_le_sum h_local_ge_target;
-      convert h_sum_ge_target using 1 ; aesop;
-      exact lemma_S_max_def n
+      convert h_sum_ge_target using 1
+      · aesop
+      · exact lemma_S_max_def n
 
 /-
 The target integer is not representable.
