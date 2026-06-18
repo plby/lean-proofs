@@ -31,7 +31,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.longLine false
-set_option linter.style.multiGoal false
 
 /-! ### From Defs.lean -/
 
@@ -133,10 +132,15 @@ theorem closed_curve_length_ge_two_diam {E : Type*} [PseudoEMetricSpace E]
       by_cases hxy : x ≤ y;
       · -- By the properties of the variation, we have:
         have h_var : eVariationOn γ (Set.Icc a b) ≥ eVariationOn γ (Set.Icc a x) + eVariationOn γ (Set.Icc x y) + eVariationOn γ (Set.Icc y b) := by
-          rw [ ← eVariationOn.union, ← eVariationOn.union ];
-          refine eVariationOn.mono _ ?_;
-          grind +splitImp;
-          exacts [ y, ⟨ Or.inr ⟨ by linarith [ hx.1, hx.2, hy.1, hy.2 ], by linarith [ hx.1, hx.2, hy.1, hy.2 ] ⟩, fun z hz => by cases hz <;> linarith [ Set.mem_Icc.mp ‹_› ] ⟩, ⟨ by constructor <;> linarith [ hx.1, hx.2, hy.1, hy.2 ], fun z hz => by linarith [ Set.mem_Icc.mp hz ] ⟩, x, ⟨ by constructor <;> linarith [ hx.1, hx.2, hy.1, hy.2 ], fun z hz => by linarith [ Set.mem_Icc.mp hz ] ⟩, ⟨ by constructor <;> linarith [ hx.1, hx.2, hy.1, hy.2 ], fun z hz => by linarith [ Set.mem_Icc.mp hz ] ⟩ ];
+          rw [ ← eVariationOn.union, ← eVariationOn.union ]
+          · refine eVariationOn.mono _ ?_
+            grind +splitImp
+          · exact y
+          · exact ⟨ Or.inr ⟨ by linarith [ hx.1, hx.2, hy.1, hy.2 ], by linarith [ hx.1, hx.2, hy.1, hy.2 ] ⟩, fun z hz => by cases hz <;> linarith [ Set.mem_Icc.mp ‹_› ] ⟩
+          · exact ⟨ by constructor <;> linarith [ hx.1, hx.2, hy.1, hy.2 ], fun z hz => by linarith [ Set.mem_Icc.mp hz ] ⟩
+          · exact x
+          · exact ⟨ by constructor <;> linarith [ hx.1, hx.2, hy.1, hy.2 ], fun z hz => by linarith [ Set.mem_Icc.mp hz ] ⟩
+          · exact ⟨ by constructor <;> linarith [ hx.1, hx.2, hy.1, hy.2 ], fun z hz => by linarith [ Set.mem_Icc.mp hz ] ⟩
         -- By the properties of the variation, we have $eVariationOn γ (Icc a x) ≥ edist (γ a) (γ x)$ and $eVariationOn γ (Icc y b) ≥ edist (γ y) (γ b)$.
         have h_var_ax : eVariationOn γ (Set.Icc a x) ≥ edist (γ a) (γ x) := by
           apply_rules [ eVariationOn.edist_le ];
@@ -269,7 +273,7 @@ theorem diam_closure_eq_diam_frontier {E : Type*} [NormedAddCommGroup E]
         · refine le_trans (b := dist a b) ?_ ( Metric.dist_le_diam_of_mem
             (s := closure U ∩ closure Uᶜ)
             (hU_bdd.closure.subset Set.inter_subset_left) ?_ ?_ );
-          exact le_rfl;
+          · exact le_rfl
           · exact ⟨ ha, subset_closure ( by aesop ) ⟩;
           · exact ⟨ hb, subset_closure ( by simpa using hbU ) ⟩;
         · refine le_trans (b := diam (closure U))
@@ -450,7 +454,13 @@ theorem component_contains_root (f : Polynomial ℂ) (hf : f.Monic)
       have h_nonzero : ∀ z ∈ closure U, f.eval z ≠ 0 := by
         apply_rules [ eval_ne_zero_on_closure ];
         · aesop;
-        · apply frontier_maximal_component_sub_compl; exact omegaSet_isOpen f; exact hU; exact hU_open; exact hU_sub; exact hU_ne; exact hU_max;
+        · apply frontier_maximal_component_sub_compl
+          · exact omegaSet_isOpen f
+          · exact hU
+          · exact hU_open
+          · exact hU_sub
+          · exact hU_ne
+          · exact hU_max
       -- By the maximum modulus principle, ‖(f(z))⁻¹‖ ≤ 1 on closure U.
       have h_max_modulus : ∀ z ∈ closure U, ‖(f.eval z)⁻¹‖ ≤ 1 := by
         apply_rules [ Complex.norm_le_of_forall_mem_frontier_norm_le ];
@@ -460,8 +470,8 @@ theorem component_contains_root (f : Polynomial ℂ) (hf : f.Monic)
           have hz_frontier : z ∈ frontier U := hz
           have hz_norm : 1 ≤ ‖f.eval z‖ := by
             apply norm_eval_ge_one_of_frontier;
-            exact frontier_maximal_component_sub_compl ( omegaSet_isOpen f ) hU hU_open hU_sub hU_ne hU_max;
-            exact hz_frontier
+            · exact frontier_maximal_component_sub_compl ( omegaSet_isOpen f ) hU hU_open hU_sub hU_ne hU_max
+            · exact hz_frontier
           simp;
           exact inv_le_one_of_one_le₀ hz_norm;
       simp +zetaDelta at *;
@@ -900,7 +910,7 @@ lemma norm_eval_eq_one_on_frontier (f : Polynomial ℂ) (_hf : IsAdmissible f)
         rw [ mem_closure_iff_seq_limit ] at hw_closure;
         obtain ⟨ x, hx₁, hx₂ ⟩ := hw_closure; exact le_of_tendsto' ( Filter.Tendsto.norm ( f.continuous.continuousAt.tendsto.comp hx₂ ) ) fun n => le_of_lt <| by simpa using ( show ‖f.eval ( x n )‖ < 1 from by simpa using ( show x n ∈ OmegaSet f from by exact connectedComponentIn_subset _ _ <| hx₁ n ) ) ;
       · apply_rules [ norm_eval_ge_one_of_frontier, frontier_maximal_component_sub_compl ];
-        exact omegaSet_isOpen f
+        · exact omegaSet_isOpen f
         · exact isPreconnected_connectedComponentIn;
         · exact IsOpen.connectedComponentIn ( omegaSet_isOpen f );
         · exact connectedComponentIn_subset _ _;
@@ -978,9 +988,9 @@ lemma mem_connectedComponentIn_of_mem_closure_inter {S : Set ℂ} (_hS : IsOpen 
         exact isClosed_connectedComponent;
       convert h_closed.closure_subset_iff.mpr _ _;
       rotate_left;
-      exact connectedComponent ⟨ z₀, hz₀ ⟩;
-      exact Set.Subset.rfl;
-      exact ⟨ z, hz_S ⟩;
+      · exact connectedComponent ⟨ z₀, hz₀ ⟩;
+      · exact Set.Subset.rfl;
+      · exact ⟨ z, hz_S ⟩;
       · grind +suggestions;
       · grind
 
@@ -2142,8 +2152,9 @@ lemma lemniscate_arc_integral_eq (n : ℕ) (hn : n ≥ 1) :
     rw [ intervalIntegral.integral_const_mul, intervalIntegral.integral_comp_mul_left fun x => ( 2 * Real.cos x ) ^ ( 1 / ( n : ℝ ) - 1 ) ] <;> norm_num [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm, ne_of_gt ( zero_lt_one.trans_le hn ) ];
   have h_integral_symm : ∫ u in (-(Real.pi / 2))..(Real.pi / 2), (2 * Real.cos u) ^ ((1 / n : ℝ) - 1) = 2 * ∫ u in (0 : ℝ)..(Real.pi / 2), (2 * Real.cos u) ^ ((1 / n : ℝ) - 1) := by
     rw [ two_mul, ← intervalIntegral.integral_add_adjacent_intervals ];
-    rw [ ← intervalIntegral.integral_comp_neg, neg_zero ];
-    · norm_num;
+    focus
+      rw [ ← intervalIntegral.integral_comp_neg, neg_zero ];
+      · norm_num
     · rw [ intervalIntegrable_iff_integrableOn_Ioo_of_le ];
       · have h_integrable : MeasureTheory.IntegrableOn (fun u => (Real.cos u) ^ ((1 / n : ℝ) - 1)) (Set.Ioo 0 (Real.pi / 2)) := by
           have h_integrable : MeasureTheory.IntegrableOn (fun u => (Real.sin u) ^ ((1 / n : ℝ) - 1)) (Set.Ioo 0 (Real.pi / 2)) := by
@@ -2169,8 +2180,9 @@ lemma lemniscate_arc_integral_eq (n : ℕ) (hn : n ≥ 1) :
           have h_integrable : MeasureTheory.IntegrableOn (fun u => 2 ^ ((1 / n : ℝ) - 1) * (Real.cos u) ^ ((1 / n : ℝ) - 1)) (Set.Ioo 0 (Real.pi / 2)) := by
             exact h_integrable.const_mul _;
           exact h_integrable.congr_fun ( fun x hx => by rw [ Real.mul_rpow ( by positivity ) ( Real.cos_nonneg_of_mem_Icc ⟨ by linarith [ Real.pi_pos, hx.1 ], by linarith [ Real.pi_pos, hx.2 ] ⟩ ) ] ) measurableSet_Ioo;
-        convert h_integrable.comp_neg using 1 ; norm_num;
-        norm_num [ Set.ext_iff ];
+        convert h_integrable.comp_neg using 1
+        · norm_num
+        · norm_num [ Set.ext_iff ]
       · linarith [ Real.pi_pos ];
     · rw [ intervalIntegrable_iff_integrableOn_Ioo_of_le ];
       · refine MeasureTheory.Integrable.mono'
@@ -2299,8 +2311,9 @@ lemma petal_deriv_continuousOn_interior (n : ℕ) (hn : n ≥ 1) :
       (Ioo (-(Real.pi / (2 * ↑n))) (Real.pi / (2 * ↑n))) := by
         have h_cont_deriv : ContinuousOn (fun θ => deriv (fun θ => ((2 * Real.cos (n * θ)) ^ ((1 : ℝ) / n) : ℝ) * Complex.exp (θ * Complex.I)) θ) (Ioo (-(Real.pi / (2 * n))) (Real.pi / (2 * n))) := by
           have h_cont_deriv : ∀ θ ∈ Ioo (-(Real.pi / (2 * n))) (Real.pi / (2 * n)), deriv (fun θ => ((2 * Real.cos (n * θ)) ^ ((1 : ℝ) / n) : ℝ) * Complex.exp (θ * Complex.I)) θ = (deriv (fun θ => ((2 * Real.cos (n * θ)) ^ ((1 : ℝ) / n) : ℝ)) θ) * Complex.exp (θ * Complex.I) + ((2 * Real.cos (n * θ)) ^ ((1 : ℝ) / n) : ℝ) * Complex.exp (θ * Complex.I) * Complex.I := by
-            intro θ hθ; convert HasDerivAt.deriv ( HasDerivAt.mul ( HasDerivAt.ofReal_comp ( hasDerivAt_deriv_iff.mpr ?_ ) ) ( HasDerivAt.comp θ ( Complex.hasDerivAt_exp _ ) ( HasDerivAt.mul ( hasDerivAt_id _ |> HasDerivAt.ofReal_comp ) <| hasDerivAt_const _ _ ) ) ) using 1 <;> norm_num ; ring;
-            exact DifferentiableAt.rpow ( DifferentiableAt.mul ( differentiableAt_const _ ) ( Real.differentiableAt_cos.comp _ ( differentiableAt_id.const_mul _ ) ) ) ( by norm_num ) ( by exact ne_of_gt ( mul_pos zero_lt_two ( Real.cos_pos_of_mem_Ioo ⟨ by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ Real.pi ( by positivity : ( 2 * n : ℝ ) ≠ 0 ), hθ.1 ], by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ Real.pi ( by positivity : ( 2 * n : ℝ ) ≠ 0 ), hθ.2 ] ⟩ ) ) );
+            intro θ hθ; convert HasDerivAt.deriv ( HasDerivAt.mul ( HasDerivAt.ofReal_comp ( hasDerivAt_deriv_iff.mpr ?_ ) ) ( HasDerivAt.comp θ ( Complex.hasDerivAt_exp _ ) ( HasDerivAt.mul ( hasDerivAt_id _ |> HasDerivAt.ofReal_comp ) <| hasDerivAt_const _ _ ) ) ) using 1 <;> norm_num
+            · ring
+            · exact DifferentiableAt.rpow ( DifferentiableAt.mul ( differentiableAt_const _ ) ( Real.differentiableAt_cos.comp _ ( differentiableAt_id.const_mul _ ) ) ) ( by norm_num ) ( by exact ne_of_gt ( mul_pos zero_lt_two ( Real.cos_pos_of_mem_Ioo ⟨ by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ Real.pi ( by positivity : ( 2 * n : ℝ ) ≠ 0 ), hθ.1 ], by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ Real.pi ( by positivity : ( 2 * n : ℝ ) ≠ 0 ), hθ.2 ] ⟩ ) ) );
           refine ContinuousOn.congr ?_ h_cont_deriv;
           refine ContinuousOn.add ?_ ?_;
           · refine ContinuousOn.mul ?_ ?_;
@@ -2439,7 +2452,8 @@ lemma petal_integral_limit (n : ℕ) (hn : n ≥ 1) :
               rw [ intervalIntegral.integral_undef hr ] ; norm_num;
             have h_cont : ContinuousOn (fun ε => ∫ t in (-(Real.pi / (2 * n)) + ε)..(Real.pi / (2 * n) - ε), ‖deriv (lemniscatePetalCurve n) t‖) (Set.Icc 0 (Real.pi / (2 * n))) := by
               have h_cont : ContinuousOn (fun ε => ∫ t in (-(Real.pi / (2 * n)))..ε, ‖deriv (lemniscatePetalCurve n) t‖) (Set.Icc (-(Real.pi / (2 * n))) (Real.pi / (2 * n))) := by
-                intro ε hε; apply_rules [ intervalIntegral.continuousWithinAt_primitive, h_integrable ] ; aesop;
+                intro ε hε; apply_rules [ intervalIntegral.continuousWithinAt_primitive, h_integrable ]
+                · aesop
                 cases max_cases ( - ( Real.pi / ( 2 * n ) ) ) ( Real.pi / ( 2 * n ) ) <;> aesop;
               have h_cont : ContinuousOn (fun ε => (∫ t in (-(Real.pi / (2 * n)))..(Real.pi / (2 * n) - ε), ‖deriv (lemniscatePetalCurve n) t‖) - (∫ t in (-(Real.pi / (2 * n)))..(-(Real.pi / (2 * n)) + ε), ‖deriv (lemniscatePetalCurve n) t‖)) (Set.Icc 0 (Real.pi / (2 * n))) := by
                 exact ContinuousOn.sub ( h_cont.comp ( continuousOn_const.sub continuousOn_id ) fun x hx => ⟨ by linarith [ hx.1, hx.2, Real.pi_pos, show ( Real.pi : ℝ ) / ( 2 * n ) ≥ 0 by positivity ], by linarith [ hx.1, hx.2, Real.pi_pos, show ( Real.pi : ℝ ) / ( 2 * n ) ≥ 0 by positivity ] ⟩ ) ( h_cont.comp ( continuousOn_const.add continuousOn_id ) fun x hx => ⟨ by linarith [ hx.1, hx.2, Real.pi_pos, show ( Real.pi : ℝ ) / ( 2 * n ) ≥ 0 by positivity ], by linarith [ hx.1, hx.2, Real.pi_pos, show ( Real.pi : ℝ ) / ( 2 * n ) ≥ 0 by positivity ] ⟩ );
@@ -3028,11 +3042,11 @@ lemma phi_not_const_or_all_roots_zero
           exact hST ▸ Polynomial.mem_roots ( show f ≠ 0 from by aesop_cat ) |>.2 hz_root
         obtain hz_in_S | hz_in_T : z ∈ S ∨ z ∈ T := by
           aesop
-        by_cases hz_ne_zero : z ≠ 0
-        generalize_proofs at *;
-        · have := hc ( 1 / starRingEnd ℂ z ) ; simp_all +decide [ div_eq_mul_inv, mul_comm ] ;
-          rw [ Multiset.prod_eq_zero ( Multiset.mem_map.mpr ⟨ z, hz_in_S, ?_ ⟩ ) ] at this <;> simp_all +decide [ mul_comm ];
-        · exact Classical.not_not.mp hz_ne_zero;
+        · by_cases hz_ne_zero : z ≠ 0
+          · generalize_proofs at *
+            have := hc ( 1 / starRingEnd ℂ z ) ; simp_all +decide [ div_eq_mul_inv, mul_comm ] ;
+            rw [ Multiset.prod_eq_zero ( Multiset.mem_map.mpr ⟨ z, hz_in_S, ?_ ⟩ ) ] at this <;> simp_all +decide [ mul_comm ];
+          · exact Classical.not_not.mp hz_ne_zero
         · contrapose! hc_zero; have := hc z; simp_all +decide  ;
           exact hc z ▸ mul_eq_zero_of_right _ ( Multiset.prod_eq_zero ( by aesop ) )
 
@@ -3186,7 +3200,8 @@ theorem lambdaInf_le_two : lambdaInf ≤ 2 := by
     have h_gamma_approx : Filter.Tendsto (fun n : ℕ => Real.Gamma (1 / 2) * Real.Gamma (1 / (2 * (n : ℝ))) / Real.Gamma (1 / 2 + 1 / (2 * (n : ℝ))) * (1 / (2 * (n : ℝ)))) Filter.atTop (nhds (Real.Gamma (1 / 2) * 1 / Real.Gamma (1 / 2))) := by
       convert Filter.Tendsto.div ( h_gamma_approx.const_mul ( Real.Gamma ( 1 / 2 ) ) ) ( Filter.Tendsto.comp ( Real.differentiableAt_Gamma ?_ |> DifferentiableAt.continuousAt ) ( tendsto_const_nhds.add ( tendsto_one_div_atTop_nhds_zero_nat.mul_const _ ) ) ) _ using 2 <;> norm_num;
       exacts [ by rw [ div_mul_eq_mul_div, mul_assoc ], rfl, fun m => by linarith, by positivity ];
-    convert h_gamma_approx.mul ( show Filter.Tendsto ( fun n : ℕ => ( 2 : ℝ ) ^ ( 1 / ( n : ℝ ) ) * 2 ) Filter.atTop ( nhds 2 ) from ?_ ) using 2 <;> norm_num [ betaFn ] ; ring;
+    convert h_gamma_approx.mul ( show Filter.Tendsto ( fun n : ℕ => ( 2 : ℝ ) ^ ( 1 / ( n : ℝ ) ) * 2 ) Filter.atTop ( nhds 2 ) from ?_ ) using 2 <;> norm_num [ betaFn ]
+    · ring
     · positivity;
     · simpa using Filter.Tendsto.mul ( tendsto_const_nhds.rpow tendsto_inv_atTop_nhds_zero_nat ( by norm_num ) ) tendsto_const_nhds;
   refine le_of_tendsto_of_tendsto tendsto_const_nhds h_lim ?_;
