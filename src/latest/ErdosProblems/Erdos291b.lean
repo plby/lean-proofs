@@ -45,7 +45,6 @@ namespace Erdos291b
 
 set_option linter.style.setOption false
 set_option linter.style.longLine false
-set_option linter.style.multiGoal false
 set_option linter.flexible false
 
 open scoped BigOperators
@@ -263,7 +262,9 @@ theorem bla (p : ProblemParameters) (w : ℕ) (hw : w ∈ J1' p) (k : ℕ) (hk :
       -- Thus $|S| = \frac{|N|}{L_{local}} \ge \frac{1}{L_{local}}$.
       have hS_abs : |∑ i ∈ Finset.Ioc w (w + k), (p.r i : ℚ) / i| ≥ 1 / Llocal := by
         rw [ hN, abs_div ];
-        gcongr ; norm_cast;
+        gcongr
+        focus
+          norm_cast
         · exact Nat.pos_of_ne_zero ( mt Finset.lcm_eq_zero_iff.mp ( by aesop ) );
         · norm_cast;
         · norm_num [ abs_of_nonneg ];
@@ -274,7 +275,9 @@ theorem bla (p : ProblemParameters) (w : ℕ) (hw : w ∈ J1' p) (k : ℕ) (hk :
       have h_prod_le : ∏ i ∈ Finset.Ioc w (w + k), i ≤ (w + k)^k := by
         exact le_trans ( Finset.prod_le_prod' fun _ _ => show _ ≤ w + k from by linarith [ Finset.mem_Ioc.mp ‹_› ] ) ( by norm_num );
       refine le_trans ?_ hS_abs;
-      gcongr ; norm_cast;
+      gcongr
+      focus
+        norm_cast
       · exact Nat.pos_of_dvd_of_pos hLlocal_div ( Finset.prod_pos fun i hi => by linarith [ Finset.mem_Ioc.mp hi ] );
       · exact_mod_cast Nat.le_trans ( Nat.le_of_dvd ( Finset.prod_pos fun i hi => by linarith [ Finset.mem_Ioc.mp hi ] ) hLlocal_div ) h_prod_le
 
@@ -417,7 +420,9 @@ theorem boring_exp_ineq (p : ProblemParameters) (w : ℕ) (hw : w ∈ J1' p) (k 
       -- Exponentiate both sides of the inequality to eliminate the logarithms.
       have h_exp : Real.exp ((w + k) * Real.log 2) > Real.exp (Real.log 2 + (z p.m) * Real.log (w + k) + 2 * k * Real.log (w + k)) := by
         exact Real.exp_lt_exp.mpr ( by nlinarith [ Real.log_pos one_lt_two, mul_div_cancel₀ ( ( z p.m : ℝ ) * Real.log ( w + k ) ) ( ne_of_gt ( Real.log_pos one_lt_two ) ), mul_div_cancel₀ ( 2 * k * Real.log ( w + k ) ) ( ne_of_gt ( Real.log_pos one_lt_two ) ) ] );
-      convert h_exp using 1 <;> norm_num [ Real.exp_add, Real.exp_nat_mul, Real.exp_log ] ; ring_nf;
+      convert h_exp using 1 <;> norm_num [ Real.exp_add, Real.exp_nat_mul, Real.exp_log ]
+      focus
+        ring_nf
       · rw [ Real.exp_add, ← Real.rpow_natCast, ← Real.rpow_natCast, Real.rpow_def_of_pos, Real.rpow_def_of_pos ] <;> norm_num ; ring_nf;
       · rw [ Real.exp_log ( by norm_cast; linarith [ Finset.mem_Ico.mp hw, Finset.mem_Ico.mp hk ] ) ] ; ring_nf;
         rw [ ← Real.rpow_natCast, Real.rpow_def_of_pos ( by norm_cast; linarith [ Finset.mem_Ico.mp hw, Finset.mem_Ico.mp hk ] ) ] ; norm_num ; ring_nf;
@@ -436,7 +441,9 @@ theorem boring (p : ProblemParameters) (w : ℕ) (hw : w ∈ J1' p) (k : ℕ) (h
       · ring_nf at *;
         rw [ pow_mul ] at *;
         nlinarith [ show 0 ≤ ( ( w : ℝ ) + k ) ^ k * ( ( w : ℝ ) + k ) ^ z p.m by positivity, show ( w : ℝ ) ^ z p.m ≤ ( ( w : ℝ ) + k ) ^ z p.m by gcongr ; linarith, show ( ( w : ℝ ) + k ) ^ k ≥ 1 by exact one_le_pow₀ ( by norm_cast; linarith [ Finset.mem_Ico.mp hw, Finset.mem_Ico.mp hk ] ) ];
-      · cases k <;> cases w <;> norm_num at * ; positivity;
+      · cases k <;> cases w <;> norm_num at *
+        focus
+          positivity
         positivity
 
 /-
@@ -710,9 +717,11 @@ theorem p_i_lt_m (p : ProblemParameters) (i : ℕ) (hi : i ∈ Finset.Icc 1 (z p
         convert Finset.mem_sort ( α := ℕ ) ( · ≤ · ) |>.1 _;
         convert List.getElem_mem _;
         rotate_left;
-        exact i - 1;
+        focus
+          exact i - 1;
         all_goals norm_num [ p_i ];
-        exact Nat.lt_of_lt_of_le ( Nat.pred_lt ( ne_bot_of_gt ( Finset.mem_Icc.mp hi |>.1 ) ) ) ( Finset.mem_Icc.mp hi |>.2 );
+        focus
+          exact Nat.lt_of_lt_of_le ( Nat.pred_lt ( ne_bot_of_gt ( Finset.mem_Icc.mp hi |>.1 ) ) ) ( Finset.mem_Icc.mp hi |>.2 );
         rw [ List.getElem?_eq_getElem ] ; aesop;
       exact Finset.mem_range.mp ( Finset.mem_filter.mp h_prime |>.1 )
 
@@ -792,9 +801,10 @@ theorem valuation_r_bound (p : ProblemParameters) (s : ℕ) (hs : s ∈ Finset.I
         simpa [ ← Int.ofNat_lt ] using p.h_r_bdd x;
       have h_e_le_log : (p_i p s) ^ e p s (p.r x) ≤ Int.natAbs (p.r x) := by
         convert Nat.le_of_dvd ( Int.natAbs_pos.mpr ( show p.r x ≠ 0 from p.h_r_nz x ) ) ( Nat.ordProj_dvd _ _ ) using 1;
-        unfold e;
-        rw [ Nat.factorization_def ];
-        exact p_i_prime p s hs;
+        focus
+          unfold e
+          rw [ Nat.factorization_def ]
+          exact p_i_prime p s hs;
       exact Nat.le_sub_one_of_lt ( lt_of_le_of_lt h_e_le_log h_r_lt_m )
 
 /-
@@ -877,7 +887,9 @@ theorem valuation_lcm_le (n : ℕ) (hn : n ≥ 1) (p : ℕ) (hp : p.Prime) :
               generalize_proofs at *; (
               exact h_lcm_val ( hS_nonzero x ( Finset.mem_insert_self _ _ ) ) ( Nat.ne_of_gt ( Nat.pos_of_ne_zero ( mt Finset.lcm_eq_zero_iff.mp ( by intros h; obtain ⟨ y, hy ⟩ := h; specialize hS_nonzero y ( Finset.mem_insert_of_mem hy.1 ) ; aesop ) ) ) ))
             generalize_proofs at *; (
-            convert h_lcm_val using 1 ; aesop;
+            convert h_lcm_val using 1
+            focus
+              aesop
             rw [ Finset.sup_insert, ih fun y hy => hS_nonzero y <| Finset.mem_insert_of_mem hy ]));
           exact h_lcm_val fun x hx => by linarith [ Finset.mem_Icc.mp hx ] ;
         exact h_lcm_val.symm ▸ le_antisymm ( Finset.le_sup ( f := fun j => padicValNat p j ) hi.1 ) ( Finset.sup_le fun j hj => hi.2 j hj );
@@ -987,7 +999,9 @@ theorem part1_sum_eq (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Icc 1 
         exact Finset.lcm_dvd fun i hi => Finset.dvd_lcm ( Finset.mem_Icc.mpr ⟨ Finset.mem_Icc.mp hi |>.1, by linarith [ Finset.mem_Icc.mp hi |>.2 ] ⟩ )
       generalize_proofs at *; (
       have h_sum_rewrite : ∑ i ∈ Finset.Icc 1 (n_seq p j), (p.r i : ℚ) * (L n / i : ℕ) = (L n / L (n_seq p j) : ℚ) * ∑ i ∈ Finset.Icc 1 (n_seq p j), (p.r i : ℚ) * (L (n_seq p j) / i : ℕ) := by
-        rw [ Finset.mul_sum _ _ _ ] ; refine Finset.sum_congr rfl fun i hi => ?_ ; rw [ Nat.cast_div, Nat.cast_div ] <;> norm_num ; ring_nf;
+        rw [ Finset.mul_sum _ _ _ ] ; refine Finset.sum_congr rfl fun i hi => ?_ ; rw [ Nat.cast_div, Nat.cast_div ] <;> norm_num
+        focus
+          ring_nf
         · by_cases h : L ( n_seq p j ) = 0 <;> aesop;
         · exact Finset.dvd_lcm ( Finset.mem_Icc.mpr ⟨ by linarith [ Finset.mem_Icc.mp hi ], by linarith [ Finset.mem_Icc.mp hi ] ⟩ ) |> dvd_trans ( by aesop ) ;
         · linarith [ Finset.mem_Icc.mp hi ];
@@ -1142,11 +1156,16 @@ theorem n_seq_v2_prop (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Icc 1
       have h_exists_x : ∃ x ∈ Finset.Ioc (n_seq_v2 p j) (n_seq_v2 p j + (p.m - 1) * (p_i p (sigma p (n_seq_v2 p j)) ^ k_exp p (sigma p (n_seq_v2 p j)) j)), e p (sigma p (n_seq_v2 p j)) x ≥ e p (sigma p (n_seq_v2 p j)) (p.r x) + k_exp p (sigma p (n_seq_v2 p j)) j := by
         have := exists_valid_x_v2 p j hj ( n_seq_v2 p j ) ; aesop;
       convert Nat.find_spec ( _ : ∃ x, x > n_seq_v2 p j ∧ e p ( sigma p ( n_seq_v2 p j ) ) x ≥ e p ( sigma p ( n_seq_v2 p j ) ) ( p.r x ) + k_exp p ( sigma p ( n_seq_v2 p j ) ) j ) |> fun x => x.2 using 1;
-      rw [ n_seq_v2 ];
-      grind;
-      exact fun h => by linarith [ Finset.mem_Icc.mp hj ] ;
-      rw [ n_seq_v2 ];
-      grind;
+      focus
+        rw [ n_seq_v2 ];
+      focus
+        grind;
+      focus
+        exact fun h => by linarith [ Finset.mem_Icc.mp hj ] ;
+      focus
+        rw [ n_seq_v2 ];
+      focus
+        grind;
       · exact fun h => by linarith [ Finset.mem_Icc.mp hj ] ;
       · exact ⟨ h_exists_x.choose, Finset.mem_Ioc.mp h_exists_x.choose_spec.1 |>.1, h_exists_x.choose_spec.2 ⟩
 
@@ -1628,8 +1647,9 @@ theorem valuation_T_le (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Icc 
       field_simp;
       have h_val_T : (e p (sigma p (n_seq_v4 p j)) (p.r (n_seq_v4 p (j + 1)) * ((L n) / (n_seq_v4 p (j + 1)) : ℕ))) = (e p (sigma p (n_seq_v4 p j)) (p.r (n_seq_v4 p (j + 1)))) + (e p (sigma p (n_seq_v4 p j)) (L n)) - (e p (sigma p (n_seq_v4 p j)) (n_seq_v4 p (j + 1))) := by
         convert valuation_term_eq p n ( n_seq_v4 p ( j + 1 ) ) ?_ ( sigma p ( n_seq_v4 p j ) ) ?_ using 1
-        generalize_proofs at *; (
-        rw [ add_comm ]);
+        focus
+          generalize_proofs at *
+          rw [ add_comm ];
         · -- Since $n \in I_set_v4 p j$, we have $n \geq n_seq_v4 p (j + 1)$.
           have h_n_ge_n_next : n ≥ n_seq_v4 p (j + 1) := by
             -- By definition of $I_set_v4$, we know that $n \geq n_seq_v4 p (j + 1)$.
@@ -1711,9 +1731,11 @@ theorem e_L_n_ge_k (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Icc 1 (z
           haveI := Fact.mk ( p_i_prime p ( sigma p ( n_seq_v4 p j ) ) ( by
             by_cases h : ∃ i ∈ Finset.Icc 1 ( z p.m ), ( p_i p i ) ^ ( e p i ( X_int p.r ( n_seq_v4 p j ) ) ) > n_seq_v4 p j <;> simp_all +decide [ sigma ];
             · exact ⟨ h.choose, h.choose_spec.1.2, h.choose_spec.1, h.choose_spec.2 ⟩;
-            · grind ) ) ; rw [ ← Nat.factorization_def, ← Nat.factorization_def ] ; exact Nat.factorization_le_iff_dvd ( by
-            exact Nat.ne_of_gt ( Nat.pos_of_dvd_of_pos h_div ( Nat.pos_of_ne_zero ( by unfold L; aesop ) ) ) ) ( by
-            exact Nat.ne_of_gt <| Nat.pos_of_ne_zero <| mt Finset.lcm_eq_zero_iff.mp <| by aesop; ) |>.2 h_div _;
+            · grind ) ) ; rw [ ← Nat.factorization_def, ← Nat.factorization_def ]
+          focus
+            exact Nat.factorization_le_iff_dvd ( by
+              exact Nat.ne_of_gt ( Nat.pos_of_dvd_of_pos h_div ( Nat.pos_of_ne_zero ( by unfold L; aesop ) ) ) ) ( by
+              exact Nat.ne_of_gt <| Nat.pos_of_ne_zero <| mt Finset.lcm_eq_zero_iff.mp <| by aesop; ) |>.2 h_div _;
           · exact this.1;
           · exact this.1;
         convert h_e_L_n using 1;
@@ -1785,7 +1807,9 @@ theorem term_divisible (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Icc 
           have h_term_div_p : padicValNat (p_i p (sigma p (n_seq_v4 p j))) x ≥ V → (p_i p (sigma p (n_seq_v4 p j))) ^ V ∣ x := by
             intro hV
             have h_factorization : (Nat.factorization x) (p_i p (sigma p (n_seq_v4 p j))) ≥ V := by
-              rw [ Nat.factorization_def ] ; aesop;
+              rw [ Nat.factorization_def ]
+              focus
+                aesop
               exact h_prime
             exact Nat.dvd_trans ( pow_dvd_pow _ h_factorization ) ( Nat.ordProj_dvd _ _ );
           exact h_term_div_p hV;
@@ -1807,7 +1831,9 @@ sigma returns an index in the range [1, z].
 theorem sigma_in_range (p : ProblemParameters) (n : ℕ) : sigma p n ∈ Finset.Icc 1 (z p.m) := by
   by_contra h_contra;
   unfold sigma at h_contra; simp_all +decide [ Finset.mem_Icc ] ;
-  unfold z at *; split_ifs at * ; simp_all +decide ;
+  unfold z at *; split_ifs at *
+  focus
+    simp_all +decide
   · obtain ⟨ i, hi₁, hi₂ ⟩ := ‹∃ i, ( 1 ≤ i ∧ i ≤ _ ) ∧ n < p_i p i ^ e p i ( X_int p.r n ) › ; linarith [ h_contra i hi₁.2 hi₁.1 ] ;
   · have h_prime_count : (Finset.filter Nat.Prime (Finset.range p.m)).card ≥ 1 := by
       have h_m_ge_4 : 4 ≤ p.m := by
@@ -2026,11 +2052,14 @@ theorem X_n_valuation_eq_T3_valuation (p : ProblemParameters) (j : ℕ) (hj : j 
         let k := k_exp p s j
         padicValNat (p_i p s) (Int.natAbs (S1 p j n + S2 p j n + S4 p j n + T3 p j n)) = padicValNat (p_i p s) (Int.natAbs (T3 p j n)) := by
           apply padicValNat_add_eq_of_dvd
-          generalize_proofs at *; (
-          exact p_i_prime p ( sigma p ( n_seq_v4 p j ) ) ( sigma_in_range p ( n_seq_v4 p j ) ) |> fun h => by simpa using h;);
-          exact T3_ne_zero p j hj n hn
+          focus
+            generalize_proofs at *
+            exact p_i_prime p ( sigma p ( n_seq_v4 p j ) ) ( sigma_in_range p ( n_seq_v4 p j ) ) |> fun h => by simpa using h;
+          focus
+            exact T3_ne_zero p j hj n hn
           all_goals generalize_proofs at *;
-          exact h_val
+          focus
+            exact h_val
           generalize_proofs at *; (
           exact Nat.lt_succ_of_le h_val_T3)
       generalize_proofs at *; (
@@ -2048,7 +2077,8 @@ theorem pfree (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Icc 1 (z p.m)
     (p_i p s) ^ (e p s (X_int p.r n)) ≤ n := by
       convert Nat.le_div_iff_mul_le ( pow_pos ( Nat.Prime.pos ( p_i_prime p ( sigma p ( n_seq_v4 p j ) ) ( sigma_in_range p ( n_seq_v4 p j ) ) ) ) ( k_exp p ( sigma p ( n_seq_v4 p j ) ) j ) ) |>.2 _ using 1;
       rotate_left;
-      exact n * p_i p ( sigma p ( n_seq_v4 p j ) ) ^ k_exp p ( sigma p ( n_seq_v4 p j ) ) j;
+      focus
+        exact n * p_i p ( sigma p ( n_seq_v4 p j ) ) ^ k_exp p ( sigma p ( n_seq_v4 p j ) ) j;
       · have h_val : e p (sigma p (n_seq_v4 p j)) (X_int p.r n) ≤ e p (sigma p (n_seq_v4 p j)) (L n) - k_exp p (sigma p (n_seq_v4 p j)) j := by
           convert T3_valuation_le p j hj n hn using 1;
           exact X_n_valuation_eq_T3_valuation p j hj n hn h_sigma;
@@ -2128,9 +2158,11 @@ theorem X_abs_gt_pow (p : ProblemParameters) (n : ℕ) (hn : n ∈ I0 p) : Int.n
     rw [ show X p.r n = ( X_int p.r n : ℚ ) by exact X_eq_X_int p.r n ];
     norm_cast;
   convert I0_prop p n hn |> lt_of_lt_of_le <| ?_ using 1;
-  convert Int.ofNat_lt.symm;
+  focus
+    convert Int.ofNat_lt.symm;
   rotate_left;
-  exact ( X p.r n |> Rat.num |> Int.natAbs |> Nat.cast );
+  focus
+    exact ( X p.r n |> Rat.num |> Int.natAbs |> Nat.cast );
   · rw [ Rat.abs_def ];
     rw [ Rat.divInt_eq_div, div_le_iff₀ ] <;> norm_cast <;> norm_num [ Rat.den_nz ];
     · exact le_mul_of_one_le_right ( abs_nonneg _ ) ( mod_cast Nat.one_le_iff_ne_zero.mpr ( Rat.den_nz _ ) );
@@ -2232,8 +2264,9 @@ theorem exists_n_le_pow (p : ProblemParameters) :
               -- By definition of $I_j_v4$, we know that $n_{z+1} \in I_j_v4 p (z p.m)$.
               simp [I_set_v4, I_j_v4];
               rw [ if_neg ] <;> norm_num
-              generalize_proofs at *; (
-              exact pow_pos ( Nat.Prime.pos ( p_i_prime p ( sigma p ( n_seq_v4 p ( z p.m ) ) ) ( sigma_in_range p ( n_seq_v4 p ( z p.m ) ) ) ) ) _);
+              focus
+                generalize_proofs at *
+                exact pow_pos ( Nat.Prime.pos ( p_i_prime p ( sigma p ( n_seq_v4 p ( z p.m ) ) ) ( sigma_in_range p ( n_seq_v4 p ( z p.m ) ) ) ) ) _;
               exact Nat.ne_of_gt ( Finset.mem_Icc.mp hj |>.2.trans_lt' ( Finset.mem_Icc.mp hj |>.1 ) )
             generalize_proofs at *; (
             have h_decreasing : ∀ j k, j ∈ Finset.Icc 1 (z p.m) → k ∈ Finset.Icc 1 (z p.m) → j ≤ k → I_set_v4 p k ⊆ I_set_v4 p j := by
@@ -2400,9 +2433,12 @@ lemma X_b_congruence (r : ℕ → ℤ) (t : ℕ) (n : ℕ) (p : ℕ)
                 norm_cast at *; simp_all +decide [ Nat.Prime.dvd_iff_not_coprime hp ] ;
                 refine fun h => h_not_div <| Nat.Coprime.dvd_of_dvd_mul_left
                   (m := L (n * p ^ (Nat.totient t)) / i) ?_ ?_;
-                convert Nat.Coprime.pow_left _ h using 1
+                focus
+                  convert Nat.Coprime.pow_left _ h using 1
                 generalize_proofs at *; (
-                rw [ Nat.div_mul_cancel ] ; aesop
+                rw [ Nat.div_mul_cancel ]
+                focus
+                  aesop
                 generalize_proofs at *; (
                 exact Nat.dvd_trans ( Nat.dvd_of_mod_eq_zero <| Nat.mod_eq_zero_of_dvd <| by aesop ) ( Finset.dvd_lcm ( Finset.mem_Icc.mpr ⟨ by linarith, by linarith ⟩ ) ))))
               generalize_proofs at *; (
