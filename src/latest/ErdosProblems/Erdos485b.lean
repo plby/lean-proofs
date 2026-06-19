@@ -24,7 +24,6 @@ namespace Erdos485b
 set_option linter.style.setOption false
 set_option linter.style.maxHeartbeats false
 set_option linter.flexible false
-set_option linter.style.multiGoal false
 set_option linter.deprecated false
 
 /-!
@@ -131,7 +130,9 @@ lemma R'_set_card (R : Finset ℕ) (d : ℕ) (hd : 0 < d) (hR : ∀ r ∈ R, r <
       norm_num [Finset.card_image_of_injective, Function.Injective]
     · rw [Finset.card_union_of_disjoint, Finset.card_union_of_disjoint,
           Finset.card_union_of_disjoint, Finset.card_union_of_disjoint] <;>
-        norm_num [Finset.disjoint_left]; ring_nf
+        norm_num [Finset.disjoint_left]
+      focus
+        ring_nf
       · rw [Finset.card_image_of_injective, Finset.card_image_of_injective,
             Finset.card_image_of_injective, Finset.card_image_of_injective] <;>
           simp +arith +decide [Function.Injective]; ring
@@ -199,7 +200,8 @@ lemma product_complete (f : ℤ[X]) (d : ℕ) (lam : ℤ)
               Finset.image_subset_iff.mpr fun k hk =>
                 Finset.mem_range.mpr <| by nlinarith [Finset.mem_range.mp hk]) ] <;>
           norm_num [Finset.sum_image, hd.ne']
-        ring_nf
+        focus
+          ring_nf
         · exact Finset.sum_congr rfl fun x hx => by
             rw [Nat.sub_sub_self (by nlinarith [Finset.mem_range.mp hx])]
         · intro x hx hx'; rw [ Nat.sub_sub_self ( by nlinarith ) ] ;
@@ -252,9 +254,12 @@ lemma product_complete (f : ℤ[X]) (d : ℕ) (lam : ℤ)
             using 1;
           ring_nf!;
           interval_cases j <;> simp +decide [ * ];
-          ring_nf;
-        grind +splitImp;
-        grind;
+          focus
+            ring_nf
+        focus
+          grind +splitImp
+        focus
+          grind
         · rw [ show 4 * d - d * 3 = d by rw [ Nat.sub_eq_of_eq_add ] ; ring ] ; ring_nf;
         · rw [ show 5 * d - d * 4 = d by rw [ Nat.sub_eq_of_eq_add ] ; ring ] ; ring_nf;
         · rw [ show 6 * d - d * 5 = d by rw [ Nat.sub_eq_of_eq_add ] ; ring ] ; ring_nf;
@@ -933,13 +938,15 @@ lemma arithmetic_bound (n N a : ℕ) (_hn : 0 < n) (ha1 : 1 ≤ a) (ha8 : a ≤ 
         div_lt_div_iff_of_pos_right ( by norm_num : ( 0 :ℝ ) < 5 ) |>.2
           ( sub_lt_sub_right h_suff 12 )
         using 1;
-      norm_num;
-      ring_nf;
-    · rw [ Nat.cast_div ] <;> norm_num ; ring;
-      exact Nat.dvd_of_mod_eq_zero ( by
-        rw [ ← Nat.mod_add_div ( 6 ^ N * 6 ) 5 ]
-        norm_num [ Nat.pow_mod, Nat.mul_mod ] );
-    · ring;
+      focus
+        norm_num
+        ring_nf
+        · rw [ Nat.cast_div ] <;> norm_num
+          · ring
+          · exact Nat.dvd_of_mod_eq_zero ( by
+              rw [ ← Nat.mod_add_div ( 6 ^ N * 6 ) 5 ]
+              norm_num [ Nat.pow_mod, Nat.mul_mod ] )
+    · ring
   have h_exp :
       (n : ℝ) ^ (Real.log 6 / Real.log 9) ≥
         (a : ℝ) ^ (Real.log 6 / Real.log 9) * (6 : ℝ) ^ N := by
@@ -1148,7 +1155,12 @@ lemma R'_set13_card (R : Finset ℕ) (d : ℕ) (hd : 0 < d) (hR : ∀ r ∈ R, r
         Finset.card_union_of_disjoint] <;>
       norm_num [Finset.disjoint_right]
     all_goals norm_num [Finset.card_image_of_injective, Function.Injective, hd.ne']
-    grind; grind; grind
+    focus
+      grind
+    focus
+      grind
+    focus
+      grind
     · grind +splitImp
     · grind
     · grind
@@ -1206,7 +1218,8 @@ lemma comp_coeff_zero_of_not_dvd_real (p : ℝ[X]) (a : ℝ) (d k : ℕ)
   rw [ Polynomial.comp, Polynomial.eval₂_eq_sum_range ];
   norm_num [ mul_pow, ← pow_mul ];
   refine Finset.sum_eq_zero fun i hi => ?_;
-  rw [ Polynomial.coeff_mul, Finset.sum_eq_zero ] ; aesop;
+  rw [ Polynomial.coeff_mul, Finset.sum_eq_zero ]
+  · aesop
   intro x hx; by_cases hi : x.1 = 0 <;> simp_all +decide ;
   · aesop;
   · exact fun h => Polynomial.coeff_eq_zero_of_natDegree_lt <| by
@@ -1294,7 +1307,8 @@ lemma product_complete_13 (f : ℝ[X]) (d : ℕ) (lam : ℝ)
             nlinarith [
               Nat.sub_add_cancel ( show x ≤ k from Finset.mem_range_succ_iff.mp hx ),
               Nat.sub_add_cancel ( show y ≤ k from Finset.mem_range_succ_iff.mp hy ) ]
-      · intro x hx hx'; rw [ comp_coeff_zero_of_not_dvd_real ] ; aesop;
+      · intro x hx hx'; rw [ comp_coeff_zero_of_not_dvd_real ]
+        · aesop
         · lia;
         · contrapose! hx';
           obtain ⟨ y, hy ⟩ := hx';
@@ -1327,7 +1341,8 @@ lemma product_complete_13 (f : ℝ[X]) (d : ℕ) (lam : ℝ)
         rcases k with ( _ | k ) <;> simp_all +decide;
     · norm_num [ show k = 13 by nlinarith ] at *;
       simp_all +decide [ Finset.sum_range_succ, Polynomial.coeff_eq_zero_of_natDegree_lt ];
-      rw [ show baseP12.coeff 13 = 0 from _ ] ; simp_all +decide [ pow_succ, mul_assoc ];
+      rw [ show baseP12.coeff 13 = 0 from _ ]
+      all_goals simp_all +decide [ pow_succ, mul_assoc ]
       · exact baseP12_coeff_ne 12 ( by norm_num );
       · exact Polynomial.coeff_eq_zero_of_natDegree_lt <| by erw [ baseP12_deg ] ; norm_num;
   · -- Since $d \nmid i$, write it as j * d + r with 0 < r < d.
@@ -1364,8 +1379,9 @@ lemma product_complete_13 (f : ℝ[X]) (d : ℕ) (lam : ℝ)
         exact False.elim <|
           hne ( by nlinarith [ show k = j by nlinarith ] )
             ( by nlinarith [ show k = j by nlinarith ] );
-      · rw [ comp_coeff_zero_of_not_dvd_real ] ; aesop;
-        assumption;
+      · rw [ comp_coeff_zero_of_not_dvd_real ]
+        · aesop
+        · assumption
     · exact fun h => False.elim <| h <| add_comm _ _
 
 /-
@@ -1393,7 +1409,8 @@ lemma step_support_containment_13 (f : ℝ[X]) (R : Finset ℕ) (d : ℕ) (lam :
       use k
       simp_all +decide [ mul_pow, ← pow_mul' ] ;
       contrapose! hk; simp_all +decide ;
-      rw [ Polynomial.coeff_mul, Finset.sum_eq_zero ] ; aesop;
+      rw [ Polynomial.coeff_mul, Finset.sum_eq_zero ]
+      · aesop
       intro x hx; by_cases h : x.1 = 0 <;> simp_all +decide ;
       exact fun h' => Polynomial.coeff_eq_zero_of_natDegree_lt <| by
         erw [ Polynomial.natDegree_pow, Polynomial.natDegree_C ]
