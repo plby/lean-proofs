@@ -39,7 +39,6 @@ open Real
 
 set_option maxHeartbeats 50000000
 set_option linter.style.cases false
-set_option linter.style.multiGoal false
 
 /-
 Definitions of PP(n), antichains, and A(n).
@@ -575,7 +574,8 @@ theorem exists_SCD (n : ℕ) : ∃ X, IsSymmetricChainDecomposition n X := by
   | succ n ih =>
       obtain ⟨ X, hX ⟩ := ih;
       refine ⟨ ?_, ?_, ?_, ?_ ⟩;
-      exact lift_SCD n X;
+      focus
+        exact lift_SCD n X;
       · exact fun C hC => lift_SCD_is_symmetric n X ( fun C hC => hX.1 C hC ) C hC;
       · convert lift_SCD_pairwise_disjoint n X _ _ _ using 1
         · exact hX.2.1;
@@ -916,13 +916,12 @@ def container_algorithm {V : Type*} [Fintype V] [DecidableEq V] [LinearOrder V]
     A
 termination_by A.card
 decreasing_by
-refine Finset.card_lt_card ?_;
-simp +decide [ Finset.ssubset_def, Finset.subset_iff ];
-exact ⟨ fun _ _ _ _ => by
-  assumption, v, Finset.mem_filter.mp ( Finset.min'_mem _ h ) |>.1, fun _ _ =>
-    False.elim ( ‹¬_› rfl ) ⟩;
-  (
-exact Finset.card_erase_lt_of_mem ( Finset.mem_filter.mp ( Finset.min'_mem _ h ) |>.1 ))
+  · refine Finset.card_lt_card ?_
+    simp +decide [ Finset.ssubset_def, Finset.subset_iff ]
+    exact ⟨ fun _ _ _ _ => by
+      assumption, v, Finset.mem_filter.mp ( Finset.min'_mem _ h ) |>.1, fun _ _ =>
+        False.elim ( ‹¬_› rfl ) ⟩
+  · exact Finset.card_erase_lt_of_mem ( Finset.mem_filter.mp ( Finset.min'_mem _ h ) |>.1 )
 
 /-
 Definition of the process that generates S and A from an independent set I.
@@ -944,13 +943,13 @@ def generate_S_and_A {V : Type*} [Fintype V] [DecidableEq V] [LinearOrder V]
     (S_acc, A)
 termination_by A.card
 decreasing_by
-  refine Finset.card_lt_card ?_;
-  simp +decide [ Finset.ssubset_def, Finset.subset_iff ];
-  exact ⟨ fun _ _ _ _ => by
-    assumption, v, Finset.mem_filter.mp ( Finset.min'_mem _ h ) |>.1, fun _ _ =>
-      False.elim ( ‹¬_› rfl ) ⟩;
-    (
-  exact Finset.card_erase_lt_of_mem ( Finset.mem_filter.mp ( Finset.min'_mem _ h ) |>.1 ))
+  ·
+    refine Finset.card_lt_card ?_;
+    simp +decide [ Finset.ssubset_def, Finset.subset_iff ];
+    exact ⟨ fun _ _ _ _ => by
+      assumption, v, Finset.mem_filter.mp ( Finset.min'_mem _ h ) |>.1, fun _ _ =>
+        False.elim ( ‹¬_› rfl ) ⟩
+  · exact Finset.card_erase_lt_of_mem ( Finset.mem_filter.mp ( Finset.min'_mem _ h ) |>.1 )
 
 def get_S {V : Type*} [Fintype V] [DecidableEq V] [LinearOrder V]
     (G : SimpleGraph V) [DecidableRel G.Adj] (Δ : ℕ) (I : Finset V) : Finset V :=
@@ -1211,22 +1210,33 @@ lemma container_algorithm_eq_generate_A_correct {V : Type*} [Fintype V]
           split_ifs;
           · convert ih _ _ _ _ _ _ _ _ _ using 1;
             rotate_left;
-            exact A \ insert ( Finset.min' ( Finset.filter ( fun v =>
-              degree_in G A v
-                ≥ Δ ) A ) ‹_› ) ( Finset.univ.filter
-                  ( G.Adj ( Finset.min' ( Finset.filter ( fun v =>
-                    degree_in G A v ≥ Δ ) A ) ‹_› ) · ) );
-            grind;
-            exact ( Finset.min' ( Finset.filter ( fun v => degree_in G A v ≥ Δ ) A ) ‹_› );
-            exact Finset.mem_filter.mp ( Finset.min'_mem _ ‹_› ) |>.1;
-            simp +decide [ Finset.mem_sdiff, Finset.mem_insert ];
-            exact G;
-            (expose_names; exact inst_3);
-            exact Δ;
-            exact I;
-            exact insert
-              ( Finset.min' ( Finset.filter ( fun v => degree_in G A v ≥ Δ ) A ) ‹_› )
-              S_acc;
+            focus
+              exact A \ insert ( Finset.min' ( Finset.filter ( fun v =>
+                degree_in G A v
+                  ≥ Δ ) A ) ‹_› ) ( Finset.univ.filter
+                    ( G.Adj ( Finset.min' ( Finset.filter ( fun v =>
+                      degree_in G A v ≥ Δ ) A ) ‹_› ) · ) );
+            focus
+              grind;
+            focus
+              exact ( Finset.min' ( Finset.filter ( fun v => degree_in G A v ≥ Δ ) A ) ‹_› );
+            focus
+              exact Finset.mem_filter.mp ( Finset.min'_mem _ ‹_› ) |>.1;
+            focus
+              simp +decide [ Finset.mem_sdiff, Finset.mem_insert ];
+            focus
+              exact G;
+            focus
+              expose_names
+              exact inst_3;
+            focus
+              exact Δ;
+            focus
+              exact I;
+            focus
+              exact insert
+                ( Finset.min' ( Finset.filter ( fun v => degree_in G A v ≥ Δ ) A ) ‹_› )
+                S_acc;
             simp +decide [ Finset.disjoint_left, Finset.mem_sdiff, Finset.mem_insert ];
             exact ⟨ fun h => fun _ _ _ => h, fun h => h ( fun x hx hx' hx'' => by
               have := Finset.disjoint_left.mp h_disjoint hx hx';
@@ -1323,7 +1333,8 @@ theorem graph_container_lemma {V : Type*} [Fintype V] [DecidableEq V] [LinearOrd
              I ⊆ S ∪ f S ∧
              (G.induce (f S)).maxDegree < Δ := by
                refine ⟨ ?_, fun I hI => ?_ ⟩;
-               exact fun S => container_algorithm G Δ S Finset.univ;
+               focus
+                 exact fun S => container_algorithm G Δ S Finset.univ;
                refine ⟨ get_S G Δ I, get_S_subset_I G Δ I, ?_, ?_, ?_ ⟩;
                · have := generate_S_and_A_size_bound G Δ I ∅ Finset.univ;
                  rw [ Nat.le_div_iff_mul_le ] <;> norm_num at * ; linarith!;
@@ -1822,7 +1833,9 @@ lemma count_pair_in_same_chain_le_mul (n : ℕ) (X : Finset (Finset (Finset (Fin
         simp_all +decide [ Nat.choose_eq_factorial_div_factorial ( show A.card ≤ B.card from
           Finset.card_le_card hAB.1 ) ];
       · refine le_trans ( Nat.mul_le_mul_right (n / 2 + 1) h_count_bound ) ?_;
-        convert Nat.mul_le_mul_right ( ( #A ) ! * ( #B - #A ) ! * ( n - #B ) ! ) h using 1 ; ring;
+        convert Nat.mul_le_mul_right ( ( #A ) ! * ( #B - #A ) ! * ( n - #B ) ! ) h using 1
+        focus
+          ring
         rw [ ← Nat.choose_mul_factorial_mul_factorial ( show #B ≤ n from
           le_trans ( Finset.card_le_univ _ ) ( by
           norm_num ) ) ];
@@ -1834,7 +1847,8 @@ lemma count_pair_in_same_chain_le_mul (n : ℕ) (X : Finset (Finset (Finset (Fin
       · refine le_trans ( Nat.mul_le_mul_right (n / 2 + 1) h_count_bound ) ?_;
         convert Nat.mul_le_mul_right ( ( A.card ! * ( B.card - A.card ) ! * ( n - B.card ) ! ) ) h
           using 1 ;
-          ring;
+          focus
+            ring;
         rw [ ← Nat.choose_mul_factorial_mul_factorial ( show #A ≤ n from
           le_trans ( Finset.card_le_univ _ ) ( by norm_num ) ),
             ← Nat.choose_mul_factorial_mul_factorial ( show #B - #A
@@ -2589,8 +2603,16 @@ lemma Delta_nat_div_pow_tendsto : Filter.Tendsto (fun n => (Delta_nat n : ℝ) /
       have h_floor : (Delta_nat n : ℝ) ≤ (n : ℝ) ^ (2 / 3 : ℝ) / 10
         ∧ (n : ℝ) ^ (2 / 3 : ℝ) / 10 < (Delta_nat n + 1 :
           ℝ) := by
-        unfold Delta_nat Delta epsilon; norm_num [ ← Real.rpow_add ] ; ring_nf ; norm_num;
-        rw [ ← Real.rpow_add_one ] <;> norm_num ; ring_nf ; norm_num;
+        unfold Delta_nat Delta epsilon; norm_num [ ← Real.rpow_add ]
+        focus
+          ring_nf
+        focus
+          norm_num
+        rw [ ← Real.rpow_add_one ] <;> norm_num
+        focus
+          ring_nf
+        focus
+          norm_num
         · exact ⟨ Nat.floor_le <| by positivity, by linarith [ Nat.lt_floor_add_one
           <| ( n : ℝ ) ^ ( 2 / 3 : ℝ ) * ( 1 / 10 ) ] ⟩;
         · linarith;
@@ -2720,7 +2742,8 @@ lemma log_Delta_nat_plus_one_is_Theta_log_n :
                 tendsto_rpow_atTop ( by
                 norm_num : ( 0 : ℝ )
                   < 2 / 3 ) |> Filter.Tendsto.comp <| tendsto_natCast_atTop_atTop ) ) using 2;
-                ring_nf;
+                focus
+                  ring_nf
               · rfl;
               · norm_num;
             have := h_delta_approx.log;
