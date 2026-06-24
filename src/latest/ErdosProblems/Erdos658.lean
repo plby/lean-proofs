@@ -1,0 +1,1528 @@
+/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/- Original license: Apache 2.0. Note: This file has been modified. -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 658.
+https://www.erdosproblems.com/forum/thread/658
+
+Formalization status:
+- Conditional on: frankl_roedl_theorem
+
+Informal authors:
+- József Solymosi
+- Peter Frankl
+- Vojtěch Rödl
+
+Formal authors:
+- Aristotle
+- John Jennings
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/658#post-5654
+- https://www.erdosproblems.com/forum/thread/658#post-5677
+- https://gist.githubusercontent.com/JohnEdwardJennings/ca7d49761fb51d28613bafc956742fbc/raw/c326fd7918276292e641af92c32d3ecbe3c31ee0/Erdos658.lean
+- https://gist.githubusercontent.com/JohnEdwardJennings/ca7d49761fb51d28613bafc956742fbc/raw/93dbf493e26aa377f7e78390903be146745fa7ec/Erdos658.lean
+-/
+/-
+Copyright (c) 2026 John Jennings. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: John Jennings, Aristotle (Harmonic)
+-/
+import Mathlib
+import ErdosProblems.Axioms
+
+namespace Erdos658
+
+-- Some generated proofs below still rely on broad simplification tactics.
+-- Keep that linter suppression local to those declarations.
+
+/-!
+# Erdős Problem 658: Squares in Dense Lattice Subsets
+
+This file formalizes Theorem 1.1 from J. Solymosi's paper
+"A Note on a Question of Erdős and Graham" (Combinatorics,
+Probability and Computing, 2004), along with its dependencies.
+
+## Main Results
+
+* `Theorem_1_1` : For any δ > 0, sufficiently large N
+  guarantees every subset of [N]² of size ≥ δN² contains an
+  axis-aligned square.
+* `Theorem_1_2` : The 3D analogue for quadruples of the
+  form (1.1).
+* `Proposition_1_3` : Theorem 1.2 implies Theorem 1.1
+  (via a lifting argument).
+* `Theorem_2_2` : The Frankl–Rödl theorem on linear
+  3-uniform hypergraphs (stated).
+* `Conjecture_2_1` : The generalization to k-uniform
+  hypergraphs (stated).
+
+## References
+
+* J. Solymosi, *A Note on a Question of Erdős and Graham*,
+  2004
+* P. Frankl and V. Rödl, *Extremal problems on set systems*,
+  2002
+-/
+
+section
+open Finset
+
+/-! ## §1. Grid Definitions -/
+
+/-- The grid `[N] = {0, 1, …, N-1}` as a `Finset ℤ`. -/
+def gridRange (N : ℕ) : Finset ℤ :=
+  (Finset.range N).image (↑· : ℕ → ℤ)
+
+/-- The grid `[N]²`. -/
+def grid2 (N : ℕ) : Finset (ℤ × ℤ) :=
+  gridRange N ×ˢ gridRange N
+
+/-- The grid `[N]³`. -/
+def grid3 (N : ℕ) : Finset (ℤ × ℤ × ℤ) :=
+  gridRange N ×ˢ (gridRange N ×ˢ gridRange N)
+
+/-! ## §2. Pattern Definitions -/
+
+/-- A set `S ⊆ ℤ²` contains an axis-aligned square with nonzero side length. -/
+def ContainsSquare (S : Finset (ℤ × ℤ)) : Prop :=
+  ∃ a b d : ℤ, d ≠ 0 ∧
+    (a, b) ∈ S ∧ (a + d, b) ∈ S ∧
+    (a, b + d) ∈ S ∧ (a + d, b + d) ∈ S
+
+/-- A set `S ⊆ ℤ³` contains a quadruple of the form
+`{(a,b,c), (a+d,b,c), (a,b+d,c), (a+d,b+d,c+d)}` with `d ≠ 0`. -/
+def ContainsQuadruple (S : Finset (ℤ × ℤ × ℤ)) : Prop :=
+  ∃ a b c d : ℤ, d ≠ 0 ∧
+    (a, b, c) ∈ S ∧ (a + d, b, c) ∈ S ∧
+    (a, b + d, c) ∈ S ∧ (a + d, b + d, c + d) ∈ S
+
+/-! ## §3. Statements of Theorem 2.2 and Conjecture 2.1
+
+Theorem 2.2 (Frankl–Rödl) is imported from `ErdosProblems.Axioms` and is
+taken as a hypothesis in the proofs that follow.
+Conjecture 2.1 is its generalization. -/
+
+/-- **Conjecture 2.1** (Frankl–Rödl conjecture):
+For any integer `k ≥ 2`, if `G` is a `k`-uniform hypergraph such that every edge
+belongs to exactly one complete subgraph (of size ≥ `k+1`), then
+`|E(G)| = o(|V(G)|^k)`.
+See [Solymosi, *A Note on a Question of Erdős and Graham*, Conjecture 2.1]. -/
+def Conjecture_2_1 : Prop :=
+  ∀ (k : ℕ), k ≥ 2 → ∀ ε : ℝ, ε > 0 → ∃ n₀ : ℕ,
+    ∀ (V : Finset ℕ) (E : Finset (Finset ℕ)),
+    V.card ≥ n₀ →
+    (∀ e ∈ E, e.card = k ∧ e ⊆ V) →
+    (∀ e ∈ E, ∃! K, K ⊆ V ∧ K.card ≥ k + 1 ∧
+      (∀ t ⊆ K, t.card = k → t ∈ E) ∧ e ⊆ K) →
+    (E.card : ℝ) < ε * (V.card : ℝ) ^ k
+
+/-! ## §4. Vertex Encoding and Hypergraph Construction
+
+For a point `(a, b, c) ∈ [N]³`, the four plane families assign indices:
+- Family 0: `c`          (plane `z = c`)
+- Family 1: `-a + c`     (plane `-x + z = -a + c`)
+- Family 2: `-b + c`     (plane `-y + z = -b + c`)
+- Family 3: `a + b - c`  (plane `x + y - z = a + b - c`)
+
+We encode `(family f, plane index i)` as the natural number
+`f * (3 * N) + (i + N).toNat`, placing each family in a disjoint range. -/
+
+/-- Encode vertex `(family f, plane index i)` as a natural number. -/
+def encVertex (N : ℕ) (f : ℕ) (i : ℤ) : ℕ :=
+  f * (3 * N) + (i + ↑N).toNat
+
+/-- The four encoded vertices through a point `(a, b, c)`. -/
+def vertexOf (N : ℕ) (a b c : ℤ) : Fin 4 → ℕ
+  | 0 => encVertex N 0 c
+  | 1 => encVertex N 1 (-a + c)
+  | 2 => encVertex N 2 (-b + c)
+  | 3 => encVertex N 3 (a + b - c)
+
+/-- The four edges (3-element subsets) generated by a point `(a, b, c)`.
+Each edge omits one of the four families. -/
+def pointEdges (N : ℕ) (a b c : ℤ) : Finset (Finset ℕ) :=
+  let v := vertexOf N a b c
+  {{v 0, v 1, v 2}, {v 0, v 1, v 3},
+   {v 0, v 2, v 3}, {v 1, v 2, v 3}}
+
+/-- The full edge set of the hypergraph constructed from `S ⊆ [N]³`. -/
+def edgeSet (N : ℕ) (S : Finset (ℤ × ℤ × ℤ)) : Finset (Finset ℕ) :=
+  S.biUnion fun p => pointEdges N p.1 p.2.1 p.2.2
+
+/-- The vertex set (a superset of all vertices that appear). -/
+def vertexSet (N : ℕ) : Finset ℕ :=
+  Finset.range (12 * N)
+
+/-- The family of a vertex `v` (quotient `v / (3 * N)`). -/
+def familyOf (N : ℕ) (v : ℕ) : ℕ := v / (3 * N)
+
+/-! ## §5. Encoding Lemmas -/
+
+/-- `gridRange N` has cardinality `N`. -/
+lemma gridRange_card (N : ℕ) : (gridRange N).card = N := by
+  simp [gridRange, Finset.card_image_of_injective _ Nat.cast_injective]
+
+/-- Membership in `gridRange N` is equivalent to `0 ≤ x ∧ x < N`. -/
+lemma mem_gridRange {N : ℕ} {x : ℤ} :
+    x ∈ gridRange N ↔ 0 ≤ x ∧ x < N := by
+  simp only [gridRange, Finset.mem_image, Finset.mem_range]
+  constructor
+  · rintro ⟨n, hn, rfl⟩
+    exact ⟨Int.natCast_nonneg n, Int.ofNat_lt.mpr hn⟩
+  · rintro ⟨h0, hN⟩
+    exact ⟨x.toNat, by omega, by omega⟩
+
+/-- `encVertex` lands in the correct family. -/
+lemma encVertex_family {N : ℕ} (hN : N ≥ 1) {f : ℕ} (_hf : f < 4) {i : ℤ}
+    (_hi : 0 ≤ i + ↑N) (hi' : i + ↑N < 3 * ↑N) :
+    familyOf N (encVertex N f i) = f := by
+  unfold familyOf encVertex
+  rw [Nat.add_div] <;> norm_num
+  · rw [Nat.mul_div_cancel _ (by positivity), if_neg]
+      <;> norm_num
+    · grind
+    · exact Nat.mod_lt _ (by positivity)
+  · linarith
+
+/-- `encVertex` is bounded by `12 * N`. -/
+lemma encVertex_lt {N : ℕ} (hN : N ≥ 1) {f : ℕ} (hf : f < 4)
+    {i : ℤ} (hi : 0 ≤ i + ↑N) (hi' : i + ↑N < 3 * ↑N) :
+    encVertex N f i < 12 * N := by
+  unfold encVertex
+  interval_cases f <;> linarith [Int.toNat_of_nonneg hi]
+
+/-- `encVertex` is injective in `(f, i)`. -/
+lemma encVertex_injective {N : ℕ} (hN : N ≥ 1) {f₁ f₂ : ℕ}
+    (hf₁ : f₁ < 4) (hf₂ : f₂ < 4) {i₁ i₂ : ℤ}
+    (hi₁ : 0 ≤ i₁ + ↑N) (hi₁' : i₁ + ↑N < 3 * ↑N)
+    (hi₂ : 0 ≤ i₂ + ↑N) (hi₂' : i₂ + ↑N < 3 * ↑N)
+    (h : encVertex N f₁ i₁ = encVertex N f₂ i₂) :
+    f₁ = f₂ ∧ i₁ = i₂ := by
+  unfold encVertex at h
+  interval_cases f₁ <;> interval_cases f₂ <;> norm_num at h ⊢
+  all_goals omega
+
+/-- For a point `(a,b,c) ∈ [N]³`, each plane index `i` satisfies
+`0 ≤ i + N` and `i + N < 3N`. -/
+lemma planeIndex_bounds {N : ℕ} {a b c : ℤ}
+    (ha : 0 ≤ a ∧ a < ↑N) (hb : 0 ≤ b ∧ b < ↑N)
+    (hc : 0 ≤ c ∧ c < ↑N) :
+    (0 ≤ c + ↑N ∧ c + ↑N < 3 * ↑N) ∧
+    (0 ≤ (-a + c) + ↑N ∧ (-a + c) + ↑N < 3 * ↑N) ∧
+    (0 ≤ (-b + c) + ↑N ∧ (-b + c) + ↑N < 3 * ↑N) ∧
+    (0 ≤ (a + b - c) + ↑N ∧ (a + b - c) + ↑N < 3 * ↑N) := by
+  omega
+
+/-! ## §6. Edge Properties -/
+
+set_option linter.flexible false in
+/-- The vertices of an edge from a point in `[N]³` are distinct. -/
+lemma vertexOf_injective {N : ℕ} (hN : N ≥ 1) {a b c : ℤ}
+    (ha : 0 ≤ a ∧ a < ↑N) (hb : 0 ≤ b ∧ b < ↑N)
+    (hc : 0 ≤ c ∧ c < ↑N) :
+    Function.Injective (vertexOf N a b c) := by
+  unfold vertexOf
+  intro x y
+  fin_cases x <;> fin_cases y <;> simp +decide
+  all_goals
+    unfold encVertex
+    omega
+
+/-- Each edge from a point in `[N]³` has cardinality 3. -/
+lemma edge_card_three {N : ℕ} (hN : N ≥ 1) {a b c : ℤ}
+    (ha : 0 ≤ a ∧ a < ↑N) (hb : 0 ≤ b ∧ b < ↑N)
+    (hc : 0 ≤ c ∧ c < ↑N) :
+    ∀ e ∈ pointEdges N a b c, e.card = 3 := by
+  unfold pointEdges
+  simp +decide
+  have h_distinct : Function.Injective (vertexOf N a b c) :=
+    vertexOf_injective hN ha hb hc
+  simp +decide [h_distinct.eq_iff]
+
+/-- Each edge from a point in `[N]³` is a subset of the vertex set. -/
+lemma edge_sub_vertexSet {N : ℕ} (hN : N ≥ 1) {a b c : ℤ}
+    (ha : 0 ≤ a ∧ a < ↑N) (hb : 0 ≤ b ∧ b < ↑N)
+    (hc : 0 ≤ c ∧ c < ↑N) :
+    ∀ e ∈ pointEdges N a b c, e ⊆ vertexSet N := by
+  intro e he x hx
+  obtain ⟨ix, hix⟩ :
+      ∃ ix ∈ ({0, 1, 2, 3} : Finset (Fin 4)),
+        x = vertexOf N a b c ix := by
+    unfold pointEdges at he
+    aesop
+  obtain ⟨_, rfl⟩ := hix
+  fin_cases ix
+  · change encVertex N 0 c ∈ vertexSet N
+    exact Finset.mem_range.mpr
+      (encVertex_lt hN (by decide) (by linarith) (by linarith))
+  · exact Finset.mem_range.mpr
+      (encVertex_lt hN (by decide) (by linarith) (by linarith))
+  · exact Finset.mem_range.mpr
+      (encVertex_lt hN (by norm_num) (by linarith) (by linarith))
+  · exact Finset.mem_range.mpr
+      (encVertex_lt hN (by norm_num) (by linarith) (by linarith))
+
+set_option linter.flexible false in
+/-- Every edge in `E` has card 3 and is a subset of `V`. -/
+lemma edgeSet_valid {N : ℕ} (hN : N ≥ 1)
+    {S : Finset (ℤ × ℤ × ℤ)} (hS : S ⊆ grid3 N) :
+    ∀ e ∈ edgeSet N S, e.card = 3 ∧ e ⊆ vertexSet N := by
+  intro e he
+  rw [edgeSet] at he
+  simp_all +decide [pointEdges]
+  obtain ⟨a, b, c, h₁, rfl | rfl | rfl | rfl⟩ := he
+    <;> simp_all +decide [grid3]
+  · have := hS h₁
+    simp_all +decide [Finset.subset_iff, mem_gridRange]
+    unfold vertexOf
+    simp +decide [*, vertexSet]
+    unfold encVertex
+    simp +decide [*]
+    grind
+  · have := hS h₁
+    simp_all +decide [Finset.subset_iff, mem_gridRange]
+    unfold vertexOf vertexSet
+    simp_all +decide [Finset.mem_range]
+    unfold encVertex
+    simp +decide [*]
+    grind
+  · have := hS h₁
+    simp_all +decide [Finset.subset_iff, mem_gridRange]
+    grind +locals
+  · have := hS h₁
+    simp_all +decide [Finset.subset_iff, mem_gridRange]
+    unfold vertexOf
+    simp +decide [*, vertexSet]
+    unfold encVertex
+    simp +decide [*]
+    grind
+
+/-! ## §7. Injection from S to E
+
+Each point `(a,b,c) ∈ S` maps to the edge `{v₀, v₁, v₂}`
+(families 0,1,2). This map is injective because the edge
+uniquely determines the point. -/
+
+/-- The "first edge" map from `S` to `E`. -/
+def firstEdge (N : ℕ) (p : ℤ × ℤ × ℤ) : Finset ℕ :=
+  {vertexOf N p.1 p.2.1 p.2.2 0,
+   vertexOf N p.1 p.2.1 p.2.2 1,
+   vertexOf N p.1 p.2.1 p.2.2 2}
+
+/-- The first edge of `(a,b,c)` belongs to `pointEdges`. -/
+lemma firstEdge_mem_pointEdges (N : ℕ) (a b c : ℤ) :
+    firstEdge N (a, b, c) ∈ pointEdges N a b c := by
+  simp [firstEdge, pointEdges]
+
+/-- The first edge of a point in `S` belongs to `edgeSet`. -/
+lemma firstEdge_mem_edgeSet {N : ℕ}
+    {S : Finset (ℤ × ℤ × ℤ)} {p : ℤ × ℤ × ℤ} (hp : p ∈ S) :
+    firstEdge N p ∈ edgeSet N S := by
+  simp only [edgeSet, Finset.mem_biUnion]
+  exact ⟨p, hp, firstEdge_mem_pointEdges N p.1 p.2.1 p.2.2⟩
+
+set_option linter.flexible false in
+/-- The first-edge map is injective on `grid3 N` for `N ≥ 1`. -/
+lemma firstEdge_injective {N : ℕ} (hN : N ≥ 1)
+    {S : Finset (ℤ × ℤ × ℤ)} (hS : S ⊆ grid3 N) :
+    Set.InjOn (firstEdge N) (↑S) := by
+  intro p hp q hq
+  unfold firstEdge
+  simp +decide [Finset.Subset.antisymm_iff, Finset.subset_iff]
+  intro h₀ h₁ h₂ h₃ h₄ h₅
+  have := hS hp
+  have := hS hq
+  simp_all +decide only [grid3]
+  simp_all +decide [Finset.mem_product, mem_gridRange]
+  unfold vertexOf at *
+  unfold encVertex at *
+  grind
+
+/-- `|S| ≤ |edgeSet N S|` via the injective first-edge map. -/
+lemma card_S_le_edgeSet {N : ℕ} (hN : N ≥ 1)
+    {S : Finset (ℤ × ℤ × ℤ)} (hS : S ⊆ grid3 N) :
+    S.card ≤ (edgeSet N S).card := by
+  calc S.card
+      = (S.image (firstEdge N)).card := by
+        rw [Finset.card_image_of_injOn (firstEdge_injective hN hS)]
+    _ ≤ (edgeSet N S).card := by
+        apply Finset.card_le_card
+        intro e he
+        simp only [Finset.mem_image] at he
+        obtain ⟨p, hp, rfl⟩ := he
+        exact firstEdge_mem_edgeSet hp
+
+/-! ## §8. Unique Clique Property
+
+The main geometric argument: if `S` has no quadruple of the form (1.1),
+then every edge in the hypergraph belongs to exactly one clique. -/
+
+/-- Every edge in `E` has vertices from 3 distinct families. -/
+lemma edge_families_distinct {N : ℕ} (hN : N ≥ 1)
+    {S : Finset (ℤ × ℤ × ℤ)} (hS : S ⊆ grid3 N)
+    {e : Finset ℕ} (he : e ∈ edgeSet N S) :
+    ∃ f₁ f₂ f₃ : ℕ, f₁ < f₂ ∧ f₂ < f₃ ∧ f₃ < 4 ∧
+      ∃ v₁ v₂ v₃, e = {v₁, v₂, v₃} ∧
+        familyOf N v₁ = f₁ ∧ familyOf N v₂ = f₂ ∧
+        familyOf N v₃ = f₃ := by
+  unfold edgeSet at he
+  simp_all +decide [Finset.mem_biUnion]
+  rcases he with ⟨a, b, c, hS, he⟩
+  unfold pointEdges at he
+  simp_all +decide
+  have h_families :
+      familyOf N (vertexOf N a b c 0) = 0 ∧
+      familyOf N (vertexOf N a b c 1) = 1 ∧
+      familyOf N (vertexOf N a b c 2) = 2 ∧
+      familyOf N (vertexOf N a b c 3) = 3 := by
+    have h_bounds :
+        0 ≤ a ∧ a < N ∧ 0 ≤ b ∧ b < N ∧ 0 ≤ c ∧ c < N := by
+      have := ‹S ⊆ grid3 N› hS
+      simp_all +decide [grid3]
+      unfold gridRange at this
+      aesop
+    exact ⟨
+      encVertex_family hN (by norm_num) (by linarith) (by linarith),
+      encVertex_family hN (by norm_num) (by linarith) (by linarith),
+      encVertex_family hN (by norm_num) (by linarith) (by linarith),
+      encVertex_family hN (by norm_num) (by linarith) (by linarith)⟩
+  grind
+
+/-- The four-point quadruple from non-concurrent planes. -/
+lemma quadruple_of_nonconcurrent {N : ℕ} (_hN : N ≥ 1)
+    {S : Finset (ℤ × ℤ × ℤ)} {i j k l : ℤ}
+    (h012 : (i - j, i - k, i) ∈ S)
+    (h013 : (i - j, l + j, i) ∈ S)
+    (h023 : (l + k, i - k, i) ∈ S)
+    (h123 : (k + l, j + l, j + k + l) ∈ S)
+    (hne : l ≠ i - j - k) :
+    ContainsQuadruple S := by
+  use i - j, i - k, i, j + k + l - i
+  grind
+
+/-- The clique through a point: the set of 4 vertices through `(a,b,c)`. -/
+def pointClique (N : ℕ) (a b c : ℤ) : Finset ℕ :=
+  {vertexOf N a b c 0, vertexOf N a b c 1,
+   vertexOf N a b c 2, vertexOf N a b c 3}
+
+/-- The point clique has cardinality 4. -/
+lemma pointClique_card {N : ℕ} (hN : N ≥ 1) {a b c : ℤ}
+    (ha : 0 ≤ a ∧ a < ↑N) (hb : 0 ≤ b ∧ b < ↑N)
+    (hc : 0 ≤ c ∧ c < ↑N) :
+    (pointClique N a b c).card = 4 := by
+  convert Set.toFinset_card _
+  any_goals exact Set.range (fun i : Fin 4 => vertexOf N a b c i)
+  all_goals try infer_instance
+  · simp +decide [pointClique, Set.toFinset_range]
+    simp +decide [Fin.univ_succ]
+  · rw [Set.card_range_of_injective]
+    · rfl
+    · exact vertexOf_injective hN ha hb hc
+
+set_option linter.flexible false in
+/-- Every 3-element subset of the point clique is an edge. -/
+lemma pointClique_edges {N : ℕ} (_hN : N ≥ 1) {a b c : ℤ}
+    (_ha : 0 ≤ a ∧ a < ↑N) (_hb : 0 ≤ b ∧ b < ↑N)
+    (_hc : 0 ≤ c ∧ c < ↑N)
+    {S : Finset (ℤ × ℤ × ℤ)} (_hS : S ⊆ grid3 N)
+    (hmem : (a, b, c) ∈ S) :
+    ∀ t ⊆ pointClique N a b c,
+      t.card = 3 → t ∈ edgeSet N S := by
+  intro t ht ht'
+  have := Finset.card_eq_three.mp ht'
+  obtain ⟨x, y, z, hxyz⟩ := this
+  simp_all +decide only [subset_iff, edgeSet]
+  unfold pointEdges pointClique at *
+  simp_all +decide [Finset.mem_insert, Finset.mem_singleton]
+  use a, b, c, hmem
+  simp_all +decide [Finset.Subset.antisymm_iff, Finset.subset_iff]
+  rcases ht with
+    ⟨rfl | rfl | rfl | rfl,
+     rfl | rfl | rfl | rfl,
+     rfl | rfl | rfl | rfl⟩
+    <;> simp +decide at hxyz ⊢
+
+/-- The point clique is a subset of the vertex set. -/
+lemma pointClique_sub_vertexSet {N : ℕ} (_hN : N ≥ 1) {a b c : ℤ}
+    (_ha : 0 ≤ a ∧ a < ↑N) (_hb : 0 ≤ b ∧ b < ↑N)
+    (_hc : 0 ≤ c ∧ c < ↑N) :
+    pointClique N a b c ⊆ vertexSet N := by
+  intro x hx
+  unfold pointClique at hx
+  simp only [Finset.mem_insert, Finset.mem_singleton] at hx
+  rcases hx with rfl | rfl | rfl | rfl
+  all_goals
+    unfold vertexOf vertexSet
+    apply Finset.mem_range.mpr
+  · exact encVertex_lt _hN (by decide) (by linarith) (by linarith)
+  · exact encVertex_lt _hN (by decide) (by linarith) (by linarith)
+  · exact encVertex_lt _hN (by decide) (by linarith) (by linarith)
+  · exact encVertex_lt _hN (by decide) (by linarith) (by linarith)
+
+/-- Given an edge from families {0,1,2} with encoded vertices, recover the
+intersection point. -/
+lemma recover_point_012 {N : ℕ} (_hN : N ≥ 1) {a b c : ℤ}
+    (_ha : 0 ≤ a ∧ a < ↑N) (_hb : 0 ≤ b ∧ b < ↑N)
+    (_hc : 0 ≤ c ∧ c < ↑N) :
+    vertexOf N a b c 3 = encVertex N 3 (a + b - c) := by
+  simp [vertexOf]
+
+/-- Extract the generating point from an edge. -/
+lemma edge_from_point {N : ℕ} {S : Finset (ℤ × ℤ × ℤ)}
+    {e : Finset ℕ} (he : e ∈ edgeSet N S) :
+    ∃ a b c : ℤ,
+      (a, b, c) ∈ S ∧ e ∈ pointEdges N a b c := by
+  simp only [edgeSet, Finset.mem_biUnion] at he
+  obtain ⟨⟨a, b, c⟩, hmem, he⟩ := he
+  exact ⟨a, b, c, hmem, he⟩
+
+/-- Grid membership gives coordinate bounds. -/
+lemma grid_mem_bounds {N : ℕ} {S : Finset (ℤ × ℤ × ℤ)}
+    (hS : S ⊆ grid3 N) {a b c : ℤ} (hmem : (a, b, c) ∈ S) :
+    (0 ≤ a ∧ a < ↑N) ∧ (0 ≤ b ∧ b < ↑N) ∧ (0 ≤ c ∧ c < ↑N) := by
+  have := hS hmem
+  simp only [grid3, Finset.mem_product] at this
+  exact ⟨mem_gridRange.mp this.1,
+    mem_gridRange.mp this.2.1, mem_gridRange.mp this.2.2⟩
+
+/-- Each edge is a subset of its generating point's clique. -/
+lemma edge_sub_pointClique (N : ℕ) (a b c : ℤ)
+    {e : Finset ℕ} (he : e ∈ pointEdges N a b c) :
+    e ⊆ pointClique N a b c := by
+  unfold pointEdges at he
+  unfold pointClique
+  aesop
+
+/-- No edge has two vertices from the same family. -/
+lemma no_same_family_in_edge {N : ℕ} (hN : N ≥ 1)
+    {S : Finset (ℤ × ℤ × ℤ)} (hS : S ⊆ grid3 N)
+    {e : Finset ℕ} (he : e ∈ edgeSet N S)
+    {u v : ℕ} (hu : u ∈ e) (hv : v ∈ e) (huv : u ≠ v) :
+    familyOf N u ≠ familyOf N v := by
+  have h_families_distinct :
+      ∃ f₁ f₂ f₃ : ℕ, f₁ < f₂ ∧ f₂ < f₃ ∧ f₃ < 4 ∧
+        ∃ v₁ v₂ v₃ : ℕ, e = {v₁, v₂, v₃} ∧
+          familyOf N v₁ = f₁ ∧ familyOf N v₂ = f₂ ∧
+          familyOf N v₃ = f₃ :=
+    edge_families_distinct hN hS he
+  grind
+
+set_option linter.flexible false in
+/-- Any clique has at most 4 elements (pigeonhole on families). -/
+lemma clique_card_le_four {N : ℕ} (hN : N ≥ 1)
+    {S : Finset (ℤ × ℤ × ℤ)} (hS : S ⊆ grid3 N)
+    {K : Finset ℕ} (hK_sub : K ⊆ vertexSet N)
+    (hK_edges : ∀ t ⊆ K, t.card = 3 → t ∈ edgeSet N S) :
+    K.card ≤ 4 := by
+  contrapose! hK_edges
+  obtain ⟨u, w, hu, hw, h_family⟩ :
+      ∃ u w : ℕ, u ∈ K ∧ w ∈ K ∧ u ≠ w ∧
+        familyOf N u = familyOf N w := by
+    have h_pigeonhole :
+        Finset.card (Finset.image (fun v => familyOf N v) K) ≤ 4 := by
+      have h_family_range : ∀ v ∈ K, familyOf N v < 4 := by
+        intro v hv
+        have := hK_sub hv
+        simp_all +decide [vertexSet]
+        exact Nat.div_lt_of_lt_mul <| by linarith
+      exact le_trans
+        (Finset.card_le_card
+          (Finset.image_subset_iff.mpr fun v hv =>
+            Finset.mem_range.mpr (h_family_range v hv)))
+        (by norm_num)
+    contrapose! h_pigeonhole
+    rw [Finset.card_image_of_injOn fun u hu v hv huv => by
+      contrapose! huv
+      exact h_pigeonhole u v hu hv huv]
+    linarith
+  obtain ⟨x, hx⟩ : ∃ x ∈ K, x ≠ u ∧ x ≠ w :=
+    Exists.imp (by aesop)
+      (Finset.exists_mem_ne
+        (show 1 < Finset.card (Finset.erase K u) from by
+          rw [Finset.card_erase_of_mem hu]
+          omega)
+        w)
+  refine ⟨{u, w, x}, ?_, ?_, ?_⟩
+    <;> simp_all +decide [Finset.insert_subset_iff]
+  · grind
+  · intro H
+    exact absurd
+      (no_same_family_in_edge hN hS H (by aesop) (by aesop) h_family.1)
+      (by aesop)
+
+set_option linter.flexible false in
+/-- An edge with vertices from families 0, 1, 3 implies its intersection
+point is in S. -/
+lemma edge_013_mem {N : ℕ} (hN : N ≥ 1)
+    {S : Finset (ℤ × ℤ × ℤ)} (hS : S ⊆ grid3 N) {i j l : ℤ}
+    (hi : 0 ≤ i + ↑N ∧ i + ↑N < 3 * ↑N)
+    (hj : 0 ≤ j + ↑N ∧ j + ↑N < 3 * ↑N)
+    (hl : 0 ≤ l + ↑N ∧ l + ↑N < 3 * ↑N)
+    (he : ({encVertex N 0 i, encVertex N 1 j,
+            encVertex N 3 l} : Finset ℕ) ∈ edgeSet N S) :
+    (i - j, l + j, i) ∈ S := by
+  obtain ⟨p, hp, hp'⟩ := Finset.mem_biUnion.mp he
+  obtain ⟨a, b, c, ha, hb, hc, h_eq⟩ :
+      ∃ a b c : ℤ, p = (a, b, c) ∧
+        (0 ≤ a ∧ a < N) ∧ (0 ≤ b ∧ b < N) ∧ (0 ≤ c ∧ c < N) := by
+    have := grid_mem_bounds hS hp
+    aesop
+  simp_all +decide [pointEdges]
+  rcases hp' with hp' | hp' | hp' | hp'
+    <;> simp_all +decide [Finset.Subset.antisymm_iff, Finset.subset_iff]
+  · unfold vertexOf at *
+    unfold encVertex at *
+    grind
+  · unfold vertexOf at *
+    simp_all +decide [encVertex]
+    have h_eqs : i = c ∧ j = -a + c ∧ l = a + b - c := by omega
+    grind +extAll
+  · unfold vertexOf at hp'
+    unfold encVertex at *
+    grind
+  · grind +locals
+
+set_option linter.flexible false in
+/-- An edge with vertices from families 0, 2, 3 implies its intersection
+point is in S. -/
+lemma edge_023_mem {N : ℕ} (hN : N ≥ 1)
+    {S : Finset (ℤ × ℤ × ℤ)} (hS : S ⊆ grid3 N) {i k l : ℤ}
+    (hi : 0 ≤ i + ↑N ∧ i + ↑N < 3 * ↑N)
+    (hk : 0 ≤ k + ↑N ∧ k + ↑N < 3 * ↑N)
+    (hl : 0 ≤ l + ↑N ∧ l + ↑N < 3 * ↑N)
+    (he : ({encVertex N 0 i, encVertex N 2 k,
+            encVertex N 3 l} : Finset ℕ) ∈ edgeSet N S) :
+    (l + k, i - k, i) ∈ S := by
+  obtain ⟨a, b, c, hp⟩ :
+      ∃ a b c : ℤ, (a, b, c) ∈ S ∧
+        ({encVertex N 0 i, encVertex N 2 k,
+          encVertex N 3 l} : Finset ℕ) =
+          {encVertex N 0 i, encVertex N 2 k, encVertex N 3 l} ∧
+        ({encVertex N 0 i, encVertex N 2 k,
+          encVertex N 3 l} : Finset ℕ) ∈ pointEdges N a b c := by
+    unfold edgeSet at he
+    aesop
+  obtain ⟨ha, hb, hc⟩ := grid_mem_bounds hS hp.1
+  have h_eq :
+      encVertex N 0 c = encVertex N 0 i ∧
+      encVertex N 2 (-b + c) = encVertex N 2 k ∧
+      encVertex N 3 (a + b - c) = encVertex N 3 l := by
+    unfold pointEdges at hp
+    unfold vertexOf at hp
+    simp_all +decide [Finset.ext_iff]
+    rcases hp.2 with h | h | h | h
+      <;> have := h (encVertex N 0 i)
+      <;> have := h (encVertex N 2 k)
+      <;> have := h (encVertex N 3 l)
+      <;> simp_all +decide [encVertex]
+    · omega
+    · omega
+    · grind +qlia
+    · omega
+  unfold encVertex at h_eq
+  grind
+
+set_option linter.flexible false in
+/-- An edge with vertices from families 1, 2, 3 implies its intersection
+point is in S. -/
+lemma edge_123_mem {N : ℕ} (hN : N ≥ 1)
+    {S : Finset (ℤ × ℤ × ℤ)} (hS : S ⊆ grid3 N) {j k l : ℤ}
+    (hj : 0 ≤ j + ↑N ∧ j + ↑N < 3 * ↑N)
+    (hk : 0 ≤ k + ↑N ∧ k + ↑N < 3 * ↑N)
+    (hl : 0 ≤ l + ↑N ∧ l + ↑N < 3 * ↑N)
+    (he : ({encVertex N 1 j, encVertex N 2 k,
+            encVertex N 3 l} : Finset ℕ) ∈ edgeSet N S) :
+    (k + l, j + l, j + k + l) ∈ S := by
+  obtain ⟨p, hp, hp'⟩ := Finset.mem_biUnion.mp he
+  unfold pointEdges at hp'
+  have := grid_mem_bounds hS hp
+  simp_all +decide [Finset.ext_iff]
+  rcases hp' with hp' | hp' | hp' | hp'
+    <;> have := hp' (encVertex N 1 j)
+    <;> have := hp' (encVertex N 2 k)
+    <;> have := hp' (encVertex N 3 l)
+    <;> simp_all +decide [vertexOf]
+  · unfold encVertex at *
+    grind +revert
+  · unfold encVertex at *
+    grind
+  · unfold encVertex at *
+    grind
+  · unfold encVertex at *
+    grind
+
+set_option linter.flexible false in
+/-- Key concurrent argument: if v0, v1, v2 ∈ K and v' ∈ K \ {v0,v1,v2},
+then v' = v3. This uses the family argument and `quadruple_of_nonconcurrent`. -/
+lemma fourth_vertex_012 {N : ℕ} (hN : N ≥ 1)
+    {S : Finset (ℤ × ℤ × ℤ)} (hS : S ⊆ grid3 N)
+    (hnoQ : ¬ContainsQuadruple S)
+    {a b c : ℤ} (hmem : (a, b, c) ∈ S)
+    (ha : 0 ≤ a ∧ a < ↑N) (hb : 0 ≤ b ∧ b < ↑N) (hc : 0 ≤ c ∧ c < ↑N)
+    {K : Finset ℕ} (hK_sub : K ⊆ vertexSet N)
+    (hK_edges : ∀ t ⊆ K, t.card = 3 → t ∈ edgeSet N S)
+    {v' : ℕ} (hv' : v' ∈ K)
+    (hv0 : vertexOf N a b c 0 ∈ K)
+    (hv1 : vertexOf N a b c 1 ∈ K)
+    (hv2 : vertexOf N a b c 2 ∈ K)
+    (hne0 : v' ≠ vertexOf N a b c 0)
+    (hne1 : v' ≠ vertexOf N a b c 1)
+    (hne2 : v' ≠ vertexOf N a b c 2) :
+    v' = vertexOf N a b c 3 := by
+  have h_family_v' : familyOf N v' = 3 := by
+    have h_fam_ne :
+        familyOf N v' ≠ 0 ∧ familyOf N v' ≠ 1 ∧ familyOf N v' ≠ 2 := by
+      have h_ne : ∀ u v : ℕ, u ∈ K → v ∈ K → u ≠ v →
+          familyOf N u ≠ familyOf N v := by
+        intro u v hu hv huv
+        have h_edge : ∃ e ∈ edgeSet N S, u ∈ e ∧ v ∈ e ∧ e.card = 3 := by
+          obtain ⟨w, hw⟩ : ∃ w ∈ K, w ≠ u ∧ w ≠ v := by grind +locals
+          use {u, v, w}
+          grind
+        obtain ⟨e, he₁, he₂, he₃, _⟩ := h_edge
+        exact no_same_family_in_edge hN hS he₁ he₂ he₃ huv
+      have h_fam :
+          familyOf N (vertexOf N a b c 0) = 0 ∧
+          familyOf N (vertexOf N a b c 1) = 1 ∧
+          familyOf N (vertexOf N a b c 2) = 2 :=
+        ⟨encVertex_family hN (by decide) (by linarith) (by linarith),
+         encVertex_family hN (by decide) (by linarith) (by linarith),
+         encVertex_family hN (by decide) (by linarith) (by linarith)⟩
+      grind +ring
+    have h_range : familyOf N v' < 4 :=
+      Nat.div_lt_of_lt_mul <| by
+        linarith [Finset.mem_range.mp (hK_sub hv')]
+    interval_cases familyOf N v' <;> trivial
+  obtain ⟨l, hl⟩ :
+      ∃ l : ℤ, v' = encVertex N 3 l ∧
+        0 ≤ l + ↑N ∧ l + ↑N < 3 * ↑N := by
+    unfold familyOf at h_family_v'
+    unfold encVertex
+    use v' % (3 * N) - N
+    norm_num [Nat.div_eq_of_lt] at *
+    exact ⟨by
+      norm_cast
+      nlinarith [Nat.mod_add_div v' (3 * N),
+        Int.toNat_of_nonneg
+          (Int.emod_nonneg v' (by positivity : (3 * N : ℤ) ≠ 0))],
+      Int.emod_nonneg _ (by positivity),
+      Int.emod_lt_of_pos _ (by positivity)⟩
+  have h013 : (a, l - a + c, c) ∈ S := by
+    have h013 :
+        ({encVertex N 0 c, encVertex N 1 (-a + c),
+          encVertex N 3 l} : Finset ℕ) ∈ edgeSet N S := by
+      convert hK_edges
+        {vertexOf N a b c 0, vertexOf N a b c 1, v'} _ _
+        using 1 <;> simp_all +decide [Finset.subset_iff]
+      · simp [vertexOf]
+      · rw [Finset.card_insert_of_notMem, Finset.card_insert_of_notMem]
+          <;> simp +decide [*]
+        · exact Ne.symm hne1
+        · exact ⟨by
+            exact fun h => by
+              have := vertexOf_injective hN ha hb hc
+              have := @this 0 1
+              aesop,
+            by tauto⟩
+    convert edge_013_mem hN hS _ _ _ h013 using 1
+    · ring_nf
+    · constructor <;> linarith
+    · constructor <;> linarith
+    · tauto
+  have h023 : (l - b + c, b, c) ∈ S := by
+    have h023 :
+        ({encVertex N 0 c, encVertex N 2 (-b + c),
+          encVertex N 3 l} : Finset ℕ) ∈ edgeSet N S := by
+      convert hK_edges _ _ _ using 1
+      · simp_all +decide [Finset.subset_iff]
+        exact ⟨hv0, hv2⟩
+      · rw [Finset.card_insert_of_notMem,
+          Finset.card_insert_of_notMem, Finset.card_singleton]
+          <;> simp +decide [*, encVertex]
+        · omega
+        · constructor <;> omega
+    convert edge_023_mem hN hS _ _ _ h023 using 1
+    · ring_nf
+    · constructor <;> linarith
+    · constructor <;> linarith
+    · tauto
+  have h123 :
+      ((-b + c) + l, (-a + c) + l,
+       (-a + c) + (-b + c) + l) ∈ S := by
+    convert edge_123_mem hN hS _ _ _ _ using 1
+    · constructor <;> linarith
+    · constructor <;> linarith
+    · tauto
+    · convert hK_edges
+        {vertexOf N a b c 1, vertexOf N a b c 2, v'} _ _ using 1
+      · aesop
+      · simp_all +decide [Finset.insert_subset_iff]
+      · rw [Finset.card_insert_of_notMem, Finset.card_insert_of_notMem]
+          <;> simp +decide [*]
+        · grind
+        · constructor <;> intro h
+            <;> have := vertexOf_injective hN ha hb hc
+            <;> simp_all +decide [Function.Injective]
+          exact absurd (@this 1 2) (by simp +decide [h])
+  by_cases h_eq : l = a + b - c
+  · aesop
+  · contrapose! hnoQ
+    use a, b, c, l - a - b + c
+    exact ⟨by
+      contrapose! h_eq
+      linarith, hmem,
+      by
+        convert h023 using 1
+        ring_nf,
+      by
+        convert h013 using 1
+        ring_nf,
+      by
+        convert h123 using 1
+        ring_nf⟩
+
+set_option linter.flexible false in
+/-- An edge with vertices from families 0, 1, 2 implies its intersection
+point is in S. -/
+lemma edge_012_mem {N : ℕ} (hN : N ≥ 1)
+    {S : Finset (ℤ × ℤ × ℤ)} (hS : S ⊆ grid3 N) {i j k : ℤ}
+    (hi : 0 ≤ i + ↑N ∧ i + ↑N < 3 * ↑N)
+    (hj : 0 ≤ j + ↑N ∧ j + ↑N < 3 * ↑N)
+    (hk : 0 ≤ k + ↑N ∧ k + ↑N < 3 * ↑N)
+    (he : ({encVertex N 0 i, encVertex N 1 j,
+            encVertex N 2 k} : Finset ℕ) ∈ edgeSet N S) :
+    (i - j, i - k, i) ∈ S := by
+  revert he
+  intro he
+  obtain ⟨p, hp, hp'⟩ := Finset.mem_biUnion.mp he
+  have h_bounds :
+      (0 ≤ p.1 ∧ p.1 < ↑N) ∧
+      (0 ≤ p.2.1 ∧ p.2.1 < ↑N) ∧
+      (0 ≤ p.2.2 ∧ p.2.2 < ↑N) :=
+    grid_mem_bounds hS hp
+  simp_all +decide [pointEdges]
+  rcases hp' with hp' | hp' | hp' | hp'
+    <;> simp_all +decide [Finset.Subset.antisymm_iff, Finset.subset_iff]
+  · simp_all +decide [encVertex, vertexOf]
+    have h_eq : i = p.2.2 ∧ j = -p.1 + p.2.2 ∧ k = -p.2.1 + p.2.2 := by
+      omega
+    aesop
+  · unfold vertexOf at *
+    simp_all +decide [encVertex]
+    omega
+  · unfold vertexOf at *
+    simp_all +decide [encVertex]
+    omega
+  · unfold vertexOf at *
+    simp_all +decide
+    unfold encVertex at *
+    omega
+
+/-- In a clique K of size ≥ 4, any two distinct members have distinct
+families. -/
+lemma distinct_families_in_clique {N : ℕ} (hN : N ≥ 1)
+    {S : Finset (ℤ × ℤ × ℤ)} (hS : S ⊆ grid3 N)
+    {K : Finset ℕ} (_hK_sub : K ⊆ vertexSet N)
+    (hK_edges : ∀ t ⊆ K, t.card = 3 → t ∈ edgeSet N S)
+    (hK_card : 4 ≤ K.card)
+    {u v : ℕ} (hu : u ∈ K) (hv : v ∈ K) (huv : u ≠ v) :
+    familyOf N u ≠ familyOf N v := by
+  obtain ⟨w, hwK, hw⟩ : ∃ w ∈ K, w ≠ u ∧ w ≠ v :=
+    Exists.imp (by aesop)
+      (Finset.exists_mem_ne
+        (show 1 < # (K.erase u) from by
+          rw [Finset.card_erase_of_mem hu]
+          omega)
+        v)
+  have h_edge : {u, v, w} ∈ edgeSet N S := by grind
+  exact no_same_family_in_edge hN hS h_edge
+    (by aesop) (by aesop) (by aesop)
+
+set_option linter.flexible false in
+/-- Helper: the fourth vertex in a clique containing v0, v1, v3 has
+family 2. -/
+lemma fourth_vertex_013_family {N : ℕ} (hN : N ≥ 1)
+    {S : Finset (ℤ × ℤ × ℤ)} (hS : S ⊆ grid3 N)
+    {a b c : ℤ} (ha : 0 ≤ a ∧ a < ↑N)
+    (hb : 0 ≤ b ∧ b < ↑N) (hc : 0 ≤ c ∧ c < ↑N)
+    {K : Finset ℕ} (hK_sub : K ⊆ vertexSet N)
+    (hK_edges : ∀ t ⊆ K, t.card = 3 → t ∈ edgeSet N S)
+    {v' : ℕ} (hv' : v' ∈ K)
+    (hv0 : vertexOf N a b c 0 ∈ K)
+    (hv1 : vertexOf N a b c 1 ∈ K)
+    (hv3 : vertexOf N a b c 3 ∈ K)
+    (hne0 : v' ≠ vertexOf N a b c 0)
+    (hne1 : v' ≠ vertexOf N a b c 1)
+    (hne3 : v' ≠ vertexOf N a b c 3) :
+    familyOf N v' = 2 := by
+  -- v' is in K and K has ≥ 4 distinct elements, so v' must belong to a
+  -- different family than v0, v1, and v3.
+  have h_family_distinct :
+      familyOf N v' ≠ familyOf N (vertexOf N a b c 0) ∧
+      familyOf N v' ≠ familyOf N (vertexOf N a b c 1) ∧
+      familyOf N v' ≠ familyOf N (vertexOf N a b c 3) := by
+    have h_unique_clique : ∀ u v : ℕ, u ∈ K → v ∈ K → u ≠ v →
+        familyOf N u ≠ familyOf N v := by
+      intro u v hu hv huv
+      apply distinct_families_in_clique hN hS hK_sub hK_edges
+      · have h_card :
+            Finset.card ({v', vertexOf N a b c 0,
+              vertexOf N a b c 1, vertexOf N a b c 3} : Finset ℕ) =
+            4 := by
+          rw [Finset.card_insert_of_notMem,
+            Finset.card_insert_of_notMem,
+            Finset.card_insert_of_notMem]
+            <;> simp +decide [*]
+          · unfold vertexOf
+            simp +decide [encVertex]
+            omega
+          · constructor <;> intro h
+              <;> have := vertexOf_injective hN ha hb hc
+              <;> simp_all +decide [Function.Injective]
+            · exact absurd (this h) (by decide)
+            · exact absurd (@this 0 3 h) (by decide)
+        exact h_card ▸ Finset.card_le_card
+          (Finset.insert_subset_iff.mpr
+            ⟨hv', Finset.insert_subset_iff.mpr
+              ⟨hv0, Finset.insert_subset_iff.mpr
+                ⟨hv1, Finset.singleton_subset_iff.mpr hv3⟩⟩⟩)
+      · assumption
+      · assumption
+      · assumption
+    exact ⟨h_unique_clique _ _ hv' hv0 hne0,
+      h_unique_clique _ _ hv' hv1 hne1,
+      h_unique_clique _ _ hv' hv3 hne3⟩
+  -- Since familyOf N v' is not 0, 1, or 3, it must be 2.
+  have h_family_2 :
+      familyOf N (vertexOf N a b c 0) = 0 ∧
+      familyOf N (vertexOf N a b c 1) = 1 ∧
+      familyOf N (vertexOf N a b c 3) = 3 := by
+    exact ⟨encVertex_family hN (by decide) (by omega) (by omega),
+      encVertex_family hN (by decide) (by omega) (by omega),
+      encVertex_family hN (by decide) (by omega) (by omega)⟩
+  have h_family_2 : familyOf N v' < 4 :=
+    Nat.div_lt_of_lt_mul <| by
+      linarith [Finset.mem_range.mp (hK_sub hv')]
+  grind
+
+/-- Extract `encVertex N 2 k` data from a vertex in family 2. -/
+lemma family2_to_encVertex {N : ℕ} (hN : N ≥ 1) {v' : ℕ}
+    (_hv'_mem : v' ∈ vertexSet N) (h_family : familyOf N v' = 2) :
+    ∃ k : ℤ, v' = encVertex N 2 k ∧
+      0 ≤ k + ↑N ∧ k + ↑N < 3 * ↑N := by
+  unfold familyOf at h_family
+  unfold encVertex
+  use v' - 2 * (3 * N) - N
+  rw [Nat.div_eq_iff] at h_family
+  · omega
+  · linarith
+
+set_option linter.flexible false in
+/-- The fourth vertex of a clique containing {v0, v1, v3} equals v2. -/
+lemma fourth_vertex_013 {N : ℕ} (hN : N ≥ 1)
+    {S : Finset (ℤ × ℤ × ℤ)} (hS : S ⊆ grid3 N)
+    (hnoQ : ¬ContainsQuadruple S)
+    {a b c : ℤ} (hmem : (a, b, c) ∈ S)
+    (ha : 0 ≤ a ∧ a < ↑N) (hb : 0 ≤ b ∧ b < ↑N)
+    (hc : 0 ≤ c ∧ c < ↑N)
+    {K : Finset ℕ} (hK_sub : K ⊆ vertexSet N)
+    (hK_edges : ∀ t ⊆ K, t.card = 3 → t ∈ edgeSet N S)
+    {v' : ℕ} (hv' : v' ∈ K)
+    (hv0 : vertexOf N a b c 0 ∈ K)
+    (hv1 : vertexOf N a b c 1 ∈ K)
+    (hv3 : vertexOf N a b c 3 ∈ K)
+    (hne0 : v' ≠ vertexOf N a b c 0)
+    (hne1 : v' ≠ vertexOf N a b c 1)
+    (hne3 : v' ≠ vertexOf N a b c 3) :
+    v' = vertexOf N a b c 2 := by
+  obtain ⟨k, hk⟩ := family2_to_encVertex hN (hK_sub hv') (by
+    apply fourth_vertex_013_family hN hS ha hb hc hK_sub hK_edges
+      hv' hv0 hv1 hv3 hne0 hne1 hne3)
+  contrapose! hnoQ
+  have h_edge012 : (a, c - k, c) ∈ S := by
+    have h_point :
+        ({encVertex N 0 c, encVertex N 1 (-a + c),
+          encVertex N 2 k} : Finset ℕ) ∈ edgeSet N S := by
+      convert hK_edges _ _ _ using 1
+      · simp_all +decide [Finset.subset_iff]
+        exact ⟨hv0, hv1⟩
+      · rw [Finset.card_insert_of_notMem,
+          Finset.card_insert_of_notMem, Finset.card_singleton]
+          <;> simp +decide [*, encVertex]
+        · lia
+        · omega
+    convert edge_012_mem hN hS _ _ _ h_point using 1
+    · ring_nf
+    · constructor <;> linarith
+    · constructor <;> linarith
+    · tauto
+  have h_edge023 : (a + b - c + k, c - k, c) ∈ S := by
+    have h_edge023 :
+        ({encVertex N 0 c, encVertex N 2 k,
+          encVertex N 3 (a + b - c)} : Finset ℕ) ∈ edgeSet N S := by
+      convert hK_edges _ _ _ using 1
+      · simp_all +decide [Finset.subset_iff]
+        exact ⟨hv0, hv3⟩
+      · rw [Finset.card_insert_of_notMem,
+          Finset.card_insert_of_notMem, Finset.card_singleton]
+          <;> simp +decide [*, encVertex]
+        · grind
+        · constructor <;> omega
+    have := edge_023_mem hN hS
+      (show 0 ≤ c + ↑N ∧ c + ↑N < 3 * ↑N from ⟨by linarith, by linarith⟩)
+      (show 0 ≤ k + ↑N ∧ k + ↑N < 3 * ↑N from ⟨by linarith, by linarith⟩)
+      (show 0 ≤ a + b - c + ↑N ∧ a + b - c + ↑N < 3 * ↑N from
+        ⟨by linarith, by linarith⟩)
+      h_edge023
+    aesop
+  have h_edge123 : (k + (a + b - c), b, k + b) ∈ S := by
+    convert edge_123_mem hN hS _ _ _ _ using 1
+    rotate_left
+    · exact -a + c
+    · exact k
+    · exact a + b - c
+    · constructor <;> linarith
+    · tauto
+    · constructor <;> linarith
+    · convert hK_edges {vertexOf N a b c 1, vertexOf N a b c 3, v'} _ _
+        using 1
+      · aesop
+      · simp_all +decide [Finset.insert_subset_iff]
+      · rw [Finset.card_insert_of_notMem,
+          Finset.card_insert_of_notMem] <;> simp +decide [*]
+        · grind
+        · constructor <;> intro h <;> simp_all +decide [vertexOf]
+          unfold encVertex at h
+          norm_num at h
+          omega
+    · ring_nf
+  use a, c - k, c, b - (c - k)
+  grind +locals
+
+set_option maxHeartbeats 800000 in
+-- Complex family analysis requires extra heartbeats.
+set_option linter.flexible false in
+/-- The fourth vertex of a clique containing {v0, v2, v3} equals v1. -/
+lemma fourth_vertex_023 {N : ℕ} (hN : N ≥ 1)
+    {S : Finset (ℤ × ℤ × ℤ)} (hS : S ⊆ grid3 N)
+    (hnoQ : ¬ContainsQuadruple S)
+    {a b c : ℤ} (hmem : (a, b, c) ∈ S)
+    (ha : 0 ≤ a ∧ a < ↑N) (hb : 0 ≤ b ∧ b < ↑N)
+    (hc : 0 ≤ c ∧ c < ↑N)
+    {K : Finset ℕ} (hK_sub : K ⊆ vertexSet N)
+    (hK_edges : ∀ t ⊆ K, t.card = 3 → t ∈ edgeSet N S)
+    {v' : ℕ} (hv' : v' ∈ K)
+    (hv0 : vertexOf N a b c 0 ∈ K)
+    (hv2 : vertexOf N a b c 2 ∈ K)
+    (hv3 : vertexOf N a b c 3 ∈ K)
+    (hne0 : v' ≠ vertexOf N a b c 0)
+    (hne2 : v' ≠ vertexOf N a b c 2)
+    (hne3 : v' ≠ vertexOf N a b c 3) :
+    v' = vertexOf N a b c 1 := by
+  obtain ⟨j, hj⟩ :
+      ∃ j : ℤ, v' = encVertex N 1 j ∧
+        0 ≤ j + N ∧ j + N < 3 * N := by
+    have h_family : familyOf N v' = 1 := by
+      have h_family :
+          familyOf N v' ≠ 0 ∧ familyOf N v' ≠ 2 ∧
+          familyOf N v' ≠ 3 := by
+        refine ⟨?_, ?_, ?_⟩
+        · intro h
+          have := distinct_families_in_clique hN hS hK_sub hK_edges
+            (show 4 ≤ K.card from ?_) hv' hv0
+          · simp_all +decide
+            exact this (by
+              rw [show familyOf N (vertexOf N a b c 0) = 0 from by
+                exact encVertex_family hN (by norm_num)
+                  (by linarith) (by linarith)])
+          · refine Finset.card_le_card
+              (show {v', vertexOf N a b c 0, vertexOf N a b c 2,
+                  vertexOf N a b c 3} ⊆ K from by
+                simp_all +decide [Finset.insert_subset_iff,
+                  Finset.singleton_subset_iff])
+              |> le_trans ?_
+            grind +locals
+        · intro h
+          have := distinct_families_in_clique hN hS hK_sub hK_edges
+            (show 4 ≤ K.card from ?_) hv' hv2
+          · simp_all +decide
+            contrapose! this
+            rw [show vertexOf N a b c 2 = encVertex N 2 (-b + c) from rfl,
+              encVertex_family]
+              <;> norm_num [ha, hb, hc]
+            · linarith
+            · linarith
+            · linarith
+          · refine Finset.card_le_card
+              (show {v', vertexOf N a b c 0, vertexOf N a b c 2,
+                  vertexOf N a b c 3} ⊆ K from by
+                simp_all +decide [Finset.insert_subset_iff,
+                  Finset.singleton_subset_iff])
+              |> le_trans ?_
+            rw [Finset.card_insert_of_notMem,
+              Finset.card_insert_of_notMem,
+              Finset.card_insert_of_notMem]
+              <;> simp +decide [*]
+            · unfold vertexOf
+              simp +decide [encVertex]
+              omega
+            · constructor <;> intro H
+                <;> have := vertexOf_injective hN ha hb hc
+                <;> simp_all +decide [Function.Injective]
+              · exact absurd (this H) (by decide)
+              · exact absurd (this H) (by decide)
+        · intro h
+          have := distinct_families_in_clique hN hS hK_sub hK_edges
+            (show 4 ≤ K.card from ?_) hv' hv3
+          · simp_all +decide
+            unfold vertexOf at *
+            simp_all +decide [familyOf]
+            unfold encVertex at *
+            simp_all +decide []
+            exact this (by
+              rw [Nat.le_antisymm_iff]
+              exact ⟨Nat.le_div_iff_mul_le (by positivity) |>.2 <| by
+                linarith [Int.toNat_of_nonneg
+                  (by linarith : 0 ≤ a + b - c + N)],
+                Nat.le_of_lt_succ <| Nat.div_lt_of_lt_mul <| by
+                  linarith [Int.toNat_of_nonneg
+                    (by linarith : 0 ≤ a + b - c + N)]⟩)
+          · have h_card : K.card ≥ 4 := by
+              have h_distinct :
+                  v' ≠ vertexOf N a b c 0 ∧
+                  v' ≠ vertexOf N a b c 2 ∧
+                  v' ≠ vertexOf N a b c 3 ∧
+                  vertexOf N a b c 0 ≠ vertexOf N a b c 2 ∧
+                  vertexOf N a b c 0 ≠ vertexOf N a b c 3 ∧
+                  vertexOf N a b c 2 ≠ vertexOf N a b c 3 := by
+                grind +locals
+              exact Finset.card_le_card
+                (show {v', vertexOf N a b c 0, vertexOf N a b c 2,
+                    vertexOf N a b c 3} ⊆ K from by
+                  simp_all +decide [Finset.insert_subset_iff,
+                    Finset.singleton_subset_iff])
+                |> le_trans (by simp +decide [*])
+            exact h_card
+      have h_family : familyOf N v' < 4 :=
+        Nat.div_lt_of_lt_mul <| by
+          linarith [Finset.mem_range.mp (hK_sub hv')]
+      interval_cases familyOf N v' <;> trivial
+    unfold familyOf encVertex at *
+    use (v' % (3 * N)) - N
+    norm_num +zetaDelta at *
+    exact ⟨by
+      nlinarith [Nat.mod_add_div v' (3 * N),
+        Int.toNat_of_nonneg
+          (Int.emod_nonneg v' (by positivity : (3 * N : ℤ) ≠ 0))],
+      Int.emod_nonneg _ (by positivity),
+      Int.emod_lt_of_pos _ (by positivity)⟩
+  -- By Lemma edge_012_mem, we have (i - j, i - k, i) ∈ S.
+  have h012 : (c - j, c - (-b + c), c) ∈ S := by
+    apply edge_012_mem hN hS
+    · constructor <;> linarith
+    · tauto
+    · constructor <;> linarith
+    · convert hK_edges _ _ _ using 1
+      · simp_all +decide [Finset.subset_iff]
+        exact ⟨hv0, hv2⟩
+      · rw [Finset.card_insert_of_notMem,
+          Finset.card_insert_of_notMem, Finset.card_singleton]
+          <;> simp +decide [*, encVertex]
+        · omega
+        · omega
+  -- By Lemma edge_013_mem, we have (i - j, l + j, i) ∈ S.
+  have h013 : (c - j, (a + b - c) + j, c) ∈ S := by
+    apply edge_013_mem hN hS
+    · constructor <;> linarith
+    · tauto
+    · constructor <;> linarith
+    · convert hK_edges {v', vertexOf N a b c 0, vertexOf N a b c 3} _ _
+        using 1
+      · unfold vertexOf
+        aesop
+      · simp_all +decide [Finset.insert_subset_iff]
+      · rw [Finset.card_insert_of_notMem,
+          Finset.card_insert_of_notMem] <;> simp +decide [*]
+        · unfold vertexOf
+          simp +decide [encVertex]
+          omega
+        · grind
+  -- By Lemma edge_123_mem, we have (k + l, j + l, j + k + l) ∈ S.
+  have h123 :
+      ((-b + c) + (a + b - c), j + (a + b - c),
+       j + (-b + c) + (a + b - c)) ∈ S := by
+    apply edge_123_mem hN hS
+    · tauto
+    · constructor <;> linarith
+    · constructor <;> linarith
+    · convert hK_edges {v', vertexOf N a b c 2, vertexOf N a b c 3} _ _
+        using 1
+      · aesop
+      · simp_all +decide [Finset.insert_subset_iff]
+      · rw [Finset.card_insert_of_notMem,
+          Finset.card_insert_of_notMem] <;> simp +decide [*]
+        · unfold vertexOf
+          simp +decide [encVertex]
+          omega
+        · grind
+  by_cases h : j = -a + c <;> simp_all +decide
+  · exact Nat.add_zero ((1 * (3 * N)).add (-a + c + ↑N).toNat)
+  · contrapose! hnoQ
+    use c - j, b, c, j - (-a + c)
+    lia
+
+set_option maxHeartbeats 800000 in
+-- Complex family analysis requires extra heartbeats.
+set_option linter.flexible false in
+/-- The fourth vertex of a clique containing {v1, v2, v3} equals v0. -/
+lemma fourth_vertex_123 {N : ℕ} (hN : N ≥ 1)
+    {S : Finset (ℤ × ℤ × ℤ)} (hS : S ⊆ grid3 N)
+    (hnoQ : ¬ContainsQuadruple S)
+    {a b c : ℤ} (hmem : (a, b, c) ∈ S)
+    (ha : 0 ≤ a ∧ a < ↑N) (hb : 0 ≤ b ∧ b < ↑N)
+    (hc : 0 ≤ c ∧ c < ↑N)
+    {K : Finset ℕ} (hK_sub : K ⊆ vertexSet N)
+    (hK_edges : ∀ t ⊆ K, t.card = 3 → t ∈ edgeSet N S)
+    {v' : ℕ} (hv' : v' ∈ K)
+    (hv1 : vertexOf N a b c 1 ∈ K)
+    (hv2 : vertexOf N a b c 2 ∈ K)
+    (hv3 : vertexOf N a b c 3 ∈ K)
+    (hne1 : v' ≠ vertexOf N a b c 1)
+    (hne2 : v' ≠ vertexOf N a b c 2)
+    (hne3 : v' ≠ vertexOf N a b c 3) :
+    v' = vertexOf N a b c 0 := by
+  -- v' is in K and distinct from v1, v2, v3. We need to show v' = v0.
+  have h_family : familyOf N v' = 0 := by
+    have h_family :
+        familyOf N v' ≠ 1 ∧ familyOf N v' ≠ 2 ∧ familyOf N v' ≠ 3 := by
+      have h_family :
+          familyOf N (vertexOf N a b c 1) = 1 ∧
+          familyOf N (vertexOf N a b c 2) = 2 ∧
+          familyOf N (vertexOf N a b c 3) = 3 := by
+        unfold vertexOf
+        simp +decide [familyOf]
+        unfold encVertex
+        norm_num [Nat.add_div, Nat.mul_div_assoc, hN]
+        exact ⟨
+          Nat.le_antisymm
+            (Nat.le_of_lt_succ <| Nat.div_lt_of_lt_mul <| by
+              linarith [Int.toNat_of_nonneg (by linarith : 0 ≤ -a + c + N)])
+            (Nat.le_div_iff_mul_le (by linarith) |>.2 <| by
+              linarith [Int.toNat_of_nonneg
+                (by linarith : 0 ≤ -a + c + N)]),
+          Nat.le_antisymm
+            (Nat.le_of_lt_succ <| Nat.div_lt_of_lt_mul <| by
+              linarith [Int.toNat_of_nonneg (by linarith : 0 ≤ -b + c + N)])
+            (Nat.le_div_iff_mul_le (by linarith) |>.2 <| by
+              linarith [Int.toNat_of_nonneg
+                (by linarith : 0 ≤ -b + c + N)]),
+          Nat.le_antisymm
+            (Nat.le_of_lt_succ <| Nat.div_lt_of_lt_mul <| by
+              linarith [Int.toNat_of_nonneg
+                (by linarith : 0 ≤ a + b - c + N)])
+            (Nat.le_div_iff_mul_le (by linarith) |>.2 <| by
+              linarith [Int.toNat_of_nonneg
+                (by linarith : 0 ≤ a + b - c + N)])⟩
+      have h_family : ∀ u v : ℕ, u ∈ K → v ∈ K → u ≠ v →
+          familyOf N u ≠ familyOf N v := by
+        intro u v hu hv huv
+        apply distinct_families_in_clique hN hS hK_sub hK_edges
+        · have h_card :
+              K.card ≥ Finset.card ({v', vertexOf N a b c 1,
+                vertexOf N a b c 2, vertexOf N a b c 3} : Finset ℕ) := by
+            exact Finset.card_le_card
+              (Finset.insert_subset_iff.mpr
+                ⟨hv', Finset.insert_subset_iff.mpr
+                  ⟨hv1, Finset.insert_subset_iff.mpr
+                    ⟨hv2, Finset.singleton_subset_iff.mpr hv3⟩⟩⟩)
+          grind
+        · assumption
+        · assumption
+        · assumption
+      grind
+    have h_family : familyOf N v' < 4 := by
+      have := hK_sub hv'
+      simp_all +decide [vertexSet]
+      exact Nat.div_lt_of_lt_mul <| by linarith
+    grind
+  -- By definition of familyOf, we know that v' = encVertex N 0 i for some i.
+  obtain ⟨i, hi⟩ :
+      ∃ i : ℤ, v' = encVertex N 0 i ∧
+        0 ≤ i + ↑N ∧ i + ↑N < 3 * ↑N := by
+    unfold familyOf at h_family
+    simp_all +decide
+    use v' - N
+    simp_all +decide [encVertex]
+    exact_mod_cast h_family.resolve_left (by linarith)
+  have h_edges :
+      ({encVertex N 0 i, encVertex N 1 (-a + c),
+        encVertex N 2 (-b + c)} : Finset ℕ) ∈ edgeSet N S ∧
+      ({encVertex N 0 i, encVertex N 1 (-a + c),
+        encVertex N 3 (a + b - c)} : Finset ℕ) ∈ edgeSet N S ∧
+      ({encVertex N 0 i, encVertex N 2 (-b + c),
+        encVertex N 3 (a + b - c)} : Finset ℕ) ∈ edgeSet N S := by
+    refine ⟨hK_edges _ ?_ ?_, hK_edges _ ?_ ?_, hK_edges _ ?_ ?_⟩
+      <;> simp_all +decide [Finset.subset_iff]
+    any_goals
+      rw [Finset.card_insert_of_notMem, Finset.card_insert_of_notMem]
+        <;> simp +decide [*]
+    any_goals
+      rw [encVertex, encVertex]
+      omega
+    all_goals tauto
+  have h_points :
+      (i - (-a + c), i - (-b + c), i) ∈ S ∧
+      (i - (-a + c), (a + b - c) + (-a + c), i) ∈ S ∧
+      ((a + b - c) + (-b + c), i - (-b + c), i) ∈ S := by
+    exact ⟨
+      edge_012_mem hN hS ⟨by linarith, by linarith⟩
+        ⟨by linarith, by linarith⟩ ⟨by linarith, by linarith⟩
+        h_edges.1,
+      edge_013_mem hN hS ⟨by linarith, by linarith⟩
+        ⟨by linarith, by linarith⟩ ⟨by linarith, by linarith⟩
+        h_edges.2.1,
+      edge_023_mem hN hS ⟨by linarith, by linarith⟩
+        ⟨by linarith, by linarith⟩ ⟨by linarith, by linarith⟩
+        h_edges.2.2⟩
+  by_cases hi : i = c
+  · aesop
+  · contrapose! hnoQ
+    apply quadruple_of_nonconcurrent hN
+    · exact h_points.1
+    · exact h_points.2.1
+    · convert h_points.2.2 using 1
+    · convert hmem using 1
+      ring_nf
+    · omega
+
+/-- If e ∈ pointEdges and e ⊆ K with |K| ≥ 4, then pointClique ⊆ K. -/
+lemma pointClique_sub_clique {N : ℕ} (hN : N ≥ 1)
+    {S : Finset (ℤ × ℤ × ℤ)} (hS : S ⊆ grid3 N)
+    (hnoQ : ¬ContainsQuadruple S)
+    {a b c : ℤ} (hmem : (a, b, c) ∈ S)
+    (ha : 0 ≤ a ∧ a < ↑N) (hb : 0 ≤ b ∧ b < ↑N)
+    (hc : 0 ≤ c ∧ c < ↑N)
+    {K : Finset ℕ} (hK_sub : K ⊆ vertexSet N)
+    (hK_card : K.card ≥ 4)
+    (hK_edges : ∀ t ⊆ K, t.card = 3 → t ∈ edgeSet N S)
+    {e : Finset ℕ} (he_pe : e ∈ pointEdges N a b c)
+    (he_K : e ⊆ K) :
+    pointClique N a b c ⊆ K := by
+  -- Find a vertex v' in K that's not in e.
+  obtain ⟨v', hv'_mem, hv'_ne⟩ : ∃ v', v' ∈ K ∧ v' ∉ e := by
+    exact Finset.not_subset.mp fun h => by
+      have := Finset.card_le_card h
+      exact absurd this (by
+        have := edge_card_three hN ha hb hc e he_pe
+        linarith)
+  -- By case analysis on which edge it is, apply the appropriate
+  -- fourth_vertex lemma to show v' equals the missing vertex.
+  have h_case :
+      e = {vertexOf N a b c 0, vertexOf N a b c 1,
+           vertexOf N a b c 2} ∨
+      e = {vertexOf N a b c 0, vertexOf N a b c 1,
+           vertexOf N a b c 3} ∨
+      e = {vertexOf N a b c 0, vertexOf N a b c 2,
+           vertexOf N a b c 3} ∨
+      e = {vertexOf N a b c 1, vertexOf N a b c 2,
+           vertexOf N a b c 3} := by
+    unfold pointEdges at he_pe
+    aesop
+  obtain rfl | rfl | rfl | rfl := h_case
+    <;> simp_all +decide [pointClique]
+  · have hv'_eq : v' = vertexOf N a b c 3 := by
+      apply fourth_vertex_012 hN hS hnoQ hmem ha hb hc hK_sub hK_edges
+        hv'_mem (he_K (by simp)) (he_K (by simp)) (he_K (by simp))
+        hv'_ne.left hv'_ne.right.left hv'_ne.right.right
+    simp_all +decide [Finset.insert_subset_iff]
+  · have hv'_eq : v' = vertexOf N a b c 2 := by
+      apply fourth_vertex_013 hN hS hnoQ hmem ha hb hc hK_sub hK_edges
+        hv'_mem (he_K (by simp)) (he_K (by simp)) (he_K (by simp))
+        hv'_ne.1 hv'_ne.2.1 hv'_ne.2.2
+    simp_all +decide [Finset.insert_subset_iff]
+  · have hv'_eq : v' = vertexOf N a b c 1 := by
+      apply fourth_vertex_023 hN hS hnoQ hmem ha hb hc hK_sub hK_edges
+        hv'_mem (he_K (by simp)) (he_K (by simp)) (he_K (by simp))
+        hv'_ne.left hv'_ne.right.left hv'_ne.right.right
+    simp_all +decide [Finset.subset_iff]
+  · have hv'_eq : v' = vertexOf N a b c 0 := by
+      apply fourth_vertex_123 hN hS hnoQ hmem ha hb hc hK_sub hK_edges
+        hv'_mem (he_K (by simp +decide)) (he_K (by simp +decide))
+        (he_K (by simp +decide)) hv'_ne.1 hv'_ne.2.1 hv'_ne.2.2
+    grind
+
+/-- A clique K containing an edge from pointEdges must equal pointClique. -/
+lemma clique_eq_pointClique {N : ℕ} (hN : N ≥ 1)
+    {S : Finset (ℤ × ℤ × ℤ)} (hS : S ⊆ grid3 N)
+    (hnoQ : ¬ContainsQuadruple S)
+    {a b c : ℤ} (hmem : (a, b, c) ∈ S)
+    (ha : 0 ≤ a ∧ a < ↑N) (hb : 0 ≤ b ∧ b < ↑N)
+    (hc : 0 ≤ c ∧ c < ↑N)
+    {K : Finset ℕ} (hK_sub : K ⊆ vertexSet N)
+    (hK_card : K.card ≥ 4)
+    (hK_edges : ∀ t ⊆ K, t.card = 3 → t ∈ edgeSet N S)
+    {e : Finset ℕ} (he_pe : e ∈ pointEdges N a b c)
+    (he_K : e ⊆ K) :
+    K = pointClique N a b c := by
+  refine Eq.symm (Finset.eq_of_subset_of_card_le (?_ : _ ⊆ _) ?_)
+  · apply pointClique_sub_clique hN hS hnoQ hmem ha hb hc hK_sub
+      hK_card hK_edges he_pe he_K
+  · exact le_trans (clique_card_le_four hN hS hK_sub hK_edges)
+      (by rw [pointClique_card hN ha hb hc])
+
+/-- Every edge belongs to exactly one clique when S has no quadruple. -/
+lemma unique_clique_property {N : ℕ} (hN : N ≥ 1)
+    {S : Finset (ℤ × ℤ × ℤ)} (hS : S ⊆ grid3 N)
+    (hnoQ : ¬ContainsQuadruple S) :
+    ∀ e ∈ edgeSet N S, ∃! K,
+      K ⊆ vertexSet N ∧ K.card ≥ 4 ∧
+      (∀ t ⊆ K, t.card = 3 → t ∈ edgeSet N S) ∧ e ⊆ K := by
+  -- For each edge e, extract a point (a,b,c) using `edge_from_point`.
+  intro e he
+  obtain ⟨a, b, c, hmem, he_pe⟩ := edge_from_point he
+  -- Show that the pointClique is a clique.
+  have hclique :
+      pointClique N a b c ⊆ vertexSet N ∧
+      (pointClique N a b c).card = 4 ∧
+      (∀ t ⊆ pointClique N a b c, t.card = 3 → t ∈ edgeSet N S) ∧
+      e ⊆ pointClique N a b c := by
+    refine ⟨?_, ?_, ?_, ?_⟩
+    · apply pointClique_sub_vertexSet hN
+      · exact grid_mem_bounds hS hmem |>.1
+      · have := grid_mem_bounds hS hmem
+        aesop
+      · exact grid_mem_bounds hS hmem |>.2.2
+    · apply pointClique_card hN
+      · exact grid_mem_bounds hS hmem |>.1
+      · exact grid_mem_bounds hS hmem |>.2.1
+      · have := grid_mem_bounds hS hmem
+        aesop
+    · apply_rules [pointClique_edges]
+      · exact grid_mem_bounds hS hmem |>.1
+      · exact grid_mem_bounds hS hmem |>.2.1
+      · exact grid_mem_bounds hS hmem |>.2.2
+    · exact edge_sub_pointClique N a b c he_pe
+  refine ⟨pointClique N a b c, ?_, ?_⟩
+  · aesop
+  · intro y hy
+    exact clique_eq_pointClique hN hS hnoQ hmem
+      (grid_mem_bounds hS hmem |>.1)
+      (grid_mem_bounds hS hmem |>.2.1)
+      (grid_mem_bounds hS hmem |>.2.2)
+      hy.1 hy.2.1 hy.2.2.1 he_pe hy.2.2.2
+
+/-! ## §9. Quadruple-Free Bound -/
+
+/-- If the Frankl–Rödl theorem holds and S ⊆ [N]³ is quadruple-free,
+then |S| < ε N³. -/
+theorem quadruple_free_bound (hFR : Theorem_2_2) :
+    ∀ ε : ℝ, ε > 0 → ∃ N₀ : ℕ, ∀ N : ℕ, N₀ < N →
+      ∀ S : Finset (ℤ × ℤ × ℤ), S ⊆ grid3 N →
+        ¬ContainsQuadruple S →
+        (S.card : ℝ) < ε * (↑N) ^ 3 := by
+  intro ε hε_pos
+  obtain ⟨n₀, hn₀⟩ := hFR (ε / 1728) (by positivity)
+  refine ⟨n₀ * 1728, fun N hN S hS hnoQ => ?_⟩
+  refine lt_of_le_of_lt (Nat.cast_le.mpr (card_S_le_edgeSet (by linarith) hS)) ?_
+  refine lt_of_lt_of_le (hn₀ (vertexSet N) (edgeSet N S) ?_ ?_ ?_) ?_
+  · unfold vertexSet
+    norm_num
+    linarith
+  · exact edgeSet_valid (by linarith) hS
+  · apply_rules [unique_clique_property]
+    linarith
+  · unfold vertexSet
+    norm_num
+    ring_nf
+    norm_num [hε_pos]
+
+/-! ## §10. Theorem 1.2 -/
+
+/-- **Theorem 1.2** (Solymosi, 2004). -/
+theorem Theorem_1_2 (hFR : Theorem_2_2) :
+    ∀ δ : ℝ, δ > 0 → ∃ N₀ : ℕ, ∀ N : ℕ, N₀ < N →
+      ∀ S : Finset (ℤ × ℤ × ℤ), S ⊆ grid3 N →
+        δ * (↑N) ^ 3 ≤ ↑S.card →
+        ContainsQuadruple S := by
+  intro δ hδ
+  by_contra! h
+  obtain ⟨N₀, hN₀⟩ := quadruple_free_bound hFR δ hδ
+  obtain ⟨N, hN₁, S, hS₁, hS₂, hS₃⟩ := h N₀
+  exact not_lt_of_ge hS₂ (hN₀ N hN₁ S hS₁ hS₃)
+
+/-! ## §11. Proposition 1.3 and Theorem 1.1 -/
+
+/-- The lifting map: `S × [N] → [N]³`. -/
+def liftSet (S : Finset (ℤ × ℤ)) (N : ℕ) : Finset (ℤ × ℤ × ℤ) :=
+  (S ×ˢ gridRange N).image (fun p => (p.1.1, p.1.2, p.2))
+
+/-- The lifted set is a subset of `grid3 N`. -/
+lemma liftSet_sub_grid3 {S : Finset (ℤ × ℤ)} {N : ℕ}
+    (hS : S ⊆ grid2 N) : liftSet S N ⊆ grid3 N := by
+  unfold liftSet grid3 grid2 at *
+  grind +ring
+
+/-- The cardinality of the lifted set is `|S| * N`. -/
+lemma liftSet_card {S : Finset (ℤ × ℤ)} {N : ℕ} :
+    (liftSet S N).card = S.card * N := by
+  convert Finset.card_image_of_injective _ ?_
+  · rw [Finset.card_product, gridRange_card]
+  · intro ⟨⟨a₁, b₁⟩, c₁⟩ ⟨⟨a₂, b₂⟩, c₂⟩
+    simp
+    tauto
+
+/-- A quadruple in the lifted set yields a square in the original set. -/
+lemma liftSet_quadruple_implies_square
+    {S : Finset (ℤ × ℤ)} {N : ℕ}
+    (hQ : ContainsQuadruple (liftSet S N)) :
+    ContainsSquare S := by
+  obtain ⟨a, b, c, d, hd, h1, h2, h3, h4⟩ := hQ
+  use a, b, d
+  unfold liftSet at *
+  aesop
+
+/-- **Proposition 1.3** (Solymosi, 2004). -/
+theorem Proposition_1_3
+    (h12 : ∀ δ : ℝ, δ > 0 → ∃ N₀ : ℕ, ∀ N : ℕ, N₀ < N →
+      ∀ S : Finset (ℤ × ℤ × ℤ), S ⊆ grid3 N →
+        δ * (↑N) ^ 3 ≤ ↑S.card → ContainsQuadruple S) :
+    ∀ δ : ℝ, δ > 0 → ∃ N₀ : ℕ, ∀ N : ℕ, N₀ < N →
+      ∀ S : Finset (ℤ × ℤ), S ⊆ grid2 N →
+        δ * (↑N) ^ 2 ≤ ↑S.card → ContainsSquare S := by
+  intro δ hδ
+  obtain ⟨N₀, hN₀⟩ := h12 δ hδ
+  use N₀ + 1
+  intro N hN S hS hδS
+  contrapose! hN₀
+  refine ⟨N, by linarith, liftSet S N, ?_, ?_, ?_⟩
+  · exact liftSet_sub_grid3 hS
+  · rw [liftSet_card]
+    norm_num
+    nlinarith
+  · exact fun h => hN₀ <| liftSet_quadruple_implies_square h
+
+/-- **Theorem 1.1** (Erdős–Graham conjecture on squares). -/
+theorem Theorem_1_1 (hFR : Theorem_2_2) :
+    ∀ δ : ℝ, δ > 0 → ∃ N₀ : ℕ, ∀ N : ℕ, N₀ < N →
+      ∀ S : Finset (ℤ × ℤ), S ⊆ grid2 N →
+        δ * (↑N) ^ 2 ≤ ↑S.card → ContainsSquare S := by
+  convert Proposition_1_3 _ using 1
+  exact Theorem_1_2 hFR
+
+theorem erdos658 :
+    ∀ δ : ℝ, δ > 0 → ∃ N₀ : ℕ, ∀ N : ℕ, N₀ < N →
+      ∀ S : Finset (ℤ × ℤ), S ⊆ grid2 N →
+        δ * (↑N) ^ 2 ≤ ↑S.card → ContainsSquare S :=
+  Theorem_1_1 _root_.frankl_roedl_theorem
+
+end
+
+#print axioms Theorem_1_1
+-- 'Erdos658.Theorem_1_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+#print axioms Theorem_1_2
+-- 'Erdos658.Theorem_1_2' depends on axioms: [propext, Classical.choice, Quot.sound]
+#print axioms erdos658
+-- 'Erdos658.erdos658' depends on axioms: [frankl_roedl_theorem, propext, Classical.choice,
+-- Quot.sound]
+
+end Erdos658
