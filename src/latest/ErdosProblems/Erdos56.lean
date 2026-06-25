@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 56.
 https://www.erdosproblems.com/forum/thread/56

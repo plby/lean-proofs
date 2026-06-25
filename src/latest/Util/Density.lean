@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.29.1  mathlib v4.29.1 -/
+/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
 Copyright 2025 The Formal Conjectures Authors.
