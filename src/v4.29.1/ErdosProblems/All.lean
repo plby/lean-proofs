@@ -19,6 +19,7 @@ import ErdosProblems.Erdos125
 import ErdosProblems.Erdos134
 import ErdosProblems.Erdos150
 import ErdosProblems.Erdos154
+import ErdosProblems.Erdos154Sumset
 import ErdosProblems.Erdos164
 import ErdosProblems.Erdos178
 import ErdosProblems.Erdos189
