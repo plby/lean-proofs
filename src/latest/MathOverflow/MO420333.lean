@@ -39,24 +39,9 @@ Key theorems include:
 - `firstGuess_limit`: The first guess tends to 4.
 -/
 
-import Mathlib
+import Util.ListSorted
 
 namespace List
-
-abbrev Sorted {α : Type*} (r : α → α → Prop) (l : List α) : Prop :=
-  l.Pairwise r
-
-namespace Sorted
-
-theorem tail {α : Type*} {r : α → α → Prop} {a : α} {l : List α}
-    (h : List.Sorted r (a :: l)) : List.Sorted r l := by
-  simpa [List.Sorted] using (List.pairwise_cons.mp h).2
-
-theorem filter {α : Type*} {r : α → α → Prop} (p : α → Bool) {l : List α}
-    (h : List.Sorted r l) : List.Sorted r (l.filter p) := by
-  simpa [List.Sorted] using List.Pairwise.filter p h
-
-end Sorted
 
 theorem eq_of_perm_of_sorted {α : Type*} {r : α → α → Prop} [Std.Antisymm r]
     {l₁ l₂ : List α}
