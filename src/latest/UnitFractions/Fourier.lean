@@ -551,7 +551,7 @@ lemma Finset.support_sup {α β : Type*} {f : α → β →₀ ℕ} (s : Finset 
     (s.sup f).support = s.biUnion (fun a => (f a).support) := by
   classical
   refine Finset.induction_on s ?_ ?_
-  · rw [Finset.sup_empty, Finset.biUnion_empty, Finsupp.bot_eq_zero]
+  · rw [Finset.sup_empty, Finset.biUnion_empty, bot_eq_zero]
     simp
   · intro a s _ ih
     rw [Finset.sup_insert, Finsupp.support_sup, ih, Finset.biUnion_insert]
@@ -1705,7 +1705,7 @@ lemma minor2_ind_bound_part_one {N : ℕ} {A : Finset ℕ} {t : ℤ}
     refine Finset.prod_congr rfl ?_
     intro q hq'
     symm
-    exact Real.finset_prod_rpow _ _ (fun n hn ↦ abs_nonneg _) _
+    exact Real.finsetProd_rpow _ _ (fun n hn ↦ abs_nonneg _) _
   rw [hrewrite, ← prod_swapping]
   change ∏ n ∈ A, |cos (π * t / n)| ≤
     ∏ n ∈ A, ∏ _x ∈ Q_ n, |cos (π * t / n)| ^ (2 * log N)⁻¹

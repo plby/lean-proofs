@@ -18,23 +18,38 @@ URLs:
 - https://github.com/Woett/Lean-files/blob/main/ErdosProblem785.lean
 -/
 /-
-For a set $S$ of positive integers define $S(x) = |S \cap [1, x]|$. We then say that sets of positive integers $A$ and $B$ are exact additive complements if every large enough integer can be written as $a+b$ with $a \in A$, $b \in B$ and such that $\frac{A(x) B(x)}{x}$ converges to $1$ if $x$ goes to infinity. Erdős and Danzer conjectured that $A(x) B(x) - x$ goes to infinity with $x$ for any two exact additive complements $A$ and $B$ that are both infinite (see https://www.erdosproblems.com/785), and this was proven by Sárközy and Szemerédi.
+For a set $S$ of positive integers define $S(x) = |S \cap [1, x]|$. We then say
+that sets of positive integers $A$ and $B$ are exact additive complements if every
+large enough integer can be written as $a+b$ with $a \in A$, $b \in B$ and such
+that $\frac{A(x) B(x)}{x}$ converges to $1$ if $x$ goes to infinity. Erdős and
+Danzer conjectured that $A(x) B(x) - x$ goes to infinity with $x$ for any two exact
+additive complements $A$ and $B$ that are both infinite
+(see https://www.erdosproblems.com/785), and this was proven by Sárközy and Szemerédi.
 
-András Sárközy and Endre Szemerédi, On a problem in additive number theory. Acta Math. Hungar. (1994), 237-245.
+András Sárközy and Endre Szemerédi, On a problem in additive number theory.
+Acta Math. Hungar. (1994), 237-245.
 
-In fact, Sárközy and Szemerédi prove that the upper bound $A(x) B(x) - x = o(A(x))$ cannot hold, which was subsequently improved by Chen and Fang showing that even $A(x) B(x) - x = O(A(x)^c)$ cannot hold for any constant $c$.
+In fact, Sárközy and Szemerédi prove that the upper bound $A(x) B(x) - x = o(A(x))$
+cannot hold, which was subsequently improved by Chen and Fang showing that even
+$A(x) B(x) - x = O(A(x)^c)$ cannot hold for any fixed $c$.
 
-Yong-Gao Chen and Jin-Hui Fang, On a conjecture of Sárközy and Szemerédi. Acta Arith. 169 (2015), 47–58.
+Yong-Gao Chen and Jin-Hui Fang, On a conjecture of Sárközy and Szemerédi.
+Acta Arith. 169 (2015), 47–58.
 
-With $a^*(x)$ defined as $\max\{a \in A, a \le x \}$, Ruzsa further improved the lower bound on $A(x) B(x) - x$ to
+With $a^*(x)$ defined as $\max\{a \in A, a \le x \}$, Ruzsa further improved the
+lower bound on $A(x) B(x) - x$ to
 
 $A(x) B(x) - x > (1 - o(1)) \frac{a^*(x)}{A(x)}.$
 
-In Ruzsa's proof he made use of a theorem by Narkiewicz which is referred to as Narkiewicz's dichotomoy theorem.
+In Ruzsa's proof he made use of a theorem by Narkiewicz which is referred to as
+Narkiewicz's dichotomoy theorem.
 
-Władysław Narkiewicz, Remarks on a conjecture of Hanani in additive number theory, Colloq. Math. 7 (1959/60), 161–165.
+Władysław Narkiewicz, Remarks on a conjecture of Hanani in additive number theory,
+Colloq. Math. 7 (1959/60), 161–165.
 
-Below you can find a formalization of Ruzsa's proof, obtained by Aristotle from Harmonic (aristotle-harmonic@harmonic.fun). The formalization also includes Narkiewicz's dichotomoy theorem.
+Below you can find a formalization of Ruzsa's proof, obtained by Aristotle from
+Harmonic (aristotle-harmonic@harmonic.fun). The formalization also includes
+Narkiewicz's dichotomoy theorem.
 
 -/
 

@@ -1028,7 +1028,7 @@ lemma lemma_decomposition_sum_prime_pow (n x : ℕ)
       obtain ⟨ p, k, hp, hk, rfl ⟩ := hx;
       unfold DecompositionSum;
       simp +decide [ hp.nat_prime, Nat.factorization_pow ];
-      rw [ Finsupp.support_single_ne_zero ] <;> aesop
+      rw [ Finsupp.support_single ] <;> aesop
 
 /-
 If the inductive hypothesis holds, then m * binom(n, m) >= DecompositionSum n m.

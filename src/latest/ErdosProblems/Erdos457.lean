@@ -17,13 +17,19 @@ URLs:
 - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/457.lean
 -/
 /-
-Prompted by Kevin Barreto, GPT-5.2 Pro managed to solve Erdős Problem #457 (https://www.erdosproblems.com/457) by exhibiting infinitely many $n$ such that $\prod_{1 \le i \le \log n} n+i$ is divisible by all primes smaller than $2.1 \log n$.
+Prompted by Kevin Barreto, GPT-5.2 Pro managed to solve Erdős Problem #457
+(https://www.erdosproblems.com/457) by exhibiting infinitely many $n$ such that
+$\prod_{1 \le i \le \log n} n+i$ is divisible by all primes smaller than
+$2.1 \log n$.
 
-Aristotle from Harmonic (https://aristotle.harmonic.fun) already formalized the solution, but the proof had not yet been connected to the statement from Google DeepMind's Formal Conjectures Project.
+Aristotle from Harmonic (https://aristotle.harmonic.fun) already formalized the
+solution, but the proof had not yet been connected to the statement from Google
+DeepMind's Formal Conjectures Project.
 
 https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/457.lean
 
-I gave the already existing formalization to Aristotle and asked it to fill in the sorry from the above statement. It managed it mere minutes!
+I gave the already existing formalization to Aristotle and asked it to fill in the
+missing proof from the above statement. It managed it mere minutes!
 
 -/
 

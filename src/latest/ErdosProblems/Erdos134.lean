@@ -2246,9 +2246,8 @@ theorem BaseInvariant_preserves_step {V : Type} [Fintype V] [DecidableEq V]
       have h_triangle_free :
         ∀ (G : SimpleGraph V), G.CliqueFree 3 → ∀ (u v : V), G.eligiblePair c n u v →
           (SimpleGraph.fromEdgeSet (G.edgeSet ∪ {s(u, v)})).CliqueFree 3 := by
-        intros G hG u v h_eligible;
+        intros G hG u v h_eligible T hT
         -- If there is a triangle in the new graph, it must involve the edge (u, v).
-        intro T hT
         by_cases h_triangle : u ∈ T ∧ v ∈ T;
         · have h_triangle : T.card = 3 ∧ ∀ x ∈ T, ∀ y ∈ T, x ≠ y → (x = u ∧ y = v) ∨ (x = v ∧ y = u)
           ∨ G.Adj x y := by
@@ -2705,10 +2704,24 @@ theorem exists_Gm_bounded_indep {V : Type} [Fintype V]
     classical
     -- Convert the max degree hypothesis to use the Classical instance.
     have h_max_deg_classical :
-      ∀ v, @SimpleGraph.degree V G v (@SimpleGraph.neighborSetFintype V G _ (Classical.decRel G.Adj)
-        v) ≤ c * Real.sqrt n := by
-      convert h_max_deg using 1;
-      convert Iff.rfl;
+      ∀ v, @SimpleGraph.degree V G v
+          (by
+            letI : DecidableRel G.Adj := fun a b => Classical.propDecidable (G.Adj a b)
+            exact Subtype.fintype (Membership.mem (G.neighborSet v))) ≤
+        c * Real.sqrt n := by
+      intro v
+      have hDegree :
+          @SimpleGraph.degree V G v
+              (by
+                letI : DecidableRel G.Adj := fun a b => Classical.propDecidable (G.Adj a b)
+                exact Subtype.fintype (Membership.mem (G.neighborSet v))) =
+            @SimpleGraph.degree V G v (Subtype.fintype (Membership.mem (G.neighborSet v))) := by
+        rw [SimpleGraph.degree, SimpleGraph.degree]
+        apply congrArg Finset.card
+        ext w
+        simp [SimpleGraph.neighborFinset_eq_filter]
+      rw [hDegree]
+      exact h_max_deg v
     -- Apply `exists_good_path_G0` to obtain a valid path `path` hitting all safe hit sets.
     obtain ⟨path, h_valid, h_hits_all⟩ :=
       exists_good_path_G0 G c n (Nat.floor (c ^ 2 * n ^ (3 / 2 : ℝ))) h_n

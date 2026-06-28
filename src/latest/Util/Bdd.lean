@@ -1,22 +1,18 @@
-/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
-/- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
-Copyright 2025 The Formal Conjectures Authors.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    https://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+Copyright (c) 2025 The Formal Conjectures Authors. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: The Formal Conjectures Authors
 -/
 
 import Mathlib
+
+/-!
+# Bounded Set Utilities
+
+Original license: Apache 2.0. This file has been modified.
+
+Small helper definitions for intervals of sets.
+-/
 
 namespace Set
 

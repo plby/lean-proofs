@@ -6304,7 +6304,7 @@ lemma shiftedFejerTrigPoly_apply
       (E.fejerTrigPoly Q γ) * E.addCharacterValue z γ := by
   classical
   unfold shiftedFejerTrigPoly fejerTrigPoly
-  rw [Finsupp.finset_sum_apply, Finsupp.finset_sum_apply]
+  rw [Finsupp.finsetSum_apply, Finsupp.finsetSum_apply]
   simp_rw [E.shiftedFejerTerm_apply Q z]
   rw [Finset.sum_mul]
 
@@ -6346,7 +6346,7 @@ lemma fejerTrigPoly_compactAverage_eq_one_of_nonempty
     exact_mod_cast (Finset.card_ne_zero.mpr
       (Finset.nonempty_iff_ne_empty.mpr hQ))
   unfold TrigPoly.compactAverage fejerTrigPoly fejerTerm
-  rw [Finsupp.finset_sum_apply]
+  rw [Finsupp.finsetSum_apply]
   change (∑ i ∈ Q ×ˢ Q,
     (Finsupp.single (i.1 - i.2) ((Q.card : ℂ)⁻¹) :
       E.TrigPoly) (0 : E.Group)) = 1
@@ -6428,7 +6428,7 @@ lemma fejerTrigPoly_apply_sum
       ∑ pair ∈ Q.product Q,
         if pair.1 - pair.2 = γ then (Q.card : ℂ)⁻¹ else 0 := by
   unfold fejerTrigPoly fejerTerm
-  rw [Finsupp.finset_sum_apply]
+  rw [Finsupp.finsetSum_apply]
   simp [Finsupp.single_apply]
 
 lemma fejerTrigPoly_apply_filter_card
@@ -7643,7 +7643,7 @@ lemma compactSmoothTrigPoly_apply
       (E.fejerTrigPoly Q) γ * E.coeff (-γ) := by
   classical
   unfold compactSmoothTrigPoly
-  rw [Finsupp.finset_sum_apply]
+  rw [Finsupp.finsetSum_apply]
   by_cases hγ : γ ∈ (E.fejerTrigPoly Q).support
   · rw [Finset.sum_eq_single γ]
     · simp
@@ -13705,7 +13705,7 @@ lemma continuous_cliqueEdgeAssignmentCharacterProduct
       ∏ e : CliqueEdgeIndex M,
         E.addCharacterValue (x e.1.1 - x e.1.2) (ω e)) := by
   simpa using
-    (continuous_finset_prod (Finset.univ : Finset (CliqueEdgeIndex M))
+    (continuous_finsetProd (Finset.univ : Finset (CliqueEdgeIndex M))
       (fun e _he =>
         (E.addCharacterValue_continuous (ω e)).comp
           ((continuous_apply e.1.1).sub (continuous_apply e.1.2))))
@@ -13836,7 +13836,7 @@ lemma compactCliqueDensity_evalAdd_eq_sum_edgeAssignments
         congr 1
         funext x
         exact E.compactCliqueKernel_evalAdd_eq_sum_edgeAssignments P x]
-  rw [MeasureTheory.integral_finset_sum]
+  rw [MeasureTheory.integral_finsetSum]
   · refine Finset.sum_congr rfl ?_
     intro ω _hω
     rw [show
@@ -13903,7 +13903,7 @@ lemma compactCliqueDensity_evalAdd_eq_sum_edgeAssignments_of_support_subset
         funext x
         exact E.compactCliqueKernel_evalAdd_eq_sum_edgeAssignments_of_support_subset
           P A hP x]
-  rw [MeasureTheory.integral_finset_sum]
+  rw [MeasureTheory.integral_finsetSum]
   · refine Finset.sum_congr rfl ?_
     intro ω _hω
     rw [show
@@ -14059,7 +14059,7 @@ lemma finiteCliqueKernelDensity_evalFinite_tendsto_compact_of_coeff_tendsto
         Tendsto (fun n => E.cliqueEdgeAssignmentCoeff (Pseq n) ω)
           atTop (𝓝 (E.cliqueEdgeAssignmentCoeff P ω)) := by
       unfold cliqueEdgeAssignmentCoeff
-      exact tendsto_finset_prod (Finset.univ : Finset (CliqueEdgeIndex M))
+      exact tendsto_finsetProd (Finset.univ : Finset (CliqueEdgeIndex M))
         (fun e _he => hcoeff (ω e) (hω_mem e))
     have hif :
         (fun n =>
@@ -14110,7 +14110,7 @@ lemma finiteCliqueKernelDensity_evalFinite_tendsto_compact_of_coeff_tendsto
   have hsum :
       Tendsto (fun n => ∑ ω ∈ W, finiteTerm n ω)
         atTop (𝓝 (∑ ω ∈ W, compactTerm ω)) :=
-    tendsto_finset_sum W hterm
+    tendsto_finsetSum W hterm
   rw [hcompact_exp]
   exact hsum.congr' hfinite_exp.symm
 
@@ -14235,7 +14235,7 @@ lemma compactSmooth_cliqueDensity_integral_re_eq_continuousCliqueDensity
       Continuous (fun x : Fin M → E.CompactAddDual =>
         ∏ e ∈ cliqueEdgePairs M,
           ((E.compactSmoothReal Q (x e.1 - x e.2)) : ℂ)) := by
-    refine continuous_finset_prod (cliqueEdgePairs M) ?_
+    refine continuous_finsetProd (cliqueEdgePairs M) ?_
     intro e _he
     exact Complex.continuous_ofReal.comp
       ((E.compactSmoothReal_continuous Q).comp

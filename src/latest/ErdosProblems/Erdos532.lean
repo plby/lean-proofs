@@ -206,7 +206,7 @@ theorem erdos532 (c : ℕ → Fin 2) :
     rw [← himage]
     exact Finset.sum_image hb_strict.injective.injOn
   have hFSNat : (∑ i ∈ T, bNat i) ∈ Hindman.FS (fun i => bNat i) :=
-    Hindman.FS.finset_sum (fun i => bNat i) T hT
+    Hindman.FS.finsetSum (fun i => bNat i) T hT
   obtain ⟨p, hp_blocks, hpval⟩ :=
     FS_nat_of_pnat_coe (a := blockStream a) hFSNat
   have hp_blocks' : p ∈ Hindman.FS (blockStreamFrom a 0) := by

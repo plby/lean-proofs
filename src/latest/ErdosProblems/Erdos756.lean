@@ -15,11 +15,14 @@ URLs:
 - https://github.com/Woett/Lean-files/blob/main/ErdosProblem756.lean
 -/
 /-
-Bhowmick managed to construct a set of $n$ points in $\mathbb{R}^2$ such that $\lfloor \frac{n}{4} \rfloor$ distances occur at least $n+1$ times.
+Bhowmick managed to construct a set of $n$ points in $\mathbb{R}^2$ such that
+$\lfloor \frac{n}{4} \rfloor$ distances occur at least $n+1$ times.
 
 K. Bhowmick, A problem of Erdős about rich distances. arXiv:2407.01174 (2024).
 
-He thereby solved Erdős Problem #756 (https://www.erdosproblems.com/756). Aristotle from Harmonic (aristotle-harmonic@harmonic.fun) managed to formalize his proof, and the result can be found below.
+He thereby solved Erdős Problem #756 (https://www.erdosproblems.com/756).
+Aristotle from Harmonic (aristotle-harmonic@harmonic.fun) managed to formalize
+his proof, and the result can be found below.
 
 -/
 

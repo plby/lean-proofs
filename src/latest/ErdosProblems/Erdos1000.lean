@@ -15,11 +15,14 @@ URLs:
 - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1000.md
 -/
 /-
-We prove the main theorem `thm_main` which states that there exists a strictly increasing sequence A such that the Cesaro average of phi_A(k)/n_k tends to 0.
-The proof constructs the sequence `n_seq` by concatenating blocks of multiples of a large prime `r_t` with divisors of `Q_t` (product of first t primes).
+We prove the main theorem `thm_main` which states that there exists a strictly
+increasing sequence A such that the Cesaro average of phi_A(k)/n_k tends to 0.
+The proof constructs the sequence `n_seq` by concatenating blocks of multiples
+of a large prime `r_t` with divisors of `Q_t` (product of first t primes).
 We prove that the average over each block is bounded by `2 * A_val t`, where `A_val t` tends to 0.
 We use `lem_block` to conclude that the Cesaro average tends to 0.
-Helper lemmas `n_seq_phi_bound_correct`, `block_sum_bound`, `inv_r_seq_le_A_val`, `sum_bound_eval` were proved to support the main theorem.
+Helper lemmas `n_seq_phi_bound_correct`, `block_sum_bound`, `inv_r_seq_le_A_val`,
+`sum_bound_eval` were proved to support the main theorem.
 -/
 
 import Mathlib

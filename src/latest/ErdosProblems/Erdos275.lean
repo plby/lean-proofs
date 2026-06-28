@@ -174,7 +174,7 @@ lemma linear_independent_of_triangular (P : Polynomial ℂ) (q : ℕ) (k : ℕ) 
         have hell_lt : (ℓ : ℤ) < m := by exact_mod_cast hm_gt_ell
         linarith⟩
   replace hf := congr_arg (Polynomial.eval (omega q ^ (s + ℓ))) hf.1
-  simp_all +decide [Polynomial.eval_finset_sum]
+  simp_all +decide [Polynomial.eval_finsetSum]
   rw [ Finset.sum_eq_single ℓ ] at hf <;> simp_all +decide
   exact fun m hm =>
     if hm' : m < ℓ then

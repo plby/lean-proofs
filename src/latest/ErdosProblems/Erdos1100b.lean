@@ -21,11 +21,20 @@ URLs:
 - https://github.com/Woett/Lean-files/blob/main/ErdosProblem1100.lean
 -/
 /-
-If $1 = d_1 < \cdots < d_{\tau(n)} = n$ are the divisors of $n$, then define $\tau_\perp(n)$ to be the number of $i$ for which $d_i$ and $d_{i+1}$ are coprime. Erdős and Hall proved that there are infinitely many $n$ with $\tau_\perp(n) > \exp( (\log \log n)^{2 - o(1)} )$.
+If $1 = d_1 < \cdots < d_{\tau(n)} = n$ are the divisors of $n$, then define
+$\tau_\perp(n)$ to be the number of $i$ for which $d_i$ and $d_{i+1}$ are coprime.
+Erdős and Hall proved that there are infinitely many $n$ with
+$\tau_\perp(n) > \exp( (\log \log n)^{2 - o(1)} )$.
 
-Erdős, P. and Hall, R. R., On some unconventional problems on the divisors of integers. J. Austral. Math. Soc. Ser. A (1978), 479--485.
+Erdős, P. and Hall, R. R., On some unconventional problems on the divisors of integers.
+J. Austral. Math. Soc. Ser. A (1978), 479--485.
 
-I noticed that the $o(1)$-term in the exponent can be made explicit, which gives $\tau_\perp(n) > \exp( \frac{(1 / 2 - o(1))(\log \log n)^2}{\log \log \log n} )$ infinitely often. Assuming the prime number theorem in the form that the product of all primes in the interval $(x, 2x]$ is $e^{(1 + o(1))x}$, below you can find a formalized proof of this bound, which was obtained by Aristotle from Harmonic (aristotle-harmonic@harmonic.fun).
+I noticed that the $o(1)$-term in the exponent can be made explicit, which gives
+$\tau_\perp(n) > \exp( \frac{(1 / 2 - o(1))(\log \log n)^2}{\log \log \log n} )$
+infinitely often. Assuming the prime number theorem in the form that the product
+of all primes in the interval $(x, 2x]$ is $e^{(1 + o(1))x}$, below you can find
+a formalized proof of this bound, which was obtained by Aristotle from Harmonic
+(aristotle-harmonic@harmonic.fun).
 
 See https://www.erdosproblems.com/1100 for more information.
 

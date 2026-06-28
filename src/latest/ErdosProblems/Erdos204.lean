@@ -16,15 +16,21 @@ URLs:
 - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/204.lean
 -/
 /-
-We say that a positive integer $n$ is CD covering if for every divisor $d > 1$ of $n$ there exists an integer $a_d$ such that the set of congruences $\{a_d \pmod{d} \}$ is a covering system with the property that if $x$ is such that $x \equiv a_d \pmod{d}$ and $x \equiv a_{d'} \pmod{d'}$, then $\gcd(d, d') = 1$.
+We say that a positive integer $n$ is CD covering if for every divisor $d > 1$ of
+$n$ there exists an integer $a_d$ such that the set of congruences
+$\{a_d \pmod{d} \}$ is a covering system with the property that if $x$ is such
+that $x \equiv a_d \pmod{d}$ and $x \equiv a_{d'} \pmod{d'}$, then
+$\gcd(d, d') = 1$.
 
 Sarosh Adenwalla solved Erdős Problem #204 (https://www.erdosproblems.com/204) by showing that no such $n$ exists.
 
 S. Adenwalla, A Question of Erdős and Graham on Covering Systems. arXiv:2501.15170 (2025).
 
-Below you can find a Lean formalization of the proof, which was obtained by Aristotle from Harmonic (aristotle-harmonic@harmonic.fun).
+Below you can find a Lean formalization of the proof, which was obtained by Aristotle
+from Harmonic (aristotle-harmonic@harmonic.fun).
 
-At the very end of the file you can find the statement of Erdős Problem #204 taken from the Formal Conjectures project by Google DeepMind, which we also prove.
+At the very end of the file you can find the statement of Erdős Problem #204 taken
+from the Formal Conjectures project by Google DeepMind, which we also prove.
 
 https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/204.lean
 -/

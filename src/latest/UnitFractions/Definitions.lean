@@ -278,7 +278,7 @@ lemma factorization_eq_iff {n p k : ℕ} (hp : p.Prime) (hk : k ≠ 0) :
       exact Nat.ne_of_gt <| Nat.div_pos (Nat.le_of_dvd hn.bot_lt hdvd) (pow_pos hp.pos _)
     rw [← factorization_disjoint_iff (pow_ne_zero _ hp.ne_zero) hdiv0]
     rw [Nat.factorization_div hdvd, Nat.Prime.factorization_pow hp,
-      Finsupp.support_single_ne_zero _ hk,
+      Finsupp.support_single _ hk,
       disjoint_singleton_left, Finsupp.mem_support_iff, Finsupp.coe_tsub, Pi.sub_apply, ne_eq,
       tsub_eq_zero_iff_le, not_not, Finsupp.single_eq_same, hk']
 

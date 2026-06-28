@@ -24,11 +24,18 @@ Co-authored-by: Aristotle (Harmonic) <aristotle-harmonic@harmonic.fun>
 -/
 
 /-
-We prove that for any $k, r \ge 2$, there exists a set $A \subseteq \mathbb{N}$ that contains no arithmetic progression of length $k+1$, yet for any $r$-coloring of $A$, there exists a monochromatic arithmetic progression of length $k$.
-The proof uses the Hales-Jewett theorem. We construct the set $A$ as the image of a high-dimensional hypercube under a map that preserves arithmetic progressions (the `hj_map`).
+We prove that for any $k, r \ge 2$, there exists a set $A \subseteq \mathbb{N}$
+that contains no arithmetic progression of length $k+1$, yet for any $r$-coloring
+of $A$, there exists a monochromatic arithmetic progression of length $k$.
+The proof uses the Hales-Jewett theorem. We construct the set $A$ as the image
+of a high-dimensional hypercube under a map that preserves arithmetic progressions
+(the `hj_map`).
 We show that this map is injective and maps combinatorial lines to arithmetic progressions.
-We also show that the image set `hj_set` contains no arithmetic progression of length $k+1$ by exploiting the properties of the base expansion used in `hj_map`.
-Finally, we use the Hales-Jewett theorem to guarantee the existence of a monochromatic combinatorial line in the hypercube, which maps to a monochromatic arithmetic progression in $A$.
+We also show that the image set `hj_set` contains no arithmetic progression of length
+$k+1$ by exploiting the properties of the base expansion used in `hj_map`.
+Finally, we use the Hales-Jewett theorem to guarantee the existence of a monochromatic
+combinatorial line in the hypercube, which maps to a monochromatic arithmetic progression
+in $A$.
 -/
 
 import Mathlib
@@ -396,7 +403,8 @@ guarantee the monochromatic AP.
 theorem existence_of_AP_free_Ramsey_set :
     ∀ k r : ℕ,
       k ≥ 2 → r ≥ 2 →
-        ∃ A : Set ℕ, ¬ HasAP A (k + 1) ∧ ∀ c : ℕ → Fin r, HasMonochromaticAP A k c := by
+        ∃ A : Set ℕ,
+          ¬ HasAP A (k + 1) ∧ ∀ c : ℕ → Fin r, HasMonochromaticAP A k c := by
     intros k r hk hr
     obtain ⟨n, hn⟩ :
         ∃ n : ℕ,

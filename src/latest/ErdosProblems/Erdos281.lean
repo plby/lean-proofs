@@ -928,7 +928,7 @@ lemma integral_densSeq_eq_haar (S : Set ZHat) (hS : MeasurableSet S) (N : ℕ) :
     rw [MeasureTheory.integral_div]
     simp_rw [Finset.card_filter, Set.mem_setOf_eq]
     push_cast
-    rw [MeasureTheory.integral_finset_sum]
+    rw [MeasureTheory.integral_finsetSum]
     · have h_inv (m : ℤ) :
           ∫ x : ZHat, (if x + ↑m ∈ S then (1 : ℝ) else 0) ∂haar =
             (haar S).toReal := by

@@ -325,7 +325,7 @@ lemma SumSet_is_OrdConnected : Set.OrdConnected SumSet := by
                 (fun k => ∑ x ∈ Finset.range n, (2 ^ x + (f (nk k) x : ℝ))⁻¹)
                 Filter.atTop
                 (nhds (∑ x ∈ Finset.range n, (2 ^ x + (b x : ℝ))⁻¹)) := by
-            exact tendsto_finset_sum _ fun i hi =>
+            exact tendsto_finsetSum _ fun i hi =>
               tendsto_const_nhds.congr' <| by
                 filter_upwards
                   [Filter.eventually_ge_atTop <| Classical.choose <| hnk_conv i] with k hk
@@ -336,7 +336,7 @@ lemma SumSet_is_OrdConnected : Set.OrdConnected SumSet := by
                 (fun k => ∑ x ∈ Finset.range n, (2 ^ x + (f (nk k) x : ℝ))⁻¹)
                 Filter.atTop
                 (nhds (∑ x ∈ Finset.range n, (2 ^ x + (b x : ℝ))⁻¹)) := by
-            exact tendsto_finset_sum _ fun i hi =>
+            exact tendsto_finsetSum _ fun i hi =>
               Filter.Tendsto.inv₀
                 ( tendsto_const_nhds.add <| tendsto_const_nhds.congr' <| by
                   filter_upwards

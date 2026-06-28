@@ -1556,7 +1556,7 @@ lemma E_no_k_plus_1 (n k : ℕ) : has_no_k_plus_1_coprime (E n k) k := by
     have hp_prime_index : p ∈ Finset.image (fun i => Nat.nth Nat.Prime i) (Finset.range k) := by
       unfold P at hp_div_Pk
       have hp_div_prime : ∃ i ∈ Finset.range k, p ∣ Nat.nth Nat.Prime i := by
-        exact (Prime.dvd_finset_prod_iff
+        exact (Prime.dvd_finsetProd_iff
           (show Prime p from hp_prime.prime) (fun i => Nat.nth Nat.Prime i)).1 hp_div_Pk
       obtain ⟨ i, hi, hi' ⟩ := hp_div_prime
       exact Finset.mem_image.mpr
@@ -3093,7 +3093,7 @@ lemma gcd_P_iff (k u : ℕ) : Nat.gcd u (P k) > 1 ↔ ∃ q, Nat.Prime q ∧ q �
       exact Nat.Prime.not_coprime_iff_dvd.mp h_gcd.ne'
     have hq_div_prime : ∃ i ∈ Finset.range k, q ∣ Nat.nth Nat.Prime i := by
       unfold P at hq_div_Pk
-      exact (Prime.dvd_finset_prod_iff
+      exact (Prime.dvd_finsetProd_iff
         (show Prime q from hq_prime.prime) (fun i => Nat.nth Nat.Prime i)).1 hq_div_Pk
     obtain ⟨i, hi, hdiv⟩ := hq_div_prime
     exact ⟨q, hq_prime, hq_div_u, i, Finset.mem_range.mp hi,

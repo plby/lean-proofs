@@ -15,15 +15,20 @@ URLs:
 - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos443.md
 -/
 /-
-We have formalized and proved the results from the paper "An elementary question of Erdős and Graham" by Norbert Hegyvári.
+We have formalized and proved the results from the paper "An elementary question
+of Erdős and Graham" by Norbert Hegyvári.
 
 Specifically, we have proved:
-1. Theorem 1.1: For $m > n$, $|A_n \cap A_m| \le \tau_{m,n}$, with equality if $m$ is even and $n$ is odd. (`theorem_1_1`)
+1. Theorem 1.1: For $m > n$, $|A_n \cap A_m| \le \tau_{m,n}$, with equality if
+   $m$ is even and $n$ is odd. (`theorem_1_1`)
 2. Corollary 1.2: An upper bound on $|A_n \cap A_m|$ for large $m, n$. (`corollary_1_2`)
 3. Theorem 1.3: For every $s$, there exist $n < m$ such that $|A_n \cap A_m| = s$. (`theorem_1_3`)
-4. A conditional sum-product result: If $A \subset [1, n^{(\log \log n)^c}]$, then $\max(|A+A|, |AA|) \gg n^{4/3 - 3/(\log \log n)^{1-c}}$. (`sum_product_result`)
+4. A conditional sum-product result: If $A \subset [1, n^{(\log \log n)^c}]$, then
+   $\max(|A+A|, |AA|) \gg n^{4/3 - 3/(\log \log n)^{1-c}}$.
+   (`sum_product_result`)
 
-The proofs follow the arguments in the paper, using elementary number theory and hypergraph estimates.
+The proofs follow the arguments in the paper, using elementary number theory and
+hypergraph estimates.
 -/
 
 import Mathlib

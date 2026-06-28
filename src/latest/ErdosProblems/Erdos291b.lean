@@ -21,21 +21,33 @@ URLs:
 - https://github.com/AlexKontorovich/PrimeNumberTheoremAnd
 -/
 /-
-Let $r_1, r_2, \ldots$ be a bounded sequence of non-zero integers, let $L_n$ be the least common multiple of $1, 2, \ldots, n$ and let $X_n$ be such that $\frac{X_n}{L_n} = \sum_{i=1}^n \frac{r_i}{i}$. Below you can find a conditional Lean proof that $X_n$ has arbitrarily large prime divisors. From this fact one can conclude that, if the $r_i$ are periodic, then $\limsup \gcd(X_n, L_n) = \infty$. In particular, there are infinitely many $n$ for which $\gcd(X_n, L_n) > 1$, settling a generalization of the second part of Erdős Problem #291 (https://www.erdosproblems.com/291). The Lean proof was formalized by Aristotle from Harmonic (aristotle-harmonic@harmonic.fun) based on the following note:
+Let $r_1, r_2, \ldots$ be a bounded sequence of non-zero integers, let $L_n$ be
+the least common multiple of $1, 2, \ldots, n$ and let $X_n$ be such that
+$\frac{X_n}{L_n} = \sum_{i=1}^n \frac{r_i}{i}$. Below you can find a conditional
+Lean proof that $X_n$ has arbitrarily large prime divisors. From this fact one can
+conclude that, if the $r_i$ are periodic, then $\limsup \gcd(X_n, L_n) = \infty$.
+In particular, there are infinitely many $n$ for which $\gcd(X_n, L_n) > 1$,
+settling a generalization of the second part of Erdős Problem #291
+(https://www.erdosproblems.com/291). The Lean proof was formalized by Aristotle
+from Harmonic (aristotle-harmonic@harmonic.fun) based on the following note:
 
 https://github.com/Woett/Miscellaneous/blob/main/Generalized%20harmonic%20sums%20have%20arbitrarily%20large%20prime%20factors.pdf
 
 This note itself is based on my paper
 
-W. van Doorn, On the non-monotonicity of the denominator of generalized harmonic sums. arXiv:2411.03073 (2024)
+W. van Doorn, On the non-monotonicity of the denominator of generalized harmonic
+sums. arXiv:2411.03073 (2024)
 
 in which a generalized version of Erdős Problem #290 (https://www.erdosproblems.com/290) is solved.
 
-The Lean proof uses two prime number theorem type results as axioms, which is the reason the Lean proof is conditional. Both results will eventually follow from the PNT+ Project which can be found here:
+The Lean proof uses two prime number theorem type results as axioms, which is the
+reason the Lean proof is conditional. Both results will eventually follow from the
+PNT+ Project which can be found here:
 
 https://github.com/AlexKontorovich/PrimeNumberTheoremAnd
 
-The exact statements of these two axioms are recorded as h_priemteller and h_bla0 below, and can be found as Lemma 2 and Lemma 3 in the GitHub note I linked above.
+The exact statements of these two axioms are recorded as h_priemteller and h_bla0
+below, and can be found as Lemma 2 and Lemma 3 in the GitHub note I linked above.
 
 -/
 

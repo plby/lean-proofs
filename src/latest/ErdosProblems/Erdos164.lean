@@ -1815,7 +1815,7 @@ lemma inflow_modifiedFlow_le_erdosWeight_of_isPrimePow {N : ℕ} (hN : 1 < N)
         ((Real.continuous_const_rpow hq0).comp (continuous_const.add continuous_id)).measurable
       exact (measurable_const.div hpow_meas).real_toNNReal
     have htsum : Measurable (fun t : ℝ => ∑' q : {q : ℕ // 2 ≤ q}, Aq q t) :=
-      Measurable.nnreal_tsum hAq_meas
+      Measurable.tsum hAq_meas
     refine htsum.coe_nnreal_real.aemeasurable.congr ?_
     filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
     have hnonneg :
@@ -2238,7 +2238,7 @@ lemma inflow_modifiedFlow_le_erdosWeight_of_not_isPrimePow {N : ℕ} (hN : 1 < N
         ((Real.continuous_const_rpow hq0).comp (continuous_const.add continuous_id)).measurable
       exact (measurable_const.div hpow_meas).real_toNNReal
     have htsum : Measurable (fun t : ℝ => ∑' q : {q : ℕ // 2 ≤ q}, Aq q t) :=
-      Measurable.nnreal_tsum hAq_meas
+      Measurable.tsum hAq_meas
     refine htsum.coe_nnreal_real.aemeasurable.congr ?_
     filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
     have hnonneg :
@@ -3939,7 +3939,7 @@ lemma summable_modifiedFlow_col_of_isPrimePow {N : ℕ} (hN : 1 < N)
         ((Real.continuous_const_rpow hq0).comp (continuous_const.add continuous_id)).measurable
       exact (measurable_const.div hpow_meas).real_toNNReal
     have htsum : Measurable (fun t : ℝ => ∑' q : {q : ℕ // 2 ≤ q}, Aq q t) :=
-      Measurable.nnreal_tsum hAq_meas
+      Measurable.tsum hAq_meas
     refine htsum.coe_nnreal_real.aemeasurable.congr ?_
     filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
     have hnonneg :
@@ -4328,7 +4328,7 @@ lemma summable_modifiedFlow_col_of_not_isPrimePow {N : ℕ} (hN : 1 < N)
         ((Real.continuous_const_rpow hq0).comp (continuous_const.add continuous_id)).measurable
       exact (measurable_const.div hpow_meas).real_toNNReal
     have htsum : Measurable (fun t : ℝ => ∑' q : {q : ℕ // 2 ≤ q}, Aq q t) :=
-      Measurable.nnreal_tsum hAq_meas
+      Measurable.tsum hAq_meas
     refine htsum.coe_nnreal_real.aemeasurable.congr ?_
     filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
     have hnonneg :
@@ -8762,7 +8762,7 @@ lemma primeEulerProduct_hasDerivAt {p : ℕ} {s : ℝ} (hs : 1 < s) :
     rcases Finset.mem_filter.mp hℓ with ⟨_, hℓprime⟩
     simpa [factor] using eulerFactor_hasDerivAt hℓprime (s := s)
   have hprod :=
-    HasDerivAt.finset_prod
+    HasDerivAt.finsetProd
       (u := Sfin)
       (f := factor)
       (f' := fun ℓ => Real.log (ℓ : ℝ) / Real.rpow (ℓ : ℝ) s)
@@ -9817,12 +9817,12 @@ theorem roughKernelSeries_le_main_bound {p n : ℕ} (hp : p.Prime) (hodd : p ≠
                   integral_rpow_neg_Ioi (by exact_mod_cast hpnq)]
             _ = ∫ t in Set.Ioi (0 : ℝ), diffInt q t := hInt.symm
         _ = ∫ t in Set.Ioi (0 : ℝ), Finset.sum u (fun q => diffInt q t) := by
-            rw [integral_finset_sum u (fun q hq => hdiff_integrable q)]
+            rw [integral_finsetSum u (fun q hq => hdiff_integrable q)]
     have hleft_integrable :
         MeasureTheory.IntegrableOn (fun t : ℝ => Finset.sum u (fun q => diffInt q t))
           (Set.Ioi (0 : ℝ)) := by
       simpa [MeasureTheory.IntegrableOn] using
-        integrable_finset_sum u (fun q hq => hdiff_integrable q)
+        integrable_finsetSum u (fun q hq => hdiff_integrable q)
     have hpn : 1 < p * n := by
       simpa [Nat.mul_comm] using one_lt_mul_of_one_le_of_two_le hn hp.two_le
     have hright_integrable :

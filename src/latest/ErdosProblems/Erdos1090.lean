@@ -24,13 +24,23 @@ Co-authored-by: Aristotle (Harmonic) <aristotle-harmonic@harmonic.fun>
 -/
 
 /-
-We prove that for any $k \ge 3$, there exists a finite set $A \subset \mathbb{R}^2$ such that for any 2-coloring of $A$, there exists a line containing at least $k$ points of $A$, all of which have the same color.
-The proof uses the Hales-Jewett theorem to find a high-dimensional hypercube with the Ramsey property for combinatorial lines, and then projects this hypercube into $\mathbb{R}^2$ using a "generic" projection.
-A generic projection is defined as one that is injective and preserves the property that points not on a combinatorial line do not map to the affine span of the line's image.
-We prove the existence of such a generic projection using a probabilistic argument (or rather, the fact that the "bad" projections form a lower-dimensional variety).
+We prove that for any $k \ge 3$, there exists a finite set $A \subset \mathbb{R}^2$
+such that for any 2-coloring of $A$, there exists a line containing at least $k$
+points of $A$, all of which have the same color.
+The proof uses the Hales-Jewett theorem to find a high-dimensional hypercube with
+the Ramsey property for combinatorial lines, and then projects this hypercube into
+$\mathbb{R}^2$ using a "generic" projection.
+A generic projection is defined as one that is injective and preserves the property
+that points not on a combinatorial line do not map to the affine span of the line's
+image.
+We prove the existence of such a generic projection using a probabilistic argument
+(or rather, the fact that the "bad" projections form a lower-dimensional variety).
 The set $A$ is then the image of the hypercube under this generic projection.
-For any coloring of $A$, we pull it back to the hypercube, find a monochromatic combinatorial line, and project it back to $\mathbb{R}^2$.
-The genericity ensures that the image of the combinatorial line contains exactly $k$ points and no other points of $A$ lie on the affine line spanned by it, satisfying the condition.
+For any coloring of $A$, we pull it back to the hypercube, find a monochromatic
+combinatorial line, and project it back to $\mathbb{R}^2$.
+The genericity ensures that the image of the combinatorial line contains exactly
+$k$ points and no other points of $A$ lie on the affine line spanned by it, satisfying
+the condition.
 -/
 
 import Mathlib

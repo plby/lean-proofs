@@ -239,7 +239,7 @@ theorem counterexamplePolynomial_taylor_coeff_positiveRoot (N K k : ℕ) :
             ((counterexampleExponent N K j).choose k : ℂ) := by
   unfold counterexamplePolynomial
   rw [Polynomial.sum_comp]
-  rw [Polynomial.finset_sum_coeff]
+  rw [Polynomial.finsetSum_coeff]
   refine Finset.sum_congr rfl ?_
   intro j _hj
   rw [Polynomial.mul_comp, Polynomial.X_pow_comp, Polynomial.C_comp]
@@ -686,7 +686,7 @@ theorem counterexamplePolynomial_coeff_exponent
     (counterexamplePolynomial N K).coeff (counterexampleExponent N K j) =
       (counterexampleRealCoeff N K j : ℂ) := by
   unfold counterexamplePolynomial
-  rw [Polynomial.finset_sum_coeff]
+  rw [Polynomial.finsetSum_coeff]
   rw [Finset.sum_eq_single j]
   · rw [Polynomial.coeff_C_mul_X_pow, if_pos rfl]
   · intro i _hi hij
@@ -708,7 +708,7 @@ theorem counterexamplePolynomial_support_eq_image
     push Not at hnot
     refine hcoeff ?_
     unfold counterexamplePolynomial
-    rw [Polynomial.finset_sum_coeff]
+    rw [Polynomial.finsetSum_coeff]
     refine Finset.sum_eq_zero ?_
     intro j _hj
     rw [Polynomial.coeff_C_mul_X_pow, if_neg]
@@ -722,7 +722,7 @@ theorem counterexamplePolynomial_coeff_degree_ne_zero
     (N K : ℕ) (_hN : 1 ≤ N) (hK : 2 ≤ K) :
     (counterexamplePolynomial N K).coeff (counterexampleDegree N K) ≠ 0 := by
   unfold counterexamplePolynomial
-  rw [Polynomial.finset_sum_coeff]
+  rw [Polynomial.finsetSum_coeff]
   rw [Finset.sum_eq_single (Fin.last (N + 1))]
   · rw [Polynomial.coeff_C_mul_X_pow, counterexampleExponent_last, if_pos rfl]
     exact_mod_cast counterexampleRealCoeff_ne_zero N K hK (Fin.last (N + 1))
@@ -765,7 +765,7 @@ theorem counterexamplePolynomial_coeff_zero_ne_zero
     (N K : ℕ) (_hN : 1 ≤ N) (hK : 2 ≤ K) :
     (counterexamplePolynomial N K).coeff 0 ≠ 0 := by
   unfold counterexamplePolynomial
-  rw [Polynomial.finset_sum_coeff]
+  rw [Polynomial.finsetSum_coeff]
   rw [Finset.sum_eq_single (⟨0, by omega⟩ : Fin (N + 2))]
   · rw [Polynomial.coeff_C_mul_X_pow, counterexampleExponent_zero, if_pos rfl]
     exact_mod_cast counterexampleRealCoeff_ne_zero N K hK ⟨0, by omega⟩
@@ -1193,7 +1193,7 @@ theorem counterexample_first_delta_correctionProduct_tendsto
           ∏ r : Fin N, (1 - (K : ℝ) ^ (-((r.val + 1 : ℕ) : ℝ)))⁻¹)
         Filter.atTop
         (nhds (∏ _r : Fin N, (1 : ℝ))) := by
-    exact tendsto_finset_prod Finset.univ (fun r _hr => by
+    exact tendsto_finsetProd Finset.univ (fun r _hr => by
       have he_pos : 0 < (((r.val + 1 : ℕ) : ℝ)) := by positivity
       have hz :
           Filter.Tendsto
@@ -1613,7 +1613,7 @@ theorem counterexample_log_tilt_mul_rpow_neg_tendsto_zero
               Real.log (1 - counterexampleLambda N K i.castSucc) *
                 (K : ℝ) ^ (-(q : ℝ)))
           Filter.atTop (nhds 0) := by
-      have hsum := tendsto_finset_sum Finset.univ (fun (i : Fin (N + 1)) _hi => by
+      have hsum := tendsto_finsetSum Finset.univ (fun (i : Fin (N + 1)) _hi => by
         have harg :
             Filter.Tendsto (fun K : ℕ => 1 - counterexampleLambda N K i.castSucc)
               Filter.atTop (nhds 1) := by
@@ -1642,7 +1642,7 @@ theorem counterexample_log_tilt_mul_rpow_neg_tendsto_zero
             ∑ i : Fin (N + 1),
               Real.log (counterexampleLambda N K i.succ) * (K : ℝ) ^ (-(q : ℝ)))
           Filter.atTop (nhds 0) := by
-      simpa using tendsto_finset_sum Finset.univ
+      simpa using tendsto_finsetSum Finset.univ
         (fun i _hi => counterexample_log_lambda_succ_mul_rpow_neg_tendsto_zero N q hq i)
     simpa only [Finset.sum_mul] using hzeroSum'
   have hcombo := (hconst.sub (hlastSum.const_mul ((2 : ℝ)⁻¹))).add
@@ -1697,7 +1697,7 @@ theorem counterexample_one_tilt_log_mul_lambda_tendsto_zero
               Real.log (1 - counterexampleLambda N K i.castSucc) *
                 (K : ℝ) ^ (-(N : ℝ)))
           Filter.atTop (nhds 0) := by
-      have hsum := tendsto_finset_sum Finset.univ (fun (i : Fin (N + 1)) _hi => by
+      have hsum := tendsto_finsetSum Finset.univ (fun (i : Fin (N + 1)) _hi => by
         have harg :
             Filter.Tendsto (fun K : ℕ => 1 - counterexampleLambda N K i.castSucc)
               Filter.atTop (nhds 1) := by
@@ -1726,7 +1726,7 @@ theorem counterexample_one_tilt_log_mul_lambda_tendsto_zero
             ∑ i : Fin (N + 1),
               Real.log (counterexampleLambda N K i.succ) * (K : ℝ) ^ (-(N : ℝ)))
           Filter.atTop (nhds 0) := by
-      simpa using tendsto_finset_sum Finset.univ
+      simpa using tendsto_finsetSum Finset.univ
         (fun i _hi => counterexample_log_lambda_succ_mul_first_tendsto_zero N hN i)
     simpa only [Finset.sum_mul] using hzeroSum'
   have hlogTiltTimes :
@@ -2229,7 +2229,7 @@ theorem counterexample_delta_zero_div_factor_product_tendsto_zero
         (fun K : ℕ => ∏ l : Fin (N + 2), counterexampleDeltaZeroDivFactor N K j l)
         Filter.atTop
         (nhds (∏ l : Fin (N + 2), counterexampleDeltaZeroDivFactorLimit N j l)) := by
-    exact tendsto_finset_prod Finset.univ (fun l _hl =>
+    exact tendsto_finsetProd Finset.univ (fun l _hl =>
       counterexampleDeltaZeroDivFactor_tendsto N hN j l hj0 hjlast)
   have hlimit : (∏ l : Fin (N + 2), counterexampleDeltaZeroDivFactorLimit N j l) = 0 := by
     rw [← Finset.prod_erase_mul (s := Finset.univ) (a := (⟨1, by omega⟩ : Fin (N + 2)))
@@ -2456,7 +2456,7 @@ theorem counterexample_heightFormula_tendsto
               counterexampleTilt N K ^ (1 - 2 * counterexampleLambda N K j))
         Filter.atTop
         (nhds (∑ j : Fin (N + 2), counterexampleHeightTermLimit N j)) := by
-    exact tendsto_finset_sum Finset.univ
+    exact tendsto_finsetSum Finset.univ
       (fun j _hj => counterexample_heightFormula_term_tendsto N hN j)
   rw [counterexampleHeightTermLimit_sum N hN] at hsum
   simpa [counterexampleHeightFormula] using hsum

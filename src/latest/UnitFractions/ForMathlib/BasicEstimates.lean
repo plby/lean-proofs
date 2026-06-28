@@ -226,7 +226,7 @@ lemma abs_summatory_bound {M : Type*} [SeminormedAddCommGroup M] (a : ℕ → M)
       (Finset.Icc_subset_Icc le_rfl (Nat.floor_le_of_le hx))
       (by intro i _ _; exact norm_nonneg _)
 
-@[measurability] lemma measurable_summatory {M : Type*} [AddCommMonoid M] [MeasurableSpace M]
+@[fun_prop] lemma measurable_summatory {M : Type*} [AddCommMonoid M] [MeasurableSpace M]
   {k : ℕ} {a : ℕ → M} :
   Measurable (summatory a k) := by
   change Measurable ((fun y ↦ ∑ i ∈ Finset.Icc k y, a i) ∘ Nat.floor)
@@ -949,7 +949,7 @@ lemma divisor_function_div_pow_eq {n : ℕ} (K : ℝ) (hn : n ≠ 0) :
         simp [Finsupp.prod]
       _ = n.primeFactors.prod (fun p ↦ (((p : ℕ) : ℝ) ^ (n.factorization p)) ^ K⁻¹) := by
         symm
-        exact Real.finset_prod_rpow _ (fun p => ((p : ℕ) : ℝ) ^ (n.factorization p))
+        exact Real.finsetProd_rpow _ (fun p => ((p : ℕ) : ℝ) ^ (n.factorization p))
           (by intro p hp; positivity) _
       _ = n.primeFactors.prod (fun p ↦ (p : ℝ) ^ ((n.factorization p : ℝ) / K)) := by
         congr with p
@@ -1296,10 +1296,10 @@ lemma chebyshev_second_eq_summatory : chebyshev_second = summatory Λ 1 := by
   · simp
 
 @[simp] lemma chebyshev_first_zero : chebyshev_first 0 = 0 := by
-  simpa using Chebyshev.theta_eq_zero_of_lt_two (show (0 : ℝ) < 2 by norm_num)
+  exact Chebyshev.theta_eq_zero_of_lt_two (show (0 : ℝ) < 2 by norm_num)
 
 @[simp] lemma chebyshev_second_zero : chebyshev_second 0 = 0 := by
-  simpa using Chebyshev.psi_eq_zero_of_lt_two (show (0 : ℝ) < 2 by norm_num)
+  exact Chebyshev.psi_eq_zero_of_lt_two (show (0 : ℝ) < 2 by norm_num)
 
 @[simp] lemma chebyshev_first'_zero : chebyshev_first' 0 = 0 := by
   simp [chebyshev_first']
@@ -2156,7 +2156,7 @@ lemma is_O_prime_log_div_sum_error :
     Asymptotics.IsBigO atTop prime_log_div_sum_error (fun _ ↦ (1 : ℝ)) := by
   exact log_reciprocal
 
-@[measurability] lemma measurable_prime_log_div_sum_error :
+@[fun_prop] lemma measurable_prime_log_div_sum_error :
   Measurable prime_log_div_sum_error := by
   change Measurable fun x ↦ prime_summatory (fun p ↦ Real.log p * (p : ℝ)⁻¹) 1 x - log x
   simp only [prime_summatory_one_eq_prime_summatory_two, prime_summatory_eq_summatory]

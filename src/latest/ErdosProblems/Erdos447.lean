@@ -14,7 +14,12 @@ URLs:
 - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos447.md
 -/
 /-
-Formalized the definitions and theorems from the paper "Union-free families and Kleitman's asymptotic bound", including the main result `kleitman_asymptotic` which establishes that the size of a union-free family is asymptotically bounded by the central binomial coefficient. The formalization covers the Erdős-Ko-Rado lemma, Kleitman's chain inequality, the linear programming bound, weak duality, and the construction of the dual feasible solution.
+Formalized the definitions and theorems from the paper "Union-free families and
+Kleitman's asymptotic bound", including the main result `kleitman_asymptotic`,
+which establishes that the size of a union-free family is asymptotically bounded
+by the central binomial coefficient. The formalization covers the Erdős-Ko-Rado
+lemma, Kleitman's chain inequality, the linear programming bound, weak duality,
+and the construction of the dual feasible solution.
 -/
 
 import Mathlib

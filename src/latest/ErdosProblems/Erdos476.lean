@@ -21,9 +21,11 @@ URLs:
 /-
 We proved the Erdős-Heilbronn inequality in $\mathbb F_p$.
 The main theorem is `erdos_heilbronn`.
-We followed the proof outline provided, formalizing the necessary lemmas about Lagrange interpolation, the Combinatorial Nullstellensatz, and properties of restricted sumsets.
+We followed the proof outline provided, formalizing the necessary lemmas about Lagrange
+interpolation, the Combinatorial Nullstellensatz, and properties of restricted sumsets.
 Key definitions include `restrictedSumset`, `P_S`, `L_s`, `Lambda_ST`, and `F_poly`.
-Key lemmas include `two_variable_combinatorial_nullstellensatz`, `large_set_full`, `binomial_coeff_computation`, and `erdos_heilbronn_small`.
+Key lemmas include `two_variable_combinatorial_nullstellensatz`, `large_set_full`,
+`binomial_coeff_computation`, and `erdos_heilbronn_small`.
 -/
 
 import Mathlib
@@ -143,7 +145,7 @@ lemma univariate_leading_coeff_identity (S : Finset F) (g : F[X]) (hS : S.Nonemp
             refine lt_of_le_of_lt ( add_le_add ( Polynomial.degree_C_le ) ( Polynomial.degree_le_of_natDegree_le ( L_s_natDegree S s hs |> le_of_eq ) ) ) ?_
             aesop;
           · exact WithBot.bot_lt_coe _;
-        · intro s hs; simp +decide [ Polynomial.eval_finset_sum ] ;
+        · intro s hs; simp +decide [ Polynomial.eval_finsetSum ] ;
           rw [ Finset.sum_eq_single s ];
           · rw [ L_s_eval_self S s hs, mul_one ];
           · exact fun t ht hts => mul_eq_zero_of_right _ ( L_s_eval_ne _ _ _ ht hs hts.symm );

@@ -1364,7 +1364,7 @@ lemma clique_eq_pointClique {N : ℕ} (hN : N ≥ 1)
     {e : Finset ℕ} (he_pe : e ∈ pointEdges N a b c)
     (he_K : e ⊆ K) :
     K = pointClique N a b c := by
-  refine Eq.symm (Finset.eq_of_subset_of_card_le (?_ : _ ⊆ _) ?_)
+  refine Eq.symm (Finset.eq_of_subset_of_card_le (?_ : pointClique N a b c ⊆ K) ?_)
   · apply pointClique_sub_clique hN hS hnoQ hmem ha hb hc hK_sub
       hK_card hK_edges he_pe he_K
   · exact le_trans (clique_card_le_four hN hS hK_sub hK_edges)

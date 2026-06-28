@@ -22,7 +22,9 @@ We have constructed an additive function $f$ and proven the following properties
 3. `f_pos_eventually`: $f(n) > 0$ for sufficiently large $n$.
 4. `corollary2`: $\limsup_{n \to \infty} \frac{f(n+1)}{f(n)} = 1$.
 
-These results answer negatively the question of Erdős asking whether an additive function that is arbitrarily large on prime powers relative to log must have arbitrarily large normalized consecutive differences or ratios.
+These results answer negatively the question of Erdős asking whether an additive function
+that is arbitrarily large on prime powers relative to log must have arbitrarily large
+normalized consecutive differences or ratios.
 -/
 
 import Mathlib
@@ -70,7 +72,7 @@ lemma lemma1 (p k : ℕ) (hp : p.Prime) (hk : k ≥ 1) :
       have hf_prime_power : f (p ^ k) = f_prime_power p k := by
         unfold f;
         norm_num [ Nat.factorization_pow, hp, hk ];
-        rw [ Finsupp.support_single_ne_zero ] <;> aesop;
+        rw [ Finsupp.support_single ] <;> aesop;
       norm_num [ hf_prime_power, f_prime_power ];
       rw [ mul_div_cancel_left₀ _ ( mul_ne_zero ( Nat.cast_ne_zero.mpr ( by linarith ) ) ( ne_of_gt ( Real.log_pos ( Nat.one_lt_cast.mpr hp.one_lt ) ) ) ) ]
 

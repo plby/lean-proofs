@@ -1170,8 +1170,8 @@ lemma sum_g_div_q_bound : ∃ C, ∀ N, ∑ q ∈ Finset.range (N + 1), g_func q
             · unfold g_func; norm_num [ hp2 ] ; ring_nf; norm_num;
               norm_num [ Finsupp.prod ];
               rw [ add_comm, Finset.sum_eq_single 0 ] <;>
-                norm_num [ Finsupp.support_single_ne_zero ];
-              intro b hb hb'; rw [ Finsupp.support_single_ne_zero ] <;> aesop;
+                norm_num [ Finsupp.support_single ];
+              intro b hb hb'; rw [ Finsupp.support_single ] <;> aesop;
             · have := prime_sum_bound p ( Finset.mem_filter.mp hp |>.2 ) hp2;
               exact le_trans
                 (Summable.sum_le_tsum

@@ -19,7 +19,8 @@ URLs:
 We define a real number $r = 2^{1/10}$ and a polynomial $f(z) = z^{10} - 2$.
 We prove that $0 < r < 2$, $f$ is monic and nonconstant, and all roots of $f$ satisfy $|z| \le r$.
 We define the set $S = \{z \in \mathbb{C} : |f(z)| < 1\}$.
-We prove that the connected components of $S$ are the images of the unit disk $D$ under the branches of the inverse function $g_k(w) = \zeta^k (w+2)^{1/10}$.
+We prove that the connected components of $S$ are the images of the unit disk $D$
+under the branches of the inverse function $g_k(w) = \zeta^k (w+2)^{1/10}$.
 We prove that each component has diameter at most $0.2$, which is less than $2 - r \approx 0.93$.
 -/
 

@@ -4307,7 +4307,7 @@ lemma switchingPoly_eval_nat (p : ℚ[X]) (E : Finset ℕ) (c : ℕ) :
     (switchingPoly p E).eval ((c : ℕ) : ℚ) =
       (∑ e ∈ E, p.eval (((e * c : ℕ) : ℕ) : ℚ)) - p.eval ((c : ℕ) : ℚ) := by
   unfold switchingPoly
-  rw [Polynomial.eval_sub, Polynomial.eval_finset_sum]
+  rw [Polynomial.eval_sub, Polynomial.eval_finsetSum]
   congr 1
   apply Finset.sum_congr rfl
   intro e _
@@ -4468,7 +4468,7 @@ lemma switchingPoly_leadingCoeff (p : ℚ[X]) (E : Finset ℕ)
       rw [h_nat_deg i hi]
     apply le_antisymm h_le
     apply Polynomial.le_natDegree_of_ne_zero
-    rw [Polynomial.finset_sum_coeff]
+    rw [Polynomial.finsetSum_coeff]
     have h_coeff_eq : ∀ e ∈ E, (p.comp (Polynomial.C (e : ℚ) * Polynomial.X)).coeff r =
         (p.comp (Polynomial.C (e : ℚ) * Polynomial.X)).leadingCoeff := by
       intro e he
@@ -4599,7 +4599,7 @@ lemma switchingPoly_natDegree_eq (p : ℚ[X]) (E : Finset ℕ)
       intro i hi; rw [h_nat_deg i hi]
     apply le_antisymm h_le
     apply Polynomial.le_natDegree_of_ne_zero
-    rw [Polynomial.finset_sum_coeff]
+    rw [Polynomial.finsetSum_coeff]
     have h_coeff_eq : ∀ e ∈ E, (p.comp (Polynomial.C (e : ℚ) * Polynomial.X)).coeff r =
         (p.comp (Polynomial.C (e : ℚ) * Polynomial.X)).leadingCoeff := by
       intro e he
@@ -4744,7 +4744,7 @@ lemma switchingPoly_leadingCoeff_eq (p : ℚ[X]) (E : Finset ℕ)
       intro i hi; rw [h_nat_deg i hi]
     apply le_antisymm h_le
     apply Polynomial.le_natDegree_of_ne_zero
-    rw [Polynomial.finset_sum_coeff]
+    rw [Polynomial.finsetSum_coeff]
     have h_coeff_eq : ∀ e ∈ E, (p.comp (Polynomial.C (e : ℚ) * Polynomial.X)).coeff r =
         (p.comp (Polynomial.C (e : ℚ) * Polynomial.X)).leadingCoeff := by
       intro e he

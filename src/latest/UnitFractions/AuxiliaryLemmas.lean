@@ -1020,8 +1020,7 @@ theorem helpful_decreasing_bound {x y : ℝ} {n : ℕ} (h0y : 0 < y) (hn : x ≤
       ((differentiableAt_const _).mul differentiableAt_id)
       (differentiableAt_id.mul (differentiableAt_log ht))
     have hlin : deriv (fun s : ℝ ↦ (log y + 1) * s) t = log y + 1 := by
-      simpa using
-        (deriv_const_mul (c := log y + 1) (d := fun s : ℝ ↦ s) (x := t) differentiableAt_id)
+      simp
     calc
       deriv f t =
           deriv (fun s : ℝ ↦ (log y + 1) * s) t - deriv (fun s : ℝ ↦ s * log s) t := by

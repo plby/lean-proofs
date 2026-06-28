@@ -22,7 +22,8 @@ open Erdos134
 /-- The maximum degree of a graph on `Fin n` (as a natural number). -/
 noncomputable def maxDegreeFin {n : ℕ} (G : SimpleGraph (Fin n)) : ℕ := by
   classical
-  exact Finset.univ.sup (fun v : Fin n => @SimpleGraph.degree (Fin n) G v (G.neighborSetFintype v))
+  exact Finset.univ.sup (fun v : Fin n =>
+    @SimpleGraph.degree (Fin n) G v inferInstance)
 
 open scoped Classical in
 /-- For a graph `G` on `n` vertices, `h2 G` is the smallest number of edges that need

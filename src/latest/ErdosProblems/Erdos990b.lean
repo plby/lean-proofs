@@ -526,7 +526,7 @@ theorem sparsePoly_eq_expPoly_clog_eventually (N K : ℕ) (hK : 2 ≤ K) :
   filter_upwards [Complex.isOpen_slitPlane.eventually_mem (x0_mem_slitPlane N K)] with z hz
   have hz0 : z ≠ 0 := Complex.slitPlane_ne_zero hz
   unfold sparsePoly expPoly
-  rw [Polynomial.eval_finset_sum]
+  rw [Polynomial.eval_finsetSum]
   refine Finset.sum_congr rfl ?_
   intro i hi
   rw [Polynomial.eval_C_mul, Polynomial.eval_X_pow]
@@ -618,7 +618,7 @@ theorem sparsePoly_rootMultiplicity_at_x0
     (sparsePoly N K).rootMultiplicity (x0 N K : ℂ) = N + 1 := by
   have hsp : sparsePoly N K ≠ 0 := by
     have hcoeff0 : (sparsePoly N K).coeff 0 ≠ 0 := by
-      rw [sparsePoly, finset_sum_coeff]
+      rw [sparsePoly, finsetSum_coeff]
       rw [Finset.sum_eq_single_of_mem (0 : Fin (s N)) (Finset.mem_univ _)]
       · simpa [coeff_C_mul_X_pow, exponent_zero] using cCoeff_ne_zero N K hK (0 : Fin (s N))
       · intro j _ hj
@@ -723,7 +723,7 @@ private theorem sparsePoly_support_eq_image (N K : ℕ) (hK : 2 ≤ K) :
     rw [mem_support_iff] at hn
     by_contra hnot
     have hcoeff : (sparsePoly N K).coeff n = 0 := by
-      rw [sparsePoly, finset_sum_coeff]
+      rw [sparsePoly, finsetSum_coeff]
       apply Finset.sum_eq_zero
       intro i hi
       rw [coeff_C_mul_X_pow]
@@ -735,7 +735,7 @@ private theorem sparsePoly_support_eq_image (N K : ℕ) (hK : 2 ≤ K) :
   · intro hn
     rw [mem_support_iff]
     rcases Finset.mem_image.mp hn with ⟨i, hi, rfl⟩
-    rw [sparsePoly, finset_sum_coeff, Finset.sum_eq_single_of_mem i hi,
+    rw [sparsePoly, finsetSum_coeff, Finset.sum_eq_single_of_mem i hi,
       coeff_C_mul_X_pow, if_pos rfl]
     · exact cCoeff_ne_zero N K hK i
     · intro j _ hij
@@ -748,7 +748,7 @@ private theorem sparsePoly_support_eq_image (N K : ℕ) (hK : 2 ≤ K) :
 private theorem coeff_sparsePoly_exponent (N K : ℕ) (hK : 2 ≤ K) (i : Fin (s N)) :
     (sparsePoly N K).coeff (exponent N K i) = cCoeff N K i := by
   classical
-  rw [sparsePoly, finset_sum_coeff]
+  rw [sparsePoly, finsetSum_coeff]
   rw [Finset.sum_eq_single_of_mem i (Finset.mem_univ _)]
   · simp
   · intro j _ hij
@@ -1473,7 +1473,7 @@ private theorem Delta_last_tendsto_one (N : ℕ) :
   have hprod : Filter.Tendsto
       (fun K : ℕ => (∏ m ∈ Finset.range N, (1 - ((K : ℝ)⁻¹) ^ (m + 1))))
       Filter.atTop (𝓝 (∏ m ∈ Finset.range N, (1 : ℝ))) := by
-    exact tendsto_finset_prod _ hterm
+    exact tendsto_finsetProd _ hterm
   have hK : ∀ᶠ K in Filter.atTop, 2 ≤ K := Filter.eventually_ge_atTop 2
   have hEq : ∀ᶠ K in Filter.atTop,
       Delta N K (Fin.last (N + 1))
@@ -1631,12 +1631,12 @@ private theorem Rcoeff_succ_tendsto_zero (N : ℕ) (i : Fin N) (hi : 1 ≤ i.1) 
     have hprod1 : Filter.Tendsto
         (fun K : ℕ => (∏ m ∈ Finset.range i.1, (1 - ((K : ℝ)⁻¹) ^ (m + 1))))
         Filter.atTop (𝓝 1) := by
-      simpa [Finset.prod_const_one] using tendsto_finset_prod (s := Finset.range i.1)
+      simpa [Finset.prod_const_one] using tendsto_finsetProd (s := Finset.range i.1)
         (fun m hm => hterm m)
     have hprod2 : Filter.Tendsto
         (fun K : ℕ => (∏ m ∈ Finset.range (N - i.1 - 1), (1 - ((K : ℝ)⁻¹) ^ (m + 1))))
         Filter.atTop (𝓝 1) := by
-      simpa [Finset.prod_const_one] using tendsto_finset_prod (s := Finset.range (N - i.1 - 1))
+      simpa [Finset.prod_const_one] using tendsto_finsetProd (s := Finset.range (N - i.1 - 1))
         (fun m hm => hterm m)
     simpa [mul_assoc] using hleft.mul (hprod1.mul hprod2)
   exact (Filter.tendsto_congr' hEq).mpr <| by
@@ -1863,7 +1863,7 @@ theorem M_tendsto_two_sqrt_two (N : ℕ) (hN : 1 ≤ N) :
           Acoeff N K (midIdx i) * Real.exp ((1 / 2 - lambda N K (midIdx i)) * tau N K))
         Filter.atTop
         (𝓝 (∑ i : Fin N, if i.1 = 0 then (1 / Real.sqrt 2 : ℝ) else 0)) := by
-      exact tendsto_finset_sum _ (fun i _ => hmidterm i)
+      exact tendsto_finsetSum _ (fun i _ => hmidterm i)
     have hmid' : Filter.Tendsto
         (fun K : ℕ => ∑ i : Fin N,
           Acoeff N K (midIdx i) * Real.exp ((1 / 2 - lambda N K (midIdx i)) * tau N K))

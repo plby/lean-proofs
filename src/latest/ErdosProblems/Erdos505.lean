@@ -783,7 +783,7 @@ theorem dim_multilinear_polynomials
           · ext i; simp [Finsupp.single_apply];
             grind;
         · rcases h with ⟨ x, hx₁, rfl ⟩
-          simp +decide [← Finsupp.sum_finset_sum_index, hx₁];
+          simp +decide [← Finsupp.sum_finsetSum_index, hx₁];
           intro i; by_cases hi : i ∈ x <;> simp +decide [ hi, Finsupp.single_apply ] ;
       -- Therefore, the dimension of the space of multilinear polynomials of
       -- total degree at most $k$ is equal to the cardinality of the set of

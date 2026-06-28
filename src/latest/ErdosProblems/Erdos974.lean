@@ -646,7 +646,7 @@ lemma esymm_ze_ne_esymm_zo :
   simp_rw [Fintype.card_coe, PD.card_evenIndices_oddIndices] at prodeven prododd
   replace prodeven := congrArg (Polynomial.eval (-1)) prodeven
   replace prododd := congrArg (Polynomial.eval (-1)) prododd
-  simp_rw [Polynomial.eval_prod, Polynomial.eval_finset_sum, Polynomial.eval_add,
+  simp_rw [Polynomial.eval_prod, Polynomial.eval_finsetSum, Polynomial.eval_add,
     Polynomial.eval_mul, Polynomial.eval_pow, Polynomial.eval_X, Polynomial.eval_C,
     univ_eq_attach] at prodeven prododd
   replace prodeven := congrArg (MvPolynomial.eval PD.ze) prodeven
@@ -694,7 +694,7 @@ lemma esymm_ze_eq : (MvPolynomial.esymm _ _ n).eval PD.ze = -(-1) ^ n := by
   have prodeven := MvPolynomial.prod_C_add_X_eq_sum_esymm ℂ PD.evenIndices
   simp_rw [Fintype.card_coe, PD.card_evenIndices_oddIndices] at prodeven
   replace prodeven := congrArg (Polynomial.eval (-1)) prodeven
-  simp_rw [Polynomial.eval_prod, Polynomial.eval_finset_sum, Polynomial.eval_add,
+  simp_rw [Polynomial.eval_prod, Polynomial.eval_finsetSum, Polynomial.eval_add,
     Polynomial.eval_mul, Polynomial.eval_pow, Polynomial.eval_X, Polynomial.eval_C,
     univ_eq_attach] at prodeven
   replace prodeven := congrArg (MvPolynomial.eval PD.ze) prodeven
@@ -716,7 +716,7 @@ lemma ze_pow_n (i : PD.evenIndices) : PD.ze i ^ n = 1 := by
   have prodeven := MvPolynomial.prod_C_add_X_eq_sum_esymm ℂ PD.evenIndices
   simp_rw [Fintype.card_coe, PD.card_evenIndices_oddIndices] at prodeven
   replace prodeven := congrArg (Polynomial.eval (MvPolynomial.C (-PD.ze i))) prodeven
-  simp_rw [Polynomial.eval_prod, Polynomial.eval_finset_sum, Polynomial.eval_add,
+  simp_rw [Polynomial.eval_prod, Polynomial.eval_finsetSum, Polynomial.eval_add,
     Polynomial.eval_mul, Polynomial.eval_pow, Polynomial.eval_X, Polynomial.eval_C,
     univ_eq_attach] at prodeven
   replace prodeven := congrArg (MvPolynomial.eval PD.ze) prodeven
@@ -751,7 +751,7 @@ lemma esymm_zo_eq : (MvPolynomial.esymm _ _ n).eval PD.zo = ∏ i ∈ PD.oddIndi
   have prododd := MvPolynomial.prod_C_add_X_eq_sum_esymm ℂ PD.oddIndices
   simp_rw [Fintype.card_coe, PD.card_evenIndices_oddIndices] at prododd
   replace prododd := congrArg (Polynomial.eval 0) prododd
-  simp_rw [Polynomial.eval_prod, Polynomial.eval_finset_sum, Polynomial.eval_add,
+  simp_rw [Polynomial.eval_prod, Polynomial.eval_finsetSum, Polynomial.eval_add,
     Polynomial.eval_mul, Polynomial.eval_pow, Polynomial.eval_X, Polynomial.eval_C,
     zero_add, univ_eq_attach] at prododd
   replace prododd := congrArg (MvPolynomial.eval PD.zo) prododd
@@ -771,7 +771,7 @@ lemma zo_pow_n (i : PD.oddIndices) : PD.zo i ^ n = -∏ i ∈ PD.oddIndices, -PD
   have prododd := MvPolynomial.prod_C_add_X_eq_sum_esymm ℂ PD.oddIndices
   simp_rw [Fintype.card_coe, PD.card_evenIndices_oddIndices] at prododd
   replace prododd := congrArg (Polynomial.eval (MvPolynomial.C (-PD.zo i))) prododd
-  simp_rw [Polynomial.eval_prod, Polynomial.eval_finset_sum, Polynomial.eval_add,
+  simp_rw [Polynomial.eval_prod, Polynomial.eval_finsetSum, Polynomial.eval_add,
     Polynomial.eval_mul, Polynomial.eval_pow, Polynomial.eval_X, Polynomial.eval_C,
     univ_eq_attach] at prododd
   replace prododd := congrArg (MvPolynomial.eval PD.zo) prododd

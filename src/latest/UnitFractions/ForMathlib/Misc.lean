@@ -10,7 +10,7 @@ In particular, Mathlib4 already provides results such as:
 * `Rat.cast_sum`
 * `Finset.filter_comm`
 * `Finset.one_le_prod`
-* `Real.finset_prod_rpow`
+* `Real.finsetProd_rpow`
 * `Real.self_le_rpow_of_one_le`
 * `Real.self_le_rpow_of_le_one`
 * the add-one interval lemmas in `Finset` and `Set`
@@ -72,7 +72,7 @@ lemma Icc_sdiff_Icc_left {x y z : ℕ} (h₁ : z ≤ y) (h₂ : x ≤ z) :
 lemma prod_rpow {ι : Type*} {s : Finset ι} {f : ι → ℝ} (c : ℝ)
     (hf : ∀ x ∈ s, 0 ≤ f x) :
     (∏ i ∈ s, f i) ^ c = ∏ i ∈ s, (f i ^ c) := by
-  simpa [eq_comm] using (Real.finset_prod_rpow s f hf c)
+  simpa [eq_comm] using (Real.finsetProd_rpow s f hf c)
 
 end Finset
 

@@ -665,7 +665,7 @@ lemma factorization_exactBlock_of_mem {C : Finset ℕ} {q p : ℕ}
   have hprod_ne : ∀ x ∈ C, x ^ q.factorization x ≠ 0 := by
     intro x hx
     exact pow_ne_zero _ (hC x hx).ne_zero
-  rw [Nat.factorization_prod hprod_ne, Finsupp.finset_sum_apply]
+  rw [Nat.factorization_prod hprod_ne, Finsupp.finsetSum_apply]
   rw [Finset.sum_eq_single p]
   · rw [(hC p hpC).factorization_pow, Finsupp.single_eq_same]
   · intro x hx hxp
@@ -688,7 +688,7 @@ lemma primeSupport_exactBlock {C : Finset ℕ} {q : ℕ}
   · intro hsum
     by_contra hpC
     apply hsum
-    rw [Finsupp.finset_sum_apply, Finset.sum_eq_zero_iff]
+    rw [Finsupp.finsetSum_apply, Finset.sum_eq_zero_iff]
     intro x hx
     have hxne : x ≠ p := by
       intro hxp
@@ -699,7 +699,7 @@ lemma primeSupport_exactBlock {C : Finset ℕ} {q : ℕ}
     have hp : Nat.Prime p := hC p hpC
     have hqpos : q.factorization p ≠ 0 := Finsupp.mem_support_iff.1 (hCq hpC)
     intro hsum
-    rw [Finsupp.finset_sum_apply] at hsum
+    rw [Finsupp.finsetSum_apply] at hsum
     have hterm := (Finset.sum_eq_zero_iff.mp hsum) p hpC
     rw [hp.factorization_pow, Finsupp.single_eq_same] at hterm
     exact hqpos hterm
@@ -10601,7 +10601,7 @@ private lemma rad_squarefree (n : ℕ) : Squarefree (rad n) := by
   by_cases hq : q ∈ n.primeFactors
   · have hqprime : Nat.Prime q := Nat.prime_of_mem_primeFactors hq
     rw [Nat.factorization_prod]
-    · rw [Finsupp.finset_sum_apply]
+    · rw [Finsupp.finsetSum_apply]
       calc
         ∑ x ∈ n.primeFactors, x.factorization q
             = q.factorization q := by
@@ -10619,7 +10619,7 @@ private lemma rad_squarefree (n : ℕ) : Squarefree (rad n) := by
     · intro x hx
       exact (Nat.prime_of_mem_primeFactors hx).ne_zero
   · rw [Nat.factorization_prod]
-    · rw [Finsupp.finset_sum_apply]
+    · rw [Finsupp.finsetSum_apply]
       calc
         ∑ x ∈ n.primeFactors, x.factorization q = 0 := by
           refine Finset.sum_eq_zero ?_
@@ -14157,7 +14157,7 @@ theorem lowerPathModulus_injective_eventually :
       (fun k : lowerPathTailIndex N => (P k).1) (Finset.mem_univ i)
   have hp_dvd_prod : p ∣ ∏ k : lowerPathTailIndex N, (P' k).1 := by
     rwa [htail_eq] at hp_dvd_left
-  rcases (hpPrime.prime.dvd_finset_prod_iff (S := Finset.univ)
+  rcases (hpPrime.prime.dvd_finsetProd_iff (S := Finset.univ)
       (fun k : lowerPathTailIndex N => (P' k).1)).1 hp_dvd_prod with
     ⟨j, _hj, hp_dvd_pj⟩
   have hpjPrime : Nat.Prime (P' j).1 := (mem_dyadicPrimeInterval.1 (P' j).2).2.2
@@ -18295,7 +18295,7 @@ lemma primeSupport_rad_of_ne_zero {n : ℕ} (_hn : n ≠ 0) :
       unfold primeSupport at hpRad
       exact Finsupp.mem_support_iff.1 hpRad)
     unfold rad at hpdvd
-    rcases (hp.prime.dvd_finset_prod_iff
+    rcases (hp.prime.dvd_finsetProd_iff
         (S := primeSupport n) (fun x : ℕ => x)).1 hpdvd with ⟨q, hq, hpq⟩
     have hqprime : Nat.Prime q := prime_of_mem_primeSupport hq
     have hqp : q = p := (hqprime.dvd_iff_eq hp.ne_one).1 hpq
@@ -18539,7 +18539,7 @@ lemma hExp_prime_pow {p e : ℕ} (hp : Nat.Prime p) :
   · simp [he, hExp_one]
   · unfold hExp primeSupport
     rw [hp.factorization_pow]
-    rw [Finsupp.support_single_ne_zero p he]
+    rw [Finsupp.support_single p he]
     rw [if_neg he]
     change (∏ q ∈ ({p} : Finset ℕ), Finsupp.single p e q) = e
     simp

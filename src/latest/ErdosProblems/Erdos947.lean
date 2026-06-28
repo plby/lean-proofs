@@ -327,7 +327,7 @@ theorem exact_covering_system_distinct_moduli_impossible
   have h_eval_zero : P_poly l * (1 - Polynomial.X) = Target_poly l := by
     convert polynomial_identity_mul l h_exact using 1
   replace h_eval_zero := congr_arg (Polynomial.eval ζ) h_eval_zero
-  simp_all +decide [Polynomial.eval_prod, Polynomial.eval_finset_sum]
+  simp_all +decide [Polynomial.eval_prod, Polynomial.eval_finsetSum]
   -- Since $n_k = N$, one factor in the product is zero, so $P(\zeta) = 0$.
   have h_P_zero :
       ∑ x : Fin l.length,

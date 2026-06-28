@@ -33,7 +33,8 @@ such that $f(x) = h(x)$ for almost all $x$ (with respect to the Lebesgue measure
 on $\mathbb{R}$).
 
 The proof follows the steps outlined in the provided text:
-1.  We identify a set $M$ of measure zero such that for $x \notin M$, the additivity relation holds for almost all $y$.
+1.  We identify a set $M$ of measure zero such that for $x \notin M$, the additivity
+    relation holds for almost all $y$.
 2.  We construct the function $h$ using values of $f$ shifted by elements not in $M$.
 3.  We prove that $h$ is additive and coincides with $f$ almost everywhere.
 -/

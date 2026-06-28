@@ -3596,7 +3596,7 @@ lemma exists_shift_sum_ge (n : ℕ) (a b : Fin n → ℝ) (hab : ∀ i, a i ≤ 
   ∃ x, 0 ≤ x ∧ x < 1 ∧ x ∉ Bad ∧ (∑ i, (num_points (a i) (b i) x : ℝ)) ≥ ∑ i, (b i - a i) := by
     -- By `integral_num_points` and linearity of the integral, $\int_0^1 f(x) dx = \sum (b_i - a_i)$.
     have h_integral : ∫ x in (Set.Ioo 0 1), (∑ i, (num_points (a i) (b i) x : ℝ)) = ∑ i, (b i - a i) := by
-      rw [ MeasureTheory.integral_finset_sum ] <;> aesop;
+      rw [ MeasureTheory.integral_finsetSum ] <;> aesop;
       · rw [ ← Finset.sum_sub_distrib, Finset.sum_congr rfl ] ; intros ; rw [ integral_num_points ] ; aesop_cat;
       · refine MeasureTheory.Integrable.mono'
           (g := fun x => |b i - a i| + 1) ?_ ?_ ?_;

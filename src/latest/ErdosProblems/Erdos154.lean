@@ -599,11 +599,11 @@ lemma cluster_point_is_const_fin (m : ℕ) (hm : 2 ≤ m)
       exact Filter.subseq_tendsto_of_neBot hρ;
     convert rho_equality_fin m hm ρ _ _ _ using 1;
     · exact fun i => le_of_tendsto_of_tendsto' tendsto_const_nhds ( tendsto_pi_nhds.mp hk_j.2 i ) fun j => h_nonneg _ _;
-    · exact tendsto_nhds_unique ( tendsto_finset_sum _ fun i _ => tendsto_pi_nhds.mp hk_j.2 i ) ( h_sum.comp hk_j.1.tendsto_atTop );
+    · exact tendsto_nhds_unique ( tendsto_finsetSum _ fun i _ => tendsto_pi_nhds.mp hk_j.2 i ) ( h_sum.comp hk_j.1.tendsto_atTop );
     · -- Since $\rho$ is a cluster point of $v$, we have $\sum_{i} \rho_i^{3/2} \leq \limsup_{k} \sum_{i} v_k i^{3/2}$.
       have h_sum_le_limsup : (∑ i, (ρ i) ^ (3 / 2 : ℝ)) ^ 2 ≤ Filter.limsup (fun k => (∑ i, (v k i) ^ (3 / 2 : ℝ)) ^ 2) Filter.atTop := by
         have h_sum_le_limsup : Filter.Tendsto (fun j => (∑ i, (v (k_j j) i) ^ (3 / 2 : ℝ)) ^ 2) Filter.atTop (nhds ((∑ i, (ρ i) ^ (3 / 2 : ℝ)) ^ 2)) := by
-          exact Filter.Tendsto.pow ( tendsto_finset_sum _ fun i _ => Filter.Tendsto.rpow ( tendsto_pi_nhds.mp hk_j.2 i ) tendsto_const_nhds <| by norm_num ) _;
+          exact Filter.Tendsto.pow ( tendsto_finsetSum _ fun i _ => Filter.Tendsto.rpow ( tendsto_pi_nhds.mp hk_j.2 i ) tendsto_const_nhds <| by norm_num ) _;
         refine le_csInf ?_ ?_ <;> norm_num;
         · have h_bounded : ∃ M, ∀ k, (∑ i, (v k i) ^ (3 / 2 : ℝ)) ^ 2 ≤ M := by
             have h_bounded : ∃ M, ∀ k, (∑ i, (v k i) ^ (3 / 2 : ℝ)) ≤ M := by

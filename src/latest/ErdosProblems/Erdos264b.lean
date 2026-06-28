@@ -29,13 +29,18 @@ https://www.erdosproblems.com/264
 The final statement was available from the Formal Conjectures project.
 
 Statement from Erdos Problems:
-Let $a_n$ be a sequence of integers such that for every bounded sequence of integers $b_n$ (with $a_n+b_n\neq 0$ and $b_n\neq 0$ for all $n$) the sum\[\sum \frac{1}{a_n+b_n}\]is irrational. Is $a_n=2^n$ an example of such a sequence?
+Let $a_n$ be a sequence of integers such that for every bounded sequence of integers
+$b_n$ (with $a_n+b_n\neq 0$ and $b_n\neq 0$ for all $n$) the sum
+\[\sum \frac{1}{a_n+b_n}\]is irrational. Is $a_n=2^n$ an example of such a sequence?
 
 Clean statement:
-There exists a sequence $(b_k)_{k=1}^{\infty}$ with values in the set $\{1,2,3,4,5\}$ such that the infinite sum $\sum_{k=1}^{\infty} \frac{1}{2^k+b_k}$ is a rational number.
+There exists a sequence $(b_k)_{k=1}^{\infty}$ with values in the set
+$\{1,2,3,4,5\}$ such that the infinite sum
+$\sum_{k=1}^{\infty} \frac{1}{2^k+b_k}$ is a rational number.
 
 The original human proof was published in the paper
-V. Kovac, T. Tao, On several irrationality problems for Ahmes series, Acta Math. Hungar. 175 (2025), 572-608, arXiv:2406.17593.
+V. Kovac, T. Tao, On several irrationality problems for Ahmes series,
+Acta Math. Hungar. 175 (2025), 572-608, arXiv:2406.17593.
 
 LaTeX blueprint of the proof prepared by V. Kovac
 https://web.math.pmf.unizg.hr/~vjekovac/EP/EP264/Erdos264_blueprint.tex
@@ -49,7 +54,13 @@ This project request had uuid: a67c0f75-a2fd-41c4-9c0e-f8f8b9bc40ab
 -/
 
 /-
-We prove that there exists a sequence $(b_k)_{k=1}^{\infty}$ with values in $\{1,2,3,4,5\}$ such that the infinite sum $\sum_{k=1}^{\infty} \frac{1}{2^k+b_k}$ is a rational number. This is achieved by constructing the sequence recursively to ensure the partial sums converge to a specific rational number $x$ chosen between $\alpha_0$ and $\beta_0$. The proof involves two lemmas establishing bounds on the tails of the series and a recursive step lemma that guarantees the existence of the next term in the sequence.
+We prove that there exists a sequence $(b_k)_{k=1}^{\infty}$ with values in
+$\{1,2,3,4,5\}$ such that the infinite sum
+$\sum_{k=1}^{\infty} \frac{1}{2^k+b_k}$ is a rational number. This is achieved
+by constructing the sequence recursively to ensure the partial sums converge to
+a specific rational number $x$ chosen between $\alpha_0$ and $\beta_0$. The proof
+involves two lemmas establishing bounds on the tails of the series and a recursive
+step lemma that guarantees the existence of the next term in the sequence.
 -/
 
 import Mathlib
@@ -370,14 +381,14 @@ theorem main_theorem : ∃ b : ℕ → ℕ, (∀ k, b k ∈ ({1, 2, 3, 4, 5} : S
               (hf2 _ _ (le_trans hm (hw_strict.id_le _ |> le_trans hk))).1⟩
         have h_subseq : Filter.Tendsto (fun n => ∑ k ∈ Finset.range m, (2 ^ (k + 1) + (f (w n) (k + 1) : ℝ))⁻¹ + alpha m) Filter.atTop (nhds (∑ k ∈ Finset.range m, (2 ^ (k + 1) + (b (k + 1) : ℝ))⁻¹ + alpha m)) := by
           refine Filter.Tendsto.add ?_ tendsto_const_nhds
-          exact tendsto_finset_sum _ fun i hi => Filter.Tendsto.inv₀ ( tendsto_const_nhds.add <| tendsto_const_nhds.congr' <| by filter_upwards [ Filter.eventually_ge_atTop ( h_eventually_eq ( i + 1 ) |> Classical.choose ) ] with n hn; rw [ h_eventually_eq ( i + 1 ) |> Classical.choose_spec |> fun h => h n hn ] ) <| by positivity;
+          exact tendsto_finsetSum _ fun i hi => Filter.Tendsto.inv₀ ( tendsto_const_nhds.add <| tendsto_const_nhds.congr' <| by filter_upwards [ Filter.eventually_ge_atTop ( h_eventually_eq ( i + 1 ) |> Classical.choose ) ] with n hn; rw [ h_eventually_eq ( i + 1 ) |> Classical.choose_spec |> fun h => h n hn ] ) <| by positivity;
         exact le_of_tendsto h_subseq (by
           simp_all only [Set.mem_insert_iff, Set.mem_singleton_iff, one_div, nhds_discrete,
             Filter.tendsto_pure, Filter.eventually_atTop, ge_iff_le, implies_true])
       simpa [one_div] using h_subseq n le_rfl
     · -- By the properties of the sequence $(f_n)$, we can extract a subsequence $(f_{n_k})$ that converges pointwise to some function $b$. Hence, for any $n$, we have:
       have h_sum_tendsto : Filter.Tendsto (fun m => ∑ k ∈ Finset.range n, (2 ^ (k + 1) + (f (w m) (k + 1)) : ℝ)⁻¹) Filter.atTop (nhds (∑ k ∈ Finset.range n, (2 ^ (k + 1) + (b (k + 1)) : ℝ)⁻¹)) := by
-        exact tendsto_finset_sum _ fun i hi => Filter.Tendsto.inv₀ ( tendsto_const_nhds.add <| tendsto_const_nhds.congr' <| by filter_upwards [ Filter.eventually_ge_atTop ( Classical.choose ( h_eventually_eq ( i + 1 ) ) ) ] with m hm; rw [ Classical.choose_spec ( h_eventually_eq ( i + 1 ) ) m hm ] ) <| by positivity;
+        exact tendsto_finsetSum _ fun i hi => Filter.Tendsto.inv₀ ( tendsto_const_nhds.add <| tendsto_const_nhds.congr' <| by filter_upwards [ Filter.eventually_ge_atTop ( Classical.choose ( h_eventually_eq ( i + 1 ) ) ) ] with m hm; rw [ Classical.choose_spec ( h_eventually_eq ( i + 1 ) ) m hm ] ) <| by positivity;
       have h_bounds_eventually : ∀ᶠ m in Filter.atTop, ∑ k ∈ Finset.range n, (2 ^ (k + 1) + (f (w m) (k + 1)) : ℝ)⁻¹ + alpha n ≤ x ∧ x ≤ ∑ k ∈ Finset.range n, (2 ^ (k + 1) + (f (w m) (k + 1)) : ℝ)⁻¹ + beta n := by
         exact Filter.eventually_atTop.mpr ⟨n, fun m hm => by
           simpa [one_div] using hf2 _ _ <| hm.trans <| hw_strict.id_le _⟩

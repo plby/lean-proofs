@@ -16,14 +16,20 @@ URLs:
 - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1037.md
 -/
 /-
-Formalization of a theorem stating the existence of graphs with many distinct degrees and small clique/independence numbers.
+Formalization of a theorem stating the existence of graphs with many distinct degrees
+and small clique/independence numbers.
 
-The main result is `Theorem_Main`, which proves that for any $\varepsilon \in (0, 1 / 4)$, for sufficiently large $n$ divisible by 4, there exists a graph on $n$ vertices such that:
+The main result is `Theorem_Main`, which proves that for any
+$\varepsilon \in (0, 1 / 4)$, for sufficiently large $n$ divisible by 4, there
+exists a graph on $n$ vertices such that:
 1. Every degree occurs at most twice.
 2. The number of distinct degrees is greater than $(1 / 2 + \varepsilon)n$.
 3. The clique number and independence number are both $O(\log n)$.
 
-The proof uses a probabilistic construction based on random graphs (Lemma `Lemma_Base`, assumed) and a specific graph product/sum construction (`H_graph`). The properties are verified using auxiliary lemmas about degree distribution and graph invariants under isomorphism.
+The proof uses a probabilistic construction based on random graphs (Lemma `Lemma_Base`,
+assumed) and a specific graph product/sum construction (`H_graph`). The properties
+are verified using auxiliary lemmas about degree distribution and graph invariants
+under isomorphism.
 -/
 
 import Mathlib
@@ -2041,11 +2047,12 @@ lemma Theorem_Main_Fixed_m (m : ℕ) (R : SimpleGraph (Fin m))
         letI : DecidableRel (H.map e.toEmbedding).Adj := Classical.decRel _
         have hDegree (v : Fin (4 * m)) :
             @SimpleGraph.degree (Fin (4 * m)) (H.map e.toEmbedding) v
-                (@SimpleGraph.neighborSetFintype (Fin (4 * m)) (H.map e.toEmbedding) _
-                  (Classical.decRel _) v) =
+                (Subtype.fintype (Membership.mem ((H.map e.toEmbedding).neighborSet v))) =
               @SimpleGraph.degree (Fin (4 * m)) (H.map e.toEmbedding) v
-                (@SimpleGraph.neighborSetFintype (Fin (4 * m)) (H.map e.toEmbedding) _
-                  (fun a b => H.instDecidableMapAdj) v) := by
+                (by
+                  letI : DecidableRel (H.map e.toEmbedding).Adj :=
+                    fun _ _ => H.instDecidableMapAdj
+                  exact Subtype.fintype (Membership.mem ((H.map e.toEmbedding).neighborSet v))) := by
           rw [SimpleGraph.degree, SimpleGraph.degree]
           apply congrArg Finset.card
           ext w

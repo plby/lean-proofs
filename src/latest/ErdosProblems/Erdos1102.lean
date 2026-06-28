@@ -2705,9 +2705,7 @@ lemma bad_in_interval_bound_rec :
     intros n hn
     obtain ⟨ x₀, hx₀ ⟩ := hN₀ n hn
     use x₀
-    intros x hx
-    intros n' hn'
-    intros k hk
+    intros x hx n' hn' k hk
     specialize hx₀ x hx n' hn'
     simp_all +decide [ geometric_points ]
 
@@ -4630,8 +4628,7 @@ theorem AlmostAdmissible_finite_diff (A B : Set ℕ) (h : (A \ B).Finite ∧ (B 
     use b
     exact ⟨ hb₁, Set.Finite.subset ( hb₂.union ( h.1.union h.2 ) ) fun x hx => by by_cases hx' : x ∈ A <;> aesop ⟩
   · -- For any prime $p$, choose $b$ such that $B \mod p^2 \neq b$. Since $A \mod p^2$ can differ from $B \mod p^2$ by at most a finite number of elements, we can adjust $b$ to avoid elements of $A$ that are congruent to $b$ modulo $p^2$.
-    intros hB
-    intro p hp
+    intro hB p hp
     obtain ⟨b, hb⟩ := hB p hp
     have h_finite_diff : ({a ∈ A | a % p^2 = b}).Finite := by
       exact Set.Finite.subset ( h.1.union hb.2 |> Set.Finite.union <| h.2 ) fun x hx => by by_cases hx' : x ∈ B <;> aesop
