@@ -461,7 +461,6 @@
     - https://www.erdosproblems.com/forum/thread/205
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos205.md
   version: "4.24.0"
-  conditional: nth_prime_asymp
   todo: Import PNT+ project.
 
 - key: ErdosProblems.Erdos206
@@ -574,9 +573,7 @@
   url:
     - https://www.erdosproblems.com/forum/thread/237#post-5240
     - https://gist.githubusercontent.com/pitmonticone/8ea0d1cdb963b6213ac639b11d33f811/raw/98a5824d16da14313f65d77eeab5563dd874613a/Erdos237.lean
-  conditional:
-    - maynard_tao
-    - mertens_third_theorem
+  conditional: maynard_tao
   version: "4.28.0"
   todo: Import Wouter's Mertens3 proof.
 
@@ -812,7 +809,6 @@
     - https://github.com/Woett/Miscellaneous/blob/main/Generalized%20harmonic%20sums%20have%20arbitrarily%20large%20prime%20factors.pdf
     - https://github.com/AlexKontorovich/PrimeNumberTheoremAnd
   version: "4.24.0"
-  conditional: prime_number_theorem
 
 - key: ErdosProblems.Erdos296
   epc: https://www.erdosproblems.com/296
@@ -1235,6 +1231,7 @@
   version:
     - "4.20.0-rc5"
     - "4.24.0"
+  conditional: computation_lemma_check._native.native_decide.ax_1_1
 
 - key: ErdosProblems.Erdos419
   epc: https://www.erdosproblems.com/419
@@ -1320,7 +1317,7 @@
     - https://github.com/YaelDillies/MiscYD/blob/master/MiscYD/AddCombi/Kneser/Kneser.lean
   url_ref: JoshuaB_433
   version: "4.24.0"
-  conditional: knesers_addition_theorem
+  conditional: Finset.add_kneser
   todo: Import Yael Dillies's proof of add_kneser.
 
 - key: ErdosProblems.Erdos434
@@ -1336,6 +1333,7 @@
   url: https://www.erdosproblems.com/forum/thread/434#post-4437
   url_ref: JoshuaB_434
   version: "4.24.0"
+  conditional: Finset.add_kneser
 
 - key: ErdosProblems.Erdos435
   epc: https://www.erdosproblems.com/435
@@ -2466,7 +2464,7 @@
   url:
     - https://www.erdosproblems.com/forum/thread/964#post-4280
     - https://raw.githubusercontent.com/danielchin/proofs/refs/heads/main/Proofs/ErdosProblems/Erdos964.lean
-  conditional: goldston_graham_pintz_yildirim
+  conditional: GoldstonGrahamPintzYildirimStatement
   version: "4.24.0"
 
 - key: ErdosProblems.Erdos966
@@ -2559,7 +2557,7 @@
   url:
     - https://www.erdosproblems.com/forum/thread/997#post-5189
     - https://gist.githubusercontent.com/pitmonticone/016f2ed66b4cd1c4c4b9998095170e60/raw/b7dfc05c525ae385b5835f89f1ada721443e4305/Erdos997.lean
-  conditional: maynard_tao_bft
+  conditional: maynardTaoBFT
   version: "4.28.0"
 
 - key: ErdosProblems.Erdos1000
@@ -2992,7 +2990,6 @@
     - https://www.erdosproblems.com/forum/thread/1100#post-1659
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem1100.lean
   version: "4.24.0"
-  conditional: prime_number_theorem
 
 - key: ErdosProblems.Erdos1102
   epc: https://www.erdosproblems.com/1102
@@ -3103,9 +3100,7 @@
     - https://www.erdosproblems.com/forum/thread/1141#post-5335
     - https://github.com/yuta0x89/ErdosProblems/blob/a1319f732cdee5140faf47d984e2c451c1184803/Erdos1141.lean
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/1141.lean
-  conditional:
-    - pollack_theorem_1_3
-    - mertens_third_theorem
+  conditional: Pollack17.theorem_1_3
   version: "4.28.0"
 
 - key: ErdosProblems.Erdos1148
@@ -3126,7 +3121,7 @@
     - https://www.ulam.ai/research/erdos1148-full.pdf
     - https://github.com/ulamai/ulamai
   url_ref: PrzemekChojecki_1148
-  conditional: duke_theorem
+  conditional: DukeTheoremStatement
   version: "4.27.0"
 
 - key: ErdosProblems.Erdos1187b
@@ -3206,7 +3201,5 @@
     - https://github.com/ebarschkis/ErdosProblem/blob/main/Problem1197/Formalization.lean
     - https://github.com/Tomodovodoo/Erdos_1197
   version: "4.28.0"
-  conditional:
-    - pnt_plus_chebyshev_asymptotic
-    - pnt_plus_prime_in_interval
+  conditional: bm_approx_data
   todo: Import PNT+ project.
