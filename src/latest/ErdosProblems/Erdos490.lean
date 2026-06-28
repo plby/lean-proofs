@@ -49,6 +49,8 @@ set_option linter.style.longLine false
 
 noncomputable section
 
+namespace Erdos490
+
 /-- Primes up to x -/
 def primesUpTo (x : ℝ) : Finset ℕ :=
   (Finset.range (⌊x⌋₊ + 1)).filter Nat.Prime
@@ -2672,7 +2674,7 @@ lemma tail_excess_bound :
         exact mul_le_of_le_one_left ( Real.rpow_nonneg ( by exact div_nonneg ( by norm_num ) ( by norm_num ) ) _ ) ( Real.exp_le_one_iff.mpr ( by linarith [ Real.log_nonneg one_le_two ] ) );
       have h_exp_bound : (lam0') ^ (-(j + 151) / 3 : ℝ) ≤ (81 / 100) ^ (j + 151) := by
         have h_exp_bound : (lam0') ^ (-1 / 3 : ℝ) ≤ 81 / 100 := by
-          grind +suggestions
+          exact le_of_lt lam0'_rpow_neg_third_lt
         convert pow_le_pow_left₀ ( by exact Real.rpow_nonneg ( by exact div_nonneg ( by norm_num ) ( by norm_num ) ) _ ) h_exp_bound ( j + 151 ) using 1 ; rw [ ← Real.rpow_natCast, ← Real.rpow_mul ( by exact div_nonneg ( by norm_num ) ( by norm_num ) ) ] ; ring_nf;
         push_cast; ring_nf;
       linarith;
@@ -3118,3 +3120,5 @@ theorem main_theorem :
 
 #print axioms main_theorem
 #show_unused main_theorem
+
+end Erdos490
