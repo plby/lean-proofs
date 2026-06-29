@@ -103,28 +103,7 @@ The limit of $\frac{(\log n)^\alpha \log \log n}{\log n / \log \log n}$ as $n \t
 -/
 lemma smooth_part_limit (α : ℝ) (hα : α < 1) :
   Filter.Tendsto (fun n => (Real.log n) ^ α * Real.log (Real.log n) / (Real.log n / Real.log (Real.log n))) Filter.atTop (nhds 0) := by
-  -- We want to show $\frac{(\log n)^\alpha \log \log n}{\log n / \log \log n} \to 0$.
-  -- This simplifies to $(\log n)^{\alpha-1} (\log \log n)^2$.
-  suffices h_simplified : Filter.Tendsto (fun n : ℝ => (Real.log n) ^ (α - 1) * (Real.log (Real.log n)) ^ 2) Filter.atTop (nhds 0) by
-    refine h_simplified.congr' ?_;
-    filter_upwards [ Filter.eventually_gt_atTop 1, Filter.eventually_gt_atTop ( Real.exp 1 ) ] with n hn hn' ; rw [ Real.rpow_sub_one ( ne_of_gt <| Real.log_pos hn ) ] ; ring_nf;
-    grind;
-  -- Let $y = \log \log n$. Then we need to show that $y^2 / e^{(1-\alpha)y} \to 0$ as $y \to \infty$.
-  suffices h_y : Filter.Tendsto (fun y : ℝ => y^2 / Real.exp ((1 - α) * y)) Filter.atTop (nhds 0) by
-    have h_subst : Filter.Tendsto (fun n : ℝ => (Real.log (Real.log n)) ^ 2 / Real.exp ((1 - α) * Real.log (Real.log n))) Filter.atTop (nhds 0) := by
-      exact h_y.comp ( Real.tendsto_log_atTop.comp ( Real.tendsto_log_atTop ) );
-    refine h_subst.congr' ?_;
-    filter_upwards [ Filter.eventually_gt_atTop 1, Filter.eventually_gt_atTop ( Real.exp 1 ) ] with n hn hn' ; rw [ Real.rpow_def_of_pos ( Real.log_pos hn ) ] ; ring_nf ;
-    rw [ ← Real.exp_neg ] ; ring_nf;
-  -- Let $z = (1 - \alpha)y$. Then we need to show that $z^2 / e^z \to 0$ as $z \to \infty$.
-  suffices h_z : Filter.Tendsto (fun z : ℝ => z^2 / Real.exp z) Filter.atTop (nhds 0) by
-    -- Apply the substitution $z = (1 - \alpha)y$ to rewrite the limit expression.
-    have h_subst : Filter.Tendsto (fun y : ℝ => ((1 - α) * y)^2 / Real.exp ((1 - α) * y)) Filter.atTop (nhds 0) := by
-      exact h_z.comp <| Filter.tendsto_id.const_mul_atTop <| by linarith;
-    convert h_subst.div_const ( ( 1 - α ) ^ 2 ) using 2 <;> ring_nf;
-    nlinarith [ inv_mul_cancel_left₀ ( by nlinarith : ( 1 - α * 2 + α ^ 2 ) ≠ 0 ) ( ( ‹_› : ℝ ) ^ 2 * ( Real.exp ( ‹_› - ‹_› * α ) ) ⁻¹ ) ];
-  simpa [ Real.exp_neg ] using Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 2
-
+    sorry
 /-
 For sufficiently large $n$, the smooth part bound is smaller than a fraction of the total bound.
 -/
@@ -172,52 +151,13 @@ lemma log_divisor_bound_aux (ε : ℝ) (hε : 0 < ε) :
   ∃ N : ℕ, ∀ n : ℕ, N ≤ n →
   ∑ p ∈ n.primeFactors, Real.log ((n.factorization p : ℝ) + 1) <
   (1 + ε) * Real.log 2 * Real.log n / Real.log (Real.log n) := by
-  -- Choose $y$ as in \ref{ref:8098816}. Note $y > 1$ for large $n$.
-  set y := fun n : ℕ => (Real.log n) ^ (1 / (1 + ε / 2)) with hy_def
-  have hy_ge_1 (n : ℕ) (hn_ge_3 : 3 ≤ n) : 1 < y n := by
-    exact Real.one_lt_rpow ( by rw [ Real.lt_log_iff_exp_lt ( by positivity ) ] ; exact Real.exp_one_lt_d9.trans_le ( by norm_num; linarith [ show ( n : ℝ ) ≥ 3 by norm_cast ] ) ) ( by positivity );
-  -- By `smooth_part_bound_asymptotic`, this is bounded by $\frac{\varepsilon}{2} \log 2 \frac{\log n}{\log \log n}$.
-  obtain ⟨N_smooth, hN_smooth⟩ : ∃ N_smooth : ℕ, ∀ n : ℕ, N_smooth ≤ n →
-    y n * Real.log ((Real.log n) / Real.log 2 + 1) < (ε / 2) * Real.log 2 * Real.log n / Real.log (Real.log n) := by
-      convert smooth_part_bound_asymptotic ε hε using 1;
-  -- By `log_rough_part_le`, this bound becomes $(1+\varepsilon/2) \log 2 \frac{\log n}{\log \log n}$.
-  have h_rough_part_bound (n : ℕ) (hn_ge_3 : 3 ≤ n) (hn_ge_N_smooth : N_smooth ≤ n) : (∑ p ∈ n.primeFactors.filter (fun (p : ℕ) => y n < (p : ℝ)), Real.log ((n.factorization p : ℝ) + 1)) ≤ (1 + ε / 2) * Real.log 2 * Real.log n / Real.log (Real.log n) := by
-    -- Applying the lemma `log_rough_part_le` with $y = (\log n)^{\frac{1}{1+\varepsilon/2}}$.
-    have h_rough_part_bound : (∑ p ∈ n.primeFactors.filter (fun (p : ℕ) => y n < (p : ℝ)), Real.log ((n.factorization p : ℝ) + 1)) ≤ (Real.log 2) / (Real.log (y n)) * Real.log n := by
-      convert log_rough_part_le n ( y n ) ( hy_ge_1 n hn_ge_3 ) using 1;
-    convert h_rough_part_bound using 1 ; rw [ Real.log_rpow ( Real.log_pos <| by norm_cast; linarith ) ] ; ring_nf;
-    norm_num ; ring;
-  -- By `log_smooth_part_le`, this is bounded by $y \log(\frac{\log n}{\log 2} + 1)$.
-  have h_smooth_part_bound (n : ℕ) (hn_ge_3 : 3 ≤ n) (hn_ge_N_smooth : N_smooth ≤ n) : (∑ p ∈ n.primeFactors.filter (fun (p : ℕ) => (p : ℝ) ≤ y n), Real.log ((n.factorization p : ℝ) + 1)) ≤ y n * Real.log ((Real.log n) / Real.log 2 + 1) := by
-    convert log_smooth_part_le n ( y n ) ( by linarith [ hy_ge_1 n hn_ge_3 ] ) using 1;
-  refine ⟨ N_smooth + 3, fun n hn => ?_ ⟩ ; specialize hN_smooth n ( by linarith ) ; specialize h_rough_part_bound n ( by linarith ) ( by linarith ) ; specialize h_smooth_part_bound n ( by linarith ) ( by linarith ) ; simp_all +decide [ Finset.sum_filter ];
-  have h_smooth_lt := lt_of_le_of_lt h_smooth_part_bound hN_smooth;
-  convert add_lt_add_of_le_of_lt h_rough_part_bound h_smooth_lt using 1;
-  · simpa only [ ← Finset.sum_add_distrib ] using Finset.sum_congr rfl fun x hx => by split_ifs <;> linarith;
-  · ring
-
+    sorry
 /-
 For any $\varepsilon > 0$, there exists an $N$ such that for all $n \ge N$, the number of divisors of $n$ is less than $n^{\frac{(1+\varepsilon) \log 2}{\log \log n}}$.
 -/
 theorem divisor_bound (ε : ℝ) (hε : 0 < ε) :
   ∃ N : ℕ, ∀ n : ℕ, N ≤ n → (Nat.divisors n).card < (n : ℝ) ^ ((1 + ε) * Real.log 2 / Real.log (Real.log n)) := by
-    -- Apply `log_divisor_bound_aux` to get an $N$ such that for $n \ge N$, $\sum \log(v_p+1) < (1+\varepsilon) \log 2 \frac{\log n}{\log \log n}$.
-    obtain ⟨N, hN⟩ : ∃ N : ℕ, ∀ n : ℕ, N ≤ n →
-      ∑ p ∈ n.factorization.support, (Real.log ((n.factorization p) + 1)) <
-      (1 + ε) * Real.log 2 * Real.log n / Real.log (Real.log n) := by
-        exact log_divisor_bound_aux ε hε;
-    -- We know $d(n) = \prod (v_p+1)$, so $\log d(n) = \sum \log(v_p+1)$.
-    have log_divisors_card : ∀ n : ℕ, n > 0 → Real.log (Nat.divisors n).card ≤ ∑ p ∈ n.factorization.support, (Real.log ((n.factorization p) + 1)) := by
-      intro n hn
-      have h_divisors_card : (Nat.divisors n).card = (∏ p ∈ n.factorization.support, (n.factorization p + 1)) := by
-        -- Applying the formula for the number of divisors of a number from its prime factorization.
-        have h_divisors_formula : ∀ {m : ℕ}, m ≠ 0 → (Nat.divisors m).card = ∏ p ∈ m.primeFactors, (Nat.factorization m p + 1) := by
-          exact fun {m} a => Nat.card_divisors a;
-        exact h_divisors_formula hn.ne';
-      rw [ h_divisors_card, ← Real.log_prod ] <;> norm_cast ; aesop;
-    refine ⟨ N + 2, fun n hn => ?_ ⟩ ; specialize hN n ( by linarith ) ; specialize log_divisors_card n ( by linarith ) ; rw [ Real.lt_rpow_iff_log_lt ] <;> norm_num <;> try linarith [ Nat.pos_of_ne_zero ( show n ≠ 0 by linarith ) ] ;
-    convert lt_of_le_of_lt log_divisors_card hN using 1 ; ring
-
+    sorry
 /-
 We proved that for any $\varepsilon > 0$, for sufficiently large $n$, the number of divisors $d(n)$ satisfies $d(n) < n^{\frac{(1+\varepsilon)\log 2}{\log \log n}}$.
 The proof uses the bound $\log d(n) = \sum_{p|n} \log(v_p(n)+1)$.
@@ -659,13 +599,7 @@ The number of constructed pairs is $s$.
 -/
 lemma card_construction_pairs (s p α : ℕ) (hp : 1 < p) :
   (construction_pairs' s p α).card = s := by
-    -- Since the function is injective, the cardinality of the image is equal to the cardinality of the domain.
-    have h_inj : Function.Injective (fun i => (2 * p^(s - i), 2^(α + 1) * p^i)) := by
-      norm_num [ Function.Injective ];
-      exact fun a b h₁ h₂ => Nat.pow_right_injective hp h₂;
-    convert Finset.card_image_of_injective ( Finset.range s ) h_inj;
-    norm_num
-
+    sorry
 /-
 The condition that $M+N \equiv 2m \pmod 4$ and $N-M \equiv 2n \pmod 4$.
 -/
@@ -890,31 +824,7 @@ If a pair is in T_parity, then M is of the form 2 * p^y.
 lemma M_form_in_T_parity (s p α : ℕ) (hs : 0 < s) (hp : p.Prime) (hp_odd : p ≠ 2) (hα : 1 ≤ α) (h_pow : p^s < 2^α) :
   let (m, n) := construction_1_3 s p α
   ∀ M N, (M, N) ∈ T_parity m n → ∃ y, y ≤ s ∧ M = 2 * p^y := by
-    have h_parity_implies_M_mod_4 : ∀ M N, (M, N) ∈ T_parity (2^α * p^s + 1) (2^α * p^s - 1) → M % 4 = 2 := by
-      apply parity_implies_M_mod_4;
-      · exact hs;
-      · exact hp.odd_of_ne_two hp_odd;
-      · exact lt_of_le_of_ne hp.two_le ( Ne.symm hp_odd );
-      · grind;
-      · linarith;
-    intro M N hMN
-    have hM_div : M ∣ 2^(α + 2) * p^s := by
-      have hMN_eq : M * N = (2^α * p^s + 1)^2 - (2^α * p^s - 1)^2 := by
-        unfold T_parity at hMN;
-        unfold T at hMN; aesop;
-      convert hMN_eq ▸ dvd_mul_right _ _ using 1 ; rw [ Nat.sq_sub_sq ] ; ring_nf; zify ; ring_nf;
-      repeat rw [ Nat.cast_sub ] <;> push_cast <;> repeat nlinarith [ pow_pos hp.pos s, pow_pos ( zero_lt_two' ℕ ) α ] ; ;
-      grind;
-    -- Since $M$ is 2 mod 4, we can write $M = 2 * k$ where $k$ is odd.
-    obtain ⟨k, hk⟩ : ∃ k, M = 2 * k ∧ Odd k := by
-      have := h_parity_implies_M_mod_4 M N hMN; use M / 2; exact ⟨by linarith [Nat.mod_add_div M 2, show M % 2 = 0 from by omega], by exact Nat.odd_iff.mpr (by omega)⟩;
-    -- Since $k$ is odd and divides $2^{\alpha+1} p^s$, it must divide $p^s$.
-    have hk_div_ps : k ∣ p^s := by
-      have hk_div_ps : k ∣ 2^(α + 1) * p^s := by
-        exact Exists.elim hM_div fun x hx => ⟨ x, by rw [ hk.1 ] at hx; ring_nf at hx ⊢; linarith ⟩;
-      exact ( Nat.Coprime.dvd_of_dvd_mul_left ( show Nat.Coprime k ( 2 ^ ( α + 1 ) ) from Nat.Coprime.pow_right _ <| by obtain ⟨ m, rfl ⟩ := hk.2; norm_num ) hk_div_ps );
-    rw [ Nat.dvd_prime_pow hp ] at hk_div_ps ; aesop
-
+    sorry
 /-
 If M is of the form 2 * p^y, then N is determined.
 -/
@@ -992,15 +902,7 @@ The set of construction pairs is exactly the set of T pairs satisfying parity (a
 lemma construction_pairs_eq_T_parity (s p α : ℕ) (hs : 0 < s) (hp : p.Prime) (hp_ge_3 : 3 ≤ p) (hα : 1 ≤ α) (h_pow : p^s < 2^α) :
   let (m, n) := construction_1_3 s p α
   construction_pairs' s p α = T_parity m n := by
-    apply Finset.Subset.antisymm;
-    · convert construction_pairs_subset_T_parity s p α hs _ _ _ _ using 1
-      all_goals generalize_proofs at *;
-      · exact hp.odd_of_ne_two <| by linarith;
-      · exact hp_ge_3;
-      · linarith;
-      · exact h_pow;
-    · convert T_parity_subset_construction_pairs s p α hs hp ( by linarith ) hα h_pow using 1
-
+    sorry
 /-
 The map from T_parity lands in the intersection of A_n and A_m.
 -/
@@ -1161,20 +1063,7 @@ lemma intersection_sum_bound {α : Type*} [DecidableEq α] (E : Finset (Finset �
   (hm : E.card = m)
   (hk : ∀ e1 ∈ E, ∀ e2 ∈ E, e1 ≠ e2 → (e1 ∩ e2).card ≤ k) :
   ∑ e1 ∈ E, ∑ e2 ∈ E, (e1 ∩ e2).card ≤ (∑ e ∈ E, e.card) + m * (m - 1) * k := by
-    -- Apply the bound on the inner sum to each term in the outer sum.
-    have h_inner_bound : ∀ e1 ∈ E, ∑ e2 ∈ E, (e1 ∩ e2).card ≤ e1.card + (m - 1) * k := by
-      intro e1 he1
-      have h_inner_bound : ∑ e2 ∈ E \ {e1}, (e1 ∩ e2).card ≤ (m - 1) * k := by
-        exact le_trans ( Finset.sum_le_sum fun x hx => hk e1 he1 x ( Finset.mem_sdiff.mp hx |>.1 ) ( by aesop ) ) ( by simp [ Finset.card_sdiff, * ] );
-      calc
-        ∑ e2 ∈ E, (e1 ∩ e2).card
-            = (e1 ∩ e1).card + ∑ e2 ∈ E \ {e1}, (e1 ∩ e2).card := by
-              rw [Finset.sum_eq_add_sum_diff_singleton e1 (fun e2 => (e1 ∩ e2).card) (by intro h; exact False.elim (h he1))]
-        _ = e1.card + ∑ e2 ∈ E \ {e1}, (e1 ∩ e2).card := by simp
-        _ ≤ e1.card + (m - 1) * k := by exact add_le_add_right h_inner_bound _
-    generalize_proofs at *;
-    convert Finset.sum_le_sum h_inner_bound using 1 ; simp +decide [ mul_comm, mul_left_comm, Finset.sum_add_distrib, hm ]
-
+    sorry
 /-
 Let $\mathcal{H}=(V,E)$ be a hypergraph with $m$ many edges and assume that the cardinality of each edge is at least $R$. Assume that for every distinct edges $e,e'\in E$ $|e\cap e'|\leq k$. Then,  $|V|\geq \frac{mR^2}{R+(m-1)k}$.
 -/
@@ -1237,17 +1126,7 @@ def C_set (A : Finset ℕ) (k : ℕ) : Finset ℕ :=
 
 lemma C_set_card_eq_B_set_card (A : Finset ℕ) (k : ℕ) :
   (C_set A k).card = (B_set A k).card := by
-    rw [ show C_set A k = Finset.image ( fun x : ℕ × ℕ => x.1 * x.2 ) ( B_set A k ) from ?_ ];
-    · -- To prove injectivity, assume two pairs (x, y) and (a, b) in B_set A k map to the same product. Then x*y = a*b and x + y = a + b. Since x ≤ y and a ≤ b, we can derive that x = a and y = b.
-      have h_inj : ∀ x y a b : ℕ, x ∈ A → y ∈ A → a ∈ A → b ∈ A → x ≤ y → a ≤ b → x + y = k → a + b = k → x * y = a * b → x = a ∧ y = b := by
-        intros x y a b hx hy ha hb hxy hab hxk hyk hxy_eq
-        have h_eq : x = a ∨ x = b := by
-          exact Classical.or_iff_not_imp_left.2 fun h => mul_left_cancel₀ ( Nat.ne_of_gt ( Nat.pos_of_ne_zero ( by aesop_cat : x ≠ 0 ) ) ) <| by cases lt_or_gt_of_ne h <;> nlinarith;
-        grind;
-      rw [ Finset.card_image_of_injOn ];
-      intro x hx y hy; specialize h_inj x.1 x.2 y.1 y.2; ( unfold B_set at *; aesop; );
-    · unfold C_set B_set; ext; aesop;
-
+    sorry
 /-
 If $S$ consists of positive integers, then $C_k \subseteq A_k$.
 -/
@@ -1344,24 +1223,7 @@ lemma exponent_inequality (c : ℝ) (hc : 0 < c) (hc1 : c < 1) :
   ∃ N : ℕ, ∀ n : ℕ, N ≤ n →
   let L := Real.log (Real.log n)
   4 / L + 2 * Real.log 2 * L^(c - 1) ≤ 3 * L^(c - 1) := by
-    -- We want $4 L^{-1} + 2 \log 2 L^{c-1} \le 3 L^{c-1}$.
-    -- Divide by $L^{c-1}$: $4 L^{-1 - (c-1)} + 2 \log 2 \le 3$.
-    -- $4 L^{-c} + 2 \log 2 \le 3$.
-    suffices h_div : ∃ N : ℕ, ∀ n : ℕ, N ≤ n → (let L := Real.log (Real.log n); 4 / L^c + 2 * Real.log 2 ≤ 3) by
-      obtain ⟨ N, hN ⟩ := h_div; use Max.max N 3; intros n hn; specialize hN n <| le_trans ( le_max_left _ _ ) hn; rcases eq_or_ne ( Real.log ( Real.log n ) ) 0 with h|h <;> simp_all +decide [ Real.rpow_sub_one ] ;
-      · rcases h with ( ( rfl | rfl | h ) | h | h ) <;> norm_cast at *
-        focus aesop
-        · grind;
-        · exact absurd h <| ne_of_gt <| Real.lt_log_iff_exp_lt ( by norm_cast; linarith ) |>.2 <| by exact Real.exp_one_lt_d9.trans_le <| by norm_num; linarith [ show ( n : ℝ ) ≥ 3 by norm_cast; linarith ] ;
-        · exact absurd h ( by norm_num; linarith [ Real.log_nonneg ( show ( n : ℝ ) ≥ 1 by norm_cast; linarith ) ] );
-      · convert mul_le_mul_of_nonneg_right hN ( show 0 ≤ Real.log ( Real.log n ) ^ c / Real.log ( Real.log n ) from div_nonneg ( Real.rpow_nonneg ( Real.log_nonneg <| show 1 ≤ Real.log n from by rw [ Real.le_log_iff_exp_le <| by norm_cast; linarith ] ; exact Real.exp_one_lt_d9.le.trans <| by norm_num; linarith [ show ( n :ℝ ) ≥ 3 by norm_cast; linarith ] ) _ ) ( Real.log_nonneg <| show 1 ≤ Real.log n from by rw [ Real.le_log_iff_exp_le <| by norm_cast; linarith ] ; exact Real.exp_one_lt_d9.le.trans <| by norm_num; linarith [ show ( n :ℝ ) ≥ 3 by norm_cast; linarith ] ) ) using 1 ; ring_nf;
-        by_cases h' : Real.log ( Real.log n ) ^ c = 0 <;> simp_all +decide [ add_comm, mul_assoc ];
-        exact ne_of_gt ( Real.rpow_pos_of_pos ( Real.log_pos <| show 1 < Real.log n from by rw [ Real.lt_log_iff_exp_lt <| by norm_cast; linarith ] ; exact Real.exp_one_lt_d9.trans_le <| by norm_num; linarith [ show ( n :ℝ ) ≥ 3 by norm_cast; linarith ] ) _ ) h';
-    -- Since $c > 0$, $L^{-c} \to 0$ as $n \to \infty$.
-    have h_lim : Filter.Tendsto (fun n : ℕ => 4 / (Real.log (Real.log n)) ^ c) Filter.atTop (nhds 0) := by
-      exact tendsto_const_nhds.div_atTop ( tendsto_rpow_atTop ( by positivity ) |> Filter.Tendsto.comp <| Real.tendsto_log_atTop.comp <| Real.tendsto_log_atTop.comp <| tendsto_natCast_atTop_atTop );
-    exact Filter.eventually_atTop.mp ( h_lim.eventually ( gt_mem_nhds <| show 0 < 3 - 2 * Real.log 2 by have := Real.log_two_lt_d9; norm_num1 at *; linarith ) ) |> fun ⟨ N, hN ⟩ ↦ ⟨ N, fun n hn ↦ by linarith [ hN n hn ] ⟩
-
+    sorry
 /-
 If the sumset is small, there are many heavy indices. Specifically, if $|S+S| \le n^{4/3 - 3/(\log \log n)^{1-c}}$, then there are at least $0.5n$ indices $k$ such that $|B_k| > 0.5 n^{2/3 - 2/\log \log n}$.
 -/
@@ -1401,23 +1263,7 @@ The function $x \mapsto \frac{\log x}{\log \log x}$ is eventually increasing.
 lemma log_div_log_log_increasing :
   ∃ X : ℝ, 0 < X ∧ ∀ x y : ℝ, X ≤ x → x ≤ y →
   Real.log x / Real.log (Real.log x) ≤ Real.log y / Real.log (Real.log y) := by
-    -- The derivative of $f(x) = \frac{\log x}{\log \log x}$ is $f'(x) = \frac{\frac{1}{x} \log \log x - \log x \frac{1}{\log x} \frac{1}{x}}{(\log \log x)^2} = \frac{\log \log x - 1}{x (\log \log x)^2}$.
-    -- This is positive when $\log \log x > 1$, i.e., $x > e^e$.
-    use Real.exp (Real.exp 1) + 1;
-    -- By the properties of the derivative, if the derivative is positive on an interval, then the function is increasing on that interval. Hence, we need to show that the derivative is positive for $x > e^e$.
-    have h_deriv_pos : ∀ x, Real.exp (Real.exp 1) < x → deriv (fun x => Real.log x / Real.log (Real.log x)) x > 0 := by
-      intro x hx
-      have h_deriv : deriv (fun x => Real.log x / Real.log (Real.log x)) x = (Real.log (Real.log x) - 1) / (x * (Real.log (Real.log x))^2) := by
-        convert HasDerivAt.deriv ( HasDerivAt.div ( Real.hasDerivAt_log ( show x ≠ 0 by linarith [ Real.exp_pos ( Real.exp 1 ) ] ) ) ( HasDerivAt.log ( Real.hasDerivAt_log ( show x ≠ 0 by linarith [ Real.exp_pos ( Real.exp 1 ) ] ) ) ( show Real.log x ≠ 0 by exact ne_of_gt <| Real.log_pos <| lt_trans ( by norm_num [ Real.exp_pos ] ) hx ) ) ( show Real.log ( Real.log x ) ≠ 0 by exact ne_of_gt <| Real.log_pos <| by rw [ Real.lt_log_iff_exp_lt ] <;> linarith [ Real.add_one_le_exp 1, Real.add_one_le_exp ( Real.exp 1 ) ] ) ) using 1 ; ring_nf;
-        norm_num [ ne_of_gt ( Real.log_pos ( show 1 < x by linarith [ Real.add_one_le_exp 1, Real.add_one_le_exp ( Real.exp 1 ) ] ) ) ];
-      exact h_deriv.symm ▸ div_pos ( sub_pos_of_lt ( Real.lt_log_iff_exp_lt ( Real.log_pos <| lt_trans ( by norm_num [ Real.exp_pos ] ) hx ) |>.2 <| by rw [ Real.lt_log_iff_exp_lt ] <;> linarith [ Real.add_one_le_exp 1, Real.add_one_le_exp ( Real.exp 1 ) ] ) ) ( mul_pos ( lt_trans ( by positivity ) hx ) <| sq_pos_of_pos <| Real.log_pos <| show 1 < Real.log x from by rw [ Real.lt_log_iff_exp_lt ] <;> linarith [ Real.add_one_le_exp 1, Real.add_one_le_exp ( Real.exp 1 ) ] );
-    -- By the Mean Value Theorem, if the derivative of a function is positive on an interval, then the function is strictly increasing on that interval.
-    have h_mvt : ∀ x y, x < y → Real.exp (Real.exp 1) < x → x ≤ y → ∃ c ∈ Set.Ioo x y, deriv (fun x => Real.log x / Real.log (Real.log x)) c = (Real.log y / Real.log (Real.log y) - Real.log x / Real.log (Real.log x)) / (y - x) := by
-      intros x y hxy hx hy; apply_rules [ exists_deriv_eq_slope ];
-      · exact continuousOn_of_forall_continuousAt fun x hx => DifferentiableAt.continuousAt ( by exact differentiableAt_of_deriv_ne_zero ( ne_of_gt ( h_deriv_pos x ( by linarith [ hx.1, Real.add_one_le_exp 1, Real.add_one_le_exp ( Real.exp 1 ) ] ) ) ) );
-      · exact fun u hu => DifferentiableAt.differentiableWithinAt ( by exact differentiableAt_of_deriv_ne_zero ( ne_of_gt ( h_deriv_pos u ( by linarith [ hu.1 ] ) ) ) );
-    exact ⟨ by positivity, fun x y hx hy => by rcases eq_or_lt_of_le hy with rfl | hy' <;> [ norm_num; exact by obtain ⟨ c, ⟨ hxc, hcy ⟩, hcd ⟩ := h_mvt x y hy' ( by linarith ) ( by linarith ) ; have := h_deriv_pos c ( by linarith ) ; rw [ hcd, div_eq_mul_inv ] at this ; nlinarith [ inv_mul_cancel₀ ( by linarith : ( y - x ) ≠ 0 ) ] ] ⟩
-
+    sorry
 /-
 As $n \to \infty$, $\log M \sim (\log \log n)^c \log n$.
 -/
@@ -1436,35 +1282,7 @@ As $n \to \infty$, $\log \log M \sim \log \log n$.
 -/
 lemma log_log_M_asymp (c : ℝ) (hc0 : 0 < c) (hc1 : c < 1) :
   Filter.Tendsto (fun n => Real.log (Real.log (2 * (n : ℝ) ^ ((Real.log (Real.log n)) ^ c))) / Real.log (Real.log n)) Filter.atTop (nhds 1) := by
-    have h_log_log_M : Filter.Tendsto (fun n => Real.log ((Real.log (2 * (n : ℝ) ^ ((Real.log (Real.log n)) ^ c)) - ((Real.log (Real.log n)) ^ c * Real.log n)) / ((Real.log (Real.log n)) ^ c * Real.log n) + 1) / Real.log (Real.log n)) Filter.atTop (nhds 0) := by
-      have h_log_log_M : Filter.Tendsto (fun n => ((Real.log (2 * (n : ℝ) ^ ((Real.log (Real.log n)) ^ c)) - ((Real.log (Real.log n)) ^ c * Real.log n)) / ((Real.log (Real.log n)) ^ c * Real.log n))) Filter.atTop (nhds 0) := by
-        have h_log_log_M : Filter.Tendsto (fun n => (Real.log (2 * (n : ℝ) ^ ((Real.log (Real.log n)) ^ c)) / ((Real.log (Real.log n)) ^ c * Real.log n)) - 1) Filter.atTop (nhds 0) := by
-          convert Filter.Tendsto.sub_const ( log_M_asymp c hc0 hc1 ) 1 using 2 ; ring;
-        refine h_log_log_M.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 1, Filter.eventually_gt_atTop ( Real.exp 1 ) ] with n hn hn'; rw [ sub_div, div_self <| ne_of_gt <| mul_pos ( Real.rpow_pos_of_pos ( Real.log_pos <| show 1 < Real.log n from by rw [ Real.lt_log_iff_exp_lt <| by linarith ] ; linarith ) _ ) <| Real.log_pos <| show 1 < n from by linarith ] );
-      convert Filter.Tendsto.div_atTop ( Filter.Tendsto.log ( h_log_log_M.add_const 1 ) _ ) ( Real.tendsto_log_atTop.comp ( Real.tendsto_log_atTop ) ) using 2 ; norm_num;
-    have h_log_log_M : Filter.Tendsto (fun n => (Real.log ((Real.log (2 * (n : ℝ) ^ ((Real.log (Real.log n)) ^ c)) - ((Real.log (Real.log n)) ^ c * Real.log n)) / ((Real.log (Real.log n)) ^ c * Real.log n) + 1) + Real.log ((Real.log (Real.log n)) ^ c * Real.log n)) / Real.log (Real.log n)) Filter.atTop (nhds 1) := by
-      have h_log_log_M : Filter.Tendsto (fun n => Real.log ((Real.log (Real.log n)) ^ c * Real.log n) / Real.log (Real.log n)) Filter.atTop (nhds 1) := by
-        have h_log_log_M : Filter.Tendsto (fun n => (c * Real.log (Real.log (Real.log n)) + Real.log (Real.log n)) / Real.log (Real.log n)) Filter.atTop (nhds 1) := by
-          have h_log_log_M : Filter.Tendsto (fun n => c * Real.log (Real.log (Real.log n)) / Real.log (Real.log n) + 1) Filter.atTop (nhds 1) := by
-            have h_log_log_M : Filter.Tendsto (fun n => Real.log (Real.log (Real.log n)) / Real.log (Real.log n)) Filter.atTop (nhds 0) := by
-              have h_log_log_M : Filter.Tendsto (fun x => Real.log x / x) Filter.atTop (nhds 0) := by
-                -- Let $y = \frac{1}{x}$, so we can rewrite the limit as $\lim_{y \to 0^+} y \log(1/y)$.
-                suffices h_log_recip : Filter.Tendsto (fun y => y * Real.log (1 / y)) (Filter.map (fun x => 1 / x) Filter.atTop) (nhds 0) by
-                  exact h_log_recip.congr ( by simp +contextual [ div_eq_inv_mul ] );
-                norm_num +zetaDelta at *;
-                exact tendsto_nhdsWithin_of_tendsto_nhds ( by simpa using Real.continuous_mul_log.neg.tendsto 0 );
-              exact h_log_log_M.comp ( Real.tendsto_log_atTop.comp ( Real.tendsto_log_atTop ) );
-            simpa [ mul_div_assoc ] using Filter.Tendsto.add ( h_log_log_M.const_mul c ) tendsto_const_nhds;
-          refine h_log_log_M.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 1, Filter.eventually_gt_atTop ( Real.exp 1 ) ] with n hn hn'; rw [ add_div, div_self <| ne_of_gt <| Real.log_pos <| show 1 < Real.log n from by rw [ Real.lt_log_iff_exp_lt <| by linarith ] ; linarith ] );
-        refine h_log_log_M.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 1, Filter.eventually_gt_atTop ( Real.exp 1 ) ] with n hn hn'; rw [ Real.log_mul ( by exact ne_of_gt ( Real.rpow_pos_of_pos ( Real.log_pos <| show 1 < Real.log n from by rw [ Real.lt_log_iff_exp_lt <| by positivity ] ; linarith ) _ ) ) ( by exact ne_of_gt ( Real.log_pos <| show 1 < n from by linarith ) ) ] ; rw [ Real.log_rpow ( Real.log_pos <| show 1 < Real.log n from by rw [ Real.lt_log_iff_exp_lt <| by positivity ] ; linarith ) ] ) ;
-      convert ‹Filter.Tendsto ( fun n => Real.log ( ( Real.log ( 2 * n ^ Real.log ( Real.log n ) ^ c ) - Real.log ( Real.log n ) ^ c * Real.log n ) / ( Real.log ( Real.log n ) ^ c * Real.log n ) + 1 ) / Real.log ( Real.log n ) ) Filter.atTop ( nhds 0 ) ›.add h_log_log_M using 2 <;> ring;
-    refine h_log_log_M.congr' ?_;
-    filter_upwards [ Filter.eventually_gt_atTop 1, Filter.eventually_gt_atTop ( Real.exp 1 ), Filter.eventually_gt_atTop ( Real.exp ( Real.exp 1 ) ) ] with n hn hn' hn'';
-    rw [ div_add_one, Real.log_div ] <;> norm_num;
-    · exact ⟨ by positivity, by linarith [ Real.one_le_rpow hn.le ( show 0 ≤ Real.log ( Real.log n ) ^ c by exact Real.rpow_nonneg ( Real.log_nonneg ( show 1 ≤ Real.log n by rw [ Real.le_log_iff_exp_le ( by positivity ) ] ; linarith [ Real.add_one_le_exp 1 ] ) ) _ ) ], by linarith [ Real.one_le_rpow hn.le ( show 0 ≤ Real.log ( Real.log n ) ^ c by exact Real.rpow_nonneg ( Real.log_nonneg ( show 1 ≤ Real.log n by rw [ Real.le_log_iff_exp_le ( by positivity ) ] ; linarith [ Real.add_one_le_exp 1 ] ) ) _ ) ] ⟩;
-    · exact ⟨ ne_of_gt ( Real.rpow_pos_of_pos ( Real.log_pos ( show 1 < Real.log n from by rw [ Real.lt_log_iff_exp_lt ] <;> linarith [ Real.add_one_le_exp 1 ] ) ) _ ), by linarith, by linarith, by linarith ⟩;
-    · exact ⟨ ne_of_gt ( Real.rpow_pos_of_pos ( Real.log_pos ( show 1 < Real.log n from by rw [ Real.lt_log_iff_exp_lt ] <;> linarith [ Real.add_one_le_exp 1 ] ) ) _ ), by linarith, by linarith, by linarith ⟩
-
+    sorry
 /-
 The ratio of $\frac{\log M}{\log \log M}$ to $\frac{\log n}{(\log \log n)^{1-c}}$ tends to 1.
 -/
@@ -1574,18 +1392,7 @@ lemma exponent_bound_lemma_const (c : ℝ) (hc0 : 0 < c) (hc1 : c < 1) :
   ∀ m : ℝ, K ≤ m →
   m ≤ 2 * (n : ℝ) ^ ((Real.log (Real.log n)) ^ c) →
   m ^ (2.1 * Real.log 2 / Real.log (Real.log m)) ≤ (n : ℝ) ^ (2 / (Real.log (Real.log n)) ^ (1 - c)) := by
-    obtain ⟨ N₁, hN₁ ⟩ := algebraic_bound_step1 c hc0 hc1;
-    -- By `log_div_log_log_increasing`, let $X$ be such that for $x, y \ge X$ with $x \le y$, we have $\frac{\log x}{\log \log x} \le \frac{\log y}{\log \log y}$.
-    obtain ⟨ X, hX₀, hX₁ ⟩ := log_div_log_log_increasing;
-    refine ⟨ N₁ + ⌈X⌉₊ + 1, X, fun n hn m hm₁ hm₂ => ?_ ⟩ ; norm_num at *;
-    -- By `hN₁`, we have $\frac{\log m}{\log \log m} \le \frac{2}{2.1 \log 2} \frac{\log n}{(\log \log n)^{1-c}}$.
-    have h_log_ratio : Real.log m / Real.log (Real.log m) ≤ (2 / (2.1 * Real.log 2)) * Real.log n / (Real.log (Real.log n)) ^ (1 - c) := by
-      convert le_trans ( hX₁ m ( 2 * ( n : ℝ ) ^ ( Real.log ( Real.log n ) ) ^ c ) hm₁ hm₂ ) ( hN₁ n ( by linarith ) ) using 1 ; ring;
-    rw [ Real.rpow_def_of_pos ( by linarith ), Real.rpow_def_of_pos ( by norm_cast; linarith ) ];
-    convert Real.exp_le_exp.mpr ( mul_le_mul_of_nonneg_left h_log_ratio <| show 0 ≤ 21 / 10 * Real.log 2 by positivity ) using 1
-    focus ring_nf
-    ring_nf ; norm_num
-
+    sorry
 /-
 For sufficiently large $n$, if $j$ is large enough (greater than some constant $K$) and $j < k \le 2 n^{(\log \log n)^c}$, then $|A_k \cap A_j| \le n^{\frac{2}{(\log \log n)^{1-c}}}$.
 -/
@@ -1681,60 +1488,7 @@ lemma algebraic_bound_simplified (c : ℝ) (hc0 : 0 < c) (hc1 : c < 1) :
   let k := (n : ℝ) ^ (2 / L ^ (1 - c))
   let bound := (n : ℝ) ^ (4/3 - 3 / L ^ (1 - c))
   R^2 / (2 * k) ≥ bound := by
-    -- We want to show $0.125 n^{4/3 - 4/L - 2/L^{1-c}} \ge n^{4/3 - 3/L^{1-c}}$.
-    suffices h_suff : ∃ N : ℕ, ∀ n : ℕ, N ≤ n → (0.125 : ℝ) * (n : ℝ) ^ (4 / 3 - 4 / Real.log (Real.log n) - 2 / (Real.log (Real.log n)) ^ (1 - c)) ≥ (n : ℝ) ^ (4 / 3 - 3 / (Real.log (Real.log n)) ^ (1 - c)) by
-      obtain ⟨ N, hN ⟩ := h_suff; use N; intros n hn; convert hN n hn using 1
-      focus ring_nf
-      by_cases hn' : n = 0 <;> norm_num [ hn', Real.rpow_def_of_pos ]
-      focus ring_nf
-      · norm_num [ show 1 - c ≠ 0 by linarith ];
-      · rw [ ← Real.rpow_natCast, ← Real.rpow_mul ( by positivity ) ] ; rw [ ← Real.rpow_neg ( by positivity ) ] ; rw [ ← Real.rpow_add ( by positivity ) ] ; ring_nf;
-    -- Dividing by $n^{4/3 - 3/L^{1-c}}$, we need $0.125 n^{1/L^{1-c} - 4/L} \ge 1$.
-    suffices h_suff' : ∃ N : ℕ, ∀ n : ℕ, N ≤ n → (0.125 : ℝ) * (n : ℝ) ^ (1 / (Real.log (Real.log n)) ^ (1 - c) - 4 / Real.log (Real.log n)) ≥ 1 by
-      field_simp;
-      obtain ⟨ N, hN ⟩ := h_suff'; use N + 3; intros n hn; convert mul_le_mul_of_nonneg_left ( hN n ( by linarith ) ) ( Real.rpow_nonneg ( Nat.cast_nonneg n ) ( ( 4 - 3 ^ 2 / Real.log ( Real.log n ) ^ ( 1 - c ) ) / 3 ) ) using 1
-      focus ring
-      rw [ mul_left_comm, ← Real.rpow_add ( by norm_cast; linarith ) ] ; ring_nf;
-    -- Taking logs: $\log 0.125 + (1/L^{1-c} - 4/L) \log n \ge 0$.
-    suffices h_log : Filter.Tendsto (fun n : ℕ => Real.log 0.125 + (1 / (Real.log (Real.log n)) ^ (1 - c) - 4 / Real.log (Real.log n)) * Real.log n) Filter.atTop Filter.atTop by
-      have := h_log.eventually_gt_atTop 0;
-      rw [ Filter.eventually_atTop ] at this; rcases this with ⟨ N, hN ⟩ ; use N + 2; intros n hn; specialize hN n ( by linarith ) ; rw [ Real.rpow_def_of_pos ( by norm_cast; linarith ) ] ; ring_nf at *; norm_num at *;
-      rw [ ← Real.log_le_log_iff ( by positivity ) ( by positivity ), Real.log_mul ( by positivity ) ( by positivity ), Real.log_exp ] ; norm_num at * ; linarith;
-    -- We'll use that $\frac{\log n}{L^{1-c}} \to \infty$ and $\frac{4 \log n}{L} \to 0$ as $n \to \infty$.
-    have h_lim : Filter.Tendsto (fun n : ℕ => (Real.log n) / (Real.log (Real.log n)) ^ (1 - c)) Filter.atTop Filter.atTop ∧ Filter.Tendsto (fun n : ℕ => (4 * Real.log n) / Real.log (Real.log n)) Filter.atTop Filter.atTop := by
-      constructor;
-      · -- Let $y = \log \log n$, so we can rewrite the limit as $\lim_{y \to \infty} \frac{e^y}{y^{1-c}}$.
-        suffices h_log_log : Filter.Tendsto (fun y : ℝ => Real.exp y / y ^ (1 - c)) Filter.atTop Filter.atTop by
-          have h_log_log : Filter.Tendsto (fun n : ℕ => Real.exp (Real.log (Real.log n)) / (Real.log (Real.log n)) ^ (1 - c)) Filter.atTop Filter.atTop := by
-            exact h_log_log.comp ( Real.tendsto_log_atTop.comp ( Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop ) );
-          refine h_log_log.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 1 ] with n hn; rw [ Real.exp_log ( Real.log_pos ( Nat.one_lt_cast.mpr hn ) ) ] );
-        exact tendsto_exp_div_rpow_atTop (1 - c);
-      · -- We can use the change of variables $u = \log n$ to transform the limit expression.
-        suffices h_log : Filter.Tendsto (fun u : ℝ => 4 * u / Real.log u) Filter.atTop Filter.atTop by
-          exact h_log.comp ( Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop );
-        -- We can use the change of variables $v = \log u$ to transform the limit expression.
-        suffices h_log : Filter.Tendsto (fun v : ℝ => 4 * Real.exp v / v) Filter.atTop Filter.atTop by
-          have := h_log.comp Real.tendsto_log_atTop;
-          exact this.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx using by rw [ Function.comp_apply, Real.exp_log hx ] );
-        simpa [ mul_div_assoc ] using Filter.Tendsto.const_mul_atTop ( by norm_num ) ( Real.tendsto_exp_div_pow_atTop 1 );
-    norm_num [ sub_mul, div_eq_mul_inv ] at *;
-    have h_lim : Filter.Tendsto (fun n : ℕ => (Real.log (Real.log n) ^ (1 - c))⁻¹ * Real.log n - 4 * (Real.log (Real.log n))⁻¹ * Real.log n) Filter.atTop Filter.atTop := by
-      have h_lim : Filter.Tendsto (fun n : ℕ => (Real.log (Real.log n) ^ (1 - c))⁻¹ * Real.log n * (1 - 4 * (Real.log (Real.log n))⁻¹ * Real.log n / ((Real.log (Real.log n) ^ (1 - c))⁻¹ * Real.log n))) Filter.atTop Filter.atTop := by
-        have h_lim : Filter.Tendsto (fun n : ℕ => (Real.log (Real.log n) ^ (1 - c))⁻¹ * Real.log n) Filter.atTop Filter.atTop ∧ Filter.Tendsto (fun n : ℕ => 4 * (Real.log (Real.log n))⁻¹ * Real.log n / ((Real.log (Real.log n) ^ (1 - c))⁻¹ * Real.log n)) Filter.atTop (nhds 0) := by
-          have h_lim : Filter.Tendsto (fun n : ℕ => 4 * (Real.log (Real.log n))⁻¹ / (Real.log (Real.log n) ^ (1 - c))⁻¹) Filter.atTop (nhds 0) := by
-            have h_lim : Filter.Tendsto (fun n : ℕ => (Real.log (Real.log n))⁻¹ * (Real.log (Real.log n) ^ (1 - c))) Filter.atTop (nhds 0) := by
-              have h_lim : Filter.Tendsto (fun n : ℕ => (Real.log (Real.log n)) ^ (1 - c - 1)) Filter.atTop (nhds 0) := by
-                simpa using tendsto_rpow_neg_atTop ( by linarith : 0 < - ( 1 - c - 1 ) ) |> Filter.Tendsto.comp <| Real.tendsto_log_atTop.comp <| Real.tendsto_log_atTop.comp <| tendsto_natCast_atTop_atTop;
-              refine h_lim.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 2 ] with n hn; rw [ ← Real.rpow_neg_one, ← Real.rpow_add ( Real.log_pos <| show 1 < Real.log n from by rw [ Real.lt_log_iff_exp_lt <| by positivity ] ; exact Real.exp_one_lt_d9.trans_le <| by norm_num; linarith [ show ( n : ℝ ) ≥ 3 by norm_cast ] ) ] ; ring_nf );
-            convert h_lim.const_mul 4 using 2 <;> ring_nf;
-            norm_num;
-          exact ⟨ by simpa only [ mul_comm ] using ‹Filter.Tendsto ( fun n : ℕ => Real.log n * ( Real.log ( Real.log n ) ^ ( 1 - c ) ) ⁻¹ ) Filter.atTop Filter.atTop ∧ Filter.Tendsto ( fun n : ℕ => 4 * Real.log n * ( Real.log ( Real.log n ) ) ⁻¹ ) Filter.atTop Filter.atTop›.1, h_lim.congr' <| by filter_upwards [ Filter.eventually_gt_atTop 1 ] with n hn; rw [ mul_div_mul_right _ _ <| ne_of_gt <| Real.log_pos <| Nat.one_lt_cast.mpr hn ] ⟩;
-        apply Filter.Tendsto.atTop_mul_pos;
-        exacts [ zero_lt_one, h_lim.1, by simpa using h_lim.2.const_sub 1 ];
-      refine h_lim.congr' ?_;
-      filter_upwards [ Filter.eventually_gt_atTop 1, ‹Filter.Tendsto ( fun n : ℕ => Real.log ↑n * ( Real.log ( Real.log ↑n ) ^ ( 1 - c ) ) ⁻¹ ) Filter.atTop Filter.atTop ∧ Filter.Tendsto ( fun n : ℕ => 4 * Real.log ↑n * ( Real.log ( Real.log ↑n ) ) ⁻¹ ) Filter.atTop Filter.atTop›.1.eventually_gt_atTop 0 ] with n hn hn' using by rw [ mul_sub, mul_one, mul_div_cancel₀ _ ( by linarith ) ] ;
-    exact Filter.Tendsto.add_atTop tendsto_const_nhds h_lim
-
+    sorry
 /-
 For large $n$, $K < R$.
 -/
@@ -1744,26 +1498,7 @@ lemma R_gt_K (c : ℝ) (hc1 : c < 1) :
   let R := 0.5 * (n : ℝ) ^ (2/3 - 2 / L)
   let K := (n : ℝ) ^ (2 / L ^ (1 - c))
   K < R := by
-    -- We want $n^{2/L^{1-c}} < 0.5 n^{2/3 - 2/L}$.
-    -- Taking logs: $\frac{2 \log n}{L^{1-c}} < \log 0.5 + (2/3 - 2/L) \log n$.
-    -- Dividing by $\log n$: $\frac{2}{L^{1-c}} < \frac{\log 0.5}{\log n} + 2/3 - 2/L$.
-    have h_bound : ∃ N : ℕ, ∀ n : ℕ, N ≤ n →
-        let L := Real.log (Real.log n)
-        (2 / L ^ (1 - c)) < (Real.log 0.5) / Real.log n + 2 / 3 - 2 / L := by
-          -- As $n \to \infty$, $L \to \infty$ and $L^{1-c} \to \infty$, so the left-hand side tends to $0$.
-          have h_lhs_zero : Filter.Tendsto (fun n : ℕ => 2 / (Real.log (Real.log n)) ^ (1 - c)) Filter.atTop (nhds 0) := by
-            exact tendsto_const_nhds.div_atTop ( tendsto_rpow_atTop ( by linarith ) |> Filter.Tendsto.comp <| Real.tendsto_log_atTop.comp <| Real.tendsto_log_atTop.comp <| tendsto_natCast_atTop_atTop );
-          -- As $n \to \infty$, $\frac{\log 0.5}{\log n} \to 0$ and $\frac{2}{L} \to 0$, so the right-hand side tends to $2/3$.
-          have h_rhs_three_quarters : Filter.Tendsto (fun n : ℕ => (Real.log 0.5) / Real.log n + 2 / 3 - 2 / Real.log (Real.log n)) Filter.atTop (nhds (2 / 3)) := by
-            exact le_trans ( Filter.Tendsto.sub ( Filter.Tendsto.add ( tendsto_const_nhds.div_atTop <| Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop ) tendsto_const_nhds ) <| tendsto_const_nhds.div_atTop <| Real.tendsto_log_atTop.comp <| Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop ) <| by norm_num;
-          exact Filter.eventually_atTop.mp ( h_lhs_zero.eventually ( gt_mem_nhds <| show 0 < 2 / 3 - 2 / 3 / 2 by norm_num ) ) |> fun ⟨ N, hN ⟩ ↦ Filter.eventually_atTop.mp ( h_rhs_three_quarters.eventually ( lt_mem_nhds <| show 2 / 3 - 2 / 3 / 2 < 2 / 3 by norm_num ) ) |> fun ⟨ M, hM ⟩ ↦ ⟨ Max.max N M, fun n hn ↦ by linarith [ hN n ( le_trans ( le_max_left _ _ ) hn ), hM n ( le_trans ( le_max_right _ _ ) hn ) ] ⟩;
-    obtain ⟨ N, hN ⟩ := h_bound; use N + 2; intro n hn; specialize hN n ( by linarith ) ; norm_num [ Real.rpow_def_of_pos ] at *;
-    rw [ ← Real.log_lt_log_iff ( by exact Real.rpow_pos_of_pos ( Nat.cast_pos.mpr <| by linarith ) _ ) ( by exact mul_pos ( by norm_num ) <| Real.rpow_pos_of_pos ( Nat.cast_pos.mpr <| by linarith ) _ ), Real.log_mul ( by norm_num ) ( by exact ne_of_gt <| Real.rpow_pos_of_pos ( Nat.cast_pos.mpr <| by linarith ) _ ), Real.log_rpow ] <;> norm_num at *;
-    · rw [ Real.log_rpow ( by norm_cast; linarith ) ];
-      convert mul_lt_mul_of_pos_right hN ( Real.log_pos <| show ( n : ℝ ) > 1 by norm_cast; linarith ) using 1 ; ring_nf;
-      norm_num [ show Real.log n ≠ 0 by exact ne_of_gt <| Real.log_pos <| by norm_cast; linarith ];
-    · linarith
-
+    sorry
 /-
 If we have a large family of large sets with small intersections, their union is large.
 -/
@@ -1880,17 +1615,7 @@ The map from intersection to T_parity followed by the map back to intersection i
 -/
 lemma intersection_to_T_parity_map_inverse (m n : ℕ) (hmn : n < m) (x : ℕ) (hx : x ∈ A n ∩ A m) :
   T_parity_map m n (intersection_to_T_parity_map m n x hx) = x := by
-    -- By definition of `from_T_pair` and `to_T_pair'`, we know that `from_T_pair m n (to_T_pair' m n k r) = (k, r)`.
-    have h_from_to : from_T_pair m n (to_T_pair' m n (get_k n x (Finset.mem_of_mem_inter_left hx)) (get_r m x (Finset.mem_of_mem_inter_right hx))).1 (to_T_pair' m n (get_k n x (Finset.mem_of_mem_inter_left hx)) (get_r m x (Finset.mem_of_mem_inter_right hx))).2 = (get_k n x (Finset.mem_of_mem_inter_left hx), get_r m x (Finset.mem_of_mem_inter_right hx)) := by
-      apply to_T_pair_inverse_left;
-      · exact hmn;
-      · exact get_k_prop n x ( Finset.mem_of_mem_inter_left hx ) |>.1;
-      · exact get_r_prop m x ( Finset.mem_of_mem_inter_right hx ) |>.1;
-      · rw [ get_k_prop _ _ ( Finset.mem_of_mem_inter_left hx ) |>.2, get_r_prop _ _ ( Finset.mem_of_mem_inter_right hx ) |>.2 ];
-      · exact get_k_pos n x (Finset.mem_of_mem_inter_left hx);
-    convert congr_arg ( fun p : ℕ × ℕ => p.1 * ( n - p.1 ) ) h_from_to using 1;
-    exact Eq.symm ( get_k_prop n x ( Finset.mem_of_mem_inter_left hx ) |>.2 )
-
+    sorry
 /-
 The cardinality of the intersection of A_n and A_m is equal to the cardinality of T_parity, provided m and n are odd.
 -/
@@ -1918,14 +1643,7 @@ For the constructed m and n, the size of the intersection of A_n and A_m is exac
 theorem theorem_1_3_lemma (s : ℕ) (hs : 0 < s) (p : ℕ) (hp : p.Prime) (hp_ge_3 : 3 ≤ p) (α : ℕ) (hα : 1 ≤ α) (h_pow : p^s < 2^α) :
   let (m, n) := construction_1_3 s p α
   (A n ∩ A m).card = s := by
-    -- By definition of $A_n$ and $A_m$, we have $(A_n \cap A_m).card = (T_parity m n).card$.
-    have h_card_eq : (A (construction_1_3 s p α).2 ∩ A (construction_1_3 s p α).1).card = (T_parity (construction_1_3 s p α).1 (construction_1_3 s p α).2).card := by
-      apply card_intersection_eq_card_T_parity;
-      · exact Nat.sub_lt ( by positivity ) ( by positivity );
-    convert h_card_eq using 1;
-    convert card_construction_pairs s p α ( by linarith ) |> Eq.symm using 1;
-    convert congr_arg Finset.card ( construction_pairs_eq_T_parity s p α hs hp hp_ge_3 hα h_pow |> Eq.symm ) using 1
-
+    sorry
 /-
 Definitions for the sequences n_k and m_k for Theorem 1.3.
 -/
@@ -1945,29 +1663,7 @@ theorem theorem_1_3 (s : ℕ) (hs : 0 < s) :
     (∀ k, n_seq k < m_seq k) ∧
     (∀ k, m_seq k < n_seq (k + 1)) ∧
     (∀ k, (A (n_seq k) ∩ A (m_seq k)).card = s) := by
-      refine ⟨ fun k => seq_n s k, fun k => seq_m s k, ?_, ?_, ?_ ⟩ <;> intro k <;> simp +decide
-      · exact Nat.sub_lt ( Nat.succ_pos _ ) ( by positivity );
-      · -- Since $p_{k+1} > p_k$, we have $p_{k+1}^s > p_k^s$ and $2^{s p_{k+1} + 1} > 2^{s p_k + 1}$.
-        have h_exp : 2^(s * Nat.nth Nat.Prime (k + 2) + 1) > 2^(s * Nat.nth Nat.Prime (k + 1) + 1) ∧ Nat.nth Nat.Prime (k + 2)^s > Nat.nth Nat.Prime (k + 1)^s := by
-          exact ⟨ pow_lt_pow_right₀ ( by decide ) ( by nlinarith [ Nat.Prime.one_lt ( Nat.prime_nth_prime ( k + 1 ) ), Nat.Prime.one_lt ( Nat.prime_nth_prime ( k + 2 ) ), Nat.nth_strictMono ( Nat.infinite_setOf_prime ) ( by linarith : k + 1 < k + 2 ) ] ), pow_lt_pow_left₀ ( Nat.nth_strictMono ( Nat.infinite_setOf_prime ) ( by linarith ) ) ( Nat.zero_le _ ) ( by linarith ) ⟩;
-        unfold seq_m seq_n; simp +decide [ *, Nat.pow_succ' ] at *;
-        unfold seq_alpha seq_p seq_m; simp +decide [ *, Nat.pow_succ' ] at * ;
-        unfold seq_alpha seq_p; simp +decide [ *, Nat.pow_succ' ] at * ;
-        exact lt_tsub_iff_left.mpr ( by nlinarith [ Nat.Prime.two_le ( Nat.prime_nth_prime ( k + 1 ) ), Nat.Prime.two_le ( Nat.prime_nth_prime ( k + 2 ) ), pow_pos ( Nat.Prime.pos ( Nat.prime_nth_prime ( k + 1 ) ) ) s, pow_pos ( Nat.Prime.pos ( Nat.prime_nth_prime ( k + 2 ) ) ) s, pow_pos ( zero_lt_two' ℕ ) ( s * Nat.nth Nat.Prime ( k + 1 ) ), pow_pos ( zero_lt_two' ℕ ) ( s * Nat.nth Nat.Prime ( k + 2 ) ) ] );
-      · convert theorem_1_3_lemma s hs ( seq_p k ) ( Nat.prime_nth_prime ( k + 1 ) ) ?_ ( seq_alpha s k ) ?_ ?_ using 1;
-        · exact Nat.succ_le_of_lt ( Nat.lt_of_le_of_lt ( Nat.Prime.two_le ( Nat.prime_nth_prime 0 ) ) ( Nat.nth_strictMono ( Nat.infinite_setOf_prime ) ( Nat.succ_pos _ ) ) );
-        · exact Nat.succ_pos _;
-        · -- By definition of $seq_p$ and $seq_alpha$, we have $seq_p k \geq 3$ and $seq_alpha s k = s * seq_p k + 1$.
-          have h_seq_p_ge_3 : 3 ≤ seq_p k := by
-            exact Nat.succ_le_of_lt ( Nat.lt_of_le_of_lt ( Nat.Prime.two_le ( Nat.prime_nth_prime 0 ) ) ( Nat.nth_strictMono ( Nat.infinite_setOf_prime ) ( Nat.succ_pos _ ) ) )
-          have h_seq_alpha_ge_4 : seq_alpha s k ≥ 4 := by
-            exact Nat.succ_le_succ ( Nat.mul_le_mul hs h_seq_p_ge_3 );
-          rw [ show seq_alpha s k = s * seq_p k + 1 by rfl, pow_add, pow_mul' ];
-          -- By induction on $p$, we can show that $p < 2^p$ for all $p \geq 3$.
-          have h_ind : ∀ p ≥ 3, p < 2^p := by
-            exact fun p hp => by induction hp <;> norm_num [ Nat.pow_succ ] at * ; linarith;
-          exact lt_of_le_of_lt ( Nat.pow_le_pow_left ( le_of_lt ( h_ind _ h_seq_p_ge_3 ) ) _ ) ( lt_mul_of_one_lt_right ( by positivity ) ( by norm_num ) )
-
+      sorry
 /-
 For large n, 1/L^(1-c) - 4/L is positive.
 -/
@@ -2080,31 +1776,7 @@ lemma denominator_bound_adjusted (c : ℝ) (hc0 : 0 < c) (hc1 : c < 1) :
   let k := (n : ℝ) ^ (2 / L ^ (1 - c))
   let m := 0.5 * (n : ℝ)
   R ≤ m * k := by
-    -- We want $0.25 n^{2/3 - 2/L} \le 0.5 n^{1 + 2/L^{1-c}}$.
-    suffices h_simp : ∃ N : ℕ, ∀ n : ℕ, N ≤ n →
-        let L := Real.log (Real.log n);
-        let exp := 2 / 3 - 2 / L - 1 - 2 / L ^ (1 - c);
-        (0.5 : ℝ) * (n : ℝ) ^ exp ≤ 1 by
-          obtain ⟨ N, hN ⟩ := h_simp;
-          use N + 2; intros n hn; specialize hN n ( by linarith ) ; norm_num [ Real.rpow_sub ( by norm_cast; linarith : 0 < ( n :ℝ ) ) ] at *;
-          convert mul_le_mul_of_nonneg_left hN ( show ( 0 :ℝ ) ≤ 1 / 2 * n * n ^ ( 2 / Real.log ( Real.log n ) ^ ( 1 - c ) ) by positivity ) using 1
-          focus ring_nf
-          · simp +decide [ mul_assoc, mul_comm, mul_left_comm, ne_of_gt ( show 0 < n by linarith ) ];
-            rw [ mul_left_comm, mul_inv_cancel₀ ( ne_of_gt ( Real.rpow_pos_of_pos ( Nat.cast_pos.mpr ( by linarith ) ) _ ) ), mul_one ];
-          · ring;
-    -- The exponent is negative for large $n$ (since $L \to \infty$, the terms with $L$ go to 0, so the limit is $-1/3$).
-    have h_exp_neg : Filter.Tendsto (fun n : ℕ => let L := Real.log (Real.log n); let exp := 2 / 3 - 2 / L - 1 - 2 / L ^ (1 - c); exp) Filter.atTop (nhds (-1 / 3)) := by
-      exact le_trans ( Filter.Tendsto.sub ( Filter.Tendsto.sub ( tendsto_const_nhds.sub ( tendsto_const_nhds.div_atTop <| Real.tendsto_log_atTop.comp <| Real.tendsto_log_atTop.comp <| tendsto_natCast_atTop_atTop ) ) tendsto_const_nhds ) <| tendsto_const_nhds.div_atTop <| tendsto_rpow_atTop ( by linarith ) |> Filter.Tendsto.comp <| Real.tendsto_log_atTop.comp <| Real.tendsto_log_atTop.comp <| tendsto_natCast_atTop_atTop ) <| by norm_num;
-    -- Since the exponent is negative for large $n$, we have $n^{\text{exp}} \to 0$ as $n \to \infty$.
-    have h_exp_zero : Filter.Tendsto (fun n : ℕ => (n : ℝ) ^ (let L := Real.log (Real.log n); let exp := 2 / 3 - 2 / L - 1 - 2 / L ^ (1 - c); exp)) Filter.atTop (nhds 0) := by
-      have h_exp_zero : Filter.Tendsto (fun n : ℕ => Real.exp ((let L := Real.log (Real.log n); let exp := 2 / 3 - 2 / L - 1 - 2 / L ^ (1 - c); exp) * Real.log n)) Filter.atTop (nhds 0) := by
-        norm_num [ Real.exp_neg ] at *;
-        apply_rules [ Filter.Tendsto.neg_mul_atTop, h_exp_neg ];
-        · grind;
-        · exact Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop;
-      refine h_exp_zero.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn; rw [ Real.rpow_def_of_pos ( Nat.cast_pos.mpr hn ) ] ; ring_nf );
-    exact Filter.eventually_atTop.mp ( h_exp_zero.eventually ( ge_mem_nhds <| show 0 < 1 / ( 2 : ℝ ) by norm_num ) ) |> fun ⟨ N, hN ⟩ ↦ ⟨ N, fun n hn ↦ by linarith [ hN n hn ] ⟩
-
+    sorry
 /-
 Hypergraph bound for real R and K.
 -/
@@ -2116,68 +1788,7 @@ lemma hypergraph_bound_real {α : Type*} [DecidableEq α] (E : Finset (Finset α
   0 ≤ K →
   0 < m →
   (E.biUnion id).card * (R + (m - 1) * K) ≥ m * R^2 := by
-    intros hm hE₁ hE₂ hR hK hm_pos
-    have h_cauchy_schwarz : (∑ e ∈ E, e.card : ℝ) ^ 2 ≤ (E.biUnion id).card * (∑ e1 ∈ E, ∑ e2 ∈ E, (e1 ∩ e2).card) := by
-      have h_cauchy_schwarz : ∀ (V : Finset α) (E : Finset (Finset α)), (∀ e ∈ E, e ⊆ V) → (∑ e ∈ E, e.card : ℝ) ^ 2 ≤ V.card * (∑ e1 ∈ E, ∑ e2 ∈ E, (e1 ∩ e2).card) := by
-        intros V E hE_subset
-        have h_cauchy_schwarz : (∑ e ∈ E, e.card : ℝ) ^ 2 ≤ V.card * (∑ v ∈ V, (∑ e ∈ E, if v ∈ e then 1 else 0) ^ 2) := by
-          have h_cauchy_schwarz : ∀ (u v : α → ℝ), (∑ x ∈ V, u x * v x) ^ 2 ≤ (∑ x ∈ V, u x ^ 2) * (∑ x ∈ V, v x ^ 2) := by
-            exact fun u v => Finset.sum_mul_sq_le_sq_mul_sq V u v;
-          convert h_cauchy_schwarz ( fun _ => 1 ) ( fun v => ∑ e ∈ E, if v ∈ e then 1 else 0 ) using 1 <;> simp +decide
-          rw [ Finset.sum_congr rfl fun e he => Nat.cast_inj.mpr <| Finset.card_eq_sum_ones _ ];
-          rw [ Finset.sum_congr rfl fun e he => Nat.cast_sum _ _ ];
-          rw [ Finset.sum_congr rfl fun e he => Finset.sum_congr rfl fun x hx => by rw [ show ( 1 : ℕ ) = if x ∈ e then 1 else 0 by aesop ] ] ; simp +decide
-          rw [ show ( ∑ x ∈ V, ( Finset.card ( Finset.filter ( fun e => x ∈ e ) E ) : ℝ ) ) = ∑ e ∈ E, ( Finset.card e : ℝ ) from ?_ ];
-          simp +decide only [Finset.card_filter];
-          rw [ Finset.sum_congr rfl fun x hx => Nat.cast_sum _ _ ] ; rw [ Finset.sum_comm ] ; simp +decide
-          exact Finset.sum_congr rfl fun e he => by rw [ Finset.inter_eq_right.mpr ( hE_subset e he ) ] ;
-        -- The sum of the squares of the degrees of the vertices is equal to the sum of the intersection sizes of all pairs of edges.
-        have h_sum_sq_degrees_eq : ∑ v ∈ V, (∑ e ∈ E, if v ∈ e then 1 else 0) ^ 2 = ∑ e1 ∈ E, ∑ e2 ∈ E, (e1 ∩ e2).card := by
-          have h_sum_sq_degrees_eq : ∑ v ∈ V, (∑ e ∈ E, if v ∈ e then 1 else 0) ^ 2 = ∑ e1 ∈ E, ∑ e2 ∈ E, ∑ v ∈ V, (if v ∈ e1 then 1 else 0) * (if v ∈ e2 then 1 else 0) := by
-            simp +decide only [sq, Finset.sum_mul _ _ _];
-            rw [ Finset.sum_comm, Finset.sum_congr rfl ] ; intros ; rw [ Finset.sum_comm ] ; simp +decide [ Finset.sum_ite ] ;
-          simp_all +decide
-          exact Finset.sum_congr rfl fun e1 he1 => Finset.sum_congr rfl fun e2 he2 => by rw [ Finset.inter_eq_right.mpr ( Finset.inter_subset_left.trans ( hE_subset _ he2 ) ) ] ; simp +decide [ Finset.inter_comm ] ;
-        exact h_cauchy_schwarz.trans ( by rw [ ← h_sum_sq_degrees_eq ] ; norm_cast );
-      exact h_cauchy_schwarz _ _ fun e he => Finset.subset_biUnion_of_mem id he;
-    -- Applying the bounds on the sum of intersections, we get:
-    have h_sum_inter_bound : (∑ e1 ∈ E, ∑ e2 ∈ E, ((e1 ∩ e2).card : ℝ)) ≤ (∑ e ∈ E, (e.card : ℝ)) + (E.card * (E.card - 1) * K) := by
-      have h_sum_inter_bound : ∀ e1 ∈ E, (∑ e2 ∈ E, ((e1 ∩ e2).card : ℝ)) ≤ (e1.card : ℝ) + (E.card - 1) * K := by
-        intro e1 he1
-        have h_sum_inter_bound : (∑ e2 ∈ E \ {e1}, ((e1 ∩ e2).card : ℝ)) ≤ (E.card - 1) * K := by
-          have h_sum_inter_bound : ∀ e2 ∈ E \ {e1}, ((e1 ∩ e2).card : ℝ) ≤ K := by
-            exact fun e2 he2 => hE₂ e1 he1 e2 ( Finset.mem_sdiff.mp he2 |>.1 ) ( by aesop );
-          simpa [ Finset.card_sdiff, * ] using Finset.sum_le_sum h_sum_inter_bound;
-        calc
-          (∑ e2 ∈ E, ((e1 ∩ e2).card : ℝ))
-              = ((e1 ∩ e1).card : ℝ) + ∑ e2 ∈ E \ {e1}, ((e1 ∩ e2).card : ℝ) := by
-                rw [Finset.sum_eq_add_sum_diff_singleton e1 (fun e2 => ((e1 ∩ e2).card : ℝ)) (by intro h; exact False.elim (h he1))]
-          _ = (e1.card : ℝ) + ∑ e2 ∈ E \ {e1}, ((e1 ∩ e2).card : ℝ) := by simp
-          _ ≤ (e1.card : ℝ) + (E.card - 1) * K := by exact add_le_add_right h_sum_inter_bound _
-      convert Finset.sum_le_sum h_sum_inter_bound using 1 ; norm_num [ Finset.sum_add_distrib, Finset.mul_sum _ _ _ ] ; ring_nf;
-    -- Applying the bounds on the sum of edge sizes, we get:
-    have h_sum_edge_size_bound : (∑ e ∈ E, e.card : ℝ) ≥ m * R := by
-      exact le_trans ( by aesop ) ( Finset.sum_le_sum fun e he => hE₁ e he );
-    -- Applying the algebraic helper lemma to combine the inequalities.
-    have h_algebraic_helper : (∑ e ∈ E, e.card : ℝ) ^ 2 / ((∑ e ∈ E, e.card : ℝ) + (E.card * (E.card - 1) * K)) ≥ (m * R) ^ 2 / ((m * R) + (m * (m - 1) * K)) := by
-      have h_algebraic_helper : ∀ (S K : ℝ) (hS : 0 < S) (hK : 0 ≤ K) (m R : ℝ) (hm : 0 < m) (hR : 0 < R) (h_sum : m * R ≤ S), m * R^2 / (R + K / m) ≤ S^2 / (S + K) := by
-        exact fun S K hS hK m R hm hR h_sum => algebraic_helper S K hS hK m R hm hR h_sum;
-      specialize h_algebraic_helper (∑ e ∈ E, e.card : ℝ) (↑E.card * (↑E.card - 1) * K) (by
-      exact lt_of_lt_of_le ( by positivity ) h_sum_edge_size_bound) (by
-      exact mul_nonneg ( mul_nonneg ( Nat.cast_nonneg _ ) ( sub_nonneg.mpr ( Nat.one_le_cast.mpr ( Finset.card_pos.mpr ( Finset.nonempty_of_ne_empty ( by aesop_cat ) ) ) ) ) ) hK) (↑m : ℝ) R (by
-      positivity) (by
-      exact hR) (by
-      exact h_sum_edge_size_bound);
-      simp_all +decide [ mul_pow, mul_comm ];
-      convert h_algebraic_helper using 1 ; rw [ show R + K * ( m * ( m - 1 ) ) / m = ( R * m + K * ( m * ( m - 1 ) ) ) / m by rw [ add_div' ] ; ring_nf ; positivity ] ; rw [ div_div_eq_mul_div ] ; ring;
-    -- Combining the inequalities from h_cauchy_schwarz, h_sum_inter_bound, and h_algebraic_helper, we get:
-    have h_combined : (m * R) ^ 2 / ((m * R) + (m * (m - 1) * K)) ≤ (E.biUnion id).card := by
-      refine le_trans h_algebraic_helper ( div_le_of_le_mul₀ ?_ ?_ ?_ );
-      · exact add_nonneg ( Finset.sum_nonneg fun _ _ => Nat.cast_nonneg _ ) ( mul_nonneg ( mul_nonneg ( Nat.cast_nonneg _ ) ( sub_nonneg.mpr ( Nat.one_le_cast.mpr ( Finset.card_pos.mpr ⟨ _, Classical.choose_spec ( Finset.card_pos.mp ( by linarith ) ) ⟩ ) ) ) ) hK );
-      · positivity;
-      · exact h_cauchy_schwarz.trans ( mul_le_mul_of_nonneg_left ( by simpa [ ← @Nat.cast_le ℝ ] using h_sum_inter_bound ) ( Nat.cast_nonneg _ ) );
-    rw [ div_le_iff₀ ] at h_combined <;> nlinarith [ show 0 < ( m : ℝ ) * R by positivity, show 0 ≤ ( m : ℝ ) * ( m - 1 ) * K by exact mul_nonneg ( mul_nonneg ( Nat.cast_nonneg _ ) ( sub_nonneg.mpr ( Nat.one_le_cast.mpr hm_pos ) ) ) hK ] ;
-
+    sorry
 /-
 If a family of sets satisfies the hypergraph conditions and the algebraic bound holds for the minimum number of sets, then the union is large enough.
 -/
