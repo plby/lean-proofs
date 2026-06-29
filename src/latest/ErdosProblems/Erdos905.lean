@@ -147,8 +147,9 @@ lemma bollobas_nikiforov_of_card_le
           Fintype.card V + Fintype.card (G.commonNeighbors u v) := by
       exact degree_add_degree_le_card_add_commonNeighbors G u v
     have h_card_le_max : Fintype.card (G.commonNeighbors u v) ≤ maxTriangleDegree G := by
-      convert Finset.le_sup (f := triangleDegree G)
-        (show s(u, v) ∈ G.edgeFinset from by aesop) using 1
+      have h_edge : s(u, v) ∈ G.edgeFinset := by aesop
+      simpa [maxTriangleDegree, triangleDegree_mk] using
+        (Finset.le_sup (f := triangleDegree G) h_edge)
     grind +revert
   have h_sum_per_edge :
       ∑ u ∈ Finset.univ, ∑ v ∈ G.neighborFinset u, (G.degree u + G.degree v) ≤
@@ -240,10 +241,24 @@ lemma maxTriangleDegree_pos_of_quarter_sq_lt_edges
       (lt_of_lt_of_le (h_triangle_degree_pos u v hu hv huv)
         (Finset.le_sup (f := triangleDegree G) (by aesop)))
   convert SimpleGraph.CliqueFree.card_edgeFinset_le (r := 2) h_triangle_free using 1
-  cases Nat.mod_two_eq_zero_or_one (Fintype.card V) <;> simp +decide [*]
-  rw [← Nat.mod_add_div (Fintype.card V) 2, ‹Fintype.card V % 2 = _›]
-  ring_nf
-  grind +splitImp
+  · rfl
+  · rcases Nat.mod_two_eq_zero_or_one (Fintype.card V) with hmod | hmod
+    · rw [← Nat.mod_add_div (Fintype.card V) 2, hmod]
+      simp [Nat.mul_mod_right]
+    · rw [← Nat.mod_add_div (Fintype.card V) 2, hmod]
+      simp [Nat.mul_mod_right, Nat.add_mod]
+      ring_nf
+      set k := Fintype.card V / 2
+      change (1 + k * 4 + k ^ 2 * 4) / 4 =
+        (1 + k * 4 + k ^ 2 * 4 - 1) / 4
+      have hleft : 1 + k * 4 + k ^ 2 * 4 = 1 + (k + k ^ 2) * 4 := by
+        ring
+      have hright : 1 + (k + k ^ 2) * 4 - 1 = (k + k ^ 2) * 4 := by
+        omega
+      rw [hleft, hright]
+      simp
+      rw [Nat.add_mul_div_right 1 (k + k ^ 2) (by norm_num : 0 < 4)]
+      norm_num
 
 /-
 The sum of triangle-degrees is `3` times the number of triangles.
@@ -477,14 +492,19 @@ lemma concordant_pair_out
       y ∈ G.commonNeighbors (s(a, b)).out.1 (s(a, b)).out.2 ∨
         (¬ G.Adj y (s(a, b)).out.1 ∧ ¬ G.Adj y (s(a, b)).out.2) := by
   intro h
-  have hout := Quot.out_eq (s(a, b))
-  rcases (Sym2.eq_iff.mp hout) with ⟨h1, h2⟩ | ⟨h1, h2⟩
-  · have h1' : (s(a, b)).out.1 = a := by simpa using h1
-    have h2' : (s(a, b)).out.2 = b := by simpa using h2
+  have hout :
+      (s(a, b) : Sym2 V).out = (a, b) ∨ (s(a, b) : Sym2 V).out = (b, a) := by
+    have h := Quot.out_eq (s(a, b) : Sym2 V)
+    change s((s(a, b) : Sym2 V).out.1, (s(a, b) : Sym2 V).out.2) = s(a, b) at h
+    have hrel := Sym2.eq.mp h
+    simpa [Sym2.Rel] using hrel
+  rcases hout with h_out | h_out
+  · have h1' : (s(a, b) : Sym2 V).out.1 = a := congrArg Prod.fst h_out
+    have h2' : (s(a, b) : Sym2 V).out.2 = b := congrArg Prod.snd h_out
     rw [h1', h2']
     simpa [SimpleGraph.commonNeighbors, SimpleGraph.adj_comm] using h
-  · have h1' : (s(a, b)).out.1 = b := by simpa using h1
-    have h2' : (s(a, b)).out.2 = a := by simpa using h2
+  · have h1' : (s(a, b) : Sym2 V).out.1 = b := congrArg Prod.fst h_out
+    have h2' : (s(a, b) : Sym2 V).out.2 = a := congrArg Prod.snd h_out
     rw [h1', h2']
     simpa [SimpleGraph.commonNeighbors, SimpleGraph.adj_comm, and_comm] using h
 
