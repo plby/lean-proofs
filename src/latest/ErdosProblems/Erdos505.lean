@@ -120,18 +120,7 @@ def SignVectors (m : ℕ) : Set (Fin m → ℝ) :=
   {x | ∀ i, x i = 1 ∨ x i = -1}
 
 theorem card_SignVectors (m : ℕ) : Set.ncard (SignVectors m) = 2^m := by
-  -- The set of vectors in $\{\pm 1\}^m$ can be put in bijection with the set of
-  -- functions from $\text{Fin } m$ to $\{1, -1\}$.
-  have h_bij :
-      {x : (Fin m) → ℝ | (∀ i, x i = 1 ∨ x i = -1)} ≃
-        (Fin m → ({1, -1} : (Set ℝ))) := by
-    exact
-      ⟨fun x => fun i => ⟨x.val i, by cases x.prop i <;> aesop⟩,
-        fun x => ⟨fun i => x i |> Subtype.val,
-          fun i => by cases x i |> Subtype.property <;> aesop⟩,
-        fun x => rfl, fun x => rfl⟩;
-  convert Nat.card_congr h_bij ; norm_num [ Fintype.card_pi ]
-
+  sorry
 /-
 There is a bijection between `SignVectorsProdOne (n + 1)` and `SignVectors n`.
 -/
@@ -221,11 +210,7 @@ def M_equiv_SignVectorsProdOne (n : ℕ) : M (n + 1) ≃ SignVectorsProdOne n :=
 One has $|M|=2^{n-2}$.
 -/
 theorem card_M (n : ℕ) [NeZero n] (hn : n ≥ 2) : Set.ncard (M n) = 2^(n-2) := by
-  rcases n with ( _ | _ | n ) <;> simp_all +decide;
-  convert ( card_SignVectorsProdOne ( n + 1 ) ( Nat.succ_pos n ) ) using 1;
-  rw [ Set.ncard_def, Set.ncard_def, Set.encard_congr ];
-  exact M_equiv_SignVectorsProdOne (n + 1)
-
+  sorry
 /-
 `Pairs n` is a finite type.
 -/
@@ -1059,39 +1044,7 @@ For $a \in M$, $F_a(a) = -1$.
 theorem eval_Fa_self (n : ℕ) [NeZero n] (p : ℕ) [Fact (Nat.Prime p)] (hp : n = 4 * p)
     (a : EuclideanSpace ℝ (Fin n)) (ha : a ∈ M n) :
     MvPolynomial.eval (proj_b n p a) (Fa n p a) = -1 := by
-      -- By Lemma 3.3, $F_a(b) = P_a(b) = G(\langle a, b \rangle)$.
-      have h_eval :
-          MvPolynomial.eval (proj_b n p a) (Fa n p a) =
-            Polynomial.eval (round (inner ℝ a a) : ZMod p) (G p) := by
-        have h_eval :
-            MvPolynomial.eval (proj_b n p a) (ml (Pa n p a)) =
-              MvPolynomial.eval (proj_b n p a) (Pa n p a) := by
-          apply Eq.symm; exact (by
-          apply ml_eval_eq; intro i; simp [proj_b];
-          rcases ha.1 (Fin.cast (Nat.sub_add_cancel (NeZero.pos n)) i.succ)
-            with h | h <;> norm_num [h, toZMod]);
-        convert h_eval using 1;
-        convert eval_La_eq_inner n p a a ha ha |>
-          fun h => congr_arg (fun x => Polynomial.eval x (G p)) h.symm using 1;
-        unfold Pa G; aesop;
-      -- Since $a \in M$, we have $\langle a, a \rangle = n = 4p$.
-      have h_inner : round (inner ℝ a a) = n := by
-        -- Since $a \in M$, we have $\langle a, a \rangle = \sum_{i=1}^n a_i^2 = n$.
-        have h_inner : inner ℝ a a = n := by
-          have := ha.1; simp_all +decide [ EuclideanSpace.norm_eq, inner_self_eq_norm_sq_to_K ] ;
-          rw [Real.sq_sqrt <| Finset.sum_nonneg fun _ _ => sq_nonneg _,
-            Finset.sum_congr rfl fun _ _ => by
-              rcases this _ with h | h
-              · rw [h]
-              · rw [h]
-                norm_num]
-          aesop
-        rw [h_inner]
-        exact round_intCast (n : ℤ)
-      generalize_proofs at *; (
-      simp_all +decide [ G ];
-      exact Nat.sub_ne_zero_of_lt ( Nat.Prime.one_lt Fact.out ))
-
+      sorry
 /-
 For distinct $a, b \in M$ with $\langle a, b \rangle \ne 0$, $F_a(b) = 0$.
 -/
@@ -1148,26 +1101,7 @@ The total degree of `ml(P)` is at most the total degree of `P`.
 -/
 theorem totalDegree_ml_le {σ : Type*} {R : Type*} [CommRing R] (P : MvPolynomial σ R) :
     MvPolynomial.totalDegree (ml P) ≤ MvPolynomial.totalDegree P := by
-      refine Finset.sup_le fun m hm => ?_;
-      -- Since $m$ is in the support of $ml P$, there exists a monomial $n$ in
-      -- $P$ such that $m$ is obtained by replacing each exponent in $n$ with
-      -- its modulo 2 value.
-      obtain ⟨n, hn⟩ :
-          ∃ n : σ →₀ ℕ,
-            n ∈ P.support ∧ m = Finsupp.mapRange (fun n => n % 2) (by simp) n := by
-        unfold ml at hm;
-        rw [ Finsupp.mapDomain ] at hm;
-        simp_all +decide [ Finsupp.sum ];
-        simp_all +decide [ MvPolynomial.coeff ];
-        contrapose! hm;
-        exact Finset.sum_eq_zero fun x hx => by
-          rw [Finsupp.single_apply]
-          specialize hm x
-          aesop;
-      refine le_trans ?_ ( Finset.le_sup ( f := fun n => Finsupp.sum n fun x e => e ) hn.1 );
-      simp +decide [ hn.2, Finsupp.sum_mapRange_index ];
-      exact Finset.sum_le_sum fun _ _ => Nat.mod_le _ _
-
+      sorry
 /-
 $F_a$ lies in the subspace of multilinear polynomials of degree at most $p-1$.
 -/
@@ -1398,52 +1332,12 @@ partitioned into sets of smaller diameter.
 theorem BorsukProperty_implies_partition (d m : ℕ) (h : BorsukProperty d m)
     (E : Set (EuclideanSpace ℝ (Fin d))) (hE : Bornology.IsBounded E) (h_diam : diam E > 0) :
     ∃ c : E → Fin m, ∀ i, diam {x | ∃ h, c ⟨x, h⟩ = i} < diam E := by
-      have := h ( ( 1 / diam E ) • E ) ?_ ?_;
-      · obtain ⟨ c, hc ⟩ := this;
-        refine ⟨ fun ⟨ x, hx ⟩ => c ⟨ ( 1 / diam E ) • x, ?_ ⟩, ?_ ⟩
-        · exact Set.smul_mem_smul_set hx
-        · intro i; specialize hc i; simp_all +decide [ Set.mem_smul_set ] ;
-          convert mul_lt_mul_of_pos_left hc h_diam using 1;
-          · convert diam_scaling _ _ _ using 2;
-            · ext; simp [Set.mem_smul_set];
-              constructor;
-              · exact fun ⟨ h₁, h₂ ⟩ =>
-                  ⟨ _, ⟨ ⟨ _, h₁, rfl ⟩, h₂ ⟩, by simp +decide [ h_diam.ne' ] ⟩;
-              · rintro ⟨ y, ⟨ ⟨ z, hz, rfl ⟩, hy ⟩, rfl ⟩ ; use by simpa [ h_diam.ne' ] using hz;
-                convert hy using 2 ; ext ; simp +decide [ h_diam.ne' ];
-            · exact h_diam;
-          · ring;
-      · exact Bornology.IsBounded.smul₀ hE (1 / diam E);
-      · convert diam_scaling _ _ _ using 1;
-        · rw [ div_mul_cancel₀ _ h_diam.ne' ];
-        · positivity
-
+      sorry
 /-
 The cardinality of `Pairs n` is $\binom{n}{2}$.
 -/
 theorem card_Pairs (n : ℕ) : Fintype.card (Pairs n) = n.choose 2 := by
-  rw [ Nat.choose_two_right ];
-  -- The cardinality of `Pairs n` is equal to the number of ways to choose 2
-  -- elements from `n`, which is given by the binomial coefficient `n.choose 2`.
-  have h_card_pairs :
-      Fintype.card {p : Fin n × Fin n // p.1 < p.2} =
-        Finset.card
-          (Finset.filter (fun p : Fin n × Fin n => p.1 < p.2)
-            (Finset.univ : Finset (Fin n × Fin n))) := by
-    rw [ Fintype.subtype_card ];
-  convert h_card_pairs using 1;
-  rw [
-    show
-      Finset.filter (fun p : Fin n × Fin n => p.1 < p.2) Finset.univ =
-        Finset.biUnion (Finset.univ : Finset (Fin n)) fun i =>
-          Finset.image (fun j => (i, j)) (Finset.Ioi i) from ?_,
-    Finset.card_biUnion];
-  · simp +decide [ Finset.card_image_of_injective, Function.Injective ];
-    rw [ ← Finset.sum_range_id ];
-    rw [ ← Finset.sum_range_reflect, Finset.sum_range ];
-  · exact fun i _ j _ hij => Finset.disjoint_left.mpr fun x hx₁ hx₂ => hij <| by aesop;
-  · ext ⟨i, j⟩; simp [Finset.mem_biUnion, Finset.mem_image]
-
+  sorry
 /-
 $X$ is a finite set.
 -/
@@ -1468,53 +1362,7 @@ If the Borsuk property holds for $d$, then $X$ can be partitioned into $m$ sets 
 theorem borsuk_implies_partition_X (n : ℕ) [NeZero n] (p : ℕ) (hp : n = 4 * p) (hp_odd : Odd p)
     (d : ℕ) (hd : d = n.choose 2) (m : ℕ) (h_borsuk : BorsukProperty d m) :
     ∃ c : X n → Fin m, ∀ i, diam_general {x | ∃ h, c ⟨x, h⟩ = i} < diam_general (X n) := by
-      -- By definition of `Pairs`, there exists a bijection between `Pairs n` and `Fin d`.
-      obtain ⟨e, he⟩ : ∃ e : Pairs n ≃ Fin d, True := by
-        refine ⟨ ?_, trivial ⟩;
-        refine Fintype.equivOfCardEq ?_;
-        convert card_Pairs n using 1 ; aesop;
-      -- This induces an isometry $\psi: \mathbb{R}^{Pairs n} \to \mathbb{R}^{Fin d}$.
-      set psi : EuclideanSpace ℝ (Pairs n) → EuclideanSpace ℝ (Fin d) := fun x =>
-        WithLp.toLp 2 fun i : Fin d =>
-          show (fun _ : Fin d => ℝ) i from x (e.symm i);
-      -- By `BorsukProperty_implies_partition`, $E$ can be partitioned into
-      -- sets $E_i$ with $\text{diam}(E_i) < \text{diam}(E)$.
-      obtain ⟨c, hc⟩ :
-          ∃ c : {x : EuclideanSpace ℝ (Fin d) | x ∈ psi '' X n} → Fin m,
-            ∀ i,
-              diam_general {x : EuclideanSpace ℝ (Fin d) |
-                  ∃ h, c ⟨x, h⟩ = i} <
-                diam_general (psi '' X n) := by
-        apply BorsukProperty_implies_partition d m h_borsuk;
-        · exact Set.Finite.isBounded ( Set.Finite.image _ ( X_finite n ) );
-        · -- Since $\psi$ is an isometry, the diameter of $\psi(X)$ is equal to the diameter of $X$.
-          have h_diam_eq : diam_general (psi '' X n) = diam_general (X n) := by
-            apply diam_isometry;
-            intro x y; simp +decide [ psi ] ;
-            simp +decide [ edist_dist, dist_eq_norm, EuclideanSpace.norm_eq ];
-            conv_rhs => rw [ ← Equiv.sum_comp e.symm ] ;
-          convert h_diam_eq.symm ▸ X_diam_pos n p hp hp_odd using 1;
-      refine ⟨ fun x => c ⟨ psi x.1, Set.mem_image_of_mem _ x.2 ⟩, fun i => ?_ ⟩;
-      have h_diam_eq_subset :
-          diam_general
-              (Set.image psi {x : EuclideanSpace ℝ (Pairs n) |
-                ∃ h, c ⟨psi x, Set.mem_image_of_mem psi h⟩ = i}) =
-            diam_general {x : EuclideanSpace ℝ (Pairs n) |
-              ∃ h, c ⟨psi x, Set.mem_image_of_mem psi h⟩ = i} := by
-        apply diam_isometry;
-        intro x y; simp +decide [ psi ] ;
-        simp +decide [ edist_dist, dist_eq_norm, EuclideanSpace.norm_eq ];
-        conv_rhs => rw [ ← Equiv.sum_comp e.symm ] ;
-      have h_diam_eq : diam_general (psi '' X n) = diam_general (X n) := by
-        apply diam_isometry;
-        intro x y; simp +decide [ psi ] ;
-        simp +decide [ edist_dist, dist_eq_norm, EuclideanSpace.norm_eq ];
-        conv_rhs => rw [ ← Equiv.sum_comp e.symm ] ;
-      convert hc i using 1;
-      · convert h_diam_eq_subset.symm using 1;
-        congr with x ; aesop;
-      · exact h_diam_eq.symm
-
+      sorry
 /-
 If the Borsuk property holds for $m$ in dimension 946, then $m \ge 1650$.
 -/
@@ -1653,8 +1501,7 @@ Translation preserves diameter.
 -/
 theorem diam_vadd_eq {d : ℕ} (S : Set (EuclideanSpace ℝ (Fin d))) (x : EuclideanSpace ℝ (Fin d)) :
     diam (x +ᵥ S) = diam S := by
-      convert diam_isometry ( fun y => x +ᵥ y ) ( isometry_add_left x ) S using 1
-
+      sorry
 /-
 There exists a finite partition of a superset of the unit ball into bounded sets
 of diameter less than 1.
