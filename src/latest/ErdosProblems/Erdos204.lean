@@ -266,7 +266,7 @@ noncomputable def sum_divisors_gt_1_reciprocal (n : ℕ) : ℚ :=
 theorem sum_divisors_gt_1_eq_total_sub_one (n : ℕ) (hn : n > 0) :
     sum_divisors_gt_1_reciprocal n = sum_divisors_reciprocal n - 1 := by
       unfold sum_divisors_gt_1_reciprocal sum_divisors_reciprocal;
-      rw [ show ( Nat.divisors n |> Finset.filter fun x => 1 < x ) = ( Nat.divisors n ) \ { 1 } by ext x; rcases lt_trichotomy x 1 <;> aesop ] ; rw [ Finset.sum_eq_sum_diff_singleton_add <| Nat.mem_divisors.mpr <| ⟨ one_dvd _, by aesop ⟩ ] ; ring;
+      rw [ show ( Nat.divisors n |> Finset.filter fun x => 1 < x ) = ( Nat.divisors n ) \ { 1 } by ext x; rcases lt_trichotomy x 1 <;> aesop ] ; rw [ Finset.sum_eq_sum_sdiff_singleton_add <| Nat.mem_divisors.mpr <| ⟨ one_dvd _, by aesop ⟩ ] ; ring;
 
 /-
 Lemma: For a prime $p$ and any $m$, $\sum_{k=0}^m p^{-k} < \frac{p}{p-1}$.
@@ -618,7 +618,7 @@ theorem intersection_count_pairwise_coprime (S : Finset Congruence) (I : Finset 
         -- Therefore, the number of solutions is at most $(S.lcm (fun c => c.d)) / P$.
         have h_card_solutions : (Finset.filter (fun x : ℕ => ∀ c ∈ I, (x : ℤ) ≡ c.a [ZMOD c.d]) (Finset.range (S.lcm (fun c => c.d)))).card ≤ (S.lcm (fun c => c.d)) / P := by
           exact le_trans ( Finset.card_le_card fun x hx => show x ∈ Finset.image ( fun k : ℕ => Int.toNat ( x₀ % P + k * P ) ) ( Finset.range ( ( S.lcm fun c => c.d ) / P ) ) from by obtain ⟨ k, hk₁, rfl ⟩ := h_solutions x ( Finset.mem_range.mp ( Finset.mem_filter.mp hx |>.1 ) ) ( Finset.mem_filter.mp hx |>.2 ) ; exact Finset.mem_image.mpr ⟨ k, Finset.mem_range.mpr hk₁, rfl ⟩ ) ( Finset.card_image_le.trans ( by simp ) );
-        convert h_card_solutions using 1;
+        refine (le_of_eq ?_).trans h_card_solutions;
         refine Finset.card_bij ( fun x hx => Int.toNat x ) ?_ ?_ ?_ <;> simp +decide;
         · tauto;
       · refine Nat.le_of_not_lt fun h => ?_;
@@ -665,7 +665,7 @@ theorem intersection_count_pairwise_coprime (S : Finset Congruence) (I : Finset 
               nlinarith
             · intro H; simp_all +decide ;
           · intro c hc; rw [ max_eq_left ( by nlinarith [ Int.emod_nonneg x₀ ( show ( ∏ i ∈ I, ( i.d : ℤ ) ) ≠ 0 from Finset.prod_ne_zero_iff.mpr fun i hi => Nat.cast_ne_zero.mpr <| Nat.ne_of_gt <| i.d_pos ), show ( ∏ i ∈ I, ( i.d : ℤ ) ) > 0 from Finset.prod_pos fun i hi => Nat.cast_pos.mpr <| i.d_pos ] ) ] ; simp_all +decide [ Int.ModEq ] ;
-            simp +decide [ ← hx₀ c hc, Int.add_emod, Int.mul_emod, Finset.prod_eq_prod_diff_singleton_mul hc ];
+            simp +decide [ ← hx₀ c hc, Int.add_emod, Int.mul_emod, Finset.prod_eq_prod_sdiff_singleton_mul hc ];
         refine h.not_ge ( le_trans ?_ ( Finset.card_mono h_solutions ) );
         rw [ Finset.card_image_of_injOn ];
         · norm_num [ Finset.card_image_of_injective, Function.Injective ];
@@ -702,9 +702,15 @@ theorem lemma_good (S : Finset Congruence) (h_cd : IsCD S) :
           rw [ Finset.sum_comm ];
           simp +decide [ Finset.sum_ite, intersection_count ];
           simp +decide [ mul_comm, Finset.filter_image ];
-          convert rfl;
-          convert Finset.card_image_of_injective _ Nat.cast_injective;
-          infer_instance;
+          refine Finset.sum_congr rfl fun I hI => ?_;
+          congr 1
+          let T : Finset ℕ := {a ∈ Finset.range D | ∀ c ∈ I, (a : ℤ) ≡ c.a [ZMOD c.d]}
+          letI : DecidableEq ℤ := fun a b => Classical.propDecidable (a = b)
+          have hcard :
+              T.card = (@Finset.image ℕ ℤ (fun a b => Classical.propDecidable (a = b))
+                Nat.cast T).card := by
+            exact (Finset.card_image_of_injective T (Nat.cast_injective (R := ℤ))).symm
+          simpa [T] using hcard;
         rw [ ← h_inclusion_exclusion_sum, Finset.sum_congr rfl fun x hx => h_inclusion_exclusion x ( Finset.mem_range.mp hx ) ];
         simp +decide [ count_covered ];
         rw [ Finset.card_filter, Finset.card_filter ];
@@ -944,9 +950,11 @@ theorem density_val_eq_one_of_covering (S : Finset Congruence) (h_cov : IsCoveri
       · simp_all +decide [ Finset.lcm_eq_zero_iff ]
         obtain ⟨ x, hx, hx' ⟩ := ‹_›; have := x.d_pos; aesop;
       · simp_all +decide [ Finset.lcm_eq_zero_iff ]
-        convert density_of_covering S _ _ h_cov;
-        exact Nat.pos_of_ne_zero (by
-          simpa [ Finset.lcm_eq_zero_iff ] using hD)
+        exact density_of_covering S _ (Nat.pos_of_ne_zero (by
+          intro hzero
+          rw [Finset.lcm_eq_zero_iff] at hzero
+          obtain ⟨x, hx, hxd⟩ := hzero
+          exact hD x hx hxd)) h_cov
 
 /-
 If $n$ is a CD covering number, then $n > 1$.
