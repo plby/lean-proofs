@@ -49,6 +49,12 @@ set_option autoImplicit false
 
 namespace Erdos429
 
+noncomputable instance instFintypeSetInterIccNat (B : Set ℕ) (a b : ℕ) :
+    Fintype ↑(B ∩ Set.Icc a b) :=
+  ((Set.finite_Icc a b).subset (by
+    intro x hx
+    exact hx.2)).fintype
+
 /-
 A set B is admissible if for every prime p there exists a residue class modulo p that is not represented by any element of B.
 -/
@@ -101,7 +107,7 @@ lemma sparse_extension_fixing (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.at
     refine le_trans ?_ ( hN₀ N ( by linarith ) )
     exact le_trans ( Finset.card_le_card ( show Finset.Icc 1 N ∩ Insert.insert ( x₀ + k * ∏ q ∈ constraints, q ) B₀ ⊆ Insert.insert ( x₀ + k * ∏ q ∈ constraints, q ) B₀ from Finset.inter_subset_right ) ) ( Finset.card_insert_le _ _ ) |> le_trans <| by norm_num
   refine ⟨ x₀ + k * P, hk.1, ?_, hk.2 ⟩
-  intro q hq; specialize hx₀ q hq; simp_all +decide [Finset.prod_eq_prod_diff_singleton_mul hq]
+  intro q hq; specialize hx₀ q hq; simp_all +decide [Finset.prod_eq_prod_sdiff_singleton_mul hq]
   simp +zetaDelta at *
   simp +decide [hq]
   haveI := Fact.mk ( h_primes q hq ) ; simp +decide
@@ -144,7 +150,7 @@ lemma min_unconstrained_prime_spec (constraints : Finset (ℕ × ℕ)) :
       rw [ Nat.nth_zero ]
       -- The set of primes not in the constraints is infinite, so it has a smallest element.
       have h_inf : Set.Infinite {p : ℕ | Nat.Prime p ∧ ∀ x ∈ constraints, x.1 ≠ p} := by
-        exact Set.Infinite.diff ( Nat.infinite_setOf_prime ) ( constraints.image Prod.fst |> Finset.finite_toSet ) |> Set.Infinite.mono fun p hp => by aesop
+        exact Set.Infinite.sdiff ( Nat.infinite_setOf_prime ) ( constraints.image Prod.fst |> Finset.finite_toSet ) |> Set.Infinite.mono fun p hp => by aesop
       exact ⟨ Nat.sInf_mem h_inf.nonempty |>.1, fun x hx => Nat.sInf_mem h_inf.nonempty |>.2 x hx, fun q hq hq' => Nat.sInf_le ⟨ hq, hq' ⟩ ⟩
 
 /-
@@ -163,9 +169,9 @@ lemma exists_suitable_prime_for_blocking (B : Finset ℕ) (constraints : Finset 
       have h_inf_primes : Set.Infinite {q : ℕ | Nat.Prime q ∧ q > B.card + 1 ∧ (∀ b ∈ B, b < q) ∧ (∀ x ∈ constraints, x.1 ≠ q) ∧ q > 2 ∧ q > Int.natAbs n} := by
         have h_inf_primes : Set.Infinite {q : ℕ | Nat.Prime q ∧ q > B.card + 1 ∧ (∀ b ∈ B, b < q) ∧ (∀ x ∈ constraints, x.1 ≠ q)} := by
           have h_inf_primes : Set.Infinite {q : ℕ | Nat.Prime q ∧ q > B.card + 1 ∧ (∀ x ∈ constraints, x.1 ≠ q)} := by
-            exact Set.Infinite.mono ( by aesop_cat ) ( Nat.infinite_setOf_prime.diff ( Set.toFinite ( Finset.image Prod.fst constraints ∪ { 2 } ∪ Finset.range ( B.card + 2 ) ) ) )
-          exact h_inf_primes.diff ( Finset.finite_toSet ( B.biUnion fun b => Finset.Iic b ) ) |> Set.Infinite.mono fun q hq => by aesop
-        exact Set.Infinite.mono ( by aesop_cat ) ( h_inf_primes.diff ( Set.finite_le_nat ( Max.max 2 n.natAbs ) ) )
+            exact Set.Infinite.mono ( by aesop_cat ) ( Nat.infinite_setOf_prime.sdiff ( Set.toFinite ( Finset.image Prod.fst constraints ∪ { 2 } ∪ Finset.range ( B.card + 2 ) ) ) )
+          exact h_inf_primes.sdiff ( Finset.finite_toSet ( B.biUnion fun b => Finset.Iic b ) ) |> Set.Infinite.mono fun q hq => by aesop
+        exact Set.Infinite.mono ( by aesop_cat ) ( h_inf_primes.sdiff ( Set.finite_le_nat ( Max.max 2 n.natAbs ) ) )
       exact h_inf_primes.nonempty
 
 /-
@@ -394,7 +400,7 @@ lemma min_unconstrained_eq_nth (constraints : Finset (ℕ × ℕ)) (k : ℕ)
             · rw [ Nat.nth_count ] ; aesop
           aesop
         obtain ⟨ x, hx, rfl ⟩ := Finset.mem_image.mp hb_first_k; specialize ‹∀ a : ℕ, ( ∃ x, ( a, x ) ∈ constraints ) ↔ a ∈ first_k_primes k› ( Nat.nth Nat.Prime x ) ; simp_all +decide [ first_k_primes ]
-        exact this _ _ h.choose_spec rfl
+        aesop
 
 /-
 The set of constrained primes.
@@ -662,7 +668,7 @@ lemma seq_strict_v4_properties (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.a
                                                   apply step_strict_minimal_state_properties f hf (zigzag k) (seq_strict_v4 f hf k) h_step_cond |> fun h => ⟨h.left, by
                                                     unfold primes_in_constraints; aesop;, by
                                                     grind⟩
-                           convert h_step_prop using 1
+                           simpa [seq_strict_v4, step_strict_v4] using h_step_prop
                          exact h_step
         -- By definition of `min_unconstrained_prime`, we know that `min_unconstrained_prime (seq_strict_v4 f hf k).state.constraints = Nat.nth Nat.Prime (k + 1)`.
         have h_min_unconstrained : min_unconstrained_prime (seq_strict_v4 f hf k).state.constraints = Nat.nth Nat.Prime (k + 1) := by
@@ -821,7 +827,10 @@ theorem B_final_v4_density (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.atTop
       obtain ⟨k, hk⟩ := h_exists_k N
       have h_card_le_fN : ((seq_strict_v4 f hf k).state.B ∩ (Finset.Icc 1 N)).card ≤ f N := by
         convert ( seq_strict_v4 f hf k ).h_dens N using 1
-      exact le_trans ( Finset.card_le_card fun x hx => by aesop ) h_card_le_fN
+      exact le_trans ( Finset.card_le_card fun x hx => by
+        have hx_set : x ∈ B_final_v4 f hf ∩ Set.Icc 1 N := by
+          simpa using hx
+        exact Finset.mem_inter.mpr ⟨hk hx, Finset.mem_Icc.mpr hx_set.2⟩ ) h_card_le_fN
 
 /-
 The constructed set B (version 4) is infinite.
