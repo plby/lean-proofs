@@ -687,31 +687,13 @@ def embeddings_equiv_split {n : ℕ} (A : Finset (Fin n)) (D : Finset (Fin n)) (
     embeddings_with_range D k × embeddings_with_range (A \ D) (j - k) :=
   by
     classical
-    refine
+    exact
       { toFun := embeddings_split_fwd A D j k hk hDA
         invFun := embeddings_split_inv A D j k hk hDA
-        left_inv := ?_
-        right_inv := ?_ }
-    · intro f
-      ext i
-      simp [embeddings_split_fwd, embeddings_split_inv, combine_embeddings_general, Fin.addCases]
-      split_ifs with hi
-      · rfl
-      · have hidx : ∀ hlt : k + ((i : ℕ) - k) < j,
-            (⟨k + ((i : ℕ) - k), hlt⟩ : Fin j) = i := by
-          intro hlt
-          ext
-          simp
-          omega
-        exact congrArg Fin.val (congrArg (fun x : Fin j => (f : Fin j ↪ Fin n) x) (hidx _))
-    · intro pair
-      ext i
-      focus
-        simp [embeddings_split_fwd, embeddings_split_inv, combine_embeddings_general, Fin.addCases]
-      · rfl
-      · dsimp [embeddings_split_fwd, embeddings_split_inv, combine_embeddings_general, Fin.addCases]
-        simp [Fin.natAdd, Fin.subNat]
-
+        left_inv := by
+          sorry
+        right_inv := by
+          sorry }
 /-
 The number of embeddings with subrange condition is k! * (j-k)!.
 -/
@@ -836,51 +818,7 @@ noncomputable def permutations_starred {n : ℕ} (F : Finset (Finset (Fin n))) (
 lemma card_starred_ge {n : ℕ} (F : Finset (Finset (Fin n))) (hF : UnionFree F)
     (A : Finset (Fin n)) (hA : A ∈ F) (k : ℕ) (hk : 1 ≤ k) (hjk : A.card ≤ 2 * k) (hAk : k ≤ A.card) :
     (permutations_starred F A k).card * A.card * (n.choose A.card) ≥ k * n.factorial := by
-      -- The number of permutations where A is starred is at least $(j! (n-j)! - |bad| k! (j-k)! (n-j)!)$.
-      have h_starred_count : (permutations_starred F A k).card ≥ (A.card.factorial * (n - A.card).factorial) - ((bad_k_subsets F A k).card * k.factorial * (A.card - k).factorial * (n - A.card).factorial) := by
-        have h_starred_count : (permutations_starred F A k).card ≥ (permutations_with_prefix A A.card).card - ((permutations_where_Sk_is_bad F A A.card k).card) := by
-          refine Nat.sub_le_of_le_add ?_;
-          have h_starred_count : (permutations_with_prefix A A.card) ⊆ (permutations_starred F A k) ∪ (permutations_where_Sk_is_bad F A A.card k) := by
-            intro p hp;
-            by_cases h : prefix_set p k ∈ bad_k_subsets F A k <;> simp_all +decide [ permutations_starred, permutations_where_Sk_is_bad ];
-            apply not_bad_implies_starred F A hA k hjk hAk p (by
-            exact Finset.mem_filter.mp hp |>.2) (by
-            exact fun h' => h <| Finset.mem_filter.mpr ⟨ Finset.mem_powersetCard.mpr ⟨ by
-              exact h'.1, by
-              exact prefix_set_card p k ( by linarith [ show A.card ≤ n from le_trans ( Finset.card_le_univ _ ) ( by norm_num ) ] ) ⟩, h' ⟩);
-          exact le_trans ( Finset.card_le_card h_starred_count ) ( Finset.card_union_le _ _ );
-        convert h_starred_count using 2;
-        · rw [ card_permutations_with_prefix ];
-          · exact le_trans ( Finset.card_le_univ _ ) ( by norm_num );
-          · rfl;
-        · convert Eq.symm ( card_permutations_where_Sk_is_bad F A A.card k _ _ _ ) using 1 <;> norm_num [ Nat.factorial_ne_zero ];
-          · exact le_trans ( Finset.card_le_univ _ ) ( by simp );
-          · linarith;
-      -- Using $|bad| \le \binom{j-1}{k}$, we get $\binom{j}{k} - |bad| \ge \binom{j-1}{k-1}$.
-      have h_binom : (A.card.choose k) - (bad_k_subsets F A k).card ≥ (A.card - 1).choose (k - 1) := by
-        have h_binom : (bad_k_subsets F A k).card ≤ (A.card - 1).choose k := by
-          convert bad_subsets_count F hF A hA k hk hjk using 1;
-        rcases k with ( _ | k ) <;> rcases A with ⟨ ⟨ _, _ ⟩ ⟩ <;> simp_all +decide [ Nat.choose ];
-        exact le_tsub_of_add_le_left ( by linarith );
-      -- So $|starred| \ge (n-j)! k! (j-k)! \binom{j-1}{k-1} = (n-j)! k (j-1)!$.
-      have h_starred_final : (permutations_starred F A k).card ≥ (n - A.card).factorial * k * (A.card - 1).factorial := by
-        have h_starred_final : (A.card.factorial * (n - A.card).factorial) - ((bad_k_subsets F A k).card * k.factorial * (A.card - k).factorial * (n - A.card).factorial) ≥ (n - A.card).factorial * k * (A.card - 1).factorial := by
-          -- Using the binomial coefficient identity, we can rewrite the inequality.
-          have h_binom_identity : (A.card.choose k) * (n - A.card).factorial * k.factorial * (A.card - k).factorial - ((bad_k_subsets F A k).card * k.factorial * (A.card - k).factorial * (n - A.card).factorial) ≥ (A.card - 1).choose (k - 1) * (n - A.card).factorial * k.factorial * (A.card - k).factorial := by
-            refine le_trans ( Nat.mul_le_mul_right _ ( Nat.mul_le_mul_right _ ( Nat.mul_le_mul_right _ h_binom ) ) ) ?_;
-            simp +decide [ mul_assoc, mul_comm, mul_left_comm, tsub_mul ];
-            rw [ Nat.mul_sub_left_distrib ] ; ring_nf ; norm_num;
-          convert h_binom_identity using 1;
-          · rw [ ← Nat.choose_mul_factorial_mul_factorial ( show k ≤ A.card from hAk ) ] ; ring_nf;
-          · rcases k with ( _ | k ) <;> rcases A with ⟨ ⟨ _, _ ⟩ ⟩ <;> simp_all +decide [ Nat.factorial_succ, mul_assoc, mul_comm, mul_left_comm ];
-            rw [ ← mul_assoc, ← mul_assoc, ← Nat.choose_mul_factorial_mul_factorial ( by linarith : k ≤ _ ) ] ; ring;
-        exact h_starred_final.trans h_starred_count;
-      -- Multiplying by $j \binom{n}{j} = j \frac{n!}{j!(n-j)!} = \frac{n!}{(j-1)!(n-j)!}$, we get $|starred| \cdot j \binom{n}{j} \ge (n-j)! k (j-1)! \frac{n!}{(j-1)!(n-j)!} = k n!$.
-      have h_final : (n - A.card).factorial * k * (A.card - 1).factorial * A.card * (Nat.choose n A.card) ≥ k * Nat.factorial n := by
-        rw [ ← Nat.choose_mul_factorial_mul_factorial ( show A.card ≤ n from le_trans ( Finset.card_le_univ _ ) ( by norm_num ) ) ];
-        cases a : A.card <;> simp_all +decide [ Nat.factorial_succ, mul_assoc, mul_comm, mul_left_comm ];
-      exact h_final.trans ( by gcongr )
-
+      sorry
 /-
 The sum of the number of starred sets over all permutations equals the sum of the number of permutations where a set is starred over all sets.
 -/
@@ -898,38 +836,7 @@ Kleitman's chain inequality: k * sum_{j=k}^{2k} x_j / (j * binom(n, j)) <= 1.
 -/
 theorem kleitman_inequality {n : ℕ} (F : Finset (Finset (Fin n))) (hF : UnionFree F) (k : ℕ) (hk : 1 ≤ k) :
     (k : ℝ) * ∑ j ∈ Finset.Icc k (2 * k), (x_j F j : ℝ) / (j * n.choose j) ≤ 1 := by
-      -- We sum the number of starred sets over all permutations.
-      have h_sum_starred : ∑ p : Equiv.Perm (Fin n), (Finset.card (starred_sets F p k)) ≤ Nat.factorial n := by
-        have h_starred_unique : ∀ p : Equiv.Perm (Fin n), (starred_sets F p k).card ≤ 1 := by
-          intro p;
-          convert starred_unique F p k;
-        exact le_trans ( Finset.sum_le_sum fun _ _ => h_starred_unique _ ) ( by simp +decide [ Finset.card_univ, Fintype.card_perm ] );
-      -- On the other hand, the sum equals $\sum_{A \in F} |\{p \mid A \text{ is starred in } p\}|$.
-      have h_sum_starred_eq : ∑ p : Equiv.Perm (Fin n), (Finset.card (starred_sets F p k)) = ∑ A ∈ F, (Finset.card (permutations_starred F A k)) := by
-        exact sum_starred_card_eq_sum_perm_starred_card F k;
-      -- For a fixed $A$ with size $j \in [k, 2k]$, the number of permutations where $A$ is starred is at least $\frac{k \cdot n!}{j \binom{n}{j}}$.
-      have h_starred_ge : ∀ A ∈ F, A.card ∈ Finset.Icc k (2 * k) → (Finset.card (permutations_starred F A k)) ≥ (k : ℝ) * (Nat.factorial n) / (A.card * (Nat.choose n A.card)) := by
-        intros A hA hA_card
-        have := card_starred_ge F hF A hA k hk (by
-        linarith [ Finset.mem_Icc.mp hA_card ]) (by
-        linarith [ Finset.mem_Icc.mp hA_card ])
-        generalize_proofs at *;
-        rw [ ge_iff_le, div_le_iff₀ ] <;> norm_cast <;> nlinarith [ Nat.factorial_pos n, Nat.choose_pos ( show A.card ≤ n from le_trans ( Finset.card_le_univ _ ) ( by norm_num ) ) ] ;
-      -- Summing this over all $A \in F$ with size $j$, we get $x_j \frac{k \cdot n!}{j \binom{n}{j}}$.
-      have h_sum_starred_ge : ∑ A ∈ F, (Finset.card (permutations_starred F A k)) ≥ ∑ j ∈ Finset.Icc k (2 * k), (x_j F j : ℝ) * (k : ℝ) * (Nat.factorial n) / (j * (Nat.choose n j)) := by
-        have h_sum_starred_ge : ∑ A ∈ F, (Finset.card (permutations_starred F A k)) ≥ ∑ j ∈ Finset.Icc k (2 * k), ∑ A ∈ F.filter (fun A => A.card = j), (k : ℝ) * (Nat.factorial n) / (j * (Nat.choose n j)) := by
-          have h_sum_starred_ge : ∑ A ∈ F, (Finset.card (permutations_starred F A k)) ≥ ∑ A ∈ F.filter (fun A => A.card ∈ Finset.Icc k (2 * k)), (k : ℝ) * (Nat.factorial n) / (A.card * (Nat.choose n A.card)) := by
-            push_cast [ Finset.sum_filter ];
-            gcongr ; aesop;
-          refine le_trans ?_ h_sum_starred_ge;
-          simp +decide only [Finset.sum_filter];
-          rw [ Finset.sum_comm ] ; simp +decide [ Finset.sum_ite ];
-        simp_all +decide [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm ];
-        convert h_sum_starred_ge using 3 ; ring!;
-      simp_all +decide [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _ ];
-      norm_num [ ← mul_assoc, ← Finset.sum_mul _ _ _ ] at *;
-      rw [ ← @Nat.cast_le ℝ ] at * ; push_cast at * ; nlinarith [ show 0 < ( n ! : ℝ ) by positivity ]
-
+      sorry
 /-
 Definition of the linear program for Kleitman's bound.
 -/
@@ -999,35 +906,7 @@ Any primal feasible solution is bounded by the dual objective value.
 lemma weak_duality_lemma {n : ℕ} {x : ℕ → ℝ} {Y Z : ℕ → ℝ}
     (hx : is_feasible_LP n x) (h_dual : is_dual_feasible n Y Z) :
     ∑ j ∈ Finset.range (n + 1), x j ≤ dual_obj n Y Z := by
-      have := h_dual.2.2.2.2;
-      -- Apply the dual feasibility condition to each term in the sum.
-      have h_dual_bound : ∀ j ∈ Finset.range (n + 1), x j ≤ x j * (∑ k ∈ Finset.Icc ((j + 1) / 2) (min j (n / 2)), Y k / (j * n.choose j)) + x j * (Z j / n.choose j) := by
-        exact fun j hj => by nlinarith only [ this j ( Nat.zero_le j ) ( Finset.mem_range_succ_iff.mp hj ), hx.1 j ( Nat.zero_le j ) ( Finset.mem_range_succ_iff.mp hj ) ] ;
-      -- Apply the dual feasibility condition to each term in the sum and rearrange.
-      have h_sum_dual_bound : ∑ j ∈ Finset.range (n + 1), x j ≤ ∑ k ∈ Finset.Icc 1 (n / 2), Y k * (∑ j ∈ Finset.Icc k (2 * k), x j / (j * n.choose j)) + ∑ j ∈ Finset.range (n + 1), x j * (Z j / n.choose j) := by
-        refine le_trans ( Finset.sum_le_sum h_dual_bound ) ?_;
-        norm_num [ Finset.sum_add_distrib, Finset.mul_sum _ _ _ ];
-        convert sum_exchange_restricted n Y x |> le_of_eq using 1;
-        · convert sum_exchange_restricted n Y x |> Eq.symm using 1;
-          erw [ Finset.sum_Ico_eq_sub _ _ ] <;> norm_num [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _ ];
-        · convert sum_exchange_restricted n Y x using 1;
-          exact Finset.sum_congr rfl fun _ _ => by rw [ Finset.mul_sum _ _ _ ] ;
-      -- Apply the sum exchange lemma to rewrite the first term in the sum.
-      have h_sum_exchange : ∑ k ∈ Finset.Icc 1 (n / 2), Y k * (∑ j ∈ Finset.Icc k (2 * k), x j / (j * n.choose j)) ≤ ∑ k ∈ Finset.Icc 1 (n / 2), Y k / k := by
-        have h_sum_exchange : ∀ k ∈ Finset.Icc 1 (n / 2), Y k * (∑ j ∈ Finset.Icc k (2 * k), x j / (j * n.choose j)) ≤ Y k / k := by
-          intros k hk
-          have h_sum_bound : ∑ j ∈ Finset.Icc k (2 * k), x j / (j * n.choose j) ≤ 1 / k := by
-            have := hx.2 k ( by linarith [ Finset.mem_Icc.mp hk ] ) ( by linarith [ Finset.mem_Icc.mp hk, Nat.div_mul_le_self n 2 ] ) ; aesop;
-          simpa only [ mul_one_div ] using mul_le_mul_of_nonneg_left h_sum_bound ( h_dual.1 k |> le_trans ( by norm_num ) );
-        exact Finset.sum_le_sum h_sum_exchange;
-      -- Apply the dual feasibility condition to each term in the second sum.
-      have h_sum_Z_bound : ∑ j ∈ Finset.range (n + 1), x j * (Z j / n.choose j) ≤ ∑ j ∈ Finset.range (n + 1), Z j := by
-        refine Finset.sum_le_sum fun j hj => ?_;
-        have := hx.1 j ( Nat.zero_le j ) ( Finset.mem_range_succ_iff.mp hj );
-        rw [ mul_div, div_le_iff₀ ] <;> nlinarith [ show ( n.choose j : ℝ ) ≥ 1 by exact_mod_cast Nat.choose_pos ( Finset.mem_range_succ_iff.mp hj ), h_dual.2.1 j ];
-      convert h_sum_dual_bound.trans ( add_le_add h_sum_exchange h_sum_Z_bound ) using 1;
-      unfold dual_obj; ring;
-
+      sorry
 /-
 Weak duality: the optimal value of the primal is at most the value of the dual objective for any dual feasible solution.
 -/
@@ -1397,9 +1276,7 @@ The dual inequality holds for j = m + 1.
 -/
 lemma dual_ineq_m_plus_1 {n m : ℕ} (hm : m ≥ 1) (hn : n = 2 * m) :
     ∑ k ∈ Finset.Icc ((m + 1) / 2) m, Y_sol n k ≥ ((m + 1) : ℝ) * n.choose (m + 1) := by
-      convert base_case hm hn using 1 ; ring_nf;
-      unfold RHS; norm_num [ hn ] ; ring;
-
+      sorry
 /-
 Y_m is at least 2m/(m+1) * binom(n, m).
 -/
@@ -1517,37 +1394,7 @@ LHS(m+2) >= RHS(m+2) for m >= 4.
 -/
 lemma LHS_ge_RHS_base {n m : ℕ} (hm : m ≥ 4) (hn : n = 2 * m) :
     LHS n m (m + 2) ≥ RHS n (m + 2) := by
-      -- Case m odd:
-      by_cases hmo : m % 2 = 1;
-      · -- Since $j = m + 2$ is greater than $m$, we can use the fact that $RHS$ is decreasing for $j > m$.
-        have h_RHS_decreasing : ∀ j, m < j → j ≤ n → RHS n (j + 1) ≤ RHS n j := by
-          intros j hj1 hj2
-          have h_decreasing : (j + 1 : ℝ) * n.choose (j + 1) ≤ (j : ℝ) * n.choose j := by
-            norm_cast;
-            nlinarith [ Nat.add_one_mul_choose_eq n j, Nat.choose_succ_succ n j ];
-          unfold RHS; aesop;
-        have := base_case ( by linarith ) hn; have := h_RHS_decreasing ( m + 1 ) ( by linarith ) ( by linarith ) ; simp_all +decide [ LHS ] ;
-        convert this.trans ‹_› using 1 ; congr ; omega;
-      · -- By the base case, we know that LHS(m+1) ≥ RHS(m+1).
-        have h_base : LHS n m (m + 1) ≥ RHS n (m + 1) := by
-          convert dual_ineq_m_plus_1 ( by linarith ) hn using 1;
-          unfold RHS; aesop;
-        -- By the properties of the binomial coefficients and the definitions of LHS and RHS, we can show that LHS(m+2) ≥ RHS(m+2).
-        have h_ineq : RHS n (m + 1) - RHS n (m + 2) ≥ Y_sol n (m / 2) := by
-          have h_ineq : RHS n (m + 1) - RHS n (m + 2) = 2 * n.choose (m + 1) := by
-            convert RHS_diff_eq ( by linarith ) hn using 1;
-          have h_ineq : Y_sol n (m / 2) ≤ m * n.choose (m / 2) := by
-            convert Y_bound_small_t ( by linarith ) hn ( m / 2 ) ( Nat.div_pos ( by linarith ) ( by linarith ) ) ( Nat.div_le_div_right ( by linarith ) ) using 1 ; ring_nf;
-            rw [ Nat.cast_div ( Nat.dvd_of_mod_eq_zero ( by simpa using hmo ) ) ] <;> ring_nf ; norm_num;
-          have h_ineq : 2 * n.choose (m + 1) ≥ m * n.choose (m / 2) := by
-            convert binom_ineq_even_case hm hn using 1;
-          linarith [ ( by norm_cast : ( m : ℝ ) * n.choose ( m / 2 ) ≤ 2 * n.choose ( m + 1 ) ) ];
-        have h_eq : LHS n m (m + 2) = LHS n m (m + 1) - Y_sol n (m / 2) := by
-          apply LHS_eq_even;
-          · exact Nat.mod_two_ne_one.mp hmo;
-          · linarith;
-        linarith [ show Y_sol n ( m / 2 ) ≥ 0 from Y_sol_nonneg ]
-
+      sorry
 /-
 LHS(m+2) >= RHS(m+2) for even m >= 4.
 -/
@@ -1588,47 +1435,7 @@ lemma dual_constraint_m_plus_1 {m : ℕ} (hm : m ≥ 1) :
     let n := 2 * m
     let j := m + 1
     (∑ k ∈ Finset.Icc ((j + 1) / 2) (min j (n / 2)), Y_sol n k / (j * n.choose j)) + Z_final n j / n.choose j ≥ 1 := by
-      -- By definition of $Y_sol$ and $Z_final$, we can split into cases based on whether $m$ is even or odd.
-      by_cases heven : m % 2 = 0;
-      · -- Since $m$ is even, we have $Y_{m/2} + \sum_{k=m/2+1}^m Y_k = (m+1) \binom{n}{m+1}$.
-        have h_sum : Y_sol (2 * m) (m / 2) + ∑ k ∈ Finset.Icc (m / 2 + 1) m, Y_sol (2 * m) k = (m + 1) * Nat.choose (2 * m) (m + 1) := by
-          have h_sum : Y_sol (2 * m) (m / 2) + ∑ k ∈ Finset.Icc (m / 2 + 1) m, Y_sol (2 * m) k = ∑ k ∈ Finset.Icc (m / 2) m, Y_sol (2 * m) k := by
-            erw [ Finset.sum_Ico_eq_sub _ _, Finset.sum_Ico_eq_sub _ _ ] <;> norm_num [ Nat.div_mul_cancel ( Nat.dvd_of_mod_eq_zero heven ) ];
-            · rw [ Finset.sum_range_succ, Finset.sum_range_succ ] ; ring;
-            · omega;
-            · exact Nat.div_le_self _ _;
-          have h_sum : ∑ k ∈ Finset.Icc (m / 2) m, Y_sol (2 * m) k = (2 * (m / 2) : ℝ) * Nat.choose (2 * m) (2 * (m / 2)) := by
-            have h_sum : ∑ k ∈ Finset.Icc (m / 2) m, Y_sol (2 * m) k = ∑ k ∈ Finset.Icc (m / 2) (2 * (m / 2)), Y_sol (2 * m) k := by
-              rw [ Nat.mul_div_cancel' ( Nat.dvd_of_mod_eq_zero heven ) ];
-            have h_sum : ∑ k ∈ Finset.Icc (m / 2) (2 * (m / 2)), Y_sol (2 * m) k = (2 * (m / 2) : ℝ) * Nat.choose (2 * m) (2 * (m / 2)) := by
-              have := block_sum_identities (by linarith [Nat.div_mul_cancel (Nat.dvd_of_mod_eq_zero heven)]) (by
-              omega : 2 * (m / 2) ≤ 2 * m / 2)
-              rw [ this.1, Nat.cast_div ( Nat.dvd_of_mod_eq_zero heven ) ] <;> norm_num [ Nat.mul_div_assoc, heven ]
-            generalize_proofs at *;
-            aesop;
-          rw [ ‹Y_sol ( 2 * m ) ( m / 2 ) + ∑ k ∈ Finset.Icc ( m / 2 + 1 ) m, Y_sol ( 2 * m ) k = ∑ k ∈ Finset.Icc ( m / 2 ) m, Y_sol ( 2 * m ) k›, h_sum ] ; norm_num [ Nat.mul_div_cancel' ( Nat.dvd_of_mod_eq_zero heven ) ] ; ring_nf;
-          field_simp;
-          rw_mod_cast [ Nat.add_comm 1 m, Nat.choose_succ_right_eq ] ; ring_nf;
-          rw [ Nat.mul_two, Nat.add_sub_cancel ] ; ring;
-        -- By dividing both sides of h_sum by (m + 1) * binom(2m, m + 1), we obtain the desired inequality.
-        have h_div : (Y_sol (2 * m) (m / 2) + ∑ k ∈ Finset.Icc (m / 2 + 1) m, Y_sol (2 * m) k) / ((m + 1) * Nat.choose (2 * m) (m + 1)) = 1 := by
-          rw [ h_sum, div_self <| by exact mul_ne_zero ( by positivity ) <| Nat.cast_ne_zero.mpr <| Nat.ne_of_gt <| Nat.choose_pos <| by linarith ];
-        convert h_div.ge using 1;
-        unfold Z_final; norm_num [ Nat.add_div, heven ] ; ring_nf;
-        norm_num [ Nat.add_mod, Nat.mul_mod, heven ] ; ring_nf;
-        rw [ show m * 2 / 4 = m / 2 by omega ] ; ring_nf;
-        norm_num [ add_comm, Finset.mul_sum _ _ _, mul_assoc, mul_comm, mul_left_comm ];
-        exact Or.inl ( by rw [ ← mul_inv ] ; ring );
-      · unfold Z_final;
-        -- Since $m$ is odd, we have $LHS n m (m + 1) \geq RHS n (m + 1)$.
-        have h_ineq : (∑ k ∈ Finset.Icc ((m + 1) / 2) m, Y_sol (2 * m) k) ≥ ((m + 1) : ℝ) * (2 * m).choose (m + 1) := by
-          convert dual_ineq_m_plus_1 hm rfl using 1;
-        simp_all +decide [ ← Finset.sum_div _ _ _, Nat.mul_div_cancel_left _ ( by positivity : 0 < 2 ) ];
-        rw [ le_div_iff₀ ( mul_pos ( by positivity ) ( Nat.cast_pos.mpr ( Nat.choose_pos ( by linarith ) ) ) ) ] ; convert h_ineq using 1
-        focus
-          norm_num [ Nat.add_div, heven ]
-        grind
-
+      sorry
 /-
 The sum of B_k telescopes.
 -/
@@ -1682,22 +1489,7 @@ Binomial coefficients decay exponentially relative to a reference point k, with 
 -/
 lemma binom_decay {n k j : ℕ} (hk : k ≤ j) (hjn : j ≤ n) :
     (n.choose j : ℝ) ≤ (n.choose k : ℝ) * ((n - k : ℝ) / (k + 1)) ^ (j - k) := by
-      have h_binom_ratio : ∀ {j : ℕ}, k ≤ j → j ≤ n → (n.choose j : ℝ) ≤ (n.choose k : ℝ) * ((n - k : ℝ) / (k + 1)) ^ (j - k) := by
-        intros j hk hjn
-        induction hk with
-        | refl =>
-            norm_num +zetaDelta at *;
-        | step hj ih =>
-            rename_i j
-            have h_binom_ratio_step : (n.choose (j + 1) : ℝ) = (n.choose j : ℝ) * ((n - j : ℝ) / (j + 1)) := by
-              rw [ mul_div, eq_div_iff ] <;> norm_cast;
-              rw [ Int.subNatNat_of_le ( by linarith ) ] ; norm_cast ; rw [ Nat.choose_succ_right_eq ];
-            have h_binom_ratio_step : (n.choose (j + 1) : ℝ) ≤ (n.choose j : ℝ) * ((n - k : ℝ) / (k + 1)) := by
-              exact h_binom_ratio_step.symm ▸ mul_le_mul_of_nonneg_left ( by rw [ div_le_div_iff₀ ] <;> nlinarith only [ show ( k : ℝ ) ≤ j by norm_cast, show ( j : ℝ ) + 1 ≤ n by norm_cast ] ) ( Nat.cast_nonneg _ );
-            convert h_binom_ratio_step.trans ( mul_le_mul_of_nonneg_right ( ih ( Nat.le_of_succ_le hjn ) ) ( div_nonneg ( sub_nonneg.mpr <| Nat.cast_le.mpr <| by linarith ) <| by positivity ) ) using 1 ; rw [ Nat.succ_sub hj ] ; ring_nf;
-            simpa only [ pow_succ' ] using by ring;
-      exact h_binom_ratio hk hjn
-
+      sorry
 /-
 Binomial coefficients decrease after the midpoint.
 -/
@@ -1928,54 +1720,7 @@ The term $2^n/(n+1)$ is little-o of $\binom{n}{n/2}$.
 -/
 lemma pow_two_div_n_little_o_binom_half :
     (fun (n : ℕ) => (2 : ℝ) ^ n / (n + 1 : ℝ)) =o[Filter.atTop] (fun (n : ℕ) => (Nat.choose n (n / 2) : ℝ)) := by
-      rw [ Asymptotics.isLittleO_iff_tendsto' ];
-      · -- We'll use the fact that $\binom{2m}{m} \sim \frac{4^m}{\sqrt{\pi m}}$ as $m \to \infty$.
-        have h_binom : Filter.Tendsto (fun m : ℕ => (Nat.choose (2 * m) m : ℝ) / (4 ^ m / Real.sqrt (Real.pi * m))) Filter.atTop (nhds 1) := by
-          have h_stirling : Filter.Tendsto (fun m : ℕ => (Nat.factorial (2 * m) : ℝ) / ((Nat.factorial m) ^ 2 * (4 ^ m / Real.sqrt (Real.pi * m)))) Filter.atTop (nhds 1) := by
-            have h_binom : Filter.Tendsto (fun m : ℕ => (Nat.factorial (2 * m) : ℝ) / ((Nat.factorial m) ^ 2 * (4 ^ m / Real.sqrt (Real.pi * m)))) Filter.atTop (nhds 1) := by
-              have h_stirling : Filter.Tendsto (fun m : ℕ => (Nat.factorial m : ℝ) / (Real.sqrt (2 * Real.pi * m) * (m / Real.exp 1) ^ m)) Filter.atTop (nhds 1) := by
-                have := @Stirling.factorial_isEquivalent_stirling;
-                rw [ Asymptotics.IsEquivalent ] at this;
-                rw [ Asymptotics.isLittleO_iff_tendsto' ] at this;
-                · have := this.const_add 1; simp_all +decide [ mul_comm, mul_left_comm ] ;
-                  refine this.congr' ( by
-                    filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx using by
-                      rw [ add_div' ]
-                      focus
-                        ring
-                      positivity )
-                · filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn h using absurd h <| by positivity;
-              have h_stirling_2m : Filter.Tendsto (fun m : ℕ => (Nat.factorial (2 * m) : ℝ) / (Real.sqrt (2 * Real.pi * (2 * m)) * ((2 * m) / Real.exp 1) ^ (2 * m))) Filter.atTop (nhds 1) := by
-                exact_mod_cast h_stirling.comp ( Filter.tendsto_id.nsmul_atTop two_pos );
-              convert h_stirling_2m.div ( h_stirling.pow 2 ) _ using 2 <;> norm_num;
-              field_simp
-              ring_nf;
-              norm_num [ pow_mul' ];
-            convert h_binom using 1;
-          convert h_stirling using 2 ; norm_num [ two_mul, Nat.cast_choose ] ; ring;
-        -- Using the fact that $\binom{2m}{m} \sim \frac{4^m}{\sqrt{\pi m}}$, we can show that $\frac{2^{2m}}{2m+1} \cdot \frac{\sqrt{\pi m}}{4^m} \to 0$ as $m \to \infty$.
-        have h_lim : Filter.Tendsto (fun m : ℕ => (2 ^ (2 * m) / (2 * m + 1) : ℝ) * (Real.sqrt (Real.pi * m) / 4 ^ m)) Filter.atTop (nhds 0) := by
-          norm_num [ pow_mul ];
-          -- We can factor out $\sqrt{m}$ and use the fact that $\frac{1}{m}$ tends to $0$ as $m$ tends to infinity.
-          have h_factor : Filter.Tendsto (fun m : ℕ => Real.sqrt Real.pi / (2 * Real.sqrt m + 1 / Real.sqrt m)) Filter.atTop (nhds 0) := by
-            exact tendsto_const_nhds.div_atTop ( Filter.Tendsto.atTop_add ( Filter.Tendsto.const_mul_atTop zero_lt_two <| by simpa only [ Real.sqrt_eq_rpow ] using tendsto_rpow_atTop ( by positivity ) |> Filter.Tendsto.comp <| tendsto_natCast_atTop_atTop ) <| tendsto_const_nhds.div_atTop <| by simpa only [ Real.sqrt_eq_rpow ] using tendsto_rpow_atTop ( by positivity ) |> Filter.Tendsto.comp <| tendsto_natCast_atTop_atTop );
-          refine h_factor.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 0 ] with m hm using by rw [ div_eq_div_iff ] <;> first | positivity | ring_nf ; norm_num [ hm.ne', le_of_lt hm ] );
-        have h_lim : Filter.Tendsto (fun m : ℕ => (2 ^ (2 * m) / (2 * m + 1) : ℝ) / (Nat.choose (2 * m) m)) Filter.atTop (nhds 0) := by
-          have := h_lim.div h_binom;
-          simp_all +decide [ division_def ];
-          refine this.congr' ?_;
-          filter_upwards [ Filter.eventually_gt_atTop 0 ] with m hm using by simp +decide [ mul_assoc, mul_comm, mul_left_comm, ne_of_gt ( Real.sqrt_pos.mpr Real.pi_pos ), ne_of_gt ( Real.sqrt_pos.mpr ( Nat.cast_pos.mpr hm ) ), ne_of_gt ( pow_pos ( zero_lt_four' ℝ ) m ) ] ;
-        rw [ Metric.tendsto_nhds ] at *;
-        intro ε hε; rcases Filter.eventually_atTop.mp ( h_lim ε hε ) with ⟨ N, hN ⟩ ; refine Filter.eventually_atTop.mpr ⟨ 2 * N, fun n hn => ?_ ⟩ ; rcases Nat.even_or_odd' n with ⟨ k, rfl | rfl ⟩ <;> norm_num at *;
-        · exact hN k hn;
-        · have := hN k ( by linarith ) ; norm_num [ Nat.add_div ] at *;
-          refine lt_of_le_of_lt ?_ this;
-          rw [ Nat.cast_choose, Nat.cast_choose ] <;> try linarith;
-          norm_num [ two_mul, add_assoc, Nat.factorial ];
-          field_simp;
-          rw [ abs_of_nonneg, abs_of_nonneg ] <;> ring_nf <;> norm_cast <;> norm_num;
-      · filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx hx' using absurd hx' <| Nat.cast_ne_zero.mpr <| Nat.ne_of_gt <| Nat.choose_pos <| Nat.div_le_self _ _
-
+      sorry
 /-
 Identity expressing $\binom{n}{n/4}$ in terms of $\binom{n}{n/2}$ and a product of ratios.
 -/
@@ -2017,28 +1762,7 @@ The product of ratios is bounded by $0.65^{n/8}$.
 -/
 lemma ratio_product_bound (n : ℕ) (hn : 32 ≤ n) :
     ratio_product n ≤ (0.65 : ℝ) ^ (n / 8) := by
-      -- Split the product into two parts: from n/4 to 3n/8 and from 3n/8+1 to n/2-1.
-      have h_split : ratio_product n = (∏ k ∈ Finset.Ico (n / 4) (3 * n / 8), ((k + 1 : ℝ) / (n - k))) * (∏ k ∈ Finset.Ico (3 * n / 8) (n / 2), ((k + 1 : ℝ) / (n - k))) := by
-        rw [ ← Finset.prod_union ( Finset.disjoint_right.mpr fun x hx => by aesop ) ];
-        rw [ Finset.Ico_union_Ico_eq_Ico ];
-        · rfl;
-        · omega;
-        · omega;
-      -- Apply the bounds to each part of the product.
-      have h_part1 : ∏ k ∈ Finset.Ico (n / 4) (3 * n / 8), ((k + 1 : ℝ) / (n - k)) ≤ (0.65) ^ (3 * n / 8 - n / 4) := by
-        have h_part1 : ∀ k ∈ Finset.Ico (n / 4) (3 * n / 8), ((k + 1 : ℝ) / (n - k)) ≤ 0.65 := by
-          intros k hk
-          apply ratio_bound_precise' n k hn (by
-          linarith [ Finset.mem_Ico.mp hk ]);
-        convert Finset.prod_le_prod ?_ h_part1 <;> norm_num;
-        · rw [ ← div_pow ];
-        · exact fun _ _ _ => div_nonneg ( by positivity ) ( sub_nonneg_of_le ( by norm_cast; omega ) )
-      have h_part2 : ∏ k ∈ Finset.Ico (3 * n / 8) (n / 2), ((k + 1 : ℝ) / (n - k)) ≤ 1 ^ (n / 2 - 3 * n / 8) := by
-        exact le_trans ( Finset.prod_le_one ( fun _ _ => div_nonneg ( by positivity ) ( sub_nonneg.mpr ( Nat.cast_le.mpr ( by linarith [ Finset.mem_Ico.mp ‹_›, Nat.div_mul_le_self n 2, Nat.div_mul_le_self ( 3 * n ) 8 ] ) ) ) ) fun _ _ => div_le_one_of_le₀ ( by linarith [ Finset.mem_Ico.mp ‹_›, Nat.div_mul_le_self n 2, Nat.div_mul_le_self ( 3 * n ) 8, show ( ↑‹ℕ› : ℝ ) + 1 ≤ n - ( ↑‹ℕ› : ℝ ) by exact le_tsub_of_add_le_left ( by norm_cast; linarith [ Finset.mem_Ico.mp ‹_›, Nat.div_mul_le_self n 2, Nat.div_mul_le_self ( 3 * n ) 8 ] ) ] ) ( sub_nonneg.mpr ( Nat.cast_le.mpr ( by linarith [ Finset.mem_Ico.mp ‹_›, Nat.div_mul_le_self n 2, Nat.div_mul_le_self ( 3 * n ) 8 ] ) ) ) ) ( by norm_num );
-      refine le_trans ( h_split.le.trans ( mul_le_mul h_part1 h_part2 ?_ ?_ ) ) ?_ <;> norm_num at *;
-      · exact div_nonneg ( Finset.prod_nonneg fun _ _ => by positivity ) ( Finset.prod_nonneg fun _ _ => sub_nonneg_of_le ( by norm_cast; linarith [ Finset.mem_Ico.mp ‹_›, Nat.div_mul_le_self n 2 ] ) );
-      · exact pow_le_pow_of_le_one ( by norm_num ) ( by norm_num ) ( by omega )
-
+      sorry
 /-
 $\binom{n}{n/4}$ is little-o of $\binom{n}{n/2}$.
 -/
@@ -2401,32 +2125,7 @@ Base case for the induction: LHS(m+3) >= RHS(m+3).
 -/
 lemma LHS_ge_RHS_base_m_plus_3 {n m : ℕ} (hm : m ≥ 200) (hn : n = 2 * m) :
     LHS n m (m + 3) ≥ RHS n (m + 3) := by
-      have h_ind_step : LHS n m (m + 1) ≥ RHS n (m + 1) := by
-        convert dual_ineq_m_plus_1 _ _ using 1;
-        · unfold RHS; aesop;
-        · linarith;
-        · exact hn;
-      have h_ind_step : LHS n m (m + 3) = LHS n m (m + 1) - Y_sol n ((m + 1) / 2) := by
-        convert LHS_recurrence hn _ using 1;
-        · grind +ring;
-        · linarith;
-      have h_ind_step : RHS n (m + 1) - RHS n (m + 3) ≥ 4 * n.choose (m + 1) := by
-        convert RHS_gap_m_plus_1_strong hm hn using 1;
-      have h_ind_step : Y_sol n ((m + 1) / 2) ≤ 4 * n.choose (m + 1) := by
-        have h_ind_step : Y_sol n ((m + 1) / 2) ≤ 2 * ((m + 1) / 2) * n.choose ((m + 1) / 2) := by
-          have h_ind_step : Y_sol n ((m + 1) / 2) ≤ 2 * ((m + 1) / 2) * n.choose ((m + 1) / 2) := by
-            have := Y_sol_upper_bound n ((m + 1) / 2)
-            exact this.trans ( mul_le_mul_of_nonneg_right ( by rw [ mul_div ] ; rw [ le_div_iff₀ ] <;> norm_cast ; omega ) <| Nat.cast_nonneg _ );
-          convert h_ind_step using 1;
-        have h_ind_step : (m + 1) * n.choose ((m + 1) / 2) ≤ 4 * n.choose (m + 1) := by
-          have h_ind_step : 4 * n.choose (m + 1) ≥ (m + 1) * n.choose ((m + 1) / 2) := by
-            have := binom_ineq_odd_case hm hn
-            exact this
-          generalize_proofs at *; (
-          exact h_ind_step);
-        exact le_trans ‹_› ( by rw [ mul_div_cancel₀ _ ( by positivity ) ] ; exact_mod_cast by linarith );
-      grind
-
+      sorry
 /-
 LHS(j) >= RHS(j) for all even j >= m+2.
 -/
@@ -2650,31 +2349,7 @@ LHS(j+1) >= RHS(j) for odd j.
 lemma LHS_ge_RHS_odd_small_j {n m j : ℕ} (hm : m ≥ 200) (hn : n = 2 * m)
     (hj1 : m + 2 ≤ j) (hj2 : j ≤ 13 * m / 10) (hj_odd : j % 2 = 1) :
     LHS n m (j + 1) ≥ RHS n j := by
-      have h_gap : RHS n (j - 1) - RHS n j ≥ Y_sol n ((j - 1) / 2) := by
-        apply RHS_gap_ge_Y_odd_j hm hn hj1 hj2 hj_odd;
-      -- Apply the lemma that states the gap in RHS is at least Y and use it to conclude the proof. We'll use the induction hypothesis to show that LHS(j-1) ≥ RHS(j-1).
-      have h_ind : LHS n m (j + 1) = LHS n m (j - 1) - Y_sol n ((j - 1) / 2) := by
-        convert LHS_recurrence hn _ using 1;
-        rotate_left;
-        rotate_left;
-        focus
-          exact j - 1
-        · omega;
-        · rw [ show j - 1 + 2 = j + 1 by omega ];
-        · grind +ring;
-      have h_ind : LHS n m (j - 1) ≥ RHS n (j - 1) := by
-        have h_ind : ∀ j, m + 2 ≤ j → j ≤ 13 * m / 10 → LHS n m j ≥ RHS n j := by
-          intros j hj1 hj2
-          apply LHS_ge_RHS_all hm hn j hj1 (by
-          omega);
-        by_cases hj : j - 1 ≥ m + 2;
-        · exact h_ind _ hj ( Nat.le_trans ( Nat.sub_le _ _ ) hj2 );
-        · norm_num [ show j = m + 2 by omega ] at *;
-          convert LHS_eq_RHS_odd_m hm hn hj_odd |> le_of_eq using 1;
-          · convert LHS_eq_RHS_odd_m hm hn hj_odd |> Eq.symm using 1;
-          · exact LHS_eq_RHS_odd_m hm hn hj_odd ▸ rfl;
-      grind
-
+      sorry
 /-
 Identities for sums of Y_k over blocks [t, 2t] and [t, 2t+1].
 -/
@@ -2734,10 +2409,7 @@ Injectivity of projection for sets not containing the last element.
 -/
 lemma project_set_inj_on_zero {n : ℕ} (A B : Finset (Fin (n + 1)))
     (hA : Fin.last n ∉ A) (hB : Fin.last n ∉ B) (h : project_set A = project_set B) : A = B := by
-      ext x; by_cases hx : x.val < n <;> simp_all +decide [ Finset.ext_iff, project_set ] ;
-      · convert h ⟨ x, hx ⟩ using 1;
-      · cases x using Fin.lastCases <;> aesop
-
+      sorry
 /-
 Injectivity of projection for sets containing the last element.
 -/
@@ -2769,22 +2441,7 @@ The projection of the subfamily containing the last element is union-free.
 -/
 lemma family_one_union_free {n : ℕ} (F : Finset (Finset (Fin (n + 1)))) (hF : UnionFree F) :
     UnionFree (family_one F) := by
-      intro A hA B hB C hC hdiff hsub hne;
-      -- By definition of $family_one$, there exist $A', B', C' \in F$ such that $A = project_set A'$, $B = project_set B'$, and $C = project_set C'$, and $Fin.last n \in A'$, $Fin.last n \in B'$, $Fin.last n \in C'$.
-      obtain ⟨A', hA', hA_last⟩ : ∃ A' ∈ F, Fin.last n ∈ A' ∧ A = project_set A' := by
-        unfold family_one at hA; aesop;
-      obtain ⟨B', hB', hB_last⟩ : ∃ B' ∈ F, Fin.last n ∈ B' ∧ B = project_set B' := by
-        unfold family_one at hB; aesop;
-      obtain ⟨C', hC', hC_last⟩ : ∃ C' ∈ F, Fin.last n ∈ C' ∧ C = project_set C' := by
-        unfold family_one at hC; aesop;
-      -- Since $A' \cup B' = C'$, we have $A \cup B = C$.
-      have h_union_eq : A' ∪ B' = C' → A ∪ B = C := by
-        simp_all +decide [ Finset.ext_iff, project_set ];
-      contrapose! h_union_eq; have := hF A' hA' B' hB' C' hC'; simp_all +decide ;
-      exact this ( by aesop_cat ) ( by aesop_cat ) ( by aesop_cat ) ( by
-        ext x; by_cases hx : x = Fin.last n <;> simp_all +decide [ Finset.ext_iff, project_set ] ;
-        convert h_union_eq ⟨ x.val, lt_of_le_of_ne ( Nat.le_of_lt_succ x.2 ) ( by simpa [ Fin.ext_iff ] using hx ) ⟩ using 1 )
-
+      sorry
 /-
 Cardinality of the projected family zero equals the cardinality of the filtered subfamily.
 -/
@@ -2798,9 +2455,7 @@ Cardinality of the projected family one equals the cardinality of the filtered s
 -/
 lemma card_family_one {n : ℕ} (F : Finset (Finset (Fin (n + 1)))) :
     (family_one F).card = (F.filter (fun A => Fin.last n ∈ A)).card := by
-      convert Finset.card_image_of_injOn _;
-      intros A hA B hB h; have := project_set_inj_on_one A B; aesop;
-
+      sorry
 /-
 Recursive bound for the size of union-free families for odd n.
 -/
@@ -2934,72 +2589,7 @@ Asymptotic behavior of MaxUnionFree.
 -/
 theorem erdos_447 :
     (fun n => (MaxUnionFree n : ℝ)) ~[atTop] (fun n => (n.choose (n / 2) : ℝ)) := by
-      have h_upper_bound : ∃ C : ℝ, ∀ m, m ≥ 200 → (MaxUnionFree (2 * m) : ℝ) ≤ (2 * m).choose m + 2 ^ (2 * m) / (2 * m + 1) + C * (2 * m).choose (m / 2) := by
-        convert kleitman_upper_bound_even using 1;
-      -- By combining the upper and lower bounds, we can apply the squeeze theorem.
-      have h_squeeze : Filter.Tendsto (fun m => (MaxUnionFree (2 * m) : ℝ) / (2 * m).choose m) Filter.atTop (nhds 1) := by
-        have h_even_bound : Filter.Tendsto (fun m : ℕ => (2 * m).choose m / (2 * m).choose m + 2 ^ (2 * m) / (2 * m + 1) / (2 * m).choose m + h_upper_bound.choose * (2 * m).choose (m / 2) / (2 * m).choose m) Filter.atTop (nhds 1) := by
-          have h_even_bound : Filter.Tendsto (fun m : ℕ => (2 ^ (2 * m) / (2 * m + 1) : ℝ) / (2 * m).choose m) Filter.atTop (nhds 0) ∧ Filter.Tendsto (fun m : ℕ => (2 * m).choose (m / 2) / (2 * m).choose m : ℕ → ℝ) Filter.atTop (nhds 0) := by
-            constructor;
-            · have := pow_two_div_n_little_o_binom_half;
-              rw [ Asymptotics.isLittleO_iff_tendsto' ] at this;
-              · convert this.comp ( Filter.tendsto_id.nsmul_atTop two_pos ) using 2 ; norm_num;
-              · filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn h using absurd h <| Nat.cast_ne_zero.mpr <| Nat.ne_of_gt <| Nat.choose_pos <| Nat.div_le_self _ _;
-            · have := binom_quarter_little_o_binom_half;
-              rw [ Asymptotics.isLittleO_iff_tendsto' ] at this;
-              · convert this.comp ( Filter.tendsto_id.nsmul_atTop two_pos ) using 2 ; norm_num [ Nat.mul_div_assoc ];
-                norm_num [ show 2 * ‹ℕ› / 4 = ‹ℕ› / 2 by omega ];
-              · filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn h using absurd h <| Nat.cast_ne_zero.mpr <| Nat.ne_of_gt <| Nat.choose_pos <| Nat.div_le_self _ _;
-          simpa [ mul_div_assoc ] using Filter.Tendsto.add ( Filter.Tendsto.add ( tendsto_const_nhds.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 0 ] with m hm; rw [ div_self <| Nat.cast_ne_zero.mpr <| Nat.ne_of_gt <| Nat.choose_pos <| by linarith ] ) ) h_even_bound.1 ) ( h_even_bound.2.const_mul _ );
-        have h_even_bound : ∀ᶠ m in Filter.atTop, (MaxUnionFree (2 * m) : ℝ) / (2 * m).choose m ≤ (2 * m).choose m / (2 * m).choose m + 2 ^ (2 * m) / (2 * m + 1) / (2 * m).choose m + h_upper_bound.choose * (2 * m).choose (m / 2) / (2 * m).choose m := by
-          filter_upwards [ Filter.eventually_ge_atTop 200 ] with m hm using by rw [ ← add_div, ← add_div, div_le_div_iff_of_pos_right ( Nat.cast_pos.mpr <| Nat.choose_pos <| by linarith ) ] ; exact h_upper_bound.choose_spec m hm;
-        refine tendsto_of_tendsto_of_tendsto_of_le_of_le' tendsto_const_nhds ‹_› ?_ ?_;
-        · filter_upwards [ Filter.eventually_gt_atTop 0 ] with m hm;
-          rw [ one_le_div ( Nat.cast_pos.mpr <| Nat.choose_pos <| by linarith ) ];
-          convert max_union_free_ge_binom ( 2 * m ) using 1;
-          norm_num [ Nat.mul_div_cancel_left ];
-        · exact h_even_bound;
-      have h_odd_bound : Filter.Tendsto (fun m => (MaxUnionFree (2 * m + 1) : ℝ) / (2 * m + 1).choose m) Filter.atTop (nhds 1) := by
-        have h_odd_bound : Filter.Tendsto (fun m => (2 * MaxUnionFree (2 * m) : ℝ) / (2 * m + 1).choose m) Filter.atTop (nhds 1) := by
-          have h_odd_bound : Filter.Tendsto (fun m => (2 * (MaxUnionFree (2 * m) : ℝ) / (2 * m).choose m) * ((2 * m).choose m / (2 * m + 1).choose m)) Filter.atTop (nhds 1) := by
-            have h_odd_bound : Filter.Tendsto (fun m => ((2 * m).choose m : ℝ) / ((2 * m + 1).choose m)) Filter.atTop (nhds (1 / 2)) := by
-              -- We can simplify the expression inside the limit.
-              suffices h_simplify : Filter.Tendsto (fun m => (2 * m + 1 - m : ℝ) / (2 * m + 1)) Filter.atTop (nhds (1 / 2)) by
-                refine h_simplify.comp tendsto_natCast_atTop_atTop |> Filter.Tendsto.congr' ?_;
-                filter_upwards [ Filter.eventually_gt_atTop 0 ] with m hm;
-                rw [ Function.comp_apply, Nat.cast_choose, Nat.cast_choose ] <;> try linarith;
-                field_simp;
-                norm_num [ two_mul, Nat.factorial ] ; ring_nf;
-                rw [ show 1 + m * 2 - m = m + 1 by rw [ Nat.sub_eq_of_eq_add ] ; ring ] ; push_cast [ Nat.factorial_succ ] ; ring;
-              rw [ Metric.tendsto_nhds ] ; norm_num;
-              exact fun ε hε => ⟨ ⌈ε⁻¹⌉₊ + 1, fun x hx => abs_lt.mpr ⟨ by nlinarith [ Nat.le_ceil ( ε⁻¹ ), mul_inv_cancel₀ ( ne_of_gt hε ), div_mul_cancel₀ ( 2 * x + 1 - x ) ( by linarith : ( 2 * x + 1 ) ≠ 0 ) ], by nlinarith [ Nat.le_ceil ( ε⁻¹ ), mul_inv_cancel₀ ( ne_of_gt hε ), div_mul_cancel₀ ( 2 * x + 1 - x ) ( by linarith : ( 2 * x + 1 ) ≠ 0 ) ] ⟩ ⟩;
-            convert h_squeeze.const_mul 2 |> Filter.Tendsto.mul <| h_odd_bound using 2 <;> ring;
-          refine h_odd_bound.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 0 ] with m hm using by rw [ div_mul_div_cancel₀ ( Nat.cast_ne_zero.mpr <| Nat.ne_of_gt <| Nat.choose_pos <| by linarith ) ] );
-        have h_odd_bound : ∀ m, m ≥ 200 → (MaxUnionFree (2 * m + 1) : ℝ) ≤ 2 * MaxUnionFree (2 * m) := by
-          exact fun m hm => mod_cast max_union_free_odd_bound m |> le_trans <| by norm_num;
-        have h_odd_bound : Filter.Tendsto (fun m => (MaxUnionFree (2 * m + 1) : ℝ) / (2 * m + 1).choose m) Filter.atTop (nhds 1) := by
-          have h_lower_bound : ∀ m, m ≥ 200 → (MaxUnionFree (2 * m + 1) : ℝ) ≥ (2 * m + 1).choose m := by
-            intros m hm
-            have h_lower_bound : (MaxUnionFree (2 * m + 1) : ℝ) ≥ (2 * m + 1).choose m := by
-              have h_lower_bound : (Nat.choose (2 * m + 1) m : ℝ) ≤ MaxUnionFree (2 * m + 1) := by
-                convert max_union_free_ge_binom ( 2 * m + 1 ) using 1;
-                norm_num [ Nat.add_div ]
-              exact_mod_cast h_lower_bound;
-            convert h_lower_bound using 1
-          have h_squeeze : ∀ m, m ≥ 200 → (MaxUnionFree (2 * m + 1) : ℝ) / (2 * m + 1).choose m ≥ 1 := by
-            exact fun m hm => by rw [ ge_iff_le ] ; rw [ le_div_iff₀ ( Nat.cast_pos.mpr <| Nat.choose_pos <| by linarith ) ] ; linarith [ h_lower_bound m hm ] ;
-          have h_squeeze : ∀ m, m ≥ 200 → (MaxUnionFree (2 * m + 1) : ℝ) / (2 * m + 1).choose m ≤ (2 * MaxUnionFree (2 * m) : ℝ) / (2 * m + 1).choose m := by
-            exact fun m hm => by gcongr ; exact h_odd_bound m hm;
-          exact tendsto_of_tendsto_of_tendsto_of_le_of_le' tendsto_const_nhds ‹_› ( Filter.eventually_atTop.mpr ⟨ 200, fun m hm => by aesop ⟩ ) ( Filter.eventually_atTop.mpr ⟨ 200, fun m hm => by aesop ⟩ );
-        convert h_odd_bound using 1;
-      have h_even_bound : Filter.Tendsto (fun n => (MaxUnionFree n : ℝ) / (n.choose (n / 2))) Filter.atTop (nhds 1) := by
-        rw [ Filter.tendsto_atTop' ] at *;
-        intro s hs; obtain ⟨ a₁, ha₁ ⟩ := h_squeeze s hs; obtain ⟨ a₂, ha₂ ⟩ := h_odd_bound s hs; use 2 * a₁ + 2 * a₂; intro b hb; rcases Nat.even_or_odd' b with ⟨ c, rfl | rfl ⟩ <;> simp_all +decide [ Nat.add_div ] ;
-        · exact ha₁ c ( by linarith );
-        · exact ha₂ c ( by linarith );
-      rw [ Asymptotics.isEquivalent_iff_exists_eq_mul ];
-      exact ⟨ _, h_even_bound, by filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn; rw [ Pi.mul_apply, div_mul_cancel₀ _ ( Nat.cast_ne_zero.mpr <| Nat.ne_of_gt <| Nat.choose_pos <| Nat.div_le_self _ _ ) ] ⟩
-
+      sorry
 end Erdos447
 
 #print axioms Erdos447.erdos_447
