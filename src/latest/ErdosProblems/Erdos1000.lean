@@ -209,7 +209,10 @@ lemma lem_sumrecipprimes : Filter.Tendsto (fun N => ∑ p ∈ Finset.filter Nat.
     exact fun N => by rw [ Real.exp_sum ] ; exact Finset.prod_le_prod ( fun _ _ => inv_nonneg.2 <| sub_nonneg.2 <| div_le_self zero_le_one <| mod_cast Nat.Prime.pos <| by aesop ) fun _ _ => h_prime_bound _ <| by aesop;
   have h_exp_bound : Filter.Tendsto (fun N : ℕ => Real.exp (∑ p ∈ Finset.filter Nat.Prime (Finset.range (N + 1)), (2 : ℝ) / p)) Filter.atTop Filter.atTop → False := by
     norm_num [ div_eq_mul_inv, Finset.mul_sum _ _ _ ] at *;
-    exact fun h => not_tendsto_atTop_of_tendsto_nhds ( by simpa [ Finset.sum_filter ] using h_sum_finite.mul_left 2 |> Summable.hasSum |> HasSum.tendsto_sum_nat |> Filter.Tendsto.comp <| Filter.tendsto_add_atTop_nat 1 ) h;
+    exact fun h => not_tendsto_atTop_of_tendsto_nhds (by
+      simpa [Finset.sum_filter, Function.comp_def, div_eq_mul_inv] using
+        (h_sum_finite.mul_left 2 |> Summable.hasSum |> HasSum.tendsto_sum_nat |>
+          Filter.Tendsto.comp <| Filter.tendsto_add_atTop_nat 1)) h;
   exact h_exp_bound <| Filter.tendsto_atTop_mono ( by aesop ) h_prod
 
 /-
@@ -394,31 +397,42 @@ lemma n_seq_block_mono (t : ℕ) (k : ℕ)
         · omega;
         · omega;
         · omega;
-      convert mul_lt_mul_of_pos_left ( h_divisors_strict_mono ( k - ( 2 ^ t - 2 ) - 1 ) _ ) ( Nat.Prime.pos ( show Nat.Prime ( r_seq t ) from ?_ ) ) using 1;
-      · grind;
-      · rw [ show k + 1 - ( 2 ^ t - 2 ) - 1 = k - ( 2 ^ t - 2 ) - 1 + 1 from by omega ];
-      · -- Since $Q(t)$ is the product of the first $t$ primes, the number of divisors of $Q(t)$ is $2 ^ t$.
-        have h_divisors_card : (Nat.divisors (Q t)).card = 2 ^ t := by
-          -- Since $Q(t)$ is the product of the first $t$ primes, the number of divisors of $Q(t)$ is $2 ^ t$ by definition.
-          have h_divisors_card : (Nat.divisors (Finset.prod (Finset.range t) (fun i => Nat.nth Nat.Prime i))).card = Finset.prod (Finset.range t) (fun i => (Nat.divisors (Nat.nth Nat.Prime i)).card) := by
-            have h_divisors_card : ∀ {a b : ℕ}, Nat.gcd a b = 1 → (Nat.divisors (a * b)).card = (Nat.divisors a).card * (Nat.divisors b).card := by
-              exact fun {a b} a_1 => Nat.Coprime.card_divisors_mul a_1;
-            induction t with
+      have h_r_prime : Nat.Prime (r_seq t) := by
+        cases t with
+        | zero => norm_num [r_seq]
+        | succ t => exact (r_seq_spec t).2
+      let j := k - (2 ^ t - 2) - 1
+      have hidx : k + 1 - (2 ^ t - 2) - 1 = j + 1 := by
+        dsimp [j]
+        omega
+      -- Since $Q(t)$ is the product of the first $t$ primes, the number of divisors of $Q(t)$ is $2 ^ t$.
+      have h_divisors_card : (Nat.divisors (Q t)).card = 2 ^ t := by
+        -- Since $Q(t)$ is the product of the first $t$ primes, the number of divisors of $Q(t)$ is $2 ^ t$ by definition.
+        have h_divisors_card : (Nat.divisors (Finset.prod (Finset.range t) (fun i => Nat.nth Nat.Prime i))).card = Finset.prod (Finset.range t) (fun i => (Nat.divisors (Nat.nth Nat.Prime i)).card) := by
+          have h_divisors_card : ∀ {a b : ℕ}, Nat.gcd a b = 1 → (Nat.divisors (a * b)).card = (Nat.divisors a).card * (Nat.divisors b).card := by
+            exact fun {a b} a_1 => Nat.Coprime.card_divisors_mul a_1;
+          induction t with
+          | zero =>
+            norm_num
+          | succ t ih =>
+            induction (t + 1) with
             | zero =>
-              norm_num
+              simp_all +decide
             | succ t ih =>
-              induction (t + 1) with
-              | zero =>
-                simp_all +decide
-              | succ t ih =>
-                simp_all +decide [ Finset.prod_range_succ ];
-                rw [ h_divisors_card, ih ];
-                exact Nat.Coprime.prod_left fun i hi => Nat.coprime_comm.mp <| Nat.Prime.coprime_iff_not_dvd ( Nat.prime_nth_prime _ ) |>.2 <| Nat.not_dvd_of_pos_of_lt ( Nat.Prime.pos <| Nat.prime_nth_prime _ ) <| Nat.nth_strictMono ( Nat.infinite_setOf_prime ) <| Finset.mem_range.mp hi;
-          simp_all +decide [ Nat.Prime.divisors ];
-          exact h_divisors_card.trans ( by rw [ Finset.prod_congr rfl fun _ _ => Finset.card_pair <| ne_of_lt <| Nat.Prime.one_lt <| Nat.prime_nth_prime _ ] ; norm_num );
-        omega;
-      · induction t <;> simp_all +decide
-        exact Nat.find_spec ( Nat.exists_infinite_primes _ ) |>.2;
+              simp_all +decide [ Finset.prod_range_succ ];
+              rw [ h_divisors_card, ih ];
+              exact Nat.Coprime.prod_left fun i hi => Nat.coprime_comm.mp <| Nat.Prime.coprime_iff_not_dvd ( Nat.prime_nth_prime _ ) |>.2 <| Nat.not_dvd_of_pos_of_lt ( Nat.Prime.pos <| Nat.prime_nth_prime _ ) <| Nat.nth_strictMono ( Nat.infinite_setOf_prime ) <| Finset.mem_range.mp hi;
+        simp_all +decide [ Nat.Prime.divisors ];
+        exact h_divisors_card.trans ( by rw [ Finset.prod_congr rfl fun _ _ => Finset.card_pair <| ne_of_lt <| Nat.Prime.one_lt <| Nat.prime_nth_prime _ ] ; norm_num );
+      have hbound : j < (Nat.divisors (Q t)).card - 1 := by
+        dsimp [j]
+        rw [h_divisors_card]
+        omega
+      have hlt := h_divisors_strict_mono j hbound
+      have hmul := mul_lt_mul_of_pos_left hlt (Nat.Prime.pos h_r_prime)
+      have hlog_eq : Nat.log 2 (k + 1) = t := by
+        simpa [t'] using ht'_eq
+      simpa [hlog_eq, hidx, j] using hmul
     · rw [ Nat.log_eq_iff ] at * <;> norm_num at * ; omega
 
 /-
@@ -1040,12 +1054,18 @@ theorem erdos_1000_true :
     · intro k
       simp [phiA];
       exact ⟨ by positivity, div_le_one_of_le₀ ( mod_cast le_trans ( Finset.card_filter_le _ _ ) ( by norm_num ) ) ( by positivity ) ⟩;
-    · convert A_val_tendsto_zero using 1;
-    · intro t ht; convert block_sum_bound t ht using 1 ;
-      unfold phiA phi_A; norm_num [ Finset.sum_filter, Finset.sum_Ico_eq_sum_range ] ;
-      congr! 3;
-      congr 1 with m ; simp +arith +decide;
-      tauto;
+    · convert A_val_tendsto_zero using 1
+      ext t
+      simp [A_val]
+    · intro t ht
+      convert block_sum_bound t ht using 1
+      · unfold phiA phi_A
+        norm_num [Finset.sum_filter, Finset.sum_Ico_eq_sum_range]
+        congr! 3
+        congr 1 with m
+        simp +arith +decide
+        tauto
+      · simp [A_val]
   refine ⟨ n_seq, n_seq_strictMono, ?_, ?_ ⟩;
   · intro k;
     induction k with
