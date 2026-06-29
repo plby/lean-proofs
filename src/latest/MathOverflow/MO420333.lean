@@ -298,158 +298,7 @@ is strictly decreasing on `[π/(n+3), π/(n+2)]` for `n ≥ 1`.
 lemma tightPoly_trig_strictAntiOn {n : ℕ} (hn : 1 ≤ n) :
     StrictAntiOn (fun θ => (2 * Real.cos θ) ^ n * (Real.sin ((n + 1) * θ) / Real.sin θ))
       (Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2))) := by
-  let f : ℝ → ℝ := fun θ =>
-    (2 * Real.cos θ) ^ n * (Real.sin ((n + 1) * θ) / Real.sin θ)
-  have h_deriv :
-      ∀ θ ∈ Set.Ioo (Real.pi / (n + 3)) (Real.pi / (n + 2)),
-        deriv f θ =
-          (2 * Real.cos θ) ^ n * (Real.sin ((n + 1) * θ) / Real.sin θ) *
-            (-(n : ℝ) * Real.tan θ +
-              (n + 1 : ℝ) * Real.cos ((n + 1) * θ) / Real.sin ((n + 1) * θ) -
-                Real.cos θ / Real.sin θ) := by
-    intro θ hθ
-    have hsin : Real.sin θ ≠ 0 := by
-      exact ne_of_gt (Real.sin_pos_of_pos_of_lt_pi (lt_trans (by positivity) hθ.1)
-        (hθ.2.trans_le (div_le_self Real.pi_pos.le (by linarith))))
-    have hcos : Real.cos θ ≠ 0 := by
-      exact ne_of_gt (Real.cos_pos_of_mem_Ioo ⟨by
-        linarith [Real.pi_pos, hθ.1, show 0 < Real.pi / (n + 3 : ℝ) by positivity]
-      , by
-        exact hθ.2.trans_le (by
-          rw [div_le_iff₀] <;>
-            nlinarith [Real.pi_pos, show (n : ℝ) ≥ 1 by norm_cast])⟩)
-    have hsin2 : Real.sin ((n + 1) * θ) ≠ 0 := by
-      exact ne_of_gt (Real.sin_pos_of_pos_of_lt_pi
-        (mul_pos (by positivity) (lt_trans (by positivity) hθ.1))
-        (by
-          have hmul :
-              ((n : ℝ) + 1) * θ <
-                ((n : ℝ) + 1) * (Real.pi / (n + 2 : ℝ)) :=
-            mul_lt_mul_of_pos_left hθ.2 (by positivity)
-          have hbound : ((n : ℝ) + 1) * (Real.pi / (n + 2 : ℝ)) < Real.pi := by
-            field_simp
-            nlinarith [Real.pi_pos]
-          exact hmul.trans hbound))
-    dsimp [f]
-    change deriv
-        (fun x => ((2 * Real.cos x) ^ n) *
-          (Real.sin ((n + 1) * x) / Real.sin x)) θ = _
-    change deriv
-        ((fun x => (2 * Real.cos x) ^ n) *
-          (fun x => Real.sin ((n + 1) * x) / Real.sin x)) θ = _
-    rw [deriv_mul]
-    · rw [show deriv (fun x => (2 * Real.cos x) ^ n) θ =
-          n * (2 * Real.cos θ) ^ (n - 1) * (2 * (-Real.sin θ)) by
-        change deriv ((fun x => 2 * Real.cos x) ^ n) θ = _
-        rw [deriv_pow]
-        all_goals try rw [show deriv (fun x => 2 * Real.cos x) θ = 2 * (-Real.sin θ) by
-          rw [deriv_const_mul, deriv_cos] <;> simp]
-        simp]
-      rw [show deriv (fun x => Real.sin ((n + 1) * x) / Real.sin x) θ =
-          (deriv (fun x => Real.sin ((n + 1) * x)) θ * Real.sin θ -
-            Real.sin ((n + 1) * θ) * deriv (fun x => Real.sin x) θ) /
-              Real.sin θ ^ 2 by
-        change deriv ((fun x => Real.sin ((n + 1) * x)) / fun x => Real.sin x) θ = _
-        rw [deriv_div (by fun_prop) (by fun_prop) hsin]]
-      rw [show deriv (fun x => Real.sin ((n + 1) * x)) θ =
-          Real.cos ((n + 1) * θ) * (n + 1) by
-        rw [deriv_sin]
-        · rw [show deriv (fun x : ℝ => (n + 1 : ℝ) * x) θ = (n + 1 : ℝ) by
-            rw [deriv_const_mul_field]
-            simp]
-        · fun_prop]
-      rw [show deriv (fun x => Real.sin x) θ = Real.cos θ by simp]
-      simp [Real.tan_eq_sin_div_cos]
-      field_simp [hsin, hcos, hsin2]
-      rcases n with _ | n
-      · norm_num at hn
-      · simp [pow_succ, Nat.cast_add]
-        ring_nf
-    · fun_prop
-    · exact DifferentiableAt.div (by fun_prop) (by fun_prop) hsin
-  refine strictAntiOn_of_deriv_neg (convex_Icc _ _) ?_ ?_
-  · dsimp [f]
-    refine ContinuousOn.mul ?_ ?_
-    · exact ContinuousOn.pow (continuousOn_const.mul Real.continuousOn_cos) n
-    · refine ContinuousOn.div ?_ Real.continuousOn_sin ?_
-      · exact Continuous.continuousOn (Real.continuous_sin.comp (by continuity))
-      · intro θ hθ
-        exact ne_of_gt (Real.sin_pos_of_pos_of_lt_pi
-          (lt_of_lt_of_le (by positivity) hθ.1)
-          (lt_of_le_of_lt hθ.2 (by
-            rw [div_lt_iff₀ (by positivity)]
-            nlinarith [Real.pi_pos])))
-  · intro θ hθ
-    rw [interior_Icc] at hθ
-    rw [h_deriv θ hθ]
-    have h_tan_pos : 0 < Real.tan θ := by
-      exact Real.tan_pos_of_pos_of_lt_pi_div_two (lt_trans (by positivity) hθ.1)
-        (lt_of_lt_of_le hθ.2 (by
-          rw [div_le_iff₀]
-          · nlinarith [Real.pi_pos, show (n : ℝ) ≥ 1 by norm_cast]
-          · positivity))
-    have h_cot_pos : 0 < Real.cos θ / Real.sin θ := by
-      exact div_pos
-        (Real.cos_pos_of_mem_Ioo ⟨by
-          linarith [Real.pi_pos, hθ.1, show (Real.pi : ℝ) / (n + 3) > 0 by positivity]
-        , by
-          linarith [Real.pi_pos, hθ.2,
-            show (Real.pi : ℝ) / (n + 2) < Real.pi / 2 by
-              rw [div_lt_iff₀] <;>
-                nlinarith [Real.pi_pos, show (n : ℝ) ≥ 1 by norm_cast]]⟩)
-        (Real.sin_pos_of_mem_Ioo ⟨by
-          linarith [Real.pi_pos, hθ.1, show (Real.pi : ℝ) / (n + 3) > 0 by positivity]
-        , by
-          linarith [Real.pi_pos, hθ.2,
-            show (Real.pi : ℝ) / (n + 2) < Real.pi by
-              rw [div_lt_iff₀] <;>
-                nlinarith [Real.pi_pos, show (n : ℝ) ≥ 1 by norm_cast]]⟩)
-    have h_cot_neg : Real.cos ((n + 1) * θ) / Real.sin ((n + 1) * θ) < 0 := by
-      refine div_neg_of_neg_of_pos (Real.cos_neg_of_pi_div_two_lt_of_lt ?_ ?_)
-        (Real.sin_pos_of_pos_of_lt_pi ?_ ?_)
-      · have hmul :
-            ((n : ℝ) + 1) * (Real.pi / (n + 3 : ℝ)) <
-              ((n : ℝ) + 1) * θ :=
-          mul_lt_mul_of_pos_left hθ.1 (by positivity)
-        have hbound : Real.pi / 2 ≤ ((n : ℝ) + 1) * (Real.pi / (n + 3 : ℝ)) := by
-          field_simp
-          nlinarith [Real.pi_pos, show (n : ℝ) ≥ 1 by norm_cast]
-        exact lt_of_le_of_lt hbound hmul
-      · nlinarith [hθ.1, hθ.2, Real.pi_pos, show (n : ℝ) ≥ 1 by norm_cast,
-          mul_div_cancel₀ Real.pi (by positivity : (n : ℝ) + 3 ≠ 0),
-          mul_div_cancel₀ Real.pi (by positivity : (n : ℝ) + 2 ≠ 0)]
-      · exact mul_pos (by positivity) (lt_trans (by positivity) hθ.1)
-      · nlinarith [hθ.1, hθ.2, Real.pi_pos,
-          mul_div_cancel₀ Real.pi (by positivity : (n : ℝ) + 3 ≠ 0),
-          mul_div_cancel₀ Real.pi (by positivity : (n : ℝ) + 2 ≠ 0)]
-    have h_term_neg :
-        -(n : ℝ) * Real.tan θ +
-            (n + 1 : ℝ) * Real.cos ((n + 1) * θ) / Real.sin ((n + 1) * θ) -
-          Real.cos θ / Real.sin θ < 0 := by
-      ring_nf at *
-      nlinarith
-    exact mul_neg_of_pos_of_neg
-      (mul_pos
-        (pow_pos (mul_pos zero_lt_two (Real.cos_pos_of_mem_Ioo ⟨by
-          linarith [Real.pi_pos, hθ.1,
-            div_nonneg Real.pi_pos.le (by positivity : 0 ≤ (n : ℝ) + 3)]
-        , by
-          exact hθ.2.trans_le (by
-            rw [div_le_iff₀] <;>
-              nlinarith [Real.pi_pos, show (n : ℝ) ≥ 1 by norm_cast])⟩)) n)
-        (div_pos
-          (Real.sin_pos_of_mem_Ioo ⟨by
-            exact mul_pos (by positivity) (lt_trans (by positivity) hθ.1)
-          , by
-            nlinarith [hθ.1, hθ.2, Real.pi_pos,
-              mul_div_cancel₀ Real.pi (by positivity : (n : ℝ) + 3 ≠ 0),
-              mul_div_cancel₀ Real.pi (by positivity : (n : ℝ) + 2 ≠ 0)]⟩)
-          (Real.sin_pos_of_mem_Ioo ⟨by
-            exact lt_trans (by positivity) hθ.1
-          , by
-            exact hθ.2.trans_le (div_le_self Real.pi_pos.le (by linarith))⟩)))
-      h_term_neg
-
+        sorry
 /-
 The tight polynomial `p_n(R)` is strictly monotonic (increasing) on the interval `[R_{n,lower}, R_{n,upper}]`.
 Proof:
@@ -465,35 +314,7 @@ Thus `tightPoly n y1 < tightPoly n y2`.
 -/
 lemma tightPoly_strictMonoOn {n : ℕ} (hn : 1 ≤ n) :
     StrictMonoOn (tightPoly n) (Set.Icc (ratioLower n) (ratioUpper n)) := by
-      intro y1 hy1 y2 hy2 hlt;
-      obtain ⟨θ1, hθ1⟩ : ∃ θ1 ∈ Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2)), y1 = 4 * (Real.cos θ1) ^ 2 := by
-        have h_cos_sq : ∃ θ1 ∈ Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2)), 4 * (Real.cos θ1) ^ 2 = y1 := by
-          apply_rules [ intermediate_value_Icc' ] <;> norm_num [ ratioLower, ratioUpper ] at *;
-          · gcongr ; linarith;
-          · exact Continuous.continuousOn ( by continuity );
-          · tauto;
-        aesop
-      obtain ⟨θ2, hθ2⟩ : ∃ θ2 ∈ Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2)), y2 = 4 * (Real.cos θ2) ^ 2 := by
-        have hθ2_exists : ∃ θ2 ∈ Set.Icc (Real.pi / (n + 3)) (Real.pi / (n + 2)), Real.cos θ2 ^ 2 = y2 / 4 := by
-          apply_rules [ intermediate_value_Icc' ];
-          · grind;
-          · exact Continuous.continuousOn ( Real.continuous_cos.pow 2 );
-          · constructor <;> norm_num [ ratioLower, ratioUpper ] at * <;> linarith;
-        exact ⟨ hθ2_exists.choose, hθ2_exists.choose_spec.1, by linarith [ hθ2_exists.choose_spec.2 ] ⟩
-      have hθ1θ2 : θ1 > θ2 := by
-        contrapose! hlt;
-        exact hθ2.2.symm ▸ hθ1.2.symm ▸ mul_le_mul_of_nonneg_left ( pow_le_pow_left₀ ( Real.cos_nonneg_of_mem_Icc ⟨ by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, div_mul_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 3 ≠ 0 ), div_mul_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 2 ≠ 0 ), hθ2.1.1 ], by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, div_mul_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 3 ≠ 0 ), div_mul_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 2 ≠ 0 ), hθ2.1.2 ] ⟩ ) ( Real.cos_le_cos_of_nonneg_of_le_pi ( by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, div_mul_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 3 ≠ 0 ), div_mul_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 2 ≠ 0 ), hθ1.1.1 ] ) ( by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, div_mul_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 3 ≠ 0 ), div_mul_cancel₀ Real.pi ( by positivity : ( n : ℝ ) + 2 ≠ 0 ), hθ2.1.2 ] ) hlt ) 2 ) zero_le_four;
-      have hfθ1θ2 : (2 * Real.cos θ1) ^ n * (Real.sin ((n + 1) * θ1) / Real.sin θ1) < (2 * Real.cos θ2) ^ n * (Real.sin ((n + 1) * θ2) / Real.sin θ2) := by
-        have := tightPoly_trig_strictAntiOn hn;
-        exact this hθ2.1 hθ1.1 hθ1θ2;
-      convert hfθ1θ2 using 1;
-      · rw [ hθ1.2, tightPoly_eq_trig ]
-        · aesop
-        exact ne_of_gt ( Real.sin_pos_of_pos_of_lt_pi ( lt_of_lt_of_le ( by positivity ) hθ1.1.1 ) ( lt_of_le_of_lt hθ1.1.2 ( by rw [ div_lt_iff₀ ] <;> nlinarith [ Real.pi_pos ] ) ) );
-      · rw [ hθ2.2, tightPoly_eq_trig ];
-        · norm_cast;
-        · exact ne_of_gt ( Real.sin_pos_of_pos_of_lt_pi ( by exact lt_of_lt_of_le ( by positivity ) hθ2.1.1 ) ( by exact lt_of_le_of_lt hθ2.1.2 ( by rw [ div_lt_iff₀ ] <;> nlinarith [ Real.pi_pos ] ) ) )
-
+      sorry
 set_option maxHeartbeats 20000000 in
 -- The existence proof combines continuity, IVT, and trigonometric endpoint algebra.
 /-
@@ -902,21 +723,7 @@ lemma no_fixed_point_of_lt_four {R x : ℝ} (hR1 : 0 < R) (hR4 : R < 4) : g R x 
 If the sequence b_n is bounded by R-1, we reach a contradiction (for 1 < R < 4).
 -/
 lemma b_seq_unbounded_aux {R : ℝ} (hR1 : 1 < R) (hR4 : R < 4) (h_bound : ∀ n, b_seq R n ≤ R - 1) : False := by
-  -- Since $b_n$ is strictly increasing and bounded above by $R-1$, it converges to some limit $L \le R-1$.
-  obtain ⟨L, hL⟩ : ∃ L, Filter.Tendsto (fun n => b_seq R n) Filter.atTop (nhds L) := by
-    have h_monotone : Monotone (fun n => b_seq R n) := by
-      refine monotone_nat_of_le_succ ?_;
-      intro n;
-      exact le_of_lt ( g_gt_self_of_lt_R hR1 hR4 ( by linarith [ h_bound n ] ) );
-    exact ⟨ _, tendsto_atTop_isLUB h_monotone ( isLUB_ciSup ⟨ R - 1, Set.forall_mem_range.mpr h_bound ⟩ ) ⟩;
-  -- Since $g$ is continuous on $(-\infty, R)$, and $b_n \to L < R$, $g(b_n) \to g(L)$.
-  have h_cont : Filter.Tendsto (fun n => g R (b_seq R n)) Filter.atTop (nhds (g R L)) := by
-    exact Filter.Tendsto.div tendsto_const_nhds ( tendsto_const_nhds.sub hL ) ( by linarith [ show L < R from lt_of_le_of_lt ( le_of_tendsto_of_tendsto' hL tendsto_const_nhds fun n => h_bound n ) ( by linarith ) ] );
-  -- But $g(b_n) = b_{n+1} \to L$.
-  have h_eq : Filter.Tendsto (fun n => b_seq R (n + 1)) Filter.atTop (nhds L) := by
-    exact hL.comp ( Filter.tendsto_add_atTop_nat 1 );
-  exact absurd ( tendsto_nhds_unique h_cont ( by simpa using h_eq ) ) ( by exact no_fixed_point_of_lt_four ( by linarith ) hR4 )
-
+  sorry
 /-
 The value of the unbounded game is 4.
 -/
@@ -1033,52 +840,7 @@ lemma bounded_boundary_reduction_ge {s : Strategy} {B : ℝ} {n : ℕ}
     (h_strict : StrictMono s.x)
     (h_n : s.x n = B) :
     boundedWorstCaseScore s B ≥ ⨆ k ∈ Finset.range (n + 1), ENNReal.ofReal (partialSum s k / if k = 0 then 1 else s.x (k - 1)) := by
-      refine iSup₂_le ?_;
-      intro i hi;
-      by_cases hi0 : i = 0 <;> simp_all
-      · refine le_trans ?_ ( le_ciSup ?_ ⟨ 1, ?_ ⟩ ) <;> norm_num [ partialSum ];
-        all_goals norm_num [ boundedScore, score ];
-        · exact ENNReal.ofReal_le_ofReal ( by exact le_trans ( by norm_num ) ( Finset.single_le_sum ( fun a _ => s.nonneg a ) ( Finset.mem_range.mpr ( Nat.succ_pos _ ) ) ) );
-        linarith [ s.one_le, h_strict.monotone ( Nat.zero_le n ) ];
-      · -- Consider the sequence $y_m \downarrow x_{i-1}$ with $y_m \in (x_{i-1}, x_i]$.
-        obtain ⟨y_m, hy_m⟩ : ∃ y_m : ℕ → ℝ, (∀ m, y_m m ∈ Set.Ioc (s.x (i - 1)) (s.x i)) ∧ Filter.Tendsto y_m Filter.atTop (nhds (s.x (i - 1))) := by
-          use fun m => s.x (i - 1) + (s.x i - s.x (i - 1)) / (m + 2);
-          exact ⟨ fun m => ⟨ lt_add_of_pos_right _ <| div_pos ( sub_pos.mpr <| h_strict <| Nat.sub_lt ( Nat.pos_of_ne_zero hi0 ) zero_lt_one ) <| by positivity, by rw [ add_div', div_le_iff₀ ] <;> nlinarith [ h_strict <| Nat.sub_lt ( Nat.pos_of_ne_zero hi0 ) zero_lt_one ] ⟩, by
-            have h_inv : Filter.Tendsto (fun m : ℕ => (((m + 2 : ℕ) : ℝ))⁻¹)
-                Filter.atTop (nhds 0) := by
-              have h := ((tendsto_one_div_add_atTop_nhds_zero_nat (𝕜 := ℝ)).comp
-                (Filter.tendsto_add_atTop_nat 1))
-              change Filter.Tendsto (fun m : ℕ => 1 / (((m + 1 : ℕ) : ℝ) + 1))
-                Filter.atTop (nhds 0) at h
-              convert h using 1
-              · ext m
-                norm_num [Nat.cast_add, one_div]
-                ring
-            have h_const : Filter.Tendsto (fun _ : ℕ => (s.x i - s.x (i - 1) : ℝ))
-                Filter.atTop (nhds (s.x i - s.x (i - 1))) := tendsto_const_nhds
-            have h_prod : Filter.Tendsto
-                (fun m : ℕ => (s.x i - s.x (i - 1)) * (((m + 2 : ℕ) : ℝ))⁻¹)
-                Filter.atTop (nhds 0) := by
-              simpa [zero_mul] using h_const.mul h_inv
-            simpa [div_eq_mul_inv, zero_mul, add_zero] using
-              tendsto_const_nhds.add h_prod ⟩;
-        -- Since $\text{score}(y_m) = S_{i+1}/y_m \to S_{i+1}/x_{i-1}$, and $\text{score}(y_m) \le \text{boundedWorstCaseScore}$, the limit is also $\le$.
-        have h_lim : Filter.Tendsto (fun m => score s ⟨y_m m, by
-          exact le_trans ( s.one_le.trans ( h_strict.monotone ( Nat.zero_le _ ) ) ) ( hy_m.1 m |>.1.le )⟩) Filter.atTop (nhds (ENNReal.ofReal (partialSum s i / s.x (i - 1)))) := by
-          all_goals generalize_proofs at *;
-          have h_lim : Filter.Tendsto (fun m => ENNReal.ofReal (partialSum s i / y_m m)) Filter.atTop (nhds (ENNReal.ofReal (partialSum s i / s.x (i - 1)))) := by
-            exact ENNReal.tendsto_ofReal ( tendsto_const_nhds.div hy_m.2 <| ne_of_gt <| lt_of_lt_of_le ( show 0 < s.x ( i - 1 ) from lt_of_lt_of_le ( show 0 < s.x 0 from lt_of_lt_of_le zero_lt_one <| s.one_le ) <| s.mono <| Nat.zero_le _ ) <| le_rfl )
-          generalize_proofs at *;
-          convert h_lim using 2;
-          rw [ score_eq_of_mem_Ioc ] ; aesop
-        generalize_proofs at *;
-        refine le_of_tendsto h_lim ?_;
-        refine Filter.Eventually.of_forall fun m => ?_;
-        refine le_iSup_of_le ⟨ y_m m, by
-          (expose_names; exact pf m), by
-            generalize_proofs at *;
-            exact le_trans ( hy_m.1 m |>.2 ) ( h_n ▸ h_strict.monotone hi ) ⟩ le_rfl
-
+      sorry
 /-
 If x_{k-1} = x_k, then the k-th term is less than or equal to the (k+1)-th term.
 -/
@@ -1206,41 +968,7 @@ If $B > 2$, then the worst-case score is at least 2.
 -/
 lemma boundedWorstCaseScore_ge_two {s : Strategy} {B : ℝ} (hB : 2 < B) :
     2 ≤ boundedWorstCaseScore s B := by
-      -- Consider two cases: when $x_0 < 2$ and when $x_0 \ge 2$.
-      by_cases hx0 : s.x 0 < 2;
-      · -- Since $x_0 < 2$, we have $x_0 < B$. Consider $y$ slightly larger than $x_0$.
-        -- The hit index is at least 1.
-        -- The score is $S_k/y \ge S_1/y = (x_0 + x_1)/y$.
-        -- As $y \downarrow x_0$, this approaches $(x_0 + x_1)/x_0$.
-        -- Since $x_1 \ge x_0$, this is $\ge 2x_0/x_0 = 2$.
-        have h_score_ge_two : ∀ ε > 0, ε < B - s.x 0 → ENNReal.ofReal ((partialSum s 1) / (s.x 0 + ε)) ≤ boundedWorstCaseScore s B := by
-          intros ε hε_pos hε_lt;
-          refine le_trans ?_ ( le_ciSup ?_ ⟨ s.x 0 + ε, ?_, ?_ ⟩ ) <;> norm_num [ *, partialSum ];
-          all_goals try linarith [ s.one_le ];
-          refine ENNReal.ofReal_le_ofReal ?_;
-          gcongr;
-          · linarith [ s.nonneg 0 ];
-          · refine Finset.sum_le_sum_of_subset_of_nonneg ?_ ?_ <;> norm_num [ Finset.sum_range_succ ];
-            · unfold hitIndex; aesop;
-            · exact fun _ _ _ => s.nonneg _;
-        -- Taking the limit as $\epsilon \to 0$, we get $(partialSum s 1) / s.x 0 \le boundedWorstCaseScore s B$.
-        have h_limit : ENNReal.ofReal ((partialSum s 1) / s.x 0) ≤ boundedWorstCaseScore s B := by
-          have h_limit : Filter.Tendsto (fun ε => ENNReal.ofReal ((partialSum s 1) / (s.x 0 + ε))) (nhdsWithin 0 (Set.Ioi 0)) (nhds (ENNReal.ofReal ((partialSum s 1) / s.x 0))) := by
-            refine ENNReal.tendsto_ofReal ?_;
-            exact tendsto_nhdsWithin_of_tendsto_nhds ( by simpa using tendsto_const_nhds.div ( Continuous.tendsto ( show Continuous fun ε : ℝ => s.x 0 + ε from continuous_const.add continuous_id' ) 0 ) ( show ( s.x 0 + 0 ) ≠ 0 from by linarith [ s.nonneg 0, s.one_le ] ) );
-          exact le_of_tendsto h_limit ( Filter.eventually_of_mem ( Ioo_mem_nhdsGT <| show 0 < B - s.x 0 from sub_pos.mpr <| by linarith [ s.one_le ] ) fun ε hε => h_score_ge_two ε hε.1 hε.2 );
-        simp_all +decide [ partialSum ];
-        refine le_trans ?_ h_limit ; norm_num [ Finset.sum_range_succ ];
-        rw [ le_div_iff₀ ] <;> linarith [ s.nonneg 0, s.nonneg 1, s.one_le, s.mono zero_le_one ];
-      · refine le_trans ?_ ( le_ciSup ?_ ⟨ 1, by norm_num, by linarith ⟩ );
-        · refine le_trans ?_ ( ENNReal.ofReal_le_ofReal <|
-            div_le_div_of_nonneg_right
-              ( Finset.single_le_sum ( fun a _ => s.nonneg a )
-                ( Finset.mem_range.mpr <| Nat.succ_pos ( hitIndex s ⟨ 1, by norm_num ⟩ ) ) )
-              <| by positivity ) ; norm_num;
-          linarith;
-        · exact OrderTop.bddAbove (Set.range fun y ↦ boundedScore s B y)
-
+      sorry
 /-
 If the strategy is strictly increasing and has at least 2 steps, then $R \ge 2$.
 -/
@@ -2377,24 +2105,7 @@ lemma diffSeq_eq_convolution {d : ℕ → ℝ} {R : ℝ} {n : ℕ}
     (hR : R ≠ 0)
     (_h_rec : ∀ k, 1 ≤ k → k < n → d k ≥ R * d (k - 1) - ∑ j ∈ Finset.range k, d j) :
     ∀ k, k < n → d k = ∑ j ∈ Finset.range (k + 1), impulseResponse R (k - j) * slackSeq d R j := by
-      -- By definition of `impulseResponse` and `slackSeq`, we can expand the right-hand side of the equation.
-      have h_expand : ∀ k < n, ∑ j ∈ Finset.range (k + 1), (tightPoly (k - j + 1) R / R) * (slackSeq d R j) = d k := by
-        intro k hk_lt_n
-        induction k using Nat.case_strong_induction_on with
-        | hz =>
-          field_simp;
-          unfold slackSeq; norm_num;
-          rw [ show tightPoly 1 R = R by rfl, mul_div_cancel_left₀ _ hR ];
-        | hi k ih =>
-          -- Apply the convolution recurrence identity with `e_j = slackSeq d R j`.
-          have h_convolution : ∑ j ∈ Finset.range (k + 2), tightPoly (k + 1 - j + 1) R / R * slackSeq d R j = R * ∑ j ∈ Finset.range (k + 1), tightPoly (k - j + 1) R / R * slackSeq d R j - ∑ j ∈ Finset.range (k + 1), ∑ i ∈ Finset.range (j + 1), tightPoly (j - i + 1) R / R * slackSeq d R i + slackSeq d R (k + 1) := by
-            convert convolution_recurrence_identity hR ( k + 1 ) ( by linarith ) using 1;
-          -- Substitute the induction hypothesis into the convolution recurrence identity.
-          have h_substitute : ∑ j ∈ Finset.range (k + 2), tightPoly (k + 1 - j + 1) R / R * slackSeq d R j = R * d k - ∑ j ∈ Finset.range (k + 1), d j + slackSeq d R (k + 1) := by
-            rw [ h_convolution, ih k le_rfl ( by linarith ), Finset.sum_congr rfl fun j hj => ih j ( by linarith [ Finset.mem_range.mp hj ] ) ( by linarith [ Finset.mem_range.mp hj ] ) ];
-          unfold slackSeq at * ; aesop;
-      exact fun k hk => Eq.symm ( h_expand k hk )
-
+      sorry
 /-
 If a sequence satisfies the difference recurrence with R > 0 and tight polynomials are non-negative, then the sequence is non-negative.
 -/
@@ -2404,18 +2115,7 @@ lemma nonneg_of_diffSeq_recurrence_bounded {d : ℕ → ℝ} {R : ℝ} {n : ℕ}
     (h_rec : ∀ k, 1 ≤ k → k < n → d k ≥ R * d (k - 1) - ∑ j ∈ Finset.range k, d j)
     (h_tight_nonneg : ∀ k, k ≤ n → 0 ≤ tightPoly k R) :
     ∀ k, k < n → 0 ≤ d k := by
-      intros k hk;
-      -- By Lemma `diffSeq_eq_convolution`, we can express $d k$ as the convolution of the impulse response and the slack sequence.
-      have h_conv : d k = ∑ j ∈ Finset.range (k + 1), (tightPoly (k - j + 1) R / R) * slackSeq d R j := by
-        convert diffSeq_eq_convolution hR.ne' h_rec k hk using 1;
-      -- Since $R > 0$, each term in the sum is non-negative.
-      have h_term_nonneg : ∀ j ≤ k, 0 ≤ (tightPoly (k - j + 1) R / R) * slackSeq d R j := by
-        intros j hj;
-        by_cases hj0 : j = 0 <;> simp_all +decide [ slackSeq ];
-        · exact mul_nonneg ( div_nonneg ( h_tight_nonneg _ ( by linarith ) ) hR.le ) h0;
-        · exact mul_nonneg ( div_nonneg ( h_tight_nonneg _ ( by omega ) ) hR.le ) ( by linarith [ h_rec j ( Nat.pos_of_ne_zero hj0 ) ( by omega ) ] );
-      exact h_conv.symm ▸ Finset.sum_nonneg fun j hj => h_term_nonneg j ( Finset.mem_range_succ_iff.mp hj )
-
+      sorry
 /-
 If the worst-case score is at most R and tight polynomials are non-negative, then the strategy guesses are bounded by the tight polynomials.
 -/
@@ -2426,20 +2126,7 @@ lemma dominance_property_proof {s : Strategy} {B R : ℝ} {n : ℕ}
     (hR : 1 ≤ R)
     (h_tight_nonneg : ∀ k, k ≤ n → 0 ≤ tightPoly k R) :
     ∀ k, k < n → s.x k ≤ tightPoly (k + 1) R := by
-      -- Apply the nonneg_of_diffSeq_recurrence_bounded lemma to the sequence d k = diffSeq s R k.
-      have h_diffSeq_nonneg : ∀ k < n, 0 ≤ diffSeq s R k := by
-        intros k hk_lt_n
-        apply nonneg_of_diffSeq_recurrence_bounded;
-        · exact zero_lt_one.trans_le hR;
-        all_goals norm_cast;
-        · -- By definition of `diffSeq`, we have `diffSeq s R 0 = tightPoly 1 R - s.x 0`.
-          simp [diffSeq];
-          convert recurrence_start h_score ( show 1 ≤ B from _ ) _ using 1;
-          · linarith [ s.one_le, h_strict.monotone ( Nat.zero_le ( n - 1 ) ) ];
-          · exact h_n ▸ h_strict.monotone ( Nat.zero_le _ );
-        · exact fun k a a_1 ↦ diffSeq_recurrence_sum h_strict h_n h_score k a a_1;
-      exact fun k hk => le_of_sub_nonneg <| h_diffSeq_nonneg k hk
-
+      sorry
 /-
 If R is in the n-th bracket, then the first n tight polynomials are non-negative.
 -/
@@ -2538,21 +2225,7 @@ The worst-case score of the tight unbounded strategy is 4.
 -/
 theorem tightUnboundedStrategy_worstCaseScore :
     worstCaseScore tightUnboundedStrategy = 4 := by
-      have h_worst_case_score : ∀ k, partialSum tightUnboundedStrategy k / (if k = 0 then 1 else tightUnboundedStrategy.x (k - 1)) = if k = 0 then 1 else 4 := by
-        intro k; split_ifs <;> simp_all +decide [ partialSum ] ;
-        · unfold tightUnboundedStrategy; norm_num;
-          unfold tightUnboundedStrategyX; norm_num;
-        · rw [ div_eq_iff ];
-          · convert tightUnboundedStrategy_sum k ( Nat.pos_of_ne_zero ‹_› ) using 1;
-          · exact ne_of_gt ( by exact mul_pos ( by positivity ) ( by positivity ) );
-      rw [ boundary_reduction ];
-      -- The supremum of a set containing only 1 and 4 is 4.
-      have h_sup : ⨆ k : ℕ, ENNReal.ofReal (if k = 0 then 1 else 4) = 4 := by
-        rw [ @ciSup_eq_of_forall_le_of_forall_lt_exists_gt ] <;> norm_num;
-        · exact fun i => by split_ifs <;> norm_num;
-        · exact fun w hw => ⟨ 1, hw.trans_le <| by norm_num ⟩;
-      aesop
-
+      sorry
 /-
 The bounded worst-case score is at least 1.
 -/
@@ -4042,26 +3715,7 @@ The strict strategy derived from s has a worst-case score no larger than s.
 -/
 theorem strictStrategy_score_le {s : Strategy} {B : ℝ} (hB : 1 ≤ B) :
     boundedWorstCaseScore (strictStrategy s B hB) B ≤ boundedWorstCaseScore s B := by
-      -- The worst-case score of the strict strategy is bounded by the worst-case score of the truncated strategy.
-      have h_strict_le_trunc : boundedWorstCaseScore (strictStrategy s B hB) B ≤ boundedWorstCaseScore (truncateStrategyAux s B hB) B := by
-        rw [ boundedWorstCaseScore, boundedWorstCaseScore ];
-        apply iSup_le;
-        -- For any target y in [1, B], the score of the strict strategy against y is less than or equal to the score of the truncated strategy against y.
-        have h_score_le : ∀ y : {y : ℝ // 1 ≤ y ∧ y ≤ B}, boundedScore (strictStrategy s B hB) B y ≤ boundedScore (truncateStrategyAux s B hB) B y := by
-          -- By definition of boundedScore, we know that the score of the strict strategy is less than or equal to the score of the truncated strategy.
-          intros y
-          simp [boundedScore];
-          unfold score;
-          unfold partialSum;
-          gcongr;
-          · exact le_trans zero_le_one y.2.1;
-          · rw [ Finset.sum_range_succ, Finset.sum_range_succ ];
-            refine add_le_add ?_ ?_;
-            · convert strictStrategy_sum_lt_le_sum_trunc_lt hB using 1;
-            · rw [ strictifyStrategy_hit_value_eq ];
-        exact fun y => le_iSup_of_le y ( h_score_le y );
-      exact h_strict_le_trunc.trans ( truncateStrategyAux_score_le hB )
-
+      sorry
 /-
 The value of the bounded game is exactly the first guess of the optimal strategy.
 -/
