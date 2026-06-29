@@ -494,7 +494,7 @@ lemma roots_eq : roots = roots' := by
               ring⟩
           ]
           simp +decide [
-            Finset.prod_eq_prod_diff_singleton_mul (Finset.mem_univ a)
+            Finset.prod_eq_prod_sdiff_singleton_mul (Finset.mem_univ a)
           ]
       rw [ h_splits, Polynomial.roots_prod ];
       · norm_num [ Finset.ext_iff ];
@@ -842,7 +842,7 @@ lemma sublevelSet_subset_union_U : sublevelSet' ⊆ ⋃ i, U i := by
     · exact Set.mem_iUnion.mpr ⟨4, by exact ⟨h_norm, h⟩⟩
     · exact Set.mem_iUnion.mpr ⟨5, by exact ⟨h_norm, h⟩⟩
   · by_cases h_eq : ‖z‖ = r_c;
-    · exact absurd ( circle_separation' z h_eq ) ( by simpa [ h_eq ] using hz );
+    · exact absurd ( circle_separation' z h_eq ) ( by simpa [ sublevelSet', h_eq ] using hz );
     · exact Set.mem_iUnion.mpr ⟨ 0, lt_of_le_of_ne ( le_of_not_gt h_norm ) h_eq ⟩
 
 /-
@@ -990,15 +990,15 @@ theorem main_result : ∃ (f : Polynomial ℂ) (c : ℝ) (m : ℕ),
       (f.roots.toFinset.image
         (fun z => connectedComponentIn {w | ‖f.eval w‖ ≤ c} z)),
     ¬ Convex ℝ K := by
-    refine ⟨Polynomial.X ^ 6 - Polynomial.X, 0.582, _, ?_, ?_, rfl, ?_, ?_, ?_⟩
+    refine ⟨Polynomial.X ^ 6 - Polynomial.X, c', 6, ?_, ?_, ?_, ?_, ?_, ?_⟩
     · rw [Polynomial.Monic, Polynomial.leadingCoeff_sub_of_degree_lt] <;> norm_num
-    · convert f_roots_distinct
-    · norm_num
-    · convert components'_card using 1
-      · unfold components'
-        congr! 2
-        convert roots_eq using 1
-      · convert roots_card using 1
+    · simpa [f] using f_roots_distinct
+    · simpa [roots, f] using roots_card
+    · norm_num [c']
+    · have hroots :
+          (Polynomial.X ^ 6 - Polynomial.X : Polynomial ℂ).roots.toFinset = roots' := by
+        simpa [roots, f] using roots_eq
+      simpa [components', sublevelSet', f, c', hroots] using components'_card
     · refine ⟨_, Finset.mem_image.mpr ⟨0, ?_, rfl⟩, ?_⟩ <;> norm_num
       · exact ne_of_apply_ne (Polynomial.eval 2) (by norm_num)
       · convert C0_not_convex using 1
