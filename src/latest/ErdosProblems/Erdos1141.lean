@@ -645,7 +645,7 @@ private lemma candidateKs_card_le_one
   have ht12 : t1 = t2 := by
     omega
   have hsq_eq : k1 ^ 2 = k2 ^ 2 := by
-    apply Nat.eq_of_mul_eq_mul_left (show 0 < a by simpa using ha)
+    apply Nat.eq_of_mul_eq_mul_left (Nat.succ_le_iff.mp ha)
     simpa [t1, t2] using ht12
   exact Nat.pow_left_injective (show (2 : ℕ) ≠ 0 by decide) hsq_eq
 
@@ -705,7 +705,7 @@ private lemma two_pow_primeFactors_card_le_rpow_sixteenth_eventually :
     ∃ Nω : ℕ, ∀ {n : ℕ}, Nω ≤ n →
       (2 : ℝ) ^ n.primeFactors.card ≤ (n : ℝ) ^ ((1 : ℝ) / 16) := by
   have hfact : ∀ᶠ k : ℕ in Filter.atTop, (2 ^ 16) ^ k < Nat.factorial (k - 1) := by
-    simpa using (Nat.eventually_pow_lt_factorial_sub (2 ^ 16) 1)
+    simpa using (Nat.eventually_pow_lt_factorial_sub 65536 1)
   rcases Filter.eventually_atTop.mp hfact with ⟨k0, hk0⟩
   refine ⟨max 3 ((2 ^ k0) ^ 16), ?_⟩
   intro n hn
@@ -1652,7 +1652,7 @@ theorem erdos_1141 :
   have hsubset : { n | Erdos1141Prop n } ⊆ { n | Pa 1 n } := by
     intro n hn
     exact (erdos1141Prop_iff_pa_one_ne_one n).1 hn |>.1
-  simpa [Set.not_infinite] using (erdos_1141_variant.subset hsubset)
+  exact Finite.not_infinite (erdos_1141_variant.subset hsubset).to_subtype
 
 #print axioms erdos_1141
 -- 'Erdos1141.erdos_1141' depends on axioms: [propext, Classical.choice, Pollack17.theorem_1_3,
