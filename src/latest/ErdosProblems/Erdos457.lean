@@ -505,12 +505,12 @@ theorem thm_main :
               norm_num
               exact tendsto_nhdsWithin_of_tendsto_nhds <| by
                 simpa using Real.continuous_mul_log.neg.tendsto 0
-            simpa [add_div] using
+            simpa [add_div, div_eq_mul_inv, add_mul] using
               h_log_m.add
                 (Filter.Tendsto.mul
                   (Filter.Tendsto.log
                     (tendsto_const_nhds.add tendsto_inv_atTop_nhds_zero_nat)
-                    (by norm_num))
+                    (by norm_num : (2 + (0 : ℝ)) ≠ 0))
                   tendsto_inv_atTop_nhds_zero_nat)
         simp_all +decide [add_div, sub_div]
         simpa using

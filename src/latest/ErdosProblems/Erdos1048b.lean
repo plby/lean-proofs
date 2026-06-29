@@ -145,25 +145,59 @@ theorem my_g_diam : Metric.ediam (my_g '' my_D) ≤ ENNReal.ofReal (2/10) := by
         · use fun t => ( w * t + w' * ( 1 - t ) + 2 ) ^ ( 1 / 10 : ℂ )
         · norm_num
         · intro t ht
-          convert
-            HasDerivAt.comp _
-              (show HasDerivAt (fun u : ℂ => u ^ (1 / 10 : ℂ)) _ _ from
-                hasDerivAt_id _ |> HasDerivAt.cpow_const <| ?_)
+          have h_arg_mem : w * t + w' * (1 - t) + 2 ∈ Complex.slitPlane := by
+            norm_num [ Complex.slitPlane ]
+            exact Or.inl (by
+              norm_num at ht
+              have hw_re := abs_le.mp (Complex.abs_re_le_norm w)
+              have hw'_re := abs_le.mp (Complex.abs_re_le_norm w')
+              have ht_nonneg : 0 ≤ t := ht.1
+              have h1t_nonneg : 0 ≤ 1 - t := by linarith
+              have hw_part : -t ≤ w.re * t := by
+                calc
+                  -t = (-1 : ℝ) * t := by ring
+                  _ ≤ (-‖w‖) * t := mul_le_mul_of_nonneg_right (by nlinarith) ht_nonneg
+                  _ ≤ w.re * t := mul_le_mul_of_nonneg_right hw_re.1 ht_nonneg
+              have hw'_part : -(1 - t) ≤ w'.re * (1 - t) := by
+                calc
+                  -(1 - t) = (-1 : ℝ) * (1 - t) := by ring
+                  _ ≤ (-‖w'‖) * (1 - t) :=
+                    mul_le_mul_of_nonneg_right (by nlinarith) h1t_nonneg
+                  _ ≤ w'.re * (1 - t) := mul_le_mul_of_nonneg_right hw'_re.1 h1t_nonneg
+              have hsum_pos : 0 < w.re * t + w'.re * (1 - t) + 2 := by
+                calc
+                  0 < (1 : ℝ) := by norm_num
+                  _ = -t - (1 - t) + 2 := by ring
+                  _ ≤ w.re * t + w'.re * (1 - t) + 2 := by nlinarith
+              simpa [add_comm, add_left_comm, add_assoc, mul_comm, mul_left_comm, mul_assoc]
+                using hsum_pos)
+          let path : ℝ → ℂ :=
+            ((fun y : ℝ => w * (y : ℂ)) +
+              fun y : ℝ => w' * ((1 - y : ℝ) : ℂ)) +
+            fun _y : ℝ => (2 : ℂ)
+          have h_path :=
+            HasDerivAt.add
               (HasDerivAt.add
-                (HasDerivAt.add
-                  (HasDerivAt.const_mul _ <|
-                    hasDerivAt_id _ |> HasDerivAt.ofReal_comp)
-                  (HasDerivAt.const_mul _ <|
-                    HasDerivAt.const_sub _ <| hasDerivAt_id _ |>
-                      HasDerivAt.ofReal_comp))
-                (hasDerivAt_const _ _)) using 1 <;>
-            norm_num <;>
-            ring_nf
-          norm_num [ Complex.slitPlane ]
-          exact Or.inl (by
-            norm_num at ht
-            nlinarith [abs_le.mp (Complex.abs_re_le_norm w),
-              abs_le.mp (Complex.abs_re_le_norm w')])
+                (HasDerivAt.const_mul w <| HasDerivAt.ofReal_comp (hasDerivAt_id t))
+                (HasDerivAt.const_mul w' <|
+                  HasDerivAt.ofReal_comp
+                    (HasDerivAt.const_sub (1 : ℝ) (hasDerivAt_id t))))
+              (hasDerivAt_const t (2 : ℂ))
+          have h_arg_mem_path : path t ∈ Complex.slitPlane := by
+            simpa [path, add_assoc] using h_arg_mem
+          have h_pow :
+              HasDerivAt (fun u : ℂ => u ^ (1 / 10 : ℂ))
+                ((1 / 10 : ℂ) *
+                  (path t) ^ ((1 / 10 : ℂ) - 1))
+                (path t) := by
+            simpa using
+              (HasDerivAt.cpow_const (c := (1 / 10 : ℂ))
+                (hasDerivAt_id (path t)) h_arg_mem_path)
+          simpa [Function.comp_def, div_eq_mul_inv, sub_eq_add_neg, add_comm, add_left_comm,
+            add_assoc, mul_comm, mul_left_comm, mul_assoc, path,
+            show ((1 / 10 : ℂ) - 1) = (-9 / 10 : ℂ) by norm_num,
+            show (-1 + (10 : ℂ)⁻¹) = (-(9 * (10 : ℂ)⁻¹)) by norm_num] using
+            h_pow.comp t h_path
         · apply_rules [ ContinuousOn.intervalIntegrable ]
           refine ContinuousOn.div_const ?_ _
           refine ContinuousOn.mul ?_ continuousOn_const
@@ -270,17 +304,19 @@ theorem my_g_deriv_bound : ∀ w ∈ my_D, ‖deriv my_g w‖ ≤ 1/10 := by
     have h_deriv_def :
         ∀ w ∈ my_D, deriv my_g w = (1 / 10 : ℂ) * (w + 2) ^ (-9 / 10 : ℂ) := by
       intro w hw
-      convert
-        HasDerivAt.deriv
-          (HasDerivAt.cpow_const
-            (HasDerivAt.add ( hasDerivAt_id w ) ( hasDerivAt_const _ _ )) _) using 1 <;>
-        norm_num
       -- Since $w \in D$, we have $|w| < 1$, thus $w + 2$ has a positive real part.
       have h_real_pos : 0 < (w + 2).re := by
         norm_num [ my_D ] at hw
         norm_num [ Complex.normSq, Complex.norm_def ] at *
         rw [ Real.sqrt_lt' ] at hw <;> nlinarith
-      exact Or.inl h_real_pos
+      unfold my_g
+      convert
+        HasDerivAt.deriv
+          (HasDerivAt.cpow_const
+            (c := (1 / 10 : ℂ))
+            (HasDerivAt.add ( hasDerivAt_id w ) ( hasDerivAt_const _ _ ))
+            (Or.inl h_real_pos)) using 1 <;>
+        norm_num [my_g]
     intro w hw
     rw [ h_deriv_def w hw ]
     norm_num [ Complex.norm_cpow_of_ne_zero,
@@ -318,7 +354,7 @@ theorem my_g_lipschitz : LipschitzOnWith (1/10 : NNReal) my_g my_D := by
           ‖my_g w1 - my_g w2‖ ≤ (1 / 10) * ‖w1 - w2‖ := by
       intro w1 w2 hw1 hw2
       have h_convex : Convex ℝ my_D := by
-        convert convex_ball _ _
+        simpa [my_D] using convex_ball (0 : ℂ) (1 : ℝ)
       have h_diff : DifferentiableOn ℂ my_g my_D := by
         assumption
       have h_bound : ∀ w ∈ my_D, ‖deriv my_g w‖ ≤ 1 / 10 := by
@@ -515,13 +551,19 @@ theorem my_U_open (k : ℕ) : IsOpen ((my_g_k k) '' my_D) := by
       have h_inv_ne_zero : deriv my_g x ≠ 0 := by
         have h_inv_ne_zero :
             deriv my_g x = (1 / 10) * (x + 2) ^ (-9 / 10 : ℂ) := by
+          have h_real_pos : 0 < (x + 2).re := by
+            have hx_norm : ‖x‖ < 1 := by simpa using hx
+            have hx_re := abs_le.mp (Complex.abs_re_le_norm x)
+            norm_num
+            nlinarith
+          unfold my_g
           convert
             HasDerivAt.deriv
               (HasDerivAt.cpow_const
-                (HasDerivAt.add ( hasDerivAt_id x ) ( hasDerivAt_const _ _ )) _) using 1 <;>
-            norm_num
-          norm_num [ Complex.slitPlane ] at *
-          exact Or.inl ( by linarith [ abs_le.mp ( Complex.abs_re_le_norm x ) ] )
+                (c := (1 / 10 : ℂ))
+                (HasDerivAt.add ( hasDerivAt_id x ) ( hasDerivAt_const _ _ ))
+                (Or.inl h_real_pos)) using 1 <;>
+            norm_num [my_g]
         norm_num [ h_inv_ne_zero ]
         exact fun h => by
           rw [ show x = -2 by linear_combination' h ] at hx
@@ -683,7 +725,7 @@ Each connected component is contained in one $U_k$.
 -/
 theorem component_subset_image_final (z : ℂ) (hz : z ∈ my_S) :
     ∃ k < 10, connectedComponentIn my_S z ⊆ my_U k := by
-  convert component_subset_image z hz using 1
+  simpa [my_U] using component_subset_image z hz
 
 /-
 All connected components of $S$ have diameter $< 2-r$.
