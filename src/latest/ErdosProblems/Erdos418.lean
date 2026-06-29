@@ -384,9 +384,8 @@ lemma n_le_four_m (n : ℕ) (h : n - n.totient = 2 * m_BS) : n ≤ 4 * m_BS := b
           -- $2i = 2j$, and dividing by 2 gives $i = j$.
           intros i j hi hj h_eq
           linarith
-      convert h_odd_count.trans h_odd_card.le using 1;
-      exact congr_arg Finset.card
-        ( Finset.filter_congr fun x hx => by rw [ Nat.gcd_comm ] );
+      simpa [Nat.totient_eq_card_coprime, Nat.Coprime, Nat.gcd_comm] using
+        h_odd_count.trans h_odd_card.le
     omega
 
 private lemma not_four_dvd_two_mul_m_BS : ¬ 4 ∣ 2 * m_BS := by
@@ -558,7 +557,7 @@ lemma totient_mod_3_of_squarefree_not_dvd_3
   -- then the product is $0 \pmod{3}$.
   by_cases h_zero : ∃ p ∈ Nat.primeFactors n, (p - 1) % 3 = 0;
   · obtain ⟨ p, hp₁, hp₂ ⟩ := h_zero
-    rw [ h_phi_factors, Finset.prod_eq_mul_prod_diff_singleton_of_mem hp₁ ]
+    rw [ h_phi_factors, Finset.prod_eq_mul_prod_sdiff_singleton_of_mem hp₁ ]
     norm_num [ Nat.mul_mod, hp₂ ] ;
   · rw [ h_phi_factors, Finset.prod_nat_mod ];
     rw [ Finset.prod_congr rfl fun x hx =>
