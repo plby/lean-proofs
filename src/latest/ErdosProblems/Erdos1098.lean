@@ -44,14 +44,15 @@ theorem _root_.Set.Infinite.exists_infinite_partition {α : Type*} {S : Set α}
     (hS : S.Infinite) (P : α → Prop) :
     (S ∩ {x | P x}).Infinite ∨ (S ∩ {x | ¬P x}).Infinite := by
   exact Classical.or_iff_not_imp_left.2 fun h => by
-    simpa [Classical.not_not] using hS.diff (Set.not_infinite.1 h)
+    exact (hS.sdiff (Set.not_infinite.1 h)).mono fun x hx =>
+      ⟨hx.1, fun hPx => hx.2 ⟨hx.1, hPx⟩⟩
 
 theorem ramsey_step (S : Set ℕ) (hS : S.Infinite) (r : ℕ → ℕ → Prop) :
     ∃ x ∈ S, ∃ T ⊆ S, T.Infinite ∧ (∀ t ∈ T, x < t) ∧
       ((∀ t ∈ T, r x t) ∨ (∀ t ∈ T, ¬r x t)) := by
   obtain ⟨x, hx⟩ : ∃ x ∈ S, (S ∩ {t | x < t}).Infinite := by
     obtain ⟨x, hx⟩ := hS.nonempty
-    exact ⟨x, hx, hS.diff (Set.finite_le_nat x) |> Set.Infinite.mono fun y hy => by aesop⟩
+    exact ⟨x, hx, hS.sdiff (Set.finite_le_nat x) |> Set.Infinite.mono fun y hy => by aesop⟩
   obtain ⟨T, hT⟩ : ∃ T ⊆ S ∩ {t | x < t}, T.Infinite ∧
       ((∀ t ∈ T, r x t) ∨ (∀ t ∈ T, ¬r x t)) := by
     have := Set.Infinite.exists_infinite_partition hx.2 (fun t => r x t)
@@ -102,9 +103,10 @@ theorem exists_monochromatic_subsequence (c : ℕ → Bool) :
     b, fun n => Nat.recOn n (Nat.find_spec hb.nonempty) fun n _ =>
       Nat.find_spec (hb.exists_gt _) |>.1⟩
 
-theorem ramsey_infinite_pairs (r : ℕ → ℕ → Prop) (hr : Symmetric r) :
+theorem ramsey_infinite_pairs (r : ℕ → ℕ → Prop) (hr : Std.Symm r) :
     ∃ f : ℕ → ℕ, StrictMono f ∧
       ((∀ i j, i ≠ j → r (f i) (f j)) ∨ (∀ i j, i ≠ j → ¬r (f i) (f j))) := by
+  letI : Std.Symm r := hr
   obtain ⟨x, S, c, hx_mono, hS_inf, hS_sub, hx_mem, hx_lt, hc⟩ := ramsey_sequence r
   obtain ⟨f, hf_mono, b, hb⟩ := exists_monochromatic_subsequence c
   refine ⟨fun n => x (f n), hx_mono.comp hf_mono, ?_⟩
@@ -120,10 +122,15 @@ theorem ramsey_infinite_pairs (r : ℕ → ℕ → Prop) (hr : Symmetric r) :
           (by tauto)
     left
     intro i j hij
-    cases lt_or_gt_of_ne hij <;> simp_all +decide
-    · grind
-    · specialize hc (f j)
-      aesop
+    rcases lt_or_gt_of_ne hij with hlt | hgt
+    · have hi : ∀ t ∈ S (f i + 1), r (x (f i)) t := by
+        simpa [hb i, hb_true] using hc (f i)
+      exact hi (x (f j))
+        (Set.mem_of_subset_of_mem (h_subset i j hlt) (hx_mem _))
+    · have hj : ∀ t ∈ S (f j + 1), r (x (f j)) t := by
+        simpa [hb j, hb_true] using hc (f j)
+      exact (Std.Symm.iff (r := r) (x (f i)) (x (f j))).2 <| hj (x (f i))
+        (Set.mem_of_subset_of_mem (h_subset j i hgt) (hx_mem _))
   · refine Or.inr ?_
     have hb_false : b = false := by
       cases b
@@ -148,7 +155,7 @@ theorem ramsey_infinite_pairs (r : ℕ → ℕ → Prop) (hr : Symmetric r) :
             Nat.le_induction (by tauto) (fun k hk ih ↦ by tauto) _
               (show f i ≥ f j + 1 from Nat.succ_le_of_lt (hf_mono hgt)))
           (hx_mem _))
-        (hr h)
+        ((Std.Symm.iff (r := r) (x (f i)) (x (f j))).1 h)
 
 /-! ## Definitions and Basic Properties -/
 
@@ -189,7 +196,7 @@ theorem mul_not_commute_of_commute_distinct_cosets (g u v : G)
 set_option linter.flexible false in
 theorem IsPEGroup.isFCGroup (h : IsPEGroup G) : IsFCGroup G := by
   classical
-  have h_ramsey : ∀ (r : ℕ → ℕ → Prop), Symmetric r → ∃ f : ℕ → ℕ, StrictMono f ∧
+  have h_ramsey : ∀ (r : ℕ → ℕ → Prop), Std.Symm r → ∃ f : ℕ → ℕ, StrictMono f ∧
       ((∀ i j, i ≠ j → r (f i) (f j)) ∨ (∀ i j, i ≠ j → ¬r (f i) (f j))) := by
     exact ramsey_infinite_pairs
   intro g
@@ -211,8 +218,12 @@ theorem IsPEGroup.isFCGroup (h : IsPEGroup G) : IsFCGroup G := by
       ext
       simp [MulAction.orbit]
       simp +decide [ConjAct.smul_def, mul_assoc]
-      exact ⟨ fun ⟨ y, hy ⟩ => ⟨ y⁻¹, by simpa [ mul_assoc ] using hy ⟩,
-        fun ⟨ y, hy ⟩ => ⟨ y⁻¹, by simpa [ mul_assoc ] using hy ⟩ ⟩
+      exact ⟨
+        fun ⟨ y, hy ⟩ =>
+          ⟨(ConjAct.ofConjAct y)⁻¹, by simpa [mul_assoc] using hy⟩,
+        fun ⟨ y, hy ⟩ =>
+          ⟨ConjAct.toConjAct y⁻¹,
+            by simpa [ConjAct.ofConjAct_toConjAct, mul_assoc] using hy⟩ ⟩
     have h_finite_orbit : Nat.card (MulAction.orbit (ConjAct G) g) ≠ 0 := by
       simp +decide only [Nat.card_coe_set_eq, ne_eq]
       rw [@Set.ncard_eq_zero]
@@ -247,8 +258,7 @@ theorem IsPEGroup.isFCGroup (h : IsPEGroup G) : IsFCGroup G := by
       ((∀ i j, i ≠ j → (f (f' i)) * (f (f' j)) = (f (f' j)) * (f (f' i))) ∨
         (∀ i j, i ≠ j → ¬((f (f' i)) * (f (f' j)) = (f (f' j)) * (f (f' i))))) := by
     convert h_ramsey ( fun i j => f i * f j = f j * f i ) ( by
-      intros i j
-      tauto ) using 1
+      exact ⟨fun _ _ h => h.symm⟩ ) using 1
   rcases hf'_comm with hf'_comm | hf'_comm
   · have h_infinite_noncommuting : Set.Infinite {x : G | ∃ i : ℕ, x = g * (f (f' i))}
         ∧ Set.Pairwise {x : G | ∃ i : ℕ, x = g * (f (f' i))} (fun x y => x * y ≠ y * x) := by

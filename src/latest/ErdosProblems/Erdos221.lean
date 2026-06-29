@@ -120,11 +120,19 @@ theorem lem_order_lift_explicit (n : ℕ) (h : n ≥ 1)
               exact_mod_cast Nat.mul_dvd_mul_iff_left (by positivity) |>.not.mpr hk₂
             contrapose! h_not_div
             simp_all +decide [Nat.ModEq]
-            -- If $5 \mid (2 ^ (4 * 5 ^ (n - 1)) - 1) / 5 ^ n$, then $2 ^ (4 * 5 ^ (n - 1)) - 1$ is divisible by $5^{n+1}$.
+            -- If $5 \mid (2 ^ (4 * 5 ^ (n - 1)) - 1) / 5 ^ n, then
+            -- $2 ^ (4 * 5 ^ (n - 1)) - 1$ is divisible by $5^{n+1}$.
             have h_div : 5 ^ (n + 1) ∣ (2 ^ (4 * 5 ^ (n - 1)) - 1) := by
-              convert Nat.mul_dvd_mul_left (5 ^ n) h_not_div using 1
-              · rw [Nat.mul_div_cancel']
+              have hpowdvd : 5 ^ n ∣ (2 ^ (4 * 5 ^ (n - 1)) - 1) := by
                 simpa [← Int.natCast_dvd_natCast] using Nat.modEq_iff_dvd.mp h_cong.symm
+              have hAeq :
+                  2 ^ (4 * 5 ^ (n - 1)) - 1 =
+                    5 ^ n * ((2 ^ (4 * 5 ^ (n - 1)) - 1) / 5 ^ n) :=
+                (Nat.mul_div_cancel' hpowdvd).symm
+              rw [show 5 ^ (n + 1) = 5 ^ n * 5 by
+                rw [pow_succ']
+                ring, hAeq]
+              exact Nat.mul_dvd_mul_left (5 ^ n) h_not_div
             exact Nat.ModEq.symm
               (Nat.modEq_of_dvd <| by simpa [← Int.natCast_dvd_natCast] using h_div)
           exact ⟨h_cong, h_not_div⟩;

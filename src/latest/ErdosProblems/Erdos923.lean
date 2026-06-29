@@ -142,7 +142,7 @@ variable {V : Type*}
 /-- Lift a graph on a subtype to a graph on the full type. -/
 def spanSubgraph {S : Set V} (H : SimpleGraph S) : SimpleGraph V where
   Adj a b := ∃ (ha : a ∈ S) (hb : b ∈ S), H.Adj ⟨a, ha⟩ ⟨b, hb⟩
-  symm a b := by
+  symm.symm a b := by
     rintro ⟨ha, hb, hab⟩
     exact ⟨hb, ha, hab.symm⟩
   loopless := ⟨fun a ↦ by
@@ -195,7 +195,7 @@ def partGraph (G : SimpleGraph V) (k : ℕ)
     SimpleGraph V where
   Adj a b := ∃ (h : G.Adj a b),
     (∃ hlt : a < b, c b ⟨a, hlt, h⟩ = i) ∨ (∃ hlt : b < a, c a ⟨b, hlt, h.symm⟩ = i)
-  symm a b := by
+  symm.symm a b := by
     rintro ⟨h, disj⟩
     exact ⟨h.symm, disj.symm⟩
   loopless := ⟨by simp⟩
@@ -398,7 +398,7 @@ lemma mycielskianAdj_irrefl {V : Type*} (G : SimpleGraph V) (x : V ⊕ V ⊕ Uni
 /-- The Mycielskian of a simple graph. -/
 def mycielskian {V : Type*} (G : SimpleGraph V) : SimpleGraph (V ⊕ V ⊕ Unit) where
   Adj := mycielskianAdj G
-  symm {x y} h := mycielskianAdj_symm G x y h
+  symm.symm x y h := mycielskianAdj_symm G x y h
   loopless := ⟨fun x h ↦ mycielskianAdj_irrefl G x h⟩
 
 /-- If G is triangle-free, then the Mycielskian of G is triangle-free. -/
@@ -528,7 +528,7 @@ variable {W V : Type*}
 /-- Push-forward of a graph along an injection: edges of `T` are mapped via `f`. -/
 def pushforward (T : SimpleGraph W) (f : W ↪ V) : SimpleGraph V where
   Adj a b := ∃ (i j : W), f i = a ∧ f j = b ∧ T.Adj i j
-  symm a b := by
+  symm.symm a b := by
     rintro ⟨i, j, hi, hj, h⟩
     exact ⟨j, i, hj, hi, h.symm⟩
   loopless := ⟨fun a ⟨i, j, hi, hj, h⟩ ↦ h.ne (f.injective (hi ▸ hj.symm))⟩
