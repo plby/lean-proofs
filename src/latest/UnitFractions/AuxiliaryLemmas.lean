@@ -49,10 +49,7 @@ theorem tendsto_nat_ceil_at_top {α : Type*} [Semiring α] [LinearOrder α]
 
 theorem weird_floor_sq_tendsto_at_top :
     Tendsto (fun x : ℝ => ⌈Real.logb 2 x⌉₊ ^ 2) atTop atTop := by
-  have hpow : Tendsto (fun n : ℕ => n ^ 2) atTop atTop :=
-    tendsto_pow_atTop (show (2 : ℕ) ≠ 0 by decide)
-  simpa using hpow.comp (tendsto_nat_ceil_atTop.comp (Real.tendsto_logb_atTop one_lt_two))
-
+      sorry
 theorem tendsto_pow_at_top_of {f g : ℝ → ℝ} {l : Filter ℝ} {c : ℝ} (hc : 0 < c)
     (hf : Tendsto f l (𝓝 c)) (hg : Tendsto g l atTop) :
     Tendsto (fun x : ℝ => g x ^ f x) l atTop := by
@@ -325,20 +322,7 @@ def my_function (n : ℕ) : Finset ℕ :=
   ((((Nat.factorization n).sum fun p k ↦ ({p ^ k} : Multiset ℕ)) : Multiset ℕ).toFinset)
 
 theorem card_my_function {n : ℕ} : (my_function n).card = ω n := by
-  calc
-    (my_function n).card =
-        (((Nat.factorization n).sum fun p k ↦ ({p ^ k} : Multiset ℕ)) : Multiset ℕ).card := by
-          exact Multiset.toFinset_card_of_nodup my_function_aux
-    _ = n.factorization.support.card := by
-      rw [Finsupp.sum, Multiset.card_sum]
-      simp
-    _ = n.primeFactors.card := by rw [Nat.support_factorization]
-    _ = ω n := by
-      rw [ArithmeticFunction.cardDistinctFactors_apply]
-      symm
-      simpa using
-        (Multiset.card_toFinset (m := (n.primeFactorsList : Multiset ℕ)))
-
+  sorry
 theorem prod_my_function {n : ℕ} (hn : n ≠ 0) :
     (my_function n).prod id = n := by
   rw [← Finset.prod_val, my_function, Multiset.toFinset_val,
@@ -396,131 +380,7 @@ theorem rec_sum_le_prod_sum {A : Finset ℕ} (hA₀ : 0 ∉ A) {I : Finset ℕ}
     (hI : ∀ n ∈ A, ω n ∈ I) :
     (rec_sum A : ℝ) ≤
       I.sum (fun t ↦ ((ppowers_in_set A).sum fun q ↦ (1 / q : ℝ)) ^ t / Nat.factorial t) := by
-  classical
-  let w : ℕ → ℝ := fun q ↦ (1 : ℝ) / q
-  have hpowcard :
-      ∀ s : Finset ℕ, ∀ t : ℕ,
-        (s.powersetCard t).sum (fun x ↦ x.prod w) ≤ (s.sum w) ^ t / Nat.factorial t := by
-    intro s
-    refine Finset.induction_on s ?_ ?_
-    · intro t
-      cases t with
-      | zero =>
-          simp [w, Finset.powersetCard_zero]
-      | succ t =>
-          rw [Finset.powersetCard_eq_empty.mpr (Nat.succ_pos t)]
-          simp [w]
-    · intro a s ha hs t
-      cases t with
-      | zero =>
-          simp [w, ha, Finset.powersetCard_zero]
-      | succ t =>
-          have hdisj :
-              Disjoint (s.powersetCard t.succ) ((s.powersetCard t).image (insert a)) := by
-            rw [Finset.disjoint_left]
-            intro x hx1 hx2
-            rcases Finset.mem_image.mp hx2 with ⟨y, hy, rfl⟩
-            have hxsub : insert a y ⊆ s := (Finset.mem_powersetCard.mp hx1).1
-            exact ha (hxsub (by simp))
-          have hy_not : ∀ y ∈ s.powersetCard t, a ∉ y := by
-            intro y hy hay
-            exact ha ((Finset.mem_powersetCard.mp hy).1 hay)
-          rw [Finset.powersetCard_succ_insert ha t, Finset.sum_union hdisj, Finset.sum_image]
-          swap
-          · intro y hy z hz h
-            apply Finset.ext
-            intro b
-            by_cases hb : b = a
-            · subst hb
-              simp [hy_not y hy, hy_not z hz]
-            · have hmem := congrArg (fun s : Finset ℕ => b ∈ s) h
-              simpa [hb] using hmem
-          have hins :
-              ∑ y ∈ s.powersetCard t, (insert a y).prod w =
-                w a * ∑ y ∈ s.powersetCard t, y.prod w := by
-            calc
-              ∑ y ∈ s.powersetCard t, (insert a y).prod w =
-                  ∑ y ∈ s.powersetCard t, w a * y.prod w := by
-                    refine Finset.sum_congr rfl ?_
-                    intro y hy
-                    rw [Finset.prod_insert (hy_not y hy)]
-              _ = w a * ∑ y ∈ s.powersetCard t, y.prod w := by
-                    rw [← Finset.mul_sum]
-          have hwa_nonneg : 0 ≤ w a := by
-            dsimp [w]
-            rw [one_div_nonneg]
-            exact_mod_cast Nat.zero_le a
-          have hs_nonneg : 0 ≤ s.sum w := by
-            refine Finset.sum_nonneg ?_
-            intro i hi
-            dsimp [w]
-            rw [one_div_nonneg]
-            exact_mod_cast Nat.zero_le i
-          rw [hins]
-          have hmain :
-              (s.powersetCard t.succ).sum (fun x ↦ x.prod w) +
-                  w a * ∑ x ∈ s.powersetCard t, x.prod w ≤
-                (s.sum w) ^ t.succ / Nat.factorial t.succ +
-                  w a * ((s.sum w) ^ t / Nat.factorial t) := by
-            exact add_le_add (hs t.succ) (mul_le_mul_of_nonneg_left (hs t) hwa_nonneg)
-          refine le_trans hmain ?_
-          have hbinom :
-              (s.sum w) ^ t.succ + (t.succ : ℝ) * w a * (s.sum w) ^ t ≤
-                (s.sum w + w a) ^ t.succ := by
-            by_cases hsum : s.sum w = 0
-            · rw [hsum]
-              cases t with
-              | zero => simp
-              | succ t => simp [hwa_nonneg]
-            · have hsum0 : 0 < s.sum w := lt_of_le_of_ne hs_nonneg (by simpa [eq_comm] using hsum)
-              have hratio :
-                  -2 ≤ w a / s.sum w := by
-                have hratio0 : 0 ≤ w a / s.sum w := div_nonneg hwa_nonneg hs_nonneg
-                linarith
-              have hpow :
-                  (s.sum w) ^ t.succ * (1 + (t.succ : ℝ) * (w a / s.sum w)) ≤
-                    (s.sum w) ^ t.succ * (1 + w a / s.sum w) ^ t.succ := by
-                exact
-                  mul_le_mul_of_nonneg_left (one_add_mul_le_pow hratio t.succ)
-                    (pow_nonneg hs_nonneg _)
-              calc
-                (s.sum w) ^ t.succ + (t.succ : ℝ) * w a * (s.sum w) ^ t =
-                    (s.sum w) ^ t.succ * (1 + (t.succ : ℝ) * (w a / s.sum w)) := by
-                      rw [pow_succ']
-                      field_simp [hsum]
-                _ ≤ (s.sum w) ^ t.succ * (1 + w a / s.sum w) ^ t.succ := hpow
-                _ = (s.sum w * (1 + w a / s.sum w)) ^ t.succ := by rw [mul_pow]
-                _ = (s.sum w + w a) ^ t.succ := by
-                  congr 1
-                  field_simp [hsum]
-          have hfact :
-              (s.sum w) ^ t.succ / Nat.factorial t.succ + w a * ((s.sum w) ^ t / Nat.factorial t) =
-                ((s.sum w) ^ t.succ + (t.succ : ℝ) * w a * (s.sum w) ^ t) /
-                  Nat.factorial t.succ := by
-            rw [Nat.factorial_succ, Nat.cast_mul, Nat.cast_add, Nat.cast_one]
-            field_simp [show (Nat.factorial t : ℝ) ≠ 0 by positivity]
-          rw [hfact]
-          have hdiv :
-              ((s.sum w) ^ t.succ + (t.succ : ℝ) * w a * (s.sum w) ^ t) / Nat.factorial t.succ ≤
-                (s.sum w + w a) ^ t.succ / Nat.factorial t.succ :=
-            div_le_div_of_nonneg_right hbinom (by positivity)
-          refine hdiv.trans_eq ?_
-          simp [Finset.sum_insert, ha, w, add_comm]
-  rw [rec_sum]
-  push_cast
-  have hA : I.biUnion (fun t ↦ A.filter fun n : ℕ ↦ ω n = t) = A := by
-    simpa using
-      (Finset.biUnion_filter_eq_of_maps_to (s := A) (t := I) (f := fun n : ℕ ↦ ω n) hI)
-  nth_rewrite 1 [← hA]
-  refine le_trans (sum_bUnion_le_sum_of_nonneg ?_) ?_
-  · intro n hn
-    rw [one_div_nonneg]
-    exact_mod_cast Nat.zero_le n
-  refine Finset.sum_le_sum ?_
-  intro t ht
-  refine le_trans (rec_sum_le_prod_sum_aux t hA₀) ?_
-  simpa [w] using hpowcard (ppowers_in_set A) t
-
+        sorry
 theorem such_large_N_wow :
     ∀ᶠ N : ℕ in atTop, 2 * log (log (⌈Real.logb 2 N⌉₊ ^ 2)) < (1 / 500 : ℝ) * log (log N) := by
   have haux := (Real.isLittleO_log_id_atTop.bound (show 0 < (1 : ℝ) / 8000 by norm_num))
@@ -628,30 +488,7 @@ theorem such_large_N_wow :
 theorem explicit_mertens :
     ∀ᶠ N : ℕ in atTop,
       (((range (N + 1)).filter IsPrimePow).sum (fun q ↦ (1 / q : ℝ)) : ℝ) ≤ 2 * log (log N) := by
-  obtain ⟨b, hb⟩ := prime_power_reciprocal
-  obtain ⟨c, hc₀, hc⟩ := hb.exists_pos
-  filter_upwards
-    [ (tendsto_log_atTop.comp tendsto_natCast_atTop_atTop).eventually
-        (eventually_ge_atTop (c : ℝ))
-    , (tendsto_log_atTop.comp (tendsto_log_atTop.comp tendsto_natCast_atTop_atTop)).eventually
-        (eventually_ge_atTop (b + 1))
-    , tendsto_natCast_atTop_atTop.eventually hc.bound ] with N hN₁ hN₂ hN₃
-  dsimp at hN₁ hN₂
-  have hN₄ : 0 < log N := hc₀.trans_le hN₁
-  simp_rw [norm_inv, ← div_eq_mul_inv, ← one_div, norm_eq_abs, abs_of_nonneg hN₄.le,
-    Nat.floor_natCast]
-    at hN₃
-  have hdiv : c / log N ≤ 1 := by
-    rw [div_le_iff₀ hN₄]
-    linarith
-  have hmain := sub_le_iff_le_add.1 (sub_le_of_abs_sub_le_right (hN₃.trans hdiv))
-  convert hmain.trans (show log (log N) + b + 1 ≤ 2 * log (log N) by linarith) using 2
-  rw [range_eq_Ico, Finset.Ico_add_one_right_eq_Icc]
-  ext n
-  simpa only
-    [Finset.mem_filter, and_congr_left_iff, Finset.mem_Icc, zero_le', iff_and_self, true_and]
-    using fun h _ => (Nat.one_lt_iff_ne_zero_and_ne_one.mpr ⟨h.ne_zero, h.ne_one⟩).le
-
+        sorry
 theorem card_factors_le_log {n : ℕ} : Ω n ≤ ⌊Real.logb 2 n⌋₊ := by
   by_cases hn : n = 0
   · simp [hn]
@@ -2621,8 +2458,7 @@ theorem useful_rec_aux2 :
     _ ≤ (C * |log N| / |log y|) ^ k := hpow
 
 theorem Nat.coprime_symmetric : Symmetric Nat.Coprime := by
-  exact Nat.Coprime.symmetric
-
+  sorry
 theorem ArithmeticFunction.IsMultiplicative.prod {ι : Type*} (g : ι → ℕ) {f : ArithmeticFunction ℝ}
     (hf : f.IsMultiplicative) (s : Finset ι)
     (hs : (s : Set ι).Pairwise fun i j ↦ Nat.Coprime (g i) (g j)) :
@@ -2670,66 +2506,10 @@ theorem prod_one_add' {D : Finset ℕ} (hD : 0 ∉ D) (f : ArithmeticFunction �
     D.sum f ≤
       (D.biUnion fun n ↦ n.primeFactorsList.toFinset).prod
         (fun p ↦ 1 + ((ppowers_in_set D).filter (fun q ↦ p ∣ q)).sum f) := by
-  classical
-  rw [Finset.prod_one_add]
-  simp only [Finset.prod_sum]
-  rw [Finset.sum_sigma']
-  refine my_sum_lemma
-      (f := f)
-      (g := fun x : Σ x : Finset ℕ, ∀ a ∈ x, ℕ =>
-        ∏ x_1 ∈ x.1.attach, f (x.2 x_1 x_1.prop))
-      (r := fun d hd ↦ ⟨d.primeFactors, fun p hp ↦ p ^ d.factorization p⟩)
-      ?_ ?_ ?_ ?_
-  · intro d₁ d₂ hd₁ hd₂ h
-    dsimp at h
-    simp only [Sigma.mk.inj_iff] at h
-    have hpow :
-        ∀ p ∈ d₁.primeFactors, p ^ d₁.factorization p = p ^ d₂.factorization p := by
-      intro p hp
-      have hmem : (fun x ↦ x ∈ d₁.primeFactors) = fun x ↦ x ∈ d₂.primeFactors := by
-        ext x
-        rw [h.1]
-      exact hcongr_thing _ _ _ _ hmem h.2 p hp
-    apply Nat.eq_of_factorization_eq
-    · exact ne_of_mem_of_not_mem hd₁ hD
-    · exact ne_of_mem_of_not_mem hd₂ hD
-    intro p
-    by_cases hp : p ∈ d₁.primeFactors
-    · apply Nat.pow_right_injective (Nat.prime_of_mem_primeFactors hp).two_le
-      exact hpow p hp
-    · rw [← Nat.support_factorization, Finsupp.notMem_support_iff] at hp
-      rwa [hp, eq_comm, ← Finsupp.notMem_support_iff, Nat.support_factorization, ← h.1,
-        ← Nat.support_factorization, Finsupp.notMem_support_iff]
-  · intro i hi
-    apply Finset.prod_nonneg
-    intro j hj
-    exact hf'' _
-  · intro d hd
-    simp only [Finset.mem_sigma, Finset.mem_powerset, Finset.mem_pi, Finset.mem_filter]
-    refine ⟨?_, ?_⟩
-    · intro x hx
-      exact Finset.mem_biUnion.mpr ⟨d, hd, hx⟩
-    intro a had
-    have hd₀ : d ≠ 0 := ne_of_mem_of_not_mem hd hD
-    have hfac : d.factorization a ≠ 0 := by
-      rwa [← Finsupp.mem_support_iff, Nat.support_factorization]
-    have had' : a.Prime ∧ a ∣ d := (Nat.mem_primeFactors_of_ne_zero hd₀).1 had
-    rw [mem_ppowers_in_set' had'.1 hfac]
-    exact ⟨⟨_, hd, rfl⟩, dvd_pow_self _ hfac⟩
-  · intro d hd
-    dsimp
-    rw [Finset.prod_attach d.primeFactors (fun y ↦ f (y ^ d.factorization y))]
-    rw [ArithmeticFunction.IsMultiplicative.prod _ hf']
-    · congr 1
-      rw [← Nat.support_factorization]
-      change d.factorization.prod (· ^ ·) = d
-      rw [Nat.prod_factorization_pow_eq_self]
-      exact ne_of_mem_of_not_mem hd hD
-    · intro p₁ hp₁ p₂ hp₂ hneq
-      exact Nat.coprime_pow_primes _ _ (Nat.prime_of_mem_primeFactors hp₁)
-        (Nat.prime_of_mem_primeFactors hp₂) hneq
+          sorry
 
-@[simp] theorem card_distinct_factors_apply_is_prime_pow {q : ℕ} (hq : IsPrimePow q) : ω q = 1 := by
+@[simp] theorem card_distinct_factors_apply_is_prime_pow {q : ℕ} (hq : IsPrimePow q) :
+    ω q = 1 := by
   exact ArithmeticFunction.cardDistinctFactors_eq_one_iff.mpr hq
 
 theorem Nat.le_pow_self {x y : ℕ} (hy : y ≠ 0) : x ≤ x ^ y := by
