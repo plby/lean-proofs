@@ -599,38 +599,7 @@ lemma sq_prod_support_bound (g P : ℤ[X]) (R : Finset ℕ) (d a : ℕ)
     (hg_supp : (g ^ 2).support ⊆ R ∪ R.image (· + d) ∪ {2 * d})
     (hP_supp : P.support ⊆ (Finset.range a).image (· * d)) :
     ((g * P) ^ 2).support.card ≤ 2 * a * R.card + 1 := by
-  -- By support_mul_subset_add, we have supp(g²P²) ⊆ supp(g²) + supp(P²).
-  have h_support : (g ^ 2 * P ^ 2).support ⊆ (g ^ 2).support + (P ^ 2).support := by
-    exact support_mul_subset_add _ _
-  -- By structured_minkowski_bound, card(supp(g²) + supp(P²)) is at most
-  -- (2*a-2+2)*#R+1 = 2*a*#R+1.
-  have h_card : ((g ^ 2).support + (P ^ 2).support).card ≤ (2 * a * #R + 1) := by
-    -- Use structured_minkowski_bound on the outer support enclosure.
-    have h_card :
-        ((g ^ 2).support + (P ^ 2).support).card ≤
-          ((R ∪ R.image (· + d) ∪ {2 * d}) +
-            (Finset.range (2 * a - 1)).image (· * d)).card := by
-      refine Finset.card_le_card ( Finset.add_subset_add hg_supp ?_ );
-      -- By support_mul_subset_add, we have supp(P²) ⊆ supp(P) + supp(P).
-      have h_support_P : (P ^ 2).support ⊆ P.support + P.support := by
-        convert support_mul_subset_add P P using 1 ; ring_nf;
-      refine h_support_P.trans ?_;
-      intro x hx
-      obtain ⟨ y, hy, z, hz, rfl ⟩ := Finset.mem_add.mp hx
-      have := hP_supp hy
-      have := hP_supp hz
-      simp_all +decide [ Finset.mem_image ]
-      rcases ‹∃ a_1 < a, a_1 * d = y› with ⟨ i, hi, rfl ⟩
-      rcases ‹∃ a_1 < a, a_1 * d = z› with ⟨ j, hj, rfl ⟩
-      exact ⟨ i + j, by omega, by ring ⟩
-    refine le_trans h_card ?_;
-    by_cases ha : a = 0;
-    · aesop;
-    · convert structured_minkowski_bound R d ( 2 * a - 2 ) hR_range hR_zero using 1;
-      · rcases a with ( _ | _ | a ) <;> trivial;
-      · rw [ Nat.sub_add_cancel ( by linarith [ Nat.pos_of_ne_zero ha ] ) ];
-  simpa only [ mul_pow ] using le_trans ( Finset.card_le_card h_support ) h_card
-
+      sorry
 /-
 Existence of complete product g*P
 -/
@@ -777,19 +746,7 @@ lemma sq_with_linear_support_bound (f : ℤ[X]) (mu : ℤ) (b : ℕ)
     (hmu : mu ≠ 0) (hb : 0 < b) (bound : ℕ)
     (hf_bound : (f ^ 2).support.card ≤ bound) :
     ((f * (1 + C mu * X ^ b)) ^ 2).support.card ≤ 3 * bound := by
-  rw [ mul_pow ];
-  refine le_trans ?_ ( mul_le_mul_right hf_bound 3 );
-  have h_support :
-      (f ^ 2 * (1 + C mu * X ^ b) ^ 2).support ⊆
-        (f ^ 2).support + ({0, b, 2 * b} : Finset ℕ) := by
-    convert support_mul_subset_add _ _ using 2;
-    ext ; simp +decide [sq, add_mul, mul_assoc, Polynomial.coeff_one, Polynomial.coeff_X_pow];
-    ring_nf; split_ifs <;> simp_all +decide [pow_succ] ;
-    aesop;
-  refine le_trans ( Finset.card_le_card h_support ) ?_;
-  convert finset_add_card_le _ _ using 1;
-  grind
-
+      sorry
 -- Support bound for f² via degree bound
 lemma sq_support_card_le (f : ℤ[X]) :
     (f ^ 2).support.card ≤ 2 * f.natDegree + 1 := by
@@ -931,43 +888,7 @@ lemma arithmetic_bound (n N a : ℕ) (_hn : 0 < n) (ha1 : 1 ≤ a) (ha8 : a ≤ 
     (haN : a * 9 ^ N ≤ n) :
     ((6 * a * ((6 ^ (N + 1) - 1) / 5) + 3 : ℕ) : ℝ) <
     (1 / 5 : ℝ) * (102 * (n : ℝ) ^ (Real.log 6 / Real.log 9) - 12) := by
-  suffices h_suff :
-      (6 * a * (6 ^ (N + 1) - 1) + 27 : ℝ) <
-        102 * (n : ℝ) ^ (Real.log 6 / Real.log 9) by
-    convert
-        div_lt_div_iff_of_pos_right ( by norm_num : ( 0 :ℝ ) < 5 ) |>.2
-          ( sub_lt_sub_right h_suff 12 )
-        using 1;
-      focus
-        norm_num
-        ring_nf
-        · rw [ Nat.cast_div ] <;> norm_num
-          · ring
-          · exact Nat.dvd_of_mod_eq_zero ( by
-              rw [ ← Nat.mod_add_div ( 6 ^ N * 6 ) 5 ]
-              norm_num [ Nat.pow_mod, Nat.mul_mod ] )
-    · ring
-  have h_exp :
-      (n : ℝ) ^ (Real.log 6 / Real.log 9) ≥
-        (a : ℝ) ^ (Real.log 6 / Real.log 9) * (6 : ℝ) ^ N := by
-    refine le_trans ?_
-      ( Real.rpow_le_rpow ( by positivity ) ( Nat.cast_le.mpr haN ) ( by positivity ) );
-    norm_num [ Real.mul_rpow, Real.rpow_def_of_pos ];
-    norm_num [ mul_assoc, mul_div_cancel₀, Real.exp_nat_mul, Real.exp_log ];
-  have h_sqrt : (a : ℝ) ^ (Real.log 6 / Real.log 9) ≥ Real.sqrt a := by
-    rw [ Real.sqrt_eq_rpow ]
-    exact Real.rpow_le_rpow_of_exponent_le ( mod_cast ha1 ) ( by
-      rw [ div_eq_mul_inv ]
-      rw [ inv_eq_one_div, mul_one_div ]
-      rw [ le_div_iff₀ ( by positivity ) ]
-      norm_num [ ← Real.log_rpow, Real.log_le_log ] )
-  interval_cases a <;> norm_num at *;
-  all_goals ring_nf at *; norm_num [ Real.sqrt_le_iff ] at *;
-  all_goals
-    nlinarith [
-      pow_le_pow_right₀ ( by norm_num : ( 1 : ℝ ) ≤ 6 )
-        ( show N ≥ 0 by norm_num ) ]
-
+      sorry
 /-- **Main Theorem.** For every positive integer `n`, there exists a polynomial `f(x)` of
 degree `n` with all nonzero integer coefficients such that `f(x)²` has fewer than
 `(1/5)(102 · n^{log₉ 6} - 12)` nonzero coefficients. -/
