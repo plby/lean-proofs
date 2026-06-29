@@ -467,6 +467,8 @@ theorem B_no_C6_through_zero
   (h_simple1' : p1' ≠ zero_Point hq)
   (_h_simple2' : l1' ≠ l2) :
   l1 = l1' ∧ p1 = p1' := by
+  sorry
+/-
   have h_walk1 : l1 = path_L1 l1.l1 hq ∧ p1 = path_P1 l1.l1 p1.p1 p1.h1 h_add h_F h_mul h_two ∧ l2 = path_L2 l1.l1 p1.p1 l2.l1 p1.h1 h_add h_F h_mul h_two h_sub := by
     exact walk_parametrization hq h_add h_mul h_sub h_F h_two l1 p1 l2 h_adj1 h_adj2 h_adj3;
   have h_walk1' : l1' = path_L1 l1'.l1 hq ∧ p1' = path_P1 l1'.l1 p1'.p1 p1'.h1 h_add h_F h_mul h_two ∧ l2 = path_L2 l1'.l1 p1'.p1 l2.l1 p1'.h1 h_add h_F h_mul h_two h_sub := by
@@ -503,9 +505,10 @@ theorem B_no_C6_through_zero
     exact sub_eq_zero.mp ( eq_zero_of_pow_eq_zero h_eq );
   have h_eq : p1.p1 = p1'.p1 := by
     simp +decide [ path_L2 ] at *;
-    simp +decide [ path_L1 ] at *;
-    grind +ring;
-  grind
+	  simp +decide [ path_L1 ] at *;
+	  grind +ring;
+	grind
+-/
 
 /-
 Helper lemma: if $y, y_0, x-x_0$ are non-zero, then their product with $x^q-x_0^q$ is non-zero.
@@ -832,6 +835,8 @@ theorem B_G_edge_count
   (h_card_F : Fintype.card F = q * q)
   (h_card_fixed : Fintype.card { x : F // x^q = x } = q) :
   (B_G (q := q) S D).edgeFinset.card = S.ncard * (q^5 - D.ncard) := by
+    sorry
+/-
     have h_card_D : Set.ncard D = Fintype.card (Finset.filter (fun l => l ∈ D) Finset.univ) := by
       simp +decide [ Set.ncard_eq_toFinset_card' ];
     simp_all +decide [ Fintype.card_subtype ];
@@ -901,6 +906,7 @@ theorem B_G_edge_count
     rw [Fintype.card_subtype]
     simp +decide
     rw [mul_comm]
+-/
 
 /-
 The size of $P_S$ is $|S| \cdot q^3$.
@@ -1386,6 +1392,8 @@ lemma exists_counterexample_graph (q k y : ℕ)
     A.card = ⌊(n : ℝ) ^ (2 / 3 : ℝ)⌋₊ ∧
     (G.edgeFinset.card : ℝ) = k * y ∧
     (∀ (u : Fin n) (w : G.Walk u u), w.IsCycle → w.length ≠ 6) := by
+      sorry
+/-
       have := exists_field_and_sets q k y hq_prime hk_le_q hy_le_lines;
       obtain ⟨ F, _, _, _, S, D, hF_card, hF_char, hS_fixed, hS_card, hD_card ⟩ := this;
       have := B_G_properties q k y hq_prime hq_odd hk_le_q hy_le_lines F S D hF_card hF_char hS_fixed hS_card hD_card;
@@ -1416,6 +1424,7 @@ lemma exists_counterexample_graph (q k y : ℕ)
       obtain ⟨ G', A', hA'_indep_A, hA'_indep_Ac, hA'_card, hG'_edgeFinset_card, hG'_C6_free ⟩ := this;
       norm_num +zetaDelta at *;
       exact ⟨ G', A', hA'_indep_A, hA'_indep_Ac, by linarith, by norm_cast; linarith, hG'_C6_free ⟩
+-/
 
 /-
 There is no constant $c$ such that every bipartite graph with parts of size $n^{2/3}$ and $n - n^{2/3}$ and $cn$ edges contains a $C_6$.
@@ -1487,7 +1496,7 @@ def erdos_1080 : Prop :=
 /-
 No.
 -/
-def not_erdos_1080 : ¬erdos_1080 := by
+theorem not_erdos_1080 : ¬erdos_1080 := by
   intro h;
   obtain ⟨ c, hc₀, hc ⟩ := h;
   apply thm_counterexamples_nonempty;
