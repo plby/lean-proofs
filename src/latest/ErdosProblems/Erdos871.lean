@@ -533,11 +533,11 @@ theorem lemma3_case2 (seq : NathansonSeq) (k : ℕ) (hk : k ≥ 3) (n : ℕ)
         · unfold NathansonSeq.T;
           exact if_neg ( by linarith ) |> fun h =>
             h.symm ▸ Finset.mem_Icc.mpr ⟨ by linarith, by omega ⟩;
-      convert countRepsGen_ge_of_shiftedPairs
-        ( seq.P k ∪ seq.T k ) x y k ( by linarith ) ( by omega ) ( by omega ) _ _
-        using 1;
-      · exact fun p hp => Finset.mem_union_left _ ( h_shifted_pairs p hp |>.1 );
-      · exact fun p hp => Finset.mem_union_right _ ( h_shifted_pairs p hp |>.2 )
+      rw [ countReps_eq_countRepsGen ];
+      exact countRepsGen_ge_of_shiftedPairs
+        ( seq.P k ∪ seq.T k ) x y k ( by linarith ) ( by omega ) ( by omega )
+        ( fun p hp => Finset.mem_union_left _ ( h_shifted_pairs p hp |>.1 ) )
+        ( fun p hp => Finset.mem_union_right _ ( h_shifted_pairs p hp |>.2 ) )
 
 theorem lemma3_case3 (seq : NathansonSeq) (k : ℕ) (hk : k ≥ 3) (n : ℕ)
     (hn_lo : seq.N (k - 1) + 2 * k - 1 ≤ n)
@@ -2407,7 +2407,7 @@ theorem not_erdos_871 :
           hpairs₂ p hp |>.2.2.1 ⟩;
   · constructor;
     · exact fun t ↦ concreteGC_reps_ge_t t;
-    · convert GrowingConstruction.non_decomposable concreteGC using 1
+    · simpa using GrowingConstruction.non_decomposable concreteGC
 
 end Erdos871
 
