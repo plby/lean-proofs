@@ -372,7 +372,7 @@ exponent map and the nonvanishing of `cCoeff`.
 theorem nu_sparsePoly (N K : ℕ) (hK : 2 ≤ K) :
     nu (sparsePoly N K) = N + 2 := by
   unfold nu
-  simpa [s] using
+  simpa [s, sparsePoly] using
     (Polynomial.card_support_eq' (k := exponent N K) (x := cCoeff N K)
       (exponent_injective N K hK) (cCoeff_ne_zero N K hK))
 
@@ -632,7 +632,7 @@ theorem sparsePoly_rootMultiplicity_at_x0
   have hg : AnalyticAt ℂ (fun z : ℂ => (d N K : ℂ) * Complex.log z) (x0 N K : ℂ) := by
     have hlog : AnalyticAt ℂ Complex.log (x0 N K : ℂ) :=
       analyticAt_clog (x0_mem_slitPlane N K)
-    simpa [mul_comm] using (analyticAt_const.mul hlog)
+    simpa [Pi.mul_apply, mul_comm] using (analyticAt_const.mul hlog)
   have hg' : deriv (fun z : ℂ => (d N K : ℂ) * Complex.log z) (x0 N K : ℂ) ≠ 0 := by
     have hderiv :
         HasDerivAt (fun z : ℂ => (d N K : ℂ) * Complex.log z)
@@ -1647,7 +1647,7 @@ private theorem Rcoeff_succ_tendsto_zero (N : ℕ) (i : Fin N) (hi : 1 ≤ i.1) 
                 * ∏ m ∈ Finset.range i.1, (1 - ((K : ℝ)⁻¹ ^ (m + 1))))
                 * ∏ m ∈ Finset.range (N - i.1 - 1), (1 - ((K : ℝ)⁻¹ ^ (m + 1)))))
         Filter.atTop (𝓝 0) := by
-      simpa [Pi.div_apply] using Filter.Tendsto.div hpow hden one_ne_zero
+      simpa [Pi.div_apply, div_eq_mul_inv] using Filter.Tendsto.div hpow hden one_ne_zero
     simpa [inv_pow] using hdiv
 
 /-- The small correction factor `exp (- λ_i τ)` tends to `1` for every middle index. -/
@@ -1659,7 +1659,7 @@ private theorem small_power_tendsto_one (N : ℕ) (i : Fin N) :
       (fun K : ℕ => Real.log (K : ℝ) / (K : ℝ) ^ ((N - i.1 : ℕ) : ℝ))
       Filter.atTop (𝓝 0) := by
     have hpos : 0 < ((N - i.1 : ℕ) : ℝ) := by exact_mod_cast hp
-    simpa [Function.comp] using
+    simpa [Function.comp_apply, Function.comp_def] using
       (((isLittleO_log_rpow_atTop hpos).tendsto_div_nhds_zero).comp tendsto_natCast_atTop_atTop)
   have hlogK : Filter.Tendsto (fun K : ℕ => Real.log (K : ℝ) / (K : ℝ) ^ (N - i.1))
       Filter.atTop (𝓝 0) := by
@@ -1686,7 +1686,8 @@ private theorem small_power_tendsto_one (N : ℕ) (i : Fin N) :
     have h2Delta : Filter.Tendsto
         (fun K : ℕ => 2 * Delta N K (Fin.last (N + 1))) Filter.atTop (𝓝 (2 : ℝ)) := by
       simpa using (Delta_last_tendsto_one N).const_mul (2 : ℝ)
-    simpa using (Real.continuousAt_log (by norm_num : (2 : ℝ) ≠ 0)).tendsto.comp h2Delta
+    simpa [Function.comp_apply, Function.comp_def] using
+      (Real.continuousAt_log (by norm_num : (2 : ℝ) ≠ 0)).tendsto.comp h2Delta
   have hτsmall : Filter.Tendsto
       (fun K : ℕ => (lambda N K (midIdx i)) * tau N K) Filter.atTop (𝓝 0) := by
     have hK : ∀ᶠ K in Filter.atTop, 2 ≤ K := Filter.eventually_ge_atTop 2
@@ -1769,11 +1770,11 @@ theorem M_tendsto_two_sqrt_two (N : ℕ) (hN : 1 ≤ N) :
           = F 0 + (∑ i : Fin N, F (midIdx i)) + F (Fin.last (N + 1)) := by
       have hsucc :
           (∑ j : Fin (s N), F j) = F 0 + ∑ i : Fin (N + 1), F i.succ := by
-        simpa [F, s] using (Fin.sum_univ_succ (f := F))
+        simpa [s] using (Fin.sum_univ_succ (f := F))
       have htail :
           (∑ i : Fin (N + 1), F i.succ)
             = (∑ i : Fin N, F (midIdx i)) + F (Fin.last (N + 1)) := by
-        simpa [midIdx, F] using
+        simpa [midIdx_eq_succ_castSucc] using
           (Fin.sum_univ_castSucc (f := fun j : Fin (N + 1) => F j.succ))
       calc
         (∑ j : Fin (s N), F j) = F 0 + ∑ i : Fin (N + 1), F i.succ := hsucc
@@ -1784,7 +1785,7 @@ theorem M_tendsto_two_sqrt_two (N : ℕ) (hN : 1 ≤ N) :
     dsimp [F] at hsplit
     rw [lambda_zero, lambda_last N K hK] at hsplit
     convert hsplit using 1
-    ring_nf
+    all_goals ring_nf
   exact (Filter.tendsto_congr' hmain).mpr <| by
     have hfirst :
       Filter.Tendsto (fun K : ℕ => Acoeff N K 0 * Real.exp (tau N K / 2))
@@ -1840,7 +1841,7 @@ theorem M_tendsto_two_sqrt_two (N : ℕ) (hN : 1 ≤ N) :
                 * (Rcoeff N K i * Real.exp (-(lambda N K (midIdx i)) * tau N K)) := by
                   ring
       by_cases hi : i.1 = 0
-      · let i0 : Fin N := ⟨0, by simpa using hN⟩
+      · let i0 : Fin N := ⟨0, by omega⟩
         have hi0 : i = i0 := Fin.ext hi
         subst i
         have hR : Filter.Tendsto (fun K : ℕ => Rcoeff N K i0) Filter.atTop (𝓝 1) :=
@@ -1849,7 +1850,7 @@ theorem M_tendsto_two_sqrt_two (N : ℕ) (hN : 1 ≤ N) :
             (fun K : ℕ => Real.exp (-(lambda N K (midIdx i0)) * tau N K)) Filter.atTop (𝓝 1) :=
           small_power_tendsto_one N i0
         refine (Filter.tendsto_congr' hEq).mpr ?_
-        simpa using hfirst.mul (hR.mul hsmall)
+        simpa [i0] using hfirst.mul (hR.mul hsmall)
       · have hi' : 1 ≤ i.1 := Nat.succ_le_of_lt (Nat.pos_of_ne_zero hi)
         have hR : Filter.Tendsto (fun K : ℕ => Rcoeff N K i) Filter.atTop (𝓝 0) :=
           Rcoeff_succ_tendsto_zero N i hi'
