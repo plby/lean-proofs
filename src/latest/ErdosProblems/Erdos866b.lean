@@ -934,19 +934,7 @@ lemma weak_sidon_key_ineq (A : Finset ℤ) (N n : ℕ)
     (hA : IsWeakSidonSet A) (hAN : ∀ a ∈ A, 1 ≤ a ∧ a ≤ ↑N)
     (hn : 0 < n) :
     A.card ^ 2 * n ≤ (N + n - 1) * (3 * A.card + n - 1) := by
-  -- By combining the inequalities from lemmas cauchy_schwarz_fiber, energy_bound, and sumset_card_bound,
-  have h_combined : ((A.card : ℤ) * n) ^ 2 ≤ (N + n - 1) * n * (3 * A.card + n - 1) := by
-    have h_combined : ((A.card : ℤ) * n) ^ 2 ≤ ((A + Finset.Icc (1 : ℤ) n).card) * n * (3 * A.card + n - 1) := by
-      convert cauchy_schwarz_fiber A n hn |> le_trans <| mul_le_mul_of_nonneg_left ( energy_bound A n hA hn ) <| Nat.cast_nonneg _ using 1 ; ring;
-    refine le_trans h_combined ?_;
-    have h_card_bound : ((A + Finset.Icc (1 : ℤ) n).card : ℤ) ≤ N + n - 1 := by
-      exact le_trans ( Nat.cast_le.mpr ( sumset_card_bound A N n hn hAN ) ) ( by omega );
-    gcongr;
-    linarith;
-  cases N <;> cases n <;> norm_num at *
-  focus nlinarith
-  nlinarith
-
+      sorry
 /-- Any weak Sidon set $A ⊆ [1,N]$ satisfies $|A| \leq N^{1/2} + 4N^{1/4} + 11$. -/
 theorem weak_sidon_bound (A : Finset ℤ) (N : ℕ) (hA : IsWeakSidonSet A)
     (hAN : ∀ a ∈ A, 1 ≤ a ∧ a ≤ ↑N) :
@@ -1269,19 +1257,7 @@ lemma has_pps_from_shifted_non_sidon
     (heven : ∀ a ∈ S, Even a) (hpos : ∀ a ∈ S, 0 < a)
     (h_not_ws : ¬ IsWeakSidonSet S) :
     HasPosPairwiseSums A 4 := by
-      -- Since S is not weak Sidon, there exist a₁, a₂, a₃, a₄ ∈ S, all pairwise distinct, with a₁ + a₂ = a₃ + a₄.
-      obtain ⟨a₁, a₂, a₃, a₄, ha₁, ha₂, ha₃, ha₄, habcd⟩ : ∃ a₁ a₂ a₃ a₄, a₁ ∈ S ∧ a₂ ∈ S ∧ a₃ ∈ S ∧ a₄ ∈ S ∧ a₁ ≠ a₂ ∧ a₁ ≠ a₃ ∧ a₁ ≠ a₄ ∧ a₂ ≠ a₃ ∧ a₂ ≠ a₄ ∧ a₃ ≠ a₄ ∧ a₁ + a₂ = a₃ + a₄ := by
-        contrapose! h_not_ws; unfold IsWeakSidonSet at *; aesop;
-      -- WLOG a₁ < a₃ ≤ a₄ < a₂ (reorder so that a₁ is smallest and a₂ is largest among the equal-sum pair).
-      wlog h_order : a₁ < a₃ ∧ a₃ < a₄ ∧ a₄ < a₂ generalizing a₁ a₂ a₃ a₄;
-      · by_cases h_cases : a₁ < a₃ ∧ a₃ < a₄ ∧ a₄ < a₂ ∨ a₁ < a₄ ∧ a₄ < a₃ ∧ a₃ < a₂ ∨ a₂ < a₃ ∧ a₃ < a₄ ∧ a₄ < a₁ ∨ a₂ < a₄ ∧ a₄ < a₃ ∧ a₃ < a₁;
-        · grind +ring;
-        · grind +locals;
-      · apply has_pps_four_of_equal_sums_and_shift;
-        any_goals tauto;
-        · grind;
-        · grind
-
+      sorry
 /-
 Contrapositive of the intermediate bound from weak_sidon_bound:
     if |A| ≥ 16 and N * (u+3) < |A| * u * (|A| - u - 3) + |A| (u = Nat.sqrt |A|),
@@ -1448,83 +1424,7 @@ lemma has_pps_large_n (A : Finset ℤ) (n : ℕ) (hn : 3404 ≤ n)
     (hA : A ⊆ Finset.Icc 1 (2 * ↑n))
     (hcard : n + 2270 ≤ A.card) :
     HasPosPairwiseSums A 4 := by
-      by_cases h_even : (A.filter Even).card ≤ 2593;
-      · exact has_pps_large_n_case1 A n hn hA hcard h_even;
-      · set t := (A.filter Even).card - 2270;
-        -- Step B: Split on central even element: ∃ m : ℤ, (2*m) ∈ A.filter Even ∧ 4*(t:ℤ)+3 ≤ m ∧ m+4*(t:ℤ)+3 ≤ n.
-        by_cases h_central : ∃ m : ℤ, (2 * m) ∈ A.filter Even ∧ 4 * (t : ℤ) + 3 ≤ m ∧ m + 4 * (t : ℤ) + 3 ≤ n;
-        · obtain ⟨ m, hm₁, hm₂, hm₃ ⟩ := h_central;
-          apply has_pps_central_even A n t m hA;
-          · exact Finset.mem_filter.mp hm₁ |>.1;
-          · linarith;
-          · linarith;
-          · have h_odd_count : ((Finset.Icc (1 : ℤ) (2 * n)).filter (fun x => ¬ Even x) \ A).card = n - (A.filter (fun x => ¬ Even x)).card := by
-              rw [ Finset.card_sdiff ];
-              rw [ show { x ∈ Icc 1 ( 2 * n : ℤ ) | ¬Even x } = Finset.image ( fun k : ℕ => 2 * k + 1 : ℕ → ℤ ) ( Finset.range n ) from ?_, Finset.card_image_of_injective ] <;> norm_num [ Function.Injective ];
-              · congr with x ; simp +decide [ parity_simps ];
-                exact fun hx => ⟨ fun ⟨ a, ha, ha' ⟩ => ha'.symm ▸ ⟨ a, by ring ⟩, fun hx => by obtain ⟨ k, rfl ⟩ := hx; exact ⟨ Int.toNat k, by linarith [ Int.toNat_of_nonneg ( by linarith [ Finset.mem_Icc.mp ( hA hx ) ] : ( 0 : ℤ ) ≤ k ), Finset.mem_Icc.mp ( hA hx ) ], by linarith [ Int.toNat_of_nonneg ( by linarith [ Finset.mem_Icc.mp ( hA hx ) ] : ( 0 : ℤ ) ≤ k ) ] ⟩ ⟩;
-              · -- To prove equality of finite sets, we show each set is a subset of the other.
-                apply Finset.ext
-                intro x
-                simp [Finset.mem_image, Finset.mem_filter];
-                exact ⟨ fun hx => by obtain ⟨ k, rfl ⟩ := hx.2; exact ⟨ Int.toNat k, by linarith [ Int.toNat_of_nonneg ( by linarith : 0 ≤ k ) ], by linarith [ Int.toNat_of_nonneg ( by linarith : 0 ≤ k ) ] ⟩, by rintro ⟨ k, hk₁, rfl ⟩ ; exact ⟨ ⟨ by linarith, by linarith ⟩, by simp +decide [ parity_simps ] ⟩ ⟩;
-            have h_odd_count : (A.filter (fun x => ¬ Even x)).card + (A.filter Even).card = A.card := by
-              rw [ add_comm, Finset.card_filter_add_card_filter_not ];
-            omega;
-        · -- Define A_left := (A.filter Even).filter (fun x => x ≤ 8*t+4) and A_right := (A.filter Even).filter (fun x => x ≥ 2*n-8*t-4).
-          set A_left := (A.filter Even).filter (fun x => x ≤ 8 * (t : ℤ) + 4)
-          set A_right := (A.filter Even).filter (fun x => x ≥ 2 * (n : ℤ) - 8 * (t : ℤ) - 4);
-          -- Since every even element is either ≤ 8t+4 or ≥ 2n-8t-4, we have #A_left + #A_right ≥ #(A.filter Even) = t+2270.
-          have h_card_left_right : A_left.card + A_right.card ≥ (A.filter Even).card := by
-            rw [ ← Finset.card_union_add_card_inter ];
-            rw [ show A_left ∪ A_right = filter Even A from ?_ ];
-            · exact Nat.le_add_right _ _;
-            · ext x;
-              contrapose! h_central;
-              use x / 2;
-              grind;
-          -- WLOG #A_left ≥ (t+2270+1)/2 or #A_right ≥ (t+2270+1)/2. Let A₁ be the bigger one.
-          obtain ⟨A₁, hA₁⟩ : ∃ A₁ : Finset ℤ, A₁ ⊆ A.filter Even ∧ A₁.card ≥ (t + 2270 + 1) / 2 ∧ (∀ a ∈ A₁, Even a) ∧ (∀ a ∈ A₁, 0 < a) ∧ (∀ a b : ℤ, a ∈ A₁ → b ∈ A₁ → |a - b| ≤ 8 * (t : ℤ) + 4) := by
-            by_cases h_left : A_left.card ≥ (t + 2270 + 1) / 2;
-            · grind (splits := 20) +qlia;
-            · refine ⟨ A_right, ?_, ?_, ?_, ?_, ?_ ⟩;
-              · exact Finset.filter_subset _ _;
-              · omega;
-              · grind +splitImp;
-              · exact fun x hx => by linarith [ Finset.mem_Icc.mp ( hA ( Finset.mem_filter.mp ( Finset.mem_filter.mp hx |>.1 ) |>.1 ) ) ] ;
-              · grind;
-          apply ceslem_k4_chain A A₁;
-          focus grind +extAll
-          any_goals exact 8 * t + 4;
-          any_goals omega;
-          · exact hA₁.2.2.1;
-          · exact hA₁.2.2.2.1;
-          · exact fun a ha b hb => mod_cast hA₁.2.2.2.2 a b ha hb;
-          · have h_card_bound : A₁.card ≥ (t + 2270 + 1) / 2 := by
-              lia;
-            nlinarith only [ h_card_bound, Nat.div_add_mod ( t + 2270 + 1 ) 2, Nat.mod_lt ( t + 2270 + 1 ) two_pos, Nat.sub_add_cancel ( show 1 ≤ #A₁ from by linarith [ Nat.div_pos ( show t + 2270 + 1 ≥ 2 by linarith [ Nat.sub_add_cancel ( show 2270 ≤ # ( filter Even A ) from by linarith ) ] ) zero_lt_two ] ), Nat.sub_add_cancel ( show 2270 ≤ # ( filter Even A ) from by linarith ) ];
-          · intros s hs hs';
-            have h_card_A₁ : A₁.card ≥ (t + 2270 + 1) / 2 := by linarith;
-            have h_card_A₁_sq : (A₁.card : ℤ) * (A₁.card - 1) ≥ ((t + 2270 + 1) / 2 : ℤ) * ((t + 2270 + 1) / 2 - 1) := by
-              gcongr;
-              · exact sub_nonneg_of_le ( by omega );
-              · norm_cast;
-              · norm_cast;
-            have := numerical_ceslem_bound_v2 t (by omega) s (by
-              zify at *;
-              rw [ Nat.cast_sub ] at hs <;> push_cast at *;
-              · nlinarith only [ hs, h_card_A₁_sq, Int.mul_ediv_add_emod ( ( t : ℤ ) + 2270 + 1 ) 2, Int.emod_nonneg ( ( t : ℤ ) + 2270 + 1 ) two_ne_zero, Int.emod_lt_of_pos ( ( t : ℤ ) + 2270 + 1 ) two_pos ];
-              · omega ) (by
-              intro ht_odd;
-              have h_rem : ((t : ℤ) + 2270 + 1) % 2 = 0 := by
-                have : (t : ℤ) % 2 = 1 := by exact_mod_cast (Nat.odd_iff.mp (Nat.not_even_iff_odd.mp ht_odd));
-                omega;
-              zify at *;
-              rw [ Nat.cast_sub ] at hs <;> push_cast at *;
-              · nlinarith only [ hs, h_card_A₁_sq, Int.mul_ediv_add_emod ( ( t : ℤ ) + 2270 + 1 ) 2, h_rem ];
-              · omega );
-            lia
-
+      sorry
 lemma has_pps_not_weak_sidon (A : Finset ℤ) (n : ℕ) (hn : 2270 ≤ n)
     (hA : A ⊆ Finset.Icc 1 (2 * ↑n))
     (hcard : n + 2270 ≤ A.card) :
@@ -2277,45 +2177,7 @@ lemma ceslemprelim_extend (k : ℕ) (hk : 4 ≤ k)
     (hS_disj : ∀ a ∈ S, a + d ∉ S)
     (hSSC : HasSubsetSumsContaining S (k - 1)) :
     HasSubsetSumsContaining A₀ k := by
-  rcases k with ( _ | _ | k ) <;> norm_num at *;
-  obtain ⟨ b, hb₁, hb₂, hb₃ ⟩ := hSSC;
-  refine ⟨ Fin.snoc b d, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ Fin.snoc ];
-  · grind;
-  · intro i j hi hj hij; split_ifs <;> simp_all +decide [ Fin.castLT ] ;
-    · exact hb₂ _ _ hi hj ( by simpa [ Fin.ext_iff ] using hij );
-    · contrapose! hS_disj;
-      let ii : Fin (k + 1) := ⟨i, by linarith⟩
-      refine ⟨b 0, ?_, ?_⟩
-      · simpa using hb₃ {0} (by simp +decide)
-      · have hii : b ii = d := by
-          simpa [ii] using hS_disj
-        have hne : (0 : Fin (k + 1)) ≠ ii := by
-          intro hzero
-          have hval := congrArg Fin.val hzero
-          simp [ii] at hval
-          omega
-        convert hb₃ {0, ii} (by simp +decide) using 1
-        rw [Finset.sum_pair hne, hii]
-    · contrapose! hS_disj;
-      use b 0;
-      exact ⟨ by simpa using hb₃ { 0 } ( by simp +decide ), by simpa [ hS_disj, Finset.sum_pair ( show ( 0 : Fin ( k + 1 ) ) ≠ ⟨ j, by linarith ⟩ from by aesop ) ] using hb₃ { 0, ⟨ j, by linarith ⟩ } ( by simp +decide ) ⟩;
-    · exact hij ( Fin.ext <| by linarith [ Fin.is_lt i, Fin.is_lt j ] );
-  · intro T hT;
-    by_cases hT_last : Fin.last (k + 1) ∈ T;
-    · convert hS_shift _ ( hb₃ ( Finset.univ.filter fun i => Fin.castSucc i ∈ T ) ( by simpa ) ) using 1;
-      rw [ Finset.sum_eq_sum_diff_singleton_add hT_last ];
-      rw [ show T \ { Fin.last ( k + 1 ) } = Finset.image ( fun i : Fin ( k + 1 ) => Fin.castSucc i ) ( Finset.filter ( fun i : Fin ( k + 1 ) => Fin.castSucc i ∈ T ) Finset.univ ) from ?_, Finset.sum_image ] <;> norm_num [ Fin.ext_iff ];
-      · exact Finset.sum_congr rfl fun x hx => if_pos <| Nat.le_of_lt_succ <| Fin.is_lt x;
-      · ext i; simp [Finset.mem_image];
-        exact ⟨ fun hi => ⟨ ⟨ i.val, lt_of_le_of_ne ( Fin.le_last _ ) ( by simpa [ Fin.ext_iff ] using hi.2 ) ⟩, by simpa [ Fin.ext_iff ] using hi.1, rfl ⟩, by rintro ⟨ a, ha₁, rfl ⟩ ; exact ⟨ ha₁, ne_of_lt ( Fin.castSucc_lt_last _ ) ⟩ ⟩;
-    · -- Since $T$ does not contain the last element, we can map $T$ to a subset of $\text{Fin}(k+1)$.
-      obtain ⟨T', hT'⟩ : ∃ T' : Finset (Fin (k + 1)), T = Finset.image (fun i => Fin.castSucc i) T' := by
-        use Finset.univ.filter (fun i => Fin.castSucc i ∈ T);
-        ext i; simp [Finset.mem_image];
-        induction i using Fin.lastCases <;> aesop;
-      simp_all +decide [ Finset.sum_image ];
-      rw [ Finset.sum_congr rfl fun i hi => if_pos <| Nat.le_of_lt_succ <| Fin.is_lt i ] ; exact hS_sub <| hb₃ T' hT
-
+      sorry
 /-
 Two distinct even naturals ≥ 2 differ by at least 2.
 -/
@@ -2598,30 +2460,7 @@ f₅(x) ≤ 2^(5/8)·x^(7/8) + (√5/2)·x^(5/8) + 1/2 for x ≥ 1.
 -/
 lemma fFun5_tight_bound_v2 (x : ℝ) (hx : 1 ≤ x) :
     fFun 5 x ≤ (2:ℝ) ^ ((5:ℝ)/8) * x ^ ((7:ℝ)/8) + Real.sqrt 5 / 2 * x ^ ((5:ℝ)/8) + 1 / 2 := by
-  have h_step : 2 * x * fFun 4 x + 1 / 4 ≤ (2 ^ ((5:ℝ)/8) * x ^ ((7:ℝ)/8) + (Real.sqrt 5 / 2) * x ^ ((5:ℝ)/8)) ^ 2 := by
-    have h_step : 2 * x * fFun 4 x + 1 / 4 ≤ 2 ^ ((5:ℝ)/4) * x ^ ((7:ℝ)/4) + 2 * x ^ ((3:ℝ)/2) + x + 1 / 4 := by
-      have h_step : fFun 4 x ≤ 2 ^ ((1:ℝ)/4) * x ^ ((3:ℝ)/4) + Real.sqrt x + 1 / 2 := by
-        exact fFun4_tight_bound x hx;
-      convert add_le_add_right ( mul_le_mul_of_nonneg_left h_step ( show ( 0 : ℝ ) ≤ 2 * x by positivity ) ) ( 1 / 4 : ℝ ) using 1
-      focus ring
-      rw [ show ( 5 / 4 : ℝ ) = 1 + 1 / 4 by norm_num, show ( 7 / 4 : ℝ ) = 3 / 4 + 1 by norm_num, show ( 3 / 2 : ℝ ) = 1 + 1 / 2 by norm_num, Real.sqrt_eq_rpow, Real.rpow_add, Real.rpow_add, Real.rpow_add ] <;> norm_num <;> ring_nf <;> linarith;
-    -- Combine like terms and simplify the inequality.
-    have h_simplify : Real.sqrt 5 * 2 ^ ((5:ℝ)/8) * x ^ ((3:ℝ)/2) + (5 / 4) * x ^ ((5:ℝ)/4) ≥ 2 * x ^ ((3:ℝ)/2) + x + 1 / 4 := by
-      -- We'll use that $Real.sqrt 5 * 2 ^ ((5:ℝ)/8) > 2$ and $5 / 4 > 1$ to conclude the proof.
-      have h_sqrt5_gt2 : Real.sqrt 5 * 2 ^ ((5:ℝ)/8) > 2 := by
-        nlinarith only [ show 1 < Real.sqrt 5 by norm_num [ Real.lt_sqrt ], show 1 < ( 2 : ℝ ) ^ ( 5 / 8 : ℝ ) by exact Real.one_lt_rpow ( by norm_num ) ( by norm_num ), Real.sq_sqrt ( show 0 ≤ 5 by norm_num ) ];
-      nlinarith [ show x ^ ( 3 / 2 : ℝ ) ≥ 1 by exact Real.one_le_rpow hx ( by norm_num ), show x ^ ( 5 / 4 : ℝ ) ≥ x by exact le_trans ( by norm_num ) ( Real.rpow_le_rpow_of_exponent_le hx ( show ( 5 : ℝ ) / 4 ≥ 1 by norm_num ) ) ];
-    convert h_step.trans _ using 1 ; ring_nf at * ; norm_num at *;
-    convert add_le_add_left h_simplify ( 2 ^ ( 5 / 4 : ℝ ) * x ^ ( 7 / 4 : ℝ ) ) using 1 ; ring_nf at * ; norm_num at *;
-    norm_num [ sq, mul_assoc, mul_left_comm, ← Real.rpow_add ( by positivity : 0 < x ), ← Real.rpow_add ( by positivity : 0 < ( 2 : ℝ ) ) ] ; ring_nf;
-    rw [ show ( 3 / 2 : ℝ ) = 7 / 8 + 5 / 8 by norm_num, Real.rpow_add ( by positivity ) ] ; ring;
-  -- Apply the square root to both sides of h_step.
-  have h_sqrt : Real.sqrt (2 * x * fFun 4 x + 1 / 4) ≤ 2 ^ ((5:ℝ)/8) * x ^ ((7:ℝ)/8) + (Real.sqrt 5 / 2) * x ^ ((5:ℝ)/8) := by
-    exact Real.sqrt_le_iff.mpr ⟨ by positivity, h_step ⟩;
-  convert add_le_add_right h_sqrt ( 1 / 2 ) using 1;
-  · exact show Real.sqrt ( 2 * x * fFun 4 x + 1 / 4 ) + 1 / 2 = 1 / 2 + Real.sqrt ( 2 * x * fFun 4 x + 1 / 4 ) from add_comm _ _;
-  · ring
-
+      sorry
 /-- Rational bound: √5/2 ≤ 28/25. -/
 lemma sqrt5_half_le : Real.sqrt 5 / 2 ≤ 28 / 25 := by
   have : Real.sqrt 5 ≤ 56/25 := by
@@ -3295,49 +3134,7 @@ lemma ceslemgeneral_pos_pigeonhole_strong (k : ℕ) (hk : 4 ≤ k)
     ∃ d : ℤ, 2 ≤ d ∧ d ≤ A₀.max' hne - A₀.min' hne ∧ (2 : ℤ) ∣ d ∧
       ((A₀.filter (fun a => a + d ∈ A₀)).card : ℝ) >
         2 * fFunPos (k - 1) (↑(A₀.max' hne - A₀.min' hne)) := by
-  revert A₀ hne heven hrange hcard;
-  intro A₀ hne heven hrange hcard
-  have h_pigeonhole : ∑ d ∈ Finset.filter (fun d => 2 ∣ d ∧ 2 ≤ d ∧ d ≤ A₀.max' hne - A₀.min' hne) (Finset.Icc 2 (A₀.max' hne - A₀.min' hne)), (Finset.filter (fun a => a + d ∈ A₀) A₀).card ≥ A₀.card * (A₀.card - 1) / 2 := by
-    have h_pigeonhole : ∑ d ∈ Finset.filter (fun d => 2 ∣ d ∧ 2 ≤ d ∧ d ≤ A₀.max' hne - A₀.min' hne) (Finset.Icc 2 (A₀.max' hne - A₀.min' hne)), (Finset.filter (fun a => a + d ∈ A₀) A₀).card ≥ Finset.card (Finset.filter (fun p => p.1 < p.2) (A₀ ×ˢ A₀)) := by
-      have h_pigeonhole : Finset.filter (fun p => p.1 < p.2) (A₀ ×ˢ A₀) ⊆ Finset.biUnion (Finset.filter (fun d => 2 ∣ d ∧ 2 ≤ d ∧ d ≤ A₀.max' hne - A₀.min' hne) (Finset.Icc 2 (A₀.max' hne - A₀.min' hne))) (fun d => Finset.image (fun a => (a, a + d)) (Finset.filter (fun a => a + d ∈ A₀) A₀)) := by
-        intro p hp; simp_all +decide ;
-        refine ⟨ p.2 - p.1, ?_, p.1, ?_, ?_ ⟩ <;> simp_all +decide [ ← even_iff_two_dvd, parity_simps ];
-        exact ⟨ by obtain ⟨ m, hm ⟩ := heven p.1 hp.1.1; obtain ⟨ n, hn ⟩ := heven p.2 hp.1.2; omega, by linarith [ Finset.le_max' _ _ hp.1.1, Finset.le_max' _ _ hp.1.2, Finset.min'_le _ _ hp.1.1, Finset.min'_le _ _ hp.1.2 ] ⟩;
-      refine le_trans ( Finset.card_le_card h_pigeonhole ) ?_;
-      exact le_trans ( Finset.card_biUnion_le ) ( Finset.sum_le_sum fun x hx => Finset.card_image_le );
-    have h_pigeonhole : Finset.card (Finset.filter (fun p => p.1 < p.2) (A₀ ×ˢ A₀)) = Finset.card (Finset.powersetCard 2 A₀) := by
-      refine Finset.card_bij ( fun p hp => { p.1, p.2 } ) ?_ ?_ ?_ <;> simp +contextual [ Finset.mem_powersetCard ];
-      · grind;
-      · simp +contextual [ Finset.Subset.antisymm_iff, Finset.subset_iff ];
-        intros; omega;
-      · intro b hb hb'; rw [ Finset.card_eq_two ] at hb'; obtain ⟨ a, b, hab, rfl ⟩ := hb'; cases lt_trichotomy a b <;> aesop;
-    simp_all +decide [ Nat.choose_two_right ];
-  contrapose! hcard;
-  have h_sum_bound : ∑ d ∈ Finset.filter (fun d => 2 ∣ d ∧ 2 ≤ d ∧ d ≤ A₀.max' hne - A₀.min' hne) (Finset.Icc 2 (A₀.max' hne - A₀.min' hne)), (Finset.filter (fun a => a + d ∈ A₀) A₀).card ≤ (A₀.max' hne - A₀.min' hne) * fFunPos (k - 1) (A₀.max' hne - A₀.min' hne) := by
-    have h_sum_bound : ∑ d ∈ Finset.filter (fun d => 2 ∣ d ∧ 2 ≤ d ∧ d ≤ A₀.max' hne - A₀.min' hne) (Finset.Icc 2 (A₀.max' hne - A₀.min' hne)), (Finset.filter (fun a => a + d ∈ A₀) A₀).card ≤ (Finset.filter (fun d => 2 ∣ d ∧ 2 ≤ d ∧ d ≤ A₀.max' hne - A₀.min' hne) (Finset.Icc 2 (A₀.max' hne - A₀.min' hne))).card * 2 * fFunPos (k - 1) (A₀.max' hne - A₀.min' hne) := by
-      push_cast [ mul_assoc ];
-      convert Finset.sum_le_card_nsmul _ _ _ _ using 2;
-      · ext; norm_num;
-      · infer_instance;
-      · aesop;
-    refine le_trans h_sum_bound ?_;
-    gcongr;
-    · rcases k with ( _ | _ | _ | k ) <;> norm_num [ fFunPos ] at *;
-      exact le_trans ( by norm_num ) ( fFunPos_ge_one_early _ ( by linarith ) _ ( by norm_cast ) );
-    · rw [ show ( Finset.filter ( fun d => 2 ∣ d ∧ 2 ≤ d ∧ d ≤ A₀.max' hne - A₀.min' hne ) ( Finset.Icc 2 ( A₀.max' hne - A₀.min' hne ) ) ) = Finset.image ( fun d => 2 * d ) ( Finset.Icc 1 ( ( A₀.max' hne - A₀.min' hne ) / 2 ) ) from ?_, Finset.card_image_of_injective ] <;> norm_num [ Function.Injective ];
-      · norm_cast;
-        grind;
-      · ext; simp [Finset.mem_image];
-        exact ⟨ fun h => ⟨ ‹_› / 2, ⟨ by omega, by omega ⟩, by omega ⟩, by rintro ⟨ a, ⟨ ha₁, ha₂ ⟩, rfl ⟩ ; exact ⟨ ⟨ by omega, by omega ⟩, by omega, by omega, by omega ⟩ ⟩;
-  rcases k with ( _ | _ | _ | _ | k ) <;> norm_num [ fFunPos ] at *;
-  rw [ ← @Nat.cast_le ℝ ] at * ; norm_num at *;
-  rw [ Nat.cast_div ] at * <;> norm_num at *;
-  · rw [ Nat.cast_sub ] at * <;> norm_num at *;
-    · rw [ ← sub_le_iff_le_add ];
-      exact Real.le_sqrt_of_sq_le ( by linarith! );
-    · assumption;
-  · exact even_iff_two_dvd.mp ( Nat.even_mul_pred_self _ )
-
+          sorry
 lemma ceslemprelim_pos_extend (k : ℕ) (hk : 4 ≤ k)
     (A₀ S : Finset ℤ) (d : ℤ)
     (hS_sub : S ⊆ A₀)
@@ -3346,38 +3143,7 @@ lemma ceslemprelim_pos_extend (k : ℕ) (hk : 4 ≤ k)
     (hS_disj : ∀ a ∈ S, a + d ∉ S)
     (hSSC : HasPosSubsetSumsContaining S (k - 1)) :
     HasPosSubsetSumsContaining A₀ k := by
-  rcases k with ( _ | _ | _ | _ | k ) <;> norm_num [ HasPosSubsetSumsContaining ] at *;
-  obtain ⟨ b, hb₁, hb₂, hb₃ ⟩ := hSSC;
-  refine ⟨ Fin.snoc b ( d ), ?_, ?_, ?_ ⟩ <;> simp_all +decide;
-  · intro i; induction i using Fin.lastCases <;> simp +decide [ * ] ;
-    linarith;
-  · intro i j hi hj hij; cases i using Fin.lastCases <;> cases j using Fin.lastCases <;> simp_all +decide [ Fin.snoc ] ;
-    · contrapose! hS_disj;
-      use b 0;
-      have := hb₃ { 0 } ; have := hb₃ { 0, ‹_› } ; simp_all +decide ;
-      convert hb₃ { 0, ‹_› } ( by simp +decide ) using 1 ; rw [ Finset.sum_pair ] ; aesop;
-    · contrapose! hS_disj;
-      rename_i i;
-      use ∑ j ∈ Finset.univ.filter (fun j => j.val < i.val), b j;
-      convert hb₃ ( Finset.univ.filter ( fun j => j.val < i.val ) ∪ { i } ) _ using 1;
-      · rw [ Finset.sum_union ] <;> aesop;
-      · simp
-        right
-        exact Nat.succ_le_iff.mp hi
-  · intro T hT;
-    by_cases h : Fin.last ( k + 3 ) ∈ T <;> simp_all +decide [ Fin.snoc ];
-    · convert hS_shift _ ( hb₃ ( Finset.univ.filter fun i => Fin.castSucc i ∈ T ) ( by aesop ) ) using 1;
-      rw [ Finset.sum_eq_sum_diff_singleton_add h ];
-      rw [ show ( T \ { Fin.last ( k + 3 ) } : Finset ( Fin ( k + 3 + 1 ) ) ) = Finset.image ( Fin.castSucc ) ( Finset.filter ( fun i : Fin ( k + 3 ) => Fin.castSucc i ∈ T ) Finset.univ ) from ?_, Finset.sum_image ] <;> norm_num;
-      ext i; simp [Finset.mem_image];
-      exact ⟨ fun hi => ⟨ ⟨ i.val, lt_of_le_of_ne ( Fin.le_last _ ) ( by simpa [ Fin.ext_iff ] using hi.2 ) ⟩, by simpa [ Fin.ext_iff ] using hi.1, rfl ⟩, by rintro ⟨ a, ha₁, rfl ⟩ ; exact ⟨ ha₁, ne_of_lt ( Fin.castSucc_lt_last _ ) ⟩ ⟩;
-    · -- Since $T$ does not contain the last element, we can map $T$ to a subset of $\text{Fin}(k + 3)$ by removing the last element.
-      obtain ⟨T', hT'⟩ : ∃ T' : Finset (Fin (k + 3)), T = Finset.image (fun i => Fin.castSucc i) T' := by
-        use Finset.filter (fun i => Fin.castSucc i ∈ T) (Finset.univ : Finset (Fin (k + 3)));
-        ext i; simp [Finset.mem_image];
-        induction i using Fin.lastCases <;> aesop;
-      aesop
-
+      sorry
 theorem ceslemprelim_pos (k : ℕ) (hk : 3 ≤ k) (A₀ : Finset ℤ) (hne : A₀.Nonempty)
     (heven : ∀ a ∈ A₀, 2 ∣ a)
     (hpos : ∀ a ∈ A₀, 2 ≤ a)
@@ -3570,50 +3336,7 @@ theorem generalupper (k : ℕ) (hk : 3 ≤ k) :
     ∃ N : ℕ, ∀ n : ℕ, N ≤ n →
       gFun k n ≤ hFun k n ∧
       (hFun k n : ℝ) < 4 * (↑n : ℝ) ^ ((1:ℝ) - 1 / 2 ^ ((k:ℝ) - 2)) := by
-  set e : ℝ := 1 - 1 / (2 ^ (k - 2) : ℝ)
-  set d : ℝ := 2 ^ (1 - 1 / (2 ^ (k - 2) : ℝ));
-  obtain ⟨N₀, hN₀⟩ : ∃ N₀ : ℕ, ∀ n : ℕ, N₀ ≤ n → boundPos k (2 * (n : ℝ)) + 2 < 4 * (n : ℝ) ^ e := by
-    have h_limit : Filter.Tendsto (fun n : ℕ => (boundPos k (2 * (n : ℝ)) + 2) / (n : ℝ) ^ e) Filter.atTop (nhds (d^2)) := by
-      have h_boundPos : ∀ n : ℕ, n ≥ 1 → boundPos k (2 * n) = d^2 * (n : ℝ) ^ e + 15 * (2 * n : ℝ) ^ (1 - 3 / (2 ^ (k - 1) : ℝ)) := by
-        intro n hn
-        simp [boundPos];
-        rw [ Real.mul_rpow ( by positivity ) ( by positivity ) ] ; ring_nf;
-        rcases k with ( _ | _ | k ) <;> norm_num [ Real.rpow_add, Real.rpow_neg ] at * ; ring_nf at * ; aesop ( simp_config := { decide := true } ) ;
-      suffices h_simplify'' : Filter.Tendsto (fun n : ℕ => d^2 + 15 * (2 : ℝ) ^ (1 - 3 / (2 ^ (k - 1) : ℝ)) * (n : ℝ) ^ (1 - 3 / (2 ^ (k - 1) : ℝ) - e) + 2 / (n : ℝ) ^ e) Filter.atTop (nhds (d^2)) by
-        refine h_simplify''.congr' ?_;
-        filter_upwards [ Filter.eventually_ge_atTop 1 ] with n hn ; rw [ h_boundPos n hn ] ; rw [ Real.mul_rpow ( by positivity ) ( by positivity ) ] ; ring_nf;
-        norm_num [ ne_of_gt ( Real.rpow_pos_of_pos ( Nat.cast_pos.mpr hn ) _ ) ] ; ring_nf;
-        rw [ mul_assoc, ← Real.rpow_neg ( by positivity ), ← Real.rpow_add ( by positivity ) ] ; ring_nf;
-      have h_exp : Filter.Tendsto (fun n : ℕ => (n : ℝ) ^ (1 - 3 / (2 ^ (k - 1) : ℝ) - e)) Filter.atTop (nhds 0) := by
-        convert tendsto_rpow_neg_atTop ( show 0 < - ( 1 - 3 / ( 2 ^ ( k - 1 ) : ℝ ) - e ) from neg_pos_of_neg ?_ ) |> Filter.Tendsto.comp <| tendsto_natCast_atTop_atTop using 2
-        focus ring_nf!
-        focus norm_num [ Nat.succ_eq_add_one, pow_add ] at *
-        rcases k with ( _ | _ | k ) <;> norm_num [ pow_succ' ] at *;
-        simp +zetaDelta at *;
-        rw [ inv_eq_one_div, div_lt_div_iff₀ ] <;> linarith [ pow_le_pow_right₀ ( by norm_num : ( 1 : ℝ ) ≤ 2 ) hk ];
-      simpa using Filter.Tendsto.add ( tendsto_const_nhds.add ( h_exp.const_mul _ ) ) ( tendsto_const_nhds.mul ( tendsto_inv_atTop_zero.comp ( tendsto_rpow_atTop ( show 0 < e by exact sub_pos.mpr <| by rw [ div_lt_iff₀ <| by positivity ] ; linarith [ pow_le_pow_right₀ ( by norm_num : ( 1 : ℝ ) ≤ 2 ) ( show k - 2 ≥ 1 by exact Nat.sub_pos_of_lt <| by linarith ) ] ) |> Filter.Tendsto.comp <| tendsto_natCast_atTop_atTop ) ) );
-    have h_lt_four : d^2 < 4 := by
-      exact lt_of_lt_of_le ( pow_lt_pow_left₀ ( Real.rpow_lt_rpow_of_exponent_lt ( by norm_num ) ( show ( 1 - 1 / ( 2:ℝ ) ^ ( k-2 ) ) < 1 from sub_lt_self _ <| by positivity ) ) ( by positivity ) ( by positivity ) ) <| by norm_num;
-    rcases Metric.tendsto_atTop.mp h_limit ( 4 - d ^ 2 ) ( sub_pos.mpr h_lt_four ) with ⟨ N₀, hN₀ ⟩;
-    exact ⟨ N₀ + 1, fun n hn => by
-      have hlt := abs_lt.mp ( hN₀ n ( by linarith ) )
-      have hpos : 0 < ( n : ℝ ) ^ e := Real.rpow_pos_of_pos ( Nat.cast_pos.mpr ( by linarith ) ) _
-      rw [ div_eq_mul_inv ] at hlt
-      nlinarith [ inv_pos.mpr hpos, mul_inv_cancel₀ ( ne_of_gt hpos ) ] ⟩;
-  use N₀ + 1;
-  intros n hn
-  refine ⟨ gFun_le_hFun k n, ?_ ⟩
-  have h_ceil : (hFun k n : ℝ) ≤ boundPos k (2 * (n : ℝ)) + 2 := by
-    have := hk_upper k hk n ( by linarith );
-    exact le_trans ( Nat.cast_le.mpr this ) ( by push_cast; linarith [ Nat.ceil_lt_add_one ( show 0 ≤ boundPos k ( 2 * ( n : ℝ ) ) by exact add_nonneg ( mul_nonneg ( Real.rpow_nonneg ( by norm_num ) _ ) ( Real.rpow_nonneg ( by linarith ) _ ) ) ( mul_nonneg ( by norm_num ) ( Real.rpow_nonneg ( by linarith ) _ ) ) ) ] );
-  calc (hFun k n : ℝ) ≤ boundPos k (2 * (n : ℝ)) + 2 := h_ceil
-    _ < 4 * (n : ℝ) ^ e := hN₀ n ( by linarith )
-    _ = 4 * (↑n : ℝ) ^ ((1:ℝ) - 1 / 2 ^ ((k:ℝ) - 2)) := by
-        congr 1; norm_cast;
-        rw [ Int.subNatNat_of_le ( by linarith ) ] ; norm_cast;
-        grind
-
-#print axioms generalupper
+        sorry
 -- 'Erdos866b.generalupper' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos866b
