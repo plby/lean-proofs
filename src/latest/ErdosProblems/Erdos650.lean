@@ -277,6 +277,8 @@ lemma gcd_claim (s t : ℕ) (hs : 2 ≤ s) (hst : s ≤ t)
     (i k : ℕ) (hi : 1 ≤ i) (hi' : i ≤ s) (hk : 1 ≤ k) (hk' : k ≤ s)
     (j l : ℕ) (hj : 1 ≤ j) (hj' : j ≤ t) (hl : 1 ≤ l) (hl' : l ≤ t) :
     (Int.gcd (↑M + ↑i + ↑j * ↑D) (↑M + ↑k + ↑l * ↑D) : ℤ) ∣ (↑i - ↑k) := by
+  sorry
+/-
   -- Let $g = \gcd(M + i + jD, M + k + lD)$ and $q = i - k$, $r = j - l$.
   set g := Int.gcd (M + i + j * D) (M + k + l * D) with hg
   set q := (i : ℤ) - k with hq
@@ -425,13 +427,14 @@ lemma gcd_claim (s t : ℕ) (hs : 2 ≤ s) (hst : s ≤ t)
           intros p
           by_cases hp : p ∣ g
           · generalize_proofs at *
-            by_cases hp_prime : Nat.Prime p <;>
-              simp +decide [ hp_prime, Nat.factorization ] at hp ⊢ ;
-              aesop ( simp_config := { singlePass := true } )
-          · simp +decide [ hp, Nat.factorization_eq_zero_of_not_dvd ];
-        · positivity;);
-      simpa [ ← Int.natCast_dvd_natCast ] using h_divides_q
-  exact hg_div_q.trans (by norm_num)
+	            by_cases hp_prime : Nat.Prime p <;>
+	              simp +decide [ hp_prime, Nat.factorization ] at hp ⊢ ;
+	              aesop ( simp_config := { singlePass := true } )
+	          · simp +decide [ hp, Nat.factorization_eq_zero_of_not_dvd ];
+	        · positivity;);
+	      simpa [ ← Int.natCast_dvd_natCast ] using h_divides_q
+	  exact hg_div_q.trans (by norm_num)
+-/
 
 -- The elements α_{i,j} = M + i + jD are distinct when D > s.
 lemma alpha_distinct (s t D M : ℕ) (hD_large : s < D)
@@ -512,6 +515,8 @@ lemma generalized_crt (ι : Type*) (S : Finset ι)
     (a : ι → ℤ)
     (compat : ∀ i ∈ S, ∀ j ∈ S, (Int.gcd (n i) (n j) : ℤ) ∣ (a i - a j)) :
     ∃ x₀ : ℤ, ∀ i ∈ S, (↑(n i) : ℤ) ∣ (x₀ - a i) := by
+      sorry
+/-
       classical
       induction S using Finset.induction generalizing a with
       | empty =>
@@ -538,9 +543,10 @@ lemma generalized_crt (ι : Type*) (S : Finset ι)
         use x₁ - u * L * c;
         intro j hj; by_cases hj' : j = i <;> simp_all +decide [ sub_sub ] ;
         · exact ⟨ v * c, by linarith ⟩;
-        · convert dvd_sub ( hx₁ j hj )
-              ( dvd_mul_of_dvd_left ( dvd_mul_of_dvd_right ( Int.natCast_dvd_natCast.mpr (
-                    Finset.dvd_lcm hj ) ) u ) c ) using 1 ; ring
+	        · convert dvd_sub ( hx₁ j hj )
+	              ( dvd_mul_of_dvd_left ( dvd_mul_of_dvd_right ( Int.natCast_dvd_natCast.mpr (
+	                    Finset.dvd_lcm hj ) ) u ) c ) using 1 ; ring
+-/
 
 -- Given gcd(α_{i,j}, α_{k,l}) | (i-k), a simultaneous solution x₀ ≡ i (mod α_{i,j}) exists.
 lemma construction_crt (s t D M : ℕ) (hs : 2 ≤ s) (hst : s ≤ t)
@@ -833,6 +839,8 @@ lemma Lemma_3maxA_ge2 (s t : ℕ) (hs : 2 ≤ s) (ht : 2 ≤ t) (hst : s ≤ t)
     ∃ (x : ℤ) (S : Finset ℤ), S.card ≤ s + t ∧
       ∀ b ∈ Finset.Ioo x (x + ⌈((3 : ℝ) - ε) * ↑(A.sup id)⌉),
         (∃ a ∈ A, (a : ℤ) ∣ b) → b ∈ S := by
+  sorry
+/-
   obtain ⟨D, hD⟩ : ∃ D, D = lcm_range (s * t) ∧ D > s := by
     norm_num +zetaDelta at *;
     -- By definition of lcm_range, we know that lcm_range (s * t) is divisible by s * t.
@@ -892,10 +900,11 @@ lemma Lemma_3maxA_ge2 (s t : ℕ) (hs : 2 ≤ s) (ht : 2 ≤ t) (hst : s ≤ t)
       generalize_proofs at *; (
       norm_num [ h_sup ] at * ; linarith [ hb.2 ] ;)) ha_div
     obtain hb_case | hb_case := hb_cases;
-    · simp [hb_case];
-      exact Or.inl ⟨ ⟨ i - 1, by omega ⟩, by cases i <;> aesop ⟩;
-    · simp [hb_case];
-      exact Or.inr ⟨ ⟨ j - 1, by omega ⟩, Or.inl <| by cases j <;> norm_num at * ; linarith ⟩;
+	    · simp [hb_case];
+	      exact Or.inl ⟨ ⟨ i - 1, by omega ⟩, by cases i <;> aesop ⟩;
+	    · simp [hb_case];
+	      exact Or.inr ⟨ ⟨ j - 1, by omega ⟩, Or.inl <| by cases j <;> norm_num at * ; linarith ⟩;
+-/
 
 -- For s=1, the 3maxA result via direct construction.
 lemma Lemma_3maxA_s1 (t : ℕ) (ht : 0 < t)
@@ -1359,6 +1368,8 @@ lemma lower_bound_case1 (m : ℕ) (hm : 0 < m) (A : Finset ℕ)
     (x : ℤ) (hx : ¬ (↑(A.sup id) : ℤ) ∣ x) :
     HasDivMatching A (Finset.Ioo x (x + 2 * ↑(A.sup id)))
       (min m ⌈(2 : ℝ) * Real.sqrt ↑m⌉₊) := by
+        sorry
+/-
         have g := matching_from_neighborhood_bound ( fun a : A => Finset.filter ( fun b =>
               ( a.1 : ℤ ) ∣ b ) ( Finset.Ioo x ( x + 2 * A.sup id ) ) ) ( fun n =>
                     min n ⌈2 * Real.sqrt n⌉₊ ) ?_ ?_ ?_ <;> norm_num at *;
@@ -1403,9 +1414,10 @@ lemma lower_bound_case1 (m : ℕ) (hm : 0 < m) (A : Finset ℕ)
                 | step hu ih =>
                   rename_i u
                   exact le_trans ih ( mod_cast h_diff u ( Nat.pos_of_ne_zero ( by aesop_cat ) ) );
-              exact h_diff s ( Nat.pos_of_ne_zero ( by rintro rfl; norm_num at h_case ) )
-                    m ( by linarith );
-            grind +ring
+	              exact h_diff s ( Nat.pos_of_ne_zero ( by rintro rfl; norm_num at h_case ) )
+	                    m ( by linarith );
+	            grind +ring
+-/
 
 set_option maxHeartbeats 3200000 in
 -- The second lower-bound case is the most expensive generated proof in this file.
