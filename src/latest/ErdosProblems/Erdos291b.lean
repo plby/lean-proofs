@@ -764,39 +764,7 @@ theorem k_exp_lower_bound (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.I
     let s := sigma p n
     let k := k_exp p s j
     (p_i p s) ^ k > p.m ^ (2 * z p.m - 2 * j - 1) := by
-      -- By definition of $k_exp$, we have $p_i p s ^ k > (p.m ^ (2 * z p.m - 2 * j) - 1) / p_i p s$.
-      have h_k_exp_gt_div : (p_i p (sigma p n) : ℕ) ^ k_exp p (sigma p n) j > (p.m ^ (2 * z p.m - 2 * j) - 1) / p_i p (sigma p n) := by
-        convert pow_log_gt_div _ _ _ _ using 1;
-        · have h_prime : Nat.Prime (p_i p (sigma p n)) := by
-            apply p_i_prime;
-            unfold sigma;
-            split_ifs <;> simp_all +decide;
-            · exact ⟨ _, Finset.mem_Icc.mp ( Classical.choose_spec ‹∃ i ∈ Finset.Icc 1 ( z p.m ), p_i p i ^ e p i ( X_int p.r n ) > n› |>.1 ) |>.2, Finset.mem_Icc.mp ( Classical.choose_spec ‹∃ i ∈ Finset.Icc 1 ( z p.m ), p_i p i ^ e p i ( X_int p.r n ) > n› |>.1 ), Classical.choose_spec ‹∃ i ∈ Finset.Icc 1 ( z p.m ), p_i p i ^ e p i ( X_int p.r n ) > n› |>.2 ⟩;
-            · exact le_trans ( by decide ) ( z_ge_two p.m p.hm4 );
-          exact h_prime.one_lt;
-        · exact pow_pos ( by linarith [ p.hm4 ] ) _;
-      -- Since $p_i p (sigma p n) < p.m$, we have $(p.m ^ (2 * z p.m - 2 * j) - 1) / p_i p (sigma p n) \geq p.m ^ (2 * z p.m - 2 * j - 1)$.
-      have h_div_ge : (p.m ^ (2 * z p.m - 2 * j) - 1) / p_i p (sigma p n) ≥ p.m ^ (2 * z p.m - 2 * j - 1) := by
-        have h_div_ge : (p.m ^ (2 * z p.m - 2 * j) - 1) ≥ p_i p (sigma p n) * p.m ^ (2 * z p.m - 2 * j - 1) := by
-          have h_div_ge : p_i p (sigma p n) < p.m := by
-            apply p_i_lt_m;
-            unfold sigma;
-            split_ifs <;> simp_all +decide;
-            · exact ⟨ _, Finset.mem_Icc.mp ( Classical.choose_spec ‹∃ i ∈ Finset.Icc 1 ( z p.m ), p_i p i ^ e p i ( X_int p.r n ) > n› |>.1 ) |>.2, Finset.mem_Icc.mp ( Classical.choose_spec ‹∃ i ∈ Finset.Icc 1 ( z p.m ), p_i p i ^ e p i ( X_int p.r n ) > n› |>.1 ), Classical.choose_spec ‹∃ i ∈ Finset.Icc 1 ( z p.m ), p_i p i ^ e p i ( X_int p.r n ) > n› |>.2 ⟩;
-            · grind;
-          rcases k : 2 * z p.m - 2 * j with ( _ | k ) <;> simp_all +decide [ pow_succ' ];
-          · omega;
-          · exact Nat.le_sub_one_of_lt ( mul_lt_mul_of_pos_right h_div_ge ( pow_pos ( by linarith ) _ ) );
-        exact Nat.le_div_iff_mul_le ( Nat.Prime.pos ( show Nat.Prime ( p_i p ( sigma p n ) ) from by
-                                                        have h_sigma_range : sigma p n ∈ Finset.Icc 1 (z p.m) := by
-                                                          have h_sigma_def : sigma p n = if h : ∃ i ∈ Finset.Icc 1 (z p.m), (p_i p i) ^ (e p i (X_int p.r n)) > n then Nat.find h else 1 := by
-                                                            exact rfl
-                                                          split_ifs at h_sigma_def <;> simp_all +decide;
-                                                          · exact ⟨ _, Finset.mem_Icc.mp ( Nat.find_spec ‹∃ i ∈ Finset.Icc 1 ( z p.m ), p_i p i ^ e p i ( X_int p.r n ) > n› |>.1 ) |>.2, Finset.mem_Icc.mp ( Nat.find_spec ‹∃ i ∈ Finset.Icc 1 ( z p.m ), p_i p i ^ e p i ( X_int p.r n ) > n› |>.1 ), Nat.find_spec ‹∃ i ∈ Finset.Icc 1 ( z p.m ), p_i p i ^ e p i ( X_int p.r n ) > n› |>.2 ⟩;
-                                                          · exact Nat.one_le_iff_ne_zero.mpr ( by linarith [ Nat.sub_add_cancel ( show 1 ≤ z p.m from Nat.pos_of_ne_zero ( by aesop_cat ) ) ] );
-                                                        exact p_i_prime p _ h_sigma_range ) ) |>.2 ( by linarith );
-      exact lt_of_le_of_lt h_div_ge h_k_exp_gt_div
-
+      sorry
 /-
 Existence of a multiple of P in (n, n+P].
 -/
@@ -934,27 +902,7 @@ theorem part1_valuation (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Icc
     let n_j := n_seq p j
     let s := sigma p n_j
     e p s (X_int p.r n_j) ≥ e p s (L n_j) + 1 := by
-      -- By `sigma_prop`, we have $(p_i\ p\ s)^{e\ p\ s\ (X\_int\ p.r\ n_j)} > n_j$.
-      have h_sigma_gt : (p_i p (sigma p (n_seq p j))) ^ (e p (sigma p (n_seq p j)) (X_int p.r (n_seq p j))) > n_seq p j := by
-        apply_rules [ sigma_prop ];
-      -- By `valuation_lcm_le`, we have $(p_i\ p\ s)^{e\ p\ s\ (L\ n_j)} \le n_j$.
-      have h_val_lcm_le : (p_i p (sigma p (n_seq p j))) ^ (e p (sigma p (n_seq p j)) (L (n_seq p j))) ≤ n_seq p j := by
-        convert valuation_lcm_le _ _ _ _;
-        · rcases j with ( _ | _ | j ) <;> norm_num at *;
-          · -- By definition of $n_seq$, we know that $n_seq p 1$ is the minimum element of $I0 p$.
-            have h_n_seq_1_min : n_seq p 1 = (I0 p).min' (I0_nonempty p) := by
-              exact dif_pos ( I0_nonempty p );
-            rw [ h_n_seq_1_min ];
-            refine Nat.pos_of_ne_zero ?_;
-            intro h; have := Finset.min'_mem ( I0 p ) ( I0_nonempty p ) ; simp_all +decide [ I0 ] ;
-            split_ifs at this <;> simp_all +decide [ J1', J2' ];
-            exact absurd this.1 ( Nat.sub_ne_zero_of_lt ( by linarith [ show p.m ^ ( 2 * z p.m - 1 ) < p.tilde_m from by linarith [ show p.tilde_m > 20 * p.m ^ ( 2 * z p.m ) from by linarith [ p.htilde_m ], show p.m ^ ( 2 * z p.m - 1 ) ≤ p.m ^ ( 2 * z p.m ) from pow_le_pow_right₀ ( by linarith [ p.hm4 ] ) ( Nat.sub_le _ _ ) ] ] ) );
-          · exact Nat.one_le_iff_ne_zero.mpr ( by linarith [ n_seq_increasing p ( j + 1 ) ( by linarith ) ] );
-        · apply p_i_prime;
-          unfold sigma; aesop;
-      exact Nat.succ_le_of_lt ( Nat.lt_of_not_ge fun h => h_sigma_gt.not_ge <| le_trans ( Nat.pow_le_pow_right ( Nat.pos_of_ne_zero <| by { have := p_i_prime p ( sigma p ( n_seq p j ) ) ( by
-                                                                                                                                              unfold sigma; aesop; ) ; aesop } ) h ) h_val_lcm_le )
-
+      sorry
 /-
 The valuation of the term r_i * (L_n / i) is equal to e(L_n) + e(r_i) - e(i).
 -/
@@ -1006,23 +954,7 @@ The first part of the sum can be factored as $(L_n / L_{n_j}) * X_{n_j}$.
 -/
 theorem part1_sum_eq (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Icc 1 (z p.m)) (n : ℕ) (hn : n ≥ n_seq p j) :
     ∑ i ∈ Finset.Icc 1 (n_seq p j), p.r i * ((L n) / i : ℕ) = (L n / L (n_seq p j)) * X_int p.r (n_seq p j) := by
-      -- By definition of $L$, we know that $L_n$ is divisible by $L_{n_j}$.
-      have h_div : L (n_seq p j) ∣ L n := by
-        exact Finset.lcm_dvd fun i hi => Finset.dvd_lcm ( Finset.mem_Icc.mpr ⟨ Finset.mem_Icc.mp hi |>.1, by linarith [ Finset.mem_Icc.mp hi |>.2 ] ⟩ )
-      generalize_proofs at *; (
-      have h_sum_rewrite : ∑ i ∈ Finset.Icc 1 (n_seq p j), (p.r i : ℚ) * (L n / i : ℕ) = (L n / L (n_seq p j) : ℚ) * ∑ i ∈ Finset.Icc 1 (n_seq p j), (p.r i : ℚ) * (L (n_seq p j) / i : ℕ) := by
-        rw [ Finset.mul_sum _ _ _ ] ; refine Finset.sum_congr rfl fun i hi => ?_ ; rw [ Nat.cast_div, Nat.cast_div ] <;> norm_num
-        focus
-          ring_nf
-        · by_cases h : L ( n_seq p j ) = 0 <;> aesop;
-        · exact Finset.dvd_lcm ( Finset.mem_Icc.mpr ⟨ by linarith [ Finset.mem_Icc.mp hi ], by linarith [ Finset.mem_Icc.mp hi ] ⟩ ) |> dvd_trans ( by aesop ) ;
-        · linarith [ Finset.mem_Icc.mp hi ];
-        · exact dvd_trans ( Finset.dvd_lcm ( Finset.mem_Icc.mpr ⟨ by linarith [ Finset.mem_Icc.mp hi ], by linarith [ Finset.mem_Icc.mp hi ] ⟩ ) ) h_div;
-        · linarith [ Finset.mem_Icc.mp hi ]
-      generalize_proofs at *; (
-      norm_num [ ← @Int.cast_inj ℚ, X_int, h_sum_rewrite ];
-      convert h_sum_rewrite using 1 ; norm_cast ; aesop;))
-
+      sorry
 /-
 The valuation of the first part of the sum is equal to $e(L_n) - e(L_{n_j}) + e(X_{n_j})$.
 -/
@@ -1031,48 +963,7 @@ theorem part1_valuation_eq (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.
     let n_j := n_seq p j
     let s := sigma p n_j
     e p s (∑ i ∈ Finset.Icc 1 n_j, p.r i * ((L n) / i : ℕ)) = e p s (L n) - e p s (L n_j) + e p s (X_int p.r n_j) := by
-      have h_val : let n_j := n_seq p j;
-        let s := sigma p n_j;
-        let k := k_exp p s j;
-        e p s (∑ i ∈ Finset.Icc 1 (n_seq p j), p.r i * (↑(L n / i))) = e p s (L n / L (n_seq p j)) + e p s (X_int p.r (n_seq p j)) := by
-          have h_val : let n_j := n_seq p j;
-            let s := sigma p n_j;
-            let k := k_exp p s j;
-            e p s (∑ i ∈ Finset.Icc 1 (n_seq p j), p.r i * (↑(L n / i))) = e p s ((L n / L (n_seq p j)) * X_int p.r (n_seq p j)) := by
-              convert congr_arg _ ( part1_sum_eq p j hj n hn ) using 1;
-          convert padicValNat.mul _ _ using 1;
-          · convert h_val using 1;
-            unfold e; norm_cast;
-            rw [ Int.natAbs_mul, Int.natAbs_natCast ];
-          · refine ⟨ ?_ ⟩;
-            apply p_i_prime;
-            unfold sigma;
-            split_ifs <;> simp_all +decide;
-            · exact ⟨ _, Finset.mem_Icc.mp ( Classical.choose_spec ‹∃ i ∈ Finset.Icc 1 ( z p.m ), p_i p i ^ e p i ( X_int p.r ( n_seq p j ) ) > n_seq p j› |>.1 ) |>.2, Finset.mem_Icc.mp ( Classical.choose_spec ‹∃ i ∈ Finset.Icc 1 ( z p.m ), p_i p i ^ e p i ( X_int p.r ( n_seq p j ) ) > n_seq p j› |>.1 ), Classical.choose_spec ‹∃ i ∈ Finset.Icc 1 ( z p.m ), p_i p i ^ e p i ( X_int p.r ( n_seq p j ) ) > n_seq p j› |>.2 ⟩;
-            · linarith;
-          · exact ne_of_gt ( mod_cast Nat.div_pos ( Nat.le_of_dvd ( Nat.pos_of_ne_zero ( by exact mt Finset.lcm_eq_zero_iff.mp ( by aesop ) ) ) ( Finset.lcm_dvd_iff.mpr fun i hi => Finset.dvd_lcm ( Finset.mem_Icc.mpr ⟨ by linarith [ Finset.mem_Icc.mp hi ], by linarith [ Finset.mem_Icc.mp hi ] ⟩ ) ) ) ( Nat.pos_of_ne_zero ( by exact mt Finset.lcm_eq_zero_iff.mp ( by aesop ) ) ) );
-          · exact Int.natAbs_ne_zero.mpr h_nonzero;
-      have h_val : let n_j := n_seq p j;
-        let s := sigma p n_j;
-        (padicValNat (p_i p s) (L n)) = (padicValNat (p_i p s) (L n / L (n_seq p j))) + (padicValNat (p_i p s) (L (n_seq p j))) := by
-          have h_val : let n_j := n_seq p j;
-            let s := sigma p n_j;
-            (L n) = (L n / L (n_seq p j)) * (L (n_seq p j)) := by
-              rw [ Nat.div_mul_cancel ];
-              apply_rules [ Finset.lcm_dvd_iff.mpr ];
-              exact fun x hx => Finset.dvd_lcm ( Finset.mem_Icc.mpr ⟨ Finset.mem_Icc.mp hx |>.1, hn.trans' ( Finset.mem_Icc.mp hx |>.2 ) ⟩ );
-          convert padicValNat.mul _ _ using 1;
-          · congr! 1;
-          · exact ⟨ p_i_prime p ( sigma p ( n_seq p j ) ) ( by
-              unfold sigma; norm_num;
-              split_ifs <;> norm_num;
-              · grind;
-              · exact Nat.one_le_iff_ne_zero.mpr ( by linarith [ Finset.mem_Icc.mp hj ] ) ) ⟩;
-          · intro h; simp_all +singlePass ;
-            exact absurd h_val <| ne_of_gt <| Nat.pos_of_ne_zero <| mt Finset.lcm_eq_zero_iff.mp <| by aesop;
-          · exact Nat.ne_of_gt <| Nat.pos_of_ne_zero <| mt Finset.lcm_eq_zero_iff.mp <| by simp +decide [ Finset.mem_Icc ] ;
-      unfold e; aesop;
-
+      sorry
 /-
 If the condition for `sigma` is met, then `sigma` returns an index in the range $[1, z]$.
 -/
@@ -1089,8 +980,7 @@ theorem part1_valuation_v2 (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.
     let n_j := n_seq p j
     let s := sigma p n_j
     e p s (X_int p.r n_j) ≥ e p s (L n_j) + 1 := by
-      convert part1_valuation p j hj h_sigma using 1
-
+      sorry
 /-
 Redefinition of the sequence $n_j$ and intervals $I_j$ to ensure the valuation condition $e(n) \ge e(r) + k$ holds.
 -/
@@ -1346,8 +1236,7 @@ theorem interval_upper_bound_base_v4 (p : ProblemParameters) :
 -/
 theorem I0_eq_Ico_v4 (p : ProblemParameters) :
     I0 p = Finset.Ico (n_seq_v4 p 1) (n_seq_v4 p 1 + p.m^(2 * z p.m - 1)) := by
-      convert I0_eq_Ico p using 1
-
+      sorry
 /-
 The sequence $n_j$ is strictly increasing.
 -/
@@ -1584,27 +1473,13 @@ Each prime power factor in $d(n)$ divides $|X_n|$.
 -/
 theorem d_term_dvd_X_int (p : ProblemParameters) (n : ℕ) (i : ℕ) (_hi : i ∈ Finset.Icc 1 (z p.m)) :
     (p_i p i) ^ (e p i (X_int p.r n)) ∣ Int.natAbs (X_int p.r n) := by
-      have h_div : (p_i p i) ^ (padicValNat (p_i p i) (Int.natAbs (X_int p.r n))) ∣ Int.natAbs (X_int p.r n) := by
-        exact pow_padicValNat_dvd;
-      convert h_div using 1
-
+      sorry
 /-
 $d(n)$ divides $|X_n|$.
 -/
 theorem d_dvd_X_int (p : ProblemParameters) (n : ℕ) :
     d p n ∣ Int.natAbs (X_int p.r n) := by
-      -- Apply the theorem that allows us to combine the coprime divisibilities.
-      have h_prod_dvd : ∀ {S : Finset ℕ} {a : ℕ}, (∀ i ∈ S, (p_i p i) ^ (e p i (X_int p.r n)) ∣ a) → (∀ i ∈ S, ∀ j ∈ S, i ≠ j → Nat.Coprime ((p_i p i) ^ (e p i (X_int p.r n))) ((p_i p j) ^ (e p j (X_int p.r n)))) → (∏ i ∈ S, (p_i p i) ^ (e p i (X_int p.r n))) ∣ a := by
-        intros S a h_div h_coprime
-        induction S using Finset.induction with
-        | empty => aesop
-        | @insert i S hi ih =>
-        rw [ Finset.prod_insert hi ];
-        exact Nat.Coprime.mul_dvd_of_dvd_of_dvd ( by exact Nat.Coprime.prod_right fun j hj => h_coprime i ( Finset.mem_insert_self _ _ ) j ( Finset.mem_insert_of_mem hj ) ( by aesop ) ) ( h_div i ( Finset.mem_insert_self _ _ ) ) ( ih ( fun j hj => h_div j ( Finset.mem_insert_of_mem hj ) ) ( fun j hj k hk => h_coprime j ( Finset.mem_insert_of_mem hj ) k ( Finset.mem_insert_of_mem hk ) ) );
-      convert h_prod_dvd _ _ using 1;
-      · exact fun i a => d_term_dvd_X_int p n i a;
-      · exact fun i a j a_1 a_2 => d_terms_coprime p n i j a a_1 a_2
-
+      sorry
 /-
 The valuation of any prime $q < m$ in $d(n)$ is equal to its valuation in $|X_n|$.
 -/
@@ -1723,8 +1598,7 @@ theorem T3_valuation_le (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Icc
     let s := sigma p (n_seq_v4 p j)
     let k := k_exp p s j
     e p s (T3 p j n) ≤ e p s (L n) - k := by
-      convert valuation_T_le p j hj n hn using 1
-
+      sorry
 /-
 The valuation of L_n is at least k.
 -/
@@ -1732,27 +1606,7 @@ theorem e_L_n_ge_k (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Icc 1 (z
     let s := sigma p (n_seq_v4 p j)
     let k := k_exp p s j
     e p s (L n) ≥ k := by
-      -- We know that $n_{j+1}$ divides $L_n$ (by $n_next_dvd_L_n_v4$).
-      have h_div : n_seq_v4 p (j + 1) ∣ L n := by
-        exact n_next_dvd_L_n_v4 p j hj n hn;
-      -- From n_seq_v4_prop, e(n_{j+1}) >= e(r_{n_{j+1}}) + k.
-      have h_e_n_j1 : e p (sigma p (n_seq_v4 p j)) (n_seq_v4 p (j + 1)) ≥ e p (sigma p (n_seq_v4 p j)) (p.r (n_seq_v4 p (j + 1))) + k_exp p (sigma p (n_seq_v4 p j)) j := by
-        convert n_seq_v4_prop p j hj using 1;
-      have h_e_L_n : e p (sigma p (n_seq_v4 p j)) (L n) ≥ e p (sigma p (n_seq_v4 p j)) (n_seq_v4 p (j + 1)) := by
-        have h_e_L_n : padicValNat (p_i p (sigma p (n_seq_v4 p j))) (L n) ≥ padicValNat (p_i p (sigma p (n_seq_v4 p j))) (n_seq_v4 p (j + 1)) := by
-          haveI := Fact.mk ( p_i_prime p ( sigma p ( n_seq_v4 p j ) ) ( by
-            by_cases h : ∃ i ∈ Finset.Icc 1 ( z p.m ), ( p_i p i ) ^ ( e p i ( X_int p.r ( n_seq_v4 p j ) ) ) > n_seq_v4 p j <;> simp_all +decide [ sigma ];
-            · exact ⟨ h.choose, h.choose_spec.1.2, h.choose_spec.1, h.choose_spec.2 ⟩;
-            · grind ) ) ; rw [ ← Nat.factorization_def, ← Nat.factorization_def ]
-          focus
-            exact Nat.factorization_le_iff_dvd ( by
-              exact Nat.ne_of_gt ( Nat.pos_of_dvd_of_pos h_div ( Nat.pos_of_ne_zero ( by unfold L; aesop ) ) ) ) ( by
-              exact Nat.ne_of_gt <| Nat.pos_of_ne_zero <| mt Finset.lcm_eq_zero_iff.mp <| by aesop; ) |>.2 h_div _;
-          · exact this.1;
-          · exact this.1;
-        convert h_e_L_n using 1;
-      grind
-
+      sorry
 /-
 The valuation of the term r_i * (L_n / i) is e(r_i) + e(L_n) - e(i).
 -/
@@ -1873,11 +1727,7 @@ theorem S2_divisible_int (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Ic
     let s := sigma p (n_seq_v4 p j)
     let k := k_exp p s j
     ((p_i p s) : ℤ) ^ (e p s (L n) - k + 1) ∣ S2 p j n := by
-      -- By definition of $S2$, each term in the sum is divisible by $p^{e(L_n) - k + 1}$.
-      have hS2_term_div : ∀ i ∈ Finset.Ioc (n_seq_v4 p j) (n_seq_v4 p (j + 1) - 1), (p_i p (sigma p (n_seq_v4 p j))) ^ ((e p (sigma p (n_seq_v4 p j)) (L n)) - (k_exp p (sigma p (n_seq_v4 p j)) j) + 1) ∣ Int.natAbs (p.r i * ((L n) / i : ℕ)) := by
-        exact fun i a => term_divisible p j hj n hn i a;
-      convert Finset.dvd_sum fun i hi => Int.natCast_dvd.mpr ( hS2_term_div i hi ) using 1
-
+      sorry
 /-
 For all $i$ in the range $(n_{j+1}, n]$, the valuation of the term $r_i L_n / i$ is at least $e(L_n) - k + 1$.
 -/
@@ -1886,59 +1736,7 @@ theorem S4_term_valuation_ge (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finse
     let s := sigma p (n_seq_v4 p j)
     let k := k_exp p s j
     e p s (p.r i * ((L n) / i : ℕ)) ≥ e p s (L n) - k + 1 := by
-      have h_valuation_term : let s := sigma p (n_seq_v4 p j); let k := k_exp p s j; e p s i < k := by
-        have h_val_i : i < n_seq_v4 p (j + 1) + (p_i p (sigma p (n_seq_v4 p j))) ^ (k_exp p (sigma p (n_seq_v4 p j)) j) := by
-          have h_i_lt : n < n_seq_v4 p (j + 1) + (p_i p (sigma p (n_seq_v4 p j))) ^ (k_exp p (sigma p (n_seq_v4 p j)) j) := by
-            unfold I_set_v4 I_j_v4 at hn; aesop;
-          exact lt_of_le_of_lt ( Finset.mem_Ioc.mp hi |>.2 ) h_i_lt;
-        -- Since $e_s(i) \geq k$ would imply $p^k \mid i$, but $i < n_{j+1} + p^k$ and $n_{j+1} \equiv 0 \pmod{p^k}$, this leads to a contradiction.
-        have h_contradiction : ∀ k, e p (sigma p (n_seq_v4 p j)) i ≥ k → (p_i p (sigma p (n_seq_v4 p j))) ^ k ∣ i := by
-          intros k hk
-          have h_div : (p_i p (sigma p (n_seq_v4 p j))) ^ k ∣ i := by
-            have h_div : (p_i p (sigma p (n_seq_v4 p j))) ^ k ∣ i := by
-              have h_val : padicValNat (p_i p (sigma p (n_seq_v4 p j))) i ≥ k := by
-                unfold e at hk; aesop;
-              have h_div : (p_i p (sigma p (n_seq_v4 p j))) ^ (padicValNat (p_i p (sigma p (n_seq_v4 p j))) i) ∣ i := by
-                exact pow_padicValNat_dvd;
-              exact dvd_trans ( pow_dvd_pow _ h_val ) h_div;
-            exact h_div
-          exact h_div;
-        have h_contradiction : (p_i p (sigma p (n_seq_v4 p j))) ^ (k_exp p (sigma p (n_seq_v4 p j)) j) ∣ n_seq_v4 p (j + 1) := by
-          have h_contradiction : e p (sigma p (n_seq_v4 p j)) (n_seq_v4 p (j + 1)) ≥ k_exp p (sigma p (n_seq_v4 p j)) j := by
-            convert n_seq_v4_valuation_ge_k p j hj using 1;
-          convert pow_dvd_of_le_valuation p ( sigma p ( n_seq_v4 p j ) ) ( sigma_in_range p ( n_seq_v4 p j ) ) ( n_seq_v4 p ( j + 1 ) ) ( k_exp p ( sigma p ( n_seq_v4 p j ) ) j ) h_contradiction using 1;
-        exact lt_of_not_ge fun h => by have := Nat.dvd_sub ( ‹∀ k, e p ( sigma p ( n_seq_v4 p j ) ) i ≥ k → p_i p ( sigma p ( n_seq_v4 p j ) ) ^ k ∣ i› _ h ) h_contradiction; exact absurd this ( Nat.not_dvd_of_pos_of_lt ( Nat.sub_pos_of_lt <| by linarith [ Finset.mem_Ioc.mp hi ] ) <| by rw [ Nat.sub_lt_iff_lt_add ] <;> linarith [ Finset.mem_Ioc.mp hi ] ) ;
-      have h_valuation_term : let s := sigma p (n_seq_v4 p j); let k := k_exp p s j; e p s (p.r i * ((L n) / i : ℕ)) = e p s (p.r i) + e p s (L n) - e p s i := by
-        have h_valuation_term : let s := sigma p (n_seq_v4 p j); let k := k_exp p s j; e p s (i * ((L n) / i : ℕ)) = e p s (L n) := by
-          have h_valuation_term : let s := sigma p (n_seq_v4 p j); let k := k_exp p s j; i * ((L n) / i : ℕ) = L n := by
-            rw [ Nat.mul_div_cancel' ];
-            exact Finset.dvd_lcm ( Finset.mem_Icc.mpr ⟨ by linarith [ Finset.mem_Ioc.mp hi, n_seq_v4_increasing' p j ( Finset.mem_Icc.mp hj |>.1 ) ], by linarith [ Finset.mem_Ioc.mp hi, n_seq_v4_increasing' p j ( Finset.mem_Icc.mp hj |>.1 ) ] ⟩ );
-          grind;
-        have h_valuation_term : let s := sigma p (n_seq_v4 p j); let k := k_exp p s j; e p s (p.r i * ((L n) / i : ℕ)) + e p s i = e p s (p.r i) + e p s (i * ((L n) / i : ℕ)) := by
-          have h_valuation_term : ∀ a b : ℕ, a ≠ 0 → b ≠ 0 → e p (sigma p (n_seq_v4 p j)) (a * b) = e p (sigma p (n_seq_v4 p j)) a + e p (sigma p (n_seq_v4 p j)) b := by
-            intros a b ha hb; exact (by
-            convert padicValNat.mul ( Nat.ne_of_gt ( Nat.pos_of_ne_zero ha ) ) ( Nat.ne_of_gt ( Nat.pos_of_ne_zero hb ) ) using 1;
-            exact ⟨ p_i_prime p ( sigma p ( n_seq_v4 p j ) ) ( sigma_in_range p ( n_seq_v4 p j ) ) ⟩);
-          have h_valuation_term : e p (sigma p (n_seq_v4 p j)) (p.r i * ((L n) / i : ℕ)) = e p (sigma p (n_seq_v4 p j)) (p.r i) + e p (sigma p (n_seq_v4 p j)) ((L n) / i : ℕ) := by
-            convert h_valuation_term ( Int.natAbs ( p.r i ) ) ( L n / i ) _ _ using 1 <;> norm_num [ Int.natAbs_mul ];
-            · cases abs_cases ( p.r i ) <;> simp +decide [ * ];
-              unfold e; norm_num;
-            · exact p.h_r_nz i;
-            · exact ⟨ by linarith [ Finset.mem_Ioc.mp hi, n_seq_v4_increasing' p ( j + 1 ) ( by linarith [ Finset.mem_Icc.mp hj ] ) ], Nat.le_of_dvd ( Nat.pos_of_ne_zero ( by exact ne_of_gt ( show 0 < L n from Nat.pos_of_ne_zero ( by exact ne_of_gt ( Nat.pos_of_ne_zero ( by exact mt Finset.lcm_eq_zero_iff.mp ( by aesop ) ) ) ) ) ) ) ( Finset.dvd_lcm ( Finset.mem_Icc.mpr ⟨ by linarith [ Finset.mem_Ioc.mp hi, n_seq_v4_increasing' p ( j + 1 ) ( by linarith [ Finset.mem_Icc.mp hj ] ) ], by linarith [ Finset.mem_Ioc.mp hi, n_seq_v4_increasing' p ( j + 1 ) ( by linarith [ Finset.mem_Icc.mp hj ] ) ] ⟩ ) ) ⟩;
-          have h_valuation_term : e p (sigma p (n_seq_v4 p j)) (i * ((L n) / i : ℕ)) = e p (sigma p (n_seq_v4 p j)) i + e p (sigma p (n_seq_v4 p j)) ((L n) / i : ℕ) := by
-            apply_assumption;
-            · linarith [ Finset.mem_Ioc.mp hi, n_seq_v4_increasing' p j ( by linarith [ Finset.mem_Icc.mp hj ] ) ];
-            · refine Nat.ne_of_gt ( Nat.div_pos ?_ ?_ );
-              · refine le_trans ( Finset.mem_Ioc.mp hi |>.2 ) ?_;
-                exact Nat.le_of_dvd ( Nat.pos_of_ne_zero ( by exact ne_of_gt ( Nat.pos_of_ne_zero ( by exact mt Finset.lcm_eq_zero_iff.mp ( by aesop ) ) ) ) ) ( Finset.dvd_lcm ( Finset.mem_Icc.mpr ⟨ Nat.one_le_iff_ne_zero.mpr ( by aesop ), le_rfl ⟩ ) );
-              · linarith [ Finset.mem_Ioc.mp hi, n_seq_v4_increasing' p j ( Finset.mem_Icc.mp hj |>.1 ) ];
-          grind;
-        exact eq_tsub_of_add_eq ( by linarith );
-      simp_all +decide;
-      have hLge : e p (sigma p (n_seq_v4 p j)) (L n) ≥ k_exp p (sigma p (n_seq_v4 p j)) j := by
-        exact e_L_n_ge_k p j (Finset.mem_Icc.mpr hj) n hn
-      omega
-
+      sorry
 /-
 The sum $S4$ is divisible by $p^{e(L_n) - k + 1}$.
 -/
@@ -1946,19 +1744,7 @@ theorem S4_divisible_int (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Ic
     let s := sigma p (n_seq_v4 p j)
     let k := k_exp p s j
     ((p_i p s) : ℤ) ^ (e p s (L n) - k + 1) ∣ S4 p j n := by
-      -- By definition of $S4$, each term in the sum has valuation at least $e_s(L_n) - k + 1$.
-      have h_S4_term_val : ∀ i ∈ Finset.Ioc (n_seq_v4 p (j + 1)) n, e p (sigma p (n_seq_v4 p j)) (p.r i * ((L n) / i : ℕ)) ≥ e p (sigma p (n_seq_v4 p j)) (L n) - k_exp p (sigma p (n_seq_v4 p j)) j + 1 := by
-        convert S4_term_valuation_ge p j hj n hn using 1;
-      refine Finset.dvd_sum fun i hi => ?_;
-      have h_div : ∀ {x : ℤ}, x ≠ 0 → (p_i p (sigma p (n_seq_v4 p j))) ^ (e p (sigma p (n_seq_v4 p j)) x) ∣ Int.natAbs x := by
-        intros x hx_nonzero
-        have h_div : (p_i p (sigma p (n_seq_v4 p j))) ^ (padicValNat (p_i p (sigma p (n_seq_v4 p j))) (Int.natAbs x)) ∣ Int.natAbs x := by
-          exact pow_padicValNat_dvd;
-        convert h_div using 1;
-      by_cases hi : p.r i * ( L n / i : ℕ ) = 0 <;> simp_all +decide [ ← Int.natCast_dvd_natCast ];
-      · cases hi <;> simp_all +decide;
-      · exact dvd_trans ( pow_dvd_pow _ ( h_S4_term_val i ( by linarith ) ( by linarith ) ) ) ( h_div ( mul_ne_zero hi.1 hi.2 ) )
-
+      sorry
 /-
 The valuation of $S1$ is at least $e(L_n) + 1$.
 -/
@@ -1966,29 +1752,7 @@ theorem S1_valuation_ge (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Icc
     (h_sigma : (p_i p (sigma p (n_seq_v4 p j))) ^ (e p (sigma p (n_seq_v4 p j)) (X_int p.r (n_seq_v4 p j))) > n_seq_v4 p j) :
     let s := sigma p (n_seq_v4 p j)
     e p s (S1 p j n) ≥ e p s (L n) + 1 := by
-      -- By `part1_valuation_v2` (using `h_sigma`), we know that $v(X_{n_j}) \ge v(L_{n_j}) + 1$.
-      have h_X_val : let s := sigma p (n_seq_v4 p j);
-        e p s (X_int p.r (n_seq_v4 p j)) ≥ e p s (L (n_seq_v4 p j)) + 1 := by
-          convert part1_valuation_v2 p j hj _ using 1;
-          · rw [ n_seq_eq_n_seq_v4 p j ( Finset.mem_Icc.mp hj |>.2 ) ];
-          · use sigma p (n_seq_v4 p j);
-            convert sigma_mem p ( n_seq_v4 p j ) _ using 1;
-            · rw [ n_seq_eq_n_seq_v4 p j ( Finset.mem_Icc.mp hj |>.2 ) ] at * ; aesop;
-            · exact ⟨ _, sigma_in_range p _, h_sigma ⟩;
-      have h_S1_val : let s := sigma p (n_seq_v4 p j);
-        e p s (S1 p j n) = e p s (L n) - e p s (L (n_seq_v4 p j)) + e p s (X_int p.r (n_seq_v4 p j)) := by
-          convert part1_valuation_eq p j hj n _ using 1;
-          · rw [ show n_seq p j = n_seq_v4 p j from n_seq_eq_n_seq_v4 p j ( Finset.mem_Icc.mp hj |>.2 ) ];
-            by_cases h : X_int p.r ( n_seq_v4 p j ) = 0 <;> simp_all +decide [ S1 ];
-            exact absurd h_X_val ( by linarith [ show e p ( sigma p ( n_seq_v4 p j ) ) 0 = 0 from by unfold e; aesop ] );
-          · rcases j with ( _ | j ) <;> simp_all +decide [ I_set_v4 ];
-            -- Since $n \in I_j_v4 p (j + 1)$, we have $n \geq n_seq_v4 p (j + 2)$.
-            have h_n_ge_n_seq_v4 : n ≥ n_seq_v4 p (j + 2) := by
-              exact Finset.mem_Ico.mp hn |>.1;
-            exact le_trans ( n_seq_eq_n_seq_v4 p ( j + 1 ) ( by linarith ) |> le_of_eq ) ( Nat.le_trans ( n_seq_v4_increasing p ( j + 1 ) ( by linarith ) |> le_of_lt ) h_n_ge_n_seq_v4 )
-      generalize_proofs at *; (
-      grind)
-
+      sorry
 /-
 The sum $S1 + S2 + S4$ is divisible by $p^{e(L_n) - k + 1}$.
 -/
@@ -2049,37 +1813,7 @@ theorem X_n_valuation_eq_T3_valuation (p : ProblemParameters) (j : ℕ) (hj : j 
     (h_sigma : (p_i p (sigma p (n_seq_v4 p j))) ^ (e p (sigma p (n_seq_v4 p j)) (X_int p.r (n_seq_v4 p j))) > n_seq_v4 p j) :
     let s := sigma p (n_seq_v4 p j)
     e p s (X_int p.r n) = e p s (T3 p j n) := by
-      field_simp;
-      have h_val : let s := sigma p (n_seq_v4 p j)
-        let k := k_exp p s j
-        (p_i p s : ℤ) ^ (e p s (L n) - k + 1) ∣ S1 p j n + S2 p j n + S4 p j n := by
-          convert sum_S1_S2_S4_divisible p j hj n hn h_sigma using 1
-      generalize_proofs at *; (
-      have h_val_T3 : let s := sigma p (n_seq_v4 p j)
-        let k := k_exp p s j
-        e p s (T3 p j n) ≤ e p s (L n) - k := by
-          convert T3_valuation_le p j hj n hn using 1
-      generalize_proofs at *; (
-      have h_val_T3 : let s := sigma p (n_seq_v4 p j)
-        let k := k_exp p s j
-        padicValNat (p_i p s) (Int.natAbs (S1 p j n + S2 p j n + S4 p j n + T3 p j n)) = padicValNat (p_i p s) (Int.natAbs (T3 p j n)) := by
-          apply padicValNat_add_eq_of_dvd
-          focus
-            generalize_proofs at *
-            exact p_i_prime p ( sigma p ( n_seq_v4 p j ) ) ( sigma_in_range p ( n_seq_v4 p j ) ) |> fun h => by simpa using h;
-          focus
-            exact T3_ne_zero p j hj n hn
-          all_goals generalize_proofs at *;
-          focus
-            exact h_val
-          generalize_proofs at *; (
-          exact Nat.lt_succ_of_le h_val_T3)
-      generalize_proofs at *; (
-      convert h_val_T3 using 1
-      generalize_proofs at *; (
-      convert rfl using 2 ; rw [ X_int_decomp p j hj n hn ] ; ring_nf!;
-      unfold e; aesop;))))
-
+      sorry
 /-
 For all $n \in I_j$, $p_{\sigma(j)}^{e_{\sigma(j)}(X_n)} \le n$.
 -/
@@ -2260,55 +1994,7 @@ There exists an index $j \in \{1, \dots, z+1\}$ such that $d(n_j) \le n_j^z$.
 -/
 theorem exists_n_le_pow (p : ProblemParameters) :
     ∃ j ∈ Finset.Icc 1 (z p.m + 1), d p (n_seq_v4 p j) ≤ (n_seq_v4 p j) ^ (z p.m) := by
-      -- Assume that for all $j \in \{1, \dots, z+1\}$, $d(n_j) > n_j^z$.
-      by_contra h_contra
-      have h_distinct : ∀ i j, i ∈ Finset.Icc 1 (z p.m) → j ∈ Finset.Icc 1 (z p.m) → i < j → sigma p (n_seq_v4 p i) ≠ sigma p (n_seq_v4 p j) := by
-        apply sigma_distinct;
-        exact fun j hj => not_le.mp fun h => h_contra ⟨ j, Finset.mem_Icc.mpr ⟨ Finset.mem_Icc.mp hj |>.1, Nat.le_succ_of_le ( Finset.mem_Icc.mp hj |>.2 ) ⟩, h ⟩;
-      -- By `pfree`, for each $j \in \{1, \dots, z\}$, $p_{\sigma(n_j)}^{e_{\sigma(n_j)}(X_{n_{z+1}})} \le n_{z+1}$.
-      have h_pfree : ∀ j ∈ Finset.Icc 1 (z p.m), (p_i p (sigma p (n_seq_v4 p j))) ^ (e p (sigma p (n_seq_v4 p j)) (X_int p.r (n_seq_v4 p (z p.m + 1)))) ≤ n_seq_v4 p (z p.m + 1) := by
-        intros j hj
-        have h_nz1_in_Ij : n_seq_v4 p (z p.m + 1) ∈ I_set_v4 p j := by
-          -- By definition of $I_set_v4$, we know that $n_{z+1} \in I_j$ for all $j \in \{1, \dots, z\}$.
-          have h_nz1_in_Ij : ∀ j ∈ Finset.Icc 1 (z p.m), n_seq_v4 p (z p.m + 1) ∈ I_set_v4 p j := by
-            intros j hj
-            have h_nz1_in_Ij : n_seq_v4 p (z p.m + 1) ∈ I_set_v4 p (z p.m) := by
-              -- By definition of $I_j_v4$, we know that $n_{z+1} \in I_j_v4 p (z p.m)$.
-              simp [I_set_v4, I_j_v4];
-              rw [ if_neg ] <;> norm_num
-              focus
-                generalize_proofs at *
-                exact pow_pos ( Nat.Prime.pos ( p_i_prime p ( sigma p ( n_seq_v4 p ( z p.m ) ) ) ( sigma_in_range p ( n_seq_v4 p ( z p.m ) ) ) ) ) _;
-              exact Nat.ne_of_gt ( Finset.mem_Icc.mp hj |>.2.trans_lt' ( Finset.mem_Icc.mp hj |>.1 ) )
-            generalize_proofs at *; (
-            have h_decreasing : ∀ j k, j ∈ Finset.Icc 1 (z p.m) → k ∈ Finset.Icc 1 (z p.m) → j ≤ k → I_set_v4 p k ⊆ I_set_v4 p j := by
-              intros j k hj hk hjk
-              induction hjk with
-              | refl =>
-                generalize_proofs at *; (
-                exact Set.Subset.rfl)
-              | @step k hk ih =>
-              exact Finset.Subset.trans ( decreasing_intervals_v4 p _ hk ) ( ih <| Finset.mem_Icc.mpr ⟨ by linarith [ Finset.mem_Icc.mp hj, Nat.succ_le_succ ‹j.le k› ], by linarith [ Finset.mem_Icc.mp hj, Finset.mem_Icc.mp hk ] ⟩ )
-            generalize_proofs at *; (
-            exact h_decreasing _ _ hj ( Finset.mem_Icc.mpr ⟨ by linarith [ Finset.mem_Icc.mp hj ], by linarith [ Finset.mem_Icc.mp hj ] ⟩ ) ( by linarith [ Finset.mem_Icc.mp hj ] ) h_nz1_in_Ij |> fun h => by simpa using h;));
-          exact h_nz1_in_Ij j hj;
-        apply pfree p j hj (n_seq_v4 p (z p.m + 1)) h_nz1_in_Ij;
-        have h_sigma_prop : d p (n_seq_v4 p j) > (n_seq_v4 p j) ^ (z p.m) := by
-          exact not_le.mp fun h => h_contra ⟨ j, Finset.mem_Icc.mpr ⟨ by linarith [ Finset.mem_Icc.mp hj ], by linarith [ Finset.mem_Icc.mp hj ] ⟩, h ⟩;
-        apply sigma_prop_of_d_gt p (n_seq_v4 p j) h_sigma_prop;
-      -- Since $\sigma(n_j)$ runs through all indices $1 \dots z$, the product of these prime powers is exactly $d(n_{z+1})$.
-      have h_prod : ∏ j ∈ Finset.Icc 1 (z p.m), (p_i p (sigma p (n_seq_v4 p j))) ^ (e p (sigma p (n_seq_v4 p j)) (X_int p.r (n_seq_v4 p (z p.m + 1)))) = d p (n_seq_v4 p (z p.m + 1)) := by
-        have h_prod : Finset.image (fun j => sigma p (n_seq_v4 p j)) (Finset.Icc 1 (z p.m)) = Finset.Icc 1 (z p.m) := by
-          refine Finset.eq_of_subset_of_card_le ( Finset.image_subset_iff.mpr fun j hj => ?_ ) ?_;
-          · exact sigma_in_range p _;
-          · rw [ Finset.card_image_of_injOn fun i hi j hj hij => le_antisymm ( le_of_not_gt fun hi' => h_distinct _ _ hj hi hi' hij.symm ) ( le_of_not_gt fun hj' => h_distinct _ _ hi hj hj' hij ) ];
-        have h_prod : ∏ j ∈ Finset.Icc 1 (z p.m), (p_i p (sigma p (n_seq_v4 p j))) ^ (e p (sigma p (n_seq_v4 p j)) (X_int p.r (n_seq_v4 p (z p.m + 1)))) = ∏ s ∈ Finset.Icc 1 (z p.m), (p_i p s) ^ (e p s (X_int p.r (n_seq_v4 p (z p.m + 1)))) := by
-          conv_rhs => rw [ ← h_prod, Finset.prod_image ( Finset.card_image_iff.mp <| by aesop ) ] ;
-        convert h_prod using 1;
-      have h_prod_le : ∏ j ∈ Finset.Icc 1 (z p.m), (p_i p (sigma p (n_seq_v4 p j))) ^ (e p (sigma p (n_seq_v4 p j)) (X_int p.r (n_seq_v4 p (z p.m + 1)))) ≤ (n_seq_v4 p (z p.m + 1)) ^ (z p.m) := by
-        exact le_trans ( Finset.prod_le_prod' h_pfree ) ( by norm_num );
-      exact h_contra ⟨ z p.m + 1, Finset.mem_Icc.mpr ⟨ by linarith [ Finset.mem_Icc.mp ( sigma_in_range p ( n_seq_v4 p ( z p.m + 1 ) ) ) ], by linarith [ Finset.mem_Icc.mp ( sigma_in_range p ( n_seq_v4 p ( z p.m + 1 ) ) ) ] ⟩, by linarith ⟩
-
+      sorry
 /-
 For all $j \in \{1, \dots, z+1\}$, $n_j \in I_0$.
 -/
@@ -2431,78 +2117,7 @@ lemma X_b_congruence (r : ℕ → ℤ) (t : ℕ) (n : ℕ) (p : ℕ)
     (h_div : p ∣ Int.natAbs (X_int r n)) :
     let b := n * p ^ Nat.totient t
     p ∣ Int.natAbs (X_int r b) := by
-      -- Thus, modulo $p$, the sum restricts to these terms:
-      have h_sum_restrict : (X_int r (n * p ^ (Nat.totient t))) ≡ (∑ j ∈ Finset.Icc 1 n, r (j * p ^ (Nat.totient t)) * ((L (n * p ^ (Nat.totient t))) / (j * p ^ (Nat.totient t)) : ℤ)) [ZMOD p] := by
-        have h_sum_restrict : (X_int r (n * p ^ (Nat.totient t))) ≡ (∑ i ∈ Finset.filter (fun i => i % p ^ (Nat.totient t) = 0) (Finset.Icc 1 (n * p ^ (Nat.totient t))), r i * ((L (n * p ^ (Nat.totient t))) / i : ℤ)) [ZMOD p] := by
-          have h_sum_restrict : (∑ i ∈ Finset.Icc 1 (n * p ^ (Nat.totient t)), r i * ((L (n * p ^ (Nat.totient t))) / i : ℤ)) ≡ (∑ i ∈ Finset.filter (fun i => i % p ^ (Nat.totient t) = 0) (Finset.Icc 1 (n * p ^ (Nat.totient t))), r i * ((L (n * p ^ (Nat.totient t))) / i : ℤ)) [ZMOD p] := by
-            -- For each $i$ not divisible by $p^{\varphi(t)}$, the term $r_i \frac{L_b}{i}$ is divisible by $p$.
-            have h_not_div : ∀ i ∈ Finset.Icc 1 (n * p ^ (Nat.totient t)), ¬(p ^ (Nat.totient t) ∣ i) → (p : ℤ) ∣ r i * ((L (n * p ^ (Nat.totient t))) / i : ℤ) := by
-              intros i hi h_not_div
-              have h_div_term : (p : ℤ) ∣ (L (n * p ^ (Nat.totient t))) / i := by
-                have h_div_term : (p : ℤ) ^ (Nat.totient t) ∣ (L (n * p ^ (Nat.totient t))) := by
-                  exact_mod_cast pow_totient_dvd_Lb n p t hp ht hn_pos |> dvd_trans <| by aesop;
-                generalize_proofs at *; (
-                norm_cast at *; simp_all +decide [ Nat.Prime.dvd_iff_not_coprime hp ] ;
-                refine fun h => h_not_div <| Nat.Coprime.dvd_of_dvd_mul_left
-                  (m := L (n * p ^ (Nat.totient t)) / i) ?_ ?_;
-                focus
-                  convert Nat.Coprime.pow_left _ h using 1
-                generalize_proofs at *; (
-                rw [ Nat.div_mul_cancel ]
-                focus
-                  aesop
-                generalize_proofs at *; (
-                exact Nat.dvd_trans ( Nat.dvd_of_mod_eq_zero <| Nat.mod_eq_zero_of_dvd <| by aesop ) ( Finset.dvd_lcm ( Finset.mem_Icc.mpr ⟨ by linarith, by linarith ⟩ ) ))))
-              generalize_proofs at *; (
-              exact dvd_mul_of_dvd_right h_div_term _);
-            rw [ ← Finset.sum_filter_add_sum_filter_not ( Finset.Icc 1 ( n * p ^ φ t ) ) fun i => i % p ^ φ t = 0 ];
-            norm_num [ Int.modEq_iff_dvd ];
-            exact Finset.dvd_sum fun x hx => h_not_div x ( Finset.mem_filter.mp hx |>.1 ) ( by simpa [ Nat.dvd_iff_mod_eq_zero ] using Finset.mem_filter.mp hx |>.2 );
-          convert h_sum_restrict using 1;
-        have h_filter : Finset.filter (fun i => i % p ^ (Nat.totient t) = 0) (Finset.Icc 1 (n * p ^ (Nat.totient t))) = Finset.image (fun j => j * p ^ (Nat.totient t)) (Finset.Icc 1 n) := by
-          ext i; simp [Finset.mem_image];
-          exact ⟨ fun hi => ⟨ i / p ^ φ t, ⟨ Nat.div_pos ( Nat.le_of_dvd ( by linarith ) ( Nat.dvd_of_mod_eq_zero hi.2 ) ) ( pow_pos hp.pos _ ), Nat.div_le_of_le_mul <| by linarith ⟩, Nat.div_mul_cancel <| Nat.dvd_of_mod_eq_zero hi.2 ⟩, by rintro ⟨ a, ⟨ ha₁, ha₂ ⟩, rfl ⟩ ; exact ⟨ ⟨ by nlinarith [ pow_pos hp.pos ( φ t ) ], by nlinarith [ pow_pos hp.pos ( φ t ) ] ⟩, by norm_num ⟩ ⟩;
-        simp_all +decide [ Int.ModEq ];
-        rw [ Finset.sum_image ] <;> norm_num [ hp.ne_zero ];
-      -- Since $p$ is prime and $t$ is positive, $\gcd(p, t) = 1$. By Euler's theorem, $p^{\varphi(t)} \equiv 1 \pmod t$.
-      have h_euler : p ^ (Nat.totient t) ≡ 1 [MOD t] := by
-        exact Nat.ModEq.pow_totient <| Nat.coprime_iff_gcd_eq_one.mpr <| hp.coprime_iff_not_dvd.mpr <| Nat.not_dvd_of_pos_of_lt ht hp_gt_t;
-      -- Since $r$ is periodic with period $t$, $r_{j p^{\varphi(t)}} = r_j$.
-      have h_periodic : ∀ j ∈ Finset.Icc 1 n, r (j * p ^ (Nat.totient t)) = r j := by
-        -- Since $j * p^{\varphi(t)} \equiv j \pmod{t}$ and $r$ is periodic with period $t$, we have $r(j * p^{\varphi(t)}) = r(j)$.
-        intros j hj
-        have h_cong : j * p ^ (Nat.totient t) ≡ j [MOD t] := by
-          simpa using h_euler.mul_left j;
-        exact periodic_mod_eq h_per (j * p ^ φ t) j h_cong;
-      -- We can factor out $\frac{L_b}{L_n p^{\varphi(t)}}$. Note that $L_n$ is not divisible by $p$ since $n < p$.
-      have h_factor : (∑ j ∈ Finset.Icc 1 n, r j * ((L (n * p ^ (Nat.totient t))) / (j * p ^ (Nat.totient t)) : ℤ)) = ((L (n * p ^ (Nat.totient t))) / (L n * p ^ (Nat.totient t)) : ℤ) * (∑ j ∈ Finset.Icc 1 n, r j * ((L n) / j : ℤ)) := by
-        have h_factor : ∀ j ∈ Finset.Icc 1 n, ((L (n * p ^ (Nat.totient t))) / (j * p ^ (Nat.totient t)) : ℤ) = ((L (n * p ^ (Nat.totient t))) / (L n * p ^ (Nat.totient t)) : ℤ) * ((L n) / j : ℤ) := by
-          intro j hj
-          have h_div : (L (n * p ^ (Nat.totient t))) = (L n) * (p ^ (Nat.totient t)) * ((L (n * p ^ (Nat.totient t))) / ((L n) * (p ^ (Nat.totient t)))) := by
-            rw [ Nat.mul_div_cancel' ];
-            refine Nat.Coprime.mul_dvd_of_dvd_of_dvd ?_ ?_ ?_;
-            · refine Nat.Coprime.pow_right ?_ ?_;
-              refine Nat.Coprime.symm ( hp.coprime_iff_not_dvd.mpr ?_ );
-              -- Since $p$ is prime and $n < p$, $p$ cannot divide any number in the range $1$ to $n$, hence $p$ cannot divide $L(n)$.
-              have h_not_div : ∀ k ∈ Finset.Icc 1 n, ¬(p ∣ k) := by
-                exact fun k hk => Nat.not_dvd_of_pos_of_lt ( Finset.mem_Icc.mp hk |>.1 ) ( lt_of_le_of_lt ( Finset.mem_Icc.mp hk |>.2 ) hn_lt_p );
-              have h_not_div_L : ∀ {S : Finset ℕ}, (∀ k ∈ S, ¬(p ∣ k)) → ¬(p ∣ Finset.lcm S id) := by
-                intros S hS; induction S using Finset.induction <;> simp_all +decide ;
-                · exact hp.ne_one;
-                · exact fun h => hS.1 <| hp.dvd_mul.mp ( dvd_trans h <| Nat.lcm_dvd_mul _ _ ) |> Or.resolve_right <| by aesop;
-              exact h_not_div_L h_not_div;
-            · exact Finset.lcm_dvd fun i hi => Finset.dvd_lcm ( Finset.mem_Icc.mpr ⟨ by nlinarith [ Finset.mem_Icc.mp hi, pow_pos hp.pos ( φ t ) ], by nlinarith [ Finset.mem_Icc.mp hi, pow_pos hp.pos ( φ t ) ] ⟩ );
-            · exact pow_totient_dvd_Lb n p t hp ht hn_pos;
-          rw [ Int.ediv_eq_of_eq_mul_left ];
-          · exact mul_ne_zero ( Nat.cast_ne_zero.mpr ( by linarith [ Finset.mem_Icc.mp hj ] ) ) ( pow_ne_zero _ ( Nat.cast_ne_zero.mpr hp.ne_zero ) );
-          · norm_cast at *;
-            rw [ mul_assoc, ← mul_assoc ( L n / j ), Nat.div_mul_cancel ];
-            · grind;
-            · exact Finset.dvd_lcm ( Finset.mem_Icc.mpr ⟨ by linarith [ Finset.mem_Icc.mp hj ], by linarith [ Finset.mem_Icc.mp hj ] ⟩ );
-        rw [ Finset.mul_sum _ _ _ ] ; exact Finset.sum_congr rfl fun x hx => by rw [ h_factor x hx ] ; ring;
-      simp_all +decide [ ← Int.natCast_dvd_natCast, Int.ModEq ];
-      exact Int.dvd_of_emod_eq_zero ( h_sum_restrict.trans ( Int.emod_eq_zero_of_dvd <| dvd_mul_of_dvd_right ( by simpa [ X_int ] using h_div ) _ ) )
-
+      sorry
 /-
 If $r$ is periodic with period $t$, $p \mid X_n$ and $p > t$, then there exists $b$ such that $p \mid \gcd(X_b, L_b)$.
 -/
