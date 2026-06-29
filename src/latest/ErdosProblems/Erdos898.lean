@@ -609,7 +609,14 @@ lemma angle_split_of_interior {A B C P : V}
         InnerProductGeometry.angle u v := by
     convert angle_add_of_positive_linear_combination h_indep a b ha hb using 1
     aesop (simp_config := { singlePass := true })
-  convert h_angle_add using 1
+  have hBAP : ∠ B A P = InnerProductGeometry.angle u (P - A) := by
+    simp [EuclideanGeometry.angle, u, vsub_eq_sub]
+  have hPAC : ∠ P A C = InnerProductGeometry.angle (P - A) v := by
+    simp [EuclideanGeometry.angle, v, vsub_eq_sub]
+  have hBAC : ∠ B A C = InnerProductGeometry.angle u v := by
+    simp [EuclideanGeometry.angle, u, v, vsub_eq_sub]
+  rw [hBAP, hPAC, hBAC]
+  exact h_angle_add
 
 end AristotleLemmas
 
