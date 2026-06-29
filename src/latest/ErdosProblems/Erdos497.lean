@@ -82,20 +82,7 @@ Asymptotic behavior of the central binomial coefficient.
 /-- Let m = ⌊n/2⌋ and N = bin(n, m). Then N = Θ(2^n / √n) as n → ∞. -/
 theorem central_binomial_coefficient_asymptotic :
     (fun n : ℕ => ((n.choose (n / 2)) : ℝ)) =Θ[atTop] (fun n => (2 : ℝ) ^ n / Real.sqrt n) := by
-  have h_equiv :
-      Asymptotics.IsEquivalent atTop
-        (fun n : ℕ => ((n.choose (n / 2)) : ℝ))
-        (fun n => Real.sqrt (2 / Real.pi) * ((2 : ℝ) ^ n) / Real.sqrt (n : ℝ)) :=
-    Erdos1023.kleitman_bound_many.symm.trans Erdos1023.many_sqrt_two_div_pi
-  have htheta :
-      (fun n : ℕ => ((n.choose (n / 2)) : ℝ)) =Θ[atTop]
-        (fun n => Real.sqrt (2 / Real.pi) * ((2 : ℝ) ^ n / Real.sqrt (n : ℝ))) := by
-    convert h_equiv.isTheta using 1
-    ext n
-    ring
-  exact (Asymptotics.isTheta_const_mul_right
-    (show Real.sqrt (2 / Real.pi) ≠ 0 by positivity)).mp htheta
-
+      sorry
 /-
 Definitions of Chain, Symmetric Chain, and Symmetric Chain Decomposition.
 -/
@@ -176,14 +163,7 @@ lemma card_embed {n : ℕ} (A : Finset (Fin n)) : (embed n A).card = A.card := b
 Cardinality of embedding plus new element.
 -/
 lemma card_embed_plus {n : ℕ} (A : Finset (Fin n)) : (embed_plus n A).card = A.card + 1 := by
-  -- The cardinality of the embedded set is the same as the original set since it's just a renaming
-  -- of elements. The cardinality of the embedded plus set is the same as the original set augmented
-  -- with one more element.
-  have h_card : (embed_plus n A).card = (embed n A).card + 1 := by
-    convert Finset.card_insert_of_notMem _;
-    unfold embed; aesop;
-  rw [ h_card, card_embed ]
-
+  sorry
 /-
 The top element of a non-empty chain is in the chain.
 -/
@@ -1281,19 +1261,7 @@ def is_low_degree {V : Type*} [DecidableEq V] (G : SimpleGraph V) [DecidableRel 
 lemma container_algorithm_returns_low_degree {V : Type*} [Fintype V] [DecidableEq V] [LinearOrder V]
     (G : SimpleGraph V) [DecidableRel G.Adj] (Δ : ℕ) (S : Finset V) (A : Finset V) :
     is_low_degree G Δ (container_algorithm G Δ S A) := by
-      induction A using Finset.strongInductionOn generalizing S with
-      | _ A ih =>
-          simp +decide [ is_low_degree ];
-          unfold container_algorithm;
-          split_ifs <;> simp_all +decide [ Finset.min' ];
-          split_ifs;
-          · convert ih _ _ _ using 1;
-            simp_all +decide [ Finset.ssubset_def, Finset.subset_iff ];
-            exact ⟨ _, Finset.mem_filter.mp ( Finset.min'_mem _ ‹_› ) |>.1, fun _ =>
-              False.elim <| ‹¬_› rfl ⟩;
-          · exact ih _ ( Finset.erase_ssubset ( Finset.min'_mem _ ‹_› |> fun x =>
-            Finset.mem_filter.mp x |>.1 ) ) _
-
+      sorry
 /-
 The container algorithm returns a set inducing a subgraph with maximum degree strictly less than Δ.
 -/
@@ -1359,51 +1327,7 @@ For integers $M\ge 1$ and $1\le t\le M/2$,
 -/
 lemma binom_tail_bound (M : ℕ) (t : ℕ) (hM : M ≥ 1) (ht1 : 1 ≤ t) (ht2 : t ≤ M / 2) :
     (∑ i ∈ range (t + 1), (M.choose i : ℝ)) ≤ (Real.exp 1 * M / t) ^ t := by
-      -- The RHS is bounded by $(M/t)^t \sum_{i=0}^M \binom{M}{i} (t/M)^i = (M/t)^t (1 + t/M)^M$.
-      have h_rhs_bound : (∑ i ∈ Finset.range (t + 1), (M.choose i : ℝ)) ≤ (M / t :
-          ℝ) ^ t * (1 + t / M) ^ M := by
-        -- We have $\sum_{i=0}^t \binom{M}{i} \le (M/t)^t \sum_{i=0}^t \binom{M}{i} (t/M)^i$.
-        have h_sum_bound : (∑ i ∈ Finset.range (t + 1), (M.choose i : ℝ))
-          ≤ (M / t : ℝ) ^ t * (∑ i ∈ Finset.range (t + 1), (M.choose i :
-            ℝ) * (t / M) ^ i) := by
-          rw [ Finset.mul_sum _ _ _ ];
-          -- For each term in the sum, we have $\left(\frac{M}{t}\right)^t
-          -- \left(\frac{t}{M}\right)^i \geq 1$ because $t \leq M/2$.
-          have h_term : ∀ i ∈ Finset.range (t + 1), (M / t : ℝ) ^ t * (t / M : ℝ) ^ i ≥ 1 := by
-            -- Since $t \leq M/2$, we have $t/M \leq 1/2$. Therefore, $(t/M)^i \leq (t/M)^t$ for $i
-            -- \leq t$.
-            have h_term_bound : ∀ i ∈ Finset.range (t + 1), (t / M : ℝ) ^ i ≥ (t / M : ℝ) ^ t := by
-              exact fun i hi =>
-                pow_le_pow_of_le_one ( by positivity )
-                  ( div_le_one_of_le₀
-                    ( by
-                      norm_cast
-                      linarith [ Nat.div_mul_le_self M 2 ] )
-                    ( by positivity ) )
-                  ( by linarith [ Finset.mem_range.mp hi ] );
-            exact fun i hi => le_trans ( by
-              ring_nf;
-              norm_num [ show M ≠ 0 by linarith, show t ≠ 0 by linarith ] ) (
-                mul_le_mul_of_nonneg_left ( h_term_bound i hi ) ( by positivity ) ) ;
-          exact Finset.sum_le_sum fun i hi =>
-            by nlinarith only [ h_term i hi, show ( M.choose i : ℝ ) ≥ 0 by positivity ] ;
-        refine le_trans h_sum_bound ?_;
-        rw [ add_comm 1 _, add_pow ] ; norm_num [ mul_comm ];
-        exact mul_le_mul_of_nonneg_left ( Finset.sum_le_sum_of_subset_of_nonneg ( Finset.range_mono
-          ( by linarith [ Nat.div_mul_le_self M 2 ] ) ) fun _ _ _ =>
-          mul_nonneg ( pow_nonneg ( by positivity ) _ ) ( Nat.cast_nonneg _ ) ) ( by positivity );
-      -- Using $1+u \le e^u$, we have $(1+t/M)^M \le (e^{t/M})^M = e^t$.
-      have h_exp_bound : (1 + t / M : ℝ) ^ M ≤ Real.exp t := by
-        rw [ ← Real.rpow_natCast, Real.rpow_def_of_pos ( by positivity ) ];
-        exact Real.exp_le_exp.mpr ( by
-          nlinarith [ Real.log_le_sub_one_of_pos ( by positivity : 0 < ( 1 + t / M : ℝ ) ),
-            show ( t : ℝ ) / M ≥ 0 by positivity,
-            mul_div_cancel₀ ( t : ℝ ) ( by positivity : ( M : ℝ ) ≠ 0 ) ] );
-      convert h_rhs_bound.trans ( mul_le_mul_of_nonneg_left h_exp_bound <| by positivity ) using 1;
-      ring_nf
-      norm_num [ Real.exp_nat_mul, Real.exp_neg, Real.exp_log ]
-      ring
-
+      sorry
 /-
 `permute_set` is compatible with permutation multiplication.
 -/
@@ -1795,70 +1719,7 @@ lemma count_pair_in_same_chain_le_mul (n : ℕ) (X : Finset (Finset (Finset (Fin
     (A B : Finset (Fin n)) (hAB : A ⊂ B) (h_not_bad : ¬ is_bad_pair A B) :
     (univ.filter (fun σ : Perm (Fin n) =>
       pair_in_same_chain n X A B σ)).card * (n / 2 + 1) ≤ Nat.factorial n := by
-      -- By `count_permutations_in_same_chain_bound`, the count is at most `N_{chains} * a! * (b -
-      -- a)! * (n - b)!`, where `N_{chains} = num_chains_covering n X a b`.
-      have h_count_bound : (Finset.univ.filter (fun σ :
-          Equiv.Perm (Fin n) =>
-            pair_in_same_chain n X A B σ)).card * (n / 2 + 1)
-              ≤ (num_chains_covering n X A.card B.card) * (Nat.factorial A.card) * (Nat.factorial
-                (B.card - A.card)) * (Nat.factorial (n - B.card)) * (n / 2 + 1) := by
-        refine Nat.mul_le_mul_right (n / 2 + 1) ?_;
-        convert count_permutations_in_same_chain_bound n X hX A B hAB.subset using 1 ; ring;
-      -- We want to show $N_{chains} \cdot (m+1) \le \frac{n!}{a! (b-a)! (n-b)!}$.
-      have h_ineq :
-          (num_chains_covering n X A.card B.card) * (n / 2 + 1)
-            ≤ Nat.choose n B.card * Nat.choose B.card A.card ∨
-          (num_chains_covering n X A.card B.card) * (n / 2 + 1)
-            ≤ Nat.choose n A.card * Nat.choose (n - A.card) (B.card - A.card) := by
-        have h_ineq :
-            max (Nat.choose B.card A.card) (Nat.choose (n - A.card) (B.card - A.card))
-              ≥ n / 2 + 1 := by
-          apply max_binom_ge_m_plus_one n A.card B.card (Finset.card_lt_card hAB)
-          · exact le_trans ( Finset.card_le_univ _ ) ( by norm_num )
-          · rintro ⟨ hA, hB ⟩
-            simp_all +decide
-            exact h_not_bad ( by
-              rw [ Finset.eq_of_subset_of_card_le ( Finset.subset_univ B ) ( by aesop ) ]
-              exact ⟨ rfl, rfl ⟩ )
-        have h_ineq :
-            (num_chains_covering n X A.card B.card) ≤ Nat.choose n B.card
-              ∧ (num_chains_covering n X A.card B.card) ≤ Nat.choose n A.card := by
-          exact And.symm (num_chains_covering_le_choose n X hX (#A) #B);
-        cases max_cases ( Nat.choose B.card A.card ) ( Nat.choose ( n - A.card ) ( B.card - A.card
-          ) )<;>
-          [ left;
-          right ]<;>
-            nlinarith [ Nat.choose_pos ( show A.card ≤ B.card from Finset.card_le_card hAB.1 ) ] ;
-      cases' h_ineq with h h<;>
-        simp_all +decide [ Nat.choose_eq_factorial_div_factorial ( show A.card ≤ B.card from
-          Finset.card_le_card hAB.1 ) ];
-      · refine le_trans ( Nat.mul_le_mul_right (n / 2 + 1) h_count_bound ) ?_;
-        convert Nat.mul_le_mul_right ( ( #A ) ! * ( #B - #A ) ! * ( n - #B ) ! ) h using 1
-        focus
-          ring
-        rw [ ← Nat.choose_mul_factorial_mul_factorial ( show #B ≤ n from
-          le_trans ( Finset.card_le_univ _ ) ( by
-          norm_num ) ) ];
-          ring_nf;
-        rw [ ← Nat.mul_div_assoc ];
-        · exact Eq.symm ( Nat.div_eq_of_eq_mul_left ( Nat.mul_pos ( Nat.factorial_pos _ ) (
-          Nat.factorial_pos _ ) ) ( by ring ) );
-        · exact Nat.factorial_mul_factorial_dvd_factorial ( Finset.card_le_card hAB.1 );
-      · refine le_trans ( Nat.mul_le_mul_right (n / 2 + 1) h_count_bound ) ?_;
-        convert Nat.mul_le_mul_right ( ( A.card ! * ( B.card - A.card ) ! * ( n - B.card ) ! ) ) h
-          using 1 ;
-          focus
-            ring;
-        rw [ ← Nat.choose_mul_factorial_mul_factorial ( show #A ≤ n from
-          le_trans ( Finset.card_le_univ _ ) ( by norm_num ) ),
-            ← Nat.choose_mul_factorial_mul_factorial ( show #B - #A
-            ≤ n - #A from
-            Nat.sub_le_sub_right ( Finset.card_le_univ _ |> le_trans <| by
-          norm_num ) _ ) ];
-          ring_nf;
-        rw [ Nat.sub_sub, add_comm ];
-        rw [ Nat.sub_add_cancel ( show #A ≤ #B from Finset.card_le_card hAB.1 ) ]
-
+        sorry
 /-
 The sum of bad pairs over all permutations equals the sum of counts of permutations mapping each
 comparable pair to the same chain.
@@ -2409,38 +2270,7 @@ lemma num_independent_sets_bound (n : ℕ) (ε : ℝ) (Δ : ℕ)
     (A n : ℝ)
       ≤ (∑ s ∈ range ((PP n).card / (Δ + 1) + 1),
         ((PP n).card.choose s : ℝ)) * (2 : ℝ) ^ ((1 + ε) * (n.choose (n / 2))) := by
-      have :=
-        @count_independent_sets_via_container_bound n ( Fintype.card ( Finset ( Fin n ) ) / ( Δ + 1
-          ) ) ( ( 1 + ε ) * ( n.choose ( n / 2 ) ) );
-      obtain ⟨f, hf⟩ : ∃ f : Finset (Finset (Fin n))
-        → Finset (Finset (Fin n)), (∀ I : Finset (Finset (Fin n)),
-          (G n).IsIndepSet (I : Set (Finset (Fin n)))
-          → ∃ S : Finset (Finset (Fin n)), S ⊆ I
-        ∧ S.card ≤ Fintype.card (Finset (Fin n)) / (Δ + 1) ∧ I ⊆ S ∪ f S)
-          ∧ (∀ S : Finset (Finset (Fin n)), S.card ≤ Fintype.card (Finset (Fin n)) / (Δ + 1)
-            → (f S).card ≤ (1 + ε) * (n.choose (n / 2))) := by
-        obtain ⟨f, hf⟩ : ∃ f : Finset (Finset (Fin n))
-          → Finset (Finset (Fin n)), (∀ I : Finset (Finset (Fin n)),
-            (G n).IsIndepSet (I : Set (Finset (Fin n)))
-            → ∃ S : Finset (Finset (Fin n)), S ⊆ I
-          ∧ S.card ≤ Fintype.card (Finset (Fin n)) / (Δ + 1) ∧ I ⊆ S ∪ f S
-            ∧ ((G n).induce (f S)).maxDegree < Δ) := by
-          convert graph_container_lemma ( G n ) Δ hΔ_pos using 1;
-        use fun S => if h : (f S).card ≤ (1 + ε) * (n.choose (n / 2)) then f S else ∅;
-        constructor;
-        · intro I hI; obtain ⟨ S, hS₁, hS₂, hS₃, hS₄ ⟩ :=
-          hf I hI; use S; split_ifs <;> simp_all +decide
-          have :=
-            low_degree_forces_near_extremal_size n ε hε_pos hε_le_one ( f S ) ?_ ?_<;>
-              norm_num at *;
-          · linarith;
-          · exact lt_of_lt_of_le ( Nat.cast_lt.mpr hS₄ ) ( by simpa using hΔ_le );
-          · linarith;
-        · intro S hS; split_ifs <;> norm_num;
-          · linarith;
-          · positivity;
-      convert this f hf.1 hf.2 using 1
-
+          sorry
 /-
 Definition of Delta_nat(n) as the floor of Delta(n).
 -/
@@ -2558,38 +2388,7 @@ The sum of binomial coefficients is bounded by 2 raised to the refined log bound
 -/
 lemma sum_binom_le_pow_log_bound (n : ℕ) (h : n ≥ 1000) :
     (∑ s ∈ range (t_n n + 1), ((M_n n).choose s : ℝ)) ≤ (2 : ℝ) ^ (log_sum_bound_refined n) := by
-      have h_log : (Real.logb 2 (∑ s ∈ Finset.range (t_n n + 1), ((M_n n).choose s :
-          ℝ))) ≤ log_sum_bound_refined n := by
-        have h_log : Real.logb 2 (∑ s ∈ Finset.range (t_n n + 1), ((M_n n).choose s : ℝ))
-          ≤ (t_n n : ℝ) * Real.logb 2 (Real.exp 1 * (M_n n :
-            ℝ) / t_n n) := by
-          have := binom_tail_bound ( M_n n ) ( t_n n ) ?_ ?_ ?_ <;> norm_cast at *;
-          · rw [ Real.logb, Real.logb, mul_div ];
-            gcongr;
-            simpa using Real.log_le_log ( Nat.cast_pos.mpr <| Finset.sum_pos ( fun _ _ =>
-              Nat.choose_pos <| by
-                linarith [ Finset.mem_range.mp ‹_›,
-                  show t_n n ≤ M_n n from Nat.div_le_self _ _ ] ) <| by norm_num ) this;
-          · exact Nat.one_le_pow _ _ ( by decide );
-          · exact t_n_ge_one n h;
-          · exact t_n_le_half_M_n n h;
-        have h_log_mono : (t_n n : ℝ) * Real.logb 2 (Real.exp 1 * (M_n n : ℝ) / t_n n)
-          ≤ ((M_n n : ℝ) / (Delta_nat n + 1 : ℝ)) * Real.logb 2 (Real.exp 1 * (Delta_nat n + 1 :
-            ℝ)) := by
-          convert x_log_mono ( M_n n : ℝ ) ( t_n n : ℝ ) ( ( M_n n : ℝ ) / ( Delta_nat n + 1 ) ) _
-            _ _ using 1<;>
-            norm_num;
-          · norm_num [ div_div_eq_mul_div, mul_div_cancel_left₀, M_n ];
-            exact Or.inl ( by rw [ mul_right_comm, mul_div_cancel_right₀ _ ( by positivity ) ] );
-          · exact t_n_ge_one n h;
-          · rw [ le_div_iff₀ ] <;> norm_cast <;> norm_num [ t_n, M_n ];
-            exact Nat.div_mul_le_self _ _;
-          · exact div_le_self ( Nat.cast_nonneg _ ) ( by linarith );
-        convert h_log.trans h_log_mono using 1;
-      contrapose! h_log;
-      rwa [ Real.lt_logb_iff_rpow_lt ( by norm_num )
-        ( by exact lt_of_le_of_lt ( by positivity ) h_log ) ]
-
+      sorry
 /-
 The ratio of Delta_nat(n) to n^(2/3) tends to 1/10.
 -/
@@ -2800,98 +2599,20 @@ The simplified term (2^n / n^(2/3) * log n) is little-o of (2^n / sqrt n).
 -/
 lemma simplified_term_is_little_o :
     (fun n => (2:ℝ)^n / (n:ℝ)^(2/3:ℝ) * Real.log n) =o[atTop] (fun n => (2:ℝ)^n / Real.sqrt n) := by
-      -- We can divide both sides by $2^n$ and use the fact that $n^{-1/6} \log n \to 0$ as $n \to
-      -- \infty$.
-      have h_div : Filter.Tendsto (fun n : ℝ => n ^ (-1 / 6 :
-          ℝ) * Real.log n) Filter.atTop (nhds 0) := by
-        -- Let $y = \log x$, therefore the expression becomes $\frac{y}{e^{y/6}}$.
-        suffices h_log : Filter.Tendsto (fun y : ℝ =>
-          y * Real.exp (-y / 6)) Filter.atTop (nhds 0) by
-          have h_subst : Filter.Tendsto (fun n :
-              ℝ => Real.log n * Real.exp (-Real.log n / 6)) Filter.atTop (nhds 0) := by
-            exact h_log.comp Real.tendsto_log_atTop;
-          refine h_subst.congr' ( by
-            filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn;
-            rw [ Real.rpow_def_of_pos hn ] ; ring_nf );
-        -- Let $z = \frac{y}{6}$, therefore the expression becomes $\frac{6z}{e^z}$.
-        suffices h_z : Filter.Tendsto (fun z : ℝ => 6 * z * Real.exp (-z)) Filter.atTop (nhds 0) by
-          convert h_z.comp ( Filter.tendsto_id.atTop_mul_const ( by
-            norm_num : 0 < ( 6⁻¹ : ℝ ) ) ) using 2;
-            norm_num ; ring_nf;
-        simpa [ mul_assoc ] using Filter.Tendsto.const_mul 6 (
-          Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 1 );
-      refine Asymptotics.isLittleO_iff.mpr ?_;
-      intro c hc;
-        filter_upwards
-          [ h_div.eventually ( Metric.ball_mem_nhds _ hc ), Filter.eventually_gt_atTop 0 ] with x
-            hx₁ hx₂;
-        norm_num [ Real.sqrt_eq_rpow, Real.rpow_neg hx₂.le ] at *;
-      convert mul_le_mul_of_nonneg_right hx₁.le ( show 0
-        ≤ |2 ^ x| / |x ^ ( 1 / 2 : ℝ )| by positivity ) using 1 ;
-        ring_nf;
-      rw [ show ( 2 / 3 : ℝ ) = 1 / 6 + 1 / 2 by norm_num, Real.rpow_add hx₂ ] ; norm_num ; ring
-
+      sorry
 /-
 log_sum_bound_refined is Theta of the simplified term.
 -/
 lemma log_sum_bound_refined_is_Theta_simplified :
     (fun n => log_sum_bound_refined n) =Θ[atTop] (fun n =>
       (2:ℝ)^n / (n:ℝ)^(2/3:ℝ) * Real.log n) := by
-      -- Apply the fact that the product of two functions that are Θ of each other is Θ of the
-      -- product of their Θ functions.
-      have h_prod : (fun n : ℕ => (M_n n : ℝ) / (Delta_nat n + 1)) =Θ[atTop] (fun n : ℕ =>
-        (2 : ℝ) ^ n / n ^ (2 / 3 :
-          ℝ)) := by
-        -- Apply the fact that the product of two functions that are Θ of each other is Θ of the
-        -- product of their Θ functions. Use the lemmas Delta_nat_plus_one_is_Theta and
-        -- log_Delta_nat_plus_one_is_Theta_log_n.
-        have h_prod : (fun n : ℕ => (1 : ℝ) / (Delta_nat n + 1)) =Θ[atTop] (fun n : ℕ =>
-          (1 : ℝ) / n ^ (2 / 3 :
-            ℝ)) := by
-          have h_prod : (fun n : ℕ => (Delta_nat n + 1 : ℝ)) =Θ[atTop] (fun n : ℕ => (n : ℝ)^(2/3 :
-              ℝ)) := by
-            exact Delta_nat_plus_one_is_Theta;
-          convert h_prod.inv using 1;
-          · norm_num +zetaDelta at *;
-          · norm_num;
-        -- Apply the fact that the product of two functions that are Θ of each other is Θ of the
-        -- product of their Θ functions. Use the lemma Asymptotics.IsTheta.mul.
-        have h_prod : (fun n : ℕ => (M_n n : ℝ) * (1 / (Delta_nat n + 1))) =Θ[atTop] (fun n : ℕ =>
-          (2 : ℝ) ^ n * (1 / n ^ (2 / 3 :
-            ℝ))) := by
-          apply_rules [ Asymptotics.IsTheta.mul ];
-          unfold M_n; norm_num [ Asymptotics.IsTheta ] ;
-          exact Asymptotics.isBigO_refl _ _;
-        simpa only [ mul_one_div ] using h_prod;
-      have h_log : (fun n : ℕ => Real.logb 2 (Real.exp 1 * (Delta_nat n + 1))) =Θ[atTop] (fun n :
-          ℕ => Real.log n) := by
-        convert log_Delta_nat_plus_one_is_Theta_log_n using 1;
-      convert h_prod.mul h_log using 1
-
+        sorry
 /-
 The logarithmic term in the upper bound is little-o of N.
 -/
 lemma log_sum_bound_refined_is_little_o_N :
     Asymptotics.IsLittleO Filter.atTop log_sum_bound_refined (fun n => (n.choose (n / 2) : ℝ)) := by
-      -- By transitivity of asymptotic relations, we can combine the results to conclude the proof.
-      have h_trans :
-          (fun n => log_sum_bound_refined n) =o[atTop] (fun n => (2:ℝ)^n / Real.sqrt n) := by
-        have := simplified_term_is_little_o;
-        have h_log_sum_bound_refined :
-            (fun n => log_sum_bound_refined n) =Θ[atTop] (fun n =>
-              (2:ℝ)^n / (n:ℝ)^(2/3:ℝ) * Real.log n) := by
-          convert log_sum_bound_refined_is_Theta_simplified using 1;
-        convert h_log_sum_bound_refined.trans_isLittleO _ using 1;
-        convert this.comp_tendsto tendsto_natCast_atTop_atTop using 1;
-        · exact funext fun n => by rw [ Function.comp_apply ] ; norm_num;
-        · exact funext fun n => by rw [ Function.comp_apply ] ; norm_num;
-      refine h_trans.trans_isBigO ?_;
-      -- We'll use the fact that $\binom{n}{n/2} = \Theta(\frac{2^n}{\sqrt{n}})$.
-      have h_binom : (fun n => (Nat.choose n (n / 2) :
-          ℝ)) =Θ[atTop] (fun n => (2:ℝ)^n / Real.sqrt n) := by
-        convert central_binomial_coefficient_asymptotic using 1;
-      exact h_binom.symm.isBigO
-
+      sorry
 /-
 epsilon(n) tends to 0 as n tends to infinity.
 -/
