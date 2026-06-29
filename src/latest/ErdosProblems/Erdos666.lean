@@ -34,11 +34,10 @@ Definition of the hypercube graph Q_n and the property of containing a cycle of 
 -/
 abbrev hypercubeGraph (n : ℕ) : SimpleGraph (Fin n → ZMod 2) where
   Adj x y := hammingDist x y = 1
-  symm x y h := by
+  symm := ⟨fun x y h => by
     -- Since the Hamming distance is symmetric, if hammingDist x y = 1, then
     -- hammingDist y x = 1 as well.
-    simp [hammingDist] at h ⊢;
-    simpa only [ eq_comm ] using h
+    simpa [hammingDist_comm] using h⟩
   loopless := ⟨fun x h => by
     -- The Hamming distance between a vertex and itself is 0, not 1.
     simp [hammingDist] at h⟩
@@ -50,23 +49,21 @@ def HasCycleOfLength {V : Type*} (G : SimpleGraph V) (k : ℕ) : Prop :=
 Definition of edge direction: the index where two adjacent vertices differ.
 -/
 noncomputable def edgeDirection {n : ℕ} (x y : Fin n → ZMod 2)
-    (h : (hypercubeGraph n).Adj x y) : Fin n :=
+    (h : hammingDist x y = 1) : Fin n :=
   (Finset.univ.filter (fun i => x i ≠ y i)).min' (by
-  have hh : hammingDist x y = 1 := by
-    simpa [hypercubeGraph] using h
-  contrapose! hh; simp_all +decide [ hammingDist ] ;)
+  contrapose! h; simp_all +decide [ hammingDist ] ;)
 
 /-
 Definition of lower endpoint: the endpoint with 0 at the differing coordinate.
 -/
 noncomputable def lowerEndpoint {n : ℕ} (x y : Fin n → ZMod 2)
-    (h : (hypercubeGraph n).Adj x y) : Fin n → ZMod 2 :=
+    (h : hammingDist x y = 1) : Fin n → ZMod 2 :=
   if x (edgeDirection x y h) = 0 then x else y
 
 /-
 Definition of L: sum of coordinates of the lower endpoint with index less than the edge direction.
 -/
-noncomputable def L {n : ℕ} (x y : Fin n → ZMod 2) (h : (hypercubeGraph n).Adj x y) : ZMod 2 :=
+noncomputable def L {n : ℕ} (x y : Fin n → ZMod 2) (h : hammingDist x y = 1) : ZMod 2 :=
   let u := lowerEndpoint x y h
   let i := edgeDirection x y h
   ∑ t ∈ Finset.univ.filter (· < i), u t
@@ -75,7 +72,7 @@ noncomputable def L {n : ℕ} (x y : Fin n → ZMod 2) (h : (hypercubeGraph n).A
 Definition of R: sum of coordinates of the lower endpoint with index greater
 than the edge direction.
 -/
-noncomputable def R {n : ℕ} (x y : Fin n → ZMod 2) (h : (hypercubeGraph n).Adj x y) : ZMod 2 :=
+noncomputable def R {n : ℕ} (x y : Fin n → ZMod 2) (h : hammingDist x y = 1) : ZMod 2 :=
   let u := lowerEndpoint x y h
   let i := edgeDirection x y h
   ∑ t ∈ Finset.univ.filter (i < ·), u t
@@ -124,7 +121,7 @@ theorem walk_coordinate_change {n : ℕ} {u v : Fin n → ZMod 2}
                     {edgeDirection v0 p0 h} := by
                 have h_diff :
                     Finset.card (Finset.filter (fun j => v0 j ≠ p0 j) Finset.univ) = 1 := by
-                  convert h using 1;
+                  simpa [hammingDist] using h
                 rw [ Finset.card_eq_one ] at h_diff;
                 obtain ⟨ a, ha ⟩ := h_diff; simp_all +decide [ Finset.ext_iff ] ;
                 have h_diff : Finset.filter (fun j => v0 j ≠ p0 j) Finset.univ = {a} := by
@@ -220,19 +217,14 @@ theorem cycle_directions_card_le_three {n : ℕ} {u : Fin n → ZMod 2}
     generalize_proofs at *; (
     -- The sum of the counts of all directions in the walk is equal to the length of the walk.
     have h_sum_counts : ∑ i ∈ directionsUsed p, (walkIndices p).count i = p.length := by
-      have h_sum_counts : ∀ {l : List (Fin n)}, (∑ i ∈ l.toFinset, List.count i l) = l.length := by
-        exact fun {l} => List.sum_toFinset_count_eq_length l
-      generalize_proofs at *; (
-      convert h_sum_counts using 1
-      generalize_proofs at *; (
       -- The length of the walk is equal to the number of edges, and each edge
       -- corresponds to a direction in the walkIndices.
       have h_walk_length :
           ∀ {u v : Fin n → ZMod 2} (p : (hypercubeGraph n).Walk u v),
             p.length = (walkIndices p).length := by
         intros u v p; induction p <;> aesop;
-      generalize_proofs at *; (
-      exact h_walk_length p ▸ rfl)))
+      simpa [directionsUsed, ← h_walk_length p] using
+        (List.sum_toFinset_count_eq_length (walkIndices p))
     generalize_proofs at *; (
     have := Finset.sum_le_sum h_even_count; simp_all +decide ; linarith;))
 
@@ -355,11 +347,10 @@ Definition of the partition subgraphs G_ab.
 -/
 set_option linter.flexible false in
 open Classical in
-def partitionGraph (n : ℕ) (ab : Fin 2 × Fin 2) : SimpleGraph (Fin n → ZMod 2) where
+abbrev partitionGraph (n : ℕ) (ab : Fin 2 × Fin 2) : SimpleGraph (Fin n → ZMod 2) where
   Adj x y := ∃ h : (hypercubeGraph n).Adj x y, L x y h = ab.1 ∧ R x y h = ab.2
-  symm x y := by
-    simp +zetaDelta at *;
-    intro h1 h2 h3;
+  symm := ⟨fun x y h => by
+    rcases h with ⟨h1, h2, h3⟩
     -- Since the hamming distance is symmetric, we can use h1 to construct the
     -- required h for y and x.
     have h_symm : hammingDist y x = 1 := by
@@ -369,24 +360,29 @@ def partitionGraph (n : ℕ) (ab : Fin 2 × Fin 2) : SimpleGraph (Fin n → ZMod
     have h_lower_eq : lowerEndpoint x y h1 = lowerEndpoint y x h_symm := by
       unfold lowerEndpoint;
       have h_lower_eq : edgeDirection x y h1 = edgeDirection y x h_symm := by
-        apply edgeDirection_comm;
-      have h_lower_eq : x (edgeDirection x y h1) ≠ y (edgeDirection x y h1) := by
-        have h_lower_eq : Finset.card (Finset.filter (fun i => x i ≠ y i) Finset.univ) = 1 := by
-          convert h1 using 1;
-        exact Finset.mem_filter.mp
-          (Finset.min'_mem
-            (Finset.filter (fun i => x i ≠ y i) Finset.univ)
-            (Finset.card_pos.mp (by linarith))) |>.2
-      cases Fin.exists_fin_two.mp ⟨x (edgeDirection x y h1), rfl⟩ <;>
-        cases Fin.exists_fin_two.mp ⟨y (edgeDirection x y h1), rfl⟩ <;>
-        simp_all +decide only
-      · contradiction;
-      · simp +decide [ ZMod ];
-      · simp +decide [ZMod]
-      · contradiction;
+        exact edgeDirection_comm x y h1 h_symm
+      have h_diff :
+          x (edgeDirection y x h_symm) ≠ y (edgeDirection y x h_symm) := by
+        have h_nonempty :
+            (Finset.univ.filter (fun i => x i ≠ y i)).Nonempty := by
+          apply Finset.card_pos.mp
+          have h_card :
+              Finset.card (Finset.filter (fun i => x i ≠ y i) Finset.univ) = 1 := by
+            simpa [hammingDist] using h1
+          linarith
+        have h_diff' :
+            x (edgeDirection x y h1) ≠ y (edgeDirection x y h1) := by
+          unfold edgeDirection
+          exact (Finset.mem_filter.mp
+            (Finset.min'_mem
+              (Finset.univ.filter (fun i => x i ≠ y i)) h_nonempty)).2
+        simpa [← h_lower_eq] using h_diff'
+      cases Fin.exists_fin_two.mp ⟨x (edgeDirection y x h_symm), rfl⟩ <;>
+        cases Fin.exists_fin_two.mp ⟨y (edgeDirection y x h_symm), rfl⟩ <;>
+        simp_all +decide [ZMod]
     have h_edge_eq : edgeDirection x y h1 = edgeDirection y x h_symm := by
       exact edgeDirection_comm x y h1 h_symm;
-    aesop
+    aesop⟩
   loopless := ⟨fun x h => by
     rcases h with ⟨h, _⟩
     exact (hypercubeGraph n).loopless.irrefl x h⟩
@@ -403,8 +399,8 @@ theorem partitionGraph_is_partition (n : ℕ) :
       intro ab hab
       rcases hab with ⟨h', hL, hR⟩
       apply Prod.ext
-      · simpa [show h' = h from Subsingleton.elim h' h] using hL.symm
-      · simpa [show h' = h from Subsingleton.elim h' h] using hR.symm
+      · exact_mod_cast hL.symm
+      · exact_mod_cast hR.symm
     · rintro ⟨ab, hab, _⟩
       exact hab.1
 
@@ -496,7 +492,7 @@ theorem L_R_differences_in_Q3 {n : ℕ} {p q r : Fin n} (hpq : p < q) (hqr : q <
               have h_diff_i : x₁ i = y₁ i := by
                 have h_diff_i :
                     Finset.card (Finset.filter (fun t => x₁ t ≠ y₁ t) Finset.univ) = 1 := by
-                  convert h_diff using 1
+                  simpa [hammingDist] using h_diff
                 rw [ Finset.card_eq_one ] at h_diff_i;
                 obtain ⟨ a, ha ⟩ := h_diff_i
                 simp_all +decide [ Finset.eq_singleton_iff_unique_mem ]
@@ -627,7 +623,7 @@ theorem distinct_labels_in_Q3_slice {n : ℕ} {p q r : Fin n} (hpq : p < q) (hqr
                     Finset.mem_filter.mpr
                       ⟨Finset.mem_univ _, h_diff.choose_spec⟩⟩ |>
                   fun h => by
-                    simpa using (Finset.mem_filter.mp h).2
+                    simpa [edgeDirection] using (Finset.mem_filter.mp h).2
             exact h_lower_eq_y₂
           grind +ring;
         exact h_lower_eq_y;
@@ -651,17 +647,14 @@ theorem cycle_uses_each_direction_twice {n : ℕ} {u : Fin n → ZMod 2}
     (hlen : p.length = 6) :
   ∀ i ∈ directionsUsed p, (walkIndices p).count i = 2 := by
     have h_sum_edges : (directionsUsed p).sum (fun i => (walkIndices p).count i) = 6 := by
-      convert hlen using 1;
-      have h_sum_edges : ∀ {l : List (Fin n)}, (∑ i ∈ l.toFinset, List.count i l) = l.length := by
-        exact fun {l} => List.sum_toFinset_count_eq_length l;
-      convert h_sum_edges using 1;
       -- The length of the walk is equal to the length of the list of edge
       -- directions by definition.
       have h_walk_length :
           ∀ {u v : Fin n → ZMod 2} (p : (hypercubeGraph n).Walk u v),
             p.length = (walkIndices p).length := by
         intros u v p; induction p <;> aesop;
-      apply h_walk_length;
+      simpa [directionsUsed, ← h_walk_length p, hlen] using
+        (List.sum_toFinset_count_eq_length (walkIndices p))
     have h_card_edges : directionsUsed p ⊆ Finset.univ ∧ Finset.card (directionsUsed p) = 3 := by
       exact ⟨ Finset.subset_univ _, cycle_directions_card_eq_three p hp hlen ⟩;
     have h_each_edge_twice : ∀ i ∈ directionsUsed p, (walkIndices p).count i ≥ 2 := by
@@ -916,8 +909,8 @@ lemma C6_in_Q3_impossible {n : ℕ} {ab : Fin 2 × Fin 2} {u : Fin n → ZMod 2}
                     (List.finRange 6) := by
               refine List.ext_get ?_ ?_ <;> simp +decide
               · rw [ walkIndices_length, hlen ];
-              · intro j hj₁ hj₂; exact (by
-                convert walkIndices_get C j ( by linarith ) using 1);
+              · intro j hj₁ hj₂
+                simpa using walkIndices_get C j (by linarith)
             simp_all +decide [ List.mem_map ];
           exact Finset.eq_of_subset_of_card_le h_count_q ( by linarith );
         aesop;
@@ -1142,9 +1135,30 @@ theorem not_erdos_666 :
       simpa [ mul_comm ] using
         Finset.sum_lt_sum_of_nonempty Finset.univ_nonempty
           (fun x _ => h_pigeonhole x);
+    let G := partitionGraph N ab
+    let oldEdgeFinset := G.edgeFinset
+    have habG_old :
+        (oldEdgeFinset.card : ℝ) ≥
+          (1 / 4 : ℝ) * N * 2 ^ (N - 1) := by
+      simpa [oldEdgeFinset, G] using hab
+    have hcard :
+        (@SimpleGraph.edgeFinset (Fin N → ZMod 2) G
+          (@SimpleGraph.fintypeEdgeSet (Fin N → ZMod 2) G Sym2.instFintype
+            (fun a b => propDecidable (G.Adj a b)))).card =
+          oldEdgeFinset.card := by
+      apply congrArg Finset.card
+      ext e
+      simp [oldEdgeFinset, SimpleGraph.mem_edgeFinset]
+    have habG :
+        ((@SimpleGraph.edgeFinset (Fin N → ZMod 2) G
+          (@SimpleGraph.fintypeEdgeSet (Fin N → ZMod 2) G Sym2.instFintype
+            (fun a b => propDecidable (G.Adj a b)))).card : ℝ) ≥
+          (1 / 4 : ℝ) * N * 2 ^ (N - 1) := by
+      rw [hcard]
+      exact habG_old
     exact absurd
-      (hN N le_rfl _ ( partitionGraph_le_hypercube N ab ) hab)
-      (by simpa using partitionGraph_C6_free N ab)
+      (hN N le_rfl G (by simpa [G] using partitionGraph_le_hypercube N ab) habG)
+      (by simpa [G] using partitionGraph_C6_free N ab)
 
 #print axioms not_erdos_666
 -- 'Erdos666.not_erdos_666' depends on axioms: [propext, Classical.choice, Quot.sound]
