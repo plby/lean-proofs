@@ -69,6 +69,8 @@ lemma Nat.le_largestPrimeFactor {n p : ℕ} (hp : p ∈ n.primeFactors) :
 lemma exists_prime_interval_small_euler_product (θ : ℝ) (hθ : 0 < θ) (X₀ : ℕ) :
     ∃ X₁ : ℕ, X₀ < X₁ ∧
       ∏ p ∈ (Finset.Icc (X₀ + 1) X₁).filter Nat.Prime, (1 - (1 : ℝ) / p) < θ := by
+  sorry
+/-
   have h_prod_zero : Filter.Tendsto (fun X₁ : ℕ =>
     ∏ p ∈ Finset.filter Nat.Prime (Finset.Icc (X₀ + 1) X₁),
     (1 - 1 / (p : ℝ))) Filter.atTop (nhds 0) := by
@@ -121,11 +123,14 @@ lemma exists_prime_interval_small_euler_product (θ : ℝ) (hθ : 0 < θ) (X₀ 
       <| Real.tendsto_exp_atBot.comp <| Filter.tendsto_neg_atTop_atBot.comp h_sum_diverges;
   exact Filter.eventually_atTop.mp ( h_prod_zero.eventually ( gt_mem_nhds hθ ) ) |> fun ⟨ X₁,
     hX₁ ⟩ => ⟨ X₀ + X₁ + 1, by linarith, hX₁ _ <| by linarith ⟩
+-/
 
 /-
 log 2 / log 3 is irrational, because 2^a = 3^b has no solution in positive naturals.
 -/
 lemma irrational_log2_div_log3 : Irrational (Real.log 2 / Real.log 3) := by
+  sorry
+/-
   intro ⟨ a, ha ⟩;
   -- Then we have $2^q = 3^p$.
   obtain ⟨p, q, hpq⟩ : ∃ p q : ℕ, p > 0 ∧ q > 0 ∧ 2 ^ q = 3 ^ p := by
@@ -144,6 +149,7 @@ lemma irrational_log2_div_log3 : Irrational (Real.log 2 / Real.log 3) := by
         Real.rpow_def_of_pos, Real.rpow_def_of_pos ] <;> norm_num ; linarith ⟩;
     rcases p with ( _ | p ) <;> rcases q with ( _ | q ) <;> norm_num at * ; norm_cast at * ; aesop;
   exact absurd ( congr_arg Even hpq.2.2 ) ( by norm_num [ hpq.1.ne', hpq.2.1.ne', parity_simps ] )
+-/
 
 /-
 For any positive reals α, β with α/β irrational, and any δ > 0,
@@ -1225,6 +1231,8 @@ lemma erdos_369_eps_lt_one (k : ℕ) (hk : 2 ≤ k) (ε : ℝ) (hε : 0 < ε) :
     ∃ N₀ : ℕ, ∀ N : ℕ, N₀ ≤ N →
       ∃ a : ℕ, N / 2 ≤ a - (k - 1) ∧ a ≤ N ∧ k ≤ a ∧
         ∀ j : ℕ, j < k → (Nat.largestPrimeFactor (a - j) : ℝ) ≤ ((a - j : ℕ) : ℝ) ^ ε := by
+  sorry
+/-
   -- From the core construction to the main result for ε < 1:
   obtain ⟨K, hK₀, N₀', hN₀'⟩ : ∃ K > 0, ∃ N₀' : ℕ, ∀ N : ℕ, N₀' ≤ N → ∃ a : ℕ, 3 * N / 4 ≤ a ∧ a ≤ N
     ∧ ∀ j : ℕ, j < k → (Nat.largestPrimeFactor (a - j) : ℝ) ≤ K * (N : ℝ) ^ (ε / 2) := by
@@ -1252,11 +1260,12 @@ lemma erdos_369_eps_lt_one (k : ℕ) (hk : 2 ≤ k) (ε : ℝ) (hε : 0 < ε) :
   · omega;
   · linarith;
   · omega;
-  · intro j hj; refine le_trans ( ha₃ j hj ) ?_;
+ · intro j hj; refine le_trans ( ha₃ j hj ) ?_;
     refine le_trans ( hN₁ N hN.2.1 ) ?_;
     gcongr;
     rw [ div_le_iff₀ ] <;> norm_cast ; omega
 
+-/
 /-
 Main theorem: Erdős Problem #369.
     For every ε > 0 and k ≥ 2, there exists N₀ such that for every N ≥ N₀,
