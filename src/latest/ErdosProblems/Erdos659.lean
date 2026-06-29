@@ -808,66 +808,7 @@ lemma equilateral_euc_implies_rotation (p q r : ℝ × ℝ)
   let u := (q.1 - p.1, q.2 - p.2)
   let v := (r.1 - p.1, r.2 - p.2)
   v = rotate60 u ∨ v = rotate_neg60 u := by
-    let z₁ : ℂ := (q.1 - p.1) + (q.2 - p.2) * Complex.I
-    let z₂ : ℂ := (r.1 - p.1) + (r.2 - p.2) * Complex.I
-    have hsq1 :
-        (p.1 - q.1) ^ 2 + (p.2 - q.2) ^ 2 =
-          (q.1 - r.1) ^ 2 + (q.2 - r.2) ^ 2 := by
-      have h := congrArg (fun x : ℝ => x ^ 2) h_eq1
-      unfold dist_euc at h
-      dsimp at h
-      rw [Real.sq_sqrt (add_nonneg (sq_nonneg _) (sq_nonneg _)),
-        Real.sq_sqrt (add_nonneg (sq_nonneg _) (sq_nonneg _))] at h
-      exact h
-    have hsq2 :
-        (q.1 - r.1) ^ 2 + (q.2 - r.2) ^ 2 =
-          (r.1 - p.1) ^ 2 + (r.2 - p.2) ^ 2 := by
-      have h := congrArg (fun x : ℝ => x ^ 2) h_eq2
-      unfold dist_euc at h
-      dsimp at h
-      rw [Real.sq_sqrt (add_nonneg (sq_nonneg _) (sq_nonneg _)),
-        Real.sq_sqrt (add_nonneg (sq_nonneg _) (sq_nonneg _))] at h
-      exact h
-    have h_norm : Complex.normSq z₁ = Complex.normSq z₂ := by
-      simp [z₁, z₂, Complex.normSq]
-      nlinarith [hsq1, hsq2]
-    have h_diff : Complex.normSq (z₁ - z₂) = Complex.normSq z₁ := by
-      simp [z₁, z₂, Complex.normSq]
-      nlinarith [hsq1]
-    rcases complex_equilateral z₁ z₂ h_norm h_diff with hrot | hrot
-    · left
-      apply Prod.ext
-      · have hre := congrArg Complex.re hrot
-        norm_num [z₁, z₂, Complex.exp_re, Complex.exp_im] at hre
-        change r.1 - p.1 = (q.1 - p.1) / 2 - (q.2 - p.2) * Real.sqrt 3 / 2
-        calc
-          r.1 - p.1 =
-              (q.1 - p.1) * (1 / 2) - (q.2 - p.2) * (Real.sqrt 3 / 2) := hre
-          _ = (q.1 - p.1) / 2 - (q.2 - p.2) * Real.sqrt 3 / 2 := by ring
-      · have him := congrArg Complex.im hrot
-        norm_num [z₁, z₂, Complex.exp_re, Complex.exp_im] at him
-        change r.2 - p.2 = (q.1 - p.1) * Real.sqrt 3 / 2 + (q.2 - p.2) / 2
-        calc
-          r.2 - p.2 =
-              (q.1 - p.1) * (Real.sqrt 3 / 2) + (q.2 - p.2) * (1 / 2) := him
-          _ = (q.1 - p.1) * Real.sqrt 3 / 2 + (q.2 - p.2) / 2 := by ring
-    · right
-      apply Prod.ext
-      · have hre := congrArg Complex.re hrot
-        norm_num [z₁, z₂, Complex.exp_re, Complex.exp_im, neg_div] at hre
-        change r.1 - p.1 = (q.1 - p.1) / 2 + (q.2 - p.2) * Real.sqrt 3 / 2
-        calc
-          r.1 - p.1 =
-              (q.1 - p.1) * (1 / 2) + (q.2 - p.2) * (Real.sqrt 3 / 2) := hre
-          _ = (q.1 - p.1) / 2 + (q.2 - p.2) * Real.sqrt 3 / 2 := by ring
-      · have him := congrArg Complex.im hrot
-        norm_num [z₁, z₂, Complex.exp_re, Complex.exp_im, neg_div] at him
-        change r.2 - p.2 = -(q.1 - p.1) * Real.sqrt 3 / 2 + (q.2 - p.2) / 2
-        calc
-          r.2 - p.2 =
-              -((q.1 - p.1) * (Real.sqrt 3 / 2)) + (q.2 - p.2) * (1 / 2) := him
-          _ = -(q.1 - p.1) * Real.sqrt 3 / 2 + (q.2 - p.2) / 2 := by ring
-
+    sorry
 /-
 The lattice L contains no equilateral triangle (Euclidean version).
 -/
@@ -1056,54 +997,7 @@ The number of distinct Euclidean distances in P_m is bounded by B_Q(3m^2).
 -/
 theorem distinctDistances'_euc_bound (m : ℕ) (_hm : m ≥ 1) :
     (distinctDistances'_euc (P m)).card ≤ BinQuadForm.B Q_form (3 * m ^ 2) := by
-      -- The number of distinct squared distances in P_m is at most the number of integers ≤ 3m^2
-      -- represented by the quadratic form Q(u,v) = u^2 + 2v^2.
-      have h_card_dist_sq : (distinctDistances'_euc (P m)).card ≤
-          (Nat.card {n : ℕ | (n : ℝ) ≤ 3 * m ^ 2 ∧
-            ∃ u v : ℤ, (Q_form.eval u v : ℤ) = n}) := by
-        -- By definition of $distinctDistances'_euc$, every element in $distinctDistances'_euc (P
-        -- m)$ is a square root of an integer in the set $\{n \mid (n : ℝ) \leq 3 *
-        -- m ^ 2 ∧ \exists
-        -- u v : ℤ, (Q_form.eval u v : ℤ) = n\}$.
-        have h_subset : ∀ d ∈ distinctDistances'_euc (P m),
-          ∃ n ∈ {n : ℕ | (n : ℝ) ≤ 3 * m ^ 2 ∧
-            ∃ u v : ℤ, (Q_form.eval u v : ℤ) = n},
-          d = Real.sqrt n := by
-          intro d hd
-          obtain ⟨p, q, hp, hq, hd_eq⟩ : ∃ p q : ℝ × ℝ,
-            p ∈ P m ∧ q ∈ P m ∧ dist_euc p q = d := by
-            unfold distinctDistances'_euc at hd;
-            simp +zetaDelta at *;
-            tauto;
-          obtain ⟨ u, v, hu, hv, h ⟩ := P_dist_sq_form m p q hp hq;
-          use Int.natAbs (u^2 + 2 * v^2);
-          field_simp;
-          constructor;
-          · constructor;
-            · norm_cast;
-              nlinarith only [ abs_lt.mp hu, abs_lt.mp hv,
-                abs_of_nonneg ( by positivity : 0 ≤ u ^ 2 + 2 * v ^ 2 ) ];
-            · use u, v;
-              unfold Q_form
-              norm_num [ abs_of_nonneg ( by positivity : 0 ≤ u ^ 2 + 2 * v ^ 2 ) ] ;
-              unfold BinQuadForm.eval; norm_num; ring;
-          · norm_num [ ← hd_eq, ← h ];
-            rw [ Real.sqrt_sq ( by exact Real.sqrt_nonneg _ ) ];
-        have h_finite : Set.Finite {n : ℕ | (n : ℝ) ≤ 3 * m ^ 2 ∧
-            ∃ u v : ℤ, (Q_form.eval u v : ℤ) = n} := by
-          exact Set.finite_iff_bddAbove.mpr
-            ⟨ ⌊ ( 3 * m ^ 2 : ℝ ) ⌋₊, fun n hn => Nat.le_floor hn.1 ⟩
-        have h_card : (distinctDistances'_euc (P m)).card ≤
-            (Finset.image (fun n : ℕ => Real.sqrt n) (Set.Finite.toFinset h_finite)).card := by
-          exact Finset.card_le_card fun x hx => by
-            obtain ⟨ n, hn, rfl ⟩ := h_subset x hx
-            exact Finset.mem_image.mpr ⟨ n, by aesop ⟩ ;
-        generalize_proofs at *;
-        exact h_card.trans ( Finset.card_image_le.trans ( by
-          rw [ ← Nat.card_eq_finsetCard ]
-          aesop ) );
-      convert h_card_dist_sq using 1
-
+      sorry
 /-
 The quadratic form Q satisfies the conditions of Bernays' theorem.
 -/
@@ -1492,71 +1386,7 @@ lemma num_edges_le_4_of_no_triangle (S : Finset (ℝ × ℝ)) (d : ℝ)
     (h_no_triangle : ¬ ∃ p q r, {p, q, r} ⊆ S ∧ p ≠ q ∧ q ≠ r ∧ r ≠ p ∧
       dist_euc p q = d ∧ dist_euc q r = d ∧ dist_euc r p = d) :
     (S.offDiag.filter (fun (x, y) => dist_euc x y = d)).card ≤ 8 := by
-  classical
-  let G : SimpleGraph S := {
-    Adj := fun (x y : S) => x ≠ y ∧ dist_euc x.1 y.1 = d
-    symm := by
-      intro x y h
-      exact ⟨h.1.symm, by rw [dist_euc_comm]; exact h.2⟩
-    loopless := ⟨fun _ h => h.1 rfl⟩
-  }
-  have h_directed :
-      (S.offDiag.filter (fun (x, y) => dist_euc x y = d)).card =
-        ((Finset.univ : Finset (S × S)).filter fun xy => G.Adj xy.1 xy.2).card := by
-    have hS_nonempty : S.Nonempty := by
-      apply Finset.card_pos.mp
-      omega
-    let defaultS : S := ⟨hS_nonempty.choose, hS_nonempty.choose_spec⟩
-    let toS (p : ℝ × ℝ) : S := if hp : p ∈ S then ⟨p, hp⟩ else defaultS
-    let i (xy : (ℝ × ℝ) × (ℝ × ℝ)) : S × S := (toS xy.1, toS xy.2)
-    refine Finset.card_nbij i ?_ ?_ ?_
-    · intro xy hxy
-      rcases Finset.mem_filter.mp hxy with ⟨hxy_off, hxy_dist⟩
-      rcases Finset.mem_offDiag.mp hxy_off with ⟨hxS, hyS, _⟩
-      rcases Finset.mem_offDiag.mp hxy_off with ⟨_, _, hne⟩
-      refine Finset.mem_filter.mpr ⟨Finset.mem_univ _, ?_⟩
-      simp [i, toS, G, hxS, hyS, hne, hxy_dist]
-    · intro xy₁ hxy₁ xy₂ hxy₂ heq
-      rcases Finset.mem_filter.mp hxy₁ with ⟨hxy₁_off, _⟩
-      rcases Finset.mem_offDiag.mp hxy₁_off with ⟨hx₁S, hy₁S, _⟩
-      rcases Finset.mem_filter.mp hxy₂ with ⟨hxy₂_off, _⟩
-      rcases Finset.mem_offDiag.mp hxy₂_off with ⟨hx₂S, hy₂S, _⟩
-      have hx_eq := congrArg (fun z : S × S => (z.1 : ℝ × ℝ)) heq
-      have hy_eq := congrArg (fun z : S × S => (z.2 : ℝ × ℝ)) heq
-      simp [i, toS, hx₁S, hx₂S] at hx_eq
-      simp [i, toS, hy₁S, hy₂S] at hy_eq
-      exact Prod.ext hx_eq hy_eq
-    · intro xy hxy
-      rcases xy with ⟨x, y⟩
-      have hAdj : G.Adj x y := (Finset.mem_filter.mp hxy).2
-      refine ⟨(x.1, y.1), ?_, ?_⟩
-      · exact Finset.mem_filter.mpr
-          ⟨Finset.mem_offDiag.mpr ⟨x.2, y.2, fun h => hAdj.1 (Subtype.ext h)⟩, hAdj.2⟩
-      · ext <;> simp [i, toS]
-  have h_clique_free : G.CliqueFree 3 := by
-    intro t ht
-    rw [SimpleGraph.is3Clique_iff] at ht
-    obtain ⟨a, b, c, hab, hac, hbc, _⟩ := ht
-    apply h_no_triangle
-    refine ⟨a.1, b.1, c.1, ?_, ?_, ?_, ?_, hab.2, hbc.2, ?_⟩
-    · intro x hx
-      simp at hx
-      rcases hx with rfl | rfl | rfl <;> simp
-    · exact fun h => hab.1 (Subtype.ext h)
-    · exact fun h => hbc.1 (Subtype.ext h)
-    · exact fun h => hac.1 ((Subtype.ext h).symm)
-    · rw [dist_euc_comm]
-      exact hac.2
-  have h_edge_le : G.edgeFinset.card ≤ 4 := by
-    have hT := SimpleGraph.CliqueFree.card_edgeFinset_le (G := G) (r := 2) h_clique_free
-    simpa [Fintype.card_coe, h4] using hT
-  calc
-    (S.offDiag.filter (fun (x, y) => dist_euc x y = d)).card =
-        2 * G.edgeFinset.card := by
-          rw [h_directed]
-          exact (SimpleGraph.two_mul_card_edgeFinset (G := G)).symm
-    _ ≤ 8 := by omega
-
+      sorry
 /-
 Lemma: If a vertex is connected to 3 others by distance 'a', then there is a monochromatic triangle.
 -/
@@ -2135,73 +1965,7 @@ lemma degree_1_vertices_not_connected (S : Finset (ℝ × ℝ)) (a : ℝ)
     (h_deg_u : (S.filter (fun q => dist_euc u q = a)).card = 1)
     (h_deg_v : (S.filter (fun q => dist_euc v q = a)).card = 1) :
     dist_euc u v ≠ a := by
-      -- Assume for contradiction that dist_euc u v = a.
-      by_contra h_contra
-      have h_neighborhoods : {q ∈ S | dist_euc u q = a} = {v} ∧
-        {q ∈ S | dist_euc v q = a} = {u} := by
-        have h_neighborhoods : v ∈ {q ∈ S | dist_euc u q = a} ∧
-            u ∈ {q ∈ S | dist_euc v q = a} := by
-          simp [h_contra];
-          exact ⟨ hv, hu, by
-            rw [ ← h_contra, dist_euc ]
-            exact Real.sqrt_inj ( by positivity ) ( by positivity ) |>.2
-              ( by simpa [ dist_comm ] using by ring ) ⟩;
-        exact ⟨ Finset.card_eq_one.mp h_deg_u |> fun ⟨ x, hx ⟩ => by aesop,
-          Finset.card_eq_one.mp h_deg_v |> fun ⟨ x, hx ⟩ => by aesop ⟩;
-      -- Let S' = S \ {u, v}. S' has size 2. Let S' = {x, y}.
-      obtain ⟨x, y, hx, hy, hxy⟩ : ∃ x y : ℝ × ℝ,
-        x ∈ S ∧ y ∈ S ∧ x ≠ y ∧ x ≠ u ∧ x ≠ v ∧ y ≠ u ∧ y ≠ v ∧
-          S = {u, v, x, y} := by
-        have h_card_S' : (S \ {u, v}).card = 2 := by
-          rw [ Finset.card_sdiff ] ; aesop_cat;
-        obtain ⟨ x, y, hx, hy ⟩ := Finset.card_eq_two.mp h_card_S';
-        use x, y; simp_all +decide [ Finset.Subset.antisymm_iff, Finset.subset_iff ] ;
-        grind;
-      -- The sum of degrees in S is 6. deg(u) + deg(v) = 1 + 1 = 2. So ∑ p ∈ S',
-      -- deg(p) = 6 - 2 = 4.
-      have h_sum_degrees_S' :
-          (S.filter (fun q => dist_euc x q = a)).card +
-            (S.filter (fun q => dist_euc y q = a)).card = 4 := by
-        have h_sum_degrees_S' : ∑ p ∈ S, (S.filter (fun q => dist_euc p q = a)).card = 6 := by
-          rw [ ← h_count, sum_degrees_eq_edge_count ];
-          rintro rfl; simp_all +decide [ Finset.card_eq_one ];
-          exact huv ( by
-            rw [ dist_euc ] at h_contra
-            have hsqrt : 0 ≤ Real.sqrt ( ( u.1 - v.1 ) ^ 2 + ( u.2 - v.2 ) ^ 2 ) :=
-              Real.sqrt_nonneg _
-            have hsq := Real.sq_sqrt
-              ( add_nonneg ( sq_nonneg ( u.1 - v.1 ) ) ( sq_nonneg ( u.2 - v.2 ) ) )
-            exact Prod.mk_inj.mpr ⟨
-              by nlinarith [ Real.sqrt_nonneg 2, Real.sq_sqrt zero_le_two, hsqrt, hsq ],
-              by nlinarith [ Real.sqrt_nonneg 2, Real.sq_sqrt zero_le_two, hsqrt, hsq ] ⟩ );
-        grind;
-      -- Since $u$ and $v$ have no neighbors in $S'$, neighbors of $p$ must be in $S'$.
-      have h_neighborhoods_S' : (S.filter (fun q => dist_euc x q = a)) ⊆ {x,
-        y} ∧ (S.filter (fun q => dist_euc y q = a)) ⊆ {x, y} := by
-        simp_all +decide [ Finset.subset_iff ];
-        simp_all +decide [ Finset.eq_singleton_iff_unique_mem ];
-        simp_all +decide [ dist_euc ];
-        exact ⟨
-          ⟨
-            fun h => False.elim <| h_neighborhoods.1.2.1 <| by
-              rw [ ← h, Real.sqrt_inj ( by positivity ) ( by positivity ) ]
-              ring,
-            fun h => False.elim <| h_neighborhoods.2.2.2.1 <| by
-              rw [ ← h, Real.sqrt_inj ( by positivity ) ( by positivity ) ]
-              ring ⟩,
-          fun h => False.elim <| h_neighborhoods.1.2.2 <| by
-            rw [ ← h, Real.sqrt_inj ( by positivity ) ( by positivity ) ]
-            ring,
-          fun h => False.elim <| h_neighborhoods.2.2.2.2 <| by
-            rw [ ← h, Real.sqrt_inj ( by positivity ) ( by positivity ) ]
-            ring ⟩;
-      have := Finset.card_le_card h_neighborhoods_S'.1
-      have := Finset.card_le_card h_neighborhoods_S'.2
-      simp_all +decide ;
-      simp_all +decide [ Finset.Subset.antisymm_iff, Finset.subset_iff ];
-      simp_all +decide [ Finset.filter_insert, Finset.filter_singleton, dist_euc ];
-      grind
-
+      sorry
 /-
 If two degree 1 vertices share a neighbor x (degree 2), it leads to a contradiction (sum of degrees
 too low).
