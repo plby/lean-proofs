@@ -1465,11 +1465,12 @@ lemma liftSet_sub_grid3 {S : Finset (ℤ × ℤ)} {N : ℕ}
 /-- The cardinality of the lifted set is `|S| * N`. -/
 lemma liftSet_card {S : Finset (ℤ × ℤ)} {N : ℕ} :
     (liftSet S N).card = S.card * N := by
-  convert Finset.card_image_of_injective _ ?_
+  unfold liftSet
+  rw [Finset.card_image_of_injective]
   · rw [Finset.card_product, gridRange_card]
-  · intro ⟨⟨a₁, b₁⟩, c₁⟩ ⟨⟨a₂, b₂⟩, c₂⟩
-    simp
-    tauto
+  · intro ⟨⟨a₁, b₁⟩, c₁⟩ ⟨⟨a₂, b₂⟩, c₂⟩ h
+    simp only [Prod.mk.injEq] at h ⊢
+    exact ⟨⟨h.1, h.2.1⟩, h.2.2⟩
 
 /-- A quadruple in the lifted set yields a square in the original set. -/
 lemma liftSet_quadruple_implies_square
