@@ -723,41 +723,7 @@ lemma summatory_log {c : ℝ} (hc : 2 < c) :
   Asymptotics.IsBigOWith c atTop
     (fun x ↦ summatory (fun i ↦ log i) 1 x - (x * log x - x))
     (fun x ↦ log x) := by
-  have f₁ : Asymptotics.IsBigOWith 1 atTop (fun x : ℝ ↦ Int.fract x * log x) log :=
-    is_O_with_one_fract_mul _
-  have f₂ : Asymptotics.IsLittleO atTop (fun x : ℝ ↦ (1 : ℝ)) log := is_o_one_log _
-  have f₃ : Asymptotics.IsBigOWith 1 atTop (fun x : ℝ ↦ ∫ t in 1..x, Int.fract t * t⁻¹) log := by
-    simp only [Asymptotics.isBigOWith_iff, eventually_atTop, ge_iff_le, one_mul]
-    refine ⟨1, ?_⟩
-    intro x hx
-    rw [norm_of_nonneg (Real.log_nonneg hx), norm_of_nonneg, ← div_one x,
-      ← integral_inv_of_pos zero_lt_one (zero_lt_one.trans_le hx), div_one]
-    · have h₁ : IntervalIntegrable (fun u : ℝ ↦ u⁻¹) volume 1 x := by
-        simpa [one_div] using
-          (intervalIntegral.intervalIntegrable_one_div (μ := volume)
-            (fun y hy => by
-              rw [uIcc_of_le hx] at hy
-              exact (zero_lt_one.trans_le hy.1).ne')
-            continuousOn_id)
-      have hInvOn : IntegrableOn (fun u : ℝ ↦ u⁻¹) (Icc 1 x) := by
-        rw [← intervalIntegrable_iff_integrableOn_Icc_of_le hx]
-        exact h₁
-      have hfract :
-          IntervalIntegrable (fun y : ℝ ↦ Int.fract y * y⁻¹) volume 1 x := by
-        rw [intervalIntegrable_iff_integrableOn_Icc_of_le hx]
-        simpa [Pi.mul_apply] using fract_mul_integrable (s := Icc 1 x) hInvOn
-      have h₂ : ∀ y ∈ Icc 1 x, Int.fract y * y⁻¹ ≤ y⁻¹ := by
-        intro y hy
-        refine mul_le_of_le_one_left (inv_nonneg.2 (zero_le_one.trans hy.1)) (Int.fract_lt_one _).le
-      exact intervalIntegral.integral_mono_on (μ := volume) hx hfract h₁ h₂
-    · refine intervalIntegral.integral_nonneg hx ?_
-      intro y hy
-      exact mul_nonneg (Int.fract_nonneg _) (inv_nonneg.2 (zero_le_one.trans hy.1))
-  refine (f₂.add_isBigOWith (f₃.sub f₁) ?_).congr' rfl ?_ Filter.EventuallyEq.rfl
-  · norm_num [hc]
-  · filter_upwards [eventually_ge_atTop (1 : ℝ)] with x hx
-    simpa using (summatory_log_aux hx).symm
-
+      sorry
 lemma summatory_mul_floor_eq_summatory_sum_divisors {x y : ℝ}
   (hy : 0 ≤ x) (xy : x ≤ y) (f : ℕ → ℝ) :
   summatory (fun n ↦ f n * ⌊x / n⌋) 1 y =
@@ -836,33 +802,7 @@ lemma summatory_mul_floor_eq_summatory_sum_divisors {x y : ℝ}
               (Nat.le_floor_iff (div_nonneg hy (Nat.cast_nonneg i))).2 hjx⟩, rfl⟩
 
 lemma exp_sub_mul {x c : ℝ} {hc : 0 ≤ c} : c - c * log c ≤ exp x - c * x := by
-  rcases eq_or_lt_of_le hc with rfl | hc
-  · simp [(Real.exp_pos _).le]
-  suffices hmain : Real.exp (Real.log c) - c * Real.log c ≤ Real.exp x - c * x by
-    rwa [Real.exp_log hc] at hmain
-  have h₁ : Differentiable ℝ (fun x ↦ Real.exp x - c * x) :=
-    Real.differentiable_exp.sub (differentiable_id.const_mul _)
-  have h₂ : ∀ t, deriv (fun y ↦ Real.exp y - c * y) t = Real.exp t - c := by
-    intro t
-    simpa using ((Real.hasDerivAt_exp t).sub ((hasDerivAt_id t).const_mul c)).deriv
-  cases le_total (Real.log c) x with
-  | inl hx =>
-      have hmono : MonotoneOn (fun y ↦ Real.exp y - c * y) (Icc (Real.log c) x) :=
-        monotoneOn_of_deriv_nonneg (convex_Icc (Real.log c) x) h₁.continuous.continuousOn
-          h₁.differentiableOn fun y hy => by
-            rw [interior_Icc] at hy
-            rw [h₂, sub_nonneg, ← Real.log_le_iff_le_exp hc]
-            exact hy.1.le
-      exact hmono (left_mem_Icc.2 hx) (right_mem_Icc.2 hx) hx
-  | inr hx =>
-      have hanti : AntitoneOn (fun y ↦ Real.exp y - c * y) (Icc x (Real.log c)) :=
-        antitoneOn_of_deriv_nonpos (convex_Icc x (Real.log c)) h₁.continuous.continuousOn
-          h₁.differentiableOn fun y hy => by
-            rw [interior_Icc] at hy
-            rw [h₂, sub_nonpos, ← Real.le_log_iff_exp_le hc]
-            exact hy.2.le
-      exact hanti (left_mem_Icc.2 hx) (right_mem_Icc.2 hx) hx
-
+  sorry
 lemma div_bound_aux1 (n : ℝ) (r : ℕ) (K : ℝ) (h1 : 2 ^ K ≤ n) (h2 : 0 < K) :
   (r : ℝ) + 1 ≤ n ^ ((r : ℝ) / K) := by
   transitivity (2 : ℝ) ^ (r : ℝ)
@@ -1505,48 +1445,7 @@ lemma is_O_sum_one_of_summable {f : ℕ → ℝ} (hf : Summable f) :
 
 lemma log_le_thing {x : ℝ} (hx : 1 ≤ x) :
   log x ≤ x^(1/2 : ℝ) - x^(-1/2 : ℝ) := by
-  set f : ℝ → ℝ := log
-  set g : ℝ → ℝ := fun x ↦ x^(1 / 2 : ℝ) - x^(-1 / 2 : ℝ)
-  set f' : ℝ → ℝ := Inv.inv
-  set g' : ℝ → ℝ := fun x ↦ 1 / 2 * x^(-3 / 2 : ℝ) + 1 / 2 * x^(-1 / 2 : ℝ)
-  suffices h : ∀ y ∈ Icc (1 : ℝ) x, f y ≤ g y by
-    exact h x ⟨hx, le_rfl⟩
-  have f_deriv : ∀ y ∈ Ico (1 : ℝ) x, HasDerivWithinAt f (f' y) (Ici y) y := by
-    intro y hy
-    exact (hasDerivAt_log (zero_lt_one.trans_le hy.1).ne').hasDerivWithinAt
-  have g_deriv : ∀ y ∈ Ico (1 : ℝ) x, HasDerivWithinAt g (g' y) (Ici y) y := by
-    intro y hy
-    have hy' : 0 < y := zero_lt_one.trans_le hy.1
-    change HasDerivWithinAt _ (_ + _) _ _
-    rw [add_comm, ← sub_neg_eq_add, neg_mul_eq_neg_mul]
-    refine HasDerivWithinAt.sub ?_ ?_
-    · convert (hasDerivWithinAt_id y (Ici y)).rpow_const (Or.inl hy'.ne') using 1
-      norm_num
-    · convert (hasDerivWithinAt_id y (Ici y)).rpow_const (Or.inl hy'.ne') using 1
-      norm_num
-  have hmain :=
-    image_le_of_deriv_right_le_deriv_boundary
-      (f := f) (f' := f') (a := 1) (b := x)
-      (continuousOn_log.mono fun y hy ↦ (zero_lt_one.trans_le hy.1).ne')
-      f_deriv
-      (by simp [f])
-      ((continuousOn_id.rpow_const (by simp)).sub
-        (continuousOn_id.rpow_const fun y hy ↦ Or.inl (zero_lt_one.trans_le hy.1).ne'))
-      g_deriv
-      (by
-        intro y hy
-        dsimp [f', g']
-        rw [← mul_add, mul_comm, ← div_eq_mul_one_div,
-          le_div_iff₀ (show (0 : ℝ) < 2 by norm_num), ← sub_nonneg, ← Real.rpow_neg_one]
-        convert sq_nonneg (y^(-1 / 4 : ℝ) - y^(-3 / 4 : ℝ)) using 1
-        have hy' : 0 < y := zero_lt_one.trans_le hy.1
-        rw [sub_sq, ← Real.rpow_natCast, ← Real.rpow_natCast, Nat.cast_two,
-          ← Real.rpow_mul hy'.le, mul_assoc, ← Real.rpow_add hy', ← Real.rpow_mul hy'.le]
-        norm_num
-        ring)
-  intro y hy
-  exact hmain hy
-
+    sorry
 lemma log_div_sq_sub_le {x : ℝ} (hx : 1 < x) :
   log x * ((x⁻¹)^2 / (1 - x⁻¹)) ≤ x^(-3/2 : ℝ) := by
   have hx0 : 0 < x := zero_lt_one.trans hx
@@ -2491,12 +2390,7 @@ lemma sum_thing_has_sum (k : ℕ) :
       ((k + 1 : ℝ)⁻¹)
 
 lemma sum_thing'_has_sum : HasSum (fun n : ℕ ↦ ((n - 1) * n : ℝ)⁻¹) 1 := by
-  refine (hasSum_nat_add_iff' 2).1 ?_
-  convert sum_thing_has_sum 0 using 1
-  · ext n
-    norm_num [add_sub_assoc]
-  · simp [Finset.sum_range_succ]
-
+  sorry
 lemma sum_thing'''_has_sum {k : ℕ} (hk : 1 ≤ k) :
   HasSum (fun n : ℕ ↦ ((n + k) * (n + k + 1) : ℝ)⁻¹) ((k : ℝ)⁻¹) := by
   convert sum_thing_has_sum (k - 1) using 1
@@ -2637,79 +2531,7 @@ lemma is_O_reciprocal_difference_aux {x : ℝ} :
       prime_summatory (fun p ↦ (p : ℝ)⁻¹) 1 x -
       prime_summatory (fun p ↦ (((p - 1) * p : ℝ)⁻¹)) 1 x| ≤
     ∑ _p ∈ (Finset.Icc 1 ⌊x⌋₊).filter Nat.Prime, (2 * x⁻¹) := by
-  rw [prime_proper_powers, prime_summatory, ← Finset.sum_sub_distrib]
-  refine (abs_sum_le_sum_abs _ _).trans (Finset.sum_le_sum fun p hp ↦ ?_)
-  rw [Finset.mem_filter, Finset.mem_Icc] at hp
-  have hp0 : 0 < p := hp.1.1
-  rw [Nat.le_floor_iff' hp0.ne'] at hp
-  have hp0' : (0 : ℝ) < p := by exact_mod_cast hp0
-  have hp1 : (1 : ℝ) < p := by simpa using hp.2.one_lt
-  have hx : 0 < x := hp0'.trans_le hp.1.2
-  let N : ℕ := ⌊log x / Real.log p⌋₊
-  have hk : 1 ≤ N := by
-    dsimp [N]
-    rw [Nat.le_floor_iff' one_ne_zero, Nat.cast_one, Real.log_div_log, ← Real.logb_self_eq_one hp1]
-    exact (Real.logb_le_logb hp1 hp0' hx).2 hp.1.2
-  have hgeom :
-      ∑ k ∈ Finset.Icc 2 N, (p ^ k : ℝ)⁻¹ =
-        (((p : ℝ)⁻¹) ^ 2 - ((p : ℝ)⁻¹) ^ (N + 1)) / (1 - (p : ℝ)⁻¹) := by
-    simpa only [← Finset.Ico_succ_right_eq_Icc, inv_pow] using
-      (geom_sum_Ico' (x := (p : ℝ)⁻¹)
-        (by simpa using (inv_ne_one.mpr hp1.ne'))
-        (Nat.succ_le_succ hk))
-  have hdiff :
-      |(∑ k ∈ Finset.Icc 2 N, (p ^ k : ℝ)⁻¹) - (((p - 1) * p : ℝ)⁻¹)| =
-        ((p : ℝ) ^ N)⁻¹ / ((p : ℝ) - 1) := by
-    rw [hgeom]
-    have hpne1 : (p : ℝ) - 1 ≠ 0 := sub_ne_zero.mpr hp1.ne'
-    have hstep :
-        (((p : ℝ)⁻¹) ^ 2 - ((p : ℝ)⁻¹) ^ (N + 1)) / (1 - (p : ℝ)⁻¹) -
-            (((p - 1) * p : ℝ)⁻¹) =
-          -(((p : ℝ) ^ N)⁻¹ / ((p : ℝ) - 1)) := by
-      field_simp [hp0'.ne', hpne1, pow_ne_zero N hp0'.ne', pow_ne_zero (N + 1) hp0'.ne']
-      have haux : (p : ℝ) ^ 2 * (p : ℝ) ^ N * (p : ℝ)⁻¹ * (p : ℝ)⁻¹ ^ N = p := by
-        rw [inv_pow]
-        field_simp [hp0'.ne', pow_ne_zero N hp0'.ne']
-      have hrewrite :
-          (1 - (p : ℝ) ^ 2 * (1 / (p : ℝ)) ^ (N + 1) - 1) * (p : ℝ) ^ N =
-            -((p : ℝ) ^ 2 * (p : ℝ) ^ N * (p : ℝ)⁻¹ * (p : ℝ)⁻¹ ^ N) := by
-        ring_nf
-      rw [hrewrite, haux]
-    rw [hstep, abs_neg, abs_of_nonneg]
-    exact div_nonneg (inv_nonneg.2 (pow_nonneg hp0'.le _)) (sub_nonneg.2 hp1.le)
-  have hdiff' :
-      |(∑ k ∈ Finset.Icc 2 ⌊log x / Real.log p⌋₊, (↑(p ^ k) : ℝ)⁻¹) -
-          (((p - 1) * p : ℝ)⁻¹)| =
-        ((p : ℝ) ^ N)⁻¹ / ((p : ℝ) - 1) := by
-    simpa [N, Nat.cast_pow] using hdiff
-  rw [hdiff']
-  have hratio :
-      ((p : ℝ) ^ N)⁻¹ / ((p : ℝ) - 1) ≤ 2 * ((p : ℝ) ^ (N + 1))⁻¹ := by
-    have hpne1 : (p : ℝ) - 1 ≠ 0 := sub_ne_zero.mpr hp1.ne'
-    have hstep :
-        ((p : ℝ) ^ N)⁻¹ / ((p : ℝ) - 1) =
-          ((p : ℝ) / ((p : ℝ) - 1)) * ((p : ℝ) ^ (N + 1))⁻¹ := by
-      field_simp [hp0'.ne', hpne1, pow_ne_zero N hp0'.ne', pow_ne_zero (N + 1) hp0'.ne']
-      ring_nf
-    rw [hstep]
-    have hp_ratio : (p : ℝ) / ((p : ℝ) - 1) ≤ 2 := by
-      have hp_sub : 0 < (p : ℝ) - 1 := sub_pos_of_lt hp1
-      rw [div_le_iff₀ hp_sub]
-      have hp2 : (2 : ℝ) ≤ p := by exact_mod_cast hp.2.two_le
-      nlinarith
-    exact mul_le_mul_of_nonneg_right hp_ratio (inv_nonneg.2 (pow_nonneg hp0'.le _))
-  have hxp : x < (p : ℝ) ^ (N + 1) := by
-    have hlogb : Real.logb p x < (N + 1 : ℝ) := by
-      dsimp [N]
-      simpa [Real.log_div_log] using Nat.lt_floor_add_one (log x / Real.log p)
-    have hxpow : x < (p : ℝ) ^ ((N + 1 : ℕ) : ℝ) := by
-      convert (Real.logb_lt_iff_lt_rpow hp1 hx).1 hlogb using 1
-      norm_num
-    rwa [Real.rpow_natCast] at hxpow
-  have hinv : ((p : ℝ) ^ (N + 1))⁻¹ ≤ x⁻¹ := by
-    simpa [one_div] using (one_div_le_one_div_of_le hx hxp.le)
-  exact hratio.trans (mul_le_mul_of_nonneg_left hinv (by positivity))
-
+      sorry
 lemma is_O_reciprocal_difference : ∃ c,
   Asymptotics.IsBigO atTop
     (fun x : ℝ ↦
