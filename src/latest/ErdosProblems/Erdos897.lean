@@ -111,11 +111,20 @@ lemma lemma2 (n : ℕ) (hn : n ≥ 2) : f n ≤ logStar n * Real.log n := by
             exact ⟨ _, tendsto_atTop_ciInf ( show Antitone fun x => iteratedLog x ( n : ℝ ) from antitone_nat_of_succ_le fun x => by linarith [ h_seq x, ‹∀ x : ℕ, iteratedLog x ( n : ℝ ) > 1 → iteratedLog ( x + 1 ) ( n : ℝ ) < iteratedLog x ( n : ℝ ) › x ( h_seq x ) ] ) ⟨ 1, Set.forall_mem_range.mpr fun x => le_of_lt ( h_seq x ) ⟩ ⟩;
           -- Taking the limit of both sides of the recurrence relation $iteratedLog (x + 1) (n : ℝ) = Real.log (iteratedLog x (n : ℝ))$, we get $L = Real.log L$.
           have h_lim_eq : L = Real.log L := by
-            have h_lim_eq : Filter.Tendsto (fun x => iteratedLog (x + 1) (n : ℝ)) Filter.atTop (nhds (Real.log L)) := by
-              convert Filter.Tendsto.log hL _ using 1;
-              exact ne_of_gt <| lt_of_lt_of_le zero_lt_one <| le_of_tendsto_of_tendsto' tendsto_const_nhds hL fun x => le_of_lt <| h_seq x;
-            rw [ tendsto_nhds_unique h_lim_eq ( hL.comp ( Filter.tendsto_add_atTop_nat 1 ) ) ];
-          linarith [ Real.log_le_sub_one_of_pos ( show 0 < L by linarith [ show 0 < L by exact lt_of_lt_of_le zero_lt_one ( le_of_tendsto_of_tendsto' tendsto_const_nhds hL fun x => le_of_lt ( h_seq x ) ) ] ) ];
+            have h_log_tendsto :
+                Filter.Tendsto (fun x => iteratedLog (x + 1) (n : ℝ))
+                  Filter.atTop (nhds (Real.log L)) := by
+              simpa [iteratedLog] using
+                Filter.Tendsto.log hL
+                  (ne_of_gt <| lt_of_lt_of_le zero_lt_one <|
+                    le_of_tendsto_of_tendsto' tendsto_const_nhds hL fun x =>
+                      le_of_lt <| h_seq x)
+            rw [tendsto_nhds_unique h_log_tendsto (hL.comp (Filter.tendsto_add_atTop_nat 1))]
+          have hL_pos : 0 < L := by
+            exact lt_of_lt_of_le zero_lt_one
+              (le_of_tendsto_of_tendsto' tendsto_const_nhds hL fun x =>
+                le_of_lt (h_seq x))
+          linarith [h_lim_eq, Real.log_le_sub_one_of_pos hL_pos];
         · aesop;
       exact h_log_star;
   -- Using the bound $\log^* q_i \leq \log^* n$, we can factor out $\log^* n$ from the sum.
@@ -187,7 +196,7 @@ lemma logStar_eq_iff {x : ℝ} {k : ℕ} (hk : k ≥ 1) :
             specialize ih ( Nat.le_of_succ_le hj );
             rw [ show k - j = ( k - ( j + 1 ) ) + 1 by omega, iteratedLog ] at ih;
             rwa [ Real.lt_log_iff_exp_lt ( by linarith [ this.1 ( k - ( j + 1 ) ) ( by omega ) ] ) ] at ih;
-          simpa using h_exp_iter k le_rfl
+          simpa [iteratedLog] using h_exp_iter k le_rfl
         have h_x_le_Ek : x ≤ E k := by
           have := h_log_star_def.mp h |>.2;
           contrapose! this;
@@ -308,8 +317,13 @@ lemma logStar_lower_bound_B {q : ℝ} {k : ℕ} (hq : q > E (k - 3)) :
             -- Taking the limit of both sides of $\log^{(j+1)} q = \log(\log^{(j)} q)$, we get $L = \log L$.
             have hL_eq : L = Real.log L := by
               have hL_eq : Filter.Tendsto (fun j => iteratedLog (j + 1) q) Filter.atTop (nhds (Real.log L)) := by
-                convert Filter.Tendsto.log hL _ using 1;
-                exact ne_of_gt ( lt_of_lt_of_le zero_lt_one ( le_of_tendsto_of_tendsto' tendsto_const_nhds hL fun j => le_of_lt ( h_log_gt_one j ) ) );
+                convert
+                  Filter.Tendsto.log hL
+                    (ne_of_gt (lt_of_lt_of_le zero_lt_one
+                      (le_of_tendsto_of_tendsto' tendsto_const_nhds hL fun j =>
+                        le_of_lt (h_log_gt_one j)))) using 1
+                ext j
+                rfl
               rw [ tendsto_nhds_unique hL_eq ( hL.comp ( Filter.tendsto_add_atTop_nat 1 ) ) ];
             linarith [ Real.log_le_sub_one_of_pos ( show 0 < L by linarith [ show 0 < L by exact lt_of_lt_of_le zero_lt_one ( le_of_tendsto_of_tendsto' tendsto_const_nhds hL fun j => le_of_lt ( h_log_gt_one j ) ) ] ) ];
         · rfl;
@@ -554,8 +568,13 @@ lemma logStar_succ_le (n : ℕ) : logStar (n + 1) ≤ logStar n + 1 := by
               -- Taking the limit of both sides of the inequality $\log^{(m+1)}(n) < \log^{(m)}(n)$, we get $L \leq \log(L)$.
               have hL_le_logL : L ≤ Real.log L := by
                 have hL_le_logL : Filter.Tendsto (fun m => iteratedLog (m + 1) (n : ℝ)) Filter.atTop (nhds (Real.log L)) := by
-                  convert Filter.Tendsto.log hL _ using 1;
-                  exact ne_of_gt <| lt_of_lt_of_le zero_lt_one <| le_of_tendsto_of_tendsto' tendsto_const_nhds hL fun m => le_of_lt <| h_exists_x m;
+                  convert
+                    Filter.Tendsto.log hL
+                      (ne_of_gt <| lt_of_lt_of_le zero_lt_one <|
+                        le_of_tendsto_of_tendsto' tendsto_const_nhds hL fun m =>
+                          le_of_lt <| h_exists_x m) using 1
+                  ext m
+                  rfl
                 linarith [ tendsto_nhds_unique hL_le_logL ( hL.comp ( Filter.tendsto_add_atTop_nat 1 ) ) ];
               linarith [ Real.log_le_sub_one_of_pos ( show 0 < L by exact lt_of_lt_of_le zero_lt_one ( le_of_tendsto_of_tendsto' tendsto_const_nhds hL fun m => le_of_lt ( h_exists_x m ) ) ) ];
             · aesop;
@@ -685,7 +704,11 @@ lemma logStar_gt_of_gt_E (k : ℕ) (n : ℕ) (h : (n : ℝ) > E k) : logStar n >
     · exact False.elim <| (not_le_of_gt h) <| by exact Nat.recOn k ( by norm_num [ show E 0 = 1 by rfl ] ) fun n ihn => by rw [ show E ( n + 1 ) = Real.exp ( E n ) by rfl ] ; positivity;
     · exact absurd h ( not_lt_of_ge ( show 1 ≤ E k from Nat.recOn k ( by norm_num [ show E 0 = 1 from rfl ] ) fun n ihn => by rw [ show E ( n + 1 ) = Real.exp ( E n ) from rfl ] ; exact Real.one_le_exp ( by linarith ) ) );
     · exact h_le_E _ ( by linarith );
-  exact (not_le_of_gt h) ( h_le_E.trans <| by exact monotone_nat_of_le_succ ( fun k => by simpa using Real.exp_le_exp.mpr <| show E k ≤ E ( k + 1 ) from by simpa using Real.add_one_le_exp ( E k ) |> le_trans ( by norm_num ) ) h_le )
+  have hmono : Monotone E := by
+    exact monotone_nat_of_le_succ fun k => by
+      change E k ≤ Real.exp (E k)
+      linarith [Real.add_one_le_exp (E k)]
+  exact (not_le_of_gt h) (h_le_E.trans (hmono h_le))
 
 /-
 $\log^* n \to \infty$ as $n \to \infty$.
@@ -736,10 +759,7 @@ The sequence 4 + (logStar n + 1)/log n tends to 4 in EReal.
 lemma limit_helper_RHS : Filter.Tendsto (fun n : ℕ => ((4 : ℝ) + (logStar n + 1) / Real.log n : EReal)) Filter.atTop (nhds 4) := by
   have h_cont : Filter.Tendsto (fun n : ℕ => (logStar n + 1) / Real.log n : ℕ → ℝ) Filter.atTop (nhds 0) := by
     exact limit_logStar_div_log;
-  convert tendsto_const_nhds.add h_cont using 2
-  · erw [ ← EReal.tendsto_coe ]
-    · norm_num
-      convert Iff.rfl
+  exact EReal.tendsto_coe.mpr (by simpa [div_eq_mul_inv] using tendsto_const_nhds.add h_cont)
 
 /-
 The limit superior of (f(n+1)-f(n))/log(n) is at most 4 (in EReal).
@@ -753,17 +773,24 @@ lemma corollary1 : Filter.limsup (fun n : ℕ => ((f (n + 1) - f n) / Real.log n
     have := helper_inequality; aesop;
   -- By `limit_helper_RHS`, `v n` tends to 4 in `EReal`.
   have h_v_tendsto : Filter.Tendsto (fun n => (v n : EReal)) Filter.atTop (nhds 4) := by
-    convert limit_helper_RHS using 1;
+    have h_v_real : Filter.Tendsto v Filter.atTop (nhds 4) := by
+      simpa [v, div_eq_mul_inv] using tendsto_const_nhds.add limit_logStar_div_log
+    exact EReal.tendsto_coe.mpr h_v_real
   -- By `lemma helper_inequality`, `u n ≤ v n` eventually.
   have h_u_le_v_eventually : ∀ᶠ n in Filter.atTop, (u n : EReal) ≤ (v n : EReal) := by
-    convert h_u_le_v using 1;
-    norm_num [ ← EReal.coe_le_coe_iff ];
+    filter_upwards [h_u_le_v] with n hn
+    exact EReal.coe_le_coe_iff.mpr hn
   have h_limsup_le : Filter.limsup (fun n => (u n : EReal)) Filter.atTop ≤ Filter.limsup (fun n => (v n : EReal)) Filter.atTop := by
     apply_rules [ Filter.limsup_le_limsup ];
     · refine ⟨ ⊥, ?_ ⟩ ; aesop;
     · exact Filter.Tendsto.isBoundedUnder_le h_v_tendsto;
-  convert h_limsup_le.trans _;
-  rw [ h_v_tendsto.limsup_eq ]
+  have h_u_eq :
+      (fun n : ℕ => ((f (n + 1) - f n) / Real.log n : EReal)) =
+        fun n => (u n : EReal) := by
+    funext n
+    simp [u, EReal.coe_sub, EReal.coe_div]
+  rw [h_u_eq]
+  exact h_limsup_le.trans_eq h_v_tendsto.limsup_eq
 
 /-
 For sufficiently large $n$, $f(n) > 0$.
@@ -843,8 +870,10 @@ lemma f_hypothesis : ((Filter.atTop ⊓ Filter.principal {(p, _k) : ℕ × ℕ |
     rw [ Filter.eventually_inf_principal ];
     rw [ Filter.eventually_atTop ];
     use (2, 1);
-    intro p hp hp'; specialize h_eq p.1 p.2 hp'.out ( Nat.pos_of_ne_zero ( by aesop ) ) ; norm_cast at *;
-    convert congr_arg ( ( ↑ ) : ℝ → EReal ) h_eq using 1;
+    intro p hp hp'
+    specialize h_eq p.1 p.2 hp'.out (Nat.pos_of_ne_zero (by aesop))
+    rcases p with ⟨p, k⟩
+    simpa [EReal.coe_div] using congr_arg ((↑) : ℝ → EReal) h_eq
   · refine Filter.neBot_iff.mpr ?_;
     norm_num [ Filter.inf_principal_eq_bot ];
     exact fun n m => by rcases Nat.exists_infinite_primes ( n + m + 1 ) with ⟨ p, hp₁, hp₂ ⟩ ; exact ⟨ p, by linarith, ⟨ m, by linarith ⟩, hp₂ ⟩ ;
