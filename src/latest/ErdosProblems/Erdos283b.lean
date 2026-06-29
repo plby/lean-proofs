@@ -159,7 +159,6 @@ lemma Yk_succ_le_Zk (X a L M b : ℤ) (r s : ℕ) (md : ℤ)
             md * X + a * M from by
         linarith
   | succ k ih =>
-    norm_num at *
     have hYk_succ :
         Yk X a L b r s md (k + 2) =
           md * Yk X a L b r s md (k + 1) + a * L -
@@ -601,10 +600,13 @@ lemma residue_class_coverage
             Int.dvd_of_dvd_mul_right_of_gcd_one
               (by
                 convert h using 1
-                ring) (Int.gcd_comm _ _ ▸ hcop_j)
+                · rfl
+                · rw [mul_sub]) (Int.gcd_comm _ _ ▸ hcop_j)
         have h_eq : a ∣ (w - w') := by
           convert dvd_sub ( hr_w w' ) ( hr_w w |> Int.dvd_sub <| h_div.mul_left b ) using 1
-          ring
+          · rfl
+          · rw [mul_sub]
+            abel
         exact Fin.ext (by
           obtain ⟨ k, hk ⟩ := h_eq
           nlinarith [
@@ -900,7 +902,8 @@ theorem general_theorem
       intro α' hα' n' h1 h2 h3
       exact base_general w₀ α' hα' n' h1 h2 (by
         convert dvd_add h3 (hr_w w₀) using 1
-        ring)
+        · rfl
+        · abel)
     have base_shifted_T :=
       base_case_shift a b j d m S Q M l₁ l₂ hl₁ hl₂ hj1 hj2 hmc_ge T
         (X_w w₀) (r_w w₀) base_general_old
