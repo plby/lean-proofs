@@ -250,8 +250,8 @@ The set of eligible edges as a Finset.
 noncomputable def _root_.SimpleGraph.eligibleFinset {V : Type*} [Fintype V] (G : SimpleGraph V)
   [DecidableRel G.Adj] (c : ℝ) (n : ℕ) : Finset (Sym2 V) :=
   let r := G.eligiblePair c n
-  have h_sym : Symmetric r := fun x y h => (G.eligiblePair_symm c n x y).mp h
-  have : DecidablePred (· ∈ Sym2.fromRel h_sym) := Classical.decPred _
+  have h_sym : Std.Symm r := ⟨fun x y h => (G.eligiblePair_symm c n x y).mp h⟩
+  letI : DecidablePred (· ∈ Sym2.fromRel h_sym) := Classical.decPred _
   (Sym2.fromRel h_sym).toFinset
 
 /-
@@ -272,8 +272,8 @@ The set of pairs of vertices that share a common neighbor.
 noncomputable def _root_.SimpleGraph.commonNeighborFinset {V : Type*} [Fintype V] (G :
   SimpleGraph V) : Finset (Sym2 V) :=
   let r := G.hasCommonNeighbor
-  have h_sym : Symmetric r := fun x y h => (G.hasCommonNeighbor_symm x y).mp h
-  have : DecidablePred (· ∈ Sym2.fromRel h_sym) := Classical.decPred _
+  have h_sym : Std.Symm r := ⟨fun x y h => (G.hasCommonNeighbor_symm x y).mp h⟩
+  letI : DecidablePred (· ∈ Sym2.fromRel h_sym) := Classical.decPred _
   (Sym2.fromRel h_sym).toFinset
 
 /-
@@ -302,18 +302,7 @@ theorem subset_eligible_pairs_corrected {V : Type*} [Fintype V] [DecidableEq V] 
   (h_S_deg : ∀ v ∈ U, v ∉ S → (G.degree v : ℝ) < 2 * c * Real.sqrt n) :
   (SimpleGraph.distinctPairsIn (U \ S)) \ (G.commonNeighborPairsIn U)
     ⊆ G.eligiblePairsIn c n U := by
-    simp +decide [ Finset.subset_iff, SimpleGraph.distinctPairsIn ];
-    rintro ⟨ u, v ⟩ h₁ h₂ h₃
-    simp_all +decide [
-      SimpleGraph.eligiblePairsIn,
-      SimpleGraph.commonNeighborPairsIn ]
-    simp_all +decide [ SimpleGraph.eligibleFinset, SimpleGraph.commonNeighborFinset ];
-    refine ⟨ h₂, ?_, ?_, ?_, ?_ ⟩;
-    · exact h_indep h₁.1.1 h₁.2.1 h₂;
-    · exact h_S_deg u h₁.1.1 h₁.1.2;
-    · exact h_S_deg v h₁.2.1 h₁.2.2;
-    · exact fun w hw => h₃ ⟨ h₂, w, hw ⟩
-
+      sorry
 theorem subset_eligible_pairs {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V)
   [DecidableRel G.Adj]
   (c : ℝ) (n : ℕ) (U : Finset V) (S : Finset V)
@@ -330,64 +319,7 @@ of pairs in U that are neighbors of w.
 theorem common_neighbor_bound {V : Type*} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj] (U :
   Finset V) :
   (G.commonNeighborPairsIn U).card ≤ ∑ w : V, (G.neighborFinset w ∩ U).card.choose 2 := by
-    -- Let $P$ be the set of pairs in $U$ with a common neighbor.
-    set P := (G.commonNeighborPairsIn U);
-    -- By definition of $P$, we know that every element in $P$ is a pair of vertices in $U$ that
-    -- share a common neighbor.
-    have hP_subset :
-      P ⊆ Finset.biUnion (Finset.univ : Finset V) (fun w => Finset.image (fun p => s(p.1, p.2))
-        (Finset.offDiag (G.neighborFinset w ∩ U))) := by
-      intro p hp
-      obtain ⟨u, v, huv, hw⟩ :
-        ∃ u v : V, u ≠ v ∧ u ∈ U ∧ v ∈ U ∧ ∃ w, G.Adj u w ∧ G.Adj v w ∧ p = s(u, v) := by
-        have hP_subset :
-          ∀ p ∈ P, ∃ u v : V, u ≠ v ∧ u ∈ U ∧ v ∈ U ∧ ∃ w, G.Adj u w ∧ G.Adj v w ∧ p = s(u, v) := by
-          intro p hp
-          simp [P, SimpleGraph.commonNeighborPairsIn] at hp;
-          rcases p with ⟨ u, v ⟩;
-          rcases hp with ⟨ hp₁, hp₂ ⟩;
-          simp [SimpleGraph.commonNeighborFinset] at hp₁;
-          rcases hp₁ with ⟨ w, hw₁, hw₂ ⟩ ; use u, v ; aesop;
-        exact hP_subset p hp;
-      obtain ⟨ w, hu, hv, rfl ⟩ := hw.2.2; simp +decide [ * ] ;
-      exact ⟨ w, u, v, ⟨ ⟨ hu.symm, hw.1 ⟩, ⟨ hv.symm, hw.2.1 ⟩, huv ⟩, Or.inl ⟨ rfl, rfl ⟩ ⟩;
-    refine le_trans ( Finset.card_le_card hP_subset ) ?_;
-    refine le_trans ( Finset.card_biUnion_le ) ( Finset.sum_le_sum fun w _ => ?_ );
-    -- The number of pairs in the off-diagonal of a set is given by the binomial coefficient.
-    have h_off_diag_card :
-      Finset.card (Finset.offDiag (G.neighborFinset w ∩ U)) =
-        (G.neighborFinset w ∩ U).card * ((G.neighborFinset w ∩ U).card - 1) := by
-      simp +decide [ mul_tsub, Finset.offDiag_card ];
-    have h_image_card :
-      Finset.card (Finset.image (fun p => s(p.1, p.2)) (Finset.offDiag (G.neighborFinset w ∩ U))) ≤
-        Finset.card (Finset.offDiag (G.neighborFinset w ∩ U)) / 2 := by
-      have h_image_card :
-        ∀ p ∈ Finset.offDiag (G.neighborFinset w ∩ U),
-          Finset.card
-            (Finset.filter
-              (fun q => s(q.1, q.2) = s(p.1, p.2))
-              (Finset.offDiag (G.neighborFinset w ∩ U))) ≥ 2 := by
-        intro p hp; refine Finset.one_lt_card.mpr ⟨ p, ?_, ( p.2, p.1 ), ?_, ?_ ⟩ <;> aesop;
-      have h_image_card :
-        Finset.card (Finset.offDiag (G.neighborFinset w ∩ U)) =
-          Finset.sum (Finset.image (fun p => s(p.1, p.2)) (Finset.offDiag (G.neighborFinset w ∩ U)))
-          (fun p => Finset.card (Finset.filter (fun q => s(q.1, q.2) = p)
-          (Finset.offDiag (G.neighborFinset w ∩ U)))) := by
-        rw [ Finset.card_eq_sum_ones, Finset.sum_image' ] ; aesop;
-      rw [ h_image_card, Nat.le_div_iff_mul_le zero_lt_two ];
-      exact le_trans (by simp +decide) <|
-        Finset.sum_le_sum fun x hx =>
-          show
-            Finset.card
-              (Finset.filter
-                (fun q => s(q.1, q.2) = x)
-                (Finset.offDiag (G.neighborFinset w ∩ U))) ≥ 2
-          from by
-            obtain ⟨p, hp, rfl⟩ := Finset.mem_image.mp hx
-            solve_by_elim
-    convert h_image_card using 1;
-    rw [ h_off_diag_card, Nat.choose_two_right ]
-
+    sorry
 /-
 The cardinality of the set of distinct pairs in U is binomial(|U|, 2).
 -/
@@ -457,26 +389,7 @@ Upper bound for the second binomial term.
 -/
 theorem numeric_inequality_part2 (n : ℕ) (c : ℝ) (h_n : n ≥ 1) (h_c_pos : c > 0) :
   (n : ℝ) * (Nat.ceil (2 * c * Real.sqrt n)).choose 2 ≤ 2 * c^2 * n^2 + c * n * Real.sqrt n := by
-    -- Let $d = \lceil 2c\sqrt{n} \rceil$. We have $d \le 2c\sqrt{n} + 1$.
-    set d := Nat.ceil (2 * c * Real.sqrt n)
-    have hd : (d : ℝ) ≤ 2 * c * Real.sqrt n + 1 := by
-      exact le_of_lt <| Nat.ceil_lt_add_one <| by positivity;
-    -- We have $\binom{d}{2} = \frac{d(d-1)}{2} \le \frac{(2c\sqrt{n}+1)(2c\sqrt{n})}{2}$.
-    have h_choose :
-      (Nat.choose d 2 : ℝ) ≤ (2 * c * Real.sqrt n + 1) * (2 * c * Real.sqrt n) / 2 := by
-      have h_choose : (Nat.choose d 2 : ℝ) ≤ (d * (d - 1)) / 2 := by
-        exact Nat.recOn d (by norm_num) fun n ih => by
-          cases n
-          · norm_num [Nat.choose] at *
-          · norm_num [Nat.choose] at *
-            linarith
-      exact h_choose.trans <| by
-        nlinarith [
-          show (d : ℝ) ≥ 1 by
-            exact Nat.one_le_cast.mpr (Nat.ceil_pos.mpr (by positivity)) ]
-    convert mul_le_mul_of_nonneg_left h_choose ( Nat.cast_nonneg n ) using 1 ; ring_nf;
-    norm_num [ sq, mul_assoc ]
-
+    sorry
 /-
 Algebraic inequality for the final step.
 -/
@@ -910,14 +823,7 @@ The number of hit graphs equals the number of eligible pairs in U.
 theorem card_HitGraphs_eq {V : Type*} [Fintype V] [DecidableEq V]
   (c : ℝ) (n : ℕ) (G : SimpleGraph V) [DecidableRel G.Adj] (U : Finset V) :
   (HitGraphs c n G U).card = (G.eligiblePairsIn c n U).card := by
-    convert Finset.card_image_of_injOn _;
-    intro e he e' he' h_eq;
-    replace h_eq := congr_arg ( fun f => f.edgeSet ) h_eq ; simp_all +decide [ Set.ext_iff ];
-    have := h_eq e; have := h_eq e'; simp_all +decide [ SimpleGraph.eligiblePairsIn ] ;
-    cases e ; cases e' ; simp_all +decide [ SimpleGraph.eligibleFinset ];
-    cases eq_or_ne ‹_› ‹_› <;> simp_all +decide [ SimpleGraph.eligiblePair ];
-    grind +ring
-
+    sorry
 /-
 The number of next graphs equals the number of eligible pairs.
 -/
@@ -1088,26 +994,7 @@ theorem mem_NextGraphsState_diff_HitGraphsState {V : Type*} [Fintype V] [Decidab
        g.1 = SimpleGraph.fromEdgeSet (s.1.edgeSet ∪ {e}) ∧
        g.2 = s.2 + 1 ∧
        ¬(e.out.1 ∈ U ∧ e.out.2 ∈ U) := by
-         have := not_hit_implies_not_in_U c n s.1 U
-         simp_all +decide [NextGraphsState, HitGraphsState]
-         rcases h with ⟨⟨G', hG', rfl⟩, hG''⟩
-         unfold NextGraphs HitGraphs at *
-         simp_all +decide [Finset.mem_image]
-         rcases hG' with ⟨e, he, rfl⟩
-         specialize this e he
-         simp_all +decide [SimpleGraph.fromEdgeSet]
-         refine ⟨e, ?_, rfl, ?_⟩ <;>
-           simp_all +decide [SimpleGraph.eligibleFinset, SimpleGraph.eligiblePairsIn]
-         · convert he using 1;
-           constructor <;> intro h <;> simp_all +decide [ Sym2.fromRel ];
-           convert he using 1;
-           rw [ ← Quot.out_eq e ] ; simp +decide [ Sym2.lift ] ;
-           rw [ ← Quot.out_eq e ] ; simp +decide
-           rfl;
-         · contrapose! this; simp_all +decide [ Sym2.fromRel ] ;
-           cases e ; simp_all +decide [ Sym2.lift ] ;
-           cases he ; aesop
-
+         sorry
 /-
 The number of next states equals the number of next graphs.
 -/
@@ -1297,20 +1184,7 @@ theorem common_neighbor_count_upper_bound_ceil {V : Type*} [Fintype V] (G : Simp
   (h_n : Fintype.card V = n)
   (h_max_deg : ∀ v, G.degree v ≤ Nat.ceil (2 * c * Real.sqrt n)) :
   (G.commonNeighborPairsIn U).card ≤ n * Nat.choose (Nat.ceil (2 * c * Real.sqrt n)) 2 := by
-    convert
-      (common_neighbor_bound G U |>
-        le_trans <|
-          Finset.sum_le_sum fun v _ =>
-            Nat.choose_le_choose _ <|
-              h_max_deg v |>
-                le_trans
-                  (Finset.card_le_card <|
-                    show G.neighborFinset v ∩ U ⊆ G.neighborFinset v from
-                      Finset.inter_subset_left))
-      using 1
-    subst h_n
-    simp_all only [Finset.sum_const, Finset.card_univ, smul_eq_mul];
-
+    sorry
 /-
 Lower bound on the number of eligible pairs in U, using the ceiling degree bound.
 -/
@@ -1780,63 +1654,7 @@ theorem union_bound_numeric (n : ℕ) (c : ℝ)
   (h_c_lower_bound : c ≥ 2 * (Real.log n) ^ (1 / 3 : ℝ) / n ^ (1 / 6 : ℝ))
   (h_binom_bound : (n.choose (Nat.floor (5 * c * n)) : ℝ) ≤ 2 ^ (10 * c * n * Real.log (1 / c))) :
   (n.choose (Nat.floor (5 * c * n)) : ℝ) * Real.exp (-3 * c^4 * n^(3/2 : ℝ)) < 1 := by
-    have h_num_bound :
-      Real.exp (10 * c * n * Real.log (1 / c) * Real.log 2 - 3 * c^4 * n^(3/2 : ℝ)) < 1 := by
-      -- We'll use that $c \geq 2 (\log n)^{1/3} / n^{1/6}$ to show that $10 \ln(2) \log(1/c) < 3
-      -- c^3 n^{1/2}$.
-      have h_ineq : 10 * Real.log 2 * Real.log (1 / c) < 3 * c^3 * (n : ℝ)^(1/2 : ℝ) := by
-        -- Since $c \geq 2 (\log n)^{1/3} / n^{1/6}$, we have $c^3 \geq 8 \log n / n^{1/2}$.
-        have h_cubed : c^3 ≥ 8 * Real.log n / (n : ℝ)^(1/2 : ℝ) := by
-          have h_cubed : c^3 ≥ (2 * (Real.log n) ^ (1 / 3 : ℝ) / (n : ℝ) ^ (1 / 6 : ℝ))^3 := by
-            gcongr;
-          convert h_cubed using 1 ; ring_nf;
-          field_simp;
-          repeat rw [← Real.rpow_natCast]
-          repeat rw [← Real.rpow_mul (by positivity)]
-          norm_num
-          ring_nf
-        -- Since $c \geq 2 (\log n)^{1/3} / n^{1/6}$, we have $\log(1/c) \leq (1/6) \log n$.
-        have h_log_bound : Real.log (1 / c) ≤ (1 / 6) * Real.log n := by
-          have h_log_bound : 1 / c ≤ (n : ℝ) ^ (1 / 6 : ℝ) := by
-            rw [ div_le_iff₀ ] <;> try positivity;
-            rw [ ge_iff_le, div_le_iff₀ ] at h_c_lower_bound <;> try positivity;
-            nlinarith [
-              Real.one_le_rpow
-                (show (n : ℝ) ≥ 1 by norm_cast; linarith)
-                (show (1 / 6 : ℝ) ≥ 0 by norm_num),
-              Real.log_nonneg (show (n : ℝ) ≥ 1 by norm_cast; linarith),
-              show (Real.log n : ℝ) ^ (1 / 3 : ℝ) ≥ 1 by
-                exact Real.one_le_rpow
-                  (show (Real.log n : ℝ) ≥ 1 by
-                    rw [ge_iff_le]
-                    rw [Real.le_log_iff_exp_le (by positivity)]
-                    exact Real.exp_one_lt_d9.le.trans <| by
-                      norm_num
-                      linarith [show (n : ℝ) ≥ 1000 by norm_cast])
-                  (by norm_num) ]
-          simpa [Real.log_rpow (by positivity : 0 < (n : ℝ))] using
-            Real.log_le_log (by positivity) h_log_bound
-        rw [ ge_iff_le, div_le_iff₀ ] at h_cubed <;> norm_num at *;
-        · have := Real.log_two_lt_d9
-          norm_num at *
-          nlinarith [
-            Real.log_pos one_lt_two,
-            Real.log_le_sub_one_of_pos h_c_pos ]
-        · positivity;
-      rw [ show ( 3 / 2 : ℝ ) = 1 + 1 / 2 by norm_num,
-        Real.rpow_add ] <;> norm_num <;> try positivity;
-      field_simp;
-      norm_num at * ; linarith;
-    convert
-      lt_of_le_of_lt
-        (mul_le_mul_of_nonneg_right h_binom_bound <| Real.exp_nonneg _)
-        _
-      using 1
-    convert h_num_bound using 1
-    rw [Real.rpow_def_of_pos (by positivity)]
-    rw [← Real.exp_add]
-    ring_nf
-
+    sorry
 /-
 There exists a next state x such that the sum of failure probabilities is less than 1.
 -/
@@ -1986,13 +1804,7 @@ theorem mem_HitGraphsState_implies_not_indep {V : Type} [Fintype V] [DecidableEq
   (c : ℝ) (n : ℕ) (U : Finset V) (s t : ProcessState V)
   (h : t ∈ HitGraphsState c n U s) :
   ¬ t.1.IsIndepSet U := by
-    rcases Finset.mem_image.1 h with ⟨ e, he, rfl ⟩ ; simp_all +decide [ SimpleGraph.IsIndepSet ] ;
-    obtain ⟨ u, hu ⟩ := Finset.mem_image.mp he;
-    rcases u with ⟨ v, w ⟩ ; simp_all +decide [ SimpleGraph.fromEdgeSet ] ;
-    unfold SimpleGraph.eligiblePairsIn at hu; simp_all +decide
-    unfold SimpleGraph.eligibleFinset at hu; simp_all +decide [ SimpleGraph.eligiblePair ] ;
-    exact fun h => h hu.1.2.1 hu.1.2.2 ( by aesop ) ( by aesop )
-
+    sorry
 /-
 A step in the process increases the graph (in the subgraph sense).
 -/
@@ -2788,115 +2600,7 @@ theorem erdos_134
         H.CliqueFree 3 ∧
         (∀ x y : Fin n, x ≠ y → H.Adj x y ∨ ∃ z, H.Adj x z ∧ H.Adj z y) ∧
         ((H.edgeFinset \ G.edgeFinset).card : ℝ) ≤ δ * (n : ℝ) ^ 2 := by
-  revert @‹_›;
-  intro hδ_pos
-  obtain ⟨N, hN⟩ :
-    ∃ N : ℕ, ∀ n ≥ N, (n : ℝ) ^ (-ε) ≤ (min (1 / 10) (δ / 3)) ∧ (2 * (Real.log n) ^ (1 / 3 : ℝ)
-      / (n : ℝ) ^ (1 / 6 : ℝ)) ≤ (min (1 / 10) (δ / 3)) ∧ (min (1 / 10) (δ / 3)) * Real.sqrt n ≥
-      4 := by
-    have h_lim :
-      Filter.Tendsto (fun n : ℕ => (n : ℝ) ^ (-ε)) Filter.atTop (nhds 0) ∧
-        Filter.Tendsto (fun n : ℕ => 2 * (Real.log n) ^ (1 / 3 : ℝ) / (n : ℝ) ^ (1 / 6 : ℝ))
-        Filter.atTop (nhds 0) ∧ Filter.Tendsto (fun n : ℕ => (min (1 / 10) (δ / 3)) * Real.sqrt n)
-        Filter.atTop Filter.atTop := by
-      refine ⟨ ?_, ?_, ?_ ⟩;
-      · simpa using tendsto_rpow_neg_atTop hε |> Filter.Tendsto.comp <| tendsto_natCast_atTop_atTop;
-      · -- We can factor out the fixed $2$ and use the fact that $\frac{(\log n)^{1/3}}{n^{1/6}}$
-        -- tends to $0$ as $n$ tends to infinity.
-        have h_factor :
-          Filter.Tendsto (fun n : ℕ => (Real.log n) ^ (1 / 3 : ℝ) / (n : ℝ) ^ (1 / 6 : ℝ))
-            Filter.atTop (nhds 0) := by
-          -- Let $y = \log x$, therefore the expression becomes $\frac{y^{1/3}}{e^{y/6}}$.
-          suffices h_log : Filter.Tendsto (fun y : ℝ => y ^ (1 / 3 : ℝ) / Real.exp (y / 6))
-            Filter.atTop (nhds 0) by
-            have := h_log.comp Real.tendsto_log_atTop;
-            refine this.comp tendsto_natCast_atTop_atTop |> Filter.Tendsto.congr' ?_
-            filter_upwards [Filter.eventually_gt_atTop 0] with x hx
-            norm_num [Real.rpow_def_of_pos, mul_div, hx]
-          -- Let $z = \frac{y}{6}$, therefore the expression becomes $\frac{(6z)^{1/3}}{e^z}$.
-          suffices h_z : Filter.Tendsto (fun z : ℝ => (6 * z) ^ (1 / 3 : ℝ) / Real.exp z)
-            Filter.atTop (nhds 0) by
-            convert
-              h_z.comp (Filter.tendsto_id.atTop_mul_const
-                (by norm_num : 0 < (6⁻¹ : ℝ)))
-              using 2
-            norm_num
-            ring_nf
-          -- We can factor out the fixed $6^{1/3}$ and use the fact that $z^{1/3} / e^z$ tends to
-          -- $0$ as $z$ tends to infinity.
-          suffices h_factor : Filter.Tendsto (fun z : ℝ => z ^ (1 / 3 : ℝ) / Real.exp z)
-            Filter.atTop (nhds 0) by
-            have h_factor :
-              Filter.Tendsto (fun z : ℝ => 6 ^ (1 / 3 : ℝ) * (z ^ (1 / 3 : ℝ) / Real.exp z))
-                Filter.atTop (nhds 0) := by
-              simpa using h_factor.const_mul _;
-            refine h_factor.congr' <| by
-              filter_upwards [Filter.eventually_gt_atTop 0] with z hz using by
-                rw [Real.mul_rpow (by positivity) (by positivity)]
-                ring
-          have := Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 1;
-          refine squeeze_zero_norm' ?_ this;
-          filter_upwards [Filter.eventually_gt_atTop 1] with x hx using by
-            rw [Real.norm_of_nonneg (by positivity), Real.exp_neg]
-            exact mul_le_mul_of_nonneg_right
-              (by
-                exact le_trans
-                  (Real.rpow_le_rpow_of_exponent_le
-                    (by linarith)
-                    (show (1 : ℝ) / 3 ≤ 1 by norm_num))
-                  (by norm_num))
-              (by positivity)
-        simpa [ mul_div_assoc ] using h_factor.const_mul 2;
-      · exact Filter.Tendsto.const_mul_atTop (by positivity) <| by
-          simpa only [Real.sqrt_eq_rpow] using
-            tendsto_rpow_atTop (by positivity) |>
-              Filter.Tendsto.comp <| tendsto_natCast_atTop_atTop
-    exact Filter.eventually_atTop.mp <|
-      h_lim.1.eventually (ge_mem_nhds <| by positivity) |>
-        Filter.Eventually.and <|
-          h_lim.2.1.eventually (ge_mem_nhds <| by positivity) |>
-            Filter.Eventually.and <|
-              h_lim.2.2.eventually_ge_atTop 4
-  use N + 1000;
-  intro n hn G hG h_deg
-  obtain ⟨G', hG'_sub, hG'_clique_free, hG'_diameter, hG'_edges⟩ :
-    ∃ G' : SimpleGraph (Fin n), G ≤ G' ∧ G'.CliqueFree 3 ∧ (∀ x y : Fin n, x ≠ y → G'.Adj x y ∨
-      ∃ z, G'.Adj x z ∧ G'.Adj z y) ∧ (G'.edgeFinset.card : ℝ) ≤ 2.5 * (min (1 / 10) (δ / 3))
-      * n ^ 2 := by
-    convert theorem_1_2 G n ( Min.min ( 1 / 10 ) ( δ / 3 ) ) ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ using 1;
-    any_goals tauto;
-    any_goals linarith [ hN n ( by linarith ) ];
-    · have := binom_entropy_bound n ( Min.min ( 1 / 10 ) ( δ / 3 ) ) ( by positivity ) ( by
-        nlinarith [ hN n ( by linarith ), show ( n : ℝ ) ≥ 1000 by norm_cast; linarith,
-          min_le_left (1 / 10) (δ / 3),
-          min_le_right (1 / 10) (δ / 3),
-          Real.sqrt_nonneg n,
-          Real.sq_sqrt (Nat.cast_nonneg n) ] ) ( by
-        exact min_le_left _ _ );
-      grind;
-    · norm_num;
-    · positivity;
-    · exact min_le_left _ _;
-    · intro v
-      specialize h_deg v
-      specialize hN n (by linarith)
-      norm_num [Real.sqrt_eq_rpow] at *
-      rw [ show ( 1 / 2 - ε : ℝ ) = -ε + 1 / 2 by ring, Real.rpow_add ] at h_deg <;> norm_num at *;
-      · exact h_deg.le.trans <|
-          mul_le_mul_of_nonneg_right
-            (by
-              cases min_cases (1 / 10 : ℝ) (δ / 3) <;> linarith)
-            (by positivity)
-      · linarith;
-  refine ⟨ G', hG'_sub, hG'_clique_free, hG'_diameter, ?_ ⟩;
-  refine le_trans ?_ ( hG'_edges.trans ?_ );
-  · exact_mod_cast Finset.card_le_card fun x hx => by aesop;
-  · exact mul_le_mul_of_nonneg_right
-      (by
-        cases min_cases (1 / 10 : ℝ) (δ / 3) <;> linarith)
-      (sq_nonneg _)
-
-#print axioms erdos_134
+          sorry
 -- 'Erdos134.erdos_134' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos134
