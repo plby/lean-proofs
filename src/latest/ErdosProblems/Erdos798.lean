@@ -163,12 +163,21 @@ theorem dirichlet_argument {n : ℕ} (hv : v ≠ 0) (n_pos : 0 < n) :
     obtain ⟨x, hx, y, hy, x_ne_y, hxy⟩ := exists_ne_map_eq_of_card_lt_of_maps_to hD hwd
     obtain h | rfl | h := lt_trichotomy x y
     exacts [⟨x, hx, y, hy, h, hxy⟩, by contradiction, ⟨y, hy, x, hx, h, hxy.symm⟩]
-  refine ⟨fun i ↦ ⌊mults v i * y⌋ - ⌊mults v i * x⌋, y - x, by lia, by grind, ?_, fun i ↦ ⟨?_, ?_⟩⟩
+  refine ⟨fun i ↦ ⌊mults v i * y⌋ - ⌊mults v i * x⌋, y - x, by lia, ?_, ?_, fun i ↦ ⟨?_, ?_⟩⟩
+  · have hy_le : y ≤ n ^ (d - 1) := Nat.lt_succ_iff.mp (Finset.mem_range.mp hy)
+    exact (Nat.sub_le y x).trans hy_le
   · simp [mults_maxAbsIdx_eq_one hv, Nat.cast_sub x_lt_y.le]
   · exact floor_mul_sub_floor_mul x_lt_y.le abs_mults_le
   rw [cast_sub, Nat.cast_sub x_lt_y.le]
-  convert_to |fract (mults v i * y) * n - fract (mults v i * x) * n| < 1
-  · grind [fract]
+  have h_abs :
+      |(mults v i * ((y : ℝ) - x) -
+            ((⌊mults v i * (y : ℝ)⌋ : ℝ) - (⌊mults v i * (x : ℝ)⌋ : ℝ))) *
+          (n : ℝ)| =
+        |fract (mults v i * (y : ℝ)) * (n : ℝ) -
+          fract (mults v i * (x : ℝ)) * (n : ℝ)| := by
+    rw [← self_sub_floor (mults v i * y), ← self_sub_floor (mults v i * x)]
+    ring_nf
+  rw [h_abs]
   exact abs_sub_lt_one_of_floor_eq_floor congr($hxy i).symm
 
 lemma eventually_half_le_floor : ∀ᶠ (x : ℝ) in atTop, x / 2 ≤ ⌊x⌋₊ := by
@@ -315,7 +324,31 @@ lemma eventually_card_cubeInterior_ge :
   filter_upwards [ll, cZ, eventually_gt_atTop 0] with n hn hn' hn''
   rw [div_lt_div_iff₀ zero_lt_four (by positivity)] at hn
   norm_cast at hn
-  grind
+  have hn'_real :
+      ((cubeInterior d n).card : ℝ) =
+        ((n : ℝ) - 2 * ↑⌈P (n : ℝ)⌉ + 1) ^ d := by
+    exact_mod_cast hn'
+  have hn_real :
+      3 * (n : ℝ) ^ d < (((n : ℝ) - 2 * ↑⌈P (n : ℝ)⌉ + 1) ^ d) * 4 := by
+    exact_mod_cast hn
+  have h_cast_main : ((3 * n ^ d : ℕ) : ℝ) = 3 * (n : ℝ) ^ d := by
+    norm_num [Nat.cast_mul, Nat.cast_pow]
+  have h_lower4 : 3 * (n : ℝ) ^ d < 4 * ((cubeInterior d n).card : ℝ) := by
+    rw [hn'_real]
+    simpa [mul_comm, mul_left_comm, mul_assoc] using hn_real
+  have h_lower : (3 * n ^ d : ℝ) / 4 < ((cubeInterior d n).card : ℝ) := by
+    rw [div_lt_iff₀ (by norm_num : (0 : ℝ) < 4)]
+    simpa [mul_comm, mul_left_comm, mul_assoc] using h_lower4
+  have h_div_lt_card : 3 * n ^ d / 4 < (cubeInterior d n).card := by
+    have h_cast_div :
+        ((3 * n ^ d / 4 : ℕ) : ℝ) ≤ (3 * n ^ d : ℝ) / 4 := by
+      refine
+        (Nat.cast_div_le (m := 3 * n ^ d) (n := 4) :
+          ((3 * n ^ d / 4 : ℕ) : ℝ) ≤ ((3 * n ^ d : ℕ) : ℝ) / (4 : ℝ)).trans_eq ?_
+      norm_num [Nat.cast_mul, Nat.cast_pow]
+    exact Nat.cast_lt.mp
+      (h_cast_div.trans_lt h_lower)
+  exact Nat.succ_le_of_lt h_div_lt_card
 
 /-- Proved by Aristotle -/
 lemma exists_bound_of_abs_sub_le (x : ℝ) {b : ℝ} (hb : 0 ≤ b) :
@@ -762,7 +795,7 @@ lemma ceil_le_two_mul_logb {n : ℕ} (hn : 2 ≤ n) : ⌈d * logb 2 n⌉₊ + 1 
   unfold x
   nth_rw 1 [← mul_one 2]
   refine mul_le_mul ?_ ?_ zero_le_one (Nat.cast_nonneg' d)
-  · simpa using ‹d.AtLeastTwo›.one_lt
+  · exact_mod_cast Nat.succ_le_of_lt ‹d.AtLeastTwo›.one_lt
   · rw [le_logb_iff_rpow_le one_lt_two (by norm_cast; lia)]
     simpa
 
