@@ -184,70 +184,7 @@ If $h(S) \le k \le |S|$, then $S$ can be partitioned into $k$ nonempty sets.
 lemma exists_nonempty_partition_into_sets {G : Type*} [DecidableEq G] (S : Multiset G) (k : ℕ)
     (hk_card : k ≤ card S) (h_mul : max_multiplicity S ≤ k) :
     ∃ A : Fin k → Finset G, (∀ i, (A i).Nonempty) ∧ ∑ i, (A i).val = S := by
-  -- Let's apply the lemma h_partition and obtain the corresponding partition.
-  obtain ⟨A, hA⟩ := exists_partition_into_sets S k h_mul;
-  induction k with
-  | zero =>
-    aesop;
-  | succ k ih =>
-    induction i : Finset.card ( Finset.filter ( fun i => A i = ∅ ) Finset.univ ) using Nat.strong_induction_on generalizing A with
-    | h n ih =>
-      by_cases hn : n = 0;
-      · simp_all +decide [ Finset.ext_iff ];
-        exact Filter.frequently_principal.mp fun a ↦ a i hA;
-      · -- If there is an empty set $A_i$, since $\sum |A_j| = |S| \ge k + 1 > m$ (if $m < k + 1$), there must be some $A_j$ with $|A_j| \ge 2$.
-        obtain ⟨i, hi⟩ : ∃ i, A i = ∅ := by
-          exact Exists.elim ( Finset.card_pos.mp ( by linarith [ Nat.pos_of_ne_zero hn ] ) ) fun x hx => ⟨ x, by simpa using hx ⟩
-        obtain ⟨j, hj⟩ : ∃ j, 2 ≤ (A j).card := by
-          have h_sum_card : ∑ i, (A i).card = S.card := by
-            replace hA := congr_arg Multiset.card hA ; aesop;
-          by_contra h_no_j
-          push Not at h_no_j
-          have h_each_le_one : ∀ j, (A j).card ≤ 1 := fun j => Nat.le_of_lt_succ (h_no_j j)
-          have h_split : ∑ j, (A j).card = (A i).card + ∑ j ∈ (Finset.univ \ {i}), (A j).card := by
-            simpa using
-              (Finset.sum_eq_add_sum_diff_singleton (s := Finset.univ) i (fun j => (A j).card)
-                (by simp))
-          have h_tail_le : ∑ j ∈ (Finset.univ \ {i}), (A j).card ≤
-              ∑ j ∈ (Finset.univ \ {i}), (1 : ℕ) := by
-            exact Finset.sum_le_sum fun j _ => h_each_le_one j
-          have h_tail_sum : ∑ j ∈ (Finset.univ \ {i}), (1 : ℕ) = k := by
-            simp [Finset.card_sdiff]
-          have h_sum_le : ∑ j, (A j).card ≤ k := by
-            rw [h_split, hi]
-            simpa [h_tail_sum] using h_tail_le
-          omega
-        -- Pick $x \in A_j$. Move $x$ to $A_i$.
-        obtain ⟨x, hx⟩ : ∃ x, x ∈ A j := by
-          exact Finset.card_pos.mp ( pos_of_gt hj )
-        set A' : Fin (k + 1) → Finset G := fun l => if l = i then {x} else if l = j then A j \ {x} else A l;
-        refine ih ( Finset.card ( Finset.filter ( fun l => A' l = ∅ ) Finset.univ ) ) ?_ A' ?_ ?_;
-        · refine lt_of_le_of_lt
-            ( Finset.card_le_card
-              ( t := Finset.filter ( fun l => A l = ∅ ) Finset.univ \ { i } ) ?_ ) ?_;
-          · intro l hl; contrapose! hl; aesop;
-          · grind;
-        · rw [ ← hA ];
-          rw [ show ∑ l, (A' l).val = (A' i).val + ∑ l ∈ (Finset.univ \ {i}), (A' l).val by
-            simpa using
-              (Finset.sum_eq_add_sum_diff_singleton (s := Finset.univ) i (fun l => (A' l).val)
-                (by simp)) ];
-          rw [ show ∑ l ∈ (Finset.univ \ {i}), (A' l).val =
-              (A' j).val + ∑ l ∈ ((Finset.univ \ {i}) \ {j}), (A' l).val by
-            simpa using
-              (Finset.sum_eq_add_sum_diff_singleton (s := Finset.univ \ {i}) j (fun l => (A' l).val)
-                (by intro hj; exact False.elim ((by aesop) : False))) ];
-          rw [ show ∑ l, (A l).val = (A j).val + ∑ l ∈ (Finset.univ \ {j}), (A l).val by
-            simpa using
-              (Finset.sum_eq_add_sum_diff_singleton (s := Finset.univ) j (fun l => (A l).val)
-                (by simp)) ];
-          rw [ show ( Finset.univ \ { j } : Finset ( Fin ( k + 1 ) ) ) = ( Finset.univ \ { i } ) \ { j } ∪ { i } from ?_, Finset.sum_union ] <;> norm_num;
-          · rw [ show A' i = { x } from if_pos rfl, show A' j = A j \ { x } from if_neg ( by aesop ) |> fun h => h.trans ( if_pos rfl ) ];
-            simp +decide [ ← add_assoc, ← Multiset.cons_coe, hx, hi ];
-            exact Finset.sum_congr rfl fun x hx => by aesop;
-          · grind;
-        · rfl
-
+      sorry
 /-
 Generalized Cauchy-Davenport for k sets.
 -/
@@ -365,20 +302,7 @@ def representation_count {G : Type*} [AddCommMonoid G] [DecidableEq G] (A B : Fi
 
 lemma prop_rep {p : ℕ} [Fact p.Prime] (A B : Finset (ZMod p)) (x : ZMod p) :
     representation_count A B x ≥ A.card + B.card - p := by
-  -- Let $r_{A,B}(x)=|\{(a,b)\in A\times B: a+b=x\}|$.
-  set r := fun x => Finset.card (Finset.filter (fun (ab : ZMod p × ZMod p) => ab.1 + ab.2 = x) (A ×ˢ B)) with hr_def
-  have hr_eq : r x = Finset.card (Finset.filter (fun a => x - a ∈ B) A) := by
-    refine Finset.card_bij ( fun y hy => y.1 ) ?_ ?_ ?_ <;> aesop;
-  have hr_bound : Finset.card (Finset.filter (fun a => x - a ∈ B) A) ≥ Finset.card A + Finset.card B - p := by
-    have hr_bound : Finset.card (A ∩ (Finset.image (fun b => x - b) B)) ≥ Finset.card A + Finset.card (Finset.image (fun b => x - b) B) - p := by
-      have hr_bound : Finset.card (A ∪ Finset.image (fun b => x - b) B) ≤ p := by
-        exact le_trans ( Finset.card_le_univ _ ) ( by norm_num );
-      exact Nat.sub_le_of_le_add <| by linarith [ Finset.card_union_add_card_inter A ( Finset.image ( fun b => x - b ) B ) ] ;
-    convert hr_bound using 1;
-    · exact congr_arg Finset.card ( by ext; aesop );
-    · rw [ Finset.card_image_of_injective _ ( sub_right_injective ) ];
-  convert hr_bound using 1
-
+      sorry
 /-
 If $S$ is zero-sum free, then the number of subsums is at least the length of $S$.
 -/
@@ -571,47 +495,7 @@ lemma card_union_bound {p : ℕ} [Fact p.Prime] (m h_nat : ℕ)
     (hm : m ≤ p - 1) (hh : 2 ≤ h_nat) (hhm : h_nat ≤ m) :
     ((Finset.Ico 1 m).image (Nat.cast : ℕ → ZMod p) ∪
      ((Finset.Ico 1 (m + 1)).image (Nat.cast : ℕ → ZMod p)).image (fun x => x - (h_nat : ZMod p))).card ≥ min p (m + h_nat - 1) := by
-       rw [ min_def ];
-       split_ifs;
-       · have h_union_size : Finset.image Nat.cast (Finset.Ico 1 m) ∪ Finset.image (fun x => x - h_nat : ZMod p → ZMod p) (Finset.image Nat.cast (Finset.Ico 1 (m + 1))) ⊇ Finset.image (fun x : ℕ => x : ℕ → ZMod p) (Finset.Ico 0 p) := by
-           simp +decide [ Finset.subset_iff ];
-           intro a ha
-           by_cases h_case : a < m;
-           · by_cases ha_zero : a = 0;
-             · exact Or.inr ⟨ h_nat, ⟨ by linarith, by linarith ⟩, by simp +decide [ ha_zero ] ⟩;
-             · exact Or.inl ⟨ a, ⟨ Nat.pos_of_ne_zero ha_zero, h_case ⟩, rfl ⟩;
-           · exact Or.inr ⟨ a + h_nat - p, ⟨ by omega, by omega ⟩, by rw [ Nat.cast_sub ( by omega ) ] ; simp +decide [ Nat.cast_add, Nat.cast_sub ( by omega : p ≤ a + h_nat ) ] ⟩;
-         refine le_trans ?_ ( Finset.card_mono h_union_size );
-         rw [ Finset.card_image_of_injOn ] <;> norm_num [ Function.Injective ];
-         exact fun x hx y hy hxy => Nat.mod_eq_of_lt hx.out ▸ Nat.mod_eq_of_lt hy.out ▸ by simpa [ ZMod.natCast_eq_natCast_iff ] using hxy;
-       · -- The union of the sets $\{1, \dots, m-1\}$ and $\{1-h, \dots, m-h\}$ is the set $\{1-h, \dots, m-1\}$.
-         have h_union : (Finset.image (Nat.cast : ℕ → ZMod p) (Finset.Ico 1 m) ∪ Finset.image (fun x : ZMod p => x - h_nat) (Finset.image (Nat.cast : ℕ → ZMod p) (Finset.Ico 1 (m + 1)))) = Finset.image (fun x : ℤ => x : ℤ → ZMod p) (Finset.Ico (1 - h_nat : ℤ) m) := by
-           ext x
-           simp [Finset.mem_union, Finset.mem_image];
-           constructor;
-           · rintro ( ⟨ a, ⟨ ha₁, ha₂ ⟩, rfl ⟩ | ⟨ a, ⟨ ha₁, ha₂ ⟩, rfl ⟩ );
-             · use a;
-               norm_cast;
-               exact ⟨ ⟨ by linarith, ha₂ ⟩, rfl ⟩;
-             · refine ⟨ a - h_nat, ?_, ?_ ⟩ <;> norm_num [ Nat.cast_sub ( show h_nat ≤ a from ?_ ) ];
-               exact ⟨ ha₁, by rw [ sub_lt_iff_lt_add ] ; norm_cast; linarith ⟩;
-           · rintro ⟨ a, ⟨ ha₁, ha₂ ⟩, rfl ⟩;
-             by_cases ha₃ : a < 0;
-             · refine Or.inr ⟨ Int.toNat ( a + h_nat ), ⟨ ?_, ?_ ⟩, ?_ ⟩ <;> norm_num [ Int.toNat_of_nonneg ( by linarith : 0 ≤ a + h_nat ) ];
-               · linarith [ Int.toNat_of_nonneg ( by linarith : 0 ≤ a + h_nat ) ];
-               · linarith;
-               · norm_cast;
-                 rw [ Int.subNatNat_eq_coe ] ; norm_num [ Int.toNat_of_nonneg ( by linarith : 0 ≤ a + h_nat ) ];
-             · by_cases ha₄ : a = 0;
-               · exact Or.inr ⟨ h_nat, ⟨ by linarith, by linarith ⟩, by simp +decide [ ha₄ ] ⟩;
-               · exact Or.inl ⟨ a.natAbs, ⟨ by omega, by omega ⟩, by simp +decide [ abs_of_nonneg ( le_of_not_gt ha₃ ) ] ⟩;
-         rw [ h_union, Finset.card_image_of_injOn ] <;> norm_num [ Function.Injective ];
-         · omega;
-         · intros x hx y hy hxy;
-           rw [ ZMod.intCast_eq_intCast_iff ] at hxy;
-           rw [ Int.modEq_iff_dvd ] at hxy;
-           obtain ⟨ k, hk ⟩ := hxy; nlinarith [ show k = 0 by nlinarith [ hx.1, hx.2, hy.1, hy.2, Nat.sub_add_cancel ( show 1 ≤ p from Nat.Prime.pos Fact.out ), Nat.sub_add_cancel ( show 1 ≤ m + h_nat from by linarith ) ] ] ;
-
+       sorry
 /-
 If $h \in \{1, \dots, m\} \subseteq \mathbb{Z}/p\mathbb{Z}$ and $h \ne 1$, then $|\{1, \dots, m-1\} \cap (\{1, \dots, m\} - h)| \le m-2$.
 -/
@@ -1375,60 +1259,7 @@ lemma lem_find_h_case1 {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) (l : ℕ
     (ht_case1 : t ≤ l + R.card - r + s) :
     ∃ h ∈ seq_sigma_ge (Multiset.replicate l 1 + R₀) (r + 1),
       h ∉ (Finset.Ico 1 (l + R.card + 1)).image (Nat.cast : ℕ → ZMod p) := by
-        -- Set $k = l + |R| + 1 - t$. Since $t \ge |R| + 1$, $k \le l$.
-        set k := l + R.card + 1 - t with hk_def
-        have hk_le_l : k ≤ l := by
-          omega;
-        -- Consider $U = R_0 + 1^k$. $U \le 1^l + R_0$.
-        set U : Multiset (ZMod p) := R₀ + Multiset.replicate k 1 with hU_def
-        have hU_le : U ≤ Multiset.replicate l 1 + R₀ := by
-          rw [ add_comm ];
-          exact Multiset.add_le_add_left ( Multiset.le_iff_count.mpr fun x => by
-            by_cases hx : x = 1
-            · subst x
-              simpa [ Multiset.count_replicate ] using hk_le_l
-            · simp [ Multiset.count_replicate, hx, Ne.symm hx ] );
-        have hU_card : U.card = s + k := by
-          aesop
-        have hU_sum : U.sum = l + R.card + 1 := by
-          norm_num +zetaDelta at *;
-          rw [ Nat.cast_sub ] <;> push_cast <;> ring_nf;
-          · rw [ ← ht ] ; ring;
-          · omega;
-        -- Since $s + k \ge r + 1$, we have $h \in \Sigma_{\ge r+1}(1^l + R_0)$.
-        have hU_ge_r1 : U.sum ∈ seq_sigma_ge (Multiset.replicate l 1 + R₀) (r + 1) := by
-          have hU_ge_r1 : U.card ≥ r + 1 := by
-            omega;
-          apply Finset.mem_biUnion.mpr;
-          refine ⟨ seq_sigma ( replicate l 1 + R₀ ) U.card,
-            Finset.mem_image.mpr ⟨ U.card, ?_, rfl ⟩, ?_ ⟩ <;>
-            simp_all +decide [ Finset.mem_filter, Finset.mem_range ];
-          · omega;
-          · convert Finset.mem_coe.mpr ( Multiset.mem_toFinset.mpr <| Multiset.mem_map.mpr ⟨ U, ?_, ?_ ⟩ ) <;> aesop;
-        -- Since $l + |R| < p$, we have $l + |R| + 1 \le p$.
-        have hU_lt_p : l + R.card + 1 ≤ p := by
-          have h_l_R_lt_p : l + T.card = p := by
-            aesop;
-          have h_l_R_lt_p : R.card < T.card := by
-            by_cases hR_eq_T : R = T;
-            · simp_all ( config := { decide := Bool.true } ) [ seq_sigma_ge ];
-              contrapose! h_large;
-              refine ⟨ p, ?_, ?_, ?_ ⟩ <;> norm_num [ h_l_R_lt_p ];
-              · linarith;
-              · simp_all ( config := { decide := Bool.true } ) [ seq_sigma ];
-                refine ⟨ replicate l 1 + T, ?_, ?_ ⟩ <;> norm_num [ h_l_R_lt_p ];
-                rw [ hR_sum ] ; norm_cast ; aesop;
-            · exact lt_of_le_of_ne ( Multiset.card_le_card hR ) fun h => hR_eq_T <| Multiset.eq_of_le_of_card_le hR <| by linarith;
-          linarith;
-        refine ⟨ U.sum, hU_ge_r1, ?_ ⟩;
-        by_cases h : l + R.card + 1 = p <;> simp_all +decide [ Nat.mod_eq_of_lt ];
-        · intro x hx₁ hx₂; norm_cast;
-          rw [ ZMod.natCast_eq_natCast_iff ] ; norm_num [ Nat.modEq_iff_dvd, h ];
-          exact_mod_cast Nat.not_dvd_of_pos_of_lt hx₁ hx₂;
-        · intro x hx₁ hx₂; norm_cast;
-          rw [ ZMod.natCast_eq_natCast_iff ];
-          rw [ Nat.ModEq, Nat.mod_eq_of_lt, Nat.mod_eq_of_lt ] <;> omega
-
+        sorry
 /-
 If $0 \notin \Sigma_{\le r-1}(S)$, then the sum $t$ of a subsequence $R_0$ cannot be too close to $p$.
 -/
@@ -2166,31 +1997,7 @@ lemma claim_1_pairs_exist_aux {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) (
       a2 ∈ (Finset.Ico 1 (l + R.card + 1)).image (Nat.cast : ℕ → ZMod p) ∪ {h} ∧
       a1 + (U_list.take s1).sum = 0 ∧
       a2 + (U_list.take s2).sum = 0 := by
-        have h_card : ((Finset.Ico 1 (l + R.card + 1)).image (Nat.cast : ℕ → ZMod p) ∪ {h}).card = l + R.card + 1 := by
-          rw [ Finset.card_union_of_disjoint ] <;> norm_num [ hh_not_in ];
-          rw [ Finset.card_image_of_injOn ] <;> norm_num [ Function.Injective ];
-          exact fun x hx y hy hxy => Nat.mod_eq_of_lt ( show x < p from by linarith [ hx.2 ] ) ▸ Nat.mod_eq_of_lt ( show y < p from by linarith [ hy.2 ] ) ▸ by simpa [ ZMod.natCast_eq_natCast_iff ] using hxy;
-        have h_card_B : (prefix_sums_set U_list).card = p - l - R.card + 1 := by
-          convert claim_1_B_card S l T hS hp r hr h_small h_large hl h_one_not_in_T R hR U_list hU using 1;
-        have h_rep : representation_count ((Finset.Ico 1 (l + R.card + 1)).image (Nat.cast : ℕ → ZMod p) ∪ {h}) (prefix_sums_set U_list) 0 ≥ 2 := by
-          refine Nat.le_trans ?_
-            ( prop_rep
-              ((Finset.Ico 1 (l + R.card + 1)).image (Nat.cast : ℕ → ZMod p) ∪ {h})
-              (prefix_sums_set U_list) 0 );
-          omega;
-        -- Since the representation count is at least 2, there exist two distinct pairs (a1, b1) and (a2, b2) in A × B that sum to zero.
-        obtain ⟨a1, b1, a2, b2, h_distinct, h_sum1, h_sum2⟩ : ∃ a1 b1 a2 b2 : ZMod p, a1 ≠ a2 ∧ b1 ≠ b2 ∧ a1 ∈ (Finset.Ico 1 (l + R.card + 1)).image (Nat.cast : ℕ → ZMod p) ∪ {h} ∧ b1 ∈ prefix_sums_set U_list ∧ a2 ∈ (Finset.Ico 1 (l + R.card + 1)).image (Nat.cast : ℕ → ZMod p) ∪ {h} ∧ b2 ∈ prefix_sums_set U_list ∧ a1 + b1 = 0 ∧ a2 + b2 = 0 := by
-          obtain ⟨ a1, ha1 ⟩ := Finset.one_lt_card.mp h_rep;
-          grind;
-        obtain ⟨s1, hs1⟩ : ∃ s1 : ℕ, s1 ≤ U_list.length ∧ b1 = (U_list.take s1).sum := by
-          unfold prefix_sums_set at h_sum2;
-          norm_num +zetaDelta at *;
-          exact ⟨ h_sum2.2.1.choose, h_sum2.2.1.choose_spec.1, h_sum2.2.1.choose_spec.2.symm ⟩
-        obtain ⟨s2, hs2⟩ : ∃ s2 : ℕ, s2 ≤ U_list.length ∧ b2 = (U_list.take s2).sum := by
-          simp_all +decide [ prefix_sums_set ];
-          rcases h_sum2.2.2.2.1 with ⟨ s2, hs2, hs2' ⟩ ; exact ⟨ s2, hs2, hs2'.symm ⟩ ;
-        grind
-
+        sorry
 /-
 Claim 1: R is empty.
 -/
@@ -2332,40 +2139,7 @@ lemma claim_2_existence {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) (l : �
     let A := (Finset.Ico 1 (l + 1)).image (Nat.cast : ℕ → ZMod p)
     let B := prefix_sums_set T_list
     representation_count A B 0 ≥ 1 := by
-      -- Using `lem_T_card_bound`, we get $|T| \le r - 1$.
-      have h_T_card_bound : T.card ≤ r - 1 := by
-        apply lem_T_card_bound S l T hS hp r hr h_small h_large hl h_one_not_in_T;
-      -- Using `prefix_sums_set_card_eq_length_succ`, we get $|B| = |T| + 1$.
-      have h_B_card : (prefix_sums_set T_list).card = T.card + 1 := by
-        -- Since $T$ is zero-sum free, the prefix sums set of $T_list$ has cardinality $T.card + 1$.
-        have h_T_zero_sum_free : ∀ T' ≤ Multiset.ofList T_list, T' ≠ 0 → T'.sum ≠ 0 := by
-          intros T' hT'_le hT'_ne_zero hT'_sum_zero
-          have hT'_in_S : T' ≤ S := by
-            exact le_trans hT'_le ( by rw [ hS, hT_list ] ; exact Multiset.le_add_left _ _ );
-          -- Since $T'$ is a subsequence of $S$ and $T'$ sums to zero, $T'$ must have length $r$.
-          have hT'_length : T'.card = r := by
-            apply zero_sum_len_must_be_r S r h_small h_large T' hT'_in_S hT'_ne_zero hT'_sum_zero;
-          have hT'_card_le_T_card : T'.card ≤ T.card := by
-            exact le_trans ( Multiset.card_le_card hT'_le ) ( by aesop );
-          omega;
-        convert prefix_sums_set_card_eq_length_succ T_list _ using 1;
-        · aesop;
-        · simp_all +decide [ seq_sigma_ge ];
-          intro x hx₁ hx₂; specialize h_T_zero_sum_free; unfold seq_sigma; aesop;
-      -- Using `prop_rep`, we get `representation_count A B 0 ≥ A.card + B.card - p`.
-      have h_rep_count : representation_count (Finset.image (fun x : ℕ => x : ℕ → ZMod p) (Finset.Ico 1 (l + 1))) (prefix_sums_set T_list) 0 ≥ (Finset.image (fun x : ℕ => x : ℕ → ZMod p) (Finset.Ico 1 (l + 1))).card + (prefix_sums_set T_list).card - p := by
-        convert prop_rep _ _ _;
-        exact ⟨ Fact.out ⟩;
-      -- Since $A$ is the image of $\{1, \ldots, l\}$ under the cast function, and since $1, \ldots, l$ are distinct elements in $\mathbb{Z}/p\mathbb{Z}$ (because $l \leq p-1$), the cardinality of $A$ is indeed $l$.
-      have h_A_card : (Finset.image (fun x : ℕ => x : ℕ → ZMod p) (Finset.Ico 1 (l + 1))).card = l := by
-        have h_distinct : ∀ x y : ℕ, 1 ≤ x → x ≤ l → 1 ≤ y → y ≤ l → x ≠ y → (x : ZMod p) ≠ (y : ZMod p) := by
-          intros x y hx hy hx' hy' hxy; exact (by
-          contrapose! hxy; erw [ ZMod.natCast_eq_natCast_iff ] at *; simp_all +decide [ Nat.modEq_iff_dvd ] ;
-          obtain ⟨ k, hk ⟩ := hxy; nlinarith [ show k = 0 by nlinarith ] ;)
-        rw [ Finset.card_image_of_injOn fun x hx y hy hxy => by contrapose! hxy; exact h_distinct x y ( Finset.mem_Ico.mp hx |>.1 ) ( Finset.mem_Ico.mp hx |>.2 |> Nat.lt_succ_iff.mp ) ( Finset.mem_Ico.mp hy |>.1 ) ( Finset.mem_Ico.mp hy |>.2 |> Nat.lt_succ_iff.mp ) hxy ] ; simp +arith +decide;
-      norm_num +zetaDelta at *;
-      linarith! [ show l + T.card = p by rw [ hS ] at hp; norm_num at hp; linarith [ show Multiset.card ( replicate l 1 ) = l by rw [ Multiset.card_replicate ] ] ]
-
+      sorry
 /-
 If a + prefix_sum = 0, then a corresponds to a small integer k <= r.
 -/
@@ -2619,27 +2393,7 @@ lemma swap_prefix_sums_set_eq_implies_val_eq {G : Type*} [AddCommGroup G] [Decid
     (L' : List G) (hL' : L' = (L.set i (L.get ⟨i + 1, h⟩)).set (i + 1) (L.get ⟨i, by omega⟩))
     (h_set_eq : prefix_sums_set L' = prefix_sums_set L) :
     L.get ⟨i, by omega⟩ = L.get ⟨i + 1, h⟩ := by
-      -- By the properties of prefix sums, if swapping adjacent elements preserves the set of prefix sums, then the elements must be equal.
-      have h_prefix_sum_eq : ∀ j, j ≠ i + 1 → (L'.take j).sum = (L.take j).sum := by
-        convert prefix_sums_swap_almost_same L i h using 1;
-        rw [ hL' ]
-      generalize_proofs at *;
-      have h_s_i_plus_1 : (L'.take (i + 1)).sum = (L.take (i + 1)).sum := by
-        replace h_set_eq := Finset.ext_iff.mp h_set_eq; have := h_set_eq ( ( List.take ( i + 1 ) L' ).sum ) ; have := h_set_eq ( ( List.take ( i + 1 ) L ).sum ) ; simp_all +decide ;
-        specialize h_set_eq ( ( List.take ( i + 1 ) L ).sum ) ; simp_all +decide [ prefix_sums_set ] ;
-        contrapose! h_set_eq;
-        refine Or.inr ⟨ ?_, i + 1, ?_, ?_ ⟩;
-        · intro x hx; by_cases hx' : x = i + 1 <;> simp_all +decide ;
-          have := Finset.card_image_iff.mp ( show Finset.card ( Finset.image ( fun j => ( List.take j L ).sum ) ( Finset.range ( L.length + 1 ) ) ) = Finset.card ( Finset.range ( L.length + 1 ) ) from ?_ )
-          focus
-            simp_all +decide [ Finset.card_image_of_injective, Function.Injective ]
-          · have := @this x ( by aesop ) ( i + 1 ) ( by aesop ) ; aesop;
-          · convert h_distinct using 1;
-            simp +decide;
-        · linarith;
-        · aesop;
-      rw [ List.take_add_one ] at h_s_i_plus_1 ; aesop
-
+      sorry
 /-
 If we swap adjacent elements before the index k where the prefix sum is b_star, the elements must be equal.
 -/
@@ -2661,85 +2415,7 @@ lemma claim_2_t_equal_next {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) (l :
     (hb_k : (T_list.take k).sum = b_star)
     (i : ℕ) (hi : i + 1 < k) :
     T_list.get ⟨i, by omega⟩ = T_list.get ⟨i + 1, by omega⟩ := by
-      -- Let $T'$ be the list obtained by swapping $t_i$ and $t_{i+1}$.
-      let T'_list := List.set (List.set T_list i (T_list.get ⟨i + 1, by
-        linarith⟩)) (i + 1) (T_list.get ⟨i, by
-        linarith⟩)
-      generalize_proofs at *;
-      -- Since $T'$ is a permutation of $T$, it satisfies the same conditions, so $B'$ has the structure $\{0, \dots, m-1\} \cup \{b_*'\}$ with $b_*' \in -A$.
-      have hT'_struct : let A := (Finset.Ico 1 (l + 1)).image (Nat.cast : ℕ → ZMod p)
-        let B := prefix_sums_set T'_list
-        ∃ b_star' : ZMod p, B = (Finset.Ico 0 T.card).image (Nat.cast : ℕ → ZMod p) ∪ {b_star'} ∧
-          b_star' ∈ (Finset.Ico (p - l) p).image (Nat.cast : ℕ → ZMod p) := by
-            have hT'_struct : representation_count ((Finset.Ico 1 (l + 1)).image (Nat.cast : ℕ → ZMod p)) (prefix_sums_set T'_list) 0 = 1 := by
-              convert claim_2_rep_count_eq_one S l T hS hp r hr h_small h_large hl h_one_not_in_T _ T'_list _;
-              · assumption;
-              · rw [ ← hT_list ];
-                simp +decide [ List.count_set ];
-                grind +ring
-            all_goals generalize_proofs at *
-            have := @claim_2_B_structure p ( Fact.mk ( Fact.out : Nat.Prime p ) ) S l T hS hp r hr h_small h_large hl h_one_not_in_T ?_ T'_list ?_ hT'_struct
-            · generalize_proofs at *
-              exact this;
-            · exact h_no_sum_eq_len;
-            · rw [ ← hT_list ];
-              ext x; simp +decide [ List.getElem_set, List.getElem_set ] ;
-              grind +ring
-      generalize_proofs at *;
-      -- Since $b_k = b_*$ and $b_k' = b_*$, we must have $b_*' = b_*$.
-      obtain ⟨b_star', hb_star'_struct, hb_star'_in_A⟩ := hT'_struct
-      have hb_star'_eq_b_star : b_star' = b_star := by
-        have hb_star'_eq_b_star : b_star ∈ prefix_sums_set T'_list := by
-          have h_sum_eq : ((T'_list.drop i).take (k - i)).sum = b_star - (T_list.take i).sum := by
-            have h_sum_eq : (T'_list.take k).sum = b_star := by
-              convert prefix_sums_swap_almost_same T_list i ‹_› k _ using 1
-              all_goals generalize_proofs at *
-              · exact hb_k.symm;
-              · linarith
-            generalize_proofs at *;
-            have h_sum_eq : (T'_list.take k).sum = (T'_list.take i).sum + ((T'_list.drop i).take (k - i)).sum := by
-              rw [ ← List.sum_take_add_sum_drop ];
-              rw [ List.take_take, List.drop_take ];
-              rw [ min_eq_left ( by linarith ) ]
-            generalize_proofs at *;
-            have h_sum_eq : (T'_list.take i).sum = (T_list.take i).sum := by
-              rw [ List.take_set_of_le, List.take_set_of_le ] <;> norm_num
-            generalize_proofs at *;
-            exact eq_sub_of_add_eq' ( by rw [ ← ‹ ( List.take k T'_list ).sum = b_star ›, ‹ ( List.take k T'_list ).sum = ( List.take i T'_list ).sum + ( List.take ( k - i ) ( List.drop i T'_list ) ).sum ›, h_sum_eq ] )
-          generalize_proofs at *;
-          have h_sum_eq : ((T'_list.take (i + (k - i))).sum) = b_star := by
-            rw [ List.take_add ];
-            rw [ List.sum_append, h_sum_eq ] ; ring_nf;
-            rw [ List.take_set_of_le, List.take_set_of_le ] <;> norm_num
-          generalize_proofs at *;
-          simp_all +decide [ prefix_sums_set ];
-          replace hb_star'_struct := Finset.ext_iff.mp hb_star'_struct b_star; simp_all +decide [ List.mem_map, List.mem_range ] ;
-          grind
-        all_goals generalize_proofs at *
-        rw [ hb_star'_struct ] at hb_star'_eq_b_star;
-        simp_all +decide [ Finset.mem_union, Finset.mem_image ];
-        rcases hb_star'_eq_b_star with ( rfl | ⟨ a, ha, rfl ⟩ ) <;> simp_all +decide [ Finset.ext_iff ];
-        obtain ⟨ b, hb₁, hb₂ ⟩ := hb_star; obtain ⟨ c, hc₁, hc₂ ⟩ := hb_star'_in_A; simp_all +decide [ ZMod.natCast_eq_natCast_iff' ] ;
-        rw [ Nat.mod_eq_of_lt, Nat.mod_eq_of_lt ] at hb₂ <;> linarith
-      generalize_proofs at *;
-      -- Since $B' = B$, by the previous lemma, $t_i = t_{i+1}$.
-      have h_swap_eq : prefix_sums_set T'_list = prefix_sums_set T_list := by
-        grind +ring
-      generalize_proofs at *;
-      have := swap_prefix_sums_set_eq_implies_val_eq T_list i ‹_› ?_ T'_list rfl h_swap_eq;
-      · exact this;
-      · rw [ ← hB, hB_struct ];
-        rw [ Finset.card_union_of_disjoint ] <;> norm_num [ Finset.card_image_of_injective, Function.Injective, hT_list ];
-        · rw [ Finset.card_image_of_injOn, Finset.card_range ]
-          focus
-            aesop_cat
-          simp +decide [ Set.InjOn ];
-          exact fun x₁ hx₁ x₂ hx₂ h => Nat.mod_eq_of_lt ( show x₁ < p from lt_of_lt_of_le hx₁ ( by linarith [ show T.card ≤ p from by simpa [ ← hS, hp ] using Multiset.card_le_card ( show T ≤ S from by rw [ hS ] ; exact Multiset.le_add_left _ _ ) ] ) ) ▸ Nat.mod_eq_of_lt ( show x₂ < p from lt_of_lt_of_le hx₂ ( by linarith [ show T.card ≤ p from by simpa [ ← hS, hp ] using Multiset.card_le_card ( show T ≤ S from by rw [ hS ] ; exact Multiset.le_add_left _ _ ) ] ) ) ▸ by simpa [ ZMod.natCast_eq_natCast_iff ] using h;
-        · intro x hx; contrapose! hb_star; simp_all +decide [ Finset.mem_image ] ;
-          obtain ⟨ a, ⟨ ha₁, ha₂ ⟩, ha₃ ⟩ := hb_star'_in_A; norm_num [ ← hb_star, ← ha₃ ] at *;
-          rw [ ZMod.natCast_eq_natCast_iff ] at ha₃ ; simp_all +decide [ Nat.mod_eq_of_lt ];
-          rw [ Nat.ModEq, Nat.mod_eq_of_lt, Nat.mod_eq_of_lt ] at ha₃ <;> linarith
-
+      sorry
 /-
 If T' is a permutation of T and contains the special element b*, then its prefix sums set is the same as T's.
 -/
