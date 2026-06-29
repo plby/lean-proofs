@@ -209,7 +209,10 @@ theorem lem_halfinterval {p q : ℕ} (hp : 2 ≤ p) (hq : 2 ≤ q) (h_coprime : 
         nlinarith [ Real.log_pos ( show ( p : ℝ ) > 1 by norm_cast ), Real.log_pos ( show ( q : ℝ ) > 1 by norm_cast ), mul_div_cancel₀ ( Real.log X ) ( ne_of_gt ( Real.log_pos ( show ( p : ℝ ) > 1 by norm_cast ) ) ), mul_div_cancel₀ ( Real.log q ) ( ne_of_gt ( Real.log_pos ( show ( p : ℝ ) > 1 by norm_cast ) ) ), Int.fract_add_floor ( Real.log X / Real.log p - n * ( Real.log q / Real.log p ) ), show ( ⌊Real.log X / Real.log p - n * ( Real.log q / Real.log p ) ⌋ : ℝ ) = u by exact_mod_cast Int.floor_eq_iff.mpr ⟨ by norm_num at *; linarith, by norm_num at *; linarith ⟩ ];
       rw [ div_lt_iff₀ ( by positivity ) ];
       contrapose! h_exp;
-      convert Real.log_le_log ( by positivity ) h_exp using 1 ; rw [ Real.log_mul ( by positivity ) ( by positivity ), Real.log_mul ( by positivity ) ( by positivity ), Real.log_pow, Real.log_pow ] ; ring;
+      convert Real.log_le_log ( by positivity ) h_exp using 1
+      · rfl
+      · rw [ Real.log_mul ( by positivity ) ( by positivity ), Real.log_mul ( by positivity ) ( by positivity ), Real.log_pow, Real.log_pow ]
+        ring
     · -- Exponentiating both sides of the inequality $u + n\beta \leq T$, we get $p^{u + n\beta} \leq p^T$.
       have h_exp : (p : ℝ) ^ (u + n * (Real.log q / Real.log p)) ≤ X := by
         have h_exp : (p : ℝ) ^ (u + n * (Real.log q / Real.log p)) ≤ (p : ℝ) ^ (Real.log X / Real.log p) := by
@@ -279,15 +282,20 @@ theorem exists_large_N_inequality (M : ℝ) (hM : M > 1) :
             filter_upwards [ Filter.eventually_gt_atTop 1 ] with n hn using by rw [ Real.norm_of_nonneg ( by positivity ) ] ; rw [ inv_eq_one_div, div_le_div_iff₀ ] <;> first | positivity | nlinarith [ Real.log_le_sub_one_of_pos ( by positivity : 0 < ( n : ℝ ) ) ] ;
           refine squeeze_zero_norm' (a := fun N : ℕ => ( 2 * Real.log N + Real.log 2 ) / N ^ 2) ?_ ?_;
           · exact Filter.eventually_atTop.mpr ⟨ 2, fun N hN => by rw [ Real.norm_of_nonneg ( div_nonneg ( Real.log_nonneg <| by rw [ le_div_iff₀ <| by positivity ] ; nlinarith ) <| sq_nonneg _ ) ] ; exact div_le_div_of_nonneg_right ( h_log_bound N hN ) <| sq_nonneg _ ⟩;
-          · simpa [ add_div, mul_div_assoc ] using Filter.Tendsto.add ( h_log_div_N2.const_mul 2 ) <| tendsto_const_nhds.mul <| tendsto_inv_atTop_nhds_zero_nat.pow 2;
-        simpa using Filter.Tendsto.div ( Filter.Tendsto.add ( Filter.Tendsto.add h_log ( tendsto_const_nhds.mul tendsto_inv_atTop_nhds_zero_nat ) ) ( tendsto_const_nhds.mul ( tendsto_inv_atTop_nhds_zero_nat.pow 2 ) ) ) ( Filter.Tendsto.div_const ( Filter.Tendsto.mul ( tendsto_const_nhds.add ( tendsto_one_div_atTop_nhds_zero_nat ) ) ( tendsto_const_nhds.add ( tendsto_const_nhds.mul tendsto_inv_atTop_nhds_zero_nat ) ) ) _ ) ( by norm_num );
+          · simpa [ add_div, mul_div_assoc, div_eq_mul_inv, add_mul, mul_add,
+              mul_assoc, mul_left_comm, mul_comm ] using Filter.Tendsto.add ( h_log_div_N2.const_mul 2 ) <| (tendsto_const_nhds (x := Real.log 2)).mul <| tendsto_inv_atTop_nhds_zero_nat.pow 2;
+        convert Filter.Tendsto.div ( Filter.Tendsto.add ( Filter.Tendsto.add h_log ( (tendsto_const_nhds (x := Real.log M)).mul tendsto_inv_atTop_nhds_zero_nat ) ) ( (tendsto_const_nhds (x := Real.log 2)).mul ( tendsto_inv_atTop_nhds_zero_nat.pow 2 ) ) ) ( Filter.Tendsto.div_const ( Filter.Tendsto.mul ( tendsto_const_nhds.add ( tendsto_one_div_atTop_nhds_zero_nat ) ) ( tendsto_const_nhds.add ( (tendsto_const_nhds (x := (2 : ℝ))).mul tendsto_inv_atTop_nhds_zero_nat ) ) ) _ ) ( by norm_num : ((1 + (0 : ℝ)) * (1 + 2 * (0 : ℝ)) / 2) ≠ 0 ) using 1
+        · ext N
+          simp only [Pi.div_apply]
+          ring_nf
+        · norm_num
       refine h_div.congr' ?_;
       filter_upwards [ Filter.eventually_gt_atTop 0 ] with N hN;
       field_simp;
     -- Exponentiating both sides gives us:
     have h_exp : Filter.Tendsto (fun N : ℕ => (((N + 1) * (N + 2) / 2) * M ^ N * 2) ^ (1 / ((N + 1) * (N + 2) / 2 : ℝ))) Filter.atTop (nhds 1) := by
       have h_exp : Filter.Tendsto (fun N : ℕ => Real.exp ((Real.log ((N + 1) * (N + 2) / 2) + N * Real.log M + Real.log 2) / ((N + 1) * (N + 2) / 2 : ℝ))) Filter.atTop (nhds 1) := by
-        simpa only [ Real.exp_zero ] using Filter.Tendsto.comp ( Real.continuous_exp.tendsto _ ) h_log;
+        simpa only [ Real.exp_zero, Function.comp_def ] using Filter.Tendsto.comp ( Real.continuous_exp.tendsto _ ) h_log;
       convert h_exp using 2 ; rw [ Real.rpow_def_of_pos ( by positivity ) ] ; rw [ Real.log_mul ( by positivity ) ( by positivity ), Real.log_mul ( by positivity ) ( by positivity ) ] ; rw [ Real.log_pow ] ; ring_nf;
     -- This contradicts `h_contra`, so our assumption must be false.
     have h_contradiction : ∃ N : ℕ, (((N + 1) * (N + 2) / 2) * M ^ N * 2) ^ (1 / ((N + 1) * (N + 2) / 2 : ℝ)) < 2 := by
@@ -295,9 +303,10 @@ theorem exists_large_N_inequality (M : ℝ) (hM : M > 1) :
     obtain ⟨ N, hN ⟩ := h_contradiction;
     -- Raising both sides to the power of $((N + 1) * (N + 2) / 2)$ gives us:
     have h_exp : (((N + 1) * (N + 2) / 2) * M ^ N * 2) < 2 ^ ((N + 1) * (N + 2) / 2) := by
-      convert pow_lt_pow_left₀ hN ( by positivity ) ( show ( ( N + 1 ) * ( N + 2 ) / 2 : ℕ ) ≠ 0 from Nat.ne_of_gt <| Nat.div_pos ( by nlinarith ) zero_lt_two ) using 1;
-      rw [ ← Real.rpow_natCast _ ( ( N + 1 ) * ( N + 2 ) / 2 ), ← Real.rpow_mul ( by positivity ) ] ; norm_num [ Nat.dvd_iff_mod_eq_zero, Nat.add_mod, Nat.mod_two_of_bodd ];
-      rw [ div_self <| by positivity, Real.rpow_one ];
+      convert pow_lt_pow_left₀ hN ( by positivity ) ( show ( ( N + 1 ) * ( N + 2 ) / 2 : ℕ ) ≠ 0 from Nat.ne_of_gt <| Nat.div_pos ( by nlinarith ) zero_lt_two ) using 1
+      · rfl
+      · rw [ ← Real.rpow_natCast _ ( ( N + 1 ) * ( N + 2 ) / 2 ), ← Real.rpow_mul ( by positivity ) ] ; norm_num [ Nat.dvd_iff_mod_eq_zero, Nat.add_mod, Nat.mod_two_of_bodd ];
+        rw [ div_self <| by positivity, Real.rpow_one ];
     refine h_contra ⟨ N, ?_ ⟩;
     nlinarith [ show ( ( N + 1 ) * ( N + 2 ) / 2 : ℝ ) * M ^ N ≥ 1 by exact one_le_mul_of_one_le_of_one_le ( by rw [ le_div_iff₀ ] <;> norm_cast ; nlinarith ) ( one_le_pow₀ hM.le ) ]
 
@@ -499,11 +508,14 @@ lemma lem_unit (P Q : ℕ) (hP : 2 ≤ P) (hQ : 2 ≤ Q) :
           norm_num [ mul_assoc, mul_left_comm, ← zpow_add₀ ( by positivity : ( P : ℚ ) ≠ 0 ), ← zpow_add₀ ( by positivity : ( Q : ℚ ) ≠ 0 ) ];
           rw [ ← mul_assoc, mul_inv_cancel₀ ( by positivity ), one_mul, inv_mul_cancel₀ ( by positivity ) ];
         · apply And.intro;
-          · convert shift_disjoint_Q U A B _;
-            · exact Eq.symm ( Finset.erase_eq_of_notMem fun h => hUV_eq.1 _ _ h hAB_in_V );
-            · exact fun x hx => h_max _ _ <| Or.inl hx;
-          · apply shift_disjoint_Q;
-            exact fun x hx => h_max _ _ <| Or.inr hx;
+          · have hUerase : U.erase (A, B) = U := by
+              exact Finset.erase_eq_of_notMem fun h => hUV_eq.1 _ _ h hAB_in_V
+            simpa [E, hUerase] using shift_disjoint_Q U A B (fun x hx => by
+              rcases x with ⟨a, b⟩
+              exact h_max a b (Or.inl hx))
+          · simpa [F, V'] using shift_disjoint_Q V A B (fun x hx => by
+              rcases x with ⟨a, b⟩
+              exact h_max a b (Or.inr hx))
       · -- Since $(A,B) \notin V$, we have $(A,B) \in U$.
         have hAB_in_U : (A, B) ∈ U := by
           aesop;
@@ -622,7 +634,8 @@ def shift_set (S : Finset (ℤ × ℤ)) (t : ℤ × ℤ) : Finset (ℤ × ℤ) :
 
 lemma Phi_shift (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) (S : Finset (ℤ × ℤ)) (t : ℤ × ℤ) :
   Phi p q (shift_set S t) = (p : ℚ) ^ t.1 * (q : ℚ) ^ t.2 * Phi p q S := by
-    convert Phi_translate p q hp hq S ( -t.1, -t.2 ) using 1 ; ring_nf
+    unfold shift_set
+    simpa using Phi_translate p q hp hq S (-t.1, -t.2)
 
 /-
 Uniqueness of representation p^u q^v.
@@ -769,7 +782,7 @@ theorem prop_AP (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) (h_coprime : Nat.Copri
         rcases hu.1 with ( hu | ⟨ i, hi, hu ⟩ | ⟨ i, hi, hu ⟩ ) <;> [ exact ⟨ by linarith [ Set.mem_setOf.mp ( hT₁ hu ) ], by linarith [ Set.mem_setOf.mp ( hT₁ hu ) ] ⟩ ; exact hAB.2.2 _ _ _ ( Or.inl hu ) ; exact hAB.2.2 _ _ _ ( Or.inr hu ) ];
       · -- By definition of $S_m$, we have $\Phi(S_m) = p^A q^B \Phi(U_m)$.
         have hS_m : Phi p q S_m = (p : ℚ) ^ A * (q : ℚ) ^ B * Phi p q U_m := by
-          convert Phi_shift p q hp hq U_m ( A, B ) using 1;
+          simpa [S_m, shift_set] using Phi_shift p q hp hq U_m ( A, B );
         cases A <;> cases B <;> simp_all +decide [ mul_assoc, mul_comm, mul_left_comm ];
         linarith
 
@@ -991,6 +1004,8 @@ lemma decompose_N (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) (h_coprime : Nat.Cop
       obtain ⟨m, hm⟩ : ∃ m : ℤ, N - p * q * R - (∑ x ∈ P₀, x + ∑ y ∈ Q₀, y) = m * (p ^ (A + 1) * q ^ (B + 1)) := by
         refine exists_eq_mul_left_of_dvd ?_;
         convert Nat.modEq_iff_dvd.mp h_sum using 1;
+        · rfl
+        · norm_num
         · rw [ Int.toNat_of_nonneg ]
           · norm_cast
           · linarith
