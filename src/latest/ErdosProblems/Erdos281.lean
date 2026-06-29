@@ -347,21 +347,22 @@ lemma Ck_eq_preimage (n : ℕ → ℕ) (hnpos : ∀ i, 0 < n i) (a : Choice n) (
       have hcompat :
           ZMod.castHom hdiv (ZMod (n i)) (x.val ⟨period n k, period_pos n hnpos k⟩) =
             x.val ⟨n i, hnpos i⟩ := by
-        simpa only [PNat.dvd_iff] using
-          x.property ⟨n i, hnpos i⟩ ⟨period n k, period_pos n hnpos k⟩
-            (PNat.dvd_iff.mpr hdiv)
+        exact x.property ⟨n i, hnpos i⟩ ⟨period n k, period_pos n hnpos k⟩
+          (PNat.dvd_iff.mpr hdiv)
       intro h
-      exact hx i hi (by simpa [hcompat] using h)
+      exact hx i hi (by
+        rw [← hcompat]
+        simpa [ZMod.castHom_apply] using h)
     · intro hx i hi
       have hdiv : n i ∣ period n k := Finset.dvd_lcm (Finset.mem_range.mpr hi)
       have hcompat :
           ZMod.castHom hdiv (ZMod (n i)) (x.val ⟨period n k, period_pos n hnpos k⟩) =
             x.val ⟨n i, hnpos i⟩ := by
-        simpa only [PNat.dvd_iff] using
-          x.property ⟨n i, hnpos i⟩ ⟨period n k, period_pos n hnpos k⟩
-            (PNat.dvd_iff.mpr hdiv)
+        exact x.property ⟨n i, hnpos i⟩ ⟨period n k, period_pos n hnpos k⟩
+          (PNat.dvd_iff.mpr hdiv)
       intro h
-      exact hx i hi (by simpa [hcompat] using h)
+      exact hx i hi (by
+        simpa [ZMod.castHom_apply] using hcompat.trans h)
 
 private def negSuccIntEmbedding : ℕ ↪ ℤ where
   toFun t := -(((t + 1 : ℕ) : ℤ))
@@ -420,8 +421,7 @@ private lemma abs_count_sub_mul_div_le_of_bounds {q M L c count : ℝ}
   · have hqc_le : q * c ≤ M * c / L := by
       have hq_le_div : q ≤ M / L := (le_div_iff₀ hL).2 hqle
       have hq_c := mul_le_mul_of_nonneg_right hq_le_div hc0
-      convert hq_c using 1
-      ring
+      simpa [div_mul_eq_mul_div] using hq_c
     have hcount_le : count ≤ M * c / L + L := by nlinarith
     linarith
   · have hM_le : M ≤ (q + 1) * L := le_of_lt hMlt
@@ -430,8 +430,7 @@ private lemma abs_count_sub_mul_div_le_of_bounds {q M L c count : ℝ}
       have haux : (M - L) * c / L ≤ q * c := by
         have hdiv_le : (M - L) / L ≤ q := (div_le_iff₀ hL).2 hM_sub_le
         have hmul := mul_le_mul_of_nonneg_right hdiv_le hc0
-        convert hmul using 1
-        ring
+        simpa [div_mul_eq_mul_div] using hmul
       have hleft_aux : M * c / L - L ≤ (M - L) * c / L := by
         have hrewrite : (M - L) * c / L = M * c / L - c := by
           field_simp [hL.ne']
@@ -890,6 +889,10 @@ Integers can be cast to profinite integers.
 instance : IntCast ZHat where
   intCast n := ⟨fun k => (n : ZMod k), fun _ _ _ => by simp⟩
 
+@[simp]
+lemma intCast_val (m : ℤ) (k : ℕ+) :
+    ((m : ZHat).val k) = (m : ZMod k) := rfl
+
 /-
 Define a shifted choice of residues by subtracting the projection of x from a.
 -/
@@ -912,11 +915,18 @@ lemma mem_avoidAll_shift_iff (n : ℕ → ℕ) (hnpos : ∀ i, 0 < n i)
     · intro h i j hj
       have := h j
       simp_all +decide only [ne_eq]
-      exact fun h' => h j <| by simpa [sub_eq_iff_eq_add] using eq_sub_of_add_eq' h'
+      exact fun h' => h j <| by
+        convert (eq_sub_of_add_eq' h') using 1
+        · rfl
+        · haveI : NeZero (n j) := ⟨ne_of_gt (hnpos j)⟩
+          change a j - proj (n j) x = a j - proj (n j) x
+          rfl
     · intro h i hi
       specialize h (i + 1) i
       simp_all +decide only [eq_sub_iff_add_eq, add_comm, lt_add_iff_pos_right, forall_const]
-      exact h (by simpa [proj] using hi)
+      exact h (by
+        convert hi using 1
+        rfl)
 
 /-
 The integral of the density sequence of the shifted set is equal to the Haar measure of the set.
@@ -1111,7 +1121,7 @@ lemma antitone_fk (n : ℕ → ℕ) (hnpos : ∀ i, 0 < n i) :
 /-
 The space of choices is compact.
 -/
-instance Choice.compactSpace (n : ℕ → ℕ) (hnpos : ∀ i, 0 < n i) : CompactSpace (Choice n) := by
+theorem Choice.compactSpace (n : ℕ → ℕ) (hnpos : ∀ i, 0 < n i) : CompactSpace (Choice n) := by
   haveI : ∀ i, NeZero (n i) := fun i => ⟨ne_of_gt (hnpos i)⟩
   haveI : ∀ i, Finite (ZMod (n i)) := fun i => inferInstance
   haveI : ∀ i, CompactSpace (ZMod (n i)) := fun i => Finite.compactSpace
