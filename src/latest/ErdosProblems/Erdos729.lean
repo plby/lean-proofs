@@ -336,7 +336,7 @@ def X_p_L (p m L : ℕ) : ℕ :=
 lemma forced_carries_small_p (p m L : ℕ) (hp : p.Prime) (hp_ge_3 : p ≥ 3) :
   kappa p m ≥ X_p_L p m L := by
     have _ := hp_ge_3
-    unfold X_p_L kappa
+    unfold X_p_L
     -- By Kummer's theorem, $\kappa_p(m)$ is the number of carries when $m$ and $m$ are added in base $p$.
     have h_kummer : ∀ {p : ℕ} (hp : p.Prime) {m : ℕ}, kappa p m = (Finset.range (Nat.log p (2 * m) + 1)).sum (fun i => if p ^ (i + 1) ≤ m % p ^ (i + 1) + m % p ^ (i + 1) then 1 else 0) := by
       intros p hp m
@@ -361,10 +361,11 @@ lemma forced_carries_small_p (p m L : ℕ) (hp : p.Prime) (hp_ge_3 : p ≥ 3) :
       have hpow_le : p ^ (u + 1) ≤ 2 * m := by
         nlinarith [h_contribution, Nat.mod_le m (p ^ (u + 1))]
       exact ⟨ Nat.le_log_of_pow_le hp.one_lt ((Nat.pow_le_pow_right hp.pos (Nat.le_succ u)).trans hpow_le), h_contribution ⟩
-    simp_all +decide [ Finset.subset_iff ]
-    convert Finset.card_mono _ using 1
-    · exact Nat.add_right_cancel (congrFun (congrArg HAdd.hAdd (h_kummer hp)) p)
-    · intro x hx; specialize h_carries hp ( Finset.mem_range.mp ( Finset.mem_filter.mp hx |>.1 ) ) ( Finset.mem_filter.mp hx |>.2 ) ; aesop
+    rw [h_kummer hp]
+    rw [← Finset.card_filter]
+    exact Finset.card_mono (by
+      intro x hx
+      simpa using (h_carries (p := p) hp (m := m) (L := L) hx))
 
 /-
 The number of integers $m \in [0, p^L)$ having exactly $k$ digits $\ge (p+1)/2$ in base $p$ is $\binom{L}{k} (\frac{p-1}{2})^k (\frac{p+1}{2})^{L-k}$.
@@ -544,15 +545,24 @@ lemma chernoff_digits (p L : ℕ) (hp : p.Prime) (hp_ge_3 : p ≥ 3) (hL : L ≥
     have h_card_S_rewrite : ((Finset.filter (fun m => X_p_L p m L ≤ (1 / 2 : ℝ) * mu p L) (Finset.range (p ^ L))).card : ℝ) = (p : ℝ) ^ L * ∑ k ∈ Finset.range (Nat.floor ((mu p L) / 2) + 1), (Nat.choose L k : ℝ) * q ^ k * (1 - q) ^ (L - k) := by
       rw [ h_card_S, Finset.mul_sum _ _ _ ] ; exact Finset.sum_congr rfl fun x hx => by linear_combination h_rewrite x hx
     -- The sum is exactly the LHS of `binomial_chernoff_bound` with $n=L$ and $q=\theta$.
+    have hmu_eq : mu p L = L * q := by
+      subst q
+      rfl
     have h_binom_chernoff : ∑ k ∈ Finset.range (Nat.floor ((mu p L) / 2) + 1), (Nat.choose L k : ℝ) * q ^ k * (1 - q) ^ (L - k) ≤ Real.exp (- (L * q) / 8) := by
-      convert binomial_chernoff_bound L q _ _ using 1
-      · exact div_nonneg ( sub_nonneg_of_le ( by norm_cast; linarith ) ) ( by positivity )
-      · rw [ div_le_iff₀ ] <;> linarith [ show ( p : ℝ ) ≥ 3 by norm_cast ]
+      have hq0 : 0 ≤ q := by
+        subst q
+        have hpR : (1 : ℝ) ≤ p := by exact_mod_cast (by omega : 1 ≤ p)
+        exact div_nonneg (sub_nonneg.mpr hpR) (by positivity)
+      have hq1 : q ≤ 1 := by
+        subst q
+        have hpR : (3 : ℝ) ≤ p := by exact_mod_cast hp_ge_3
+        rw [div_le_iff₀]
+        · nlinarith
+        · positivity
+      simpa [hmu_eq] using binomial_chernoff_bound L q hq0 hq1
     rw [h_card_S_rewrite]
-    convert mul_le_mul_of_nonneg_left h_binom_chernoff ( pow_nonneg ( Nat.cast_nonneg p ) L ) using 1
-    · subst q
-      unfold mu theta
-      ring_nf
+    rw [show (-1 / 8 : ℝ) * mu p L = - (L * q) / 8 by rw [hmu_eq]; ring]
+    exact mul_le_mul_of_nonneg_left h_binom_chernoff (pow_nonneg (Nat.cast_nonneg p) L)
 
 /-
 Let $p$ be prime, and let $t\ge 1$ be an integer with $p^t\le M^{1-\eta}$.
@@ -585,7 +595,12 @@ lemma V_p_tail (M k t p : ℕ) (η : ℝ) (hM : M > 0) (hp : p.Prime) (ht : t �
     set A := Finset.image (fun i => (p ^ t - i % p ^ t) % p ^ t) (Finset.Icc 1 k) with hA
     -- Then $\{V_p(m)\ge t\}\subseteq \{m\bmod Q\in A\}$, and by Lemma~\ref{lem:mod-uniform},
     have h_subset : ((Finset.Icc M (2 * M)).filter (fun m => V p m k ≥ t)).card ≤ ((Finset.Icc M (2 * M)).filter (fun m => m % Q ∈ A)).card := by
-      exact Finset.card_le_card fun x hx => by specialize h_event x; aesop
+      exact Finset.card_le_card fun x hx => by
+        rcases Finset.mem_filter.mp hx with ⟨hxIcc, hxV⟩
+        rcases h_event x hxIcc hxV with ⟨i, hi, hmod⟩
+        refine Finset.mem_filter.mpr ⟨hxIcc, ?_⟩
+        rw [hA]
+        exact Finset.mem_image.mpr ⟨i, hi, by simpa [Q] using hmod.symm⟩
     -- By Lemma~\ref{lem:mod-uniform},
     have h_mod_uniform : ((Finset.Icc M (2 * M)).filter (fun m => m % Q ∈ A)).card / ((M + 1) : ℝ) ≤ A.card / Q + 2 / (M : ℝ) ^ η := by
       apply_rules [ mod_uniform ]
@@ -860,7 +875,8 @@ lemma failure_bound_tendsto_zero (C η : ℝ) (hC : C > 0) (h_eta : 0 < η) (h_e
       suffices h_z : Filter.Tendsto (fun z : ℝ => z / Real.exp z) Filter.atTop (nhds 0) by
         have := h_z.comp ( Filter.tendsto_id.atTop_mul_const h_eta )
         convert this.div_const η using 2 <;> norm_num [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm, h_eta.ne' ]
-      simpa [ Real.exp_neg ] using Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 1
+      simpa [Real.exp_neg, div_eq_mul_inv] using
+        Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 1
     · -- Let $y = \log M$, therefore the expression becomes $\frac{y^2}{e^{(\gamma \eta / 4) y}}$.
       suffices h_log : Filter.Tendsto (fun y : ℝ => y^2 / Real.exp ((gamma η / 4) * y)) Filter.atTop (nhds 0) by
         have := h_log.comp ( Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop )
@@ -869,7 +885,24 @@ lemma failure_bound_tendsto_zero (C η : ℝ) (hC : C > 0) (h_eta : 0 < η) (h_e
       suffices h_z : Filter.Tendsto (fun z : ℝ => (4 / (gamma η)) ^ 2 * z ^ 2 / Real.exp z) Filter.atTop (nhds 0) by
         convert h_z.comp ( Filter.tendsto_id.const_mul_atTop ( show 0 < gamma η / 4 by exact div_pos ( div_pos ( sub_pos.mpr h_eta_lt_one ) ( by norm_num ) ) zero_lt_four ) ) using 2 ; norm_num ; ring_nf
         norm_num [ mul_right_comm, ne_of_gt ( show 0 < gamma η from div_pos ( sub_pos.mpr h_eta_lt_one ) ( by norm_num ) ) ]
-      simpa [ Real.exp_neg, mul_div_assoc ] using tendsto_const_nhds.mul ( Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 2 )
+      have hbase : Filter.Tendsto (fun z : ℝ => z ^ 2 / Real.exp z) Filter.atTop (nhds 0) := by
+        simpa [Real.exp_neg, div_eq_mul_inv] using
+          Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 2
+      have hmul0 :
+          Filter.Tendsto
+            (fun z : ℝ => (4 / gamma η) ^ 2 * (z ^ 2 / Real.exp z))
+            Filter.atTop (nhds (((4 / gamma η) ^ 2) * 0)) :=
+        (show Filter.Tendsto (fun _ : ℝ => (4 / gamma η) ^ 2)
+            Filter.atTop (nhds ((4 / gamma η) ^ 2)) from tendsto_const_nhds).mul hbase
+      have hmul :
+          Filter.Tendsto
+            (fun z : ℝ => (4 / gamma η) ^ 2 * (z ^ 2 / Real.exp z))
+            Filter.atTop (nhds 0) := by
+        simpa using hmul0
+      refine hmul.congr' ?_
+      filter_upwards with z
+      rw [div_eq_mul_inv, div_eq_mul_inv]
+      ring
 
 /-
 Definitions of $k$, $t_p$, and the bad event for a prime $p$.
@@ -1037,7 +1070,7 @@ lemma exists_good_m_for_large_M (C η : ℝ) (K : ℕ) (hC : C > 0) (h_eta : 0 <
                 filter_upwards [ h_exp_bound ] with M hM p hp using le_trans ( mul_le_mul_of_nonneg_left ( Nat.ceil_lt_add_one ( by exact mul_nonneg ( div_nonneg ( show 0 ≤ gamma η by exact div_nonneg ( by linarith ) ( by linarith ) ) zero_le_four ) ( div_nonneg ( Real.log_natCast_nonneg _ ) ( Real.log_natCast_nonneg _ ) ) ) |> le_of_lt ) ( Real.log_natCast_nonneg _ ) ) ( hM p hp )
               filter_upwards [ h_exp_bound, Filter.eventually_gt_atTop 0 ] with M hM₁ hM₂
               intro p hp; specialize hM₁ p hp; rw [ ← Real.log_le_log_iff ( by exact pow_pos ( Nat.cast_pos.mpr <| Nat.Prime.pos <| Finset.mem_filter.mp hp |>.2 ) _ ) ( by exact Real.rpow_pos_of_pos ( Nat.cast_pos.mpr hM₂ ) _ ), Real.log_pow, Real.log_rpow ( Nat.cast_pos.mpr hM₂ ) ] ; linarith
-            convert h_pow_bound using 1
+            simpa [t_p] using h_pow_bound
           filter_upwards [ h_log_large, h_pow_bound, Filter.eventually_gt_atTop 1 ] with M hM₁ hM₂ hM₃
           refine ⟨ 1, zero_lt_one, fun p hp => ⟨ hM₁ p hp, hM₂ p hp, Nat.ceil_pos.mpr <| ?_ ⟩ ⟩
           exact mul_pos ( div_pos ( div_pos ( sub_pos.mpr h_eta_lt_one ) ( by norm_num ) ) ( by norm_num ) ) ( div_pos ( Real.log_pos ( Nat.one_lt_cast.mpr hM₃ ) ) ( Real.log_pos ( Nat.one_lt_cast.mpr ( Nat.Prime.one_lt ( Finset.mem_filter.mp hp |>.2 ) ) ) ) )
@@ -1096,7 +1129,7 @@ theorem main_theorem (C : ℝ) (hC : C > 0) :
               have h_floor' : ∀ᶠ M in Filter.atTop, (Nat.floor ((C + 1) * Real.log M) : ℝ) / Real.log M ≤ (C + 1) := by
                 filter_upwards [ Filter.eventually_gt_atTop 1 ] with M hM using by rw [ div_le_iff₀ ( Real.log_pos hM ) ] ; exact le_trans ( Nat.floor_le ( by exact mul_nonneg ( by positivity ) ( Real.log_nonneg hM.le ) ) ) ( by linarith )
               exact tendsto_of_tendsto_of_tendsto_of_le_of_le' ( by simpa using tendsto_const_nhds.sub ( tendsto_inv_atTop_zero.comp ( Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop ) ) ) tendsto_const_nhds ( Filter.eventually_atTop.mpr <| by rcases Filter.eventually_atTop.mp h_floor with ⟨ M, hM ⟩ ; exact ⟨ ⌈M⌉₊ + 1, fun n hn => by simpa using hM n <| le_of_lt <| Nat.lt_of_ceil_lt hn ⟩ ) ( Filter.eventually_atTop.mpr <| by rcases Filter.eventually_atTop.mp h_floor' with ⟨ M, hM ⟩ ; exact ⟨ ⌈M⌉₊ + 1, fun n hn => by simpa using hM n <| le_of_lt <| Nat.lt_of_ceil_lt hn ⟩ )
-            convert h_frac_k_M_log_M using 1
+            simpa [k_M] using h_frac_k_M_log_M
           -- Since $\log(4M) = \log M + \log 4$, we can rewrite the inequality as $k_M(c, M) > C (\log M + \log 4)$.
           suffices h_rewrite : ∀ᶠ M in Filter.atTop, (k_M (C + 1) M : ℝ) / Real.log M > C * (1 + Real.log 4 / Real.log M) by
             filter_upwards [ h_rewrite, Filter.eventually_gt_atTop 1 ] with M hM₁ hM₂
