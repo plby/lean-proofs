@@ -870,8 +870,10 @@ theorem counterexample_coefficientRatio_eq_sum_normalized_realCoeff
       p.coeff 0 = (counterexampleRealCoeff N K ⟨0, by omega⟩ : ℂ) := by
     change (counterexamplePolynomial N K).coeff 0 =
       (counterexampleRealCoeff N K ⟨0, by omega⟩ : ℂ)
-    simpa [counterexampleExponent_zero] using
-      counterexamplePolynomial_coeff_exponent N K hK ⟨0, by omega⟩
+    let i0 : Fin (N + 2) := ⟨0, by omega⟩
+    change (counterexamplePolynomial N K).coeff (counterexampleExponent N K i0) =
+      (counterexampleRealCoeff N K i0 : ℂ)
+    exact counterexamplePolynomial_coeff_exponent N K hK i0
   have hcoeff_last :
       p.coeff d = (counterexampleRealCoeff N K (Fin.last (N + 1)) : ℂ) := by
     change (counterexamplePolynomial N K).coeff (counterexampleDegree N K) =
@@ -1254,7 +1256,7 @@ theorem counterexample_log_nat_mul_rpow_neg_tendsto_zero (N : ℕ) (hN : 1 ≤ N
       Filter.Tendsto (fun K : ℕ => (K : ℝ) ^ (-(N : ℝ) / 2))
         Filter.atTop (nhds 0) := by
     have hpos : 0 < (N : ℝ) / 2 := by positivity
-    simpa [neg_div] using
+    simpa [Function.comp_def, neg_div] using
       (tendsto_rpow_neg_atTop hpos).comp tendsto_natCast_atTop_atTop
   have hprod := (hdiv.comp tendsto_natCast_atTop_atTop).mul hpow
   rw [zero_mul] at hprod
@@ -1625,7 +1627,7 @@ theorem counterexample_log_tilt_mul_rpow_neg_tendsto_zero
               Filter.atTop (nhds 0) := by
           have h := (Real.continuousAt_log (by norm_num : (1 : ℝ) ≠ 0)).tendsto.comp
             harg
-          simpa using h
+          simpa [Function.comp_def] using h
         exact hlog.mul hdecay)
       simpa only [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul,
         mul_zero] using hsum
@@ -1709,7 +1711,7 @@ theorem counterexample_one_tilt_log_mul_lambda_tendsto_zero
               Filter.atTop (nhds 0) := by
           have h := (Real.continuousAt_log (by norm_num : (1 : ℝ) ≠ 0)).tendsto.comp
             harg
-          simpa using h
+          simpa [Function.comp_def] using h
         exact hlog.mul hlambda1_tendsto)
       simpa only [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul,
         mul_zero] using hsum
@@ -1788,7 +1790,7 @@ theorem counterexample_one_tilt_small_power_tendsto
         (nhds 1) := by
     have h := Real.continuous_exp.continuousAt.tendsto.comp
       (counterexample_one_tilt_log_mul_lambda_tendsto_zero N hN)
-    simpa using h
+    simpa [Function.comp_def] using h
   refine hexp.congr' ?_
   filter_upwards [eventually_counterexampleTilt_pos N] with K hT_pos
   rw [Real.rpow_def_of_pos hT_pos]
@@ -1936,7 +1938,7 @@ theorem counterexampleDeltaZeroDivFactor_tendsto
                 (nhds 0) := by
             have habs := (continuous_abs.continuousAt.tendsto.comp hone_minus).inv₀
               (by norm_num : |(1 : ℝ)| ≠ 0)
-            simpa using hratio.mul habs
+            simpa [div_eq_mul_inv] using hratio.mul habs
           have htarget :
               Filter.Tendsto
                 (fun K : ℕ =>
@@ -2077,7 +2079,7 @@ theorem counterexample_interior_tilt_small_power_tendsto_one
         Filter.atTop
         (nhds 1) := by
     have h := Real.continuous_exp.continuousAt.tendsto.comp hlog'
-    simpa using h
+    simpa [Function.comp_def] using h
   refine hexp.congr' ?_
   filter_upwards [eventually_counterexampleTilt_pos N] with K hT_pos
   rw [Real.rpow_def_of_pos hT_pos]

@@ -791,10 +791,8 @@ lemma zo_pow_n (i : PD.oddIndices) : PD.zo i ^ n = -∏ i ∈ PD.oddIndices, -PD
   rw [mul_assoc, ← mul_add, eq_comm, mul_eq_zero] at prododd
   simp_rw [show (-1 : ℂ) ^ n ≠ 0 by simp, false_or, ← eq_neg_iff_add_eq_zero] at prododd
   convert prododd
-  conv_lhs =>
-    enter [2, i]
-    rw [← neg_one_mul]
-  rw [prod_mul_distrib, prod_const, PD.card_evenIndices_oddIndices.2]
+  · rfl
+  · rw [Finset.prod_neg, PD.card_evenIndices_oddIndices.2]
 
 theorem image_zo :
     univ.image PD.zo = Polynomial.nthRootsFinset n (-∏ i ∈ PD.oddIndices, -PD.z i) := by

@@ -125,7 +125,7 @@ private lemma blockStreamFrom_FS_subset (a : Stream' ℕ+) (n : ℕ) :
       ∀ n, s = blockStreamFrom a n → m ∈ Hindman.FS (a.drop (blockStart a n))) hm ?_ ?_ ?_ n rfl
   · intro s n hs
     subst s
-    simpa [blockStreamFrom, blockStream] using
+    simpa [blockStreamFrom, blockStream, Stream'.head, Stream'.get] using
       pnatBlockSum_mem_FS a (blockStart a n) (blockLengthIndex a n)
   · intro s m hm ih n hs
     subst s
@@ -147,7 +147,7 @@ private lemma blockStreamFrom_FS_subset (a : Stream' ℕ+) (n : ℕ) :
     have hm'' : m ∈ Hindman.FS
         (a.drop (blockStart a n + (blockLengthIndex a n + 1))) := by
       simpa [blockStart_succ, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm] using hm'
-    simpa [blockStreamFrom, blockStream, Stream'.head, add_assoc] using
+    simpa [blockStreamFrom, blockStream, Stream'.head, Stream'.get, add_assoc] using
       pnatBlockSum_add_mem_FS a (blockStart a n) (blockLengthIndex a n) hm''
 
 private lemma FS_nat_of_pnat_coe {a : Stream' ℕ+} {m : ℕ}

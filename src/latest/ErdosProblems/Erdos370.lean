@@ -160,7 +160,7 @@ lemma lem_construction (m : ℕ) (hm : m ≥ 3)
           obtain ⟨p, hpmax⟩ :=
             Finset.max_of_nonempty (s := m.primeFactors) (by simpa using h2.1)
           have hpmem : p ∈ m.primeFactors := Finset.mem_of_max hpmax
-          simpa [hpmax] using hPm_lt_m p hpmem
+          simpa [hpmax, Option.getD] using hPm_lt_m p hpmem
         rw [Nat.primeFactors_pow]
         · simp_all only [ge_iff_le, Nat.cast_lt]
         · simp_all only [ge_iff_le, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true]
@@ -204,7 +204,7 @@ theorem erdos_370 :
     have hpmem : p ∈ S := Finset.mem_of_max hpmax
     apply le_antisymm
     · rw [hpmax]
-      exact le_csSup (Finset.bddAbove S) (by simpa using hpmem)
+      exact le_csSup (Finset.bddAbove S) (by simpa [Option.getD] using hpmem)
     · rw [hpmax]
       exact csSup_le (Set.nonempty_of_mem (by simpa using hpmem)) (by
         intro q hq

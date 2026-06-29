@@ -251,11 +251,14 @@ lemma neg_last_condition_sets :
             ext
             simp +decide
             ring⟩
-    convert h_affine_span ( toR2 ( a, b ) ) ( toR2 ( c, d ) ) t using 1
-    ext i
-    fin_cases i
-    · simpa [toR2] using ht.1
-    · simpa [toR2] using ht.2
+    have hpoint :
+        toR2 (e, f) = toR2 (a, b) + t • (toR2 (c, d) - toR2 (a, b)) := by
+      ext i
+      fin_cases i
+      · simpa [toR2] using ht.1
+      · simpa [toR2] using ht.2
+    simpa [lineThrough, hpoint] using
+      h_affine_span (toR2 (a, b)) (toR2 (c, d)) t
   -- Since $e$ and $f$ are in $Bℤ$, $toR2 (e, f)$ is in $B0$.
   use toR2 (e, f)
   constructor

@@ -84,9 +84,13 @@ theorem erdos_1126
           simp_all only [ne_eq]
           exact h_fubini,
         fun x hx => by
-          simpa [hx] using
-            Classical.not_not.1 fun hx' =>
-              hx <| MeasureTheory.subset_toMeasurable _ _ hx'⟩
+          have hzero :
+              MeasureTheory.volume {y : ℝ | f (x + y) ≠ f x + f y} = 0 := by
+            simpa [hx] using
+              Classical.not_not.1 fun hx' =>
+                hx <| MeasureTheory.subset_toMeasurable _ _ hx'
+          filter_upwards [MeasureTheory.measure_eq_zero_iff_ae_notMem.mp hzero] with y hy
+          simpa using hy⟩
   -- Let $x$ be any real number. Since $\mu(M)=\mu(x-M)=0$, we have
   -- $M\cup(x-M)\ne \mathbb{R}$. It follows that $x_{1}\in \mathbb{R}$ exists
   -- such that $x_{1}\notin M$, $x-x_{1}\notin M$.

@@ -166,11 +166,15 @@ lemma levelSet_starConvex : StarConvex ℝ 0 (levelSet counterexample_poly) := b
     have h_convex : ConvexOn ℝ (Set.univ : Set ℂ) (fun z : ℂ => ‖z - 1‖) := by
       exact convexOn_norm ( convex_univ ) |> fun h => h.translate_left ( -1 )
     have := h_convex.2 ( Set.mem_univ 0 ) ( Set.mem_univ ( y ^ 16 ) )
-    convert
+    have hbase :=
       @this (1 - b ^ 16) (b ^ 16) (sub_nonneg.2 <| pow_le_one₀ hb <| by linarith)
-        (pow_nonneg hb _) (by ring) using 1
-    norm_num
-    ring_nf
+        (pow_nonneg hb _) (by ring)
+    have hleft :
+        ‖(b * y) ^ 16 - 1‖ =
+          (fun z : ℂ => ‖z - 1‖) ((1 - b ^ 16) • (0 : ℂ) + b ^ 16 • y ^ 16) := by
+      simp [mul_pow]
+    rw [hleft]
+    simpa [smul_eq_mul] using hbase
   norm_num at *
   nlinarith [ pow_nonneg hb 16 ]
 

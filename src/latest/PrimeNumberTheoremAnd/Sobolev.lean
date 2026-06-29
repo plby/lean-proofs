@@ -234,6 +234,8 @@ lemma hf'' (f : W21) : Integrable (deriv (deriv f))  := by
 
 end W21
 
+set_option maxHeartbeats 800000 in
+-- The dominated-convergence proof below needs more heartbeats in Lean 4.32.
 theorem W21_approximation (f : W21) (g : trunc) :
     Tendsto (fun R => ‖f - (g.scale R * f : W21)‖) atTop (𝓝 0) := by
 
@@ -374,6 +376,6 @@ theorem W21_approximation (f : W21) (g : trunc) :
           simp [h', CS.deriv_scale', mul_comm R⁻¹, hR]
         apply tendsto_nhds_of_eventually_eq
         filter_upwards [eh' v] with R hR ; simp [hR]
-      · change Tendsto (fun n ↦ (1 - ↑((g.scale n).toFun v)) * f''.toFun v) atTop (𝓝 0)
+      · rw [Filter.ZeroAtFilter]
         simpa [h] using ((g.tendsto_scale v).const_sub 1).ofReal.mul tendsto_const_nhds
     simpa [F] using tendsto_integral_filter_of_dominated_convergence bound e1 e2 e3 e4

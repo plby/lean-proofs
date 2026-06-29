@@ -496,11 +496,20 @@ theorem game_value_eq : game_value = 3 - 2 * Real.sqrt 2 := by
           rw [show r = Real.sqrt 2 - 1 by rfl]
           nlinarith [Real.sqrt_nonneg 2, Real.sq_sqrt zero_le_two])] at hx
         exact hx.1.not_gt)
-  convert h_integral.trans h_eval using 1
-  · norm_num [mul_comm]
-    ring_nf
-    unfold c r
-    nlinarith [Real.sqrt_nonneg 2, Real.sq_sqrt zero_le_two]
+  have h_const_affine :
+      (∫ x in (0 : ℝ)..r, c) = (∫ x in (0 : ℝ)..r, (0 : ℝ) * x + c) := by
+    refine intervalIntegral.integral_congr fun x hx => ?_
+    ring
+  have h_linear_affine :
+      (∫ x in (r : ℝ)..1, (2 * x - 1)) =
+        (∫ x in (r : ℝ)..1, (2 : ℝ) * x + (-1)) := by
+    refine intervalIntegral.integral_congr fun x hx => ?_
+    ring
+  rw [game_value, h_integral, h_eval, h_const_affine, h_linear_affine]
+  rw [integral_affine, integral_affine]
+  norm_num [c, r]
+  ring_nf
+  nlinarith [Real.sqrt_nonneg 2, Real.sq_sqrt zero_le_two]
 
 #print axioms game_value_eq
 -- 'MO508681.game_value_eq' depends on axioms: [propext, Classical.choice, Quot.sound]

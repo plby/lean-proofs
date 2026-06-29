@@ -208,8 +208,12 @@ theorem power_series_identity_mul (l : List (ℤ × ℕ)) (h : IsExactCoveringSy
     exact power_series_identity_geometric l h
   -- By `geometric_progression_mul`, `geometric_progression 0 1 * (1 - X) = 1`.
   have h_geometric_mul : geometric_progression 0 1 * (1 - PowerSeries.X) = 1 := by
-    convert geometric_progression_mul 0 1 (by norm_num) using 1
-    norm_num [mul_comm]
+    calc
+      geometric_progression 0 1 * (1 - PowerSeries.X) =
+          (1 - (PowerSeries.X : PowerSeries ℂ) ^ 1) * geometric_progression 0 1 := by
+        rw [pow_one, mul_comm]
+      _ = (PowerSeries.X : PowerSeries ℂ) ^ 0 := geometric_progression_mul 0 1 (by norm_num)
+      _ = 1 := pow_zero _
   simp_all +decide [mul_comm, mul_left_comm]
   rw [← mul_assoc, h_geometric_mul, one_mul]
   exact rfl
