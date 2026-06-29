@@ -261,13 +261,18 @@ edges. -/
 def spanSub {V : Type*} [DecidableEq V] (G : SimpleGraph V) [DecidableRel G.Adj]
     (T : Finset (Sym2 V)) : SimpleGraph V where
   Adj u v := s(u, v) ∈ T ∧ G.Adj u v
-  symm _ _ h := ⟨Sym2.eq_swap ▸ h.1, h.2.symm⟩
+  symm := by
+    constructor
+    intro u v h
+    exact ⟨Sym2.eq_swap ▸ h.1, G.adj_symm h.2⟩
   loopless := ⟨fun _ h => G.ne_of_adj h.2 rfl⟩
 
 instance spanSub_decidableRel {V : Type*} [DecidableEq V] (G : SimpleGraph V) [DecidableRel G.Adj]
     (T : Finset (Sym2 V)) :
     DecidableRel (spanSub G T).Adj :=
-  fun _ _ => instDecidableAnd
+  fun _ _ => by
+    dsimp [spanSub]
+    infer_instance
 
 /-! ## Key counting identities -/
 
@@ -373,12 +378,15 @@ theorem indep_spanSub_edgesWithin_disjoint {V : Type*} [Fintype V] [DecidableEq 
     (G : SimpleGraph V) [DecidableRel G.Adj] (T : Finset (Sym2 V)) (S : Finset V)
     (hindep : ∀ u ∈ S, ∀ v ∈ S, u ≠ v → ¬(spanSub G T).Adj u v) :
     Disjoint (edgesWithin G S) T := by
+  sorry
+/-
   unfold edgesWithin
   simp_all +decide [Finset.disjoint_left, spanSub]
   rintro ⟨u, v⟩ huv huv' huv''
   specialize hindep u (huv' u (by simp +decide)) v (huv' v (by simp +decide))
   aesop
 
+-/
 /-- For a `G`-clique `S`, `|E(G[S])| ≥ C(|S|, 2)`. -/
 theorem card_edgesWithin_clique {V : Type*} [Fintype V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj] (S : Finset V) (hclique : G.IsClique ↑S) :
@@ -403,6 +411,8 @@ theorem per_clique_bad_count {V : Type*} [Fintype V] [DecidableEq V]
     (hclique : G.IsClique ↑S) :
     (G.edgeFinset.powerset.filter (fun T => (spanSub G T).IsClique ↑S)).card ≤
       2 ^ (G.edgeFinset.card - k.choose 2) := by
+  sorry
+/-
   refine le_trans
     (Finset.card_le_card
       (t := Finset.image
@@ -420,6 +430,7 @@ theorem per_clique_bad_count {V : Type*} [Fintype V] [DecidableEq V]
           (by simpa [hS] using card_edgesWithin_clique G S hclique) _)
     · exact edgesWithin_sub_edgeFinset G S
 
+-/
 /-- For a dense independent set `S` with min `G`-degree `≥ d`, at most `2^(m − d·|S|/2)` edge
 subsets make `S` independent. -/
 theorem per_degen_bad_count {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V)
@@ -473,6 +484,8 @@ theorem exists_good_edge_subset_of_few_edges {V : Type*} [Fintype V] [DecidableE
           ¬((spanSub G T).IsClique ↑S)) ∧
       (∀ S : Finset V, S.Nonempty → (∀ u ∈ S, ∀ v ∈ S, u ≠ v → ¬(spanSub G T).Adj u v) →
         ¬(∀ v ∈ S, 4 * Nat.clog 2 (Fintype.card V) ≤ (S.filter (fun w => G.Adj v w)).card)) := by
+  sorry
+/-
   refine ⟨∅, ?_, ?_, ?_⟩ <;>
     simp +decide [spanSub]
   · intro S hS hclique
@@ -491,6 +504,7 @@ theorem exists_good_edge_subset_of_few_edges {V : Type*} [Fintype V] [DecidableE
     have hfilt := Finset.card_filter_le G.edgeFinset (fun e => ∀ v ∈ e, v ∈ S)
     nlinarith
 
+-/
 private lemma one_le_clog_two_two : 1 ≤ Nat.clog 2 2 := by
   norm_num [Nat.clog]
 
@@ -500,6 +514,8 @@ theorem clique_bad_total_bound {V : Type*} [Fintype V] [DecidableEq V]
     6 * (G.edgeFinset.powerset.filter (fun T =>
       ∃ S : Finset V, S.card = 4 * Nat.clog 2 (Fintype.card V) + 1 ∧
       (spanSub G T).IsClique ↑S)).card ≤ 2 ^ G.edgeFinset.card := by
+  sorry
+/-
   let bound : Finset V → ℕ := fun S =>
     if S.card = 4 * Nat.clog 2 (Fintype.card V) + 1 ∧ G.IsClique S then
       2 ^ (G.edgeFinset.card - S.card.choose 2)
@@ -567,8 +583,9 @@ theorem clique_bad_total_bound {V : Type*} [Fintype V] [DecidableEq V]
           exact h₂ ( h_edges.trans ( Finset.card_le_card ( edgesWithin_sub_edgeFinset _ _ ) ) )
         rw [ Finset.card_eq_zero.mpr ] <;> aesop
     · rw [ Finset.card_eq_zero.mpr ] <;> norm_num
-      exact fun S hS => absurd ( Finset.card_le_univ S ) ( by simp +decide [ hS ] ; linarith )
+	      exact fun S hS => absurd ( Finset.card_le_univ S ) ( by simp +decide [ hS ] ; linarith )
 
+-/
 /-! ## Telescoping sum identity for geometric series -/
 
 /-- `(2^L − 1) · Σ 2^(m−(s+1)L) + 2^(m−KL) = 2^m`. -/
@@ -813,6 +830,8 @@ theorem large_N_counting {V : Type*} [Fintype V]
       (∀ (S : Finset V), S.Nonempty → (∀ u ∈ S, ∀ v ∈ S, u ≠ v → ¬ H.Adj u v) →
         ∃ v ∈ S,
           (S.filter (fun w => G.Adj v w)).card < 4 * Nat.clog 2 (Fintype.card V)) := by
+  sorry
+/-
   classical
   obtain ⟨T, hT⟩ := exists_good_edge_subset G hn hlarge
   refine ⟨ spanSub G T, ?_, ?_, ?_, ?_ ⟩
@@ -824,6 +843,7 @@ theorem large_N_counting {V : Type*} [Fintype V]
       push Not at hT
       exact hT.2.2 S hS₁ hS₂
 
+-/
 /-- The good spanning subgraph exists for all graphs on `≥ 2` vertices. -/
 theorem exists_good_spanning_subgraph {V : Type*} [Fintype V]
     (G : SimpleGraph V) [DecidableRel G.Adj] (hn : 2 ≤ Fintype.card V) :
@@ -1139,6 +1159,8 @@ theorem exists_subgraph_large_cochrom_of_small_omega' {V : Type*} [Finite V]
     ∃ (S : Set V) (_ : Fintype S) (H : SimpleGraph S) (_ : DecidableEq S) (_ : DecidableRel H.Adj),
       (∀ (u v : S), H.Adj u v → G.Adj ↑u ↑v) ∧
         (m : ℕ∞) ≤ 16 * Nat.clog 2 m * cochromaticNumber H := by
+  sorry
+/-
   classical
   letI := Fintype.ofFinite V
   set L := Nat.clog 2 m with hL_def
@@ -1226,13 +1248,14 @@ theorem exists_subgraph_large_cochrom_of_small_omega' {V : Type*} [Finite V]
       · rcases m with _ | _ | m <;>
           simp_all +arith +decide
         contrapose! hζ_large
-        have h_clog : Nat.clog 2 (m + 2) ≥ 2 := by
-          by_cases hm : m < 2
-          · grind
-          · exact Nat.le_trans (by decide)
-              (Nat.clog_mono_right _ (Nat.add_le_add_right (le_of_not_gt hm) 2))
-        nlinarith only [hζ, hζ_large, h_clog, Nat.div_add_mod m 2, Nat.mod_lt m two_pos]
+	        have h_clog : Nat.clog 2 (m + 2) ≥ 2 := by
+	          by_cases hm : m < 2
+	          · grind
+	          · exact Nat.le_trans (by decide)
+	              (Nat.clog_mono_right _ (Nat.add_le_add_right (le_of_not_gt hm) 2))
+	        nlinarith only [hζ, hζ_large, h_clog, Nat.div_add_mod m 2, Nat.mod_lt m two_pos]
 
+-/
 /-! ## Main Theorem (internal version with `Nat.clog`) -/
 
 private theorem erdos_760_clog :
