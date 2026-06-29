@@ -70,9 +70,9 @@ lemma sumImage_card
     (sumImage A s t).card =
       (slopeSet A s).card *
         (slopeSet A t).card := by
-  convert Finset.card_image_of_injOn _
-  · rw [Finset.card_product]
-  · exact sumMap_injOn A hst
+  unfold sumImage
+  rw [Finset.card_image_of_injOn (sumMap_injOn A hst)]
+  rw [Finset.card_product]
 
 lemma sumImage_slope_range
     (A : Finset ℝ) (hpos : ∀ a ∈ A, (0 : ℝ) < a)
@@ -130,13 +130,20 @@ lemma extraImage_subset
 lemma extraImage_card
     (A : Finset ℝ) (hA : A.Nonempty)
     (_hpos : ∀ a ∈ A, (0 : ℝ) < a)
-    {sm : ℝ} (_hsm : 0 < sm) :
+    {sm : ℝ} (hsm : 0 < sm) :
     (extraImage A hA sm).card =
       (slopeSet A sm).card ^ 2 := by
-  convert Finset.card_image_of_injOn _
-  · norm_num [sq]
-  · intro p hp q hq
-    aesop
+  unfold extraImage
+  rw [Finset.card_image_of_injOn]
+  · rw [Finset.card_product, sq]
+  · intro p hp q hq hpq
+    ext
+    · linarith [congr_arg Prod.fst hpq]
+    · have h1 : p.1 = q.1 := by
+        linarith [congr_arg Prod.fst hpq]
+      have h2 : sm * p.1 + sm * p.2 = sm * q.1 + sm * q.2 := by
+        exact congr_arg Prod.snd hpq
+      nlinarith
 
 lemma extraImage_slope_ge
     (A : Finset ℝ) (hA : A.Nonempty)
@@ -209,12 +216,14 @@ lemma cauchy_schwarz_energy (A : Finset ℝ) :
     A.card ^ 4 ≤
       (∑ p ∈ A * A, mulRep A p ^ 2) *
         (A * A).card := by
-  convert sq_sum_le_card_mul_sum_sq
-    (s := A * A)
-    (f := fun p => mulRep A p) using 1 <;> ring_nf
-  · rw [sum_mulRep_eq]
-    ring
-  · norm_num [mul_comm]
+  calc
+    A.card ^ 4 = (∑ p ∈ A * A, mulRep A p) ^ 2 := by
+      rw [sum_mulRep_eq]
+      ring
+    _ ≤ (A * A).card * (∑ p ∈ A * A, mulRep A p ^ 2) :=
+      sq_sum_le_card_mul_sum_sq
+    _ = (∑ p ∈ A * A, mulRep A p ^ 2) * (A * A).card := by
+      ring
 
 /-! ## Part 2: Geometric sub-lemmas -/
 
@@ -287,7 +296,7 @@ lemma energy_equiv
               ring
         · intros p hp q hq hpq
           simp_all +decide [Finset.disjoint_left]
-      convert h_bij using 1
+      simpa [mulRep] using h_bij
     convert h_bij using 1
     refine Finset.card_bij
       (fun x hx =>
