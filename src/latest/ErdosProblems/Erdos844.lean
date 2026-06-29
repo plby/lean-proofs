@@ -566,7 +566,7 @@ private lemma chvatal_case_B (N : ℕ) (hN : 2 ≤ N)
     · rw [ Finset.card_image_of_injOn ];
       intro X hX Y hy hXY; simp_all +decide [ Finset.ext_iff ] ;
       grind;
-    · refine Finset.card_bij ( fun X hX => X.erase N ) ?_ ?_ ?_ <;> simp +contextual [ hK_def ];
+    · refine Finset.card_bij ( fun X hX => X.erase N ) ?_ ?_ ?_ <;> try simp +contextual [ hK_def ];
       · grind +locals;
       · simp +contextual [ Finset.ext_iff ];
         grind;
