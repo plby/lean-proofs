@@ -358,8 +358,7 @@ lemma thin_set_measure_bound (q : ℕ) (hq : 0 < q) (k : ℕ) (hk : 7 ≤ k) :
             ( mul_nonneg ( Nat.cast_nonneg _ )
               ( Real.logb_nonneg ( by norm_num ) ( by norm_num ) ) )
             ( by positivity ) ) zero_le_one
-      · convert h_card using 1
-        norm_num [ Int.toNat_of_nonneg, Int.ceil_nonneg ]
+      · simpa [Int.card_Icc] using h_card
       · rw [ ENNReal.toReal_ofReal ( by positivity ) ]
     · exact ENNReal.mul_ne_top ( by norm_num ) ( ENNReal.ofReal_ne_top )
     · exact mul_nonneg
@@ -699,7 +698,7 @@ lemma E_pos_measure (H : ℕ → Set ℝ)
     (h_sum : ∑' k, volume (I_F ∩ Phi (H k)) < volume I_F) :
     0 < volume (I_F \ Phi (⋃ k, H k)) := by
   have h_diff : volume (I_F \ Phi (⋃ k, H k)) = volume I_F - volume (I_F ∩ Phi (⋃ k, H k)) := by
-    rw [ ← MeasureTheory.measure_diff ]
+    rw [ ← MeasureTheory.measure_sdiff ]
     · aesop
     · exact Set.inter_subset_left
     · refine MeasurableSet.nullMeasurableSet ?_

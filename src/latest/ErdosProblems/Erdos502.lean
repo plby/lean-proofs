@@ -253,6 +253,14 @@ def quadratic_form_of_matrix {n : Type*} [Fintype n] [DecidableEq n] (M : Matrix
     QuadraticForm ℝ (n → ℝ) :=
   M.toQuadraticForm'
 
+@[simp] lemma quadratic_form_of_matrix_apply {n : Type*} [Fintype n] [DecidableEq n]
+    (M : Matrix n n ℝ) (w : n → ℝ) :
+    (quadratic_form_of_matrix M) w = Matrix.toBilin' M w w := by
+  rw [quadratic_form_of_matrix, Matrix.toQuadraticForm',
+    LinearMap.BilinMap.toQuadraticMap_apply]
+  rw [Matrix.toBilin'_apply, Matrix.toLinearMap₂'_apply]
+  simp [mul_comm, mul_left_comm]
+
 /-- The positive inertia index of a matrix M is the maximum dimension of a
 subspace where the associated quadratic form is positive definite. -/
 noncomputable def r_plus {n : Type*} [Fintype n] [DecidableEq n]
@@ -437,9 +445,9 @@ theorem Phi_p_vanishes_on_Omega (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)
       simp +decide [eval_pair, MvPolynomial.eval_eq']
     simp_all +decide [Phi_p]
     refine Finset.sum_eq_zero fun m hm => ?_
-    convert
+    simpa [Phi_monomial] using
       mul_eq_zero_of_right (MvPolynomial.coeff m x)
-        (Phi_monomial_vanishes_on_Omega d s A m (hx m (by aesop)) f g hf hg) using 1
+        (Phi_monomial_vanishes_on_Omega d s A m (hx m (by aesop)) f g hf hg)
   exact h_sum_zero _ <| by
     simp +decide [MvPolynomial.totalDegree] at hp ⊢
     exact hp
@@ -546,7 +554,7 @@ theorem theorem_1_2 (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)))
       -- Phi_p is Matrix.toBilin' M
       -- quadratic_form_of_matrix M is M.toQuadraticForm'
       -- M.toQuadraticForm' w = (Matrix.toBilin' M) w w
-      convert this using 1
+      simpa [M, Phi_p] using this
     have h_bound := r_plus_le_codim_of_vanishes_on_subspace M W h_vanish
     rw [finrank_Omega] at h_bound
     -- Fintype.card A - (Fintype.card A - dim_s d s A) = dim_s d s A
@@ -571,7 +579,7 @@ theorem theorem_1_2 (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)))
           ∀ w ∈ Omega d s A, (quadratic_form_of_matrix (-(matrix_p_A d p A))) w = 0 := by
         intro w hw
         have h_quad_form : (quadratic_form_of_matrix (matrix_p_A d p A)) w = 0 := by
-          convert Phi_p_vanishes_on_Omega d s A p hp w w hw hw using 1
+          simpa [Phi_p] using Phi_p_vanishes_on_Omega d s A p hp w w hw hw
         simp [h_neg_form, h_quad_form]
       simpa [r_minus, r_plus, h_neg_form] using
         r_plus_le_codim_of_vanishes_on_subspace (-(matrix_p_A d p A)) (Omega d s A)
@@ -663,9 +671,15 @@ theorem r_plus_matrix_p_A_eq_card (d : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)
     exact h_diag_pos.symm ▸ Finset.prod_pos h_pos
   -- Therefore r_plus is |A|
   refine le_antisymm ?_ ?_
-  · convert r_plus_le_codim_of_vanishes_on_subspace _ ⊥ ?_
-    · norm_num
-    · simp +zetaDelta at *
+  · have h_vanish_bot :
+        ∀ w ∈ (⊥ : Submodule ℝ (A → ℝ)),
+          (quadratic_form_of_matrix (matrix_p_A d p A)) w = 0 := by
+      intro w hw
+      have hw0 : w = 0 := by simpa using hw
+      simp [hw0]
+    simpa using
+      r_plus_le_codim_of_vanishes_on_subspace (matrix_p_A d p A)
+        (⊥ : Submodule ℝ (A → ℝ)) h_vanish_bot
   · refine le_csSup ?_ ?_
     · exact ⟨_, fun k hk => by
         obtain ⟨W, rfl, _⟩ := hk

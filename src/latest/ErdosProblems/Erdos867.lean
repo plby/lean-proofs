@@ -274,7 +274,7 @@ lemma freudSet_interval_sum_not_in_C (y : ℕ) (hy : 1 ≤ y) (a b : ℕ)
             z ≠ x ∧ z ≥ 32 * y - 4 := by
           obtain ⟨z, hz⟩ := Finset.exists_mem_ne hcard x
           exact ⟨z, hz.1, hz.2, freudSet_min_elem y hy z (Finset.mem_filter.mp hz.1 |>.1)⟩
-        rw [Finset.sum_eq_add_sum_diff_singleton_of_mem hz₁]
+        rw [Finset.sum_eq_add_sum_sdiff_singleton_of_mem hz₁]
         exact add_le_add hz₃ (Finset.single_le_sum (fun x _ => Nat.zero_le x) (by aesop))
       omega
     unfold freudSet at hx; simp_all +decide; omega

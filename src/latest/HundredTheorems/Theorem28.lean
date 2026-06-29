@@ -215,6 +215,16 @@ circle and prove that this point lies on both lines.
 noncomputable def chord_intersection (z₁ z₂ z₃ z₄ : ℂ) : ℂ :=
   (z₃ * z₄ * (z₁ + z₂) - z₁ * z₂ * (z₃ + z₄)) / (z₃ * z₄ - z₁ * z₂)
 
+@[simp] lemma chord_intersection_swap_first (z₁ z₂ z₃ z₄ : ℂ) :
+    chord_intersection z₂ z₁ z₃ z₄ = chord_intersection z₁ z₂ z₃ z₄ := by
+  unfold chord_intersection
+  ring
+
+@[simp] lemma chord_intersection_swap_second (z₁ z₂ z₃ z₄ : ℂ) :
+    chord_intersection z₁ z₂ z₄ z₃ = chord_intersection z₁ z₂ z₃ z₄ := by
+  unfold chord_intersection
+  ring
+
 set_option linter.flexible false in
 lemma chord_intersection_is_intersection (z₁ z₂ z₃ z₄ : ℂ)
     (h₁ : ‖z₁‖ = 1) (h₂ : ‖z₂‖ = 1) (h₃ : ‖z₃‖ = 1) (h₄ : ‖z₄‖ = 1)
@@ -362,6 +372,95 @@ lemma pascal_hexagon_complex_explicit
     let z₈ := chord_intersection z₁ z₆ z₃ z₄
     let z₇ := chord_intersection z₂ z₆ z₃ z₅
     Collinear ℝ {z₇, z₈, z₉} := by
+      let P98c : ℂ :=
+        z₁ * z₅ * z₆ * (z₂ - z₃) + z₄ * z₂ * z₃ * (z₆ - z₅) +
+          z₁ * z₄ * (z₅ * z₃ - z₂ * z₆)
+      let Q98c : ℂ :=
+        z₁ * (z₆ - z₅) + z₄ * (z₂ - z₃) + z₅ * z₃ - z₂ * z₆
+      let P78c : ℂ :=
+        z₃ * z₅ * z₄ * (z₂ - z₁) + z₆ * z₂ * z₁ * (z₄ - z₅) +
+          z₃ * z₆ * (z₅ * z₁ - z₂ * z₄)
+      let Q78c : ℂ :=
+        z₃ * (z₄ - z₅) + z₆ * (z₂ - z₁) + z₅ * z₁ - z₂ * z₄
+      have hpoly : P78c * Q98c = P98c * Q78c := by
+        dsimp [P78c, Q98c, P98c, Q78c]
+        ring
+      have hz₁ : ‖z₁‖ = 1 := h_unit z₁ (by simp)
+      have hz₂ : ‖z₂‖ = 1 := h_unit z₂ (by simp)
+      have hz₃ : ‖z₃‖ = 1 := h_unit z₃ (by simp)
+      have hz₄ : ‖z₄‖ = 1 := h_unit z₄ (by simp)
+      have hz₅ : ‖z₅‖ = 1 := h_unit z₅ (by simp)
+      have hz₆ : ‖z₆‖ = 1 := h_unit z₆ (by simp)
+      have h98a : z₄ * z₂ ≠ z₁ * z₅ := by
+        simpa [mul_comm] using h9
+      have h98b : z₄ * z₃ ≠ z₁ * z₆ := by
+        simpa [mul_comm] using h8
+      have h78a : z₃ * z₅ ≠ z₆ * z₂ := by
+        simpa [mul_comm] using h7
+      have h78b : z₃ * z₄ ≠ z₆ * z₁ := by
+        simpa [mul_comm] using h8
+      have hD98 :
+          (z₄ * z₂ - z₁ * z₅) * (z₄ * z₃ - z₁ * z₆) ≠ 0 := by
+        exact mul_ne_zero (sub_ne_zero.mpr h98a) (sub_ne_zero.mpr h98b)
+      have hD78 :
+          (z₃ * z₅ - z₆ * z₂) * (z₃ * z₄ - z₆ * z₁) ≠ 0 := by
+        exact mul_ne_zero (sub_ne_zero.mpr h78a) (sub_ne_zero.mpr h78b)
+      have h98 :
+          (z₄ * z₂ - z₁ * z₅) * (z₄ * z₃ - z₁ * z₆) *
+              (chord_intersection z₁ z₅ z₂ z₄ -
+                chord_intersection z₁ z₆ z₃ z₄) =
+            (z₁ - z₄) * P98c := by
+        simpa [P98c, mul_comm, mul_left_comm, mul_assoc, add_comm, add_left_comm,
+          add_assoc, sub_eq_add_neg] using
+          (intersection_diff_formula (u := z₁) (v := z₄) (a := z₅) (b := z₂)
+            (c := z₆) (d := z₃) h98a h98b)
+      have h98star :
+          (z₄ * z₂ - z₁ * z₅) * (z₄ * z₃ - z₁ * z₆) *
+              (star (chord_intersection z₁ z₅ z₂ z₄) -
+                star (chord_intersection z₁ z₆ z₃ z₄)) =
+            (z₁ - z₄) * Q98c := by
+        simpa [Q98c, mul_comm, mul_left_comm, mul_assoc, add_comm, add_left_comm,
+          add_assoc, sub_eq_add_neg] using
+          (intersection_diff_formula_conj (u := z₁) (v := z₄) (a := z₅) (b := z₂)
+            (c := z₆) (d := z₃) hz₁ hz₄ hz₅ hz₂ hz₆ hz₃ h98a h98b)
+      have h78 :
+          (z₃ * z₅ - z₆ * z₂) * (z₃ * z₄ - z₆ * z₁) *
+              (chord_intersection z₂ z₆ z₃ z₅ -
+                chord_intersection z₁ z₆ z₃ z₄) =
+            (z₃ - z₆) * P78c := by
+        calc
+          (z₃ * z₅ - z₆ * z₂) * (z₃ * z₄ - z₆ * z₁) *
+              (chord_intersection z₂ z₆ z₃ z₅ -
+                chord_intersection z₁ z₆ z₃ z₄) =
+            (z₆ - z₃) *
+                (z₆ * z₂ * z₁ * (z₅ - z₄) + z₃ * z₅ * z₄ * (z₁ - z₂) +
+                  z₆ * z₃ * (z₂ * z₄ - z₅ * z₁)) := by
+              simpa [mul_comm, mul_left_comm, mul_assoc, add_comm, add_left_comm,
+                add_assoc, sub_eq_add_neg] using
+                (intersection_diff_formula (u := z₆) (v := z₃) (a := z₂) (b := z₅)
+                  (c := z₁) (d := z₄) h78a h78b)
+          _ = (z₃ - z₆) * P78c := by
+              dsimp [P78c]
+              ring
+      have h78star :
+          (z₃ * z₅ - z₆ * z₂) * (z₃ * z₄ - z₆ * z₁) *
+              (star (chord_intersection z₂ z₆ z₃ z₅) -
+                star (chord_intersection z₁ z₆ z₃ z₄)) =
+            (z₃ - z₆) * Q78c := by
+        calc
+          (z₃ * z₅ - z₆ * z₂) * (z₃ * z₄ - z₆ * z₁) *
+              (star (chord_intersection z₂ z₆ z₃ z₅) -
+                star (chord_intersection z₁ z₆ z₃ z₄)) =
+            (z₆ - z₃) *
+                (z₆ * (z₁ - z₂) + z₃ * (z₅ - z₄) + z₂ * z₄ - z₅ * z₁) := by
+              simpa [mul_comm, mul_left_comm, mul_assoc, add_comm, add_left_comm,
+                add_assoc, sub_eq_add_neg] using
+                (intersection_diff_formula_conj (u := z₆) (v := z₃) (a := z₂)
+                  (b := z₅) (c := z₁) (d := z₄) hz₆ hz₃ hz₂ hz₅ hz₁ hz₄
+                  h78a h78b)
+          _ = (z₃ - z₆) * Q78c := by
+              dsimp [Q78c]
+              ring
       by_contra h_contra
       -- The non-collinear case gives a nonzero determinant.
       have h_det :
@@ -383,22 +482,47 @@ lemma pascal_hexagon_complex_explicit
         exact h_contra <| by
           simpa [Set.insert_comm] using hcol
       apply h_det
-      rw [ chord_intersection_conj, chord_intersection_conj, chord_intersection_conj ]
-      all_goals norm_num [ h_unit ] at *
-      · rw [ div_sub_div, div_sub_div ]
-        · field_simp
-          unfold chord_intersection
-          rw [ div_sub_div, div_sub_div ] <;>
-            try exact sub_ne_zero_of_ne <| by tauto
-          field_simp
-          ring
-        · exact sub_ne_zero_of_ne <| Ne.symm h7
-        · exact sub_ne_zero_of_ne <| Ne.symm h8
-        · exact sub_ne_zero_of_ne <| Ne.symm h9
-        · exact sub_ne_zero_of_ne <| Ne.symm h8
-      · aesop
-      · aesop
-      · assumption
+      apply (mul_left_cancel₀ (mul_ne_zero hD78 hD98))
+      calc
+        ((z₃ * z₅ - z₆ * z₂) * (z₃ * z₄ - z₆ * z₁) *
+            ((z₄ * z₂ - z₁ * z₅) * (z₄ * z₃ - z₁ * z₆))) *
+            ((chord_intersection z₂ z₆ z₃ z₅ -
+                chord_intersection z₁ z₆ z₃ z₄) *
+              (star (chord_intersection z₁ z₅ z₂ z₄) -
+                star (chord_intersection z₁ z₆ z₃ z₄))) =
+          ((z₃ * z₅ - z₆ * z₂) * (z₃ * z₄ - z₆ * z₁) *
+              (chord_intersection z₂ z₆ z₃ z₅ -
+                chord_intersection z₁ z₆ z₃ z₄)) *
+            ((z₄ * z₂ - z₁ * z₅) * (z₄ * z₃ - z₁ * z₆) *
+              (star (chord_intersection z₁ z₅ z₂ z₄) -
+                star (chord_intersection z₁ z₆ z₃ z₄))) := by
+            ring
+        _ = ((z₃ - z₆) * P78c) * ((z₁ - z₄) * Q98c) := by
+            rw [h78, h98star]
+        _ = ((z₁ - z₄) * P98c) * ((z₃ - z₆) * Q78c) := by
+            calc
+              ((z₃ - z₆) * P78c) * ((z₁ - z₄) * Q98c) =
+                (z₁ - z₄) * (z₃ - z₆) * (P78c * Q98c) := by
+                  ring
+              _ = (z₁ - z₄) * (z₃ - z₆) * (P98c * Q78c) := by
+                  rw [hpoly]
+              _ = ((z₁ - z₄) * P98c) * ((z₃ - z₆) * Q78c) := by
+                  ring
+        _ = ((z₄ * z₂ - z₁ * z₅) * (z₄ * z₃ - z₁ * z₆) *
+              (chord_intersection z₁ z₅ z₂ z₄ -
+                chord_intersection z₁ z₆ z₃ z₄)) *
+            ((z₃ * z₅ - z₆ * z₂) * (z₃ * z₄ - z₆ * z₁) *
+              (star (chord_intersection z₂ z₆ z₃ z₅) -
+                star (chord_intersection z₁ z₆ z₃ z₄))) := by
+            rw [h98, h78star]
+        _ =
+          ((z₃ * z₅ - z₆ * z₂) * (z₃ * z₄ - z₆ * z₁) *
+            ((z₄ * z₂ - z₁ * z₅) * (z₄ * z₃ - z₁ * z₆))) *
+            ((chord_intersection z₁ z₅ z₂ z₄ -
+                chord_intersection z₁ z₆ z₃ z₄) *
+              (star (chord_intersection z₂ z₆ z₃ z₅) -
+                star (chord_intersection z₁ z₆ z₃ z₄))) := by
+            ring
 
 /-
 If z is the intersection of two non-parallel chords (z1, z2) and (z3, z4) on
