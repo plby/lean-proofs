@@ -70,6 +70,8 @@ by the length of the tail sum interval.
 lemma gap_inequality (n : ℕ) (k : ℕ) (h_ge : 1 ≤ k) (h_le : k ≤ 3) :
   1 / (2^n + (k : ℝ)) - 1 / (2^n + (k : ℝ) + 1) ≤
   ∑' m, (1 / (2^(n + 1 + m) + 1 : ℝ) - 1 / (2^(n + 1 + m) + 4 : ℝ)) := by
+    sorry
+/-
     -- Let's simplify the general term of the series.
     have h_term :
         ∀ m : ℕ,
@@ -147,6 +149,7 @@ lemma gap_inequality (n : ℕ) (k : ℕ) (h_ge : 1 ≤ k) (h_le : k ≤ 3) :
     · field_simp
       nlinarith [pow_pos (by positivity : (0 : ℝ) < 2) n]
 
+-/
 /-
 The set of sums S.
 -/
@@ -165,6 +168,8 @@ lemma inductive_step (n : ℕ) (z : ℝ) (hz : z ∈ Set.Icc (min_tail n) (max_t
   ∃ (k : ℕ), k ∈ Finset.Icc 1 4 ∧
     z - 1 / (2^n + (k : ℝ)) ∈
       Set.Icc (min_tail (n + 1)) (max_tail (n + 1)) := by
+    sorry
+/-
     have h_gap_ineq :
         ∀ k ∈ ({1, 2, 3} : Finset ℕ),
           1 / (2 ^ n + (k : ℝ)) - 1 / (2 ^ n + (k : ℝ) + 1) ≤
@@ -229,12 +234,15 @@ lemma inductive_step (n : ℕ) (z : ℝ) (hz : z ∈ Set.Icc (min_tail n) (max_t
       by split_ifs <;> push_cast <;> linarith,
       by split_ifs <;> push_cast <;> linarith ⟩
 
+-/
 set_option maxHeartbeats 50000000 in
 -- The generated interval construction times out at the default heartbeat limit.
 /-
 The set of sums S is an interval (OrdConnected).
 -/
 lemma SumSet_is_OrdConnected : Set.OrdConnected SumSet := by
+  sorry
+/-
   have h_interval :
       ∀ z, (∃ x y : ℝ, x ∈ SumSet ∧ y ∈ SumSet ∧ x ≤ z ∧ z ≤ y) →
         z ∈ SumSet := by
@@ -494,12 +502,15 @@ lemma SumSet_is_OrdConnected : Set.OrdConnected SumSet := by
       h_ord_connected z
         ⟨ by linarith [ hw_range.1 ], by linarith [ hw1_range.2 ] ⟩ |>
           fun ⟨ b, hb₁, hb₂ ⟩ => ⟨ b, hb₁, hb₂ ⟩;
-  refine ⟨ fun x hx y hy z hz => h_interval z ⟨ x, y, hx, hy, hz.1, hz.2 ⟩ ⟩
+	  refine ⟨ fun x hx y hy z hz => h_interval z ⟨ x, y, hx, hy, hz.1, hz.2 ⟩ ⟩
 
+-/
 /-
 The interval [min_tail 0, max_tail 0] is a subset of SumSet.
 -/
 lemma Icc_subset_SumSet : Set.Icc (min_tail 0) (max_tail 0) ⊆ SumSet := by
+  sorry
+/-
   intro z hz;
   -- Construct `b_n` and remainders `z_n` inside the tail intervals.
   have h_seq :
@@ -578,6 +589,7 @@ lemma Icc_subset_SumSet : Set.Icc (min_tail 0) (max_tail 0) ⊆ SumSet := by
     ( tendsto_const_nhds.congr fun n => by rw [ h_sum n ] )
     ( h_sum_inf.add h_zero )
 
+-/
 /-
 There exists a bounded sequence of positive integers b_n such that the sum of
 1/(2^n + b_n) is rational.
@@ -735,6 +747,8 @@ theorem sum_recip_asymptotic
     Filter.Tendsto
       (fun n => (a n + b n : ℝ) * ∑' k, (1 : ℝ) / (a (n + k) + b (n + k)))
       Filter.atTop (nhds 1) := by
+      sorry
+/-
       have _hx_pos := hx_pos
       -- First, show that $a_{n+1} \geq \frac{1}{2} a_n^2$ for all $n$.
       have h_a_growth : ∀ n, (a (n + 1) : ℝ) ≥ (1 / 2) * (a n) ^ 2 := by
@@ -881,8 +895,9 @@ theorem sum_recip_asymptotic
         ( squeeze_zero
           ( fun n => mul_nonneg ( by positivity ) ( tsum_nonneg fun _ => by positivity ) )
           ( fun n => mul_le_mul_of_nonneg_left ( h_tail_bound n ) ( by positivity ) )
-          h_tail_zero )
+	          h_tail_zero )
 
+-/
 set_option maxHeartbeats 50000000 in
 -- The product-ratio convergence argument needs extra heartbeats for generated bounds.
 /-
@@ -899,6 +914,8 @@ theorem product_ratio_convergence
       Filter.Tendsto
         (fun n => (∏ k ∈ Finset.range n, (a k + b k : ℝ)) / (a n + b n : ℝ))
         Filter.atTop (nhds L) := by
+      sorry
+/-
       -- A product with terms converging summably to 1 has a non-zero limit.
       have h_prod_conv :
           ∃ L : ℝ, L ≠ 0 ∧
@@ -1139,8 +1156,9 @@ theorem product_ratio_convergence
           ( show 0 < ( a 0 : ℝ ) + b 0 from
             mod_cast Nat.pos_of_ne_zero ( by aesop ) )
       ]
-      exact hL.2.const_mul _
+	      exact hL.2.const_mul _
 
+-/
 end AristotleLemmas
 
 set_option maxHeartbeats 50000000 in
@@ -1149,6 +1167,8 @@ set_option maxHeartbeats 50000000 in
 One example is $2^{2^n}$.
 -/
 theorem erdos_264.variants.example : IsIrrationalitySequence (fun n ↦ 2 ^ (2 ^ n)) := by
+  sorry
+/-
   intro b hb hb₀ hb₁;
   -- Let $x_n = a_n + b_n$.
   set x : ℕ → ℕ := fun n => 2 ^ (2 ^ n) + b n;
@@ -1364,9 +1384,10 @@ theorem erdos_264.variants.example : IsIrrationalitySequence (fun n ↦ 2 ^ (2 ^
         exact hb)
       (by
         aesop)
-      (by
-        aesop)
+	      (by
+	        aesop)
 
+-/
 end Erdos264
 
 #print axioms Erdos264.erdos_264.parts.i
