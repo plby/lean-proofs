@@ -131,14 +131,19 @@ lemma lemma_2_1 (t : ℝ) (ht : t ≠ 0) (N : ℕ) (_hN : N > 0) (c : ℂ) :
           have h_sum_le_s_over_x : ∀ n ∈ S', (n : ℝ)⁻¹ ≤ 1 / x := by
             simp +zetaDelta at *;
             exact fun n hn₁ hn₂ => inv_anti₀ ( show 0 < x from lt_of_lt_of_le ( by positivity ) hx₁.2 ) hn₁;
-          convert Finset.sum_le_sum h_sum_le_s_over_x ; norm_num ; ring_nf;
-          norm_num [ mul_comm, S' ];
+          calc
+            ∑ n ∈ S', (n : ℝ)⁻¹ ≤ ∑ n ∈ S', 1 / x :=
+              Finset.sum_le_sum h_sum_le_s_over_x
+            _ = s / x := by
+              simp [S', div_eq_mul_inv, mul_comm]
         exact h_sum_le_s_over_x.trans ( div_le_of_le_mul₀ ( by linarith [ inv_nonneg.2 ( sq_nonneg ‖c‖ ) ] ) ( by linarith [ norm_nonneg c ] ) ( by nlinarith [ Nat.floor_le ( show 0 ≤ x * ‖c‖ by nlinarith [ norm_nonneg c, inv_nonneg.2 ( sq_nonneg ‖c‖ ) ] ), norm_nonneg c ] ) );
       · -- Sum of errors \le s * |1+it|/x^2 * s = s^2/x^2 * |1+it| \le |c|^2 * |1+it|.
         have h_sum_errors : ‖∑ n ∈ S', ((n : ℂ) ^ (-(1 + Complex.I * t))) - ∑ n ∈ S', ((x : ℂ) ^ (-(1 + Complex.I * t)))‖ ≤ ‖1 + Complex.I * t‖ * ‖c‖ ^ 2 := by
           have h_sum_errors : ∀ n ∈ S', ‖((n : ℂ) ^ (-(1 + Complex.I * t))) - ((x : ℂ) ^ (-(1 + Complex.I * t)))‖ ≤ ‖1 + Complex.I * t‖ / x ^ 2 * (n - x) := by
             intros n hn;
-            convert mvt_estimate t x ( show 0 < x from lt_of_lt_of_le ( by positivity ) hx₁ ) n ( show x ≤ n from le_trans ( Nat.le_ceil _ ) ( mod_cast Finset.mem_Ico.mp hn |>.1 ) ) using 1;
+              simpa [Complex.ofReal_natCast] using
+                mvt_estimate t x (show 0 < x from lt_of_lt_of_le (by positivity) hx₁)
+                  (n : ℝ) (show x ≤ (n : ℝ) from le_trans (Nat.le_ceil _) (mod_cast Finset.mem_Ico.mp hn |>.1));
           have h_sum_errors : ‖∑ n ∈ S', ((n : ℂ) ^ (-(1 + Complex.I * t))) - ∑ n ∈ S', ((x : ℂ) ^ (-(1 + Complex.I * t)))‖ ≤ ‖1 + Complex.I * t‖ / x ^ 2 * ∑ n ∈ S', (n - x) := by
             simpa only [ ← Finset.sum_sub_distrib, Finset.mul_sum _ _ _ ] using le_trans ( norm_sum_le _ _ ) ( Finset.sum_le_sum h_sum_errors );
           -- Sum of errors \le s * |1+it|/x^2 * s = s^2/x^2 * |1+it| \le |c|^2 * |1+it|. Use the fact that $\sum_{n \in S'} (n - x) \leq s^2$.
@@ -293,9 +298,9 @@ lemma rem_convergence (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
     set rem := rem_seq t ht lambda_val
     -- We have |rem_{k+1}| \le |rem_k|/2 if |rem_k| \le r, and |rem_{k+1}| \le |rem_k| - r/2 if |rem_k| > r.
     have h_rem_bound : ∀ k, ‖rem (k + 1)‖ ≤ max (‖rem k‖ / 2) (‖rem k‖ - (2 + 2 * ‖1 + Complex.I * t‖)⁻¹ / 2) := by
-      intro k;
-      have := choose_S_spec t ht ( ( construction_seq t ht lambda_val k ).2.2 + 1 ) ( Nat.succ_pos _ ) ( rem k );
-      convert this.2.2 using 1;
+        intro k;
+        have := choose_S_spec t ht ( ( construction_seq t ht lambda_val k ).2.2 + 1 ) ( Nat.succ_pos _ ) ( rem k );
+        simpa [rem, rem_seq, construction_seq] using this.2.2
     -- If |rem_k| stays above r, it decreases by r/2 each step, which is impossible. So eventually |rem_k| ≤ r.
     have h_rem_le_r : ∃ k, ‖rem k‖ ≤ (2 + 2 * ‖1 + Complex.I * t‖)⁻¹ := by
       by_contra h_contra;
@@ -321,7 +326,9 @@ lemma sum_recip_bounded (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
     -- The choice of $S_{k+1}$ ensures that $|rem_{k+1}| \le \max(|rem_k| / 2, |rem_k| - r / 2)$ where $r = (2 + 2 * ‖1 + Complex.I * t‖)⁻¹$.
     have h_rem_recurrence : ∀ k, ‖rem_seq t ht lambda_val (k + 1)‖ ≤ max (‖rem_seq t ht lambda_val k‖ / 2) (‖rem_seq t ht lambda_val k‖ - (2 + 2 * ‖1 + Complex.I * t‖)⁻¹ / 2) := by
       intro k;
-      convert choose_S_spec t ht ( Nat.succ ( construction_seq t ht lambda_val k |>.2.2 ) ) ( Nat.succ_pos _ ) ( rem_seq t ht lambda_val k ) |> And.right |> And.right using 1;
+      simpa [rem_seq, construction_seq] using
+        choose_S_spec t ht (Nat.succ (construction_seq t ht lambda_val k |>.2.2))
+          (Nat.succ_pos _) (rem_seq t ht lambda_val k) |>.2.2
     -- Since $|rem_k|$ is non-increasing and converges to $0$, there exists $K$ such that for all $k \ge K$, $|rem_k| \le r$.
     obtain ⟨K, hK⟩ : ∃ K, ∀ k ≥ K, ‖rem_seq t ht lambda_val k‖ ≤ (2 + 2 * ‖1 + Complex.I * t‖)⁻¹ := by
       have := rem_convergence t ht lambda_val;
@@ -331,9 +338,10 @@ lemma sum_recip_bounded (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
       intros k hk
       have h_step_target : ‖step_target t (rem_seq t ht lambda_val k)‖ ≤ ‖rem_seq t ht lambda_val k‖ := by
         unfold step_target; aesop;
-      have := choose_S_spec t ht ( ( construction_seq t ht lambda_val k ).2.2 + 1 ) ( Nat.succ_pos _ ) ( rem_seq t ht lambda_val k ) ; aesop;
-      · convert left_1.trans h_step_target using 1;
-      · exact le_trans left_1 h_step_target;
+      have hchoose :=
+        choose_S_spec t ht ((construction_seq t ht lambda_val k).2.2 + 1)
+          (Nat.succ_pos _) (rem_seq t ht lambda_val k)
+      simpa [S_seq, rem_seq, construction_seq] using hchoose.2.1.trans h_step_target
     -- Since $|rem_k|$ is non-increasing and converges to $0$, the series $\sum_{k=K}^{\infty} |rem_k|$ is summable.
     have h_rem_summable : Summable (fun k => ‖rem_seq t ht lambda_val (k + K)‖) := by
       -- Since $|rem_k|$ is non-increasing and converges to $0$, we can apply the comparison test with the geometric series $\sum_{k=0}^{\infty} (1/2)^k$.
@@ -410,10 +418,29 @@ lemma summable_constructed_S (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
       -- Using the maximum index $M$, we can bound the sum over $u$ by the sum over the first $M+1$ blocks.
       have h_bound : ∑ x ∈ u, (if x ∈ constructed_S t ht lambda_val then (x : ℝ)⁻¹ else 0) ≤ ∑ k ∈ Finset.range (M + 1), ∑ n ∈ S_seq t ht lambda_val k, (n : ℝ)⁻¹ := by
         have h_bound : ∑ x ∈ u, (if x ∈ constructed_S t ht lambda_val then (x : ℝ)⁻¹ else 0) ≤ ∑ k ∈ Finset.range (M + 1), ∑ n ∈ u, (if n ∈ S_seq t ht lambda_val k then (n : ℝ)⁻¹ else 0) := by
-          rw [ Finset.sum_comm ];
-          gcongr ; aesop;
-          · obtain ⟨ k, hk₁, hk₂ ⟩ := hM i a h; exact le_trans ( by aesop ) ( Finset.single_le_sum ( fun x _ => by positivity ) ( Finset.mem_range.mpr ( Nat.lt_succ_of_le hk₁ ) ) ) ;
-          · exact Finset.sum_nonneg fun _ _ => by positivity;
+            rw [ Finset.sum_comm ];
+            refine Finset.sum_le_sum ?_;
+            intro x hx
+            by_cases hxS : x ∈ constructed_S t ht lambda_val
+            · obtain ⟨k, hk₁, hk₂⟩ := hM x hx hxS
+              have hsingle :
+                  (if x ∈ S_seq t ht lambda_val k then (x : ℝ)⁻¹ else 0) ≤
+                    ∑ j ∈ Finset.range (M + 1),
+                      if x ∈ S_seq t ht lambda_val j then (x : ℝ)⁻¹ else 0 := by
+                simpa [Nat.succ_eq_add_one] using
+                  Finset.single_le_sum
+                    (f := fun j => if x ∈ S_seq t ht lambda_val j then (x : ℝ)⁻¹ else 0)
+                    (fun j _ => by
+                      by_cases hj : x ∈ S_seq t ht lambda_val j
+                      · simp [hj]
+                      · simp [hj])
+                    (Finset.mem_range.mpr (Nat.lt_succ_of_le hk₁))
+              simpa [hxS, hk₂] using hsingle
+            · rw [if_neg hxS]
+              exact Finset.sum_nonneg fun j hj => by
+                by_cases hxj : x ∈ S_seq t ht lambda_val j
+                · simp [hxj]
+                · simp [hxj]
         refine le_trans h_bound ?_;
         gcongr ; aesop;
         exact Finset.sum_le_sum_of_subset_of_nonneg ( Finset.inter_subset_right ) fun _ _ _ => by positivity;
@@ -562,9 +589,12 @@ noncomputable def target_seq (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) (n : �
   if n ∈ constructed_S t ht lambda_val then (n : ℂ) ^ (-(1 + Complex.I * (t : ℂ))) else 0
 
 lemma summable_target_seq (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
-  Summable (target_seq t ht lambda_val) := by
-    have := summable_complex_constructed_S t ht lambda_val;
-    convert this using 1
+    Summable (target_seq t ht lambda_val) := by
+  have := summable_complex_constructed_S t ht lambda_val;
+  refine this.congr fun n => ?_
+  by_cases hn : n ∈ constructed_S t ht lambda_val
+  · simp [target_seq, hn]
+  · simp [target_seq, hn]
 
 /-
 For any real number t ≠ 0 and any complex number λ, there exists a subset S ⊆ ℤ≥2 such that ∑_{n∈S} 1/n < ∞ and ∑_{n∈S} 1/n^{1+it} = λ.

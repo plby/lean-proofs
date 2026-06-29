@@ -284,14 +284,13 @@ lemma injectivity_poly_ne_zero {ι : Type*} [Fintype ι] (k : ℕ) (x y : ι →
   InjectivityPoly k x y ≠ 0 := by
     -- By contradiction, assume that InjectivityPoly k x y is the zero polynomial.
     by_contra h_zero_poly;
-    -- By definition of InjectivityPoly, we have that for all $v$, $(Proj v x - Proj v y)^2 = 0$.
-    have h_proj_eq : ∀ v : ι → Fin 2 → ℝ, (Proj k v x - Proj k v y) = 0 := by
-      intro v
-      have h_eval_zero : (Proj k v x 0 - Proj k v y 0)^2 + (Proj k v x 1 - Proj k v y 1)^2 = 0 := by
-        convert congr_arg ( MvPolynomial.eval ( fun p => v p.1 p.2 ) ) h_zero_poly using 1;
-        unfold InjectivityPoly ProjPoly; simp +decide ;
-        unfold Proj; simp +decide [Finset.sum_apply] ;
-      ext i; fin_cases i <;> norm_num <;> nlinarith! only [ h_eval_zero ] ;
+      -- By definition of InjectivityPoly, we have that for all $v$, $(Proj v x - Proj v y)^2 = 0$.
+      have h_proj_eq : ∀ v : ι → Fin 2 → ℝ, (Proj k v x - Proj k v y) = 0 := by
+        intro v
+        have h_eval_zero : (Proj k v x 0 - Proj k v y 0)^2 + (Proj k v x 1 - Proj k v y 1)^2 = 0 := by
+          simpa [InjectivityPoly, ProjPoly, Proj, Finset.sum_apply] using
+            congr_arg (MvPolynomial.eval (fun p => v p.1 p.2)) h_zero_poly
+        ext i; fin_cases i <;> norm_num <;> nlinarith! only [ h_eval_zero ] ;
     exact absurd ( exists_proj_sep k x y h ) ( by rintro ⟨ v, hv ⟩ ; exact hv ( sub_eq_zero.mp ( h_proj_eq v ) ) )
 
 /-
@@ -364,14 +363,16 @@ The collinearity polynomial is not identically zero.
 -/
 lemma collinearity_poly_ne_zero {ι : Type*} [Fintype ι] (k : ℕ) (hk : 3 ≤ k) (l : Combinatorics.Line (Fin k) ι) (x : ι → Fin k) (hx : x ∉ Set.range l) :
   CollinearityPoly k hk l x ≠ 0 := by
-    -- By `exists_good_proj_for_line`, there exists `v` such that `u = Proj k v (l 1) - Proj k v (l 0)` and `w = Proj k v x - Proj k v (l 0)` are linearly independent.
-    obtain ⟨v, hv⟩ : ∃ v : ι → Fin 2 → ℝ, LinearIndependent ℝ ![Proj k v (l ⟨1, by linarith⟩) - Proj k v (l ⟨0, by linarith⟩), Proj k v x - Proj k v (l ⟨0, by linarith⟩)] := by
-      exact exists_good_proj_for_line k hk l x hx;
-    -- By `det_ne_zero_of_linear_independent_fin2`, `u 0 * w 1 - u 1 * w 0 ≠ 0`.
-    have h_det_ne_zero : (Proj k v (l ⟨1, by linarith⟩) 0 - Proj k v (l ⟨0, by linarith⟩) 0) * (Proj k v x 1 - Proj k v (l ⟨0, by linarith⟩) 1) - (Proj k v (l ⟨1, by linarith⟩) 1 - Proj k v (l ⟨0, by linarith⟩) 1) * (Proj k v x 0 - Proj k v (l ⟨0, by linarith⟩) 0) ≠ 0 := by
-      convert det_ne_zero_of_linear_independent_fin2 _ _ hv using 1;
-    contrapose! h_det_ne_zero;
-    convert congr_arg ( fun p => MvPolynomial.eval ( fun p' : ι × Fin 2 => v p'.1 p'.2 ) p ) h_det_ne_zero using 1 ; simp +decide [ eval_collinearity_poly ]
+      -- By `exists_good_proj_for_line`, there exists `v` such that `u = Proj k v (l 1) - Proj k v (l 0)` and `w = Proj k v x - Proj k v (l 0)` are linearly independent.
+      obtain ⟨v, hv⟩ : ∃ v : ι → Fin 2 → ℝ, LinearIndependent ℝ ![Proj k v (l ⟨1, by linarith⟩) - Proj k v (l ⟨0, by linarith⟩), Proj k v x - Proj k v (l ⟨0, by linarith⟩)] := by
+        exact exists_good_proj_for_line k hk l x hx;
+      -- By `det_ne_zero_of_linear_independent_fin2`, `u 0 * w 1 - u 1 * w 0 ≠ 0`.
+      have h_det_ne_zero : (Proj k v (l ⟨1, by linarith⟩) 0 - Proj k v (l ⟨0, by linarith⟩) 0) * (Proj k v x 1 - Proj k v (l ⟨0, by linarith⟩) 1) - (Proj k v (l ⟨1, by linarith⟩) 1 - Proj k v (l ⟨0, by linarith⟩) 1) * (Proj k v x 0 - Proj k v (l ⟨0, by linarith⟩) 0) ≠ 0 := by
+        simpa [Pi.sub_apply] using det_ne_zero_of_linear_independent_fin2 _ _ hv
+      contrapose! h_det_ne_zero;
+      simpa [eval_collinearity_poly] using
+        congr_arg (fun p => MvPolynomial.eval (fun p' : ι × Fin 2 => v p'.1 p'.2) p)
+          h_det_ne_zero
 
 /-
 There exists a generic projection from the hypercube to the plane.
@@ -438,15 +439,16 @@ theorem exists_set_with_monochromatic_line_property (k : ℕ) (hk : 3 ≤ k) :
         obtain ⟨ l, hl ⟩ := hι ( fun x => C ⟨ ∑ i, ( x i : ℕ ) • v i, Finset.mem_image_of_mem _ ( Finset.mem_univ _ ) ⟩ );
         refine ⟨ Finset.image ( fun x => ∑ i, ( l x i : ℕ ) • v i ) Finset.univ, ?_, ?_, ?_, ?_ ⟩
         · exact Finset.image_subset_iff.mpr fun x _ => Finset.mem_image.mpr ⟨ l x, Finset.mem_univ _, rfl ⟩
-        · convert image_of_line_is_collinear k v l using 1;
-          ext; simp [Proj];
+        · convert image_of_line_is_collinear k v l using 1
+          ext x
+          simp [Proj]
         · rw [ Finset.card_image_of_injective ];
           · simp +decide [ Finset.card_univ ];
-          · have := hv.1;
-            convert this.comp ( show Function.Injective ( fun x : Fin k => l x ) from ?_ ) using 1;
-            intro x y hxy;
-            have := l.2;
-            obtain ⟨ i, hi ⟩ := this; have := congr_fun hxy i; aesop;
+          · have hlinj : Function.Injective (fun x : Fin k => l x) := by
+              intro x y hxy;
+              have := l.2;
+              obtain ⟨ i, hi ⟩ := this; have := congr_fun hxy i; aesop;
+            simpa [Proj, Function.comp_def] using hv.1.comp hlinj
         · obtain ⟨ c, hc ⟩ := hl;
           exact ⟨ c, fun x hx => by obtain ⟨ y, hy, rfl ⟩ := Finset.mem_image.mp hx; exact hc y ⟩
 

@@ -319,7 +319,7 @@ lemma erdos756_odd (m : ℕ) (hm : m ≥ 2) :
         set P := P0 ∪ P0.image R;
         -- Let $S_0$ be the set of distances in $P_0$ that appear $m+1$ times (from `mgon`). $|S_0| = \lfloor m/2 \rfloor$.
         obtain ⟨S0, hS0⟩ : ∃ S0 : Finset ℝ, S0 ⊆ (P0.offDiag.image (fun (x, y) => dist x y)) ∧ S0.card = m / 2 ∧ ∀ d ∈ S0, distance_count P0 d = m + 1 := by
-          convert mgon ( m + 1 ) ( by linarith ) using 1;
+          simpa [P0, Nat.add_assoc] using mgon (m + 1) (by linarith)
         -- For each $d \in S_0$, it appears $m+1$ times in $P_0$ and $m+1$ times in $R(P_0)$ (since $R$ is an isometry).
         have h_count : ∀ d ∈ S0, distance_count P d ≥ distance_count P0 d + distance_count (P0.image R) d := by
           intro d hd
