@@ -170,9 +170,9 @@ lemma slope_tendsto_zero {f : ℕ → ℝ} {N : ℕ}
           simpa [ Asymptotics.isLittleO_iff_tendsto ] using h_o.tendsto_div_nhds_zero
         simpa using h_frac1.mul
           (show Filter.Tendsto (fun k : ℕ => (k : ℝ) / (k - N))
-              Filter.atTop (nhds 1) from by
-            simpa using tendsto_natCast_div_add_atTop (-N : ℝ))
-      simpa using h_prod.sub
+          Filter.atTop (nhds 1) from by
+            simpa [sub_eq_add_neg] using tendsto_natCast_div_add_atTop (-N : ℝ))
+      simpa [sub_eq_add_neg] using h_prod.sub
         (tendsto_const_nhds.div_atTop
           (Filter.tendsto_atTop_add_const_right _ _ tendsto_natCast_atTop_atTop))
 
@@ -740,7 +740,8 @@ lemma log_prime_isLittleO_id :
       exact this.congr' (by
         filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx
         rw [ Function.comp_apply, Real.exp_log hx ])
-    simpa [ Real.exp_neg ] using Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 2
+    simpa [ div_eq_mul_inv, Real.exp_neg ] using
+      Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 2
   -- Since $\frac{n+1}{nc} \to \frac{1}{c}$, we have
   -- $\frac{n+1}{nc} \frac{(\log p_n)^2}{p_n} \to 0$.
   have h_frac_zero :
@@ -802,7 +803,10 @@ theorem infinitely_many_prime_sq_gt_neighbors :
       2 * Real.log (Nat.nth Nat.Prime n) >
         Real.log (Nat.nth Nat.Prime (n - i)) +
           Real.log (Nat.nth Nat.Prime (n + i)) := by
-    convert log_prime_vertex_implies_strict_ineq n hn i hi_pos hi_le_n using 1
+    have hn_a : is_vertex a n := by
+      change is_vertex (fun n => Real.log (Nat.nth Nat.Prime n)) n
+      exact hn
+    simpa [a] using log_prime_vertex_implies_strict_ineq n hn_a i hi_pos hi_le_n
   exact_mod_cast
     (by
       rw [ ← Real.log_rpow, ← Real.log_mul, gt_iff_lt,
