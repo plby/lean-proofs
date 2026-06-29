@@ -388,7 +388,8 @@ lemma exists_shift_with_parity (p : ℕ) (hp : p.Prime) (u : ℕ) (target_parity
         · exact h1
       refine ⟨t, ht1, ?_⟩
       rw [ht_val, htarget]
-      decide
+      change (1 : ZMod 2) % (2 : ZMod 2) = 1
+      rw [show (2 : ZMod 2) = 0 by exact ZMod.natCast_self 2, EuclideanDomain.mod_zero]
 
 /-
 If the maximum valuation M is attained exactly once, then there exists a shift s <= 2*p^2*b such that the block repeats.
@@ -682,7 +683,9 @@ lemma val_vec_recurrent (k : ℕ) (p : Fin k → ℕ) (hp : ∀ i, (p i).Prime) 
     -- By the properties of the p-adic valuation, we have that $v_{p_i}(m + j + S) = v_{p_i}(m + j)$ since $S$ is divisible by $p_i^{M_i + 1}$.
     have h_val_eq : padicValNat (p i) (m + j + S) = padicValNat (p i) (m + j) := by
       have h_val_eq : padicValNat (p i) (m + j) ≤ M i := by
-        convert Finset.le_sup ( f := fun n => padicValNat ( p i ) ( n + 1 ) ) ( Finset.mem_range.mpr ( show m + j - 1 < b + m from by omega ) ) using 1 ; rw [ Nat.sub_add_cancel ( by linarith ) ];
+        simpa [Nat.sub_add_cancel (by omega : 1 ≤ m + j)] using
+          Finset.le_sup (f := fun n => padicValNat (p i) (n + 1))
+            (Finset.mem_range.mpr (show m + j - 1 < b + m from by omega))
       convert padicValNat_periodic_pos ( p i ) ( hp i ) ( m + j ) ( S / p i ^ ( M i + 1 ) ) ( M i ) _ using 1;
       · rw [ Nat.div_mul_cancel ( show p i ^ ( M i + 1 ) ∣ S from Finset.dvd_prod_of_mem _ ( Finset.mem_univ _ ) ) ] ; aesop;
       · linarith;

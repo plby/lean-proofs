@@ -737,15 +737,10 @@ theorem erdos_303 :
     (1/a : ℝ) = 1/b + 1/c ∧
     (𝓒 '' {a, b, c}).Subsingleton) := by
   intro 𝓒 h_finite
-  obtain ⟨k, y, z, hk, hy, hz, h_ne, h_eq⟩ :
-      ∃ k y z : ℕ,
-        k ≥ 1 ∧ y ≥ 1 ∧ z ≥ 1 ∧ y ≠ z ∧
-          (𝓒 (k * y * z) = 𝓒 (k * z * (y + z)) ∧
-            𝓒 (k * z * (y + z)) = 𝓒 (k * y * (y + z))) := by
-    convert
-      find_monochromatic_parametric_variables_in_naturals ( fun n => 𝓒 n )
-        ( Set.Finite.subset ( h_finite.image fun x => x ) <|
-          Set.range_subset_iff.mpr fun n => by aesop ) using 1
+  obtain ⟨k, y, z, hk, hy, hz, h_ne, h_eq⟩ :=
+    find_monochromatic_parametric_variables_in_naturals ( fun n => 𝓒 n )
+      ( Set.Finite.subset ( h_finite.image fun x => x ) <|
+        Set.range_subset_iff.mpr fun n => by aesop )
   refine
     ⟨ k * y * z, k * z * ( y + z ), k * y * ( y + z ), ?_, ?_, ?_ ⟩
   · simp_all +decide only [List.nodup_cons, List.mem_cons, mul_eq_mul_left_iff,

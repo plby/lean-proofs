@@ -445,9 +445,12 @@ lemma mem_line_iff_barycentric_proportional_B
     O ∈ line[ℝ, b 1, B₁] ↔
     b.coord 0 O * b.coord 2 B₁ = b.coord 2 O * b.coord 0 B₁ := by
       have := @mem_line_iff_barycentric_proportional
-      convert @this V P _ _ _ _ ( b.reindex ( Equiv.swap 0 1 ) ) O B₁ _ using 1
-      · simp +decide [ AffineBasis.coord, Equiv.swap_apply_def ]
-      · simp +decide [ *, AffineBasis.coord_reindex ]
+      have hB₁_reindex : ((b.reindex (Equiv.swap 0 1)).coord 0) B₁ = 0 := by
+        simpa [AffineBasis.coord_reindex, Equiv.symm_swap, Equiv.swap_apply_def] using
+          hB₁_on_AC
+      have h :=
+        @this V P _ _ _ _ (b.reindex (Equiv.swap 0 1)) O B₁ hB₁_reindex
+      simpa [AffineBasis.coord_reindex, Equiv.symm_swap, Equiv.swap_apply_def] using h
 
 /-
 A point O lies on the line connecting vertex C (b 2) and a point C₁ on the
@@ -723,7 +726,7 @@ lemma ceva_reverse
               mem_affineSegment_iff_barycentric_coords_zero
                 ( b.reindex ( Equiv.swap 0 2 ) ) C₁
             simp_all +decide [ affineSegment_comm ]
-            exact this.mp ( by simpa using hC₁ ) |>.1
+            exact this.mp ( by simpa [Equiv.swap_apply_def] using hC₁ ) |>.1
           have h_coords_C₁_sum : b.coord 0 C₁ + b.coord 1 C₁ + b.coord 2 C₁ = 1 := by
             have := b.sum_coord_apply_eq_one C₁
             rwa [ Fin.sum_univ_three ] at this
