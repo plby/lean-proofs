@@ -280,7 +280,7 @@ def B_finset_new (A : Finset ℕ) (m i : ℕ) : Finset ℕ :=
 
 theorem B_finset_new_eq_B (A : Finset ℕ) (m i : ℕ) (hm : m > 0) :
   (B_finset_new A m i : Set ℕ) = B (A : Set ℕ) m i := by
-    convert B_finset_eq_B A m i hm using 1
+    simpa [B_finset_new, B_finset] using B_finset_eq_B A m i hm
 
 /-
 The number of differences from all B_i is the sum of the number of differences from each B_i.
@@ -426,7 +426,7 @@ theorem sum_diffs_order_eq_complement (A : Finset ℕ) (s : ℕ) (hs : s < A.car
         exact Finset.pairwise_sort A (· ≤ ·);
       rw [ List.pairwise_iff_get ] at h_sorted;
       convert h_sorted ⟨ i, by simp ⟩ ⟨ j, by simp ⟩ hij using 1 <;> simp +decide;
-    convert h_sorted ⟨ i, by linarith [ Fin.is_lt i, Nat.sub_add_cancel ( show A.card - ( ‹_› + 1 ) ≤ A.card from Nat.sub_le _ _ ) ] ⟩ ⟨ i + ( A.card - ( ‹_› + 1 ) ), by linarith [ Fin.is_lt i, Nat.sub_add_cancel ( show A.card - ( ‹_› + 1 ) ≤ A.card from Nat.sub_le _ _ ) ] ⟩ ( Nat.lt_add_of_pos_right ( Nat.sub_pos_of_lt ( by linarith [ Finset.mem_range.mp ‹_› ] ) ) ) using 1
+    convert h_sorted ⟨ i, by linarith [ Fin.is_lt i, Nat.sub_add_cancel ( show A.card - ( ‹_› + 1 ) ≤ A.card from Nat.sub_le _ _ ) ] ⟩ ⟨ i + ( A.card - ( ‹_› + 1 ) ), by linarith [ Fin.is_lt i, Nat.sub_add_cancel ( show A.card - ( ‹_› + 1 ) ≤ A.card from Nat.sub_le _ _ ) ] ⟩ ( Nat.lt_add_of_pos_right ( Nat.sub_pos_of_lt ( by linarith [ Finset.mem_range.mp ‹_› ] ) ) ) using 1 <;> simp
 
 /-
 The sum of differences equals the sum of the set of differences for a Sidon set.
@@ -448,8 +448,30 @@ theorem sum_diffs_le_s_eq_sum_set (A : Finset ℕ) (s : ℕ) (hA : IsSidonSetNat
     rw [ Finset.sum_biUnion ];
     · refine Finset.sum_congr rfl fun v hv => ?_;
       rw [ Finset.sum_image ];
-      intro j hj j' hj' h_eq; specialize h_inj ( v + 1 ) ( v + 1 ) j j'; simp_all +decide ;
-      exact h_inj ( by omega ) ( by omega ) ( by omega ) ( by simpa [ List.getElem?_eq_getElem ( show j + ( v + 1 ) < List.length ( A.sort ( fun x1 x2 => x1 ≤ x2 ) ) from by simpa using by omega ), List.getElem?_eq_getElem ( show j < List.length ( A.sort ( fun x1 x2 => x1 ≤ x2 ) ) from by simpa using by omega ), List.getElem?_eq_getElem ( show j' + ( v + 1 ) < List.length ( A.sort ( fun x1 x2 => x1 ≤ x2 ) ) from by simpa using by omega ), List.getElem?_eq_getElem ( show j' < List.length ( A.sort ( fun x1 x2 => x1 ≤ x2 ) ) from by simpa using by omega ) ] using h_eq );
+      intro j hj j' hj' h_eq
+      have hlen : (A.sort (· ≤ ·)).length = A.card := Finset.length_sort (s := A) (· ≤ ·)
+      have hjv : j + (v + 1) < (A.sort (· ≤ ·)).length := by
+        have hj_len : j < (A.sort (· ≤ ·)).length - (v + 1) := Finset.mem_range.mp hj
+        omega
+      have hjv' : j' + (v + 1) < (A.sort (· ≤ ·)).length := by
+        have hj_len : j' < (A.sort (· ≤ ·)).length - (v + 1) := Finset.mem_range.mp hj'
+        omega
+      have hjA : j < A.card - (v + 1) := by
+        simpa [hlen] using Finset.mem_range.mp hj
+      have hjA' : j' < A.card - (v + 1) := by
+        simpa [hlen] using Finset.mem_range.mp hj'
+      have h_eq' :
+          ((A.sort (· ≤ ·))[j + (v + 1)]?).getD 0 -
+              ((A.sort (· ≤ ·))[j]?).getD 0 =
+            ((A.sort (· ≤ ·))[j' + (v + 1)]?).getD 0 -
+              ((A.sort (· ≤ ·))[j']?).getD 0 := by
+        simpa using h_eq
+      exact (h_inj (v + 1) (v + 1) j j'
+        (by omega) (by omega) (by omega) (by omega)
+        hjA hjA'
+        (by simp [List.getElem?_eq_getElem hjv])
+        (by simp [List.getElem?_eq_getElem hjv'])
+        h_eq').2
     · intros v hv w hw hvw;
       rw [ Function.onFun, Finset.disjoint_left ];
       simp +zetaDelta at *;
@@ -619,11 +641,12 @@ lemma cluster_point_is_const_fin (m : ℕ) (hm : 2 ≤ m)
         · exact fun b x hx => le_of_tendsto h_sum_le_limsup ( Filter.eventually_atTop.mpr ⟨ x, fun j hj => hx _ ( hk_j.1.id_le _ |> le_trans hj ) ⟩ );
       refine le_trans ( mul_le_mul_of_nonneg_left h_sum_le_limsup <| Nat.cast_nonneg _ ) ?_;
       convert h_ineq using 1;
-      rw [ Filter.limsup_eq, Filter.limsup_eq ];
-      rw [ ← smul_eq_mul, ← Real.sInf_smul_of_nonneg ];
-      · congr with x ; simp +decide [Set.mem_smul_set];
-        exact ⟨ fun ⟨ y, ⟨ a, ha ⟩, hy ⟩ => ⟨ a, fun b hb => by nlinarith [ ha b hb ] ⟩, fun ⟨ a, ha ⟩ => ⟨ x / m, ⟨ a, fun b hb => by nlinarith [ ha b hb, show ( m : ℝ ) ≥ 2 by norm_cast, mul_div_cancel₀ x ( by positivity : ( m : ℝ ) ≠ 0 ) ] ⟩, by rw [ mul_div_cancel₀ _ ( by positivity ) ] ⟩ ⟩;
-      · positivity
+      · rfl
+      · rw [ Filter.limsup_eq, Filter.limsup_eq ];
+        rw [ ← smul_eq_mul, ← Real.sInf_smul_of_nonneg ];
+        · congr with x ; simp +decide [Set.mem_smul_set];
+          exact ⟨ fun ⟨ y, ⟨ a, ha ⟩, hy ⟩ => ⟨ a, fun b hb => by nlinarith [ ha b hb ] ⟩, fun ⟨ a, ha ⟩ => ⟨ x / m, ⟨ a, fun b hb => by nlinarith [ ha b hb, show ( m : ℝ ) ≥ 2 by norm_cast, mul_div_cancel₀ x ( by positivity : ( m : ℝ ) ≠ 0 ) ] ⟩, by rw [ mul_div_cancel₀ _ ( by positivity ) ] ⟩ ⟩;
+        · positivity
 
 /-
 The sequence v converges to the constant vector 1/m.
@@ -663,7 +686,7 @@ theorem sequence_convergence_to_constant_fin (m : ℕ) (hm : 2 ≤ m)
     have h_cluster_const : ρ = fun _ => 1 / (m : ℝ) := by
       apply cluster_point_is_const_fin m hm v h_nonneg h_sum h_ineq ρ h_cluster;
     have := hρ.comp hsubseq'.1.tendsto_atTop; simp_all +decide [ tendsto_pi_nhds ] ;
-    exact absurd ( this i ) ( by intro H; exact absurd ( H.eventually ( Metric.ball_mem_nhds _ hε_pos ) ) fun h => by obtain ⟨ k, hk ⟩ := h.exists; exact not_lt_of_ge ( hsubseq.2 ( subseq' ( subseq' k ) ) ) ( by simpa using hk ) )
+    exact absurd ( this i ) ( by intro H; exact absurd ( H.eventually ( Metric.ball_mem_nhds _ hε_pos ) ) fun h => by obtain ⟨ k, hk ⟩ := h.exists; exact not_lt_of_ge ( hsubseq.2 ( subseq' ( subseq' k ) ) ) ( by simpa [Real.dist_eq] using hk ) )
 
 /-
 Cardinality of the subset of differences.
@@ -679,13 +702,12 @@ theorem card_total_diffs_subset (A : Finset ℕ) (m : ℕ) (hm : 2 ≤ m) (s : �
     -- Apply the fact that the cardinality of a union of pairwise disjoint sets is the sum of their cardinalities.
     have h_card_union : (Finset.biUnion I (fun i => diffs_le_s_set (B_finset_new A m i) (s i))).card = ∑ i ∈ I, (diffs_le_s_set (B_finset_new A m i) (s i)).card := by
       exact Finset.card_biUnion fun ⦃x⦄ a ⦃y⦄ => h_union_disjoint x y a;
-    convert h_card_union using 2;
-    convert Eq.symm ( card_diffs_le_s_set _ _ _ _ ) using 1;
-    · convert B_is_sidon A m ‹_› _ _ using 1;
-      · exact B_finset_new_eq_B _ _ _ ( by linarith );
-      · linarith;
-      · assumption;
-    · exact h_subset _ ‹_›
+    unfold total_diffs_subset
+    rw [h_card_union]
+    refine Finset.sum_congr rfl fun i hi => ?_
+    exact card_diffs_le_s_set (B_finset_new A m i) (s i) (by
+      rw [B_finset_new_eq_B A m i (by linarith)]
+      exact B_is_sidon (A : Set ℕ) m i hm hA) (h_subset i hi)
 
 /-
 The total differences set is equal to the subset of differences from non-empty B_i.
@@ -715,7 +737,10 @@ lemma eventually_inequality_premises
         have h_card_inf : Filter.Tendsto (fun k => (A_seq k).card : ℕ → ℝ) Filter.atTop Filter.atTop := by
           have h_card_large : Filter.Tendsto (fun k => (A_seq k).card / Real.sqrt (n_seq k) * Real.sqrt (n_seq k)) Filter.atTop Filter.atTop := by
             apply Filter.Tendsto.pos_mul_atTop;
-            exacts [ zero_lt_one, h_card_tendsto, by simpa only [ Real.sqrt_eq_rpow ] using tendsto_rpow_atTop ( by norm_num ) |> Filter.Tendsto.comp <| h_n_tendsto ];
+            exacts [ zero_lt_one, h_card_tendsto, by
+              simpa only [Real.sqrt_eq_rpow, Function.comp_def] using
+                (tendsto_rpow_atTop ( by norm_num ) |> Filter.Tendsto.comp <|
+                  h_n_tendsto) ];
           exact h_card_large.congr' ( by filter_upwards [ h_n_tendsto.eventually_gt_atTop 0 ] with k hk using by rw [ div_mul_cancel₀ _ ( ne_of_gt ( Real.sqrt_pos.mpr ( Nat.cast_pos.mpr ( Nat.pos_of_ne_zero ( by aesop ) ) ) ) ) ] );
         exact Filter.eventually_atTop.mp ( h_card_inf.eventually_ge_atTop ( 4 * m ) ) |> fun ⟨ K, hK ⟩ ↦ ⟨ K, fun k hk ↦ by exact_mod_cast hK k hk ⟩;
       obtain ⟨ K, hK ⟩ := h_card_bound;
