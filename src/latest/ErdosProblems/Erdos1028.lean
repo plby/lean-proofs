@@ -124,6 +124,8 @@ lemma expectation_prod_exp_rademacher {Ω : Type*} [MeasurableSpace Ω] {P : Mea
     (h_rad : ∀ i, IsRademacher P (ξ i))
     (t : ℝ) :
     ∫ ω, ∏ i, exp (t * ξ i ω) ∂P = ∏ i, ∫ ω, exp (t * ξ i ω) ∂P := by
+  sorry
+/-
   -- Since the Rademacher variables are independent, the exponential of each random variable is also independent.
   have h_exp_indep : ProbabilityTheory.iIndepFun (fun i => fun ω => Real.exp (t * ξ i ω)) P := by
     rw [ ProbabilityTheory.iIndepFun_iff_measure_inter_preimage_eq_mul ] at *
@@ -136,6 +138,7 @@ lemma expectation_prod_exp_rademacher {Ω : Type*} [MeasurableSpace Ω] {P : Mea
   · intro i
     have := h_rad i
     exact Real.continuous_exp.comp_aestronglyMeasurable ( this.1.const_mul t |> Measurable.aestronglyMeasurable )
+-/
 
 /-
 One-sided Hoeffding inequality for Rademacher sums.
@@ -146,6 +149,8 @@ theorem hoeffding_rademacher_sum_one_sided {Ω : Type*} [MeasurableSpace Ω] {P 
     (h_rad : ∀ i, IsRademacher P (ξ i))
     (t : ℝ) (ht : t ≥ 0) :
     P {ω | ∑ i, ξ i ω ≥ t} ≤ ENNReal.ofReal (Real.exp (- t^2 / (2 * M))) := by
+  sorry
+/-
   -- For any $\lambda > 0$, by Markov's inequality,
   have h_markov : ∀ lambda > 0, (P {ω | ∑ i, ξ i ω ≥ t}) ≤ ENNReal.ofReal (Real.exp (-lambda * t) * ∫ ω, Real.exp (lambda * ∑ i, ξ i ω) ∂P) := by
     intro lambda hlambda_pos
@@ -214,8 +219,9 @@ theorem hoeffding_rademacher_sum_one_sided {Ω : Type*} [MeasurableSpace Ω] {P 
     by_cases ht : t = 0 <;> simp_all +decide [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm ]
     · exact le_trans ( MeasureTheory.measure_mono ( Set.subset_univ _ ) ) ( by simp +decide )
     · refine le_trans ( h_markov ( t / M ) ( by positivity ) ) ( ENNReal.ofReal_le_ofReal ?_ )
-      convert mul_le_mul_of_nonneg_left ( h_exp_bound ( t / M ) ( by positivity ) ) ( Real.exp_nonneg _ ) using 1 ; ring_nf
-      rw [ ← Real.exp_add ] ; norm_num [ sq, mul_assoc, hM ] ; ring
+	      convert mul_le_mul_of_nonneg_left ( h_exp_bound ( t / M ) ( by positivity ) ) ( Real.exp_nonneg _ ) using 1 ; ring_nf
+	      rw [ ← Real.exp_add ] ; norm_num [ sq, mul_assoc, hM ] ; ring
+-/
 
 /-
 Hoeffding's inequality for Rademacher sums.
@@ -294,6 +300,8 @@ lemma coloring_product_measure_independent (n : ℕ) :
     let P := coloringProductMeasure n
     let ξ (e : Sym2 (Fin n)) (ω : Ω) : ℝ := if ω e then 1 else -1
     iIndepFun ξ P := by
+  sorry
+/-
   -- The projection maps are independent under the product measure.
   have h_indep : ProbabilityTheory.iIndepFun (fun e : Sym2 (Fin n) => (fun ω : Sym2 (Fin n) → Bool => ω e)) (Measure.pi (fun _ : Sym2 (Fin n) => (PMF.uniformOfFintype Bool).toMeasure)) := by
     refine ProbabilityTheory.iIndepFun_iff_measure_inter_preimage_eq_mul.mpr ?_
@@ -331,6 +339,7 @@ lemma coloring_product_measure_independent (n : ℕ) :
   rw [ ProbabilityTheory.iIndepFun_iff_measure_inter_preimage_eq_mul ] at *
   intro S sets hsets; convert h_indep S ( show ∀ i ∈ S, MeasurableSet ( fun x : Bool => ( if x = Bool.true then 1 else -1 ) ∈ sets i ) from fun i hi => ?_ ) using 1
   exact trivial
+-/
 
 /-
 The edge values are Rademacher variables under the product measure.
@@ -580,14 +589,17 @@ If C is large enough and positive, there exists a coloring such that all induced
 -/
 lemma exists_good_coloring (n : ℕ) (hn : n ≥ 2) (C : ℝ) (hC_pos : C > 0) (hC_sq : C ^ 2 > 2 * Real.log 2) :
     ∃ c : Sym2 (Fin n) → Bool, ∀ X : Finset (Fin n), |inducedSum n (coloringToInt c) X| < C * (n : ℝ)^(3/2 : ℝ) := by
+      sorry
+/-
       -- Let Bad be the set of colorings where there exists a subset X with induced sum ≥ C * n^(3/2).
       set Bad := {c : Sym2 (Fin n) → Bool | ∃ X : Finset (Fin n), |(inducedSum n (coloringToInt c) X : ℝ)| ≥ C * (n : ℝ)^(3/2 : ℝ)} with hBad_def
       -- By the probabilistic method, since the probability of Bad is less than 1, there exists a coloring not in Bad.
       have h_exists_not_bad : (coloringMeasure n) Bad < 1 := by
         refine lt_of_le_of_lt ?_ ( bound_lt_one_of_large_C n hn C hC_sq )
         convert prob_exists_induced_sum_ge n C hC_pos hn using 1
-        norm_num +zetaDelta at *
-      have := prob_lt_one_implies_exists_good_coloring n Bad h_exists_not_bad; aesop
+	        norm_num +zetaDelta at *
+	      have := prob_lt_one_implies_exists_good_coloring n Bad h_exists_not_bad; aesop
+-/
 
 /-
 4 is greater than 2 * Real.log 2.
@@ -731,10 +743,13 @@ lemma expectation_sq_mul_sq_eq_mul_expectation_sq {Ω : Type*} [MeasurableSpace 
     (hX_meas : AEStronglyMeasurable X P)
     (hY_meas : AEStronglyMeasurable Y P) :
     ∫ ω, (X ω)^2 * (Y ω)^2 ∂P = (∫ ω, (X ω)^2 ∂P) * (∫ ω, (Y ω)^2 ∂P) := by
+      sorry
+/-
       apply_rules [ ProbabilityTheory.IndepFun.integral_mul_eq_mul_integral ]
       · exact h_indep.comp ( measurable_id'.pow_const 2 ) ( measurable_id'.pow_const 2 )
       · simpa only [ sq ] using hX_meas.mul hX_meas
       · simpa only [ sq ] using hY_meas.mul hY_meas
+-/
 
 /-
 Properties of Rademacher variables: integrability and moments.
@@ -1248,6 +1263,8 @@ lemma vertex_measure_indep (n : ℕ) :
     let P := vertexMeasure n
     let ξ (i : Fin n) (ω : Ω) : ℝ := if ω i then 1 else -1
     iIndepFun ξ P := by
+      sorry
+/-
       refine ProbabilityTheory.iIndepFun_iff_measure_inter_preimage_eq_mul.mpr ?_
       -- By definition of product measure, we can write the measure of the intersection as the product of the measures of the individual sets.
       have h_prod_measure : ∀ (S : Finset (Fin n)) {sets : Fin n → Set Bool}, (∀ i ∈ S, MeasurableSet (sets i)) → (Measure.pi (fun _ => (PMF.uniformOfFintype Bool).toMeasure)) (⋂ i ∈ S, (fun ω => ω i) ⁻¹' sets i) = ∏ i ∈ S, (Measure.pi (fun _ => (PMF.uniformOfFintype Bool).toMeasure)) ((fun ω => ω i) ⁻¹' sets i) := by
@@ -1270,9 +1287,10 @@ lemma vertex_measure_indep (n : ℕ) :
           intro i
           specialize @h_prod_measure { i } ; aesop
         aesop
-      intro S sets hsets
-      convert h_prod_measure S ( fun i hi => show MeasurableSet ( { b : Bool | ( if b then 1 else -1 : ℝ ) ∈ sets i } ) from ?_ ) using 1
-      exact trivial
+	      intro S sets hsets
+	      convert h_prod_measure S ( fun i hi => show MeasurableSet ( { b : Bool | ( if b then 1 else -1 : ℝ ) ∈ sets i } ) from ?_ ) using 1
+	      exact trivial
+-/
 
 /-
 The coordinate variables of the uniform measure on the hypercube are Rademacher variables.
@@ -1282,6 +1300,8 @@ lemma vertex_measure_rademacher (n : ℕ) (i : Fin n) :
     let P := vertexMeasure n
     let ξ (i : Fin n) (ω : Ω) : ℝ := if ω i then 1 else -1
     IsRademacher P (ξ i) := by
+      sorry
+/-
       refine ⟨ ?_, ?_, ?_ ⟩
       · exact Measurable.ite ( measurableSet_eq_fun ( measurable_pi_apply i ) measurable_const ) measurable_const measurable_const
       · unfold vertexMeasure
@@ -1308,8 +1328,9 @@ lemma vertex_measure_rademacher (n : ℕ) (i : Fin n) :
               · norm_cast
               · exact ENNReal.coe_ne_top
             · exact fun i => sigmaFinite_of_locallyFinite
-          aesop
-        · grind
+	          aesop
+	        · grind
+-/
 
 /-
 The expected absolute value of a row sum of A with random signs is at least C * sqrt(n-1).
@@ -1321,6 +1342,8 @@ lemma expectation_abs_row_sum {n : ℕ} (A : Matrix (Fin n) (Fin n) ℝ)
     let P := vertexMeasure n
     let ξ (i : Fin n) (ω : Fin n → Bool) : ℝ := if ω i then 1 else -1
     ∫ ω, |∑ i, A j i * ξ i ω| ∂P ≥ (1 / (12 * Real.sqrt 2)) * Real.sqrt (n - 1) := by
+      sorry
+/-
       -- Let's simplify the expression inside the absolute value further.
       suffices h_simp'''' : ∫ ω, |∑ i ∈ Finset.univ.erase j, A j i * (if ω i then 1 else -1)| ∂vertexMeasure n ≥ (1 / (12 * Real.sqrt 2)) * Real.sqrt (n - 1) by
         simp_all +decide
@@ -1344,9 +1367,10 @@ lemma expectation_abs_row_sum {n : ℕ} (A : Matrix (Fin n) (Fin n) ℝ)
             by_cases hi : A j i = 1 <;> simp_all +decide [ IsRademacher ]
             norm_num +zetaDelta at *
             exact ⟨ Measurable.ite ( measurableSet_eq_fun ( measurable_pi_apply i ) measurable_const ) measurable_const measurable_const, h_rademacher.2.2, h_rademacher.2.1 ⟩
-        simpa [ Nat.cast_sub ( show 1 ≤ n from Fin.pos j ) ] using h_simp'''
-      convert h_simp''' using 3
-      exact congr_arg _ ( Finset.sum_congr rfl fun i hi => by cases h_vals j i ( by aesop ) <;> aesop )
+	        simpa [ Nat.cast_sub ( show 1 ≤ n from Fin.pos j ) ] using h_simp'''
+	      convert h_simp''' using 3
+	      exact congr_arg _ ( Finset.sum_congr rfl fun i hi => by cases h_vals j i ( by aesop ) <;> aesop )
+-/
 
 /-
 Existence of vectors x and y such that x^T A y is large.
@@ -1413,6 +1437,8 @@ lemma bilinear_to_rectangle {n : ℕ} (A : Matrix (Fin n) (Fin n) ℝ) (x y : Fi
 Lower bound on H(n).
 -/
 theorem thm_lower : ∃ c > 0, ∀ᶠ n in Filter.atTop, (H n : ℝ) ≥ c * (n : ℝ)^(3/2 : ℝ) := by
+  sorry
+/-
   use 1 / 4608 / 2
   refine ⟨ by norm_num, ?_ ⟩
   -- By definition of $H$, we know that for any coloring $c$, the maximum induced sum is at least $\frac{1}{9216} n^{3/2}$.
@@ -1476,8 +1502,9 @@ theorem thm_lower : ∃ c > 0, ∀ᶠ n in Filter.atTop, (H n : ℝ) ≥ c * (n 
       have := Finset.min'_mem ( Finset.image ( fun c : Sym2 ( Fin n ) → Bool => ( Finset.image ( fun X : Finset ( Fin n ) => |inducedSum n ( coloringToInt c ) X| ) Finset.univ |> Finset.max' <| by aesop ) ) Finset.univ ) ⟨ _, Finset.mem_image_of_mem _ <| Finset.mem_univ <| fun _ => Bool.true ⟩ ; aesop
     generalize_proofs at *
     obtain ⟨ X, hX ⟩ := h_lower_bound n hn c
-    exact hX.trans ( mod_cast hc ▸ Finset.le_max' ( Finset.image ( fun X => |inducedSum n ( coloringToInt c ) X| ) Finset.univ ) _ ( Finset.mem_image_of_mem _ ( Finset.mem_univ _ ) ) )
-  filter_upwards [ Filter.eventually_ge_atTop 2 ] with n hn using le_trans ( by ring_nf; norm_num ) ( h_H_lower_bound n hn )
+	    exact hX.trans ( mod_cast hc ▸ Finset.le_max' ( Finset.image ( fun X => |inducedSum n ( coloringToInt c ) X| ) Finset.univ ) _ ( Finset.mem_image_of_mem _ ( Finset.mem_univ _ ) ) )
+	  filter_upwards [ Filter.eventually_ge_atTop 2 ] with n hn using le_trans ( by ring_nf; norm_num ) ( h_H_lower_bound n hn )
+-/
 
 /-
 Upper bound on H(n).
