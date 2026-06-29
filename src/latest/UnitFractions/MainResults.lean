@@ -100,15 +100,20 @@ lemma explicit_mertens2 :
     rw [div_le_iff₀ hN₄]
     linarith
   have hmain := sub_le_iff_le_add.1 (sub_le_of_abs_sub_le_right (hN₃.trans hdiv))
-  convert
+  have hsum :
+      (((Finset.range (N + 1)).filter IsPrimePow).sum (fun q ↦ (1 / q : ℝ)) : ℝ) =
+        ∑ q ∈ Finset.Icc 1 N with IsPrimePow q, (1 / q : ℝ) := by
+    refine Finset.sum_congr ?_ fun _ _ => rfl
+    rw [Finset.range_eq_Ico, Finset.Ico_add_one_right_eq_Icc]
+    ext n
+    simpa only
+      [Finset.mem_filter, and_congr_left_iff, Finset.mem_Icc, zero_le, iff_and_self, true_and]
+      using fun h _ => (Nat.one_lt_iff_ne_zero_and_ne_one.mpr ⟨h.ne_zero, h.ne_one⟩).le
+  rw [hsum]
+  exact
     hmain.trans
       (show log (log N) + b + 1 ≤ (501 / 500 : ℝ) * log (log N) by
-        linarith) using 2
-  rw [Finset.range_eq_Ico, Finset.Ico_add_one_right_eq_Icc]
-  ext n
-  simpa only
-    [Finset.mem_filter, and_congr_left_iff, Finset.mem_Icc, zero_le', iff_and_self, true_and]
-    using fun h _ => (Nat.one_lt_iff_ne_zero_and_ne_one.mpr ⟨h.ne_zero, h.ne_one⟩).le
+        linarith)
 
 lemma rec_sum_split (A B C E : Finset ℕ) (h : 0 ∉ B)
     (hC :
@@ -1548,7 +1553,7 @@ lemma pruning_lemma_two_ind :
   filter_upwards [pruning_lemma_one] with N hN M α ε A hA hM hMN hε hεα hMA hrec hsmooth i
   induction i with
   | zero =>
-      refine ⟨A, Finset.Subset.rfl, ?_, ?_, Or.inl zero_le'⟩
+      refine ⟨A, Finset.Subset.rfl, ?_, ?_, Or.inl zero_le⟩
       · exact (sub_le_self _ (by simp only [hM.le, one_div, inv_nonneg])).trans hrec
       · intro q hq
         exact (hsmooth _ hq).2
