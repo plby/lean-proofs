@@ -598,28 +598,26 @@ theorem edges_containing_v_no_w (t : ℕ) (v : Vert t) (hv : is_V t v) :
       simp +zetaDelta at *
       rcases hA_v_edge with ⟨a, b, ⟨ha, hb⟩, h | h⟩ <;>
         simp_all +decide [Finset.ext_iff]
-    refine
-      le_trans
-        (Finset.card_le_card <|
-          show
-            Finset.filter
-              (fun A : { A : Finset (Vert t) // A ∈ counterexample_hypergraph t } =>
-                v ∈ (A : Finset (Vert t)) ∧
-                  #(Finset.filter (is_W t) (A : Finset (Vert t))) = 0)
-              Finset.univ ⊆
-              { ⟨Finset.image Vert.g p.val.1 ∪ {Vert.v p}, ?_⟩,
-                ⟨Finset.image Vert.g p.val.2 ∪ {Vert.v p}, ?_⟩ } from ?_)
-        ?_ <;> simp +decide only [union_singleton]
-    all_goals norm_num [Finset.subset_iff]
-    any_goals exact Finset.card_insert_le _ _
-    · simp +decide [counterexample_hypergraph]
-      grind
-    · convert Finset.mem_union_left _ (Finset.mem_biUnion.mpr ⟨p, ?_, ?_⟩) using 1
-      · exact Finset.mem_univ _
-      · simp +decide
-    · intro A hA hv h
-      specialize h_v_edges ⟨A, hA⟩
-      aesop
+    let E₁ : { A : Finset (Vert t) // A ∈ counterexample_hypergraph t } :=
+      ⟨p.val.1.image Vert.g ∪ {Vert.v p}, by
+        simpa +decide [counterexample_hypergraph] using
+          (Or.inl ⟨p.val.1, p.val.2, p.property, Or.inl rfl⟩)⟩
+    let E₂ : { A : Finset (Vert t) // A ∈ counterexample_hypergraph t } :=
+      ⟨p.val.2.image Vert.g ∪ {Vert.v p}, by
+        simpa +decide [counterexample_hypergraph] using
+          (Or.inl ⟨p.val.1, p.val.2, p.property, Or.inr rfl⟩)⟩
+    have h_subset :
+        Finset.filter
+          (fun A : { A : Finset (Vert t) // A ∈ counterexample_hypergraph t } =>
+            v ∈ (A : Finset (Vert t)) ∧
+              #(Finset.filter (is_W t) (A : Finset (Vert t))) = 0)
+          Finset.univ ⊆ {E₁, E₂} := by
+      intro A hA
+      rcases Finset.mem_filter.mp hA with ⟨_, hA'⟩
+      rcases h_v_edges A hA' with h | h
+      · exact Finset.mem_insert.mpr (Or.inl (Subtype.ext h))
+      · exact Finset.mem_insert.mpr (Or.inr (Finset.mem_singleton.mpr (Subtype.ext h)))
+    exact (Finset.card_le_card h_subset).trans Finset.card_le_two
 
 /-
 For any vertex $y$, there are at most 2 edges $A$ in the counterexample
@@ -637,17 +635,22 @@ theorem phi_preimage_le_two (t : ℕ) (ht : t ≥ 1) (y : Vert t) :
         simpa using phi_not_gamma t _ _ _]
       norm_num
     · by_cases hy_w : is_W t y
-      · convert edges_containing_w t ht y hy_w |> le_of_eq using 1
-        congr! 1
-        ext A
-        constructor <;> intro hA
-        · have := phi_is_special t A.val A.property
-          unfold is_special at this
-          aesop
-        · convert phi_unique t A.val A.property y ?_
-          · grind
-          · unfold is_special
-            aesop
+      · have h_subset :
+            Finset.filter
+              (fun A : { A // A ∈ counterexample_hypergraph t } =>
+                phi t A.val A.property = y) Finset.univ ⊆
+              Finset.filter
+                (fun A : { A // A ∈ counterexample_hypergraph t } =>
+                  y ∈ A.val) Finset.univ := by
+          intro A hA
+          rcases Finset.mem_filter.mp hA with ⟨_, hphi⟩
+          have h_special : is_special t A.val y := by
+            exact hphi ▸ phi_is_special t A.val A.property
+          exact Finset.mem_filter.mpr ⟨Finset.mem_univ _, by
+            unfold is_special at h_special
+            aesop⟩
+        exact (Finset.card_le_card h_subset).trans
+          (le_of_eq (edges_containing_w t ht y hy_w))
       · by_cases hy_v : is_V t y
         · -- If $y$ is a $V$-node, then $\phi(A) = y$ implies $y \in A$ and
           -- $A$ has no $W$-nodes.
@@ -722,9 +725,32 @@ theorem subset_counting_bound (t : ℕ) (ht : t ≥ 2) (Y : Finset (Vert t)) :
               phi t A.val A.property = y)).card ≤ 2 := by
         convert phi_preimage_le_two t (by linarith) y using 1
       exact le_trans (Finset.card_le_card fun x hx => by aesop) h_filter_le_two_for_each_y''
-    convert h_filter_le_two_for_each_y.trans (Finset.sum_le_sum h_filter_le_two_for_each_y') using 1
-    · refine Finset.card_bij (fun S hS => ⟨S, ?_⟩) ?_ ?_ ?_ <;> aesop
-    · simp [Finset.sum_const, Nat.mul_comm]
+    have h_count_eq :
+        (Finset.univ.filter
+          (fun S : { S // S ∈ counterexample_hypergraph t } => S.val ⊆ Y)).card =
+          ((counterexample_hypergraph t).filter (fun S => S ⊆ Y)).card := by
+      refine Finset.card_bij (fun S _ => S.val) ?_ ?_ ?_
+      · intro S hS
+        exact Finset.mem_filter.mpr ⟨S.property, (Finset.mem_filter.mp hS).2⟩
+      · intro S₁ _ S₂ _ hS
+        exact Subtype.ext hS
+      · intro S hS
+        refine ⟨⟨S, (Finset.mem_filter.mp hS).1⟩, ?_, rfl⟩
+        exact Finset.mem_filter.mpr
+          ⟨Finset.mem_univ _, (Finset.mem_filter.mp hS).2⟩
+    calc
+      ((counterexample_hypergraph t).filter (fun S => S ⊆ Y)).card =
+          (Finset.univ.filter
+            (fun S : { S // S ∈ counterexample_hypergraph t } => S.val ⊆ Y)).card := by
+            rw [h_count_eq]
+      _ ≤ ∑ y ∈ Y,
+            (Finset.univ.filter
+              (fun A : { A // A ∈ counterexample_hypergraph t } =>
+                phi t A.val A.property = y ∧ A.val ⊆ Y)).card :=
+            h_filter_le_two_for_each_y
+      _ ≤ ∑ y ∈ Y, 2 := Finset.sum_le_sum h_filter_le_two_for_each_y'
+      _ = 2 * Y.card := by
+            simp [Nat.mul_comm]
 
 /-
 If a constant $c_t$ guarantees property B for hypergraphs with a certain density
