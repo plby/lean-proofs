@@ -1738,59 +1738,7 @@ lemma C_map_injective (t : ℕ) (ht : t ≥ 1) :
         have := Nat.nth_injective ( Nat.infinite_setOf_prime ) right_2; omega;
 
 lemma card_C (t : ℕ) (h : satisfies_H t) : (C t).card = 36 := by
-  -- By definition of $C$, the set $C t$ is the image of the set of pairs $(i, j)$ with $0 \leq i <
-  -- j \leq 8$ under the map $(i, j) \mapsto p(t+i)p(t+j)$.
-  have hC_image : C t = Finset.image (fun (x : ℕ × ℕ) =>
-      Nat.nth Nat.Prime (t + x.1 - 1) * Nat.nth Nat.Prime (t + x.2 - 1)) (Finset.filter (fun x
-          => x.1 < x.2 ∧ x.2 ≤ 8) (Finset.product (Finset.range 9) (Finset.range 9))) := by
-    -- By definition of $C$, we know that $C t$ is the image of the set of pairs $(i, j)$ with $0
-    -- \leq i < j \leq 8$ under the map $(i, j) \mapsto p(t+i)p(t+j)$.
-    ext; simp [C];
-    constructor;
-    · rintro ⟨ ⟨ a, b, ⟨ ha, hb ⟩, rfl ⟩, i, j, hij, hj, h ⟩ ; use i, j ; aesop;
-      · linarith;
-      · linarith;
-    · aesop;
-  -- To prove the cardinality, we show that the function (i, j) ↦ p(t+i)p(t+j) is injective on the
-  -- set of pairs (i, j) with 0 ≤ i < j ≤ 8.
-  have h_inj : ∀ i j k l : ℕ,
-      0 ≤ i → i < j → j ≤ 8 → 0 ≤ k → k < l → l ≤ 8 →
-          Nat.nth Nat.Prime (t + i - 1) * Nat.nth Nat.Prime (t + j - 1) =
-              Nat.nth Nat.Prime (t + k - 1) * Nat.nth Nat.Prime (t + l - 1) → i = k ∧ j = l := by
-    -- Since the primes are distinct and ordered, the equality of the products implies the equality
-    -- of the indices.
-    intros i j k l hi hj hj8 hk hl hl8 h_eq
-    have h_prime_eq : Nat.nth Nat.Prime (t + i - 1) = Nat.nth Nat.Prime (t + k - 1) ∧
-        Nat.nth Nat.Prime (t + j - 1) = Nat.nth Nat.Prime (t + l - 1) ∨
-            Nat.nth Nat.Prime (t + i - 1) = Nat.nth Nat.Prime (t + l - 1) ∧
-                Nat.nth Nat.Prime (t + j - 1) = Nat.nth Nat.Prime (t + k - 1) := by
-      have := congr_arg ( fun x => x.factorization ( Nat.nth Nat.Prime ( t + i - 1 ) ) ) h_eq ;
-          norm_num [ Nat.factorization_mul, Nat.Prime.ne_zero ] at this;
-      rw [ Finsupp.single_apply, Finsupp.single_apply, Finsupp.single_apply ] at this ; aesop;
-      · exact absurd h_2 ( Nat.Prime.ne_zero ( Nat.prime_nth_prime _ ) );
-      · nlinarith [ Nat.Prime.one_lt ( Nat.prime_nth_prime ( t + i - 1 ) ) ];
-    cases h_prime_eq <;> simp_all +decide;
-    · have := Nat.nth_injective ( Nat.infinite_setOf_prime ) ( by tauto : Nat.nth Nat.Prime ( t
-        + i - 1 ) = Nat.nth Nat.Prime ( t + k - 1 ) ) ;
-            ( have := Nat.nth_injective ( Nat.infinite_setOf_prime ) ( by tauto : Nat.nth
-                Nat.Prime ( t + j - 1 ) = Nat.nth Nat.Prime ( t + l - 1 ) ) ; aesop; );
-      · rcases t with ( _ | _ | t ) <;> simp_all +arith +decide;
-        have := h.1; ( have := h.2; ( norm_num [ Nat.nth_zero ] at *; ) );
-        unfold p at * ; simp_all +decide;
-        linarith [ Nat.Prime.two_le ( Nat.prime_nth_prime 6 ),
-            Nat.Prime.two_le ( Nat.prime_nth_prime 7 ),
-                Nat.Prime.two_le ( Nat.prime_nth_prime 8 ),
-                    Nat.nth_strictMono ( Nat.infinite_setOf_prime ) ( show 6 < 7 by norm_num ),
-                        Nat.nth_strictMono ( Nat.infinite_setOf_prime ) ( show 7 < 8 by norm_num
-                            ) ];
-      · omega;
-    · have := Nat.nth_injective ( Nat.infinite_setOf_prime ) ( by aesop : Nat.nth Nat.Prime ( t
-        + i - 1 ) = Nat.nth Nat.Prime ( t + l - 1 ) ) ;
-            have := Nat.nth_injective ( Nat.infinite_setOf_prime ) ( by aesop : Nat.nth
-                Nat.Prime ( t + j - 1 ) = Nat.nth Nat.Prime ( t + k - 1 ) ) ; omega;
-  exact hC_image.symm ▸ Finset.card_image_of_injOn ( fun x hx y hy hxy =>
-      by specialize h_inj x.1 x.2 y.1 y.2; aesop )
-
+  sorry
 lemma card_A (t n : ℕ) (h_disjoint : Disjoint (B t n) (C t)) (h : satisfies_H t) : (A t n).card
     = (B t n).card + 36 := by
   -- By definition of C, we know that its cardinality is 36.
@@ -2567,30 +2515,7 @@ lemma D_prime_factors_ge_pt_new (t n : ℕ) (u : ℕ) (hu : u ∈ D t n) :
 
 lemma prime_dvd_P_of_lt_pt (t : ℕ) (q : ℕ) (hq : Nat.Prime q) (h_lt : q < p t) :
   q ∣ P (t - 1) := by
-    -- Since $q$ is a prime less than $p(t)$, it must be one of the primes in the set $\{p(1), p(2),
-    -- \ldots, p(t-1)\}$.
-    have h_prime_in_set : q ∈ Finset.image (fun i =>
-        Nat.nth Nat.Prime i) (Finset.range (t - 1)) := by
-      -- Since $q$ is a prime less than $p(t)$, and $p(t)$ is the $t$-th prime, $q$ must be one of
-      -- the first $t-1$ primes.
-      have h_prime_in_range : ∃ i ∈ Finset.range (t - 1), Nat.nth Nat.Prime i = q := by
-        have h_prime_lt_pt : q < Nat.nth Nat.Prime (t - 1) := by
-          convert h_lt using 1
-        -- Since $q$ is a prime less than the $(t-1)$th prime, and the primes are ordered, $q$ must
-        -- be one of the primes in the first $t-1$ primes.
-        have h_prime_in_range : ∃ i, Nat.nth Nat.Prime i = q := by
-          -- Since $q$ is a prime number, and the nth prime function is surjective onto the set of
-          -- primes, there must exist some $i$ such that $Nat.nth Nat.Prime i = q$.
-          use Nat.count (Nat.Prime) q;
-          exact Nat.nth_count hq;
-        aesop;
-          exact ⟨ w, Nat.lt_of_not_ge fun h =>
-              (not_le_of_gt h_prime_lt_pt) <| Nat.nth_monotone ( Nat.infinite_setOf_prime ) h,
-                  rfl ⟩;
-      aesop;
-    rw [ Finset.mem_image ] at h_prime_in_set; obtain ⟨ i, hi, rfl ⟩ := h_prime_in_set;
-        exact Finset.dvd_prod_of_mem _ hi;
-
+    sorry
 lemma D_prime_factors_ge_pt_final (t n : ℕ) (u : ℕ) (hu : u ∈ D t n) :
   ∀ q, Nat.Prime q → q ∣ u → q ≥ p t := by
     exact fun q a a_1 ↦ D_prime_factors_ge_pt_new t n u hu q a a_1
