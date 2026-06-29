@@ -106,12 +106,12 @@ lemma lcmRange_dvd_even (r : ℕ) (hr : 1 ≤ r) :
   have h_lcm_div : ∀ m ∈ Finset.Icc 1 (2 * r), m ∣ lcmRange r * Nat.choose (2 * r) r := by
     intro m hm
     have h_prod_div : ∏ p ∈ Nat.primeFactors m, p ^ Nat.factorization m p ∣ lcmRange r * Nat.choose (2 * r) r := by
-      convert Finset.lcm_dvd fun p hp => h_div m hm p hp using 1;
       -- The least common multiple of a set of numbers is equal to their product divided by their greatest common divisor.
       have h_lcm_prod : ∀ {S : Finset ℕ} {f : ℕ → ℕ}, (∀ p ∈ S, Nat.Prime p) → (∀ p q : ℕ, p ∈ S → q ∈ S → p ≠ q → Nat.gcd (p ^ f p) (q ^ f q) = 1) → Finset.lcm S (fun p => p ^ f p) = ∏ p ∈ S, p ^ f p := by
         intros S f hprime hgcd; induction S using Finset.induction <;> simp_all +decide ;
         exact Nat.Coprime.lcm_eq_mul <| Nat.Coprime.prod_right fun p hp => hgcd _ _ ( Or.inl rfl ) ( Or.inr hp ) <| by aesop;
-      rw [ h_lcm_prod ( fun p hp => Nat.prime_of_mem_primeFactors hp ) ( fun p q hp hq hpq => by simpa [ hpq ] using Nat.coprime_pow_primes _ _ ( Nat.prime_of_mem_primeFactors hp ) ( Nat.prime_of_mem_primeFactors hq ) ) ];
+      rw [ ← h_lcm_prod ( fun p hp => Nat.prime_of_mem_primeFactors hp ) ( fun p q hp hq hpq => by simpa [ hpq ] using Nat.coprime_pow_primes _ _ ( Nat.prime_of_mem_primeFactors hp ) ( Nat.prime_of_mem_primeFactors hq ) ) ];
+      exact Finset.lcm_dvd fun p hp => h_div m hm p hp;
     rwa [ ← Nat.prod_factorization_pow_eq_self ( by linarith [ Finset.mem_Icc.mp hm ] : m ≠ 0 ) ];
   exact Finset.lcm_dvd h_lcm_div
 
@@ -228,12 +228,12 @@ lemma chebyshevPsi_eq_log_lcmRange (n : ℕ) (hn : 1 ≤ n) :
         have h_div : p ^ (Nat.log p n) ≤ n := by
           exact Nat.pow_log_le_self p ( by linarith );
         exact Finset.dvd_lcm ( Finset.mem_Icc.mpr ⟨ Nat.one_le_pow _ _ ( Nat.Prime.pos ( Finset.mem_filter.mp hp |>.2 ) ), h_div ⟩ );
-      convert Finset.lcm_dvd h_lcmRange_div using 1;
       -- The least common multiple of a set of numbers is equal to the product of the highest powers of all primes dividing any of the numbers.
       have h_lcm_eq_prod : ∀ {S : Finset ℕ}, (∀ p ∈ S, Nat.Prime p) → Finset.lcm S (fun p => p ^ (Nat.log p n)) = ∏ p ∈ S, p ^ (Nat.log p n) := by
         intros S hS; induction S using Finset.induction <;> simp_all +decide ;
         exact Nat.Coprime.lcm_eq_mul <| Nat.Coprime.prod_right fun p hp => Nat.Coprime.pow _ _ <| hS.1.coprime_iff_not_dvd.mpr fun h => ‹¬_› <| by have := Nat.prime_dvd_prime_iff_eq hS.1 ( hS.2 p hp ) ; aesop;
-      rw [ h_lcm_eq_prod fun p hp => Finset.mem_filter.mp hp |>.2 ];
+      rw [ ← h_lcm_eq_prod fun p hp => Finset.mem_filter.mp hp |>.2 ];
+      exact Finset.lcm_dvd h_lcmRange_div;
   rw [ h_psi_def, h_lcm_def, Nat.cast_prod, Real.log_prod ] <;> aesop
 
 lemma chebyshevPsi_le (n : ℕ) (hn : 1 ≤ n) :
@@ -283,13 +283,28 @@ lemma sumS_le_basic (n : ℕ) (hn : 2 ≤ n) :
       have h_floor : (n / m : ℝ) ≤ Nat.floor (n / m) + 1 := by
         rw [ div_le_iff₀ ] <;> norm_cast <;> nlinarith [ Nat.div_add_mod n m, Nat.mod_lt n ( by linarith [ Finset.mem_Icc.mp hm ] : 0 < m ), Nat.lt_floor_add_one ( n / m ) ];
       simpa only [ mul_add, mul_one ] using mul_le_mul_of_nonneg_left h_floor <| by exact ( by exact ( by exact ( by exact ( by exact ( by exact ( by exact ( by exact ( by rw [ ArithmeticFunction.vonMangoldt_apply ] ; positivity ) ) ) ) ) ) ) ) ;
-    refine le_trans ( Finset.sum_le_sum fun m hm => by convert h_ineq m hm using 1 ; ring ) ?_;
+    refine le_trans ( Finset.sum_le_sum fun m hm => by
+      simpa [div_eq_mul_inv, mul_assoc, mul_left_comm, mul_comm] using h_ineq m hm ) ?_;
     rw [ ← h_log_factorial, Finset.sum_add_distrib ];
-    exact add_le_add ( Finset.sum_le_sum_of_subset_of_nonneg ( Finset.Icc_subset_Icc ( by norm_num ) le_rfl ) fun _ _ _ => mul_nonneg ( by exact_mod_cast ArithmeticFunction.vonMangoldt_nonneg ) ( Nat.cast_nonneg _ ) ) ( Finset.sum_le_sum_of_subset_of_nonneg ( Finset.Icc_subset_Icc ( by norm_num ) le_rfl ) fun _ _ _ => by exact_mod_cast ArithmeticFunction.vonMangoldt_nonneg );
-  convert div_le_div_of_nonneg_right h_rewrite ( Nat.cast_nonneg n ) using 1;
-  · rw [ Finset.sum_div _ _ _ ] ; exact Finset.sum_congr rfl fun _ _ => by rw [ mul_div_cancel_right₀ _ ( by positivity ) ] ;
-  · unfold chebyshevPsi;
-    erw [ Finset.sum_Ico_eq_sub _ _ ] <;> norm_num
+    have hsub : Finset.Icc 2 n ⊆ Finset.Icc 1 n :=
+      Finset.Icc_subset_Icc (by norm_num) le_rfl
+    exact add_le_add
+      (by
+        simpa [mul_comm] using
+          (Finset.sum_le_sum_of_subset_of_nonneg hsub fun x _ _ =>
+            mul_nonneg (Nat.cast_nonneg (n / x)) (ArithmeticFunction.vonMangoldt_nonneg (n := x))))
+      (Finset.sum_le_sum_of_subset_of_nonneg hsub fun x _ _ =>
+        ArithmeticFunction.vonMangoldt_nonneg (n := x));
+  have h_left :
+      (∑ m ∈ Finset.Icc 2 n, (vonMangoldt m / m : ℝ) * n) / n = sumS n := by
+    rw [Finset.sum_div]
+    unfold sumS
+    exact Finset.sum_congr rfl fun _ _ => by
+      rw [mul_div_cancel_right₀ _ (by positivity)]
+  have h_psi : chebyshevPsi n = ∑ m ∈ Finset.Icc 1 n, vonMangoldt m := by
+    unfold chebyshevPsi
+    erw [Finset.sum_Ico_eq_sub _ _] <;> norm_num
+  simpa [h_left, h_psi] using div_le_div_of_nonneg_right h_rewrite (Nat.cast_nonneg n)
 
 /-
 log(n!) ≤ n*log(n) - n + 1 + log(n)
@@ -309,8 +324,15 @@ lemma sumS_le_logn_plus (n : ℕ) (hn : 200 ≤ n) :
     linarith [ log_factorial_le n ( by linarith ), chebyshevPsi_le n ( by linarith ) ];
   -- Divide both sides by $n$ and simplify the expression.
   have h_div : sumS n ≤ Real.log n + 2 * Real.log 2 - 1 + (Real.log n + 1) / n := by
-    convert sumS_le_basic n ( by linarith ) |> le_trans <| div_le_div_of_nonneg_right ( h_final ) ( Nat.cast_nonneg _ ) using 1 ; ring_nf;
-    simpa [ show n ≠ 0 by linarith ] using by ring;
+    have hn0 : (n : ℝ) ≠ 0 := by positivity
+    calc
+      sumS n ≤ (Real.log (n.factorial) + chebyshevPsi n) / n :=
+        sumS_le_basic n (by linarith)
+      _ ≤ (n * Real.log n + 2 * n * Real.log 2 - n + 1 + Real.log n) / n :=
+        div_le_div_of_nonneg_right h_final (Nat.cast_nonneg _)
+      _ = Real.log n + 2 * Real.log 2 - 1 + (Real.log n + 1) / n := by
+        field_simp [hn0]
+        ring
   -- We'll use that $Real.log n + 1 \leq Real.log 200 + 1$ for $n \geq 200$.
   have h_log_bound : (Real.log n + 1) / n ≤ (Real.log 200 + 1) / 200 := by
     rw [ div_le_div_iff₀ ] <;> try positivity;
@@ -359,11 +381,51 @@ lemma neg_log_prodP_le_sumT_plus (n : ℕ) (hn : 200 ≤ n) :
           · exact Or.inr ⟨ ⟨ Nat.Prime.pos ( Finset.mem_filter.mp hp |>.2 ), pow_pos ( Nat.Prime.pos ( Finset.mem_filter.mp hp |>.2 ) ) _ ⟩, pow_pos ( Nat.Prime.pos ( Finset.mem_filter.mp hp |>.2 ) ) _ ⟩;
           · exact Or.inr ⟨ ⟨ Nat.Prime.pos ( Finset.mem_filter.mp hp |>.2 ), pow_pos ( Nat.Prime.pos ( Finset.mem_filter.mp hp |>.2 ) ) _ ⟩, pow_pos ( Nat.Prime.pos ( Finset.mem_filter.mp hp |>.2 ) ) _ ⟩;
         · norm_num +zetaDelta at *;
-          exact Summable.of_nonneg_of_le ( fun _ => by positivity ) ( fun k => mul_le_of_le_one_right ( by positivity ) <| inv_le_one_of_one_le₀ <| by linarith ) <| by simpa using summable_geometric_of_lt_one ( by positivity ) ( inv_lt_one_of_one_lt₀ <| Nat.one_lt_cast.mpr hp.2.one_lt ) |> Summable.comp_injective <| by intros a b; aesop;
+          have hgeom :
+              Summable (((fun q : ℕ => ((p : ℝ) ^ q)⁻¹) ∘
+                fun k : ℕ => Nat.log p n + k + 1)) := by
+            exact Summable.comp_injective
+              (by
+                simpa using
+                  summable_geometric_of_lt_one (by positivity)
+                    (inv_lt_one_of_one_lt₀ (by
+                      norm_cast
+                      exact hp.2.one_lt)))
+              (by
+                intro a b h
+                exact Nat.add_left_cancel (Nat.add_right_cancel h))
+          exact Summable.of_nonneg_of_le ( fun _ => by positivity ) ( fun k => mul_le_of_le_one_right ( by positivity ) <| inv_le_one_of_one_le₀ <| by linarith ) <| by
+            simpa [Function.comp_def] using hgeom
         · exact Summable.mul_left _ <| summable_geometric_of_lt_one ( by positivity ) <| by simpa using inv_lt_one_of_one_lt₀ <| Nat.one_lt_cast.mpr <| Nat.Prime.one_lt <| Finset.mem_filter.mp hp |>.2;
-      convert h_tail_bound.trans h_sum_bound using 1;
-      rw [ tsum_geometric_of_lt_one ( by positivity ) ( by simpa using inv_lt_one_of_one_lt₀ <| Nat.one_lt_cast.mpr <| Nat.Prime.one_lt <| Finset.mem_filter.mp hp |>.2 ) ] ; ring_nf;
-      rw [ ← mul_inv ] ; congr ; nlinarith only [ inv_mul_cancel_left₀ ( show ( p : ℝ ) ≠ 0 by norm_cast; exact Nat.Prime.ne_zero ( Finset.mem_filter.mp hp |>.2 ) ) ( p ^ Nat.log p n ), inv_mul_cancel₀ ( show ( p : ℝ ) ≠ 0 by norm_cast; exact Nat.Prime.ne_zero ( Finset.mem_filter.mp hp |>.2 ) ), show ( p : ℝ ) ≥ 2 by norm_cast; exact Nat.Prime.two_le ( Finset.mem_filter.mp hp |>.2 ) ] ;
+      calc
+        -Real.log (1 - 1 / (p : ℝ)) -
+            ∑ k ∈ Finset.Icc 1 (Nat.log p n), 1 / (k * (p : ℝ) ^ k)
+            ≤
+              1 / ((Nat.log p n + 1) * (p : ℝ) ^ (Nat.log p n + 1)) *
+                ∑' k : ℕ, (1 / (p : ℝ)) ^ k :=
+          h_tail_bound.trans h_sum_bound
+        _ = 1 / ((Nat.log p n + 1) * (p - 1) * (p : ℝ) ^ (Nat.log p n)) := by
+          have hp_gt_one : (1 : ℝ) < p := by
+            norm_cast
+            exact Nat.Prime.one_lt (Finset.mem_filter.mp hp |>.2)
+          rw [tsum_geometric_of_lt_one (r := 1 / (p : ℝ)) (by positivity)
+            (by simpa [one_div] using inv_lt_one_of_one_lt₀ hp_gt_one)]
+          ring_nf
+          rw [ ← mul_inv ]
+          congr
+          nlinarith only [
+            inv_mul_cancel_left₀
+              ( show ( p : ℝ ) ≠ 0 by
+                  norm_cast
+                  exact Nat.Prime.ne_zero ( Finset.mem_filter.mp hp |>.2 ) )
+              ( p ^ Nat.log p n ),
+            inv_mul_cancel₀
+              ( show ( p : ℝ ) ≠ 0 by
+                  norm_cast
+                  exact Nat.Prime.ne_zero ( Finset.mem_filter.mp hp |>.2 ) ),
+            show ( p : ℝ ) ≥ 2 by
+              norm_cast
+              exact Nat.Prime.two_le ( Finset.mem_filter.mp hp |>.2 ) ]
     -- Split the sum into two parts: one for primes $p \leq 13$ and one for primes $p > 13$.
     have h_split_sum : ∑ p ∈ Finset.filter Nat.Prime (Finset.range (n + 1)), (-Real.log (1 - 1 / (p : ℝ)) - ∑ k ∈ Finset.Icc 1 (Nat.log p n), 1 / (k * (p : ℝ) ^ k)) ≤ (∑ p ∈ Finset.filter Nat.Prime (Finset.range 14), 1 / ((Nat.log p n + 1) * (p - 1) * (p : ℝ) ^ (Nat.log p n))) + (∑ p ∈ Finset.filter Nat.Prime (Finset.Icc 17 (n)), 1 / ((1 + 1) * (p - 1) * (p : ℝ) ^ 1)) := by
       refine le_trans ( Finset.sum_le_sum h_tail_bound ) ?_;
@@ -497,8 +559,24 @@ private lemma sum_log_ratio_le_log_log' (a n : ℕ) (ha : 3 ≤ a) (hn : a ≤ n
     convert Real.one_sub_inv_le_log_of_pos _ using 1
     · rw [ inv_div, sub_div, div_self <| ne_of_gt <| Real.log_pos <| by norm_cast; linarith [ Finset.mem_Ico.mp hm ] ]
     · exact div_pos ( Real.log_pos ( by norm_cast; linarith [ Finset.mem_Ico.mp hm ] ) ) ( Real.log_pos ( by norm_cast; linarith [ Finset.mem_Ico.mp hm ] ) )
-  convert Finset.sum_le_sum h_term ; induction hn <;> simp_all +decide [ Finset.sum_Ico_succ_top ]
-  rename_i k hk ih; linarith [ ih fun m hm₁ hm₂ => h_term m hm₁ ( by linarith ) ]
+  calc
+    ∑ m ∈ Finset.Ico a n,
+        (Real.log (↑m + 1) - Real.log m) / Real.log (↑m + 1)
+        ≤ ∑ m ∈ Finset.Ico a n,
+            (Real.log (Real.log (m + 1)) - Real.log (Real.log m)) :=
+      Finset.sum_le_sum h_term
+    _ = Real.log (Real.log n) - Real.log (Real.log a) := by
+      let F : ℕ → ℝ := fun m => Real.log (Real.log m)
+      have htel : ∑ m ∈ Finset.Ico a n, (F (m + 1) - F m) = F n - F a := by
+        induction n, hn using Nat.le_induction with
+        | base =>
+            simp [F]
+        | succ n hn ih =>
+            rw [Finset.sum_Ico_succ_top hn,
+              ih (fun m hm => h_term m (Finset.mem_Ico.mpr
+                ⟨(Finset.mem_Ico.mp hm).1, Nat.lt_succ_of_lt (Finset.mem_Ico.mp hm).2⟩))]
+            ring
+      simpa [F, Nat.cast_add, Nat.cast_one] using htel
 
 private lemma log_200_ge' : Real.log 200 ≥ 1418 / 270 := by
   have h_log_200 : Real.log 200 = 3 * Real.log 2 + 2 * Real.log 5 := by
@@ -548,7 +626,7 @@ lemma sumT_sub_199_bound (n : ℕ) (hn : 200 ≤ n) :
     exact congrArg _ ( by convert Finset.sum_range_sub' _ _ using 3 <;> push_cast [ Nat.cast_sub hn ] <;> ring_nf )
   -- Step 5: Apply log ratio telescoping bound
   have h_log_ratio : ∑ m ∈ Finset.Ico 200 n, ((Real.log (m + 1) - Real.log m) / Real.log (m + 1)) ≤ Real.log (Real.log n) - Real.log (Real.log 200) := by
-    convert sum_log_ratio_le_log_log' 200 n ( by norm_num ) hn using 1
+    simpa using sum_log_ratio_le_log_log' 200 n ( by norm_num ) hn
   -- Step 6: Bound the boundary term
   have h_sumS_le : (sumS n - sumS 199) / Real.log n ≤ (Real.log n + 0.418 - (Real.log 199 - 1)) / Real.log n := by
     gcongr

@@ -136,11 +136,8 @@ theorem L_sq_dvd_linear_comb (n i j : ℕ) (h2 : 2 ≤ i) (hij : i ≤ j)
       exact dvd_sub
         (dvd_mul_of_dvd_right ( mod_cast h_div_Q1_sq ) _)
         (by
-          convert Int.natCast_dvd_natCast.mpr
-            (h_div_Q0Q2.mul_left ( 2 * i )) using 1
-          all_goals
-            push_cast
-            ring)
+          simpa [pow_two, mul_assoc, mul_left_comm, mul_comm] using
+            (Int.natCast_dvd_natCast.mpr (h_div_Q0Q2.mul_left (2 * i))))
 
 /-
 $Q_0 = \binom{n}{j} \binom{j}{i}$.
@@ -500,10 +497,16 @@ theorem binomial_gcd_lower_bound (n i j : ℕ) (h2 : 2 ≤ i) (hij : i < j)
                     (Nat.choose n (i - 2) : ℝ) / (2 ^ (i - 2)) := by
                 convert binom_le_binom_div_pow_two n j i h2 ( by omega ) ( by omega )
                   using 1
-              convert pow_le_pow_left₀ ( Nat.cast_nonneg _ ) h_sqrt 2 using 1
-              ring_nf
-              rw [ tsub_mul ]
-              ring_nf
+              have hpow : ((2 : ℝ) ^ (i - 2)) ^ 2 = (2 : ℝ) ^ (2 * i - 4) := by
+                rw [← pow_mul]
+                congr 1
+                omega
+              calc
+                (Nat.choose j (i - 2) : ℝ) ^ 2
+                    ≤ ((Nat.choose n (i - 2) : ℝ) / (2 ^ (i - 2))) ^ 2 :=
+                  pow_le_pow_left₀ (Nat.cast_nonneg _) h_sqrt 2
+                _ = (Nat.choose n (i - 2) : ℝ) ^ 2 / (2 ^ (2 * i - 4)) := by
+                  rw [div_pow, hpow]
             have h_sqrt :
                 (Nat.choose n i : ℝ) ^ 2 =
                   (Nat.choose n (i - 2) : ℝ) ^ 2 *

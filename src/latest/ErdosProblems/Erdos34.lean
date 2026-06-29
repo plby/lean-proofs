@@ -497,8 +497,9 @@ theorem num_distinct_sums_ge (n : ℕ) :
           conv_rhs => rw [← Finset.sum_range_reflect]
           exact Finset.sum_congr rfl fun x hx => by rw [Nat.sub_right_comm]
         · convert Finset.sum_range_id (k + 1) using 1
-          conv_rhs => rw [← Finset.sum_range_reflect]
-          rfl
+          · conv_rhs => rw [← Finset.sum_range_reflect]
+            rfl
+          · rw [Nat.add_sub_cancel]
       · norm_num [Finset.disjoint_right]
         intros
         omega
