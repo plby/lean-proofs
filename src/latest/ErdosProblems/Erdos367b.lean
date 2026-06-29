@@ -241,17 +241,15 @@ theorem n_nat_succ_eq_x_sq (j : ℕ) : n_nat j + 1 = (x_j j)^2 := by
                 8 * (Pell.yn (show 1 < 3 by norm_num) j : ℝ)^2 =
               1 := by
         intro j
-        exact (by
-        induction j <;> aesop
-        -- Substitute $d = 8$ into the equation and simplify.
-        have h_sub :
-            ((Pell.xn (show 1 < 3 by norm_num) n : ℝ) * 3 +
-                8 * (Pell.yn (show 1 < 3 by norm_num) n : ℝ)) ^ 2 -
-              8 * ((Pell.xn (show 1 < 3 by norm_num) n : ℝ) +
-                  (Pell.yn (show 1 < 3 by norm_num) n : ℝ) * 3) ^ 2 =
-                1 := by
-          linarith
-        convert h_sub using 1)
+        let a1 : 1 < 3 := by norm_num
+        have hd := Pell.dz_val (a1 := a1)
+        norm_num [Pell.az] at hd
+        have hp := Pell.pell_eqz (a1 := a1) j
+        rw [hd] at hp
+        simp only [Pell.xz, Pell.yz] at hp
+        rw [mul_assoc] at hp
+        norm_num [pow_two]
+        exact_mod_cast hp
       exact eq_add_of_sub_eq' ( h_pell j )
     rw [ h_sub, n_nat_eq_8_y_sq ]
     norm_cast

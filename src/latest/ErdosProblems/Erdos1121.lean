@@ -229,10 +229,13 @@ lemma sorted_weighted_sum_le {n : ℕ} (s r : Fin (n + 1) → ℝ)
     intro j
     have := sorted_center_bound s r hr hsorted hns j
     nlinarith only [this, hr j]
-  convert Finset.sum_le_sum fun i _ => h_mul i
+  refine le_trans (Finset.sum_le_sum fun i _ => h_mul i) ?_
   rw [Finset.sum_add_distrib, Finset.sum_add_distrib, ← Finset.mul_sum _ _ _,
     ← sum_weighted_Iio_eq_sq]
-  simpa only [sq, mul_add, mul_assoc, mul_left_comm, Finset.sum_add_distrib] using by ring
+  ring_nf
+  rw [Finset.sum_add_distrib]
+  ring_nf
+  exact le_of_eq rfl
 
 /-! ### 1D Covering Lemmas -/
 

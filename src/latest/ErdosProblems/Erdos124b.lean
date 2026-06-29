@@ -305,12 +305,18 @@ lemma u_seq_gap {k : ℕ} {d : Fin k → ℕ} (hk : k ≠ 0) (h_ge : ∀ i, 2 �
               ((d j ^ e_seq d (n + 1) j - 1) / (d j - 1) : ℚ) ≥
             ∑ j ∈ Finset.univ,
               ((d i ^ e_seq d (n + 1) i - 1) / (d j - 1) : ℚ) := by
-        gcongr
-        · rename_i j _
-          have hj : (1 : ℚ) ≤ d j := by
-            exact_mod_cast (by linarith [ h_ge j ] : 1 ≤ d j)
-          linarith
-        · exact_mod_cast hi _
+        refine Finset.sum_le_sum ?_
+        intro j hj
+        have hden : (0 : ℚ) ≤ (d j : ℚ) - 1 := by
+          exact sub_nonneg.mpr (by exact_mod_cast (by linarith [h_ge j] : 1 ≤ d j))
+        have hpow_le : ((d i ^ e_seq d (n + 1) i : ℕ) : ℚ) ≤
+            ((d j ^ e_seq d (n + 1) j : ℕ) : ℚ) := by
+          exact_mod_cast hi j
+        have hnum :
+            (d i : ℚ) ^ e_seq d (n + 1) i - 1 ≤
+              (d j : ℚ) ^ e_seq d (n + 1) j - 1 := by
+          simpa [Nat.cast_pow] using sub_le_sub_right hpow_le (1 : ℚ)
+        exact div_le_div_of_nonneg_right hnum hden
       generalize_proofs at *
       simp_all +decide only [ne_eq, div_eq_mul_inv, one_mul, ge_iff_le]
       rw [← Finset.mul_sum _ _ _] at *

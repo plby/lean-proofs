@@ -423,19 +423,18 @@ theorem erdos_1095_weaker_upper_bound :
             rw [div_mul_div_cancel₀ (ne_of_gt <| Real.log_pos <| by
               norm_cast
               linarith)])
-      simpa +decide [ add_div ] using le_trans
+      simpa +decide [ add_div ] using
         (Filter.Tendsto.add
           (Filter.Tendsto.sub
             (Filter.Tendsto.add
               (Filter.Tendsto.add
-                (tendsto_const_nhds.div_atTop <|
+                ((tendsto_const_nhds (x := Real.log 3)).div_atTop <|
                   Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop)
                 h_log_ratio)
               h_log_log_ratio)
-            tendsto_const_nhds)
-          (tendsto_const_nhds.div_atTop <|
+            (tendsto_const_nhds (x := (1 : ℝ))))
+          ((tendsto_const_nhds (x := (3 : ℝ))).div_atTop <|
             Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop))
-        (by norm_num)
     refine squeeze_zero_norm' ?_ h_frac_log_log_bound
     filter_upwards [ Filter.eventually_ge_atTop 2 ] with k hk
     rw [ Real.norm_of_nonneg ( by positivity ) ]

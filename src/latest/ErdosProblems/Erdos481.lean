@@ -199,7 +199,9 @@ lemma Sigma_map_finRange {n : ℕ} (f : Fin n → ℕ+) :
   | zero => simp [Sigma_nil]
   | succ n ih =>
     rw [List.finRange_succ, List.map_cons, Sigma_cons, Fin.sum_univ_succ]
-    simp only [List.map_map, Function.comp_def]; congr 1; convert ih (f ∘ Fin.succ) using 1
+    simp only [List.map_map, Function.comp_def]
+    congr 1
+    simpa [Function.comp_def] using ih (f ∘ Fin.succ)
 
 /-- From 1/(ax+b) = 1/(ax) - b/(ax(ax+b)), we get Σ_{k+1} = C·Σ_k - CorrectionTerm -/
 lemma sigma_eq (k : ℕ) (hk : 1 ≤ k) :

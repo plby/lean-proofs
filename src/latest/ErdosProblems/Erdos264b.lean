@@ -116,11 +116,14 @@ theorem lemma1 (n : ℕ) : alpha n < beta n := by
           (show (2 ^ (n + 1 + m) + 1 : ℝ) ≥ 2 ^ (n + 1 + m) by
             norm_num))
       (by
-        simpa using summable_geometric_two.comp_injective (by aesop_cat)))
+        simpa [Function.comp_def, Nat.add_assoc] using
+          summable_geometric_two.comp_injective (by aesop_cat)))
 
 /-
 For every integer n>=0 we have beta_{n+1} >= alpha_{n+1} + 1/((2^{n+1}+1)(2^{n+1}+2)).
 -/
+set_option maxHeartbeats 800000 in
+-- Lean 4.32 needs a larger local budget for the tail-difference estimate.
 theorem lemma2 (n : ℕ) :
     beta (n + 1) ≥ alpha (n + 1) +
       1 / ((2 ^ (n + 1) + 1) * (2 ^ (n + 1) + 2)) := by
@@ -143,7 +146,8 @@ theorem lemma2 (n : ℕ) :
               (show (2 ^ (n + 1 + 1 + k) + 1 : ℝ) ≥ 2 ^ (n + 1 + 1 + k) by
                 norm_num))
           (by
-            simpa using summable_geometric_two.comp_injective (by aesop_cat))
+            simpa [Function.comp_def, Nat.add_assoc] using
+              summable_geometric_two.comp_injective (by aesop_cat))
       · exact Summable.of_nonneg_of_le
           (fun _ ↦ by positivity)
           (fun k ↦ by
@@ -152,7 +156,8 @@ theorem lemma2 (n : ℕ) :
                   (2 : ℝ) ^ (n + 1 + 1 + k) by
                 norm_num))
           (by
-            simpa using summable_geometric_two.comp_injective <| by aesop_cat)
+            simpa [Function.comp_def, Nat.add_assoc] using
+              summable_geometric_two.comp_injective <| by aesop_cat)
     rw [h_beta_alpha_sum, Summable.tsum_eq_zero_add] <;> norm_num
     · exact le_add_of_le_of_nonneg
         (by
@@ -166,13 +171,30 @@ theorem lemma2 (n : ℕ) :
             gcongr
             norm_num)
     · refine Summable.of_nonneg_of_le
-        (f := fun k => 1 / (2 ^ (n + 1 + 1 + k))) ?_ ?_ ?_
-      · exact fun k => sub_nonneg_of_le <| inv_anti₀ (by positivity) <| by
+        (f := fun k => (1 / ((2 : ℝ) ^ (n + 2))) * ((1 : ℝ) / 2) ^ k) ?_ ?_ ?_
+      · intro k
+        exact sub_nonneg_of_le <| inv_anti₀ (by positivity) <| by
           linarith [pow_pos (by norm_num : (0 : ℝ) < 2) (n + 1 + 1 + k)]
       · intro k
-        field_simp
-        nlinarith [pow_pos (zero_lt_two' ℝ) (n + 1 + 1 + k)]
-      · simpa using summable_geometric_two.comp_injective (add_right_injective _)
+        calc
+          ((2 : ℝ) ^ (n + 1 + 1 + k) + 1)⁻¹ -
+              ((2 : ℝ) ^ (n + 1 + 1 + k) + 5)⁻¹
+              ≤ ((2 : ℝ) ^ (n + 1 + 1 + k) + 1)⁻¹ := by
+            have hnonneg :
+                0 ≤ ((2 : ℝ) ^ (n + 1 + 1 + k) + 5)⁻¹ := by
+              positivity
+            linarith
+          _ ≤ ((2 : ℝ) ^ (n + 1 + 1 + k))⁻¹ := by
+            exact inv_anti₀ (by positivity)
+              (by
+                linarith [
+                  pow_pos (by norm_num : (0 : ℝ) < 2) (n + 1 + 1 + k)])
+          _ = (1 / ((2 : ℝ) ^ (n + 2))) * ((1 : ℝ) / 2) ^ k := by
+            rw [show n + 1 + 1 + k = n + 2 + k by omega, pow_add]
+            field_simp [pow_ne_zero _ (by norm_num : (2 : ℝ) ≠ 0)]
+            rw [← mul_pow]
+            norm_num
+      · exact summable_geometric_two.mul_left (1 / ((2 : ℝ) ^ (n + 2)))
   norm_num [pow_succ'] at *
   -- Let's simplify the inequality.
   field_simp at *
@@ -212,7 +234,8 @@ theorem recursive_step (n : ℕ) (current_sum : ℝ) (x : ℝ)
                         2 ^ (n + 1 + k) by
                       linarith))
                 (by
-                  simpa using summable_geometric_two.comp_injective (by aesop_cat))
+                  simpa [Function.comp_def, Nat.add_assoc] using
+                    summable_geometric_two.comp_injective (by aesop_cat))
           linarith
         let good : Finset ℕ :=
           (Finset.Icc 1 5).filter fun c : ℕ =>
@@ -384,7 +407,7 @@ theorem main_theorem : ∃ b : ℕ → ℕ, (∀ k, b k ∈ ({1, 2, 3, 4, 5} : S
           exact tendsto_finsetSum _ fun i hi => Filter.Tendsto.inv₀ ( tendsto_const_nhds.add <| tendsto_const_nhds.congr' <| by filter_upwards [ Filter.eventually_ge_atTop ( h_eventually_eq ( i + 1 ) |> Classical.choose ) ] with n hn; rw [ h_eventually_eq ( i + 1 ) |> Classical.choose_spec |> fun h => h n hn ] ) <| by positivity;
         exact le_of_tendsto h_subseq (by
           simp_all only [Set.mem_insert_iff, Set.mem_singleton_iff, one_div, nhds_discrete,
-            Filter.tendsto_pure, Filter.eventually_atTop, ge_iff_le, implies_true])
+            Filter.tendsto_pure, Filter.eventually_atTop, implies_true])
       simpa [one_div] using h_subseq n le_rfl
     · -- By the properties of the sequence $(f_n)$, we can extract a subsequence $(f_{n_k})$ that converges pointwise to some function $b$. Hence, for any $n$, we have:
       have h_sum_tendsto : Filter.Tendsto (fun m => ∑ k ∈ Finset.range n, (2 ^ (k + 1) + (f (w m) (k + 1)) : ℝ)⁻¹) Filter.atTop (nhds (∑ k ∈ Finset.range n, (2 ^ (k + 1) + (b (k + 1)) : ℝ)⁻¹)) := by
@@ -406,10 +429,10 @@ theorem main_theorem : ∃ b : ℕ → ℕ, (∀ k, b k ∈ ({1, 2, 3, 4, 5} : S
       · -- We'll use the fact that if the series $\sum_{k=n+1}^{\infty} \frac{1}{2^k + 5}$ converges, then its limit is $0$.
         have h_sum_zero : Filter.Tendsto (fun n => ∑' k, (1 / ((2 : ℝ)^(n + 1 + k) + 5))) Filter.atTop (nhds 0) := by
           convert tendsto_sum_nat_add fun k => ( 1 : ℝ ) / ( 2 ^ ( k + 1 ) + 5 ) using 2 ; norm_num [ add_comm, add_left_comm, add_assoc ];
-        convert h_sum_zero using 1;
+        simpa [alpha] using h_sum_zero
       · -- By definition of $\beta_n$, we have $\beta_n \leq \sum_{k=n+1}^{\infty} \frac{1}{2^k}$.
         have h_beta_le : ∀ n, (beta n : ℝ) ≤ ∑' k : ℕ, (1 / ((2 : ℝ)^(n + 1 + k))) := by
-          intro n; exact Summable.tsum_le_tsum ( fun k => by gcongr ; norm_num ) ( by exact Summable.of_nonneg_of_le ( fun _ => by positivity ) ( fun k => by simpa using inv_anti₀ ( by positivity ) ( show ( 2 : ℝ ) ^ ( n + 1 + k ) + 1 ≥ 2 ^ ( n + 1 + k ) by norm_num ) ) ( by simpa using summable_geometric_two.comp_injective ( by aesop_cat ) ) ) ( by simpa using summable_geometric_two.comp_injective ( by aesop_cat ) ) ;
+          intro n; exact Summable.tsum_le_tsum ( fun k => by gcongr ; norm_num ) ( by exact Summable.of_nonneg_of_le ( fun _ => by positivity ) ( fun k => by simpa using inv_anti₀ ( by positivity ) ( show ( 2 : ℝ ) ^ ( n + 1 + k ) + 1 ≥ 2 ^ ( n + 1 + k ) by norm_num ) ) ( by simpa [Function.comp_def, Nat.add_assoc] using summable_geometric_two.comp_injective ( by aesop_cat ) ) ) ( by simpa [Function.comp_def, Nat.add_assoc] using summable_geometric_two.comp_injective ( by aesop_cat ) ) ;
         -- The series $\sum_{k=n+1}^{\infty} \frac{1}{2^k}$ is a geometric series with sum $\frac{1}{2^n}$.
         have h_geo_series : ∀ n, ∑' k : ℕ, (1 / ((2 : ℝ)^(n + 1 + k))) = (1 / ((2 : ℝ)^(n + 1))) / (1 - 1 / 2) := by
           intro n; ring_nf;

@@ -164,9 +164,10 @@ lemma erdosTerm_summable (a : ℕ → ℕ) (ha : ∀ n, 0 < a (n + 1))
     (fun n => erdosTerm_nonneg a ha _)
     (fun n => h_bound _ (Nat.le_add_left _ _)) ?_
   convert h_pseries.mul_right (2 ^ N / (Q a N : ℝ)) using 2
-  norm_num
-  ring_nf
-  simp +decide [mul_comm, mul_left_comm]
+  · rfl
+  · norm_num
+    field_simp [pow_add, Q_cast_ne_zero a ha N, pow_ne_zero _ (by norm_num : (2 : ℝ) ≠ 0)]
+    ring
 
 /-! ### Auxiliary lemmas -/
 
@@ -317,8 +318,14 @@ lemma tail_geometric_bound (a : ℕ → ℕ) (ha : ∀ n, 0 < a (n + 1))
                   exact_mod_cast ha_large _ (by linarith),
                 show (0 : ℝ) ≤ Q a N * M ^ n by positivity,
                 show (0 : ℝ) ≤ Q a (N + n) * a (N + (n + 1)) by positivity]
-      convert h_term_bound using 1
-      ring!
+      calc
+        erdosTerm a (N + n) =
+            ((N + n + 1).divisors.card : ℝ) / (Q a (N + n + 1) : ℝ) := by
+          simp [erdosTerm, Nat.add_assoc]
+        _ ≤ (Λ ^ (n + 1) : ℝ) / (Q a N * M ^ (n + 1)) := h_term_bound
+        _ = (Λ / (M : ℝ)) ^ (n + 1) / (Q a N : ℝ) := by
+          rw [div_pow]
+          field_simp [hM_real_ne, Q_cast_ne_zero a ha N, pow_ne_zero _ hM_real_ne]
     · exact hS.comp_injective (add_right_injective N)
     · exact Summable.mul_right _
         (summable_geometric_of_lt_one (by positivity)
@@ -329,13 +336,12 @@ lemma tail_geometric_bound (a : ℕ → ℕ) (ha : ∀ n, 0 < a (n + 1))
   have h_geo_series :
       ∑' n, (Λ / (M : ℝ)) ^ (n + 1) / (Q a N : ℝ) =
         (Λ / (M : ℝ)) / (1 - Λ / (M : ℝ)) / (Q a N : ℝ) := by
-    norm_num [pow_succ', div_eq_mul_inv, tsum_mul_right]
+    norm_num [_root_.pow_succ', div_eq_mul_inv, tsum_mul_right]
     exact Or.inl (by
       erw [← tsum_geometric_of_lt_one (by positivity) (by
         rw [mul_inv_lt_iff₀ hM_real_pos]
         nlinarith)]
-      erw [← tsum_mul_left]
-      exact tsum_congr fun _ => by ring)
+      erw [← tsum_mul_left])
   have h_final_bound :
       (B : ℝ) * (Q a N : ℝ) *
           ((Λ / (M : ℝ)) / (1 - Λ / (M : ℝ)) / (Q a N : ℝ)) < 1 / 2 := by
@@ -393,8 +399,8 @@ theorem tail_irrationality_lemma
       have h_tail_pos :
           erdosSeries a =
             ∑ n ∈ range N₁, erdosTerm a n + ∑' n, erdosTerm a (N₁ + n) := by
-        convert tsum_eq_sum_add_tsum_shift _ _;
-        exact erdosTerm_summable a ha ha_tendsto;
+        simpa [erdosSeries] using
+          tsum_eq_sum_add_tsum_shift (erdosTerm_summable a ha ha_tendsto) N₁
       linarith;
     exact_mod_cast hz.symm ▸
       mul_pos
