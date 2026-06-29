@@ -290,9 +290,10 @@ The components are compact (image of compact set under continuous map) and there
 -/
 lemma component_compact {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1) (k : ℕ) :
   IsCompact (component n r k) := by
-    convert
-      (isCompact_closedBall (r ^ n : ℂ) 1 |> IsCompact.image_of_continuousOn)
-        (branch_continuous_on_disk hn hr k) using 1
+    unfold component
+    exact
+      (isCompact_closedBall (r ^ n : ℂ) 1).image_of_continuousOn
+        (branch_continuous_on_disk hn hr k)
 
 lemma component_isClosed {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1) (k : ℕ) :
   IsClosed (component n r k) := by
@@ -498,8 +499,8 @@ lemma components_map_injective {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1) :
           component_center n hn r hr k ∈
             connectedComponent (component_center n hn r hr l) := by
         exact h_center_eq ▸ mem_connectedComponent;
-      convert h_center_eq using 1;
-      convert isComponent_component_subtype hn hr l ( Fin.is_lt l );
+      rw [isComponent_component_subtype hn hr l (Fin.is_lt l)]
+      simpa [component_center] using h_center_eq
     have h_center_eq : (component n r k ∩ component n r l).Nonempty := by
       exact
         ⟨_, ⟨Set.mem_image_of_mem _ (Metric.mem_closedBall_self <| by positivity),
@@ -542,19 +543,19 @@ lemma deriv_branch {n : ℕ} (k : ℕ) (w : ℂ) (hw : 0 < w.re) :
   deriv (branch n k) w =
     ((1 / n : ℂ) * w ^ ((1 / n : ℂ) - 1)) *
       Complex.exp (2 * Real.pi * Complex.I * k / n) := by
-    field_simp;
-    convert HasDerivAt.deriv ( HasDerivAt.congr_of_eventuallyEq _ ?_ ) using 1
-    · exact fun z => z ^ ( 1 / ( n : ℂ ) ) * Complex.exp ( 2 * Real.pi * Complex.I * k / n );
-    · convert
-        HasDerivAt.mul (HasDerivAt.cpow_const (hasDerivAt_id w) _)
-          (hasDerivAt_const _ _) using 1 <;>
-        norm_num;
-      · ring;
-      · exact Or.inl hw;
-    · filter_upwards
-        [IsOpen.mem_nhds (isOpen_lt continuous_const Complex.continuous_re) hw]
-        with z hz;
-      convert branch_eq_cpow_mul k z hz using 1
+    have hderiv :=
+      (HasDerivAt.cpow_const (c := 1 / (n : ℂ)) (hasDerivAt_id w) (Or.inl hw)).mul
+        (hasDerivAt_const w (Complex.exp (2 * Real.pi * Complex.I * k / n)))
+    have heq :
+        branch n k =ᶠ[nhds w]
+          ((fun z : ℂ => z ^ (1 / (n : ℂ))) *
+            fun _ : ℂ => Complex.exp (2 * Real.pi * Complex.I * k / n)) := by
+      filter_upwards
+          [IsOpen.mem_nhds (isOpen_lt continuous_const Complex.continuous_re) hw]
+          with z hz
+      simpa using branch_eq_cpow_mul k z hz
+    simpa [Pi.mul_apply, mul_assoc, one_div] using
+      HasDerivAt.deriv (hderiv.congr_of_eventuallyEq heq)
 
 /-
 Bound the norm of the derivative of the branch function. The derivative
@@ -577,8 +578,12 @@ lemma norm_deriv_branch_le {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1)
     have h_norm_deriv :
         ‖deriv (branch n k) w‖ ≤
           (1 / n : ℝ) * ‖w‖ ^ ((1 / n : ℝ) - 1) := by
-      simp_all +decide [ Complex.norm_exp ];
-      convert Complex.norm_cpow_le _ _ using 1 ; norm_num;
+      have hpow :
+          ‖w ^ (((n : ℂ)⁻¹) - 1)‖ = ‖w‖ ^ (((n : ℝ)⁻¹) - 1) := by
+        simpa [one_div] using Complex.norm_cpow_real w (((n : ℝ)⁻¹) - 1)
+      rw [h_deriv]
+      simp [Complex.norm_exp]
+      rw [hpow]
     -- Since $w$ is in the closed ball of radius 1 centered at $r^n$, we have $‖w‖ ≥ r^n - 1$.
     have h_norm_w : ‖w‖ ≥ r ^ n - 1 := by
       have hw_dist : ‖w - (r ^ n : ℂ)‖ ≤ 1 := by
