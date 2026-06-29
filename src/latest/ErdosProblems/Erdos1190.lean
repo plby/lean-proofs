@@ -392,8 +392,19 @@ lemma Zscale_dyadic_endpoint_ge_const_sqrt
       C ^ 2 * (((k + 1 : ℕ) : ℝ)) ≤
         Real.log (N : ℝ) * Real.log (Real.log (N : ℝ)) := by
     have hmul := mul_le_mul hlogN_ge hloglogN_ge hright_nonneg hlogN_nonneg
-    convert hmul using 1
-    field_simp [hlog2.ne']
+    calc
+      C ^ 2 * (((k + 1 : ℕ) : ℝ))
+          = ((k + 1 : ℕ) : ℝ) * Real.log 2 * (C ^ 2 / Real.log 2) := by
+            rw [div_eq_mul_inv]
+            calc
+              C ^ 2 * (((k + 1 : ℕ) : ℝ))
+                  = C ^ 2 * (((k + 1 : ℕ) : ℝ)) *
+                    (Real.log 2 * (Real.log 2)⁻¹) := by
+                    rw [mul_inv_cancel₀ hlog2.ne']
+                    ring
+              _ = ((k + 1 : ℕ) : ℝ) * Real.log 2 * (C ^ 2 * (Real.log 2)⁻¹) := by
+                    ring
+      _ ≤ Real.log (N : ℝ) * Real.log (Real.log (N : ℝ)) := hmul
   have harg_nonneg : 0 ≤ Real.log (N : ℝ) * Real.log (Real.log (N : ℝ)) := by
     exact (mul_nonneg (sq_nonneg C) (by positivity)).trans hprod_ge
   have hleft_sqrt_nonneg : 0 ≤ C * Real.sqrt (((k + 1 : ℕ) : ℝ)) := by positivity
@@ -443,8 +454,19 @@ lemma dyadic_tail_exponent_gap
   have hgapZ :
       C0 * Real.sqrt (((k + 1 : ℕ) : ℝ)) ≤ (a - b) * Zscale N := by
     have hmul := mul_le_mul_of_nonneg_left (hsqrt k) hgap.le
-    convert hmul using 1
-    field_simp [hgap.ne']
+    calc
+      C0 * Real.sqrt (((k + 1 : ℕ) : ℝ))
+          = (a - b) * ((C0 / (a - b)) * Real.sqrt (((k + 1 : ℕ) : ℝ))) := by
+            rw [div_eq_mul_inv]
+            calc
+              C0 * Real.sqrt (((k + 1 : ℕ) : ℝ))
+                  = C0 * Real.sqrt (((k + 1 : ℕ) : ℝ)) * ((a - b) * (a - b)⁻¹) := by
+                    rw [mul_inv_cancel₀ hgap.ne']
+                    ring
+              _ = (a - b) * ((C0 * (a - b)⁻¹) *
+                    Real.sqrt (((k + 1 : ℕ) : ℝ))) := by
+                    ring
+      _ ≤ (a - b) * Zscale N := hmul
   have hbmono : b * Zscale m ≤ b * Zscale N :=
     mul_le_mul_of_nonneg_left (hmono k) hb.le
   have hpolyC :
@@ -1122,8 +1144,15 @@ lemma log_lift1190N_le_one_plus_mul_log
     rw [hlog_eq] at hmul
     have hfour : 4 * Zscale m ≤ c * Real.log (m : ℝ) := by
       have hmulc := mul_le_mul_of_nonneg_left hmul hc.le
-      convert hmulc using 1
-      field_simp [hc.ne']
+      calc
+        4 * Zscale m = c * ((4 / c) * Zscale m) := by
+          rw [div_eq_mul_inv]
+          calc
+            4 * Zscale m = 4 * Zscale m * (c * c⁻¹) := by
+              rw [mul_inv_cancel₀ hc.ne']
+              ring
+            _ = c * ((4 * c⁻¹) * Zscale m) := by ring
+        _ ≤ c * Real.log (m : ℝ) := hmulc
     nlinarith
   have hlog2_le : Real.log 2 ≤ c / 2 * Real.log (m : ℝ) := by
     have h := (div_le_iff₀ hc).1 hlog_large
