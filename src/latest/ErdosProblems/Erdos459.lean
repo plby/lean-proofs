@@ -197,30 +197,7 @@ For k ≥ 2, f(2^k - 2) = (2^k - 2) + 2.
 set_option linter.flexible false in
 theorem f_eq_u_plus_two_of_u_eq_pow_two_sub_two {k : ℕ} (hk : 2 ≤ k) :
     f (2 ^ k - 2) = (2 ^ k - 2) + 2 := by
-  apply le_antisymm
-  · -- For $k \geq 2$, $2^k - 2$ is even, so we can apply the theorem
-    -- $f_even_le_next_pow_two$.
-    have h_even : Even (2 ^ k - 2) := by
-      exact even_iff_two_dvd.mpr
-        ( Nat.dvd_sub ( dvd_pow_self _ ( by linarith ) ) ( by norm_num ) )
-    convert f_even_le_next_pow_two h_even
-      ( Nat.sub_pos_of_lt <| by linarith [ Nat.pow_le_pow_right two_pos hk ] )
-      using 1
-    rw [ Nat.sub_add_cancel
-      ( show 2 ≤ 2 ^ k from
-        le_trans ( by decide ) ( pow_le_pow_right₀ ( by decide ) hk ) ) ]
-    -- Since $2^k - 2$ is less than $2^k$, we have $\log_2(2^k - 2) = k - 1$.
-    have h_log : Nat.log 2 (2 ^ k - 2) = k - 1 := by
-      rw [ Nat.log_eq_iff ] <;> norm_num
-      · rcases k with ( _ | _ | k ) <;> simp_all +decide [ pow_succ' ]
-        exact le_tsub_of_add_le_left ( by linarith [ Nat.one_le_pow k 2 zero_lt_two ] )
-      · exact Or.inl ( Nat.sub_ne_zero_of_lt hk )
-    cases k <;> aesop
-  · have := f_bounds
-      ( show 2 ≤ 2 ^ k - 2 from
-        Nat.le_sub_of_add_le ( by linarith [ Nat.pow_le_pow_right two_pos hk ] ) )
-    aesop
-
+      sorry
 /-
 There are infinitely many u such that f(u) = u + 2.
 -/
@@ -243,11 +220,7 @@ theorem infinite_setOf_f_eq_self_add_two : Set.Infinite {u | f u = u + 2} := by
 There are infinitely many u such that f(u) = u^2.
 -/
 theorem infinite_setOf_f_eq_sq : Set.Infinite {u | f u = u ^ 2} := by
-  exact Nat.infinite_setOf_prime.mono
-    ( fun p hp ↦ by simpa [ hp.ne_zero ] using f_prime hp )
-    |> Set.Infinite.mono fun u hu ↦ by
-      aesop
-
+  sorry
 /-
 A set $A \subseteq \mathbb{N}$ has natural density $d$ if
 $\lim_{n \to \infty} \frac{|A \cap \{0, \dots, n-1\}|}{n} = d$. The natural
@@ -864,47 +837,7 @@ For distinct primes $p$ and $q$, the ratio $\frac{\log p}{\log q}$ is irrational
 -/
 lemma irrational_log_ratio (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p ≠ q) :
   Irrational (Real.log p / Real.log q) := by
-    -- Assume for contradiction that $\frac{\log p}{\log q}$ is rational.
-    by_contra h
-    -- Then there exist positive integers $a$ and $b$ such that
-    -- $\frac{\log p}{\log q} = \frac{a}{b}$.
-    obtain ⟨a, b, ha, hb, hab⟩ :
-        ∃ a b : ℕ, 0 < a ∧ 0 < b ∧ Real.log p = a * Real.log q / b := by
-      obtain ⟨a, b, ha, hb, hab⟩ :
-          ∃ a b : ℕ, 0 < a ∧ 0 < b ∧ Real.log p / Real.log q = a / b := by
-        obtain ⟨a, b, ha, hb, hab⟩ :
-            ∃ a b : ℤ, 0 < a ∧ 0 < b ∧ Real.log p / Real.log q = a / b := by
-          have h_rat : ∃ r : ℚ, Real.log p / Real.log q = r := by
-            simpa [ eq_comm ] using Classical.not_not.1 h
-          obtain ⟨ r, hr ⟩ := h_rat
-          exact ⟨
-            r.num,
-            r.den,
-            mod_cast Rat.num_pos.mpr ( show 0 < r from by
-              exact_mod_cast hr ▸
-                div_pos ( Real.log_pos ( Nat.one_lt_cast.mpr hp.one_lt ) )
-                  ( Real.log_pos ( Nat.one_lt_cast.mpr hq.one_lt ) ) ),
-            mod_cast Nat.cast_pos.mpr r.pos,
-            by simpa only [ Rat.cast_def ] using hr⟩
-        cases a <;> cases b <;> aesop;
-      exact ⟨ a, b, ha, hb, by
-        rw [ div_eq_iff ( ne_of_gt ( Real.log_pos ( Nat.one_lt_cast.mpr hq.one_lt ) ) ) ]
-          at hab
-        linear_combination hab⟩
-    -- Exponentiating both sides, we get $p^b = q^a$.
-    have h_exp : (p : ℝ) ^ b = q ^ a := by
-      rw [ ← Real.rpow_natCast, ← Real.rpow_natCast,
-        Real.rpow_def_of_pos ( Nat.cast_pos.mpr hp.pos ),
-        Real.rpow_def_of_pos ( Nat.cast_pos.mpr hq.pos ) ]
-      norm_num
-      rw [ eq_div_iff ( by positivity ) ] at *
-      linarith
-    norm_cast at h_exp
-    have := congr_arg ( ·.factorization ( p : ℕ ) ) h_exp
-    have := congr_arg ( ·.factorization ( q : ℕ ) ) h_exp
-    norm_num at *
-    aesop
-
+    sorry
 /-
 Given a dense set $D$ and a compact set $K$, for any $\epsilon > 0$, there is
 a finite subset of $D$ that $\epsilon$-approximates $K$.
@@ -912,33 +845,7 @@ a finite subset of $D$ that $\epsilon$-approximates $K$.
 lemma compact_approx_by_finite_subset (D : Set ℝ) (hD : Dense D) (K : Set ℝ)
     (hK : IsCompact K) (ε : ℝ) (hε : 0 < ε) :
   ∃ F : Finset ℝ, (F : Set ℝ) ⊆ D ∧ ∀ x ∈ K, ∃ y ∈ F, |x - y| < ε := by
-    -- By compactness, there is a finite subcover corresponding to $x_1, \dots, x_n$.
-    obtain ⟨x_fin, hx_fin⟩ :
-        ∃ x_fin : Finset ℝ,
-          (∀ x ∈ x_fin, x ∈ K) ∧ ∀ x ∈ K, ∃ y ∈ x_fin, |x - y| < ε / 2 := by
-      have := hK.elim_nhds_subcover ( fun x => Metric.ball x ( ε / 2 ) )
-        ( fun x _ => Metric.ball_mem_nhds _ ( half_pos hε ) )
-      exact ⟨ this.choose, this.choose_spec.1, fun x hx => by
-        rcases Set.mem_iUnion₂.1 ( this.choose_spec.2 hx ) with ⟨ y, hy, hy' ⟩
-        exact ⟨ y, hy, hy' ⟩⟩
-    -- For each $y \in x_fin$, there exists $z \in D$ such that
-    -- $|y - z| < \epsilon / 2$.
-    obtain ⟨z_fin, hz_fin⟩ :
-        ∃ z_fin : Finset ℝ,
-          (∀ y ∈ z_fin, y ∈ D) ∧
-            (∀ y ∈ x_fin, ∃ z ∈ z_fin, |y - z| < ε / 2) := by
-      have hz_fin : ∀ y ∈ x_fin, ∃ z ∈ D, |y - z| < ε / 2 := by
-        exact fun y hy => by
-          rcases hD.exists_dist_lt y ( half_pos hε ) with ⟨ z, hzD, hz ⟩
-          exact ⟨ z, hzD, by simpa [ abs_sub_comm ] using hz ⟩
-      choose! z hz using hz_fin; use Finset.image z x_fin; aesop;
-    exact ⟨ z_fin, hz_fin.1, fun x hx => by
-      obtain ⟨ y, hy, hy' ⟩ := hx_fin.2 x hx
-      obtain ⟨ z, hz, hz' ⟩ := hz_fin.2 y hy
-      exact ⟨ z, hz, abs_lt.mpr ⟨
-        by linarith [ abs_lt.mp hy', abs_lt.mp hz' ],
-        by linarith [ abs_lt.mp hy', abs_lt.mp hz' ]⟩⟩⟩
-
+    sorry
 /-
 For any positive irrational $\alpha$ and $\epsilon > 0$, there exist natural
 numbers $n, m$ such that $0 < n \alpha - m < \epsilon$.
@@ -1085,103 +992,7 @@ $\{ b v - a u \mid a, b \in \mathbb{N} \}$ is dense in $\mathbb{R}$.
 lemma dense_diff_submonoid_of_irrational_ratio (u v : ℝ) (hu : 0 < u)
     (hv : 0 < v) (h_irr : Irrational (u / v)) :
   Dense { x | ∃ a b : ℕ, x = (b : ℝ) * v - (a : ℝ) * u } := by
-    -- Let $\delta_+ = b v - a u$ with $0 < b v - a u < \epsilon$.
-    have h_delta_pos :
-        ∀ ϵ > 0,
-          ∃ a b : ℕ,
-            0 < (b : ℝ) * v - (a : ℝ) * u ∧
-              (b : ℝ) * v - (a : ℝ) * u < ϵ := by
-      intro ε hε_pos
-      obtain ⟨a, b, h_pos, h_lt⟩ :
-          ∃ a b : ℕ,
-            0 < (b : ℝ) * (v / u) - (a : ℝ) ∧
-              (b : ℝ) * (v / u) - (a : ℝ) < ε / u := by
-        have := exists_nat_mul_sub_nat_small ( v / u ) ( by positivity )
-          ( by simpa [ div_eq_mul_inv ] using h_irr.inv ) ( ε / u ) ( by positivity )
-        focus aesop
-      exact ⟨
-        a,
-        b,
-        by nlinarith [ mul_div_cancel₀ v hu.ne' ],
-        by nlinarith [ mul_div_cancel₀ v hu.ne', mul_div_cancel₀ ε hu.ne' ]⟩
-    -- Let $\delta_- = b' v - a' u$ with $-\epsilon < b' v - a' u < 0$.
-    have h_delta_neg :
-        ∀ ϵ > 0,
-          ∃ a' b' : ℕ,
-            -ϵ < (b' : ℝ) * v - (a' : ℝ) * u ∧
-              (b' : ℝ) * v - (a' : ℝ) * u < 0 := by
-      intro ϵ hϵ_pos
-      obtain ⟨a', b', ha', hb'⟩ :
-          ∃ a' b' : ℕ,
-            0 < (a' : ℝ) * u - (b' : ℝ) * v ∧
-              (a' : ℝ) * u - (b' : ℝ) * v < ϵ := by
-        obtain ⟨a', b', ha', hb'⟩ :
-            ∃ a' b' : ℕ,
-              0 < (a' : ℝ) * (u / v) - (b' : ℝ) ∧
-                (a' : ℝ) * (u / v) - (b' : ℝ) < ϵ / v := by
-          have := exists_nat_mul_sub_nat_small ( u / v ) ( by positivity ) h_irr
-            ( ϵ / v ) ( by positivity )
-          aesop
-        exact ⟨
-          a',
-          b',
-          by nlinarith [ mul_div_cancel₀ u hv.ne' ],
-          by nlinarith [ mul_div_cancel₀ u hv.ne', mul_div_cancel₀ ϵ hv.ne' ]⟩
-      exact ⟨ a', b', by linarith, by linarith ⟩
-    -- For any real number $x$, we can find a sequence in $S$ converging to $x$.
-    have h_seq :
-        ∀ x : ℝ, ∀ ϵ > 0,
-          ∃ s ∈ {x : ℝ | ∃ a b : ℕ, x = b * v - a * u}, |x - s| < ϵ := by
-      intro x ϵ hϵ_pos
-      obtain ⟨a, b, hδ_pos⟩ :
-          ∃ a b : ℕ,
-            0 < (b : ℝ) * v - (a : ℝ) * u ∧
-              (b : ℝ) * v - (a : ℝ) * u < ϵ := h_delta_pos ϵ hϵ_pos
-      obtain ⟨a', b', hδ_neg⟩ :
-          ∃ a' b' : ℕ,
-            -ϵ < (b' : ℝ) * v - (a' : ℝ) * u ∧
-              (b' : ℝ) * v - (a' : ℝ) * u < 0 := h_delta_neg ϵ hϵ_pos
-      -- Consider two cases: $x \geq 0$ and $x < 0$.
-      by_cases hx_nonneg : 0 ≤ x;
-      · -- Let $k = \lfloor x / \delta_+ \rfloor$.
-        obtain ⟨k, hk⟩ :
-            ∃ k : ℕ,
-              0 ≤ x - k * ((b : ℝ) * v - (a : ℝ) * u) ∧
-                x - k * ((b : ℝ) * v - (a : ℝ) * u) <
-                  (b : ℝ) * v - (a : ℝ) * u := by
-          exact ⟨
-            ⌊x / ( b * v - a * u )⌋₊,
-            by
-              nlinarith [
-                Nat.floor_le ( show 0 ≤ x / ( b * v - a * u ) by
-                  exact div_nonneg hx_nonneg hδ_pos.1.le ),
-                mul_div_cancel₀ x hδ_pos.1.ne'],
-            by
-              nlinarith [
-                Nat.lt_floor_add_one ( x / ( b * v - a * u ) ),
-                mul_div_cancel₀ x hδ_pos.1.ne']⟩
-        exact ⟨
-          k * ( b * v - a * u ),
-          ⟨ k * a, k * b, by push_cast; ring ⟩,
-          abs_lt.mpr ⟨ by linarith, by linarith ⟩⟩
-      · -- Since $x < 0$, multiples of $b' * v - a' * u$ approximate $x$.
-        obtain ⟨k, hk⟩ : ∃ k : ℕ, |x - k * (b' * v - a' * u)| < ϵ := by
-          exact ⟨
-            ⌊x / ( b' * v - a' * u )⌋₊,
-            by
-              rw [ abs_lt ]
-              constructor <;>
-                nlinarith [
-                  Nat.floor_le ( show 0 ≤ x / ( b' * v - a' * u ) by
-                    exact div_nonneg_of_nonpos ( le_of_not_ge hx_nonneg )
-                      ( by linarith ) ),
-                  Nat.lt_floor_add_one ( x / ( b' * v - a' * u ) ),
-                  mul_div_cancel₀ x ( by linarith : ( b' * v - a' * u ) ≠ 0 )]⟩
-        exact ⟨ _, ⟨ k * a', k * b', by push_cast; ring ⟩, hk ⟩
-    exact fun x => Metric.mem_closure_iff.mpr fun ε hε => by
-      obtain ⟨ s, hs₁, hs₂ ⟩ := h_seq x ε hε
-      exact ⟨ s, hs₁, by simpa [ abs_sub_comm ] using hs₂ ⟩
-
+    sorry
 /-
 For any $\epsilon > 0$, there exists a finite set of indices
 $B \subset \mathbb{N}$ such that the set
