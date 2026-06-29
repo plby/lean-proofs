@@ -242,12 +242,12 @@ lemma exists_u_v_diff_one (A : Finset ℕ) (h_gcd : A.gcd id = 1) :
           -- By Bézout's identity, there exist integers $u$ and $v$ such that
           -- $a u + \gcd(s) v = \gcd(a,\gcd(s))$.
           obtain ⟨u, v, huv⟩ :
-              ∃ u v : ℤ, a * u + s.gcd id * v = Nat.gcd a (s.gcd id) := by
+              ∃ u v : ℤ, a * u + s.gcd id * v = gcd a (s.gcd id) := by
             have h_bezout :
-                ∀ (a b : ℕ), ∃ u v : ℤ, a * u + b * v = Nat.gcd a b := by
+                ∀ (a b : ℕ), ∃ u v : ℤ, a * u + b * v = gcd a b := by
               exact fun a b =>
                 ⟨ Nat.gcdA a b, Nat.gcdB a b, by
-                  linarith [Nat.gcd_eq_gcd_ab a b] ⟩
+                  exact (Nat.gcd_eq_gcd_ab a b).symm ⟩
             exact h_bezout a _
           use fun b => if b = a then u else if b ∈ s then v * x b else 0
           simp_all +decide [Finset.sum_ite, Finset.filter_ne', Finset.filter_eq']
@@ -521,7 +521,7 @@ lemma count_eq_one_add_sum_gaps (A : Set ℕ) (n : ℕ) (hn : n ≥ 1)
         omega
       · exact Set.inter_subset_right.trans (by norm_num [add_mul])
       · exact Set.Finite.subset (Set.finite_Icc _ _) fun x hx => hx.2
-    simpa only [h_card_interval] using h_card_union_intervals
+    simpa only [non_representable_count, h_card_interval] using h_card_union_intervals
 
 lemma summable_gaps (A : Set ℕ) (n : ℕ) (hn : n ≥ 1)
     (h_finite : (Set.univ \ (S A : Set ℕ)).Finite) :
