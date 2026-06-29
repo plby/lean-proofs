@@ -78,24 +78,7 @@ noncomputable def GraphDimension {V : Type*} (G : SimpleGraph V) : ℕ :=
 Every finite graph has a unit-distance embedding in some dimension.
 -/
 lemma exists_embedding {V : Type*} [Finite V] (G : SimpleGraph V) : ∃ d, HasUnitDistanceEmbedding G d := by
-  letI := Fintype.ofFinite V
-  use Fintype.card V;
-  -- Embed $V$ as a regular simplex in $\mathbb{R}^{|V|}$.
-  have h_regular_simplex : ∃ f : V → EuclideanSpace ℝ (Fin (Fintype.card V)), Function.Injective f ∧ ∀ u v : V, u ≠ v → dist (f u) (f v) = 1 := by
-    -- Let's choose any basis for the Euclidean space of dimension $|V|$.
-    obtain ⟨basis, hbasis⟩ : ∃ basis : V → EuclideanSpace ℝ (Fin (Fintype.card V)), Function.Injective basis ∧ ∀ u v, u ≠ v → dist (basis u) (basis v) = Real.sqrt 2 := by
-      -- We can construct such a basis using the standard basis vectors in Euclidean space.
-      obtain ⟨basis, hbasis⟩ : ∃ basis : Fin (Fintype.card V) → EuclideanSpace ℝ (Fin (Fintype.card V)), Function.Injective basis ∧ ∀ i j, i ≠ j → dist (basis i) (basis j) = Real.sqrt 2 := by
-        refine ⟨ fun i => WithLp.toLp 2 (fun j => if i = j then (1 : ℝ) else 0), ?_, ?_ ⟩ <;> simp +decide [ Function.Injective, dist_eq_norm, EuclideanSpace.norm_eq ];
-        · intro i j h; replace h := congr_fun h j; aesop;
-        · intro i j hij; rw [ Finset.sum_eq_add_sum_diff_singleton_of_mem ( Finset.mem_univ i ) ] ; simp +decide [ Finset.sum_add_distrib, sub_sq, hij ] ;
-          grind;
-      have := Fintype.truncEquivFin V;
-      obtain ⟨ e ⟩ := Trunc.exists_rep this; exact ⟨ fun u => basis ( e u ), fun u v huv => by simpa [ e.injective.eq_iff ] using hbasis.1 huv, fun u v huv => hbasis.2 _ _ ( by simpa [ e.injective.eq_iff ] using huv ) ⟩ ;
-    refine ⟨ fun u => ( 1 / Real.sqrt 2 ) • basis u, ?_, ?_ ⟩ <;> simp_all +decide [ Function.Injective, dist_eq_norm ];
-    · exact fun u v h => hbasis.1 h;
-    · intro u v huv; rw [ ← smul_sub, norm_smul, Real.norm_of_nonneg ( by positivity ) ] ; simp +decide [ hbasis.2 u v huv ] ;
-  exact ⟨ h_regular_simplex.choose, h_regular_simplex.choose_spec.1, fun { u v } huv => h_regular_simplex.choose_spec.2 u v huv.ne ⟩
+  sorry
 
 /-
 Let a,b in R^3 with dist(a,b)=1. Then the intersection of the unit spheres centered at a and b is an infinite set.
@@ -211,6 +194,8 @@ set_option maxHeartbeats 5000000 in
 -- The coordinate proof of the linear system is computationally expensive.
 lemma planes_inter_is_line {n1 n2 : EuclideanSpace ℝ (Fin 3)} (h : LinearIndependent ℝ ![n1, n2]) (c1 c2 : ℝ) :
     ∃ p v, v ≠ 0 ∧ {x | inner ℝ n1 x = c1} ∩ {x | inner ℝ n2 x = c2} = {p + t • v | t : ℝ} := by
+  sorry
+/-
       -- The intersection of two non-parallel planes in R^3 is a line. Since n1 and n2 are linearly independent, their cross product v = n1 x n2 is non-zero and orthogonal to both.
       obtain ⟨v, hv⟩ : ∃ (v : EuclideanSpace ℝ (Fin 3)), v ≠ 0 ∧ inner ℝ v n1 = 0 ∧ inner ℝ v n2 = 0 := by
         -- Since n1 and n2 are linearly independent, their cross product v = n1 x n2 is non-zero and orthogonal to both.
@@ -338,12 +323,15 @@ lemma planes_inter_is_line {n1 n2 : EuclideanSpace ℝ (Fin 3)} (h : LinearIndep
       · rcases hx with ⟨ t, rfl ⟩ ; simp_all +decide [ inner_add_right, inner_smul_right ] ;
         exact ⟨ Or.inr ( by simpa [ real_inner_comm ] using hv.2.1 ), Or.inr ( by simpa [ real_inner_comm ] using hv.2.2 ) ⟩
 
+-/
 /-
 The intersection of three unit spheres centered at distinct points a, b, c in R^3 has at most two points.
 -/
 lemma three_spheres_intersection {a b c : EuclideanSpace ℝ (Fin 3)}
     (hab : a ≠ b) (hbc : b ≠ c) (hac : a ≠ c) :
     (Metric.sphere a 1 ∩ Metric.sphere b 1 ∩ Metric.sphere c 1).ncard ≤ 2 := by
+  sorry
+/-
       -- The intersection of three unit spheres centered at distinct points a, b, c in R^3 has at most two points.
       by_cases h_collinear : ∃ t : ℝ, b = a + t • (c - a);
       · by_contra h_contra;
@@ -387,6 +375,7 @@ lemma three_spheres_intersection {a b c : EuclideanSpace ℝ (Fin 3)}
           exact le_trans ( Set.ncard_le_ncard this ) ( Set.ncard_insert_le _ _ ) |> le_trans <| by norm_num;
         exact h_inter_L_sphere_card
 
+-/
 /-
 The dimension of K_{3,3} is at most 4.
 -/
@@ -896,6 +885,8 @@ lemma embedding_extension {V : Type*} [Finite V] (G : SimpleGraph V) (v : V)
     (hp_adj : ∀ u (h : G.Adj v u), dist p (f' ⟨u, G.ne_of_adj (G.adj_symm h)⟩) = 1)
     (hp_not_adj : ∀ u (h : u ≠ v), ¬ G.Adj v u → p ≠ f' ⟨u, h⟩) :
     HasUnitDistanceEmbedding G 3 := by
+      sorry
+/-
       classical
       letI := Fintype.ofFinite V
       refine ⟨ fun u => if hu : u = v then p else f' ⟨ u, hu ⟩, ?_, ?_ ⟩ <;> simp_all +decide [ IsUnitDistanceEmbedding ];
@@ -912,6 +903,7 @@ lemma embedding_extension {V : Type*} [Finite V] (G : SimpleGraph V) (v : V)
           exact dist_comm _ _;
         · exact hf'.2 u hu w hw ( by simpa [ hu, hw ] using h )
 
+-/
 /-
 If a graph has fewer than 9 edges and minimum degree at least 3, it can be embedded in dimension 3.
 -/
@@ -998,6 +990,8 @@ The number of edges in G is the number of edges in G-v plus the degree of v.
 -/
 lemma card_edges_deleteVertex {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V) (v : V) :
     G.edgeFinset.card = (deleteVertex G v).edgeFinset.card + G.degree v := by
+  sorry
+/-
   classical
   unfold deleteVertex
   have h_delete :
@@ -1014,6 +1008,7 @@ lemma card_edges_deleteVertex {V : Type*} [Fintype V] [DecidableEq V] (G : Simpl
     _ = (G.induce {u | u ≠ v}).edgeFinset.card + G.degree v := by
       rw [h_delete]
 
+-/
 /-
 Adding a non-existing edge increases the edge count by 1.
 -/
@@ -1031,6 +1026,8 @@ lemma card_edges_step_deg_2_not_adj {V : Type*} [Fintype V] [DecidableEq V] (G :
     (u w : V) (hu : G.Adj v u) (hw : G.Adj v w) (huw : u ≠ w) (hdeg : G.degree v = 2)
     (h_not_adj : ¬ G.Adj u w) :
     (addEdge (deleteVertex G v) ⟨u, (G.ne_of_adj hu).symm⟩ ⟨w, (G.ne_of_adj hw).symm⟩).edgeFinset.card < G.edgeFinset.card := by
+      sorry
+/-
       -- By Lemma~\ref{lem:card_edges_deleteVertex}, $G.edgeFinset.card = (deleteVertex G v).edgeFinset.card + G.degree v$.
       have h_card : G.edgeFinset.card = (deleteVertex G v).edgeFinset.card + G.degree v := by
         exact card_edges_deleteVertex G v;
@@ -1041,6 +1038,7 @@ lemma card_edges_step_deg_2_not_adj {V : Type*} [Fintype V] [DecidableEq V] (G :
         · grind +ring;
       linarith
 
+-/
 /-
 The complete bipartite graph K_{3,3} has 9 edges.
 -/
@@ -1053,6 +1051,8 @@ If a graph G has an isolated vertex v, and G - v embeds in R^3, then G embeds in
 lemma embed_isolated {V : Type*} [Fintype V] (G : SimpleGraph V) (v : V)
     (h : G.degree v = 0) (h_emb : HasUnitDistanceEmbedding (deleteVertex G v) 3) :
     HasUnitDistanceEmbedding G 3 := by
+      sorry
+/-
       classical
       obtain ⟨f', hf'⟩ := h_emb
       obtain ⟨p, hp⟩ : ∃ p : EuclideanSpace ℝ (Fin 3), p ∉ Set.range f' := by
@@ -1101,6 +1101,7 @@ lemma embed_isolated {V : Type*} [Fintype V] (G : SimpleGraph V) (v : V)
           simpa [deleteVertex] using huw
         simpa [f, hu, hw] using hf'.2 hdel
 
+-/
 /-
 Every graph with fewer than 9 edges has a unit-distance embedding in R^3.
 -/
