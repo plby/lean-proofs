@@ -100,7 +100,7 @@ theorem convexPosition_noThreeCollinear (P : Finset Point) (hconv : ConvexPositi
     simpa [E] using
       (Convex.convexIndependent_extremePoints (s := convexHull ℝ (P : Set Point)) hconvex)
   have hci_set : ∀ x ∈ E, x ∉ convexHull ℝ (E \ {x}) := by
-    simpa [E] using (convexIndependent_set_iff_notMem_convexHull_diff.mp hci)
+    simpa [E] using (convexIndependent_set_iff_notMem_convexHull_sdiff.mp hci)
   have hxP : x ∈ (P : Set Point) := by simpa using hx
   have hyP : y ∈ (P : Set Point) := by simpa using hy
   have hzP : z ∈ (P : Set Point) := by simpa using hz
@@ -206,7 +206,8 @@ lemma perpBisector_collinear (x y : Point) (hxy : x ≠ y) :
       Module.finrank ℝ
         (vectorSpan ℝ
           ((AffineSubspace.perpBisector x y : AffineSubspace ℝ Point) : Set Point)) ≤ 1 := by
-    simpa [hspan] using (le_of_eq hdir)
+    rw [hspan]
+    exact le_of_eq hdir
   exact (collinear_iff_finrank_le_one).2 hfinrank
 
 -- From convex/no-three-collinear to the perpendicular bisector bound (geometric fact).
@@ -904,7 +905,8 @@ theorem erdos94_bigO_general_position (P : Finset Point) (hgp : GeneralPosition 
     S(P)=O(n^3) := by
   have hperp : PerpBisectorAtMostTwo P :=
     perpBisectorAtMostTwo_of_general_position P hgp
-  simpa using (erdos94_bigO P hperp)
+  change ∃ C : ℝ, 0 ≤ C ∧ S P ≤ C * (P.card : ℝ)^3
+  exact erdos94_bigO P hperp
 
 -- Convenience wrapper combining convex + no-three-collinear into GeneralPosition.
 theorem erdos94_bigO_convex_no3collinear (P : Finset Point)
