@@ -26,7 +26,7 @@ import Mathlib.Analysis.Normed.Order.Lattice
 import Mathlib.Analysis.RCLike.Basic
 import Mathlib.Data.Int.Star
 import Mathlib.Data.Rat.Star
-import Mathlib.Data.Real.StarOrdered
+import Mathlib.Algebra.Order.Star.Real
 import Mathlib.Tactic.NormNum.BigOperators
 import Mathlib.Topology.Baire.LocallyCompactRegular
 import Mathlib.Topology.UniformSpace.Uniformizable
@@ -761,7 +761,11 @@ lemma bounded_continuous_differences_implies_continuous (f : ℝ → ℝ)
           csSup_le (Set.Nonempty.image _ <| Set.nonempty_Icc.mpr zero_le_one) <|
             Set.forall_mem_image.mpr fun x hx => le_of_lt <| hδ x h hh
       rw [ div_lt_iff₀ ] at hn <;> nlinarith [ show ( n : ℝ ) ≥ 1 by norm_cast ]
-    exact Metric.continuousAt_iff.2 fun ε hε => by simpa using h_cont_at_zero_aux ε hε
+    exact Metric.continuousAt_iff.2 fun ε hε => by
+      rcases h_cont_at_zero_aux ε hε with ⟨δ, hδ_pos, hδ⟩
+      refine ⟨δ, hδ_pos, ?_⟩
+      intro x hx
+      exact hδ x (by simpa [Real.dist_eq] using hx)
   rw [ continuous_iff_continuousAt ]
   intro x
   have := hf x
