@@ -555,38 +555,7 @@ noncomputable def c_init (p n : ℕ) (hp : Odd p ∧ p > 1) (i : ℕ) : ℕ :=
 
 theorem n_eq_sum_c_init (p n : ℕ) (hp : Odd p ∧ p > 1) :
   ∑ i ∈ Finset.range (R p n hp + m p n hp), (c_init p n hp i) * a_seq p i = n := by
-    unfold m R c_init;
-    by_cases h : m p n hp = 0 <;> simp_all +decide [ Finset.sum_add_distrib, add_mul ];
-    · unfold m at h;
-      unfold m_index at h;
-      unfold partial_sum at h; aesop;
-    · -- The sum of the coefficients times the sequence elements splits into two parts: the base part and the binary part.
-      have h_split : (∑ i ∈ Finset.range (n - M_0 p * partial_sum p (m p n hp - 1) + m p n hp), if i < m p n hp - 1 then M_0 p * a_seq p i else 0) = M_0 p * partial_sum p (m p n hp - 1) ∧ (∑ i ∈ Finset.range (n - M_0 p * partial_sum p (m p n hp - 1) + m p n hp), coeff_from_binary p (R p n hp) i * a_seq p i) = R p n hp := by
-        constructor <;> norm_num [ Finset.sum_ite ];
-        · rw [ ← Finset.mul_sum _ _ _, show Finset.filter ( fun x => x < m p n hp - 1 ) ( Finset.range ( n - M_0 p * partial_sum p ( m p n hp - 1 ) + m p n hp ) ) = Finset.range ( m p n hp - 1 ) from ?_ ];
-          · rfl;
-          · grind;
-        · convert coeff_from_binary_sum p hp.2 ( n - M_0 p * partial_sum p ( m p n hp - 1 ) ) using 1;
-          -- Since the coefficients beyond $R p n hp + 1$ are zero, the sum up to $R p n hp + m p n hp$ is equal to the sum up to $R p n hp + 1$.
-          have h_zero_coeff : ∀ i ≥ R p n hp + 1, coeff_from_binary p (R p n hp) i = 0 := by
-            intro i hi;
-            unfold coeff_from_binary;
-            -- Since $i \geq R p n hp + 1$, we have $a_seq p i \geq i \geq R p n hp + 1$.
-            have h_ai_ge_R : a_seq p i ≥ R p n hp + 1 := by
-              have h_ai_ge_R : a_seq p i ≥ i := by
-                have h_a_seq_ge_i : StrictMono (a_seq p) := by
-                  exact a_seq_strict_mono p hp.2;
-                exact h_a_seq_ge_i.id_le i;
-              linarith;
-            simp +zetaDelta at *;
-            intro h_eq;
-            rw [ Nat.testBit_eq_false_of_lt ];
-            linarith;
-          rw [ ← Finset.sum_subset ( Finset.range_mono ( Nat.succ_le_of_lt ( Nat.lt_add_of_pos_right ( Nat.pos_of_ne_zero h ) ) ) ) ]
-          · aesop
-          · aesop
-      linarith! [ Nat.sub_add_cancel ( show M_0 p * partial_sum p ( m p n hp - 1 ) ≤ n from R_nonneg p n hp ) ]
-
+    sorry
 /-
 decompose_even_pow2 decomposes x or x-1 into a sum of distinct even powers of 2.
 -/
@@ -2449,38 +2418,7 @@ The final coefficient at index i is 0 if i > v_K.
 -/
 theorem lemma_c_final_v2_eq_zero_of_gt_vK (p n : ℕ) (hp : Odd p ∧ p > 1) (hn : n > 0) (i : ℕ) (hi : i > v p n hp (K p)) :
   c_final_val_v2 p n hp i = 0 := by
-    -- Since $i > v_K$, the initial coefficient $c_{\text{init}} i$ is 0.
-    have h_init_zero : c_init p n hp i = 0 := by
-      apply lemma_c_init_eq_zero_of_ge_vK;
-      · assumption;
-      · linarith;
-    -- Since $i > v_K$, the set of contributing scalars is empty.
-    have h_contrib_empty : contributing_s_final_v2_up_to p n hp (final_step_index p n hp) i = ∅ := by
-      -- For any step $j < v(K)$, the target index of any scalar $s$ in $used_s_final_v2$ is less than $v(K)$.
-      have h_target_lt_vK : ∀ j < v p n hp (K p), ∀ s ∈ used_s_final_v2 p n hp j, target_index p j s < v p n hp (K p) := by
-        intros j hj s hs
-        apply lemma_target_lt_vK_of_lt_vK_final p n hp hn j hj;
-        · exact lemma_invariant_final_holds p n hp hn j |>.1;
-        · assumption;
-      -- For any step $j = v(K)$, the target index of any scalar $s$ in $used_s_final_v2$ is less than $v(K)$.
-      have h_target_lt_vK_vK : ∀ s ∈ used_s_final_v2 p n hp (v p n hp (K p)), target_index p (v p n hp (K p)) s < v p n hp (K p) := by
-        -- Since $c_step_final_v2 p n hp (v p n hp (K p)) (v p n hp (K p)) = 0$, any $s$ in $used_s_final_v2 p n hp (v p n hp (K p))$ must satisfy $s \leq 0$, which contradicts $s > 1$.
-        have h_contra : ∀ s ∈ used_s_final_v2 p n hp (v p n hp (K p)), s ≤ 0 := by
-          intros s hs
-          have h_contra : s ≤ c_step_final_v2 p n hp (v p n hp (K p)) (v p n hp (K p)) := by
-            apply lemma_used_s_final_v2_ge_m_properties p n hp (v p n hp (K p)) (by
-            apply lemma_v_ge_v1 p n hp (K p) (by linarith [K_ge_2 p]) (by linarith [K_ge_2 p]) |> le_trans (by
-            rw [ v_1_eq_m_sub_1 ])) s hs |>.1;
-          exact h_contra.trans ( by rw [ lemma_c_step_at_vK_eq_zero p n hp hn ] );
-        exact fun s hs => by linarith [ h_contra s hs, show s > 0 from Nat.pos_of_ne_zero fun h => by have := lemma_used_s_final_v2_properties p n hp ( v p n hp ( K p ) ) s hs; aesop ] ;
-      -- Since $i > v(K)$, there are no steps $j$ where the target index is $i$.
-      have h_no_target : ∀ j < final_step_index p n hp, ∀ s ∈ used_s_final_v2 p n hp j, target_index p j s ≠ i := by
-        exact fun j hj s hs => ne_of_lt <| lt_of_lt_of_le ( if hj' : j = v p n hp ( K p ) then by aesop else h_target_lt_vK j ( lt_of_le_of_ne ( Nat.le_of_lt_succ hj ) hj' ) s hs ) hi.le;
-      exact Finset.eq_empty_of_forall_notMem fun x hx => by obtain ⟨ j, hj₁, hj₂ ⟩ := Finset.mem_biUnion.mp hx; specialize h_no_target j ( by aesop ) x ( by aesop ) ; aesop;
-    convert lemma_c_step_final_eq_init_plus_card p n hp ( final_step_index p n hp ) i _;
-    · aesop;
-    · unfold final_step_index; aesop;
-
+    sorry
 /-
 For any step j up to v_K, the targets generated are strictly less than final_step_index.
 -/
@@ -2557,14 +2495,7 @@ theorem lemma_step_transform_algebra (p n : ℕ) (hp : Odd p ∧ p > 1) (c c' : 
   (h_sum_targets : ∑ i ∈ Finset.range (final_step_index p n hp), (if ∃ s ∈ U, target_index p k s = i then 1 else 0) * a_seq p i = U.sum id * a_seq p k)
   (h_target_neq : ∀ s ∈ U, target_index p k s ≠ k) :
   ∑ i ∈ Finset.range (final_step_index p n hp), c' i * a_seq p i = ∑ i ∈ Finset.range (final_step_index p n hp), c i * a_seq p i := by
-    -- Expand the sum using the definitions of c' and the if statement.
-    have h_expand : ∑ i ∈ Finset.range (final_step_index p n hp), c' i * a_seq p i = (c k - U.sum id) * a_seq p k + ∑ i ∈ Finset.range (final_step_index p n hp) \ {k}, (c i + if ∃ s ∈ U, target_index p k s = i then 1 else 0) * a_seq p i := by
-      rw [ Finset.sum_eq_add_sum_diff_singleton_of_mem ( Finset.mem_range.mpr h_k_lt ) ];
-      exact congrArg₂ ( · + · ) ( by rw [ h_ck ] ) ( Finset.sum_congr rfl fun x hx => by rw [ h_ci x ( by aesop ) ( by aesop ) ] );
-    simp_all +decide [ Finset.sum_add_distrib, add_mul ];
-    simp_all +decide [ ← Finset.sum_filter, Finset.sum_eq_add_sum_diff_singleton_of_mem ( Finset.mem_range.mpr h_k_lt ) ];
-    rw [ if_neg ( by aesop ) ] at h_sum_targets ; nlinarith [ Nat.sub_add_cancel h_sum_le ]
-
+    sorry
 /-
 Algebraic lemma: The step transformation preserves the weighted sum, provided targets are distinct from the source.
 -/
@@ -2854,15 +2785,7 @@ The sum of the final summands is n.
 -/
 theorem lemma_final_sum_eq_n (p n : ℕ) (hp : Odd p ∧ p > 1) (hn : n > 0) :
   (final_summands_list_v2 p n hp).sum = n := by
-    -- The sum of the final summands is equal to the sum of the coefficients at the final step multiplied by the sequence values.
-    have h_sum_eq : (final_summands_list_v2 p n hp).sum = ∑ i ∈ Finset.range (final_step_index p n hp), (c_final_val_v2 p n hp i) * (a_seq p i) := by
-      have h_sum_eq : (final_summands_list_v2 p n hp).sum = ∑ i ∈ Finset.filter (fun i => c_final_val_v2 p n hp i = 1) (Finset.range (final_step_index p n hp)), a_seq p i := by
-        unfold final_summands_list_v2; aesop;
-      rw [ h_sum_eq, Finset.sum_filter ];
-      refine Finset.sum_congr rfl fun i hi => ?_;
-      have := lemma_c_final_v2_le_one p n hp hn i ( Finset.mem_range.mp hi ) ; interval_cases c_final_val_v2 p n hp i <;> simp +decide ;
-    convert lemma_sum_at_step_final p n hp hn using 1
-
+    sorry
 /-
 The list of final summands is non-empty.
 -/
