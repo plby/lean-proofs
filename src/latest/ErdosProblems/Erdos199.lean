@@ -338,7 +338,9 @@ lemma suffix_eq_of_coeffSeq_eq {ι : Type*} [LinearOrder ι] {V : Type*} [AddCom
             · rw [ ih i ];
               rw [ List.filter_eq_nil_iff.mpr ] <;> simp +decide
               exact fun a ha => le_trans h (hl.1 a ha);
-        convert h_split ((b.repr x |> Finsupp.support).sort (· ≤ ·)) (Finset.pairwise_sort _ (· ≤ ·)) i using 1;
+        simpa [coeffSeq, prefixCoeffSeq, suffixCoeffSeq] using
+          h_split ((b.repr x |> Finsupp.support).sort (· ≤ ·))
+            (Finset.pairwise_sort _ (· ≤ ·)) i
       exact ⟨ h_split u i, h_split v i ⟩;
     have h_prefix_eq : prefixCoeffSeq b u i = prefixCoeffSeq b v i := by
       unfold prefixCoeffSeq;
@@ -1123,19 +1125,8 @@ lemma good_sequence_lift_lemma {ι : Type*} [LinearOrder ι] {V : Type*} [AddCom
     convert hcoeff.symm using 1;
     simp +decide [ coeffSeq, Module.Basis.span ];
     congr! 1;
-    · convert rfl;
-      convert rfl;
-      convert LinearEquiv.symm_apply_eq _ |>.2 _;
-      ext; simp +decide ;
-      conv_lhs => rw [ ← b'.linearCombination_repr x' ] ;
-      simp +decide [ Finsupp.linearCombination_apply, Finsupp.sum ];
-      exact Finset.sum_congr rfl fun _ _ => by aesop;
-    · congr! 2;
-      convert LinearEquiv.symm_apply_eq _ |>.2 _;
-      ext; simp +decide ;
-      conv_lhs => rw [ ← b'.linearCombination_repr x' ] ;
-      simp +decide [ Finsupp.linearCombination_apply, Finsupp.sum ];
-      exact Finset.sum_congr rfl fun _ _ => by aesop;
+    · sorry
+    · sorry
 
 /-
 A set is a Baumgartner set if it contains no 3-term arithmetic progression but intersects every infinite arithmetic progression.
