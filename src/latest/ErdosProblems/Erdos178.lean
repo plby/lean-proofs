@@ -359,7 +359,6 @@ lemma buffer_decomp (N M : ℕ) (hM : 0 < M)
             exists_eq_right]
           convert hH₃ using 2
           · rename_i i hi
-            dsimp
             split
             · rename_i h
               have hchoose := Classical.choose_spec
