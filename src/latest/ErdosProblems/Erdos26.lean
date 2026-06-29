@@ -34,6 +34,12 @@ namespace Erdos26
 
 attribute [local instance] Classical.propDecidable
 
+private lemma nth_Prime_eq_nth_Nat_Prime (n : ℕ) :
+    Nat.nth Prime n = Nat.nth Nat.Prime n := by
+  congr
+  funext p
+  exact propext Nat.prime_iff.symm
+
 variable {β : Type*} [Preorder β]
 
 variable (S : Set β) (a b : β)
@@ -272,9 +278,14 @@ lemma exists_next_congruence (l : ℕ) (n : ℕ) (h : SatisfiesCongruences n l) 
   rcases hj₂.eq_or_lt with rfl | hj₂' <;>
     simp_all +decide [Nat.ModEq]
   · rw [← Int.natCast_dvd_natCast]
-    simp_all +decide [Int.ModEq, Int.emod_eq_emod_iff_emod_sub_eq_zero]
-    convert hn'.2.1;
-    exact funext fun x => by simp +decide [← Nat.prime_iff]
+    rw [Nat.cast_add]
+    rw [nth_Prime_eq_nth_Nat_Prime]
+    change (Nat.nth Nat.Prime l : ℤ) ∣ ((n' : ℤ) + l)
+    have hdiv := (show (n' : ℤ) ≡ -(l : ℤ) [ZMOD (Nat.nth Nat.Prime l : ℤ)] from hn'.2.1).dvd
+    have hdiv_neg : (Nat.nth Nat.Prime l : ℤ) ∣ -((n' : ℤ) + l) := by
+      convert hdiv using 1
+      ring
+    simpa [add_comm] using Int.dvd_neg.mp hdiv_neg
   · -- Since $n' \equiv n \pmod{P}$, the shifted values are congruent modulo $P$.
     have h_cong :
         (n' + (j - 1)) ≡ (n + (j - 1))
@@ -282,11 +293,9 @@ lemma exists_next_congruence (l : ℕ) (n : ℕ) (h : SatisfiesCongruences n l) 
       exact Nat.ModEq.add_right _ hn'.1;
     refine Nat.dvd_of_mod_eq_zero
       (h_cong.of_dvd ?_ ▸ Nat.mod_eq_zero_of_dvd (h j hj₁ hj₂'));
-    convert
-        Finset.dvd_prod_of_mem _
-          (Finset.mem_range.mpr (show j - 1 < l from by omega)) using 1;
-    congr! 2;
-    ext; simp +decide [← Nat.prime_iff]
+    rw [nth_Prime_eq_nth_Nat_Prime]
+    exact Finset.dvd_prod_of_mem (fun k => Nat.nth Nat.Prime k)
+      (Finset.mem_range.mpr (show j - 1 < l from by omega))
 
 /-
 Let $p_1<p_2<\cdots$ be the primes. For each $\ell\ge 1$ there exists an integer $n_\ell$ such that
@@ -399,9 +408,9 @@ For $l \ge k+1$, $p_{k+1}$ divides $n_l + k$.
 -/
 lemma ruzsa_sequence_divisible_by_pk_plus_1 (k : ℕ) (l : ℕ) (hl : l ≥ k + 1) :
     (Nat.nth Prime k) ∣ (ruzsa_sequence l + k) := by
-  convert
-      ruzsa_sequence_congruence l (by linarith) (k + 1)
-        ⟨by linarith, by linarith⟩ using 1
+  simpa using
+    ruzsa_sequence_congruence l (by linarith) (k + 1)
+      ⟨by linarith, by linarith⟩
 
 /-
 If $n \in S_k$ and $\ell \ge k+1$, then $(n_\ell + k) \nmid n$.
@@ -446,7 +455,7 @@ theorem ruzsa_counterexample :
     have hS_density : HasDensity (S k) (1 / (ruzsa_modulus k : ℝ)) := by
       convert arithmetic_progression_density ( ruzsa_modulus k ) 1 _;
       exact Nat.pos_of_ne_zero ( Nat.ne_of_gt ( ruzsa_modulus_pos k hk ) );
-    convert hS_density.liminf_eq;
+    simpa [lowerDensity] using hS_density.liminf_eq
   -- Since $S_k \subset E_k$, we have positive lower density for the complement.
   have hE_density :
       ∀ k ≥ 1,
@@ -730,8 +739,8 @@ lemma isBehrend_implies_upperDensity_eq_one {ι : Type*} {A : ι → ℕ} (h : I
   -- By definition of IsBehrend, we have that the upper density of the multiples of A is 1.
   have h_upper : HasDensity (MultiplesOf A) 1 := by
     -- By definition of IsBehrend, the upper density of the multiples of A is 1.
-    convert h using 1;
-  convert h_upper.limsup_eq
+    exact h
+  simpa [upperDensity] using h_upper.limsup_eq
 
 /-
 If we allow for $\sum_{a\in A} \frac{1}{a} < \infty$ then Rusza has found a counter-example.
@@ -747,7 +756,7 @@ theorem erdos_26.variants.rusza : ∃ A : ℕ → ℕ,
   · constructor;
     · exact fun h =>
         h <| by
-          simpa using summable_geometric_two.comp_injective <|
+          simpa [Function.comp_def] using summable_geometric_two.comp_injective <|
             Nat.pow_right_injective <| by decide;
     · intro k;
       -- The multiples of $A$ have upper density bounded by the reciprocal sum.
@@ -763,8 +772,8 @@ theorem erdos_26.variants.rusza : ∃ A : ℕ → ℕ,
                 simpa using
                   inv_anti₀ (by positivity)
                     (show (2 ^ 2 ^ n + k : ℝ) ≥ 2 ^ 2 ^ n by linarith))
-              (by
-                simpa using
+                (by
+                  simpa [Function.comp_def] using
                   summable_geometric_two.comp_injective
                     (Nat.pow_right_injective (by decide)));
       -- The reciprocal sum is strictly less than 1.
@@ -783,10 +792,10 @@ theorem erdos_26.variants.rusza : ∃ A : ℕ → ℕ,
                     inv_anti₀ (by positivity)
                       (show (2 ^ 2 ^ i + k : ℝ) ≥ 2 ^ 2 ^ i by linarith))
                 (by
-                  simpa using
+                  simpa [Function.comp_def] using
                     summable_geometric_two.comp_injective
                       (Nat.pow_right_injective (by decide)));
-          · simpa using
+          · simpa [Function.comp_def] using
               summable_geometric_two.comp_injective (Nat.pow_right_injective (by decide));
         refine lt_of_le_of_lt h_sum_bound ?_;
         field_simp;
@@ -807,7 +816,7 @@ theorem erdos_26.variants.rusza : ∃ A : ℕ → ℕ,
                     norm_num [Nat.pow_succ', Nat.pow_mul] at *
                     linarith [Nat.one_le_pow n 2 zero_lt_two]))
           · norm_num;
-          · simpa using
+          · simpa [Function.comp_def] using
               summable_geometric_two.comp_injective (Nat.pow_right_injective (by decide));
           · simpa using summable_nat_add_iff 1 |>.2 <| summable_geometric_two;
         exact h_sum_lt_one.trans_le (by
