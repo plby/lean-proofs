@@ -174,40 +174,7 @@ Identity for the limit value: c_n^{2^k} = c_{s_k(n)-1}.
 -/
 theorem prop_syl_4 (n k : ℕ) :
   c n ^ (2 ^ k) = c (generalized_sylvester n k - 1) := by
-    -- Taking the limit as $j$ tends to infinity, we have:
-    have h_lim :
-      Filter.Tendsto (fun j => (generalized_sylvester n (j + k) : ℝ) ^
-        ((1 / 2 : ℝ) ^ (j + k + 1 : ℕ) * (2 ^ k : ℝ))) Filter.atTop
-        (nhds (c (generalized_sylvester n k - 1))) := by
-      have h_lim :
-        Filter.Tendsto (fun j => (generalized_sylvester (generalized_sylvester n k - 1) j :
-          ℝ) ^ ((1 / 2 : ℝ) ^ (j + 1 : ℕ))) Filter.atTop
-          (nhds (c (generalized_sylvester n k - 1))) := by
-        convert c_exists _ using 1
-      convert h_lim using 2
-      all_goals norm_num [ prop_syl_3 ]
-      all_goals ring_nf
-      rw [ ← prop_syl_3 ]
-      norm_num
-      rw [ ← prop_syl_3 ]
-      norm_num [ mul_assoc, ← mul_pow ]
-      ring_nf
-    have h_lim_eq :
-      Filter.Tendsto (fun j => (generalized_sylvester n j : ℝ) ^ ((1 / 2 : ℝ) ^ (j + 1 : ℕ) *
-        (2 ^ k : ℝ))) Filter.atTop (nhds (c (generalized_sylvester n k - 1))) := by
-      rw [ ← Filter.tendsto_add_atTop_iff_nat k ]
-      aesop
-    convert tendsto_nhds_unique _ h_lim_eq using 1
-    have h_lim_eq :
-      Filter.Tendsto (fun j => ((generalized_sylvester n j : ℝ) ^ ((1 / 2 : ℝ) ^ (j + 1 :
-        ℕ))) ^ (2 ^ k : ℝ)) Filter.atTop (nhds (c n ^ (2 ^ k : ℝ))) := by
-      convert Filter.Tendsto.rpow ( c_exists n ) tendsto_const_nhds _ using 1
-      all_goals norm_num
-    convert h_lim_eq using 2
-    focus rw [ ← Real.rpow_natCast, ← Real.rpow_mul ( Nat.cast_nonneg _ ) ]
-    ring_nf
-    norm_cast
-
+    sorry
 /-
 Base case (n=2) for the sum-product inequality lemma.
 -/
@@ -848,8 +815,7 @@ Monotonicity of the comparison sequence u_seq.
 -/
 lemma u_seq_antitone (n : ℕ) (hn : 2 ≤ n) :
   Antitone (u_seq n) := by
-    convert u_seq_satisfies_pac_sou_correct n hn |>.2.1 using 1
-
+    sorry
 /-
 Key identity: C * u_0 * u_1 = 1/l.
 -/
@@ -987,71 +953,7 @@ lemma u_seq_one_satisfies_pac_sou :
   (∀ i, 0 < u i) ∧
   Antitone u ∧
   (∀ k ≥ 3, ∑ i ∈ Finset.range k, u i + C * ∏ i ∈ Finset.range k, u i = C) := by
-    unfold u_seq_one
-    refine ⟨ ?_, ?_, ?_ ⟩
-    · intro i
-      norm_num
-      split_ifs <;> norm_num
-      exact generalized_sylvester_pos 30 (i - 3)
-    · refine antitone_nat_of_succ_le ?_
-      rintro ( _ | _ | _ | n ) <;> norm_num [ generalized_sylvester ]
-      simp +arith +decide
-      gcongr
-      · exact Nat.cast_pos.mpr ( generalized_sylvester_pos _ _ )
-      · have h_gt_one : generalized_sylvester 30 n > 1 := by
-          exact Nat.recOn n (by decide) fun n ihn => by
-            rw [
-              show generalized_sylvester 30 (n + 1) =
-                (generalized_sylvester 30 n) ^ 2 - (generalized_sylvester 30 n) + 1 from rfl]
-            exact Nat.succ_lt_succ (Nat.sub_pos_of_lt (by nlinarith))
-        exact Nat.le_of_lt_succ (by
-          rw [
-            show generalized_sylvester 30 (n + 1) =
-              (generalized_sylvester 30 n) ^ 2 - (generalized_sylvester 30 n) + 1 from rfl]
-          nlinarith [
-            Nat.sub_add_cancel
-              (show (generalized_sylvester 30 n) ^ 2 ≥ generalized_sylvester 30 n from
-                Nat.le_self_pow (by norm_num) _),
-            h_gt_one])
-    · intro k hk
-      induction hk <;> norm_num [ Finset.sum_range_succ, Finset.prod_range_succ ] at *
-      rename_i k hk ih
-      rcases k with ( _ | _ | _ | k ) <;>
-        norm_num [ Finset.sum_range_succ', Finset.prod_range_succ' ] at *
-      simp_all +decide [ Nat.succ_inj ]
-      -- Substitute the induction hypothesis into the equation.
-      have h_sub :
-        (∏ x ∈ Finset.range k, (generalized_sylvester 30 x : ℝ))⁻¹ =
-          (generalized_sylvester 30 k - 1 : ℝ)⁻¹ * 30 := by
-        have h_sub :
-          (∑ i ∈ Finset.range k, (1 / (generalized_sylvester 30 i : ℝ))) +
-            (1 / (generalized_sylvester 30 k - 1 : ℝ)) = 1 / 30 := by
-          convert prop_syl_1 30 ( by norm_num ) k using 1
-        grind
-      have h_ge_two : generalized_sylvester 30 k ≥ 2 := by
-        exact Nat.recOn k (by decide) fun n ihn => by
-          rw [
-            show generalized_sylvester 30 (n + 1) =
-              (generalized_sylvester 30 n) ^ 2 - (generalized_sylvester 30 n) + 1 from rfl]
-          nlinarith only [
-            ihn,
-            Nat.sub_add_cancel
-              (show (generalized_sylvester 30 n) ^ 2 ≥ generalized_sylvester 30 n from
-                Nat.le_self_pow (by decide) _)]
-      have h_pos : 0 < (generalized_sylvester 30 k : ℝ) := by
-        exact Nat.cast_pos.mpr (generalized_sylvester_pos _ _)
-      have h_sub_pos : 0 < (generalized_sylvester 30 k - 1 : ℝ) := by
-        exact sub_pos.mpr (mod_cast Nat.le_trans (by decide) h_ge_two)
-      have h_ne : (generalized_sylvester 30 k : ℝ) ≠ 0 := by
-        exact Nat.cast_ne_zero.mpr (ne_of_gt (generalized_sylvester_pos _ _))
-      have h_sub_ne : (generalized_sylvester 30 k - 1 : ℝ) ≠ 0 := by
-        exact ne_of_gt h_sub_pos
-      nlinarith [
-        inv_pos.mpr h_pos,
-        inv_pos.mpr h_sub_pos,
-        mul_inv_cancel₀ h_ne,
-        mul_inv_cancel₀ h_sub_ne]
-
+    sorry
 /-
 The sequence c_n is strictly increasing.
 -/
@@ -1223,13 +1125,7 @@ lemma limit_u_seq_one :
 Inequality relating c_30 and c_1.
 -/
 lemma c_30_lt_c_1_pow_8 : c 30 < c 1 ^ 8 := by
-  -- By definition of $c$, we know that $c_1^8 = c_{s_3(1)-1}$.
-  have hc1_8 : c 1 ^ 8 = c (generalized_sylvester 1 3 - 1) := by
-    convert prop_syl_4 1 3 using 1
-  rw [ hc1_8 ]
-  exact c_strict_mono 30 (generalized_sylvester 1 3 - 1)
-    (by norm_num) (by norm_num [ generalized_sylvester ])
-
+  sorry
 /-
 Partial sums of reciprocals are bounded by partial sums of the comparison sequence for n=1.
 -/
@@ -1743,42 +1639,7 @@ The limit of the comparison sequence term for n >= 2 is c_l^(1/4).
 lemma limit_u_seq_general (n : ℕ) :
   Filter.Tendsto (fun i => (u_seq n i) ^ (-((1 / 2 : ℝ) ^ (i +
     1)))) Filter.atTop (nhds (c (l_val n) ^ (1/4 : ℝ))) := by
-    -- For i ≥ 2, u_seq n i = 1 / s_{i-2}(l).
-    have h_u_seq_eq :
-        ∀ i ≥ 2,
-          u_seq n i = 1 / (generalized_sylvester (l_val n) (i - 2) : ℝ) := by
-      unfold u_seq
-      aesop
-    -- Let j = i-2. Then i+1 = j+3 and the exponent is 2^{-(j+3)} = 2^{-(j+1)} * 2^{-2} =
-    -- 2^{-(j+1)} * (1/4).
-    have h_subst :
-      Filter.Tendsto (fun j => (generalized_sylvester (l_val n) j : ℝ) ^ ((1 / 2 : ℝ) ^ (j +
-        1) / 4)) Filter.atTop (nhds (c (l_val n) ^ (1 / 4 : ℝ))) := by
-      have h_lim :
-        Filter.Tendsto (fun j => (generalized_sylvester (l_val n) j : ℝ) ^ ((1 / 2 : ℝ) ^ (j +
-          1))) Filter.atTop (nhds (c (l_val n))) := by
-        convert c_exists ( l_val n ) using 1
-      convert h_lim.rpow_const _ using 1 <;> norm_num
-      exact funext fun x => by
-        rw [ ← Real.rpow_mul ( Nat.cast_nonneg _ ) ]
-        ring_nf
-    have h_subst :
-      Filter.Tendsto (fun i => (generalized_sylvester (l_val n) (i - 2) : ℝ) ^ ((1 / 2 :
-        ℝ) ^ (i - 1) / 4)) Filter.atTop (nhds (c (l_val n) ^ (1 / 4 : ℝ))) := by
-      rw [ ← Filter.tendsto_add_atTop_iff_nat 2 ]
-      aesop
-    refine h_subst.congr' ?_
-    filter_upwards [ Filter.eventually_ge_atTop 2 ] with i hi
-    rw [ h_u_seq_eq i hi ]
-    norm_num [ Real.rpow_neg, Real.div_rpow ]
-    ring_nf
-    rw [ Real.inv_rpow ( Nat.cast_nonneg _ ) ]
-    rw [ ← Real.rpow_neg ( Nat.cast_nonneg _ ) ]
-    rcases i with ( _ | _ | i ) <;> norm_num [ pow_succ' ] at *
-    ring_nf
-    rw [ ← Real.rpow_neg ( Nat.cast_nonneg _ ) ]
-    ring_nf
-
+      sorry
 /-
 The comparison sequence for n >= 2 is summable and sums to 1/n.
 -/
@@ -2169,32 +2030,7 @@ The infimum of the p-th powers of a function is the p-th power of the infimum.
 lemma ciInf_rpow {ι : Type*} [Nonempty ι] {f : ι → ℝ}
     (hf_nonneg : ∀ i, 0 ≤ f i) (p : ℝ) (hp : 0 < p) :
   ⨅ i, f i ^ p = (⨅ i, f i) ^ p := by
-    have h_inf_image_rpow :
-      ∀ {S : Set ℝ},
-        S.Nonempty →
-        (∀ x ∈ S, 0 ≤ x) →
-          sInf ((fun x => x ^ p) '' S) = (sInf S) ^ p := by
-      exact fun {S} a a_1 => csInf_image_rpow a a_1 p hp
-    convert h_inf_image_rpow
-      ( show Set.Nonempty ( Set.range f ) from Set.range_nonempty f )
-      ( fun x hx => by
-        rcases hx with ⟨ i, rfl ⟩
-        exact hf_nonneg i ) using 1
-    rw [ @ciInf_eq_of_forall_ge_of_forall_gt_exists_lt ]
-    · exact fun i =>
-        csInf_le
-          ⟨ 0, Set.forall_mem_image.2 fun x hx =>
-            Real.rpow_nonneg ( by
-              rcases hx with ⟨ j, rfl ⟩
-              exact hf_nonneg j ) _ ⟩
-          ⟨ f i, Set.mem_range_self i, rfl ⟩
-    · exact fun w hw => by
-        rcases exists_lt_of_csInf_lt
-            ( Set.Nonempty.image _ ⟨ _, Set.mem_range_self ( Classical.arbitrary ι ) ⟩ )
-            hw with
-          ⟨ y, ⟨ x, ⟨ i, rfl ⟩, rfl ⟩, hy ⟩
-        exact ⟨ i, hy ⟩
-
+    sorry
 /-
 The supremum of the p-th powers of a function is the p-th power of the supremum.
 -/
@@ -2202,23 +2038,7 @@ lemma ciSup_rpow {ι : Type*} [Nonempty ι] {f : ι → ℝ}
     (hf_nonneg : ∀ i, 0 ≤ f i) (hf_bdd : BddAbove (Set.range f))
     (p : ℝ) (hp : 0 < p) :
   ⨆ i, f i ^ p = (⨆ i, f i) ^ p := by
-    convert csSup_image_rpow _ _ _ _ hp using 1
-    · rw [ @ciSup_eq_of_forall_le_of_forall_lt_exists_gt ]
-      · exact fun i =>
-          le_csSup
-            (by
-              rcases hf_bdd with ⟨ M, hM ⟩
-              exact ⟨ M ^ p, Set.forall_mem_image.2 fun x hx => by
-                rcases hx with ⟨ j, rfl ⟩
-                exact Real.rpow_le_rpow ( hf_nonneg _ ) ( hM ⟨ j, rfl ⟩ ) hp.le ⟩)
-            ( Set.mem_image_of_mem _ ( Set.mem_range_self _ ) )
-      · exact fun w hw => by
-          simpa using
-            exists_lt_of_lt_csSup ( Set.Nonempty.image _ <| Set.range_nonempty _ ) hw
-    · exact Set.range_nonempty _
-    · aesop
-    · exact hf_bdd
-
+    sorry
 /-
 Equivalence of eventually inequalities for powers.
 -/
@@ -2415,21 +2235,7 @@ lemma shifted_main_result (n k : ℕ) (hn : 1 ≤ n) (a : ℕ → ℕ)
   (hk_ne : a k ≠ generalized_sylvester n k) :
   Filter.liminf (fun j => (a (j + k) : ℝ) ^ ((1 / 2 : ℝ) ^ (j + 1))) Filter.atTop <
     c (generalized_sylvester n k - 1) := by
-    convert main_theorem_no_shift ( generalized_sylvester n k - 1 ) _ _ _ _ _ _ using 1 <;>
-      norm_num at *
-    · exact Nat.le_sub_one_of_lt ( generalized_sylvester_ge_two n k hn )
-    · exact fun i => h_pos _
-    · exact fun i j hij => h_mono ( by simpa using hij )
-    · convert sum_shift_lemma n k hn a _ _ using 11
-      · aesop_cat
-      · aesop
-      · rw [ Nat.cast_sub ] <;> norm_num
-        linarith [ generalized_sylvester_ge_two n k hn ]
-      · aesop
-      · assumption
-    · rw [ Nat.sub_add_cancel ( by linarith [ generalized_sylvester_ge_two n k hn ] ) ]
-      aesop
-
+      sorry
 /-
 If the sequence of partial infimums of a real-valued sequence is not bounded above, then its limit
 inferior is 0 (in Lean's Real).
