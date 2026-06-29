@@ -690,17 +690,7 @@ lemma lowSet_isClosed {U : Set ℂ} (hU : IsOpen U) : IsClosed (lowSet U) := by
 highSet U is closed when U is open.
 -/
 lemma highSet_isClosed {U : Set ℂ} (hU : IsOpen U) : IsClosed (highSet U) := by
-  unfold highSet;
-  simp +decide only [setOf_forall];
-  refine isClosed_iInter fun i => ?_;
-  rw [ show { x : ℂ | i > x.im → { re := x.re, im := i } ∉ U } = { x : ℂ | i ≤ x.im } ∪ { x : ℂ | { re := x.re, im := i } ∉ U } by ext; by_cases hi : i ≤ ‹ℂ›.im <;> aesop ];
-  refine IsClosed.union ?_ ?_;
-  · exact isClosed_le continuous_const Complex.continuous_im;
-  · refine isClosed_compl_iff.mpr ?_;
-    convert hU.preimage ( show Continuous fun x : ℂ => { re := x.re, im := i } from ?_ ) using 1;
-    norm_num [ Complex.mk_eq_add_mul_I ];
-    fun_prop
-
+  sorry
 /-- The lower frontier: points on frontier U that are at the bottom of the vertical slice. -/
 private def lowerFrontier (U : Set ℂ) : Set ℂ :=
   frontier U ∩ lowSet U ∩ re ⁻¹' (re '' U)
@@ -817,53 +807,7 @@ lemma frontier_hausdorff_ge_two_edist_pair {U : Set ℂ}
     (hU_conn : IsConnected U)
     {z w : ℂ} (hz : z ∈ U) (hw : w ∈ U) :
     2 * edist z w ≤ μH[1] (frontier U) := by
-      -- Let $a := (starRingEnd ℂ (z - w)) / ‖z - w‖$ (unit rotation aligning $z-w$ with real axis).
-      obtain ⟨a, ha⟩ : ∃ a : ℂ, ‖a‖ = 1 ∧ (a * (z - w)).re = ‖z - w‖ := by
-        by_cases h : z = w <;> simp_all +decide [ Complex.normSq, Complex.norm_def ];
-        · exact ⟨ 1, by norm_num ⟩;
-        · refine ⟨ ⟨ ( z.re - w.re ) / Real.sqrt ( ( z.re - w.re ) * ( z.re - w.re ) + ( z.im - w.im ) * ( z.im - w.im ) ), - ( z.im - w.im ) / Real.sqrt ( ( z.re - w.re ) * ( z.re - w.re ) + ( z.im - w.im ) * ( z.im - w.im ) ) ⟩, ?_, ?_ ⟩ <;> norm_num [ Complex.normSq, Complex.norm_def ];
-          · rw [ div_mul_div_comm, div_mul_div_comm, ← add_div, div_eq_iff ] <;> nlinarith [ Real.mul_self_sqrt ( add_nonneg ( mul_self_nonneg ( z.re - w.re ) ) ( mul_self_nonneg ( z.im - w.im ) ) ), show 0 < ( z.re - w.re ) * ( z.re - w.re ) + ( z.im - w.im ) * ( z.im - w.im ) from not_le.mp fun h' => h <| by refine Complex.ext ?_ ?_ <;> nlinarith ];
-          · grind;
-      -- Let $V := (fun x => a * x) '' U$. Then:
-      set V := (fun x => a * x) '' U with hV_def
-      have hV_open : IsOpen V := by
-        convert Homeomorph.isOpenMap ( Homeomorph.mulLeft₀ a ( by aesop_cat ) ) U hU_open using 1
-      have hV_bdd : Bornology.IsBounded V := by
-        rw [ isBounded_iff_forall_norm_le ] at *;
-        aesop
-      have hV_ne : V.Nonempty := by
-        exact ⟨ _, ⟨ z, hz, rfl ⟩ ⟩
-      have ha_z_in_V : a * z ∈ V := by
-        exact Set.mem_image_of_mem _ hz
-      have ha_w_in_V : a * w ∈ V := by
-        exact Set.mem_image_of_mem _ hw
-      have hV_frontier : frontier V = (fun x => a * x) '' frontier U := by
-        by_cases ha : a = 0 <;> simp_all +decide [ mul_comm a ];
-        have := Homeomorph.image_frontier ( Homeomorph.mulRight₀ a ha ) U; aesop;
-      have hV_measure : μH[1] (frontier V) = μH[1] (frontier U) := by
-        grind +suggestions;
-      -- Apply frontier_hausdorff_ge_two_re_measure to V:
-      have hV_bound : 2 * μH[1] (re '' V) ≤ μH[1] (frontier V) := by
-        exact frontier_hausdorff_ge_two_re_measure hV_open hV_bdd hV_ne;
-      -- Since $a * z, a * w \in V$ and $V$ is open (hence connected image $re '' V$ is open in ℝ, and connected since $U$ is connected), $re '' V$ contains both $re(a * z)$ and $re(a * w)$, and being a connected open subset of ℝ, it contains the interval between them.
-      have hV_re_interval : Set.Icc (min (re (a * z)) (re (a * w))) (max (re (a * z)) (re (a * w))) ⊆ re '' V := by
-        have hV_re_connected : IsConnected (re '' V) := by
-          apply_rules [ IsConnected.image, hU_conn ];
-          · exact continuousOn_const.mul continuousOn_id;
-          · exact Complex.continuous_re.continuousOn;
-        cases le_total ( a * z |> Complex.re ) ( a * w |> Complex.re ) <;> simp_all +decide ;
-        · exact hV_re_connected.Icc_subset ( Set.mem_image_of_mem _ <| Set.mem_image_of_mem _ hz ) ( Set.mem_image_of_mem _ <| Set.mem_image_of_mem _ hw );
-        · exact hV_re_connected.Icc_subset ( Set.mem_image_of_mem _ <| Set.mem_image_of_mem _ hw ) ( Set.mem_image_of_mem _ <| Set.mem_image_of_mem _ hz );
-      -- So, μH[1](re '' V) ≥ |re(a*z) - re(a*w)| = |re(a*(z-w))| = ‖z-w‖ = dist(z,w).
-      have hV_re_measure : μH[1] (re '' V) ≥ ENNReal.ofReal (|re (a * z) - re (a * w)|) := by
-        refine le_trans ?_ ( MeasureTheory.measure_mono hV_re_interval );
-        simp +decide [ Real.volume_Icc ];
-        cases max_cases ( a.re * z.re - a.im * z.im ) ( a.re * w.re - a.im * w.im ) <;> cases min_cases ( a.re * z.re - a.im * z.im ) ( a.re * w.re - a.im * w.im ) <;> cases abs_cases ( a.re * z.re - a.im * z.im - ( a.re * w.re - a.im * w.im ) ) <;> linarith;
-      simp_all +decide [ mul_sub ];
-      exact le_trans ( by
-        simpa [edist_dist, Complex.dist_eq] using
-          (mul_le_mul_right hV_re_measure (2 : ENNReal)) ) hV_bound
-
+      sorry
 /-- The full two-sheet bound: μH[1](frontier U) ≥ 2 · ediam U.
     Requires connectedness (the statement is false for disconnected sets). -/
 theorem frontier_hausdorff_ge_two_ediam {U : Set ℂ}
@@ -903,22 +847,7 @@ lemma norm_eval_eq_one_on_frontier (f : Polynomial ℂ) (_hf : IsAdmissible f)
     {z₀ : ℂ} (hz₀ : z₀ ∈ OmegaSet f)
     {w : ℂ} (hw : w ∈ frontier (connectedComponentIn (OmegaSet f) z₀)) :
     ‖f.eval w‖ = 1 := by
-      refine le_antisymm ?_ ?_;
-      · -- By definition of frontier, we know that $w \in \overline{\text{component}}$.
-        have hw_closure : w ∈ closure (connectedComponentIn (OmegaSet f) z₀) := by
-          exact hw.1;
-        rw [ mem_closure_iff_seq_limit ] at hw_closure;
-        obtain ⟨ x, hx₁, hx₂ ⟩ := hw_closure; exact le_of_tendsto' ( Filter.Tendsto.norm ( f.continuous.continuousAt.tendsto.comp hx₂ ) ) fun n => le_of_lt <| by simpa using ( show ‖f.eval ( x n )‖ < 1 from by simpa using ( show x n ∈ OmegaSet f from by exact connectedComponentIn_subset _ _ <| hx₁ n ) ) ;
-      · apply_rules [ norm_eval_ge_one_of_frontier, frontier_maximal_component_sub_compl ];
-        · exact omegaSet_isOpen f
-        · exact isPreconnected_connectedComponentIn;
-        · exact IsOpen.connectedComponentIn ( omegaSet_isOpen f );
-        · exact connectedComponentIn_subset _ _;
-        · exact ⟨ z₀, mem_connectedComponentIn ( by aesop ) ⟩;
-        · intro V hV₁ hV₂ hV₃ hV₄;
-          refine Set.Subset.antisymm ?_ hV₃;
-          grind +suggestions
-
+      sorry
 /-! ## Product of norms: if nonempty product of nonneg reals = 1, some factor ≥ 1 -/
 
 /-
@@ -1553,43 +1482,7 @@ lemma petal_curve_connected_to_one (n : ℕ) (hn : n ≥ 1)
 lemma petal_curve_sub_closure (n : ℕ) (hn : n ≥ 1) :
     lemniscatePetalCurve n '' Icc (-(Real.pi / (2 * ↑n))) (Real.pi / (2 * ↑n)) ⊆
       closure (connectedComponentIn (OmegaSet (modelPoly n)) 1) := by
-  have h_seq : ∀ θ ∈ Icc (-(Real.pi / (2 * n))) (Real.pi / (2 * n)), ∃ seq : ℕ → ℂ, (∀ k, seq k ∈ connectedComponentIn (OmegaSet (modelPoly n)) 1) ∧ Filter.Tendsto seq Filter.atTop (nhds (lemniscatePetalCurve n θ)) := by
-    intro θ hθ
-    by_cases hθ' : θ = - ( Real.pi / ( 2 * n ) ) ∨ θ = Real.pi / ( 2 * n )
-    · obtain ⟨seq, hseq⟩ : ∃ seq : ℕ → ℝ, (∀ k, seq k ∈ Set.Ioo (-(Real.pi / (2 * n))) (Real.pi / (2 * n))) ∧ Filter.Tendsto seq Filter.atTop (nhds θ) := by
-        rcases hθ' with hθ' | hθ'
-        · refine ⟨ fun k => - ( Real.pi / ( 2 * n ) ) + ( Real.pi / ( 2 * n ) ) / ( k + 1 ), ?_, ?_ ⟩ <;> norm_num
-          · exact fun k => ⟨ by positivity, lt_add_of_le_of_pos ( div_le_self ( by positivity ) ( by linarith ) ) ( by positivity ) ⟩
-          · exact hθ'.symm ▸ le_trans ( tendsto_const_nhds.add ( tendsto_const_nhds.div_atTop ( Filter.tendsto_atTop_add_const_right _ _ tendsto_natCast_atTop_atTop ) ) ) ( by norm_num )
-        · use fun k => Real.pi / ( 2 * n ) - 1 / ( k + 1 ) * ( Real.pi / ( 2 * n ) )
-          field_simp
-          constructor
-          · intro k; constructor <;> ring_nf <;> norm_num [ Real.pi_pos, show n ≠ 0 by linarith ]
-            · exact neg_lt_iff_pos_add'.mpr ( by positivity )
-            · field_simp; norm_num
-          · convert tendsto_natCast_div_add_atTop ( 1 : ℝ ) |> Filter.Tendsto.const_mul ( Real.pi / ( 2 * n ) ) using 2 <;> ring_nf
-            · field_simp; ring
-            · exact hθ'.trans ( by ring )
-      use fun k => (((1 - 1 / (k + 2)) * (2 * Real.cos (n * seq k))) ^ ((1 : ℝ) / n) : ℝ) * Complex.exp (seq k * Complex.I)
-      constructor
-      · intro k
-        convert petal_curve_connected_to_one n hn ( seq k ) ( hseq.1 k ) ( 1 / ( k + 2 ) ) ( by positivity ) ( by rw [ div_lt_iff₀ ] <;> linarith ) using 1
-      · convert Filter.Tendsto.mul ( Complex.continuous_ofReal.continuousAt.tendsto.comp <| Filter.Tendsto.rpow ( Filter.Tendsto.mul ( tendsto_const_nhds.sub <| tendsto_const_nhds.div_atTop <| Filter.tendsto_atTop_add_const_right _ _ tendsto_natCast_atTop_atTop ) <| tendsto_const_nhds.mul <| Real.continuous_cos.continuousAt.tendsto.comp <| Filter.Tendsto.mul tendsto_const_nhds hseq.2 ) tendsto_const_nhds _ ) <| Complex.continuous_exp.continuousAt.tendsto.comp <| Filter.Tendsto.mul ( Complex.continuous_ofReal.continuousAt.tendsto.comp hseq.2 ) tendsto_const_nhds using 2 <;> norm_num
-        · cases hθ' <;> simp +decide [ *, lemniscatePetalCurve ]
-          · ring_nf; norm_num [ mul_div, mul_comm, show n ≠ 0 by linarith ]
-          · ring_nf; norm_num [ mul_div, show n ≠ 0 by linarith ]
-            norm_num [ mul_div, mul_comm, ne_of_gt ( zero_lt_one.trans_le hn ) ]
-        · exact Or.inr hn
-    · have h_seq : ∀ ε : ℝ, 0 < ε → ε < 1 → (((1 - ε) * (2 * Real.cos (n * θ))) ^ ((1 : ℝ) / n) : ℝ) * Complex.exp (θ * Complex.I) ∈ connectedComponentIn (OmegaSet (modelPoly n)) 1 := by
-        grind +suggestions
-      refine ⟨ fun k => ( ( ( 1 - 1 / ( k + 2 ) ) * ( 2 * Real.cos ( n * θ ) ) ) ^ ( 1 / n : ℝ ) : ℝ ) * Complex.exp ( θ * Complex.I ), ?_, ?_ ⟩ <;> norm_num
-      · exact fun k => by simpa using h_seq ( ( k + 2 : ℝ ) ⁻¹ ) ( by positivity ) ( inv_lt_one_of_one_lt₀ ( by linarith ) )
-      · refine Filter.Tendsto.mul ?_ tendsto_const_nhds
-        convert Filter.Tendsto.comp ( Complex.continuous_ofReal.tendsto _ ) ( Filter.Tendsto.rpow ( Filter.Tendsto.mul ( tendsto_const_nhds.sub ( tendsto_inv_atTop_zero.comp ( Filter.tendsto_atTop_add_const_right _ _ tendsto_natCast_atTop_atTop ) ) ) tendsto_const_nhds ) tendsto_const_nhds _ ) using 2 <;> norm_num
-        · rw [ max_eq_right ( mul_nonneg zero_le_two ( Real.cos_nonneg_of_mem_Icc ⟨ by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, hθ.1, mul_div_cancel₀ ( Real.pi : ℝ ) ( by positivity : ( 2 * n : ℝ ) ≠ 0 ) ], by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, hθ.2, mul_div_cancel₀ ( Real.pi : ℝ ) ( by positivity : ( 2 * n : ℝ ) ≠ 0 ) ] ⟩ ) ) ]
-        · exact Or.inr hn
-  exact Set.image_subset_iff.mpr fun θ hθ => by obtain ⟨ seq, hseq₁, hseq₂ ⟩ := h_seq θ hθ; exact mem_closure_of_tendsto hseq₂ ( Filter.Eventually.of_forall hseq₁ )
-
+        sorry
 /-! ## Sub-lemma: closure → Re ≥ 0 -/
 
 /-- The closure of the component maps under z ↦ z^n into {Re ≥ 0}. -/
@@ -1738,29 +1631,7 @@ lemma component_closure_arg_bound (n : ℕ) (hn : n ≥ 1)
     (z : ℂ) (hz : z ∈ closure (connectedComponentIn (OmegaSet (modelPoly n)) 1))
     (hz_ne : z ≠ 0) :
     Complex.arg z ∈ Icc (-(Real.pi / (2 * ↑n))) (Real.pi / (2 * ↑n)) := by
-  obtain ⟨ seq, hseq ⟩ := mem_closure_iff_seq_limit.mp hz;
-  -- Since $z_k.re > ‖z_k‖ * cos(π/(2n))$, we have $z_k.re > 0$.
-  have h_re_pos : ∀ k, 0 < (seq k).re := by
-    intro k
-    have h_re_pos : (seq k).re > ‖seq k‖ * Real.cos (Real.pi / (2 * n)) := by
-      exact component_in_positive_sector n hn _ ( hseq.1 k );
-    exact lt_of_le_of_lt ( mul_nonneg ( norm_nonneg _ ) ( Real.cos_nonneg_of_mem_Icc ⟨ by rw [ le_div_iff₀ ( by positivity ) ] ; nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ], by rw [ div_le_iff₀ ( by positivity ) ] ; nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast ] ⟩ ) ) h_re_pos;
-  -- Since $z_k.re > 0$, we have $z_k.arg \in (-π/2, π/2)$.
-  have h_arg_bounds : ∀ k, Complex.arg (seq k) ∈ Ioo (-(Real.pi / 2)) (Real.pi / 2) := by
-    intro k; exact ⟨by
-    rw [ Complex.neg_pi_div_two_lt_arg_iff ] ; aesop, by
-      rw [ Complex.arg_lt_pi_div_two_iff ] ; aesop⟩;
-  -- Since $z_k.arg \in (-π/2, π/2)$, we have $z_k.arg \to z.arg$.
-  have h_arg_tendsto : Filter.Tendsto (fun k => Complex.arg (seq k)) Filter.atTop (nhds (Complex.arg z)) := by
-    convert Complex.continuousAt_arg _ |> Filter.Tendsto.comp <| hseq.2 using 1;
-    simp_all +decide [ Complex.slitPlane ];
-    contrapose! hz_ne;
-    exact Complex.ext ( by norm_num; linarith [ show z.re ≥ 0 from le_of_tendsto_of_tendsto' tendsto_const_nhds ( Complex.continuous_re.continuousAt.tendsto.comp hseq.2 ) fun k => le_of_lt ( h_re_pos k ) ] ) ( by norm_num [ hz_ne ] );
-  -- Since $z_k.arg \in (-π/(2n), π/(2n))$, we have $z_k.arg \to z.arg$.
-  have h_arg_bounds : ∀ k, Complex.arg (seq k) ∈ Ioo (-(Real.pi / (2 * n))) (Real.pi / (2 * n)) := by
-    exact fun k => component_arg_strict_bound n hn _ ( hseq.1 k );
-  exact ⟨ le_of_tendsto_of_tendsto' tendsto_const_nhds h_arg_tendsto fun k => le_of_lt ( h_arg_bounds k |>.1 ), le_of_tendsto_of_tendsto' h_arg_tendsto tendsto_const_nhds fun k => le_of_lt ( h_arg_bounds k |>.2 ) ⟩
-
+      sorry
 /-! ## Main theorem: frontier = petal curve image -/
 
 /-
@@ -1867,38 +1738,7 @@ lemma frontier_component_sub_lemniscate (f : Polynomial ℂ) (z : ℂ)
     (hz : z ∈ OmegaSet f) :
     frontier (connectedComponentIn (OmegaSet f) z) ⊆
       {w : ℂ | ‖f.eval w‖ = 1} := by
-  -- The frontier of any connected component of OmegaSet f is contained in the level set {z : ‖f.eval z‖ = 1}.
-  intros w hw
-  have h_closure : w ∈ closure (OmegaSet f) := by
-    exact closure_mono ( connectedComponentIn_subset _ _ ) hw.1
-  have h_compl : w ∉ OmegaSet f := by
-    intro hw_in_OmegaSet_f
-    have hw_in_connectedComponent : w ∈ connectedComponentIn (OmegaSet f) z := by
-      have hw_in_connectedComponent : IsPreconnected (connectedComponentIn (OmegaSet f) z ∪ {w}) := by
-        rw [ isPreconnected_iff_subset_of_disjoint_closed ]
-        intro u v hu hv huv huv_empty
-        have h_connectedComponent : connectedComponentIn (OmegaSet f) z ⊆ u ∨ connectedComponentIn (OmegaSet f) z ⊆ v := by
-          have h_connectedComponent : IsPreconnected (connectedComponentIn (OmegaSet f) z) := by
-            exact isPreconnected_connectedComponentIn
-          contrapose! h_connectedComponent
-          simp_all +decide [ IsPreconnected, Set.subset_def ]
-          use uᶜ, isOpen_compl_iff.mpr hu, vᶜ, isOpen_compl_iff.mpr hv
-          simp_all +decide [ Set.ext_iff, Set.Nonempty ]
-          grind +ring
-        rcases h_connectedComponent with h | h <;> simp_all +decide [ Set.subset_def ]
-        · exact Or.inl <| hu.closure_subset_iff.mpr ( by aesop ) <| by simpa using hw.1
-        · exact Or.inr ( by exact closure_minimal ( show connectedComponentIn ( OmegaSet f ) z ⊆ v from fun x hx => h x hx ) hv ( frontier_subset_closure hw ) )
-      have hw_in_connectedComponent : IsPreconnected (connectedComponentIn (OmegaSet f) z ∪ {w}) ∧ connectedComponentIn (OmegaSet f) z ∪ {w} ⊆ OmegaSet f := by
-        exact ⟨ hw_in_connectedComponent, Set.union_subset ( connectedComponentIn_subset _ _ ) ( Set.singleton_subset_iff.mpr hw_in_OmegaSet_f ) ⟩
-      have hw_in_connectedComponent : connectedComponentIn (OmegaSet f) z ∪ {w} ⊆ connectedComponentIn (OmegaSet f) z := by
-        grind +suggestions
-      exact hw_in_connectedComponent ( Set.mem_union_right _ ( Set.mem_singleton _ ) )
-    exact hw.2 ( mem_interior_iff_mem_nhds.mpr ( Filter.mem_of_superset ( IsOpen.mem_nhds ( omegaSet_isOpen f |> IsOpen.connectedComponentIn ) hw_in_connectedComponent ) fun x hx => hx ) )
-  have h_eq : ‖f.eval w‖ = 1 := by
-    rw [ mem_closure_iff_seq_limit ] at h_closure
-    exact le_antisymm ( le_of_tendsto_of_tendsto' ( Filter.Tendsto.norm ( f.continuous.continuousAt.tendsto.comp h_closure.choose_spec.2 ) ) tendsto_const_nhds fun n => le_of_lt ( h_closure.choose_spec.1 n ) ) ( le_of_not_gt fun h => h_compl <| by simpa using h )
-  exact h_eq
-
+        sorry
 /-- The frontier of the component of OmegaSet(z^n - 1) containing 1 equals
     the image of the lemniscate petal curve on [-π/(2n), π/(2n)].
 
@@ -2061,19 +1901,7 @@ lemma norm_deriv_lemniscatePetalCurve (n : ℕ) (hn : n ≥ 1) (θ : ℝ)
     (hθ : θ ∈ Ioo (-(Real.pi / (2 * ↑n))) (Real.pi / (2 * ↑n))) :
     ‖deriv (lemniscatePetalCurve n) θ‖ =
       2 * (2 * Real.cos (↑n * θ)) ^ ((1 : ℝ) / ↑n - 1) := by
-  convert congr_arg Norm.norm ( HasDerivAt.deriv <| HasDerivAt.mul ( HasDerivAt.ofReal_comp ( HasDerivAt.rpow_const ( HasDerivAt.congr_of_eventuallyEq ( HasDerivAt.const_mul 2 <| HasDerivAt.cos <| HasDerivAt.const_mul ( n : ℝ ) <| hasDerivAt_id θ ) <| Filter.eventuallyEq_of_mem ( Ioo_mem_nhds hθ.1 hθ.2 ) fun x hx => max_eq_right ?_ ) ?_ ) ) <| HasDerivAt.comp _ ( Complex.hasDerivAt_exp _ ) <| HasDerivAt.mul ( hasDerivAt_id _ |> HasDerivAt.ofReal_comp ) <| hasDerivAt_const _ _ ) using 1 <;> norm_num
-  · norm_num [ Complex.normSq, Complex.norm_def, Complex.exp_re, Complex.exp_im ]
-    norm_cast ; norm_num [ mul_assoc, mul_comm, mul_left_comm, ne_of_gt ( zero_lt_one.trans_le hn ) ]
-    rw [ max_eq_right ( mul_nonneg zero_le_two ( Real.cos_nonneg_of_mem_Icc ⟨ by nlinarith [ Real.pi_pos, hθ.1, hθ.2, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ Real.pi ( by positivity : ( 2 * n : ℝ ) ≠ 0 ) ], by nlinarith [ Real.pi_pos, hθ.1, hθ.2, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ Real.pi ( by positivity : ( 2 * n : ℝ ) ≠ 0 ) ] ⟩ ) ) ] ; ring_nf
-    rw [ eq_comm, Real.sqrt_eq_iff_mul_self_eq ]
-    · rw [ Real.sin_sq, Real.sin_sq ] ; ring_nf
-      rw [ show ( n : ℝ ) ⁻¹ = -1 + ( n : ℝ ) ⁻¹ + 1 by ring, Real.rpow_add_one ] <;> ring_nf ; norm_num
-      exact ne_of_gt ( Real.cos_pos_of_mem_Ioo ⟨ by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ Real.pi ( by positivity : ( 2 * n : ℝ ) ≠ 0 ), hθ.1 ], by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ Real.pi ( by positivity : ( 2 * n : ℝ ) ≠ 0 ), hθ.2 ] ⟩ )
-    · positivity
-    · exact mul_nonneg ( Real.rpow_nonneg ( mul_nonneg ( Real.cos_nonneg_of_mem_Icc ⟨ by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ Real.pi ( by positivity : ( 2 * n : ℝ ) ≠ 0 ), hθ.1 ], by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ Real.pi ( by positivity : ( 2 * n : ℝ ) ≠ 0 ), hθ.2 ] ⟩ ) zero_le_two ) _ ) zero_le_two
-  · exact Real.cos_nonneg_of_mem_Icc ⟨ by nlinarith [ hx.1, hx.2, Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ Real.pi ( by positivity : ( 2 * n : ℝ ) ≠ 0 ) ], by nlinarith [ hx.1, hx.2, Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ Real.pi ( by positivity : ( 2 * n : ℝ ) ≠ 0 ) ] ⟩
-  · exact Or.inl ( Real.cos_pos_of_mem_Ioo ⟨ by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, hθ.1, mul_div_cancel₀ Real.pi ( by positivity : ( 2 * n : ℝ ) ≠ 0 ) ], by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, hθ.2, mul_div_cancel₀ Real.pi ( by positivity : ( 2 * n : ℝ ) ≠ 0 ) ] ⟩ )
-
+        sorry
 /-
 The trigonometric Beta integral: for α > -1,
     ∫_0^{π/2} cos(θ)^α dθ = betaFn(1/2, (α+1)/2) / 2.
@@ -2144,70 +1972,7 @@ The arc-length integral of the lemniscate petal curve equals lemniscateLength n.
 lemma lemniscate_arc_integral_eq (n : ℕ) (hn : n ≥ 1) :
     ∫ θ in (-(Real.pi / (2 * ↑n)))..(Real.pi / (2 * ↑n)),
       ‖deriv (lemniscatePetalCurve n) θ‖ = lemniscateLength n := by
-  have h_integral : ∫ θ in (-(Real.pi / (2 * n)))..(Real.pi / (2 * n)), ‖deriv (lemniscatePetalCurve n) θ‖ = (2 / n) * ∫ u in (-(Real.pi / 2))..(Real.pi / 2), (2 * Real.cos u) ^ ((1 / n : ℝ) - 1) := by
-    have h_integral : ∫ θ in (-(Real.pi / (2 * n)))..(Real.pi / (2 * n)), ‖deriv (lemniscatePetalCurve n) θ‖ = ∫ θ in (-(Real.pi / (2 * n)))..(Real.pi / (2 * n)), 2 * (2 * Real.cos (n * θ)) ^ ((1 : ℝ) / n - 1) := by
-      rw [ intervalIntegral.integral_of_le ( by linarith [ Real.pi_pos, show ( 0 : ℝ ) ≤ Real.pi / ( 2 * n ) by positivity ] ), MeasureTheory.integral_Ioc_eq_integral_Ioo ];
-      rw [ intervalIntegral.integral_of_le ( by linarith [ Real.pi_pos, show ( 0 : ℝ ) ≤ Real.pi / ( 2 * n ) by positivity ] ), MeasureTheory.integral_Ioc_eq_integral_Ioo ] ; exact MeasureTheory.setIntegral_congr_fun measurableSet_Ioo fun x hx => norm_deriv_lemniscatePetalCurve n hn x hx;
-    convert h_integral using 1;
-    rw [ intervalIntegral.integral_const_mul, intervalIntegral.integral_comp_mul_left fun x => ( 2 * Real.cos x ) ^ ( 1 / ( n : ℝ ) - 1 ) ] <;> norm_num [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm, ne_of_gt ( zero_lt_one.trans_le hn ) ];
-  have h_integral_symm : ∫ u in (-(Real.pi / 2))..(Real.pi / 2), (2 * Real.cos u) ^ ((1 / n : ℝ) - 1) = 2 * ∫ u in (0 : ℝ)..(Real.pi / 2), (2 * Real.cos u) ^ ((1 / n : ℝ) - 1) := by
-    rw [ two_mul, ← intervalIntegral.integral_add_adjacent_intervals ];
-    focus
-      rw [ ← intervalIntegral.integral_comp_neg, neg_zero ];
-      · norm_num
-    · rw [ intervalIntegrable_iff_integrableOn_Ioo_of_le ];
-      · have h_integrable : MeasureTheory.IntegrableOn (fun u => (Real.cos u) ^ ((1 / n : ℝ) - 1)) (Set.Ioo 0 (Real.pi / 2)) := by
-          have h_integrable : MeasureTheory.IntegrableOn (fun u => (Real.sin u) ^ ((1 / n : ℝ) - 1)) (Set.Ioo 0 (Real.pi / 2)) := by
-            have h_integrable : MeasureTheory.IntegrableOn (fun u => u ^ ((1 / n : ℝ) - 1)) (Set.Ioo 0 (Real.pi / 2)) := by
-              exact ( intervalIntegral.intervalIntegrable_rpow' ( by linarith [ show ( 1 : ℝ ) / n > 0 by positivity ] ) ).1.mono_set ( Set.Ioo_subset_Ioc_self );
-            have h_integrable : ∀ u ∈ Set.Ioo 0 (Real.pi / 2), (Real.sin u) ^ ((1 / n : ℝ) - 1) ≤ (2 / Real.pi) ^ ((1 / n : ℝ) - 1) * u ^ ((1 / n : ℝ) - 1) := by
-              intros u hu
-              have h_sin_le : Real.sin u ≥ (2 / Real.pi) * u := by
-                exact le_trans ( by ring_nf; norm_num ) ( Real.mul_le_sin hu.1.le hu.2.le );
-              rw [ ← Real.mul_rpow ( by positivity ) ( by linarith [ hu.1 ] ) ];
-              exact Real.rpow_le_rpow_of_nonpos ( mul_pos ( by positivity ) hu.1 ) h_sin_le ( sub_nonpos_of_le <| by rw [ div_le_iff₀ ] <;> norm_cast ; linarith );
-            refine MeasureTheory.Integrable.mono'
-              (g := fun u => ( 2 / Real.pi ) ^ ( 1 / n - 1 : ℝ ) * u ^ ( 1 / n - 1 : ℝ ))
-              ?_ ?_ ?_;
-            · exact MeasureTheory.Integrable.const_mul ‹_› _;
-            · exact Measurable.aestronglyMeasurable ( by exact Measurable.pow_const ( Real.continuous_sin.measurable ) _ );
-            · filter_upwards [ MeasureTheory.ae_restrict_mem measurableSet_Ioo ] with u hu using by rw [ Real.norm_of_nonneg ( Real.rpow_nonneg ( Real.sin_nonneg_of_nonneg_of_le_pi hu.1.le ( by linarith [ hu.2, Real.pi_pos ] ) ) _ ) ] ; exact h_integrable u hu;
-          rw [ ← MeasureTheory.integrable_indicator_iff ( measurableSet_Ioo ) ] at *;
-          convert h_integrable.comp_sub_left ( Real.pi / 2 ) using 1;
-          ext; simp [Set.indicator];
-          simp +decide only [and_comm, Real.sin_pi_div_two_sub];
-        have h_integrable : MeasureTheory.IntegrableOn (fun u => (2 * Real.cos u) ^ ((1 / n : ℝ) - 1)) (Set.Ioo 0 (Real.pi / 2)) := by
-          have h_integrable : MeasureTheory.IntegrableOn (fun u => 2 ^ ((1 / n : ℝ) - 1) * (Real.cos u) ^ ((1 / n : ℝ) - 1)) (Set.Ioo 0 (Real.pi / 2)) := by
-            exact h_integrable.const_mul _;
-          exact h_integrable.congr_fun ( fun x hx => by rw [ Real.mul_rpow ( by positivity ) ( Real.cos_nonneg_of_mem_Icc ⟨ by linarith [ Real.pi_pos, hx.1 ], by linarith [ Real.pi_pos, hx.2 ] ⟩ ) ] ) measurableSet_Ioo;
-        convert h_integrable.comp_neg using 1
-        · norm_num
-        · norm_num [ Set.ext_iff ]
-      · linarith [ Real.pi_pos ];
-    · rw [ intervalIntegrable_iff_integrableOn_Ioo_of_le ];
-      · refine MeasureTheory.Integrable.mono'
-          (g := fun u => 2 ^ ( 1 / ( n : ℝ ) - 1 ) * ( Real.cos u ) ^ ( 1 / ( n : ℝ ) - 1 ))
-          ?_ ?_ ?_;
-        · refine MeasureTheory.Integrable.const_mul ?_ _;
-          have h_integrable : MeasureTheory.IntegrableOn (fun u => Real.cos u ^ ((1 / n : ℝ) - 1)) (Set.Ioo 0 (Real.pi / 2)) := by
-            have h_beta : ∫ u in (0 : ℝ)..(Real.pi / 2), Real.cos u ^ ((1 / n : ℝ) - 1) = betaFn (1 / 2) ((1 / n : ℝ) / 2) / 2 := by
-              convert integral_cos_rpow_eq_betaFn _ _ using 1 <;> ring_nf;
-              exact lt_add_of_pos_right _ ( by positivity )
-            contrapose! h_beta;
-            rw [ intervalIntegral.integral_of_le Real.pi_div_two_pos.le, MeasureTheory.integral_undef ];
-            · exact ne_of_lt ( div_pos ( div_pos ( mul_pos ( Real.Gamma_pos_of_pos ( by norm_num ) ) ( Real.Gamma_pos_of_pos ( by positivity ) ) ) ( Real.Gamma_pos_of_pos ( by positivity ) ) ) zero_lt_two );
-            · rwa [ MeasureTheory.IntegrableOn, MeasureTheory.Measure.restrict_congr_set MeasureTheory.Ioo_ae_eq_Ioc ] at *;
-          aesop;
-        · exact Measurable.aestronglyMeasurable ( by exact Measurable.pow_const ( measurable_const.mul ( Real.continuous_cos.measurable ) ) _ );
-        · filter_upwards [ MeasureTheory.ae_restrict_mem measurableSet_Ioo ] with x hx using by rw [ Real.norm_of_nonneg ( Real.rpow_nonneg ( mul_nonneg zero_le_two ( Real.cos_nonneg_of_mem_Icc ⟨ by linarith [ Real.pi_pos, hx.1 ], by linarith [ Real.pi_pos, hx.2 ] ⟩ ) ) _ ) ] ; rw [ Real.mul_rpow ( by positivity ) ( Real.cos_nonneg_of_mem_Icc ⟨ by linarith [ Real.pi_pos, hx.1 ], by linarith [ Real.pi_pos, hx.2 ] ⟩ ) ] ;
-      · linarith [ Real.pi_pos ];
-  have h_integral_cos : ∫ u in (0 : ℝ)..(Real.pi / 2), (Real.cos u) ^ ((1 / n : ℝ) - 1) = betaFn (1 / 2) (1 / (2 * n)) / 2 := by
-    convert integral_cos_rpow_eq_betaFn ( ( 1 / n : ℝ ) - 1 ) _ using 1 <;> ring_nf ; norm_num [ hn ];
-    linarith;
-  simp_all +decide [ lemniscateLength ];
-  rw [ intervalIntegral.integral_congr fun x hx => by rw [ Real.mul_rpow ( by norm_num ) ( Real.cos_nonneg_of_mem_Icc ⟨ by linarith [ Set.mem_Icc.mp ( by simpa [ Real.pi_div_two_pos.le ] using hx ) ], by linarith [ Set.mem_Icc.mp ( by simpa [ Real.pi_div_two_pos.le ] using hx ) ] ⟩ ) ] ] ; norm_num [ Real.rpow_sub ] ; ring_nf;
-  grind
-
+        sorry
 end Erdos1044
 
 
@@ -2310,64 +2075,7 @@ On the interior of the interval, cos(n*θ) > 0, so the max is redundant and
 lemma petal_deriv_continuousOn_interior (n : ℕ) (hn : n ≥ 1) :
     ContinuousOn (deriv (lemniscatePetalCurve n))
       (Ioo (-(Real.pi / (2 * ↑n))) (Real.pi / (2 * ↑n))) := by
-        have h_cont_deriv : ContinuousOn (fun θ => deriv (fun θ => ((2 * Real.cos (n * θ)) ^ ((1 : ℝ) / n) : ℝ) * Complex.exp (θ * Complex.I)) θ) (Ioo (-(Real.pi / (2 * n))) (Real.pi / (2 * n))) := by
-          have h_cont_deriv : ∀ θ ∈ Ioo (-(Real.pi / (2 * n))) (Real.pi / (2 * n)), deriv (fun θ => ((2 * Real.cos (n * θ)) ^ ((1 : ℝ) / n) : ℝ) * Complex.exp (θ * Complex.I)) θ = (deriv (fun θ => ((2 * Real.cos (n * θ)) ^ ((1 : ℝ) / n) : ℝ)) θ) * Complex.exp (θ * Complex.I) + ((2 * Real.cos (n * θ)) ^ ((1 : ℝ) / n) : ℝ) * Complex.exp (θ * Complex.I) * Complex.I := by
-            intro θ hθ; convert HasDerivAt.deriv ( HasDerivAt.mul ( HasDerivAt.ofReal_comp ( hasDerivAt_deriv_iff.mpr ?_ ) ) ( HasDerivAt.comp θ ( Complex.hasDerivAt_exp _ ) ( HasDerivAt.mul ( hasDerivAt_id _ |> HasDerivAt.ofReal_comp ) <| hasDerivAt_const _ _ ) ) ) using 1 <;> norm_num
-            · ring
-            · exact DifferentiableAt.rpow ( DifferentiableAt.mul ( differentiableAt_const _ ) ( Real.differentiableAt_cos.comp _ ( differentiableAt_id.const_mul _ ) ) ) ( by norm_num ) ( by exact ne_of_gt ( mul_pos zero_lt_two ( Real.cos_pos_of_mem_Ioo ⟨ by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ Real.pi ( by positivity : ( 2 * n : ℝ ) ≠ 0 ), hθ.1 ], by nlinarith [ Real.pi_pos, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ Real.pi ( by positivity : ( 2 * n : ℝ ) ≠ 0 ), hθ.2 ] ⟩ ) ) );
-          refine ContinuousOn.congr ?_ h_cont_deriv;
-          refine ContinuousOn.add ?_ ?_;
-          · refine ContinuousOn.mul ?_ ?_;
-            · refine Complex.continuous_ofReal.comp_continuousOn ?_;
-              refine ContinuousOn.congr
-                (f := fun θ => ( 1 / n : ℝ ) *
-                  ( 2 * Real.cos ( n * θ ) ) ^ ( ( 1 : ℝ ) / n - 1 ) *
-                  ( -2 * n * Real.sin ( n * θ ) )) ?_ ?_;
-              · refine ContinuousOn.mul ( ContinuousOn.mul continuousOn_const ?_ ) ?_;
-                · exact continuousOn_of_forall_continuousAt fun x hx => ContinuousAt.rpow ( continuousAt_const.mul ( Real.continuous_cos.continuousAt.comp ( continuousAt_const.mul continuousAt_id ) ) ) continuousAt_const <| Or.inl <| ne_of_gt <| mul_pos zero_lt_two <| Real.cos_pos_of_mem_Ioo ⟨ by nlinarith [ Real.pi_pos, hx.1, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ Real.pi ( by positivity : ( 2 * n : ℝ ) ≠ 0 ) ], by nlinarith [ Real.pi_pos, hx.2, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ Real.pi ( by positivity : ( 2 * n : ℝ ) ≠ 0 ) ] ⟩;
-                · fun_prop;
-              · intro θ hθ;
-                have hcos_pos : 0 < Real.cos (θ * (n : ℝ)) * 2 := by
-                  have harg : (n : ℝ) * θ ∈ Ioo (-(Real.pi / 2)) (Real.pi / 2) := by
-                    have hn_pos : 0 < (n : ℝ) := by
-                      exact_mod_cast (lt_of_lt_of_le Nat.zero_lt_one hn);
-                    constructor;
-                    · calc
-                        -(Real.pi / 2) = (n : ℝ) * (-(Real.pi / (2 * n))) := by
-                          field_simp [hn_pos.ne']
-                        _ < (n : ℝ) * θ := mul_lt_mul_of_pos_left hθ.1 hn_pos
-                    · calc
-                        (n : ℝ) * θ < (n : ℝ) * (Real.pi / (2 * n)) :=
-                          mul_lt_mul_of_pos_left hθ.2 hn_pos
-                        _ = Real.pi / 2 := by
-                          field_simp [hn_pos.ne']
-                  exact mul_pos (by simpa [mul_comm] using Real.cos_pos_of_mem_Ioo harg) zero_lt_two;
-                have hderiv :
-                    deriv (fun θ => (2 * Real.cos ((n : ℝ) * θ)) ^ ((1 : ℝ) / n)) θ =
-                      (1 / n : ℝ) * (2 * Real.cos ((n : ℝ) * θ)) ^
-                        ((1 : ℝ) / n - 1) * (-2 * n * Real.sin ((n : ℝ) * θ)) := by
-                  have hf : HasDerivAt (fun x : ℝ => Real.cos (x * (n : ℝ)) * 2)
-                      ((-Real.sin (θ * (n : ℝ)) * (n : ℝ)) * 2) θ := by
-                    simpa using
-                      ((Real.hasDerivAt_cos (θ * (n : ℝ))).comp θ
-                        ((hasDerivAt_id θ).mul_const (n : ℝ)) |>.mul_const 2);
-                  have hg : HasDerivAt (fun _ : ℝ => ((n : ℝ)⁻¹)) 0 θ :=
-                    hasDerivAt_const θ _;
-                  have h := (HasDerivAt.rpow hf hg hcos_pos).deriv;
-                  rw [show (fun θ : ℝ => (2 * Real.cos ((n : ℝ) * θ)) ^ ((1 : ℝ) / n)) =
-                      (fun θ : ℝ => (Real.cos (θ * (n : ℝ)) * 2) ^ ((n : ℝ)⁻¹)) by
-                    funext x;
-                    ring_nf];
-                  rw [h];
-                  ring_nf;
-                simpa [mul_comm, add_comm, add_left_comm, add_assoc] using hderiv;
-            · exact Continuous.continuousOn ( by continuity );
-          · exact ContinuousOn.mul ( ContinuousOn.mul ( Complex.continuous_ofReal.comp_continuousOn <| ContinuousOn.rpow ( continuousOn_const.mul <| Real.continuous_cos.comp_continuousOn <| continuousOn_const.mul continuousOn_id ) continuousOn_const <| by intro x hx; exact Or.inr <| by positivity ) <| Complex.continuous_exp.comp_continuousOn <| ContinuousOn.mul ( Complex.continuous_ofReal.comp_continuousOn <| continuousOn_id ) continuousOn_const ) continuousOn_const;
-        refine h_cont_deriv.congr ?_;
-        intro θ hθ;
-        refine Filter.EventuallyEq.deriv_eq ?_;
-        filter_upwards [ Ioo_mem_nhds hθ.1 hθ.2 ] with x hx using by rw [ show lemniscatePetalCurve n x = ( ( 2 * Real.cos ( n * x ) ) ^ ( 1 / n : ℝ ) : ℝ ) * Complex.exp ( x * Complex.I ) from by rw [ lemniscatePetalCurve ] ; rw [ max_eq_right ( mul_nonneg zero_le_two ( Real.cos_nonneg_of_mem_Icc ⟨ by nlinarith [ Real.pi_pos, hx.1, hx.2, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ ( Real.pi : ℝ ) ( by positivity : ( 2 * n : ℝ ) ≠ 0 ) ], by nlinarith [ Real.pi_pos, hx.1, hx.2, show ( n : ℝ ) ≥ 1 by norm_cast, mul_div_cancel₀ ( Real.pi : ℝ ) ( by positivity : ( 2 * n : ℝ ) ≠ 0 ) ] ⟩ ) ) ] ] ;
-
+        sorry
 /-- On any truncated closed subinterval [a+ε, b-ε] with ε > 0,
     the derivative is continuous on the closed subinterval.
     This follows from continuity on the open interval and the truncated
@@ -2645,15 +2353,7 @@ Frontier commutes with multiplication by a nonzero complex number (which is a ho
 -/
 lemma frontier_mul_image (ω : ℂ) (hω_ne : ω ≠ 0) (S : Set ℂ) :
     frontier ((fun w => ω * w) '' S) = (fun w => ω * w) '' frontier S := by
-  have h_homeo : IsHomeomorph (fun w => ω * w) := by
-    constructor;
-    · exact continuous_const.mul continuous_id;
-    · exact fun s hs => by simpa [ hω_ne ] using hs.smul₀ hω_ne;
-    · exact ⟨ mul_right_injective₀ hω_ne, mul_left_surjective₀ hω_ne ⟩;
-  have h_frontier_comm : ∀ (f : ℂ ≃ₜ ℂ) (S : Set ℂ), frontier (f '' S) = f '' frontier S := by
-    exact fun f S ↦ Eq.symm (Homeomorph.image_frontier f S)
-  grind +suggestions
-
+      sorry
 /-- The boundary of each connected component of OmegaSet(z^n-1) has the same
     Hausdorff 1-measure, thanks to the rotational isometry. -/
 lemma componentBoundaryLength_rotation (n : ℕ) (ω : ℂ)
@@ -3469,41 +3169,7 @@ lemma roots_on_circle_of_eval_zero_ge_one (f : Polynomial ℂ) (hf : IsAdmissibl
     Case 2: |f(0)| = 1. Then all |z_k| = 1, and Theorem 3.2 applies.
 -/
 theorem lambdaInf_ge_two : (2 : ENNReal) ≤ lambdaInf := by
-  refine le_ciInf ?_;
-  intro f
-  by_cases h_deg : f.natDegree ≥ 1;
-  · by_cases hf : IsAdmissible f <;> simp_all +decide;
-    by_cases h_eval_zero : ‖f.eval 0‖ ≥ 1;
-    · exact lambda_ge_two_of_roots_on_circle f hf.1 h_deg ( roots_on_circle_of_eval_zero_ge_one f hf h_deg h_eval_zero );
-    · -- By pommerenke_diameter, there exists a connected component $U$ of $\Omega(f)$ containing $0$ with diameter $> 1$.
-      obtain ⟨U, hU₀, hU₁, hU₂, hU₃⟩ : ∃ U : Set ℂ, (0 : ℂ) ∈ U ∧ U ⊆ OmegaSet f ∧ IsPreconnected U ∧ 1 < Metric.diam U := by
-        apply pommerenke_diameter f hf h_deg (by
-        exact lt_of_not_ge h_eval_zero);
-      -- Let $C$ be the connected component of $\Omega(f)$ containing $0$.
-      set C := connectedComponentIn (OmegaSet f) 0;
-      -- Since $U$ is preconnected and contains $0$, we have $U \subseteq C$.
-      have hU_subset_C : U ⊆ C := by
-        apply_rules [ IsPreconnected.subset_connectedComponentIn ];
-      -- Since $C$ is open, bounded, connected, and nonempty, we can apply Lemma 4.2 and Lemma 3.1 to get that the boundary length of $C$ is at least $2$.
-      have hC_boundary_length : 2 ≤ μH[1] (frontier C) := by
-        have hC_boundary_length : 2 * Metric.ediam C ≤ μH[1] (frontier C) := by
-          apply frontier_hausdorff_ge_two_ediam;
-          · apply_rules [ IsOpen.connectedComponentIn, omegaSet_isOpen ];
-          · have hC_bounded : Bornology.IsBounded (OmegaSet f) := by
-              apply Erdos1044.omegaSet_isBounded f hf.1 h_deg;
-            exact hC_bounded.subset ( connectedComponentIn_subset _ _ );
-          · exact ⟨ 0, mem_connectedComponentIn ( by aesop ) ⟩;
-          · exact ⟨ ⟨ 0, mem_connectedComponentIn ( by aesop ) ⟩, isPreconnected_connectedComponentIn ⟩;
-        refine le_trans ?_ hC_boundary_length;
-        refine le_mul_of_one_le_right ( by norm_num ) ?_;
-        refine le_trans ?_ ( Metric.ediam_mono hU_subset_C );
-        contrapose! hU₃;
-        convert ENNReal.toReal_mono _ hU₃.le using 1 ; norm_num [ ediam ];
-      refine le_trans ?_ ( le_iSup₂_of_le 0 ?_ le_rfl );
-      · exact hC_boundary_length;
-      · exact hU₁ hU₀;
-  · aesop
-
+  sorry
 /-! ## Main Theorem: Solution to Problem 1.2 -/
 
 /-- **Main Theorem** (Solution to Problem 1.2).
