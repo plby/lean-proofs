@@ -224,49 +224,7 @@ W_p(m) is the sum of N_pj over j from 1 to V_p.
 -/
 lemma lemma_W_eq_sum_N_pj (p m k : ℕ) (hp : p.Prime) :
     W p m k = ∑ j ∈ Finset.Icc 1 (V_p p m k), N_pj p m k j := by
-  -- By definition of $W$, we know that
-  have h_W_def : W p m k = ∑ i ∈ Finset.Icc 1 k, padicValNat p (m + i) := by
-    unfold W; (
-    rw [ Nat.descFactorial_eq_prod_range ];
-    have h_prod : padicValNat p (∏ i ∈ Finset.range k, (
-      m + k - i)) = ∑ i ∈ Finset.range k, padicValNat p (m + k - i) := by
-      induction k with
-      | zero => aesop;
-      | succ k ih =>
-        rw [ Finset.prod_range_succ', Finset.sum_range_succ' ];
-        haveI := Fact.mk hp; rw [ padicValNat.mul ] <;> simp_all +decide [ ← add_assoc ] ;
-        exact Finset.prod_ne_zero_iff.mpr fun x hx => Nat.sub_ne_zero_of_lt <| by
-            linarith [ Finset.mem_range.mp hx ] ;
-    erw [ Finset.sum_Ico_eq_sum_range ];
-    rw [ h_prod, ← Finset.sum_range_reflect ];
-    exact Finset.sum_congr rfl fun x hx => congr_arg _ ( Nat.sub_eq_of_eq_add <| by
-        norm_num at *; omega ));
-  -- By definition of $V_p$, we can rewrite the inner sum as $\sum_{j=1}^{V_p} \mathbf{1}_{p^j \mid
-  -- m+i}$.
-  have h_inner : ∀ i ∈ Finset.Icc 1 k, padicValNat p (m + i) = ∑ j ∈ Finset.Icc 1 (V_p p m k), (
-    if p ^ j ∣ m + i then 1 else 0) := by
-    intro i hi
-    have h_inner_sum : padicValNat p (m + i) = ∑ j ∈ Finset.Icc 1 (padicValNat p (m + i)), 1 := by
-      norm_num;
-    rw [ h_inner_sum, ← Finset.sum_filter ];
-    refine Finset.sum_subset ?_ ?_ <;> simp +contextual [ Finset.subset_iff ];
-    · intro x hx₁ hx₂; refine ⟨ ?_, ?_ ⟩;
-      · exact le_trans hx₂ ( Finset.le_sup ( f := fun i => padicValNat p ( m + i ) ) hi );
-      · rw [ ← Nat.factorization_le_iff_dvd ] <;> norm_num;
-        · intro q; by_cases hq : p = q <;> simp +decide [ hq, hp.factorization ] ;
-          simp +decide [ ← hq, hp.factorization ];
-          convert hx₂ using 1;
-          rw [ Nat.factorization_def ] ; aesop;
-        · exact fun h => absurd h hp.ne_zero;
-        · exact fun _ => by linarith [ Finset.mem_Icc.mp hi ] ;
-    · intro x hx₁ hx₂ hx₃; have := Nat.factorization_le_iff_dvd (by aesop ) (by
-        aesop ) |>.2 hx₃; simp +decide [ hp ] at this;
-      rw [ Nat.factorization_def ] at this
-      focus
-        aesop
-      assumption;
-  rw [ h_W_def, Finset.sum_congr rfl h_inner, Finset.sum_comm ] ; aesop;
-
+      sorry
 /-
 The number of integers in [M, 2M] with m = r mod Q is at most M/Q + 2.
 -/
@@ -649,54 +607,7 @@ Bound on the number of m with few carries for a fixed prime p.
 lemma lemma_bad_carries_bound (p M : ℕ) (hp : p.Prime) (hM : M > 0) :
     ((Finset.Icc M (2 * M)).filter (fun m => X_p p m (L_p p M) ≤ (mu p (L_p p M)) / 2)).card ≤
     (M + 1) * (Real.exp (- (mu p (L_p p M)) / 8) + 2 / (M : ℝ) ^ eta) := by
-  -- Apply the Chernoff bound to the probability that $X_p \leq \mu/2$.
-  have h_chernoff : ((Finset.range (p ^ (L_p p M))).filter (fun m => X_p p m (L_p p M) ≤ (mu p (
-    L_p p M)) / 2)).card / (p ^ (L_p p M) : ℝ) ≤ Real.exp (- (mu p (L_p p M)) / 8) := by
-    convert lemma_chernoff_binomial p ( L_p p M ) hp using 1;
-  -- Apply the lemma_mod_uniform to bound the probability that $m \mod Q_p \in A$.
-  have h_mod_uniform : ((Finset.Icc M (2 * M)).filter (fun m => m % (p ^ (
-    L_p p M)) ∈ Finset.filter (fun m => X_p p m (L_p p M) ≤ (mu p (L_p p M)) / 2) (Finset.range (
-      p ^ (L_p p M))))).card ≤ (M + 1) * ((Finset.filter (fun m => X_p p m (L_p p M) ≤ (mu p (
-        L_p p M)) / 2) (Finset.range (p ^ (L_p p M)))).card / (p ^ (L_p p M) : ℝ) + 2 / (
-          M : ℝ) ^ eta) := by
-    have := lemma_mod_uniform M ( p ^ L_p p M ) ( Finset.filter ( fun m => X_p p m (
-      L_p p M ) ≤ ( mu p ( L_p p M ) ) / 2 ) ( Finset.range ( p ^ L_p p M ) ) ) hM (
-        pow_pos hp.pos _ ) ?_ ?_;
-    · rw [ Prob_Icc ] at this;
-      rw [ div_le_iff₀ ] at this <;> norm_num at * <;> linarith;
-    · convert lemma_Q_p_bound p M hp hM using 1;
-    · aesop;
-  refine le_trans ?_ (h_mod_uniform.trans ?_)
-  · exact_mod_cast (by
-      refine Finset.card_le_card ?_
-      intro m hm
-      simp only [Finset.mem_filter, Finset.mem_Icc, Finset.mem_range] at hm ⊢
-      refine ⟨hm.1, ?_⟩
-      refine ⟨Nat.mod_lt _ (pow_pos hp.pos _), ?_⟩
-      -- Since $m \equiv m \mod p^{L_p p M} \pmod{p^{L_p p M}}$, we have $X_p p m (L_p p M) = X_p p
-      -- (m \mod p^{L_p p M}) (L_p p M)$.
-      have h_cong : ∀ u < L_p p M, (m / p ^ u) % p = ((m % p ^ L_p p M) / p ^ u) % p := by
-        intro u hu; rw [ ← Nat.mod_add_div m ( p ^ L_p p M ) ] ;
-        norm_num [ Nat.pow_add, Nat.pow_mul, Nat.mul_mod, Nat.pow_mod, Nat.div_div_eq_div_mul ] ;
-        norm_num [ Nat.add_div, Nat.mul_div_assoc, pow_pos hp.pos ];
-        norm_num [ Nat.add_mod, Nat.mul_mod, Nat.mod_eq_zero_of_dvd ( pow_dvd_pow _ hu.le ) ];
-        rw [ if_neg ( Nat.not_le_of_gt ( Nat.mod_lt _ ( pow_pos hp.pos _ ) ) ) ] ;
-        norm_num [ Nat.mul_div_assoc _ ( pow_dvd_pow _ hu.le ) ] ;
-        norm_num [ show p ^ L_p p M * ( m / p ^ L_p p M ) / p ^ u = p ^ ( L_p p M - u ) * (
-          m / p ^ L_p p M ) by
-              rw [ Nat.div_eq_of_eq_mul_left ( pow_pos hp.pos _ ) ] ;
-              rw [ ← mul_right_comm, ← pow_add, Nat.sub_add_cancel hu.le ] ];
-        norm_num [ Nat.add_mod, Nat.mul_mod, Nat.mod_eq_zero_of_dvd ( dvd_pow_self _ (
-          Nat.sub_ne_zero_of_lt hu ) ) ];
-      have hX : X_p p (m % p ^ L_p p M) (L_p p M) = X_p p m (L_p p M) := by
-        unfold X_p
-        apply congr_arg Finset.card
-        apply Finset.filter_congr
-        intro u hu
-        rw [← h_cong u (Finset.mem_range.mp hu)]
-      simpa [hX] using hm.2)
-  · gcongr
-
+      sorry
 /-
 The set of triples (a, b, n) satisfying the conditions of Erdos problem #728.
 -/
@@ -965,113 +876,7 @@ The expression log(2k+1) * log(2k) / log M tends to 0.
 lemma lemma_log_term_small (c : ℝ) (hc : c > 0) :
     Filter.Tendsto (fun M : ℕ => Real.log (2 * k_val c M + 1 : ℝ) * Real.log (
       2 * k_val c M : ℝ) / Real.log (M : ℝ)) Filter.atTop (nhds 0) := by
-  -- We'll use that $k_val c M \approx c \log M$ for large $M$.
-  have h_k_val_approx : Filter.Tendsto (fun M => (k_val c M : ℝ) / Real.log M) Filter.atTop (
-    nhds c) := by
-    have h_k_val_approx : Filter.Tendsto (fun M => (Nat.floor (
-      c * Real.log M) : ℝ) / Real.log M) Filter.atTop (nhds c) := by
-      have : Filter.Tendsto (fun M => (c * Real.log M - 1 : ℝ) / Real.log M) Filter.atTop (
-        nhds c) := by
-        ring_nf;
-        exact le_trans ( Filter.Tendsto.sub ( tendsto_const_nhds.congr' (by
-            filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx using by
-                rw [ mul_assoc, mul_inv_cancel₀ ( ne_of_gt ( Real.log_pos hx ) ), mul_one ] ) ) (
-                  tendsto_inv_atTop_zero.comp ( Real.tendsto_log_atTop ) ) ) ( by norm_num )
-      refine tendsto_of_tendsto_of_tendsto_of_le_of_le' this tendsto_const_nhds ?_ ?_;
-      · filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx using by
-          rw [ div_le_div_iff_of_pos_right ( Real.log_pos hx ) ] ;
-          linarith [ Nat.lt_floor_add_one ( c * Real.log x ) ] ;
-      · filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx using by
-          rw [ div_le_iff₀ ( Real.log_pos hx ) ] ;
-          nlinarith [ Nat.floor_le ( show 0 ≤ c * Real.log x by
-              exact mul_nonneg hc.le ( Real.log_nonneg hx.le ) ) ] ;
-    convert h_k_val_approx.comp tendsto_natCast_atTop_atTop using 1;
-  -- We can use the fact that $\log(2k+1) \sim \log(k)$ and $\log(2k) \sim \log(k)$ for large $k$.
-  have h_log_approx : Filter.Tendsto (fun M => Real.log (2 * k_val c M + 1) / Real.log (
-    k_val c M)) Filter.atTop (nhds 1) ∧ Filter.Tendsto (fun M => Real.log (
-      2 * k_val c M) / Real.log (k_val c M)) Filter.atTop (nhds 1) := by
-    have h_log_approx : Filter.Tendsto (fun x : ℝ => Real.log (
-      2 * x + 1) / Real.log x) Filter.atTop (nhds 1) ∧ Filter.Tendsto (fun x : ℝ => Real.log (
-        2 * x) / Real.log x) Filter.atTop (nhds 1) := by
-      constructor;
-      · -- We can use the fact that $\log(2x + 1) = \log x + \log(2 + 1/x)$ to simplify the
-      -- expression.
-        suffices h_log_simplified : Filter.Tendsto (fun x : ℝ => (Real.log x + Real.log (
-          2 + 1 / x)) / Real.log x) Filter.atTop (nhds 1) by
-          refine h_log_simplified.congr' (by
-              filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx using by
-                  rw [ show 2 * x + 1 = x * ( 2 + 1 / x ) by
-                      nlinarith [ one_div_mul_cancel hx.ne' ] ] ; rw [ Real.log_mul ] <;>
-                        positivity );
-        ring_nf;
-        exact le_trans ( Filter.Tendsto.add ( tendsto_const_nhds.congr' (by
-            filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx using by
-                rw [ mul_inv_cancel₀ ( ne_of_gt ( Real.log_pos hx ) ) ] ) ) (
-                  Filter.Tendsto.mul ( Filter.Tendsto.log ( tendsto_const_nhds.add (
-                    tendsto_inv_atTop_zero ) ) (by
-                        norm_num ) ) ( tendsto_inv_atTop_zero.comp Real.tendsto_log_atTop ) ) ) (
-                          by norm_num );
-      · rw [ Filter.tendsto_congr' (by
-          filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx using by
-              rw [ Real.log_mul ( by positivity ) ( by positivity ) ] ) ];
-        ring_nf;
-        exact le_trans ( Filter.Tendsto.add ( tendsto_const_nhds.mul (
-          tendsto_inv_atTop_zero.comp ( Real.tendsto_log_atTop ) ) ) (
-            tendsto_const_nhds.congr' (by
-                filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx using by
-                    rw [ mul_inv_cancel₀ ( ne_of_gt ( Real.log_pos hx ) ) ] ) ) ) ( by norm_num );
-    refine ⟨ h_log_approx.1.comp ?_, h_log_approx.2.comp ?_ ⟩;
-    · have := h_k_val_approx;
-      have := this.pos_mul_atTop hc ( Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop );
-      exact this.congr' (by
-          filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx using by
-              rw [ Function.comp_apply, div_mul_cancel₀ _ (
-                ne_of_gt <| Real.log_pos <| Nat.one_lt_cast.mpr hx ) ] );
-    · have h_k_val_approx : Filter.Tendsto (fun M => (k_val c M : ℝ) / Real.log M) Filter.atTop (
-      nhds c) := by
-        convert h_k_val_approx using 1;
-      have h_k_val_approx : Filter.Tendsto (fun M => (
-        k_val c M : ℝ) / Real.log M * Real.log M) Filter.atTop Filter.atTop := by
-        apply_rules [ Filter.Tendsto.pos_mul_atTop, h_k_val_approx ];
-        exact Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop;
-      exact h_k_val_approx.congr' (by
-          filter_upwards [ Filter.eventually_gt_atTop 1 ] with M hM using by
-              rw [ div_mul_cancel₀ _ ( ne_of_gt ( Real.log_pos ( Nat.one_lt_cast.mpr hM ) ) ) ] );
-  -- Using the fact that $(\log(k_val c M))^2 / \log M$ tends to $0$, we can conclude.
-  have h_zero : Filter.Tendsto (fun M => (Real.log (k_val c M))^2 / Real.log M) Filter.atTop (
-    nhds 0) := by
-    have h_zero : Filter.Tendsto (fun M => (Real.log (k_val c M))^2 / (k_val c M)) Filter.atTop (
-      nhds 0) := by
-      have h_zero : Filter.Tendsto (fun x : ℝ => (Real.log x)^2 / x) Filter.atTop (nhds 0) := by
-        -- Let $y = \log x$, therefore the expression becomes $\frac{y^2}{e^y}$.
-        suffices h_log : Filter.Tendsto (fun y : ℝ => y^2 / Real.exp y) Filter.atTop (nhds 0) by
-          have := h_log.comp Real.tendsto_log_atTop;
-          exact this.congr' (by
-              filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx using by
-                  rw [ Function.comp_apply, Real.exp_log hx ] );
-        simpa [ Real.exp_neg ] using Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 2;
-      refine h_zero.comp ?_;
-      have h_k_val_inf : Filter.Tendsto (fun M => (k_val c M : ℝ) / Real.log M) Filter.atTop (
-        nhds c) := by
-        convert h_k_val_approx using 1;
-      have := h_k_val_inf.pos_mul_atTop hc (
-        Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop );
-      exact this.congr' (by
-          filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx using by
-              rw [ Function.comp_apply, div_mul_cancel₀ _ (
-                ne_of_gt <| Real.log_pos <| Nat.one_lt_cast.mpr hx ) ] );
-    have := h_zero.mul h_k_val_approx;
-    simpa using this.congr' (by
-        filter_upwards [ h_k_val_approx.eventually_ne hc.ne' ] with M hM using by
-            rw [ div_mul_div_cancel₀ ( by aesop ) ] );
-  have := h_log_approx.1.mul h_log_approx.2 |> Filter.Tendsto.mul <| h_zero;
-  simp_all +decide [ division_def, mul_assoc, mul_comm, mul_left_comm, sq ] ;
-  refine this.congr' (by
-      filter_upwards [
-        h_log_approx.1.eventually_ne one_ne_zero,
-          h_log_approx.2.eventually_ne one_ne_zero ] with M hM₁ hM₂ using by
-              by_cases h : Real.log ( k_val c M : ℝ ) = 0 <;> aesop )
-
+        sorry
 /-
 The upper bound for the sum of term2 tends to 0 as M goes to infinity.
 -/
@@ -1128,24 +933,7 @@ The sum of the exponential terms tends to 0 as M tends to infinity.
 -/
 lemma lemma_sum_term2_tendsto_zero (c : ℝ) (hc : c > 0) :
     Filter.Tendsto (fun M => sum_term2 M c) Filter.atTop (nhds 0) := by
-  refine squeeze_zero_norm' (a := fun M => ( 2 * k_val c M + 1 : ℝ ) * Real.exp ( 1 / 16 ) *
-    ( M : ℝ ) ^ ( - ( 1 - eta ) / ( 24 * Real.log ( 2 * k_val c M ) ) ) ) ?_ ?_;
-  · filter_upwards [ Filter.eventually_gt_atTop 1 ] with M hM;
-    refine le_trans ( norm_sum_le _ _ ) ?_;
-    refine le_trans ( Finset.sum_le_sum (g := fun i => if Nat.Prime i then
-      Real.exp ( 1 / 16 ) * ( M : ℝ ) ^ ( - ( 1 - eta ) / (
-        24 * Real.log ( 2 * k_val c M ) ) ) else 0) fun i hi => ?_ ) ?_;
-    · by_cases hi_prime : Nat.Prime i
-      · simp [hi_prime];
-        convert lemma_term2_bound_uniform M c hM i hi_prime hi using 1;
-        ring_nf;
-      · simp [hi_prime];
-    · norm_num [ Finset.sum_ite ];
-      rw [ mul_assoc ];
-      exact mul_le_mul_of_nonneg_right ( mod_cast le_trans ( Finset.card_filter_le _ _ ) (by
-          norm_num ) ) ( by positivity );
-  · convert lemma_term2_bound_limit c hc using 1
-
+      sorry
 /-
 sum_bound_carries is equal to (M+1) times the sum of term1 and term2.
 -/
@@ -1169,41 +957,7 @@ sum_term1 tends to 0 as M tends to infinity.
 -/
 lemma lemma_sum_term1_tendsto_zero (c : ℝ) (hc : c > 0) :
     Filter.Tendsto (fun M => sum_term1 M c) Filter.atTop (nhds 0) := by
-      refine squeeze_zero_norm' (a := fun M => ( 2 * k_val c M + 1 ) * ( 2 / ( M : ℝ ) ^ eta ) )
-        ?_ ?_;
-      · filter_upwards [ Filter.eventually_gt_atTop 0 ] with M hM;
-        convert lemma_sum_term1_bound M c hM using 1;
-        exact Real.norm_of_nonneg <| Finset.sum_nonneg fun _ _ => by positivity;
-      · -- We'll use that $k_val c M \approx c \log M$ to bound the expression.
-        have h_k_val : Filter.Tendsto (fun M => (k_val c M : ℝ) / (M : ℝ) ^ eta) Filter.atTop (
-          nhds 0) := by
-          have h_k_val : Filter.Tendsto (fun M => (c * Real.log M) / (
-            M : ℝ) ^ eta) Filter.atTop (nhds 0) := by
-            -- Let $y = \log M$, therefore the expression becomes $\frac{c y}{e^{y \eta}}$.
-            suffices h_log : Filter.Tendsto (fun y => c * y / Real.exp (y * eta)) Filter.atTop (
-              nhds 0) by
-              have := h_log.comp Real.tendsto_log_atTop;
-              refine this.congr' (by
-                  filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx using by
-                      simp +decide [ Real.rpow_def_of_pos hx, mul_comm ] );
-            -- Let $z = y \eta$, therefore the expression becomes $\frac{c z}{e^z}$.
-            suffices h_z : Filter.Tendsto (fun z => c * z / Real.exp z) Filter.atTop (nhds 0) by
-              have := h_z.comp ( Filter.tendsto_id.atTop_mul_const ( show 0 < eta by
-                  norm_num [ eta ] ) );
-              convert this.div_const eta using 2 <;> norm_num [ eta ] ; ring;
-            simpa [ Real.exp_neg, mul_div_assoc ] using
-              tendsto_const_nhds.mul ( Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 1 );
-          refine squeeze_zero_norm' ?_ ( h_k_val.comp tendsto_natCast_atTop_atTop );
-          simp +zetaDelta at *;
-          use 2; intro M hM; rw [ abs_of_nonneg (by
-              positivity ) ] ; gcongr ; exact Nat.floor_le ( by positivity ) ;
-        convert h_k_val.const_mul 4 |> Filter.Tendsto.add <| tendsto_inv_atTop_zero.comp (
-          tendsto_rpow_atTop ( show 0 < eta by
-              norm_num [
-                eta ] ) |> Filter.Tendsto.comp <| tendsto_natCast_atTop_atTop ) |>
-                  Filter.Tendsto.const_mul 2 using 2 <;> ring_nf;
-        norm_num [ Real.rpow_natCast ]
-
+      sorry
 /-
 For sufficiently large M, the number of bad carries is less than (M+1)/3.
 -/
@@ -1267,46 +1021,7 @@ sum_spike_term1 / M tends to 0 as M tends to infinity.
 -/
 lemma lemma_sum_spike_term1_div_M_tendsto_zero (c : ℝ) (hc : c > 0) :
     Filter.Tendsto (fun M : ℕ => sum_spike_term1 M c / (M : ℝ)) Filter.atTop (nhds 0) := by
-  have h_term1_bound : ∀ M : ℕ, sum_spike_term1 M c ≤ 8 * c^2 * (
-    Real.log M)^2 + 4 * c * Real.log M + 1 := by
-    intro M;
-    exact le_trans ( lemma_sum_spike_term1_bound M c ) (by
-        nlinarith [ show ( k_val c M : ℝ ) ≤ c * Real.log M by
-            exact Nat.floor_le ( mul_nonneg hc.le ( Real.log_natCast_nonneg M ) ) ] );
-  -- We'll use the fact that $\frac{(\log M)^2}{M}$ tends to $0$ as $M$ tends to infinity.
-  have h_log_sq_div_M : Filter.Tendsto (fun M : ℕ => (Real.log M)^2 / (M : ℝ)) Filter.atTop (
-    nhds 0) := by
-    -- Let $y = \log x$, therefore the expression becomes $\frac{y^2}{e^y}$.
-    suffices h_log_sq_div_exp : Filter.Tendsto (fun y : ℝ => y^2 / Real.exp y) Filter.atTop (
-      nhds 0) by
-      have := h_log_sq_div_exp.comp Real.tendsto_log_atTop;
-      exact this.comp tendsto_natCast_atTop_atTop |> Filter.Tendsto.congr' (by
-          filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx using by
-              simp +decide [ Real.exp_log ( Nat.cast_pos.mpr hx ) ] );
-    simpa [ Real.exp_neg ] using Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 2;
-  -- We'll use the fact that $\frac{\log M}{M}$ tends to $0$ as $M$ tends to infinity.
-  have h_log_div_M : Filter.Tendsto (fun M : ℕ => Real.log M / (M : ℝ)) Filter.atTop (nhds 0) := by
-    refine squeeze_zero_norm' ?_ h_log_sq_div_M;
-    norm_num +zetaDelta at *;
-    exact ⟨ 3, fun n hn => by
-      rw [ abs_of_nonneg ( Real.log_nonneg (by norm_cast; linarith ) ) ]
-      exact div_le_div_of_nonneg_right (by
-        have hlog : 1 ≤ Real.log n := by
-          rw [ Real.le_log_iff_exp_le (by positivity ) ]
-          exact Real.exp_one_lt_d9.le.trans (by
-            norm_num
-            linarith [ show ( n : ℝ ) ≥ 3 by norm_cast ] )
-        nlinarith [hlog] ) (by positivity ) ⟩;
-  -- Using the bounds from h_term1_bound, we can show that the limit of the sum is 0.
-  have h_sum_term1_limit : Filter.Tendsto (fun M : ℕ => (8 * c^2 * (
-    Real.log M)^2 + 4 * c * Real.log M + 1) / (M : ℝ)) Filter.atTop (nhds 0) := by
-    simpa [ add_div, mul_div_assoc ] using
-      Filter.Tendsto.add ( Filter.Tendsto.add ( h_log_sq_div_M.const_mul _ ) (
-        h_log_div_M.const_mul _ ) ) ( tendsto_inv_atTop_nhds_zero_nat );
-  exact squeeze_zero ( fun M => div_nonneg ( Finset.sum_nonneg fun _ _ => by
-      positivity ) ( Nat.cast_nonneg _ ) ) ( fun M => div_le_div_of_nonneg_right (
-        h_term1_bound M ) ( Nat.cast_nonneg _ ) ) h_sum_term1_limit
-
+      sorry
 /-
 sum_bound_spikes is the sum of sum_spike_term2 and sum_spike_term1.
 -/
@@ -1321,14 +1036,7 @@ Bound for the term in the spike sum.
 -/
 lemma lemma_spike_term_bound (p k t : ℕ) (hp : p.Prime) :
     (k : ℝ) / (p : ℝ) ^ (J_p p k + t) ≤ (p : ℝ) / (p : ℝ) ^ t := by
-  rw [ div_le_div_iff₀ ] <;> try norm_cast ; exact pow_pos hp.pos _;
-  rw_mod_cast [ mul_comm ];
-  rw [ mul_comm, ← pow_succ' ];
-  rw [ pow_add, pow_add ];
-  have := Nat.lt_pow_succ_log_self hp.one_lt k;
-  rw [ mul_right_comm ];
-  exact Nat.mul_le_mul_right _ ( by simpa [ Nat.log_pow hp.one_lt ] using this.le )
-
+      sorry
 /-
 Definition of the sum of p/p^t over primes.
 -/
