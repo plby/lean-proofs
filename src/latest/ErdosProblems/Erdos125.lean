@@ -600,21 +600,23 @@ lemma A_decomp_div (k a : ℕ) (ha : a ∈ A) : a / 3 ^ k ∈ A := by
     (pow_succ' (3) _)▸ R.div_div_eq_div_mul _ _▸
       (B S (by constructor) _) ↑(.trans (by cases R.eq_zero_or_pos with norm_num[*]) M)
 lemma A_decomp_mod (k a : ℕ) (ha : a ∈ A) : a % 3 ^ k ∈ A := by
-norm_num[ Erdos125.A]at*
-use k.strongRec ↑?_ a ha
-use fun and A B R =>
-  match and with
-  | 0 => B.mod_one.symm▸by bound
-  | S+1 =>
-      pow_succ' (3) S▸Nat.mod_mul▸ if a: B%3=0 then (? _) else (? _)
-· refine
-    ((by
-        cases B/3%_ with
-          norm_num[a, Finset.insert_subset_iff]) ∘ A S (by constructor) (B/3))
-      (.trans (by cases B.eq_zero_or_pos with norm_num [*]) R)
-· simp_all-contextual[
-    B.pos_of_ne_zero (a.comp (by rw [·])),
-    Finset.insert_subset_iff, Nat.add_mul_div_left, pos_iff_ne_zero.eq]
+  change a % 3 ^ k ∈ {s | (Nat.digits 3 s).toFinset ⊆ {0, 1}}
+  change a ∈ {s | (Nat.digits 3 s).toFinset ⊆ {0, 1}} at ha
+  use k.strongRec ?_ a ha.out
+  use fun and A B R =>
+    match and with
+    | 0 => by norm_num[B.mod_one]
+    | S+1 =>
+        pow_succ' 3 S▸Nat.mod_mul▸ if hmod: B%3=0 then (? _) else (? _)
+  · refine
+      Set.mem_setOf.2
+        (.trans (by cases B/3%_ with norm_num[hmod, Finset.insert_subset_iff])
+          (Finset.insert_subset (by decide: 0 ∈ _)
+            (A S (by constructor) (B/3)
+              ((.trans (by cases B with norm_num) R)))))
+  · simp_all-contextual[
+      B.pos_of_ne_zero (hmod.comp (by rw [·])),
+      Finset.insert_subset_iff, Nat.add_mul_div_left, pos_iff_ne_zero.eq]
 lemma B_decomp_div (m b : ℕ) (hb : b ∈ B) : b / 4 ^ m ∈ B := by
   change b ∈{s |_}at@@hb⊢
   exact
