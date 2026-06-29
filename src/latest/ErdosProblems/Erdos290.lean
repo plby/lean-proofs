@@ -439,7 +439,7 @@ lemma pequaltotwovaluationofvabminusoneandvb (a : ℕ) (ha : a > 0) :
             · assumption
         simp_all +decide [ harmonicSum ]
         rw [
-          Finset.sum_eq_sum_diff_singleton_add
+          Finset.sum_eq_sum_sdiff_singleton_add
             ( show 2 ^ l_val a ∈ Finset.Icc a b' from ?_ ) ]
         · aesop
         · rcases hb' with ( rfl | rfl )
@@ -467,14 +467,13 @@ lemma pequaltotwovaluationofvabminusoneandvb (a : ℕ) (ha : a > 0) :
                   linarith [ show l_val a ≤ Nat.log 2 ( b_val a ) from Nat.le_refl _ ] )
       by_cases h : harmonicSum a b' - 1 / 2 ^ l_val a = 0 <;> simp_all +decide
       · rw [ sub_eq_zero ] at h
-        rw [ h, padicValRat.inv, padicValRat.pow ] <;> norm_num
+        rw [ h, padicValRat.inv, padicValRat.pow ]; norm_num
         erw [ padicValRat.of_nat ]
         norm_num
       · have :=
           eqmin 2 ( harmonicSum a b' - 1 / 2 ^ l_val a )
             ( 1 / 2 ^ l_val a ) ?_ ?_ ?_ ?_ <;> norm_num at *
-        · simp_all +decide [ padicValRat.inv ]
-          norm_num [ padicValRat.pow ] at *
+        · simp_all +decide
           erw [ padicValRat.of_nat ]
           norm_num
           linarith
@@ -490,10 +489,11 @@ lemma pequaltotwovaluationofvabminusoneandvb (a : ℕ) (ha : a > 0) :
                 rcases hb' with ( rfl | rfl )
                 · exact Nat.le_sub_one_of_lt <| by linarith [ blargerthana a ha ]
                 · exact by linarith [ blargerthana a ha ] )
-        · rw [ padicValRat.inv ]
-          rw [ padicValRat.pow ] <;> norm_num
-          erw [ padicValRat.of_nat ]
-          norm_num
+        · intro H
+          have h2 : padicValRat 2 2 = (1 : ℤ) := by
+            exact padicValRat.self (by norm_num : 1 < (2 : ℕ))
+          rw [h2] at H
+          norm_num at H
           linarith
     have h2_val_denom :
         ∀ b' ∈ [b_val a - 1, b_val a],
@@ -562,7 +562,7 @@ lemma pequaltothreevaluationofvabminusone (a : ℕ) (ha : a > 0) :
             ∑ i ∈ Finset.Icc a (b_val a - 1) \ {3 ^ (k_val a)}, (1 : ℚ) / i := by
         unfold harmonicSum
         rw [
-          Finset.sum_eq_sum_diff_singleton_add <|
+          Finset.sum_eq_sum_sdiff_singleton_add <|
             show 3 ^ k_val a ∈ Finset.Icc a ( b_val a - 1 ) from ?_ ]
         · aesop
         · unfold k_val b_val
@@ -587,11 +587,8 @@ lemma pequaltothreevaluationofvabminusone (a : ℕ) (ha : a > 0) :
             ( by aesop )
           aesop
         simp_all +decide
-        rw [ padicValRat.inv ]
-        norm_num
-        exact_mod_cast Nat.succ_le_of_lt
-          ( lt_of_le_of_lt h_nu_ge_i
-            ( Nat.pred_lt ( ne_bot_of_gt ( show 0 < k_val a from Nat.succ_pos _ ) ) ) )
+        exact lt_of_le_of_lt h_nu_ge_i
+          ( Nat.pred_lt ( ne_bot_of_gt ( show 0 < k_val a from Nat.succ_pos _ ) ) )
       have h_eqminmoregeneral :
           ∀ {s : Finset ℕ} {f : ℕ → ℚ}, s.Nonempty →
             (∀ i ∈ s, padicValRat 3 (f i) ≥ -(k_val a - 1)) →
@@ -616,8 +613,11 @@ lemma pequaltothreevaluationofvabminusone (a : ℕ) (ha : a > 0) :
           padicValRat 3 (harmonicSum a (b_val a - 1) - 1 / 3 ^ (k_val a)) ≠
             padicValRat 3 (1 / 3 ^ (k_val a)) := by
         simp +zetaDelta at *
-        erw [ padicValRat.inv, padicValRat.pow ] <;> norm_num
-        erw [ padicValRat.self ] <;> norm_num
+        intro H
+        have h3 : padicValRat 3 3 = (1 : ℤ) := by
+          exact padicValRat.self (by norm_num : 1 < (3 : ℕ))
+        rw [h3] at H
+        norm_num at H
         linarith
       have hnu3_v :
           padicValRat 3
@@ -647,10 +647,15 @@ lemma pequaltothreevaluationofvabminusone (a : ℕ) (ha : a > 0) :
         · positivity
         · aesop
       simp_all +decide
-      rw [ padicValRat.inv, padicValRat.pow ] <;> norm_num
-      erw [ padicValRat.of_nat ]
+      have h3 : padicValRat 3 3 = (1 : ℤ) := by
+        exact padicValRat.self (by norm_num : 1 < (3 : ℕ))
+      rw [h3]
       norm_num
-      linarith
+      have hx_ge :
+          -(k_val a : ℤ) ≤
+            padicValRat 3 (harmonicSum a (b_val a - 1) - (3 ^ k_val a)⁻¹) := by
+        omega
+      exact hx_ge
     rw [ padicValRat ] at *
     norm_num [ padicValInt ] at *
     -- Since $u_{a,b-1}$ and $v_{a,b-1}$ are coprime, we have $\nu_3(u_{a,b-1}) = 0$.
@@ -819,7 +824,6 @@ lemma pequaltothreevaluationofvab (a : ℕ) (ha : a > 0) :
         grind
       · field_simp
         rw [ padicValRat.div, padicValRat.mul ] <;> norm_num
-        norm_num [ padicValRat.pow ]
         erw [ padicValRat.of_nat, padicValRat.of_nat ]
         norm_num
     have h_ultra : padicValRat 3 (X + Y) ≥ min (padicValRat 3 X) (padicValRat 3 Y) := by
