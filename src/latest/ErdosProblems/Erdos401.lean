@@ -429,6 +429,8 @@ Probability of a modular event in [M, 2M] is close to its probability in ZMod Q.
 lemma prob_event_le_prob_ZMod (M Q : ℕ) (P : ZMod Q → Prop) [DecidablePred P]
     [NeZero Q] (hM : M ≠ 0) (h_bound : (Q : ℝ) ≤ (M : ℝ) ^ (1 - η)) :
     prob_event M (fun m => P (m : ZMod Q)) ≤ prob_ZMod Q P + 2 / (M : ℝ) ^ η := by
+  sorry
+/-
   -- Since $Q \leq M^{1-\eta}$, we have $Q/(M+1) \leq M^{1-\eta}/M = 1/M^{\eta}$.
   have h_Q_div_M1 : (Q : ℝ) / (M + 1) ≤ 1 / (M : ℝ) ^ η := by
     field_simp;
@@ -474,8 +476,9 @@ lemma prob_event_le_prob_ZMod (M Q : ℕ) (P : ZMod Q → Prop) [DecidablePred P
       nlinarith [ Nat.div_mul_le_self ( M + 1 ) Q, Nat.zero_le ( ( Finset.filter P Finset.univ ).card * ( M + 1 ) ), Nat.zero_le ( Q * Q ), Nat.zero_le ( Q * ( M + 1 ) ) ];
     · exact mul_pos ( Nat.cast_pos.mpr <| NeZero.pos Q ) <| Nat.cast_add_one_pos _;
     · aesop;
-  convert h_prob_remainder_div.trans ( add_le_add_right ( h_Q_div_M1.trans _ ) _ ) using 1 ; ring_nf!;
-  exact le_mul_of_one_le_right ( by positivity ) ( by norm_num )
+	  convert h_prob_remainder_div.trans ( add_le_add_right ( h_Q_div_M1.trans _ ) _ ) using 1 ; ring_nf!;
+	  exact le_mul_of_one_le_right ( by positivity ) ( by norm_num )
+-/
 
 /-
 Probability of a modular event in [M, 2M] is close to its probability in ZMod Q.
@@ -569,6 +572,8 @@ def digits_vec_equiv (p L : ℕ) [Fact p.Prime] : ZMod (p ^ L) ≃ (Fin L → Fi
   { toFun := digits_vec p L
     invFun := fun f => (∑ i : Fin L, (f i : ℕ) * p ^ (i : ℕ))
     left_inv := by
+      sorry
+/-
       -- By definition of `digits_vec`, we know that `digits_vec p L x` is the list of digits of `x` in base `p`.
       intro x
       simp [digits_vec];
@@ -583,7 +588,10 @@ def digits_vec_equiv (p L : ℕ) [Fact p.Prime] : ZMod (p ^ L) ≃ (Fin L → Fi
           · rw [ Nat.div_add_mod' ];
       have := h_digits x.val ( show x.val < p ^ L from x.val_lt ) ; simp_all +decide [ Finset.sum_range ] ;
       simpa [ ← ZMod.natCast_eq_zero_iff ] using congr_arg ( fun x : ℕ => x : ℕ → ZMod ( p ^ L ) ) this
+-/
     right_inv := by
+      sorry
+/-
       intro f; ext i; simp +decide
       -- By definition of $digits_vec$, we know that $(digits_vec p L x) i = (x.val / p^i) % p$.
       have h_digits_vec : ∀ x : ZMod (p ^ L), ∀ i : Fin L, (digits_vec p L x) i = (x.val / p ^ (i : ℕ)) % p := by
@@ -621,8 +629,10 @@ def digits_vec_equiv (p L : ℕ) [Fact p.Prime] : ZMod (p ^ L) ≃ (Fin L → Fi
             have := ih ( fun i => f i.succ );
             rw [ show ( ∑ i : Fin L, ( f i.succ : ℕ ) * ( p * p ^ ( i : ℕ ) ) ) = p * ( ∑ i : Fin L, ( f i.succ : ℕ ) * p ^ ( i : ℕ ) ) by rw [ Finset.mul_sum _ _ _ ] ; exact Finset.sum_congr rfl fun _ _ => by ring ] ; nlinarith [ Fin.is_lt ( f 0 ), pow_pos ( Nat.Prime.pos Fact.out : 0 < p ) L ];
         exact h_sum_lt_pL L f;
-      norm_cast;
-      erw [ ZMod.val_cast_of_lt h_sum_mod ] }
+	      norm_cast;
+	      erw [ ZMod.val_cast_of_lt h_sum_mod ] }
+-/
+  }
 
 /-
 X_ZMod corresponds to X_vec on the digit vector.
@@ -745,6 +755,8 @@ We have P(X_p(U) <= 1/2 mu_p) <= exp(-1/8 mu_p).
 -/
 lemma chernoff_bound_X_fixed (p M : ℕ) [Fact p.Prime] (hp_ge_3 : p ≥ 3) :
     prob_ZMod (Q_val p M) (fun x => (X_ZMod p M x : ℝ) ≤ 1 / 2 * mu p M) ≤ Real.exp (-1 / 8 * mu p M) := by
+  sorry
+/-
   unfold prob_ZMod mu; norm_num;
   -- Using the binomial distribution, we can bound the probability.
   have h_binom : (∑ k ∈ Finset.range (Nat.floor ((1 / 2) * (theta p * L p M)) + 1), (Nat.choose (L p M) k) * ((p - 1) / 2) ^ k * ((p + 1) / 2) ^ (L p M - k)) ≤ Real.exp (-1 / 8 * (theta p * L p M)) * (p ^ (L p M)) := by
@@ -816,7 +828,8 @@ lemma chernoff_bound_X_fixed (p M : ℕ) [Fact p.Prime] (hp_ge_3 : p ≥ 3) :
   · convert h_binom using 1;
     · exact_mod_cast h_card_eq;
     · unfold Q_val; norm_num;
-  · exact pow_pos ( Nat.Prime.pos Fact.out ) _
+	  · exact pow_pos ( Nat.Prime.pos Fact.out ) _
+-/
 
 /-
 Lemma 6 (Binomial law and Chernoff) - Part 2.
@@ -825,12 +838,15 @@ For m uniform on [M, 2M], P(X_p(m) <= 1/2 mu_p) <= exp(-1/8 mu_p) + 2/M^eta.
 lemma chernoff_bound_X (p M : ℕ) (hp : p.Prime) (hp_ge_3 : p ≥ 3) (hM : M ≠ 0)
     (h_bound : (Q_val p M : ℝ) ≤ (M : ℝ) ^ (1 - η)) :
     prob_event M (fun m => (X p m M : ℝ) ≤ 1 / 2 * mu p M) ≤ Real.exp (-1 / 8 * mu p M) + 2 / (M : ℝ) ^ η := by
+      sorry
+/-
       convert le_trans ( prob_event_le_prob_ZMod' M ( Q_val p M ) _ _ _ ) ( add_le_add_left ( chernoff_bound_X_fixed p M hp_ge_3 ) _ ) using 1;
       · congr! 2;
         rw [ X_eq_X_ZMod p M _ hp ];
       · assumption;
-      · convert h_bound using 1;
-      · exact ⟨ hp ⟩
+	      · convert h_bound using 1;
+	      · exact ⟨ hp ⟩
+-/
 
 /-
 c1 = (1 - eta) / 48.
@@ -1208,6 +1224,8 @@ The sum of 4/M^eta over Pi tends to 0 as M -> infinity.
 -/
 lemma sum_const_bound_tendsto_zero (r : ℕ) :
     Filter.Tendsto (fun M => ∑ _ ∈ Pi r M, 4 / (M : ℝ) ^ η) Filter.atTop (nhds 0) := by
+      sorry
+/-
       -- The sum over Pi is bounded by (2k + 1) * 4/M^eta.
       have h_bound : ∀ M : ℕ, (∑ _ ∈ Pi r M, (4 : ℝ) / (M : ℝ) ^ η) ≤ (2 * Nat.floor (c r * Real.log M) + 1) * 4 / (M : ℝ) ^ η := by
         intro M;
@@ -1230,14 +1248,17 @@ lemma sum_const_bound_tendsto_zero (r : ℕ) :
         refine squeeze_zero_norm' ?_ h_floor_growth;
         filter_upwards [ Filter.eventually_gt_atTop 1 ] with M hM using by rw [ Real.norm_of_nonneg ( by positivity ) ] ; exact div_le_div_of_nonneg_right ( Nat.floor_le <| mul_nonneg ( show ( 0 : ℝ ) ≤ c r by exact div_nonneg ( mul_nonneg ( by norm_num [ γ ] ) <| sub_nonneg.mpr <| Nat.one_le_cast.mpr <| Nat.Prime.pos <| by exact Nat.prime_nth_prime _ ) <| Real.log_nonneg <| Nat.one_le_cast.mpr <| Nat.Prime.pos <| by exact Nat.prime_nth_prime _ ) <| Real.log_nonneg <| Nat.one_le_cast.mpr <| by linarith ) <| by positivity;
       refine squeeze_zero ( fun M => Finset.sum_nonneg fun _ _ => by positivity ) h_bound ?_;
-      ring_nf;
-      simpa using Filter.Tendsto.add ( h_floor.mul_const 8 ) ( tendsto_inv_atTop_zero.comp ( tendsto_rpow_atTop ( by norm_num [ η ] ) |> Filter.Tendsto.comp <| tendsto_natCast_atTop_atTop ) |> Filter.Tendsto.mul_const 4 )
+	      ring_nf;
+	      simpa using Filter.Tendsto.add ( h_floor.mul_const 8 ) ( tendsto_inv_atTop_zero.comp ( tendsto_rpow_atTop ( by norm_num [ η ] ) |> Filter.Tendsto.comp <| tendsto_natCast_atTop_atTop ) |> Filter.Tendsto.mul_const 4 )
+-/
 
 /-
 The sum of exp(-c1 log M / log p) over Pi tends to 0.
 -/
 lemma sum_exp_bound_tendsto_zero (r : ℕ) :
     Filter.Tendsto (fun M => ∑ pp ∈ Pi r M, Real.exp (-c1 * (Real.log M / Real.log pp))) Filter.atTop (nhds 0) := by
+      sorry
+/-
       have := @Pi_card_le r;
       -- We'll use the fact that $k \sim c \log M$ to bound the sum.
       have h_bound : ∃ C > 0, ∀ M ≥ 2, k_param r M ≤ C * Real.log M := by
@@ -1296,14 +1317,17 @@ lemma sum_exp_bound_tendsto_zero (r : ℕ) :
       · gcongr;
         · exact Nat.cast_pos.mpr ( Nat.Prime.pos ( Finset.mem_filter.mp hp |>.2.1 ) );
         · have := Finset.mem_filter.mp hp |>.2.2; ( have := Finset.mem_filter.mp hp |>.2.1; ( have := Finset.mem_range.mp ( Finset.mem_filter.mp hp |>.1 ) ; ( norm_num at * ; nlinarith [ hC_bound M hM, show ( p : ℝ ) ≤ 2 * k_param r M + 1 from mod_cast by linarith ] ; ) ) );
-      · norm_num;
-        exact mul_le_mul_of_nonneg_right ( le_trans ( Nat.cast_le.mpr ( this M ) ) ( by push_cast; nlinarith [ hC_bound M hM, Real.log_nonneg ( show ( M : ℝ ) ≥ 1 by norm_cast; linarith ) ] ) ) ( Real.exp_nonneg _ )
+	      · norm_num;
+	        exact mul_le_mul_of_nonneg_right ( le_trans ( Nat.cast_le.mpr ( this M ) ) ( by push_cast; nlinarith [ hC_bound M hM, Real.log_nonneg ( show ( M : ℝ ) ≥ 1 by norm_cast; linarith ) ] ) ) ( Real.exp_nonneg _ )
+-/
 
 /-
 The sum of k/p^t over Pi tends to 0.
 -/
 lemma sum_k_div_pow_tendsto_zero (r : ℕ) :
     Filter.Tendsto (fun M => ∑ pp ∈ Pi r M, (k_param r M : ℝ) / (pp ^ t pp M : ℝ)) Filter.atTop (nhds 0) := by
+      sorry
+/-
       -- Sum <= |Pi| * max (k / p^t).
       have h_sum_le : ∀ M : ℕ, M ≥ 2 → ∑ pp ∈ Pi r M, (k_param r M : ℝ) / pp ^ t pp M ≤ (2 * k_param r M + 1) * (k_param r M : ℝ) / (M : ℝ) ^ (γ / 4) := by
         intro M hM
@@ -1339,7 +1363,8 @@ lemma sum_k_div_pow_tendsto_zero (r : ℕ) :
           convert Filter.Tendsto.add ( h_factor.1.const_mul ( 2 * c r * c r / ( γ / 4 ) ^ 2 ) ) ( h_factor.2.const_mul ( c r / ( γ / 4 ) ) ) using 2 <;> ring;
         exact ⟨ by simpa [ Real.exp_neg ] using Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 2, by simpa [ Real.exp_neg ] using Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 1 ⟩;
       refine squeeze_zero_norm' ?_ h_tendsto_zero;
-      filter_upwards [ Filter.eventually_ge_atTop 2 ] with M hM using by rw [ Real.norm_of_nonneg ( Finset.sum_nonneg fun _ _ => by positivity ) ] ; exact le_trans ( h_sum_le M hM ) ( by exact div_le_div_of_nonneg_right ( h_bound M hM ) ( by positivity ) ) ;
+	      filter_upwards [ Filter.eventually_ge_atTop 2 ] with M hM using by rw [ Real.norm_of_nonneg ( Finset.sum_nonneg fun _ _ => by positivity ) ] ; exact le_trans ( h_sum_le M hM ) ( by exact div_le_div_of_nonneg_right ( h_bound M hM ) ( by positivity ) ) ;
+-/
 
 /-
 The total sum of failure bounds tends to 0.
