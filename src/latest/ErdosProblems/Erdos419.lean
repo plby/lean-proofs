@@ -360,7 +360,6 @@ lemma small_prime_contribution_tendsto_one :
                 <| by linarith)
               <| Real.log_nonneg <| by linarith)
     ]
-    ring_nf
     norm_num
     have h_exp_bound : ∀ x : ℝ, 0 ≤ x → Real.log (1 + x) ≤ x := by
       exact fun x hx => le_trans ( Real.log_le_sub_one_of_pos ( by linarith ) ) ( by linarith );
@@ -379,7 +378,13 @@ lemma small_prime_contribution_tendsto_one :
           exact mul_nonneg (Real.log_nonneg (by linarith))
             (inv_nonneg.mpr (Real.log_nonneg (by linarith))))
       using 1
-    ring
+    · rfl
+    · rw [mul_comm]
+      congr 1
+      · ring_nf
+      · congr 1
+        ring_nf
+    · ring_nf
   -- We'll use the fact that $\exp(xy) \to 1$ as $x \to 0$ and $y \to \infty$.
   have h_exp_zero :
       Filter.Tendsto
@@ -428,7 +433,8 @@ lemma small_prime_contribution_tendsto_one :
           using 2
         norm_num
         ring_nf;
-      simpa [Real.exp_neg, mul_div_assoc] using
+      simpa [Real.exp_neg, mul_div_assoc, div_eq_mul_inv, mul_assoc, mul_left_comm,
+        mul_comm] using
         Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 2 |>
           Filter.Tendsto.const_mul 9;
     -- We can use the fact that $\frac{(\log (n+1))^2}{n^{1/3}} \to 0$ as
@@ -546,11 +552,15 @@ noncomputable def approx_u (n : ℕ) : ℝ :=
   if large_prime n > 0 then 1 + 1 / ((n + 1 : ℝ) / (large_prime n : ℝ)) else 1
 
 lemma u_eq_u_small_mul_u_large (n : ℕ) : u n = u_small n * u_large n := by
-  convert Finset.prod_union ?_ using 2;
-  · rw [ Finset.union_sdiff_of_subset ];
-    · exact u_eq_prod n;
-    · exact Finset.filter_subset _ _;
-  · exact Finset.disjoint_sdiff
+  unfold u_small u_large
+  rw [u_eq_prod n]
+  rw [← Finset.prod_inter_mul_prod_sdiff ((n + 1).primeFactors) (small_primes n)
+    (fun p =>
+      (1 + (Nat.factorization (n + 1) p : ℝ) /
+        ((Nat.factorization n.factorial p) + 1)))]
+  rw [show (n + 1).primeFactors ∩ small_primes n = small_primes n by
+    ext p
+    simp [small_primes]]
 
 /-
 `u_small` tends to 1. `large_prime n` is the largest prime factor of $n+1$
@@ -797,7 +807,8 @@ lemma limit_points_subset_S : {x : ℝ | MapClusterPt x Filter.atTop u} ⊆ S :=
       have h_approx_u_lim : Filter.Tendsto (fun n => |u n - approx_u n|) Filter.atTop (nhds 0) := by
         exact u_approx_main;
       exact h_approx_u_lim.comp hnk.1.tendsto_atTop;
-    simpa using hnk.2.sub ( tendsto_zero_iff_norm_tendsto_zero.mpr h_approx_u_lim );
+    simpa [Function.comp_def] using
+      hnk.2.sub ( tendsto_zero_iff_norm_tendsto_zero.mpr h_approx_u_lim );
   exact S_is_closed.mem_of_tendsto h_approx_u_lim
     (Filter.Eventually.of_forall fun n => approx_u_mem_S _)
 
@@ -1090,7 +1101,7 @@ theorem erdos_419 : {x : ℝ | MapClusterPt x Filter.atTop u} = S := by
   · exact limit_points_subset_S;
   · rintro x ( rfl | ⟨ k, hk, rfl ⟩ );
     · exact one_is_cluster_point;
-    · convert cluster_point_of_k k hk using 1
+    · simpa using cluster_point_of_k k hk
 
 #print axioms erdos_419
 -- 'Erdos419.erdos_419' depends on axioms: [propext, Classical.choice, Quot.sound]
