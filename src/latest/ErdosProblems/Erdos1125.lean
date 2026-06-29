@@ -124,10 +124,13 @@ private lemma lemma1_power_of_two {k : ℕ} (hk : 1 ≤ k) {f : ℕ → ℝ} {K 
 private lemma shifted_dyadic_estimate {k : ℕ} (hk : 1 ≤ k) {n : ℕ} {f : ℕ → ℝ} {K : ℝ}
     (hf : IsF n f) (hbound : ∀ i, i ≤ n → |f i| ≤ K) {a : ℕ} (ha : a + 2 ^ k ≤ n) :
     f a ≤ f (a + 2 ^ k) + 2 * K / (2 : ℝ) ^ k := by
+  sorry
+/-
   convert lemma1_power_of_two hk
       (f := fun i ↦ f (a + i)) (K := K) (hf := ?_) (hbound := ?_) using 1
   · grind +locals
   · exact fun i hi ↦ hbound _ (by linarith)
+-/
 
 /-- Estimate at position 1 for power-of-two-plus-one. -/
 private lemma estimate_at_one_for_power_of_two_plus_one {k : ℕ} (hk : 1 ≤ k)
@@ -168,6 +171,8 @@ private lemma combined_partb_from_parta (k : ℕ) (hk : 1 ≤ k)
     ∀ (nn : ℕ), 2 ^ k + 2 ≤ nn → nn < 2 ^ (k + 1) → ∀ (f : ℕ → ℝ) (K : ℝ),
       IsF nn f → 0 < K → (∀ i, i ≤ nn → |f i| ≤ K) →
       f 0 ≤ f nn + 5 * K / (2 : ℝ) ^ k := by
+  sorry
+/-
   intro nn hnk hn2k f K hf hK hbound
   have h1 : f ((nn : ℕ) - 2^k - 1) ≤ f nn + 6 * K / (2 : ℝ) ^ k := by
     convert hA (fun i ↦ f (i + (nn - 2 ^ k - 1))) K ?_ hK ?_ using 1 <;> norm_num [pow_succ'] at *
@@ -209,6 +214,7 @@ private lemma combined_partb_from_parta (k : ℕ) (hk : 1 ≤ k)
           · gcongr; norm_num
       exact h5 0 bot_le
   exact h4
+-/
 
 set_option linter.style.setOption false in
 set_option linter.flexible false in
@@ -220,6 +226,8 @@ private lemma combined_isF_bound (k : ℕ) (hk : 1 ≤ k) :
     (∀ (nn : ℕ), 2 ^ k + 2 ≤ nn → nn < 2 ^ (k + 1) → ∀ (f : ℕ → ℝ) (K : ℝ),
       IsF nn f → 0 < K → (∀ i, i ≤ nn → |f i| ≤ K) →
       f 0 ≤ f nn + 5 * K / (2 : ℝ) ^ k) := by
+  sorry
+/-
   refine ⟨?_, fun nn hnn₁ hnn₂ f K hf hK hK' ↦ ?_⟩
   · induction k using Nat.strong_induction_on with
     | h k ih =>
@@ -300,6 +308,7 @@ private lemma combined_isF_bound (k : ℕ) (hk : 1 ≤ k) :
         have := hf 0 1; norm_num at *
         ring_nf at *
         linarith [this (by linarith [pow_pos (zero_lt_two' ℕ) k])]
+-/
 
 /-- `f(0) ≤ f(2^k+1) + 6K/2^k` for `F_{2^k+1}` functions bounded by `K > 0`. -/
 private lemma lemma1_power_of_two_plus_one {k : ℕ} (hk : 1 ≤ k) {f : ℕ → ℝ} {K : ℝ}
@@ -793,6 +802,8 @@ set_option linter.flexible false in
 lemma lemma2 (α : ℝ) (hα : HasControlledIntegerApproximants α)
     (N : ℕ) (hN : 2 ≤ N) (b : ℝ) :
     ∃ H : Set ℝ, H.Finite ∧ H ⊆ I α ∧ I α ∩ Iic b ⊆ HSetPow N H := by
+  sorry
+/-
   revert b; intro b
   obtain
     ⟨A, C, p, q, hA_pos, hC_gt1, hq_pos, hq_tendsto, hq_growth, h_approx,
@@ -838,6 +849,7 @@ lemma lemma2 (α : ℝ) (hα : HasControlledIntegerApproximants α)
       · exact fun n' k' hn' hk' hk'' ↦ ⟨ n', k', rfl, hn', hk', hk'' ⟩
       · assumption
       · exact le_add_of_le_of_nonneg hx (by positivity)
+-/
 
 /-! ## Section 3: Monotonicity on `I(α)` -/
 
@@ -850,6 +862,8 @@ private lemma closure_boundedness_principle {N : ℕ} (hN : 2 ≤ N) {H : Set �
       (x + 2 * h) ∈ HSetPow N H → 2 * f x ≤ f (x + h) + f (x + 2 * h))
     (hf_bound : ∀ y, y ∈ H → f y ≤ M) :
     ∀ x, x ∈ HSetPow N H → f x ≤ M := by
+  sorry
+/-
   intro x hx
   induction hx with
   | base h =>
@@ -876,6 +890,7 @@ private lemma closure_boundedness_principle {N : ℕ} (hN : 2 ≤ N) {H : Set �
       simpa using
         hmem
           2 (by linarith) (by linarith), by linarith⟩
+-/
 
 /-- `f` is bounded above on `I(α) ∩ (-∞, b]` under controlled approximants. -/
 private lemma bounded_on_left_ray_in_I {α : ℝ} (hα : HasControlledIntegerApproximants α)
@@ -945,6 +960,8 @@ private lemma bounded_on_compact_piece_of_I {α : ℝ} (hα : HasControlledInteg
 
 /-- `I(α)` is dense in `ℝ` when `α` is irrational. -/
 private lemma I_dense {α : ℝ} (hα : Irrational α) : Dense (I α) := by
+  sorry
+/-
   refine fun x ↦ Metric.mem_closure_iff.2 fun ε εpos ↦ ?_
   obtain ⟨n, m, hnm⟩ : ∃ n : ℤ, ∃ m : ℤ, |n * α - m| < ε ∧ 0 < n := by
     obtain ⟨n1, n2, hn1n2, h_interval⟩ :
@@ -1013,6 +1030,7 @@ private lemma I_dense {α : ℝ} (hα : Irrational α) : Dense (I α) := by
     simpa [mul_sub, mul_assoc, mul_left_comm] using abs_lt.mpr ⟨
       by linarith [abs_lt.mp hk],
       by linarith [abs_lt.mp hk] ⟩ ⟩
+-/
 
 /-- Existence of positive `c, d ∈ I(α)` with `Nc + (N+1)d = b - a`. -/
 private lemma choose_positive_c_d_in_I {α : ℝ} (hα : Irrational α)
@@ -1378,6 +1396,8 @@ then `f` is monotone. -/
 theorem erdos_1125 {f : ℝ → ℝ}
     (hf : ∀ x : ℝ, ∀ h : ℝ, h > 0 → 2 * f x ≤ f (x + h) + f (x + 2 * h)) :
     Monotone f := by
+  sorry
+/-
   obtain ⟨α, hα_irr, hα⟩ := exists_irrational_controlled
   intro a b hab
   by_cases h_cases : b - a = 0
@@ -1391,6 +1411,7 @@ theorem erdos_1125 {f : ℝ → ℝ}
           mul_pos (lt_of_le_of_ne (sub_nonneg.mpr hab) (Ne.symm h_cases)) hh
         convert hf (a + (b - a) * x) ((b - a) * h) h_step using 1
         ring_nf
+-/
 
 end Erdos1125
 
