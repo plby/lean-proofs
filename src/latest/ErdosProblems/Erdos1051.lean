@@ -90,7 +90,7 @@ lemma R_n_lower_bound
         · unfold P_n
           push_cast
           ring
-        · rw [Finset.prod_eq_mul_prod_diff_singleton_of_mem <|
+        · rw [Finset.prod_eq_mul_prod_sdiff_singleton_of_mem <|
               Finset.mem_range.mpr <| Nat.lt_succ_of_lt <| Finset.mem_range.mp ‹_›]
           exact mul_dvd_mul_left _ (Finset.dvd_prod_of_mem _ <| by aesop)
         · grind
@@ -317,7 +317,12 @@ lemma Erdos1051_u_converges
       intro n
       convert div_le_div_of_nonneg_right (h_log_bound n)
         (by positivity : (0 : ℝ) ≤ 2 ^ (n + 2)) using 1
-      ring
+      · rfl
+      · rw [show (2 : ℝ) ^ (n + 2) =
+            2 * (2 : ℝ) ^ (n + 1) by
+          rw [show n + 2 = n + 1 + 1 by omega, pow_succ]
+          ring]
+        ring
     -- Let $v_n = u_n + \frac{\log C}{2^n}$. Then $v_{n+1} \le v_n$ for large enough $n$.
     set v : ℕ → ℝ := fun n =>
       ((Real.log (P_n b (n + 1) : ℝ)) / (2 : ℝ) ^ (n + 1)) +
@@ -400,9 +405,10 @@ lemma Erdos1051_L_exists_gt_one
           convert Filter.Tendsto.sub
             (h_seq.comp (Filter.tendsto_add_atTop_nat 1) |> Filter.Tendsto.mul_const 2)
             h_seq using 2
-          ring
+          · simp [pow_succ']
+          · ring
         convert h_seq using 2
-        ring
+        ring_nf
       have h_seq : Filter.Tendsto (fun n =>
           Real.log (b n) / 2 ^ n) Filter.atTop
           (nhds (Classical.choose (Erdos1051_u_converges b h_mono h_ge_two p q hq h_sum))) := by
@@ -565,9 +571,9 @@ lemma erdos_1051_contradiction
           field_simp
           rw [div_le_iff₀] <;> norm_cast
           · convert h_K_lower_bound.le using 1
-            ring_nf!
-            unfold K_n_aux
-            ring_nf!
+            · rfl
+            · unfold K_n_aux
+              ring
           · exact Finset.prod_pos fun _ _ => zero_lt_two.trans_le (h_ge_two _)
         exact h_R_lower_bound
       -- By Lemma 3, $R_n \le 2 D^{-3 \cdot 2^n}$ for large $n$.
