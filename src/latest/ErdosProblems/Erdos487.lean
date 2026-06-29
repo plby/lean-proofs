@@ -116,20 +116,7 @@ lemma lcm_triple_preservation (A : Set ℕ) (t : ℕ)
 Every element in B_t is odd (assuming A contains no zeros).
 -/
 lemma Bt_odd (A : Set ℕ) (t : ℕ) (hA : ∀ a ∈ A, a ≠ 0) : ∀ b ∈ Bt A t, Odd b := by
-  intro b hb; obtain ⟨ a, ha, rfl ⟩ := hb; simp +decide
-  -- By definition of $At$, we know that $v2 a = t$, which means $a$ is divisible by $2^t$ but not
-  -- by $2^{t+1}$.
-  have h_div : 2 ^ t ∣ a ∧ ¬2 ^ (t + 1) ∣ a := by
-    have h_div : padicValNat 2 a = t := by
-      exact ha.2;
-    exact ⟨
-      h_div ▸ Nat.ordProj_dvd _ _,
-      h_div ▸ Nat.pow_succ_factorization_not_dvd (hA a ha.1) (by decide)⟩;
-  exact Nat.odd_iff.mpr (Nat.mod_two_ne_zero.mp fun h =>
-    h_div.2 <| by
-      convert Nat.mul_dvd_mul_left (2 ^ t) (Nat.dvd_of_mod_eq_zero h) using 1
-      rw [Nat.mul_div_cancel' h_div.1])
-
+  sorry
 /-
 The sum of reciprocals of elements in A intersected with (2^(k-1), 2^k] is at least the cardinality
 divided by 2^k.
@@ -916,110 +903,14 @@ The sum of g(p^k)/p^k is bounded by 1 + 3/p^2 for odd primes p.
 lemma prime_sum_bound (p : ℕ) (hp : p.Prime) (hp_odd : p ≠ 2) :
     Summable (fun k => g_func (p ^ k) / (p ^ k : ℝ)) ∧
     ∑' k, g_func (p ^ k) / (p ^ k : ℝ) ≤ 1 + 3 / (p ^ 2 : ℝ) := by
-      constructor;
-      · refine summable_nat_add_iff 2 |>.1 ?_;
-        -- We'll use the fact that $g(p^k) = 2^{k-2}$ for $k \geq 2$.
-        have h_g_p_k : ∀ k ≥ 2, g_func (p ^ k) = (2 : ℝ) ^ (k - 2) := by
-          unfold g_func;
-          unfold g_val; aesop;
-        norm_num [ h_g_p_k ];
-        ring_nf;
-        simpa only [ mul_assoc, ← mul_pow ] using
-          Summable.mul_left _
-            (summable_geometric_of_lt_one
-              (by positivity)
-              (by
-                rw [inv_mul_lt_iff₀ (by norm_cast; linarith [hp.pos])]
-                norm_cast
-                linarith [
-                  hp.two_le,
-                  show p > 2 from
-                    lt_of_le_of_ne hp.two_le (Ne.symm hp_odd)]))
-      · -- For an odd prime $p$, $g(p^0)=1$, $g(p^1)=0$, and $g(p^k)=2^{k-2}$ for $k \ge 2$.
-        have h_g_prime_power (k : ℕ) :
-            g_func (p ^ k) =
-              if k = 0 then 1 else if k = 1 then 0 else (2 : ℝ) ^ (k - 2) := by
-          unfold g_func;
-          unfold g_val; aesop;
-        -- The sum of the geometric series $\sum_{k=2}^\infty \frac{2^{k-2}} �{�p^k}$ is
-        -- $\frac{1}{p^2} \sum_{j=0}^\in �fty� \left(\frac{2}{p}\right)^j = \frac{1}{p^2} \cdot
-        -- \frac{1}{1 - \frac{2}{p}} = \frac{1}{p(p-2)}$.
-        have h_geo_series :
-            ∑' k : ℕ,
-              (if k = 0 then 1
-                else if k = 1 then 0
-                else (2 : ℝ) ^ (k - 2)) / (p ^ k : ℝ) =
-              1 + (1 / (p ^ 2 : ℝ)) * (1 / (1 - 2 / p)) := by
-          rw [ ← Summable.sum_add_tsum_nat_add 2 ];
-          · norm_num [ Finset.sum_range_succ' ];
-            rw [
-              ← tsum_geometric_of_lt_one
-                (by positivity)
-                (show (2 : ℝ) / p < 1 by
-                  rw [div_lt_iff₀ (Nat.cast_pos.mpr hp.pos)]
-                  norm_cast
-                  linarith [
-                    show p > 2 from
-                      lt_of_le_of_ne hp.two_le (Ne.symm hp_odd)])]
-            rw [← tsum_mul_left]
-            congr
-            ext i
-            ring_nf
-            grind;
-          · rw [ ← summable_nat_add_iff 2 ];
-            norm_num [ pow_add, ← div_div ];
-            norm_num [ Nat.succ_inj ];
-            simpa only [ ← div_pow ] using
-              Summable.mul_right _
-                (summable_geometric_of_lt_one
-                  (by positivity)
-                  (by
-                    rw [div_lt_iff₀] <;> norm_cast <;>
-                      linarith [
-                        hp.two_le,
-                        show p > 2 from
-                          lt_of_le_of_ne hp.two_le (Ne.symm hp_odd)]))
-        simp_all +decide [ division_def ];
-        rw [ ← mul_inv, mul_comm ];
-        rw [ inv_le_comm₀ ] <;> norm_num <;>
-          nlinarith only [
-            show (p : ℝ) ≥ 3 by
-              norm_cast
-              contrapose! hp_odd
-              interval_cases p <;> trivial,
-            inv_mul_cancel₀ (show (p : ℝ) ≠ 0 by
-              norm_cast
-              exact hp.ne_zero),
-            inv_mul_cancel₀ (show (p ^ 2 : ℝ) ≠ 0 by
-              norm_cast
-              exact pow_ne_zero 2 hp.ne_zero)]
-
+      sorry
 /-
 The product of (1 + 3/p^2) is bounded.
 -/
 lemma prod_one_plus_inv_sq_bound :
     ∃ C, ∀ (S : Finset ℕ),
       (∀ p ∈ S, p ≥ 1) → ∏ p ∈ S, (1 + 3 / (p ^ 2 : ℝ)) ≤ C := by
-  use Real.exp ( ∑' p : ℕ, ( 3 / ( p : ℝ ) ^ 2 ) );
-  intros S hS_pos
-  have h_prod_le_exp :
-      (∏ p ∈ S, (1 + 3 / (p : ℝ) ^ 2)) ≤
-        Real.exp (∑ p ∈ S, (3 / (p : ℝ) ^ 2)) := by
-    rw [ Real.exp_sum ]
-    exact Finset.prod_le_prod
-      (fun _ _ => by positivity)
-      (fun _ _ => by
-        rw [ add_comm ]
-        exact Real.add_one_le_exp _)
-  exact h_prod_le_exp.trans
-    (Real.exp_le_exp.mpr <|
-      Summable.sum_le_tsum _
-        (fun _ _ => by positivity)
-        (by
-          simpa using
-            Summable.mul_left _ <|
-              Real.summable_one_div_nat_pow.2 one_lt_two))
-
+        sorry
 /-
 The sum of a non-negative multiplicative function is bounded by the product of its prime power sums.
 -/
@@ -1216,12 +1107,7 @@ lemma sum_f_le_sum_g_mul_sum_tau (N : ℕ) :
     ∑ n ∈ Finset.range (N + 1), f_func n ≤
       ∑ q ∈ Finset.range (N + 1),
         g_func q * ∑ m ∈ Finset.range (N / q + 1), (tauu m : ℝ) := by
-      rw [ f_eq_d_odd_mul_g ];
-      rw [ sum_convolution_eq ];
-      gcongr;
-      · (expose_names; exact g_func_nonneg i);
-      · unfold d_odd_func; aesop
-
+          sorry
 /-
 There exists a constant C such that the sum of tau(n) is bounded by C * N * (log N + 1) for all N >=
 1.
@@ -1420,56 +1306,7 @@ The sum of $h(n)$ for $\Omega(n) \ge L$ is bounded by $\frac{C_h}{\sqrt{L}} \sum
 lemma sum_h_ge_L_bound (N L : ℕ) (hL : L ≥ 1) :
     ∑ n ∈ (Finset.range (N + 1)).filter (fun n => Odd n ∧ Om n ≥ L), h_func n ≤
     (C_h / Real.sqrt L) * ∑ n ∈ Finset.range (N + 1), f_func n := by
-      -- By `h_func_le_C_h`, $h(n) \le C_h \frac{2^{\Omega(n)}}{\sqrt{\Omega(n)}} \le C_h
-      -- \frac{2^{\Omega(n)}}{\sqrt{L}}$.
-      have h_bound :
-          ∀ n, Odd n → L ≤ Om n →
-            h_func n ≤ (C_h / Real.sqrt L) * f_func n := by
-        intros n hn_odd hn_L
-        have h_le_C_h : h_func n ≤ C_h * (2 ^ (Om n) / Real.sqrt (Om n)) := by
-          by_cases hn_ge_3 : n ≥ 3;
-          · convert h_func_le_C_h n hn_odd hn_ge_3 using 1;
-          · interval_cases n <;> simp_all +decide [ Om ];
-        have h_bound : (2 ^ (Om n) / Real.sqrt (Om n)) ≤ (2 ^ (Om n) / Real.sqrt L) := by
-          gcongr;
-        have h_f_eq : f_func n = (2 : ℝ) ^ (Om n) := by
-          unfold f_func; aesop;
-        convert
-            h_le_C_h.trans
-              (mul_le_mul_of_nonneg_left h_bound <|
-                show 0 ≤ C_h by
-                  exact le_of_not_gt fun h => by
-                    have := h_func_le_C_h 3 (by decide) (by decide)
-                    norm_num [ h_func, Om ] at this
-                    nlinarith [ Real.sqrt_nonneg 1, Real.sq_sqrt zero_le_one ])
-          using 1
-        rw [ h_f_eq ]
-        ring
-      field_simp;
-      rw [ Finset.sum_mul _ _ _ ];
-      refine le_trans
-        (Finset.sum_le_sum fun i hi =>
-          mul_le_mul_of_nonneg_right
-            (h_bound i
-              (Finset.mem_filter.mp hi |>.2.1)
-              (Finset.mem_filter.mp hi |>.2.2))
-            (Real.sqrt_nonneg _))
-        ?_;
-      norm_num [ div_mul_eq_mul_div, Finset.mul_sum _ _ _ ];
-      field_simp;
-      exact Finset.sum_le_sum_of_subset_of_nonneg
-        (Finset.filter_subset _ _)
-        fun _ _ _ =>
-          mul_nonneg
-            (show 0 ≤ C_h by
-              exact le_of_not_gt fun h => by
-                have := h_func_le_C_h 3 (by decide) (by decide)
-                norm_num [ h_func, Om ] at this
-                linarith)
-            (show 0 ≤ f_func _ by
-              unfold f_func
-              aesop)
-
+      sorry
 /-
 Define $L(N) = \lfloor \frac{1}{2} \log \log N \rfloor$.
 -/
@@ -1573,51 +1410,7 @@ lemma part2_bound_asymptotics :
     (fun N => (C_h / Real.sqrt (L_nat N)) *
       ∑ n ∈ Finset.range (N + 1), f_func n) =o[Filter.atTop]
         (fun N => (N : ℝ) * Real.log N) := by
-      -- We know that $L(N) \to \infty$ as $N \to \infty$.
-      have h_L_nat_tendsto : Filter.Tendsto L_nat Filter.atTop Filter.atTop := by
-        exact L_nat_tendsto;
-      -- We know that $\sum_{n \leq N} f(n) = O(N \log N)$ by `sum_2Omega_odd`.
-      have h_sum_f_O :
-          (fun N => ∑ n ∈ Finset.range (N + 1), f_func n) =O[Filter.atTop]
-            (fun N => (N : ℝ) * Real.log N) := by
-        convert sum_2Omega_odd using 1;
-      -- We know that $C_h / \sqrt{L(N)} \to 0$ as $N \to \infty$.
-      have h_C_h_div_sqrt_L_nat_zero :
-          Filter.Tendsto (fun N => C_h / Real.sqrt (L_nat N)) Filter.atTop (nhds 0) := by
-        exact tendsto_const_nhds.div_atTop
-          (by
-            simpa only [ Real.sqrt_eq_rpow ] using
-              tendsto_rpow_atTop (by norm_num) |> Filter.Tendsto.comp <|
-                tendsto_natCast_atTop_atTop.comp h_L_nat_tendsto);
-      rw [ Asymptotics.isLittleO_iff_tendsto' ];
-      · rw [ Asymptotics.isBigO_iff' ] at h_sum_f_O;
-        obtain ⟨ c, hc₀, hc ⟩ := h_sum_f_O;
-        refine
-          squeeze_zero_norm'
-            (a := fun N => |C_h / Real.sqrt (L_nat N)| * c)
-            ?_ ?_;
-        · filter_upwards [ hc, Filter.eventually_gt_atTop 1 ] with N hN hN'
-          simp_all +decide [ abs_div ];
-          rw [
-            div_le_iff₀
-              (mul_pos
-                (by positivity)
-                (abs_pos.mpr
-                  (ne_of_gt (Real.log_pos (Nat.one_lt_cast.mpr hN')))))]
-          nlinarith [
-            show 0 ≤ |C_h| / |Real.sqrt (L_nat N)| by positivity];
-        · simpa using Filter.Tendsto.mul ( h_C_h_div_sqrt_L_nat_zero.abs ) tendsto_const_nhds;
-      · filter_upwards [ Filter.eventually_gt_atTop 1 ] with N hN h using by
-          rw [
-            show N = 0 by
-              exact_mod_cast
-                absurd h (by
-                  exact ne_of_gt
-                    (mul_pos
-                      (Nat.cast_pos.mpr <| pos_of_gt hN)
-                      (Real.log_pos <| Nat.one_lt_cast.mpr hN)))]
-          norm_num
-
+          sorry
 /-
 The sum of $h(n)$ is $o(N \log N)$.
 -/
@@ -1822,43 +1615,7 @@ lemma I_N_lower_bound (A : Set ℕ) (hA_odd : ∀ a ∈ A, Odd a) (N : ℕ) :
     (I_N A N : ℝ) ≥
       ∑ a ∈ (Finset.range (N + 1)).filter (· ∈ A),
         ((N / a : ℝ) / 2 - 1) := by
-    -- By definition of $I_N$, we have $I_N(A, N) = \sum_{a \in A, a \le N} |\{m \le N/a : m \text{
-    -- odd}\}|$.
-    have h_I_N_def :
-        (I_N A N : ℝ) =
-          ∑ a ∈ (Finset.range (N + 1)).filter (· ∈ A),
-            ((Finset.range (N / a + 1)).filter Odd).card := by
-      convert congr_arg _ ( I_N_equality A hA_odd N ) using 1;
-    rw [h_I_N_def];
-    push_cast [ Finset.sum_div _ _ _ ];
-    gcongr;
-    field_simp;
-    rename_i a ha;
-    refine le_trans ?_
-      (mul_le_mul_of_nonneg_left
-        (Nat.cast_le.mpr <|
-          show Finset.card (Finset.filter Odd (Finset.range (N / a + 1))) ≥
-              N / a / 2 from ?_)
-        zero_le_two);
-    · rw [ div_sub', div_le_iff₀ ] <;> norm_cast <;> norm_num at *;
-      · norm_cast
-        nlinarith [
-          Nat.div_add_mod N a,
-          Nat.mod_lt N
-            (Nat.pos_of_ne_zero (by
-              specialize hA_odd a ha.2
-              aesop : a ≠ 0)),
-          Nat.div_add_mod ( N / a ) 2,
-          Nat.mod_lt ( N / a ) two_pos];
-      · exact Nat.pos_of_ne_zero fun h => by simpa [ h ] using hA_odd a ha.2;
-      · exact Nat.ne_of_gt ( Nat.pos_of_ne_zero fun h => by simpa [ h ] using hA_odd a ha.2 );
-    · refine le_trans ?_
-        (Finset.card_mono <|
-          show Finset.image (fun x => 2 * x + 1) (Finset.range (N / a / 2)) ⊆
-              Finset.filter Odd (Finset.range (N / a + 1)) from ?_);
-      · rw [ Finset.card_image_of_injective ] <;> norm_num [ Function.Injective ];
-      · grind
-
+          sorry
 /-
 Let $C_K$ be the constant from Kleitman's uniform bound.
 -/
@@ -2182,52 +1939,7 @@ lemma lowerDensity_diff_bound (A B : Set ℕ) (C : ℝ)
       ((Finset.Icc 1 N).filter (· ∈ A)).card ≥
         ((Finset.Icc 1 N).filter (· ∈ B)).card - C * N) :
     lowerDensity A ≥ lowerDensity B - C := by
-      -- Then $\frac{|A \cap [1,N]|}{N} \ge \frac{|B \cap [1,N]|}{N} - C$.
-      have h_ineq :
-          ∀ N ≥ 1,
-            ((Finset.Icc 1 N).filter (· ∈ A)).card / (N : ℝ) ≥
-              ((Finset.Icc 1 N).filter (· ∈ B)).card / (N : ℝ) - C := by
-        intro N hN
-        rw [ ge_iff_le ]
-        rw [ div_sub', div_le_div_iff_of_pos_right ] <;>
-          first | positivity | linarith [ h N hN ];
-      -- Taking liminf: $\underline{d}(A) \ge \underline{d}(B) - C$.
-      have h_liminf :
-          Filter.liminf
-              (fun N => ((Finset.Icc 1 N).filter (· ∈ A)).card / (N : ℝ))
-              Filter.atTop ≥
-            Filter.liminf
-              (fun N => ((Finset.Icc 1 N).filter (· ∈ B)).card / (N : ℝ))
-              Filter.atTop - C := by
-        rw [ Filter.liminf_eq, Filter.liminf_eq ];
-        refine sub_le_iff_le_add.mpr ( csSup_le ?_ ?_ );
-        · exact ⟨ 0, Filter.eventually_atTop.mpr ⟨ 1, fun N hN => by positivity ⟩ ⟩;
-        · intro b hb;
-          have hA_bdd :
-              BddAbove
-                {a : ℝ | ∀ᶠ n in Filter.atTop,
-                  a ≤ ↑((Finset.Icc 1 n).filter (fun x => x ∈ A)).card / ↑n} := by
-            exact ⟨ 1, fun x hx => by
-              rcases Filter.eventually_atTop.mp hx with ⟨ N, hN ⟩
-              exact le_trans ( hN _ le_rfl )
-                (div_le_one_of_le₀
-                  (mod_cast le_trans ( Finset.card_filter_le _ _ ) ( by norm_num ))
-                  (by positivity))⟩;
-          have hbC_mem :
-              b - C ∈
-                {a : ℝ | ∀ᶠ n in Filter.atTop,
-                  a ≤ ↑((Finset.Icc 1 n).filter (fun x => x ∈ A)).card / ↑n} := by
-            filter_upwards [ hb, Filter.eventually_ge_atTop 1 ] with n hn hn' using by
-              linarith [ h_ineq n hn' ];
-          have hbC_le :
-              b - C ≤
-                sSup
-                  {a : ℝ | ∀ᶠ n in Filter.atTop,
-                    a ≤ ↑((Finset.Icc 1 n).filter (fun x => x ∈ A)).card / ↑n} :=
-            le_csSup hA_bdd hbC_mem
-          linarith;
-      convert h_liminf using 1
-
+      sorry
 /-
 The lower density of the union of A_t for t < T is at least the lower density of A minus 1/2^T.
 -/
@@ -2538,67 +2250,7 @@ If a sequence u is non-negative and v tends to 1, then limsup (u * v) = limsup u
 lemma limsup_mul_tendsto_one {u v : ℕ → ℝ} (hu : 0 ≤ᶠ[Filter.atTop] u)
     (hv : Filter.Tendsto v Filter.atTop (nhds 1)) :
     Filter.limsup (u * v) Filter.atTop = Filter.limsup u Filter.atTop := by
-      have limsup_of_not_bdd :
-          ∀ w : ℕ → ℝ, ¬ Filter.IsBoundedUnder (· ≤ ·) Filter.atTop w →
-            Filter.limsup w Filter.atTop = 0 := by
-        intro w hw
-        have hw_unbdd : ∀ B : ℝ, ∀ N : ℕ, ∃ n, N ≤ n ∧ B < w n := by
-          simpa [Filter.IsBoundedUnder, Filter.IsBounded] using hw
-        rw [Filter.limsup_eq, Real.sInf_def]
-        simp_all +decide [Filter.IsBoundedUnder, Filter.IsBounded]
-        rw [show {x : ℝ | ∃ a, ∀ b : ℕ, a ≤ b → w b ≤ -x} = ∅ from ?_]
-        · simp
-        · exact Set.eq_empty_of_forall_notMem fun x hx => by
-            rcases hx with ⟨N, hN⟩
-            rcases hw_unbdd (-x) N with ⟨n, hnN, hn⟩
-            linarith [hN n hnN]
-      by_cases hbu : Filter.IsBoundedUnder (· ≤ ·) Filter.atTop u
-      · have hfreq : ∃ᶠ n in Filter.atTop, 0 ≤ u n := hu.frequently
-        have hv_nonneg : 0 ≤ᶠ[Filter.atTop] v := by
-          exact hv.eventually (le_mem_nhds (by norm_num : (0 : ℝ) < 1))
-        have hv_bdd : Filter.IsBoundedUnder (· ≤ ·) Filter.atTop v := by
-          refine ⟨2, ?_⟩
-          filter_upwards
-            [hv.eventually (Metric.closedBall_mem_nhds (1 : ℝ) zero_lt_one)]
-            with n hn
-          have habs : |n - 1| ≤ 1 := by simpa [Real.dist_eq] using hn
-          linarith [abs_le.mp habs]
-        have hle := limsup_mul_le hfreq hbu hv_nonneg hv_bdd
-        have hge := le_limsup_mul hfreq hbu hv_nonneg hv_bdd
-        rw [hv.limsup_eq] at hle
-        rw [hv.liminf_eq] at hge
-        nlinarith
-      · have hbu_unbdd : ∀ B : ℝ, ∀ N : ℕ, ∃ n, N ≤ n ∧ B < u n := by
-          simpa [Filter.IsBoundedUnder, Filter.IsBounded] using hbu
-        have hv_half : ∀ᶠ n in Filter.atTop, (1 / 2 : ℝ) ≤ v n := by
-          exact hv.eventually (le_mem_nhds (by norm_num : (1 / 2 : ℝ) < 1))
-        have huv_unbdd : ¬ Filter.IsBoundedUnder (· ≤ ·) Filter.atTop (u * v) := by
-          intro hbuv
-          rcases hbuv with ⟨B, hB⟩
-          rcases Filter.eventually_atTop.mp hB with ⟨NB, hNB⟩
-          rcases Filter.eventually_atTop.mp hv_half with ⟨Nv, hNv⟩
-          rcases Filter.eventually_atTop.mp hu with ⟨Nu, hNu⟩
-          rcases hbu_unbdd (max 0 (2 * B) + 1) (max NB (max Nv Nu)) with
-            ⟨n, hn, hun⟩
-          have hnB : NB ≤ n := le_trans (le_max_left _ _) hn
-          have hnv : Nv ≤ n :=
-            le_trans (le_trans (le_max_left _ _) (le_max_right NB (max Nv Nu))) hn
-          have hnu : Nu ≤ n :=
-            le_trans (le_trans (le_max_right _ _) (le_max_right NB (max Nv Nu))) hn
-          have huv_le := hNB n hnB
-          have hvn := hNv n hnv
-          have hun_nonneg := hNu n hnu
-          have huv_gt : B < (u * v) n := by
-            change B < u n * v n
-            have h2B_lt : 2 * B < u n := by
-              linarith [le_max_right (0 : ℝ) (2 * B), hun]
-            calc
-              B < (1 / 2 : ℝ) * u n := by nlinarith [h2B_lt]
-              _ ≤ v n * u n := mul_le_mul_of_nonneg_right hvn hun_nonneg
-              _ = u n * v n := by ring
-          exact not_lt_of_ge huv_le huv_gt
-        rw [limsup_of_not_bdd u hbu, limsup_of_not_bdd (u * v) huv_unbdd]
-
+      sorry
 theorem helper3 (a b : ℕ) : Finset.Icc a.succ b = Finset.Ioc a b := by
   simp_all only [Nat.succ_eq_add_one]
   ext a_1 : 1
@@ -2696,89 +2348,7 @@ lemma lcm_triple_of_upper_log_density_pos (A : Set ℕ) (hA_odd : ∀ a ∈ A, O
     (h_pos : upper_log_density A > 0) :
     ∃ a ∈ A, ∃ b ∈ A, ∃ c ∈ A,
       a ≠ b ∧ b ≠ c ∧ a ≠ c ∧ Nat.lcm a b = c := by
-      by_contra h_contra
-      have h_upper_log_density : upper_log_density A = 0 := by
-        have h_upper_log_density :
-            Filter.Tendsto (fun N => log_density_sum A N / Real.log N)
-              Filter.atTop (nhds 0) := by
-          have h_I_N_zero :
-              (fun N => (I_N A N : ℝ)) =o[Filter.atTop]
-                (fun N => (N : ℝ) * Real.log N) := by
-            apply_rules [ I_N_upper_bound_asymptotic ];
-            exact fun a ha b hb c hc hab hbc hca => fun h =>
-              h_contra ⟨ a, ha, b, hb, c, hc, hab, hbc, hca, h ⟩;
-          have h_I_N_bound :
-              ∀ N ≥ 1,
-                (I_N A N : ℝ) ≥ (N / 2 : ℝ) * log_density_sum A N - N := by
-            intros N hN
-            have h_I_N_bound :
-                (I_N A N : ℝ) ≥
-                  ∑ a ∈ (Finset.range (N + 1)).filter (· ∈ A),
-                    ((N / a : ℝ) / 2 - 1) := by
-              convert I_N_lower_bound A hA_odd N using 1;
-            simp_all +decide [ log_density_sum ];
-            convert h_I_N_bound.trans _ using 1;
-            · rw [ Finset.mul_sum _ _ _ ]
-              exact Finset.sum_congr rfl fun _ _ => by ring;
-            · have hcard_le :
-                  (Finset.filter ( fun x => x ∈ A ) ( Finset.range ( N + 1 ) )).card ≤
-                    N := by
-                refine le_trans
-                  (Finset.card_le_card
-                    (show Finset.filter (fun x => x ∈ A) (Finset.range (N + 1)) ⊆
-                        Finset.Icc 1 N from fun x hx =>
-                          Finset.mem_Icc.mpr
-                            ⟨Nat.pos_of_ne_zero fun h => by
-                              simpa [ h ] using hA_odd x <| Finset.mem_filter.mp hx |>.2,
-                              Nat.le_of_lt_succ <| Finset.mem_range.mp <|
-                                Finset.mem_filter.mp hx |>.1⟩))
-                  ?_
-                simp
-              have hcard_le_real :
-                  ((Finset.filter (fun x => x ∈ A) (Finset.range (N + 1))).card : ℝ) ≤
-                    N := by
-                exact_mod_cast hcard_le
-              nlinarith;
-          have h_I_N_bound :
-              ∀ᶠ N in Filter.atTop,
-                (log_density_sum A N : ℝ) ≤ 2 * (I_N A N : ℝ) / N + 2 := by
-            filter_upwards [ Filter.eventually_ge_atTop 1 ] with N hN using by
-              rw [ div_add', le_div_iff₀ ] <;>
-                first | positivity | nlinarith [ h_I_N_bound N hN ];
-          have h_I_N_bound :
-              Filter.Tendsto (fun N => (2 * (I_N A N : ℝ) / N + 2) / Real.log N)
-                Filter.atTop (nhds 0) := by
-            have h_I_N_bound :
-                Filter.Tendsto (fun N => (2 * (I_N A N : ℝ) / N) / Real.log N)
-                  Filter.atTop (nhds 0) := by
-              rw [ Asymptotics.isLittleO_iff_tendsto' ] at h_I_N_zero;
-              · convert h_I_N_zero.const_mul 2 using 2 <;> ring;
-              · filter_upwards [ Filter.eventually_gt_atTop 1 ] with N hN hN' using
-                  absurd hN' <| ne_of_gt <|
-                    mul_pos
-                      (Nat.cast_pos.mpr <| pos_of_gt hN)
-                      (Real.log_pos <| Nat.one_lt_cast.mpr hN);
-            simpa [ add_div ] using
-              h_I_N_bound.add
-                (tendsto_const_nhds.mul
-                  (tendsto_inv_atTop_zero.comp
-                    (Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop)));
-          refine squeeze_zero_norm' ?_ h_I_N_bound;
-          filter_upwards
-              [ ‹∀ᶠ N in Filter.atTop,
-                    log_density_sum A N ≤ 2 * ↑ ( I_N A N ) / ↑ N + 2›,
-                Filter.eventually_ge_atTop 1 ]
-              with N hN₁ hN₂ using by
-            rw [
-              Real.norm_of_nonneg
-                (div_nonneg
-                  (show 0 ≤ log_density_sum A N from
-                    Finset.sum_nonneg fun _ _ => by positivity)
-                  (Real.log_natCast_nonneg _))]
-            exact div_le_div_of_nonneg_right hN₁ ( Real.log_natCast_nonneg _ );
-        convert h_upper_log_density.limsup_eq using 1;
-      linarith
-
+        sorry
 /-
 The ratio of the logarithmic density sum to log N is bounded.
 -/
@@ -2803,103 +2373,7 @@ The limsup of `log_density_sum A (N/k) / log(N/k)` is equal to the upper logarit
 lemma limsup_log_density_stretch_aux (A : Set ℕ) (k : ℕ) (hk : k > 0) :
     Filter.limsup (fun N => log_density_sum A (N / k) / Real.log (N / k))
       Filter.atTop = upper_log_density A := by
-      -- Extend the sequence to be defined for real numbers by taking the floor of N/k.
-      set u : ℕ → ℝ := fun N => log_density_sum A N / Real.log N;
-      -- Apply `limsup_stretch` to the sequence `u(N) = log_density_sum A N / log N`.
-      have h_limsup_stretch :
-          Filter.limsup (fun N => u (Nat.floor (N / k))) Filter.atTop =
-            Filter.limsup u Filter.atTop := by
-        convert limsup_stretch u k hk using 1;
-      have h_limsup_stretch :
-          Filter.limsup
-              (fun N =>
-                u (Nat.floor (N / k)) *
-                  (Real.log (Nat.floor (N / k)) / Real.log (N / k)))
-              Filter.atTop =
-            Filter.limsup u Filter.atTop := by
-        have h_limsup_stretch :
-            Filter.Tendsto
-              (fun N => Real.log (Nat.floor (N / k)) / Real.log (N / k))
-              Filter.atTop (nhds 1) := by
-          have h_log_floor :
-              Filter.Tendsto (fun x : ℝ => Real.log (Nat.floor x) / Real.log x)
-                Filter.atTop (nhds 1) := by
-            have h_log_floor :
-                Filter.Tendsto (fun x : ℝ => Real.log (x - 1) / Real.log x)
-                  Filter.atTop (nhds 1) := by
-              have h_log_floor :
-                  Filter.Tendsto
-                    (fun x : ℝ => (Real.log x + Real.log (1 - 1 / x)) / Real.log x)
-                    Filter.atTop (nhds 1) := by
-                ring_nf;
-                exact le_trans
-                  (Filter.Tendsto.add
-                    (tendsto_const_nhds.congr' (by
-                      filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx using by
-                        rw [ mul_inv_cancel₀ ( ne_of_gt ( Real.log_pos hx ) ) ]))
-                    (Filter.Tendsto.mul
-                      (Filter.Tendsto.log
-                        (tendsto_const_nhds.sub tendsto_inv_atTop_zero)
-                        (by norm_num))
-                      (tendsto_inv_atTop_zero.comp Real.tendsto_log_atTop)))
-                  (by norm_num);
-              refine h_log_floor.congr' ( by
-                filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx using by
-                  rw [ one_sub_div ( by linarith ) ]
-                  rw [ Real.log_div ] <;> ring_nf <;> linarith );
-            refine tendsto_of_tendsto_of_tendsto_of_le_of_le' h_log_floor tendsto_const_nhds ?_ ?_;
-            · filter_upwards [ Filter.eventually_gt_atTop 2 ] with x hx using
-                div_le_div_of_nonneg_right
-                  (Real.log_le_log
-                    (by linarith)
-                    (by linarith [ Nat.lt_floor_add_one x ]))
-                  (Real.log_nonneg (by linarith));
-            · filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx using
-                div_le_one_of_le₀
-                  (Real.log_le_log
-                    (Nat.cast_pos.mpr <| Nat.floor_pos.mpr <| by linarith) <|
-                      Nat.floor_le <| by linarith)
-                  (Real.log_nonneg <| by linarith);
-          convert
-              h_log_floor.comp
-                (show Filter.Tendsto ( fun N : ℕ => ( N : ℝ ) / k )
-                    Filter.atTop Filter.atTop from
-                  Filter.Tendsto.atTop_div_const
-                    (Nat.cast_pos.mpr hk) tendsto_natCast_atTop_atTop)
-            using 2;
-          norm_num [ Nat.floor_div_natCast ];
-        have h_limsup_stretch :
-            Filter.limsup
-                (fun N =>
-                  u (Nat.floor (N / k)) *
-                    (Real.log (Nat.floor (N / k)) / Real.log (N / k)))
-                Filter.atTop =
-              Filter.limsup (fun N => u (Nat.floor (N / k))) Filter.atTop := by
-          have h_bdd :
-              Filter.IsBoundedUnder (· ≤ ·) Filter.atTop
-                (fun N => u (Nat.floor (N / k))) := by
-            have h_limsup_stretch : Filter.IsBoundedUnder (· ≤ ·) Filter.atTop u := by
-              exact log_density_ratio_bounded A;
-            obtain ⟨ M, hM ⟩ := h_limsup_stretch;
-            norm_num +zetaDelta at *;
-            obtain ⟨ N, hN ⟩ := hM;
-            exact ⟨ M, Filter.eventually_atTop.mpr ⟨ N * k, fun n hn =>
-              hN _ <| Nat.le_div_iff_mul_le hk |>.2 <| by nlinarith ⟩ ⟩
-          apply_rules [ limsup_mul_tendsto_one ];
-          filter_upwards [ Filter.eventually_gt_atTop 0 ] with N hN using
-            div_nonneg
-              (Finset.sum_nonneg fun _ _ => by positivity)
-              (Real.log_natCast_nonneg _);
-        linarith;
-      convert h_limsup_stretch using 1;
-      refine Filter.limsup_congr ?_;
-      filter_upwards [ Filter.eventually_gt_atTop ( k * 2 ) ] with N hN
-      rw [ div_mul_div_cancel₀ ]
-      focus
-        aesop
-      exact ne_of_gt <| Real.log_pos <| Nat.one_lt_cast.mpr <|
-        Nat.le_floor <| Nat.le_div_iff_mul_le hk |>.2 <| by linarith;
-
+        sorry
 /-
 The upper logarithmic density of a set A is equal to the limsup of `log_density_sum A (N/k) / log
 N`.
@@ -2907,37 +2381,7 @@ N`.
 lemma limsup_log_density_stretch (A : Set ℕ) (k : ℕ) (hk : k > 0) :
     Filter.limsup (fun N => log_density_sum A (N / k) / Real.log N) Filter.atTop =
       upper_log_density A := by
-      have h_stretch :
-          Filter.limsup
-              (fun N =>
-                log_density_sum A (N / k) / Real.log (N / k) *
-                  (Real.log (N / k) / Real.log N))
-              Filter.atTop =
-            upper_log_density A := by
-        have h_stretch :
-            Filter.limsup (fun N => log_density_sum A (N / k) / Real.log (N / k))
-              Filter.atTop = upper_log_density A := by
-          convert limsup_log_density_stretch_aux A k hk using 1;
-        convert limsup_mul_tendsto_one _ _ using 2;
-        · exact h_stretch.symm;
-        · filter_upwards [ Filter.eventually_gt_atTop ( k : ℕ ) ] with N hN using
-            div_nonneg
-              (Finset.sum_nonneg fun _ _ => by positivity)
-              (Real.log_nonneg <| by
-                rw [ le_div_iff₀ <| by positivity ]
-                norm_cast
-                linarith);
-        · have := log_ratio_tendsto_one k hk;
-          exact this.comp tendsto_natCast_atTop_atTop;
-      refine h_stretch ▸ Filter.limsup_congr ( by
-        filter_upwards [ Filter.eventually_gt_atTop k ] with N hN using by
-          rw [
-            div_mul_div_cancel₀
-              (ne_of_gt <| Real.log_pos <| by
-                rw [ lt_div_iff₀ <| by positivity ]
-                norm_cast
-                linarith) ] )
-
+        sorry
 /-
 The upper logarithmic density of $B_t$ is $2^t$ times the upper logarithmic density of $A_t$.
 -/
