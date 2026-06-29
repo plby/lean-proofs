@@ -365,8 +365,9 @@ lemma associatedPolynomial_eval_eq_zero_iff_covered
           Nat.div_pos (Nat.le_of_dvd hq <| h_dvd ap hapA)
             (Nat.pos_of_dvd_of_pos (h_dvd ap hapA) hq)) ?_
       convert h_div using 1
-      norm_cast
-      rw [Nat.mul_div_cancel' (h_dvd ap hapA)]
+      · exact Int.mul_ediv_cancel_of_dvd
+          (Int.natCast_dvd_natCast.mpr (h_dvd ap hapA))
+      · rw [Int.natCast_div]
     cases abs_cases ap.d <;> simp_all +decide
     · exact ⟨ ap, hapA, h_div.choose, by linarith [ h_div.choose_spec ] ⟩
     · exact ⟨ ap, hapA, h_div.choose, by linarith [ h_div.choose_spec ] ⟩
@@ -481,7 +482,8 @@ Lemma stating that the property of being a covering system is preserved under tr
 -/
 lemma isCoveringSystem_translateAP_iff (A : List ArithmeticProgression) (k : ℤ) :
     IsCoveringSystem (A.map (fun ap => translateAP ap k)) ↔ IsCoveringSystem A := by
-  convert covers_translateAP_iff A Set.univ k using 1
+  unfold IsCoveringSystem
+  simpa using covers_translateAP_iff A Set.univ k
 
 /-
 The main theorem: if a family of arithmetic progressions covers $2^k$
@@ -751,15 +753,26 @@ lemma sum_div_lt_q (A : List ArithmeticProgression) (q : ℕ) (hq : q > 0)
   -- By multiplying both sides of the inequality $\sum (1 / d_i) < 1$ by $q$,
   -- we obtain $\sum (q / d_i) < q$.
   have h_mul_q : (A.map (fun ap => (q : ℚ) / (ap.d.natAbs : ℚ))).sum < q := by
-    convert mul_lt_mul_of_pos_left h_sum (Nat.cast_pos.mpr hq) using 1
-    · norm_num [div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm,
-        List.sum_map_mul_right]
-      · exact Or.inl (by
-          congr
-          ext
-          rw [abs_of_pos]
-          exact_mod_cast ArithmeticProgression.d_pos _)
-    · ring
+    have h_sum_eq :
+        (A.map (fun ap => (q : ℚ) / (ap.d.natAbs : ℚ))).sum =
+          (q : ℚ) * (A.map (fun ap => 1 / (ap.d : ℚ))).sum := by
+      clear h_dvd h_sum
+      induction A with
+      | nil =>
+          norm_num
+      | cons ap A ih =>
+          simp only [List.map_cons, List.sum_cons]
+          rw [ih]
+          have hd_abs : |(ap.d : ℚ)| = (ap.d : ℚ) := by
+            rw [abs_of_pos]
+            exact_mod_cast ap.d_pos
+          simp [hd_abs]
+          ring
+    calc
+      (A.map (fun ap => (q : ℚ) / (ap.d.natAbs : ℚ))).sum =
+          (q : ℚ) * (A.map (fun ap => 1 / (ap.d : ℚ))).sum := h_sum_eq
+      _ < (q : ℚ) * 1 := mul_lt_mul_of_pos_left h_sum (Nat.cast_pos.mpr hq)
+      _ = q := by ring
   have h_mul_q :
       (A.map (fun ap => (q : ℚ) / (ap.d.natAbs : ℚ))).sum =
         (A.map (fun ap => (q / ap.d.natAbs : ℕ))).sum := by
