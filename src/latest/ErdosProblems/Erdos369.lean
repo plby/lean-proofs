@@ -69,8 +69,6 @@ lemma Nat.le_largestPrimeFactor {n p : ℕ} (hp : p ∈ n.primeFactors) :
 lemma exists_prime_interval_small_euler_product (θ : ℝ) (hθ : 0 < θ) (X₀ : ℕ) :
     ∃ X₁ : ℕ, X₀ < X₁ ∧
       ∏ p ∈ (Finset.Icc (X₀ + 1) X₁).filter Nat.Prime, (1 - (1 : ℝ) / p) < θ := by
-  sorry
-/-
   have h_prod_zero : Filter.Tendsto (fun X₁ : ℕ =>
     ∏ p ∈ Finset.filter Nat.Prime (Finset.Icc (X₀ + 1) X₁),
     (1 - 1 / (p : ℝ))) Filter.atTop (nhds 0) := by
@@ -89,10 +87,17 @@ lemma exists_prime_interval_small_euler_product (θ : ℝ) (hθ : 0 < θ) (X₀ 
             contrapose! h;
             refine summable_of_sum_le (c := b) ?_ ?_;
             exacts [ fun _ => by positivity, fun u => by
-              simpa using
-                h ( u.image Subtype.val ) ( fun p hp => by
-                  obtain ⟨ q, hq, rfl ⟩ := Finset.mem_image.mp hp
-                  exact q.2 ) ];
+              convert
+                h (u.image Subtype.val) (fun p hp => by
+                  obtain ⟨q, hq, rfl⟩ := Finset.mem_image.mp hp
+                  exact q.2)
+                using 1
+              · rfl
+              · symm
+                rw [Finset.sum_image]
+                · rfl
+                · intro x _ y _ hxy
+                  exact Subtype.ext hxy ];
           exact ⟨ i.sup id + 1, fun n hn => hi.2.le.trans
             <| Finset.sum_le_sum_of_subset_of_nonneg ( fun p hp =>
             Finset.mem_filter.mpr ⟨ Finset.mem_range.mpr
@@ -123,14 +128,11 @@ lemma exists_prime_interval_small_euler_product (θ : ℝ) (hθ : 0 < θ) (X₀ 
       <| Real.tendsto_exp_atBot.comp <| Filter.tendsto_neg_atTop_atBot.comp h_sum_diverges;
   exact Filter.eventually_atTop.mp ( h_prod_zero.eventually ( gt_mem_nhds hθ ) ) |> fun ⟨ X₁,
     hX₁ ⟩ => ⟨ X₀ + X₁ + 1, by linarith, hX₁ _ <| by linarith ⟩
--/
 
 /-
 log 2 / log 3 is irrational, because 2^a = 3^b has no solution in positive naturals.
 -/
 lemma irrational_log2_div_log3 : Irrational (Real.log 2 / Real.log 3) := by
-  sorry
-/-
   intro ⟨ a, ha ⟩;
   -- Then we have $2^q = 3^p$.
   obtain ⟨p, q, hpq⟩ : ∃ p q : ℕ, p > 0 ∧ q > 0 ∧ 2 ^ q = 3 ^ p := by
@@ -142,14 +144,13 @@ lemma irrational_log2_div_log3 : Irrational (Real.log 2 / Real.log 3) := by
             Rat.num_pos.mpr ( show 0 < a by
               exact_mod_cast ha.symm ▸ div_pos ( Real.log_pos ( by norm_num ) )
                 ( Real.log_pos ( by norm_num ) ) ),
-            Nat.cast_pos.mpr a.pos, by simpa only [ Rat.cast_def ] using ha.symm ⟩;
+            Nat.cast_pos.mpr a.pos, by simpa only [Rat.cast_def, Int.cast_natCast] using ha.symm ⟩;
         exact ⟨ p, q, hpq.1, hpq.2.1, by rw [ div_eq_div_iff ] at hpq <;> norm_num at *
           <;> linarith ⟩;
       exact ⟨ p, q, hpq.1, hpq.2.1, by rw [ ← Real.rpow_intCast, ← Real.rpow_intCast,
         Real.rpow_def_of_pos, Real.rpow_def_of_pos ] <;> norm_num ; linarith ⟩;
     rcases p with ( _ | p ) <;> rcases q with ( _ | q ) <;> norm_num at * ; norm_cast at * ; aesop;
   exact absurd ( congr_arg Even hpq.2.2 ) ( by norm_num [ hpq.1.ne', hpq.2.1.ne', parity_simps ] )
--/
 
 /-
 For any positive reals α, β with α/β irrational, and any δ > 0,
@@ -1231,8 +1232,6 @@ lemma erdos_369_eps_lt_one (k : ℕ) (hk : 2 ≤ k) (ε : ℝ) (hε : 0 < ε) :
     ∃ N₀ : ℕ, ∀ N : ℕ, N₀ ≤ N →
       ∃ a : ℕ, N / 2 ≤ a - (k - 1) ∧ a ≤ N ∧ k ≤ a ∧
         ∀ j : ℕ, j < k → (Nat.largestPrimeFactor (a - j) : ℝ) ≤ ((a - j : ℕ) : ℝ) ^ ε := by
-  sorry
-/-
   -- From the core construction to the main result for ε < 1:
   obtain ⟨K, hK₀, N₀', hN₀'⟩ : ∃ K > 0, ∃ N₀' : ℕ, ∀ N : ℕ, N₀' ≤ N → ∃ a : ℕ, 3 * N / 4 ≤ a ∧ a ≤ N
     ∧ ∀ j : ℕ, j < k → (Nat.largestPrimeFactor (a - j) : ℝ) ≤ K * (N : ℝ) ^ (ε / 2) := by
@@ -1243,10 +1242,17 @@ lemma erdos_369_eps_lt_one (k : ℕ) (hk : 2 ≤ k) (ε : ℝ) (hε : 0 < ε) :
     -- N^{\varepsilon/2}$.
     suffices h_div : ∃ N₁ : ℕ, ∀ N : ℕ, N₁ ≤ N → K ≤ (1 / 2 : ℝ) ^ ε * (N : ℝ) ^ (ε / 2) by
       obtain ⟨ N₁, hN₁ ⟩ := h_div; use N₁; intro N hN;
-        convert mul_le_mul_of_nonneg_right ( hN₁ N hN ) ( Real.rpow_nonneg ( Nat.cast_nonneg N ) ( ε
-        / 2 ) ) using 1 ; ring_nf;
-      rw [ Real.mul_rpow ( by positivity ) ( by positivity ), ← Real.rpow_natCast,
-        ← Real.rpow_mul ( by positivity ) ] ; ring_nf;
+      calc
+        K * (N : ℝ) ^ (ε / 2)
+            ≤ ((1 / 2 : ℝ) ^ ε * (N : ℝ) ^ (ε / 2)) * (N : ℝ) ^ (ε / 2) :=
+          mul_le_mul_of_nonneg_right (hN₁ N hN)
+            (Real.rpow_nonneg (Nat.cast_nonneg N) (ε / 2))
+        _ = (N / 2 : ℝ) ^ ε := by
+          rw [mul_assoc, ← Real.rpow_add_of_nonneg (Nat.cast_nonneg N)
+            (by linarith [hε.le]) (by linarith [hε.le])]
+          rw [show ε / 2 + ε / 2 = ε by ring]
+          rw [← Real.mul_rpow (by positivity : 0 ≤ (1 / 2 : ℝ)) (Nat.cast_nonneg N)]
+          ring_nf;
     have h_div : Filter.Tendsto (fun N : ℕ =>
       (1 / 2 : ℝ) ^ ε * (N : ℝ) ^ (ε / 2)) Filter.atTop Filter.atTop := by
       exact Filter.Tendsto.const_mul_atTop ( by positivity ) ( tendsto_rpow_atTop ( by positivity )
@@ -1260,12 +1266,11 @@ lemma erdos_369_eps_lt_one (k : ℕ) (hk : 2 ≤ k) (ε : ℝ) (hε : 0 < ε) :
   · omega;
   · linarith;
   · omega;
- · intro j hj; refine le_trans ( ha₃ j hj ) ?_;
+  · intro j hj; refine le_trans ( ha₃ j hj ) ?_;
     refine le_trans ( hN₁ N hN.2.1 ) ?_;
     gcongr;
     rw [ div_le_iff₀ ] <;> norm_cast ; omega
 
--/
 /-
 Main theorem: Erdős Problem #369.
     For every ε > 0 and k ≥ 2, there exists N₀ such that for every N ≥ N₀,
