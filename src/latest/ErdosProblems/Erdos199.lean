@@ -1125,8 +1125,19 @@ lemma good_sequence_lift_lemma {ι : Type*} [LinearOrder ι] {V : Type*} [AddCom
     convert hcoeff.symm using 1;
     simp +decide [ coeffSeq, Module.Basis.span ];
     congr! 1;
-    · sorry
-    · sorry
+    · convert rfl;
+      convert rfl;
+      apply LinearEquiv.symm_apply_eq _ |>.2;
+      ext; try simp +decide;
+      conv_lhs => rw [ ← b'.linearCombination_repr x' ] ;
+      simp +decide [ Finsupp.linearCombination_apply, Finsupp.sum ];
+      exact Finset.sum_congr rfl fun _ _ => by aesop;
+    · congr! 2;
+      apply LinearEquiv.symm_apply_eq _ |>.2;
+      ext; try simp +decide;
+      conv_lhs => rw [ ← b'.linearCombination_repr x' ] ;
+      simp +decide [ Finsupp.linearCombination_apply, Finsupp.sum ];
+      exact Finset.sum_congr rfl fun _ _ => by aesop;
 
 /-
 A set is a Baumgartner set if it contains no 3-term arithmetic progression but intersects every infinite arithmetic progression.

@@ -1404,8 +1404,6 @@ theorem MaTang_Y_upper_bound (ε : ℝ) (hε : 0 < ε) :
   ∃ N, ∀ n ≥ N, ∀ T ∈ (MaTangGraph n alpha_star (s_func_robust n alpha_star)).cliqueFinset 3,
   ((Y_set (MaTangGraph n alpha_star (s_func_robust n alpha_star)) T).card : ℝ) ≤ (2 - Real.sqrt
     (5 / 2) + ε) * n := by
-    sorry
-/-
     -- Apply the lemma Y_card_bound to bound |Y(T)|.
     have h_bound : ∀ n ≥ 1, ∀ T ∈ (MaTangGraph n alpha_star (s_func_robust n
       alpha_star)).cliqueFinset 3, ((Y_set (MaTangGraph n alpha_star (s_func_robust n alpha_star))
@@ -1492,7 +1490,7 @@ theorem MaTang_Y_upper_bound (ε : ℝ) (hε : 0 < ε) :
               div_mul_cancel₀ ( ⌈c1 alpha_star * n⌉₊ : ℝ ) (show ( n : ℝ ) ≠ 0 by
                 norm_cast
                 linarith) ]
-        simpa using Filter.Tendsto.add ( Filter.Tendsto.add ( tendsto_const_nhds.sub h_floor )
+        simpa [div_eq_mul_inv] using Filter.Tendsto.add ( Filter.Tendsto.add ( tendsto_const_nhds.sub h_floor )
           h_ceil ) ( tendsto_const_nhds.mul tendsto_inv_atTop_nhds_zero_nat )
       -- Since the two expressions are equal, their limits are the same.
       have h_eq : ∀ n : ℕ, n ≥ 1 → ((n : ℝ) - ⌊alpha_star * n⌋₊ + (Nat.ceil (c1 alpha_star * n) +
@@ -1519,9 +1517,8 @@ theorem MaTang_Y_upper_bound (ε : ℝ) (hε : 0 < ε) :
     exact ⟨ w + 1, fun n hn T hT =>
       le_trans ( h_bound n ( by linarith ) T hT ) (by
         have := h n (by linarith)
-	        rw [ div_lt_iff₀ ( by norm_cast; linarith ) ] at this
-	        linarith) ⟩
--/
+        rw [ div_lt_iff₀ ( by norm_cast; linarith ) ] at this
+        linarith) ⟩
 
 end AristotleLemmas
 

@@ -76,7 +76,84 @@ Finite Ramsey's theorem, packaged as the existence of a size satisfying `RamseyP
 This is the only remaining foundational gap in the definition layer.
 -/
 theorem ramseyProperty_exists (k l : ℕ) : ∃ n, RamseyProperty k l n := by
-  sorry
+  revert l
+  induction k with
+  | zero =>
+      intro l
+      refine ⟨0, ?_⟩
+      intro G hbad
+      simpa using hbad.1
+  | succ k ih =>
+      intro l
+      induction l with
+      | zero =>
+          refine ⟨0, ?_⟩
+          intro G hbad
+          exact hbad.2 ∅ (by simp [SimpleGraph.isNIndepSet_iff])
+      | succ l ihl =>
+          rcases ih (l + 1) with ⟨m, hm⟩
+          rcases ihl with ⟨n, hn⟩
+          refine ⟨m + n + 1, ?_⟩
+          intro G hbad
+          classical
+          let v : Fin (m + n + 1) := 0
+          by_cases hdeg : m ≤ G.degree v
+          · let H : SimpleGraph (G.neighborSet v) := G.induce (G.neighborSet v)
+            have hprop : RamseyProperty k (l + 1) (G.degree v) := ramseyProperty_mono hdeg hm
+            have hcf : H.CliqueFree k := by
+              intro t ht
+              let t' : Finset (Fin (m + n + 1)) :=
+                Finset.map ⟨Subtype.val, Subtype.val_injective⟩ t
+              have htInd :
+                  (((⊤ : SimpleGraph.Subgraph G).induce (G.neighborSet v)).coe).IsNClique k t := by
+                rw [← SimpleGraph.induce_eq_coe_induce_top]
+                exact ht
+              have ht' : G.IsNClique k t' := by
+                simpa [H, t'] using
+                  (SimpleGraph.IsNClique.of_induce
+                    (S := (⊤ : SimpleGraph.Subgraph G)) (F := G.neighborSet v) (cc := htInd))
+              have hvt : ∀ b ∈ t', G.Adj v b := by
+                intro b hb
+                rcases Finset.mem_map.mp hb with ⟨x, hx, rfl⟩
+                exact x.property
+              exact hbad.1 _ (ht'.insert hvt)
+            have hif : H.IndepSetFree (l + 1) := by
+              exact SimpleGraph.IndepSetFree.comap
+                (SimpleGraph.Embedding.induce (G := G) (s := G.neighborSet v)) hbad.2
+            exact ramseyProperty_of_card (G.card_neighborSet_eq_degree v) hprop H ⟨hcf, hif⟩
+          · let H : SimpleGraph (Gᶜ.neighborSet v) := G.induce (Gᶜ.neighborSet v)
+            have hcompdeg : n ≤ Gᶜ.degree v := by
+              rw [G.degree_compl (v := v), Fintype.card_fin]
+              omega
+            have hprop : RamseyProperty (k + 1) l (Gᶜ.degree v) :=
+              ramseyProperty_mono hcompdeg hn
+            have hcf : H.CliqueFree (k + 1) := by
+              exact hbad.1.comap
+                (SimpleGraph.Embedding.induce (G := G) (s := Gᶜ.neighborSet v)).isContained
+            have hif : H.IndepSetFree l := by
+              intro t ht
+              let t' : Finset (Fin (m + n + 1)) :=
+                Finset.map ⟨Subtype.val, Subtype.val_injective⟩ t
+              have htInd :
+                  (((⊤ : SimpleGraph.Subgraph G).induce
+                    (Gᶜ.neighborSet v)).coe).IsNIndepSet l t := by
+                rw [← SimpleGraph.induce_eq_coe_induce_top]
+                exact ht
+              have ht' : G.IsNIndepSet l t' := by
+                simpa [H, t'] using
+                  (SimpleGraph.isNIndepSet_induce
+                    (G := G) (F := Gᶜ.neighborSet v) (s := t) (n := l)).1 htInd
+              have ht'compl : Gᶜ.IsNClique l t' := by
+                simpa using ht'
+              have hvt : ∀ b ∈ t', Gᶜ.Adj v b := by
+                intro b hb
+                rcases Finset.mem_map.mp hb with ⟨x, hx, rfl⟩
+                exact x.property
+              have ht'' : G.IsNIndepSet (l + 1) (insert v t') := by
+                simpa using ht'compl.insert hvt
+              exact hbad.2 _ ht''
+            exact ramseyProperty_of_card (Gᶜ.card_neighborSet_eq_degree v) hprop H ⟨hcf, hif⟩
+
 /-- The off-diagonal Ramsey number `R(k, l)`. -/
 def ramseyNumber (k l : ℕ) : ℕ :=
   by
@@ -255,7 +332,22 @@ lemma ramseyNumber_zero_right (k : ℕ) : ramseyNumber k 0 = 0 := by
   exact le_antisymm (ramseyNumber_le_of_property (ramseyProperty_zero_right k)) (Nat.zero_le _)
 
 lemma ramseyNumber_pos {u m : ℕ} (hu : 1 ≤ u) (hm : 1 ≤ m) : 0 < ramseyNumber u m := by
-  sorry
+  by_contra hpos
+  have hz : ramseyNumber u m = 0 := Nat.eq_zero_of_not_pos hpos
+  have hprop : RamseyProperty u m 0 := by
+    simpa [hz] using ramseyNumber_spec u m
+  let G : SimpleGraph (Fin 0) := ⊥
+  have hcf : G.CliqueFree u := by
+    have hcard : Fintype.card (Fin 0) < u := by
+      simpa [Fintype.card_fin] using (Nat.succ_le_iff.mp hu)
+    exact SimpleGraph.cliqueFree_of_card_lt (G := G) hcard
+  have hif : G.IndepSetFree m := by
+    rw [← SimpleGraph.cliqueFree_compl]
+    have hcard : Fintype.card (Fin 0) < m := by
+      simpa [Fintype.card_fin] using (Nat.succ_le_iff.mp hm)
+    exact SimpleGraph.cliqueFree_of_card_lt (G := Gᶜ) hcard
+  exact hprop G ⟨hcf, hif⟩
+
 lemma ramseyProperty_one_right (k : ℕ) : RamseyProperty k 1 1 := by
   intro G hbad
   have hs : G.IsNIndepSet 1 (Finset.univ : Finset (Fin 1)) := by
@@ -281,7 +373,18 @@ def addIsolated {α : Type*} (G : SimpleGraph α) : SimpleGraph (Option α) :=
 
 lemma cliqueFree_addIsolated {α : Type*} (G : SimpleGraph α) {k : ℕ} (hk : 2 ≤ k)
     (hG : G.CliqueFree k) : (addIsolated G).CliqueFree k := by
-      sorry
+  classical
+  by_cases hα : Nonempty α
+  · letI := hα
+    simpa [addIsolated] using
+      (SimpleGraph.cliqueFree_map_iff (G := G) (f := Function.Embedding.some) (n := k)).2 hG
+  · haveI : IsEmpty α := not_nonempty_iff.mp hα
+    letI : Fintype α := Fintype.ofIsEmpty
+    have hcard : Fintype.card (Option α) < k := by
+      rw [Fintype.card_option, Fintype.card_ofIsEmpty]
+      omega
+    exact SimpleGraph.cliqueFree_of_card_lt (G := addIsolated G) hcard
+
 lemma indepSetFree_addIsolated_succ {α : Type*} (G : SimpleGraph α) {l : ℕ}
     (hG : G.IndepSetFree l) : (addIsolated G).IndepSetFree (l + 1) := by
   classical
@@ -478,7 +581,63 @@ lemma ramseyProperty_succ_succ_of_sum {k l m n : ℕ}
     (hn : RamseyProperty (k + 1) l n)
     (hpos : 0 < m + n) :
     RamseyProperty (k + 1) (l + 1) (m + n) := by
-      sorry
+  intro G hbad
+  classical
+  let v : Fin (m + n) := ⟨0, hpos⟩
+  by_cases hdeg : m ≤ G.degree v
+  · let H : SimpleGraph (G.neighborSet v) := G.induce (G.neighborSet v)
+    have hprop : RamseyProperty k (l + 1) (G.degree v) := ramseyProperty_mono hdeg hm
+    have hcf : H.CliqueFree k := by
+      intro t ht
+      let t' : Finset (Fin (m + n)) := Finset.map ⟨Subtype.val, Subtype.val_injective⟩ t
+      have htInd :
+          (((⊤ : SimpleGraph.Subgraph G).induce (G.neighborSet v)).coe).IsNClique k t := by
+        rw [← SimpleGraph.induce_eq_coe_induce_top]
+        exact ht
+      have ht' : G.IsNClique k t' := by
+        simpa [H, t'] using
+          (SimpleGraph.IsNClique.of_induce
+            (S := (⊤ : SimpleGraph.Subgraph G)) (F := G.neighborSet v) (cc := htInd))
+      have hvt : ∀ b ∈ t', G.Adj v b := by
+        intro b hb
+        rcases Finset.mem_map.mp hb with ⟨x, hx, rfl⟩
+        exact x.property
+      exact hbad.1 _ (ht'.insert hvt)
+    have hif : H.IndepSetFree (l + 1) := by
+      exact SimpleGraph.IndepSetFree.comap
+        (SimpleGraph.Embedding.induce (G := G) (s := G.neighborSet v)) hbad.2
+    exact ramseyProperty_of_card (G.card_neighborSet_eq_degree v) hprop H ⟨hcf, hif⟩
+  · let H : SimpleGraph (Gᶜ.neighborSet v) := G.induce (Gᶜ.neighborSet v)
+    have hcompdeg : n ≤ Gᶜ.degree v := by
+      rw [G.degree_compl (v := v), Fintype.card_fin]
+      omega
+    have hprop : RamseyProperty (k + 1) l (Gᶜ.degree v) := ramseyProperty_mono hcompdeg hn
+    have hcf : H.CliqueFree (k + 1) := by
+      exact hbad.1.comap
+        (SimpleGraph.Embedding.induce (G := G) (s := Gᶜ.neighborSet v)).isContained
+    have hif : H.IndepSetFree l := by
+      intro t ht
+      let t' : Finset (Fin (m + n)) := Finset.map ⟨Subtype.val, Subtype.val_injective⟩ t
+      have htInd :
+          (((⊤ : SimpleGraph.Subgraph G).induce
+            (Gᶜ.neighborSet v)).coe).IsNIndepSet l t := by
+        rw [← SimpleGraph.induce_eq_coe_induce_top]
+        exact ht
+      have ht' : G.IsNIndepSet l t' := by
+        simpa [H, t'] using
+          (SimpleGraph.isNIndepSet_induce
+            (G := G) (F := Gᶜ.neighborSet v) (s := t) (n := l)).1 htInd
+      have ht'compl : Gᶜ.IsNClique l t' := by
+        simpa using ht'
+      have hvt : ∀ b ∈ t', Gᶜ.Adj v b := by
+        intro b hb
+        rcases Finset.mem_map.mp hb with ⟨x, hx, rfl⟩
+        exact x.property
+      have ht'' : G.IsNIndepSet (l + 1) (insert v t') := by
+        simpa using ht'compl.insert hvt
+      exact hbad.2 _ ht''
+    exact ramseyProperty_of_card (Gᶜ.card_neighborSet_eq_degree v) hprop H ⟨hcf, hif⟩
+
 lemma ramseyNumber_recurrence (u m : ℕ) (hu : 1 ≤ u) :
     ramseyNumber (u + 1) (m + 1) ≤ ramseyNumber u (m + 1) + ramseyNumber (u + 1) m := by
   apply ramseyNumber_le_of_property
@@ -672,7 +831,42 @@ which proves (1).
 lemma ramseyGap_step1_upper_bound :
     ∀ u : ℕ, 1 ≤ u → ∃ C : ℝ, 0 ≤ C ∧
       ∀ m : ℕ, (ramseyNumber u m : ℝ) ≤ C * (m : ℝ) ^ (u - 1) := by
-        sorry
+  intro u hu
+  refine ⟨(u : ℝ) ^ (u - 1), by positivity, ?_⟩
+  intro m
+  cases m with
+  | zero =>
+      rw [ramseyNumber_zero_right]
+      have hnonneg : 0 ≤ (u : ℝ) ^ (u - 1) * (0 : ℝ) ^ (u - 1) := by
+        positivity
+      simpa using hnonneg
+  | succ m =>
+      have hu0 : 0 < u := by omega
+      have hu1 : 1 + (u - 1) = u := by omega
+      have hchoose :
+          ramseyNumber u (m + 1) ≤ Nat.choose (u + (m + 1) - 2) (u - 1) := by
+        rw [← hu1]
+        rw [show 1 + (u - 1) + (m + 1) - 2 = u - 1 + (m + 1) - 1 by omega]
+        rw [show 1 + (u - 1) - 1 = u - 1 by omega]
+        have h := ramseyNumber_le_choose (u - 1) (m + 1)
+        rw [show u - 1 + 1 = 1 + (u - 1) by omega] at h
+        exact h
+      have hpow :
+          Nat.choose (u + (m + 1) - 2) (u - 1) ≤ (u + (m + 1) - 2) ^ (u - 1) := by
+        exact Nat.choose_le_pow _ _
+      have hmul : u + (m + 1) - 2 ≤ u * (m + 1) := by
+        have hm_le : m ≤ u * m := Nat.le_mul_of_pos_left m hu0
+        calc
+          u + (m + 1) - 2 = u + m - 1 := by omega
+          _ ≤ u + m := Nat.sub_le _ _
+          _ ≤ u + u * m := Nat.add_le_add_left hm_le u
+          _ = u * (m + 1) := by simp [Nat.mul_succ, Nat.add_comm]
+      have hnat : ramseyNumber u (m + 1) ≤ (u * (m + 1)) ^ (u - 1) := by
+        exact hchoose.trans (hpow.trans (Nat.pow_le_pow_left hmul _))
+      have hreal : (ramseyNumber u (m + 1) : ℝ) ≤ (((u * (m + 1)) ^ (u - 1) : ℕ) : ℝ) := by
+        exact_mod_cast hnat
+      simpa [Nat.cast_mul, Nat.cast_pow, mul_pow] using hreal
+
 lemma setBernoulli_superset_finset {ι : Type*} [Finite ι]
     (u : Set ι) (p : I) (t : Finset ι) (ht : (↑t : Set ι) ⊆ u) :
     setBer(u, p) {s : Set ι | (↑t : Set ι) ⊆ s} = toNNReal p ^ t.card := by
@@ -810,7 +1004,67 @@ lemma exists_induced_cliqueFree_subgraph {α : Type*} [Fintype α] [DecidableEq 
     ∃ U : Finset α,
       Fintype.card α - (G.cliqueFinset u).card ≤ U.card ∧
         (G.induce (↑U : Set α)).CliqueFree u := by
-          sorry
+  classical
+  let B : Finset (Finset α) := G.cliqueFinset u
+  let pick : {T // T ∈ B} → α := fun T =>
+    Classical.choose <| by
+      have hT : G.IsNClique u T.1 := by
+        simpa [B] using
+          (SimpleGraph.mem_cliqueFinset_iff (G := G) (n := u) (s := T.1)).1 T.2
+      have hTpos : 0 < T.1.card := by
+        rw [hT.card_eq]
+        exact hu
+      exact Finset.card_pos.mp hTpos
+  have hpick_mem : ∀ T : {T // T ∈ B}, pick T ∈ T.1 := by
+    intro T
+    exact Classical.choose_spec <| by
+      have hT : G.IsNClique u T.1 := by
+        simpa [B] using
+          (SimpleGraph.mem_cliqueFinset_iff (G := G) (n := u) (s := T.1)).1 T.2
+      have hTpos : 0 < T.1.card := by
+        rw [hT.card_eq]
+        exact hu
+      exact Finset.card_pos.mp hTpos
+  let deleted : Finset α := B.attach.image pick
+  let U : Finset α := Finset.univ \ deleted
+  have hU_lower : Fintype.card α - B.card ≤ U.card := by
+    have hdeleted_card : deleted.card ≤ B.card := by
+      simpa [deleted] using (Finset.card_image_le (s := B.attach) (f := pick))
+    calc
+      Fintype.card α - B.card ≤ Fintype.card α - deleted.card := Nat.sub_le_sub_left hdeleted_card _
+      _ = U.card := by
+        symm
+        simp [U, deleted, Finset.card_sdiff_of_subset, Finset.subset_univ]
+  have hU_no_clique : ∀ {T : Finset α}, T ∈ B → T ⊆ U → False := by
+    intro T hT hTU
+    let TT : {T // T ∈ B} := ⟨T, hT⟩
+    have hpick_del : pick TT ∈ deleted := by
+      exact Finset.mem_image.mpr ⟨TT, by simp, rfl⟩
+    have hpick_T : pick TT ∈ T := hpick_mem TT
+    have hpick_U : pick TT ∈ U := hTU hpick_T
+    have hpick_not_deleted : pick TT ∉ deleted := by
+      exact (show pick TT ∈ Finset.univ ∧ pick TT ∉ deleted by simpa [U] using hpick_U).2
+    exact hpick_not_deleted hpick_del
+  let H : SimpleGraph {x // x ∈ (↑U : Set α)} := G.induce (↑U : Set α)
+  have hHcf : H.CliqueFree u := by
+    intro Csub hCsub
+    let C : Finset α := Finset.map ⟨Subtype.val, Subtype.val_injective⟩ Csub
+    have hC : G.IsNClique u C := by
+      have hCsub' :
+          (((⊤ : SimpleGraph.Subgraph G).induce (↑U : Set α)).coe).IsNClique u Csub := by
+        rw [← SimpleGraph.induce_eq_coe_induce_top]
+        exact hCsub
+      simpa [C] using
+        (SimpleGraph.IsNClique.of_induce
+          (S := (⊤ : SimpleGraph.Subgraph G)) (F := (↑U : Set α))
+          (s := Csub) (n := u) hCsub')
+    have hCU : C ⊆ U := by
+      intro v hv
+      rcases Finset.mem_map.mp hv with ⟨x, hx, rfl⟩
+      exact x.property
+    exact hU_no_clique (by simpa [B] using hC) hCU
+  exact ⟨U, by simpa [B] using hU_lower, hHcf⟩
+
 lemma exists_large_cliqueFree_graph_of_bounded_cliques
     {α : Type*} [Fintype α] [DecidableEq α] (G : SimpleGraph α) [DecidableRel G.Adj]
     {u m : ℕ} (hu : 1 ≤ u) (hif : G.IndepSetFree m) :
@@ -1080,7 +1334,55 @@ lemma ramseyGap_step1_eq4 {Ω : Type*} [MeasurableSpace Ω] (μ : Measure Ω)
     (hX : AEMeasurable X μ)
     (hEX : ∫⁻ ω, X ω ∂μ ≤ N / 8) :
     μ {ω | N / 2 < X ω} ≤ (1 / 4 : ℝ≥0∞) := by
-      sorry
+  by_cases hN0 : N = 0
+  · subst hN0
+    have hint : ∫⁻ ω, X ω ∂μ = 0 := by
+      simpa using le_antisymm hEX (by simp)
+    have hX0 : X =ᵐ[μ] 0 := (lintegral_eq_zero_iff' hX).1 hint
+    have hnull : μ {ω | 0 < X ω} = 0 := by
+      simpa [pos_iff_ne_zero] using (MeasureTheory.ae_iff.mp hX0)
+    have hnull' : μ {ω | 0 / 2 < X ω} = 0 := by
+      simpa using hnull
+    rw [hnull']
+    simp
+  · by_cases hNtop : N = ∞
+    · subst hNtop
+      have hhalf : (∞ : ℝ≥0∞) / 2 = ∞ := by
+        simpa using (ENNReal.top_div_coe : (∞ : ℝ≥0∞) / (2 : ℕ) = ∞)
+      have hempty : {ω | (∞ : ℝ≥0∞) / 2 < X ω} = ∅ := by
+        ext ω
+        rw [hhalf]
+        simp
+      rw [hempty]
+      simp
+    · have hhalf_ne_zero : N / 2 ≠ 0 := by
+        exact ENNReal.div_ne_zero.2 ⟨hN0, by simp⟩
+      have hhalf_ne_top : N / 2 ≠ ∞ := ENNReal.div_ne_top hNtop (by simp)
+      have hmarkov : μ {ω | N / 2 ≤ X ω} ≤ (∫⁻ ω, X ω ∂μ) / (N / 2) :=
+        meas_ge_le_lintegral_div hX hhalf_ne_zero hhalf_ne_top
+      have hsubset : {ω | N / 2 < X ω} ⊆ {ω | N / 2 ≤ X ω} := by
+        intro ω hω
+        simpa only [Set.mem_setOf_eq] using hω.le
+      refine (measure_mono hsubset).trans ?_
+      refine hmarkov.trans ?_
+      calc
+        (∫⁻ ω, X ω ∂μ) / (N / 2) ≤ (N / 8) / (N / 2) :=
+          ENNReal.div_le_div_right hEX _
+        _ = (1 / 4 : ℝ≥0∞) := by
+          calc
+            (N / 8) / (N / 2) = ((1 / 8 : ℝ≥0∞) / (1 / 2 : ℝ≥0∞)) := by
+              simpa [div_eq_mul_inv, mul_comm, mul_left_comm, mul_assoc] using
+                (ENNReal.mul_div_mul_left
+                  (a := (1 / 8 : ℝ≥0∞)) (b := (1 / 2 : ℝ≥0∞)) (c := N) hN0 hNtop)
+            _ = (1 / 4 : ℝ≥0∞) := by
+              rw [ENNReal.div_eq_inv_mul]
+              simp
+              simpa [mul_comm] using
+                (show ((8 : ℝ≥0∞)⁻¹ * 2) = (1 / 4 : ℝ≥0∞) by
+                  rw [← ENNReal.div_eq_inv_mul]
+                  simpa using congrArg (fun x : NNReal => (x : ℝ≥0∞))
+                    (show ((2 : NNReal) / 8) = (1 / 4 : NNReal) by norm_num))
+
 /--
 Step 1. Equation (5) in the random-graph argument.
 
@@ -1873,7 +2175,45 @@ lemma ramseyGap_step2_minDegree_bound (k l : ℕ) (hk : 3 ≤ k) :
       G.CliqueFree k →
       G.IndepSetFree (l + 1) →
       ∀ v : α, ramseyGap k l - 1 ≤ G.degree v := by
-        sorry
+  intro α _ G _ hcard hcf hif v
+  classical
+  letI : Fintype (Gᶜ.neighborSet v) := Fintype.ofFinite (Gᶜ.neighborSet v)
+  let H : SimpleGraph (Gᶜ.neighborSet v) := G.induce (Gᶜ.neighborSet v)
+  have hHcf : H.CliqueFree k := by
+    exact hcf.comap
+      (SimpleGraph.Embedding.induce (G := G) (s := Gᶜ.neighborSet v)).isContained
+  have hHif : H.IndepSetFree l := by
+    intro t ht
+    let t' : Finset α := Finset.map ⟨Subtype.val, Subtype.val_injective⟩ t
+    have htInd :
+        (((⊤ : SimpleGraph.Subgraph G).induce (Gᶜ.neighborSet v)).coe).IsNIndepSet l t := by
+      rw [← SimpleGraph.induce_eq_coe_induce_top]
+      exact ht
+    have ht' : G.IsNIndepSet l t' := by
+      simpa [H, t'] using
+        (SimpleGraph.isNIndepSet_induce
+          (G := G) (F := Gᶜ.neighborSet v) (s := t) (n := l)).1 htInd
+    have ht'compl : Gᶜ.IsNClique l t' := by
+      simpa using ht'
+    have hvt : ∀ b ∈ t', Gᶜ.Adj v b := by
+      intro b hb
+      rcases Finset.mem_map.mp hb with ⟨x, hx, rfl⟩
+      exact x.property
+    have ht'' : G.IsNIndepSet (l + 1) (insert v t') := by
+      simpa using ht'compl.insert hvt
+    exact hif _ ht''
+  have hcomp_lt : Gᶜ.degree v < ramseyNumber k l := by
+    by_contra hnot
+    have hprop : RamseyProperty k l (Gᶜ.degree v) :=
+      ramseyProperty_of_ramseyNumber_le (not_lt.mp hnot)
+    exact ramseyProperty_of_card (Gᶜ.card_neighborSet_eq_degree v) hprop H ⟨hHcf, hHif⟩
+  have hmono : ramseyNumber k l ≤ ramseyNumber k (l + 1) := by
+    exact Nat.le_of_lt (ramseyNumber_lt_succ_right k (by omega) l)
+  rw [G.degree_compl (v := v)] at hcomp_lt
+  rw [hcard, ramseyCriticalSize] at hcomp_lt
+  rw [ramseyGap]
+  omega
+
 noncomputable def step3CommonNeighbors {α : Type*} [Fintype α]
     (G : SimpleGraph α) [DecidableRel G.Adj] (T : Finset α) : Finset α := by
   classical
@@ -1914,7 +2254,38 @@ lemma step3_exists_clique_of_card_ge_ramsey
     (s l : ℕ) (A : Finset α) (hcard : ramseyNumber s (l + 1) ≤ A.card)
     (hif : G.IndepSetFree (l + 1)) :
     ∃ C : Finset α, C ⊆ A ∧ G.IsNClique s C := by
-      sorry
+  classical
+  obtain ⟨U, hUA, hUcard⟩ := exists_subset_card_eq (s := A) hcard
+  let H : SimpleGraph {x // x ∈ (↑U : Set α)} := G.induce (↑U : Set α)
+  have hHif : H.IndepSetFree (l + 1) := by
+    exact SimpleGraph.IndepSetFree.comap
+      (SimpleGraph.Embedding.induce (G := G) (s := (↑U : Set α))) hif
+  have hUcard' : Fintype.card {x // x ∈ (↑U : Set α)} = ramseyNumber s (l + 1) := by
+    simpa using hUcard
+  have hHbad :
+      ¬ (H.CliqueFree s ∧ H.IndepSetFree (l + 1)) := by
+    exact ramseyProperty_of_card hUcard' (ramseyNumber_spec s (l + 1)) H
+  have hHncf : ¬ H.CliqueFree s := by
+    intro hcf
+    exact hHbad ⟨hcf, hHif⟩
+  have hHex : ∃ Csub : Finset {x // x ∈ (↑U : Set α)}, H.IsNClique s Csub := by
+    simpa [SimpleGraph.CliqueFree] using hHncf
+  rcases hHex with ⟨Csub, hCsub⟩
+  let C : Finset α := Finset.map ⟨Subtype.val, Subtype.val_injective⟩ Csub
+  have hC : G.IsNClique s C := by
+    have hCsub' :
+        (((⊤ : SimpleGraph.Subgraph G).induce (↑U : Set α)).coe).IsNClique s Csub := by
+      rw [← SimpleGraph.induce_eq_coe_induce_top]
+      exact hCsub
+    simpa [C] using
+      (SimpleGraph.IsNClique.of_induce
+        (S := (⊤ : SimpleGraph.Subgraph G)) (F := (↑U : Set α))
+        (s := Csub) (n := s) hCsub')
+  refine ⟨C, ?_, hC⟩
+  intro v hv
+  rcases Finset.mem_map.mp hv with ⟨x, hx, rfl⟩
+  exact hUA x.property
+
 lemma step3_isNClique_union_right
     {α : Type*} [DecidableEq α] (G : SimpleGraph α)
     {s t : ℕ} {C D : Finset α}
@@ -2334,7 +2705,95 @@ lemma ramseyGap_step4_key_inequality (s t q : ℕ)
           (Nat.choose (ramseyCriticalSize (s + t) l) s : ℝ) *
             (((ramseyNumber t (l + 1) : ℝ) - 1) ^ q /
               (ramseyCriticalSize (s + t) l : ℝ) ^ (q + 1)) := by
-                sorry
+  intro l
+  classical
+  by_cases hl : l = 0
+  · subst hl
+    have hk' : 2 ≤ s + t := by omega
+    have hr1 : ramseyNumber (s + t) 1 = 1 := by
+      apply le_antisymm
+      · exact ramseyNumber_le_of_property (ramseyProperty_one_right (s + t))
+      · have hpos : 0 < ramseyNumber (s + t) 1 := ramseyNumber_pos (by omega) (by omega)
+        omega
+    have hgap0 : ramseyGap (s + t) 0 = 1 := by
+      simp [ramseyGap, ramseyNumber_zero_right, hr1]
+    have hcrit0 : ramseyCriticalSize (s + t) 0 = 0 := by
+      simp [ramseyCriticalSize, hr1]
+    rw [hgap0, hcrit0]
+    simp [hq.ne']
+  · have hlpos : 0 < l := Nat.pos_of_ne_zero hl
+    let k := s + t
+    let n := ramseyCriticalSize k l
+    have hk' : 2 ≤ k := by
+      dsimp [k]
+      omega
+    have hn_natpos : 0 < n := by
+      have hge : l ≤ n := by
+        simpa [k, n] using ramseyCriticalSize_ge k l hk'
+      exact lt_of_lt_of_le hlpos hge
+    have hnot : ¬ RamseyProperty k (l + 1) n := by
+      have hposR : 0 < ramseyNumber k (l + 1) := ramseyNumber_pos (by omega) (by omega)
+      simpa [k, n, ramseyCriticalSize, ramseyNumber] using
+        (Nat.find_min (ramseyProperty_exists k (l + 1)) (Nat.pred_lt (Nat.ne_of_gt hposR)))
+    unfold RamseyProperty at hnot
+    push Not at hnot
+    obtain ⟨G, hcf, hif⟩ := hnot
+    have hdeg : ∀ v : Fin n, ramseyGap k l - 1 ≤ G.degree v := by
+      simpa [k, n] using
+        (ramseyGap_step2_minDegree_bound k l hk G (by simp [n]) hcf hif)
+    have hgap_ge : 1 ≤ ramseyGap k l := ramseyGap_step2_gap_ge_one k l hk'
+    have hstep3 :
+        (((ramseyGap k l : ℝ) - 1) ^ q) / (n : ℝ) ^ (q - 1) ≤
+        ((ramseyNumber s (l + 1) : ℝ) - 1) +
+          (Nat.choose n s : ℝ) *
+            ((((ramseyNumber t (l + 1) : ℝ) - 1) / (n : ℝ)) ^ q) := by
+      simpa [k, n, Nat.cast_sub hgap_ge] using
+        (ramseyGap_step3_drc_inequality G s t l q (ramseyGap k l - 1)
+          (by simpa using hn_natpos) hs ht hq hcf hif hdeg)
+    have hn_nonneg : 0 ≤ (n : ℝ) := by
+      exact_mod_cast hn_natpos.le
+    have hn_ne : (n : ℝ) ≠ 0 := by
+      exact_mod_cast (Nat.ne_of_gt hn_natpos)
+    have hdiv :
+        ((((ramseyGap k l : ℝ) - 1) ^ q) / (n : ℝ) ^ (q - 1)) / (n : ℝ) ≤
+          (((ramseyNumber s (l + 1) : ℝ) - 1) +
+            (Nat.choose n s : ℝ) *
+              ((((ramseyNumber t (l + 1) : ℝ) - 1) / (n : ℝ)) ^ q)) / (n : ℝ) :=
+      div_le_div_of_nonneg_right hstep3 hn_nonneg
+    have hqpred : q = (q - 1) + 1 := by omega
+    have hqpred' : (q - 1) + 1 = q := by omega
+    have hleft :
+        ((((ramseyGap k l : ℝ) - 1) ^ q) / (n : ℝ) ^ (q - 1)) / (n : ℝ) =
+          ((((ramseyGap k l : ℝ) - 1) / (n : ℝ)) ^ q) := by
+      have hpow : (n : ℝ) ^ (q - 1) * (n : ℝ) = (n : ℝ) ^ q := by
+        calc
+          (n : ℝ) ^ (q - 1) * (n : ℝ) = (n : ℝ) ^ ((q - 1) + 1) := by rw [pow_succ]
+          _ = (n : ℝ) ^ q := by rw [hqpred']
+      rw [div_div]
+      rw [hpow]
+      rw [← div_pow]
+    have hterm :
+        ((((ramseyNumber t (l + 1) : ℝ) - 1) / (n : ℝ)) ^ q) / (n : ℝ) =
+          (((ramseyNumber t (l + 1) : ℝ) - 1) ^ q / (n : ℝ) ^ (q + 1)) := by
+      calc
+        ((((ramseyNumber t (l + 1) : ℝ) - 1) / (n : ℝ)) ^ q) / (n : ℝ)
+            = ((((ramseyNumber t (l + 1) : ℝ) - 1) ^ q) / (n : ℝ) ^ q) / (n : ℝ) := by
+                rw [div_pow]
+        _ = (((ramseyNumber t (l + 1) : ℝ) - 1) ^ q) / ((n : ℝ) ^ q * (n : ℝ)) := by
+              rw [div_div]
+        _ = (((ramseyNumber t (l + 1) : ℝ) - 1) ^ q) / (n : ℝ) ^ (q + 1) := by
+              rw [pow_succ]
+    have hright :
+        (((ramseyNumber s (l + 1) : ℝ) - 1) +
+            (Nat.choose n s : ℝ) *
+              ((((ramseyNumber t (l + 1) : ℝ) - 1) / (n : ℝ)) ^ q)) / (n : ℝ) =
+          (((ramseyNumber s (l + 1) : ℝ) - 1) / (n : ℝ)) +
+            (Nat.choose n s : ℝ) *
+              (((ramseyNumber t (l + 1) : ℝ) - 1) ^ q / (n : ℝ) ^ (q + 1)) := by
+      rw [add_div, mul_div_assoc, hterm]
+    rw [hleft, hright] at hdiv
+    simpa [k, n] using hdiv
+
 /--
 Step 5. Choose a balanced split and prove Delta_ell / n_ell -> 0.
 

@@ -53,8 +53,6 @@ lemma greedy_sum_bound {x : ℕ → ℕ} {m K : ℕ} {C : ℝ}
       (∑ j ∈ (Finset.Icc 1 m).filter (fun j ↦ x j ≤ s), (x j : ℝ)) ≤ C * s)
     (hK : 1 ≤ K) :
     (m : ℝ) ≤ 2 * (∑ j ∈ Finset.Icc 1 m, (x j : ℝ)) / K + C * Real.log K := by
-  sorry
-/-
   have _ := h_mono
   -- For $j \in S_{>K}$, $x_j \ge K+1 > K$.
   let S_gt_K := Finset.filter (fun j => K < x j) (Finset.Icc 1 m)
@@ -115,28 +113,50 @@ lemma greedy_sum_bound {x : ℕ → ℕ} {m K : ℕ} {C : ℝ}
             (∑ j ∈ Finset.filter (fun j => x j ≤ K) (Finset.Icc 1 m),
               (x j : ℝ)) / K := by
       simp +zetaDelta only [Nat.cast_sum] at *
-      convert Finset.sum_le_sum fun i hi =>
-        hK_s_bound i hi using 1
-      erw [ Finset.sum_Ico_eq_sub _ _, Finset.sum_Ico_eq_sub _ _ ] <;>
-        norm_num [ Finset.sum_range_succ' ]
-      erw [ Finset.sum_Ico_eq_sub _ _, Finset.sum_Ico_eq_sub _ _ ] <;>
-        norm_num [ Finset.sum_range_succ' ]
-      cases K <;> norm_num [ Finset.sum_range_succ' ] at *
-      have := Finset.sum_range_sub
-        (fun i =>
-          (∑ j ∈ Finset.filter (fun j => x j ≤ i + 1) (Finset.Icc 1 m),
-            (x j : ℝ)) / (i + 1 : ℝ))
-        ‹_›
-      aesop
-      rw [show (Finset.filter (fun j => x j = 0) (Finset.Icc 1 m)) = ∅ from
-        Finset.eq_empty_of_forall_notMem fun j hj => by
-          linarith [
-            h_pos j
-              (Finset.mem_Icc.mp (Finset.mem_filter.mp hj |>.1) |>.1)
-              (Finset.mem_Icc.mp (Finset.mem_filter.mp hj |>.1) |>.2),
-            Finset.mem_filter.mp hj |>.2]]
-      norm_num
-      linarith
+      let R := fun s : ℕ =>
+        ∑ j ∈ Finset.filter (fun j => x j ≤ s) (Finset.Icc 1 m), (x j : ℝ)
+      have hR0 : R 0 = 0 := by
+        dsimp [R]
+        rw [show Finset.filter (fun j => x j ≤ 0) (Finset.Icc 1 m) = ∅ from
+          Finset.eq_empty_of_forall_notMem fun j hj => by
+            have hjI := Finset.mem_Icc.mp (Finset.mem_filter.mp hj).1
+            have hx0 := (Finset.mem_filter.mp hj).2
+            have hxpos := h_pos j hjI.1 hjI.2
+            omega]
+        simp
+      have htel_general : ∀ K₀ : ℕ, 1 ≤ K₀ →
+          ∑ s ∈ Finset.Icc 1 K₀, (R s / (s : ℝ) - R (s - 1) / (s : ℝ)) =
+            (∑ s ∈ Finset.Icc 1 (K₀ - 1), R s / (s : ℝ) -
+              ∑ s ∈ Finset.Icc 1 (K₀ - 1), R s / (s + 1 : ℝ)) +
+              R K₀ / (K₀ : ℝ) := by
+        intro K₀ hK₀
+        induction K₀ with
+        | zero => omega
+        | succ K₀ ih =>
+            cases K₀ with
+            | zero =>
+                simp [hR0]
+            | succ K₀ =>
+                have ih' := ih (by omega : 1 ≤ K₀ + 1)
+                rw [Finset.sum_Icc_succ_top (by omega : 1 ≤ K₀ + 2)]
+                rw [show K₀ + 2 - 1 = K₀ + 1 by omega]
+                rw [ih']
+                rw [Finset.sum_Icc_succ_top (by omega : 1 ≤ K₀ + 1)]
+                rw [Finset.sum_Icc_succ_top (by omega : 1 ≤ K₀ + 1)]
+                rw [show K₀ + 1 - 1 = K₀ by omega]
+                norm_num [Nat.cast_add]
+                ring_nf
+      have htel := htel_general K hK
+      change (∑ s ∈ Finset.Icc 1 K, (K_s s : ℝ)) ≤ _
+      calc
+        ∑ s ∈ Finset.Icc 1 K, (K_s s : ℝ)
+            ≤ ∑ s ∈ Finset.Icc 1 K,
+                (R s / (s : ℝ) - R (s - 1) / (s : ℝ)) := by
+              exact Finset.sum_le_sum fun s hs => by
+                simpa [R] using hK_s_bound s hs
+        _ = (∑ s ∈ Finset.Icc 1 (K - 1), R s / (s : ℝ) -
+              ∑ s ∈ Finset.Icc 1 (K - 1), R s / (s + 1 : ℝ)) +
+              R K / (K : ℝ) := htel
     -- Using $R_s \le C s$, we have
     -- $\sum_{s=1}^{K-1} \frac{R_s}{s} - \sum_{s=1}^{K-1} \frac{R_s}{s+1}$
     -- $\le C \sum_{s=1}^{K-1} \frac{1}{s+1}$.
@@ -150,16 +170,14 @@ lemma greedy_sum_bound {x : ℕ → ℕ} {m K : ℕ} {C : ℝ}
           C * ∑ s ∈ Finset.Icc 1 (K - 1), (1 / (s + 1 : ℝ)) := by
       rw [ Finset.mul_sum _ _ _ ]
       rw [ ← Finset.sum_sub_distrib ]
-      gcongr ; aesop
-      have := h_bound i left ( right.trans ( Nat.pred_le _ ) )
-      rw [ div_le_iff₀ ] <;>
-        nlinarith [
-          show (i : ℝ) ≥ 1 by norm_cast,
-          inv_mul_cancel_left₀ (by positivity : (i : ℝ) + 1 ≠ 0) C,
-          div_mul_cancel₀
-            (∑ j ∈ Finset.filter (fun j => x j ≤ i) (Finset.Icc 1 m),
-              (x j : ℝ))
-            (by positivity : (i : ℝ) + 1 ≠ 0)]
+      apply Finset.sum_le_sum
+      intro i hi
+      have hiI := Finset.mem_Icc.mp hi
+      have := h_bound i hiI.1 ( hiI.2.trans ( Nat.pred_le _ ) )
+      have hi_pos : (0 : ℝ) < i := by exact_mod_cast hiI.1
+      have hip1_pos : (0 : ℝ) < (i : ℝ) + 1 := by positivity
+      field_simp [hi_pos.ne', hip1_pos.ne']
+      nlinarith
     linarith
   -- Using $\sum_{s=1}^{K-1} \frac{1}{s+1} \le \log K$, we get:
   have h_log_bound : ∑ s ∈ Finset.Icc 1 (K-1), (1 / (s + 1 : ℝ)) ≤ Real.log K := by
@@ -226,11 +244,10 @@ lemma greedy_sum_bound {x : ℕ → ℕ} {m K : ℕ} {C : ℝ}
         (∑ j ∈ Finset.filter (fun j => K < x j) (Finset.Icc 1 m),
           (x j : ℝ)) / K ≤
         (∑ j ∈ Finset.Icc 1 m, (x j : ℝ)) / K from by
-	      exact div_le_div_of_nonneg_right
-	        (Finset.sum_le_sum_of_subset_of_nonneg (Finset.filter_subset _ _)
-	          fun _ _ _ => Nat.cast_nonneg _)
-	        (Nat.cast_nonneg _)]
--/
+      exact div_le_div_of_nonneg_right
+        (Finset.sum_le_sum_of_subset_of_nonneg (Finset.filter_subset _ _)
+          fun _ _ _ => Nat.cast_nonneg _)
+        (Nat.cast_nonneg _)]
 
 lemma list_filter_sum_le_sum (L : List ℕ) (p : ℕ → Prop) [DecidablePred p] :
     (L.filter p).sum ≤ L.sum := by
@@ -553,30 +570,27 @@ lemma cons_greedy_list {L' : List ℕ} {K s_new : ℕ} {C : ℝ}
     (h_max : ∀ x ∈ L', x ≤ s_new)
     (h_total : (s_new : ℝ) + L'.sum ≤ C * s_new) :
     ∀ s, 1 ≤ s → s ≤ K → (((s_new :: L').filter (· ≤ s)).sum : ℝ) ≤ C * s := by
-  sorry
-/-
   have _ := h_pos
   -- Let's split into cases based on whether $s_{new} \leq s$ or not.
   intros s hs hsK
   by_cases h_s_new_le_s : s_new ≤ s
-  · convert h_total.trans _ using 1
-    · -- Since every element in $L'$ is less than or equal to $s$, the filter
-      -- condition is always true, so the filtered list is just $L'$ itself.
-      have h_filter_eq : List.filter (fun x => x ≤ s) L' = L' := by
-        exact List.filter_eq_self.mpr fun x hx => by
-          simpa using le_trans (h_max x hx) h_s_new_le_s
-      simp [h_s_new_le_s, h_filter_eq]
-    · gcongr
-      norm_cast at *
-      linarith [
-        show 0 ≤ C by
-          nlinarith [
-            show (s_new : ℝ) ≥ 1 by norm_cast,
-            show (s : ℝ) ≥ 1 by norm_cast,
-	            show (List.sum (List.map Nat.cast L') : ℝ) ≥ 0 by
-	              exact List.sum_nonneg (by aesop)]]
-	  · specialize h_bound s hs hsK ; aesop
--/
+  · -- Since every element in $L'$ is less than or equal to $s`, the filter
+    -- condition is always true, so the filtered list is just $L'$ itself.
+    have h_filter_eq : List.filter (fun x => x ≤ s) L' = L' := by
+      exact List.filter_eq_self.mpr fun x hx => by
+        simpa using le_trans (h_max x hx) h_s_new_le_s
+    have hC_nonneg : 0 ≤ C := by
+      have hsnew_pos : (0 : ℝ) < s_new := by exact_mod_cast h_s_new
+      have hsum_nonneg : (0 : ℝ) ≤ L'.sum := by exact_mod_cast Nat.zero_le _
+      nlinarith
+    calc
+      (((s_new :: L').filter (· ≤ s)).sum : ℝ) =
+          (s_new : ℝ) + L'.sum := by
+            simp [h_s_new_le_s, h_filter_eq]
+      _ ≤ C * s_new := h_total
+      _ ≤ C * s := by
+        exact mul_le_mul_of_nonneg_left (by exact_mod_cast h_s_new_le_s) hC_nonneg
+  · specialize h_bound s hs hsK ; aesop
 
 
 noncomputable def max_gain (I J : Finset ℕ) (A : Set ℕ) [DecidablePred (· ∈ A)] : ℕ :=
@@ -1021,8 +1035,6 @@ lemma dyadic_sum_bound {A : Set ℕ} (hA : A.Infinite) :
         (Real.log (counting_function A (2 ^ l)) / (counting_function A (2 ^ l) : ℝ)) ≤
       ∑ k ∈ Finset.Ico (2 ^ (l - 1) : ℕ) (2 ^ l : ℕ),
         Real.log (counting_function A k) / (counting_function A k : ℝ) := by
-  sorry
-/-
   -- Apply the dyadic_term_bound to each term in the sum.
   have h_sum_bound :
       ∀ᶠ l in Filter.atTop, ∀ k ∈ Finset.Ico (2 ^ (l - 1) : ℕ) (2 ^ l : ℕ),
@@ -1030,9 +1042,28 @@ lemma dyadic_sum_bound {A : Set ℕ} (hA : A.Infinite) :
           Real.log (counting_function A (2 ^ l : ℝ)) /
             (counting_function A (2 ^ l : ℝ) : ℝ) := by
     exact dyadic_term_bound hA
-	  filter_upwards [ h_sum_bound, Filter.eventually_gt_atTop 0 ] with l hl hl'
-	  convert Finset.sum_le_sum hl ; aesop
--/
+  filter_upwards [ h_sum_bound, Filter.eventually_gt_atTop 0 ] with l hl hl'
+  let c := Real.log (counting_function A (2 ^ l)) / (counting_function A (2 ^ l) : ℝ)
+  calc
+    (2 ^ (l - 1) : ℝ) * c =
+        ∑ _k ∈ Finset.Ico (2 ^ (l - 1) : ℕ) (2 ^ l : ℕ), c := by
+          rw [Finset.sum_const, nsmul_eq_mul]
+          congr 1
+          rw [Nat.card_Ico]
+          cases l with
+          | zero => cases hl'
+          | succ l =>
+              have hpow : 0 < 2 ^ l := by positivity
+              have hnat : 2 ^ l * 2 - 2 ^ l = 2 ^ l := by omega
+              rw [show l + 1 - 1 = l by omega]
+              rw [Nat.pow_succ]
+              rw [hnat]
+              norm_num
+    _ ≤ ∑ k ∈ Finset.Ico (2 ^ (l - 1) : ℕ) (2 ^ l : ℕ),
+        Real.log (counting_function A k) / (counting_function A k : ℝ) := by
+          apply Finset.sum_le_sum
+          intro k hk
+          exact hl k hk
 
 
 lemma sum_dyadic_bound {A : Set ℕ} (hA : A.Infinite) :
@@ -1510,8 +1541,6 @@ def HasDensity {β : Type*} [Preorder β] [LocallyFiniteOrderBot β]
 theorem erdos_31 (A : Set ℕ) (hA : A.Infinite) :
     ∃ B : Set ℕ, HasDensity B 0 ∧
       ∃ n0 : ℕ, ∀ n ≥ n0, n ∈ A + B := by
-  sorry
-/-
   -- Combine the local construction lemma and the density zero property.
   obtain ⟨B, hB_density, hB_cover⟩ := Erdos_Straus_conjecture A hA
   -- Combine the hypotheses to conclude the existence of B.
@@ -1530,7 +1559,7 @@ theorem erdos_31 (A : Set ℕ) (hA : A.Infinite) :
     intro n
     rw [ Finset.card_filter, Finset.card_filter ]
     rw [
-      Finset.sum_eq_sum_diff_singleton_add
+      Finset.sum_eq_sum_sdiff_singleton_add
         (show 0 ∈ Finset.Iio (n + 1) from by norm_num)]
     aesop
   rw [ ← Filter.tendsto_add_atTop_iff_nat 1 ] ; aesop
@@ -1565,12 +1594,11 @@ theorem erdos_31 (A : Set ℕ) (hA : A.Infinite) :
         gcongr
         linarith
     simpa [ add_div ] using h_diff.add ( tendsto_one_div_add_atTop_nhds_zero_nat )
-	  · refine squeeze_zero_norm' ?_ a
-	    filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn using by
-	      rw [ Real.norm_of_nonneg (by positivity) ]
-	      gcongr
-	      linarith
--/
+  · refine squeeze_zero_norm' ?_ a
+    filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn using by
+      rw [ Real.norm_of_nonneg (by positivity) ]
+      gcongr
+      linarith
 
 #print axioms erdos_31
 -- 'Erdos31.erdos_31' depends on axioms: [propext, Classical.choice, Quot.sound]

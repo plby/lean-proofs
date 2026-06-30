@@ -208,7 +208,21 @@ lemma nat_mul_log_mono {a b : ℕ} (hab : b ≤ a)
 lemma nat_div_log_eventually_large (N : ℝ) :
     ∃ ℓ₀ : ℕ, 3 ≤ ℓ₀ ∧ ∀ n : ℕ, ℓ₀ ≤ n →
       N ≤ ↑n / (3 * Real.log ↑n) := by
-        sorry
+  have h_tend : Filter.Tendsto
+      (fun n : ℕ ↦ (n : ℝ) / (3 * Real.log n))
+      Filter.atTop Filter.atTop := by
+    suffices h_log : Filter.Tendsto (fun u : ℝ ↦ Real.exp u / (3 * u)) Filter.atTop Filter.atTop by
+      have := h_log.comp (Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop)
+      exact this.congr' (by
+        filter_upwards [Filter.eventually_gt_atTop 0] with n hn
+        simp +decide [Real.exp_log (cast_pos.mpr hn)])
+    ring_nf
+    exact Filter.Tendsto.atTop_mul_const
+      (by norm_num) (by simpa [div_eq_mul_inv] using Real.tendsto_exp_div_pow_atTop 1)
+  exact Filter.eventually_atTop.mp
+    (h_tend.eventually_ge_atTop N) |>
+    fun ⟨ℓ₀, hℓ₀⟩ ↦ ⟨ℓ₀ + 3, by linarith, fun n hn ↦ hℓ₀ n (by linarith)⟩
+
 /-! ## Sieving lemma -/
 
 /-- **Sieving Lemma** (Eratosthenes sieve + Mertens' theorem).

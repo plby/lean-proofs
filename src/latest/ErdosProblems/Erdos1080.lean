@@ -467,8 +467,6 @@ theorem B_no_C6_through_zero
   (h_simple1' : p1' ≠ zero_Point hq)
   (_h_simple2' : l1' ≠ l2) :
   l1 = l1' ∧ p1 = p1' := by
-  sorry
-/-
   have h_walk1 : l1 = path_L1 l1.l1 hq ∧ p1 = path_P1 l1.l1 p1.p1 p1.h1 h_add h_F h_mul h_two ∧ l2 = path_L2 l1.l1 p1.p1 l2.l1 p1.h1 h_add h_F h_mul h_two h_sub := by
     exact walk_parametrization hq h_add h_mul h_sub h_F h_two l1 p1 l2 h_adj1 h_adj2 h_adj3;
   have h_walk1' : l1' = path_L1 l1'.l1 hq ∧ p1' = path_P1 l1'.l1 p1'.p1 p1'.h1 h_add h_F h_mul h_two ∧ l2 = path_L2 l1'.l1 p1'.p1 l2.l1 p1'.h1 h_add h_F h_mul h_two h_sub := by
@@ -496,19 +494,28 @@ theorem B_no_C6_through_zero
   have h_eq : l1.l1 = l1'.l1 := by
     have h_eq : p1.p1 ≠ 0 ∧ p1'.p1 ≠ 0 := by
       constructor <;> intro h <;> simp +decide [ h ] at *;
-      · unfold path_P1 at h_walk1;
-        exact h_simple1 ( by simpa [ ‹p1.p1 = 0› ] using h_walk1.2.1 );
-      · simp +decide [ path_P1 ] at h_walk1';
-        exact h_simple1' ( h_walk1'.2.1.trans ( by rfl ) );
+      · exact h_simple1 <| by
+          calc
+            p1 = path_P1 l1.l1 0 (by rw [zero_pow hq]) h_add h_F h_mul h_two := by
+              simpa [h] using h_walk1.2.1
+            _ = zero_Point hq := by
+              unfold zero_Point path_P1
+              simp
+      · exact h_simple1' <| by
+          calc
+            p1' = path_P1 l1'.l1 0 (by rw [zero_pow hq]) h_add h_F h_mul h_two := by
+              simpa [h] using h_walk1'.2.1
+            _ = zero_Point hq := by
+              unfold zero_Point path_P1
+              simp
     have h_eq : (l1.l1 - l1'.l1) ^ (q + 1) = 0 := by
       grind;
     exact sub_eq_zero.mp ( eq_zero_of_pow_eq_zero h_eq );
   have h_eq : p1.p1 = p1'.p1 := by
     simp +decide [ path_L2 ] at *;
-	  simp +decide [ path_L1 ] at *;
-	  grind +ring;
-	grind
--/
+    simp +decide [ path_L1 ] at *;
+    grind +ring;
+  grind
 
 /-
 Helper lemma: if $y, y_0, x-x_0$ are non-zero, then their product with $x^q-x_0^q$ is non-zero.
@@ -835,8 +842,6 @@ theorem B_G_edge_count
   (h_card_F : Fintype.card F = q * q)
   (h_card_fixed : Fintype.card { x : F // x^q = x } = q) :
   (B_G (q := q) S D).edgeFinset.card = S.ncard * (q^5 - D.ncard) := by
-    sorry
-/-
     have h_card_D : Set.ncard D = Fintype.card (Finset.filter (fun l => l ∈ D) Finset.univ) := by
       simp +decide [ Set.ncard_eq_toFinset_card' ];
     simp_all +decide [ Fintype.card_subtype ];
@@ -846,7 +851,7 @@ theorem B_G_edge_count
         have := card_neighbors_in_P_S S l h_add h_mul h_F h_sub h_S;
         rw [ ← this, Set.ncard_eq_toFinset_card' ];
         rw [ Set.toFinset_card ];
-        convert rfl;
+        convert rfl <;> rfl;
       have h_card_edges : Fintype.card { e : (Line F q) × (Point F q) // e.2 ∈ P_S S ∧ e.1 ∉ D ∧ is_adjacent F q e.2 e.1 } = ∑ l ∈ Finset.univ.filter (fun l => l ∉ D), Fintype.card { p : Point F q // p ∈ P_S S ∧ is_adjacent F q p l } := by
         simp +decide only [Fintype.card_subtype];
         simp +decide only [Finset.card_filter];
@@ -868,9 +873,12 @@ theorem B_G_edge_count
         (B_G (q := q) S D).edgeFinset.card =
           Fintype.card { e : (Line F q) × (Point F q) // e.2 ∈ P_S S ∧ e.1 ∉ D ∧ is_adjacent F q e.2 e.1 } := by
       rw [ ← Set.ncard_coe_finset ];
-      rw [ ← Set.ncard_congr ];
-      focus convert Set.ncard_coe_finset _;
-      focus use fun a _ => Sym2.mk ⟨ Sum.inr a.val.1, by simp [ V_G ] ; exact a.2.2.1 ⟩ ⟨ Sum.inl a.val.2, by simp [ V_G ] ; exact a.2.1 ⟩;
+      rw [ ← Nat.card_eq_fintype_card ];
+      rw [ ← Set.ncard_univ ];
+      symm
+      apply Set.ncard_congr (fun a _ =>
+        Sym2.mk ⟨ Sum.inr a.val.1, by simp [ V_G ] ; exact a.2.2.1 ⟩
+          ⟨ Sum.inl a.val.2, by simp [ V_G ] ; exact a.2.1 ⟩);
       · rintro ⟨⟨l, p⟩, hpS, hlD, hadj⟩ -
         apply SimpleGraph.mem_edgeFinset.mpr
         rw [SimpleGraph.mem_edgeSet]
@@ -906,7 +914,6 @@ theorem B_G_edge_count
     rw [Fintype.card_subtype]
     simp +decide
     rw [mul_comm]
--/
 
 /-
 The size of $P_S$ is $|S| \cdot q^3$.
@@ -1392,8 +1399,6 @@ lemma exists_counterexample_graph (q k y : ℕ)
     A.card = ⌊(n : ℝ) ^ (2 / 3 : ℝ)⌋₊ ∧
     (G.edgeFinset.card : ℝ) = k * y ∧
     (∀ (u : Fin n) (w : G.Walk u u), w.IsCycle → w.length ≠ 6) := by
-      sorry
-/-
       have := exists_field_and_sets q k y hq_prime hk_le_q hy_le_lines;
       obtain ⟨ F, _, _, _, S, D, hF_card, hF_char, hS_fixed, hS_card, hD_card ⟩ := this;
       have := B_G_properties q k y hq_prime hq_odd hk_le_q hy_le_lines F S D hF_card hF_char hS_fixed hS_card hD_card;
@@ -1411,7 +1416,7 @@ lemma exists_counterexample_graph (q k y : ℕ)
               rw [ zero_pow hq_prime.ne_zero ] ⟩
             ) ?_ ?_ ?_ <;> simp +decide [ hA_orig_def ];
           · exact fun a b => b;
-          · exact fun p hp => by exact Set.mem_setOf.mpr ( by simpa using hp ) ;
+          · exact fun p hp => by exact Set.mem_setOf.mpr (by simpa [P_S] using hp) ;
       have := transfer_to_fin_n (B_G (S : Set F) (D : Set (Line F q))) A_orig n (by
       grind) (by
       simp +zetaDelta at *;
@@ -1424,7 +1429,6 @@ lemma exists_counterexample_graph (q k y : ℕ)
       obtain ⟨ G', A', hA'_indep_A, hA'_indep_Ac, hA'_card, hG'_edgeFinset_card, hG'_C6_free ⟩ := this;
       norm_num +zetaDelta at *;
       exact ⟨ G', A', hA'_indep_A, hA'_indep_Ac, by linarith, by norm_cast; linarith, hG'_C6_free ⟩
--/
 
 /-
 There is no constant $c$ such that every bipartite graph with parts of size $n^{2/3}$ and $n - n^{2/3}$ and $cn$ edges contains a $C_6$.
