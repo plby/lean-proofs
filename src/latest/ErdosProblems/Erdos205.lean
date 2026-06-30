@@ -312,11 +312,12 @@ theorem n_E_is_solution (E : ℕ) (hE : E ≥ 10) : is_solution E (n_E E hE) := 
     unfold n_E;
     grind;
   refine ⟨ ?_, ?_, ?_ ⟩
-  · exact h_cong 0 ( by simp +decide [ indices ] );
-  · convert h_cong 1 _ using 1 ; norm_num [ indices ];
+  · simpa [modulus_map, remainder_map] using h_cong 0 (by simp +decide [indices])
+  · simpa [modulus_map, remainder_map] using h_cong 1 (by simp +decide [indices])
   · intro k hk;
-    convert h_cong ( k + 2 ) _ using 1;
-    exact List.mem_range.mpr ( by linarith )
+    have hmem : k + 2 ∈ indices E := by
+      exact List.mem_range.mpr (by omega)
+    simpa [modulus_map, remainder_map] using h_cong (k + 2) hmem
 
 /-
 If a divides b and b is not zero, then Omega(a) <= Omega(b).
