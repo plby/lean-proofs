@@ -102,7 +102,77 @@ theorem Lemma_Hoeffding_OneSided
   (h_range : ∀ i, ∀ᵐ ω ∂MeasureTheory.MeasureSpace.volume, Y i ω = 0 ∨ Y i ω = 1) :
   let X := ∑ i, Y i
   ∀ t > 0, (MeasureTheory.MeasureSpace.volume {ω | X ω - N / 2 ≥ t}).toReal ≤ Real.exp (-2 * t^2 / N) := by
-    sorry
+    -- By Markov's inequality,
+    intro X t ht
+    have h_markov : (MeasureTheory.MeasureSpace.volume {ω | X ω - (N : ℝ) / 2 ≥ t}).toReal ≤ (Real.exp (-t * 4 * t / (N : ℝ))) * (∫ ω, Real.exp (4 * t / (N : ℝ) * (X ω - (N : ℝ) / 2)) ∂MeasureTheory.MeasureSpace.volume) := by
+      -- Applying Markov's inequality, we have:
+      have h_markov : (MeasureTheory.MeasureSpace.volume {ω | X ω - (N : ℝ) / 2 ≥ t}).toReal ≤ (Real.exp (-t * 4 * t / (N : ℝ))) * (∫ ω in {ω | X ω - (N : ℝ) / 2 ≥ t}, Real.exp (4 * t / (N : ℝ) * (X ω - (N : ℝ) / 2)) ∂MeasureTheory.MeasureSpace.volume) := by
+        have h_markov : ∫ ω in {ω | X ω - (N : ℝ) / 2 ≥ t}, Real.exp (4 * t / (N : ℝ) * (X ω - (N : ℝ) / 2)) ∂MeasureTheory.MeasureSpace.volume ≥ ∫ ω in {ω | X ω - (N : ℝ) / 2 ≥ t}, Real.exp (4 * t / (N : ℝ) * t) ∂MeasureTheory.MeasureSpace.volume := by
+          refine MeasureTheory.setIntegral_mono_on ?_ ?_ ?_ ?_ <;> norm_num;
+          · refine MeasureTheory.Integrable.integrableOn ?_;
+            refine MeasureTheory.Integrable.mono'
+              (g := fun ω => Real.exp ( 4 * t / N * ( N : ℝ ) )) ?_ ?_ ?_;
+            · norm_num;
+            · exact Measurable.aestronglyMeasurable ( by measurability );
+            · filter_upwards [ MeasureTheory.ae_all_iff.2 h_range ] with ω hω;
+              simp +zetaDelta at *;
+              exact mul_le_mul_of_nonneg_left ( by linarith [ show ( ∑ i : Fin N, Y i ω ) ≤ N by exact le_trans ( Finset.sum_le_sum fun _ _ => show Y _ ω ≤ 1 by cases hω ‹_› <;> linarith ) ( by norm_num ) ] ) ( by positivity );
+          · field_simp;
+            exact measurableSet_le measurable_const ( Measurable.sub ( Measurable.mul ( show Measurable X from by measurability ) measurable_const ) measurable_const ) |> MeasurableSet.mem;
+          · exact fun ω hω => mul_le_mul_of_nonneg_left hω <| by positivity;
+        simp_all +decide [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm, Real.exp_neg ];
+        rwa [ inv_mul_eq_div, le_div_iff₀' ( Real.exp_pos _ ) ];
+      refine le_trans h_markov ( mul_le_mul_of_nonneg_left ( MeasureTheory.setIntegral_le_integral ?_ ?_ ) ( Real.exp_nonneg _ ) );
+      · refine MeasureTheory.Integrable.mono'
+          (g := fun ω => Real.exp ( 4 * t / N * ( N : ℝ ) )) ?_ ?_ ?_;
+        · norm_num;
+        · exact Measurable.aestronglyMeasurable ( by measurability );
+        · simp +zetaDelta at *;
+          filter_upwards [ MeasureTheory.ae_all_iff.2 h_range ] with ω hω using mul_le_mul_of_nonneg_left ( by linarith [ show ( ∑ i : Fin N, Y i ω ) ≤ N by exact le_trans ( Finset.sum_le_sum fun i _ => show Y i ω ≤ 1 by cases hω i <;> linarith ) ( by norm_num ) ] ) ( by positivity );
+      · exact Filter.Eventually.of_forall fun ω => Real.exp_nonneg _;
+    -- Using `Bernoulli_MGF_bound`, we have $\mathbb{E}(e^{\lambda (Y_i - 1 / 2)}) \le e^{\lambda^2/8}$.
+    have h_mgf_bound : ∀ i, (∫ ω, Real.exp (4 * t / (N : ℝ) * (Y i ω - 1 / 2)) ∂MeasureTheory.MeasureSpace.volume) ≤ Real.exp ((4 * t / (N : ℝ)) ^ 2 / 8) := by
+      intro i
+      exact
+        (Bernoulli_MGF_bound
+          (Ω := Ω)
+          (Y := Y i)
+          (h_meas := h_meas i)
+          (h_bernoulli := h_bernoulli i)
+          (h_range := h_range i)
+          (t := 4 * t / (N : ℝ)))
+    -- Using independence, we have $\mathbb{E}(e^{\lambda Z}) = \prod_{i=1}^N \mathbb{E}(e^{\lambda (Y_i - 1 / 2)})$.
+    have h_indep_mgf : (∫ ω, Real.exp (4 * t / (N : ℝ) * (X ω - (N : ℝ) / 2)) ∂MeasureTheory.MeasureSpace.volume) = (∏ i, (∫ ω, Real.exp (4 * t / (N : ℝ) * (Y i ω - 1 / 2)) ∂MeasureTheory.MeasureSpace.volume)) := by
+      have h_indep_mgf : ∀ {f : Fin N → Ω → ℝ}, (∀ i, Measurable (f i)) → ProbabilityTheory.iIndepFun f MeasureTheory.MeasureSpace.volume → (∫ ω, ∏ i, Real.exp (f i ω) ∂MeasureTheory.MeasureSpace.volume) = (∏ i, (∫ ω, Real.exp (f i ω) ∂MeasureTheory.MeasureSpace.volume)) := by
+        intro f hf h_indep_f
+        have h_indep_mgf : ∀ {g : Fin N → ℝ → ℝ}, (∀ i, Measurable (g i)) → ProbabilityTheory.iIndepFun (fun i ω => g i (f i ω)) MeasureTheory.MeasureSpace.volume → (∫ ω, ∏ i, g i (f i ω) ∂MeasureTheory.MeasureSpace.volume) = (∏ i, (∫ ω, g i (f i ω) ∂MeasureTheory.MeasureSpace.volume)) := by
+          intro g hg h_indep_g
+          have h_indep_mgf : ∀ {g : Fin N → ℝ → ℝ}, (∀ i, Measurable (g i)) → ProbabilityTheory.iIndepFun (fun i ω => g i (f i ω)) MeasureTheory.MeasureSpace.volume → (∫ ω, ∏ i, g i (f i ω) ∂MeasureTheory.MeasureSpace.volume) = (∏ i, (∫ ω, g i (f i ω) ∂MeasureTheory.MeasureSpace.volume)) := by
+            intro g hg h_indep_g
+            exact (by
+            have := h_indep_g.integral_prod_eq_prod_integral;
+            convert this fun i => ( hg i |> Measurable.aestronglyMeasurable ).comp_aemeasurable ( hf i |> Measurable.aemeasurable ) using 1;
+            simp +decide [ Finset.prod_apply ])
+          exact h_indep_mgf hg h_indep_g;
+        convert h_indep_mgf ( fun i => Real.continuous_exp.measurable ) _ using 1;
+        rw [ ProbabilityTheory.iIndepFun_iff_measure_inter_preimage_eq_mul ] at *;
+        intro S sets hsets
+        simpa [Set.preimage] using
+          h_indep_f S ( fun i hi => measurableSet_preimage ( Real.measurable_exp ) ( hsets i hi ) );
+      convert h_indep_mgf ( fun i => ?_ ) ( ?_ ) using 3;
+      · rw [ ← Real.exp_sum ] ; norm_num [ Finset.sum_sub_distrib, mul_sub ] ; ring_nf;
+        simp +decide [ ← Finset.mul_sum _ _ _, ← Finset.sum_mul, X ];
+      · exact Measurable.mul ( measurable_const ) ( h_meas i |> Measurable.sub <| measurable_const );
+      · rw [ ProbabilityTheory.iIndepFun_iff_measure_inter_preimage_eq_mul ] at *;
+        intro S sets hsets; convert h_indep S ( fun i hi => ?_ ) using 1;
+        any_goals exact measurableSet_preimage ( show Measurable ( fun x => 4 * t / N * ( x - 1 / 2 ) ) from Measurable.mul ( measurable_const ) ( measurable_id.sub measurable_const ) ) ( hsets i hi );
+        · simp +decide [ Set.preimage ];
+        · exact rfl;
+    refine h_markov.trans ( le_trans ( mul_le_mul_of_nonneg_left ( h_indep_mgf.le.trans <| Finset.prod_le_prod ( fun _ _ => MeasureTheory.integral_nonneg fun _ => Real.exp_nonneg _ ) fun _ _ => h_mgf_bound _ ) <| by positivity ) ?_ );
+    by_cases hN : N = 0 <;> simp_all +decide ; ring_nf ; norm_num;
+    rw [ ← Real.exp_nat_mul, ← Real.exp_add ] ; ring_nf ; norm_num [ hN ];
+    norm_num [ sq, mul_assoc, hN ] ; ring_nf ; norm_num
+
 /-
 Two-sided Hoeffding bound: $\mathbb{P}(|X - N/2| \ge t) \le 2 \exp(-2t^2/N)$.
 -/
@@ -115,7 +185,39 @@ theorem Lemma_Hoeffding
   (h_range : ∀ i, ∀ᵐ ω ∂MeasureTheory.MeasureSpace.volume, Y i ω = 0 ∨ Y i ω = 1) :
   let X := ∑ i, Y i
   ∀ t > 0, (MeasureTheory.MeasureSpace.volume {ω | |X ω - N / 2| ≥ t}).toReal ≤ 2 * Real.exp (-2 * t^2 / N) := by
-    sorry
+    have := @ h_range;
+    have h_two_sided : ∀ t > 0, (MeasureTheory.MeasureSpace.volume {ω | (∑ i, Y i ω) - N / 2 ≥ t}).toReal ≤ Real.exp (-2 * t^2 / N) ∧ (MeasureTheory.MeasureSpace.volume {ω | -(∑ i, Y i ω) + N / 2 ≥ t}).toReal ≤ Real.exp (-2 * t^2 / N) := by
+      refine fun t t_pos ↦ ⟨ ?_, ?_ ⟩;
+      · convert Lemma_Hoeffding_OneSided N Y h_meas h_indep h_bernoulli this t t_pos using 1;
+        simp +decide only [Finset.sum_apply];
+      · convert Lemma_Hoeffding_OneSided N ( fun i ω => 1 - Y i ω ) ( fun i => Measurable.const_sub ( h_meas i ) _ ) _ _ _ t t_pos using 1;
+        · norm_num [ Finset.sum_sub_distrib ];
+          exact congr_arg _ ( congr_arg _ ( by ext; constructor <;> rintro h <;> rw [ Set.mem_setOf_eq ] at * <;> linarith ) );
+        · rw [ ProbabilityTheory.iIndepFun_iff_measure_inter_preimage_eq_mul ] at *;
+          intro S sets hsets
+          simpa [Set.preimage] using
+            h_indep S
+              ( fun i hi =>
+                show MeasurableSet ((fun x => 1 - x) ⁻¹' sets i) from by
+                  exact measurableSet_preimage ( measurable_const.sub measurable_id' ) ( hsets i hi ) );
+        · simp_all +decide [ sub_eq_iff_eq_add ];
+          simpa only [ eq_comm ] using fun i => h_bernoulli i |>.1;
+        · intro i; filter_upwards [ this i ] with ω hω using by cases hω <;> simp +decide [ * ] ;
+    -- Using the fact that $|X - N/2| \ge t$ is equivalent to $(X - N/2 \ge t) \cup (-(X - N/2) \ge t)$, we can apply the union bound.
+    intros X t ht
+    have h_union_bound : (MeasureTheory.MeasureSpace.volume {ω | |X ω - N / 2| ≥ t}).toReal ≤ (MeasureTheory.MeasureSpace.volume {ω | X ω - N / 2 ≥ t}).toReal + (MeasureTheory.MeasureSpace.volume {ω | -(X ω - N / 2) ≥ t}).toReal := by
+      rw [ ← ENNReal.toReal_add ];
+      · gcongr;
+        · exact ne_of_lt ( ENNReal.add_lt_top.mpr ⟨ MeasureTheory.measure_lt_top _ _, MeasureTheory.measure_lt_top _ _ ⟩ );
+        · refine le_trans ( MeasureTheory.measure_mono ?_ )
+            ( MeasureTheory.measure_union_le
+              {ω | X ω - N / 2 ≥ t} {ω | -(X ω - N / 2) ≥ t} );
+          exact fun x hx => by norm_num at *; cases abs_cases ( X x - N / 2 ) <;> [ left; right ] <;> linarith;
+      · exact MeasureTheory.measure_ne_top _ _;
+      · exact MeasureTheory.measure_ne_top _ _;
+    norm_num +zetaDelta at *;
+    exact h_union_bound.trans ( by rw [ two_mul ] ; exact add_le_add ( h_two_sided t ht |>.1 ) ( by simpa [ sub_eq_add_neg, add_comm ] using h_two_sided t ht |>.2 ) )
+
 /-
 We equip the set of simple graphs on V with the discrete measurable space.
 -/
@@ -198,7 +300,8 @@ The probability that an edge exists in $G_{m, 1 / 2}$ is $1 / 2$.
 -/
 theorem incidentEdgeInd_classical_Bernoulli {m : ℕ} (v : Fin m) (u : {x // x ≠ v}) :
   randomGraphMeasure {G : SimpleGraph (Fin m) | incidentEdgeInd_classical v u G = 1} = 1 / 2 := by
-    sorry
+    simpa [incidentEdgeInd_classical, incidentEdgeInd] using incidentEdgeInd_Bernoulli v u
+
 /-
 The number of graphs where the adjacency of $v$ to $u \in S$ is fixed by $f$ is $2^{\binom{m}{2} - |S|}$.
 -/
@@ -415,7 +518,47 @@ The number of simple graphs on V is 2^{\binom{|V|}{2}}.
 -/
 theorem card_SimpleGraph {V : Type*} [Fintype V] [DecidableEq V] :
   Fintype.card (SimpleGraph V) = 2 ^ (Fintype.card V).choose 2 := by
-    sorry
+  let graphEdgeSetEquiv : SimpleGraph V ≃ Set {e : Sym2 V // ¬ e.IsDiag} :=
+    { toFun G := {e | e.1 ∈ G.edgeSet}
+      invFun S :=
+        { Adj v w := ∃ h : ¬(Sym2.mk v w).IsDiag,
+            (⟨Sym2.mk v w, h⟩ : {e : Sym2 V // ¬ e.IsDiag}) ∈ S
+          symm := by
+            constructor
+            rintro v w ⟨h, hs⟩
+            refine ⟨?_, ?_⟩
+            · simpa [Sym2.eq_swap] using h
+            · simpa only [Sym2.eq_swap] using hs
+          loopless := by
+            refine ⟨?_⟩
+            intro v h
+            rcases h with ⟨h, _⟩
+            exact h (by simp) }
+      left_inv G := by
+        ext v w
+        change (∃ h : ¬(Sym2.mk v w).IsDiag,
+            Sym2.mk v w ∈ G.edgeSet) ↔ G.Adj v w
+        constructor
+        · rintro ⟨_, hs⟩
+          simpa using hs
+        · intro h
+          exact ⟨G.not_isDiag_of_mem_edgeSet (by simpa using h), by simpa using h⟩
+      right_inv S := by
+        ext e
+        rcases e with ⟨z, hz⟩
+        induction z using Sym2.inductionOn with
+        | hf v w =>
+          change (∃ h : ¬(Sym2.mk v w).IsDiag,
+              (⟨Sym2.mk v w, h⟩ : {e : Sym2 V // ¬ e.IsDiag}) ∈ S) ↔
+            (⟨Sym2.mk v w, hz⟩ : {e : Sym2 V // ¬ e.IsDiag}) ∈ S
+          constructor
+          · rintro ⟨h, hs⟩
+            convert hs
+          · intro hs
+            exact ⟨hz, hs⟩ }
+  rw [Fintype.card_congr graphEdgeSetEquiv]
+  rw [Fintype.card_set, Sym2.card_subtype_not_diag]
+
 /-
 The set of all possible edges in a simple graph on $m$ vertices has size $\binom{m}{2}$.
 -/
@@ -588,7 +731,120 @@ The probability that the clique number of a random graph on $m$ vertices is at l
 -/
 theorem prob_cliqueNum_ge (m r : ℕ) :
   randomGraphMeasure {G : SimpleGraph (Fin m) | r ≤ G.cliqueNum} ≤ (m.choose r : ENNReal) * (1 / 2) ^ (r.choose 2) := by
-    sorry
+    by_contra! h;
+    -- Let's count the number of graphs with a clique of size at least $r$.
+    have h_count : (Finset.univ.filter (fun G : SimpleGraph (Fin m) => r ≤ G.cliqueNum)).card ≤ (Nat.choose m r) * 2 ^ (Nat.choose m 2 - Nat.choose r 2) := by
+      -- For each subset $S$ of size $r$, the number of graphs where $S$ is a clique is $2^{\binom{m}{2} - \binom{r}{2}}$.
+      have h_clique_subset : ∀ S : Finset (Fin m), S.card = r → (Finset.univ.filter (fun G : SimpleGraph (Fin m) => ∀ u ∈ S, ∀ v ∈ S, u ≠ v → G.Adj u v)).card ≤ 2 ^ (Nat.choose m 2 - Nat.choose r 2) := by
+        intro S hS_card
+        have h_clique_subset : (Finset.univ.filter (fun G : SimpleGraph (Fin m) => ∀ u ∈ S, ∀ v ∈ S, u ≠ v → G.Adj u v)).card ≤ 2 ^ (Nat.choose m 2 - Nat.choose r 2) := by
+          let cliqueEdges : Finset (Sym2 (Fin m)) :=
+            Finset.image (fun p : Fin m × Fin m => Sym2.mk p.1 p.2) S.offDiag
+          have h_cliqueEdges_subset_all : cliqueEdges ⊆ all_edges m := by
+            intro e he
+            rcases Finset.mem_image.mp he with ⟨p, hp, rfl⟩
+            exact Finset.mem_filter.mpr ⟨Finset.mem_univ _, by
+              simpa [Sym2.mk_isDiag_iff] using (Finset.mem_offDiag.mp hp).2.2⟩
+          have h_cliqueEdges_card : cliqueEdges.card = Nat.choose r 2 := by
+            have h := Sym2.card_image_offDiag S
+            rw [show cliqueEdges = Finset.image (Function.uncurry Sym2.mk) S.offDiag by
+              ext e
+              simp [cliqueEdges, Function.uncurry]]
+            simpa [hS_card] using h
+          have h_remaining_card :
+              (all_edges m \ cliqueEdges).card = Nat.choose m 2 - Nat.choose r 2 := by
+            rw [Finset.card_sdiff_of_subset h_cliqueEdges_subset_all, card_all_edges m,
+              h_cliqueEdges_card]
+          let F : SimpleGraph (Fin m) → Finset (Sym2 (Fin m)) :=
+            fun G => G.edgeFinset \ cliqueEdges
+          have h_image_subset :
+              Finset.image F
+                  (Finset.univ.filter
+                    (fun G : SimpleGraph (Fin m) =>
+                      ∀ u ∈ S, ∀ v ∈ S, u ≠ v → G.Adj u v))
+                ⊆ (all_edges m \ cliqueEdges).powerset := by
+            intro A hA
+            rcases Finset.mem_image.mp hA with ⟨G, hG, rfl⟩
+            refine Finset.mem_powerset.mpr ?_
+            intro e he
+            rcases Finset.mem_sdiff.mp he with ⟨heG, he_not_clique⟩
+            exact Finset.mem_sdiff.mpr
+              ⟨by
+                exact Finset.mem_filter.mpr ⟨Finset.mem_univ _, G.not_isDiag_of_mem_edgeFinset heG⟩,
+               he_not_clique⟩
+          have h_inj : Set.InjOn F
+              (↑(Finset.univ.filter
+                (fun G : SimpleGraph (Fin m) =>
+                  ∀ u ∈ S, ∀ v ∈ S, u ≠ v → G.Adj u v))) := by
+            intro G hG G' hG' h_eq
+            have hG_cliqueEdges : cliqueEdges ⊆ G.edgeFinset := by
+              intro e he
+              rcases Finset.mem_image.mp he with ⟨p, hp, rfl⟩
+              have hp' := Finset.mem_offDiag.mp hp
+              exact SimpleGraph.mem_edgeFinset.mpr
+                ((SimpleGraph.mem_edgeSet G).mpr
+                  ((Finset.mem_filter.mp hG).2 p.1 hp'.1 p.2 hp'.2.1 hp'.2.2))
+            have hG'_cliqueEdges : cliqueEdges ⊆ G'.edgeFinset := by
+              intro e he
+              rcases Finset.mem_image.mp he with ⟨p, hp, rfl⟩
+              have hp' := Finset.mem_offDiag.mp hp
+              exact SimpleGraph.mem_edgeFinset.mpr
+                ((SimpleGraph.mem_edgeSet G').mpr
+                  ((Finset.mem_filter.mp hG').2 p.1 hp'.1 p.2 hp'.2.1 hp'.2.2))
+            change G.edgeFinset \ cliqueEdges = G'.edgeFinset \ cliqueEdges at h_eq
+            apply SimpleGraph.edgeFinset_inj.mp
+            calc
+              G.edgeFinset = cliqueEdges ∪ (G.edgeFinset \ cliqueEdges) := by
+                exact (Finset.union_sdiff_of_subset hG_cliqueEdges).symm
+              _ = cliqueEdges ∪ (G'.edgeFinset \ cliqueEdges) := by
+                rw [h_eq]
+              _ = G'.edgeFinset := by
+                exact Finset.union_sdiff_of_subset hG'_cliqueEdges
+          calc
+            (Finset.univ.filter
+                (fun G : SimpleGraph (Fin m) =>
+                  ∀ u ∈ S, ∀ v ∈ S, u ≠ v → G.Adj u v)).card
+                = (Finset.image F
+                    (Finset.univ.filter
+                      (fun G : SimpleGraph (Fin m) =>
+                        ∀ u ∈ S, ∀ v ∈ S, u ≠ v → G.Adj u v))).card := by
+                  rw [Finset.card_image_of_injOn h_inj]
+            _ ≤ ((all_edges m \ cliqueEdges).powerset).card :=
+                  Finset.card_le_card h_image_subset
+            _ = 2 ^ (Nat.choose m 2 - Nat.choose r 2) := by
+                  rw [Finset.card_powerset, h_remaining_card]
+        convert h_clique_subset using 1;
+      -- The set of graphs with a clique of size at least $r$ is the union over all subsets $S$ of size $r$ of the set of graphs where $S$ is a clique.
+      have h_union : Finset.univ.filter (fun G : SimpleGraph (Fin m) => r ≤ G.cliqueNum) ⊆ Finset.biUnion (Finset.powersetCard r (Finset.univ : Finset (Fin m))) (fun S => Finset.univ.filter (fun G : SimpleGraph (Fin m) => ∀ u ∈ S, ∀ v ∈ S, u ≠ v → G.Adj u v)) := by
+        intro G hG; simp_all +decide [ SimpleGraph.cliqueNum ] ;
+        -- Since $r \leq \sup \{n \mid \exists s, G.IsNClique n s\}$, there exists some $n \geq r$ such that $G$ has an $n$-clique.
+        obtain ⟨n, hn⟩ : ∃ n ≥ r, ∃ s : Finset (Fin m), G.IsNClique n s := by
+          have := Nat.sSup_mem ( show { n | ∃ s : Finset ( Fin m ), G.IsNClique n s }.Nonempty from ?_ );
+          · exact ⟨ _, hG, this <| ⟨ _, fun n hn => by obtain ⟨ s, hs ⟩ := hn; exact hs.card_eq ▸ Finset.card_le_univ _ ⟩ ⟩;
+          · exact ⟨ 0, ⟨ ∅, by simp +decide [ SimpleGraph.isNClique_iff ] ⟩ ⟩;
+        obtain ⟨ s, hs ⟩ := hn.2;
+        have := hs.2;
+        exact Exists.elim ( Finset.exists_subset_card_eq ( show r ≤ s.card from by linarith ) ) fun t ht => ⟨ t, ht.2, fun u hu v hv huv => hs.1 ( ht.1 hu ) ( ht.1 hv ) huv ⟩;
+      exact le_trans ( Finset.card_le_card h_union ) ( Finset.card_biUnion_le.trans ( Finset.sum_le_card_nsmul _ _ _ fun x hx => h_clique_subset x <| Finset.mem_powersetCard.mp hx |>.2 ) ) |> le_trans <| by simp +decide
+    -- Substitute the count into the measure inequality.
+    have h_measure : (randomGraphMeasure {G : SimpleGraph (Fin m) | r ≤ G.cliqueNum}) ≤ (Nat.choose m r * 2 ^ (Nat.choose m 2 - Nat.choose r 2)) / 2 ^ (Nat.choose m 2) := by
+      rw [ randomGraphMeasure_eq_card_div ];
+      gcongr
+      · norm_cast
+      rw [ card_SimpleGraph ] ; norm_num;
+    refine h.not_ge <| h_measure.trans ?_;
+    by_cases h : r.choose 2 ≤ m.choose 2 <;> simp_all +decide [ div_eq_mul_inv, mul_comm, mul_left_comm ];
+    · rw [ show ( 2 ^ m.choose 2 : ENNReal ) = ( 2 ^ ( m.choose 2 - r.choose 2 ) ) * ( 2 ^ r.choose 2 ) by rw [ ← pow_add, Nat.sub_add_cancel h ] ] ; norm_num [ mul_assoc, mul_comm, mul_left_comm, ENNReal.inv_mul_cancel ];
+      rw [ ENNReal.mul_inv ]
+      focus
+        norm_num [ ← mul_assoc, ← pow_add ]
+        · rw [ mul_right_comm ] ; norm_num [ mul_assoc, mul_comm, mul_left_comm, ENNReal.mul_inv_cancel ];
+          rw [ ENNReal.inv_pow ];
+      · exact Or.inl <| by positivity
+      · exact Or.inl <| ne_of_lt <| ENNReal.pow_lt_top <| by norm_num
+    · rw [ Nat.choose_eq_zero_of_lt ] <;> norm_num;
+      exact not_le.mp fun contra => h.not_ge <| Nat.choose_le_choose _ contra
+
 /-
 The probability that the independence number of a random graph on $m$ vertices is at least $r$ is at most $\binom{m}{r} 2^{-\binom{r}{2}}$.
 -/
@@ -666,7 +922,70 @@ set_option maxHeartbeats 800000 in
 -- The Hoeffding specialization and graph-measure conversions need extra heartbeats.
 theorem degree_concentration_at_vertex (m : ℕ) (hm : m > 1) (v : Fin m) (t : ℝ) (ht : t > 0) :
   (randomGraphMeasure { G : SimpleGraph (Fin m) | |(G.degree v : ℝ) - (m - 1 : ℝ) / 2| ≥ t }).toReal ≤ 2 * Real.exp (-2 * t^2 / (m - 1 : ℝ)) := by
-    sorry
+    -- Let $N = m-1$, $Y_u = \text{incidentEdgeInd\_classical } v u$, and $X = \sum_{u \ne v} Y_u$.
+    set N := m - 1
+    set Y : {x : Fin m // x ≠ v} → SimpleGraph (Fin m) → ℝ := fun u G => if G.Adj u.val v then 1 else 0
+    set X : SimpleGraph (Fin m) → ℝ := fun G => ∑ u : {x : Fin m // x ≠ v}, Y u G;
+    -- Apply the Hoeffding inequality to $X$.
+    have h_hoeffding : (randomGraphMeasure {G : SimpleGraph (Fin m) | |X G - N / 2| ≥ t}).toReal ≤ 2 * Real.exp (-2 * t ^ 2 / N) := by
+      -- Apply the Hoeffding inequality to the sum of independent Bernoulli random variables.
+      have h_hoeffding : ∀ (N : ℕ) (Y : Fin N → SimpleGraph (Fin m) → ℝ), (∀ i, Measurable (Y i)) → (ProbabilityTheory.iIndepFun Y randomGraphMeasure) → (∀ i, (randomGraphMeasure {G : SimpleGraph (Fin m) | Y i G = 1} = 1 / 2 ∧ randomGraphMeasure {G : SimpleGraph (Fin m) | Y i G = 0} = 1 / 2)) → (∀ i, ∀ᵐ ω ∂randomGraphMeasure, Y i ω = 0 ∨ Y i ω = 1) → let X := ∑ i, Y i; ∀ t > 0, (randomGraphMeasure {ω | |X ω - N / 2| ≥ t}).toReal ≤ 2 * Real.exp (-2 * t ^ 2 / N) := by
+        convert Lemma_Hoeffding using 1
+        rotate_left
+        focus
+          exact SimpleGraph ( Fin m )
+        focus
+          exact ⟨ randomGraphMeasure ⟩
+        · constructor ; norm_num [ randomGraphMeasure ];
+        · norm_num [ MeasureTheory.MeasureSpace.volume ];
+      -- Let's choose any bijection between the set of neighbors of $v$ and the set $\{0, 1, ..., m-2\}$.
+      obtain ⟨bij, hbij⟩ : ∃ bij : Fin (m - 1) ≃ {x : Fin m // x ≠ v}, True := by
+        refine ⟨ Fintype.equivOfCardEq ?_, trivial ⟩ ; aesop;
+      convert h_hoeffding ( m - 1 ) ( fun i G => Y ( bij i ) G ) _ _ _ _ t ht using 1;
+      · simp +zetaDelta at *;
+        congr! 3;
+        ext G; rw [ Finset.card_filter, Finset.card_filter ] ; rw [ ← Equiv.sum_comp bij ] ;
+      · intro i;
+        apply Measurable.ite
+        · simp
+        · exact measurable_const
+        · exact measurable_const
+      · have h_indep : ProbabilityTheory.iIndepFun (fun u : {x : Fin m // x ≠ v} => Y u) randomGraphMeasure := by
+          convert edge_indicators_independent m v using 1
+          ext u G
+          simp [Y, incidentEdgeInd_classical, SimpleGraph.adj_comm]
+        rw [ ProbabilityTheory.iIndepFun_iff_measure_inter_preimage_eq_mul ] at *;
+        intro S sets hsets
+        specialize h_indep ( S.image bij )
+        focus
+          simp_all +decide
+        focus
+          use fun u => sets ( bij.symm u )
+        convert h_indep _ using 1;
+        · simp +decide [ Finset.mem_image, Set.preimage ];
+        · rw [ Finset.prod_image ]
+          focus
+            aesop
+          exact bij.injective.injOn;
+        · grind;
+      · intro i; convert incidentEdgeInd_classical_Bernoulli v ( bij i ) using 1;
+        simp +decide [ incidentEdgeInd_classical, SimpleGraph.adj_comm ];
+        simp +decide [ Y, SimpleGraph.adj_comm ];
+        intro h;
+        have hmeas_adj : MeasurableSet { G : SimpleGraph ( Fin m ) | G.Adj v ↑ ( bij i ) } := by
+          simp
+        rw [ show { G : SimpleGraph ( Fin m ) | ¬G.Adj v ↑ ( bij i ) } = Set.univ \ { G : SimpleGraph ( Fin m ) | G.Adj v ↑ ( bij i ) } by ext; simp +decide, MeasureTheory.measure_diff ] <;> norm_num [ h, hmeas_adj, hmeas_adj.nullMeasurableSet ] ;
+        unfold randomGraphMeasure;
+        rw [ ProbabilityTheory.uniformOn ] ; norm_num;
+      · intro i; filter_upwards [ ] with G; by_cases hi : G.Adj ( bij i |>.1 ) v <;> simp +decide
+        · exact Or.inr ( if_pos hi );
+        · exact Or.inl ( if_neg hi );
+    convert h_hoeffding using 4;
+    · rw [ Nat.cast_pred hm.le ];
+      ext G; rw [ degree_eq_sum_indicators ] ;
+      unfold incidentEdgeInd_classical; aesop;
+    · cases m <;> aesop
+
 /-
 The probability that any vertex has a degree deviating from the mean by at least $t$ is at most $2m \exp(-2t^2/(m-1))$.
 -/
@@ -775,7 +1094,142 @@ theorem Lemma_Base :
     (R.cliqueNum : ℝ) ≤ 3 * Real.logb 2 m ∧
     (R.indepNum : ℝ) ≤ 3 * Real.logb 2 m ∧
     (R.maxDegree : ℝ) - (R.minDegree : ℝ) ≤ 4 * Real.sqrt (m * Real.log m) := by
-      sorry
+      -- We choose $m₀$ such that for $m \ge m₀$, $bound\_clique(m) < 1/3$ and $bound\_degree(m) < 1/3$.
+      obtain ⟨m₀, hm₀⟩ : ∃ m₀ : ℕ, ∀ m ≥ m₀, bound_clique m < 1 / 3 ∧ bound_degree m < 1 / 3 := by
+        exact Filter.eventually_atTop.mp ( Filter.eventually_and.mpr ⟨ bound_clique_tendsto_zero.eventually ( gt_mem_nhds <| by norm_num ), bound_degree_tendsto_zero.eventually ( gt_mem_nhds <| by norm_num ) ⟩ ) |> fun ⟨ m₀, hm₀ ⟩ ↦ ⟨ m₀, fun m hm ↦ hm₀ m hm ⟩;
+      -- For $m \ge m₀$, we can apply the bounds to conclude that there exists a graph $R$ with the desired properties.
+      have h_exists_R : ∀ m ≥ m₀, ∃ R : SimpleGraph (Fin m), ¬(r_val m ≤ R.cliqueNum) ∧ ¬(r_val m ≤ R.indepNum) ∧ ¬(∃ v : Fin m, |(R.degree v : ℝ) - (m - 1 : ℝ) / 2| ≥ t_val m) := by
+        intros m hm
+        have h_prob_clique : (randomGraphMeasure {G : SimpleGraph (Fin m) | r_val m ≤ G.cliqueNum}).toReal < 1 / 3 := by
+          refine lt_of_le_of_lt ?_ ( hm₀ m hm |>.1 );
+          have htop :
+              (m.choose (r_val m) : ENNReal) *
+                  (1 / 2 : ENNReal) ^ (r_val m).choose 2 ≠ ⊤ := by
+            norm_num [ENNReal.mul_eq_top]
+          have hle := ENNReal.toReal_mono htop (prob_cliqueNum_ge m (r_val m))
+          simpa [bound_clique, ENNReal.toReal_mul, ENNReal.toReal_pow] using hle
+        have h_prob_indep : (randomGraphMeasure {G : SimpleGraph (Fin m) | r_val m ≤ G.indepNum}).toReal < 1 / 3 := by
+          have h_prob_indep : (randomGraphMeasure {G : SimpleGraph (Fin m) | r_val m ≤ G.indepNum}).toReal ≤ bound_clique m := by
+            have htop :
+                (m.choose (r_val m) : ENNReal) *
+                    (1 / 2 : ENNReal) ^ (r_val m).choose 2 ≠ ⊤ := by
+              norm_num [ENNReal.mul_eq_top]
+            have hle := ENNReal.toReal_mono htop (prob_indepNum_ge m (r_val m))
+            simpa [bound_clique, ENNReal.toReal_mul, ENNReal.toReal_pow] using hle
+          linarith [ hm₀ m hm ]
+        have h_prob_degree : (randomGraphMeasure {G : SimpleGraph (Fin m) | ∃ v : Fin m, |(G.degree v : ℝ) - (m - 1 : ℝ) / 2| ≥ t_val m}).toReal < 1 / 3 := by
+          refine lt_of_le_of_lt ?_ ( hm₀ m hm |>.2 );
+          by_cases hm : m > 1;
+          · simpa [bound_degree, pow_two] using
+              degree_concentration_union_bound m hm ( t_val m )
+                ( show 0 < t_val m from
+                    mul_pos zero_lt_two <|
+                      Real.sqrt_pos.mpr <|
+                        mul_pos ( Nat.cast_pos.mpr <| pos_of_gt hm ) <|
+                          Real.log_pos <| Nat.one_lt_cast.mpr hm )
+          · interval_cases m <;> norm_num [ randomGraphMeasure ];
+            · exact mul_nonneg ( by norm_num ) ( Real.exp_nonneg _ );
+            · unfold bound_degree; norm_num [ t_val ] ;
+        -- By the union bound, the probability that any of the bad events happen is less than 1.
+        have h_union_bound : (randomGraphMeasure {G : SimpleGraph (Fin m) | r_val m ≤ G.cliqueNum ∨ r_val m ≤ G.indepNum ∨ ∃ v : Fin m, |(G.degree v : ℝ) - (m - 1 : ℝ) / 2| ≥ t_val m}).toReal < 1 := by
+          let A : Set (SimpleGraph (Fin m)) := {G | r_val m ≤ G.cliqueNum}
+          let B : Set (SimpleGraph (Fin m)) := {G | r_val m ≤ G.indepNum}
+          let C : Set (SimpleGraph (Fin m)) :=
+            {G | ∃ v : Fin m, |(G.degree v : ℝ) - (m - 1 : ℝ) / 2| ≥ t_val m}
+          have h_union_bound :
+              randomGraphMeasure {G : SimpleGraph (Fin m) |
+                  r_val m ≤ G.cliqueNum ∨ r_val m ≤ G.indepNum ∨
+                    ∃ v : Fin m, |(G.degree v : ℝ) - (m - 1 : ℝ) / 2| ≥ t_val m}
+                ≤ randomGraphMeasure A + randomGraphMeasure B + randomGraphMeasure C := by
+            have hset :
+                {G : SimpleGraph (Fin m) |
+                  r_val m ≤ G.cliqueNum ∨ r_val m ≤ G.indepNum ∨
+                    ∃ v : Fin m, |(G.degree v : ℝ) - (m - 1 : ℝ) / 2| ≥ t_val m}
+                  = A ∪ (B ∪ C) := by
+              ext G
+              simp [A, B, C, or_assoc]
+            rw [hset]
+            calc
+              randomGraphMeasure (A ∪ (B ∪ C)) ≤
+                  randomGraphMeasure A + randomGraphMeasure (B ∪ C) :=
+                MeasureTheory.measure_union_le A (B ∪ C)
+              _ ≤ randomGraphMeasure A + (randomGraphMeasure B + randomGraphMeasure C) :=
+                by
+                  simpa [add_assoc, add_comm, add_left_comm] using
+                    add_le_add_left
+                      (MeasureTheory.measure_union_le
+                        (μ := (randomGraphMeasure : MeasureTheory.Measure (SimpleGraph (Fin m)))) B C)
+                      (randomGraphMeasure A)
+              _ = randomGraphMeasure A + randomGraphMeasure B + randomGraphMeasure C := by
+                rw [add_assoc]
+          have hA_lt : randomGraphMeasure A < ⊤ :=
+            lt_of_le_of_lt (MeasureTheory.measure_mono (Set.subset_univ _)) (by simp [randomGraphMeasure])
+          have hB_lt : randomGraphMeasure B < ⊤ :=
+            lt_of_le_of_lt (MeasureTheory.measure_mono (Set.subset_univ _)) (by simp [randomGraphMeasure])
+          have hC_lt : randomGraphMeasure C < ⊤ :=
+            lt_of_le_of_lt (MeasureTheory.measure_mono (Set.subset_univ _)) (by simp [randomGraphMeasure])
+          have h_rhs_ne_top :
+              randomGraphMeasure A + randomGraphMeasure B + randomGraphMeasure C ≠ ⊤ := by
+            exact ne_of_lt (ENNReal.add_lt_top.mpr ⟨ENNReal.add_lt_top.mpr ⟨hA_lt, hB_lt⟩, hC_lt⟩)
+          refine lt_of_le_of_lt (ENNReal.toReal_mono h_rhs_ne_top h_union_bound) ?_
+          have hA_eq :
+              (randomGraphMeasure A).toReal =
+                (randomGraphMeasure {G : SimpleGraph (Fin m) | r_val m ≤ G.cliqueNum}).toReal := by
+            rfl
+          have hB_eq :
+              (randomGraphMeasure B).toReal =
+                (randomGraphMeasure {G : SimpleGraph (Fin m) | r_val m ≤ G.indepNum}).toReal := by
+            rfl
+          have hC_eq :
+              (randomGraphMeasure C).toReal =
+                (randomGraphMeasure
+                  {G : SimpleGraph (Fin m) |
+                    ∃ v : Fin m, |(G.degree v : ℝ) - (m - 1 : ℝ) / 2| ≥ t_val m}).toReal := by
+            rfl
+          rw [ENNReal.toReal_add, ENNReal.toReal_add]
+          · rw [hA_eq, hB_eq, hC_eq]
+            linarith
+          · exact ne_of_lt hA_lt
+          · exact ne_of_lt hB_lt
+          · exact ne_of_lt (ENNReal.add_lt_top.mpr ⟨hA_lt, hB_lt⟩)
+          · exact ne_of_lt hC_lt
+        contrapose! h_union_bound;
+        rw [ show { G : SimpleGraph ( Fin m ) | r_val m ≤ G.cliqueNum ∨ r_val m ≤ G.indepNum ∨ ∃ v : Fin m, |↑ ( G.degree v ) - ( ↑m - 1 ) / 2| ≥ t_val m } = Set.univ from Set.eq_univ_iff_forall.mpr fun G => by by_cases h₁ : r_val m ≤ G.cliqueNum <;> by_cases h₂ : r_val m ≤ G.indepNum <;> specialize h_union_bound G <;> aesop ] ; norm_num [ randomGraphMeasure ];
+      use m₀ + 2;
+      intro m hm;
+      obtain ⟨ R, hR₁, hR₂, hR₃ ⟩ := h_exists_R m ( by linarith );
+      refine ⟨ R, ?_, ?_, ?_ ⟩;
+      · contrapose! hR₁;
+        exact Nat.ceil_le.mpr ( mod_cast hR₁.le );
+      · contrapose! hR₂;
+        exact Nat.ceil_le.mpr ( mod_cast hR₂.le );
+      · -- Since $|d(v) - (m-1)/2| < t_val m$ for all $v$, we have $\Delta(R) - \delta(R) \le 2t_val m$.
+        have h_deg_diff : ∀ v : Fin m, (R.degree v : ℝ) ≤ (m - 1 : ℝ) / 2 + t_val m ∧ (R.degree v : ℝ) ≥ (m - 1 : ℝ) / 2 - t_val m := by
+          exact fun v => ⟨ by linarith [ abs_lt.mp ( not_le.mp fun h => hR₃ ⟨ v, h ⟩ ) ], by linarith [ abs_lt.mp ( not_le.mp fun h => hR₃ ⟨ v, h ⟩ ) ] ⟩;
+        -- Since $\Delta(R)$ is the maximum degree and $\delta(R)$ is the minimum degree, we have $\Delta(R) \leq (m-1)/2 + t_val m$ and $\delta(R) \geq (m-1)/2 - t_val m$.
+        have h_max_min_deg : (R.maxDegree : ℝ) ≤ (m - 1 : ℝ) / 2 + t_val m ∧ (R.minDegree : ℝ) ≥ (m - 1 : ℝ) / 2 - t_val m := by
+          have h_max_min_deg : (R.maxDegree : ℝ) ≤ (m - 1 : ℝ) / 2 + t_val m := by
+            rcases m with ( _ | _ | m ) <;> norm_num at *;
+            · linarith;
+            · convert h_deg_diff ( Classical.choose ( Finset.exists_max_image Finset.univ ( fun v => R.degree v ) ⟨ 0, Finset.mem_univ 0 ⟩ ) ) |>.1 using 1;
+              norm_num [ SimpleGraph.maxDegree ];
+              rw [ Finset.max_eq_sup_coe ];
+              rw [ show ( Finset.image ( fun v => R.degree v ) Finset.univ ).sup WithBot.some = WithBot.some ( R.degree ( Classical.choose ( Finset.exists_max_image Finset.univ ( fun v => R.degree v ) ⟨ 0, Finset.mem_univ 0 ⟩ ) ) ) from ?_ ];
+              · exact rfl;
+              · refine le_antisymm ?_ ?_ <;> norm_num;
+                · intro v; have := Classical.choose_spec ( Finset.exists_max_image Finset.univ ( fun v => R.degree v ) ⟨ 0, Finset.mem_univ 0 ⟩ ) ; aesop;
+                · exact ⟨ _, le_rfl ⟩;
+          have h_min_deg : ∃ v : Fin m, R.degree v = R.minDegree := by
+            have h_min_deg : ∃ v : Fin m, ∀ u : Fin m, R.degree v ≤ R.degree u := by
+              simpa using Finset.exists_min_image Finset.univ ( fun v => R.degree v ) ⟨ ⟨ 0, by linarith ⟩, Finset.mem_univ _ ⟩;
+            obtain ⟨ v, hv ⟩ := h_min_deg;
+            use v;
+            rw [ SimpleGraph.minDegree ];
+            rw [ eq_comm, WithTop.untopD_eq_iff ];
+            exact Or.inl <| le_antisymm ( Finset.min_le <| Finset.mem_image_of_mem _ <| Finset.mem_univ _ ) <| Finset.le_min fun x hx => by aesop;
+          exact ⟨ h_max_min_deg, by obtain ⟨ v, hv ⟩ := h_min_deg; exact hv ▸ h_deg_diff v |>.2 ⟩;
+        linarith [ show t_val m ≤ 2 * Real.sqrt ( m * Real.log m ) by exact le_rfl ]
+
 /-
 Construction of the graph H from R and orderings.
 -/
@@ -812,9 +1266,19 @@ def H_graph (m : ℕ) (R : SimpleGraph (Fin m))
     (σ_CD : Fin (2 * m) ≃ Fin m ⊕ Fin m) : SimpleGraph (V_H m) where
   Adj := H_adj m R σ_AB σ_CD
   symm := by
-    sorry
+    constructor
+    intro u v huv;
+    unfold H_adj at *;
+    rcases u with ( _ | _ | _ | _ ) <;> rcases v with ( _ | _ | _ | _ ) <;> norm_num at *;
+    any_goals tauto;
+    rename_i a b;
+    rcases a with ( a | a ) <;> rcases b with ( b | b ) <;> simp_all +decide [ SimpleGraph.adj_comm ]
   loopless := by
-    sorry
+    constructor
+    intro v
+    unfold H_adj
+    rcases v with (⟨a | b⟩ | ⟨c | d⟩) <;> simp
+
 /-
 The adjacency relation of H is decidable.
 -/
