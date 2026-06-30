@@ -81,7 +81,63 @@ theorem exists_next_d (h : ℕ) (r : ℝ) (C : ℝ) (S : ℝ)
     (d : ℝ)^r ≤ (1/2) * (d : ℝ) ∧
     S ≤ (1/4) * (d : ℝ)^(1 / (h : ℝ)) ∧
     C * (d : ℝ)^(1 / (h : ℝ)) ≤ (1/4) * (d : ℝ)^r := by
-      sorry
+      -- Let's choose D such that for all d ≥ D, the conditions on d^r and d^(1/h) hold.
+      obtain ⟨D₁, hD₁⟩ : ∃ D₁ : ℕ, ∀ d ≥ D₁, (d : ℝ)^r ≤ (1 / 2) * (d : ℝ) := by
+        -- Since $r < 1$, we have $d^r \leq \frac{1}{2}d$ for sufficiently large $d$.
+        have h_lim : Filter.Tendsto (fun d : ℕ => (d : ℝ)^r / d) Filter.atTop (nhds 0) := by
+          have h_lim : Filter.Tendsto (fun d : ℕ => (d : ℝ)^(r - 1)) Filter.atTop (nhds 0) := by
+            convert (tendsto_rpow_neg_atTop (show 0 < - (r - 1) by linarith)).comp
+              tendsto_natCast_atTop_atTop using 1
+            ext d
+            congr 1
+            ring;
+          refine h_lim.congr' ?_
+          filter_upwards [ Filter.eventually_gt_atTop 0 ] with d hd
+          rw [ Real.rpow_sub_one ( by positivity ) ]
+        have := h_lim.eventually ( gt_mem_nhds <| show 0 < 1 / 2 by norm_num ) ; aesop;
+        exact ⟨ w + 1, fun d hd => by
+          have := h_1 d ( by linarith )
+          rw [ div_lt_iff₀ ( by
+            norm_cast
+            linarith ) ] at this
+          linarith ⟩;
+      -- Let's choose D such that for all d ≥ D, the conditions on d^(1/h) hold.
+      obtain ⟨D₂, hD₂⟩ : ∃ D₂ : ℕ, ∀ d ≥ D₂, (d : ℝ)^(1 / (h : ℝ)) ≥ 4 * S := by
+        have h_lim_inf : Filter.Tendsto (fun d : ℕ => (d : ℝ)^(1 / (h : ℝ)))
+          Filter.atTop Filter.atTop := by
+          exact tendsto_rpow_atTop ( by positivity ) |> Filter.Tendsto.comp <|
+            tendsto_natCast_atTop_atTop;
+        exact Filter.eventually_atTop.mp ( h_lim_inf.eventually_ge_atTop ( 4 * S ) );
+      -- Let's choose D such that for all d ≥ D, the conditions on C * d^(1/h) hold.
+      obtain ⟨D₃, hD₃⟩ : ∃ D₃ : ℕ, ∀ d ≥ D₃, C * (d : ℝ)^(1 / (h : ℝ)) ≤ (1 / 4) * (d : ℝ)^r := by
+        have h_lim : Filter.Tendsto (fun d : ℕ => C * (d : ℝ)^(1 / (h : ℝ)) / (d : ℝ)^r)
+          Filter.atTop (nhds 0) := by
+          norm_num +zetaDelta at *;
+          -- We can rewrite the limit expression using the properties of exponents.
+          suffices h_exp : Filter.Tendsto (fun d : ℕ => C * (d : ℝ)^(1 / (h : ℝ) - r))
+            Filter.atTop (nhds 0) by
+            refine h_exp.congr' ?_
+            filter_upwards [ Filter.eventually_gt_atTop 0 ] with d hd
+            rw [ Real.rpow_sub ( by positivity ) ]
+            ring_nf
+          simpa using tendsto_const_nhds.mul
+            (tendsto_rpow_neg_atTop
+              (show 0 < - (1 / (h : ℝ) - r) by
+                norm_num
+                nlinarith [
+                  inv_mul_cancel₀ (by positivity : (h : ℝ) ≠ 0),
+                  (by norm_cast : (3 : ℝ) ≤ h)])
+              |> Filter.Tendsto.comp <| tendsto_natCast_atTop_atTop);
+        have := h_lim.eventually ( gt_mem_nhds <| show 0 < 1 / 4 by norm_num ) ; aesop;
+        exact ⟨ w + 1, fun d hd => by
+          have := h_1 d ( by linarith )
+          rw [ div_lt_iff₀
+            (Real.rpow_pos_of_pos ( Nat.cast_pos.mpr ( by linarith ) ) _) ] at this
+          linarith ⟩;
+      exact ⟨ Max.max D₁ ( Max.max D₂ D₃ ), fun d hd => ⟨ hD₁ d ( le_trans ( le_max_left _ _ )
+        hd ), by linarith [ hD₂ d ( le_trans ( le_max_of_le_right ( le_max_left _ _ ) ) hd ) ],
+        hD₃ d ( le_trans ( le_max_of_le_right ( le_max_right _ _ ) ) hd ) ⟩ ⟩
+
 /-
 Theorem: There exists a valid sequence d_n.
 -/
@@ -276,7 +332,92 @@ theorem final_inequality (h : ℕ) (r : ℝ) (C : ℝ) (S : ValidSequence h r C)
   (h_ge_3 : h ≥ 3) (hr1 : 1 - 1 / (h : ℝ) < r) (hr2 : r < 1) :
   ∀ᶠ n in atTop, 2 * (S.d n : ℝ)^r + (S.d (n + 1) : ℝ)^r ≤ 2 * ((S.d (n + 1) : ℝ) - (S.d (n + 1)
     : ℝ)^r)^r := by
-      sorry
+    -- Divide by $d_{n+1}^r$.
+    have h_div : ∀ᶠ n in atTop, 2 * ((S.d n : ℝ) / (S.d (n + 1)))^r + 1 ≤ 2 * (1 - (S.d (n + 1)
+      : ℝ)^(r - 1))^r := by
+      -- Since $d_n^r \leq \frac{1}{4} d_{n+1}^{1/h}$, we have $\frac{d_n^r}{d_{n+1}^r} \leq
+      -- \frac{1}{4} d_{n+1}^{1/h - r}$.
+      have h_frac_bound : ∀ᶠ n in atTop, ((S.d n : ℝ) / (S.d (n + 1)))^r ≤ (1 / 4)
+        * (S.d (n + 1))^(1 / (h : ℝ) - r) := by
+        -- From `cond_sum`, $d_n^r \le \frac{1}{4} d_{n+1}^{1/h}$.
+        have h_cond_sum : ∀ n, (S.d n : ℝ)^r ≤ (1 / 4) * (S.d (n + 1))^(1 / (h : ℝ)) := by
+          intro n; have := S.cond_sum ( n + 1 ) ( Nat.succ_pos n ) ; aesop;
+          exact le_trans ( Finset.single_le_sum ( fun a _ => Real.rpow_nonneg ( Nat.cast_nonneg
+            _ ) _ ) ( Finset.mem_range.mpr ( Nat.lt_succ_self _ ) ) ) this;
+        refine Filter.eventually_atTop.mpr ⟨ 0, fun n hn => ?_ ⟩ ; rw [ Real.div_rpow ( by
+          positivity ) ( by positivity ) ] ; aesop;
+        rw [Real.rpow_sub (Nat.cast_pos.mpr <| S.d_pos _)]
+        simpa [div_eq_mul_inv, mul_assoc, mul_left_comm, mul_comm] using
+          div_le_div_of_nonneg_right (h_cond_sum n)
+            (Real.rpow_nonneg (Nat.cast_nonneg <| S.d (n + 1)) r);
+      -- Since $r > 1/h$, the exponent $1/h - r$ is negative, so $(S.d (n + 1))^{1/h - r} \to 0$
+      -- as $n \to \infty$.
+      have h_exp_zero : Filter.Tendsto (fun n => (S.d (n + 1) : ℝ)^(1 / (h : ℝ) - r))
+        Filter.atTop (nhds 0) := by
+        have h_exp_zero : Filter.Tendsto (fun n => (S.d (n + 1) : ℝ)) Filter.atTop Filter.atTop
+          := by
+          exact tendsto_natCast_atTop_atTop.comp ( S.d_strict_mono.tendsto_atTop.comp (
+            Filter.tendsto_add_atTop_nat 1 ) );
+        convert
+            (tendsto_rpow_neg_atTop
+            (show 0 < - (1 / (h : ℝ) - r) by
+              linarith [
+                show (1 : ℝ) / h < r by
+                  rw [ div_lt_iff₀ ] at * <;>
+                    nlinarith [
+                    show (h : ℝ) ≥ 3 by norm_cast,
+                    one_div_mul_cancel (show (h : ℝ) ≠ 0 by positivity)]])).comp h_exp_zero
+          using 1
+        ext n
+        congr 1
+        ring;
+      -- Since $r < 1$, we have $(1 - (S.d (n + 1))^{r - 1})^r \to 1$ as $n \to \infty$.
+      have h_one_minus_exp_one : Filter.Tendsto (fun n => (1 - (S.d (n + 1) : ℝ)^(r - 1))^r)
+        Filter.atTop (nhds 1) := by
+        have h_one_minus_exp_one : Filter.Tendsto (fun n => (S.d (n + 1) : ℝ)^(r - 1))
+          Filter.atTop (nhds 0) := by
+          have h_exp_zero : Filter.Tendsto (fun n => (S.d (n + 1) : ℝ)) Filter.atTop
+            Filter.atTop := by
+            exact tendsto_natCast_atTop_atTop.comp ( S.d_strict_mono.tendsto_atTop.comp (
+              Filter.tendsto_add_atTop_nat 1 ) );
+          convert (tendsto_rpow_neg_atTop (by linarith : 0 < - (r - 1))).comp h_exp_zero using 1
+          ext n
+          congr 1
+          ring;
+        convert Filter.Tendsto.rpow ( tendsto_const_nhds.sub h_one_minus_exp_one )
+          tendsto_const_nhds _ using 2 <;> norm_num;
+      have := h_one_minus_exp_one.eventually ( lt_mem_nhds <| show 1 > 3 / 4 by norm_num ) ; aesop;
+      exact Filter.eventually_atTop.mp ( h_exp_zero.eventually ( gt_mem_nhds <| show 0 < 1 / 4
+        by norm_num ) ) |> fun ⟨ N, hN ⟩ ↦ ⟨ Max.max w ( Max.max w_1 N ),
+        fun n hn ↦ by
+          linarith [
+            h_1 n ( le_trans ( le_max_left _ _ ) hn ),
+            h_2 n ( le_trans ( le_max_of_le_right ( le_max_left _ _ ) ) hn ),
+            hN n ( le_trans ( le_max_of_le_right ( le_max_right _ _ ) ) hn ) ] ⟩;
+    filter_upwards [ h_div, Filter.eventually_gt_atTop 0 ] with n hn hn';
+    convert mul_le_mul_of_nonneg_right hn ( Real.rpow_nonneg ( Nat.cast_nonneg ( S.d ( n + 1 ) )
+      ) r ) using 1 <;> norm_num [ Real.div_rpow ( Nat.cast_nonneg _ ) ( Nat.cast_nonneg _ ),
+      Real.rpow_sub ( Nat.cast_pos.mpr <| S.d_pos _ ) ];
+    · rfl
+    · have hDpow_ne : (S.d (n + 1) : ℝ) ^ r ≠ 0 :=
+        ne_of_gt (Real.rpow_pos_of_pos (Nat.cast_pos.mpr (S.d_pos _)) r)
+      field_simp [hDpow_ne]
+    · rw [
+        show ( S.d ( n + 1 ) : ℝ ) - S.d ( n + 1 ) ^ r =
+            ( 1 - S.d ( n + 1 ) ^ r / S.d ( n + 1 ) ) * S.d ( n + 1 ) by
+          rw [ sub_mul,
+            div_mul_cancel₀ _ ( Nat.cast_ne_zero.mpr <| ne_of_gt <| S.d_pos _ ) ]
+          ring ]
+      rw [ Real.mul_rpow
+        (sub_nonneg.mpr <|
+          div_le_one_of_le₀
+            (by
+              exact le_trans
+                (Real.rpow_le_rpow_of_exponent_le (mod_cast S.d_pos _) hr2.le)
+                (by norm_num))
+            (Nat.cast_nonneg _))
+        (Nat.cast_nonneg _) ]
+      ring
 /-
 Algebraic bounds for the two cases in the proof of intervals_bound.
 -/
@@ -602,7 +743,21 @@ theorem A_upper_bound (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSequence 
   (h_ge_3 : h ≥ 3) (hr1 : 1 - 1 / (h : ℝ) < r) (hr2 : r < 1) :
   ∀ᶠ x in atTop, (count_in_range (constructed_A TB.B S.d r) x : ℝ) ≤ TB.C * x^(1 / (h : ℝ))
     + 2 * x^r := by
-      sorry
+    -- By `TB.thin_condition`, $B(x) \le C x^{1/h}$.
+    have h_B_bound : ∀ᶠ x in atTop, (Set.ncard (TB.B ∩ Set.Icc 1 ⌊x⌋₊) : ℝ)
+      ≤ TB.C * x^(1 / h : ℝ) := by
+        exact Filter.eventually_atTop.mpr ⟨ 1, fun x hx => by
+          simpa [count_in_range] using TB.thin_condition x hx ⟩;
+    have h_union_bound : ∀ x : ℝ, x ≥ 1 → (Set.ncard ((TB.B ∪ (⋃ n, I (S.d n) (L r (S.d n))))
+      ∩ Set.Icc 1 ⌊x⌋₊) : ℝ) ≤ (Set.ncard (TB.B ∩ Set.Icc 1 ⌊x⌋₊) : ℝ) + (Set.ncard ((⋃ n,
+      I (S.d n) (L r (S.d n))) ∩ Set.Icc 1 ⌊x⌋₊) : ℝ) := by
+      intro x hx;
+      norm_cast;
+      convert Set.ncard_union_le _ _ using 2 ; aesop;
+    filter_upwards [ h_B_bound, Filter.eventually_ge_atTop 1, intervals_bound_final h r TB.C S
+      h_ge_3 hr1 hr2 ( TB.C_pos ) ] with x hx₁ hx₂ hx₃ using le_trans ( h_union_bound x hx₂ )
+      ( add_le_add hx₁ hx₃ )
+
 /-
 For large n, A(d_n) >= 1/2 * d_n^r.
 -/
@@ -1120,7 +1275,71 @@ theorem Ah_minus_1_bound (h : ℕ) (r : ℝ) (TB : ThinBasis h) (S : ValidSequen
   ∀ᶠ n in atTop, (count_in_range (iterated_sumset (constructed_A TB.B S.d r) (h - 1)) (S.d n) : ℝ) ≤
     (L r (S.d n) : ℝ) + (count_in_range (constructed_A TB.B S.d r) ((S.d n) - L r (S.d n))
       : ℝ)^(h - 1) := by
-        sorry
+      -- Apply the decomposition lemma to the set $A$ and the interval $I_n$.
+      have h_decomp : ∀ᶠ n in Filter.atTop, (Set.ncard ((iterated_sumset (constructed_A TB.B S.d
+        r) (h - 1)) ∩ Set.Icc 1 (S.d n))) ≤ (Set.ncard ({s ∈ Set.Icc 1 (S.d n) | ∃ a ∈ I (S.d n)
+        (L r (S.d n)), a ≤ s})) + (Set.ncard (iterated_sumset ((constructed_A TB.B S.d r)
+        ∩ Set.Icc 1 ((S.d n) - L r (S.d n))) (h - 1))) := by
+        have h_decomp : ∀ᶠ n in Filter.atTop, (Set.ncard ((iterated_sumset (constructed_A TB.B
+          S.d r) (h - 1)) ∩ Set.Icc 1 (S.d n))) ≤ (Set.ncard ((iterated_sumset ((constructed_A
+          TB.B S.d r) \ I (S.d n) (L r (S.d n))) (h - 1)) ∩ Set.Icc 1 (S.d n)))
+          + (Set.ncard ({s ∈ Set.Icc 1 (S.d n) | ∃ a ∈ I (S.d n) (L r (S.d n)), a ≤ s})) := by
+          refine Filter.eventually_atTop.mpr ⟨ 0, fun n hn => ?_ ⟩;
+          have h_decomp : (Set.ncard ((iterated_sumset (constructed_A TB.B S.d r) (h - 1))
+            ∩ Set.Icc 1 (S.d n))) ≤ (Set.ncard (((iterated_sumset (constructed_A TB.B S.d r \ I
+            (S.d n) (L r (S.d n))) (h - 1)) ∪ {s | ∃ a ∈ I (S.d n) (L r (S.d n)), a ≤ s})
+            ∩ Set.Icc 1 (S.d n))) := by
+            apply_rules [ Set.ncard_le_ncard ];
+            · intro x hx;
+              have := sumset_decomposition ( constructed_A TB.B S.d r ) ( I ( S.d n )
+                ( L r ( S.d n ) ) ) ( h - 1 );
+              specialize this hx.1; aesop;
+            · exact Set.Finite.subset ( Set.finite_Icc 1 ( S.d n ) ) fun x hx => hx.2;
+          refine le_trans h_decomp ?_;
+          convert Set.ncard_union_le _ _ using 2
+          · rfl
+          · ext x
+            constructor
+            · intro hx
+              rcases hx with ⟨hx_left | hx_right, hx_interval⟩
+              · exact Or.inl ⟨hx_left, hx_interval⟩
+              · exact Or.inr ⟨hx_interval, hx_right⟩
+            · intro hx
+              rcases hx with hx_left | hx_right
+              · exact ⟨Or.inl hx_left.1, hx_left.2⟩
+              · exact ⟨Or.inr hx_right.2, hx_right.1⟩;
+        filter_upwards [ h_decomp, Filter.eventually_ge_atTop 1 ] with n hn hn';
+        refine le_trans hn ?_;
+        rw [ add_comm ];
+        gcongr;
+        · have h_finite : Set.Finite (constructed_A TB.B S.d r ∩ Set.Icc 1 (S.d n - L r (S.d
+          n))) := by
+            exact Set.finite_iff_bddAbove.mpr ⟨ S.d n - L r ( S.d n ), fun x hx => hx.2.2 ⟩;
+          have h_finite : ∀ k, Set.Finite (iterated_sumset (constructed_A TB.B S.d r ∩ Set.Icc 1
+            (S.d n - L r (S.d n))) k) := by
+            intro k
+            induction k with
+            | zero =>
+              exact Set.finite_singleton 0
+            | succ k ih =>
+              exact Set.Finite.add h_finite ih
+          exact h_finite _;
+        · apply_rules [ S2_subset_lemma ];
+          unfold constructed_A; aesop;
+          unfold I at h_2; aesop;
+          exact Nat.one_le_iff_ne_zero.mpr ( by aesop_cat );
+      -- Apply the cardinality bounds from h_card_bounds.
+      have h_card_bounds_applied : ∀ᶠ n in Filter.atTop, (Set.ncard ((iterated_sumset
+        (constructed_A TB.B S.d r) (h - 1)) ∩ Set.Icc 1 (S.d n))) ≤ (L r (S.d n))
+        + (Set.ncard ((constructed_A TB.B S.d r) ∩ Set.Icc 1 ((S.d n) - L r (S.d n)))) ^ (h - 1)
+        := by
+        filter_upwards [ h_decomp, Filter.eventually_gt_atTop 0 ] with n hn hn' ; aesop;
+        refine le_trans hn ?_;
+        apply_rules [ add_le_add, S1_card_bound, card_iterated_sumset_le ];
+      norm_num +zetaDelta at *;
+      obtain ⟨ a, ha ⟩ := h_card_bounds_applied; use a; intros n hn; specialize ha n hn;
+        unfold count_in_range; norm_cast; aesop;
+
 /-
 Bound for the cardinality of the second part of the sumset decomposition.
 -/
