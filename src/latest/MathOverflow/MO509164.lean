@@ -142,7 +142,19 @@ Formula for pi_r(u1^infty).
 -/
 theorem pi_append_ones (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (u : List (Fin 2)) :
     pi r (append_ones u) = (1 - r) * (∑ k ∈ Finset.range u.length, ((u[k]?).getD 0 : ℝ) * r ^ k) + r ^ u.length := by
-      sorry
+      -- Split the sum in the definition of pi into the first n terms and the rest. The rest form a geometric series.
+      have h_split_sum : ∑' k : ℕ, ((append_ones u k : ℝ) * r ^ k) = (∑ k ∈ Finset.range u.length, ((u[k]?).getD 0 : ℝ) * r ^ k) + (∑' k : ℕ, r ^ (k + u.length)) := by
+        rw [ ← Summable.sum_add_tsum_nat_add ];
+        all_goals try congr! 2;
+        · unfold append_ones; aesop;
+        · unfold append_ones; aesop;
+        · exact Summable.of_nonneg_of_le ( fun _ => mul_nonneg ( Nat.cast_nonneg _ ) ( pow_nonneg hr.1.le _ ) ) ( fun _ => mul_le_of_le_one_left ( pow_nonneg hr.1.le _ ) ( mod_cast Fin.is_le _ ) ) ( summable_geometric_of_lt_one hr.1.le ( by linarith ) );
+      rw [pi, h_split_sum, mul_add]
+      congr 1
+      simp_rw [pow_add]
+      rw [tsum_mul_right, tsum_geometric_of_lt_one hr.1.le (by linarith : r < 1)]
+      field_simp [show 1 - r ≠ 0 by linarith]
+
 /-
 Proposition 2.1(3) part 2: I_u(r) = [L_u(r), R_u(r)].
 -/
@@ -253,7 +265,76 @@ Distinct words of the same length correspond to disjoint intervals.
 -/
 theorem disjoint_I_word (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (n : ℕ) (u v : List (Fin 2)) (hu : u ∈ Sigma_n n) (hv : v ∈ Sigma_n n) (hdiff : u ≠ v) :
     Disjoint (I_word u r) (I_word v r) := by
-      sorry
+      induction n generalizing u v with
+      | zero =>
+        cases u <;> cases v <;> simp_all +decide [ Sigma_n ];
+      | succ n ih =>
+        -- If u and v start with the same symbol, say u = i :: u' and v = i :: v', then by the induction hypothesis, I_word u' r and I_word v' r are disjoint. Since f_i is injective, applying f_i to these intervals will give disjoint intervals.
+        by_cases h_start : u.head! = v.head!;
+        · obtain ⟨i, u', v', hu', hv', huv'⟩ : ∃ i : Fin 2, ∃ u' v' : List (Fin 2), u = i :: u' ∧ v = i :: v' ∧ u' ≠ v' := by
+            rcases u with ( _ | ⟨ i, u ⟩ ) <;> rcases v with ( _ | ⟨ j, v ⟩ ) <;> simp_all +decide [ Sigma_n ];
+          simp_all +decide [ Sigma_n ];
+          simpa [I_word, f_word, Set.image_image, Function.comp_def] using
+            Set.disjoint_image_of_injective ( f_word_injective r ( by linarith ) [ i ] )
+              ( ih u' v' hu hv huv' );
+        · -- Since u and v start with different symbols, say u = i :: u' and v = j :: v' with i ≠ j, then by the induction hypothesis, I_word u' r and I_word v' r are disjoint. Since f_i and f_j are disjoint, their images under f_i and f_j will also be disjoint.
+          obtain ⟨i, u', hi⟩ : ∃ i u', u = i :: u' := by
+            exact List.exists_cons_of_length_eq_add_one hu
+          obtain ⟨j, v', hj⟩ : ∃ j v', v = j :: v' := by
+            exact List.exists_cons_of_length_eq_add_one hv
+          have h_disjoint : Disjoint (f i r '' I_word u' r) (f j r '' I_word v' r) := by
+            have h_disjoint : Disjoint (f i r '' Set.Icc 0 1) (f j r '' Set.Icc 0 1) := by
+              fin_cases i <;> fin_cases j <;> simp_all +decide [ Set.disjoint_left ];
+              · unfold f; norm_num at *; intros; nlinarith;
+              · unfold f; norm_num at *; intros; nlinarith;
+            refine h_disjoint.mono ?_ ?_;
+            · subst hi hj
+              simp_all only [one_div, ne_eq, List.cons.injEq, not_and, List.head!_cons, Set.le_eq_subset,
+                Set.image_subset_iff, IsEmpty.forall_iff]
+              obtain ⟨left, right⟩ := hr
+              intro x hx;
+              obtain ⟨ y, hy, rfl ⟩ := hx;
+              -- By definition of $f_word$, we know that $f_word u' r y$ is in the interval $[0, 1]$.
+              have h_f_word_u'_r_y : ∀ u : List (Fin 2), ∀ r : ℝ, 0 < r ∧ r < 1 / 2 → ∀ y ∈ Set.Icc 0 1, f_word u r y ∈ Set.Icc 0 1 := by
+                intros u r hr y hy
+                induction u generalizing y with
+                | nil =>
+                  simp_all +decide [ f_word ]
+                | cons i u ih =>
+                simp_all +decide [ f_word ] ;
+                unfold f; fin_cases i <;> norm_num at * <;> constructor <;> nlinarith [ ih _ hy.1 hy.2 ] ;
+              simp_all only [Set.mem_Icc, one_div, and_imp, Set.mem_preimage, Set.mem_image]
+              obtain ⟨left_1, right_1⟩ := hy
+              apply Exists.intro
+              · apply And.intro
+                on_goal 2 => { rfl
+                }
+                · simp_all only [and_self]
+            · subst hi hj
+              simp_all only [one_div, ne_eq, List.cons.injEq, not_and, List.head!_cons, Set.le_eq_subset,
+                Set.image_subset_iff, IsEmpty.forall_iff]
+              obtain ⟨left, right⟩ := hr
+              intro x hx; obtain ⟨ y, hy, rfl ⟩ := hx; exact (by
+              -- By definition of $f_word$, we know that $f_word v' r y$ is in the interval $[0, 1]$.
+              have h_f_word_v'_r_y : ∀ (v' : List (Fin 2)) (y : ℝ), y ∈ Set.Icc 0 1 → f_word v' r y ∈ Set.Icc 0 1 := by
+                intro v' y hy
+                induction v' generalizing y with
+                | nil =>
+                  simp_all +decide [ f_word ]
+                | cons i v' ih =>
+                simp_all +decide [ f_word ] ;
+                unfold f; fin_cases i <;> norm_num at * <;> constructor <;> nlinarith [ ih _ hy.1 hy.2 ] ;
+              simp_all only [Set.mem_Icc, and_imp, Set.mem_preimage, Set.mem_image]
+              obtain ⟨left_1, right_1⟩ := hy
+              apply Exists.intro
+              · apply And.intro
+                on_goal 2 => { rfl
+                }
+                · simp_all only [and_self]);
+          convert h_disjoint using 1;
+          · unfold I_word; aesop;
+          · unfold I_word; aesop;
+
 /-
 For every x in C and n, the word u of length n such that x is in I_u is unique.
 -/
@@ -303,7 +384,68 @@ The projection of the code of x is x.
 -/
 theorem pi_code_of_mem_C (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (x : ℝ) (hx : x ∈ C r) :
     pi r (code_of_mem_C r hr x hx) = x := by
-      sorry
+      -- Let's denote the word of length n corresponding to x as u_n.
+      set u_n := fun n => Classical.choose (unique_word_of_mem_C r hr x hx n) with hu_n_def
+      have hu_n_prefix : ∀ n m, n ≤ m → u_n n = (u_n m).take n := by
+        intro n m hnm
+        have h_subset : u_n n = (u_n (n + 1)).take n := by
+          exact Eq.symm (compatible_words_of_mem_C r hr x hx n)
+        generalize_proofs at *; (
+        have h_subset_induction : ∀ k ≥ n, u_n n = (u_n k).take n := by
+          intro k hk
+          induction hk with
+          | refl =>
+            generalize_proofs at *; (
+            have := Classical.choose_spec ( ‹∀ n : ℕ, ∃ x_1 : List ( Fin 2 ), ( fun u : List ( Fin 2 ) => u ∈ Sigma_n n ∧ x ∈ I_word u r ) x_1 ∧ ∀ y : List ( Fin 2 ), y ∈ Sigma_n n ∧ x ∈ I_word y r → y = x_1› n ) |>.1.1; aesop;)
+          | step hk ih =>
+            rename_i k
+            have h_subset_step : u_n k = (u_n (k + 1)).take k := by
+              exact Eq.symm (compatible_words_of_mem_C r hr x hx k)
+            generalize_proofs at *; (
+            rw [ ih, h_subset_step, List.take_take ] ; aesop;)
+        generalize_proofs at *; (
+        exact h_subset_induction m hnm ▸ rfl))
+      have hu_n_limit : ∀ n, x ∈ I_word (u_n n) r := by
+        exact fun n => Classical.choose_spec ( unique_word_of_mem_C r hr x hx n ) |>.1 |>.2 |> fun h => h
+      have h_limit_eq : Filter.Tendsto (fun n => (pi r (append_zeros (u_n n)))) Filter.atTop (nhds x) := by
+        -- By definition of $u_n$, we know that $x \in I_{u_n}(r)$ for all $n$, and the length of $I_{u_n}(r)$ tends to $0$ as $n$ tends to infinity.
+        have h_length_zero : Filter.Tendsto (fun n => (r ^ (u_n n).length)) Filter.atTop (nhds 0) := by
+          -- Since $u_n$ is a word of length $n$, we have $(u_n n).length = n$.
+          have h_length_eq_n : ∀ n, (u_n n).length = n := by
+            intro n; exact (Classical.choose_spec (unique_word_of_mem_C r hr x hx n)).1.1;
+          simpa only [ h_length_eq_n ] using tendsto_pow_atTop_nhds_zero_of_lt_one hr.1.le ( by linarith );
+        -- Since $x \in I_{u_n}(r)$, we have $|x - \pi_r(u_n)| \leq r^n$.
+        have h_dist : ∀ n, |x - pi r (append_zeros (u_n n))| ≤ r ^ (u_n n).length := by
+          intro n
+          specialize hu_n_limit n
+          have h_interval : x ∈ Set.Icc (pi r (append_zeros (u_n n))) (pi r (append_ones (u_n n))) := by
+            exact prop_symbolic_3_interval r hr ( u_n n ) ▸ hu_n_limit |> fun h => by simpa using h;
+          have h_dist : |x - pi r (append_zeros (u_n n))| ≤ r ^ (u_n n).length := by
+            rw [ abs_of_nonneg ] <;> linarith [ h_interval.1, h_interval.2, show pi r ( append_ones ( u_n n ) ) = pi r ( append_zeros ( u_n n ) ) + r ^ ( u_n n |> List.length ) from by rw [ pi_append_ones r hr, pi_append_zeros r ] ] ;
+          exact h_dist;
+        exact tendsto_iff_norm_sub_tendsto_zero.mpr ( squeeze_zero ( fun _ => abs_nonneg _ ) ( fun n => by simpa [ abs_sub_comm ] using h_dist n ) h_length_zero )
+      have h_append_zeros_limit : Filter.Tendsto (fun n => (pi r (append_zeros (u_n n)))) Filter.atTop (nhds (pi r (code_of_mem_C r hr x hx))) := by
+        have h_append_zeros_limit : Filter.Tendsto (fun n => (∑ k ∈ Finset.range (u_n n).length, ((u_n n)[k]? |>.getD 0 : ℝ) * r ^ k)) Filter.atTop (nhds (∑' k, ((code_of_mem_C r hr x hx) k : ℝ) * r ^ k)) := by
+          convert Summable.hasSum _ |> HasSum.tendsto_sum_nat |> Filter.Tendsto.comp <| Filter.tendsto_id using 1
+          all_goals try generalize_proofs at *;
+          · ext n; exact (by
+            -- Since the length of `u_n n` is `n`, the sum over the range of `n` is the same as the sum over the range of the length of `u_n n`.
+            have h_length : (u_n n).length = n := by
+              exact Classical.choose_spec ( ‹∀ n : ℕ, ∃ u_1 : List ( Fin 2 ), ( fun u : List ( Fin 2 ) => u ∈ Sigma_n n ∧ x ∈ I_word u r ) u_1 ∧ ∀ y : List ( Fin 2 ), y ∈ Sigma_n n ∧ x ∈ I_word y r → y = u_1› n ) |>.1 |>.1 |> fun h => h.symm ▸ rfl
+            generalize_proofs at *;
+            rw [h_length];
+            refine Finset.sum_congr rfl fun i hi => ?_ ; simp +decide [ code_of_mem_C ] ; ring_nf;
+            simp +zetaDelta at *;
+            grind +ring);
+          · exact Summable.of_nonneg_of_le ( fun n => mul_nonneg ( Nat.cast_nonneg _ ) ( pow_nonneg hr.1.le _ ) ) ( fun n => mul_le_of_le_one_left ( pow_nonneg hr.1.le _ ) ( mod_cast Fin.is_le _ ) ) ( summable_geometric_of_lt_one hr.1.le ( by linarith ) )
+        convert h_append_zeros_limit.const_mul (1 - r) using 1
+        · ext n
+          rw [pi_append_zeros]
+        · rw [pi]
+      have h_eq : pi r (code_of_mem_C r hr x hx) = x := by
+        exact tendsto_nhds_unique h_append_zeros_limit h_limit_eq
+      exact h_eq.symm ▸ rfl
+
 /-
 The projection map pi is continuous.
 -/
@@ -364,7 +506,84 @@ Lemma 2.4(1): pi_r(omega) is strictly increasing if omega starts with 0 and is n
 -/
 theorem pi_strictly_increasing (ω : ℕ → Fin 2) (h0 : ω 0 = 0) (h_not_zero : ∃ n, ω n ≠ 0) :
     StrictMonoOn (fun r => pi r ω) (Set.Ico 0 (1 / 2)) := by
-      sorry
+      -- Let $n$ be the smallest index such that $\omega_n = 1$.
+      obtain ⟨n, hn⟩ : ∃ n, ω n = 1 ∧ ∀ m < n, ω m = 0 := by
+        exact ⟨ Nat.find h_not_zero, Or.resolve_left ( Fin.exists_fin_two.mp ( by aesop ) ) ( Nat.find_spec h_not_zero ), fun m mn => by simpa using Nat.find_min h_not_zero mn ⟩;
+      -- We can write $\omega$ as $0^n 1 \sigma$ for some sequence $\sigma$.
+      obtain ⟨σ, hσ⟩ : ∃ σ : ℕ → Fin 2, ω = fun m => if m < n then 0 else if m = n then 1 else σ (m - n - 1) := by
+        use fun m => ω (m + n + 1);
+        grind +ring;
+      -- Then $\pi_r(\omega) = (1-r) \sum_{k=0}^{n-1} 0 \cdot r^k + (1-r) r^n + (1-r) r^{n+1} \sum_{k=0}^{\infty} \sigma_k r^k = (1-r) r^n + (1-r) r^{n+1} \sum_{k=0}^{\infty} \sigma_k r^k$.
+      have h_pi_expansion : ∀ r ∈ Set.Ico 0 (1 / 2), pi r ω = (1 - r) * r ^ n + (1 - r) * r ^ (n + 1) * ∑' k, (σ k : ℝ) * r ^ k := by
+        intro r hr
+        have h_split_sum : ∑' k, (ω k : ℝ) * r ^ k = (∑ k ∈ Finset.range n, (ω k : ℝ) * r ^ k) + (ω n : ℝ) * r ^ n + (∑' k, (ω (n + k + 1) : ℝ) * r ^ (n + k + 1)) := by
+          rw [ ← Summable.sum_add_tsum_nat_add ];
+          case k => exact n + 1;
+          · norm_num [ add_comm, add_left_comm, add_assoc, Finset.sum_range_succ ];
+          · exact Summable.of_nonneg_of_le ( fun k => mul_nonneg ( Nat.cast_nonneg _ ) ( pow_nonneg hr.1 _ ) ) ( fun k => mul_le_of_le_one_left ( pow_nonneg hr.1 _ ) ( mod_cast Fin.is_le _ ) ) ( summable_geometric_of_lt_one hr.1 ( by linarith [ hr.2 ] ) );
+        convert congr_arg ( fun x : ℝ => ( 1 - r ) * x ) h_split_sum using 1
+        · rw [pi]
+        · norm_num [ Finset.sum_range, hn, hσ, add_comm 1, add_assoc, mul_assoc, tsum_mul_left, pow_add ]
+          have htail :
+              (∑' k : ℕ, (σ k : ℝ) * (r ^ n * (r ^ k * r))) =
+                r ^ n * (r * ∑' k : ℕ, (σ k : ℝ) * r ^ k) := by
+            calc
+              (∑' k : ℕ, (σ k : ℝ) * (r ^ n * (r ^ k * r)))
+                  = ∑' k : ℕ, (r ^ n * r) * ((σ k : ℝ) * r ^ k) := by
+                    apply tsum_congr
+                    intro k
+                    ring
+              _ = (r ^ n * r) * ∑' k : ℕ, (σ k : ℝ) * r ^ k := by
+                    rw [tsum_mul_left]
+              _ = r ^ n * (r * ∑' k : ℕ, (σ k : ℝ) * r ^ k) := by
+                    ring
+          rw [htail]
+          ring_nf
+      have hn_pos : 0 < n := by
+        cases n with
+        | zero => simpa [h0] using hn.1
+        | succ n => exact Nat.succ_pos n
+      -- The term $(1-r) r^n$ is strictly increasing on $[0, 1 / 2)$.
+      have h_term1_inc : StrictMonoOn (fun r : ℝ => (1 - r) * r ^ n) (Set.Ico 0 (1 / 2)) := by
+        -- Let's calculate the derivative of $(1-r) r^n$ and show it is positive on $(0, 1 / 2)$.
+        have h_deriv_pos : ∀ r ∈ Set.Ioo 0 (1 / 2), deriv (fun r : ℝ => (1 - r) * r ^ n) r > 0 := by
+          intro r hr
+          rcases n with _ | n
+          · exact False.elim (Nat.lt_irrefl 0 hn_pos)
+          · have hderiv :
+                deriv (fun r : ℝ => (1 - r) * r ^ (n + 1)) r =
+                  r ^ n * ((n + 1 : ℝ) - (n + 2 : ℝ) * r) := by
+              have h1 : HasDerivAt (((fun _ : ℝ => (1 : ℝ)) - id)) (-1) r := by
+                simpa using (hasDerivAt_const r (1 : ℝ)).sub (hasDerivAt_id r)
+              have h2 : HasDerivAt (fun r : ℝ => r ^ (n + 1)) ((n + 1 : ℝ) * r ^ n) r := by
+                simpa [Nat.cast_add, Nat.cast_one] using hasDerivAt_pow (n + 1) r
+              have hderiv' :
+                  deriv ((((fun _ : ℝ => (1 : ℝ)) - id) * (fun r : ℝ => r ^ (n + 1)))) r =
+                    (-1) * r ^ (n + 1) + (1 - r) * ((n + 1 : ℝ) * r ^ n) := by
+                  simpa using (h1.mul h2).deriv
+              change deriv ((((fun _ : ℝ => (1 : ℝ)) - id) * (fun r : ℝ => r ^ (n + 1)))) r =
+                r ^ n * ((n + 1 : ℝ) - (n + 2 : ℝ) * r)
+              ring_nf at hderiv' ⊢
+              exact hderiv'
+            rw [hderiv]
+            exact mul_pos (pow_pos hr.1 _) (by nlinarith [hr.2])
+        intros x hx y hy hxy;
+        have := exists_deriv_eq_slope ( fun r => ( 1 - r ) * r ^ n ) hxy ; norm_num at *;
+        exact this ( Continuous.continuousOn <| by continuity ) ( Differentiable.differentiableOn <| by exact Differentiable.mul ( differentiable_id.const_sub _ ) <| differentiable_pow _ ) |> fun ⟨ c, hc₁, hc₂ ⟩ => by have := h_deriv_pos c ( by linarith ) ( by linarith ) ; rw [ hc₂, lt_div_iff₀ ] at this <;> linarith;
+      -- The term $(1-r) r^{n+1} \sum_{k=0}^{\infty} \sigma_k r^k$ is non-decreasing on $[0, 1 / 2)$.
+      have h_term2_nondec : ∀ r1 r2 : ℝ, 0 ≤ r1 → r1 < r2 → r2 < 1 / 2 → (1 - r1) * r1 ^ (n + 1) * ∑' k, (σ k : ℝ) * r1 ^ k ≤ (1 - r2) * r2 ^ (n + 1) * ∑' k, (σ k : ℝ) * r2 ^ k := by
+        intros r1 r2 hr1 hr2 hr2_half
+        have h_term2_nondec : (1 - r1) * r1 ^ (n + 1) ≤ (1 - r2) * r2 ^ (n + 1) := by
+          have := h_term1_inc ( show r1 ∈ Set.Ico 0 ( 1 / 2 ) from ⟨ hr1, by linarith ⟩ ) ( show r2 ∈ Set.Ico 0 ( 1 / 2 ) from ⟨ by linarith, hr2_half ⟩ ) hr2;
+          norm_num [ pow_succ' ] at *;
+          nlinarith [ mul_le_mul_of_nonneg_left hr2.le ( pow_nonneg hr1 n ), mul_le_mul_of_nonneg_left hr2.le ( pow_nonneg ( by linarith : 0 ≤ r2 ) n ) ];
+        gcongr;
+        · exact mul_nonneg ( by linarith ) ( pow_nonneg ( by linarith ) _ );
+        · exact Summable.of_nonneg_of_le ( fun _ => mul_nonneg ( Nat.cast_nonneg _ ) ( pow_nonneg hr1 _ ) ) ( fun _ => mul_le_of_le_one_left ( pow_nonneg hr1 _ ) ( mod_cast Fin.is_le _ ) ) ( summable_geometric_of_lt_one hr1 ( by linarith ) );
+        · exact Summable.of_nonneg_of_le ( fun _ => mul_nonneg ( Nat.cast_nonneg _ ) ( pow_nonneg ( by linarith ) _ ) ) ( fun _ => mul_le_of_le_one_left ( pow_nonneg ( by linarith ) _ ) ( mod_cast Fin.is_le _ ) ) ( summable_geometric_of_lt_one ( by linarith ) ( by linarith ) );
+      intros r1 hr1 r2 hr2 hlt;
+      simpa only [ h_pi_expansion r1 hr1, h_pi_expansion r2 hr2 ] using add_lt_add_of_lt_of_le ( h_term1_inc hr1 hr2 hlt ) ( h_term2_nondec r1 r2 hr1.1 hlt hr2.2 )
+
 /-
 Lemma 2.4(2): pi_r(omega) is strictly decreasing if omega starts with 1 and is not 1^infty.
 -/
@@ -399,7 +618,91 @@ R_u(rho) is not in C_alpha^+ if u starts with 0.
 -/
 theorem not_mem_C_plus_of_R_u (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) (u : List (Fin 2)) (hu : u ≠ []) (h0 : u.head! = 0) :
     pi rho (append_ones u) ∉ C_plus rho := by
-      sorry
+      -- Let $x = \pi_\rho(\text{append\_ones } u)$. We need to show that $x \notin C_\alpha^+$.
+      set x := pi rho (append_ones u) with hx
+      have hx_not_in_C_plus : ∀ᶠ r in nhdsWithin rho (Set.Iio rho), x∉ C r := by
+        -- For $r$ close to $\rho$, $x$ is not in $I_u(r)$ (since $x > R_u(r)$) and not in $I_v(r)$ (by continuity of endpoints).
+        have hx_not_in_I_u : ∀ᶠ r in nhdsWithin rho (Set.Iio rho), x∉ I_word u r := by
+          -- Since $x = \pi_\rho(\text{append\_ones } u)$, we have $x > R_u(r)$ for $r$ close to $\rho$.
+          have hx_gt_R_u_r : ∀ᶠ r in nhdsWithin rho (Set.Iio rho), x > pi r (append_ones u) := by
+            have h_inc : StrictMonoOn (fun r => pi r (append_ones u)) (Set.Ico 0 (1 / 2)) := by
+              apply pi_strictly_increasing;
+              · cases u <;> aesop;
+              · use u.length; simp [append_ones];
+            filter_upwards [ Ioo_mem_nhdsLT hrho.1 ] with r hr using h_inc ⟨ by linarith [ hr.1 ], by linarith [ hr.2 ] ⟩ ⟨ by linarith [ hr.1 ], by linarith [ hr.2 ] ⟩ hr.2;
+          filter_upwards [ hx_gt_R_u_r, Ioo_mem_nhdsLT hrho.1 ] with r hr₁ hr₂ ; rw [ prop_symbolic_3_interval r ⟨ hr₂.1, hr₂.2.trans_le <| by linarith ⟩ u ] ; aesop;
+        have hx_not_in_I_v : ∀ᶠ r in nhdsWithin rho (Set.Iio rho), ∀ v ∈ Sigma_n u.length, v ≠ u → x∉ I_word v r := by
+          -- Since $x$ is the right endpoint of $I_u(\rho)$, for $r$ close to $\rho$, $x$ is not in $I_v(r)$ for any $v \neq u$ of the same length.
+          have hx_not_in_I_v : ∀ v ∈ Sigma_n u.length, v ≠ u → ∀ᶠ r in nhdsWithin rho (Set.Iio rho), x∉ I_word v r := by
+            intros v hv hv_ne_u
+            have h_disjoint : Disjoint (I_word u rho) (I_word v rho) := by
+              apply disjoint_I_word rho hrho u.length u v;
+              · aesop
+              · exact hv;
+              · exact hv_ne_u.symm
+            have h_cont : ContinuousAt (fun r => pi r (append_ones u)) rho ∧ ContinuousAt (fun r => pi r (append_zeros v)) rho ∧ ContinuousAt (fun r => pi r (append_ones v)) rho := by
+              have h_cont : ∀ ω : ℕ → Fin 2, ContinuousAt (fun r => pi r ω) rho := by
+                intro ω
+                have h_cont : ContinuousAt (fun r => (1 - r) * ∑' n : ℕ, (ω n : ℝ) * r ^ n) rho := by
+                  refine ContinuousAt.mul ( continuousAt_const.sub continuousAt_id ) ?_;
+                  refine ( tendsto_tsum_of_dominated_convergence ( bound := fun k => ( 1 : ℝ ) * ( 1 / 2 ) ^ k ) ?_ ?_ ?_ );
+                  all_goals generalize_proofs at *;
+                  · exact Summable.mul_left _ ( summable_geometric_two );
+                  · exact fun k => Continuous.tendsto ( by continuity ) _;
+                  · norm_num +zetaDelta at *;
+                    filter_upwards [ Ioo_mem_nhds hrho.1 ( show rho < 1 / 2 by linarith ) ] with n hn k using le_trans ( mul_le_of_le_one_left ( by positivity ) ( mod_cast Fin.is_le _ ) ) ( pow_le_pow_left₀ ( by positivity ) ( show |n| ≤ 1 / 2 by rw [ abs_of_nonneg ] <;> linarith [ hn.1, hn.2 ] ) _ ) |> le_trans <| by norm_num;
+                simpa [pi] using h_cont
+              generalize_proofs at *; (
+              exact ⟨ h_cont _, h_cont _, h_cont _ ⟩)
+            have h_not_in_I_v : ∀ᶠ r in nhdsWithin rho (Set.Iio rho), x∉ I_word v r := by
+              have h_not_in_I_v : ∀ᶠ r in nhdsWithin rho (Set.Iio rho), x∉ Set.Icc (pi r (append_zeros v)) (pi r (append_ones v)) := by
+                have h_not_in_I_v : x∉ Set.Icc (pi rho (append_zeros v)) (pi rho (append_ones v)) := by
+                  have h_not_in_I_v : x∉ I_word v rho := by
+                    exact fun h => h_disjoint.le_bot ⟨ by
+                      convert pi_mem_I_word rho hrho ( append_ones u ) u.length using 1
+                      generalize_proofs at *; (
+                      congr! 1
+                      generalize_proofs at *; (
+                      refine List.ext_get ?_ ?_ <;> simp +decide [ take_word ];
+                      intro n hn; unfold append_ones; aesop;)), h ⟩
+                  generalize_proofs at *; (
+                  convert h_not_in_I_v using 1
+                  generalize_proofs at *; (
+                  rw [ prop_symbolic_3_interval rho hrho v ]))
+                generalize_proofs at *; (
+                have h_not_in_I_v : ∀ᶠ r in nhdsWithin rho (Set.Iio rho), x∉ Set.Icc (pi r (append_zeros v)) (pi r (append_ones v)) := by
+                  have h_cont : ContinuousAt (fun r => (pi r (append_zeros v), pi r (append_ones v))) rho := by
+                    exact ContinuousAt.prodMk h_cont.2.1 h_cont.2.2
+                  have h_not_in_I_v : ∀ᶠ r in nhdsWithin rho (Set.Iio rho), (pi r (append_zeros v), pi r (append_ones v))∉ {p : ℝ × ℝ | x ∈ Set.Icc p.1 p.2} := by
+                    have h_closed : IsClosed {p : ℝ × ℝ | x ∈ Set.Icc p.1 p.2} := by
+                      exact IsClosed.inter ( isClosed_le continuous_fst continuous_const ) ( isClosed_le continuous_const continuous_snd )
+                    exact h_cont.eventually ( h_closed.isOpen_compl.mem_nhds <| by aesop ) |> fun h => h.filter_mono nhdsWithin_le_nhds;
+                  generalize_proofs at *; (
+                  exact h_not_in_I_v.mono fun r hr => by simpa using hr;)
+                generalize_proofs at *; (
+                convert h_not_in_I_v using 1))
+              generalize_proofs at *; (
+              filter_upwards [ h_not_in_I_v, mem_nhdsWithin_of_mem_nhds ( Ioo_mem_nhds hrho.1 hrho.2 ) ] with r hr₁ hr₂ using fun hr₃ => hr₁ <| by rw [ prop_symbolic_3_interval r ⟨ hr₂.1, hr₂.2 ⟩ v ] at hr₃; exact hr₃;)
+            exact h_not_in_I_v;
+          have h_finite : Set.Finite {v : List (Fin 2) | v ∈ Sigma_n u.length ∧ v ≠ u} := by
+            have h_finite : Set.Finite {v : List (Fin 2) | v.length = u.length} := by
+              exact List.finite_length_eq (Fin 2) u.length;
+            exact h_finite.subset fun v hv => hv.1;
+          rw [ eventually_nhdsWithin_iff ] at *;
+          rw [ Metric.eventually_nhds_iff ] at *;
+          choose! ε hε using fun v hv hv' => Metric.mem_nhdsWithin_iff.mp ( hx_not_in_I_v v hv hv' );
+          obtain ⟨ε_min, hε_min⟩ : ∃ ε_min > 0, ∀ v ∈ h_finite.toFinset, ε_min ≤ ε v := by
+            by_cases h_empty : h_finite.toFinset.Nonempty;
+            · exact ⟨ Finset.min' ( h_finite.toFinset.image ε ) ⟨ _, Finset.mem_image_of_mem ε h_empty.choose_spec ⟩, by have := Finset.min'_mem ( h_finite.toFinset.image ε ) ⟨ _, Finset.mem_image_of_mem ε h_empty.choose_spec ⟩ ; aesop, fun v hv => Finset.min'_le _ _ <| Finset.mem_image_of_mem ε hv ⟩;
+            · exact ⟨ 1, zero_lt_one, fun v hv => False.elim <| h_empty ⟨ v, hv ⟩ ⟩;
+          exact ⟨ ε_min, hε_min.1, fun y hy₁ hy₂ v hv hv' => hε v hv hv' |>.2 ⟨ Metric.mem_ball.mpr <| lt_of_lt_of_le hy₁ <| hε_min.2 v <| h_finite.mem_toFinset.mpr ⟨ hv, hv' ⟩, hy₂ ⟩ ⟩;
+        have hx_not_in_C_n : ∀ᶠ r in nhdsWithin rho (Set.Iio rho), x∉ C_n r u.length := by
+          filter_upwards [ hx_not_in_I_u, hx_not_in_I_v ] with r hr₁ hr₂ using fun hr₃ => by rcases Set.mem_iUnion₂.mp hr₃ with ⟨ v, hv₁, hv₂ ⟩ ; by_cases hv₃ : v = u <;> aesop;
+        filter_upwards [ hx_not_in_C_n ] with r hr using fun h => hr <| Set.mem_iInter.mp h u.length;
+      intro h;
+      unfold C_plus at h; simp_all +decide [ eventually_nhdsWithin_iff ] ;
+      rcases Metric.eventually_nhds_iff.mp hx_not_in_C_plus with ⟨ ε, ε_pos, hε ⟩ ; rcases h ε ε_pos with ⟨ r, ⟨ hr₁, hr₂ ⟩, hr₃ ⟩ ; exact hε ( abs_lt.mpr ⟨ by linarith, by linarith ⟩ ) hr₂ hr₃;
+
 /-
 R_u(rho) is not in C_alpha^+ if u starts with 0.
 -/
@@ -431,7 +734,56 @@ R_u(rho) is not in I_v(r) for r close to rho, if v != u.
 -/
 theorem not_mem_I_word_of_ne (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) (u : List (Fin 2)) (v : List (Fin 2)) (hv : v ∈ Sigma_n u.length) (h_ne : v ≠ u) :
     ∀ᶠ r in nhds rho, pi rho (append_ones u) ∉ I_word v r := by
-      sorry
+      -- By definition of $C_plus$, we know that $I_u(rho)$ and $I_v(rho)$ are disjoint compact sets.
+      have h_disjoint : Disjoint (I_word u rho) (I_word v rho) := by
+        apply disjoint_I_word;
+        exacts [ hrho, by exact rfl, hv, Ne.symm h_ne ];
+      -- Since $I_u(rho)$ and $I_v(rho)$ are disjoint compact sets, there exists a neighborhood $U$ of $rho$ such that for all $r \in U$, $I_u(rho)$ and $I_v(r)$ are disjoint.
+      obtain ⟨ε, hε⟩ : ∃ ε > 0, ∀ r, abs (r - rho) < ε → Disjoint (I_word u rho) (I_word v r) := by
+        obtain ⟨δ, hδ⟩ : ∃ δ > 0, ∀ x ∈ I_word u rho, ∀ y ∈ I_word v rho, abs (x - y) ≥ δ := by
+          have h_compact : IsCompact (I_word u rho) ∧ IsCompact (I_word v rho) := by
+            constructor;
+            · exact ( prop_symbolic_1_interval rho hrho u ) ▸ CompactIccSpace.isCompact_Icc;
+            · exact ( prop_symbolic_1_interval rho hrho v ) ▸ CompactIccSpace.isCompact_Icc
+          generalize_proofs at *; (
+          have h_dist : ∃ δ > 0, ∀ x ∈ I_word u rho, ∀ y ∈ I_word v rho, |x - y| ≥ δ := by
+            have h_nonempty : I_word u rho ≠ ∅ ∧ I_word v rho ≠ ∅ := by
+              exact ⟨ Set.Nonempty.ne_empty ⟨ _, Set.mem_image_of_mem _ <| Set.left_mem_Icc.mpr zero_le_one ⟩, Set.Nonempty.ne_empty ⟨ _, Set.mem_image_of_mem _ <| Set.left_mem_Icc.mpr zero_le_one ⟩ ⟩ ;
+            have h_dist : IsCompact (I_word u rho ×ˢ I_word v rho) := by
+              exact h_compact.1.prod h_compact.2
+            generalize_proofs at *; (
+            have h_dist : ∃ δ > 0, ∀ p ∈ I_word u rho ×ˢ I_word v rho, |p.1 - p.2| ≥ δ := by
+              have h_cont : ContinuousOn (fun p : ℝ × ℝ => |p.1 - p.2|) (I_word u rho ×ˢ I_word v rho) := by
+                exact ContinuousOn.abs ( continuousOn_fst.sub continuousOn_snd )
+              have h_min : ∃ p ∈ I_word u rho ×ˢ I_word v rho, ∀ q ∈ I_word u rho ×ˢ I_word v rho, |p.1 - p.2| ≤ |q.1 - q.2| := by
+                exact h_dist.exists_isMinOn ( Set.nonempty_iff_ne_empty.mpr <| by aesop ) h_cont |> fun ⟨ p, hp₁, hp₂ ⟩ => ⟨ p, hp₁, fun q hq => hp₂ hq ⟩ ;
+              generalize_proofs at *; (
+              obtain ⟨ p, hp₁, hp₂ ⟩ := h_min; exact ⟨ |p.1 - p.2|, abs_pos.mpr ( sub_ne_zero.mpr <| by intro h; exact h_disjoint.le_bot ⟨ hp₁.1, by simpa [ h ] using hp₁.2 ⟩ ), fun q hq => hp₂ q hq ⟩ ;)
+            generalize_proofs at *; (
+            exact ⟨ h_dist.choose, h_dist.choose_spec.1, fun x hx y hy => h_dist.choose_spec.2 ( x, y ) ⟨ hx, hy ⟩ ⟩))
+          generalize_proofs at *; (
+          exact h_dist));
+        -- Since $I_v(r)$ is continuous in $r$, there exists a neighborhood $U$ of $rho$ such that for all $r \in U$, $I_v(r)$ is within $\delta/2$ of $I_v(rho)$.
+        obtain ⟨ε, hε⟩ : ∃ ε > 0, ∀ r, abs (r - rho) < ε → ∀ x ∈ I_word v r, ∃ y ∈ I_word v rho, abs (x - y) < δ / 2 := by
+          have h_cont : ContinuousOn (fun p : ℝ × ℝ => f_word v p.1 p.2) (Set.Icc (rho - 1 / 4) (rho + 1 / 4) ×ˢ Set.Icc 0 1) := by
+            refine Continuous.continuousOn ?_;
+            have h_cont : ∀ u : List (Fin 2), Continuous (fun p : ℝ × ℝ => f_word u p.1 p.2) := by
+              intro u; induction u <;> simp_all +decide [ f_word ] ; all_goals try continuity;
+              rename_i k hk ih; unfold f; split_ifs <;> continuity;
+            exact h_cont v;
+          obtain ⟨ε, hε⟩ : ∃ ε > 0, ∀ r, abs (r - rho) < ε → ∀ x ∈ Set.Icc 0 1, abs (f_word v r x - f_word v rho x) < δ / 2 := by
+            have h_unif_cont : UniformContinuousOn (fun p : ℝ × ℝ => f_word v p.1 p.2) (Set.Icc (rho - 1 / 4) (rho + 1 / 4) ×ˢ Set.Icc 0 1) := by
+              exact ( isCompact_Icc.prod CompactIccSpace.isCompact_Icc ) |> fun h => h.uniformContinuousOn_of_continuous h_cont;
+            rcases Metric.uniformContinuousOn_iff.mp h_unif_cont ( δ / 2 ) ( half_pos hδ.1 ) with ⟨ ε, ε_pos, hε ⟩;
+            exact ⟨ Min.min ε ( 1 / 4 ), lt_min ε_pos ( by norm_num ), fun r hr x hx => hε ( r, x ) ⟨ ⟨ by linarith [ abs_lt.mp hr, min_le_left ε ( 1 / 4 ), min_le_right ε ( 1 / 4 ) ], by linarith [ abs_lt.mp hr, min_le_left ε ( 1 / 4 ), min_le_right ε ( 1 / 4 ) ] ⟩, hx ⟩ ( rho, x ) ⟨ ⟨ by linarith [ abs_lt.mp hr, min_le_left ε ( 1 / 4 ), min_le_right ε ( 1 / 4 ) ], by linarith [ abs_lt.mp hr, min_le_left ε ( 1 / 4 ), min_le_right ε ( 1 / 4 ) ] ⟩, hx ⟩ ( by simpa [Real.dist_eq] using lt_of_lt_of_le hr ( min_le_left _ _ ) ) ⟩;
+          use ε, hε.1;
+          rintro r hr x ⟨ y, hy, rfl ⟩ ; exact ⟨ _, ⟨ y, hy, rfl ⟩, hε.2 r hr y hy ⟩ ;
+        refine ⟨ ε, hε.1, fun r hr => Set.disjoint_left.mpr fun x hxu hxv => ?_ ⟩;
+        obtain ⟨ y, hyv, hyx ⟩ := hε.2 r hr x hxv ; exact not_lt_of_ge ( hδ.2 x hxu y hyv ) ( by cases abs_cases ( x - y ) <;> cases abs_cases ( x - x ) <;> linarith );
+      filter_upwards [ Metric.ball_mem_nhds rho hε.1 ] with r hr using fun h => Set.disjoint_left.mp ( hε.2 r hr ) ( show pi rho ( append_ones u ) ∈ I_word u rho from by
+                                                                                                                      rw [ prop_symbolic_3_interval rho hrho u ] ; norm_num [ hrho ];
+                                                                                                                      rw [ pi_append_zeros rho u, pi_append_ones rho hrho u ] ; linarith [ pow_pos hrho.1 u.length ] ; ) h
+
 /-
 L_u(rho) is not in C_alpha^+ if u starts with 1.
 -/
@@ -727,8 +1079,12 @@ The pushforward measure mu on the Cantor set.
 -/
 noncomputable def mu (r : ℝ) : Measure ℝ := infiniteBernoulliMeasure.map (pi r)
 
-instance (r : ℝ) : IsProbabilityMeasure (mu r) := by
-  sorry
+theorem instIsProbabilityMeasureRealMuOfAndLtOfNatHDiv (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
+    IsProbabilityMeasure (mu r) := by
+  unfold mu
+  apply MeasureTheory.Measure.isProbabilityMeasure_map
+  exact (continuous_pi' r hr).aemeasurable
+
 /-
 Helper lemma: the scaled measure is bounded by the diameter power.
 -/
@@ -738,7 +1094,59 @@ theorem measure_le_condition (μ : MeasureTheory.Measure ℝ) [MeasureTheory.IsP
       μ U ≤ ENNReal.ofReal C * (Metric.ediam U) ^ s)
     (U : Set ℝ) (hU : Metric.ediam U ≤ ENNReal.ofReal δ₀) :
     (ENNReal.ofReal C)⁻¹ * μ U ≤ (Metric.ediam U) ^ s := by
-      sorry
+      by_cases hU_pos : 0 < Metric.ediam U;
+      · rw [ ENNReal.inv_mul_le_iff ] <;> aesop;
+      · cases eq_or_ne s 0 <;> simp_all +decide
+        · rw [ ENNReal.inv_mul_le_iff ] <;> norm_num [ hC ];
+          by_cases hU_empty : U = ∅;
+          · aesop;
+          · -- Since the diameter of U is zero, U must be a singleton set.
+            obtain ⟨x, hx⟩ : ∃ x, U = {x} := by
+              rw [ Metric.ediam_eq_zero_iff ] at hU_pos;
+              exact ⟨ Classical.choose ( Set.nonempty_iff_ne_empty.mpr hU_empty ), Set.eq_singleton_iff_nonempty_unique_mem.mpr ⟨ Set.nonempty_iff_ne_empty.mpr hU_empty, fun x hx => hU_pos hx ( Classical.choose_spec ( Set.nonempty_iff_ne_empty.mpr hU_empty ) ) ⟩ ⟩;
+            contrapose! h_bound;
+            refine ⟨ Metric.closedBall x ( δ₀ / 2 ), ?_, ?_, ?_ ⟩;
+            · refine lt_of_lt_of_le ?_ ( Metric.edist_le_ediam_of_mem ( Metric.mem_closedBall_self <| by positivity ) ( Metric.mem_closedBall.mpr <| show |x + δ₀ / 2 - x| ≤ δ₀ / 2 by norm_num [ abs_of_pos, hδ₀ ] ) ) ; norm_num [ hδ₀ ];
+              linarith;
+            · refine Metric.ediam_le ?_;
+              intro y hy z hz; rw [ edist_dist ] ; exact ENNReal.ofReal_le_ofReal ( by linarith [ dist_triangle_left y z x, dist_triangle_right y z x, Metric.mem_closedBall.mp hy, Metric.mem_closedBall.mp hz ] ) ;
+            · exact h_bound.trans_le ( MeasureTheory.measure_mono <| by rw [ hx ] ; exact Set.singleton_subset_iff.mpr <| Metric.mem_closedBall.mpr <| by norm_num; linarith );
+        · cases eq_or_ne ( μ U ) 0 <;> simp_all +decide
+          simp_all +decide [ Metric.ediam_eq_zero_iff ];
+          have h_singleton : ∀ x ∈ U, μ U ≤ 0 := by
+            intros x hx
+            have h_singleton : ∀ᶠ r in nhdsWithin 0 (Set.Ioi 0), μ U ≤ ENNReal.ofReal C * (ENNReal.ofReal (2 * r)) ^ s := by
+              filter_upwards [ Ioo_mem_nhdsGT ( show 0 < δ₀ / 2 by positivity ) ] with r hr;
+              refine le_trans ( MeasureTheory.measure_mono ( show U ⊆ Metric.closedBall x r from fun y hy => ?_ ) ) ?_;
+              · exact hU_pos hy hx ▸ by simpa using hr.1.le;
+              · refine le_trans ( h_bound ( Metric.closedBall x r ) ?_ ?_ ) ?_;
+                · refine lt_of_lt_of_le ?_ ( Metric.edist_le_ediam_of_mem ( Metric.mem_closedBall_self hr.1.le ) ( Metric.mem_closedBall.mpr <| show Dist.dist ( x + r ) x ≤ r from by simp [ abs_of_pos hr.1 ] ) ) ; aesop;
+                · refine le_trans ( Metric.ediam_le ( d := ENNReal.ofReal ( 2 * r ) ) ?_ ) ?_;
+                  · intro y hy z hz; rw [ edist_dist ] ; exact ENNReal.ofReal_le_ofReal ( by linarith [ dist_triangle_left y z x, dist_triangle_right y z x, Metric.mem_closedBall.mp hy, Metric.mem_closedBall.mp hz ] ) ;
+                  · exact ENNReal.ofReal_le_ofReal ( by linarith [ hr.1, hr.2 ] );
+                · gcongr;
+                  refine Metric.ediam_le ?_;
+                  intro y hy z hz; rw [ edist_dist ] ; exact ENNReal.ofReal_le_ofReal ( by linarith [ dist_triangle_left y z x, dist_triangle_right y z x, hy.out, hz.out ] ) ;
+            have h_singleton : Filter.Tendsto (fun r : ℝ => ENNReal.ofReal C * (ENNReal.ofReal (2 * r)) ^ s) (nhdsWithin 0 (Set.Ioi 0)) (nhds 0) := by
+              have hspos : 0 < s := by
+                have hne : s ≠ 0 := by assumption
+                exact lt_of_le_of_ne hs (Ne.symm hne)
+              have hbase : Filter.Tendsto (fun r : ℝ => ENNReal.ofReal (2 * r))
+                  (nhdsWithin 0 (Set.Ioi 0)) (nhds 0) := by
+                have hreal : Filter.Tendsto (fun r : ℝ => 2 * r)
+                    (nhdsWithin 0 (Set.Ioi 0)) (nhds 0) := by
+                  have hid : Filter.Tendsto (fun r : ℝ => r)
+                      (nhdsWithin 0 (Set.Ioi 0)) (nhds 0) :=
+                    Filter.tendsto_id.mono_left inf_le_left
+                  simpa using (tendsto_const_nhds.mul hid :
+                    Filter.Tendsto (fun r : ℝ => (2 : ℝ) * r)
+                      (nhdsWithin 0 (Set.Ioi 0)) (nhds ((2 : ℝ) * 0)))
+                simpa using ENNReal.tendsto_ofReal hreal
+              exact (ENNReal.tendsto_const_mul_rpow_nhds_zero_of_pos
+                (c := ENNReal.ofReal C) (by simp) hspos).comp hbase
+            exact le_of_tendsto_of_tendsto tendsto_const_nhds h_singleton ‹_›;
+          cases isEmpty_or_nonempty U <;> aesop
+
 /-
 Helper lemma for mass distribution principle: (1/C)μ ≤ H^s.
 -/
@@ -1035,8 +1443,6 @@ If a set has small diameter, its measure is bounded by 2^-n.
 lemma measure_le_two_pow_neg_n_of_diam_le (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (U : Set ℝ) (n : ℕ) (hn : 1 ≤ n)
     (h_diam : Metric.ediam U < ENNReal.ofReal ((1 - 2 * r) * r ^ (n - 1))) :
     mu r U ≤ (1 / 2 : ENNReal) ^ n := by
-      sorry
-/-
       classical
       -- By definition of $C_n$, $U$ can intersect at most one interval $I_u$ at level $n$.
       have h_inter : ∀ u v : List (Fin 2), u ∈ Sigma_n n → v ∈ Sigma_n n → u ≠ v → Disjoint U (I_word u r) ∨ Disjoint U (I_word v r) := by
@@ -1097,7 +1503,6 @@ lemma measure_le_two_pow_neg_n_of_diam_le (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (
               ( show ( ⋃ v ∈ Sigma_n n, I_word v r ) ⊆ Set.univ from Set.subset_univ _ ) ) ?_ ) ;
           norm_num [ mu ];
       convert h_mu_le using 1 ; rw [ h_mu_compl ] ; norm_num [ mu_I_word r hr u, hu.1.symm ]
--/
 
 /-
 Algebraic bound for the measure estimate.
@@ -1210,7 +1615,7 @@ lemma dimH_C_ge_s (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
           · exact h_image ▸ isClosed_C r hr |> IsClosed.measurableSet;
         · convert mu_bound_specific r hr using 1;
         · aesop;
-      · infer_instance
+      · exact instIsProbabilityMeasureRealMuOfAndLtOfNatHDiv r hr
 
 /-
 Upper bound on the covering number of the Cantor set.
@@ -1327,7 +1732,41 @@ The upper box dimension of C_r is at most s.
 -/
 theorem upper_box_dim_le_s (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) :
     upper_box_dim (C r) ≤ Real.log 2 / -Real.log r := by
-      sorry
+      -- Using the upper bound on the covering number, we get
+      have h_upper_bound : ∀ δ > 0, δ < 1 → Real.log (N_delta (C r) δ) / -Real.log δ ≤ (Real.log 2 / -Real.log r) + (Real.log 2 / -Real.log δ) := by
+        intros δ hδ_pos hδ_lt_1
+        have h_covering_bound : N_delta (C r) δ ≤ 2 ^ (Nat.floor (-Real.log δ / -Real.log r) + 1) := by
+          refine le_trans ?_ ( N_delta_le r hr ( ⌊-Real.log δ / -Real.log r⌋₊ + 1 ) );
+          · apply_rules [ N_delta_antitone_on_pos ]
+            · aesop
+            · have := Nat.lt_floor_add_one ( -Real.log δ / -Real.log r );
+              rw [ div_lt_iff₀ ] at this <;> norm_num at *;
+              · rw [ ← Real.log_le_log_iff ( pow_pos hr.1 _ ) hδ_pos, Real.log_pow ] ; norm_num ; linarith;
+              · exact Real.log_neg hr.1 ( by linarith );
+        -- Taking the logarithm of both sides of the inequality $N_\delta(C_r) \leq 2^{n+1}$, we get $\log(N_\delta(C_r)) \leq (n+1) \log(2)$.
+        have h_log_covering_bound : Real.log (N_delta (C r) δ) ≤ (Nat.floor (-Real.log δ / -Real.log r) + 1) * Real.log 2 := by
+          by_cases h : N_delta ( C r ) δ = 0 <;> simp_all +decide
+          · positivity;
+          · simpa using Real.log_le_log ( Nat.cast_pos.mpr <| Nat.pos_of_ne_zero h ) ( Nat.cast_le.mpr h_covering_bound );
+        field_simp;
+        rw [ neg_div', div_le_iff_of_neg ];
+        · ring_nf at *;
+          nlinarith [ Nat.floor_le ( show 0 ≤ ( Real.log r ) ⁻¹ * Real.log δ by exact mul_nonneg_of_nonpos_of_nonpos ( inv_nonpos.mpr ( Real.log_nonpos ( by linarith ) ( by linarith ) ) ) ( Real.log_nonpos ( by linarith ) ( by linarith ) ) ), Nat.lt_floor_add_one ( ( Real.log r ) ⁻¹ * Real.log δ ), Real.log_pos one_lt_two, mul_inv_cancel₀ ( ne_of_lt ( Real.log_neg hδ_pos hδ_lt_1 ) ) ];
+        · exact Real.log_neg hδ_pos hδ_lt_1;
+      -- Taking the limit superior as δ approaches 0, we get
+      have h_limsup : Filter.Tendsto (fun δ => Real.log 2 / -Real.log δ) (nhdsWithin 0 (Set.Ioi 0)) (nhds 0) := by
+        exact tendsto_const_nhds.div_atTop ( Filter.tendsto_neg_atBot_atTop.comp ( Real.tendsto_log_nhdsNE_zero.mono_left <| nhdsWithin_mono _ <| by norm_num ) );
+      -- Using the upper bound and the fact that the limit superior of a sum is the sum of the limit superiors, we get
+      have h_limsup_sum : Filter.limsup (fun δ => Real.log (N_delta (C r) δ) / -Real.log δ) (nhdsWithin 0 (Set.Ioi 0)) ≤ Filter.limsup (fun δ => Real.log 2 / -Real.log r + Real.log 2 / -Real.log δ) (nhdsWithin 0 (Set.Ioi 0)) := by
+        apply_rules [ Filter.limsup_le_limsup ];
+        · filter_upwards [ Ioo_mem_nhdsGT zero_lt_one ] with δ hδ using h_upper_bound δ hδ.1 hδ.2;
+        · refine ⟨ 0, ?_ ⟩ ; norm_num [ IsCoboundedUnder ];
+          intro a ha; have := ha.and ( Ioo_mem_nhdsGT zero_lt_one ) ; obtain ⟨ δ, hδ₁, hδ₂ ⟩ := this.exists; exact le_trans ( div_nonneg ( Real.log_natCast_nonneg _ ) ( neg_nonneg.mpr ( Real.log_nonpos ( by linarith ) ( by linarith ) ) ) ) hδ₁;
+        · exact Filter.Tendsto.isBoundedUnder_le ( tendsto_const_nhds.add h_limsup );
+      unfold upper_box_dim
+      rw [ Filter.Tendsto.limsup_eq ( tendsto_const_nhds.add h_limsup ) ] at h_limsup_sum
+      simpa using h_limsup_sum
+
 /-
 For any small enough delta, we can sandwich it between consecutive powers of r scaled by C.
 -/
@@ -1614,13 +2053,117 @@ If omega starts with 0 and is not eventually 1, then pi(omega) is in C_plus.
 -/
 lemma mem_C_plus_of_not_eventually_one (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) (ω : ℕ → Fin 2) (h0 : ω 0 = 0) (h_not_ev_one : ∀ n, ∃ k ≥ n, ω k ≠ 1) :
     pi rho ω ∈ C_plus rho := by
-      sorry
+      -- Let $x = \pi_\rho(\omega)$.
+      set x := pi rho ω;
+      by_cases hx : x = 0;
+      · convert endpoints_mem_C_plus rho hrho |>.1 using 1;
+      · -- Choose $s \in (\max(0, \rho - \epsilon), \rho)$.
+        have h_eps : ∀ ε > 0, ε < rho → ∃ s ∈ Set.Ioo (max 0 (rho - ε)) rho, ∃ n : ℕ, ∃ r ∈ Set.Ioo s rho, x = R_word (take_word n ω) r := by
+          intro ε hε_pos hε_lt_rho
+          obtain ⟨s, hs⟩ : ∃ s ∈ Set.Ioo (max 0 (rho - ε)) rho, pi s ω < x := by
+            have h_pi_strictly_increasing : StrictMonoOn (fun r => pi r ω) (Set.Ico 0 (1 / 2)) := by
+              apply_rules [ pi_strictly_increasing ];
+              contrapose! hx;
+              simp +zetaDelta at *;
+              unfold pi; aesop;
+            exact ⟨ ( rho + max 0 ( rho - ε ) ) / 2, ⟨ by cases max_cases 0 ( rho - ε ) <;> linarith, by cases max_cases 0 ( rho - ε ) <;> linarith ⟩, h_pi_strictly_increasing ⟨ by cases max_cases 0 ( rho - ε ) <;> linarith, by cases max_cases 0 ( rho - ε ) <;> linarith ⟩ ⟨ by cases max_cases 0 ( rho - ε ) <;> linarith, by cases max_cases 0 ( rho - ε ) <;> linarith ⟩ ( by cases max_cases 0 ( rho - ε ) <;> linarith ) ⟩;
+          -- Let $u_n = \omega|_n$.
+          obtain ⟨n, hn⟩ : ∃ n : ℕ, R_word (take_word n ω) s < x ∧ x < R_word (take_word n ω) rho := by
+            -- Since $R_{u_n}(s) \to \pi_s(\omega)$ and $x < R_{u_n}(\rho)$ for all $n$, we can choose $n$ such that $R_{u_n}(s) < x$.
+            obtain ⟨n, hn⟩ : ∃ n : ℕ, R_word (take_word n ω) s < x := by
+              have h_lim : Filter.Tendsto (fun n => R_word (take_word n ω) s) Filter.atTop (nhds (pi s ω)) := by
+                convert tendsto_R_word s ⟨ by linarith [ hs.1.1, le_max_left 0 ( rho - ε ) ], by linarith [ hs.1.2, le_max_right 0 ( rho - ε ) ] ⟩ ω using 1;
+              exact ( h_lim.eventually ( gt_mem_nhds hs.2 ) ) |> fun h => h.exists;
+            exact ⟨ n, hn, by simpa using pi_lt_R_word_of_not_eventually_one rho hrho ω h_not_ev_one n ⟩;
+          -- By the Intermediate Value Theorem, there exists $r \in (s, \rho)$ such that $R_{u_n}(r) = x$.
+          obtain ⟨r, hr⟩ : ∃ r ∈ Set.Ioo s rho, R_word (take_word n ω) r = x := by
+            apply_rules [ intermediate_value_Ioo ];
+            · linarith [ hs.1.2 ];
+            · -- The function R_word (take_word n ω) is a composition of continuous functions, hence it is continuous.
+              have h_cont : ContinuousOn (fun r => (1 - r) * (∑ k ∈ Finset.range (take_word n ω).length, ((take_word n ω)[k]?.getD 0 : ℝ) * r ^ k) + r ^ (take_word n ω).length) (Set.Icc s rho) := by
+                fun_prop;
+              refine h_cont.congr fun r hr => ?_;
+              simpa [R_word] using pi_append_ones r ( show 0 < r ∧ r < 1 / 2 from ⟨ by linarith [ hr.1, hs.1.1, le_max_left 0 ( rho - ε ), le_max_right 0 ( rho - ε ) ], by linarith [ hr.2, hs.1.2 ] ⟩ ) ( take_word n ω )
+          use s, hs.left, n, r, hr.left, hr.right.symm ▸ rfl;
+        refine Set.mem_iInter₂.mpr fun ε hε => ?_;
+        obtain ⟨ s, hs₁, n, r, hr₁, hr₂ ⟩ := h_eps ( Min.min ε ( rho / 2 ) ) ( lt_min hε ( half_pos hrho.1 ) ) ( by linarith [ min_le_left ε ( rho / 2 ), min_le_right ε ( rho / 2 ) ] );
+        simp +zetaDelta at *;
+        refine ⟨ r, ⟨ by linarith [ min_le_left ε ( rho / 2 ), min_le_right ε ( rho / 2 ) ], by linarith ⟩, ?_ ⟩;
+        refine Set.mem_iInter.mpr fun m => ?_;
+        refine Set.mem_iUnion₂.mpr ⟨ take_word m ( append_ones ( take_word n ω ) ), ?_, ?_ ⟩ <;> norm_num [ hr₂ ];
+        · unfold take_word Sigma_n; aesop;
+        · simpa [R_word] using pi_mem_I_word r ⟨ by linarith, by linarith ⟩ ( append_ones ( take_word n ω ) ) m
+
 /-
 If omega starts with 1 and is not eventually 0, then pi(omega) is in C_plus.
 -/
 lemma mem_C_plus_of_not_eventually_zero (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) (ω : ℕ → Fin 2) (h1 : ω 0 = 1) (h_not_ev_zero : ∀ n, ∃ k ≥ n, ω k ≠ 0) :
     pi rho ω ∈ C_plus rho := by
-      sorry
+      -- Let $x = \pi_\rho(\omega)$. If $x = 1$, then $x \in C_+$.
+      by_cases hx1 : pi rho ω = 1;
+      · convert endpoints_mem_C_plus rho hrho |>.2 using 1;
+      · -- Let $x = \pi_\rho(\omega)$. Since $x \neq 1$, we have $x < 1$.
+        set x := pi rho ω
+        have hx_lt_1 : x < 1 := by
+          refine lt_of_le_of_ne ?_ hx1
+          generalize_proofs at *;
+          refine le_trans
+            ( mul_le_mul_of_nonneg_left
+              ( Summable.tsum_le_tsum ( g := fun n : ℕ => rho ^ n ) ?_ ?_ ?_ )
+              ( by linarith ) ) ?_;
+          all_goals generalize_proofs at *; norm_num at *;
+          · exact fun n => mul_le_of_le_one_left ( pow_nonneg hrho.1.le _ ) ( mod_cast Fin.is_le _ );
+          · exact Summable.of_nonneg_of_le ( fun n => mul_nonneg ( Nat.cast_nonneg _ ) ( pow_nonneg hrho.1.le _ ) ) ( fun n => mul_le_of_le_one_left ( pow_nonneg hrho.1.le _ ) ( mod_cast Fin.is_le _ ) ) ( summable_geometric_of_lt_one hrho.1.le ( by linarith ) );
+          · rw [ abs_of_pos ] <;> linarith;
+          · rw [ tsum_geometric_of_lt_one ] <;> nlinarith [ mul_inv_cancel₀ ( by linarith : ( 1 - rho ) ≠ 0 ) ];
+        -- Let $\epsilon > 0$. Choose $s \in (\max(0, \rho - \epsilon), \rho)$.
+        have h_eps : ∀ ε > 0, ∃ s ∈ Set.Ioo (max 0 (rho - ε)) rho, ∃ n : ℕ, ∃ r ∈ Set.Ioo s rho, pi r (append_zeros (take_word n ω)) = x := by
+          -- Let $\epsilon > 0$. Choose $s \in (\max(0, \rho - \epsilon), \rho)$ such that $pi_s(\omega) > x$.
+          intro ε hε_pos
+          obtain ⟨s, hs₁, hs₂⟩ : ∃ s ∈ Set.Ioo (max 0 (rho - ε)) rho, pi s ω > x := by
+            have h_strict_anti : StrictAntiOn (fun r => pi r ω) (Set.Ico 0 (1 / 2)) := by
+              apply_rules [ pi_strictly_decreasing ];
+              contrapose! hx1;
+              simp +zetaDelta at *;
+              unfold pi; norm_num [ hx1, tsum_mul_left, tsum_geometric_of_lt_one, hrho ] ;
+              rw [ tsum_geometric_of_lt_one ] <;> norm_num at * <;> nlinarith [ mul_inv_cancel₀ ( by linarith : ( 1 - rho ) ≠ 0 ) ];
+            exact ⟨ ( rho + max 0 ( rho - ε ) ) / 2, ⟨ by linarith [ show max 0 ( rho - ε ) < rho by cases max_cases 0 ( rho - ε ) <;> linarith ], by linarith [ show max 0 ( rho - ε ) < rho by cases max_cases 0 ( rho - ε ) <;> linarith ] ⟩, h_strict_anti ⟨ by cases max_cases 0 ( rho - ε ) <;> linarith, by cases max_cases 0 ( rho - ε ) <;> linarith ⟩ ⟨ by cases max_cases 0 ( rho - ε ) <;> linarith, by cases max_cases 0 ( rho - ε ) <;> linarith ⟩ ( by cases max_cases 0 ( rho - ε ) <;> linarith ) ⟩;
+          -- Let $u_n = \text{take\_word } n \omega$. Then $L_{u_n}(s) \to \pi_s(\omega) > x$.
+          obtain ⟨n, hn⟩ : ∃ n : ℕ, pi s (append_zeros (take_word n ω)) > x := by
+            have h_lim : Filter.Tendsto (fun n => pi s (append_zeros (take_word n ω))) Filter.atTop (nhds (pi s ω)) := by
+              have h_lim : ∀ n, pi s (append_zeros (take_word n ω)) = (1 - s) * ∑ k ∈ Finset.range n, (ω k : ℝ) * s ^ k := by
+                intro n
+                simp [take_word];
+                convert pi_append_zeros s ( List.ofFn fun i : Fin n => ω i ) using 1;
+                simp +decide [ Finset.sum_range ]
+              have h_tendsto : Filter.Tendsto (fun n => (1 - s) * ∑ k ∈ Finset.range n, (ω k : ℝ) * s ^ k) Filter.atTop (nhds ((1 - s) * ∑' k, (ω k : ℝ) * s ^ k)) := by
+                refine tendsto_const_nhds.mul ( Summable.hasSum ?_ |> HasSum.tendsto_sum_nat );
+                exact Summable.of_nonneg_of_le ( fun n => mul_nonneg ( Nat.cast_nonneg _ ) ( pow_nonneg ( by linarith [ hs₁.1, le_max_left 0 ( rho - ε ), le_max_right 0 ( rho - ε ) ] ) _ ) ) ( fun n => mul_le_of_le_one_left ( pow_nonneg ( by linarith [ hs₁.1, le_max_left 0 ( rho - ε ), le_max_right 0 ( rho - ε ) ] ) _ ) ( mod_cast Fin.is_le _ ) ) ( summable_geometric_of_lt_one ( by linarith [ hs₁.1, le_max_left 0 ( rho - ε ), le_max_right 0 ( rho - ε ) ] ) ( by linarith [ hs₁.2, le_max_left 0 ( rho - ε ), le_max_right 0 ( rho - ε ) ] ) );
+              simpa [pi] using h_tendsto.congr' (Filter.Eventually.of_forall fun n => (h_lim n).symm)
+            exact ( h_lim.eventually ( lt_mem_nhds hs₂ ) ) |> fun h => h.exists;
+          -- By the intermediate value theorem, since $L_{u_n}(s) > x$ and $L_{u_n}(\rho) < x$, there exists $r \in (s, \rho)$ such that $L_{u_n}(r) = x$.
+          obtain ⟨r, hr₁, hr₂⟩ : ∃ r ∈ Set.Ioo s rho, pi r (append_zeros (take_word n ω)) = x := by
+            apply_rules [ intermediate_value_Ioo' ];
+            · linarith [ hs₁.2 ];
+            · refine ContinuousOn.mul ?_ ?_;
+              · exact continuousOn_const.sub continuousOn_id;
+              · refine continuousOn_tsum
+                  ( f := fun i x => (append_zeros (take_word n ω) i : ℝ) * x ^ i )
+                  ( u := fun i => ( 1 : ℝ ) * rho ^ i ) ?_ ?_ ?_;
+                · exact fun i => Continuous.continuousOn ( by continuity );
+                · exact Summable.mul_left _ ( summable_geometric_of_lt_one hrho.1.le ( by linarith ) );
+                · norm_num +zetaDelta at *;
+                  exact fun n x hx₁ hx₂ => le_trans ( mul_le_of_le_one_left ( by positivity ) ( mod_cast Fin.is_le _ ) ) ( pow_le_pow_left₀ ( by positivity ) ( by rw [ abs_of_nonneg ] <;> linarith ) _ )
+            · exact ⟨ by simpa [L_word] using pi_gt_L_word_of_not_eventually_zero rho hrho ω h_not_ev_zero n, hn ⟩;
+          exact ⟨ s, hs₁, n, r, hr₁, hr₂ ⟩;
+        refine Set.mem_iInter₂.mpr fun ε hε => ?_;
+        obtain ⟨ s, hs₁, n, r, hr₁, hr₂ ⟩ := h_eps ε hε;
+        simp +zetaDelta at *;
+        refine ⟨ r, ⟨ by linarith, by linarith ⟩, ?_ ⟩;
+        rw [ ← hr₂ ];
+        apply range_pi_subset_C' r ⟨ by linarith, by linarith ⟩ |> Set.mem_of_mem_of_subset <| Set.Subset.refl _;
+        exact Set.mem_range_self _
+
 /-
 Definition of the exceptional set E_minus.
 -/
@@ -1633,7 +2176,42 @@ If u starts with 0 and contains a 1, then L_u(rho) is not in C_minus.
 -/
 theorem not_mem_C_minus_of_L_u (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) (u : List (Fin 2)) (hu : u ≠ []) (h0 : u.head! = 0) (h_contains_one : (1 : Fin 2) ∈ u) :
     pi rho (append_zeros u) ∉ C_minus rho := by
-      sorry
+      have h_not_mem_C_n : ∀ᶠ r in nhdsWithin rho (Set.Ioi rho), pi rho (append_zeros u) ∉ C_n r u.length := by
+        have h_not_mem_C_n : ∀ᶠ r in nhdsWithin rho (Set.Ioi rho), ∀ v ∈ Sigma_n u.length, v ≠ u → pi rho (append_zeros u) ∉ I_word v r := by
+          have h_not_mem_I_word_of_ne_zeros : ∀ v ∈ Sigma_n u.length, v ≠ u → ∀ᶠ r in nhds rho, pi rho (append_zeros u) ∉ I_word v r := by
+            exact fun v a a_1 => not_mem_I_word_of_ne_zeros rho hrho u v a a_1;
+          have h_finite : Set.Finite {v ∈ Sigma_n u.length | v ≠ u} := by
+            exact Set.Finite.subset ( finite_Sigma_n u.length ) fun v hv => hv.1;
+          have h_finite : ∀ᶠ r in nhds rho, ∀ v ∈ {v ∈ Sigma_n u.length | v ≠ u}, pi rho (append_zeros u) ∉ I_word v r := by
+            have h_finite : ∀ v ∈ {v ∈ Sigma_n u.length | v ≠ u}, ∀ᶠ r in nhds rho, pi rho (append_zeros u) ∉ I_word v r := by
+              aesop;
+            (expose_names; exact eventually_subset_of_finite h_finite_1 h_finite);
+          exact h_finite.filter_mono nhdsWithin_le_nhds |> fun h => h.mono fun r hr v hv hv' => hr v ⟨ hv, hv' ⟩;
+        have h_not_mem_C_n : ∀ᶠ r in nhdsWithin rho (Set.Ioi rho), pi rho (append_zeros u) ∉ I_word u r := by
+          have h_not_mem_C_n : ∀ᶠ r in nhdsWithin rho (Set.Ioi rho), pi rho (append_zeros u) < L_word u r := by
+            have h_not_mem_C_n : StrictMonoOn (fun r => L_word u r) (Set.Ico 0 (1 / 2)) := by
+              have hstart : append_zeros u 0 = 0 := by
+                cases u <;> aesop
+              have hnonzero : ∃ n, append_zeros u n ≠ 0 := by
+                obtain ⟨ n, hn ⟩ := List.mem_iff_get.mp h_contains_one
+                use n
+                simp +decide [ append_zeros ]
+                aesop
+              simpa [L_word] using pi_strictly_increasing ( append_zeros u ) hstart hnonzero
+            filter_upwards [ Ioo_mem_nhdsGT hrho.2 ] with r hr using h_not_mem_C_n ⟨ by linarith, by linarith ⟩ ⟨ by linarith [ hr.1 ], by linarith [ hr.2 ] ⟩ hr.1;
+          filter_upwards [ h_not_mem_C_n, mem_nhdsWithin_of_mem_nhds ( Ioo_mem_nhds hrho.1 hrho.2 ) ] with r hr₁ hr₂;
+          have h_not_mem_C_n : pi rho (append_zeros u) < pi r (append_zeros u) := by
+            exact hr₁;
+          exact fun h => h_not_mem_C_n.not_ge <| by linarith [ Set.mem_Icc.mp <| prop_symbolic_3_interval r hr₂ u ▸ h ] ;
+        filter_upwards [ h_not_mem_C_n, ‹∀ᶠ r in nhdsWithin rho ( Set.Ioi rho ), ∀ v ∈ Sigma_n u.length, v ≠ u → pi rho ( append_zeros u ) ∉ I_word v r› ] with r hr₁ hr₂;
+        simp_all +decide [ C_n ];
+        exact fun v hv => if hv' : v = u then hv'.symm ▸ hr₁ else hr₂ v hv hv';
+      simp_all +decide [ C_minus ];
+      obtain ⟨ ε, hε, H ⟩ := Metric.mem_nhdsWithin_iff.mp h_not_mem_C_n;
+      refine ⟨ ε, hε, fun r hr₁ hr₂ => ?_ ⟩;
+      intro h;
+      exact H ⟨ Metric.mem_ball.mpr <| abs_lt.mpr ⟨ by linarith, by linarith ⟩, hr₁ ⟩ <| Set.mem_iInter.mp h u.length
+
 /-
 If u starts with 1 and contains a 0, then R_u(rho) is not in C_minus.
 -/
@@ -1930,7 +2508,40 @@ The closure of C_plus is C.
 -/
 theorem closure_C_plus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) :
     closure (C_plus rho) = C rho := by
-      sorry
+      -- We show that $C_+^\rho$ is dense in $C^\rho$.
+      have h_dense : ∀ x ∈ C rho, ∀ ε > 0, ∃ y ∈ C_plus rho, |y - x| < ε := by
+        intro x hx ε hε_pos
+        obtain ⟨ω, hω⟩ : ∃ ω : ℕ → Fin 2, pi rho ω = x := by
+          have := pi_code_of_mem_C rho hrho x hx; aesop;
+        -- Since $C_\alpha$ is the union of $C_\alpha^+$ and $E_\alpha^-$, and $E_\alpha^-$ is countable, there exists a sequence $\{y_n\}$ in $C_\alpha^+$ such that $y_n \to x$.
+        obtain ⟨y_n, hy_n⟩ : ∃ y_n : ℕ → (ℕ → Fin 2), (∀ n, pi rho (y_n n) ∈ C_plus rho) ∧ Filter.Tendsto (fun n => pi rho (y_n n)) Filter.atTop (nhds x) := by
+          -- Since $E_\alpha^-$ is countable, we can find a sequence $\{y_n\}$ in $C_\alpha^+$ such that $y_n \to \omega$.
+          obtain ⟨y_n, hy_n⟩ : ∃ y_n : ℕ → (ℕ → Fin 2), (∀ n, y_n n ∈ {ω : ℕ → Fin 2 | pi rho ω ∈ C_plus rho}) ∧ Filter.Tendsto y_n Filter.atTop (nhds ω) := by
+            have h_dense : ∀ ω : ℕ → Fin 2, ∀ n : ℕ, ∃ y : ℕ → Fin 2, y ∈ {ω : ℕ → Fin 2 | pi rho ω ∈ C_plus rho} ∧ ∀ i < n, y i = ω i := by
+              intro ω n
+              by_cases hω0 : ω 0 = 0 ∨ ω 0 = 1
+              · generalize_proofs at *
+                rcases hω0 with hω0 | hω0
+                · exact ⟨ _, mem_C_plus_of_not_eventually_one rho hrho ( fun i => if i < n then ω i else 0 ) ( by aesop ) ( by
+                    exact fun m => ⟨ m + n, by linarith, by simp +decide ⟩ ), fun i hi => by aesop ⟩
+                · exact ⟨ _, mem_C_plus_of_not_eventually_zero rho hrho ( fun i => if i < n then ω i else 1 ) ( by aesop ) ( by
+                    exact fun m => ⟨ m + n, by linarith, by aesop ⟩ ), fun i hi => by aesop ⟩
+              · exact False.elim <| hω0 <| Fin.exists_fin_two.mp ⟨ ω 0, rfl ⟩ |> Or.imp ( fun h => by aesop ) fun h => by aesop;
+            generalize_proofs at *; (
+            choose y hy using h_dense ω
+            generalize_proofs at *; (
+            exact ⟨ y, fun n => hy n |>.1, tendsto_pi_nhds.mpr fun i => tendsto_const_nhds.congr' <| by filter_upwards [ Filter.eventually_gt_atTop i ] with n hn; aesop ⟩))
+          generalize_proofs at *; (
+          exact ⟨ y_n, hy_n.1, by simpa only [ Function.comp_def, ← hω ] using Filter.Tendsto.comp ( continuous_pi' rho hrho |> Continuous.continuousAt ) hy_n.2 ⟩)
+        generalize_proofs at *; (
+        rcases Metric.tendsto_atTop.mp hy_n.2 ε hε_pos with ⟨ n, hn ⟩ ; exact ⟨ _, hy_n.1 n, hn n le_rfl ⟩ ;);
+      refine Set.Subset.antisymm ?_ ?_;
+      · -- Since $C^\rho$ is closed, the closure of any subset of $C^\rho$ is also a subset of $C^\rho$.
+        have h_closed : IsClosed (C rho) := by
+          convert isClosed_C rho hrho using 1;
+        exact h_closed.closure_subset_iff.mpr ( C_plus_subset_C rho hrho );
+      · exact fun x hx => Metric.mem_closure_iff.2 fun ε hε => by obtain ⟨ y, hy, hy' ⟩ := h_dense x hx ε hε; exact ⟨ y, hy, by simpa [ Real.dist_eq, abs_sub_comm ] using hy' ⟩ ;
+
 /-
 The closure of C_minus is C.
 -/
