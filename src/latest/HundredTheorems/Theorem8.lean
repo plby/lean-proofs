@@ -875,8 +875,6 @@ lemma RulerCompass.line_line_coords_constructible {cfg : RCBase} {A B C D P : Po
     (hLines : line A B ≠ line C D)
     (hP₁ : P ∈ line A B) (hP₂ : P ∈ line C D) :
     IsConstructibleCoords cfg P := by
-      sorry
-/-
       -- Let's express the coordinates of P in terms of the coordinates of A, B, C, and D.
       obtain ⟨a, b, c, d, e, f, ha, hb, hc, hd, he, hf, h_det⟩ : ∃ a b c d e f : ℝ, a * (RulerCompass.RC_coords cfg P).1 + b * (RulerCompass.RC_coords cfg P).2 = e ∧ c * (RulerCompass.RC_coords cfg P).1 + d * (RulerCompass.RC_coords cfg P).2 = f ∧ a * d - b * c ≠ 0 ∧ Constructible a ∧ Constructible b ∧ Constructible c ∧ Constructible d ∧ Constructible e ∧ Constructible f := by
         use (RulerCompass.RC_coords cfg A).2 - (RulerCompass.RC_coords cfg B).2, (RulerCompass.RC_coords cfg B).1 - (RulerCompass.RC_coords cfg A).1, (RulerCompass.RC_coords cfg C).2 - (RulerCompass.RC_coords cfg D).2, (RulerCompass.RC_coords cfg D).1 - (RulerCompass.RC_coords cfg C).1, (RulerCompass.RC_coords cfg B).1 * (RulerCompass.RC_coords cfg A).2 - (RulerCompass.RC_coords cfg B).2 * (RulerCompass.RC_coords cfg A).1, (RulerCompass.RC_coords cfg D).1 * (RulerCompass.RC_coords cfg C).2 - (RulerCompass.RC_coords cfg D).2 * (RulerCompass.RC_coords cfg C).1
@@ -887,13 +885,13 @@ lemma RulerCompass.line_line_coords_constructible {cfg : RCBase} {A B C D P : Po
         · exact det_ne_zero_of_inter_distinct hAB hCD hLines hP₁ hP₂
         · -- By definition of constructible numbers, the difference of two constructible numbers is constructible.
           have h_diff : ∀ x y : ℝ, Constructible x → Constructible y → Constructible (x - y) := by
-            exact fun x y hx hy => by simpa using Constructible.add hx ( Constructible.neg hy )
+            exact fun x y hx hy => by
+              simpa [sub_eq_add_neg] using Constructible.add hx ( Constructible.neg hy )
           have h_mul : ∀ x y : ℝ, Constructible x → Constructible y → Constructible (x * y) := by
             exact fun x y hx hy => Constructible.mul hx hy
           exact ⟨ h_diff _ _ hA.2 hB.2, h_diff _ _ hB.1 hA.1, h_diff _ _ hC.2 hD.2, h_diff _ _ hD.1 hC.1, h_diff _ _ ( h_mul _ _ hB.1 hA.2 ) ( h_mul _ _ hB.2 hA.1 ), h_diff _ _ ( h_mul _ _ hD.1 hC.2 ) ( h_mul _ _ hD.2 hC.1 ) ⟩
-	      have := Constructible.cramer_rule_2x2 hd he hf h_det.1 h_det.2.1 h_det.2.2 hc
-	      exact ⟨ by convert this.1 using 1; rw [ show ( RulerCompass.RulerCompass.RC_coords cfg P ).1 = ( e * d - b * f ) / ( a * d - b * c ) by rw [ eq_div_iff hc ] ; linear_combination ha * d - hb * b ], by convert this.2 using 1; rw [ show ( RulerCompass.RulerCompass.RC_coords cfg P ).2 = ( a * f - e * c ) / ( a * d - b * c ) by rw [ eq_div_iff hc ] ; linear_combination hb * a - ha * c ] ⟩
--/
+      have := Constructible.cramer_rule_2x2 hd he hf h_det.1 h_det.2.1 h_det.2.2 hc
+      exact ⟨ by convert this.1 using 1; rw [ show ( RulerCompass.RulerCompass.RC_coords cfg P ).1 = ( e * d - b * f ) / ( a * d - b * c ) by rw [ eq_div_iff hc ] ; linear_combination ha * d - hb * b ], by convert this.2 using 1; rw [ show ( RulerCompass.RulerCompass.RC_coords cfg P ).2 = ( a * f - e * c ) / ( a * d - b * c ) by rw [ eq_div_iff hc ] ; linear_combination hb * a - ha * c ] ⟩
 /-
 The squared distance between two points is the sum of the squared differences of their coordinates in the standard basis.
 -/
@@ -931,8 +929,6 @@ lemma Constructible.coords_of_line_circle_inter {a b c x0 y0 r2 x y : ℝ}
     (h_circle : (x - x0) ^ 2 + (y - y0) ^ 2 = r2)
     (h_ab : a ≠ 0 ∨ b ≠ 0) :
     Constructible x ∧ Constructible y := by
-      sorry
-/-
       by_cases ha' : a = 0 <;> by_cases hb' : b = 0 <;> simp_all ( config := { decide := Bool.true } )
       · -- Since $b \neq 0$, we can solve for $y$ in the line equation: $y = \frac{c}{b}$.
         have hy : y = c / b := by
@@ -946,8 +942,8 @@ lemma Constructible.coords_of_line_circle_inter {a b c x0 y0 r2 x y : ℝ}
             have h_sqrt : Constructible (y - y0) := by
               have h_sqrt : Constructible y := by
                 rw [ hy ]
-                simpa using Constructible.mul hc ( Constructible.inv hb hb' )
-              convert Constructible.add h_sqrt ( Constructible.neg hy0 ) using 1
+                simpa [div_eq_mul_inv] using Constructible.mul hc ( Constructible.inv hb hb' )
+              simpa [sub_eq_add_neg] using Constructible.add h_sqrt ( Constructible.neg hy0 )
             have h_sqrt : Constructible ((y - y0) ^ 2) := by
               simpa only [ sq ] using Constructible.mul h_sqrt h_sqrt
             have h_sqrt : Constructible (r2 + -((y - y0) ^ 2)) := by
@@ -956,12 +952,14 @@ lemma Constructible.coords_of_line_circle_inter {a b c x0 y0 r2 x y : ℝ}
             exact h_sqrt
           exact Constructible.sqrt h_sqrt ( by nlinarith )
         cases hx <;> simp_all ( config := { decide := Bool.true } )
-        · exact ⟨ by exact Constructible.add hx0 h_sqrt, by exact Constructible.mul hc ( Constructible.inv hb hb' ) ⟩
-        · exact ⟨ by exact Constructible.add hx0 ( Constructible.neg h_sqrt ), by exact Constructible.mul hc ( Constructible.inv hb hb' ) ⟩
+        · exact ⟨ by exact Constructible.add hx0 h_sqrt, by
+            simpa [div_eq_mul_inv] using Constructible.mul hc ( Constructible.inv hb hb' ) ⟩
+        · exact ⟨ by exact Constructible.add hx0 ( Constructible.neg h_sqrt ), by
+            simpa [div_eq_mul_inv] using Constructible.mul hc ( Constructible.inv hb hb' ) ⟩
       · -- Since $a \neq 0$, we can solve for $x$ in the line equation: $x = \frac{c}{a}$.
         have hx : Constructible x := by
           have hx : Constructible (c / a) := by
-            exact Constructible.mul hc ( Constructible.inv ha ha' )
+            simpa [div_eq_mul_inv] using Constructible.mul hc ( Constructible.inv ha ha' )
           rwa [ show x = c / a by rw [ eq_div_iff ha' ] ; linarith ]
         -- Since $a \neq 0$, we can solve for $y$ in the circle equation: $y = y0 \pm \sqrt{r2 - (x - x0) ^ 2}$.
         have hy : Constructible (y0 + Real.sqrt (r2 - (x - x0) ^ 2)) ∧ Constructible (y0 - Real.sqrt (r2 - (x - x0) ^ 2)) := by
@@ -971,12 +969,12 @@ lemma Constructible.coords_of_line_circle_inter {a b c x0 y0 r2 x y : ℝ}
               simpa only [ sq ] using hx.mul hx
             have hx_sub_sq : Constructible ((x - x0) ^ 2) := by
               have hx_sub_sq : Constructible (x - x0) := by
-                convert Constructible.add hx ( Constructible.neg hx0 ) using 1
+                simpa [sub_eq_add_neg] using Constructible.add hx ( Constructible.neg hx0 )
               simpa only [ sq ] using Constructible.mul hx_sub_sq hx_sub_sq
             have hx_sub_sq : Constructible (r2 - (x - x0) ^ 2) := by
               have h_sub : ∀ {a b : ℝ}, Constructible a → Constructible b → Constructible (a - b) := by
                 intro a b ha hb; exact (by
-                simpa using Constructible.add ha ( Constructible.neg hb ))
+                simpa [sub_eq_add_neg] using Constructible.add ha ( Constructible.neg hb ))
               exact h_sub hr2 hx_sub_sq
             exact hx_sub_sq
           have hy : Constructible (Real.sqrt (r2 - (x - x0) ^ 2)) := by
@@ -1023,11 +1021,11 @@ lemma Constructible.coords_of_line_circle_inter {a b c x0 y0 r2 x y : ℝ}
         -- Since $b \neq 0$, we can solve for $y$ in the line equation: $y = \frac{c - ax}{b}$.
         have h_y : y = (c - a * x) / b := by
           rw [ eq_div_iff hb' ] ; linarith
-	        -- Since $c$, $a$, and $x$ are constructible, their combination $(c - a * x)$ is also constructible.
-	        have h_comb : Constructible (c - a * x) := by
-	          exact Constructible.add ( hc ) ( Constructible.neg ( Constructible.mul ha h_x ) ) |> fun h => by simpa using h
-	        exact ⟨ h_x, h_y.symm ▸ by exact Constructible.mul h_comb ( Constructible.inv hb hb' ) ⟩
--/
+        -- Since $c$, $a$, and $x$ are constructible, their combination $(c - a * x)$ is also constructible.
+        have h_comb : Constructible (c - a * x) := by
+          exact Constructible.add ( hc ) ( Constructible.neg ( Constructible.mul ha h_x ) ) |> fun h => by
+            simpa [sub_eq_add_neg] using h
+        exact ⟨ h_x, h_y.symm ▸ by exact Constructible.mul h_comb ( Constructible.inv hb hb' ) ⟩
 /-
 If a point (x, y) lies on the intersection of two distinct circles with constructible centers and squared radii, then x and y are constructible.
 -/
@@ -1038,8 +1036,6 @@ lemma Constructible.coords_of_circle_circle_inter {x1 y1 r1sq x2 y2 r2sq x y : �
     (h_circle2 : (x - x2) ^ 2 + (y - y2) ^ 2 = r2sq)
     (h_centers_distinct : x1 ≠ x2 ∨ y1 ≠ y2) :
     Constructible x ∧ Constructible y := by
-      sorry
-/-
       -- Let $a = 2(x_2 - x_1)$, $b = 2(y_2 - y_1)$, $c = r_1 ^ 2 - r_2 ^ 2 - x_1 ^ 2 + x_2 ^ 2 - y_1 ^ 2 + y_2 ^ 2$. Since $x_1, y_1, r_1 ^ 2, x_2, y_2, r_2 ^ 2$ are constructible, $a, b, c$ are constructible.
       set a := 2 * (x2 - x1)
       set b := 2 * (y2 - y1)
@@ -1047,7 +1043,7 @@ lemma Constructible.coords_of_circle_circle_inter {x1 y1 r1sq x2 y2 r2sq x y : �
       -- Since $x_1, y_1, r_1 ^ 2, x_2, y_2, r_2 ^ 2$ are constructible, $a, b, c$ are constructible.
       have ha : Constructible a := by
         apply_rules [ Constructible.mul, Constructible.neg, Constructible.rat ]
-        simpa using Constructible.add hx2 ( Constructible.neg hx1 )
+        simpa [sub_eq_add_neg] using Constructible.add hx2 ( Constructible.neg hx1 )
       have hb : Constructible b := by
         apply_rules [ Constructible.mul, Constructible.neg, Constructible.add, Constructible.rat, hx1, hy1, hx2, hy2 ]
       have hc : Constructible c := by
@@ -1063,15 +1059,14 @@ lemma Constructible.coords_of_circle_circle_inter {x1 y1 r1sq x2 y2 r2sq x y : �
         -- Since the sum and difference of constructible numbers are constructible, we can combine these to show that $c$ is constructible.
         have hc : Constructible (r1sq - r2sq) ∧ Constructible (-x1 ^ 2 + x2 ^ 2 - y1 ^ 2 + y2 ^ 2) := by
           constructor
-          · simpa using Constructible.add hr1sq ( Constructible.neg hr2sq )
+          · simpa [sub_eq_add_neg] using Constructible.add hr1sq ( Constructible.neg hr2sq )
           · apply_rules [ Constructible.add, Constructible.neg ]
         convert hc.1.add hc.2 using 1 ; ring
       -- By `Constructible.coords_of_line_circle_inter`, $x$ and $y$ are constructible.
       apply Constructible.coords_of_line_circle_inter ha hb hc hx1 hy1 hr1sq
       · linear_combination h_circle1 - h_circle2
-	      · exact h_circle1
-	      · grind
--/
+      · exact h_circle1
+      · grind
 set_option maxHeartbeats 8000000 in
 -- The induction over ruler-compass constructions uses many generated algebraic cases.
 /-
@@ -1079,8 +1074,6 @@ If a point is constructible, its coordinates are constructible numbers.
 -/
 lemma RulerCompass.RC_coords_constructible (cfg : RCBase) (P : Point) (h : RCPoint cfg P) :
     IsConstructibleCoords cfg P := by
-      sorry
-/-
       induction h
       · constructor
         · simp +decide [ RulerCompass.RulerCompass.RC_coords ]
@@ -1160,7 +1153,7 @@ lemma RulerCompass.RC_coords_constructible (cfg : RCBase) (P : Point) (h : RCPoi
               -- The difference of two constructible numbers is constructible.
               have h_diff : ∀ x y : ℝ, Constructible x → Constructible y → Constructible (x - y) := by
                 intros x y hx hy
-                simpa using Constructible.add hx ( Constructible.neg hy )
+                simpa [sub_eq_add_neg] using Constructible.add hx ( Constructible.neg hy )
               exact Constructible.add ( h_sq _ ( h_diff _ _ hC_ih.1 hD_ih.1 ) ) ( h_sq _ ( h_diff _ _ hC_ih.2 hD_ih.2 ) )
             · field_simp
               rw [ ← RulerCompass.dist_sq_eq_coords_sq_add_sq ]
@@ -1244,7 +1237,7 @@ lemma RulerCompass.RC_coords_constructible (cfg : RCBase) (P : Point) (h : RCPoi
               apply And.intro
               · have h_diff : ∀ {x y : ℝ}, Constructible x → Constructible y → Constructible (x - y) := by
                   intro x y hx hy; exact (by
-                  simpa using Constructible.add hx ( Constructible.neg hy ))
+                  simpa [sub_eq_add_neg] using Constructible.add hx ( Constructible.neg hy ))
                 have h_sq : ∀ {x : ℝ}, Constructible x → Constructible (x ^ 2) := by
                   intro x hx; exact (by
                   simpa only [ sq ] using Constructible.mul hx hx)
@@ -1297,9 +1290,15 @@ lemma RulerCompass.RC_coords_constructible (cfg : RCBase) (P : Point) (h : RCPoi
               norm_num +zetaDelta at *
               rw [ RulerCompass.dist_sq_eq_coords_sq_add_sq ]
             rw [h_dist_sq_eq]
-            apply_rules [ Constructible.add, Constructible.mul, Constructible.neg, Constructible.sqrt ]
-            · exact Constructible.rat 1 |> fun h => by simpa using h
-            · exact Constructible.rat 1 |> fun h => by simpa using h
+            have hdiffx : Constructible ((RC_coords cfg C).1 - (RC_coords cfg D).1) := by
+              simpa [sub_eq_add_neg] using Constructible.add hx_C (Constructible.neg hx_D)
+            have hdiffy : Constructible ((RC_coords cfg C).2 - (RC_coords cfg D).2) := by
+              simpa [sub_eq_add_neg] using Constructible.add hy_C (Constructible.neg hy_D)
+            have hsqx : Constructible (((RC_coords cfg C).1 - (RC_coords cfg D).1) ^ 2) := by
+              simpa only [sq] using Constructible.mul hdiffx hdiffx
+            have hsqy : Constructible (((RC_coords cfg C).2 - (RC_coords cfg D).2) ^ 2) := by
+              simpa only [sq] using Constructible.mul hdiffy hdiffy
+            exact Constructible.add hsqx hsqy
           exact h_dist_sq
         have hP₁_constr : Constructible (RC_coords cfg P).1 ∧ Constructible (RC_coords cfg P).2 := by
           apply Constructible.coords_of_circle_circle_inter hx_A hy_A hP₁_constr hx_C hy_C hP₂_constr hP₁_eq hP₂_eq
@@ -1340,9 +1339,8 @@ lemma RulerCompass.RC_coords_constructible (cfg : RCBase) (P : Point) (h : RCPoi
               rw [hdet_eq] at hdy
               norm_num at hdy
               exact sub_eq_zero.mp hdy
-	          rw [ hA_eq_C ]
-	        exact hP₁_constr
--/
+          rw [ hA_eq_C ]
+        exact hP₁_constr
 /-
 If a point P is constructible, then the length of the segment OP is a constructible number.
 -/
