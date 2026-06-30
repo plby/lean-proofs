@@ -400,7 +400,24 @@ The logarithmic antiderivative underlying `tailEstimate` has derivative
 lemma hasDerivAt_inv_log_mul {c t : ℝ} (hc : 0 < c) (hct : 1 < c * t) :
     HasDerivAt (fun u => (Real.log (c * u))⁻¹)
       (-(1 / (t * Real.log (c * t) ^ 2))) t := by
-        sorry
+  change HasDerivAt ((fun u => Real.log (c * u))⁻¹)
+    (-(1 / (t * Real.log (c * t) ^ 2))) t
+  have hmul : HasDerivAt (fun u => c * u) c t := by
+    simpa [mul_comm] using (hasDerivAt_id t).const_mul c
+  have hlog : HasDerivAt (fun u => Real.log (c * u)) ((c * t)⁻¹ * c) t :=
+    (Real.hasDerivAt_log (show c * t ≠ 0 by positivity)).comp t hmul
+  have hlog_ne : Real.log (c * t) ≠ 0 :=
+    Real.log_ne_zero.mpr ⟨by linarith, by constructor <;> linarith⟩
+  have hc_ne : c ≠ 0 := ne_of_gt hc
+  have ht_ne : t ≠ 0 := by
+    intro ht
+    rw [ht, mul_zero] at hct
+    norm_num at hct
+  have hderiv : (c * t)⁻¹ * c = 1 / t := by
+    field_simp [hc_ne, ht_ne]
+  simpa [hderiv, hc_ne, one_div, div_eq_mul_inv, mul_assoc, mul_left_comm, mul_comm] using
+    hlog.inv hlog_ne
+
 /--
 Squaring the inverse logarithm gives the exact derivative
 `-2 / (t log(ct)^3)`.
@@ -408,7 +425,21 @@ Squaring the inverse logarithm gives the exact derivative
 lemma hasDerivAt_inv_log_sq_mul {c t : ℝ} (hc : 0 < c) (hct : 1 < c * t) :
     HasDerivAt (fun u => (Real.log (c * u))⁻¹ ^ 2)
       (-(2 / (t * Real.log (c * t) ^ 3))) t := by
-        sorry
+  change HasDerivAt ((fun u => (Real.log (c * u))⁻¹) ^ 2)
+    (-(2 / (t * Real.log (c * t) ^ 3))) t
+  convert (hasDerivAt_inv_log_mul hc hct).pow 2 using 1
+  · rfl
+  · rfl
+  · have hlog_ne : Real.log (c * t) ≠ 0 :=
+      Real.log_ne_zero.mpr ⟨by linarith, by constructor <;> linarith⟩
+    have ht_ne : t ≠ 0 := by
+      intro ht
+      rw [ht, mul_zero] at hct
+      norm_num at hct
+    rw [show 2 - 1 = 1 by norm_num, pow_one]
+    field_simp [hlog_ne, ht_ne]
+    ring
+
 /-- The logarithmic kernel `1 / (t log(ct)^2)` is integrable on every admissible tail, and its
 integral is exactly `1 / log(cy)`. -/
 private lemma integrableOn_Ioi_inv_log_sq_and_integral_eq {c y : ℝ} (hc : 0 < c)
@@ -931,7 +962,20 @@ private lemma tendsto_tailKernel_mul_mertensTail_zero {m y : ℕ} (hm : 1 ≤ m)
       |mertensPartialSum u - Real.log (u : ℝ)| ≤ C) :
     Tendsto (fun n : ℕ => tailKernel m n * (mertensPartialSum n - mertensPartialSum (y - 1)))
       atTop (𝓝 0) := by
-        sorry
+  have h₁ := tendsto_tailKernel_mul_mertensError_zero hm hC
+  have h₂ :
+      Tendsto (fun n : ℕ => tailKernel m n * (Real.log (n : ℝ) - Real.log (y : ℝ)))
+        atTop (𝓝 0) := by
+    simpa [Function.comp_def] using
+      (tendsto_tailKernel_mul_log_sub_log_zero_aux hm hy).comp tendsto_natCast_atTop_atTop
+  have h₃ : Tendsto (fun n : ℕ => tailKernel m n * (Real.log (y : ℝ) - mertensPartialSum (y - 1)))
+      atTop (𝓝 0) := by
+    simpa [mul_comm] using (tendsto_tailKernel_nat_zero hm).const_mul
+      (Real.log (y : ℝ) - mertensPartialSum (y - 1))
+  simpa using (((h₁.add h₂).add h₃).congr' <| by
+    filter_upwards with n
+    ring)
+
 /-- On the admissible tail, the logarithm in the kernel is always positive. -/
 private lemma one_lt_mul_of_mem_Ioi {m y : ℕ} (hm : 1 ≤ m) (hy : 2 ≤ y) {t : ℝ}
     (ht : t ∈ Set.Ioi (y : ℝ)) :
@@ -993,12 +1037,154 @@ private lemma integrableOn_Ioi_deriv_tailKernel_mul_log_sub_log {m y : ℕ}
     IntegrableOn
       (fun t => deriv (tailKernel m) t * (Real.log t - Real.log (y : ℝ)))
       (Set.Ioi (y : ℝ)) := by
-        sorry
+  have hm_pos : 0 < (m : ℝ) := by
+    exact_mod_cast lt_of_lt_of_le Nat.zero_lt_one hm
+  have hmy : 1 < (m : ℝ) * y := by
+    have hmy_nat : 2 ≤ m * y := by
+      have := Nat.mul_le_mul hm hy
+      simpa using this
+    exact_mod_cast (lt_of_lt_of_le (by decide : 1 < 2) hmy_nat)
+  have hdom :
+      (fun t => deriv (tailKernel m) t * (Real.log t - Real.log (y : ℝ))) =ᵐ[
+        MeasureTheory.volume.restrict (Set.Ioi (y : ℝ))]
+      (fun t =>
+        (-2 / (t * Real.log ((m : ℝ) * t) ^ 3)) * (Real.log t - Real.log (y : ℝ))) := by
+    filter_upwards [ae_restrict_mem measurableSet_Ioi] with t ht
+    have hmt : 1 < (m : ℝ) * t := one_lt_mul_of_mem_Ioi hm hy ht
+    rw [deriv_tailKernel hmt]
+  have hmajor :
+      IntegrableOn (fun t : ℝ => 2 / (t * Real.log ((m : ℝ) * t) ^ 2)) (Set.Ioi (y : ℝ)) := by
+    rw [IntegrableOn]
+    simpa [two_mul, div_eq_mul_inv, mul_assoc, mul_left_comm, mul_comm] using
+      (integrableOn_Ioi_inv_log_sq hm_pos hmy).const_mul (2 : ℝ)
+  have hmeas :
+      AEStronglyMeasurable
+        (fun t : ℝ =>
+          (-2 / (t * Real.log ((m : ℝ) * t) ^ 3)) * (Real.log t - Real.log (y : ℝ)))
+        (MeasureTheory.volume.restrict (Set.Ioi (y : ℝ))) := by
+    refine (aestronglyMeasurable_tailKernelDerivFactor hm hy).mul ?_
+    refine (show ContinuousOn
+      (fun t : ℝ => Real.log t - Real.log (y : ℝ))
+      (Set.Ioi (y : ℝ)) from ?_).aestronglyMeasurable measurableSet_Ioi
+    intro t ht
+    exact ((Real.continuousAt_log (zero_lt_of_mem_Ioi hy ht).ne').sub
+      continuousAt_const).continuousWithinAt
+  have hbound :
+      ∀ᵐ t ∂(MeasureTheory.volume.restrict (Set.Ioi (y : ℝ))),
+        ‖(-2 / (t * Real.log ((m : ℝ) * t) ^ 3)) * (Real.log t - Real.log (y : ℝ))‖ ≤
+          2 / (t * Real.log ((m : ℝ) * t) ^ 2) := by
+    filter_upwards [ae_restrict_mem measurableSet_Ioi] with t ht
+    have ht_pos : 0 < t := zero_lt_of_mem_Ioi hy ht
+    have hmt : 1 < (m : ℝ) * t := one_lt_mul_of_mem_Ioi hm hy ht
+    have hlog_pos : 0 < Real.log ((m : ℝ) * t) := Real.log_pos hmt
+    have hdiff := log_sub_log_bounds hm hy ht.le
+    have hdiff_nonneg : 0 ≤ Real.log t - Real.log (y : ℝ) := hdiff.1
+    have hdiff_le : Real.log t - Real.log (y : ℝ) ≤ Real.log ((m : ℝ) * t) := hdiff.2
+    have hfactor_nonneg : 0 ≤ 2 / (t * Real.log ((m : ℝ) * t) ^ 3) := by
+      positivity
+    calc
+      ‖(-2 / (t * Real.log ((m : ℝ) * t) ^ 3)) * (Real.log t - Real.log (y : ℝ))‖
+        = (2 / (t * Real.log ((m : ℝ) * t) ^ 3)) * (Real.log t - Real.log (y : ℝ)) := by
+            have habs_factor :
+                |(-2 / (t * Real.log ((m : ℝ) * t) ^ 3))| =
+                  2 / (t * Real.log ((m : ℝ) * t) ^ 3) := by
+              have hneg :
+                  -2 / (t * Real.log ((m : ℝ) * t) ^ 3) =
+                    -(2 / (t * Real.log ((m : ℝ) * t) ^ 3)) := by ring
+              rw [hneg, abs_neg, abs_of_nonneg hfactor_nonneg]
+            rw [Real.norm_eq_abs, abs_mul, habs_factor, abs_of_nonneg hdiff_nonneg]
+      _ ≤ (2 / (t * Real.log ((m : ℝ) * t) ^ 3)) * Real.log ((m : ℝ) * t) :=
+            mul_le_mul_of_nonneg_left hdiff_le hfactor_nonneg
+      _ = 2 / (t * Real.log ((m : ℝ) * t) ^ 2) := by
+            have ht_ne : t ≠ 0 := ht_pos.ne'
+            have hlog_ne : Real.log ((m : ℝ) * t) ≠ 0 := hlog_pos.ne'
+            field_simp [ht_ne, hlog_ne]
+  rw [IntegrableOn]
+  refine (Integrable.mono' hmajor hmeas hbound).congr hdom.symm
+
 /-- The logarithmic main term is exactly `1 / log (my)`. -/
 private lemma integral_tailKernel_mainTerm {m y : ℕ} (hm : 1 ≤ m) (hy : 2 ≤ y) :
     -∫ t in Set.Ioi (y : ℝ), deriv (tailKernel m) t * (Real.log t - Real.log (y : ℝ)) =
       1 / Real.log ((m * y : ℕ) : ℝ) := by
-        sorry
+  have hm_pos : 0 < (m : ℝ) := by
+    exact_mod_cast lt_of_lt_of_le Nat.zero_lt_one hm
+  have hmy : 1 < (m : ℝ) * y := by
+    have hmy_nat : 2 ≤ m * y := by
+      have := Nat.mul_le_mul hm hy
+      simpa using this
+    exact_mod_cast (lt_of_lt_of_le (by decide : 1 < 2) hmy_nat)
+  have hu :
+      ∀ x ∈ Set.Ioi (y : ℝ),
+        HasDerivAt (tailKernel m) (-2 / (x * Real.log ((m : ℝ) * x) ^ 3)) x := by
+    intro x hx
+    exact hasDerivAt_tailKernel (one_lt_mul_of_mem_Ioi hm hy hx)
+  have hv :
+      ∀ x ∈ Set.Ioi (y : ℝ),
+        HasDerivAt (fun t : ℝ => Real.log t - Real.log (y : ℝ)) (1 / x) x := by
+    intro x hx
+    simpa [one_div] using
+      (Real.hasDerivAt_log (show x ≠ 0 by exact (zero_lt_of_mem_Ioi hy hx).ne')).sub_const
+        (Real.log (y : ℝ))
+  have huv' :
+      IntegrableOn
+        ((tailKernel m) * fun t : ℝ => 1 / t)
+        (Set.Ioi (y : ℝ)) := by
+    simpa [tailKernel, Pi.mul_def, div_eq_mul_inv, mul_assoc, mul_left_comm, mul_comm] using
+      integrableOn_Ioi_inv_log_sq hm_pos hmy
+  have hu'v :
+      IntegrableOn
+        ((fun x : ℝ => -2 / (x * Real.log ((m : ℝ) * x) ^ 3)) *
+          fun t : ℝ => Real.log t - Real.log (y : ℝ))
+        (Set.Ioi (y : ℝ)) := by
+    refine (integrableOn_Ioi_deriv_tailKernel_mul_log_sub_log hm hy).congr_fun_ae ?_
+    filter_upwards [ae_restrict_mem measurableSet_Ioi] with t ht
+    rw [Pi.mul_apply, deriv_tailKernel (one_lt_mul_of_mem_Ioi hm hy ht)]
+  have h_zero :
+      Tendsto
+        ((tailKernel m) * fun t : ℝ => Real.log t - Real.log (y : ℝ))
+        (𝓝[>] (y : ℝ)) (𝓝 0) := by
+    have hy_pos : 0 < (y : ℝ) := by positivity
+    simpa [Pi.mul_def] using
+      (tendsto_nhdsWithin_of_tendsto_nhds (hasDerivAt_tailKernel hmy).continuousAt.tendsto).mul
+        (tendsto_sub_nhds_zero_iff.mpr <|
+          tendsto_nhdsWithin_of_tendsto_nhds (Real.continuousAt_log hy_pos.ne').tendsto)
+  have h_inf :
+      Tendsto
+        ((tailKernel m) * fun t : ℝ => Real.log t - Real.log (y : ℝ))
+        atTop (𝓝 0) := by
+    simpa [Pi.mul_def] using tendsto_tailKernel_mul_log_sub_log_zero_aux hm hy
+  have hparts :
+      -∫ t in Set.Ioi (y : ℝ), deriv (tailKernel m) t * (Real.log t - Real.log (y : ℝ)) =
+        ∫ t in Set.Ioi (y : ℝ), tailKernel m t * (1 / t) := by
+    calc
+      -∫ t in Set.Ioi (y : ℝ), deriv (tailKernel m) t * (Real.log t - Real.log (y : ℝ))
+        = -∫ t in Set.Ioi (y : ℝ), (-2 / (t * Real.log ((m : ℝ) * t) ^ 3)) *
+            (Real.log t - Real.log (y : ℝ)) := by
+            refine congrArg Neg.neg ?_
+            refine integral_congr_ae ?_
+            filter_upwards [ae_restrict_mem measurableSet_Ioi] with t ht
+            rw [deriv_tailKernel (one_lt_mul_of_mem_Ioi hm hy ht)]
+      _ = ∫ t in Set.Ioi (y : ℝ), tailKernel m t * (1 / t) := by
+            simpa [sub_eq_add_neg, Pi.mul_def] using
+              (MeasureTheory.integral_Ioi_mul_deriv_eq_deriv_mul hu hv huv' hu'v h_zero h_inf).symm
+  have hkernel_eq :
+      ∫ t in Set.Ioi (y : ℝ), tailKernel m t * (1 / t) =
+        ∫ t in Set.Ioi (y : ℝ), (1 : ℝ) / (t * Real.log ((m : ℝ) * t) ^ 2) := by
+    refine integral_congr_ae ?_
+    filter_upwards [ae_restrict_mem measurableSet_Ioi] with t ht
+    have ht_pos : 0 < t := zero_lt_of_mem_Ioi hy ht
+    have hmt : 1 < (m : ℝ) * t := one_lt_mul_of_mem_Ioi hm hy ht
+    have hlog_ne : Real.log ((m : ℝ) * t) ≠ 0 := (Real.log_pos hmt).ne'
+    unfold tailKernel
+    field_simp [ht_pos.ne', hlog_ne]
+  calc
+    -∫ t in Set.Ioi (y : ℝ), deriv (tailKernel m) t * (Real.log t - Real.log (y : ℝ))
+      = ∫ t in Set.Ioi (y : ℝ), tailKernel m t * (1 / t) := hparts
+    _ = 1 / Real.log ((m * y : ℕ) : ℝ) := by
+          rw [hkernel_eq]
+          simpa [Nat.cast_mul, div_eq_mul_inv, mul_comm, mul_left_comm, mul_assoc] using
+            integral_Ioi_inv_log_sq hm_pos hmy
+
 /-- The logarithmic tail sum satisfies
 `tailSum m y = 1 / log (my) + O(log(my)⁻²)` uniformly for `m ≥ 1` and `y ≥ 2`. -/
 lemma tailEstimate :
@@ -1006,7 +1192,176 @@ lemma tailEstimate :
       ∀ ⦃m y : ℕ⦄, 1 ≤ m → 2 ≤ y →
         |tailSum m y - 1 / Real.log ((m * y : ℕ) : ℝ)| ≤
           C / (Real.log ((m * y : ℕ) : ℝ)) ^ 2 := by
-            sorry
+  obtain ⟨C₀, hC₀pos, hC₀⟩ := mertensEstimate
+  refine ⟨2 * (C₀ + Real.log 2), by positivity, ?_⟩
+  intro m y hm hy
+  let coeff : ℕ → ℝ := fun q => tailKernel m q * tailCutoffCoeff y q
+  let partialS : ℕ → ℝ := fun n => ∑ q ∈ Finset.Icc 0 n, coeff q
+  let A : ℝ → ℝ := fun t =>
+    deriv (tailKernel m) t * (mertensPartialSum ⌊t⌋₊ - mertensPartialSum (y - 1))
+  let E : ℝ → ℝ := fun t =>
+    (mertensPartialSum ⌊t⌋₊ - mertensPartialSum (y - 1)) -
+      (Real.log t - Real.log (y : ℝ))
+  have hm_pos : 0 < (m : ℝ) := by
+    exact_mod_cast lt_of_lt_of_le Nat.zero_lt_one hm
+  have hmy : 1 < (m : ℝ) * y := by
+    have hmy_nat : 2 ≤ m * y := by
+      have := Nat.mul_le_mul hm hy
+      simpa using this
+    exact_mod_cast (lt_of_lt_of_le (by decide : 1 < 2) hmy_nat)
+  have hcoeff_nonneg : ∀ q : ℕ, 0 ≤ coeff q := by
+    intro q
+    by_cases hyq : y ≤ q
+    · have hmq_nat : 2 ≤ m * q := by
+        have := Nat.mul_le_mul hm hyq
+        exact le_trans (by omega) this
+      have hmq : 1 < ((m * q : ℕ) : ℝ) := by
+        exact_mod_cast (lt_of_lt_of_le (by decide : 1 < 2) hmq_nat)
+      have hkernel_nonneg : 0 ≤ tailKernel m q := tailKernel_nonneg m q
+      have hcutoff_nonneg : 0 ≤ tailCutoffCoeff y q := by
+        have hq_pos_nat : 0 < q := lt_of_lt_of_le (by decide : 0 < 2) (le_trans hy hyq)
+        have hq_pos : 0 < (q : ℝ) := by exact_mod_cast hq_pos_nat
+        have hΛ_nonneg : 0 ≤ Λ q := ArithmeticFunction.vonMangoldt_nonneg
+        rw [tailCutoffCoeff, if_pos hyq]
+        exact div_nonneg hΛ_nonneg hq_pos.le
+      exact mul_nonneg hkernel_nonneg hcutoff_nonneg
+    · simp [coeff, tailCutoffCoeff, hyq]
+  have hAeq :
+      A =
+        (fun t =>
+          deriv (tailKernel m) t * (Real.log t - Real.log (y : ℝ)) +
+            deriv (tailKernel m) t * E t) := by
+    funext t
+    simp [A, E]
+    ring
+  have hEbound :
+      ∀ᵐ t ∂(MeasureTheory.volume.restrict (Set.Ioi (y : ℝ))),
+        |E t| ≤ 2 * (C₀ + Real.log 2) := by
+    filter_upwards [ae_restrict_mem measurableSet_Ioi] with t ht
+    exact abs_mertensTail_floor_error_le hC₀ hy ht.le
+  have hmain_int :
+      IntegrableOn
+        (fun t => deriv (tailKernel m) t * (Real.log t - Real.log (y : ℝ)))
+        (Set.Ioi (y : ℝ)) :=
+    integrableOn_Ioi_deriv_tailKernel_mul_log_sub_log hm hy
+  have hmajor :
+      IntegrableOn
+        (fun t : ℝ => (2 * (C₀ + Real.log 2)) * (2 / (t * Real.log ((m : ℝ) * t) ^ 3)))
+        (Set.Ioi (y : ℝ)) := by
+    rw [IntegrableOn]
+    simpa [mul_assoc, mul_left_comm, mul_comm] using
+      (integrableOn_Ioi_two_inv_log_cube hm_pos hmy).const_mul (2 * (C₀ + Real.log 2))
+  have hderivE_dom :
+      (fun t => deriv (tailKernel m) t * E t) =ᵐ[MeasureTheory.volume.restrict (Set.Ioi (y : ℝ))]
+        (fun t => (-2 / (t * Real.log ((m : ℝ) * t) ^ 3)) * E t) := by
+    filter_upwards [ae_restrict_mem measurableSet_Ioi] with t ht
+    have hmt : 1 < (m : ℝ) * t := one_lt_mul_of_mem_Ioi hm hy ht
+    rw [deriv_tailKernel hmt]
+  have hderivE_bound :
+      ∀ᵐ t ∂(MeasureTheory.volume.restrict (Set.Ioi (y : ℝ))),
+        ‖deriv (tailKernel m) t * E t‖ ≤
+          (2 * (C₀ + Real.log 2)) * (2 / (t * Real.log ((m : ℝ) * t) ^ 3)) := by
+    filter_upwards [hEbound, ae_restrict_mem measurableSet_Ioi] with t htE ht
+    have hmt : 1 < (m : ℝ) * t := one_lt_mul_of_mem_Ioi hm hy ht
+    have hfactor_nonneg : 0 ≤ 2 / (t * Real.log ((m : ℝ) * t) ^ 3) := by
+      have ht_pos : 0 < t := zero_lt_of_mem_Ioi hy ht
+      have hlog_pos : 0 < Real.log ((m : ℝ) * t) := Real.log_pos hmt
+      positivity
+    calc
+      ‖deriv (tailKernel m) t * E t‖
+        = ‖(-2 / (t * Real.log ((m : ℝ) * t) ^ 3)) * E t‖ := by
+            rw [deriv_tailKernel hmt]
+      _ = |(-2 / (t * Real.log ((m : ℝ) * t) ^ 3))| * |E t| := by
+            rw [Real.norm_eq_abs, abs_mul]
+      _ ≤ (2 / (t * Real.log ((m : ℝ) * t) ^ 3)) * (2 * (C₀ + Real.log 2)) := by
+            have hneg :
+                -2 / (t * Real.log ((m : ℝ) * t) ^ 3) =
+                  -(2 / (t * Real.log ((m : ℝ) * t) ^ 3)) := by ring
+            rw [hneg, abs_neg, abs_of_nonneg hfactor_nonneg]
+            exact mul_le_mul_of_nonneg_left htE hfactor_nonneg
+      _ = (2 * (C₀ + Real.log 2)) * (2 / (t * Real.log ((m : ℝ) * t) ^ 3)) := by ring
+  have herr_int :
+      IntegrableOn (fun t => deriv (tailKernel m) t * E t) (Set.Ioi (y : ℝ)) := by
+    have hmeas :
+        AEStronglyMeasurable (fun t => deriv (tailKernel m) t * E t)
+          (MeasureTheory.volume.restrict (Set.Ioi (y : ℝ))) := by
+      have hE_meas :
+          AEStronglyMeasurable E (MeasureTheory.volume.restrict (Set.Ioi (y : ℝ))) := by
+        measurability
+      exact ((aestronglyMeasurable_tailKernelDerivFactor hm hy).mul hE_meas).congr hderivE_dom.symm
+    rw [IntegrableOn] at hmajor ⊢
+    exact Integrable.mono' hmajor hmeas hderivE_bound
+  have hA_int : IntegrableOn A (Set.Ioi (y : ℝ)) := by
+    rw [hAeq]
+    exact hmain_int.add herr_int
+  have hpartial :
+      Tendsto partialS atTop (𝓝 (-∫ t in Set.Ioi (y : ℝ), A t)) := by
+    refine Tendsto.congr' ?_ (by
+      simpa using
+        (tendsto_tailKernel_mul_mertensTail_zero hm hy hC₀).sub
+          (intervalIntegral_tendsto_integral_Ioi
+            (y : ℝ) hA_int tendsto_natCast_atTop_atTop))
+    filter_upwards [eventually_ge_atTop y] with n hn
+    simp [partialS, coeff, A, tailPartialSum_abel hm hy hn]
+  have hcoeff_sum :
+      HasSum coeff (-∫ t in Set.Ioi (y : ℝ), A t) := by
+    refine (hasSum_iff_tendsto_nat_of_nonneg hcoeff_nonneg _).2 ?_
+    refine Tendsto.congr' ?_ (hpartial.comp (tendsto_sub_atTop_nat 1))
+    filter_upwards [eventually_ge_atTop 1] with n hn
+    simp [partialS, Nat.range_eq_Icc_zero_sub_one n (by omega)]
+  have htail :
+      tailSum m y = -∫ t in Set.Ioi (y : ℝ), A t := by
+    have hcoeff_eq :
+        coeff = fun q : ℕ =>
+          if y ≤ q then
+            Λ q / ((q : ℝ) * Real.log ((m * q : ℕ) : ℝ) ^ 2)
+          else 0 := by
+      funext q
+      unfold coeff
+      by_cases hyq : y ≤ q
+      · have hcast : ((m : ℝ) * q) = ((m * q : ℕ) : ℝ) := by
+          norm_num [Nat.cast_mul]
+        rw [if_pos hyq, tailCutoffCoeff, if_pos hyq]
+        unfold tailKernel
+        rw [hcast]
+        field_simp
+      · simp [tailCutoffCoeff, hyq]
+    calc
+      tailSum m y = ∑' q : ℕ, coeff q := by simp [tailSum, hcoeff_eq]
+      _ = -∫ t in Set.Ioi (y : ℝ), A t := hcoeff_sum.tsum_eq
+  have hmain :
+      -∫ t in Set.Ioi (y : ℝ), deriv (tailKernel m) t * (Real.log t - Real.log (y : ℝ)) =
+        1 / Real.log ((m * y : ℕ) : ℝ) :=
+    integral_tailKernel_mainTerm hm hy
+  have htail_split :
+      tailSum m y - 1 / Real.log ((m * y : ℕ) : ℝ) =
+        -∫ t in Set.Ioi (y : ℝ), deriv (tailKernel m) t * E t := by
+    have hmain' :
+        ∫ t in Set.Ioi (y : ℝ), deriv (tailKernel m) t * (Real.log t - Real.log (y : ℝ)) =
+          -(1 / Real.log ((m * y : ℕ) : ℝ)) := by
+      linarith [hmain]
+    rw [htail, hAeq, integral_add hmain_int herr_int, hmain']
+    ring
+  calc
+    |tailSum m y - 1 / Real.log ((m * y : ℕ) : ℝ)|
+      = |∫ t in Set.Ioi (y : ℝ), deriv (tailKernel m) t * E t| := by
+          rw [htail_split, abs_neg]
+    _ ≤ ∫ t in Set.Ioi (y : ℝ), ‖deriv (tailKernel m) t * E t‖ := by
+          simpa using
+            (norm_integral_le_integral_norm
+              (μ := MeasureTheory.volume.restrict (Set.Ioi (y : ℝ)))
+              (fun t : ℝ => deriv (tailKernel m) t * E t))
+    _ ≤
+        ∫ t in Set.Ioi (y : ℝ),
+          (2 * (C₀ + Real.log 2)) * (2 / (t * Real.log ((m : ℝ) * t) ^ 3)) := by
+          exact setIntegral_mono_ae_restrict herr_int.norm hmajor hderivE_bound
+    _ = (2 * (C₀ + Real.log 2)) * (1 / Real.log ((m * y : ℕ) : ℝ)) ^ 2 := by
+          rw [integral_const_mul]
+          simpa [Nat.cast_mul] using congrArg (fun z => (2 * (C₀ + Real.log 2)) * z)
+            (integral_Ioi_two_inv_log_cube hm_pos hmy)
+    _ = (2 * (C₀ + Real.log 2)) / (Real.log ((m * y : ℕ) : ℝ)) ^ 2 := by
+          field_simp
+
 end PrimitiveSetsAboveX
 
 
@@ -1774,7 +2129,76 @@ monotone integral comparison specialized to the exact cutoff `x ⌈/⌉ q`.
 lemma sum_range_smallPrimeTail_le_two_inv_log {x q N : ℕ} (hx : 3 ≤ x) (hq : 0 < q) :
     ∑ m ∈ Finset.range N, (if x ⌈/⌉ q ≤ m then smallPrimeTailTerm q m else 0) ≤
       2 / Real.log (x : ℝ) := by
-        sorry
+  let M := x ⌈/⌉ q
+  have hxq : x ≤ q * M := by
+    simpa [M] using
+      (ceilDiv_le_iff_le_mul hq).1 (le_rfl : x ⌈/⌉ q ≤ x ⌈/⌉ q)
+  have hx_log_pos : 0 < Real.log (x : ℝ) := by
+    exact Real.log_pos (by exact_mod_cast (lt_of_lt_of_le (by decide : 1 < 3) hx))
+  have hMq_ge_x : (x : ℝ) ≤ (M : ℝ) * q := by
+    exact_mod_cast (by simpa [Nat.mul_comm] using hxq)
+  have hMq_gt_one : 1 < (M : ℝ) * q := by
+    have hx_one : (1 : ℝ) < x := by
+      exact_mod_cast (lt_of_lt_of_le (by decide : 1 < 3) hx)
+    exact lt_of_lt_of_le hx_one hMq_ge_x
+  have hlog_mono : Real.log (x : ℝ) ≤ Real.log ((M : ℝ) * q) := by
+    exact Real.log_le_log (by positivity) hMq_ge_x
+  have htail := summable_smallPrimeKernel_shift_and_tsum_le (q := q) (N := M) hq hMq_gt_one
+  have hkernel_nonneg : ∀ n : ℕ, 0 ≤ smallPrimeKernel q (M + n + 1) := by
+    intro n
+    have hmul :
+        (M : ℝ) * q ≤ (((M + n + 1 : ℕ) : ℝ) * q) := by
+      gcongr
+      exact_mod_cast Nat.le_add_right M (n + 1)
+    have hgt : 1 < (((M + n + 1 : ℕ) : ℝ) * q) := lt_of_lt_of_le hMq_gt_one hmul
+    exact smallPrimeKernel_nonneg (by
+      simpa [Nat.cast_add, Nat.cast_one, add_assoc, add_left_comm, add_comm] using hgt)
+  by_cases hMN : M < N
+  · have hhead :
+        smallPrimeTailTerm q M ≤ 1 / Real.log (x : ℝ) := by
+      have hMpos : 0 < M := by
+        by_contra hMpos
+        have hM0 : M = 0 := Nat.eq_zero_of_not_pos hMpos
+        rw [hM0, Nat.mul_zero] at hxq
+        omega
+      have hlogMq_ge_one : 1 ≤ Real.log ((M : ℝ) * q) := by
+        rw [← Real.log_exp 1]
+        exact Real.log_le_log (Real.exp_pos 1) <|
+          le_trans Real.exp_one_lt_three.le <| le_trans (by exact_mod_cast hx) hMq_ge_x
+      have hden :
+          Real.log (x : ℝ) ≤ (M : ℝ) * (Real.log ((M : ℝ) * q)) ^ 2 := by
+        have hM_ge_one : (1 : ℝ) ≤ M := by exact_mod_cast Nat.succ_le_of_lt hMpos
+        nlinarith
+      dsimp [smallPrimeTailTerm, M]
+      simpa [Nat.cast_mul, mul_assoc, mul_left_comm, mul_comm] using
+        (one_div_le_one_div_of_le hx_log_pos hden)
+    have hshift_le :
+        ∑' n : ℕ, smallPrimeKernel q (M + n + 1) ≤ 1 / Real.log (x : ℝ) := by
+      exact htail.2.trans <| one_div_le_one_div_of_le hx_log_pos hlog_mono
+    have hprefix :
+        ∑ m ∈ Finset.range N, (if M ≤ m then smallPrimeTailTerm q m else 0) ≤
+          smallPrimeTailTerm q M + ∑' n : ℕ, smallPrimeKernel q (M + n + 1) := by
+      calc
+        ∑ m ∈ Finset.range N, (if M ≤ m then smallPrimeTailTerm q m else 0)
+          = smallPrimeTailTerm q M +
+              ∑ n ∈ Finset.range (N - (M + 1)), smallPrimeKernel q (M + n + 1) := by
+                exact sum_range_smallPrimeTail_eq_head_add hMN
+        _ ≤ smallPrimeTailTerm q M + ∑' n : ℕ, smallPrimeKernel q (M + n + 1) := by
+              gcongr
+              exact htail.1.sum_le_tsum _ (fun n _ => hkernel_nonneg n)
+    calc
+      ∑ m ∈ Finset.range N, (if x ⌈/⌉ q ≤ m then smallPrimeTailTerm q m else 0)
+        ≤ smallPrimeTailTerm q M + ∑' n : ℕ, smallPrimeKernel q (M + n + 1) := by
+            simpa [M] using hprefix
+      _ ≤ 1 / Real.log (x : ℝ) + 1 / Real.log (x : ℝ) := by
+            gcongr
+      _ = 2 / Real.log (x : ℝ) := by ring
+  · have hzero :
+        ∑ m ∈ Finset.range N, (if x ⌈/⌉ q ≤ m then smallPrimeTailTerm q m else 0) = 0 := by
+      refine Finset.sum_eq_zero ?_
+      grind only [= Finset.mem_range]
+    simpa [hzero] using (show 0 ≤ 2 / Real.log (x : ℝ) by positivity)
+
 /-- The `q`-th inner row in the small-prime decomposition is bounded by the corresponding
 coefficient times `2 / log x`, and vanishes outside `q ∈ Ico 1 Y`. -/
 private lemma sum_range_smallPrimeRow_le {x q N Y : ℕ} (hx : 3 ≤ x) :
@@ -2210,7 +2634,54 @@ lemma subMarkovRowSumBound :
       ∀ ⦃Y : ℕ⦄, Real.exp (2 * C) < (Y : ℝ) →
         ∃ x₀ : ℕ, Y ≤ x₀ ∧
           ∀ ⦃m : ℕ⦄, x₀ ≤ m → (∑' q : ℕ, transitionWeight Y m q) ≤ 1 := by
-            sorry
+  rcases ryApproximation with ⟨C, hCpos, hC⟩
+  refine ⟨C, hCpos, ?_⟩
+  intro Y hYlarge
+  refine ⟨Y, le_rfl, ?_⟩
+  intro m hm
+  have hY_gt_one : (1 : ℝ) < (Y : ℝ) := by
+    exact lt_trans
+      (by simpa using Real.one_lt_exp_iff.2 (by nlinarith [hCpos]))
+      hYlarge
+  have hY_nat_gt_one : 1 < Y := by
+    exact_mod_cast hY_gt_one
+  have hY2 : 2 ≤ Y := by
+    exact Nat.succ_le_of_lt hY_nat_gt_one
+  have hm2 : 2 ≤ m := le_trans hY2 hm
+  have hm_log_pos : 0 < Real.log (m : ℝ) := by
+    exact Real.log_pos (by exact_mod_cast (lt_of_lt_of_le (by decide : 1 < 2) hm2))
+  have hmY_ge_four : 4 ≤ m * Y := Nat.mul_le_mul hm2 hY2
+  have hlogMY_pos : 0 < Real.log ((m * Y : ℕ) : ℝ) := by
+    exact Real.log_pos (by exact_mod_cast (lt_of_lt_of_le (by decide : 1 < 4) hmY_ge_four))
+  have hupper : ry Y m ≤ 1 - Real.log (Y : ℝ) / Real.log ((m * Y : ℕ) : ℝ) +
+      C / Real.log (m : ℝ) := by
+    linarith [(abs_le.mp (hC hY2 hm2)).2]
+  rw [show (∑' q : ℕ, transitionWeight Y m q) = ry Y m by simp [transitionWeight, ry]]
+  refine hupper.trans ?_
+  have hmul_le_sq : (m * Y : ℕ) ≤ m * m := Nat.mul_le_mul_left m hm
+  have hlogMY_le : Real.log ((m * Y : ℕ) : ℝ) ≤ 2 * Real.log (m : ℝ) := by
+    have hcast_le : ((m * Y : ℕ) : ℝ) ≤ (m : ℝ) * m := by
+      exact_mod_cast hmul_le_sq
+    calc
+      Real.log ((m * Y : ℕ) : ℝ) ≤ Real.log ((m : ℝ) * m) :=
+        Real.log_le_log
+          (by exact_mod_cast (lt_of_lt_of_le (by decide : 0 < 4) hmY_ge_four))
+          hcast_le
+      _ = 2 * Real.log (m : ℝ) := by
+        rw [Real.log_mul]
+        · ring
+        · positivity
+        · positivity
+  have htwoC_lt_logY : 2 * C < Real.log (Y : ℝ) := by
+    simpa [Real.log_exp] using (Real.log_lt_log (Real.exp_pos _) hYlarge)
+  have herror :
+      C / Real.log (m : ℝ) ≤ Real.log (Y : ℝ) / Real.log ((m * Y : ℕ) : ℝ) := by
+    have hm_log_ne : Real.log (m : ℝ) ≠ 0 := hm_log_pos.ne'
+    have hlogMY_ne : Real.log ((m * Y : ℕ) : ℝ) ≠ 0 := hlogMY_pos.ne'
+    field_simp [hm_log_ne, hlogMY_ne]
+    nlinarith
+  linarith
+
 /-- For each fixed `Y ≥ 2`, the normalizing constants satisfy the asymptotic estimate
 `B_x = 1 + O(1 / log x)`. -/
 lemma normalizationEstimate {Y : ℕ} (hY : 2 ≤ Y) :
@@ -2710,7 +3181,55 @@ private lemma summable_transitionTailSummand (Y m : ℕ) (hm : 1 ≤ m) :
         Λ q / ((q : ℝ) * Real.log ((m * q : ℕ) : ℝ) ^ 2)
       else
         0) := by
-          sorry
+  rcases tailEstimate with ⟨C, hCpos, htail⟩
+  let N : ℕ := max Y (Nat.ceil (Real.exp C) + 1)
+  have hN_ge_Y : Y ≤ N := le_max_left Y (Nat.ceil (Real.exp C) + 1)
+  have hN_ge_two : 2 ≤ N := by
+    have hceil_pos : 0 < Nat.ceil (Real.exp C) := Nat.ceil_pos.2 (Real.exp_pos _)
+    have hN0_ge_two : 2 ≤ Nat.ceil (Real.exp C) + 1 := by
+      omega
+    exact le_trans hN0_ge_two (le_max_right Y (Nat.ceil (Real.exp C) + 1))
+  have hN_log_large : C < Real.log ((m * N : ℕ) : ℝ) := by
+    calc
+      C = Real.log (Real.exp C) := by rw [Real.log_exp]
+      _ < Real.log ((m * N : ℕ) : ℝ) := by
+        apply Real.log_lt_log (Real.exp_pos _)
+        calc
+          Real.exp C ≤ (Nat.ceil (Real.exp C) : ℝ) := by exact_mod_cast Nat.le_ceil _
+          _ < (Nat.ceil (Real.exp C) + 1 : ℕ) := by
+              exact_mod_cast Nat.lt_succ_self (Nat.ceil (Real.exp C))
+          _ ≤ (N : ℝ) := by
+              exact_mod_cast (le_max_right Y (Nat.ceil (Real.exp C) + 1))
+          _ ≤ (((m * N : ℕ) : ℝ)) := by
+              exact_mod_cast (by
+                simpa [one_mul, Nat.mul_comm] using Nat.mul_le_mul_right N hm)
+  have hN_log_pos : 0 < Real.log ((m * N : ℕ) : ℝ) := lt_trans hCpos hN_log_large
+  have h_err_lt :
+      C / Real.log ((m * N : ℕ) : ℝ) ^ 2 < 1 / Real.log ((m * N : ℕ) : ℝ) := by
+    have hlog_ne : Real.log ((m * N : ℕ) : ℝ) ≠ 0 := hN_log_pos.ne'
+    field_simp [hlog_ne]
+    nlinarith
+  have htail_pos : 0 < tailSum m N := by
+    grind only [= abs.eq_1, = max_def]
+  have hsN :
+      Summable (fun q : ℕ =>
+        if N ≤ q then
+          Λ q / ((q : ℝ) * Real.log ((m * q : ℕ) : ℝ) ^ 2)
+        else
+          0) := by
+    by_contra hsN
+    have hzero : tailSum m N = 0 := by
+      simpa [tailSum] using (tsum_eq_zero_of_not_summable hsN)
+    exact htail_pos.ne' hzero
+  rw [← Finset.summable_compl_iff (s := Finset.range N)]
+  refine (hsN.subtype {q : ℕ | q ∉ Finset.range N}).congr ?_
+  intro q
+  rcases q with ⟨q, hq_not_range⟩
+  have hq : N ≤ q := by
+    exact le_of_not_gt fun hlt => hq_not_range (Finset.mem_range.mpr hlt)
+  have hYq : Y ≤ q := le_trans hN_ge_Y hq
+  simp [hq, hYq]
+
 /-- The transition-weight series is summable for every `m ≥ 1`. -/
 private lemma summable_transitionWeight (Y m : ℕ) (hm : 1 ≤ m) :
     Summable (fun q : ℕ => transitionWeight Y m q) := by
