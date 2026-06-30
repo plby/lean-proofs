@@ -2603,7 +2603,7 @@ lemma another_this_particular_tends_to :
     Tendsto (fun x : ℝ => log x / log (log x)) atTop atTop := by
   have h : Tendsto (fun x : ℝ => x / log x) atTop atTop := by
     simpa using tendsto_mul_add_div_pow_log_at_top (1 : ℝ) 0 1 zero_lt_one
-  simpa using h.comp tendsto_log_atTop
+  simpa [Function.comp_def] using h.comp tendsto_log_atTop
 
 lemma this_function_big_tends_to :
     Tendsto (fun x : ℝ => x ^ (log (log (log x)) / log (log x))) atTop atTop := by
@@ -2876,9 +2876,7 @@ lemma the_last_large_N : ∀ C : ℝ, 0 < C →
               (log (log (log (N : ℝ))) / log (log (N : ℝ))) * log (N : ℝ) +
                 (log (log (log (N : ℝ))) / log (log (N : ℝ))) * log (N : ℝ) := by
               exact add_lt_add hsum5 hsum6
-        convert hsum using 1
-        all_goals
-          ring_nf
+        nlinarith [hsum]
       · have hy_nonneg :
             0 ≤ C * (1 / log (log (N : ℝ)) ^ 2) * log (N : ℝ) := by
           positivity
