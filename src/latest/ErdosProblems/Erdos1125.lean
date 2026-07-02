@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
+/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 1125.
@@ -124,13 +124,15 @@ private lemma lemma1_power_of_two {k : ℕ} (hk : 1 ≤ k) {f : ℕ → ℝ} {K 
 private lemma shifted_dyadic_estimate {k : ℕ} (hk : 1 ≤ k) {n : ℕ} {f : ℕ → ℝ} {K : ℝ}
     (hf : IsF n f) (hbound : ∀ i, i ≤ n → |f i| ≤ K) {a : ℕ} (ha : a + 2 ^ k ≤ n) :
     f a ≤ f (a + 2 ^ k) + 2 * K / (2 : ℝ) ^ k := by
-  sorry
-/-
-  convert lemma1_power_of_two hk
-      (f := fun i ↦ f (a + i)) (K := K) (hf := ?_) (hbound := ?_) using 1
-  · grind +locals
-  · exact fun i hi ↦ hbound _ (by linarith)
--/
+  have hf_shift : IsF (2 ^ k) (fun i ↦ f (a + i)) := by
+    intro i h h_pos h_le
+    have hineq := hf (a + i) h h_pos (by omega)
+    simpa [Nat.add_assoc] using hineq
+  have hbound_shift : ∀ i, i ≤ 2 ^ k → |(fun i ↦ f (a + i)) i| ≤ K := by
+    intro i hi
+    exact hbound _ (by omega)
+  simpa [Nat.zero_add] using
+    lemma1_power_of_two hk (f := fun i ↦ f (a + i)) (K := K) hf_shift hbound_shift
 
 /-- Estimate at position 1 for power-of-two-plus-one. -/
 private lemma estimate_at_one_for_power_of_two_plus_one {k : ℕ} (hk : 1 ≤ k)
@@ -171,8 +173,6 @@ private lemma combined_partb_from_parta (k : ℕ) (hk : 1 ≤ k)
     ∀ (nn : ℕ), 2 ^ k + 2 ≤ nn → nn < 2 ^ (k + 1) → ∀ (f : ℕ → ℝ) (K : ℝ),
       IsF nn f → 0 < K → (∀ i, i ≤ nn → |f i| ≤ K) →
       f 0 ≤ f nn + 5 * K / (2 : ℝ) ^ k := by
-  sorry
-/-
   intro nn hnk hn2k f K hf hK hbound
   have h1 : f ((nn : ℕ) - 2^k - 1) ≤ f nn + 6 * K / (2 : ℝ) ^ k := by
     convert hA (fun i ↦ f (i + (nn - 2 ^ k - 1))) K ?_ hK ?_ using 1 <;> norm_num [pow_succ'] at *
@@ -199,6 +199,7 @@ private lemma combined_partb_from_parta (k : ℕ) (hk : 1 ≤ k)
       have hzero : (2 ^ k + 2) - 2 ^ k - 2 = 0 := by omega
       simpa [hzero] using h3.trans (by gcongr; norm_num)
     · have h4 : f ((nn : ℕ) - 2^k - 3) ≤ f nn + 5 * K / (2 : ℝ) ^ k := by
+        have hnn3 : 2 ^ k + 3 ≤ nn := by omega
         have := hf (nn - 2 ^ k - 3) 1; simp_all +decide [Nat.sub_sub]
         rw [
           show nn - (2 ^ k + 3) + 1 = nn - (2 ^ k + 2) by omega,
@@ -209,12 +210,19 @@ private lemma combined_partb_from_parta (k : ℕ) (hk : 1 ≤ k)
         apply backward_propagation_from_two_consecutive_bounds hf
         · omega
         · exact h4
-        · convert h3.trans _ using 1
-          · exact congr_arg f (by omega)
-          · gcongr; norm_num
+        · have h3' :
+              f (nn - 2 ^ k - 3 + 1) ≤ f nn + 4 * K / (2 : ℝ) ^ k := by
+            have hnn3 : 2 ^ k + 3 ≤ nn := by omega
+            have hidx : nn - 2 ^ k - 3 + 1 = nn - 2 ^ k - 2 := by omega
+            simpa [hidx] using h3
+          refine h3'.trans ?_
+          have hden : 0 < (2 : ℝ) ^ k := pow_pos (by norm_num) k
+          have hle : 4 * K / (2 : ℝ) ^ k ≤ 5 * K / (2 : ℝ) ^ k := by
+            rw [div_le_div_iff₀ hden hden]
+            nlinarith [hK]
+          linarith
       exact h5 0 bot_le
   exact h4
--/
 
 set_option linter.style.setOption false in
 set_option linter.flexible false in
@@ -226,8 +234,6 @@ private lemma combined_isF_bound (k : ℕ) (hk : 1 ≤ k) :
     (∀ (nn : ℕ), 2 ^ k + 2 ≤ nn → nn < 2 ^ (k + 1) → ∀ (f : ℕ → ℝ) (K : ℝ),
       IsF nn f → 0 < K → (∀ i, i ≤ nn → |f i| ≤ K) →
       f 0 ≤ f nn + 5 * K / (2 : ℝ) ^ k) := by
-  sorry
-/-
   refine ⟨?_, fun nn hnn₁ hnn₂ f K hf hK hK' ↦ ?_⟩
   · induction k using Nat.strong_induction_on with
     | h k ih =>
@@ -267,15 +273,19 @@ private lemma combined_isF_bound (k : ℕ) (hk : 1 ≤ k) :
               rcases k with (_ | _ | _ | k) <;> norm_num [pow_succ'] at *
               exact le_tsub_of_add_le_left (by linarith [Nat.one_le_pow k 2 zero_lt_two])) (by
               exact Nat.sub_lt (by positivity) (by positivity)) (fun i ↦ f (i + 2)) K (by
-              convert isF_translate hf
-                  (show 2 ≤ 2 ^ k + 1 from by
-                    linarith [Nat.pow_le_pow_right two_pos hk])
-                  (show 2 ^ k + 1 ≤ 2 ^ k + 1 from by linarith) using 1) hK (by
+              have hpow : 1 ≤ 2 ^ k := Nat.one_le_pow k 2 zero_lt_two
+              have ht := isF_translate (n := 2 ^ k + 1) (f := f) hf
+                (a := 2) (b := 2 ^ k + 1)
+                (show 2 ≤ 2 ^ k + 1 from by omega)
+                (show 2 ^ k + 1 ≤ 2 ^ k + 1 from by omega)
+              simpa [show 2 ^ k + 1 - 2 = 2 ^ k - 1 by omega] using ht) hK (by
               exact fun i hi ↦ hbound _ (by
-                linarith [Nat.sub_add_cancel (Nat.one_le_pow k 2 zero_lt_two)]))
+                have hpow : 1 ≤ 2 ^ k := Nat.one_le_pow k 2 zero_lt_two
+                omega))
               convert ih_step using 2
               rw [show 2 ^ k - 1 + 2 = 2 ^ k + 1 by
-                linarith [Nat.sub_add_cancel (Nat.one_le_pow k 2 zero_lt_two)]]
+                have hpow : 1 ≤ 2 ^ k := Nat.one_le_pow k 2 zero_lt_two
+                omega]
             rcases k with (_ | _ | k) <;> simp_all +decide [pow_succ']; ring_nf at *; linarith
         have := hf 0 1; norm_num at *
         ring_nf at *; linarith [this (by linarith [Nat.pow_le_pow_right two_pos hk])]
@@ -308,7 +318,6 @@ private lemma combined_isF_bound (k : ℕ) (hk : 1 ≤ k) :
         have := hf 0 1; norm_num at *
         ring_nf at *
         linarith [this (by linarith [pow_pos (zero_lt_two' ℕ) k])]
--/
 
 /-- `f(0) ≤ f(2^k+1) + 6K/2^k` for `F_{2^k+1}` functions bounded by `K > 0`. -/
 private lemma lemma1_power_of_two_plus_one {k : ℕ} (hk : 1 ≤ k) {f : ℕ → ℝ} {K : ℝ}
@@ -491,7 +500,6 @@ private lemma largest_opposite_sign_index_exists_and_is_bounded
           (|↑n| * (N : ℝ) ⁻¹)]
     · have := h_alt_sign j_star
       have := h_alt_sign (j_star + 1)
-      norm_num at *
       cases abs_cases (n : ℝ) <;>
         cases lt_or_ge 0 ((q j_star : ℝ) * α - p j_star) <;>
         cases lt_or_ge 0
@@ -802,8 +810,6 @@ set_option linter.flexible false in
 lemma lemma2 (α : ℝ) (hα : HasControlledIntegerApproximants α)
     (N : ℕ) (hN : 2 ≤ N) (b : ℝ) :
     ∃ H : Set ℝ, H.Finite ∧ H ⊆ I α ∧ I α ∩ Iic b ⊆ HSetPow N H := by
-  sorry
-/-
   revert b; intro b
   obtain
     ⟨A, C, p, q, hA_pos, hC_gt1, hq_pos, hq_tendsto, hq_growth, h_approx,
@@ -821,7 +827,8 @@ lemma lemma2 (α : ℝ) (hα : HasControlledIntegerApproximants α)
   · exact fun x hx ↦ by obtain ⟨ n, k, rfl, hn, hk₁, hk₂ ⟩ := hx; exact ⟨ n, k, rfl ⟩
   · rintro x ⟨ ⟨ n, k, rfl ⟩, hx ⟩
     by_cases hn : n = 0
-    · have h_integers_below_are_in_closure :
+    · subst n
+      have h_integers_below_are_in_closure :
           ∀ m : ℤ, (m : ℝ) ≤ b + 1 →
             HSetPow N
               {x : ℝ |
@@ -841,15 +848,20 @@ lemma lemma2 (α : ℝ) (hα : HasControlledIntegerApproximants α)
                     show (q 0 : ℝ) ≥ 1 by exact_mod_cast hq_pos 0]))
                 zero_le_one,
             pow_two (N - 1 : ℝ)] ⟩
-      simpa [hn] using
-        h_integers_below_are_in_closure k
-          (by simpa [hn] using hx.out.trans (by linarith))
+      change
+        HSetPow N
+          {x : ℝ |
+            ∃ n k : ℤ, x = n * α + k ∧
+              (Int.natAbs n : ℝ) ≤ D * N ∧
+              b - N ≤ x ∧ x ≤ b + D * N ^ 2}
+          ((0 : ℤ) * α + k)
+      simpa using h_integers_below_are_in_closure k
+        (by simpa using hx.out.trans (by linarith))
     · apply lemma2_induction_claim hA_pos hC_gt1 hq_pos hq_tendsto hq_growth
         h_approx h_alt_sign hN hD1 hD2
       · exact fun n' k' hn' hk' hk'' ↦ ⟨ n', k', rfl, hn', hk', hk'' ⟩
       · assumption
       · exact le_add_of_le_of_nonneg hx (by positivity)
--/
 
 /-! ## Section 3: Monotonicity on `I(α)` -/
 
@@ -862,8 +874,6 @@ private lemma closure_boundedness_principle {N : ℕ} (hN : 2 ≤ N) {H : Set �
       (x + 2 * h) ∈ HSetPow N H → 2 * f x ≤ f (x + h) + f (x + 2 * h))
     (hf_bound : ∀ y, y ∈ H → f y ≤ M) :
     ∀ x, x ∈ HSetPow N H → f x ≤ M := by
-  sorry
-/-
   intro x hx
   induction hx with
   | base h =>
@@ -884,13 +894,10 @@ private lemma closure_boundedness_principle {N : ℕ} (hN : 2 ≤ N) {H : Set �
       apply HSetPow.step
       exacts [by assumption, by assumption]
     exact ⟨_, _, hx_in_H_pow, ‹_›, by
-      simpa using
-        hmem
-          1 le_rfl (by linarith), by
-      simpa using
-        hmem
-          2 (by linarith) (by linarith), by linarith⟩
--/
+      change HSetPow N H (x0 + h)
+      simpa using hmem 1 le_rfl (by linarith), by
+      change HSetPow N H (x0 + 2 * h)
+      simpa using hmem 2 (by linarith) (by linarith), by linarith⟩
 
 /-- `f` is bounded above on `I(α) ∩ (-∞, b]` under controlled approximants. -/
 private lemma bounded_on_left_ray_in_I {α : ℝ} (hα : HasControlledIntegerApproximants α)
@@ -960,8 +967,6 @@ private lemma bounded_on_compact_piece_of_I {α : ℝ} (hα : HasControlledInteg
 
 /-- `I(α)` is dense in `ℝ` when `α` is irrational. -/
 private lemma I_dense {α : ℝ} (hα : Irrational α) : Dense (I α) := by
-  sorry
-/-
   refine fun x ↦ Metric.mem_closure_iff.2 fun ε εpos ↦ ?_
   obtain ⟨n, m, hnm⟩ : ∃ n : ℤ, ∃ m : ℤ, |n * α - m| < ε ∧ 0 < n := by
     obtain ⟨n1, n2, hn1n2, h_interval⟩ :
@@ -1026,11 +1031,15 @@ private lemma I_dense {α : ℝ} (hα : Irrational α) : Dense (I α) := by
           Int.lt_floor_add_one (x / (n * α - m)),
           mul_div_cancel₀ x h_nonzero,
           abs_lt.mp hnm.1] ⟩
-  exact ⟨ _, ⟨ k * n, -k * m, rfl ⟩, by
-    simpa [mul_sub, mul_assoc, mul_left_comm] using abs_lt.mpr ⟨
-      by linarith [abs_lt.mp hk],
-      by linarith [abs_lt.mp hk] ⟩ ⟩
--/
+  refine ⟨(k * n : ℤ) * α + ((-k * m : ℤ) : ℝ), ⟨ k * n, -k * m, rfl ⟩, ?_⟩
+  have h_eq : (k * n : ℤ) * α + ((-k * m : ℤ) : ℝ) = k * (n * α - m) := by
+    push_cast
+    ring
+  rw [Real.dist_eq]
+  have hhk : |x - k * (n * α - m)| < ε := by
+    simpa [abs_sub_comm] using hk
+  convert hhk using 2
+  rw [h_eq]
 
 /-- Existence of positive `c, d ∈ I(α)` with `Nc + (N+1)d = b - a`. -/
 private lemma choose_positive_c_d_in_I {α : ℝ} (hα : Irrational α)
@@ -1200,14 +1209,50 @@ theorem monotoneOn_I {α : ℝ}
           (x + h) ∈ I α ∩ Set.Icc a b →
           (x + 2 * h) ∈ I α ∩ Set.Icc a b →
           2 * g x ≤ g (x + h) + g (x + 2 * h) := by
-      grind
+      intro x hx h hh hx' hx''
+      have hf_x := hf x hx.1 h hh hx'.1 hx''.1
+      by_cases hxb : f x ≤ f b
+      · have hleft : g x = f b := by simp [g, max_eq_right hxb]
+        have hright₁ : f b ≤ g (x + h) := by
+          dsimp [g]
+          exact le_max_right _ _
+        have hright₂ : f b ≤ g (x + 2 * h) := by
+          dsimp [g]
+          exact le_max_right _ _
+        rw [hleft]
+        linarith
+      · have hleft : g x = f x := by simp [g, max_eq_left (le_of_not_ge hxb)]
+        have hright₁ : f (x + h) ≤ g (x + h) := by
+          dsimp [g]
+          exact le_max_left _ _
+        have hright₂ : f (x + 2 * h) ≤ g (x + 2 * h) := by
+          dsimp [g]
+          exact le_max_left _ _
+        rw [hleft]
+        linarith
     have hg_bound : ∀ x ∈ I α ∩ Set.Icc a b, |g x| ≤ max M |f b| := by
-      grind
+      intro x hx
+      have hxM : f x ≤ M := hM x hx
+      have hupper_fx : f x ≤ max M |f b| := hxM.trans (le_max_left _ _)
+      have hupper_fb : f b ≤ max M |f b| := (le_abs_self _).trans (le_max_right _ _)
+      have hupper : g x ≤ max M |f b| := by
+        dsimp [g]
+        exact max_le hupper_fx hupper_fb
+      have hlower_fb : -max M |f b| ≤ f b := by
+        exact (neg_le_neg (le_max_right M |f b|)).trans (neg_abs_le _)
+      have hlower : -max M |f b| ≤ g x := by
+        dsimp [g]
+        exact hlower_fb.trans (le_max_right _ _)
+      exact abs_le.mpr ⟨hlower, hupper⟩
     by_cases h_cases : a < b
-    · convert interpolation_estimate hα_irr h_cases ha hb
-        (show 0 < max M |f b| from ?_) hg_kemperman hg_bound hN using 1
-      · norm_cast
-      · grind +splitImp
+    · simpa [Nat.cast_add, Nat.cast_one] using interpolation_estimate hα_irr h_cases ha hb
+        (show 0 < max M |f b| from by
+          have hfb_lt_fa : f b < f a := lt_of_not_ge h_contra
+          have hfa_le_M : f a ≤ M := hM a ⟨ha, le_rfl, hab⟩
+          by_cases hb_nonneg : 0 ≤ f b
+          · exact (show 0 < M by linarith).trans_le (le_max_left _ _)
+          · exact (abs_pos.mpr (by linarith)).trans_le (le_max_right _ _))
+        hg_kemperman hg_bound hN
     · norm_num [show a = b by linarith] at *
   have h_limit :
       Filter.Tendsto
@@ -1396,22 +1441,24 @@ then `f` is monotone. -/
 theorem erdos_1125 {f : ℝ → ℝ}
     (hf : ∀ x : ℝ, ∀ h : ℝ, h > 0 → 2 * f x ≤ f (x + h) + f (x + 2 * h)) :
     Monotone f := by
-  sorry
-/-
   obtain ⟨α, hα_irr, hα⟩ := exists_irrational_controlled
   intro a b hab
   by_cases h_cases : b - a = 0
   · rw [sub_eq_zero.mp h_cases]
   · have := @monotoneOn_I α hα_irr hα (fun x ↦ f (a + (b - a) * x)) ?_
-    · convert this 0 ?_ 1 ?_ ?_ using 1 <;> norm_num
-      · exact ⟨ 0, 0, by norm_num ⟩
-      · exact ⟨ 0, 1, by norm_num ⟩
+    · have h0 : (0 : ℝ) ∈ I α := by
+        refine ⟨0, 0, ?_⟩
+        norm_num
+      have h1 : (1 : ℝ) ∈ I α := by
+        refine ⟨0, 1, ?_⟩
+        norm_num
+      have hmono := this 0 h0 1 h1 (by norm_num)
+      simpa using hmono
     · exact fun x hx h hh hx' hx'' ↦ by
         have h_step : 0 < (b - a) * h :=
           mul_pos (lt_of_le_of_ne (sub_nonneg.mpr hab) (Ne.symm h_cases)) hh
         convert hf (a + (b - a) * x) ((b - a) * h) h_step using 1
         ring_nf
--/
 
 end Erdos1125
 

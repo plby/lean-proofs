@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
+/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 862.
 https://www.erdosproblems.com/forum/thread/862
@@ -333,7 +333,155 @@ lemma erdos_turan_explicit_bound {N m : ℕ} (hm : 0 < m) (A : Finset ℕ)
 /- Erdős-Turán Theorem: f(N) ≤ (1+ε)√N for large N. -/
 theorem ErdosTuran : ∀ ε : ℝ, 0 < ε → ∃ N0 : ℕ, ∀ N : ℕ, N0 ≤ N →
     (f N : ℝ) ≤ (1 + ε) * Real.sqrt N := by
-      sorry
+  intro ε hε_pos
+  obtain ⟨N0, hN0⟩ :
+      ∃ N0 : ℕ, ∀ N ≥ N0,
+        ((N + Nat.floor ((N : ℝ) ^ (3 / 4 : ℝ))) /
+            Nat.floor ((N : ℝ) ^ (3 / 4 : ℝ)) +
+          Real.sqrt
+            (((N + Nat.floor ((N : ℝ) ^ (3 / 4 : ℝ))) /
+                Nat.floor ((N : ℝ) ^ (3 / 4 : ℝ))) ^ 2 +
+              4 * (N + Nat.floor ((N : ℝ) ^ (3 / 4 : ℝ))))) /
+            (2 * Real.sqrt N) <
+          1 + ε := by
+    have h_limit :
+        Filter.Tendsto
+          (fun N : ℕ =>
+            ((N + Nat.floor ((N : ℝ) ^ (3 / 4 : ℝ))) /
+                Nat.floor ((N : ℝ) ^ (3 / 4 : ℝ)) +
+              Real.sqrt
+                (((N + Nat.floor ((N : ℝ) ^ (3 / 4 : ℝ))) /
+                    Nat.floor ((N : ℝ) ^ (3 / 4 : ℝ))) ^ 2 +
+                  4 * (N + Nat.floor ((N : ℝ) ^ (3 / 4 : ℝ))))) /
+                (2 * Real.sqrt N))
+          Filter.atTop (nhds 1) := by
+      have h_m_pos : ∀ᶠ N in Filter.atTop, 0 < Nat.floor ((N : ℝ) ^ (3 / 4 : ℝ)) := by
+        filter_upwards [Filter.eventually_gt_atTop 1] with N hN using
+          Nat.floor_pos.mpr (Real.one_le_rpow hN.le (by norm_num))
+      have h_m1 :
+          Filter.Tendsto
+            (fun N : ℕ => (Nat.floor ((N : ℝ) ^ (3 / 4 : ℝ)) : ℝ) / N)
+            Filter.atTop (nhds 0) := by
+        -- We'll use the fact that $⌊(N : ℝ) ^ (3 / 4 : ℝ)⌋₊ \leq (N : ℝ) ^ (3 / 4 : ℝ)$
+        -- and $(N : ℝ) ^ (3 / 4 : ℝ) / N = N^{-1/4}$.
+        have h_floor_le :
+            ∀ N : ℕ,
+              (Nat.floor ((N : ℝ) ^ (3 / 4 : ℝ)) : ℝ) / N ≤
+                (N : ℝ) ^ (-1 / 4 : ℝ) := by
+          intro N; by_cases hN : N = 0 <;> norm_num [ hN ];
+          rw [ div_le_iff₀ ( by positivity ) ];
+          exact
+            le_trans (Nat.floor_le (by positivity))
+              (by
+                rw [← Real.rpow_add_one (by positivity)]
+                norm_num)
+        exact
+          squeeze_zero (fun N => by positivity) h_floor_le
+            (by
+              simpa [neg_div, Function.comp_def] using
+                (tendsto_rpow_neg_atTop (by norm_num)).comp tendsto_natCast_atTop_atTop)
+      have h_m2 :
+          Filter.Tendsto
+            (fun N : ℕ =>
+              Real.sqrt N / (Nat.floor ((N : ℝ) ^ (3 / 4 : ℝ)) : ℝ))
+            Filter.atTop (nhds 0) := by
+        -- We'll use the fact that $\sqrt{N} / \lfloor N^{3/4} \rfloor \leq
+        -- \sqrt{N} / (N^{3/4} - 1)$.
+        suffices h_sqrt_div_floor_le :
+            Filter.Tendsto
+              (fun N : ℕ => Real.sqrt (N : ℝ) / ((N : ℝ) ^ (3 / 4 : ℝ) - 1))
+              Filter.atTop (nhds 0) by
+          refine squeeze_zero_norm' ?_ h_sqrt_div_floor_le;
+          filter_upwards [Filter.eventually_gt_atTop 1] with n hn using by
+            rw [Real.norm_of_nonneg (by positivity)]
+            exact
+              div_le_div_of_nonneg_left (by positivity)
+                (sub_pos.mpr <| Real.one_lt_rpow (by norm_cast) <| by norm_num)
+                (by
+                  linarith [Nat.lt_floor_add_one ((n : ℝ) ^ (3 / 4 : ℝ))])
+        -- We can simplify the expression inside the limit.
+        suffices h_simplify :
+            Filter.Tendsto
+              (fun N : ℕ =>
+                (N : ℝ) ^ (1 / 2 : ℝ) / ((N : ℝ) ^ (3 / 4 : ℝ) - 1))
+              Filter.atTop (nhds 0) by
+          simpa only [ Real.sqrt_eq_rpow ] using h_simplify;
+        -- We can divide the numerator and the denominator by $N^{3/4}$.
+        suffices h_div :
+            Filter.Tendsto
+              (fun N : ℕ =>
+                (N : ℝ) ^ (1 / 2 - 3 / 4 : ℝ) /
+                  (1 - 1 / (N : ℝ) ^ (3 / 4 : ℝ)))
+              Filter.atTop (nhds 0) by
+          refine h_div.congr' ?_;
+          filter_upwards [Filter.eventually_gt_atTop 0] with N hN using by
+            rw [one_sub_div (by positivity)]
+            rw [div_div_eq_mul_div]
+            rw [← Real.rpow_add (by positivity)]
+            ring_nf;
+        norm_num [ Real.rpow_neg ];
+        exact
+          le_trans
+            (Filter.Tendsto.div
+              (tendsto_inv_atTop_zero.comp
+                ((tendsto_rpow_atTop (by norm_num)).comp tendsto_natCast_atTop_atTop))
+              (tendsto_const_nhds.sub <|
+                tendsto_inv_atTop_zero.comp
+                  ((tendsto_rpow_atTop (by norm_num)).comp tendsto_natCast_atTop_atTop))
+              (by norm_num))
+            (by norm_num)
+      convert erdos_turan_limit_lemma_nat _ _ _ using 2;
+      · filter_upwards [Filter.eventually_gt_atTop 0] with N hN using
+          Nat.cast_pos.mpr <| Nat.floor_pos.mpr <|
+            Real.one_le_rpow (mod_cast hN) <| by norm_num
+      · convert h_m1 using 1;
+      · convert h_m2 using 1;
+    simpa using h_limit.eventually ( gt_mem_nhds <| by linarith );
+  use N0 + 1;
+  -- By definition of $f$, we know that $f(N)$ is the maximum size of a Sidon
+  -- subset of $[1, N]$.
+  intro N hN
+  obtain ⟨A, hA⟩ : ∃ A : Finset ℕ, A ⊆ Finset.Icc 1 N ∧ Sidon (A : Set ℕ) ∧ A.card = f N := by
+    -- Hence, there exists a Sidon subset $A$ of $[1, N]$ with $|A| = f(N)$.
+    obtain ⟨A, hA⟩ :
+        ∃ A : Finset ℕ,
+          A ⊆ Finset.Icc 1 N ∧ Sidon (A : Set ℕ) ∧
+            ∀ B : Finset ℕ,
+              B ⊆ Finset.Icc 1 N → Sidon (B : Set ℕ) → B.card ≤ A.card := by
+      have h_finite :
+          Set.Finite {B : Finset ℕ | B ⊆ Finset.Icc 1 N ∧ Sidon (B : Set ℕ)} := by
+        exact
+          Set.finite_iff_bddAbove.mpr
+            ⟨Finset.Icc 1 N, fun B hB => Finset.le_iff_subset.mpr hB.1⟩;
+      have h_max :
+          ∃ A ∈ {B : Finset ℕ | B ⊆ Finset.Icc 1 N ∧ Sidon (B : Set ℕ)},
+            ∀ B ∈ {B : Finset ℕ | B ⊆ Finset.Icc 1 N ∧ Sidon (B : Set ℕ)},
+              A.card ≥ B.card := by
+        apply_rules [ Set.exists_max_image ];
+        exact ⟨ ∅, by simp +decide [ Sidon ] ⟩;
+      exact
+        ⟨h_max.choose, h_max.choose_spec.1.1, h_max.choose_spec.1.2,
+          fun B hB₁ hB₂ => h_max.choose_spec.2 B ⟨hB₁, hB₂⟩⟩;
+    refine ⟨ A, hA.1, hA.2.1, le_antisymm ?_ ?_ ⟩;
+    · refine Finset.le_sup ( f := Finset.card ) ?_;
+      aesop;
+    · exact Finset.sup_le fun B hB => by aesop;
+  have :=
+    erdos_turan_explicit_bound
+      (show 0 < Nat.floor ((N : ℝ) ^ (3 / 4 : ℝ)) from
+        Nat.floor_pos.mpr <| Real.one_le_rpow (mod_cast by linarith) <| by norm_num)
+      A hA.2.1 hA.1;
+  have := hN0 N (by linarith)
+  rw [
+    div_lt_iff₀
+      (mul_pos zero_lt_two <| Real.sqrt_pos.mpr <| Nat.cast_pos.mpr <| by linarith)
+  ] at this
+  nlinarith [
+    Real.sqrt_nonneg N,
+    Real.sq_sqrt <| Nat.cast_nonneg N,
+    show (A.card : ℝ) = f N from mod_cast hA.2.2
+  ]
+
 end ErdosTuran
 
 /-!
@@ -757,7 +905,51 @@ lemma exists_field_extension_of_degree_two (q : ℕ) (hq : IsPrimePow q) :
 theorem bose_chowla_at_h_eq_2 : ∀ q : ℕ, IsPrimePow q →
     ∃ S : Finset (ZMod (q ^ 2 - 1)),
       Sidon (S : Set (ZMod (q ^ 2 - 1))) ∧ S.card = q := by
-        sorry
+  intro q hq
+  obtain ⟨Fq, Fqh, hFq, hFqh, hFintypeFq, hFintypeFqh, hAlgebra, hFiniteDim,
+      hcardFq, hfinrankFqh⟩ := exists_field_extension_of_degree_two q hq
+  obtain ⟨theta, htheta⟩ : ∃ theta : Fqh,
+      IsPrimitiveRoot theta (boseChowlaMod (Fq := Fq) 2) := by
+    have h_cyclic : IsCyclic (Fqhˣ) := inferInstance
+    obtain ⟨theta, htheta⟩ : ∃ theta : Fqhˣ, orderOf theta = q ^ 2 - 1 := by
+      obtain ⟨g, hg⟩ := h_cyclic.exists_generator
+      use g
+      rw [orderOf_eq_card_of_forall_mem_zpowers hg]
+      have h_card : Nat.card Fqh = q ^ 2 := by
+        have h_card' : Nat.card Fqh = Nat.card Fq ^ Module.finrank Fq Fqh :=
+          Module.natCard_eq_pow_finrank
+        aesop
+      rw [← h_card, Nat.card_units]
+    use theta
+    have htheta_unit : IsPrimitiveRoot (theta : Fqhˣ) (Fintype.card Fq ^ 2 - 1) := by
+      rw [hcardFq]
+      exact htheta ▸ IsPrimitiveRoot.orderOf (theta : Fqhˣ)
+    rw [boseChowlaMod]
+    rw [IsPrimitiveRoot.iff_def] at htheta_unit ⊢
+    exact ⟨
+      by
+        have := congrArg (fun u : Fqhˣ => (u : Fqh)) htheta_unit.1
+        simpa using this,
+      fun l hl => htheta_unit.2 l (by
+        ext
+        simpa using hl)⟩
+  have := bose_chowla (by linarith) (by linarith) theta htheta
+  obtain ⟨a, ha₁, ha₂, ha₃, ha₄⟩ := this
+  refine ⟨Finset.image (fun x : Fq => (a x : ZMod (q ^ 2 - 1))) Finset.univ,
+    ?_, ?_⟩
+  · convert ha₃ using 1
+    rw [← SidonOfOrder_two_iff_Sidon]
+    unfold SidonModOfOrder SidonOfOrder; aesop
+  · rw [Finset.card_image_of_injective]
+    · aesop
+    · intro x y hxy
+      have h_eq : (a x : ℕ) = (a y : ℕ) := by
+        have h_mod : (a x : ℕ) ≡ (a y : ℕ) [MOD (boseChowlaMod (Fq := Fq) 2)] := by
+          erw [← ZMod.natCast_eq_natCast_iff]; aesop
+        exact Nat.mod_eq_of_lt (a x |>.2.2) ▸
+          Nat.mod_eq_of_lt (a y |>.2.2) ▸ h_mod
+      have := ha₁ x; aesop
+
 end BoseChowla
 
 section Construction
@@ -871,7 +1063,7 @@ number of maximal Sidon subsets of [N].
 attribute [local instance] Classical.propDecidable
 
 noncomputable def A (N : ℕ) : ℕ :=
-  ((Finset.range N).powerset.filter (fun S => Sidon (S : Set ℕ))).card
+  ((Finset.range N).powerset.filter (fun S : Finset ℕ => Sidon (S : Set ℕ))).card
 
 noncomputable def A1 (N : ℕ) : ℕ :=
   ((Finset.range N).powerset.filter (fun S => MaximalSidonSubset (Finset.range N) S)).card
@@ -883,7 +1075,7 @@ lemma lem_cover (N : ℕ) : (A N : ℝ) ≤ (A1 N : ℝ) * (2 : ℝ) ^ (f N : �
   -- Every Sidon set is contained in at least one maximal Sidon set.
   have h_contained :
       ∀ S ∈
-          Finset.filter (fun S => Sidon (S : Set ℕ))
+          Finset.filter (fun S : Finset ℕ => Sidon (S : Set ℕ))
             (Finset.powerset (Finset.range N)),
         ∃ M ∈
           Finset.filter (fun S => MaximalSidonSubset (Finset.range N) S)
@@ -893,17 +1085,17 @@ lemma lem_cover (N : ℕ) : (A N : ℝ) ≤ (A1 N : ℝ) * (2 : ℝ) ^ (f N : �
     -- By Lemma~\ref{lem:extend}, every Sidon set is contained in at least one
     -- maximal Sidon set. Let's obtain such a maximal Sidon set $M$.
     obtain ⟨M, hM⟩ : ∃ M : Finset ℕ, MaximalSidonSubset (Finset.range N) M ∧ S ⊆ M := by
-      have hS_finset : ∃ S' : Finset ℕ, S' ⊆ Finset.range N ∧ S = S' := by
-        aesop
-      obtain ⟨ S', hS'_subset, rfl ⟩ := hS_finset
+      have hS_subset : S ⊆ Finset.range N :=
+        Finset.mem_powerset.mp (Finset.mem_filter.mp hS).1
+      have hS_sidon : Sidon (S : Set ℕ) := (Finset.mem_filter.mp hS).2
       exact
-        lem_extend N S' hS'_subset (by aesop) |>
+        lem_extend N S hS_subset hS_sidon |>
           fun ⟨ M, hM₁, hM₂ ⟩ => ⟨ M, hM₁, hM₂ ⟩
     exact ⟨ M, Finset.mem_filter.mpr ⟨ Finset.mem_powerset.mpr hM.1.1, hM.1 ⟩, hM.2 ⟩;
   -- Since $\abs{M}\le f(N)$, the family of all Sidon sets is contained in the union
   -- of the families of subsets of maximal Sidon sets, hence
   have h_union :
-      Finset.filter (fun S => Sidon (S : Set ℕ)) (Finset.powerset (Finset.range N)) ⊆
+      Finset.filter (fun S : Finset ℕ => Sidon (S : Set ℕ)) (Finset.powerset (Finset.range N)) ⊆
         Finset.biUnion
           (Finset.filter (fun S => MaximalSidonSubset (Finset.range N) S)
             (Finset.powerset (Finset.range N)))
@@ -936,18 +1128,16 @@ lemma lem_cover (N : ℕ) : (A N : ℝ) ≤ (A1 N : ℝ) * (2 : ℝ) ^ (f N : �
     simp
     exact pow_le_pow_right₀ ( by decide ) h_card_M;
   have h_card_union :
-      (Finset.filter (fun S => Sidon (S : Set ℕ))
+      (Finset.filter (fun S : Finset ℕ => Sidon (S : Set ℕ))
         (Finset.powerset (Finset.range N))).card ≤
         (Finset.filter (fun S => MaximalSidonSubset (Finset.range N) S)
           (Finset.powerset (Finset.range N))).card * 2 ^ (f N : ℕ) := by
     refine le_trans ( Finset.card_le_card h_union ) ?_;
     refine le_trans ( Finset.card_biUnion_le ) ?_;
     refine le_trans ( Finset.sum_le_sum fun x hx => show Finset.card _ ≤ 2 ^ f N from ?_ ) ?_;
-    · convert h_max_subset x hx using 1;
-      convert Finset.card_image_of_injective _ Finset.coe_injective;
-      ext; simp [Finset.mem_image];
+    · exact h_max_subset x hx
     · norm_num [ Finset.sum_const ];
-  norm_cast
+  exact_mod_cast (by simpa [A, A1] using h_card_union)
 
 /-
 For every N >= 1, A_1(N) >= A(N) * 2^(-f(N)).
@@ -1157,7 +1347,42 @@ A(4m) >= 5^|T|.
 lemma lem_four_block (m : ℕ) (hm : m ≥ 1) (T : Finset ℕ) (hT : T ⊆ Finset.range m)
     (hSidon : SidonMod m (T : Set ℕ)) :
     A (4 * m) ≥ 5 ^ T.card := by
-      sorry
+      have hA_ge :
+          Set.ncard
+            (Set.image (fun f : { x // x ∈ T } → Fin 5 => S_chi m T f)
+              (Set.univ : Set (_ → Fin 5))) ≥
+            5 ^ T.card := by
+        rw [
+          Set.ncard_image_of_injective _ (S_chi_injective m hm T hT),
+          Set.ncard_univ
+        ]
+        norm_num [ Set.ncard_eq_toFinset_card' ] ;
+      refine le_trans hA_ge ?_;
+      have h_image_subset :
+          Set.image (fun f : { x // x ∈ T } → Fin 5 => S_chi m T f)
+            (Set.univ : Set (_ → Fin 5)) ⊆
+            {S : Finset ℕ | S ⊆ Finset.range (4 * m) ∧ Sidon (S : Set ℕ)} := by
+        intro S hSaesop;
+        obtain ⟨ f, _, rfl ⟩ := hSaesop
+        exact ⟨ S_chi_subset m hm T hT f, S_chi_is_Sidon m hm T hT hSidon f ⟩ ;
+      have h_card_image :
+          Set.ncard
+            {S : Finset ℕ | S ⊆ Finset.range (4 * m) ∧ Sidon (S : Set ℕ)} ≤
+            (Finset.powerset (Finset.range (4 * m)) |>.filter
+              (fun S : Finset ℕ => Sidon (S : Set ℕ))).card := by
+        rw [show
+            {S : Finset ℕ | S ⊆ Finset.range (4 * m) ∧ Sidon (S : Set ℕ)} =
+              (↑(Finset.filter (fun S : Finset ℕ => Sidon (S : Set ℕ))
+                (Finset.powerset (Finset.range (4 * m)))) : Set (Finset ℕ)) by
+          ext S
+          simp [Finset.mem_powerset]]
+        exact le_of_eq (Set.ncard_coe_finset _)
+      refine le_trans ?_ (by simpa [A] using h_card_image);
+      apply_rules [ Set.ncard_le_ncard ];
+      exact
+        Set.finite_iff_bddAbove.mpr
+          ⟨Finset.range (4 * m), fun S hS => Finset.subset_iff.mpr hS.1⟩
+
 /-
 Let p be prime. Then A(4p(p-1)) >= 5^(p-1).
 -/
@@ -1236,7 +1461,125 @@ For any c < 1/2 log 5, eventually log A(N) / sqrt N >= c.
 -/
 lemma eventually_lower_bound (c : ℝ) (hc : c < Real.log 5 / 2) :
     ∀ᶠ N : ℕ in Filter.atTop, Real.log (A N : ℝ) / Real.sqrt N ≥ c := by
-      sorry
+      -- Since $c < \frac{1}{2}\log 5$, we can choose $\varepsilon > 0$ such
+      -- that $c < (1-\varepsilon)\frac{1}{2}\log 5$.
+      obtain ⟨ε, hε_pos, hε⟩ : ∃ ε > 0, c < (1 - ε) * (Real.log 5 / 2) := by
+        exact ⟨
+          (1 - c / (Real.log 5 / 2)) / 2,
+          by
+            nlinarith [
+              Real.log_pos (show (5 : ℝ) > 1 by norm_num),
+              mul_div_cancel₀ c
+                (ne_of_gt (by positivity : 0 < Real.log 5 / 2))
+            ],
+          by
+            nlinarith [
+              Real.log_pos (show (5 : ℝ) > 1 by norm_num),
+              mul_div_cancel₀ c
+                (ne_of_gt (by positivity : 0 < Real.log 5 / 2))
+            ]
+        ⟩;
+      -- For large $N$, let $x = \frac{1}{2}\sqrt{N}$. By `lem_prime_near`,
+      -- there exists a prime $p \in ((1-\varepsilon)x, x]$.
+      have h_prime :
+          ∀ᶠ N : ℕ in Filter.atTop,
+            ∃ p : ℕ,
+              p.Prime ∧ (1 - ε) * (1 / 2) * Real.sqrt N < p ∧
+                p ≤ (1 / 2) * Real.sqrt N := by
+        have h_prime :
+            ∀ᶠ x : ℝ in Filter.atTop,
+              ∃ p : ℕ, p.Prime ∧ (1 - ε) * x < p ∧ p ≤ x := by
+          by_cases hε_lt_1 : ε < 1;
+          · convert lem_prime_near ε ⟨ hε_pos, hε_lt_1 ⟩ using 1;
+          · exact
+              Filter.eventually_atTop.mpr
+                ⟨2, fun x hx =>
+                  ⟨2, by norm_num,
+                    by norm_num; nlinarith [Real.log_pos (show 5 > 1 by norm_num)],
+                    by norm_num; linarith⟩⟩;
+        rw [ Filter.eventually_atTop ] at *;
+        obtain ⟨ a, ha ⟩ := h_prime
+        use Nat.ceil (a ^ 2 * 4)
+        intro b hb
+        obtain ⟨ p, hp₁, hp₂, hp₃ ⟩ :=
+          ha (Real.sqrt b / 2)
+            (by
+              nlinarith [
+                Nat.ceil_le.mp hb, Real.sqrt_nonneg b,
+                Real.sq_sqrt (Nat.cast_nonneg b)
+              ])
+        exact ⟨
+          p, hp₁,
+          by nlinarith [Real.sqrt_nonneg b, Real.sq_sqrt (Nat.cast_nonneg b)],
+          by nlinarith [Real.sqrt_nonneg b, Real.sq_sqrt (Nat.cast_nonneg b)]
+        ⟩ ;
+      -- Let $N_p = 4p(p-1)$. Then $N_p \le 4x ^ 2 = N$.
+      have h_Np :
+          ∀ᶠ N : ℕ in Filter.atTop,
+            ∃ p : ℕ,
+              p.Prime ∧ (1 - ε) * (1 / 2) * Real.sqrt N < p ∧
+                p ≤ (1 / 2) * Real.sqrt N ∧ 4 * p * (p - 1) ≤ N := by
+        filter_upwards [h_prime, Filter.eventually_gt_atTop 0] with N hN hN'
+        rcases hN with ⟨ p, hp₁, hp₂, hp₃ ⟩
+        refine ⟨ p, hp₁, hp₂, hp₃, ?_ ⟩
+        rcases p with (_ | _ | p) <;> norm_num at *
+        exact_mod_cast
+          (by
+            nlinarith [Real.mul_self_sqrt (Nat.cast_nonneg N)] :
+            (4 : ℝ) * (p + 1 + 1) * (p + 1) ≤ N);
+      -- By monotonicity (`A_mono`), $A(N) \ge A(N_p)$.
+      have h_monotone :
+          ∀ᶠ N : ℕ in Filter.atTop,
+            ∃ p : ℕ,
+              p.Prime ∧ (1 - ε) * (1 / 2) * Real.sqrt N < p ∧
+                p ≤ (1 / 2) * Real.sqrt N ∧ 4 * p * (p - 1) ≤ N ∧
+                  (A N : ℝ) ≥ 5 ^ (p - 1) := by
+        filter_upwards [ h_Np ] with N hN;
+        obtain ⟨ p, hp₁, hp₂, hp₃, hp₄ ⟩ := hN
+        exact ⟨ p, hp₁, hp₂, hp₃, hp₄, by
+          exact_mod_cast
+            le_trans (prop_lower_special_ineq p hp₁) (A_mono (by linarith)) ⟩ ;
+      -- So $\frac{\log A(N)}{\sqrt{N}}$ is bounded below by the explicit
+      -- expression coming from the prime $p$.
+      have h_bound :
+          ∀ᶠ N : ℕ in Filter.atTop,
+            ∃ p : ℕ,
+              p.Prime ∧ (1 - ε) * (1 / 2) * Real.sqrt N < p ∧
+                p ≤ (1 / 2) * Real.sqrt N ∧ 4 * p * (p - 1) ≤ N ∧
+                  Real.log (A N) / Real.sqrt N ≥
+                    ((1 - ε) / 2) * Real.log 5 - Real.log 5 / Real.sqrt N := by
+        field_simp;
+        filter_upwards [h_monotone, Filter.eventually_gt_atTop 0] with N hN hN'
+        rcases hN with ⟨ p, hp₁, hp₂, hp₃, hp₄, hp₅ ⟩
+        refine ⟨ p, hp₁, ?_, ?_, hp₄, ?_ ⟩ <;> try linarith;
+        -- Using the fact that $A(N) \geq 5^{p-1}$, we have $\log A(N) \geq (p-1) \log 5$.
+        have h_log_bound : Real.log (A N) ≥ (p - 1) * Real.log 5 := by
+          rcases p with ( _ | _ | p ) <;> norm_num at *;
+          simpa using Real.log_le_log ( by positivity ) hp₅;
+        rw [le_div_iff₀ (Real.sqrt_pos.mpr (Nat.cast_pos.mpr hN'))]
+        nlinarith [
+          Real.sqrt_nonneg N,
+          Real.sq_sqrt (Nat.cast_nonneg N),
+          Real.log_pos (show (5 : ℝ) > 1 by norm_num),
+          mul_div_cancel₀ (2 : ℝ)
+            (ne_of_gt (Real.sqrt_pos.mpr (Nat.cast_pos.mpr hN')))
+        ] ;
+      -- As $N \to \infty$, the term $\frac{\log 5}{\sqrt{N}}$ tends to $0$.
+      have h_log_div_sqrt :
+          Filter.Tendsto (fun N : ℕ => Real.log 5 / Real.sqrt N)
+            Filter.atTop (nhds 0) := by
+        simpa [div_eq_mul_inv] using
+          tendsto_const_nhds.mul (tendsto_inv_atTop_nhds_zero_nat.sqrt);
+      filter_upwards [
+        h_bound,
+        h_log_div_sqrt.eventually
+          (gt_mem_nhds <|
+            show 0 < (1 - ε) * (Real.log 5 / 2) - c by
+              linarith)
+      ] with N hN₁ hN₂ using by
+        obtain ⟨ p, hp₁, hp₂, hp₃, hp₄, hp₅ ⟩ := hN₁
+        linarith;
+
 /-
 Assume the prime number theorem, and assume the standard extremal bound
 f(N)=(1+o(1))sqrt(N). Then log A_1(N) >= (eta + o(1))sqrt(N).
@@ -1375,7 +1718,74 @@ theorem cor_answers_2
       Filter.Tendsto (fun N => (f N : ℝ) / Real.sqrt N) Filter.atTop (nhds 1)) :
     ∀ c ∈ Set.Ioo 0 (1 / 2 : ℝ),
       ∀ᶠ N : ℕ in Filter.atTop, (A1 N : ℝ) ≥ 2 ^ ((N : ℝ) ^ c) := by
-        sorry
+      field_simp;
+      intro c hc
+      have h_eventually :
+          ∀ᶠ N : ℕ in Filter.atTop,
+            Real.log (A1 N) ≥ (eta / 2) * Real.sqrt N := by
+        have :=
+          thm_main h_f (eta / 2)
+            (by
+              linarith [
+                show eta > 0 by
+                  exact mul_pos (by norm_num) (Real.log_pos (by norm_num))
+              ]);
+        filter_upwards [this, Filter.eventually_gt_atTop 0] with N hN hN' using by
+          rw [ge_iff_le] at *
+          rw [le_div_iff₀ (Real.sqrt_pos.mpr (Nat.cast_pos.mpr hN'))] at *
+          linarith;
+      -- Since $N^c = o(\sqrt{N})$, eventually $(\eta/2)\sqrt{N} \ge N^c$.
+      have h_eventually_ge :
+          ∀ᶠ N : ℕ in Filter.atTop,
+            (eta / 2) * Real.sqrt N ≥ (N : ℝ) ^ c * Real.log 2 := by
+        field_simp;
+        -- Divide by $\sqrt{N}$ to get $N^{c - 1/2} * \log 2 * 2 \leq \eta$.
+        suffices h_div :
+            ∀ᶠ N : ℕ in Filter.atTop,
+              (N : ℝ) ^ (c - 1 / 2) * Real.log 2 * 2 ≤ eta by
+          filter_upwards [h_div, Filter.eventually_gt_atTop 0] with N hN hN'
+          rw [Real.sqrt_eq_rpow]
+          rw [show (N : ℝ) ^ c =
+              (N : ℝ) ^ (c - 1 / 2) * (N : ℝ) ^ (1 / 2 : ℝ) by
+            rw [← Real.rpow_add (by positivity)]
+            ring_nf]
+          nlinarith [
+            mul_le_mul_of_nonneg_right hN
+              (show 0 ≤ (N : ℝ) ^ (1 / 2 : ℝ) / 2 by positivity)]
+        field_simp;
+        exact
+          Filter.Tendsto.eventually
+            (by
+              simpa using
+                Filter.Tendsto.mul
+                  (Filter.Tendsto.mul tendsto_const_nhds <|
+                    Filter.Tendsto.comp
+                      (tendsto_rpow_neg_atTop
+                        (show 0 < -((c * 2 - 1) / 2) by
+                          linarith [hc.1, hc.2]))
+                      tendsto_natCast_atTop_atTop)
+                  tendsto_const_nhds)
+            (ge_mem_nhds <|
+              show 0 < eta from
+                mul_pos (by norm_num) <| Real.log_pos <| by norm_num);
+      filter_upwards [
+        h_eventually, h_eventually_ge, Filter.eventually_gt_atTop 0
+      ] with N hN₁ hN₂ hN₃;
+      rw [
+        ← Real.log_le_log_iff
+          (by positivity)
+          (Nat.cast_pos.mpr <|
+            Nat.pos_of_ne_zero <| by
+              intro h
+              norm_num [h] at *
+              nlinarith [
+                Real.log_pos one_lt_two,
+                show (N : ℝ) ^ c > 0 by positivity
+              ]),
+        Real.log_rpow
+      ] <;> norm_num
+      linarith [Real.log_pos one_lt_two]
+
 /-
 f(N) is monotonically increasing.
 -/

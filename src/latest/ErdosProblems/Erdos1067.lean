@@ -455,7 +455,8 @@ lemma card_Iio_omega1
   : Cardinal.mk.{u+1}
   (Set.Iio (Ordinal.omega.{u} 1)) = Cardinal.lift.{u+1, u}
   (Cardinal.aleph.{u} 1) := by
-    sorry
+  simpa [Ordinal.card_omega] using card_Iio_ordinal (Ordinal.omega.{u} 1)
+
 /-
 There is no injection from omega 1 to N.
 -/
@@ -1240,7 +1241,8 @@ T_append_func is injective if n is not in the image of t.
 /-- T_append_func is injective if n is not in the image of t. -/
 lemma T_append_func_injective (t : T_struct) (n : ℕ) (hn : n ∉ im t) :
   Function.Injective (T_append_func t n) := by
-    sorry
+    exact T_append_func_injective_explicit t n hn
+
 /-
 Appending a value to a sequence in T.
 -/
@@ -1309,7 +1311,9 @@ The image of the appended sequence is the union of the image of t and {n}.
 /-- The image of the appended sequence is the union of the image of t and {n}. -/
 lemma im_T_append (t : T_struct) (n : ℕ) (hn : n ∉ im t) :
   im (T_append t n hn) = im t ∪ {n} := by
-    sorry
+  change Set.range (T_append_func t n) = im t ∪ {n}
+  exact range_T_append_func t n
+
 /-
 An infinite clique in a properly colored graph cannot have bounded colors.
 -/
@@ -1521,7 +1525,37 @@ lemma T_append_skipped_element_extension
   : extension t ht
   (T_append t' (skipped_element t ht) (skipped_element_not_mem_im_of_one_extension t ht t' h_one))
   := by
-    sorry
+    refine ⟨ ?_, ?_ ⟩
+    all_goals generalize_proofs at *
+    · -- Since $t < t'$, we have $t \leq t'$.
+      have h_le : t ≤ t' := by
+        exact h_one.1.1
+      exact le_trans h_le ( by
+        have h_le : t'.α ≤ (T_append t' (skipped_element t ht) ‹_›).α := by
+          exact Order.le_succ _
+        exact ⟨ h_le, fun x hx => by
+          simpa [T_append, T_append_func] using
+            (T_append_func_lt t' (skipped_element t ht) x
+              (lt_of_lt_of_le hx (Order.le_succ _)) hx).symm ⟩ )
+    · intro n hn
+      generalize_proofs at *
+      have h_im : n ∈ im t' ∪ {skipped_element t ht} := by
+        have h_im :
+          im (T_append t' (skipped_element t ht) ‹_›) = im t' ∪ {skipped_element t ht} := by
+          expose_names
+          exact im_T_append t' (skipped_element t ht) pf
+        generalize_proofs at *
+        aesop
+      generalize_proofs at *
+      have h_gt : n > last t ht := by
+        rcases h_im with hn_im | hn_singleton
+        · exact lt_of_le_of_lt (Nat.le_of_lt (skipped_element_gt_last t ht))
+            (h_one.2 n ⟨ hn_im, hn.2 ⟩)
+        · rw [Set.mem_singleton_iff.mp hn_singleton]
+          exact skipped_element_gt_last t ht
+      generalize_proofs at *
+      exact h_gt
+
 /-
 The last element of a successor sequence is not in the image of any of its proper prefixes.
 -/
@@ -2123,7 +2157,41 @@ lemma tn_double_prime_adj
   (h : m < n)
   :
   G.Adj (get_tn_double_prime c t0 ht0 h_counter m) (get_tn_double_prime c t0 ht0 h_counter n) := by
-    sorry
+    -- By definition of $get_tn_double_prime$, we know that $get_tn_double_prime m$ is
+    -- connected to
+    -- $get_tn_double_prime n$ if there's a common element in their images that's greater
+    -- than the
+    -- last element of $get_tn_double_prime m$.
+    have h_adj :
+      get_tn c t0 ht0 h_counter (m + 1) ≤ get_tn_double_prime c t0 ht0 h_counter n ∧ s_star (get_tn
+      c t0 ht0 h_counter (m + 1)) (get_tn_is_succ c t0 ht0 h_counter (m + 1)) = get_tn_double_prime
+      c t0 ht0 h_counter m := by
+      exact
+        ⟨get_tn_succ_le_get_tn_double_prime_of_lt c t0 ht0 h_counter h,
+          s_star_tn_next c t0 ht0 h_counter m⟩
+    -- By definition of $G.Adj$, we need to show that $get_tn_double_prime c t0 ht0
+    -- h_counter m$ and
+    -- $get_tn_double_prime c t0 ht0 h_counter n$ differ by exactly one element and that
+    -- element is
+    -- greater than the last element of $get_tn_double_prime c t0 ht0 h_counter m$.
+    apply And.intro
+    · intro h_eq
+      have h_not_m := get_an_not_mem_im_vn c t0 ht0 h_counter m
+      have h_contra : get_an c t0 ht0 h_counter m ∈ im (get_vn c t0 ht0 h_counter n) := by
+        exact get_an_mem_im_vn_of_lt c t0 ht0 h_counter h
+      exact h_not_m (by simpa +decide [get_vn, ← h_eq] using h_contra)
+    · -- Since $get_tn (m+1)$ is an extension of $get_tn_double_prime m$, and $get_tn
+      -- (m+1)$ is in $A_set (get_tn_double_prime n)$, it follows that
+      -- $get_tn_double_prime m$ is in $A_star (get_tn_double_prime n)$.
+      left
+      exact (by
+        use get_tn c t0 ht0 h_counter (m + 1)
+        refine
+          ⟨get_tn_is_succ c t0 ht0 h_counter (m + 1),
+            h_adj.1, h_adj.2.symm, ?_⟩
+        rw [last_get_tn_succ c t0 ht0 h_counter m]
+        simpa [get_vn] using get_an_is_min_diff c t0 ht0 h_counter h)
+
 /-
 The sequence $t_n''$ forms a clique.
 -/
@@ -3085,7 +3153,10 @@ The limit sequence is injective on its domain.
 -/
 lemma t_hat_injective_on_sup (c : G.Coloring ℕ) (t0 : T_struct) (ht0 : is_succ_ordinal t0.α) :
   Set.InjOn (t_hat c t0 ht0) (Set.Iio (t_hat_alpha c t0 ht0)) := by
-    sorry
+    simpa [t_hat, t_hat_alpha] using
+      chain_union_injective (Set.range (get_construction_tn c t0 ht0))
+        (construction_chain_is_chain c t0 ht0)
+
 /-
 Elements added to the sequence after step n+1 are strictly greater than the n-th odd skipped
 element.
@@ -3312,7 +3383,35 @@ The limit sequence is strictly greater than the n-th prime sequence.
 -/
 lemma t_hat_gt_tn_prime (c : G.Coloring ℕ) (t0 : T_struct) (ht0 : is_succ_ordinal t0.α) (n : ℕ) :
   get_construction_tn_prime c t0 ht0 n < t_hat_struct c t0 ht0 := by
-    sorry
+    -- Since `t_hat` extends `tn (n+1)`, we have `tn (n+1) ≤ t_hat`.
+    have h_tn_succ_le_t_hat : get_construction_tn c t0 ht0 (n + 1) ≤ t_hat_struct c t0 ht0 := by
+      unfold t_hat_struct
+      refine ⟨ ?_, fun x hx => ?_ ⟩
+      · refine le_csSup ?_ ?_
+        · exact bdd_above_lengths (range (get_construction_tn c t0 ht0))
+        · exact Set.mem_image_of_mem _ ( Set.mem_range_self _ )
+      · exact Eq.symm (t_hat_extends_tn c t0 ht0 (n + 1) x hx)
+    -- By definition of `get_construction_tn_prime`, we know that
+    -- `get_construction_tn_prime c t0
+    -- ht0 n` is an initial segment of `get_construction_tn c t0 ht0 (n + 1)`.
+    have h_prime_initial_segment :
+      get_construction_tn_prime c t0 ht0 n ≤ get_construction_tn c t0 ht0 (n + 1) := by
+      exact get_construction_tn_succ_extends_tn_prime c t0 ht0 n |>.1
+    refine lt_of_le_of_ne ( le_trans h_prime_initial_segment h_tn_succ_le_t_hat ) ?_
+    intro h_eq
+    have h_contradiction : (get_construction_tn_prime c t0 ht0 n).α < t_hat_alpha c t0 ht0 := by
+      have h_contradiction :
+        (get_construction_tn_prime c t0 ht0 n).α < (get_construction_tn c t0 ht0 (n + 1)).α := by
+        rw [get_construction_tn_succ_eq]
+        exact Order.lt_succ _
+      refine lt_of_lt_of_le h_contradiction ?_
+      apply le_csSup
+      · exact bdd_above_lengths (range (get_construction_tn c t0 ht0))
+      · exact ⟨ _, ⟨ n + 1, rfl ⟩, rfl ⟩
+    exact h_contradiction.ne (by
+      rw [h_eq]
+      rfl)
+
 /-
 Elements in the difference of the limit sequence image and the n-th prime sequence image are
 strictly greater than the n-th odd skipped element.
@@ -3393,7 +3492,17 @@ lemma t_hat_is_one_extension
   (get_construction_tn_prime c t0 ht0 n)
   (get_construction_tn_prime_is_succ c t0 ht0 n)
   (t_hat_struct c t0 ht0) := by
-    sorry
+    have h_t_hat_gt_tn_prime : get_construction_tn_prime c t0 ht0 n < t_hat_struct c t0 ht0 := by
+      exact t_hat_gt_tn_prime c t0 ht0 n
+    have h_im_t_hat_diff_im_tn_prime_gt_a_odd :
+      ∀ x ∈ Set.range (fun x : {β // β < t_hat_alpha c t0 ht0} => t_hat c t0 ht0 x.1) \ im
+      (get_construction_tn_prime c t0 ht0 n), x > get_construction_a_odd c t0 ht0 n := by
+      apply im_t_hat_diff_im_tn_prime_gt_a_odd c t0 ht0 n
+    exact ⟨ h_t_hat_gt_tn_prime, by
+      intro x hx
+      simpa [t_hat_struct, im, get_construction_a_odd] using
+        h_im_t_hat_diff_im_tn_prime_gt_a_odd x hx ⟩
+
 /-
 The limit sequence is a 1-extension of the n-th prime sequence.
 -/
@@ -3575,7 +3684,60 @@ theorem finite_independent_paths_induce_of_finite
   (u v : S)
   :
   finite_independent_paths G u.1 v.1 → finite_independent_paths (G.induce S) u v := by
-    sorry
+  classical
+  intro hfin P hP
+  let ι : G.induce S ↪g G := SimpleGraph.Embedding.induce (G := G) S
+  let f : G.induce S →g G := ι.toHom
+  have hinj : Function.Injective f := by
+    intro x y hxy
+    exact Subtype.ext (by simpa [f, ι] using hxy)
+  let Q : Set (G.Walk u.1 v.1) := (fun p : (G.induce S).Walk u v => p.map f) '' P
+  have hQ : independent_paths (G := G) (u := u.1) (v := v.1) Q := by
+    intro p hp q hq hpq
+    rcases hp with ⟨p0, hp0, rfl⟩
+    rcases hq with ⟨q0, hq0, rfl⟩
+    have hpq0 : p0 ≠ q0 := by
+      intro h
+      apply hpq
+      simp [h]
+    have hsubset : {x | x ∈ p0.support} ∩ {x | x ∈ q0.support} ⊆ ({u, v} : Set S) :=
+      hP p0 hp0 q0 hq0 hpq0
+    intro x hx
+    rcases hx with ⟨hx_p, hx_q⟩
+    have hx_p' : x ∈ p0.support.map f := by
+      rw [← SimpleGraph.Walk.support_map]
+      exact hx_p
+    have hx_q' : x ∈ q0.support.map f := by
+      rw [← SimpleGraph.Walk.support_map]
+      exact hx_q
+    rcases List.mem_map.1 hx_p' with ⟨y, hy, hyx⟩
+    rcases List.mem_map.1 hx_q' with ⟨z, hz, hzx⟩
+    have hyz : y = z := hinj (hyx.trans hzx.symm)
+    have hyq : y ∈ q0.support := by
+      simpa [hyz.symm] using hz
+    have hyuv : y ∈ ({u, v} : Set S) :=
+      hsubset ⟨hy, hyq⟩
+    have hyuv' : y = u ∨ y = v := by
+      simpa [Set.mem_insert_iff, Set.mem_singleton_iff] using hyuv
+    cases hyuv' with
+    | inl hyu =>
+        have hx' : x = u.1 := by
+          have : f u = x := by
+            simpa [hyu] using hyx
+          simpa [f, ι] using this.symm
+        simp [hx']
+    | inr hyv =>
+        have hx' : x = v.1 := by
+          have : f v = x := by
+            simpa [hyv] using hyx
+          simpa [f, ι] using this.symm
+        simp [hx']
+  have hQfin : Q.Finite := hfin Q hQ
+  have h_injOn : Set.InjOn (fun p : (G.induce S).Walk u v => p.map f) P := by
+    intro p hp q hq hpq
+    exact (SimpleGraph.Walk.map_injective_of_injective (f := f) hinj u v) hpq
+  exact Set.Finite.of_finite_image hQfin h_injOn
+
 theorem uncountably_chromatic_induce_not_countable
   {V : Type*}
   (G : SimpleGraph V)

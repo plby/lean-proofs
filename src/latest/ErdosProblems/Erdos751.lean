@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
+/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 751.
 https://www.erdosproblems.com/forum/thread/751
@@ -323,7 +323,68 @@ theorem exists_path_in_bridge
     (hu : u ∈ bridgeSet (G := G) C K) (hv : v ∈ bridgeSet (G := G) C K) :
     ∃ p : G.Walk u v, p.IsPath ∧
       (∀ t : V, t ∈ p.support → t ∈ bridgeSet (G := G) C K) := by
-        sorry
+  classical
+  -- unwrap membership in the component
+  have hu' : u ∈ (K : Set V) := by simpa [bridgeSet] using hu
+  have hv' : v ∈ (K : Set V) := by simpa [bridgeSet] using hv
+  rcases (SimpleGraph.ComponentCompl.mem_supp_iff (G := G) (K := C.vSet (G := G))
+      (C := K) (v := u)).1 hu' with ⟨huK, hcompu⟩
+  rcases (SimpleGraph.ComponentCompl.mem_supp_iff (G := G) (K := C.vSet (G := G))
+      (C := K) (v := v)).1 hv' with ⟨hvK, hcompv⟩
+  -- reachable in the induced complement graph
+  have hcomp :
+      (G.componentComplMk (K := C.vSet (G := G)) huK) =
+        (G.componentComplMk (K := C.vSet (G := G)) hvK) := by
+    simp [hcompu, hcompv]
+  have hreach :
+      (G.induce (C.vSet (G := G))ᶜ).Reachable ⟨u, huK⟩ ⟨v, hvK⟩ := by
+    -- `componentComplMk` is `connectedComponentMk` in the induced graph
+    simpa [SimpleGraph.componentComplMk] using
+      (SimpleGraph.ConnectedComponent.eq
+        (G := G.induce (C.vSet (G := G))ᶜ)
+        (v := ⟨u, huK⟩) (w := ⟨v, hvK⟩)).1 hcomp
+  rcases hreach with ⟨p'⟩
+  -- map the walk back to `G`
+  let f := (SimpleGraph.Embedding.induce (G := G) (s := (C.vSet (G := G))ᶜ)).toHom
+  let p : G.Walk u v := p'.map f
+  have hsubset : ∀ t : V, t ∈ p.support → t ∈ bridgeSet (G := G) C K := by
+    intro t ht
+    -- pull back to a vertex on the walk in the induced graph
+    have ht_map : t ∈ p'.support.map f := by
+      change t ∈ (p'.map f).support at ht
+      simpa [SimpleGraph.Walk.support_map] using ht
+    have ht_ex : ∃ t' : {v // v ∉ C.vSet (G := G)},
+        t' ∈ p'.support ∧ f t' = t := by
+      rcases List.mem_map.1 ht_map with ⟨t', ht_mem, ht_eq⟩
+      exact ⟨t', ht_mem, ht_eq⟩
+    rcases ht_ex with ⟨t', ht_mem, ht_eq⟩
+    subst ht_eq
+    -- show this vertex lies in the component `K`
+    have ht_reach :
+        (G.induce (C.vSet (G := G))ᶜ).Reachable ⟨u, huK⟩ t' := by
+      -- use the prefix walk up to `t'`
+      -- take the prefix walk from the start to `t'`
+      refine ⟨p'.takeUntil t' ht_mem⟩
+    have ht_comp :
+        G.componentComplMk (K := C.vSet (G := G)) (t'.property) = K := by
+      -- convert reachability to component equality
+      have :=
+        (SimpleGraph.ConnectedComponent.eq
+          (G := G.induce (C.vSet (G := G))ᶜ)
+          (v := ⟨u, huK⟩) (w := t')).2 ht_reach
+      -- unfold `componentComplMk`
+      -- `this` gives `K = componentComplMk _`; flip it.
+      simpa [SimpleGraph.componentComplMk, hcompu] using this.symm
+    -- conclude membership in the bridge set
+    exact (SimpleGraph.ComponentCompl.mem_supp_iff (G := G) (K := C.vSet (G := G))
+      (C := K) (v := t')).2 ⟨t'.property, ht_comp⟩
+  -- turn the walk into a path without leaving the bridge
+  refine ⟨p.toPath, ?_, ?_⟩
+  · exact (SimpleGraph.Path.isPath _)
+  · intro t ht
+    apply hsubset t
+    exact (SimpleGraph.Walk.support_toPath_subset (G := G) p) ht
+
 omit [Fintype V] [DecidableRel G.Adj] in
 /-- From two attachments, build an x-y path whose internal vertices lie in the bridge. -/
 theorem exists_path_between_attach
@@ -750,7 +811,698 @@ theorem compression
     x ∈ attachSet (G := G) (Cmax (G := G) hch) K →
     y ∈ attachSet (G := G) (Cmax (G := G) hch) K →
     attachSet (G := G) (Cmax (G := G) hch) (Bmax (G := G) hch hne) ⊆ ({x, y} : Set V) := by
-      sorry
+  classical
+  intro hxy hxK hyK
+  -- suppose there is a third attachment z
+  by_contra hsubset
+  obtain ⟨z, hzatt, hznot⟩ := Set.not_subset.mp hsubset
+  have hzC : z ∈ (Cmax (G := G) hch).vSet (G := G) := hzatt.1
+  have hxC : x ∈ (Cmax (G := G) hch).vSet (G := G) := hxK.1
+  have hyC : y ∈ (Cmax (G := G) hch).vSet (G := G) := hyK.1
+  have hz_ne_x : z ≠ x := by
+    have : ¬ (z = x ∨ z = y) := by
+      simpa [Set.mem_insert_iff, Set.mem_singleton_iff] using hznot
+    exact fun h => this (Or.inl h)
+  have hz_ne_y : z ≠ y := by
+    have : ¬ (z = x ∨ z = y) := by
+      simpa [Set.mem_insert_iff, Set.mem_singleton_iff] using hznot
+    exact fun h => this (Or.inr h)
+  -- external path in K from x to y
+  obtain ⟨Pxy, hPxyPath, hPxySupp, ⟨wK, hwK, hEdgeXw⟩⟩ :=
+    exists_path_between_attach (G := G) (C := Cmax (G := G) hch) (K := K) hxK hyK hxy
+  have hPxy_out :
+      ∀ v : V, v ∈ Pxy.support → v ≠ x → v ≠ y →
+        v ∉ (Cmax (G := G) hch).vSet (G := G) := by
+    intro v hv hneX hneY
+    have hv' := hPxySupp v hv
+    rcases hv' with rfl | rfl | hvK
+    · exact (hneX rfl).elim
+    · exact (hneY rfl).elim
+    · exact mem_bridge_imp_not_mem_cycle (G := G) (C := Cmax (G := G) hch) K hvK
+  -- build an arc on Cmax from x to y avoiding z
+  let C := Cmax (G := G) hch
+  have hx_supp : x ∈ C.walk.support := by
+    have hx' : x ∈ C.verts (G := G) := (C.mem_vSet_iff (G := G)).1 hxC
+    simpa [Cycle.verts, C] using hx'
+  have hy_supp : y ∈ C.walk.support := by
+    have hy' : y ∈ C.verts (G := G) := (C.mem_vSet_iff (G := G)).1 hyC
+    simpa [Cycle.verts, C] using hy'
+  have hz_supp : z ∈ C.walk.support := by
+    have hz' : z ∈ C.verts (G := G) := (C.mem_vSet_iff (G := G)).1 hzC
+    simpa [Cycle.verts, C] using hz'
+  let r := C.walk.rotate x hx_supp
+  have hr_cycle : r.IsCycle := C.isCycle.rotate hx_supp
+  have hy' : y ∈ r.support := by
+    have hyv : y ∈ C.walk.toSubgraph.verts := by
+      simpa [SimpleGraph.Walk.mem_verts_toSubgraph, Cycle.verts, C] using hy_supp
+    have : y ∈ r.toSubgraph.verts := by
+      simpa [r, SimpleGraph.Walk.toSubgraph_rotate] using hyv
+    simpa [SimpleGraph.Walk.mem_verts_toSubgraph] using this
+  have hz' : z ∈ r.support := by
+    have hzv : z ∈ C.walk.toSubgraph.verts := by
+      simpa [SimpleGraph.Walk.mem_verts_toSubgraph, Cycle.verts, C] using hz_supp
+    have : z ∈ r.toSubgraph.verts := by
+      simpa [r, SimpleGraph.Walk.toSubgraph_rotate] using hzv
+    simpa [SimpleGraph.Walk.mem_verts_toSubgraph] using this
+  let a1 := r.takeUntil y hy'
+  let a2 := (r.dropUntil y hy').reverse
+  have ha1_path : a1.IsPath := hr_cycle.isPath_takeUntil hy'
+  -- derive path for the complementary arc via append decomposition
+  have ha1_not_nil : ¬ a1.Nil := by
+    intro hnil
+    have hy_mem : y ∈ a1.support := by
+      simp [a1]
+    have hy_eq_x : y = x := by
+      simpa [SimpleGraph.Walk.nil_iff_support_eq.mp hnil] using hy_mem
+    exact hxy hy_eq_x.symm
+  have hspec : r = a1.append (r.dropUntil y hy') := by
+    have hspec := SimpleGraph.Walk.take_spec (p := r) (h := hy')
+    simp [a1]
+  have hdrop_path : (r.dropUntil y hy').IsPath := by
+    have hcyc' : (a1.append (r.dropUntil y hy')).IsCycle := by
+      have hcyc' := hr_cycle
+      -- rewrite without simp to avoid recursion
+      rw [hspec] at hcyc'
+      exact hcyc'
+    exact (SimpleGraph.Walk.IsCycle.isPath_of_append_right (p := a1)
+      (q := r.dropUntil y hy') ha1_not_nil hcyc')
+  have ha2_path : a2.IsPath := hdrop_path.reverse
+  have ha1_subset : ∀ v : V, v ∈ a1.support → v ∈ C.vSet (G := G) := by
+    intro v hv
+    have hv' : v ∈ r.support := (SimpleGraph.Walk.support_takeUntil_subset_support _ _ hv)
+    -- r.support ⊆ C.walk.support
+    have hv'' : v ∈ C.walk.support := by
+      have : v ∈ r.toSubgraph.verts := by
+        simpa [SimpleGraph.Walk.mem_verts_toSubgraph] using hv'
+      have : v ∈ C.walk.toSubgraph.verts := by
+        simpa [r, SimpleGraph.Walk.toSubgraph_rotate] using this
+      simpa [SimpleGraph.Walk.mem_verts_toSubgraph] using this
+    have hv'' : v ∈ C.verts (G := G) := by
+      simpa [Cycle.verts, C] using hv''
+    exact (C.mem_vSet_iff (G := G)).2 hv''
+  have ha2_subset : ∀ v : V, v ∈ a2.support → v ∈ C.vSet (G := G) := by
+    intro v hv
+    have hv' : v ∈ (r.dropUntil y hy').support := by
+      simpa [a2, SimpleGraph.Walk.support_reverse] using hv
+    have hv'' : v ∈ r.support := (SimpleGraph.Walk.support_dropUntil_subset _ _ hv')
+    have hv''' : v ∈ C.walk.support := by
+      have : v ∈ r.toSubgraph.verts := by
+        simpa [SimpleGraph.Walk.mem_verts_toSubgraph] using hv''
+      have : v ∈ C.walk.toSubgraph.verts := by
+        simpa [r, SimpleGraph.Walk.toSubgraph_rotate] using this
+      simpa [SimpleGraph.Walk.mem_verts_toSubgraph] using this
+    have hv''' : v ∈ C.verts (G := G) := by
+      simpa [Cycle.verts, C] using hv'''
+    exact (C.mem_vSet_iff (G := G)).2 hv'''
+  -- z cannot lie on both arcs
+  have hz_not_in_a2_of_a1 : z ∈ a1.support → z ∉ a2.support := by
+    intro hz1 hz2
+    have hspec : a1.append (r.dropUntil y hy') = r := by
+      simp [a1]
+    have hr_tail : r.support.tail.Nodup := hr_cycle.2
+    have hr_tail' : (a1.append (r.dropUntil y hy')).support.tail.Nodup := by
+      simpa [hspec] using hr_tail
+    have hr_tail'' :
+        (a1.support.tail ++ (r.dropUntil y hy').support.tail).Nodup := by
+      simpa [SimpleGraph.Walk.tail_support_append] using hr_tail'
+    have hdis' :
+        ∀ a ∈ a1.support.tail, ∀ b ∈ (r.dropUntil y hy').support.tail, a ≠ b :=
+      (List.nodup_append.mp hr_tail'').2.2
+    have hdis : List.Disjoint a1.support.tail (r.dropUntil y hy').support.tail := by
+      intro a ha hb
+      exact (hdis' a ha a hb) rfl
+    have hz_tail1 : z ∈ a1.support.tail := by
+      have hz1' : z = x ∨ z ∈ a1.support.tail := by
+        simpa [a1] using (SimpleGraph.Walk.mem_support_iff (p := a1) (w := z)).1 hz1
+      exact (hz1'.resolve_left hz_ne_x)
+    have hz_tail2 : z ∈ (r.dropUntil y hy').support.tail := by
+      have hz2' : z = y ∨ z ∈ (r.dropUntil y hy').support.tail := by
+        simpa using (SimpleGraph.Walk.mem_support_iff (p := r.dropUntil y hy') (w := z)).1
+          (by simpa [a2, SimpleGraph.Walk.support_reverse] using hz2)
+      exact (hz2'.resolve_left hz_ne_y)
+    exact (List.disjoint_left.mp hdis) hz_tail1 hz_tail2
+  -- choose the arc A1 avoiding z
+  let A1 : G.Walk x y := if hz1 : z ∈ a1.support then a2 else a1
+  have hA1path : A1.IsPath := by
+    by_cases hz1 : z ∈ a1.support
+    · simp [A1, hz1, ha2_path]
+    · simp [A1, hz1, ha1_path]
+  have hA1subset : ∀ v : V, v ∈ A1.support → v ∈ C.vSet (G := G) := by
+    intro v hv
+    by_cases hz1 : z ∈ a1.support
+    · exact ha2_subset v (by simpa [A1, hz1] using hv)
+    · exact ha1_subset v (by simpa [A1, hz1] using hv)
+  have hA1not : z ∉ A1.support := by
+    by_cases hz1 : z ∈ a1.support
+    · have : z ∉ a2.support := hz_not_in_a2_of_a1 hz1
+      simpa [A1, hz1] using this
+    · simp [A1, hz1]
+  -- cycle from A1 and Pxy
+  let P := A1.append Pxy.reverse
+  have hPxyPath' : Pxy.reverse.IsPath := hPxyPath.reverse
+  have hA1trail : A1.IsTrail := hA1path.isTrail
+  have hPxytrail : Pxy.reverse.IsTrail := hPxyPath'.isTrail
+  -- the edge x-y is not in Pxy.edges (the path starts by leaving C into the bridge)
+  have hxy_edge_false : s(x, y) ∉ Pxy.edges := by
+    intro hxyEdge
+    cases Pxy with
+    | nil =>
+        cases hxy rfl
+    | @cons _ v _ h pTail =>
+        -- Pxy = cons h pTail
+        have hx_not_tail : x ∉ pTail.support := by
+          have hnodup : (SimpleGraph.Walk.cons h pTail).support.Nodup :=
+            hPxyPath.support_nodup
+          have hnodup' : (x :: pTail.support).Nodup := by
+            simpa [SimpleGraph.Walk.support_cons] using hnodup
+          exact (List.nodup_cons.1 hnodup').1
+        have hEdgeXw' : s(x, wK) ∈ s(x, v) :: pTail.edges := by
+          simpa using hEdgeXw
+        have hxyEdge' : s(x, y) ∈ s(x, v) :: pTail.edges := by
+          simpa using hxyEdge
+        have hEdgeXw_head : s(x, wK) = s(x, v) := by
+          rcases List.mem_cons.1 hEdgeXw' with hEq | hTail
+          · exact hEq
+          · have hx_mem : x ∈ pTail.support :=
+              pTail.fst_mem_support_of_mem_edges (by simpa using hTail)
+            exact (hx_not_tail hx_mem).elim
+        rcases List.mem_cons.1 hxyEdge' with hEq | hTail
+        · have hEq' : s(x, y) = s(x, wK) := by
+            simpa [hEdgeXw_head] using hEq
+          have hw_not_C : wK ∉ C.vSet (G := G) :=
+            mem_bridge_imp_not_mem_cycle (G := G) (C := C) K hwK
+          have hy_in_C : y ∈ C.vSet (G := G) := hyC
+          have hsym : (x = x ∧ y = wK) ∨ (x = wK ∧ y = x) :=
+            (Sym2.eq_iff).1 hEq'
+          rcases hsym with ⟨_, hyw⟩ | ⟨hxw, _⟩
+          · exact (hw_not_C (by simpa [hyw] using hy_in_C)).elim
+          · exact (hw_not_C (by simpa [hxw] using hxC)).elim
+        · have hx_mem : x ∈ pTail.support :=
+            pTail.fst_mem_support_of_mem_edges (by simpa using hTail)
+          exact (hx_not_tail hx_mem).elim
+  have hA1_tail_nodup : A1.support.tail.Nodup := hA1path.support_nodup.tail
+  have hPxy_tail_nodup : Pxy.reverse.support.tail.Nodup := hPxyPath'.support_nodup.tail
+  have htail_disjoint : List.Disjoint A1.support.tail Pxy.reverse.support.tail := by
+    refine List.disjoint_left.mpr ?_
+    intro v hvA hvP
+    have hvA' : v ∈ C.vSet (G := G) :=
+      hA1subset v (List.mem_of_mem_tail hvA)
+    have hvPmem : v ∈ Pxy.support := by
+      have : v ∈ Pxy.reverse.support := List.mem_of_mem_tail hvP
+      simpa [SimpleGraph.Walk.support_reverse] using this
+    have hx_not_tail : x ∉ A1.support.tail := by
+      have hnodup : A1.support.Nodup := hA1path.support_nodup
+      have hnodup' := hnodup
+      have hsup : A1.support = x :: A1.support.tail :=
+        (SimpleGraph.Walk.cons_tail_support (p := A1)).symm
+      rw [hsup] at hnodup'
+      exact (List.nodup_cons.1 hnodup').1
+    have hy_not_tail : y ∉ Pxy.reverse.support.tail := by
+      have hnodup : Pxy.reverse.support.Nodup := hPxyPath'.support_nodup
+      have hnodup' := hnodup
+      have hsup : Pxy.reverse.support = y :: Pxy.reverse.support.tail :=
+        (SimpleGraph.Walk.cons_tail_support (p := Pxy.reverse)).symm
+      rw [hsup] at hnodup'
+      exact (List.nodup_cons.1 hnodup').1
+    have hvPneX : v ≠ x := by
+      intro h
+      subst h
+      exact (hx_not_tail hvA).elim
+    have hvPneY : v ≠ y := by
+      intro h
+      subst h
+      exact (hy_not_tail hvP).elim
+    have hvP_out : v ∉ C.vSet (G := G) :=
+      hPxy_out v hvPmem hvPneX hvPneY
+    exact (hvP_out hvA').elim
+  have hPcycle : P.IsCycle := by
+    have htrail : P.IsTrail := by
+      -- edges are disjoint
+      have hdis_edges : List.Disjoint A1.edges Pxy.reverse.edges := by
+        refine List.disjoint_left.mpr ?_
+        intro e heA heP
+        -- edges of A1 are in the cycle, edges of Pxy are outside
+        have heA' : e ∈ C.walk.edges := by
+          by_cases hz1 : z ∈ a1.support
+          · -- A1 = a2
+            have heA'' : e ∈ (r.dropUntil y hy').edges := by
+              have : e ∈ a2.edges := by simpa [A1, hz1] using heA
+              simpa [a2, SimpleGraph.Walk.edges_reverse, List.mem_reverse] using this
+            have heA''' : e ∈ r.edges :=
+              (SimpleGraph.Walk.edges_dropUntil_subset _ _ heA'')
+            -- rotate preserves edges as a permutation
+            simpa [r] using (C.walk.rotate_edges x hx_supp).mem_iff.mp heA'''
+          · -- A1 = a1
+            have heA'' : e ∈ a1.edges := by simpa [A1, hz1] using heA
+            have heA''' : e ∈ r.edges :=
+              (SimpleGraph.Walk.edges_takeUntil_subset _ _ heA'')
+            simpa [r] using (C.walk.rotate_edges x hx_supp).mem_iff.mp heA'''
+        -- edge in Pxy.reverse has an endpoint outside C.vSet
+        have heP' :
+            ∃ t u : V, e = s(t, u) ∧ (t ∉ C.vSet (G := G) ∨ u ∉ C.vSet (G := G)) := by
+          -- use endpoints from edges
+          rcases e with ⟨t, u⟩
+          refine ⟨t, u, rfl, ?_⟩
+          have ht : t ∈ Pxy.support := Pxy.fst_mem_support_of_mem_edges (by simpa using heP)
+          have hu : u ∈ Pxy.support := Pxy.snd_mem_support_of_mem_edges (by simpa using heP)
+          have heP'' : s(t, u) ∈ Pxy.edges := by
+            simpa [SimpleGraph.Walk.edges_reverse, List.mem_reverse] using heP
+          by_cases htxy : t = x ∨ t = y
+          · by_cases huxy : u = x ∨ u = y
+            · -- both endpoints are x or y, so e = s(x,y), contradiction
+              have htne : t ≠ u := by
+                intro htu
+                have hadj : G.Adj t t := by
+                  simpa [htu] using (SimpleGraph.Walk.adj_of_mem_edges Pxy heP'')
+                exact (G.irrefl hadj)
+              have htu_xy : (t = x ∧ u = y) ∨ (t = y ∧ u = x) := by
+                rcases htxy with ht | ht <;> rcases huxy with hu | hu
+                · exfalso
+                  exact htne (by simp [ht, hu])
+                · exact Or.inl ⟨ht, hu⟩
+                · exact Or.inr ⟨ht, hu⟩
+                · exfalso
+                  exact htne (by simp [ht, hu])
+              have hxyEdge : s(x, y) ∈ Pxy.edges := by
+                rcases htu_xy with ⟨ht, hu⟩ | ⟨ht, hu⟩
+                · simpa [ht, hu] using heP''
+                · have hsymm : s(y, x) = s(x, y) :=
+                    (Sym2.eq_iff).2 (Or.inr ⟨rfl, rfl⟩)
+                  simpa [ht, hu, hsymm] using heP''
+              exact (hxy_edge_false hxyEdge).elim
+            · -- u is outside {x,y}, hence outside C
+              have hneX : u ≠ x := by
+                intro h; exact huxy (Or.inl h)
+              have hneY : u ≠ y := by
+                intro h; exact huxy (Or.inr h)
+              have huout : u ∉ C.vSet (G := G) := hPxy_out u hu hneX hneY
+              exact Or.inr huout
+          · -- t is outside {x,y}, hence outside C
+            have hneX : t ≠ x := by
+              intro h; exact htxy (Or.inl h)
+            have hneY : t ≠ y := by
+              intro h; exact htxy (Or.inr h)
+            have htout : t ∉ C.vSet (G := G) := hPxy_out t ht hneX hneY
+            exact Or.inl htout
+        -- show contradiction with heA' using endpoints
+        rcases heP' with ⟨t, u, rfl, hout⟩
+        -- edges in C.walk.edges imply both endpoints are in C.vSet
+        have htu : t ∈ C.vSet (G := G) ∧ u ∈ C.vSet (G := G) := by
+          -- use membership in edges implies endpoints in support
+          have ht : t ∈ C.walk.support :=
+            C.walk.fst_mem_support_of_mem_edges (by simpa using heA')
+          have hu : u ∈ C.walk.support :=
+            C.walk.snd_mem_support_of_mem_edges (by simpa using heA')
+          have ht' : t ∈ C.verts (G := G) := by
+            simpa [Cycle.verts, C] using ht
+          have hu' : u ∈ C.verts (G := G) := by
+            simpa [Cycle.verts, C] using hu
+          exact ⟨(C.mem_vSet_iff (G := G)).2 ht', (C.mem_vSet_iff (G := G)).2 hu'⟩
+        cases hout with
+        | inl htout => exact (htout htu.1).elim
+        | inr huout => exact (huout htu.2).elim
+      have htrail_edges : P.IsTrail := by
+        -- use nodup_append on edges
+        have hA1edges : A1.edges.Nodup := hA1trail.edges_nodup
+        have hPxyedges : Pxy.reverse.edges.Nodup := hPxytrail.edges_nodup
+        have hnd :
+            (A1.edges ++ Pxy.reverse.edges).Nodup := by
+          exact (List.nodup_append'.2 ⟨hA1edges, hPxyedges, hdis_edges⟩)
+        -- unfold isTrail_def
+        simpa [P, SimpleGraph.Walk.isTrail_def, SimpleGraph.Walk.edges_append,
+          SimpleGraph.Walk.edges_reverse] using hnd
+      exact htrail_edges
+    have htail :
+        P.support.tail.Nodup := by
+      have hnd : (A1.support.tail ++ Pxy.reverse.support.tail).Nodup := by
+        exact (List.nodup_append'.2 ⟨hA1_tail_nodup, hPxy_tail_nodup, htail_disjoint⟩)
+      simpa [P, SimpleGraph.Walk.tail_support_append] using hnd
+    have hnotnil : ¬ P.Nil := by
+      intro hnil
+      have hnil' : A1.Nil := (SimpleGraph.Walk.nil_append_iff).1 hnil |>.1
+      have hsup : A1.support = [x] := (SimpleGraph.Walk.nil_iff_support_eq).1 hnil'
+      have hy_mem : y ∈ A1.support := A1.end_mem_support
+      have : y = x := by simpa [hsup] using hy_mem
+      exact hxy this.symm
+    have hnotnil' : P ≠ SimpleGraph.Walk.nil := by
+      intro h
+      exact hnotnil ((SimpleGraph.Walk.eq_nil_iff_nil).1 h)
+    exact (SimpleGraph.Walk.isCycle_def _).2 ⟨htrail, hnotnil', htail⟩
+  -- build a cycle in the induced graph on W
+  let W : Set V := fun v => v ∈ A1.support ∨ v ∈ Pxy.support
+  have hW : ∀ v : V, v ∈ P.support → v ∈ W := by
+    intro v hv
+    have hv' : v ∈ A1.support ∨ v ∈ Pxy.reverse.support := by
+      simpa [P, SimpleGraph.Walk.mem_support_append_iff] using hv
+    cases hv' with
+    | inl hA => exact Or.inl hA
+    | inr hB =>
+        have hB' : v ∈ Pxy.support := by
+          simpa [SimpleGraph.Walk.support_reverse] using hB
+        exact Or.inr hB'
+  obtain ⟨_, _, Psub, hmap⟩ :=
+    exists_walkSubtype (G := G) (p := P) hW
+  have hPsub_cycle : Psub.IsCycle := by
+    have hinj : Function.Injective
+        (SimpleGraph.Embedding.induce (G := G) (s := W)).toHom := by
+      intro a b h
+      cases a
+      cases b
+      simpa using h
+    have hcycle' : (Psub.map (SimpleGraph.Embedding.induce (G := G) (s := W)).toHom).IsCycle := by
+      simpa [hmap] using hPcycle
+    exact (SimpleGraph.Walk.map_isCycle_iff_of_injective (p := Psub)
+      (f := (SimpleGraph.Embedding.induce (G := G) (s := W)).toHom) hinj).1 hcycle'
+  -- get a chordless cycle in the induced graph, then map back to G
+  have hcycW : ∃ _ : Cycle (G := G.induce W), True := by
+    refine ⟨⟨⟨x, ?_⟩, Psub, hPsub_cycle, ?_⟩, trivial⟩
+    · -- x ∈ W
+      have : x ∈ A1.support := A1.start_mem_support
+      exact Or.inl this
+    · -- length ≥ 3
+      have hlen : Psub.length = P.length := by
+        have hlen1 :
+            (Psub.map (SimpleGraph.Embedding.induce (G := G) (s := W)).toHom).length =
+              Psub.length :=
+          SimpleGraph.Walk.length_map (p := Psub)
+            (f := (SimpleGraph.Embedding.induce (G := G) (s := W)).toHom)
+        have hlen2 :
+            (Psub.map (SimpleGraph.Embedding.induce (G := G) (s := W)).toHom).length =
+              P.length := by
+          simp [hmap]
+        exact hlen1.symm.trans hlen2
+      simpa [hlen] using hPcycle.three_le_length
+  obtain ⟨C', hC'Chordless⟩ :=
+    exists_chordless_cycle_of_exists_cycle (G := G.induce W) hcycW
+  -- map cycle back to G
+  let f := (SimpleGraph.Embedding.induce (G := G) (s := W))
+  let Cg : Cycle (G := G) :=
+    { base := f C'.base
+      walk := C'.walk.map f.toHom
+      isCycle := by
+        -- map preserves cycles
+        have hinj : Function.Injective f.toHom := by
+          intro a b h
+          exact f.injective h
+        exact (SimpleGraph.Walk.map_isCycle_iff_of_injective
+          (p := C'.walk) (f := f.toHom) hinj).2 C'.isCycle
+      len_ge_three := by
+        simpa using C'.len_ge_three }
+  -- vertices of Cg lie in W
+  have hCg_support_subset_W : ∀ v : V, v ∈ Cg.walk.support → v ∈ W := by
+    intro v hv
+    have hv' : v ∈ C'.walk.support.map f.toHom := by
+      simpa [Cg, SimpleGraph.Walk.support_map] using hv
+    rcases List.mem_map.1 hv' with ⟨a, ha, rfl⟩
+    exact a.property
+  have hCgChordless : Cg.IsChordless (G := G) := by
+    intro hchord
+    have hchord' : ∃ v w : W, C'.IsChord (G := G.induce W) v w := by
+      -- lift the chord to the induced graph
+      rcases hchord with ⟨v, w, hv, hw, hAdj, hnot⟩
+      have hvW : v ∈ W := by
+        -- v is on the cycle, hence in W
+        have : v ∈ Cg.walk.support := by
+          have : v ∈ Cg.verts (G := G) := (Cg.mem_vSet_iff (G := G)).1 hv
+          simpa [Cycle.verts, Cg] using this
+        exact hCg_support_subset_W v this
+      have hwW : w ∈ W := by
+        have : w ∈ Cg.walk.support := by
+          have : w ∈ Cg.verts (G := G) := (Cg.mem_vSet_iff (G := G)).1 hw
+          simpa [Cycle.verts, Cg] using this
+        exact hCg_support_subset_W w this
+      refine ⟨⟨v, hvW⟩, ⟨w, hwW⟩, ?_, ?_, ?_, ?_⟩
+      · -- membership in vSet
+        have hv_support : v ∈ Cg.walk.support := by
+          have : v ∈ Cg.verts (G := G) := (Cg.mem_vSet_iff (G := G)).1 hv
+          simpa [Cycle.verts, Cg] using this
+        have hv_support' : v ∈ C'.walk.support.map f.toHom := by
+          simpa [Cg, SimpleGraph.Walk.support_map] using hv_support
+        rcases List.mem_map.1 hv_support' with ⟨a, ha, hfa⟩
+        have ha' : a = ⟨v, hvW⟩ := by
+          apply Subtype.ext
+          simpa [f] using hfa
+        have : (⟨v, hvW⟩ : {v // v ∈ W}) ∈ C'.walk.support := by
+          simpa [ha'] using ha
+        have : (⟨v, hvW⟩ : {v // v ∈ W}) ∈ C'.verts (G := G.induce W) := by
+          simpa [Cycle.verts] using this
+        exact (C'.mem_vSet_iff (G := G.induce W)).2 this
+      · have hw_support : w ∈ Cg.walk.support := by
+          have : w ∈ Cg.verts (G := G) := (Cg.mem_vSet_iff (G := G)).1 hw
+          simpa [Cycle.verts, Cg] using this
+        have hw_support' : w ∈ C'.walk.support.map f.toHom := by
+          simpa [Cg, SimpleGraph.Walk.support_map] using hw_support
+        rcases List.mem_map.1 hw_support' with ⟨a, ha, hfa⟩
+        have ha' : a = ⟨w, hwW⟩ := by
+          apply Subtype.ext
+          simpa [f] using hfa
+        have : (⟨w, hwW⟩ : {v // v ∈ W}) ∈ C'.walk.support := by
+          simpa [ha'] using ha
+        have : (⟨w, hwW⟩ : {v // v ∈ W}) ∈ C'.verts (G := G.induce W) := by
+          simpa [Cycle.verts] using this
+        exact (C'.mem_vSet_iff (G := G.induce W)).2 this
+      · -- adjacency in induced graph
+        simpa using hAdj
+      · -- not adjacent in induced subgraph
+        intro hAdj'
+        apply hnot
+        -- map adjacency back to Cg.toSubgraph
+        have : (Cg.toSubgraph (G := G)).Adj v w := by
+          have hAdj_map : (C'.walk.toSubgraph.map f.toHom).Adj v w := by
+            refine ⟨⟨v, hvW⟩, ⟨w, hwW⟩, ?_, rfl, rfl⟩
+            simpa [Cycle.toSubgraph] using hAdj'
+          simpa [Cg, Cycle.toSubgraph, SimpleGraph.Walk.toSubgraph_map] using hAdj_map
+        simpa using this
+    exact hC'Chordless hchord'
+  -- z is not on Cg
+  have hz_not_in_Cg : z ∉ Cg.vSet (G := G) := by
+    intro hzv
+    have hzv' : z ∈ Cg.walk.support := by
+      have : z ∈ Cg.verts (G := G) := (Cg.mem_vSet_iff (G := G)).1 hzv
+      simpa [Cycle.verts, Cg] using this
+    have hzW : z ∈ W := hCg_support_subset_W z hzv'
+    have hzW' : z ∈ A1.support ∨ z ∈ Pxy.support := hzW
+    cases hzW' with
+    | inl hzA =>
+        exact (hA1not hzA).elim
+    | inr hzP =>
+        have hzP' : z ∉ C.vSet (G := G) := by
+          have hzPneX : z ≠ x := hz_ne_x
+          have hzPneY : z ≠ y := hz_ne_y
+          exact hPxy_out z hzP hzPneX hzPneY
+        exact (hzP' hzC).elim
+  -- Bmax lies outside Cg, but z attaches to it, so M(Cg) ≥ internalCard(Bmax)+1
+  have hBmax_out :
+      bridgeSet (G := G) (Cmax (G := G) hch) (Bmax (G := G) hch hne)
+        ⊆ (Cg.vSet (G := G))ᶜ := by
+    intro v hv
+    -- v is outside Cmax, hence outside W, hence outside Cg
+    have hv_not_C : v ∉ C.vSet (G := G) := by
+      exact mem_bridge_imp_not_mem_cycle (G := G) (C := Cmax (G := G) hch)
+        (Bmax (G := G) hch hne) hv
+    have hv_not_W : v ∉ W := by
+      intro hvW
+      cases hvW with
+      | inl hA =>
+          exact hv_not_C (hA1subset v hA)
+      | inr hP =>
+          -- use Pxy support description; v cannot lie in another bridge
+          have hPxy := hPxySupp v hP
+          rcases hPxy with hvx | hvy_or
+          · subst hvx
+            exact hv_not_C hxC
+          rcases hvy_or with hvy | hvK'
+          · subst hvy
+            exact hv_not_C hyC
+          · have hdis :
+                Disjoint (bridgeSet (G := G) C K)
+                  (bridgeSet (G := G) C (Bmax (G := G) hch hne)) :=
+              disjoint_bridge_of_ne (G := G) (C := C) (K1 := K)
+                (K2 := Bmax (G := G) hch hne) hK
+            exact (Set.disjoint_left.1 hdis) hvK' hv
+    have hv_not_Cg : v ∉ Cg.vSet (G := G) := by
+      intro hvCg
+      have hvCg' : v ∈ Cg.walk.support := by
+        have : v ∈ Cg.verts (G := G) := (Cg.mem_vSet_iff (G := G)).1 hvCg
+        simpa [Cycle.verts, Cg] using this
+      exact hv_not_W (hCg_support_subset_W v hvCg')
+    simpa [Set.mem_compl_iff] using hv_not_Cg
+  -- pick the component of Cg containing Bmax and z
+  classical
+  have hz_bridge : z ∈ (Cmax (G := G) hch).vSet (G := G) ∧
+      ∃ w : V,
+        w ∈ bridgeSet (G := G) (Cmax (G := G) hch) (Bmax (G := G) hch hne) ∧
+          G.Adj z w := hzatt
+  rcases hz_bridge with ⟨_, ⟨bz, hbz, hAdjz⟩⟩
+  have hz_out_Cg : z ∉ Cg.vSet (G := G) := hz_not_in_Cg
+  have hbz_out_Cg : bz ∉ Cg.vSet (G := G) := by
+    have : bz ∈ bridgeSet (G := G) (Cmax (G := G) hch) (Bmax (G := G) hch hne) := hbz
+    exact (by
+      have := hBmax_out this
+      simpa [Set.mem_compl_iff] using this)
+  -- z and bz are connected in G \ Cg.vSet, so they lie in the same component
+  let Dz : Bridge (G := G) Cg := G.componentComplMk (K := Cg.vSet (G := G)) (by
+    simpa [Set.mem_compl_iff] using hz_out_Cg)
+  have hbz_in_Dz :
+      bz ∈ bridgeSet (G := G) Cg Dz := by
+    -- show bz is in the same component as z
+    have hreach :
+        (G.induce (Cg.vSet (G := G))ᶜ).Reachable ⟨z, by
+          simpa [Set.mem_compl_iff] using hz_out_Cg⟩ ⟨bz, by
+          simpa [Set.mem_compl_iff] using hbz_out_Cg⟩ := by
+      -- the edge z-bz remains after deleting Cg.vSet
+      refine ⟨(SimpleGraph.Walk.cons ?_ (SimpleGraph.Walk.nil))⟩
+      -- adjacency in induced complement
+      have : G.Adj z bz := hAdjz
+      simpa using this
+    have hcomp :
+        G.componentComplMk (K := Cg.vSet (G := G))
+          (by simpa [Set.mem_compl_iff] using hz_out_Cg) =
+        G.componentComplMk (K := Cg.vSet (G := G))
+          (by simpa [Set.mem_compl_iff] using hbz_out_Cg) := by
+      simpa [SimpleGraph.componentComplMk] using
+        (SimpleGraph.ConnectedComponent.eq
+          (G := G.induce (Cg.vSet (G := G))ᶜ)
+          (v := ⟨z, by simpa [Set.mem_compl_iff] using hz_out_Cg⟩)
+          (w := ⟨bz, by simpa [Set.mem_compl_iff] using hbz_out_Cg⟩)).2 hreach
+    -- conclude membership
+    exact (SimpleGraph.ComponentCompl.mem_supp_iff (G := G) (K := Cg.vSet (G := G))
+      (C := Dz) (v := bz)).2 ⟨by
+        simpa [Set.mem_compl_iff] using hbz_out_Cg, hcomp.symm⟩
+  -- now z is also in Dz
+  have hz_in_Dz : z ∈ bridgeSet (G := G) Cg Dz := by
+    exact (SimpleGraph.ComponentCompl.mem_supp_iff (G := G) (K := Cg.vSet (G := G))
+      (C := Dz) (v := z)).2 ⟨by
+        simpa [Set.mem_compl_iff] using hz_out_Cg, rfl⟩
+  -- Bmax ⊆ Dz, so internalCard(Dz) ≥ internalCard(Bmax)+1
+  have hsubset_Bmax : bridgeSet (G := G) (Cmax (G := G) hch) (Bmax (G := G) hch hne)
+      ⊆ bridgeSet (G := G) Cg Dz := by
+    intro v hv
+    -- v lies in the same Bmax component as bz; use a path inside Bmax
+    have hv_out_Cg : v ∉ Cg.vSet (G := G) := by
+      have := hBmax_out hv
+      simpa [Set.mem_compl_iff] using this
+    obtain ⟨p, hp_path, hp_supp⟩ :=
+      exists_path_in_bridge (G := G) (C := Cmax (G := G) hch)
+        (K := Bmax (G := G) hch hne) hv hbz
+    let Wc : Set V := (Cg.vSet (G := G))ᶜ
+    have hpW : ∀ t : V, t ∈ p.support → t ∈ Wc := by
+      intro t ht
+      have htB : t ∈ bridgeSet (G := G) (Cmax (G := G) hch) (Bmax (G := G) hch hne) :=
+        hp_supp t ht
+      have := hBmax_out htB
+      simpa [Set.mem_compl_iff, Wc] using this
+    obtain ⟨hvW, hbzW, psub, hmap⟩ :=
+      exists_walkSubtype (G := G) (p := p) hpW
+    have hreach :
+        (G.induce Wc).Reachable ⟨v, hvW⟩ ⟨bz, hbzW⟩ := by
+      exact ⟨psub⟩
+    have hcomp_v_bz :
+        G.componentComplMk (K := Cg.vSet (G := G))
+          (by simpa [Set.mem_compl_iff] using hv_out_Cg) =
+        G.componentComplMk (K := Cg.vSet (G := G))
+          (by simpa [Set.mem_compl_iff] using hbz_out_Cg) := by
+      simpa [SimpleGraph.componentComplMk, Wc] using
+        (SimpleGraph.ConnectedComponent.eq
+          (G := G.induce Wc)
+          (v := ⟨v, hvW⟩) (w := ⟨bz, hbzW⟩)).2 hreach
+    have hcompbz :
+        G.componentComplMk (K := Cg.vSet (G := G))
+          (by simpa [Set.mem_compl_iff] using hbz_out_Cg) = Dz := by
+      have hbz' := (SimpleGraph.ComponentCompl.mem_supp_iff (G := G)
+        (K := Cg.vSet (G := G)) (C := Dz) (v := bz)).1 hbz_in_Dz
+      exact hbz'.2
+    have hcomp :
+        G.componentComplMk (K := Cg.vSet (G := G))
+          (by simpa [Set.mem_compl_iff] using hv_out_Cg) = Dz := by
+      exact hcomp_v_bz.trans hcompbz
+    exact (SimpleGraph.ComponentCompl.mem_supp_iff (G := G) (K := Cg.vSet (G := G))
+      (C := Dz) (v := v)).2 ⟨by
+        simpa [Set.mem_compl_iff] using hv_out_Cg, hcomp⟩
+  -- cardinality estimate
+  have hz_not_in_Bmax :
+      z ∉ bridgeSet (G := G) (Cmax (G := G) hch) (Bmax (G := G) hch hne) := by
+    intro hzB
+    exact (mem_bridge_imp_not_mem_cycle (G := G) (C := Cmax (G := G) hch)
+      (Bmax (G := G) hch hne) hzB) hzC
+  have hcard :
+      internalCard (G := G) Cg Dz ≥
+        internalCard (G := G) (Cmax (G := G) hch) (Bmax (G := G) hch hne) + 1 := by
+    -- use finset insertion
+    have hsubset_fin :
+        (bridgeSet (G := G) (Cmax (G := G) hch) (Bmax (G := G) hch hne)).toFinset ⊆
+          (bridgeSet (G := G) Cg Dz).toFinset := by
+      intro v hv
+      have hv' : v ∈ bridgeSet (G := G) (Cmax (G := G) hch) (Bmax (G := G) hch hne) := by
+        simpa using hv
+      have hv'' : v ∈ bridgeSet (G := G) Cg Dz := hsubset_Bmax hv'
+      simpa using hv''
+    have hzmem_fin : z ∈ (bridgeSet (G := G) Cg Dz).toFinset := by
+      simpa using hz_in_Dz
+    have hznot_fin :
+        z ∉ (bridgeSet (G := G) (Cmax (G := G) hch) (Bmax (G := G) hch hne)).toFinset := by
+      simpa using hz_not_in_Bmax
+    have hcard' :
+        (bridgeSet (G := G) (Cmax (G := G) hch) (Bmax (G := G) hch hne)).toFinset.card + 1
+          ≤ (bridgeSet (G := G) Cg Dz).toFinset.card := by
+      -- insert z
+      have hsubset_insert :
+          insert z (bridgeSet (G := G) (Cmax (G := G) hch) (Bmax (G := G) hch hne)).toFinset
+            ⊆ (bridgeSet (G := G) Cg Dz).toFinset := by
+        intro v hv
+        rcases Finset.mem_insert.1 hv with hv | hv
+        · simpa [hv] using hzmem_fin
+        · exact hsubset_fin hv
+      have hcard_insert :
+          (insert z
+            (bridgeSet (G := G) (Cmax (G := G) hch) (Bmax (G := G) hch hne)).toFinset).card =
+            (bridgeSet (G := G) (Cmax (G := G) hch) (Bmax (G := G) hch hne)).toFinset.card + 1 := by
+        simp [Finset.card_insert_of_notMem, hznot_fin]
+      have := Finset.card_le_card hsubset_insert
+      simpa [hcard_insert] using this
+    -- rewrite in terms of internalCard
+    simpa [internalCard, internalFinset] using hcard'
+  -- M(Cg) contradicts maximality of Cmax
+  have hMCg_ge :
+      internalCard (G := G) Cg Dz ≤ M (G := G) Cg := by
+    have hP : Pbridge (G := G) Cg (internalCard (G := G) Cg Dz) := by
+      exact ⟨Dz, rfl⟩
+    have hle : internalCard (G := G) Cg Dz ≤ Fintype.card V :=
+      internalCard_le_cardV (G := G) Cg Dz
+    exact Nat.le_findGreatest hle hP
+  have hMCg_le : M (G := G) Cg ≤ M (G := G) C := by
+    -- use nMax maximality
+    have hPcycle : Pcycle (G := G) (M (G := G) Cg) := by
+      exact ⟨Cg, hCgChordless, rfl⟩
+    have hle := Nat.le_findGreatest (P := Pcycle (G := G))
+      (m := M (G := G) Cg) (n := Fintype.card V)
+      (M_le_cardV (G := G) Cg) hPcycle
+    have hMCmax : M (G := G) C = nMax (G := G) hch := M_Cmax_eq_nMax (G := G) hch
+    have hnMax : nMax (G := G) hch = M (G := G) C := by
+      simp [hMCmax]
+    -- nMax is the findGreatest value
+    have hMCg_le_nMax : M (G := G) Cg ≤ nMax (G := G) hch := by
+      simpa [nMax] using hle
+    simpa [hMCmax] using hMCg_le_nMax
+  have hcontr :
+      internalCard (G := G) (Cmax (G := G) hch) (Bmax (G := G) hch hne) + 1
+        ≤ M (G := G) (Cmax (G := G) hch) := by
+    have h1 :
+        internalCard (G := G) (Cmax (G := G) hch) (Bmax (G := G) hch hne) + 1
+          ≤ M (G := G) C := by
+      exact le_trans hcard (le_trans hMCg_ge hMCg_le)
+    simpa [C] using h1
+  -- final contradiction: M(Cmax) = internalCard(Bmax)
+  have hM : internalCard (G := G) C (Bmax (G := G) hch hne) = M (G := G) C :=
+    internalCard_Bmax_eq_M (G := G) hch hne
+  have : (internalCard (G := G) C (Bmax (G := G) hch hne) + 1) ≤
+      internalCard (G := G) C (Bmax (G := G) hch hne) := by
+    have hcontr' := hcontr
+    -- rewrite M(C) as internalCard using hM
+    rw [← hM] at hcontr'
+    exact hcontr'
+  exact (Nat.not_succ_le_self _) this
+
 omit [DecidableRel G.Adj] in
 theorem BV_Lemma1_core
     (h2 : VertexTwoConnected (G := G))
@@ -766,7 +1518,259 @@ theorem BV_Lemma1_core
         ∀ K : Bridge (G := G) (Cmax (G := G) hch),
           K ≠ Bmax (G := G) hch hne →
             IsXYPathBridge (G := G) (Cmax (G := G) hch) K x y := by
-              sorry
+  classical
+  -- abbreviations
+  let C : Cycle (G := G) := Cmax (G := G) hch
+  let B : Bridge (G := G) C := Bmax (G := G) hch hne
+  -- C.vSet is nonempty
+  have hCnonempty : (C.vSet (G := G)).Nonempty := by
+    refine ⟨C.base, ?_⟩
+    have : C.base ∈ C.walk.support := by
+      simp
+    have : C.base ∈ C.verts (G := G) := by
+      simp [Cycle.verts, C]
+    exact (C.mem_vSet_iff (G := G)).2 this
+  have hpre : G.Preconnected := h2.1.preconnected
+  -- any bridge has an attachment
+  have hattach_nonempty :
+      ∀ K : Bridge (G := G) C, ∃ x : V, x ∈ attachSet (G := G) C K := by
+    intro K
+    obtain ⟨ck, hckK, hckC, hAdj⟩ :=
+      SimpleGraph.ComponentCompl.exists_adj_boundary_pair (G := G) hpre hCnonempty K
+    refine ⟨ck.2, ?_⟩
+    refine ⟨hckC, ?_⟩
+    refine ⟨ck.1, ?_, ?_⟩
+    · simpa [bridgeSet] using hckK
+    · simpa using hAdj.symm
+  -- any bridge has two distinct attachments
+  have hattach_two :
+      ∀ K : Bridge (G := G) C,
+        ∃ x y : V, x ≠ y ∧ x ∈ attachSet (G := G) C K ∧ y ∈ attachSet (G := G) C K := by
+    intro K
+    obtain ⟨x, hx⟩ := hattach_nonempty K
+    refine ⟨x, ?_⟩
+    by_contra hno
+    have hsubset : attachSet (G := G) C K ⊆ ({x} : Set V) := by
+      intro y hy
+      by_cases hxy' : y = x
+      · simp [Set.mem_singleton_iff, hxy']
+      · have hxy : x ≠ y := by
+          simpa [ne_comm] using hxy'
+        have : False := hno ⟨y, hxy, hx, hy⟩
+        exact (this.elim)
+    obtain ⟨u, huK⟩ := (SimpleGraph.ComponentCompl.nonempty (C := K))
+    have huK' : u ∈ bridgeSet (G := G) C K := by
+      simpa [bridgeSet] using huK
+    have hxC : x ∈ C.vSet (G := G) := hx.1
+    have hx_supp : x ∈ C.walk.support := by
+      have hx' : x ∈ C.verts (G := G) := (C.mem_vSet_iff (G := G)).1 hxC
+      simpa [Cycle.verts, C] using hx'
+    let r := C.walk.rotate x hx_supp
+    have hr_cycle : r.IsCycle := C.isCycle.rotate hx_supp
+    have hr_not_nil : ¬ r.Nil := hr_cycle.not_nil
+    let y0 : V := r.snd
+    have hy0_ne_x : y0 ≠ x := by
+      have hadj : G.Adj x y0 := SimpleGraph.Walk.adj_snd (p := r) hr_not_nil
+      exact (G.ne_of_adj hadj).symm
+    have hy0C : y0 ∈ C.vSet (G := G) := by
+      have hy0_mem : y0 ∈ r.support :=
+        SimpleGraph.Walk.getVert_mem_support (p := r) 1
+      have hy0_mem' : y0 ∈ C.walk.support := by
+        have : y0 ∈ r.toSubgraph.verts := by
+          simpa [SimpleGraph.Walk.mem_verts_toSubgraph] using hy0_mem
+        have : y0 ∈ C.walk.toSubgraph.verts := by
+          simpa [r, SimpleGraph.Walk.toSubgraph_rotate] using this
+        simpa [SimpleGraph.Walk.mem_verts_toSubgraph] using this
+      have hy0' : y0 ∈ C.verts (G := G) := by
+        simpa [Cycle.verts, C] using hy0_mem'
+      exact (C.mem_vSet_iff (G := G)).2 hy0'
+    let s : Set V := fun v => v ≠ x
+    have hstay :
+        ∀ {u v : {v // v ∈ s}} (p : (G.induce s).Walk u v),
+          u.1 ∈ bridgeSet (G := G) C K → v.1 ∈ bridgeSet (G := G) C K := by
+      intro u v p hu
+      induction p with
+      | nil =>
+          simpa using hu
+      | @cons u v w hAdj p ih =>
+          have hAdjG : G.Adj (u : V) (v : V) := hAdj
+          have hv_ne : (v : V) ≠ x := by
+            exact v.property
+          have hvK : (v : V) ∈ bridgeSet (G := G) C K := by
+            by_cases hvC : (v : V) ∈ C.vSet (G := G)
+            · have hvatt : (v : V) ∈ attachSet (G := G) C K :=
+                ⟨hvC, ⟨u.1, hu, by simpa using hAdjG.symm⟩⟩
+              have hvx : (v : V) = x := by
+                have hv := hsubset hvatt
+                simpa [Set.mem_singleton_iff] using hv
+              exact (hv_ne hvx).elim
+            · exact mem_bridge_of_adj_outside (G := G) (C := C) (K := K) hu hvC hAdjG
+          exact ih hvK
+    have hconn := (h2.2 x)
+    have hu_ne_x : u ≠ x := by
+      intro hux
+      have hu_notC : u ∉ C.vSet (G := G) :=
+        mem_bridge_imp_not_mem_cycle (G := G) (C := C) K huK'
+      exact hu_notC (by simpa [hux] using hxC)
+    have hreach :
+        (G.induce s).Reachable ⟨u, hu_ne_x⟩
+          ⟨y0, hy0_ne_x⟩ := hconn _ _
+    rcases hreach with ⟨p⟩
+    have hy0K : y0 ∈ bridgeSet (G := G) C K :=
+      hstay p huK'
+    have hy0_notC : y0 ∉ C.vSet (G := G) :=
+      mem_bridge_imp_not_mem_cycle (G := G) (C := C) K hy0K
+    exact (hy0_notC hy0C).elim
+  -- now split on subsingleton
+  by_cases hsubs : Subsingleton (Bridge (G := G) C)
+  · exact Or.inl hsubs
+  · -- choose a bridge K ≠ B
+    have hnontriv : Nontrivial (Bridge (G := G) C) :=
+      (not_subsingleton_iff_nontrivial).1 hsubs
+    obtain ⟨K1, K2, hK12⟩ := exists_pair_ne (Bridge (G := G) C)
+    classical
+    let K : Bridge (G := G) C := if hK1B : K1 = B then K2 else K1
+    have hK : K ≠ B := by
+      by_cases hK1B : K1 = B
+      · have : K2 ≠ B := by
+          intro hK2B
+          apply hK12
+          simp [hK1B, hK2B]
+        simpa [K, hK1B] using this
+      · simp [K, hK1B]
+    -- pick x,y from K
+    obtain ⟨x, y, hxy, hxK, hyK⟩ := hattach_two K
+    -- compression gives B attachments subset {x,y}
+    have hBsubset :
+        attachSet (G := G) C B ⊆ ({x, y} : Set V) :=
+      compression (G := G) h2 hch hne K hK hxy hxK hyK
+    -- B has at least two attachments
+    obtain ⟨xb, yb, hxyb, hxb, hyb⟩ := hattach_two B
+    have hxb' : xb = x ∨ xb = y := by
+      have := hBsubset hxb
+      simpa [Set.mem_insert_iff, Set.mem_singleton_iff] using this
+    have hyb' : yb = x ∨ yb = y := by
+      have := hBsubset hyb
+      simpa [Set.mem_insert_iff, Set.mem_singleton_iff] using this
+    have hxB : x ∈ attachSet (G := G) C B := by
+      rcases hxb' with hxbx | hxby
+      · simpa [hxbx] using hxb
+      · rcases hyb' with hybx | hyby
+        · simpa [hybx] using hyb
+        · have : xb = yb := by simp [hxby, hyby]
+          exact (hxyb this).elim
+    have hyB : y ∈ attachSet (G := G) C B := by
+      rcases hxb' with hxbx | hxby
+      · rcases hyb' with hybx | hyby
+        · have : xb = yb := by simp [hxbx, hybx]
+          exact (hxyb this).elim
+        · simpa [hyby] using hyb
+      · simpa [hxby] using hxb
+    have hB_exact :
+        attachSet (G := G) C B = ({x, y} : Set V) := by
+      apply Set.Subset.antisymm hBsubset
+      intro z hz
+      rcases Set.mem_insert_iff.mp hz with rfl | hz
+      · exact hxB
+      · have : z = y := by simpa [Set.mem_singleton_iff] using hz
+        simpa [this] using hyB
+    have hAttachB :
+        AttachExactly (G := G) C B x y := by
+      simpa [AttachExactly] using hB_exact
+    -- all bridges attach only to {x,y}
+    have hAll : AllAttachOnly (G := G) C x y := by
+      intro K'
+      by_cases hK' : K' = B
+      · simp [hK', hB_exact]
+      · obtain ⟨a, b, hab, ha, hb⟩ := hattach_two K'
+        -- compression on K' gives {x,y} ⊆ {a,b}
+        have hBsubset' :
+            attachSet (G := G) C B ⊆ ({a, b} : Set V) :=
+          compression (G := G) h2 hch hne K' hK' hab ha hb
+        have hx_in_ab : x ∈ ({a, b} : Set V) := by
+          have hxB' : x ∈ attachSet (G := G) C B := by simp [hB_exact]
+          exact hBsubset' hxB'
+        have hy_in_ab : y ∈ ({a, b} : Set V) := by
+          have hyB' : y ∈ attachSet (G := G) C B := by
+            have : y ∈ ({x, y} : Set V) := by
+              simp [Set.mem_insert_iff, Set.mem_singleton_iff]
+            simp [hB_exact]
+          exact hBsubset' hyB'
+        have hxK' : x ∈ attachSet (G := G) C K' := by
+          rcases Set.mem_insert_iff.mp hx_in_ab with hx | hx
+          · simpa [hx] using ha
+          · have : x = b := by simpa [Set.mem_singleton_iff] using hx
+            simpa [this] using hb
+        have hyK' : y ∈ attachSet (G := G) C K' := by
+          rcases Set.mem_insert_iff.mp hy_in_ab with hy | hy
+          · simpa [hy] using ha
+          · have : y = b := by simpa [Set.mem_singleton_iff] using hy
+            simpa [this] using hb
+        -- now any attachment is x or y
+        intro z hz
+        by_cases hzX : z = x
+        · simp [hzX, Set.mem_insert_iff, Set.mem_singleton_iff]
+        · have hxz : x ≠ z := by
+            simpa [ne_comm] using hzX
+          have hBsubset'' :
+              attachSet (G := G) C B ⊆ ({x, z} : Set V) :=
+            compression (G := G) h2 hch hne K' hK' hxz hxK' hz
+          have hy_in_xz : y ∈ ({x, z} : Set V) := hBsubset'' hyB
+          have hy_eq : y = z := by
+            rcases Set.mem_insert_iff.mp hy_in_xz with hy | hy
+            · exact (hxy hy.symm).elim
+            · simpa [Set.mem_singleton_iff] using hy
+          simp [hy_eq, Set.mem_insert_iff, Set.mem_singleton_iff]
+    -- path in each bridge
+    have hPath :
+        ∀ K' : Bridge (G := G) C, K' ≠ B →
+          IsXYPathBridge (G := G) C K' x y := by
+      intro K' hK'
+      -- x,y are attachments of K' since K' has two distinct attachments within {x,y}
+      obtain ⟨a, b, hab, ha, hb⟩ := hattach_two K'
+      have ha' : a = x ∨ a = y := by
+        have ha_in := hAll K' ha
+        simpa [Set.mem_insert_iff, Set.mem_singleton_iff] using ha_in
+      have hb' : b = x ∨ b = y := by
+        have hb_in := hAll K' hb
+        simpa [Set.mem_insert_iff, Set.mem_singleton_iff] using hb_in
+      have hxK' : x ∈ attachSet (G := G) C K' := by
+        rcases ha' with hax | hay
+        · simpa [hax] using ha
+        · rcases hb' with hbx | hby
+          · simpa [hbx] using hb
+          · have : a = b := by simp [hay, hby]
+            exact (hab this).elim
+      have hyK' : y ∈ attachSet (G := G) C K' := by
+        rcases ha' with hax | hay
+        · rcases hb' with hbx | hby
+          · have : a = b := by simp [hax, hbx]
+            exact (hab this).elim
+          · simpa [hby] using hb
+        · simpa [hay] using ha
+      obtain ⟨p, hp_path, hp_supp, _⟩ :=
+        exists_path_between_attach (G := G) (C := C) (K := K') hxK' hyK' hxy
+      refine ⟨p, hp_path, ?_⟩
+      intro v hv
+      have hv1 : v ≠ y ∧ v ∈ (p.support.toFinset.erase x) := by
+        simpa using (Finset.mem_erase.mp hv)
+      have hv2 : v ≠ x ∧ v ∈ p.support.toFinset := by
+        simpa using (Finset.mem_erase.mp hv1.2)
+      have hv_support : v ∈ p.support := by
+        simpa using hv2.2
+      have hv_bridge : v ∈ bridgeSet (G := G) C K' := by
+        have hcases := hp_supp v hv_support
+        rcases hcases with rfl | rfl | hvK'
+        · exact (hv2.1 rfl).elim
+        · exact (hv1.1 rfl).elim
+        · exact hvK'
+      simpa [internalFinset] using hv_bridge
+    -- assemble
+    refine Or.inr ?_
+    refine ⟨x, y, hxy, hxK.1, hyK.1, hAttachB, hAll, ?_⟩
+    intro K' hK'
+    exact hPath K' hK'
+
 theorem BVDelta3_key_core
     (h2 : VertexTwoConnected (G := G))
     (hδ3 : MinDegreeGE3 (G := G))
@@ -1662,7 +2666,8 @@ abbrev instSub (S : Finset V) : Fintype {v : V // v ∈ S} :=
 
 structure Witness where
   S : Finset V
-  h2 : BV.VertexTwoConnected (G := G.induce (fun v : V => v ∈ S))
+  h2 : BV.VertexTwoConnected
+    (G := (G.induce (fun v : V => v ∈ S) : SimpleGraph {v : V // v ∈ S}))
 
   -- Store hypotheses under the *locked* subtype Fintype instance.
   hδ3 :
@@ -1684,7 +2689,704 @@ set_option maxHeartbeats 50000000 in
 noncomputable def exists_witness_of_chromaticNumber_ge_4
     (hχ : (4 : ℕ∞) ≤ G.chromaticNumber) :
     Witness (G := G) := by
-      sorry
+  classical
+  -- Minimal (by cardinality) induced subgraph not 3-colorable.
+  let bad : Finset V → Prop :=
+    fun S => ¬ (G.induce (fun v : V => v ∈ S)).Colorable 3
+  have hbad_univ : bad (Finset.univ : Finset V) := by
+    intro hcol
+    -- convert to colorability of the full graph
+    have hcol' : (G.induce (Set.univ : Set V)).Colorable 3 := by
+      -- `Set.univ` and `Finset.univ` define the same predicate
+      have hpred :
+          (Set.univ : Set V) = (fun v : V => v ∈ (Finset.univ : Finset V)) := by
+        funext v
+        apply propext
+        constructor
+        · intro _; exact Finset.mem_univ v
+        · intro _; exact trivial
+      rw [hpred]
+      exact hcol
+    have hcolG : G.Colorable 3 :=
+      SimpleGraph.Colorable.of_hom
+        (f := (SimpleGraph.induceUnivIso G).symm.toHom) hcol'
+    have hle : G.chromaticNumber ≤ (3 : ℕ) :=
+      (SimpleGraph.chromaticNumber_le_iff_colorable (G := G) (n := 3)).2 hcolG
+    have : (4 : ℕ∞) ≤ (3 : ℕ) := hχ.trans hle
+    exact (by norm_num : ¬ (4 : ℕ∞) ≤ (3 : ℕ)) this
+  let cand : Finset (Finset V) :=
+    (Finset.univ : Finset V).powerset.filter bad
+  have hnonempty : cand.Nonempty := by
+    refine ⟨Finset.univ, ?_⟩
+    refine (Finset.mem_filter).2 ?_
+    refine ⟨?_, hbad_univ⟩
+    simp
+  let S : Finset V :=
+    Classical.choose (Finset.exists_min_image cand (fun S => S.card) hnonempty)
+  have hS_spec :=
+    Classical.choose_spec (Finset.exists_min_image cand (fun S => S.card) hnonempty)
+  have hS_cand : S ∈ cand := hS_spec.1
+  have hS_min : ∀ S' ∈ cand, S.card ≤ S'.card := hS_spec.2
+  have hS_bad : bad S := (Finset.mem_filter.mp hS_cand).2
+  have hcolor_of_ssubset :
+      ∀ {T : Finset V}, T ⊂ S → (G.induce (fun v : V => v ∈ T)).Colorable 3 := by
+    intro T hTS
+    by_contra hTbad
+    have hTmem : T ∈ cand := by
+      refine (Finset.mem_filter).2 ?_
+      refine ⟨?_, hTbad⟩
+      have hsubset : T ⊆ (Finset.univ : Finset V) := by
+        intro x hx; exact Finset.mem_univ x
+      exact (Finset.mem_powerset.2 hsubset)
+    have hcard_le : S.card ≤ T.card := hS_min _ hTmem
+    have hcard_lt : T.card < S.card := Finset.card_lt_card hTS
+    exact (Nat.lt_irrefl _ (lt_of_lt_of_le hcard_lt hcard_le))
+  let H : SimpleGraph {v : V // v ∈ S} :=
+    G.induce (fun v : V => v ∈ S)
+  -- |S| ≥ 4, otherwise 3-colorable by monotonicity.
+  have hcard4 :
+      (letI : Fintype {v : V // v ∈ S} := instSub (V := V) S
+       Fintype.card {v : V // v ∈ S} ≥ 4) := by
+    classical
+    by_contra hcard4'
+    letI : Fintype {v : V // v ∈ S} := instSub (V := V) S
+    have hcard_lt4 : Fintype.card {v : V // v ∈ S} < 4 :=
+      Nat.lt_of_not_ge hcard4'
+    have hcard_le3 : Fintype.card {v : V // v ∈ S} ≤ 3 := by
+      have h : Fintype.card {v : V // v ∈ S} < 3 + 1 := by
+        simpa using hcard_lt4
+      exact Nat.lt_succ_iff.mp h
+    have hcol_card :
+        (G.induce (fun v : V => v ∈ S)).Colorable
+          (Fintype.card {v : V // v ∈ S}) := by
+      refine SimpleGraph.Colorable.mono ?_
+        (SimpleGraph.selfColoring (G := G.induce (fun v : V => v ∈ S))).colorable
+      exact le_of_eq (Fintype.card_congr (Equiv.refl {v : V // v ∈ S}))
+    have hcolS :
+        (G.induce (fun v : V => v ∈ S)).Colorable 3 :=
+      SimpleGraph.Colorable.mono hcard_le3 hcol_card
+    exact hS_bad hcolS
+  -- Minimum degree ≥ 3 in the minimal counterexample.
+  have hδ3 :
+      (letI : Fintype {v : V // v ∈ S} := instSub (V := V) S
+       BV.MinDegreeGE3 (G := H)) := by
+    classical
+    intro v
+    by_contra hdeg
+    have hdeg' : H.degree v ≤ 2 := by
+      have hlt : H.degree v < 3 := Nat.lt_of_not_ge hdeg
+      exact Nat.lt_succ_iff.mp hlt
+    have hcol_erase :
+        (G.induce (fun u : V => u ∈ S.erase v.1)).Colorable 3 := by
+      have hss : S.erase v.1 ⊂ S := Finset.erase_ssubset v.property
+      exact hcolor_of_ssubset hss
+    rcases hcol_erase with ⟨C⟩
+    let neigh : Finset {v : V // v ∈ S} := H.neighborFinset v
+    let colors : Finset (Fin 3) :=
+      neigh.attach.image (fun u =>
+        C ⟨u.1.1, by
+          have hAdj : H.Adj v u.1 :=
+            (SimpleGraph.mem_neighborFinset (G := H) (v := v) (w := u.1)).1 u.2
+          have hvu : v ≠ u.1 := H.ne_of_adj hAdj
+          have huv : u.1 ≠ v := by simpa [ne_comm] using hvu
+          have huv' : u.1.1 ≠ v.1 := by
+            intro h
+            apply huv
+            apply Subtype.ext
+            simp [h]
+          exact Finset.mem_erase.mpr ⟨huv', u.1.property⟩
+        ⟩)
+    have hcolors_card : colors.card ≤ 2 := by
+      have hneigh_card : neigh.card ≤ 2 := by
+        simpa [neigh, SimpleGraph.card_neighborFinset_eq_degree] using hdeg'
+      have hle : colors.card ≤ neigh.attach.card := Finset.card_image_le
+      have hneigh_attach : neigh.attach.card ≤ 2 := by
+        simpa [Finset.card_attach] using hneigh_card
+      exact hle.trans hneigh_attach
+    have hlt_colors :
+        colors.card < (Finset.univ : Finset (Fin 3)).card := by
+      have : colors.card < 3 := Nat.lt_of_le_of_lt hcolors_card (by decide)
+      simpa using this
+    obtain ⟨c0, _, hc0_not⟩ :=
+      Finset.exists_mem_notMem_of_card_lt_card hlt_colors
+    let color : {v : V // v ∈ S} → Fin 3 :=
+      fun u =>
+        if h : u.1 = v.1 then c0
+        else
+          C ⟨u.1, by
+            exact (Finset.mem_erase.mpr ⟨h, u.property⟩)⟩
+    have hvalid : ∀ {u w : {v : V // v ∈ S}}, H.Adj u w → color u ≠ color w := by
+      intro u w hAdj
+      by_cases hu : u.1 = v.1
+      · -- u = v
+        have hu_eq : u = v := Subtype.ext hu
+        have hw : w.1 ≠ v.1 := by
+          intro h
+          have : u = w := by
+            apply Subtype.ext
+            simp [hu, h]
+          exact (H.ne_of_adj hAdj this).elim
+        have hw_ne : w ≠ v := by
+          intro h
+          exact hw (congrArg Subtype.val h)
+        have hw_mem : w ∈ neigh := by
+          have : H.Adj v w := by
+            simpa [hu_eq] using hAdj
+          simpa [neigh] using
+            (SimpleGraph.mem_neighborFinset (G := H) (v := v) (w := w)).2 this
+        have hw_color_mem : color w ∈ colors := by
+          refine Finset.mem_image.mpr ?_
+          refine ⟨⟨w, hw_mem⟩, by simp, ?_⟩
+          simp [color, hw_ne]
+        intro hcw
+        have hcu : color u = c0 := by
+          simp [color, hu_eq]
+        have hcw' : color w = c0 := by
+          simpa [hcu] using hcw.symm
+        have : c0 ∈ colors := by simpa [hcw'] using hw_color_mem
+        exact (hc0_not this).elim
+      · have hu_ne : u ≠ v := by
+          intro h
+          exact hu (congrArg Subtype.val h)
+        by_cases hw : w.1 = v.1
+        · -- w = v, symmetric
+          have hw_eq : w = v := Subtype.ext hw
+          have hu_mem : u ∈ neigh := by
+            have : H.Adj v u := by
+              simpa [hw_eq] using hAdj.symm
+            simpa [neigh] using
+              (SimpleGraph.mem_neighborFinset (G := H) (v := v) (w := u)).2 this
+          have hu_color_mem : color u ∈ colors := by
+            refine Finset.mem_image.mpr ?_
+            refine ⟨⟨u, hu_mem⟩, by simp, ?_⟩
+            simp [color, hu_ne]
+          intro hcu
+          have hcv : color w = c0 := by
+            simp [color, hw_eq]
+          have hcu' : color u = c0 := by
+            simpa [hcv] using hcu
+          have : c0 ∈ colors := by simpa [hcu'] using hu_color_mem
+          exact (hc0_not this).elim
+        · -- both in erased graph
+          have hw_ne : w ≠ v := by
+            intro h
+            exact hw (congrArg Subtype.val h)
+          have hAdj' :
+              (G.induce (fun u : V => u ∈ S.erase v.1)).Adj
+                ⟨u.1, by exact (Finset.mem_erase.mpr ⟨hu, u.property⟩)⟩
+                ⟨w.1, by exact (Finset.mem_erase.mpr ⟨hw, w.property⟩)⟩ := by
+            simpa [H, SimpleGraph.induce_adj] using hAdj
+          have hneq := C.valid hAdj'
+          simpa [color, hu, hu_ne, hw, hw_ne] using hneq
+    have hcolH : H.Colorable 3 := ⟨SimpleGraph.Coloring.mk color hvalid⟩
+    exact hS_bad hcolH
+  -- Connectivity and vertex-deletion connectivity.
+  have h2 : BV.VertexTwoConnected (G := H) := by
+    classical
+    -- H is connected.
+    have hH_conn : H.Connected := by
+      by_contra hnot
+      letI : Fintype {v : V // v ∈ S} := instSub (V := V) S
+      have hnonempty : Nonempty {v : V // v ∈ S} := by
+        have hpos : 0 < Fintype.card {v : V // v ∈ S} :=
+          lt_of_lt_of_le (by decide : (0 : ℕ) < 4) (by simpa using hcard4)
+        exact Fintype.card_pos_iff.mp hpos
+      have hcol_all : ∀ c : H.ConnectedComponent, (c.toSimpleGraph).Colorable 3 := by
+        intro c
+        have hne : (c.supp : Set {v : V // v ∈ S}) ≠ Set.univ := by
+          intro hsu
+          have hpre : H.Preconnected := by
+            intro a b
+            have ha : a ∈ c.supp := by simp [hsu]
+            have hb : b ∈ c.supp := by simp [hsu]
+            exact c.reachable_of_mem_supp ha hb
+          haveI := hnonempty
+          exact hnot ⟨hpre⟩
+        obtain ⟨w, hw⟩ := (Set.ne_univ_iff_exists_notMem (c.supp)).1 hne
+        let T : Finset V := c.supp.toFinset.image Subtype.val
+        have hT_sub : T ⊆ S := by
+          intro x hx
+          rcases Finset.mem_image.mp hx with ⟨y, hy, rfl⟩
+          exact y.property
+        have hT_ne : T ≠ S := by
+          intro hEq
+          have hwS : w.1 ∈ S := w.property
+          have hwT : w.1 ∈ T := by simp [hEq]
+          rcases Finset.mem_image.mp hwT with ⟨y, hy, hwy⟩
+          have hy' : y ∈ c.supp := by
+            simpa using hy
+          have : y = w := by
+            apply Subtype.ext
+            simpa using hwy
+          exact hw (this ▸ hy')
+        have hT_ss : T ⊂ S := Finset.ssubset_iff_subset_ne.mpr ⟨hT_sub, hT_ne⟩
+        have hcolT : (G.induce (fun v : V => v ∈ T)).Colorable 3 :=
+          hcolor_of_ssubset hT_ss
+        rcases hcolT with ⟨C'⟩
+        refine ⟨SimpleGraph.Coloring.mk ?_ ?_⟩
+        · intro u
+          exact C' ⟨u.1.1, by
+            refine Finset.mem_image.mpr ?_
+            refine ⟨u.1, ?_, rfl⟩
+            simp⟩
+        · intro u w huw
+          have huw' :
+              (G.induce (fun v : V => v ∈ T)).Adj
+                ⟨u.1.1, by
+                  refine Finset.mem_image.mpr ?_
+                  refine ⟨u.1, by simp, rfl⟩⟩
+                ⟨w.1.1, by
+                  refine Finset.mem_image.mpr ?_
+                  refine ⟨w.1, by simp, rfl⟩⟩ := by
+            have hHadj : H.Adj u.1 w.1 :=
+              (SimpleGraph.ConnectedComponent.toSimpleGraph_adj c u.property w.property).1 huw
+            simpa [H, SimpleGraph.induce_adj] using hHadj
+          exact C'.valid huw'
+      have hcolH : H.Colorable 3 :=
+        (SimpleGraph.colorable_iff_forall_connectedComponents (G := H) (n := 3)).2 hcol_all
+      exact hS_bad hcolH
+    -- Deleting any vertex keeps the graph connected.
+    have hH_del_conn :
+        ∀ v : {v : V // v ∈ S},
+          (H.induce (fun w : {v : V // v ∈ S} => w ≠ v)).Connected := by
+      intro v
+      -- assume disconnected and derive a 3-coloring of H
+      by_contra hnot
+      let Hdel : SimpleGraph {w : {v : V // v ∈ S} // w ≠ v} :=
+        H.induce (fun w : {v : V // v ∈ S} => w ≠ v)
+      -- Hdel is nonempty since deg(v) ≥ 3
+      have hdel_nonempty : Nonempty {w : {v : V // v ∈ S} // w ≠ v} := by
+        have hvdeg : 3 ≤ H.degree v := hδ3 v
+        have hdegpos : 0 < H.degree v := lt_of_lt_of_le (by decide : (0 : ℕ) < 3) hvdeg
+        have hneigh_nonempty : (H.neighborFinset v).Nonempty := by
+          have hcard_pos : 0 < (H.neighborFinset v).card := by
+            simpa [SimpleGraph.card_neighborFinset_eq_degree] using hdegpos
+          exact Finset.card_pos.mp hcard_pos
+        rcases hneigh_nonempty with ⟨u, hu⟩
+        have huv : u ≠ v := by
+          have : H.Adj v u := by
+            simpa using (SimpleGraph.mem_neighborFinset (G := H) (v := v) (w := u)).1 hu
+          have hvu : v ≠ u := H.ne_of_adj this
+          simpa [ne_comm] using hvu
+        exact ⟨⟨u, huv⟩⟩
+      -- pick u,w with no path in Hdel
+      have hnot' : ¬ ∃ u, ∀ w, Hdel.Reachable u w := by
+        intro hex
+        exact hnot ((SimpleGraph.connected_iff_exists_forall_reachable (G := Hdel)).2 hex)
+      have hforall : ∀ u, ∃ w, ¬ Hdel.Reachable u w := by
+        simpa [not_exists] using hnot'
+      let u0 : {w : {v : V // v ∈ S} // w ≠ v} := Classical.choice hdel_nonempty
+      rcases hforall u0 with ⟨w0, hnotreach⟩
+      let c : Hdel.ConnectedComponent := Hdel.connectedComponentMk u0
+      have hw_notin : w0 ∉ c.supp := by
+        intro hw
+        have hEq : Hdel.connectedComponentMk w0 = c := by
+          simpa [SimpleGraph.ConnectedComponent.mem_supp_iff] using hw
+        have hreach : Hdel.Reachable u0 w0 :=
+          (SimpleGraph.ConnectedComponent.eq (G := Hdel)).1 (by
+            simpa [c] using hEq.symm)
+        exact hnotreach hreach
+      -- component vertices as subsets of V
+      let A : Finset V := c.supp.toFinset.image (fun w => w.1.1)
+      let B : Finset V := (S.erase v.1) \ A
+      have hu0_mem : u0 ∈ c.supp := by
+        simp [SimpleGraph.ConnectedComponent.mem_supp_iff, c]
+      have hA_nonempty : A.Nonempty := by
+        refine ⟨u0.1.1, ?_⟩
+        refine Finset.mem_image.mpr ?_
+        exact ⟨u0, by simpa using hu0_mem, rfl⟩
+      have hw0_ne_v : w0.1.1 ≠ v.1 := by
+        intro h
+        apply w0.property
+        apply Subtype.ext
+        simp [h]
+      have hw0_in_Serase : w0.1.1 ∈ S.erase v.1 := by
+        exact Finset.mem_erase.mpr ⟨hw0_ne_v, w0.1.property⟩
+      have hw0_notin_A : w0.1.1 ∉ A := by
+        intro hA
+        rcases Finset.mem_image.mp hA with ⟨y, hy, hwy⟩
+        have hy' : y ∈ c.supp := by simpa using hy
+        have : y = w0 := by
+          apply Subtype.ext
+          apply Subtype.ext
+          simpa using hwy
+        exact hw_notin (this ▸ hy')
+      have hB_nonempty : B.Nonempty := by
+        refine ⟨w0.1.1, ?_⟩
+        exact Finset.mem_sdiff.mpr ⟨hw0_in_Serase, hw0_notin_A⟩
+      let A' : Finset V := A ∪ {v.1}
+      let B' : Finset V := B ∪ {v.1}
+      have hA'_ss : A' ⊂ S := by
+        have hsubset : A' ⊆ S := by
+          intro x hx
+          rcases Finset.mem_union.mp hx with hx | hx
+          · -- x in A
+            rcases Finset.mem_image.mp hx with ⟨y, hy, rfl⟩
+            exact y.1.property
+          · simpa using (Finset.mem_singleton.mp hx ▸ v.property)
+        have hw0_notin_A' : w0.1.1 ∉ A' := by
+          intro h
+          rcases Finset.mem_union.mp h with hA | hv
+          · exact hw0_notin_A hA
+          · exact hw0_ne_v (Finset.mem_singleton.mp hv)
+        have hne : A' ≠ S := by
+          intro hEq
+          have : w0.1.1 ∈ A' := by simp [hEq]
+          exact hw0_notin_A' this
+        exact Finset.ssubset_iff_subset_ne.mpr ⟨hsubset, hne⟩
+      have hu0_ne_v : u0.1.1 ≠ v.1 := by
+        intro h
+        apply u0.property
+        apply Subtype.ext
+        simp [h]
+      have hu0_in_A : u0.1.1 ∈ A := by
+        refine Finset.mem_image.mpr ?_
+        exact ⟨u0, by simpa using hu0_mem, rfl⟩
+      have hu0_notin_B : u0.1.1 ∉ B := by
+        intro hB
+        exact (Finset.mem_sdiff.mp hB).2 hu0_in_A
+      have hB'_ss : B' ⊂ S := by
+        have hsubset : B' ⊆ S := by
+          intro x hx
+          rcases Finset.mem_union.mp hx with hx | hx
+          · have hx' : x ∈ S.erase v.1 := (Finset.mem_sdiff.mp hx).1
+            exact Finset.mem_of_subset (Finset.erase_subset _ _) hx'
+          · simpa using (Finset.mem_singleton.mp hx ▸ v.property)
+        have hu0_notin_B' : u0.1.1 ∉ B' := by
+          intro h
+          rcases Finset.mem_union.mp h with hB | hv
+          · exact hu0_notin_B hB
+          · exact hu0_ne_v (Finset.mem_singleton.mp hv)
+        have hne : B' ≠ S := by
+          intro hEq
+          have : u0.1.1 ∈ B' := by simp [hEq]
+          exact hu0_notin_B' this
+        exact Finset.ssubset_iff_subset_ne.mpr ⟨hsubset, hne⟩
+      have hcolA : (G.induce (fun u : V => u ∈ A')).Colorable 3 :=
+        hcolor_of_ssubset hA'_ss
+      have hcolB : (G.induce (fun u : V => u ∈ B')).Colorable 3 :=
+        hcolor_of_ssubset hB'_ss
+      rcases hcolA with ⟨CA⟩
+      rcases hcolB with ⟨CB⟩
+      have hvA' : v.1 ∈ A' :=
+        Finset.mem_union.mpr (Or.inr (Finset.mem_singleton.mpr rfl))
+      have hvB' : v.1 ∈ B' :=
+        Finset.mem_union.mpr (Or.inr (Finset.mem_singleton.mpr rfl))
+      let cA : Fin 3 := CA ⟨v.1, hvA'⟩
+      let cB : Fin 3 := CB ⟨v.1, hvB'⟩
+      let perm : Fin 3 ≃ Fin 3 := if h : cB = cA then Equiv.refl _ else Equiv.swap cB cA
+      have hperm : perm cB = cA := by
+        by_cases h : cB = cA
+        · simp [perm, h]
+        · simp [perm, h, Equiv.swap_apply_left]
+      let CB' : (G.induce (fun u : V => u ∈ B')).Coloring (Fin 3) :=
+        (SimpleGraph.recolorOfEquiv (G := G.induce (fun u : V => u ∈ B')) perm) CB
+      have hcv : CB' ⟨v.1, hvB'⟩ = cA := by
+        -- recolor sends `cB` to `perm cB = cA`
+        simpa [CB', SimpleGraph.coe_recolorOfEquiv, hperm]
+      let color : {u : V // u ∈ S} → Fin 3 :=
+        fun u =>
+          if h : u.1 = v.1 then cA
+          else if hA : u.1 ∈ A then
+            CA ⟨u.1, by exact Finset.mem_union.mpr (Or.inl hA)⟩
+          else
+            CB' ⟨u.1, by
+              have : u.1 ∈ B := by
+                have : u.1 ∈ S.erase v.1 := by
+                  exact Finset.mem_erase.mpr ⟨h, u.property⟩
+                exact Finset.mem_sdiff.mpr ⟨this, hA⟩
+              exact Finset.mem_union.mpr (Or.inl this)⟩
+      have hvalid : ∀ {u w : {u : V // u ∈ S}}, H.Adj u w → color u ≠ color w := by
+        intro u w hAdj
+        by_cases hu : u.1 = v.1
+        · -- u is v
+          have hu_eq : u = v := Subtype.ext hu
+          by_cases hwA : w.1 ∈ A
+          · -- w in A, use CA on A'
+            have hwA' : w.1 ∈ A' := Finset.mem_union.mpr (Or.inl hwA)
+            have hAdjG : G.Adj v.1 w.1 := by
+              have hAdjH : H.Adj v w := by
+                simpa [hu_eq] using hAdj
+              simpa [H, SimpleGraph.induce_adj] using hAdjH
+            have hAdjA :
+                (G.induce (fun u : V => u ∈ A')).Adj
+                  ⟨v.1, hvA'⟩ ⟨w.1, hwA'⟩ := by
+              exact hAdjG
+            have hneq := CA.valid hAdjA
+            have hcu : color u = cA := by
+              simp [color, hu_eq]
+            have hcu' : color u = CA ⟨v.1, hvA'⟩ := by
+              simpa [cA] using hcu
+            have hwv : w.1 ≠ v.1 := by
+              intro h
+              apply (H.ne_of_adj hAdj)
+              apply Subtype.ext
+              simp [hu, h]
+            have hw_ne : w ≠ v := by
+              intro h
+              exact hwv (congrArg Subtype.val h)
+            have hcw : color w = CA ⟨w.1, hwA'⟩ := by
+              simp [color, hw_ne, hwA]
+            intro hEq
+            apply hneq
+            exact (by simpa [hcu', hcw] using hEq)
+          · -- w in B, use CB' on B'
+            have hwv : w.1 ≠ v.1 := by
+              intro h
+              apply (H.ne_of_adj hAdj)
+              apply Subtype.ext
+              simp [hu, h]
+            have hwB : w.1 ∈ B := by
+              have : w.1 ∈ S.erase v.1 := by
+                exact Finset.mem_erase.mpr ⟨hwv, w.property⟩
+              exact Finset.mem_sdiff.mpr ⟨this, hwA⟩
+            have hwB' : w.1 ∈ B' := Finset.mem_union.mpr (Or.inl hwB)
+            have hAdjG : G.Adj v.1 w.1 := by
+              have hAdjH : H.Adj v w := by
+                simpa [hu_eq] using hAdj
+              simpa [H, SimpleGraph.induce_adj] using hAdjH
+            have hAdjB :
+                (G.induce (fun u : V => u ∈ B')).Adj
+                  ⟨v.1, hvB'⟩ ⟨w.1, hwB'⟩ := by
+              exact hAdjG
+            have hneq := CB'.valid hAdjB
+            -- `CB'` sends `v` to `cA`
+            have hcu : color u = cA := by
+              simp [color, hu_eq]
+            have hw_ne : w ≠ v := by
+              intro h
+              exact hwv (congrArg Subtype.val h)
+            have hcw : color w = CB' ⟨w.1, hwB'⟩ := by
+              simp [color, hw_ne, hwA]
+            intro hEq
+            apply hneq
+            have hEq' : CB' ⟨v.1, hvB'⟩ = CB' ⟨w.1, hwB'⟩ := by
+              calc
+                CB' ⟨v.1, hvB'⟩ = cA := hcv
+                _ = color u := by symm; exact hcu
+                _ = color w := hEq
+                _ = CB' ⟨w.1, hwB'⟩ := hcw
+            exact hEq'
+        · have hu_ne : u ≠ v := by
+            intro h
+            exact hu (congrArg Subtype.val h)
+          by_cases hw : w.1 = v.1
+          · -- w is v
+            have hw_eq : w = v := Subtype.ext hw
+            by_cases huA : u.1 ∈ A
+            · -- u in A, use CA on A'
+              have huA' : u.1 ∈ A' := Finset.mem_union.mpr (Or.inl huA)
+              have hAdjG : G.Adj u.1 v.1 := by
+                have hAdjH : H.Adj u v := by
+                  simpa [hw_eq] using hAdj
+                simpa [H, SimpleGraph.induce_adj] using hAdjH
+              have hAdjA :
+                  (G.induce (fun u : V => u ∈ A')).Adj
+                    ⟨u.1, huA'⟩ ⟨v.1, hvA'⟩ := by
+                exact hAdjG
+              have hneq := CA.valid hAdjA
+              have hcw : color w = cA := by
+                simp [color, hw_eq]
+              have hcu : color u = CA ⟨u.1, huA'⟩ := by
+                simp [color, hu_ne, huA]
+              intro hEq
+              apply hneq
+              -- rewrite color u / color w to CA-values
+              exact (by
+                have hcv' : cA = CA ⟨v.1, hvA'⟩ := by rfl
+                simpa [hcu, hcw, hcv'] using hEq)
+            · -- u in B, use CB' on B'
+              have huB : u.1 ∈ B := by
+                have : u.1 ∈ S.erase v.1 := by
+                  exact Finset.mem_erase.mpr ⟨hu, u.property⟩
+                exact Finset.mem_sdiff.mpr ⟨this, huA⟩
+              have huB' : u.1 ∈ B' := Finset.mem_union.mpr (Or.inl huB)
+              have hAdjG : G.Adj u.1 v.1 := by
+                have hAdjH : H.Adj u v := by
+                  simpa [hw_eq] using hAdj
+                simpa [H, SimpleGraph.induce_adj] using hAdjH
+              have hAdjB :
+                  (G.induce (fun u : V => u ∈ B')).Adj
+                    ⟨u.1, huB'⟩ ⟨v.1, hvB'⟩ := by
+                exact hAdjG
+              have hneq := CB'.valid hAdjB
+              -- `CB'` sends v to cA
+              have hcw : color w = cA := by
+                simp [color, hw_eq]
+              have hcu : color u = CB' ⟨u.1, huB'⟩ := by
+                simp [color, hu_ne, huA]
+              intro hEq
+              apply hneq
+              have hEq' : CB' ⟨u.1, huB'⟩ = CB' ⟨v.1, hvB'⟩ := by
+                calc
+                  CB' ⟨u.1, huB'⟩ = color u := by symm; exact hcu
+                  _ = color w := hEq
+                  _ = cA := hcw
+                  _ = CB' ⟨v.1, hvB'⟩ := by symm; exact hcv
+              exact hEq'
+          · -- u and w both in S \\ {v}
+            have hu_ne : u ≠ v := by
+              intro h
+              apply hu
+              exact congrArg Subtype.val h
+            have hw_ne : w ≠ v := by
+              intro h
+              apply hw
+              exact congrArg Subtype.val h
+            by_cases huA : u.1 ∈ A
+            · by_cases hwA : w.1 ∈ A
+              · have huA' : u.1 ∈ A' := Finset.mem_union.mpr (Or.inl huA)
+                have hwA' : w.1 ∈ A' := Finset.mem_union.mpr (Or.inl hwA)
+                have hAdjA :
+                    (G.induce (fun u : V => u ∈ A')).Adj
+                      ⟨u.1, huA'⟩ ⟨w.1, hwA'⟩ := by
+                  simpa [H, SimpleGraph.induce_adj] using hAdj
+                have hneq := CA.valid hAdjA
+                have hcu : color u = CA ⟨u.1, huA'⟩ := by
+                  simp [color, hu_ne, huA]
+                have hcw : color w = CA ⟨w.1, hwA'⟩ := by
+                  simp [color, hw_ne, hwA]
+                intro hEq
+                apply hneq
+                exact (by simpa [hcu, hcw] using hEq)
+              · -- u in A, w in B is impossible: would connect components in Hdel
+                have hwB : w.1 ∈ B := by
+                  have : w.1 ∈ S.erase v.1 := by
+                    exact Finset.mem_erase.mpr ⟨hw, w.property⟩
+                  exact Finset.mem_sdiff.mpr ⟨this, hwA⟩
+                -- adjacency in Hdel would put w in the same component
+                have hAdj_del :
+                    Hdel.Adj ⟨u, hu_ne⟩ ⟨w, hw_ne⟩ := by
+                  simpa [Hdel, H, SimpleGraph.induce_adj] using hAdj
+                have hcomp_eq :
+                    Hdel.connectedComponentMk
+                        ⟨u, hu_ne⟩ =
+                      Hdel.connectedComponentMk
+                        ⟨w, hw_ne⟩ :=
+                  (SimpleGraph.ConnectedComponent.eq (G := Hdel)).2
+                    (SimpleGraph.Adj.reachable (G := Hdel) hAdj_del)
+                -- u in c.supp, so w must be in c.supp, contradiction
+                have hu_in : ⟨u, hu_ne⟩ ∈ c.supp := by
+                  rcases Finset.mem_image.mp huA with ⟨y, hy, hyu⟩
+                  have hy' : y ∈ c.supp := by
+                    simpa using hy
+                  have hyu' : y.1 = u := by
+                    apply Subtype.ext
+                    simpa using hyu
+                  have : y = ⟨u, hu_ne⟩ := by
+                    apply Subtype.ext
+                    exact hyu'
+                  exact this ▸ hy'
+                have hw_in : ⟨w, hw_ne⟩ ∈ c.supp := by
+                  have hcu_comp :
+                      Hdel.connectedComponentMk ⟨u, hu_ne⟩ = c := by
+                    simpa [SimpleGraph.ConnectedComponent.mem_supp_iff] using hu_in
+                  have : Hdel.connectedComponentMk
+                        ⟨w, hw_ne⟩ = c := by
+                    calc
+                      Hdel.connectedComponentMk ⟨w, hw_ne⟩
+                          = Hdel.connectedComponentMk ⟨u, hu_ne⟩ := hcomp_eq.symm
+                      _ = c := hcu_comp
+                  simpa [SimpleGraph.ConnectedComponent.mem_supp_iff] using this
+                -- contradiction: w in A
+                have hwA' : w.1 ∈ A := by
+                  refine Finset.mem_image.mpr ?_
+                  have hw_in_fin : ⟨w, hw_ne⟩ ∈ c.supp.toFinset := by
+                    simpa using hw_in
+                  exact ⟨⟨w, hw_ne⟩, hw_in_fin, rfl⟩
+                exact (hwA hwA').elim
+            · -- u in B
+              by_cases hwA : w.1 ∈ A
+              · -- symmetric impossible case
+                have huB : u.1 ∈ B := by
+                  have : u.1 ∈ S.erase v.1 := by
+                    exact Finset.mem_erase.mpr ⟨hu, u.property⟩
+                  exact Finset.mem_sdiff.mpr ⟨this, huA⟩
+                have hAdj_del :
+                    Hdel.Adj ⟨w, hw_ne⟩ ⟨u, hu_ne⟩ := by
+                  simpa [Hdel, H, SimpleGraph.induce_adj] using hAdj.symm
+                have hcomp_eq :
+                    Hdel.connectedComponentMk
+                        ⟨w, hw_ne⟩ =
+                      Hdel.connectedComponentMk
+                        ⟨u, hu_ne⟩ :=
+                  (SimpleGraph.ConnectedComponent.eq (G := Hdel)).2
+                    (SimpleGraph.Adj.reachable (G := Hdel) hAdj_del)
+                have hw_in : ⟨w, hw_ne⟩ ∈ c.supp := by
+                  rcases Finset.mem_image.mp hwA with ⟨y, hy, hyw⟩
+                  have hy' : y ∈ c.supp := by
+                    simpa using hy
+                  have hyw' : y.1 = w := by
+                    apply Subtype.ext
+                    simpa using hyw
+                  have : y = ⟨w, hw_ne⟩ := by
+                    apply Subtype.ext
+                    exact hyw'
+                  exact this ▸ hy'
+                have hu_in : ⟨u, hu_ne⟩ ∈ c.supp := by
+                  have hcw : Hdel.connectedComponentMk ⟨w, hw_ne⟩ = c := by
+                    simpa [SimpleGraph.ConnectedComponent.mem_supp_iff] using hw_in
+                  have : Hdel.connectedComponentMk ⟨u, hu_ne⟩ = c := by
+                    calc
+                      Hdel.connectedComponentMk ⟨u, hu_ne⟩
+                          = Hdel.connectedComponentMk ⟨w, hw_ne⟩ := hcomp_eq.symm
+                      _ = c := hcw
+                  simpa [SimpleGraph.ConnectedComponent.mem_supp_iff] using this
+                -- u in A, contradiction
+                have huA' : u.1 ∈ A := by
+                  refine Finset.mem_image.mpr ?_
+                  have hu_in_fin : ⟨u, hu_ne⟩ ∈ c.supp.toFinset := by
+                    simpa using hu_in
+                  exact ⟨⟨u, hu_ne⟩, hu_in_fin, rfl⟩
+                exact (huA huA').elim
+              · -- both in B
+                have huB : u.1 ∈ B := by
+                  have : u.1 ∈ S.erase v.1 := by
+                    exact Finset.mem_erase.mpr ⟨hu, u.property⟩
+                  exact Finset.mem_sdiff.mpr ⟨this, huA⟩
+                have hwB : w.1 ∈ B := by
+                  have : w.1 ∈ S.erase v.1 := by
+                    exact Finset.mem_erase.mpr ⟨hw, w.property⟩
+                  exact Finset.mem_sdiff.mpr ⟨this, hwA⟩
+                have huB' : u.1 ∈ B' := Finset.mem_union.mpr (Or.inl huB)
+                have hwB' : w.1 ∈ B' := Finset.mem_union.mpr (Or.inl hwB)
+                have hAdjB :
+                    (G.induce (fun u : V => u ∈ B')).Adj
+                      ⟨u.1, huB'⟩ ⟨w.1, hwB'⟩ := by
+                  simpa [H, SimpleGraph.induce_adj] using hAdj
+                have hneq := CB'.valid hAdjB
+                have hcu : color u = CB' ⟨u.1, huB'⟩ := by
+                  unfold color
+                  by_cases h : u.1 = v.1
+                  · exact (hu h).elim
+                  · by_cases hA : u.1 ∈ A
+                    · exact (huA hA).elim
+                    · simp [h, hA]
+                have hcw : color w = CB' ⟨w.1, hwB'⟩ := by
+                  unfold color
+                  by_cases h : w.1 = v.1
+                  · exact (hw h).elim
+                  · by_cases hA : w.1 ∈ A
+                    · exact (hwA hA).elim
+                    · simp [h, hA]
+                intro hEq
+                apply hneq
+                have hEq' : CB' ⟨u.1, huB'⟩ = CB' ⟨w.1, hwB'⟩ := by
+                  calc
+                    CB' ⟨u.1, huB'⟩ = color u := by symm; exact hcu
+                    _ = color w := hEq
+                    _ = CB' ⟨w.1, hwB'⟩ := hcw
+                exact hEq'
+      have hcol : H.Colorable 3 := ⟨SimpleGraph.Coloring.mk color hvalid⟩
+      exact hS_bad hcol
+    exact ⟨hH_conn, hH_del_conn⟩
+  letI : Fintype {v : V // v ∈ S} := instSub (V := V) S
+  exact
+    { S := S
+      h2 := h2
+      hδ3 := hδ3
+      hcard4 := hcard4 }
+
 end Critical
 end Erdos751
 
@@ -1723,13 +3425,65 @@ theorem lift_cycle_from_induce_preserve_length
   refine ⟨C', ?_⟩
   simp [BV.Cycle.length, C', SimpleGraph.Walk.length_map]
 
+omit [Fintype V] [DecidableEq V] in
+theorem lift_cycle_from_critical_preserve_length
+    (W : Critical.Witness (G := G))
+    (C : BV.Cycle (G := Critical.H (G := G) W)) :
+    ∃ C' : BV.Cycle (G := G),
+      BV.Cycle.length (G := G) C' =
+        BV.Cycle.length (G := Critical.H (G := G) W) C := by
+  classical
+  let f : Critical.H (G := G) W →g G :=
+    { toFun := fun v => v.1
+      map_rel' := by
+        intro v w h
+        simpa [Critical.H, SimpleGraph.induce_adj] using h }
+  have hinj : Function.Injective f := by
+    intro v w h
+    apply Subtype.ext
+    exact h
+  let C' : BV.Cycle (G := G) :=
+    { base := C.base.1
+      walk := C.walk.map f
+      isCycle := by
+        simpa using (C.isCycle.map hinj)
+      len_ge_three := by
+        simpa using C.len_ge_three }
+  refine ⟨C', ?_⟩
+  simp [BV.Cycle.length, C', SimpleGraph.Walk.length_map]
+
+set_option maxHeartbeats 50000000 in
+-- The final subtype-instance bridge normalizes a stored critical witness through induced graphs.
 omit [Fintype V] [DecidableEq V] [DecidableRel G.Adj] in
 theorem erdos_751_strong [Finite V]
     (hχ : (4 : ℕ∞) ≤ G.chromaticNumber) :
     ∃ C1 C2 : BV.Cycle (G := G),
       (Nat.dist (BV.Cycle.length (G := G) C1) (BV.Cycle.length (G := G) C2) = 1) ∨
       (Nat.dist (BV.Cycle.length (G := G) C1) (BV.Cycle.length (G := G) C2) = 2) := by
-        sorry
+  classical
+  letI := Fintype.ofFinite V
+  let W := Critical.exists_witness_of_chromaticNumber_ge_4 (G := G) hχ
+  -- IMPORTANT: match the exact subtype `Fintype` instance used inside `W.hδ3` and `W.hcard4`.
+  -- Do NOT use `Subtype.fintype ...` here.
+  letI : Fintype {v : V // v ∈ W.S} := Critical.instSub (V := V) W.S
+  have hBV :
+      ∃ D1 D2 : BV.Cycle (G := Critical.H (G := G) W),
+        (Nat.dist (BV.Cycle.length (G := Critical.H (G := G) W) D1)
+                  (BV.Cycle.length (G := Critical.H (G := G) W) D2) = 1) ∨
+        (Nat.dist (BV.Cycle.length (G := Critical.H (G := G) W) D1)
+                  (BV.Cycle.length (G := Critical.H (G := G) W) D2) = 2) :=
+    BV.exists_two_cycles_length_dist_1_or_2
+      (G := Critical.H (G := G) W)
+      W.h2
+      W.hδ3
+      W.hcard4
+  rcases hBV with ⟨D1, D2, hdist⟩
+  rcases lift_cycle_from_critical_preserve_length (G := G) W D1 with ⟨C1, hlen1⟩
+  rcases lift_cycle_from_critical_preserve_length (G := G) W D2 with ⟨C2, hlen2⟩
+  refine ⟨C1, C2, ?_⟩
+  simpa [hlen1, hlen2] using hdist
+
+#print axioms erdos_751_strong
 -- 'Erdos751.Main.erdos_751_strong' depends on axioms: [propext, choice, Quot.sound]
 
 end Main

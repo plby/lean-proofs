@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
+/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 741.
 https://www.erdosproblems.com/forum/thread/741
@@ -325,7 +325,13 @@ theorem stage_ge (j : ℕ) (hj : 1 ≤ j) (x : ℕ)
 All elements of syndeticA are ≥ 2.
 -/
 theorem syndeticA_ge_two (x : ℕ) (hx : x ∈ syndeticA) : 2 ≤ x := by
-  sorry
+  unfold syndeticA at hx
+  rcases hx with hx | hx
+  · exact hx.1
+  · rcases Set.mem_iUnion₂.mp hx with ⟨j, hj, hxj⟩
+    exact le_trans (by nlinarith [pow_pos (by decide : 0 < 5) (j - 1)])
+      (stage_ge j hj x hxj)
+
 /-
 If a ∈ syndeticA and a ≤ M, then a is in [2,3] or in some stage j ≤ k
     provided M < 4 · 5^k (i.e., smaller than the min element of stage k+1).
@@ -535,7 +541,45 @@ theorem countIn_mono {S T : Set ℕ} (h : S ⊆ T) (N : ℕ) : countIn S N ≤ c
 countIn is monotone in N.
 -/
 theorem countIn_mono_N (S : Set ℕ) {M N : ℕ} (h : M ≤ N) : countIn S M ≤ countIn S N := by
-  sorry
+  unfold countIn
+  exact Finset.card_le_card fun x hx => by
+    simp only [Finset.mem_filter, Finset.mem_range] at hx ⊢
+    exact ⟨lt_of_lt_of_le hx.1 h, hx.2⟩
+
+theorem countIn_eq_ncard (S : Set ℕ) (N : ℕ) :
+    countIn S N = (S ∩ Set.Iio N).ncard := by
+  rw [countIn, ← Set.ncard_coe_finset]
+  congr 1
+  ext x
+  simp [Set.mem_Iio, and_comm]
+
+theorem countIn_add_le_mul (S T : Set ℕ) (N : ℕ) :
+    countIn (S + T) N ≤ countIn S N * countIn T N := by
+  rw [countIn_eq_ncard (S + T) N, countIn_eq_ncard S N, countIn_eq_ncard T N]
+  have hS_fin : (S ∩ Set.Iio N).Finite :=
+    (Set.finite_Iio N).subset fun x hx => hx.2
+  have hT_fin : (T ∩ Set.Iio N).Finite :=
+    (Set.finite_Iio N).subset fun x hx => hx.2
+  have hprod_fin : ((S ∩ Set.Iio N) ×ˢ (T ∩ Set.Iio N)).Finite :=
+    Set.Finite.prod hS_fin hT_fin
+  have hsubset :
+      (S + T) ∩ Set.Iio N ⊆
+        (fun p : ℕ × ℕ => p.1 + p.2) '' ((S ∩ Set.Iio N) ×ˢ (T ∩ Set.Iio N)) := by
+    rintro x ⟨hxsum, hxN⟩
+    rw [Set.mem_add] at hxsum
+    rcases hxsum with ⟨a, ha, b, hb, rfl⟩
+    have haN : a < N := Nat.lt_of_le_of_lt (Nat.le_add_right a b) hxN
+    have hbN : b < N := Nat.lt_of_le_of_lt (by omega : b ≤ a + b) hxN
+    exact ⟨(a, b), ⟨⟨ha, haN⟩, ⟨hb, hbN⟩⟩, rfl⟩
+  calc
+    ((S + T) ∩ Set.Iio N).ncard
+        ≤ ((fun p : ℕ × ℕ => p.1 + p.2) '' ((S ∩ Set.Iio N) ×ˢ (T ∩ Set.Iio N))).ncard :=
+      Set.ncard_le_ncard hsubset (Set.Finite.image _ hprod_fin)
+    _ ≤ ((S ∩ Set.Iio N) ×ˢ (T ∩ Set.Iio N)).ncard :=
+      Set.ncard_image_le hprod_fin
+    _ = (S ∩ Set.Iio N).ncard * (T ∩ Set.Iio N).ncard := by
+      rw [Set.ncard_prod]
+
 /-
 Key counting lemma: if A₁ = A ∩ ⋃_j (M(2j), M(2j+1)] and N = M(2k+1),
     then countIn A₁ N ≥ countIn A N - countIn A (M(2k) + 1).
@@ -727,7 +771,7 @@ theorem split_positive_upper_density (A : Set ℕ) (hA : upperDensity A > 0) :
   refine ⟨ ⟨ A₁, A₂, ?_, ?_ ⟩, ?_, ?_ ⟩;
   all_goals norm_num [ Set.disjoint_left ];
   · aesop;
-  · exact Set.union_diff_cancel ( Set.inter_subset_left );
+  · exact Set.union_sdiff_cancel ( Set.inter_subset_left );
   · linarith;
   · linarith
 
@@ -885,7 +929,84 @@ Small-summand lemma: if A = A₁ ∪ A₂ and A₂ ∩ [0,N) ⊆ [0,K),
 theorem small_summand_bound (A A₁ A₂ : Set ℕ) (hcover : A₁ ∪ A₂ = A)
     (N K : ℕ) (hA₂ : ∀ x ∈ A₂, x < N → x < K) :
     countIn (A + A) N ≤ countIn (A₁ + A₁) N + K * countIn A N := by
-      sorry
+  have h_count_def : countIn (A + A) N ≤ countIn (A₁ + A₁) N + countIn (A + A₂) N := by
+    refine le_trans ?_
+      (Finset.card_union_le
+        {x ∈ Finset.range N | x ∈ A₁ + A₁}
+        {x ∈ Finset.range N | x ∈ A + A₂});
+    unfold countIn
+    refine Finset.card_le_card ?_
+    intro x hx
+    simp only [Finset.mem_filter, Finset.mem_range] at hx
+    rw [Finset.mem_union]
+    simp only [Finset.mem_filter, Finset.mem_range]
+    rcases hx with ⟨hxN, hxsum⟩
+    rw [Set.mem_add] at hxsum
+    rcases hxsum with ⟨a, haA, b, hbA, rfl⟩
+    have haU : a ∈ A₁ ∪ A₂ := by simpa [hcover] using haA
+    rcases haU with ha₁ | ha₂
+    · have hbU : b ∈ A₁ ∪ A₂ := by simpa [hcover] using hbA
+      rcases hbU with hb₁ | hb₂
+      · exact Or.inl ⟨hxN, by rw [Set.mem_add]; exact ⟨a, ha₁, b, hb₁, rfl⟩⟩
+      · exact Or.inr ⟨hxN, by rw [Set.mem_add]; exact ⟨a, haA, b, hb₂, rfl⟩⟩
+    · exact Or.inr ⟨hxN, by
+        rw [Set.mem_add]
+        exact ⟨b, hbA, a, ha₂, Nat.add_comm b a⟩⟩
+  have h_count_def2 : countIn (A + A₂) N ≤ K * countIn A N := by
+    have h_decomp :
+        ∀ x ∈ (A + A₂) ∩ Set.Iio N,
+          ∃ a ∈ A ∩ Set.Iio N, ∃ b ∈ A₂ ∩ Set.Iio K, x = a + b := by
+      rintro x ⟨hxsum, hxN⟩
+      rw [Set.mem_add] at hxsum
+      rcases hxsum with ⟨a, ha, b, hb, rfl⟩
+      have haN : a < N := Nat.lt_of_le_of_lt (Nat.le_add_right a b) hxN
+      have hbN : b < N := Nat.lt_of_le_of_lt (by omega : b ≤ a + b) hxN
+      exact
+        ⟨a, ⟨ha, haN⟩, b, ⟨hb, hA₂ b hb hbN⟩, rfl⟩
+    have h_card_pairs :
+        ((A + A₂) ∩ Set.Iio N).ncard ≤
+          (A ∩ Set.Iio N).ncard * (A₂ ∩ Set.Iio K).ncard := by
+      have hA_fin : (A ∩ Set.Iio N).Finite :=
+        (Set.finite_Iio N).subset fun x hx => hx.2
+      have hA₂_fin : (A₂ ∩ Set.Iio K).Finite :=
+        (Set.finite_Iio K).subset fun x hx => hx.2
+      have hprod_fin : ((A ∩ Set.Iio N) ×ˢ (A₂ ∩ Set.Iio K)).Finite :=
+        Set.Finite.prod hA_fin hA₂_fin
+      have h_card_pairs :
+          ((A + A₂) ∩ Set.Iio N).ncard ≤
+            (Set.image (fun p : ℕ × ℕ => p.1 + p.2)
+              ((A ∩ Set.Iio N) ×ˢ (A₂ ∩ Set.Iio K))).ncard := by
+        refine Set.ncard_le_ncard ?_ (Set.Finite.image _ hprod_fin)
+        · exact fun x hx => by
+            obtain ⟨a, ha, b, hb, rfl⟩ := h_decomp x hx
+            exact ⟨(a, b), ⟨ha, hb⟩, rfl⟩
+      refine le_trans h_card_pairs ?_
+      calc
+        (Set.image (fun p : ℕ × ℕ => p.1 + p.2)
+            ((A ∩ Set.Iio N) ×ˢ (A₂ ∩ Set.Iio K))).ncard
+            ≤ ((A ∩ Set.Iio N) ×ˢ (A₂ ∩ Set.Iio K)).ncard :=
+          Set.ncard_image_le hprod_fin
+        _ = (A ∩ Set.Iio N).ncard * (A₂ ∩ Set.Iio K).ncard := by
+          rw [Set.ncard_prod]
+    have h_card_A2 : (A₂ ∩ Set.Iio K).ncard ≤ K := by
+      have hIio : (Set.Iio K : Set ℕ).ncard = K := by
+        calc
+          (Set.Iio K : Set ℕ).ncard = ((Finset.range K : Finset ℕ) : Set ℕ).ncard := by
+            congr 1
+            ext x
+            simp [Set.mem_Iio]
+          _ = (Finset.range K).card := Set.ncard_coe_finset _
+          _ = K := Finset.card_range K
+      exact (Set.ncard_le_ncard (fun x hx => hx.2) (Set.finite_Iio K)).trans
+        (le_of_eq hIio)
+    rw [countIn_eq_ncard (A + A₂) N, countIn_eq_ncard A N]
+    calc
+      ((A + A₂) ∩ Set.Iio N).ncard
+          ≤ (A ∩ Set.Iio N).ncard * (A₂ ∩ Set.Iio K).ncard := h_card_pairs
+      _ ≤ (A ∩ Set.Iio N).ncard * K := Nat.mul_le_mul_left _ h_card_A2
+      _ = K * (A ∩ Set.Iio N).ncard := Nat.mul_comm _ K
+  exact h_count_def.trans (Nat.add_le_add_left h_count_def2 _)
+
 /-
 Upper density is nonneg.
 -/
@@ -1027,7 +1148,7 @@ theorem erdos741_upper_density_case2 (A : Set ℕ) (hA : ¬ upperDensity A > 0)
                   M (2 * k) * countIn A (M (2 * k + 1)) := by
             apply small_summand_bound;
             focus
-              exact Set.union_diff_cancel ( Set.inter_subset_left )
+              exact Set.union_sdiff_cancel ( Set.inter_subset_left )
             intro x hx hx'; contrapose! hx; aesop;
           -- Using the bounds from hM, we can derive the inequality.
           have h_bound :
@@ -1058,7 +1179,7 @@ theorem erdos741_upper_density_case2 (A : Set ℕ) (hA : ¬ upperDensity A > 0)
                   M (2 * k + 1) * countIn A (M (2 * k + 2)) := by
             apply small_summand_bound;
             focus
-              exact Set.diff_union_of_subset ( Set.inter_subset_left )
+              exact Set.sdiff_union_of_subset ( Set.inter_subset_left )
             simp +zetaDelta at *;
             intro x hx j hj₁ hj₂ hj₃; contrapose! hj₃;
             have hj_ge : j ≥ k + 1 := by
@@ -1129,7 +1250,7 @@ theorem erdos741_upper_density_case2 (A : Set ℕ) (hA : ¬ upperDensity A > 0)
                 linarith [hM.1 <| show 2 * x + 2 > 0 from Nat.succ_pos _]
         use ⟨A₁, A₂, by
           exact disjoint_sdiff_self_right, by
-          exact Set.union_diff_cancel <| Set.inter_subset_left⟩
+          exact Set.union_sdiff_cancel <| Set.inter_subset_left⟩
         generalize_proofs at *;
         exact
           ⟨ lt_of_lt_of_le (half_pos (half_pos hAA)) hA₁_upperDensity,
@@ -1641,7 +1762,18 @@ lemma gap_scale_lower (P : BiPartition counterexA) (k : ℕ) :
   countIn (P.left + P.left) (counterexN k) ≥
     countIn (P.left ∩ digitSetB1) (counterexN k) *
       countIn (P.left ∩ digitSetB2) (counterexN k) := by
-        sorry
+      -- By cross_digit_count, countIn((P.left ∩ B₁) + (P.left ∩ B₂), 4^(3^k)) = countIn(P.left ∩
+      -- B₁, 4^(3^k)) * countIn(P.left ∩ B₂, 4^(3^k)).
+      have h_cross_digit_count :
+          countIn ((P.left ∩ digitSetB1) + (P.left ∩ digitSetB2)) (counterexN k) =
+            countIn (P.left ∩ digitSetB1) (counterexN k) *
+              countIn (P.left ∩ digitSetB2) (counterexN k) := by
+            simpa [counterexN] using cross_digit_count ( P.left ) ( P.left ) ( 3 ^ k )
+      exact h_cross_digit_count ▸
+        countIn_mono
+          (Set.add_subset_add Set.inter_subset_left Set.inter_subset_left)
+          (counterexN k)
+
 /-
 The algebraic bound: x*y + (1-x)*(1-y) ≤ 1 - x*y*(1-x)*(1-y).
 -/
@@ -1940,7 +2072,112 @@ lemma sumset_upper_bound (P : BiPartition counterexA) (k : ℕ) (hk : k ≥ 2) :
       2 * 3 ^ (3 ^ k) +
       2 * (k ^ 2 * counterexN (k - 1)) *
         (2 ^ (3 ^ k + 1) + k ^ 2 * counterexN (k - 1)) := by
-          sorry
+  set N := counterexN k;
+  set L := P.left ∩ (digitSetB1 ∪ digitSetB2) ∩ Set.Iio N
+  set L_I := P.left ∩ (counterexA \ (digitSetB1 ∪ digitSetB2)) ∩ Set.Iio N;
+  have h_sumset_bound :
+      countIn (P.left + P.left) N ≤
+        countIn (L + L) N + 2 * countIn L_I N * (countIn L N + countIn L_I N) := by
+    have h_sumset_bound :
+        (P.left + P.left) ∩ Set.Iio N ⊆
+          (L + L) ∪ (L + L_I) ∪ (L_I + L) ∪ (L_I + L_I) := by
+      intro x hx
+      obtain ⟨a, b, ha, hb, hab⟩ :
+          ∃ a b, a ∈ P.left ∧ b ∈ P.left ∧ a + b = x ∧ a < N ∧ b < N := by
+        rcases hx with ⟨⟨a, ha, b, hb, rfl⟩, hx⟩
+        exact
+          ⟨a, b, ha, hb, rfl,
+            by linarith [ Set.mem_Iio.mp hx ],
+            by linarith [ Set.mem_Iio.mp hx ]⟩
+      by_cases ha' : a ∈ digitSetB1 ∪ digitSetB2 <;>
+        by_cases hb' : b ∈ digitSetB1 ∪ digitSetB2 <;>
+        simp_all +decide [ Set.mem_add ];
+      · exact Or.inl <| Or.inl <| Or.inl
+          ⟨a, ⟨⟨ha, ha'⟩, hab.2.1⟩, b, ⟨⟨hb, hb'⟩, hab.2.2⟩, hab.1⟩
+      · exact Or.inl <| Or.inl <| Or.inr ⟨ a, ⟨ ⟨ ha, ha' ⟩, hab.2.1 ⟩, b, ⟨ ⟨ hb, by
+          exact ⟨ P.cover.subset ( Or.inl hb ), by aesop ⟩ ⟩, hab.2.2 ⟩, hab.1 ⟩;
+      · exact Or.inl <| Or.inr ⟨ a, ⟨ ⟨ ha, by
+          exact ⟨ P.cover.subset ( Or.inl ha ), by aesop ⟩ ⟩, hab.2.1 ⟩, b, ⟨ ⟨ hb, by
+          exact (Set.mem_union b digitSetB1 digitSetB2).mpr hb' ⟩, hab.2.2 ⟩, by linarith ⟩;
+      · exact Or.inr ⟨ a, ⟨ ⟨ ha, by
+          exact ⟨ P.cover.subset ( Or.inl ha ), by aesop ⟩ ⟩, hab.2.1 ⟩, b, ⟨ ⟨ hb, by
+          exact ⟨ P.cover.subset ( Or.inl hb ), by aesop ⟩ ⟩, hab.2.2 ⟩, hab.1 ⟩;
+    have h_sumset_bound :
+        countIn (P.left + P.left) N ≤
+          countIn (L + L) N + countIn (L + L_I) N +
+            countIn (L_I + L) N + countIn (L_I + L_I) N := by
+      have h_sumset_bound :
+          countIn ((P.left + P.left) ∩ Set.Iio N) N ≤
+            countIn (L + L) N + countIn (L + L_I) N +
+              countIn (L_I + L) N + countIn (L_I + L_I) N := by
+        have h_sumset_bound :
+            countIn ((P.left + P.left) ∩ Set.Iio N) N ≤
+              countIn ((L + L) ∪ (L + L_I) ∪ (L_I + L) ∪ (L_I + L_I)) N := by
+          exact countIn_mono h_sumset_bound N;
+        refine le_trans h_sumset_bound ?_;
+        unfold countIn;
+        simp +decide only [Finset.card_filter];
+        simpa only [ ← Finset.sum_add_distrib ] using Finset.sum_le_sum fun x hx => by aesop;
+      convert h_sumset_bound using 1;
+      exact congr_arg Finset.card ( by ext; aesop );
+    have h_sumset_bound :
+        countIn (L + L_I) N ≤ countIn L N * countIn L_I N ∧
+          countIn (L_I + L) N ≤ countIn L_I N * countIn L N ∧
+            countIn (L_I + L_I) N ≤ countIn L_I N * countIn L_I N := by
+      exact ⟨countIn_add_le_mul L L_I N,
+        countIn_add_le_mul L_I L N,
+        countIn_add_le_mul L_I L_I N⟩
+    lia;
+  -- The countIn of L + L is bounded by the sum of the counts of B₁+B₁, B₂+B₂, and the cross-digit
+  -- count.
+  have h_L_L_bound :
+      countIn (L + L) N ≤
+        3 ^ (3 ^ k) + 3 ^ (3 ^ k) +
+          countIn (P.left ∩ digitSetB1) N * countIn (P.left ∩ digitSetB2) N := by
+    have h_L_L_bound :
+        countIn (L + L) N ≤
+          countIn (digitSetB1 + digitSetB1) N +
+            countIn (digitSetB2 + digitSetB2) N +
+              countIn ((P.left ∩ digitSetB1) + (P.left ∩ digitSetB2)) N := by
+      have h_L_L_bound :
+          L + L ⊆
+            (digitSetB1 + digitSetB1) ∪ (digitSetB2 + digitSetB2) ∪
+              ((P.left ∩ digitSetB1) + (P.left ∩ digitSetB2)) := by
+        simp +decide [ Set.subset_def, Set.mem_add ];
+        grind;
+      refine le_trans ( countIn_mono h_L_L_bound N ) ?_;
+      simp +decide [ countIn ];
+      simp +decide only [Finset.card_filter];
+      simpa only [ ← Finset.sum_add_distrib ] using Finset.sum_le_sum fun x hx => by
+        split_ifs <;> simp_all +decide [ Set.union_assoc ]
+    refine le_trans h_L_L_bound ?_;
+    gcongr;
+    · simpa [N, counterexN] using digitSetB1_self_sum_count ( 3 ^ k )
+    · simpa [N, counterexN] using digitSetB2_self_sum_count ( 3 ^ k )
+    · exact le_of_eq
+        (by simpa [N, counterexN] using cross_digit_count ( P.left ) ( P.left ) ( 3 ^ k ))
+  -- The countIn of L is bounded by the sum of the counts of B₁ and B₂.
+  have h_L_bound : countIn L N ≤ 2 ^ (3 ^ k + 1) := by
+    have h_L_bound : countIn L N ≤ countIn (digitSetB1) N + countIn (digitSetB2) N := by
+      refine le_trans ?_
+        (Finset.card_union_le
+          {x ∈ Finset.range N | x ∈ digitSetB1}
+          {x ∈ Finset.range N | x ∈ digitSetB2});
+      refine Finset.card_mono ?_;
+      intro x hx; aesop;
+    have h_digitSetB1_count : countIn digitSetB1 N = 2 ^ (3 ^ k) := by
+      simpa [N, counterexN] using digitSetB1_countIn ( 3 ^ k )
+    have h_digitSetB2_count : countIn digitSetB2 N = 2 ^ (3 ^ k) := by
+      simpa [N, counterexN] using digitSetB2_countIn ( 3 ^ k )
+    rw [h_digitSetB1_count, h_digitSetB2_count] at h_L_bound
+    exact h_L_bound.trans (by ring_nf; norm_num);
+  -- The countIn of L_I is bounded by the count of interval elements.
+  have h_L_I_bound : countIn L_I N ≤ k ^ 2 * counterexN (k - 1) := by
+    refine le_trans ?_ ( interval_count_below_Nk k hk );
+    refine Finset.card_mono ?_;
+    intro x hx; aesop;
+  nlinarith [ Nat.zero_le ( countIn L_I N ) ]
+
 /-
 The cross-digit density converges to d along the base-4 scales
 -/
@@ -2044,7 +2281,93 @@ lemma prop_base4_scale (P : BiPartition counterexA)
     (hD₁ : HasNatDensity (P.left + P.left) d₁)
     (hD₂ : HasNatDensity (P.right + P.right) d₂) :
     d₁ + d₂ < 1 := by
-      sorry
+      -- By cross_digit_density_limit, we have that the limits of the densities exist and are
+      -- positive.
+      have h_lim_pos₁ :
+          Filter.Tendsto (fun k : ℕ =>
+            (countIn (P.left ∩ digitSetB1) (counterexN k) *
+              countIn (P.left ∩ digitSetB2) (counterexN k) : ℝ) / counterexN k)
+            Filter.atTop (nhds d₁) := by
+          convert cross_digit_density_limit P d₁ hd₁ hD₁ using 1
+      have h_lim_pos₂ :
+          Filter.Tendsto (fun k : ℕ =>
+            (countIn (P.right ∩ digitSetB1) (counterexN k) *
+              countIn (P.right ∩ digitSetB2) (counterexN k) : ℝ) / counterexN k)
+            Filter.atTop (nhds d₂) := by
+          simpa [BiPartition.swap] using cross_digit_density_limit ( P.swap ) d₂ hd₂ hD₂
+      -- By bipartition_B1_count and bipartition_B2_count, we have:
+      have h_bipartition :
+          ∀ k : ℕ,
+            countIn (P.right ∩ digitSetB1) (counterexN k) =
+              2 ^ (3 ^ k) - countIn (P.left ∩ digitSetB1) (counterexN k) ∧
+            countIn (P.right ∩ digitSetB2) (counterexN k) =
+              2 ^ (3 ^ k) - countIn (P.left ∩ digitSetB2) (counterexN k) := by
+        intro k
+        have h_bipartition_B1 :
+            countIn (P.left ∩ digitSetB1) (counterexN k) +
+              countIn (P.right ∩ digitSetB1) (counterexN k) = 2 ^ (3 ^ k) := by
+          simpa [counterexN] using bipartition_B1_count P ( 3 ^ k )
+        have h_bipartition_B2 :
+            countIn (P.left ∩ digitSetB2) (counterexN k) +
+              countIn (P.right ∩ digitSetB2) (counterexN k) = 2 ^ (3 ^ k) := by
+          simpa [counterexN] using bipartition_B2_count P ( 3 ^ k )
+        exact ⟨ eq_tsub_of_add_eq <| by linarith, eq_tsub_of_add_eq <| by linarith ⟩;
+      -- By definition of $p_k$ and $q_k$, we have $p_k = \frac{x_k}{2^{3^k}}$ and $q_k =
+      -- \frac{y_k}{2^{3^k}}$.
+      set p := fun k : ℕ => (countIn (P.left ∩ digitSetB1) (counterexN k) : ℝ) / 2 ^ (3 ^ k)
+      set q := fun k : ℕ => (countIn (P.left ∩ digitSetB2) (counterexN k) : ℝ) / 2 ^ (3 ^ k);
+      -- By definition of $p_k$ and $q_k$, we have $p_k q_k = \frac{x_k y_k}{4^{3^k}}$ and $(1 -
+      -- p_k)(1 - q_k) = \frac{(2^{3^k} - x_k)(2^{3^k} - y_k)}{4^{3^k}}$.
+      have h_pq :
+          Filter.Tendsto (fun k : ℕ => p k * q k) Filter.atTop (nhds d₁) ∧
+            Filter.Tendsto (fun k : ℕ => (1 - p k) * (1 - q k))
+              Filter.atTop (nhds d₂) := by
+        refine ⟨ h_lim_pos₁.congr fun k => ?_, h_lim_pos₂.congr fun k => ?_ ⟩;
+        · rw [ div_mul_div_comm, show
+              (counterexN k : ℝ) = 2 ^ 3 ^ k * 2 ^ 3 ^ k by
+            norm_cast
+            rw [ ← pow_add, show counterexN k = 4 ^ 3 ^ k by rfl ]
+            rw [ show (4 : ℕ) = 2 ^ 2 by norm_num, pow_right_comm ]
+            ring_nf ];
+        · rw [ h_bipartition k |>.1, h_bipartition k |>.2 ];
+          rw [ Nat.cast_sub, Nat.cast_sub ] <;> norm_num [ p, q, counterexN ];
+          · field_simp;
+            rw [ show (4 : ℝ) ^ 3 ^ k = (2 ^ 3 ^ k) ^ 2 by
+              norm_num [ sq, ← mul_pow ] ]
+            ring_nf;
+          · have := bipartition_B2_count P ( 3 ^ k );
+            linarith;
+          · have := bipartition_B1_count P ( 3 ^ k );
+            linarith;
+      -- By definition of $p_k$ and $q_k$, we have $0 \leq p_k \leq 1$ and $0 \leq q_k \leq 1$.
+      have h_bounds : ∀ k : ℕ, 0 ≤ p k ∧ p k ≤ 1 ∧ 0 ≤ q k ∧ q k ≤ 1 := by
+        intro k
+        refine
+          ⟨ div_nonneg (Nat.cast_nonneg _) (by positivity),
+            div_le_one_of_le₀ ?_ (by positivity),
+            div_nonneg (Nat.cast_nonneg _) (by positivity),
+            div_le_one_of_le₀ ?_ (by positivity) ⟩ <;>
+          norm_cast
+        · have := bipartition_B1_count P ( 3 ^ k ) ; norm_num [ counterexN ] at * ; omega;
+        · exact le_trans
+            (countIn_mono
+              (show P.left ∩ digitSetB2 ⊆ digitSetB2 from fun x hx => hx.2) _)
+            (by simpa [counterexN] using digitSetB2_countIn ( 3 ^ k ) |> le_of_eq)
+      have h_impossible :
+          ∀ k : ℕ,
+            p k * q k + (1 - p k) * (1 - q k) ≤
+              1 - p k * q k * ((1 - p k) * (1 - q k)) := by
+        exact fun k =>
+          density_algebraic_bound _ _
+            (h_bounds k |>.1) (h_bounds k |>.2.1)
+            (h_bounds k |>.2.2.1) (h_bounds k |>.2.2.2)
+      have h_impossible : d₁ + d₂ ≤ 1 - d₁ * d₂ := by
+        exact le_of_tendsto_of_tendsto'
+          (h_pq.1.add h_pq.2)
+          (tendsto_const_nhds.sub (h_pq.1.mul h_pq.2))
+          fun k => h_impossible k
+      nlinarith
+
 /-
 Proposition (interval scale): if both densities exist and are positive, then α₁ + α₂ ≥ 1.
     This uses Cauchy-Davenport on the intervals I_k.

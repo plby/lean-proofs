@@ -205,8 +205,6 @@ set_option linter.flexible false in
 lemma gap_lemma_lower (ε : ℝ) :
     ∃ N, ∀ x ≥ N, ∀ d, d ∣ n_val_Ioc x →
       d.primeFactors.card < y_val x ε → (d : ℝ) < x ^ (y_val x ε) := by
-  sorry
-/-
         -- Let $N$ be a number such that for all $x \geq N$, $x > 2$.
         obtain ⟨N, hN⟩ : ∃ N : ℝ, ∀ x ≥ N, x > 2 := by
           exact ⟨ 3, fun x hx => by linarith ⟩;
@@ -252,7 +250,9 @@ lemma gap_lemma_lower (ε : ℝ) :
             · linarith;
             · rw [ ← Real.log_lt_log_iff ( by positivity ) ( by linarith ), Real.log_pow ] ; aesop;
           obtain ⟨ N', hN' ⟩ := h_exp_bound; use Max.max N' 2; intro x hx hx'; specialize hN' x ( le_trans ( le_max_left _ _ ) hx ) hx'; rcases k : y_val x ε with ( _ | _ | k ) <;> simp_all +decide [mul_pow] ;
-          convert mul_lt_mul_of_pos_right hN' ( pow_pos ( by linarith : 0 < x ) ( ‹_› + 1 ) ) using 1 ; ring;
+          convert mul_lt_mul_of_pos_right hN' ( pow_pos ( by linarith : 0 < x ) ( ‹_› + 1 ) ) using 1
+          · rfl
+          · ring
         obtain ⟨ N', hN' ⟩ := h_exp_bound;
         use Max.max N N';
         intros x hx d hd hcard
@@ -260,7 +260,6 @@ lemma gap_lemma_lower (ε : ℝ) :
           exact pow_le_pow_right₀ ( by linarith [ hN x ( le_trans ( le_max_left _ _ ) hx ) ] ) ( Nat.le_pred_of_lt hcard );
         exact lt_of_le_of_lt ( h_divisor_bound x ( le_trans ( le_max_left _ _ ) hx ) d hd ) ( lt_of_le_of_lt h_exp ( hN' x ( le_trans ( le_max_right _ _ ) hx ) ( by linarith ) ) )
 
--/
 /-
 Gap Lemma Upper: For sufficiently large x, divisors with more than y factors are larger than (2x)^y.
 -/
@@ -623,8 +622,6 @@ Assuming PNT, for sufficiently large x, the number of divisors r is bounded belo
 -/
 lemma r_lower_bound (hPNT : PNT_statement) (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2) :
     ∃ N, ∀ x ≥ N, ((D_set_Ioc x ε).card : ℝ) > (x / (2 * (y_val x ε) * Real.log x)) ^ (y_val x ε) := by
-  sorry
-/-
       -- Applying the bounds from `card_D_set_Ioc_eq_choose` and `choose_ge_pow`, we get the desired inequality.
       obtain ⟨N₀, hN₀⟩ : ∃ N₀ : ℝ, ∀ x ≥ N₀, y_val x ε ≥ 1 := by
         exact y_val_pos ε hε2;
@@ -646,7 +643,7 @@ lemma r_lower_bound (hPNT : PNT_statement) (ε : ℝ) (hε : ε > 0) (hε2 : ε 
               suffices h_log : Filter.Tendsto (fun y : ℝ => y^2 / Real.exp y) Filter.atTop (nhds 0) by
                 have := h_log.comp Real.tendsto_log_atTop;
                 exact this.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx using by rw [ Function.comp_apply, Real.exp_log hx ] );
-              simpa [ Real.exp_neg ] using Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 2;
+              simpa [Real.exp_neg, div_eq_mul_inv] using Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 2;
             convert h_log_sq_over_x.const_mul ( ( 1 / 2 - ε ) * 2 ) |> Filter.Tendsto.div_atTop <| Real.tendsto_log_atTop.comp <| Real.tendsto_log_atTop using 2 ; ring_nf;
             rfl;
           have := h_growth.eventually ( gt_mem_nhds zero_lt_one );
@@ -669,24 +666,20 @@ lemma r_lower_bound (hPNT : PNT_statement) (ε : ℝ) (hε : ε > 0) (hε2 : ε 
       · linarith [ hN₀ x ( le_trans ( le_max_left _ _ ) hx ) ]
 
 
--/
 /-
 Assuming PNT, log(log(n_val_Ioc x)) / log x tends to 1 as x -> infinity.
 -/
 lemma log_log_n_sim_log_x (hPNT : PNT_statement) :
     Filter.Tendsto (fun x => Real.log (Real.log (n_val_Ioc x)) / Real.log x) Filter.atTop (nhds 1) := by
-  sorry
-/-
       -- From PNT, $\log n \sim x$.
       have h_log_n : Filter.Tendsto (fun x => Real.log (n_val_Ioc x) / x) Filter.atTop (nhds 1) := by
-        convert hPNT using 1;
+        simpa [PNT_statement] using hPNT
       -- So $\log \log n \sim \log x$.
       have h_log_log_n : Filter.Tendsto (fun x => Real.log (Real.log (n_val_Ioc x)) - Real.log x) Filter.atTop (nhds 0) := by
         have := h_log_n.log;
         simpa using this one_ne_zero |> Filter.Tendsto.congr' ( by filter_upwards [ h_log_n.eventually ( lt_mem_nhds one_pos ) ] with x hx using by rw [ Real.log_div ( by aesop ) ( by aesop ) ] );
       have := h_log_log_n.div_atTop ( Real.tendsto_log_atTop );
       simpa using this.add_const 1 |> Filter.Tendsto.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx using by rw [ sub_div, div_self <| ne_of_gt <| Real.log_pos hx ] ; ring )
--/
 
 /-
 The number of pairs satisfying P in a contiguous sublist s is at most the number of pairs in the full list.
@@ -1001,8 +994,6 @@ For sufficiently large x, bound(n, epsilon) < exp((1 / 2 - epsilon + delta) * (l
 -/
 lemma bound_asymptotic (hPNT : PNT_statement) (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2) (δ : ℝ) (hδ : δ > 0) :
     ∃ N, ∀ x ≥ N, bound (n_val_Ioc x) ε < Real.exp ((1 / 2 - ε + δ) * (Real.log x)^2 / Real.log (Real.log x)) := by
-  sorry
-/-
       -- By definition of $bound$, we know that for sufficiently large $x$, $(1 / 2 - ε) * (log (log n))^2 / log (log (log n)) < (1 / 2 - ε + δ) * (log x)^2 / log (log x)$.
       have h_bound_lt : Filter.Tendsto (fun x => ((1 / 2 - ε) * (Real.log (Real.log (n_val_Ioc x)))^2 / Real.log (Real.log (Real.log (n_val_Ioc x)))) / ((Real.log x)^2 / Real.log (Real.log x))) Filter.atTop (nhds ((1 / 2 - ε))) := by
         -- We'll use the fact that $\log \log n \sim \log x$ and $\log \log \log n \sim \log \log x$ as $x \to \infty$.
@@ -1010,7 +1001,10 @@ lemma bound_asymptotic (hPNT : PNT_statement) (ε : ℝ) (hε : ε > 0) (hε2 : 
           exact log_log_n_sim_log_x hPNT
         have h_log_log_log_n : Filter.Tendsto (fun x => Real.log (Real.log (Real.log (n_val_Ioc x))) / Real.log (Real.log x)) Filter.atTop (nhds 1) := by
           have h_log_log_log_n : Filter.Tendsto (fun x => Real.log (Real.log (Real.log (n_val_Ioc x)) / Real.log x) / Real.log (Real.log x)) Filter.atTop (nhds 0) := by
-            convert Filter.Tendsto.div_atTop ( Filter.Tendsto.log h_log_log_n _ ) ( Real.tendsto_log_atTop.comp ( Real.tendsto_log_atTop ) ) using 2 ; norm_num;
+            convert Filter.Tendsto.div_atTop
+              (Filter.Tendsto.log h_log_log_n (by norm_num : (1 : ℝ) ≠ 0))
+              (Real.tendsto_log_atTop.comp Real.tendsto_log_atTop) using 2
+            simp
           have h_log_log_log_n : Filter.Tendsto (fun x => (Real.log (Real.log (Real.log (n_val_Ioc x))) - Real.log (Real.log x)) / Real.log (Real.log x)) Filter.atTop (nhds 0) := by
             refine h_log_log_log_n.congr' ( by filter_upwards [ h_log_log_n.eventually ( lt_mem_nhds one_pos ) ] with x hx using by rw [ Real.log_div ( by aesop ) ( by aesop ) ] );
           have := h_log_log_log_n.const_add 1;
@@ -1023,10 +1017,9 @@ lemma bound_asymptotic (hPNT : PNT_statement) (ε : ℝ) (hε : ε > 0) (hε2 : 
       obtain ⟨N, hN⟩ : ∃ N, ∀ x ≥ N, ((1 / 2 - ε) * (Real.log (Real.log (n_val_Ioc x)))^2 / Real.log (Real.log (Real.log (n_val_Ioc x)))) / ((Real.log x)^2 / Real.log (Real.log x)) < (1 / 2 - ε) + δ := by
         exact Filter.eventually_atTop.mp ( h_bound_lt.eventually ( gt_mem_nhds <| by linarith ) );
       refine ⟨ Max.max N 4, fun x hx => Real.exp_lt_exp.mpr ?_ ⟩ ; specialize hN x ( le_trans ( le_max_left _ _ ) hx ) ; rw [ div_lt_iff₀ ] at hN <;> ring_nf at * <;> norm_num at *;
-	      · linarith;
-	      · exact mul_pos ( sq_pos_of_pos ( Real.log_pos ( by linarith ) ) ) ( inv_pos.mpr ( Real.log_pos ( show 1 < Real.log x from by rw [ Real.lt_log_iff_exp_lt ( by linarith ) ] ; exact Real.exp_one_lt_d9.trans_le ( by norm_num; linarith ) ) ) )
+      · linarith;
+      · exact mul_pos ( sq_pos_of_pos ( Real.log_pos ( by linarith ) ) ) ( inv_pos.mpr ( Real.log_pos ( show 1 < Real.log x from by rw [ Real.lt_log_iff_exp_lt ( by linarith ) ] ; exact Real.exp_one_lt_d9.trans_le ( by norm_num; linarith ) ) ) )
 
--/
 /-
 The ratio of the error term to the lower bound of r tends to 0.
 -/
@@ -1180,11 +1173,9 @@ The lower bound for r_val tends to infinity.
 -/
 lemma r_lower_bound_val_tendsto_atTop (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2) :
     Filter.Tendsto (fun x => r_lower_bound_val x ε) Filter.atTop Filter.atTop := by
-  sorry
-/-
       -- The logarithm of the lower bound is asymptotically $(1 / 2 - \epsilon) (\log x)^2 / \log \log x$.
       have h_log_lower_bound : Filter.Tendsto (fun x => Real.log (r_lower_bound_val x ε) / ((Real.log x)^2 / Real.log (Real.log x))) Filter.atTop (nhds (1 / 2 - ε)) := by
-        convert log_r_lower_bound_asymptotic ε hε hε2 using 1;
+        simpa [r_lower_bound_val] using log_r_lower_bound_asymptotic ε hε hε2
       -- Since $\frac{(\log x)^2}{\log \log x} \to \infty$, it follows that $\log(LB) \to \infty$.
       have h_log_tendsto_infty : Filter.Tendsto (fun x => Real.log x ^ 2 / Real.log (Real.log x)) Filter.atTop Filter.atTop := by
         -- Let $y = \log x$, therefore the expression becomes $\frac{y^2}{\log y}$.
@@ -1204,26 +1195,22 @@ lemma r_lower_bound_val_tendsto_atTop (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 /
         refine h_log_tendsto_infty.congr' ( by filter_upwards [ ‹Filter.Tendsto ( fun x : ℝ => Real.log x ^ 2 / Real.log ( Real.log x ) ) Filter.atTop Filter.atTop›.eventually_ne_atTop 0 ] with x hx using by rw [ mul_div_cancel₀ _ hx ] );
       have h_exp_log_tendsto_infty : Filter.Tendsto (fun x => Real.exp (Real.log (r_lower_bound_val x ε))) Filter.atTop Filter.atTop := by
         exact Real.tendsto_exp_atTop.comp h_log_tendsto_infty;
-	      refine h_exp_log_tendsto_infty.congr' ?_ ; filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx ; rw [ Real.exp_log ] ; norm_num [ r_lower_bound_val ] ; ring_nf ; (
-	      by_cases hy : y_val x ε = 0 <;> simp_all +decide [Real.log_pos hx] ; ring_nf ; norm_num [ hx, Real.log_pos hx ] ; positivity;);
+      refine h_exp_log_tendsto_infty.congr' ?_ ; filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx ; rw [ Real.exp_log ] ; norm_num [ r_lower_bound_val ] ; ring_nf ; (
+      by_cases hy : y_val x ε = 0 <;> simp_all +decide [Real.log_pos hx] ; ring_nf ; norm_num [ hx, Real.log_pos hx ] ; positivity;);
 
--/
 /-
 The error term is eventually less than 1/4 of the lower bound.
 -/
 lemma error_term_lt_quarter_lower_bound (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2) :
     ∃ N, ∀ x ≥ N, (2 * x) ^ (y_val x ε) / x < (r_lower_bound_val x ε) / 4 := by
-  sorry
-/-
       -- We'll use the fact that the ratio of the error term to the lower bound of r tends to 0.
       have h_ratio_zero : Filter.Tendsto (fun x => ((2 * x) ^ (y_val x ε) / x) / (r_lower_bound_val x ε)) Filter.atTop (nhds 0) := by
-        convert error_term_ratio_tendsto_zero ε hε hε2 using 1;
+        simpa [r_lower_bound_val] using error_term_ratio_tendsto_zero ε hε hε2
       have := h_ratio_zero.eventually ( gt_mem_nhds <| show 0 < 1 / 4 by norm_num );
-	      have h_pos : Filter.Tendsto (fun x => r_lower_bound_val x ε) Filter.atTop Filter.atTop := by
-	        exact r_lower_bound_val_tendsto_atTop ε hε hε2;
-	      exact Filter.eventually_atTop.mp ( this.and ( h_pos.eventually_gt_atTop 0 ) ) |> fun ⟨ N, hN ⟩ => ⟨ N, fun x hx => by have := hN x hx; rw [ div_lt_iff₀ ] at this <;> linarith ⟩
+      have h_pos : Filter.Tendsto (fun x => r_lower_bound_val x ε) Filter.atTop Filter.atTop := by
+        exact r_lower_bound_val_tendsto_atTop ε hε hε2;
+      exact Filter.eventually_atTop.mp ( this.and ( h_pos.eventually_gt_atTop 0 ) ) |> fun ⟨ N, hN ⟩ => ⟨ N, fun x hx => by have := hN x hx; rw [ div_lt_iff₀ ] at this <;> linarith ⟩
 
--/
 /-
 The lower bound is eventually greater than 4.
 -/
@@ -1252,14 +1239,12 @@ For sufficiently large x, |D_set| > exp((1 / 2 - epsilon - delta) * (log x)^2 / 
 -/
 lemma card_D_set_lower_bound_explicit (hPNT : PNT_statement) (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2) (δ : ℝ) (hδ : δ > 0) :
     ∃ N, ∀ x ≥ N, ((D_set_Ioc x ε).card : ℝ) > Real.exp ((1 / 2 - ε - δ) * (Real.log x)^2 / Real.log (Real.log x)) := by
-  sorry
-/-
       -- By the properties of logarithms and exponentials, if $\log(LB(x))$ tends to infinity, then $LB(x)$ itself tends to infinity.
       have h_exp_gt_one : Filter.Tendsto (fun x => (D_set_Ioc x ε).card / Real.exp ((1 / 2 - ε - δ) * (Real.log x)^2 / Real.log (Real.log x))) Filter.atTop Filter.atTop := by
         have h_exp_gt_one : Filter.Tendsto (fun x => (r_lower_bound_val x ε) / Real.exp ((1 / 2 - ε - δ) * (Real.log x)^2 / Real.log (Real.log x))) Filter.atTop Filter.atTop := by
           have h_exp_gt_one : Filter.Tendsto (fun x => Real.log (r_lower_bound_val x ε) - ((1 / 2 - ε - δ) * (Real.log x)^2 / Real.log (Real.log x))) Filter.atTop Filter.atTop := by
             have h_exp_gt_one : Filter.Tendsto (fun x => Real.log (r_lower_bound_val x ε) / ((Real.log x)^2 / Real.log (Real.log x))) Filter.atTop (nhds (1 / 2 - ε)) := by
-              convert log_r_lower_bound_asymptotic ε hε hε2 using 1;
+              simpa [r_lower_bound_val] using log_r_lower_bound_asymptotic ε hε hε2
             have h_exp_gt_one : Filter.Tendsto (fun x => ((Real.log (r_lower_bound_val x ε)) / ((Real.log x)^2 / Real.log (Real.log x)) - (1 / 2 - ε - δ)) * ((Real.log x)^2 / Real.log (Real.log x))) Filter.atTop Filter.atTop := by
               apply Filter.Tendsto.pos_mul_atTop;
               · exact show 0 < δ by linarith;
@@ -1277,10 +1262,9 @@ lemma card_D_set_lower_bound_explicit (hPNT : PNT_statement) (ε : ℝ) (hε : �
           refine h_exp_gt_one.congr' ?_;
           filter_upwards [ Filter.eventually_gt_atTop 1, r_lower_bound_val_tendsto_atTop ε hε hε2 |> Filter.Tendsto.eventually_gt_atTop <| 0 ] with x hx₁ hx₂ using by rw [ Real.exp_sub, Real.exp_log <| by positivity ] ;
         refine Filter.tendsto_atTop_mono' Filter.atTop ?_ h_exp_gt_one;
-	        filter_upwards [ Filter.eventually_ge_atTop ( Classical.choose ( r_lower_bound hPNT ε hε hε2 ) ) ] with x hx using div_le_div_of_nonneg_right ( mod_cast Classical.choose_spec ( r_lower_bound hPNT ε hε hε2 ) x hx |> le_of_lt ) ( Real.exp_nonneg _ );
-	      exact Filter.eventually_atTop.mp ( h_exp_gt_one.eventually_gt_atTop 1 ) |> fun ⟨ N, hN ⟩ => ⟨ N, fun x hx => by have := hN x hx; rw [ gt_iff_lt ] at *; rw [ lt_div_iff₀ ( Real.exp_pos _ ) ] at *; linarith ⟩
+        filter_upwards [ Filter.eventually_ge_atTop ( Classical.choose ( r_lower_bound hPNT ε hε hε2 ) ) ] with x hx using div_le_div_of_nonneg_right ( mod_cast Classical.choose_spec ( r_lower_bound hPNT ε hε hε2 ) x hx |> le_of_lt ) ( Real.exp_nonneg _ );
+      exact Filter.eventually_atTop.mp ( h_exp_gt_one.eventually_gt_atTop 1 ) |> fun ⟨ N, hN ⟩ => ⟨ N, fun x hx => by have := hN x hx; rw [ gt_iff_lt ] at *; rw [ lt_div_iff₀ ( Real.exp_pos _ ) ] at *; linarith ⟩
 
--/
 /-
 For sufficiently large x, tau_perp(n) > bound(n, epsilon).
 -/
@@ -1323,8 +1307,6 @@ There are infinitely many n for which tau_perp(n) > bound(n, epsilon).
 -/
 theorem main_theorem (hPNT : PNT_statement) :
     ∀ ε ∈ Set.Ioo 0 (1 / 2), ∀ N, ∃ n ≥ N, (tau_perp n : ℝ) > bound n ε := by
-  sorry
-/-
       intro ε hε N
       obtain ⟨N0, hN0⟩ := tau_perp_gt_bound hPNT ε hε.left hε.right
       obtain ⟨x, hx⟩ : ∃ x : ℝ, x ≥ N0 ∧ (Nat.floor x ≥ N) ∧ (n_val_Ioc x ≥ N) := by
@@ -1332,7 +1314,7 @@ theorem main_theorem (hPNT : PNT_statement) :
         have h_inf_primes : Filter.Tendsto (fun x : ℝ => n_val_Ioc x) Filter.atTop Filter.atTop := by
           have h_inf_primes : Filter.Tendsto (fun x : ℝ => Real.log (n_val_Ioc x)) Filter.atTop Filter.atTop := by
             have h_inf_primes : Filter.Tendsto (fun x : ℝ => Real.log (n_val_Ioc x) / x) Filter.atTop (nhds 1) := by
-              convert hPNT using 1
+              simpa [PNT_statement] using hPNT
             generalize_proofs at *; (
             have h_inf_primes : Filter.Tendsto (fun x : ℝ => Real.log (n_val_Ioc x) / x * x) Filter.atTop Filter.atTop := by
               apply Filter.Tendsto.pos_mul_atTop;
@@ -1347,7 +1329,6 @@ theorem main_theorem (hPNT : PNT_statement) :
       generalize_proofs at *;
       exact ⟨ _, hx.2.2, hN0 x hx.1 ⟩
 
--/
 #print axioms main_theorem
 -- 'Erdos1100b.main_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
 

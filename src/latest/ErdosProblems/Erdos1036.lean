@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
+/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 1036.
 https://www.erdosproblems.com/forum/thread/1036
@@ -131,7 +131,7 @@ partial def withGeneralizedProofs' {α : Type} [Inhabited α] (e : Expr) (ty? : 
   let propToFVar := (← get).propToFVar
   let (e, generalizations) ← MGen.runMAbs <| abstractProofs' e ty?
   let rec
-    go [Inhabited α] (i : Nat) (fvars pfs : Array Expr)
+    go (i : Nat) (fvars pfs : Array Expr)
         (proofToFVar propToFVar : ExprMap Expr) : MGen α := do
       if h : i < generalizations.size then
         let (ty, pf) := generalizations[i]
@@ -608,7 +608,45 @@ Ramsey property holds for the Erdos-Szekeres bound.
 -/
 theorem ramsey_upper_bound_prop (a b : ℕ) (ha : 2 ≤ a) (hb : 2 ≤ b) :
   Ramsey_prop a b (Nat.choose (a + b - 2) (a - 1)) := by
-    sorry
+    induction a using Nat.strong_induction_on generalizing b with
+    | h a ih_a =>
+    induction b using Nat.strong_induction_on with
+    | h b ih =>
+    rcases a with ( _ | _ | a ) <;> rcases b with ( _ | _ | b ) <;> simp_all +arith +decide;
+    -- By the induction hypothesis, we know that Ramsey_prop (a + 1) (b + 2) ((a + b + 1).choose
+    -- (a)) holds.
+    have h_ind_a : Ramsey_prop (a + 1) (b + 2) ((a + b + 1).choose (a)) := by
+      rcases a with ( _ | a ) <;> simp_all +arith +decide;
+      · intro G; simp +decide [ SimpleGraph.cliqueNum, SimpleGraph.indepNum ] ;
+        refine Or.inl ( le_csSup ?_ ?_ );
+        · exact ⟨ 1, by rintro n ⟨ s, hs ⟩ ; exact hs.card_eq ▸ Finset.card_le_univ _ ⟩;
+        · exact ⟨ { 0 }, by simp +decide [ SimpleGraph.isNClique_iff ] ⟩;
+      · convert
+          ‹∀ m ≤ a + 2, ∀ b : ℕ, 2 ≤ m → 2 ≤ b →
+            Ramsey_prop m b ((m + b - 2).choose (m - 1))›
+            (a + 2) (by linarith) (b + 2) (by linarith) (by linarith) using 1;
+        grind;
+    -- By the induction hypothesis, we know that Ramsey_prop (a + 2) (b + 1)
+    -- ((a + b + 1).choose (a + 1)) holds.
+    have h_ind_b : Ramsey_prop (a + 2) (b + 1) ((a + b + 1).choose (a + 1)) := by
+      by_cases hb : b + 1 ≥ 2;
+      · exact ih _ le_rfl hb;
+      · interval_cases _ : b + 1 <;> simp_all +decide;
+        intro G; simp +decide [ SimpleGraph.cliqueNum ] ;
+        refine Or.inr ?_;
+        refine le_csSup ?_ ?_ <;> norm_num;
+        · exact
+            ⟨ 1, by
+              rintro n ⟨ s, hs ⟩
+              exact hs.card_eq.symm ▸ Finset.card_le_univ _ ⟩
+        · exact ⟨ { 0 }, by simp +decide [ SimpleGraph.isNIndepSet_iff ] ⟩;
+    convert
+      ramsey_step (a + 2) (b + 2) (Nat.choose (a + b + 1) a)
+        (Nat.choose (a + b + 1) (a + 1)) (by linarith) (by linarith) h_ind_a h_ind_b
+      using 1
+    simpa [Nat.add_assoc, Nat.add_comm, Nat.add_left_comm] using
+      Nat.choose_succ_succ (a + b + 1) a
+
 /-
 Upper bound for binomial coefficient: binom(N, m) <= (eN/m)^m.
 -/
@@ -645,7 +683,53 @@ Corollary: R(km,m) <= (e(k+1))^m.
 -/
 theorem cor_ramsey_km (k m : ℕ) (hk : 1 ≤ k) (hm : 1 ≤ m) :
   (R (k * m) m : ℝ) ≤ (Real.exp 1 * (k + 1)) ^ m := by
-    sorry
+    -- First, use Lemma~\ref{lem:ES} to get an upper bound for $R(km, m)$ in terms of
+    -- binomial coefficients.
+    have h_ES : R (k * m) m ≤ Nat.choose (k * m + m - 2) (k * m - 1) := by
+      by_cases hkm : 2 ≤ k * m <;> by_cases hm₂ : 2 ≤ m <;> simp_all +decide [ R ];
+      · refine Nat.sInf_le ?_;
+        exact ramsey_upper_bound_prop _ _ hkm hm₂;
+      · interval_cases m ; simp_all +decide;
+        refine Nat.le_trans ( Nat.sInf_le (m := 1) ?_ ) ?_;
+        · intro G;
+          refine Or.inr ?_;
+          refine le_csSup ?_ ?_ <;> norm_num;
+          · exact
+              ⟨ 1, by
+                rintro n ⟨ s, hs ⟩
+                exact hs.card_eq ▸ Finset.card_le_univ _ ⟩
+          · exact ⟨ { 0 }, by simp +decide [ SimpleGraph.isNIndepSet_iff ] ⟩;
+        · norm_num;
+      · nlinarith;
+      · interval_cases m ; simp_all +decide;
+        interval_cases k ; simp_all +decide [ Ramsey_prop ];
+        refine Nat.sInf_le ?_;
+        intro G
+        exact Or.inl (by
+          exact
+            le_csSup
+              ⟨ 1, by
+                rintro x ⟨ s, hs ⟩
+                exact hs.card_eq ▸ Finset.card_le_univ _ ⟩
+              ⟨ { 0 }, by simp +decide ⟩)
+    have h_binom :
+        Nat.choose (k * m + m - 2) (k * m - 1) ≤
+          Nat.choose ((k + 1) * m) m := by
+      rcases m with ( _ | _ | m ) <;> simp_all +decide [ add_mul ];
+      rw [ Nat.choose_symm_of_eq_add ]
+      focus
+        simp +arith +decide
+      any_goals exact m + 1 + 1 - 1;
+      · simp +arith +decide [ Nat.choose_succ_succ ];
+      · grind;
+    refine le_trans ( Nat.cast_le.mpr ( h_ES.trans h_binom ) ) ?_;
+    convert lemma_binom ( ( k + 1 ) * m ) m hm using 1
+    · rfl
+    · norm_num [ mul_pow, mul_comm ]
+      rw [ mul_assoc, mul_div_cancel_left₀ _ ( by positivity ) ]
+      rw [ mul_pow, ← Real.exp_nat_mul ]
+      ring_nf
+
 /-
 dif(x,y) is the size of the symmetric difference of the neighborhoods of x and y.
 -/
@@ -860,7 +944,11 @@ Markov's inequality for cardinality of random set.
 theorem markov_inequality_card {V : Type*} [Fintype V]
     (p : ℝ) (k : ℝ) (hk : 0 < k) (hp : 0 ≤ p) (hp1 : p ≤ 1) :
   prob_event p {A : Finset V | k ≤ A.card} ≤ (p * Fintype.card V) / k := by
-    sorry
+    classical
+    rw [ le_div_iff₀' hk ]
+    rw [← expectation_card p]
+    exact sum_ge_k_le_expectation p k hp hp1
+
 /-
 The probability that there exists a pair (x,y) with large difference that is not distinguished by A
 is small.
@@ -972,7 +1060,60 @@ theorem lemma_prob_empty_small (γ : ℝ) (hγ : 0 < γ) :
     ∃ n₀, ∀ n ≥ n₀,
     let p := param_p γ n
     (1 - p) ^ n < 1 / 4 := by
-      sorry
+      -- Since $\gamma > 0$, $\gamma n / \log_2 n \to \infty$ as $n \to \infty$.
+      have h_gamma_n_log2_n_inf :
+          Filter.Tendsto (fun n : ℕ => γ * (n : ℝ) / Real.logb 2 n)
+            Filter.atTop Filter.atTop := by
+        -- We use that $\frac{n}{\log_2 n}$ grows to infinity as $n$ tends to infinity.
+        have h_log_growth :
+            Filter.Tendsto (fun n : ℕ => (n : ℝ) / Real.log n)
+              Filter.atTop Filter.atTop := by
+          -- We can use the change of variables $u = \log n$ to transform the limit expression.
+          suffices h_log :
+              Filter.Tendsto (fun u : ℝ => Real.exp u / u) Filter.atTop Filter.atTop by
+            have := h_log.comp Real.tendsto_log_atTop;
+            exact this.comp tendsto_natCast_atTop_atTop |>
+              Filter.Tendsto.congr' (by
+                filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx
+                simp +decide [ Real.exp_log (Nat.cast_pos.mpr hx) ]);
+          simpa using Real.tendsto_exp_div_pow_atTop 1;
+        convert h_log_growth.const_mul_atTop (show 0 < γ * Real.log 2 by positivity) using 2
+        norm_num [ Real.logb, mul_div_assoc ];
+        group;
+      -- Since $\gamma n / \log_2 n \to \infty$ as $n \to \infty$, we have $(1 - \gamma / \log_2
+      -- n)^n \to 0$ as $n \to \infty$.
+      have h_exp_zero :
+          Filter.Tendsto (fun n : ℕ => (1 - γ / Real.logb 2 n) ^ n)
+            Filter.atTop (nhds 0) := by
+        have h_exp_zero :
+            Filter.Tendsto (fun n : ℕ => Real.exp (-γ * (n : ℝ) / Real.logb 2 n))
+              Filter.atTop (nhds 0) := by
+          simpa [ neg_div ] using h_gamma_n_log2_n_inf;
+        refine squeeze_zero_norm' ?_ h_exp_zero;
+        -- Since $1 - \frac{\gamma}{\log_2 n}$ is positive for sufficiently large $n$, we can drop
+        -- the absolute value.
+        have h_pos : ∀ᶠ n in Filter.atTop, 0 < 1 - γ / Real.logb 2 n := by
+          have h_pos :
+              Filter.Tendsto (fun n : ℝ => γ / Real.logb 2 n) Filter.atTop (nhds 0) := by
+            exact tendsto_const_nhds.div_atTop ( Real.tendsto_logb_atTop ( by norm_num ) );
+          exact h_pos.eventually (gt_mem_nhds zero_lt_one) |> fun h =>
+            h.mono fun n hn => by
+              linarith;
+        filter_upwards [ h_pos.natCast_atTop ] with n hn using by
+          rw [ Real.norm_of_nonneg (pow_nonneg hn.le _) ]
+          exact
+            le_trans
+              (pow_le_pow_left₀ (by linarith)
+                (show
+                  (1 - γ / Real.logb 2 n) ≤ Real.exp (-γ / Real.logb 2 n) by
+                    exact le_trans (by ring_nf; norm_num) (Real.add_one_le_exp _))
+                _)
+              (by
+                rw [ ← Real.exp_nat_mul ]
+                ring_nf
+                norm_num)
+      simpa [param_p] using h_exp_zero.eventually ( gt_mem_nhds <| by norm_num )
+
 /-
 The probability of bad pairs is small for large n.
 -/
@@ -1015,7 +1156,61 @@ theorem lemma_prob_size_large {V : Type*} [Fintype V] (n : ℕ)
     let p := param_p γ n
     let k := 2 * γ * n / Real.logb 2 n
     prob_event p {A : Finset V | k < A.card} ≤ 1 / 2 := by
-      sorry
+      classical
+      have h_markov :
+          prob_event (γ / Real.logb 2 n)
+              {A : Finset V | (A.card : ℝ) > 2 * γ * n / Real.logb 2 n} ≤
+            (γ * n / Real.logb 2 n) / (2 * γ * n / Real.logb 2 n) := by
+        have := @markov_inequality_card V;
+        by_cases h : γ / Real.logb 2 n ≤ 1;
+        · refine le_trans
+            ( Finset.sum_le_sum_of_subset_of_nonneg
+              (t := Finset.univ.filter fun A : Finset V =>
+                ( A.card : ℝ ) ≥ 2 * γ * n / Real.logb 2 n) ?_ ?_ ) ?_;
+          · grind;
+          · exact fun _ _ _ =>
+              mul_nonneg
+                (pow_nonneg
+                  (div_nonneg hγ.le
+                    (Real.logb_nonneg (by norm_num) (by norm_cast; linarith))) _)
+                (pow_nonneg (sub_nonneg.2 h) _);
+          · have hkpos : 0 < 2 * γ * n / Real.logb 2 n := by
+              exact
+                div_pos
+                  (mul_pos (mul_pos zero_lt_two hγ)
+                    (Nat.cast_pos.mpr (zero_lt_two.trans_le hn_ge_2)))
+                  (Real.logb_pos (by norm_num) (by norm_cast))
+            have hpnonneg : 0 ≤ γ / Real.logb 2 n := by
+              exact div_nonneg hγ.le
+                (Real.logb_nonneg (by norm_num) (by norm_cast; linarith))
+            have hmark :=
+              this (γ / Real.logb 2 n) (2 * γ * n / Real.logb 2 n)
+                hkpos hpnonneg h
+            unfold prob_event at hmark
+            simpa [hn, div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm] using hmark
+        · refine le_trans ( Finset.sum_nonpos ?_ ) ?_;
+          · simp +zetaDelta at *;
+            intro A hA;
+            rw [ div_lt_iff₀ ( Real.logb_pos ( by norm_num ) ( by norm_cast ) ) ] at hA;
+            exact False.elim (hA.not_ge (by
+              rw [ lt_div_iff₀ (Real.logb_pos (by norm_num) (by norm_cast)) ] at h
+              nlinarith [show (A.card : ℝ) ≤ n by
+                exact_mod_cast hn ▸ Finset.card_le_univ A,
+                Real.logb_pos (by norm_num : (1 : ℝ) < 2)
+                  (by norm_cast : (1 : ℝ) < n)]))
+          · grind;
+      have hlog_ne : Real.logb 2 n ≠ 0 := by
+        exact ne_of_gt (Real.logb_pos (by norm_num) (by norm_cast))
+      have hn_ne : (n : ℝ) ≠ 0 := by positivity
+      have hγ_ne : γ ≠ 0 := by linarith
+      dsimp [param_p]
+      refine le_trans
+        (b := γ * n / Real.logb 2 n / (2 * γ * n / Real.logb 2 n)) ?_ ?_
+      · simpa [param_p, gt_iff_lt, mul_assoc, mul_comm, mul_left_comm] using h_markov
+      · field_simp [hγ_ne, hn_ne, hlog_ne]
+        ring_nf
+        norm_num
+
 /-
 Lemma 3: There exists a small set A distinguishing all pairs with large difference.
 -/
@@ -1255,7 +1450,17 @@ theorem lemma_A_iso_preserves_adj {V : Type*} [Fintype V] [DecidableEq V]
     (h_fix : ∀ (a : A), f ⟨a.1, S.property a.2⟩ = ⟨a.1, T.property a.2⟩)
     (v : S.val) :
     ∀ a : A, G.Adj a.1 v.val ↔ G.Adj a.1 (f v).val := by
-      sorry
+      intro a;
+      -- Since $f$ is an isomorphism, it preserves adjacency.
+      have h_adj : G.Adj (a : V) v ↔ G.Adj (a : V) (f v) := by
+        have h_adj_S : SimpleGraph.Adj (G.induce S.val) ⟨a, by
+          exact S.2 a.2⟩ v ↔ SimpleGraph.Adj (G.induce T.val) ⟨a, by
+          exact T.2 a.2⟩ (f v) := by
+          rw [ ← f.map_adj_iff ] ; aesop
+        simpa [SimpleGraph.induce_adj] using h_adj_S
+      generalize_proofs at *;
+      exact h_adj
+
 /-
 An A-isomorphism maps vertices not in A to vertices not in A.
 -/
@@ -1407,7 +1612,53 @@ theorem lemma_fiber_bound {V : Type*} [Fintype V] [DecidableEq V]
     (G : SimpleGraph V) (A : Finset V) (y : Quotient (induced_iso_setoid G)) :
     Fintype.card { x : Quotient (A_iso_setoid G A) // forget_label G A x = y } ≤
       (Fintype.card V) ^ A.card := by
-        sorry
+      have h_inj :
+          ∃ f : {x : Quotient (A_iso_setoid G A) | forget_label G A x = y} → (A → V),
+            Function.Injective f := by
+        -- For each $x$ in the fiber, let $S$ be a representative of $x$ (so $S$ is a subset
+        -- containing $A$).
+        have h_rep :
+            ∀ x : {x : Quotient (A_iso_setoid G A) | forget_label G A x = y},
+              ∃ S : SubsetsContaining A, x.val = Quotient.mk (A_iso_setoid G A) S := by
+          rintro ⟨ x, hx ⟩;
+          rcases x with ⟨ S ⟩ ; aesop;
+        choose f hf using h_rep;
+        -- For each $x$ in the fiber, let $\phi_x$ be an isomorphism from $G[f(x)]$ to $G[y.out]$.
+        have h_iso :
+            ∀ x : {x : Quotient (A_iso_setoid G A) | forget_label G A x = y},
+              ∃ ϕ : G.induce (f x).val ≃g G.induce y.out, True := by
+          intro x
+          have h_iso : induced_iso_rel G (f x).val y.out := by
+            have h_iso : induced_iso_rel G (f x).val y.out := by
+              have h_eq : Quotient.mk (induced_iso_setoid G) (f x).val = y := by
+                exact x.2.symm ▸ hf x ▸ rfl
+              exact Quotient.exact ( h_eq.trans ( Quotient.out_eq' _ ).symm );
+            exact h_iso;
+          exact ⟨ h_iso.some, trivial ⟩;
+        choose ϕ hϕ using h_iso;
+        refine
+          ⟨ fun x => fun a => (ϕ x) ⟨ a.1, (f x).2 a.2 ⟩ |>.1,
+            fun x y hxy => ?_ ⟩;
+        -- Since $\phi_x$ and $\phi_y$ are isomorphisms, we have $\phi_x(a) = \phi_y(a)$ for all $a
+        -- \in A$.
+        have h_iso_eq :
+            ∀ a : A, (ϕ x) ⟨a.1, (f x).2 a.2⟩ =
+              (ϕ y) ⟨a.1, (f y).2 a.2⟩ := by
+          exact fun a => Subtype.ext <| congr_fun hxy a;
+        -- Since $\phi_x$ and $\phi_y$ are isomorphisms, we have $f(x)$ and $f(y)$ are A-isomorphic.
+        have h_A_iso : A_iso G A (f x) (f y) := by
+          use (ϕ x).trans (RelIso.symm (ϕ y));
+          aesop;
+        have := hf x; have := hf y; simp_all +decide
+        exact Subtype.ext (by
+          rw [ ‹ ( x : Quotient ( A_iso_setoid G A ) ) = ⟦f x⟧ ›,
+            ‹ ( y : Quotient ( A_iso_setoid G A ) ) = ⟦f y⟧ › ]
+          exact Quotient.sound h_A_iso);
+      obtain ⟨ f, hf ⟩ := h_inj;
+      have hcard := Fintype.card_le_of_injective f hf
+      rw [Fintype.card_fun, Fintype.card_coe] at hcard
+      exact hcard
+
 /-
 The number of A-isomorphism types is at most I(G) * n^|A|.
 -/
@@ -1441,7 +1692,156 @@ The Caro-Wei bound: the independence number is at least the sum of 1/(d(v)+1).
 theorem lemma_caro_wei {V : Type*} [Fintype V]
     (G : SimpleGraph V) [DecidableRel G.Adj] :
     ∑ v, (1 : ℝ) / (G.degree v + 1) ≤ G.indepNum := by
-      sorry
+  classical
+  induction n : Fintype.card V using Nat.strong_induction_on generalizing V G with
+  | h n ih =>
+  by_cases hV : Nonempty V
+  · obtain ⟨v, hvmin_eq⟩ :=
+      @SimpleGraph.exists_minimal_degree_vertex V G inferInstance inferInstance hV
+    have hvmin : ∀ u : V, G.degree v ≤ G.degree u := by
+      intro u
+      rw [← hvmin_eq]
+      exact G.minDegree_le_degree u
+    let S : Finset V := insert v (G.neighborFinset v)
+    let W : Type _ := {x : V // x ∉ S}
+    let G' : SimpleGraph W := SimpleGraph.comap (fun x : W => x.val) G
+    have hS_card : S.card = G.degree v + 1 := by
+      simp [S]
+    have hW_lt : Fintype.card W < Fintype.card V := by
+      dsimp [W]
+      rw [Fintype.card_subtype]
+      exact Finset.card_lt_card (Finset.filter_ssubset.mpr ⟨v, by simp [S]⟩)
+    have h_ind :
+        (∑ u : W, (1 : ℝ) / (G'.degree u + 1)) ≤ (G'.indepNum : ℝ) :=
+      ih (Fintype.card W) (by rw [← n]; exact hW_lt) G' rfl
+    have hdeg_le : ∀ u : W, G'.degree u ≤ G.degree u.val := by
+      intro u
+      let emb : W ↪ V := ⟨Subtype.val, Subtype.val_injective⟩
+      change (G'.neighborFinset u).card ≤ (G.neighborFinset u.val).card
+      calc
+        (G'.neighborFinset u).card = ((G'.neighborFinset u).map emb).card := by
+          rw [Finset.card_map]
+        _ ≤ (G.neighborFinset u.val).card := by
+          refine Finset.card_le_card ?_
+          intro y hy
+          rw [Finset.mem_map] at hy
+          rcases hy with ⟨x, hx, rfl⟩
+          rw [SimpleGraph.mem_neighborFinset] at hx ⊢
+          simpa [G', emb] using hx
+    have hS_sum : ∑ u ∈ S, (1 : ℝ) / (G.degree u + 1) ≤ 1 := by
+      calc
+        ∑ u ∈ S, (1 : ℝ) / (G.degree u + 1)
+            ≤ ∑ u ∈ S, (1 : ℝ) / (G.degree v + 1) := by
+          refine Finset.sum_le_sum ?_
+          intro u _hu
+          have hle : ((G.degree v : ℝ) + 1) ≤ ((G.degree u : ℝ) + 1) := by
+            exact_mod_cast Nat.succ_le_succ (hvmin u)
+          exact one_div_le_one_div_of_le (by positivity) hle
+        _ = 1 := by
+          rw [Finset.sum_const, hS_card, nsmul_eq_mul]
+          have hpos : (0 : ℝ) < (G.degree v : ℝ) + 1 := by positivity
+          field_simp [Nat.cast_add, hpos.ne']
+          norm_num [Nat.cast_add]
+    have hout_eq :
+        (∑ u ∈ Finset.univ \ S, (1 : ℝ) / (G.degree u + 1))
+          = ∑ u : W, (1 : ℝ) / (G.degree u.val + 1) := by
+      have hfilter :
+          (Finset.univ \ S : Finset V) = Finset.univ.filter (fun x : V => x ∉ S) := by
+        ext x
+        simp
+      rw [hfilter]
+      symm
+      simpa [W] using
+        (Finset.sum_subtype_eq_sum_filter
+          (s := (Finset.univ : Finset V))
+          (p := fun x : V => x ∉ S)
+          (f := fun x : V => (1 : ℝ) / (G.degree x + 1)))
+    have hout_sum :
+        (∑ u ∈ Finset.univ \ S, (1 : ℝ) / (G.degree u + 1))
+          ≤ ∑ u : W, (1 : ℝ) / (G'.degree u + 1) := by
+      rw [hout_eq]
+      refine Finset.sum_le_sum ?_
+      intro u _hu
+      have hle : ((G'.degree u : ℝ) + 1) ≤ ((G.degree u.val : ℝ) + 1) := by
+        exact_mod_cast Nat.succ_le_succ (hdeg_le u)
+      exact one_div_le_one_div_of_le (by positivity) hle
+    have hsum_total :
+        (∑ u : V, (1 : ℝ) / (G.degree u + 1))
+          ≤ 1 + ∑ u : W, (1 : ℝ) / (G'.degree u + 1) := by
+      have hsplit :
+          (∑ u : V, (1 : ℝ) / (G.degree u + 1))
+            = ∑ u ∈ S, (1 : ℝ) / (G.degree u + 1)
+                + ∑ u ∈ Finset.univ \ S, (1 : ℝ) / (G.degree u + 1) := by
+        calc
+          (∑ u : V, (1 : ℝ) / (G.degree u + 1))
+              = ∑ u ∈ (Finset.univ : Finset V), (1 : ℝ) / (G.degree u + 1) := rfl
+          _ = ∑ u ∈ Finset.univ \ S, (1 : ℝ) / (G.degree u + 1)
+                + ∑ u ∈ S, (1 : ℝ) / (G.degree u + 1) := by
+            exact (Finset.sum_sdiff (s₁ := S) (s₂ := (Finset.univ : Finset V))
+              (f := fun u : V => (1 : ℝ) / (G.degree u + 1)) (Finset.subset_univ S)).symm
+          _ = ∑ u ∈ S, (1 : ℝ) / (G.degree u + 1)
+                + ∑ u ∈ Finset.univ \ S, (1 : ℝ) / (G.degree u + 1) := by
+            ring
+      rw [hsplit]
+      linarith [hS_sum, hout_sum]
+    have halpha_nat : 1 + G'.indepNum ≤ G.indepNum := by
+      obtain ⟨I', hI'⟩ := G'.exists_isNIndepSet_indepNum
+      let emb : W ↪ V := ⟨Subtype.val, Subtype.val_injective⟩
+      let I0 : Finset V := I'.map emb
+      let I : Finset V := insert v I0
+      have hv_not_I0 : v ∉ I0 := by
+        intro hvI0
+        rw [Finset.mem_map] at hvI0
+        rcases hvI0 with ⟨x, _hxI', hxv⟩
+        have hxval : x.val = v := by simpa [emb] using hxv
+        exact x.property (by simpa [S, hxval] using (show v ∈ S by simp [S]))
+      have hI_indep : G.IsIndepSet (I : Set V) := by
+        intro x hx y hy hxy
+        simp [I] at hx hy
+        rcases hx with rfl | hxI0
+        · rcases hy with rfl | hyI0
+          · exact (hxy rfl).elim
+          · intro hxy_adj
+            rw [Finset.mem_map] at hyI0
+            rcases hyI0 with ⟨y', _hyI', rfl⟩
+            exact y'.property (by
+              simp [S, SimpleGraph.mem_neighborFinset, Or.inr (by simpa [emb] using hxy_adj)])
+        · rcases hy with rfl | hyI0
+          · intro hxy_adj
+            rw [Finset.mem_map] at hxI0
+            rcases hxI0 with ⟨x', _hxI', rfl⟩
+            exact x'.property (by
+              simp [S, SimpleGraph.mem_neighborFinset,
+                Or.inr (by simpa [emb] using hxy_adj.symm)])
+          · intro hxy_adj
+            rw [Finset.mem_map] at hxI0 hyI0
+            rcases hxI0 with ⟨x', hxI', rfl⟩
+            rcases hyI0 with ⟨y', hyI', rfl⟩
+            have hxy' : x' ≠ y' := by
+              intro hxy_sub
+              exact hxy (by simpa [emb] using congrArg Subtype.val hxy_sub)
+            exact (hI'.isIndepSet hxI' hyI' hxy') (by simpa [G', emb] using hxy_adj)
+      have hI_card : I.card = 1 + G'.indepNum := by
+        rw [Finset.card_insert_of_notMem hv_not_I0]
+        rw [Finset.card_map, hI'.card_eq]
+        omega
+      have hle := hI_indep.card_le_indepNum (G := G)
+      rw [hI_card] at hle
+      exact hle
+    have halpha : 1 + (G'.indepNum : ℝ) ≤ (G.indepNum : ℝ) := by
+      exact_mod_cast halpha_nat
+    calc
+      (∑ u : V, (1 : ℝ) / (G.degree u + 1))
+          ≤ 1 + ∑ u : W, (1 : ℝ) / (G'.degree u + 1) := hsum_total
+      _ ≤ 1 + (G'.indepNum : ℝ) := by linarith
+      _ ≤ (G.indepNum : ℝ) := halpha
+  · have huniv : (Finset.univ : Finset V) = ∅ := by
+      apply Finset.eq_empty_iff_forall_notMem.mpr
+      intro v _hv
+      exact hV ⟨v⟩
+    rw [show (∑ v : V, (1 : ℝ) / (G.degree v + 1)) = 0 by simpa [huniv]]
+    exact Nat.cast_nonneg G.indepNum
+
 /-
 A graph with N vertices and at most Nd edges has an independent set of size at least N/(2d+1).
 -/
@@ -1659,7 +2059,61 @@ theorem lemma_bad_indices_bound {V : Type*} [Fintype V] [DecidableEq V]
     (h_rep : ∀ i, rep i ∈ B i)
     (h_dif : ∀ i, ∀ x ∈ B i, (dif_size G (rep i) x : ℝ) < T) :
     ∀ j, ((bad_indices G B rep j).card : ℝ) ≤ (m - 1) * T := by
-      sorry
+      intro j
+      set U := bad_indices G B rep j with hU_def
+      set S := Finset.biUnion (B j \ {rep j})
+        (fun x => DifFinset G (rep j) x) with hS_def;
+      -- Since $U$ is the set of indices $j'$ such that $B j'$ intersects $S$, and $B j'$ are
+      -- disjoint, each point in $S$ belongs to at most one $B j'$.
+      have h_card_U_le_card_S : (U.card : ℝ) ≤ S.card := by
+        have h_card_U_le_card_S : ∀ j' ∈ U, ∃ v ∈ S, v ∈ B j' := by
+          intro j' hj'
+          obtain ⟨x, hx_Bj, hx_dif⟩ :
+              ∃ x ∈ B j, ¬Disjoint (B j') (DifFinset G (rep j) x) := by
+            exact Finset.mem_filter.mp hj' |>.2 |> fun ⟨ h₁, x, hx₁, hx₂ ⟩ =>
+              ⟨ x, hx₁, hx₂ ⟩;
+          by_cases hx_rep : x = rep j;
+          · simp_all +decide [ Finset.disjoint_left, DifFinset ];
+            obtain ⟨ v, hv₁, hv₂ ⟩ := hx_dif; use v; simp_all +decide [ symmDiff ] ;
+          · exact Exists.elim (Finset.not_disjoint_iff.mp hx_dif) fun v hv =>
+              ⟨ v,
+                Finset.mem_biUnion.mpr
+                  ⟨ x, Finset.mem_sdiff.mpr ⟨ hx_Bj, by aesop ⟩, hv.2 ⟩,
+                hv.1 ⟩;
+        have h_card_U_le_card_S :
+            (U.card : ℝ) ≤ Finset.card (Finset.biUnion U (fun j' => B j' ∩ S)) := by
+          rw [ Finset.card_biUnion ];
+          · exact_mod_cast le_trans (by simp +decide)
+              (Finset.sum_le_sum fun i hi =>
+                Finset.card_pos.mpr <| by
+                  obtain ⟨ v, hv₁, hv₂ ⟩ := h_card_U_le_card_S i hi
+                  exact ⟨ v, Finset.mem_inter.mpr ⟨ hv₂, hv₁ ⟩ ⟩);
+          · exact fun i hi j hj hij =>
+              Finset.disjoint_left.mpr fun x hx₁ hx₂ =>
+                Finset.disjoint_left.mp (h_disjoint i j hij)
+                  (Finset.mem_of_mem_inter_left hx₁)
+                  (Finset.mem_of_mem_inter_left hx₂);
+        exact h_card_U_le_card_S.trans
+          (mod_cast Finset.card_le_card <|
+            Finset.biUnion_subset.mpr fun i hi => Finset.inter_subset_right);
+      -- Since $S$ is the union of sets each of size less than $T$, and there are $m-1$ such sets,
+      -- $S$'s size is less than $(m-1)*T$.
+      have h_card_S_le : S.card ≤ (B j \ {rep j}).card * (T : ℝ) := by
+        have h_card_S_le :
+            ∀ x ∈ B j \ {rep j}, (DifFinset G (rep j) x).card ≤ T := by
+          exact fun x hx => le_of_lt ( h_dif j x ( Finset.mem_sdiff.mp hx |>.1 ) );
+        exact le_trans (Nat.cast_le.mpr <| Finset.card_biUnion_le) <| by
+          simpa using Finset.sum_le_sum h_card_S_le;
+      simp_all +decide [ Finset.card_sdiff ];
+      cases m with
+      | zero =>
+          exfalso
+          have hBj : B j = ∅ := Finset.card_eq_zero.mp (h_size j)
+          simpa [hBj] using h_rep j
+      | succ m =>
+          simpa [Nat.cast_succ] using
+            h_card_S_le.trans' (Nat.cast_le.mpr h_card_U_le_card_S)
+
 /-
 The number of edges in the bad graph is at most N*d.
 -/
@@ -1864,7 +2318,125 @@ theorem all_blocks_props {V : Type*} [Fintype V] [DecidableEq V]
     (∀ b ∈ B, ∃ p, ∀ x ∈ b, pattern G A x = p) ∧
     ((B.length : ℝ) * m ≥
       (Fintype.card V : ℝ) - A.card - (patterns_set G A).card * (R m m)) := by
-        sorry
+      refine ⟨ ?_, ?_, ?_, ?_, ?_ ⟩;
+      · unfold all_blocks_list;
+        norm_num +zetaDelta at *;
+        intro b x hx hb;
+        have := greedy_blocks_props G ( vertices_with_pattern G A x ) m hm;
+        exact this.2.1 b hb;
+      · intro b hb
+        obtain ⟨p, hp⟩ :
+            ∃ p ∈ patterns_set G A,
+              b ∈ greedy_blocks G (vertices_with_pattern G A p) m := by
+          unfold all_blocks_list at hb; aesop;
+        have := greedy_blocks_props G ( vertices_with_pattern G A p ) m hm; aesop;
+      · -- By definition of `all_blocks_list`, the blocks within each pattern class are disjoint.
+        have h_disjoint_within_classes :
+            ∀ p ∈ patterns_set G A,
+              List.Pairwise Disjoint (greedy_blocks G (vertices_with_pattern G A p) m) := by
+          intro p hp
+          have := greedy_blocks_props G (vertices_with_pattern G A p) m hm
+          aesop;
+        -- By definition of `all_blocks_list`, blocks from different pattern classes are disjoint.
+        have h_disjoint_between_classes :
+            ∀ p q : A → Bool, p ≠ q →
+              ∀ b ∈ greedy_blocks G (vertices_with_pattern G A p) m,
+                ∀ c ∈ greedy_blocks G (vertices_with_pattern G A q) m, Disjoint b c := by
+          intro p q hpq b hb c hc
+          have h_disjoint_vertices :
+              Disjoint (vertices_with_pattern G A p) (vertices_with_pattern G A q) := by
+            exact Finset.disjoint_filter.mpr fun x _ hx hx' =>
+              hpq <| funext fun a => by aesop;
+          have h_disjoint_blocks :
+              b ⊆ vertices_with_pattern G A p ∧ c ⊆ vertices_with_pattern G A q := by
+            have hp_props := greedy_blocks_props G (vertices_with_pattern G A p) m hm
+            have hq_props := greedy_blocks_props G (vertices_with_pattern G A q) m hm
+            aesop;
+          exact Finset.disjoint_left.mpr fun x hx hx' =>
+            Finset.disjoint_left.mp h_disjoint_vertices
+              (h_disjoint_blocks.1 hx) (h_disjoint_blocks.2 hx');
+        -- By definition of `all_blocks_list`, the blocks are pairwise disjoint.
+        have h_disjoint_all :
+            ∀ {l : List (A → Bool)}, (∀ p ∈ l, p ∈ patterns_set G A) →
+              List.Pairwise (fun p q => p ≠ q) l →
+                List.Pairwise Disjoint
+                  (List.flatMap (fun p => greedy_blocks G (vertices_with_pattern G A p) m) l) := by
+          grind;
+        exact h_disjoint_all (fun p hp => by aesop)
+          ((Finset.nodup_toList _).pairwise_of_forall_ne
+            (by intro p _ q _ hpq; exact hpq));
+      · unfold all_blocks_list;
+        simp +zetaDelta at *;
+        intro b x hx hb;
+        -- By definition of `vertices_with_pattern`, all vertices in `b` have the same pattern `x`.
+        use x;
+        have := greedy_blocks_props G ( vertices_with_pattern G A x ) m hm;
+        exact fun y hy => Finset.mem_filter.mp ( this.1 b hb hy ) |>.2;
+      · -- Let's calculate the total number of vertices covered by the blocks.
+        have h_total_vertices :
+            ∑ p ∈ patterns_set G A,
+                (greedy_blocks G (vertices_with_pattern G A p) m).length * m ≥
+              (Fintype.card V : ℝ) - A.card - (patterns_set G A).card * (R m m : ℝ) := by
+          have h_total_vertices :
+              ∑ p ∈ patterns_set G A,
+                  (greedy_blocks G (vertices_with_pattern G A p) m).length * m ≥
+                ∑ p ∈ patterns_set G A, ((vertices_with_pattern G A p).card : ℝ) -
+                  (patterns_set G A).card * (R m m : ℝ) := by
+            have h_total_edges :
+                ∀ p ∈ patterns_set G A,
+                  (greedy_blocks G (vertices_with_pattern G A p) m).length * m ≥
+                    (vertices_with_pattern G A p).card - R m m := by
+              intro p hp
+              let GB := greedy_blocks G (vertices_with_pattern G A p) m
+              have h_block_prop :
+                  GB.length * m ≥
+                    (vertices_with_pattern G A p).card -
+                      (vertices_with_pattern G A p \
+                        GB.foldr (· ∪ ·) ∅).card := by
+                have h_block_prop :
+                    GB.length * m ≥
+                      (vertices_with_pattern G A p ∩ GB.foldr (· ∪ ·) ∅).card := by
+                  have h_block_prop :
+                      (vertices_with_pattern G A p ∩ GB.foldr (· ∪ ·) ∅).card ≤
+                        GB.length * m := by
+                    have h_block_prop :
+                        ∀ b ∈ GB, b.card = m := by
+                      exact fun b hb =>
+                        (greedy_blocks_props G (vertices_with_pattern G A p) m hm).2.1 b hb
+                    have h_block_prop :
+                        ∀ {l : List (Finset V)}, (∀ b ∈ l, b.card = m) →
+                          (vertices_with_pattern G A p ∩ l.foldr (· ∪ ·) ∅).card ≤
+                            l.length * m := by
+                      intros l hl
+                      induction l with
+                      | nil =>
+                        simp_all +decide
+                      | cons b l ih =>
+                        simp_all +decide
+                        rw [ Finset.inter_union_distrib_left ];
+                        exact le_trans (Finset.card_union_le _ _) (by
+                          linarith [show Finset.card (vertices_with_pattern G A p ∩ b) ≤ m by
+                            exact le_trans (Finset.card_le_card fun x hx => by aesop) hl.1.le]);
+                    exact h_block_prop ‹_›;
+                  exact h_block_prop;
+                grind;
+              refine Nat.le_trans ?_ h_block_prop;
+              have := greedy_blocks_props G ( vertices_with_pattern G A p ) m hm;
+              exact Nat.sub_le_sub_left this.2.2.2.2.le _;
+            simp +zetaDelta at *;
+            exact le_trans
+              (Finset.sum_le_sum fun p hp => Nat.cast_le.mpr (h_total_edges p hp))
+              (by simp +decide [ Finset.sum_add_distrib ]);
+          have h_total_vertices :
+              ∑ p ∈ patterns_set G A, (vertices_with_pattern G A p).card =
+                (Fintype.card V : ℝ) - A.card := by
+            convert congr_arg ( ( ↑ ) : ℕ → ℝ ) ( lemma_partition_sum G A ) using 1;
+            rw [ Nat.cast_sub ( Finset.card_le_univ _ ) ];
+          aesop;
+        convert h_total_vertices using 1;
+        unfold all_blocks_list
+        simp +decide [ Finset.sum_mul _ _ _ ];
+
 /- For any $c>0$, there exists an integer $k \ge 2$ such that
   $\frac{c+1}{k} \log_2(e(k+1)) < 1/4$. -/
 lemma existence_of_k (c : ℝ) :
@@ -1991,7 +2563,64 @@ lemma lemma_blocks_count {V : Type*} [Fintype V] [DecidableEq V]
     (hI : (I_num G : ℝ) < (2 : ℝ) ^ (ε * n))
     (n_large : 1 - (2 * γ / Real.logb 2 n) - m₂ * (ε + 2 * γ) ≥ 0.9) :
     ((all_blocks_list G A m).length : ℝ) * m ≥ 0.9 * n := by
-      sorry
+      -- By Lemma~\ref{lem:all_blocks_props}, we have the bound:
+      have h_length_bound :
+          (all_blocks_list G A m).length * m ≥
+            (n : ℝ) - A.card - m₂ * (patterns_set G A).card := by
+        have := all_blocks_props G A m hm
+        simp_all +decide
+        linarith;
+      -- By Lemma~\ref{lem:all_blocks_props}, we have the bound on the number of patterns:
+      have h_pattern_bound :
+          (patterns_set G A).card ≤ ε * n + A.card * Real.logb 2 n := by
+        -- From the problem statement, we know that $2^\ell \le I(G) n^{|A|} < 2^{\varepsilon n}
+        -- n^{|A|}$.
+        have h_card_bound :
+            (2 : ℝ) ^ (patterns_set G A).card ≤ (I_num G : ℝ) * (n : ℝ) ^ A.card := by
+          have h_card_bound :
+              (2 : ℝ) ^ (patterns_set G A).card ≤ (num_A_iso G A : ℝ) := by
+            simpa [patterns_set, num_patterns] using lemma_eqclasses_part1 G A
+          refine le_trans h_card_bound ?_;
+          simpa [hn] using lemma_eqclasses_part2 G A
+        -- Taking the logarithm base 2 of both sides of the inequality $2^\ell \le I(G) n^{|A|} <
+        -- 2^{\varepsilon n} n^{|A|}$, we get $\ell \le \varepsilon n + |A| \log_2 n$.
+        have h_log_bound :
+            (patterns_set G A).card ≤
+              Real.logb 2 ((2 : ℝ) ^ (ε * n) * (n : ℝ) ^ A.card) := by
+          rw [ Real.le_logb_iff_rpow_le ] <;> norm_cast at * <;> norm_num at *;
+          · exact le_trans (mod_cast h_card_bound)
+              (mul_le_mul_of_nonneg_right hI.le (by positivity));
+          · rcases n with ( _ | _ | n ) <;> norm_num at *;
+            · rw [ Fintype.card_eq_zero_iff ] at hn ; aesop;
+            · positivity;
+            · positivity;
+        rw [ Real.logb_mul ] at h_log_bound <;> norm_num at *;
+        · simpa [ Real.logb, mul_div_assoc ] using h_log_bound;
+        · positivity;
+        · aesop;
+      -- Substitute the bounds from hA and h_pattern_bound into h_length_bound.
+      have h_substitute :
+          (all_blocks_list G A m).length * m ≥
+            n - (2 * γ * n / Real.logb 2 n) -
+              m₂ * (ε * n + (2 * γ * n / Real.logb 2 n) * Real.logb 2 n) := by
+        have h_substitute :
+            (all_blocks_list G A m).length * m ≥
+              n - A.card - m₂ * (ε * n + A.card * Real.logb 2 n) := by
+          exact h_length_bound.trans'
+            (sub_le_sub_left
+              (mul_le_mul_of_nonneg_left h_pattern_bound <| Nat.cast_nonneg _) _);
+        refine le_trans ?_ h_substitute;
+        gcongr;
+        rcases n with ( _ | _ | n ) <;> norm_num at *;
+        exact Real.logb_nonneg ( by norm_num ) ( by linarith );
+      by_cases h : Real.logb 2 n = 0 <;> simp_all +decide [ division_def ];
+      · rcases h with ( h | rfl | rfl | h ) <;> norm_num at *;
+        · exact_mod_cast h_substitute;
+        · linarith;
+        · linarith;
+      · nlinarith [show (0 : ℝ) < n by
+          exact Nat.cast_pos.mpr (Nat.pos_of_ne_zero h.2.1)]
+
 /-
 For sufficiently large $n$, $s \le \frac{c+1}{m_1} \log_2 n$.
 -/
@@ -3079,7 +3708,61 @@ lemma shelah_n0_W_large (c : ℝ) (hc : c > 0) (n : ℕ) (hn : n ≥ shelah_n0 c
   let N_min := 0.9 * (n : ℝ) / (m1 : ℝ)
   let W_size := N_min / (2 * (((m1 : ℝ) - 1) * T) + 1)
   W_size / 2 ≥ (R r s : ℝ) := by
-    sorry
+    have := Classical.choose_spec
+      (lemma_W_large_enough c hc (shelah_k c)
+        (shelah_k_spec c |>.1)
+        (shelah_k_spec c |>.2)
+        (shelah_m1 c) rfl (shelah_gamma c) (by
+      unfold shelah_gamma shelah_epsilon shelah_m2
+      norm_num [ hc ]
+      ring_nf
+      have h_R_pos : ∀ k : ℕ, 2 ≤ k → 0 < R k k := by
+        intro k hk
+        have h_ramsey_exists : ∃ N : ℕ, Ramsey_prop k k N := by
+          exact ⟨ _, lemma_ramsey_prop_R k k hk hk ⟩
+        obtain ⟨N, hN⟩ := h_ramsey_exists
+        exact
+          lt_of_lt_of_le zero_lt_one
+            (le_csInf
+              (show { N : ℕ | Ramsey_prop k k N }.Nonempty from ⟨ N, hN ⟩)
+              fun n hn => by
+                rcases n with ( _ | _ | n ) <;>
+                  simp_all +arith +decide [ Ramsey_prop ];
+                specialize hn ⊥
+                simp_all +decide [
+                  SimpleGraph.cliqueNum,
+                  SimpleGraph.indepNum ]
+                rcases hn with ( hn | hn ) <;>
+                  [ exact
+                      absurd hn
+                        (not_le_of_gt
+                          (lt_of_le_of_lt
+                            (csSup_le ⟨ 0, by norm_num ⟩ fun n hn => hn.1)
+                            (by linarith)));
+                    exact
+                      absurd hn
+                        (not_le_of_gt
+                          (lt_of_le_of_lt
+                            (csSup_le ⟨ 0, by norm_num ⟩ fun n hn => by
+                              obtain ⟨ s, hs ⟩ := hn
+                              fin_cases s
+                              aesop)
+                            (by linarith))) ];
+                simp_all +decide [ SimpleGraph.isNIndepSet_iff ]
+                exact hn.not_gt <|
+                  lt_of_le_of_lt
+                    (csSup_le ⟨ 0, ⟨ ∅, by simp +decide ⟩ ⟩ fun n hn => by
+                      obtain ⟨ s, hs ⟩ := hn
+                      fin_cases s
+                      aesop)
+                    (by linarith));
+      exact h_R_pos _ ( shelah_k_spec c |>.1 ) ) ) n (by
+      exact
+        le_trans (Nat.le_ceil _)
+          (mod_cast hn.trans' (by unfold shelah_n0; aesop)))
+    generalize_proofs at *;
+    simpa [shelah_m1, shelah_r, shelah_s, param_T] using this
+
 /-
 If I(G) is small, then hom(G) is large.
 -/
@@ -3088,7 +3771,86 @@ lemma shelah_hom_lower_bound (c : ℝ) (hc : c > 0) (n : ℕ) (hn : n ≥ shelah
   (hV : Fintype.card V = n)
   (hI : (I_num G : ℝ) < (2 : ℝ) ^ (shelah_epsilon c * n)) :
   hom_num G ≥ shelah_r c n := by
-    sorry
+    classical
+    -- Let's choose the set A from the hypothesis Shellah_n0_distinguish.
+    obtain ⟨A, hA_nonempty, hA_card, hA_distinguish⟩ := shelah_n0_distinguish c hc n hn G hV;
+    -- Use `lemma_good_blocks_and_reps` to get $B$ and $rep$.
+    obtain ⟨N, B, rep, hB_disjoint, hB_size, hB_rep, hB_hom, hB_dif, hN⟩ :
+      ∃ (N : ℕ) (B : Fin N → Finset V) (rep : Fin N → V),
+      (∀ i j, i ≠ j → Disjoint (B i) (B j)) ∧
+      (∀ i, (B i).card = shelah_m1 c) ∧
+      (∀ i, rep i ∈ B i) ∧
+      (∀ i, G.IsNClique (shelah_m1 c) (B i) ∨ G.IsNIndepSet (shelah_m1 c) (B i)) ∧
+      (∀ i, ∀ x ∈ B i, (dif_size G (rep i) x : ℝ) < param_T (shelah_gamma c) n) ∧
+      ((N : ℝ) * shelah_m1 c ≥ 0.9 * n) := by
+        apply_rules [ lemma_good_blocks_and_reps ];
+        · exact shelah_k_spec c |>.1;
+        · simpa [shelah_gamma, shelah_epsilon, shelah_m2] using
+            shelah_n0_arithmetic_bound c hc n hn;
+    -- Use `lemma_uniform_subset_existence` to get $W$.
+    obtain ⟨W, hW_card, hW_uniform⟩ : ∃ W : Finset (Fin N),
+      (W.card : ℝ) ≥ (N : ℝ) / (2 * ((shelah_m1 c - 1) * param_T (shelah_gamma c) n) + 1) ∧
+      ∀ i ∈ W, ∀ j ∈ W, i ≠ j → ∀ x ∈ B i, ∀ y ∈ B j, G.Adj x y ↔ G.Adj (rep i) (rep j) := by
+        exact
+          lemma_uniform_subset_existence G B rep (shelah_m1 c) (param_T (shelah_gamma c) n)
+            hB_disjoint hB_size hB_rep hB_dif;
+    -- Use `shelah_n0_W_large` to show $|W| \ge 2 R(r, s)$.
+    have hW_large : (W.card : ℝ) ≥ 2 * R (shelah_r c n) (shelah_s c n) := by
+      have := shelah_n0_W_large c hc n hn;
+      refine le_trans ( mul_le_mul_of_nonneg_left this zero_le_two ) ?_;
+      refine le_trans ?_ hW_card;
+      rw [ mul_div_cancel₀ _ two_ne_zero ];
+      gcongr;
+      · exact
+          add_nonneg
+            (mul_nonneg zero_le_two
+              (mul_nonneg
+                (sub_nonneg.mpr
+                  (mod_cast Nat.one_le_iff_ne_zero.mpr (by
+                    exact ne_of_gt (shelah_k_spec c |>.1.trans_lt' (by decide)))))
+                (by
+                  exact
+                    mul_nonneg
+                      (div_nonneg (by norm_num)
+                        (by
+                          have hgamma_nonneg : 0 ≤ shelah_gamma c := by
+                            exact
+                              div_nonneg
+                                (by
+                                  exact
+                                    one_div_nonneg.mpr
+                                      (by
+                                        exact
+                                          mul_nonneg (by norm_num)
+                                            (by exact Nat.cast_nonneg _)))
+                                (by norm_num)
+                          linarith))
+                      (sq_nonneg _))))
+            zero_le_one;
+      · rw [ div_le_iff₀ ] <;> nlinarith [
+          show ( shelah_m1 c : ℝ ) ≥ 2 by
+            exact_mod_cast shelah_k_spec c |>.1 ];
+    -- Use `lemma_rs_properties` to show $r \le m1 * s$ and $s \ge 2$ and $r \ge 2$.
+    have h_rs_properties :
+      2 ≤ shelah_r c n ∧ 2 ≤ shelah_s c n ∧
+        (shelah_r c n : ℝ) ≤ (shelah_m1 c : ℝ) * shelah_s c n ∧
+          (shelah_r c n : ℝ) > c * Real.logb 2 n := by
+      have := Classical.choose_spec ( lemma_rs_properties c hc ( shelah_m1 c ) ( by
+        exact Nat.succ_le_of_lt ( shelah_k_spec c |>.1.trans_lt' ( by norm_num ) ) ) ) n ( by
+        exact
+          le_trans ( Nat.le_ceil _ )
+            ( Nat.cast_le.mpr
+              ( le_trans ( le_max_right _ _ )
+                ( le_trans ( le_max_right _ _ ) hn ) ) ) );
+      exact this;
+    apply lemma_hom_from_uniform_W G B rep (shelah_m1 c)
+      hB_disjoint hB_size hB_rep hB_hom W hW_uniform
+      (shelah_r c n) (shelah_s c n) (by
+    exact_mod_cast h_rs_properties.2.2.1) (by
+    exact h_rs_properties.2.1) (by
+    exact h_rs_properties.1) (by
+    exact hW_large)
+
 /-
 shelah_epsilon is positive.
 -/

@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
+/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
 /-
 
 This is a Lean formalization of a solution to MathOverflow question
@@ -37,6 +37,11 @@ namespace MO509493
 open Matrix Finset BigOperators
 
 /-! ## Definitions -/
+
+lemma star_eq_transpose_real {n : Type*}
+    (A : Matrix n n ℝ) : star A = Aᵀ := by
+  ext i j
+  simp [star_apply, star_trivial]
 
 /-- An orthogonal projection matrix: a real matrix satisfying P² = P = Pᵀ. -/
 def IsOrthProj {n : Type*} [Fintype n] [DecidableEq n] (P : Matrix n n ℝ) : Prop :=
@@ -95,7 +100,123 @@ set_option maxHeartbeats 800000 in
 theorem orthProj_equiv_iff_rank {n : Type*} [Fintype n] [DecidableEq n]
     (P₁ P₂ : Matrix n n ℝ) (h₁ : IsOrthProj P₁) (h₂ : IsOrthProj P₂) :
     P₁.rank = P₂.rank ↔ IsOrthEquiv P₁ P₂ := by
-      sorry
+  unfold IsOrthEquiv
+  constructor;
+  · -- If $P_1$ and $P_2$ are orthogonal projections with the same rank, then they are similar.
+    intro h_rank
+    have h_similar : ∃ Q : Matrix n n ℝ, Q * Qᵀ = 1 ∧ Qᵀ * Q = 1 ∧ P₂ = Q * P₁ * Qᵀ := by
+      have h_unitary : ∃ R : Matrix n n ℝ, R * Rᵀ = 1 ∧ Rᵀ * R = 1 ∧ P₂ = R * P₁ * Rᵀ := by
+        -- Since $P_1$ and $P_2$ are orthogonal projections, they are diagonalizable with eigenvalues $0$ or $1$.
+        have h_diag : ∀ (P : Matrix n n ℝ), IsOrthProj P → ∃ D : Matrix n n ℝ, D * Dᵀ = 1 ∧ Dᵀ * D = 1 ∧ ∃ (d : n → ℝ), (∀ i, d i = 0 ∨ d i = 1) ∧ P = D * Matrix.diagonal d * Dᵀ := by
+          intro P hP;
+          -- Since $P$ is a real symmetric matrix, it is diagonalizable.
+          have h_diag : ∃ D : Matrix n n ℝ, D * Dᵀ = 1 ∧ Dᵀ * D = 1 ∧ ∃ (d : n → ℝ), P = D * Matrix.diagonal d * Dᵀ := by
+            have h_diag : Matrix.IsHermitian P := by
+              exact hP.2;
+            have := h_diag.spectral_theorem;
+            refine ⟨ h_diag.eigenvectorUnitary, ?_, ?_,
+              RCLike.ofReal ∘ h_diag.eigenvalues, this ⟩;
+            · simpa [star_eq_transpose_real] using h_diag.eigenvectorUnitary.2.2
+            · simpa [star_eq_transpose_real, mul_eq_one_comm] using h_diag.eigenvectorUnitary.2.2
+          obtain ⟨ D, hD₁, hD₂, d, rfl ⟩ := h_diag;
+          refine ⟨ D, hD₁, hD₂, d, ?_, rfl ⟩;
+          intro i
+          have h_diag_eq : (D * Matrix.diagonal d * Dᵀ) * (D * Matrix.diagonal d * Dᵀ) = D * Matrix.diagonal d * Dᵀ := by
+            exact hP.1;
+          replace h_diag_eq := congr_arg ( fun m => Dᵀ * m * D ) h_diag_eq ; simp_all +decide [ Matrix.mul_assoc ];
+          simp_all +decide [ ← Matrix.mul_assoc ];
+          exact or_iff_not_imp_left.mpr fun hi => mul_left_cancel₀ hi <| by linarith [ h_diag_eq i ] ;
+        obtain ⟨ D₁, hD₁₁, hD₁₂, d₁, hd₁, rfl ⟩ := h_diag P₁ h₁
+        obtain ⟨ D₂, hD₂₁, hD₂₂, d₂, hd₂, rfl ⟩ := h_diag P₂ h₂
+        have h_eigenvalues : (∑ i, if d₁ i = 1 then 1 else 0) = (∑ i, if d₂ i = 1 then 1 else 0) := by
+          have h_eigenvalues : Matrix.rank (D₁ * Matrix.diagonal d₁ * D₁ᵀ) = ∑ i, if d₁ i = 1 then 1 else 0 := by
+            have h_eigenvalues : Matrix.rank (D₁ * Matrix.diagonal d₁ * D₁ᵀ) = Matrix.rank (Matrix.diagonal d₁) := by
+              have h_eigenvalues : Matrix.rank (D₁ * Matrix.diagonal d₁ * D₁ᵀ) = Matrix.rank (Matrix.diagonal d₁ * D₁ᵀ) := by
+                have h_eigenvalues : ∀ (A : Matrix n n ℝ), Matrix.rank (D₁ * A) = Matrix.rank A := by
+                  intro A
+                  have h_eigenvalues : Matrix.rank (D₁ * A) ≤ Matrix.rank A := by
+                    exact Matrix.rank_mul_le_right _ _
+                  have h_eigenvalues' : Matrix.rank A ≤ Matrix.rank (D₁ * A) := by
+                    have := Matrix.rank_mul_le ( D₁ᵀ ) ( D₁ * A ) ; simp_all +decide [ ← Matrix.mul_assoc ] ;
+                  exact le_antisymm h_eigenvalues h_eigenvalues'
+                generalize_proofs at *; (
+                rw [ Matrix.mul_assoc, h_eigenvalues ]);
+              rw [ h_eigenvalues ];
+              refine le_antisymm ?_ ?_;
+              · exact Matrix.rank_mul_le_left _ _ |> le_trans <| by simp +decide
+              · have := Matrix.rank_mul_le ( diagonal d₁ * D₁ᵀ ) D₁; simp_all +decide [ Matrix.mul_assoc ] ;
+            rw [ h_eigenvalues, Matrix.rank_diagonal ];
+            simp +decide [ Fintype.card_subtype ];
+            exact congr_arg Finset.card ( Finset.ext fun x => by cases hd₁ x <;> simp +decide [ * ] )
+          have h_eigenvalues' : Matrix.rank (D₂ * Matrix.diagonal d₂ * D₂ᵀ) = ∑ i, if d₂ i = 1 then 1 else 0 := by
+            have h_eigenvalues' : Matrix.rank (D₂ * Matrix.diagonal d₂ * D₂ᵀ) = Matrix.rank (Matrix.diagonal d₂) := by
+              have h_eigenvalues' : Matrix.rank (D₂ * Matrix.diagonal d₂ * D₂ᵀ) = Matrix.rank (Matrix.diagonal d₂ * D₂ᵀ) := by
+                rw [ Matrix.mul_assoc ];
+                refine le_antisymm ?_ ?_ <;> simp_all +decide [ Matrix.rank_mul_le_right ];
+                have := Matrix.rank_mul_le ( D₂ᵀ ) ( D₂ * ( diagonal d₂ * D₂ᵀ ) ) ; simp_all +decide [ Matrix.mul_assoc ] ;
+                grind +splitImp;
+              have := Matrix.rank_mul_le ( diagonal d₂ * D₂ᵀ ) D₂; simp_all +decide [ Matrix.mul_assoc ] ;
+              exact le_antisymm ( Matrix.rank_mul_le_left _ _ ) this.1;
+            simp_all +decide [ Matrix.rank_diagonal ];
+            rw [ Fintype.card_subtype ];
+            rw [ tsub_eq_of_eq_add_rev ] ; rw [ ← Finset.card_union_of_disjoint ( Finset.disjoint_filter.mpr fun _ _ _ => by aesop ) ] ; rw [ Finset.filter_union_right ] ; aesop;
+          aesop
+        have h_perm : ∃ σ : n ≃ n, ∀ i, d₂ (σ i) = d₁ i := by
+          -- Since $d₁$ and $d₂$ are both diagonal matrices with entries $0$ or $1$, and their sums are equal, there must be a bijection between the indices where $d₁$ is $1$ and the indices where $d₂$ is $1$.
+          have h_bij : ∃ σ : {i | d₁ i = 1} ≃ {i | d₂ i = 1}, True := by
+            simp_all +decide
+            exact ⟨ Fintype.equivOfCardEq <| by simpa [ Fintype.card_subtype ] using h_eigenvalues ⟩;
+          obtain ⟨σ, hσ⟩ := h_bij
+          have h_bij_compl : ∃ τ : {i | d₁ i = 0} ≃ {i | d₂ i = 0}, True := by
+            have h_bij_compl : Finset.card (Finset.filter (fun i => d₁ i = 0) Finset.univ) = Finset.card (Finset.filter (fun i => d₂ i = 0) Finset.univ) := by
+              have h_compl : Finset.card (Finset.filter (fun i => d₁ i = 0) Finset.univ) = Finset.card (Finset.univ : Finset n) - Finset.card (Finset.filter (fun i => d₁ i = 1) Finset.univ) ∧ Finset.card (Finset.filter (fun i => d₂ i = 0) Finset.univ) = Finset.card (Finset.univ : Finset n) - Finset.card (Finset.filter (fun i => d₂ i = 1) Finset.univ) := by
+                exact ⟨ eq_tsub_of_add_eq <| by rw [ ← Finset.card_union_of_disjoint ( Finset.disjoint_filter.mpr fun _ _ _ => by aesop ) ] ; congr ; ext i ; cases hd₁ i <;> aesop, eq_tsub_of_add_eq <| by rw [ ← Finset.card_union_of_disjoint ( Finset.disjoint_filter.mpr fun _ _ _ => by aesop ) ] ; congr ; ext i ; cases hd₂ i <;> aesop ⟩;
+              aesop;
+            exact ⟨ Fintype.equivOfCardEq ( by simpa [ Fintype.card_subtype ] using h_bij_compl ), trivial ⟩
+          obtain ⟨τ, hτ⟩ := h_bij_compl
+          use Equiv.ofBijective (fun i => if hi : d₁ i = 1 then σ ⟨i, hi⟩ else τ ⟨i, by
+            exact Or.resolve_right ( hd₁ i ) hi⟩) (by
+          constructor;
+          · intro i j hij; cases hd₁ i <;> cases hd₁ j <;> simp_all +decide ;
+            · exact congr_arg Subtype.val ( τ.injective ( Subtype.ext hij ) );
+            · grind;
+            · grind +ring;
+            · simpa [ Subtype.ext_iff ] using σ.injective ( Subtype.ext hij );
+          · intro i
+            by_cases hi : d₂ i = 1
+            all_goals generalize_proofs at *;
+            · obtain ⟨ j, hj ⟩ := σ.surjective ⟨ i, hi ⟩;
+              grind;
+            · use τ.symm ⟨i, by
+                exact Or.resolve_right ( hd₂ i ) hi⟩
+              generalize_proofs at *;
+              grind +splitImp);
+          grind
+        obtain ⟨ σ, hσ ⟩ := h_perm
+        use D₂ * (Matrix.of (fun i j => if σ j = i then 1 else 0)) * D₁ᵀ
+        simp_all +decide [ Matrix.mul_assoc, mul_eq_one_comm ];
+        simp_all +decide [ ← Matrix.mul_assoc, mul_eq_one_comm.mp hD₁₁, mul_eq_one_comm.mp hD₂₁ ];
+        refine ⟨ ?_, ?_, ?_ ⟩;
+        · convert hD₂₁ using 1;
+          ext i j; simp +decide [ Matrix.mul_apply, Matrix.transpose_apply ] ;
+          rw [ ← Equiv.sum_comp σ ] ; simp +decide ;
+          conv_rhs => rw [ ← Equiv.sum_comp σ ] ;
+        · simp_all +decide [ ← Matrix.ext_iff ];
+          simp_all +decide [ Matrix.mul_apply, Matrix.one_apply ];
+        · ext i j; simp +decide [ Matrix.mul_apply ] ; ring_nf;
+          simp +decide [ Matrix.diagonal, Finset.sum_ite ];
+          simp +decide [ ← hσ, Finset.sum_filter ];
+          exact Finset.sum_congr rfl fun x _ => by rw [ Finset.sum_eq_single ( σ.symm x ) ] <;> aesop;
+      exact h_unitary;
+    exact h_similar;
+  · rintro ⟨ Q, hQ₁, hQ₂, rfl ⟩;
+    simp +decide [ Matrix.mul_assoc ];
+    refine le_antisymm ?_ ?_;
+    · have := Matrix.rank_mul_le ( Qᵀ ) ( Q * ( P₁ * Qᵀ ) ) ; simp_all +decide [ ← mul_assoc ] ;
+      have := Matrix.rank_mul_le ( P₁ * Qᵀ ) Q; simp_all +decide
+      grind +extAll;
+    · exact Matrix.rank_mul_le_right _ _ |> le_trans <| Matrix.rank_mul_le_left _ _
+
 set_option maxHeartbeats 800000 in
 -- The unitary-equivalence variant reuses the rank-equivalence spectral argument.
 /-- Two orthogonal projections are unitarily equivalent if and only if they have
@@ -207,7 +328,32 @@ Use the spectral theorem for the 2×2 symmetric matrix: A = Q diag(λ₁, λ₂)
 lemma trace_pow_nonneg_of_isSymm_nonneg_trace_2x2
     (A : Matrix (Fin 2) (Fin 2) ℝ) (hA : A.IsSymm) (htr : 0 ≤ A.trace)
     (m : ℕ) : 0 ≤ (A ^ m).trace := by
-      sorry
+  -- By the spectral theorem, since A is symmetric, there exists an orthogonal matrix Q such that QᵀAQ is diagonal with eigenvalues λ₁ and λ₂.
+  obtain ⟨Q, hQ⟩ : ∃ Q : Matrix (Fin 2) (Fin 2) ℝ, Q.transpose * Q = 1 ∧ Q * Q.transpose = 1 ∧ ∃ (eigenvalues : Fin 2 → ℝ), A = Q * Matrix.diagonal eigenvalues * Q.transpose := by
+    have := Matrix.IsHermitian.spectral_theorem hA;
+    refine ⟨ IsHermitian.eigenvectorUnitary hA, ?_, ?_,
+      RCLike.ofReal ∘ IsHermitian.eigenvalues hA, this ⟩;
+    · simpa [star_eq_transpose_real, mul_eq_one_comm] using (IsHermitian.eigenvectorUnitary hA).2.2
+    · simpa [star_eq_transpose_real] using (IsHermitian.eigenvectorUnitary hA).2.2
+  rcases hQ with ⟨ hQ₁, hQ₂, eigenvalues, rfl ⟩;
+  -- Since eigenvalues are real, we have eigenvalues 0 + eigenvalues 1 ≥ 0.
+  have h_eigenvalues_nonneg : eigenvalues 0 + eigenvalues 1 ≥ 0 := by
+    simp_all +decide [ Matrix.trace_mul_comm, Matrix.mul_assoc ];
+  -- Since eigenvalues are real, we have eigenvalues 0 ^ m + eigenvalues 1 ^ m ≥ 0.
+  have h_eigenvalues_pow_nonneg : eigenvalues 0 ^ m + eigenvalues 1 ^ m ≥ 0 := by
+    rcases Nat.even_or_odd' m with ⟨ k, rfl | rfl ⟩ <;> norm_num [ pow_add, pow_mul ] at *;
+    · positivity;
+    · by_cases h₂ : eigenvalues 0 ≥ 0 <;> by_cases h₃ : eigenvalues 1 ≥ 0 <;> simp_all +decide
+      · positivity;
+      · nlinarith [ pow_le_pow_left₀ ( by positivity ) ( by nlinarith : eigenvalues 0 ^ 2 ≥ eigenvalues 1 ^ 2 ) k, pow_nonneg ( sq_nonneg ( eigenvalues 0 ) ) k, pow_nonneg ( sq_nonneg ( eigenvalues 1 ) ) k ];
+      · nlinarith [ pow_le_pow_left₀ ( by nlinarith ) ( by nlinarith : eigenvalues 0 ^ 2 ≤ eigenvalues 1 ^ 2 ) k, pow_nonneg ( sq_nonneg ( eigenvalues 0 ) ) k, pow_nonneg ( sq_nonneg ( eigenvalues 1 ) ) k ];
+      · linarith;
+  -- Since $Q$ is orthogonal, we have $(Q * diagonal eigenvalues * Qᵀ)^m = Q * diagonal (eigenvalues^m) * Qᵀ$.
+  have h_diag_pow : (Q * Matrix.diagonal eigenvalues * Qᵀ) ^ m = Q * Matrix.diagonal (fun i => eigenvalues i ^ m) * Qᵀ := by
+    refine Nat.recOn m ?_ ?_ <;> simp_all +decide [ pow_succ, ← mul_assoc ];
+    simp +decide [ mul_assoc, hQ₁ ];
+  simp_all +decide [ Matrix.trace_mul_comm, Matrix.mul_assoc ]
+
 /-
 PROBLEM
 n=0 case: empty type, trace is 0.
@@ -336,7 +482,74 @@ lemma hadamardSquare_posSemidef_rank_le_one_or_full
     (hrank : P₁.rank = P₂.rank)
     (hcase : P₁.rank ≤ 1 ∨ P₁.rank = 3) :
     (hadamardSquare P₁ P₂).PosSemidef := by
-      sorry
+  cases hcase <;> simp_all +decide [ IsOrthProj ];
+  · -- Since $P₁$ and $P₂$ are rank-1 projections, we can write them as $P₁ = u e^T$ and $P₂ = v f^T$ for some vectors $u, e, v, f$.
+    obtain ⟨u, e, hu⟩ : ∃ u e : Fin 3 → ℝ, P₁ = Matrix.of (fun i j => u i * e j) := by
+      -- Since $P₁$ is a rank-1 projection, its range is one-dimensional. Let $u$ be a vector in the range of $P₁$.
+      obtain ⟨u, hu⟩ : ∃ u : Fin 3 → ℝ, u ≠ 0 ∧ ∀ x : Fin 3 → ℝ, ∃ c : ℝ, P₁.mulVec x = c • u := by
+        have h_range : Module.finrank ℝ (LinearMap.range (Matrix.mulVecLin P₁)) ≤ 1 := by
+          linarith!;
+        interval_cases _ : Module.finrank ℝ ( LinearMap.range ( Matrix.mulVecLin P₁ ) ) <;> simp_all +decide [ Submodule.eq_bot_iff ];
+        · exact ⟨ fun _ => 1, fun h => by simpa using congr_fun h 0, 0, by norm_num ⟩;
+        · have := finrank_eq_one_iff'.mp ‹_›;
+          simp +zetaDelta at *;
+          exact ⟨ _, this.choose_spec.1, fun x => by obtain ⟨ c, hc ⟩ := this.choose_spec.2 x; exact ⟨ c, hc.symm ⟩ ⟩;
+      choose c hc using hu.2;
+      exact ⟨ u, fun j => c ( Pi.single j 1 ), by ext i j; simpa [ mul_comm ] using congr_fun ( hc ( Pi.single j 1 ) ) i ⟩
+    obtain ⟨v, f, hv⟩ : ∃ v f : Fin 3 → ℝ, P₂ = Matrix.of (fun i j => v i * f j) := by
+      rcases ‹Module.finrank ℝ ( LinearMap.range P₂.mulVecLin ) ≤ 1›.eq_or_lt with h | h <;>
+        simp_all +decide [ Submodule.eq_bot_iff ]
+      · obtain ⟨ v, hv ⟩ := finrank_eq_one_iff'.mp h;
+        -- Since $v$ is a basis vector for the range of $P₂$, we can write $P₂$ as $P₂ = v f^T$ for some vector $f$.
+        obtain ⟨f, hf⟩ : ∃ f : Fin 3 → ℝ, ∀ i, P₂.mulVecLin (Pi.single i 1) = f i • v := by
+          choose f hf using fun i => hv.2 ⟨ P₂.mulVecLin ( Pi.single i 1 ), Set.mem_range_self _ ⟩ ; use f; aesop;
+        use v.val, f;
+        ext i j; specialize hf j; replace hf := congr_fun hf i; simp_all +decide [ mul_comm, Matrix.mulVec ] ;
+      · exact ⟨ 0, 0, by ext i j; simpa using congr_fun ( h ( Pi.single j 1 ) ) i ⟩;
+    unfold hadamardSquare; simp_all +decide [ ← Matrix.ext_iff ] ;
+    constructor;
+    · ext i j; simp +decide [ hu, hv, Matrix.mul_apply, mul_comm, mul_left_comm ] ;
+      simp +decide [ ← mul_assoc, h₁.2, h₂.2 ] ; ring;
+    · simp_all +decide [ Matrix.mul_apply, Fin.sum_univ_three ];
+      intro x; simp_all +decide [ Finsupp.sum_fintype ] ; ring;
+      have h_nonneg : 0 ≤
+          ∑ x_1 : Fin 3, ∑ x_2 : Fin 3,
+            (x x_1 * u x_1 * e 0 * v x_2 * f 0 * e 1 * f 1 * v x_1 * u x_2 *
+                    x x_2 * 2 +
+                  x x_1 * u x_1 * e 0 * v x_2 * f 0 * e 2 * f 2 * v x_1 * u x_2 *
+                    x x_2 * 2 +
+                x x_1 * u x_1 * e 0 ^ 2 * v x_2 * f 0 ^ 2 * v x_1 * u x_2 * x x_2 +
+              x x_1 * u x_1 * v x_2 * e 1 * f 1 * e 2 * f 2 * v x_1 * u x_2 *
+                x x_2 * 2 +
+            x x_1 * u x_1 * v x_2 * e 1 ^ 2 * f 1 ^ 2 * v x_1 * u x_2 * x x_2 +
+          x x_1 * u x_1 * v x_2 * e 2 ^ 2 * f 2 ^ 2 * v x_1 * u x_2 * x x_2) := by
+        rw [show
+            (∑ x_1 : Fin 3, ∑ x_2 : Fin 3,
+              (x x_1 * u x_1 * e 0 * v x_2 * f 0 * e 1 * f 1 * v x_1 * u x_2 *
+                      x x_2 * 2 +
+                    x x_1 * u x_1 * e 0 * v x_2 * f 0 * e 2 * f 2 * v x_1 * u x_2 *
+                      x x_2 * 2 +
+                  x x_1 * u x_1 * e 0 ^ 2 * v x_2 * f 0 ^ 2 * v x_1 * u x_2 * x x_2 +
+                x x_1 * u x_1 * v x_2 * e 1 * f 1 * e 2 * f 2 * v x_1 * u x_2 *
+                  x x_2 * 2 +
+              x x_1 * u x_1 * v x_2 * e 1 ^ 2 * f 1 ^ 2 * v x_1 * u x_2 * x x_2 +
+            x x_1 * u x_1 * v x_2 * e 2 ^ 2 * f 2 ^ 2 * v x_1 * u x_2 * x x_2)) =
+              (∑ i : Fin 3, x i * u i * v i * (e 0 * f 0 + e 1 * f 1 + e 2 * f 2)) ^ 2 by
+          simp [Fin.sum_univ_three]
+          ring]
+        positivity
+      nlinarith
+  · -- Since P₁ and P₂ are both rank 3, they are both the identity matrix.
+    have hP1 : P₁ = 1 := by
+      exact orthProj_rank_full_eq_one P₁ h₁ (by linarith)
+    have hP2 : P₂ = 1 := by
+      exact orthProj_rank_full_eq_one P₂ h₂ (id (Eq.symm hrank))
+    simp [hP1, hP2] at *;
+    constructor <;> norm_num [ hadamardSquare ];
+    · ext i j ; fin_cases i <;> fin_cases j <;> rfl;
+    · simp +decide [ Matrix.one_apply, Finsupp.sum ];
+      exact fun x => Finset.sum_nonneg fun i hi => by split_ifs <;> nlinarith;
+
 /-!
 # Power-nonnegativity for the Hadamard square in dimension 3, rank 2
 
@@ -421,7 +634,24 @@ its eigenvalues. -/
 lemma IsHermitian.trace_pow_eq_sum_eigenvalues_pow {n : Type*} [Fintype n] [DecidableEq n]
     (A : Matrix n n ℝ) (hA : A.IsHermitian) (k : ℕ) :
     (A ^ k).trace = ∑ i, (hA.eigenvalues i) ^ k := by
-      sorry
+  obtain ⟨U, D, hU, hD⟩ : ∃ U : Matrix n n ℝ, ∃ D : Matrix n n ℝ,
+      U.transpose * U = 1 ∧ U * U.transpose = 1 ∧
+      D = Matrix.diagonal (hA.eigenvalues) ∧ A = U * D * U.transpose := by
+    have := hA.spectral_theorem
+    refine ⟨hA.eigenvectorUnitary, Matrix.diagonal hA.eigenvalues, ?_, ?_, rfl, this⟩
+    · simpa [star_eq_transpose_real, mul_eq_one_comm] using hA.eigenvectorUnitary.2.2
+    · simpa [star_eq_transpose_real] using hA.eigenvectorUnitary.2.2
+  have hA_k : A ^ k = U * D ^ k * U.transpose := by
+    induction k with
+    | zero =>
+        simp_all +decide [mul_assoc]
+    | succ k ih =>
+        simp_all +decide [pow_succ, mul_assoc]
+        simp +decide [← mul_assoc, hU]
+  rw [hA_k, Matrix.trace_mul_comm]
+  simp +decide [← mul_assoc, hU, hD.2.1, Matrix.trace]
+  simp +decide [Matrix.diagonal_pow]
+
 /-! ## Helper lemmas for eigenvalue bounds -/
 
 /-
@@ -808,7 +1038,29 @@ private lemma trace_reduction (a b v : Fin 3 → ℝ)
       ((if i = j then (1 : ℝ) else 0) - a i * a j - b i * b j + s * a j * b i) +
     (1 / 8) * ∑ i, v i ^ 2 =
     (E * M₀ * E * M₀).trace + (1 / 8) * (E * E).trace := by
-      sorry
+  -- By definition of $D$ and $M$, we know that $D = QEQ^T$ and $M = QM_0Q^T$.
+  have hD : Matrix.diagonal v = Q * (Q.transpose * Matrix.diagonal v * Q) * Q.transpose := by
+    grind +revert
+  have hM : Matrix.of (fun i j => if i = j then (1 : ℝ) else 0) - Matrix.of (fun i j => a i * a j) - Matrix.of (fun i j => b i * b j) + Matrix.of (fun i j => s * a i * b j) = Q * !![1, 0, 0; 0, s ^ 2, s * β; 0, 0, 0] * Q.transpose := by
+    have hM : Q.transpose * (Matrix.of (fun i j => if i = j then (1 : ℝ) else 0) - Matrix.of (fun i j => a i * a j) - Matrix.of (fun i j => b i * b j) + Matrix.of (fun i j => s * a i * b j)) * Q = !![1, 0, 0; 0, s ^ 2, s * β; 0, 0, 0] := by
+      rw [show Matrix.of (fun i j => if i = j then (1 : ℝ) else 0) - Matrix.of (fun i j => a i * a j) - Matrix.of (fun i j => b i * b j) + Matrix.of (fun i j => s * a i * b j) =
+          Matrix.of (fun i j => (if i = j then (1 : ℝ) else 0) - a i * a j - b i * b j + s * a i * b j) by
+        ext i j
+        simp [Matrix.add_apply]]
+      exact QtMQ_eq_M0_of_basis a b Q s β hs hαβ hQ1 hQa hQb
+    simp +decide [ ← hM, ← mul_assoc, hQ2 ];
+    rw [ mul_assoc, hQ2, mul_one ];
+  -- Substitute $D = QEQ^T$ and $M = QM_0Q^T$ into the left-hand side.
+  have h_subst : ∑ i, ∑ j, v i * v j * ((if i = j then (1 : ℝ) else 0) - a i * a j - b i * b j + s * a i * b j) * ((if i = j then (1 : ℝ) else 0) - a i * a j - b i * b j + s * a j * b i) + (1 / 8) * ∑ i, v i ^ 2 = (Matrix.diagonal v * (Matrix.of (fun i j => if i = j then (1 : ℝ) else 0) - Matrix.of (fun i j => a i * a j) - Matrix.of (fun i j => b i * b j) + Matrix.of (fun i j => s * a i * b j)) * Matrix.diagonal v * (Matrix.of (fun i j => if i = j then (1 : ℝ) else 0) - Matrix.of (fun i j => a i * a j) - Matrix.of (fun i j => b i * b j) + Matrix.of (fun i j => s * a i * b j))).trace + (1 / 8) * (Matrix.diagonal v * Matrix.diagonal v).trace := by
+    norm_num [ Matrix.trace, Matrix.mul_apply ] at *;
+    simp +decide [ Matrix.diagonal, Fin.sum_univ_three ] ; ring!;
+  nontriviality;
+  rw [ h_subst, hM ];
+  norm_num [ ← mul_assoc, ← hD ];
+  norm_num [ Matrix.mul_assoc, hQ1, hQ2 ];
+  norm_num [ Matrix.trace_mul_comm ( Qᵀ ), Matrix.trace_mul_comm ( Q ) ];
+  norm_num [ Matrix.mul_assoc, hQ1, hQ2 ]
+
 set_option maxHeartbeats 800000 in
 -- The nonparallel polynomial inequality expands the adapted-basis trace calculation.
 /-- The core polynomial inequality for the non-parallel case: when `a` and `b` are unit
@@ -890,7 +1142,27 @@ lemma psd_shift_from_normals
     let P₂ := (1 : Matrix (Fin 3) (Fin 3) ℝ) - Matrix.of (fun i j => b i * b j)
     0 ≤ dotProduct v ((hadamard (P₁ * P₂) (P₂ * P₁) +
         (1 / 8 : ℝ) • (1 : Matrix _ _ ℝ)).mulVec v) := by
-          sorry
+  intro P₁ P₂
+  -- Reduce to pure polynomial inequality
+  suffices h : 0 ≤ ∑ i : Fin 3, ∑ j : Fin 3, v i * v j *
+      ((if i = j then (1 : ℝ) else 0) - a i * a j - b i * b j + (∑ k, a k * b k) * a i * b j) *
+      ((if i = j then (1 : ℝ) else 0) - a i * a j - b i * b j + (∑ k, a k * b k) * a j * b i) +
+      (1 / 8) * ∑ i, v i ^ 2 by
+    have heq : dotProduct v ((hadamard (P₁ * P₂) (P₂ * P₁) +
+        (1 / 8 : ℝ) • (1 : Matrix _ _ ℝ)).mulVec v) =
+      ∑ i : Fin 3, ∑ j : Fin 3, v i * v j *
+        ((if i = j then (1 : ℝ) else 0) - a i * a j - b i * b j + (∑ k, a k * b k) * a i * b j) *
+        ((if i = j then (1 : ℝ) else 0) - a i * a j - b i * b j + (∑ k, a k * b k) * a j * b i) +
+      (1 / 8) * ∑ i, v i ^ 2 := by
+      simp only [dotProduct, Matrix.mulVec, Matrix.hadamard,
+        Matrix.one_apply, Matrix.mul_apply, Matrix.smul_apply,
+        Matrix.sub_apply, Matrix.add_apply,
+        Fin.sum_univ_three, Fin.isValue, smul_eq_mul, P₁, P₂]
+      simp +decide
+      ring_nf
+    linarith
+  exact psd_poly_ineq a b v ha hb
+
 lemma hadamard_square_psd_shift
     (P₁ P₂ : Matrix (Fin 3) (Fin 3) ℝ)
     (hP₁_sym : P₁.transpose = P₁)
@@ -1283,7 +1555,74 @@ theorem min_counterexample_dim :
     (∀ (n : ℕ) (_ : n ≤ 3) (P₁ P₂ : Matrix (Fin n) (Fin n) ℝ),
       IsOrthProj P₁ → IsOrthProj P₂ → P₁.rank = P₂.rank →
       IsPowerNonneg (hadamardSquare P₁ P₂)) := by
-        sorry
+  constructor
+  · -- Counterexample for n=4
+    unfold IsOrthProj hadamardSquare IsPowerNonneg;
+    simp +zetaDelta at *;
+    refine ⟨ Matrix.of fun i j => ( P₁_example i j : ℝ ), ?_, Matrix.of fun i j => ( P₂_example i j : ℝ ), ?_, ?_, ?_ ⟩ <;> norm_cast;
+    · norm_num [ ← Matrix.ext_iff, Fin.forall_fin_succ ];
+      norm_num [ Fin.sum_univ_succ, Matrix.mul_apply, P₁_example ];
+      repeat erw [ Matrix.cons_val_succ' ] ; norm_num;
+    · constructor <;> ext i j <;> norm_num [ Matrix.mul_apply, P₂_example ];
+      · fin_cases i <;> fin_cases j <;> norm_num [ Fin.sum_univ_succ ];
+      · fin_cases i <;> fin_cases j <;> rfl;
+    · rw [ Matrix.rank, Matrix.rank ];
+      -- Since these are orthogonal projections, their ranks are equal to their traces.
+      have h_rank_eq_trace : ∀ (P : Matrix (Fin 4) (Fin 4) ℝ), P * P = P ∧ P.transpose = P → Matrix.rank P = Matrix.trace P := by
+        intro P hP;
+        -- Since P is symmetric and idempotent, it is diagonalizable with eigenvalues 0 or 1.
+        have h_diag : ∃ D : Matrix (Fin 4) (Fin 4) ℝ, D.transpose * D = 1 ∧ D * D.transpose = 1 ∧ ∃ d : Fin 4 → ℝ, (∀ i, d i = 0 ∨ d i = 1) ∧ P = D * Matrix.diagonal d * D.transpose := by
+          have h_diag : ∃ D : Matrix (Fin 4) (Fin 4) ℝ, D.transpose * D = 1 ∧ D * D.transpose = 1 ∧ ∃ d : Fin 4 → ℝ, P = D * Matrix.diagonal d * D.transpose := by
+            have h_diag : ∃ D : Matrix (Fin 4) (Fin 4) ℝ, D.transpose * D = 1 ∧ D * D.transpose = 1 ∧ ∃ d : Fin 4 → ℝ, P = D * Matrix.diagonal d * D.transpose := by
+              have h_symm : Matrix.IsHermitian P := by
+                exact hP.2
+              have := h_symm.spectral_theorem;
+              refine ⟨ h_symm.eigenvectorUnitary, ?_, ?_,
+                RCLike.ofReal ∘ h_symm.eigenvalues, this ⟩;
+              · simpa [star_eq_transpose_real, mul_eq_one_comm] using h_symm.eigenvectorUnitary.2.2
+              · simpa [star_eq_transpose_real] using h_symm.eigenvectorUnitary.2.2
+            exact h_diag;
+          obtain ⟨ D, hD₁, hD₂, d, rfl ⟩ := h_diag;
+          refine ⟨ D, hD₁, hD₂, d, ?_, rfl ⟩;
+          intro i; replace hP := congr_arg ( fun m => Dᵀ * m * D ) hP.1; simp_all +decide [ Matrix.mul_assoc ] ;
+          simp_all +decide [ ← Matrix.mul_assoc ];
+          exact or_iff_not_imp_left.mpr fun hi => mul_left_cancel₀ hi <| by linarith [ hP i ] ;
+        obtain ⟨ D, hD₁, hD₂, d, hd₁, rfl ⟩ := h_diag;
+        -- Since $D$ is orthogonal, the rank of $D * \text{diagonal } d * Dᵀ$ is equal to the rank of $\text{diagonal } d$.
+        have h_rank_diag : Matrix.rank (D * Matrix.diagonal d * Dᵀ) = Matrix.rank (Matrix.diagonal d) := by
+          have h_rank_diag : Matrix.rank (D * Matrix.diagonal d * Dᵀ) ≤ Matrix.rank (Matrix.diagonal d) := by
+            have h_rank_diag : Matrix.rank (D * Matrix.diagonal d * Dᵀ) ≤ Matrix.rank (D * Matrix.diagonal d) := by
+              exact Matrix.rank_mul_le_left _ _;
+            exact h_rank_diag.trans ( Matrix.rank_mul_le_right _ _ );
+          refine le_antisymm h_rank_diag ?_;
+          have h_rank_diag : Matrix.rank (Dᵀ * (D * Matrix.diagonal d * Dᵀ) * D) ≤ Matrix.rank (D * Matrix.diagonal d * Dᵀ) := by
+            exact Matrix.rank_mul_le_left _ _ |> le_trans <| Matrix.rank_mul_le_right _ _;
+          simp_all +decide [ ← mul_assoc ];
+          simp_all +decide [ Matrix.mul_assoc ];
+        rw [ h_rank_diag, Matrix.rank_diagonal ];
+        simp_all +decide [ Matrix.trace_mul_comm, Matrix.mul_assoc ];
+        rw [ Fintype.card_subtype ];
+        rw [ Finset.sum_congr rfl fun i hi => show d i = if d i = 0 then 0 else 1 by cases hd₁ i <;> split_ifs <;> linarith ] ; norm_num [ Finset.sum_ite ];
+        rw [ Finset.filter_not, Finset.card_sdiff ] ; norm_num [ Finset.card_univ ];
+      have h_trace_eq : Matrix.trace (Matrix.of (fun i j => (P₁_example i j : ℝ))) = Matrix.trace (Matrix.of (fun i j => (P₂_example i j : ℝ))) := by
+        norm_num [ Matrix.trace, P₁_example, P₂_example ];
+        norm_num [ Fin.sum_univ_succ ];
+      have h_rank_eq_trace : Matrix.rank (Matrix.of (fun i j => (P₁_example i j : ℝ))) = Matrix.trace (Matrix.of (fun i j => (P₁_example i j : ℝ))) ∧ Matrix.rank (Matrix.of (fun i j => (P₂_example i j : ℝ))) = Matrix.trace (Matrix.of (fun i j => (P₂_example i j : ℝ))) := by
+        apply And.intro;
+        · apply h_rank_eq_trace;
+          norm_num [ ← Matrix.ext_iff, Fin.forall_fin_succ ];
+          norm_num [ Fin.sum_univ_succ, Matrix.mul_apply, P₁_example ] at *;
+          repeat erw [ Matrix.cons_val_succ' ] ; norm_num;
+        · apply h_rank_eq_trace;
+          constructor <;> ext i j <;> norm_num [ Matrix.mul_apply, P₂_example ];
+          · fin_cases i <;> fin_cases j <;> norm_num [ Fin.sum_univ_succ ];
+          · fin_cases i <;> fin_cases j <;> rfl;
+      exact_mod_cast h_rank_eq_trace.1.trans h_trace_eq |> Eq.trans <| h_rank_eq_trace.2.symm;
+    · use 3
+      norm_num [Matrix.trace, Matrix.mul_apply, pow_three, hadamardSquare]
+      norm_num [P₁_example, P₂_example, Matrix.hadamard, Fin.sum_univ_succ]
+  · exact fun n hn P₁ P₂ h₁ h₂ h₃ => power_nonneg_dim_le_three n hn P₁ P₂ h₁ h₂ h₃
+
 /-
 PROBLEM
 The smallest exponent admitting a counterexample is k = 3.
@@ -1319,7 +1658,62 @@ theorem min_counterexample_exp :
     (∀ (n : ℕ) (P₁ P₂ : Matrix (Fin n) (Fin n) ℝ),
       IsOrthProj P₁ → IsOrthProj P₂ →
       (∀ k : ℕ, k ≤ 2 → 0 ≤ ((hadamardSquare P₁ P₂) ^ k).trace)) := by
-        sorry
+  refine ⟨ ?_, fun n P₁ P₂ h₁ h₂ k hk => ?_ ⟩;
+  · use 4, Matrix.of ( fun i j => ( P₁_example i j : ℝ ) ), Matrix.of ( fun i j => ( P₂_example i j : ℝ ) );
+    refine ⟨ ?_, ?_, ?_, ?_ ⟩;
+    · constructor <;> ext i j <;> fin_cases i <;> fin_cases j <;> norm_num [ P₁_example ];
+      all_goals norm_num [ Fin.sum_univ_succ, Matrix.mul_apply ] ;
+    · constructor <;> ext i j <;> fin_cases i <;> fin_cases j <;> norm_num [ P₂_example ];
+      all_goals norm_num [ Fin.sum_univ_succ, Matrix.mul_apply ] ;
+    · -- Since these matrices are orthogonal projections, their ranks are equal to their traces.
+      have h_rank_eq_trace : ∀ (P : Matrix (Fin 4) (Fin 4) ℝ), P * P = P → P.transpose = P → Matrix.rank P = Matrix.trace P := by
+        intro P hP hP';
+        -- Since $P$ is an orthogonal projection, we have $P^2 = P$ and $P^T = P$. Therefore, $P$ is diagonalizable with eigenvalues $0$ or $1$.
+        have h_diag : ∃ D : Matrix (Fin 4) (Fin 4) ℝ, D.transpose * D = 1 ∧ D * D.transpose = 1 ∧ ∃ d : Fin 4 → ℝ, (∀ i, d i = 0 ∨ d i = 1) ∧ P = D * Matrix.diagonal d * D.transpose := by
+          have h_diag : ∃ D : Matrix (Fin 4) (Fin 4) ℝ, D.transpose * D = 1 ∧ D * D.transpose = 1 ∧ ∃ d : Fin 4 → ℝ, P = D * Matrix.diagonal d * D.transpose := by
+            have h_diag : ∃ D : Matrix (Fin 4) (Fin 4) ℝ, D.transpose * D = 1 ∧ D * D.transpose = 1 ∧ ∃ d : Fin 4 → ℝ, P = D * Matrix.diagonal d * D.transpose := by
+              have h_symm : Matrix.IsHermitian P := by
+                finiteness
+              have := h_symm.spectral_theorem;
+              refine ⟨ h_symm.eigenvectorUnitary, ?_, ?_,
+                RCLike.ofReal ∘ h_symm.eigenvalues, this ⟩;
+              · simpa [star_eq_transpose_real, mul_eq_one_comm] using h_symm.eigenvectorUnitary.2.2
+              · simpa [star_eq_transpose_real] using h_symm.eigenvectorUnitary.2.2
+            exact h_diag;
+          obtain ⟨ D, hD₁, hD₂, d, rfl ⟩ := h_diag;
+          refine ⟨ D, hD₁, hD₂, d, ?_, rfl ⟩;
+          intro i; replace hP := congr_arg ( fun m => Dᵀ * m * D ) hP; simp_all +decide [ Matrix.mul_assoc ] ;
+          simp_all +decide [ ← Matrix.mul_assoc, mul_eq_one_comm.mp hD₁ ];
+          exact or_iff_not_imp_left.mpr fun hi => mul_left_cancel₀ hi <| by linarith [ hP i ] ;
+        obtain ⟨ D, hD₁, hD₂, d, hd₁, rfl ⟩ := h_diag; simp_all +decide [ Matrix.trace_mul_comm, Matrix.mul_assoc ] ;
+        -- Since $D$ is orthogonal, we have $\text{rank}(D * \text{diagonal}(d) * D^T) = \text{rank}(\text{diagonal}(d))$.
+        have h_rank_diag : Matrix.rank (D * Matrix.diagonal d * D.transpose) = Matrix.rank (Matrix.diagonal d) := by
+          have h_rank_diag : Matrix.rank (D * Matrix.diagonal d * D.transpose) ≤ Matrix.rank (Matrix.diagonal d) := by
+            have h_rank_diag : Matrix.rank (D * Matrix.diagonal d * D.transpose) ≤ Matrix.rank (D * Matrix.diagonal d) := by
+              exact Matrix.rank_mul_le_left _ _;
+            exact h_rank_diag.trans ( Matrix.rank_mul_le_right _ _ );
+          have h_rank_diag : Matrix.rank (D * Matrix.diagonal d * D.transpose) ≥ Matrix.rank (D.transpose * (D * Matrix.diagonal d * D.transpose) * D) := by
+            exact Matrix.rank_mul_le_left _ _ |> le_trans <| Matrix.rank_mul_le_right _ _ |> le_trans <| by norm_num;
+          grind +locals;
+        simp_all +decide [ ← Matrix.mul_assoc, Matrix.rank_diagonal ];
+        rw [ Fintype.card_subtype ];
+        rw [ Finset.sum_congr rfl fun i hi => show d i = if d i = 0 then 0 else 1 by cases hd₁ i <;> split_ifs <;> linarith ] ; norm_num [ Finset.sum_ite ] ; ring_nf;
+        rw [ Finset.filter_not, Finset.card_sdiff ] ; norm_num [ Finset.card_univ ];
+      have h_trace_eq : Matrix.trace (Matrix.of (fun i j => (P₁_example i j : ℝ))) = Matrix.trace (Matrix.of (fun i j => (P₂_example i j : ℝ))) := by
+        norm_num [ Matrix.trace, P₁_example, P₂_example ];
+        norm_num [ Fin.sum_univ_succ ];
+      have h_rank_eq_trace_P1 : Matrix.rank (Matrix.of (fun i j => (P₁_example i j : ℝ))) = Matrix.trace (Matrix.of (fun i j => (P₁_example i j : ℝ))) := by
+        apply h_rank_eq_trace;
+        · ext i j; fin_cases i <;> fin_cases j <;> norm_num [Matrix.mul_apply, P₁_example, Fin.sum_univ_succ];
+        · ext i j; fin_cases i <;> fin_cases j <;> rfl;
+      have h_rank_eq_trace_P2 : Matrix.rank (Matrix.of (fun i j => (P₂_example i j : ℝ))) = Matrix.trace (Matrix.of (fun i j => (P₂_example i j : ℝ))) := by
+        apply h_rank_eq_trace;
+        · ext i j; fin_cases i <;> fin_cases j <;> norm_num [Matrix.mul_apply, P₂_example, Fin.sum_univ_succ];
+        · ext i j; fin_cases i <;> fin_cases j <;> rfl;
+      exact_mod_cast h_rank_eq_trace_P1.trans h_trace_eq |> Eq.trans <| h_rank_eq_trace_P2.symm;
+    · unfold hadamardSquare; norm_num [Matrix.trace, Matrix.mul_apply, pow_three, P₁_example, P₂_example, Matrix.hadamard, Fin.sum_univ_succ];
+  · convert trace_hadamardSquare_pow_nonneg_le2 P₁ P₂ h₁ h₂ k hk using 1
+
 /-! ## Counterexample theorems using IsCounterexample -/
 
 section counterexample_CE
@@ -1348,7 +1742,78 @@ theorem A_example_isCounterexample :
     IsCounterexample 4 3 (hadamardSquare
       (Matrix.of (fun i j => (P₁_example i j : ℝ)))
       (Matrix.of (fun i j => (P₂_example i j : ℝ)))) := by
-        sorry
+  have hP₁ : IsOrthProj (Matrix.of (fun i j => (P₁_example i j : ℝ))) := by
+    constructor <;> ext i j <;> fin_cases i <;> fin_cases j <;> norm_num [ Matrix.mul_apply, P₁_example ];
+    all_goals norm_num [ Fin.sum_univ_succ, Fin.sum_univ_zero ] at *
+  have hP₂ : IsOrthProj (Matrix.of (fun i j => (P₂_example i j : ℝ))) := by
+    constructor <;> ext i j <;> fin_cases i <;> fin_cases j <;> norm_num [ Matrix.mul_apply, P₂_example ];
+    all_goals norm_num [ Fin.sum_univ_succ, Fin.sum_univ_zero ] ;
+  refine ⟨ Matrix.of fun i j => (P₁_example i j : ℝ),
+    Matrix.of fun i j => (P₂_example i j : ℝ),
+    hP₁, hP₂, (orthProj_unitEquiv_iff_rank _ _ hP₁ hP₂).mp ?_, rfl, ?_ ⟩;
+  · -- Since these matrices are orthogonal projections, their ranks are equal to the number of independent rows or columns.
+    have h_rank_eq : ∀ (P : Matrix (Fin 4) (Fin 4) ℝ), P * P = P → P.transpose = P → P.rank = P.trace := by
+      intro P hP hP_symm
+      have h_diag : ∃ Q : Matrix (Fin 4) (Fin 4) ℝ, Q.transpose * Q = 1 ∧ ∃ D : Matrix (Fin 4) (Fin 4) ℝ, D.IsDiag ∧ P = Q * D * Q.transpose := by
+        have := Matrix.IsHermitian.spectral_theorem hP_symm
+        generalize_proofs at *
+        refine ⟨ IsHermitian.eigenvectorUnitary hP_symm, ?_,
+          Matrix.diagonal (RCLike.ofReal ∘ IsHermitian.eigenvalues hP_symm),
+          Matrix.isDiag_diagonal _, this ⟩
+        simpa [star_eq_transpose_real, mul_eq_one_comm] using
+          (IsHermitian.eigenvectorUnitary hP_symm).2.2
+      generalize_proofs at *;
+      obtain ⟨ Q, hQ₁, D, hD₁, rfl ⟩ := h_diag
+      have h_diag_trace : D.trace = D.rank := by
+        have h_diag_trace : ∀ i, D i i = 0 ∨ D i i = 1 := by
+          have h_diag_trace : ∀ i, D i i ^ 2 = D i i := by
+            have h_diag_trace : D * D = D := by
+              grind +qlia
+            generalize_proofs at *; (
+            intro i; replace h_diag_trace := congr_fun ( congr_fun h_diag_trace i ) i; simp_all +decide [ sq, Matrix.mul_apply ] ;
+            rw [ Finset.sum_eq_single i ] at h_diag_trace <;> aesop)
+          generalize_proofs at *; (
+          exact fun i => or_iff_not_imp_left.mpr fun hi => mul_left_cancel₀ hi <| by linarith [ h_diag_trace i ] ;)
+        generalize_proofs at *; (
+        have h_diag_trace : D.rank = ∑ i, if D i i = 1 then 1 else 0 := by
+          have h_diag_trace : D = Matrix.diagonal (fun i => D i i) := by
+            ext i j; by_cases hi : i = j <;> aesop;
+          generalize_proofs at *; (
+          rw [ h_diag_trace, Matrix.rank_diagonal ] ; norm_num [ Finset.sum_ite ] ; ring_nf;
+          rw [ Fintype.card_subtype ] ; rw [ Finset.card_filter ] ; rw [ tsub_eq_of_eq_add ] ; ring_nf;
+          rw [ Finset.sum_congr rfl fun i hi => show ( if D i i = 0 then 1 else 0 ) = 1 - ( if D i i = 1 then 1 else 0 ) by rcases ‹∀ i, D i i = 0 ∨ D i i = 1› i with h | h <;> norm_num [ h ] ] ; ring_nf;
+          rw [ Finset.sum_congr rfl fun i hi => show ( 1 - if D i i = 1 then 1 else 0 ) = if D i i = 1 then 0 else 1 by rcases ‹∀ i, D i i = 0 ∨ D i i = 1› i with h | h <;> norm_num [ h ] ] ; norm_num [ Finset.sum_ite ] ; ring_nf;
+          rw [ Finset.card_filter_add_card_filter_not, Finset.card_fin ])
+        generalize_proofs at *; (
+        simp_all +decide [ Matrix.trace ];
+        rw [ Finset.sum_congr rfl fun i hi => show D i i = if D i i = 1 then 1 else 0 by cases ‹∀ i, D i i = 0 ∨ D i i = 1› i <;> aesop ] ; aesop;))
+      generalize_proofs at *; (
+      have h_diag_trace : (Q * D * Qᵀ).trace = D.trace := by
+        rw [ Matrix.trace_mul_comm ];
+        rw [ ← Matrix.mul_assoc, hQ₁, Matrix.one_mul ]
+      generalize_proofs at *; (
+      have h_diag_trace : Matrix.rank (Q * D * Qᵀ) = Matrix.rank D := by
+        have h_diag_trace : (Q * D * Qᵀ).rank ≤ D.rank := by
+          exact Matrix.rank_mul_le_left _ _ |> le_trans <| Matrix.rank_mul_le_right _ _ |> le_trans <| by norm_num;
+        generalize_proofs at *; (
+        have h_diag_trace : Matrix.rank D ≤ Matrix.rank (Q * D * Qᵀ) := by
+          have h_diag_trace : Matrix.rank D ≤ Matrix.rank (Qᵀ * (Q * D * Qᵀ) * Q) := by
+            simp +decide [ ← Matrix.mul_assoc, hQ₁ ];
+            simp +decide [ Matrix.mul_assoc, hQ₁ ]
+          exact h_diag_trace.trans ( Matrix.rank_mul_le_left _ _ |> le_trans <| Matrix.rank_mul_le_right _ _ ) |> le_trans <| by simp +decide
+        generalize_proofs at *; (
+        linarith))
+      generalize_proofs at *; aesop;))
+    generalize_proofs at *; (
+    convert congr_arg ( fun x : ℝ => Int.floor x ) ( congr_arg₂ ( · - · ) ( h_rank_eq ( Matrix.of fun i j => ( P₁_example i j : ℝ ) ) ?_ ?_ ) ( h_rank_eq ( Matrix.of fun i j => ( P₂_example i j : ℝ ) ) ?_ ?_ ) ) using 1 <;> norm_num [ Matrix.trace ];
+    · unfold P₁_example P₂_example; norm_num [ Fin.sum_univ_succ ] ;
+      norm_num [ sub_eq_zero ];
+    · ext i j; fin_cases i <;> fin_cases j <;> norm_num [Matrix.mul_apply, P₁_example, Fin.sum_univ_succ];
+    · ext i j; fin_cases i <;> fin_cases j <;> rfl;
+    · ext i j; fin_cases i <;> fin_cases j <;> norm_num [Matrix.mul_apply, P₂_example, Fin.sum_univ_succ];
+    · ext i j; fin_cases i <;> fin_cases j <;> rfl;);
+  · unfold hadamardSquare; norm_num [Matrix.trace, Matrix.mul_apply, pow_three, P₁_example, P₂_example, Matrix.hadamard, Fin.sum_univ_succ]
+
 /-- The smallest dimension admitting a counterexample to power-nonnegativity is n = 4.
     Rephrased using `IsCounterexample`. -/
 theorem min_counterexample_dim_CE :

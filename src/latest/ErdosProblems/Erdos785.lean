@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
+/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 785.
 https://www.erdosproblems.com/forum/thread/785
@@ -109,7 +109,96 @@ theorem lemma_smallbigf (A B : Set ℕ)
     (h_hyp : exact_complements A B)
     (h_r : Filter.Tendsto (fun x : ℝ => (missing_sum_count A B x : ℝ) / x) Filter.atTop (nhds 0)) :
     Filter.Tendsto (fun x : ℝ => (large_sum_count A B x : ℝ) / x) Filter.atTop (nhds 0) := by
-      sorry
+  -- By definition of $A(x)$ and $B(x)$, we have $A(x)B(x) = \sum_{l \leq 2x} f_x(l)$.
+  have h_prod_eq_sum : ∀ x : ℝ, x ≥ 0 → (Nat.card {n ∈ A | n ≤ x}) * (Nat.card {n ∈ B | n ≤ x}) = ∑ l ∈ Finset.range (⌊2 * x⌋.toNat + 1), representation_count A B x l := by
+    intro x hx; rw [ show { n : ℕ | n ∈ A ∧ ( n : ℝ ) ≤ x } = A ∩ Finset.Iic ( Nat.floor x ) from ?_, show { n : ℕ | n ∈ B ∧ ( n : ℝ ) ≤ x } = B ∩ Finset.Iic ( Nat.floor x ) from ?_ ]
+    focus
+      simp +decide
+    · -- By definition of $representation_count$, we can rewrite the right-hand side of the equation.
+      have h_rep_count : ∀ l : ℕ, representation_count A B x l = Finset.card (Finset.filter (fun p => p.1 + p.2 = l) (Finset.product (Finset.filter (fun n => n ∈ A) (Finset.Iic ⌊x⌋₊)) (Finset.filter (fun n => n ∈ B) (Finset.Iic ⌊x⌋₊)))) := by
+        intro l; unfold representation_count; simp +decide ;
+        rw [ ← Nat.card_eq_finsetCard ] ; congr; ext; simp +decide [ Nat.le_floor_iff hx ] ; aesop;
+      rw [ Finset.sum_congr rfl fun l hl => h_rep_count l ];
+      rw [ ← Finset.card_biUnion ];
+      · rw [ show ( Finset.biUnion ( Finset.range ( ⌊2 * x⌋.toNat + 1 ) ) fun l => Finset.filter ( fun p : ℕ × ℕ => p.1 + p.2 = l ) ( Finset.product ( Finset.filter ( fun n => n ∈ A ) ( Finset.Iic ⌊x⌋₊ ) ) ( Finset.filter ( fun n => n ∈ B ) ( Finset.Iic ⌊x⌋₊ ) ) ) ) = Finset.product ( Finset.filter ( fun n => n ∈ A ) ( Finset.Iic ⌊x⌋₊ ) ) ( Finset.filter ( fun n => n ∈ B ) ( Finset.Iic ⌊x⌋₊ ) ) from ?_ ];
+        · erw [ Finset.card_product ];
+        · ext ⟨a, b⟩; simp [Finset.mem_biUnion, Finset.mem_filter];
+          intro ha ha' hb hb'
+          have ha_le_x : (a : ℝ) ≤ x := le_trans (Nat.cast_le.mpr ha) (Nat.floor_le hx)
+          have hb_le_x : (b : ℝ) ≤ x := le_trans (Nat.cast_le.mpr hb) (Nat.floor_le hx)
+          have hsum_le : ((a + b : ℕ) : ℝ) ≤ 2 * x := by
+            rw [Nat.cast_add]
+            linarith
+          exact Nat.le_floor hsum_le
+      · exact fun a ha b hb hab => Finset.disjoint_left.mpr fun p hp hp' => hab <| by aesop;
+    · norm_num [ Set.ext_iff ];
+      exact fun n hn => ⟨ fun h => Nat.le_floor h, fun h => le_trans ( Nat.cast_le.mpr h ) ( Nat.floor_le hx ) ⟩;
+    · norm_num [ Set.ext_iff ];
+      exact fun n hn => by rw [ Nat.le_floor_iff hx ] ;
+  -- By definition of $f_x(l)$, we know that $\sum_{l \leq x} f_x(l) \geq x - r(x)$.
+  have h_sum_le_x : ∀ x : ℝ, x ≥ 0 → ∑ l ∈ Finset.range (⌊x⌋.toNat + 1), representation_count A B x l ≥ ⌊x⌋.toNat - (missing_sum_count A B x) := by
+    intro x hx
+    have h_sum_le_x : ∑ l ∈ Finset.range (⌊x⌋.toNat + 1), representation_count A B x l ≥ Finset.card (Finset.filter (fun l => l ∈ A + B) (Finset.range (⌊x⌋.toNat + 1))) := by
+      have h_sum_le_x : ∀ l ∈ Finset.filter (fun l => l ∈ A + B) (Finset.range (⌊x⌋.toNat + 1)), representation_count A B x l ≥ 1 := by
+        intro l hl
+        obtain ⟨a, b, ha, hb, hab⟩ : ∃ a ∈ A, ∃ b ∈ B, a + b = l ∧ a ≤ x ∧ b ≤ x := by
+          simp_all +decide [ Set.mem_add ];
+          obtain ⟨ a, ha, b, hb, rfl ⟩ := hl.2; exact ⟨ a, ha, b, hb, rfl, by exact le_trans ( Nat.cast_le.mpr <| show a ≤ ⌊x⌋.toNat from by linarith ) <| Nat.floor_le hx, by exact le_trans ( Nat.cast_le.mpr <| show b ≤ ⌊x⌋.toNat from by linarith ) <| Nat.floor_le hx ⟩ ;
+        refine Nat.card_pos_iff.mpr ?_;
+        exact ⟨ ⟨ ⟨ a, ha ⟩, b, hb, hab.2.1, hab.2.2, hab.1 ⟩, Set.Finite.to_subtype <| Set.finite_iff_bddAbove.mpr ⟨ ⟨ ⌊x⌋.toNat, ⌊x⌋.toNat ⟩, by rintro ⟨ a, b ⟩ ⟨ ha, hb, ha', hb', hab ⟩ ; exact ⟨ Nat.le_floor <| mod_cast ha', Nat.le_floor <| mod_cast hb' ⟩ ⟩ ⟩;
+      exact le_trans ( by simpa using Finset.sum_le_sum h_sum_le_x ) ( Finset.sum_le_sum_of_subset <| Finset.filter_subset _ _ );
+    -- Since $missing\_sum\_count A B x$ is the number of integers up to $x$ not in $A + B$, we have $Finset.card (Finset.filter (fun l => l ∈ A + B) (Finset.range (⌊x⌋.toNat + 1))) = ⌊x⌋.toNat + 1 - missing\_sum\_count A B x$.
+    have h_card_filter : Finset.card (Finset.filter (fun l => l ∈ A + B) (Finset.range (⌊x⌋.toNat + 1))) = ⌊x⌋.toNat + 1 - missing_sum_count A B x := by
+      have h_missing :
+          missing_sum_count A B x =
+            Finset.card (Finset.filter (fun n => n ∉ A + B) (Finset.range (⌊x⌋.toNat + 1))) := by
+        unfold missing_sum_count
+        rw [show { n : ℕ | (n : ℝ) ≤ x ∧ n ∉ A + B } =
+            Finset.filter (fun n => n ∉ A + B) (Finset.range (⌊x⌋.toNat + 1)) from ?_,
+          Nat.card_eq_fintype_card]
+        · exact Fintype.card_coe (Finset.filter (fun n => n ∉ A + B) (Finset.range (⌊x⌋.toNat + 1)))
+        · ext n
+          simp [Finset.mem_range]
+          intro hn_not
+          constructor
+          · intro hn
+            exact Nat.le_floor hn
+          · intro hn
+            exact le_trans (Nat.cast_le.mpr hn) (Nat.floor_le hx)
+      rw [h_missing]
+      have h_partition :=
+        Finset.card_filter_add_card_filter_not
+          (s := Finset.range (⌊x⌋.toNat + 1)) (p := fun l => l ∈ A + B)
+      have hrange : (Finset.range (⌊x⌋.toNat + 1)).card = ⌊x⌋.toNat + 1 :=
+        Finset.card_range _
+      omega
+    exact le_trans ( by omega ) h_sum_le_x;
+  -- Using the fact that $A(x)B(x) = \sum_{l \leq 2x} f_x(l)$ and $\sum_{l \leq x} f_x(l) \geq x - r(x)$, we get $F(x) \leq A(x)B(x) - (x - r(x))$.
+  have h_F_le : ∀ x : ℝ, x ≥ 1 → (large_sum_count A B x : ℝ) ≤ (Nat.card {n ∈ A | n ≤ x}) * (Nat.card {n ∈ B | n ≤ x}) - (x - (missing_sum_count A B x) - 1) := by
+    intros x hx
+    have h_F_le_step : (large_sum_count A B x : ℝ) = (∑ l ∈ Finset.range (⌊2 * x⌋.toNat + 1), representation_count A B x l) - (∑ l ∈ Finset.range (⌊x⌋.toNat + 1), representation_count A B x l) := by
+      unfold large_sum_count;
+      rw [ ← Finset.sum_range_add_sum_Ico _ ( show ⌊x⌋.toNat + 1 ≤ ⌊2 * x⌋.toNat + 1 from by linarith [ show ⌊x⌋.toNat ≤ ⌊2 * x⌋.toNat from Nat.cast_le.mp ( by exact Int.toNat_le_toNat <| Int.floor_mono <| by linarith ) ] ) ] ; norm_num [ add_comm, Finset.sum_range_succ ];
+      congr 1;
+      ext n;
+      rw [Finset.mem_Ico, Finset.mem_Ioc];
+      omega;
+    have := h_sum_le_x x ( by positivity ) ; norm_num at *;
+    norm_num [ ← @Int.cast_le ℝ ] at *;
+    linarith [ Int.floor_le x, Int.lt_floor_add_one x, show ( ∑ l ∈ Finset.range ( ⌊2 * x⌋.toNat + 1 ), ( representation_count A B x l : ℝ ) ) = ( Nat.card { n : ℕ // n ∈ A ∧ ( n : ℝ ) ≤ x } * Nat.card { n : ℕ // n ∈ B ∧ ( n : ℝ ) ≤ x } : ℝ ) by exact_mod_cast h_prod_eq_sum x ( by positivity ) |> Eq.symm ];
+  -- Using the fact that $A(x)B(x) = x + o(x)$, we get $F(x) \leq x + o(x) - (x - r(x)) = o(x)$.
+  have h_F_le_o_x : Filter.Tendsto (fun x : ℝ => ((Nat.card {n ∈ A | n ≤ x}) * (Nat.card {n ∈ B | n ≤ x}) - x) / x) Filter.atTop (nhds 0) := by
+    have := h_hyp.2;
+    convert this.sub ( show Filter.Tendsto ( fun x : ℝ => x / x ) Filter.atTop ( nhds 1 ) from tendsto_const_nhds.congr' ( by filter_upwards [ Filter.eventually_ne_atTop 0 ] with x hx; aesop ) ) using 1
+    · ext x
+      unfold counting_function
+      ring_nf
+    · norm_num
+  have h_F_le_o_x : Filter.Tendsto (fun x : ℝ => ((Nat.card {n ∈ A | n ≤ x}) * (Nat.card {n ∈ B | n ≤ x}) - x + (missing_sum_count A B x) + 1) / x) Filter.atTop (nhds 0) := by
+    convert h_F_le_o_x.add ( h_r.add ( tendsto_inv_atTop_zero.const_mul 1 ) ) using 2 <;> ring;
+  refine squeeze_zero_norm' ?_ h_F_le_o_x;
+  filter_upwards [ Filter.eventually_ge_atTop 1 ] with x hx using by rw [ Real.norm_of_nonneg ( by positivity ) ] ; exact div_le_div_of_nonneg_right ( by linarith [ h_F_le x hx ] ) ( by positivity ) ;
+
 /-
 Lemma: Under the assumptions, lim_{x -> infinity} (A(x/2)B(x) + A(x)B(x/2))/x = 3/2.
 -/
@@ -332,7 +421,71 @@ Lemma: The limit of (A(x/4)B(x) + A(x)B(3x/4) - A(x/4)B(3x/4))/x is 1.
 theorem lemma_quarter_limit_expression (A B : Set ℕ) (h_hyp : exact_complements A B)
     (h_r : Filter.Tendsto (fun x : ℝ => (missing_sum_count A B x : ℝ) / x) Filter.atTop (nhds 0)) :
     Filter.Tendsto (fun x : ℝ => (counting_function A (x / 4) * counting_function B x + counting_function A x * counting_function B (3 * x / 4) - counting_function A (x / 4) * counting_function B (3 * x / 4) : ℝ) / x) Filter.atTop (nhds 1) := by
-      sorry
+  -- Applying the bounds from Lemma `lemma_smallbigf`, we know that $(A(x) - A(x/4))(B(x) - B(3x/4)) = o(x)$.
+  have h_bound : Filter.Tendsto (fun x : ℝ => ((counting_function A x - counting_function A (x / 4)) * (counting_function B x - counting_function B (3 * x / 4)) : ℝ) / x) Filter.atTop (nhds 0) := by
+    -- The term $(A(x) - A(x/4))(B(x) - B(3x/4))$ counts the number of pairs $(a, b) \in A \times B$ such that $x/4 < a \le x$ and $3x/4 < b \le x$.
+    have h_count_pairs : ∀ x : ℝ, 0 < x → ((counting_function A x : ℝ) - (counting_function A (x / 4) : ℝ)) * ((counting_function B x : ℝ) - (counting_function B (3 * x / 4) : ℝ)) ≤ large_sum_count A B x := by
+      intro x hx_pos
+      have h_count_pairs : ((counting_function A x : ℝ) - (counting_function A (x / 4) : ℝ)) * ((counting_function B x : ℝ) - (counting_function B (3 * x / 4) : ℝ)) ≤ ∑ l ∈ Finset.Ioc ⌊x⌋.toNat ⌊2 * x⌋.toNat, (Nat.card {p : ℕ × ℕ | p.1 ∈ A ∧ p.2 ∈ B ∧ p.1 ≤ x ∧ p.2 ≤ x ∧ p.1 + p.2 = l}) := by
+        have h_count_pairs : ((counting_function A x : ℝ) - (counting_function A (x / 4) : ℝ)) * ((counting_function B x : ℝ) - (counting_function B (3 * x / 4) : ℝ)) ≤ Nat.card {p : ℕ × ℕ | p.1 ∈ A ∧ p.2 ∈ B ∧ x / 4 < p.1 ∧ p.1 ≤ x ∧ 3 * x / 4 < p.2 ∧ p.2 ≤ x} := by
+          have h_count_pairs : ((counting_function A x : ℝ) - (counting_function A (x / 4) : ℝ)) = Nat.card {a ∈ A | x / 4 < a ∧ a ≤ x} ∧ ((counting_function B x : ℝ) - (counting_function B (3 * x / 4) : ℝ)) = Nat.card {b ∈ B | 3 * x / 4 < b ∧ b ≤ x} := by
+            constructor <;> unfold counting_function <;> norm_num [ Set.setOf_and ];
+            · rw [ show ( A ∩ { a : ℕ | x / 4 < ( a : ℝ ) } ∩ ( A ∩ { a : ℕ | ( a : ℝ ) ≤ x } ) ) = ( A ∩ { a : ℕ | ( a : ℝ ) ≤ x } ) \ ( A ∩ { a : ℕ | ( a : ℝ ) ≤ x / 4 } ) by ext; aesop, @Set.ncard_diff ];
+              · rw [ Nat.cast_sub ];
+                fapply Set.ncard_le_ncard;
+                · exact Set.inter_subset_inter_right _ fun a ha => le_trans ha.out <| by linarith;
+                · exact Set.finite_iff_bddAbove.mpr ⟨ ⌊x⌋₊, fun a ha => Nat.le_floor <| ha.2 ⟩;
+              · exact Set.inter_subset_inter_right _ fun a ha => le_trans ha.out <| by linarith;
+              · exact Set.finite_iff_bddAbove.mpr ⟨ ⌊x / 4⌋₊, fun a ha => Nat.le_floor <| ha.2 ⟩;
+            · rw [ show B ∩ { a : ℕ | 3 * x / 4 < ( a : ℝ ) } ∩ ( B ∩ { a : ℕ | ( a : ℝ ) ≤ x } ) = ( B ∩ { a : ℕ | ( a : ℝ ) ≤ x } ) \ ( B ∩ { a : ℕ | ( a : ℝ ) ≤ 3 * x / 4 } ) from ?_, @Set.ncard_diff ] <;> norm_num [ Set.ncard_eq_toFinset_card' ]
+              focus
+                ring_nf
+              · rw [ Nat.cast_sub ];
+                fapply Set.ncard_le_ncard
+                focus
+                  exact Set.inter_subset_inter_right _ <| Set.setOf_subset_setOf.mpr fun a ha => by linarith
+                exact Set.finite_iff_bddAbove.mpr ⟨ ⌊x⌋₊, fun n hn => Nat.le_floor <| hn.2 ⟩;
+              · exact fun a ha => ha.2.out.trans ( by linarith );
+              · exact Set.finite_iff_bddAbove.mpr ⟨ ⌊3 * x / 4⌋₊, fun a ha => Nat.le_floor <| ha.2 ⟩;
+              · ext ; aesop;
+          rw [ h_count_pairs.1, h_count_pairs.2 ];
+          rw [ show { p : ℕ × ℕ | p.1 ∈ A ∧ p.2 ∈ B ∧ x / 4 < ( p.1 : ℝ ) ∧ ( p.1 : ℝ ) ≤ x ∧ 3 * x / 4 < ( p.2 : ℝ ) ∧ ( p.2 : ℝ ) ≤ x } = ( { a : ℕ | a ∈ A ∧ x / 4 < ( a : ℝ ) ∧ ( a : ℝ ) ≤ x } ×ˢ { b : ℕ | b ∈ B ∧ 3 * x / 4 < ( b : ℝ ) ∧ ( b : ℝ ) ≤ x } ) by ext ; aesop ] ; norm_cast ; rw [ Nat.card_congr ( Equiv.Set.prod _ _ ) ] ; norm_num;
+        refine le_trans h_count_pairs ?_;
+        -- Each pair $(a, b)$ in the set $\{p : ℕ × ℕ | p.1 ∈ A ∧ p.2 ∈ B ∧ x / 4 < p.1 ∧ p.1 ≤ x ∧ 3 * x / 4 < p.2 ∧ p.2 ≤ x\}$ corresponds to a unique $l$ in the range $\lfloor x \rfloor + 1$ to $\lfloor 2x \rfloor$.
+        have h_pair_to_l : {p : ℕ × ℕ | p.1 ∈ A ∧ p.2 ∈ B ∧ x / 4 < p.1 ∧ p.1 ≤ x ∧ 3 * x / 4 < p.2 ∧ p.2 ≤ x} ⊆ ⋃ l ∈ Finset.Ioc ⌊x⌋.toNat ⌊2 * x⌋.toNat, {p : ℕ × ℕ | p.1 ∈ A ∧ p.2 ∈ B ∧ p.1 ≤ x ∧ p.2 ≤ x ∧ p.1 + p.2 = l} := by
+          intro p hp
+          obtain ⟨ha, hb, hx1, hx2, hx3, hx4⟩ := hp
+          have h_l : ⌊x⌋.toNat < p.1 + p.2 ∧ p.1 + p.2 ≤ ⌊2 * x⌋.toNat := by
+            constructor <;> norm_num [ Int.toNat_of_nonneg, Int.floor_nonneg, hx_pos.le ];
+            · exact Int.floor_lt.mpr ( by norm_num; linarith );
+            · exact Int.le_floor.2 ( by push_cast; linarith )
+          simp [h_l] at *;
+          tauto;
+        have h_card_union : ∀ {S : Finset ℕ} {f : ℕ → Set (ℕ × ℕ)}, (∀ l ∈ S, Set.Finite (f l)) → Nat.card (⋃ l ∈ S, f l) ≤ ∑ l ∈ S, Nat.card (f l) := by
+          intros S f hf_finite; induction S using Finset.induction with
+          | empty => aesop
+          | insert l S hlS ih =>
+          simp_all +decide [ Finset.sum_insert hlS ];
+          exact le_trans ( Set.ncard_union_le _ _ ) ( add_le_add_right ih _ );
+        refine mod_cast le_trans ?_ ( h_card_union ?_ );
+        · apply_rules [ Nat.card_mono ];
+          refine Set.Finite.biUnion ( Finset.finite_toSet ?_ ) fun l hl => ?_;
+          exact Set.finite_iff_bddAbove.mpr ⟨ ⟨ ⌊x⌋.toNat, ⌊x⌋.toNat ⟩, by rintro ⟨ a, b ⟩ ⟨ ha, hb, ha', hb', hab ⟩ ; exact ⟨ Nat.le_floor <| mod_cast ha', Nat.le_floor <| mod_cast hb' ⟩ ⟩;
+        · exact fun l hl => Set.finite_iff_bddAbove.mpr ⟨ ⟨ ⌊x⌋.toNat, ⌊x⌋.toNat ⟩, by rintro ⟨ a, b ⟩ ⟨ ha, hb, ha', hb', hab ⟩ ; exact ⟨ Nat.le_floor <| mod_cast ha', Nat.le_floor <| mod_cast hb' ⟩ ⟩;
+      simpa [large_sum_count, representation_count] using h_count_pairs
+    -- From `lemma_smallbigf`, we know $F(x) = o(x)$, so we can bound the difference.
+    have h_F_small : Filter.Tendsto (fun x : ℝ => (large_sum_count A B x : ℝ) / x) Filter.atTop (nhds 0) := by
+      convert lemma_smallbigf A B h_hyp h_r using 1;
+    refine squeeze_zero_norm' ?_ h_F_small;
+    filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx using by rw [ Real.norm_of_nonneg ( div_nonneg ( mul_nonneg ( sub_nonneg.2 <| Nat.cast_le.2 <| by
+      apply_rules [ Nat.card_mono ];
+      · exact Set.finite_iff_bddAbove.2 ⟨ ⌊x⌋₊, fun n hn => Nat.le_floor <| hn.2 ⟩;
+      · exact fun n hn => ⟨ hn.1, hn.2.trans <| by linarith ⟩ ) <| sub_nonneg.2 <| Nat.cast_le.2 <| by
+      apply_rules [ Nat.card_mono ];
+      · exact Set.finite_iff_bddAbove.mpr ⟨ ⌊x⌋₊, fun n hn => Nat.le_floor <| hn.2 ⟩;
+      · exact fun n hn => ⟨ hn.1, hn.2.trans <| by linarith ⟩ ) hx.le ) ] ; exact div_le_div_of_nonneg_right ( h_count_pairs x hx ) hx.le;
+  convert h_hyp.2.sub h_bound using 2 <;> ring
+
 /-
 Lemma: If alpha(x_i) -> 1, then A(x_i/4)/A(x_i) -> 1.
 -/
@@ -409,7 +562,14 @@ The set X is unbounded.
 theorem close_to_one_set_unbounded (A : Set ℕ) (x : ℕ → ℝ) (hx : Filter.Tendsto x Filter.atTop Filter.atTop)
     (h_alpha : Filter.Tendsto (fun n => alpha A (x n)) Filter.atTop (nhds 1)) :
     ∀ y, ∃ z ∈ close_to_one_set A, z ≥ y := by
-      sorry
+  -- Since $\alpha(x_n) \to 1$, $1/\alpha(x_n) \to 1$. So eventually $|1/\alpha(x_n) - 1| < 1/4$.
+  have h_alpha_reciprocal : Filter.Tendsto (fun n => 1 / alpha A (x n)) Filter.atTop (nhds 1) := by
+    simpa using h_alpha.inv₀;
+  intro y
+  have h_eventually : ∃ N, ∀ n ≥ N, |(counting_function A (x n) : ℝ) / (counting_function A (x n / 2) : ℝ) - 1| < 1 / 4 := by
+    simpa using Metric.tendsto_atTop.mp h_alpha_reciprocal ( 1 / 4 ) ( by norm_num ) |> fun ⟨ N, hN ⟩ ↦ ⟨ N, fun n hn ↦ by simpa [ Real.dist_eq, abs_div, alpha ] using hN n hn ⟩ ;
+  obtain ⟨ N, hN ⟩ := h_eventually; rcases Filter.eventually_atTop.mp ( hx.eventually_ge_atTop y ) with ⟨ M, hM ⟩ ; exact ⟨ x ( Max.max N M ), hN _ ( le_max_left _ _ ), hM _ ( le_max_right _ _ ) ⟩ ;
+
 /-
 The counting function of an infinite set tends to infinity.
 -/
@@ -433,7 +593,18 @@ x is in the close_to_one_set iff floor(x) is in the set.
 -/
 theorem mem_close_to_one_set_iff_floor_mem (A : Set ℕ) (x : ℝ) :
     x ∈ close_to_one_set A ↔ (⌊x⌋ : ℝ) ∈ close_to_one_set A := by
-      sorry
+  -- By definition of `close_to_one_set`, we have $x \in close_to_one_set A$ if and only if $|\alpha(x) - 1| < \frac{1}{4}$.
+  simp [close_to_one_set];
+  rw [ show counting_function A x = counting_function A ⌊x⌋ from ?_, show counting_function A ( x / 2 ) = counting_function A ( ⌊x⌋ / 2 ) from ?_ ];
+  · unfold counting_function
+    refine Set.ncard_congr (fun a _ => a) ?_ ?_ ?_
+    · exact fun n hn => ⟨ hn.1, by rw [ le_div_iff₀ ] at * <;> norm_num ; exact_mod_cast Int.le_floor.2 <| by norm_num ; linarith [ hn.2 ] ⟩;
+    · grind;
+    · exact fun n hn => ⟨ n, ⟨ hn.1, hn.2.trans ( by gcongr ; exact Int.floor_le _ ) ⟩, rfl ⟩;
+  · unfold counting_function;
+    rw [ show { n : ℕ | n ∈ A ∧ ( n : ℝ ) ≤ x } = { n : ℕ | n ∈ A ∧ ( n : ℝ ) ≤ ⌊x⌋ } from ?_ ];
+    exact Set.ext fun n => ⟨ fun hn => ⟨ hn.1, mod_cast Int.le_floor.2 hn.2 ⟩, fun hn => ⟨ hn.1, hn.2.trans ( Int.floor_le x ) ⟩ ⟩
+
 /-
 Definition of zeta(y) as the infimum of x in X such that x >= y.
 -/
@@ -540,7 +711,39 @@ theorem lemma_zeta_alpha_limit (A B : Set ℕ) (h_inf_A : A.Infinite)
     (y : ℕ → ℝ) (hy : Filter.Tendsto y Filter.atTop Filter.atTop)
     (h_unbounded : ∀ z, ∃ w ∈ close_to_one_set A, w ≥ z) :
     Filter.Tendsto (fun n => alpha A (zeta_seq A y n)) Filter.atTop (nhds 1) := by
-      sorry
+      -- By Lemma \ref{lem:accumulation_points}, the set of accumulation points of $\alpha(x)$ is $\{1, 1/2\}$.
+      have h_accumulation_points : ∀ L : ℝ, (∃ (x : ℕ → ℝ), Filter.Tendsto x Filter.atTop Filter.atTop ∧ (∀ n, x n ∈ close_to_one_set A) ∧ Filter.Tendsto (fun n => alpha A (x n)) Filter.atTop (nhds L)) → L = 1 ∨ L = 1 / 2 := by
+        rintro L ⟨ x, hx₁, hx₂, hx₃ ⟩;
+        apply lemma_accumulation_points A B h_inf_A h_hyp h_r x hx₁ L hx₃;
+      contrapose! h_accumulation_points;
+      -- Since $\alpha(zeta_seq A y n)$ does not converge to 1, there exists a subsequence $\{zeta_seq A y n_k\}$ such that $\alpha(zeta_seq A y n_k)$ converges to some limit $L \neq 1$.
+      obtain ⟨L, hL⟩ : ∃ L, ∃ (nk : ℕ → ℕ), StrictMono nk ∧ Filter.Tendsto (fun k => alpha A (zeta_seq A y (nk k))) Filter.atTop (nhds L) ∧ L ≠ 1 := by
+        rw [ Metric.tendsto_nhds ] at *;
+        -- Since the sequence does not converge to 1, there exists an ε > 0 such that for infinitely many n, |alpha(zeta_seq A y n) - 1| ≥ ε.
+        obtain ⟨ε, hε_pos, hε⟩ : ∃ ε > 0, Set.Infinite {n | |alpha A (zeta_seq A y n) - 1| ≥ ε} := by
+          norm_num +zetaDelta at *;
+          exact ⟨ h_accumulation_points.choose, h_accumulation_points.choose_spec.1, Set.infinite_of_forall_exists_gt fun n => by obtain ⟨ m, hm₁, hm₂ ⟩ := h_accumulation_points.choose_spec.2 ( n + 1 ) ; exact ⟨ m, hm₂, hm₁ ⟩ ⟩;
+        -- Since the set {n | |alpha A (zeta_seq A y n) - 1| ≥ ε} is infinite, we can extract a subsequence {nk} such that |alpha A (zeta_seq A y nk) - 1| ≥ ε for all k.
+        obtain ⟨nk, hnk_mono, hnk⟩ : ∃ nk : ℕ → ℕ, StrictMono nk ∧ ∀ k, |alpha A (zeta_seq A y (nk k)) - 1| ≥ ε := by
+          exact ⟨ fun k => Nat.recOn k ( Nat.find <| hε.nonempty ) fun k ih => Nat.find <| hε.exists_gt ih, strictMono_nat_of_lt_succ fun k => Nat.find_spec ( hε.exists_gt _ ) |>.2, fun k => Nat.recOn k ( Nat.find_spec <| hε.nonempty ) fun k ih => Nat.find_spec ( hε.exists_gt _ ) |>.1 ⟩;
+        -- Since the sequence {alpha A (zeta_seq A y (nk k))} is bounded, it has a convergent subsequence.
+        obtain ⟨L, hL⟩ : ∃ L, ∃ (nk' : ℕ → ℕ), StrictMono nk' ∧ Filter.Tendsto (fun k => alpha A (zeta_seq A y (nk (nk' k)))) Filter.atTop (nhds L) := by
+          have h_bounded : ∃ M, ∀ k, |alpha A (zeta_seq A y (nk k))| ≤ M := by
+            use 4 / 3 + 4 / 5;
+            intro k; specialize hnk k; rw [ abs_le ] ; constructor <;> linarith [ abs_le.mp ( show |alpha A ( zeta_seq A y ( nk k ) ) - 1| ≤ 4 / 3 - 4 / 5 by exact abs_le.mpr ⟨ by linarith [ lemma_alpha_bounds_in_X A ( zeta_seq A y ( nk k ) ) ( zeta_seq_mem_close_to_one_set A y h_unbounded ( nk k ) ) ], by linarith [ lemma_alpha_bounds_in_X A ( zeta_seq A y ( nk k ) ) ( zeta_seq_mem_close_to_one_set A y h_unbounded ( nk k ) ) ] ⟩ ) ] ;
+          have h_compact : IsCompact (Set.Icc (-h_bounded.choose) h_bounded.choose) := by
+            exact CompactIccSpace.isCompact_Icc;
+          have := h_compact.isSeqCompact fun k => ⟨ neg_le_of_abs_le <| h_bounded.choose_spec k, le_of_abs_le <| h_bounded.choose_spec k ⟩ ; aesop;
+        obtain ⟨ nk', hnk'_mono, hnk' ⟩ := hL; exact ⟨ L, fun k => nk ( nk' k ), hnk_mono.comp hnk'_mono, hnk', fun h => by have := hnk' |> fun h => h.eventually ( Metric.ball_mem_nhds _ hε_pos ) ; obtain ⟨ k, hk ⟩ := this.exists; exact absurd hk ( by simpa [ Real.dist_eq, h ] using hnk ( nk' k ) ) ⟩ ;
+      obtain ⟨ nk, hnk₁, hnk₂, hnk₃ ⟩ := hL;
+      refine ⟨ L, ⟨ fun k => zeta_seq A y ( nk k ), ?_, ?_, hnk₂ ⟩, hnk₃, ?_ ⟩ <;> norm_num at *;
+      · exact zeta_seq_tendsto_atTop A y hy h_unbounded |> Filter.Tendsto.comp <| hnk₁.tendsto_atTop;
+      · exact fun n => zeta_seq_mem_close_to_one_set A y h_unbounded _;
+      · intro hL_half
+        have h_contra : ∀ᶠ k in Filter.atTop, 4 / 5 < alpha A (zeta_seq A y (nk k)) ∧ alpha A (zeta_seq A y (nk k)) < 4 / 3 := by
+          exact Filter.Eventually.of_forall fun k => lemma_alpha_bounds_in_X A _ <| zeta_seq_mem_close_to_one_set A y h_unbounded _;
+        exact absurd ( h_contra.and ( hnk₂.eventually ( gt_mem_nhds <| show L < 4 / 5 by linarith ) ) ) fun h => by obtain ⟨ k, hk₁, hk₂ ⟩ := h.exists; linarith;
+
 /-
 alpha(zeta_n) is eventually in (4/5, 4/3).
 -/
@@ -558,7 +761,31 @@ theorem lemma_convergence_helper (u : ℕ → ℝ)
     (h_bounds : ∀ᶠ n in Filter.atTop, 4 / 5 < u n ∧ u n < 4 / 3)
     (h_cluster : ∀ L, ClusterPt L (Filter.map u Filter.atTop) → L = 1 ∨ L = 1 / 2) :
     Filter.Tendsto u Filter.atTop (nhds 1) := by
-      sorry
+  -- Assume for contradiction that $u_n$ does not converge to $1$.
+  by_contra h_contra;
+  obtain ⟨L, hL⟩ : ∃ L, L ≠ 1 ∧ ∃ (n : ℕ → ℕ), StrictMono n ∧ Filter.Tendsto (u ∘ n) Filter.atTop (nhds L) := by
+    -- Since $u$ does not converge to $1$, there exists an $\epsilon > 0$ such that for all $N$, there exists $n \geq N$ with $|u_n - 1| \geq \epsilon$.
+    obtain ⟨ε, hε_pos, hε⟩ : ∃ ε > 0, ∀ N, ∃ n ≥ N, |u n - 1| ≥ ε := by
+      rw [ Metric.tendsto_atTop ] at h_contra ; aesop;
+    -- By definition of $hε$, we can construct a subsequence $(u_{n_k})$ such that $|u_{n_k} - 1| \geq \epsilon$ for all $k$.
+    obtain ⟨n, hn_mono, hn_subseq⟩ : ∃ n : ℕ → ℕ, StrictMono n ∧ ∀ k, |u (n k) - 1| ≥ ε := by
+      exact ⟨ fun k => Nat.recOn k ( Nat.find ( hε 0 ) ) fun k ih => Nat.find ( hε ( ih + 1 ) ), strictMono_nat_of_lt_succ fun k => Nat.find_spec ( hε _ ) |>.1.trans_lt' ( Nat.lt_succ_self _ ), fun k => Nat.recOn k ( Nat.find_spec ( hε 0 ) |>.2 ) fun k ih => Nat.find_spec ( hε _ ) |>.2 ⟩;
+    -- Since $u_{n_k}$ is bounded, it has a convergent subsequence.
+    obtain ⟨L, hL⟩ : ∃ L, ∃ (k : ℕ → ℕ), StrictMono k ∧ Filter.Tendsto (u ∘ n ∘ k) Filter.atTop (nhds L) := by
+      have h_bounded : ∃ M, ∀ k, |u (n k)| ≤ M := by
+        obtain ⟨ N, hN ⟩ := Filter.eventually_atTop.mp h_bounds;
+        exact ⟨ Max.max ( ∑ k ∈ Finset.range N, |u k| ) ( 4 / 3 ), fun k => if hk : n k < N then Finset.single_le_sum ( fun a _ => abs_nonneg ( u a ) ) ( Finset.mem_range.mpr hk ) |> le_trans <| le_max_left _ _ else le_trans ( show |u ( n k )| ≤ 4 / 3 by rw [ abs_of_nonneg ] <;> linarith [ hN ( n k ) ( le_of_not_gt hk ) ] ) ( le_max_right _ _ ) ⟩;
+      have h_compact : IsCompact (Set.Icc (-h_bounded.choose) h_bounded.choose) := by
+        exact CompactIccSpace.isCompact_Icc;
+      have := h_compact.isSeqCompact fun k => ⟨ neg_le_of_abs_le <| h_bounded.choose_spec k, le_of_abs_le <| h_bounded.choose_spec k ⟩ ; aesop;
+    obtain ⟨ k, hk_mono, hk_tendsto ⟩ := hL;
+    exact ⟨ L, by rintro rfl; exact absurd ( hk_tendsto.eventually ( Metric.ball_mem_nhds _ hε_pos ) ) fun h => by obtain ⟨ m, hm ⟩ := h.exists; exact not_lt_of_ge ( hn_subseq ( k m ) ) ( by simpa [ Real.dist_eq ] using hm ), n ∘ k, hn_mono.comp hk_mono, hk_tendsto ⟩;
+  obtain ⟨ n, hn_mono, hn_tendsto ⟩ := hL.2;
+  cases h_cluster L ( show ClusterPt L ( Filter.map u Filter.atTop ) from by
+                        rw [ clusterPt_iff_nonempty ];
+                        intro U hU V hV; rcases Filter.eventually_atTop.mp ( hn_tendsto.eventually hU ) with ⟨ k, hk ⟩ ; rcases Filter.eventually_atTop.mp ( hV ) with ⟨ m, hm ⟩ ; exact ⟨ u ( n ( Max.max k m ) ), hk _ ( le_max_left _ _ ), hm _ ( hn_mono.id_le _ |> le_trans ( le_max_right _ _ ) ) ⟩ ; ) <;> simp_all +decide [ ClusterPt ];
+  exact absurd ( le_of_tendsto_of_tendsto tendsto_const_nhds hn_tendsto <| Filter.eventually_atTop.mpr <| ⟨ h_bounds.choose, fun k hk => le_of_lt <| h_bounds.choose_spec ( n k ) ( hn_mono.id_le _ |> le_trans hk ) |>.1 ⟩ ) ( by norm_num )
+
 /-
 If L is a cluster point of alpha(zeta_n), then L = 1 or L = 1/2.
 -/
@@ -622,7 +849,14 @@ theorem lemma_zeta_halves_limit (A B : Set ℕ) (h_inf_A : A.Infinite)
     (y : ℕ → ℝ) (hy : Filter.Tendsto y Filter.atTop Filter.atTop)
     (h_unbounded : ∀ z, ∃ w ∈ close_to_one_set A, w ≥ z) :
     Filter.Tendsto (fun n => (counting_function A (zeta_seq A y n / 2) : ℝ) / counting_function A (zeta_seq A y n / 4)) Filter.atTop (nhds 1) := by
-      sorry
+      -- Apply lemma_quarter_final_v3 with x_n = zeta_seq A y n.
+      have h_apply_lemma : Filter.Tendsto (fun n => (counting_function A (zeta_seq A y n / 4) : ℝ) / (counting_function A (zeta_seq A y n))) Filter.atTop (nhds 1) := by
+        convert lemma_zeta_one A B h_inf_A h_hyp h_r y hy h_unbounded using 1;
+      -- Using the fact that multiplication by a nonzero constant preserves limits, we can conclude the proof.
+      have h_mul_const : Filter.Tendsto (fun n => ((counting_function A (zeta_seq A y n / 2) : ℝ) / (counting_function A (zeta_seq A y n))) / ((counting_function A (zeta_seq A y n / 4) : ℝ) / (counting_function A (zeta_seq A y n)))) Filter.atTop (nhds 1) := by
+        convert Filter.Tendsto.div ( lemma_zeta_alpha_limit A B h_inf_A h_hyp h_r y hy h_unbounded ) h_apply_lemma _ using 2 <;> norm_num [alpha];
+      refine h_mul_const.congr' ?_ ; filter_upwards [ h_apply_lemma.eventually_ne one_ne_zero ] with n hn ; rw [ div_div_div_cancel_right₀ ] ; aesop;
+
 /-
 For sufficiently large n, zeta(y_n) / 2 <= y_n.
 -/
@@ -632,7 +866,25 @@ theorem lemma_zeta_half_le_y (A B : Set ℕ) (h_inf_A : A.Infinite)
     (y : ℕ → ℝ) (hy : Filter.Tendsto y Filter.atTop Filter.atTop)
     (h_unbounded : ∀ z, ∃ w ∈ close_to_one_set A, w ≥ z) :
     ∀ᶠ n in Filter.atTop, zeta_seq A y n / 2 ≤ y n := by
-      sorry
+      by_contra h_contra;
+      -- If zeta_n / 2 > y_n for infinitely many n, then for those n, zeta_n / 2 is not in close_to_one_set A.
+      have h_not_in_X : ∀ᶠ n in Filter.atTop, zeta_seq A y n / 2 > y n → zeta_seq A y n / 2 ∉ close_to_one_set A := by
+        refine Filter.eventually_of_mem ( hy.eventually_gt_atTop 0 ) fun n hn hn' hn'' => ?_;
+        -- Since $zeta_seq A y n / 2$ is in $X$, we have $zeta_seq A y n / 2 \geq y n$.
+        have h_ge_y : zeta_seq A y n ≤ zeta_seq A y n / 2 := by
+          exact csInf_le ⟨ y n, fun x hx => hx.1 ⟩ ⟨ by linarith [ hn.out ], hn'' ⟩;
+        linarith [ hn.out ];
+      -- This implies |A(zeta_{n_k}/2)/A(zeta_{n_k}/4) - 1| >= 1/4 (roughly).
+      have h_absurd : ∀ᶠ n in Filter.atTop, zeta_seq A y n / 2 > y n → |(counting_function A (zeta_seq A y n / 2) : ℝ) / counting_function A (zeta_seq A y n / 4) - 1| ≥ 1 / 4 := by
+        filter_upwards [h_not_in_X] with n hn hgt
+        have harg : zeta_seq A y n / 2 / 2 = zeta_seq A y n / 4 := by ring
+        exact le_of_not_gt (by simpa [close_to_one_set, harg] using hn hgt)
+      -- But we proved in lemma_zeta_halves_limit that this ratio tends to 1, contradiction.
+      have h_contradiction : Filter.Tendsto (fun n => (counting_function A (zeta_seq A y n / 2) : ℝ) / counting_function A (zeta_seq A y n / 4)) Filter.atTop (nhds 1) := by
+        apply_rules [ lemma_zeta_halves_limit ];
+      rw [ Metric.tendsto_nhds ] at h_contradiction ; norm_num at *;
+      obtain ⟨ N, hN ⟩ := h_contradiction ( 1 / 4 ) ( by norm_num ) ; rcases h_contra ( Max.max N h_absurd.choose ) with ⟨ n, hn₁, hn₂ ⟩ ; exact not_lt_of_ge ( h_absurd.choose_spec n ( le_trans ( le_max_right _ _ ) hn₁ ) hn₂ ) ( hN n ( le_trans ( le_max_left _ _ ) hn₁ ) ) ;
+
 /-
 zeta(y) >= y.
 -/
@@ -700,14 +952,26 @@ theorem lemma_limit_A_ratio_one_of_unbounded (A B : Set ℕ) (h_inf_A : A.Infini
     (h_r : Filter.Tendsto (fun x : ℝ => (missing_sum_count A B x : ℝ) / x) Filter.atTop (nhds 0))
     (h_unbounded : ∀ z, ∃ w ∈ close_to_one_set A, w ≥ z) :
     Filter.Tendsto (fun x : ℝ => (counting_function A x : ℝ) / counting_function A (x / 2)) Filter.atTop (nhds 1) := by
-      sorry
+      convert Filter.tendsto_iff_seq_tendsto.mpr _ using 1;
+      · infer_instance;
+      · intro x hx; simpa [Function.comp_def] using lemma_y_limit A B h_inf_A h_hyp h_r x hx h_unbounded;
+
 /-
 If 1 is a cluster point of alpha(x), then X is unbounded.
 -/
 theorem lemma_X_unbounded_of_cluster_one (A : Set ℕ)
     (h_cluster : MapClusterPt 1 Filter.atTop (fun x => alpha A x)) :
     ∀ y, ∃ z ∈ close_to_one_set A, z ≥ y := by
-      sorry
+      -- Since 1 is a cluster point of alpha(x), there exists a sequence x_n such that alpha(x_n) converges to 1 and x_n tends to infinity.
+      obtain ⟨x_n, hx_n⟩ : ∃ x_n : ℕ → ℝ, Filter.Tendsto x_n Filter.atTop Filter.atTop ∧ Filter.Tendsto (fun n => alpha A (x_n n)) Filter.atTop (nhds 1) := by
+        rw [ mapClusterPt_iff_frequently ] at h_cluster;
+        have h_seq : ∀ n : ℕ, ∃ x : ℝ, x > n ∧ |alpha A x - 1| < 1 / (n + 1) := by
+          exact fun n => by rcases Filter.frequently_atTop.mp ( h_cluster ( Metric.ball 1 ( 1 / ( n + 1 ) ) ) ( Metric.ball_mem_nhds _ ( by positivity ) ) ) ( n + 1 ) with ⟨ x, hx₁, hx₂ ⟩ ; exact ⟨ x, by linarith, by simpa [ Real.dist_eq ] using hx₂ ⟩ ;
+        choose f hf using h_seq;
+        exact ⟨ f, Filter.tendsto_atTop_mono ( fun n => le_of_lt ( hf n |>.1 ) ) tendsto_natCast_atTop_atTop, tendsto_iff_norm_sub_tendsto_zero.mpr <| squeeze_zero ( fun _ => by positivity ) ( fun n => le_of_lt ( hf n |>.2 ) ) <| tendsto_one_div_add_atTop_nhds_zero_nat ⟩;
+      apply close_to_one_set_unbounded A x_n hx_n.left;
+      exact hx_n.2
+
 /-
 If 1 is a cluster point of alpha(x), then alpha(x) converges to 1.
 -/
@@ -851,7 +1115,84 @@ theorem narkiewicz_dichotomy (A B : Set ℕ) (h_inf_A : A.Infinite) (h_inf_B : B
      Filter.Tendsto (fun x => (counting_function B (2 * x) : ℝ) / counting_function B x) Filter.atTop (nhds 2)) ∨
     (Filter.Tendsto (fun x => (counting_function B (2 * x) : ℝ) / counting_function B x) Filter.atTop (nhds 1) ∧
      Filter.Tendsto (fun x => (counting_function A (2 * x) : ℝ) / counting_function A x) Filter.atTop (nhds 2)) := by
-       sorry
+       by_cases h_cluster : MapClusterPt 1 Filter.atTop (fun x => (counting_function A (x / 2) : ℝ) / counting_function A x);
+       · have h_alpha_limit : Filter.Tendsto (fun x => (counting_function A (x / 2) : ℝ) / counting_function A x) Filter.atTop (nhds 1) := by
+           apply_rules [ lemma_limit_one_of_cluster_one ];
+         have h_beta_limit : Filter.Tendsto (fun x => (counting_function B (x / 2) : ℝ) / counting_function B x) Filter.atTop (nhds (1 / 2)) := by
+           have h_beta_limit : Filter.Tendsto (fun x => (counting_function A (x / 2) : ℝ) / counting_function A x * (counting_function B (x / 2) : ℝ) / counting_function B x) Filter.atTop (nhds (1 / 2)) := by
+             convert lemma_alpha_beta_product A B h_hyp using 2 ; ring_nf;
+             unfold alpha beta; ring_nf;
+           field_simp;
+           have := h_beta_limit.div h_alpha_limit;
+           simpa using this one_ne_zero |> fun h => h.congr' ( by filter_upwards [ h_alpha_limit.eventually_ne one_ne_zero ] with x hx using by rw [ Pi.div_apply, mul_div_assoc, mul_div_cancel_left₀ _ hx ] );
+         have h_beta_limit : Filter.Tendsto (fun x => (counting_function B x : ℝ) / counting_function B (x / 2)) Filter.atTop (nhds 2) := by
+           simpa using h_beta_limit.inv₀;
+         have h_alpha_limit : Filter.Tendsto (fun x => (counting_function A x : ℝ) / counting_function A (x / 2)) Filter.atTop (nhds 1) := by
+           simpa using h_alpha_limit.inv₀;
+         exact Or.inl ⟨ by convert h_alpha_limit.comp ( Filter.tendsto_id.const_mul_atTop zero_lt_two ) using 2 ; norm_num [ two_mul ], by convert h_beta_limit.comp ( Filter.tendsto_id.const_mul_atTop zero_lt_two ) using 2 ; norm_num [ two_mul ] ⟩;
+       · -- Since 1 is not a cluster point of alpha, there exists a sequence x_n such that alpha(x_n) → 1/2.
+         obtain ⟨x_n, hx_n⟩ : ∃ x_n : ℕ → ℝ, Filter.Tendsto x_n Filter.atTop Filter.atTop ∧ Filter.Tendsto (fun n => (counting_function A (x_n n / 2) : ℝ) / counting_function A (x_n n)) Filter.atTop (nhds (1 / 2)) := by
+           -- Since 1 is not a cluster point of alpha, there exists a sequence x_n such that alpha(x_n) → L for some L ≠ 1.
+           obtain ⟨L, hL⟩ : ∃ L, L ∈ {L | ∃ x_n : ℕ → ℝ, Filter.Tendsto x_n Filter.atTop Filter.atTop ∧ Filter.Tendsto (fun n => (counting_function A (x_n n / 2) : ℝ) / counting_function A (x_n n)) Filter.atTop (nhds L)} ∧ L ≠ 1 := by
+             -- Since 1 is not a cluster point of alpha, there exists a sequence x_n such that alpha(x_n) tends to some L ≠ 1.
+             obtain ⟨L, hL⟩ : ∃ L, ∃ x_n : ℕ → ℝ, Filter.Tendsto x_n Filter.atTop Filter.atTop ∧ Filter.Tendsto (fun n => (counting_function A (x_n n / 2) : ℝ) / counting_function A (x_n n)) Filter.atTop (nhds L) := by
+               have h_compact : IsCompact (Set.Icc (0 : ℝ) 1) := by
+                 exact CompactIccSpace.isCompact_Icc;
+               have h_seq : ∃ x_n : ℕ → ℝ, Filter.Tendsto x_n Filter.atTop Filter.atTop ∧ ∀ n, (counting_function A (x_n n / 2) : ℝ) / counting_function A (x_n n) ∈ Set.Icc (0 : ℝ) 1 := by
+                 have h_seq : ∀ᶠ x in Filter.atTop, (counting_function A (x / 2) : ℝ) / counting_function A x ∈ Set.Icc (0 : ℝ) 1 := by
+                   exact lemma_alpha_bounded A;
+                 rw [ Filter.eventually_atTop ] at h_seq; rcases h_seq with ⟨ M, hM ⟩ ; exact ⟨ fun n => Max.max M n, Filter.tendsto_atTop_mono ( fun n => le_max_right _ _ ) tendsto_natCast_atTop_atTop, fun n => hM _ ( le_max_left _ _ ) ⟩ ;
+               obtain ⟨ x_n, hx_n₁, hx_n₂ ⟩ := h_seq;
+               have := h_compact.isSeqCompact fun n => hx_n₂ n;
+               exact ⟨ this.choose, fun n => x_n ( this.choose_spec.2.choose n ), hx_n₁.comp this.choose_spec.2.choose_spec.1.tendsto_atTop, this.choose_spec.2.choose_spec.2 ⟩;
+             refine ⟨ L, hL, ?_ ⟩;
+             contrapose! h_cluster;
+             rw [ MapClusterPt ];
+             rw [ clusterPt_iff_nonempty ];
+             norm_num +zetaDelta at *;
+             intro U hU V x hx; rcases Metric.mem_nhds_iff.mp hU with ⟨ ε, εpos, hε ⟩ ; rcases hL with ⟨ x_n, hx_n₁, hx_n₂ ⟩ ; rcases Metric.tendsto_atTop.mp hx_n₂ ε εpos with ⟨ N, hN ⟩ ; rcases Filter.eventually_atTop.mp ( hx_n₁.eventually_ge_atTop x ) with ⟨ M, hM ⟩ ; exact ⟨ _, hε <| mem_ball_iff_norm.mpr <| by simpa [ Real.dist_eq, h_cluster ] using hN ( Max.max N M ) ( le_max_left _ _ ), hx _ <| hM _ <| le_max_right _ _ ⟩ ;
+           -- Since L is a cluster point of alpha and alpha(x) is bounded, L must be in {1, 1/2}.
+           have hL_bounds : L = 1 ∨ L = 1 / 2 := by
+             apply lemma_accumulation_points A B h_inf_A h_hyp h_r hL.left.choose hL.left.choose_spec.left L hL.left.choose_spec.right;
+           aesop;
+         -- Since $\alpha(x_n) \to 1/2$, we have $\beta(x_n) \to 1$.
+         have h_beta_x_n : Filter.Tendsto (fun n => (counting_function B (x_n n / 2) : ℝ) / counting_function B (x_n n)) Filter.atTop (nhds 1) := by
+           have h_beta : Filter.Tendsto (fun x => (counting_function A (x / 2) : ℝ) / counting_function A x * (counting_function B (x / 2) : ℝ) / counting_function B x) Filter.atTop (nhds (1 / 2)) := by
+             convert lemma_alpha_beta_product A B h_hyp using 2 ; ring_nf;
+             unfold alpha beta; ring_nf;
+           have := h_beta.comp hx_n.1;
+           have := this.div hx_n.2; norm_num at *;
+           refine this.congr' ( by filter_upwards [ hx_n.2.eventually_ne ( show ( 1 / 2 : ℝ ) ≠ 0 by norm_num ) ] with n hn; simp +decide [ mul_div_assoc, hn ] );
+         -- Since $\beta(x_n) \to 1$, we have $\beta(x) \to 1$.
+         have h_beta : Filter.Tendsto (fun x => (counting_function B (x / 2) : ℝ) / counting_function B x) Filter.atTop (nhds 1) := by
+           have h_beta : MapClusterPt 1 Filter.atTop (fun x => (counting_function B (x / 2) : ℝ) / counting_function B x) := by
+             rw [ mapClusterPt_iff_frequently ];
+             intro s hs;
+             rw [ Filter.frequently_atTop ];
+             intro a; have := h_beta_x_n.eventually hs; have := this.and ( hx_n.1.eventually_ge_atTop a ) ; obtain ⟨ n, hn₁, hn₂ ⟩ := this.exists; exact ⟨ x_n n, hn₂, hn₁ ⟩ ;
+           convert lemma_limit_one_of_cluster_one B A h_inf_B ( lemma_exact_complements_symm A B h_hyp ) _ h_beta using 1
+           · ext x
+             rfl
+           · convert h_r using 1
+             unfold missing_sum_count
+             ext x
+             simp +decide [ add_comm ]
+         -- Since $\beta(x) \to 1$, we have $\beta(2x) \to 1$.
+         have h_beta_2x : Filter.Tendsto (fun x => (counting_function B x : ℝ) / counting_function B (2 * x)) Filter.atTop (nhds 1) := by
+           convert h_beta.comp ( show Filter.Tendsto ( fun x : ℝ => 2 * x ) Filter.atTop Filter.atTop from Filter.tendsto_id.const_mul_atTop zero_lt_two ) using 2 ; norm_num [ two_mul ];
+         -- Since $\beta(x) \to 1$, we have $\alpha(x) \to 1/2$.
+         have h_alpha : Filter.Tendsto (fun x => (counting_function A (x / 2) : ℝ) / counting_function A x) Filter.atTop (nhds (1 / 2)) := by
+           have h_alpha : Filter.Tendsto (fun x => (counting_function A (x / 2) : ℝ) / counting_function A x * (counting_function B (x / 2) : ℝ) / counting_function B x) Filter.atTop (nhds (1 / 2)) := by
+             convert lemma_alpha_beta_product A B h_hyp using 2 ; ring_nf;
+             unfold alpha beta; ring_nf;
+           field_simp;
+           have := h_alpha.div h_beta;
+           simpa using this one_ne_zero |> fun h => h.congr' ( by filter_upwards [ h_beta.eventually_ne one_ne_zero ] with x hx using by rw [ Pi.div_apply, mul_div_assoc, mul_div_cancel_right₀ _ hx ] );
+         have h_alpha_2x : Filter.Tendsto (fun x => (counting_function A x : ℝ) / counting_function A (2 * x)) Filter.atTop (nhds (1 / 2)) := by
+           convert h_alpha.comp ( Filter.tendsto_id.const_mul_atTop zero_lt_two ) using 2 ; norm_num [ two_mul ];
+         have := h_alpha_2x.inv₀ ; norm_num at *;
+         exact Or.inr ⟨ by simpa using h_beta_2x.inv₀, this ⟩
+
 /-
 Definitions of sigma(n) and delta(n) for finite sets U, V.
 -/
@@ -1038,7 +1379,42 @@ sum_{a in A, a <= x} a = o(x A(x)).
 -/
 theorem lemma_aatlag_sum (A : Set ℕ) (h_smallbig_A : Filter.Tendsto (fun x => (counting_function A (2 * x) : ℝ) / counting_function A x) Filter.atTop (nhds 1)) :
     Filter.Tendsto (fun x => sum_elements A x / (x * counting_function A x)) Filter.atTop (nhds 0) := by
-      sorry
+      -- Let's choose any $\epsilon > 0$.
+      have h_eps : ∀ ε > 0, ∀ᶠ x in Filter.atTop, sum_elements A x ≤ ε * x * counting_function A (ε * x) + x * (counting_function A x - counting_function A (ε * x)) := by
+        intro ε hε_pos
+        have h_bound : ∀ x : ℝ, x ≥ 0 → sum_elements A x ≤ ε * x * counting_function A (ε * x) + x * (counting_function A x - counting_function A (ε * x)) := by
+          intro x hx_nonneg
+          apply lemma_sum_bound A x ε hx_nonneg hε_pos
+        exact Filter.eventually_atTop.mpr ⟨0, fun x hx => h_bound x hx⟩;
+      -- By dividing both sides of the inequality by $x * A(x)$, we get $\frac{\text{sum\_elements } A x}{x * A(x)} \leq \epsilon * \frac{A(\epsilon x)}{A(x)} + (1 - \frac{A(\epsilon x)}{A(x)})$.
+      have h_div : ∀ ε > 0, ε ≤ 1 → ∀ᶠ x in Filter.atTop, sum_elements A x / (x * counting_function A x) ≤ ε * (counting_function A (ε * x) / counting_function A x) + (1 - counting_function A (ε * x) / counting_function A x) := by
+        intro ε hε_pos hε_le_one
+        obtain ⟨x₀, hx₀⟩ : ∃ x₀, ∀ x ≥ x₀, sum_elements A x ≤ ε * x * counting_function A (ε * x) + x * (counting_function A x - counting_function A (ε * x)) := by
+          exact Filter.eventually_atTop.mp ( h_eps ε hε_pos );
+        filter_upwards [ Filter.eventually_gt_atTop x₀, Filter.eventually_gt_atTop 0, Filter.eventually_gt_atTop 0 ] with x hx₁ hx₂ hx₃;
+        by_cases h : counting_function A x = 0 <;> simp_all +decide [mul_assoc];
+        rw [ div_le_iff₀ ( mul_pos hx₃ ( Nat.cast_pos.mpr ( Nat.pos_of_ne_zero h ) ) ) ]
+        refine le_trans (hx₀ x hx₁.le) ?_
+        field_simp [h]
+        exact le_rfl
+      -- By lemma_limit_general_c, $\frac{A(\epsilon x)}{A(x)} \to 1$ as $x \to \infty$.
+      have h_limit_general_c : ∀ ε > 0, Filter.Tendsto (fun x => (counting_function A (ε * x) : ℝ) / counting_function A x) Filter.atTop (nhds 1) := by
+        intros ε hε_pos
+        apply lemma_limit_general_c A h_smallbig_A ε hε_pos;
+      -- Since $\epsilon$ is arbitrary, we can conclude that the limit is $0$.
+      have h_arbitrary_eps : ∀ ε > 0, ∀ᶠ x in Filter.atTop, sum_elements A x / (x * counting_function A x) ≤ 2 * ε := by
+        intros ε hε_pos
+        let δ : ℝ := min ε (1 / 2)
+        have hδ_pos : 0 < δ := by simp [δ, hε_pos]
+        have hδ_le_one : δ ≤ 1 := by
+          exact le_trans (min_le_right ε (1 / 2)) (by norm_num)
+        have hδ_le : δ ≤ ε := min_le_left ε (1 / 2)
+        have h_eps_limit : Filter.Tendsto (fun x => δ * (counting_function A (δ * x) / counting_function A x) + (1 - counting_function A (δ * x) / counting_function A x)) Filter.atTop (nhds (δ * 1 + (1 - 1))) := by
+          exact Filter.Tendsto.add ( tendsto_const_nhds.mul ( h_limit_general_c δ hδ_pos ) ) ( tendsto_const_nhds.sub ( h_limit_general_c δ hδ_pos ) );
+        filter_upwards [ h_div δ hδ_pos hδ_le_one, h_eps_limit.eventually ( gt_mem_nhds <| show δ * 1 + ( 1 - 1 ) < 2 * ε by nlinarith ) ] with x hx₁ hx₂ using le_trans hx₁ hx₂.le;
+      rw [ Metric.tendsto_nhds ];
+      intro ε hε; filter_upwards [ h_arbitrary_eps ( ε / 4 ) ( by positivity ), Filter.eventually_gt_atTop 0 ] with x hx₁ hx₂; exact abs_lt.mpr ⟨ by linarith [ show 0 ≤ sum_elements A x / ( x * ↑ ( counting_function A x ) ) from div_nonneg ( Finset.sum_nonneg fun _ _ => Nat.cast_nonneg _ ) ( mul_nonneg hx₂.le ( Nat.cast_nonneg _ ) ) ], by linarith [ show 0 ≤ sum_elements A x / ( x * ↑ ( counting_function A x ) ) from div_nonneg ( Finset.sum_nonneg fun _ _ => Nat.cast_nonneg _ ) ( mul_nonneg hx₂.le ( Nat.cast_nonneg _ ) ) ] ⟩ ;
+
 /-
 Definition of a*(x) = max {a in A, a <= x}.
 -/
@@ -1345,7 +1721,52 @@ theorem lemma_sum_B_bound (A B : Set ℕ) (h_inf_A : A.Infinite) (h_hyp : exact_
       let t := a_star A x
       t < x / 2 →
       ∑ a ∈ Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1)), (counting_function B (a + t) : ℝ) ≤ (1 + ε) * t := by
-        sorry
+        intro ε hε_pos
+        obtain ⟨ε', hε'_pos, hε'⟩ : ∃ ε' > 0, ε' < ε ∧ ε' < 1 / 3 := by
+          exact ⟨ Min.min ( ε / 2 ) ( 1 / 6 ), by positivity, by linarith [ min_le_left ( ε / 2 ) ( 1 / 6 ) ], by linarith [ min_le_right ( ε / 2 ) ( 1 / 6 ) ] ⟩;
+        have h_bound : ∀ᶠ x in Filter.atTop, (let t := a_star A x; t < x / 2 → ∀ a ∈ Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1)), (counting_function B (a + t) : ℝ) ≤ (1 + ε' / 3) * (a + t) / (counting_function A x)) := by
+          have := @lemma_B_at_plus_t_bound A B h_inf_A h_hyp ( ε' / 3 ) ( by linarith ) ; aesop;
+        have h_sum_bound : ∀ᶠ x in Filter.atTop, (let t := a_star A x; t < x / 2 → ∑ a ∈ Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1)), (a : ℝ) ≤ (ε' / 3) * (a_star A x) * (counting_function A x)) := by
+          have h_sum_bound : Filter.Tendsto (fun x => (∑ a ∈ Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1)), (a : ℝ)) / ((a_star A x) * (counting_function A x))) Filter.atTop (nhds 0) := by
+            simpa [sum_elements] using lemma_sum_elements_a_star A h_inf_A h_smallbig_A;
+          filter_upwards [ h_sum_bound.eventually ( gt_mem_nhds <| show 0 < ε' / 3 by linarith ), Filter.eventually_gt_atTop 0 ] with x hx₁ hx₂;
+          by_cases h : a_star A x = 0 <;> by_cases h' : counting_function A x = 0 <;> simp_all +decide [mul_assoc];
+          · contrapose! h';
+            simp_all +decide [ counting_function ];
+            rw [ Nat.card_eq_zero ];
+            simp +zetaDelta at *;
+            exact ⟨ by obtain ⟨ n, hn ⟩ := Finset.nonempty_of_sum_ne_zero ( ne_of_gt h' ) ; exact ⟨ n, by aesop, by exact le_trans ( mod_cast Finset.mem_range_succ_iff.mp ( Finset.mem_filter.mp hn |>.1 ) ) ( Nat.floor_le hx₂.le ) ⟩, Set.Finite.to_subtype <| Set.finite_iff_bddAbove.mpr ⟨ ⌊x⌋.toNat, fun n hn => Nat.le_floor <| mod_cast hn.2 ⟩ ⟩;
+          · contrapose! h;
+            intro H; simp_all +decide [ a_star ] ;
+            obtain ⟨ a, ha ⟩ := Finset.exists_ne_zero_of_sum_ne_zero h.ne' ; simp_all +decide [ Finset.mem_filter ];
+            exact absurd ( H ⟨ a, ha.1.2, by exact_mod_cast Nat.floor_le hx₂.le |> le_trans ( Nat.cast_le.mpr ha.1.1 ) ⟩ ) ( ne_of_gt <| lt_of_lt_of_le ( Nat.cast_pos.mpr <| Nat.pos_of_ne_zero ha.2 ) <| le_csSup ( show BddAbove ( A ∩ { n : ℕ | ( n : ℝ ) ≤ x } ) from ⟨ ⌊x⌋.toNat, fun n hn => Nat.le_of_lt_succ <| by { exact_mod_cast hn.2.out.trans_lt <| Nat.lt_floor_add_one x } ⟩ ) ⟨ ha.1.2, by exact_mod_cast Nat.floor_le hx₂.le |> le_trans ( Nat.cast_le.mpr ha.1.1 ) ⟩ );
+          · intro hx₃; contrapose! h'; simp_all +decide [ counting_function ] ;
+            rw [ Nat.card_eq_zero ] ; norm_num;
+            exact ⟨ by obtain ⟨ n, hn ⟩ := Finset.nonempty_of_sum_ne_zero ( ne_of_gt h' ) ; exact ⟨ n, by aesop, by exact le_trans ( Nat.cast_le.mpr <| Finset.mem_range_succ_iff.mp <| Finset.mem_filter.mp hn |>.1 ) <| Nat.floor_le hx₂.le ⟩, Set.Finite.to_subtype <| Set.finite_iff_bddAbove.mpr ⟨ ⌊x⌋₊, fun n hn => Nat.le_floor <| hn.2 ⟩ ⟩;
+          · exact fun h'' => by rw [ div_lt_iff₀ ( by positivity ) ] at hx₁; linarith;
+        filter_upwards [ h_bound, h_sum_bound, Filter.eventually_gt_atTop 0 ] with x hx₁ hx₂ hx₃ hx₄;
+        intro hx₅
+        have h_sum_bound : ∑ a ∈ Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1)), (counting_function B (a + hx₄) : ℝ) ≤ (1 + ε' / 3) * (∑ a ∈ Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1)), (a : ℝ) + (Finset.card (Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1))) : ℝ) * hx₄) / (counting_function A x) := by
+          refine le_trans (Finset.sum_le_sum fun a ha => hx₁ hx₅ a ha) ?_
+          norm_num [ Finset.sum_add_distrib, mul_add, add_div, Finset.mul_sum _ _ _, Finset.sum_div ]
+          apply le_of_eq
+          ring
+        have h_card_bound : (Finset.card (Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1))) : ℝ) = counting_function A x := by
+          rw [ show counting_function A x = Finset.card ( Finset.filter ( fun n => n ∈ A ) ( Finset.range ( ⌊x⌋.toNat + 1 ) ) ) from ?_ ];
+          convert Nat.card_eq_finsetCard ( Finset.filter ( fun n => n ∈ A ) ( Finset.range ( ⌊x⌋.toNat + 1 ) ) ) using 1;
+          rw [ ← Nat.card_congr ]
+          focus
+            aesop
+          refine Equiv.subtypeEquivRight ?_;
+          simp [Finset.mem_filter, Finset.mem_range];
+          exact fun n => ⟨ fun hn => ⟨ Nat.le_floor hn.2, hn.1 ⟩, fun hn => ⟨ hn.2, Nat.floor_le hx₃.le |> le_trans ( mod_cast hn.1 ) ⟩ ⟩;
+        by_cases h : counting_function A x = 0 <;> simp_all +decide;
+        · exact h_sum_bound.trans ( by positivity );
+        · refine le_trans h_sum_bound ?_;
+          rw [ div_le_iff₀ ( by positivity ) ];
+          have := hx₂ hx₅;
+          nlinarith [ show ( 0 : ℝ ) ≤ ε' * ↑ ( a_star A x ) * ↑ ( counting_function A x ) by positivity, show ( 0 : ℝ ) ≤ ↑ ( a_star A x ) * ↑ ( counting_function A x ) by positivity, show ( 0 : ℝ ) ≤ ↑ ( counting_function A x ) by positivity ]
+
 /-
 The number of pairs (u,v) with v-u <= t is bounded by the sum of B(u+t).
 -/
@@ -1354,7 +1775,38 @@ theorem lemma_pairs_le_sum_B (B : Set ℕ) (t : ℕ)
     (hV' : ∀ v ∈ V', ∃ b ∈ B, v = (b : ℤ)) :
     ((U ×ˢ V').filter (fun p => p.2 - p.1 ≤ (t : ℤ))).card ≤
     ∑ u ∈ U, counting_function B ((u : ℝ) + t) := by
-      sorry
+      rw [ Finset.card_filter ];
+      erw [ Finset.sum_product ];
+      refine Finset.sum_le_sum fun u hu => ?_;
+      simp +zetaDelta at *;
+      choose! f hf using hV';
+      -- Since $f$ is injective on $V'$, the cardinality of $\{x \in V' \mid x \leq t + u\}$ is at most the cardinality of $\{b \in B \mid b \leq t + u\}$.
+      have h_card_le : Finset.card (Finset.image f (Finset.filter (fun x => x ≤ t + u) V')) ≤ Nat.card {b ∈ B | b ≤ t + u} := by
+        rw [ ← Nat.card_eq_finsetCard ];
+        apply_rules [ Nat.card_mono ];
+        · exact Set.finite_iff_bddAbove.mpr ⟨ ⌊t + u⌋₊, fun x hx => Nat.le_floor <| mod_cast hx.2 ⟩;
+        · intro b hb; obtain ⟨ v, hv, rfl ⟩ := Finset.mem_image.mp hb; exact ⟨ hf v ( Finset.mem_filter.mp hv |>.1 ) |>.1, by linarith [ hf v ( Finset.mem_filter.mp hv |>.1 ) |>.2, Finset.mem_filter.mp hv |>.2 ] ⟩ ;
+      rw [ Finset.card_image_of_injOn ] at h_card_le;
+      · have h_count_eq : counting_function B ((u : ℝ) + t) =
+            Nat.card {b ∈ B | (b : ℤ) ≤ (t : ℤ) + u} := by
+          unfold counting_function
+          rw [show {n : ℕ | n ∈ B ∧ (n : ℝ) ≤ (u : ℝ) + t} =
+              {b : ℕ | b ∈ B ∧ (b : ℤ) ≤ (t : ℤ) + u} by
+            ext b
+            constructor
+            · intro hb
+              exact ⟨hb.1, by
+                have hb'' : (b : ℤ) ≤ u + (t : ℤ) := by exact_mod_cast hb.2
+                omega⟩
+            · intro hb
+              exact ⟨hb.1, by
+                have hb' : ((b : ℤ) : ℝ) ≤ ((t : ℤ) + u : ℤ) := by exact_mod_cast hb.2
+                norm_num at hb' ⊢
+                linarith⟩]
+        rw [h_count_eq]
+        exact h_card_le
+      · exact fun x hx y hy hxy => by linarith [ hf x ( Finset.filter_subset _ _ hx ), hf y ( Finset.filter_subset _ _ hy ) ] ;
+
 /-
 The sum of delta counts for differences <= t equals the number of pairs with difference <= t.
 -/
@@ -1533,7 +1985,139 @@ theorem lemma_y_lower_bound (A B : Set ℕ) (x : ℝ) (t : ℕ) (ε : ℝ)
                      (Finset.filter (fun n => n ∈ B) (Finset.range (⌊x - t⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩).filter (fun p => p.2 - p.1 ≤ (t : ℤ))).card ≤ (1 + ε) * t)
     (h_A_pos : counting_function A x > 0) :
     (excess_count A B x : ℝ) ≥ counting_function B (x - t) - (x - (1 - ε) * t) / counting_function A x := by
-      sorry
+      field_simp;
+      have h_sum_sigma_minus_one_bound : (counting_function A x * counting_function B (x - t) : ℝ) - x + (1 - ε) * t ≤ (counting_function A x : ℝ) * ∑ n ∈ Finset.image (fun p : ℤ × ℤ => p.1 + p.2) ((Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩ ×ˢ (Finset.filter (fun n => n ∈ B) (Finset.range (⌊x - t⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩), (if sigma_count ((Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩) ((Finset.filter (fun n => n ∈ B) (Finset.range (⌊x - t⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩) n > 1 then (sigma_count ((Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩) ((Finset.filter (fun n => n ∈ B) (Finset.range (⌊x - t⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩) n : ℝ) - 1 else 0) := by
+        have h_sum_delta_minus_one_bound : (counting_function A x * counting_function B (x - t) : ℝ) - x + (1 - ε) * t ≤ ∑ n ∈ Finset.image (fun p : ℤ × ℤ => p.2 - p.1) ((Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩ ×ˢ (Finset.filter (fun n => n ∈ B) (Finset.range (⌊x - t⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩), (if delta_count ((Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩) ((Finset.filter (fun n => n ∈ B) (Finset.range (⌊x - t⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩) n > 1 then (delta_count ((Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩) ((Finset.filter (fun n => n ∈ B) (Finset.range (⌊x - t⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩) n : ℝ) - 1 else 0) := by
+          apply_rules [ lemma_sum_delta_minus_one_bound ];
+        field_simp;
+        calc
+          (counting_function A x * counting_function B (x - t) : ℝ) - x + (t : ℝ) * (1 - ε) ≤ _ := by
+            convert h_sum_delta_minus_one_bound using 1
+            ring
+          _ ≤ _ := by
+            have h_sum_delta_minus_one_bound : ∀ (U V' : Finset ℤ), (∑ n ∈ Finset.image (fun p : ℤ × ℤ => p.2 - p.1) (U ×ˢ V'), (if delta_count U V' n > 1 then (delta_count U V' n : ℝ) - 1 else 0)) ≤ U.card * (∑ n ∈ Finset.image (fun p : ℤ × ℤ => p.1 + p.2) (U ×ˢ V'), (if sigma_count U V' n > 1 then (sigma_count U V' n : ℝ) - 1 else 0)) := by
+              intros U V'
+              have h_sum_delta_minus_one_bound : (∑ n ∈ Finset.image (fun p : ℤ × ℤ => p.2 - p.1) (U ×ˢ V'), (if delta_count U V' n > 1 then (delta_count U V' n : ℝ) - 1 else 0)) ≤ U.card * (∑ n ∈ Finset.image (fun p : ℤ × ℤ => p.1 + p.2) (U ×ˢ V'), (if sigma_count U V' n > 1 then (sigma_count U V' n : ℝ) - 1 else 0)) := by
+                have := lemma_deltaszigma U V'
+                norm_num [ mul_comm, Finset.sum_ite ] at *;
+                rw [ ← @Nat.cast_le ℝ ] at * ; norm_num at *;
+                convert add_le_add_right this ( Finset.card ( Finset.filter ( fun x => 1 < delta_count U V' x ) ( Finset.image ( fun p : ℤ × ℤ => p.2 - p.1 ) ( U ×ˢ V' ) ) ) : ℝ ) using 1
+                · rfl
+                · rw [ Finset.card_filter ];
+                  rw [ Nat.cast_sum ] ; rw [ Finset.sum_filter ] ; rw [ Finset.sum_congr rfl fun x hx => Nat.cast_sub <| Nat.one_le_iff_ne_zero.mpr <| by aesop ] ; norm_num; ring_nf;
+                  rw [ Finset.sum_filter ];
+                · rw [ Finset.sum_congr rfl fun x hx => Nat.cast_sub <| Nat.one_le_iff_ne_zero.mpr <| by aesop ] ; norm_num [ Finset.sum_sub_distrib ]; ring
+              exact h_sum_delta_minus_one_bound;
+            let U0 : Finset ℤ :=
+              (Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1))).map
+                ⟨Int.ofNat, Int.ofNat_injective⟩
+            let V0 : Finset ℤ :=
+              (Finset.filter (fun n => n ∈ B) (Finset.range (⌊x - t⌋.toNat + 1))).map
+                ⟨Int.ofNat, Int.ofNat_injective⟩
+            have hU0_card : (U0.card : ℝ) = counting_function A x := by
+              dsimp [U0]
+              rw [Finset.card_map]
+              have hnat : counting_function A x =
+                  (Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1))).card := by
+                unfold counting_function
+                rw [← Nat.card_eq_finsetCard]
+                rw [show {n : ℕ | n ∈ A ∧ (n : ℝ) ≤ x} =
+                    (Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1)) : Set ℕ) by
+                  ext n
+                  simp +decide
+                  exact ⟨ fun h => ⟨ Nat.le_floor <| mod_cast h.2, h.1 ⟩,
+                    fun h => ⟨ h.2, Nat.floor_le hx |> le_trans ( mod_cast h.1 ) ⟩ ⟩]
+                simp
+              exact_mod_cast hnat.symm
+            have hmain := h_sum_delta_minus_one_bound U0 V0
+            dsimp [U0, V0] at hmain hU0_card ⊢
+            rw [hU0_card] at hmain
+            simpa using hmain
+      -- Since $V' \subseteq V$, we have $\sum_{\sigma>1} (\sigma(n)-1) \ge \sum_{\sigma'>1} (\sigma'(n)-1)$.
+      have h_excess_ge_sum_sigma_minus_one : excess_count A B x ≥ ∑ n ∈ Finset.image (fun p : ℤ × ℤ => p.1 + p.2) ((Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩ ×ˢ (Finset.filter (fun n => n ∈ B) (Finset.range (⌊x - t⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩), (if sigma_count ((Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩) ((Finset.filter (fun n => n ∈ B) (Finset.range (⌊x - t⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩) n > 1 then (sigma_count ((Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩) ((Finset.filter (fun n => n ∈ B) (Finset.range (⌊x - t⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩) n : ℝ) - 1 else 0) := by
+        have h_sigma_ge_sigma'_ge : ∀ n ∈ Finset.range (⌊2 * x⌋.toNat + 1), sigma_count ((Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩) ((Finset.filter (fun n => n ∈ B) (Finset.range (⌊x - t⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩) n ≤ representation_count A B x n := by
+          intro n hn;
+          unfold sigma_count;
+          refine le_trans
+            ( Finset.card_le_card
+              ( s := Finset.filter
+                ( fun p : ℤ × ℤ => p.1 + p.2 = (n : ℤ) )
+                ((Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩ ×ˢ
+                  (Finset.filter (fun n => n ∈ B) (Finset.range (⌊x - t⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩) )
+              ( t := Finset.image ( fun p : ℕ × ℕ => ( p.1, p.2 ) )
+                ( Finset.filter
+                  ( fun p : ℕ × ℕ => p.1 ∈ A ∧ p.2 ∈ B ∧ p.1 + p.2 = n ∧ p.1 ≤ x ∧ p.2 ≤ x )
+                  ( Finset.product ( Finset.range ( ⌊x⌋.toNat + 1 ) )
+                    ( Finset.range ( ⌊x⌋.toNat + 1 ) ) ) ) ) ?_ ) ?_;
+          · simp +decide [ Finset.subset_iff ];
+            rintro a b x hx₁ hx₂ rfl y hy₁ hy₂ rfl hxy; use x, y; simp_all +decide ;
+            exact ⟨ hy₁.trans ( Nat.sub_le _ _ ), mod_cast hxy, Nat.floor_le hx |> le_trans ( mod_cast hx₁ ), Nat.floor_le hx |> le_trans ( mod_cast hy₁.trans ( Nat.sub_le _ _ ) ) ⟩;
+          · rw [ Finset.card_image_of_injective ] <;> norm_num [ Function.Injective ];
+            unfold representation_count;
+            rw [ ← Nat.card_eq_finsetCard ] ; norm_num [ and_comm, and_left_comm, and_assoc ] ;
+            apply_rules [ Nat.card_mono ];
+            · exact Set.finite_iff_bddAbove.mpr ⟨ ⟨ n, n ⟩, by rintro ⟨ a, b ⟩ ⟨ hab, ha, hb, ha', hb' ⟩ ; exact ⟨ by linarith, by linarith ⟩ ⟩;
+            · exact fun p hp => ⟨ hp.1, hp.2.2.2.1, hp.2.2.2.2.1, le_trans ( Nat.cast_le.mpr hp.2.1 ) ( Nat.floor_le hx ), le_trans ( Nat.cast_le.mpr hp.2.2.1 ) ( Nat.floor_le hx ) ⟩;
+        have h_excess_ge_sum_sigma_minus_one : ∑ n ∈ Finset.range (⌊2 * x⌋.toNat + 1), (if representation_count A B x n > 1 then (representation_count A B x n : ℝ) - 1 else 0) ≥ ∑ n ∈ Finset.image (fun p : ℤ × ℤ => p.1 + p.2) ((Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩ ×ˢ (Finset.filter (fun n => n ∈ B) (Finset.range (⌊x - t⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩), (if sigma_count ((Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩) ((Finset.filter (fun n => n ∈ B) (Finset.range (⌊x - t⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩) n > 1 then (sigma_count ((Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩) ((Finset.filter (fun n => n ∈ B) (Finset.range (⌊x - t⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩) n : ℝ) - 1 else 0) := by
+          have h_excess_ge_sum_sigma_minus_one : Finset.image (fun p : ℤ × ℤ => p.1 + p.2) ((Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩ ×ˢ (Finset.filter (fun n => n ∈ B) (Finset.range (⌊x - t⌋.toNat + 1))).map ⟨Int.ofNat, Int.ofNat_injective⟩) ⊆ Finset.range (⌊2 * x⌋.toNat + 1) := by
+            simp +decide [ Finset.subset_iff ];
+            rintro z a b hb_le hbA ha_le haB hsum
+            refine ⟨ b + a, ?_, ?_ ⟩
+            · have hb_le_x : (b : ℝ) ≤ x := le_trans (Nat.cast_le.mpr hb_le) (Nat.floor_le hx)
+              have ha_le_floor : a ≤ ⌊x⌋.toNat := le_trans ha_le (Nat.sub_le _ _)
+              have ha_le_x : (a : ℝ) ≤ x := le_trans (Nat.cast_le.mpr ha_le_floor) (Nat.floor_le hx)
+              have hsum_le : ((b + a : ℕ) : ℝ) ≤ 2 * x := by
+                rw [Nat.cast_add]
+                linarith
+              exact Nat.le_floor hsum_le
+            · rw [← hsum]
+              norm_num
+          refine le_trans ( Finset.sum_le_sum_of_subset_of_nonneg h_excess_ge_sum_sigma_minus_one ?_ ) ?_;
+          · intro i hi hi'; split_ifs <;> norm_num;
+            convert Nat.one_le_of_lt ‹_› using 1;
+            rw [ show ⌊x - t⌋ = ⌊x⌋ - t from Int.floor_eq_iff.mpr ⟨ by norm_num; linarith [ Int.floor_le x ], by norm_num; linarith [ Int.lt_floor_add_one x ] ⟩ ] ; norm_num [ Int.toNat_sub ];
+          · let f : ℕ → ℝ := fun i =>
+              if sigma_count
+                ( Finset.map { toFun := Int.ofNat, inj' := Int.ofNat_injective }
+                  ( { n ∈ Finset.range ( ⌊x⌋.toNat + 1 ) | n ∈ A } ) )
+                ( Finset.map { toFun := Int.ofNat, inj' := Int.ofNat_injective }
+                  ( { n ∈ Finset.range ( ⌊x - t⌋.toNat + 1 ) | n ∈ B } ) ) i > 1
+              then
+                ( sigma_count
+                  ( Finset.map { toFun := Int.ofNat, inj' := Int.ofNat_injective }
+                    ( { n ∈ Finset.range ( ⌊x⌋.toNat + 1 ) | n ∈ A } ) )
+                  ( Finset.map { toFun := Int.ofNat, inj' := Int.ofNat_injective }
+                    ( { n ∈ Finset.range ( ⌊x - t⌋.toNat + 1 ) | n ∈ B } ) ) i : ℝ ) - 1
+              else 0
+            refine le_trans
+              ( b := ∑ i ∈ Finset.range (⌊2 * x⌋.toNat + 1), f i )
+              ?_ ( Finset.sum_le_sum fun i hi => ?_ );
+            · convert rfl.le using 1
+              refine Finset.sum_bij ( fun i hi => i ) ?_ ?_ ?_ ?_ <;> simp +decide [f];
+            · unfold f
+              split_ifs <;> norm_num;
+              · convert h_sigma_ge_sigma'_ge i hi using 1;
+                rw [ show ⌊x - t⌋ = ⌊x⌋ - t from Int.floor_sub_natCast _ _ ] ; norm_num [ Int.toNat_sub ];
+              · have hsigma_le :
+                  sigma_count
+                    (Finset.map { toFun := Int.ofNat, inj' := Int.ofNat_injective }
+                      ({n ∈ Finset.range (⌊x⌋.toNat + 1) | n ∈ A}))
+                    (Finset.map { toFun := Int.ofNat, inj' := Int.ofNat_injective }
+                      ({n ∈ Finset.range (⌊x⌋.toNat - t + 1) | n ∈ B}))
+                    ↑i ≤ representation_count A B x i := by
+                  convert h_sigma_ge_sigma'_ge i hi using 1
+                  rw [ show ⌊x - t⌋ = ⌊x⌋ - t from Int.floor_sub_natCast _ _ ]
+                  norm_num [ Int.toNat_sub ]
+                have hrep_le : representation_count A B x i ≤ 1 :=
+                  Nat.le_of_not_gt ( by assumption )
+                exact le_trans hsigma_le hrep_le
+              · have hrep : 1 < representation_count A B x i := by assumption
+                exact Nat.one_le_of_lt hrep;
+        convert h_excess_ge_sum_sigma_minus_one using 1;
+        unfold excess_count; norm_cast;
+        rw [ Nat.cast_sum ] ; refine Finset.sum_congr rfl fun i hi => ?_ ; rcases k : representation_count A B x i with ( _ | _ | k ) <;> simp +decide [Int.subNatNat_eq_coe] ;
+      nlinarith [ show ( counting_function A x : ℝ ) ≥ 1 by exact_mod_cast h_A_pos ]
+
 /-
 B(x) is eventually at least (1-epsilon)x/A(x).
 -/
@@ -1672,7 +2256,22 @@ If A and B are exact complements, then r(x) is bounded.
 -/
 theorem lemma_r_bounded (A B : Set ℕ) (h_hyp : exact_complements A B) :
     ∃ C, ∀ x, missing_sum_count A B x ≤ C := by
-      sorry
+      obtain ⟨C, hC⟩ : ∃ C, ∀ x, missing_sum_count A B x ≤ C := by
+        have h_finite : Set.Finite (Set.Ici 0 \ (A + B)) := by
+          cases' h_hyp.1 with h₁ h₂;
+          have := h₂.finite_iff;
+          exact Set.Finite.subset ( Set.finite_coe_iff.mp ( this.mpr inferInstance ) ) fun x hx => by simpa using hx;
+        use h_finite.toFinset.card;
+        intros x
+        have h_subset : {n : ℕ | n ≤ x ∧ n ∉ A + B} ⊆ h_finite.toFinset := by
+          aesop_cat;
+        unfold missing_sum_count
+        rw [show Nat.card {n : ℕ | (n : ℝ) ≤ x ∧ n ∉ A + B} =
+            Set.ncard {n : ℕ | (n : ℝ) ≤ x ∧ n ∉ A + B} by rfl]
+        rw [← Set.ncard_coe_finset]
+        exact Set.ncard_le_ncard h_subset
+      use C
+
 /-
 A(x)/a*(x) tends to 0.
 -/
