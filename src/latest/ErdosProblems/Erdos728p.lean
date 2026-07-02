@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
+/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 728.
 https://www.erdosproblems.com/forum/thread/728
@@ -225,7 +225,76 @@ theorem bound_N (p D B : ℕ) [Fact p.Prime] (hD : D ≥ 2) :
     let L := Nat.ceil (p / 2 : ℝ)
     let N := (Finset.Iio (p ^ D)).filter (fun m => count_large_digits p m ≤ B)
     N.card ≤ 2 * L ^ D * D ^ B := by
-      sorry
+  -- Let $L = \lceil p/2 \rceil$. The number of $m < p^D$ with at most $B$ large digits is bounded by the number of sequences of length $D$ with at most $B$ large digits.
+  let L := Nat.ceil ((p : ℝ) / 2)
+  have h_bound : (Finset.filter (fun m => count_large_digits p m ≤ B) (Finset.range (p ^ D))).card ≤ ∑ j ∈ Finset.range (B + 1), (Nat.choose D j) * (p - L) ^ j * L ^ (D - j) := by
+    have h_bound : (Finset.filter (fun m => count_large_digits p m ≤ B) (Finset.range (p ^ D))).card ≤ (Finset.filter (fun f : Fin D → Fin p => (Finset.univ.filter (fun i => (f i).val ≥ L)).card ≤ B) (Finset.univ : Finset (Fin D → Fin p))).card := by
+      -- Each number $m < p^D$ can be represented as a sequence of $D$ digits in base $p$.
+      have h_digit_rep : Finset.image (fun m => Nat.digits p m ++ List.replicate (D - (Nat.digits p m).length) 0) (Finset.filter (fun m => count_large_digits p m ≤ B) (Finset.range (p ^ D))) ⊆ Finset.image (fun f : Fin D → Fin p => List.map (fun i => (f i).val) (List.finRange D)) (Finset.filter (fun f : Fin D → Fin p => (Finset.univ.filter (fun i => (f i).val ≥ L)).card ≤ B) (Finset.univ : Finset (Fin D → Fin p))) := by
+        intro;
+        simp +zetaDelta at *;
+        rintro x hx₁ hx₂ rfl;
+        -- Let $a$ be the function that maps each index $i$ to the $i$-th digit of $x$ in base $p$.
+        obtain ⟨a, ha⟩ : ∃ a : Fin D → Fin p, List.map (fun i => (a i).val) (List.finRange D) = Nat.digits p x ++ List.replicate (D - (Nat.digits p x).length) 0 := by
+          have h_digits_len : (Nat.digits p x).length ≤ D := by
+            have := @Nat.length_digits p x;
+            exact if hx₃ : x = 0 then by simp +decide [ hx₃ ] else by rw [ this ( Nat.Prime.one_lt Fact.out ) hx₃ ] ; exact Nat.log_lt_of_lt_pow ( by positivity ) hx₁;
+          use fun i => ⟨ (Nat.digits p x ++ List.replicate (D - (Nat.digits p x).length) 0).getD i 0, by
+            by_cases hi : i.val < (Nat.digits p x).length <;> simp_all +decide
+            · exact Nat.digits_lt_base ( Fact.out : p.Prime ).one_lt ( List.getElem_mem _ );
+            · exact Nat.Prime.pos Fact.out ⟩
+          apply List.ext_get
+          · simp [List.length_append, h_digits_len]
+          · intro n hn₁ hn₂
+            simp [List.getD_eq_getElem, List.length_append, h_digits_len]
+        -- By definition of $a$, we know that the number of large digits in $x$ is equal to the number of indices $i$ such that $(a i).val \geq L$.
+        have h_large_digits : count_large_digits p x = (Finset.univ.filter (fun i => (a i).val ≥ L)).card := by
+          have h_large_digits : count_large_digits p x = List.length (List.filter (fun d => p ≤ 2 * d) (Nat.digits p x ++ List.replicate (D - (Nat.digits p x).length) 0)) := by
+            simp +decide [ count_large_digits ];
+            exact fun _ => Nat.Prime.pos Fact.out;
+          rw [ h_large_digits, ← ha, List.filter_map ];
+          simp +zetaDelta at *;
+          field_simp;
+          norm_cast;
+        refine ⟨a, ?_, ha⟩
+        have h_count : (Finset.univ.filter (fun i => L ≤ (a i).val)).card ≤ B := by
+          simpa [h_large_digits] using hx₂
+        rw [show (Finset.univ.filter (fun i => ((p : ℝ) / 2) ≤ ((a i).val : ℝ))).card =
+            (Finset.univ.filter (fun i => L ≤ (a i).val)).card by
+          congr 1
+          ext i
+          simp [L]]
+        exact h_count
+      have := Finset.card_mono h_digit_rep;
+      rwa [ Finset.card_image_of_injOn, Finset.card_image_of_injOn ] at this;
+      · intro f hf g hg; aesop;
+      · intro m hm m' hm' h_eq; have := congr_arg List.length h_eq; norm_num at this;
+        replace h_eq := congr_arg ( fun l => Nat.ofDigits p l ) h_eq ; simp_all +decide [ Nat.ofDigits_append, Nat.ofDigits_digits ];
+    refine le_trans h_bound ?_;
+    convert count_sequences_with_large_digits_bound p D B L ( Nat.ceil_le.mpr <| by rw [ div_le_iff₀ ] <;> norm_cast ; linarith [ show p ≥ 2 from Nat.Prime.two_le Fact.out ] ) using 1;
+  -- Since $p-L \le L$ (by `p_sub_L_le_L`), this is $\le L^D \sum_{j=0}^B \binom{D}{j}$.
+  have h_sum_bound : ∑ j ∈ Finset.range (B + 1), (Nat.choose D j) * (p - L) ^ j * L ^ (D - j) ≤ L ^ D * ∑ j ∈ Finset.range (B + 1), (Nat.choose D j) := by
+    -- Since $p - L \leq L$, we have $(p - L)^j \leq L^j$ for all $j$.
+    have h_term_bound : ∀ j ∈ Finset.range (B + 1), (p - L) ^ j ≤ L ^ j := by
+      intros j hj
+      have h_ineq : p - L ≤ L := by
+        exact p_sub_L_le_L p
+      have h_pow : (p - L) ^ j ≤ L ^ j := by
+        exact Nat.pow_le_pow_left h_ineq _
+      exact h_pow;
+    -- Apply the term bound to each term in the sum.
+    have h_sum_le : ∑ j ∈ Finset.range (B + 1), (Nat.choose D j) * (p - L) ^ j * L ^ (D - j) ≤ ∑ j ∈ Finset.range (B + 1), (Nat.choose D j) * L ^ j * L ^ (D - j) := by
+      exact Finset.sum_le_sum fun i hi => mul_le_mul_of_nonneg_right ( mul_le_mul_of_nonneg_left ( h_term_bound i hi ) ( Nat.zero_le _ ) ) ( Nat.zero_le _ );
+    convert h_sum_le using 1;
+    rw [ Finset.mul_sum _ _ _, Finset.sum_congr rfl ] ; intros ; ring_nf;
+    by_cases h : ‹_› ≤ D <;> simp_all +decide [ ← pow_add, add_tsub_cancel_of_le ];
+    exact Or.inr <| Nat.choose_eq_zero_of_lt h;
+  -- By `sum_binomial_bound`, $\sum \binom{D}{j} \le 2 D^B$.
+  have h_binom_bound : ∑ j ∈ Finset.range (B + 1), (Nat.choose D j) ≤ 2 * D ^ B := by
+    exact sum_binomial_bound D B hD;
+  simpa [L, Nat.Iio_eq_range, Nat.Ico_zero_eq_range, mul_assoc, mul_comm, mul_left_comm]
+    using h_bound.trans ( h_sum_bound.trans ( Nat.mul_le_mul_left _ h_binom_bound ) )
+
 /-
 Bound on D^B.
 -/
@@ -233,7 +302,24 @@ theorem D_pow_B_bound (p : ℕ) [Fact p.Prime] (x : ℝ) (hx : x ≥ p) :
     let D := Nat.floor (1 + Real.log x / Real.log p)
     let B := Nat.floor (D / (5 * Real.log D))
     (D : ℝ) ^ B ≤ Real.exp (1 / 5) * x ^ (1 / (5 * Real.log p)) := by
-      sorry
+  -- Using the bounds from Lemma 5, we have D^B ≤ Real.exp (D / 5).
+  have h_exp : (Nat.floor (1 + Real.log x / Real.log p)) ^ (Nat.floor ((Nat.floor (1 + Real.log x / Real.log p)) / (5 * Real.log (Nat.floor (1 + Real.log x / Real.log p))))) ≤ Real.exp ((Nat.floor (1 + Real.log x / Real.log p)) / 5) := by
+    by_cases hD : ⌊1 + Real.log x / Real.log p⌋₊ ≤ 1;
+    · interval_cases _ : ⌊1 + Real.log x / Real.log p⌋₊ <;> norm_num;
+    · rw [ ← Real.rpow_natCast, Real.rpow_def_of_pos ] <;> norm_num;
+      · have := Nat.floor_le ( show 0 ≤ ( ⌊1 + Real.log x / Real.log p⌋₊ : ℝ ) / ( 5 * Real.log ⌊1 + Real.log x / Real.log p⌋₊ ) by exact div_nonneg ( Nat.cast_nonneg _ ) ( mul_nonneg ( by norm_num ) ( Real.log_nonneg ( Nat.one_le_cast.mpr ( Nat.pos_of_ne_zero ( by aesop_cat ) ) ) ) ) ) ; rw [ le_div_iff₀ ( mul_pos ( by norm_num ) ( Real.log_pos ( Nat.one_lt_cast.mpr ( lt_of_not_ge hD ) ) ) ) ] at this; nlinarith [ Real.log_nonneg ( Nat.one_le_cast.mpr ( Nat.pos_of_ne_zero ( by aesop_cat ) : 0 < ⌊1 + Real.log x / Real.log p⌋₊ ) ) ] ;
+      · linarith;
+  -- Using the bounds from Lemma 5, we have $\exp(D/5) \leq \exp(1/5) \exp((\log x / \log p) / 5)$.
+  have h_exp_bound : Real.exp ((Nat.floor (1 + Real.log x / Real.log p)) / 5) ≤ Real.exp (1 / 5) * Real.exp ((Real.log x / Real.log p) / 5) := by
+    rw [ ← Real.exp_add ] ; gcongr ; linarith [ Nat.floor_le ( show 0 ≤ 1 + Real.log x / Real.log p by exact add_nonneg zero_le_one <| div_nonneg ( Real.log_nonneg <| by linarith [ show ( p :ℝ ) ≥ 1 by exact Nat.one_le_cast.mpr <| Nat.Prime.pos Fact.out ] ) <| Real.log_nonneg <| Nat.one_le_cast.mpr <| Nat.Prime.pos Fact.out ) ] ;
+  have h_exp_to_rpow :
+      Real.exp ((Real.log x / Real.log p) / 5) =
+        x ^ (1 / (5 * Real.log p)) := by
+    rw [Real.rpow_def_of_pos (show 0 < x from
+      lt_of_lt_of_le (Nat.cast_pos.mpr <| Nat.Prime.pos Fact.out) hx)]
+    ring_nf
+  simpa [h_exp_to_rpow] using h_exp.trans h_exp_bound
+
 /-
 Bound on L^D.
 -/
@@ -241,7 +327,47 @@ theorem L_pow_D_bound (p : ℕ) [Fact p.Prime] (x : ℝ) (hx : x ≥ p) :
     let D := Nat.floor (1 + Real.log x / Real.log p)
     let L := Nat.ceil (p / 2 : ℝ)
     (L : ℝ) ^ D ≤ p * x ^ (1 - Real.log (3 / 2) / Real.log p) := by
-      sorry
+  -- We have $D \le 1 + \frac{\log x}{\log p}$ and $D > \frac{\log x}{\log p}$.
+  set D := Nat.floor (1 + Real.log x / Real.log p)
+  set L := Nat.ceil (p / 2 : ℝ)
+  have hD : (D : ℝ) ≤ 1 + Real.log x / Real.log p ∧ (D : ℝ) > Real.log x / Real.log p := by
+    exact ⟨ Nat.floor_le <| by exact add_nonneg zero_le_one <| div_nonneg ( Real.log_nonneg <| by linarith [ show ( p : ℝ ) ≥ 2 by norm_cast; exact Nat.Prime.two_le Fact.out ] ) <| Real.log_nonneg <| Nat.one_le_cast.2 <| Nat.Prime.pos Fact.out, by linarith [ Nat.lt_floor_add_one <| 1 + Real.log x / Real.log p ] ⟩;
+  -- We have $L \le \frac{2}{3}p$.
+  have hL : (L : ℝ) ≤ (2 / 3 : ℝ) * p := by
+    field_simp;
+    have := Nat.ceil_lt_add_one ( show 0 ≤ ( p : ℝ ) / 2 by positivity );
+    rw [ div_add_one, lt_div_iff₀ ] at this <;> norm_cast at * ; linarith [ show p > 1 from Fact.out ];
+  -- Then $L^D \le (\frac{2}{3}p)^D = p^D (\frac{2}{3})^D$.
+  have hLD : (L : ℝ) ^ D ≤ (p : ℝ) ^ D * (2 / 3 : ℝ) ^ D := by
+    rw [ ← mul_pow ] ; gcongr ; linarith;
+  -- We have $p^D \le p x$.
+  have hpD : (p : ℝ) ^ D ≤ (p : ℝ) * x := by
+    have hpD : (p : ℝ) ^ D ≤ (p : ℝ) ^ (1 + Real.log x / Real.log p) := by
+      exact_mod_cast Real.rpow_le_rpow_of_exponent_le ( Nat.one_le_cast.mpr <| Nat.Prime.pos Fact.out ) hD.1;
+    convert hpD using 1 ; rw [ Real.rpow_add ( Nat.cast_pos.mpr <| Nat.Prime.pos Fact.out ), Real.rpow_one ] ; rw [ Real.rpow_def_of_pos <| Nat.cast_pos.mpr <| Nat.Prime.pos Fact.out ] ; ring_nf ; norm_num [ Real.logb, Real.log_pow, ne_of_gt <| Nat.Prime.pos Fact.out ] ;
+    rw [ mul_right_comm, mul_inv_cancel₀ ( ne_of_gt ( Real.log_pos ( Nat.one_lt_cast.mpr ( Fact.out : p > 1 ) ) ) ), one_mul, Real.exp_log ( by linarith [ show ( p : ℝ ) > 0 from Nat.cast_pos.mpr ( Nat.Prime.pos Fact.out ) ] ) ];
+  -- We have $(\frac{2}{3})^D \le x^{-\frac{\log(3/2)}{\log p}}$.
+  have h23D : (2 / 3 : ℝ) ^ D ≤ x ^ (-Real.log (3 / 2) / Real.log p) := by
+    rw [ Real.le_rpow_iff_log_le ] <;> norm_num;
+    · rw [ div_mul_eq_mul_div, le_div_iff₀ ] <;> norm_num [ Real.log_div ] at *;
+      · rw [ div_lt_iff₀ ( Real.log_pos <| Nat.one_lt_cast.mpr <| Fact.out ) ] at hD ; nlinarith [ Real.log_pos one_lt_two, Real.log_lt_log ( by norm_num ) ( by norm_num : ( 3 : ℝ ) > 2 ) ];
+      · exact Real.log_pos <| Nat.one_lt_cast.mpr <| Nat.Prime.one_lt Fact.out;
+    · linarith [ show ( p : ℝ ) > 0 from Nat.cast_pos.mpr ( Nat.Prime.pos Fact.out ) ];
+  have h_le :
+      (L : ℝ) ^ D ≤ ((p : ℝ) * x) * x ^ (-Real.log (3 / 2) / Real.log p) :=
+    le_trans hLD (mul_le_mul hpD h23D (by positivity)
+      (by exact mul_nonneg (Nat.cast_nonneg p) (le_trans (Nat.cast_nonneg p) hx)))
+  have h_rhs :
+      ((p : ℝ) * x) * x ^ (-Real.log (3 / 2) / Real.log p) =
+        (p : ℝ) * x ^ (1 - Real.log (3 / 2) / Real.log p) := by
+    rw [show 1 - Real.log (3 / 2) / Real.log p =
+        1 + (-Real.log (3 / 2) / Real.log p) by ring]
+    rw [Real.rpow_add (by
+      exact lt_of_lt_of_le (Nat.cast_pos.mpr <| Nat.Prime.pos Fact.out) hx),
+      Real.rpow_one]
+    ring
+  simpa [L, h_rhs] using h_le
+
 /-
 Numerical bound: log(3/2) > 2/5.
 -/
@@ -339,7 +465,57 @@ The upper bound from the paper's proof actually grows superlinearly, contradicti
 -/
 theorem bound_diverges :
     Filter.Tendsto (fun x => (2 * K_func x)^2 * x ^ (1 - 1 / (5 * Real.log (2 * K_func x))) / x) Filter.atTop Filter.atTop := by
-      sorry
+      -- We can rewrite the expression as $4 * (K_func x)^2 * x^{-1/(5 * Real.log (2 * K_func x))}$.
+      suffices h_rewrite : Filter.Tendsto (fun x : ℝ => 4 * (K_func x)^2 * x^(-1 / (5 * Real.log (2 * K_func x)))) Filter.atTop Filter.atTop by
+        refine h_rewrite.congr' ?_;
+        filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx;
+        rw [ show ( -1 : ℝ ) / ( 5 * Real.log ( 2 * K_func x ) ) = 1 - 1 / ( 5 * Real.log ( 2 * K_func x ) ) - 1 by ring ] ; rw [ Real.rpow_sub hx, Real.rpow_one ] ; ring;
+      -- Taking the natural logarithm of the expression, we get $\log(4) + 2 \log(K_func x) - \frac{1}{5 \log(2K_func x)} \log(x)$.
+      suffices h_log : Filter.Tendsto (fun x => Real.log 4 + 2 * Real.log (K_func x) - (Real.log x) / (5 * Real.log (2 * K_func x))) Filter.atTop Filter.atTop by
+        have h_exp : Filter.Tendsto (fun x => Real.exp (Real.log 4 + 2 * Real.log (K_func x) - (Real.log x) / (5 * Real.log (2 * K_func x)))) Filter.atTop Filter.atTop := by
+          aesop;
+        refine h_exp.congr' ?_;
+        filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx;
+        rw [ Real.rpow_def_of_pos ( by positivity ) ] ; ring_nf;
+        rw [ Real.exp_add, Real.exp_add, Real.exp_mul, Real.exp_log ( by positivity ), Real.exp_log ( by norm_cast; exact Nat.cast_pos.mpr <| Nat.floor_pos.mpr <| Real.one_le_exp <| Real.sqrt_nonneg _ ) ] ; ring_nf;
+        norm_cast;
+      -- We'll use that $Real.log (K_func x) \approx \sqrt{Real.log x}$ and $Real.log (2 * K_func x) \approx \sqrt{Real.log x}$.
+      have h_log_approx : Filter.Tendsto (fun x => Real.log (K_func x) / Real.sqrt (Real.log x)) Filter.atTop (nhds 1) ∧ Filter.Tendsto (fun x => Real.log (2 * K_func x) / Real.sqrt (Real.log x)) Filter.atTop (nhds 1) := by
+        -- We'll use that $Real.log (K_func x) \approx \sqrt{Real.log x}$.
+        have h_log_approx : Filter.Tendsto (fun x => Real.log (K_func x) / Real.sqrt (Real.log x)) Filter.atTop (nhds 1) := by
+          -- We'll use the fact that $K_func x = \lfloor \exp(\sqrt{\log x}) \rfloor$ to simplify the expression.
+          have h_K_func : Filter.Tendsto (fun x : ℝ => Real.log (Nat.floor (Real.exp (Real.sqrt (Real.log x)))) / Real.sqrt (Real.log x)) Filter.atTop (nhds 1) := by
+            -- We'll use the fact that $\log(\lfloor e^{\sqrt{\log x}} \rfloor) = \sqrt{\log x} + O(1)$.
+            have h_log_floor : Filter.Tendsto (fun x => Real.log (Nat.floor (Real.exp (Real.sqrt (Real.log x)))) - Real.sqrt (Real.log x)) Filter.atTop (nhds 0) := by
+              have h_log_floor : Filter.Tendsto (fun x => Real.log (⌊Real.exp (Real.sqrt (Real.log x))⌋₊) - Real.log (Real.exp (Real.sqrt (Real.log x)))) Filter.atTop (nhds 0) := by
+                have h_log_floor : Filter.Tendsto (fun x => Real.log (⌊Real.exp (Real.sqrt (Real.log x))⌋₊ / Real.exp (Real.sqrt (Real.log x)))) Filter.atTop (nhds 0) := by
+                  have h_log_floor : Filter.Tendsto (fun x => (⌊Real.exp (Real.sqrt (Real.log x))⌋₊ : ℝ) / Real.exp (Real.sqrt (Real.log x))) Filter.atTop (nhds 1) := by
+                    have h_floor : Filter.Tendsto (fun y : ℝ => (Nat.floor y : ℝ) / y) Filter.atTop (nhds 1) := by
+                      rw [ Metric.tendsto_nhds ];
+                      intro ε hε; filter_upwards [ Filter.eventually_gt_atTop ( ε⁻¹ + 1 ), Filter.eventually_gt_atTop 0 ] with x hx₁ hx₂ using abs_lt.mpr ⟨ by nlinarith [ Nat.floor_le hx₂.le, Nat.lt_floor_add_one x, mul_inv_cancel₀ hε.ne', div_mul_cancel₀ ( Nat.floor x : ℝ ) hx₂.ne' ], by nlinarith [ Nat.floor_le hx₂.le, Nat.lt_floor_add_one x, mul_inv_cancel₀ hε.ne', div_mul_cancel₀ ( Nat.floor x : ℝ ) hx₂.ne' ] ⟩ ;
+                    exact h_floor.comp <| Real.tendsto_exp_atTop.comp <| Filter.tendsto_atTop_atTop.mpr fun x => ⟨ Real.exp ( x ^ 2 ), fun y hy => Real.le_sqrt_of_sq_le <| by simpa using Real.log_le_log ( by positivity ) hy ⟩;
+                  simpa using Filter.Tendsto.log h_log_floor;
+                refine h_log_floor.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx using by rw [ Real.log_div ( Nat.cast_ne_zero.mpr <| Nat.ne_of_gt <| Nat.floor_pos.mpr <| Real.one_le_exp <| Real.sqrt_nonneg _ ) <| ne_of_gt <| Real.exp_pos _ ] );
+              aesop;
+            have := h_log_floor.div_atTop ( show Filter.Tendsto ( fun x : ℝ => Real.sqrt ( Real.log x ) ) Filter.atTop ( Filter.atTop ) from Filter.tendsto_atTop_atTop.mpr fun x => ⟨ Real.exp ( x ^ 2 ), fun y hy => Real.le_sqrt_of_sq_le <| by simpa using Real.log_le_log ( by positivity ) hy ⟩ );
+            simpa using this.add_const 1 |> Filter.Tendsto.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx using by rw [ sub_div, div_self <| ne_of_gt <| Real.sqrt_pos.mpr <| Real.log_pos hx ] ; ring );
+          simpa [K_func] using h_K_func
+        -- We'll use that $Real.log (2 * K_func x) = Real.log 2 + Real.log (K_func x)$.
+        have h_log_split : Filter.Tendsto (fun x => (Real.log 2 + Real.log (K_func x)) / Real.sqrt (Real.log x)) Filter.atTop (nhds 1) := by
+          simpa [div_eq_mul_inv, add_mul, mul_add] using Filter.Tendsto.add ( tendsto_const_nhds.mul ( tendsto_inv_atTop_zero.sqrt.comp ( Real.tendsto_log_atTop ) ) ) h_log_approx;
+        exact ⟨ h_log_approx, h_log_split.congr' <| by filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx using by rw [ Real.log_mul ( by positivity ) ( by exact Nat.cast_ne_zero.mpr <| ne_of_gt <| Nat.floor_pos.mpr <| Real.one_le_exp <| Real.sqrt_nonneg _ ) ] ⟩;
+      -- Using the approximations, we can simplify the expression.
+      have h_simplify : Filter.Tendsto (fun x => 2 * Real.log (K_func x) - (Real.log x) / (5 * Real.log (2 * K_func x))) Filter.atTop Filter.atTop := by
+        -- We can factor out $\sqrt{\log x}$ from the expression.
+        suffices h_factor : Filter.Tendsto (fun x => Real.sqrt (Real.log x) * (2 * (Real.log (K_func x) / Real.sqrt (Real.log x)) - 1 / (5 * (Real.log (2 * K_func x) / Real.sqrt (Real.log x))))) Filter.atTop Filter.atTop by
+          refine h_factor.congr' ?_;
+          filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx;
+          field_simp [mul_comm, mul_assoc, mul_left_comm];
+          rw [ mul_div_cancel_left₀ _ ( ne_of_gt ( Real.sqrt_pos.mpr ( Real.log_pos hx ) ) ), Real.sq_sqrt ( Real.log_nonneg hx.le ) ];
+        apply Filter.Tendsto.atTop_mul_pos;
+        exacts [ show 0 < 2 * 1 - 1 / ( 5 * 1 ) by norm_num, Filter.tendsto_atTop_atTop.mpr fun x => ⟨ Real.exp ( x ^ 2 ), fun y hy => Real.le_sqrt_of_sq_le <| by simpa using Real.log_le_log ( by positivity ) hy ⟩, by simpa using Filter.Tendsto.sub ( h_log_approx.1.const_mul 2 ) ( h_log_approx.2.const_mul 5 |> Filter.Tendsto.inv₀ <| by norm_num ) ];
+      simpa only [ add_sub_assoc ] using Filter.Tendsto.add_atTop tendsto_const_nhds h_simplify
+
 /-
 The number of multiples of q in {n+1, ..., n+k} is at most k/q + 1.
 -/
@@ -587,7 +763,50 @@ The bound function is o(x).
 -/
 theorem bound_former_lemma_2_4_is_little_o :
     bound_former_lemma_2_4_func =o[Filter.atTop] (fun x => x) := by
-      sorry
+      rw [ Asymptotics.isLittleO_iff_tendsto' ];
+      · unfold bound_former_lemma_2_4_func;
+        -- We'll use the fact that $K_func x \approx \exp(\sqrt{\log x})$ to simplify the expression.
+        have h_K_approx : Filter.Tendsto (fun x : ℝ => (K_func x : ℝ) ^ 2 * x ^ (-1 / (6 + 6 * Real.log (Real.log x)))) Filter.atTop (nhds 0) := by
+          -- We'll use that $K_func x \approx \exp(\sqrt{\log x})$ to bound the expression.
+          have h_bound : Filter.Tendsto (fun x => (Real.exp (Real.sqrt (Real.log x)))^2 * x ^ (-1 / (6 + 6 * Real.log (Real.log x)) : ℝ)) Filter.atTop (nhds 0) := by
+            -- Simplify the expression inside the limit.
+            suffices h_simplify : Filter.Tendsto (fun x => Real.exp (2 * Real.sqrt (Real.log x) - Real.log x / (6 + 6 * Real.log (Real.log x)))) Filter.atTop (nhds 0) by
+              refine h_simplify.congr' ?_ ; filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx ; rw [ ← Real.exp_nat_mul ] ; rw [ Real.rpow_def_of_pos <| by linarith ] ; ring_nf;
+              rw [ ← Real.exp_add, sub_eq_add_neg ];
+            -- We'll use the fact that $2 * \sqrt{\log x} - \frac{\log x}{6 + 6 * \log \log x}$ tends to $-\infty$ as $x$ tends to infinity.
+            have h_lim : Filter.Tendsto (fun x : ℝ => 2 * Real.sqrt (Real.log x) - Real.log x / (6 + 6 * Real.log (Real.log x))) Filter.atTop Filter.atBot := by
+              -- We'll use the fact that $Real.log x / (6 + 6 * Real.log (Real.log x))$ grows faster than $2 * Real.sqrt (Real.log x)$.
+              have h_log_growth : Filter.Tendsto (fun x : ℝ => Real.log x / (6 + 6 * Real.log (Real.log x)) / Real.sqrt (Real.log x)) Filter.atTop Filter.atTop := by
+                -- Let $y = \log x$, therefore the expression becomes $\frac{y}{6 + 6 \log y} / \sqrt{y}$.
+                suffices h_log : Filter.Tendsto (fun y : ℝ => y / (6 + 6 * Real.log y) / Real.sqrt y) Filter.atTop Filter.atTop by
+                  exact h_log.comp ( Real.tendsto_log_atTop );
+                -- Let $z = \log y$, therefore the expression becomes $\frac{e^z}{6 + 6z} / e^{z/2} = \frac{e^{z/2}}{6 + 6z}$.
+                suffices h_log : Filter.Tendsto (fun z : ℝ => Real.exp (z / 2) / (6 + 6 * z)) Filter.atTop Filter.atTop by
+                  have h_log : Filter.Tendsto (fun y : ℝ => Real.exp (Real.log y / 2) / (6 + 6 * Real.log y)) Filter.atTop Filter.atTop := by
+                    exact h_log.comp Real.tendsto_log_atTop;
+                  refine h_log.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 0 ] with y hy using by rw [ show Real.exp ( Real.log y / 2 ) = Real.sqrt y by rw [ Real.sqrt_eq_rpow, Real.rpow_def_of_pos hy ] ; ring_nf ] ; rw [ div_right_comm ] ; rw [ Real.sqrt_eq_rpow, ← Real.rpow_one_sub' hy.le ] <;> norm_num );
+                -- We can factor out $e^{z/2}$ and use the fact that $e^{z/2} / z \to \infty$ as $z \to \infty$.
+                have h_factor : Filter.Tendsto (fun z : ℝ => Real.exp (z / 2) / z) Filter.atTop Filter.atTop := by
+                  -- Let $w = \frac{z}{2}$, therefore the expression becomes $\frac{e^w}{2w}$.
+                  suffices h_w : Filter.Tendsto (fun w : ℝ => Real.exp w / (2 * w)) Filter.atTop Filter.atTop by
+                    convert h_w.comp ( Filter.tendsto_id.atTop_mul_const ( by norm_num : 0 < ( 2⁻¹ : ℝ ) ) ) using 2 ; norm_num ; ring_nf;
+                  have := Real.tendsto_exp_div_pow_atTop 1;
+                  convert this.const_mul_atTop ( by norm_num : ( 0 : ℝ ) < 1 / 2 ) using 2 ; ring;
+                rw [ Filter.tendsto_atTop_atTop ] at *;
+                exact fun b => by obtain ⟨ i, hi ⟩ := h_factor ( b * 12 ) ; exact ⟨ Max.max i 6, fun a ha => by have := hi a ( le_trans ( le_max_left _ _ ) ha ) ; rw [ le_div_iff₀ ] at * <;> nlinarith [ le_max_right i 6, Real.exp_pos ( a / 2 ) ] ⟩ ;
+              have h_exp_neg_inf : Filter.Tendsto (fun x : ℝ => Real.sqrt (Real.log x) * (2 - Real.log x / (6 + 6 * Real.log (Real.log x)) / Real.sqrt (Real.log x))) Filter.atTop Filter.atBot := by
+                -- Since $2 - \frac{\log x}{6 + 6 \log \log x} / \sqrt{\log x}$ tends to $-\infty$, multiplying by $\sqrt{\log x}$ (which tends to $\infty$) will also tend to $-\infty$.
+                have h_neg_inf : Filter.Tendsto (fun x : ℝ => 2 - Real.log x / (6 + 6 * Real.log (Real.log x)) / Real.sqrt (Real.log x)) Filter.atTop Filter.atBot := by
+                  rw [ Filter.tendsto_atTop_atBot ];
+                  exact fun b => Filter.eventually_atTop.mp ( h_log_growth.eventually_gt_atTop ( 2 - b ) ) |> fun ⟨ i, hi ⟩ => ⟨ i, fun x hx => by linarith [ hi x hx ] ⟩;
+                exact Filter.Tendsto.atTop_mul_atBot₀ ( by simpa only [ Real.sqrt_eq_rpow, Function.comp_def ] using tendsto_rpow_atTop ( by norm_num ) |> Filter.Tendsto.comp <| Real.tendsto_log_atTop ) h_neg_inf;
+              refine h_exp_neg_inf.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx using by rw [ mul_sub, mul_div_cancel₀ _ ( ne_of_gt <| Real.sqrt_pos.mpr <| Real.log_pos hx ) ] ; ring );
+            aesop;
+          refine squeeze_zero_norm' ?_ h_bound ; norm_num [ K_func ];
+          exact ⟨ 1, fun x hx => by rw [ abs_of_nonneg ( Real.rpow_nonneg ( by positivity ) _ ) ] ; exact mul_le_mul ( pow_le_pow_left₀ ( Nat.cast_nonneg _ ) ( Nat.floor_le ( by positivity ) ) _ ) le_rfl ( by positivity ) ( by positivity ) ⟩;
+        refine h_K_approx.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx using by rw [ show ( 1 - 1 / ( 6 + 6 * Real.log ( Real.log x ) ) ) = ( -1 / ( 6 + 6 * Real.log ( Real.log x ) ) ) + 1 by ring ] ; rw [ Real.rpow_add hx, Real.rpow_one ] ; ring_nf; norm_num [ hx.ne' ] );
+      · filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx hx' using absurd hx' hx.ne'
+
 /-
 The exponent of p such that p^E divides m+i.
 -/
@@ -835,13 +1054,45 @@ K^2 is o(x).
 -/
 theorem K_sq_is_little_o :
     (fun x => (K_func x : ℝ)^2) =o[Filter.atTop] (fun x => x) := by
-      sorry
+      -- We'll use the fact that $K_func x \leq e^{\sqrt{\log x}}$ and $e^{\sqrt{\log x}} \in O(x^{1/2})$.
+      have h_bound : ∀ᶠ x in Filter.atTop, (K_func x : ℝ) ≤ Real.exp (Real.sqrt (Real.log x)) := by
+        filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx using Nat.floor_le <| by positivity;
+      -- Since $e^{2\sqrt{\log x}} / x \to 0$ as $x \to \infty$, we have $K_func x^2 / x \to 0$.
+      have h_limit : Filter.Tendsto (fun x : ℝ => Real.exp (2 * Real.sqrt (Real.log x)) / x) Filter.atTop (nhds 0) := by
+        -- Let $y = \sqrt{\log x}$, so we can rewrite the limit as $\lim_{y \to \infty} \frac{e^{2y}}{e^{y^2}}$.
+        suffices h_log : Filter.Tendsto (fun y : ℝ => Real.exp (2 * y) / Real.exp (y^2)) Filter.atTop (nhds 0) by
+          have h_subst : Filter.Tendsto (fun x : ℝ => Real.exp (2 * Real.sqrt (Real.log x)) / Real.exp (Real.sqrt (Real.log x)^2)) Filter.atTop (nhds 0) := by
+            exact h_log.comp ( by simpa only [ Real.sqrt_eq_rpow, Function.comp_def ] using tendsto_rpow_atTop ( by positivity ) |> Filter.Tendsto.comp <| Real.tendsto_log_atTop );
+          refine h_subst.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx using by rw [ Real.sq_sqrt ( Real.log_nonneg hx.le ), Real.exp_log ( by positivity ) ] );
+        norm_num [ ← Real.exp_sub ];
+        exact Filter.tendsto_atTop_atBot.mpr fun x => ⟨ |x| + 2, fun y hy => by cases abs_cases x <;> nlinarith ⟩;
+      rw [ Asymptotics.isLittleO_iff_tendsto' ];
+      · refine squeeze_zero_norm' ?_ h_limit;
+        filter_upwards [ h_bound, Filter.eventually_gt_atTop 0 ] with x hx₁ hx₂ using by rw [ Real.norm_of_nonneg ( by positivity ) ] ; rw [ div_le_div_iff_of_pos_right ( by positivity ) ] ; convert pow_le_pow_left₀ ( by positivity ) hx₁ 2 using 1 ; rw [ ← Real.exp_nat_mul ] ; ring_nf;
+      · filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx hx' using absurd hx' hx.ne'
+
 /-
 sum_upper_bound is o(x).
 -/
 theorem sum_upper_bound_is_little_o :
     sum_upper_bound =o[Filter.atTop] (fun x => x) := by
-      sorry
+      -- We have sum_upper_bound x ≤ 2 * K^2 * (x^(1-exponent) + 1) ≤ 4 * K^2 * x^(1-exponent) + 4 * K^2.
+      have sum_upper_bound_le : ∀ x ≥ 3, sum_upper_bound x ≤ 4 * (K_func x : ℝ)^2 * x ^ (1 - exponent_bound x) + 4 * (K_func x : ℝ)^2 := by
+        intro x hx
+        have h_le : sum_upper_bound x ≤ (2 * K_func x : ℝ)^2 * (x ^ (1 - exponent_bound x) + 1) := by
+          convert sum_upper_bound_le x hx using 1;
+        linarith;
+      -- Since $bound_former_lemma_2_4_func = o(x)$ and $K^2 = o(x)$, it follows that sum_upper_bound is also $o(x)$.
+      have bound_former_lemma_2_4_func_is_little_o : (fun x => (K_func x : ℝ)^2 * x ^ (1 - exponent_bound x)) =o[Filter.atTop] (fun x => x) := by
+        have := @bound_former_lemma_2_4_is_little_o;
+        change bound_former_lemma_2_4_func =o[Filter.atTop] (fun x => x)
+        exact this
+      have bound_sum_upper_bound : (fun x => 4 * (K_func x : ℝ)^2 * x ^ (1 - exponent_bound x) + 4 * (K_func x : ℝ)^2) =o[Filter.atTop] (fun x => x) := by
+        simpa [ mul_assoc ] using Asymptotics.IsLittleO.add ( bound_former_lemma_2_4_func_is_little_o.const_mul_left 4 ) ( K_sq_is_little_o.const_mul_left 4 );
+      rw [ Asymptotics.isLittleO_iff ] at *;
+      intros c hc; filter_upwards [ bound_sum_upper_bound hc, Filter.eventually_ge_atTop 3 ] with x hx₁ hx₂; rw [ Real.norm_of_nonneg ( show ( sum_upper_bound x : ℝ ) ≥ 0 from ?_ ) ] ; exact le_trans ( sum_upper_bound_le x hx₂ ) ( by simpa only [ Real.norm_of_nonneg ( show ( 0 : ℝ ) ≤ 4 * ( K_func x : ℝ ) ^ 2 * x ^ ( 1 - exponent_bound x ) + 4 * ( K_func x : ℝ ) ^ 2 from by positivity ) ] using hx₁ ) ;
+      exact Finset.sum_nonneg fun _ _ => Finset.sum_nonneg fun _ _ => by positivity;
+
 /-
 The property that binom(m+k, k) divides binom(2m, m) for all k <= K(m).
 -/
@@ -1192,7 +1443,56 @@ Bound for the tail of the binomial sum.
 -/
 theorem binomial_tail_bound (n : ℕ) :
     ∑ k ∈ Finset.range (Nat.floor ((0.49 : ℝ) * n) + 1), (Nat.choose n k : ℝ) ≤ 2 ^ n * Real.exp (-0.0002 * n) := by
-      sorry
+      -- Let $X$ be a binomial random variable with parameters $n$ and $p = \frac{1}{2}$.
+      set X : ℕ → ℝ := fun k => (Nat.choose n k : ℝ) / 2 ^ n;
+      -- We'll use the fact that $P(X \leq k) \leq \exp(-2n\epsilon^2)$ for $k = \lfloor (1/2 - \epsilon)n \rfloor$.
+      have h_tail_bound : ∀ ε ∈ Set.Ioo (0 : ℝ) (1 / 2), (∑ k ∈ Finset.range (Nat.floor ((1 / 2 - ε) * n) + 1), X k) ≤ Real.exp (-2 * ε ^ 2 * n) := by
+        intro ε hε
+        have h_tail_bound : ∀ t > 0, (∑ k ∈ Finset.range (Nat.floor ((1 / 2 - ε) * n) + 1), X k) ≤ Real.exp (-t * ε * n) * (∑ k ∈ Finset.range (n + 1), X k * Real.exp (-t * (k - n / 2))) := by
+          intros t ht
+          have h_tail_bound : (∑ k ∈ Finset.range (Nat.floor ((1 / 2 - ε) * n) + 1), X k) ≤ Real.exp (-t * ε * n) * (∑ k ∈ Finset.range (Nat.floor ((1 / 2 - ε) * n) + 1), X k * Real.exp (-t * (k - n / 2))) := by
+            rw [ Finset.mul_sum _ _ _ ] ; refine Finset.sum_le_sum fun i hi => ?_ ; rw [ mul_left_comm ] ; rw [ ← Real.exp_add ] ; ring_nf ; norm_num;
+            exact le_mul_of_one_le_right ( by positivity ) ( Real.one_le_exp ( by nlinarith [ show ( i : ℝ ) ≤ ⌊ ( 1 / 2 - ε ) * n⌋₊ by exact_mod_cast Finset.mem_range_succ_iff.mp hi, Nat.floor_le ( show 0 ≤ ( 1 / 2 - ε ) * n by nlinarith [ hε.1, hε.2 ] ), hε.1, hε.2 ] ) );
+          refine le_trans h_tail_bound <| mul_le_mul_of_nonneg_left ( Finset.sum_le_sum_of_subset_of_nonneg ( Finset.range_mono <| Nat.succ_le_succ <| Nat.floor_le_of_le <| by nlinarith [ hε.1, hε.2 ] ) fun _ _ _ => mul_nonneg ( div_nonneg ( Nat.cast_nonneg _ ) <| pow_nonneg zero_le_two _ ) <| Real.exp_nonneg _ ) <| Real.exp_nonneg _;
+        -- We'll use the fact that $\sum_{k=0}^{n} \binom{n}{k} \exp(-t(k - n/2)) = (1 + \exp(-t))^n \exp(tn/2)$.
+        have h_sum_exp : ∀ t > 0, (∑ k ∈ Finset.range (n + 1), X k * Real.exp (-t * (k - n / 2))) = (1 + Real.exp (-t)) ^ n * Real.exp (t * n / 2) / 2 ^ n := by
+          intro t ht; rw [ add_comm 1, add_pow ] ; ring_nf;
+          rw [ Finset.sum_mul ] ; rw [ Finset.sum_mul ] ; refine Finset.sum_congr rfl fun i hi => ?_ ; rw [ ← Real.exp_nat_mul ] ; ring_nf;
+          rw [ Real.exp_add ] ; ring_nf!;
+          norm_num ; ring;
+        -- We'll use the fact that $(1 + \exp(-t))^n \exp(tn/2) / 2^n \leq \exp(t^2 n / 8)$ for $t > 0$.
+        have h_exp_bound : ∀ t > 0, (1 + Real.exp (-t)) ^ n * Real.exp (t * n / 2) / 2 ^ n ≤ Real.exp (t ^ 2 * n / 8) := by
+          -- We'll use the fact that $(1 + \exp(-t)) \exp(t/2) / 2 \leq \exp(t^2 / 8)$ for $t > 0$.
+          have h_exp_bound : ∀ t > 0, (1 + Real.exp (-t)) * Real.exp (t / 2) / 2 ≤ Real.exp (t ^ 2 / 8) := by
+            intro t ht
+            have h_exp_bound : (1 + Real.exp (-t)) * Real.exp (t / 2) / 2 ≤ Real.exp (t ^ 2 / 8) := by
+              have h_exp_bound_step : Real.cosh (t / 2) ≤ Real.exp (t ^ 2 / 8) := by
+                -- We'll use the fact that $\cosh(x) \leq \exp(x^2 / 2)$ for all $x$.
+                have h_cosh_exp : ∀ x : ℝ, Real.cosh x ≤ Real.exp (x ^ 2 / 2) := by
+                  exact fun x ↦ Real.cosh_le_exp_half_sq x;
+                convert h_cosh_exp ( t / 2 ) using 1 ; ring_nf
+              convert h_exp_bound_step using 1 ; rw [ Real.cosh_eq ] ; ring_nf;
+              rw [ ← Real.exp_add ] ; ring_nf;
+            exact h_exp_bound;
+          intro t ht
+          calc
+            (1 + Real.exp (-t)) ^ n * Real.exp (t * n / 2) / 2 ^ n
+                = ((1 + Real.exp (-t)) * Real.exp (t / 2) / 2) ^ n := by
+              rw [div_pow, mul_pow, ← Real.exp_nat_mul]
+              ring_nf
+            _ ≤ (Real.exp (t ^ 2 / 8)) ^ n :=
+              pow_le_pow_left₀ (by positivity) (h_exp_bound t ht) n
+            _ = Real.exp (t ^ 2 * n / 8) := by
+              rw [← Real.exp_nat_mul]
+              ring_nf
+        -- Let's choose $t = 4\epsilon$.
+        set t : ℝ := 4 * ε;
+        refine le_trans ( h_tail_bound t ( mul_pos zero_lt_four hε.1 ) ) ?_;
+        rw [ h_sum_exp t ( mul_pos zero_lt_four hε.1 ) ] ; convert mul_le_mul_of_nonneg_left ( h_exp_bound t ( mul_pos zero_lt_four hε.1 ) ) ( Real.exp_nonneg ( -t * ε * n ) ) using 1 ; rw [ ← Real.exp_add ] ; ring_nf;
+        exact congr_arg Real.exp ( by ring );
+      specialize h_tail_bound 0.01 ; norm_num at *;
+      rw [ ← Finset.sum_div _ _ _, div_le_iff₀ ] at * <;> first | positivity | linarith;
+
 /-
 The sum of exponentials of the sum of digits factors into a product.
 -/
@@ -1251,7 +1551,69 @@ open Real
 
 theorem hoeffding_digit_sum_bound (p D : ℕ) (ε : ℝ) (hε : ε > 0) (hp : p ≥ 2) :
     ((Finset.univ : Finset (Fin D → Fin p)).filter (fun f => (∑ i, (f i).val : ℝ) - D * (p - 1) / 2 ≥ ε * D)).card ≤ (p ^ D : ℝ) * exp (-2 * ε ^ 2 * D / (p - 1)^2) := by
-      sorry
+      -- Apply Hoeffding's lemma to bound the sum of exponentials.
+      have h_hoeffding_bound : (∑ f : Fin D → Fin p, Real.exp (4 * ε * (∑ i, (f i : ℝ) - D * (p - 1) / 2) / (p - 1) ^ 2)) ≤ (p : ℝ) ^ D * Real.exp (2 * ε ^ 2 * D / (p - 1) ^ 2) := by
+        have h_hoeffding_bound : (∑ f : Fin D → Fin p, Real.exp (4 * ε * (∑ i, (f i : ℝ) - D * (p - 1) / 2) / (p - 1) ^ 2)) ≤ (∑ v : Fin p, Real.exp (4 * ε * (v.val - (p - 1) / 2) / (p - 1) ^ 2)) ^ D := by
+          have := @sum_exp_digit_sum p D ( 4 * ε / ( p - 1 ) ^ 2 );
+          have h_shift_f :
+              (∑ f : Fin D → Fin p,
+                Real.exp (4 * ε * (∑ i, (f i : ℝ) - D * (p - 1) / 2) / (p - 1) ^ 2)) =
+                Real.exp (-(4 * ε * D * (p - 1)) / (2 * (p - 1) ^ 2)) *
+                  ∑ f : Fin D → Fin p, Real.exp (4 * ε / (p - 1) ^ 2 * ∑ i, (f i : ℝ)) := by
+            rw [Finset.mul_sum]
+            refine Finset.sum_congr rfl ?_
+            intro f hf
+            rw [← Real.exp_add]
+            push_cast
+            ring_nf
+            rw [show (2 - (p : ℝ) * 4 + (p : ℝ) ^ 2 * 2) =
+              2 * (1 - (p : ℝ) * 2 + (p : ℝ) ^ 2) by ring]
+            norm_num
+            ring
+          have h_shift_v :
+              (∑ v : Fin p, Real.exp (4 * ε * (v.val - (p - 1) / 2) / (p - 1) ^ 2)) =
+                Real.exp (-(4 * ε * (p - 1)) / (2 * (p - 1) ^ 2)) *
+                  ∑ v : Fin p, Real.exp (4 * ε / (p - 1) ^ 2 * v.val) := by
+            rw [Finset.mul_sum]
+            refine Finset.sum_congr rfl ?_
+            intro v hv
+            rw [← Real.exp_add]
+            ring_nf
+            rw [show (2 - (p : ℝ) * 4 + (p : ℝ) ^ 2 * 2) =
+              2 * (1 - (p : ℝ) * 2 + (p : ℝ) ^ 2) by ring]
+            norm_num
+            ring
+          exact le_of_eq <| calc
+            (∑ f : Fin D → Fin p,
+                Real.exp (4 * ε * (∑ i, (f i : ℝ) - D * (p - 1) / 2) / (p - 1) ^ 2))
+                = Real.exp (-(4 * ε * D * (p - 1)) / (2 * (p - 1) ^ 2)) *
+                  ∑ f : Fin D → Fin p, Real.exp (4 * ε / (p - 1) ^ 2 * ∑ i, (f i : ℝ)) := h_shift_f
+            _ = Real.exp (-(4 * ε * D * (p - 1)) / (2 * (p - 1) ^ 2)) *
+                  (∑ v : Fin p, Real.exp (4 * ε / (p - 1) ^ 2 * v.val)) ^ D := by
+              rw [show
+                (∑ f : Fin D → Fin p,
+                  Real.exp (4 * ε / (p - 1) ^ 2 * ∑ i, (f i : ℝ))) =
+                    (∑ v : Fin p, Real.exp (4 * ε / (p - 1) ^ 2 * v.val)) ^ D by
+                simpa using this]
+            _ = (Real.exp (-(4 * ε * (p - 1)) / (2 * (p - 1) ^ 2)) *
+                  ∑ v : Fin p, Real.exp (4 * ε / (p - 1) ^ 2 * v.val)) ^ D := by
+              rw [mul_pow, ← Real.exp_nat_mul]
+              ring_nf
+            _ = (∑ v : Fin p, Real.exp (4 * ε * (v.val - (p - 1) / 2) / (p - 1) ^ 2)) ^ D := by
+              rw [← h_shift_v]
+        -- Apply Hoeffding's lemma to the sum of exponentials.
+        have h_hoeffding_lemma : (∑ v : Fin p, Real.exp (4 * ε * (v.val - (p - 1) / 2) / (p - 1) ^ 2)) ≤ (p : ℝ) * Real.exp (2 * ε ^ 2 / (p - 1) ^ 2) := by
+          have := hoeffding_lemma_bounded p ( 4 * ε / ( p - 1 ) ^ 2 ) ( by linarith );
+          grind;
+        exact h_hoeffding_bound.trans ( le_trans ( pow_le_pow_left₀ ( Finset.sum_nonneg fun _ _ => Real.exp_nonneg _ ) h_hoeffding_lemma _ ) ( by rw [ mul_pow, ← Real.exp_nat_mul ] ; ring_nf; norm_num ) );
+      -- Apply the exponential bound to relate the sum of exponentials to the cardinality of the set.
+      have h_card_bound : (∑ f : Fin D → Fin p, Real.exp (4 * ε * (∑ i, (f i : ℝ) - D * (p - 1) / 2) / (p - 1) ^ 2)) ≥ (Finset.filter (fun f : Fin D → Fin p => (∑ i, (f i : ℝ)) - D * (p - 1) / 2 ≥ ε * D) Finset.univ).card * Real.exp (4 * ε * (ε * D) / (p - 1) ^ 2) := by
+        have h_card_bound : (∑ f : Fin D → Fin p, Real.exp (4 * ε * (∑ i, (f i : ℝ) - D * (p - 1) / 2) / (p - 1) ^ 2)) ≥ (∑ f ∈ Finset.filter (fun f : Fin D → Fin p => (∑ i, (f i : ℝ)) - D * (p - 1) / 2 ≥ ε * D) Finset.univ, Real.exp (4 * ε * (ε * D) / (p - 1) ^ 2)) := by
+          exact le_trans ( Finset.sum_le_sum fun x hx => Real.exp_le_exp.mpr <| by gcongr ; aesop ) ( Finset.sum_le_sum_of_subset_of_nonneg ( Finset.filter_subset _ _ ) fun _ _ _ => Real.exp_nonneg _ );
+        aesop;
+      rw [ show ( -2 * ε ^ 2 * ( D : ℝ ) / ( p - 1 ) ^ 2 ) = ( 2 * ε ^ 2 * ( D : ℝ ) / ( p - 1 ) ^ 2 ) - ( 4 * ε * ( ε * ( D : ℝ ) ) / ( p - 1 ) ^ 2 ) by ring, Real.exp_sub ];
+      rw [ mul_div, le_div_iff₀ ( Real.exp_pos _ ) ] ; linarith
+
 /-
 Definitions of carries in base p addition of m+m.
 -/
@@ -2004,7 +2366,36 @@ The derivative of the smaller eigenvalue at z=1.
 -/
 theorem deriv_lambda_minus_at_one (p : ℕ) (hp : p ≥ 2) :
     deriv (lambda_minus p) 1 = (((p + 1) / 2 : ℕ) - (p / 2 : ℕ) : ℝ) / 2 := by
-      sorry
+      have hfun :
+          lambda_minus p =
+            fun z : ℝ => (((p + 1) / 2 : ℕ) : ℝ) * (1 + z) - lambda_plus p z := by
+        funext z
+        unfold lambda_minus lambda_plus
+        ring
+      rw [hfun]
+      have hdiff_plus : DifferentiableAt ℝ (lambda_plus p) 1 := by
+        unfold lambda_plus
+        apply DifferentiableAt.div_const
+        apply DifferentiableAt.add
+        · fun_prop
+        · apply DifferentiableAt.sqrt
+          · fun_prop
+          · have hdisc := discriminant_at_one p hp
+            unfold discriminant at hdisc
+            rw [hdisc]
+            have hpdiv : 0 < p / 2 := Nat.div_pos hp (by norm_num)
+            positivity
+      rw [deriv_fun_sub (by fun_prop) hdiff_plus]
+      have hderiv_linear :
+          deriv (fun z : ℝ => (((p + 1) / 2 : ℕ) : ℝ) * (1 + z)) 1 =
+            (((p + 1) / 2 : ℕ) : ℝ) := by
+        rw [deriv_const_mul_field]
+        rw [deriv_fun_add (by fun_prop) (by fun_prop)]
+        rw [deriv_const, deriv_id'']
+        ring
+      rw [hderiv_linear, deriv_lambda_plus_at_one p hp]
+      rcases Nat.even_or_odd' p with ⟨k, rfl | rfl⟩ <;> norm_num [Nat.add_div] <;> ring
+
 /-
 If f(x0) = g(x0) and f'(x0) > g'(x0), then f(x) < g(x) for some x < x0.
 -/
@@ -2096,7 +2487,8 @@ noncomputable def rho (p : ℕ) (alpha : ℝ) : ℝ :=
 
 theorem rho_lt_p (p : ℕ) (alpha : ℝ) (hp : p ≥ 2) (halpha : alpha < 1 / 2) :
     rho p alpha < p := by
-      sorry
+      simpa [rho] using (z_choice_prop p alpha hp halpha).2
+
 /-
 The exponent gamma is strictly less than 1.
 -/
@@ -2133,7 +2525,8 @@ The exponent gamma is less than 1 for alpha = 0.49.
 noncomputable def gamma_exponent (p : ℕ) : ℝ := gamma p alpha_val
 
 theorem gamma_exponent_lt_one (p : ℕ) (hp : p ≥ 2) : gamma_exponent p < 1 := by
-  sorry
+  simpa [gamma_exponent, alpha_val] using gamma_lt_one p alpha_val hp alpha_val_lt_half
+
 /-
 The cardinality of the bad set for a prime p is bounded by the Chernoff bound.
 -/
@@ -2145,7 +2538,52 @@ noncomputable def bound_bad_set_p_val (x : ℝ) (p : ℕ) [Fact p.Prime] : ℝ :
 
 theorem bad_set_p_card_bound (x : ℝ) (p : ℕ) [Fact p.Prime] (hp : p ≥ 2) (hx : x ≥ 1) :
     ((bad_set_p x p).card : ℝ) ≤ bound_bad_set_p_val x p := by
-      sorry
+      -- By the Chernoff bound, the cardinality of the bad set is bounded by the weighted sum times the exponential term.
+      have h_chernoff : ((Finset.range (p ^ (Nat.floor (Real.log x / Real.log p) + 1))).filter (fun m => (padicValNat p (Nat.choose (2 * m) m) : ℝ) < 0.49 * (Real.log x / Real.log p))).card ≤ weighted_sum p (Nat.floor (Real.log x / Real.log p) + 1) (z_choice p alpha_val) * z_choice p alpha_val ^ (-0.49 * (Real.log x / Real.log p)) := by
+        have := @weighted_sum_bound_general p ( Nat.floor ( Real.log x / Real.log p ) + 1 ) ( 0.49 * ( Real.log x / Real.log p ) ) ( z_choice p 0.49 );
+        have hlt_le :
+            (((Finset.range (p ^ (Nat.floor (Real.log x / Real.log p) + 1))).filter
+              (fun m => (padicValNat p (Nat.choose (2 * m) m) : ℝ) <
+                0.49 * (Real.log x / Real.log p))).card : ℝ) ≤
+              (((Finset.range (p ^ (Nat.floor (Real.log x / Real.log p) + 1))).filter
+                (fun m => (padicValNat p (Nat.choose (2 * m) m) : ℝ) ≤
+                  0.49 * (Real.log x / Real.log p))).card : ℝ) := by
+          exact_mod_cast Finset.card_mono fun x hx =>
+            Finset.mem_filter.mpr
+              ⟨(Finset.mem_filter.mp hx).1, le_of_lt (Finset.mem_filter.mp hx).2⟩
+        refine le_trans hlt_le ?_
+        simpa [alpha_val, mul_assoc] using
+          (this hp (z_choice_prop p 0.49 hp (by norm_num)).1.1
+            (le_of_lt (z_choice_prop p 0.49 hp (by norm_num)).1.2))
+      -- Since `bad_set_p` is a subset of `{m < p^D | v_p <= K}`, we can apply the Chernoff bound.
+      have h_subset : bad_set_p x p ⊆ Finset.filter (fun m => (padicValNat p (Nat.choose (2 * m) m) : ℝ) < 0.49 * (Real.log x / Real.log p)) (Finset.range (p ^ (Nat.floor (Real.log x / Real.log p) + 1))) := by
+        intro m hm; simp_all +decide [ bad_set_p ] ; (
+        refine ⟨ ?_, ?_ ⟩;
+        · have h_log : Real.log m < (Nat.floor (Real.log x / Real.log p) + 1) * Real.log p := by
+            have := Nat.lt_floor_add_one ( Real.log x / Real.log p );
+            rw [ div_lt_iff₀ ( Real.log_pos ( Nat.one_lt_cast.mpr hp ) ) ] at this;
+            exact lt_of_le_of_lt ( Real.log_le_log ( by norm_cast; linarith ) ( Nat.floor_le ( by positivity ) |> le_trans ( Nat.cast_le.mpr hm.1.2 ) ) ) this;
+          rw [ ← @Nat.cast_lt ℝ ] ; push_cast ; rw [ ← Real.log_lt_log_iff ( by norm_cast; linarith ) ( by positivity ) ] ; simpa using h_log;
+        · field_simp;
+          refine lt_of_lt_of_le hm.2.2 ?_;
+          gcongr ; norm_cast ; linarith [ Nat.floor_le ( show 0 ≤ x by positivity ) ];
+          exact le_trans ( Nat.cast_le.mpr hm.1.2 ) ( Nat.floor_le ( by positivity ) ));
+      refine le_trans ( Nat.cast_le.mpr <| Finset.card_mono h_subset ) ?_
+      change
+        (((Finset.range (p ^ (Nat.floor (Real.log x / Real.log p) + 1))).filter
+          (fun m => (padicValNat p (Nat.choose (2 * m) m) : ℝ) <
+            0.49 * (Real.log x / Real.log p))).card : ℝ) ≤ bound_bad_set_p_val x p
+      unfold bound_bad_set_p_val
+      dsimp
+      refine h_chernoff.trans_eq ?_
+      rw [D_func, alpha_val, div_eq_mul_inv]
+      congr 2
+      · rw [Nat.add_comm]
+      · rw [div_eq_mul_inv]
+        rw [show 0.49 * Real.log x * (Real.log (p : ℝ))⁻¹ =
+            0.49 * (Real.log x * (Real.log (p : ℝ))⁻¹) by rw [mul_assoc]]
+        rw [neg_mul]
+
 /-
 The cardinality of the bad set for a prime p is bounded by the Chernoff bound.
 -/
@@ -2157,7 +2595,9 @@ noncomputable def bound_bad_set_p_val_v2 (x : ℝ) (p : ℕ) [Fact p.Prime] : �
 
 theorem bad_set_p_card_bound_v2 (x : ℝ) (p : ℕ) [Fact p.Prime] (hp : p ≥ 2) (hx : x ≥ 1) :
     ((bad_set_p x p).card : ℝ) ≤ bound_bad_set_p_val_v2 x p := by
-      sorry
+      simpa [bound_bad_set_p_val_v2, bound_bad_set_p_val] using
+        bad_set_p_card_bound x p hp hx
+
 /-
 The smaller eigenvalue is non-negative.
 -/
@@ -2179,7 +2619,9 @@ noncomputable def bound_bad_set_p_val_v3 (x : ℝ) (p : ℕ) [Fact p.Prime] : �
 
 theorem bad_set_p_card_bound_v3 (x : ℝ) (p : ℕ) [Fact p.Prime] (hp : p ≥ 2) (hx : x ≥ 1) :
     ((bad_set_p x p).card : ℝ) ≤ bound_bad_set_p_val_v3 x p := by
-      sorry
+      simpa [bound_bad_set_p_val_v3, bound_bad_set_p_val_v2] using
+        bad_set_p_card_bound_v2 x p hp hx
+
 /-
 The weighted sum is bounded by a constant times the D-th power of the largest eigenvalue, uniformly in D.
 -/
@@ -2228,13 +2670,69 @@ noncomputable def C_p_v2 (p : ℕ) (z : ℝ) [hprime : Fact p.Prime] : ℝ :=
 
 theorem C_p_prop_v2 (p : ℕ) (z : ℝ) (D : ℕ) [hprime : Fact p.Prime] (hp : p ≥ 2) (hz : 0 < z) (hz1 : z ≤ 1) :
     weighted_sum p D z ≤ C_p_v2 p z * (lambda_plus p z) ^ D := by
-      sorry
+      simpa [C_p_v2, C_p] using C_p_prop p z D hp hz hz1
+
 /-
 Asymptotic bound for the bad set size.
 -/
 theorem bad_set_p_bound_asymptotic (x : ℝ) (p : ℕ) [Fact p.Prime] (hp : p ≥ 2) (hx : x ≥ 1) :
     bound_bad_set_p_val_v3 x p ≤ C_p_v2 p (z_choice p alpha_val) * (lambda_plus p (z_choice p alpha_val)) * x ^ (gamma_exponent p) := by
-      sorry
+      -- Substitute the bound from C_p_prop_v2 into the expression for bound_bad_set_p_val_v3.
+      have h_subst : bound_bad_set_p_val_v3 x p ≤ C_p_v2 p (z_choice p alpha_val) * (lambda_plus p (z_choice p alpha_val)) ^ (Nat.floor ((Real.log x) / (Real.log p)) + 1) * (z_choice p alpha_val) ^ (- (alpha_val * Real.log x / Real.log p)) := by
+        have hC := C_p_prop_v2 p (z_choice p alpha_val) (D_func p x) hp
+          (z_choice_prop p alpha_val hp alpha_val_lt_half).1.1
+          (z_choice_prop p alpha_val hp alpha_val_lt_half).1.2.le
+        have hzpow :
+            0 ≤ (z_choice p alpha_val) ^ (-(alpha_val * Real.log x / Real.log p)) :=
+          Real.rpow_nonneg (z_choice_prop p alpha_val hp alpha_val_lt_half).1.1.le _
+        simpa [bound_bad_set_p_val_v3, D_func, add_comm, add_left_comm,
+          add_assoc, mul_assoc, div_eq_mul_inv] using mul_le_mul_of_nonneg_right hC hzpow
+      -- Using the properties of exponents, we can simplify the right-hand side of the inequality.
+      have h_exp : (lambda_plus p (z_choice p alpha_val)) ^ (Nat.floor ((Real.log x) / (Real.log p)) + 1) * (z_choice p alpha_val) ^ (- (alpha_val * Real.log x / Real.log p)) ≤ (lambda_plus p (z_choice p alpha_val)) * (lambda_plus p (z_choice p alpha_val) * (z_choice p alpha_val) ^ (-alpha_val)) ^ ((Real.log x) / Real.log p) := by
+        have h_exp : (lambda_plus p (z_choice p alpha_val)) ^ (Nat.floor ((Real.log x) / (Real.log p)) + 1) * (z_choice p alpha_val) ^ (- (alpha_val * Real.log x / Real.log p)) ≤ (lambda_plus p (z_choice p alpha_val)) * (lambda_plus p (z_choice p alpha_val)) ^ ((Real.log x) / (Real.log p)) * (z_choice p alpha_val) ^ (- (alpha_val * Real.log x / Real.log p)) := by
+          gcongr;
+          · refine Real.rpow_nonneg ?_ ?_;
+            unfold z_choice;
+            split_ifs <;> norm_num;
+            exact Classical.choose_spec ( exists_z_lt_one_bound_lt_p p alpha_val hp ( by tauto ) ) |>.1 |>.1.le;
+          · rw [ pow_succ' ];
+            -- Since $\lambda_+ \geq 1$, we have $\lambda_+^{\lfloor \log x / \log p \rfloor} \leq \lambda_+^{\log x / \log p}$.
+            have h_exp : 1 ≤ lambda_plus p (z_choice p alpha_val) := by
+              apply le_trans _ ( lam_ge_H p ( z_choice p alpha_val ) hp ( show 0 ≤ z_choice p alpha_val from _ ) );
+              · exact_mod_cast Nat.div_pos ( by linarith ) zero_lt_two;
+              · unfold z_choice;
+                split_ifs <;> norm_num;
+                exact Classical.choose_spec ( exists_z_lt_one_bound_lt_p p alpha_val hp ( by tauto ) ) |>.1 |>.1.le;
+            exact mul_le_mul_of_nonneg_left ( by exact_mod_cast Real.rpow_le_rpow_of_exponent_le h_exp ( Nat.floor_le ( div_nonneg ( Real.log_nonneg hx ) ( Real.log_nonneg ( Nat.one_le_cast.mpr ( by linarith ) ) ) ) ) ) ( by positivity );
+        convert h_exp using 1 ; rw [ Real.mul_rpow ( _ ) ( _ ) ] ; ring_nf;
+        · rw [ ← Real.rpow_mul ( _ ) ] ; ring_nf;
+          exact le_of_lt ( z_choice_prop p alpha_val hp ( show alpha_val < 1 / 2 by exact alpha_val_lt_half ) |>.1 |>.1 );
+        · exact div_nonneg ( add_nonneg ( mul_nonneg ( Nat.cast_nonneg _ ) ( add_nonneg zero_le_one ( show 0 ≤ z_choice p alpha_val from by exact le_of_lt ( z_choice_prop p alpha_val hp ( show alpha_val < 1 / 2 from by norm_num [ alpha_val ] ) |>.1 |>.1 ) ) ) ) ( Real.sqrt_nonneg _ ) ) zero_le_two;
+        · exact Real.rpow_nonneg ( le_of_lt ( z_choice_prop p alpha_val hp ( by linarith [ show alpha_val < 1 / 2 by exact show ( 0.49 : ℝ ) < 1 / 2 by norm_num ] ) |>.1 |>.1 ) ) _;
+      -- Using the properties of exponents, we can simplify the right-hand side of the inequality further.
+      have h_exp_simplified : (lambda_plus p (z_choice p alpha_val) * (z_choice p alpha_val) ^ (-alpha_val)) ^ ((Real.log x) / Real.log p) ≤ x ^ (gamma_exponent p) := by
+        rw [ Real.rpow_def_of_pos, Real.rpow_def_of_pos ];
+        · rw [ Real.rpow_def_of_pos ( by positivity ) ];
+          unfold gamma_exponent;
+          unfold gamma;
+          unfold rho; ring_nf; norm_num;
+          unfold bound_func; ring_nf;
+          rw [ Real.rpow_def_of_pos ( show 0 < z_choice p alpha_val from _ ) ] ; ring_nf ; norm_num;
+          exact z_choice_prop p alpha_val hp ( alpha_val_lt_half ) |>.1.1;
+        · exact z_choice_prop p alpha_val hp ( alpha_val_lt_half ) |>.1.1;
+        · refine mul_pos ?_ ?_;
+          · refine div_pos ?_ ?_ <;> norm_num;
+            exact add_pos_of_pos_of_nonneg ( mul_pos ( Nat.cast_pos.mpr ( Nat.div_pos ( by linarith ) zero_lt_two ) ) ( by linarith [ show 0 < z_choice p alpha_val from by have := z_choice_prop p alpha_val hp ( by exact alpha_val_lt_half ) ; exact this.1.1 ] ) ) ( Real.sqrt_nonneg _ );
+          · exact Real.rpow_pos_of_pos ( z_choice_prop p alpha_val hp ( by norm_num [ alpha_val ] ) |>.1 |>.1 ) _;
+      refine le_trans h_subst ?_;
+      convert mul_le_mul_of_nonneg_left ( h_exp.trans ( mul_le_mul_of_nonneg_left h_exp_simplified <| _ ) ) ( show 0 ≤ C_p_v2 p ( z_choice p alpha_val ) by
+                                                                                                                unfold C_p_v2;
+                                                                                                                split_ifs <;> norm_num;
+                                                                                                                exact le_of_lt ( Classical.choose_spec ( weighted_sum_uniform_bound p ( z_choice p alpha_val ) hp ( by linarith ) ( by linarith ) ) |>.1 ) ) using 1 ; ring;
+      · ring;
+      · apply_rules [ add_nonneg, div_nonneg, Real.sqrt_nonneg, pow_nonneg ] <;> norm_num [ hp ];
+        exact mul_nonneg ( Nat.cast_nonneg _ ) ( add_nonneg zero_le_one ( le_of_lt ( z_choice_prop p alpha_val ( show p ≥ 2 by linarith ) ( show alpha_val < 1 / 2 by exact alpha_val_lt_half ) |>.1.1 ) ) )
+
 /-
 The total bound for the bad set size, summing over all relevant primes.
 -/
@@ -2278,7 +2776,25 @@ noncomputable def limit_ratio (alpha : ℝ) : ℝ :=
 
 theorem limit_ratio_lt_one (alpha : ℝ) (h1 : 0 < alpha) (h2 : alpha < 1/2) :
     limit_ratio alpha < 1 := by
-      sorry
+      unfold limit_ratio;
+      -- Since $f(\alpha)$ is minimized at $\alpha = 1/2$ and $f(1/2) = 1/2$, we have $f(\alpha) > 1/2$ for $0 < \alpha < 1/2$.
+      have h_min : ∀ {alpha : ℝ}, 0 < alpha → alpha < 1 / 2 → alpha ^ alpha * (1 - alpha) ^ (1 - alpha) > 1 / 2 := by
+        -- Let's choose any $\alpha$ in the interval $(0, 1/2)$ and show that $f(\alpha) > 1/2$.
+        intros alpha h1 h2
+        have h_min : alpha * Real.log alpha + (1 - alpha) * Real.log (1 - alpha) > Real.log (1 / 2) := by
+          have h_convex : StrictConvexOn ℝ (Set.Ioi 0) (fun x => x * Real.log x) := by
+            exact ( Real.strictConvexOn_mul_log.subset Set.Ioi_subset_Ici_self <| convex_Ioi _ );
+          have := h_convex.2 ( show 0 < alpha by linarith ) ( show 0 < 1 - alpha by linarith ) ( by linarith );
+          have := @this ( 1 / 2 ) ( 1 / 2 ) ( by norm_num ) ( by norm_num ) ( by norm_num ) ; norm_num at * ; ring_nf at * ; linarith;
+        rw [ gt_iff_lt, ← Real.log_lt_log_iff ( by positivity ) ( by exact mul_pos ( Real.rpow_pos_of_pos h1 _ ) ( Real.rpow_pos_of_pos ( by linarith ) _ ) ), Real.log_mul ( by positivity ) ( by exact ne_of_gt ( Real.rpow_pos_of_pos ( by linarith ) _ ) ), Real.log_rpow h1, Real.log_rpow ( by linarith ) ] ; linarith;
+      convert inv_lt_one_of_one_lt₀ ( show 1 < 2 * ( alpha ^ alpha * ( 1 - alpha ) ^ ( 1 - alpha ) ) from by linarith [ h_min h1 h2 ] ) using 1
+      · rfl
+      · norm_num [ z_zero ];
+        simp only [ div_eq_mul_inv ];
+        rw [ Real.mul_rpow ( by linarith ) ( by nlinarith [ mul_inv_cancel₀ ( by linarith : ( 1 - alpha ) ≠ 0 ) ] ), Real.inv_rpow ( by linarith ) ] ; ring_nf;
+        rw [ show ( 1 - alpha ) ^ ( 1 - alpha ) = ( 1 - alpha ) ^ ( -alpha ) * ( 1 - alpha ) by rw [ ← Real.rpow_add_one ( by linarith ) ] ; ring_nf ] ; norm_num [ Real.rpow_neg ( by linarith : 0 ≤ alpha ), Real.rpow_neg ( by linarith : 0 ≤ 1 - alpha ) ] ; ring_nf;
+        nlinarith [ inv_mul_cancel_left₀ ( by linarith : ( 1 - alpha ) ≠ 0 ) ( ( alpha ^ alpha ) ⁻¹ * ( 1 - alpha ) ^ alpha * ( 1 / 2 ) ) ]
+
 /-
 z_final is in (0, 1) and provides a bound less than p.
 -/
@@ -2579,7 +3095,21 @@ x^gamma_final is bounded by x * exp(-C_decay * log x / log p).
 -/
 theorem x_pow_gamma_bound (x : ℝ) (p : ℕ) (hp : p ≥ 2) (hx : x ≥ 1) :
     x ^ (gamma_final p alpha_val) ≤ x * Real.exp (-C_decay * Real.log x / Real.log p) := by
-      sorry
+      rw [ Real.rpow_def_of_nonneg ( by positivity ) ];
+      -- Using the bound on gamma_final, we can rewrite the exponent in the exponential term.
+      have h_exp_bound : log x * gamma_final p alpha_val ≤ log x - (C_decay * log x) / Real.log p := by
+        have := gamma_final_bound p hp;
+        calc
+          log x * gamma_final p alpha_val
+              ≤ log x * (1 + Real.log c_rho / Real.log p) :=
+                mul_le_mul_of_nonneg_left this ( Real.log_nonneg hx )
+          _ = log x - (C_decay * log x) / Real.log p := by
+                unfold C_decay
+                rw [ sub_eq_add_neg, div_eq_mul_inv ]
+                ring
+      rw [ if_neg ( by linarith ) ] ; convert Real.exp_le_exp.mpr h_exp_bound using 1 ; rw [ ← Real.exp_log ( by linarith : 0 < x ) ] ; rw [ ← Real.exp_add ] ; ring_nf;
+      norm_num ; ring
+
 /-
 C_p_explicit bounds the weighted sum.
 -/
@@ -3044,13 +3574,61 @@ noncomputable def bound_lemma_2_2_v3_func (x : ℝ) : ℝ :=
 
 theorem bound_lemma_2_2_v3_is_little_o :
     bound_lemma_2_2_v3_func =o[Filter.atTop] (fun x => x) := by
-      sorry
+      unfold bound_lemma_2_2_v3_func;
+      rw [ Asymptotics.isLittleO_iff_tendsto' ] <;> norm_num;
+      · -- The number of terms in the outer sum is `pi(2 * K_max x)`, which is bounded by `2 * K_max x`.
+        have h_outer_sum : ∀ x : ℝ, x ≥ 3 → ((Finset.filter Nat.Prime (Finset.range (2 * K_max x + 1))).card : ℝ) ≤ 2 * K_max x := by
+          intro x hx; norm_cast; refine le_trans ( Finset.card_le_card <| show Finset.filter Nat.Prime ( Finset.range ( 2 * K_max x + 1 ) ) ⊆ Finset.Ico 2 ( 2 * K_max x + 1 ) from fun p hp => Finset.mem_Ico.mpr ⟨ Nat.Prime.two_le <| Finset.mem_filter.mp hp |>.2, Finset.mem_range.mp <| Finset.mem_filter.mp hp |>.1 ⟩ ) ?_ ; simp +arith +decide;
+        -- The term `2 * x / K_max x` tends to 0 because `1 / log x` tends to 0.
+        have h_term1 : Filter.Tendsto (fun x : ℝ => 2 * x / (K_max x : ℝ) / x) Filter.atTop (nhds 0) := by
+          -- We can simplify the expression $2 * x / (K_max x : ℝ) / x$ to $2 / (K_max x : ℝ)$.
+          suffices h_simplified : Filter.Tendsto (fun x : ℝ => 2 / (K_max x : ℝ)) Filter.atTop (nhds 0) by
+            refine h_simplified.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx using by rw [ div_right_comm, mul_div_cancel_right₀ _ hx.ne' ] );
+          refine tendsto_const_nhds.div_atTop ?_;
+          exact tendsto_natCast_atTop_atTop.comp ( tendsto_nat_floor_atTop.comp <| Filter.Tendsto.const_mul_atTop ( by norm_num ) <| Real.tendsto_log_atTop );
+        -- The term `2 * K_max x ^ 2 / x` tends to 0 because `(log x)^2 / x` tends to 0.
+        have h_term2 : Filter.Tendsto (fun x : ℝ => 2 * (K_max x : ℝ) ^ 2 / x) Filter.atTop (nhds 0) := by
+          -- We can use the fact that $(\log x)^2 / x$ tends to $0$ as $x$ tends to infinity.
+          have h_log_sq_div_x : Filter.Tendsto (fun x : ℝ => (Real.log x) ^ 2 / x) Filter.atTop (nhds 0) := by
+            -- Let $y = \log x$, therefore the expression becomes $\frac{y^2}{e^y}$.
+            suffices h_log_sq_div_exp : Filter.Tendsto (fun y : ℝ => y^2 / Real.exp y) Filter.atTop (nhds 0) by
+              have := h_log_sq_div_exp.comp Real.tendsto_log_atTop;
+              exact this.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx using by rw [ Function.comp_apply, Real.exp_log hx ] );
+            simpa [ div_eq_mul_inv, Real.exp_neg ] using
+              Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 2;
+          -- Since $K_{\text{max}} x \leq 0.7 \log x$, we have $(K_{\text{max}} x)^2 \leq (0.7 \log x)^2$.
+          have h_K_max_sq_le : ∀ x : ℝ, x ≥ 3 → (K_max x : ℝ) ^ 2 ≤ (0.7 * Real.log x) ^ 2 := by
+            intro x hx; gcongr ; norm_num [ K_max ] ;
+            exact Nat.floor_le ( by linarith [ Real.log_nonneg ( by linarith : ( 1 : ℝ ) ≤ x ) ] );
+          refine squeeze_zero_norm' (a := fun x => 2 * ( 0.7 * Real.log x ) ^ 2 / x) ?_ ?_;
+          · exact Filter.eventually_atTop.mpr ⟨ 3, fun x hx => by rw [ Real.norm_of_nonneg ( by positivity ) ] ; exact div_le_div_of_nonneg_right ( by nlinarith [ h_K_max_sq_le x hx ] ) ( by positivity ) ⟩
+          · convert h_log_sq_div_x.const_mul ( 2 * ( 0.7 : ℝ ) ^ 2 ) using 2 <;> ring
+        -- Using the bounds from h_outer_sum, we can show that the expression is bounded above by the sum of the two terms.
+        have h_bound : ∀ x : ℝ, x ≥ 3 → ((Finset.filter Nat.Prime (Finset.range (2 * K_max x + 1))).card * (K_max x * (x / K_max x ^ 3)) + (Finset.filter Nat.Prime (Finset.range (2 * K_max x + 1))).card * K_max x) / x ≤ (2 * x / (K_max x : ℝ) / x) + (2 * (K_max x : ℝ) ^ 2 / x) := by
+          intro x hx; specialize h_outer_sum x hx; by_cases h : K_max x = 0 <;> simp_all +decide [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm, pow_succ' ] ;
+          -- By simplifying, we can see that the left-hand side is indeed less than or equal to the right-hand side.
+          field_simp [h] at *; (
+          exact_mod_cast h_outer_sum);
+        refine squeeze_zero_norm' ?_ ( by simpa using h_term1.add h_term2 );
+        filter_upwards [ Filter.eventually_ge_atTop 3 ] with x hx using by rw [ Real.norm_of_nonneg ( div_nonneg ( add_nonneg ( mul_nonneg ( Nat.cast_nonneg _ ) ( mul_nonneg ( Nat.cast_nonneg _ ) ( div_nonneg ( by positivity ) ( by positivity ) ) ) ) ( mul_nonneg ( Nat.cast_nonneg _ ) ( Nat.cast_nonneg _ ) ) ) ( by positivity ) ) ] ; exact h_bound x hx;
+      · exact ⟨ 1, by intros; linarith ⟩
+
 /-
 The bad set for Lemma 2.2 (v3) has asymptotic density 0.
 -/
 theorem bad_set_lemma_2_2_v3_density_zero :
     (fun x => ((bad_set_lemma_2_2_v3 x).card : ℝ)) =o[Filter.atTop] (fun x => x) := by
-      sorry
+      refine Asymptotics.isLittleO_iff.mpr ?_;
+      norm_num +zetaDelta at *;
+      intro c hc_pos
+      obtain ⟨a, ha⟩ : ∃ a, ∀ b, a ≤ b → bound_lemma_2_2_v3_func b ≤ c * |b| := by
+        have := bound_lemma_2_2_v3_is_little_o;
+        rw [ Asymptotics.isLittleO_iff ] at this;
+        exact Filter.eventually_atTop.mp ( this hc_pos ) |> fun ⟨ a, ha ⟩ => ⟨ a, fun b hb => le_of_abs_le ( ha b hb ) ⟩;
+      refine ⟨ Max.max a 3, fun x hx => le_trans ?_ ( ha x ( le_trans ( le_max_left a 3 ) hx ) ) ⟩;
+      simpa [ bound_lemma_2_2_v3_func ] using
+        bad_set_lemma_2_2_v3_bound x ( by linarith [ le_max_right a 3 ] )
+
 /-
 The function 0.7 * log p / (p-1) is bounded by 0.486 for all primes p.
 -/
@@ -3138,7 +3716,71 @@ The inequality holds for sufficiently large m.
 theorem inequality_eventually_holds :
     ∀ᶠ m in Filter.atTop, ∀ k ∈ Finset.Icc 1 (K_max m), ∀ p ∈ Finset.range (2 * k + 1), p.Prime →
       (k : ℝ) / (p - 1) + 3 * Real.log k / Real.log p ≤ 0.49 * Real.log m / Real.log p := by
-        sorry
+        -- For sufficiently large $m$, the inequality $k \log 2 + 3 \log k \leq 0.49 \log m$ holds.
+        have h_ineq : ∀ᶠ m in Filter.atTop, ∀ k ∈ Finset.Icc 1 (Nat.floor (0.7 * Real.log m)), k * Real.log 2 + 3 * Real.log k ≤ 0.49 * Real.log m := by
+          -- We'll use the fact that $k \leq 0.7 \log m$ to bound the terms involving $k$.
+          have h_bound : ∀ᶠ m in Filter.atTop, ∀ k ∈ Finset.Icc 1 (Nat.floor (0.7 * Real.log m)), k * Real.log 2 + 3 * Real.log (0.7 * Real.log m) ≤ 0.49 * Real.log m := by
+            have h_bound : ∀ᶠ m in Filter.atTop, 0.7 * Real.log m * Real.log 2 + 3 * Real.log (0.7 * Real.log m) ≤ 0.49 * Real.log m := by
+              have h_log_growth : Filter.Tendsto (fun m : ℝ => (0.7 * Real.log m * Real.log 2 + 3 * Real.log (0.7 * Real.log m)) / Real.log m) Filter.atTop (nhds ((0.7 * Real.log 2) + 0)) := by
+                -- We can use the fact that $\log(ab) = \log(a) + \log(b)$ to simplify the expression.
+                suffices h_log_simplified : Filter.Tendsto (fun m : ℝ => (0.7 * Real.log 2 + 3 * (Real.log 0.7 + Real.log (Real.log m)) / Real.log m)) Filter.atTop (nhds (0.7 * Real.log 2 + 0)) by
+                  refine h_log_simplified.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 1 ] with m hm using by rw [ Real.log_mul ( by positivity ) ( by exact ne_of_gt <| Real.log_pos hm ) ] ; ring_nf; norm_num [ ne_of_gt, Real.log_pos hm ] );
+                -- We'll use the fact that $\frac{\log(\log m)}{\log m}$ tends to $0$ as $m$ tends to infinity.
+                have h_log_log : Filter.Tendsto (fun m : ℝ => Real.log (Real.log m) / Real.log m) Filter.atTop (nhds 0) := by
+                  -- Let $y = \log m$, therefore the limit becomes $\lim_{y \to \infty} \frac{\log y}{y}$.
+                  suffices h_log_y : Filter.Tendsto (fun y : ℝ => Real.log y / y) Filter.atTop (nhds 0) by
+                    exact h_log_y.comp ( Real.tendsto_log_atTop );
+                  -- Let $z = \frac{1}{y}$, therefore the expression becomes $\frac{\log (1/z)}{1/z} = -z \log z$.
+                  suffices h_log_z : Filter.Tendsto (fun z : ℝ => -z * Real.log z) (Filter.map (fun y => 1 / y) Filter.atTop) (nhds 0) by
+                    exact h_log_z.congr ( by simp +contextual [ div_eq_inv_mul ] );
+                  norm_num;
+                  exact tendsto_nhdsWithin_of_tendsto_nhds ( by simpa using Real.continuous_mul_log.neg.tendsto 0 );
+                ring_nf;
+                simpa [ div_eq_mul_inv ] using Filter.Tendsto.add ( tendsto_const_nhds.add ( Filter.Tendsto.mul ( tendsto_const_nhds.mul ( tendsto_inv_atTop_zero.comp Real.tendsto_log_atTop ) ) tendsto_const_nhds ) ) ( h_log_log.mul_const 3 )
+              have h_log_growth : ∀ᶠ m in Filter.atTop, (0.7 * Real.log m * Real.log 2 + 3 * Real.log (0.7 * Real.log m)) / Real.log m < 0.49 := by
+                have := h_log_growth.eventually ( gt_mem_nhds <| show 0.7 * Real.log 2 + 0 < 0.49 by have := Real.log_two_lt_d9; norm_num1 at *; linarith ) ; aesop;
+              filter_upwards [ h_log_growth, Filter.eventually_gt_atTop 1 ] with m hm₁ hm₂ using by rw [ div_lt_iff₀ ( Real.log_pos hm₂ ) ] at hm₁; linarith;
+            filter_upwards [ h_bound, Filter.eventually_gt_atTop 1 ] with m hm₁ hm₂
+            intro k hk
+            have hk_le : (k : ℝ) ≤ 0.7 * Real.log m := by
+              exact (Nat.cast_le.mpr (Finset.mem_Icc.mp hk).2).trans
+                (Nat.floor_le (mul_nonneg (by norm_num) (Real.log_nonneg (by linarith : (1 : ℝ) ≤ m))))
+            have hmul : (k : ℝ) * Real.log 2 ≤ 0.7 * Real.log m * Real.log 2 :=
+              mul_le_mul_of_nonneg_right hk_le (Real.log_nonneg (by norm_num : (1 : ℝ) ≤ 2))
+            nlinarith [hmul, hm₁]
+          filter_upwards [ h_bound, Filter.eventually_gt_atTop 1 ] with m hm₁ hm₂;
+          intro k hk
+          have hk_le : (k : ℝ) ≤ 0.7 * Real.log m := by
+            exact (Nat.cast_le.mpr (Finset.mem_Icc.mp hk).2).trans
+              (Nat.floor_le (mul_nonneg (by norm_num) (Real.log_nonneg hm₂.le)))
+          have hlog_le : Real.log k ≤ Real.log (0.7 * Real.log m) :=
+            Real.log_le_log (Nat.cast_pos.mpr (Finset.mem_Icc.mp hk).1) hk_le
+          have hlog_mul : 3 * Real.log k ≤ 3 * Real.log (0.7 * Real.log m) :=
+            mul_le_mul_of_nonneg_left hlog_le (by norm_num)
+          nlinarith [hlog_mul, hm₁ k hk]
+        filter_upwards [ h_ineq, Filter.eventually_gt_atTop 1 ] with m hm₁ hm₂;
+        intro k hk p hp hp_prime
+        have h_ineq : k * Real.log p / (p - 1) + 3 * Real.log k ≤ 0.49 * Real.log m := by
+          have h_ineq : k * Real.log p / (p - 1) ≤ k * Real.log 2 := by
+            rw [ div_le_iff₀ ] <;> norm_num;
+            · have h_ineq : Real.log p ≤ Real.log 2 * (p - 1) := by
+                rcases p with ( _ | _ | p ) <;> norm_num at *;
+                rw [ Real.log_le_iff_le_exp ( by positivity ) ];
+                rw [ Real.exp_mul, Real.exp_log ] <;> norm_cast;
+                exact Nat.recOn p ( by norm_num ) fun n ihn => by norm_num [ Nat.pow_succ' ] at ihn ⊢ ; linarith;
+              simpa only [ mul_assoc ] using mul_le_mul_of_nonneg_left h_ineq <| Nat.cast_nonneg _;
+            · exact hp_prime.one_lt;
+          exact add_le_of_add_le_right (hm₁ k hk) h_ineq;
+        have hlogpos : 0 < Real.log p := Real.log_pos (Nat.one_lt_cast.mpr hp_prime.one_lt)
+        have hp_sub_pos : 0 < ((p - 1 : ℕ) : ℝ) := by
+          exact_mod_cast Nat.sub_pos_of_lt hp_prime.one_lt
+        calc
+          (k : ℝ) / (p - 1) + 3 * Real.log k / Real.log p
+              = (k * Real.log p / (p - 1) + 3 * Real.log k) / Real.log p := by
+                field_simp [hlogpos.ne', hp_sub_pos.ne']
+          _ ≤ 0.49 * Real.log m / Real.log p :=
+                div_le_div_of_nonneg_right h_ineq hlogpos.le
+
 /-
 The inequality holds uniformly for m close to x.
 -/
@@ -3146,7 +3788,72 @@ theorem inequality_eventually_holds_uniform :
     ∀ᶠ x in Filter.atTop, ∀ m ∈ Finset.Icc (Nat.ceil (x / Real.log x)) (Nat.floor x),
       ∀ k ∈ Finset.Icc 1 (K_max m), ∀ p ∈ Finset.range (2 * k + 1), p.Prime →
         (k : ℝ) / (p - 1) + 3 * Real.log (K_max x) / Real.log p ≤ 0.49 * Real.log m / Real.log p := by
-          sorry
+          have h_ineq : ∀ᶠ x in Filter.atTop, ∀ m ∈ Finset.Icc (Nat.ceil (x / Real.log x)) (Nat.floor x), ∀ k ∈ Finset.Icc 1 (Nat.floor (0.7 * Real.log x)), ∀ p ∈ Finset.range (2 * k + 1), p.Prime → (k : ℝ) / (p - 1) + 3 * Real.log (Nat.floor (0.7 * Real.log x)) / Real.log p ≤ 0.49 * Real.log m / Real.log p := by
+            have h_ineq : ∀ᶠ x in Filter.atTop, ∀ m ∈ Finset.Icc (Nat.ceil (x / Real.log x)) (Nat.floor x), ∀ k ∈ Finset.Icc 1 (Nat.floor (0.7 * Real.log x)), k * Real.log 2 + 3 * Real.log (Nat.floor (0.7 * Real.log x)) ≤ 0.49 * Real.log m := by
+              have h_ineq : ∀ᶠ x in Filter.atTop, ∀ m ∈ Finset.Icc (Nat.ceil (x / Real.log x)) (Nat.floor x), 0.7 * Real.log x * Real.log 2 + 3 * Real.log (0.7 * Real.log x) ≤ 0.49 * Real.log m := by
+                have h_ineq : ∀ᶠ x in Filter.atTop, 0.7 * Real.log x * Real.log 2 + 3 * Real.log (0.7 * Real.log x) ≤ 0.49 * (Real.log x - Real.log (Real.log x)) := by
+                  -- We can divide both sides by $\log x$ (which is positive for $x > 1$) to simplify the inequality.
+                  suffices h_div : ∀ᶠ x in Filter.atTop, 0.7 * Real.log 2 + 3 * (Real.log (0.7) + Real.log (Real.log x)) / Real.log x ≤ 0.49 * (1 - Real.log (Real.log x) / Real.log x) by
+                    filter_upwards [ h_div, Filter.eventually_gt_atTop 1 ] with x hx₁ hx₂ using by rw [ Real.log_mul ( by positivity ) ( by exact ne_of_gt ( Real.log_pos hx₂ ) ) ] ; nlinarith [ Real.log_pos hx₂, mul_div_cancel₀ ( 3 * ( Real.log 0.7 + Real.log ( Real.log x ) ) ) ( ne_of_gt ( Real.log_pos hx₂ ) ), mul_div_cancel₀ ( Real.log ( Real.log x ) ) ( ne_of_gt ( Real.log_pos hx₂ ) ) ] ;
+                  -- As $x \to \infty$, $\frac{\log(\log x)}{\log x} \to 0$.
+                  have h_log_log_x : Filter.Tendsto (fun x : ℝ => Real.log (Real.log x) / Real.log x) Filter.atTop (nhds 0) := by
+                    -- Let $y = \log x$, therefore the expression becomes $\frac{\log y}{y}$.
+                    suffices h_log_y : Filter.Tendsto (fun y : ℝ => Real.log y / y) Filter.atTop (nhds 0) by
+                      exact h_log_y.comp ( Real.tendsto_log_atTop );
+                    -- Let $z = \frac{1}{y}$, so we can rewrite the limit as $\lim_{z \to 0^+} z \log(1/z)$.
+                    suffices h_log_recip : Filter.Tendsto (fun z : ℝ => z * Real.log (1 / z)) (Filter.map (fun y => 1 / y) Filter.atTop) (nhds 0) by
+                      exact h_log_recip.congr ( by simp +contextual [ div_eq_inv_mul ] );
+                    norm_num +zetaDelta at *;
+                    exact tendsto_nhdsWithin_of_tendsto_nhds ( by simpa using Real.continuous_mul_log.neg.tendsto 0 );
+                  have h_log_log_x : Filter.Tendsto (fun x : ℝ => 0.7 * Real.log 2 + 3 * (Real.log 0.7 + Real.log (Real.log x)) / Real.log x) Filter.atTop (nhds (0.7 * Real.log 2 + 3 * 0)) := by
+                    ring_nf;
+                    simpa [div_eq_mul_inv] using Filter.Tendsto.add ( tendsto_const_nhds.add ( Filter.Tendsto.mul ( tendsto_const_nhds.mul ( tendsto_inv_atTop_zero.comp ( Real.tendsto_log_atTop ) ) ) tendsto_const_nhds ) ) ( h_log_log_x.mul_const 3 );
+                  have h_log_log_x : Filter.Tendsto (fun x : ℝ => 0.49 * (1 - Real.log (Real.log x) / Real.log x)) Filter.atTop (nhds (0.49 * (1 - 0))) := by
+                    exact tendsto_const_nhds.mul ( tendsto_const_nhds.sub ‹_› );
+                  have := h_log_log_x.sub ‹Filter.Tendsto ( fun x : ℝ => 0.7 * log 2 + 3 * ( log 0.7 + log ( log x ) ) / log x ) Filter.atTop ( nhds ( 0.7 * log 2 + 3 * 0 ) ) ›; norm_num at *;
+                  exact Filter.eventually_atTop.mp ( this.eventually ( lt_mem_nhds ( show 49 / 100 - 7 / 10 * log 2 > 0 by have := Real.log_two_lt_d9; norm_num1 at *; linarith ) ) ) |> fun ⟨ N, hN ⟩ => ⟨ N, fun x hx => by linarith [ hN x hx ] ⟩;
+                filter_upwards [ h_ineq, Filter.eventually_gt_atTop 1 ] with x hx₁ hx₂;
+                intro m hm
+                have hm_log : Real.log m ≥ Real.log x - Real.log (Real.log x) := by
+                  rw [ ← Real.log_div ( by linarith ) ( ne_of_gt ( Real.log_pos hx₂ ) ) ];
+                  exact Real.log_le_log ( div_pos ( by positivity ) ( Real.log_pos hx₂ ) ) ( Nat.le_of_ceil_le ( Finset.mem_Icc.mp hm |>.1 ) );
+                linarith;
+              filter_upwards [ h_ineq, Filter.eventually_gt_atTop 1 ] with x hx₁ hx₂;
+              intros m hm k hk;
+              refine le_trans ?_ ( hx₁ m hm );
+              gcongr <;> norm_num at *;
+              · exact le_trans ( Nat.cast_le.mpr hk.2 ) ( Nat.floor_le ( by linarith [ Real.log_nonneg hx₂.le ] ) );
+              · linarith;
+              · exact Nat.floor_le ( by linarith [ Real.log_pos hx₂ ] );
+            filter_upwards [ h_ineq ] with x hx m hm k hk p hp hp_prime;
+            have h_log_p : k * Real.log p / (p - 1) + 3 * Real.log (Nat.floor (0.7 * Real.log x)) ≤ 0.49 * Real.log m := by
+              have h_log_p : k * Real.log p / (p - 1) ≤ k * Real.log 2 := by
+                rw [ div_le_iff₀ ] <;> norm_num;
+                · rw [ mul_assoc ] ; gcongr;
+                  rw [ mul_comm, ← Real.log_rpow, Real.log_le_log_iff ] <;> norm_num <;> try linarith [ hp_prime.two_le ];
+                  · rcases p with ( _ | _ | p ) <;> norm_num at *;
+                    exact mod_cast Nat.recOn p ( by norm_num ) fun n ihn => by norm_num [ Nat.pow_succ' ] at * ; linarith;
+                  · positivity;
+                · exact hp_prime.one_lt;
+              linarith [ hx m hm k hk ];
+            have hlogpos : 0 < Real.log p := Real.log_pos (Nat.one_lt_cast.mpr hp_prime.one_lt)
+            have hp_sub_pos : 0 < ((p - 1 : ℕ) : ℝ) := by
+              exact_mod_cast Nat.sub_pos_of_lt hp_prime.one_lt
+            calc
+              (k : ℝ) / (p - 1) + 3 * Real.log (Nat.floor (0.7 * Real.log x)) / Real.log p
+                  = (k * Real.log p / (p - 1) + 3 * Real.log (Nat.floor (0.7 * Real.log x))) / Real.log p := by
+                    field_simp [hlogpos.ne', hp_sub_pos.ne']
+              _ ≤ 0.49 * Real.log m / Real.log p :=
+                    div_le_div_of_nonneg_right h_log_p hlogpos.le
+          filter_upwards [ h_ineq, Filter.eventually_ge_atTop 3 ] with x hx₁ hx₂;
+          intro m hm k hk p hp hp_prime
+          have hk_le : k ≤ Nat.floor (0.7 * Real.log x) := by
+            have hk_le : Real.log m ≤ Real.log x := by
+              exact Real.log_le_log ( Nat.cast_pos.mpr <| Finset.mem_Icc.mp hm |>.1.trans_lt' <| Nat.ceil_pos.mpr <| div_pos ( by positivity ) <| Real.log_pos <| by linarith ) <| Nat.floor_le ( by positivity ) |> le_trans ( Nat.cast_le.mpr <| Finset.mem_Icc.mp hm |>.2 );
+            exact le_trans ( Finset.mem_Icc.mp hk |>.2 ) ( Nat.floor_mono <| mul_le_mul_of_nonneg_left hk_le <| by norm_num );
+          simpa [K_max] using
+            hx₁ m hm k ( Finset.mem_Icc.mpr ⟨ Finset.mem_Icc.mp hk |>.1, hk_le ⟩ ) p hp hp_prime
+
 /-
 If m is not in the bad set, the valuation is bounded.
 -/
@@ -3284,7 +3991,49 @@ theorem bad_set_fixed_param_bound (x : ℝ) (K L : ℕ) (hx : x ≥ 1) (hK : K �
     ((bad_set_fixed_param x K L).card : ℝ) ≤
     ∑ p ∈ Finset.filter Nat.Prime (Finset.range (2 * L + 1)),
       ∑ i ∈ Finset.Icc 1 L, (x / (K : ℝ)^3 + 1) := by
-        sorry
+        -- For each prime $p$ and each $i \in \{1, \ldots, L\}$, the number of $m \leq x$ such that $m + i$ is divisible by $p^E$ is at most $x / p^E + 1$.
+        have h_tile_bound : ∀ p ∈ Finset.filter Nat.Prime (Finset.range (2 * L + 1)), ∀ i ∈ Finset.Icc 1 L, ((Finset.Icc 1 (Nat.floor x)).filter (fun m => p.Prime ∧ m + i ≡ 0 [MOD p^(Nat.floor (3 * Real.log K / Real.log p) + 1)])).card ≤ x / (p : ℝ) ^ (Nat.floor (3 * Real.log K / Real.log p) + 1) + 1 := by
+          -- The set of $m$ such that $m + i$ is divisible by $p^E$ is an arithmetic progression with common difference $p^E$.
+          intro p hp i hi
+          have h_arith_prog : Finset.card (Finset.filter (fun m => Nat.Prime p ∧ m + i ≡ 0 [MOD p^(Nat.floor (3 * Real.log K / Real.log p) + 1)]) (Finset.Icc 1 (Nat.floor x))) ≤ Finset.card (Finset.filter (fun m => m ≡ -i [ZMOD p^(Nat.floor (3 * Real.log K / Real.log p) + 1)]) (Finset.Icc 1 (Nat.floor x))) := by
+            have h_arith_prog : Finset.filter (fun m => Nat.Prime p ∧ m + i ≡ 0 [MOD p^(Nat.floor (3 * Real.log K / Real.log p) + 1)]) (Finset.Icc 1 (Nat.floor x)) ⊆ Finset.image (fun m : ℤ => m.toNat) (Finset.filter (fun m => m ≡ -i [ZMOD p^(Nat.floor (3 * Real.log K / Real.log p) + 1)]) (Finset.Icc 1 (Nat.floor x))) := by
+              simp +decide [ Finset.subset_iff, ← Int.natCast_modEq_iff ];
+              exact fun m hm₁ hm₂ hm₃ hm₄ => ⟨ m, ⟨ ⟨ mod_cast hm₁, mod_cast hm₂ ⟩, by simpa [ Int.modEq_iff_dvd, sub_eq_add_neg, add_comm, add_left_comm, add_assoc ] using hm₄ ⟩, rfl ⟩;
+            exact le_trans ( Finset.card_le_card h_arith_prog ) ( Finset.card_image_le );
+          -- The number of elements in an arithmetic progression with common difference $d$ and length $n$ is at most $n/d + 1$.
+          have h_arith_prog_card : Finset.card (Finset.filter (fun m : ℤ => m ≡ -i [ZMOD p^(Nat.floor (3 * Real.log K / Real.log p) + 1)]) (Finset.Icc 1 (Nat.floor x))) ≤ (Nat.floor x) / (p^(Nat.floor (3 * Real.log K / Real.log p) + 1)) + 1 := by
+            have h_arith_prog_card : Finset.card (Finset.filter (fun m : ℤ => m ≡ -i [ZMOD p^(Nat.floor (3 * Real.log K / Real.log p) + 1)]) (Finset.Icc 1 (Nat.floor x))) ≤ Finset.card (Finset.image (fun m : ℤ => m * p^(Nat.floor (3 * Real.log K / Real.log p) + 1) + (-i % p^(Nat.floor (3 * Real.log K / Real.log p) + 1))) (Finset.Icc 0 ((Nat.floor x) / p^(Nat.floor (3 * Real.log K / Real.log p) + 1)))) := by
+              refine Finset.card_le_card ?_;
+              intro m hm; simp_all +decide [ Int.ModEq ] ;
+              refine ⟨ m / p ^ ( ⌊3 * Real.log K / Real.log p⌋₊ + 1 ), ⟨ Int.ediv_nonneg ( by linarith ) ( by positivity ), Int.le_ediv_of_mul_le ( pow_pos ( show (0 : ℤ) < p from by exact_mod_cast hp.2.pos ) _ ) ( by linarith [ Int.emod_add_mul_ediv m ( p ^ ( ⌊3 * Real.log K / Real.log p⌋₊ + 1 ) ), Int.emod_nonneg m ( pow_ne_zero ( ⌊3 * Real.log K / Real.log p⌋₊ + 1 ) ( Nat.cast_ne_zero.mpr hp.2.ne_zero ) ), Int.emod_lt_of_pos m ( pow_pos ( show (0 : ℤ) < p from by exact_mod_cast hp.2.pos ) ( ⌊3 * Real.log K / Real.log p⌋₊ + 1 ) ) ] ) ⟩, ?_ ⟩ ; linarith [ Int.emod_add_mul_ediv m ( p ^ ( ⌊3 * Real.log K / Real.log p⌋₊ + 1 ) ), Int.emod_nonneg m ( pow_ne_zero ( ⌊3 * Real.log K / Real.log p⌋₊ + 1 ) ( Nat.cast_ne_zero.mpr hp.2.ne_zero ) ), Int.emod_lt_of_pos m ( pow_pos ( show (0 : ℤ) < p from by exact_mod_cast hp.2.pos ) ( ⌊3 * Real.log K / Real.log p⌋₊ + 1 ) ) ];
+            exact h_arith_prog_card.trans ( Finset.card_image_le.trans ( by norm_num ) );
+          refine le_trans ( Nat.cast_le.mpr ( h_arith_prog.trans h_arith_prog_card ) ) ?_;
+          norm_num +zetaDelta at *;
+          rw [ le_div_iff₀ ( pow_pos ( Nat.cast_pos.mpr hp.2.pos ) _ ) ] ; exact le_trans ( mod_cast Nat.div_mul_le_self _ _ ) ( Nat.floor_le ( by positivity ) );
+        -- The cardinality of the union of sets is less than or equal to the sum of their cardinalities.
+        have h_union_bound : (bad_set_fixed_param x K L).card ≤ ∑ p ∈ Finset.filter Nat.Prime (Finset.range (2 * L + 1)), ∑ i ∈ Finset.Icc 1 L, ((Finset.Icc 1 (Nat.floor x)).filter (fun m => p.Prime ∧ m + i ≡ 0 [MOD p^(Nat.floor (3 * Real.log K / Real.log p) + 1)])).card := by
+          have h_union_bound : (bad_set_fixed_param x K L).card ≤ Finset.card (Finset.biUnion (Finset.filter Nat.Prime (Finset.range (2 * L + 1))) (fun p => Finset.biUnion (Finset.Icc 1 L) (fun i => (Finset.Icc 1 (Nat.floor x)).filter (fun m => p.Prime ∧ m + i ≡ 0 [MOD p^(Nat.floor (3 * Real.log K / Real.log p) + 1)])))) := by
+            refine Finset.card_le_card ?_;
+            unfold bad_set_fixed_param;
+            simp +contextual [ Finset.subset_iff ];
+            intro m hm₁ hm₂ p hp₁ hp₂ i hi₁ hi₂ hi₃; use p, ⟨ hp₁, hp₂ ⟩, i, ⟨ hi₁, hi₂ ⟩, hp₂; rw [ Nat.modEq_zero_iff_dvd ] ;
+            refine Nat.dvd_trans ( pow_dvd_pow p ( Nat.succ_le_of_lt ( Nat.floor_lt ( by positivity ) |>.2 hi₃ ) ) ) ?_;
+            exact pow_padicValNat_dvd;
+          refine le_trans h_union_bound ?_;
+          exact le_trans ( Finset.card_biUnion_le ) ( Finset.sum_le_sum fun p hp => Finset.card_biUnion_le.trans <| Finset.sum_le_sum fun i hi => by aesop );
+        refine le_trans ( Nat.cast_le.mpr h_union_bound ) ?_;
+        -- Since $p \geq 2$, we have $p^{Nat.floor (3 * Real.log K / Real.log p) + 1} \geq K^3$.
+        have h_prime_bound : ∀ p ∈ Finset.filter Nat.Prime (Finset.range (2 * L + 1)), (p : ℝ) ^ (Nat.floor (3 * Real.log K / Real.log p) + 1) ≥ K ^ 3 := by
+          intros p hp
+          have h_exp : (Nat.floor (3 * Real.log K / Real.log p) + 1) * Real.log p ≥ 3 * Real.log K := by
+            nlinarith [ Nat.lt_floor_add_one ( 3 * Real.log K / Real.log p ), show 0 < Real.log p from Real.log_pos ( Nat.one_lt_cast.mpr ( Nat.Prime.one_lt ( Finset.mem_filter.mp hp |>.2 ) ) ), mul_div_cancel₀ ( 3 * Real.log K ) ( ne_of_gt ( Real.log_pos ( Nat.one_lt_cast.mpr ( Nat.Prime.one_lt ( Finset.mem_filter.mp hp |>.2 ) ) ) ) ) ];
+          rw [ ge_iff_le, ← Real.log_le_log_iff ( by positivity ) ( by exact pow_pos ( Nat.cast_pos.mpr <| Nat.Prime.pos <| Finset.mem_filter.mp hp |>.2 ) _ ), Real.log_pow ] ; aesop;
+        push_cast;
+                exact Finset.sum_le_sum fun p hp => Finset.sum_le_sum fun i hi => by
+                  have h_div_bound : x / (p : ℝ) ^ (Nat.floor (3 * Real.log K / Real.log p) + 1) ≤ x / (K : ℝ) ^ 3 := by
+                    exact div_le_div_of_nonneg_left (by positivity) (by positivity) (h_prime_bound p hp)
+                  nlinarith [h_tile_bound p hp i hi, h_div_bound]
+
 /-
 The bad set is contained in the union of small m and the fixed parameter bad set.
 -/
@@ -3330,7 +4079,38 @@ K_lower is asymptotically equivalent to 0.7 log x.
 -/
 theorem K_lower_asymptotics :
     Asymptotics.IsEquivalent Filter.atTop (fun x => (K_lower x : ℝ)) (fun x => 0.7 * Real.log x) := by
-      sorry
+      -- We'll use the fact that $K_lower x = \lfloor 0.7 \log (x / \log x) \rfloor$.
+      have h_K_lower : ∀ᶠ x in Filter.atTop, abs ((K_lower x : ℝ) - 0.7 * Real.log x) / (0.7 * Real.log x) ≤ (Real.log (Real.log x) / Real.log x + 1 / (0.7 * Real.log x)) := by
+        -- We'll use the fact that $K_lower(x) = \lfloor 0.7 \log(x / \log x) \rfloor$.
+        have h_K_lower_floor : ∀ᶠ x in Filter.atTop, abs ((K_lower x : ℝ) - 0.7 * Real.log (x / Real.log x)) ≤ 1 := by
+          have h_K_lower_floor : ∀ᶠ x in Filter.atTop, abs ((Nat.floor (0.7 * Real.log (x / Real.log x)) : ℝ) - 0.7 * Real.log (x / Real.log x)) ≤ 1 := by
+            filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx using abs_sub_le_iff.mpr ⟨ by linarith [ Nat.floor_le ( show 0 ≤ 0.7 * Real.log ( x / Real.log x ) by exact mul_nonneg ( by norm_num ) ( Real.log_nonneg ( show x / Real.log x ≥ 1 by rw [ ge_iff_le ] ; rw [ le_div_iff₀ ( Real.log_pos hx ) ] ; linarith [ Real.log_le_sub_one_of_pos ( zero_lt_one.trans hx ) ] ) ) ) ], by linarith [ Nat.lt_floor_add_one ( 0.7 * Real.log ( x / Real.log x ) ) ] ⟩;
+          simpa [K_lower, K_max] using h_K_lower_floor
+        filter_upwards [ h_K_lower_floor, Filter.eventually_gt_atTop 1, Filter.eventually_gt_atTop ( Real.exp 1 ) ] with x hx₁ hx₂ hx₃;
+        field_simp;
+        gcongr;
+        · exact Real.log_nonneg hx₂.le;
+        · rw [ Real.log_div ( by linarith ) ( ne_of_gt ( Real.log_pos hx₂ ) ) ] at hx₁;
+          exact abs_le.mpr ⟨ by linarith [ abs_le.mp hx₁, Real.log_nonneg ( show 1 ≤ log x from by rw [ Real.le_log_iff_exp_le ] <;> linarith [ Real.add_one_le_exp 1 ] ) ], by linarith [ abs_le.mp hx₁, Real.log_nonneg ( show 1 ≤ log x from by rw [ Real.le_log_iff_exp_le ] <;> linarith [ Real.add_one_le_exp 1 ] ) ] ⟩;
+      -- We'll use the fact that $\frac{\log \log x}{\log x} \to 0$ and $\frac{1}{0.7 \log x} \to 0$ as $x \to \infty$.
+      have h_log_log : Filter.Tendsto (fun x => Real.log (Real.log x) / Real.log x) Filter.atTop (nhds 0) := by
+        -- Let $y = \log x$, therefore the expression becomes $\frac{\log y}{y}$.
+        suffices h_log_y : Filter.Tendsto (fun y => Real.log y / y) Filter.atTop (nhds 0) by
+          exact h_log_y.comp ( Real.tendsto_log_atTop );
+        -- Let $z = \frac{1}{y}$, so we can rewrite the limit as $\lim_{z \to 0^+} z \log(1/z)$.
+        suffices h_log_recip : Filter.Tendsto (fun z => z * Real.log (1 / z)) (Filter.map (fun y => 1 / y) Filter.atTop) (nhds 0) by
+          exact h_log_recip.congr ( by simp +contextual [ div_eq_inv_mul ] );
+        norm_num +zetaDelta at *;
+        exact tendsto_nhdsWithin_of_tendsto_nhds ( by simpa using Real.continuous_mul_log.neg.tendsto 0 )
+      have h_one_log : Filter.Tendsto (fun x => 1 / (0.7 * Real.log x)) Filter.atTop (nhds 0) := by
+        exact tendsto_const_nhds.div_atTop ( Filter.Tendsto.const_mul_atTop ( by norm_num ) ( Real.tendsto_log_atTop ) );
+      rw [ Asymptotics.IsEquivalent ];
+      rw [ Asymptotics.isLittleO_iff_tendsto' ];
+      · refine squeeze_zero_norm' ?_ ( by simpa using h_log_log.add h_one_log );
+        simp +zetaDelta at *;
+        exact ⟨ Max.max h_K_lower.choose 2, fun x hx => by simpa only [ abs_of_nonneg ( show ( 0.7 : ℝ ) ≥ 0 by norm_num ), abs_of_nonneg ( show ( 0 : ℝ ) ≤ log x by exact Real.log_nonneg ( by linarith [ le_max_right h_K_lower.choose 2 ] ) ) ] using h_K_lower.choose_spec x ( le_trans ( le_max_left _ _ ) hx ) ⟩;
+      · filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx hx' using absurd hx' <| ne_of_gt <| mul_pos ( by norm_num ) <| Real.log_pos hx
+
 /-
 The explicit bound function is o(x).
 -/
@@ -3340,7 +4120,60 @@ noncomputable def explicit_bound_lemma_2_2 (x : ℝ) : ℝ :=
 
 theorem explicit_bound_is_little_o :
     explicit_bound_lemma_2_2 =o[Filter.atTop] (fun x => x) := by
-      sorry
+      -- We'll use the fact that if the denominator grows faster than the numerator, the quotient tends to zero.
+      have h_tendsto_zero : Filter.Tendsto (fun x => (explicit_bound_lemma_2_2 x : ℝ) / x) Filter.atTop (nhds 0) := by
+        unfold explicit_bound_lemma_2_2;
+        -- We'll use the fact that $K_{\text{lower}}(x) \sim 0.7 \log x$ and $K_{\text{max}}(x) \sim 0.7 \log x$ as $x \to \infty$.
+        have h_asymptotic : Filter.Tendsto (fun x => (K_lower x : ℝ) / Real.log x) Filter.atTop (nhds 0.7) ∧ Filter.Tendsto (fun x => (K_max x : ℝ) / Real.log x) Filter.atTop (nhds 0.7) := by
+          have h_asymptotic : Filter.Tendsto (fun x => (K_lower x : ℝ) / Real.log x) Filter.atTop (nhds 0.7) := by
+            have := K_lower_asymptotics;
+            rw [ Asymptotics.IsEquivalent ] at this;
+            rw [ Asymptotics.isLittleO_iff_tendsto' ] at this <;> norm_num at *;
+            · have := this.const_mul ( 7 / 10 ) |> Filter.Tendsto.add_const ( 7 / 10 : ℝ );
+              simpa using this.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx using by rw [ mul_div, div_add', div_eq_div_iff ] <;> ring_nf <;> nlinarith [ Real.log_pos hx ] );
+            · exact ⟨ 2, fun x hx hx' => by rcases hx' with ( rfl | rfl | hx' ) <;> linarith ⟩;
+          have h_asymptotic_max : Filter.Tendsto (fun x => (Nat.floor (0.7 * Real.log x) : ℝ) / Real.log x) Filter.atTop (nhds 0.7) := by
+            refine ( Metric.tendsto_nhds.mpr ?_ );
+            intro ε hε; refine Filter.eventually_atTop.mpr ⟨ Real.exp ( ε⁻¹ * 10 ), fun x hx => abs_lt.mpr ⟨ ?_, ?_ ⟩ ⟩ <;> nlinarith [ Nat.floor_le ( show 0 ≤ 0.7 * Real.log x by exact mul_nonneg ( by norm_num ) ( Real.log_nonneg ( by linarith [ Real.add_one_le_exp ( ε⁻¹ * 10 ), inv_pos.mpr hε ] ) ) ), Nat.lt_floor_add_one ( 0.7 * Real.log x ), Real.log_exp ( ε⁻¹ * 10 ), Real.log_le_log ( by positivity ) hx, mul_inv_cancel₀ ( ne_of_gt hε ), div_mul_cancel₀ ( Nat.floor ( 0.7 * Real.log x ) : ℝ ) ( show Real.log x ≠ 0 from ne_of_gt <| Real.log_pos <| by linarith [ Real.add_one_le_exp ( ε⁻¹ * 10 ), inv_pos.mpr hε ] ) ] ;
+          exact ⟨ h_asymptotic, h_asymptotic_max ⟩;
+        -- We'll use the fact that $K_{\text{lower}}(x) \sim 0.7 \log x$ and $K_{\text{max}}(x) \sim 0.7 \log x$ as $x \to \infty$ to simplify the expression.
+        have h_simplify : Filter.Tendsto (fun x => (2 * (K_max x : ℝ) + 1) * (K_max x : ℝ) / (K_lower x : ℝ) ^ 3) Filter.atTop (nhds 0) := by
+          have h_simplify : Filter.Tendsto (fun x => ((2 * (K_max x : ℝ) + 1) * (K_max x : ℝ)) / (Real.log x)^3) Filter.atTop (nhds 0) := by
+            have h_simplify : Filter.Tendsto (fun x => ((2 * (K_max x : ℝ) + 1) / Real.log x) * ((K_max x : ℝ) / Real.log x) / Real.log x) Filter.atTop (nhds 0) := by
+              have h_simplify : Filter.Tendsto (fun x => ((2 * (K_max x : ℝ) + 1) / Real.log x)) Filter.atTop (nhds (2 * 0.7)) := by
+                simpa [ add_div, mul_div_assoc ] using Filter.Tendsto.add ( h_asymptotic.2.const_mul 2 ) ( tendsto_inv_atTop_zero.comp ( Real.tendsto_log_atTop ) );
+              simpa using Filter.Tendsto.div_atTop ( h_simplify.mul h_asymptotic.2 ) ( Real.tendsto_log_atTop );
+            exact h_simplify.congr fun x => by ring;
+          have h_simplify : Filter.Tendsto (fun x => ((2 * (K_max x : ℝ) + 1) * (K_max x : ℝ)) / (Real.log x)^3 * ((Real.log x)^3 / (K_lower x : ℝ)^3)) Filter.atTop (nhds 0) := by
+            convert h_simplify.mul ( h_asymptotic.1.inv₀ _ |> Filter.Tendsto.pow <| 3 ) using 2 <;> norm_num;
+            exact Or.inl <| by ring;
+          refine h_simplify.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx using by rw [ div_mul_div_cancel₀ ( pow_ne_zero _ <| ne_of_gt <| Real.log_pos hx ) ] );
+        -- We'll use the fact that $⌊x / log x⌋₊ / x$ tends to $0$ as $x$ tends to infinity.
+        have h_floor : Filter.Tendsto (fun x => (Nat.floor (x / Real.log x) : ℝ) / x) Filter.atTop (nhds 0) := by
+          -- We'll use the fact that $\frac{\lfloor x / \log x \rfloor}{x} \leq \frac{x / \log x}{x} = \frac{1}{\log x}$.
+          have h_floor_le : ∀ x : ℝ, x ≥ 2 → (Nat.floor (x / Real.log x) : ℝ) / x ≤ 1 / Real.log x := by
+            intro x hx; rw [ div_le_div_iff₀ ] <;> nlinarith [ Nat.floor_le ( show 0 ≤ x / Real.log x by exact div_nonneg ( by linarith ) ( Real.log_nonneg ( by linarith ) ) ), Real.log_pos ( by linarith : 1 < x ), mul_div_cancel₀ x ( ne_of_gt ( Real.log_pos ( by linarith : 1 < x ) ) ) ] ;
+          exact squeeze_zero_norm' ( Filter.eventually_atTop.mpr ⟨ 2, fun x hx => by rw [ Real.norm_of_nonneg ( by positivity ) ] ; exact h_floor_le x hx ⟩ ) ( tendsto_const_nhds.div_atTop ( Real.tendsto_log_atTop ) );
+        -- We can split the limit into two parts and apply the fact that the sum of limits holds.
+        have h_split : Filter.Tendsto (fun x => (Nat.floor (x / Real.log x) : ℝ) / x + (2 * (K_max x : ℝ) + 1) * (K_max x : ℝ) / (K_lower x : ℝ) ^ 3 * (x / x) + (2 * (K_max x : ℝ) + 1) * (K_max x : ℝ) / x) Filter.atTop (nhds 0) := by
+          have h_split : Filter.Tendsto (fun x => (2 * (K_max x : ℝ) + 1) * (K_max x : ℝ) / x) Filter.atTop (nhds 0) := by
+            have h_split : Filter.Tendsto (fun x => (2 * (K_max x : ℝ) + 1) * (K_max x : ℝ) / Real.log x ^ 2 * (Real.log x ^ 2 / x)) Filter.atTop (nhds 0) := by
+              have h_split : Filter.Tendsto (fun x => (2 * (K_max x : ℝ) + 1) * (K_max x : ℝ) / Real.log x ^ 2) Filter.atTop (nhds (2 * 0.7 ^ 2)) := by
+                convert Filter.Tendsto.mul ( Filter.Tendsto.add ( h_asymptotic.2.const_mul 2 ) ( tendsto_inv_atTop_zero.comp ( Real.tendsto_log_atTop ) ) ) h_asymptotic.2 using 2 <;> ring_nf;
+                norm_num ; ring;
+              convert h_split.mul ( show Filter.Tendsto ( fun x : ℝ => Real.log x ^ 2 / x ) Filter.atTop ( nhds 0 ) from ?_ ) using 2 <;> norm_num;
+              -- Let $y = \log x$, therefore the expression becomes $\frac{y^2}{e^y}$.
+              suffices h_log : Filter.Tendsto (fun y : ℝ => y^2 / Real.exp y) Filter.atTop (nhds 0) by
+                have := h_log.comp Real.tendsto_log_atTop;
+                exact this.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx using by rw [ Function.comp_apply, Real.exp_log hx ] );
+              simpa [ div_eq_mul_inv, Real.exp_neg ] using Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 2;
+            refine h_split.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 1 ] with x hx using by rw [ div_mul_div_cancel₀ ( ne_of_gt ( sq_pos_of_pos ( Real.log_pos hx ) ) ) ] );
+          simpa using Filter.Tendsto.add ( Filter.Tendsto.add h_floor ( h_simplify.mul ( tendsto_const_nhds.congr' ( by filter_upwards [ Filter.eventually_ne_atTop 0 ] with x hx; aesop ) ) ) ) h_split;
+        grind;
+      rw [ Asymptotics.isLittleO_iff_tendsto' ];
+      · convert h_tendsto_zero using 1;
+      · filter_upwards [ Filter.eventually_gt_atTop 0 ] with x hx hx' using False.elim <| hx.ne' hx'
+
 /-
 K_lower is eventually at least 2.
 -/
@@ -3690,13 +4523,85 @@ theorem asymptotic_simplification (x : ℝ) (p : ℕ) (alpha : ℝ) (z : ℝ) (l
     (h_rho : rho = lambda * z ^ (-alpha))
     (h_D : (D_func p x : ℝ) ≤ 1 + Real.log x / Real.log p) :
     lambda ^ (D_func p x) * z ^ (-(alpha * Real.log x / Real.log p)) ≤ lambda * x ^ (Real.log rho / Real.log p) := by
-      sorry
+      -- Applying `lambda_pow_bound` with `hlambda`.
+      have h_lambda_pow : lambda ^ (D_func p x) ≤ lambda *lambda ^ (Real.log x / Real.log p) := by
+        exact lambda_pow_bound lambda (D_func p x) x p hlambda h_D;
+      -- Applying `h_rho` to rewrite `z^(-(alpha * log x / log p))`.
+      have h_z_pow : z ^ (-(alpha * Real.log x / Real.log p)) = (z ^ (-alpha)) ^ (Real.log x / Real.log p) := by
+        rw [ ← Real.rpow_mul ( by positivity ), neg_mul ] ; ring_nf;
+      have hlambda_pos : 0 < lambda := by linarith
+      have hzpow_pos : 0 < z ^ (-alpha) := Real.rpow_pos_of_pos hz _
+      have hpow :
+          lambda ^ (Real.log x / Real.log p) * z ^ (-(alpha * Real.log x / Real.log p)) =
+            rho ^ (Real.log x / Real.log p) := by
+        calc
+          lambda ^ (Real.log x / Real.log p) * z ^ (-(alpha * Real.log x / Real.log p))
+              = lambda ^ (Real.log x / Real.log p) * (z ^ (-alpha)) ^ (Real.log x / Real.log p) := by
+                rw [h_z_pow]
+          _ = (lambda * z ^ (-alpha)) ^ (Real.log x / Real.log p) := by
+                rw [Real.mul_rpow hlambda_pos.le hzpow_pos.le]
+          _ = rho ^ (Real.log x / Real.log p) := by
+                rw [← h_rho]
+      have hx_pos : 0 < x := by linarith
+      have hrho_pow :
+          rho ^ (Real.log x / Real.log p) = x ^ (Real.log rho / Real.log p) := by
+        rw [Real.rpow_def_of_pos hrho_pos, Real.rpow_def_of_pos hx_pos]
+        ring
+      calc
+        lambda ^ (D_func p x) * z ^ (-(alpha * Real.log x / Real.log p))
+            ≤ (lambda * lambda ^ (Real.log x / Real.log p)) *
+                z ^ (-(alpha * Real.log x / Real.log p)) :=
+              mul_le_mul_of_nonneg_right h_lambda_pow (Real.rpow_nonneg hz.le _)
+        _ = lambda * x ^ (Real.log rho / Real.log p) := by
+              rw [mul_assoc, hpow, hrho_pow]
+
 /-
 Asymptotic bound for the generalized bad set value using the simplified algebraic bound.
 -/
 theorem bad_set_p_bound_asymptotic_gen (x : ℝ) (p : ℕ) (alpha : ℝ) [Fact p.Prime] (hp : p ≥ 2) (hx : x ≥ 1) (halpha : alpha < 1/2) (halpha_pos : 0 < alpha) :
     bound_bad_set_p_val_gen x p alpha ≤ C_p_v2 p (z_final p alpha) * (lambda_plus p (z_final p alpha)) * x ^ (gamma_final p alpha) := by
-      sorry
+      -- Apply the C_p_prop_v2 theorem to bound the weighted_sum.
+      have h_weighted_sum : weighted_sum p (D_func p x) (z_final p alpha) ≤ C_p_v2 p (z_final p alpha) * (lambda_plus p (z_final p alpha)) ^ (D_func p x) := by
+        apply C_p_prop_v2;
+        · exact hp;
+        · exact z_final_prop p alpha hp halpha halpha_pos |>.1 |>.1;
+        · exact z_final_prop p alpha hp halpha halpha_pos |>.1 |>.2.le;
+      -- Apply the asymptotic_simplification lemma to bound the term.
+      have h_asymptotic : (lambda_plus p (z_final p alpha)) ^ (D_func p x) * (z_final p alpha) ^ (-(alpha * Real.log x / Real.log p)) ≤ (lambda_plus p (z_final p alpha)) * x ^ (gamma_final p alpha) := by
+        have hz_final_pos : 0 < z_final p alpha :=
+          z_final_prop p alpha hp halpha halpha_pos |>.1 |>.1
+        have hz_final_nonneg : 0 ≤ z_final p alpha := le_of_lt hz_final_pos
+        have hH_one : (1 : ℝ) ≤ (((p + 1) / 2 : ℕ) : ℝ) := by
+          norm_cast
+          omega
+        have hlam :
+            1 ≤ lambda_plus p (z_final p alpha) :=
+          hH_one.trans (lam_ge_H p (z_final p alpha) hp hz_final_nonneg)
+        have hrho_pos : 0 < rho_v2 p alpha := by
+          simpa [rho_v2, bound_func] using
+            mul_pos (lt_of_lt_of_le zero_lt_one hlam)
+              (Real.rpow_pos_of_pos hz_final_pos _)
+        have hrho_def :
+            rho_v2 p alpha = lambda_plus p (z_final p alpha) * (z_final p alpha) ^ (-alpha) := by
+          rfl
+        have hD : (D_func p x : ℝ) ≤ 1 + Real.log x / Real.log p := by
+          unfold D_func
+          simpa using Nat.floor_le ( div_nonneg ( Real.log_nonneg hx ) ( Real.log_nonneg ( Nat.one_le_cast.mpr ( by linarith ) ) ) )
+        simpa [gamma_final] using
+          asymptotic_simplification x p alpha (z_final p alpha)
+            (lambda_plus p (z_final p alpha)) (rho_v2 p alpha)
+            hx hp hz_final_pos hlam hrho_pos hrho_def hD
+      have h_combined : bound_bad_set_p_val_gen x p alpha ≤ C_p_v2 p (z_final p alpha) * (lambda_plus p (z_final p alpha) ^ (D_func p x)) * (z_final p alpha) ^ (-(alpha * Real.log x / Real.log p)) := by
+        exact mul_le_mul_of_nonneg_right h_weighted_sum ( Real.rpow_nonneg ( show 0 ≤ z_final p alpha from le_of_lt ( z_final_prop p alpha hp halpha halpha_pos |>.1 |>.1 ) ) _ );
+      refine le_trans h_combined ?_;
+      convert mul_le_mul_of_nonneg_left h_asymptotic _ using 1;
+      rw [ mul_assoc ];
+      · ring;
+      · unfold C_p_v2;
+        split_ifs <;> norm_num;
+        have := Classical.choose_spec ( weighted_sum_uniform_bound p ( z_final p alpha ) hp ( by linarith ) ( by linarith ) );
+        linarith
+
 /-
 Eventually, z_final equals z_zero.
 -/
@@ -3757,7 +4662,16 @@ The ratio rho_v2(p, alpha) / p converges to limit_ratio(alpha) as p -> infinity.
 -/
 theorem rho_v2_div_p_converges (alpha : ℝ) (halpha : alpha < 1/2) (halpha_pos : 0 < alpha) :
     Filter.Tendsto (fun p => rho_v2 p alpha / p) Filter.atTop (nhds (limit_ratio alpha)) := by
-      sorry
+      have h_le_1 : ∀ᶠ p in Filter.atTop, z_final p alpha = z_zero alpha := by
+        exact z_final_eventually_eq_z_zero alpha halpha halpha_pos;
+      have h_le_2 : Filter.Tendsto (fun p => (lambda_plus p (z_zero alpha) / p) * (z_zero alpha) ^ (-alpha)) Filter.atTop (nhds ((limit_ratio alpha))) := by
+        have h_le_2 : Filter.Tendsto (fun p => (lambda_plus p (z_zero alpha) / p)) Filter.atTop (nhds ((1 + z_zero alpha) / 2)) := by
+          convert lambda_plus_div_p_converges ( z_zero alpha ) ( show 0 ≤ z_zero alpha from div_nonneg halpha_pos.le ( sub_nonneg.mpr <| by linarith ) ) using 1;
+        simpa [limit_ratio] using h_le_2.mul_const ((z_zero alpha) ^ (-alpha));
+      refine h_le_2.congr' ?_;
+      field_simp;
+      filter_upwards [ h_le_1, Filter.eventually_gt_atTop 1 ] with p hp₁ hp₂ ; unfold rho_v2 ; aesop
+
 /-
 Step 2 of asymptotic simplification: equality involving rho.
 -/
@@ -3775,7 +4689,18 @@ Uniform bound for rho_v2 for general alpha.
 -/
 theorem rho_v2_le_c_mul_p_gen (alpha : ℝ) (halpha : alpha < 1/2) (halpha_pos : 0 < alpha) :
     ∃ c < 1, ∀ p ≥ 2, rho_v2 p alpha ≤ c * p := by
-      sorry
+      have h_limit_ratio_lt_one : Filter.Tendsto (fun p => rho_v2 p alpha / p) Filter.atTop (nhds (limit_ratio alpha)) := by
+        exact rho_v2_div_p_converges alpha halpha halpha_pos;
+      -- By Lemma~\ref{lem:bounded_of_convergent_lt_one}, the sequence `rho_v2 p alpha / p` is uniformly bounded by some `c < 1`.
+      obtain ⟨c, hc_lt_one, hc⟩ : ∃ c < 1, ∀ p ≥ 2, rho_v2 p alpha / p ≤ c := by
+        apply bounded_of_convergent_lt_one ( fun p : ℕ => rho_v2 p alpha / p ) ( limit_ratio alpha ) h_limit_ratio_lt_one ( fun p hp => ?_ ) ( ?_ );
+        · exact limit_ratio_lt_one alpha halpha_pos halpha;
+        · have h_rrho_lt_p : ∀ p ≥ 2, rho_v2 p alpha < p := by
+            intro p hp
+            simpa [rho_v2] using (z_final_prop p alpha hp halpha halpha_pos).2
+          exact (div_lt_one (by positivity : (0 : ℝ) < p)).2 (h_rrho_lt_p p hp)
+      exact ⟨ c, hc_lt_one, fun p hp => by have := hc p hp; rwa [ div_le_iff₀ ( by positivity ) ] at this ⟩
+
 /-
 Definition of the uniform constant c_rho for general alpha, and its properties.
 -/
@@ -3857,7 +4782,8 @@ noncomputable def C_decay_gen' (alpha : ℝ) : ℝ := -Real.log (c_rho_gen alpha
 
 theorem C_decay_gen_pos' (alpha : ℝ) (halpha : alpha < 1/2) (halpha_pos : 0 < alpha) :
     C_decay_gen' alpha > 0 := by
-      sorry
+  simpa [C_decay_gen', C_decay_gen] using C_decay_gen_pos alpha halpha halpha_pos
+
 /-
 The exponent gamma is bounded by 1 + log(c_rho) / log p.
 -/
@@ -3904,7 +4830,71 @@ The generalized bad set bound is bounded by the explicit constants.
 -/
 theorem bad_set_p_bound_asymptotic_gen_explicit (x : ℝ) (p : ℕ) (alpha : ℝ) [Fact p.Prime] (hp : p ≥ 2) (hx : x ≥ 1) (halpha : alpha < 1/2) (halpha_pos : 0 < alpha) :
     bound_bad_set_p_val_gen x p alpha ≤ C_p_explicit p (z_final p alpha) * (lambda_plus p (z_final p alpha)) * x ^ (gamma_final p alpha) := by
-      sorry
+      -- Apply the bound from C_p_explicit_works to the weighted sum in bound_bad_set_p_val_gen.
+      have h_weighted_sum_bound : weighted_sum p (D_func p x) (z_final p alpha) ≤ C_p_explicit p (z_final p alpha) * (lambda_plus p (z_final p alpha)) ^ (D_func p x) := by
+        apply C_p_explicit_works p (z_final p alpha) hp (by
+        unfold z_final;
+        unfold z_zero z_choice; split_ifs <;> norm_num at *;
+        · exact div_pos halpha_pos ( by linarith );
+        · have := Classical.choose_spec ( show ∃ C : ℝ, 0 < C ∧ ∀ D : ℕ, weighted_sum p D ( alpha / ( 1 - alpha ) ) ≤ C * ( lambda_plus p ( alpha / ( 1 - alpha ) ) ) ^ D from by
+                                            apply weighted_sum_uniform_bound p (alpha / (1 - alpha)) hp (div_pos halpha_pos (by linarith)) (div_le_one_of_le₀ (by linarith) (by linarith)) )
+          generalize_proofs at *;
+          exact Classical.choose_spec ‹∃ x : ℝ, ( 0 < x ∧ x < 1 ) ∧ bound_func p alpha x < p› |>.1 |>.1) (by
+        unfold z_final;
+        unfold z_zero z_choice; split_ifs <;> norm_num;
+        · linarith;
+        · have := Classical.choose_spec ( show ∃ c < 1, ∀ p ≥ 2, rho_v2 p alpha ≤ c * p from by
+                                            exact rho_v2_le_c_mul_p_gen alpha halpha halpha_pos )
+          generalize_proofs at *;
+          linarith [ Classical.choose_spec ‹∃ x, ( 0 < x ∧ x < 1 ) ∧ bound_func p alpha x < p› |>.1.2 ]) (D_func p x);
+      refine le_trans ( mul_le_mul_of_nonneg_right h_weighted_sum_bound ?_ ) ?_;
+      · unfold z_final;
+        split_ifs <;> norm_num at *;
+        · exact Real.rpow_nonneg ( div_nonneg halpha_pos.le ( sub_nonneg.mpr ( by linarith ) ) ) _;
+        · apply Real.rpow_nonneg;
+          unfold z_choice;
+          split_ifs ; norm_num;
+          · have := Classical.choose_spec ( show ∃ c : ℝ, c < 1 ∧ ∀ p ≥ 2, rho_v2 p alpha ≤ c * p from by
+                                              exact rho_v2_le_c_mul_p_gen' alpha halpha halpha_pos )
+            generalize_proofs at *;
+            exact le_of_lt ( Classical.choose_spec ‹∃ x : ℝ, ( 0 < x ∧ x < 1 ) ∧ bound_func p alpha x < p› |>.1 |>.1 );
+          · aesop;
+        · positivity;
+      · have hz_final_pos : 0 < z_final p alpha :=
+          z_final_prop p alpha hp halpha halpha_pos |>.1 |>.1
+        have hz_final_nonneg : 0 ≤ z_final p alpha := le_of_lt hz_final_pos
+        have hH_one : (1 : ℝ) ≤ (((p + 1) / 2 : ℕ) : ℝ) := by
+          norm_cast
+          omega
+        have hlam :
+            1 ≤ lambda_plus p (z_final p alpha) :=
+          hH_one.trans (lam_ge_H p (z_final p alpha) hp hz_final_nonneg)
+        have hrho_pos : 0 < rho_v2 p alpha := by
+          simpa [rho_v2, bound_func] using
+            mul_pos (lt_of_lt_of_le zero_lt_one hlam)
+              (Real.rpow_pos_of_pos hz_final_pos _)
+        have hrho_def :
+            rho_v2 p alpha = lambda_plus p (z_final p alpha) * (z_final p alpha) ^ (-alpha) := by
+          rfl
+        have hD : (D_func p x : ℝ) ≤ 1 + Real.log x / Real.log p := by
+          unfold D_func
+          simpa using Nat.floor_le ( div_nonneg ( Real.log_nonneg hx ) ( Real.log_nonneg ( Nat.one_le_cast.mpr ( by linarith ) ) ) )
+        have h_asymptotic :
+            (lambda_plus p (z_final p alpha)) ^ (D_func p x) *
+                (z_final p alpha) ^ (-(alpha * Real.log x / Real.log p)) ≤
+              (lambda_plus p (z_final p alpha)) * x ^ (gamma_final p alpha) := by
+          simpa [gamma_final] using
+            asymptotic_simplification x p alpha (z_final p alpha)
+              (lambda_plus p (z_final p alpha)) (rho_v2 p alpha)
+              hx hp hz_final_pos hlam hrho_pos hrho_def hD
+        simpa only [mul_assoc] using
+          mul_le_mul_of_nonneg_left h_asymptotic
+            (show 0 ≤ C_p_explicit p ( z_final p alpha ) by
+              unfold C_p_explicit
+              exact add_nonneg
+                (mul_nonneg (abs_nonneg _) (abs_nonneg _))
+                (mul_nonneg (abs_nonneg _) (abs_nonneg _)))
+
 /-
 The explicit term bound works for the generalized case using C_p_explicit.
 -/
@@ -3955,7 +4945,9 @@ noncomputable def term_bound_explicit_gen_v2 (x : ℝ) (p : ℕ) (alpha : ℝ) :
 
 theorem term_bound_explicit_gen_works_v2 (x : ℝ) (p : ℕ) (alpha : ℝ) [Fact p.Prime] (hp : p ≥ 2) (hx : x ≥ 1) (halpha : alpha < 1/2) (halpha_pos : 0 < alpha) :
     C_p_explicit p (z_final p alpha) * (lambda_plus p (z_final p alpha)) * x ^ (gamma_final p alpha) ≤ term_bound_explicit_gen_v2 x p alpha := by
-      sorry
+  simpa [term_bound_explicit_gen_v2, term_bound_explicit_gen] using
+    term_bound_explicit_gen_works x p alpha hp hx halpha halpha_pos
+
 /-
 The cardinality of the generalized bad set is bounded by the explicit total bound.
 -/
@@ -4138,7 +5130,12 @@ Helper lemma bounding the cardinality of the bad set.
 -/
 theorem card_bound_helper (x : ℝ) :
     ((bad_set_thm_1_1 x).card : ℝ) ≤ ((bad_set_lemma_2_1 x).card : ℝ) + ((bad_set_lemma_2_2_intrinsic x).card : ℝ) + ((bad_set_implication x).card : ℝ) := by
-      sorry
+      have h_union_bound : (bad_set_thm_1_1 x).card ≤ (bad_set_lemma_2_1 x ∪ bad_set_lemma_2_2_intrinsic x ∪ bad_set_implication x).card := by
+        refine Finset.card_mono ?_;
+        simpa [bad_set_implication, implication_holds] using bad_set_thm_1_1_subset_proven x
+      exact_mod_cast h_union_bound.trans ( Finset.card_union_le _ _ |> le_trans <| add_le_add ( Finset.card_union_le _ _ ) le_rfl )
+
+
 noncomputable def K (x : ℝ) : ℕ := Nat.floor (Real.exp (0.8 * Real.sqrt (Real.log x)))
 
 
@@ -4284,7 +5281,26 @@ theorem card_seqs_le_bound (p D B : ℕ) [Fact p.Prime] :
     let L := Nat.ceil (p / 2 : ℝ)
     ((Finset.univ : Finset (Fin D → Fin p)).filter (fun f => count_large_seq p D f ≤ B)).card ≤
     L ^ D * ∑ j ∈ Finset.range (B + 1), Nat.choose D j := by
-      sorry
+      -- The cardinality of the set of sequences with at most B large digits is the sum of the cardinalities of the sets with exactly j large digits for j from 0 to B.
+      have h_card_sum : (Finset.filter (fun f : Fin D → Fin p => count_large_seq p D f ≤ B) (Finset.univ : Finset (Fin D → Fin p))).card = ∑ j ∈ Finset.range (B + 1), (Finset.filter (fun f : Fin D → Fin p => count_large_seq p D f = j) (Finset.univ : Finset (Fin D → Fin p))).card := by
+        simp +decide only [Finset.card_eq_sum_ones, Finset.sum_filter];
+        rw [ ← Finset.sum_comm ];
+        rcongr x ; simp +decide [ Nat.lt_succ_iff ];
+      -- By definition of `seqs_with_j_large`, we have that `(Finset.filter (fun f : Fin D → Fin p => count_large_seq p D f = j) (Finset.univ : Finset (Fin D → Fin p))).card = Nat.choose D j * (large_digits p).card ^ j * (small_digits p).card ^ (D - j)`.
+      have h_card_filter : ∀ j ∈ Finset.range (B + 1), (Finset.filter (fun f : Fin D → Fin p => count_large_seq p D f = j) (Finset.univ : Finset (Fin D → Fin p))).card ≤ Nat.choose D j * (Nat.ceil (p / 2 : ℝ)) ^ D := by
+        intro j hj
+        have h_card_filter : (Finset.filter (fun f : Fin D → Fin p => count_large_seq p D f = j) (Finset.univ : Finset (Fin D → Fin p))).card = Nat.choose D j * (large_digits p).card ^ j * (small_digits p).card ^ (D - j) := by
+          simpa [seqs_with_j_large] using card_seqs_with_j_large p D j
+        -- Since $(large_digits p).card \leq \lceil p / 2 \rceil$ and $(small_digits p).card \leq \lceil p / 2 \rceil$, we can bound the product.
+        have h_bound : (large_digits p).card ^ j * (small_digits p).card ^ (D - j) ≤ (Nat.ceil (p / 2 : ℝ)) ^ j * (Nat.ceil (p / 2 : ℝ)) ^ (D - j) := by
+          gcongr;
+          · simpa [card_small_digits] using large_digits_le_small p
+          · exact le_of_eq (card_small_digits p)
+        cases le_total D j <;> simp_all +decide [ mul_assoc, ← pow_add ];
+        · cases eq_or_lt_of_le ‹_› <;> simp_all +decide [ Nat.choose_eq_zero_of_lt ];
+        · exact Nat.mul_le_mul_left _ h_bound;
+      simpa only [ h_card_sum, Finset.mul_sum _ _ _, mul_comm ] using Finset.sum_le_sum h_card_filter
+
 /-
 The number of large digits in m is equal to the number of large digits in its base-p representation of length D.
 -/
@@ -4461,7 +5477,56 @@ noncomputable def bound_lemma_3_1_p_v3 (x : ℝ) (p : ℕ) : ℝ :=
 
 theorem lemma_3_1_p_bound_v3 (x : ℝ) (p : ℕ) [Fact p.Prime] (hx : x ≥ 3) :
     ((bad_set_lemma_3_1_p_v2 x p).card : ℝ) ≤ bound_lemma_3_1_p_v3 x p := by
-      sorry
+      have h_card_small_m : ∀ x : ℝ, x ≥ 3 → ((Finset.range (p ^ (D_func p x))).filter (fun m => (padicValNat p (Nat.choose (2 * m) m) : ℝ) ≤ (D_func p x : ℝ) / (100 * Real.log (D_func p x)))).card ≤
+        (Nat.ceil (p / 2 : ℝ)) ^ (D_func p x) * (Nat.floor ((D_func p x : ℝ) / (100 * Real.log (D_func p x))) + 1) * (D_func p x : ℝ) ^ (Nat.floor ((D_func p x : ℝ) / (100 * Real.log (D_func p x)))) := by
+          intros x hx
+          have h_card_small_m : ((Finset.range (p ^ (D_func p x))).filter (fun m => (count_large_digits p m : ℝ) ≤ (D_func p x : ℝ) / (100 * Real.log (D_func p x)))).card ≤
+            (Nat.ceil (p / 2 : ℝ)) ^ (D_func p x) * (Nat.floor ((D_func p x : ℝ) / (100 * Real.log (D_func p x))) + 1) * (D_func p x : ℝ) ^ (Nat.floor ((D_func p x : ℝ) / (100 * Real.log (D_func p x)))) := by
+              have h_card_small_m : ((Finset.range (p ^ (D_func p x))).filter (fun m => (count_large_digits p m : ℝ) ≤ (D_func p x : ℝ) / (100 * Real.log (D_func p x)))).card ≤
+                (Nat.ceil (p / 2 : ℝ)) ^ (D_func p x) * (∑ j ∈ Finset.range (Nat.floor ((D_func p x : ℝ) / (100 * Real.log (D_func p x))) + 1), Nat.choose (D_func p x) j) := by
+                  have h_card_small_m : ((Finset.range (p ^ (D_func p x))).filter (fun m => (count_large_digits p m : ℝ) ≤ (D_func p x : ℝ) / (100 * Real.log (D_func p x)))).card ≤
+                    (Nat.ceil (p / 2 : ℝ)) ^ (D_func p x) * (∑ j ∈ Finset.range (Nat.floor ((D_func p x : ℝ) / (100 * Real.log (D_func p x))) + 1), Nat.choose (D_func p x) j) := by
+                    have := card_le_sum_binom_mul_pow p (D_func p x) (Nat.floor ((D_func p x : ℝ) / (100 * Real.log (D_func p x))))
+                    refine le_trans ?_ this;
+                    exact Finset.card_mono fun m hm => Finset.mem_filter.mpr ⟨ Finset.mem_filter.mp hm |>.1, Nat.le_floor <| Finset.mem_filter.mp hm |>.2 ⟩;
+                  convert h_card_small_m using 1;
+              have h_card_small_m : (∑ j ∈ Finset.range (Nat.floor ((D_func p x : ℝ) / (100 * Real.log (D_func p x))) + 1), Nat.choose (D_func p x) j) ≤ (Nat.floor ((D_func p x : ℝ) / (100 * Real.log (D_func p x))) + 1) * (D_func p x : ℝ) ^ (Nat.floor ((D_func p x : ℝ) / (100 * Real.log (D_func p x)))) := by
+                have h_card_small_m : ∀ j ∈ Finset.range (Nat.floor ((D_func p x : ℝ) / (100 * Real.log (D_func p x))) + 1), Nat.choose (D_func p x) j ≤ (D_func p x : ℝ) ^ j := by
+                  norm_cast;
+                  exact fun j a ↦ Nat.choose_le_pow (D_func p x) j;
+                push_cast;
+                refine le_trans ( Finset.sum_le_sum h_card_small_m ) ?_;
+                exact le_trans ( Finset.sum_le_sum fun _ _ => pow_le_pow_right₀ ( mod_cast Nat.one_le_iff_ne_zero.mpr <| by { exact ne_of_gt <| Nat.pos_of_ne_zero fun h => by { simp_all +decide [ D_func ] } } ) <| Finset.mem_range_succ_iff.mp ‹_› ) <| by norm_num;
+              norm_cast at * ; simp_all +decide [ mul_assoc ];
+              exact le_trans ‹_› ( Nat.mul_le_mul_left _ h_card_small_m );
+          refine le_trans ?_ h_card_small_m;
+          exact_mod_cast Finset.card_le_card (by
+            intro m hm
+            rw [Finset.mem_filter] at hm ⊢
+            exact ⟨hm.1, (Nat.cast_le.mpr (valuation_ge_large_digits p m)).trans hm.2⟩)
+      -- Apply the lemma h_card_small_m to bound the cardinality of the bad set.
+      have h_card_le : ((bad_set_lemma_3_1_p_v2 x p).card : ℝ) ≤ (Nat.ceil (p / 2 : ℝ)) ^ (D_func p x) * (Nat.floor ((D_func p x : ℝ) / (100 * Real.log (D_func p x))) + 1) * (D_func p x : ℝ) ^ (Nat.floor ((D_func p x : ℝ) / (100 * Real.log (D_func p x)))) := by
+        refine le_trans ?_ ( h_card_small_m x hx );
+        exact_mod_cast Finset.card_le_card (by
+          intro m hm
+          refine Finset.mem_filter.mpr ⟨?_, ?_⟩
+          · have hm_le_x : (m : ℝ) ≤ x := by
+              exact (Nat.cast_le.mpr (Finset.mem_Icc.mp (Finset.mem_filter.mp hm |>.1)).2).trans
+                (Nat.floor_le (by linarith : (0 : ℝ) ≤ x))
+            have h_exp : x < ((p ^ D_func p x : ℕ) : ℝ) := by
+              have h_exp' : x < p ^ (1 + Nat.floor (Real.log x / Real.log p)) := by
+                have := Nat.lt_floor_add_one ( Real.log x / Real.log p );
+                rw [ div_lt_iff₀ ( Real.log_pos <| Nat.one_lt_cast.mpr <| Nat.Prime.one_lt Fact.out ) ] at this;
+                rw [ ← Real.log_lt_log_iff ( by positivity ) ( by exact pow_pos ( Nat.cast_pos.mpr <| Nat.Prime.pos Fact.out ) _ ), Real.log_pow ] ; norm_num ; linarith;
+              simpa [D_func, Nat.cast_pow] using h_exp'
+            exact Finset.mem_range.mpr (Nat.cast_lt.mp (hm_le_x.trans_lt h_exp))
+          · simpa [bad_set_lemma_3_1_p_v2, B_v2] using (Finset.mem_filter.mp hm).2)
+      refine le_trans h_card_le ?_;
+      refine mul_le_mul_of_nonneg_right ?_ ?_;
+      · gcongr;
+        exact Nat.floor_le ( div_nonneg ( Nat.cast_nonneg _ ) ( mul_nonneg ( by norm_num ) ( Real.log_nonneg ( Nat.one_le_cast.mpr ( Nat.pos_of_ne_zero ( by unfold D_func; aesop ) ) ) ) ) );
+      · positivity
+
 /-
 L^D is bounded by 2px^(log L / log p).
 -/
@@ -4610,7 +5675,36 @@ Combining the bounds for the factors of bound_lemma_3_1_p_v3.
 -/
 theorem bound_lemma_3_1_combined (x : ℝ) (p : ℕ) [Fact p.Prime] (hx : x ≥ 3) :
     bound_lemma_3_1_p_v3 x p ≤ 4 * Real.exp 0.02 * p * x ^ (exponent_p p + 0.01 / Real.log p + 1 / (100 * Real.log p)) := by
-      sorry
+      have hL := bound_L_pow_D x p hx
+      have hB := B_bound_aux x p hx
+      have hD := bound_D_pow_B x p hx
+      have hprod :
+          bound_lemma_3_1_p_v3 x p ≤
+            (2 * p * x ^ exponent_p p) *
+              (2 * x ^ (0.01 / Real.log p)) *
+                (Real.exp 0.02 * x ^ (1 / (100 * Real.log p))) := by
+        unfold bound_lemma_3_1_p_v3
+        have hB_lhs_nonneg : 0 ≤ B_v2 p x + 1 := by
+          have hD_one : 1 ≤ D_func p x := by
+            unfold D_func
+            omega
+          have hB_nonneg : 0 ≤ B_v2 p x := by
+            unfold B_v2
+            exact div_nonneg (Nat.cast_nonneg _)
+              (mul_nonneg (by norm_num)
+                (Real.log_nonneg (Nat.one_le_cast.mpr hD_one)))
+          exact add_nonneg hB_nonneg zero_le_one
+        have hL_rhs_nonneg : 0 ≤ 2 * (p : ℝ) * x ^ exponent_p p := by
+          positivity
+        have hLB :
+            (↑⌈(p : ℝ) / 2⌉₊ ^ D_func p x) * (B_v2 p x + 1) ≤
+              (2 * p * x ^ exponent_p p) * (2 * x ^ (0.01 / Real.log p)) :=
+          mul_le_mul hL hB hB_lhs_nonneg hL_rhs_nonneg
+        exact mul_le_mul hLB hD (by positivity) (by positivity)
+      refine hprod.trans_eq ?_
+      rw [Real.rpow_add (by positivity : 0 < x), Real.rpow_add (by positivity : 0 < x)]
+      ring_nf
+
 /-
 Algebraic inequality for the exponent bound.
 -/
@@ -4629,7 +5723,20 @@ noncomputable def total_bound_lemma_3_1_v2 (x : ℝ) : ℝ :=
 
 theorem bad_set_lemma_3_1_v2_card_bound (x : ℝ) (hx : x ≥ 3) :
     ((bad_set_lemma_3_1_v2 x).card : ℝ) ≤ total_bound_lemma_3_1_v2 x := by
-      sorry
+      -- Apply the lemma that bounds the cardinality of the union of sets.
+      have h_union_bound : ((bad_set_lemma_3_1_v2 x).card : ℝ) ≤ ∑ p ∈ Finset.filter Nat.Prime (Finset.range (2 * K_thm x + 1)), ((bad_set_lemma_3_1_p_v2 x p).card : ℝ) := by
+        have h_union : bad_set_lemma_3_1_v2 x ⊆ Finset.biUnion (Finset.filter Nat.Prime (Finset.range (2 * K_thm x + 1))) (fun p => bad_set_lemma_3_1_p_v2 x p) := by
+          intro m hm
+          simp [bad_set_lemma_3_1_v2, bad_set_lemma_3_1_p_v2] at hm ⊢
+          obtain ⟨p, hp_prime, hp_bound⟩ := hm
+          aesop
+        exact_mod_cast le_trans ( Finset.card_le_card h_union ) ( Finset.card_biUnion_le );
+      refine le_trans h_union_bound ?_;
+      unfold total_bound_lemma_3_1_v2
+      exact Finset.sum_le_sum fun p hp => by
+        haveI : Fact p.Prime := ⟨Finset.mem_filter.mp hp |>.2⟩
+        exact lemma_3_1_p_bound_v3 x p hx
+
 /-
 If the p-adic valuation is large, then the number is divisible by a large power of p.
 -/
@@ -4716,7 +5823,25 @@ noncomputable def total_bound_lemma_3_2_v2 (x : ℝ) : ℝ :=
 
 theorem bad_set_lemma_3_2_v2_card_bound (x : ℝ) (hx : x ≥ 3) :
     ((bad_set_lemma_3_2_v2 x).card : ℝ) ≤ total_bound_lemma_3_2_v2 x := by
-      sorry
+      have h_bad_set_lemma_3_2_v2_card_le_sum : ((bad_set_lemma_3_2_v2 x).card : ℝ) ≤ ∑ p ∈ Finset.filter Nat.Prime (Finset.range (2 * K_thm x)), ∑ i ∈ Finset.Icc 1 (K_thm x), ((Finset.Icc 1 (Nat.floor x)).filter (fun m => padicValNat p (m + i) > B_v2 p x)).card := by
+        refine mod_cast le_trans
+          (b := (Finset.biUnion ( Finset.filter Nat.Prime ( Finset.range ( 2 * K_thm x ) ) ) fun p => Finset.biUnion ( Finset.Icc 1 ( K_thm x ) ) fun i => Finset.filter ( fun m => ( padicValNat p ( m + i ) : ℝ ) > B_v2 p x ) ( Finset.Icc 1 ⌊x⌋₊ )).card)
+          ( Finset.card_le_card ?_ ) ?_;
+        · intro m hm; unfold bad_set_lemma_3_2_v2 at hm; aesop;
+        · refine le_trans ( Finset.card_biUnion_le ) ?_;
+          exact Finset.sum_le_sum fun p hp => Finset.card_biUnion_le.trans ( by aesop );
+      refine le_trans h_bad_set_lemma_3_2_v2_card_le_sum ?_;
+      unfold total_bound_lemma_3_2_v2
+      push_cast
+      refine Finset.sum_le_sum ?_
+      intro p hp
+      refine Finset.sum_le_sum ?_
+      intro i hi
+      simpa [bad_set_p_i_v2, B_v2] using
+        bad_set_p_i_v2_card_bound x p i
+          (Nat.Prime.two_le <| Finset.mem_filter.mp hp |>.2)
+          (show x ≥ 1 by linarith [hx])
+
 /-
 Upper bound for D in terms of log x.
 -/
@@ -4837,7 +5962,19 @@ Bound for term_1.
 -/
 theorem term_1_bound (x : ℝ) (hx : x ≥ 10) :
     term_1 x ≤ 2 * (K_thm x : ℝ)^2 * x ^ (1 - exponent_delta_v3 x) := by
-      sorry
+      unfold term_1
+      calc
+        (K_thm x : ℝ) * x *
+            ∑ p ∈ Finset.filter Nat.Prime (Finset.range (2 * K_thm x)),
+              (p : ℝ) ^ (-(E_v2 p x : ℝ))
+            ≤ (K_thm x : ℝ) * x * ((2 * K_thm x : ℝ) * x ^ (-(exponent_delta_v3 x))) :=
+              mul_le_mul_of_nonneg_left (sum_p_pow_neg_E_bound x hx)
+                (mul_nonneg (Nat.cast_nonneg _) (by positivity))
+        _ = 2 * (K_thm x : ℝ)^2 * x ^ (1 - exponent_delta_v3 x) := by
+              rw [Real.rpow_sub (by positivity : 0 < x), Real.rpow_one,
+                Real.rpow_neg (by positivity : 0 ≤ x)]
+              ring
+
 /-
 Bound for term_2.
 -/
@@ -5052,8 +6189,35 @@ theorem valuation_binom_small_of_not_bad (x : ℝ) (m : ℕ) (k : ℕ) (p : ℕ)
     (hk : k ∈ Finset.Icc 1 (K_small x))
     (hp : p ∈ Finset.range (2 * K_small x + 1))
     (h_not_bad : m ∉ bad_set_lemma_3_2_small x) :
-    (padicValNat p (Nat.choose (m + k) k) : ℝ) ≤ B_small p x := by
-      sorry
+  (padicValNat p (Nat.choose (m + k) k) : ℝ) ≤ B_small p x := by
+      -- Unfold `bad_set_lemma_3_2_small`. Since $m$ is not in it, for all $p'$ in range and $i \in [1, K]$, $v_{p'}(m+i) \le B$.
+      have h_bound : ∀ p' ∈ Finset.range (2 * K_small x + 1), p'.Prime → ∀ i ∈ Finset.Icc 1 (K_small x), (padicValNat p' (m + i) : ℝ) ≤ B_small p' x := by
+        unfold bad_set_lemma_3_2_small at h_not_bad; aesop;
+      -- Apply the lemma that states the valuation of a binomial coefficient is less than or equal to the maximum valuation of the factors.
+      have h_val_binom_le_max : padicValNat p (Nat.choose (m + k) k) ≤ Finset.sup (Finset.Icc 1 k) (fun i => padicValNat p (m + i)) := by
+        convert lemma_valuation_binom_le_max_general m k p _ using 1;
+        linarith [ Finset.mem_Icc.mp hk ];
+      refine le_trans ( Nat.cast_le.mpr h_val_binom_le_max ) ?_;
+      let maxData :=
+        Finset.exists_max_image (Finset.Icc 1 k) (fun i => padicValNat p (m + i))
+          ⟨k, Finset.mem_Icc.mpr ⟨by linarith [Finset.mem_Icc.mp hk |>.1], le_rfl⟩⟩
+      let w := Classical.choose maxData
+      have hw := Classical.choose_spec maxData
+      have hsup_nat :
+          (Finset.Icc 1 k).sup (fun i => padicValNat p (m + i)) =
+            padicValNat p (m + w) := by
+        exact le_antisymm (Finset.sup_le fun i hi => hw.2 i hi)
+          (Finset.le_sup (f := fun i => padicValNat p (m + i)) hw.1)
+      have hsup_real :
+          (((Finset.Icc 1 k).sup (fun i : ℕ => padicValNat p (m + i)) : ℕ) : ℝ) =
+            (padicValNat p (m + w) : ℝ) := by
+        exact_mod_cast hsup_nat
+      change (((Finset.Icc 1 k).sup (fun i : ℕ => padicValNat p (m + i)) : ℕ) : ℝ) ≤ B_small p x
+      rw [hsup_real]
+      exact h_bound p hp Fact.out w
+        (Finset.mem_Icc.mpr ⟨(Finset.mem_Icc.mp hw.1).1,
+            (Finset.mem_Icc.mp hw.1).2.trans (Finset.mem_Icc.mp hk).2⟩)
+
 /-
 If m is not in the first bad set, the valuation of the middle binomial coefficient is large.
 -/
@@ -5141,7 +6305,19 @@ noncomputable def total_bound_lemma_3_1_small_func (x : ℝ) : ℝ :=
 
 theorem bad_set_lemma_3_1_small_card_bound (x : ℝ) (hx : x ≥ 3) :
     ((bad_set_lemma_3_1_small x).card : ℝ) ≤ total_bound_lemma_3_1_small_func x := by
-      sorry
+      have h_union_bound : ((bad_set_lemma_3_1_small x).card : ℝ) ≤ ∑ p ∈ Finset.filter Nat.Prime (Finset.range (2 * K_small x + 1)), ((bad_set_lemma_3_1_p_v2 x p).card : ℝ) := by
+        have h_union : bad_set_lemma_3_1_small x ⊆ Finset.biUnion (Finset.filter Nat.Prime (Finset.range (2 * K_small x + 1))) (fun p => bad_set_lemma_3_1_p_v2 x p) := by
+          intro m hm
+          simp [bad_set_lemma_3_1_small, bad_set_lemma_3_1_p_v2, B_v2] at hm ⊢
+          obtain ⟨p, hp_prime, hp_bound⟩ := hm
+          aesop
+        exact_mod_cast le_trans ( Finset.card_le_card h_union ) ( Finset.card_biUnion_le );
+      refine le_trans h_union_bound ?_
+      unfold total_bound_lemma_3_1_small_func
+      exact Finset.sum_le_sum fun (p : ℕ) hp => by
+        haveI : Fact p.Prime := ⟨(Finset.mem_filter.mp hp).2⟩
+        exact lemma_3_1_p_bound_v3 x p hx
+
 /-
 The small bad set is the union of bad sets for each prime.
 -/
@@ -5352,7 +6528,9 @@ noncomputable def bound_lemma_3_1_thm_p_v2 (x : ℝ) (p : ℕ) : ℝ :=
 
 theorem lemma_3_1_card_bound_v2 (x : ℝ) (p : ℕ) [Fact p.Prime] (hx : x ≥ 100) :
     ((bad_set_lemma_3_1_p x p).card : ℝ) ≤ bound_lemma_3_1_thm_p_v2 x p := by
-      sorry
+      simpa [bound_lemma_3_1_thm_p_v2, bound_lemma_3_1_thm_p] using
+        lemma_3_1_card_bound x p hx
+
 /-
 The cardinality of the bad set for Lemma 3.1 is bounded by the total bound function.
 -/
@@ -5362,7 +6540,25 @@ noncomputable def total_bound_lemma_3_1_thm (x : ℝ) : ℝ :=
 
 theorem bad_set_lemma_3_1_thm_card_bound (x : ℝ) (hx : x ≥ 100) :
     ((bad_set_lemma_3_1_thm x).card : ℝ) ≤ total_bound_lemma_3_1_thm x := by
-      sorry
+      -- Apply the Finset.card_biUnion_le lemma to bound the cardinality of the union.
+      have h_card_biUnion : (bad_set_lemma_3_1_thm x).card ≤ ∑ p ∈ Finset.filter Nat.Prime (Finset.range (2 * K_thm x + 1)), (bad_set_lemma_3_1_p x p).card := by
+        have h_union : bad_set_lemma_3_1_thm x ⊆ Finset.biUnion (Finset.filter Nat.Prime (Finset.range (2 * K_thm x + 1))) (fun p => bad_set_lemma_3_1_p x p) := by
+          intro m hm
+          simp [bad_set_lemma_3_1_thm, bad_set_lemma_3_1_p] at hm ⊢
+          obtain ⟨p, hp_prime, hp_bound⟩ := hm
+          aesop
+        exact le_trans (Finset.card_le_card h_union) Finset.card_biUnion_le
+      refine le_trans ( Nat.cast_le.mpr h_card_biUnion ) ?_
+      have h_sum_le :
+          (∑ p ∈ Finset.filter Nat.Prime (Finset.range (2 * K_thm x + 1)),
+              ((bad_set_lemma_3_1_p x p).card : ℝ)) ≤
+            ∑ p ∈ Finset.filter Nat.Prime (Finset.range (2 * K_thm x + 1)),
+              bound_lemma_3_1_thm_p_v2 x p := by
+        exact Finset.sum_le_sum fun (p : ℕ) hp => by
+          haveI : Fact p.Prime := ⟨(Finset.mem_filter.mp hp).2⟩
+          exact lemma_3_1_card_bound_v2 x p hx
+      simpa [total_bound_lemma_3_1_thm] using h_sum_le
+
 /-
 The bound for Lemma 3.1 is bounded by the simplified term bound.
 -/

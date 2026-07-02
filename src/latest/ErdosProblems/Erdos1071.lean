@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
+/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 1071.
 https://www.erdosproblems.com/forum/thread/1071
@@ -225,7 +225,15 @@ def Region_R : Set Point := {p | 0 < p 0 ∧ p 0 < 1 ∧ 0 < p 1 ∧ p 1 < 1/2}
 The collection S is countable.
 -/
 lemma S_collection_countable : Set.Countable S_collection := by
-  sorry
+  -- Each of the sets {S_seq n | n : ℕ} and {S_seq_refl n | n : ℕ} is countable because they are indexed by the natural numbers.
+  have h_countable_seq : Set.Countable {s : Set Point | ∃ n, s = S_seq n} := by
+    exact Set.countable_range ( fun n => S_seq n ) |> Set.Countable.mono fun s => by aesop;
+  have h_countable_refl : Set.Countable {s : Set Point | ∃ n, s = S_seq_refl n} := by
+    exact Set.countable_range _ |> Set.Countable.mono fun x hx => hx.imp fun n hn => hn.symm;
+  simpa [S_collection] using
+    Set.Countable.union ( Set.Countable.union h_countable_seq h_countable_refl )
+      ( Set.countable_singleton S_inf )
+
 /-
 The distance between O and O' is greater than 1.
 -/
@@ -242,9 +250,8 @@ lemma A_seq_properties (n : ℕ) : dist O_point (A_seq n) = 1 ∧ dist O_point (
     -- Let's calculate the distance from O to A_0.
     simp [O_point];
     norm_num [ dist_eq_norm, EuclideanSpace.norm_eq, A_seq, reflection ];
-    exact ⟨ by norm_num [ A_0 ], by rw [ Real.sqrt_lt' ] <;> norm_num [ A_0 ] ⟩;
+    exact ⟨ by norm_num [ A_0 ], by rw [ Real.sqrt_lt' ] <;> norm_num [ A_0 ] ⟩
   | succ n ih =>
-    -- By definition of $A_{n+1}$, we know that $A_{n+1}$ is the next vertex of $A_n$.
     have h_next_vertex : is_next_vertex (A_seq n) (A_seq (n + 1)) := by
       rw [show A_seq (n + 1) = next_vertex (A_seq n) from rfl, next_vertex]
       split
@@ -252,13 +259,34 @@ lemma A_seq_properties (n : ℕ) : dist O_point (A_seq n) = 1 ∧ dist O_point (
         exact Classical.choose_spec h_exists
       · rename_i h_absurd
         exact False.elim (h_absurd (exists_next_vertex (A_seq n) ih.2.le))
-    unfold is_next_vertex at h_next_vertex;
-    rw [ segment_eq_image ] at h_next_vertex;
-    obtain ⟨ ⟨ θ, hθ, h ⟩, h' ⟩ := h_next_vertex;
-    simp_all +decide [ dist_eq_norm, EuclideanSpace.norm_eq ];
-    rw [ Real.sqrt_lt' ] at * <;> norm_num [ ← h, reflection ] at *;
-    norm_num [ O_point, O_prime ] at *;
-    nlinarith [ mul_nonneg hθ.1 ( sq_nonneg ( A_seq n 0 - 1 / 2 ) ), mul_nonneg hθ.1 ( sq_nonneg ( A_seq n 1 - 1 / 4 ) ) ]
+    refine ⟨h_next_vertex.2, ?_⟩
+    unfold is_next_vertex at h_next_vertex
+    rw [segment_eq_image] at h_next_vertex
+    rcases h_next_vertex with ⟨⟨θ, hθ, hθeq⟩, hdist⟩
+    have hθ_lt_one : θ < 1 := by
+      by_contra hnot
+      have hθ_eq_one : θ = 1 := le_antisymm hθ.2 (le_of_not_gt hnot)
+      have hpoint : A_seq (n + 1) = reflection (A_seq n) := by
+        simpa [hθ_eq_one] using hθeq.symm
+      have : dist O_point (reflection (A_seq n)) = 1 := by
+        simpa [hpoint] using hdist
+      exact (ne_of_lt ih.2) this
+    have hrefl_eq : reflection (A_seq (n + 1)) = θ • A_seq n := by
+      rw [← hθeq]
+      ext i <;> fin_cases i <;> norm_num [reflection, O_prime] <;> ring
+    have hO_zero : O_point = (0 : Point) := by
+      ext i <;> fin_cases i <;> rfl
+    have hnorm : ‖A_seq n‖ = 1 := by
+      rw [dist_eq_norm] at ih
+      simpa [hO_zero, norm_neg] using ih.1
+    calc
+      dist O_point (reflection (A_seq (n + 1))) = ‖θ • A_seq n‖ := by
+        rw [hrefl_eq, dist_eq_norm, hO_zero, zero_sub, norm_neg]
+      _ = θ * ‖A_seq n‖ := by
+        rw [norm_smul, Real.norm_of_nonneg hθ.1]
+      _ < 1 := by
+        rw [hnorm, mul_one]
+        exact hθ_lt_one
 
 /-
 The vertices A_n are in the closed region [0,1] x [0, 1/2].
@@ -266,7 +294,23 @@ The vertices A_n are in the closed region [0,1] x [0, 1/2].
 def ClosedRegion_R : Set Point := {p | 0 ≤ p 0 ∧ p 0 ≤ 1 ∧ 0 ≤ p 1 ∧ p 1 ≤ 1/2}
 
 lemma A_seq_in_closed_region (n : ℕ) : A_seq n ∈ ClosedRegion_R := by
-  sorry
+  induction n with
+  | zero =>
+      simp [ClosedRegion_R, A_seq, A_0]
+  | succ n ih =>
+      have h_next :
+          next_vertex (A_seq n) ∈ segment ℝ O_prime (reflection (A_seq n)) := by
+        unfold next_vertex
+        split_ifs with h
+        · exact (Classical.choose_spec h).1
+        · exact False.elim (h (exists_next_vertex (A_seq n) (A_seq_properties n).2.le))
+      rw [segment_eq_image] at h_next
+      rcases h_next with ⟨t, ht, ht_eq⟩
+      rw [show A_seq (n + 1) = next_vertex (A_seq n) from rfl, ← ht_eq]
+      unfold ClosedRegion_R at ih ⊢
+      norm_num [O_prime, reflection] at *
+      exact ⟨by nlinarith, by nlinarith, by nlinarith, by nlinarith⟩
+
 /-
 For all n, the coordinates of A_{n+1} are strictly positive.
 -/
@@ -303,37 +347,41 @@ lemma A_seq_pos (n : ℕ) : 0 < (A_seq (n + 1)) 0 ∧ 0 < (A_seq (n + 1)) 1 := b
 The segments S_seq n are contained in the region R.
 -/
 lemma S_seq_in_region (n : ℕ) : S_seq n ⊆ Region_R := by
-  -- By definition of $S_seq$, we know that $S_seq n = openSegment ℝ O_point (A_seq (n + 1))$.
-  have h_S_seq_def : S_seq n = openSegment ℝ O_point (A_seq (n + 1)) := by
-    rfl;
-  -- Since $A_{n+1}$ is in the closed region $[0,1] \times [0,1/2]$, the open segment from $O$ to $A_{n+1}$ is contained in the region $R$.
-  have h_A_seq_in_closed_region : A_seq (n + 1) ∈ ClosedRegion_R := by
-    exact A_seq_in_closed_region _;
-  rw [ h_S_seq_def, openSegment_eq_image ];
-  intro x hxaesop;
-  obtain ⟨ a, ⟨ ha₀, ha₁ ⟩, rfl ⟩ := hxaesop;
-  have h_pos : 0 < (A_seq (n + 1)) 0 ∧ 0 < (A_seq (n + 1)) 1 := by
-    exact A_seq_pos n;
-  exact ⟨ by norm_num [ O_point ] ; nlinarith, by norm_num [ O_point ] ; nlinarith [ h_A_seq_in_closed_region.2.1 ], by norm_num [ O_point ] ; nlinarith, by norm_num [ O_point ] ; nlinarith [ h_A_seq_in_closed_region.2.2.2 ] ⟩
+  intro x hx
+  rw [S_seq, openSegment_eq_image] at hx
+  rcases hx with ⟨t, ht, rfl⟩
+  have h_closed := A_seq_in_closed_region (n + 1)
+  have h_pos := A_seq_pos n
+  unfold ClosedRegion_R at h_closed
+  unfold Region_R
+  norm_num [O_point]
+  have htx_pos : 0 < t * (A_seq (n + 1)) 0 := mul_pos ht.1 h_pos.1
+  have htx_lt_one : t * (A_seq (n + 1)) 0 < 1 :=
+    (mul_lt_of_lt_one_left h_pos.1 ht.2).trans_le h_closed.2.1
+  have hty_pos : 0 < t * (A_seq (n + 1)) 1 := mul_pos ht.1 h_pos.2
+  have hty_lt_half : t * (A_seq (n + 1)) 1 < 1 / 2 :=
+    (mul_lt_of_lt_one_left h_pos.2 ht.2).trans_le h_closed.2.2.2
+  exact ⟨htx_pos, htx_lt_one, hty_pos, hty_lt_half⟩
 
 /-
 The segments S_seq_refl n are contained in the region R.
 -/
 lemma S_seq_refl_in_region (n : ℕ) : S_seq_refl n ⊆ Region_R := by
-  have hA_seq_refl_pos : 0 < (A_seq (n + 1)) 0 ∧ 0 < (A_seq (n + 1)) 1 := by
-    exact A_seq_pos n;
-  -- Since $A_{n+1}$ is in the closed region $[0,1] \times [0, 1/2]$, its reflection is also in the closed region.
-  have hA_seq_refl_closed : reflection (A_seq (n + 1)) ∈ {p : Point | 0 ≤ p 0 ∧ p 0 ≤ 1 ∧ 0 ≤ p 1 ∧ p 1 ≤ 1/2} := by
-    have hA_seq_refl_closed : A_seq (n + 1) ∈ {p : Point | 0 ≤ p 0 ∧ p 0 ≤ 1 ∧ 0 ≤ p 1 ∧ p 1 ≤ 1/2} := by
-      exact A_seq_in_closed_region _;
-    unfold reflection; aesop;
   intro p hp
-  obtain ⟨t, ht⟩ := hp;
-  rcases ht with ⟨ u, ht, hu, htu, rfl ⟩;
-  constructor <;> norm_num;
-  · exact add_pos_of_pos_of_nonneg ( mul_pos ht ( by norm_num [ O_prime ] ) ) ( mul_nonneg hu.le ( hA_seq_refl_closed.1 ) );
-  · unfold O_prime reflection at * ; norm_num at *;
-    exact ⟨ by nlinarith, by nlinarith, by nlinarith ⟩
+  rw [S_seq_refl, openSegment_eq_image] at hp
+  rcases hp with ⟨t, ht, rfl⟩
+  have h_pos := A_seq_pos n
+  have h_closed := A_seq_in_closed_region (n + 1)
+  unfold ClosedRegion_R at h_closed
+  unfold Region_R
+  norm_num [O_prime, reflection]
+  have htx_pos : 0 < t * (A_seq (n + 1)) 0 := mul_pos ht.1 h_pos.1
+  have htx_lt_one : t * (A_seq (n + 1)) 0 < 1 :=
+    (mul_lt_of_lt_one_left h_pos.1 ht.2).trans_le h_closed.2.1
+  have hty_pos : 0 < t * (A_seq (n + 1)) 1 := mul_pos ht.1 h_pos.2
+  have hty_lt_half : t * (A_seq (n + 1)) 1 < 1 / 2 :=
+    (mul_lt_of_lt_one_left h_pos.2 ht.2).trans_le h_closed.2.2.2
+  exact ⟨by nlinarith, by nlinarith, by nlinarith, by nlinarith⟩
 
 /-
 The limit segment S_inf is contained in the region R.
@@ -391,7 +439,27 @@ lemma A_seq_ne_O_prime (n : ℕ) : A_seq (n + 1) ≠ O_prime := by
 A_{n+1} lies strictly between O' and A'_n.
 -/
 lemma A_seq_between (n : ℕ) : A_seq (n + 1) ∈ openSegment ℝ O_prime (reflection (A_seq n)) := by
-  sorry
+  have h_exists : ∃ P, is_next_vertex (A_seq n) P :=
+    exists_next_vertex (A_seq n) (A_seq_properties n).2.le
+  rw [show A_seq (n + 1) = next_vertex (A_seq n) from rfl]
+  rw [next_vertex]
+  simp [h_exists]
+  have h_choose := Classical.choose_spec h_exists
+  obtain ⟨hP_segment, hP_dist⟩ := h_choose
+  have hP_ne_O_prime : Classical.choose h_exists ≠ O_prime := by
+      intro h'
+      have hdist : dist O_point O_prime = 1 := by
+        simpa [h'] using hP_dist
+      linarith [dist_O_O_prime]
+  have hP_ne_reflection : Classical.choose h_exists ≠ reflection (A_seq n) := by
+      intro hP_eq_reflection
+      have hdist : dist O_point (reflection (A_seq n)) = 1 := by
+        simpa [hP_eq_reflection] using hP_dist
+      linarith [(A_seq_properties n).2]
+  exact
+    mem_openSegment_of_ne_left_right (id (Ne.symm hP_ne_O_prime)) (id (Ne.symm hP_ne_reflection))
+      hP_segment
+
 /-
 A_{n+1} lies strictly between O' and A'_n.
 -/
@@ -474,7 +542,70 @@ If a triangle has one side of length 1 and the others strictly less than 1, then
 -/
 lemma unique_diam_of_triangle (A B C : Point) (hAB : dist A B = 1) (hBC : dist B C < 1) (hCA : dist C A < 1) :
   ∀ x, x ∈ convexHull ℝ {A, B, C} → ∀ y, y ∈ convexHull ℝ {A, B, C} → dist x y = 1 → (x = A ∧ y = B) ∨ (x = B ∧ y = A) := by
-    sorry
+    -- Apply the lemma that states if the distance between two points in a convex set is 1, then they must be on the boundary.
+    have h_boundary : ∀ x y : Point, x ∈ convexHull ℝ {A, B, C} → y ∈ convexHull ℝ {A, B, C} → dist x y = 1 → x = A ∧ y = B ∨ x = B ∧ y = A := by
+      intros x y hx hy hxy
+      have h_convex : convexHull ℝ {A, B, C} ⊆ {p | dist p A ≤ 1 ∧ dist p B ≤ 1 ∧ dist p C ≤ 1} := by
+        intro p hp
+        obtain ⟨t1, t2, t3, ht1, ht2, ht3, hp_convex⟩ : ∃ t1 t2 t3 : ℝ, 0 ≤ t1 ∧ 0 ≤ t2 ∧ 0 ≤ t3 ∧ t1 + t2 + t3 = 1 ∧ p = t1 • A + t2 • B + t3 • C := by
+          rw [ convexHull_insert ] at hp;
+          · norm_num [ segment_eq_image ] at hp;
+            rcases hp with ⟨ i, hi, x, hx, rfl ⟩ ; exact ⟨ 1 - x, x * ( 1 - i ), x * i, by linarith, by nlinarith, by nlinarith, by linarith, by ext ; simpa using by ring ⟩ ;
+          · norm_num;
+        simp_all +decide [ dist_eq_norm ];
+        refine ⟨ ?_, ?_, ?_ ⟩;
+        · -- By the properties of the norm, we can bound the expression.
+          have h_norm_bound : ‖t1 • A + t2 • B + t3 • C - A‖ ≤ t2 * ‖B - A‖ + t3 * ‖C - A‖ := by
+            convert norm_add_le ( t2 • ( B - A ) ) ( t3 • ( C - A ) ) using 1;
+            · exact congr_arg Norm.norm ( by rw [ show t1 = 1 - t2 - t3 by linarith ] ; ext ; norm_num ; ring );
+            · rw [ norm_smul, norm_smul, Real.norm_of_nonneg ht2, Real.norm_of_nonneg ht3 ];
+          exact h_norm_bound.trans ( by rw [ norm_sub_rev B A ] at *; nlinarith );
+        · -- By the properties of the norm, we can bound the distance.
+          have h_norm_bound : ‖t1 • (A - B) + t3 • (C - B)‖ ≤ t1 * ‖A - B‖ + t3 * ‖C - B‖ := by
+            exact norm_add_le_of_le ( by rw [ norm_smul, Real.norm_of_nonneg ht1 ] ) ( by rw [ norm_smul, Real.norm_of_nonneg ht3 ] );
+          have h_vec :
+              t1 • A + t2 • B + t3 • C - B = t1 • (A - B) + t3 • (C - B) := by
+            rw [show t2 = 1 - t1 - t3 by linarith [hp_convex.1]]
+            ext i <;> simp <;> ring
+          rw [h_vec]
+          exact h_norm_bound.trans (by
+            rw [ norm_sub_rev C B ]
+            nlinarith [ norm_nonneg ( A - B ), norm_nonneg ( B - C ) ])
+        · rw [ show t1 • A + t2 • B + t3 • C - C = t1 • ( A - C ) + t2 • ( B - C ) by ext i; simpa using by rw [ show t3 = 1 - t1 - t2 by linarith ] ; simpa using by ring ];
+          refine le_trans ( norm_add_le ( t1 • ( A - C ) ) ( t2 • ( B - C ) ) ) ?_;
+          rw [ norm_smul, norm_smul, Real.norm_of_nonneg ht1, Real.norm_of_nonneg ht2 ];
+          rw [ norm_sub_rev C A ] at hCA;
+          nlinarith [ norm_nonneg ( A - C ), norm_nonneg ( B - C ) ]
+      -- Since $x$ and $y$ are in the convex hull of $\{A, B, C\}$, we can write them as convex combinations of $A$, $B$, and $C$.
+      obtain ⟨a, b, c, ha, hb, hc, hx_comb⟩ : ∃ a b c : ℝ, 0 ≤ a ∧ 0 ≤ b ∧ 0 ≤ c ∧ a + b + c = 1 ∧ x = a • A + b • B + c • C := by
+        rw [ convexHull_insert ] at hx;
+        · norm_num [ segment_eq_image ] at hx;
+          rcases hx with ⟨ i, hi, j, hj, rfl ⟩ ; exact ⟨ 1 - j, j * ( 1 - i ), j * i, by linarith, by nlinarith, by nlinarith, by linarith, by ext ; simpa using by ring ⟩ ;
+        · norm_num
+      obtain ⟨a', b', c', ha', hb', hc', hy_comb⟩ : ∃ a' b' c' : ℝ, 0 ≤ a' ∧ 0 ≤ b' ∧ 0 ≤ c' ∧ a' + b' + c' = 1 ∧ y = a' • A + b' • B + c' • C := by
+        rw [ convexHull_insert ] at hy hy;
+        · norm_num [ segment_eq_image ] at hy;
+          rcases hy with ⟨ i, hi, x, hx, rfl ⟩ ; exact ⟨ 1 - x, x * ( 1 - i ), x * i, by nlinarith, by nlinarith, by nlinarith, by nlinarith, by ext ; simpa using by ring ⟩ ;
+        · norm_num;
+        · norm_num;
+      -- By the properties of the convex hull and the triangle inequality, we can deduce that $x$ and $y$ must lie on the line segment $AB$.
+      have h_line_segment : dist x y ≤ a * a' * dist A A + a * b' * dist A B + a * c' * dist A C + b * a' * dist B A + b * b' * dist B B + b * c' * dist B C + c * a' * dist C A + c * b' * dist C B + c * c' * dist C C := by
+        rw [ dist_eq_norm, dist_eq_norm, dist_eq_norm, dist_eq_norm, dist_eq_norm, dist_eq_norm, dist_eq_norm, dist_eq_norm, dist_eq_norm ] at *;
+        rw [ hx_comb.2, hy_comb.2 ];
+        convert norm_sum_le ( Finset.range 9 ) ( fun i => if i = 0 then ( a * a' ) • ( A - A ) else if i = 1 then ( a * b' ) • ( A - B ) else if i = 2 then ( a * c' ) • ( A - C ) else if i = 3 then ( b * a' ) • ( B - A ) else if i = 4 then ( b * b' ) • ( B - B ) else if i = 5 then ( b * c' ) • ( B - C ) else if i = 6 then ( c * a' ) • ( C - A ) else if i = 7 then ( c * b' ) • ( C - B ) else ( c * c' ) • ( C - C ) ) using 1;
+        · rw [ show a = 1 - b - c by linarith, show a' = 1 - b' - c' by linarith ] ; norm_num [ Finset.sum_range_succ ] ; ring_nf;
+          exact congr_arg Norm.norm ( by ext ; norm_num ; ring );
+        · norm_num [ Finset.sum_range_succ, norm_smul ] ; ring_nf;
+          simpa only [ abs_of_nonneg ha, abs_of_nonneg hb, abs_of_nonneg hc, abs_of_nonneg ha', abs_of_nonneg hb', abs_of_nonneg hc' ] using by ring;
+      simp_all +decide [ dist_comm ];
+      -- Since $a + b + c = 1$ and $a' + b' + c' = 1$, we can simplify the inequality.
+      have h_simplified : 1 ≤ a * b' + a * c' + b * a' + b * c' + c * a' + c * b' := by
+        nlinarith [ mul_nonneg ha ha', mul_nonneg ha hb', mul_nonneg ha hc', mul_nonneg hb ha', mul_nonneg hb hb', mul_nonneg hb hc', mul_nonneg hc ha', mul_nonneg hc hb', mul_nonneg hc hc' ];
+      have h_simplified : a * c' = 0 ∧ b * c' = 0 ∧ c * a' = 0 ∧ c * b' = 0 := by
+        refine ⟨ ?_, ?_, ?_, ?_ ⟩ <;> nlinarith only [ ha, hb, hc, ha', hb', hc', hx_comb, hy_comb, h_simplified, h_line_segment, hCA, hBC, hAB, mul_nonneg ha hc', mul_nonneg hb hc', mul_nonneg hc ha', mul_nonneg hc hb' ];
+      cases lt_or_eq_of_le ha <;> cases lt_or_eq_of_le hb <;> cases lt_or_eq_of_le ha' <;> cases lt_or_eq_of_le hb' <;> first | nlinarith | aesop;
+    exact fun x hx y hy hxy => h_boundary x y hx hy hxy
+
 /-
 The only points in the triangle OA'P at distance 1 are O and P.
 -/
@@ -501,7 +632,42 @@ Any unit segment contained in the triangle OA'P is equal to the segment OP.
 -/
 lemma Triangle_OA_prime_P_unit_segment_eq_S_seq (n : ℕ) :
   ∀ L, IsUnitSegment L → L ⊆ Triangle_OA_prime_P n → L = S_seq n := by
-    sorry
+    intro L hL hL_sub
+    obtain ⟨x, y, hxy⟩ := hL
+    have hxy_eq : x ∈ Triangle_OA_prime_P n ∧ y ∈ Triangle_OA_prime_P n ∧ dist x y = 1 := by
+      have hxy_in_triangle : ∀ p ∈ openSegment ℝ x y, p ∈ Triangle_OA_prime_P n := by
+        intro p hp
+        exact hL_sub (by simpa [hxy.2] using hp)
+      -- Since the open segment is dense in the closed segment, x and y must be in the closure of the open segment.
+      have hx_closure : x ∈ closure (openSegment ℝ x y) := by
+        -- Since the open segment is dense in the closed segment, the closure of the open segment is the closed segment.
+        have h_closure : closure (openSegment ℝ x y) = segment ℝ x y := by
+          exact closure_openSegment x y;
+        exact h_closure.symm ▸ left_mem_segment _ _ _
+      have hy_closure : y ∈ closure (openSegment ℝ x y) := by
+        simp +zetaDelta at *;
+        exact right_mem_segment _ _ _;
+      have h_closed_triangle : IsClosed (Triangle_OA_prime_P n) := by
+        -- The convex hull of a finite set of points in a finite-dimensional space is closed.
+        have h_convex_hull_closed : ∀ (s : Finset Point), IsClosed (convexHull ℝ (s : Set Point)) := by
+          intro s; exact (by
+          have h_convex_hull_closed : ∀ (s : Finset Point), IsCompact (convexHull ℝ (s : Set Point)) := by
+            exact fun s => s.finite_toSet.isCompact_convexHull ℝ;
+          exact IsCompact.isClosed ( h_convex_hull_closed s ));
+        exact h_convex_hull_closed { O_point, reflection ( A_seq n ), A_seq ( n + 1 ) } |> fun h => by
+          simpa [Triangle_OA_prime_P] using h;
+      have hy_in_triangle : y ∈ closure (Triangle_OA_prime_P n) := by
+        exact closure_mono ( Set.subset_def.mpr hxy_in_triangle ) hy_closure
+      have hx_in_triangle' : x ∈ Triangle_OA_prime_P n := by
+        exact h_closed_triangle.closure_subset_iff.mpr ( Set.subset_def.mpr fun p hp => hxy_in_triangle p hp ) hx_closure
+      have hy_in_triangle' : y ∈ Triangle_OA_prime_P n := by
+        exact h_closed_triangle.closure_subset hy_in_triangle
+      exact ⟨hx_in_triangle', hy_in_triangle', hxy.left⟩;
+    have hxy_eq : (x = O_point ∧ y = A_seq (n + 1)) ∨ (x = A_seq (n + 1) ∧ y = O_point) := by
+      exact Triangle_OA_prime_P_unique_diam' n x y hxy_eq.1 hxy_eq.2.1 hxy_eq.2.2;
+    cases hxy_eq <;> simp_all +decide [ S_seq ];
+    exact openSegment_symm ℝ (A_seq (n + 1)) O_point
+
 /-
 The triangle OA'P is a closed set.
 -/
@@ -559,7 +725,29 @@ The union of the triangle, the next parallelogram, and the reflected triangle is
 -/
 lemma Parallelogram_decomposition_subset (n : ℕ) :
   Triangle_OA_prime_P n ∪ Parallelogram_seq (n + 1) ∪ Triangle_seq_refl n ⊆ Parallelogram_seq n := by
-    sorry
+    have h_Tn_sub_Pn : Triangle_OA_prime_P n ⊆ Parallelogram_seq n := by
+      refine convexHull_min ?_ ?_;
+      · rintro x ( rfl | rfl | rfl ) <;> norm_num [ Parallelogram_seq ];
+        · exact subset_convexHull ℝ _ ( Set.mem_insert _ _ );
+        · exact subset_convexHull ℝ _ ( by norm_num [ Parallelogram ] );
+        · -- By definition of $A_{n+1}$, we know that $A_{n+1}$ lies on the segment $O'A'_n$.
+          have h_A_seq_in_segment : A_seq (n + 1) ∈ segment ℝ O_prime (reflection (A_seq n)) := by
+            exact A_seq_mem_closed_segment n;
+          refine segment_subset_convexHull ?_ ?_ h_A_seq_in_segment;
+          · norm_num;
+          · grind;
+      · exact convex_convexHull ℝ _
+    have h_Pn_sub_Pn : Parallelogram_seq (n + 1) ⊆ Parallelogram_seq n := by
+      exact Parallelogram_seq_subset n
+    have h_Tn'_sub_Pn : Triangle_seq_refl n ⊆ Parallelogram_seq n := by
+      intro x hx
+      obtain ⟨y, hy, rfl⟩ := hx
+      have hy_in_Pn : y ∈ Parallelogram_seq n := by
+        exact h_Tn_sub_Pn hy
+      exact Parallelogram_symmetric (A_seq n) y hy_in_Pn |> fun h => by
+        simpa [Parallelogram_seq, Parallelogram] using h;
+    exact Set.union_subset (Set.union_subset h_Tn_sub_Pn h_Pn_sub_Pn) h_Tn'_sub_Pn
+
 /-
 Any unit segment contained in the reflected triangle is equal to the reflected segment.
 -/
@@ -711,7 +899,23 @@ lemma dist_from_diagonal_eq_zero_implies_on_segment (p : Point) (hp : p ∈ Para
 The intersection of the sequence of parallelograms is contained in the segment connecting O and O'.
 -/
 lemma inter_Parallelogram_seq_subset_segment_O_O_prime : (⋂ n, Parallelogram_seq n) ⊆ segment ℝ O_point O_prime := by
-  sorry
+  -- If a point p is in the intersection of all Parallelogram_seq n, then for every n, p is in Parallelogram_seq n. By the lemma dist_from_diagonal_le_A_seq, this implies that the distance of p from the diagonal is less than or equal to the distance of A_seq n from the diagonal.
+  intro p hp
+  have h_dist_zero : dist_from_diagonal p = 0 := by
+    -- By the lemma dist_from_diagonal_le_A_seq, this implies that the distance of p from the diagonal is less than or equal to the distance of A_seq n from the diagonal.
+    have h_dist_le : ∀ n, dist_from_diagonal p ≤ dist_from_diagonal (A_seq n) := by
+      exact fun n => dist_from_diagonal_le_A_seq n p <| Set.mem_iInter.mp hp n;
+    have h_dist_zero : Filter.Tendsto (fun n => dist_from_diagonal (A_seq n)) Filter.atTop (nhds 0) := by
+      exact squeeze_zero ( fun n => abs_nonneg _ ) ( fun n => dist_from_diagonal_bound n ) ( by
+        simpa [contraction_factor] using
+          tendsto_pow_atTop_nhds_zero_of_lt_one
+            ( by exact div_nonneg ( sub_nonneg.mpr <| Real.sqrt_le_iff.mpr <| by norm_num ) zero_le_two )
+            ( show ( 2 - Real.sqrt 3 ) / 2 < 1 by
+              nlinarith [ Real.sqrt_nonneg 3, Real.sq_sqrt <| show 0 ≤ 3 by norm_num ] )
+            |> Filter.Tendsto.mul_const _ );
+    exact le_antisymm ( le_of_tendsto_of_tendsto' tendsto_const_nhds h_dist_zero h_dist_le ) ( abs_nonneg _ );
+  exact dist_from_diagonal_eq_zero_implies_on_segment p ( Set.mem_iInter.mp hp 0 ) h_dist_zero
+
 /-
 The intersection of the sequence of parallelograms is exactly the segment connecting O and O'.
 -/
@@ -722,15 +926,20 @@ lemma Inter_Parallelogram_seq_eq_segment_O_O_prime : (⋂ n, Parallelogram_seq n
 If an open interval (a, b) of length 1 is contained in [0, d] where d < 2, then it intersects (0, 1).
 -/
 lemma interval_intersection_of_length_one (d : ℝ) (hd : d < 2) (a b : ℝ) (hab : b - a = 1) (h_subset : Set.Ioo a b ⊆ Set.Icc 0 d) : (Set.Ioo 0 1 ∩ Set.Ioo a b).Nonempty := by
+  have hab_lt : a < b := by linarith
+  have hab_ne : a ≠ b := ne_of_lt hab_lt
+  have h_closure_subset : closure (Set.Ioo a b) ⊆ Set.Icc 0 d :=
+    isClosed_Icc.closure_subset_iff.mpr h_subset
   have h_lower : 0 ≤ a := by
-    have h_lower : Filter.Tendsto (fun n : ℕ => a + (1 / (n + 2))) Filter.atTop (nhds a) := by
-      exact le_trans ( tendsto_const_nhds.add ( tendsto_const_nhds.div_atTop ( Filter.tendsto_atTop_add_const_right _ _ tendsto_natCast_atTop_atTop ) ) ) ( by norm_num );
-    exact le_of_tendsto_of_tendsto tendsto_const_nhds h_lower ( Filter.eventually_atTop.mpr ⟨ 0, fun n hn => h_subset ⟨ by linarith [ show ( 1 : ℝ ) / ( n + 2 ) > 0 by positivity ], by linarith [ show ( 1 : ℝ ) / ( n + 2 ) < 1 by rw [ div_lt_iff₀ ] <;> linarith ] ⟩ |>.1 ⟩ )
+    have ha_closure : a ∈ closure (Set.Ioo a b) := by
+      rw [closure_Ioo hab_ne]
+      exact ⟨le_rfl, hab_lt.le⟩
+    exact (h_closure_subset ha_closure).1
   have h_upper : b ≤ d := by
-    have h_upper : ∀ x ∈ Set.Ioo a b, x ≤ d := by
-      exact fun x hx => h_subset hx |>.2;
-    contrapose! h_upper;
-    exact ⟨ ( d + b ) / 2, ⟨ by linarith [ Set.mem_Icc.mp ( h_subset ( show ( a + ( b - a ) / 2 ) ∈ Ioo a b from ⟨ by linarith, by linarith ⟩ ) ) ], by linarith ⟩, by linarith ⟩
+    have hb_closure : b ∈ closure (Set.Ioo a b) := by
+      rw [closure_Ioo hab_ne]
+      exact ⟨hab_lt.le, le_rfl⟩
+    exact (h_closure_subset hb_closure).2
   have h_a_lt_one : a < 1 := by
     linarith;
   exact ⟨ ( a + 1 ) / 2, ⟨ by linarith, by linarith ⟩, ⟨ by linarith, by linarith ⟩ ⟩
@@ -1247,21 +1456,31 @@ lemma dist_from_diagonal_strict_decreasing (n : ℕ) : dist_from_diagonal (A_seq
     exact dist_from_diagonal_recurrence n;
   -- Since $A_seq n$ is in the closed region $[0,1] \times [0,1/2]$, its distance from the diagonal $x - 2y = 0$ is positive.
   have h_pos : 0 < dist_from_diagonal (A_seq n) := by
-    -- Since $A_n$ is in the closed region $[0,1] \times [0,1/2]$ and $A_n \neq O'$, its distance from the diagonal $x - 2y = 0$ is positive.
-    have h_pos : ∀ n, dist_from_diagonal (A_seq n) > 0 := by
+    have h_nonzero : ∀ n, (A_seq n) 0 - 2 * (A_seq n) 1 ≠ 0 := by
       intro n
-      have h_pos : (A_seq n) 0 - 2 * (A_seq n) 1 ≠ 0 := by
-        induction n with
-        | zero =>
-          exact show ( 1 : ℝ ) - 2 * 0 ≠ 0 by norm_num
-        | succ n ih =>
-          have h_pos : A_seq (n + 1) ∈ openSegment ℝ O_prime (reflection (A_seq n)) := by
-            exact A_seq_between n;
-          obtain ⟨ t, ht₀, ht₁, ht₂ ⟩ := h_pos;
-          simp_all +decide [ ← ht₂.2.2, reflection ];
-          unfold O_prime; norm_num; cases lt_or_gt_of_ne ih <;> nlinarith;
-      exact abs_pos.mpr h_pos;
-    exact h_pos n;
+      induction n with
+      | zero =>
+          norm_num [A_seq, A_0]
+      | succ n ih =>
+          have hseg : A_seq (n + 1) ∈ openSegment ℝ O_prime (reflection (A_seq n)) :=
+            A_seq_between n
+          rw [openSegment_eq_image] at hseg
+          rcases hseg with ⟨t, ht, ht_eq⟩
+          have hsigned :
+              (A_seq (n + 1)) 0 - 2 * (A_seq (n + 1)) 1 =
+                -t * ((A_seq n) 0 - 2 * (A_seq n) 1) := by
+            rw [← ht_eq]
+            unfold O_prime reflection
+            norm_num
+            ring
+          intro hzero
+          have hmul : t * ((A_seq n) 0 - 2 * (A_seq n) 1) = 0 := by
+            nlinarith
+          rcases mul_eq_zero.mp hmul with ht_zero | hs_zero
+          · exact ht.1.ne' ht_zero
+          · exact ih hs_zero
+    unfold dist_from_diagonal
+    exact abs_pos.mpr (h_nonzero n)
   exact h_between.trans_lt ( mul_lt_of_lt_one_left h_pos ( by nlinarith [ Real.sqrt_nonneg 3, Real.sq_sqrt ( show 0 ≤ 3 by norm_num ) ] ) )
 
 /-
@@ -1305,7 +1524,22 @@ lemma S_seq_disjoint (n m : ℕ) (h : n ≠ m) : Disjoint (S_seq n) (S_seq m) :=
 The segments S_seq_refl n and S_seq_refl m are disjoint for distinct n and m.
 -/
 lemma S_seq_refl_disjoint (n m : ℕ) (h : n ≠ m) : Disjoint (S_seq_refl n) (S_seq_refl m) := by
-  sorry
+  have hinj : Function.Injective reflection := by
+    intro p q hpq
+    calc
+      p = reflection (reflection p) := (reflection_involution p).symm
+      _ = reflection (reflection q) := by rw [hpq]
+      _ = q := reflection_involution q
+  have himage : ∀ k, S_seq_refl k = reflection '' S_seq k := by
+    intro k
+    calc
+      S_seq_refl k = openSegment ℝ (reflection O_point) (reflection (A_seq (k + 1))) := by
+        simp [S_seq_refl, O_prime_reflection_O]
+      _ = reflection '' S_seq k := by
+        rw [S_seq, reflection_openSegment]
+  rw [himage n, himage m]
+  exact Set.disjoint_image_of_injective hinj (S_seq_disjoint n m h)
+
 /-
 The signed distance of A_n from the diagonal alternates sign: positive for even n, negative for odd n.
 -/
@@ -1316,27 +1550,37 @@ lemma signed_dist_A_seq_sign (n : ℕ) :
   (Odd n → signed_dist_from_diagonal (A_seq n) < 0) := by
     induction n with
     | zero =>
-      simp_all +decide [ parity_simps ];
-      unfold signed_dist_from_diagonal; norm_num [ A_0 ];
-      exact show 2 * 0 < 1 by norm_num;
+      constructor
+      · intro _
+        unfold signed_dist_from_diagonal
+        norm_num [A_seq, A_0]
+      · intro h
+        simp at h
     | succ n ih =>
-      simp_all +decide [ parity_simps ];
-      -- By definition of $A_{n+1}$, it lies on the segment between $O'$ and $A'_n$.
       have h_A_seq_succ : A_seq (n + 1) ∈ openSegment ℝ O_prime (reflection (A_seq n)) := by
         exact A_seq_between n;
       obtain ⟨t, ht⟩ : ∃ t ∈ Set.Ioo (0 : ℝ) 1, A_seq (n + 1) = (1 - t) • O_prime + t • reflection (A_seq n) := by
         rw [ openSegment_eq_image ] at h_A_seq_succ ; aesop;
-      -- By definition of $signed_dist_from_diagonal$, we have $signed_dist_from_diagonal (A_seq (n + 1)) = (1 - t) * signed_dist_from_diagonal O_prime + t * signed_dist_from_diagonal (reflection (A_seq n))$.
-      have h_signed_dist_succ : signed_dist_from_diagonal (A_seq (n + 1)) = (1 - t) * signed_dist_from_diagonal O_prime + t * signed_dist_from_diagonal (reflection (A_seq n)) := by
-        simp [ht, signed_dist_from_diagonal];
-        ring;
-      -- By definition of $signed_dist_from_diagonal$, we have $signed_dist_from_diagonal O_prime = 0$ and $signed_dist_from_diagonal (reflection (A_seq n)) = -signed_dist_from_diagonal (A_seq n)$.
-      have h_signed_dist_O_prime : signed_dist_from_diagonal O_prime = 0 := by
-        unfold signed_dist_from_diagonal; norm_num [ O_prime ] ;
-      have h_signed_dist_reflection : signed_dist_from_diagonal (reflection (A_seq n)) = -signed_dist_from_diagonal (A_seq n) := by
-        unfold signed_dist_from_diagonal; unfold reflection; norm_num; ring;
-      cases' Nat.even_or_odd n with h h <;> simp_all +decide [ parity_simps ];
-      nlinarith
+      have h_signed_dist_succ :
+          signed_dist_from_diagonal (A_seq (n + 1)) =
+            -t * signed_dist_from_diagonal (A_seq n) := by
+        rw [ht.2]
+        unfold signed_dist_from_diagonal O_prime reflection
+        norm_num
+        ring
+      constructor
+      · intro hn_even_succ
+        have hn_odd : Odd n := by
+          simpa [Nat.even_add_one] using hn_even_succ
+        have hn_neg := ih.2 hn_odd
+        rw [h_signed_dist_succ]
+        nlinarith [ht.1.1, hn_neg]
+      · intro hn_odd_succ
+        have hn_even : Even n := by
+          simpa [Nat.odd_add_one] using hn_odd_succ
+        have hn_pos := ih.1 hn_even
+        rw [h_signed_dist_succ]
+        nlinarith [ht.1.1, hn_pos]
 
 /-
 The limit segment S_inf is contained in the diagonal.
@@ -1451,17 +1695,25 @@ lemma S_seq_refl_sign (n : ℕ) :
 If n and m have the same parity, the segments S_seq n and S_seq_refl m are disjoint because they lie on opposite sides of the diagonal.
 -/
 lemma S_seq_S_seq_refl_disjoint_same_parity (n m : ℕ) (h : n % 2 = m % 2) : Disjoint (S_seq n) (S_seq_refl m) := by
-  by_cases hn : Even n <;> by_cases hm : Even m <;> simp_all +decide [ Nat.even_iff ];
-  · -- Since $n$ and $m$ are both even, $S_seq n$ lies on the negative side of the diagonal and $S_seq_refl m$ lies on the positive side of the diagonal.
-    have h_neg_pos : ∀ p ∈ S_seq n, signed_dist_from_diagonal p < 0 ∧ ∀ q ∈ S_seq_refl m, signed_dist_from_diagonal q > 0 := by
-      exact fun p hp => ⟨ S_seq_sign n |>.1 ( Nat.even_iff.mpr h ) p hp, fun q hq => S_seq_refl_sign m |>.1 ( Nat.even_iff.mpr hn ) q hq ⟩;
-    exact Set.disjoint_left.mpr fun p hp hp' => by linarith [ h_neg_pos p hp |>.1, h_neg_pos p hp |>.2 p hp' ] ;
-  · -- By S_seq_sign and S_seq_refl_sign, if n and m are both odd, then S_seq n has positive signed distance and S_seq_refl m has negative signed distance.
-    have h_sign : ∀ p ∈ S_seq n, signed_dist_from_diagonal p > 0 := by
-      exact S_seq_sign n |>.2 ( Nat.odd_iff.mpr h )
-    have h_sign_refl : ∀ p ∈ S_seq_refl m, signed_dist_from_diagonal p < 0 := by
-      exact S_seq_refl_sign m |>.2 ( Nat.odd_iff.mpr hn );
-    exact Set.disjoint_left.mpr fun x hx hx' => by linarith [ h_sign x hx, h_sign_refl x hx' ] ;
+  by_cases hn : Even n
+  · have hm : Even m := by
+      rw [Nat.even_iff]
+      rw [← h]
+      exact Nat.even_iff.mp hn
+    exact Set.disjoint_left.mpr fun p hp hp' => by
+      have hneg := (S_seq_sign n).1 hn p hp
+      have hpos := (S_seq_refl_sign m).1 hm p hp'
+      linarith
+  · have hn_odd : Odd n := Nat.not_even_iff_odd.mp hn
+    have hm_odd : Odd m := by
+      have hn_mod : n % 2 = 1 := Nat.odd_iff.mp hn_odd
+      rw [Nat.odd_iff]
+      rw [← h]
+      exact hn_mod
+    exact Set.disjoint_left.mpr fun p hp hp' => by
+      have hpos := (S_seq_sign n).2 hn_odd p hp
+      have hneg := (S_seq_refl_sign m).2 hm_odd p hp'
+      linarith
 
 /-
 The separating functional f_n takes the same non-zero value at O' and A'_{n+1}.
@@ -1557,43 +1809,30 @@ If n < m, the segments S_seq_refl n and S_seq m are disjoint.
 lemma S_seq_refl_disjoint_S_seq_of_lt (n m : ℕ) (h : n < m) : Disjoint (S_seq_refl n) (S_seq m) := by
   have h_disjoint_refl : Disjoint (S_seq n) (S_seq_refl m) := by
     exact S_seq_disjoint_S_seq_refl_of_lt n m h;
-  -- Since reflection is a bijection, the disjointness of the original segments implies the disjointness of their reflections.
-  have h_reflection_bij : ∀ (S T : Set Point), Disjoint S T → Disjoint (reflection '' S) (reflection '' T) := by
-    intros S T h_disjoint
-    simp [Set.disjoint_iff_forall_ne] at h_disjoint ⊢;
-    exact fun a ha b hb hab => h_disjoint ha hb <| by simpa [ reflection ] using congr_arg (fun p : Point => p 0) hab |> fun h => by simpa [ reflection ] using congr_arg (fun p : Point => p 1) hab |> fun h' => by ext i; fin_cases i <;> norm_num [ reflection ] at * <;> linarith!;
-  convert h_reflection_bij _ _ h_disjoint_refl using 1;
-  · ext; simp [S_seq_refl, S_seq];
-    constructor <;> intro h;
-    · rcases h with ⟨ a, b, ha, hb, hab, rfl ⟩;
-      refine ⟨ a • O_point + b • A_seq ( n + 1 ), ?_, ?_ ⟩ <;> simp_all +decide [ openSegment_eq_image, reflection ];
-      · exact ⟨ b, ⟨ hb, by linarith ⟩, by rw [ ← eq_sub_iff_add_eq' ] at hab; aesop ⟩;
-      · ext i; fin_cases i <;> norm_num [ O_prime, O_point ] <;> ring_nf;
-        · linarith;
-        · nlinarith;
-    · rcases h with ⟨ x, hx, rfl ⟩;
-      obtain ⟨ a, b, ha, hb, hab, rfl ⟩ := hx;
-      use a, b;
-      simp +decide [ reflection ];
-      exact ⟨ ha, hb, hab, by ext i; fin_cases i <;> norm_num [ O_prime, O_point ] <;> linarith ⟩;
-  · ext; simp [S_seq, S_seq_refl];
-    constructor;
-    · rintro ⟨ a, b, ha, hb, hab, rfl ⟩;
-      refine ⟨ a • O_prime + b • reflection ( A_seq ( m + 1 ) ), ?_, ?_ ⟩ <;> norm_num [ openSegment_eq_image ];
-      · exact ⟨ b, ⟨ hb, by linarith ⟩, by rw [ ← eq_sub_iff_add_eq' ] at hab; subst hab; ext i; fin_cases i <;> norm_num ⟩;
-      · unfold reflection; norm_num [ ← eq_sub_iff_add_eq' ] at *; ring_nf;
-        ext i ; fin_cases i <;> norm_num [ O_point, O_prime ] <;> ring_nf;
-        · linarith!;
-        · linarith!;
-    · rintro ⟨ x, hx, rfl ⟩;
-      obtain ⟨ a, b, ha, hb, hab, rfl ⟩ := hx;
-      refine ⟨ a, b, ha, hb, hab, ?_ ⟩ ; ext i ; fin_cases i <;> norm_num [ reflection ]
-      focus
-        ring_nf!
-      · unfold O_point O_prime; norm_num; ring_nf;
-        linarith;
-      · unfold O_point O_prime; norm_num; ring_nf;
-        rw [ show a = 1 - b by linarith ] ; ring!
+  have hinj : Function.Injective reflection := by
+    intro p q hpq
+    calc
+      p = reflection (reflection p) := (reflection_involution p).symm
+      _ = reflection (reflection q) := by rw [hpq]
+      _ = q := reflection_involution q
+  have h_reflection_bij :
+      ∀ (S T : Set Point), Disjoint S T → Disjoint (reflection '' S) (reflection '' T) := by
+    intro S T hST
+    exact Set.disjoint_image_of_injective hinj hST
+  have himage : ∀ k, S_seq_refl k = reflection '' S_seq k := by
+    intro k
+    calc
+      S_seq_refl k = openSegment ℝ (reflection O_point) (reflection (A_seq (k + 1))) := by
+        simp [S_seq_refl, O_prime_reflection_O]
+      _ = reflection '' S_seq k := by
+        rw [S_seq, reflection_openSegment]
+  have himage_back : ∀ k, S_seq k = reflection '' S_seq_refl k := by
+    intro k
+    rw [himage k]
+    ext p
+    simp [Set.mem_image, reflection_involution]
+  rw [himage n, himage_back m]
+  exact h_reflection_bij _ _ h_disjoint_refl
 
 /-
 The segments in S_collection are pairwise disjoint.
@@ -1662,7 +1901,14 @@ lemma Region_subset_P0 : Region_R ⊆ Parallelogram_seq 0 := by
 The n-th parallelogram is the union of the n-th triangle, the (n+1)-th parallelogram, and the reflected n-th triangle.
 -/
 lemma Parallelogram_decomposition_eq (n : ℕ) : Parallelogram_seq n = Triangle_OA_prime_P n ∪ Parallelogram_seq (n + 1) ∪ Triangle_seq_refl n := by
-  sorry
+  -- Apply the lemma that states the parallelogram is covered by the union of the triangle, the next parallelogram, and the reflected triangle.
+  apply le_antisymm;
+  · intro x hx
+    have hx' := Parallelogram_covered n hx
+    aesop;
+  · -- By definition of $Parallelogram_seq$, we know that $Triangle_OA_prime_P n \cup Parallelogram_seq (n + 1) \cup Triangle_seq_refl n \subseteq Parallelogram_seq n$.
+    apply Parallelogram_decomposition_subset
+
 /-
 The triangle T_n lies in the non-positive half-plane for even n, and in the non-negative half-plane for odd n.
 -/
@@ -1679,11 +1925,17 @@ lemma Tn_subset_halfplane (n : ℕ) :
       unfold reflection at *; norm_num [ hp ] ;
       -- By definition of $A_seq$, we know that $A_seq n 0 - 2 * A_seq n 1 > 0$ and $A_seq (n + 1) 0 - 2 * A_seq (n + 1) 1 < 0$ for even $n$.
       have h_signs : A_seq n 0 - 2 * A_seq n 1 > 0 ∧ A_seq (n + 1) 0 - 2 * A_seq (n + 1) 1 < 0 := by
-        have := signed_dist_A_seq_sign n; have := signed_dist_A_seq_sign ( n + 1 ) ; simp_all +decide [ parity_simps ] ;
-        unfold signed_dist_from_diagonal at *; constructor <;> linarith;
+        have hn_pos := (signed_dist_A_seq_sign n).1 hn
+        have hn1_odd : Odd (n + 1) := by
+          simpa [Nat.odd_add_one] using hn
+        have hn1_neg := (signed_dist_A_seq_sign (n + 1)).2 hn1_odd
+        unfold signed_dist_from_diagonal at hn_pos hn1_neg
+        exact ⟨hn_pos, hn1_neg⟩
       unfold O_point at *; norm_num at *; nlinarith;
     · -- By definition of $Triangle_OA_prime_P$, we know that $p$ is a convex combination of $O$, $reflection (A_seq n)$, and $A_seq (n + 1)$.
-      obtain ⟨a, b, c, ha, hb, hc, habc⟩ : ∃ a b c : ℝ, 0 ≤ a ∧ 0 ≤ b ∧ 0 ≤ c ∧ a + b + c = 1 ∧ p = a • O_point + b • reflection (A_seq n) + c • A_seq (n + 1) := by
+      obtain ⟨a, b, c, ha, hb, hc, hsum, hp_eq⟩ :
+          ∃ a b c : ℝ, 0 ≤ a ∧ 0 ≤ b ∧ 0 ≤ c ∧ a + b + c = 1 ∧
+            p = a • O_point + b • reflection (A_seq n) + c • A_seq (n + 1) := by
         unfold Triangle_OA_prime_P at hp;
         norm_num [ convexHull_insert ] at hp;
         rcases hp with ⟨ q, ⟨ a, b, ha, hb, hab, rfl ⟩, ⟨ c, d, hc, hd, hcd, rfl ⟩ ⟩ ; exact ⟨ c, d * a, d * b, by positivity, by positivity, by positivity, by nlinarith, by ext ; simpa using by ring ⟩ ;
@@ -1691,9 +1943,14 @@ lemma Tn_subset_halfplane (n : ℕ) :
       have h_signed_dist_A_seq_neg : signed_dist_from_diagonal (A_seq n) < 0 := by
         exact signed_dist_A_seq_sign n |>.2 hn
       have h_signed_dist_A_seq_pos : signed_dist_from_diagonal (A_seq (n + 1)) > 0 := by
-        have := signed_dist_A_seq_sign ( n + 1 ) ; simp_all +decide [ parity_simps ] ;
-      unfold signed_dist_from_diagonal at *; norm_num [ habc ] at *;
-      unfold reflection at *; norm_num [ O_point ] at *; nlinarith;
+        have hn1_even : Even (n + 1) := by
+          simpa [Nat.even_add_one] using hn
+        exact (signed_dist_A_seq_sign (n + 1)).1 hn1_even
+      rw [hp_eq]
+      unfold signed_dist_from_diagonal at *
+      unfold reflection at *
+      norm_num [O_point] at *
+      nlinarith
 
 /-
 The closure of S_seq n is the closed segment connecting O and A_{n+1}.
@@ -1808,7 +2065,27 @@ The vertices A_{n+1} and its reflection are not in L.
 -/
 lemma L_disjoint_vertices (n : ℕ) (L : Set Point) (hL_disj : ∀ s ∈ S_collection, Disjoint L s) (hL_region : L ⊆ Region_R) :
   A_seq (n + 1) ∉ L ∧ reflection (A_seq (n + 1)) ∉ L := by
-    sorry
+    constructor <;> intro h0;
+    · rcases n with ( _ | n ) <;> simp_all +decide [ Set.disjoint_left ];
+      · -- By definition of $A_seq$, we know that $A_seq 1$ lies on the segment $O' (reflection A_0)$.
+        have hA1_segment : A_seq 1 ∈ segment ℝ O_prime (reflection A_0) := by
+          simpa [A_seq] using A_seq_mem_closed_segment 0;
+        -- Since $A_seq 1$ lies on the segment $O' (reflection A_0)$, its y-coordinate is $1/2$.
+        have hA1_y : (A_seq 1) 1 = 1 / 2 := by
+          obtain ⟨ a, b, ha, hb, hab, h ⟩ := hA1_segment;
+          have := congr_arg (fun p : Point => p 1) h; norm_num [ O_prime, reflection, A_0 ] at *; nlinarith;
+        exact absurd ( hL_region h0 ) ( by rintro ⟨ h1, h2, h3, h4 ⟩ ; linarith );
+      · exact hL_disj _ ( Set.mem_union_left _ <| Set.mem_union_right _ ⟨ n, rfl ⟩ ) h0 ( by simpa using A_succ_mem_S_seq_refl_pred ( n + 1 ) ( Nat.succ_pos _ ) );
+    · rcases n <;> simp_all +decide [ Set.disjoint_left ];
+      · -- By definition of $A_seq$, we know that $A_seq 1$ is the point on $[O', A_0']$ such that $|O - A_seq 1| = 1$.
+        obtain ⟨t, ht⟩ : ∃ t : ℝ, t ∈ Set.Ioo 0 1 ∧ A_seq 1 = O_prime + t • (reflection A_0 - O_prime) := by
+          have hA1 : A_seq 1 ∈ openSegment ℝ O_prime (reflection A_0) := by
+            simpa [A_seq] using A_seq_in_open_segment 0;
+          rw [ openSegment_eq_image ] at hA1;
+          obtain ⟨ t, ht, h ⟩ := hA1; exact ⟨ t, ht, by ext i; have := congr_arg (fun p : Point => p i) h; norm_num at *; linarith ⟩ ;
+        have := hL_region h0; unfold Region_R at this; norm_num [ ht, A_0, O_prime, reflection ] at this;
+      · exact hL_disj _ ( Or.inl <| Or.inl <| ⟨ _, rfl ⟩ ) h0 ( A_succ_refl_mem_S_seq_pred _ <| Nat.succ_pos _ )
+
 /-
 If L is disjoint from the open segment and the endpoints, it is disjoint from the closed segment.
 -/
@@ -1881,7 +2158,36 @@ lemma Triangle_seq_refl_is_closed (n : ℕ) : IsClosed (Triangle_seq_refl n) := 
 The intersection of the reflected triangle and the next parallelogram is contained in the closure of the reflected segment.
 -/
 lemma seam_2_subset (n : ℕ) : Triangle_seq_refl n ∩ Parallelogram_seq (n + 1) ⊆ closure (S_seq_refl n) := by
-  sorry
+  -- Let $x \in Triangle\_seq\_refl n \cap Parallelogram\_seq (n + 1)$.
+  intro x hx
+  obtain ⟨hx_triangle, hx_parallelogram⟩ := hx
+  obtain ⟨y, hy_triangle, rfl⟩ := hx_triangle;
+  -- Since $y \in Triangle_OA_prime_P n \cap Parallelogram_seq (n + 1)$, by `Tn_inter_Pn_subset_closure_S_seq`, we have $y \in closure (S_seq n)$.
+  have hy_closure_S_seq : y ∈ closure (S_seq n) := by
+    -- Since $y \in Triangle_OA_prime_P n$ and $reflection y \in Parallelogram_seq (n + 1)$, we have $y \in Parallelogram_seq (n + 1)$ by the symmetry of the parallelogram.
+    have hy_parallelogram : y ∈ Parallelogram_seq (n + 1) := by
+      have hsym := Parallelogram_symmetric (A_seq (n + 1)) (reflection y) hx_parallelogram
+      simpa [Parallelogram_seq, reflection_involution] using hsym;
+    exact Tn_inter_Pn_subset_closure_S_seq n ⟨ hy_triangle, hy_parallelogram ⟩;
+  -- Since reflection is a continuous function, applying it to the closure of S_seq n should give me the closure of the reflection of S_seq n.
+  have h_reflection_closure : reflection '' closure (S_seq n) ⊆ closure (reflection '' S_seq n) := by
+    intro z hz
+    obtain ⟨w, hw_closure, rfl⟩ := hz
+    have hw_closure_S_seq : w ∈ closure (S_seq n) := hw_closure
+    have h_reflection_closure_S_seq : reflection w ∈ closure (reflection '' S_seq n) := by
+      have h_reflection_closure_S_seq : Continuous reflection := by
+        exact continuous_reflection
+      exact mem_closure_image h_reflection_closure_S_seq.continuousAt hw_closure_S_seq
+    exact h_reflection_closure_S_seq;
+  convert h_reflection_closure ( Set.mem_image_of_mem _ hy_closure_S_seq ) using 1;
+  congr! 1;
+  ext; simp [S_seq_refl, S_seq];
+  constructor <;> intro h <;> simp_all +decide [ openSegment_eq_image ];
+  · obtain ⟨ a, ha, rfl ⟩ := h; use a; simp +decide [ *, reflection ] ;
+    ext i; fin_cases i <;> norm_num [ O_point, O_prime ] <;> ring;
+  · obtain ⟨ a, ⟨ ha₁, ha₂ ⟩, rfl ⟩ := h; use a; simp +decide [ *, reflection ] ; ring_nf;
+    ext i; fin_cases i <;> norm_num [ O_prime, O_point ] <;> ring;
+
 /-
 L is disjoint from the intersection of the triangle and the next parallelogram.
 -/
@@ -2121,37 +2427,28 @@ lemma connected_subset_split (L : Set Point) (hL_conn : IsConnected L) (hL_sub :
     · contrapose! h;
       exact fun hp => ⟨ p 0, hp.1, hp.2.1, by ext i; fin_cases i <;> norm_num <;> linarith! ⟩;
     · rcases h with ( ⟨ h₀, h₁, h₂, h₃ ⟩ | ⟨ h₀, h₁, h₂, h₃ ⟩ ) <;> refine ⟨ ⟨ h₀, h₁, by linarith, by linarith ⟩, ?_ ⟩ <;> intro x hx₁ hx₂ hx₃ <;> have := congr_arg (fun p : Point => p 0) hx₃ <;> have := congr_arg (fun p : Point => p 1) hx₃ <;> norm_num at * <;> linarith;
-  -- Since L is connected and a subset of the union of two disjoint open sets, it must be entirely in one of them.
-  have h_connected_subset : IsConnected L → L ⊆ Region_R ∪ Region_Upper → L ⊆ Region_R ∨ L ⊆ Region_Upper := by
-    intro hL_conn hL_sub
-    have h_connected_subset : IsConnected L → L ⊆ Region_R ∪ Region_Upper → L ⊆ Region_R ∨ L ⊆ Region_Upper := by
-      intro hL_conn hL_sub
-      have h_disjoint : Disjoint Region_R Region_Upper := by
-        exact Set.disjoint_left.mpr fun x hx₁ hx₂ => by linarith [ hx₁.2.2.2, hx₂.2.2.1 ] ;
-      have h_open : IsOpen Region_R ∧ IsOpen Region_Upper := by
-        constructor
-        · unfold Region_R
-          exact (isOpen_Ioi.preimage (PiLp.continuous_apply (p := 2) (β := fun _ : Fin 2 => ℝ) 0)).inter
-            ((isOpen_Iio.preimage (PiLp.continuous_apply (p := 2) (β := fun _ : Fin 2 => ℝ) 0)).inter
-              ((isOpen_Ioi.preimage (PiLp.continuous_apply (p := 2) (β := fun _ : Fin 2 => ℝ) 1)).inter
-                (isOpen_Iio.preimage (PiLp.continuous_apply (p := 2) (β := fun _ : Fin 2 => ℝ) 1))))
-        · unfold Region_Upper
-          exact (isOpen_Ioi.preimage (PiLp.continuous_apply (p := 2) (β := fun _ : Fin 2 => ℝ) 0)).inter
-            ((isOpen_Iio.preimage (PiLp.continuous_apply (p := 2) (β := fun _ : Fin 2 => ℝ) 0)).inter
-              ((isOpen_Ioi.preimage (PiLp.continuous_apply (p := 2) (β := fun _ : Fin 2 => ℝ) 1)).inter
-                (isOpen_Iio.preimage (PiLp.continuous_apply (p := 2) (β := fun _ : Fin 2 => ℝ) 1))))
-      have h_connected_subset : ∀ {U V : Set Point}, IsOpen U → IsOpen V → Disjoint U V → IsConnected L → L ⊆ U ∪ V → L ⊆ U ∨ L ⊆ V := by
-        intros U V hU hV h_disjoint hL_conn hL_sub
-        have h_connected_subset : IsConnected L → L ⊆ U ∪ V → L ⊆ U ∨ L ⊆ V := by
-          intros hL_conn hL_sub
-          have h_connected_subset : IsPreconnected L → L ⊆ U ∪ V → L ⊆ U ∨ L ⊆ V := by
-            (expose_names;
-              exact fun a a_1 ↦ IsPreconnected.subset_or_subset hU hV h_disjoint hL_sub_4 a);
-          exact h_connected_subset hL_conn.isPreconnected hL_sub;
-        exact h_connected_subset hL_conn hL_sub;
-      exact h_connected_subset h_open.1 h_open.2 h_disjoint hL_conn hL_sub;
-    exact h_connected_subset hL_conn hL_sub;
-  exact h_connected_subset hL_conn ( h_union ▸ fun x hx => ⟨ hL_sub hx, fun hx' => hL_disj.le_bot ⟨ hx, hx' ⟩ ⟩ )
+  have h_disjoint : Disjoint Region_R Region_Upper := by
+    exact Set.disjoint_left.mpr fun x hx₁ hx₂ => by
+      linarith [ hx₁.2.2.2, hx₂.2.2.1 ]
+  have h_open : IsOpen Region_R ∧ IsOpen Region_Upper := by
+    constructor
+    · unfold Region_R
+      exact (isOpen_Ioi.preimage (PiLp.continuous_apply (p := 2) (β := fun _ : Fin 2 => ℝ) 0)).inter
+        ((isOpen_Iio.preimage (PiLp.continuous_apply (p := 2) (β := fun _ : Fin 2 => ℝ) 0)).inter
+          ((isOpen_Ioi.preimage (PiLp.continuous_apply (p := 2) (β := fun _ : Fin 2 => ℝ) 1)).inter
+            (isOpen_Iio.preimage (PiLp.continuous_apply (p := 2) (β := fun _ : Fin 2 => ℝ) 1))))
+    · unfold Region_Upper
+      exact (isOpen_Ioi.preimage (PiLp.continuous_apply (p := 2) (β := fun _ : Fin 2 => ℝ) 0)).inter
+        ((isOpen_Iio.preimage (PiLp.continuous_apply (p := 2) (β := fun _ : Fin 2 => ℝ) 0)).inter
+          ((isOpen_Ioi.preimage (PiLp.continuous_apply (p := 2) (β := fun _ : Fin 2 => ℝ) 1)).inter
+            (isOpen_Iio.preimage (PiLp.continuous_apply (p := 2) (β := fun _ : Fin 2 => ℝ) 1))))
+  have hL_sub_union : L ⊆ Region_R ∪ Region_Upper := by
+    intro x hx
+    have hx_diff : x ∈ Region_Square \ H_mid :=
+      ⟨hL_sub hx, fun hx_mid => hL_disj.le_bot ⟨hx, hx_mid⟩⟩
+    simpa [h_union] using hx_diff
+  exact IsPreconnected.subset_or_subset h_open.1 h_open.2 h_disjoint hL_sub_union
+    hL_conn.isPreconnected
 
 /-
 The horizontal middle segment is a unit segment.
@@ -2455,7 +2752,12 @@ lemma segment_in_halfplane_boundary_x1 (A B : Point) (hA : A 0 ≤ 1) (hB : B 0 
 If an open segment in the half-plane y >= 0 touches the boundary y = 0, it lies entirely in the boundary.
 -/
 lemma segment_in_halfplane_boundary_y0 (A B : Point) (hA : 0 ≤ A 1) (hB : 0 ≤ B 1) (P : Point) (hP : P ∈ openSegment ℝ A B) (hP_bound : P 1 = 0) : A 1 = 0 ∧ B 1 = 0 := by
-  sorry
+  obtain ⟨ s, t, hs, ht, hst ⟩ := hP;
+  have h_eq : s * A 1 + t * B 1 = 0 := by
+    have hcoord := congr_arg (fun x : Point => x 1) hst.2
+    simpa [hP_bound] using hcoord
+  constructor <;> nlinarith
+
 /-
 The unit square is a closed set.
 -/
@@ -2549,7 +2851,36 @@ lemma unit_segment_subset_boundary_y0 (L : Set Point) (hL_unit : IsUnitSegment L
 If a unit segment in the unit square is contained in the line x=0, it must be the left vertical side V_L.
 -/
 lemma unit_segment_on_boundary_x0_eq_V_L (L : Set Point) (hL_unit : IsUnitSegment L) (hL_sub : L ⊆ UnitSquare) (h_subset : L ⊆ {p | p 0 = 0}) : L = V_L := by
-  sorry
+  -- Since L is a unit segment contained in the line x=0, its endpoints must be (0,0) and (0,1).
+  have h_endpoints : ∃ A B : Point, L = openSegment ℝ A B ∧ A 0 = 0 ∧ B 0 = 0 ∧ A 1 = 0 ∧ B 1 = 1 := by
+    obtain ⟨A, B, hL, hAB⟩ : ∃ A B : Point, L = openSegment ℝ A B ∧ dist A B = 1 ∧ (∀ p ∈ L, p 0 = 0) := by
+      rcases hL_unit with ⟨A, B, hL, hAB⟩; use A, B; aesop;
+    have h_endpoints : A 0 = 0 ∧ B 0 = 0 := by
+      simp_all +decide [ openSegment_eq_image ];
+      have := h_subset ( show 1 / 3 ∈ Set.Ioo 0 1 by norm_num ) ; have := h_subset ( show 2 / 3 ∈ Set.Ioo 0 1 by norm_num ) ; norm_num at * ; constructor <;> linarith;
+    have h_endpoints : A 1 = 0 ∧ B 1 = 1 ∨ A 1 = 1 ∧ B 1 = 0 := by
+      have h_endpoints : A 1 ∈ Set.Icc 0 1 ∧ B 1 ∈ Set.Icc 0 1 := by
+        have h_endpoints : ∀ p ∈ L, p 1 ∈ Set.Icc 0 1 := by
+          exact fun p hp => ⟨ by have := hL_sub hp; unfold UnitSquare at this; aesop, by have := hL_sub hp; unfold UnitSquare at this; aesop ⟩;
+        simp_all +decide [ openSegment_eq_image ];
+        have h_endpoints : Filter.Tendsto (fun x : ℝ => (1 - x) • A + x • B) (nhdsWithin 0 (Set.Ioi 0)) (nhds A) ∧ Filter.Tendsto (fun x : ℝ => (1 - x) • A + x • B) (nhdsWithin 1 (Set.Iio 1)) (nhds B) := by
+          field_simp;
+          exact ⟨ tendsto_nhdsWithin_of_tendsto_nhds ( Continuous.tendsto' ( by continuity ) _ _ <| by norm_num ), tendsto_nhdsWithin_of_tendsto_nhds ( Continuous.tendsto' ( by continuity ) _ _ <| by norm_num ) ⟩;
+        have h_endpoints : Filter.Tendsto (fun x : ℝ => ((1 - x) • A + x • B) 1) (nhdsWithin 0 (Set.Ioi 0)) (nhds (A 1)) ∧ Filter.Tendsto (fun x : ℝ => ((1 - x) • A + x • B) 1) (nhdsWithin 1 (Set.Iio 1)) (nhds (B 1)) := by
+          exact ⟨ (PiLp.continuous_apply (p := 2) (β := fun _ : Fin 2 => ℝ) 1).continuousAt.tendsto.comp h_endpoints.1, (PiLp.continuous_apply (p := 2) (β := fun _ : Fin 2 => ℝ) 1).continuousAt.tendsto.comp h_endpoints.2 ⟩;
+        exact ⟨ ⟨ le_of_tendsto_of_tendsto tendsto_const_nhds h_endpoints.1 <| Filter.eventually_of_mem ( Ioo_mem_nhdsGT_of_mem ⟨ by norm_num, by norm_num ⟩ ) fun x hx => ( ‹∀ p : Point, ∀ x : ℝ, 0 < x → x < 1 → ( 1 - x ) • A + x • B = p → 0 ≤ p 1 ∧ p 1 ≤ 1› _ _ hx.1 hx.2 rfl ) |>.1, le_of_tendsto_of_tendsto h_endpoints.1 tendsto_const_nhds <| Filter.eventually_of_mem ( Ioo_mem_nhdsGT_of_mem ⟨ by norm_num, by norm_num ⟩ ) fun x hx => ( ‹∀ p : Point, ∀ x : ℝ, 0 < x → x < 1 → ( 1 - x ) • A + x • B = p → 0 ≤ p 1 ∧ p 1 ≤ 1› _ _ hx.1 hx.2 rfl ) |>.2 ⟩, ⟨ le_of_tendsto_of_tendsto tendsto_const_nhds h_endpoints.2 <| Filter.eventually_of_mem ( Ioo_mem_nhdsLT_of_mem ⟨ by norm_num, by norm_num ⟩ ) fun x hx => ( ‹∀ p : Point, ∀ x : ℝ, 0 < x → x < 1 → ( 1 - x ) • A + x • B = p → 0 ≤ p 1 ∧ p 1 ≤ 1› _ _ hx.1 hx.2 rfl ) |>.1, le_of_tendsto_of_tendsto h_endpoints.2 tendsto_const_nhds <| Filter.eventually_of_mem ( Ioo_mem_nhdsLT_of_mem ⟨ by norm_num, by norm_num ⟩ ) fun x hx => ( ‹∀ p : Point, ∀ x : ℝ, 0 < x → x < 1 → ( 1 - x ) • A + x • B = p → 0 ≤ p 1 ∧ p 1 ≤ 1› _ _ hx.1 hx.2 rfl ) |>.2 ⟩ ⟩;
+      have h_dist : |A 1 - B 1| = 1 := by
+        simp_all +decide [ dist_eq_norm, EuclideanSpace.norm_eq ];
+        cases hAB.1 <;> cases abs_cases ( A 1 - B 1 ) <;> linarith;
+      cases abs_cases ( A 1 - B 1 ) <;> [ right; left ] <;> constructor <;> linarith [ h_endpoints.1.1, h_endpoints.1.2, h_endpoints.2.1, h_endpoints.2.2 ];
+    cases' h_endpoints with h h <;> [ exact ⟨ A, B, hL, by tauto ⟩ ; exact ⟨ B, A, by rw [ hL, openSegment_symm ], by tauto ⟩ ];
+  -- Since A and B are (0,0) and (0,1), the open segment between them is exactly the vertical line segment from (0,0) to (0,1), which is V_L.
+  obtain ⟨A, B, hL, hA, hB, hA1, hB1⟩ := h_endpoints
+  have h_open_segment : openSegment ℝ A B = openSegment ℝ !₂[0, 0] !₂[0, 1] := by
+    congr <;> ext i <;> fin_cases i <;> aesop;
+  rw [hL, h_open_segment]
+  rfl
+
 /-
 If a unit segment in the unit square is contained in the line x=1, it must be the right vertical side V_R.
 -/
@@ -3112,7 +3443,52 @@ theorem dist_eq_one_implies_vertex (A B C : Point) (V : Point) (hV : V ∈ ({A, 
     (hAB : dist A B ≤ 1) (hBC : dist B C ≤ 1) (hCA : dist C A ≤ 1)
     (x : Point) (hx : x ∈ convexHull ℝ {A, B, C}) (hdist : dist x V = 1) :
     x ∈ ({A, B, C} : Set Point) := by
-      sorry
+      -- By the distances, $convexHull {A, B, C} \subseteq B(V, 1)$.
+      have h_convexHull_ball : convexHull ℝ {A, B, C} ⊆ Metric.closedBall V (1 : ℝ) := by
+        refine convexHull_min ?_ ?_;
+        · simp_all +decide [ Set.insert_subset_iff, dist_comm ];
+          rcases hV with ( rfl | rfl | rfl ) <;> simp_all +decide [ dist_comm ];
+        · exact convex_closedBall _ _;
+      -- By the distances, $convexHull {A, B, C}$ is a subset of $B(V, 1)$, and since $x$ is on the boundary of $B(V, 1)$, $x$ must be an extreme point of $convexHull {A, B, C}$.
+      have h_extreme : x ∈ Set.extremePoints ℝ (convexHull ℝ {A, B, C}) := by
+        refine ⟨ hx, ?_ ⟩;
+        intro y hy z hz hxy
+        have hxy_ball : y ∈ Metric.closedBall V (1 : ℝ) ∧ z ∈ Metric.closedBall V (1 : ℝ) := by
+          exact ⟨ h_convexHull_ball hy, h_convexHull_ball hz ⟩;
+        have h_eq : ‖y - V‖ = 1 ∧ ‖z - V‖ = 1 := by
+          obtain ⟨ a, b, ha, hb, hab, rfl ⟩ := hxy;
+          have h_eq : ‖a • (y - V) + b • (z - V)‖ = 1 := by
+            convert hdist using 1;
+            rw [ dist_eq_norm ] ; rw [ ← eq_sub_iff_add_eq' ] at hab ; subst_vars ; ring_nf;
+            exact congr_arg Norm.norm ( by ext ; simpa using by ring );
+          have h_eq : ‖a • (y - V) + b • (z - V)‖ ≤ a * ‖y - V‖ + b * ‖z - V‖ := by
+            exact norm_add_le_of_le ( by rw [ norm_smul, Real.norm_of_nonneg ha.le ] ) ( by rw [ norm_smul, Real.norm_of_nonneg hb.le ] );
+          constructor <;> nlinarith [
+            show ‖y - V‖ ≤ 1 from by
+              simpa [Metric.mem_closedBall, dist_eq_norm, norm_sub_rev] using hxy_ball.1,
+            show ‖z - V‖ ≤ 1 from by
+              simpa [Metric.mem_closedBall, dist_eq_norm, norm_sub_rev] using hxy_ball.2]
+        obtain ⟨ a, b, ha, hb, hab, rfl ⟩ := hxy;
+        have h_eq : ‖a • (y - V) + b • (z - V)‖ = 1 := by
+          convert hdist using 1;
+          rw [ dist_eq_norm ] ; rw [ show a • y + b • z = a • ( y - V ) + b • ( z - V ) + V by ext i; simpa using by rw [ ← eq_sub_iff_add_eq' ] at hab; rw [ hab ] ; ring ] ; simp +decide
+        have h_eq : ‖a • (y - V) + b • (z - V)‖^2 = ‖a • (y - V)‖^2 + ‖b • (z - V)‖^2 + 2 * a * b * inner ℝ (y - V) (z - V) := by
+          rw [ @norm_add_sq ℝ ];
+          simp +decide [ inner_smul_left, inner_smul_right, mul_assoc, mul_comm, mul_left_comm ] ; ring;
+        simp_all +decide [ norm_smul ];
+        have h_eq : inner ℝ (y - V) (z - V) = 1 := by
+          nlinarith [ mul_pos ha hb ];
+        have h_eq : ‖(y - V) - (z - V)‖^2 = 0 := by
+          rw [ @norm_sub_sq ℝ ] ; norm_num [ h_eq ];
+          nlinarith;
+        norm_num [ ← ‹1 = a ^ 2 + b ^ 2 + 2 * a * b * inner ℝ ( y - V ) ( z - V ) › ] at *;
+        norm_num [ sub_eq_zero.mp h_eq ] at *;
+        rw [ ← add_smul, hab, one_smul ];
+      -- By the distances, $convexHull {A, B, C}$ is a subset of $B(V, 1)$, and since $x$ is on the boundary of $B(V, 1)$, $x$ must be an extreme point of $convexHull {A, B, C}$, which means $x$ must be one of $A$, $B$, or $C$.
+      have h_extreme_points : Set.extremePoints ℝ (convexHull ℝ {A, B, C}) ⊆ {A, B, C} := by
+        exact extremePoints_convexHull_subset;
+      exact h_extreme_points h_extreme
+
 /-
 If two points in a triangle with sides <= 1 are at distance 1, they must be vertices.
 -/
@@ -3318,7 +3694,9 @@ theorem sigma_isometry (p q : Point) : dist (sigma p) (sigma q) = dist p q := by
 The distance from O to sigma(V) is 1.
 -/
 theorem dist_O_sigma_V : dist O_point (sigma V_point) = 1 := by
-  sorry
+  have h := (sigma_isometry O_point V_point).trans dist_O_V
+  simpa [O_point, sigma] using h
+
 /-
 The distance from O to X is less than 1.
 -/
@@ -3506,7 +3884,24 @@ theorem S_finite_in_region : IsInRegion S_finite Region_Square := by
 segment1 and segment5 are disjoint.
 -/
 lemma disjoint_1_5 : Disjoint segment1 segment5 := by
-  sorry
+  refine Set.disjoint_left.mpr ?_;
+  intro p hp hp'; obtain ⟨ u, v, hu, hv, huv, rfl ⟩ := hp; obtain ⟨ w, z, hw, hz, hwz, hp' ⟩ := hp';
+  unfold sigma at hp';
+  unfold X_point Y_point at * ; norm_num at *;
+  have h_y : w * x1 + z = u * 0 + v * V_point 1 := by
+    have hcoord := congrArg (fun q : Point => q 1) hp'
+    norm_num [O_point, V_point, hwz] at hcoord ⊢
+    exact hcoord
+  have h_y_contra : w * x1 + z > w * 0.95 + z := by
+    have hmul : w * 0.95 < w * x1 := mul_lt_mul_of_pos_left x1_prop.1 hw
+    nlinarith
+  have h_y_large : w * x1 + z > 0.95 := by
+    nlinarith
+  have h_y_small : u * 0 + v * V_point 1 < 0.26 := by
+    have hV := V_bounds
+    nlinarith
+  nlinarith
+
 /-
 segment2 and segment4 are disjoint.
 -/
@@ -3938,7 +4333,32 @@ lemma Region3_blocking : IsBlocking S_finite Region3 := by
 S_finite blocks Region5.
 -/
 lemma Region5_blocking : IsBlocking S_finite Region5 := by
-  sorry
+  -- Apply the triangle diameter lemma to the triangle sigma(X), sigma(A0), sigma(Y).
+  have h_triangle : ∀ L : Set Point, IsUnitSegment L → L ⊆ Region5 → L = openSegment ℝ (sigma X_point) (sigma A_0) ∨ L = openSegment ℝ (sigma A_0) (sigma Y_point) ∨ L = openSegment ℝ (sigma Y_point) (sigma X_point) := by
+    intros L hL hL_sub
+    apply triangle_diameter_lemma;
+    · exact le_of_lt ( dist_sigma_X_sigma_A0_lt_1 );
+    · exact le_of_lt ( by simpa [ dist_comm ] using dist_sigma_A0_sigma_Y_lt_1 );
+    · simpa [dist_comm] using dist_sigma_X_sigma_Y.le;
+    · assumption;
+    · exact hL_sub;
+  intro L hL hL_sub
+  obtain hL_cases | hL_cases | hL_cases := h_triangle L hL hL_sub
+  all_goals generalize_proofs at *;
+  · -- Since $L$ is a unit segment and its endpoints are inside the square, its length must be strictly less than 1.
+    have hL_length_lt_1 : dist (sigma X_point) (sigma A_0) < 1 := by
+      exact dist_sigma_X_sigma_A0_lt_1;
+    exact False.elim <| not_isUnitSegment_of_dist_lt_1 hL_length_lt_1 <| hL_cases ▸ hL;
+  · have h_dist_lt_1 : dist (sigma A_0) (sigma Y_point) < 1 := by
+      convert dist_sigma_A0_sigma_Y_lt_1 using 1
+    generalize_proofs at *; (
+    exact False.elim <| not_isUnitSegment_of_dist_lt_1 h_dist_lt_1 <| hL_cases ▸ hL);
+  · use segment5; simp [hL_cases, S_finite];
+    unfold segment5; simp +decide [ Set.disjoint_left ] ;
+    refine ⟨ ( 1 / 2 : ℝ ) • sigma X_point + ( 1 / 2 : ℝ ) • sigma Y_point, ?_, ?_ ⟩ <;> norm_num [ openSegment_eq_image ];
+    · exact ⟨ 1 / 2, by norm_num ⟩;
+    · exact ⟨ 1 / 2, by norm_num, by ext i; fin_cases i <;> norm_num <;> ring ⟩
+
 /-
 If an open segment is contained in a closed region, its endpoints are also in the region (assuming distinct endpoints).
 -/
@@ -4359,7 +4779,71 @@ lemma S_total_in_UnitSquare : IsInRegion S_total UnitSquare := by
 The diameter of Region6_Total is at most 1.
 -/
 lemma Region6_Total_diameter_le_1 : ∀ x y : Point, x ∈ Region6_Total → y ∈ Region6_Total → dist x y ≤ 1 := by
-  sorry
+  have h_convex_comb : ∀ x y : Point, x ∈ convexHull ℝ {V_point, sigma V_point, Y_point, sigma Y_point, !₂[1, 1]} → y ∈ convexHull ℝ {V_point, sigma V_point, Y_point, sigma Y_point, !₂[1, 1]} → dist x y ≤ max (max (max (max (dist V_point (sigma V_point)) (dist V_point Y_point)) (dist V_point (sigma Y_point))) (dist V_point !₂[1, 1])) (max (max (max (dist (sigma V_point) Y_point) (dist (sigma V_point) (sigma Y_point))) (dist (sigma V_point) !₂[1, 1])) (max (max (dist Y_point (sigma Y_point)) (dist Y_point !₂[1, 1])) (dist (sigma Y_point) !₂[1, 1]))) := by
+    intros x y hx hy
+    have h_convex_comb : ∃ a : Fin 5 → ℝ, (∀ i, 0 ≤ a i) ∧ (∑ i, a i = 1) ∧ x = ∑ i, a i • ![V_point, sigma V_point, Y_point, sigma Y_point, !₂[1, 1]] i := by
+      simp_all +decide [ convexHull_insert ];
+      rcases hx with ⟨ i, hi, j, hj, k, hk, hx ⟩;
+      rcases hx with ⟨ a, b, ha, hb, hab, rfl ⟩ ; rcases hk with ⟨ c, d, hc, hd, hcd, rfl ⟩ ; rcases hj with ⟨ e, f, he, hf, hef, rfl ⟩ ; rcases hi with ⟨ g, h, hg, hh, hgh, rfl ⟩ ; norm_num [ Fin.sum_univ_succ ] at *;
+      refine ⟨ fun i => if i = 0 then a else if i = 1 then b * c else if i = 2 then b * d * e else if i = 3 then b * d * f * g else b * d * f * h, ?_, ?_, ?_ ⟩ <;> simp +decide [ Fin.forall_fin_succ, * ]
+      focus
+        ring_nf
+      · exact ⟨ mul_nonneg hb hc, mul_nonneg ( mul_nonneg hb hd ) he, mul_nonneg ( mul_nonneg ( mul_nonneg hb hd ) hf ) hg, mul_nonneg ( mul_nonneg ( mul_nonneg hb hd ) hf ) hh ⟩;
+      · grind +ring;
+      · ext i ; fin_cases i <;> norm_num [ Matrix.vecHead, Matrix.vecTail ] <;> ring!;
+    have h_convex_comb_y : ∃ b : Fin 5 → ℝ, (∀ i, 0 ≤ b i) ∧ (∑ i, b i = 1) ∧ y = ∑ i, b i • ![V_point, sigma V_point, Y_point, sigma Y_point, !₂[1, 1]] i := by
+      rw [ @convexHull_eq ] at hy;
+      rcases hy with ⟨ ι, t, w, z, hw, hw', hz, rfl ⟩;
+      -- By definition of $z$, we know that $z i$ is one of the vertices $V_point$, $sigma V_point$, $Y_point$, $sigma Y_point$, or $!₂[1, 1]$.
+      have hz_vertices : ∀ i ∈ t, ∃ j : Fin 5, z i = ![V_point, sigma V_point, Y_point, sigma Y_point, !₂[1, 1]] j := by
+        intro i hi; specialize hz i hi; rcases hz with ( h | h | h | h | h ) <;> [ exact ⟨ 0, h ⟩ ; exact ⟨ 1, h ⟩ ; exact ⟨ 2, h ⟩ ; exact ⟨ 3, h ⟩ ; exact ⟨ 4, h ⟩ ] ;
+      choose! j hj using hz_vertices;
+      refine ⟨ fun i => ∑ j ∈ t.filter ( fun k => j k = i ), w j, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ Finset.centerMass ];
+      · exact fun i => Finset.sum_nonneg fun j hj => hw j <| Finset.mem_filter.mp hj |>.1;
+      · rw [ ← hw', Finset.sum_fiberwise ];
+      · simp +decide [ Finset.sum_filter, Finset.sum_smul ];
+        rw [ Finset.sum_comm, Finset.sum_congr rfl ] ; aesop;
+    -- Apply the lemma dist_convex_combination_le with the given conditions.
+    obtain ⟨a, ha_nonneg, ha_sum, hx⟩ := h_convex_comb
+    obtain ⟨b, hb_nonneg, hb_sum, hy⟩ := h_convex_comb_y
+    have h_dist_le : dist x y ≤ ∑ i, ∑ j, a i * b j * dist (![V_point, sigma V_point, Y_point, sigma Y_point, !₂[1, 1]] i) (![V_point, sigma V_point, Y_point, sigma Y_point, !₂[1, 1]] j) := by
+      rw [ hx, hy ];
+      convert dist_convex_combination_le ( fun i _ => ha_nonneg i ) ( fun i _ => hb_nonneg i ) ha_sum hb_sum using 1;
+    refine le_trans h_dist_le ?_;
+    have h_dist_le : ∀ i j, dist (![V_point, sigma V_point, Y_point, sigma Y_point, !₂[1, 1]] i) (![V_point, sigma V_point, Y_point, sigma Y_point, !₂[1, 1]] j) ≤ max (max (max (max (dist V_point (sigma V_point)) (dist V_point Y_point)) (dist V_point (sigma Y_point))) (dist V_point !₂[1, 1])) (max (max (max (dist (sigma V_point) Y_point) (dist (sigma V_point) (sigma Y_point))) (dist (sigma V_point) !₂[1, 1])) (max (max (dist Y_point (sigma Y_point)) (dist Y_point !₂[1, 1])) (dist (sigma Y_point) !₂[1, 1]))) := by
+      simp +decide [ Fin.forall_fin_succ ];
+      simp +decide [ dist_comm ];
+    refine le_trans ( Finset.sum_le_sum fun i _ => Finset.sum_le_sum fun j _ => mul_le_mul_of_nonneg_left ( h_dist_le i j ) ( mul_nonneg ( ha_nonneg i ) ( hb_nonneg j ) ) ) ?_;
+    simp +decide [ ← Finset.mul_sum _ _ _, ← Finset.sum_mul, ha_sum, hb_sum ];
+  -- By calculating the distances between each pair of points, we can verify that they are all less than or equal to 1.
+  have h_dist_V_sigma_V : dist V_point (sigma V_point) = 1 := by
+    exact dist_V_sigma_V
+  have h_dist_V_Y : dist V_point Y_point < 1 := by
+    exact dist_V_Y_lt_1
+  have h_dist_V_sigma_Y : dist V_point (sigma Y_point) < 1 := by
+    exact dist_V_sigma_Y_lt_1
+  have h_dist_V_Corner : dist V_point !₂[1, 1] < 1 := by
+    simpa [Corner_point] using dist_V_Corner_lt_1
+  have h_dist_sigma_V_Y : dist (sigma V_point) Y_point < 1 := by
+    exact dist_sigma_V_Y_lt_1
+  have h_dist_sigma_V_sigma_Y : dist (sigma V_point) (sigma Y_point) < 1 := by
+    convert Region6b_diameter_lt_1 _ _ _ _ using 1;
+    · exact subset_convexHull ℝ _ ( by norm_num );
+    · exact subset_convexHull ℝ _ <| by norm_num;
+  have h_dist_sigma_V_Corner : dist (sigma V_point) !₂[1, 1] < 1 := by
+    simpa [Corner_point] using dist_sigma_V_Corner_lt_1
+  have h_dist_Y_sigma_Y : dist Y_point (sigma Y_point) < 1 := by
+    exact dist_Y_sigma_Y_lt_1
+  have h_dist_Y_Corner : dist Y_point !₂[1, 1] < 1 := by
+    simpa [Corner_point] using dist_Y_Corner_lt_1
+  have h_dist_sigma_Y_Corner : dist (sigma Y_point) !₂[1, 1] < 1 := by
+    have h := sigma_isometry Y_point Corner_point
+    have h' : dist (sigma Y_point) (sigma Corner_point) < 1 := by
+      rw [h]
+      exact dist_Y_Corner_lt_1
+    simpa [Corner_point, sigma] using h'
+  exact fun x y hx hy => le_trans ( h_convex_comb x y hx hy ) ( by exact max_le ( max_le ( max_le ( max_le ( by linarith ) ( by linarith ) ) ( by linarith ) ) ( by linarith ) ) ( max_le ( max_le ( max_le ( by linarith ) ( by linarith ) ) ( by linarith ) ) ( max_le ( max_le ( by linarith ) ( by linarith ) ) ( by linarith ) ) ) )
+
 /-
 S_finite blocks Region6_Total.
 -/
@@ -4601,7 +5085,8 @@ noncomputable def L4 (p : Point) : ℝ := p 0 + p 1 - (1 + y1)
 L3 is 0 at sigma V and sigma Y, and negative at Y.
 -/
 lemma L3_sigma_V : L3 (sigma V_point) = 0 := by
-  sorry
+  simpa [L2, L3, sigma] using L2_V
+
 lemma L3_sigma_Y : L3 (sigma Y_point) = 0 := by
   unfold L3 sigma Y_point;
   simp +zetaDelta at *;
@@ -5264,7 +5749,46 @@ lemma L3_O_neg : L3 O_point < 0 := by
 L2 is non-negative on Region4.
 -/
 lemma Region4_sub_L2_ge_0 : ∀ p ∈ Region4, L2 p ≥ 0 := by
-  sorry
+  -- Since L2 is non-negative at all vertices of Region4, it is non-negative on the convex hull of these vertices.
+  have h_L2_nonneg_vertices : ∀ p ∈ ({X_point, A_0, Y_point} : Set Point), L2 p ≥ 0 := by
+    -- Since L2 is non-negative at X, A0, and Y, it is non-negative on the convex hull of these points.
+    simp [L2_X, L2_A0_pos, L2_Y];
+    exact le_of_lt ( L2_A0_pos );
+  -- Since L2 is non-negative at all vertices of Region4, it is non-negative on the convex hull of these vertices by the properties of convex combinations.
+  intros p hp
+  have h_convex_comb : ∃ (a b c : ℝ), 0 ≤ a ∧ 0 ≤ b ∧ 0 ≤ c ∧ a + b + c = 1 ∧ p = a • X_point + b • A_0 + c • Y_point := by
+    unfold Region4 at hp; simp_all +decide [ convexHull_insert ] ;
+    rcases hp with ⟨ q, ⟨ a, b, ha, hb, hab, rfl ⟩, ⟨ c, d, hc, hd, hcd, rfl ⟩ ⟩ ; exact ⟨ c, hc, d * a, mul_nonneg hd ha, d * b, mul_nonneg hd hb, by nlinarith, by ext i; simpa using by ring ⟩ ;
+  obtain ⟨ a, b, c, ha, hb, hc, habc, rfl ⟩ := h_convex_comb
+  have h_aff :
+      L2 (a • X_point + b • A_0 + c • Y_point) =
+        a * L2 X_point + b * L2 A_0 + c * L2 Y_point := by
+    unfold L2
+    norm_num
+    ring_nf
+    have hsum :
+        y1 * x1 = y1 * a * x1 + y1 * b * x1 + y1 * c * x1 := by
+      calc
+        y1 * x1 = (a + b + c) * (y1 * x1) := by
+          rw [habc]
+          ring
+        _ = y1 * a * x1 + y1 * b * x1 + y1 * c * x1 := by
+          ring
+    rw [hsum]
+    ring
+  have hX := h_L2_nonneg_vertices X_point (by simp)
+  have hA := h_L2_nonneg_vertices A_0 (by simp)
+  have hY := h_L2_nonneg_vertices Y_point (by simp)
+  calc
+    L2 (a • X_point + b • A_0 + c • Y_point) =
+        a * L2 X_point + b * L2 A_0 + c * L2 Y_point := h_aff
+    _ ≥ 0 := by
+      change 0 ≤ a * L2 X_point + b * L2 A_0 + c * L2 Y_point
+      have h1 : 0 ≤ a * L2 X_point := mul_nonneg ha hX
+      have h2 : 0 ≤ b * L2 A_0 := mul_nonneg hb hA
+      have h3 : 0 ≤ c * L2 Y_point := mul_nonneg hc hY
+      linarith
+
 /-
 L3 is non-negative on Region5.
 -/
@@ -6291,7 +6815,33 @@ lemma Region12_subset_FirstQuadrant : ∀ p ∈ Region1 ∪ Region2, 0 ≤ p 0 �
 The point O is an extreme point of Region1 ∪ Region2 and cannot lie in the interior of any unit segment contained in the region.
 -/
 lemma O_extreme_Region12 : ∀ L, IsUnitSegment L → L ⊆ Region1 ∪ Region2 → O_point ∉ L := by
-  sorry
+  intro L hL hL_sub hL_O
+  obtain ⟨a, b, hab⟩ := hL;
+  -- By Region12_subset_FirstQuadrant, a and b are in FirstQuadrant, so a.0 >= 0, a.1 >= 0, b.0 >= 0, b.1 >= 0.
+  have h_a_b_nonneg : 0 ≤ a 0 ∧ 0 ≤ a 1 ∧ 0 ≤ b 0 ∧ 0 ≤ b 1 := by
+    have h_a_b_nonneg : ∀ p ∈ openSegment ℝ a b, 0 ≤ p 0 ∧ 0 ≤ p 1 := by
+      exact fun p hp => Region12_subset_FirstQuadrant p <| hL_sub <| hab.2 ▸ hp;
+    have h_a_b_nonneg : ∀ t ∈ Set.Ioo (0 : ℝ) 1, 0 ≤ (1 - t) * a 0 + t * b 0 ∧ 0 ≤ (1 - t) * a 1 + t * b 1 := by
+      intro t ht; specialize h_a_b_nonneg ( ( 1 - t ) • a + t • b ) ; simp_all +decide [ openSegment_eq_image ] ;
+      exact h_a_b_nonneg t ht.1 ht.2 rfl;
+    have h_a_b_nonneg : Filter.Tendsto (fun t : ℝ => (1 - t) * a 0 + t * b 0) (nhdsWithin 0 (Set.Ioi 0)) (nhds (a 0)) ∧ Filter.Tendsto (fun t : ℝ => (1 - t) * a 1 + t * b 1) (nhdsWithin 0 (Set.Ioi 0)) (nhds (a 1)) := by
+      exact ⟨ tendsto_nhdsWithin_of_tendsto_nhds ( Continuous.tendsto' ( by continuity ) _ _ <| by norm_num ), tendsto_nhdsWithin_of_tendsto_nhds ( Continuous.tendsto' ( by continuity ) _ _ <| by norm_num ) ⟩;
+    have h_a_b_nonneg : 0 ≤ a 0 ∧ 0 ≤ a 1 := by
+      exact ⟨ le_of_tendsto_of_tendsto tendsto_const_nhds h_a_b_nonneg.1 ( Filter.eventually_of_mem ( Ioo_mem_nhdsGT_of_mem ⟨ by norm_num, by norm_num ⟩ ) fun t ht => ‹∀ t ∈ Ioo 0 1, 0 ≤ ( 1 - t ) * a 0 + t * b 0 ∧ 0 ≤ ( 1 - t ) * a 1 + t * b 1› t ht |>.1 ), le_of_tendsto_of_tendsto tendsto_const_nhds h_a_b_nonneg.2 ( Filter.eventually_of_mem ( Ioo_mem_nhdsGT_of_mem ⟨ by norm_num, by norm_num ⟩ ) fun t ht => ‹∀ t ∈ Ioo 0 1, 0 ≤ ( 1 - t ) * a 0 + t * b 0 ∧ 0 ≤ ( 1 - t ) * a 1 + t * b 1› t ht |>.2 ) ⟩;
+    have h_a_b_nonneg : Filter.Tendsto (fun t : ℝ => (1 - t) * a 0 + t * b 0) (nhdsWithin 1 (Set.Iio 1)) (nhds (b 0)) ∧ Filter.Tendsto (fun t : ℝ => (1 - t) * a 1 + t * b 1) (nhdsWithin 1 (Set.Iio 1)) (nhds (b 1)) := by
+      exact ⟨ tendsto_nhdsWithin_of_tendsto_nhds ( Continuous.tendsto' ( by continuity ) _ _ <| by norm_num ), tendsto_nhdsWithin_of_tendsto_nhds ( Continuous.tendsto' ( by continuity ) _ _ <| by norm_num ) ⟩;
+    exact ⟨ by linarith, by linarith, by exact le_of_tendsto_of_tendsto tendsto_const_nhds h_a_b_nonneg.1 ( Filter.eventually_of_mem ( Ioo_mem_nhdsLT zero_lt_one ) fun t ht => by aesop ), by exact le_of_tendsto_of_tendsto tendsto_const_nhds h_a_b_nonneg.2 ( Filter.eventually_of_mem ( Ioo_mem_nhdsLT zero_lt_one ) fun t ht => by aesop ) ⟩;
+  -- Since O = (0,0), we have (1-t)a.0 + tb.0 = 0. Since terms are non-negative and weights are positive, a.0 = 0 and b.0 = 0.
+  have h_a_b_zero : a 0 = 0 ∧ b 0 = 0 ∧ a 1 = 0 ∧ b 1 = 0 := by
+    -- Since O is in L, there exists a t in (0,1) such that O = (1-t)a + tb.
+    obtain ⟨t, ht⟩ : ∃ t ∈ Set.Ioo (0 : ℝ) 1, O_point = (1 - t) • a + t • b := by
+      rw [ hab.2 ] at hL_O; rw [ openSegment_eq_image ] at hL_O; aesop;
+    have h_a_b_zero : (1 - t) * a 0 + t * b 0 = 0 ∧ (1 - t) * a 1 + t * b 1 = 0 := by
+      exact ⟨ by simpa [O_point] using congrArg (fun p : Point => p 0) ht.2.symm,
+        by simpa [O_point] using congrArg (fun p : Point => p 1) ht.2.symm ⟩;
+    exact ⟨ by nlinarith [ ht.1.1, ht.1.2 ], by nlinarith [ ht.1.1, ht.1.2 ], by nlinarith [ ht.1.1, ht.1.2 ], by nlinarith [ ht.1.1, ht.1.2 ] ⟩;
+  simp_all +decide [ show a = 0 from by ext i; fin_cases i <;> tauto, show b = 0 from by ext i; fin_cases i <;> tauto ]
+
 /-
 The sum of coordinates for any point in Region1 ∪ Region2 is at most the sum of coordinates of V.
 -/
@@ -6319,7 +6869,22 @@ lemma Region12_sum_le_V_sum : ∀ p ∈ Region1 ∪ Region2, p 0 + p 1 ≤ V_poi
 If the origin is in the open segment between two points in the first quadrant, then both points must be the origin.
 -/
 lemma origin_in_openSegment_FirstQuadrant_implies_endpoints_zero : ∀ a b : Point, a ∈ FirstQuadrant → b ∈ FirstQuadrant → O_point ∈ openSegment ℝ a b → a = O_point ∧ b = O_point := by
-  sorry
+  -- By definition of open segment, there exists some $t \in (0, 1)$ such that $O_point = (1 - t) • a + t • b$.
+  intro a b ha hb h_open_segment
+  obtain ⟨t, ht₀, ht₁⟩ : ∃ t ∈ Set.Ioo (0 : ℝ) 1, O_point = (1 - t) • a + t • b := by
+    rw [ openSegment_eq_image ] at h_open_segment ; aesop;
+  -- By definition of open segment, we have $0 = (1 - t) * a 0 + t * b 0$ and $0 = (1 - t) * a 1 + t * b 1$.
+  have h_eq0 : 0 = (1 - t) * a 0 + t * b 0 := by
+    simpa [O_point] using congrArg (fun p : Point => p 0) ht₁
+  have h_eq1 : 0 = (1 - t) * a 1 + t * b 1 := by
+    simpa [O_point] using congrArg (fun p : Point => p 1) ht₁;
+  -- Since $a$ and $b$ are in the first quadrant, their coordinates are non-negative. Therefore, the only way for the equations $0 = (1 - t) * a 0 + t * b 0$ and $0 = (1 - t) * a 1 + t * b 1$ to hold is if $a 0 = 0$ and $b 0 = 0$, and similarly for $a 1$ and $b 1$.
+  have h_a0_b0 : a 0 = 0 ∧ b 0 = 0 := by
+    constructor <;> nlinarith [ ha.1, ha.2, hb.1, hb.2, ht₀.1, ht₀.2 ]
+  have h_a1_b1 : a 1 = 0 ∧ b 1 = 0 := by
+    constructor <;> nlinarith [ ht₀.1, ht₀.2, ha.2, hb.2 ];
+  exact ⟨ by ext i; fin_cases i <;> tauto, by ext i; fin_cases i <;> tauto ⟩
+
 /-
 The sum of the coordinates of V is positive.
 -/
@@ -6816,12 +7381,48 @@ lemma Region3_inter_L1_zero : Region3 ∩ {p | L1 p = 0} = {sigma V_point} := by
 The intersection of Region123 and the line L1=0 is the segment V-sigma(V).
 -/
 lemma Region123_inter_L1_zero : Region123 ∩ {p | L1 p = 0} = segment ℝ V_point (sigma V_point) := by
-  sorry
+  -- The intersection of Region12 with {L1=0} is the segment V-sigma V.
+  have h_region12_inter_L1 : Region12 ∩ {p | L1 p = 0} = segment ℝ V_point (sigma V_point) := by
+    -- Apply the lemma Region12_inter_L1_zero to conclude the proof.
+    apply Region12_inter_L1_zero;
+  -- The intersection of Region3 with {L1=0} is the singleton {sigma V}.
+  have h_region3_inter_L1 : Region3 ∩ {p | L1 p = 0} = {sigma V_point} := by
+    -- The intersection of Region3 and the line L1=0 is the singleton {sigma V} by definition.
+    apply Region3_inter_L1_zero;
+  -- The intersection of Region123 with {L1=0} is the union of the intersections of Region12 and Region3 with {L1=0}.
+  have h_union_inter_L1 : (Region12 ∪ Region3) ∩ {p | L1 p = 0} = (Region12 ∩ {p | L1 p = 0}) ∪ (Region3 ∩ {p | L1 p = 0}) := by
+    rw [ Set.union_inter_distrib_right ];
+  rw [Region123, h_union_inter_L1, h_region12_inter_L1, h_region3_inter_L1]
+  ext x
+  simp +decide [segment_eq_image]
+  ring_nf
+  aesop;
+
 /-
 The origin cannot be in a unit segment contained in the first quadrant.
 -/
 lemma O_not_in_unit_segment_FirstQuadrant (L : Set Point) (hL : IsUnitSegment L) (hL_sub : L ⊆ FirstQuadrant) : O_point ∉ L := by
-  sorry
+  -- Apply the lemma that states if the origin is in a unit segment in the first quadrant, then the endpoints must be the origin.
+  have h_endpoints : ∀ a b : Point, a ∈ FirstQuadrant → b ∈ FirstQuadrant → O_point ∈ openSegment ℝ a b → a = O_point ∧ b = O_point := by
+    intros a b ha hb hO
+    apply origin_in_openSegment_FirstQuadrant_implies_endpoints_zero a b ha hb hO;
+  obtain ⟨a, b, hab⟩ : ∃ a b : Point, L = openSegment ℝ a b ∧ dist a b = 1 := by
+    cases hL ; tauto;
+  contrapose! h_endpoints;
+  use a, b;
+  have h_closure : closure L ⊆ FirstQuadrant := by
+    have hFirstQuadrant_closed : IsClosed FirstQuadrant := by
+      have h0 : IsClosed ((fun p : Point => p 0) ⁻¹' Set.Ici (0 : ℝ)) := by
+        simpa using isClosed_Ici.preimage
+          ((EuclideanSpace.proj (𝕜 := ℝ) (ι := Fin 2) 0).continuous)
+      have h1 : IsClosed ((fun p : Point => p 1) ⁻¹' Set.Ici (0 : ℝ)) := by
+        simpa using isClosed_Ici.preimage
+          ((EuclideanSpace.proj (𝕜 := ℝ) (ι := Fin 2) 1).continuous)
+      simpa [FirstQuadrant, Set.preimage, Set.mem_setOf_eq, Set.inter_def] using h0.inter h1
+    exact closure_minimal hL_sub hFirstQuadrant_closed
+  simp_all +decide [ Set.subset_def ];
+  exact ⟨ h_closure a ( left_mem_segment _ _ _ ), h_closure b ( right_mem_segment _ _ _ ), by rintro rfl rfl; norm_num [ dist_eq_norm ] at hab ⟩
+
 /-
 L1 preserves affine combinations.
 -/
@@ -6860,7 +7461,17 @@ def Region1234 : Set Point := Region123 ∪ Region4
 def Region12345 : Set Point := Region1234 ∪ Region5
 
 lemma Region123_blocking : IsBlocking S_finite Region123 := by
-  sorry
+  have hR12 : IsClosed Region12 := by
+    simpa [Region12] using
+      (Region12_eq_convexHull.symm ▸
+        (Set.toFinite ({O_point, V_point, sigma V_point, X_point} : Set Point)).isClosed_convexHull ℝ)
+  have hR3 : IsClosed Region3 := by
+    simpa [Region3] using
+      (Set.toFinite ({O_point, sigma V_point, sigma X_point} : Set Point)).isClosed_convexHull ℝ
+  change IsBlocking S_finite (Region12 ∪ Region3)
+  exact blocking_union_lemma hR12 hR3 Region12_blocking_thm Region3_blocking
+    Region12_inter_Region3_cover
+
 /-
 If S blocks R1 and R2, and the intersection of R1 and R2 within U is covered by S, then S blocks the union of R1 and R2 within U.
 -/
@@ -6996,7 +7607,13 @@ lemma L2_affine : ∀ (x y : Point) (a b : ℝ), a + b = 1 → L2 (a • x + b �
 If L2 is non-positive on a set s, it is non-positive on the convex hull of s.
 -/
 lemma L2_convex_hull_le_0 (s : Set Point) (hs : ∀ p ∈ s, L2 p ≤ 0) : ∀ p ∈ convexHull ℝ s, L2 p ≤ 0 := by
-  sorry
+  have h_convex : Convex ℝ {p : Point | L2 p ≤ 0} := by
+    intro p hp q hq a b ha hb hab
+    rw [Set.mem_setOf_eq] at hp hq ⊢
+    rw [L2_affine p q a b hab]
+    nlinarith
+  exact fun p hp => h_convex.convexHull_subset_iff.mpr hs hp
+
 /-
 L2 is non-positive on Region1.
 -/
@@ -7161,7 +7778,26 @@ lemma Region4_blocking_thm : IsBlocking S_finite Region4 := by
 The intersection of segment XV and Region_Square is covered by S_finite.
 -/
 lemma segment_XV_covered_by_S_finite : ∀ x ∈ segment ℝ X_point V_point, x ∈ Region_Square → ∃ s ∈ S_finite, x ∈ s := by
-  sorry
+  intro x hx hx'
+  by_cases hxV : x = V_point;
+  · exact ⟨ segment4, by simp +decide [ S_finite ], hxV.symm ▸ V_on_segment4 ⟩;
+  · -- Since $x$ is in $(X, V)$, we have $x \in \text{openSegment} \, \mathbb{R} \, X \, V$.
+    have hx_openSegment : x ∈ openSegment ℝ X_point V_point := by
+      rw [ segment_eq_image ] at hx;
+      rcases hx with ⟨ θ, ⟨ hθ₀, hθ₁ ⟩, rfl ⟩ ; cases lt_or_eq_of_le hθ₀ <;> cases lt_or_eq_of_le hθ₁ <;> simp_all +decide [ openSegment_eq_image ] ;
+      · exact ⟨ θ, ⟨ by linarith, by linarith ⟩, rfl ⟩;
+      · subst_vars; exact absurd hx' ( by unfold Region_Square; norm_num [ X_point, V_point ] ) ;
+    -- Since $V$ is in $\text{openSegment} \, \mathbb{R} \, X \, Y$, we have $x \in \text{openSegment} \, \mathbb{R} \, X \, Y$.
+    have hx_openSegment_Y : x ∈ openSegment ℝ X_point Y_point := by
+      -- Since $V$ is in $(X, Y)$, we have $V \in \text{openSegment} \, \mathbb{R} \, X_point \, Y_point$.
+      have hV_openSegment : V_point ∈ openSegment ℝ X_point Y_point := by
+        simpa [segment4] using V_on_segment4
+      obtain ⟨ a, b, ha, hb, hab, rfl ⟩ := hx_openSegment;
+      obtain ⟨ c, d, hc, hd, hcd, h ⟩ := hV_openSegment;
+      refine ⟨ a + b * c, b * d, ?_, ?_, ?_, ?_ ⟩ <;> try nlinarith;
+      rw [ ← h ] ; ext i ; norm_num ; ring;
+    exact ⟨ _, Set.mem_insert_of_mem _ ( Set.mem_insert_of_mem _ ( Set.mem_insert_of_mem _ ( Set.mem_insert _ _ ) ) ), hx_openSegment_Y ⟩
+
 /-
 Region1234 is blocked by S_finite in Region_Square.
 -/
@@ -7302,7 +7938,8 @@ lemma Region1234_inter_Region5_subset_segment_sigmaX_sigmaY : Region1234 ∩ Reg
 Region1234 is closed.
 -/
 lemma Region1234_isClosed : IsClosed Region1234 := by
-  sorry
+  simpa [Region1234] using IsClosed.union ( Region123_isClosed ) ( Region4_isClosed )
+
 /-
 Region12345 is blocked by S_finite in Region_Square.
 -/
@@ -7763,7 +8400,26 @@ lemma Region6_Total_eq_convexHull_S_verts : Region6_Total = convexHull ℝ S_ver
 Region6_Total is symmetric under sigma.
 -/
 lemma Region6_Total_symmetric : ∀ p, p ∈ Region6_Total ↔ sigma p ∈ Region6_Total := by
-  sorry
+  intro p;
+  -- By definition of $Region6_Total$, we know that $p \in Region6_Total$ if and only if $p$ is in the convex hull of $S_verts$.
+  simp [Region6_Total_eq_convexHull_S_verts];
+  -- By definition of convex hull, we know that $p \in \text{conv}(S_verts)$ if and only if there exist points $x_1, x_2, \ldots, x_n \in S_verts$ and coefficients $a_1, a_2, \ldots, a_n \geq 0$ with $\sum_{i=1}^n a_i = 1$ such that $p = \sum_{i=1}^n a_i x_i$.
+  simp [convexHull];
+  constructor <;> intro h a ha ha' <;> have := h ( a.preimage ( fun x => sigma x ) ) ?_ ?_ <;> simp_all +decide [ Set.preimage ];
+  · intro x hx
+    have := ha hx
+    rcases hx with ( rfl | rfl | rfl | rfl | rfl ) <;>
+      simp_all +decide [ S_verts, Set.insert_subset_iff, sigma, V_point, Y_point, Corner_point ]
+  · intro x hx y hy a b ha hb hab; simp_all +decide [ sigma ] ;
+    convert ha' hx hy ha hb hab using 1 ; ext i ; fin_cases i <;> norm_num;
+  · convert this using 1 ; ext i ; fin_cases i <;> rfl;
+  · -- Since $S_verts$ is closed under $\sigma$, for any $x \in S_verts$, $\sigma(x) \in S_verts$.
+    have h_sigma_S_verts : ∀ x ∈ S_verts, sigma x ∈ S_verts := by
+      unfold S_verts; aesop;
+    exact fun x hx => ha ( h_sigma_S_verts x hx );
+  · intro x hx y hy a b ha hb hab; simp_all +decide [ sigma ] ;
+    convert ha' hx hy ha hb hab using 1 ; ext i ; fin_cases i <;> norm_num
+
 /-
 The intersection of Region5 and Region6_Total is contained in the segment connecting sigma V and sigma Y.
 -/
@@ -7794,12 +8450,35 @@ lemma Region5_inter_Region6_Total_subset : Region5 ∩ Region6_Total ⊆ segment
 The segment connecting V and Y, excluding Y, is contained in segment4.
 -/
 lemma segment_V_Y_diff_Y_subset_segment4 : segment ℝ V_point Y_point \ {Y_point} ⊆ segment4 := by
-  sorry
+  unfold segment4;
+  -- Since $V$ is between $X$ and $Y$, any point on the segment from $V$ to $Y$ (excluding $Y$) is in the open segment from $X$ to $Y$.
+  have hV_between_XY : V_point ∈ openSegment ℝ X_point Y_point := by
+    simpa [segment4] using V_on_segment4
+  obtain ⟨ a, b, ha, hb, hab, h ⟩ := hV_between_XY;
+  intro x hx; obtain ⟨ u, v, hu, hv, huv, rfl ⟩ := hx.1; simp_all +decide [ ← eq_sub_iff_add_eq' ] ;
+  refine ⟨ u * a, 1 - u * a, ?_, ?_, ?_ ⟩ <;> try nlinarith;
+  · cases lt_or_eq_of_le hu <;> aesop;
+  · exact ⟨ by linarith, by rw [ show V_point = a • X_point + ( 1 - a ) • Y_point by ext i; have := congrArg (fun p : Point => p i) h; norm_num at *; linarith ] ; ext i; norm_num; ring ⟩
+
 /-
 The segment connecting sigma V and sigma Y, excluding sigma Y, is contained in segment5.
 -/
 lemma segment_sigmaV_sigmaY_diff_sigmaY_subset_segment5 : segment ℝ (sigma V_point) (sigma Y_point) \ {sigma Y_point} ⊆ segment5 := by
-  sorry
+  -- By definition of segment5, if x is in segment ℝ � (�sigma V_point) (sigma Y_point) and x ≠ sigma Y_point, then x must be in segment5.
+  intros x hx
+  obtain ⟨hx_segment, hx_ne⟩ := hx;
+  -- By definition of segment, � there� exists t ∈ [0, 1] such that x = t • sigma V_point + (1 - t) • sigma Y_point.
+  obtain ⟨t, ht₀, ht₁⟩ : ∃ t ∈ Set.Icc (0 : ℝ) 1, x = t • sigma V_point + (1 - t) • sigma Y_point := by
+    rw [ segment_eq_image ] at hx_segment;
+    rcases hx_segment with ⟨ t, ht, rfl ⟩ ; exact ⟨ 1 - t, ⟨ by linarith [ ht.1, ht.2 ], by linarith [ ht.1, ht.2 ] ⟩, by ring_nf ⟩ ;
+  cases eq_or_lt_of_le ht₀.1 <;> cases eq_or_lt_of_le ht₀.2 <;> simp_all +decide [ segment_eq_image ];
+  · aesop;
+  · exact sigma_V_on_segment5;
+  · have h_open_segment : sigma V_point ∈ openSegment ℝ (sigma X_point) (sigma Y_point) := by
+      simpa [segment5] using sigma_V_on_segment5
+    obtain ⟨ u, v, hu, hv, huv, h ⟩ := h_open_segment;
+    exact ⟨ t * u, t * v + ( 1 - t ), by nlinarith, by nlinarith, by nlinarith, by ext i; have := congrArg (fun p : Point => p i) h; norm_num at *; nlinarith ⟩
+
 /-
 Y is not in the open unit square.
 -/

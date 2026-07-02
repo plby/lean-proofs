@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
+/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 621.
 https://www.erdosproblems.com/forum/thread/621
@@ -907,7 +907,73 @@ lemma F2_eq (G : Trigraph V) :
     + 2 * (G.P4 + G.C4 - G.K13)
     + 4 * (G.P4 - G.D)
     - 4 * G.R := by
-      sorry
+  -- Apply the definitions of `A`, `B`, and `C` from the provided solution.
+  have h_F2_decomp :
+      G.F2 =
+        ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+          2 * G.s u v * (3 * G.s w x + G.c w x) * (G.s u w + G.s v w) *
+            (1 - G.s u x - G.s v x) +
+        ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+          G.s u v * (1 - G.s u w - G.s v w) *
+            (1 - G.s u x - G.s v x) +
+        ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+          4 * G.s u v * G.s w x * G.s u w * G.s v x := by
+    unfold Trigraph.F2
+    simpa only [ ← sum_add_distrib ] using
+      Finset.sum_congr rfl fun u hu =>
+      Finset.sum_congr rfl fun v hv =>
+      Finset.sum_congr rfl fun w hw =>
+      Finset.sum_congr rfl fun x hx => by
+        unfold Trigraph.f2;
+        ring_nf;
+  have h_A :
+      ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+        2 * G.s u v * (3 * G.s w x + G.c w x) * (G.s u w + G.s v w) *
+          (1 - G.s u x - G.s v x) =
+      12 * G.P4 +
+        2 * ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+          G.s u v * G.c w x * (G.s u w + G.s v w) *
+            (1 - G.s u x - G.s v x) := by
+    have h_A :
+        ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+          2 * G.s u v * (3 * G.s w x) * (G.s u w + G.s v w) *
+            (1 - G.s u x - G.s v x) =
+        12 * G.P4 := by
+      convert congr_arg ( · * 6 ) ( fbound1 G ) using 1
+      · ring_nf
+        simp +decide only [Finset.sum_mul _ _ _];
+        congr;
+        ext;
+        congr;
+        ext;
+        congr;
+        ext;
+        congr;
+        ext;
+        ring_nf;
+      · ring_nf;
+    simp +decide only [mul_add, mul_left_comm, mul_assoc, Finset.mul_sum _ _ _];
+    rw [ ← h_A ];
+    rw [ ← Finset.sum_add_distrib ];
+    congr;
+    ext;
+    rw [ ← Finset.sum_add_distrib ];
+    congr;
+    ext;
+    rw [ ← Finset.sum_add_distrib ];
+    congr;
+    ext;
+    rw [ ← Finset.sum_add_distrib ];
+    congr;
+    ext;
+    ring_nf;
+  have h_C :
+      ∑ u : V, ∑ v : V, ∑ w : V, ∑ x : V,
+        4 * G.s u v * G.s w x * G.s u w * G.s v x = 4 * G.C4 := by
+    simp +decide only [← mul_assoc, ← sum_s_s_s_s_eq_C4];
+    simp +decide only [mul_assoc, Finset.mul_sum _ _ _];
+  linarith [ bigsum_identity G ]
+
 /-- **Key bound:** F₂(G) ≤ (card V)² · S_total -/
 theorem F2_le (G : Trigraph V) :
     G.F2 ≤ (Fintype.card V) ^ 2 * G.S_total := by
@@ -1259,7 +1325,73 @@ private lemma two_coloring_sum_le (G : Trigraph V) (u₀ v₀ : V) (huv : G.s u�
     (hχ₁_B : ∀ w, G.s u₀ w = 1 → χ₁ w = true) :
     G.edgesWithin χ₁ + G.edgesWithin χ₂ + 2 * G.S_total ≤
     ∑ w : V, ∑ x : V, G.f2 u₀ v₀ w x := by
-      sorry
+  revert hχ₂_on_Z hχ_off_Z hχ₁_A hχ₁_B;
+  intro hχ₂_on_Z hχ_off_Z hχ₁_A hχ₁_B
+  have h_sum :
+      ∑ w : V, ∑ x : V,
+        (2 * ((G.c w x + G.s w x) * (if χ₁ w = χ₁ x then 1 else 0) +
+          (G.c w x + G.s w x) * (if χ₂ w = χ₂ x then 1 else 0) +
+          2 * G.s w x -
+          2 * (if w ∈ Z then 1 else 0) * (if x ∈ Z then 1 else 0) *
+            ((G.c w x + G.s w x) * (if χ₁ w = χ₁ x then 1 else 0) +
+              G.s w x))) ≤
+      ∑ w : V, ∑ x : V, G.f2 u₀ v₀ w x +
+        ∑ w : V, ∑ x : V, G.f2 u₀ v₀ x w - 2 * (Z.card : ℤ) ^ 2 := by
+    have h_sum :
+        ∑ w : V, ∑ x : V,
+          (2 * ((G.c w x + G.s w x) * (if χ₁ w = χ₁ x then 1 else 0) +
+            (G.c w x + G.s w x) * (if χ₂ w = χ₂ x then 1 else 0) +
+            2 * G.s w x -
+            2 * (if w ∈ Z then 1 else 0) * (if x ∈ Z then 1 else 0) *
+              ((G.c w x + G.s w x) * (if χ₁ w = χ₁ x then 1 else 0) +
+                G.s w x))) ≤
+        ∑ w : V, ∑ x : V,
+          (G.f2 u₀ v₀ w x + G.f2 u₀ v₀ x w -
+            2 * (if w ∈ Z then 1 else 0) * (if x ∈ Z then 1 else 0)) := by
+      refine Finset.sum_le_sum fun w hw => Finset.sum_le_sum fun x hx => ?_;
+      have := pairwise_bound G u₀ v₀ w x huv (χ₁ w) (χ₁ x);
+      grind +suggestions;
+    convert h_sum using 1;
+    simp +decide [ Finset.sum_add_distrib, sum_f2_swap ];
+    ring_nf;
+  have h_sum :
+      4 * ∑ w : V, ∑ x : V,
+        (if w ∈ Z then 1 else 0) * (if x ∈ Z then 1 else 0) *
+          ((G.c w x + G.s w x) * (if χ₁ w = χ₁ x then 1 else 0) + G.s w x) ≤
+      2 * (Z.card : ℤ) ^ 2 := by
+    have h_sum :
+        2 * (∑ w : V, ∑ x : V,
+          ((G.c w x + G.s w x) * (if χ₁ w = χ₁ x then 1 else 0) + G.s w x) *
+            (if w ∈ Z then 1 else 0) * (if x ∈ Z then 1 else 0)) ≤
+        (Z.card : ℤ) ^ 2 := by
+      convert IH_as_indicator_bound G u₀ v₀ huv Z hZ χ_Z hIH χ₁ hχ₁_on_Z using 1;
+    have h_reorder :
+        ∑ w : V, ∑ x : V,
+          (if w ∈ Z then 1 else 0) * (if x ∈ Z then 1 else 0) *
+            ((G.c w x + G.s w x) * (if χ₁ w = χ₁ x then 1 else 0) + G.s w x) =
+        ∑ w : V, ∑ x : V,
+          ((G.c w x + G.s w x) * (if χ₁ w = χ₁ x then 1 else 0) + G.s w x) *
+            (if w ∈ Z then 1 else 0) * (if x ∈ Z then 1 else 0) := by
+      exact Finset.sum_congr rfl fun _ _ =>
+        Finset.sum_congr rfl fun _ _ => by ring
+    rw [h_reorder]
+    linarith
+  have h_sum :
+      ∑ w : V, ∑ x : V,
+        (2 * ((G.c w x + G.s w x) * (if χ₁ w = χ₁ x then 1 else 0) +
+          (G.c w x + G.s w x) * (if χ₂ w = χ₂ x then 1 else 0) +
+          2 * G.s w x)) =
+      2 * (G.edgesWithin χ₁ + G.edgesWithin χ₂) + 4 * G.S_total := by
+    simp +decide [ Finset.mul_sum _ _ _, Trigraph.edgesWithin, Trigraph.S_total ] ; ring_nf;
+    simp +decide only [sum_add_distrib, sum_mul _ _ _] ; ring_nf;
+  norm_num [ Finset.mul_sum _ _ _, mul_assoc ] at *;
+  norm_num [ ← Finset.mul_sum _ _ _, ← Finset.sum_mul ] at *;
+  linarith [
+    show
+      ∑ w : V, ∑ x : V, G.f2 u₀ v₀ x w =
+        ∑ w : V, ∑ x : V, G.f2 u₀ v₀ w x
+      from sum_f2_swap G u₀ v₀]
+
 set_option maxHeartbeats 3200000 in
 -- The partition construction proof exceeds the default heartbeat limit.
 theorem partition_construction_bound (G : Trigraph V) (u₀ v₀ : V)

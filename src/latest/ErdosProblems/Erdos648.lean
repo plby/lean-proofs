@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
+/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 648.
 https://www.erdosproblems.com/forum/thread/648
@@ -268,6 +268,18 @@ lemma P_prime_of_ne_one {n : ℕ} (hn : n ≠ 1) (hn0 : n ≠ 0) : Nat.Prime (P 
       ( Finset.le_sup ( f := WithBot.some ) hp_prime );
   aesop
 
+lemma primeCounting_eq_card_filter_Icc (B : ℕ) :
+    Nat.primeCounting B = (Finset.filter Nat.Prime (Finset.Icc 1 B)).card := by
+  rw [Nat.primeCounting, Nat.primeCounting', Nat.count_eq_card_filter_range]
+  congr 1
+  ext p
+  simp only [Finset.mem_filter, Finset.mem_range, Finset.mem_Icc]
+  constructor
+  · rintro ⟨hpB, hp⟩
+    exact ⟨⟨Nat.succ_le_of_lt hp.pos, Nat.lt_succ_iff.mp hpB⟩, hp⟩
+  · rintro ⟨⟨_, hpB⟩, hp⟩
+    exact ⟨Nat.lt_succ_iff.mpr hpB, hp⟩
+
 /-
 The number of elements in l with P(m) <= sqrt(n log n / 2) is at most
 pi(floor(sqrt(n log n / 2))) + 1.
@@ -275,14 +287,68 @@ pi(floor(sqrt(n log n / 2))) + 1.
 lemma card_P_le_plus_one {n : ℕ} {l : List ℕ} (h : is_valid_seq n l) :
     (l.filter (fun m => (P m : ℝ) ≤ Real.sqrt (n * Real.log n / 2))).length ≤
       Nat.primeCounting (Nat.floor (Real.sqrt (n * Real.log n / 2))) + 1 := by
-        sorry
+    -- Apply the lemma that states the length of a list of distinct primes ≤ B is at most pi(B).
+    have h_card_P :
+        (l.filter (fun m => (P m : ℝ) ≤ Real.sqrt (n * Real.log n / 2))).length ≤
+          Nat.primeCounting (Nat.floor (Real.sqrt (n * Real.log n / 2))) + 1 := by
+      have h_distinct_primes :
+          (l.filter (fun m => (P m : ℝ) ≤ Real.sqrt (n * Real.log n / 2))).map P |>.Nodup := by
+        have := P_nodup h;
+        grind
+      have h_card_P :
+          (List.map P
+            (l.filter
+              (fun m => (P m : ℝ) ≤ Real.sqrt (n * Real.log n / 2)))).toFinset ⊆
+            Finset.image (fun p => p)
+              (Finset.filter Nat.Prime
+                (Finset.Icc 1 (Nat.floor (Real.sqrt (n * Real.log n / 2))))) ∪ {1} := by
+        intro p hp;
+        norm_num +zetaDelta at *;
+        rcases hp with ⟨ a, ⟨ ha₁, ha₂ ⟩, rfl ⟩ ;
+        by_cases ha₃ : a = 1 <;>
+          by_cases ha₄ : a = 0 <;>
+          simp_all +decide [ P_prime_of_ne_one ] ;
+        · exact Or.inl <| by unfold P; aesop;
+        · exact absurd ( h.2.1 0 ha₁ ) ( by norm_num );
+        · exact Or.inr ⟨ Nat.pos_of_dvd_of_pos ( P_dvd_n )
+            ( Nat.pos_of_ne_zero ha₄ ), Nat.le_floor ha₂ ⟩;
+      calc
+        (l.filter (fun m => (P m : ℝ) ≤ Real.sqrt (n * Real.log n / 2))).length
+            = (List.map P
+                (l.filter
+                  (fun m => (P m : ℝ) ≤ Real.sqrt (n * Real.log n / 2)))).toFinset.card := by
+              rw [← List.length_map P]
+              rw [List.toFinset_card_of_nodup h_distinct_primes]
+        _ ≤ (Finset.image (fun p => p)
+              (Finset.filter Nat.Prime
+                (Finset.Icc 1 (Nat.floor (Real.sqrt (n * Real.log n / 2))))) ∪ {1}).card :=
+              Finset.card_mono h_card_P
+        _ = Nat.primeCounting (Nat.floor (Real.sqrt (n * Real.log n / 2))) + 1 := by
+              rw [primeCounting_eq_card_filter_Icc]
+              simpa [Finset.union_singleton] using
+                (Finset.card_insert_of_notMem
+                  (s := Finset.filter Nat.Prime
+                    (Finset.Icc 1 (Nat.floor (Real.sqrt (n * Real.log n / 2)))))
+                  (a := 1) (by
+                    intro hmem
+                    exact Nat.not_prime_one (Finset.mem_filter.mp hmem).2))
+    exact h_card_P
+
 /-
 g(n) is bounded by the sum of the bounds for q and P.
 -/
 lemma g_le_card_sum {n : ℕ} (hn : 2 ≤ n) :
     g n ≤ Nat.floor (Real.sqrt (2 * n / Real.log n)) +
       Nat.primeCounting (Nat.floor (Real.sqrt (n * Real.log n / 2))) + 1 := by
-        sorry
+    refine csSup_le ?_ ?_;
+    · -- The empty list is a valid sequence, so the set is nonempty.
+      use 0
+      simp [is_valid_seq];
+    · rintro k ⟨ l, hl, rfl ⟩;
+      have hle := length_le_card_q_union_card_P hl hn |> le_trans <|
+        Nat.add_le_add ( card_q_le hl ) ( card_P_le_plus_one hl )
+      omega
+
 /-
 log(primorial n) is the sum of log p for primes p <= n.
 -/
@@ -878,7 +944,19 @@ The largest prime factor of `next_a prev_a p` is `p` under the given conditions.
 -/
 lemma P_next_a_eq (n prev_a p : ℕ) (h_prime : Nat.Prime p) (h_bound : prev_a + p ≤ n)
   (h_min : Nat.floor (Real.sqrt n) < p) : P (next_a prev_a p) = p := by
-    sorry
+    have h_p_sq_gt_n : p^2 > n := by
+      exact_mod_cast ( by
+        nlinarith only [ Nat.lt_floor_add_one ( Real.sqrt n ), Real.sqrt_nonneg n,
+          Real.sq_sqrt <| Nat.cast_nonneg n,
+          show ( p : ℝ ) ≥ ⌊Real.sqrt n⌋₊ + 1 by exact_mod_cast h_min ] :
+            ( p : ℝ ) ^ 2 > n );
+    have h_lt : prev_a / p + 1 < p := by
+      exact Nat.lt_of_mul_lt_mul_right <| by
+        simpa [next_a, pow_two] using
+          lt_of_le_of_lt (le_trans (next_a_le_add prev_a p) h_bound) h_p_sq_gt_n
+    simpa [next_a] using
+      P_eq_of_mul_lt (prev_a / p + 1) p h_prime h_lt (Nat.succ_pos _)
+
 /-
 Helper lemma: The bound condition for the recursive step holds.
 -/
@@ -943,14 +1021,50 @@ lemma construct_seq_is_valid (primes : List ℕ) (n : ℕ)
   (h_primes_min : ∀ p ∈ primes, Nat.floor (Real.sqrt n) < p)
   (h_sum : primes.sum ≤ n) :
   is_valid_seq n (construct_seq primes) := by
-    sorry
+    refine ⟨ ?_, ?_, ?_ ⟩;
+    · convert construct_seq_increasing primes _;
+      exact fun p hp => Nat.Prime.pos ( h_primes_prime p hp );
+    · exact fun m hm =>
+        ⟨ construct_seq_pos primes ( fun p hp => Nat.Prime.pos ( h_primes_prime p hp ) )
+            m hm,
+          construct_seq_le_n primes n h_sum
+            ( fun p hp => Nat.Prime.pos ( h_primes_prime p hp ) ) m hm ⟩;
+    · -- By definition of `construct_seq`, the largest prime factor of each element is
+      -- exactly the prime used to construct it.
+      have h_map_P : (construct_seq primes).map P = primes := by
+        simpa [construct_seq] using
+          construct_seq_aux_P_eq_new primes n 0 h_primes_min
+            (fun p hp => Nat.Prime.pos ( h_primes_prime p hp ))
+            h_primes_prime (by simpa using h_sum);
+      grind
+
 /-
 The function g(n) is O(sqrt(n / log n)).
 -/
 theorem g_upper_bound_asymptotic :
     (fun n => (g n : ℝ)) =O[atTop]
       (fun n => Real.sqrt ((n : ℝ) / Real.log (n : ℝ))) := by
-        sorry
+    have h_g_le_upper_bound :
+        ∀ᶠ n in atTop, (g n : ℝ) ≤ upper_bound_func n := by
+      -- For n ≥ 2, we have g(n) ≤ upper_bound_func(n) by definition.
+      have h_g_le_upper_bound : ∀ n ≥ 2, (g n : ℝ) ≤ upper_bound_func n := by
+        -- By definition of $g$, $g(n) \leq \text{upper\_bound\_func}(n)$ for
+        -- all $n \geq 2$.
+        intros n hn
+        have h_g_le_upper_bound :
+            (g n : ℝ) ≤ Nat.floor (Real.sqrt (2 * n / Real.log n)) +
+              Nat.primeCounting (Nat.floor (Real.sqrt (n * Real.log n / 2))) + 1 := by
+          exact_mod_cast g_le_card_sum hn;
+        simpa [upper_bound_func, term1, term2, xn, xn_real] using h_g_le_upper_bound;
+      exact Filter.eventually_atTop.mpr ⟨ 2, h_g_le_upper_bound ⟩;
+    refine Asymptotics.IsBigO.trans ?_ ( upper_bound_asymptotic );
+    rw [ Asymptotics.isBigO_iff ];
+    exact ⟨ 1, by
+      filter_upwards [ h_g_le_upper_bound ] with n hn
+      rw [ Real.norm_of_nonneg ( by positivity ),
+        Real.norm_of_nonneg ( by exact le_trans ( by positivity ) hn ) ]
+      linarith ⟩
+
 theorem pi_alt : ∃ c : ℝ → ℝ, c =o[atTop] (fun _ ↦ (1 : ℝ)) ∧
     ∀ x : ℝ, Nat.primeCounting ⌊x⌋₊ = (1 + c x) * x / log x := by
   exact _root_.pi_alt
@@ -1056,7 +1170,318 @@ lemma sum_primes_eq_integral (x : ℝ) (hx : 2 ≤ x) :
 lemma integral_t_div_log_t_asymp :
     (fun x => ∫ t in (2 : ℝ)..x, t / Real.log t) ~[atTop]
       (fun x => x^2 / (2 * Real.log x)) := by
-        sorry
+  -- By integration by parts,
+  -- $\int_2^x \frac{t}{\log t} dt = \frac{x^2}{2 \log x} +
+  -- \int_2^x \frac{t}{2 (\log t)^2} dt$.
+  have h_int_parts :
+      ∀ x : ℝ, 2 ≤ x →
+        ∫ t in (2 : ℝ)..x, t / Real.log t =
+          x^2 / (2 * Real.log x) - 2^2 / (2 * Real.log 2) +
+            ∫ t in (2 : ℝ)..x, t / (2 * (Real.log t)^2) := by
+    intros x hx
+    have h_parts :
+        ∀ a b : ℝ, 2 ≤ a → a ≤ b →
+          ∫ t in a..b, t / Real.log t =
+            (b^2 / (2 * Real.log b)) - (a^2 / (2 * Real.log a)) +
+              ∫ t in a..b, t / (2 * (Real.log t)^2) := by
+      intros a b _ _; rw [ intervalIntegral.integral_eq_sub_of_hasDerivAt ];
+      rotate_right;
+      focus
+        use fun x =>
+          x^2 / ( 2 * Real.log x ) + ∫ t in ( 2 : ℝ )..x, t / ( 2 * Real.log t ^ 2 );
+      · rw [ ← intervalIntegral.integral_add_adjacent_intervals ] <;>
+          ring_nf <;>
+          apply_rules [ ContinuousOn.intervalIntegrable ] <;>
+          norm_num [ Real.log_pos ] at *;
+        · exact continuousOn_of_forall_continuousAt fun t ht =>
+            ContinuousAt.mul
+              ( ContinuousAt.mul continuousAt_id <|
+                ContinuousAt.inv₀
+                  ( ContinuousAt.pow
+                    ( Real.continuousAt_log <|
+                      by cases Set.mem_uIcc.mp ht <;> linarith ) _ ) <|
+                ne_of_gt <| sq_pos_of_pos <| Real.log_pos <|
+                  by cases Set.mem_uIcc.mp ht <;> linarith )
+              continuousAt_const;
+        · exact continuousOn_of_forall_continuousAt fun t ht =>
+            ContinuousAt.mul
+              ( ContinuousAt.mul continuousAt_id <|
+                ContinuousAt.inv₀
+                  ( ContinuousAt.pow
+                    ( Real.continuousAt_log <|
+                      by cases Set.mem_uIcc.mp ht <;> linarith ) _ ) <|
+                ne_of_gt <| sq_pos_of_pos <| Real.log_pos <|
+                  by cases Set.mem_uIcc.mp ht <;> linarith )
+              continuousAt_const;
+      · intro x hx
+        have h_int_deriv :
+            HasDerivAt
+              (fun x => ∫ t in (2 : ℝ)..x, t / (2 * (Real.log t)^2))
+              (x / (2 * (Real.log x)^2)) x := by
+          apply_rules [ intervalIntegral.integral_hasDerivAt_right ];
+          · apply_rules [ ContinuousOn.intervalIntegrable ];
+            exact continuousOn_of_forall_continuousAt fun y hy =>
+              ContinuousAt.div continuousAt_id
+                ( ContinuousAt.mul continuousAt_const <|
+                  ContinuousAt.pow
+                    ( Real.continuousAt_log <| by
+                      cases Set.mem_uIcc.mp hy <;>
+                        linarith [ Set.mem_Icc.mp <| by simpa [ * ] using hx ] ) _ ) <|
+                ne_of_gt <| mul_pos zero_lt_two <| sq_pos_of_pos <|
+                  Real.log_pos <| by
+                    cases Set.mem_uIcc.mp hy <;>
+                      linarith [ Set.mem_Icc.mp <| by simpa [ * ] using hx ];
+          · exact Measurable.stronglyMeasurable
+              ( by
+                exact Measurable.mul ( measurable_id' )
+                  ( Measurable.inv
+                    ( measurable_const.mul ( Real.measurable_log.pow_const 2 ) ) ) ) |>
+              fun h => h.stronglyMeasurableAtFilter;
+          · exact ContinuousAt.div continuousAt_id
+              ( ContinuousAt.mul continuousAt_const
+                ( ContinuousAt.pow
+                  ( Real.continuousAt_log
+                    ( by cases Set.mem_uIcc.mp hx <;> linarith ) ) _ ) )
+              ( mul_ne_zero two_ne_zero
+                ( pow_ne_zero 2 ( ne_of_gt
+                  ( Real.log_pos
+                    ( by cases Set.mem_uIcc.mp hx <;> linarith ) ) ) ) );
+        have hx_ne : x ≠ 0 := by cases Set.mem_uIcc.mp hx <;> linarith
+        have hlog_ne : Real.log x ≠ 0 :=
+          ne_of_gt <| Real.log_pos <| by cases Set.mem_uIcc.mp hx <;> linarith
+        convert HasDerivAt.add
+          ( HasDerivAt.div ( hasDerivAt_pow 2 x )
+            ( HasDerivAt.const_mul 2 ( Real.hasDerivAt_log hx_ne ) )
+            ( mul_ne_zero two_ne_zero hlog_ne ) )
+          h_int_deriv using 1
+        · ext y
+          simp [div_eq_mul_inv, mul_comm]
+        · field_simp [hx_ne, hlog_ne]
+          ring
+      · apply_rules [ ContinuousOn.intervalIntegrable ];
+        exact continuousOn_of_forall_continuousAt fun t ht =>
+          ContinuousAt.div continuousAt_id
+            ( Real.continuousAt_log ( by cases Set.mem_uIcc.mp ht <;> linarith ) )
+            ( ne_of_gt ( Real.log_pos ( by cases Set.mem_uIcc.mp ht <;> linarith ) ) );
+    exact h_parts _ _ le_rfl hx;
+  -- We'll use that $\int_2^x \frac{t}{2 (\log t)^2} dt =
+  -- o(\frac{x^2}{\log x})$.
+  have h_integral_small :
+      Filter.Tendsto
+        (fun x => (∫ t in (2 : ℝ)..x, t / (2 * (Real.log t)^2)) /
+          (x^2 / (2 * Real.log x)))
+        Filter.atTop (nhds 0) := by
+    -- Split the integral at $\sqrt{x}$.
+    have h_integral_split :
+        ∀ x : ℝ, 4 ≤ x →
+          (∫ t in (2 : ℝ)..x, t / (2 * (Real.log t)^2)) ≤
+            (∫ t in (2 : ℝ)..Real.sqrt x, t / (2 * (Real.log t)^2)) +
+              ∫ t in (Real.sqrt x : ℝ)..x, t / (2 * (Real.log t)^2) := by
+      intros x hx
+      have h_split :
+          ∫ t in (2 : ℝ)..x, t / (2 * (Real.log t)^2) =
+            (∫ t in (2 : ℝ)..Real.sqrt x, t / (2 * (Real.log t)^2)) +
+              ∫ t in (Real.sqrt x : ℝ)..x, t / (2 * (Real.log t)^2) := by
+        rw [ intervalIntegral.integral_add_adjacent_intervals ] <;>
+          apply_rules [ ContinuousOn.intervalIntegrable ];
+        · exact continuousOn_of_forall_continuousAt fun t ht =>
+            ContinuousAt.div continuousAt_id
+              ( ContinuousAt.mul continuousAt_const <|
+                ContinuousAt.pow
+                  ( Real.continuousAt_log <| by
+                    cases Set.mem_uIcc.mp ht <;>
+                      nlinarith [ Real.sqrt_nonneg x,
+                        Real.sq_sqrt <| show 0 ≤ x by linarith ] ) _ ) <|
+              ne_of_gt <| mul_pos zero_lt_two <| sq_pos_of_pos <| Real.log_pos <|
+                by
+                  cases Set.mem_uIcc.mp ht <;>
+                    nlinarith [ Real.sqrt_nonneg x,
+                      Real.sq_sqrt <| show 0 ≤ x by linarith ];
+        · exact continuousOn_of_forall_continuousAt fun t ht =>
+            ContinuousAt.div continuousAt_id
+              ( ContinuousAt.mul continuousAt_const <|
+                ContinuousAt.pow
+                  ( Real.continuousAt_log <| by
+                    cases Set.mem_uIcc.mp ht <;>
+                      nlinarith [ Real.sqrt_nonneg x,
+                        Real.sq_sqrt <| show 0 ≤ x by linarith ] ) _ ) <|
+              ne_of_gt <| mul_pos zero_lt_two <| sq_pos_of_pos <| Real.log_pos <|
+                by
+                  cases Set.mem_uIcc.mp ht <;>
+                    nlinarith [ Real.sqrt_nonneg x,
+                      Real.sq_sqrt <| show 0 ≤ x by linarith ];
+      rw [h_split];
+    -- Bound the first part by replacing $\log t$ with $\log 2$.
+    have h_integral_first_part :
+        ∀ x : ℝ, 4 ≤ x →
+          (∫ t in (2 : ℝ)..Real.sqrt x, t / (2 * (Real.log t)^2)) ≤
+            x / (2 * (Real.log 2)^2) := by
+      intros x hx
+      have h_integral_first_part_le :
+          ∫ t in (2 : ℝ)..Real.sqrt x, t / (2 * (Real.log t)^2) ≤
+            ∫ t in (2 : ℝ)..Real.sqrt x, t / (2 * (Real.log 2)^2) := by
+        refine intervalIntegral.integral_mono_on ?_ ?_ ?_ ?_ <;> norm_num;
+        · exact Real.le_sqrt_of_sq_le ( by linarith );
+        · apply_rules [ ContinuousOn.intervalIntegrable ];
+          exact continuousOn_of_forall_continuousAt fun t ht =>
+            ContinuousAt.div continuousAt_id
+              ( ContinuousAt.mul continuousAt_const <|
+                ContinuousAt.pow
+                  ( Real.continuousAt_log <| by
+                    cases Set.mem_uIcc.mp ht <;>
+                      nlinarith [ Real.sqrt_nonneg x,
+                        Real.sq_sqrt <| show 0 ≤ x by linarith ] ) _ ) <|
+              ne_of_gt <| mul_pos zero_lt_two <| sq_pos_of_pos <| Real.log_pos <|
+                by
+                  cases Set.mem_uIcc.mp ht <;>
+                    nlinarith [ Real.sqrt_nonneg x,
+                      Real.sq_sqrt <| show 0 ≤ x by linarith ];
+        · bound;
+      norm_num [ div_eq_mul_inv ] at *;
+      exact h_integral_first_part_le.trans ( by
+        rw [ Real.sq_sqrt ( by positivity ) ]
+        nlinarith [ inv_pos.mpr ( sq_pos_of_pos ( Real.log_pos one_lt_two ) ) ] );
+    -- Bound the second part using $\log(\sqrt{x})$.
+    have h_integral_second_part :
+        ∀ x : ℝ, 4 ≤ x →
+          (∫ t in (Real.sqrt x : ℝ)..x, t / (2 * (Real.log t)^2)) ≤
+            2 * x^2 / (Real.log x)^2 := by
+      intros x hx
+      have h_integral_second_part_bound :
+          ∫ t in (Real.sqrt x : ℝ)..x, t / (2 * (Real.log t)^2) ≤
+            ∫ t in (Real.sqrt x : ℝ)..x,
+              t / (2 * (Real.log (Real.sqrt x))^2) := by
+        refine intervalIntegral.integral_mono_on ?_ ?_ ?_ ?_ <;> norm_num;
+        · rw [ Real.sqrt_le_left ] <;> nlinarith;
+        · apply_rules [ ContinuousOn.intervalIntegrable ];
+          exact continuousOn_of_forall_continuousAt fun t ht =>
+            ContinuousAt.div continuousAt_id
+              ( ContinuousAt.mul continuousAt_const <|
+                ContinuousAt.pow
+                  ( Real.continuousAt_log <| by
+                    cases Set.mem_uIcc.mp ht <;>
+                      nlinarith [ Real.sqrt_nonneg x,
+                        Real.sq_sqrt <| show 0 ≤ x by linarith ] ) _ ) <|
+              ne_of_gt <| mul_pos zero_lt_two <| sq_pos_of_pos <| Real.log_pos <|
+                by
+                  cases Set.mem_uIcc.mp ht <;>
+                    nlinarith [ Real.sqrt_nonneg x,
+                      Real.sq_sqrt <| show 0 ≤ x by linarith ] ;
+        · intro t ht₁ ht₂; gcongr;
+          · linarith [ Real.sqrt_nonneg x ];
+          · exact mul_pos zero_lt_two
+              ( sq_pos_of_pos ( Real.log_pos ( Real.lt_sqrt_of_sq_lt ( by linarith ) ) ) );
+          · exact Real.log_nonneg <| Real.le_sqrt_of_sq_le <| by linarith;
+      refine le_trans h_integral_second_part_bound ?_;
+      norm_num [ Real.log_sqrt ( show 0 ≤ x by linarith ) ] ; ring_nf ; norm_num;
+      exact le_add_of_le_of_nonneg
+        ( le_mul_of_one_le_right ( by positivity ) ( by norm_num ) ) ( by positivity );
+    have h_integral_combined :
+        ∀ x : ℝ, 4 ≤ x →
+          (∫ t in (2 : ℝ)..x, t / (2 * (Real.log t)^2)) ≤
+            x / (2 * (Real.log 2)^2) + 2 * x^2 / (Real.log x)^2 := by
+      exact fun x hx => le_trans ( h_integral_split x hx )
+        ( add_le_add ( h_integral_first_part x hx ) ( h_integral_second_part x hx ) );
+    have h_ratio_simplified :
+        ∀ x : ℝ, 4 ≤ x →
+          (∫ t in (2 : ℝ)..x, t / (2 * (Real.log t)^2)) /
+              (x^2 / (2 * Real.log x)) ≤
+            (Real.log x / (x * (Real.log 2)^2)) + (4 / Real.log x) := by
+      intro x hx;
+      have hx_pos : 0 < x := by linarith
+      have hlog_pos : 0 < Real.log x := Real.log_pos (by linarith)
+      refine le_trans
+        (div_le_div_of_nonneg_right ( h_integral_combined x hx )
+          ( show 0 ≤ x ^ 2 / ( 2 * Real.log x ) from
+            div_nonneg ( sq_nonneg _ )
+              ( mul_nonneg zero_le_two hlog_pos.le ) ) ) ?_
+      have h_simplify :
+          (x / (2 * (Real.log 2)^2) + 2 * x^2 / (Real.log x)^2) /
+              (x^2 / (2 * Real.log x)) =
+            Real.log x / (x * (Real.log 2)^2) + 4 / Real.log x := by
+        field_simp [hx_pos.ne', hlog_pos.ne', sq]
+        ring
+      exact le_of_eq h_simplify
+    -- We'll use that both error terms tend to $0$ as $x \to \infty$.
+    have h_tendsto_zero :
+        Filter.Tendsto (fun x : ℝ => Real.log x / (x * (Real.log 2)^2))
+          Filter.atTop (nhds 0) ∧
+        Filter.Tendsto (fun x : ℝ => 4 / Real.log x) Filter.atTop (nhds 0) := by
+      constructor;
+      · -- We use that $\frac{\log x}{x}$ tends to $0$ as $x$ tends to infinity.
+        have h_log_x_over_x :
+            Filter.Tendsto (fun x : ℝ => Real.log x / x) Filter.atTop (nhds 0) := by
+          -- Substitute $y = 1 / x$ and rewrite the limit.
+          suffices h_log_recip :
+              Filter.Tendsto (fun y : ℝ => y * Real.log (1 / y))
+                (Filter.map (fun x => 1 / x) Filter.atTop) (nhds 0) by
+            exact h_log_recip.congr ( by simp +contextual [ div_eq_inv_mul ] );
+          norm_num;
+          exact tendsto_nhdsWithin_of_tendsto_nhds
+            ( by simpa using Real.continuous_mul_log.neg.tendsto 0 );
+        simpa [ div_mul_eq_div_div ] using h_log_x_over_x.div_const ( Real.log 2 ^ 2 );
+      · exact tendsto_const_nhds.div_atTop ( Real.tendsto_log_atTop );
+    refine squeeze_zero_norm' ?_ ( by simpa using h_tendsto_zero.1.add h_tendsto_zero.2 );
+    filter_upwards [ Filter.eventually_ge_atTop 4 ] with x hx using by
+      rw [ Real.norm_of_nonneg
+        ( div_nonneg
+          ( intervalIntegral.integral_nonneg ( by linarith ) fun t ht =>
+            div_nonneg ( by linarith [ ht.1 ] ) ( by positivity ) )
+          ( by
+            exact div_nonneg ( sq_nonneg _ )
+              ( by
+                exact mul_nonneg zero_le_two ( Real.log_nonneg ( by linarith ) ) ) ) ) ]
+      exact h_ratio_simplified x hx;
+  -- Combine the integration-by-parts pieces.
+  have h_combined :
+      Filter.Tendsto
+        (fun x =>
+          ((x^2 / (2 * Real.log x) - 2^2 / (2 * Real.log 2) +
+              ∫ t in (2 : ℝ)..x, t / (2 * (Real.log t)^2)) /
+            (x^2 / (2 * Real.log x))))
+        Filter.atTop (nhds 1) := by
+    -- We can simplify the expression inside the limit.
+    suffices h_simplify :
+        Filter.Tendsto
+          (fun x =>
+            1 - (2^2 / (2 * Real.log 2)) / (x^2 / (2 * Real.log x)) +
+              (∫ t in (2 : ℝ)..x, t / (2 * (Real.log t)^2)) /
+                (x^2 / (2 * Real.log x)))
+          Filter.atTop (nhds 1) by
+      refine h_simplify.congr' ( by
+        filter_upwards [ Filter.eventually_gt_atTop 2 ] with x hx using by
+          rw [ add_div, sub_div,
+            div_self <| ne_of_gt <| div_pos
+              ( sq_pos_of_pos <| by linarith )
+              ( mul_pos zero_lt_two <| Real.log_pos <| by linarith ) ] );
+    -- The fixed contribution is negligible.
+    have h_const :
+        Filter.Tendsto
+          (fun x => (2^2 / (2 * Real.log 2)) / (x^2 / (2 * Real.log x)))
+          Filter.atTop (nhds 0) := by
+      field_simp;
+      -- Factor out $x^{-2}$ and use that $\log x / x^2 \to 0$.
+      have h_log_x_over_x2 :
+          Filter.Tendsto (fun x => Real.log x / x^2) Filter.atTop (nhds 0) := by
+        refine squeeze_zero_norm' (a := fun x => 1 / x) ?_ ?_;
+        · exact Filter.eventually_atTop.mpr ⟨ 2, fun x hx => by
+            rw [ Real.norm_of_nonneg
+              ( div_nonneg ( Real.log_nonneg ( by linarith ) ) ( sq_nonneg x ) ) ]
+            rw [ div_le_div_iff₀ ] <;>
+              nlinarith [ Real.log_le_sub_one_of_pos ( by linarith : 0 < x ) ] ⟩
+        · exact tendsto_const_nhds.div_atTop Filter.tendsto_id;
+      convert h_log_x_over_x2.const_mul ( 2 ^ 2 / Real.log 2 ) using 2 <;> ring;
+    simpa using Filter.Tendsto.add ( tendsto_const_nhds.sub h_const ) h_integral_small;
+  rw [ Asymptotics.isEquivalent_iff_exists_eq_mul ];
+  exact ⟨ _, h_combined, by
+    filter_upwards [ Filter.eventually_ge_atTop 2 ] with x hx using by
+      rw [ Pi.mul_apply,
+        div_mul_cancel₀ _
+          ( ne_of_gt <| div_pos
+            ( sq_pos_of_pos <| by linarith )
+            ( mul_pos two_pos <| Real.log_pos <| by linarith ) ) ]
+      rw [ h_int_parts x hx ] ⟩
+
 lemma integral_pi_asymp :
     (fun x => ∫ t in (2 : ℝ)..x, (Nat.primeCounting (Nat.floor t) : ℝ)) ~[atTop]
       (fun x => x^2 / (2 * Real.log x)) := by
@@ -1459,7 +1884,129 @@ lemma pi_B_asymp :
     (fun n : ℕ =>
       (Nat.primeCounting (Nat.floor (Real.sqrt (n * Real.log n / 2))) : ℝ))
       ~[atTop] (fun n => Real.sqrt 2 * Real.sqrt (n / Real.log n)) := by
-        sorry
+  have h_pi_asymp :
+      (fun x : ℝ => (Nat.primeCounting (Nat.floor x) : ℝ)) ~[atTop]
+        (fun x => x / Real.log x) := by
+    convert pi_asymp_lemma using 1;
+  have h_subst :
+      (fun n : ℕ =>
+        (Nat.primeCounting (Nat.floor (Real.sqrt (n * Real.log n / 2)) : ℕ) : ℝ))
+        ~[Filter.atTop]
+          (fun n : ℕ =>
+            Real.sqrt (n * Real.log n / 2) /
+              Real.log (Real.sqrt (n * Real.log n / 2))) := by
+    refine h_pi_asymp.comp_tendsto ?_;
+    exact Filter.tendsto_atTop_atTop.mpr fun x =>
+      ⟨ ⌈x ^ 2 * 2⌉₊ + 2, fun n hn =>
+        Real.le_sqrt_of_sq_le <| by
+          nlinarith [ Nat.le_ceil ( x ^ 2 * 2 ),
+            show ( n : ℝ ) ≥ ⌈x ^ 2 * 2⌉₊ + 2 by exact_mod_cast hn,
+            Real.log_inv n ▸ Real.log_le_sub_one_of_pos
+              ( inv_pos.mpr <| show ( n : ℝ ) > 0 by
+                norm_cast
+                linarith ),
+            mul_inv_cancel₀ ( show ( n : ℝ ) ≠ 0 by
+              norm_cast
+              linarith ) ] ⟩;
+  refine h_subst.trans ?_;
+  have h_simplify :
+      (fun n : ℕ =>
+        Real.sqrt (n * Real.log n / 2) /
+          Real.log (Real.sqrt (n * Real.log n / 2)))
+        ~[Filter.atTop]
+          (fun n : ℕ => Real.sqrt (n * Real.log n / 2) / (Real.log n / 2)) := by
+    have h_log_simplify :
+        Filter.Tendsto
+          (fun n : ℕ =>
+            Real.log (Real.sqrt (n * Real.log n / 2)) / (Real.log n / 2))
+          Filter.atTop (nhds 1) := by
+      have h_log_simplify :
+          Filter.Tendsto
+            (fun n : ℕ => (Real.log (n * Real.log n / 2)) / Real.log n)
+            Filter.atTop (nhds 1) := by
+        -- Use $\log(n \log n / 2) = \log n + \log \log n - \log 2$.
+        suffices h_log_simplify :
+            Filter.Tendsto
+              (fun n : ℕ =>
+                (Real.log n + Real.log (Real.log n) - Real.log 2) / Real.log n)
+              Filter.atTop (nhds 1) by
+          refine h_log_simplify.congr' ( by
+            filter_upwards [ Filter.eventually_gt_atTop 1 ] with n hn;
+            rw [ Real.log_div
+              ( by
+                exact ne_of_gt <| mul_pos
+                  ( Nat.cast_pos.mpr <| pos_of_gt hn )
+                  ( Real.log_pos <| Nat.one_lt_cast.mpr hn ) )
+              ( by positivity ),
+              Real.log_mul
+                ( by exact ne_of_gt <| Nat.cast_pos.mpr <| pos_of_gt hn )
+                ( by
+                  exact ne_of_gt <| Real.log_pos <| Nat.one_lt_cast.mpr hn ) ] );
+        -- The $\log \log n / \log n$ term tends to $0$.
+        have h_log_log :
+            Filter.Tendsto (fun n : ℕ => Real.log (Real.log n) / Real.log n)
+              Filter.atTop (nhds 0) := by
+          -- Let $y = \log n$, therefore the expression becomes $\frac{\log y}{y}$.
+          suffices h_log_y :
+              Filter.Tendsto (fun y : ℝ => Real.log y / y) Filter.atTop (nhds 0) by
+            exact h_log_y.comp ( Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop );
+          -- Substitute $z = 1 / y$.
+          suffices h_log_z :
+              Filter.Tendsto (fun z : ℝ => -z * Real.log z)
+                (Filter.map (fun y => 1 / y) Filter.atTop) (nhds 0) by
+            exact h_log_z.congr ( by simp +contextual [ div_eq_inv_mul ] );
+          norm_num +zetaDelta at *;
+          exact tendsto_nhdsWithin_of_tendsto_nhds
+            ( by simpa using Real.continuous_mul_log.neg.tendsto 0 );
+        ring_nf;
+        have h_log_div :
+            Filter.Tendsto (fun n : ℕ => Real.log n * (Real.log n)⁻¹)
+              Filter.atTop (nhds 1) := by
+          refine tendsto_const_nhds.congr' ?_
+          filter_upwards [Filter.eventually_gt_atTop 1] with n hn
+          rw [mul_inv_cancel₀
+            (_root_.ne_of_gt (Real.log_pos (Nat.one_lt_cast.mpr hn)))]
+        have hlim : Filter.Tendsto
+            (fun n : ℕ => Real.log (n : ℝ) * (Real.log (n : ℝ))⁻¹ +
+              Real.log (Real.log (n : ℝ)) * (Real.log (n : ℝ))⁻¹ -
+              Real.log 2 * (Real.log (n : ℝ))⁻¹)
+            Filter.atTop (nhds (1 + (0 - Real.log 2 * 0))) := by
+          refine (h_log_div.add
+            (Filter.Tendsto.sub h_log_log
+              ((show
+                  Filter.Tendsto (fun _ : ℕ => Real.log 2)
+                    Filter.atTop (nhds (Real.log 2)) from
+                  tendsto_const_nhds).mul
+                (tendsto_inv_atTop_zero.comp
+                  (Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop))))).congr' ?_
+          filter_upwards with n
+          simp [Function.comp_def, div_eq_mul_inv, mul_comm]
+          ring_nf
+        simpa using hlim
+      refine h_log_simplify.congr' ( by
+        filter_upwards [ Filter.eventually_gt_atTop 1 ] with n hn;
+        rw [ Real.log_sqrt ( by
+          exact div_nonneg
+            ( mul_nonneg ( Nat.cast_nonneg _ )
+              ( Real.log_nonneg ( Nat.one_le_cast.mpr hn.le ) ) )
+            zero_le_two ) ]
+        field_simp [two_ne_zero] );
+    rw [ Asymptotics.isEquivalent_iff_exists_eq_mul ];
+    refine ⟨
+      fun n => ( Real.log ( Real.sqrt ( n * Real.log n / 2 ) ) /
+        ( Real.log n / 2 ) ) ⁻¹, ?_, ?_ ⟩ <;> norm_num [ div_eq_mul_inv ] at *;
+    · simpa using h_log_simplify.inv₀ ( by norm_num ) |>
+        Filter.Tendsto.congr ( by
+          intros
+          simp +decide [ mul_assoc, mul_comm, mul_left_comm ] );
+    · filter_upwards [ h_log_simplify.eventually_ne one_ne_zero ] with n hn using by
+        by_cases h : Real.log n = 0 <;>
+          simp_all +decide [ mul_assoc, mul_comm, mul_left_comm ] ;
+  refine h_simplify.congr_right ?_
+  filter_upwards with n
+  norm_num
+  grind
+
 lemma pi_A_asymp :
     (fun n : ℕ => (Nat.primeCounting (Nat.floor (Real.sqrt n)) : ℝ)) ~[atTop]
       (fun n => 2 * Real.sqrt n / Real.log n) := by
@@ -1482,7 +2029,204 @@ lemma pi_A_asymp :
 lemma safe_primes_length_asymp :
     (fun n => ((safe_primes n).length : ℝ)) =Θ[atTop]
       (fun n => Real.sqrt ((n : ℝ) / Real.log (n : ℝ))) := by
-        sorry
+  -- `safe_primes` has length $\pi(B_n) - \pi(A_n)$.
+  have h_length :
+      ∀ᶠ n in Filter.atTop,
+        (safe_primes n).length =
+          (Nat.primeCounting (Nat.floor (Real.sqrt (n * Real.log n / 2))) : ℝ) -
+            (Nat.primeCounting (Nat.floor (Real.sqrt n)) : ℝ) := by
+    have h_length :
+        ∀ᶠ n in Filter.atTop,
+          (safe_primes n).length =
+            (Nat.primeCounting (Nat.floor (Real.sqrt (n * Real.log n / 2))) : ℝ) -
+              (Nat.primeCounting (Nat.floor (Real.sqrt n)) : ℝ) := by
+      have h_eventually :
+          ∀ᶠ n in Filter.atTop,
+            Nat.floor (Real.sqrt n) < Nat.floor (Real.sqrt (n * Real.log n / 2)) := by
+        -- It is enough to show the upper endpoint exceeds `sqrt n + 1`.
+        have h_sqrt_ineq :
+            ∀ᶠ n in Filter.atTop,
+              Real.sqrt (n * Real.log n / 2) > Real.sqrt n + 1 := by
+          -- Squaring reduces this to a logarithmic growth estimate.
+          have h_sqrt_ineq :
+              ∀ᶠ n in Filter.atTop,
+                n * Real.log n / 2 > n + 2 * Real.sqrt n + 1 := by
+            -- We'll use that $Real.log n$ grows faster than $2 + 4 / Real.sqrt n + 2 / n$.
+            have h_log_growth :
+                Filter.Tendsto
+                  (fun n : ℝ => Real.log n - (2 + 4 / Real.sqrt n + 2 / n))
+                  Filter.atTop Filter.atTop := by
+              exact Filter.Tendsto.atTop_add ( Real.tendsto_log_atTop )
+                ( Filter.Tendsto.neg ( Filter.Tendsto.add
+                  ( tendsto_const_nhds.add
+                    ( tendsto_const_nhds.div_atTop
+                      ( Filter.tendsto_atTop_atTop.mpr fun x =>
+                        ⟨ x ^ 2 + 1, fun y hy =>
+                          Real.le_sqrt_of_sq_le <| by nlinarith ⟩ ) ) )
+                  ( tendsto_const_nhds.div_atTop Filter.tendsto_id ) ) );
+            filter_upwards [ h_log_growth.eventually_gt_atTop 0,
+              Filter.eventually_gt_atTop 0 ] with n hn hn';
+            ring_nf at hn ⊢;
+            nlinarith [ inv_pos.2 hn', inv_pos.2 ( Real.sqrt_pos.2 hn' ),
+              mul_inv_cancel₀ ( ne_of_gt hn' ),
+              mul_inv_cancel₀ ( ne_of_gt ( Real.sqrt_pos.2 hn' ) ),
+              Real.sqrt_nonneg n, Real.sq_sqrt hn'.le,
+              mul_pos hn' ( Real.sqrt_pos.2 hn' ),
+              mul_pos hn' ( inv_pos.2 ( Real.sqrt_pos.2 hn' ) ),
+              mul_pos ( Real.sqrt_pos.2 hn' ) ( inv_pos.2 hn' ) ];
+          filter_upwards [ h_sqrt_ineq, Filter.eventually_gt_atTop 0 ] with n hn hn'
+            using Real.lt_sqrt_of_sq_lt <| by nlinarith [ Real.mul_self_sqrt hn'.le ] ;
+        filter_upwards [ h_sqrt_ineq, Filter.eventually_gt_atTop 1 ] with n hn hn'
+          using Nat.le_floor <| by
+            push_cast
+            linarith [ Nat.floor_le <| Real.sqrt_nonneg n ] ;
+      have h_length :
+          ∀ᶠ n in Filter.atTop,
+            (safe_primes n).length =
+              Finset.card
+                (Finset.filter Nat.Prime
+                  (Finset.Ioc (Nat.floor (Real.sqrt n))
+                    (Nat.floor (Real.sqrt (n * Real.log n / 2))))) := by
+        filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn ; unfold safe_primes ; aesop;
+      have h_card_eq :
+          ∀ {a b : ℕ}, a ≤ b →
+            (Finset.filter Nat.Prime (Finset.Ioc a b)).card =
+              (Nat.primeCounting b : ℝ) - (Nat.primeCounting a : ℝ) := by
+        intros a b hab
+        simp [Nat.primeCounting];
+        simp +decide [ Nat.primeCounting', Nat.count_eq_card_filter_range ];
+        have hsubset : Finset.filter Nat.Prime (Finset.range (a + 1)) ⊆
+            Finset.filter Nat.Prime (Finset.range (b + 1)) :=
+          Finset.filter_subset_filter _ <| Finset.range_mono <| Nat.succ_le_succ hab
+        rw [ show ( Finset.filter Nat.Prime ( Finset.Ioc a b ) ) =
+            Finset.filter Nat.Prime ( Finset.range ( b + 1 ) ) \
+              Finset.filter Nat.Prime ( Finset.range ( a + 1 ) ) from ?_,
+          Finset.card_sdiff_of_subset hsubset ];
+        · rw [ Nat.cast_sub (Finset.card_mono hsubset) ];
+        · ext; simp [Finset.mem_Ioc, Finset.mem_range, Finset.mem_sdiff];
+          grind +ring;
+      filter_upwards [ h_length, h_eventually.natCast_atTop ] with n hn hn' using by
+        rw [ hn, h_card_eq hn'.le ] ;
+    convert h_length using 1;
+  have h_length_asymp :
+      (fun n : ℕ =>
+        (Nat.primeCounting (Nat.floor (Real.sqrt (n * Real.log n / 2))) : ℝ) -
+          (Nat.primeCounting (Nat.floor (Real.sqrt n)) : ℝ))
+        ~[Filter.atTop] (fun n : ℕ => Real.sqrt 2 * Real.sqrt (n / Real.log n)) := by
+    have h_pi_B_asymp :
+        (fun n : ℕ =>
+          (Nat.primeCounting (Nat.floor (Real.sqrt (n * Real.log n / 2))) : ℝ))
+          ~[Filter.atTop] (fun n : ℕ =>
+            Real.sqrt 2 * Real.sqrt (n / Real.log n)) := by
+      convert pi_B_asymp using 1;
+    have h_pi_A_small :
+        (fun n : ℕ => (Nat.primeCounting (Nat.floor (Real.sqrt n)) : ℝ))
+          =o[Filter.atTop]
+            (fun n : ℕ => Real.sqrt 2 * Real.sqrt (n / Real.log n)) := by
+      have h_pi_A_asymp :
+          (fun n : ℕ => (Nat.primeCounting (Nat.floor (Real.sqrt n)) : ℝ))
+            ~[Filter.atTop] (fun n : ℕ => 2 * Real.sqrt n / Real.log n) := by
+        convert pi_A_asymp using 1;
+      rw [ Asymptotics.isLittleO_iff_tendsto' ] <;> norm_num;
+      · have h_pi_A_asymp :
+            Filter.Tendsto
+              (fun n : ℕ =>
+                (2 * Real.sqrt n / Real.log n) /
+                  (Real.sqrt 2 * Real.sqrt (n / Real.log n)))
+              Filter.atTop (nhds 0) := by
+          -- Simplify the expression inside the limit.
+          suffices h_simplify :
+              Filter.Tendsto
+                (fun n : ℕ => (2 / Real.sqrt 2) * (Real.sqrt (Real.log n))⁻¹)
+                Filter.atTop (nhds 0) by
+            refine h_simplify.congr' ?_;
+            filter_upwards [ Filter.eventually_gt_atTop 1 ] with n hn;
+            field_simp [mul_comm, mul_assoc, mul_left_comm];
+            rw [ Real.sqrt_div ( by positivity ) ];
+            field_simp [
+              Real.log_pos (Nat.one_lt_cast.mpr hn),
+              Real.sqrt_pos.mpr (Real.log_pos (Nat.one_lt_cast.mpr hn)),
+              Real.sqrt_pos.mpr (show (0 : ℝ) < 2 by norm_num)]
+            ring_nf
+            rw [← div_eq_mul_inv]
+            rw [← one_div]
+            rw [div_eq_div_iff
+              (Real.sqrt_pos.mpr (Real.log_pos (Nat.one_lt_cast.mpr hn))).ne'
+              (Real.log_pos (Nat.one_lt_cast.mpr hn)).ne']
+            rw [one_mul, ← sq,
+              Real.sq_sqrt (Real.log_pos (Nat.one_lt_cast.mpr hn)).le]
+          exact tendsto_const_nhds.div_atTop
+            ( Filter.tendsto_atTop_atTop.mpr fun x =>
+              ⟨ Nat.ceil ( Real.exp ( x ^ 2 ) ), fun n hn =>
+                Real.le_sqrt_of_sq_le <| by
+                  simpa using Real.log_le_log ( by positivity ) <| Nat.ceil_le.mp hn ⟩ );
+        rw [ Asymptotics.IsEquivalent ] at *;
+        rw [ Asymptotics.isLittleO_iff_tendsto' ] at * <;> norm_num at *;
+        · convert h_pi_A_asymp.add
+            ( ‹Filter.Tendsto
+                ( fun x : ℕ =>
+                  ( ( x.sqrt.primeCounting : ℝ ) - 2 * Real.sqrt x / Real.log x ) /
+                    ( 2 * Real.sqrt x / Real.log x ) )
+                Filter.atTop ( nhds 0 )›.mul
+              ( show
+                  Filter.Tendsto
+                    ( fun x : ℕ =>
+                      ( 2 * Real.sqrt x / Real.log x ) /
+                        ( Real.sqrt 2 * ( Real.sqrt x / Real.sqrt ( Real.log x ) ) ) )
+                    Filter.atTop ( nhds 0 ) from
+                h_pi_A_asymp ) ) using 2 <;> ring_nf;
+          grind;
+        · exact ⟨ 2, fun n hn hn' => by
+            exfalso
+            rcases hn' with hzero | hsqrt
+            · omega
+            · exact (ne_of_gt <| Real.sqrt_pos.mpr <| Real.log_pos <|
+                show ( n : ℝ ) > 1 by norm_cast) hsqrt ⟩;
+        · exact ⟨ 2, by rintro n hn ( rfl | rfl | hn ) <;> norm_cast at * ⟩;
+      · exact ⟨ 2, fun n hn hn' => by
+          exfalso
+          rcases hn' with hzero | hsqrt
+          · omega
+          · exact (ne_of_gt <| Real.sqrt_pos.mpr <| Real.log_pos <|
+              show ( n : ℝ ) > 1 by norm_cast) hsqrt ⟩;
+    change ((fun n : ℕ =>
+        (Nat.primeCounting (Nat.floor (Real.sqrt (n * Real.log n / 2))) : ℝ)) -
+      fun n : ℕ => (Nat.primeCounting (Nat.floor (Real.sqrt n)) : ℝ)) ~[Filter.atTop]
+        (fun n : ℕ => Real.sqrt 2 * Real.sqrt (n / Real.log n))
+    exact
+      Asymptotics.IsEquivalent.sub_isLittleO h_pi_B_asymp h_pi_A_small;
+  have h_length_asymp :
+      (fun n : ℕ => (safe_primes n).length : ℕ → ℝ) ~[Filter.atTop]
+        (fun n : ℕ => Real.sqrt 2 * Real.sqrt (n / Real.log n)) := by
+    exact h_length_asymp.congr'
+      ( by filter_upwards [ h_length ] with n hn; aesop )
+      ( by filter_upwards [ h_length ] with n hn; aesop );
+  refine ⟨ ?_, ?_ ⟩;
+  · rw [ Asymptotics.isBigO_iff ];
+    rw [ Asymptotics.IsEquivalent ] at h_length_asymp;
+    rw [ Asymptotics.isLittleO_iff ] at h_length_asymp;
+    obtain ⟨ N, hN ⟩ := Filter.eventually_atTop.mp ( h_length_asymp one_half_pos ) ;
+    use 2 * Real.sqrt 2;
+    filter_upwards [ Filter.eventually_ge_atTop N ] with n hn;
+    specialize hN n hn;
+    norm_num at *;
+    rw [ abs_of_nonneg ( Real.sqrt_nonneg _ ),
+      abs_of_nonneg ( Real.sqrt_nonneg _ ),
+      abs_of_nonneg ( Real.sqrt_nonneg _ ) ] at * ;
+    nlinarith [ abs_le.mp hN, Real.sqrt_nonneg 2, Real.sq_sqrt zero_le_two,
+      show 0 ≤ Real.sqrt n / Real.sqrt ( Real.log n ) by positivity ];
+  · rw [ Asymptotics.IsEquivalent ] at h_length_asymp;
+    rw [ Asymptotics.isLittleO_iff ] at h_length_asymp;
+    rw [ Asymptotics.isBigO_iff ];
+    obtain ⟨ c, hc ⟩ :=
+      Filter.eventually_atTop.mp ( h_length_asymp ( show 0 < 1 / 2 by norm_num ) );
+    refine ⟨ 2 * Real.sqrt 2,
+      Filter.eventually_atTop.mpr ⟨ c + 2, fun n hn => ?_ ⟩ ⟩ ;
+    specialize hc n ( by linarith ) ;
+    norm_num [ abs_of_nonneg, Real.sqrt_nonneg ] at *;
+    nlinarith [ abs_le.mp hc, Real.sqrt_nonneg 2, Real.sq_sqrt zero_le_two,
+      show ( 0 : ℝ ) ≤ Real.sqrt n / Real.sqrt ( Real.log n ) by positivity ]
+
 lemma safe_primes_is_valid : ∀ᶠ n in atTop, is_valid_seq n (construct_seq (safe_primes n)) := by
   -- By combining the results from the previous lemmas, we can conclude the proof.
   apply Filter.eventually_atTop.mpr;
