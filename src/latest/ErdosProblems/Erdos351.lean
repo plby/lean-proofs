@@ -1,5 +1,5 @@
 /- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
-import ErdosProblems.PolynomialEgyptianSums
+import Util.PolynomialEgyptianSums
 
 /-! ## #351 wrapper -/
 
