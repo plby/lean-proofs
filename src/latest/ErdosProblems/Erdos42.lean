@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
+/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 42.
 https://www.erdosproblems.com/forum/thread/42
@@ -4058,7 +4058,21 @@ lemma exists_strictMono_subseq_tendsto_countable_family_of_norm_le_one
     ∃ φ : ℕ → ℕ, StrictMono φ ∧
       ∀ i : ι, ∃ z : ℂ,
         Tendsto (fun n => a i (φ n)) atTop (𝓝 z) := by
-          sorry
+  let x : ℕ → (ι → ClosedUnitDisk) := fun n i =>
+    ⟨a i n, by
+      rw [Metric.mem_closedBall, dist_zero_right]
+      exact ha i n⟩
+  letI : CompactSpace ClosedUnitDisk := compactSpace_closedUnitDisk
+  rcases CompactSpace.tendsto_subseq x with ⟨y, φ, hφ, hlim⟩
+  refine ⟨φ, hφ, ?_⟩
+  intro i
+  refine ⟨(y i : ℂ), ?_⟩
+  have hcont :
+      Continuous (fun y : ι → ClosedUnitDisk => ((y i : ClosedUnitDisk) : ℂ)) :=
+    continuous_subtype_val.comp (continuous_apply i)
+  have hi := (hcont.tendsto y).comp hlim
+  simpa [x, Function.comp_def] using hi
+
 /-- Countable diagonal stabilization for decidable relations.  This is the
 relation-theoretic companion to coefficient convergence: after passing to one
 subsequence, every countably indexed yes/no relation is eventually constantly
@@ -4069,7 +4083,29 @@ lemma exists_strictMono_subseq_eventually_const_countable_family
     ∃ φ : ℕ → ℕ, StrictMono φ ∧
       ∀ i : ι, (∀ᶠ n in atTop, P i (φ n)) ∨
         (∀ᶠ n in atTop, ¬ P i (φ n)) := by
-          sorry
+  classical
+  let x : ℕ → (ι → Bool) := fun n i => decide (P i n)
+  rcases CompactSpace.tendsto_subseq x with ⟨y, φ, hφ, hlim⟩
+  refine ⟨φ, hφ, ?_⟩
+  intro i
+  have hcont : Continuous (fun y : ι → Bool => y i) := continuous_apply i
+  have hi : Tendsto (fun n => x (φ n) i) atTop (𝓝 (y i)) :=
+    (hcont.tendsto y).comp hlim
+  have hmem : ({y i} : Set Bool) ∈ 𝓝 (y i) := by
+    exact (isOpen_discrete ({y i} : Set Bool)).mem_nhds rfl
+  have hmem' : ∀ᶠ n in atTop, x (φ n) i ∈ ({y i} : Set Bool) :=
+    hi.eventually hmem
+  have heq : ∀ᶠ n in atTop, x (φ n) i = y i := by
+    filter_upwards [hmem'] with n hn
+    simpa using hn
+  cases hy : y i
+  · right
+    filter_upwards [heq] with n hn
+    simpa [x, hy] using hn
+  · left
+    filter_upwards [heq] with n hn
+    simpa [x, hy] using hn
+
 /-- Relabel a label-frequency assignment after passing a `FourierSeq` to a
 subsequence. -/
 def FourierSeq.subseqLabelFreq
@@ -4112,7 +4148,61 @@ and all formal Fourier coefficients. -/
 theorem FourierSeq.exists_stableSubseqData
     (F : FourierSeq) (labelFreq : LargeLabel → ∀ n, ZMod (F.p n)) :
     ∃ _data : F.StableSubseqData labelFreq, True := by
-      sorry
+  classical
+  let P : ExtractionFreeGroup → ℕ → Prop :=
+    fun w n => F.wordLift labelFreq w n = 0
+  rcases
+      exists_strictMono_subseq_eventually_const_countable_family
+        P with
+    ⟨φ, hφ, hstable⟩
+  let a : ExtractionFreeGroup → ℕ → ℂ := fun w n =>
+    letI : NeZero (F.p (φ n)) := ⟨(F.prime (φ n)).ne_zero⟩
+    F.coeff (φ n) (F.wordLift labelFreq w (φ n))
+  have ha : ∀ w n, ‖a w n‖ ≤ 1 := by
+    intro w n
+    dsimp [a]
+    exact F.norm_coeff_le_one (φ n) (F.wordLift labelFreq w (φ n))
+  rcases
+      exists_strictMono_subseq_tendsto_countable_family_of_norm_le_one
+        a ha with
+    ⟨ψ, hψ, hconv⟩
+  let χ : ℕ → ℕ := fun n => φ (ψ n)
+  have hstrict : StrictMono χ := by
+    simpa [χ, Function.comp_def] using hφ.comp hψ
+  have hstable' : ∀ w : ExtractionFreeGroup,
+      (∀ᶠ n in atTop, F.wordLift labelFreq w (χ n) = 0) ∨
+        (∀ᶠ n in atTop, F.wordLift labelFreq w (χ n) ≠ 0) := by
+    intro w
+    rcases hstable w with hzero | hnonzero
+    · exact Or.inl (by
+        filter_upwards [hψ.tendsto_atTop.eventually hzero] with n hn
+        change F.wordLift labelFreq w (φ (ψ n)) = 0
+        simpa [P] using hn)
+    · exact Or.inr (by
+        filter_upwards [hψ.tendsto_atTop.eventually hnonzero] with n hn
+        change F.wordLift labelFreq w (φ (ψ n)) ≠ 0
+        simpa [P] using hn)
+  have hcoeff : ∀ w : ExtractionFreeGroup, ∃ z : ℂ,
+      Tendsto
+        (fun n =>
+          (letI : NeZero (F.p (χ n)) :=
+              ⟨(F.prime (χ n)).ne_zero⟩;
+            F.coeff (χ n)
+              (F.wordLift labelFreq w (χ n))))
+        atTop (𝓝 z) := by
+    intro w
+    rcases hconv w with ⟨z, hz⟩
+    refine ⟨z, ?_⟩
+    simpa [a, χ] using hz
+  choose coeffLimit hcoeffLimit using hcoeff
+  refine ⟨{
+    φ := χ
+    strictMono_φ := hstrict
+    finiteLift_eventually_stable := hstable'
+    coeffLimit := coeffLimit
+    coeffLimit_tendsto := hcoeffLimit
+  }, trivial⟩
+
 end
 
 end Erdos42.CompactCayley
@@ -4500,7 +4590,9 @@ lemma coeff_tendsto
         letI : NeZero (F.p (data.φ n)) := ⟨(F.prime (data.φ n)).ne_zero⟩;
         F.coeff (data.φ n) (data.finiteLift n γ))
       atTop (𝓝 (data.coeff γ)) := by
-        sorry
+  simpa [coeff, finiteLift, finiteLiftHom_apply] using
+    data.coeffLimit_tendsto (Quotient.out γ)
+
 /-- Quotient generator associated to a large-spectrum label. -/
 noncomputable def generator
     (data : F.StableSubseqData labelFreq) (label : LargeLabel) :
@@ -4813,7 +4905,34 @@ lemma coeff_nonpos_of_ne_zero
 
 lemma coeff_zero_ge_eta (E : CayleyExtraction S) :
     η ≤ (E.coeff 0).re := by
-      sorry
+  have hlim :=
+    Complex.continuous_re.tendsto (E.coeff (0 : E.Group)) |>.comp
+      (E.coeff_tendsto (0 : E.Group))
+  have hdens :
+      ∀ᶠ n in atTop,
+        η ≤
+          (letI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩;
+            (normalizedDftCoeff (S.T (E.φ n)) (E.lift n 0)).re) := by
+    filter_upwards [E.data.finiteLift_zero_eventually_eq_zero] with n hn
+    letI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+    have hp_pos : 0 < (S.p (E.φ n) : ℝ) := by
+      exact_mod_cast Nat.pos_of_ne_zero (S.prime (E.φ n)).ne_zero
+    have hη_div :
+        η ≤ ((S.T (E.φ n)).card : ℝ) / (S.p (E.φ n) : ℝ) :=
+      (le_div_iff₀ hp_pos).mpr (S.T_density (E.φ n))
+    have hlift : E.lift n (0 : E.Group) = (0 : ZMod (S.p (E.φ n))) := by
+      change E.data.finiteLift n (0 : E.data.Group) = 0
+      exact hn
+    have hcoeff_re :
+        ((normalizedDftCoeff (S.T (E.φ n)) (E.lift n 0)).re) =
+          ((S.T (E.φ n)).card : ℝ) / (S.p (E.φ n) : ℝ) := by
+      rw [hlift]
+      rw [normalizedDftCoeff_zero_eq_card_div]
+      simp
+    rw [hcoeff_re]
+    exact hη_div
+  exact le_of_tendsto_of_tendsto tendsto_const_nhds hlim hdens
+
 end CayleyExtraction
 
 /-- Existence of compact-Cayley stable extraction data for a counterexample
@@ -5225,7 +5344,12 @@ lemma characterValue_continuous
 lemma addCharacterValue_continuous
     (E : CayleyExtraction S) (γ : E.Group) :
     Continuous (fun z : E.CompactAddDual => E.addCharacterValue z γ) := by
-      sorry
+  change Continuous (fun z : E.CompactAddDual => E.characterValue z.toMul γ)
+  exact
+    (E.characterValue_continuous γ).comp
+      (E.compactDualAdditiveHomeomorph.symm.continuous)
+
+@[simp]
 lemma integral_addCharacterValue_zero
     (E : CayleyExtraction S) :
     ∫ z : E.CompactAddDual,
@@ -5285,7 +5409,32 @@ lemma integral_addCharacterValue_eq_if_of_separating
 lemma exists_dual_point_ne_one
     (E : CayleyExtraction S) {γ : E.Group} (hγ : γ ≠ 0) :
     ∃ y : E.CompactAddDual, E.addCharacterValue y γ ≠ 1 := by
-      sorry
+  classical
+  obtain ⟨c, hc⟩ :=
+    CharacterModule.exists_character_apply_ne_zero_of_ne_zero
+      (A := E.Group) (a := γ) hγ
+  let ψ : E.Group →+ Additive Circle :=
+    ratAddCircleToCircleAdditive.comp c
+  have hψ : ψ γ ≠ 0 := by
+    intro hzero
+    exact hc (ratAddCircleToCircleAdditive_eq_zero hzero)
+  let mψ : E.DualDomain →* Circle :=
+    AddMonoidHom.toMultiplicativeLeft ψ
+  let z : E.CompactDual :=
+    { toMonoidHom := mψ
+      continuous_toFun := continuous_of_discreteTopology }
+  refine ⟨Additive.ofMul z, ?_⟩
+  intro htriv
+  have hcoe :
+      ((mψ (Multiplicative.ofAdd γ) : Circle) : ℂ) = 1 := by
+    change ((z (Multiplicative.ofAdd γ) : Circle) : ℂ) = 1
+    simpa [addCharacterValue, characterValue] using htriv
+  have hmψ : mψ (Multiplicative.ofAdd γ) = 1 := by
+    exact Subtype.ext hcoe
+  have hcircle : (ψ γ).toMul = 1 := by
+    simpa [mψ, AddMonoidHom.coe_toMultiplicativeLeft] using hmψ
+  exact hψ (toMul_eq_one.mp hcircle)
+
 lemma integral_addCharacterValue
     (E : CayleyExtraction S) (γ : E.Group) :
     ∫ z : E.CompactAddDual, E.addCharacterValue z γ ∂E.haar =
@@ -5442,11 +5591,47 @@ lemma TrigPoly.evalAdd_single_zero
 lemma TrigPoly.continuous_eval
     (E : CayleyExtraction S) (P : E.TrigPoly) :
     Continuous (fun z : E.CompactDual => TrigPoly.eval P z) := by
-      sorry
+  refine Finsupp.induction_linear P ?zero ?add ?single
+  · simpa using (continuous_const :
+      Continuous (fun _ : E.CompactDual => (0 : ℂ)))
+  · intro P Q hP hQ
+    rw [show
+        (fun z : E.CompactDual => TrigPoly.eval (P + Q) z) =
+          fun z => TrigPoly.eval P z + TrigPoly.eval Q z by
+        funext z
+        exact TrigPoly.eval_add P Q z]
+    exact hP.add hQ
+  · intro γ c
+    rw [show
+        (fun z : E.CompactDual =>
+            TrigPoly.eval (Finsupp.single γ c : E.TrigPoly) z) =
+          fun z => c * E.characterValue z γ by
+        funext z
+        exact TrigPoly.eval_single γ c z]
+    exact continuous_const.mul (E.characterValue_continuous γ)
+
 lemma TrigPoly.continuous_evalAdd
     (E : CayleyExtraction S) (P : E.TrigPoly) :
     Continuous (fun z : E.CompactAddDual => TrigPoly.evalAdd P z) := by
-      sorry
+  refine Finsupp.induction_linear P ?zero ?add ?single
+  · simpa using (continuous_const :
+      Continuous (fun _ : E.CompactAddDual => (0 : ℂ)))
+  · intro P Q hP hQ
+    rw [show
+        (fun z : E.CompactAddDual => TrigPoly.evalAdd (P + Q) z) =
+          fun z => TrigPoly.evalAdd P z + TrigPoly.evalAdd Q z by
+        funext z
+        exact TrigPoly.evalAdd_add P Q z]
+    exact hP.add hQ
+  · intro γ c
+    rw [show
+        (fun z : E.CompactAddDual =>
+            TrigPoly.evalAdd (Finsupp.single γ c : E.TrigPoly) z) =
+          fun z => c * E.addCharacterValue z γ by
+        funext z
+        exact TrigPoly.evalAdd_single γ c z]
+    exact continuous_const.mul (E.addCharacterValue_continuous γ)
+
 lemma TrigPoly.integrable_evalAdd
     (E : CayleyExtraction S) (P : E.TrigPoly) :
     Integrable (fun z : E.CompactAddDual => TrigPoly.evalAdd P z) E.haar :=
@@ -5970,7 +6155,43 @@ variable {G : Type*} [AddGroup G]
 
 lemma pairFilter_card_le (Q : Finset G) (γ : G) :
     (pairFiber Q γ).card ≤ Q.card := by
-      sorry
+  classical
+  let fiber := pairFiber Q γ
+  have hmaps :
+      Set.MapsTo (fun pair : G × G => pair.1) (↑fiber : Set (G × G)) (↑Q : Set G) := by
+    intro pair hpair
+    have hpair_fin : pair ∈ fiber := by
+      simpa using hpair
+    have hpair' :
+        pair ∈ (Q.product Q).filter (fun pair : G × G => pair.1 - pair.2 = γ) := by
+      simpa only [fiber, pairFiber] using hpair_fin
+    exact (Finset.mem_product.mp (Finset.mem_filter.mp hpair').1).1
+  have hinj :
+      Set.InjOn (fun pair : G × G => pair.1) (↑fiber : Set (G × G)) := by
+    intro pair hpair pair' hpair' hfirst
+    have hpair_fin : pair ∈ fiber := by
+      simpa using hpair
+    have hpair'_fin : pair' ∈ fiber := by
+      simpa using hpair'
+    have hpair_mem :
+        pair ∈ (Q.product Q).filter (fun pair : G × G => pair.1 - pair.2 = γ) := by
+      simpa only [fiber, pairFiber] using hpair_fin
+    have hpair'_mem :
+        pair' ∈ (Q.product Q).filter (fun pair : G × G => pair.1 - pair.2 = γ) := by
+      simpa only [fiber, pairFiber] using hpair'_fin
+    have hdiff : pair.1 - pair.2 = γ :=
+      (Finset.mem_filter.mp hpair_mem).2
+    have hdiff' : pair'.1 - pair'.2 = γ :=
+      (Finset.mem_filter.mp hpair'_mem).2
+    have hsub : pair.1 - pair.2 = pair.1 - pair'.2 := by
+      simpa [hfirst] using hdiff.trans hdiff'.symm
+    have hsecond : pair.2 = pair'.2 := by
+      simpa [sub_eq_sub_iff_add_eq_add] using hsub
+    exact Prod.ext hfirst hsecond
+  simpa [fiber] using
+    Finset.card_le_card_of_injOn (fun pair : G × G => pair.1)
+      hmaps hinj
+
 lemma of_lowerBound {Q B : Finset G} {M : ℝ}
     (hQ : Q ≠ ∅) (hM : PairCoeffLowerBound Q B M) :
     PairCoeffRealBound Q B M := by
@@ -8106,7 +8327,58 @@ lemma pairFiber_card_map_addEquiv
     (pairFiber (Q.map (addEquivEmbedding e))
         ((addEquivEmbedding e) γ)).card =
       (pairFiber Q γ).card := by
-        sorry
+  classical
+  have hleft :
+      pairFiber (Q.map (addEquivEmbedding e)) ((addEquivEmbedding e) γ) =
+        ((Q.map (addEquivEmbedding e)).product
+          (Q.map (addEquivEmbedding e))).filter
+          (fun pair : H × H => pair.1 - pair.2 =
+            (addEquivEmbedding e) γ) := by
+    ext pair
+    simp [pairFiber]
+  have hright :
+      pairFiber Q γ =
+        (Q.product Q).filter (fun pair : G × G => pair.1 - pair.2 = γ) := by
+    ext pair
+    simp [pairFiber]
+  rw [hleft, hright]
+  symm
+  apply Finset.card_bij (fun pair _hpair => (e pair.1, e pair.2))
+  · intro pair hpair
+    rw [Finset.mem_filter] at hpair
+    rw [Finset.mem_filter]
+    constructor
+    · apply Finset.mem_product.mpr
+      have hprod := Finset.mem_product.mp hpair.1
+      exact
+        ⟨Finset.mem_map.mpr ⟨pair.1, hprod.1, rfl⟩,
+          Finset.mem_map.mpr ⟨pair.2, hprod.2, rfl⟩⟩
+    · have hdiff : e (pair.1 - pair.2) = e γ := congrArg e hpair.2
+      simpa [addEquivEmbedding, e.map_sub] using hdiff
+  · intro pair _hpair pair' _hpair' h
+    exact Prod.ext
+      (e.injective (congrArg Prod.fst h))
+      (e.injective (congrArg Prod.snd h))
+  · intro pair hpair
+    rw [Finset.mem_filter] at hpair
+    have hprod := Finset.mem_product.mp hpair.1
+    rcases Finset.mem_map.mp hprod.1 with ⟨a, haQ, ha⟩
+    rcases Finset.mem_map.mp hprod.2 with ⟨b, hbQ, hb⟩
+    refine ⟨(a, b), ?_, ?_⟩
+    · rw [Finset.mem_filter]
+      constructor
+      · exact Finset.mem_product.mpr ⟨haQ, hbQ⟩
+      · have hdiff :
+            (addEquivEmbedding e) (a - b) = (addEquivEmbedding e) γ := by
+          have htarget :
+              (addEquivEmbedding e) a - (addEquivEmbedding e) b =
+                (addEquivEmbedding e) γ := by
+            rw [ha, hb]
+            exact hpair.2
+          simpa [addEquivEmbedding, e.map_sub] using htarget
+        exact e.injective (by simpa [addEquivEmbedding] using hdiff)
+    · exact Prod.ext ha hb
+
 lemma pairFiber_card_map_addMonoidHom_of_injective
     (f : G →+ H) (hf : Function.Injective f) (Q : Finset G) (γ : G) :
     (pairFiber (Q.map (addMonoidHomEmbedding f hf))
@@ -10102,7 +10374,9 @@ lemma levelOneAddSubgroup_isClosed {G : Type u}
     {g : G → ℝ} (hg : LevelOneSubgroupKernel g)
     (hg_cont : Continuous g) :
     IsClosed (levelOneAddSubgroup g hg : Set G) := by
-      sorry
+  change IsClosed (g ⁻¹' ({1} : Set ℝ))
+  exact isClosed_singleton.preimage hg_cont
+
 lemma levelOneAddSubgroup_proper_of_exists_ne_one {G : Type u}
     [AddCommGroup G] {g : G → ℝ} (hg : LevelOneSubgroupKernel g)
     (hne : ∃ x : G, g x ≠ 1) :
@@ -10383,7 +10657,34 @@ lemma coeff_zero_re_le_one (E : CayleyExtraction S) :
 
 lemma coeff_zero_re_nonneg (E : CayleyExtraction S) :
     0 ≤ (E.coeff (0 : E.Group)).re := by
-      sorry
+  have hlim :=
+    Complex.continuous_re.tendsto (E.coeff (0 : E.Group)) |>.comp
+      (E.coeff_tendsto (0 : E.Group))
+  have hnonneg :
+      ∀ᶠ n in atTop,
+        0 ≤
+          (letI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩;
+            (normalizedDftCoeff (S.T (E.φ n)) (E.lift n 0)).re) := by
+    filter_upwards [E.data.finiteLift_zero_eventually_eq_zero] with n hn
+    letI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+    have hp_pos : 0 < (S.p (E.φ n) : ℝ) := by
+      exact_mod_cast Nat.pos_of_ne_zero (S.prime (E.φ n)).ne_zero
+    have hcard_nonneg :
+        0 ≤ ((S.T (E.φ n)).card : ℝ) / (S.p (E.φ n) : ℝ) := by
+      positivity
+    have hlift : E.lift n (0 : E.Group) = (0 : ZMod (S.p (E.φ n))) := by
+      change E.data.finiteLift n (0 : E.data.Group) = 0
+      exact hn
+    have hcoeff_re :
+        ((normalizedDftCoeff (S.T (E.φ n)) (E.lift n 0)).re) =
+          ((S.T (E.φ n)).card : ℝ) / (S.p (E.φ n) : ℝ) := by
+      rw [hlift]
+      rw [normalizedDftCoeff_zero_eq_card_div]
+      simp
+    rw [hcoeff_re]
+    exact hcard_nonneg
+  exact le_of_tendsto_of_tendsto tendsto_const_nhds hlim hnonneg
+
 /-- Complement Fourier coefficients for the compact limit kernel `g = 1 - f`. -/
 noncomputable def gCoeff (E : CayleyExtraction S) (γ : E.Group) : ℝ :=
   if γ = 0 then 1 - (E.coeff (0 : E.Group)).re else -(E.coeff γ).re
@@ -11222,7 +11523,44 @@ lemma compactSmoothReal_eq_coeff_zero_sub_sum_nonzero_gCoeff
           if γ = 0 then 0
           else (E.fejerTrigPoly Q γ).re * E.gCoeff γ *
             (E.addCharacterValue z γ).re := by
-              sorry
+  classical
+  rw [E.compactSmoothReal_eq_sum_of_support_subset Q z A hAsupport]
+  let t : E.Group → ℝ :=
+    fun γ => (E.fejerTrigPoly Q γ).re * (E.coeff γ).re *
+      (E.addCharacterValue z γ).re
+  let b : E.Group → ℝ :=
+    fun γ => if γ = 0 then 0
+      else (E.fejerTrigPoly Q γ).re * E.gCoeff γ *
+        (E.addCharacterValue z γ).re
+  have ht0 : t 0 = (E.coeff (0 : E.Group)).re := by
+    have hK0c : E.fejerTrigPoly Q (0 : E.Group) = 1 := by
+      simpa [TrigPoly.compactAverage] using
+        E.fejerTrigPoly_compactAverage_eq_one_of_nonempty Q hQ
+    simp [t, hK0c]
+  have ht_ne : ∀ γ ∈ A \ ({0} : Finset E.Group), t γ = -b γ := by
+    intro γ hγ
+    have hne : γ ≠ 0 := by
+      intro hzero
+      exact (Finset.mem_sdiff.mp hγ).2 (by simp [hzero])
+    simp [t, b, hne, E.gCoeff_of_ne_zero hne, mul_assoc]
+  have hsum_t :
+      (∑ γ ∈ A, t γ) =
+        (E.coeff (0 : E.Group)).re +
+          ∑ γ ∈ A \ ({0} : Finset E.Group), -b γ := by
+    rw [Finset.sum_eq_add_sum_sdiff_singleton_of_mem hA0, ht0]
+    congr 1
+    exact Finset.sum_congr rfl ht_ne
+  have hsum_b :
+      (∑ γ ∈ A, b γ) =
+        ∑ γ ∈ A \ ({0} : Finset E.Group), b γ := by
+    rw [Finset.sum_eq_add_sum_sdiff_singleton_of_mem hA0]
+    simp [b]
+  change (∑ γ ∈ A, t γ) =
+    (E.coeff (0 : E.Group)).re - ∑ γ ∈ A, b γ
+  rw [hsum_t, hsum_b]
+  rw [Finset.sum_neg_distrib]
+  ring
+
 lemma abs_compactSmoothReal_sub_fReal_le_of_tsum_tail
     (E : CayleyExtraction S) (Q : Finset E.Group) (hQ : Q ≠ ∅)
     (z : E.CompactAddDual) (A : Finset E.Group)
@@ -11990,7 +12328,69 @@ lemma levelOne_character_eq_one_of_gReal_eq_one
     {x : E.CompactAddDual} (hx : E.gReal x = 1)
     {γ : E.Group} (hγ : 0 < E.gCoeff γ) :
     E.addCharacterValue x γ = 1 := by
-      sorry
+  classical
+  have hre_le : ∀ δ : E.Group, (E.addCharacterValue x δ).re ≤ 1 :=
+    fun δ => E.addCharacterValue_re_le_one x δ
+  have hmul_summable := E.summable_gCoeff_mul_character_re hsum x
+  have hdef_nonneg :
+      ∀ δ : E.Group,
+        0 ≤ E.gCoeff δ - E.gCoeff δ * (E.addCharacterValue x δ).re := by
+    intro δ
+    have hcoeff_nonneg : 0 ≤ E.gCoeff δ := E.gCoeff_nonneg δ
+    have hfactor_nonneg : 0 ≤ 1 - (E.addCharacterValue x δ).re := by
+      linarith [hre_le δ]
+    nlinarith [mul_nonneg hcoeff_nonneg hfactor_nonneg]
+  let dNN : E.Group → NNReal := fun δ =>
+    ⟨E.gCoeff δ - E.gCoeff δ * (E.addCharacterValue x δ).re,
+      hdef_nonneg δ⟩
+  have hdef_summable :
+      Summable fun δ : E.Group =>
+        (E.gCoeff δ - E.gCoeff δ * (E.addCharacterValue x δ).re) := by
+    exact hsum.sub hmul_summable
+  have hdNN_summable : Summable dNN := by
+    rw [← NNReal.summable_coe]
+    change Summable fun δ : E.Group =>
+      E.gCoeff δ - E.gCoeff δ * (E.addCharacterValue x δ).re
+    exact hdef_summable
+  have hdef_tsum_zero :
+      (∑' δ : E.Group,
+        (E.gCoeff δ - E.gCoeff δ * (E.addCharacterValue x δ).re)) = 0 := by
+    have hsub :=
+      hsum.hasSum.sub hmul_summable.hasSum
+    have hsub_tsum :
+        (∑' δ : E.Group,
+          (E.gCoeff δ - E.gCoeff δ * (E.addCharacterValue x δ).re)) =
+          (∑' δ : E.Group, E.gCoeff δ) -
+            (∑' δ : E.Group,
+              E.gCoeff δ * (E.addCharacterValue x δ).re) := by
+      exact hsub.tsum_eq
+    rw [hsub_tsum]
+    rw [htsum, ← E.gReal_eq_tsum_gCoeff_mul_character_re hsum x, hx]
+    ring
+  have hdNN_tsum_zero : (∑' δ : E.Group, dNN δ) = 0 := by
+    apply NNReal.eq
+    rw [NNReal.coe_tsum]
+    change
+      (∑' δ : E.Group,
+        (E.gCoeff δ - E.gCoeff δ * (E.addCharacterValue x δ).re)) = 0
+    exact hdef_tsum_zero
+  by_contra hne
+  have hre_lt : (E.addCharacterValue x γ).re < 1 := by
+    have hle := hre_le γ
+    by_contra hnot
+    have hre_eq : (E.addCharacterValue x γ).re = 1 := le_antisymm hle (not_lt.mp hnot)
+    exact hne (E.addCharacterValue_eq_one_of_re_eq_one x γ hre_eq)
+  have hdNN_pos : 0 < dNN γ := by
+    rw [show dNN γ =
+        ⟨E.gCoeff γ - E.gCoeff γ * (E.addCharacterValue x γ).re,
+          hdef_nonneg γ⟩ by rfl]
+    rw [← NNReal.coe_pos]
+    change 0 < E.gCoeff γ - E.gCoeff γ * (E.addCharacterValue x γ).re
+    nlinarith [mul_lt_mul_of_pos_left hre_lt hγ]
+  have htsum_pos : 0 < ∑' δ : E.Group, dNN δ :=
+    NNReal.tsum_pos hdNN_summable γ hdNN_pos
+  exact (ne_of_gt htsum_pos) hdNN_tsum_zero
+
 /-- Conditional level-one subgroup closure for the compact complement kernel.
 
 The remaining positive-definite equality case has to prove `hchars`: if
@@ -12135,7 +12535,27 @@ theorem compact_limit_cliqueDensity_pos_of_gReal_bounds
     (hg_nonneg : ∀ x : E.CompactAddDual, 0 ≤ E.gReal x)
     (hg_le : ∀ x : E.CompactAddDual, E.gReal x ≤ 1) :
     0 < continuousCliqueDensity E.haar ℓ E.fReal := by
-      sorry
+  classical
+  letI : CompactSpace E.CompactAddDual := E.compactAddDual_compactSpace
+  letI : T2Space E.CompactAddDual := E.compactAddDual_t2Space
+  letI : IsTopologicalAddGroup E.CompactAddDual :=
+    E.compactAddDual_isTopologicalAddGroup
+  have hbranch :
+      E.gReal (0 : E.CompactAddDual) < 1 ∨
+        LevelOneSubgroupKernel E.gReal := by
+    by_cases hlt : E.gReal (0 : E.CompactAddDual) < 1
+    · exact Or.inl hlt
+    · have hg0 : E.gReal (0 : E.CompactAddDual) = 1 :=
+        le_antisymm (hg_le 0) (not_lt.mp hlt)
+      exact Or.inr (E.levelOneSubgroupKernel_gReal_of_gReal_zero_eq_one hsum hg0)
+  change
+    0 < continuousCliqueDensity E.haar ℓ
+      (fun x : E.CompactAddDual => 1 - E.gReal x)
+  exact
+    continuousCliqueDensity_pos_of_lt_one_or_levelOneSubgroupKernel
+      E.haar ℓ E.gReal (E.gReal_continuous hsum)
+      hg_nonneg hg_le hη (E.integral_gReal_le_one_sub_eta hsum) hbranch
+
 /-- Variant of `compact_limit_cliqueDensity_pos_of_gReal_bounds` that replaces
 connectedness of the whole compact dual by the exact infinite-index certificate
 for every level-one subgroup structure on `E.gReal`. -/
@@ -12150,7 +12570,31 @@ theorem compact_limit_cliqueDensity_pos_of_gReal_bounds_not_finiteIndex
         ¬ (levelOneAddSubgroup E.gReal hg_level :
           AddSubgroup E.CompactAddDual).FiniteIndex) :
     0 < continuousCliqueDensity E.haar ℓ E.fReal := by
-      sorry
+  classical
+  letI : CompactSpace E.CompactAddDual := E.compactAddDual_compactSpace
+  letI : T2Space E.CompactAddDual := E.compactAddDual_t2Space
+  letI : IsTopologicalAddGroup E.CompactAddDual :=
+    E.compactAddDual_isTopologicalAddGroup
+  have hbranch :
+      E.gReal (0 : E.CompactAddDual) < 1 ∨
+        ∃ hg_level : LevelOneSubgroupKernel E.gReal,
+          ¬ (levelOneAddSubgroup E.gReal hg_level :
+            AddSubgroup E.CompactAddDual).FiniteIndex := by
+    by_cases hlt : E.gReal (0 : E.CompactAddDual) < 1
+    · exact Or.inl hlt
+    · have hg0 : E.gReal (0 : E.CompactAddDual) = 1 :=
+        le_antisymm (hg_le 0) (not_lt.mp hlt)
+      let hg_level : LevelOneSubgroupKernel E.gReal :=
+        E.levelOneSubgroupKernel_gReal_of_gReal_zero_eq_one hsum hg0
+      exact Or.inr ⟨hg_level, hlevel_not_finiteIndex hg_level⟩
+  change
+    0 < continuousCliqueDensity E.haar ℓ
+      (fun x : E.CompactAddDual => 1 - E.gReal x)
+  exact
+    continuousCliqueDensity_pos_of_lt_one_or_levelOneSubgroupKernel_not_finiteIndex
+      E.haar ℓ E.gReal (E.gReal_continuous hsum)
+      hg_nonneg hg_le hbranch
+
 /-- Compact positive clique-density endpoint with connectedness replaced by the
 finite-index contradiction proved from extraction torsion-freeness and the mean
 gap.  The remaining analytic input is the pointwise bound `0 ≤ gReal ≤ 1` and
@@ -12162,7 +12606,36 @@ theorem compact_limit_cliqueDensity_pos_of_gReal_bounds_infiniteIndex
     (hg_nonneg : ∀ x : E.CompactAddDual, 0 ≤ E.gReal x)
     (hg_le : ∀ x : E.CompactAddDual, E.gReal x ≤ 1) :
     0 < continuousCliqueDensity E.haar ℓ E.fReal := by
-      sorry
+  classical
+  letI : CompactSpace E.CompactAddDual := E.compactAddDual_compactSpace
+  letI : T2Space E.CompactAddDual := E.compactAddDual_t2Space
+  letI : IsTopologicalAddGroup E.CompactAddDual :=
+    E.compactAddDual_isTopologicalAddGroup
+  have hbranch :
+      E.gReal (0 : E.CompactAddDual) < 1 ∨
+        ∃ hg_level : LevelOneSubgroupKernel E.gReal,
+          ¬ (levelOneAddSubgroup E.gReal hg_level :
+            AddSubgroup E.CompactAddDual).FiniteIndex := by
+    by_cases hlt : E.gReal (0 : E.CompactAddDual) < 1
+    · exact Or.inl hlt
+    · have hg0 : E.gReal (0 : E.CompactAddDual) = 1 :=
+        le_antisymm (hg_le 0) (not_lt.mp hlt)
+      let hg_level : LevelOneSubgroupKernel E.gReal :=
+        E.levelOneSubgroupKernel_gReal_of_gReal_zero_eq_one hsum hg0
+      have hnot :
+          ¬ (levelOneAddSubgroup E.gReal hg_level :
+            AddSubgroup E.CompactAddDual).FiniteIndex :=
+        E.levelOneAddSubgroup_gReal_not_finiteIndex_of_gReal_zero_eq_one
+          hsum hη hg0
+      exact Or.inr ⟨hg_level, hnot⟩
+  change
+    0 < continuousCliqueDensity E.haar ℓ
+      (fun x : E.CompactAddDual => 1 - E.gReal x)
+  exact
+    continuousCliqueDensity_pos_of_lt_one_or_levelOneSubgroupKernel_not_finiteIndex
+      E.haar ℓ E.gReal (E.gReal_continuous hsum)
+      hg_nonneg hg_le hbranch
+
 /-- Compact positive clique-density endpoint with summability and the upper
 pointwise bound already discharged. -/
 theorem compact_limit_cliqueDensity_pos_of_gReal_nonneg
@@ -12836,7 +13309,14 @@ lemma finiteLift_cliqueOutgoingFreq_eventually_eq
       E.lift n (E.cliqueOutgoingFreq ω i) =
         ∑ e ∈ (cliqueEdgePairs M).filter (fun e => e.1 = i),
           E.lift n (ω e) := by
-            sorry
+  let s : Finset (Fin M × Fin M) :=
+    (cliqueEdgePairs M).filter (fun e => e.1 = i)
+  change
+    ∀ᶠ n in atTop,
+      E.data.finiteLift n (∑ e ∈ s, ω e) =
+        ∑ e ∈ s, E.data.finiteLift n (ω e)
+  exact E.data.finiteLift_sum_eventually_eq s ω
+
 lemma finiteLift_cliqueIncomingFreq_eventually_eq
     (E : CayleyExtraction S) {M : ℕ}
     (ω : Fin M × Fin M → E.Group) (i : Fin M) :
@@ -12844,14 +13324,29 @@ lemma finiteLift_cliqueIncomingFreq_eventually_eq
       E.lift n (E.cliqueIncomingFreq ω i) =
         ∑ e ∈ (cliqueEdgePairs M).filter (fun e => e.2 = i),
           E.lift n (ω e) := by
-            sorry
+  let s : Finset (Fin M × Fin M) :=
+    (cliqueEdgePairs M).filter (fun e => e.2 = i)
+  change
+    ∀ᶠ n in atTop,
+      E.data.finiteLift n (∑ e ∈ s, ω e) =
+        ∑ e ∈ s, E.data.finiteLift n (ω e)
+  exact E.data.finiteLift_sum_eventually_eq s ω
+
 lemma finiteLift_cliqueFrequencyBalance_eventually_eq
     (E : CayleyExtraction S) {M : ℕ}
     (ω : Fin M × Fin M → E.Group) (i : Fin M) :
     ∀ᶠ n in atTop,
       E.lift n (E.cliqueFrequencyBalance ω i) =
         E.finiteCliqueFrequencyBalance ω n i := by
-          sorry
+  filter_upwards
+    [E.data.finiteLift_sub_eventually_eq
+      (E.cliqueOutgoingFreq ω i) (E.cliqueIncomingFreq ω i),
+      E.finiteLift_cliqueOutgoingFreq_eventually_eq ω i,
+      E.finiteLift_cliqueIncomingFreq_eventually_eq ω i] with n hsub hout hin
+  unfold finiteCliqueFrequencyBalance cliqueFrequencyBalance lift at *
+  rw [hsub, hout, hin]
+  rfl
+
 lemma finiteLift_cliqueFrequencyBalance_all_eventually_eq
     (E : CayleyExtraction S) {M : ℕ}
     (ω : Fin M × Fin M → E.Group) :
@@ -12874,7 +13369,30 @@ lemma finiteLift_cliqueFrequencyBalance_zero_iff_eventually
     ∀ᶠ n in atTop, ∀ i : Fin M,
       E.lift n (E.cliqueFrequencyBalance ω i) = 0 ↔
         E.cliqueFrequencyBalance ω i = 0 := by
-          sorry
+  have h :
+      ∀ᶠ n in atTop, ∀ i ∈ (Finset.univ : Finset (Fin M)),
+        E.lift n (E.cliqueFrequencyBalance ω i) = 0 ↔
+          E.cliqueFrequencyBalance ω i = 0 := by
+    rw [(Finset.univ : Finset (Fin M)).eventually_all]
+    intro i _hi
+    by_cases hbal : E.cliqueFrequencyBalance ω i = 0
+    · filter_upwards [E.data.finiteLift_zero_eventually_eq_zero] with n hzero
+      constructor
+      · intro _h
+        exact hbal
+      · intro _h
+        rw [hbal]
+        change E.data.finiteLift n (0 : E.data.Group) = 0
+        exact hzero
+    · filter_upwards [E.finiteLift_eventually_ne_zero hbal] with n hn
+      constructor
+      · intro hzero
+        exact (hn hzero).elim
+      · intro h
+        exact (hbal h).elim
+  filter_upwards [h] with n hn i
+  exact hn i (by simp)
+
 lemma finiteCliqueFrequencyBalance_all_zero_iff_eventually
     (E : CayleyExtraction S) {M : ℕ}
     (ω : Fin M × Fin M → E.Group) :
@@ -13822,7 +14340,18 @@ lemma finiteCliqueKernelDensity_finiteSmooth_re_tendsto_compactSmoothReal
           (E.finiteSmooth Q n)).re)
       atTop
       (𝓝 (continuousCliqueDensity E.haar M (E.compactSmoothReal Q))) := by
-        sorry
+  have hcomplex :=
+    E.finiteCliqueKernelDensity_finiteSmooth_tendsto_compactSmooth Q M
+  have hre :=
+    (Complex.continuous_re.tendsto
+      (∫ x : Fin M → E.CompactAddDual,
+        (∏ e ∈ cliqueEdgePairs M,
+          E.compactSmooth Q (x e.1 - x e.2))
+        ∂Measure.pi (fun _ : Fin M => E.haar))).comp hcomplex
+  simpa [Function.comp_def,
+    E.compactSmooth_cliqueDensity_integral_re_eq_continuousCliqueDensity Q M]
+    using hre
+
 end CayleyExtraction
 
 end

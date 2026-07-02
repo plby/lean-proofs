@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
+/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 24.
@@ -126,7 +126,8 @@ def R_cert : Matrix (Fin 5) (Fin 5) ℚ := fun i j =>
   | 4, 0 => -376 | 4, 1 => -93 | 4, 2 => -2 | 4, 3 => -93 | 4, 4 => 190
   | _, _ => 0
 
-private def L_P : Matrix (Fin 8) (Fin 8) ℚ
+private def L_P : Matrix (Fin 8) (Fin 8) ℚ := fun i j =>
+  match i.val, j.val with
   | 0, 0 => 1
   | 1, 0 => -3 / 2
   | 1, 1 => 1
@@ -153,7 +154,8 @@ private def L_P : Matrix (Fin 8) (Fin 8) ℚ
   | 7, 7 => 1
   | _, _ => 0
 
-private def D_P_vec : Fin 8 → ℚ
+private def D_P_vec : Fin 8 → ℚ := fun i =>
+  match i.val with
   | 0 => 24
   | 1 => 223
   | 2 => 47880 / 223
@@ -221,7 +223,12 @@ private def D_R_vec : Fin 5 → ℚ := fun i =>
   | _ => 0
 
 private lemma P_ldlt : P_cert = L_P * Matrix.diagonal D_P_vec * L_P.transpose := by
-  sorry
+  ext i j
+  rw [Matrix.mul_apply]
+  simp only [Matrix.mul_diagonal, Matrix.transpose_apply]
+  fin_cases i <;> fin_cases j <;>
+    norm_num [P_cert, L_P, D_P_vec, Fin.sum_univ_eight]
+
 private lemma Q_ldlt : Q_cert = L_Q * Matrix.diagonal D_Q_vec * L_Q.transpose := by
   ext i j
   rw [Matrix.mul_apply]
@@ -237,7 +244,9 @@ private lemma R_ldlt : R_cert = L_R * Matrix.diagonal D_R_vec * L_R.transpose :=
     norm_num [R_cert, L_R, D_R_vec, Fin.sum_univ_five]
 
 private lemma D_P_nonneg : ∀ i : Fin 8, 0 ≤ D_P_vec i := by
-  sorry
+  intro i
+  fin_cases i <;> norm_num [D_P_vec]
+
 private lemma D_Q_nonneg : ∀ i : Fin 6, 0 ≤ D_Q_vec i := by
   intro i
   fin_cases i <;> norm_num [D_Q_vec]
@@ -1916,7 +1925,43 @@ lemma graphAdj5_triangleFree {V : Type*}
     ∀ a b c : Fin 5,
       ¬(graphAdj5 G f a b = true ∧ graphAdj5 G f b c = true ∧
         graphAdj5 G f a c = true) := by
-          sorry
+  intro a b c h
+  rcases h with ⟨hab, hbc, hac⟩
+  have hab' : G.Adj (f a) (f b) := of_decide_eq_true hab
+  have hbc' : G.Adj (f b) (f c) := of_decide_eq_true hbc
+  have hac' : G.Adj (f a) (f c) := of_decide_eq_true hac
+  classical
+  let s : Finset V := {f a, f b, f c}
+  have hfab_ne_fb : f a ≠ f b := by
+    intro hEq
+    rw [hEq] at hab'
+    exact G.irrefl hab'
+  have hfb_ne_fc : f b ≠ f c := by
+    intro hEq
+    rw [hEq] at hbc'
+    exact G.irrefl hbc'
+  have hfa_ne_fc : f a ≠ f c := by
+    intro hEq
+    rw [hEq] at hac'
+    exact G.irrefl hac'
+  apply hG s
+  constructor
+  · rw [SimpleGraph.isClique_iff]
+    rw [show (s : Set V) = ({f a, f b, f c} : Set V) by simp [s]]
+    intro x hx y hy hxy
+    simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hx hy
+    rcases hx with rfl | rfl | rfl <;> rcases hy with rfl | rfl | rfl
+    · contradiction
+    · exact hab'
+    · exact hac'
+    · exact G.adj_symm hab'
+    · contradiction
+    · exact hbc'
+    · exact G.adj_symm hac'
+    · exact G.adj_symm hbc'
+    · contradiction
+  · simp [s, hfab_ne_fb, hfa_ne_fc, hfb_ne_fc]
+
 /-!
 ## § 5. Connecting `graphAdj5` to `mkAdj5`
 -/
@@ -2024,7 +2069,16 @@ private lemma totalFlagContrib_mkAdj5_adjacent_swap_inv (e : Fin 10 → Bool) (k
     totalFlagContrib
         (fun i j => mkAdj5 e (Equiv.swap k.castSucc k.succ i) (Equiv.swap k.castSucc k.succ j)) =
       totalFlagContrib (mkAdj5 e) := by
-        sorry
+  fin_cases k
+  · simpa [totalFlagContrib, mkAdj5, Equiv.swap_apply_def] using
+      totalFlagContribBits_swap01 (e 0) (e 1) (e 2) (e 3) (e 4) (e 5) (e 6) (e 7) (e 8) (e 9)
+  · simpa [totalFlagContrib, mkAdj5, Equiv.swap_apply_def] using
+      totalFlagContribBits_swap12 (e 0) (e 1) (e 2) (e 3) (e 4) (e 5) (e 6) (e 7) (e 8) (e 9)
+  · simpa [totalFlagContrib, mkAdj5, Equiv.swap_apply_def] using
+      totalFlagContribBits_swap23 (e 0) (e 1) (e 2) (e 3) (e 4) (e 5) (e 6) (e 7) (e 8) (e 9)
+  · simpa [totalFlagContrib, mkAdj5, Equiv.swap_apply_def] using
+      totalFlagContribBits_swap34 (e 0) (e 1) (e 2) (e 3) (e 4) (e 5) (e 6) (e 7) (e 8) (e 9)
+
 private lemma totalFlagContrib_adjacent_swap_inv (adj : Fin 5 → Fin 5 → Bool)
     (hsym : ∀ i j, adj i j = adj j i) (k : Fin 4) :
     totalFlagContrib
@@ -2172,7 +2226,73 @@ lemma quadForm_nonneg {V : Type*} [Fintype V]
     (0 : ℚ) ≤ (Finset.univ : Finset V).sum fun d =>
       (Finset.univ : Finset V).sum fun e =>
         quintContrib (graphAdj5 G ![a, b, c, d, e]) (Equiv.refl _) := by
-          sorry
+  by_cases h_ab : G.Adj a b
+  · by_cases h_ac : G.Adj a c
+    · unfold quintContrib quintContribOf graphAdj5
+      simp [*]
+    · by_cases h_bc : G.Adj b c
+      · convert sum_sum_psd_option R_cert_psd (Finset.univ : Finset V)
+            (fun d => σ₂FlagIdx (graphAdj5 G ![a, b, c, d, d] 3 0)
+              (graphAdj5 G ![a, b, c, d, d] 3 1)
+              (graphAdj5 G ![a, b, c, d, d] 3 2)) 625 (by norm_num) using 1
+        refine Finset.sum_congr rfl fun d _ => Finset.sum_congr rfl fun e _ => ?_
+        rw [quintContrib_type2]
+        · unfold graphAdj5
+          simp
+          congr! 1
+          ext
+          cases ‹Option (Fin 5)› <;> cases ‹Option (Fin 5)› <;> rfl
+        · unfold graphAdj5
+          aesop
+        · unfold graphAdj5
+          aesop
+        · unfold graphAdj5
+          aesop
+      · convert sum_sum_psd_option Q_cert_psd (Finset.univ : Finset V)
+            (fun d => σ₁FlagIdx (graphAdj5 G ![a, b, c, d, d] 3 0)
+              (graphAdj5 G ![a, b, c, d, d] 3 1)
+              (graphAdj5 G ![a, b, c, d, d] 3 2)) 2500 (by norm_num) using 1
+        refine Finset.sum_congr rfl fun d _ => Finset.sum_congr rfl fun e _ => ?_
+        rw [quintContrib_type1]
+        · unfold graphAdj5
+          simp
+          congr! 1
+          ext
+          cases ‹Option (Fin 6)› <;> cases ‹Option (Fin 6)› <;> rfl
+        · unfold graphAdj5
+          aesop
+        · unfold graphAdj5
+          aesop
+        · unfold graphAdj5
+          aesop
+  · by_cases h_ac : G.Adj a c <;> by_cases h_bc : G.Adj b c
+    · unfold quintContrib quintContribOf graphAdj5
+      simp [*]
+    · unfold quintContrib quintContribOf graphAdj5
+      simp [*]
+    · unfold quintContrib quintContribOf graphAdj5
+      simp [*]
+    · have h_eq : ∀ d e : V,
+          quintContrib (graphAdj5 G ![a, b, c, d, e]) (Equiv.refl _) =
+            P_cert (σ₀FlagIdx (graphAdj5 G ![a, b, c, d, e] 3 0)
+                    (graphAdj5 G ![a, b, c, d, e] 3 1)
+                    (graphAdj5 G ![a, b, c, d, e] 3 2))
+                   (σ₀FlagIdx (graphAdj5 G ![a, b, c, d, e] 4 0)
+                    (graphAdj5 G ![a, b, c, d, e] 4 1)
+                    (graphAdj5 G ![a, b, c, d, e] 4 2)) / 625 := by
+        intro d e
+        apply quintContrib_type0 <;> unfold graphAdj5 <;> aesop
+      simp_rw [h_eq]
+      convert mul_nonneg (inv_nonneg.mpr (show (625 : ℚ) ≥ 0 by norm_num))
+          (sum_sum_psd_nonneg P_cert_psd (Finset.univ : Finset V)
+            (fun d => σ₀FlagIdx (graphAdj5 G ![a, b, c, d, d] 3 0)
+              (graphAdj5 G ![a, b, c, d, d] 3 1)
+              (graphAdj5 G ![a, b, c, d, d] 3 2))) using 1
+      · rfl
+      · unfold graphAdj5
+        simp [div_eq_mul_inv, Finset.mul_sum, mul_comm]
+        exact Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun y _ => rfl
+
 /-!
 ## § 8. Bounds on `quintContrib` Values
 -/
@@ -2348,11 +2468,13 @@ lemma psd_lower_bound_injective {V : Type*} [Fintype V] (G : SimpleGraph V) :
 ## § 10. Counting Identity
 -/
 
+set_option linter.style.nativeDecide false in
 private lemma totalFlagContrib_mkAdj5_edgeBits_eq_permSum :
     ∀ b01 b02 b03 b04 b12 b13 b14 b23 b24 b34 : Bool,
       totalFlagContrib (mkAdj5 (edgeBits b01 b02 b03 b04 b12 b13 b14 b23 b24 b34)) =
         totalFlagContribPermSum (mkAdj5 (edgeBits b01 b02 b03 b04 b12 b13 b14 b23 b24 b34)) := by
-          sorry
+  native_decide +revert
+
 private lemma totalFlagContrib_mkAdj5_eq_permSum (e : Fin 10 → Bool) :
     totalFlagContrib (mkAdj5 e) = totalFlagContribPermSum (mkAdj5 e) := by
   rw [edgeBits_ext e rfl rfl rfl rfl rfl rfl rfl rfl rfl rfl]
@@ -2774,20 +2896,44 @@ Two copies `(u, i)` and `(v, j)` are adjacent iff `G.Adj u v`. -/
 def _root_.SimpleGraph.blowup {V : Type*} (G : SimpleGraph V) (N : ℕ) :
     SimpleGraph (V × Fin N) where
   Adj p q := G.Adj p.1 q.1
-  symm := ⟨fun _ _ h => G.adj_symm h⟩
-  loopless := ⟨fun p h => (G.loopless).irrefl p.1 h⟩
+  symm := by
+    constructor
+    intro p q h
+    exact G.adj_symm h
+  loopless := ⟨fun _ h => G.irrefl h⟩
 
 /-- A blow-up of a `K_k`-free graph is `K_k`-free. -/
 lemma _root_.SimpleGraph.blowup_cliqueFree {V : Type*} {G : SimpleGraph V}
     {k : ℕ} (hG : G.CliqueFree k) (N : ℕ) :
     (G.blowup N).CliqueFree k := by
-      sorry
+  intro s ⟨hclique, hcard⟩
+  apply hG (s.image Prod.fst)
+  constructor
+  · intro x hx y hy hne
+    obtain ⟨x', hx', rfl⟩ := Finset.mem_image.mp hx
+    obtain ⟨y', hy', rfl⟩ := Finset.mem_image.mp hy
+    simpa [SimpleGraph.blowup] using
+      hclique hx' hy' (fun h => hne (by simpa using congr_arg Prod.fst h))
+  · rw [Finset.card_image_of_injOn, hcard]
+    intro x hx y hy hfst
+    by_contra hne
+    have hadj := hclique hx hy hne
+    simp [SimpleGraph.blowup] at hadj
+    rw [hfst] at hadj
+    exact (G.loopless).irrefl _ hadj
+
 /-- Each labeled C₅ and function `a : Fin 5 → Fin N` give rise to a C₅ copy
 in `G.blowup N`. -/
 lemma _root_.SimpleGraph.blowup_IsC5Copy_of_IsLabeledC5 {V : Type*} {G : SimpleGraph V}
     {N : ℕ} {f : Fin 5 → V} (hf : G.IsLabeledC5 f) (a : Fin 5 → Fin N) :
     (G.blowup N).IsC5Copy (Finset.image (fun i => (f i, a i)) Finset.univ) := by
-      sorry
+  refine ⟨fun i => (f i, a i), ⟨fun i j hij => ?_, fun i => ?_⟩, ?_⟩
+  · simp [Prod.mk.injEq] at hij
+    exact hf.1 hij.1
+  · simpa [SimpleGraph.blowup] using hf.2 i
+  · ext x
+    simp
+
 /-- Canonical witness ordering for a C₅ copy. -/
 noncomputable def _root_.SimpleGraph.IsC5Copy.witness {V : Type*} {G : SimpleGraph V}
     {s : Finset V} (hs : G.IsC5Copy s) : Fin 5 → V :=
@@ -2844,7 +2990,32 @@ lemma _root_.SimpleGraph.blowupC5Map_injective {V : Type*} {G : SimpleGraph V} {
 lemma _root_.SimpleGraph.blowup_numC5Copies_ge {V : Type*} [Fintype V]
     {G : SimpleGraph V} {N : ℕ} (_ : 0 < N) :
     G.numC5Copies * N ^ 5 ≤ (G.blowup N).numC5Copies := by
-      sorry
+  trans
+  · convert Set.ncard_le_ncard (show
+        Set.image (fun p : Finset V × (Fin 5 → Fin N) => G.blowupC5Map N p)
+          ({s : Finset V | G.IsC5Copy s} ×ˢ Set.univ) ⊆
+            {s : Finset (V × Fin N) | (G.blowup N).IsC5Copy s}
+        from Set.image_subset_iff.mpr fun p hp => ?_)
+    · rw [Set.InjOn.ncard_image, Set.ncard_prod]
+      · simp [Set.ncard_univ, SimpleGraph.numC5Copies]
+        exact Or.inl (by
+          rw [← Set.ncard_coe_finset]
+          congr
+          ext
+          simp)
+      · intro p hp q hq h_eq
+        have := SimpleGraph.blowupC5Map_injective
+          (show G.IsC5Copy p.1 from hp.1) (show G.IsC5Copy q.1 from hq.1) h_eq
+        aesop
+    · exact SimpleGraph.blowupC5Map_isC5Copy hp.1
+  · rw [SimpleGraph.numC5Copies]
+    exact le_of_eq (by
+      rw [← Set.ncard_coe_finset
+        ((Finset.univ : Finset (Finset (V × Fin N))).filter (G.blowup N).IsC5Copy)]
+      apply congrArg Set.ncard
+      ext s
+      simp)
+
 /-!
 ## § 15. Combinatorial Bounds
 -/

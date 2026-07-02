@@ -33,7 +33,11 @@ noncomputable def e (u : ℝ) : ℝ →ᵇ ℂ where
 
 set_option backward.isDefEq.respectTransparency false in
 theorem hasDerivAt_e {u x : ℝ} : HasDerivAt (e u) (-2 * π * u * I * e u x) x := by
-  sorry
+  have l2 : HasDerivAt (fun v => -v * u) (-u) x := by
+    simpa only [neg_mul_comm] using hasDerivAt_mul_const (-u)
+  simpa [Function.comp_def, e, mul_assoc, mul_left_comm, mul_comm] using
+    (hasDerivAt_fourierChar (-x * u)).scomp x l2
+
 lemma fourierIntegral_deriv_aux2 (e : ℝ →ᵇ ℂ) {f : ℝ → ℂ} (hf : Integrable f) :
     Integrable (⇑e * f) :=
   hf.bdd_mul e.continuous.aestronglyMeasurable (ae_of_all _ e.norm_coe_le_norm)
