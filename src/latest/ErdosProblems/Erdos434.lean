@@ -418,7 +418,7 @@ lemma count_eq_one_add_sum_gaps (A : Set ℕ) (n : ℕ) (hn : n ≥ 1)
       -- Any element in the complement is either `0` or in one of the interval
       -- blocks `[kn+1, (k+1)n]`.
       ext x
-      simp [Set.mem_diff, Set.mem_Icc]
+      simp [Set.mem_sdiff, Set.mem_Icc]
       constructor <;> intro hx
       · by_cases hx_zero : x = 0 <;> simp_all +decide [S_k]
         exact ⟨ (x - 1) / n,
@@ -463,10 +463,10 @@ lemma count_eq_one_add_sum_gaps (A : Set ℕ) (n : ℕ) (hn : n ≥ 1)
             · rw [add_left_cancel_iff]
               apply Finset.sum_congr rfl
               intro b hb
-              rw [Set.ncard_eq_toFinset_card _ ((Set.finite_Icc _ _).diff)]
+              rw [Set.ncard_eq_toFinset_card _ ((Set.finite_Icc _ _).sdiff)]
               apply congrArg Finset.card
               ext x
-              simp [Set.mem_diff]
+              simp [Set.mem_sdiff]
             · intros k hk l hl hkl
               simp_all +decide [Finset.disjoint_left]
               exact fun x hx₁ hx₂ hx₃ hx₄ hx₅ => False.elim <| hkl <| by nlinarith
@@ -516,7 +516,7 @@ lemma count_eq_one_add_sum_gaps (A : Set ℕ) (n : ℕ) (hn : n ≥ 1)
               (S_k n (S A) (k + 1))) =
             n - Set.ncard (S_k n (S A) (k + 1)) := by
       intro k
-      rw [Set.ncard_diff _ _]
+      rw [Set.ncard_sdiff _ _]
       · norm_num [add_mul, hn]
         omega
       · exact Set.inter_subset_right.trans (by norm_num [add_mul])
@@ -647,5 +647,3 @@ theorem main_theorem_final (n k : ℕ) (hk : k ≤ n) (hk_ge_2 : k ≥ 2) :
 end Erdos434
 
 #print axioms Erdos434.main_theorem_final
--- 'Erdos434.main_theorem_final' depends on axioms: [propext, Classical.choice,
--- Finset.add_kneser, Quot.sound]

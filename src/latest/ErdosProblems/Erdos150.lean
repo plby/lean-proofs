@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
+/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 150.
@@ -240,13 +240,12 @@ on `n` vertices is at most `2 · ∑_{k=0}^{⌊n/3⌋} C(n, k)`. -/
 theorem numMinSeps_le (G : SimpleGraph V) (u v : V) :
     numMinSeps G u v ≤
       2 * ∑ k ∈ range (Fintype.card V / 3 + 1), (Fintype.card V).choose k := by
-  sorry
-/-
   classical
   suffices h :
       (minSepSet G u v).ncard ≤
         (univ.filter fun S : Finset V ↦ S.card ≤ Fintype.card V / 3).card +
         (univ.filter fun S : Finset V ↦ S.card ≤ Fintype.card V / 3).card by
+    rw [numMinSeps]
     convert h using 1
     rw [show (filter (fun S : Finset V ↦ S.card ≤ Fintype.card V / 3) univ) =
       Finset.biUnion (range (Fintype.card V / 3 + 1))
@@ -271,7 +270,6 @@ theorem numMinSeps_le (G : SimpleGraph V) (u v : V) :
     _ ≤ _ := Nat.add_le_add
       (by rw [Set.ncard_coe_finset]) (by rw [Set.ncard_coe_finset]; exact card_image_le)
 
--/
 section BradacFull
 
 /-! ## §1. Binary entropy and the precise bound α ≤ 2^{H(1/3)}
@@ -301,8 +299,6 @@ theorem binomial_tail_entropy_bound (ε : ℝ) (hε : 0 < ε) :
     ∃ N : ℕ, ∀ n : ℕ, N ≤ n →
       (∑ k ∈ range (n / 3 + 1), (n.choose k : ℝ)) ≤
         (2 : ℝ) ^ ((binEntropy₂ (1/3) + ε) * ↑n) := by
-  sorry
-/-
   have h_entropy_bound : ∀ n : ℕ,
       (∑ k ∈ range (n / 3 + 1), (n.choose k : ℝ)) ≤
         (n + 1) * 2 ^ ((binEntropy₂ (1 / 3) : ℝ) * n) := by
@@ -373,7 +369,8 @@ theorem binomial_tail_entropy_bound (ε : ℝ) (hε : 0 < ε) :
           have := h_lim_y.comp (Filter.tendsto_id.const_mul_atTop hε)
           convert this.const_mul ε⁻¹ using 2 <;>
             norm_num [div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm, hε.ne']
-        simpa [Real.exp_neg] using Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 1
+        simpa [div_eq_mul_inv, Real.exp_neg] using
+          Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 1
       ring_nf
       simpa [div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm] using Filter.Tendsto.add
         (h_lim.mul_const (Real.log 2)⁻¹)
@@ -384,12 +381,15 @@ theorem binomial_tail_entropy_bound (ε : ℝ) (hε : 0 < ε) :
         have := hN n hn; rw [div_lt_one (by positivity)] at this; linarith⟩
   obtain ⟨N, hN⟩ := h_exp_growth_bound; use N
   intro n hn
-  convert le_trans (h_entropy_bound n)
-    (mul_le_mul_of_nonneg_right (hN n hn)
-      (by positivity)) using 1
-  rw [← Real.rpow_add (by positivity)]; ring_nf
+  calc
+    (∑ k ∈ range (n / 3 + 1), (n.choose k : ℝ))
+        ≤ (n + 1) * 2 ^ ((binEntropy₂ (1 / 3) : ℝ) * n) := h_entropy_bound n
+    _ ≤ 2 ^ (ε * n) * 2 ^ ((binEntropy₂ (1 / 3) : ℝ) * n) :=
+        mul_le_mul_of_nonneg_right (hN n hn) (by positivity)
+    _ = 2 ^ ((binEntropy₂ (1 / 3) + ε) * n) := by
+        rw [← Real.rpow_add (by positivity)]
+        ring_nf
 
--/
 /-! ## §2. Global count `c(n)` and its bound
 
 `c(n)` is the maximum number of minimal vertex cuts (i.e., minimal
@@ -558,8 +558,6 @@ lemma maxPairSeps_le_c (n : ℕ) : maxPairSeps n ≤ c n := by
 
 /-- The number of minimal cuts is at most `n^2 * maxPairSeps n`. -/
 lemma c_le_sq_mul_maxPairSeps (n : ℕ) : c n ≤ n ^ 2 * maxPairSeps n := by
-  sorry
-/-
   have h_c_le : ∀ G : SimpleGraph (Fin n), numMinCuts G ≤ n ^ 2 * maxPairSeps n := by
     intro G
     have h_numMinCuts_le :
@@ -582,7 +580,7 @@ lemma c_le_sq_mul_maxPairSeps (n : ℕ) : c n ≤ n ^ 2 * maxPairSeps n := by
         convert h_card_le (univ : Finset (Fin n × Fin n)) using 1
         · congr with x; aesop
         · erw [sum_product]
-      convert h_card_le using 1
+      simpa [numMinCuts, numMinSeps] using h_card_le
     have h_numMinSeps_le_maxPairSeps : ∀ u v : Fin n, u ≠ v →
         numMinSeps G u v ≤ maxPairSeps n :=
       fun u v huv ↦ le_csSup (maxPairSeps_bdd_above n) <| by grind +splitIndPred
@@ -594,7 +592,6 @@ lemma c_le_sq_mul_maxPairSeps (n : ℕ) : c n ≤ n ^ 2 * maxPairSeps n := by
     norm_num; ring_nf; norm_num
   exact csSup_le' fun k hk ↦ by aesop
 
--/
 /-! ### Merged graph construction for super-multiplicativity -/
 
 /-- Embedding of `G₁`'s vertex `i` into the merged graph. Maps `0..n` to `0..n` and `n+1` to
@@ -700,7 +697,44 @@ lemma emb_images_internal_disjoint (n m : ℕ)
 lemma mergeEmb_image_inter (n m : ℕ) (i : Fin (n + 2)) (j : Fin (m + 2))
     (h : mergeEmb₁ n m i = mergeEmb₂ n m j) :
     (i = ⟨0, by omega⟩ ∧ j = ⟨0, by omega⟩) ∨ (i = ⟨n + 1, by omega⟩ ∧ j = ⟨m + 1, by omega⟩) := by
-  grind +locals
+  by_cases hi : i.val ≤ n
+  · by_cases hj0 : j.val = 0
+    · left
+      constructor
+      · apply Fin.ext
+        have hval := congrArg Fin.val h
+        simpa [mergeEmb₁, mergeEmb₂, hi, hj0] using hval
+      · apply Fin.ext
+        exact hj0
+    · by_cases hjm : j.val ≤ m
+      · have hval : i.val = n + j.val := by
+          have hval := congrArg Fin.val h
+          simpa [mergeEmb₁, mergeEmb₂, hi, hj0, hjm] using hval
+        omega
+      · have hval : i.val = n + m + 1 := by
+          have hval := congrArg Fin.val h
+          simpa [mergeEmb₁, mergeEmb₂, hi, hj0, hjm] using hval
+        omega
+  · by_cases hj0 : j.val = 0
+    · have hval : n + m + 1 = 0 := by
+        have hval := congrArg Fin.val h
+        simp [mergeEmb₁, mergeEmb₂, hi, hj0] at hval
+      omega
+    · by_cases hjm : j.val ≤ m
+      · have hval : n + m + 1 = n + j.val := by
+          have hval := congrArg Fin.val h
+          simpa [mergeEmb₁, mergeEmb₂, hi, hj0, hjm] using hval
+        omega
+      · right
+        constructor
+        · apply Fin.ext
+          change i.val = n + 1
+          have hi_lt := i.isLt
+          omega
+        · apply Fin.ext
+          change j.val = m + 1
+          have hj_lt := j.isLt
+          omega
 
 /-- If `u` is in the combined component and `v` is an adjacent vertex not in `T`, then `v` is also
 in the combined component. -/
@@ -723,7 +757,10 @@ lemma merged_component_closure (n m : ℕ) (G₁ : SimpleGraph (Fin (n + 2)))
       exact componentAvoiding_adj_closed G₁ S₁ 0 i j
         (by rwa [mergeEmb₁_injective n m hx'] at hx) (fun hj ↦ hv.1 j hj rfl) hij
     · have h_cases : x = ⟨0, by omega⟩ ∧ i = ⟨0, by omega⟩ ∨
-          x = ⟨m + 1, by omega⟩ ∧ i = ⟨n + 1, by omega⟩ := by grind +locals
+          x = ⟨m + 1, by omega⟩ ∧ i = ⟨n + 1, by omega⟩ := by
+          rcases mergeEmb_image_inter n m i x hx'.symm with h | h
+          · exact Or.inl ⟨h.2, h.1⟩
+          · exact Or.inr ⟨h.2, h.1⟩
       cases h_cases
       · grind +suggestions
       · simp_all only [mergeEmb₁, mergeEmb₂]
@@ -841,35 +878,35 @@ proper subset of `emb₁(S₁) ∪ emb₂(S₂)` missing `emb₁(a)`. -/
 lemma merged_walk_avoids_sub₁ (n m : ℕ) (G₁ : SimpleGraph (Fin (n + 2)))
     (G₂ : SimpleGraph (Fin (m + 2))) (S₁ : Finset (Fin (n + 2))) (S₂ : Finset (Fin (m + 2)))
     (h₂ : IsSeparator G₂ ⟨0, by omega⟩ ⟨m + 1, by omega⟩ S₂)
-    (a : Fin (n + 2)) (ha : a ∈ S₁) (T' : Finset (Fin (n + m + 2)))
+    (a : Fin (n + 2)) (_ha : a ∈ S₁) (T' : Finset (Fin (n + m + 2)))
     (hT' : T' ⊆ S₁.image (mergeEmb₁ n m) ∪ S₂.image (mergeEmb₂ n m))
     (ha_out : mergeEmb₁ n m a ∉ T')
     (w₁ : G₁.Walk ⟨0, by omega⟩ ⟨n + 1, by omega⟩)
     (hw₁ : ∀ y ∈ w₁.support, y ∉ S₁.erase a) :
     ∃ w' : (mergedGraph n m G₁ G₂).Walk ⟨0, by omega⟩ ⟨n + m + 1, by omega⟩,
       ∀ x ∈ w'.support, x ∉ T' := by
-  sorry
-/-
   obtain ⟨w', hw'⟩ :
       ∃ w' : (mergedGraph n m G₁ G₂).Walk
           (mergeEmb₁ n m ⟨0, by omega⟩) (mergeEmb₁ n m ⟨n + 1, by omega⟩),
         ∀ x ∈ w'.support, ∃ y ∈ w₁.support, x = mergeEmb₁ n m y :=
     walk_map_emb₁_support n m G₁ G₂
-      ⟨0, Decidable.byContradiction fun a ↦ mergeEmb₁_source._proof_1 n a⟩
-      ⟨n + 1, Decidable.byContradiction fun a ↦ mergeEmb₁_sink._proof_1 n a⟩ w₁
+      ⟨0, by omega⟩ ⟨n + 1, by omega⟩ w₁
   use w'.copy (by exact mergeEmb₁_source n m) (by exact mergeEmb₁_sink n m)
   intro x hx hx'
-  specialize hw' x
-  simp_all only [Fin.zero_eta, subset_iff, mem_union, mem_image, Walk.support_copy, forall_const]
-  obtain ⟨y, hy, rfl⟩ := hw'
-  specialize hT' hx'
-  rcases hT' with (⟨z, hz, hz'⟩ | ⟨z, hz, hz'⟩)
-  · have := mergeEmb₁_injective n m hz'; aesop
-  · have := mergeEmb_image_inter n m y z
-    simp_all only [mem_erase, ne_eq, not_and, Fin.zero_eta, forall_const]
-    cases this <;> simp_all [IsSeparator]
+  have hx_support : x ∈ w'.support := by simpa [Walk.support_copy] using hx
+  obtain ⟨y, hy, rfl⟩ := hw' x hx_support
+  have hx'_union := hT' hx'
+  simp only [mem_union, mem_image] at hx'_union
+  rcases hx'_union with (⟨z, hz, hz'⟩ | ⟨z, hz, hz'⟩)
+  · have hzy : z = y := mergeEmb₁_injective n m hz'
+    subst z
+    by_cases hya : y = a
+    · exact ha_out (by simpa [hya] using hx')
+    · exact (hw₁ y hy) (by simpa [mem_erase, hya] using hz)
+  · rcases mergeEmb_image_inter n m y z hz'.symm with ⟨_, hz0⟩ | ⟨_, hz_sink⟩
+    · exact h₂.1 (by simpa [hz0] using hz)
+    · exact h₂.2.1 (by simpa [hz_sink] using hz)
 
--/
 /-- Same as `merged_walk_avoids_sub₁` but for `G₂`. -/
 lemma merged_walk_avoids_sub₂ (n m : ℕ) (G₁ : SimpleGraph (Fin (n + 2)))
     (G₂ : SimpleGraph (Fin (m + 2))) (S₁ : Finset (Fin (n + 2))) (S₂ : Finset (Fin (m + 2)))
@@ -1173,8 +1210,6 @@ lemma neg_log_maxPairSeps_bdd_below :
 theorem limit_alpha_exists :
     ∃ α : ℝ, Filter.Tendsto (fun n ↦ (c n : ℝ) ^ (1 / n : ℝ))
       Filter.atTop (nhds α) := by
-  sorry
-/-
   by_contra! h_contra
   obtain ⟨h, hh⟩ : ∃ h : ℝ, Filter.Tendsto
       (fun n ↦ -Real.log (maxPairSeps (n + 2) : ℝ) / (n : ℝ)) Filter.atTop (nhds h) :=
@@ -1221,7 +1256,7 @@ theorem limit_alpha_exists :
       (show Filter.Tendsto (fun n : ℕ ↦ (n : ℝ) ^ (2 / (n : ℝ)))
         Filter.atTop (nhds 1) from ?_)
       h_exp using 2 <;> norm_num
-    simpa using Filter.Tendsto.comp
+    simpa [Function.comp_def] using Filter.Tendsto.comp
       (show Filter.Tendsto (fun x : ℝ ↦ x ^ (2 / x)) Filter.atTop (nhds 1) from by
           simpa using tendsto_rpow_div_mul_add (2 : ℝ) (1 : ℝ) 0)
       tendsto_natCast_atTop_atTop
@@ -1231,7 +1266,6 @@ theorem limit_alpha_exists :
           Real.rpow_le_rpow (Nat.cast_nonneg _) (mod_cast maxPairSeps_le_c n) (by positivity))
       (by filter_upwards [Filter.eventually_ge_atTop 2] with n hn using h_bound n hn))
 
--/
 /-- **α ≤ 2^{H₂(1/3)}**. The growth rate of `c(n)` satisfies the entropy bound. -/
 theorem alpha_le_two_pow_entropy
     (α : ℝ) (hα : Filter.Tendsto (fun n ↦ (c n : ℝ) ^ (1 / n : ℝ))
@@ -1284,8 +1318,6 @@ theorem limit_alpha_exists_and_le_two_pow_entropy :
 theorem limit_alpha_exists_and_lt_two :
     ∃ α, Filter.Tendsto (fun n ↦ (c n : ℝ) ^ (1 / n : ℝ)) .atTop (nhds α) ∧
       α < 2 := by
-  sorry
-/-
   obtain ⟨α, hα, hα_le⟩ := limit_alpha_exists_and_le_two_pow_entropy
   refine ⟨α, hα, hα_le.trans_lt ?_⟩
   have h_entropy_eq : binEntropy₂ (1 / 3) = Real.log 3 / Real.log 2 - 2 / 3 := by
@@ -1305,11 +1337,11 @@ theorem limit_alpha_exists_and_lt_two :
     have hdiv : Real.log (3 : ℝ) / Real.log 2 < (5 / 3 : ℝ) := by
       exact (div_lt_iff₀ (Real.log_pos one_lt_two)).2 (by simpa [mul_comm] using hlog)
     linarith
-  convert Real.rpow_lt_rpow_of_exponent_lt one_lt_two h_entropy_lt_one
-    using 1
-  norm_num
+  calc
+    (2 : ℝ) ^ binEntropy₂ (1 / 3) < (2 : ℝ) ^ (1 : ℝ) :=
+      Real.rpow_lt_rpow_of_exponent_lt one_lt_two h_entropy_lt_one
+    _ = 2 := by norm_num
 
--/
 #print axioms limit_alpha_exists_and_lt_two
 -- 'Erdos150.limit_alpha_exists_and_lt_two' depends on axioms: [propext, Classical.choice,
 -- Quot.sound]

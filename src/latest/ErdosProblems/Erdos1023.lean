@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
+/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 1023.
 https://www.erdosproblems.com/forum/thread/1023
@@ -157,7 +157,258 @@ theorem many_sqrt_two_div_pi :
     (fun n => (MaxUnionFreeMany n : ℝ)) ~[Filter.atTop]
       (fun n =>
         (Real.sqrt ((2 : ℝ) / Real.pi)) * ((2 : ℝ) ^ n) / Real.sqrt (n : ℝ)) := by
-          sorry
+  classical
+  have := kleitman_bound_many
+  have h_stirling :
+      (fun n => (Nat.choose n (n / 2) : ℝ)) ~[Filter.atTop]
+        (fun n => 2 ^ n / Real.sqrt (Real.pi * n / 2)) := by
+    have h_stirling :
+        Filter.Tendsto
+          (fun n : ℕ =>
+            (Nat.choose n (n / 2) : ℝ) * Real.sqrt (Real.pi * n / 2) / 2 ^ n)
+          Filter.atTop (nhds 1) := by
+      have h_stirling :
+          Filter.Tendsto
+            (fun n : ℕ =>
+              (Nat.choose (2 * n) n : ℝ) * Real.sqrt (Real.pi * n) / 2 ^ (2 * n))
+            Filter.atTop (nhds 1) := by
+        have h_stirling :
+            Filter.Tendsto
+              (fun n : ℕ =>
+                (Nat.factorial (2 * n) : ℝ) /
+                  (2 ^ (2 * n) * (Nat.factorial n) ^ 2) *
+                    Real.sqrt (Real.pi * n))
+              Filter.atTop (nhds 1) := by
+          have h_stirling_approx :
+              ∀ n : ℕ,
+                (Nat.factorial (2 * n) : ℝ) /
+                    (2 ^ (2 * n) * (Nat.factorial n) ^ 2) =
+                  (∏ k ∈ Finset.range n, (2 * k + 1) / (2 * k + 2 : ℝ)) := by
+            intro n
+            induction n with
+            | zero =>
+              norm_num
+            | succ n ih =>
+              rw [Finset.prod_range_succ, ← ih]
+              field_simp [Nat.factorial_succ, Nat.mul_succ]
+              ring_nf
+              rw [show 2 + n * 2 = n * 2 + 2 by ring, show 1 + n = n + 1 by ring]
+              norm_num [Nat.factorial_succ]
+              ring
+          have h_wallis :
+              Filter.Tendsto
+                (fun n : ℕ =>
+                  (∏ k ∈ Finset.range n, (2 * k + 1) / (2 * k + 2 : ℝ)) ^ 2 *
+                    (2 * n + 1))
+                Filter.atTop (nhds (2 / Real.pi)) := by
+            have h_wallis :
+                Filter.Tendsto
+                  (fun n : ℕ =>
+                    (∏ k ∈ Finset.range n, (2 * k + 1) / (2 * k + 2 : ℝ)) ^ 2 *
+                      (2 * n + 1))
+                  Filter.atTop (nhds (2 / Real.pi)) := by
+              have h_wallis_prod :
+                  Filter.Tendsto
+                    (fun n : ℕ =>
+                      (∏ k ∈ Finset.range n,
+                        (2 * k + 2) ^ 2 / ((2 * k + 1) * (2 * k + 3) : ℝ)))
+                    Filter.atTop (nhds (Real.pi / 2)) := by
+                convert Real.tendsto_prod_pi_div_two using 1
+                exact funext fun n =>
+                  Finset.prod_congr rfl fun _ _ => by
+                    rw [div_mul_div_comm]
+                    ring
+              convert h_wallis_prod.inv₀ (by positivity) using 2
+              · norm_num [Finset.prod_pow]
+                field_simp
+                induction ‹_› <;> norm_num [Finset.prod_range_succ] at *
+                rename_i n ih
+                rw [← ih]
+                ring
+              · norm_num [div_eq_mul_inv]
+            convert h_wallis using 1
+          have h_sqrt :
+              Filter.Tendsto
+                (fun n : ℕ =>
+                  Real.sqrt
+                    ((∏ k ∈ Finset.range n, (2 * k + 1) / (2 * k + 2 : ℝ)) ^ 2 *
+                      (2 * n + 1)) *
+                    Real.sqrt (Real.pi / (2 + 1 / (n : ℝ))))
+                Filter.atTop (nhds 1) := by
+            convert
+              Filter.Tendsto.mul (Filter.Tendsto.sqrt h_wallis)
+                (Filter.Tendsto.sqrt
+                  ((tendsto_const_nhds (x := Real.pi)).div
+                    ((tendsto_const_nhds (x := (2 : ℝ))).add
+                      tendsto_one_div_atTop_nhds_zero_nat)
+                    (by norm_num)))
+              using 2 <;>
+              norm_num
+            rw [div_self <| Real.sqrt_ne_zero'.mpr Real.pi_pos]
+          refine h_sqrt.congr' ?_
+          filter_upwards [Filter.eventually_gt_atTop 0] with n hn
+          rw [h_stirling_approx n]
+          field_simp [mul_comm, mul_assoc, mul_left_comm]
+          rw [← Real.sqrt_mul (by exact mul_nonneg (sq_nonneg _) (by positivity))]
+          rw [
+            show
+              (∏ x ∈ Finset.range n, (2 * (x : ℝ) + 1) / (2 * (x + 1))) ^ 2 *
+                  (2 * n + 1) * (n * Real.pi / (2 * n + 1)) =
+                ((∏ x ∈ Finset.range n, (2 * (x : ℝ) + 1) / (2 * (x + 1))) ^ 2) *
+                  (n * Real.pi) by
+              rw [mul_assoc, mul_div_cancel₀ _ (by positivity)]]
+          rw [Real.sqrt_mul (sq_nonneg _),
+            Real.sqrt_sq (Finset.prod_nonneg fun _ _ => by positivity)]
+        convert h_stirling using 2
+        norm_num [two_mul, Nat.cast_choose]
+        ring
+      have h_stirling :
+          Filter.Tendsto
+            (fun n : ℕ =>
+              (Nat.choose (2 * n + 1) n : ℝ) *
+                Real.sqrt (Real.pi * (2 * n + 1) / 2) / 2 ^ (2 * n + 1))
+            Filter.atTop (nhds 1) := by
+        have h_stirling :
+            Filter.Tendsto
+              (fun n : ℕ =>
+                (Nat.choose (2 * n + 1) n : ℝ) / (2 * Nat.choose (2 * n) n))
+              Filter.atTop (nhds 1) := by
+          have h_stirling :
+              ∀ n : ℕ,
+                (Nat.choose (2 * n + 1) n : ℝ) =
+                  (Nat.choose (2 * n) n : ℝ) * (2 * n + 1) / (n + 1) := by
+            intro n
+            rw [eq_div_iff] <;> norm_cast
+            induction n with
+            | zero =>
+              norm_num [Nat.choose]
+            | succ n ih =>
+              norm_num [Nat.choose] at *
+              have := Nat.add_one_mul_choose_eq (2 * (n + 1)) n
+              have := Nat.add_one_mul_choose_eq (2 * (n + 1)) (n + 1)
+              norm_num [Nat.mul_succ, Nat.choose_succ_succ] at *
+              linarith
+          -- Simplify the expression inside the limit.
+          suffices h_simplify :
+              Filter.Tendsto
+                (fun n : ℕ => (2 * n + 1 : ℝ) / (2 * (n + 1)))
+                Filter.atTop (nhds 1) by
+            convert h_simplify using 2
+            rw [h_stirling]
+            ring_nf
+            -- Combine and simplify the terms on the left-hand side.
+            field_simp
+            ring_nf
+            exact
+              mul_inv_cancel₀ <|
+                Nat.cast_ne_zero.mpr <| Nat.ne_of_gt <| Nat.choose_pos <| by linarith
+          rw [Metric.tendsto_nhds]
+          norm_num
+          exact fun ε hε =>
+            ⟨Nat.ceil (ε⁻¹ * 2), fun n hn =>
+              abs_lt.mpr
+                ⟨by
+                  nlinarith [Nat.ceil_le.mp hn, inv_mul_cancel₀ hε.ne',
+                    mul_div_cancel₀ ((2 * n + 1 : ℝ))
+                      (by positivity : (2 * (n + 1) : ℝ) ≠ 0)],
+                by
+                  nlinarith [Nat.ceil_le.mp hn, inv_mul_cancel₀ hε.ne',
+                    mul_div_cancel₀ ((2 * n + 1 : ℝ))
+                      (by positivity : (2 * (n + 1) : ℝ) ≠ 0)]⟩⟩
+        have h_stirling :
+            Filter.Tendsto
+              (fun n : ℕ =>
+                (Nat.choose (2 * n + 1) n : ℝ) / (2 * Nat.choose (2 * n) n) *
+                  (Real.sqrt (Real.pi * (2 * n + 1) / 2) /
+                    Real.sqrt (Real.pi * n)) *
+                    (Nat.choose (2 * n) n * Real.sqrt (Real.pi * n) / 2 ^ (2 * n)))
+              Filter.atTop (nhds 1) := by
+          have h_stirling :
+              Filter.Tendsto
+                (fun n : ℕ =>
+                  Real.sqrt (Real.pi * (2 * n + 1) / 2) / Real.sqrt (Real.pi * n))
+                Filter.atTop (nhds 1) := by
+            have h_stirling :
+                Filter.Tendsto
+                  (fun n : ℕ => Real.sqrt ((2 * n + 1) / (2 * n)))
+                  Filter.atTop (nhds 1) := by
+              ring_nf
+              exact
+                le_trans
+                  (Filter.Tendsto.sqrt
+                    (Filter.Tendsto.add
+                      (tendsto_const_nhds.congr'
+                        (by
+                          filter_upwards [Filter.eventually_ne_atTop 0] with n hn
+                          simp_all only [Nat.cast_nonneg, Real.sqrt_mul', ne_eq,
+                            Nat.cast_eq_zero, not_false_eq_true, mul_inv_cancel₀]
+                          rfl))
+                      (tendsto_inv_atTop_nhds_zero_nat.mul tendsto_const_nhds)))
+                  (by norm_num)
+            convert h_stirling using 2
+            rw [← Real.sqrt_div (by positivity)]
+            ring_nf
+            norm_num [Real.pi_pos.ne']
+            norm_num [mul_assoc, mul_comm Real.pi _, Real.pi_ne_zero]
+          simpa using
+            Filter.Tendsto.mul
+              (Filter.Tendsto.mul
+                ‹Filter.Tendsto
+                  (fun n : ℕ =>
+                    (Nat.choose (2 * n + 1) n : ℝ) / (2 * Nat.choose (2 * n) n))
+                  Filter.atTop (nhds 1)›
+                h_stirling)
+              ‹Filter.Tendsto
+                (fun n : ℕ =>
+                  (Nat.choose (2 * n) n : ℝ) * Real.sqrt (Real.pi * n) / 2 ^ (2 * n))
+                Filter.atTop (nhds 1)›
+        refine h_stirling.congr' ?_
+        filter_upwards [Filter.eventually_gt_atTop 0] with n hn
+        field_simp [mul_comm, mul_assoc, mul_left_comm]
+        rw [
+          div_eq_iff
+            (Nat.cast_ne_zero.mpr <| Nat.ne_of_gt <| Nat.choose_pos <| by linarith)]
+        ring
+      rw [Filter.tendsto_atTop'] at *
+      intro s hs
+      rcases
+        ‹∀ s ∈ nhds 1, ∃ a, ∀ b ≥ a,
+          (Nat.choose (2 * b) b : ℝ) * Real.sqrt (Real.pi * b) / 2 ^ (2 * b) ∈ s›
+          s hs with
+        ⟨a, ha⟩
+      rcases h_stirling s hs with ⟨b, hb⟩
+      refine ⟨2 * a + 2 * b, fun n hn => ?_⟩
+      rcases Nat.even_or_odd' n with ⟨k, rfl | rfl⟩ <;> norm_num at *
+      · convert ha k (by linarith) using 1
+        ring_nf
+        norm_num [mul_assoc, mul_comm, mul_left_comm]
+      · convert hb k (by linarith) using 1
+        norm_num [Nat.add_div]
+    rw [Asymptotics.isEquivalent_iff_exists_eq_mul]
+    refine
+      ⟨fun n : ℕ =>
+        (Nat.choose n (n / 2) : ℝ) * Real.sqrt (Real.pi * n / 2) / 2 ^ n,
+        h_stirling, ?_⟩
+    filter_upwards [Filter.eventually_gt_atTop 0] with n hn
+    rw [Pi.mul_apply, div_mul_div_cancel₀ (by positivity),
+      mul_div_cancel_right₀ _ (by positivity)]
+  refine this.trans (h_stirling.congr_right ?_)
+  have hsqrt_const : Real.sqrt (Real.pi / 2) * Real.sqrt (2 / Real.pi) = 1 := by
+    rw [mul_comm]
+    rw [← Real.sqrt_mul (by positivity : 0 ≤ 2 / Real.pi)]
+    field_simp [Real.pi_ne_zero]
+    norm_num
+  filter_upwards [Filter.eventually_gt_atTop 0] with n hn
+  have hsqrt_arg :
+      Real.sqrt (Real.pi * (n : ℝ) / 2) =
+        Real.sqrt (Real.pi / 2) * Real.sqrt (n : ℝ) := by
+    rw [show Real.pi * (n : ℝ) / 2 = (Real.pi / 2) * (n : ℝ) by ring]
+    rw [Real.sqrt_mul (by positivity : 0 ≤ Real.pi / 2)]
+  rw [hsqrt_arg]
+  field_simp [Real.sqrt_ne_zero'.mpr (Nat.cast_pos.mpr hn),
+    Real.sqrt_ne_zero'.mpr (by positivity : 0 < Real.pi / 2)]
+  rw [← hsqrt_const]
+
 /-
 5. Existential version: there exists a constant `c > 0` such that
    `F(n) ∼ c * 2^n / n^{1/2}`.

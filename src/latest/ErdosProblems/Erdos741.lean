@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
+/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 741.
@@ -57,6 +57,22 @@ open scoped Pointwise
 open Set
 
 namespace Erdos741
+
+noncomputable instance fintypeIioInterSet (n : ℕ) (S : Set ℕ) :
+    Fintype ↑(Iio n ∩ S) :=
+  ((finite_Iio n).inter_of_left S).fintype
+
+noncomputable instance fintypeIicInterSet (n : ℕ) (S : Set ℕ) :
+    Fintype ↑(Iic n ∩ S) :=
+  ((finite_Iic n).inter_of_left S).fintype
+
+noncomputable instance fintypeInterIioSet (S : Set ℕ) (n : ℕ) :
+    Fintype ↑(S ∩ Iio n) :=
+  ((finite_Iio n).inter_of_right S).fintype
+
+noncomputable instance fintypeInterIicSet (S : Set ℕ) (n : ℕ) :
+    Fintype ↑(S ∩ Iic n) :=
+  ((finite_Iic n).inter_of_right S).fintype
 
 def IsAddBasisOfOrder (A : Set ℕ) (r : ℕ) : Prop :=
   ∀ n, n ∈ r • A
@@ -542,7 +558,17 @@ lemma set_add_shift_inj (A : Set ℕ) (e x y : ℕ) (he : e ∈ A) (hxy : x ≤ 
 
 lemma set_shift_size_lower_bound (A : Set ℕ) (e x y : ℕ) (hxy : x ≤ y) (hx : x ≥ e) :
   ((A ∩ Ico (x - e) (y - e)).ncard : ℝ) ≥ ((A ∩ Ico x y).ncard : ℝ) - e := by
-    sorry
+  have h_left : (A ∩ Ico (x - e) (y - e)).Finite :=
+    (Set.finite_Ico (x - e) (y - e)).inter_of_right A
+  have h_right : (((Finset.Ico (y - e) (e + (y - e)) : Finset ℕ) : Set ℕ)).Finite :=
+    (Finset.Ico (y - e) (e + (y - e))).finite_toSet
+  haveI : Fintype ↑(A ∩ Ico (x - e) (y - e) ∪
+      ((Finset.Ico (y - e) (e + (y - e)) : Finset ℕ) : Set ℕ)) :=
+    (h_left.union h_right).fintype
+  use sub_le_iff_le_add.2 (mod_cast(Nat.card_mono (.of_fintype _) fun and=>
+      by grind).trans ((Set.ncard_union_le _ _).trans (congr_arg _ ((
+      Nat.card_eq_finsetCard _)▸ (@y-e).card_Ico _▸Nat.add_sub_cancel _ _)).le))
+
 lemma split1_eq_add (n : ℕ) : split1 n = n % 2 + 4 * split1 (n / 4) := by
   by_cases h : n = 0
   · rw [h]
@@ -1768,7 +1794,74 @@ lemma sandor_cross_sums (A₁ A₂ : Set ℕ) (h_union : SandorA = A₁ ∪ A₂
   (((A₁ + A₁) ∩ Ico (2 * S_x k) (2 * S_y k)).ncard : ℝ) +
       (((A₂ + A₂) ∩ Ico (2 * S_x k) (2 * S_y k)).ncard : ℝ)
     ≥ 2 * ((S_y k : ℝ) - (S_x k : ℝ)) - 2 := by
-      sorry
+  have _ := hk
+  have h_C_sub : Ico (S_x k) (S_y k) ⊆ SandorA := by
+    intro x hx
+    right
+    exact Set.mem_iUnion_of_mem k hx
+  have h_part :
+      (A₁ ∩ Ico (S_x k) (S_y k)).ncard +
+          (A₂ ∩ Ico (S_x k) (S_y k)).ncard =
+        (Ico (S_x k) (S_y k)).ncard
+      := by
+    haveI : Fintype ↑(A₁ ∩ Ico (S_x k) (S_y k)) :=
+      ((Set.finite_Ico (S_x k) (S_y k)).inter_of_right A₁).fintype
+    haveI : Fintype ↑(A₂ ∩ Ico (S_x k) (S_y k)) :=
+      ((Set.finite_Ico (S_x k) (S_y k)).inter_of_right A₂).fintype
+    rwa [
+      ← Set.ncard_union_eq ↑(h_disj.mono ↑Set.inter_subset_left
+        (↑Set.inter_subset_left)) (.of_fintype _) ↑(.of_fintype _),
+      ← Set.union_inter_distrib_right _, ← h_union, Set.inter_eq_right.mpr]
+  have h_part_real :
+      ((A₁ ∩ Ico (S_x k) (S_y k)).ncard : ℝ) +
+          ((A₂ ∩ Ico (S_x k) (S_y k)).ncard : ℝ) =
+        ((Ico (S_x k) (S_y k)).ncard : ℝ)
+      := by
+    exact_mod_cast h_part
+  have h_C_size :
+      ((Ico (S_x k) (S_y k)).ncard : ℝ) = (S_y k : ℝ) - (S_x k : ℝ) := by
+    delta Erdos741.S_y Erdos741.S_x
+    rw [←Nat.cast_sub (by valid),Set.ncard_eq_toFinset_card',Set.toFinset_Ico,Nat.card_Ico]
+  have h_A1_add :
+      (((A₁ ∩ Ico (S_x k) (S_y k)) +
+          (A₁ ∩ Ico (S_x k) (S_y k))).ncard : ℝ) ≥
+        2 * ((A₁ ∩ Ico (S_x k) (S_y k)).ncard : ℝ) - 1
+      := by
+    exact set_card_add_same_general (A₁ ∩ Ico (S_x k) (S_y k))
+      ((Set.finite_Ico (S_x k) (S_y k)).inter_of_right A₁)
+  have h_A2_add :
+      (((A₂ ∩ Ico (S_x k) (S_y k)) +
+          (A₂ ∩ Ico (S_x k) (S_y k))).ncard : ℝ) ≥
+        2 * ((A₂ ∩ Ico (S_x k) (S_y k)).ncard : ℝ) - 1
+      := by
+    exact set_card_add_same_general (A₂ ∩ Ico (S_x k) (S_y k))
+      ((Set.finite_Ico (S_x k) (S_y k)).inter_of_right A₂)
+  have h_A1_sub :
+      (A₁ ∩ Ico (S_x k) (S_y k)) + (A₁ ∩ Ico (S_x k) (S_y k)) ⊆
+        (A₁ + A₁) ∩ Ico (2 * S_x k) (2 * S_y k)
+      := by
+    exact (Set.add_subset_iff.2 fun and ⟨a, M, _⟩ b ⟨A, B, _⟩ =>
+      ⟨⟨_, a, b, A, rfl⟩, .symm (by valid)⟩)
+  have h_A2_sub :
+      (A₂ ∩ Ico (S_x k) (S_y k)) + (A₂ ∩ Ico (S_x k) (S_y k)) ⊆
+        (A₂ + A₂) ∩ Ico (2 * S_x k) (2 * S_y k)
+      := by
+    exact (Set.add_subset_iff.mpr fun and ⟨A, B, _⟩ b ⟨a, H, _⟩ =>
+      ⟨⟨_, A, b, a, rfl⟩, .symm (by valid)⟩)
+  have h_A1_ncard :
+      (((A₁ + A₁) ∩ Ico (2 * S_x k) (2 * S_y k)).ncard : ℝ) ≥
+        (((A₁ ∩ Ico (S_x k) (S_y k)) +
+            (A₁ ∩ Ico (S_x k) (S_y k))).ncard : ℝ)
+      := by
+    apply Nat.cast_le.2 (Set.ncard_le_ncard (by assumption) )
+  have h_A2_ncard :
+      (((A₂ + A₂) ∩ Ico (2 * S_x k) (2 * S_y k)).ncard : ℝ) ≥
+        (((A₂ ∩ Ico (S_x k) (S_y k)) +
+            (A₂ ∩ Ico (S_x k) (S_y k))).ncard : ℝ)
+      := by
+    exact (mod_cast (Set.ncard_le_ncard (by assumption)))
+  linarith
+
 lemma exists_K1_cx (c : ℝ) (hc : c > 0) : ∃ K1, ∀ k ≥ K1, 8 * c * (S_x k : ℝ) ≥ 2 := by
   have hc8 : 0 < 8 * c := by linarith
   have htop : Filter.Tendsto (fun k => (8 * c) * (S_x k : ℝ)) Filter.atTop Filter.atTop := by
@@ -1814,7 +1907,149 @@ lemma SandorA_fluctuation_bounds (A₁ A₂ : Set ℕ) (h_union : SandorA = A₁
         (((A₂ + A₂) ∩ Iio (M k)).ncard : ℝ) / (M k : ℝ)
      ≥ (((A₁ + A₁) ∩ Iio (N k)).ncard : ℝ) / (N k : ℝ)
          + (((A₂ + A₂) ∩ Iio (N k)).ncard : ℝ) / (N k : ℝ) + delta := by
-           sorry
+  have hb := B_partition_density A₁ A₂ h_union h_disj α₁ α₂ h_dens1 h_dens2 h_pos1 h_pos2
+  rcases hb with ⟨c, hc_pos, K0, hK0⟩
+  have hK1_ex := exists_K1_cx c hc_pos
+  rcases hK1_ex with ⟨K1, hK1⟩
+  use (fun k => 2 * S_y k), (fun k => 2 * S_x k), max (max K0 10) K1, (c / 2)
+  have h_delta_pos : c / 2 > 0 := div_pos hc_pos (by norm_num)
+  refine ⟨h_delta_pos, tendsto_2Sy, tendsto_2Sx, ?_⟩
+  intro k hk
+  have hk_K1 : k ≥ K1 := le_trans (le_max_right _ _) hk
+  have hk_K0 : k ≥ K0 := le_trans (le_max_left K0 10) (le_trans (le_max_left _ _) hk)
+  have hk_10 : k ≥ 10 := le_trans (le_max_right K0 10) (le_trans (le_max_left _ _) hk)
+  change
+    (((A₁ + A₁) ∩ Iio (2 * S_y k)).ncard : ℝ) /
+        ((2 * S_y k : ℕ) : ℝ) +
+      (((A₂ + A₂) ∩ Iio (2 * S_y k)).ncard : ℝ) /
+        ((2 * S_y k : ℕ) : ℝ) ≥
+    (((A₁ + A₁) ∩ Iio (2 * S_x k)).ncard : ℝ) /
+        ((2 * S_x k : ℕ) : ℝ) +
+      (((A₂ + A₂) ∩ Iio (2 * S_x k)).ncard : ℝ) /
+        ((2 * S_x k : ℕ) : ℝ) + c / 2
+  push_cast
+  have h_add_div_x :
+      (((A₁ + A₁) ∩ Iio (2 * S_x k)).ncard : ℝ) / (2 * (S_x k : ℝ)) +
+          (((A₂ + A₂) ∩ Iio (2 * S_x k)).ncard : ℝ) / (2 * (S_x k : ℝ)) =
+        ((((A₁ + A₁) ∩ Iio (2 * S_x k)).ncard : ℝ) +
+            (((A₂ + A₂) ∩ Iio (2 * S_x k)).ncard : ℝ)) /
+          (2 * (S_x k : ℝ))
+      := by
+    ring_nf
+  have h_add_div_y :
+      (((A₁ + A₁) ∩ Iio (2 * S_y k)).ncard : ℝ) / (2 * (S_y k : ℝ)) +
+          (((A₂ + A₂) ∩ Iio (2 * S_y k)).ncard : ℝ) / (2 * (S_y k : ℝ)) =
+        ((((A₁ + A₁) ∩ Iio (2 * S_y k)).ncard : ℝ) +
+            (((A₂ + A₂) ∩ Iio (2 * S_y k)).ncard : ℝ)) /
+          (2 * (S_y k : ℝ))
+      := by
+    ring_nf
+  rw [h_add_div_x, h_add_div_y]
+  have h_split1 :
+      (((A₁ + A₁) ∩ Iio (2 * S_y k)).ncard : ℝ) =
+        (((A₁ + A₁) ∩ Iio (2 * S_x k)).ncard : ℝ) +
+          (((A₁ + A₁) ∩ Ico (2 * S_x k) (2 * S_y k)).ncard : ℝ)
+      := by
+    haveI : Fintype ↑((A₁ + A₁) ∩ Iio (2 * S_x k)) :=
+      ((finite_Iio (2 * S_x k)).inter_of_right (A₁ + A₁)).fintype
+    haveI : Fintype ↑((A₁ + A₁) ∩ Ico (2 * S_x k) (2 * S_y k)) :=
+      ((Set.finite_Ico (2 * S_x k) (2 * S_y k)).inter_of_right (A₁ + A₁)).fintype
+    rw [
+      ← Nat.cast_add,
+      ← Set.ncard_union_eq ↑(Set.disjoint_left.mpr fun and R L =>
+          not_le.mpr R.2 L.right.1) (.of_fintype _) ↑(.of_fintype _),
+      ← Set.inter_union_distrib_left]
+    rw[Set.Iio_union_Ico_eq_Iio (by apply mul_right_mono (by norm_num[S_x,S_y]))]
+  have h_split2 :
+      (((A₂ + A₂) ∩ Iio (2 * S_y k)).ncard : ℝ) =
+        (((A₂ + A₂) ∩ Iio (2 * S_x k)).ncard : ℝ) +
+          (((A₂ + A₂) ∩ Ico (2 * S_x k) (2 * S_y k)).ncard : ℝ)
+      := by
+    haveI : Fintype ↑((A₂ + A₂) ∩ Iio (2 * S_x k)) :=
+      ((finite_Iio (2 * S_x k)).inter_of_right (A₂ + A₂)).fintype
+    haveI : Fintype ↑((A₂ + A₂) ∩ Ico (2 * S_x k) (2 * S_y k)) :=
+      ((Set.finite_Ico (2 * S_x k) (2 * S_y k)).inter_of_right (A₂ + A₂)).fintype
+    rw [
+      ← Nat.cast_add,
+      ← Set.ncard_union_eq ↑(Set.disjoint_left.2 fun and R L =>
+          not_lt_of_ge L.2.1 R.2) (.of_fintype _) ↑(.of_fintype _),
+      ← Set.inter_union_distrib_left _, Set.Iio_union_Ico_eq_Iio]
+    delta Erdos741.S_x Erdos741.S_y Erdos741.SandorA at*
+    bound
+  have h_cross := sandor_cross_sums A₁ A₂ h_union h_disj k hk_10
+  have h_Sx_pos : (S_x k : ℝ) > 0 := by nlinarith only [hc_pos,hK1 k (by valid)]
+  have h_Sy_pos : (S_y k : ℝ) > 0 := by norm_num [S_y,id]
+  have h_Sy_eq : (S_y k : ℝ) = 10 * (S_x k : ℝ) := by norm_num [S_y,S_x]
+  have h_sum_y :
+      (((A₁ + A₁) ∩ Iio (2 * S_y k)).ncard : ℝ) +
+          (((A₂ + A₂) ∩ Iio (2 * S_y k)).ncard : ℝ) ≥
+    (((A₁ + A₁) ∩ Iio (2 * S_x k)).ncard : ℝ)
+        + (((A₂ + A₂) ∩ Iio (2 * S_x k)).ncard : ℝ) + 2 * ((S_y k : ℝ) - (S_x k : ℝ))
+        - 2 := by
+      linarith
+  have h_N_bound :
+      (((A₁ + A₁) ∩ Iio (2 * S_x k)).ncard : ℝ) / (2 * (S_x k : ℝ)) +
+          (((A₂ + A₂) ∩ Iio (2 * S_x k)).ncard : ℝ) / (2 * (S_x k : ℝ)) ≤
+        1 - c
+      :=
+    hK0 k hk_K0
+  have h_N_sum :
+      ((((A₁ + A₁) ∩ Iio (2 * S_x k)).ncard : ℝ) +
+          (((A₂ + A₂) ∩ Iio (2 * S_x k)).ncard : ℝ)) /
+        (2 * (S_x k : ℝ)) ≤ 1 - c
+      := by
+    have h_add_div :
+        ((((A₁ + A₁) ∩ Iio (2 * S_x k)).ncard : ℝ) +
+            (((A₂ + A₂) ∩ Iio (2 * S_x k)).ncard : ℝ)) /
+          (2 * (S_x k : ℝ)) =
+        (((A₁ + A₁) ∩ Iio (2 * S_x k)).ncard : ℝ) / (2 * (S_x k : ℝ)) +
+          (((A₂ + A₂) ∩ Iio (2 * S_x k)).ncard : ℝ) / (2 * (S_x k : ℝ))
+        := by
+      ring_nf
+    rw [h_add_div]
+    exact h_N_bound
+  have h_M_bound :
+      (((A₁ + A₁) ∩ Iio (2 * S_y k)).ncard : ℝ) / (2 * (S_y k : ℝ)) +
+          (((A₂ + A₂) ∩ Iio (2 * S_y k)).ncard : ℝ) / (2 * (S_y k : ℝ)) ≥
+        ((((A₁ + A₁) ∩ Iio (2 * S_x k)).ncard : ℝ) +
+            (((A₂ + A₂) ∩ Iio (2 * S_x k)).ncard : ℝ) +
+            2 * ((S_y k : ℝ) - (S_x k : ℝ)) - 2)
+        / (2 * (S_y k : ℝ)) := by
+    have h_M_sum :
+        (((A₁ + A₁) ∩ Iio (2 * S_y k)).ncard : ℝ) / (2 * (S_y k : ℝ)) +
+            (((A₂ + A₂) ∩ Iio (2 * S_y k)).ncard : ℝ) / (2 * (S_y k : ℝ)) =
+          ((((A₁ + A₁) ∩ Iio (2 * S_y k)).ncard : ℝ) +
+              (((A₂ + A₂) ∩ Iio (2 * S_y k)).ncard : ℝ)) /
+            (2 * (S_y k : ℝ))
+        := by
+      ring_nf
+    rw [h_M_sum]
+    exact div_le_div_of_nonneg_right h_sum_y (by positivity)
+  have h_Nx_bound :
+      (((A₁ + A₁) ∩ Iio (2 * S_x k)).ncard : ℝ) +
+          (((A₂ + A₂) ∩ Iio (2 * S_x k)).ncard : ℝ) ≤
+        2 * (S_x k : ℝ) * (1 - c)
+      := by
+    have hx_pos2 : 2 * (S_x k : ℝ) > 0 := by positivity
+    have h_mul := mul_le_mul_of_nonneg_right h_N_sum (le_of_lt hx_pos2)
+    have h_cancel :
+        ((((A₁ + A₁) ∩ Iio (2 * S_x k)).ncard : ℝ) +
+            (((A₂ + A₂) ∩ Iio (2 * S_x k)).ncard : ℝ)) /
+          (2 * (S_x k : ℝ)) * (2 * (S_x k : ℝ)) =
+        ((((A₁ + A₁) ∩ Iio (2 * S_x k)).ncard : ℝ) +
+          (((A₂ + A₂) ∩ Iio (2 * S_x k)).ncard : ℝ))
+        :=
+      div_mul_cancel₀ _ (ne_of_gt hx_pos2)
+    linarith
+  have h_alg :=
+    algebra_fluctuation
+      ((((A₁ + A₁) ∩ Iio (2 * S_x k)).ncard : ℝ) +
+        (((A₂ + A₂) ∩ Iio (2 * S_x k)).ncard : ℝ))
+      (S_x k : ℝ) (S_y k : ℝ) c h_Sx_pos h_Sy_eq (hK1 k hk_K1) h_Nx_bound
+  linarith
+
+
+
 lemma max_of_five (N1u N1l N2u N2l N_ext : ℕ) : ∃ Nmax :
     ℕ, Nmax ≥ N1u ∧ Nmax ≥ N1l ∧ Nmax ≥ N2u ∧ Nmax ≥ N2l ∧ Nmax ≥ N_ext := by
   use max (max (max N1u N1l) (max N2u N2l)) N_ext
@@ -2168,11 +2403,69 @@ lemma exists_N_sparse (A : Set ℕ) (c : ℝ) (hc : 0 < c)
     ∃ N : ℕ, N > K ∧
       (K + 1 : ℝ) * (Set.ncard (A ∩ Set.Iic N) : ℝ) ≤ (c / 4) * (N : ℝ) ∧
              c ≤ (Set.ncard ((A + A) ∩ Set.Iic N) : ℝ) / (N : ℝ) := by
-               sorry
+  simp_rw [upperDensity,.>.]at *
+  simp_all[Filter.limsup_eq, A.inter_comm, Set.partialDensity]
+  obtain ⟨y, @c, _⟩ := exists_lt_of_csInf_lt
+    (by
+      use 1, 1, fun and x =>
+        div_le_one_of_le₀
+          (mod_cast (Nat.card_mono (.of_fintype _) fun and => And.left).trans
+            (by bound))
+          and.cast_nonneg)
+    (h_sparse.trans_lt (by bound: c / 4 / (K + 1) > 0))
+  apply
+    (((tendsto_natCast_atTop_atTop.comp hf.tendsto_atTop).const_mul_atTop
+      ↑(sub_pos.2 (by assumption):)).eventually_ge_atTop ((K + 1) * y)).and
+      (Filter.mem_atTop (K + 1 + c)) |>.exists.elim
+  use fun and h =>
+    ⟨_, le_self_add.trans (h.2.trans hf.le_apply),
+      (le_inv_mul_iff₀ (by positivity)).1 ?_, h_sum and⟩
+  use .trans
+    (mod_cast Nat.card_mono (.of_fintype _) fun and => .imp_left (fun h => Nat.lt_succ_iff.2 h))
+    (((div_le_iff₀ (by bound)).1
+      ((‹∀ (x _), _› (f and + 1) (by linarith [hf.le_apply.trans' h.2]) :))).trans
+        (?_))
+  exact (.trans (by rw [Nat.cast_succ])
+    ((ge_of_eq (by rw [inv_mul_eq_div, mul_div_right_comm])).trans' (by
+      nlinarith! [(‹∀ (x _), _ ≤ y› and (by valid)).trans' (by positivity)])))
+
+
 lemma exists_rapid_seq (P : ℕ → ℕ → Prop) (h_inf : ∀ K, ∃ N > K, P K N) :
     ∃ M : ℕ → ℕ, StrictMono M ∧ ∀ k, P (M k) (M (k + 1)) := by
   exact (Classical.axiomOfChoice ↑h_inf).elim fun and (a) =>
     ⟨.rec 0 _, strictMono_nat_of_lt_succ fun and => (a _).left, fun and => (a _).right⟩
+
+theorem Erdos741.upperDensity_pos_implies_seq.extracted_1_3 (S : Set ℕ)
+  (h : 0 < sInf {a | ∃ a_1, ∀ (b : ℕ), a_1 ≤ b →
+      (b : ℝ)⁻¹ * ↑(Fintype.card ↑(Iio b ∩ S)) ≤ a}) (and_1 : ℝ)
+  (x : 0 < and_1 ∧ and_1 < sInf {a | ∃ a_1, ∀ (b : ℕ), a_1 ≤ b →
+      (b : ℝ)⁻¹ * ↑(Fintype.card ↑(Iio b ∩ S)) ≤ a})
+  (A : 0 < and_1)
+  (B : and_1 < sInf {a | ∃ a_1, ∀ (b : ℕ), a_1 ≤ b →
+      (b : ℝ)⁻¹ * ↑(Fintype.card ↑(Iio b ∩ S)) ≤ a})
+  (and_2 : ℕ → ℕ)
+  (m : ∀ (x : ℕ),
+    ¬(x + 1 ≤ and_2 x →
+      (↑(and_2 x))⁻¹ * ↑(Fintype.card ↑(Iio (and_2 x) ∩ S)) ≤ and_1))
+    (and : ℕ) :
+    ↑(Fintype.card ↑(Iio (and_2 ((fun t ↦ Nat.rec 0 (fun _ ↦ and_2) t) and)) ∩ S)) ≤
+      ↑(Fintype.card ↑(Iic ((and_2 ∘ fun t ↦ Nat.rec 0 (fun _ ↦ and_2) t) and) ∩ S)) := by
+    have _ := h
+    have _ := x
+    have _ := A
+    have _ := B
+    have _ := m
+    exact Fintype.card_le_of_embedding
+      { toFun := fun n => ⟨n.1, ⟨by
+          simpa [Function.comp] using n.2.1.le, n.2.2⟩⟩
+        inj' := by
+          intro n m hnm
+          apply Subtype.ext
+          simpa using
+            (congrArg
+              (fun z : ↑(Iic ((and_2 ∘ fun t ↦ Nat.rec 0 (fun _ ↦ and_2) t) and) ∩ S) =>
+                (z : ℕ))
+              hnm) }
 
 lemma upperDensity_add_self_pos (A : Set ℕ) (h : 0 < upperDensity A) :
     0 < upperDensity (A + A) := by
@@ -2283,7 +2576,39 @@ lemma sumset_diff_bound (A A₁ A₂ : Set ℕ) (N K : ℕ)
     (h_union : A = A₁ ∪ A₂) (hK : ∀ x ∈ A₂ ∩ Set.Iic N, x ≤ K) :
     Set.ncard ((A + A) ∩ Set.Iic N) ≤ Set.ncard ((A₁ + A₁) ∩ Set.Iic N) + (K + 1)
         * Set.ncard (A ∩ Set.Iic N) := by
-          sorry
+  have h_sum_union :
+      (A + A) ∩ Set.Iic N ⊆ ((A₁ + A₁) ∩ Set.Iic N) ∪ ((A₂ + A) ∩ Set.Iic N) := by
+    norm_num[*,Set.union_inter_distrib_right]
+    use fun and ⟨⟨a, L, T, M, E⟩, _⟩ =>
+      L.rec (fun and => ?_) fun and => .inr (by use (by use a, and, T))
+    use M.imp (by use ⟨a, and, T,., E⟩) (by use⟨ _, ·, a, L, E▸add_comm _ _⟩)
+  have h_card1 :
+      Set.ncard ((A + A) ∩ Set.Iic N) ≤
+        Set.ncard ((A₁ + A₁) ∩ Set.Iic N) + Set.ncard ((A₂ + A) ∩ Set.Iic N)
+      := by
+    exact (Set.ncard_le_ncard (by valid)).trans (Set.ncard_union_le _ _)
+  have h_A2A :
+      (A₂ + A) ∩ Set.Iic N ⊆ (A₂ ∩ Set.Iic K) + (A ∩ Set.Iic N) := by
+    refine fun and ⟨⟨a, A, P, B, E⟩, R⟩ => by
+        cases E
+        use a, ⟨A, hK a ⟨A, le_self_add.trans R.out⟩⟩, P
+        exact ⟨⟨B, le_add_self.trans R.out⟩, rfl⟩
+  have h_card_A2A :
+      Set.ncard ((A₂ + A) ∩ Set.Iic N) ≤ (K + 1) * Set.ncard (A ∩ Set.Iic N) := by
+    have h_fin_A₂K : (A₂ ∩ Set.Iic K).Finite :=
+      (finite_Iic K).inter_of_right A₂
+    have h_fin_AN : (A ∩ Set.Iic N).Finite :=
+      (finite_Iic N).inter_of_right A
+    have h_fin_sum : ((A₂ ∩ Set.Iic K) + (A ∩ Set.Iic N)).Finite :=
+      h_fin_A₂K.image2 (fun x y => x + y) h_fin_AN
+    haveI : Finite ↑((A₂ ∩ Set.Iic K) + (A ∩ Set.Iic N)) :=
+      Set.finite_coe_iff.mpr h_fin_sum
+    exact (Set.ncard_le_ncard h_A2A).trans
+      (Set.natCard_add_le.trans (Nat.mul_le_mul_right _
+        (K.card_Iic▸Nat.card_eq_finsetCard _▸
+        Nat.card_mono (.of_fintype _) (by bound))))
+  linarith
+
 lemma case_sparse_bounds (A : Set ℕ) (c : ℝ) (hc : 0 < c) (M : ℕ → ℕ)
     (hM_mono : StrictMono M)
     (hM : ∀ k,
@@ -2292,7 +2617,116 @@ lemma case_sparse_bounds (A : Set ℕ) (c : ℝ) (hc : 0 < c) (M : ℕ → ℕ)
                c ≤ (Set.ncard ((A + A) ∩ Set.Iic (M (k + 1))) : ℝ) / (M (k + 1) : ℝ)) :
     0 < upperDensity ((A ∩ block_set M) + (A ∩ block_set M)) ∧
     0 < upperDensity ((A \ block_set M) + (A \ block_set M)) := by
-      sorry
+  have h_union1 : A = (A ∩ block_set M) ∪ (A \ block_set M) := by norm_num
+  have h_union2 : A = (A \ block_set M) ∪ (A ∩ block_set M) := by norm_num
+  have h_bound1 :
+      ∀ k, Set.ncard ((A + A) ∩ Set.Iic (M (2 * k + 1))) ≤
+        Set.ncard (((A ∩ block_set M) + (A ∩ block_set M)) ∩
+          Set.Iic (M (2 * k + 1))) +
+          (M (2 * k) + 1) * Set.ncard (A ∩ Set.Iic (M (2 * k + 1)))
+      := by
+    intro k
+    have hk_max :
+        ∀ x ∈ (A \ block_set M) ∩ Set.Iic (M (2 * k + 1)), x ≤ M (2 * k) := by
+      use fun and(a)=>not_lt.1 (a.1.2 ⟨ _,., a.2⟩)
+    exact sumset_diff_bound A (A ∩ block_set M) (A \ block_set M) (M (2 * k + 1))
+      (M (2 * k)) h_union1 hk_max
+  have h_bound2 :
+      ∀ k, Set.ncard ((A + A) ∩ Set.Iic (M (2 * k + 2))) ≤
+        Set.ncard (((A \ block_set M) + (A \ block_set M)) ∩
+          Set.Iic (M (2 * k + 2))) +
+          (M (2 * k + 1) + 1) * Set.ncard (A ∩ Set.Iic (M (2 * k + 2)))
+      := by
+    intro k
+    have hk_max :
+        ∀ x ∈ (A ∩ block_set M) ∩ Set.Iic (M (2 * k + 2)), x ≤ M (2 * k + 1) := by
+      norm_num[block_set]
+      norm_num[in_block]
+      refine fun and R L a s α =>
+        s.trans ((hM_mono).monotone
+          (not_lt.mp (a.not_ge ∘ α.trans ∘
+            (hM_mono.monotone <|
+              Nat.mul_le_mul_left (2) <| Nat.lt_of_mul_lt_mul_left ·.le_pred))))
+    exact sumset_diff_bound A (A \ block_set M) (A ∩ block_set M) (M (2 * k + 2))
+      (M (2 * k + 1)) h_union2 hk_max
+  have h_dens1 : ∃ f :
+      ℕ → ℕ, StrictMono f ∧ ∀ k,
+        3 * c / 4 ≤
+          (Set.ncard (((A ∩ block_set M) + (A ∩ block_set M)) ∩
+            Set.Iic (f k)) : ℝ) / (f k : ℝ)
+      := by
+    refine ⟨_, hM_mono.comp (strictMono_id.const_mul two_pos |>.add_const (1)),
+      fun and => (le_div_iff₀ (mod_cast (hM_mono (by constructor)).pos)).mpr ?_⟩
+    linarith! [
+      ((le_div_iff₀ (mod_cast (hM_mono (by constructor)).pos)).1
+        (hM (2 * and)).right).trans
+          (.trans (Nat.cast_le.2 (h_bound1 and))
+            (by rw [Nat.cast_add, Nat.cast_mul, Nat.cast_succ])),
+      hM (2 * and)]
+  have h_dens2 : ∃ f :
+      ℕ → ℕ, StrictMono f ∧ ∀ k,
+        3 * c / 4 ≤
+          (Set.ncard (((A \ block_set M) + (A \ block_set M)) ∩
+            Set.Iic (f k)) : ℝ) / (f k : ℝ)
+      := by
+    refine ⟨_, hM_mono.comp ((strictMono_id.const_mul two_pos).add_const 2),
+      fun and => (le_div_iff₀ (mod_cast (hM_mono (by constructor)).pos)).2 ?_⟩
+    linarith! [
+      hM (2 * and + 1),
+      (le_div_iff₀ (mod_cast (hM_mono (by constructor)).pos)).1
+        (hM (2 * and + 1)).2 |>.trans
+          ((Nat.cast_le.2 (h_bound2 _)).trans
+            ((by rw [Nat.cast_add, Nat.cast_mul, Nat.cast_succ])))]
+  have h_pos1 :
+      0 < upperDensity ((A ∩ block_set M) + (A ∩ block_set M)) := by
+    delta Set.upperDensity
+    norm_num[Filter.limsup_eq,Set.partialDensity]
+    use (div_pos hc four_pos).trans_le
+      (le_csInf
+        ⟨1, 1, fun R L =>
+          div_le_one_of_le₀
+            (mod_cast (Nat.card_mono (.of_fintype _) inf_le_right).trans
+              (by norm_num))
+            R.cast_nonneg⟩
+        fun and ⟨a, _⟩ => ?_)
+    use ((le_div_iff₀ (by bound)).2 ? _).trans
+      ((by valid:) (M (2 * a + 1) + 1)
+        (by linarith [hM_mono.le_apply.trans' (2 * a + 1).le_refl]))
+    use @Nat.cast_succ ℝ _ _▸.trans (?_)
+      (Nat.cast_le.2 (Nat.card_mono (.of_fintype _) fun and => .imp_right and.lt_succ_of_le))
+    have :=
+      (le_div_iff₀ ↑(mod_cast (hM_mono (by constructor)).pos)).mp (hM (2 * a)).2
+        |>.trans (Nat.cast_le.mpr (h_bound1 a))
+    linarith! [
+      hM (2 * a),
+      mul_le_mul_of_nonneg_left
+        (mod_cast (hM_mono (by constructor)).pos : (1 : ℝ) ≤ M (2 * a + 1))
+        hc.le,
+      this.trans (by rw [Nat.cast_add, Nat.cast_mul, Nat.cast_succ])]
+  have h_pos2 :
+      0 < upperDensity ((A \ block_set M) + (A \ block_set M)) := by
+    delta Set.upperDensity
+    norm_num[Filter.limsup_eq,Set.partialDensity]
+    use (div_pos (mul_pos three_pos hc) four_pos).trans_le
+      (h_dens2.elim fun and x =>
+        le_csInf
+          ⟨1, 1, fun A B => div_le_one_of_le₀ (mod_cast ? _) A.cast_nonneg⟩
+          fun and ⟨a, H⟩ => ?_)
+    · exact (Nat.card_mono (.of_fintype _) fun and=>And.right).trans (by {norm_num})
+    use not_lt.1 fun and =>
+      (((tendsto_natCast_atTop_atTop.comp x.1.tendsto_atTop).atTop_mul_const
+        ↑(sub_pos.2 and)).eventually_gt_atTop (3 * c / 4)).frequently <|
+          Filter.eventually_atTop.2 ⟨a + 1, ?_⟩
+    use fun and α => fun and' =>
+      absurd.comp (div_le_iff₀ (by bound)).1
+        (H _ (le_of_lt (α.trans (x.1.le_apply.trans (Nat.le_succ _)))))
+        (@Nat.cast_succ ℝ _ _▸? _)
+    exact (mt ((le_div_iff₀ (mod_cast (x.1 α).pos)).1 (x.2 _)).trans
+      (by linarith!) ∘
+        .trans (congr_arg _ ((congr_arg _) ((Set.ext fun and =>
+          and_congr_right' Nat.lt_succ_iff)))).ge)
+  exact ⟨h_pos1, h_pos2⟩
+
 lemma exists_partition_positive_density (A : Set ℕ) (hA : 0 < upperDensity A) :
         ∃ A₁ A₂, A = A₁ ∪ A₂ ∧ Disjoint A₁ A₂ ∧
           0 < upperDensity A₁ ∧ 0 < upperDensity A₂

@@ -129,7 +129,56 @@ lemma mem_seq_sigma_le_iff {S : Multiset G} {k : ℕ} {x : G} :
 
 /-- The maximal multiplicity of an element in `S`. -/
 def max_multiplicity (S : Multiset G) : ℕ :=
-  (S.toFinset.image (S.count ·)).max.getD 0
+  (S.toFinset.image (S.count ·)).max.unbotD 0
+
+lemma max_multiplicity_le_iff_count_early {G : Type*} [DecidableEq G]
+    (S : Multiset G) (k : ℕ) :
+    max_multiplicity S ≤ k ↔ ∀ x, S.count x ≤ k := by
+  classical
+  constructor
+  · intro h x
+    by_cases hx : x ∈ S.toFinset
+    · unfold max_multiplicity at h
+      have := Finset.le_max (Finset.mem_image_of_mem (fun x => S.count x) hx)
+      cases hmax : Finset.max (Finset.image (fun x => S.count x) S.toFinset) with
+      | bot => simp [hmax] at this
+      | coe a =>
+          have ha : a ≤ k := by simpa [hmax] using h
+          have hlebot : (S.count x : WithBot ℕ) ≤ (a : WithBot ℕ) := by
+            simpa [hmax] using this
+          have hle : S.count x ≤ a := by
+            exact_mod_cast hlebot
+          exact le_trans hle ha
+    · simpa [Multiset.count_eq_zero_of_notMem (Multiset.mem_toFinset.not.mp hx)] using (Nat.zero_le k)
+  · intro h
+    unfold max_multiplicity
+    cases hmax : Finset.max (Finset.image (fun x => S.count x) S.toFinset) with
+    | bot => simp [hmax]
+    | coe a =>
+        have hamem : a ∈ Finset.image (fun x => S.count x) S.toFinset := Finset.mem_of_max hmax
+        rcases Finset.mem_image.mp hamem with ⟨x, hx, rfl⟩
+        simpa [hmax] using h x
+
+lemma count_sum_finset_vals {G : Type*} [DecidableEq G] {k : ℕ}
+    (A : Fin k → Finset G) (x : G) :
+    Multiset.count x (∑ i, (A i).val) = ∑ i, (if x ∈ A i then 1 else 0) := by
+  classical
+  induction (Finset.univ : Finset (Fin k)) using Finset.induction with
+  | empty =>
+      simp
+  | insert i s his ih =>
+      rw [Finset.sum_insert his, Finset.sum_insert his]
+      have hcount :
+          Multiset.count x (A i).val = if x ∈ A i then 1 else 0 := by
+        by_cases hxi : x ∈ A i
+        · rw [Multiset.count_eq_one_of_mem]
+          · simp [hxi]
+          · exact (A i).nodup
+          · simpa using hxi
+        · rw [Multiset.count_eq_zero_of_notMem]
+          · simp [hxi]
+          · simpa using hxi
+      simp [Multiset.count_add, ih, hcount]
 
 /-
 If $h(S) \le k$, then $S$ can be partitioned into $k$ sets (possibly empty).
@@ -184,7 +233,104 @@ If $h(S) \le k \le |S|$, then $S$ can be partitioned into $k$ nonempty sets.
 lemma exists_nonempty_partition_into_sets {G : Type*} [DecidableEq G] (S : Multiset G) (k : ℕ)
     (hk_card : k ≤ card S) (h_mul : max_multiplicity S ≤ k) :
     ∃ A : Fin k → Finset G, (∀ i, (A i).Nonempty) ∧ ∑ i, (A i).val = S := by
-      sorry
+  classical
+  induction S using Multiset.induction generalizing k with
+  | empty =>
+      have hk0 : k = 0 := by simpa using hk_card
+      subst k
+      refine ⟨(fun i : Fin 0 => Fin.elim0 i), ?_, ?_⟩
+      · intro i
+        exact Fin.elim0 i
+      · simp
+  | cons x S ih =>
+      have hcount_all : ∀ y, (x ::ₘ S).count y ≤ k :=
+        (max_multiplicity_le_iff_count_early (x ::ₘ S) k).mp h_mul
+      by_cases hk_top : k = S.card + 1
+      · subst k
+        have h_mulS : max_multiplicity S ≤ S.card := by
+          rw [max_multiplicity_le_iff_count_early]
+          intro y
+          exact Multiset.count_le_card y S
+        obtain ⟨A, hAne, hAsum⟩ := ih S.card (le_rfl) h_mulS
+        refine ⟨(fun i : Fin (S.card + 1) => Fin.cases ({x} : Finset G) A i), ?_, ?_⟩
+        · intro i
+          cases i using Fin.cases with
+          | zero => exact Finset.singleton_nonempty x
+          | succ i => exact hAne i
+        · rw [Fin.sum_univ_succ]
+          simp [hAsum, Multiset.singleton_add]
+      · have hk_lt : k < S.card + 1 := lt_of_le_of_ne (by simpa using hk_card) hk_top
+        have hkS : k ≤ S.card := Nat.lt_succ_iff.mp hk_lt
+        have h_mulS : max_multiplicity S ≤ k := by
+          rw [max_multiplicity_le_iff_count_early]
+          intro y
+          have hy := hcount_all y
+          exact le_trans (by
+            by_cases hyx : y = x
+            · subst y
+              simp
+            · simp [hyx]) hy
+        obtain ⟨A, hAne, hAsum⟩ := ih k hkS h_mulS
+        have hk_pos : 0 < k := by
+          by_contra hkz
+          have hk0 : k = 0 := Nat.eq_zero_of_not_pos hkz
+          subst k
+          have hx := hcount_all x
+          simp at hx
+        have h_exists_not : ∃ i : Fin k, x ∉ A i := by
+          by_contra hnone
+          push Not at hnone
+          have hcx : S.count x = k := by
+            rw [← hAsum]
+            rw [count_sum_finset_vals A x]
+            simp [hnone]
+          have hxcons := hcount_all x
+          simp [hcx] at hxcons
+        obtain ⟨i₀, hi₀⟩ := h_exists_not
+        let B : Fin k → Finset G := fun i => if i = i₀ then insert x (A i) else A i
+        refine ⟨B, ?_, ?_⟩
+        · intro i
+          by_cases hi : i = i₀
+          · subst i
+            simpa [B] using Finset.insert_nonempty x (A i₀)
+          · simp [B, hi, hAne i]
+        · ext y
+          rw [Multiset.count_cons]
+          rw [← hAsum]
+          rw [count_sum_finset_vals B y, count_sum_finset_vals A y]
+          by_cases hyx : y = x
+          · subst y
+            have hsum_eq :
+                (∑ i : Fin k, (if x ∈ B i then 1 else 0)) =
+                  (∑ i : Fin k, (if x ∈ A i then 1 else 0)) + 1 := by
+              have hsdiff :
+                  (∑ j ∈ Finset.univ \ {i₀}, (if x ∈ B j then 1 else 0)) =
+                    (∑ j ∈ Finset.univ \ {i₀}, (if x ∈ A j then 1 else 0)) := by
+                apply Finset.sum_congr rfl
+                intro j hj
+                have hji : j ≠ i₀ := by
+                  have : j ∉ ({i₀} : Finset (Fin k)) := (Finset.mem_sdiff.mp hj).2
+                  simpa using this
+                simp [B, hji]
+              rw [Finset.sum_eq_add_sum_sdiff_singleton_of_mem (Finset.mem_univ i₀)]
+              conv_rhs =>
+                arg 1
+                rw [Finset.sum_eq_add_sum_sdiff_singleton_of_mem (Finset.mem_univ i₀)]
+              rw [hsdiff]
+              simp [B, hi₀, Nat.add_comm]
+            rw [hsum_eq]
+            simp
+          · have hsum_eq :
+                (∑ i : Fin k, (if y ∈ B i then 1 else 0)) =
+                  (∑ i : Fin k, (if y ∈ A i then 1 else 0)) := by
+              apply Finset.sum_congr rfl
+              intro i hi
+              by_cases hii : i = i₀
+              · subst i
+                simp [B, hyx]
+              · simp [B, hii]
+            rw [hsum_eq]
+            simp [hyx]
 /-
 Generalized Cauchy-Davenport for k sets.
 -/
@@ -302,7 +448,69 @@ def representation_count {G : Type*} [AddCommMonoid G] [DecidableEq G] (A B : Fi
 
 lemma prop_rep {p : ℕ} [Fact p.Prime] (A B : Finset (ZMod p)) (x : ZMod p) :
     representation_count A B x ≥ A.card + B.card - p := by
-      sorry
+  classical
+  let C : Finset (ZMod p) := A.filter fun a => x - a ∈ B
+  let D : Finset (ZMod p) := A.filter fun a => x - a ∉ B
+  have hrep : representation_count A B x = C.card := by
+    unfold representation_count
+    refine Finset.card_bij (fun q _ => q.1) ?_ ?_ ?_
+    · intro q hq
+      rcases q with ⟨a, b⟩
+      simp only [Finset.mem_filter, Finset.mem_product, Prod.fst, Prod.snd] at hq ⊢
+      rcases hq with ⟨⟨ha, hb⟩, hab⟩
+      have hxsub : x - a = b := by
+        rw [← hab]
+        abel
+      simpa [C, ha, hxsub] using hb
+    · intro q₁ hq₁ q₂ hq₂ hfirst
+      rcases q₁ with ⟨a₁, b₁⟩
+      rcases q₂ with ⟨a₂, b₂⟩
+      simp only [Finset.mem_filter, Finset.mem_product, Prod.fst, Prod.snd] at hq₁ hq₂
+      rcases hq₁ with ⟨⟨ha₁, hb₁⟩, hsum₁⟩
+      rcases hq₂ with ⟨⟨ha₂, hb₂⟩, hsum₂⟩
+      have haeq : a₁ = a₂ := hfirst
+      subst a₂
+      have : b₁ = b₂ := by
+        calc
+          b₁ = -a₁ + x := by rw [← hsum₁]; abel
+          _ = b₂ := by rw [← hsum₂]; abel
+      subst b₂
+      rfl
+    · intro a haC
+      refine ⟨(a, x - a), ?_, rfl⟩
+      simp [C] at haC
+      rcases haC with ⟨haA, haB⟩
+      simp only [Finset.mem_filter, Finset.mem_product, Prod.fst, Prod.snd]
+      exact ⟨⟨haA, haB⟩, by abel⟩
+  have hpart : C.card + D.card = A.card := by
+    simpa [C, D] using
+      (Finset.card_filter_add_card_filter_not (s := A)
+        (p := fun a : ZMod p => x - a ∈ B))
+  have hDle : D.card ≤ p - B.card := by
+    have hmaps :
+        Set.MapsTo (fun a : ZMod p => x - a)
+          (D : Set (ZMod p)) ((Finset.univ \ B : Finset (ZMod p)) : Set (ZMod p)) := by
+      intro a ha
+      simp [D] at ha ⊢
+      exact ha.2
+    have hinj : (D : Set (ZMod p)).InjOn (fun a : ZMod p => x - a) := by
+      intro a ha b hb hab
+      have : -a = -b := by
+        calc
+          -a = -x + (x - a) := by abel
+          _ = -x + (x - b) := congrArg (fun y => -x + y) hab
+          _ = -b := by abel
+      exact neg_injective this
+    have hcard := Finset.card_le_card_of_injOn (fun a : ZMod p => x - a) hmaps hinj
+    have hcompl : (Finset.univ \ B).card = p - B.card := by
+      rw [Finset.card_sdiff_of_subset (Finset.subset_univ B), Finset.card_univ, ZMod.card]
+    simpa [hcompl] using hcard
+  rw [hrep]
+  have hBle : B.card ≤ p := by
+    simpa [ZMod.card] using (Finset.card_le_univ B)
+  exact Nat.sub_le_iff_le_add.mpr (by
+    rw [← hpart]
+    omega)
 /-
 If $S$ is zero-sum free, then the number of subsums is at least the length of $S$.
 -/
@@ -495,7 +703,136 @@ lemma card_union_bound {p : ℕ} [Fact p.Prime] (m h_nat : ℕ)
     (hm : m ≤ p - 1) (hh : 2 ≤ h_nat) (hhm : h_nat ≤ m) :
     ((Finset.Ico 1 m).image (Nat.cast : ℕ → ZMod p) ∪
      ((Finset.Ico 1 (m + 1)).image (Nat.cast : ℕ → ZMod p)).image (fun x => x - (h_nat : ZMod p))).card ≥ min p (m + h_nat - 1) := by
-       sorry
+  classical
+  let A : Finset (ZMod p) := (Finset.Ico 1 m).image (Nat.cast : ℕ → ZMod p)
+  let B : Finset (ZMod p) :=
+    ((Finset.Ico 1 (m + 1)).image (Nat.cast : ℕ → ZMod p)).image
+      (fun x => x - (h_nat : ZMod p))
+  have hp_pos : 0 < p := Nat.Prime.pos Fact.out
+  have hm_lt_p : m < p := Nat.lt_of_le_pred hp_pos hm
+  have hhp : h_nat ≤ p := le_trans hhm hm_lt_p.le
+  have hmemA {x : ZMod p} (hx1 : 1 ≤ x.val) (hxm : x.val < m) : x ∈ A := by
+    refine Finset.mem_image.mpr ⟨x.val, Finset.mem_Ico.mpr ⟨hx1, hxm⟩, ?_⟩
+    simp [ZMod.natCast_zmod_val]
+  have hmemB_low {x : ZMod p} (hxm : x.val ≤ m - h_nat) : x ∈ B := by
+    have hn1 : 1 ≤ x.val + h_nat := by omega
+    have hnm : x.val + h_nat < m + 1 := by omega
+    refine Finset.mem_image.mpr ⟨((x.val + h_nat : ℕ) : ZMod p), ?_, ?_⟩
+    · exact Finset.mem_image.mpr ⟨x.val + h_nat, Finset.mem_Ico.mpr ⟨hn1, hnm⟩, rfl⟩
+    · calc
+        ((x.val + h_nat : ℕ) : ZMod p) - (h_nat : ZMod p) =
+            (x.val : ZMod p) := by
+          push_cast
+          abel
+        _ = x := by simp [ZMod.natCast_zmod_val]
+  have hmemB_high {x : ZMod p} (hxp : p - h_nat + 1 ≤ x.val) : x ∈ B := by
+    have hxltp : x.val < p := ZMod.val_lt x
+    have hp_le : p ≤ x.val + h_nat := by omega
+    have hn1 : 1 ≤ x.val + h_nat - p := by omega
+    have hnm : x.val + h_nat - p < m + 1 := by omega
+    refine Finset.mem_image.mpr ⟨((x.val + h_nat - p : ℕ) : ZMod p), ?_, ?_⟩
+    · exact Finset.mem_image.mpr
+        ⟨x.val + h_nat - p, Finset.mem_Ico.mpr ⟨hn1, hnm⟩, rfl⟩
+    · calc
+        ((x.val + h_nat - p : ℕ) : ZMod p) - (h_nat : ZMod p) =
+            (x.val : ZMod p) := by
+          rw [Nat.cast_sub hp_le]
+          push_cast
+          simp
+        _ = x := by simp [ZMod.natCast_zmod_val]
+  by_cases hwrap : p ≤ m + h_nat - 1
+  · have huniv : A ∪ B = Finset.univ := by
+      apply Finset.eq_univ_iff_forall.mpr
+      intro x
+      rw [Finset.mem_union]
+      by_cases hxA : 1 ≤ x.val ∧ x.val < m
+      · exact Or.inl (hmemA hxA.1 hxA.2)
+      · have hx_cases : x.val = 0 ∨ m ≤ x.val := by omega
+        rcases hx_cases with hzero | hge
+        · exact Or.inr (hmemB_low (by omega))
+        · exact Or.inr (hmemB_high (by omega))
+    have hcard : (A ∪ B).card = p := by
+      rw [huniv, Finset.card_univ, ZMod.card]
+    calc
+      min p (m + h_nat - 1) ≤ p := min_le_left _ _
+      _ = (A ∪ B).card := hcard.symm
+  · have hnowrap : m + h_nat - 1 < p := by omega
+    let H : Finset (ZMod p) := (Finset.Ico (p - h_nat + 1) p).image (Nat.cast : ℕ → ZMod p)
+    let C : Finset (ZMod p) := insert 0 (A ∪ H)
+    have hCsubset : C ⊆ A ∪ B := by
+      intro x hx
+      simp [C] at hx
+      rcases hx with rfl | hxA | hxH
+      · exact Finset.mem_union.mpr (Or.inr (hmemB_low (by
+          have h0 : (0 : ZMod p).val = 0 := by simp
+          rw [h0]
+          omega)))
+      · exact Finset.mem_union.mpr (Or.inl hxA)
+      · exact Finset.mem_union.mpr (Or.inr (by
+          rcases Finset.mem_image.mp hxH with ⟨n, hn, rfl⟩
+          have hnlt : n < p := (Finset.mem_Ico.mp hn).2
+          have hxval : ((n : ZMod p).val) = n := ZMod.val_cast_of_lt hnlt
+          apply hmemB_high
+          simpa [hxval] using (Finset.mem_Ico.mp hn).1))
+    have hAcard : A.card = m - 1 := by
+      have hinj : Set.InjOn (fun n : ℕ => (n : ZMod p)) (Finset.Ico 1 m) := by
+        intro a ha b hb hab
+        have halt : a < p := lt_of_lt_of_le (Finset.mem_Ico.mp ha).2 hm_lt_p.le
+        have hblt : b < p := lt_of_lt_of_le (Finset.mem_Ico.mp hb).2 hm_lt_p.le
+        have hval : (a : ZMod p).val = (b : ZMod p).val := congrArg ZMod.val hab
+        simpa [ZMod.val_cast_of_lt halt, ZMod.val_cast_of_lt hblt] using hval
+      rw [Finset.card_image_of_injOn hinj]
+      simp
+    have hHcard : H.card = h_nat - 1 := by
+      have hinj : Set.InjOn (fun n : ℕ => (n : ZMod p)) (Finset.Ico (p - h_nat + 1) p) := by
+        intro a ha b hb hab
+        have halt : a < p := (Finset.mem_Ico.mp ha).2
+        have hblt : b < p := (Finset.mem_Ico.mp hb).2
+        have hval : (a : ZMod p).val = (b : ZMod p).val := congrArg ZMod.val hab
+        simpa [ZMod.val_cast_of_lt halt, ZMod.val_cast_of_lt hblt] using hval
+      rw [Finset.card_image_of_injOn hinj]
+      simp
+      omega
+    have hdisjAH : Disjoint A H := by
+      rw [Finset.disjoint_left]
+      intro x hxA hxH
+      rcases Finset.mem_image.mp hxA with ⟨a, ha, hax⟩
+      rcases Finset.mem_image.mp hxH with ⟨b, hb, hbx⟩
+      have halt : a < p := lt_of_lt_of_le (Finset.mem_Ico.mp ha).2 hm_lt_p.le
+      have hblt : b < p := (Finset.mem_Ico.mp hb).2
+      have habz : (a : ZMod p) = (b : ZMod p) := hax.trans hbx.symm
+      have hab : a = b := by
+        have hval : (a : ZMod p).val = (b : ZMod p).val := congrArg ZMod.val habz
+        simpa [ZMod.val_cast_of_lt halt, ZMod.val_cast_of_lt hblt] using hval
+      have ha_lt_m : a < m := (Finset.mem_Ico.mp ha).2
+      have hb_ge : p - h_nat + 1 ≤ b := (Finset.mem_Ico.mp hb).1
+      have hm_lt_start : m < p - h_nat + 1 := by omega
+      omega
+    have hzero_not : (0 : ZMod p) ∉ A ∪ H := by
+      intro hx
+      rcases Finset.mem_union.mp hx with hxA | hxH
+      · rcases Finset.mem_image.mp hxA with ⟨a, ha, haz⟩
+        have halt : a < p := lt_of_lt_of_le (Finset.mem_Ico.mp ha).2 hm_lt_p.le
+        have hval : (a : ZMod p).val = (0 : ZMod p).val := congrArg ZMod.val haz
+        have : a = 0 := by simpa [ZMod.val_cast_of_lt halt] using hval
+        have ha1 : 1 ≤ a := (Finset.mem_Ico.mp ha).1
+        omega
+      · rcases Finset.mem_image.mp hxH with ⟨a, ha, haz⟩
+        have halt : a < p := (Finset.mem_Ico.mp ha).2
+        have hval : (a : ZMod p).val = (0 : ZMod p).val := congrArg ZMod.val haz
+        have : a = 0 := by simpa [ZMod.val_cast_of_lt halt] using hval
+        have ha_ge : p - h_nat + 1 ≤ a := (Finset.mem_Ico.mp ha).1
+        omega
+    have hCcard : C.card = m + h_nat - 1 := by
+      change (insert 0 (A ∪ H)).card = m + h_nat - 1
+      rw [Finset.card_insert_of_notMem hzero_not, Finset.card_union_of_disjoint hdisjAH,
+        hAcard, hHcard]
+      omega
+    have hcardle : C.card ≤ (A ∪ B).card := Finset.card_le_card hCsubset
+    calc
+      min p (m + h_nat - 1) = m + h_nat - 1 := by simp [min_eq_right (le_of_lt hnowrap)]
+      _ = C.card := hCcard.symm
+      _ ≤ (A ∪ B).card := hcardle
 /-
 If $h \in \{1, \dots, m\} \subseteq \mathbb{Z}/p\mathbb{Z}$ and $h \ne 1$, then $|\{1, \dots, m-1\} \cap (\{1, \dots, m\} - h)| \le m-2$.
 -/
@@ -1259,7 +1596,65 @@ lemma lem_find_h_case1 {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) (l : ℕ
     (ht_case1 : t ≤ l + R.card - r + s) :
     ∃ h ∈ seq_sigma_ge (Multiset.replicate l 1 + R₀) (r + 1),
       h ∉ (Finset.Ico 1 (l + R.card + 1)).image (Nat.cast : ℕ → ZMod p) := by
-        sorry
+        let hNat := l + R.card + 1
+        let u := hNat - t
+        refine ⟨(hNat : ZMod p), ?_, ?_⟩
+        · rw [mem_seq_sigma_ge_iff]
+          refine ⟨Multiset.replicate u 1 + R₀, ?_, ?_, ?_⟩
+          · have hu_le_l : u ≤ l := by
+              dsimp [u, hNat]
+              omega
+            rw [Multiset.le_iff_count]
+            intro a
+            by_cases ha : a = 1
+            · simp [ha, Multiset.count_replicate]
+              exact hu_le_l
+            · have hne : (1 : ZMod p) ≠ a := fun h => ha h.symm
+              simp [ha, hne, Multiset.count_replicate]
+          · simp [u, hNat, hs]
+            omega
+          · dsimp [u, hNat]
+            simp
+            rw [← ht]
+            rw [Nat.cast_sub (by omega : t ≤ l + R.card + 1)]
+            push_cast
+            ring
+        · intro hx
+          rcases Finset.mem_image.mp hx with ⟨x, hxI, hxcast⟩
+          have hx_bounds := Finset.mem_Ico.mp hxI
+          have hh_lt_p : l + R.card < p := by
+            contrapose! h_large
+            have hR_card_eq_T_card : R.card = T.card := by
+              linarith [
+                Multiset.card_le_card hR,
+                show S.card = l + T.card from by
+                  rw [hS, Multiset.card_add, Multiset.card_replicate]]
+            have hR_eq_T : R = T := by
+              exact Multiset.eq_of_le_of_card_le hR hR_card_eq_T_card.ge
+            have h_sigma_S_zero : S.sum = 0 := by
+              replace hp := congr_arg (fun x : ℕ => (x : ZMod p)) hp
+              aesop
+            have h_zero_in_sigma_ge : S.sum ∈ seq_sigma S S.card := by
+              unfold seq_sigma
+              aesop
+            unfold seq_sigma_ge
+            aesop
+          have hh_le_p : hNat ≤ p := by
+            dsimp [hNat]
+            omega
+          have hx_lt_p : x < p := by
+            dsimp [hNat] at hh_le_p
+            omega
+          have hmod :
+              x % p = hNat % p := (ZMod.natCast_eq_natCast_iff' x hNat p).mp hxcast
+          rw [Nat.mod_eq_of_lt hx_lt_p] at hmod
+          by_cases hh_eq : hNat = p
+          · rw [hh_eq, Nat.mod_self] at hmod
+            omega
+          · have hh_lt : hNat < p := lt_of_le_of_ne hh_le_p hh_eq
+            rw [Nat.mod_eq_of_lt hh_lt] at hmod
+            dsimp [hNat] at hmod hx_bounds
+            omega
 /-
 If $0 \notin \Sigma_{\le r-1}(S)$, then the sum $t$ of a subsequence $R_0$ cannot be too close to $p$.
 -/
@@ -1743,6 +2138,51 @@ The set of prefix sums of a list, including 0.
 def prefix_sums_set {G : Type*} [AddMonoid G] [DecidableEq G] (L : List G) : Finset G :=
   (List.range (L.length + 1)).map (fun i => (L.take i).sum) |>.toFinset
 
+lemma mem_prefix_sums_set_iff {G : Type*} [AddMonoid G] [DecidableEq G]
+    {L : List G} {x : G} :
+    x ∈ prefix_sums_set L ↔ ∃ j, j ≤ L.length ∧ (L.take j).sum = x := by
+  unfold prefix_sums_set
+  constructor
+  · intro hx
+    simp only [List.mem_toFinset, List.mem_map, List.mem_range] at hx
+    rcases hx with ⟨j, hj, rfl⟩
+    exact ⟨j, Nat.lt_succ_iff.mp hj, rfl⟩
+  · rintro ⟨j, hj, rfl⟩
+    simp only [List.mem_toFinset, List.mem_map, List.mem_range]
+    exact ⟨j, Nat.lt_succ_iff.mpr hj, rfl⟩
+
+lemma prefix_sums_set_card_eq_image_card {G : Type*} [AddMonoid G] [DecidableEq G]
+    (L : List G) :
+    (prefix_sums_set L).card =
+      ((Finset.range (L.length + 1)).image (fun j => (L.take j).sum)).card := by
+  apply congrArg Finset.card
+  ext x
+  rw [mem_prefix_sums_set_iff]
+  simp only [Finset.mem_image, Finset.mem_range]
+  constructor
+  · rintro ⟨j, hj, hsum⟩
+    exact ⟨j, Nat.lt_succ_iff.mpr hj, hsum⟩
+  · rintro ⟨j, hj, hsum⟩
+    exact ⟨j, Nat.lt_succ_iff.mp hj, hsum⟩
+
+lemma prefix_sums_inj_on {G : Type*} [AddMonoid G] [DecidableEq G]
+    {L : List G} (hcard : (prefix_sums_set L).card = L.length + 1) :
+    Set.InjOn (fun j => (L.take j).sum) (Finset.range (L.length + 1)) := by
+  have h_image :
+      ((Finset.range (L.length + 1)).image (fun j => (L.take j).sum)).card =
+        (Finset.range (L.length + 1)).card := by
+    rw [← prefix_sums_set_card_eq_image_card L, hcard]
+    simp
+  exact Finset.card_image_iff.mp h_image
+
+lemma take_succ_sum_get {G : Type*} [AddMonoid G]
+    (L : List G) {i : ℕ} (h : i < L.length) :
+    (L.take (i + 1)).sum = (L.take i).sum + L.get ⟨i, h⟩ := by
+  have hlist : L.take (i + 1) = L.take i ++ [L.get ⟨i, h⟩] := by
+    simpa using (List.take_concat_get' L i h).symm
+  rw [hlist, List.sum_append]
+  simp
+
 /-
 If a list is zero-sum free, then the set of its prefix sums (including 0) has size equal to length + 1.
 -/
@@ -1997,7 +2437,91 @@ lemma claim_1_pairs_exist_aux {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) (
       a2 ∈ (Finset.Ico 1 (l + R.card + 1)).image (Nat.cast : ℕ → ZMod p) ∪ {h} ∧
       a1 + (U_list.take s1).sum = 0 ∧
       a2 + (U_list.take s2).sum = 0 := by
-        sorry
+        let A : Finset (ZMod p) :=
+          (Finset.Ico 1 (l + R.card + 1)).image (Nat.cast : ℕ → ZMod p) ∪ {h}
+        let B : Finset (ZMod p) := prefix_sums_set U_list
+        have hA0_card :
+            ((Finset.Ico 1 (l + R.card + 1)).image
+              (Nat.cast : ℕ → ZMod p)).card = l + R.card := by
+          have hinj :
+              Set.InjOn (Nat.cast : ℕ → ZMod p) (Finset.Ico 1 (l + R.card + 1)) := by
+            intro a ha b hb hab
+            have haI := Finset.mem_Ico.mp ha
+            have hbI := Finset.mem_Ico.mp hb
+            have ha_lt_p : a < p := by omega
+            have hb_lt_p : b < p := by omega
+            have hval : (a : ZMod p).val = (b : ZMod p).val := by
+              simpa using congrArg ZMod.val hab
+            simpa [ZMod.val_cast_of_lt ha_lt_p, ZMod.val_cast_of_lt hb_lt_p] using hval
+          rw [Finset.card_image_of_injOn hinj]
+          simp
+        have hA_card : A.card = l + R.card + 1 := by
+          have h_union :
+              (Finset.Ico 1 (l + R.card + 1)).image (Nat.cast : ℕ → ZMod p) ∪ {h} =
+                insert h ((Finset.Ico 1 (l + R.card + 1)).image
+                  (Nat.cast : ℕ → ZMod p)) := by
+            ext x
+            simp
+          dsimp [A]
+          rw [h_union, Finset.card_insert_of_notMem hh_not_in, hA0_card]
+        have hB_card : B.card = p - l - R.card + 1 := by
+          dsimp [B]
+          exact claim_1_B_card S l T hS hp r hr h_small h_large hl h_one_not_in_T
+            R hR U_list hU
+        have hrep_two : 2 ≤ representation_count A B 0 := by
+          have hrep := prop_rep A B 0
+          rw [hA_card, hB_card] at hrep
+          omega
+        let C : Finset (ZMod p × ZMod p) :=
+          (A ×ˢ B).filter (fun q => q.1 + q.2 = 0)
+        have hC_card : 1 < C.card := by
+          have h : 2 ≤ C.card := by
+            simpa [C, representation_count] using hrep_two
+          omega
+        obtain ⟨q1, hq1, q2, hq2, hq_ne⟩ := Finset.one_lt_card.mp hC_card
+        rcases q1 with ⟨a1, b1⟩
+        rcases q2 with ⟨a2, b2⟩
+        have hq1' : a1 ∈ A ∧ b1 ∈ B ∧ a1 + b1 = 0 := by
+          rcases (by simpa [C] using hq1) with ⟨⟨ha, hb⟩, hsum⟩
+          exact ⟨ha, hb, hsum⟩
+        have hq2' : a2 ∈ A ∧ b2 ∈ B ∧ a2 + b2 = 0 := by
+          rcases (by simpa [C] using hq2) with ⟨⟨ha, hb⟩, hsum⟩
+          exact ⟨ha, hb, hsum⟩
+        rcases mem_prefix_sums_set_iff.mp hq1'.2.1 with ⟨s1, hs1_len, hs1_sum⟩
+        rcases mem_prefix_sums_set_iff.mp hq2'.2.1 with ⟨s2, hs2_len, hs2_sum⟩
+        have hs_ne : s1 ≠ s2 := by
+          intro hs_eq
+          have hb_eq : b1 = b2 := by
+            rw [← hs1_sum, ← hs2_sum, hs_eq]
+          have ha_eq : a1 = a2 := by
+            have ha1_neg : a1 = -b1 := by
+              calc
+                a1 = (a1 + b1) - b1 := by abel
+                _ = -b1 := by rw [hq1'.2.2]; abel
+            have ha2_neg : a2 = -b2 := by
+              calc
+                a2 = (a2 + b2) - b2 := by abel
+                _ = -b2 := by rw [hq2'.2.2]; abel
+            calc
+              a1 = -b1 := ha1_neg
+              _ = -b2 := by rw [hb_eq]
+              _ = a2 := ha2_neg.symm
+          exact hq_ne (Prod.ext ha_eq hb_eq)
+        rcases lt_or_gt_of_ne hs_ne with hs_lt | hs_gt
+        · refine ⟨s1, s2, hs_lt, hs2_len, a1, a2, ?_, ?_, ?_, ?_⟩
+          · simpa [A] using hq1'.1
+          · simpa [A] using hq2'.1
+          · rw [hs1_sum]
+            exact hq1'.2.2
+          · rw [hs2_sum]
+            exact hq2'.2.2
+        · refine ⟨s2, s1, hs_gt, hs1_len, a2, a1, ?_, ?_, ?_, ?_⟩
+          · simpa [A] using hq2'.1
+          · simpa [A] using hq1'.1
+          · rw [hs2_sum]
+            exact hq2'.2.2
+          · rw [hs1_sum]
+            exact hq1'.2.2
 /-
 Claim 1: R is empty.
 -/
@@ -2139,7 +2663,51 @@ lemma claim_2_existence {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) (l : �
     let A := (Finset.Ico 1 (l + 1)).image (Nat.cast : ℕ → ZMod p)
     let B := prefix_sums_set T_list
     representation_count A B 0 ≥ 1 := by
-      sorry
+      dsimp
+      have h_card_split : l + T.card = p := by
+        simpa [hS, Multiset.card_add, Multiset.card_replicate] using hp
+      have hl_le_p : l ≤ p := by omega
+      have hA_card :
+          ((Finset.Ico 1 (l + 1)).image (Nat.cast : ℕ → ZMod p)).card = l := by
+        have hinj : Set.InjOn (Nat.cast : ℕ → ZMod p) (Finset.Ico 1 (l + 1)) := by
+          intro a ha b hb hab
+          have ha_bounds := Finset.mem_Ico.mp ha
+          have hb_bounds := Finset.mem_Ico.mp hb
+          have ha_pos : 0 < a := ha_bounds.1
+          have hb_pos : 0 < b := hb_bounds.1
+          have ha_le_p : a ≤ p := by omega
+          have hb_le_p : b ≤ p := by omega
+          have hmod : a % p = b % p := (ZMod.natCast_eq_natCast_iff' a b p).mp hab
+          by_cases hap : a = p
+          · subst a
+            have hb_mod_zero : b % p = 0 := by simpa using hmod.symm
+            have hpdvd : p ∣ b := Nat.dvd_of_mod_eq_zero hb_mod_zero
+            exact (le_antisymm hb_le_p (Nat.le_of_dvd hb_pos hpdvd)).symm
+          · have ha_lt_p : a < p := lt_of_le_of_ne ha_le_p hap
+            by_cases hbp : b = p
+            · subst b
+              have ha_mod_zero : a % p = 0 := by simpa using hmod
+              have hpdvd : p ∣ a := Nat.dvd_of_mod_eq_zero ha_mod_zero
+              have hp_le_a : p ≤ a := Nat.le_of_dvd ha_pos hpdvd
+              omega
+            · have hb_lt_p : b < p := lt_of_le_of_ne hb_le_p hbp
+              simpa [Nat.mod_eq_of_lt ha_lt_p, Nat.mod_eq_of_lt hb_lt_p] using hmod
+        rw [Finset.card_image_of_injOn hinj]
+        simp
+      have hB_card : (prefix_sums_set T_list).card = p - l + 1 := by
+        simpa [hT_list] using
+          claim_1_B_card S l T hS hp r hr h_small h_large hl h_one_not_in_T
+            (0 : Multiset (ZMod p)) (by simp) T_list (by simp [hT_list])
+      calc
+        1 ≤ l + (p - l + 1) - p := by omega
+        _ = ((Finset.Ico 1 (l + 1)).image (Nat.cast : ℕ → ZMod p)).card +
+              (prefix_sums_set T_list).card - p := by rw [hA_card, hB_card]
+        _ ≤ representation_count
+              ((Finset.Ico 1 (l + 1)).image (Nat.cast : ℕ → ZMod p))
+              (prefix_sums_set T_list) 0 := by
+          exact prop_rep
+            ((Finset.Ico 1 (l + 1)).image (Nat.cast : ℕ → ZMod p))
+            (prefix_sums_set T_list) 0
 /-
 If a + prefix_sum = 0, then a corresponds to a small integer k <= r.
 -/
@@ -2393,29 +2961,59 @@ lemma swap_prefix_sums_set_eq_implies_val_eq {G : Type*} [AddCommGroup G] [Decid
     (L' : List G) (hL' : L' = (L.set i (L.get ⟨i + 1, h⟩)).set (i + 1) (L.get ⟨i, by omega⟩))
     (h_set_eq : prefix_sums_set L' = prefix_sums_set L) :
     L.get ⟨i, by omega⟩ = L.get ⟨i + 1, h⟩ := by
-      sorry
-/-
-If we swap adjacent elements before the index k where the prefix sum is b_star, the elements must be equal.
--/
-lemma claim_2_t_equal_next {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) (l : ℕ) (T : Multiset (ZMod p))
-    (hS : S = Multiset.replicate l 1 + T)
-    (hp : S.card = p)
-    (r : ℕ) (hr : 1 < r ∧ r < p)
-    (h_small : 0 ∉ seq_sigma_le S (r - 1))
-    (h_large : 0 ∉ seq_sigma_ge S (r + 1))
-    (hl : l ≥ r)
-    (h_one_not_in_T : 1 ∉ T)
-    (h_no_sum_eq_len : ∀ W ≤ T, W ≠ 0 → W.sum ≠ W.card)
-    (T_list : List (ZMod p)) (hT_list : Multiset.ofList T_list = T)
-    (b_star : ZMod p)
-    (hb_star : b_star ∈ (Finset.Ico (p - l) p).image (Nat.cast : ℕ → ZMod p))
-    (B : Finset (ZMod p)) (hB : B = prefix_sums_set T_list)
-    (hB_struct : B = (Finset.Ico 0 T.card).image (Nat.cast : ℕ → ZMod p) ∪ {b_star})
-    (k : ℕ) (hk : k ≤ T_list.length)
-    (hb_k : (T_list.take k).sum = b_star)
-    (i : ℕ) (hi : i + 1 < k) :
-    T_list.get ⟨i, by omega⟩ = T_list.get ⟨i + 1, by omega⟩ := by
-      sorry
+  subst L'
+  let Ls := (L.set i (L.get ⟨i + 1, h⟩)).set (i + 1) (L.get ⟨i, by omega⟩)
+  have hlenLs : Ls.length = L.length := by
+    simp [Ls]
+  have h_distinct_s : (prefix_sums_set Ls).card = Ls.length + 1 := by
+    simpa [hlenLs] using (by simpa [Ls] using h_set_eq.symm ▸ h_distinct)
+  have hinj_s := prefix_sums_inj_on (L := Ls) h_distinct_s
+  have hmem_new :
+      (Ls.take (i + 1)).sum ∈ prefix_sums_set L := by
+    have : (Ls.take (i + 1)).sum ∈ prefix_sums_set Ls := by
+      rw [mem_prefix_sums_set_iff]
+      exact ⟨i + 1, by simpa [hlenLs] using h.le, rfl⟩
+    simpa [Ls] using h_set_eq ▸ this
+  rcases mem_prefix_sums_set_iff.mp hmem_new with ⟨j, hj, hj_sum⟩
+  have hj_len_s : j < Ls.length + 1 := by
+    rw [hlenLs]
+    exact Nat.lt_succ_iff.mpr hj
+  have hi_len_s : i + 1 < Ls.length + 1 := by
+    rw [hlenLs]
+    exact Nat.lt_succ_iff.mpr h.le
+  have hj_eq : j = i + 1 := by
+    by_contra hji
+    have hsame_j : (Ls.take j).sum = (L.take j).sum := by
+      simpa [Ls] using prefix_sums_swap_almost_same L i h j hji
+    have heq_s : (Ls.take j).sum = (Ls.take (i + 1)).sum := by
+      rw [hsame_j, hj_sum]
+    have := hinj_s (by simpa using hj_len_s) (by simpa using hi_len_s) heq_s
+    exact hji this
+  subst j
+  have h_old_new :
+      (L.take (i + 1)).sum = (Ls.take (i + 1)).sum := by
+    simpa using hj_sum
+  have htake_old :
+      (L.take (i + 1)).sum = (L.take i).sum + L.get ⟨i, by omega⟩ := by
+    exact take_succ_sum_get L (h := by omega)
+  have htake_new :
+      (Ls.take (i + 1)).sum = (L.take i).sum + L.get ⟨i + 1, h⟩ := by
+    have hprefix : (Ls.take i).sum = (L.take i).sum := by
+      have hi_ne : i ≠ i + 1 := by omega
+      simpa [Ls] using prefix_sums_swap_almost_same L i h i hi_ne
+    have hget : Ls.get ⟨i, by simpa [hlenLs] using (by omega : i < L.length)⟩ =
+        L.get ⟨i + 1, h⟩ := by
+      simp [Ls, List.getElem_set, h]
+    calc
+      (Ls.take (i + 1)).sum =
+          (Ls.take i).sum + Ls.get ⟨i, by simpa [hlenLs] using (by omega : i < L.length)⟩ := by
+        exact take_succ_sum_get Ls (h := by simpa [hlenLs] using (by omega : i < L.length))
+      _ = (L.take i).sum + L.get ⟨i + 1, h⟩ := by rw [hprefix, hget]
+  have hadd :
+      (L.take i).sum + L.get ⟨i, by omega⟩ =
+        (L.take i).sum + L.get ⟨i + 1, h⟩ := by
+    rw [← htake_old, h_old_new, htake_new]
+  exact add_left_cancel hadd
 /-
 If T' is a permutation of T and contains the special element b*, then its prefix sums set is the same as T's.
 -/
@@ -2447,14 +3045,158 @@ lemma claim_2_permutation_prefix_sums_structure {p : ℕ} [Fact p.Prime] (S : Mu
           exact hS
         all_goals try assumption;
         exact hT_list ▸ by simpa using h_perm.symm;
-      -- Since $b_star \in B'$ and $b_star \ge p-l > m-1$, we must have $b'_star = b_star$.
+      -- Since $b_star \in B'$ and $b_star$ is outside the lower interval,
+      -- the exceptional point for `T'_list` is the original `b_star`.
       obtain ⟨b'_star, hb'_star⟩ := hB'_struct
       have hb'_star_eq : b'_star = b_star := by
-        simp_all +decide [ Finset.ext_iff ];
-        rcases h_b_star_in with ( rfl | ⟨ a, ha, rfl ⟩ ) <;> norm_num at *;
-        obtain ⟨ b, hb₁, hb₂ ⟩ := hb_star; obtain ⟨ c, hc₁, hc₂ ⟩ := hb'_star.2; simp_all ( config := { decide := Bool.true } ) [ ZMod.natCast_eq_natCast_iff' ] ;
-        rw [ Nat.mod_eq_of_lt, Nat.mod_eq_of_lt ] at hb₂ <;> try linarith;
-      grind +ring
+        have hadd : l + T.card = p := by
+          have : (Multiset.replicate l (1 : ZMod p) + T).card = p := by
+            simpa [hS] using hp
+          simpa [Multiset.card_add, Multiset.card_replicate] using this
+        have hTcard_le_p : T.card ≤ p := by
+          exact le_trans (Nat.le_add_left _ _) (le_of_eq hadd)
+        have hTcard : p - l = T.card := by
+          simpa [hadd] using (Nat.add_sub_cancel_left l T.card)
+        have hb_star_not_lower :
+            b_star ∉ (Finset.Ico 0 T.card).image (Nat.cast : ℕ → ZMod p) := by
+          intro hbmem
+          rcases Finset.mem_image.mp hbmem with ⟨n, hnI, hnEq⟩
+          rcases Finset.mem_image.mp hb_star with ⟨m, hmI, hmEq⟩
+          have hnm : (n : ZMod p) = (m : ZMod p) := hnEq.trans hmEq.symm
+          have hn_lt_p : n < p := lt_of_lt_of_le (Finset.mem_Ico.mp hnI).2 hTcard_le_p
+          have hm_lt_p : m < p := (Finset.mem_Ico.mp hmI).2
+          have hval : (n : ZMod p).val = (m : ZMod p).val := by
+            simpa using congrArg ZMod.val hnm
+          have hnmNat : n = m := by
+            simpa [ZMod.val_cast_of_lt hn_lt_p, ZMod.val_cast_of_lt hm_lt_p] using hval
+          have hn_lt_T : n < T.card := (Finset.mem_Ico.mp hnI).2
+          have hm_ge_T : T.card ≤ m := by
+            have hm_ge : p - l ≤ m := (Finset.mem_Ico.mp hmI).1
+            simpa [hTcard] using hm_ge
+          have hn_lt_m : n < m := lt_of_lt_of_le hn_lt_T hm_ge_T
+          have : n < n := by simpa [hnmNat] using hn_lt_m
+          exact Nat.lt_irrefl _ this
+        have hbmem := h_b_star_in
+        rw [hb'_star.1] at hbmem
+        rw [Finset.mem_union, Finset.mem_singleton] at hbmem
+        rcases hbmem with hbmem | hbmem
+        · exact False.elim (hb_star_not_lower hbmem)
+        · exact hbmem.symm
+      rw [hb'_star.1, hb'_star_eq, ← hB_struct, hB]
+
+/-
+If we swap adjacent elements before the index k where the prefix sum is b_star, the elements must be equal.
+-/
+lemma claim_2_t_equal_next {p : ℕ} [Fact p.Prime] (S : Multiset (ZMod p)) (l : ℕ) (T : Multiset (ZMod p))
+    (hS : S = Multiset.replicate l 1 + T)
+    (hp : S.card = p)
+    (r : ℕ) (hr : 1 < r ∧ r < p)
+    (h_small : 0 ∉ seq_sigma_le S (r - 1))
+    (h_large : 0 ∉ seq_sigma_ge S (r + 1))
+    (hl : l ≥ r)
+    (h_one_not_in_T : 1 ∉ T)
+    (h_no_sum_eq_len : ∀ W ≤ T, W ≠ 0 → W.sum ≠ W.card)
+    (T_list : List (ZMod p)) (hT_list : Multiset.ofList T_list = T)
+    (b_star : ZMod p)
+    (hb_star : b_star ∈ (Finset.Ico (p - l) p).image (Nat.cast : ℕ → ZMod p))
+    (B : Finset (ZMod p)) (hB : B = prefix_sums_set T_list)
+    (hB_struct : B = (Finset.Ico 0 T.card).image (Nat.cast : ℕ → ZMod p) ∪ {b_star})
+    (k : ℕ) (hk : k ≤ T_list.length)
+    (hb_k : (T_list.take k).sum = b_star)
+    (i : ℕ) (hi : i + 1 < k) :
+    T_list.get ⟨i, by omega⟩ = T_list.get ⟨i + 1, by omega⟩ := by
+      have h_perm_prefix_sums :
+          prefix_sums_set
+            ((T_list.set i (T_list.get ⟨i + 1, by omega⟩)).set
+              (i + 1) (T_list.get ⟨i, by omega⟩)) =
+            prefix_sums_set T_list := by
+        convert claim_2_permutation_prefix_sums_structure S l T hS hp r hr h_small h_large
+          hl h_one_not_in_T h_no_sum_eq_len T_list hT_list b_star hb_star B hB
+          hB_struct _ _ _ using 1
+        focus
+          generalize_proofs at *
+        · grind
+        · rw [mem_prefix_sums_set_iff]
+          refine ⟨k, by simpa, ?_⟩
+          have hsame := prefix_sums_swap_almost_same T_list i (by omega) k (by omega)
+          simpa [hb_k] using hsame
+      focus
+        generalize_proofs at *
+      have hadd : l + T.card = p := by
+        have : (Multiset.replicate l (1 : ZMod p) + T).card = p := by
+          simpa [hS] using hp
+        simpa [Multiset.card_add, Multiset.card_replicate] using this
+      have hTcard_le_p : T.card ≤ p := by
+        exact le_trans (Nat.le_add_left _ _) (le_of_eq hadd)
+      have hTcard : p - l = T.card := by
+        simpa [hadd] using (Nat.add_sub_cancel_left l T.card)
+      have hinj : Set.InjOn (fun n : ℕ => (n : ZMod p)) (Finset.Ico 0 T.card) := by
+        intro a ha b hb hab
+        have ha_lt : a < p := lt_of_lt_of_le (Finset.mem_Ico.mp ha).2 hTcard_le_p
+        have hb_lt : b < p := lt_of_lt_of_le (Finset.mem_Ico.mp hb).2 hTcard_le_p
+        have hval : (a : ZMod p).val = (b : ZMod p).val := by
+          simpa using congrArg ZMod.val hab
+        simpa [ZMod.val_cast_of_lt ha_lt, ZMod.val_cast_of_lt hb_lt] using hval
+      have hcardImage :
+          ((Finset.Ico 0 T.card).image (Nat.cast : ℕ → ZMod p)).card = T.card := by
+        have h :
+            ((Finset.Ico 0 T.card).image (Nat.cast : ℕ → ZMod p)).card =
+              (Finset.Ico 0 T.card).card := by
+          exact (Finset.card_image_iff.mpr hinj)
+        simpa using h
+      have hb_notmem :
+          b_star ∉ (Finset.Ico 0 T.card).image (Nat.cast : ℕ → ZMod p) := by
+        intro hbmem
+        rcases Finset.mem_image.mp hbmem with ⟨n, hnI, hnEq⟩
+        rcases Finset.mem_image.mp hb_star with ⟨m, hmI, hmEq⟩
+        have hnm : (n : ZMod p) = (m : ZMod p) := hnEq.trans hmEq.symm
+        have hn_lt_p : n < p := lt_of_lt_of_le (Finset.mem_Ico.mp hnI).2 hTcard_le_p
+        have hm_lt_p : m < p := (Finset.mem_Ico.mp hmI).2
+        have hval : (n : ZMod p).val = (m : ZMod p).val := by
+          simpa using congrArg ZMod.val hnm
+        have hnmNat : n = m := by
+          simpa [ZMod.val_cast_of_lt hn_lt_p, ZMod.val_cast_of_lt hm_lt_p] using hval
+        have hn_lt_T : n < T.card := (Finset.mem_Ico.mp hnI).2
+        have hm_ge_T : T.card ≤ m := by
+          have hm_ge : p - l ≤ m := (Finset.mem_Ico.mp hmI).1
+          simpa [hTcard] using hm_ge
+        have hn_lt_m : n < m := lt_of_lt_of_le hn_lt_T hm_ge_T
+        have : n < n := by simpa [hnmNat] using hn_lt_m
+        exact Nat.lt_irrefl _ this
+      have hcardB : B.card = T.card + 1 := by
+        rw [hB_struct]
+        have hcardUnion :
+            (((Finset.Ico 0 T.card).image (Nat.cast : ℕ → ZMod p)) ∪ {b_star}).card
+              = ((Finset.Ico 0 T.card).image (Nat.cast : ℕ → ZMod p)).card + 1 := by
+          have :
+              ((Finset.Ico 0 T.card).image (Nat.cast : ℕ → ZMod p)) ∪ {b_star}
+                = insert b_star ((Finset.Ico 0 T.card).image (Nat.cast : ℕ → ZMod p)) := by
+            ext x
+            simp
+          rw [this]
+          exact Finset.card_insert_of_notMem hb_notmem
+        exact hcardUnion.trans (congrArg (fun n : ℕ => n + 1) hcardImage)
+      have hlen : T.card = T_list.length := by
+        have : T_list.length = T.card := by
+          simpa using congrArg Multiset.card hT_list
+        exact this.symm
+      have h_distinct : (prefix_sums_set T_list).card = T_list.length + 1 := by
+        have : (prefix_sums_set T_list).card = T.card + 1 := by
+          simpa [hB] using hcardB
+        simpa [hlen] using this
+      have h_eq_omega :
+          T_list.get ⟨i, by omega⟩ = T_list.get ⟨i + 1, by omega⟩ := by
+        refine
+          swap_prefix_sums_set_eq_implies_val_eq
+            (L := T_list) (i := i) (h := by omega)
+            (h_distinct := h_distinct)
+            (L' :=
+              (T_list.set i (T_list.get ⟨i + 1, by omega⟩)).set
+                (i + 1) (T_list.get ⟨i, by omega⟩))
+            (hL' := rfl)
+            (h_set_eq := ?_)
+        simpa using h_perm_prefix_sums
+      simpa using h_eq_omega
 
 /-
 If we swap adjacent elements after the index k where the prefix sum is b_star, the elements must be equal.

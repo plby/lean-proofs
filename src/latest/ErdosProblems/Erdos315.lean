@@ -174,7 +174,31 @@ Identity for the limit value: c_n^{2^k} = c_{s_k(n)-1}.
 -/
 theorem prop_syl_4 (n k : ℕ) :
   c n ^ (2 ^ k) = c (generalized_sylvester n k - 1) := by
-    sorry
+    have h_left :
+        Filter.Tendsto (fun j => (sylvester_seq_pow n (j + k)) ^ (2 ^ k : ℝ))
+          Filter.atTop (nhds (c n ^ (2 ^ k : ℝ))) := by
+      exact Filter.Tendsto.rpow
+        ((c_exists n).comp (Filter.tendsto_add_atTop_nat k))
+        tendsto_const_nhds
+        (Or.inr (by positivity))
+    have h_right :
+        Filter.Tendsto (fun j => (sylvester_seq_pow n (j + k)) ^ (2 ^ k : ℝ))
+          Filter.atTop (nhds (c (generalized_sylvester n k - 1))) := by
+      refine Filter.Tendsto.congr' ?_ (c_exists (generalized_sylvester n k - 1))
+      filter_upwards with j
+      unfold sylvester_seq_pow
+      rw [Nat.add_comm j k, prop_syl_3 n k j]
+      rw [← Real.rpow_natCast, ← Real.rpow_mul (Nat.cast_nonneg _)]
+      congr 1
+      rw [show k + j + 1 = k + (j + 1) by omega, pow_add]
+      have hk : (1 / 2 : ℝ) ^ k * (2 ^ k : ℝ) = 1 := by
+        norm_num [← mul_pow]
+      rw [mul_assoc, mul_comm ((1 / 2 : ℝ) ^ (j + 1)) ((2 ^ k : ℝ)), ← mul_assoc, hk]
+      simpa only [one_mul] using Real.rpow_natCast (1 / 2 : ℝ) (j + 1)
+    have h_unique := tendsto_nhds_unique h_left h_right
+    rw [← Real.rpow_natCast]
+    convert h_unique using 2
+    norm_num
 /-
 Base case (n=2) for the sum-product inequality lemma.
 -/
@@ -815,7 +839,8 @@ Monotonicity of the comparison sequence u_seq.
 -/
 lemma u_seq_antitone (n : ℕ) (hn : 2 ≤ n) :
   Antitone (u_seq n) := by
-    sorry
+    intro i j hij
+    simpa [u_seq, u_seq_general] using (u_seq_satisfies_pac_sou n hn).2.1 hij
 /-
 Key identity: C * u_0 * u_1 = 1/l.
 -/
@@ -947,13 +972,83 @@ noncomputable def u_seq_one (i : ℕ) : ℝ :=
   else 1 / (generalized_sylvester 30 (i - 3) : ℝ)
 
 set_option linter.flexible false in
+lemma u_seq_one_prod_eq_syl_prod (k : ℕ) (hk : 3 ≤ k) :
+  ∏ i ∈ Finset.range k, u_seq_one i =
+    1 / ((30 : ℝ) *
+      ∏ j ∈ Finset.range (k - 3), (generalized_sylvester 30 j : ℝ)) := by
+    rcases k with (_ | _ | _ | k)
+    · omega
+    · omega
+    · omega
+    · simp [u_seq_one, Finset.prod_range_succ']
+      ring_nf
+
+set_option linter.flexible false in
+lemma u_seq_one_inductive_step_eq (k : ℕ) (hk : 3 ≤ k) :
+  u_seq_one k = (∏ i ∈ Finset.range k, u_seq_one i) * (1 - u_seq_one k) := by
+    rcases k with (_ | _ | _ | k)
+    · omega
+    · omega
+    · omega
+    · rw [u_seq_one_prod_eq_syl_prod (k + 3) (by omega)]
+      simp +arith +decide [u_seq_one]
+      have h_syl_prod :
+        (generalized_sylvester 30 k : ℝ) - 1 =
+          (30 : ℝ) * ∏ j ∈ Finset.range k, (generalized_sylvester 30 j : ℝ) := by
+        convert congr_arg ((↑) : ℕ → ℝ) (prop_syl_2 30 k) using 1
+        · rw [Nat.cast_sub] <;> norm_num
+          exact Nat.one_le_iff_ne_zero.mpr <| ne_of_gt <| generalized_sylvester_pos _ _
+        · norm_cast
+      let s : ℝ := generalized_sylvester 30 k
+      let P : ℝ := ∏ j ∈ Finset.range k, (generalized_sylvester 30 j : ℝ)
+      have hs : s ≠ 0 := by
+        dsimp [s]
+        exact Nat.cast_ne_zero.mpr <| ne_of_gt <| generalized_sylvester_pos 30 k
+      have hP : P ≠ 0 := by
+        dsimp [P]
+        exact Finset.prod_ne_zero_iff.mpr fun j _ =>
+          Nat.cast_ne_zero.mpr <| ne_of_gt <| generalized_sylvester_pos 30 j
+      have hprod : s - 1 = 30 * P := by
+        simpa [s, P] using h_syl_prod
+      change s⁻¹ = P⁻¹ * 30⁻¹ * (1 - s⁻¹)
+      field_simp [hs, hP, hprod]
+      rw [hprod]
+      ring
+
+set_option linter.flexible false in
 lemma u_seq_one_satisfies_pac_sou :
   let u := u_seq_one
   let C := 1
   (∀ i, 0 < u i) ∧
   Antitone u ∧
   (∀ k ≥ 3, ∑ i ∈ Finset.range k, u i + C * ∏ i ∈ Finset.range k, u i = C) := by
-    sorry
+    refine ⟨ ?_, ?_, ?_ ⟩
+    · unfold u_seq_one
+      intro i
+      split_ifs <;> first | positivity | exact one_div_pos.mpr <|
+        Nat.cast_pos.mpr <| generalized_sylvester_pos _ _
+    · refine antitone_nat_of_succ_le ?_
+      intro i
+      rcases i with (_ | _ | _ | i)
+      · norm_num [u_seq_one]
+      · norm_num [u_seq_one]
+      · norm_num [u_seq_one, generalized_sylvester]
+      · simp +arith +decide [u_seq_one]
+        gcongr <;> norm_num
+        · exact generalized_sylvester_pos _ _
+        · simp +arith +decide [generalized_sylvester]
+          have h_pow :
+              generalized_sylvester 30 i ≤ generalized_sylvester 30 i ^ 2 := by
+            exact Nat.le_self_pow (by norm_num) _
+          nlinarith [Nat.sub_add_cancel h_pow]
+    · intro k hk
+      induction hk
+      case refl =>
+        norm_num [u_seq_one, Finset.sum_range_succ, Finset.prod_range_succ]
+      case step k hk ih =>
+        have h_ind_step := u_seq_one_inductive_step_eq k hk
+        rw [Finset.sum_range_succ, Finset.prod_range_succ]
+        nlinarith
 /-
 The sequence c_n is strictly increasing.
 -/
@@ -1125,7 +1220,37 @@ lemma limit_u_seq_one :
 Inequality relating c_30 and c_1.
 -/
 lemma c_30_lt_c_1_pow_8 : c 30 < c 1 ^ 8 := by
-  sorry
+  have h_lower_12 : lower_seq 1 2 < c 1 := by
+    have hmono := lower_seq_increasing 1 (by norm_num)
+    exact lt_of_lt_of_le
+      (hmono (by norm_num : 2 < 3))
+      <| le_of_tendsto_of_tendsto tendsto_const_nhds
+        (lower_seq_tendsto_c 1 (by norm_num)) <|
+          Filter.eventually_atTop.mpr
+            ⟨ 3, fun k hk =>
+              hmono.monotone (by omega) ⟩
+  have h_six_lt_c_pow : (6 : ℝ) < c 1 ^ 8 := by
+    have h_lower_nonneg : 0 ≤ lower_seq 1 2 := by
+      unfold lower_seq
+      exact Real.rpow_nonneg (by norm_num [generalized_sylvester]) _
+    have h_pow :
+        lower_seq 1 2 ^ (8 : ℝ) < c 1 ^ (8 : ℝ) := by
+      exact Real.rpow_lt_rpow h_lower_nonneg h_lower_12 (by norm_num)
+    have h_lower_eval : lower_seq 1 2 ^ (8 : ℝ) = (6 : ℝ) := by
+      unfold lower_seq
+      norm_num [generalized_sylvester]
+      rw [← Real.rpow_natCast]
+      rw [← Real.rpow_mul (by norm_num : (0 : ℝ) ≤ 6)]
+      norm_num
+    rw [h_lower_eval] at h_pow
+    simpa [Real.rpow_natCast] using h_pow
+  have h_c30_sqrt : c 30 < Real.sqrt (31 : ℝ) := by
+    convert (c_bounds_thm 30 (by norm_num)).2 using 1
+    norm_num
+  have h_sqrt_lt_six : Real.sqrt (31 : ℝ) < 6 := by
+    rw [Real.sqrt_lt' (by norm_num)]
+    norm_num
+  exact lt_trans h_c30_sqrt (lt_trans h_sqrt_lt_six h_six_lt_c_pow)
 /-
 Partial sums of reciprocals are bounded by partial sums of the comparison sequence for n=1.
 -/
@@ -1639,7 +1764,34 @@ The limit of the comparison sequence term for n >= 2 is c_l^(1/4).
 lemma limit_u_seq_general (n : ℕ) :
   Filter.Tendsto (fun i => (u_seq n i) ^ (-((1 / 2 : ℝ) ^ (i +
     1)))) Filter.atTop (nhds (c (l_val n) ^ (1/4 : ℝ))) := by
-      sorry
+    have h_simplify :
+        Filter.Tendsto
+          (fun j => (1 / (generalized_sylvester (l_val n) j : ℝ)) ^
+            (-(1 / 2 : ℝ) ^ (j + 3)))
+          Filter.atTop (nhds ((c (l_val n)) ^ (1 / 4 : ℝ))) := by
+      suffices h_exp :
+          Filter.Tendsto
+            (fun j =>
+              ((generalized_sylvester (l_val n) j : ℝ) ^
+                  ((1 / 2 : ℝ) ^ (j + 1))) ^
+                (1 / 4 : ℝ))
+            Filter.atTop (nhds ((c (l_val n)) ^ (1 / 4 : ℝ))) by
+        convert h_exp using 2
+        all_goals norm_num [Real.rpow_neg_eq_inv_rpow]
+        all_goals ring_nf
+        rw [← Real.rpow_mul (Nat.cast_nonneg _)]
+        ring_nf
+      exact Filter.Tendsto.rpow (c_exists (l_val n)) tendsto_const_nhds
+        (Or.inl <| ne_of_gt <|
+          lt_of_lt_of_le (by norm_num) <|
+            le_of_tendsto_of_tendsto' tendsto_const_nhds (c_exists (l_val n)) fun j =>
+              Real.one_le_rpow (mod_cast generalized_sylvester_pos _ _) <| by
+                positivity)
+    refine h_simplify.comp (Filter.tendsto_sub_atTop_nat 2) |> Filter.Tendsto.congr' ?_
+    filter_upwards [Filter.eventually_gt_atTop 2] with i hi
+    rcases i with (_ | _ | _ | i) <;> norm_num [Nat.succ_div] at *
+    unfold u_seq
+    aesop
 /-
 The comparison sequence for n >= 2 is summable and sums to 1/n.
 -/
@@ -2030,7 +2182,16 @@ The infimum of the p-th powers of a function is the p-th power of the infimum.
 lemma ciInf_rpow {ι : Type*} [Nonempty ι] {f : ι → ℝ}
     (hf_nonneg : ∀ i, 0 ≤ f i) (p : ℝ) (hp : 0 < p) :
   ⨅ i, f i ^ p = (⨅ i, f i) ^ p := by
-    sorry
+    change sInf (Set.range fun i => f i ^ p) = (sInf (Set.range f)) ^ p
+    rw [show Set.range (fun i => f i ^ p) = (fun x => x ^ p) '' Set.range f by
+      ext x
+      constructor
+      · rintro ⟨i, rfl⟩
+        exact ⟨f i, ⟨i, rfl⟩, rfl⟩
+      · rintro ⟨_, ⟨i, rfl⟩, rfl⟩
+        exact ⟨i, rfl⟩]
+    exact csInf_image_rpow (S := Set.range f) (Set.range_nonempty f)
+      (by rintro _ ⟨i, rfl⟩; exact hf_nonneg i) p hp
 /-
 The supremum of the p-th powers of a function is the p-th power of the supremum.
 -/
@@ -2038,7 +2199,16 @@ lemma ciSup_rpow {ι : Type*} [Nonempty ι] {f : ι → ℝ}
     (hf_nonneg : ∀ i, 0 ≤ f i) (hf_bdd : BddAbove (Set.range f))
     (p : ℝ) (hp : 0 < p) :
   ⨆ i, f i ^ p = (⨆ i, f i) ^ p := by
-    sorry
+    change sSup (Set.range fun i => f i ^ p) = (sSup (Set.range f)) ^ p
+    rw [show Set.range (fun i => f i ^ p) = (fun x => x ^ p) '' Set.range f by
+      ext x
+      constructor
+      · rintro ⟨i, rfl⟩
+        exact ⟨f i, ⟨i, rfl⟩, rfl⟩
+      · rintro ⟨_, ⟨i, rfl⟩, rfl⟩
+        exact ⟨i, rfl⟩]
+    exact csSup_image_rpow (S := Set.range f) (Set.range_nonempty f)
+      (by rintro _ ⟨i, rfl⟩; exact hf_nonneg i) hf_bdd p hp
 /-
 Equivalence of eventually inequalities for powers.
 -/
@@ -2235,7 +2405,31 @@ lemma shifted_main_result (n k : ℕ) (hn : 1 ≤ n) (a : ℕ → ℕ)
   (hk_ne : a k ≠ generalized_sylvester n k) :
   Filter.liminf (fun j => (a (j + k) : ℝ) ^ ((1 / 2 : ℝ) ^ (j + 1))) Filter.atTop <
     c (generalized_sylvester n k - 1) := by
-      sorry
+    let n' := generalized_sylvester n k - 1
+    let b : ℕ → ℕ := fun j => a (j + k)
+    have hn' : 1 ≤ n' := by
+      have hs2 : 2 ≤ generalized_sylvester n k := generalized_sylvester_ge_two n k hn
+      dsimp [n']
+      omega
+    have hb_pos : ∀ i, 0 < b i := by
+      intro i
+      exact h_pos (i + k)
+    have hb_mono : Monotone b := by
+      intro i j hij
+      exact h_mono (Nat.add_le_add_right hij k)
+    have hb_sum : ∑' i, (1 : ℝ) / b i = 1 / n' := by
+      have hs : 1 ≤ generalized_sylvester n k := by
+        linarith [generalized_sylvester_ge_two n k hn]
+      dsimp [b, n']
+      rw [Nat.cast_sub hs]
+      simpa using sum_shift_lemma n k hn a h_sum hk_eq
+    have hb_ne : b 0 ≠ n' + 1 := by
+      dsimp [b, n']
+      have hs : 1 ≤ generalized_sylvester n k := by
+        linarith [generalized_sylvester_ge_two n k hn]
+      rw [Nat.sub_add_cancel hs]
+      simpa using hk_ne
+    simpa [b, n'] using main_theorem_no_shift n' hn' b hb_pos hb_mono hb_sum hb_ne
 /-
 If the sequence of partial infimums of a real-valued sequence is not bounded above, then its limit
 inferior is 0 (in Lean's Real).

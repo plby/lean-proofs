@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
+/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 93.
 https://www.erdosproblems.com/forum/thread/93
@@ -239,7 +239,7 @@ lemma not_convexIndependent_of_finrank_affineSpan_lt_two
             simp +decide [ ← smul_assoc, ← sub_smul ] ; abel_nf;
             simp +decide [ ← add_smul,] ; ring_nf;
             grind;
-          rw [ convexIndependent_iff_notMem_convexHull_diff ];
+          rw [ convexIndependent_iff_notMem_convexHull_sdiff ];
           push Not;
           refine ⟨ j, { i, k }, ?_ ⟩;
           rw [ convexHull_eq ];
@@ -304,14 +304,14 @@ lemma mem_openSegment_of_inter_segments_convexIndependent
         exact ⟨ fun h => h_not_endpoint_ij i j k l h_disj_idx.1.1 h_disj_idx.1.2 h_disj_idx.2.1 h_disj_idx.2.2 <| h ▸ hz_kl, fun h => h_not_endpoint_ij j i k l h_disj_idx.2.1 h_disj_idx.2.2 h_disj_idx.1.1 h_disj_idx.1.2 <| h ▸ hz_kl ⟩
       have h_not_endpoint_kl : z ≠ pts k ∧ z ≠ pts l := by
         constructor <;> intro h <;> simp_all +decide ;
-        · rw [ convexIndependent_iff_notMem_convexHull_diff ] at h_indep;
+        · rw [ convexIndependent_iff_notMem_convexHull_sdiff ] at h_indep;
           refine h_indep k { i, j } ?_;
           rw [ convexHull_eq ];
           rcases hz_ij with ⟨ a, b, ha, hb, hab, h ⟩;
           refine ⟨ Fin 2, { 0, 1 }, fun x => if x = 0 then a else b, fun x => if x = 0 then pts i else pts j, ?_, ?_, ?_, ?_ ⟩ <;> simp +decide [ *, Finset.centerMass ];
           grind;
         · have := h_indep; simp_all +decide [ segment_eq_image ] ;
-          rw [ convexIndependent_iff_notMem_convexHull_diff ] at this;
+          rw [ convexIndependent_iff_notMem_convexHull_sdiff ] at this;
           contrapose! this;
           use l, { i, j } ; simp_all +decide [ convexHull_eq ] ;
           rcases hz_ij with ⟨ x, hx, hx' ⟩ ; use Fin 2, { 0, 1 }, fun i => if i = 0 then 1 - x else x ; simp_all +decide [ Finset.centerMass ] ;
@@ -333,7 +333,55 @@ lemma mem_interior_of_convexIndependent_inter_segments
     (hz_ij : z ∈ segment ℝ (pts i) (pts j))
     (hz_kl : z ∈ segment ℝ (pts k) (pts l)) :
     z ∈ interior (convexHull ℝ (Set.range pts)) := by
-      sorry
+      -- By Lemma `mem_openSegment_of_inter_segments_convexIndependent`, `z` is in the open segments `(pts i, pts j)` and `(pts k, pts l)`.
+      obtain ⟨hz_ij_open, hz_kl_open⟩ : z ∈ openSegment ℝ (pts i) (pts j) ∧ z ∈ openSegment ℝ (pts k) (pts l) := by
+        apply mem_openSegment_of_inter_segments_convexIndependent h_indep h_disj_idx z hz_ij hz_kl;
+      -- This means `z = a • pts i + (1-a) • pts j` for some `0 < a < 1`, and `z = b • pts k + (1-b) • pts l` for some `0 < b < 1`.
+      obtain ⟨a, ha⟩ : ∃ a : ℝ, 0 < a ∧ a < 1 ∧ z = a • pts i + (1 - a) • pts j := by
+        rcases hz_ij_open with ⟨ a, b, ha, hb, hab, rfl ⟩ ; exact ⟨ a, ha, by linarith, by simp +decide [ ← eq_sub_iff_add_eq' ] at hab; simp +decide [ hab ] ⟩ ;
+      obtain ⟨b, hb⟩ : ∃ b : ℝ, 0 < b ∧ b < 1 ∧ z = b • pts k + (1 - b) • pts l := by
+        rcases hz_kl_open with ⟨ b, hb, hb' ⟩;
+        exact ⟨ b, hb'.1, by linarith, by simpa [ ← hb'.2.2.1 ] using hb'.2.2.2.symm ⟩;
+      -- Define weights `w : Fin 4 → ℝ` such that `w i = a/2`, `w j = (1-a)/2`, `w k = b/2`, `w l = (1-b)/2`.
+      set w : Fin 4 → ℝ := fun x => if x = i then a / 2 else if x = j then (1 - a) / 2 else if x = k then b / 2 else (1 - b) / 2;
+      -- Since `i, j, k, l` are distinct (implied by disjoint sets and size 4), this is well-defined.
+      have h_distinct : i ≠ j ∧ i ≠ k ∧ i ≠ l ∧ j ≠ k ∧ j ≠ l ∧ k ≠ l := by
+        simp_all +decide [ Set.ext_iff ];
+        constructor <;> intro h <;> simp_all +decide;
+        · rw [ convexIndependent_iff_notMem_convexHull_sdiff ] at h_indep;
+          contrapose! h_indep;
+          use j, {k, l};
+          rw [ convexHull_eq ];
+          refine ⟨ Fin 2, { 0, 1 }, fun i => if i = 0 then b else 1 - b, fun i => if i = 0 then pts k else pts l, ?_, ?_, ?_, ?_ ⟩ <;> simp +decide [ *, Finset.centerMass ];
+          constructor <;> linarith;
+        · rw [ convexIndependent_iff_notMem_convexHull_sdiff ] at h_indep;
+          refine h_indep l { i, j } ?_;
+          rw [ convexHull_eq ];
+          refine ⟨ Fin 2, { 0, 1 }, fun x => if x = 0 then a else 1 - a, fun x => if x = 0 then pts i else pts j, ?_, ?_, ?_, ?_ ⟩ <;> simp +decide [ *, Finset.centerMass ];
+          · constructor <;> linarith;
+          · grind;
+      -- The weighted sum is `(1/2)(a • pts i + (1-a) • pts j) + (1/2)(b • pts k + (1-b) • pts l) = (1/2)z + (1/2)z = z`.
+      have h_weighted_sum : ∑ x, w x • pts x = z := by
+        have h_weighted_sum : ∑ x, w x • pts x = (a / 2) • pts i + ((1 - a) / 2) • pts j + (b / 2) • pts k + ((1 - b) / 2) • pts l := by
+          rw [ Finset.sum_eq_add_sum_sdiff_singleton i (fun x => w x • pts x) (by simp) ];
+          rw [ show ( Finset.univ \ { i } : Finset ( Fin 4 ) ) = { j, k, l } by fin_cases i <;> fin_cases j <;> fin_cases k <;> fin_cases l <;> trivial ] ; simp +decide [ *, add_assoc ] ;
+          grind +ring;
+        simp_all +decide [ div_eq_inv_mul ];
+        rw [ show ( 2⁻¹ * a ) • pts i = ( 2⁻¹ : ℝ ) • ( a • pts i ) by rw [ smul_smul ], show ( 2⁻¹ * ( 1 - a ) ) • pts j = ( 2⁻¹ : ℝ ) • ( ( 1 - a ) • pts j ) by rw [ smul_smul ], show ( 2⁻¹ * b ) • pts k = ( 2⁻¹ : ℝ ) • ( b • pts k ) by rw [ smul_smul ], show ( 2⁻¹ * ( 1 - b ) ) • pts l = ( 2⁻¹ : ℝ ) • ( ( 1 - b ) • pts l ) by rw [ smul_smul ] ];
+        field_simp;
+        rw [ show ( 1 / 2 : ℝ ) • a • pts i + ( 1 / 2 : ℝ ) • ( 1 - a ) • pts j + ( 1 / 2 : ℝ ) • b • pts k + ( 1 / 2 : ℝ ) • ( 1 - b ) • pts l = ( 1 / 2 : ℝ ) • ( a • pts i + ( 1 - a ) • pts j + b • pts k + ( 1 - b ) • pts l ) by rw [ smul_add, smul_add, smul_add ] ] ; rw [ show a • pts i + ( 1 - a ) • pts j + b • pts k + ( 1 - b ) • pts l = ( a • pts i + ( 1 - a ) • pts j ) + ( b • pts k + ( 1 - b ) • pts l ) by abel1 ] ; rw [ ha.2.2 ] ; norm_num ; abel_nf;
+        norm_num [ ← smul_assoc ];
+        norm_num [ ← mul_assoc ];
+      -- The affine span is top by `affineSpan_eq_top_of_convexIndependent_fin_4`.
+      have h_affine_span : affineSpan ℝ (Set.range pts) = ⊤ := by
+        exact affineSpan_eq_top_of_convexIndependent_fin_4 h_indep;
+      -- Apply `mem_interior_convexHull_of_pos_comb` with the weights `w` and the fact that their sum is 1.
+      apply mem_interior_convexHull_of_pos_comb h_affine_span w (by
+      simp +zetaDelta at *;
+      intro x; split_ifs <;> linarith;) (by
+      simp +decide [ Fin.sum_univ_four ] ; ring_nf;
+      grind) |> fun h => h_weighted_sum ▸ h
+
 /-
 The centroid of a set `s` can be decomposed into a convex combination of the centroid of a subset `t` and the centroid of the remainder `s \ t`. (aristotle)
 -/
@@ -411,7 +459,53 @@ lemma convex_independent_triangle_is_affine_independent {s : Finset V}
     (hs : ConvexIndependent ℝ (Subtype.val : s → V))
     (hc : s.card = 3) :
     AffineIndependent ℝ (Subtype.val : s → V) := by
-      sorry
+    -- Suppose the points are not affinely independent. Since there are 3 points, they must be collinear.
+    by_contra h_not_affine_indep
+    have h_collinear : Collinear ℝ (s : Set V) := by
+      rw [ collinear_iff_rank_le_one ];
+      -- Since the points are not affinely independent, their vector span has a dimension less than the number of points minus one.
+      have h_dim_lt : Module.finrank ℝ (vectorSpan ℝ (s : Set V)) < 3 - 1 := by
+        have hcard : Fintype.card s = 1 + 2 := by simp [hc]
+        have hle :
+            Module.finrank ℝ (vectorSpan ℝ (Set.range (Subtype.val : s → V))) ≤ 1 := by
+          exact
+            (finrank_vectorSpan_le_iff_not_affineIndependent
+              (k := ℝ) (p := (Subtype.val : s → V)) hcard).2 h_not_affine_indep
+        have hrange : Set.range (Subtype.val : s → V) = (s : Set V) := by
+          ext x
+          simp
+        rw [hrange] at hle
+        simpa using hle
+      rw [ ← Module.finrank_eq_rank ] ; interval_cases _ : Module.finrank ℝ ( vectorSpan ℝ ( s : Set V ) ) <;> simp_all +decide;
+    -- If the points are collinear, then one of them must lie strictly between the other two (and thus in their convex hull).
+    obtain ⟨a, b, c, ha, hb, hc, h_collinear⟩ : ∃ a b c : V, a ∈ s ∧ b ∈ s ∧ c ∈ s ∧ a ≠ b ∧ b ≠ c ∧ a ≠ c ∧ b ∈ segment ℝ a c := by
+      have := Finset.card_eq_three.mp hc;
+      obtain ⟨ x, y, z, hxy, hxz, hyz, rfl ⟩ := this;
+      simp_all +decide [ collinear_iff_exists_forall_eq_smul_vadd ];
+      rcases h_collinear with ⟨ p₀, v, ⟨ r₁, hr₁ ⟩, ⟨ r₂, hr₂ ⟩, ⟨ r₃, hr₃ ⟩ ⟩ ; simp_all +decide [ segment_eq_image ] ;
+      -- Since $r₁$, $r₂$, and $r₃$ are distinct, we can order them. Without loss of generality, assume $r₁ < r₂ < r₃$.
+      suffices h_order : ∀ {r₁ r₂ r₃ : ℝ}, r₁ ≠ r₂ → r₁ ≠ r₃ → r₂ ≠ r₃ → (∃ x : ℝ, 0 ≤ x ∧ x ≤ 1 ∧ (1 - x) * r₁ + x * r₃ = r₂) ∨ (∃ x : ℝ, 0 ≤ x ∧ x ≤ 1 ∧ (1 - x) * r₂ + x * r₃ = r₁) ∨ (∃ x : ℝ, 0 ≤ x ∧ x ≤ 1 ∧ (1 - x) * r₂ + x * r₁ = r₃) by
+        specialize @h_order r₁ r₂ r₃ ; simp_all +decide [ smul_smul, ← add_assoc ];
+        rcases h_order ( by aesop ) ( by aesop ) ( by aesop ) with ( ⟨ x, hx₁, hx₂, hx₃ ⟩ | ⟨ x, hx₁, hx₂, hx₃ ⟩ | ⟨ x, hx₁, hx₂, hx₃ ⟩ ) <;> simp_all +decide [ mul_comm ];
+        · exact Or.inl <| Or.inl ⟨ x, ⟨ hx₁, hx₂ ⟩, by rw [ ← hx₃ ] ; simp +decide [ add_smul, sub_smul ] ; abel1 ⟩;
+        · exact Or.inr <| Or.inl <| Or.inl ⟨ by tauto, x, ⟨ hx₁, hx₂ ⟩, by rw [ ← hx₃ ] ; simp +decide [ add_smul, sub_smul ] ; abel1 ⟩;
+        · refine Or.inr ( Or.inl ( Or.inr ⟨ ?_, ?_, ?_ ⟩ ) );
+          · exact fun a => hxz (id (Eq.symm a))
+          · exact fun a => hxy (id (Eq.symm a));
+          · exact ⟨ x, ⟨ hx₁, hx₂ ⟩, by rw [ ← hx₃ ] ; simp +decide [ add_smul, sub_smul ] ; abel1 ⟩;
+      intro r₁ r₂ r₃ h₁₂ h₁₃ h₂₃; cases lt_or_gt_of_ne h₁₂ <;> cases lt_or_gt_of_ne h₁₃ <;> cases lt_or_gt_of_ne h₂₃ <;> first | exact Or.inl ⟨ ( r₂ - r₁ ) / ( r₃ - r₁ ), by nlinarith [ mul_div_cancel₀ ( r₂ - r₁ ) ( sub_ne_zero_of_ne <| by tauto : ( r₃ - r₁ ) ≠ 0 ) ], by nlinarith [ mul_div_cancel₀ ( r₂ - r₁ ) ( sub_ne_zero_of_ne <| by tauto : ( r₃ - r₁ ) ≠ 0 ) ], by nlinarith [ mul_div_cancel₀ ( r₂ - r₁ ) ( sub_ne_zero_of_ne <| by tauto : ( r₃ - r₁ ) ≠ 0 ) ] ⟩ | skip;
+      · exact Or.inr <| Or.inr <| ⟨ ( r₂ - r₃ ) / ( r₂ - r₁ ), div_nonneg ( by linarith ) ( by linarith ), div_le_one_of_le₀ ( by linarith ) ( by linarith ), by linarith [ mul_div_cancel₀ ( r₂ - r₃ ) ( by linarith : ( r₂ - r₁ ) ≠ 0 ) ] ⟩;
+      · exact Or.inr <| Or.inl ⟨ ( r₁ - r₂ ) / ( r₃ - r₂ ), div_nonneg_of_nonpos ( by linarith ) ( by linarith ), div_le_one_of_ge ( by linarith ) ( by linarith ), by linarith [ mul_div_cancel₀ ( r₁ - r₂ ) ( by linarith : ( r₃ - r₂ ) ≠ 0 ) ] ⟩;
+      · exact Or.inr <| Or.inl ⟨ ( r₁ - r₂ ) / ( r₃ - r₂ ), div_nonneg ( by linarith ) ( by linarith ), div_le_one_of_le₀ ( by linarith ) ( by linarith ), by linarith [ mul_div_cancel₀ ( r₁ - r₂ ) ( by linarith : ( r₃ - r₂ ) ≠ 0 ) ] ⟩;
+      · exact Or.inr <| Or.inr <| ⟨ ( r₃ - r₂ ) / ( r₁ - r₂ ), div_nonneg ( by linarith ) ( by linarith ), div_le_one_of_le₀ ( by linarith ) ( by linarith ), by linarith [ mul_div_cancel₀ ( r₃ - r₂ ) ( by linarith : ( r₁ - r₂ ) ≠ 0 ) ] ⟩;
+    have := hs { ⟨ a, ha ⟩, ⟨ c, hc ⟩ } ; simp_all +decide [ segment_eq_image ] ;
+    have := hs { ⟨ a, ha ⟩, ⟨ c, hc ⟩ } ; simp_all +decide [ convexIndependent_iff_notMem_convexHull_sdiff ] ;
+    refine hs b hb { ⟨ a, ha ⟩, ⟨ c, by assumption ⟩ } ?_;
+    rcases h_collinear.2.2.2 with ⟨ x, hx, rfl ⟩ ; rw [ convexHull_eq ] ; simp +decide;
+    refine ⟨ Fin 2, { 0, 1 }, fun i => if i = 0 then 1 - x else x, ?_, ?_, fun i => if i = 0 then a else c, ?_, ?_ ⟩ <;> simp +decide [ *, Finset.centerMass ];
+    exact Ne.symm h_collinear.2.1
+
+
 /--
 Helper: The centroid of a convexly independent set of at least 3 points in a 2D plane
 lies in the interior of its convex hull. (aristotle)
@@ -602,7 +696,51 @@ lemma convexIndependent_implies_extremePoints {s : Finset V}
     (hc : ConvexIndependent ℝ (Subtype.val : s → V))
     {x : V} (hx : x ∈ s) :
     x ∈ Set.extremePoints ℝ (convexHull ℝ (s : Set V)) := by
-      sorry
+      refine ⟨ ?_, ?_ ⟩;
+      · exact subset_convexHull ℝ _ ( Finset.mem_coe.2 hx );
+      · intro y hy z hz hx
+        obtain ⟨ a, ha_nonneg, ha_sum, ha_comb ⟩ : ∃ a : V → ℝ, (∀ v ∈ s, 0 ≤ a v) ∧ (∑ v ∈ s, a v = 1) ∧ (∑ v ∈ s, a v • v = y) := by
+          exact Finset.mem_convexHull'.mp hy
+        obtain ⟨ b, hb_nonneg, hb_sum, hb_comb ⟩ : ∃ b : V → ℝ, (∀ v ∈ s, 0 ≤ b v) ∧ (∑ v ∈ s, b v = 1) ∧ (∑ v ∈ s, b v • v = z) := by
+          exact Finset.mem_convexHull'.mp hz
+        obtain ⟨ c, hc_nonneg, hc_sum, hc_comb ⟩ : ∃ c : V → ℝ, (∀ v ∈ s, 0 ≤ c v) ∧ (∑ v ∈ s, c v = 1) ∧ (∑ v ∈ s, c v • v = x) := by
+          rw [ openSegment_eq_image ] at hx;
+          rcases hx with ⟨ θ, ⟨ hθ₀, hθ₁ ⟩, rfl ⟩;
+          refine ⟨ fun v => ( 1 - θ ) * a v + θ * b v, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ Finset.sum_add_distrib, add_smul ];
+          · exact fun v hv => add_nonneg ( mul_nonneg ( sub_nonneg.2 hθ₁.le ) ( ha_nonneg v hv ) ) ( mul_nonneg hθ₀.le ( hb_nonneg v hv ) );
+          · simp +decide [ ← Finset.mul_sum _ _ _, ha_sum, hb_sum ];
+          · simp +decide only [mul_smul, ← ha_comb, Finset.smul_sum, ← hb_comb];
+        -- Since $x$ is a convex combination of $y$ and $z$, we have $x = t • y + (1 - t) • z$ for some $t \in (0, 1)$.
+        obtain ⟨ t, ht₀, ht₁, ht₂ ⟩ : ∃ t : ℝ, 0 < t ∧ t < 1 ∧ x = t • y + (1 - t) • z := by
+          rcases hx with ⟨ u, v, hu, hv, huv, rfl ⟩;
+          exact ⟨ u, hu, by linarith, by rw [ ← huv, add_sub_cancel_left ] ⟩;
+        -- Substitute $y$ and $z$ into the equation $x = t • y + (1 - t) • z$ to get $x = t • (∑ v ∈ s, a v • v) + (1 - t) • (∑ v ∈ s, b v • v)$.
+        have hx_sub : x = ∑ v ∈ s, (t * a v + (1 - t) * b v) • v := by
+          simp +decide only [ht₂, ← ha_comb, Finset.smul_sum, smul_smul, ← hb_comb, add_smul,
+                        Finset.sum_add_distrib];
+        -- By `convex_combination_unique_at_vertex`, we have $t * a x + (1 - t) * b x = 1$.
+        have h_coeff : t * a x + (1 - t) * b x = 1 := by
+          have := convex_combination_unique_at_vertex hc ‹x ∈ s› ( fun v hv => add_nonneg ( mul_nonneg ht₀.le ( ha_nonneg v hv ) ) ( mul_nonneg ( sub_nonneg.2 ht₁.le ) ( hb_nonneg v hv ) ) ) ?_ hx_sub.symm;
+          · exact this;
+          · simp +decide [ Finset.sum_add_distrib, ← Finset.mul_sum _ _ _, ha_sum, hb_sum ];
+        -- Since $a x \leq 1$ and $b x \leq 1$, and $t * a x + (1 - t) * b x = 1$, we must have $a x = 1$ and $b x = 1$.
+        have h_ax_bx : a x = 1 ∧ b x = 1 := by
+          have h_ax_bx : a x ≤ 1 ∧ b x ≤ 1 := by
+            exact ⟨ ha_sum ▸ Finset.single_le_sum ( fun v _ => ha_nonneg v ‹_› ) ‹_›, hb_sum ▸ Finset.single_le_sum ( fun v _ => hb_nonneg v ‹_› ) ‹_› ⟩;
+          constructor <;> nlinarith only [ ht₀, ht₁, h_coeff, h_ax_bx ];
+        -- Since $a x = 1$ and $b x = 1$, we have $a v = 0$ and $b v = 0$ for all $v \neq x$.
+        have h_av_bv_zero : ∀ v ∈ s, v ≠ x → a v = 0 ∧ b v = 0 := by
+          intro v hv hvx
+          have h_av_zero : a v = 0 := by
+            rw [ Finset.sum_eq_add_sum_sdiff_singleton x a (by intro hx; exact (hx ‹x ∈ s›).elim) ] at ha_sum;
+            exact le_antisymm ( by linarith [ ha_nonneg v hv, Finset.single_le_sum ( fun v _ => ha_nonneg v ( Finset.mem_sdiff.mp ‹_› |>.1 ) ) ( Finset.mem_sdiff.mpr ⟨ hv, by simp [ hvx ] ⟩ : v ∈ s \ { x } ) ] ) ( ha_nonneg v hv )
+          have h_bv_zero : b v = 0 := by
+            rw [ Finset.sum_eq_add_sum_sdiff_singleton x b (by intro hx; exact (hx ‹x ∈ s›).elim) ] at hb_sum;
+            exact le_antisymm ( by linarith [ hb_nonneg v hv, Finset.single_le_sum ( fun v _ => hb_nonneg v ( Finset.mem_sdiff.mp ‹_› |>.1 ) ) ( Finset.mem_sdiff.mpr ⟨ hv, by simpa using hvx ⟩ : v ∈ s \ { x } ) ] ) ( hb_nonneg v hv )
+          exact ⟨h_av_zero, h_bv_zero⟩;
+        rw [ ← ha_comb, Finset.sum_eq_single x ] <;> simp +contextual [ h_ax_bx, h_av_bv_zero ];
+        tauto
+
 /-
 If a finite set of points is convex independent, then all points lie on the frontier of their convex hull.
 -/
@@ -986,7 +1124,7 @@ lemma convex_independent_not_all_on_affine_line {n : ℕ} {A : Fin n → V}
         simp +decide [ ← add_smul ] ; ring_nf;
         exact congr_arg₂ _ ( by nlinarith [ inv_mul_cancel_left₀ ( by linarith : ( t k - t i ) ≠ 0 ) ( t i ), inv_mul_cancel_left₀ ( by linarith : ( t k - t i ) ≠ 0 ) ( t j ) ] ) rfl;
       have := h_indep;
-      rw [ convexIndependent_iff_notMem_convexHull_diff ] at this;
+      rw [ convexIndependent_iff_notMem_convexHull_sdiff ] at this;
       specialize this j { i, k };
       refine this ?_;
       rw [ convexHull_eq ];
@@ -1484,7 +1622,101 @@ lemma chain_vertices_one_side_of_closing_line {n : ℕ} [NeZero n] {A : Fin n �
       f (A ⟨n - 1, Nat.sub_lt (NeZero.pos n) zero_lt_one⟩) = 0 ∧
       f (A 0) = 0 ∧
       ∀ x ∈ range A, f x ≤ 0 := by
-        sorry
+  -- 1. A(n-1) and A(0) are distinct.
+  have h_distinct : A ⟨n - 1, Nat.sub_lt (NeZero.pos n) (by linarith)⟩ ≠ A 0 := by
+    have h_injective := h_indep.injective
+    intro h_eq
+    have h_idx_eq := h_injective h_eq
+    have h_val_eq : (⟨n - 1, _⟩ : Fin n).val = (0 : Fin n).val := congr_arg Fin.val h_idx_eq
+    simp at h_val_eq
+    omega
+  -- 2. Construct f vanishing on A(n-1) and A(0).
+  have h_li_1_I : LinearIndependent ℝ ![1, Complex.I] := by
+    simpa [Complex.coe_basisOneI] using Complex.basisOneI.linearIndependent
+  have h_v_dim : ∃ (u v : V), LinearIndependent ℝ ![u, v] := by
+    let e := to_complex_map (V := V)
+    use e.symm 1, e.symm Complex.I
+    have hfun :
+        ![e.symm 1, e.symm Complex.I] = e.symm ∘ ![1, Complex.I] := by
+      ext i
+      fin_cases i <;> rfl
+    rw [hfun]
+    exact h_li_1_I.map' e.symm.toLinearMap e.symm.ker
+  obtain ⟨f, hf_lin, hf_last, hf_zero⟩ := affine_functional_through_two_points h_distinct h_v_dim
+  -- 3. Get g supporting [A 0, A 1].
+  have h01 : A 0 ≠ A 1 := by
+    have h_injective := h_indep.injective
+    intro h_eq
+    have h_idx_eq : (0 : Fin n) = 1 := h_injective h_eq
+    have : (0 : Fin n).val = (1 : Fin n).val := congr_arg Fin.val h_idx_eq
+    simp at this
+    omega
+  have h_edge0 : segment ℝ (A 0) (A 1) ⊆ frontier (convexHull ℝ (range A)) := by
+    have h_ne : (0 : Fin n) ≠ ⟨n - 1, Nat.sub_lt (NeZero.pos n) (by linarith)⟩ := by
+      intro h_eq
+      have : (0 : Fin n).val = (⟨n - 1, _⟩ : Fin n).val := congr_arg Fin.val h_eq
+      simp at this
+      omega
+    have := h_chain 0 h_ne
+    simp at this
+    convert this
+  obtain ⟨g, hg_lin, hg_zero, hg_one, hg_le⟩ := convex_chain_boundary_implies_support (convex_convexHull ℝ (range A)) (mem_range_self 0) (mem_range_self 1) h01 h_edge0
+  -- 4. There exists some k with f(A k) ≠ 0.
+  obtain ⟨k, hk_f_ne⟩ := convex_independent_not_all_on_affine_line (Fact.out) hn h_indep f hf_lin
+  -- 5. Normalize f so f(A k) < 0.
+  let f' := if f (A k) < 0 then f else -f
+  have hf'_lin : f'.linear ≠ 0 := by
+    dsimp [f']
+    split_ifs <;> [exact hf_lin; exact neg_ne_zero.mpr hf_lin]
+  have hf'_last : f' (A ⟨n - 1, Nat.sub_lt (NeZero.pos n) zero_lt_one⟩) = 0 := by
+    dsimp [f']
+    split_ifs <;> [exact hf_last; simp [hf_last]]
+  have hf'_zero : f' (A 0) = 0 := by
+    dsimp [f']
+    split_ifs <;> [exact hf_zero; simp [hf_zero]]
+  have hf'_k_neg : f' (A k) < 0 := by
+    dsimp [f']
+    split_ifs with h
+    · exact h
+    · have : f (A k) ≠ 0 := hk_f_ne
+      have : f (A k) > 0 := lt_of_le_of_ne (not_lt.mp h) this.symm
+      simp [this]
+  -- 6. Show all vertices are on one side of f'.
+  have hf'_le : ∀ x ∈ range A, f' x ≤ 0 := by
+    intro x hx
+    obtain ⟨i, rfl⟩ := hx
+    by_cases h_ind_fg : LinearIndependent ℝ ![f'.linear, g.linear]
+    · -- Case: LinearIndependent.
+      exact chain_vertices_independent_side_logic hn h_indep h_chain f' g hf'_lin hf'_zero hf'_last hg_zero hg_le h_ind_fg hf'_k_neg i
+    · -- Case: LinearDependent.
+      have hf'_lin_nz : f'.linear ≠ 0 := hf'_lin
+      rw [LinearIndependent.pair_iff' hf'_lin_nz] at h_ind_fg
+      push Not at h_ind_fg
+      obtain ⟨c, hc⟩ := h_ind_fg
+      have h_f_g : ∀ v, g v = c * f' v := by
+        intro v
+        have h_gv : g v = g.linear (v -ᵥ A 0) := by
+          rw [g.linearMap_vsub, hg_zero, vsub_eq_sub, sub_zero]
+        have h_fv : f' v = f'.linear (v -ᵥ A 0) := by
+          rw [f'.linearMap_vsub, hf'_zero, vsub_eq_sub, sub_zero]
+        rw [h_gv, ← hc, LinearMap.smul_apply, smul_eq_mul, ← h_fv]
+      have h_c_pos : 0 < c := by
+        have h_fk := hf'_k_neg
+        have h_gk := hg_le (A k) (mem_range_self k)
+        rw [h_f_g (A k)] at h_gk
+        -- c * f' (A k) ≤ 0 and f' (A k) < 0 implies c ≥ 0.
+        have : 0 ≤ c := by nlinarith
+        -- If c = 0, then g.linear = 0, contradiction.
+        have h_c_nz : c ≠ 0 := by
+          intro h_z; rw [h_z] at hc; simp at hc; exact hg_lin hc.symm
+        exact lt_of_le_of_ne this h_c_nz.symm
+      -- Now f' (A i) = g (A i) / c. Since g (A i) ≤ 0 and c > 0, f' (A i) ≤ 0.
+      have h_gi := hg_le (A i) (mem_range_self i)
+      rw [h_f_g (A i)] at h_gi
+      -- c * f' (A i) ≤ 0 and c > 0 => f' (A i) ≤ 0.
+      nlinarith
+  exact ⟨f', hf'_lin, hf'_last, hf'_zero, hf'_le⟩
+
 /--
 If a set of vertices forms a convex independent set, and a chain of segments connecting them lie on the frontier of their hull, the closing segment is also on the frontier.
 -/
@@ -2282,7 +2514,44 @@ If K is on the segment AB and O is not on the segment, then angle AOK <= angle A
 lemma angle_le_of_mem_segment {V : Type*} [NormedAddCommGroup V] [InnerProductSpace ℝ V]
     {O A B K : V} (hK : K ∈ segment ℝ A B) (hO : O ∉ segment ℝ A B) :
     EuclideanGeometry.angle A O K ≤ EuclideanGeometry.angle A O B := by
-      sorry
+      rw [ segment_eq_image ] at hK hO;
+      rcases hK with ⟨ θ, ⟨ hθ₀, hθ₁ ⟩, rfl ⟩;
+      by_cases hθ₂ : θ = 0 ∨ θ = 1 <;> simp_all +decide;
+      · rcases hθ₂ with ( rfl | rfl ) <;> simp +decide [ angle ];
+        rw [ InnerProductGeometry.angle_self ]
+        · exact Real.arccos_nonneg _;
+        · exact sub_ne_zero_of_ne fun h => hO 0 ( by norm_num ) ( by norm_num ) ( by simp +decide [ h ] );
+      · -- By the properties of the angle function, we know that $\angle AOK = \angle u (u' + v')$ and $\angle KOB = \angle (u' + v') v'$.
+        set u : V := A - O
+        set v : V := B - O
+        set u' : V := (1 - θ) • u
+        set v' : V := θ • v;
+        -- By the properties of the angle function, we know that $\angle AOK = \angle u (u' + v')$ and $\angle KOB = \angle (u' + v') v'$, and $\angle AOB = \angle u v$.
+        have h_angle_eq : InnerProductGeometry.angle u (u' + v') + InnerProductGeometry.angle (u' + v') v' = InnerProductGeometry.angle u v := by
+          have h_angle_eq : InnerProductGeometry.angle u' v' = InnerProductGeometry.angle u' (u' + v') + InnerProductGeometry.angle (u' + v') v' := by
+            rw [ InnerProductGeometry.angle_eq_angle_add_add_angle_add ];
+            · rw [ InnerProductGeometry.angle_comm ( u' + v' ) v' ];
+            · simp +zetaDelta at *;
+              exact ⟨ hθ₂.1, sub_ne_zero_of_ne <| by rintro rfl; exact hO 1 ( by norm_num ) ( by norm_num ) <| by norm_num ⟩;
+          have h_angle_eq : InnerProductGeometry.angle u' v' = InnerProductGeometry.angle u v := by
+            rw [ InnerProductGeometry.angle_smul_left_of_pos, InnerProductGeometry.angle_smul_right_of_pos ] <;> norm_num [ hθ₀, hθ₁, hθ₂ ];
+            · exact lt_of_le_of_ne hθ₀ ( Ne.symm hθ₂.1 );
+            · exact lt_of_le_of_ne hθ₁ hθ₂.2;
+          have h_angle_eq : InnerProductGeometry.angle u' (u' + v') = InnerProductGeometry.angle u (u' + v') := by
+            rw [ InnerProductGeometry.angle_smul_left_of_pos ];
+            cases lt_or_gt_of_ne hθ₂.1 <;> cases lt_or_gt_of_ne hθ₂.2 <;> linarith;
+          linarith;
+        rw [EuclideanGeometry.angle]
+        change InnerProductGeometry.angle (A - O) (((1 - θ) • A + θ • B) - O) ≤
+          InnerProductGeometry.angle (A - O) (B - O)
+        have hmid : ((1 - θ) • A + θ • B) - O = u' + v' := by
+          simp [u, v, u', v', smul_sub, sub_eq_add_neg]
+          module
+        rw [hmid]
+        change InnerProductGeometry.angle u (u' + v') ≤ InnerProductGeometry.angle u v
+        exact h_angle_eq ▸ le_add_of_nonneg_right (InnerProductGeometry.angle_nonneg _ _)
+
+
 /--
 Generalized angle nesting for convex polygons:
 If p' ≤ p < y < q ≤ q', then the angle ∠A_p A_y A_q is greater than or equal to ∠A_p' A_y A_q'.
@@ -3664,7 +3933,120 @@ lemma altman_descent_chain {A : ℕ → V} {n : ℕ}
       d 1 = dist (A 1) (A (n - 2)) ∧
       (∀ k ≤ n - 3, ∃ p q, p < n ∧ q < n ∧ p ≠ q ∧ d k = dist (A p) (A q)) ∧
       (∀ k < n - 3, d (k + 1) < d k) := by
-        sorry
+  -- Define "step" function
+  let step (pq : ℕ × ℕ) : ℕ × ℕ :=
+    let p := pq.1
+    let q := pq.2
+    if h_gap : p + 2 ≤ q then
+      if dist (A (p + 1)) (A q) < dist (A p) (A q) then (p + 1, q)
+      else (p, q - 1)
+    else pq
+
+  -- Recursive definition using iterate notation
+  let indices (k : ℕ) : ℕ × ℕ :=
+    match k with
+    | 0 => (0, n - 1)
+    | k + 1 => step^[k] (1, n - 2)
+
+  let p (k : ℕ) := (indices k).1
+  let q (k : ℕ) := (indices k).2
+  let d (k : ℕ) := dist (A (p k)) (A (q k))
+
+  have h_ind_0 : indices 0 = (0, n - 1) := rfl
+  have h_ind_1 : indices 1 = (1, n - 2) := rfl
+  have h_ind_succ : ∀ k, 1 ≤ k → indices (k + 1) = step (indices k) := by
+    intro k hk
+    cases k with
+    | zero => contradiction
+    | succ k =>
+      cases k with
+      | zero => rfl
+      | succ k => simp [indices]; apply Function.Commute.iterate_self step
+
+  let gap (k : ℕ) := q k - p k
+
+  -- Base cases
+  have h_base_0 : p 0 = 0 ∧ q 0 = n - 1 ∧ gap 0 = n - 1 := by simp [p, q, gap, indices]
+  have h_base_1 : p 1 = 1 ∧ q 1 = n - 2 ∧ gap 1 = n - 3 := by simp [p, q, gap, indices, h_ind_1]; omega
+
+  -- Invariants for k >= 1
+  have h_inv : ∀ k, 1 ≤ k → k ≤ n - 3 →
+      (1 ≤ p k ∧ q k ≤ n - 2 ∧ p k < q k ∧ gap k = n - k - 2) := by
+    intro k hk1
+    induction k, hk1 using Nat.le_induction with
+    | base =>
+      intro _
+      simp [h_base_1, gap]; omega
+    | succ k hk h_ind =>
+      intro h_kn
+      have h_k_lt : k < n - 3 := by omega
+      specialize h_ind h_k_lt.le
+      obtain ⟨hp, hq, hpq, hgap⟩ := h_ind
+
+      have h_cond : p k + 2 ≤ q k := by
+        simp [gap] at hgap
+        omega
+
+      have h_indices_kp1 : indices (k + 1) = step (indices k) := h_ind_succ k hk
+      match h_pq : indices k with
+      | (p_val, q_val) =>
+        simp [p, q, gap, h_pq] at *
+        simp only [h_indices_kp1, step, h_cond]
+        split_ifs with h_chord
+        · simp only at * ; omega
+        · simp only at * ; omega
+
+  -- Prove strict decrease d(k+1) < d(k)
+  have h_decr : ∀ k < n - 3, d (k + 1) < d k := by
+    intro k hk
+    by_cases hk0 : k = 0
+    · subst hk0
+      simp [d, p, q, h_ind_0, h_ind_1]
+      apply exists_smaller_diagonal_in_quadrilateral h_convex h_max (i:=0) (j:=1) (k:=n-2) (l:=n-1)
+      · norm_num
+      · show 1 < n - 2; omega
+      · show n - 2 < n - 1; omega
+      · show n - 1 < n; omega
+      · rfl
+      · rfl
+    · -- Inductive descent
+      have h_k_ge_1 : 1 ≤ k := by omega
+      have h_kn : k ≤ n - 3 := by omega
+      obtain ⟨hp, hq, hpq, hgap⟩ := h_inv k h_k_ge_1 h_kn
+
+      have h_indices_kp1 : indices (k + 1) = step (indices k) := h_ind_succ k h_k_ge_1
+
+      have h_cond : p k + 2 ≤ q k := by
+        simp [gap] at hgap
+        omega
+
+      -- Apply strict lemma to current chord
+      have h_strict := altman_lemma_1_strict h_convex h_max (p:=p k) (q:=q k) (x:=q k - 1) (y:=p k + 1)
+        (by omega) (by omega) (by omega) (by omega) (by omega)
+
+      have h_indices_kp1 : indices (k + 1) = step (indices k) := h_ind_succ k h_k_ge_1
+      match h_pq : indices k with
+      | (p_val, q_val) =>
+        simp [d, p, q, gap, h_pq] at *
+        simp only [h_indices_kp1, step, h_cond]
+        split_ifs with h_chord
+        · exact h_chord
+        · simp only at *
+          cases h_strict with
+          | inl h => exact h
+          | inr h => rw [dist_comm] at h ; contradiction
+
+  -- Final logic
+  refine ⟨d, rfl, ?_, ?_, h_decr⟩
+  · simp [d, p, q, indices, h_ind_1]
+  · intro k hk
+    by_cases hk0 : k = 0
+    · subst hk0
+      refine ⟨0, n - 1, by omega, by omega, by omega, rfl⟩
+    · have h_k_ge_1 : 1 ≤ k := by omega
+      obtain ⟨hp, hq, hpq, _⟩ := h_inv k h_k_ge_1 hk
+      refine ⟨p k, q k, by omega, by omega, by omega, rfl⟩
+
 lemma altman_lemma_2 {A : ℕ → V} {n : ℕ}
     (h_convex : IsConvexPolygon A n)
     (h_max : ∀ i j, i < n → j < n → dist (A i) (A j) ≤ dist (A 0) (A (n-1))) :
@@ -3915,7 +4297,44 @@ lemma is_convex_polygon_consecutive_zero {A : ℕ → V} {n : ℕ} {len : ℕ}
     (h_len_ge_3 : 3 ≤ len)
     (h_len_le_n : len ≤ n) :
     IsConvexPolygon A len := by
-      sorry
+  constructor <;> try linarith;
+  refine ⟨ ?_, ?_, ?_ ⟩;
+  · have := h_poly.2.1;
+    exact fun i j hi hj hij => this i j ( lt_of_lt_of_le hi h_len_le_n ) ( lt_of_lt_of_le hj h_len_le_n ) hij;
+  · have h_convex_indep : ConvexIndependent ℝ (fun i : Fin n => A i) := by
+      have := h_poly.2.2;
+      exact this.1;
+    have hfun :
+        (fun i : Fin len => A i) =
+          (fun i : Fin n => A i) ∘ Fin.castLE h_len_le_n := by
+      ext i
+      rfl
+    rw [hfun]
+    exact h_convex_indep.comp_embedding ( Fin.castLEEmb h_len_le_n );
+  · intro i
+    by_cases hi : i.val < len - 1;
+    · have h_segment_frontier : segment ℝ (A i) (A (i + 1)) ⊆ frontier (convexHull ℝ (Finset.image A (Finset.range n))) := by
+        have := h_poly.2.2.2;
+        convert this ⟨ i, by linarith [ Fin.is_lt i, Nat.sub_add_cancel ( by linarith : 1 ≤ len ) ] ⟩ using 1;
+        rw [ Nat.mod_eq_of_lt ( by linarith [ Fin.is_lt i, Nat.sub_add_cancel ( by linarith : 1 ≤ len ) ] ) ];
+      convert segment_frontier_transfer _ _ _ h_segment_frontier using 1;
+      · rw [ Nat.mod_eq_of_lt ( by linarith [ Nat.sub_add_cancel ( by linarith : 1 ≤ len ) ] ) ];
+      · exact Finset.image_subset_image ( Finset.range_mono h_len_le_n );
+      · exact Finset.mem_coe.2 ( Finset.mem_image.2 ⟨ i, Finset.mem_range.2 i.2, rfl ⟩ );
+      · grind;
+    · -- Apply the lemma convex_polygon_vertices_one_side_of_diagonal to get the affine map f.
+      obtain ⟨f, hf_nonzero, hf_zero, hf_le⟩ : ∃ f : V →ᵃ[ℝ] ℝ, f.linear ≠ 0 ∧ f (A 0) = 0 ∧ f (A (len - 1)) = 0 ∧ ∀ j, 0 ≤ j → j ≤ len - 1 → f (A j) ≤ 0 := by
+        apply convex_polygon_vertices_one_side_of_diagonal h_poly (by linarith) (by omega) (by omega);
+      convert segment_subset_frontier_of_supporting_hyperplane _ _ f _ _ _ hf_nonzero using 1;
+      · exact subset_convexHull ℝ _ ( Finset.mem_image_of_mem _ ( Finset.mem_range.mpr ( by linarith [ Fin.is_lt i ] ) ) );
+      · exact subset_convexHull ℝ _ ( Finset.mem_coe.mpr ( Finset.mem_image.mpr ⟨ ( i + 1 ) % len, Finset.mem_range.mpr ( Nat.mod_lt _ ( by linarith ) ), rfl ⟩ ) );
+      · simp +zetaDelta at *;
+        exact fun j hj => hf_le.2 j ( Nat.le_pred_of_lt hj );
+      · grind;
+      · rcases len with ( _ | _ | len ) <;> simp_all +decide
+        norm_num [ show ( i : ℕ ) = len + 1 by linarith [ Fin.is_lt i ] ] at * ; aesop
+
+
 lemma is_convex_polygon_consecutive {A : ℕ → V} {n : ℕ} {start : ℕ} {len : ℕ}
     (h_poly : IsConvexPolygon A n)
     (h_len_ge_3 : 3 ≤ len)
@@ -4541,7 +4960,33 @@ lemma exists_halfplane_functional_of_angle_span {s : Set ℂ} (a b : ℝ)
     (h_len : b - a ≤ Real.pi)
     (h_range : ∀ z ∈ s, z ≠ 0 → ∃ k : ℤ, Complex.arg z + k * 2 * Real.pi ∈ Set.Icc a b) :
     ∃ f : ℂ →L[ℝ] ℝ, f ≠ 0 ∧ ∀ z ∈ s, f z ≤ 0 := by
-      sorry
+      by_contra h_contra;
+      -- Let $\alpha = (a + b) / 2$ and consider the rotated points $w = z \cdot e^{-i\alpha}$.
+      set α : ℝ := (a + b) / 2
+      have hw : ∀ z ∈ s, z ≠ 0 → Complex.re (z * Complex.exp (-α * Complex.I)) ≥ 0 := by
+        intro z hz hz'; obtain ⟨ k, hk ⟩ := h_range z hz hz'; simp_all +decide [ Complex.exp_re, Complex.exp_im ];
+        -- Since $z.arg + k * 2 * π$ is in the interval $[a, b]$, we have $\cos(z.arg + k * 2 * π - α) \geq 0$.
+        have h_cos_nonneg : Real.cos (z.arg + k * 2 * Real.pi - α) ≥ 0 := by
+          rw [ ← Real.cos_abs ] ; exact Real.cos_nonneg_of_mem_Icc ⟨ by cases abs_cases ( z.arg + k * 2 * Real.pi - ( a + b ) / 2 ) <;> linarith, by cases abs_cases ( z.arg + k * 2 * Real.pi - ( a + b ) / 2 ) <;> linarith ⟩ ;
+        have h_cos_period :
+            Real.cos (z.arg + (k : ℝ) * 2 * Real.pi - α) =
+              Real.cos (z.arg - α) := by
+          rw [show z.arg + (k : ℝ) * 2 * Real.pi - α =
+              (z.arg - α) + (k : ℝ) * (2 * Real.pi) by ring]
+          rw [Real.cos_add_int_mul_two_pi]
+        have h_expr :
+            z.re * Real.cos α + z.im * Real.sin α =
+              ‖z‖ * Real.cos (z.arg - α) := by
+          rw [← Complex.norm_mul_cos_arg z, ← Complex.norm_mul_sin_arg z, Real.cos_sub]
+          ring
+        rw [h_expr, ← h_cos_period]
+        exact mul_nonneg (norm_nonneg z) h_cos_nonneg
+      refine h_contra ⟨ ?_, ?_, ?_ ⟩;
+      · exact - ( ContinuousLinearMap.smulRight ( Complex.reCLM ) 1 ) ∘L ( ContinuousLinearMap.mul ℝ ℂ ( Complex.exp ( -α * Complex.I ) ) );
+      · intro h; have := congr_arg ( fun f => f ( Complex.exp ( α * Complex.I ) ) ) h; norm_num [ Complex.exp_re, Complex.exp_im ] at this;
+        nlinarith [ Real.sin_sq_add_cos_sq α ];
+      · intro z hz; specialize hw z hz; by_cases hz' : z = 0 <;> simp_all +decide [ Complex.exp_re, Complex.exp_im ] ;
+        linarith
 -- (By aristotle, created and proven)
 lemma consecutive_angle_diff_lt_pi {n : ℕ} {z : Fin n → ℂ}
     (h_n : 3 ≤ n)
@@ -4617,7 +5062,95 @@ lemma orientation_sweep_consecutive_pos {n : ℕ} {s : Finset V} {A : ℕ → V}
     (h_img_distinct : ∀ {i j}, i < n → j < n → A i = A j → i = j)
     (i : Fin n) :
     0 < (to_complex_map (A ((i.val + 1) % n) - C) / to_complex_map (A i.val - C)).im := by
-      sorry
+  -- Let $z_k = to_complex_map (A k - C)$.
+  set z : Fin n → ℂ := fun k => to_complex_map (A k - C);
+  -- We need to show that $0 < \arg(z_{i+1}) - \arg(z_i) < \pi$.
+  have h_arg_diff : 0 < (if i.val < n - 1 then Complex.arg (z (⟨(i + 1) % n, Nat.mod_lt _ (lt_of_lt_of_le (by norm_num) h_n)⟩)) - Complex.arg (z i) else 2 * Real.pi + Complex.arg (z (⟨(i + 1) % n, Nat.mod_lt _ (lt_of_lt_of_le (by norm_num) h_n)⟩)) - Complex.arg (z i)) ∧ (if i.val < n - 1 then Complex.arg (z (⟨(i + 1) % n, Nat.mod_lt _ (lt_of_lt_of_le (by norm_num) h_n)⟩)) - Complex.arg (z i) else 2 * Real.pi + Complex.arg (z (⟨(i + 1) % n, Nat.mod_lt _ (lt_of_lt_of_le (by norm_num) h_n)⟩)) - Complex.arg (z i)) < Real.pi := by
+    have h_arg_diff : 0 < (if i.val < n - 1 then Complex.arg (z (⟨(i + 1) % n, Nat.mod_lt _ (lt_of_lt_of_le (by norm_num) h_n)⟩)) - Complex.arg (z i) else 2 * Real.pi + Complex.arg (z (⟨(i + 1) % n, Nat.mod_lt _ (lt_of_lt_of_le (by norm_num) h_n)⟩)) - Complex.arg (z i)) ∧ (if i.val < n - 1 then Complex.arg (z (⟨(i + 1) % n, Nat.mod_lt _ (lt_of_lt_of_le (by norm_num) h_n)⟩)) - Complex.arg (z i) else 2 * Real.pi + Complex.arg (z (⟨(i + 1) % n, Nat.mod_lt _ (lt_of_lt_of_le (by norm_num) h_n)⟩)) - Complex.arg (z i)) < Real.pi := by
+      have h_int : 0 ∈ interior (convexHull ℝ (Set.range z)) := by
+        have h_arg_diff : 0 ∈ interior (convexHull ℝ (Set.image (fun x => to_complex_map (x - C)) s)) := by
+          have h_arg_diff : 0 ∈ interior (Set.image (fun x => to_complex_map (x - C)) (convexHull ℝ (s : Set V))) := by
+            have h_arg_diff : IsOpen (Set.image (fun x => to_complex_map (x - C)) (interior (convexHull ℝ (s : Set V)))) := by
+              have h_arg_diff : IsOpenMap (fun x => to_complex_map (x - C)) := by
+                have h_arg_diff : IsOpenMap (fun x : V => to_complex_map x) := by
+                  have h_arg_diff : IsOpenMap (fun x : V => to_complex_map x) := by
+                    have h_linear : ∃ (f : V →ₗ[ℝ] ℂ), ∀ x, to_complex_map x = f x := by
+                      exact ⟨ to_complex_map.toLinearMap, fun x => rfl ⟩
+                    obtain ⟨ f, hf ⟩ := h_linear; simp +decide [ hf ] ;
+                    have h_linear : Function.Surjective f := by
+                      have h_linear : Function.Surjective (to_complex_map : V → ℂ) := by
+                        exact LinearEquiv.surjective _;
+                      exact fun x => by obtain ⟨ y, hy ⟩ := h_linear x; exact ⟨ y, by simpa [ hf ] using hy ⟩ ;
+                    exact LinearMap.isOpenMap_of_finiteDimensional f h_linear
+                  exact h_arg_diff;
+                intro s hs; specialize h_arg_diff ( s - { C } ) ; simp_all +decide [ sub_eq_add_neg ] ;
+                convert h_arg_diff ( hs.preimage ( continuous_id.add continuous_const ) ) using 1;
+                ext; simp [Set.mem_image];
+                exact ⟨ fun ⟨ x, hx, hx' ⟩ => ⟨ x - C, by simpa using hx, by simpa [sub_eq_add_neg] using hx' ⟩, fun ⟨ x, hx, hx' ⟩ => ⟨ x + C, by simpa using hx, by simpa [sub_eq_add_neg] using hx' ⟩ ⟩;
+              exact h_arg_diff _ ( isOpen_interior );
+            refine mem_interior.mpr ?_;
+            refine ⟨ _, ?_, h_arg_diff, ?_ ⟩;
+            · exact Set.image_mono interior_subset;
+            · exact ⟨ C, hC_int, by simp +decide ⟩;
+          refine interior_mono ?_ h_arg_diff;
+          intro x hx;
+          obtain ⟨ y, hy, rfl ⟩ := hx;
+          rw [ convexHull_eq ] at hy ⊢;
+          rcases hy with ⟨ ι, t, w, z, hw, hw', hz, rfl ⟩;
+          refine ⟨ ι, t, w, fun i => to_complex_map ( z i - C ), hw, hw', ?_, ?_ ⟩
+          · intro i hi
+            exact ⟨z i, hz i hi, rfl⟩
+          · simp_all +decide [ Finset.centerMass ]
+            calc
+              (∑ x ∈ t, w x • (to_complex_map (z x) - to_complex_map C))
+                  = ∑ x ∈ t,
+                      ((w x : ℂ) * to_complex_map (z x) - (w x : ℂ) * to_complex_map C) := by
+                    apply Finset.sum_congr rfl
+                    intro x hx
+                    simp
+                    ring
+              _ = (∑ x ∈ t, (w x : ℂ) * to_complex_map (z x)) -
+                    (∑ x ∈ t, (w x : ℂ) * to_complex_map C) := by
+                    rw [Finset.sum_sub_distrib]
+              _ = (∑ x ∈ t, (w x : ℂ) * to_complex_map (z x)) - to_complex_map C := by
+                    congr 1
+                    rw [← Finset.sum_mul]
+                    norm_cast
+                    rw [hw']
+                    simp
+        convert h_arg_diff using 3;
+        ext; simp [z];
+        constructor <;> intro h;
+        · rcases h with ⟨ y, rfl ⟩ ; exact ⟨ A y, h_img ▸ Finset.mem_image_of_mem _ ( Finset.mem_range.mpr y.2 ), rfl ⟩ ;
+        · rcases h with ⟨ x, hx, rfl ⟩ ; rw [ ← h_img ] at hx; obtain ⟨ y, hy, rfl ⟩ := Finset.mem_image.mp hx; exact ⟨ ⟨ y, by linarith [ Finset.mem_range.mp hy ] ⟩, rfl ⟩ ;
+      have h_sorted : ∀ i j : Fin n, i < j → Complex.arg (z i) < Complex.arg (z j) := by
+        exact fun i j hij => h_sorted i j ( Fin.is_lt i ) ( Fin.is_lt j ) hij
+      have := consecutive_angle_diff_lt_pi h_n h_int h_sorted i; have := consecutive_angle_diff_pos h_n h_sorted i; split_ifs at * <;> constructor <;> linarith;
+    exact h_arg_diff;
+  -- Since $z_k = to_complex_map (A k - C)$, we have $z_k \neq 0$ for all $k$.
+  have h_z_ne_zero : ∀ k : Fin n, z k ≠ 0 := by
+    intro k hk_zero
+    have h_contra : A k = C := by
+      exact sub_eq_zero.mp ( to_complex_map.injective <| by aesop );
+    have h_contra : C ∈ frontier (convexHull ℝ (s : Set V)) := by
+      have h_contra : C ∈ s := by
+        exact h_img ▸ Finset.mem_image_of_mem _ ( Finset.mem_range.mpr k.2 ) |> fun h => h_contra ▸ h;
+      exact convexIndependent_subset_frontier h_conv ( by simpa );
+    exact h_contra.2 hC_int;
+  -- Since $z_k = to_complex_map (A k - C)$, we have $z_k \neq 0$ for all $k$, and thus the imaginary part of $z_{i+1} / z_i$ is positive.
+  have h_im_pos : 0 < Complex.im (z (⟨(i + 1) % n, Nat.mod_lt _ (lt_of_lt_of_le (by norm_num) h_n)⟩) / z i) := by
+    rw [ Complex.div_im ];
+    rw [ ← sub_div, lt_div_iff₀ ];
+    · have h_sin_pos : 0 < Real.sin ((if i.val < n - 1 then Complex.arg (z (⟨(i + 1) % n, Nat.mod_lt _ (lt_of_lt_of_le (by norm_num) h_n)⟩)) - Complex.arg (z i) else 2 * Real.pi + Complex.arg (z (⟨(i + 1) % n, Nat.mod_lt _ (lt_of_lt_of_le (by norm_num) h_n)⟩)) - Complex.arg (z i))) := by
+        exact Real.sin_pos_of_pos_of_lt_pi h_arg_diff.1 h_arg_diff.2;
+      convert mul_pos h_sin_pos ( mul_pos ( norm_pos_iff.mpr ( h_z_ne_zero i ) ) ( norm_pos_iff.mpr ( h_z_ne_zero ⟨ ( i + 1 ) % n, Nat.mod_lt _ ( by linarith ) ⟩ ) ) ) using 1
+      · simp +decide [ Complex.normSq ]
+      · split_ifs <;> simp +decide [ *, mul_two, Real.sin_add, Real.sin_sub, Real.cos_add ] <;> ring_nf;
+        · rw [ ← Complex.norm_mul_cos_arg, ← Complex.norm_mul_sin_arg, ← Complex.norm_mul_cos_arg, ← Complex.norm_mul_sin_arg ] ; ring_nf;
+        · rw [ ← Complex.norm_mul_cos_arg, ← Complex.norm_mul_sin_arg, ← Complex.norm_mul_cos_arg, ← Complex.norm_mul_sin_arg ] ; ring_nf;
+    · exact Complex.normSq_pos.mpr ( h_z_ne_zero i );
+  convert h_im_pos using 1
+
 -- (proven by Aristotle)
 lemma arg_convex_comb_lt {w : ℂ} (hw_im : 0 < w.im)
     {c : ℝ} (hc0 : 0 < c) (hc1 : c < 1) :
@@ -6025,7 +6558,121 @@ theorem altman_erdos (s : Finset V) (n : ℕ)
     (h_card : s.card = n)
     (h_conv : ConvexIndependent ℝ (Subtype.val : s → V)) :
     (distinctDistances s).card ≥ n / 2 := by
-      sorry
+  -- Bridge to ordered polygon
+  have h_poly_exists : ∃ A : ℕ → V, IsConvexPolygon A n ∧ (Finset.range n).image A = s :=
+    exists_convex_polygon_of_convex_independent h_n h_card h_conv
+  obtain ⟨A, h_poly, h_range⟩ := h_poly_exists
+
+  -- Define D_A as the set of distinct distances of the polygon A
+  let D_A := distinctDistances (Finset.image A (Finset.range n))
+  have h_D_eq : D_A = distinctDistances s := by
+    dsimp [D_A]
+    rw [h_range]
+
+  by_contra h_contra
+  rw [← h_D_eq] at h_contra
+  have h_len : D_A.card < n / 2 := lt_of_not_ge h_contra
+
+  -- Check if some side is maximal among all distances
+  by_cases h_side_max : ∃ k, k < n ∧ ∀ i j, i < n → j < n → dist (A i) (A j) ≤ dist (A k) (A ((k + 1) % n))
+  · -- Case 1: Max distance is achieved by a side
+    obtain ⟨k, hk_lt_n, hk_max⟩ := h_side_max
+
+    let A' (i : ℕ) := A ((k + n - i) % n)
+    have h_poly' : IsConvexPolygon A' n := is_convex_polygon_reverse_rotate h_poly
+
+    have h_max' : ∀ i j, i < n → j < n → dist (A' i) (A' j) ≤ dist (A' 0) (A' (n - 1)) :=
+      max_dist_reverse_rotate hk_lt_n hk_max
+
+    have h_D_A' : distinctDistances (Finset.image A' (Finset.range n)) = D_A :=
+      distinct_distances_reverse_rotate
+
+    have h_lemma2 := altman_lemma_2 h_poly' h_max'
+    rw [h_D_A'] at h_lemma2
+
+    -- Contradiction derivations
+    have h_n_ge_4 : n - 2 < n / 2 := lt_of_le_of_lt h_lemma2 h_len
+
+    by_cases hn_small : n < 4
+    · -- Handle small n
+      rcases (show n = 0 ∨ n = 1 ∨ n = 2 ∨ n = 3 by omega) with rfl | rfl | rfl | rfl
+      · omega
+      · omega
+      · have : D_A.Nonempty := by
+           rw [h_D_eq]
+           refine distinct_distances_nonempty_of_ge_2 ?_
+           rw [h_card]
+        have : 1 ≤ D_A.card := Finset.card_pos.mpr this
+        omega
+      · have : D_A.Nonempty := by
+           rw [h_D_eq]
+           refine distinct_distances_nonempty_of_ge_2 ?_
+           rw [h_card]; norm_num
+        have : 1 ≤ D_A.card := Finset.card_pos.mpr this
+        omega
+    · -- n >= 4
+      omega
+
+  · -- Case 2: No side is maximal.
+    push Not at h_side_max
+
+    have h_strict : ∃ p q, p < n ∧ q < n ∧ ∀ i, i < n → dist (A i) (A ((i + 1) % n)) < dist (A p) (A q) := by
+      let all_pairs := (Finset.range n).product (Finset.range n)
+      have h_nonempty : all_pairs.Nonempty := by
+        by_cases hn : 2 ≤ n
+        · use (0, 1)
+          dsimp [all_pairs]
+          rw [Finset.mem_product, Finset.mem_range, Finset.mem_range]
+          constructor <;> apply lt_of_lt_of_le (by norm_num) hn
+        · have : n < 2 := by omega
+          have : n / 2 = 0 := by omega
+          rw [this] at h_len
+          omega
+
+      let f (p : ℕ × ℕ) := dist (A p.1) (A p.2)
+      obtain ⟨⟨p_idx, q_idx⟩, h_mem, h_max⟩ := Finset.exists_max_image all_pairs f h_nonempty
+
+      dsimp [all_pairs] at h_mem
+      rw [Finset.mem_product, Finset.mem_range, Finset.mem_range] at h_mem
+      use p_idx, q_idx
+      refine ⟨h_mem.1, h_mem.2, fun i hi => ?_⟩
+      specialize h_side_max i hi
+      obtain ⟨ip, iq, hip, hiq, h_gt⟩ := h_side_max
+      have h_le : dist (A ip) (A iq) ≤ dist (A p_idx) (A q_idx) := by
+        specialize h_max (ip, iq)
+        dsimp [all_pairs] at h_max
+        rw [Finset.mem_product, Finset.mem_range, Finset.mem_range] at h_max
+        exact h_max ⟨hip, hiq⟩
+      exact lt_of_lt_of_le h_gt h_le
+
+    obtain ⟨x, AP, AQ, h_decomp_props⟩ := decomposition_lemma h_poly h_strict
+    rcases h_decomp_props with ⟨h_ge_2, h_le_n2, h_poly_P, h_poly_Q, h_dist_P, h_dist_Q, h_strict_P, h_weak_Q⟩
+
+
+    have h_strong := altman_lemma_2_strong h_poly_P h_strict_P
+    let DP := distinctDistances (Finset.image AP (Finset.range (x + 1)))
+
+    have h_weak := altman_lemma_2 h_poly_Q h_weak_Q
+    let DQ := distinctDistances (Finset.image AQ (Finset.range (n - x + 1)))
+
+    have h_card_P : DP.card ≥ x := by
+      have := h_strong
+      simp at this ⊢
+      exact this
+
+    have h_card_Q : DQ.card ≥ n - x - 1 := by
+      have := h_weak
+      simp at this ⊢
+      exact this
+
+    have h1 : x < n / 2 := lt_of_le_of_lt (le_trans h_card_P (Finset.card_le_card h_dist_P)) h_len
+    have h2 : n - x - 1 < n / 2 := lt_of_le_of_lt (le_trans h_card_Q (Finset.card_le_card h_dist_Q)) h_len
+
+    have h_contradiction_final : False := by
+      omega
+
+    exact h_contradiction_final
+#print axioms altman_erdos
 -- 'Erdos93.altman_erdos' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end

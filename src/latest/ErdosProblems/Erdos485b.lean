@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
+/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 485.
 https://www.erdosproblems.com/forum/thread/485
@@ -599,7 +599,42 @@ lemma sq_prod_support_bound (g P : ℤ[X]) (R : Finset ℕ) (d a : ℕ)
     (hg_supp : (g ^ 2).support ⊆ R ∪ R.image (· + d) ∪ {2 * d})
     (hP_supp : P.support ⊆ (Finset.range a).image (· * d)) :
     ((g * P) ^ 2).support.card ≤ 2 * a * R.card + 1 := by
-      sorry
+  -- By support_mul_subset_add, we have supp(g²P²) ⊆ supp(g²) + supp(P²).
+  have h_support : (g ^ 2 * P ^ 2).support ⊆ (g ^ 2).support + (P ^ 2).support := by
+    exact support_mul_subset_add _ _
+  -- By structured_minkowski_bound, card(supp(g²) + supp(P²)) is at most
+  -- (2*a-2+2)*#R+1 = 2*a*#R+1.
+  have h_card : ((g ^ 2).support + (P ^ 2).support).card ≤ (2 * a * #R + 1) := by
+    -- Use structured_minkowski_bound on the outer support enclosure.
+    have h_card :
+        ((g ^ 2).support + (P ^ 2).support).card ≤
+          ((R ∪ R.image (· + d) ∪ {2 * d}) +
+            (Finset.range (2 * a - 1)).image (· * d)).card := by
+      refine Finset.card_le_card ( Finset.add_subset_add hg_supp ?_ );
+      -- By support_mul_subset_add, we have supp(P²) ⊆ supp(P) + supp(P).
+      have h_support_P : (P ^ 2).support ⊆ P.support + P.support := by
+        convert support_mul_subset_add P P using 1 ; ring_nf;
+      refine h_support_P.trans ?_;
+      intro x hx
+      obtain ⟨ y, hy, z, hz, rfl ⟩ := Finset.mem_add.mp hx
+      have := hP_supp hy
+      have := hP_supp hz
+      simp_all +decide [ Finset.mem_image ]
+      rcases ‹∃ a_1 < a, a_1 * d = y› with ⟨ i, hi, rfl ⟩
+      rcases ‹∃ a_1 < a, a_1 * d = z› with ⟨ j, hj, rfl ⟩
+      exact ⟨ i + j, by omega, by ring ⟩
+    refine le_trans h_card ?_
+    by_cases ha : a = 0
+    · subst a
+      simp
+    · have hrange : 2 * a - 1 = 2 * a - 2 + 1 := by omega
+      have hbound := structured_minkowski_bound R d (2 * a - 2) hR_range hR_zero
+      have hright : (2 * a - 2 + 2) * R.card + 1 = 2 * a * R.card + 1 := by
+        have htwo : 2 ≤ 2 * a := by omega
+        rw [Nat.sub_add_cancel htwo]
+      simpa [hrange, hright] using hbound
+  simpa only [ mul_pow ] using le_trans ( Finset.card_le_card h_support ) h_card
+
 /-
 Existence of complete product g*P
 -/
@@ -746,7 +781,24 @@ lemma sq_with_linear_support_bound (f : ℤ[X]) (mu : ℤ) (b : ℕ)
     (hmu : mu ≠ 0) (hb : 0 < b) (bound : ℕ)
     (hf_bound : (f ^ 2).support.card ≤ bound) :
     ((f * (1 + C mu * X ^ b)) ^ 2).support.card ≤ 3 * bound := by
-      sorry
+  rw [ mul_pow ];
+  have h_support :
+      (f ^ 2 * (1 + C mu * X ^ b) ^ 2).support ⊆
+        (f ^ 2).support + ({0, b, 2 * b} : Finset ℕ) := by
+    convert support_mul_subset_add _ _ using 2;
+    ext ; simp +decide [sq, add_mul, mul_assoc, Polynomial.coeff_one, Polynomial.coeff_X_pow];
+    ring_nf; split_ifs <;> simp_all +decide [pow_succ] ;
+    aesop;
+  refine le_trans ( Finset.card_le_card h_support ) ?_;
+  have h_three : ({0, b, 2 * b} : Finset ℕ).card ≤ 3 :=
+    Finset.card_le_three
+  calc
+    ((f ^ 2).support + ({0, b, 2 * b} : Finset ℕ)).card
+        ≤ (f ^ 2).support.card * ({0, b, 2 * b} : Finset ℕ).card :=
+      finset_add_card_le _ _
+    _ ≤ bound * 3 := Nat.mul_le_mul hf_bound h_three
+    _ = 3 * bound := by omega
+
 -- Support bound for f² via degree bound
 lemma sq_support_card_le (f : ℤ[X]) :
     (f ^ 2).support.card ≤ 2 * f.natDegree + 1 := by
@@ -888,7 +940,122 @@ lemma arithmetic_bound (n N a : ℕ) (_hn : 0 < n) (ha1 : 1 ≤ a) (ha8 : a ≤ 
     (haN : a * 9 ^ N ≤ n) :
     ((6 * a * ((6 ^ (N + 1) - 1) / 5) + 3 : ℕ) : ℝ) <
     (1 / 5 : ℝ) * (102 * (n : ℝ) ^ (Real.log 6 / Real.log 9) - 12) := by
-      sorry
+  suffices h_suff :
+      (6 * a * (6 ^ (N + 1) - 1) + 27 : ℝ) <
+        102 * (n : ℝ) ^ (Real.log 6 / Real.log 9) by
+    rw [Nat.cast_add, Nat.cast_mul, Nat.cast_mul]
+    rw [Nat.cast_div] <;> norm_num
+    · nlinarith
+    · exact Nat.dvd_of_mod_eq_zero <| by
+        rw [← Nat.mod_add_div (6 ^ (N + 1)) 5]
+        norm_num [Nat.pow_mod]
+  have h_exp :
+      (n : ℝ) ^ (Real.log 6 / Real.log 9) ≥
+        (a : ℝ) ^ (Real.log 6 / Real.log 9) * (6 : ℝ) ^ N := by
+    refine le_trans ?_
+      ( Real.rpow_le_rpow ( by positivity ) ( Nat.cast_le.mpr haN ) ( by positivity ) );
+    norm_num [ Real.mul_rpow, Real.rpow_def_of_pos ];
+    norm_num [ mul_assoc, mul_div_cancel₀, Real.exp_nat_mul, Real.exp_log ];
+  have h_sqrt : (a : ℝ) ^ (Real.log 6 / Real.log 9) ≥ Real.sqrt a := by
+    rw [ Real.sqrt_eq_rpow ]
+    exact Real.rpow_le_rpow_of_exponent_le ( mod_cast ha1 ) ( by
+      rw [ div_eq_mul_inv ]
+      rw [ inv_eq_one_div, mul_one_div ]
+      rw [ le_div_iff₀ ( by positivity ) ]
+      norm_num [ ← Real.log_rpow, Real.log_le_log ] )
+  interval_cases a <;> norm_num at *
+  · have hpow : (1 : ℝ) ≤ (1 : ℝ) ^ (Real.log 6 / Real.log 9) := by simp
+    have hpowNpos : (0 : ℝ) < (6 : ℝ) ^ N := pow_pos (by norm_num) _
+    have hpowNge1 : (1 : ℝ) ≤ (6 : ℝ) ^ N :=
+      pow_le_pow_right₀ (by norm_num : (1 : ℝ) ≤ 6) (show N ≥ 0 by norm_num)
+    have hmul := mul_le_mul_of_nonneg_right hpow hpowNpos.le
+    have hlow : 102 * ((1 : ℝ) * (6 : ℝ) ^ N) ≤
+        102 * (n : ℝ) ^ (Real.log 6 / Real.log 9) := by
+      nlinarith [h_exp, hmul]
+    rw [pow_succ']
+    nlinarith [hpowNge1, hlow]
+  · have hsqrt2 : (1 : ℝ) ≤ Real.sqrt 2 := by
+      exact Real.le_sqrt_of_sq_le (by norm_num : (1 : ℝ) ^ 2 ≤ 2)
+    have hpow : (1 : ℝ) ≤ (2 : ℝ) ^ (Real.log 6 / Real.log 9) :=
+      le_trans hsqrt2 h_sqrt
+    have hpowNpos : (0 : ℝ) < (6 : ℝ) ^ N := pow_pos (by norm_num) _
+    have hpowNge1 : (1 : ℝ) ≤ (6 : ℝ) ^ N :=
+      pow_le_pow_right₀ (by norm_num : (1 : ℝ) ≤ 6) (show N ≥ 0 by norm_num)
+    have hmul := mul_le_mul_of_nonneg_right hpow hpowNpos.le
+    have hlow : 102 * ((1 : ℝ) * (6 : ℝ) ^ N) ≤
+        102 * (n : ℝ) ^ (Real.log 6 / Real.log 9) := by
+      nlinarith [h_exp, hmul]
+    rw [pow_succ']
+    nlinarith [hpowNge1, hlow]
+  · have hsqrt3 : (3 / 2 : ℝ) ≤ Real.sqrt 3 := by
+      exact Real.le_sqrt_of_sq_le (by norm_num : (3 / 2 : ℝ) ^ 2 ≤ 3)
+    have hpow : (3 / 2 : ℝ) ≤ (3 : ℝ) ^ (Real.log 6 / Real.log 9) :=
+      le_trans hsqrt3 h_sqrt
+    have hpowNpos : (0 : ℝ) < (6 : ℝ) ^ N := pow_pos (by norm_num) _
+    have hpowNge1 : (1 : ℝ) ≤ (6 : ℝ) ^ N :=
+      pow_le_pow_right₀ (by norm_num : (1 : ℝ) ≤ 6) (show N ≥ 0 by norm_num)
+    have hmul := mul_le_mul_of_nonneg_right hpow hpowNpos.le
+    have hlow : 102 * ((3 / 2 : ℝ) * (6 : ℝ) ^ N) ≤
+        102 * (n : ℝ) ^ (Real.log 6 / Real.log 9) := by
+      nlinarith [h_exp, hmul]
+    rw [pow_succ']
+    nlinarith [hpowNge1, hlow]
+  · have hpow : (2 : ℝ) ≤ (4 : ℝ) ^ (Real.log 6 / Real.log 9) := by
+      simpa using h_sqrt
+    have hpowNpos : (0 : ℝ) < (6 : ℝ) ^ N := pow_pos (by norm_num) _
+    have hpowNge1 : (1 : ℝ) ≤ (6 : ℝ) ^ N :=
+      pow_le_pow_right₀ (by norm_num : (1 : ℝ) ≤ 6) (show N ≥ 0 by norm_num)
+    have hmul := mul_le_mul_of_nonneg_right hpow hpowNpos.le
+    have hlow : 102 * ((2 : ℝ) * (6 : ℝ) ^ N) ≤
+        102 * (n : ℝ) ^ (Real.log 6 / Real.log 9) := by
+      nlinarith [h_exp, hmul]
+    rw [pow_succ']
+    nlinarith [hpowNge1, hlow]
+  · have hsqrt5 : (2 : ℝ) ≤ Real.sqrt 5 := by
+      exact Real.le_sqrt_of_sq_le (by norm_num : (2 : ℝ) ^ 2 ≤ 5)
+    have hpow : (2 : ℝ) ≤ (5 : ℝ) ^ (Real.log 6 / Real.log 9) :=
+      le_trans hsqrt5 h_sqrt
+    have hpowNpos : (0 : ℝ) < (6 : ℝ) ^ N := pow_pos (by norm_num) _
+    have hmul := mul_le_mul_of_nonneg_right hpow hpowNpos.le
+    have hlow : 102 * ((2 : ℝ) * (6 : ℝ) ^ N) ≤
+        102 * (n : ℝ) ^ (Real.log 6 / Real.log 9) := by
+      nlinarith [h_exp, hmul]
+    rw [pow_succ']
+    nlinarith [hpowNpos, hlow]
+  · have hsqrt6 : (12 / 5 : ℝ) ≤ Real.sqrt 6 := by
+      exact Real.le_sqrt_of_sq_le (by norm_num : (12 / 5 : ℝ) ^ 2 ≤ 6)
+    have hpow : (12 / 5 : ℝ) ≤ (6 : ℝ) ^ (Real.log 6 / Real.log 9) :=
+      le_trans hsqrt6 h_sqrt
+    have hpowNpos : (0 : ℝ) < (6 : ℝ) ^ N := pow_pos (by norm_num) _
+    have hmul := mul_le_mul_of_nonneg_right hpow hpowNpos.le
+    have hlow : 102 * ((12 / 5 : ℝ) * (6 : ℝ) ^ N) ≤
+        102 * (n : ℝ) ^ (Real.log 6 / Real.log 9) := by
+      nlinarith [h_exp, hmul]
+    rw [pow_succ']
+    nlinarith [hpowNpos, hlow]
+  · have hsqrt7 : (5 / 2 : ℝ) ≤ Real.sqrt 7 := by
+      exact Real.le_sqrt_of_sq_le (by norm_num : (5 / 2 : ℝ) ^ 2 ≤ 7)
+    have hpow : (5 / 2 : ℝ) ≤ (7 : ℝ) ^ (Real.log 6 / Real.log 9) :=
+      le_trans hsqrt7 h_sqrt
+    have hpowNpos : (0 : ℝ) < (6 : ℝ) ^ N := pow_pos (by norm_num) _
+    have hmul := mul_le_mul_of_nonneg_right hpow hpowNpos.le
+    have hlow : 102 * ((5 / 2 : ℝ) * (6 : ℝ) ^ N) ≤
+        102 * (n : ℝ) ^ (Real.log 6 / Real.log 9) := by
+      nlinarith [h_exp, hmul]
+    rw [pow_succ']
+    nlinarith [hpowNpos, hlow]
+  · have hsqrt8 : (48 / 17 : ℝ) < Real.sqrt 8 := by
+      exact Real.lt_sqrt_of_sq_lt (by norm_num)
+    have hpow : (48 / 17 : ℝ) < (8 : ℝ) ^ (Real.log 6 / Real.log 9) :=
+      lt_of_lt_of_le hsqrt8 h_sqrt
+    have hpowNpos : (0 : ℝ) < (6 : ℝ) ^ N := pow_pos (by norm_num) _
+    have hmul := mul_lt_mul_of_pos_right hpow hpowNpos
+    have hlow : 102 * ((48 / 17 : ℝ) * (6 : ℝ) ^ N) <
+        102 * (n : ℝ) ^ (Real.log 6 / Real.log 9) := by
+      nlinarith [h_exp, hmul]
+    rw [pow_succ']
+    nlinarith [hpowNpos, hlow]
+
 /-- **Main Theorem.** For every positive integer `n`, there exists a polynomial `f(x)` of
 degree `n` with all nonzero integer coefficients such that `f(x)²` has fewer than
 `(1/5)(102 · n^{log₉ 6} - 12)` nonzero coefficients. -/

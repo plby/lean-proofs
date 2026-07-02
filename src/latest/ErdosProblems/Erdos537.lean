@@ -294,7 +294,156 @@ Lemma 2: The series $\sum_{p}\frac{1}{p\log p}$ converges.
 -/
 lemma lem_prime_series (hChebyshev : ChebyshevUpperBound) : Summable (fun p : ℕ => if p.Prime then 1
   / (p * Real.log p) else 0) := by
-    sorry
+  -- Let's consider the series $\sum_{p}\frac{1}{p\log p}$.
+  -- We'll show that this series converges by comparing it to a convergent series.
+  have h_comparison : ∀ k : ℕ, k ≥ 2 → (∑ p ∈ Finset.filter Nat.Prime (Finset.Icc (2^(k-1) + 1)
+    (2^k)), (1 : ℝ) / (p * Real.log p)) ≤ (2 * Real.log 4) / ((k - 1) ^ 2 * (Real.log 2) ^ 2) := by
+    -- For primes $p \in I_k$, we have $p \geq 2^{k-1}$ and $\log p \geq \log(2^{k-1}) = (k-1)\log
+    -- 2$, hence $\frac{1}{p\log p} \leq \frac{1}{2^{k-1}(k-1)\log 2}$.
+    intros k hk
+    have h_bound : ∀ p ∈ Finset.filter Nat.Prime (Finset.Icc (2^(k-1) + 1) (2^k)), (1 : ℝ) / (p *
+      Real.log p) ≤ 1 / (2^(k-1) * (k-1) * Real.log 2) := by
+      intro p hp
+      have h_p_ge : (p : ℝ) ≥ 2^(k-1) := by
+        exact_mod_cast Finset.mem_Icc.mp ( Finset.mem_filter.mp hp |>.1 ) |>.1 |> Nat.le_of_succ_le
+      have h_log_p_ge : Real.log p ≥ (k-1) * Real.log 2 := by
+        rw [ ← Real.log_rpow zero_lt_two ] ; gcongr ; cases k <;> norm_num at * ; norm_cast at *
+      have h_bound : (1 : ℝ) / (p * Real.log p) ≤ 1 / (2^(k-1) * (k-1) * Real.log 2) := by
+        exact one_div_le_one_div_of_le
+          ( mul_pos ( mul_pos ( pow_pos ( by norm_num ) _ )
+            ( sub_pos.mpr ( Nat.one_lt_cast.mpr hk ) ) ) ( Real.log_pos one_lt_two ) ) (by
+            nlinarith [
+              show ( 0 :ℝ ) < 2 ^ ( k - 1 ) by positivity,
+              show ( 0 :ℝ ) < Real.log p by
+                exact Real.log_pos <| Nat.one_lt_cast.mpr <| Nat.Prime.one_lt <|
+                  Finset.mem_filter.mp hp |>.2 ] )
+      exact h_bound;
+    -- By Lemma 1, we have $\pi(2^k) - \pi(2^{k-1}) \leq \frac{2(\log 4)}{\log(2^{k-1})}2^{k-1} =
+    -- \frac{2(\log 4)}{(k-1)\log 2}2^{k-1}$.
+    have h_prime_count : ((Finset.filter Nat.Prime (Finset.Icc (2^(k-1) + 1) (2^k))).card : ℝ) ≤ (2
+      * Real.log 4 / ((k - 1) * Real.log 2)) * 2^(k-1) := by
+      have h_prime_count : (pi_real (2^k) : ℝ) - (pi_real (2^(k-1)) : ℝ) ≤ (2 * Real.log 4 / ((k -
+        1) * Real.log 2)) * 2^(k-1) := by
+        convert lem_dyadicprimecount hChebyshev ( 2 ^ ( k - 1 ) ) (by
+          exact le_trans ( by norm_num )
+            ( pow_le_pow_right₀ ( by norm_num ) ( Nat.le_sub_one_of_lt hk ) ) ) using 1
+        · exact congrArg
+            (fun n => ((pi_real n : ℝ) - (pi_real (2 ^ (k - 1)) : ℝ)))
+            (by
+              rw [mul_comm, ← pow_succ]
+              congr
+              omega)
+        · norm_num [ Real.log_pow ]
+          exact congrArg
+            (fun x : ℝ => 2 * Real.log 4 / (x * Real.log 2))
+            (by
+              rw [Nat.cast_sub (by omega : 1 ≤ k)]
+              norm_num)
+      convert h_prime_count using 1;
+      unfold pi_real;
+      rw [ show ( Finset.filter Nat.Prime ( Finset.range ( ⌊ ( 2 : ℝ ) ^ k⌋₊ + 1 ) ) ) =
+        Finset.filter Nat.Prime ( Finset.range ( ⌊ ( 2 : ℝ ) ^ ( k - 1 ) ⌋₊ + 1 ) ) ∪ Finset.filter
+        Nat.Prime ( Finset.Icc ( ⌊ ( 2 : ℝ ) ^ ( k - 1 ) ⌋₊ + 1 ) ( ⌊ ( 2 : ℝ ) ^ k⌋₊ ) ) from ?_,
+        Finset.card_union_of_disjoint ];
+      · norm_num [ show ⌊ ( 2 : ℝ ) ^ k⌋₊ = 2 ^ k by exact_mod_cast Nat.floor_natCast _, show ⌊ ( 2
+        : ℝ ) ^ ( k - 1 ) ⌋₊ = 2 ^ ( k - 1 ) by exact_mod_cast Nat.floor_natCast _ ];
+      · exact Finset.disjoint_left.mpr fun x hx₁ hx₂ => by
+          linarith [
+            Finset.mem_range.mp ( Finset.mem_filter.mp hx₁ |>.1 ),
+            Finset.mem_Icc.mp ( Finset.mem_filter.mp hx₂ |>.1 ) ] ;
+      · ext; simp [Finset.mem_union, Finset.mem_Icc];
+        exact ⟨ fun h =>
+          if h' : _ < ⌊ ( 2 : ℝ ) ^ ( k - 1 ) ⌋₊ + 1 then
+            Or.inl ⟨ Nat.le_of_lt_succ h', h.2 ⟩
+          else
+            Or.inr ⟨ ⟨ by linarith, h.1 ⟩, h.2 ⟩,
+          fun h => h.elim ( fun h => ⟨ by
+            linarith [
+              h.1,
+              show ⌊ ( 2 : ℝ ) ^ k⌋₊ ≥ ⌊ ( 2 : ℝ ) ^ ( k - 1 ) ⌋₊ from
+                Nat.floor_mono <| pow_le_pow_right₀ ( by norm_num ) <| Nat.pred_le _ ], h.2 ⟩ )
+            fun h => ⟨ h.1.2, h.2 ⟩ ⟩;
+    field_simp;
+    refine le_trans ( mul_le_mul_of_nonneg_right ( Finset.sum_le_sum h_bound ) ( sq_nonneg _ ) ) ?_
+      ; norm_num at *;
+    convert mul_le_mul_of_nonneg_right h_prime_count ( show 0 ≤ ( Real.log 2 ) ⁻¹ *
+        ( ( k - 1 : ℝ ) ⁻¹ * ( 2 ^ ( k - 1 ) ) ⁻¹ ) * Real.log 2 ^ 2 by
+      exact mul_nonneg
+        ( mul_nonneg
+          ( inv_nonneg.2 ( Real.log_nonneg ( by norm_num ) ) )
+          ( mul_nonneg
+            ( inv_nonneg.2 ( sub_nonneg.2 ( Nat.one_le_cast.2 ( by linarith ) ) ) )
+            ( inv_nonneg.2 ( pow_nonneg ( by norm_num ) _ ) ) ) )
+        ( sq_nonneg _ ) ) using 1
+    · ring
+    field_simp;
+  -- By comparison, it suffices to show that $\sum_{k=2}^{\infty} \frac{2 \log 4}{(k-1)^2 (\log
+  -- 2)^2}$ converges.
+  have h_summable_comparison : Summable (fun k : ℕ => (2 * Real.log 4) / ((k - 1) ^ 2 * (Real.log 2)
+    ^ 2)) := by
+    -- We'll use the fact that $\sum_{k=2}^{\infty} \frac{1}{(k-1)^2}$ converges.
+    have h_summable_one_over_k_squared : Summable (fun k : ℕ => (1 : ℝ) / ((k - 1) ^ 2)) := by
+      exact summable_nat_add_iff 1 |>.1 <| by simp;
+    refine (h_summable_one_over_k_squared.mul_left (2 * Real.log 4 / Real.log 2 ^ 2)).congr ?_
+    intro k
+    by_cases hk : ((k : ℝ) - 1) ^ 2 = 0
+    · simp [hk]
+    · field_simp [hk, Real.log_ne_zero_of_pos_of_ne_one zero_lt_two (by norm_num : (2 : ℝ) ≠ 1)]
+  have h_summable_comparison : Summable (fun k : ℕ => ∑ p ∈ Finset.filter Nat.Prime (Finset.Icc
+    (2^(k-1) + 1) (2^k)), (1 : ℝ) / (p * Real.log p)) := by
+    rw [ ← summable_nat_add_iff 2 ] at *;
+    exact Summable.of_nonneg_of_le ( fun n => Finset.sum_nonneg fun _ _ => by positivity ) ( fun n
+      => h_comparison _ le_add_self ) h_summable_comparison;
+  have h_summable_comparison : Summable (fun p : ℕ => if Nat.Prime p then (1 : ℝ) / (p * Real.log p)
+    else 0) := by
+    have h_partial_sums : ∀ N : ℕ, ∑ p ∈ Finset.Icc 1 (2^N), (if Nat.Prime p then (1 : ℝ) / (p *
+      Real.log p) else 0) ≤ ∑ k ∈ Finset.range (N + 1), ∑ p ∈ Finset.filter Nat.Prime (Finset.Icc
+      (2^(k-1) + 1) (2^k)), (1 : ℝ) / (p * Real.log p) := by
+      intro N
+      induction N with
+      | zero => norm_num [ Finset.sum_filter ];
+      | succ N ih =>
+        have h_split : Finset.Icc 1 (2^(N+1)) = Finset.Icc 1 (2^N) ∪ Finset.Icc (2^N + 1) (2^(N+1))
+        := by
+          exact Eq.symm ( Finset.Ico_union_Ico_eq_Ico ( by norm_num ) ( by ring_nf; norm_num ) );
+        rw [ h_split, Finset.sum_union ];
+        · have h_new :
+              (∑ p ∈ Finset.Icc (2 ^ N + 1) (2 ^ (N + 1)),
+                (if Nat.Prime p then (1 : ℝ) / (p * Real.log p) else 0)) =
+              ∑ p ∈ Finset.filter Nat.Prime (Finset.Icc (2 ^ N + 1) (2 ^ (N + 1))),
+                (1 : ℝ) / (p * Real.log p) := by
+            rw [Finset.sum_filter]
+          simpa [Finset.sum_range_succ, h_new] using add_le_add ih (le_of_eq h_new);
+        · exact Finset.disjoint_left.mpr fun x hx₁ hx₂ =>
+          by linarith [ Finset.mem_Icc.mp hx₁, Finset.mem_Icc.mp hx₂ ] ;
+    have h_partial_sums_bounded : BddAbove (Set.range (fun N : ℕ => ∑ p ∈ Finset.Icc 1 (2^N), (if
+      Nat.Prime p then (1 : ℝ) / (p * Real.log p) else 0))) := by
+      exact ⟨ _, Set.forall_mem_range.mpr fun N => le_trans ( h_partial_sums N ) (
+        Summable.sum_le_tsum ( Finset.range ( N + 1 ) ) ( fun _ _ => Finset.sum_nonneg fun _ _ =>
+        by positivity ) h_summable_comparison ) ⟩;
+    have h_partial_sums_bounded : BddAbove (Set.range (fun N : ℕ => ∑ p ∈ Finset.range (2^N + 1),
+      (if Nat.Prime p then (1 : ℝ) / (p * Real.log p) else 0))) := by
+      obtain ⟨ M, hM ⟩ := h_partial_sums_bounded; use M + 1; rintro x ⟨ N, rfl ⟩ ; simp_all +decide
+        [ Finset.sum_range_succ' ] ;
+      have := hM ⟨ N, rfl ⟩ ; simp_all +decide
+      erw [ Finset.sum_Ico_eq_sum_range ] at this ; norm_num [ add_comm, Finset.sum_range_succ' ] at
+        * ; linarith;
+    refine summable_iff_not_tendsto_nat_atTop_of_nonneg ( fun p => by positivity ) |>.2 ?_;
+    rw [ Filter.tendsto_atTop_atTop ];
+    push Not;
+    obtain ⟨ b, hb ⟩ := h_partial_sums_bounded;
+    exact ⟨ b + 1, fun N => ⟨ 2 ^ N + 1, by
+      linarith [
+        Nat.le_ceil ( Real.logb 2 N ),
+        Nat.le_ceil ( Real.logb 2 ( 2 ^ N + 1 ) ),
+        show 2 ^ N ≥ N from
+          Nat.recOn N ( by norm_num ) fun n ihn => by
+            rw [ pow_succ' ]
+            linarith [ ihn, Nat.one_le_pow n 2 zero_lt_two ],
+        Nat.le_ceil ( Real.logb 2 ( 2 ^ N ) ) ], by
+      linarith [ hb <| Set.mem_range_self N ] ⟩ ⟩;
+  convert h_summable_comparison using 1
+
 /-
 Lemma 3: The double series $\sum_{p<q\le 2p}\frac{1}{pq}$ converges.
 -/
@@ -463,7 +612,115 @@ Lemma 4: The set $\{n\in\N:\ n\equiv a\pmod m\}$ has density $1/m$.
 -/
 lemma lem_APdensity (m : ℕ) (a : ℕ) (hm : m > 0) (ha : a < m) :
   HasNaturalDensity {n | n % m = a} ∧ naturalDensity {n | n % m = a} = 1 / m := by
-    sorry
+    -- The set {n | n ≡ a (mod m)} is periodic with period m, so its density is 1/m.
+    have h_periodic : ∀ X : ℕ, X ≥ 1 → ((Finset.filter (fun n => n % m = a) (Finset.Icc 1 X)).card :
+      ℝ) / X ≤ 1 / m + 1 / X := by
+      -- The cardinality of the set {n ∈ Finset.Icc 1 X | n % m = a} is at most (X / m) + 1.
+      have h_card : ∀ X : ℕ, X ≥ 1 → ((Finset.filter (fun n => n % m = a) (Finset.Icc 1 X)).card :
+        ℝ) ≤ (X / m : ℝ) + 1 := by
+        intro X hX
+        have h_card : ((Finset.filter (fun n => n % m = a) (Finset.Icc 1 X)).card : ℝ) ≤
+          (Finset.image (fun n => n / m) (Finset.filter (fun n => n % m = a) (Finset.Icc 1 X))).card
+          := by
+          rw [ Finset.card_image_of_injOn ];
+          intro x hx y hy; have := Nat.mod_add_div x m; have := Nat.mod_add_div y m; aesop;
+        refine le_trans h_card ?_;
+        refine le_trans
+          (Nat.cast_le.mpr <| Finset.card_le_card <| Finset.image_subset_iff.mpr
+            (show
+              ∀ x ∈ Finset.filter (fun n => n % m = a) (Finset.Icc 1 X),
+                x / m ∈ Finset.Icc 0 (X / m) from ?_))
+          ?_;
+        · exact fun x hx => Finset.mem_Icc.mpr ⟨ Nat.zero_le _, Nat.div_le_div_right <|
+          Finset.mem_Icc.mp ( Finset.mem_filter.mp hx |>.1 ) |>.2 ⟩;
+        · norm_num [ Nat.cast_div, hm ];
+          rw [ le_div_iff₀ ] <;> norm_cast ; linarith [ Nat.div_mul_le_self X m ];
+      intro X hX
+      have hXpos : (0 : ℝ) < X := by exact_mod_cast Nat.pos_of_ne_zero (by omega : X ≠ 0)
+      have hmpos : (0 : ℝ) < m := by exact_mod_cast hm
+      have hcalc : (X : ℝ) / m + 1 = (1 / m + 1 / X) * X := by
+        field_simp [hmpos.ne', hXpos.ne']
+      rw [div_le_iff₀ hXpos]
+      nlinarith [h_card X hX]
+    -- The set {n | n ≡ a (mod m)} is periodic with period m, so its density is 1/m. We can use the
+    -- fact that the density of a periodic set is the reciprocal of its period.
+    have h_periodic_density : Filter.Tendsto (fun X : ℕ => ((Finset.filter (fun n => n % m = a)
+      (Finset.Icc 1 X)).card : ℝ) / X) Filter.atTop (nhds (1 / m)) := by
+      have h_periodic_density : ∀ X : ℕ, X ≥ 1 → ((Finset.filter (fun n => n % m = a) (Finset.Icc 1
+        X)).card : ℝ) / X ≥ 1 / m - 1 / X := by
+        -- Let's choose any $X \geq 1$.
+        intro X hX_pos
+        have h_floor : ((Finset.filter (fun n => n % m = a) (Finset.Icc 1 X)).card : ℝ) ≥ (X / m :
+          ℝ) - 1 := by
+          -- The set $\{n \in \mathbb{N} : n \equiv a \pmod{m}\}$ is periodic with period $m$, so
+          -- its cardinality in any interval of length $m$ is exactly $1$.
+          have h_periodic_card : ∀ k : ℕ, ((Finset.filter (fun n => n % m = a) (Finset.Icc (k * m +
+            1) ((k + 1) * m))).card : ℝ) ≥ 1 := by
+            intro k
+            have h_exists : ∃ n ∈ Finset.Icc (k * m + 1) ((k + 1) * m), n % m = a := by
+              by_cases ha0 : a = 0;
+              · exact ⟨ ( k + 1 ) * m, Finset.mem_Icc.mpr ⟨ by nlinarith, by nlinarith ⟩,
+                by simp +decide [ ha0 ] ⟩;
+              · exact ⟨ k * m + a, Finset.mem_Icc.mpr ⟨ by nlinarith [ Nat.pos_of_ne_zero ha0 ],
+                by nlinarith ⟩, by simp +decide [ Nat.add_mod, Nat.mod_eq_of_lt ha ] ⟩;
+            exact_mod_cast Finset.card_pos.mpr ⟨ h_exists.choose, Finset.mem_filter.mpr ⟨
+              h_exists.choose_spec.1, h_exists.choose_spec.2 ⟩ ⟩;
+          -- By summing the cardinalities of the intervals, we get the total cardinality.
+          have h_sum_card : ((Finset.filter (fun n => n % m = a) (Finset.Icc 1 X)).card : ℝ) ≥ ∑ k ∈
+            Finset.range (X / m), ((Finset.filter (fun n => n % m = a) (Finset.Icc (k * m + 1) ((k +
+            1) * m))).card : ℝ) := by
+            have h_sum_card : ((Finset.filter (fun n => n % m = a) (Finset.Icc 1 (X / m * m))).card
+              : ℝ) ≥ ∑ k ∈ Finset.range (X / m), ((Finset.filter (fun n => n % m = a) (Finset.Icc (k
+              * m + 1) ((k + 1) * m))).card : ℝ) := by
+              have h_sum_card : Finset.filter (fun n => n % m = a) (Finset.Icc 1 (X / m * m)) =
+                Finset.biUnion (Finset.range (X / m)) (fun k => Finset.filter (fun n => n % m = a)
+                (Finset.Icc (k * m + 1) ((k + 1) * m))) := by
+                ext n; simp [Finset.mem_biUnion, Finset.mem_filter];
+                constructor;
+                · intro hn
+                  use (n - 1) / m;
+                  exact ⟨ Nat.div_lt_of_lt_mul <| by linarith [ Nat.sub_add_cancel hn.1.1 ], ⟨
+                    by linarith [ Nat.div_mul_le_self ( n - 1 ) m, Nat.sub_add_cancel hn.1.1 ],
+                    by
+                      linarith [
+                        Nat.div_add_mod ( n - 1 ) m,
+                        Nat.mod_lt ( n - 1 ) hm,
+                        Nat.sub_add_cancel hn.1.1 ] ⟩, hn.2 ⟩;
+                · rintro ⟨ k, hk₁, ⟨ hk₂, hk₃ ⟩, hk₄ ⟩ ; exact ⟨ ⟨ by nlinarith,
+                  by nlinarith [ Nat.div_mul_le_self X m ] ⟩, hk₄ ⟩;
+              rw [ h_sum_card, Finset.card_biUnion ];
+              · norm_cast;
+              · intros k hk l hl hkl; simp_all +decide [ Finset.disjoint_left ];
+                intro n hn₁ hn₂ hn₃ hn₄; contrapose! hkl; nlinarith;
+            exact h_sum_card.trans ( mod_cast Finset.card_mono <| Finset.filter_subset_filter _ <|
+              Finset.Icc_subset_Icc_right <| Nat.div_mul_le_self _ _ );
+          refine le_trans ?_ h_sum_card;
+          refine le_trans ?_ ( Finset.sum_le_sum fun _ _ => h_periodic_card _ ) ; norm_num;
+          rw [ div_le_iff₀ ] <;> norm_cast ; linarith [ Nat.div_add_mod X m, Nat.mod_lt X hm ];
+        field_simp;
+        nlinarith [ show ( m : ℝ ) ≥ 1 by norm_cast, div_mul_cancel₀ ( X : ℝ ) ( show ( m : ℝ ) ≠ 0
+          by positivity ) ];
+      exact tendsto_of_tendsto_of_tendsto_of_le_of_le'
+        ( by
+          simpa [one_div] using
+            (tendsto_const_nhds (x := (1 / (m : ℝ))).sub
+              (tendsto_one_div_atTop_nhds_zero_nat (𝕜 := ℝ))) )
+        ( by
+          simpa [one_div] using
+            (tendsto_const_nhds (x := (1 / (m : ℝ))).add
+              (tendsto_one_div_atTop_nhds_zero_nat (𝕜 := ℝ))) )
+        ( Filter.eventually_atTop.mpr ⟨ 1, fun X hX => h_periodic_density X hX ⟩ ) (
+          Filter.eventually_atTop.mpr ⟨ 1, fun X hX => h_periodic X hX ⟩ );
+    unfold HasNaturalDensity naturalDensity;
+    rw [ show upperDensity { n | n % m = a } = 1 / m from ?_, show lowerDensity { n | n % m = a } =
+      1 / m from ?_ ];
+    · norm_num [ hm.ne' ];
+    · convert h_periodic_density.liminf_eq using 1;
+      unfold lowerDensity; norm_num [ Filter.limsup_eq, Filter.liminf_eq ] ;
+    · convert h_periodic_density.limsup_eq using 1;
+      unfold upperDensity;
+      norm_num [ Finset.filter_congr ];
+
 /-
 The intersection of the arithmetic progressions $n \equiv a \pmod L$ and $n \equiv b \pmod d$ (where
 $\gcd(L,d)=1$) is the arithmetic progression $n \equiv x \pmod{Ld}$ for some $x < Ld$.
@@ -753,7 +1010,7 @@ lemma S_avoid_finite_has_density (F : Set ℕ) (hF : F.Finite) (hF_pos : ∀ f �
     intro n
     simp [S_avoid, hM_def];
     constructor <;> intro h f hf <;> specialize h f hf <;> simp_all +decide [
-      Finset.prod_eq_prod_diff_singleton_mul ( hF.mem_toFinset.mpr hf ) ];
+      Finset.prod_eq_prod_sdiff_singleton_mul ( hF.mem_toFinset.mpr hf ) ];
     · rwa [ Nat.dvd_add_left ( dvd_mul_left _ _ ) ];
     · exact fun hn => h ( dvd_add hn ( dvd_mul_left _ _ ) );
   convert periodic_has_density_value _ _ hM_gt_zero _ |> And.left using 1;
@@ -781,7 +1038,170 @@ lemma upper_density_multiples_tail_bound (F : Set ℕ) (T : ℕ) (hF_subset : F 
   (h_summable : Summable (fun f => if f ∈ F then 1 / (f : ℝ) else 0)) :
   upperDensity (⋃ f ∈ {x ∈ F | x > T}, {n | f ∣ n}) ≤ ∑' f, if f ∈ F ∧ f > T then 1 / (f : ℝ) else 0
     := by
-      sorry
+    have h_upper_density_multiples_tail_bound : ∀ s : Finset ℕ, upperDensity (⋃ f ∈ s.filter (fun f
+      => f > T ∧ f ∈ F), {n | f ∣ n}) ≤ ∑ f ∈ s.filter (fun f => f > T ∧ f ∈ F), (1 / (f : ℝ)) := by
+      intros s
+      have h_upper_density_multiples_tail_bound : upperDensity (⋃ f ∈ s.filter (fun f => f > T ∧ f ∈
+        F), {n | f ∣ n}) ≤ ∑ f ∈ s.filter (fun f => f > T ∧ f ∈ F), upperDensity {n | f ∣ n} := by
+        convert upper_density_finite_union_le ( s.filter ( fun f => f > T ∧ f ∈ F ) ) _;
+      refine le_trans h_upper_density_multiples_tail_bound <| Finset.sum_le_sum fun f hf => ?_;
+      -- The set of multiples of $f$ has density $1/f$.
+      have h_density_multiples : HasNaturalDensity {n | f ∣ n} ∧ naturalDensity {n | f ∣ n} = 1 / (f
+        : ℝ) := by
+        convert lem_APdensity f 0 ( Nat.pos_of_ne_zero (
+          by linarith [ Finset.mem_filter.mp hf, hF_subset ( Finset.mem_filter.mp hf |>.2.2 ) ] ) )
+          ( Nat.pos_of_ne_zero (
+          by linarith [ Finset.mem_filter.mp hf, hF_subset ( Finset.mem_filter.mp hf |>.2.2 ) ] ) )
+          using 1;
+        · simp +decide only [Nat.dvd_iff_mod_eq_zero];
+        · simp +decide [ Nat.dvd_iff_mod_eq_zero ];
+      exact h_density_multiples.2 ▸ le_rfl;
+    refine le_of_forall_pos_le_add fun ε ε_pos => ?_;
+    -- Choose a finite subset $s$ of $F$ such that the sum of the reciprocals of the elements in $s$
+    -- is greater than the total sum minus $\epsilon$.
+    obtain ⟨s, hs⟩ : ∃ s : Finset ℕ, (∑ f ∈ s.filter (fun f => f > T ∧ f ∈ F), (1 / (f : ℝ))) ≥ (∑'
+      f, if f ∈ F ∧ f > T then (1 / (f : ℝ)) else 0) - ε / 2 := by
+      have h_summable_tail : Summable (fun f : ℕ => if f ∈ F ∧ f > T then (1 / (f : ℝ)) else 0) :=
+        by
+        exact Summable.of_nonneg_of_le ( fun f => by positivity ) ( fun f => by aesop ) h_summable;
+      have := h_summable_tail.hasSum.tendsto_sum_nat;
+      rcases Metric.tendsto_atTop.mp this ( ε / 2 ) ( half_pos ε_pos ) with ⟨ N, hN ⟩ ; use
+        Finset.range N ; simp_all +decide [ Finset.sum_filter ];
+      have := hN N le_rfl; rw [ dist_eq_norm ] at this; rw [ Real.norm_eq_abs ] at this; rw [ abs_lt
+        ] at this; simp_all +decide [ and_comm ] ; linarith;
+    have h_upper_density_multiples_tail_bound : upperDensity (⋃ f ∈ {x | x ∈ F ∧ x > T}, {n | f ∣
+      n}) ≤ upperDensity (⋃ f ∈ s.filter (fun f => f > T ∧ f ∈ F), {n | f ∣ n}) + upperDensity (⋃ f
+      ∈ {x ∈ F | x > T} \ s.filter (fun f => f > T ∧ f ∈ F), {n | f ∣ n}) := by
+      let A : Set ℕ := ⋃ f ∈ s.filter (fun f => f > T ∧ f ∈ F), {n | f ∣ n}
+      let B : Set ℕ := ⋃ f ∈ {x ∈ F | x > T} \ s.filter (fun f => f > T ∧ f ∈ F), {n | f ∣ n}
+      have h_target : (⋃ f ∈ {x | x ∈ F ∧ x > T}, {n | f ∣ n}) = A ∪ B := by
+        ext n
+        simp only [A, B, Set.mem_iUnion, Set.mem_setOf_eq, Set.mem_union,
+          Set.mem_sdiff, Finset.mem_coe]
+        constructor
+        · rintro ⟨f, hf, hfn⟩
+          by_cases hfs : f ∈ s.filter (fun f => f > T ∧ f ∈ F)
+          · exact Or.inl ⟨f, hfs, hfn⟩
+          · exact Or.inr ⟨f, ⟨hf, hfs⟩, hfn⟩
+        · rintro (⟨f, hf, hfn⟩ | ⟨f, hf, hfn⟩)
+          · exact ⟨f, ⟨(Finset.mem_filter.mp hf).2.2, (Finset.mem_filter.mp hf).2.1⟩, hfn⟩
+          · exact ⟨f, hf.1, hfn⟩
+      have h_indexed :
+          (⋃ i ∈ ({0, 1} : Finset ℕ), if i = 0 then A else B) = A ∪ B := by
+        ext n
+        simp [A, B]
+      have h_sum :
+          (∑ i ∈ ({0, 1} : Finset ℕ), upperDensity (if i = 0 then A else B)) =
+            upperDensity A + upperDensity B := by
+        norm_num
+      calc
+        upperDensity (⋃ f ∈ {x | x ∈ F ∧ x > T}, {n | f ∣ n})
+            = upperDensity (⋃ i ∈ ({0, 1} : Finset ℕ), if i = 0 then A else B) := by
+              rw [h_target, h_indexed]
+        _ ≤ ∑ i ∈ ({0, 1} : Finset ℕ), upperDensity (if i = 0 then A else B) :=
+              upper_density_finite_union_le ({0, 1} : Finset ℕ) (fun i => if i = 0 then A else B)
+        _ = upperDensity A + upperDensity B := h_sum
+    -- The upper density of the union of the sets {n | f ∣ n} for f in the tail (those not in s) is
+    -- bounded by the sum of their densities.
+    have h_upper_density_tail : upperDensity (⋃ f ∈ {x ∈ F | x > T} \ s.filter (fun f => f > T ∧ f ∈
+      F), {n | f ∣ n}) ≤ ∑' f : ℕ, if f ∈ F ∧ f > T ∧ f ∉ s.filter (fun f => f > T ∧ f ∈ F) then (1
+      / (f : ℝ)) else 0 := by
+      have h_upper_density_tail : ∀ (s : Set ℕ), (∀ f ∈ s, f > 0) → Summable (fun f : ℕ => if f ∈ s
+        then (1 / (f : ℝ)) else 0) → upperDensity (⋃ f ∈ s, {n | f ∣ n}) ≤ ∑' f : ℕ, if f ∈ s then
+        (1 / (f : ℝ)) else 0 := by
+        intros s hs_pos hs_summable
+        have h_upper_density_tail : ∀ X : ℕ, ((Finset.filter (fun n => ∃ f ∈ s, f ∣ n) (Finset.Icc 1
+          X)).card : ℝ) ≤ X * (∑ f ∈ Finset.filter (fun f => f ∈ s) (Finset.range (X + 1)), (1 / (f
+          : ℝ))) := by
+          intros X
+          have h_card : ((Finset.filter (fun n => ∃ f ∈ s, f ∣ n) (Finset.Icc 1 X)).card : ℝ) ≤ ∑ f
+            ∈ Finset.filter (fun f => f ∈ s) (Finset.range (X + 1)), (Finset.card (Finset.filter
+            (fun n => f ∣ n) (Finset.Icc 1 X)) : ℝ) := by
+            have h_card : Finset.filter (fun n => ∃ f ∈ s, f ∣ n) (Finset.Icc 1 X) ⊆ Finset.biUnion
+              (Finset.filter (fun f => f ∈ s) (Finset.range (X + 1))) (fun f => Finset.filter (fun n
+              => f ∣ n) (Finset.Icc 1 X)) := by
+              simp +contextual [ Finset.subset_iff ];
+              exact fun x hx₁ hx₂ f hf₁ hf₂ => ⟨ f, ⟨ Nat.le_trans ( Nat.le_of_dvd hx₁ hf₂ ) hx₂,
+                hf₁ ⟩, hf₂ ⟩;
+            exact_mod_cast le_trans ( Finset.card_le_card h_card ) ( Finset.card_biUnion_le );
+          have h_card : ∀ f ∈ Finset.filter (fun f => f ∈ s) (Finset.range (X + 1)), (Finset.card
+            (Finset.filter (fun n => f ∣ n) (Finset.Icc 1 X)) : ℝ) ≤ X / f := by
+            intros f hf
+            have h_card : (Finset.card (Finset.filter (fun n => f ∣ n) (Finset.Icc 1 X)) : ℝ) ≤ X /
+              f := by
+              have h_div : Finset.filter (fun n => f ∣ n) (Finset.Icc 1 X) ⊆ Finset.image (fun n =>
+                f * n) (Finset.Icc 1 (X / f)) := by
+                simp +decide [ Finset.subset_iff ];
+                exact fun x hx₁ hx₂ hx₃ => ⟨ x / f, ⟨ Nat.div_pos ( Nat.le_of_dvd hx₁ hx₃ ) ( hs_pos
+                  f ( Finset.mem_filter.mp hf |>.2 ) ), Nat.div_le_div_right hx₂ ⟩,
+                  Nat.mul_div_cancel' hx₃ ⟩
+              exact le_trans ( Nat.cast_le.mpr ( Finset.card_le_card h_div ) ) (by
+                rw [ Finset.card_image_of_injective _ fun x y hxy =>
+                  mul_left_cancel₀
+                    ( ne_of_gt ( hs_pos f ( Finset.mem_filter.mp hf |>.2 ) ) ) hxy ]
+                simpa using Nat.cast_div_le .. |> le_trans <| by norm_num )
+            exact h_card
+          simpa only [ Finset.mul_sum _ _ _, mul_one_div ] using le_trans ‹_› ( Finset.sum_le_sum
+            h_card );
+        have h_upper_density_tail : ∀ X : ℕ, ((Finset.filter (fun n => ∃ f ∈ s, f ∣ n) (Finset.Icc 1
+          X)).card : ℝ) / X ≤ ∑ f ∈ Finset.filter (fun f => f ∈ s) (Finset.range (X + 1)), (1 / (f :
+          ℝ)) := by
+          intro X; specialize h_upper_density_tail X; rcases eq_or_ne X 0 with rfl | hX <;> simp_all
+            +decide
+          · exact Finset.sum_nonneg fun _ _ => inv_nonneg.2 <| Nat.cast_nonneg _;
+          · rwa [ div_le_iff₀' ( by positivity ) ];
+        have h_upper_density_tail : Filter.limsup (fun X : ℕ => ((Finset.filter (fun n => ∃ f ∈ s, f
+          ∣ n) (Finset.Icc 1 X)).card : ℝ) / X) Filter.atTop ≤ ∑' f : ℕ, if f ∈ s then (1 / (f : ℝ))
+          else 0 := by
+          refine le_trans
+            (Filter.limsup_le_of_le
+              (a := ∑' f : ℕ, if f ∈ s then 1 / ( f : ℝ ) else 0) ?_ ?_)
+            ?_;
+          · use 0; simp
+            exact fun a x hx => le_trans ( by positivity ) ( hx x le_rfl );
+          · filter_upwards [ Filter.eventually_gt_atTop 0 ] with X hX using le_trans (
+            h_upper_density_tail X ) (by
+              simpa [ Finset.sum_filter ] using
+                Summable.sum_le_tsum ( Finset.range ( X + 1 ) )
+                  ( fun _ _ => by positivity ) hs_summable );
+          · norm_num +zetaDelta at *;
+        unfold upperDensity; aesop;
+      convert h_upper_density_tail ( { x ∈ F | x > T } \ s.filter ( fun f => f > T ∧ f ∈ F ) ) _ _
+        using 1;
+      · simp +contextual [ and_assoc, and_comm, and_left_comm ];
+      · exact fun f hf => hF_subset hf.1.1;
+      · refine Summable.of_nonneg_of_le ( fun f => by positivity ) ( fun f => ?_ ) h_summable;
+        split_ifs <;> norm_num ; aesop;
+    have h_upper_density_tail_sum : ∑' f : ℕ, (if f ∈ F ∧ f > T ∧ f ∉ s.filter (fun f => f > T ∧ f ∈
+      F) then (1 / (f : ℝ)) else 0) ≤ (∑' f : ℕ, if f ∈ F ∧ f > T then (1 / (f : ℝ)) else 0) - (∑ f
+      ∈ s.filter (fun f => f > T ∧ f ∈ F), (1 / (f : ℝ))) := by
+      have h_upper_density_tail_sum : ∑' f : ℕ, (if f ∈ F ∧ f > T ∧ f ∉ s.filter (fun f => f > T ∧ f
+        ∈ F) then (1 / (f : ℝ)) else 0) = ∑' f : ℕ, (if f ∈ F ∧ f > T then (1 / (f : ℝ)) else 0) -
+        ∑' f : ℕ, (if f ∈ F ∧ f > T ∧ f ∈ s.filter (fun f => f > T ∧ f ∈ F) then (1 / (f : ℝ)) else
+        0) := by
+        rw [ ← Summable.tsum_sub ]
+        · congr
+          ext f
+          by_cases hf : f ∈ F <;>
+            by_cases hf' : f > T <;>
+            by_cases hf'' : f ∈ { f ∈ s | f > T ∧ f ∈ F } <;>
+            simp +decide [ hf, hf', hf'' ] ;
+        · exact
+            Summable.of_nonneg_of_le
+              ( fun f => by positivity ) ( fun f => by aesop ) h_summable;
+        · refine Summable.of_nonneg_of_le ( fun f => ?_ ) ( fun f => ?_ ) h_summable <;> aesop;
+      have h_finite_tsum :
+          (∑' f : ℕ, if f ∈ F ∧ f > T ∧ f ∈ s.filter (fun f => f > T ∧ f ∈ F) then
+              (1 / (f : ℝ)) else 0) =
+            ∑ f ∈ s.filter (fun f => f > T ∧ f ∈ F), (1 / (f : ℝ)) := by
+        rw [tsum_eq_sum (s := s.filter (fun f => f > T ∧ f ∈ F))]
+        · exact Finset.sum_congr rfl fun x hx => by simp [Finset.mem_filter.mp hx]
+        · intro f hf
+          simp [hf]
+      rw [h_upper_density_tail_sum, h_finite_tsum]
+    linarith [ ‹∀ s : Finset ℕ, upperDensity ( ⋃ f ∈ { f ∈ s | f > T ∧ f ∈ F }, { n | f ∣ n } ) ≤ ∑
+      f ∈ s with f > T ∧ f ∈ F, 1 / ( f : ℝ ) › s ]
+
 /-
 The lower density of a set is always less than or equal to its upper density.
 -/
@@ -1085,14 +1505,123 @@ lemma upper_density_union_CRT_le (L : ℕ) (S : Set ℕ) (hL : L > 0) (hS_subset
   (h_summable : Summable (fun d => if d ∈ S then 1 / (d : ℝ) else 0)) :
   upperDensity (⋃ d ∈ S, {n | n ≡ 1 [MOD L] ∧ d ∣ n}) ≤ (1 / (L : ℝ)) * ∑' d, if d ∈ S then 1 / (d :
     ℝ) else 0 := by
-      sorry
+    have h_upper_density : ∀ K, upperDensity (⋃ d ∈ S, {n | n ≡ 1 [MOD L] ∧ d ∣ n}) ≤ upperDensity
+      (⋃ d ∈ S ∩ {n | n ≤ K}, {n | n ≡ 1 [MOD L] ∧ d ∣ n}) + ∑' d, if d ∈ S ∧ d > K then 1 / (d : ℝ)
+      else 0 := by
+      intro K
+      have h_upper_density : upperDensity (⋃ d ∈ S, {n | n ≡ 1 [MOD L] ∧ d ∣ n}) ≤ upperDensity (⋃ d
+        ∈ S ∩ {n | n ≤ K}, {n | n ≡ 1 [MOD L] ∧ d ∣ n}) + upperDensity (⋃ d ∈ S ∩ {n | n > K}, {n |
+        d ∣ n}) := by
+        refine le_trans
+          (b := upperDensity
+            (( ⋃ d ∈ S ∩ { n | n ≤ K }, { n | n ≡ 1 [MOD L] ∧ d ∣ n } ) ∪
+              ( ⋃ d ∈ S ∩ { n | n > K }, { n | d ∣ n } )))
+          ( upperDensity_mono ?_ ) ?_;
+        · simp +contextual [ Set.subset_def ];
+          exact fun x hx y hy hyx => if h : y ≤ K then Or.inl ⟨ y, ⟨ hy, h ⟩, hyx ⟩ else Or.inr ⟨ y,
+            ⟨ hy, not_le.mp h ⟩, hyx ⟩;
+        · let A : Set ℕ := ⋃ d ∈ S ∩ { n | n ≤ K }, { n | n ≡ 1 [MOD L] ∧ d ∣ n }
+          let B : Set ℕ := ⋃ d ∈ S ∩ { n | n > K }, { n | d ∣ n }
+          have h_indexed :
+              (⋃ i ∈ ({0, 1} : Finset ℕ), if i = 0 then A else B) = A ∪ B := by
+            ext n
+            simp [A, B]
+          have h_sum :
+              (∑ i ∈ ({0, 1} : Finset ℕ), upperDensity (if i = 0 then A else B)) =
+                upperDensity A + upperDensity B := by
+            norm_num
+          calc
+            upperDensity (A ∪ B)
+                = upperDensity (⋃ i ∈ ({0, 1} : Finset ℕ), if i = 0 then A else B) := by
+                  rw [h_indexed]
+            _ ≤ ∑ i ∈ ({0, 1} : Finset ℕ), upperDensity (if i = 0 then A else B) :=
+                  upper_density_finite_union_le ({0, 1} : Finset ℕ)
+                    (fun i => if i = 0 then A else B)
+            _ = upperDensity A + upperDensity B := h_sum
+      refine le_trans h_upper_density <| add_le_add le_rfl ?_;
+      simpa [Set.inter_comm, Set.inter_assoc, Set.inter_left_comm] using
+        upper_density_multiples_tail_bound S K hS_subset h_summable;
+    -- The upper density of the union of CRT sets for $d \le K$ is bounded by $(1/L) \sum_{d \in
+    -- S_{\le K}} \frac{1}{d}$.
+    have h_upper_density_crt : ∀ K, upperDensity (⋃ d ∈ S ∩ {n | n ≤ K}, {n | n ≡ 1 [MOD L] ∧ d ∣
+      n}) ≤ (1 / L : ℝ) * ∑ d ∈ Finset.filter (fun d => d ∈ S ∧ d ≤ K) (Finset.range (K + 1)), (1 /
+      (d : ℝ)) := by
+      intros K
+      have h_upper_density : upperDensity (⋃ d ∈ S ∩ {n | n ≤ K}, {n | n ≡ 1 [MOD L] ∧ d ∣ n}) ≤ ∑ d
+        ∈ Finset.filter (fun d => d ∈ S ∧ d ≤ K) (Finset.range (K + 1)), upperDensity {n | n ≡ 1
+        [MOD L] ∧ d ∣ n} := by
+        have h_upper_density : ∀ (s : Finset ℕ), upperDensity (⋃ d ∈ s, {n | n ≡ 1 [MOD L] ∧ d ∣ n})
+          ≤ ∑ d ∈ s, upperDensity {n | n ≡ 1 [MOD L] ∧ d ∣ n} := by
+          exact fun s => upper_density_finite_union_le s fun i => {n | n ≡ 1 [MOD L] ∧ i ∣ n};
+        convert h_upper_density ( Finset.filter ( fun d => d ∈ S ∧ d ≤ K ) ( Finset.range ( K + 1 )
+          ) ) using 1;
+        congr! 2;
+        ext; simp +decide [ Nat.lt_succ_iff ] ;
+      -- The upper density of each CRT set is bounded by $1/(Ld)$.
+      have h_upper_density_crt_each : ∀ d ∈ S ∩ {n | n ≤ K}, upperDensity {n | n ≡ 1 [MOD L] ∧ d ∣
+        n} ≤ (1 / (L * d : ℝ)) := by
+        intros d hd
+        have h_upper_density_crt_each : HasNaturalDensity {n | n ≡ 1 [MOD L] ∧ d ∣ n} ∧
+          naturalDensity {n | n ≡ 1 [MOD L] ∧ d ∣ n} = 1 / (L * d : ℝ) := by
+          convert lem_CRTdensity L d hL ( hS_subset hd.1 ) ( h_coprime d hd.1 ) using 1;
+        exact h_upper_density_crt_each.2.le
+      refine le_trans h_upper_density ?_;
+      rw [ Finset.mul_sum _ _ _ ] ; exact Finset.sum_le_sum fun x hx =>
+        by simpa [ mul_comm ] using h_upper_density_crt_each x <| by aesop;
+    -- The sum of reciprocals of elements in $S_{>K}$ tends to 0 as $K \to \infty$.
+    have h_tail_sum_zero : Filter.Tendsto (fun K => ∑' d, if d ∈ S ∧ d > K then 1 / (d : ℝ) else 0)
+      Filter.atTop (nhds 0) := by
+      have h_tail_sum_zero : Filter.Tendsto (fun K => ∑' d, (if d ∈ S then (1 / (d : ℝ)) else 0) *
+        (if d > K then 1 else 0)) Filter.atTop (nhds (∑' d, (if d ∈ S then (1 / (d : ℝ)) else 0) *
+        0)) := by
+        refine ( tendsto_tsum_of_dominated_convergence
+          (bound := fun k => if k ∈ S then 1 / ( k : ℝ ) else 0) ?_ ?_ ?_ );
+        · convert h_summable using 1;
+        · intro k; exact tendsto_const_nhds.congr' (
+          by filter_upwards [ Filter.eventually_gt_atTop k ] with x hx; split_ifs <;> linarith ) ;
+        · filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn using fun k =>
+          by split_ifs <;> norm_num;
+      convert h_tail_sum_zero using 2 <;> norm_num [ tsum_mul_right ] ; ring_nf;
+      exact tsum_congr fun _ => by split_ifs <;> tauto;
+    -- The sum of reciprocals of elements in $S_{\le K}$ tends to $\sum_{d \in S} \frac{1}{d}$ as $K
+    -- \to \infty$.
+    have h_sum_le_K : Filter.Tendsto (fun K => ∑ d ∈ Finset.filter (fun d => d ∈ S ∧ d ≤ K)
+      (Finset.range (K + 1)), (1 / (d : ℝ))) Filter.atTop (nhds (∑' d, if d ∈ S then 1 / (d : ℝ)
+      else 0)) := by
+      convert h_summable.hasSum.tendsto_sum_nat.comp ( Filter.tendsto_add_atTop_nat 1 ) using 1;
+      ext; simp +decide [ Finset.sum_ite ] ;
+      congr! 1;
+      exact Finset.filter_congr fun x hx => ⟨ fun hx' => hx'.1, fun hx' => ⟨ hx',
+        Finset.mem_range_succ_iff.mp hx ⟩ ⟩;
+    have h_lim_sup : Filter.Tendsto (fun K => (1 / L : ℝ) * ∑ d ∈ Finset.filter (fun d => d ∈ S ∧ d
+      ≤ K) (Finset.range (K + 1)), (1 / (d : ℝ)) + ∑' d, if d ∈ S ∧ d > K then 1 / (d : ℝ) else 0)
+      Filter.atTop (nhds ((1 / L : ℝ) * ∑' d, if d ∈ S then 1 / (d : ℝ) else 0)) := by
+      simpa using Filter.Tendsto.add ( h_sum_le_K.const_mul _ ) h_tail_sum_zero;
+    exact le_of_tendsto_of_tendsto' tendsto_const_nhds h_lim_sup fun K => le_trans ( h_upper_density
+      K ) ( add_le_add ( h_upper_density_crt K ) le_rfl )
+
 /-
 The upper density of BadMultiples Y is bounded by (1/L) * sum(1/d).
 -/
 lemma bad_multiples_upper_density_le (Y : ℕ) (hChebyshev : ChebyshevUpperBound) :
   upperDensity (BadMultiples Y) ≤ (1 / (L_val Y : ℝ)) * ∑' d, if d ∈ TailForbiddenDivisors Y then 1
     / (d : ℝ) else 0 := by
-      sorry
+    unfold BadMultiples
+    refine upper_density_union_CRT_le (L_val Y) (TailForbiddenDivisors Y) (L_val_pos Y) ?_
+      ?_ ?_
+    · intro n hn
+      obtain ⟨hn_forbidden, hn_min⟩ := hn;
+      rcases hn_forbidden with ( ⟨ p, hp, rfl ⟩ | ⟨ p, q, h, rfl ⟩ ) <;> norm_num at *;
+      · nlinarith [ hp.two_le ];
+      · exact Nat.mul_pos h.1.pos h.2.1.pos;
+    · exact fun d a => gcd_L_d_eq_one Y d a;
+    · have h_summable : Summable (fun d : ℕ => if d ∈ ForbiddenDivisors then 1 / (d : ℝ) else 0) :=
+      by
+        convert prop_Dsum hChebyshev using 1;
+      refine .of_nonneg_of_le ( fun d => ?_ ) ( fun d => ?_ ) h_summable;
+      · positivity;
+      · unfold TailForbiddenDivisors ForbiddenDivisorsWithMinPrime; aesop;
+
 /-
 The set of numbers congruent to 1 mod L(Y) but not in BadMultiples(Y) is a subset of S_avoid
 ForbiddenDivisors.
@@ -1263,7 +1792,23 @@ proofs.
 -/
 
 lemma chebyshev_upper_bound_holds : ChebyshevUpperBound := by
-  sorry
+  intro x hx
+  have h_log_prod : Real.log (primorial ⌊x⌋₊) ≤ Real.log (4 ^ ⌊x⌋₊) := by
+    exact Real.log_le_log (mod_cast primorial_pos ⌊x⌋₊) (mod_cast primorial_le_four_pow ⌊x⌋₊)
+  have h_vartheta : vartheta x = Real.log (primorial ⌊x⌋₊) := by
+    unfold vartheta
+    rw [show primorial ⌊x⌋₊ =
+        ∏ p ∈ Finset.filter Nat.Prime (Finset.range (⌊x⌋₊ + 1)), p by rfl]
+    rw [← Real.log_prod]
+    · norm_num
+    · intro p hp
+      exact Nat.cast_ne_zero.mpr <| Nat.Prime.ne_zero <| Finset.mem_filter.mp hp |>.2
+  have h_four : Real.log (4 ^ ⌊x⌋₊) ≤ Real.log 4 * x := by
+    rw [Real.log_pow]
+    nlinarith [Nat.floor_le (by positivity : 0 ≤ x), Real.log_pos (by norm_num : (1 : ℝ) < 4)]
+  rw [h_vartheta]
+  exact le_trans h_log_prod h_four
+
 lemma density_implies_interval_bound {S : Set ℕ} (d : ℝ) (hd : d > 0) (h : HasNaturalDensity S ∧
   naturalDensity S = d) : ∃ c > 0, ∃ N₀, ∀ N ≥ N₀, ((Finset.filter (· ∈ S) (Finset.Ioc (N / 2)
   N)).card : ℝ) ≥ c * N := by

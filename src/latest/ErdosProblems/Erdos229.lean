@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
+/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 229.
 https://www.erdosproblems.com/forum/thread/229
@@ -174,8 +174,6 @@ open Complex Polynomial Set Filter Topology Metric
 lemma polynomial_approx_on_disk (r : ℝ) (hr : r > 0) (f : ℂ → ℂ)
     (hf : AnalyticOnNhd ℂ f (Metric.closedBall 0 r)) (ε : ℝ) (hε : ε > 0) :
     ∃ P : Polynomial ℂ, ∀ z, norm z ≤ r → norm (f z - P.eval z) < ε := by
-  sorry
-/-
   classical
   obtain ⟨ρ, hρr, hρan⟩ := analytic_on_larger_disk r hr f hf
   obtain ⟨R1, hR1r, hR1ρ⟩ := exists_between hρr
@@ -200,7 +198,11 @@ lemma polynomial_approx_on_disk (r : ℝ) (hr : r > 0) (f : ℂ → ℂ)
   have hps : HasFPowerSeriesOnBall f ps 0 Rbig := by
     simpa [ps] using
       DifferentiableOn.hasFPowerSeriesOnBall (R := Rbig) (c := 0) hd
-        (by simpa [Rbig] using hR1pos)
+        (by
+          have hRbigpos_real : (0 : ℝ) < (Rbig : ℝ) := by
+            change (0 : ℝ) < R1
+            exact hR1pos
+          exact (NNReal.coe_lt_coe (r₁ := (0 : NNReal)) (r₂ := Rbig)).mp hRbigpos_real)
   have hlt : (Rsmall : ENNReal) < (Rbig : ENNReal) := by
     exact_mod_cast hR2R1
   have hunif := hps.tendstoUniformlyOn hlt
@@ -214,7 +216,6 @@ lemma polynomial_approx_on_disk (r : ℝ) (hr : r > 0) (f : ℂ → ℂ)
   have hdist := hN N le_rfl z hzball
   rw [hpoly_eval N z]
   simpa [dist_eq_norm] using hdist
--/
 
 /-
 If a polynomial $P$ has vanishing derivatives up to order $L$ at a point $a$, then $(X-a)^{L+1}$ divides $P$.
@@ -376,8 +377,6 @@ lemma small_polynomial_with_prescribed_jets (r : ℝ) (hr : 0 < r)
       (∀ a ∈ A, ∀ l : Fin (L + 1), (derivative^[l] P).eval a = 0) ∧
       (∀ b, (hb : b ∈ B) → ∀ l : Fin (L + 1), (derivative^[l] P).eval b = β ⟨b, hb⟩ l) ∧
       (∀ z, ‖z‖ ≤ r → ‖P.eval z‖ < ε) := by
-        sorry
-/-
         -- Let $U(z) = \prod_{a \in A} (z-a)^{L+1}$ and $V(z) = \prod_{b \in B} (z-b)^{L+1}$.
         set U : Polynomial ℂ := Finset.prod A (fun a => (Polynomial.X - Polynomial.C a) ^ (L + 1))
         set V : Polynomial ℂ := Finset.prod B (fun b => (Polynomial.X - Polynomial.C b) ^ (L + 1));
@@ -427,7 +426,7 @@ lemma small_polynomial_with_prescribed_jets (r : ℝ) (hr : 0 < r)
           refine Or.inr <| Or.inl <| ?_;
           -- Since $V(z) = \prod_{b \in B} (z-b)^{L+1}$, we have $V^{(k)}(b) = 0$ for any $k \leq L$.
           have hV_deriv_zero : ∀ k ≤ L, Polynomial.eval b (Polynomial.derivative^[k] V) = 0 := by
-            intro k hk; rw [ show V = ( ∏ b ∈ B, ( Polynomial.X - Polynomial.C b ) ^ ( L + 1 ) ) from rfl ] ; rw [ Finset.prod_eq_prod_diff_singleton_mul hb ] ;
+            intro k hk; rw [ show V = ( ∏ b ∈ B, ( Polynomial.X - Polynomial.C b ) ^ ( L + 1 ) ) from rfl ] ; rw [ Finset.prod_eq_prod_sdiff_singleton_mul hb ] ;
             rw [ Polynomial.iterate_derivative_mul ];
             rw [ Polynomial.eval_finsetSum, Finset.sum_eq_zero ] ; intros ; norm_num [ Polynomial.derivative_pow ];
             erw [ Polynomial.iterate_derivative_X_sub_pow ] ; norm_num;
@@ -450,12 +449,14 @@ lemma small_polynomial_with_prescribed_jets (r : ℝ) (hr : 0 < r)
           · rw [ mul_comm ] ; gcongr;
             refine lt_of_le_of_lt ( le_csSup ?_ ?_ ) ( lt_add_one _ );
             · -- The set {‖eval z U‖ * ‖eval z V‖ | z ∈ Metric.closedBall 0 r} is bounded above because U and V are polynomials and the closed ball is compact.
-              have h_bdd_above : BddAbove (Set.image (fun z => ‖Polynomial.eval z U‖ * ‖Polynomial.eval z V‖) (Metric.closedBall 0 r)) := by
+              have h_image_bdd : BddAbove (Set.image (fun z => ‖Polynomial.eval z U‖ * ‖Polynomial.eval z V‖) (Metric.closedBall 0 r)) := by
                 exact IsCompact.bddAbove ( isCompact_closedBall 0 r |> IsCompact.image <| Continuous.mul ( Polynomial.continuous _ |> Continuous.norm ) ( Polynomial.continuous _ |> Continuous.norm ) );
-              simpa only [ Metric.closedBall, dist_zero_right ] using h_bdd_above;
-          · exact ⟨ z, hz, rfl ⟩;
+              rcases h_image_bdd with ⟨B, hB⟩
+              refine ⟨B, ?_⟩
+              rintro x ⟨z, hz, rfl⟩
+              exact hB ⟨z, by simpa [Metric.mem_closedBall, dist_zero_right] using hz, rfl⟩;
+            · exact ⟨ z, hz, rfl ⟩;
           · exact add_pos_of_nonneg_of_pos ( by apply_rules [ Real.sSup_nonneg ] ; rintro x ⟨ z, hz, rfl ⟩ ; positivity ) zero_lt_one
--/
 
 /-
 Intersection of a set with no finite limit point with a ball is finite.
@@ -547,8 +548,6 @@ lemma exists_next_step (m : ℕ) (hm : m > 0)
       (∀ i < m, ∀ z ∈ S i ∩ Metric.ball 0 (r m), (derivative^[k i] F_next).eval z = 0) ∧
       (∀ z ∈ S m ∩ Metric.ball 0 (r m), (derivative^[k_next] F_next).eval z = 0) ∧
       (∀ i < m, (derivative^[k i] F_next).eval (c i) = 1) := by
-        sorry
-/-
         have _hc_inj := hc_inj
         obtain ⟨T_next, hT_next⟩ : ∃ T_next : Polynomial ℂ, (∀ z, ‖z‖ ≤ r (m - 1) → ‖T_next.eval z‖ < 2 ^ (-(m : ℝ) + 1)) ∧ (∀ i ≤ m, ∀ z ∈ S i ∩ Metric.ball 0 (r (m - 1)), ∀ l ≤ (k (m - 1) + F_prev.natDegree + 1), (derivative^[l] T_next).eval z = 0) ∧ (∀ i < m - 1, ∀ l ≤ (k (m - 1) + F_prev.natDegree + 1), (derivative^[l] T_next).eval (c i) = 0) ∧ (∀ i ≤ m, ∀ z ∈ S i ∩ {z | r (m - 1) < ‖z‖ ∧ ‖z‖ < r m}, ∀ l ≤ (k (m - 1) + F_prev.natDegree + 1), (derivative^[l] T_next).eval z = -(derivative^[l] F_prev).eval z) ∧ (∀ l ≤ (k (m - 1) + F_prev.natDegree + 1), (derivative^[l] T_next).eval (c (m - 1)) = if l = k (m - 1) then 1 - (derivative^[l] F_prev).eval (c (m - 1)) else -(derivative^[l] F_prev).eval (c (m - 1))) := by
           apply exists_correction_polynomial m hm S hS r hr hr_pos hr_gt c hc_norm hc_mem (k (m - 1)) F_prev (k (m - 1) + F_prev.natDegree + 1) (by
@@ -568,14 +567,14 @@ lemma exists_next_step (m : ℕ) (hm : m > 0)
             · aesop
             · linarith
           by_cases hz' : ‖z‖ < r ( m - 1 ) <;> simp_all +decide [ Polynomial.eval_add ];
-          · convert hT_next.2.1 m ( by linarith ) z hz.1 hz' _ le_rfl using 1;
+          · have hzero := hT_next.2.1 m ( by linarith ) z hz.1 hz' _ le_rfl
+            rwa [Function.iterate_succ_apply] at hzero;
           · cases eq_or_lt_of_le hz' <;> simp_all +decide [ Set.ext_iff ];
             · exact False.elim <| hr_avoid ( m - 1 ) z ( by linarith ) m ( by omega ) hz.1;
             · have := hT_next.2.2.2.1 m ( by linarith ) z hz.1 ‹_› hz.2 ( k ( m - 1 ) + F_prev.natDegree + 1 ) ( by linarith ) ; aesop;
         · intro i hi; specialize hT_next; rcases lt_or_eq_of_le ( Nat.le_sub_one_of_lt hi ) <;> simp_all +decide;
           · exact hT_next.2.2.1 i ‹_› _ ( by linarith [ hk_mono.le_iff_le ( show i ≤ m - 1 from by linarith ) ( show m - 1 ≤ m - 1 from by linarith ) |>.2 ( by linarith ) ] );
           · rw [ hT_next.2.2.2.2 _ ( by linarith ) ] ; aesop
--/
 
 /-
 Inductive step for the construction of the sequence of polynomials.
@@ -958,15 +957,13 @@ lemma history_seq_valid (S : ℕ → Set ℂ) (hS : ∀ n, HasNoFiniteLimitPoint
     (c : ℕ → ℂ) (hc_norm : ∀ n, r n < ‖c n‖ ∧ ‖c n‖ < r (n + 1)) (hc_inj : Function.Injective c)
     (hc_mem : ∀ n, c n ∉ ⋃ j, S j) (n : ℕ) :
     IsValid S r c (history_seq S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem n) := by
-      sorry
-/-
       induction n with
       | zero =>
         -- The base case is when the list is [(1, 0)], which is valid by definition.
         apply valid_zero;
       | succ n ih =>
-        convert valid_next_step S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem _ ih using 1
--/
+        simpa [history_seq] using
+          valid_next_step S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem _ ih
 
 lemma history_seq_length (S : ℕ → Set ℂ) (hS : ∀ n, HasNoFiniteLimitPoint (S n))
     (r : ℕ → ℝ) (hr : StrictMono r) (hr_pos : ∀ n, 0 ≤ r n) (hr_gt : ∀ n, n + 1 < r n)
@@ -1171,8 +1168,6 @@ lemma k_seq_strict_mono (S : ℕ → Set ℂ) (hS : ∀ n, HasNoFiniteLimitPoint
     (c : ℕ → ℂ) (hc_norm : ∀ n, r n < ‖c n‖ ∧ ‖c n‖ < r (n + 1)) (hc_inj : Function.Injective c)
     (hc_mem : ∀ n, c n ∉ ⋃ j, S j) :
     StrictMono (k_seq S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem) := by
-  sorry
-/-
   classical
   refine strictMono_nat_of_lt_succ ?_
   intro n
@@ -1185,8 +1180,7 @@ lemma k_seq_strict_mono (S : ℕ → Set ℂ) (hS : ∀ n, HasNoFiniteLimitPoint
     have := congrArg List.length h
     simp [hlen] at this
   have hspec := next_step_spec S hS r hr hr_pos hr_gt hr_avoid c hc_norm hc_inj hc_mem L hvalid hnil
-  simpa [k_seq, history_seq, L, hlen] using hspec.1
--/
+  simpa [k_seq, history_seq, L, hlen, k_of] using hspec.1
 
 lemma iteratedDeriv_eval_polynomial (P : Polynomial ℂ) (k : ℕ) :
     iteratedDeriv k (fun z => P.eval z) = fun z => (Polynomial.derivative^[k] P).eval z := by
@@ -1599,9 +1593,8 @@ If an entire function f is algebraic over the ring of polynomials, then f is a p
 lemma isPolynomial_of_isAlgebraic (f : ℂ → ℂ) (h_entire : AnalyticOn ℂ f Set.univ) :
     letI := Polynomial.algebraPi ℂ ℂ ℂ
     IsAlgebraic (Polynomial ℂ) f → IsPolynomial f := by
-      sorry
-/-
       intro h;
+      letI := Polynomial.algebraPi ℂ ℂ ℂ
       obtain ⟨ P, hP, hP' ⟩ := h;
       -- Let $a_n$ be the leading coefficient of $P$. $a_n$ is a non-zero polynomial.
       set a_n := Polynomial.leadingCoeff P with ha_n_def;
@@ -1613,21 +1606,15 @@ lemma isPolynomial_of_isAlgebraic (f : ℂ → ℂ) (h_entire : AnalyticOn ℂ f
       have h_a_n_f_poly : IsPolynomial (fun z => a_n.eval z * f z) := by
         apply isPolynomial_of_isIntegral;
         · exact h_a_n_f_entire;
-        · convert isIntegral_leadingCoeff_smul _;
-          rotate_left;
-          · exact ℂ[X]
-          · exact ℂ → ℂ
-          · exact inferInstance
-          · exact Pi.commRing
-          · exact P
-          field_simp;
-          constructor <;> intro h;
-          · exact fun x [Algebra ℂ[X] (ℂ → ℂ)] h => isIntegral_leadingCoeff_smul P x h;
-          · convert h f hP' using 1;
+        · have h_eq :
+              (P.leadingCoeff • f : ℂ → ℂ) = fun z => a_n.eval z * f z := by
+            ext z
+            simp [ha_n_def, polynomial_smul_apply']
+          rw [← h_eq]
+          exact isIntegral_leadingCoeff_smul P f hP'
       -- Since $a_n \neq 0$, by `isPolynomial_of_mul_poly`, $f$ is a polynomial.
       apply isPolynomial_of_mul_poly f h_entire a_n (by
       aesop) h_a_n_f_poly
--/
 
 /-
 If f is a transcendental entire function (entire and not a polynomial), then it is transcendental over the ring of polynomials.

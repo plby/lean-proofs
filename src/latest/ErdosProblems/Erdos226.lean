@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
+/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 226.
 https://www.erdosproblems.com/forum/thread/226
@@ -202,7 +202,10 @@ lemma h_seq_differentiableAt (alpha : ℕ → ℝ) (n : ℕ) (z : ℂ) :
 
 lemma h_seq_real_differentiableAt (alpha : ℕ → ℝ) (n : ℕ) (x : ℝ) :
     DifferentiableAt ℝ (h_seq_real alpha n) x := by
-      sorry
+  change DifferentiableAt ℝ (fun x : ℝ => (h_seq alpha n (x : ℂ)).re) x
+  exact (HasDerivAt.real_of_complex
+    (h_seq_differentiableAt alpha n (x : ℂ)).hasDerivAt).differentiableAt
+
 lemma h_seq_real_continuous (alpha : ℕ → ℝ) (n : ℕ) :
     Continuous (h_seq_real alpha n) := by
   exact continuous_iff_continuousAt.mpr fun x => (h_seq_real_differentiableAt alpha n x).continuousAt
@@ -751,7 +754,15 @@ noncomputable def eta_seq' (n : ℕ) : ℝ := eta_val (fun k => (alpha_seq' k : 
 
 lemma alpha_from_hist_eq_alpha_seq' (n k : ℕ) (h : k < n) :
     alpha_from_hist (all_tuples' n) k = (alpha_seq' k : ℝ) := by
-      sorry
+      have h_list : ∀ m, all_tuples' m = List.map construction_seq' (List.range m) := by
+        intro m
+        induction m with
+        | zero =>
+            simp [all_tuples']
+        | succ m ih =>
+            simp [all_tuples', ih, List.range_succ, construction_seq']
+      simp [alpha_from_hist, alpha_seq', h_list n, h]
+
 /-
 The eta value calculated in next_step' is equal to eta_seq' n.
 -/
@@ -941,7 +952,28 @@ lemma F_tail'_diff_on (N : ℕ) : DifferentiableOn ℂ (F_tail' N) (Metric.ball 
 Corrected decomposition of F_final' including the z term.
 -/
 lemma F_final'_eq_z_add_head_add_tail (N : ℕ) (z : ℂ) : F_final' z = z + F_head' N z + F_tail' N z := by
-  sorry
+  -- By definition of $F_final'$, we can split the sum into the sum up to $N-1$ and the sum from $N$ onwards.
+  have h_split : ∑' n, term' n z = ∑ n ∈ Finset.range N, term' n z + ∑' n, term_tail' N n z := by
+    have h_split : ∑' n, term' n z = ∑' n, (if n < N then term' n z else 0) + ∑' n, (if n < N then 0 else term' n z) := by
+      rw [ ← Summable.tsum_add ]
+      focus
+        congr
+        ext n
+        aesop
+      · rw [ ← summable_nat_add_iff N ];
+        exact ⟨ _, hasSum_single 0 fun n hn => if_neg <| by linarith ⟩;
+      · rw [ ← summable_nat_add_iff N ];
+        have h_summable : Summable (fun n => term' n z) := by
+          exact F_final'_converges z;
+        simpa [Function.comp_def, Nat.add_comm] using
+          h_summable.comp_injective (add_left_injective N);
+    rw [ h_split, tsum_eq_sum ];
+    focus congr! 1
+    exacts [ Finset.sum_congr rfl fun n hn => if_pos <| Finset.mem_range.mp hn, fun n hn => if_neg <| by simpa using hn ];
+  simp [F_final', F_head', F_tail', term'] at h_split ⊢
+  rw [h_split]
+  abel
+
 /-
 The head sum F_head' N is an entire function.
 -/
@@ -1276,7 +1308,33 @@ lemma Lambda_properties (n : ℕ) (h_inv : Invariant' (n - 1)) (hn : n ≥ 1)
     let h_curr := h_seq_real (fun k => alpha_seq' k) n
     let Lambda := fun t => (beta_n - F_prev t) / h_curr t
     ContinuousAt Lambda x ∧ Lambda x = 0 := by
-      sorry
+      have h_cont : ContinuousAt (fun t => F_seq_real (fun k => (alpha_seq' k : ℝ)) (fun k => lambda_seq' k) (n - 1) t) x ∧ ContinuousAt (fun t => h_seq_real (fun k => (alpha_seq' k : ℝ)) n t) x := by
+        refine ⟨ ?_, ?_ ⟩;
+        · refine Continuous.continuousAt ?_;
+          unfold F_seq_real;
+          induction n - 1 with
+          | zero =>
+            simp_all +decide [ F_seq ];
+            unfold h_seq; continuity;
+          | succ n ih =>
+            simp_all +decide [ F_seq ];
+            simp_all +decide [ List.range_succ ];
+            convert ih.add ( show Continuous fun t : ℝ => lambda_seq' ( n + 1 ) * ( h_seq ( fun k => ( alpha_seq' k : ℝ ) ) ( n + 1 ) ↑t |> Complex.re ) from ?_ ) using 2
+            · simp [Pi.add_apply]
+              ring_nf
+            · change Continuous fun t : ℝ =>
+                lambda_seq' (n + 1) *
+                  h_seq_real (fun k => (alpha_seq' k : ℝ)) (n + 1) t
+              exact continuous_const.mul
+                (h_seq_real_continuous (fun k => (alpha_seq' k : ℝ)) (n + 1))
+        · refine Continuous.continuousAt ?_;
+          unfold h_seq_real;
+          unfold h_seq;
+          split_ifs <;> simp_all +decide [ Complex.exp_re, Complex.exp_im, div_eq_mul_inv ];
+          norm_cast ; norm_num [ Complex.normSq ] ; continuity;
+      field_simp;
+      exact ⟨ ContinuousAt.div ( continuousAt_const.sub h_cont.1 ) h_cont.2 ( h_n_ne_zero' n h_inv hn x hx ), by rw [ hx, sub_self, zero_div ] ⟩
+
 /-
 For odd n, the conditions required for Step A in next_step' are all satisfied.
 -/
@@ -1292,7 +1350,25 @@ lemma next_step'_odd_conditions (n : ℕ) (hn : n ≥ 1) (hodd : n % 2 = 1) (h_i
   let Lambda := fun t => (beta_n - F_prev t) / h_curr t
   (ContinuousAt Lambda x_n ∧ Lambda x_n = 0) ∧
   ∃ delta, 0 < delta ∧ ∀ t, |t - x_n| < delta → |Lambda t| < eta := by
-    sorry
+    have _ := hodd
+    have h_surj : ∃ x, F_seq_real (fun k => alpha_seq' k) (fun k => lambda_seq' k) (n - 1) x = first_unused b_seq b_seq_surj (beta_set (all_tuples' n)) (beta_set_finite (all_tuples' n)) := by
+      apply_rules [ F_seq_real_surjective_of_Invariant' ];
+    have h_cont : ContinuousAt (fun t => (first_unused b_seq b_seq_surj (beta_set (all_tuples' n)) (beta_set_finite (all_tuples' n)) - F_seq_real (fun k => alpha_seq' k) (fun k => lambda_seq' k) (n - 1) t) / h_seq_real (fun k => alpha_seq' k) n t) (Classical.choose h_surj) ∧ (first_unused b_seq b_seq_surj (beta_set (all_tuples' n)) (beta_set_finite (all_tuples' n)) - F_seq_real (fun k => alpha_seq' k) (fun k => lambda_seq' k) (n - 1) (Classical.choose h_surj)) / h_seq_real (fun k => alpha_seq' k) n (Classical.choose h_surj) = 0 := by
+      have := Classical.choose_spec h_surj;
+      have := Lambda_properties n h_inv hn ( Classical.choose h_surj ) this; aesop;
+    have h_delta : ∃ delta, 0 < delta ∧ ∀ t, |t - Classical.choose h_surj| < delta → |(first_unused b_seq b_seq_surj (beta_set (all_tuples' n)) (beta_set_finite (all_tuples' n)) - F_seq_real (fun k => alpha_seq' k) (fun k => lambda_seq' k) (n - 1) t) / h_seq_real (fun k => alpha_seq' k) n t| < eta_seq' n := by
+      have := Metric.continuousAt_iff.mp h_cont.1;
+      obtain ⟨delta, hdelta_pos, hdelta⟩ := this _ (eta_seq'_pos n hn)
+      refine ⟨delta, hdelta_pos, fun t ht => ?_⟩
+      have ht' : dist t (Classical.choose h_surj) < delta := by
+        simpa [Real.dist_eq] using ht
+      simpa [Real.norm_eq_abs, abs_div, h_cont.2] using hdelta ht'
+    have h_curr_ne_zero : h_seq_real (fun k => alpha_seq' k) n (Classical.choose h_surj) ≠ 0 := by
+      apply h_n_ne_zero' n h_inv hn (Classical.choose h_surj) (Classical.choose_spec h_surj);
+    have h_eq : F_seq_real (alpha_from_hist (all_tuples' n)) (lambda_from_hist (all_tuples' n)) (n - 1) = F_seq_real (fun k => alpha_seq' k) (fun k => lambda_seq' k) (n - 1) ∧ h_seq_real (alpha_from_hist (all_tuples' n)) n = h_seq_real (fun k => alpha_seq' k) n ∧ eta_val (alpha_from_hist (all_tuples' n)) n (epsilon_seq n) = eta_seq' n := by
+      exact ⟨ funext fun x => F_seq_real_eq_F_seq_real' n x hn, funext fun x => h_seq_real_eq_h_seq_real' n x, eta_eq_eta_seq' n ⟩;
+    aesop
+
 /-
 If x is not in the set of previous alpha values (as reals), then h_n(x) is non-zero.
 -/
@@ -1366,7 +1442,25 @@ For odd n, the lambda component of the next step satisfies the required bound.
 -/
 lemma next_step'_lambda_bound_odd (n : ℕ) (hn : n ≥ 1) (hodd : n % 2 = 1) (h_inv : Invariant' (n - 1)) :
   |(next_step' n (all_tuples' n)).2.2| < eta_seq' n := by
-    sorry
+    have := @lambda_seq'_bound;
+    refine lt_of_le_of_ne ( ?_ ) ?_;
+    · have hlast : construction_seq' n = next_step' n (all_tuples' n) := by
+        simp [construction_seq', all_tuples']
+      simpa [lambda_seq', hlast] using this n
+    · unfold next_step';
+      split_ifs <;> norm_num [ hodd ];
+      · linarith;
+      · exact ne_of_lt ( eta_seq'_pos _ hn );
+      · grind;
+      · split_ifs <;> norm_num;
+        any_goals linarith [ eta_seq'_pos n hn ];
+        rename_i h₁ h₂ h₃ h₄ h₅ h₆;
+        refine ne_of_lt ( lt_of_lt_of_le ( h₆.choose_spec.2 _ ?_ ) ?_ );
+        · have := Classical.choose_spec h₆;
+          rw [ abs_lt ];
+          exact ⟨ by linarith [ Set.mem_Ioo.mp ( choice_in_interval_spec ( Classical.choose h₃ - h₆.choose ) ( Classical.choose h₃ + h₆.choose ) ( by linarith ) ( alpha_set ( all_tuples' n ) ) ( alpha_set_finite ( all_tuples' n ) ) |>.1 ) ], by linarith [ Set.mem_Ioo.mp ( choice_in_interval_spec ( Classical.choose h₃ - h₆.choose ) ( Classical.choose h₃ + h₆.choose ) ( by linarith ) ( alpha_set ( all_tuples' n ) ) ( alpha_set_finite ( all_tuples' n ) ) |>.1 ) ] ⟩;
+        · rw [eta_eq_eta_seq']
+
 /-
 For odd n, the beta component of the next step is the first unused beta value.
 -/
@@ -1644,7 +1738,76 @@ The interpolation condition holds for the new index n+1 when n+1 is even.
 -/
 lemma interpolation_succ_eq_n_plus_1_even' (n : ℕ) (h : Invariant' n) (h_even : (n + 1) % 2 = 0) :
     F_seq_real (fun i => alpha_seq' i) (fun i => lambda_seq' i) (n + 1) (alpha_seq' (n + 1)) = beta_seq' (n + 1) := by
-      sorry
+      -- Let `hist := all_tuples' (n + 1)`.
+      set hist : List (ℚ × ℚ × ℝ) := all_tuples' (n + 1);
+      -- By definition of `next_step'`, we know that `alpha_{n+1}`, `beta_{n+1}`, and `lambda_{n+1}` are the components of the tuple returned by `next_step' (n + 1)`.
+      have h_next_step' : let tuple := next_step' (n + 1) hist; alpha_seq' (n + 1) = tuple.1 ∧ beta_seq' (n + 1) = tuple.2.1 ∧ lambda_seq' (n + 1) = tuple.2.2 := by
+        unfold alpha_seq' beta_seq' lambda_seq';
+        unfold construction_seq';
+        erw [ List.getLast_append ] ; aesop;
+      -- By definition of `F_seq_real`, we can expand it to include the new term.
+      have h_F_seq_real_expand : F_seq_real (fun i => alpha_seq' i) (fun i => lambda_seq' i) (n + 1) (alpha_seq' (n + 1)) =
+        F_seq_real (fun i => alpha_seq' i) (fun i => lambda_seq' i) n (alpha_seq' (n + 1)) + lambda_seq' (n + 1) * h_seq_real (fun i => alpha_seq' i) (n + 1) (alpha_seq' (n + 1)) := by
+          unfold F_seq_real; norm_num;
+          unfold F_seq; norm_num [ Finset.sum_range_succ ] ;
+          simp +decide [ add_assoc, List.range_succ ];
+          exact Or.inl rfl;
+      by_cases h : h_seq_real ( fun i => ( alpha_seq' i : ℝ ) ) ( n + 1 ) ( alpha_seq' ( n + 1 ) ) = 0 <;> simp_all +decide;
+      · -- Since `alpha_{n+1}` is chosen to be the first unused rational, it is not in `alpha_set hist`.
+        have h_alpha_not_mem : (next_step' (n + 1) hist).1 ∉ alpha_set hist := by
+          have h_alpha_not_mem : (next_step' (n + 1) hist).1 = first_unused a_seq a_seq_surj (alpha_set hist) (alpha_set_finite hist) := by
+            have h_even : n + 1 ≥ 2 := by
+              omega
+            generalize_proofs at *;
+            rw [ next_step'_eq_B ] <;> aesop;
+          rw [h_alpha_not_mem]
+          unfold first_unused first_unused_index
+          exact Nat.find_spec (show ∃ k, a_seq k ∉ alpha_set hist from by
+            have h_alpha_not_mem : Set.Finite (alpha_set hist) := by
+              exact alpha_set_finite hist
+            exact h_alpha_not_mem.exists_notMem |> fun ⟨x, hx⟩ => by
+              obtain ⟨k, rfl⟩ := a_seq_surj x
+              exact ⟨k, hx⟩)
+        -- By definition of `h_seq_real`, if `h_seq_real (fun i => alpha_seq' i) (n + 1) x = 0`, then `x` must be one of the previous alpha values.
+        have h_alpha_mem : ∀ x : ℝ, h_seq_real (fun i => alpha_seq' i) (n + 1) x = 0 → x ∈ Set.image (fun q : ℚ => (q : ℝ)) (alpha_set hist) := by
+          intros x hx_zero
+          have h_alpha_mem : ∃ k < n + 1, x = (alpha_seq' k : ℝ) := by
+            have h_alpha_mem : h_seq (fun i => (alpha_seq' i : ℝ)) (n + 1) (x : ℂ) = 0 := by
+              convert hx_zero using 1;
+              unfold h_seq_real; norm_num [ Complex.ext_iff ] ;
+              unfold h_seq; norm_num [ Complex.exp_re, Complex.exp_im, Complex.sin, Complex.cos ] ;
+              norm_cast ; norm_num;
+              induction ( List.range ( n + 1 ) ) <;> aesop;
+            have h_alpha_mem : ∃ k < n + 1, (x : ℂ) = (alpha_seq' k : ℂ) := by
+              exact h_seq_eq_zero_iff _ _ _ |>.1 h_alpha_mem;
+            exact ⟨ h_alpha_mem.choose, h_alpha_mem.choose_spec.1, mod_cast h_alpha_mem.choose_spec.2 ⟩;
+          -- Since $k < n + 1$, we have $alpha_seq' k \in alpha_set hist$.
+          obtain ⟨k, hk_lt, hk_eq⟩ := h_alpha_mem;
+          have h_alpha_mem : alpha_seq' k ∈ alpha_set hist := by
+            have h_alpha_mem : alpha_set hist = (Finset.range (n + 1)).image (fun k => alpha_seq' k) := by
+              convert alpha_set_eq_image' ( n + 1 ) using 1;
+            exact h_alpha_mem.symm ▸ Finset.mem_coe.mpr ( Finset.mem_image.mpr ⟨ k, Finset.mem_range.mpr hk_lt, rfl ⟩ );
+          exact ⟨ _, h_alpha_mem, hk_eq.symm ⟩;
+        specialize h_alpha_mem _ h; aesop;
+      · rw [ next_step'_eq_B ] <;> norm_num;
+        · simp_all +decide [ h_seq_real_eq_h_seq_real' ];
+          rw [ div_mul_cancel₀ ] <;> norm_num [ h ];
+          · have h_F_seq_real_eq : ∀ x : ℝ, F_seq_real (fun i => alpha_seq' i) (fun i => lambda_seq' i) n x = F_seq_real (alpha_from_hist (all_tuples' (n + 1))) (lambda_from_hist (all_tuples' (n + 1))) n x := by
+              intros x
+              apply Eq.symm;
+              apply F_seq_real_eq_F_seq_real';
+              linarith;
+            rw [ h_F_seq_real_eq ];
+            ring;
+          · rw [ next_step'_eq_B ] at h <;> norm_num at *;
+            · exact h;
+            · omega;
+            · assumption;
+            · assumption;
+        · omega;
+        · assumption;
+        · assumption
+
 /-
 The interpolation condition holds for the new index n+1 when n+1 is odd.
 -/
@@ -1684,7 +1847,15 @@ The absolute value of the derivative of the real part of h_seq is bounded by L_v
 -/
 lemma deriv_h_seq_real_le_L_val (alpha : ℕ → ℝ) (n : ℕ) (x : ℝ) (hn : n ≥ 1) :
     |deriv (h_seq_real alpha n) x| ≤ L_val alpha n := by
-      sorry
+      -- Applying the lemma `h_seq_real_deriv`, we know that `deriv (h_seq_real alpha n) x = (deriv (h_seq alpha n) (x : ℂ)).re`.
+      have h_deriv_eq : deriv (h_seq_real alpha n) x = (deriv (h_seq alpha n) (x : ℂ)).re := by
+        change deriv (fun x : ℝ => (h_seq alpha n (x : ℂ)).re) x =
+          (deriv (h_seq alpha n) (x : ℂ)).re
+        exact
+          (HasDerivAt.real_of_complex (h_seq_differentiableAt alpha n (x : ℂ)).hasDerivAt).deriv
+      refine h_deriv_eq ▸ le_trans ( Complex.abs_re_le_norm _ ) ?_;
+      exact le_csSup ( h_seq_deriv_bounded _ _ ( by aesop ) ) ( by aesop )
+
 /-
 The derivative of the new term added in step n+1 is bounded by epsilon_{n+1}.
 -/
@@ -1721,7 +1892,63 @@ The derivative bound holds for step n+1.
 lemma derivative_bound_succ' (n : ℕ) (h : Invariant' n) :
     ∀ x : ℝ, deriv (fun t => F_seq_real (fun i => alpha_seq' i) (fun i => lambda_seq' i) (n + 1) t) x ≥
     1 - ∑ k ∈ Finset.range (n + 2), if k < 2 then 0 else epsilon_seq k := by
-      sorry
+      intro x;
+      -- By definition of $F_{n+1}$, we have $F_{n+1}(x) = F_n(x) + \lambda_{n+1} h_{n+1}(x)$.
+      have h_F_succ : deriv (fun t => F_seq_real (fun i => (alpha_seq' i : ℝ)) (fun i => lambda_seq' i) (n + 1) t) x = deriv (fun t => F_seq_real (fun i => (alpha_seq' i : ℝ)) (fun i => lambda_seq' i) n t) x + deriv (fun t => (lambda_seq' (n + 1) : ℝ) * h_seq_real (fun i => (alpha_seq' i : ℝ)) (n + 1) t) x := by
+        unfold F_seq_real;
+        rw [ ← deriv_add ]
+        focus
+          congr
+          ext
+          unfold F_seq
+          norm_num
+          ring_nf
+        · rw [ show 2 + n = 1 + n + 1 by ring, List.range_succ ] ; norm_num ; ring_nf;
+          rfl;
+        · norm_num [ F_seq ];
+          induction n + 1 with
+          | zero =>
+            simp_all +decide;
+          | succ n ih =>
+            simp_all +decide [ List.range_succ ];
+            apply_rules [ DifferentiableAt.mul, DifferentiableAt.pow, differentiableAt_id, differentiableAt_const ];
+            -- The real part of a differentiable function is differentiable.
+            have h_real_part_diff : DifferentiableAt ℝ (fun y : ℝ => (h_seq (fun i => (alpha_seq' i : ℝ)) n (y : ℂ))) x := by
+              induction n with
+              | zero =>
+                simp +decide [ h_seq ];
+              | succ n ih =>
+                simp +decide [ h_seq, List.range_succ ];
+                apply_rules [ DifferentiableAt.mul, DifferentiableAt.pow, differentiableAt_id, differentiableAt_const ];
+                · norm_num [ Complex.exp_re, Complex.exp_im, neg_div ];
+                  exact Complex.differentiableAt_exp.comp x
+                    ( DifferentiableAt.neg
+                      ( DifferentiableAt.div_const
+                        ((Complex.ofRealCLM.differentiableAt.comp x differentiableAt_id).pow 2)
+                        _ ) );
+                · induction ( List.range n ) with
+                  | nil =>
+                    exact
+                      (differentiableAt_const (c := (1 : ℂ)) :
+                        DifferentiableAt ℝ (fun _ : ℝ => (1 : ℂ)) x)
+                  | cons k ks ih_list =>
+                    exact DifferentiableAt.mul
+                      ((Complex.ofRealCLM.differentiableAt.comp x differentiableAt_id).sub_const _)
+                      ih_list
+                · exact (Complex.ofRealCLM.differentiableAt.comp x differentiableAt_id).sub_const _
+            exact Complex.reCLM.differentiableAt.comp x h_real_part_diff;
+        · apply_rules [ DifferentiableAt.prodMk, DifferentiableAt.sub, differentiableAt_id, differentiableAt_const, DifferentiableAt.mul ];
+          · exact Complex.reCLM.differentiableAt.comp x
+              (Complex.differentiableAt_exp.comp x (by
+                apply_rules [DifferentiableAt.neg, DifferentiableAt.mul,
+                  DifferentiableAt.pow, differentiableAt_const,
+                  Complex.ofRealCLM.differentiableAt.comp, differentiableAt_id]))
+          · induction ( List.range ( n + 1 ) ) <;> simp_all +decide [ List.prod_cons, List.prod_nil ];
+          · norm_cast ; norm_num;
+          · induction ( List.range ( n + 1 ) ) <;> simp_all +decide [ List.prod_cons, List.prod_nil ];
+      have := h.2.2.2.1 x;
+      exact le_trans ( by rw [ Finset.sum_range_succ ] ; linarith ) ( h_F_succ.symm ▸ add_le_add this ( neg_le_of_abs_le ( deriv_term_bound_succ' n h x ) ) )
+
 /-
 If the invariant holds at step n, it holds at step n+1.
 -/
@@ -1859,13 +2086,31 @@ noncomputable def min_unused_beta_index (n : ℕ) : ℕ :=
 lemma min_unused_beta_index_spec (n : ℕ) :
     b_seq (min_unused_beta_index n) ∉ beta_set (all_tuples' n) ∧
     ∀ k < min_unused_beta_index n, b_seq k ∈ beta_set (all_tuples' n) := by
-      sorry
+      unfold min_unused_beta_index first_unused_index
+      exact ⟨ by
+        simpa using Nat.find_spec
+          (exists_index_not_mem_finite b_seq b_seq_surj
+            (beta_set (all_tuples' n)) (beta_set_finite (all_tuples' n))),
+        fun k hk => by
+          simpa using Nat.find_min
+            (exists_index_not_mem_finite b_seq b_seq_surj
+              (beta_set (all_tuples' n)) (beta_set_finite (all_tuples' n))) hk ⟩
+
 /-
 For odd n, the n-th beta value is the first unused element of the sequence b_seq.
 -/
 lemma beta_seq'_eq_b_seq_of_odd (n : ℕ) (h_odd : n % 2 = 1) (hn : n ≥ 1) :
     beta_seq' n = b_seq (min_unused_beta_index n) := by
-      sorry
+      have h_beta_def : (next_step' n (all_tuples' n)).2.1 = first_unused b_seq b_seq_surj (beta_set (all_tuples' n)) (beta_set_finite (all_tuples' n)) := by
+        convert next_step'_odd_beta_v2 n hn h_odd ( Invariant'_all ( n - 1 ) ) using 1;
+      calc
+        beta_seq' n = (next_step' n (all_tuples' n)).2.1 := by
+          simp [beta_seq', construction_seq', all_tuples']
+        _ = first_unused b_seq b_seq_surj (beta_set (all_tuples' n)) (beta_set_finite (all_tuples' n)) :=
+          h_beta_def
+        _ = b_seq (min_unused_beta_index n) := by
+          rfl
+
 /-
 The sequence beta_seq' is injective.
 -/
@@ -2152,7 +2397,38 @@ The derivative of f_final' at x is 1 plus the sum of the derivatives of the term
 -/
 lemma f_final'_deriv_eq_sum (x : ℝ) :
     deriv f_final' x = 1 + ∑' n, deriv (fun y => lambda_seq' n * h_seq_real (fun k => (alpha_seq' k : ℝ)) n y) x := by
-      sorry
+      -- Apply the linearity of the derivative and the fact that the series of derivatives converges uniformly.
+      have h_deriv_sum : deriv (fun x => x + ∑' n, lambda_seq' n * h_seq_real (fun k => (alpha_seq' k : ℝ)) n x) x = 1 + ∑' n, deriv (fun y => lambda_seq' n * h_seq_real (fun k => (alpha_seq' k : ℝ)) n y) x := by
+        apply_rules [ HasDerivAt.deriv ];
+        apply_rules [ HasDerivAt.add, hasDerivAt_id ];
+        apply_rules [ hasDerivAt_tsum ];
+        rotate_right;
+        focus
+          use fun n => if n < 2 then 0 else epsilon_seq n
+        · rw [ ← summable_nat_add_iff 2 ];
+          convert epsilon_summable.comp_injective ( add_left_injective 2 ) using 1;
+          ext n
+          simp
+        · refine fun n y => hasDerivAt_deriv_iff.mpr ?_;
+          -- The function $h_seq_real$ is differentiable because it is a composition of differentiable functions.
+          have h_diff : ∀ n x, DifferentiableAt ℝ
+              (fun z : ℝ => Complex.re (h_seq (fun k => (alpha_seq' k : ℝ)) n (z : ℂ))) x := by
+            intro n x
+            change DifferentiableAt ℝ
+              (h_seq_real (fun k => (alpha_seq' k : ℝ)) n) x
+            exact h_seq_real_differentiableAt (fun k => (alpha_seq' k : ℝ)) n x
+          simpa [h_seq_real] using (h_diff n y).const_mul (lambda_seq' n)
+        · -- Apply the bound on the derivative of each term in the series.
+          intros n y
+          apply f_final'_term_bound;
+        · convert f_final'_series_summable x using 1;
+      unfold f_final';
+      convert h_deriv_sum using 2;
+      ext x; unfold F_final'; norm_num [ Complex.re_sum, Complex.im_sum ] ;
+      rw [ Complex.re_tsum ]
+      focus aesop
+      convert F_final'_converges x using 1
+
 /-
 The derivative of f_final' is strictly greater than 1/2 everywhere.
 -/
@@ -2187,7 +2463,29 @@ theorem f_final'_injective : Function.Injective f_final' := by
 f_final' maps the set of rational numbers onto the set of rational numbers.
 -/
 theorem f_final'_surj_Q : f_final' '' (Set.range ((↑) : ℚ → ℝ)) = Set.range ((↑) : ℚ → ℝ) := by
-  sorry
+  -- To prove equality of sets, we show each set is a subset of the other.
+  apply Set.ext
+  intro r
+  constructor;
+  · rintro ⟨ x, ⟨ q, rfl ⟩, rfl ⟩;
+    -- Since $q$ is rational, there exists some $k$ such that $\alpha_k = q$.
+    obtain ⟨k, hk⟩ : ∃ k, alpha_seq' k = q := by
+      convert alpha_seq'_surjective q;
+    have h_f_final'_beta_k : F_final' (alpha_seq' k) = (beta_seq' k : ℂ) := by
+      exact F_final'_eq_beta' k;
+    unfold f_final' at *; aesop;
+  · rintro ⟨ q, rfl ⟩;
+    -- By definition of $f_final'$, we know that $f_final' (alpha_seq' k) = beta_seq' k$ for any $k$.
+    have h_image : ∀ k : ℕ, f_final' (alpha_seq' k) = beta_seq' k := by
+      intro k
+      have := F_final'_eq_beta' k
+      simpa [f_final'] using congr_arg Complex.re this
+    -- By definition of $beta_seq'$, we know that every rational number appears in the sequence $beta_seq'$.
+    have h_beta_seq'_surjective : ∀ r : ℚ, ∃ k : ℕ, beta_seq' k = r := by
+      have := exists_beta'_eq_b_seq;
+      exact fun r => by obtain ⟨ k, hk ⟩ := b_seq_surj r; obtain ⟨ n, hn ⟩ := this k; exact ⟨ n, hn.trans hk ⟩ ;
+    obtain ⟨ k, hk ⟩ := h_beta_seq'_surjective q; use alpha_seq' k; aesop;
+
 /-
 f_final' preserves rationality, meaning x is rational if and only if f_final'(x) is rational.
 -/

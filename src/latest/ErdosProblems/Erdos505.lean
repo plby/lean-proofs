@@ -120,7 +120,34 @@ def SignVectors (m : ℕ) : Set (Fin m → ℝ) :=
   {x | ∀ i, x i = 1 ∨ x i = -1}
 
 theorem card_SignVectors (m : ℕ) : Set.ncard (SignVectors m) = 2^m := by
-  sorry
+  let e : SignVectors m ≃ (Fin m → Fin 2) :=
+  { toFun := fun (x : SignVectors m) => fun i => if x.1 i = 1 then 0 else 1
+    invFun := fun y =>
+      ⟨fun i => if y i = 0 then (1 : ℝ) else -1,
+        by
+          intro i
+          by_cases h : y i = 0
+          · simp [h]
+          · right
+            simp [h]⟩
+    left_inv := by
+      intro x
+      ext i
+      rcases x.2 i with h | h
+      · norm_num [h]
+      · have hne : ¬x.1 i = 1 := by linarith
+        norm_num [h, hne]
+    right_inv := by
+      intro y
+      ext i
+      by_cases h : y i = 0
+      · simp [h]
+      · have : y i = 1 := by omega
+        norm_num [this] }
+  calc
+    Set.ncard (SignVectors m) = Nat.card (SignVectors m) := rfl
+    _ = Nat.card (Fin m → Fin 2) := Nat.card_congr e
+    _ = 2 ^ m := by simp [Nat.card_eq_fintype_card]
 /-
 There is a bijection between `SignVectorsProdOne (n + 1)` and `SignVectors n`.
 -/
@@ -210,7 +237,15 @@ def M_equiv_SignVectorsProdOne (n : ℕ) : M (n + 1) ≃ SignVectorsProdOne n :=
 One has $|M|=2^{n-2}$.
 -/
 theorem card_M (n : ℕ) [NeZero n] (hn : n ≥ 2) : Set.ncard (M n) = 2^(n-2) := by
-  sorry
+  rcases n with _ | _ | n
+  · exact False.elim (NeZero.ne 0 rfl)
+  · omega
+  · change Set.ncard (M (n + 2)) = 2 ^ n
+    calc
+      Set.ncard (M (n + 2)) = Set.ncard (SignVectorsProdOne (n + 1)) := by
+        rw [Set.ncard_def, Set.ncard_def, Set.encard_congr]
+        exact M_equiv_SignVectorsProdOne (n + 1)
+      _ = 2 ^ n := by simpa using card_SignVectorsProdOne (n + 1) (by omega)
 /-
 `Pairs n` is a finite type.
 -/
@@ -1044,7 +1079,43 @@ For $a \in M$, $F_a(a) = -1$.
 theorem eval_Fa_self (n : ℕ) [NeZero n] (p : ℕ) [Fact (Nat.Prime p)] (hp : n = 4 * p)
     (a : EuclideanSpace ℝ (Fin n)) (ha : a ∈ M n) :
     MvPolynomial.eval (proj_b n p a) (Fa n p a) = -1 := by
-      sorry
+      have h_Fa_a :
+          MvPolynomial.eval (proj_b n p a) (Fa n p a) =
+            Polynomial.eval (round (inner ℝ a a) : ZMod p) (G p) := by
+        have h_Fa_def :
+            MvPolynomial.eval (proj_b n p a) (Fa n p a) =
+              MvPolynomial.eval (proj_b n p a) (ml (Pa n p a)) := by
+          rfl
+        have h_ml_def :
+            MvPolynomial.eval (proj_b n p a) (ml (Pa n p a)) =
+              MvPolynomial.eval (proj_b n p a) (Pa n p a) := by
+          apply Eq.symm
+          apply ml_eval_eq
+          intro i
+          simp [proj_b]
+          rcases ha.1 (Fin.cast (Nat.sub_add_cancel (NeZero.pos n)) i.succ)
+            with h | h <;> norm_num [h, toZMod]
+        rw [h_Fa_def, h_ml_def, Pa]
+        rw [← eval_La_eq_inner]
+        · induction (G p) using Polynomial.induction_on' with
+          | add p q hp hq => simp_all +decide [Polynomial.aeval_def]
+          | monomial n b => simp_all +decide [Polynomial.aeval_def]
+        · exact ha
+        · exact ha
+      have h_inner : inner ℝ a a = n := by
+        rw [PiLp.inner_apply]
+        trans ∑ i : Fin n, (1 : ℝ)
+        · apply Finset.sum_congr rfl
+          intro i hi
+          rcases ha.1 i with h | h <;> norm_num [h]
+        · norm_num
+      rw [h_Fa_a, h_inner, hp]
+      have hp_one_lt : 1 < p := Nat.Prime.one_lt Fact.out
+      have hround : ((round (4 * (p : ℝ)) : ℤ) : ZMod p) = 0 := by
+        have hcast : (4 * (p : ℝ)) = ((4 * (p : ℤ) : ℤ) : ℝ) := by norm_num
+        rw [hcast, round_intCast]
+        norm_num
+      simp [G, hround, Nat.sub_ne_zero_of_lt hp_one_lt]
 /-
 For distinct $a, b \in M$ with $\langle a, b \rangle \ne 0$, $F_a(b) = 0$.
 -/
@@ -1101,7 +1172,26 @@ The total degree of `ml(P)` is at most the total degree of `P`.
 -/
 theorem totalDegree_ml_le {σ : Type*} {R : Type*} [CommRing R] (P : MvPolynomial σ R) :
     MvPolynomial.totalDegree (ml P) ≤ MvPolynomial.totalDegree P := by
-      sorry
+      rw [MvPolynomial.totalDegree]
+      refine Finset.sup_le_iff.mpr ?_
+      intro m hm
+      obtain ⟨m', hm', hm_eq⟩ :
+          ∃ m' ∈ MvPolynomial.support P,
+            m = Finsupp.mapRange (fun n => n % 2) (by simp) m' := by
+        have h_support :
+            ∀ m, m ∈ (ml P).support → ∃ m' ∈ P.support,
+              m = Finsupp.mapRange (fun n => n % 2) (by simp) m' := by
+          intro m hm
+          simp [ml] at hm
+          rw [Finsupp.mapDomain] at hm
+          simp_all +decide [MvPolynomial.coeff]
+          contrapose! hm
+          exact Finset.sum_eq_zero fun x hx => by specialize hm x; aesop
+        exact h_support m hm
+      rw [hm_eq]
+      refine le_trans ?_ (Finset.le_sup hm')
+      rw [Finsupp.sum_mapRange_index (fun _ => rfl)]
+      exact Finsupp.sum_le_sum fun i _ => Nat.mod_le _ _
 /-
 $F_a$ lies in the subspace of multilinear polynomials of degree at most $p-1$.
 -/
@@ -1332,12 +1422,53 @@ partitioned into sets of smaller diameter.
 theorem BorsukProperty_implies_partition (d m : ℕ) (h : BorsukProperty d m)
     (E : Set (EuclideanSpace ℝ (Fin d))) (hE : Bornology.IsBounded E) (h_diam : diam E > 0) :
     ∃ c : E → Fin m, ∀ i, diam {x | ∃ h, c ⟨x, h⟩ = i} < diam E := by
-      sorry
+      let D := diam E
+      have hD : 0 < D := h_diam
+      have hscaled_bounded : Bornology.IsBounded (D⁻¹ • E) := hE.smul₀ D⁻¹
+      have hscaled_diam : diam (D⁻¹ • E) = 1 := by
+        rw [diam_scaling E D⁻¹ (inv_pos.mpr hD)]
+        field_simp [D, h_diam.ne']
+        rfl
+      obtain ⟨c0, hc0⟩ := h (D⁻¹ • E) hscaled_bounded hscaled_diam
+      let c : E → Fin m := fun x =>
+        c0 ⟨D⁻¹ • x.1, by exact ⟨x.1, x.2, rfl⟩⟩
+      refine ⟨c, ?_⟩
+      intro i
+      let A : Set (EuclideanSpace ℝ (Fin d)) := {x | ∃ h, c ⟨x, h⟩ = i}
+      let B : Set (EuclideanSpace ℝ (Fin d)) := {x | ∃ h, c0 ⟨x, h⟩ = i}
+      have hAB : D⁻¹ • A = B := by
+        ext z
+        constructor
+        · rintro ⟨x, hxA, rfl⟩
+          rcases hxA with ⟨hxE, hxcolor⟩
+          exact ⟨⟨x, hxE, rfl⟩, by simpa [c] using hxcolor⟩
+        · rintro ⟨hzscaled, hzcolor⟩
+          rcases hzscaled with ⟨x, hxE, rfl⟩
+          exact ⟨x, ⟨hxE, by simpa [c] using hzcolor⟩, rfl⟩
+      have hscaled_lt : D⁻¹ * diam A < 1 := by
+        rw [← diam_scaling A D⁻¹ (inv_pos.mpr hD), hAB]
+        exact hc0 i
+      have hmul := mul_lt_mul_of_pos_left hscaled_lt hD
+      have hinv : D * (D⁻¹ * diam A) = diam A := by
+        field_simp [hD.ne']
+      have hright : D * 1 = D := by ring
+      rw [hinv, hright] at hmul
+      exact hmul
 /-
 The cardinality of `Pairs n` is $\binom{n}{2}$.
 -/
 theorem card_Pairs (n : ℕ) : Fintype.card (Pairs n) = n.choose 2 := by
-  sorry
+  unfold Pairs
+  rw [Fintype.card_subtype]
+  rw [Finset.card_filter]
+  change (∑ p : Fin n × Fin n, (if p.1 < p.2 then 1 else 0)) = n.choose 2
+  have h_num_pairs :
+      ∑ p : Fin n × Fin n, (if p.1 < p.2 then 1 else 0) = n * (n - 1) / 2 := by
+    convert Finset.sum_range_id n using 1
+    erw [Finset.sum_product]
+    simp +decide [Finset.filter_lt_eq_Ioi]
+    rw [← Finset.sum_range_reflect, Finset.sum_range]
+  rw [h_num_pairs, Nat.choose_two_right]
 /-
 $X$ is a finite set.
 -/
@@ -1362,7 +1493,40 @@ If the Borsuk property holds for $d$, then $X$ can be partitioned into $m$ sets 
 theorem borsuk_implies_partition_X (n : ℕ) [NeZero n] (p : ℕ) (hp : n = 4 * p) (hp_odd : Odd p)
     (d : ℕ) (hd : d = n.choose 2) (m : ℕ) (h_borsuk : BorsukProperty d m) :
     ∃ c : X n → Fin m, ∀ i, diam_general {x | ∃ h, c ⟨x, h⟩ = i} < diam_general (X n) := by
-      sorry
+      let e : Pairs n ≃ Fin d := Fintype.equivOfCardEq (by
+        rw [card_Pairs, Fintype.card_fin, ← hd])
+      let f : EuclideanSpace ℝ (Pairs n) → EuclideanSpace ℝ (Fin d) :=
+        LinearIsometryEquiv.piLpCongrLeft 2 ℝ ℝ e
+      have hf : Isometry f := (LinearIsometryEquiv.piLpCongrLeft 2 ℝ ℝ e).isometry
+      have hbounded : Bornology.IsBounded (f '' X n) := by
+        exact Set.Finite.isBounded ((X_finite n).image f)
+      have hpos : diam (f '' X n) > 0 := by
+        rw [diam_eq_diam_general]
+        rw [diam_isometry f hf (X n)]
+        exact X_diam_pos n p hp hp_odd
+      obtain ⟨c0, hc0⟩ :=
+        BorsukProperty_implies_partition d m h_borsuk (f '' X n) hbounded hpos
+      let c : X n → Fin m := fun x => c0 ⟨f x.1, Set.mem_image_of_mem f x.2⟩
+      refine ⟨c, ?_⟩
+      intro i
+      let Y : Set (EuclideanSpace ℝ (Pairs n)) := {x | ∃ h, c ⟨x, h⟩ = i}
+      let Z : Set (EuclideanSpace ℝ (Fin d)) := {x | ∃ h, c0 ⟨x, h⟩ = i}
+      have hYZ : f '' Y = Z := by
+        ext z
+        constructor
+        · rintro ⟨x, hxY, rfl⟩
+          rcases hxY with ⟨hxX, hxcolor⟩
+          exact ⟨Set.mem_image_of_mem f hxX, by simpa [c] using hxcolor⟩
+        · rintro ⟨hzX, hzcolor⟩
+          rcases hzX with ⟨x, hxX, rfl⟩
+          exact ⟨x, ⟨hxX, by simpa [c] using hzcolor⟩, rfl⟩
+      have hZ_lt : diam_general Z < diam_general (f '' X n) := by
+        simpa [diam_eq_diam_general, Z] using hc0 i
+      calc
+        diam_general Y = diam_general (f '' Y) := (diam_isometry f hf Y).symm
+        _ = diam_general Z := by rw [hYZ]
+        _ < diam_general (f '' X n) := hZ_lt
+        _ = diam_general (X n) := diam_isometry f hf (X n)
 /-
 If the Borsuk property holds for $m$ in dimension 946, then $m \ge 1650$.
 -/
@@ -1501,7 +1665,16 @@ Translation preserves diameter.
 -/
 theorem diam_vadd_eq {d : ℕ} (S : Set (EuclideanSpace ℝ (Fin d))) (x : EuclideanSpace ℝ (Fin d)) :
     diam (x +ᵥ S) = diam S := by
-      sorry
+      unfold diam
+      congr 1
+      ext r
+      constructor
+      · rintro ⟨a, ha, b, hb, rfl⟩
+        rcases ha with ⟨a', ha', rfl⟩
+        rcases hb with ⟨b', hb', rfl⟩
+        exact ⟨a', ha', b', hb', by simp⟩
+      · rintro ⟨a, ha, b, hb, rfl⟩
+        exact ⟨x +ᵥ a, ⟨a, ha, rfl⟩, x +ᵥ b, ⟨b, hb, rfl⟩, by simp⟩
 /-
 There exists a finite partition of a superset of the unit ball into bounded sets
 of diameter less than 1.

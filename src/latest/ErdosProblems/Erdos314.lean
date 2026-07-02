@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
+/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 314.
 https://www.erdosproblems.com/forum/thread/314
@@ -149,7 +149,179 @@ theorem taylor_error_bound (n : ℕ) (hn : 2 ≤ n) (u a : ℝ)
         + (a*(1-u)/(2*↑n) - (1+1/↑n)/(2*↑n))
         + (-(a^2/(12*(↑n)^2))*(1-2*u) + 1/(12*(↑n)^2)*(1+2/↑n)))|
       ≤ |u|^3 + 1/(↑n)^3 + a * u^2 / ↑n + 1/↑n^3 + (a^2 + 1) * u^2 / (↑n)^2 + 1/(↑n)^4 := by
-        sorry
+  have h1 : abs (Real.log (1 + u) - u + u ^ 2 / 2) ≤ abs u ^ 3 := by
+    have h_mvt : ∀ u : ℝ, |u| ≤ 1 / 2 → |Real.log (1 + u) - u + u ^ 2 / 2| ≤ ∫ t in (0 : ℝ)..|u|,
+      2 * t ^ 2 := by
+      have h_deriv_bound : ∀ t : ℝ, |t| ≤ 1 / 2 → |deriv (fun t => Real.log (1 + t) - t + t ^ 2 / 2)
+        t| ≤ 2 * t ^ 2 := by
+        intro t ht
+        have hnon : 1 + t ≠ 0 := by linarith [abs_le.mp ht]
+        have hderiv :
+            deriv (fun t : ℝ => Real.log (1 + t) - t + t ^ 2 / 2) t =
+              t ^ 2 / (1 + t) := by
+          have hlog : HasDerivAt (fun t : ℝ => Real.log (1 + t)) ((1 + t)⁻¹) t := by
+            simpa [Function.comp_def] using
+              (Real.hasDerivAt_log hnon).comp t
+                ((hasDerivAt_id t).const_add (1 : ℝ))
+          rw [show (fun z : ℝ => Real.log (1 + z) - z + z ^ 2 / 2) =
+            (fun z : ℝ => z ^ 2 / 2) + ((fun z : ℝ => Real.log (z + 1)) - id) by
+            ext z
+            change Real.log (1 + z) - z + z ^ 2 / 2 =
+              z ^ 2 / 2 + (Real.log (z + 1) - z)
+            rw [show 1 + z = z + 1 by ring]
+            ring_nf]
+          have hlog' : HasDerivAt (fun z : ℝ => Real.log (z + 1)) ((t + 1)⁻¹) t := by
+            simpa [add_comm] using hlog
+          have hder' : HasDerivAt
+              ((fun z : ℝ => z ^ 2 / 2) + ((fun z : ℝ => Real.log (z + 1)) - id))
+              (t + ((t + 1)⁻¹ - 1)) t := by
+            simpa [id, sub_eq_add_neg, add_comm, add_left_comm, add_assoc] using
+              (((hasDerivAt_id t).pow 2).div_const 2).add
+                (hlog'.sub (hasDerivAt_id t))
+          convert hder'.deriv using 1
+          rw [div_eq_iff hnon]
+          have hinv : t * (1 + t)⁻¹ + (1 + t)⁻¹ = 1 := by
+            have hmul : (t + 1) * (1 + t)⁻¹ = 1 := by
+              rw [add_comm]
+              exact mul_inv_cancel₀ hnon
+            nlinarith
+          ring_nf at hinv ⊢
+          nlinarith
+        rw [hderiv, abs_div, abs_of_nonneg (sq_nonneg t),
+          abs_of_pos (by linarith [abs_le.mp ht] : 0 < 1 + t)]
+        rw [div_le_iff₀ (by linarith [abs_le.mp ht] : 0 < 1 + t)]
+        nlinarith [sq_nonneg t, abs_le.mp ht]
+      have h_ftc : ∀ u : ℝ, |u| ≤ 1 / 2 → Real.log (1 + u) - u + u ^ 2 / 2 = ∫ t in (0 : ℝ)..u,
+        deriv (fun t => Real.log (1 + t) - t + t ^ 2 / 2) t := by
+        intros u hu; rw [ intervalIntegral.integral_deriv_eq_sub ]
+        focus norm_num [ add_comm ]
+        focus ring_nf
+        · exact fun x hx => DifferentiableAt.add ( DifferentiableAt.add ( differentiableAt_id.neg )
+          ( by norm_num ) ) ( DifferentiableAt.log ( differentiableAt_id.const_add _ )
+          ( by cases Set.mem_uIcc.mp hx <;> linarith [ abs_le.mp hu ] ) );
+        · apply_rules [ ContinuousOn.intervalIntegrable ];
+          refine ContinuousOn.congr (f := fun t => 1 / ( 1 + t ) - 1 + t) ?_ ?_
+          exacts [ ContinuousOn.add ( ContinuousOn.sub
+            ( continuousOn_const.div ( continuousOn_const.add continuousOn_id )
+            fun x hx => by cases Set.mem_uIcc.mp hx <;> linarith [ abs_le.mp hu ] )
+            continuousOn_const ) continuousOn_id, fun x hx => by
+            have hx_abs : |x| ≤ 1 / 2 := by
+              rcases Set.mem_uIcc.mp hx with h | h
+              · have hu_nonneg : 0 ≤ u := le_trans h.1 h.2
+                rw [abs_of_nonneg h.1]
+                rw [abs_of_nonneg hu_nonneg] at hu
+                exact h.2.trans hu
+              · have hu_nonpos : u ≤ 0 := le_trans h.1 h.2
+                rw [abs_of_nonpos h.2]
+                rw [abs_of_nonpos hu_nonpos] at hu
+                nlinarith
+            have hnon : x + 1 ≠ 0 := by linarith [abs_le.mp hx_abs]
+            have hlog : HasDerivAt (fun t : ℝ => Real.log (t + 1)) ((x + 1)⁻¹) x := by
+              simpa [add_comm, Function.comp_def] using
+                (Real.hasDerivAt_log hnon).comp x
+                  ((hasDerivAt_id x).add_const (1 : ℝ))
+            have hder : HasDerivAt
+                ((fun z : ℝ => z ^ 2 / 2) + ((fun z : ℝ => Real.log (z + 1)) - id))
+                (x + ((x + 1)⁻¹ - 1)) x := by
+              simpa [id, sub_eq_add_neg, add_comm, add_left_comm, add_assoc] using
+                (((hasDerivAt_id x).pow 2).div_const 2).add
+                  (hlog.sub (hasDerivAt_id x))
+            rw [show deriv (fun t : ℝ => Real.log (1 + t) - t + t ^ 2 / 2) x =
+                deriv ((fun z : ℝ => z ^ 2 / 2) + ((fun z : ℝ => Real.log (z + 1)) - id)) x by
+              congr
+              ext z
+              change Real.log (1 + z) - z + z ^ 2 / 2 =
+                z ^ 2 / 2 + (Real.log (z + 1) - z)
+              rw [show 1 + z = z + 1 by ring]
+              ring_nf]
+            simpa [one_div, add_comm, add_left_comm, add_assoc] using hder.deriv ];
+      intro u hu; rw [ h_ftc u hu ] ; rcases abs_cases u with ( h | h ) <;> simp +decide [ *,
+        intervalIntegral ] ;
+      · refine le_trans
+          ( MeasureTheory.norm_integral_le_integral_norm ( _ : ℝ → ℝ ) )
+          ( MeasureTheory.integral_mono_of_nonneg ?_ ?_ ?_ );
+        · exact Filter.Eventually.of_forall fun x => norm_nonneg _;
+        · exact Continuous.integrableOn_Ioc ( by continuity );
+        · filter_upwards [ MeasureTheory.ae_restrict_mem measurableSet_Ioc ] with x hx using
+            h_deriv_bound x <| abs_le.mpr ⟨
+              by linarith [ hx.1, hx.2, abs_le.mp hu ],
+              by linarith [ hx.1, hx.2, abs_le.mp hu ] ⟩;
+      · simp_all +decide [ le_of_lt ];
+        refine le_trans
+          ( MeasureTheory.norm_integral_le_integral_norm ( _ : ℝ → ℝ ) )
+          ( le_trans
+            ( MeasureTheory.integral_mono_of_nonneg (g := fun t => 2 * t ^ 2) ?_ ?_ ?_ ) ?_ );
+        · exact Filter.Eventually.of_forall fun x => norm_nonneg _;
+        · exact Continuous.integrableOn_Ioc ( by continuity );
+        · filter_upwards [ MeasureTheory.ae_restrict_mem measurableSet_Ioc ] with t ht using
+            h_deriv_bound t <| abs_le.mpr ⟨
+              by norm_num at *; linarith [ ht.1, ht.2 ],
+              by norm_num at *; linarith [ ht.1, ht.2 ] ⟩;
+        · rw [ ← intervalIntegral.integral_of_le ( by linarith ), ← intervalIntegral.integral_of_le
+          ( by linarith ) ] ; norm_num ; ring_nf ; norm_num;
+    exact le_trans ( h_mvt u hu ) ( by norm_num; nlinarith [ abs_nonneg u, pow_two_nonneg ( |u|^2 )
+      ] )
+  have h2 : abs (Real.log (1 - 1 / (n : ℝ)) + 1 / (n : ℝ) + 1 / (2 * (n : ℝ) ^ 2)) ≤ 1 / (n : ℝ)
+    ^ 3 := by
+    convert log_one_minus_inv_approx n hn using 1
+  have h3 : abs ((a / (2 * (n : ℝ))) * (1 / (1 + u)) - (a * (1 - u) / (2 * (n : ℝ))))
+    ≤ a * abs u ^ 2 / (n : ℝ) := by
+    have hrec : abs ((1 / (1 + u)) - (1 - u)) ≤ 2 * u ^ 2 := by
+      exact reciprocal_approx u hu
+    have hc : 0 ≤ a / (2 * (n : ℝ)) := by positivity
+    calc
+      abs ((a / (2 * (n : ℝ))) * (1 / (1 + u)) - (a * (1 - u) / (2 * (n : ℝ))))
+          = (a / (2 * (n : ℝ))) * abs ((1 / (1 + u)) - (1 - u)) := by
+            rw [show (a / (2 * (n : ℝ))) * (1 / (1 + u)) -
+                (a * (1 - u) / (2 * (n : ℝ))) =
+                (a / (2 * (n : ℝ))) * ((1 / (1 + u)) - (1 - u)) by ring]
+            rw [abs_mul, abs_of_nonneg hc]
+      _ ≤ (a / (2 * (n : ℝ))) * (2 * u ^ 2) :=
+            mul_le_mul_of_nonneg_left hrec hc
+      _ = a * abs u ^ 2 / (n : ℝ) := by
+            rw [sq_abs]
+            ring
+  have h4 : abs ((1 / (2 * (n : ℝ))) * (1 / (1 - 1 / (n : ℝ))) - ((1 + 1 / (n : ℝ)) / (2 *
+    (n : ℝ)))) ≤ 1 / (n : ℝ) ^ 3 := by
+    have hrec := recip_one_minus_inv_approx n hn
+    have hc : 0 ≤ 1 / (2 * (n : ℝ)) := by positivity
+    have hn0 : (n : ℝ) ≠ 0 := by positivity
+    calc
+      abs ((1 / (2 * (n : ℝ))) * (1 / (1 - 1 / (n : ℝ))) -
+          ((1 + 1 / (n : ℝ)) / (2 * (n : ℝ))))
+          = (1 / (2 * (n : ℝ))) *
+              abs ((1 / (1 - 1 / (n : ℝ))) - (1 + 1 / (n : ℝ))) := by
+            rw [show (1 / (2 * (n : ℝ))) * (1 / (1 - 1 / (n : ℝ))) -
+                ((1 + 1 / (n : ℝ)) / (2 * (n : ℝ))) =
+                (1 / (2 * (n : ℝ))) *
+                  ((1 / (1 - 1 / (n : ℝ))) - (1 + 1 / (n : ℝ))) by ring]
+            rw [abs_mul, abs_of_nonneg hc]
+      _ ≤ (1 / (2 * (n : ℝ))) * (2 / (n : ℝ) ^ 2) :=
+            mul_le_mul_of_nonneg_left hrec hc
+      _ = 1 / (n : ℝ) ^ 3 := by
+            field_simp [hn0]
+  have h5 : abs (-(a ^ 2 / (12 * (n : ℝ) ^ 2)) * (1 / (1 + u) ^ 2) + (a ^ 2 / (12 * (n : ℝ) ^ 2)) *
+    (1 - 2 * u)) ≤ a ^ 2 * abs u ^ 2 / (n : ℝ) ^ 2 := by
+    have h5 : abs (1 / (1 + u) ^ 2 - (1 - 2 * u)) ≤ 8 * abs u ^ 2 := by
+      convert reciprocal_sq_approx u hu using 1 ; ring_nf;
+      norm_num [ sq_abs ];
+    rw [ abs_le ] at *;
+    constructor <;> ring_nf at * <;> nlinarith [ show 0 ≤ a ^ 2 * ( n : ℝ ) ⁻¹ ^ 2 by positivity ]
+  have h6 : abs ((1 / (12 * (n : ℝ) ^ 2)) * (1 / (1 - 1 / (n : ℝ)) ^ 2) - (1 / (12 * (n : ℝ) ^ 2)) *
+    (1 + 2 / (n : ℝ))) ≤ 1 / (n : ℝ) ^ 4 := by
+    rcases n with ( _ | _ | n ) <;> norm_num at *;
+    field_simp;
+    rw [ abs_of_nonneg ( by exact div_nonneg ( by ring_nf; positivity ) ( by ring_nf; positivity ) )
+      ] ; rw [ mul_div, div_le_iff₀ ] <;> ring_nf <;> norm_cast <;> norm_num [ Nat.succ_eq_add_one ]
+      ; ring_nf ; nlinarith only [ sq ( n ^ 2 ) ] ;
+  refine le_trans
+    (b := |u|^3 + 1 / n^3 + a * |u|^2 / n + 1 / n^3 + a^2 * |u|^2 / n^2 + 1 / n^4)
+    ( abs_le.mpr ?_ ) ?_
+  · constructor <;> linarith [ abs_le.mp h1, abs_le.mp h2, abs_le.mp h3, abs_le.mp h4, abs_le.mp h5,
+    abs_le.mp h6 ];
+  · norm_num [ abs_mul, abs_div ] ; ring_nf ; norm_num;
+    positivity
+
 /-! ## Part 3: Expansion helpers -/
 
 def eulerMaclaurinApprox' (x : ℝ) : ℝ :=
@@ -366,7 +538,34 @@ lemma secBound_zero : secBound 0 = exp 1 - 2 := by
 Base case: ∫₀¹ t(1-t)eᵗ dt = 3 - e
 -/
 lemma padeBound_zero : padeBound 0 = 3 - exp 1 := by
-  sorry
+  unfold padeBound;
+  rw [ intervalIntegral.integral_deriv_eq_sub' ] <;> norm_num;
+  case f => exact fun t => ( t - t ^ 2 ) * Real.exp t - ( 1 - 2 * t ) * Real.exp t + ( -2 )
+    * Real.exp t;
+  · norm_num ; ring;
+  · exact funext fun x => by
+      have hF' : HasDerivAt
+          (fun t : ℝ => (3 * t - t ^ 2 - 3) * Real.exp t)
+          ((3 - 2 * x) * Real.exp x + (3 * x - x ^ 2 - 3) * Real.exp x) x := by
+        rw [show (fun t : ℝ => (3 * t - t ^ 2 - 3) * Real.exp t) =
+            (fun t : ℝ => -t ^ 2 + (t * 3 + -3)) * Real.exp by
+          ext t
+          simp [Pi.mul_apply]
+          ring_nf]
+        simpa [id, sub_eq_add_neg, add_comm, add_left_comm, add_assoc, mul_assoc, mul_comm,
+          mul_left_comm] using
+          (((((hasDerivAt_id x).const_mul (3 : ℝ)).sub
+              ((hasDerivAt_id x).pow 2)).sub_const (3 : ℝ)).mul
+            (Real.hasDerivAt_exp x))
+      have hF : HasDerivAt
+          (fun t : ℝ => (3 * t - t ^ 2 - 3) * Real.exp t)
+          (x * Real.exp x - x ^ 2 * Real.exp x) x := by
+        convert hF' using 1
+        ring
+      convert hF.deriv using 1 <;> ring_nf
+  · fun_prop;
+  · fun_prop
+
 /-
 Polynomial decomposition: S(k+1) = P(k) - T(k), since
     t^{k+1}(1-t)^{k+2} = t^{k+1}(1-t)^{k+1}(1-t) = t^{k+1}(1-t)^{k+1} - t^{k+2}(1-t)^{k+1}
@@ -393,7 +592,57 @@ set_option maxHeartbeats 800000 in
 lemma padeBound_ibp (k : ℕ) :
     padeBound (k + 1) = -(↑(k + 2) : ℝ) * padeBound k
       + 2 * (↑(k + 2) : ℝ) * mixedBound k := by
-        sorry
+        -- Apply integration by parts with $f(t) = \exp(t)$ and $g'(t) = t^{k+2}(1-t)^{k+2}$.
+        have h_parts : ∫ t in (0 : ℝ)..1, t ^ (k + 2) * (1 - t) ^ (k + 2) * Real.exp t = -∫ t in
+          (0 : ℝ)..1, Real.exp t * deriv (fun t => t ^ (k + 2) * (1 - t) ^ (k + 2)) t := by
+          rw [ intervalIntegral.integral_mul_deriv_eq_deriv_mul ] <;> norm_num [ mul_comm ];
+          focus congr! 1
+          · exact fun x _ _ =>
+              hasDerivAt_deriv_iff.mpr (by
+                exact DifferentiableAt.mul ( differentiableAt_pow _ )
+                  ( DifferentiableAt.pow ( differentiableAt_id.const_sub _ ) _ ));
+          · exact fun x _ _ => Real.hasDerivAt_exp x;
+          · apply_rules [ Continuous.intervalIntegrable ] ; ring_nf ; fun_prop;
+        -- Now use the linearity of the integral to split the integral into two parts.
+        have h_split : ∫ t in (0 : ℝ)..1, Real.exp t * deriv (fun t => t ^ (k + 2) * (1 - t) ^
+          (k + 2)) t = ∫ t in (0 : ℝ)..1, Real.exp t * (k + 2) * t ^ (k + 1) * (1 - t) ^ (k + 1) *
+          (1 - 2 * t) := by
+          refine intervalIntegral.integral_congr fun t ht => ?_
+          erw [ deriv_mul ] <;> norm_num [ sub_eq_add_neg ]
+          focus ring_nf
+          · erw [ deriv_add, deriv_add ] <;> norm_num [ sub_eq_add_neg ]
+            focus ring_nf
+            · erw [ deriv_mul, deriv_mul, deriv_pow ] <;> norm_num [ sub_eq_add_neg ]
+              focus ring_nf
+              · cases k
+                · ring_nf
+                · norm_num [ Nat.succ_eq_add_one, pow_add ]
+                  ring
+              · exact differentiableAt_id.const_sub _;
+              · exact DifferentiableAt.pow ( differentiableAt_id.neg.const_add _ ) _;
+              · exact DifferentiableAt.pow ( differentiableAt_id.neg.const_add _ ) _;
+            · fun_prop;
+            · exact DifferentiableAt.mul ( differentiableAt_id.pow 2 ) ( DifferentiableAt.pow
+              ( differentiableAt_id.neg.const_add _ ) _ );
+            · fun_prop (disch := norm_num);
+            · exact DifferentiableAt.pow ( differentiableAt_id.neg.const_add _ ) _;
+          · exact DifferentiableAt.pow ( differentiableAt_id.neg.const_add _ ) _;
+        -- Now use the linearity of the integral to split the integral into two parts and simplify.
+        have h_split_simplified : ∫ t in (0 : ℝ)..1, Real.exp t * (k + 2) * t ^ (k + 1) * (1 - t) ^
+          (k + 1) * (1 - 2 * t) = (k + 2) * (∫ t in (0 : ℝ)..1, Real.exp t * t ^ (k + 1) * (1 - t) ^
+          (k + 1)) - 2 * (k + 2) * (∫ t in (0 : ℝ)..1, Real.exp t * t ^ (k + 2) * (1 - t) ^ (k + 1))
+          := by
+          rw [ ← intervalIntegral.integral_const_mul, ← intervalIntegral.integral_const_mul ];
+          rw [ ← intervalIntegral.integral_sub
+            (by exact Continuous.intervalIntegrable ( by continuity ) _ _)
+            (by exact Continuous.intervalIntegrable ( by continuity ) _ _) ];
+          congr ; ext ; ring;
+        unfold padeBound mixedBound
+        rw [h_parts, h_split, h_split_simplified]
+        simp_rw [mul_assoc, mul_comm, mul_left_comm]
+        norm_num [Nat.cast_add]
+        ring
+
 /-
 IBP identity: T(k) = (k+1)·(S(k) - 2·P(k)).
 -/
@@ -401,7 +650,99 @@ set_option maxHeartbeats 800000 in
 -- The mixed-bound integration-by-parts identity expands several integral rewrites.
 lemma mixedBound_ibp (k : ℕ) :
     mixedBound k = (↑(k + 1) : ℝ) * (secBound k - 2 * padeBound k) := by
-      sorry
+  -- Apply integration by parts with u(t) = t^(k+1)(1-t)^(k+1) and dv = t e^t dt.
+  have h_parts : ∀ a b : ℝ,
+      ∫ t in a..b, t ^ (k + 2) * (1 - t) ^ (k + 1) * Real.exp t =
+        (b ^ (k + 1) * (1 - b) ^ (k + 1) * (b - 1) * Real.exp b) -
+          (a ^ (k + 1) * (1 - a) ^ (k + 1) * (a - 1) * Real.exp a) -
+            ∫ t in a..b,
+              (k + 1) * t ^ k * (1 - t) ^ k * (1 - 2 * t) * (t - 1) *
+                Real.exp t := by
+    intro a b
+    rw [eq_sub_iff_add_eq, ← intervalIntegral.integral_add]
+    · rw [intervalIntegral.integral_deriv_eq_sub']
+      · nontriviality
+        funext x
+        have hder :
+            deriv
+                (fun x : ℝ =>
+                  x ^ (k + 1) * (1 - x) ^ (k + 1) * (x - 1) * Real.exp x) x =
+              x ^ (k + 2) * (1 - x) ^ (k + 1) * Real.exp x +
+                (k + 1) * x ^ k * (1 - x) ^ k * (1 - 2 * x) * (x - 1) *
+                  Real.exp x := by
+          have hu : HasDerivAt
+              (fun x : ℝ => x ^ (k + 1) * (1 - x) ^ (k + 1))
+              ((k + 1) * x ^ k * (1 - x) ^ k * (1 - 2 * x)) x := by
+            convert
+                (((hasDerivAt_id x).pow (k + 1)).mul
+                  (((hasDerivAt_const x (1 : ℝ)).sub (hasDerivAt_id x)).pow
+                    (k + 1))) using 1
+            · rfl
+            · rfl
+            · funext y
+              simp [Pi.mul_apply, Pi.pow_apply, Pi.sub_apply, id] <;> ring_nf
+            · cases k with
+              | zero =>
+                  simp [id]
+                  ring_nf
+              | succ n =>
+                  simp [pow_succ, mul_assoc, mul_comm]
+                  set A := x ^ n
+                  set B := (1 - x) ^ n
+                  ring
+          have hv : HasDerivAt (fun x : ℝ => (x - 1) * Real.exp x)
+              (x * Real.exp x) x := by
+            convert ((hasDerivAt_id x).sub_const (1 : ℝ)).mul
+                (Real.hasDerivAt_exp x) using 1
+            · rfl
+            · rfl
+            · funext y
+              simp [Pi.mul_apply, id] <;> ring_nf
+            · simp [id]
+              ring_nf
+          have hF : HasDerivAt
+              (fun x : ℝ =>
+                x ^ (k + 1) * (1 - x) ^ (k + 1) * (x - 1) * Real.exp x)
+              (x ^ (k + 2) * (1 - x) ^ (k + 1) * Real.exp x +
+                (k + 1) * x ^ k * (1 - x) ^ k * (1 - 2 * x) * (x - 1) *
+                  Real.exp x) x := by
+            convert hu.mul hv using 1
+            · rfl
+            · rfl
+            · funext y
+              simp [Pi.mul_apply, Pi.pow_apply, Pi.sub_apply, id] <;> ring_nf
+            · cases k with
+              | zero => ring_nf
+              | succ n =>
+                  simp [pow_succ, mul_assoc, mul_comm]
+                  set A := x ^ n
+                  set B := (1 - x) ^ n
+                  ring
+          exact hF.deriv
+        rw [hder]
+      · fun_prop
+      · fun_prop
+    · exact Continuous.intervalIntegrable (by continuity) _ _
+    · exact Continuous.intervalIntegrable (by continuity) _ _
+  unfold mixedBound secBound padeBound
+  rw [h_parts 0 1]
+  norm_num
+  rw [← intervalIntegral.integral_neg]
+  rw [← intervalIntegral.integral_const_mul]
+  rw [← intervalIntegral.integral_sub]
+  · rw [← intervalIntegral.integral_const_mul]
+    apply intervalIntegral.integral_congr
+    intro t ht
+    cases k with
+    | zero => ring
+    | succ n =>
+        simp [pow_succ, mul_assoc, mul_comm]
+        set A := t ^ n
+        set B := (1 - t) ^ n
+        ring
+  · exact Continuous.intervalIntegrable (by continuity) _ _
+  · exact Continuous.intervalIntegrable (by continuity) _ _
+
 /-- Combined recurrence: P(k+1) = -(4k+5)(k+2)·P(k) + 2(k+1)(k+2)·S(k). -/
 lemma padeBound_recurrence (k : ℕ) :
     padeBound (k + 1) = -(4 * ↑k + 5) * (↑(k + 2) : ℝ) * padeBound k
@@ -1042,6 +1383,8 @@ def eulerMaclaurinApprox (x : ℝ) : ℝ :=
     eulerMaclaurinApprox x = eulerMaclaurinApprox' x := by
   rfl
 
+set_option maxHeartbeats 800000 in
+-- The harmonic approximation proof expands several tail-sum and Taylor estimates.
 /-
 There exists C > 0 such that for every n ≥ 1,
    |H_n - f(n)| ≤ C / n⁴.
@@ -1049,7 +1392,217 @@ There exists C > 0 such that for every n ≥ 1,
 theorem harmonicReal_approx :
     ∃ C : ℝ, C > 0 ∧ ∀ n : ℕ, 0 < n →
       |harmonicReal n - eulerMaclaurinApprox n| ≤ C / (n : ℝ) ^ 4 := by
-        sorry
+  -- Let's denote the Euler-Mascheroni value by γ.
+  set γ := Real.eulerMascheroniConstant;
+  -- Define the remainder term $R_n$ as $R_n = H_n - \ln(n) - \gamma - \frac{1}{2n} +
+  -- \frac{1}{12n^2}$.
+  set R : ℕ → ℝ := fun n => harmonicReal n - (Real.log n + γ + 1 / (2 * n) - 1 / (12 * n^2));
+  -- We'll use the fact that $R_n$ is bounded by a fixed multiple of $1/n^4$.
+  have h_bound : ∃ C > 0, ∀ n : ℕ, 1 ≤ n → |R n - R (n + 1)| ≤ C / (n : ℝ) ^ 5 := by
+    -- We'll use the fact that $R_n - R_{n+1}$ has a fixed-multiple $1/n^5$ bound.
+    have h_diff_bound : ∃ C > 0, ∀ n : ℕ, 1 ≤ n → |(1 / (n + 1 : ℝ)) - (Real.log (n + 1)
+      - Real.log n) - (1 / (2 * (n + 1 : ℝ)) - 1 / (2 * n)) + (1 / (12 * (n + 1 : ℝ) ^ 2) - 1 /
+      (12 * n ^ 2))| ≤ C / (n : ℝ) ^ 5 := by
+      -- We'll use the fact that $R_n - R_{n+1}$ has a fixed-multiple $1/n^5$ bound. We'll
+      -- expand the logarithmic term using the Taylor series.
+      have h_log_expand : ∀ n : ℕ, 1 ≤ n → |Real.log (n + 1) - Real.log n - (1 / (n : ℝ) - 1 /
+        (2 * n^2) + 1 / (3 * n^3) - 1 / (4 * n^4))| ≤ 1 / (n : ℝ) ^ 5 := by
+        -- We'll use the fact that $Real.log (1 + x) = x - x^2 / 2 + x^3 / 3 - x^4 / 4 + O(x^5)$ for
+        -- $x$ close to $0$.
+        have h_log_approx : ∀ x : ℝ, 0 < x ∧ x ≤ 1 → |Real.log (1 + x) -
+          (x - x^2 / 2 + x^3 / 3 - x^4 / 4)| ≤ x^5 := by
+          -- Let's choose any $x$ such that $0 < x \leq 1$.
+          intro x hx
+          have h_log_approx : ∀ t ∈ Set.Icc (0 : ℝ) x, |deriv (fun x => Real.log (1 + x) -
+            (x - x^2 / 2 + x^3 / 3 - x^4 / 4)) t| ≤ x^4 := by
+            intro t ht
+            have hnon : 1 + t ≠ 0 := by linarith [ht.1]
+            have hlog : HasDerivAt (fun t : ℝ => Real.log (1 + t)) ((1 + t)⁻¹) t := by
+              simpa [Function.comp_def] using
+                (Real.hasDerivAt_log hnon).comp t
+                  ((hasDerivAt_id t).const_add (1 : ℝ))
+            have hpoly : HasDerivAt
+                (fun t : ℝ => t - t ^ 2 / 2 + t ^ 3 / 3 - t ^ 4 / 4)
+                (1 - t + t ^ 2 - t ^ 3) t := by
+              convert
+                (((hasDerivAt_id t).sub
+                    (((hasDerivAt_id t).pow 2).div_const 2)).add
+                  (((hasDerivAt_id t).pow 3).div_const 3)).sub
+                (((hasDerivAt_id t).pow 4).div_const 4) using 1
+              · rfl
+              · rfl
+              · funext y
+                simp [id] <;> ring_nf
+              · norm_num [id] <;> ring_nf
+            have hderiv :
+                deriv
+                    (fun x : ℝ =>
+                      Real.log (1 + x) - (x - x ^ 2 / 2 + x ^ 3 / 3 - x ^ 4 / 4))
+                    t =
+                  t ^ 4 / (1 + t) := by
+                have hder := hlog.sub hpoly
+                convert hder.deriv using 1
+                · apply congrArg (fun f : ℝ → ℝ => deriv f t)
+                  ext y
+                  simp [Pi.sub_apply]
+                · field_simp [hnon]
+                  ring
+            rw [hderiv, abs_div, abs_of_nonneg (pow_nonneg ht.1 4),
+              abs_of_pos (by linarith [ht.1] : 0 < 1 + t)]
+            rw [div_le_iff₀ (by linarith [ht.1] : 0 < 1 + t)]
+            have ht4 : t ^ 4 ≤ x ^ 4 := pow_le_pow_left₀ ht.1 ht.2 4
+            nlinarith [ht4, pow_nonneg ht.1 4,
+              mul_nonneg (pow_nonneg hx.1.le 4) (by linarith [ht.1])]
+          -- Apply the mean value theorem to the interval $[0, x]$.
+          obtain ⟨c, hc⟩ : ∃ c ∈ Set.Ioo 0 x, deriv (fun x => Real.log (1 + x) -
+            (x - x^2 / 2 + x^3 / 3 - x^4 / 4)) c = (Real.log (1 + x) -
+            (x - x^2 / 2 + x^3 / 3 - x^4 / 4)) / x := by
+            have := exists_deriv_eq_slope ( f := fun x => Real.log ( 1 + x ) -
+              ( x - x ^ 2 / 2 + x ^ 3 / 3 - x ^ 4 / 4 ) ) hx.1;
+            simpa using this ( ContinuousOn.sub ( ContinuousOn.log
+              ( continuousOn_const.add continuousOn_id ) fun y hy => by linarith [ hy.1 ] )
+              ( ContinuousOn.sub ( ContinuousOn.add ( ContinuousOn.sub continuousOn_id
+              ( ContinuousOn.div_const ( continuousOn_pow 2 ) _ ) ) ( ContinuousOn.div_const
+              ( continuousOn_pow 3 ) _ ) ) ( ContinuousOn.div_const ( continuousOn_pow 4 ) _ ) ) )
+              ( fun y hy => DifferentiableAt.differentiableWithinAt ( by fun_prop (disch := linarith
+              [hy.1]) ) );
+          have := h_log_approx c ⟨ hc.1.1.le, hc.1.2.le ⟩ ; rw [ hc.2, abs_div,
+            abs_of_nonneg hx.1.le ] at this; rw [ div_le_iff₀ ] at this <;> nlinarith
+            [ pow_pos hx.1 4 ] ;
+        intro n hn; specialize h_log_approx ( 1 / n ) ⟨ by positivity,
+          by simpa using inv_le_one_of_one_le₀ <| mod_cast hn ⟩ ; simp_all +decide ;
+        convert h_log_approx using 1 ; rw [ show ( n + 1 : ℝ ) = n * ( 1 + ( n : ℝ ) ⁻¹ )
+          by nlinarith only [ mul_inv_cancel₀ ( by positivity : ( n : ℝ ) ≠ 0 ) ], Real.log_mul
+          ( by positivity ) ( by positivity ) ] ; ring_nf;
+      refine ⟨ 100, by norm_num, fun n hn => ?_ ⟩ ; specialize h_log_expand n hn ; rw [ abs_le ]
+        at * ; constructor <;> ring_nf at * <;> norm_num at *;
+      · field_simp at *;
+        nlinarith [ ( by norm_cast : ( 1 :ℝ ) ≤ n ), pow_pos ( by positivity : 0 < ( n :ℝ ) ) 3,
+          pow_pos ( by positivity : 0 < ( n :ℝ ) ) 4, pow_pos ( by positivity : 0 < ( n :ℝ ) ) 5,
+          pow_pos ( by positivity : 0 < ( n :ℝ ) ) 6, pow_pos ( by positivity : 0 < ( n :ℝ ) ) 7,
+          pow_pos ( by positivity : 0 < ( n :ℝ ) ) 8, pow_pos ( by positivity : 0 < ( n :ℝ ) ) 9,
+          pow_pos ( by positivity : 0 < ( n :ℝ ) ) 10 ];
+      · field_simp at *;
+        nlinarith [ ( by norm_cast : ( 1 :ℝ ) ≤ n ), pow_pos ( by positivity : 0 < ( n :ℝ ) ) 3,
+          pow_pos ( by positivity : 0 < ( n :ℝ ) ) 4, pow_pos ( by positivity : 0 < ( n :ℝ ) ) 5,
+          pow_pos ( by positivity : 0 < ( n :ℝ ) ) 6, pow_pos ( by positivity : 0 < ( n :ℝ ) ) 7,
+          pow_pos ( by positivity : 0 < ( n :ℝ ) ) 8, pow_pos ( by positivity : 0 < ( n :ℝ ) ) 9 ];
+    convert h_diff_bound using 6 ; ring_nf;
+    simp +zetaDelta at *;
+    unfold harmonicReal; norm_num [ add_comm, add_left_comm, Finset.sum_range_succ ] ; ring_nf;
+    grind +splitImp;
+  -- Since $R_n$ is bounded, we can use the fact that it converges to 0.
+  have h_conv : Filter.Tendsto R Filter.atTop (nhds 0) := by
+    -- We'll use the fact that $H_n - \ln(n)$ converges to $\gamma$.
+    have h_harmonic_log : Filter.Tendsto (fun n : ℕ => harmonicReal n - Real.log n) Filter.atTop
+      (nhds γ) := by
+      convert Real.tendsto_harmonic_sub_log using 1;
+      norm_num [ harmonicReal ];
+      norm_num [ harmonic ];
+    convert h_harmonic_log.sub ( show Filter.Tendsto ( fun n : ℕ => γ + 1 / ( 2 * ( n : ℝ ) ) - 1 /
+      ( 12 * ( n : ℝ ) ^ 2 ) ) Filter.atTop ( nhds ( γ + 0 - 0 ) ) from Filter.Tendsto.sub
+      ( tendsto_const_nhds.add <| tendsto_const_nhds.div_atTop <|
+        tendsto_natCast_atTop_atTop.const_mul_atTop zero_lt_two )
+      <| tendsto_const_nhds.div_atTop <| Filter.Tendsto.const_mul_atTop ( by norm_num )
+      <| Filter.tendsto_pow_atTop ( by norm_num )
+      |> Filter.Tendsto.comp <| tendsto_natCast_atTop_atTop ) using 2 <;> ring!;
+  -- Using the bound on $R_n - R_{n+1}$ and the fact that $R_n$ converges to 0, we can show that
+  -- $R_n$ is bounded by a fixed multiple of $1/n^4$.
+  obtain ⟨C, hC_pos, hC_bound⟩ := h_bound;
+  have h_final_bound : ∃ C' > 0, ∀ n : ℕ, 1 ≤ n → |R n| ≤ C' / (n : ℝ) ^ 4 := by
+    -- Using the bound on $R_n - R_{n+1}$ and the fact that $R_n$ converges to 0, we can show that
+    -- $R_n$ has a fixed-multiple $1/n^4$ bound by summing the differences.
+    have h_sum_bound : ∀ n : ℕ, 1 ≤ n → |R n| ≤ ∑' k : ℕ, |R (n + k) - R (n + k + 1)| := by
+      intros n hn
+      have h_sum : ∀ N : ℕ, |R n| ≤ ∑ k ∈ Finset.range N, |R (n + k) - R (n + k + 1)| + |R
+        (n + N)| := by
+        intro N
+        induction N with
+        | zero =>
+          norm_num;
+        | succ N ih =>
+          rw [ Finset.sum_range_succ ];
+          linarith! [ abs_sub_abs_le_abs_sub ( R ( n + N ) ) ( R ( n + N + 1 ) ) ];
+      -- Taking the limit of both sides of the inequality as $N$ approaches infinity, we get the
+      -- desired result.
+      have h_lim : Filter.Tendsto (fun N => ∑ k ∈ Finset.range N, |R (n + k) - R (n + k + 1)| + |R
+        (n + N)|) Filter.atTop (nhds (∑' k : ℕ, |R (n + k) - R (n + k + 1)|)) := by
+        have h_lim : Summable (fun k : ℕ => |R (n + k) - R (n + k + 1)|) := by
+          exact Summable.of_nonneg_of_le ( fun k => abs_nonneg _ )
+            ( fun k => hC_bound _ ( by linarith ) )
+            ( by
+              simpa [div_eq_mul_inv] using Summable.mul_left _ <| Real.summable_nat_pow_inv.2 ( by norm_num )
+                |> Summable.comp_injective <| add_right_injective n );
+        simpa using Filter.Tendsto.add ( h_lim.hasSum.tendsto_sum_nat ) ( Filter.Tendsto.abs
+          ( h_conv.comp ( Filter.tendsto_atTop_mono ( fun N => by simp +arith +decide )
+          Filter.tendsto_id ) ) );
+      exact le_of_tendsto_of_tendsto' tendsto_const_nhds h_lim h_sum;
+    -- Using the bound on $R_n - R_{n+1}$, we can sum the series to get a bound on $R_n$.
+    have h_sum_bound : ∀ n : ℕ, 1 ≤ n → |R n| ≤ C * ∑' k : ℕ, (1 / (n + k : ℝ) ^ 5) := by
+      intro n hn; rw [ ← tsum_mul_left ] ; refine le_trans ( h_sum_bound n hn ) ?_;
+        refine Summable.tsum_le_tsum ?_ ?_ ?_
+      · exact fun k => le_trans ( hC_bound _ ( by linarith ) ) ( by push_cast; ring_nf; norm_num );
+      · exact Summable.of_nonneg_of_le ( fun k => abs_nonneg _ )
+          ( fun k => hC_bound ( n + k ) ( by linarith ) )
+          ( by
+            simpa [div_eq_mul_inv] using Summable.mul_left _ <| Real.summable_nat_pow_inv.2 ( by norm_num )
+              |> Summable.comp_injective <| add_right_injective n );
+      · simpa [div_eq_mul_inv, Nat.add_comm] using Summable.mul_left C <| by
+          simpa [div_eq_mul_inv, Nat.add_comm] using
+            (summable_nat_add_iff n).2 (Real.summable_one_div_nat_pow.2 <| by norm_num)
+    -- We'll use the fact that $\sum_{k=0}^{\infty} \frac{1}{(n+k)^5}$ is bounded above by
+    -- $\frac{1}{n^4}$.
+    have h_sum_bound : ∀ n : ℕ, 1 ≤ n → ∑' k : ℕ, (1 / (n + k : ℝ) ^ 5) ≤ 1 / (n : ℝ) ^ 4 + 1 / (4 *
+      (n : ℝ) ^ 4) := by
+      -- We'll use the fact that $\sum_{k=0}^{\infty} \frac{1}{(n+k)^5}$ is bounded above by
+      -- $\frac{1}{n^4}$ to conclude the proof.
+      intros n hn
+      have h_sum_bound : ∑' k : ℕ, (1 / (n + k : ℝ) ^ 5) ≤ 1 / (n : ℝ) ^ 5 + ∑' k : ℕ, (1 /
+        (n + k + 1 : ℝ) ^ 5) := by
+        rw [ Summable.tsum_eq_zero_add ] <;> norm_num [ add_assoc ];
+        simpa [div_eq_mul_inv, Nat.add_comm] using
+          (summable_nat_add_iff n).2 (Real.summable_one_div_nat_pow.2 <| by norm_num);
+      -- We'll use the fact that $\sum_{k=0}^{\infty} \frac{1}{(n+k+1)^5}$ is bounded above by
+      -- $\frac{1}{4n^4}$.
+      have h_sum_bound : ∑' k : ℕ, (1 / (n + k + 1 : ℝ) ^ 5) ≤ 1 / (4 * (n : ℝ) ^ 4) := by
+        -- We'll use the fact that $\sum_{k=0}^{\infty} \frac{1}{(n+k+1)^5}$ is bounded above by
+        -- $\frac{1}{4n^4}$ to conclude the proof.
+        have h_sum_bound : ∀ k : ℕ, (1 / (n + k + 1 : ℝ) ^ 5) ≤ (1 / (4 * (n + k : ℝ) ^ 4)) - (1 /
+          (4 * (n + k + 1 : ℝ) ^ 4)) := by
+          intro k; rw [ div_sub_div, div_le_div_iff₀ ] <;> try positivity;
+          exact le_of_sub_nonneg ( by ring_nf; positivity );
+        -- By summing the inequalities from h_sum_bound, we get the desired result.
+        have h_sum_ineq : ∀ N : ℕ, ∑ k ∈ Finset.range N, (1 / (n + k + 1 : ℝ) ^ 5) ≤ (1 / (4 *
+          (n : ℝ) ^ 4)) - (1 / (4 * (n + N : ℝ) ^ 4)) := by
+          intro N; induction N <;> norm_num [ add_assoc, Finset.sum_range_succ ] at * ; linarith
+            [ h_sum_bound ‹_› ] ;
+        exact le_of_tendsto_of_tendsto' ( Summable.hasSum
+          (by
+            simpa [div_eq_mul_inv, Nat.add_comm, Nat.add_assoc, add_comm, add_left_comm, add_assoc] using
+              (summable_nat_add_iff (n + 1)).2
+              (Real.summable_one_div_nat_pow.2 (by norm_num : (1 : ℕ) < 5))) |> HasSum.tendsto_sum_nat )
+          tendsto_const_nhds fun N => le_trans ( h_sum_ineq N ) ( sub_le_self _ <| by positivity );
+      refine le_trans ‹_› ?_;
+      exact add_le_add ( by gcongr <;> norm_cast ) h_sum_bound;
+    use C * (1 + 1 / 4);
+    refine ⟨by linarith, ?_⟩
+    intro n hn
+    have hRn :=
+      ‹∀ n : ℕ, 1 ≤ n → |R n| ≤ C * ∑' k : ℕ, 1 / (n + k : ℝ) ^ 5› n hn
+    have hTail := h_sum_bound n hn
+    rw [div_add_div, le_div_iff₀] at *
+    <;> first
+      | positivity
+      | nlinarith [pow_pos (by positivity : 0 < (n : ℝ)) 4,
+          pow_pos (by positivity : 0 < (n : ℝ)) 5,
+          pow_pos (by positivity : 0 < (n : ℝ)) 6,
+          pow_pos (by positivity : 0 < (n : ℝ)) 7,
+          pow_pos (by positivity : 0 < (n : ℝ)) 8,
+          pow_pos (by positivity : 0 < (n : ℝ)) 9,
+          pow_pos (by positivity : 0 < (n : ℝ)) 10]
+  exact ⟨ h_final_bound.choose, h_final_bound.choose_spec.1,
+    fun n hn => h_final_bound.choose_spec.2 n hn ⟩
+
 /-! ## Section 2: Local expansion and a one-parameter correction -/
 
 /-
@@ -1064,7 +1617,142 @@ theorem second_order_expansion (x : ℝ) (hx : x > 0) (M : ℝ) (hM : M > 0) :
       |eulerMaclaurinApprox m - eulerMaclaurinApprox (↑n - 1) - x -
         ((24 * Real.exp (-x) * y + Real.exp (-2 * x) - 1) / 24) * (1 / (↑n) ^ 2)| ≤
         C / (↑n) ^ 3 := by
-          sorry
+  obtain ⟨ K, hK₀, hK ⟩ := u_bound x hx M hM;
+  obtain ⟨N₀, hN₀⟩ : ∃ N₀ : ℕ, 2 ≤ N₀ ∧ ∀ n : ℕ, N₀ ≤ n → K / (n : ℝ) ≤ 1 / 2 := by
+    exact ⟨ ⌈2 * K⌉₊ + 2, by linarith, fun n hn => by
+      rw [ div_le_iff₀ ] <;>
+        nlinarith [ Nat.le_ceil ( 2 * K ),
+          show ( n : ℝ ) ≥ ⌈2 * K⌉₊ + 2 by exact_mod_cast hn ] ⟩;
+  -- Choose $C$ to be the sum of the fixed terms from the error bounds.
+  obtain ⟨C₁, hC₁⟩ : ∃ C₁ > 0, ∀ n : ℕ, N₀ ≤ n → ∀ y : ℝ, |y| ≤ M →
+    let u := (-(1 + Real.exp x) / 2 + y / (n : ℝ)) / (Real.exp x * (n : ℝ))
+    let a := Real.exp (-x)
+    let A := -(1 + a) / 2
+    let B := y * a
+    |(Real.log (1 + u) - Real.log (1 - 1 / (n : ℝ))) + (a / (2 * (n : ℝ)) * (1 / (1 + u)) - 1 / (2 *
+      (n : ℝ)) * (1 / (1 - 1 / (n : ℝ)))) + (-(a ^ 2 / (12 * (n : ℝ) ^ 2)) * (1 / (1 + u) ^ 2) + 1 /
+      (12 * (n : ℝ) ^ 2) * (1 / (1 - 1 / (n : ℝ)) ^ 2)) - ((u - u ^ 2 / 2 + 1 / (n : ℝ) + 1 / (2 *
+      (n : ℝ) ^ 2)) + (a * (1 - u) / (2 * (n : ℝ)) - (1 + 1 / (n : ℝ)) / (2 * (n : ℝ))) + (-(a ^ 2 /
+      (12 * (n : ℝ) ^ 2)) * (1 - 2 * u) + 1 / (12 * (n : ℝ) ^ 2) * (1 + 2 / (n : ℝ))))| ≤ C₁ /
+      (n : ℝ) ^ 3 := by
+      obtain ⟨C₁, hC₁⟩ : ∃ C₁ > 0, ∀ n : ℕ, N₀ ≤ n → ∀ y : ℝ, |y| ≤ M →
+        let u := (-(1 + Real.exp x) / 2 + y / (n : ℝ)) / (Real.exp x * (n : ℝ))
+        let a := Real.exp (-x)
+        let A := -(1 + a) / 2
+        let B := y * a
+        |u|^3 + 2 / (n : ℝ) ^ 3 + a * u ^ 2 / (n : ℝ) + (a ^ 2 + 1) * u ^ 2 / (n : ℝ) ^ 2 + 1 /
+          (n : ℝ) ^ 4 ≤ C₁ / (n : ℝ) ^ 3 := by
+          refine ⟨ K ^ 3 + 2 + Real.exp ( -x ) * K ^ 2 + ( Real.exp ( -x ) ^ 2 + 1 ) * K ^ 2 + 1,
+            ?_, ?_ ⟩ <;> norm_num;
+          · positivity;
+          · intro n hn y hy; specialize hK n ( by linarith ) y hy; norm_num at *;
+            refine le_trans ( add_le_add ( add_le_add ( add_le_add ( add_le_add ( pow_le_pow_left₀
+              ( abs_nonneg _ ) hK 3 ) ( le_rfl ) ) ( div_le_div_of_nonneg_right
+              ( mul_le_mul_of_nonneg_left ( show ( ( ( -Real.exp x + -1 ) / 2 + y / n ) /
+              ( Real.exp x * n ) ) ^ 2 ≤ K ^ 2 / n ^ 2 by
+                convert pow_le_pow_left₀ ( abs_nonneg _ ) hK 2 using 1 <;> norm_num [ div_pow ] )
+                  <| by positivity ) <| by positivity ) ) ( div_le_div_of_nonneg_right
+                  ( mul_le_mul_of_nonneg_left ( show ( ( ( -Real.exp x + -1 ) / 2 + y / n ) /
+                  ( Real.exp x * n ) ) ^ 2 ≤ K ^ 2 / n ^ 2 by
+                    convert pow_le_pow_left₀ ( abs_nonneg _ ) hK 2 using 1 <;> norm_num [ div_pow ]
+                      ) <| by positivity ) <| by positivity ) ) ( le_rfl ) ) ?_
+            ring_nf; norm_num;
+            rcases n with ( _ | _ | n ) <;> norm_num at *;
+            · linarith;
+            · field_simp;
+              nlinarith [ show 0 ≤ K ^ 2 * Real.exp ( -x ) by positivity, show 0 ≤ K ^ 2 * Real.exp
+                ( -x ) ^ 2 by positivity, show 0 ≤ K ^ 3 by positivity, Real.exp_pos ( -x ),
+                Real.exp_le_one_iff.mpr ( show -x ≤ 0 by linarith ) ];
+      refine ⟨ C₁, hC₁.1, fun n hn y hy => le_trans ?_ ( hC₁.2 n hn y hy ) ⟩
+      let u0 := (-(1 + Real.exp x) / 2 + y / (n : ℝ)) / (Real.exp x * (n : ℝ))
+      have hu0 : |u0| ≤ 1 / 2 := by
+        have huK := hK n ( by linarith ) y hy
+        change |u0| ≤ K / (n : ℝ) at huK
+        exact le_trans huK (hN₀.2 n hn)
+      have htaylor := taylor_error_bound n ( by linarith )
+        ((-(1 + Real.exp x) / 2 + y / (n : ℝ)) / (Real.exp x * (n : ℝ)))
+        (Real.exp (-x))
+        (Real.exp_pos (-x)) (by
+          simpa [Real.exp_neg] using inv_le_one_of_one_le₀ <| Real.one_le_exp hx.le)
+        (by simpa [u0] using hu0)
+      convert htaylor using 1
+      · rfl
+      · ring
+  obtain ⟨C₂, hC₂⟩ : ∃ C₂ > 0, ∀ n : ℕ, N₀ ≤ n → ∀ y : ℝ, |y| ≤ M →
+    let u := (-(1 + Real.exp x) / 2 + y / (n : ℝ)) / (Real.exp x * (n : ℝ))
+    let a := Real.exp (-x)
+    let A := -(1 + a) / 2
+    let B := y * a
+    |(u - u ^ 2 / 2 + 1 / (n : ℝ) + 1 / (2 * (n : ℝ) ^ 2)) + (a * (1 - u) / (2 * (n : ℝ)) - (1 + 1 /
+      (n : ℝ)) / (2 * (n : ℝ))) + (-(a ^ 2 / (12 * (n : ℝ) ^ 2)) * (1 - 2 * u) + 1 / (12 * (n : ℝ)
+      ^ 2) * (1 + 2 / (n : ℝ))) - (24 * Real.exp (-x) * y + Real.exp (-2 * x) - 1) / 24 * (1 /
+      (n : ℝ) ^ 2)| ≤ C₂ / (n : ℝ) ^ 3 := by
+      -- Let's choose $C₂$ using the fixed terms from the taylor_approx_exact lemma.
+      obtain ⟨C₂, hC₂⟩ : ∃ C₂ > 0, ∀ n : ℕ, N₀ ≤ n → ∀ y : ℝ, |y| ≤ M →
+        let u := (-(1 + Real.exp x) / 2 + y / (n : ℝ)) / (Real.exp x * (n : ℝ))
+        let a := Real.exp (-x)
+        let A := -(1 + a) / 2
+        let B := y * a
+        let R₃ := -(A * B) - a * B / 2 + a ^ 2 * A / 6 + 1 / 6
+        let R₄ := -B ^ 2 / 2 + a ^ 2 * B / 6
+        |R₃ / (n : ℝ) ^ 3 + R₄ / (n : ℝ) ^ 4| ≤ C₂ / (n : ℝ) ^ 3 := by
+          -- Let's choose $C₂$ using the fixed terms from the taylor_approx_exact lemma and
+          -- the bounds on $R₃$ and $R₄$.
+          obtain ⟨C₂, hC₂⟩ : ∃ C₂ > 0, ∀ n : ℕ, N₀ ≤ n → ∀ y : ℝ, |y| ≤ M →
+            let u := (-(1 + Real.exp x) / 2 + y / (n : ℝ)) / (Real.exp x * (n : ℝ))
+            let a := Real.exp (-x)
+            let A := -(1 + a) / 2
+            let B := y * a
+            let R₃ := -(A * B) - a * B / 2 + a ^ 2 * A / 6 + 1 / 6
+            let R₄ := -B ^ 2 / 2 + a ^ 2 * B / 6
+            |R₃| ≤ C₂ ∧ |R₄| ≤ C₂ := by
+              refine ⟨ 1 + ( Real.exp ( -x ) + 1 ) ^ 2 * ( M + 1 ) ^ 2 + ( Real.exp ( -x ) + 1 )
+                ^ 2 * ( M + 1 ) ^ 2, by positivity, fun n hn y hy => ⟨ ?_, ?_ ⟩ ⟩ <;> norm_num
+                [ abs_le ] at *;
+              · constructor <;>
+                  nlinarith [ Real.exp_pos ( -x ),
+                    Real.exp_le_one_iff.mpr ( show -x ≤ 0 by linarith ),
+                    mul_le_mul_of_nonneg_left hy.1 ( Real.exp_nonneg ( -x ) ),
+                    mul_le_mul_of_nonneg_left hy.2 ( Real.exp_nonneg ( -x ) ),
+                    pow_two_nonneg ( Real.exp ( -x ) - 1 ),
+                    pow_two_nonneg ( Real.exp ( -x ) + 1 ), pow_two_nonneg ( M + 1 ) ];
+              · constructor <;>
+                  nlinarith [
+                    show 0 ≤ Real.exp ( -x ) ^ 2 * ( M + 1 ) ^ 2 by positivity,
+                    show 0 ≤ Real.exp ( -x ) ^ 2 * ( M + 1 ) by positivity,
+                    show 0 ≤ Real.exp ( -x ) ^ 2 by positivity,
+                    show 0 ≤ Real.exp ( -x ) by positivity,
+                    Real.exp_pos ( -x ), Real.exp_le_one_iff.mpr ( show -x ≤ 0 by linarith ),
+                    mul_le_mul_of_nonneg_left hy.1 ( Real.exp_nonneg ( -x ) ),
+                    mul_le_mul_of_nonneg_left hy.2 ( Real.exp_nonneg ( -x ) ) ];
+          refine ⟨ C₂ + C₂, add_pos hC₂.1 hC₂.1, fun n hn y hy => ?_ ⟩ ; norm_num [ abs_le ] at *;
+          rcases n with ( _ | _ | n ) <;> norm_num at *;
+          · linarith [ hN₀.1 ];
+          · field_simp;
+            constructor <;> nlinarith [ hC₂.2 ( n + 1 + 1 ) hn y hy.1 hy.2, Real.exp_pos ( -x ),
+              Real.exp_le_one_iff.mpr ( show -x ≤ 0 by linarith ) ];
+      use C₂, hC₂.1;
+      intro n hn y hy; specialize hC₂; have := hC₂.2 n hn y hy; simp_all +decide [ div_eq_mul_inv,
+        mul_assoc, mul_comm, mul_left_comm ] ;
+      convert hC₂.2 n hn y hy using 1 ; ring_nf;
+      norm_num [ sq, mul_assoc, Real.exp_ne_zero ] ; ring_nf;
+      norm_num [ Real.exp_neg, Real.exp_mul ] ; ring_nf;
+  refine ⟨ C₁ + C₂, add_pos hC₁.1 hC₂.1, N₀, fun n hn y hy => ?_ ⟩
+  have h_diff : let m := Real.exp x * n - Real.exp x / 2 - 1 / 2 + y / n
+    eulerMaclaurinApprox m - eulerMaclaurinApprox (n - 1) - x =
+    (Real.log (1 + (-(1 + Real.exp x) / 2 + y / (n : ℝ)) / (Real.exp x * (n : ℝ))) - Real.log
+      (1 - 1 / (n : ℝ))) +
+    (Real.exp (-x) / (2 * (n : ℝ)) * (1 / (1 + (-(1 + Real.exp x) / 2 + y / (n : ℝ)) / (Real.exp x *
+      (n : ℝ)))) - 1 / (2 * (n : ℝ)) * (1 / (1 - 1 / (n : ℝ)))) +
+    (-(Real.exp (-x) ^ 2 / (12 * (n : ℝ) ^ 2)) * (1 / (1 + (-(1 + Real.exp x) / 2 + y / (n : ℝ)) /
+      (Real.exp x * (n : ℝ))) ^ 2) + 1 / (12 * (n : ℝ) ^ 2) * (1 / (1 - 1 / (n : ℝ)) ^ 2)) := by
+      apply f_diff_rewrite' x n (by linarith) y (by
+      have := hK n ( by linarith ) y hy;
+      linarith [ abs_le.mp this, hN₀.2 n hn ]);
+  simp_all +decide [ add_div ];
+  exact abs_le.mpr ⟨ by linarith [ abs_le.mp ( hC₁.2 n hn y hy ), abs_le.mp ( hC₂.2 n hn y hy ) ],
+    by linarith [ abs_le.mp ( hC₁.2 n hn y hy ), abs_le.mp ( hC₂.2 n hn y hy ) ] ⟩
+
 /-
 The lower bound holds for the pairs from the strong construction:
     H_m - H_{n-1} ≥ 1 when the coefficient is ≥ 1/(2k+4) and n is large enough.
@@ -1127,7 +1815,47 @@ lemma harmonic_upper_bound_from_coeff
       Real.sinh 1 / 12 ≤ C₂ / Real.sqrt ↑k)
     (h_bound : C₂ / (Real.exp 1 * Real.sqrt ↑k) + C_E / ↑n + 17 * C_H / ↑n ^ 2 ≤ c) :
     harmonicReal m - harmonicReal (n - 1) ≤ 1 + c / (↑n) ^ 2 := by
-      sorry
+  have h_upper_bound : (harmonicReal m - harmonicReal (n - 1)) ≤
+    (eulerMaclaurinApprox m - eulerMaclaurinApprox (n - 1)) + C_H / (m : ℝ) ^ 4 + 16 * C_H / (n : ℝ)
+    ^ 4 := by
+    linarith [ abs_le.mp h_harm_m, abs_le.mp h_harm_n ];
+  -- Substitute the upper bound for the coefficient into the inequality.
+  have h_coeff_upper_bound : eulerMaclaurinApprox m - eulerMaclaurinApprox (n - 1) - 1 ≤ (C₂ /
+    (Real.exp 1 * Real.sqrt k)) * (1 / (n : ℝ) ^ 2) + C_E / (n : ℝ) ^ 3 := by
+    have h_coeff_upper_bound : (24 * Real.exp (-1) * ((m - Real.exp 1 * n + Real.exp 1 / 2 + 1 / 2)
+      * n) + Real.exp (-2) - 1) / 24 ≤ (C₂ / (Real.exp 1 * Real.sqrt k)) := by
+        convert mul_le_mul_of_nonneg_left h_coeff_upper ( show 0 ≤ Real.exp ( -1 ) by positivity )
+          using 1 <;> norm_num [ Real.exp_neg, Real.sinh_eq ]
+        · rfl
+        · rw [show (2 : ℝ) = 1 + 1 by norm_num, Real.exp_add]
+          field_simp [Real.exp_ne_zero 1]
+          ring
+        · by_cases hsqrt : Real.sqrt (↑k : ℝ) = 0
+          · simp [hsqrt]
+          · field_simp [Real.exp_ne_zero 1, hsqrt]
+    have h_euler_upper :
+        eulerMaclaurinApprox ↑m - eulerMaclaurinApprox (↑n - 1) - 1 ≤
+          ((24 * Real.exp (-1) *
+              ((↑m - Real.exp 1 * ↑n + Real.exp 1 / 2 + 1 / 2) * ↑n) +
+              Real.exp (-2) - 1) / 24) * (1 / (↑n : ℝ) ^ 2) +
+            C_E / (↑n : ℝ) ^ 3 := by
+      linarith [ (abs_le.mp h_euler).2 ]
+    have hscale : 0 ≤ 1 / (↑n : ℝ) ^ 2 := by positivity
+    have h_coeff_scaled :=
+      mul_le_mul_of_nonneg_right h_coeff_upper_bound hscale
+    nlinarith [h_euler_upper, h_coeff_scaled]
+  -- Substitute the upper bound for the coefficient into the inequality and simplify.
+  have h_simplified : harmonicReal m - harmonicReal (n - 1) ≤ 1 + (C₂ / (Real.exp 1 * Real.sqrt k))
+    * (1 / (n : ℝ) ^ 2) + C_E / (n : ℝ) ^ 3 + 17 * C_H / (n : ℝ) ^ 4 := by
+    have h_simplified : C_H / (m : ℝ) ^ 4 ≤ C_H / (n : ℝ) ^ 4 := by
+      gcongr;
+    ring_nf at *; linarith;
+  refine le_trans h_simplified ?_;
+  convert add_le_add_left ( mul_le_mul_of_nonneg_right h_bound ( by positivity : ( 0 : ℝ )
+    ≤ 1 / n ^ 2 ) ) 1 using 1
+  focus ring
+  ring
+
 set_option maxHeartbeats 6400000 in
 -- The main theorem combines the generated expansion and limiting estimates.
 /-- **Main Theorem**: For every c > 0 there exist infinitely many pairs

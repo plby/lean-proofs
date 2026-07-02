@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
+/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 368.
 https://www.erdosproblems.com/forum/thread/368
@@ -239,7 +239,35 @@ def c_p (d : ℤ) (fund : Pell.Solution₁ d) (p : ℕ) : ℕ :=
 theorem c_p_is_d_number (d : ℤ) (fund : Pell.Solution₁ d) (p : ℕ)
     (h_d_num : is_d_number (d.toNat) (pell_seq d fund p).y.toNat) :
     is_d_number (d.toNat) (c_p d fund p) := by
-  sorry
+      unfold is_d_number at *
+      unfold c_p
+      let y : ℤ := (pell_seq d fund p).y
+      have h_div : fund.y.natAbs ∣ y.natAbs := by
+        dsimp [y]
+        convert pell_c_p_is_int d fund p using 1
+        norm_num [ ← Int.natCast_dvd_natCast ]
+      have hy_pos : 0 < y := by
+        dsimp [y]
+        omega
+      have hy_abs_pos : 0 < y.natAbs := Int.natAbs_pos.mpr (ne_of_gt hy_pos)
+      have hden_pos : 0 < fund.y.natAbs := by
+        by_contra hden
+        have hden_zero : fund.y.natAbs = 0 := Nat.eq_zero_of_not_pos hden
+        have hy_abs_zero : y.natAbs = 0 := by
+          simpa [hden_zero] using h_div
+        exact (Nat.ne_of_gt hy_abs_pos) hy_abs_zero
+      have hy_abs_eq_toNat : y.natAbs = y.toNat := by
+        have hy_nonneg : 0 ≤ y := le_of_lt hy_pos
+        exact_mod_cast
+          (Int.natAbs_of_nonneg hy_nonneg).trans
+            (Int.toNat_of_nonneg hy_nonneg).symm
+      constructor
+      · exact Nat.div_pos (Nat.le_of_dvd hy_abs_pos h_div) hden_pos
+      · intro q hq hq'
+        have hq_y_abs : q ∣ y.natAbs := hq'.trans (Nat.div_dvd_of_dvd h_div)
+        have hq_y_toNat : q ∣ y.toNat := by
+          simpa [hy_abs_eq_toNat] using hq_y_abs
+        exact h_d_num.2 q hq (by simpa [y] using hq_y_toNat)
 
 /-
 The imaginary part of (a + b*sqrt(d))^n is the sum of binom(n, 2k+1) *
@@ -353,14 +381,36 @@ def pell_y_div_y_sum (n : ℕ) (a b d : ℤ) : ℤ :=
 
 theorem pell_y_eq_y_mul_div_sum (d : ℤ) (fund : Pell.Solution₁ d) (n : ℕ) :
     (pell_seq d fund n).y = fund.y * pell_y_div_y_sum n fund.x fund.y d := by
-  sorry
+      unfold pell_y_div_y_sum
+      unfold pell_seq
+      have hcoe : ((fund ^ n : Pell.Solution₁ d) : ℤ√d) = ((fund : ℤ√d) ^ n) := by
+        exact SubmonoidClass.coe_pow (fund : unitary (ℤ√d)) n
+      rw [show (fund ^ n : Pell.Solution₁ d).y =
+        (((fund ^ n : Pell.Solution₁ d) : ℤ√d).im) by rfl]
+      rw [hcoe]
+      rw [Zsqrtd_pow_im]
+      unfold binomial_sum_y
+      simp only [Pell.Solution₁.x, Pell.Solution₁.y]
+      rw [ Finset.mul_sum _ _ _ ]
+      refine Finset.sum_congr rfl fun i hi => ?_
+      ring_nf
 
 /-
 The sum is congruent to n * a^(n-1) modulo any divisor of d.
 -/
 theorem pell_y_div_y_sum_congruence (n : ℕ) (a b d : ℤ) (q : ℤ) (hq : q ∣ d) (hn : n ≥ 1) :
     pell_y_div_y_sum n a b d ≡ n * a ^ (n - 1) [ZMOD q] := by
-  sorry
+      unfold pell_y_div_y_sum
+      have h0 : 0 ∈ Finset.range ((n + 1) / 2) := by
+        exact Finset.mem_range.mpr <| Nat.div_pos (by omega) zero_lt_two
+      rw [Finset.sum_eq_sum_sdiff_singleton_add h0]
+      norm_num [ Int.modEq_iff_dvd ]
+      exact Finset.dvd_sum fun x hx =>
+        dvd_mul_of_dvd_right (dvd_pow hq (by
+          have hx0 : x ≠ 0 := by
+            intro hxzero
+            exact Finset.mem_sdiff.mp hx |>.2 (by simp [hxzero])
+          omega)) _
 
 /-
 c_p is the absolute value of the sum S_p.
@@ -546,7 +596,100 @@ set_option linter.flexible false in
 theorem pell_p_ne_2 (d : ℤ) (hd : d > 1) (fund : Pell.Solution₁ d) (h_fund_y_pos : fund.y > 0)
     (h_d_num : is_d_number (d.toNat) (pell_seq d fund 2).y.toNat) :
     False := by
-  sorry
+      -- If $c_2 = 2a_1$, then $c_2$ is not a d-number since $a_1$ is odd and $d$ is even.
+      have h_c2_not_d_num : ¬ is_d_number (d.toNat) (2 * fund.x).toNat := by
+        intro h
+        have h_a_odd : Odd fund.x := by
+          -- Since $a_1$ and $d$ are coprime and $d$ is even, $a_1$ must be odd.
+          have h_a1_odd : Int.gcd fund.x d = 1 := by
+            exact pell_fund_x_coprime_d d fund
+          have h_d_even : Even d := by
+            have := h.2 2 Nat.prime_two
+            generalize_proofs at *
+            grind
+          have h_a1_odd_final : Odd fund.x := by
+            exact Int.odd_iff.mpr <| Int.emod_two_ne_zero.mp fun con => by
+              have := Int.dvd_gcd (Int.dvd_of_emod_eq_zero con)
+                (even_iff_two_dvd.mp h_d_even)
+              simp_all +decide
+          exact h_a1_odd_final
+        have h_c2_not_d_num : ¬ is_d_number (d.toNat) (2 * fund.x).toNat := by
+          intro h
+          have h_prime_factor : ∃ q : ℕ, Nat.Prime q ∧ q ∣ (2 * fund.x).toNat ∧ ¬(q ∣ d.toNat) := by
+            obtain ⟨q, hq_prime, hq_div⟩ :
+                ∃ q : ℕ, Nat.Prime q ∧ q ∣ (2 * fund.x).toNat ∧ q ≠ 2 := by
+              obtain ⟨ k, hk ⟩ := h_a_odd
+              rcases k with ⟨ _ | k ⟩ <;> simp_all +decide [ Int.toNat ]
+              · have := fund.prop
+                aesop
+              · exact
+                  ⟨ Nat.minFac (2 * (k + 1) + 1),
+                    Nat.minFac_prime (by linarith),
+                    Nat.dvd_trans (Nat.minFac_dvd _)
+                      (by
+                        norm_cast
+                        exact ⟨2, by ring⟩),
+                    fun h => by
+                      have := Nat.minFac_dvd (2 * (k + 1) + 1)
+                      simp_all +decide [Nat.dvd_add_right]⟩
+              · cases h
+                tauto
+            have hq_not_div_d : ¬(q ∣ d.toNat) := by
+              intro hq_div_d
+              have hq_div_a : q ∣ Int.natAbs fund.x := by
+                cases fund_x_nonneg : fund.x <;> simp_all +decide [ ← Int.natCast_dvd_natCast ]
+                · exact Or.resolve_left (Int.Prime.dvd_mul' hq_prime hq_div.1) (by
+                    norm_cast
+                    intros h
+                    have := Nat.le_of_dvd (by linarith) h
+                    interval_cases q <;> simp_all +decide)
+                · cases h
+                  aesop
+              have hq_div_a_sq : q ∣ Int.natAbs (fund.x ^ 2 - d * fund.y ^ 2) := by
+                rw [ ← Int.natCast_dvd ] at *
+                exact dvd_sub (hq_div_a.pow two_ne_zero)
+                  (dvd_mul_of_dvd_left
+                    (by
+                      simpa [← Int.natCast_dvd_natCast,
+                        Int.toNat_of_nonneg (zero_le_one.trans hd.le)]
+                        using hq_div_d)
+                    _)
+              have hq_div_a_sq : q ∣ Int.natAbs 1 := by
+                convert hq_div_a_sq using 1
+                rw [ show fund.x ^ 2 - d * fund.y ^ 2 = 1 by linarith [ fund.prop ] ]
+              exact hq_prime.not_dvd_one hq_div_a_sq
+            exact ⟨ q, hq_prime, hq_div.1, hq_not_div_d ⟩
+          obtain ⟨ q, hq₁, hq₂, hq₃ ⟩ := h_prime_factor
+          have := h.2 q hq₁
+          simp_all +decide
+        exact h_c2_not_d_num h
+      -- By definition of $c_p$, we have $c_2 = \frac{b_2}{b_1}$.
+      have h_c2_def : (pell_seq d fund 2).y = 2 * fund.x * fund.y := by
+        unfold pell_seq
+        norm_num [ pow_succ ]
+        ring
+      unfold is_d_number at *
+      apply h_c2_not_d_num
+      constructor
+      · have h_c2_pos : 0 < (pell_seq d fund 2).y.toNat := h_d_num.1
+        rw [h_c2_def] at h_c2_pos
+        have hprod_pos : 0 < 2 * fund.x * fund.y := by omega
+        have hx_pos : 0 < fund.x := by nlinarith
+        omega
+      · intro p hp₁ hp₂
+        refine h_d_num.2 p hp₁ ?_
+        have h_c2_pos : 0 < (pell_seq d fund 2).y.toNat := h_d_num.1
+        rw [h_c2_def] at h_c2_pos
+        have h_toNat_mul :
+            (2 * fund.x).toNat * fund.y.toNat = (2 * fund.x * fund.y).toNat := by
+          have hprod_pos : 0 < 2 * fund.x * fund.y := by omega
+          have hx_pos : 0 < fund.x := by nlinarith
+          apply Nat.cast_injective (R := ℤ)
+          norm_num [Int.toNat_of_nonneg (by nlinarith : 0 ≤ 2 * fund.x),
+            Int.toNat_of_nonneg h_fund_y_pos.le,
+            Int.toNat_of_nonneg hprod_pos.le]
+        rw [h_c2_def]
+        simpa [h_toNat_mul] using hp₂.mul_right fund.y.toNat
 
 /-
 The prime p cannot be 3.
@@ -631,7 +774,34 @@ theorem pell_y_div_y_sum_gt_term_zero (d : ℤ) (hd : d > 1) (fund : Pell.Soluti
     (h_fund_x_pos : fund.x > 0) (h_fund_y_pos : fund.y > 0)
     (p : ℕ) (hp_ge_5 : p ≥ 5) :
     pell_y_div_y_sum p fund.x fund.y d > p * fund.x ^ (p - 1) := by
-  sorry
+      unfold pell_y_div_y_sum
+      have h0 : 0 ∈ Finset.range ((p + 1) / 2) := by
+        exact Finset.mem_range.mpr (by omega : 0 < (p + 1) / 2)
+      rw [Finset.sum_eq_sum_sdiff_singleton_add h0]
+      norm_num
+      have hsum_pos :
+          0 <
+            ∑ i ∈ Finset.range ((p + 1) / 2) \ {0},
+              ↑(p.choose (2 * i + 1)) * fund.x ^ (p - (2 * i + 1)) *
+                fund.y ^ (2 * i) * d ^ i := by
+        refine Finset.sum_pos ?_ ?_
+        · intro i hi
+          exact
+            mul_pos
+              (mul_pos
+                (mul_pos
+                  (Nat.cast_pos.mpr
+                    (Nat.choose_pos
+                      (by
+                        have hi_range := Finset.mem_range.mp (Finset.mem_sdiff.mp hi |>.1)
+                        nlinarith [Nat.div_mul_le_self (p + 1) 2])))
+                  (pow_pos h_fund_x_pos _))
+                (pow_pos h_fund_y_pos _))
+              (pow_pos (by linarith) _)
+        · exact ⟨ 1, by
+          norm_num
+          omega ⟩
+      nlinarith
 
 /-
 If p^k is congruent to p*u mod p^2 and p does not divide u, then k=1.
@@ -1088,7 +1258,16 @@ The largest prime factor of n(n+1) tends to infinity as n tends to infinity.
 -/
 theorem n_n_plus_one_inf :
     Filter.Tendsto (fun n => P_plus (n * (n + 1))) Filter.atTop Filter.atTop := by
-  sorry
+  -- By definition of $P^+$, we know that $P^+(n(n+1)) \ge B$ for all
+  -- $n \ge N$ if and only if $n \notin \text{bad\_set } B$.
+  have h_eq : ∀ B : ℕ, {n : ℕ | n ≥ 1 ∧ P_plus (n * (n + 1)) ≤ B}.Finite := by
+    intro B
+    simpa [bad_set] using bad_set_finite B
+  refine Filter.tendsto_atTop_atTop.mpr fun B => ?_
+  exact Exists.elim (Set.Finite.bddAbove (h_eq B)) fun N hN =>
+    ⟨N + 1, fun n hn =>
+      not_lt.1 fun contra =>
+        not_lt_of_ge (hN ⟨by linarith, contra.le⟩) hn⟩
 
 end Erdos368b
 

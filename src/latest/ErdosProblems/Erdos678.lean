@@ -279,7 +279,35 @@ The p-adic valuation of the LCM of 1 to k is the floor of log base p of k.
 -/
 lemma padicValNat_lcm_range (k p : ℕ) (hp : p.Prime) (hk : k ≥ 1) :
   padicValNat p (M k) = Nat.log p k := by
-    sorry
+    revert k;
+    intro k hk;
+    -- The p-adic valuation of the least common multiple of a set of numbers is the maximum of the p-adic valuations of those numbers.
+    have h_lcm_val : ∀ {S : Finset ℕ}, (∀ i ∈ S, i ≠ 0) → padicValNat p (Finset.lcm S id) = Finset.sup S (padicValNat p) := by
+      intros S hS_nonzero
+      induction S using Finset.induction with
+      | empty =>
+        simp +decide [ Nat.lcm ];
+      | insert i S hiS ih =>
+        -- By definition of lcm, we know that $v_p(\text{lcm}(i, S)) = \max(v_p(i), v_p(\text{lcm}(S)))$.
+        have h_lcm_def : padicValNat p (Nat.lcm i (Finset.lcm S id)) = max (padicValNat p i) (padicValNat p (Finset.lcm S id)) := by
+          haveI := Fact.mk hp;
+          rw [ ← Nat.factorization_def, ← Nat.factorization_def, ← Nat.factorization_def ];
+          · rw [ Nat.factorization_lcm ] <;> simp +decide [ hS_nonzero ];
+            exact fun h => hS_nonzero 0 ( Finset.mem_insert_of_mem h ) rfl;
+          · exact hp;
+          · exact hp;
+          · exact hp;
+        aesop;
+    -- Apply the lemma that the p-adic valuation of the lcm of a set of numbers is the maximum of the p-adic valuations of those numbers.
+    have h_max_val : Finset.sup (Finset.Icc 1 k) (padicValNat p) = Nat.log p k := by
+      refine le_antisymm ?_ ?_;
+      · simp +zetaDelta at *;
+        intro b hb₁ hb₂; rw [ ← Nat.factorization_def ];
+        · exact Nat.le_log_of_pow_le hp.one_lt ( Nat.le_trans ( Nat.le_of_dvd hb₁ ( Nat.ordProj_dvd _ _ ) ) hb₂ );
+        · assumption;
+      · refine le_trans ?_ ( Finset.le_sup <| Finset.mem_Icc.mpr ⟨ Nat.one_le_pow _ _ hp.pos, Nat.pow_log_le_self _ <| by linarith ⟩ );
+        haveI := Fact.mk hp; rw [ padicValNat.pow ] ; focus aesop;
+    exact h_max_val ▸ h_lcm_val fun i hi => by linarith [ Finset.mem_Icc.mp hi ] ;
 /-
 Any interval of length at least m contains a multiple of m.
 -/
@@ -313,7 +341,96 @@ lemma valuation_small_p (k x y p : ℕ) (hp : p.Prime) (hk : k ≥ 2)
   (hy_mod : y ≡ 0 [MOD p ^ (padicValNat p (M k))]) :
   padicValNat p ((∏ i ∈ Finset.Icc y (y + k), i) / (Finset.Icc y (y + k)).lcm id) =
   padicValNat p (M k) + padicValNat p ((∏ i ∈ Finset.Icc x (x + k - 1), i) / (Finset.Icc x (x + k - 1)).lcm id) := by
-    sorry
+    -- Let $e = v_p(M(k))$. By `padicValNat_lcm_range`, $e = \lfloor \log_p k \rfloor$.
+    set e := padicValNat p (M k) with heq
+    have he : e = Nat.log p k := by
+      convert padicValNat_lcm_range k p hp ( by linarith ) using 1;
+    -- By `valuation_prod_div_lcm`, we have $v_p(\text{LHS}) = \sum_{i=y}^{y+k} \min(v_p(i), e) - e$ and $v_p(\text{RHS}) = \sum_{i=x}^{x+k-1} \min(v_p(i), e) - e$.
+    have h_lhs : padicValNat p ((∏ i ∈ Finset.Icc y (y + k), i) / (Finset.Icc y (y + k)).lcm id) = (∑ i ∈ Finset.Icc y (y + k), min (padicValNat p i) e) - e := by
+      convert valuation_prod_div_lcm _ _ _ hp _ _ _;
+      · -- Since $y \equiv 0 \pmod{p^e}$, we have $v_p(y) \geq e$.
+        have h_vp_y : padicValNat p y ≥ e := by
+          have := Nat.dvd_of_mod_eq_zero hy_mod;
+          obtain ⟨ c, rfl ⟩ := this;
+          haveI := Fact.mk hp; rw [ padicValNat.mul ] <;> aesop;
+        exact le_trans h_vp_y ( Finset.le_sup ( f := padicValNat p ) ( Finset.mem_Icc.mpr ⟨ le_rfl, by linarith ⟩ ) );
+      · -- Since $p^{e+1} > k$, there can be at most one multiple of $p^{e+1}$ in the interval $[y, y+k]$.
+        have h_unique_multiples : ∀ m1 m2 : ℕ, y ≤ m1 → m1 ≤ y + k → y ≤ m2 → m2 ≤ y + k → p ^ (e + 1) ∣ m1 → p ^ (e + 1) ∣ m2 → m1 = m2 := by
+          intros m1 m2 hm1 hm1' hm2 hm2' hm1'' hm2''
+          have h_diff : p ^ (e + 1) > k := by
+            exact he.symm ▸ Nat.lt_pow_succ_log_self hp.one_lt _;
+          obtain ⟨ a, ha ⟩ := hm1''; obtain ⟨ b, hb ⟩ := hm2''; nlinarith [ show a = b by nlinarith ] ;
+        have h_unique_multiples : ∀ m ∈ Finset.Icc y (y + k), padicValNat p m > e → p ^ (e + 1) ∣ m := by
+          intros m hm hpm;
+          have h_div : p ^ (padicValNat p m) ∣ m := by
+            convert Nat.ordProj_dvd m p using 1;
+            rw [ Nat.factorization_def ] ; aesop;
+          exact dvd_trans ( pow_dvd_pow _ hpm ) h_div;
+        exact Finset.card_le_one.mpr fun m hm n hn => ‹∀ m1 m2 : ℕ, y ≤ m1 → m1 ≤ y + k → y ≤ m2 → m2 ≤ y + k → p ^ ( e + 1 ) ∣ m1 → p ^ ( e + 1 ) ∣ m2 → m1 = m2› m n ( Finset.mem_Icc.mp ( Finset.mem_filter.mp hm |>.1 ) |>.1 ) ( Finset.mem_Icc.mp ( Finset.mem_filter.mp hm |>.1 ) |>.2 ) ( Finset.mem_Icc.mp ( Finset.mem_filter.mp hn |>.1 ) |>.1 ) ( Finset.mem_Icc.mp ( Finset.mem_filter.mp hn |>.1 ) |>.2 ) ( h_unique_multiples m ( Finset.mem_filter.mp hm |>.1 ) ( Finset.mem_filter.mp hm |>.2 ) ) ( h_unique_multiples n ( Finset.mem_filter.mp hn |>.1 ) ( Finset.mem_filter.mp hn |>.2 ) );
+      · exact fun i hi => by linarith [ Finset.mem_Icc.mp hi ] ;
+    have h_rhs : padicValNat p ((∏ i ∈ Finset.Icc x (x + k - 1), i) / (Finset.Icc x (x + k - 1)).lcm id) = (∑ i ∈ Finset.Icc x (x + k - 1), min (padicValNat p i) e) - e := by
+      apply valuation_prod_div_lcm;
+      · assumption;
+      · -- By `exists_multiple_of_len_ge`, there exists a multiple of $p^e$ in the interval $[x, x+k-1]$.
+        obtain ⟨z, hz⟩ : ∃ z ∈ Finset.Icc x (x + k - 1), p ^ e ∣ z := by
+          have h_exists_multiple : p ^ e ≤ k := by
+            exact he.symm ▸ Nat.pow_log_le_self p ( by linarith );
+          exact ⟨ p ^ e * ( ( x + k - 1 ) / p ^ e ), Finset.mem_Icc.mpr ⟨ by linarith [ Nat.div_add_mod ( x + k - 1 ) ( p ^ e ), Nat.mod_lt ( x + k - 1 ) ( pow_pos hp.pos e ), Nat.sub_add_cancel ( show 1 ≤ x + k from by linarith ) ], by linarith [ Nat.div_mul_le_self ( x + k - 1 ) ( p ^ e ), Nat.sub_add_cancel ( show 1 ≤ x + k from by linarith ) ] ⟩, by norm_num ⟩;
+        -- Since $p^e \mid z$, we have $v_p(z) \geq e$.
+        have hz_val : padicValNat p z ≥ e := by
+          obtain ⟨ c, rfl ⟩ := hz.2;
+          haveI := Fact.mk hp; rw [ padicValNat.mul ] <;> aesop;
+        exact le_trans hz_val ( Finset.le_sup ( f := padicValNat p ) hz.1 );
+      · have h_unique : ∀ i ∈ Finset.Icc x (x + k - 1), padicValNat p i > e → i % p ^ (e + 1) = 0 := by
+          intros i hi hpi
+          have h_div : p ^ (e + 1) ∣ i := by
+            have h_div : p ^ (padicValNat p i) ∣ i := by
+              convert Nat.ordProj_dvd i p using 1;
+              rw [ Nat.factorization_def ] ; aesop;
+            exact dvd_trans ( pow_dvd_pow _ hpi ) h_div;
+          exact Nat.mod_eq_zero_of_dvd h_div;
+        have h_unique : ∀ i j : ℕ, i ∈ Finset.Icc x (x + k - 1) → j ∈ Finset.Icc x (x + k - 1) → padicValNat p i > e → padicValNat p j > e → i = j := by
+          intros i j hi hj hi_gt hj_gt
+          have h_div : p ^ (e + 1) ∣ i ∧ p ^ (e + 1) ∣ j := by
+            exact ⟨ Nat.dvd_of_mod_eq_zero ( h_unique i hi hi_gt ), Nat.dvd_of_mod_eq_zero ( h_unique j hj hj_gt ) ⟩;
+          have h_diff : |(i : ℤ) - j| < p ^ (e + 1) := by
+            have h_diff : |(i : ℤ) - j| ≤ k - 1 := by
+              exact abs_sub_le_iff.mpr ⟨ by linarith [ Finset.mem_Icc.mp hi, Finset.mem_Icc.mp hj, Nat.sub_add_cancel ( by linarith : 1 ≤ x + k ) ], by linarith [ Finset.mem_Icc.mp hi, Finset.mem_Icc.mp hj, Nat.sub_add_cancel ( by linarith : 1 ≤ x + k ) ] ⟩;
+            have h_diff : k < p ^ (e + 1) := by
+              rw [ he ];
+              exact Nat.lt_pow_succ_log_self hp.one_lt _;
+            have h_diff_int : (k : ℤ) < (p ^ (e + 1) : ℤ) := by exact_mod_cast h_diff;
+            omega;
+          contrapose! h_diff;
+          exact Int.le_of_dvd ( abs_pos.mpr ( sub_ne_zero.mpr <| mod_cast h_diff ) ) <| by simpa using dvd_sub ( Int.natCast_dvd_natCast.mpr h_div.1 ) ( Int.natCast_dvd_natCast.mpr h_div.2 ) ;
+        exact Finset.card_le_one.mpr fun i hi j hj => h_unique i j ( Finset.filter_subset _ _ hi ) ( Finset.filter_subset _ _ hj ) ( Finset.mem_filter.mp hi |>.2 ) ( Finset.mem_filter.mp hj |>.2 );
+      · exact fun i hi => by linarith [ Finset.mem_Icc.mp hi ] ;
+    -- By `sum_truncated_valuation_eq`, we have $\sum_{i=y}^{y+k} \min(v_p(i), e) = \sum_{i=x}^{x+k-1} \min(v_p(i), e)$.
+    have h_sum_eq : ∑ i ∈ Finset.Icc y (y + k), min (padicValNat p i) e = ∑ i ∈ Finset.Icc x (x + k - 1), min (padicValNat p i) e + e := by
+      have h_sum_eq : ∑ i ∈ Finset.Icc (y + 1) (y + k), min (padicValNat p i) e = ∑ i ∈ Finset.Icc x (x + k - 1), min (padicValNat p i) e := by
+        apply sum_truncated_valuation_eq;
+        · assumption;
+        · exact he.symm ▸ Nat.log_pos hp.one_lt ( by nlinarith only [ hk, h_le_sqrt, hp.two_le ] );
+        · linarith;
+        · positivity;
+        · simp_all +decide [ ← ZMod.natCast_eq_natCast_iff ];
+      -- Since $y \equiv 0 \pmod{p^e}$, we have $v_p(y) \geq e$.
+      have h_vp_y : padicValNat p y ≥ e := by
+        rw [ ← Nat.factorization_def ];
+        · exact Nat.le_of_not_lt fun h => absurd ( Nat.dvd_of_mod_eq_zero hy_mod ) ( by exact fun h' => absurd ( Nat.dvd_trans ( pow_dvd_pow _ h ) h' ) ( Nat.pow_succ_factorization_not_dvd hy0.ne' hp ) );
+        · assumption;
+      erw [ Finset.sum_Ico_eq_sum_range ] at *;
+      simp_all +decide [ add_assoc, Finset.sum_range_succ' ];
+      simp_all +decide [ add_comm, add_left_comm, add_assoc, Nat.add_sub_add_left ];
+    simp_all +decide [ add_comm, mul_comm ];
+    rw [ Nat.add_sub_of_le ];
+    -- Since $p^e \le k$, there exists some $i \in [x, x+k-1]$ such that $p^e \mid i$.
+    obtain ⟨i, hi⟩ : ∃ i ∈ Finset.Icc x (k + x - 1), p ^ e ∣ i := by
+      have h_exists_i : p ^ e ≤ k := by
+        exact Nat.pow_log_le_self p ( by linarith ) |> le_trans ( pow_le_pow_right₀ hp.one_lt.le ( by linarith ) );
+      exact ⟨ p ^ e * ( ( x + p ^ e - 1 ) / p ^ e ), Finset.mem_Icc.mpr ⟨ by linarith [ Nat.div_add_mod ( x + p ^ e - 1 ) ( p ^ e ), Nat.mod_lt ( x + p ^ e - 1 ) ( pow_pos hp.pos e ), Nat.sub_add_cancel ( by linarith [ pow_pos hp.pos e ] : 1 ≤ x + p ^ e ) ], Nat.le_sub_one_of_lt ( by linarith [ Nat.div_mul_le_self ( x + p ^ e - 1 ) ( p ^ e ), Nat.sub_add_cancel ( by linarith [ pow_pos hp.pos e ] : 1 ≤ x + p ^ e ) ] ) ⟩, by norm_num ⟩;
+    refine le_trans ?_ ( Finset.single_le_sum ( fun a _ => Nat.zero_le ( min ( padicValNat p a ) ( padicValNat p ( M k ) ) ) ) hi.1 );
+    haveI := Fact.mk hp; rw [ padicValNat_dvd_iff ] at hi; aesop;
 /-
 The number of multiples of p in the interval [a, b] (with a > 0) is floor(b/p) - floor((a-1)/p).
 -/
@@ -417,7 +534,41 @@ lemma valuation_large_p_le (S : Finset ℕ) (p : ℕ) (n : ℕ)
   (h_exists : ∃ z ∈ S, p ∣ z)
   (h_nonzero : ∀ z ∈ S, z ≠ 0) :
   padicValNat p ((∏ i ∈ S, i) / (S.lcm id)) = (S.filter (p ∣ ·)).card - 1 := by
-    sorry
+    have h_unique : (S.filter (fun i => padicValNat p i > 1)).card ≤ 1 := by
+      have h_unique : ∀ z ∈ S, ∀ w ∈ S, z ≠ w → ¬(p^2 ∣ z ∧ p^2 ∣ w) := by
+        intros z hz w hw hne hdiv
+        have h_diff : Int.natAbs (z - w) < p^2 := by
+          rcases hS_consec with ⟨ s, rfl ⟩
+          have hzI := Finset.mem_Icc.mp hz
+          have hwI := Finset.mem_Icc.mp hw
+          have hp2_pos : 0 < p ^ 2 := pow_pos hp.pos 2
+          have hp2_eq : p ^ 2 = p * p := by ring
+          have hn_pred : n - 1 < p ^ 2 := by omega
+          have hn_pred_int : ((n - 1 : ℕ) : ℤ) < (p ^ 2 : ℕ) := by exact_mod_cast hn_pred
+          by_cases hzw : w ≤ z
+          · rw [Int.natAbs_natCast_sub_natCast_of_ge hzw]
+            omega
+          · have hzw' : z ≤ w := by omega
+            rw [Int.natAbs_natCast_sub_natCast_of_le hzw']
+            omega
+        exact h_diff.not_ge ( Nat.le_of_dvd ( Int.natAbs_pos.mpr ( sub_ne_zero_of_ne <| mod_cast hne ) ) <| by simpa [ ← Int.natCast_dvd_natCast ] using dvd_sub ( Int.natCast_dvd_natCast.mpr hdiv.1 ) ( Int.natCast_dvd_natCast.mpr hdiv.2 ) );
+      have h_unique : ∀ z ∈ S, padicValNat p z > 1 → p^2 ∣ z := by
+        intros z hz hpadic
+        have h_div : p ^ (padicValNat p z) ∣ z := by
+          exact pow_padicValNat_dvd
+        generalize_proofs at *;
+        exact dvd_trans ( pow_dvd_pow _ hpadic ) h_div;
+      exact Finset.card_le_one.mpr fun x hx y hy => Classical.not_not.1 fun hxy => ‹∀ z ∈ S, ∀ w ∈ S, z ≠ w → ¬ ( p ^ 2 ∣ z ∧ p ^ 2 ∣ w ) › x ( Finset.filter_subset _ _ hx ) y ( Finset.filter_subset _ _ hy ) hxy ⟨ h_unique x ( Finset.filter_subset _ _ hx ) ( Finset.mem_filter.mp hx |>.2 ), h_unique y ( Finset.filter_subset _ _ hy ) ( Finset.mem_filter.mp hy |>.2 ) ⟩;
+    have h_val_large_p : padicValNat p ((∏ i ∈ S, i) / (S.lcm id)) = (∑ i ∈ S, min (padicValNat p i) 1) - 1 := by
+      have h_val_large_p : ∀ {S : Finset ℕ} {p : ℕ}, p.Prime → (∀ i ∈ S, i ≠ 0) → (S.sup (padicValNat p)) ≥ 1 → (S.filter (fun i => padicValNat p i > 1)).card ≤ 1 → padicValNat p ((∏ i ∈ S, i) / (S.lcm id)) = (∑ i ∈ S, min (padicValNat p i) 1) - 1 := by
+        intros S p hp h_nonzero h_max h_unique; exact valuation_prod_div_lcm S p 1 hp h_max h_unique h_nonzero;
+      apply h_val_large_p hp h_nonzero;
+      · obtain ⟨ z, hz₁, hz₂ ⟩ := h_exists; exact le_trans ( Nat.pos_of_ne_zero ( by intro t; simp_all +decide [ Nat.factorization, hp.ne_one ] ) ) ( Finset.le_sup ( f := padicValNat p ) hz₁ ) ;
+      · exact h_unique;
+    rw [ h_val_large_p, Finset.card_filter ];
+    refine congr_arg₂ _ ( Finset.sum_congr rfl fun x hx => ?_ ) rfl;
+    by_cases h : p ∣ x <;> simp +decide [ h, hp.dvd_iff_one_le_factorization ];
+    exact Nat.pos_of_ne_zero ( by intro t; simp_all +decide [ Nat.factorization_eq_zero_iff, hp.ne_one, hp.ne_zero ] )
 /-
 Definition of good_x without referencing m k directly.
 -/
@@ -580,7 +731,43 @@ lemma lcm_ratio_bound (k : ℕ) (x y : ℕ) (hk : k ≥ 2)
   (hy_good : good_y k y) :
   (Finset.Icc x (x + k - 1)).lcm id / (Finset.Icc y (y + k)).lcm id ≥
   (M k : ℚ) / (y + k) * ((x : ℚ) / y) ^ k := by
-    sorry
+    field_simp;
+    -- By the ratio equality, we have:
+    have h_ratio_eq : ((M k : ℚ) * (∏ i ∈ Finset.Icc x (x + k - 1), (i : ℚ)) / (Finset.Icc x (x + k - 1)).lcm id) =
+                       ((∏ i ∈ Finset.Icc y (y + k), (i : ℚ)) / (Finset.Icc y (y + k)).lcm id) := by
+                         exact Eq.symm (ratio_equality_final k x y hk hx0 hy0 hx_good hy_good);
+    -- Using `product_ratio_lower_bound`, the product is $\ge (x/y)^k$.
+    have h_prod_ratio_lower_bound : (∏ i ∈ Finset.Icc x (x + k - 1), (i : ℚ)) / (∏ i ∈ Finset.Icc y (y + k), (i : ℚ)) ≥ ((x : ℚ) / y) ^ k / (↑y + ↑k) := by
+      have h_prod_ratio_lower_bound : (∏ i ∈ Finset.range k, ((x + i : ℚ) / (y + i : ℚ))) ≥ ((x : ℚ) / y) ^ k := by
+        exact product_ratio_lower_bound x y k hx0 hy0 hxy;
+      have h_prod_ratio_lower_bound : (∏ i ∈ Finset.Icc x (x + k - 1), (i : ℚ)) = (∏ i ∈ Finset.range k, (x + i : ℚ)) ∧ (∏ i ∈ Finset.Icc y (y + k), (i : ℚ)) = (∏ i ∈ Finset.range (k + 1), (y + i : ℚ)) := by
+        constructor <;> erw [ Finset.prod_Ico_eq_prod_range ];
+        · rw [ Nat.sub_add_cancel ( by linarith ), add_tsub_cancel_left, Finset.prod_congr rfl ] ; aesop;
+        · rw [ show y + k + 1 - y = k + 1 by omega ]
+          apply Finset.prod_congr rfl
+          intro i hi
+          norm_num
+      rcases h_prod_ratio_lower_bound with ⟨hxprod, hyprod⟩
+      rw [ hxprod, hyprod, Finset.prod_range_succ, div_mul_eq_div_div, ← Finset.prod_div_distrib ];
+      exact div_le_div_of_nonneg_right h_prod_ratio_lower_bound ( by positivity );
+    rw [ ge_iff_le, div_le_iff₀ ] at * <;> try positivity;
+    rw [ div_eq_iff ] at h_ratio_eq;
+    · have hPy_ne : (∏ i ∈ Finset.Icc y (y + k), (i : ℚ)) ≠ 0 := by
+        exact Finset.prod_ne_zero_iff.mpr fun i hi => by
+          norm_num
+          linarith [Finset.mem_Icc.mp hi]
+      have h_alg :
+          (↑y + ↑k) * ↑((Finset.Icc x (x + k - 1)).lcm id) /
+              ↑((Finset.Icc y (y + k)).lcm id) =
+            ↑(M k) *
+              (((∏ i ∈ Finset.Icc x (x + k - 1), (i : ℚ)) /
+                  ∏ i ∈ Finset.Icc y (y + k), (i : ℚ)) * (↑y + ↑k)) := by
+        field_simp [hPy_ne] at h_ratio_eq ⊢
+        ring_nf at h_ratio_eq ⊢
+        nlinarith
+      rw [h_alg]
+      exact mul_le_mul_of_nonneg_left h_prod_ratio_lower_bound (show (0 : ℚ) ≤ M k by positivity)
+    · aesop
 /-
 If x and y satisfy the given bounds, then the quantity is greater than C.
 -/
@@ -965,7 +1152,45 @@ lemma exists_y_if_large_interval (C : ℝ) (hC : C ≥ 1) (k : ℕ) (p1 p2 : ℕ
   (h_B_density : (B_set k p1).ncard ≥ (1 - 1 / (20 * C)) * p1 ∧ (B_set k p2).ncard ≥ (1 - 1 / (20 * C)) * p2)
   (h_eps_small : 1 / (20 * C) * (p1 + p2) < p1) :
   ∃ y : ℕ, (y : ℝ) ∈ y_interval k C ∧ good_y k y := by
-    sorry
+    revert h_len;
+    intro h_len
+    obtain ⟨start, hstart⟩ : ∃ start : ℤ, ∀ z : ℤ, z ∈ Set.Icc start (start + p1 - 1) → (z : ℝ) * (M_prime k p1 p2) ∈ y_interval k C := by
+      apply exists_start_for_interval;
+      · exact Nat.cast_pos.mpr ( Nat.pos_of_ne_zero ( by aesop_cat ) );
+      · norm_num +zetaDelta at *;
+        have hp2_nonneg : (0 : ℝ) ≤ (p2 : ℝ) := Nat.cast_nonneg p2
+        have hle_p1 : (p1 : ℝ) ≤ p1 + p2 := by nlinarith
+        have h_len' := lt_of_le_of_lt hle_p1 h_len
+        unfold y_interval_length at h_len'
+        simpa [one_div] using h_len'
+    obtain ⟨z, hz_bounds, hz_mod1, hz_mod2⟩ : ∃ z : ℤ, z ∈ Set.Icc start (start + p1 - 1) ∧ (∃ c1 ∈ B_set_star k p1 (M_prime k p1 p2), z ≡ c1 [ZMOD p1]) ∧ (∃ c2 ∈ B_set_star k p2 (M_prime k p1 p2), z ≡ c2 [ZMOD p2]) := by
+      have := claim_approx_2 p1 p2 hp1 hp2 ( ne_of_lt hp_lt ) ( 1 / ( 20 * C ) ) ( B_set_star k p1 ( M_prime k p1 p2 ) ) ( B_set_star k p2 ( M_prime k p1 p2 ) ) ?_ ?_ ?_ ?_ p1 ?_ ?_ ?_ <;> norm_num at *;
+      any_goals linarith;
+      · exact Exists.imp ( by aesop ) ( this start );
+      · exact B_set_star_subset k p1 ( M_prime k p1 p2 );
+      · exact B_set_star_subset k p2 ( M_prime k p1 p2 );
+      · convert h_B_density.1 using 1;
+        rw [ B_set_star_ncard ] ; focus aesop;
+        · exact h_M_prime_coprime.1;
+        · grind;
+      · convert h_B_density.2 using 1;
+        rw [ B_set_star_ncard ];
+        · assumption;
+        · exact h_M_prime_coprime.2;
+        · grind;
+    obtain ⟨y, hy_eq⟩ : ∃ y : ℕ, (y : ℤ) = z * (M_prime k p1 p2 : ℤ) ∧ y > 0 := by
+      have hy_pos : 0 < (z : ℝ) * (M_prime k p1 p2 : ℝ) := by
+        exact hstart z hz_bounds |>.1.trans_le' <| by positivity;
+      exact ⟨ Int.natAbs ( z * M_prime k p1 p2 ), by simp +decide [ abs_of_pos ( show 0 < z * M_prime k p1 p2 from by exact_mod_cast hy_pos ) ], Int.natAbs_pos.mpr ( show z * M_prime k p1 p2 ≠ 0 from by exact_mod_cast hy_pos.ne' ) ⟩;
+    refine ⟨ y, ?_, ?_ ⟩;
+    · convert hstart z hz_bounds using 1 ; norm_cast ; aesop;
+    · apply good_y_of_mod_conditions;
+      · exact hp1
+      · exact hp2
+      · exact ne_of_lt hp_lt
+      any_goals tauto;
+      · exact ⟨ Nat.sqrt_lt.mpr ( by nlinarith [ Nat.div_add_mod k 2, Nat.mod_lt k two_pos ] ), h_range1.2 ⟩;
+      · exact ⟨ Nat.sqrt_lt.mpr ( by nlinarith [ Nat.div_add_mod k 2, Nat.mod_lt k two_pos ] ), h_range2.2 ⟩
 /-
 Definitions for x interval length, M_prime3, B_set_x, and B_set_x_star.
 -/
@@ -1015,7 +1240,31 @@ lemma m_dvd_M_prime3 (k q1 q2 q3 : ℕ) (hq1 : q1.Prime) (hq2 : q2.Prime) (hq3 :
   (h_distinct : q1 ≠ q2 ∧ q1 ≠ q3 ∧ q2 ≠ q3)
   (h_range1 : k.sqrt < q1 ∧ q1 ≤ k) (h_range2 : k.sqrt < q2 ∧ q2 ≤ k) (h_range3 : k.sqrt < q3 ∧ q3 ≤ k) :
   m k ∣ M_prime3 k q1 q2 q3 := by
-    sorry
+    refine Nat.Coprime.dvd_of_dvd_mul_left (m := q1 * q2 * q3) ?_ ?_;
+    · -- Since $q1$, $q2$, and $q3$ are distinct primes greater than $\sqrt{k}$, they do not divide $m(k)$.
+      have h_not_div : ¬(q1 ∣ m k) ∧ ¬(q2 ∣ m k) ∧ ¬(q3 ∣ m k) := by
+        have h_not_div : ∀ p ∈ Finset.filter (fun p => p.Prime ∧ p * p ≤ k) (Finset.Icc 1 k), ¬(q1 ∣ p) ∧ ¬(q2 ∣ p) ∧ ¬(q3 ∣ p) := by
+          intro p hp; simp_all +decide [ Nat.prime_dvd_prime_iff_eq ] ;
+          exact ⟨ by rintro rfl; nlinarith [ Nat.lt_succ_sqrt k ], by rintro rfl; nlinarith [ Nat.lt_succ_sqrt k ], by rintro rfl; nlinarith [ Nat.lt_succ_sqrt k ] ⟩;
+        have h_not_div_prod : ∀ {S : Finset ℕ}, (∀ p ∈ S, ¬(q1 ∣ p) ∧ ¬(q2 ∣ p) ∧ ¬(q3 ∣ p)) → ¬(q1 ∣ Finset.prod S (fun p => p ^ (Nat.factorization (Finset.lcm (Finset.Icc 1 k) id) p))) ∧ ¬(q2 ∣ Finset.prod S (fun p => p ^ (Nat.factorization (Finset.lcm (Finset.Icc 1 k) id) p))) ∧ ¬(q3 ∣ Finset.prod S (fun p => p ^ (Nat.factorization (Finset.lcm (Finset.Icc 1 k) id) p))) := by
+          intros S hS; induction S using Finset.induction <;> simp_all +decide [ Nat.Prime.dvd_iff_not_coprime ] ;
+          exact ⟨ Nat.Coprime.mul_right ( Nat.Coprime.pow_right _ hS.1.1 ) ( by tauto ), Nat.Coprime.mul_right ( Nat.Coprime.pow_right _ hS.1.2.1 ) ( by tauto ), Nat.Coprime.mul_right ( Nat.Coprime.pow_right _ hS.1.2.2 ) ( by tauto ) ⟩;
+        exact h_not_div_prod h_not_div;
+      exact Nat.Coprime.mul_right ( Nat.Coprime.mul_right ( Nat.Coprime.symm <| hq1.coprime_iff_not_dvd.mpr h_not_div.1 ) <| Nat.Coprime.symm <| hq2.coprime_iff_not_dvd.mpr h_not_div.2.1 ) <| Nat.Coprime.symm <| hq3.coprime_iff_not_dvd.mpr h_not_div.2.2;
+    · rw [ show M_prime3 k q1 q2 q3 = M k / ( q1 * q2 * q3 ) from rfl ];
+      rw [ Nat.mul_div_cancel' ];
+      · have h_div : (∏ p ∈ Finset.filter (fun p => p.Prime ∧ p * p ≤ k) (Finset.Icc 1 k), p ^ (M k).factorization p) ∣ (∏ p ∈ Finset.Icc 1 k, p ^ (M k).factorization p) := by
+          apply_rules [ Finset.prod_dvd_prod_of_subset, Finset.filter_subset ];
+        unfold m;
+        convert h_div using 1;
+        conv_lhs => rw [ ← Nat.prod_factorization_pow_eq_self ( show M k ≠ 0 from Nat.ne_of_gt ( Nat.pos_of_ne_zero ( mt Finset.lcm_eq_zero_iff.mp ( by aesop ) ) ) ) ] ;
+        rw [ Finsupp.prod_of_support_subset ] <;> norm_num [ Finset.subset_iff ];
+        intro p pp dp _; exact ⟨ pp.pos, pp.dvd_factorial.mp ( dvd_trans dp ( Finset.lcm_dvd fun i hi => Nat.dvd_factorial ( Finset.mem_Icc.mp hi |>.1 ) ( Finset.mem_Icc.mp hi |>.2 ) ) ) ⟩ ;
+      · have h_div : q1 ∣ M k ∧ q2 ∣ M k ∧ q3 ∣ M k := by
+          exact ⟨ Finset.dvd_lcm ( Finset.mem_Icc.mpr ⟨ by linarith, by linarith ⟩ ), Finset.dvd_lcm ( Finset.mem_Icc.mpr ⟨ by linarith, by linarith ⟩ ), Finset.dvd_lcm ( Finset.mem_Icc.mpr ⟨ by linarith, by linarith ⟩ ) ⟩;
+        convert Nat.lcm_dvd ( Nat.lcm_dvd h_div.1 h_div.2.1 ) h_div.2.2 using 1;
+        simp +decide [ *, Nat.lcm ];
+        have := Nat.coprime_primes hq1 hq2; have := Nat.coprime_primes hq1 hq3; have := Nat.coprime_primes hq2 hq3; simp_all +decide [ Nat.Coprime, Nat.Coprime.symm, Nat.Coprime.gcd_mul ] ;
 /-
 M_prime3(k, q1, q2, q3) is coprime to q1, q2, and q3.
 -/
@@ -1789,7 +2038,18 @@ theorem main_theorem (h_density : DensityHypothesis) : MainTheoremStatement := b
 
 lemma prime_counting_interval_tendsto_atTop (a b : ℝ) (ha : 0 < a) (hb : a < b) :
   Tendsto (fun x => (Nat.primeCounting (Nat.floor (b * x)) : ℝ) - (Nat.primeCounting (Nat.floor (a * x)) : ℝ)) atTop atTop := by
-    sorry
+    have hε : 0 < b / a - 1 := by
+      rw [sub_pos, one_lt_div ha]
+      exact hb
+    have h := (tendsto_by_squeeze (b / a - 1) hε).comp
+      (Filter.tendsto_id.const_mul_atTop ha)
+    have hscale : (1 + (b / a - 1)) * a = b := by
+      field_simp [ha.ne']
+      ring
+    have hscale_x : ∀ x : ℝ, b / a * (a * x) = b * x := by
+      intro x
+      field_simp [ha.ne']
+    simpa [Function.comp_def, hscale_x] using h
 /-
 For any `0 < a < b` and `n`, for sufficiently large `k`, there exist `n` distinct primes in `(ak, bk)`.
 -/
@@ -1835,7 +2095,7 @@ lemma exists_distinct_primes_in_interval (a b : ℝ) (n : ℕ) (ha : 0 < a) (hb 
     exact ⟨ S, hS.2, fun p hp => ⟨ hP₂ p ( Finset.mem_filter.mp ( hS.1 hp ) |>.1 ) |>.1, hP₂ p ( Finset.mem_filter.mp ( hS.1 hp ) |>.1 ) |>.2.1, by nlinarith [ hP₂ p ( Finset.mem_filter.mp ( hS.1 hp ) |>.1 ) |>.2.2, show ( p : ℝ ) < ⌊b * x⌋₊ from mod_cast Finset.mem_filter.mp ( hS.1 hp ) |>.2, Nat.floor_le ( show 0 ≤ b * x by nlinarith [ div_nonneg ( show 0 ≤ b by linarith ) ( show 0 ≤ b - a by linarith ) ] ) ] ⟩ ⟩
 
 /--
-The density hypothesis follows from the PNT (axiom).
+The density hypothesis follows from the PNT result.
 -/
 theorem density_proof : DensityHypothesis := by
   intro ε hε;
@@ -1899,7 +2159,56 @@ The p-adic valuation of binom(n, k) is at most the p-adic valuation of the LCM o
 -/
 lemma valuation_choose_le_valuation_lcm (n k : ℕ) (p : ℕ) (hp : p.Prime) :
   padicValNat p (Nat.choose n k) ≤ padicValNat p ((Finset.Icc (n - k + 1) n).lcm id) := by
-    sorry
+    by_cases hk : k ≤ n;
+    · have h_val : padicValNat p (Nat.choose n k) = ∑ i ∈ Finset.Icc 1 (Nat.log p n), (Nat.floor ((n : ℝ) / (p ^ i)) - Nat.floor ((k : ℝ) / (p ^ i)) - Nat.floor (((n - k) : ℝ) / (p ^ i))) := by
+        haveI := Fact.mk hp;
+        rw [ padicValNat_choose ];
+        any_goals exact Nat.lt_succ_self _;
+        · have h_sum_eq : ∀ i ∈ Finset.Icc 1 (Nat.log p n), ⌊(n : ℝ) / p ^ i⌋₊ - ⌊(k : ℝ) / p ^ i⌋₊ - ⌊((n - k) : ℝ) / p ^ i⌋₊ = if p ^ i ≤ k % p ^ i + (n - k) % p ^ i then 1 else 0 := by
+            intro i hi
+            have h_floor_eq : ⌊(n : ℝ) / p ^ i⌋₊ = n / p ^ i ∧ ⌊(k : ℝ) / p ^ i⌋₊ = k / p ^ i ∧ ⌊((n - k) : ℝ) / p ^ i⌋₊ = (n - k) / p ^ i := by
+              norm_cast;
+              exact ⟨ by rw [ Nat.floor_div_natCast, Nat.floor_natCast ], by rw [ Nat.floor_div_natCast, Nat.floor_natCast ], by rw [ Nat.floor_div_natCast, Nat.floor_natCast ] ⟩;
+            split_ifs <;> simp_all +decide [ Nat.div_eq_of_lt, Nat.mod_eq_of_lt ];
+            · rw [ show n = k + ( n - k ) by rw [ Nat.add_sub_of_le hk ] ] ; norm_num [ Nat.add_div, hp.pos ];
+              split_ifs ; omega;
+            · rw [ show n = k + ( n - k ) by rw [ Nat.add_sub_of_le hk ] ] ; norm_num [ Nat.add_div ( pow_pos hp.pos _ ) ] ;
+              split_ifs <;> omega;
+          rw [ Finset.sum_congr rfl h_sum_eq, Finset.sum_ite ] ; aesop;
+        · linarith;
+      -- The term in the sum is 1 if there is a carry at position $i$, and 0 otherwise.
+      have h_carry : ∀ i ∈ Finset.Icc 1 (Nat.log p n), (Nat.floor ((n : ℝ) / (p ^ i)) - Nat.floor ((k : ℝ) / (p ^ i)) - Nat.floor (((n - k) : ℝ) / (p ^ i))) ≤ if ∃ j ∈ Finset.Icc (n - k + 1) n, p ^ i ∣ j then 1 else 0 := by
+        intro i hi
+        set m := Nat.floor ((n : ℝ) / (p ^ i))
+        set l := Nat.floor ((k : ℝ) / (p ^ i))
+        set r := Nat.floor (((n - k) : ℝ) / (p ^ i))
+        have h_floor : m = n / p ^ i ∧ l = k / p ^ i ∧ r = (n - k) / p ^ i := by
+          norm_num +zetaDelta at *;
+          norm_cast;
+          exact ⟨ by rw [ Nat.floor_div_natCast, Nat.floor_natCast ], by rw [ Nat.floor_div_natCast, Nat.floor_natCast ], by rw [ Nat.floor_div_natCast, Nat.floor_natCast ] ⟩;
+        split_ifs <;> simp_all +decide [ Nat.div_eq_of_lt ];
+        · rw [ show n = n - k + k by rw [ Nat.sub_add_cancel hk ] ] ; norm_num [ Nat.add_div, hp.pos ] ;
+          grind;
+        · rw [ Nat.sub_sub, tsub_eq_zero_iff_le.mpr ];
+          rw [ Nat.le_iff_lt_or_eq ];
+          refine lt_or_eq_of_le ( Nat.le_of_lt_succ ?_ );
+          rw [ Nat.div_lt_iff_lt_mul <| pow_pos hp.pos _ ];
+          contrapose! h_floor;
+          exact fun _ _ => False.elim <| ‹∀ x : ℕ, n - k + 1 ≤ x → x ≤ n → ¬p ^ i ∣ x› ( ( k / p ^ i + ( n - k ) / p ^ i + 1 ) * p ^ i ) ( by nlinarith [ Nat.div_add_mod k ( p ^ i ), Nat.mod_lt k ( pow_pos hp.pos i ), Nat.div_add_mod ( n - k ) ( p ^ i ), Nat.mod_lt ( n - k ) ( pow_pos hp.pos i ), Nat.sub_add_cancel hk ] ) ( by nlinarith [ Nat.div_add_mod k ( p ^ i ), Nat.mod_lt k ( pow_pos hp.pos i ), Nat.div_add_mod ( n - k ) ( p ^ i ), Nat.mod_lt ( n - k ) ( pow_pos hp.pos i ), Nat.sub_add_cancel hk ] ) <| dvd_mul_left _ _;
+      -- The maximum $i$ where there's a carry is at most the maximum $i$ where $p^i$ divides the LCM.
+      have h_max_i : ∀ i ∈ Finset.Icc 1 (Nat.log p n), (∃ j ∈ Finset.Icc (n - k + 1) n, p ^ i ∣ j) → i ≤ Nat.factorization (Finset.lcm (Finset.Icc (n - k + 1) n) id) p := by
+        intros i hi h_div
+        obtain ⟨j, hj₁, hj₂⟩ := h_div
+        have h_div_lcm : p ^ i ∣ Finset.lcm (Finset.Icc (n - k + 1) n) id := by
+          exact dvd_trans hj₂ ( Finset.dvd_lcm hj₁ );
+        rw [ ← Nat.factorization_le_iff_dvd ] at h_div_lcm <;> aesop;
+      have h_sum_carry : ∑ i ∈ Finset.Icc 1 (Nat.log p n), (if ∃ j ∈ Finset.Icc (n - k + 1) n, p ^ i ∣ j then 1 else 0) ≤ Nat.factorization (Finset.lcm (Finset.Icc (n - k + 1) n) id) p := by
+        simp +zetaDelta at *;
+        exact le_trans ( Finset.card_le_card fun x hx => Finset.mem_Icc.mpr ⟨ Finset.mem_Icc.mp ( Finset.mem_filter.mp hx |>.1 ) |>.1, h_max_i x ( Finset.mem_Icc.mp ( Finset.mem_filter.mp hx |>.1 ) |>.1 ) ( Finset.mem_Icc.mp ( Finset.mem_filter.mp hx |>.1 ) |>.2 ) _ ( Finset.mem_filter.mp hx |>.2.choose_spec.1.1 ) ( Finset.mem_filter.mp hx |>.2.choose_spec.1.2 ) ( Finset.mem_filter.mp hx |>.2.choose_spec.2 ) ⟩ ) ( by simp );
+      rw [Nat.factorization_def _ hp] at h_sum_carry;
+      rw [ h_val ];
+      exact le_trans ( Finset.sum_le_sum h_carry ) h_sum_carry;
+    · simp +decide [ Nat.choose_eq_zero_of_lt ( not_le.mp hk ) ]
 /-
 The binomial coefficient binom(y+k, k+1) divides the LCM of the interval [y, y+k].
 -/
@@ -2114,7 +2423,7 @@ theorem lcmInterval_growth : ∀ᶠ k in Filter.atTop, ∃ N, ∀ n ≥ N, ∀ m
         rw [ Nat.descFactorial_eq_prod_range ];
       exact Nat.div_le_of_le_mul <| by linarith;
     exact h_binom_bound;
-  -- Since $(k+1)!$ is a constant, for sufficiently large $n$, $(n+k+1)^{k+1} / (k+1)!$ will be greater than $(n+k+1)^k$.
+  -- Since $(k+1)!$ is fixed in $n$, for sufficiently large $n$, $(n+k+1)^{k+1} / (k+1)!$ will be greater than $(n+k+1)^k$.
   have h_const_bound : ∃ N, ∀ n ≥ N, (n + k + 1) ^ (k + 1) / (k + 1)! > (n + k + 1) ^ k := by
     refine ⟨ ( k + 1 ) ! + 1, fun n hn => Nat.le_div_iff_mul_le ( Nat.factorial_pos _ ) |>.2 ?_ ⟩;
     rw [ pow_succ' ];
@@ -2122,7 +2431,7 @@ theorem lcmInterval_growth : ∀ᶠ k in Filter.atTop, ∃ N, ∀ n ≥ N, ∀ m
   exact ⟨ Nat.max k h_const_bound.choose, fun n hn => lt_of_lt_of_le ( h_const_bound.choose_spec n ( le_trans ( le_max_right _ _ ) hn ) ) ( h_binom_bound n ( le_trans ( le_max_left _ _ ) hn ) ) ⟩
 
 /--
-The main theorem holds, conditional on the PNT (axiom)
+The main theorem holds, conditional on the PNT result.
 -/
 theorem main_theorem_given_pnt : MainTheoremStatement := by
   -- Apply the main theorem with the density hypothesis to conclude the proof.
@@ -2130,14 +2439,14 @@ theorem main_theorem_given_pnt : MainTheoremStatement := by
 
 /--
 The main theorem spelled out, just for concreteness.  As before, it's proven assuming
-the PNT as an axiom.
+the PNT input.
 -/
 theorem main_theorem_expanded :
   ∀ C : ℝ, C ≥ 1 →
   ∃ K, ∀ k ≥ K, ∃ x y : ℕ,
     0 < x ∧ x < y ∧ y > x + k ∧
     lcm_real (Finset.Icc x (x + k - 1)) > C * lcm_real (Finset.Icc y (y + k)) := by
-  -- The main theorem holds, conditional on the PNT (axiom) by applying the `main_theorem` theorem.
+  -- The main theorem holds, conditional on the PNT result by applying the `main_theorem` theorem.
   apply main_theorem_given_pnt
 
 theorem erdos_678 :

@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
+/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 498.
 https://www.erdosproblems.com/forum/thread/498
@@ -811,7 +811,39 @@ set_option linter.style.cases false in
 lemma chain_extension_is_symmetric {α : Type*} [Fintype α] {C : Finset (Finset α)}
     (hS : IsSymmetricChain C) :
     ∀ C' ∈ chain_extension C, IsSymmetricChain C' := by
-      sorry
+  unfold Erdos498.chain_extension;
+  simp +zetaDelta at *;
+  split_ifs <;> simp_all +decide;
+  · have := Classical.choose_spec ( Finset.exists_max_image C Finset.card ‹_› );
+    -- Show that `top` is the maximum element of `C` with respect to inclusion.
+    have h_top_max :
+        ∀ X ∈ C, X ⊆ Classical.choose (Finset.exists_max_image C Finset.card ‹_›) := by
+      cases' hS with start k hS_subset;
+      -- Since C is a chain, any two elements are comparable.
+      -- Hence X is below the chosen top, or the chosen top is below X.
+      have h_chain : IsChain (· ⊆ ·) (C : Set (Finset α)) := by
+        exact k.choose_spec.1;
+      intro X hX;
+      rcases h_chain.total hX this.1 with h | h <;> simp_all +decide [ Finset.subset_iff ];
+      have := this.2 X hX; have := Finset.eq_of_subset_of_card_le h; aesop;
+    exact ⟨
+      Erdos498.symmetric_chain_extension_C1 _ _ hS this.1 h_top_max,
+      Erdos498.symmetric_chain_extension_C2_aux _ _ hS this.1 h_top_max ‹_› ⟩;
+  · have htop_mem :
+        Classical.choose (Finset.exists_max_image C Finset.card ‹C.Nonempty›) ∈ C :=
+      Classical.choose_spec (Finset.exists_max_image C Finset.card ‹C.Nonempty›) |>.1
+    have h_top_max :
+        ∀ X ∈ C, X ⊆ Classical.choose (Finset.exists_max_image C Finset.card ‹C.Nonempty›) := by
+      cases' hS with start k hS_subset
+      have h_chain : IsChain (· ⊆ ·) (C : Set (Finset α)) := k.choose_spec.1
+      intro X hX
+      rcases h_chain.total hX htop_mem with h | h
+      · exact h
+      · have hcard :=
+          (Classical.choose_spec (Finset.exists_max_image C Finset.card ‹C.Nonempty›)).2 X hX
+        exact (Finset.eq_of_subset_of_card_le h hcard).symm.subset
+    exact Erdos498.symmetric_chain_extension_C1 _ _ hS htop_mem h_top_max
+
 lemma chain_extension_disjoint {α : Type*} [DecidableEq α] {C : Finset (Finset α)}
     (C1 C2 : Finset (Finset (Option α))) (h1 : C1 ∈ chain_extension C)
     (h2 : C2 ∈ chain_extension C) (hne : C1 ≠ C2) :

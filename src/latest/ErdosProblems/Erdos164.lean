@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
+/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 164.
 https://www.erdosproblems.com/forum/thread/164
@@ -17,6 +17,28 @@ open scoped Topology
 noncomputable section
 
 namespace Erdos164
+
+private lemma one_div_rpow_fun_eq_rpow_neg {a : ℝ} (ha : 0 ≤ a) :
+    (fun t : ℝ => 1 / Real.rpow a t) = fun t : ℝ => a ^ (-t) := by
+  funext t
+  simpa [one_div] using (Real.rpow_neg ha t).symm
+
+private lemma neg_log_div_rpow_eq_log_mul_neg_rpow_neg {a s : ℝ} (ha : 0 ≤ a) :
+    -(Real.log a / Real.rpow a s) = Real.log a * -1 * a ^ (-s) := by
+  rw [div_eq_mul_inv]
+  have hneg : (Real.rpow a s)⁻¹ = a ^ (-s) := by
+    simpa [one_div] using (Real.rpow_neg ha s).symm
+  rw [hneg]
+  ring
+
+private lemma hasDerivAt_one_div_rpow_const {a s : ℝ} (ha : 0 < a) :
+    HasDerivAt (fun t : ℝ => 1 / Real.rpow a t)
+      (-(Real.log a / Real.rpow a s)) s := by
+  have ha_nonneg : 0 ≤ a := ha.le
+  rw [one_div_rpow_fun_eq_rpow_neg ha_nonneg]
+  change HasDerivAt (fun t : ℝ => a ^ (-t)) (-(Real.log a / Real.rpow a s)) s
+  rw [neg_log_div_rpow_eq_log_mul_neg_rpow_neg ha_nonneg]
+  exact ((hasDerivAt_id s).neg.const_rpow ha)
 
 noncomputable def baseFlow (N M : ℕ) : ℝ :=
   if 1 < N then
@@ -53,7 +75,182 @@ noncomputable def erdosWeight (n : ℕ) : ℝ :=
 
 theorem outflow_modifiedFlow_eq_erdosWeight {N : ℕ} (hN : 1 < N) :
     outflow modifiedFlow N = erdosWeight N := by
-      sorry
+  classical
+  have hN0_nat : N ≠ 0 := by
+    exact ne_of_gt (lt_trans Nat.zero_lt_one hN)
+  have hN0 : (N : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr hN0_nat
+  have hN_cast : (1 : ℝ) < N := by
+    exact_mod_cast hN
+  have hlog_pos : 0 < Real.log N := Real.log_pos hN_cast
+  have hlog_ne : Real.log N ≠ 0 := hlog_pos.ne'
+  have hsupport_modified : ∀ M ∉ N.divisors, modifiedFlow N M = 0 := by
+    intro M hM
+    have hnotdvd : ¬ M ∣ N := by
+      intro hMN
+      exact hM (Nat.mem_divisors.mpr ⟨hMN, hN0_nat⟩)
+    have hspecial :
+        ¬ ∃ p : ℕ, p.Prime ∧ ∃ k : ℕ, 2 ≤ k ∧ N = p ^ k ∧ M = p ^ (k - 1) := by
+      rintro ⟨p, hp, k, hk, hNk, hMk⟩
+      apply hnotdvd
+      rw [hNk, hMk]
+      exact pow_dvd_pow p (Nat.sub_le _ _)
+    simp [modifiedFlow, baseFlow, hN, hnotdvd, hspecial]
+  have hsupport_base : ∀ M ∉ N.divisors, baseFlow N M = 0 := by
+    intro M hM
+    have hnotdvd : ¬ M ∣ N := by
+      intro hMN
+      exact hM (Nat.mem_divisors.mpr ⟨hMN, hN0_nat⟩)
+    simp [baseFlow, hN, hnotdvd]
+  have hrow :
+      ∑ M ∈ N.divisors, modifiedFlow N M = ∑ M ∈ N.divisors, baseFlow N M := by
+    by_cases hpp : ∃ p k : ℕ, p.Prime ∧ 2 ≤ k ∧ N = p ^ k
+    · rcases hpp with ⟨p, k, hp, hk, rfl⟩
+      let s : Finset ℕ := (p ^ k).divisors
+      have hk0 : k ≠ 0 := by omega
+      have hpow_ne_zero : p ^ k ≠ 0 := pow_ne_zero k hp.ne_zero
+      have h1mem : 1 ∈ s := by
+        exact Nat.one_mem_divisors.2 hpow_ne_zero
+      have hprev_mem : p ^ (k - 1) ∈ s := by
+        refine Nat.mem_divisors.mpr ⟨pow_dvd_pow p (Nat.sub_le _ _), hpow_ne_zero⟩
+      have hprev_ne_one : p ^ (k - 1) ≠ 1 := by
+        have hk1 : k - 1 ≠ 0 := by omega
+        exact (one_lt_pow' hp.one_lt hk1).ne'
+      have hprev_mem' : p ^ (k - 1) ∈ s.erase 1 := by
+        exact Finset.mem_erase.mpr ⟨hprev_ne_one, hprev_mem⟩
+      have hfirst_iff (M : ℕ) :
+          (∃ p' k' : ℕ, p'.Prime ∧ 2 ≤ k' ∧ p ^ k = p' ^ k' ∧ M = 1) ↔ M = 1 := by
+        constructor
+        · rintro ⟨p', k', hp', hk', hpow, hM⟩
+          exact hM
+        · intro hM
+          exact ⟨p, k, hp, hk, rfl, hM⟩
+      have hsecond_iff (M : ℕ) :
+          (∃ p' k' : ℕ, p'.Prime ∧ 2 ≤ k' ∧ p ^ k = p' ^ k' ∧ M = p' ^ (k' - 1)) ↔
+            M = p ^ (k - 1) := by
+        constructor
+        · rintro ⟨p', k', hp', hk', hpow, hM⟩
+          have hk'0 : k' ≠ 0 := by omega
+          rcases hp.pow_inj' hp' hk0 hk'0 hpow with ⟨rfl, rfl⟩
+          exact hM
+        · intro hM
+          exact ⟨p, k, hp, hk, rfl, hM⟩
+      have hrest :
+          ∀ M ∈ (s.erase 1).erase (p ^ (k - 1)),
+            modifiedFlow (p ^ k) M = baseFlow (p ^ k) M := by
+        intro M hM
+        have hMprev : M ≠ p ^ (k - 1) := (Finset.mem_erase.mp hM).1
+        have hM1 : M ≠ 1 := (Finset.mem_erase.mp (Finset.mem_of_mem_erase hM)).1
+        rw [modifiedFlow]
+        split_ifs with hfirst hsecond
+        · exact (hM1 ((hfirst_iff M).1 hfirst)).elim
+        · exact (hMprev ((hsecond_iff M).1 hsecond)).elim
+        · rfl
+      have h_at_one : modifiedFlow (p ^ k) 1 = 0 := by
+        rw [modifiedFlow]
+        split_ifs with hfirst hsecond
+        · rfl
+        · have hEq : 1 = p ^ (k - 1) := (hsecond_iff 1).1 hsecond
+          exact (hprev_ne_one hEq.symm).elim
+        · exact (hfirst ⟨p, k, hp, hk, rfl, rfl⟩).elim
+      have h_at_prev :
+          modifiedFlow (p ^ k) (p ^ (k - 1)) =
+            baseFlow (p ^ k) (p ^ (k - 1)) + baseFlow (p ^ k) 1 := by
+        rw [modifiedFlow]
+        split_ifs with hfirst hsecond
+        · exact (hprev_ne_one ((hfirst_iff (p ^ (k - 1))).1 hfirst)).elim
+        · rfl
+        · exact (hsecond ⟨p, k, hp, hk, rfl, rfl⟩).elim
+      have hsplit_modified₁ :
+          ∑ M ∈ s, modifiedFlow (p ^ k) M =
+            (∑ M ∈ s.erase 1, modifiedFlow (p ^ k) M) + modifiedFlow (p ^ k) 1 := by
+        simpa [Finset.sdiff_singleton_eq_erase] using
+          (Finset.sum_eq_sum_sdiff_singleton_add (f := fun M => modifiedFlow (p ^ k) M) h1mem)
+      have hsplit_modified₂ :
+          ∑ M ∈ s.erase 1, modifiedFlow (p ^ k) M =
+            (∑ M ∈ (s.erase 1).erase (p ^ (k - 1)), modifiedFlow (p ^ k) M) +
+              modifiedFlow (p ^ k) (p ^ (k - 1)) := by
+        simpa [Finset.sdiff_singleton_eq_erase] using
+          (Finset.sum_eq_sum_sdiff_singleton_add
+            (s := s.erase 1) (f := fun M => modifiedFlow (p ^ k) M) hprev_mem')
+      have hsplit_base₁ :
+          ∑ M ∈ s, baseFlow (p ^ k) M =
+            (∑ M ∈ s.erase 1, baseFlow (p ^ k) M) + baseFlow (p ^ k) 1 := by
+        simpa [Finset.sdiff_singleton_eq_erase] using
+          (Finset.sum_eq_sum_sdiff_singleton_add (f := fun M => baseFlow (p ^ k) M) h1mem)
+      have hsplit_base₂ :
+          ∑ M ∈ s.erase 1, baseFlow (p ^ k) M =
+            (∑ M ∈ (s.erase 1).erase (p ^ (k - 1)), baseFlow (p ^ k) M) +
+              baseFlow (p ^ k) (p ^ (k - 1)) := by
+        simpa [Finset.sdiff_singleton_eq_erase] using
+          (Finset.sum_eq_sum_sdiff_singleton_add
+            (s := s.erase 1) (f := fun M => baseFlow (p ^ k) M) hprev_mem')
+      have hrest_sum :
+          ∑ M ∈ (s.erase 1).erase (p ^ (k - 1)), modifiedFlow (p ^ k) M =
+            ∑ M ∈ (s.erase 1).erase (p ^ (k - 1)), baseFlow (p ^ k) M := by
+        apply Finset.sum_congr rfl
+        intro M hM
+        exact hrest M hM
+      calc
+        ∑ M ∈ s, modifiedFlow (p ^ k) M
+            = (∑ M ∈ (s.erase 1).erase (p ^ (k - 1)), modifiedFlow (p ^ k) M) +
+                modifiedFlow (p ^ k) (p ^ (k - 1)) + modifiedFlow (p ^ k) 1 := by
+                  rw [hsplit_modified₁, hsplit_modified₂]
+        _ = (∑ M ∈ (s.erase 1).erase (p ^ (k - 1)), baseFlow (p ^ k) M) +
+                baseFlow (p ^ k) (p ^ (k - 1)) + baseFlow (p ^ k) 1 := by
+                  rw [hrest_sum, h_at_prev, h_at_one]
+                  ring
+        _ = ∑ M ∈ s, baseFlow (p ^ k) M := by
+              symm
+              rw [hsplit_base₁, hsplit_base₂]
+    · apply Finset.sum_congr rfl
+      intro M hM
+      rw [modifiedFlow]
+      split_ifs with hfirst hsecond
+      · rcases hfirst with ⟨p, k, hp, hk, hNk, hM1⟩
+        exact (hpp ⟨p, k, hp, hk, hNk⟩).elim
+      · rcases hsecond with ⟨p, k, hp, hk, hNk, hMp⟩
+        exact (hpp ⟨p, k, hp, hk, hNk⟩).elim
+      · rfl
+  have hbase :
+      outflow baseFlow N =
+        (∑ d ∈ N.divisors, ArithmeticFunction.vonMangoldt d) /
+          ((N : ℝ) * (Real.log N) ^ 2) := by
+    rw [outflow, tsum_eq_sum (s := N.divisors) hsupport_base]
+    calc
+      ∑ M ∈ N.divisors, baseFlow N M
+          = ∑ M ∈ N.divisors,
+              ArithmeticFunction.vonMangoldt (N / M) / ((N : ℝ) * (Real.log N) ^ 2) := by
+                apply Finset.sum_congr rfl
+                intro M hM
+                have hMN : M ∣ N := Nat.dvd_of_mem_divisors hM
+                by_cases hprimepow : IsPrimePow (N / M)
+                · simp [baseFlow, hN, hMN, hprimepow]
+                · have hvm : ArithmeticFunction.vonMangoldt (N / M) = 0 := by
+                    rw [ArithmeticFunction.vonMangoldt_eq_zero_iff]
+                    exact hprimepow
+                  simp [baseFlow, hN, hMN, hprimepow, hvm]
+      _ = ∑ d ∈ N.divisors,
+            ArithmeticFunction.vonMangoldt d / ((N : ℝ) * (Real.log N) ^ 2) := by
+              simpa using
+                (Nat.sum_div_divisors N
+                  (fun d : ℕ => ArithmeticFunction.vonMangoldt d / ((N : ℝ) * (Real.log N) ^ 2)))
+      _ = (∑ d ∈ N.divisors, ArithmeticFunction.vonMangoldt d) /
+            ((N : ℝ) * (Real.log N) ^ 2) := by
+              rw [Finset.sum_div]
+  calc
+    outflow modifiedFlow N = ∑ M ∈ N.divisors, modifiedFlow N M := by
+      rw [outflow, tsum_eq_sum (s := N.divisors) hsupport_modified]
+    _ = ∑ M ∈ N.divisors, baseFlow N M := hrow
+    _ = outflow baseFlow N := by
+      rw [outflow, tsum_eq_sum (s := N.divisors) hsupport_base]
+    _ = (∑ d ∈ N.divisors, ArithmeticFunction.vonMangoldt d) /
+          ((N : ℝ) * (Real.log N) ^ 2) := hbase
+    _ = Real.log N / ((N : ℝ) * (Real.log N) ^ 2) := by
+      rw [ArithmeticFunction.vonMangoldt_sum]
+    _ = erdosWeight N := by
+      rw [erdosWeight, pow_two]
+      field_simp [hN0, hlog_ne]
+
 noncomputable def analyticSeries (s : ℝ) : ℝ :=
   ∑' q : { q : ℕ // 2 ≤ q },
     ArithmeticFunction.vonMangoldt q / Real.rpow ((q : ℕ) : ℝ) s
@@ -725,7 +922,153 @@ lemma tsum_log_mesh_le_one_div_sub
         Real.log (((m : ℝ) + 2) / ((m : ℝ) + 1)) /
           (((m : ℝ) + 3 / 2) ^ (s - 1)))
       ≤ 1 / (s - 1) := by
-        sorry
+  let δ : ℝ := s - 1
+  have hδ : 0 < δ := by
+    simpa [δ] using sub_pos.mpr hs
+  have hδ_ne : δ ≠ 0 := hδ.ne'
+  let g : ℝ → ℝ := fun x => Real.exp (-δ * x)
+  have hg_cont : Continuous g := by
+    fun_prop
+  have hg_convex : ConvexOn ℝ Set.univ g := by
+    simpa [g, Function.comp_def] using
+      (convexOn_exp.comp_linearMap (LinearMap.mul ℝ ℝ (-δ)))
+  have havg_id {a b : ℝ} (hab : a < b) : (⨍ x in a..b, x) = (a + b) / 2 := by
+    rw [interval_average_eq_div, integral_id]
+    field_simp [sub_ne_zero.mpr hab.ne']
+    ring
+  have hmidpoint_le_average {a b : ℝ} (hab : a < b) :
+      g ((a + b) / 2) ≤ ⨍ x in a..b, g x := by
+    have hJ0 :
+        g (⨍ x in Set.uIoc a b, (fun x : ℝ => x) x ∂MeasureTheory.volume) ≤
+          ⨍ x in Set.uIoc a b, g ((fun x : ℝ => x) x) ∂MeasureTheory.volume := by
+      exact
+        hg_convex.map_set_average_le hg_cont.continuousOn isClosed_univ
+          (by simpa using sub_ne_zero.mpr hab.ne') (by simp)
+          (Filter.Eventually.of_forall fun x => by simp)
+          (continuous_id.continuousOn.integrableOn_of_subset_isCompact
+            isCompact_uIcc measurableSet_uIoc Set.uIoc_subset_uIcc (by simp))
+          (hg_cont.continuousOn.integrableOn_of_subset_isCompact
+            isCompact_uIcc measurableSet_uIoc Set.uIoc_subset_uIcc (by simp))
+    simpa [havg_id hab] using hJ0
+  have hterm_nonneg (m : ℕ) :
+      0 ≤
+        Real.log (((m : ℝ) + 2) / ((m : ℝ) + 1)) /
+          (((m : ℝ) + 3 / 2) ^ δ) := by
+    have hratio_ge : 1 ≤ ((m : ℝ) + 2) / ((m : ℝ) + 1) := by
+      have hm1_pos : 0 < (m : ℝ) + 1 := by positivity
+      exact (one_le_div hm1_pos).2 (by linarith)
+    have hlog_nonneg : 0 ≤ Real.log (((m : ℝ) + 2) / ((m : ℝ) + 1)) :=
+      Real.log_nonneg hratio_ge
+    have hpow_nonneg : 0 ≤ (((m : ℝ) + 3 / 2) ^ δ) := by
+      exact (Real.rpow_pos_of_pos (by positivity) _).le
+    exact div_nonneg hlog_nonneg hpow_nonneg
+  have hterm_le_integral (m : ℕ) :
+      Real.log (((m : ℝ) + 2) / ((m : ℝ) + 1)) /
+          (((m : ℝ) + 3 / 2) ^ δ)
+        ≤
+      ∫ x in Real.log (m + 1)..Real.log (m + 2), g x := by
+    let a : ℝ := Real.log (m + 1)
+    let b : ℝ := Real.log (m + 2)
+    have hm1_pos : 0 < (m : ℝ) + 1 := by positivity
+    have hm2_pos : 0 < (m : ℝ) + 2 := by positivity
+    have hmid_pos : 0 < (m : ℝ) + 3 / 2 := by positivity
+    have hab : a < b := by
+      dsimp [a, b]
+      exact Real.log_lt_log hm1_pos (by linarith)
+    have hJ' :
+        g ((a + b) / 2) * (b - a) ≤ ∫ x in a..b, g x := by
+      exact (le_div_iff₀ (sub_pos.mpr hab)).mp
+        (by simpa [interval_average_eq_div] using hmidpoint_le_average (a := a) (b := b) hab)
+    have hJ :
+        (b - a) * g ((a + b) / 2) ≤ ∫ x in a..b, g x := by
+      simpa [mul_comm] using hJ'
+    have hgeom_sq :
+        (((m : ℝ) + 1) * ((m : ℝ) + 2)) ≤ (((m : ℝ) + 3 / 2) ^ 2) := by
+      nlinarith
+    have hgeom_le : Real.sqrt (((m : ℝ) + 1) * ((m : ℝ) + 2)) ≤ (m : ℝ) + 3 / 2 := by
+      rw [Real.sqrt_le_iff]
+      constructor
+      · positivity
+      · simpa [pow_two] using hgeom_sq
+    have hmid_log_le : (a + b) / 2 ≤ Real.log ((m : ℝ) + 3 / 2) := by
+      calc
+        (a + b) / 2
+            = Real.log (Real.sqrt (((m : ℝ) + 1) * ((m : ℝ) + 2))) := by
+                dsimp [a, b]
+                rw [Real.log_sqrt]
+                · rw [Real.log_mul (by positivity) (by positivity)]
+                · positivity
+        _ ≤ Real.log ((m : ℝ) + 3 / 2) := Real.log_le_log (by positivity) hgeom_le
+    have hmid_compare :
+        g (Real.log ((m : ℝ) + 3 / 2)) ≤ g ((a + b) / 2) := by
+      dsimp [g]
+      apply Real.exp_le_exp.mpr
+      nlinarith
+    have hlen_eq : b - a = Real.log (((m : ℝ) + 2) / ((m : ℝ) + 1)) := by
+      dsimp [a, b]
+      symm
+      exact Real.log_div (by positivity) (by positivity)
+    have hmid_eval :
+        g (Real.log ((m : ℝ) + 3 / 2)) = 1 / (((m : ℝ) + 3 / 2) ^ δ) := by
+      dsimp [g]
+      rw [Real.rpow_def_of_pos hmid_pos, one_div, ← Real.exp_neg]
+      congr 1
+      ring
+    calc
+      Real.log (((m : ℝ) + 2) / ((m : ℝ) + 1)) / (((m : ℝ) + 3 / 2) ^ δ)
+          = (b - a) * g (Real.log ((m : ℝ) + 3 / 2)) := by
+              rw [hlen_eq, hmid_eval]
+              ring
+      _ ≤ (b - a) * g ((a + b) / 2) :=
+            mul_le_mul_of_nonneg_left hmid_compare (sub_nonneg.mpr hab.le)
+      _ ≤ ∫ x in a..b, g x := hJ
+      _ = ∫ x in Real.log (m + 1)..Real.log (m + 2), g x := by rfl
+  have hintegral_bound (t : ℝ) :
+      ∫ x in 0..t, g x ≤ 1 / δ := by
+    have hcalc :
+        ∫ x in 0..t, g x = (1 - Real.exp (-δ * t)) / δ := by
+      calc
+        ∫ x in 0..t, g x
+            = (-δ)⁻¹ * ∫ y in (-δ) * (0 : ℝ)..(-δ) * t, Real.exp y := by
+                simpa [g, mul_assoc, mul_comm, mul_left_comm] using
+                  (intervalIntegral.integral_comp_mul_left
+                    (f := fun y : ℝ => Real.exp y) (a := (0 : ℝ)) (b := t)
+                    (c := -δ) (neg_ne_zero.mpr hδ_ne))
+        _ = (-δ)⁻¹ * (Real.exp ((-δ) * t) - Real.exp (0 : ℝ)) := by
+              simp
+        _ = (1 - Real.exp (-δ * t)) / δ := by
+              rw [Real.exp_zero]
+              field_simp [hδ_ne]
+              ring_nf
+    rw [hcalc]
+    have hExp_nonneg : 0 ≤ Real.exp (-δ * t) := by positivity
+    exact div_le_div_of_nonneg_right (by linarith) hδ.le
+  have hpartial (n : ℕ) :
+      ∑ m ∈ Finset.range n,
+          Real.log (((m : ℝ) + 2) / ((m : ℝ) + 1)) / (((m : ℝ) + 3 / 2) ^ δ)
+        ≤
+      1 / δ := by
+    calc
+      ∑ m ∈ Finset.range n,
+          Real.log (((m : ℝ) + 2) / ((m : ℝ) + 1)) / (((m : ℝ) + 3 / 2) ^ δ)
+          ≤
+        ∑ m ∈ Finset.range n, ∫ x in Real.log (m + 1)..Real.log (m + 2), g x := by
+          refine Finset.sum_le_sum fun m hm => hterm_le_integral m
+      _ = ∫ x in (Real.log (0 + 1 : ℕ))..(Real.log (n + 1)), g x := by
+            simpa [Nat.cast_add, Nat.cast_one, add_assoc,
+              show ((1 : ℝ) + 1) = 2 by norm_num] using
+              (intervalIntegral.sum_integral_adjacent_intervals
+                (f := g) (μ := MeasureTheory.volume)
+                (a := fun k : ℕ => Real.log ((k : ℝ) + 1)) (n := n)
+                (fun k hk => hg_cont.intervalIntegrable _ _))
+      _ = ∫ x in 0..(Real.log (n + 1)), g x := by simp
+      _ ≤ 1 / δ := hintegral_bound (Real.log (n + 1))
+  exact
+    (Real.tsum_le_of_sum_range_le
+      (f := fun m : ℕ =>
+        Real.log (((m : ℝ) + 2) / ((m : ℝ) + 1)) / (((m : ℝ) + 3 / 2) ^ δ))
+      hterm_nonneg hpartial).trans_eq (by simp [δ])
+
 lemma one_div_sub_mul_one_div_sub_eq_one_div_sq
     {s : ℝ} (hs : 1 < s) :
     (1 / (s - 1)) * (1 / (s - 1)) = 1 / (s - 1) ^ 2 := by
@@ -759,7 +1102,264 @@ lemma neg_deriv_zetaSeries_le_one_div_sq_sub {s : ℝ} (hs : 1 < s) :
 
 lemma zetaSeries_ge_one_div_sub_add_one_half {s : ℝ} (hs : 1 < s) :
     zetaSeries s ≥ 1 / (s - 1) + (1 / 2 : ℝ) := by
-      sorry
+  let f : ℝ → ℝ := fun x => x ^ (-s)
+  have hs_pos : 0 < s := lt_trans zero_lt_one hs
+  have hs_ne : s ≠ 0 := hs_pos.ne'
+  have hs_sub_ne : s - 1 ≠ 0 := by linarith
+  have hconv : ConvexOn ℝ (Set.Ioi 0) f := by
+    refine (strictConvexOn_of_deriv2_pos' (convex_Ioi (0 : ℝ)) ?_ ?_).convexOn
+    · intro x hx
+      exact (Real.continuousAt_rpow_const x (-s) (Or.inl hx.ne')).continuousWithinAt
+    · intro x hx
+      rw [show (deriv^[2] f) x = (deriv^[2] fun y : ℝ => y ^ (-s)) x by rfl]
+      rw [Real.iter_deriv_rpow_const (-s) x 2]
+      rw [descPochhammer_succ_eval, descPochhammer_succ_eval]
+      have hcoeff : 0 < (-s) * (-s - 1) := by
+        nlinarith
+      have hpow : 0 < x ^ (-s - 2) := Real.rpow_pos_of_pos hx _
+      simpa using mul_pos hcoeff hpow
+  have hsecant (n : ℕ) :
+      ∫ x in ((n + 1 : ℕ) : ℝ)..((n + 2 : ℕ) : ℝ), f x ≤
+        (f (n + 1) + f (n + 2)) / 2 := by
+    have a_eq : (((n + 1 : ℕ) : ℝ)) = (n : ℝ) + 1 := by norm_num
+    have b_eq : (((n + 2 : ℕ) : ℝ)) = (n : ℝ) + 2 := by norm_num
+    have hle : (((n + 1 : ℕ) : ℝ)) ≤ (((n + 2 : ℕ) : ℝ)) := by norm_num
+    have hpos1 : 0 < (((n + 1 : ℕ) : ℝ)) := by
+      exact_mod_cast Nat.succ_pos n
+    have hpos2 : 0 < (((n + 2 : ℕ) : ℝ)) := by
+      exact_mod_cast Nat.succ_pos (n + 1)
+    have hf_int :
+        IntervalIntegrable f MeasureTheory.volume (((n + 1 : ℕ) : ℝ)) (((n + 2 : ℕ) : ℝ)) := by
+      refine (continuousOn_of_forall_continuousAt fun x hx => ?_).intervalIntegrable
+      rw [Set.uIcc_of_le hle] at hx
+      have hx_pos : 0 < x := lt_of_lt_of_le hpos1 hx.1
+      exact Real.continuousAt_rpow_const x (-s) (Or.inl hx_pos.ne')
+    have hlin_int :
+        IntervalIntegrable
+          (fun x : ℝ => (((n + 2 : ℕ) : ℝ) - x) * f (n + 1) + (x - (n + 1 : ℝ)) * f (n + 2))
+          MeasureTheory.volume (((n + 1 : ℕ) : ℝ)) (((n + 2 : ℕ) : ℝ)) := by
+      refine (ContinuousOn.intervalIntegrable ?_)
+      intro x hx
+      fun_prop
+    have hba : (((n + 2 : ℕ) : ℝ)) - (((n + 1 : ℕ) : ℝ)) = 1 := by norm_num
+    have hpoint :
+        ∀ x ∈ Set.Icc (((n + 1 : ℕ) : ℝ)) ((n + 2 : ℕ) : ℝ),
+          f x ≤ (((n + 2 : ℕ) : ℝ) - x) * f (n + 1) + (x - (n + 1 : ℝ)) * f (n + 2) := by
+      intro x hx
+      rcases eq_or_lt_of_le hx.1 with rfl | hlt1
+      · norm_num
+      rcases eq_or_lt_of_le hx.2 with rfl | hlt2
+      · norm_num
+      have haux := hconv.secant_mono_aux1 hpos1 hpos2 hlt1 hlt2
+      have htwo : (2 : ℝ) - 1 = 1 := by norm_num
+      simpa [htwo, mul_comm, add_comm, add_left_comm, add_assoc,
+        Nat.cast_add, Nat.cast_one] using haux
+    have hmain :
+        ∫ x in ((n + 1 : ℕ) : ℝ)..((n + 2 : ℕ) : ℝ), f x ≤
+          ∫ x in ((n + 1 : ℕ) : ℝ)..((n + 2 : ℕ) : ℝ),
+            ((((n + 2 : ℕ) : ℝ) - x) * f (n + 1) + (x - (n + 1 : ℝ)) * f (n + 2)) := by
+      exact intervalIntegral.integral_mono_on hle hf_int hlin_int hpoint
+    have hsub1_int :
+        IntervalIntegrable (fun x : ℝ => (((n + 2 : ℕ) : ℝ) - x)) MeasureTheory.volume
+          (((n + 1 : ℕ) : ℝ)) (((n + 2 : ℕ) : ℝ)) := by
+      exact (by fun_prop : Continuous fun x : ℝ => (((n + 2 : ℕ) : ℝ) - x)).intervalIntegrable _ _
+    have hsub2_int :
+        IntervalIntegrable (fun x : ℝ => x - (((n + 1 : ℕ) : ℝ)) ) MeasureTheory.volume
+          (((n + 1 : ℕ) : ℝ)) (((n + 2 : ℕ) : ℝ)) := by
+      exact (by fun_prop : Continuous fun x : ℝ => x - (((n + 1 : ℕ) : ℝ))).intervalIntegrable _ _
+    have hmul1_int :
+        IntervalIntegrable
+          (fun x : ℝ => ((((n + 2 : ℕ) : ℝ) - x) * f (n + 1))) MeasureTheory.volume
+          (((n + 1 : ℕ) : ℝ)) (((n + 2 : ℕ) : ℝ)) :=
+      hsub1_int.mul_const (f (n + 1))
+    have hmul2_int :
+        IntervalIntegrable
+          (fun x : ℝ => ((x - (((n + 1 : ℕ) : ℝ))) * f (n + 2)) ) MeasureTheory.volume
+          (((n + 1 : ℕ) : ℝ)) (((n + 2 : ℕ) : ℝ)) :=
+      hsub2_int.mul_const (f (n + 2))
+    have h_id_int :
+        IntervalIntegrable (fun x : ℝ => x) MeasureTheory.volume
+          (((n + 1 : ℕ) : ℝ)) (((n + 2 : ℕ) : ℝ)) := by
+      exact (by fun_prop : Continuous fun x : ℝ => x).intervalIntegrable _ _
+    have hconst1_int :
+        IntervalIntegrable (fun _ : ℝ => (((n + 1 : ℕ) : ℝ))) MeasureTheory.volume
+          (((n + 1 : ℕ) : ℝ)) (((n + 2 : ℕ) : ℝ)) :=
+      intervalIntegrable_const
+    have hconst2_int :
+        IntervalIntegrable (fun _ : ℝ => (((n + 2 : ℕ) : ℝ))) MeasureTheory.volume
+          (((n + 1 : ℕ) : ℝ)) (((n + 2 : ℕ) : ℝ)) :=
+      intervalIntegrable_const
+    calc
+      ∫ x in ((n + 1 : ℕ) : ℝ)..((n + 2 : ℕ) : ℝ), f x
+          ≤ ∫ x in ((n + 1 : ℕ) : ℝ)..((n + 2 : ℕ) : ℝ),
+              ((((n + 2 : ℕ) : ℝ) - x) * f (n + 1) + (x - (n + 1 : ℝ)) * f (n + 2)) := hmain
+      _ = (f (n + 1) + f (n + 2)) / 2 := by
+          have hadd :
+              ∫ x in ((n + 1 : ℕ) : ℝ)..((n + 2 : ℕ) : ℝ),
+                  ((((n + 2 : ℕ) : ℝ) - x) * f (n + 1) + (x - (n + 1 : ℝ)) * f (n + 2))
+                =
+              (∫ x in ((n + 1 : ℕ) : ℝ)..((n + 2 : ℕ) : ℝ),
+                  (((n + 2 : ℕ) : ℝ) - x) * f (n + 1)) +
+                ∫ x in ((n + 1 : ℕ) : ℝ)..((n + 2 : ℕ) : ℝ),
+                  (x - (((n + 1 : ℕ) : ℝ))) * f (n + 2) := by
+            simpa using intervalIntegral.integral_add hmul1_int hmul2_int
+          rw [hadd]
+          rw [intervalIntegral.integral_mul_const, intervalIntegral.integral_mul_const]
+          rw [intervalIntegral.integral_sub hconst2_int h_id_int,
+            intervalIntegral.integral_sub h_id_int hconst1_int,
+            intervalIntegral.integral_const, intervalIntegral.integral_const,
+            integral_id]
+          norm_num [a_eq, b_eq]
+          ring_nf
+  have hterm_bound (n : ℕ) :
+      ZetaAsymptotics.term (n + 1) s ≤
+        (1 / (2 * s)) * (f (n + 1) - f (n + 2)) := by
+    have hpos1 : 0 < (((n + 1 : ℕ) : ℝ)) := by
+      exact_mod_cast Nat.succ_pos n
+    have hpos2 : 0 < (((n + 2 : ℕ) : ℝ)) := by
+      exact_mod_cast Nat.succ_pos (n + 1)
+    have hterm :=
+      ZetaAsymptotics.term_of_lt (n := n + 1) (by positivity) hs
+    have hint :
+        ∫ x in ((n + 1 : ℕ) : ℝ)..((n + 2 : ℕ) : ℝ), f x =
+          1 / (s - 1) *
+            (1 / ((n + 1 : ℝ) ^ (s - 1)) - 1 / ((n + 2 : ℝ) ^ (s - 1))) := by
+      change ∫ x in ((n + 1 : ℕ) : ℝ)..((n + 2 : ℕ) : ℝ), x ^ (-s) =
+          1 / (s - 1) *
+            (1 / ((n + 1 : ℝ) ^ (s - 1)) - 1 / ((n + 2 : ℝ) ^ (s - 1)))
+      rw [integral_rpow]
+      · rw [show -s + 1 = -(s - 1) by ring]
+        rw [div_neg, ← neg_div, mul_comm, mul_one_div, neg_sub]
+        have h1 : (((n + 1 : ℕ) : ℝ) ^ (-(s - 1))) = 1 / (((n + 1 : ℕ) : ℝ) ^ (s - 1)) := by
+          simpa [one_div] using
+            (Real.rpow_neg (show 0 ≤ (n + 1 : ℝ) by positivity) (y := s - 1))
+        have h2 : (((n + 2 : ℕ) : ℝ) ^ (-(s - 1))) = 1 / (((n + 2 : ℕ) : ℝ) ^ (s - 1)) := by
+          simpa [one_div] using
+            (Real.rpow_neg (show 0 ≤ (n + 2 : ℝ) by positivity) (y := s - 1))
+        rw [h1, h2]
+        norm_num [Nat.cast_add, Nat.cast_one, add_assoc, add_left_comm, add_comm]
+      · refine Or.inr ⟨by linarith, ?_⟩
+        exact Set.notMem_uIcc_of_lt hpos1 hpos2
+    have hcast : (((n + 1 : ℕ) : ℝ) + 1) = (((n + 2 : ℕ) : ℝ)) := by
+      norm_num [Nat.cast_add, Nat.cast_one, add_assoc, add_left_comm, add_comm]
+    have ha_ne : (((n + 1 : ℕ) : ℝ)) ^ s ≠ 0 := (Real.rpow_pos_of_pos hpos1 s).ne'
+    have hb_ne : (((n + 2 : ℕ) : ℝ)) ^ s ≠ 0 := (Real.rpow_pos_of_pos hpos2 s).ne'
+    have ha_sub :
+        1 / (((n + 1 : ℕ) : ℝ) ^ (s - 1)) =
+          (((n + 1 : ℕ) : ℝ)) / (((n + 1 : ℕ) : ℝ) ^ s) := by
+      rw [Real.rpow_sub hpos1 s 1, Real.rpow_one]
+      field_simp [ha_ne]
+    have hb_sub :
+        1 / (((n + 2 : ℕ) : ℝ) ^ (s - 1)) =
+          (((n + 2 : ℕ) : ℝ)) / (((n + 2 : ℕ) : ℝ) ^ s) := by
+      rw [Real.rpow_sub hpos2 s 1, Real.rpow_one]
+      field_simp [hb_ne]
+    have halg :
+        1 / (s - 1) *
+            (1 / (((n + 1 : ℕ) : ℝ) ^ (s - 1)) - 1 / (((n + 2 : ℕ) : ℝ) ^ (s - 1))) -
+          (((n + 1 : ℕ) : ℝ) / s) *
+            (1 / (((n + 1 : ℕ) : ℝ) ^ s) - 1 / (((n + 2 : ℕ) : ℝ) ^ s)) =
+        (1 / s) *
+          (1 / (s - 1) *
+              (1 / (((n + 1 : ℕ) : ℝ) ^ (s - 1)) - 1 / (((n + 2 : ℕ) : ℝ) ^ (s - 1))) -
+            1 / (((n + 2 : ℕ) : ℝ) ^ s)) := by
+      rw [ha_sub, hb_sub]
+      field_simp [hs_ne, hs_sub_ne, ha_ne, hb_ne]
+      rw [← hcast]
+      ring
+    have hrepr :
+        ZetaAsymptotics.term (n + 1) s =
+          (1 / s) *
+            ((∫ x in ((n + 1 : ℕ) : ℝ)..((n + 2 : ℕ) : ℝ), f x) - 1 / (((n + 2 : ℕ) : ℝ) ^ s)) := by
+      rw [hterm, hcast, hint]
+      simpa [Nat.cast_add, Nat.cast_one, add_assoc, add_left_comm, add_comm] using halg
+    have hs_nonneg : 0 ≤ 1 / s := by positivity
+    have hmid :
+        (1 / s) *
+            ((∫ x in ((n + 1 : ℕ) : ℝ)..((n + 2 : ℕ) : ℝ), f x) - 1 / (((n + 2 : ℕ) : ℝ) ^ s))
+          ≤
+        (1 / s) * ((((f (n + 1) + f (n + 2)) / 2) - 1 / (((n + 2 : ℕ) : ℝ) ^ s))) := by
+      have hsub :
+          (∫ x in ((n + 1 : ℕ) : ℝ)..((n + 2 : ℕ) : ℝ), f x) -
+              1 / ((((n + 2 : ℕ) : ℝ)) ^ s)
+            ≤
+          ((f (n + 1) + f (n + 2)) / 2) - 1 / ((((n + 2 : ℕ) : ℝ)) ^ s) := by
+        exact sub_le_sub_right (hsecant n) (1 / ((((n + 2 : ℕ) : ℝ)) ^ s))
+      exact mul_le_mul_of_nonneg_left hsub hs_nonneg
+    have hb_f : 1 / ((((n + 2 : ℕ) : ℝ)) ^ s) = f (n + 2) := by
+      simpa [f, one_div] using
+        (Real.rpow_neg (show 0 ≤ (((n + 2 : ℕ) : ℝ)) by positivity) (y := s)).symm
+    calc
+      ZetaAsymptotics.term (n + 1) s
+          = (1 / s) *
+              ((∫ x in ((n + 1 : ℕ) : ℝ)..((n + 2 : ℕ) : ℝ), f x) -
+                1 / ((((n + 2 : ℕ) : ℝ)) ^ s)) := hrepr
+      _ ≤ (1 / s) * (((f (n + 1) + f (n + 2)) / 2) - 1 / ((((n + 2 : ℕ) : ℝ)) ^ s)) := hmid
+      _ = (1 / (2 * s)) * (f (n + 1) - f (n + 2)) := by
+          rw [hb_f]
+          ring
+  have hterm_nonneg : ∀ n : ℕ, 0 ≤ ZetaAsymptotics.term (n + 1) s := by
+    intro n
+    exact ZetaAsymptotics.term_nonneg (n + 1) s
+  have hterm_tsum :
+      ZetaAsymptotics.termTSum s ≤ 1 / (2 * s) := by
+    have htel :
+        ∀ N : ℕ, ∑ i ∈ Finset.range N, (f (i + 1) - f (i + 2)) = f 1 - f (N + 1) := by
+      intro N
+      induction N with
+      | zero =>
+          simp
+      | succ N hN =>
+          rw [Finset.sum_range_succ, hN]
+          have hcast : f (((N : ℝ) + 2)) = f ((((N + 1 : ℕ) : ℝ) + 1)) := by
+            congr 1
+            norm_num [Nat.cast_add, Nat.cast_one, add_assoc, add_left_comm, add_comm]
+          rw [hcast]
+          ring
+    have hsum_range : ∀ N : ℕ,
+        ∑ i ∈ Finset.range N, ZetaAsymptotics.term (i + 1) s ≤ 1 / (2 * s) := by
+      intro N
+      calc
+        ∑ i ∈ Finset.range N, ZetaAsymptotics.term (i + 1) s
+            ≤ ∑ i ∈ Finset.range N, (1 / (2 * s)) * (f (i + 1) - f (i + 2)) := by
+                exact Finset.sum_le_sum fun i hi => hterm_bound i
+        _ = (1 / (2 * s)) * (f 1 - f (N + 1)) := by
+              rw [← Finset.mul_sum, htel N]
+        _ ≤ 1 / (2 * s) := by
+              have hf_nonneg : 0 ≤ f (N + 1) := Real.rpow_nonneg (by positivity) _
+              have hfac_nonneg : 0 ≤ 1 / (2 * s) := by positivity
+              have hsub : f 1 - f (N + 1) ≤ 1 := by
+                simpa [f] using sub_le_self (f 1) hf_nonneg
+              have hm := mul_le_mul_of_nonneg_left hsub hfac_nonneg
+              simpa [f, div_eq_mul_inv] using hm
+    have htsum :=
+      Real.tsum_le_of_sum_range_le hterm_nonneg hsum_range
+    simpa [ZetaAsymptotics.termTSum] using htsum
+  have hzt :
+      ZetaAsymptotics.termTSum s = 1 / (s - 1) - (1 / s) * zetaSeries s := by
+    simpa [ZetaAsymptotics.termTSum, zetaSeries] using ZetaAsymptotics.termTSum_of_lt hs
+  rw [hzt] at hterm_tsum
+  have : 1 / (s - 1) - (1 / s) * zetaSeries s ≤ 1 / (2 * s) := hterm_tsum
+  have hs_nonneg : 0 ≤ s := hs_pos.le
+  have hs_two_ne : (2 : ℝ) * s ≠ 0 := by positivity
+  have hs_ne' : s ≠ 0 := hs_pos.ne'
+  have hs_sub_pos : 0 < s - 1 := by linarith
+  have hs_sub_ne' : s - 1 ≠ 0 := hs_sub_pos.ne'
+  have hgoal : 1 / (s - 1) + (1 / 2 : ℝ) ≤ zetaSeries s := by
+    have hmul := (mul_le_mul_of_nonneg_left this hs_nonneg)
+    have hs_eq : s * (1 / (s - 1) - (1 / s) * zetaSeries s) ≤ s * (1 / (2 * s)) := hmul
+    have hs_rhs : s * (1 / (2 * s)) = (1 / 2 : ℝ) := by
+      field_simp [hs_two_ne]
+    have hs_lhs : s * (1 / (s - 1) - (1 / s) * zetaSeries s) = s / (s - 1) - zetaSeries s := by
+      field_simp [hs_ne']
+    have hs_frac : s / (s - 1) = 1 + 1 / (s - 1) := by
+      field_simp [hs_sub_ne']
+      ring
+    rw [hs_lhs, hs_rhs] at hs_eq
+    rw [hs_frac] at hs_eq
+    linarith
+  simpa using hgoal
+
 lemma analyticSeries_le_two_div_sq_sub_one {s : ℝ} (hs : 1 < s) :
     analyticSeries s ≤ 2 / (s ^ 2 - 1) := by
   have hs_sub_pos : 0 < s - 1 := by
@@ -866,11 +1466,930 @@ theorem analyticSeries_add_log_term_le {s : ℝ} (hs : 1 < s) {p : ℕ} (hp : p.
 lemma inflow_modifiedFlow_le_erdosWeight_of_isPrimePow {N : ℕ} (hN : 1 < N)
     (hPrimePow : IsPrimePow N) :
     inflow modifiedFlow N ≤ erdosWeight N := by
-      sorry
+  classical
+  let L : ℝ := Real.log N
+  let μ := MeasureTheory.volume.restrict (Set.Ioi (0 : ℝ))
+  obtain ⟨p, k, hp, hk, hNpow⟩ := (isPrimePow_nat_iff N).mp hPrimePow
+  let qp : {q : ℕ // 2 ≤ q} := ⟨p, hp.two_le⟩
+  have hN0_nat : N ≠ 0 := ne_of_gt (lt_trans Nat.zero_lt_one hN)
+  have hN_pos : 0 < N := lt_trans Nat.zero_lt_one hN
+  have hN0 : (N : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr hN0_nat
+  have hN_cast : (1 : ℝ) < N := by
+    exact_mod_cast hN
+  have hLpos : 0 < L := by
+    dsimp [L]
+    exact Real.log_pos hN_cast
+  have hLne : L ≠ 0 := hLpos.ne'
+  have hk_ne : k ≠ 0 := Nat.ne_of_gt hk
+  have hNp : 1 < N * p := lt_of_lt_of_le hN (Nat.le_mul_of_pos_right N hp.pos)
+  have hNp0_nat : N * p ≠ 0 := Nat.mul_ne_zero hN0_nat hp.ne_zero
+  have hNp0 : ((N * p : ℕ) : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr hNp0_nat
+  have hNpPow : N * p = p ^ (k + 1) := by
+    rw [← hNpow, pow_succ]
+  have hbase_one :
+      baseFlow (N * p) 1 =
+        Real.log p / (((N * p : ℕ) : ℝ) * (L + Real.log p) ^ 2) := by
+    have hNp_pp : IsPrimePow (N * p) := by
+      rw [hNpPow]
+      exact (isPrimePow_pow_iff (Nat.succ_ne_zero _)).2 hp.isPrimePow
+    have hvm_Np : ArithmeticFunction.vonMangoldt (N * p) = Real.log p := by
+      rw [hNpPow, ArithmeticFunction.vonMangoldt_apply_pow (Nat.succ_ne_zero _),
+        ArithmeticFunction.vonMangoldt_apply_prime hp]
+    have hlog_Np : Real.log (N * p) = L + Real.log p := by
+      simpa [L, Nat.cast_mul] using
+        (Real.log_mul hN0 (Nat.cast_ne_zero.mpr hp.ne_zero))
+    rw [baseFlow, if_pos hNp, if_pos (one_dvd _), Nat.div_one, if_pos hNp_pp]
+    simp [hvm_Np, hlog_Np]
+  have hmodified_eq_base_of_ne_special :
+      ∀ K : ℕ, K ≠ N * p → modifiedFlow K N = baseFlow K N := by
+    intro K hKne
+    have hfirst :
+        ¬ ∃ p' : ℕ, p'.Prime ∧ ∃ k' : ℕ, 2 ≤ k' ∧ K = p' ^ k' ∧ N = 1 := by
+      rintro ⟨p', hp', k', hk', hKpow, hN1⟩
+      exact (ne_of_gt hN) hN1
+    have hsecond :
+        ¬ ∃ p' : ℕ, p'.Prime ∧ ∃ k' : ℕ, 2 ≤ k' ∧ K = p' ^ k' ∧ N = p' ^ (k' - 1) := by
+      rintro ⟨p', hp', k', hk', hKpow, hNpow'⟩
+      have hk'1 : k' - 1 ≠ 0 := by omega
+      have hpow_eq : p ^ k = p' ^ (k' - 1) := by
+        rw [hNpow, hNpow']
+      rcases hp.pow_inj' hp' hk_ne hk'1 hpow_eq with ⟨hpeq, hk_eq⟩
+      have hk'_succ : k' = k + 1 := by omega
+      have hKeq : K = N * p := by
+        calc
+          K = p' ^ k' := hKpow
+          _ = p ^ (k + 1) := by rw [hpeq, hk'_succ]
+          _ = N * p := by rw [pow_succ, hNpow]
+      exact hKne hKeq
+    simp [modifiedFlow, hfirst, hsecond]
+  have hmodified_at_special :
+      modifiedFlow (N * p) N = baseFlow (N * p) N + baseFlow (N * p) 1 := by
+    have hfirst :
+        ¬ ∃ p' : ℕ, p'.Prime ∧ ∃ k' : ℕ, 2 ≤ k' ∧ N * p = p' ^ k' ∧ N = 1 := by
+      rintro ⟨p', hp', k', hk', hKpow, hN1⟩
+      exact (ne_of_gt hN) hN1
+    have hsecond :
+        ∃ p' : ℕ, p'.Prime ∧ ∃ k' : ℕ, 2 ≤ k' ∧ N * p = p' ^ k' ∧ N = p' ^ (k' - 1) := by
+      refine ⟨p, hp, k + 1, by omega, ?_, ?_⟩
+      · rw [pow_succ, hNpow]
+      · simpa using hNpow.symm
+    simp [modifiedFlow, hfirst, hsecond]
+  let e : {q : ℕ // 2 ≤ q} → ℕ := fun q => N * q.1
+  have he : Function.Injective e := by
+    intro a b hab
+    apply Subtype.ext
+    exact Nat.mul_left_cancel hN_pos hab
+  have hbase_zero : ∀ K : ℕ, K ∉ Set.range e → baseFlow K N = 0 := by
+    intro K hK
+    by_cases hdiv : N ∣ K
+    · rcases hdiv with ⟨q, rfl⟩
+      by_cases hqge2 : 2 ≤ q
+      · exfalso
+        exact hK ⟨⟨q, hqge2⟩, rfl⟩
+      · have hnotpp : ¬ IsPrimePow q := by
+          intro hqpp
+          obtain ⟨p', k', hp', hk', hpow⟩ := (isPrimePow_nat_iff q).mp hqpp
+          have hk1 : 1 ≤ k' := Nat.succ_le_of_lt hk'
+          have h2 : 2 ≤ q := by
+            calc
+              2 ≤ p' := hp'.two_le
+              _ ≤ p' ^ k' := Nat.le_self_pow (show k' ≠ 0 by omega) p'
+              _ = q := hpow
+          exact hqge2 h2
+        by_cases hNq : 1 < N * q
+        · simp [baseFlow, hNq, Nat.mul_div_right q hN_pos, hnotpp]
+        · simp [baseFlow, hNq]
+    · simp [baseFlow, hdiv]
+  have hmodified_zero : ∀ K : ℕ, K ∉ Set.range e → modifiedFlow K N = 0 := by
+    intro K hK
+    have hKne : K ≠ N * p := by
+      intro hEq
+      exact hK ⟨qp, by simpa [e, qp] using hEq.symm⟩
+    simpa [hmodified_eq_base_of_ne_special K hKne] using hbase_zero K hK
+  have hbase_mul (q : {q : ℕ // 2 ≤ q}) :
+      baseFlow (N * q.1) N =
+        ArithmeticFunction.vonMangoldt q.1 /
+          (((N * q.1 : ℕ) : ℝ) * (L + Real.log q.1) ^ 2) := by
+    have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+    have hNq : 1 < N * q.1 := lt_of_lt_of_le hN (Nat.le_mul_of_pos_right N hqnatpos)
+    have hdvd : N ∣ N * q.1 := ⟨q.1, by simp⟩
+    have hdiv : (N * q.1) / N = q.1 := by
+      simpa [Nat.mul_comm] using Nat.mul_div_right q.1 hN_pos
+    have hN0' : (N : ℝ) ≠ 0 := by exact_mod_cast hN_pos.ne'
+    have hq0 : (q.1 : ℝ) ≠ 0 := by
+      exact_mod_cast (show q.1 ≠ 0 by omega)
+    by_cases hqpp : IsPrimePow q.1
+    · rw [baseFlow, if_pos hNq, if_pos hdvd]
+      have hlog : Real.log (((N * q.1 : ℕ) : ℝ)) = L + Real.log q.1 := by
+        simpa [L, Nat.cast_mul] using Real.log_mul hN0' hq0
+      exact
+        (by
+          simpa only [hdiv, hqpp, if_true] using
+            congrArg
+              (fun x =>
+                ArithmeticFunction.vonMangoldt q.1 /
+                  ((((N * q.1 : ℕ) : ℝ)) * x ^ 2))
+              hlog)
+    · have hvm : ArithmeticFunction.vonMangoldt q.1 = 0 := by
+        rw [ArithmeticFunction.vonMangoldt_eq_zero_iff]
+        exact hqpp
+      simp [baseFlow, hNq, hdvd, hdiv, hqpp, hvm]
+  have hmodified_mul (q : {q : ℕ // 2 ≤ q}) :
+      modifiedFlow (N * q.1) N =
+        ArithmeticFunction.vonMangoldt q.1 /
+          (((N * q.1 : ℕ) : ℝ) * (L + Real.log q.1) ^ 2) +
+        if q = qp then
+          Real.log p / (((N * p : ℕ) : ℝ) * (L + Real.log p) ^ 2)
+        else
+          0 := by
+    by_cases hq : q = qp
+    · subst hq
+      rw [hmodified_at_special, hbase_mul qp, hbase_one]
+      simp [qp]
+    · have hKne : N * q.1 ≠ N * p := by
+        intro hEq
+        apply hq
+        apply Subtype.ext
+        exact Nat.mul_left_cancel hN_pos hEq
+      rw [hmodified_eq_base_of_ne_special (N * q.1) hKne, hbase_mul]
+      simp [hq]
+  let G : {q : ℕ // 2 ≤ q} → ℝ → ℝ := fun q t =>
+    (ArithmeticFunction.vonMangoldt q.1 / (((N * q.1 : ℕ) : ℝ)) +
+        if q = qp then Real.log p / (((N * p : ℕ) : ℝ)) else 0) *
+      (t * Real.exp (-((L + Real.log q.1) * t)))
+  let fSum : ℝ → ℝ := fun t =>
+    (1 / (N : ℝ)) * (t * Real.exp (-L * t)) *
+      (analyticSeries (1 + t) + Real.log p / Real.rpow (p : ℝ) (1 + t))
+  have hsum_analytic {t : ℝ} (ht : 0 < t) :
+      Summable (fun q : {q : ℕ // 2 ≤ q} =>
+        ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t)) := by
+    let full : ℕ → ℝ := fun n =>
+      if n = 0 then 0 else ArithmeticFunction.vonMangoldt n / Real.rpow (n : ℝ) (1 + t)
+    have hLs :
+        LSeriesSummable (fun n => ↑(ArithmeticFunction.vonMangoldt n)) (1 + t : ℂ) :=
+      ArithmeticFunction.LSeriesSummable_vonMangoldt (by simpa using add_lt_add_left ht 1)
+    have hsum_full : Summable full := by
+      simpa [full, LSeries.norm_term_eq, Real.norm_eq_abs,
+        abs_of_nonneg ArithmeticFunction.vonMangoldt_nonneg] using hLs.norm
+    have hfull_zero :
+        ∀ n ∉ Set.range (Subtype.val : {q : ℕ // 2 ≤ q} → ℕ), full n = 0 := by
+      intro n hn
+      have hnlt2 : n < 2 := by
+        by_contra h
+        exact hn ⟨⟨n, not_lt.mp h⟩, rfl⟩
+      interval_cases n <;> simp [full]
+    have hsub : Summable (full ∘ Subtype.val) :=
+      (Function.Injective.summable_iff Subtype.val_injective hfull_zero).2 hsum_full
+    refine hsub.congr ?_
+    intro q
+    simp [full, show ((q : ℕ) ≠ 0) by omega]
+  have hHas_analytic {t : ℝ} (ht : 0 < t) :
+      HasSum
+        (fun q : {q : ℕ // 2 ≤ q} =>
+          ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t))
+        (analyticSeries (1 + t)) := by
+    simpa [analyticSeries] using (hsum_analytic ht).hasSum
+  have hF_term {t : ℝ} (ht : 0 < t) (q : {q : ℕ // 2 ≤ q}) :
+      (ArithmeticFunction.vonMangoldt q.1 / (((N * q.1 : ℕ) : ℝ))) *
+          (t * Real.exp (-((L + Real.log q.1) * t))) =
+        ((1 / (N : ℝ)) * (t * Real.exp (-L * t))) *
+          (ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t)) := by
+    have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+    have hqpos : 0 < (q.1 : ℝ) := by exact_mod_cast hqnatpos
+    rw [Nat.cast_mul, div_eq_mul_inv, div_eq_mul_inv]
+    rw [show -((L + Real.log q.1) * t) = -L * t + -(Real.log q.1 * t) by ring, Real.exp_add]
+    have hmul : -(Real.log (q.1 : ℝ) * t) = Real.log (q.1 : ℝ) * (-t) := by ring
+    rw [hmul, ← Real.rpow_def_of_pos hqpos (-t)]
+    rw [Real.rpow_neg (le_of_lt hqpos), ← mul_assoc]
+    have hrpow : Real.rpow (q.1 : ℝ) (1 + t) = (q.1 : ℝ) * Real.rpow (q.1 : ℝ) t := by
+      simpa using (Real.rpow_add hqpos (1 : ℝ) t)
+    rw [hrpow, div_eq_mul_inv, Real.rpow_eq_pow]
+    ring_nf
+  have hE_term {t : ℝ} (ht : 0 < t) :
+      (Real.log p / (((N * p : ℕ) : ℝ))) * (t * Real.exp (-((L + Real.log p) * t))) =
+        ((1 / (N : ℝ)) * (t * Real.exp (-L * t))) *
+          (Real.log p / Real.rpow (p : ℝ) (1 + t)) := by
+    have hppos : 0 < (p : ℝ) := by exact_mod_cast hp.pos
+    rw [Nat.cast_mul, div_eq_mul_inv, div_eq_mul_inv]
+    rw [show -((L + Real.log p) * t) = -L * t + -(Real.log p * t) by ring, Real.exp_add]
+    have hmul : -(Real.log (p : ℝ) * t) = Real.log (p : ℝ) * (-t) := by ring
+    rw [hmul, ← Real.rpow_def_of_pos hppos (-t)]
+    rw [Real.rpow_neg (le_of_lt hppos), ← mul_assoc]
+    have hrpow : Real.rpow (p : ℝ) (1 + t) = (p : ℝ) * Real.rpow (p : ℝ) t := by
+      simpa using (Real.rpow_add hppos (1 : ℝ) t)
+    rw [hrpow, div_eq_mul_inv, Real.rpow_eq_pow]
+    ring_nf
+  have hG_term {t : ℝ} (ht : 0 < t) (q : {q : ℕ // 2 ≤ q}) :
+      G q t = ((1 / (N : ℝ)) * (t * Real.exp (-L * t))) *
+        (ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t) +
+          if q = qp then Real.log p / Real.rpow (p : ℝ) (1 + t) else 0) := by
+    by_cases hq : q = qp
+    · subst hq
+      calc
+        G qp t
+            = (ArithmeticFunction.vonMangoldt p / (((N * p : ℕ) : ℝ))) *
+                (t * Real.exp (-((L + Real.log p) * t))) +
+              (Real.log p / (((N * p : ℕ) : ℝ))) *
+                (t * Real.exp (-((L + Real.log p) * t))) := by
+                  simp [G, qp, add_mul]
+        _ = ((1 / (N : ℝ)) * (t * Real.exp (-L * t))) *
+              (ArithmeticFunction.vonMangoldt p / Real.rpow (p : ℝ) (1 + t)) +
+            ((1 / (N : ℝ)) * (t * Real.exp (-L * t))) *
+              (Real.log p / Real.rpow (p : ℝ) (1 + t)) := by
+                rw [hF_term ht qp, hE_term ht]
+        _ = ((1 / (N : ℝ)) * (t * Real.exp (-L * t))) *
+              (ArithmeticFunction.vonMangoldt p / Real.rpow (p : ℝ) (1 + t) +
+                Real.log p / Real.rpow (p : ℝ) (1 + t)) := by
+                  rw [← mul_add]
+        _ = ((1 / (N : ℝ)) * (t * Real.exp (-L * t))) *
+              (ArithmeticFunction.vonMangoldt p / Real.rpow (p : ℝ) (1 + t) +
+                if qp = qp then Real.log p / Real.rpow (p : ℝ) (1 + t) else 0) := by
+                  simp
+    · simpa [G, hq] using hF_term ht q
+  have hG_hasSum {t : ℝ} (ht : 0 < t) :
+      HasSum (fun q : {q : ℕ // 2 ≤ q} => G q t) (fSum t) := by
+    have hcorr :
+        HasSum
+          (fun q : {q : ℕ // 2 ≤ q} =>
+            if q = qp then Real.log p / Real.rpow (p : ℝ) (1 + t) else 0)
+          (Real.log p / Real.rpow (p : ℝ) (1 + t)) := by
+      simpa using (hasSum_ite_eq qp (Real.log p / Real.rpow (p : ℝ) (1 + t)))
+    have hsum_inner :
+        HasSum
+          (fun q : {q : ℕ // 2 ≤ q} =>
+            ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t) +
+              if q = qp then Real.log p / Real.rpow (p : ℝ) (1 + t) else 0)
+          (analyticSeries (1 + t) + Real.log p / Real.rpow (p : ℝ) (1 + t)) := by
+      exact (hHas_analytic ht).add hcorr
+    have hconst :
+        HasSum
+          (fun q : {q : ℕ // 2 ≤ q} =>
+            ((1 / (N : ℝ)) * (t * Real.exp (-L * t))) *
+              (ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t) +
+                if q = qp then Real.log p / Real.rpow (p : ℝ) (1 + t) else 0))
+          (((1 / (N : ℝ)) * (t * Real.exp (-L * t))) *
+            (analyticSeries (1 + t) + Real.log p / Real.rpow (p : ℝ) (1 + t))) := by
+      simpa [mul_assoc] using
+        hsum_inner.mul_left ((1 / (N : ℝ)) * (t * Real.exp (-L * t)))
+    convert hconst using 1
+    · ext q
+      exact hG_term ht q
+  have hG_int (q : {q : ℕ // 2 ≤ q}) :
+      ∫ t in Set.Ioi (0 : ℝ), G q t = modifiedFlow (N * q.1) N := by
+    by_cases hq : q = qp
+    · subst hq
+      have hb : 0 < L + Real.log p := by
+        exact add_pos hLpos (Real.log_pos (by exact_mod_cast hp.one_lt))
+      have hkernel :
+          ∫ t in Set.Ioi (0 : ℝ), t * Real.exp (-((L + Real.log p) * t)) =
+            (1 / (L + Real.log p)) ^ 2 := by
+        have hkernel' :
+            ∫ t in Set.Ioi (0 : ℝ), t ^ (1 : ℝ) * Real.exp (-((L + Real.log p) * t)) =
+              (1 / (L + Real.log p)) ^ 2 := by
+          simpa [show ((2 : ℝ) - 1) = (1 : ℝ) by norm_num, Real.Gamma_two] using
+            (Real.integral_rpow_mul_exp_neg_mul_Ioi (a := (2 : ℝ)) (r := L + Real.log p)
+              (by norm_num) hb)
+        simpa [Real.rpow_one] using hkernel'
+      have hGqp :
+          G qp =
+            fun t : ℝ =>
+              (ArithmeticFunction.vonMangoldt p / (((N * p : ℕ) : ℝ)) +
+                  Real.log p / (((N * p : ℕ) : ℝ))) *
+                (t * Real.exp (-((L + Real.log p) * t))) := by
+        funext t
+        simp [G, qp, add_mul]
+      rw [hGqp, MeasureTheory.integral_const_mul, hkernel, hmodified_mul qp, if_pos rfl]
+      simp [qp, ArithmeticFunction.vonMangoldt_apply_prime hp, div_eq_mul_inv]
+      field_simp [hNp0, hb.ne']
+    · have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+      have hNq0_nat : N * q.1 ≠ 0 := Nat.mul_ne_zero hN_pos.ne' (Nat.ne_of_gt hqnatpos)
+      have hNq0 : (((N * q.1 : ℕ) : ℝ)) ≠ 0 := by
+        exact_mod_cast hNq0_nat
+      have hb : 0 < L + Real.log q.1 := by
+        have hqcast : (1 : ℝ) < q.1 := by exact_mod_cast q.2
+        exact add_pos hLpos (Real.log_pos hqcast)
+      have hkernel :
+          ∫ t in Set.Ioi (0 : ℝ), t * Real.exp (-((L + Real.log q.1) * t)) =
+            (1 / (L + Real.log q.1)) ^ 2 := by
+        have hkernel' :
+            ∫ t in Set.Ioi (0 : ℝ), t ^ (1 : ℝ) * Real.exp (-((L + Real.log q.1) * t)) =
+              (1 / (L + Real.log q.1)) ^ 2 := by
+          simpa [show ((2 : ℝ) - 1) = (1 : ℝ) by norm_num, Real.Gamma_two] using
+            (Real.integral_rpow_mul_exp_neg_mul_Ioi (a := (2 : ℝ)) (r := L + Real.log q.1)
+              (by norm_num) hb)
+        simpa [Real.rpow_one] using hkernel'
+      have hGq :
+          G q =
+            fun t : ℝ =>
+              (ArithmeticFunction.vonMangoldt q.1 / (((N * q.1 : ℕ) : ℝ))) *
+                (t * Real.exp (-((L + Real.log q.1) * t))) := by
+        funext t
+        simp [G, hq]
+      rw [hGq, MeasureTheory.integral_const_mul, hkernel, hmodified_mul q, if_neg hq]
+      simp [div_eq_mul_inv]
+      field_simp [hNq0, hb.ne']
+  have hG_meas : ∀ q : {q : ℕ // 2 ≤ q}, MeasureTheory.AEStronglyMeasurable (G q) μ := by
+    intro q
+    dsimp [G]
+    fun_prop
+  have h_bound :
+      ∀ q : {q : ℕ // 2 ≤ q}, ∀ᵐ t : ℝ ∂μ, ‖G q t‖ ≤ G q t := by
+    intro q
+    filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
+    have hcoeff_nonneg :
+        0 ≤ ArithmeticFunction.vonMangoldt q.1 / (((N * q.1 : ℕ) : ℝ)) +
+          if q = qp then Real.log p / (((N * p : ℕ) : ℝ)) else 0 := by
+      apply add_nonneg
+      · apply div_nonneg ArithmeticFunction.vonMangoldt_nonneg
+        positivity
+      · by_cases hq : q = qp
+        · subst hq
+          have hp_cast : (1 : ℝ) < p := by
+            exact_mod_cast hp.one_lt
+          split_ifs with h
+          · exact div_nonneg
+              (Real.log_pos hp_cast).le
+              (by positivity : 0 ≤ (((N * p : ℕ) : ℝ)))
+          · contradiction
+        · simp [hq]
+    have hG_nonneg : 0 ≤ G q t := by
+      dsimp [G]
+      exact mul_nonneg hcoeff_nonneg (mul_nonneg ht.le (le_of_lt (Real.exp_pos _)))
+    calc
+      ‖G q t‖ = G q t := Real.norm_of_nonneg hG_nonneg
+      _ ≤ G q t := le_rfl
+  have h_bound_summable :
+      ∀ᵐ t : ℝ ∂μ, Summable (fun q : {q : ℕ // 2 ≤ q} => G q t) := by
+    filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
+    exact (hG_hasSum ht).summable
+  have h_tsum_eq :
+      ∀ᵐ t : ℝ ∂μ, (∑' q : {q : ℕ // 2 ≤ q}, G q t) = fSum t := by
+    filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
+    exact (hG_hasSum ht).tsum_eq
+  have hanalytic_meas :
+      AEMeasurable (fun t : ℝ => analyticSeries (1 + t)) μ := by
+    let Aq : {q : ℕ // 2 ≤ q} → ℝ → NNReal := fun q t =>
+      Real.toNNReal (ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t))
+    have hAq_meas : ∀ q : {q : ℕ // 2 ≤ q}, Measurable (Aq q) := by
+      intro q
+      have hq0 : (q.1 : ℝ) ≠ 0 := by
+        exact_mod_cast (show q.1 ≠ 0 by omega)
+      have hpow_meas : Measurable (fun t : ℝ => (q.1 : ℝ) ^ (1 + t)) :=
+        ((Real.continuous_const_rpow hq0).comp (continuous_const.add continuous_id)).measurable
+      exact (measurable_const.div hpow_meas).real_toNNReal
+    have htsum : Measurable (fun t : ℝ => ∑' q : {q : ℕ // 2 ≤ q}, Aq q t) :=
+      Measurable.tsum hAq_meas
+    refine htsum.coe_nnreal_real.aemeasurable.congr ?_
+    filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
+    have hnonneg :
+        ∀ q : {q : ℕ // 2 ≤ q},
+          0 ≤ ArithmeticFunction.vonMangoldt q.1 / (q.1 : ℝ) ^ (1 + t) := by
+      intro q
+      apply div_nonneg ArithmeticFunction.vonMangoldt_nonneg
+      have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+      exact le_of_lt (Real.rpow_pos_of_pos (by exact_mod_cast hqnatpos) _)
+    calc
+      ↑(∑' q : {q : ℕ // 2 ≤ q}, Aq q t)
+          = ∑' q : {q : ℕ // 2 ≤ q}, (Aq q t : ℝ) := by
+              rw [NNReal.coe_tsum]
+      _ = ∑' q : {q : ℕ // 2 ≤ q},
+            ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t) := by
+              refine tsum_congr ?_
+              intro q
+              dsimp [Aq]
+              calc
+                (Real.toNNReal
+                    (ArithmeticFunction.vonMangoldt q.1 /
+                      Real.rpow (q.1 : ℝ) (1 + t)) : ℝ)
+                    =
+                    max
+                      (ArithmeticFunction.vonMangoldt q.1 /
+                        Real.rpow (q.1 : ℝ) (1 + t))
+                      0 := by
+                        exact Real.coe_toNNReal' _
+                _ = ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t) :=
+                  max_eq_left (hnonneg q)
+      _ = analyticSeries (1 + t) := by
+            exact (hHas_analytic ht).tsum_eq
+  have hfSum_meas : AEMeasurable fSum μ := by
+    have hfactor_meas :
+        AEMeasurable (fun t : ℝ => (1 / (N : ℝ)) * (t * Real.exp (-L * t))) μ := by
+      fun_prop
+    have hcorr_meas :
+        AEMeasurable (fun t : ℝ => Real.log p / Real.rpow (p : ℝ) (1 + t)) μ := by
+      have hpow_cont : Continuous (fun t : ℝ => Real.rpow (p : ℝ) (1 + t)) :=
+        (Real.continuous_const_rpow (Nat.cast_ne_zero.mpr hp.ne_zero)).comp
+          (continuous_const.add continuous_id)
+      exact (continuous_const.div hpow_cont
+        (fun t => (Real.rpow_pos_of_pos (by exact_mod_cast hp.pos) _).ne')).aemeasurable
+    simpa [fSum] using hfactor_meas.mul (hanalytic_meas.add hcorr_meas)
+  have hsimple_int :
+      MeasureTheory.Integrable (fun t : ℝ => (1 / (N : ℝ)) * Real.exp (-L * t)) μ := by
+    simpa [μ, MeasureTheory.IntegrableOn, mul_assoc, mul_left_comm, mul_comm] using
+      (exp_neg_integrableOn_Ioi 0 hLpos).const_mul (1 / (N : ℝ))
+  have hfSum_bound :
+      ∀ᵐ t : ℝ ∂μ, ‖fSum t‖ ≤ (1 / (N : ℝ)) * Real.exp (-L * t) := by
+    filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
+    have ht0 : 0 < t := ht
+    have hA_nonneg : 0 ≤ analyticSeries (1 + t) := by
+      rw [analyticSeries]
+      exact tsum_nonneg fun q =>
+        div_nonneg ArithmeticFunction.vonMangoldt_nonneg <|
+          le_of_lt <| Real.rpow_pos_of_pos (by
+            have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+            exact_mod_cast hqnatpos) _
+    have hcorr_nonneg :
+        0 ≤ Real.log p / Real.rpow (p : ℝ) (1 + t) := by
+      exact div_nonneg
+        (Real.log_pos (by exact_mod_cast hp.one_lt)).le
+        (le_of_lt (Real.rpow_pos_of_pos (by exact_mod_cast hp.pos) _))
+    have hA_le :
+        analyticSeries (1 + t) + Real.log p / Real.rpow (p : ℝ) (1 + t) ≤ 1 / t := by
+      have ht' : 1 < 1 + t := by linarith
+      convert analyticSeries_add_log_term_le ht' hp using 1
+      · ring_nf
+    have hf_nonneg : 0 ≤ fSum t := by
+      dsimp [fSum]
+      exact mul_nonneg
+        (by positivity)
+        (add_nonneg hA_nonneg hcorr_nonneg)
+    rw [Real.norm_eq_abs, abs_of_nonneg hf_nonneg]
+    dsimp [fSum]
+    have hfac_nonneg : 0 ≤ (1 / (N : ℝ)) * (t * Real.exp (-L * t)) := by
+      apply mul_nonneg
+      · positivity
+      · exact mul_nonneg ht0.le (le_of_lt (Real.exp_pos _))
+    calc
+      (1 / (N : ℝ)) * (t * Real.exp (-L * t)) *
+          (analyticSeries (1 + t) + Real.log p / Real.rpow (p : ℝ) (1 + t))
+          ≤ (1 / (N : ℝ)) * (t * Real.exp (-L * t)) * (1 / t) := by
+            gcongr
+      _ = (1 / (N : ℝ)) * Real.exp (-L * t) := by
+            field_simp [ht0.ne']
+  have hfSum_le :
+      ∀ᵐ t : ℝ ∂μ, fSum t ≤ (1 / (N : ℝ)) * Real.exp (-L * t) := by
+    filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
+    have ht0 : 0 < t := ht
+    have hA_nonneg : 0 ≤ analyticSeries (1 + t) := by
+      rw [analyticSeries]
+      exact tsum_nonneg fun q =>
+        div_nonneg ArithmeticFunction.vonMangoldt_nonneg <|
+          le_of_lt <| Real.rpow_pos_of_pos (by
+            have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+            exact_mod_cast hqnatpos) _
+    have hcorr_nonneg :
+        0 ≤ Real.log p / Real.rpow (p : ℝ) (1 + t) := by
+      exact div_nonneg
+        (Real.log_pos (by exact_mod_cast hp.one_lt)).le
+        (le_of_lt (Real.rpow_pos_of_pos (by exact_mod_cast hp.pos) _))
+    have hA_le :
+        analyticSeries (1 + t) + Real.log p / Real.rpow (p : ℝ) (1 + t) ≤ 1 / t := by
+      have ht' : 1 < 1 + t := by linarith
+      convert analyticSeries_add_log_term_le ht' hp using 1
+      · ring_nf
+    dsimp [fSum]
+    have hfac_nonneg : 0 ≤ (1 / (N : ℝ)) * (t * Real.exp (-L * t)) := by
+      apply mul_nonneg
+      · positivity
+      · exact mul_nonneg ht0.le (le_of_lt (Real.exp_pos _))
+    calc
+      (1 / (N : ℝ)) * (t * Real.exp (-L * t)) *
+          (analyticSeries (1 + t) + Real.log p / Real.rpow (p : ℝ) (1 + t))
+          ≤ (1 / (N : ℝ)) * (t * Real.exp (-L * t)) * (1 / t) := by
+            gcongr
+      _ = (1 / (N : ℝ)) * Real.exp (-L * t) := by
+            field_simp [ht0.ne']
+  have hfSum_int : MeasureTheory.Integrable fSum μ :=
+    hsimple_int.mono' hfSum_meas.aestronglyMeasurable hfSum_bound
+  have h_tsum_eq_ae :
+      (fun t : ℝ => ∑' q : {q : ℕ // 2 ≤ q}, G q t) =ᵐ[μ] fSum := h_tsum_eq
+  have h_bound_integrable :
+      MeasureTheory.Integrable (fun t : ℝ => ∑' q : {q : ℕ // 2 ≤ q}, G q t) μ :=
+    hfSum_int.congr h_tsum_eq_ae.symm
+  have h_hasSum_ae :
+      ∀ᵐ t : ℝ ∂μ, HasSum (fun q : {q : ℕ // 2 ≤ q} => G q t) (fSum t) := by
+    filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
+    exact hG_hasSum ht
+  have hIntHasSum :
+      HasSum (fun q : {q : ℕ // 2 ≤ q} => ∫ t, G q t ∂μ) (∫ t, fSum t ∂μ) :=
+    MeasureTheory.hasSum_integral_of_dominated_convergence
+      (bound := G) hG_meas h_bound h_bound_summable h_bound_integrable h_hasSum_ae
+  have hsub_hasSum :
+      HasSum (fun q : {q : ℕ // 2 ≤ q} => modifiedFlow (N * q.1) N) (∫ t, fSum t ∂μ) := by
+    exact hIntHasSum.congr_fun fun q => (hG_int q).symm
+  have hmodified_hasSum :
+      HasSum (fun K : ℕ => modifiedFlow K N) (∫ t, fSum t ∂μ) :=
+    (Function.Injective.hasSum_iff he hmodified_zero).mp hsub_hasSum
+  have hinflow_modified :
+      inflow modifiedFlow N = ∫ t, fSum t ∂μ := by
+    simpa [inflow] using hmodified_hasSum.tsum_eq
+  have hsimple_integral :
+      ∫ t, ((1 / (N : ℝ)) * Real.exp (-L * t)) ∂μ = erdosWeight N := by
+    calc
+      ∫ t, ((1 / (N : ℝ)) * Real.exp (-L * t)) ∂μ
+          = (1 / (N : ℝ)) * ∫ t in Set.Ioi (0 : ℝ), Real.exp (-L * t) := by
+              simp [μ, MeasureTheory.integral_const_mul]
+      _ = (1 / (N : ℝ)) * (1 / L) := by
+            congr 1
+            calc
+              ∫ t in Set.Ioi (0 : ℝ), Real.exp (-L * t)
+                  = L ^ (-1 / (1 : ℝ)) * Real.Gamma (1 / (1 : ℝ) + 1) := by
+                      simpa [Real.rpow_one] using
+                        (integral_exp_neg_mul_rpow (p := 1) zero_lt_one hLpos)
+              _ = 1 / L := by
+                    have htwo : ((1 / (1 : ℝ)) + 1) = 2 := by norm_num
+                    have hnegone : ((-1 : ℝ) / (1 : ℝ)) = -(1 : ℝ) := by norm_num
+                    rw [htwo, Real.Gamma_two]
+                    rw [hnegone, Real.rpow_neg (le_of_lt hLpos),
+                      Real.rpow_one, inv_eq_one_div]
+                    ring
+      _ = erdosWeight N := by
+            simp [erdosWeight, L]
+            field_simp [hN0, hLne]
+  have hfinal_integral :
+      ∫ t, fSum t ∂μ ≤ erdosWeight N := by
+    calc
+      ∫ t, fSum t ∂μ ≤ ∫ t, ((1 / (N : ℝ)) * Real.exp (-L * t)) ∂μ := by
+        exact MeasureTheory.integral_mono_ae hfSum_int hsimple_int hfSum_le
+      _ = erdosWeight N := hsimple_integral
+  calc
+    inflow modifiedFlow N = ∫ t, fSum t ∂μ := hinflow_modified
+    _ ≤ erdosWeight N := hfinal_integral
+
 lemma inflow_modifiedFlow_le_erdosWeight_of_not_isPrimePow {N : ℕ} (hN : 1 < N)
     (hPrimePow : ¬ IsPrimePow N) :
     inflow modifiedFlow N ≤ erdosWeight N := by
-      sorry
+  classical
+  let L : ℝ := Real.log N
+  let μ := MeasureTheory.volume.restrict (Set.Ioi (0 : ℝ))
+  have hN0_nat : N ≠ 0 := ne_of_gt (lt_trans Nat.zero_lt_one hN)
+  have hN_pos : 0 < N := lt_trans Nat.zero_lt_one hN
+  have hN0 : (N : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr hN0_nat
+  have hN_cast : (1 : ℝ) < N := by
+    exact_mod_cast hN
+  have hLpos : 0 < L := by
+    dsimp [L]
+    exact Real.log_pos hN_cast
+  have hLne : L ≠ 0 := hLpos.ne'
+  have hmodified_eq_base : ∀ K : ℕ, modifiedFlow K N = baseFlow K N := by
+    intro K
+    rw [modifiedFlow]
+    have hfirst :
+        ¬ ∃ p : ℕ, p.Prime ∧ ∃ x : ℕ, 2 ≤ x ∧ K = p ^ x ∧ N = 1 := by
+      rintro ⟨p, hp, x, hx, hK, hN1⟩
+      exact (ne_of_gt hN) hN1
+    have hsecond :
+        ¬ ∃ p : ℕ, p.Prime ∧ ∃ x : ℕ, 2 ≤ x ∧ K = p ^ x ∧ N = p ^ (x - 1) := by
+      rintro ⟨p, hp, x, hx, hK, hNpow⟩
+      have hk1 : x - 1 ≠ 0 := by omega
+      exact hPrimePow <| hNpow.symm ▸ (isPrimePow_pow_iff hk1).2 hp.isPrimePow
+    simp [hfirst, hsecond]
+  let e : {q : ℕ // 2 ≤ q} → ℕ := fun q => N * q.1
+  have he : Function.Injective e := by
+    intro a b hab
+    apply Subtype.ext
+    exact Nat.mul_left_cancel hN_pos hab
+  have hbase_zero : ∀ K : ℕ, K ∉ Set.range e → baseFlow K N = 0 := by
+    intro K hK
+    by_cases hdiv : N ∣ K
+    · rcases hdiv with ⟨q, rfl⟩
+      by_cases hqge2 : 2 ≤ q
+      · exfalso
+        exact hK ⟨⟨q, hqge2⟩, rfl⟩
+      · have hnotpp : ¬ IsPrimePow q := by
+          intro hqpp
+          exact hqge2 <| Nat.succ_le_of_lt <| IsPrimePow.one_lt hqpp
+        by_cases hNq : 1 < N * q
+        · simp [baseFlow, hNq, Nat.mul_div_right q hN_pos, hnotpp]
+        · simp [baseFlow, hNq]
+    · simp [baseFlow, hdiv]
+  have hbase_mul (q : {q : ℕ // 2 ≤ q}) :
+      baseFlow (N * q.1) N =
+        ArithmeticFunction.vonMangoldt q.1 /
+          (((N * q.1 : ℕ) : ℝ) * (L + Real.log q.1) ^ 2) := by
+    have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+    have hNq : 1 < N * q.1 := lt_of_lt_of_le hN (Nat.le_mul_of_pos_right N hqnatpos)
+    have hdvd : N ∣ N * q.1 := ⟨q.1, by simp⟩
+    have hdiv : (N * q.1) / N = q.1 := by
+      simpa [Nat.mul_comm] using Nat.mul_div_right q.1 hN_pos
+    have hN0' : (N : ℝ) ≠ 0 := by exact_mod_cast hN_pos.ne'
+    have hq0 : (q.1 : ℝ) ≠ 0 := by
+      exact_mod_cast (show q.1 ≠ 0 by omega)
+    by_cases hqpp : IsPrimePow q.1
+    · rw [baseFlow, if_pos hNq, if_pos hdvd]
+      have hlog : Real.log (((N * q.1 : ℕ) : ℝ)) = L + Real.log q.1 := by
+        simpa [L, Nat.cast_mul] using Real.log_mul hN0' hq0
+      exact
+        (by
+          simpa only [hdiv, hqpp, if_true] using
+            congrArg
+              (fun x =>
+                ArithmeticFunction.vonMangoldt q.1 /
+                  ((((N * q.1 : ℕ) : ℝ)) * x ^ 2))
+              hlog)
+    · have hvm : ArithmeticFunction.vonMangoldt q.1 = 0 := by
+        rw [ArithmeticFunction.vonMangoldt_eq_zero_iff]
+        exact hqpp
+      simp [baseFlow, hNq, hdvd, hdiv, hqpp, hvm]
+  let F : {q : ℕ // 2 ≤ q} → ℝ → ℝ := fun q t =>
+    ArithmeticFunction.vonMangoldt q.1 / (((N * q.1 : ℕ) : ℝ)) *
+      (t * Real.exp (-((L + Real.log q.1) * t)))
+  let fSum : ℝ → ℝ := fun t =>
+    (1 / (N : ℝ)) * (t * Real.exp (-L * t)) * analyticSeries (1 + t)
+  have hsum_analytic {t : ℝ} (ht : 0 < t) :
+      Summable (fun q : {q : ℕ // 2 ≤ q} =>
+        ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t)) := by
+    let full : ℕ → ℝ := fun n =>
+      if n = 0 then 0 else ArithmeticFunction.vonMangoldt n / Real.rpow (n : ℝ) (1 + t)
+    have hLs :
+        LSeriesSummable (fun n => ↑(ArithmeticFunction.vonMangoldt n)) (1 + t : ℂ) :=
+      ArithmeticFunction.LSeriesSummable_vonMangoldt (by simpa using add_lt_add_left ht 1)
+    have hsum_full : Summable full := by
+      simpa [full, LSeries.norm_term_eq, Real.norm_eq_abs,
+        abs_of_nonneg ArithmeticFunction.vonMangoldt_nonneg] using hLs.norm
+    have hfull_zero :
+        ∀ n ∉ Set.range (Subtype.val : {q : ℕ // 2 ≤ q} → ℕ), full n = 0 := by
+      intro n hn
+      have hnlt2 : n < 2 := by
+        by_contra h
+        exact hn ⟨⟨n, not_lt.mp h⟩, rfl⟩
+      interval_cases n <;> simp [full]
+    have hsub : Summable (full ∘ Subtype.val) :=
+      (Function.Injective.summable_iff Subtype.val_injective hfull_zero).2 hsum_full
+    refine hsub.congr ?_
+    intro q
+    simp [full, show ((q : ℕ) ≠ 0) by omega]
+  have hHas_analytic {t : ℝ} (ht : 0 < t) :
+      HasSum
+        (fun q : {q : ℕ // 2 ≤ q} =>
+          ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t))
+        (analyticSeries (1 + t)) := by
+    simpa [analyticSeries] using (hsum_analytic ht).hasSum
+  have hF_term {t : ℝ} (ht : 0 < t) (q : {q : ℕ // 2 ≤ q}) :
+      F q t = ((1 / (N : ℝ)) * (t * Real.exp (-L * t))) *
+        (ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t)) := by
+    have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+    have hqpos : 0 < (q.1 : ℝ) := by exact_mod_cast hqnatpos
+    dsimp [F]
+    rw [Nat.cast_mul, div_eq_mul_inv, div_eq_mul_inv]
+    rw [show -((L + Real.log q.1) * t) = -L * t + -(Real.log q.1 * t) by ring, Real.exp_add]
+    have hmul : -(Real.log (q.1 : ℝ) * t) = Real.log (q.1 : ℝ) * (-t) := by ring
+    rw [hmul, ← Real.rpow_def_of_pos hqpos (-t)]
+    rw [Real.rpow_neg (le_of_lt hqpos), ← mul_assoc]
+    have hrpow : (q.1 : ℝ) ^ (1 + t) = (q.1 : ℝ) * (q.1 : ℝ) ^ t := by
+      simpa using (Real.rpow_add hqpos (1 : ℝ) t)
+    rw [hrpow, div_eq_mul_inv]
+    field_simp [hN0, hqpos.ne', (Real.rpow_pos_of_pos hqpos t).ne']
+  have hF_hasSum {t : ℝ} (ht : 0 < t) :
+      HasSum (fun q : {q : ℕ // 2 ≤ q} => F q t) (fSum t) := by
+    have hconst :
+        HasSum
+          (fun q : {q : ℕ // 2 ≤ q} =>
+            ((1 / (N : ℝ)) * (t * Real.exp (-L * t))) *
+              (ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t)))
+          (((1 / (N : ℝ)) * (t * Real.exp (-L * t))) * analyticSeries (1 + t)) := by
+      simpa [mul_assoc] using
+        (hHas_analytic ht).mul_left ((1 / (N : ℝ)) * (t * Real.exp (-L * t)))
+    exact hconst.congr_fun fun q => hF_term ht q
+  have hF_int (q : {q : ℕ // 2 ≤ q}) :
+      ∫ t in Set.Ioi (0 : ℝ), F q t =
+        ArithmeticFunction.vonMangoldt q.1 /
+          (((N * q.1 : ℕ) : ℝ) * (L + Real.log q.1) ^ 2) := by
+    have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+    have hqpos : 0 < (q.1 : ℝ) := by exact_mod_cast hqnatpos
+    have hqgt1 : (1 : ℝ) < q.1 := by
+      have hqge2 : (2 : ℝ) ≤ q.1 := by exact_mod_cast q.2
+      linarith
+    have hb : 0 < L + Real.log q.1 := by
+      exact add_pos hLpos (Real.log_pos hqgt1)
+    calc
+      ∫ t in Set.Ioi (0 : ℝ), F q t
+          = ArithmeticFunction.vonMangoldt q.1 / (((N * q.1 : ℕ) : ℝ)) *
+              ∫ t in Set.Ioi (0 : ℝ), t * Real.exp (-((L + Real.log q.1) * t)) := by
+                simp [F, MeasureTheory.integral_const_mul]
+      _ = ArithmeticFunction.vonMangoldt q.1 / (((N * q.1 : ℕ) : ℝ)) *
+            (L + Real.log q.1) ^ (-2 : ℝ) := by
+              congr 1
+              calc
+                ∫ t in Set.Ioi (0 : ℝ), t * Real.exp (-((L + Real.log q.1) * t))
+                    = (L + Real.log q.1) ^ (-(1 + 1) / (1 : ℝ)) *
+                        (1 / (1 : ℝ)) * Real.Gamma ((1 + 1) / (1 : ℝ)) := by
+                          convert
+                            (integral_rpow_mul_exp_neg_mul_rpow (p := 1) (q := 1)
+                              zero_lt_one (by norm_num) hb) using 1
+                          · refine MeasureTheory.setIntegral_congr_fun measurableSet_Ioi ?_
+                            intro t ht
+                            have hlin : -((L + Real.log q.1) * t) = (-Real.log q.1 + -L) * t := by
+                              ring
+                            simp [hlin]
+                _ = (L + Real.log q.1) ^ (-2 : ℝ) := by
+                      have htwo : ((1 + 1 : ℝ) / (1 : ℝ)) = 2 := by norm_num
+                      rw [htwo, Real.Gamma_two]
+                      norm_num
+      _ = ArithmeticFunction.vonMangoldt q.1 /
+            (((N * q.1 : ℕ) : ℝ) * (L + Real.log q.1) ^ 2) := by
+              have hNq0 : (((N * q.1 : ℕ) : ℝ)) ≠ 0 := by
+                exact_mod_cast (Nat.mul_pos hN_pos hqnatpos).ne'
+              rw [show (-2 : ℝ) = -(2 : ℝ) by norm_num, Real.rpow_neg (le_of_lt hb)]
+              field_simp [hNq0, hb.ne']
+              have hsquare :
+                  (L + Real.log q.1) ^ 2 =
+                    L ^ 2 + 2 * L * Real.log q.1 + (Real.log q.1) ^ 2 := by
+                ring
+              have hsquareR :
+                  (L + Real.log q.1) ^ (2 : ℝ) =
+                    L ^ 2 + 2 * L * Real.log q.1 + (Real.log q.1) ^ 2 := by
+                simpa [Real.rpow_natCast] using hsquare
+              have haux :
+                ArithmeticFunction.vonMangoldt q.1 * L * Real.log q.1 * 2 +
+                    ArithmeticFunction.vonMangoldt q.1 * L ^ 2 +
+                    ArithmeticFunction.vonMangoldt q.1 * Real.log q.1 ^ 2
+                    = ArithmeticFunction.vonMangoldt q.1 *
+                      (L ^ 2 + 2 * L * Real.log q.1 + (Real.log q.1) ^ 2) := by
+                        ring
+              have hcalc :
+                ArithmeticFunction.vonMangoldt q.1 * L * Real.log q.1 * 2 +
+                    ArithmeticFunction.vonMangoldt q.1 * L ^ 2 +
+                    ArithmeticFunction.vonMangoldt q.1 * Real.log q.1 ^ 2
+                    = ArithmeticFunction.vonMangoldt q.1 * (L + Real.log q.1) ^ (2 : ℝ) := by
+                      calc
+                        ArithmeticFunction.vonMangoldt q.1 * L * Real.log q.1 * 2 +
+                            ArithmeticFunction.vonMangoldt q.1 * L ^ 2 +
+                            ArithmeticFunction.vonMangoldt q.1 * Real.log q.1 ^ 2
+                            = ArithmeticFunction.vonMangoldt q.1 *
+                              (L ^ 2 + 2 * L * Real.log q.1 + (Real.log q.1) ^ 2) := haux
+                        _ = ArithmeticFunction.vonMangoldt q.1 * (L + Real.log q.1) ^ (2 : ℝ) := by
+                              rw [hsquareR]
+              simp
+  have hF_meas : ∀ q : {q : ℕ // 2 ≤ q}, MeasureTheory.AEStronglyMeasurable (F q) μ := by
+    intro q
+    dsimp [F]
+    fun_prop
+  have h_bound :
+      ∀ q : {q : ℕ // 2 ≤ q}, ∀ᵐ t : ℝ ∂μ, ‖F q t‖ ≤ F q t := by
+    intro q
+    filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
+    have hF_nonneg : 0 ≤ F q t := by
+      have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+      dsimp [F]
+      apply mul_nonneg
+      · apply div_nonneg ArithmeticFunction.vonMangoldt_nonneg
+        positivity
+      · exact mul_nonneg ht.le (le_of_lt (Real.exp_pos _))
+    simp [Real.norm_eq_abs, abs_of_nonneg hF_nonneg]
+  have h_bound_summable :
+      ∀ᵐ t : ℝ ∂μ, Summable (fun q : {q : ℕ // 2 ≤ q} => F q t) := by
+    filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
+    exact (hF_hasSum ht).summable
+  have h_hasSum_ae :
+      ∀ᵐ t : ℝ ∂μ, HasSum (fun q : {q : ℕ // 2 ≤ q} => F q t) (fSum t) := by
+    filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
+    exact hF_hasSum ht
+  have h_tsum_eq :
+      ∀ᵐ t : ℝ ∂μ, (∑' q : {q : ℕ // 2 ≤ q}, F q t) = fSum t := by
+    filter_upwards [h_hasSum_ae] with t ht
+    exact ht.tsum_eq
+  have hanalytic_meas :
+      AEMeasurable (fun t : ℝ => analyticSeries (1 + t)) μ := by
+    let Aq : {q : ℕ // 2 ≤ q} → ℝ → NNReal := fun q t =>
+      Real.toNNReal (ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t))
+    have hAq_meas : ∀ q : {q : ℕ // 2 ≤ q}, Measurable (Aq q) := by
+      intro q
+      have hq0 : (q.1 : ℝ) ≠ 0 := by
+        exact_mod_cast (show q.1 ≠ 0 by omega)
+      have hpow_meas : Measurable (fun t : ℝ => (q.1 : ℝ) ^ (1 + t)) :=
+        ((Real.continuous_const_rpow hq0).comp (continuous_const.add continuous_id)).measurable
+      exact (measurable_const.div hpow_meas).real_toNNReal
+    have htsum : Measurable (fun t : ℝ => ∑' q : {q : ℕ // 2 ≤ q}, Aq q t) :=
+      Measurable.tsum hAq_meas
+    refine htsum.coe_nnreal_real.aemeasurable.congr ?_
+    filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
+    have hnonneg :
+        ∀ q : {q : ℕ // 2 ≤ q},
+          0 ≤ ArithmeticFunction.vonMangoldt q.1 / (q.1 : ℝ) ^ (1 + t) := by
+      intro q
+      apply div_nonneg ArithmeticFunction.vonMangoldt_nonneg
+      have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+      exact le_of_lt (Real.rpow_pos_of_pos (by exact_mod_cast hqnatpos) _)
+    calc
+      ↑(∑' q : {q : ℕ // 2 ≤ q}, Aq q t)
+          = ∑' q : {q : ℕ // 2 ≤ q}, (Aq q t : ℝ) := by
+              rw [NNReal.coe_tsum]
+      _ = ∑' q : {q : ℕ // 2 ≤ q},
+            ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t) := by
+              refine tsum_congr ?_
+              intro q
+              dsimp [Aq]
+              simp [max_eq_left (hnonneg q)]
+      _ = analyticSeries (1 + t) := by
+            simp [analyticSeries]
+  have hfSum_meas : AEMeasurable fSum μ := by
+    have hfactor_meas : AEMeasurable (fun t : ℝ => (1 / (N : ℝ)) * (t * Real.exp (-L * t))) μ := by
+      fun_prop
+    simpa [fSum] using hfactor_meas.mul hanalytic_meas
+  have hsimple_int :
+      MeasureTheory.Integrable (fun t : ℝ => (1 / (N : ℝ)) * Real.exp (-L * t)) μ := by
+    simpa [μ, MeasureTheory.IntegrableOn, mul_assoc, mul_left_comm, mul_comm] using
+      (exp_neg_integrableOn_Ioi 0 hLpos).const_mul (1 / (N : ℝ))
+  have hfSum_bound :
+      ∀ᵐ t : ℝ ∂μ, ‖fSum t‖ ≤ (1 / (N : ℝ)) * Real.exp (-L * t) := by
+    filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
+    have ht0 : 0 < t := ht
+    have hA_nonneg : 0 ≤ analyticSeries (1 + t) := by
+      rw [analyticSeries]
+      exact tsum_nonneg fun q =>
+        div_nonneg ArithmeticFunction.vonMangoldt_nonneg <|
+          le_of_lt <| Real.rpow_pos_of_pos (by
+            have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+            exact_mod_cast hqnatpos) _
+    have hcorr_nonneg :
+        0 ≤ Real.log (2 : ℝ) / Real.rpow (2 : ℝ) (1 + t) := by
+      have hlog2 : 0 < Real.log (2 : ℝ) := Real.log_pos (by norm_num)
+      exact div_nonneg hlog2.le (le_of_lt (Real.rpow_pos_of_pos (by norm_num) _))
+    have hA_le : analyticSeries (1 + t) ≤ 1 / t := by
+      have hs : 1 < 1 + t := by linarith
+      have hmain :
+          analyticSeries (1 + t) + Real.log (2 : ℝ) / Real.rpow (2 : ℝ) (1 + t) ≤ 1 / t := by
+        simpa using (analyticSeries_add_log_term_le hs Nat.prime_two)
+      calc
+        analyticSeries (1 + t)
+            ≤ analyticSeries (1 + t) + Real.log (2 : ℝ) / Real.rpow (2 : ℝ) (1 + t) := by
+              linarith
+        _ ≤ 1 / t := hmain
+    have hf_nonneg : 0 ≤ fSum t := by
+      dsimp [fSum]
+      exact mul_nonneg
+        (by positivity)
+        hA_nonneg
+    rw [Real.norm_eq_abs, abs_of_nonneg hf_nonneg]
+    dsimp [fSum]
+    have hfac_nonneg : 0 ≤ (1 / (N : ℝ)) * (t * Real.exp (-L * t)) := by
+      apply mul_nonneg
+      · positivity
+      · exact mul_nonneg ht0.le (le_of_lt (Real.exp_pos _))
+    calc
+      (1 / (N : ℝ)) * (t * Real.exp (-L * t)) * analyticSeries (1 + t)
+          ≤ (1 / (N : ℝ)) * (t * Real.exp (-L * t)) * (1 / t) := by
+            gcongr
+      _ = (1 / (N : ℝ)) * Real.exp (-L * t) := by
+            field_simp [ht0.ne']
+  have hfSum_int : MeasureTheory.Integrable fSum μ :=
+    hsimple_int.mono' hfSum_meas.aestronglyMeasurable hfSum_bound
+  have h_bound_integrable :
+      MeasureTheory.Integrable (fun t : ℝ => ∑' q : {q : ℕ // 2 ≤ q}, F q t) μ :=
+    hfSum_int.congr (h_tsum_eq.mono fun t ht => ht.symm)
+  have hIntHasSum :
+      HasSum (fun q : {q : ℕ // 2 ≤ q} => ∫ t, F q t ∂μ) (∫ t, fSum t ∂μ) :=
+    MeasureTheory.hasSum_integral_of_dominated_convergence
+      (bound := F) hF_meas h_bound h_bound_summable h_bound_integrable h_hasSum_ae
+  have hsub_hasSum :
+      HasSum (fun q : {q : ℕ // 2 ≤ q} => baseFlow (N * q.1) N) (∫ t, fSum t ∂μ) := by
+    exact hIntHasSum.congr_fun fun q => (hbase_mul q).trans (hF_int q).symm
+  have hbase_hasSum :
+      HasSum (fun K : ℕ => baseFlow K N) (∫ t, fSum t ∂μ) :=
+    (Function.Injective.hasSum_iff he hbase_zero).mp hsub_hasSum
+  have hinflow_base :
+      inflow baseFlow N = ∫ t, fSum t ∂μ := by
+    simpa [inflow] using hbase_hasSum.tsum_eq
+  have hsimple_integral :
+      ∫ t, ((1 / (N : ℝ)) * Real.exp (-L * t)) ∂μ = erdosWeight N := by
+    calc
+      ∫ t, ((1 / (N : ℝ)) * Real.exp (-L * t)) ∂μ
+          = (1 / (N : ℝ)) * ∫ t in Set.Ioi (0 : ℝ), Real.exp (-L * t) := by
+              simp [μ, MeasureTheory.integral_const_mul]
+      _ = (1 / (N : ℝ)) * (1 / L) := by
+            congr 1
+            calc
+              ∫ t in Set.Ioi (0 : ℝ), Real.exp (-L * t)
+                  = L ^ (-1 / (1 : ℝ)) * Real.Gamma (1 / (1 : ℝ) + 1) := by
+                      simpa [Real.rpow_one] using
+                        (integral_exp_neg_mul_rpow (p := 1) zero_lt_one hLpos)
+              _ = 1 / L := by
+                    have htwo : ((1 / (1 : ℝ)) + 1) = 2 := by norm_num
+                    have hnegone : ((-1 : ℝ) / (1 : ℝ)) = -(1 : ℝ) := by norm_num
+                    rw [htwo, Real.Gamma_two]
+                    rw [hnegone, Real.rpow_neg (le_of_lt hLpos),
+                      Real.rpow_one, inv_eq_one_div]
+                    ring
+      _ = erdosWeight N := by
+            simp [erdosWeight, L]
+            field_simp [hN0, hLne]
+  have hfSum_le :
+      fSum ≤ᵐ[μ] fun t : ℝ => (1 / (N : ℝ)) * Real.exp (-L * t) := by
+    filter_upwards [hfSum_bound] with t ht
+    exact le_trans (le_abs_self _) ht
+  have hfinal_integral :
+      ∫ t, fSum t ∂μ ≤ erdosWeight N := by
+    calc
+      ∫ t, fSum t ∂μ ≤ ∫ t, ((1 / (N : ℝ)) * Real.exp (-L * t)) ∂μ := by
+        exact MeasureTheory.integral_mono_ae hfSum_int hsimple_int hfSum_le
+      _ = erdosWeight N := hsimple_integral
+  calc
+    inflow modifiedFlow N = inflow baseFlow N := by
+      simp [inflow, hmodified_eq_base]
+    _ = ∫ t, fSum t ∂μ := hinflow_base
+    _ ≤ erdosWeight N := hfinal_integral
+
 lemma inflow_modifiedFlow_le_erdosWeight {N : ℕ} (hN : 1 < N) :
     inflow modifiedFlow N ≤ erdosWeight N := by
   by_cases hPrimePow : IsPrimePow N
@@ -1115,13 +2634,285 @@ lemma sum_shiftedPrimeIndicator_le_primeCounting (n : ℕ) :
 
 lemma hasDerivAt_norm_shiftedPrimeWeight {x : ℝ} (hx : 1 ≤ x) :
     HasDerivAt (fun t => ‖shiftedPrimeWeightReal t‖) (shiftedPrimeWeightDeriv x) x := by
-      sorry
+  have hx1 : x + 1 ≠ 0 := by
+    have : 0 < x + 1 := by linarith
+    linarith
+  have hlog : Real.log (x + 1) ≠ 0 := by
+    have hpos : 0 < Real.log (x + 1) := by
+      apply Real.log_pos
+      linarith
+    linarith
+  have h1 : HasDerivAt (fun y : ℝ => y + 1) 1 x := by
+    simpa using (hasDerivAt_id x).add_const (1 : ℝ)
+  have hlog' : HasDerivAt (fun y : ℝ => Real.log (y + 1)) ((x + 1)⁻¹) x := by
+    simpa [Function.comp_def] using (Real.hasDerivAt_log hx1).comp x h1
+  have hmul0 := h1.mul hlog'
+  have hmul_val :
+      Real.log (x + 1) + (x + 1) * (x + 1)⁻¹ = Real.log (x + 1) + 1 := by
+    field_simp [hx1]
+  have hmul :
+      HasDerivAt (fun y : ℝ => (y + 1) * Real.log (y + 1))
+        (Real.log (x + 1) + 1) x := by
+    change HasDerivAt ((fun y : ℝ => y + 1) * fun y => Real.log (y + 1))
+      (Real.log (x + 1) + 1) x
+    rw [← hmul_val]
+    simpa [one_mul] using hmul0
+  have hderiv :
+      HasDerivAt shiftedPrimeWeightReal (shiftedPrimeWeightDeriv x) x := by
+    change
+      HasDerivAt ((fun y : ℝ => (y + 1) * Real.log (y + 1))⁻¹)
+        (shiftedPrimeWeightDeriv x) x
+    simpa [shiftedPrimeWeightReal, shiftedPrimeWeightDeriv, div_eq_mul_inv, pow_two, sub_eq_add_neg,
+      add_comm, add_left_comm, add_assoc, mul_comm, mul_left_comm, mul_assoc]
+      using hmul.inv (mul_ne_zero hx1 hlog)
+  have hpos_eventually : ∀ᶠ y in nhds x, 0 < shiftedPrimeWeightReal y := by
+    have hgt : ∀ᶠ y in nhds x, 0 < y := Ioi_mem_nhds (show (0 : ℝ) < x by linarith)
+    filter_upwards [hgt] with y hy
+    have hylog : 0 < Real.log (y + 1) := Real.log_pos (by linarith)
+    have hyden : 0 < (y + 1) * Real.log (y + 1) := by positivity
+    simpa [shiftedPrimeWeightReal] using inv_pos.mpr hyden
+  have heq : (fun t => ‖shiftedPrimeWeightReal t‖) =ᶠ[nhds x] shiftedPrimeWeightReal := by
+    filter_upwards [hpos_eventually] with y hy
+    simp [Real.norm_eq_abs, abs_of_nonneg (le_of_lt hy)]
+  rw [heq.hasDerivAt_iff]
+  exact hderiv
+
 lemma locallyIntegrable_deriv_norm_shiftedPrimeWeight :
     LocallyIntegrableOn (deriv (fun t => ‖shiftedPrimeWeightReal t‖)) (Set.Ici 1) := by
-      sorry
+  have hcont : ContinuousOn shiftedPrimeWeightDeriv (Set.Ici 1) := by
+    intro x hx
+    have hx' : 1 ≤ x := hx
+    have hx1 : x + 1 ≠ 0 := by
+      have : 0 < x + 1 := by linarith
+      linarith
+    have hlog : Real.log (x + 1) ≠ 0 := by
+      have hpos : 0 < Real.log (x + 1) := by
+        apply Real.log_pos
+        linarith
+      linarith
+    have hcont_add : ContinuousWithinAt (fun t : ℝ => t + (1 : ℝ)) (Set.Ici 1) x :=
+      (continuousAt_id.add continuousAt_const).continuousWithinAt
+    have hcont_log :
+        ContinuousWithinAt (fun t : ℝ => Real.log (t + 1)) (Set.Ici 1) x := by
+      simpa [Function.comp_def] using
+        (ContinuousAt.comp_continuousWithinAt (f := fun t : ℝ => t + 1)
+          (g := Real.log) (Real.continuousAt_log hx1) hcont_add)
+    have hmul : ContinuousWithinAt (fun t : ℝ => (t + 1) * Real.log (t + 1)) (Set.Ici 1) x :=
+      hcont_add.mul hcont_log
+    have hpow : ContinuousWithinAt (fun t : ℝ => ((t + 1) * Real.log (t + 1)) ^ 2) (Set.Ici 1) x :=
+      hmul.pow 2
+    have hpow_ne : ((x + 1) * Real.log (x + 1)) ^ 2 ≠ 0 := by
+      exact pow_ne_zero 2 (mul_ne_zero hx1 hlog)
+    have hinv :
+        ContinuousWithinAt (fun t : ℝ => (((t + 1) * Real.log (t + 1)) ^ 2)⁻¹) (Set.Ici 1) x :=
+      hpow.inv₀ hpow_ne
+    have hother : ContinuousWithinAt (fun t : ℝ => -1 - Real.log (t + 1)) (Set.Ici 1) x :=
+      continuousWithinAt_const.sub hcont_log
+    change
+      ContinuousWithinAt
+        (((fun t : ℝ => ((((t + 1) * Real.log (t + 1)) ^ 2)⁻¹)) *
+          (fun t : ℝ => -1 - Real.log (t + 1)))) (Set.Ici 1) x
+    exact hinv.mul hother
+  have hloc : LocallyIntegrableOn shiftedPrimeWeightDeriv (Set.Ici 1) :=
+    hcont.locallyIntegrableOn measurableSet_Ici
+  refine MeasureTheory.LocallyIntegrableOn.congr ?_ hloc
+  filter_upwards [ae_restrict_mem measurableSet_Ici] with x hx
+  simpa [shiftedPrimeWeightDeriv] using (hasDerivAt_norm_shiftedPrimeWeight hx).deriv.symm
+
 lemma summable_shiftedPrimeWeights_indicator :
     Summable (fun n : ℕ => if (n + 1).Prime then erdosWeight (n + 1) else 0) := by
-      sorry
+  have hf_diff : ∀ t ∈ Set.Ici 1, DifferentiableAt ℝ (fun x ↦ ‖shiftedPrimeWeightReal x‖) t := by
+    intro t ht
+    exact (hasDerivAt_norm_shiftedPrimeWeight ht).differentiableAt
+  have h_bdd :
+      (fun n : ℕ => ‖shiftedPrimeWeightReal n‖ *
+        ∑ k ∈ Finset.Icc 1 n, ‖shiftedPrimeIndicator k‖) =O[atTop] fun _ => (1 : ℝ) := by
+    let C : ℝ := Real.log 4 + 1
+    refine Asymptotics.IsBigO.of_bound C ?_
+    have hpi_real : ∀ᶠ x : ℝ in atTop, (π ⌊x⌋₊ : ℝ) ≤ C * x / Real.log x := by
+      simpa [C] using (Chebyshev.eventually_primeCounting_le (ε := 1) (by positivity))
+    have htend : Tendsto (fun n : ℕ => ((n + 1 : ℕ) : ℝ)) atTop atTop :=
+      tendsto_natCast_atTop_atTop.comp (tendsto_add_atTop_nat 1)
+    have hpi_nat0 : ∀ᶠ n : ℕ in atTop,
+        (π ⌊((n + 1 : ℕ) : ℝ)⌋₊ : ℝ) ≤ C * ((n + 1 : ℕ) : ℝ) / Real.log ((n + 1 : ℕ) : ℝ) := by
+      exact htend.eventually hpi_real
+    have hpi_nat : ∀ᶠ n : ℕ in atTop,
+        (π (n + 1) : ℝ) ≤ C * ((n : ℝ) + 1) / Real.log ((n : ℝ) + 1) := by
+      filter_upwards [hpi_nat0] with n hn
+      have hfloor : ⌊(n : ℝ) + 1⌋₊ = n + 1 := by
+        simpa [Nat.floor_natCast, Nat.cast_add, add_comm]
+          using (Nat.floor_add_one (show 0 ≤ (n : ℝ) by positivity))
+      simpa [Nat.cast_add, hfloor] using hn
+    filter_upwards [eventually_ge_atTop 2, hpi_nat] with n hn hpi
+    have hsum := sum_shiftedPrimeIndicator_le_primeCounting n
+    have hn' : (2 : ℝ) ≤ n := by exact_mod_cast hn
+    have hlog_pos : 0 < Real.log ((n : ℝ) + 1) := by
+      apply Real.log_pos
+      have : (1 : ℝ) < (n : ℝ) + 1 := by nlinarith
+      simpa
+    have hden_pos : 0 < (((n : ℝ) + 1) * Real.log ((n : ℝ) + 1)) := by positivity
+    calc
+      ‖‖shiftedPrimeWeightReal n‖ * ∑ k ∈ Finset.Icc 1 n, ‖shiftedPrimeIndicator k‖‖
+          = ‖shiftedPrimeWeightReal n‖ * ∑ k ∈ Finset.Icc 1 n, ‖shiftedPrimeIndicator k‖ := by
+              rw [Real.norm_of_nonneg]
+              exact mul_nonneg (norm_nonneg _) (Finset.sum_nonneg fun _ _ => norm_nonneg _)
+      _ ≤ ‖shiftedPrimeWeightReal n‖ * (π (n + 1) : ℝ) := by
+            gcongr
+      _ ≤ ‖shiftedPrimeWeightReal n‖ *
+            (C * ((n : ℝ) + 1) / Real.log ((n : ℝ) + 1)) := by
+            gcongr
+      _ = (C : ℝ) / (Real.log ((n : ℝ) + 1) ^ 2) := by
+            rw [show ‖shiftedPrimeWeightReal n‖ = shiftedPrimeWeightReal n by
+              have hfpos : 0 < shiftedPrimeWeightReal n := by
+                simpa [shiftedPrimeWeightReal] using inv_pos.mpr hden_pos
+              simp [Real.norm_eq_abs, abs_of_nonneg (le_of_lt hfpos)],
+              shiftedPrimeWeightReal]
+            field_simp [hlog_pos.ne', hden_pos.ne']
+      _ = C * (Real.log ((n : ℝ) + 1) ^ 2)⁻¹ := by rw [div_eq_mul_inv]
+      _ ≤ C * 1 := by
+            have hC : 0 ≤ C := by positivity
+            gcongr
+            have hexp_lt_three : Real.exp 1 < 3 := by
+              have h := Real.exp_one_lt_d9
+              linarith
+            have h3 : (3 : ℝ) ≤ (n : ℝ) + 1 := by nlinarith
+            have h_exp_le : Real.exp 1 ≤ (n : ℝ) + 1 := le_trans hexp_lt_three.le h3
+            have hlog_ge : 1 ≤ Real.log ((n : ℝ) + 1) :=
+              (Real.le_log_iff_exp_le (by positivity)).2 h_exp_le
+            have hsq : 1 ≤ Real.log ((n : ℝ) + 1) ^ 2 := by
+              nlinarith [sq_nonneg (Real.log ((n : ℝ) + 1)), hlog_ge]
+            simpa using (one_div_le_one_div_of_le (show (0 : ℝ) < 1 by norm_num) hsq)
+      _ = C * ‖(1 : ℝ)‖ := by simp
+  have hg1 :
+      (fun t ↦ deriv (fun t ↦ ‖shiftedPrimeWeightReal t‖) t *
+        ∑ k ∈ Finset.Icc 1 ⌊t⌋₊, ‖shiftedPrimeIndicator k‖) =O[atTop] shiftedPrimeWeightBound := by
+    let C : ℝ := Real.log 4 + 1
+    refine Asymptotics.IsBigO.of_bound (2 * C) ?_
+    have hpi_real : ∀ᶠ x : ℝ in atTop, (π ⌊x⌋₊ : ℝ) ≤ C * x / Real.log x := by
+      simpa [C] using (Chebyshev.eventually_primeCounting_le (ε := 1) (by positivity))
+    have hshift : Tendsto (fun t : ℝ => t + 1) atTop atTop :=
+      tendsto_atTop_add_const_right _ _ tendsto_id
+    have hpi_shift : ∀ᶠ t : ℝ in atTop, (π ⌊t + 1⌋₊ : ℝ) ≤ C * (t + 1) / Real.log (t + 1) := by
+      exact hshift.eventually hpi_real
+    filter_upwards [eventually_ge_atTop 2, hpi_shift] with t ht hpi
+    have ht1 : 1 ≤ t := by linarith
+    have ht0 : 0 ≤ t := by linarith
+    have ht1_ne : t + 1 ≠ 0 := by linarith
+    have hlog_pos : 0 < Real.log (t + 1) := by
+      apply Real.log_pos
+      linarith
+    have hsum : ∑ k ∈ Finset.Icc 1 ⌊t⌋₊, ‖shiftedPrimeIndicator k‖ ≤
+        C * (t + 1) / Real.log (t + 1) := by
+      calc
+        ∑ k ∈ Finset.Icc 1 ⌊t⌋₊, ‖shiftedPrimeIndicator k‖ ≤ (π (⌊t⌋₊ + 1) : ℝ) :=
+          sum_shiftedPrimeIndicator_le_primeCounting _
+        _ = (π ⌊t + 1⌋₊ : ℝ) := by
+          have hfloor : ⌊t⌋₊ + 1 = ⌊t + 1⌋₊ := by
+            simpa [add_comm] using (Nat.floor_add_one ht0).symm
+          rw [hfloor]
+        _ ≤ C * (t + 1) / Real.log (t + 1) := hpi
+    have hsum_nonneg : 0 ≤ ∑ k ∈ Finset.Icc 1 ⌊t⌋₊, ‖shiftedPrimeIndicator k‖ :=
+      Finset.sum_nonneg fun _ _ => norm_nonneg _
+    have hlog_ge : 1 ≤ Real.log (t + 1) := by
+      have hexp_lt_three : Real.exp 1 < 3 := by
+        have h := Real.exp_one_lt_d9
+        linarith
+      have h3 : (3 : ℝ) ≤ t + 1 := by linarith
+      have h_exp_le : Real.exp 1 ≤ t + 1 := le_trans hexp_lt_three.le h3
+      exact (Real.le_log_iff_exp_le (by positivity)).2 h_exp_le
+    have habs_d : ‖shiftedPrimeWeightDeriv t‖ =
+        ((((t + 1) * Real.log (t + 1)) ^ 2)⁻¹) * (1 + Real.log (t + 1)) := by
+      rw [shiftedPrimeWeightDeriv, Real.norm_eq_abs, abs_mul]
+      have h_inv_nonneg : 0 ≤ ((((t + 1) * Real.log (t + 1)) ^ 2)⁻¹ : ℝ) := by positivity
+      rw [abs_of_nonneg h_inv_nonneg, abs_of_nonpos]
+      · ring
+      · linarith
+    have hg_nonneg : 0 ≤ shiftedPrimeWeightBound t := by
+      have hden : 0 < (t + 1) * Real.log (t + 1) ^ 2 := by positivity
+      exact le_of_lt (one_div_pos.mpr hden)
+    calc
+      ‖deriv (fun t ↦ ‖shiftedPrimeWeightReal t‖) t *
+          ∑ k ∈ Finset.Icc 1 ⌊t⌋₊, ‖shiftedPrimeIndicator k‖‖
+          = ‖deriv (fun t ↦ ‖shiftedPrimeWeightReal t‖) t‖ *
+              ∑ k ∈ Finset.Icc 1 ⌊t⌋₊, ‖shiftedPrimeIndicator k‖ := by
+                rw [norm_mul, show ‖∑ k ∈ Finset.Icc 1 ⌊t⌋₊, ‖shiftedPrimeIndicator k‖‖ =
+                  ∑ k ∈ Finset.Icc 1 ⌊t⌋₊, ‖shiftedPrimeIndicator k‖ by
+                    exact Real.norm_of_nonneg hsum_nonneg]
+      _ = ‖shiftedPrimeWeightDeriv t‖ * ∑ k ∈ Finset.Icc 1 ⌊t⌋₊, ‖shiftedPrimeIndicator k‖ := by
+            rw [show deriv (fun t ↦ ‖shiftedPrimeWeightReal t‖) t = shiftedPrimeWeightDeriv t by
+              simpa [shiftedPrimeWeightDeriv] using (hasDerivAt_norm_shiftedPrimeWeight ht1).deriv]
+      _ = ((((t + 1) * Real.log (t + 1)) ^ 2)⁻¹) * (1 + Real.log (t + 1)) *
+            ∑ k ∈ Finset.Icc 1 ⌊t⌋₊, ‖shiftedPrimeIndicator k‖ := by
+            rw [habs_d]
+      _ ≤ ((((t + 1) * Real.log (t + 1)) ^ 2)⁻¹) * (2 * Real.log (t + 1)) *
+            (C * (t + 1) / Real.log (t + 1)) := by
+            gcongr
+            · linarith
+      _ = (2 * C) * shiftedPrimeWeightBound t := by
+            unfold shiftedPrimeWeightBound
+            field_simp [hlog_pos.ne', ht1_ne]
+      _ = (2 * C) * ‖shiftedPrimeWeightBound t‖ := by
+            rw [Real.norm_of_nonneg hg_nonneg]
+  have hg2 : IntegrableAtFilter shiftedPrimeWeightBound atTop := by
+    rw [integrableAtFilter_atTop_iff]
+    have hIoi : IntegrableOn shiftedPrimeWeightBound (Set.Ioi 1) := by
+      refine MeasureTheory.integrableOn_Ioi_deriv_of_nonneg (a := 1) (l := 0)
+        (g := fun t : ℝ => -(Real.log (t + 1))⁻¹)
+        (g' := fun t : ℝ => 1 / ((t + 1) * Real.log (t + 1) ^ 2)) ?_ ?_ ?_ ?_
+      · have hcont_add : ContinuousWithinAt (fun t : ℝ => t + (1 : ℝ)) (Set.Ici 1) 1 :=
+            (continuousAt_id.add continuousAt_const).continuousWithinAt
+        have hcont_log :
+            ContinuousWithinAt (fun t : ℝ => Real.log (t + 1)) (Set.Ici 1) 1 := by
+          simpa [Function.comp_def] using
+            (ContinuousAt.comp_continuousWithinAt (f := fun t : ℝ => t + 1)
+              (g := Real.log) (Real.continuousAt_log (by norm_num : ((1 : ℝ) + 1) ≠ 0))
+              hcont_add)
+        exact (hcont_log.inv₀ (by norm_num : Real.log ((1 : ℝ) + 1) ≠ 0)).neg
+      · intro x hx
+        have hxgt1 : 1 < x + 1 := by
+          have hx' : 1 < x := hx
+          nlinarith
+        have hx1 : x + 1 ≠ 0 := (lt_trans zero_lt_one hxgt1).ne'
+        have hlog : Real.log (x + 1) ≠ 0 := (Real.log_pos hxgt1).ne'
+        have h1 : HasDerivAt (fun y : ℝ => y + 1) 1 x := (hasDerivAt_id x).add_const 1
+        have hlog' : HasDerivAt (fun y : ℝ => Real.log (y + 1)) ((x + 1)⁻¹) x := by
+          simpa [Function.comp_def] using
+            (HasDerivAt.comp (x := x) (h := fun y : ℝ => y + 1) (Real.hasDerivAt_log hx1) h1)
+        have hinv :
+            HasDerivAt ((fun y : ℝ => Real.log (y + 1))⁻¹)
+              (-(x + 1)⁻¹ / Real.log (x + 1) ^ 2) x :=
+            by
+          simpa [div_eq_mul_inv, pow_two, mul_assoc] using hlog'.inv hlog
+        change
+          HasDerivAt (-(fun t : ℝ => Real.log (t + 1))⁻¹)
+            (1 / ((x + 1) * Real.log (x + 1) ^ 2)) x
+        rw [show 1 / ((x + 1) * Real.log (x + 1) ^ 2) =
+          - (-(x + 1)⁻¹ / Real.log (x + 1) ^ 2) by field_simp [hx1, hlog]]
+        exact hinv.neg
+      · intro x hx
+        have hxgt1 : 1 < x + 1 := by
+          have hx' : 1 < x := hx
+          nlinarith
+        have hden : 0 < (x + 1) * Real.log (x + 1) ^ 2 := by
+          have hlog : 0 < Real.log (x + 1) := Real.log_pos hxgt1
+          positivity
+        exact le_of_lt (one_div_pos.mpr hden)
+      · have hlog_tendsto : Tendsto (fun t : ℝ => Real.log (t + 1)) atTop atTop := by
+          exact Real.tendsto_log_atTop.comp (tendsto_atTop_add_const_right _ _ tendsto_id)
+        have hinv_tendsto : Tendsto (fun t : ℝ => (Real.log (t + 1))⁻¹) atTop (nhds 0) := by
+          exact tendsto_inv_atTop_zero.comp hlog_tendsto
+        simpa using hinv_tendsto.neg
+    refine ⟨1, ?_⟩
+    exact (integrableOn_Ici_iff_integrableOn_Ioi (b := 1) (by finiteness)).2 hIoi
+  have hs : Summable (fun n : ℕ => shiftedPrimeWeightReal n * shiftedPrimeIndicator n) :=
+    summable_mul_of_bigO_atTop' (c := shiftedPrimeIndicator) (f := shiftedPrimeWeightReal)
+      hf_diff locallyIntegrable_deriv_norm_shiftedPrimeWeight h_bdd hg1 hg2
+  refine hs.congr ?_
+  intro n
+  by_cases hn : (n + 1).Prime
+  · simp [shiftedPrimeWeightReal, shiftedPrimeIndicator, erdosWeight, hn]
+  · simp [shiftedPrimeIndicator, hn]
+
 def shiftedPrimeEquiv : {n : ℕ // (n + 1).Prime} ≃ {p : ℕ // p.Prime} where
   toFun n := ⟨n.1 + 1, n.2⟩
   invFun p := ⟨p.1 - 1, by
@@ -1408,11 +3199,160 @@ lemma inflow_modifiedFlow_eq_sum_finset_add_compl (s : Finset ℕ) (n : ℕ) :
 lemma boundaryOutflow_eq_sum_compl (s : Finset ℕ) :
     boundaryOutflow modifiedFlow (↑s : Set ℕ) =
       ∑ r ∈ s, ∑' n : { n // n ∉ s }, modifiedFlow r n := by
-        sorry
+  classical
+  let e : boundaryOutPairs (↑s : Set ℕ) ≃
+      Σ r : {r // r ∈ s}, {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1} :=
+    { toFun := fun mn =>
+        ⟨⟨mn.1.1, mn.2.1⟩, ⟨mn.1.2, mn.2.2.1, mn.2.2.2⟩⟩
+      invFun := fun rn =>
+        ⟨(rn.1.1, rn.2.1), rn.1.2, rn.2.2.1, rn.2.2.2⟩
+      left_inv := by
+        intro mn
+        cases mn
+        rfl
+      right_inv := by
+        intro rn
+        cases rn
+        rfl }
+  have hinner :
+      ∀ r : {r // r ∈ s},
+        Summable (fun n : {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1} => modifiedFlow r.1 n.1) := by
+    intro r
+    simpa [Function.comp_def] using
+      (summable_modifiedFlow_row r.1).comp_injective Subtype.val_injective
+  have houter :
+      Summable (fun r : {r // r ∈ s} =>
+        ∑' n : {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1}, modifiedFlow r.1 n.1) := by
+    exact Summable.of_finite
+  have hsigma :
+      Summable (fun z : Σ r : {r // r ∈ s}, {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1} =>
+        modifiedFlow z.1.1 z.2.1) := by
+    refine (summable_sigma_of_nonneg (fun z => modifiedFlow_nonneg _ _)).2 ?_
+    exact ⟨hinner, houter⟩
+  have hprecise :
+      ∀ r : {r // r ∈ s},
+        (∑' n : {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1}, modifiedFlow r.1 n.1) =
+          ∑' n : {n // n ∉ s}, modifiedFlow r.1 n.1 := by
+    intro r
+    have hsupport :
+        Function.support (fun n : {n // n ∉ s} => modifiedFlow r.1 n.1) ⊆
+          {n | n.1 ∣ r.1 ∧ n.1 < r.1} := by
+      intro n hn
+      by_contra hbad
+      exact hn <| by
+        apply modifiedFlow_eq_zero_of_not_dvd_lt
+        simpa [Set.mem_setOf_eq] using hbad
+    let e' :
+        {x : {n // n ∉ s} // x.1 ∣ r.1 ∧ x.1 < r.1} ≃
+          {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1} :=
+      { toFun := fun n => ⟨n.1.1, n.1.2, n.2.1, n.2.2⟩
+        invFun := fun n => ⟨⟨n.1, n.2.1⟩, n.2.2.1, n.2.2.2⟩
+        left_inv := by intro n; cases n; rfl
+        right_inv := by intro n; cases n; rfl }
+    have hsub :
+        (∑' x : {x : {n // n ∉ s} // x.1 ∣ r.1 ∧ x.1 < r.1}, modifiedFlow r.1 x.1.1) =
+          ∑' n : {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1}, modifiedFlow r.1 n.1 := by
+      simpa [e'] using
+        (Equiv.tsum_eq e' (fun n : {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1} => modifiedFlow r.1 n.1))
+    exact hsub.symm.trans (tsum_subtype_eq_of_support_subset hsupport)
+  calc
+    boundaryOutflow modifiedFlow (↑s : Set ℕ)
+      = ∑' z : Σ r : {r // r ∈ s}, {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1},
+          modifiedFlow z.1.1 z.2.1 := by
+            simpa [boundaryOutflow, e] using
+              (Equiv.tsum_eq e (fun z : Σ r : {r // r ∈ s},
+                  {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1} =>
+                modifiedFlow z.1.1 z.2.1))
+    _ = ∑' r : {r // r ∈ s},
+          ∑' n : {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1}, modifiedFlow r.1 n.1 := by
+            exact hsigma.tsum_sigma' hinner
+    _ = ∑' r : {r // r ∈ s}, ∑' n : {n // n ∉ s}, modifiedFlow r.1 n.1 := by
+          congr
+          ext r
+          exact hprecise r
+    _ = ∑ r ∈ s, ∑' n : {n // n ∉ s}, modifiedFlow r n := by
+          simpa using
+            (Finset.tsum_subtype' s (fun r => ∑' n : {n // n ∉ s}, modifiedFlow r n))
+
 lemma boundaryInflow_eq_sum_compl (s : Finset ℕ) :
     boundaryInflow modifiedFlow (↑s : Set ℕ) =
       ∑ n ∈ s, ∑' m : { m // m ∉ s }, modifiedFlow m n := by
-        sorry
+  classical
+  let e : boundaryInPairs (↑s : Set ℕ) ≃
+      Σ n : {n // n ∈ s}, {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m} :=
+    { toFun := fun mn =>
+        ⟨⟨mn.1.2, mn.2.2.1⟩, ⟨mn.1.1, mn.2.1, mn.2.2.2.1, mn.2.2.2.2⟩⟩
+      invFun := fun nm =>
+        ⟨(nm.2.1, nm.1.1), nm.2.2.1, nm.1.2, nm.2.2.2.1, nm.2.2.2.2⟩
+      left_inv := by
+        intro mn
+        cases mn
+        rfl
+      right_inv := by
+        intro nm
+        cases nm
+        rfl }
+  have hinner :
+      ∀ n : {n // n ∈ s},
+        Summable (fun m : {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m} => modifiedFlow m.1 n.1) := by
+    intro n
+    simpa [Function.comp_def] using
+      (summable_modifiedFlow_col n.1).comp_injective Subtype.val_injective
+  have houter :
+      Summable (fun n : {n // n ∈ s} =>
+        ∑' m : {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m}, modifiedFlow m.1 n.1) := by
+    exact Summable.of_finite
+  have hsigma :
+      Summable (fun z : Σ n : {n // n ∈ s}, {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m} =>
+        modifiedFlow z.2.1 z.1.1) := by
+    refine (summable_sigma_of_nonneg (fun z => modifiedFlow_nonneg _ _)).2 ?_
+    exact ⟨hinner, houter⟩
+  have hprecise :
+      ∀ n : {n // n ∈ s},
+        (∑' m : {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m}, modifiedFlow m.1 n.1) =
+          ∑' m : {m // m ∉ s}, modifiedFlow m.1 n.1 := by
+    intro n
+    have hsupport :
+        Function.support (fun m : {m // m ∉ s} => modifiedFlow m.1 n.1) ⊆
+          {m | n.1 ∣ m.1 ∧ n.1 < m.1} := by
+      intro m hm
+      by_contra hbad
+      exact hm <| by
+        apply modifiedFlow_eq_zero_of_not_dvd_lt
+        simpa [Set.mem_setOf_eq] using hbad
+    let e' :
+        {x : {m // m ∉ s} // n.1 ∣ x.1 ∧ n.1 < x.1} ≃
+          {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m} :=
+      { toFun := fun m => ⟨m.1.1, m.1.2, m.2.1, m.2.2⟩
+        invFun := fun m => ⟨⟨m.1, m.2.1⟩, m.2.2.1, m.2.2.2⟩
+        left_inv := by intro m; cases m; rfl
+        right_inv := by intro m; cases m; rfl }
+    have hsub :
+        (∑' x : {x : {m // m ∉ s} // n.1 ∣ x.1 ∧ n.1 < x.1}, modifiedFlow x.1.1 n.1) =
+          ∑' m : {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m}, modifiedFlow m.1 n.1 := by
+      simpa [e'] using
+        (Equiv.tsum_eq e' (fun m : {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m} =>
+          modifiedFlow m.1 n.1))
+    exact hsub.symm.trans (tsum_subtype_eq_of_support_subset hsupport)
+  calc
+    boundaryInflow modifiedFlow (↑s : Set ℕ)
+      = ∑' z : Σ n : {n // n ∈ s}, {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m},
+          modifiedFlow z.2.1 z.1.1 := by
+            simpa [boundaryInflow, e] using
+              (Equiv.tsum_eq e (fun z : Σ n : {n // n ∈ s},
+                  {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m} =>
+                modifiedFlow z.2.1 z.1.1))
+    _ = ∑' n : {n // n ∈ s},
+          ∑' m : {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m}, modifiedFlow m.1 n.1 := by
+            exact hsigma.tsum_sigma' hinner
+    _ = ∑' n : {n // n ∈ s}, ∑' m : {m // m ∉ s}, modifiedFlow m.1 n.1 := by
+          congr
+          ext n
+          exact hprecise n
+    _ = ∑ n ∈ s, ∑' m : {m // m ∉ s}, modifiedFlow m n := by
+          simpa using
+            (Finset.tsum_subtype' s (fun n => ∑' m : {m // m ∉ s}, modifiedFlow m n))
+
 lemma tsum_outflow_sub_inflow_eq_boundaryOutflow_sub_boundaryInflow {Ω : Set ℕ}
     (hΩfin : Ω.Finite) :
     (∑' r : Ω, (outflow modifiedFlow (r : ℕ) - inflow modifiedFlow (r : ℕ))) =
@@ -1672,11 +3612,858 @@ lemma flow_into_primitive_member_from_outside_divisorClosure {A : Set ℕ}
 lemma summable_modifiedFlow_col_of_isPrimePow {N : ℕ} (hN : 1 < N)
     (hPrimePow : IsPrimePow N) :
     Summable (fun K : ℕ => modifiedFlow K N) := by
-      sorry
+  classical
+  let L : ℝ := Real.log N
+  let μ := MeasureTheory.volume.restrict (Set.Ioi (0 : ℝ))
+  obtain ⟨p, k, hp, hk, hNpow⟩ := (isPrimePow_nat_iff N).mp hPrimePow
+  let qp : {q : ℕ // 2 ≤ q} := ⟨p, hp.two_le⟩
+  have hN0_nat : N ≠ 0 := ne_of_gt (lt_trans Nat.zero_lt_one hN)
+  have hN_pos : 0 < N := lt_trans Nat.zero_lt_one hN
+  have hN0 : (N : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr hN0_nat
+  have hN_cast : (1 : ℝ) < N := by
+    exact_mod_cast hN
+  have hLpos : 0 < L := by
+    dsimp [L]
+    exact Real.log_pos hN_cast
+  have hLne : L ≠ 0 := hLpos.ne'
+  have hk_ne : k ≠ 0 := Nat.ne_of_gt hk
+  have hNp : 1 < N * p := lt_of_lt_of_le hN (Nat.le_mul_of_pos_right N hp.pos)
+  have hNp0_nat : N * p ≠ 0 := Nat.mul_ne_zero hN0_nat hp.ne_zero
+  have hNp0 : ((N * p : ℕ) : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr hNp0_nat
+  have hNpPow : N * p = p ^ (k + 1) := by
+    rw [← hNpow, pow_succ]
+  have hbase_one :
+      baseFlow (N * p) 1 =
+        Real.log p / (((N * p : ℕ) : ℝ) * (L + Real.log p) ^ 2) := by
+    have hNp_pp : IsPrimePow (N * p) := by
+      rw [hNpPow]
+      exact (isPrimePow_pow_iff (Nat.succ_ne_zero _)).2 hp.isPrimePow
+    have hvm_Np : ArithmeticFunction.vonMangoldt (N * p) = Real.log p := by
+      rw [hNpPow, ArithmeticFunction.vonMangoldt_apply_pow (Nat.succ_ne_zero _),
+        ArithmeticFunction.vonMangoldt_apply_prime hp]
+    have hlog_Np : Real.log (N * p) = L + Real.log p := by
+      simpa [L, Nat.cast_mul] using
+        (Real.log_mul hN0 (Nat.cast_ne_zero.mpr hp.ne_zero))
+    rw [baseFlow, if_pos hNp, if_pos (one_dvd _), Nat.div_one, if_pos hNp_pp]
+    simp [hvm_Np, hlog_Np]
+  have hmodified_eq_base_of_ne_special :
+      ∀ K : ℕ, K ≠ N * p → modifiedFlow K N = baseFlow K N := by
+    intro K hKne
+    have hfirst :
+        ¬ ∃ p' : ℕ, p'.Prime ∧ ∃ k' : ℕ, 2 ≤ k' ∧ K = p' ^ k' ∧ N = 1 := by
+      rintro ⟨p', hp', k', hk', hKpow, hN1⟩
+      exact (ne_of_gt hN) hN1
+    have hsecond :
+        ¬ ∃ p' : ℕ, p'.Prime ∧ ∃ k' : ℕ, 2 ≤ k' ∧ K = p' ^ k' ∧ N = p' ^ (k' - 1) := by
+      rintro ⟨p', hp', k', hk', hKpow, hNpow'⟩
+      have hk'1 : k' - 1 ≠ 0 := by omega
+      have hpow_eq : p ^ k = p' ^ (k' - 1) := by
+        rw [hNpow, hNpow']
+      rcases hp.pow_inj' hp' hk_ne hk'1 hpow_eq with ⟨hpeq, hk_eq⟩
+      have hk'_succ : k' = k + 1 := by omega
+      have hKeq : K = N * p := by
+        calc
+          K = p' ^ k' := hKpow
+          _ = p ^ (k + 1) := by rw [hpeq, hk'_succ]
+          _ = N * p := by rw [pow_succ, hNpow]
+      exact hKne hKeq
+    simp [modifiedFlow, hfirst, hsecond]
+  have hmodified_at_special :
+      modifiedFlow (N * p) N = baseFlow (N * p) N + baseFlow (N * p) 1 := by
+    have hfirst :
+        ¬ ∃ p' : ℕ, p'.Prime ∧ ∃ k' : ℕ, 2 ≤ k' ∧ N * p = p' ^ k' ∧ N = 1 := by
+      rintro ⟨p', hp', k', hk', hKpow, hN1⟩
+      exact (ne_of_gt hN) hN1
+    have hsecond :
+        ∃ p' : ℕ, p'.Prime ∧ ∃ k' : ℕ, 2 ≤ k' ∧ N * p = p' ^ k' ∧ N = p' ^ (k' - 1) := by
+      refine ⟨p, hp, k + 1, by omega, ?_, ?_⟩
+      · rw [pow_succ, hNpow]
+      · simpa using hNpow.symm
+    simp [modifiedFlow, hfirst, hsecond]
+  let e : {q : ℕ // 2 ≤ q} → ℕ := fun q => N * q.1
+  have he : Function.Injective e := by
+    intro a b hab
+    apply Subtype.ext
+    exact Nat.mul_left_cancel hN_pos hab
+  have hbase_zero : ∀ K : ℕ, K ∉ Set.range e → baseFlow K N = 0 := by
+    intro K hK
+    by_cases hdiv : N ∣ K
+    · rcases hdiv with ⟨q, rfl⟩
+      by_cases hqge2 : 2 ≤ q
+      · exfalso
+        exact hK ⟨⟨q, hqge2⟩, rfl⟩
+      · have hnotpp : ¬ IsPrimePow q := by
+          intro hqpp
+          obtain ⟨p', k', hp', hk', hpow⟩ := (isPrimePow_nat_iff q).mp hqpp
+          have hk1 : 1 ≤ k' := Nat.succ_le_of_lt hk'
+          have h2 : 2 ≤ q := by
+            calc
+              2 ≤ p' := hp'.two_le
+              _ ≤ p' ^ k' := Nat.le_self_pow (show k' ≠ 0 by omega) p'
+              _ = q := hpow
+          exact hqge2 h2
+        by_cases hNq : 1 < N * q
+        · simp [baseFlow, hNq, Nat.mul_div_right q hN_pos, hnotpp]
+        · simp [baseFlow, hNq]
+    · simp [baseFlow, hdiv]
+  have hmodified_zero : ∀ K : ℕ, K ∉ Set.range e → modifiedFlow K N = 0 := by
+    intro K hK
+    have hKne : K ≠ N * p := by
+      intro hEq
+      exact hK ⟨qp, by simpa [e, qp] using hEq.symm⟩
+    simpa [hmodified_eq_base_of_ne_special K hKne] using hbase_zero K hK
+  have hbase_mul (q : {q : ℕ // 2 ≤ q}) :
+      baseFlow (N * q.1) N =
+        ArithmeticFunction.vonMangoldt q.1 /
+          (((N * q.1 : ℕ) : ℝ) * (L + Real.log q.1) ^ 2) := by
+    have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+    have hNq : 1 < N * q.1 := lt_of_lt_of_le hN (Nat.le_mul_of_pos_right N hqnatpos)
+    have hdvd : N ∣ N * q.1 := ⟨q.1, by simp⟩
+    have hdiv : (N * q.1) / N = q.1 := by
+      simpa [Nat.mul_comm] using Nat.mul_div_right q.1 hN_pos
+    have hN0' : (N : ℝ) ≠ 0 := by exact_mod_cast hN_pos.ne'
+    have hq0 : (q.1 : ℝ) ≠ 0 := by
+      exact_mod_cast (show q.1 ≠ 0 by omega)
+    by_cases hqpp : IsPrimePow q.1
+    · rw [baseFlow, if_pos hNq, if_pos hdvd]
+      have hlog : Real.log (((N * q.1 : ℕ) : ℝ)) = L + Real.log q.1 := by
+        simpa [L, Nat.cast_mul] using Real.log_mul hN0' hq0
+      exact
+        (by
+          simpa only [hdiv, hqpp, if_true] using
+            congrArg
+              (fun x =>
+                ArithmeticFunction.vonMangoldt q.1 /
+                  ((((N * q.1 : ℕ) : ℝ)) * x ^ 2))
+              hlog)
+    · have hvm : ArithmeticFunction.vonMangoldt q.1 = 0 := by
+        rw [ArithmeticFunction.vonMangoldt_eq_zero_iff]
+        exact hqpp
+      simp [baseFlow, hNq, hdvd, hdiv, hqpp, hvm]
+  have hmodified_mul (q : {q : ℕ // 2 ≤ q}) :
+      modifiedFlow (N * q.1) N =
+        ArithmeticFunction.vonMangoldt q.1 /
+          (((N * q.1 : ℕ) : ℝ) * (L + Real.log q.1) ^ 2) +
+        if q = qp then
+          Real.log p / (((N * p : ℕ) : ℝ) * (L + Real.log p) ^ 2)
+        else
+          0 := by
+    by_cases hq : q = qp
+    · subst hq
+      rw [hmodified_at_special, hbase_mul qp, hbase_one]
+      simp [qp]
+    · have hKne : N * q.1 ≠ N * p := by
+        intro hEq
+        apply hq
+        apply Subtype.ext
+        exact Nat.mul_left_cancel hN_pos hEq
+      rw [hmodified_eq_base_of_ne_special (N * q.1) hKne, hbase_mul]
+      simp [hq]
+  let G : {q : ℕ // 2 ≤ q} → ℝ → ℝ := fun q t =>
+    (ArithmeticFunction.vonMangoldt q.1 / (((N * q.1 : ℕ) : ℝ)) +
+        if q = qp then Real.log p / (((N * p : ℕ) : ℝ)) else 0) *
+      (t * Real.exp (-((L + Real.log q.1) * t)))
+  let fSum : ℝ → ℝ := fun t =>
+    (1 / (N : ℝ)) * (t * Real.exp (-L * t)) *
+      (analyticSeries (1 + t) + Real.log p / Real.rpow (p : ℝ) (1 + t))
+  have hsum_analytic {t : ℝ} (ht : 0 < t) :
+      Summable (fun q : {q : ℕ // 2 ≤ q} =>
+        ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t)) := by
+    let full : ℕ → ℝ := fun n =>
+      if n = 0 then 0 else ArithmeticFunction.vonMangoldt n / Real.rpow (n : ℝ) (1 + t)
+    have hLs :
+        LSeriesSummable (fun n => ↑(ArithmeticFunction.vonMangoldt n)) (1 + t : ℂ) :=
+      ArithmeticFunction.LSeriesSummable_vonMangoldt (by simpa using add_lt_add_left ht 1)
+    have hsum_full : Summable full := by
+      simpa [full, LSeries.norm_term_eq, Real.norm_eq_abs,
+        abs_of_nonneg ArithmeticFunction.vonMangoldt_nonneg] using hLs.norm
+    have hfull_zero :
+        ∀ n ∉ Set.range (Subtype.val : {q : ℕ // 2 ≤ q} → ℕ), full n = 0 := by
+      intro n hn
+      have hnlt2 : n < 2 := by
+        by_contra h
+        exact hn ⟨⟨n, not_lt.mp h⟩, rfl⟩
+      interval_cases n <;> simp [full]
+    have hsub : Summable (full ∘ Subtype.val) :=
+      (Function.Injective.summable_iff Subtype.val_injective hfull_zero).2 hsum_full
+    refine hsub.congr ?_
+    intro q
+    simp [full, show ((q : ℕ) ≠ 0) by omega]
+  have hHas_analytic {t : ℝ} (ht : 0 < t) :
+      HasSum
+        (fun q : {q : ℕ // 2 ≤ q} =>
+          ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t))
+        (analyticSeries (1 + t)) := by
+    simpa [analyticSeries] using (hsum_analytic ht).hasSum
+  have hF_term {t : ℝ} (ht : 0 < t) (q : {q : ℕ // 2 ≤ q}) :
+      (ArithmeticFunction.vonMangoldt q.1 / (((N * q.1 : ℕ) : ℝ))) *
+          (t * Real.exp (-((L + Real.log q.1) * t))) =
+        ((1 / (N : ℝ)) * (t * Real.exp (-L * t))) *
+          (ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t)) := by
+    have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+    have hqpos : 0 < (q.1 : ℝ) := by exact_mod_cast hqnatpos
+    rw [Nat.cast_mul, div_eq_mul_inv, div_eq_mul_inv]
+    rw [show -((L + Real.log q.1) * t) = -L * t + -(Real.log q.1 * t) by ring, Real.exp_add]
+    have hmul : -(Real.log (q.1 : ℝ) * t) = Real.log (q.1 : ℝ) * (-t) := by ring
+    rw [hmul, ← Real.rpow_def_of_pos hqpos (-t)]
+    rw [Real.rpow_neg (le_of_lt hqpos), ← mul_assoc]
+    have hrpow : Real.rpow (q.1 : ℝ) (1 + t) = (q.1 : ℝ) * Real.rpow (q.1 : ℝ) t := by
+      simpa using (Real.rpow_add hqpos (1 : ℝ) t)
+    rw [hrpow, div_eq_mul_inv, Real.rpow_eq_pow]
+    ring_nf
+  have hE_term {t : ℝ} (ht : 0 < t) :
+      (Real.log p / (((N * p : ℕ) : ℝ))) * (t * Real.exp (-((L + Real.log p) * t))) =
+        ((1 / (N : ℝ)) * (t * Real.exp (-L * t))) *
+          (Real.log p / Real.rpow (p : ℝ) (1 + t)) := by
+    have hppos : 0 < (p : ℝ) := by exact_mod_cast hp.pos
+    rw [Nat.cast_mul, div_eq_mul_inv, div_eq_mul_inv]
+    rw [show -((L + Real.log p) * t) = -L * t + -(Real.log p * t) by ring, Real.exp_add]
+    have hmul : -(Real.log (p : ℝ) * t) = Real.log (p : ℝ) * (-t) := by ring
+    rw [hmul, ← Real.rpow_def_of_pos hppos (-t)]
+    rw [Real.rpow_neg (le_of_lt hppos), ← mul_assoc]
+    have hrpow : Real.rpow (p : ℝ) (1 + t) = (p : ℝ) * Real.rpow (p : ℝ) t := by
+      simpa using (Real.rpow_add hppos (1 : ℝ) t)
+    rw [hrpow, div_eq_mul_inv, Real.rpow_eq_pow]
+    ring_nf
+  have hG_term {t : ℝ} (ht : 0 < t) (q : {q : ℕ // 2 ≤ q}) :
+      G q t = ((1 / (N : ℝ)) * (t * Real.exp (-L * t))) *
+        (ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t) +
+          if q = qp then Real.log p / Real.rpow (p : ℝ) (1 + t) else 0) := by
+    by_cases hq : q = qp
+    · subst hq
+      calc
+        G qp t
+            = (ArithmeticFunction.vonMangoldt p / (((N * p : ℕ) : ℝ))) *
+                (t * Real.exp (-((L + Real.log p) * t))) +
+              (Real.log p / (((N * p : ℕ) : ℝ))) *
+                (t * Real.exp (-((L + Real.log p) * t))) := by
+                  simp [G, qp, add_mul]
+        _ = ((1 / (N : ℝ)) * (t * Real.exp (-L * t))) *
+              (ArithmeticFunction.vonMangoldt p / Real.rpow (p : ℝ) (1 + t)) +
+            ((1 / (N : ℝ)) * (t * Real.exp (-L * t))) *
+              (Real.log p / Real.rpow (p : ℝ) (1 + t)) := by
+                rw [hF_term ht qp, hE_term ht]
+        _ = ((1 / (N : ℝ)) * (t * Real.exp (-L * t))) *
+              (ArithmeticFunction.vonMangoldt p / Real.rpow (p : ℝ) (1 + t) +
+                Real.log p / Real.rpow (p : ℝ) (1 + t)) := by
+                  rw [← mul_add]
+        _ = ((1 / (N : ℝ)) * (t * Real.exp (-L * t))) *
+              (ArithmeticFunction.vonMangoldt p / Real.rpow (p : ℝ) (1 + t) +
+                if qp = qp then Real.log p / Real.rpow (p : ℝ) (1 + t) else 0) := by
+                  simp
+    · simpa [G, hq] using hF_term ht q
+  have hG_hasSum {t : ℝ} (ht : 0 < t) :
+      HasSum (fun q : {q : ℕ // 2 ≤ q} => G q t) (fSum t) := by
+    have hcorr :
+        HasSum
+          (fun q : {q : ℕ // 2 ≤ q} =>
+            if q = qp then Real.log p / Real.rpow (p : ℝ) (1 + t) else 0)
+          (Real.log p / Real.rpow (p : ℝ) (1 + t)) := by
+      simpa using (hasSum_ite_eq qp (Real.log p / Real.rpow (p : ℝ) (1 + t)))
+    have hsum_inner :
+        HasSum
+          (fun q : {q : ℕ // 2 ≤ q} =>
+            ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t) +
+              if q = qp then Real.log p / Real.rpow (p : ℝ) (1 + t) else 0)
+          (analyticSeries (1 + t) + Real.log p / Real.rpow (p : ℝ) (1 + t)) := by
+      exact (hHas_analytic ht).add hcorr
+    have hconst :
+        HasSum
+          (fun q : {q : ℕ // 2 ≤ q} =>
+            ((1 / (N : ℝ)) * (t * Real.exp (-L * t))) *
+              (ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t) +
+                if q = qp then Real.log p / Real.rpow (p : ℝ) (1 + t) else 0))
+          (((1 / (N : ℝ)) * (t * Real.exp (-L * t))) *
+            (analyticSeries (1 + t) + Real.log p / Real.rpow (p : ℝ) (1 + t))) := by
+      simpa [mul_assoc] using
+        hsum_inner.mul_left ((1 / (N : ℝ)) * (t * Real.exp (-L * t)))
+    convert hconst using 1
+    · ext q
+      exact hG_term ht q
+  have hG_int (q : {q : ℕ // 2 ≤ q}) :
+      ∫ t in Set.Ioi (0 : ℝ), G q t = modifiedFlow (N * q.1) N := by
+    by_cases hq : q = qp
+    · subst hq
+      have hb : 0 < L + Real.log p := by
+        exact add_pos hLpos (Real.log_pos (by exact_mod_cast hp.one_lt))
+      have hkernel :
+          ∫ t in Set.Ioi (0 : ℝ), t * Real.exp (-((L + Real.log p) * t)) =
+            (1 / (L + Real.log p)) ^ 2 := by
+        have hkernel' :
+            ∫ t in Set.Ioi (0 : ℝ), t ^ (1 : ℝ) * Real.exp (-((L + Real.log p) * t)) =
+              (1 / (L + Real.log p)) ^ 2 := by
+          simpa [show ((2 : ℝ) - 1) = (1 : ℝ) by norm_num, Real.Gamma_two] using
+            (Real.integral_rpow_mul_exp_neg_mul_Ioi (a := (2 : ℝ)) (r := L + Real.log p)
+              (by norm_num) hb)
+        simpa [Real.rpow_one] using hkernel'
+      have hGqp :
+          G qp =
+            fun t : ℝ =>
+              (ArithmeticFunction.vonMangoldt p / (((N * p : ℕ) : ℝ)) +
+                  Real.log p / (((N * p : ℕ) : ℝ))) *
+                (t * Real.exp (-((L + Real.log p) * t))) := by
+        funext t
+        simp [G, qp, add_mul]
+      rw [hGqp, MeasureTheory.integral_const_mul, hkernel, hmodified_mul qp, if_pos rfl]
+      simp [qp, ArithmeticFunction.vonMangoldt_apply_prime hp, div_eq_mul_inv]
+      field_simp [hNp0, hb.ne']
+    · have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+      have hNq0_nat : N * q.1 ≠ 0 := Nat.mul_ne_zero hN_pos.ne' (Nat.ne_of_gt hqnatpos)
+      have hNq0 : (((N * q.1 : ℕ) : ℝ)) ≠ 0 := by
+        exact_mod_cast hNq0_nat
+      have hb : 0 < L + Real.log q.1 := by
+        have hqcast : (1 : ℝ) < q.1 := by exact_mod_cast q.2
+        exact add_pos hLpos (Real.log_pos hqcast)
+      have hkernel :
+          ∫ t in Set.Ioi (0 : ℝ), t * Real.exp (-((L + Real.log q.1) * t)) =
+            (1 / (L + Real.log q.1)) ^ 2 := by
+        have hkernel' :
+            ∫ t in Set.Ioi (0 : ℝ), t ^ (1 : ℝ) * Real.exp (-((L + Real.log q.1) * t)) =
+              (1 / (L + Real.log q.1)) ^ 2 := by
+          simpa [show ((2 : ℝ) - 1) = (1 : ℝ) by norm_num, Real.Gamma_two] using
+            (Real.integral_rpow_mul_exp_neg_mul_Ioi (a := (2 : ℝ)) (r := L + Real.log q.1)
+              (by norm_num) hb)
+        simpa [Real.rpow_one] using hkernel'
+      have hGq :
+          G q =
+            fun t : ℝ =>
+              (ArithmeticFunction.vonMangoldt q.1 / (((N * q.1 : ℕ) : ℝ))) *
+                (t * Real.exp (-((L + Real.log q.1) * t))) := by
+        funext t
+        simp [G, hq]
+      rw [hGq, MeasureTheory.integral_const_mul, hkernel, hmodified_mul q, if_neg hq]
+      simp [div_eq_mul_inv]
+      field_simp [hNq0, hb.ne']
+  have hG_meas : ∀ q : {q : ℕ // 2 ≤ q}, MeasureTheory.AEStronglyMeasurable (G q) μ := by
+    intro q
+    dsimp [G]
+    fun_prop
+  have h_bound :
+      ∀ q : {q : ℕ // 2 ≤ q}, ∀ᵐ t : ℝ ∂μ, ‖G q t‖ ≤ G q t := by
+    intro q
+    filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
+    have hcoeff_nonneg :
+        0 ≤ ArithmeticFunction.vonMangoldt q.1 / (((N * q.1 : ℕ) : ℝ)) +
+          if q = qp then Real.log p / (((N * p : ℕ) : ℝ)) else 0 := by
+      apply add_nonneg
+      · apply div_nonneg ArithmeticFunction.vonMangoldt_nonneg
+        positivity
+      · by_cases hq : q = qp
+        · subst hq
+          have hp_cast : (1 : ℝ) < p := by
+            exact_mod_cast hp.one_lt
+          split_ifs with h
+          · exact div_nonneg
+              (Real.log_pos hp_cast).le
+              (by positivity : 0 ≤ (((N * p : ℕ) : ℝ)))
+          · contradiction
+        · simp [hq]
+    have hG_nonneg : 0 ≤ G q t := by
+      dsimp [G]
+      exact mul_nonneg hcoeff_nonneg (mul_nonneg ht.le (le_of_lt (Real.exp_pos _)))
+    calc
+      ‖G q t‖ = G q t := Real.norm_of_nonneg hG_nonneg
+      _ ≤ G q t := le_rfl
+  have h_bound_summable :
+      ∀ᵐ t : ℝ ∂μ, Summable (fun q : {q : ℕ // 2 ≤ q} => G q t) := by
+    filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
+    exact (hG_hasSum ht).summable
+  have h_tsum_eq :
+      ∀ᵐ t : ℝ ∂μ, (∑' q : {q : ℕ // 2 ≤ q}, G q t) = fSum t := by
+    filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
+    exact (hG_hasSum ht).tsum_eq
+  have hanalytic_meas :
+      AEMeasurable (fun t : ℝ => analyticSeries (1 + t)) μ := by
+    let Aq : {q : ℕ // 2 ≤ q} → ℝ → NNReal := fun q t =>
+      Real.toNNReal (ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t))
+    have hAq_meas : ∀ q : {q : ℕ // 2 ≤ q}, Measurable (Aq q) := by
+      intro q
+      have hq0 : (q.1 : ℝ) ≠ 0 := by
+        exact_mod_cast (show q.1 ≠ 0 by omega)
+      have hpow_meas : Measurable (fun t : ℝ => (q.1 : ℝ) ^ (1 + t)) :=
+        ((Real.continuous_const_rpow hq0).comp (continuous_const.add continuous_id)).measurable
+      exact (measurable_const.div hpow_meas).real_toNNReal
+    have htsum : Measurable (fun t : ℝ => ∑' q : {q : ℕ // 2 ≤ q}, Aq q t) :=
+      Measurable.tsum hAq_meas
+    refine htsum.coe_nnreal_real.aemeasurable.congr ?_
+    filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
+    have hnonneg :
+        ∀ q : {q : ℕ // 2 ≤ q},
+          0 ≤ ArithmeticFunction.vonMangoldt q.1 / (q.1 : ℝ) ^ (1 + t) := by
+      intro q
+      apply div_nonneg ArithmeticFunction.vonMangoldt_nonneg
+      have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+      exact le_of_lt (Real.rpow_pos_of_pos (by exact_mod_cast hqnatpos) _)
+    calc
+      ↑(∑' q : {q : ℕ // 2 ≤ q}, Aq q t)
+          = ∑' q : {q : ℕ // 2 ≤ q}, (Aq q t : ℝ) := by
+              rw [NNReal.coe_tsum]
+      _ = ∑' q : {q : ℕ // 2 ≤ q},
+            ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t) := by
+              refine tsum_congr ?_
+              intro q
+              dsimp [Aq]
+              calc
+                (Real.toNNReal
+                    (ArithmeticFunction.vonMangoldt q.1 /
+                      Real.rpow (q.1 : ℝ) (1 + t)) : ℝ)
+                    =
+                    max
+                      (ArithmeticFunction.vonMangoldt q.1 /
+                        Real.rpow (q.1 : ℝ) (1 + t))
+                      0 := by
+                        exact Real.coe_toNNReal' _
+                _ = ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t) :=
+                  max_eq_left (hnonneg q)
+      _ = analyticSeries (1 + t) := by
+            exact (hHas_analytic ht).tsum_eq
+  have hfSum_meas : AEMeasurable fSum μ := by
+    have hfactor_meas :
+        AEMeasurable (fun t : ℝ => (1 / (N : ℝ)) * (t * Real.exp (-L * t))) μ := by
+      fun_prop
+    have hcorr_meas :
+        AEMeasurable (fun t : ℝ => Real.log p / Real.rpow (p : ℝ) (1 + t)) μ := by
+      have hpow_cont : Continuous (fun t : ℝ => Real.rpow (p : ℝ) (1 + t)) :=
+        (Real.continuous_const_rpow (Nat.cast_ne_zero.mpr hp.ne_zero)).comp
+          (continuous_const.add continuous_id)
+      exact (continuous_const.div hpow_cont
+        (fun t => (Real.rpow_pos_of_pos (by exact_mod_cast hp.pos) _).ne')).aemeasurable
+    simpa [fSum] using hfactor_meas.mul (hanalytic_meas.add hcorr_meas)
+  have hsimple_int :
+      MeasureTheory.Integrable (fun t : ℝ => (1 / (N : ℝ)) * Real.exp (-L * t)) μ := by
+    simpa [μ, MeasureTheory.IntegrableOn, mul_assoc, mul_left_comm, mul_comm] using
+      (exp_neg_integrableOn_Ioi 0 hLpos).const_mul (1 / (N : ℝ))
+  have hfSum_bound :
+      ∀ᵐ t : ℝ ∂μ, ‖fSum t‖ ≤ (1 / (N : ℝ)) * Real.exp (-L * t) := by
+    filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
+    have ht0 : 0 < t := ht
+    have hA_nonneg : 0 ≤ analyticSeries (1 + t) := by
+      rw [analyticSeries]
+      exact tsum_nonneg fun q =>
+        div_nonneg ArithmeticFunction.vonMangoldt_nonneg <|
+          le_of_lt <| Real.rpow_pos_of_pos (by
+            have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+            exact_mod_cast hqnatpos) _
+    have hcorr_nonneg :
+        0 ≤ Real.log p / Real.rpow (p : ℝ) (1 + t) := by
+      exact div_nonneg
+        (Real.log_pos (by exact_mod_cast hp.one_lt)).le
+        (le_of_lt (Real.rpow_pos_of_pos (by exact_mod_cast hp.pos) _))
+    have hA_le :
+        analyticSeries (1 + t) + Real.log p / Real.rpow (p : ℝ) (1 + t) ≤ 1 / t := by
+      have ht' : 1 < 1 + t := by linarith
+      convert analyticSeries_add_log_term_le ht' hp using 1
+      · ring_nf
+    have hf_nonneg : 0 ≤ fSum t := by
+      dsimp [fSum]
+      exact mul_nonneg
+        (by positivity)
+        (add_nonneg hA_nonneg hcorr_nonneg)
+    rw [Real.norm_eq_abs, abs_of_nonneg hf_nonneg]
+    dsimp [fSum]
+    have hfac_nonneg : 0 ≤ (1 / (N : ℝ)) * (t * Real.exp (-L * t)) := by
+      apply mul_nonneg
+      · positivity
+      · exact mul_nonneg ht0.le (le_of_lt (Real.exp_pos _))
+    calc
+      (1 / (N : ℝ)) * (t * Real.exp (-L * t)) *
+          (analyticSeries (1 + t) + Real.log p / Real.rpow (p : ℝ) (1 + t))
+          ≤ (1 / (N : ℝ)) * (t * Real.exp (-L * t)) * (1 / t) := by
+            gcongr
+      _ = (1 / (N : ℝ)) * Real.exp (-L * t) := by
+            field_simp [ht0.ne']
+  have hfSum_le :
+      ∀ᵐ t : ℝ ∂μ, fSum t ≤ (1 / (N : ℝ)) * Real.exp (-L * t) := by
+    filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
+    have ht0 : 0 < t := ht
+    have hA_nonneg : 0 ≤ analyticSeries (1 + t) := by
+      rw [analyticSeries]
+      exact tsum_nonneg fun q =>
+        div_nonneg ArithmeticFunction.vonMangoldt_nonneg <|
+          le_of_lt <| Real.rpow_pos_of_pos (by
+            have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+            exact_mod_cast hqnatpos) _
+    have hcorr_nonneg :
+        0 ≤ Real.log p / Real.rpow (p : ℝ) (1 + t) := by
+      exact div_nonneg
+        (Real.log_pos (by exact_mod_cast hp.one_lt)).le
+        (le_of_lt (Real.rpow_pos_of_pos (by exact_mod_cast hp.pos) _))
+    have hA_le :
+        analyticSeries (1 + t) + Real.log p / Real.rpow (p : ℝ) (1 + t) ≤ 1 / t := by
+      have ht' : 1 < 1 + t := by linarith
+      convert analyticSeries_add_log_term_le ht' hp using 1
+      · ring_nf
+    dsimp [fSum]
+    have hfac_nonneg : 0 ≤ (1 / (N : ℝ)) * (t * Real.exp (-L * t)) := by
+      apply mul_nonneg
+      · positivity
+      · exact mul_nonneg ht0.le (le_of_lt (Real.exp_pos _))
+    calc
+      (1 / (N : ℝ)) * (t * Real.exp (-L * t)) *
+          (analyticSeries (1 + t) + Real.log p / Real.rpow (p : ℝ) (1 + t))
+          ≤ (1 / (N : ℝ)) * (t * Real.exp (-L * t)) * (1 / t) := by
+            gcongr
+      _ = (1 / (N : ℝ)) * Real.exp (-L * t) := by
+            field_simp [ht0.ne']
+  have hfSum_int : MeasureTheory.Integrable fSum μ :=
+    hsimple_int.mono' hfSum_meas.aestronglyMeasurable hfSum_bound
+  have h_tsum_eq_ae :
+      (fun t : ℝ => ∑' q : {q : ℕ // 2 ≤ q}, G q t) =ᵐ[μ] fSum := h_tsum_eq
+  have h_bound_integrable :
+      MeasureTheory.Integrable (fun t : ℝ => ∑' q : {q : ℕ // 2 ≤ q}, G q t) μ :=
+    hfSum_int.congr h_tsum_eq_ae.symm
+  have h_hasSum_ae :
+      ∀ᵐ t : ℝ ∂μ, HasSum (fun q : {q : ℕ // 2 ≤ q} => G q t) (fSum t) := by
+    filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
+    exact hG_hasSum ht
+  have hIntHasSum :
+      HasSum (fun q : {q : ℕ // 2 ≤ q} => ∫ t, G q t ∂μ) (∫ t, fSum t ∂μ) :=
+    MeasureTheory.hasSum_integral_of_dominated_convergence
+      (bound := G) hG_meas h_bound h_bound_summable h_bound_integrable h_hasSum_ae
+  have hsub_hasSum :
+      HasSum (fun q : {q : ℕ // 2 ≤ q} => modifiedFlow (N * q.1) N) (∫ t, fSum t ∂μ) := by
+    exact hIntHasSum.congr_fun fun q => (hG_int q).symm
+  have hmodified_hasSum :
+      HasSum (fun K : ℕ => modifiedFlow K N) (∫ t, fSum t ∂μ) :=
+    (Function.Injective.hasSum_iff he hmodified_zero).mp hsub_hasSum
+  exact hmodified_hasSum.summable
+
 lemma summable_modifiedFlow_col_of_not_isPrimePow {N : ℕ} (hN : 1 < N)
     (hPrimePow : ¬ IsPrimePow N) :
     Summable (fun K : ℕ => modifiedFlow K N) := by
-      sorry
+  classical
+  let L : ℝ := Real.log N
+  let μ := MeasureTheory.volume.restrict (Set.Ioi (0 : ℝ))
+  have hN0_nat : N ≠ 0 := ne_of_gt (lt_trans Nat.zero_lt_one hN)
+  have hN_pos : 0 < N := lt_trans Nat.zero_lt_one hN
+  have hN0 : (N : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr hN0_nat
+  have hN_cast : (1 : ℝ) < N := by
+    exact_mod_cast hN
+  have hLpos : 0 < L := by
+    dsimp [L]
+    exact Real.log_pos hN_cast
+  have hLne : L ≠ 0 := hLpos.ne'
+  have hmodified_eq_base : ∀ K : ℕ, modifiedFlow K N = baseFlow K N := by
+    intro K
+    rw [modifiedFlow]
+    have hfirst :
+        ¬ ∃ p : ℕ, p.Prime ∧ ∃ x : ℕ, 2 ≤ x ∧ K = p ^ x ∧ N = 1 := by
+      rintro ⟨p, hp, x, hx, hK, hN1⟩
+      exact (ne_of_gt hN) hN1
+    have hsecond :
+        ¬ ∃ p : ℕ, p.Prime ∧ ∃ x : ℕ, 2 ≤ x ∧ K = p ^ x ∧ N = p ^ (x - 1) := by
+      rintro ⟨p, hp, x, hx, hK, hNpow⟩
+      have hk1 : x - 1 ≠ 0 := by omega
+      exact hPrimePow <| hNpow.symm ▸ (isPrimePow_pow_iff hk1).2 hp.isPrimePow
+    simp [hfirst, hsecond]
+  let e : {q : ℕ // 2 ≤ q} → ℕ := fun q => N * q.1
+  have he : Function.Injective e := by
+    intro a b hab
+    apply Subtype.ext
+    exact Nat.mul_left_cancel hN_pos hab
+  have hbase_zero : ∀ K : ℕ, K ∉ Set.range e → baseFlow K N = 0 := by
+    intro K hK
+    by_cases hdiv : N ∣ K
+    · rcases hdiv with ⟨q, rfl⟩
+      by_cases hqge2 : 2 ≤ q
+      · exfalso
+        exact hK ⟨⟨q, hqge2⟩, rfl⟩
+      · have hnotpp : ¬ IsPrimePow q := by
+          intro hqpp
+          exact hqge2 <| Nat.succ_le_of_lt <| IsPrimePow.one_lt hqpp
+        by_cases hNq : 1 < N * q
+        · simp [baseFlow, hNq, Nat.mul_div_right q hN_pos, hnotpp]
+        · simp [baseFlow, hNq]
+    · simp [baseFlow, hdiv]
+  have hbase_mul (q : {q : ℕ // 2 ≤ q}) :
+      baseFlow (N * q.1) N =
+        ArithmeticFunction.vonMangoldt q.1 /
+          (((N * q.1 : ℕ) : ℝ) * (L + Real.log q.1) ^ 2) := by
+    have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+    have hNq : 1 < N * q.1 := lt_of_lt_of_le hN (Nat.le_mul_of_pos_right N hqnatpos)
+    have hdvd : N ∣ N * q.1 := ⟨q.1, by simp⟩
+    have hdiv : (N * q.1) / N = q.1 := by
+      simpa [Nat.mul_comm] using Nat.mul_div_right q.1 hN_pos
+    have hN0' : (N : ℝ) ≠ 0 := by exact_mod_cast hN_pos.ne'
+    have hq0 : (q.1 : ℝ) ≠ 0 := by
+      exact_mod_cast (show q.1 ≠ 0 by omega)
+    by_cases hqpp : IsPrimePow q.1
+    · rw [baseFlow, if_pos hNq, if_pos hdvd]
+      have hlog : Real.log (((N * q.1 : ℕ) : ℝ)) = L + Real.log q.1 := by
+        simpa [L, Nat.cast_mul] using Real.log_mul hN0' hq0
+      exact
+        (by
+          simpa only [hdiv, hqpp, if_true] using
+            congrArg
+              (fun x =>
+                ArithmeticFunction.vonMangoldt q.1 /
+                  ((((N * q.1 : ℕ) : ℝ)) * x ^ 2))
+              hlog)
+    · have hvm : ArithmeticFunction.vonMangoldt q.1 = 0 := by
+        rw [ArithmeticFunction.vonMangoldt_eq_zero_iff]
+        exact hqpp
+      simp [baseFlow, hNq, hdvd, hdiv, hqpp, hvm]
+  let F : {q : ℕ // 2 ≤ q} → ℝ → ℝ := fun q t =>
+    ArithmeticFunction.vonMangoldt q.1 / (((N * q.1 : ℕ) : ℝ)) *
+      (t * Real.exp (-((L + Real.log q.1) * t)))
+  let fSum : ℝ → ℝ := fun t =>
+    (1 / (N : ℝ)) * (t * Real.exp (-L * t)) * analyticSeries (1 + t)
+  have hsum_analytic {t : ℝ} (ht : 0 < t) :
+      Summable (fun q : {q : ℕ // 2 ≤ q} =>
+        ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t)) := by
+    let full : ℕ → ℝ := fun n =>
+      if n = 0 then 0 else ArithmeticFunction.vonMangoldt n / Real.rpow (n : ℝ) (1 + t)
+    have hLs :
+        LSeriesSummable (fun n => ↑(ArithmeticFunction.vonMangoldt n)) (1 + t : ℂ) :=
+      ArithmeticFunction.LSeriesSummable_vonMangoldt (by simpa using add_lt_add_left ht 1)
+    have hsum_full : Summable full := by
+      simpa [full, LSeries.norm_term_eq, Real.norm_eq_abs,
+        abs_of_nonneg ArithmeticFunction.vonMangoldt_nonneg] using hLs.norm
+    have hfull_zero :
+        ∀ n ∉ Set.range (Subtype.val : {q : ℕ // 2 ≤ q} → ℕ), full n = 0 := by
+      intro n hn
+      have hnlt2 : n < 2 := by
+        by_contra h
+        exact hn ⟨⟨n, not_lt.mp h⟩, rfl⟩
+      interval_cases n <;> simp [full]
+    have hsub : Summable (full ∘ Subtype.val) :=
+      (Function.Injective.summable_iff Subtype.val_injective hfull_zero).2 hsum_full
+    refine hsub.congr ?_
+    intro q
+    simp [full, show ((q : ℕ) ≠ 0) by omega]
+  have hHas_analytic {t : ℝ} (ht : 0 < t) :
+      HasSum
+        (fun q : {q : ℕ // 2 ≤ q} =>
+          ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t))
+        (analyticSeries (1 + t)) := by
+    simpa [analyticSeries] using (hsum_analytic ht).hasSum
+  have hF_term {t : ℝ} (ht : 0 < t) (q : {q : ℕ // 2 ≤ q}) :
+      F q t = ((1 / (N : ℝ)) * (t * Real.exp (-L * t))) *
+        (ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t)) := by
+    have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+    have hqpos : 0 < (q.1 : ℝ) := by exact_mod_cast hqnatpos
+    dsimp [F]
+    rw [Nat.cast_mul, div_eq_mul_inv, div_eq_mul_inv]
+    rw [show -((L + Real.log q.1) * t) = -L * t + -(Real.log q.1 * t) by ring, Real.exp_add]
+    have hmul : -(Real.log (q.1 : ℝ) * t) = Real.log (q.1 : ℝ) * (-t) := by ring
+    rw [hmul, ← Real.rpow_def_of_pos hqpos (-t)]
+    rw [Real.rpow_neg (le_of_lt hqpos), ← mul_assoc]
+    have hrpow : (q.1 : ℝ) ^ (1 + t) = (q.1 : ℝ) * (q.1 : ℝ) ^ t := by
+      simpa using (Real.rpow_add hqpos (1 : ℝ) t)
+    rw [hrpow, div_eq_mul_inv]
+    field_simp [hN0, hqpos.ne', (Real.rpow_pos_of_pos hqpos t).ne']
+  have hF_hasSum {t : ℝ} (ht : 0 < t) :
+      HasSum (fun q : {q : ℕ // 2 ≤ q} => F q t) (fSum t) := by
+    have hconst :
+        HasSum
+          (fun q : {q : ℕ // 2 ≤ q} =>
+            ((1 / (N : ℝ)) * (t * Real.exp (-L * t))) *
+              (ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t)))
+          (((1 / (N : ℝ)) * (t * Real.exp (-L * t))) * analyticSeries (1 + t)) := by
+      simpa [mul_assoc] using
+        (hHas_analytic ht).mul_left ((1 / (N : ℝ)) * (t * Real.exp (-L * t)))
+    exact hconst.congr_fun fun q => hF_term ht q
+  have hF_int (q : {q : ℕ // 2 ≤ q}) :
+      ∫ t in Set.Ioi (0 : ℝ), F q t =
+        ArithmeticFunction.vonMangoldt q.1 /
+          (((N * q.1 : ℕ) : ℝ) * (L + Real.log q.1) ^ 2) := by
+    have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+    have hqpos : 0 < (q.1 : ℝ) := by exact_mod_cast hqnatpos
+    have hqgt1 : (1 : ℝ) < q.1 := by
+      have hqge2 : (2 : ℝ) ≤ q.1 := by exact_mod_cast q.2
+      linarith
+    have hb : 0 < L + Real.log q.1 := by
+      exact add_pos hLpos (Real.log_pos hqgt1)
+    calc
+      ∫ t in Set.Ioi (0 : ℝ), F q t
+          = ArithmeticFunction.vonMangoldt q.1 / (((N * q.1 : ℕ) : ℝ)) *
+              ∫ t in Set.Ioi (0 : ℝ), t * Real.exp (-((L + Real.log q.1) * t)) := by
+                simp [F, MeasureTheory.integral_const_mul]
+      _ = ArithmeticFunction.vonMangoldt q.1 / (((N * q.1 : ℕ) : ℝ)) *
+            (L + Real.log q.1) ^ (-2 : ℝ) := by
+              congr 1
+              calc
+                ∫ t in Set.Ioi (0 : ℝ), t * Real.exp (-((L + Real.log q.1) * t))
+                    = (L + Real.log q.1) ^ (-(1 + 1) / (1 : ℝ)) *
+                        (1 / (1 : ℝ)) * Real.Gamma ((1 + 1) / (1 : ℝ)) := by
+                          convert
+                            (integral_rpow_mul_exp_neg_mul_rpow (p := 1) (q := 1)
+                              zero_lt_one (by norm_num) hb) using 1
+                          · refine MeasureTheory.setIntegral_congr_fun measurableSet_Ioi ?_
+                            intro t ht
+                            have hlin : -((L + Real.log q.1) * t) = (-Real.log q.1 + -L) * t := by
+                              ring
+                            simp [hlin]
+                _ = (L + Real.log q.1) ^ (-2 : ℝ) := by
+                      have htwo : ((1 + 1 : ℝ) / (1 : ℝ)) = 2 := by norm_num
+                      rw [htwo, Real.Gamma_two]
+                      norm_num
+      _ = ArithmeticFunction.vonMangoldt q.1 /
+            (((N * q.1 : ℕ) : ℝ) * (L + Real.log q.1) ^ 2) := by
+              have hNq0 : (((N * q.1 : ℕ) : ℝ)) ≠ 0 := by
+                exact_mod_cast (Nat.mul_pos hN_pos hqnatpos).ne'
+              rw [show (-2 : ℝ) = -(2 : ℝ) by norm_num, Real.rpow_neg (le_of_lt hb)]
+              field_simp [hNq0, hb.ne']
+              have hsquare :
+                  (L + Real.log q.1) ^ 2 =
+                    L ^ 2 + 2 * L * Real.log q.1 + (Real.log q.1) ^ 2 := by
+                ring
+              have hsquareR :
+                  (L + Real.log q.1) ^ (2 : ℝ) =
+                    L ^ 2 + 2 * L * Real.log q.1 + (Real.log q.1) ^ 2 := by
+                simpa [Real.rpow_natCast] using hsquare
+              have haux :
+                ArithmeticFunction.vonMangoldt q.1 * L * Real.log q.1 * 2 +
+                    ArithmeticFunction.vonMangoldt q.1 * L ^ 2 +
+                    ArithmeticFunction.vonMangoldt q.1 * Real.log q.1 ^ 2
+                    = ArithmeticFunction.vonMangoldt q.1 *
+                      (L ^ 2 + 2 * L * Real.log q.1 + (Real.log q.1) ^ 2) := by
+                        ring
+              have hcalc :
+                ArithmeticFunction.vonMangoldt q.1 * L * Real.log q.1 * 2 +
+                    ArithmeticFunction.vonMangoldt q.1 * L ^ 2 +
+                    ArithmeticFunction.vonMangoldt q.1 * Real.log q.1 ^ 2
+                    = ArithmeticFunction.vonMangoldt q.1 * (L + Real.log q.1) ^ (2 : ℝ) := by
+                      calc
+                        ArithmeticFunction.vonMangoldt q.1 * L * Real.log q.1 * 2 +
+                            ArithmeticFunction.vonMangoldt q.1 * L ^ 2 +
+                            ArithmeticFunction.vonMangoldt q.1 * Real.log q.1 ^ 2
+                            = ArithmeticFunction.vonMangoldt q.1 *
+                              (L ^ 2 + 2 * L * Real.log q.1 + (Real.log q.1) ^ 2) := haux
+                        _ = ArithmeticFunction.vonMangoldt q.1 * (L + Real.log q.1) ^ (2 : ℝ) := by
+                              rw [hsquareR]
+              simp
+  have hF_meas : ∀ q : {q : ℕ // 2 ≤ q}, MeasureTheory.AEStronglyMeasurable (F q) μ := by
+    intro q
+    dsimp [F]
+    fun_prop
+  have h_bound :
+      ∀ q : {q : ℕ // 2 ≤ q}, ∀ᵐ t : ℝ ∂μ, ‖F q t‖ ≤ F q t := by
+    intro q
+    filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
+    have hF_nonneg : 0 ≤ F q t := by
+      have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+      dsimp [F]
+      apply mul_nonneg
+      · apply div_nonneg ArithmeticFunction.vonMangoldt_nonneg
+        positivity
+      · exact mul_nonneg ht.le (le_of_lt (Real.exp_pos _))
+    simp [Real.norm_eq_abs, abs_of_nonneg hF_nonneg]
+  have h_bound_summable :
+      ∀ᵐ t : ℝ ∂μ, Summable (fun q : {q : ℕ // 2 ≤ q} => F q t) := by
+    filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
+    exact (hF_hasSum ht).summable
+  have h_hasSum_ae :
+      ∀ᵐ t : ℝ ∂μ, HasSum (fun q : {q : ℕ // 2 ≤ q} => F q t) (fSum t) := by
+    filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
+    exact hF_hasSum ht
+  have h_tsum_eq :
+      ∀ᵐ t : ℝ ∂μ, (∑' q : {q : ℕ // 2 ≤ q}, F q t) = fSum t := by
+    filter_upwards [h_hasSum_ae] with t ht
+    exact ht.tsum_eq
+  have hanalytic_meas :
+      AEMeasurable (fun t : ℝ => analyticSeries (1 + t)) μ := by
+    let Aq : {q : ℕ // 2 ≤ q} → ℝ → NNReal := fun q t =>
+      Real.toNNReal (ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t))
+    have hAq_meas : ∀ q : {q : ℕ // 2 ≤ q}, Measurable (Aq q) := by
+      intro q
+      have hq0 : (q.1 : ℝ) ≠ 0 := by
+        exact_mod_cast (show q.1 ≠ 0 by omega)
+      have hpow_meas : Measurable (fun t : ℝ => (q.1 : ℝ) ^ (1 + t)) :=
+        ((Real.continuous_const_rpow hq0).comp (continuous_const.add continuous_id)).measurable
+      exact (measurable_const.div hpow_meas).real_toNNReal
+    have htsum : Measurable (fun t : ℝ => ∑' q : {q : ℕ // 2 ≤ q}, Aq q t) :=
+      Measurable.tsum hAq_meas
+    refine htsum.coe_nnreal_real.aemeasurable.congr ?_
+    filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
+    have hnonneg :
+        ∀ q : {q : ℕ // 2 ≤ q},
+          0 ≤ ArithmeticFunction.vonMangoldt q.1 / (q.1 : ℝ) ^ (1 + t) := by
+      intro q
+      apply div_nonneg ArithmeticFunction.vonMangoldt_nonneg
+      have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+      exact le_of_lt (Real.rpow_pos_of_pos (by exact_mod_cast hqnatpos) _)
+    calc
+      ↑(∑' q : {q : ℕ // 2 ≤ q}, Aq q t)
+          = ∑' q : {q : ℕ // 2 ≤ q}, (Aq q t : ℝ) := by
+              rw [NNReal.coe_tsum]
+      _ = ∑' q : {q : ℕ // 2 ≤ q},
+            ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t) := by
+              refine tsum_congr ?_
+              intro q
+              dsimp [Aq]
+              simp [max_eq_left (hnonneg q)]
+      _ = analyticSeries (1 + t) := by
+            simp [analyticSeries]
+  have hfSum_meas : AEMeasurable fSum μ := by
+    have hfactor_meas : AEMeasurable (fun t : ℝ => (1 / (N : ℝ)) * (t * Real.exp (-L * t))) μ := by
+      fun_prop
+    simpa [fSum] using hfactor_meas.mul hanalytic_meas
+  have hsimple_int :
+      MeasureTheory.Integrable (fun t : ℝ => (1 / (N : ℝ)) * Real.exp (-L * t)) μ := by
+    simpa [μ, MeasureTheory.IntegrableOn, mul_assoc, mul_left_comm, mul_comm] using
+      (exp_neg_integrableOn_Ioi 0 hLpos).const_mul (1 / (N : ℝ))
+  have hfSum_bound :
+      ∀ᵐ t : ℝ ∂μ, ‖fSum t‖ ≤ (1 / (N : ℝ)) * Real.exp (-L * t) := by
+    filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
+    have ht0 : 0 < t := ht
+    have hA_nonneg : 0 ≤ analyticSeries (1 + t) := by
+      rw [analyticSeries]
+      exact tsum_nonneg fun q =>
+        div_nonneg ArithmeticFunction.vonMangoldt_nonneg <|
+          le_of_lt <| Real.rpow_pos_of_pos (by
+            have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+            exact_mod_cast hqnatpos) _
+    have hcorr_nonneg :
+        0 ≤ Real.log (2 : ℝ) / Real.rpow (2 : ℝ) (1 + t) := by
+      have hlog2 : 0 < Real.log (2 : ℝ) := Real.log_pos (by norm_num)
+      exact div_nonneg hlog2.le (le_of_lt (Real.rpow_pos_of_pos (by norm_num) _))
+    have hA_le : analyticSeries (1 + t) ≤ 1 / t := by
+      have hs : 1 < 1 + t := by linarith
+      have hmain :
+          analyticSeries (1 + t) + Real.log (2 : ℝ) / Real.rpow (2 : ℝ) (1 + t) ≤ 1 / t := by
+        simpa using (analyticSeries_add_log_term_le hs Nat.prime_two)
+      calc
+        analyticSeries (1 + t)
+            ≤ analyticSeries (1 + t) + Real.log (2 : ℝ) / Real.rpow (2 : ℝ) (1 + t) := by
+              linarith
+        _ ≤ 1 / t := hmain
+    have hf_nonneg : 0 ≤ fSum t := by
+      dsimp [fSum]
+      exact mul_nonneg
+        (by positivity)
+        hA_nonneg
+    rw [Real.norm_eq_abs, abs_of_nonneg hf_nonneg]
+    dsimp [fSum]
+    have hfac_nonneg : 0 ≤ (1 / (N : ℝ)) * (t * Real.exp (-L * t)) := by
+      apply mul_nonneg
+      · positivity
+      · exact mul_nonneg ht0.le (le_of_lt (Real.exp_pos _))
+    calc
+      (1 / (N : ℝ)) * (t * Real.exp (-L * t)) * analyticSeries (1 + t)
+          ≤ (1 / (N : ℝ)) * (t * Real.exp (-L * t)) * (1 / t) := by
+            gcongr
+      _ = (1 / (N : ℝ)) * Real.exp (-L * t) := by
+            field_simp [ht0.ne']
+  have hfSum_int : MeasureTheory.Integrable fSum μ :=
+    hsimple_int.mono' hfSum_meas.aestronglyMeasurable hfSum_bound
+  have h_bound_integrable :
+      MeasureTheory.Integrable (fun t : ℝ => ∑' q : {q : ℕ // 2 ≤ q}, F q t) μ :=
+    hfSum_int.congr (h_tsum_eq.mono fun t ht => ht.symm)
+  have hIntHasSum :
+      HasSum (fun q : {q : ℕ // 2 ≤ q} => ∫ t, F q t ∂μ) (∫ t, fSum t ∂μ) :=
+    MeasureTheory.hasSum_integral_of_dominated_convergence
+      (bound := F) hF_meas h_bound h_bound_summable h_bound_integrable h_hasSum_ae
+  have hsub_hasSum :
+      HasSum (fun q : {q : ℕ // 2 ≤ q} => baseFlow (N * q.1) N) (∫ t, fSum t ∂μ) := by
+    exact hIntHasSum.congr_fun fun q => (hbase_mul q).trans (hF_int q).symm
+  have hbase_hasSum :
+      HasSum (fun K : ℕ => baseFlow K N) (∫ t, fSum t ∂μ) :=
+    (Function.Injective.hasSum_iff he hbase_zero).mp hsub_hasSum
+  have hmodified_hasSum : HasSum (fun K : ℕ => modifiedFlow K N) (∫ t, fSum t ∂μ) := by
+    simpa [hmodified_eq_base] using hbase_hasSum
+  exact hmodified_hasSum.summable
+
 lemma summable_modifiedFlow_col2 {N : ℕ} (hN : 2 ≤ N) :
     Summable (fun K : ℕ => modifiedFlow K N) := by
   have hN' : 1 < N := lt_of_lt_of_le Nat.one_lt_two hN
@@ -1687,7 +4474,247 @@ lemma summable_modifiedFlow_col2 {N : ℕ} (hN : 2 ≤ N) :
 lemma primitiveWeightSum_le_primeWeightSum_of_finite {A : Set ℕ}
     (hA : PrimitiveSet A) (hfin : A.Finite) :
     primitiveWeightSum A ≤ primeWeightSum := by
-      sorry
+  classical
+  let Ω := primitiveDivisorClosure A
+  have hΩspec := primitiveDivisorClosure_spec_of_finite hA hfin
+  rcases hΩspec with ⟨hΩfin, hAΩ, hΩdown⟩
+  have hΩ_ge_two : ∀ {d : ℕ}, d ∈ primitiveDivisorClosure A → 2 ≤ d := by
+    intro d hd
+    have hd' : 2 ≤ d ∧ ∃ a ∈ A, d ∣ a := by
+      simpa [primitiveDivisorClosure] using hd
+    exact hd'.1
+  have hOut :      boundaryOutflow modifiedFlow (primitiveDivisorClosure A) ≤ primeWeightSum := by
+    exact boundaryOutflow_le_primeWeightSum_of_downwardClosed hΩ_ge_two hΩdown
+  have hBoundary :
+      boundaryInflow modifiedFlow Ω +
+        (∑' a : A, (outflow modifiedFlow (a : ℕ) - inflow modifiedFlow (a : ℕ))) ≤
+          boundaryOutflow modifiedFlow Ω := by
+    exact
+      boundaryOutflow_ge_boundaryInflow_add_tsum_divergence_of_subset hΩfin hΩ_ge_two hAΩ
+  have hIn :
+      ∀ {a m : ℕ}, a ∈ A → modifiedFlow m a ≠ 0 → m ∉ Ω := by
+    intro a m ha hflow
+    exact flow_into_primitive_member_from_outside_divisorClosure hA ha hflow
+  have hcol_summable :
+      ∀ {N : ℕ}, 2 ≤ N → Summable (fun K : ℕ => modifiedFlow K N) := by
+    intro N hN
+    exact summable_modifiedFlow_col2 hN
+  have hOut_eq :
+      ∀ a : A, outflow modifiedFlow (a : ℕ) = erdosWeight (a : ℕ) := by
+    intro a
+    exact outflow_modifiedFlow_eq_erdosWeight (lt_of_lt_of_le Nat.one_lt_two (hA.1 a.2))
+  have hWeight :
+      primitiveWeightSum A = ∑' a : A, outflow modifiedFlow (a : ℕ) := by
+    unfold primitiveWeightSum
+    apply tsum_congr
+    intro a
+    simpa using (hOut_eq a).symm
+  have hIn_nonneg : ∀ a : A, 0 ≤ inflow modifiedFlow (a : ℕ) := by
+    intro a
+    unfold inflow
+    exact tsum_nonneg fun m => modifiedFlow_nonneg m a
+  have hIn_le :
+      (∑' a : A, inflow modifiedFlow (a : ℕ)) ≤ boundaryInflow modifiedFlow Ω := by
+    let G : boundaryInPairs Ω → ℝ := fun mn => modifiedFlow mn.1.1 mn.1.2
+    let T : A → Set (boundaryInPairs Ω) := fun a => { mn | mn.1.2 = (a : ℕ) }
+    have hfiber :
+        ∀ a : A, inflow modifiedFlow (a : ℕ) = ∑' mn : T a, G mn := by
+      intro a
+      let S : Set {m : ℕ // m ∉ Ω} := { m | (a : ℕ) ∣ m.1 ∧ (a : ℕ) < m.1 }
+      have hOutside :
+          inflow modifiedFlow (a : ℕ) =
+            ∑' m : {m : ℕ // m ∉ Ω}, modifiedFlow m.1 (a : ℕ) := by
+        have hsupport :
+            Function.support (fun m : ℕ => modifiedFlow m (a : ℕ)) ⊆ { m | m ∉ Ω } := by
+          intro m hm
+          exact hIn a.2 hm
+        symm
+        simpa [inflow, Ω] using (tsum_subtype_eq_of_support_subset hsupport)
+      have hSupportS :
+          Function.support (fun m : {m : ℕ // m ∉ Ω} => modifiedFlow m.1 (a : ℕ)) ⊆ S := by
+        intro m hm
+        change (a : ℕ) ∣ m.1 ∧ (a : ℕ) < m.1
+        by_contra hnot
+        exact hm (by
+          apply modifiedFlow_eq_zero_of_not_dvd_lt
+          exact hnot)
+      have hS :
+          (∑' m : {m : ℕ // m ∉ Ω}, modifiedFlow m.1 (a : ℕ)) =
+            ∑' m : S, modifiedFlow m.1.1 (a : ℕ) := by
+        symm
+        simpa [S] using (tsum_subtype_eq_of_support_subset hSupportS)
+      let f : S → T a := fun m =>
+        ⟨⟨(m.1.1, a.1), by
+          exact ⟨m.1.2, hAΩ a.2, m.2.1, m.2.2⟩⟩, rfl⟩
+      have hf_inj : Function.Injective f := by
+        intro m₁ m₂ h
+        apply Subtype.ext
+        apply Subtype.ext
+        simpa using congrArg (fun z : T a => z.1.1.1) h
+      have hf_surj : Function.Surjective f := by
+        intro mn
+        rcases mn with ⟨⟨⟨m, n⟩, hmn⟩, hna⟩
+        rcases hmn with ⟨hm, _, hdiv, hlt⟩
+        cases hna
+        refine ⟨⟨⟨m, hm⟩, ?_⟩, ?_⟩
+        · simpa [S] using And.intro hdiv hlt
+        · apply Subtype.ext
+          apply Subtype.ext
+          rfl
+      let e : S ≃ T a := Equiv.ofBijective f ⟨hf_inj, hf_surj⟩
+      have hT :
+          (∑' m : S, modifiedFlow m.1.1 (a : ℕ)) =
+            ∑' mn : T a, G mn := by
+        simpa [e, G] using
+          (Equiv.tsum_eq e (fun mn : T a => G mn))
+      exact hOutside.trans (hS.trans hT)
+    have hnonnegT : ∀ a : A, 0 ≤ ∑' mn : T a, G mn := by
+      intro a
+      rw [← hfiber a]
+      exact hIn_nonneg a
+    have hpairwise : Set.PairwiseDisjoint (Set.univ : Set A) T := by
+      intro a _ b _ hab
+      refine Set.disjoint_left.2 ?_
+      intro mn hma hmb
+      exact hab <| Subtype.ext (hma.symm.trans hmb)
+    have hunion :
+        (∑' mn : ⋃ a : A, T a, ENNReal.ofReal (G mn)) =
+          ∑' a : A, ∑' mn : T a, ENNReal.ofReal (G mn) := by
+      simpa using (ENNReal.tsum_biUnion hpairwise (f := fun mn => ENNReal.ofReal (G mn)))
+    have hsub :
+        (∑' mn : ⋃ a : A, T a, ENNReal.ofReal (G mn)) ≤
+          ∑' mn : boundaryInPairs Ω, ENNReal.ofReal (G mn) := by
+      simpa using
+        (ENNReal.tsum_comp_le_tsum_of_injective
+          (f := (Subtype.val : (⋃ a : A, T a) → boundaryInPairs Ω))
+          Subtype.val_injective
+          (fun mn : boundaryInPairs Ω => ENNReal.ofReal (G mn)))
+    have hfiberENN :
+        ∀ a : A, ENNReal.ofReal (inflow modifiedFlow (a : ℕ)) =
+          ∑' mn : T a, ENNReal.ofReal (G mn) := by
+      intro a
+      rw [hfiber a]
+      refine ENNReal.ofReal_tsum_of_nonneg ?_ ?_
+      · intro mn
+        exact modifiedFlow_nonneg mn.1.1.1 mn.1.1.2
+      · have hscol := hcol_summable (hA.1 a.2)
+        have hsource_inj :
+            Function.Injective (fun mn : T a => mn.1.1.1) := by
+          intro x y hxy
+          apply Subtype.ext
+          apply Subtype.ext
+          apply Prod.ext
+          · exact hxy
+          · exact x.2.trans y.2.symm
+        have hscol' : Summable (fun mn : T a => modifiedFlow mn.1.1.1 (a : ℕ)) := by
+          simpa [Function.comp_def] using hscol.comp_injective hsource_inj
+        have hEq :
+            (fun mn : T a => modifiedFlow mn.1.1.1 (a : ℕ)) =
+              fun mn : T a => modifiedFlow mn.1.1.1 mn.1.1.2 := by
+          funext mn
+          rcases mn with ⟨⟨⟨m, n⟩, hmn⟩, hna⟩
+          cases hna
+          rfl
+        exact hEq ▸ hscol'
+    have hleft :
+        ENNReal.ofReal (∑' a : A, inflow modifiedFlow (a : ℕ)) ≤
+          ∑' mn : boundaryInPairs Ω, ENNReal.ofReal (G mn) := by
+      calc
+        ENNReal.ofReal (∑' a : A, inflow modifiedFlow (a : ℕ))
+            = ∑' a : A, ENNReal.ofReal (inflow modifiedFlow (a : ℕ)) := by
+                refine ENNReal.ofReal_tsum_of_nonneg ?_ ?_
+                · intro a
+                  exact hIn_nonneg a
+                · letI := hfin.fintype
+                  apply Summable.of_finite
+        _ = ∑' a : A, ∑' mn : T a, ENNReal.ofReal (G mn) := by
+              apply tsum_congr
+              intro a
+              exact hfiberENN a
+        _ = ∑' mn : ⋃ a : A, T a, ENNReal.ofReal (G mn) := by
+              rw [hunion]
+        _ ≤ ∑' mn : boundaryInPairs Ω, ENNReal.ofReal (G mn) := hsub
+    have hright :
+        ∑' mn : boundaryInPairs Ω, ENNReal.ofReal (G mn) =
+          ENNReal.ofReal (boundaryInflow modifiedFlow Ω) := by
+      unfold boundaryInflow G
+      refine (ENNReal.ofReal_tsum_of_nonneg ?_ ?_).symm
+      · intro mn
+        exact modifiedFlow_nonneg mn.1.1 mn.1.2
+      · let U : Ω → Set (boundaryInPairs Ω) := fun r => { mn | mn.1.2 = (r : ℕ) }
+        have hpart : ∀ mn : boundaryInPairs Ω, ∃! r : Ω, mn ∈ U r := by
+          intro mn
+          refine ⟨⟨mn.1.2, ?_⟩, by simp [U], ?_⟩
+          · rcases mn.2 with ⟨_, hn, _, _⟩
+            exact hn
+          · intro r hr
+            apply Subtype.ext
+            simpa [U] using hr.symm
+        have hU_summable : ∀ r : Ω, Summable (fun mn : U r => modifiedFlow mn.1.1.1 mn.1.1.2) := by
+          intro r
+          have hscol := hcol_summable (hΩ_ge_two r.2)
+          have hsource_inj :
+              Function.Injective (fun mn : U r => mn.1.1.1) := by
+            intro x y hxy
+            apply Subtype.ext
+            apply Subtype.ext
+            apply Prod.ext
+            · exact hxy
+            · exact x.2.trans y.2.symm
+          have hscol' : Summable (fun mn : U r => modifiedFlow mn.1.1.1 (r : ℕ)) := by
+            simpa [Function.comp_def] using hscol.comp_injective hsource_inj
+          have hEq :
+              (fun mn : U r => modifiedFlow mn.1.1.1 (r : ℕ)) =
+                fun mn : U r => modifiedFlow mn.1.1.1 mn.1.1.2 := by
+            funext mn
+            rcases mn with ⟨⟨⟨m, n⟩, hmn⟩, hnr⟩
+            cases hnr
+            rfl
+          exact hEq ▸ hscol'
+        have houter :
+            Summable (fun r : Ω => ∑' mn : U r, modifiedFlow mn.1.1.1 mn.1.1.2) := by
+          letI := hΩfin.fintype
+          apply Summable.of_finite
+        exact
+          (summable_partition
+            (f := fun mn : boundaryInPairs Ω => modifiedFlow mn.1.1 mn.1.2)
+            (hf := fun mn => modifiedFlow_nonneg mn.1.1 mn.1.2)
+            (s := U) hpart).2 ⟨hU_summable, houter⟩
+    have hleft' := hleft.trans_eq hright
+    have hboundary_nonneg : 0 ≤ boundaryInflow modifiedFlow Ω := by
+      unfold boundaryInflow
+      exact tsum_nonneg fun mn => modifiedFlow_nonneg mn.1.1 mn.1.2
+    exact (ENNReal.ofReal_le_ofReal_iff hboundary_nonneg).mp hleft'
+  have hmain :
+      primitiveWeightSum A ≤ boundaryInflow modifiedFlow Ω +
+        (∑' a : A, (outflow modifiedFlow (a : ℕ) - inflow modifiedFlow (a : ℕ))) := by
+    letI := hfin.fintype
+    have hIn_le' : ∑ a : A, inflow modifiedFlow (a : ℕ) ≤ boundaryInflow modifiedFlow Ω := by
+      simpa [tsum_fintype] using hIn_le
+    rw [hWeight, tsum_fintype, tsum_fintype]
+    calc
+      ∑ a : A, outflow modifiedFlow (a : ℕ)
+          = ∑ a : A, inflow modifiedFlow (a : ℕ) +
+              ∑ a : A, (outflow modifiedFlow (a : ℕ) - inflow modifiedFlow (a : ℕ)) := by
+                calc
+                  ∑ a : A, outflow modifiedFlow (a : ℕ)
+                      = ∑ a : A,
+                          (inflow modifiedFlow (a : ℕ) +
+                            (outflow modifiedFlow (a : ℕ) - inflow modifiedFlow (a : ℕ))) := by
+                              apply Finset.sum_congr rfl
+                              intro a ha
+                              ring
+                  _ = _ := by rw [Finset.sum_add_distrib]
+      _ ≤ boundaryInflow modifiedFlow Ω +
+            ∑ a : A, (outflow modifiedFlow (a : ℕ) - inflow modifiedFlow (a : ℕ)) := by
+              gcongr
+  calc
+    primitiveWeightSum A
+        ≤ boundaryInflow modifiedFlow Ω +
+            (∑' a : A, (outflow modifiedFlow (a : ℕ) - inflow modifiedFlow (a : ℕ))) := hmain
+    _ ≤ boundaryOutflow modifiedFlow Ω := hBoundary
+    _ ≤ primeWeightSum := hOut
+
 lemma primitiveWeightSum_le_primeWeightSum_of_finite_subsets {A : Set ℕ}
     (hfinite :
       ∀ A₀ : Set ℕ, A₀ ⊆ A → A₀.Finite → primitiveWeightSum A₀ ≤ primeWeightSum) :
@@ -1809,7 +4836,365 @@ lemma analyticSeries_nonneg_shift (t : ℝ) :
 lemma series_eq_integral {n : ℕ} (hn : 1 ≤ n) :
     series n =
       ∫ t in Set.Ioi (0 : ℝ), kernel n t * analyticSeries (1 + t) := by
-        sorry
+  classical
+  let μ := MeasureTheory.volume.restrict (Set.Ioi (0 : ℝ))
+  let F : {q : ℕ // 2 ≤ q} → ℝ → ℝ := fun q t =>
+    kernel n t * (ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t))
+  have hn_pos_nat : 0 < n := lt_of_lt_of_le Nat.zero_lt_one hn
+  have hn_pos : 0 < (n : ℝ) := by
+    exact_mod_cast hn_pos_nat
+  have hn0 : (n : ℝ) ≠ 0 := hn_pos.ne'
+  have hlog2 : 0 < Real.log (2 : ℝ) := Real.log_pos (by norm_num)
+  have hsum_analytic {t : ℝ} (ht : 0 < t) :
+      Summable (fun q : {q : ℕ // 2 ≤ q} =>
+        ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t)) := by
+    let full : ℕ → ℝ := fun m =>
+      if m = 0 then 0 else ArithmeticFunction.vonMangoldt m / Real.rpow (m : ℝ) (1 + t)
+    have hLs :
+        LSeriesSummable (fun m => ↑(ArithmeticFunction.vonMangoldt m)) (1 + t : ℂ) :=
+      ArithmeticFunction.LSeriesSummable_vonMangoldt (by simpa using add_lt_add_left ht 1)
+    have hsum_full : Summable full := by
+      simpa [full, LSeries.norm_term_eq, Real.norm_eq_abs,
+        abs_of_nonneg ArithmeticFunction.vonMangoldt_nonneg] using hLs.norm
+    have hfull_zero :
+        ∀ m ∉ Set.range (Subtype.val : {q : ℕ // 2 ≤ q} → ℕ), full m = 0 := by
+      intro m hm
+      have hm_lt : m < 2 := by
+        by_contra h
+        exact hm ⟨⟨m, not_lt.mp h⟩, rfl⟩
+      interval_cases m <;> simp [full]
+    have hsub : Summable (full ∘ Subtype.val) :=
+      (Function.Injective.summable_iff Subtype.val_injective hfull_zero).2 hsum_full
+    refine hsub.congr ?_
+    intro q
+    simp [full, show ((q : ℕ) ≠ 0) by omega]
+  have hHas_analytic {t : ℝ} (ht : 0 < t) :
+      HasSum
+        (fun q : {q : ℕ // 2 ≤ q} =>
+          ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t))
+        (analyticSeries (1 + t)) := by
+    simpa [analyticSeries] using (hsum_analytic ht).hasSum
+  have hF_hasSum {t : ℝ} (ht : 0 < t) :
+      HasSum (fun q : {q : ℕ // 2 ≤ q} => F q t)
+        (kernel n t * analyticSeries (1 + t)) := by
+    simpa [F, mul_assoc] using (hHas_analytic ht).mul_left (kernel n t)
+  have hF_exp (q : {q : ℕ // 2 ≤ q}) (t : ℝ) :
+      F q t =
+        (ArithmeticFunction.vonMangoldt q.1 / ((q.1 : ℝ) * Real.log (2 : ℝ))) *
+          (Real.exp (-(Real.log (((n * q.1 : ℕ) : ℝ)) * t)) -
+            Real.exp (-(Real.log (((2 * n * q.1 : ℕ) : ℝ)) * t))) := by
+    have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+    have hqpos : 0 < (q.1 : ℝ) := by
+      exact_mod_cast hqnatpos
+    have hnqpos : 0 < (((n * q.1 : ℕ) : ℝ)) := by
+      exact_mod_cast Nat.mul_pos hn_pos_nat hqnatpos
+    have h2nqpos : 0 < (((2 * n * q.1 : ℕ) : ℝ)) := by
+      exact_mod_cast Nat.mul_pos (Nat.mul_pos (by omega) hn_pos_nat) hqnatpos
+    have hq_rpow : Real.rpow (q.1 : ℝ) (1 + t) = (q.1 : ℝ) * Real.rpow (q.1 : ℝ) t := by
+      simpa using (Real.rpow_add hqpos (1 : ℝ) t)
+    have hnq_rpow :
+        (((n * q.1 : ℕ) : ℝ)) ^ (-t) = (n : ℝ) ^ (-t) * (q.1 : ℝ) ^ (-t) := by
+      simpa [Nat.cast_mul] using
+        (Real.mul_rpow (show 0 ≤ (n : ℝ) by positivity)
+          (show 0 ≤ (q.1 : ℝ) by positivity) (z := -t))
+    have h2nq_rpow :
+        (((2 * n * q.1 : ℕ) : ℝ)) ^ (-t) =
+          (2 : ℝ) ^ (-t) * (n : ℝ) ^ (-t) * (q.1 : ℝ) ^ (-t) := by
+      calc
+        (((2 * n * q.1 : ℕ) : ℝ)) ^ (-t)
+            = (2 : ℝ) ^ (-t) * (((n * q.1 : ℕ) : ℝ)) ^ (-t) := by
+                simpa [Nat.cast_mul, mul_assoc] using
+                  (Real.mul_rpow (show 0 ≤ (2 : ℝ) by positivity)
+                    (show 0 ≤ (((n * q.1 : ℕ) : ℝ)) by positivity) (z := -t))
+        _ = (2 : ℝ) ^ (-t) * ((n : ℝ) ^ (-t) * (q.1 : ℝ) ^ (-t)) := by
+              rw [hnq_rpow]
+        _ = (2 : ℝ) ^ (-t) * (n : ℝ) ^ (-t) * (q.1 : ℝ) ^ (-t) := by ring
+    have hexp1 :
+        Real.exp (-(Real.log (((n * q.1 : ℕ) : ℝ)) * t)) = (((n * q.1 : ℕ) : ℝ)) ^ (-t) := by
+      rw [show -(Real.log (((n * q.1 : ℕ) : ℝ)) * t) =
+          Real.log (((n * q.1 : ℕ) : ℝ)) * (-t) by ring]
+      rw [← Real.rpow_def_of_pos hnqpos (-t)]
+    have hexp2 :
+        Real.exp (-(Real.log (((2 * n * q.1 : ℕ) : ℝ)) * t)) =
+          (((2 * n * q.1 : ℕ) : ℝ)) ^ (-t) := by
+      rw [show -(Real.log (((2 * n * q.1 : ℕ) : ℝ)) * t) =
+          Real.log (((2 * n * q.1 : ℕ) : ℝ)) * (-t) by ring]
+      rw [← Real.rpow_def_of_pos h2nqpos (-t)]
+    calc
+      F q t
+          = kernel n t *
+              (ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t)) := by
+                rfl
+      _ = (ArithmeticFunction.vonMangoldt q.1 / ((q.1 : ℝ) * Real.log (2 : ℝ))) *
+            ((n : ℝ) ^ (-t) * (q.1 : ℝ) ^ (-t) -
+              (2 : ℝ) ^ (-t) * (n : ℝ) ^ (-t) * (q.1 : ℝ) ^ (-t)) := by
+              rw [kernel, hq_rpow, div_eq_mul_inv, Real.rpow_neg (le_of_lt hqpos),
+                Real.rpow_eq_pow]
+              field_simp [hlog2.ne', (Real.rpow_pos_of_pos hqpos t).ne']
+      _ = (ArithmeticFunction.vonMangoldt q.1 / ((q.1 : ℝ) * Real.log (2 : ℝ))) *
+            ((((n * q.1 : ℕ) : ℝ)) ^ (-t) - (((2 * n * q.1 : ℕ) : ℝ)) ^ (-t)) := by
+              rw [hnq_rpow, h2nq_rpow]
+      _ = (ArithmeticFunction.vonMangoldt q.1 / ((q.1 : ℝ) * Real.log (2 : ℝ))) *
+            (Real.exp (-(Real.log (((n * q.1 : ℕ) : ℝ)) * t)) -
+              Real.exp (-(Real.log (((2 * n * q.1 : ℕ) : ℝ)) * t))) := by
+              rw [hexp1, hexp2]
+  have hF_integrable (q : {q : ℕ // 2 ≤ q}) : MeasureTheory.Integrable (F q) μ := by
+    let a : ℝ := Real.log (((n * q.1 : ℕ) : ℝ))
+    let b : ℝ := Real.log (((2 * n * q.1 : ℕ) : ℝ))
+    have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+    have ha_pos : 0 < a := by
+      dsimp [a]
+      have hgt1 : (1 : ℝ) < (((n * q.1 : ℕ) : ℝ)) := by
+        exact_mod_cast lt_of_lt_of_le (by omega : 1 < q.1) (Nat.le_mul_of_pos_left q.1 hn_pos_nat)
+      exact Real.log_pos hgt1
+    have hb_pos : 0 < b := by
+      dsimp [b]
+      have hgt1 : (1 : ℝ) < (((2 * n * q.1 : ℕ) : ℝ)) := by
+        exact_mod_cast lt_of_lt_of_le (by omega : 1 < q.1)
+          (Nat.le_mul_of_pos_left q.1 (Nat.mul_pos (by omega) hn_pos_nat))
+      exact Real.log_pos hgt1
+    have hEa :
+        MeasureTheory.IntegrableOn (fun t : ℝ => Real.exp (-(a * t))) (Set.Ioi (0 : ℝ)) := by
+      simpa [neg_mul] using (exp_neg_integrableOn_Ioi 0 ha_pos)
+    have hEb :
+        MeasureTheory.IntegrableOn (fun t : ℝ => Real.exp (-(b * t))) (Set.Ioi (0 : ℝ)) := by
+      simpa [neg_mul] using (exp_neg_integrableOn_Ioi 0 hb_pos)
+    have hrepr :
+        F q =
+          fun t : ℝ =>
+            (ArithmeticFunction.vonMangoldt q.1 / ((q.1 : ℝ) * Real.log (2 : ℝ))) *
+              (Real.exp (-(a * t)) - Real.exp (-(b * t))) := by
+      funext t
+      dsimp [a, b]
+      exact hF_exp q t
+    rw [hrepr]
+    simpa [μ, MeasureTheory.IntegrableOn] using (hEa.sub hEb).const_mul
+      (ArithmeticFunction.vonMangoldt q.1 / ((q.1 : ℝ) * Real.log (2 : ℝ)))
+  have hF_int (q : {q : ℕ // 2 ≤ q}) :
+      ∫ t, F q t ∂μ =
+        ArithmeticFunction.vonMangoldt q.1 /
+          ((q.1 : ℝ) * Real.log (((n * q.1 : ℕ) : ℝ)) *
+            Real.log (((2 * n * q.1 : ℕ) : ℝ))) := by
+    let a : ℝ := Real.log (((n * q.1 : ℕ) : ℝ))
+    let b : ℝ := Real.log (((2 * n * q.1 : ℕ) : ℝ))
+    have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+    have hq0 : (q.1 : ℝ) ≠ 0 := by
+      exact_mod_cast (show q.1 ≠ 0 by omega)
+    have ha_pos : 0 < a := by
+      dsimp [a]
+      have hgt1 : (1 : ℝ) < (((n * q.1 : ℕ) : ℝ)) := by
+        exact_mod_cast lt_of_lt_of_le (by omega : 1 < q.1) (Nat.le_mul_of_pos_left q.1 hn_pos_nat)
+      exact Real.log_pos hgt1
+    have hb_pos : 0 < b := by
+      dsimp [b]
+      have hgt1 : (1 : ℝ) < (((2 * n * q.1 : ℕ) : ℝ)) := by
+        exact_mod_cast lt_of_lt_of_le (by omega : 1 < q.1)
+          (Nat.le_mul_of_pos_left q.1 (Nat.mul_pos (by omega) hn_pos_nat))
+      exact Real.log_pos hgt1
+    have hEa :
+        MeasureTheory.Integrable (fun t : ℝ => Real.exp (-(a * t))) μ := by
+      simpa [μ, MeasureTheory.IntegrableOn] using (exp_neg_integrableOn_Ioi 0 ha_pos)
+    have hEb :
+        MeasureTheory.Integrable (fun t : ℝ => Real.exp (-(b * t))) μ := by
+      simpa [μ, MeasureTheory.IntegrableOn] using (exp_neg_integrableOn_Ioi 0 hb_pos)
+    have hEa_eval : ∫ t in Set.Ioi (0 : ℝ), Real.exp (-(a * t)) = 1 / a := by
+      calc
+        ∫ t in Set.Ioi (0 : ℝ), Real.exp (-(a * t))
+            = a ^ (-1 / (1 : ℝ)) * Real.Gamma (1 / (1 : ℝ) + 1) := by
+                simpa using (integral_exp_neg_mul_rpow (p := 1) zero_lt_one ha_pos)
+        _ = 1 / a := by
+              have htwo : (1 / (1 : ℝ) + 1) = 2 := by norm_num
+              rw [htwo, Real.Gamma_two]
+              rw [show (-1 / (1 : ℝ)) = -(1 : ℝ) by norm_num, Real.rpow_neg ha_pos.le]
+              simp [one_div]
+    have hEb_eval : ∫ t in Set.Ioi (0 : ℝ), Real.exp (-(b * t)) = 1 / b := by
+      calc
+        ∫ t in Set.Ioi (0 : ℝ), Real.exp (-(b * t))
+            = b ^ (-1 / (1 : ℝ)) * Real.Gamma (1 / (1 : ℝ) + 1) := by
+                simpa using (integral_exp_neg_mul_rpow (p := 1) zero_lt_one hb_pos)
+        _ = 1 / b := by
+              have htwo : (1 / (1 : ℝ) + 1) = 2 := by norm_num
+              rw [htwo, Real.Gamma_two]
+              rw [show (-1 / (1 : ℝ)) = -(1 : ℝ) by norm_num, Real.rpow_neg hb_pos.le]
+              simp [one_div]
+    have hrepr :
+        F q =
+          fun t : ℝ =>
+            (ArithmeticFunction.vonMangoldt q.1 / ((q.1 : ℝ) * Real.log (2 : ℝ))) *
+              (Real.exp (-(a * t)) - Real.exp (-(b * t))) := by
+      funext t
+      dsimp [a, b]
+      exact hF_exp q t
+    have hblog : b = Real.log (2 : ℝ) + a := by
+      dsimp [a, b]
+      have hnq0 : (((n * q.1 : ℕ) : ℝ)) ≠ 0 := by
+        exact_mod_cast (Nat.mul_pos hn_pos_nat hqnatpos).ne'
+      calc
+        Real.log (((2 * n * q.1 : ℕ) : ℝ))
+            = Real.log ((2 : ℝ) * (((n * q.1 : ℕ) : ℝ))) := by
+                norm_num [Nat.cast_mul, mul_assoc]
+        _ = Real.log (2 : ℝ) + Real.log (((n * q.1 : ℕ) : ℝ)) := by
+              rw [Real.log_mul (by norm_num : (2 : ℝ) ≠ 0) hnq0]
+        _ = Real.log (2 : ℝ) + a := by rfl
+    have hdiff : 1 / a - 1 / b = Real.log (2 : ℝ) / (a * b) := by
+      rw [hblog]
+      field_simp [ha_pos.ne', hb_pos.ne', hlog2.ne']
+      ring
+    calc
+      ∫ t, F q t ∂μ
+          = (ArithmeticFunction.vonMangoldt q.1 / ((q.1 : ℝ) * Real.log (2 : ℝ))) *
+              ∫ t in Set.Ioi (0 : ℝ), (Real.exp (-(a * t)) - Real.exp (-(b * t))) := by
+                dsimp [μ]
+                rw [hrepr, MeasureTheory.integral_const_mul]
+      _ = (ArithmeticFunction.vonMangoldt q.1 / ((q.1 : ℝ) * Real.log (2 : ℝ))) *
+            ((∫ t in Set.Ioi (0 : ℝ), Real.exp (-(a * t))) -
+              ∫ t in Set.Ioi (0 : ℝ), Real.exp (-(b * t))) := by
+              rw [MeasureTheory.integral_sub hEa hEb]
+      _ = (ArithmeticFunction.vonMangoldt q.1 / ((q.1 : ℝ) * Real.log (2 : ℝ))) *
+            (1 / a - 1 / b) := by
+              rw [hEa_eval, hEb_eval]
+      _ = (ArithmeticFunction.vonMangoldt q.1 / ((q.1 : ℝ) * Real.log (2 : ℝ))) *
+            (Real.log (2 : ℝ) / (a * b)) := by
+              rw [hdiff]
+      _ = ArithmeticFunction.vonMangoldt q.1 / ((q.1 : ℝ) * a * b) := by
+            field_simp [hq0, ha_pos.ne', hb_pos.ne', hlog2.ne']
+      _ = ArithmeticFunction.vonMangoldt q.1 /
+            ((q.1 : ℝ) * Real.log (((n * q.1 : ℕ) : ℝ)) *
+              Real.log (((2 * n * q.1 : ℕ) : ℝ))) := by
+            rfl
+  have hF_nonneg_ae (q : {q : ℕ // 2 ≤ q}) : 0 ≤ᵐ[μ] F q := by
+    filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
+    have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+    have hterm_nonneg :
+        0 ≤ ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t) := by
+      apply div_nonneg ArithmeticFunction.vonMangoldt_nonneg
+      exact le_of_lt (Real.rpow_pos_of_pos (by exact_mod_cast hqnatpos) _)
+    dsimp [F]
+    exact mul_nonneg (kernel_nonneg hn ht) hterm_nonneg
+  have hnorm_int_eq (q : {q : ℕ // 2 ≤ q}) :
+      ∫ t, ‖F q t‖ ∂μ =
+        ArithmeticFunction.vonMangoldt q.1 /
+          ((q.1 : ℝ) * Real.log (((n * q.1 : ℕ) : ℝ)) *
+            Real.log (((2 * n * q.1 : ℕ) : ℝ))) := by
+    calc
+      ∫ t, ‖F q t‖ ∂μ = ∫ t, F q t ∂μ := by
+        apply MeasureTheory.integral_congr_ae
+        filter_upwards [hF_nonneg_ae q] with t ht
+        simp [Real.norm_of_nonneg ht]
+      _ = ArithmeticFunction.vonMangoldt q.1 /
+            ((q.1 : ℝ) * Real.log (((n * q.1 : ℕ) : ℝ)) *
+              Real.log (((2 * n * q.1 : ℕ) : ℝ))) := hF_int q
+  have hbase_scaled (q : {q : ℕ // 2 ≤ q}) :
+      (n : ℝ) * baseFlow (n * q.1) n =
+        ArithmeticFunction.vonMangoldt q.1 /
+          ((q.1 : ℝ) * Real.log (((n * q.1 : ℕ) : ℝ)) ^ 2) := by
+    have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+    have hq0 : (q.1 : ℝ) ≠ 0 := by
+      exact_mod_cast (show q.1 ≠ 0 by omega)
+    have hnq_gt1 : 1 < n * q.1 := by
+      exact lt_of_lt_of_le (by omega : 1 < q.1) (Nat.le_mul_of_pos_left q.1 hn_pos_nat)
+    have hdvd : n ∣ n * q.1 := by
+      exact ⟨q.1, by simp⟩
+    have hdiv : (n * q.1) / n = q.1 := by
+      simpa [Nat.mul_comm] using Nat.mul_div_right q.1 hn_pos_nat
+    by_cases hqpp : IsPrimePow q.1
+    · have hbase :
+          baseFlow (n * q.1) n =
+            ArithmeticFunction.vonMangoldt q.1 /
+              ((((n * q.1 : ℕ) : ℝ)) * Real.log (((n * q.1 : ℕ) : ℝ)) ^ 2) := by
+        simp [baseFlow, hnq_gt1, hdvd, hdiv, hqpp]
+      calc
+        (n : ℝ) * baseFlow (n * q.1) n
+            = (n : ℝ) *
+                (ArithmeticFunction.vonMangoldt q.1 /
+                  ((((n * q.1 : ℕ) : ℝ)) * Real.log (((n * q.1 : ℕ) : ℝ)) ^ 2)) := by
+                    rw [hbase]
+        _ = ArithmeticFunction.vonMangoldt q.1 /
+              ((q.1 : ℝ) * Real.log (((n * q.1 : ℕ) : ℝ)) ^ 2) := by
+              rw [Nat.cast_mul]
+              field_simp [hn0, hq0]
+    · have hvm : ArithmeticFunction.vonMangoldt q.1 = 0 := by
+        rw [ArithmeticFunction.vonMangoldt_eq_zero_iff]
+        exact hqpp
+      simp [baseFlow, hnq_gt1, hdvd, hdiv, hqpp, hvm]
+  have hterm_le_base (q : {q : ℕ // 2 ≤ q}) :
+      ArithmeticFunction.vonMangoldt q.1 /
+        ((q.1 : ℝ) * Real.log (((n * q.1 : ℕ) : ℝ)) *
+          Real.log (((2 * n * q.1 : ℕ) : ℝ)))
+      ≤ (n : ℝ) * baseFlow (n * q.1) n := by
+    have hqnatpos : 0 < q.1 := lt_of_lt_of_le Nat.zero_lt_two q.2
+    have hnum_nonneg : 0 ≤ ArithmeticFunction.vonMangoldt q.1 / (q.1 : ℝ) := by
+      exact div_nonneg ArithmeticFunction.vonMangoldt_nonneg (by positivity)
+    have hA_pos : 0 < Real.log (((n * q.1 : ℕ) : ℝ)) := by
+      apply Real.log_pos
+      exact_mod_cast lt_of_lt_of_le (by omega : 1 < q.1) (Nat.le_mul_of_pos_left q.1 hn_pos_nat)
+    have hB_ge :
+        Real.log (((n * q.1 : ℕ) : ℝ)) ≤ Real.log (((2 * n * q.1 : ℕ) : ℝ)) := by
+      apply Real.log_le_log (by positivity)
+      exact_mod_cast (show n * q.1 ≤ 2 * n * q.1 by
+        have hle : n * q.1 ≤ 2 * (n * q.1) := Nat.le_mul_of_pos_left (n * q.1) (by omega)
+        simpa [mul_assoc, Nat.mul_left_comm, Nat.mul_comm] using hle)
+    have hrecip :
+        1 / (Real.log (((n * q.1 : ℕ) : ℝ)) * Real.log (((2 * n * q.1 : ℕ) : ℝ))) ≤
+          1 / (Real.log (((n * q.1 : ℕ) : ℝ)) ^ 2) := by
+      have hden :
+          Real.log (((n * q.1 : ℕ) : ℝ)) ^ 2 ≤
+            Real.log (((n * q.1 : ℕ) : ℝ)) * Real.log (((2 * n * q.1 : ℕ) : ℝ)) := by
+        nlinarith [hA_pos.le, hB_ge]
+      exact one_div_le_one_div_of_le (by positivity) hden
+    calc
+      ArithmeticFunction.vonMangoldt q.1 /
+          ((q.1 : ℝ) * Real.log (((n * q.1 : ℕ) : ℝ)) *
+            Real.log (((2 * n * q.1 : ℕ) : ℝ)))
+          =
+        (ArithmeticFunction.vonMangoldt q.1 / (q.1 : ℝ)) *
+          (1 /
+            (Real.log (((n * q.1 : ℕ) : ℝ)) *
+              Real.log (((2 * n * q.1 : ℕ) : ℝ)))) := by
+                rw [div_eq_mul_inv, div_eq_mul_inv]
+                ring
+      _ ≤ (ArithmeticFunction.vonMangoldt q.1 / (q.1 : ℝ)) *
+            (1 / (Real.log (((n * q.1 : ℕ) : ℝ)) ^ 2)) := by
+              exact mul_le_mul_of_nonneg_left hrecip hnum_nonneg
+      _ = (n : ℝ) * baseFlow (n * q.1) n := by
+            rw [hbase_scaled q, div_eq_mul_inv, div_eq_mul_inv]
+            ring
+  let e : {q : ℕ // 2 ≤ q} → ℕ := fun q => n * q.1
+  have he : Function.Injective e := by
+    intro a b hab
+    apply Subtype.ext
+    exact Nat.mul_left_cancel hn_pos_nat hab
+  have hbase_summable :
+      Summable (fun q : {q : ℕ // 2 ≤ q} => (n : ℝ) * baseFlow (n * q.1) n) := by
+    have hbasecol : Summable (fun K : ℕ => baseFlow K n) :=
+      summable_baseFlow_col n
+    simpa [e, Function.comp_def] using
+      ((hbasecol.mul_left (n : ℝ)).comp_injective he)
+  have hF_sum : Summable (fun q : {q : ℕ // 2 ≤ q} => ∫ t, ‖F q t‖ ∂μ) := by
+    refine Summable.of_nonneg_of_le ?_ ?_ hbase_summable
+    · intro q
+      exact MeasureTheory.integral_nonneg fun _ => norm_nonneg _
+    · intro q
+      rw [hnorm_int_eq q]
+      exact hterm_le_base q
+  have h_tsum_eq :
+      (fun t : ℝ => ∑' q : {q : ℕ // 2 ≤ q}, F q t) =ᵐ[μ]
+        fun t => kernel n t * analyticSeries (1 + t) := by
+    filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with t ht
+    exact (hF_hasSum ht).tsum_eq
+  calc
+    series n = ∑' q : {q : ℕ // 2 ≤ q}, ∫ t, F q t ∂μ := by
+      unfold series
+      refine tsum_congr ?_
+      intro q
+      exact (hF_int q).symm
+    _ = ∫ t, ∑' q : {q : ℕ // 2 ≤ q}, F q t ∂μ := by
+      exact MeasureTheory.integral_tsum_of_summable_integral_norm hF_integrable hF_sum
+    _ = ∫ t, kernel n t * analyticSeries (1 + t) ∂μ := by
+      exact MeasureTheory.integral_congr_ae h_tsum_eq
+    _ = ∫ t in Set.Ioi (0 : ℝ), kernel n t * analyticSeries (1 + t) := by
+      rfl
+
 /-- The majorant uses the positive denominator `2^t - 1`. -/
 lemma two_rpow_sub_one_pos {t : ℝ} (ht : 0 < t) :
     0 < (2 : ℝ) ^ t - 1 := by
@@ -2105,7 +5490,37 @@ noncomputable def etaTermDeriv (m : ℕ) (s : ℝ) : ℝ :=
 
 lemma etaTerm_hasDerivAt (m : ℕ) (s : ℝ) :
     HasDerivAt (etaTerm m) (etaTermDeriv m s) s := by
-      sorry
+  have hodd_pos : 0 < (((2 * m + 1 : ℕ) : ℝ)) := by positivity
+  have heven_pos : 0 < (((2 * m + 2 : ℕ) : ℝ)) := by positivity
+  have hodd :
+      HasDerivAt (fun x : ℝ => (((2 * m + 1 : ℕ) : ℝ) ^ (-x)))
+        (-(Real.log (2 * m + 1) * (((2 * m + 1 : ℕ) : ℝ) ^ (-s)))) s := by
+    simpa [mul_assoc, mul_left_comm, mul_comm] using
+      ((hasDerivAt_id s).neg.const_rpow hodd_pos)
+  have heven :
+      HasDerivAt (fun x : ℝ => (((2 * m + 2 : ℕ) : ℝ) ^ (-x)))
+        (-(Real.log (2 * m + 2) * (((2 * m + 2 : ℕ) : ℝ) ^ (-s)))) s := by
+    simpa [mul_assoc, mul_left_comm, mul_comm] using
+      ((hasDerivAt_id s).neg.const_rpow heven_pos)
+  have hsub := hodd.sub heven
+  have hfun :
+      etaTerm m =
+        (fun x : ℝ => (((2 * m + 1 : ℕ) : ℝ) ^ (-x))) -
+          fun x : ℝ => (((2 * m + 2 : ℕ) : ℝ) ^ (-x)) := by
+    funext x
+    unfold etaTerm
+    rw [show 1 / Real.rpow (((2 * m + 1 : ℕ) : ℝ)) x = (((2 * m + 1 : ℕ) : ℝ) ^ (-x)) by
+          symm
+          simpa [one_div] using
+            (Real.rpow_neg (show 0 ≤ (((2 * m + 1 : ℕ) : ℝ)) by positivity) x)]
+    rw [show 1 / Real.rpow (((2 * m + 2 : ℕ) : ℝ)) x = (((2 * m + 2 : ℕ) : ℝ) ^ (-x)) by
+          symm
+          simpa [one_div] using
+            (Real.rpow_neg (show 0 ≤ (((2 * m + 2 : ℕ) : ℝ)) by positivity) x)]
+    rfl
+  rw [hfun]
+  simpa [etaTermDeriv, sub_eq_add_neg, add_comm] using hsub
+
 lemma etaSeries_summable {s : ℝ} (hs : 1 < s) :
     Summable (fun m : ℕ => etaTerm m s) := by
   let f : ℕ → ℝ := fun n => (((n + 1 : ℕ) : ℝ) ^ (-s))
@@ -2578,7 +5993,87 @@ lemma etaSeries_pos {s : ℝ} (hs : 1 < s) :
 lemma analyticSeries_eq_bound_sub_eta_log_deriv {s : ℝ} (hs : 1 < s) :
     analyticSeries s =
       Real.log (2 : ℝ) / ((2 : ℝ) ^ (s - 1) - 1) - deriv etaSeries s / etaSeries s := by
-        sorry
+  have heta_event :
+      etaSeries =ᶠ[nhds s] fun x : ℝ => (1 - (2 : ℝ) ^ (1 - x)) * zetaSeries x := by
+    refine Filter.eventuallyEq_iff_exists_mem.mpr ?_
+    refine ⟨{x : ℝ | 1 < x},
+      (isOpen_lt continuous_const continuous_id).mem_nhds (by simpa using hs), ?_⟩
+    intro x hx
+    simpa using etaSeries_eq_factor_mul_zetaSeries hx
+  have hfactor :
+      HasDerivAt (fun x : ℝ => 1 - (2 : ℝ) ^ (1 - x))
+        (Real.log (2 : ℝ) * (2 : ℝ) ^ (1 - s)) s := by
+    have hpow :
+        HasDerivAt (fun x : ℝ => (2 : ℝ) ^ (1 - x))
+          (-(Real.log (2 : ℝ) * (2 : ℝ) ^ (1 - s))) s := by
+      simpa [sub_eq_add_neg, mul_assoc, mul_left_comm, mul_comm] using
+        ((hasDerivAt_const s 1).sub (hasDerivAt_id s)).const_rpow (by norm_num : 0 < (2 : ℝ))
+    change HasDerivAt ((fun _ : ℝ => 1) - fun x : ℝ => (2 : ℝ) ^ (1 - x))
+      (Real.log (2 : ℝ) * (2 : ℝ) ^ (1 - s)) s
+    rw [show Real.log (2 : ℝ) * (2 : ℝ) ^ (1 - s) =
+      0 - -(Real.log (2 : ℝ) * (2 : ℝ) ^ (1 - s)) by ring]
+    exact (hasDerivAt_const s 1).sub hpow
+  have hprod :
+      HasDerivAt
+        (fun x : ℝ => (1 - (2 : ℝ) ^ (1 - x)) * zetaSeries x)
+       (Real.log (2 : ℝ) * (2 : ℝ) ^ (1 - s) * zetaSeries s +
+         (1 - (2 : ℝ) ^ (1 - s)) * deriv zetaSeries s) s := by
+    change HasDerivAt
+      ((fun x : ℝ => 1 - (2 : ℝ) ^ (1 - x)) * zetaSeries)
+      (Real.log (2 : ℝ) * (2 : ℝ) ^ (1 - s) * zetaSeries s +
+        (1 - (2 : ℝ) ^ (1 - s)) * deriv zetaSeries s) s
+    simpa [mul_assoc, mul_left_comm, mul_comm] using
+      hfactor.mul (zetaSeries_hasDerivAt hs)
+  have hderiv_eta :
+      deriv etaSeries s =
+        Real.log (2 : ℝ) * (2 : ℝ) ^ (1 - s) * zetaSeries s +
+          (1 - (2 : ℝ) ^ (1 - s)) * deriv zetaSeries s := by
+    rw [Filter.EventuallyEq.deriv_eq heta_event]
+    exact hprod.deriv
+  have heta_val : etaSeries s = (1 - (2 : ℝ) ^ (1 - s)) * zetaSeries s := by
+    simpa using etaSeries_eq_factor_mul_zetaSeries hs
+  have hzeta_bound : 1 / (s - 1) + (1 / 2 : ℝ) ≤ zetaSeries s := by
+    simpa using zetaSeries_ge_one_div_sub_add_one_half hs
+  have hzeta_pos : 0 < zetaSeries s := by
+    have hs1 : 0 < s - 1 := by linarith
+    have hlower : 0 < 1 / (s - 1) + (1 / 2 : ℝ) := by
+      have : 0 < 1 / (s - 1 : ℝ) := one_div_pos.mpr hs1
+      linarith
+    exact lt_of_lt_of_le hlower hzeta_bound
+  have hfactor_pos : 0 < 1 - (2 : ℝ) ^ (1 - s) := by
+    have hlt : (2 : ℝ) ^ (1 - s) < 1 := by
+      exact Real.rpow_lt_one_of_one_lt_of_neg (by norm_num) (by linarith)
+    linarith
+  have hzeta_ne : zetaSeries s ≠ 0 := hzeta_pos.ne'
+  have hfactor_ne : 1 - (2 : ℝ) ^ (1 - s) ≠ 0 := hfactor_pos.ne'
+  have hpow_ne : ((2 : ℝ) ^ (s - 1) - 1) ≠ 0 := by
+    have hlt : 1 < (2 : ℝ) ^ (s - 1) := by
+      exact Real.one_lt_rpow (by norm_num) (by linarith)
+    linarith
+  have hrew :
+      Real.log (2 : ℝ) * (2 : ℝ) ^ (1 - s) / (1 - (2 : ℝ) ^ (1 - s)) =
+        Real.log (2 : ℝ) / ((2 : ℝ) ^ (s - 1) - 1) := by
+    have hpow_pos : 0 < (2 : ℝ) ^ (s - 1) := Real.rpow_pos_of_pos (by norm_num) (s - 1)
+    have hneg : (2 : ℝ) ^ (1 - s) = ((2 : ℝ) ^ (s - 1))⁻¹ := by
+      have : 1 - s = -(s - 1) := by ring
+      rw [this, Real.rpow_neg (by norm_num : 0 ≤ (2 : ℝ))]
+    rw [hneg]
+    field_simp [hpow_ne, hpow_pos.ne']
+  rw [analyticSeries_eq_neg_deriv_zetaSeries_div_zetaSeries hs, hderiv_eta, heta_val]
+  calc
+    -(deriv zetaSeries s) / zetaSeries s
+        = Real.log (2 : ℝ) * (2 : ℝ) ^ (1 - s) / (1 - (2 : ℝ) ^ (1 - s)) -
+            (Real.log (2 : ℝ) * (2 : ℝ) ^ (1 - s) * zetaSeries s +
+              (1 - (2 : ℝ) ^ (1 - s)) * deriv zetaSeries s) /
+            ((1 - (2 : ℝ) ^ (1 - s)) * zetaSeries s) := by
+              field_simp [hzeta_ne, hfactor_ne]
+              ring
+    _ = Real.log (2 : ℝ) / ((2 : ℝ) ^ (s - 1) - 1) -
+          (Real.log (2 : ℝ) * (2 : ℝ) ^ (1 - s) * zetaSeries s +
+            (1 - (2 : ℝ) ^ (1 - s)) * deriv zetaSeries s) /
+          ((1 - (2 : ℝ) ^ (1 - s)) * zetaSeries s) := by
+            rw [hrew]
+
 lemma analyticSeries_le_bound {t : ℝ} (ht : 0 < t) :
     analyticSeries (1 + t) ≤ Real.log (2 : ℝ) / ((2 : ℝ) ^ t - 1) := by
   have hs : 1 < 1 + t := by linarith
@@ -2810,10 +6305,106 @@ lemma twoFlow_mul_le_baseFlow {n : ℕ} (hn : 1 ≤ n) (q : {q : ℕ // 2 ≤ q}
 
 lemma summable_twoFlow_col {n : ℕ} (hn : 1 ≤ n) :
     Summable (fun K : ℕ => twoFlow K n) := by
-      sorry
+  classical
+  have hn_pos : 0 < n := lt_of_lt_of_le Nat.zero_lt_one hn
+  let e : {q : ℕ // 2 ≤ q} → ℕ := fun q => n * q.1
+  have he : Function.Injective e := by
+    intro a b h
+    apply Subtype.ext
+    exact Nat.eq_of_mul_eq_mul_left hn_pos h
+  have hzero : ∀ K : ℕ, K ∉ Set.range e → twoFlow K n = 0 := by
+    intro K hK
+    apply twoFlow_eq_zero_of_not_dvd_lt
+    intro h
+    rcases h with ⟨hdiv, hlt⟩
+    rcases hdiv with ⟨q, rfl⟩
+    have hq : 2 ≤ q := by
+      by_contra hq'
+      have hq1 : q = 0 ∨ q = 1 := by omega
+      rcases hq1 with rfl | rfl
+      · simp at hlt
+      · omega
+    exact hK ⟨⟨q, hq⟩, by simp [e]⟩
+  have hsub :
+      Summable (fun q : {q : ℕ // 2 ≤ q} => twoFlow (n * q.1) n) := by
+    have hbase_summable :
+        Summable (fun q : {q : ℕ // 2 ≤ q} => baseFlow (n * q.1) n) := by
+      simpa [e, Function.comp_def] using (summable_baseFlow_col n).comp_injective he
+    exact Summable.of_nonneg_of_le
+      (fun q => twoFlow_nonneg _ _)
+      (fun q => twoFlow_mul_le_baseFlow hn q)
+      hbase_summable
+  exact
+    (Function.Injective.summable_iff (f := fun K => twoFlow K n) (g := e) he hzero).1 hsub
+
 lemma inflow_twoFlow_eq_one_div_mul_series {n : ℕ} (hn : 1 ≤ n) :
     inflow twoFlow n = (1 / (n : ℝ)) * series n := by
-      sorry
+  classical
+  have hn_pos : 0 < n := lt_of_lt_of_le Nat.zero_lt_one hn
+  have hn0 : (n : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr (Nat.ne_of_gt hn_pos)
+  let e : {q : ℕ // 2 ≤ q} → ℕ := fun q => n * q.1
+  have he : Function.Injective e := by
+    intro a b h
+    apply Subtype.ext
+    exact Nat.eq_of_mul_eq_mul_left hn_pos h
+  have hzero : ∀ K : ℕ, K ∉ Set.range e → twoFlow K n = 0 := by
+    intro K hK
+    apply twoFlow_eq_zero_of_not_dvd_lt
+    intro h
+    rcases h with ⟨hdiv, hlt⟩
+    rcases hdiv with ⟨q, rfl⟩
+    have hq : 2 ≤ q := by
+      by_contra hq'
+      have hq1 : q = 0 ∨ q = 1 := by omega
+      rcases hq1 with rfl | rfl
+      · simp at hlt
+      · omega
+    exact hK ⟨⟨q, hq⟩, by simp [e]⟩
+  have hsub_summable :
+      Summable (fun q : {q : ℕ // 2 ≤ q} => twoFlow (n * q.1) n) := by
+    have hbase_summable :
+        Summable (fun q : {q : ℕ // 2 ≤ q} => baseFlow (n * q.1) n) := by
+      simpa [e, Function.comp_def] using (summable_baseFlow_col n).comp_injective he
+    exact Summable.of_nonneg_of_le
+      (fun q => twoFlow_nonneg _ _)
+      (fun q => twoFlow_mul_le_baseFlow hn q)
+      hbase_summable
+  have hsub_has :
+      HasSum (fun q : {q : ℕ // 2 ≤ q} => twoFlow (n * q.1) n)
+        ((1 / (n : ℝ)) * series n) := by
+    let g : {q : ℕ // 2 ≤ q} → ℝ := fun q =>
+      ArithmeticFunction.vonMangoldt q.1 /
+        ((q.1 : ℝ) * Real.log ((n * q.1 : ℕ) : ℝ) *
+          Real.log ((2 * n * q.1 : ℕ) : ℝ))
+    have hg_summable : Summable g := by
+      refine (hsub_summable.mul_left (n : ℝ)).congr ?_
+      intro q
+      have hq0 : (q.1 : ℝ) ≠ 0 := by
+        exact_mod_cast (show q.1 ≠ 0 by omega)
+      rw [twoFlow_mul_right_eq hn q.2]
+      dsimp [g]
+      rw [Nat.cast_mul]
+      field_simp [hn0, hq0]
+    have hconst :
+        HasSum (fun q : {q : ℕ // 2 ≤ q} => (1 / (n : ℝ)) * g q)
+          ((1 / (n : ℝ)) * series n) := by
+      simpa [g, series, mul_assoc] using hg_summable.hasSum.mul_left (1 / (n : ℝ))
+    have hterm :
+        ∀ q : {q : ℕ // 2 ≤ q},
+          twoFlow (n * q.1) n = (1 / (n : ℝ)) * g q := by
+      intro q
+      have hq0 : (q.1 : ℝ) ≠ 0 := by
+        exact_mod_cast (show q.1 ≠ 0 by omega)
+      rw [twoFlow_mul_right_eq hn q.2]
+      dsimp [g]
+      rw [Nat.cast_mul]
+      field_simp [hn0, hq0]
+    exact hconst.congr_fun hterm
+  have hfull_has :
+      HasSum (fun K : ℕ => twoFlow K n) ((1 / (n : ℝ)) * series n) :=
+    (Function.Injective.hasSum_iff (f := fun K => twoFlow K n) (g := e) he hzero).mp hsub_has
+  simpa [inflow] using hfull_has.tsum_eq
+
 theorem outflow_twoFlow_eq_twoWeight {n : ℕ} (hn : 1 < n) :
     outflow twoFlow n = twoWeight n := by
   have hn0_nat : n ≠ 0 := ne_of_gt (lt_trans Nat.zero_lt_one hn)
@@ -2896,12 +6487,161 @@ lemma inflow_twoFlow_eq_sum_finset_add_compl (s : Finset ℕ) {n : ℕ} (hn : 1 
 lemma boundaryOutflow_eq_sum_compl_twoFlow (s : Finset ℕ) :
     boundaryOutflow twoFlow (↑s : Set ℕ) =
       ∑ r ∈ s, ∑' n : { n // n ∉ s }, twoFlow r n := by
-        sorry
+  classical
+  let e : boundaryOutPairs (↑s : Set ℕ) ≃
+      Σ r : {r // r ∈ s}, {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1} :=
+    { toFun := fun mn =>
+        ⟨⟨mn.1.1, mn.2.1⟩, ⟨mn.1.2, mn.2.2.1, mn.2.2.2⟩⟩
+      invFun := fun rn =>
+        ⟨(rn.1.1, rn.2.1), rn.1.2, rn.2.2.1, rn.2.2.2⟩
+      left_inv := by
+        intro mn
+        cases mn
+        rfl
+      right_inv := by
+        intro rn
+        cases rn
+        rfl }
+  have hinner :
+      ∀ r : {r // r ∈ s},
+        Summable (fun n : {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1} => twoFlow r.1 n.1) := by
+    intro r
+    simpa [Function.comp_def] using
+      (summable_twoFlow_row r.1).comp_injective Subtype.val_injective
+  have houter :
+      Summable (fun r : {r // r ∈ s} =>
+        ∑' n : {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1}, twoFlow r.1 n.1) := by
+    exact Summable.of_finite
+  have hsigma :
+      Summable (fun z : Σ r : {r // r ∈ s}, {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1} =>
+        twoFlow z.1.1 z.2.1) := by
+    refine (summable_sigma_of_nonneg (fun z => twoFlow_nonneg _ _)).2 ?_
+    exact ⟨hinner, houter⟩
+  have hprecise :
+      ∀ r : {r // r ∈ s},
+        (∑' n : {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1}, twoFlow r.1 n.1) =
+          ∑' n : {n // n ∉ s}, twoFlow r.1 n.1 := by
+    intro r
+    have hsupport :
+        Function.support (fun n : {n // n ∉ s} => twoFlow r.1 n.1) ⊆
+          {n | n.1 ∣ r.1 ∧ n.1 < r.1} := by
+      intro n hn
+      by_contra hbad
+      exact hn <| by
+        apply twoFlow_eq_zero_of_not_dvd_lt
+        simpa [Set.mem_setOf_eq] using hbad
+    let e' :
+        {x : {n // n ∉ s} // x.1 ∣ r.1 ∧ x.1 < r.1} ≃
+          {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1} :=
+      { toFun := fun n => ⟨n.1.1, n.1.2, n.2.1, n.2.2⟩
+        invFun := fun n => ⟨⟨n.1, n.2.1⟩, n.2.2.1, n.2.2.2⟩
+        left_inv := by intro n; cases n; rfl
+        right_inv := by intro n; cases n; rfl }
+    have hsub :
+        (∑' x : {x : {n // n ∉ s} // x.1 ∣ r.1 ∧ x.1 < r.1}, twoFlow r.1 x.1.1) =
+          ∑' n : {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1}, twoFlow r.1 n.1 := by
+      simpa [e'] using
+        (Equiv.tsum_eq e' (fun n : {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1} => twoFlow r.1 n.1))
+    exact hsub.symm.trans (tsum_subtype_eq_of_support_subset hsupport)
+  calc
+    boundaryOutflow twoFlow (↑s : Set ℕ)
+      = ∑' z : Σ r : {r // r ∈ s}, {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1},
+          twoFlow z.1.1 z.2.1 := by
+            simpa [boundaryOutflow, e] using
+              (Equiv.tsum_eq e (fun z : Σ r : {r // r ∈ s},
+                  {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1} =>
+                twoFlow z.1.1 z.2.1))
+    _ = ∑' r : {r // r ∈ s},
+          ∑' n : {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1}, twoFlow r.1 n.1 := by
+            exact hsigma.tsum_sigma' hinner
+    _ = ∑' r : {r // r ∈ s}, ∑' n : {n // n ∉ s}, twoFlow r.1 n.1 := by
+          congr
+          ext r
+          exact hprecise r
+    _ = ∑ r ∈ s, ∑' n : {n // n ∉ s}, twoFlow r n := by
+          simpa using
+            (Finset.tsum_subtype' s (fun r => ∑' n : {n // n ∉ s}, twoFlow r n))
+
 lemma boundaryInflow_eq_sum_compl_twoFlow (s : Finset ℕ)
     (hs_ge_one : ∀ {n : ℕ}, n ∈ s → 1 ≤ n) :
     boundaryInflow twoFlow (↑s : Set ℕ) =
       ∑ n ∈ s, ∑' m : { m // m ∉ s }, twoFlow m n := by
-        sorry
+  classical
+  let e : boundaryInPairs (↑s : Set ℕ) ≃
+      Σ n : {n // n ∈ s}, {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m} :=
+    { toFun := fun mn =>
+        ⟨⟨mn.1.2, mn.2.2.1⟩, ⟨mn.1.1, mn.2.1, mn.2.2.2.1, mn.2.2.2.2⟩⟩
+      invFun := fun nm =>
+        ⟨(nm.2.1, nm.1.1), nm.2.2.1, nm.1.2, nm.2.2.2.1, nm.2.2.2.2⟩
+      left_inv := by
+        intro mn
+        cases mn
+        rfl
+      right_inv := by
+        intro nm
+        cases nm
+        rfl }
+  have hinner :
+      ∀ n : {n // n ∈ s},
+        Summable (fun m : {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m} => twoFlow m.1 n.1) := by
+    intro n
+    simpa [Function.comp_def] using
+      (summable_twoFlow_col (hs_ge_one n.2)).comp_injective Subtype.val_injective
+  have houter :
+      Summable (fun n : {n // n ∈ s} =>
+        ∑' m : {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m}, twoFlow m.1 n.1) := by
+    exact Summable.of_finite
+  have hsigma :
+      Summable (fun z : Σ n : {n // n ∈ s}, {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m} =>
+        twoFlow z.2.1 z.1.1) := by
+    refine (summable_sigma_of_nonneg (fun z => twoFlow_nonneg _ _)).2 ?_
+    exact ⟨hinner, houter⟩
+  have hprecise :
+      ∀ n : {n // n ∈ s},
+        (∑' m : {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m}, twoFlow m.1 n.1) =
+          ∑' m : {m // m ∉ s}, twoFlow m.1 n.1 := by
+    intro n
+    have hsupport :
+        Function.support (fun m : {m // m ∉ s} => twoFlow m.1 n.1) ⊆
+          {m | n.1 ∣ m.1 ∧ n.1 < m.1} := by
+      intro m hm
+      by_contra hbad
+      exact hm <| by
+        apply twoFlow_eq_zero_of_not_dvd_lt
+        simpa [Set.mem_setOf_eq] using hbad
+    let e' :
+        {x : {m // m ∉ s} // n.1 ∣ x.1 ∧ n.1 < x.1} ≃
+          {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m} :=
+      { toFun := fun m => ⟨m.1.1, m.1.2, m.2.1, m.2.2⟩
+        invFun := fun m => ⟨⟨m.1, m.2.1⟩, m.2.2.1, m.2.2.2⟩
+        left_inv := by intro m; cases m; rfl
+        right_inv := by intro m; cases m; rfl }
+    have hsub :
+        (∑' x : {x : {m // m ∉ s} // n.1 ∣ x.1 ∧ n.1 < x.1}, twoFlow x.1.1 n.1) =
+          ∑' m : {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m}, twoFlow m.1 n.1 := by
+      simpa [e'] using
+        (Equiv.tsum_eq e' (fun m : {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m} =>
+          twoFlow m.1 n.1))
+    exact hsub.symm.trans (tsum_subtype_eq_of_support_subset hsupport)
+  calc
+    boundaryInflow twoFlow (↑s : Set ℕ)
+      = ∑' z : Σ n : {n // n ∈ s}, {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m},
+          twoFlow z.2.1 z.1.1 := by
+            simpa [boundaryInflow, e] using
+              (Equiv.tsum_eq e (fun z : Σ n : {n // n ∈ s},
+                  {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m} =>
+                twoFlow z.2.1 z.1.1))
+    _ = ∑' n : {n // n ∈ s},
+          ∑' m : {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m}, twoFlow m.1 n.1 := by
+            exact hsigma.tsum_sigma' hinner
+    _ = ∑' n : {n // n ∈ s}, ∑' m : {m // m ∉ s}, twoFlow m.1 n.1 := by
+          congr
+          ext n
+          exact hprecise n
+    _ = ∑ n ∈ s, ∑' m : {m // m ∉ s}, twoFlow m n := by
+          simpa using
+            (Finset.tsum_subtype' s (fun n => ∑' m : {m // m ∉ s}, twoFlow m n))
+
 lemma tsum_outflow_sub_inflow_eq_boundaryOutflow_sub_boundaryInflow_twoFlow {Ω : Set ℕ}
     (hΩfin : Ω.Finite) (hΩ_ge_one : ∀ {r : ℕ}, r ∈ Ω → 1 ≤ r) :
     (∑' r : Ω, (outflow twoFlow (r : ℕ) - inflow twoFlow (r : ℕ))) =
@@ -3118,7 +6858,248 @@ lemma flow_into_primitive_member_from_outside_divisorClosure_twoFlow {A : Set �
 lemma twoWeightSum_le_series_one_of_finite {A : Set ℕ}
     (hA : PrimitiveSet A) (hfin : A.Finite) :
     twoWeightSum A ≤ series 1 := by
-      sorry
+  classical
+  let Ω := primitiveDivisorClosure A
+  have hΩspec := primitiveDivisorClosure_spec_of_finite hA hfin
+  rcases hΩspec with ⟨hΩfin, hAΩ, hΩdown⟩
+  have hΩ_ge_two : ∀ {d : ℕ}, d ∈ primitiveDivisorClosure A → 2 ≤ d := by
+    intro d hd
+    have hd' : 2 ≤ d ∧ ∃ a ∈ A, d ∣ a := by
+      simpa [primitiveDivisorClosure] using hd
+    exact hd'.1
+  have hOut : boundaryOutflow twoFlow (primitiveDivisorClosure A) ≤ series 1 := by
+    exact boundaryOutflow_le_series_one_of_downwardClosed hΩ_ge_two hΩdown
+  have hBoundary :
+      boundaryInflow twoFlow Ω +
+        (∑' a : A, (outflow twoFlow (a : ℕ) - inflow twoFlow (a : ℕ))) ≤
+          boundaryOutflow twoFlow Ω := by
+    exact
+      boundaryOutflow_ge_boundaryInflow_add_tsum_divergence_of_subset_twoFlow
+        hΩfin hΩ_ge_two hAΩ
+  have hIn :
+      ∀ {a m : ℕ}, a ∈ A → twoFlow m a ≠ 0 → m ∉ Ω := by
+    intro a m ha hflow
+    exact flow_into_primitive_member_from_outside_divisorClosure_twoFlow hA ha hflow
+  have hcol_summable :
+      ∀ {N : ℕ}, 1 ≤ N → Summable (fun K : ℕ => twoFlow K N) := by
+    intro N hN
+    exact summable_twoFlow_col hN
+  have hOut_eq :
+      ∀ a : A, outflow twoFlow (a : ℕ) = twoWeight (a : ℕ) := by
+    intro a
+    exact outflow_twoFlow_eq_twoWeight (lt_of_lt_of_le Nat.one_lt_two (hA.1 a.2))
+  have hWeight :
+      twoWeightSum A = ∑' a : A, outflow twoFlow (a : ℕ) := by
+    unfold twoWeightSum
+    apply tsum_congr
+    intro a
+    simpa using (hOut_eq a).symm
+  have hIn_nonneg : ∀ a : A, 0 ≤ inflow twoFlow (a : ℕ) := by
+    intro a
+    unfold inflow
+    exact tsum_nonneg fun m => twoFlow_nonneg m a
+  have hIn_le :
+      (∑' a : A, inflow twoFlow (a : ℕ)) ≤ boundaryInflow twoFlow Ω := by
+    let G : boundaryInPairs Ω → ℝ := fun mn => twoFlow mn.1.1 mn.1.2
+    let T : A → Set (boundaryInPairs Ω) := fun a => { mn | mn.1.2 = (a : ℕ) }
+    have hfiber :
+        ∀ a : A, inflow twoFlow (a : ℕ) = ∑' mn : T a, G mn := by
+      intro a
+      let S : Set {m : ℕ // m ∉ Ω} := { m | (a : ℕ) ∣ m.1 ∧ (a : ℕ) < m.1 }
+      have hOutside :
+          inflow twoFlow (a : ℕ) =
+            ∑' m : {m : ℕ // m ∉ Ω}, twoFlow m.1 (a : ℕ) := by
+        have hsupport :
+            Function.support (fun m : ℕ => twoFlow m (a : ℕ)) ⊆ { m | m ∉ Ω } := by
+          intro m hm
+          exact hIn a.2 hm
+        symm
+        simpa [inflow, Ω] using (tsum_subtype_eq_of_support_subset hsupport)
+      have hSupportS :
+          Function.support (fun m : {m : ℕ // m ∉ Ω} => twoFlow m.1 (a : ℕ)) ⊆ S := by
+        intro m hm
+        change (a : ℕ) ∣ m.1 ∧ (a : ℕ) < m.1
+        by_contra hnot
+        exact hm (by
+          apply twoFlow_eq_zero_of_not_dvd_lt
+          exact hnot)
+      have hS :
+          (∑' m : {m : ℕ // m ∉ Ω}, twoFlow m.1 (a : ℕ)) =
+            ∑' m : S, twoFlow m.1.1 (a : ℕ) := by
+        symm
+        simpa [S] using (tsum_subtype_eq_of_support_subset hSupportS)
+      let f : S → T a := fun m =>
+        ⟨⟨(m.1.1, a.1), by
+          exact ⟨m.1.2, hAΩ a.2, m.2.1, m.2.2⟩⟩, rfl⟩
+      have hf_inj : Function.Injective f := by
+        intro m₁ m₂ h
+        apply Subtype.ext
+        apply Subtype.ext
+        simpa using congrArg (fun z : T a => z.1.1.1) h
+      have hf_surj : Function.Surjective f := by
+        intro mn
+        rcases mn with ⟨⟨⟨m, n⟩, hmn⟩, hna⟩
+        rcases hmn with ⟨hm, _, hdiv, hlt⟩
+        cases hna
+        refine ⟨⟨⟨m, hm⟩, ?_⟩, ?_⟩
+        · simpa [S] using And.intro hdiv hlt
+        · apply Subtype.ext
+          apply Subtype.ext
+          rfl
+      let e : S ≃ T a := Equiv.ofBijective f ⟨hf_inj, hf_surj⟩
+      have hT :
+          (∑' m : S, twoFlow m.1.1 (a : ℕ)) =
+            ∑' mn : T a, G mn := by
+        simpa [e, G] using
+          (Equiv.tsum_eq e (fun mn : T a => G mn))
+      exact hOutside.trans (hS.trans hT)
+    have hnonnegT : ∀ a : A, 0 ≤ ∑' mn : T a, G mn := by
+      intro a
+      rw [← hfiber a]
+      exact hIn_nonneg a
+    have hpairwise : Set.PairwiseDisjoint (Set.univ : Set A) T := by
+      intro a _ b _ hab
+      refine Set.disjoint_left.2 ?_
+      intro mn hma hmb
+      exact hab <| Subtype.ext (hma.symm.trans hmb)
+    have hunion :
+        (∑' mn : ⋃ a : A, T a, ENNReal.ofReal (G mn)) =
+          ∑' a : A, ∑' mn : T a, ENNReal.ofReal (G mn) := by
+      simpa using (ENNReal.tsum_biUnion hpairwise (f := fun mn => ENNReal.ofReal (G mn)))
+    have hsub :
+        (∑' mn : ⋃ a : A, T a, ENNReal.ofReal (G mn)) ≤
+          ∑' mn : boundaryInPairs Ω, ENNReal.ofReal (G mn) := by
+      simpa using
+        (ENNReal.tsum_comp_le_tsum_of_injective
+          (f := (Subtype.val : (⋃ a : A, T a) → boundaryInPairs Ω))
+          Subtype.val_injective
+          (fun mn : boundaryInPairs Ω => ENNReal.ofReal (G mn)))
+    have hfiberENN :
+        ∀ a : A, ENNReal.ofReal (inflow twoFlow (a : ℕ)) =
+          ∑' mn : T a, ENNReal.ofReal (G mn) := by
+      intro a
+      rw [hfiber a]
+      refine ENNReal.ofReal_tsum_of_nonneg ?_ ?_
+      · intro mn
+        exact twoFlow_nonneg mn.1.1.1 mn.1.1.2
+      · have hscol := hcol_summable (le_trans (by decide : 1 ≤ 2) (hA.1 a.2))
+        have hsource_inj :
+            Function.Injective (fun mn : T a => mn.1.1.1) := by
+          intro x y hxy
+          apply Subtype.ext
+          apply Subtype.ext
+          apply Prod.ext
+          · exact hxy
+          · exact x.2.trans y.2.symm
+        have hscol' : Summable (fun mn : T a => twoFlow mn.1.1.1 (a : ℕ)) := by
+          simpa [Function.comp_def] using hscol.comp_injective hsource_inj
+        have hEq :
+            (fun mn : T a => twoFlow mn.1.1.1 (a : ℕ)) =
+              fun mn : T a => twoFlow mn.1.1.1 mn.1.1.2 := by
+          funext mn
+          rcases mn with ⟨⟨⟨m, n⟩, hmn⟩, hna⟩
+          cases hna
+          rfl
+        exact hEq ▸ hscol'
+    have hleft :
+        ENNReal.ofReal (∑' a : A, inflow twoFlow (a : ℕ)) ≤
+          ∑' mn : boundaryInPairs Ω, ENNReal.ofReal (G mn) := by
+      calc
+        ENNReal.ofReal (∑' a : A, inflow twoFlow (a : ℕ))
+            = ∑' a : A, ENNReal.ofReal (inflow twoFlow (a : ℕ)) := by
+                refine ENNReal.ofReal_tsum_of_nonneg ?_ ?_
+                · intro a
+                  exact hIn_nonneg a
+                · letI := hfin.fintype
+                  apply Summable.of_finite
+        _ = ∑' a : A, ∑' mn : T a, ENNReal.ofReal (G mn) := by
+              apply tsum_congr
+              intro a
+              exact hfiberENN a
+        _ = ∑' mn : ⋃ a : A, T a, ENNReal.ofReal (G mn) := by
+              rw [hunion]
+        _ ≤ ∑' mn : boundaryInPairs Ω, ENNReal.ofReal (G mn) := hsub
+    have hright :
+        ∑' mn : boundaryInPairs Ω, ENNReal.ofReal (G mn) =
+          ENNReal.ofReal (boundaryInflow twoFlow Ω) := by
+      unfold boundaryInflow G
+      refine (ENNReal.ofReal_tsum_of_nonneg ?_ ?_).symm
+      · intro mn
+        exact twoFlow_nonneg mn.1.1 mn.1.2
+      · let U : Ω → Set (boundaryInPairs Ω) := fun r => { mn | mn.1.2 = (r : ℕ) }
+        have hpart : ∀ mn : boundaryInPairs Ω, ∃! r : Ω, mn ∈ U r := by
+          intro mn
+          refine ⟨⟨mn.1.2, ?_⟩, by simp [U], ?_⟩
+          · rcases mn.2 with ⟨_, hn, _, _⟩
+            exact hn
+          · intro r hr
+            apply Subtype.ext
+            simpa [U] using hr.symm
+        have hU_summable : ∀ r : Ω, Summable (fun mn : U r => twoFlow mn.1.1.1 mn.1.1.2) := by
+          intro r
+          have hscol := hcol_summable (le_trans (by decide : 1 ≤ 2) (hΩ_ge_two r.2))
+          have hsource_inj :
+              Function.Injective (fun mn : U r => mn.1.1.1) := by
+            intro x y hxy
+            apply Subtype.ext
+            apply Subtype.ext
+            apply Prod.ext
+            · exact hxy
+            · exact x.2.trans y.2.symm
+          have hscol' : Summable (fun mn : U r => twoFlow mn.1.1.1 (r : ℕ)) := by
+            simpa [Function.comp_def] using hscol.comp_injective hsource_inj
+          have hEq :
+              (fun mn : U r => twoFlow mn.1.1.1 (r : ℕ)) =
+                fun mn : U r => twoFlow mn.1.1.1 mn.1.1.2 := by
+            funext mn
+            rcases mn with ⟨⟨⟨m, n⟩, hmn⟩, hnr⟩
+            cases hnr
+            rfl
+          exact hEq ▸ hscol'
+        have houter :
+            Summable (fun r : Ω => ∑' mn : U r, twoFlow mn.1.1.1 mn.1.1.2) := by
+          letI := hΩfin.fintype
+          apply Summable.of_finite
+        exact
+          (summable_partition
+            (f := fun mn : boundaryInPairs Ω => twoFlow mn.1.1 mn.1.2)
+            (hf := fun mn => twoFlow_nonneg mn.1.1 mn.1.2)
+            (s := U) hpart).2 ⟨hU_summable, houter⟩
+    have hleft' := hleft.trans_eq hright
+    have hboundary_nonneg : 0 ≤ boundaryInflow twoFlow Ω := by
+      unfold boundaryInflow
+      exact tsum_nonneg fun mn => twoFlow_nonneg mn.1.1 mn.1.2
+    exact (ENNReal.ofReal_le_ofReal_iff hboundary_nonneg).mp hleft'
+  have hmain :
+      twoWeightSum A ≤ boundaryInflow twoFlow Ω +
+        (∑' a : A, (outflow twoFlow (a : ℕ) - inflow twoFlow (a : ℕ))) := by
+    letI := hfin.fintype
+    have hIn_le' : ∑ a : A, inflow twoFlow (a : ℕ) ≤ boundaryInflow twoFlow Ω := by
+      simpa [tsum_fintype] using hIn_le
+    rw [hWeight, tsum_fintype, tsum_fintype]
+    calc
+      ∑ a : A, outflow twoFlow (a : ℕ)
+          = ∑ a : A, inflow twoFlow (a : ℕ) +
+              ∑ a : A, (outflow twoFlow (a : ℕ) - inflow twoFlow (a : ℕ)) := by
+                calc
+                  ∑ a : A, outflow twoFlow (a : ℕ)
+                      = ∑ a : A,
+                          (inflow twoFlow (a : ℕ) +
+                            (outflow twoFlow (a : ℕ) - inflow twoFlow (a : ℕ))) := by
+                              apply Finset.sum_congr rfl
+                              intro a ha
+                              ring
+                  _ = _ := by rw [Finset.sum_add_distrib]
+      _ ≤ boundaryInflow twoFlow Ω +
+            ∑ a : A, (outflow twoFlow (a : ℕ) - inflow twoFlow (a : ℕ)) := by
+              gcongr
+  calc
+    twoWeightSum A
+        ≤ boundaryInflow twoFlow Ω +
+            (∑' a : A, (outflow twoFlow (a : ℕ) - inflow twoFlow (a : ℕ))) := hmain
+    _ ≤ boundaryOutflow twoFlow Ω := hBoundary
+    _ ≤ series 1 := hOut
+
 lemma twoWeightSum_le_series_one_of_finite_subsets {A : Set ℕ}
     (hfinite :
       ∀ A₀ : Set ℕ, A₀ ⊆ A → A₀.Finite → twoWeightSum A₀ ≤ series 1) :
@@ -3687,7 +7668,127 @@ lemma hpLogAverage_one_eq_harmonicLogAverage (p : ℕ) :
 
 lemma hpLogAverage_antitoneOn {p : ℕ} (hp2 : 2 ≤ p) :
     AntitoneOn (hpLogAverage p) (Set.Ici (1 : ℝ)) := by
-      sorry
+  let S : Finset ℕ := Finset.Icc 1 (p - 1)
+  let u : ℕ → ℝ → ℝ := fun m t => Real.rpow (m : ℝ) (-t)
+  let W : ℝ → ℝ := fun t => ∑ m ∈ S, u m t
+  let A : ℝ → ℝ := fun t => ∑ m ∈ S, u m t * Real.log (m : ℝ)
+  let B : ℝ → ℝ := fun t => ∑ m ∈ S, u m t * (Real.log (m : ℝ)) ^ 2
+  let f : ℝ → ℝ := fun t => A t / W t
+  have hmem1 : 1 ∈ S := by
+    dsimp [S]
+    exact Finset.mem_Icc.mpr ⟨le_rfl, by omega⟩
+  have hu_nonneg (x : ℝ) {m : ℕ} (hm : m ∈ S) : 0 ≤ u m x := by
+    have hm0 : 0 ≤ (m : ℝ) := by positivity
+    dsimp [u]
+    exact Real.rpow_nonneg hm0 _
+  have hW_pos (x : ℝ) : 0 < W x := by
+    have hle : u 1 x ≤ W x := by
+      dsimp [W]
+      exact Finset.single_le_sum (f := fun m => u m x) (fun m hm => hu_nonneg x hm) hmem1
+    have h1 : 0 < u 1 x := by
+      dsimp [u]
+      simp
+    exact lt_of_lt_of_le h1 hle
+  have hu_hasDeriv (x : ℝ) {m : ℕ} (hm : m ∈ S) :
+      HasDerivAt (fun t => u m t) (-(u m x * Real.log (m : ℝ))) x := by
+    have hm1 : 1 ≤ m := (Finset.mem_Icc.mp hm).1
+    have hm0 : 0 < (m : ℝ) := by exact_mod_cast hm1
+    dsimp [u]
+    simpa [neg_mul, mul_assoc, mul_left_comm, mul_comm] using
+      ((hasDerivAt_id x).neg.const_rpow hm0)
+  have hW_hasDeriv (x : ℝ) : HasDerivAt W (-A x) x := by
+    dsimp [W, A]
+    have hfun :
+        (∑ m ∈ S, fun t : ℝ => u m t) = fun t : ℝ => ∑ m ∈ S, u m t := by
+      funext t
+      simp
+    rw [← hfun]
+    simpa [Finset.sum_neg_distrib] using
+      (HasDerivAt.sum fun m hm => hu_hasDeriv x hm)
+  have hA_hasDeriv (x : ℝ) : HasDerivAt A (-B x) x := by
+    dsimp [A, B]
+    change HasDerivAt
+      (fun y : ℝ => ∑ m ∈ S, u m y * Real.log (m : ℝ))
+      (-(∑ m ∈ S, u m x * Real.log (m : ℝ) ^ 2)) x
+    have hfun :
+        (∑ m ∈ S, fun y : ℝ => u m y * Real.log (m : ℝ)) =
+          fun y : ℝ => ∑ m ∈ S, u m y * Real.log (m : ℝ) := by
+      funext y
+      simp
+    rw [← hfun]
+    simpa [Finset.sum_neg_distrib, pow_two, mul_assoc, mul_left_comm, mul_comm] using
+      (HasDerivAt.sum fun m hm => (hu_hasDeriv x hm).mul_const (Real.log (m : ℝ)))
+  have hW_diff : DifferentiableOn ℝ W (Set.Ici (1 : ℝ)) := by
+    intro x hx
+    exact (hW_hasDeriv x).differentiableAt.differentiableWithinAt
+  have hA_diff : DifferentiableOn ℝ A (Set.Ici (1 : ℝ)) := by
+    intro x hx
+    exact (hA_hasDeriv x).differentiableAt.differentiableWithinAt
+  have hF_diff : DifferentiableOn ℝ f (Set.Ici (1 : ℝ)) := by
+    intro x hx
+    exact (hA_diff x hx).div (hW_diff x hx) (ne_of_gt (hW_pos x))
+  have hanti : AntitoneOn f (Set.Ici (1 : ℝ)) := by
+    refine antitoneOn_of_deriv_nonpos (convex_Ici (1 : ℝ)) hF_diff.continuousOn
+      (hF_diff.mono interior_subset) ?_
+    intro x hx
+    have hWpos : 0 < W x := hW_pos x
+    have hJ :
+        (S.centerMass (fun m => u m x) (fun m => Real.log (m : ℝ))) ^ 2 ≤
+          S.centerMass (fun m => u m x) (fun m => (Real.log (m : ℝ)) ^ 2) := by
+      simpa [Function.comp_def] using
+        (convexOn_pow (𝕜 := ℝ) 2).map_centerMass_le
+          (t := S) (w := fun m => u m x) (p := fun m => Real.log (m : ℝ))
+          (fun m hm => hu_nonneg x hm) hWpos
+          (fun m hm => by
+            have hm1 : 1 ≤ m := (Finset.mem_Icc.mp hm).1
+            exact Real.log_nonneg (by exact_mod_cast hm1))
+    have hJ' : (A x / W x) ^ 2 ≤ B x / W x := by
+      simpa [Finset.centerMass, A, B, W, u, Function.comp, smul_eq_mul, div_eq_mul_inv,
+        mul_assoc, mul_left_comm, mul_comm] using hJ
+    have hCS : (A x) ^ 2 ≤ W x * B x := by
+      have hJ'' := hJ'
+      field_simp [ne_of_gt hWpos] at hJ''
+      simpa [pow_two, mul_assoc, mul_left_comm, mul_comm] using hJ''
+    have hF_hasDeriv_aux :
+        HasDerivAt (A / W)
+          ((-(W x * B x) + A x * A x) / (W x * W x)) x := by
+      simpa [pow_two, sub_eq_add_neg, mul_assoc, mul_left_comm, mul_comm] using
+        (hA_hasDeriv x).div (hW_hasDeriv x) (ne_of_gt hWpos)
+    have hF_hasDeriv : HasDerivAt f ((-(W x * B x) + A x * A x) / (W x * W x)) x := by
+      change HasDerivAt (A / W) ((-(W x * B x) + A x * A x) / (W x * W x)) x
+      exact hF_hasDeriv_aux
+    rw [hF_hasDeriv.deriv]
+    have hnum_nonpos : -(W x * B x) + A x * A x ≤ 0 := by
+      linarith [hCS]
+    exact div_nonpos_of_nonpos_of_nonneg hnum_nonpos (mul_nonneg hWpos.le hWpos.le)
+  have hW_eq (t : ℝ) : Hp p t = W t := by
+    rw [Hp]
+    dsimp [W]
+    refine Finset.sum_congr rfl ?_
+    intro m hm
+    have hm0 : 0 ≤ (m : ℝ) := by positivity
+    dsimp [u]
+    rw [one_div, ← Real.rpow_neg hm0 (y := t)]
+  have hA_eq (t : ℝ) :
+      (∑ m ∈ S, Real.log (m : ℝ) / Real.rpow (m : ℝ) t) = A t := by
+    dsimp [A]
+    refine Finset.sum_congr rfl ?_
+    intro m hm
+    have hm0 : 0 ≤ (m : ℝ) := by positivity
+    dsimp [u]
+    rw [div_eq_mul_inv, ← Real.rpow_neg hm0 (y := t)]
+    ring
+  have hA_eq' (t : ℝ) :
+      (∑ m ∈ Finset.Icc 1 (p - 1), Real.log (m : ℝ) / Real.rpow (m : ℝ) t) = A t := by
+    simpa [S] using hA_eq t
+  have hf_eq (t : ℝ) : hpLogAverage p t = f t := by
+    rw [hpLogAverage, hA_eq']
+    dsimp [f]
+    rw [hW_eq]
+  intro x hx y hy hxy
+  rw [hf_eq x, hf_eq y]
+  exact hanti hx hy hxy
+
 /-- For `s > 1`, the `m^{-s}`-weighted logarithmic average is at most the harmonic one. -/
 lemma hpLogAverage_le_harmonicLogAverage {p : ℕ} (hp2 : 2 ≤ p) {s : ℝ} (hs : 1 < s) :
     hpLogAverage p s ≤ harmonicLogAverage p := by
@@ -3937,14 +8038,12 @@ lemma log_one_add_div_antitoneOn :
     constructor
     · change 0 < 1 + x
       linarith
-    · change 1 < 1 + x
-      linarith
+    · exact lt_add_of_pos_right 1 hx0'
   have hymem : 1 + y ∈ {z : ℝ | z ∈ Set.Ioi (0 : ℝ) ∧ 1 < z} := by
     constructor
     · change 0 < 1 + y
       linarith
-    · change 1 < 1 + y
-      linarith
+    · exact lt_add_of_pos_right 1 hy0'
   have hmain :
       slope Real.log 1 (1 + y) ≤ slope Real.log 1 (1 + x) := by
     exact hanti hxmem hymem (by linarith)
@@ -3957,7 +8056,106 @@ lemma roughLogBoundCore_monotoneOn :
     MonotoneOn
       (fun x : ℝ => Real.log x - x * Real.log (1 + 1 / x))
       (Set.Ioi (0 : ℝ)) := by
-        sorry
+  let g : ℝ → ℝ := fun x => (x + 1) * Real.log x - x * Real.log (x + 1)
+  have hderiv :
+      ∀ x > 0,
+        HasDerivAt g
+          (Real.log x + (x + 1) / x - (Real.log (x + 1) + x / (x + 1))) x := by
+    intro x hx
+    have hx0 : x ≠ 0 := hx.ne'
+    have hx1 : x + 1 ≠ 0 := by linarith
+    have hadd : HasDerivAt (fun y : ℝ => y + 1) 1 x := by
+      simpa [add_comm] using (hasDerivAt_id x).const_add 1
+    have hleft :
+        HasDerivAt (fun y : ℝ => (y + 1) * Real.log y)
+          (Real.log x + (x + 1) / x) x := by
+      have hleft' := hadd.mul (Real.hasDerivAt_log hx0)
+      change HasDerivAt ((fun y : ℝ => y + 1) * Real.log)
+        (Real.log x + (x + 1) / x) x
+      rw [show Real.log x + (x + 1) / x =
+        1 * Real.log x + (x + 1) * x⁻¹ by field_simp [hx0]]
+      exact hleft'
+    have hrightLog : HasDerivAt (fun y : ℝ => Real.log (y + 1)) (1 / (x + 1)) x := by
+      simpa [Function.comp_def, div_eq_mul_inv] using (Real.hasDerivAt_log hx1).comp x hadd
+    have hright :
+        HasDerivAt (fun y : ℝ => y * Real.log (y + 1))
+          (Real.log (x + 1) + x / (x + 1)) x := by
+      change HasDerivAt (id * fun y : ℝ => Real.log (y + 1))
+        (Real.log (x + 1) + x / (x + 1)) x
+      rw [show Real.log (x + 1) + x / (x + 1) =
+        1 * Real.log (x + 1) + id x * (1 / (x + 1)) by simp [id, div_eq_mul_inv]]
+      exact (hasDerivAt_id x).mul hrightLog
+    change HasDerivAt
+      ((fun y : ℝ => (y + 1) * Real.log y) -
+        fun y : ℝ => y * Real.log (y + 1))
+      (Real.log x + (x + 1) / x - (Real.log (x + 1) + x / (x + 1))) x
+    exact hleft.sub hright
+  have hcont : ContinuousOn g (Set.Ioi (0 : ℝ)) := by
+    intro x hx
+    exact (hderiv x hx).continuousAt.continuousWithinAt
+  have hdiff : DifferentiableOn ℝ g (interior (Set.Ioi (0 : ℝ))) := by
+    intro x hx
+    have hx0 : 0 < x := by simpa using hx
+    exact (hderiv x hx0).differentiableAt.differentiableWithinAt
+  have hnonneg : ∀ x ∈ interior (Set.Ioi (0 : ℝ)), 0 ≤ deriv g x := by
+    intro x hx
+    have hx0 : 0 < x := by simpa using hx
+    rw [(hderiv x hx0).deriv]
+    have hlog_eq : Real.log (x + 1) = Real.log x + Real.log (1 + 1 / x) := by
+      have hmul : x * (1 + 1 / x) = x + 1 := by
+        field_simp [hx0.ne']
+      calc
+        Real.log (x + 1) = Real.log (x * (1 + 1 / x)) := by rw [hmul]
+        _ = Real.log x + Real.log (1 + 1 / x) := by
+            rw [Real.log_mul (by positivity) (by positivity)]
+    have hlog_le : Real.log (1 + 1 / x) ≤ 1 / x := by
+      have hpos : 0 < 1 + 1 / x := by positivity
+      have haux : Real.log (1 + 1 / x) ≤ (1 + 1 / x) - 1 := Real.log_le_sub_one_of_pos hpos
+      simpa using haux
+    have hcalc :
+        Real.log x + (x + 1) / x - (Real.log (x + 1) + x / (x + 1)) =
+          (1 / x - Real.log (1 + 1 / x)) + 1 / (x + 1) := by
+      rw [hlog_eq]
+      field_simp [hx0.ne']
+      ring
+    rw [hcalc]
+    have hmain : 0 ≤ 1 / x - Real.log (1 + 1 / x) := by
+      linarith
+    have hpos : 0 ≤ 1 / (x + 1) := by positivity
+    linarith
+  have hgmono : MonotoneOn g (Set.Ioi (0 : ℝ)) := by
+    exact monotoneOn_of_deriv_nonneg (convex_Ioi (0 : ℝ)) hcont hdiff hnonneg
+  intro x hx y hy hxy
+  have hEqx :
+      Real.log x - x * Real.log (1 + 1 / x) = g x := by
+    dsimp [g]
+    have hx0 : 0 < x := hx
+    have hlog : Real.log (x + 1) = Real.log x + Real.log (1 + 1 / x) := by
+      have hmul : x * (1 + 1 / x) = x + 1 := by
+        field_simp [hx0.ne']
+      calc
+        Real.log (x + 1) = Real.log (x * (1 + 1 / x)) := by rw [hmul]
+        _ = Real.log x + Real.log (1 + 1 / x) := by
+            rw [Real.log_mul (by positivity) (by positivity)]
+    rw [hlog]
+    ring
+  have hEqy :
+      Real.log y - y * Real.log (1 + 1 / y) = g y := by
+    dsimp [g]
+    have hy0 : 0 < y := hy
+    have hlog : Real.log (y + 1) = Real.log y + Real.log (1 + 1 / y) := by
+      have hmul : y * (1 + 1 / y) = y + 1 := by
+        field_simp [hy0.ne']
+      calc
+        Real.log (y + 1) = Real.log (y * (1 + 1 / y)) := by rw [hmul]
+        _ = Real.log y + Real.log (1 + 1 / y) := by
+            rw [Real.log_mul (by positivity) (by positivity)]
+    rw [hlog]
+    ring
+  change Real.log x - x * Real.log (1 + 1 / x) ≤ Real.log y - y * Real.log (1 + 1 / y)
+  rw [hEqx, hEqy]
+  exact hgmono hx hy hxy
+
 lemma Hp_pos {p : ℕ} (hp2 : 2 ≤ p) {s : ℝ} :
     0 < Hp p s := by
   have hmem : 1 ∈ Finset.Icc 1 (p - 1) := by
@@ -3983,7 +8181,26 @@ lemma Hp_pos {p : ℕ} (hp2 : 2 ≤ p) {s : ℝ} :
 lemma Hp_hasDerivAt {p : ℕ} {s : ℝ} :
     HasDerivAt (Hp p)
       (-(∑ m ∈ Finset.Icc 1 (p - 1), Real.log (m : ℝ) / Real.rpow (m : ℝ) s)) s := by
-        sorry
+  let S : Finset ℕ := Finset.Icc 1 (p - 1)
+  have hterm (m : ℕ) (hm : m ∈ S) :
+      HasDerivAt (fun t : ℝ => (1 : ℝ) / Real.rpow (m : ℝ) t)
+        (-(Real.log (m : ℝ) / Real.rpow (m : ℝ) s)) s := by
+    have hm1 : 1 ≤ m := (Finset.mem_Icc.mp hm).1
+    have hm0 : 0 < (m : ℝ) := by exact_mod_cast hm1
+    exact hasDerivAt_one_div_rpow_const (s := s) hm0
+  dsimp [Hp]
+  change HasDerivAt
+    (fun t : ℝ => ∑ m ∈ S, (1 : ℝ) / Real.rpow (m : ℝ) t)
+    (-(∑ m ∈ S, Real.log (m : ℝ) / Real.rpow (m : ℝ) s)) s
+  have hfun :
+      (∑ m ∈ S, fun t : ℝ => (1 : ℝ) / Real.rpow (m : ℝ) t) =
+        fun t : ℝ => ∑ m ∈ S, (1 : ℝ) / Real.rpow (m : ℝ) t := by
+    funext t
+    simp
+  rw [← hfun]
+  simpa [Finset.sum_neg_distrib] using
+    (HasDerivAt.sum fun m hm => hterm m hm)
+
 lemma blockDiff_nonneg {p k j : ℕ} (hp2 : 2 ≤ p) (_hj1 : 1 ≤ j) {s : ℝ} (hs : 1 < s) :
     0 ≤ blockDiff p k j s := by
   have hs0 : 0 ≤ s := by linarith
@@ -4004,7 +8221,51 @@ lemma blockDiff_hasDerivAt {p k j : ℕ} (hp2 : 2 ≤ p) (hj1 : 1 ≤ j) {s : �
       (-Real.log (((k + 1) * p : ℕ) : ℝ) / Real.rpow (((k + 1) * p : ℕ) : ℝ) s +
         Real.log (((k + 1) * p + j : ℕ) : ℝ) /
           Real.rpow (((k + 1) * p + j : ℕ) : ℝ) s) s := by
-            sorry
+  have hp0 : 0 < p := by omega
+  have hj0 : 0 < j := lt_of_lt_of_le Nat.zero_lt_one hj1
+  have ha_pos : 0 < (((k + 1) * p : ℕ) : ℝ) := by
+    exact_mod_cast Nat.mul_pos (Nat.succ_pos _) hp0
+  have hb_pos : 0 < ((((k + 1) * p + j : ℕ) : ℕ) : ℝ) := by
+    have hprod : 0 < (k + 1) * p := Nat.mul_pos (Nat.succ_pos _) hp0
+    exact_mod_cast lt_of_lt_of_le hprod (Nat.le_add_right ((k + 1) * p) j)
+  have hA :
+      HasDerivAt
+        (fun t : ℝ => (1 : ℝ) / Real.rpow (((k + 1) * p : ℕ) : ℝ) t)
+        (-Real.log (((k + 1) * p : ℕ) : ℝ) / Real.rpow (((k + 1) * p : ℕ) : ℝ) s) s := by
+    have ha_nonneg : 0 ≤ (((k + 1) * p : ℕ) : ℝ) := ha_pos.le
+    simpa [neg_div] using hasDerivAt_one_div_rpow_const (s := s) ha_pos
+  have hB :
+      HasDerivAt
+        (fun t : ℝ => (1 : ℝ) / Real.rpow (((k + 1) * p + j : ℕ) : ℝ) t)
+        (-Real.log (((k + 1) * p + j : ℕ) : ℝ) /
+          Real.rpow (((k + 1) * p + j : ℕ) : ℝ) s) s := by
+    have hb_nonneg : 0 ≤ (((k + 1) * p + j : ℕ) : ℝ) := hb_pos.le
+    simpa [neg_div] using hasDerivAt_one_div_rpow_const (s := s) hb_pos
+  have hsub :
+      HasDerivAt
+        (fun t : ℝ =>
+          (1 : ℝ) / Real.rpow (((k + 1) * p : ℕ) : ℝ) t -
+            (1 : ℝ) / Real.rpow (((k + 1) * p + j : ℕ) : ℝ) t)
+        (-Real.log (((k + 1) * p : ℕ) : ℝ) / Real.rpow (((k + 1) * p : ℕ) : ℝ) s -
+          (-Real.log (((k + 1) * p + j : ℕ) : ℝ) /
+            Real.rpow (((k + 1) * p + j : ℕ) : ℝ) s)) s := by
+    change HasDerivAt
+      ((fun t : ℝ => (1 : ℝ) / Real.rpow (((k + 1) * p : ℕ) : ℝ) t) -
+        fun t : ℝ => (1 : ℝ) / Real.rpow (((k + 1) * p + j : ℕ) : ℝ) t)
+      (-Real.log (((k + 1) * p : ℕ) : ℝ) / Real.rpow (((k + 1) * p : ℕ) : ℝ) s -
+        (-Real.log (((k + 1) * p + j : ℕ) : ℝ) /
+          Real.rpow (((k + 1) * p + j : ℕ) : ℝ) s)) s
+    exact hA.sub hB
+  have hfun :
+      (fun t : ℝ =>
+        (1 : ℝ) / Real.rpow (((k + 1) * p : ℕ) : ℝ) t -
+          (1 : ℝ) / Real.rpow (((k + 1) * p + j : ℕ) : ℝ) t) = blockDiff p k j := by
+    funext t
+    simp [blockDiff]
+  rw [hfun] at hsub
+  convert hsub using 1
+  ring
+
 lemma blockDiff_deriv_le_neg_roughLogBound_mul {p : ℕ} (hp : p.Prime)
     {t : ℝ} (ht : 1 < t) (k j : ℕ) (hj1 : 1 ≤ j) :
     (-Real.log (((k + 1) * p : ℕ) : ℝ) / Real.rpow (((k + 1) * p : ℕ) : ℝ) t +
@@ -4151,7 +8412,67 @@ lemma blockDiff_deriv_le_neg_roughLogBound_mul {p : ℕ} (hp : p.Prime)
 lemma blockDiff_div_Hp_antitoneOn {p : ℕ} (hp : p.Prime) (hodd : p ≠ 2)
     {k j : ℕ} (hj1 : 1 ≤ j) :
     AntitoneOn (fun t : ℝ => blockDiff p k j t / Hp p t) (Set.Ioi (1 : ℝ)) := by
-      sorry
+  let r' : ℝ → ℝ := fun t =>
+    ((-Real.log (((k + 1) * p : ℕ) : ℝ) / Real.rpow (((k + 1) * p : ℕ) : ℝ) t +
+        Real.log (((k + 1) * p + j : ℕ) : ℝ) /
+          Real.rpow (((k + 1) * p + j : ℕ) : ℝ) t) * Hp p t -
+      blockDiff p k j t *
+        (-(∑ m ∈ Finset.Icc 1 (p - 1), Real.log (m : ℝ) / Real.rpow (m : ℝ) t))) /
+      (Hp p t) ^ 2
+  refine antitoneOn_of_hasDerivWithinAt_nonpos (convex_Ioi (1 : ℝ))
+    (f := fun t : ℝ => blockDiff p k j t / Hp p t) (f' := r') ?_ ?_ ?_
+  · intro t ht
+    have hHp_ne : Hp p t ≠ 0 := (Hp_pos hp.two_le (s := t)).ne'
+    exact ((blockDiff_hasDerivAt hp.two_le hj1 (s := t)).div
+      (Hp_hasDerivAt (p := p) (s := t)) hHp_ne).continuousAt.continuousWithinAt
+  · intro t ht
+    have hHp_ne : Hp p t ≠ 0 := (Hp_pos hp.two_le (s := t)).ne'
+    change HasDerivWithinAt (blockDiff p k j / Hp p) (r' t)
+      (interior (Set.Ioi (1 : ℝ))) t
+    simpa [r', pow_two, Pi.div_apply] using
+      (((blockDiff_hasDerivAt hp.two_le hj1 (s := t)).div
+        (Hp_hasDerivAt (p := p) (s := t)) hHp_ne).hasDerivWithinAt :
+        HasDerivWithinAt (fun t : ℝ => blockDiff p k j t / Hp p t)
+          (((-Real.log (((k + 1) * p : ℕ) : ℝ) / Real.rpow (((k + 1) * p : ℕ) : ℝ) t +
+                Real.log (((k + 1) * p + j : ℕ) : ℝ) /
+                  Real.rpow (((k + 1) * p + j : ℕ) : ℝ) t) * Hp p t -
+              blockDiff p k j t *
+                (-(∑ m ∈ Finset.Icc 1 (p - 1), Real.log (m : ℝ) / Real.rpow (m : ℝ) t))) /
+            (Hp p t) ^ 2)
+          (interior (Set.Ioi (1 : ℝ))) t)
+  · intro t ht
+    have ht' : 1 < t := by simpa using ht
+    have hHp_pos : 0 < Hp p t := Hp_pos hp.two_le (s := t)
+    have hHp_nonneg : 0 ≤ Hp p t := hHp_pos.le
+    have hblock_nonneg : 0 ≤ blockDiff p k j t := blockDiff_nonneg hp.two_le hj1 ht'
+    have hnum1 :
+        (-Real.log (((k + 1) * p : ℕ) : ℝ) / Real.rpow (((k + 1) * p : ℕ) : ℝ) t +
+            Real.log (((k + 1) * p + j : ℕ) : ℝ) /
+              Real.rpow (((k + 1) * p + j : ℕ) : ℝ) t) * Hp p t ≤
+          (-roughLogBound p * blockDiff p k j t) * Hp p t := by
+      exact mul_le_mul_of_nonneg_right
+        (blockDiff_deriv_le_neg_roughLogBound_mul hp ht' k j hj1) hHp_nonneg
+    have hHp_avg :
+        (∑ m ∈ Finset.Icc 1 (p - 1), Real.log (m : ℝ) / Real.rpow (m : ℝ) t) ≤
+          roughLogBound p * Hp p t := by
+      exact (div_le_iff₀ hHp_pos).1 (hpLogAverage_le_roughLogBound hp hodd ht')
+    have hnum2 :
+        blockDiff p k j t *
+            (∑ m ∈ Finset.Icc 1 (p - 1), Real.log (m : ℝ) / Real.rpow (m : ℝ) t) ≤
+          blockDiff p k j t * (roughLogBound p * Hp p t) := by
+      exact mul_le_mul_of_nonneg_left hHp_avg hblock_nonneg
+    have hnum_nonpos :
+        ((-Real.log (((k + 1) * p : ℕ) : ℝ) / Real.rpow (((k + 1) * p : ℕ) : ℝ) t +
+              Real.log (((k + 1) * p + j : ℕ) : ℝ) /
+                Real.rpow (((k + 1) * p + j : ℕ) : ℝ) t) * Hp p t -
+            blockDiff p k j t *
+              (-(∑ m ∈ Finset.Icc 1 (p - 1), Real.log (m : ℝ) / Real.rpow (m : ℝ) t)))
+          ≤ 0 := by
+      linarith
+    dsimp [r']
+    exact div_nonpos_of_nonpos_of_nonneg hnum_nonpos
+      (sq_nonneg (Hp p t))
+
 lemma summable_blockDiff_fin_div_Hp {p : ℕ} (hp : p.Prime) {t : ℝ} (ht : 1 < t) :
     Summable (fun k : ℕ => ∑ j : Fin p, blockDiff p k j t / Hp p t) := by
   have hHp_pos : 0 < Hp p t := Hp_pos hp.two_le (s := t)
@@ -4216,18 +8537,268 @@ lemma summable_blockDiff_fin_div_Hp {p : ℕ} (hp : p.Prime) {t : ℝ} (ht : 1 <
 lemma zetaSeries_eq_Hp_add_blockTail {p : ℕ} (hp : p.Prime) {t : ℝ} (ht : 1 < t) :
     zetaSeries t = Hp p t + ∑' k : ℕ, ∑ j : Fin p,
       1 / Real.rpow ((((k + 1) * p + j : ℕ) : ℕ) : ℝ) t := by
-        sorry
+  haveI : NeZero p := ⟨Nat.ne_of_gt hp.pos⟩
+  let zfun : ℕ → ℝ := fun n => if n = 0 then 0 else 1 / Real.rpow (n : ℝ) t
+  have hzfun_shift : Summable (fun n : ℕ => zfun (n + 1)) := by
+    simpa [zfun] using zetaSeries_term_summable (s := t) ht
+  have hzfun_summable : Summable zfun := (summable_nat_add_iff 1).1 hzfun_shift
+  have hzfun_sum : ∑' n : ℕ, zfun n = zetaSeries t := by
+    have hsplit := hzfun_summable.sum_add_tsum_nat_add 1
+    simpa [zfun, zetaSeries] using hsplit.symm
+  let blk : ℕ → ℝ := fun k => ∑ j : Fin p, zfun (k * p + j)
+  have hblk_hasSum : HasSum blk (zetaSeries t) := by
+    have hsum : HasSum zfun (zetaSeries t) := by
+      rw [← hzfun_sum]
+      exact hzfun_summable.hasSum
+    let e : ℕ ≃ ℕ × Fin p := Nat.divModEquiv p
+    have hsum' : HasSum (fun x : ℕ × Fin p => zfun (x.1 * p + x.2)) (zetaSeries t) := by
+      simpa [e, Function.comp_def] using e.symm.hasSum_iff.mpr hsum
+    have hfiber : ∀ k : ℕ, HasSum (fun j : Fin p => zfun (k * p + j)) (blk k) := by
+      intro k
+      dsimp [blk]
+      simpa using hasSum_fintype (fun j : Fin p => zfun (k * p + j))
+    exact hsum'.prod_fiberwise hfiber
+  have hblk_summable : Summable blk := hblk_hasSum.summable
+  have hblk0 : blk 0 = Hp p t := by
+    dsimp [blk]
+    have hp1 : 1 ≤ p := Nat.succ_le_of_lt hp.pos
+    have hIcc : Finset.Icc 1 (p - 1) = (Finset.range p).erase 0 := by
+      ext n
+      constructor
+      · intro hn
+        rcases Finset.mem_Icc.mp hn with ⟨hn1, hnle⟩
+        refine Finset.mem_erase.mpr ?_
+        refine ⟨Nat.ne_of_gt (lt_of_lt_of_le Nat.zero_lt_one hn1), ?_⟩
+        have hlt : n < p := by
+          have hlt' : n < (p - 1) + 1 := Nat.lt_succ_of_le hnle
+          simpa [Nat.sub_add_cancel hp1] using hlt'
+        simpa using hlt
+      · intro hn
+        rcases Finset.mem_erase.mp hn with ⟨hn0, hnp⟩
+        refine Finset.mem_Icc.mpr ?_
+        refine ⟨Nat.succ_le_of_lt (Nat.pos_of_ne_zero hn0), ?_⟩
+        exact Nat.le_pred_of_lt (Finset.mem_range.mp hnp)
+    have h0mem : 0 ∈ Finset.range p := by
+      simp [hp.pos]
+    calc
+      ∑ j : Fin p, zfun (0 * p + (j : ℕ))
+          = ∑ n ∈ Finset.range p, if n = 0 then 0 else 1 / Real.rpow (n : ℝ) t := by
+              simpa [zfun, Nat.zero_mul] using
+                (Fin.sum_univ_eq_sum_range (fun n : ℕ => zfun (0 * p + n)) p)
+      _ = ∑ n ∈ (Finset.range p).erase 0, 1 / Real.rpow (n : ℝ) t := by
+            have hsplit0 :
+                (∑ n ∈ (Finset.range p).erase 0,
+                    if n = 0 then 0 else 1 / Real.rpow (n : ℝ) t) +
+                  (if 0 = 0 then 0 else 1 / Real.rpow (0 : ℝ) t) =
+                ∑ n ∈ Finset.range p, if n = 0 then 0 else 1 / Real.rpow (n : ℝ) t := by
+              simpa using
+                (Finset.sum_erase_add
+                  (s := Finset.range p)
+                  (f := fun n : ℕ => if n = 0 then 0 else 1 / Real.rpow (n : ℝ) t)
+                  h0mem)
+            have hsum_if :
+                (∑ n ∈ (Finset.range p).erase 0,
+                    if n = 0 then 0 else 1 / Real.rpow (n : ℝ) t) =
+                  ∑ n ∈ (Finset.range p).erase 0, 1 / Real.rpow (n : ℝ) t := by
+              refine Finset.sum_congr rfl ?_
+              intro n hn
+              rcases Finset.mem_erase.mp hn with ⟨hn0, _⟩
+              simp [hn0]
+            rw [← hsplit0, if_pos rfl, add_zero, hsum_if]
+      _ = ∑ n ∈ Finset.Icc 1 (p - 1), 1 / Real.rpow (n : ℝ) t := by
+            rw [← hIcc]
+  calc
+    zetaSeries t = ∑' k : ℕ, blk k := hblk_hasSum.tsum_eq.symm
+    _ = blk 0 + ∑' k : ℕ, blk (k + 1) := by
+          simpa using hblk_summable.sum_add_tsum_nat_add 1 |>.symm
+    _ = Hp p t + ∑' k : ℕ, ∑ j : Fin p,
+          1 / Real.rpow ((((k + 1) * p + j : ℕ) : ℕ) : ℝ) t := by
+          rw [hblk0]
+          congr 1
+          apply tsum_congr
+          intro k
+          refine Finset.sum_congr rfl ?_
+          intro j hj
+          have hidx_ne : ((k + 1) * p + (j : ℕ)) ≠ 0 := by
+            exact Nat.ne_of_gt <|
+              Nat.add_pos_left (Nat.mul_pos (Nat.succ_pos _) hp.pos) (j : ℕ)
+          dsimp [blk, zfun]
+          rw [if_neg hidx_ne]
+
 lemma tsum_blockDiff_fin_div_Hp_eq_formula {p : ℕ} (hp : p.Prime) {t : ℝ} (ht : 1 < t) :
     (∑' k : ℕ, ∑ j : Fin p, blockDiff p k j t / Hp p t) =
       1 - ((1 - Real.rpow (p : ℝ) (1 - t)) * zetaSeries t) / Hp p t := by
-        sorry
+  haveI : NeZero p := ⟨Nat.ne_of_gt hp.pos⟩
+  let zfun : ℕ → ℝ := fun n => if n = 0 then 0 else 1 / Real.rpow (n : ℝ) t
+  let blk : ℕ → ℝ := fun k => ∑ j : Fin p, zfun (k * p + j)
+  have hzfun_shift : Summable (fun n : ℕ => zfun (n + 1)) := by
+    simpa [zfun] using zetaSeries_term_summable (s := t) ht
+  have hzfun_summable : Summable zfun := (summable_nat_add_iff 1).1 hzfun_shift
+  have hzfun_sum : ∑' n : ℕ, zfun n = zetaSeries t := by
+    have hsplit := hzfun_summable.sum_add_tsum_nat_add 1
+    simpa [zfun, zetaSeries] using hsplit.symm
+  have hblk_hasSum : HasSum blk (zetaSeries t) := by
+    have hsum : HasSum zfun (zetaSeries t) := by
+      rw [← hzfun_sum]
+      exact hzfun_summable.hasSum
+    let e : ℕ ≃ ℕ × Fin p := Nat.divModEquiv p
+    have hsum' : HasSum (fun x : ℕ × Fin p => zfun (x.1 * p + x.2)) (zetaSeries t) := by
+      simpa [e, Function.comp_def] using e.symm.hasSum_iff.mpr hsum
+    have hfiber : ∀ k : ℕ, HasSum (fun j : Fin p => zfun (k * p + j)) (blk k) := by
+      intro k
+      dsimp [blk]
+      simpa using hasSum_fintype (fun j : Fin p => zfun (k * p + j))
+    exact hsum'.prod_fiberwise hfiber
+  have hblk_summable : Summable blk := hblk_hasSum.summable
+  have hpR_pos : 0 < (p : ℝ) := by
+    exact_mod_cast hp.pos
+  have hscaled_term (k : ℕ) :
+      (p : ℝ) * (1 / Real.rpow (((k + 1) * p : ℕ) : ℝ) t) =
+        Real.rpow (p : ℝ) (1 - t) * (1 / Real.rpow ((k + 1 : ℕ) : ℝ) t) := by
+    have hk_pos : 0 < ((k + 1 : ℕ) : ℝ) := by positivity
+    have hmul :
+        Real.rpow ((((k + 1) * p : ℕ) : ℝ)) t =
+          Real.rpow ((k + 1 : ℕ) : ℝ) t * Real.rpow (p : ℝ) t := by
+      rw [Nat.cast_mul]
+      simpa [mul_comm, mul_left_comm, mul_assoc] using
+        (Real.mul_rpow (show 0 ≤ ((k + 1 : ℕ) : ℝ) by positivity) hpR_pos.le (z := t))
+    have hp_pow_pos : 0 < Real.rpow (p : ℝ) t := Real.rpow_pos_of_pos hpR_pos t
+    have hk_pow_pos : 0 < Real.rpow ((k + 1 : ℕ) : ℝ) t := Real.rpow_pos_of_pos hk_pos t
+    have hp_scaled : (p : ℝ) * (Real.rpow (p : ℝ) t)⁻¹ = Real.rpow (p : ℝ) (1 - t) := by
+      calc
+        (p : ℝ) * (Real.rpow (p : ℝ) t)⁻¹
+            = Real.rpow (p : ℝ) 1 * (Real.rpow (p : ℝ) t)⁻¹ := by
+          simp
+        _ = Real.rpow (p : ℝ) 1 * Real.rpow (p : ℝ) (-t) := by
+              have hp_neg : (Real.rpow (p : ℝ) t)⁻¹ = Real.rpow (p : ℝ) (-t) := by
+                simpa [one_div] using (Real.rpow_neg hpR_pos.le t).symm
+              rw [hp_neg]
+        _ = Real.rpow (p : ℝ) (1 + (-t)) := by
+              exact (Real.rpow_add hpR_pos (1 : ℝ) (-t)).symm
+        _ = Real.rpow (p : ℝ) (1 - t) := by ring_nf
+    rw [hmul]
+    calc
+      (p : ℝ) * (1 / (Real.rpow ((k + 1 : ℕ) : ℝ) t * Real.rpow (p : ℝ) t))
+          = ((p : ℝ) * (Real.rpow (p : ℝ) t)⁻¹) * (1 / Real.rpow ((k + 1 : ℕ) : ℝ) t) := by
+              field_simp [hp_pow_pos.ne', hk_pow_pos.ne']
+      _ = Real.rpow (p : ℝ) (1 - t) * (1 / Real.rpow ((k + 1 : ℕ) : ℝ) t) := by
+            rw [hp_scaled]
+  have hscaled_summable :
+      Summable (fun k : ℕ => (p : ℝ) * (1 / Real.rpow (((k + 1) * p : ℕ) : ℝ) t)) := by
+    refine (Summable.mul_left (Real.rpow (p : ℝ) (1 - t))
+      (by simpa using zetaSeries_term_summable (s := t) ht)).congr ?_
+    intro k
+    simpa [one_div] using (hscaled_term k).symm
+  have hscaled :
+      ∑' k : ℕ, (p : ℝ) * (1 / Real.rpow (((k + 1) * p : ℕ) : ℝ) t) =
+        Real.rpow (p : ℝ) (1 - t) * zetaSeries t := by
+    calc
+      ∑' k : ℕ, (p : ℝ) * (1 / Real.rpow (((k + 1) * p : ℕ) : ℝ) t)
+          = ∑' k : ℕ, Real.rpow (p : ℝ) (1 - t) * (1 / Real.rpow ((k + 1 : ℕ) : ℝ) t) := by
+              apply tsum_congr
+              intro k
+              exact hscaled_term k
+      _ = Real.rpow (p : ℝ) (1 - t) * ∑' k : ℕ, (1 / Real.rpow ((k + 1 : ℕ) : ℝ) t) := by
+            rw [tsum_mul_left]
+      _ = Real.rpow (p : ℝ) (1 - t) * zetaSeries t := by
+            simp [zetaSeries]
+  have htail_summable :
+      Summable (fun k : ℕ => ∑ j : Fin p, 1 / Real.rpow ((((k + 1) * p + j : ℕ) : ℕ) : ℝ) t) := by
+    refine (summable_nat_add_iff 1).2 hblk_summable |>.congr ?_
+    intro k
+    refine Finset.sum_congr rfl ?_
+    intro j hj
+    have hidx_ne : ((k + 1) * p + (j : ℕ)) ≠ 0 := by
+      exact Nat.ne_of_gt <|
+        Nat.add_pos_left (Nat.mul_pos (Nat.succ_pos _) hp.pos) (j : ℕ)
+    dsimp [blk, zfun]
+    rw [if_neg hidx_ne]
+  have hblock_term (k : ℕ) :
+      ∑ j : Fin p, blockDiff p k j t =
+        (p : ℝ) * (1 / Real.rpow (((k + 1) * p : ℕ) : ℝ) t) -
+          ∑ j : Fin p, 1 / Real.rpow ((((k + 1) * p + j : ℕ) : ℕ) : ℝ) t := by
+    calc
+      ∑ j : Fin p, blockDiff p k j t
+          = ∑ j : Fin p,
+              ((1 : ℝ) / Real.rpow (((k + 1) * p : ℕ) : ℝ) t -
+                1 / Real.rpow ((((k + 1) * p + j : ℕ) : ℕ) : ℝ) t) := by
+                  refine Finset.sum_congr rfl ?_
+                  intro j hj
+                  rw [blockDiff]
+      _ = ∑ j : Fin p, (1 : ℝ) / Real.rpow (((k + 1) * p : ℕ) : ℝ) t -
+            ∑ j : Fin p, 1 / Real.rpow ((((k + 1) * p + j : ℕ) : ℕ) : ℝ) t := by
+              rw [Finset.sum_sub_distrib]
+      _ = (p : ℝ) * (1 / Real.rpow (((k + 1) * p : ℕ) : ℝ) t) -
+            ∑ j : Fin p, 1 / Real.rpow ((((k + 1) * p + j : ℕ) : ℕ) : ℝ) t := by
+              simp
+  have hblocksum_summable :
+      Summable (fun k : ℕ => ∑ j : Fin p, blockDiff p k j t) := by
+    refine (hscaled_summable.sub htail_summable).congr ?_
+    intro k
+    symm
+    exact hblock_term k
+  have htail_eq :
+      ∑' k : ℕ, ∑ j : Fin p, 1 / Real.rpow ((((k + 1) * p + j : ℕ) : ℕ) : ℝ) t =
+        zetaSeries t - Hp p t := by
+    linarith [zetaSeries_eq_Hp_add_blockTail hp ht]
+  have hblocksum :
+      ∑' k : ℕ, ∑ j : Fin p, blockDiff p k j t =
+        Hp p t - (1 - Real.rpow (p : ℝ) (1 - t)) * zetaSeries t := by
+    calc
+      ∑' k : ℕ, ∑ j : Fin p, blockDiff p k j t
+          = ∑' k : ℕ,
+              ((p : ℝ) * (1 / Real.rpow (((k + 1) * p : ℕ) : ℝ) t) -
+                ∑ j : Fin p, 1 / Real.rpow ((((k + 1) * p + j : ℕ) : ℕ) : ℝ) t) := by
+                  apply tsum_congr
+                  intro k
+                  exact hblock_term k
+      _ = (∑' k : ℕ, (p : ℝ) * (1 / Real.rpow (((k + 1) * p : ℕ) : ℝ) t)) -
+            ∑' k : ℕ, ∑ j : Fin p, 1 / Real.rpow ((((k + 1) * p + j : ℕ) : ℕ) : ℝ) t := by
+              rw [Summable.tsum_sub hscaled_summable htail_summable]
+      _ = Real.rpow (p : ℝ) (1 - t) * zetaSeries t - (zetaSeries t - Hp p t) := by
+            rw [hscaled, htail_eq]
+      _ = Hp p t - (1 - Real.rpow (p : ℝ) (1 - t)) * zetaSeries t := by
+            ring
+  have hHp_ne : Hp p t ≠ 0 := (Hp_pos hp.two_le (s := t)).ne'
+  calc
+    (∑' k : ℕ, ∑ j : Fin p, blockDiff p k j t / Hp p t)
+        = ∑' k : ℕ, (∑ j : Fin p, blockDiff p k j t) * (Hp p t)⁻¹ := by
+            apply tsum_congr
+            intro k
+            simpa [div_eq_mul_inv] using
+              (Finset.sum_mul (Finset.univ : Finset (Fin p))
+                (fun j : Fin p => blockDiff p k j t) ((Hp p t)⁻¹)).symm
+    _ = (∑' k : ℕ, ∑ j : Fin p, blockDiff p k j t) * (Hp p t)⁻¹ := by
+          rw [tsum_mul_right]
+    _ = (∑' k : ℕ, ∑ j : Fin p, blockDiff p k j t) / Hp p t := by
+          rw [div_eq_mul_inv]
+    _ = (Hp p t - (1 - Real.rpow (p : ℝ) (1 - t)) * zetaSeries t) / Hp p t := by
+          rw [hblocksum]
+    _ = 1 - ((1 - Real.rpow (p : ℝ) (1 - t)) * zetaSeries t) / Hp p t := by
+          field_simp [hHp_ne]
+
 lemma eulerFactor_hasDerivAt {ℓ : ℕ} (hℓprime : ℓ.Prime) {s : ℝ} :
     HasDerivAt (fun t : ℝ => 1 - 1 / Real.rpow (ℓ : ℝ) t)
       (Real.log (ℓ : ℝ) / Real.rpow (ℓ : ℝ) s) s := by
-        sorry
+  have hℓ0 : 0 < (ℓ : ℝ) := by exact_mod_cast hℓprime.pos
+  have hℓ_nonneg : 0 ≤ (ℓ : ℝ) := hℓ0.le
+  have hinv :
+      HasDerivAt (fun t : ℝ => (1 : ℝ) / Real.rpow (ℓ : ℝ) t)
+        (-Real.log (ℓ : ℝ) / Real.rpow (ℓ : ℝ) s) s := by
+    simpa [neg_div] using hasDerivAt_one_div_rpow_const (s := s) hℓ0
+  have hsub := (hasDerivAt_const s 1).sub hinv
+  change HasDerivAt ((fun _ : ℝ => 1) - fun t : ℝ => 1 / Real.rpow (ℓ : ℝ) t)
+    (Real.log (ℓ : ℝ) / Real.rpow (ℓ : ℝ) s) s
+  rw [show Real.log (ℓ : ℝ) / Real.rpow (ℓ : ℝ) s =
+    0 - -Real.log (ℓ : ℝ) / Real.rpow (ℓ : ℝ) s by ring]
+  exact hsub
+
 lemma one_sub_hasDerivAt {s : ℝ} :
     HasDerivAt (fun t : ℝ => 1 - t) (-1) s := by
-      sorry
+  change HasDerivAt ((fun _ : ℝ => 1) - id) (-1) s
+  rw [show (-1 : ℝ) = 0 - 1 by ring]
+  exact (hasDerivAt_const s 1).sub (hasDerivAt_id s)
+
 lemma primeEulerProduct_hasDerivAt {p : ℕ} {s : ℝ} (hs : 1 < s) :
     HasDerivAt
       (fun t : ℝ =>
@@ -4235,7 +8806,76 @@ lemma primeEulerProduct_hasDerivAt {p : ℕ} {s : ℝ} (hs : 1 < s) :
       ((∏ ℓ ∈ (Finset.Icc 2 (p - 1)).filter Nat.Prime, (1 - 1 / Real.rpow (ℓ : ℝ) s)) *
         (∑ ℓ ∈ (Finset.Icc 2 (p - 1)).filter Nat.Prime,
           Real.log (ℓ : ℝ) / (Real.rpow (ℓ : ℝ) s - 1))) s := by
-            sorry
+  let Sfin : Finset ℕ := (Finset.Icc 2 (p - 1)).filter Nat.Prime
+  let factor : ℕ → ℝ → ℝ := fun ℓ t => 1 - 1 / Real.rpow (ℓ : ℝ) t
+  have hfactor :
+      ∀ ℓ ∈ Sfin, HasDerivAt (factor ℓ) (Real.log (ℓ : ℝ) / Real.rpow (ℓ : ℝ) s) s := by
+    intro ℓ hℓ
+    rcases Finset.mem_filter.mp hℓ with ⟨_, hℓprime⟩
+    simpa [factor] using eulerFactor_hasDerivAt hℓprime (s := s)
+  have hprod :=
+    HasDerivAt.finsetProd
+      (u := Sfin)
+      (f := factor)
+      (f' := fun ℓ => Real.log (ℓ : ℝ) / Real.rpow (ℓ : ℝ) s)
+      hfactor
+  have hderiv_eq :
+      (∑ i ∈ Sfin, (∏ j ∈ Sfin.erase i, factor j s) •
+          (fun ℓ => Real.log (ℓ : ℝ) / Real.rpow (ℓ : ℝ) s) i) =
+        (∏ ℓ ∈ Sfin, factor ℓ s) *
+          (∑ ℓ ∈ Sfin, Real.log (ℓ : ℝ) / (Real.rpow (ℓ : ℝ) s - 1)) := by
+    calc
+      ∑ i ∈ Sfin, (∏ j ∈ Sfin.erase i, factor j s) •
+          (fun ℓ => Real.log (ℓ : ℝ) / Real.rpow (ℓ : ℝ) s) i
+          = ∑ x ∈ Sfin, (∏ y ∈ Sfin.erase x, factor y s) *
+              (Real.log (x : ℝ) / Real.rpow (x : ℝ) s) := by
+                simp [smul_eq_mul]
+      _ = ∑ x ∈ Sfin, (∏ ℓ ∈ Sfin, factor ℓ s) *
+            (Real.log (x : ℝ) / (Real.rpow (x : ℝ) s - 1)) := by
+            refine Finset.sum_congr rfl ?_
+            intro ℓ hℓ
+            rcases Finset.mem_filter.mp hℓ with ⟨_, hℓprime⟩
+            have hℓ1 : 1 < (ℓ : ℝ) := by exact_mod_cast hℓprime.one_lt
+            have hs0 : 0 < s := lt_trans zero_lt_one hs
+            have hpow_pos : 0 < Real.rpow (ℓ : ℝ) s :=
+              Real.rpow_pos_of_pos (by exact_mod_cast hℓprime.pos) s
+            have hpow_gt_one : 1 < Real.rpow (ℓ : ℝ) s := Real.one_lt_rpow hℓ1 hs0
+            have hden_ne : Real.rpow (ℓ : ℝ) s - 1 ≠ 0 := by linarith
+            have hfac :
+                factor ℓ s * (Real.log (ℓ : ℝ) / (Real.rpow (ℓ : ℝ) s - 1)) =
+                  Real.log (ℓ : ℝ) / Real.rpow (ℓ : ℝ) s := by
+              set a : ℝ := Real.rpow (ℓ : ℝ) s
+              have ha_ne : a ≠ 0 := hpow_pos.ne'
+              have ha1_ne : a - 1 ≠ 0 := hden_ne
+              dsimp [factor]
+              change (1 - 1 / a) * (Real.log (ℓ : ℝ) / (a - 1)) = Real.log (ℓ : ℝ) / a
+              field_simp [ha_ne, ha1_ne]
+            calc
+              (∏ j ∈ Sfin.erase ℓ, factor j s) * (Real.log (ℓ : ℝ) / Real.rpow (ℓ : ℝ) s)
+                  = (∏ j ∈ Sfin.erase ℓ, factor j s) *
+                      (factor ℓ s * (Real.log (ℓ : ℝ) / (Real.rpow (ℓ : ℝ) s - 1))) := by
+                        rw [hfac]
+              _ = ((∏ j ∈ Sfin.erase ℓ, factor j s) * factor ℓ s) *
+                    (Real.log (ℓ : ℝ) / (Real.rpow (ℓ : ℝ) s - 1)) := by ring
+              _ = (∏ ℓ ∈ Sfin, factor ℓ s) *
+                    (Real.log (ℓ : ℝ) / (Real.rpow (ℓ : ℝ) s - 1)) := by
+                      rw [Finset.prod_erase_mul _ _ hℓ]
+      _ = (∏ ℓ ∈ Sfin, factor ℓ s) *
+            (∑ ℓ ∈ Sfin, Real.log (ℓ : ℝ) / (Real.rpow (ℓ : ℝ) s - 1)) := by
+            simpa using
+              (Finset.mul_sum Sfin
+                (fun ℓ : ℕ => Real.log (ℓ : ℝ) / (Real.rpow (ℓ : ℝ) s - 1))
+                (∏ ℓ ∈ Sfin, factor ℓ s)).symm
+  have hfun :
+      (fun t : ℝ =>
+        ∏ ℓ ∈ (Finset.Icc 2 (p - 1)).filter Nat.Prime, (1 - 1 / Real.rpow (ℓ : ℝ) t)) =
+        ∏ i ∈ Sfin, factor i := by
+    funext t
+    simp [Sfin, factor, Finset.prod_apply]
+  rw [hderiv_eq] at hprod
+  rw [hfun]
+  simpa [Sfin, factor, one_div] using hprod
+
 lemma summable_vonMangoldt_div_rpow_if {v : ℝ} (hv : 0 < v) {P : ℕ → Prop}
     [DecidablePred P]
     (hP : ∀ {q : ℕ}, P q → 2 ≤ q) :
@@ -4465,7 +9105,359 @@ lemma summable_primeTailSeries_terms {p : ℕ} (_hp : p.Prime) {v : ℝ} (hv : 0
 lemma primeTailSeries_le_roughLogBound {p : ℕ} (hp : p.Prime) (hodd : p ≠ 2)
     {v : ℝ} (hv : 0 < v) :
     primeTailSeries p v ≤ Real.log (p : ℝ) / (Real.rpow (p : ℝ) v - 1) := by
-      sorry
+  let s : ℝ := 1 + v
+  have hs : 1 < s := by
+    dsimp [s]
+    linarith
+  have hp2 : 2 ≤ p := hp.two_le
+  have hblockFin_antitone :
+      ∀ k : ℕ,
+        AntitoneOn (fun t : ℝ => ∑ j : Fin p, blockDiff p k j t / Hp p t) (Set.Ioi (1 : ℝ)) := by
+    intro k x hx y hy hxy
+    refine Finset.sum_le_sum ?_
+    intro j hj
+    by_cases hj0 : (j : ℕ) = 0
+    · simp [blockDiff, hj0]
+    · have hj1 : 1 ≤ (j : ℕ) := Nat.succ_le_of_lt (Nat.pos_of_ne_zero hj0)
+      exact (blockDiff_div_Hp_antitoneOn hp hodd (k := k) (j := j) hj1) hx hy hxy
+  let B : ℝ → ℝ := fun t => ∑' k : ℕ, ∑ j : Fin p, blockDiff p k j t / Hp p t
+  have hB_antitone : AntitoneOn B (Set.Ioi (1 : ℝ)) := by
+    intro x hx y hy hxy
+    dsimp [B]
+    exact Summable.tsum_le_tsum
+      (fun k => hblockFin_antitone k hx hy hxy)
+      (summable_blockDiff_fin_div_Hp hp hy)
+      (summable_blockDiff_fin_div_Hp hp hx)
+  have hR_monotone :
+      MonotoneOn
+        (fun t : ℝ => ((1 - Real.rpow (p : ℝ) (1 - t)) * zetaSeries t) / Hp p t)
+        (Set.Ioi (1 : ℝ)) := by
+    intro x hx y hy hxy
+    have hBxy : B y ≤ B x := hB_antitone hx hy hxy
+    rw [show B y =
+        1 - ((1 - Real.rpow (p : ℝ) (1 - y)) * zetaSeries y) / Hp p y by
+          simpa [B] using (tsum_blockDiff_fin_div_Hp_eq_formula (p := p) hp (t := y) hy),
+      show B x =
+        1 - ((1 - Real.rpow (p : ℝ) (1 - x)) * zetaSeries x) / Hp p x by
+          simpa [B] using (tsum_blockDiff_fin_div_Hp_eq_formula (p := p) hp (t := x) hx)] at hBxy
+    linarith
+  have hzeta_pos : ∀ {t : ℝ}, 1 < t → 0 < zetaSeries t := by
+    intro t ht
+    have hbound := zetaSeries_ge_one_div_sub_add_one_half ht
+    have hpos : 0 < 1 / (t - 1) + (1 / 2 : ℝ) := by
+      have ht1 : 0 < t - 1 := by linarith
+      positivity
+    linarith
+  have hA_pos : ∀ {t : ℝ}, 1 < t → 0 < 1 - Real.rpow (p : ℝ) (1 - t) := by
+    intro t ht
+    have hp1 : 1 < (p : ℝ) := by exact_mod_cast hp.one_lt
+    have hneg : 1 - t < 0 := by linarith
+    have hrpow_lt : Real.rpow (p : ℝ) (1 - t) < 1 := Real.rpow_lt_one_of_one_lt_of_neg hp1 hneg
+    linarith
+  let Sfin : Finset ℕ := (Finset.Icc 2 (p - 1)).filter Nat.Prime
+  let factor : ℕ → ℝ → ℝ := fun ℓ t => 1 - 1 / Real.rpow (ℓ : ℝ) t
+  let P : ℝ → ℝ := fun t => ∏ ℓ ∈ Sfin, factor ℓ t
+  have hP_pos : ∀ {t : ℝ}, 1 < t → 0 < P t := by
+    intro t ht
+    dsimp [P]
+    refine Finset.prod_pos ?_
+    intro ℓ hℓ
+    rcases Finset.mem_filter.mp hℓ with ⟨_, hℓprime⟩
+    have hℓ1 : 1 < (ℓ : ℝ) := by exact_mod_cast hℓprime.one_lt
+    have ht0 : 0 < t := lt_trans zero_lt_one ht
+    have hpow_pos : 0 < Real.rpow (ℓ : ℝ) t := by
+      exact Real.rpow_pos_of_pos (by exact_mod_cast hℓprime.pos) t
+    have hpow_gt_one : 1 < Real.rpow (ℓ : ℝ) t := Real.one_lt_rpow hℓ1 ht0
+    have hinv_lt_one : 1 / Real.rpow (ℓ : ℝ) t < 1 := by
+      simpa [one_div] using (inv_lt_one₀ hpow_pos).2 hpow_gt_one
+    linarith
+  have hQ_pos : ∀ {t : ℝ}, 1 < t → 0 < Qp p t := by
+    intro t ht
+    simpa [Qp, P, factor] using mul_pos (Hp_pos hp2 (s := t)) (hP_pos ht)
+  have hR_pos :
+      ∀ {t : ℝ}, 1 < t →
+        0 <
+          ((1 - Real.rpow (p : ℝ) (1 - t)) * zetaSeries t) / Hp p t := by
+    intro t ht
+    exact div_pos (mul_pos (hA_pos ht) (hzeta_pos ht)) (Hp_pos hp2 (s := t))
+  let G : ℝ → ℝ := fun t =>
+    ((1 - Real.rpow (p : ℝ) (1 - t)) * zetaSeries t) / Hp p t * Qp p t
+  have hG_mono : MonotoneOn G (Set.Ioi (1 : ℝ)) := by
+    intro x hx y hy hxy
+    have h1 :
+        ((1 - Real.rpow (p : ℝ) (1 - x)) * zetaSeries x) / Hp p x * Qp p x ≤
+          ((1 - Real.rpow (p : ℝ) (1 - y)) * zetaSeries y) / Hp p y * Qp p x := by
+      exact mul_le_mul_of_nonneg_right (hR_monotone hx hy hxy) (hQ_pos hx).le
+    have h2 :
+        ((1 - Real.rpow (p : ℝ) (1 - y)) * zetaSeries y) / Hp p y * Qp p x ≤
+          ((1 - Real.rpow (p : ℝ) (1 - y)) * zetaSeries y) / Hp p y * Qp p y := by
+      exact mul_le_mul_of_nonneg_left ((monotoneOn_Qp hp hodd) hx hy hxy) (hR_pos hy).le
+    exact h1.trans h2
+  let F : ℝ → ℝ := fun t => (1 - Real.rpow (p : ℝ) (1 - t)) * zetaSeries t * P t
+  have hGF (t : ℝ) : G t = F t := by
+    dsimp [G, F, P, factor, Sfin]
+    have hHp_ne : Hp p t ≠ 0 := (Hp_pos hp2 (s := t)).ne'
+    rw [Qp, div_eq_mul_inv]
+    field_simp [hHp_ne]
+    simp
+  have hF_mono : MonotoneOn F (Set.Ioi (1 : ℝ)) := by
+    intro x hx y hy hxy
+    rw [← hGF x, ← hGF y]
+    exact hG_mono hx hy hxy
+  let smallSum : ℝ :=
+    ∑ ℓ ∈ Sfin, Real.log (ℓ : ℝ) / (Real.rpow (ℓ : ℝ) s - 1)
+  have hA_hasDerivAt :
+      HasDerivAt (fun t : ℝ => 1 - Real.rpow (p : ℝ) (1 - t))
+        (Real.log (p : ℝ) * Real.rpow (p : ℝ) (1 - s)) s := by
+    have hp0 : 0 < (p : ℝ) := by exact_mod_cast hp.pos
+    have hpow :
+        HasDerivAt (fun t : ℝ => Real.rpow (p : ℝ) (1 - t))
+          (Real.log (p : ℝ) * -1 * Real.rpow (p : ℝ) (1 - s)) s := by
+      simpa [mul_comm, mul_left_comm, mul_assoc] using
+        (one_sub_hasDerivAt (s := s)).const_rpow hp0
+    have hsub := (hasDerivAt_const s 1).sub hpow
+    change HasDerivAt
+      ((fun _ : ℝ => 1) - fun t : ℝ => Real.rpow (p : ℝ) (1 - t))
+      (Real.log (p : ℝ) * Real.rpow (p : ℝ) (1 - s)) s
+    rw [show Real.log (p : ℝ) * Real.rpow (p : ℝ) (1 - s) =
+      0 - Real.log (p : ℝ) * -1 * Real.rpow (p : ℝ) (1 - s) by ring]
+    exact hsub
+  have hAzeta_hasDerivAt :
+      HasDerivAt
+        (fun t : ℝ => (1 - Real.rpow (p : ℝ) (1 - t)) * zetaSeries t)
+        ((Real.log (p : ℝ) * Real.rpow (p : ℝ) (1 - s)) * zetaSeries s +
+          (1 - Real.rpow (p : ℝ) (1 - s)) * deriv zetaSeries s) s := by
+    change HasDerivAt
+      ((fun t : ℝ => 1 - Real.rpow (p : ℝ) (1 - t)) * zetaSeries)
+      ((Real.log (p : ℝ) * Real.rpow (p : ℝ) (1 - s)) * zetaSeries s +
+        (1 - Real.rpow (p : ℝ) (1 - s)) * deriv zetaSeries s) s
+    exact hA_hasDerivAt.mul (zetaSeries_hasDerivAt hs)
+  have hF_hasDerivAt :
+      HasDerivAt F
+        (((Real.log (p : ℝ) * Real.rpow (p : ℝ) (1 - s)) * zetaSeries s +
+            (1 - Real.rpow (p : ℝ) (1 - s)) * deriv zetaSeries s) * P s +
+          ((1 - Real.rpow (p : ℝ) (1 - s)) * zetaSeries s) * (P s * smallSum)) s := by
+    dsimp [F]
+    change HasDerivAt
+      ((fun t : ℝ => (1 - Real.rpow (p : ℝ) (1 - t)) * zetaSeries t) * P)
+      (((Real.log (p : ℝ) * Real.rpow (p : ℝ) (1 - s)) * zetaSeries s +
+          (1 - Real.rpow (p : ℝ) (1 - s)) * deriv zetaSeries s) * P s +
+        ((1 - Real.rpow (p : ℝ) (1 - s)) * zetaSeries s) * (P s * smallSum)) s
+    simpa [P, factor, smallSum, Sfin, mul_assoc, mul_left_comm, mul_comm] using
+      (hAzeta_hasDerivAt.mul (primeEulerProduct_hasDerivAt (p := p) (s := s) hs))
+  let f : ℕ → ℝ := fun q =>
+    if hq : 2 ≤ q then
+      ArithmeticFunction.vonMangoldt q / Real.rpow (q : ℝ) s
+    else
+      0
+  have hanalytic_eq : analyticSeries s = ∑' q : ℕ, f q := by
+    calc
+      analyticSeries s = ∑' q : { q : ℕ // 2 ≤ q }, f q := by
+          apply tsum_congr
+          intro q
+          simp [f, q.2]
+      _ = ∑' q : ℕ, f q := by
+          apply tsum_subtype_eq_of_support_subset
+          intro q hq
+          by_contra hq'
+          have hzero : f q = 0 := by
+            dsimp [f]
+            by_cases h : 2 ≤ q
+            · exact (hq' h).elim
+            · simp [h]
+          exact hq hzero
+  have hfsupport : Function.support f ⊆ {n : ℕ | IsPrimePow n} := by
+    intro q hq
+    by_contra hprimepow
+    have : f q = 0 := by
+      by_cases hcond : 2 ≤ q
+      · simp [f, hcond, ArithmeticFunction.vonMangoldt_eq_zero_iff.mpr hprimepow]
+      · simp [f, hcond]
+    exact hq this
+  let h : ℕ → ℝ := fun r =>
+    if hr : r.Prime then
+      Real.log (r : ℝ) / (Real.rpow (r : ℝ) s - 1)
+    else
+      0
+  have hprime_nat :
+      (∑' r : Nat.Primes, Real.log (r : ℝ) / (Real.rpow (r : ℝ) s - 1)) =
+        ∑' r : ℕ, h r := by
+    change (∑' r : { r : ℕ // r.Prime }, Real.log (r : ℝ) / (Real.rpow (r : ℝ) s - 1)) =
+      ∑' r : ℕ, h r
+    simpa [h, Set.indicator, Set.mem_setOf_eq] using
+      (tsum_subtype { r : ℕ | r.Prime }
+        (fun r : ℕ => Real.log (r : ℝ) / (Real.rpow (r : ℝ) s - 1)))
+  have hanalytic_prime :
+      analyticSeries s =
+        ∑' r : ℕ, h r := by
+    rw [hanalytic_eq,
+      tsum_eq_tsum_primes_of_support_subset_prime_powers
+        (by
+          simpa [f, s] using
+            (summable_vonMangoldt_div_rpow_if (v := v) hv (P := fun q => 2 ≤ q)
+              (by intro q hq; exact hq)))
+        hfsupport]
+    calc
+      ∑' r : Nat.Primes, ∑' k : ℕ, f ((r : ℕ) ^ (k + 1))
+          = ∑' r : Nat.Primes, Real.log (r : ℝ) / (Real.rpow (r : ℝ) s - 1) := by
+              apply tsum_congr
+              intro r
+              calc
+                ∑' k : ℕ, f ((r : ℕ) ^ (k + 1))
+                    = ∑' k : ℕ,
+                        ArithmeticFunction.vonMangoldt ((r : ℕ) ^ (k + 1)) /
+                          Real.rpow ((((r : ℕ) ^ (k + 1) : ℕ) : ℝ)) s := by
+                            apply tsum_congr
+                            intro k
+                            have hkcond : 2 ≤ (r : ℕ) ^ (k + 1) := by
+                              exact le_trans r.2.two_le (Nat.le_pow (Nat.succ_pos _))
+                            simp [f, hkcond]
+                _ = Real.log (r : ℝ) / (Real.rpow (r : ℝ) s - 1) :=
+                    tsum_vonMangoldt_prime_powers_div_rpow hs r
+      _ = ∑' r : ℕ, h r := hprime_nat
+  let g : ℕ → ℝ := fun r =>
+    if hr : p ≤ r ∧ r.Prime then
+      Real.log (r : ℝ) / (Real.rpow (r : ℝ) s - 1)
+    else
+      0
+  have hprime_eq : primeTailSeries p v = ∑' r : ℕ, g r := by
+    calc
+      primeTailSeries p v
+          = ∑' r : { r : ℕ // p ≤ r ∧ r.Prime }, g r := by
+              apply tsum_congr
+              intro r
+              simp [g, s, r.2]
+      _ = ∑' r : ℕ, g r := by
+            apply tsum_subtype_eq_of_support_subset
+            intro r hr
+            by_contra hr'
+            have hzero : g r = 0 := by
+              dsimp [g]
+              split_ifs with h
+              · exact (hr' h).elim
+              · rfl
+            exact hr hzero
+  let hsmall : ℕ → ℝ := fun r =>
+    if hr : r ∈ Sfin then
+      Real.log (r : ℝ) / (Real.rpow (r : ℝ) s - 1)
+    else
+      0
+  have hsmall_summable : Summable hsmall := by
+    classical
+    refine summable_of_hasFiniteSupport ?_
+    refine (Sfin.finite_toSet).subset ?_
+    intro r hr
+    by_contra hr'
+    have hr'' : r ∉ Sfin := by simpa using hr'
+    have : hsmall r = 0 := by
+      simp [hsmall, hr'']
+    exact hr this
+  have hsmall_tsum : ∑' r : ℕ, hsmall r = smallSum := by
+    rw [tsum_eq_sum (s := Sfin)]
+    · simp [smallSum, hsmall]
+    · intro r hr
+      simp [hsmall, hr]
+  have hsplit (r : ℕ) : h r = hsmall r + g r := by
+    by_cases hrprime : r.Prime
+    · by_cases hpr : p ≤ r
+      · have hr_not_mem : r ∉ Sfin := by
+          intro hrs
+          rcases Finset.mem_filter.mp hrs with ⟨hrIcc, _⟩
+          have hrle : r ≤ p - 1 := (Finset.mem_Icc.mp hrIcc).2
+          have hlt : r < p := by omega
+          exact (not_lt_of_ge hpr hlt).elim
+        simp [h, hsmall, g, hrprime, hpr, hr_not_mem]
+      · have hr_mem : r ∈ Sfin := by
+          refine Finset.mem_filter.mpr ?_
+          refine ⟨Finset.mem_Icc.mpr ?_, hrprime⟩
+          refine ⟨hrprime.two_le, ?_⟩
+          omega
+        simp [h, hsmall, g, hrprime, hpr, hr_mem]
+    · have hr_not_mem : r ∉ Sfin := by
+        intro hrs
+        exact hrprime (Finset.mem_filter.mp hrs).2
+      simp [h, hsmall, g, hrprime, hr_not_mem]
+  have hanalytic_decomp :
+      analyticSeries s = smallSum + primeTailSeries p v := by
+    calc
+      analyticSeries s = ∑' r : ℕ, h r := hanalytic_prime
+      _ = ∑' r : ℕ, (hsmall r + g r) := by
+            apply tsum_congr
+            intro r
+            exact hsplit r
+      _ = (∑' r : ℕ, hsmall r) + ∑' r : ℕ, g r := by
+            rw [Summable.tsum_add hsmall_summable
+              (by simpa [g, s] using summable_primeTailSeries_terms (p := p) hp hv)]
+      _ = smallSum + primeTailSeries p v := by
+            rw [hsmall_tsum, hprime_eq.symm]
+  have hzeta_deriv :
+      deriv zetaSeries s = -analyticSeries s * zetaSeries s := by
+    have hmul :=
+      congrArg (fun x : ℝ => x * zetaSeries s)
+        (analyticSeries_eq_neg_deriv_zetaSeries_div_zetaSeries hs)
+    have hzeta_ne : zetaSeries s ≠ 0 := (hzeta_pos hs).ne'
+    have hmul' : analyticSeries s * zetaSeries s = -deriv zetaSeries s := by
+      simpa [hzeta_ne, div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm] using hmul
+    linarith
+  have hraw :
+      0 ≤
+        (((Real.log (p : ℝ) * Real.rpow (p : ℝ) (1 - s)) * zetaSeries s +
+            (1 - Real.rpow (p : ℝ) (1 - s)) * deriv zetaSeries s) * P s +
+          ((1 - Real.rpow (p : ℝ) (1 - s)) * zetaSeries s) * (P s * smallSum)) := by
+    have hs_mem : s ∈ Set.Ioi (1 : ℝ) := hs
+    have hnonneg : 0 ≤ deriv F s := by
+      have hwithin : 0 ≤ derivWithin F (Set.Ioi (1 : ℝ)) s :=
+        hF_mono.derivWithin_nonneg (x := s)
+      rwa [derivWithin_of_isOpen isOpen_Ioi hs_mem] at hwithin
+    simpa [hF_hasDerivAt.deriv] using hnonneg
+  have hprod_nonneg :
+      0 ≤
+        P s * zetaSeries s *
+          (Real.log (p : ℝ) * Real.rpow (p : ℝ) (1 - s) -
+            (1 - Real.rpow (p : ℝ) (1 - s)) * primeTailSeries p v) := by
+    rw [hzeta_deriv, hanalytic_decomp] at hraw
+    ring_nf at hraw ⊢
+    exact hraw
+  have hPzeta_pos : 0 < P s * zetaSeries s := by
+    exact mul_pos (hP_pos hs) (hzeta_pos hs)
+  have hbracket_nonneg :
+      0 ≤
+        Real.log (p : ℝ) * Real.rpow (p : ℝ) (1 - s) -
+          (1 - Real.rpow (p : ℝ) (1 - s)) * primeTailSeries p v := by
+    have hmul :
+        0 ≤
+          (Real.log (p : ℝ) * Real.rpow (p : ℝ) (1 - s) -
+              (1 - Real.rpow (p : ℝ) (1 - s)) * primeTailSeries p v) *
+            (P s * zetaSeries s) := by
+      simpa [mul_comm, mul_left_comm, mul_assoc] using hprod_nonneg
+    exact nonneg_of_mul_nonneg_left hmul hPzeta_pos
+  have hfactor_pos : 0 < 1 - Real.rpow (p : ℝ) (1 - s) := hA_pos hs
+  have hmul_le :
+      (1 - Real.rpow (p : ℝ) (1 - s)) * primeTailSeries p v ≤
+        Real.log (p : ℝ) * Real.rpow (p : ℝ) (1 - s) := by
+    linarith
+  have hbound_aux :
+      primeTailSeries p v ≤
+        (Real.log (p : ℝ) * Real.rpow (p : ℝ) (1 - s)) /
+          (1 - Real.rpow (p : ℝ) (1 - s)) := by
+    exact (le_div_iff₀ hfactor_pos).2 (by simpa [mul_comm] using hmul_le)
+  calc
+    primeTailSeries p v ≤
+        (Real.log (p : ℝ) * Real.rpow (p : ℝ) (1 - s)) /
+          (1 - Real.rpow (p : ℝ) (1 - s)) := hbound_aux
+    _ = Real.log (p : ℝ) / (Real.rpow (p : ℝ) v - 1) := by
+          have hp0 : 0 < (p : ℝ) := by exact_mod_cast hp.pos
+          have hpt_pos : 0 < Real.rpow (p : ℝ) v := Real.rpow_pos_of_pos hp0 v
+          have hpt_one : 1 < Real.rpow (p : ℝ) v := by
+            exact Real.one_lt_rpow (by exact_mod_cast hp.one_lt) hv
+          have hs_sub : 1 - s = -v := by
+            dsimp [s]
+            ring
+          have hneg : Real.rpow (p : ℝ) (-v) = (Real.rpow (p : ℝ) v)⁻¹ := by
+            simpa using (Real.rpow_neg hp0.le v)
+          rw [hs_sub, hneg]
+          field_simp [hpt_pos.ne', hpt_one.ne']
+
 /-- The auxiliary bound `A_p(v) ≤ log p / (p^v - 1)` used in the main proof. -/
 lemma roughMangoldtSeries_le_roughLogBound {p : ℕ} (hp : p.Prime) (hodd : p ≠ 2)
     {v : ℝ} (hv : 0 < v) :
@@ -4763,11 +9755,44 @@ lemma integral_rpow_neg_Ioi {X : ℝ} (hX : 1 < X) :
 lemma summable_log_div_rpow_on_ge_two {s : ℝ} (hs : 1 < s) :
     Summable (fun q : { q : ℕ // 2 ≤ q } =>
       Real.log (q.1 : ℝ) / Real.rpow (q.1 : ℝ) s) := by
-        sorry
+  let e : { q : ℕ // 2 ≤ q } → ℕ := fun q => q.1 - 1
+  have he : Function.Injective e := by
+    intro a b hab
+    apply Subtype.ext
+    dsimp [e] at hab
+    omega
+  refine ((log_nat_succ_div_rpow_summable hs).comp_injective he).congr ?_
+  intro q
+  dsimp [e]
+  have hq1 : 1 ≤ q.1 := by omega
+  have hq : q.1 - 1 + 1 = q.1 := Nat.sub_add_cancel hq1
+  rw [show (((q.1 - 1 : ℕ) : ℝ) + 1) = (q.1 : ℝ) by exact_mod_cast hq]
+
 lemma summable_roughMangoldtTerm {p : ℕ} {t : ℝ} (ht : 0 < t) :
     Summable (fun q : { q : ℕ // 2 ≤ q ∧ IsPRough p q } =>
       ArithmeticFunction.vonMangoldt q.1 / Real.rpow (q.1 : ℝ) (1 + t)) := by
-        sorry
+  have hs : 1 < 1 + t := by linarith
+  let e : { q : ℕ // 2 ≤ q ∧ IsPRough p q } → { q : ℕ // 2 ≤ q } := fun q => ⟨q.1, q.2.1⟩
+  have he : Function.Injective e := by
+    intro a b hab
+    apply Subtype.ext
+    simpa [e] using congrArg (fun z : { q : ℕ // 2 ≤ q } => z.1) hab
+  have hsumLog :
+      Summable (fun q : { q : ℕ // 2 ≤ q ∧ IsPRough p q } =>
+        Real.log (q.1 : ℝ) / Real.rpow (q.1 : ℝ) (1 + t)) := by
+    simpa [e, Function.comp_def] using (summable_log_div_rpow_on_ge_two hs).comp_injective he
+  refine Summable.of_nonneg_of_le
+      (fun q => by
+        exact div_nonneg ArithmeticFunction.vonMangoldt_nonneg
+          (Real.rpow_nonneg (show 0 ≤ (q.1 : ℝ) by positivity) _))
+      (fun q => ?_)
+      hsumLog
+  have hq0 : 0 < (q.1 : ℝ) := by
+    have hq0n : 0 < q.1 := by omega
+    exact_mod_cast hq0n
+  have hden : 0 < Real.rpow (q.1 : ℝ) (1 + t) := Real.rpow_pos_of_pos hq0 _
+  exact div_le_div_of_nonneg_right ArithmeticFunction.vonMangoldt_le_log hden.le
+
 /-- Main result `(*_p)` from `B/f1.tex`. -/
 theorem roughKernelSeries_le_main_bound {p n : ℕ} (hp : p.Prime) (hodd : p ≠ 2)
     (hn : 1 ≤ n) (hnrough : IsPRough p n) :
@@ -5131,11 +10156,107 @@ lemma roughFlow_mul_le_baseFlow {p n : ℕ} (hp : p.Prime) (hn : 1 ≤ n)
 lemma summable_roughFlow_col {p n : ℕ} (hp : p.Prime) (hn : 1 ≤ n)
     (hnrough : IsPRough p n) :
     Summable (fun K : ℕ => roughFlow p K n) := by
-      sorry
+  classical
+  have hn_pos : 0 < n := lt_of_lt_of_le Nat.zero_lt_one hn
+  let α := {q : ℕ // 2 ≤ q ∧ IsPRough p q}
+  let e : α → ℕ := fun q => n * q.1
+  have he : Function.Injective e := by
+    intro a b h
+    apply Subtype.ext
+    exact Nat.eq_of_mul_eq_mul_left hn_pos h
+  have hzero : ∀ K : ℕ, K ∉ Set.range e → roughFlow p K n = 0 := by
+    intro K hK
+    classical
+    unfold roughFlow
+    by_cases hdiv : n ∣ K
+    · let q : ℕ := K / n
+      by_cases hq : IsPRough p n ∧ 2 ≤ q ∧ IsPRough p q
+      · have hmem : K ∈ Set.range e := by
+          refine ⟨⟨q, hq.2.1, hq.2.2⟩, ?_⟩
+          rcases hdiv with ⟨r, rfl⟩
+          simp [e, q, Nat.mul_div_right _ hn_pos]
+        exact (hK hmem).elim
+      · simp [hn_pos, hdiv, q, hq]
+    · simp [hn_pos, hdiv]
+  have hsub :
+      Summable (fun q : α => roughFlow p (n * q.1) n) := by
+    have hbase_summable :
+        Summable (fun q : α => baseFlow (n * q.1) n) := by
+      simpa [e, Function.comp_def] using (summable_baseFlow_col n).comp_injective he
+    exact Summable.of_nonneg_of_le
+      (fun q => roughFlow_nonneg hp)
+      (fun q => roughFlow_mul_le_baseFlow hp hn hnrough q)
+      hbase_summable
+  exact
+    (Function.Injective.summable_iff (f := fun K => roughFlow p K n) (g := e) he hzero).1 hsub
+
 lemma inflow_roughFlow_eq_one_div_mul_roughKernelSeries {p n : ℕ} (hp : p.Prime)
     (hn : 1 ≤ n) (hnrough : IsPRough p n) :
     inflow (roughFlow p) n = (1 / (n : ℝ)) * roughKernelSeries p n := by
-      sorry
+  classical
+  have hn_pos : 0 < n := lt_of_lt_of_le Nat.zero_lt_one hn
+  have hn0 : (n : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr (Nat.ne_of_gt hn_pos)
+  let α := {q : ℕ // 2 ≤ q ∧ IsPRough p q}
+  let e : α → ℕ := fun q => n * q.1
+  have he : Function.Injective e := by
+    intro a b h
+    apply Subtype.ext
+    exact Nat.eq_of_mul_eq_mul_left hn_pos h
+  have hzero : ∀ K : ℕ, K ∉ Set.range e → roughFlow p K n = 0 := by
+    intro K hK
+    classical
+    unfold roughFlow
+    by_cases hdiv : n ∣ K
+    · let q : ℕ := K / n
+      by_cases hq : IsPRough p n ∧ 2 ≤ q ∧ IsPRough p q
+      · have hmem : K ∈ Set.range e := by
+          refine ⟨⟨q, hq.2.1, hq.2.2⟩, ?_⟩
+          rcases hdiv with ⟨r, rfl⟩
+          simp [e, q, Nat.mul_div_right _ hn_pos]
+        exact (hK hmem).elim
+      · simp [hn_pos, hdiv, q, hq]
+    · simp [hn_pos, hdiv]
+  have hsub_summable :
+      Summable (fun q : α => roughFlow p (n * q.1) n) := by
+    simpa [e, Function.comp_def] using (summable_roughFlow_col hp hn hnrough).comp_injective he
+  let g : α → ℝ := fun q =>
+    ArithmeticFunction.vonMangoldt q.1 /
+      ((q.1 : ℝ) * Real.log ((n * q.1 : ℕ) : ℝ) *
+        Real.log ((p * n * q.1 : ℕ) : ℝ))
+  have hg_summable : Summable g := by
+    refine (hsub_summable.mul_left (n : ℝ)).congr ?_
+    intro q
+    have hq0 : (q.1 : ℝ) ≠ 0 := by
+      exact_mod_cast (show q.1 ≠ 0 by omega)
+    rw [roughFlow_mul_right_eq hn hnrough q.2.1 q.2.2]
+    dsimp [g]
+    rw [Nat.cast_mul]
+    field_simp [hn0, hq0]
+  have hsub_has :
+      HasSum (fun q : α => roughFlow p (n * q.1) n)
+        ((1 / (n : ℝ)) * roughKernelSeries p n) := by
+    have hg_has : HasSum g (roughKernelSeries p n) := by
+      simpa [roughKernelSeries, α, g] using hg_summable.hasSum
+    have hconst :
+        HasSum (fun q : α => (1 / (n : ℝ)) * g q)
+          ((1 / (n : ℝ)) * roughKernelSeries p n) := by
+      simpa [mul_assoc] using hg_has.mul_left (1 / (n : ℝ))
+    have hterm :
+        ∀ q : α,
+          roughFlow p (n * q.1) n = (1 / (n : ℝ)) * g q := by
+      intro q
+      have hq0 : (q.1 : ℝ) ≠ 0 := by
+        exact_mod_cast (show q.1 ≠ 0 by omega)
+      rw [roughFlow_mul_right_eq hn hnrough q.2.1 q.2.2]
+      dsimp [g]
+      rw [Nat.cast_mul]
+      field_simp [hn0, hq0]
+    exact hconst.congr_fun hterm
+  have hfull_has :
+      HasSum (fun K : ℕ => roughFlow p K n) ((1 / (n : ℝ)) * roughKernelSeries p n) :=
+    (Function.Injective.hasSum_iff (f := fun K => roughFlow p K n) (g := e) he hzero).mp hsub_has
+  simpa [inflow] using hfull_has.tsum_eq
+
 theorem outflow_roughFlow_eq_roughWeight {p n : ℕ} (hp : p.Prime) (hn : 1 < n)
     (hnrough : IsPRough p n) :
     outflow (roughFlow p) n = roughWeight p n := by
@@ -5230,13 +10351,163 @@ lemma inflow_roughFlow_eq_sum_finset_add_compl (p : ℕ) (s : Finset ℕ) {n : �
 lemma boundaryOutflow_eq_sum_compl_roughFlow (p : ℕ) (s : Finset ℕ) (hp : p.Prime) :
     boundaryOutflow (roughFlow p) (↑s : Set ℕ) =
       ∑ r ∈ s, ∑' n : { n // n ∉ s }, roughFlow p r n := by
-        sorry
+  classical
+  let e : boundaryOutPairs (↑s : Set ℕ) ≃
+      Σ r : {r // r ∈ s}, {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1} :=
+    { toFun := fun mn =>
+        ⟨⟨mn.1.1, mn.2.1⟩, ⟨mn.1.2, mn.2.2.1, mn.2.2.2⟩⟩
+      invFun := fun rn =>
+        ⟨(rn.1.1, rn.2.1), rn.1.2, rn.2.2.1, rn.2.2.2⟩
+      left_inv := by
+        intro mn
+        cases mn
+        rfl
+      right_inv := by
+        intro rn
+        cases rn
+        rfl }
+  have hinner :
+      ∀ r : {r // r ∈ s},
+        Summable (fun n : {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1} => roughFlow p r.1 n.1) := by
+    intro r
+    simpa [Function.comp_def] using
+      (summable_roughFlow_row p r.1).comp_injective Subtype.val_injective
+  have houter :
+      Summable (fun r : {r // r ∈ s} =>
+        ∑' n : {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1}, roughFlow p r.1 n.1) := by
+    exact Summable.of_finite
+  have hsigma :
+      Summable (fun z : Σ r : {r // r ∈ s}, {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1} =>
+        roughFlow p z.1.1 z.2.1) := by
+    refine (summable_sigma_of_nonneg (fun z => roughFlow_nonneg hp)).2 ?_
+    exact ⟨hinner, houter⟩
+  have hprecise :
+      ∀ r : {r // r ∈ s},
+        (∑' n : {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1}, roughFlow p r.1 n.1) =
+          ∑' n : {n // n ∉ s}, roughFlow p r.1 n.1 := by
+    intro r
+    have hsupport :
+        Function.support (fun n : {n // n ∉ s} => roughFlow p r.1 n.1) ⊆
+          {n | n.1 ∣ r.1 ∧ n.1 < r.1} := by
+      intro n hn
+      by_contra hbad
+      exact hn <| by
+        apply roughFlow_eq_zero_of_not_dvd_lt
+        simpa [Set.mem_setOf_eq] using hbad
+    let e' :
+        {x : {n // n ∉ s} // x.1 ∣ r.1 ∧ x.1 < r.1} ≃
+          {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1} :=
+      { toFun := fun n => ⟨n.1.1, n.1.2, n.2.1, n.2.2⟩
+        invFun := fun n => ⟨⟨n.1, n.2.1⟩, n.2.2.1, n.2.2.2⟩
+        left_inv := by intro n; cases n; rfl
+        right_inv := by intro n; cases n; rfl }
+    have hsub :
+        (∑' x : {x : {n // n ∉ s} // x.1 ∣ r.1 ∧ x.1 < r.1}, roughFlow p r.1 x.1.1) =
+          ∑' n : {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1}, roughFlow p r.1 n.1 := by
+      simpa [e'] using
+        (Equiv.tsum_eq e' (fun n : {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1} => roughFlow p r.1 n.1))
+    exact hsub.symm.trans (tsum_subtype_eq_of_support_subset hsupport)
+  calc
+    boundaryOutflow (roughFlow p) (↑s : Set ℕ)
+      = ∑' z : Σ r : {r // r ∈ s}, {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1},
+          roughFlow p z.1.1 z.2.1 := by
+            simpa [boundaryOutflow, e] using
+              (Equiv.tsum_eq e (fun z : Σ r : {r // r ∈ s},
+                  {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1} =>
+                roughFlow p z.1.1 z.2.1))
+    _ = ∑' r : {r // r ∈ s},
+          ∑' n : {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1}, roughFlow p r.1 n.1 := by
+            exact hsigma.tsum_sigma' hinner
+    _ = ∑' r : {r // r ∈ s}, ∑' n : {n // n ∉ s}, roughFlow p r.1 n.1 := by
+          congr
+          ext r
+          exact hprecise r
+    _ = ∑ r ∈ s, ∑' n : {n // n ∉ s}, roughFlow p r n := by
+          simpa using
+            (Finset.tsum_subtype' s (fun r => ∑' n : {n // n ∉ s}, roughFlow p r n))
+
 lemma boundaryInflow_eq_sum_compl_roughFlow (p : ℕ) (s : Finset ℕ) (hp : p.Prime)
     (hs_ge_one : ∀ {n : ℕ}, n ∈ s → 1 ≤ n)
     (hs_rough : ∀ {n : ℕ}, n ∈ s → IsPRough p n) :
     boundaryInflow (roughFlow p) (↑s : Set ℕ) =
       ∑ n ∈ s, ∑' m : { m // m ∉ s }, roughFlow p m n := by
-        sorry
+  classical
+  let e : boundaryInPairs (↑s : Set ℕ) ≃
+      Σ n : {n // n ∈ s}, {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m} :=
+    { toFun := fun mn =>
+        ⟨⟨mn.1.2, mn.2.2.1⟩, ⟨mn.1.1, mn.2.1, mn.2.2.2.1, mn.2.2.2.2⟩⟩
+      invFun := fun nm =>
+        ⟨(nm.2.1, nm.1.1), nm.2.2.1, nm.1.2, nm.2.2.2.1, nm.2.2.2.2⟩
+      left_inv := by
+        intro mn
+        cases mn
+        rfl
+      right_inv := by
+        intro nm
+        cases nm
+        rfl }
+  have hinner :
+      ∀ n : {n // n ∈ s},
+        Summable (fun m : {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m} => roughFlow p m.1 n.1) := by
+    intro n
+    simpa [Function.comp_def] using
+      (summable_roughFlow_col hp (hs_ge_one n.2) (hs_rough n.2)).comp_injective
+        Subtype.val_injective
+  have houter :
+      Summable (fun n : {n // n ∈ s} =>
+        ∑' m : {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m}, roughFlow p m.1 n.1) := by
+    exact Summable.of_finite
+  have hsigma :
+      Summable (fun z : Σ n : {n // n ∈ s}, {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m} =>
+        roughFlow p z.2.1 z.1.1) := by
+    refine (summable_sigma_of_nonneg (fun z => roughFlow_nonneg hp)).2 ?_
+    exact ⟨hinner, houter⟩
+  have hprecise :
+      ∀ n : {n // n ∈ s},
+        (∑' m : {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m}, roughFlow p m.1 n.1) =
+          ∑' m : {m // m ∉ s}, roughFlow p m.1 n.1 := by
+    intro n
+    have hsupport :
+        Function.support (fun m : {m // m ∉ s} => roughFlow p m.1 n.1) ⊆
+          {m | n.1 ∣ m.1 ∧ n.1 < m.1} := by
+      intro m hm
+      by_contra hbad
+      exact hm <| by
+        apply roughFlow_eq_zero_of_not_dvd_lt
+        simpa [Set.mem_setOf_eq] using hbad
+    let e' :
+        {x : {m // m ∉ s} // n.1 ∣ x.1 ∧ n.1 < x.1} ≃
+          {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m} :=
+      { toFun := fun m => ⟨m.1.1, m.1.2, m.2.1, m.2.2⟩
+        invFun := fun m => ⟨⟨m.1, m.2.1⟩, m.2.2.1, m.2.2.2⟩
+        left_inv := by intro m; cases m; rfl
+        right_inv := by intro m; cases m; rfl }
+    have hsub :
+        (∑' x : {x : {m // m ∉ s} // n.1 ∣ x.1 ∧ n.1 < x.1}, roughFlow p x.1.1 n.1) =
+          ∑' m : {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m}, roughFlow p m.1 n.1 := by
+      simpa [e'] using
+        (Equiv.tsum_eq e' (fun m : {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m} =>
+          roughFlow p m.1 n.1))
+    exact hsub.symm.trans (tsum_subtype_eq_of_support_subset hsupport)
+  calc
+    boundaryInflow (roughFlow p) (↑s : Set ℕ)
+      = ∑' z : Σ n : {n // n ∈ s}, {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m},
+          roughFlow p z.2.1 z.1.1 := by
+            simpa [boundaryInflow, e] using
+              (Equiv.tsum_eq e (fun z : Σ n : {n // n ∈ s},
+                  {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m} =>
+                roughFlow p z.2.1 z.1.1))
+    _ = ∑' n : {n // n ∈ s},
+          ∑' m : {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m}, roughFlow p m.1 n.1 := by
+            exact hsigma.tsum_sigma' hinner
+    _ = ∑' n : {n // n ∈ s}, ∑' m : {m // m ∉ s}, roughFlow p m.1 n.1 := by
+          congr
+          ext n
+          exact hprecise n
+    _ = ∑ n ∈ s, ∑' m : {m // m ∉ s}, roughFlow p m n := by
+          simpa using
+            (Finset.tsum_subtype' s (fun n => ∑' m : {m // m ∉ s}, roughFlow p m n))
+
 lemma tsum_outflow_sub_inflow_eq_boundaryOutflow_sub_boundaryInflow_roughFlow {p : ℕ}
     {Ω : Set ℕ} (hp : p.Prime) (hΩfin : Ω.Finite)
     (hΩ_ge_one : ∀ {r : ℕ}, r ∈ Ω → 1 ≤ r)
@@ -5312,7 +10583,110 @@ lemma boundaryOutflow_roughFlow_le_one_div_log_of_downwardClosed {p : ℕ} (hp :
     (hΩrough : ∀ {d : ℕ}, d ∈ Ω → IsPRough p d)
     (hΩdown : ∀ {d e : ℕ}, d ∈ Ω → 2 ≤ e → e ∣ d → e ∈ Ω) :
     boundaryOutflow (roughFlow p) Ω ≤ 1 / Real.log (p : ℝ) := by
-      sorry
+  classical
+  let α := {q : ℕ // 2 ≤ q ∧ IsPRough p q}
+  let term : α → ℝ := fun q =>
+    ArithmeticFunction.vonMangoldt q.1 /
+      ((q.1 : ℝ) * Real.log (q.1 : ℝ) * Real.log ((p * q.1 : ℕ) : ℝ))
+  have hone_not_mem : 1 ∉ Ω := by
+    intro h1
+    have h := hΩ_ge_two h1
+    omega
+  have hboundary_target_eq_one : ∀ mn : boundaryOutPairs Ω, mn.1.2 = 1 := by
+    intro mn
+    rcases mn with ⟨⟨m, n⟩, hmn⟩
+    rcases hmn with ⟨hmΩ, hnΩ, hdiv, _⟩
+    have hm2 : 2 ≤ m := hΩ_ge_two hmΩ
+    have hmpos : 0 < m := by omega
+    have hnpos : 0 < n := Nat.pos_of_dvd_of_pos hdiv hmpos
+    have hnle : n ≤ 1 := by
+      by_contra hgt
+      have hn2 : 2 ≤ n := by omega
+      exact hnΩ (hΩdown hmΩ hn2 hdiv)
+    have hpred : n.pred = 0 := by
+      rw [Nat.pred_eq_sub_one, Nat.sub_eq_zero_of_le hnle]
+    have hsucc : n.pred.succ = n := Nat.succ_pred_eq_of_pos hnpos
+    rw [hpred] at hsucc
+    simpa using hsucc.symm
+  let eBoundaryFun : boundaryOutPairs Ω → Ω := fun mn => ⟨mn.1.1, mn.2.1⟩
+  have heBoundary_bij : Function.Bijective eBoundaryFun := by
+    constructor
+    · intro a b h
+      apply Subtype.ext
+      apply Prod.ext
+      · simpa [eBoundaryFun] using congrArg Subtype.val h
+      · simp [hboundary_target_eq_one a, hboundary_target_eq_one b]
+    · intro m
+      refine ⟨⟨(m.1, 1), ?_⟩, ?_⟩
+      · refine ⟨m.2, hone_not_mem, one_dvd _, ?_⟩
+        have hm2 : 2 ≤ m.1 := hΩ_ge_two m.2
+        exact lt_of_lt_of_le Nat.one_lt_two hm2
+      · rfl
+  let eBoundary : boundaryOutPairs Ω ≃ Ω := Equiv.ofBijective eBoundaryFun heBoundary_bij
+  let SΩ : Set α := { q | q.1 ∈ Ω }
+  let eRoughΩFun : Ω → SΩ := fun m => ⟨⟨m.1, hΩ_ge_two m.2, hΩrough m.2⟩, m.2⟩
+  have heRoughΩ_bij : Function.Bijective eRoughΩFun := by
+    constructor
+    · intro a b h
+      apply Subtype.ext
+      simpa [eRoughΩFun] using congrArg (fun q : SΩ => q.1.1) h
+    · intro q
+      refine ⟨⟨q.1.1, q.2⟩, ?_⟩
+      rfl
+  let eRoughΩ : Ω ≃ SΩ := Equiv.ofBijective eRoughΩFun heRoughΩ_bij
+  have hterm_summable : Summable term := by
+    let eα : α → ℕ := fun q => q.1
+    have heα : Function.Injective eα := by
+      intro a b hab
+      apply Subtype.ext
+      simpa [eα] using hab
+    have hs : Summable (fun q : α => roughFlow p q.1 1) := by
+      simpa [eα, Function.comp_def] using
+        (summable_roughFlow_col hp (n := 1) le_rfl (isPRough_one p)).comp_injective heα
+    refine hs.congr ?_
+    intro q
+    simp [term, roughFlow, isPRough_one, q.2.1, q.2.2]
+  have hterm_nonneg : ∀ q : α, 0 ≤ term q := by
+    intro q
+    have hq0 : 0 < (q.1 : ℝ) := by
+      exact_mod_cast (lt_of_lt_of_le Nat.zero_lt_two q.2.1)
+    have hlogq : 0 < Real.log (q.1 : ℝ) := Real.log_pos (by exact_mod_cast q.2.1)
+    have hlogpq : 0 < Real.log ((p * q.1 : ℕ) : ℝ) := by
+      exact Real.log_pos (by
+        exact_mod_cast (show 1 < p * q.1 by
+          exact lt_of_lt_of_le hp.one_lt (Nat.le_mul_of_pos_right p
+            (lt_of_lt_of_le Nat.zero_lt_two q.2.1))))
+    refine div_nonneg ArithmeticFunction.vonMangoldt_nonneg ?_
+    exact mul_nonneg (mul_nonneg hq0.le hlogq.le) hlogpq.le
+  have hpointwise : ∀ m : Ω, roughFlow p m.1 1 = term ⟨m.1, hΩ_ge_two m.2, hΩrough m.2⟩ := by
+    intro m
+    simp [term, roughFlow, isPRough_one, hΩ_ge_two m.2, hΩrough m.2]
+  have hboundary_eq :
+      boundaryOutflow (roughFlow p) Ω = ∑' q : SΩ, term q.1 := by
+    unfold boundaryOutflow
+    calc
+      ∑' mn : boundaryOutPairs Ω, roughFlow p mn.1.1 mn.1.2
+          = ∑' mn : boundaryOutPairs Ω, roughFlow p mn.1.1 1 := by
+              apply tsum_congr
+              intro mn
+              simp [hboundary_target_eq_one mn]
+      _ = ∑' m : Ω, roughFlow p m.1 1 := by
+            simpa [eBoundary] using (Equiv.tsum_eq eBoundary (fun m : Ω => roughFlow p m.1 1))
+      _ = ∑' m : Ω, term ⟨m.1, hΩ_ge_two m.2, hΩrough m.2⟩ := by
+            apply tsum_congr
+            intro m
+            exact hpointwise m
+      _ = ∑' q : SΩ, term q.1 := by
+            simpa [eRoughΩ] using (Equiv.tsum_eq eRoughΩ (fun q : SΩ => term q.1))
+  have hrough_eq : roughKernelSeries p 1 = ∑' q : α, term q := by
+    simp [roughKernelSeries, α, term]
+  calc
+    boundaryOutflow (roughFlow p) Ω = ∑' q : SΩ, term q.1 := hboundary_eq
+    _ ≤ ∑' q : α, term q := by
+          exact Summable.tsum_subtype_le term SΩ hterm_nonneg hterm_summable
+    _ = roughKernelSeries p 1 := hrough_eq.symm
+    _ ≤ 1 / Real.log (p : ℝ) := hbound
+
 lemma boundaryOutflow_ge_boundaryInflow_add_tsum_divergence_of_subset_roughFlow
     {p : ℕ} {A Ω : Set ℕ} (hp : p.Prime)
     (hbound : ∀ {n : ℕ}, 1 ≤ n → IsPRough p n →
@@ -5415,7 +10789,258 @@ lemma roughWeightSum_le_one_div_log_of_finite {p : ℕ} (hp : p.Prime)
     {A : Set ℕ} (hA : PrimitiveSet A)
     (hArough : ∀ {a : ℕ}, a ∈ A → IsPRough p a) (hfin : A.Finite) :
     roughWeightSum p A ≤ 1 / Real.log (p : ℝ) := by
-      sorry
+  classical
+  let Ω := primitiveDivisorClosure A
+  have hΩspec := primitiveDivisorClosure_spec_of_finite hA hfin
+  rcases hΩspec with ⟨hΩfin, hAΩ, hΩdown⟩
+  have hΩ_ge_two : ∀ {d : ℕ}, d ∈ primitiveDivisorClosure A → 2 ≤ d := by
+    intro d hd
+    have hd' : 2 ≤ d ∧ ∃ a ∈ A, d ∣ a := by
+      simpa [primitiveDivisorClosure] using hd
+    exact hd'.1
+  have hΩrough : ∀ {d : ℕ}, d ∈ primitiveDivisorClosure A → IsPRough p d := by
+    intro d hd
+    rcases (show 2 ≤ d ∧ ∃ a ∈ A, d ∣ a by simpa [primitiveDivisorClosure] using hd) with
+      ⟨_, a, ha, hda⟩
+    exact isPRough_of_dvd (hArough ha) hda
+  have hOut :
+      boundaryOutflow (roughFlow p) (primitiveDivisorClosure A) ≤ 1 / Real.log (p : ℝ) := by
+    exact boundaryOutflow_roughFlow_le_one_div_log_of_downwardClosed hp
+      (by simpa [Nat.mul_one] using hbound (n := 1) le_rfl (isPRough_one p))
+      hΩ_ge_two hΩrough hΩdown
+  have hBoundary :
+      boundaryInflow (roughFlow p) Ω +
+        (∑' a : A, (outflow (roughFlow p) (a : ℕ) - inflow (roughFlow p) (a : ℕ))) ≤
+          boundaryOutflow (roughFlow p) Ω := by
+    exact
+      boundaryOutflow_ge_boundaryInflow_add_tsum_divergence_of_subset_roughFlow hp hbound
+        hΩfin hΩ_ge_two hΩrough hAΩ
+  have hIn :
+      ∀ {a m : ℕ}, a ∈ A → roughFlow p m a ≠ 0 → m ∉ Ω := by
+    intro a m ha hflow
+    exact flow_into_primitive_member_from_outside_divisorClosure_roughFlow hA ha hflow
+  have hcol_summable :
+      ∀ {N : ℕ}, N ∈ Ω → Summable (fun K : ℕ => roughFlow p K N) := by
+    intro N hN
+    exact summable_roughFlow_col hp (le_trans (by decide : 1 ≤ 2) (hΩ_ge_two hN)) (hΩrough hN)
+  have hOut_eq :
+      ∀ a : A, outflow (roughFlow p) (a : ℕ) = roughWeight p (a : ℕ) := by
+    intro a
+    exact outflow_roughFlow_eq_roughWeight hp
+      (lt_of_lt_of_le Nat.one_lt_two (hA.1 a.2)) (hArough a.2)
+  have hWeight :
+      roughWeightSum p A = ∑' a : A, outflow (roughFlow p) (a : ℕ) := by
+    unfold roughWeightSum
+    apply tsum_congr
+    intro a
+    simpa using (hOut_eq a).symm
+  have hIn_nonneg : ∀ a : A, 0 ≤ inflow (roughFlow p) (a : ℕ) := by
+    intro a
+    unfold inflow
+    exact tsum_nonneg fun m => roughFlow_nonneg hp
+  have hIn_le :
+      (∑' a : A, inflow (roughFlow p) (a : ℕ)) ≤ boundaryInflow (roughFlow p) Ω := by
+    let G : boundaryInPairs Ω → ℝ := fun mn => roughFlow p mn.1.1 mn.1.2
+    let T : A → Set (boundaryInPairs Ω) := fun a => { mn | mn.1.2 = (a : ℕ) }
+    have hfiber :
+        ∀ a : A, inflow (roughFlow p) (a : ℕ) = ∑' mn : T a, G mn := by
+      intro a
+      let S : Set {m : ℕ // m ∉ Ω} := { m | (a : ℕ) ∣ m.1 ∧ (a : ℕ) < m.1 }
+      have hOutside :
+          inflow (roughFlow p) (a : ℕ) =
+            ∑' m : {m : ℕ // m ∉ Ω}, roughFlow p m.1 (a : ℕ) := by
+        have hsupport :
+            Function.support (fun m : ℕ => roughFlow p m (a : ℕ)) ⊆ { m | m ∉ Ω } := by
+          intro m hm
+          exact hIn a.2 hm
+        symm
+        simpa [inflow, Ω] using (tsum_subtype_eq_of_support_subset hsupport)
+      have hSupportS :
+          Function.support (fun m : {m : ℕ // m ∉ Ω} => roughFlow p m.1 (a : ℕ)) ⊆ S := by
+        intro m hm
+        change (a : ℕ) ∣ m.1 ∧ (a : ℕ) < m.1
+        by_contra hnot
+        exact hm (by
+          apply roughFlow_eq_zero_of_not_dvd_lt
+          exact hnot)
+      have hS :
+          (∑' m : {m : ℕ // m ∉ Ω}, roughFlow p m.1 (a : ℕ)) =
+            ∑' m : S, roughFlow p m.1.1 (a : ℕ) := by
+        symm
+        simpa [S] using (tsum_subtype_eq_of_support_subset hSupportS)
+      let f : S → T a := fun m =>
+        ⟨⟨(m.1.1, a.1), by
+          exact ⟨m.1.2, hAΩ a.2, m.2.1, m.2.2⟩⟩, rfl⟩
+      have hf_inj : Function.Injective f := by
+        intro m₁ m₂ h
+        apply Subtype.ext
+        apply Subtype.ext
+        simpa using congrArg (fun z : T a => z.1.1.1) h
+      have hf_surj : Function.Surjective f := by
+        intro mn
+        rcases mn with ⟨⟨⟨m, n⟩, hmn⟩, hna⟩
+        rcases hmn with ⟨hm, _, hdiv, hlt⟩
+        cases hna
+        refine ⟨⟨⟨m, hm⟩, ?_⟩, ?_⟩
+        · simpa [S] using And.intro hdiv hlt
+        · apply Subtype.ext
+          apply Subtype.ext
+          rfl
+      let e : S ≃ T a := Equiv.ofBijective f ⟨hf_inj, hf_surj⟩
+      have hT :
+          (∑' m : S, roughFlow p m.1.1 (a : ℕ)) =
+            ∑' mn : T a, G mn := by
+        simpa [e, G] using
+          (Equiv.tsum_eq e (fun mn : T a => G mn))
+      exact hOutside.trans (hS.trans hT)
+    have hnonnegT : ∀ a : A, 0 ≤ ∑' mn : T a, G mn := by
+      intro a
+      rw [← hfiber a]
+      exact hIn_nonneg a
+    have hpairwise : Set.PairwiseDisjoint (Set.univ : Set A) T := by
+      intro a _ b _ hab
+      refine Set.disjoint_left.2 ?_
+      intro mn hma hmb
+      exact hab <| Subtype.ext (hma.symm.trans hmb)
+    have hunion :
+        (∑' mn : ⋃ a : A, T a, ENNReal.ofReal (G mn)) =
+          ∑' a : A, ∑' mn : T a, ENNReal.ofReal (G mn) := by
+      simpa using (ENNReal.tsum_biUnion hpairwise (f := fun mn => ENNReal.ofReal (G mn)))
+    have hsub :
+        (∑' mn : ⋃ a : A, T a, ENNReal.ofReal (G mn)) ≤
+          ∑' mn : boundaryInPairs Ω, ENNReal.ofReal (G mn) := by
+      simpa using
+        (ENNReal.tsum_comp_le_tsum_of_injective
+          (f := (Subtype.val : (⋃ a : A, T a) → boundaryInPairs Ω))
+          Subtype.val_injective
+          (fun mn : boundaryInPairs Ω => ENNReal.ofReal (G mn)))
+    have hfiberENN :
+        ∀ a : A, ENNReal.ofReal (inflow (roughFlow p) (a : ℕ)) =
+          ∑' mn : T a, ENNReal.ofReal (G mn) := by
+      intro a
+      rw [hfiber a]
+      refine ENNReal.ofReal_tsum_of_nonneg ?_ ?_
+      · intro mn
+        exact roughFlow_nonneg hp
+      · have hscol := hcol_summable (hAΩ a.2)
+        have hsource_inj :
+            Function.Injective (fun mn : T a => mn.1.1.1) := by
+          intro x y hxy
+          apply Subtype.ext
+          apply Subtype.ext
+          apply Prod.ext
+          · exact hxy
+          · exact x.2.trans y.2.symm
+        have hscol' : Summable (fun mn : T a => roughFlow p mn.1.1.1 (a : ℕ)) := by
+          simpa [Function.comp_def] using hscol.comp_injective hsource_inj
+        have hEq :
+            (fun mn : T a => roughFlow p mn.1.1.1 (a : ℕ)) =
+              fun mn : T a => roughFlow p mn.1.1.1 mn.1.1.2 := by
+          funext mn
+          rcases mn with ⟨⟨⟨m, n⟩, hmn⟩, hna⟩
+          cases hna
+          rfl
+        exact hEq ▸ hscol'
+    have hleft :
+        ENNReal.ofReal (∑' a : A, inflow (roughFlow p) (a : ℕ)) ≤
+          ∑' mn : boundaryInPairs Ω, ENNReal.ofReal (G mn) := by
+      calc
+        ENNReal.ofReal (∑' a : A, inflow (roughFlow p) (a : ℕ))
+            = ∑' a : A, ENNReal.ofReal (inflow (roughFlow p) (a : ℕ)) := by
+                refine ENNReal.ofReal_tsum_of_nonneg ?_ ?_
+                · intro a
+                  exact hIn_nonneg a
+                · letI := hfin.fintype
+                  apply Summable.of_finite
+        _ = ∑' a : A, ∑' mn : T a, ENNReal.ofReal (G mn) := by
+              apply tsum_congr
+              intro a
+              exact hfiberENN a
+        _ = ∑' mn : ⋃ a : A, T a, ENNReal.ofReal (G mn) := by
+              rw [hunion]
+        _ ≤ ∑' mn : boundaryInPairs Ω, ENNReal.ofReal (G mn) := hsub
+    have hright :
+        ∑' mn : boundaryInPairs Ω, ENNReal.ofReal (G mn) =
+          ENNReal.ofReal (boundaryInflow (roughFlow p) Ω) := by
+      unfold boundaryInflow G
+      refine (ENNReal.ofReal_tsum_of_nonneg ?_ ?_).symm
+      · intro mn
+        exact roughFlow_nonneg hp
+      · let U : Ω → Set (boundaryInPairs Ω) := fun r => { mn | mn.1.2 = (r : ℕ) }
+        have hpart : ∀ mn : boundaryInPairs Ω, ∃! r : Ω, mn ∈ U r := by
+          intro mn
+          refine ⟨⟨mn.1.2, ?_⟩, by simp [U], ?_⟩
+          · rcases mn.2 with ⟨_, hn, _, _⟩
+            exact hn
+          · intro r hr
+            apply Subtype.ext
+            simpa [U] using hr.symm
+        have hU_summable :
+            ∀ r : Ω, Summable (fun mn : U r => roughFlow p mn.1.1.1 mn.1.1.2) := by
+          intro r
+          have hscol := hcol_summable r.2
+          have hsource_inj :
+              Function.Injective (fun mn : U r => mn.1.1.1) := by
+            intro x y hxy
+            apply Subtype.ext
+            apply Subtype.ext
+            apply Prod.ext
+            · exact hxy
+            · exact x.2.trans y.2.symm
+          have hscol' : Summable (fun mn : U r => roughFlow p mn.1.1.1 (r : ℕ)) := by
+            simpa [Function.comp_def] using hscol.comp_injective hsource_inj
+          have hEq :
+              (fun mn : U r => roughFlow p mn.1.1.1 (r : ℕ)) =
+                fun mn : U r => roughFlow p mn.1.1.1 mn.1.1.2 := by
+            funext mn
+            rcases mn with ⟨⟨⟨m, n⟩, hmn⟩, hnr⟩
+            cases hnr
+            rfl
+          exact hEq ▸ hscol'
+        have houter :
+            Summable (fun r : Ω => ∑' mn : U r, roughFlow p mn.1.1.1 mn.1.1.2) := by
+          letI := hΩfin.fintype
+          apply Summable.of_finite
+        exact
+          (summable_partition
+            (f := fun mn : boundaryInPairs Ω => roughFlow p mn.1.1 mn.1.2)
+            (hf := fun mn => roughFlow_nonneg hp)
+            (s := U) hpart).2 ⟨hU_summable, houter⟩
+    have hleft' := hleft.trans_eq hright
+    have hboundary_nonneg : 0 ≤ boundaryInflow (roughFlow p) Ω := by
+      unfold boundaryInflow
+      exact tsum_nonneg fun mn => roughFlow_nonneg hp
+    exact (ENNReal.ofReal_le_ofReal_iff hboundary_nonneg).mp hleft'
+  have hmain :
+      roughWeightSum p A ≤ boundaryInflow (roughFlow p) Ω +
+        (∑' a : A, (outflow (roughFlow p) (a : ℕ) - inflow (roughFlow p) (a : ℕ))) := by
+    letI := hfin.fintype
+    have hIn_le' : ∑ a : A, inflow (roughFlow p) (a : ℕ) ≤ boundaryInflow (roughFlow p) Ω := by
+      simpa [tsum_fintype] using hIn_le
+    rw [hWeight, tsum_fintype, tsum_fintype]
+    calc
+      ∑ a : A, outflow (roughFlow p) (a : ℕ)
+          = ∑ a : A, inflow (roughFlow p) (a : ℕ) +
+              ∑ a : A, (outflow (roughFlow p) (a : ℕ) - inflow (roughFlow p) (a : ℕ)) := by
+                calc
+                  ∑ a : A, outflow (roughFlow p) (a : ℕ)
+                      = ∑ a : A,
+                          (inflow (roughFlow p) (a : ℕ) +
+                            (outflow (roughFlow p) (a : ℕ) - inflow (roughFlow p) (a : ℕ))) := by
+                              apply Finset.sum_congr rfl
+                              intro a ha
+                              ring
+                  _ = _ := by rw [Finset.sum_add_distrib]
+      _ ≤ boundaryInflow (roughFlow p) Ω +
+            ∑ a : A, (outflow (roughFlow p) (a : ℕ) - inflow (roughFlow p) (a : ℕ)) := by
+              gcongr
+  calc
+    roughWeightSum p A
+        ≤ boundaryInflow (roughFlow p) Ω +
+            (∑' a : A, (outflow (roughFlow p) (a : ℕ) - inflow (roughFlow p) (a : ℕ))) := hmain
+    _ ≤ boundaryOutflow (roughFlow p) Ω := hBoundary
+    _ ≤ 1 / Real.log (p : ℝ) := hOut
+
 theorem roughWeightSum_le_one_div_log {p : ℕ} (hp : p.Prime)
     (hbound : ∀ {n : ℕ}, 1 ≤ n → IsPRough p n →
       roughKernelSeries p n ≤ 1 / Real.log ((p * n : ℕ) : ℝ))

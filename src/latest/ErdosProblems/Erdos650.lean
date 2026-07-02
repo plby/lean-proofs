@@ -277,14 +277,22 @@ lemma gcd_claim (s t : ℕ) (hs : 2 ≤ s) (hst : s ≤ t)
     (i k : ℕ) (hi : 1 ≤ i) (hi' : i ≤ s) (hk : 1 ≤ k) (hk' : k ≤ s)
     (j l : ℕ) (hj : 1 ≤ j) (hj' : j ≤ t) (hl : 1 ≤ l) (hl' : l ≤ t) :
     (Int.gcd (↑M + ↑i + ↑j * ↑D) (↑M + ↑k + ↑l * ↑D) : ℤ) ∣ (↑i - ↑k) := by
-  sorry
-/-
   -- Let $g = \gcd(M + i + jD, M + k + lD)$ and $q = i - k$, $r = j - l$.
   set g := Int.gcd (M + i + j * D) (M + k + l * D) with hg
   set q := (i : ℤ) - k with hq
   set r := (j : ℤ) - l with hr
   have hg_div_q_rD : (g : ℤ) ∣ q + r * D := by
-    convert dvd_sub ( Int.gcd_dvd_left _ _ ) ( Int.gcd_dvd_right _ _ ) using 1 ; ring
+    rw [hq, hr]
+    have hsub :
+        ((Int.gcd (M + i + j * D : ℤ) (M + k + l * D : ℤ) : ℤ) ∣
+          (M + i + j * D : ℤ) - (M + k + l * D : ℤ)) :=
+      dvd_sub (Int.gcd_dvd_left _ _) (Int.gcd_dvd_right _ _)
+    rw [← hg] at hsub
+    have heq :
+        (M + i + j * D : ℤ) - (M + k + l * D : ℤ)
+          = (i : ℤ) - k + ((j : ℤ) - l) * D := by
+      ring
+    rwa [heq] at hsub
   have hg_div_q : (g : ℤ) ∣ q := by
     -- If $i = k$, then $g | 0$ trivially. Assume $i \neq k$, so $0 < |q| < s$ and $|r| < t$.
     by_cases hq_zero : q = 0
@@ -360,8 +368,11 @@ lemma gcd_claim (s t : ℕ) (hs : 2 ≤ s) (hst : s ≤ t)
                         ) |> fun x => by simpa [ ← Int.natCast_dvd_natCast ] using x;
             · intro h_div_q_rD
               have h_div_q : p ^ (padicValNat p (Int.natAbs q) + 1) ∣ Int.natAbs q := by
-                convert Int.natAbs_dvd_natAbs.mpr ( Int.dvd_sub ( Int.natCast_dvd.mpr h_div_q_rD )
-                      ( Int.natCast_dvd.mpr h_div_rD ) ) using 1 ; norm_num [ add_comm ]
+                have hq_int : ((p ^ (padicValNat p (Int.natAbs q) + 1) : ℕ) : ℤ) ∣ q := by
+                  convert Int.dvd_sub (Int.natCast_dvd.mpr h_div_q_rD)
+                    (Int.natCast_dvd.mpr h_div_rD) using 1
+                  ring
+                exact Int.natCast_dvd.mp hq_int
               generalize_proofs at *; (
               exact h_div.2 h_div_q)
           generalize_proofs at *; (
@@ -417,24 +428,23 @@ lemma gcd_claim (s t : ℕ) (hs : 2 ≤ s) (hst : s ≤ t)
                         _ ) ⟩ ;)
           rw [h_valuation_eq p hp hp_div_g] at h_div_q_rD
           exact h_div_q_rD
-        generalize_proofs at *; (
-        rw [ ← Nat.factorization_le_iff_dvd ] <;> norm_num [ hq_zero ];
-        · -- For any prime $p$, if $p$ divides $g$, then by $h_divides_q$, the exponent of $p$
-          -- in $g$'s factorization is less than or equal to the exponent of $p$ in $q$'s
-          -- factorization. If $p$ does not divide $g$, then the exponent of $p$ in $g$'s
-          -- factorization is zero, which is trivially less than or equal to the exponent of $p$
-          -- in $q$'s factorization.
-          intros p
-          by_cases hp : p ∣ g
-          · generalize_proofs at *
-	            by_cases hp_prime : Nat.Prime p <;>
-	              simp +decide [ hp_prime, Nat.factorization ] at hp ⊢ ;
-	              aesop ( simp_config := { singlePass := true } )
-	          · simp +decide [ hp, Nat.factorization_eq_zero_of_not_dvd ];
-	        · positivity;);
-	      simpa [ ← Int.natCast_dvd_natCast ] using h_divides_q
-	  exact hg_div_q.trans (by norm_num)
--/
+        have hg_ne : g ≠ 0 := by
+          rw [hg]
+          exact Nat.ne_of_gt <| Int.gcd_pos_of_ne_zero_left _ (by positivity)
+        have hq_ne : Int.natAbs q ≠ 0 := Int.natAbs_ne_zero.mpr hq_zero
+        rw [← Nat.factorization_le_iff_dvd hg_ne hq_ne]
+        intro p
+        by_cases hp_prime : Nat.Prime p
+        · by_cases hp_dvd : p ∣ g
+          · rw [Nat.factorization_def g hp_prime,
+              Nat.factorization_def (Int.natAbs q) hp_prime]
+            exact h_divides_q p hp_prime hp_dvd
+          · rw [Nat.factorization_eq_zero_of_not_dvd hp_dvd]
+            exact zero_le _
+        · rw [Nat.factorization_eq_zero_of_not_prime g hp_prime]
+          exact zero_le _
+      exact Int.natCast_dvd.mpr h_divides_q
+  exact hg_div_q
 
 -- The elements α_{i,j} = M + i + jD are distinct when D > s.
 lemma alpha_distinct (s t D M : ℕ) (hD_large : s < D)
@@ -515,8 +525,6 @@ lemma generalized_crt (ι : Type*) (S : Finset ι)
     (a : ι → ℤ)
     (compat : ∀ i ∈ S, ∀ j ∈ S, (Int.gcd (n i) (n j) : ℤ) ∣ (a i - a j)) :
     ∃ x₀ : ℤ, ∀ i ∈ S, (↑(n i) : ℤ) ∣ (x₀ - a i) := by
-      sorry
-/-
       classical
       induction S using Finset.induction generalizing a with
       | empty =>
@@ -543,10 +551,11 @@ lemma generalized_crt (ι : Type*) (S : Finset ι)
         use x₁ - u * L * c;
         intro j hj; by_cases hj' : j = i <;> simp_all +decide [ sub_sub ] ;
         · exact ⟨ v * c, by linarith ⟩;
-	        · convert dvd_sub ( hx₁ j hj )
-	              ( dvd_mul_of_dvd_left ( dvd_mul_of_dvd_right ( Int.natCast_dvd_natCast.mpr (
-	                    Finset.dvd_lcm hj ) ) u ) c ) using 1 ; ring
--/
+        · have hshift : (n j : ℤ) ∣ u * L * c :=
+            dvd_mul_of_dvd_left
+              (dvd_mul_of_dvd_right (Int.natCast_dvd_natCast.mpr (Finset.dvd_lcm hj)) u) c
+          simpa [sub_eq_add_neg, add_assoc, add_comm, add_left_comm, mul_assoc, mul_comm,
+            mul_left_comm] using dvd_sub (hx₁ j hj) hshift
 
 -- Given gcd(α_{i,j}, α_{k,l}) | (i-k), a simultaneous solution x₀ ≡ i (mod α_{i,j}) exists.
 lemma construction_crt (s t D M : ℕ) (hs : 2 ≤ s) (hst : s ≤ t)
@@ -698,10 +707,9 @@ lemma M_exists (s t D : ℕ) (hs : 2 ≤ s) (ht : 2 ≤ t) (_hst : s ≤ t)
           refine ⟨ M₀ + N * ∏ p ∈ P, p, mod_cast hN, fun p hp₁ hp₂ hp₃ i j hi hj hi' hj' ↦ ?_ ⟩;
           convert hM₀ p ( hP.subset ⟨ hp₁, hp₂, hp₃ ⟩ ) i j hi hj hi' hj' using 1 ; push_cast ;
                 ring_nf;
+          have hpP : p ∈ P := hP.subset ⟨hp₁, hp₂, hp₃⟩
           rw [ Int.dvd_iff_emod_eq_zero, Int.dvd_iff_emod_eq_zero ] ; norm_num [ Int.add_emod,
-                Int.mul_emod,
-                      Finset.prod_eq_prod_diff_singleton_mul ( show p ∈ P from hP.subset ⟨ hp₁, hp₂,
-                            hp₃ ⟩ ) ] ;
+                Int.mul_emod, Finset.prod_eq_prod_sdiff_singleton_mul hpP ] ;
 
 -- For s, t ≥ 2 with s ≤ t, f(st) ≤ s + t.
 lemma erdos_f_upper_bound_ge2 (s t : ℕ) (hs : 2 ≤ s) (ht : 2 ≤ t) (hst : s ≤ t) :
@@ -839,8 +847,6 @@ lemma Lemma_3maxA_ge2 (s t : ℕ) (hs : 2 ≤ s) (ht : 2 ≤ t) (hst : s ≤ t)
     ∃ (x : ℤ) (S : Finset ℤ), S.card ≤ s + t ∧
       ∀ b ∈ Finset.Ioo x (x + ⌈((3 : ℝ) - ε) * ↑(A.sup id)⌉),
         (∃ a ∈ A, (a : ℤ) ∣ b) → b ∈ S := by
-  sorry
-/-
   obtain ⟨D, hD⟩ : ∃ D, D = lcm_range (s * t) ∧ D > s := by
     norm_num +zetaDelta at *;
     -- By definition of lcm_range, we know that lcm_range (s * t) is divisible by s * t.
@@ -863,10 +869,11 @@ lemma Lemma_3maxA_ge2 (s t : ℕ) (hs : 2 ≤ s) (ht : 2 ≤ t) (hst : s ≤ t)
           (Classical.choose (construction_crt s t D M hs hst hD.left hM.right.left hM.right.right))
                 - M, Finset.image (fun i : Fin s =>
                       (Classical.choose (construction_crt s t D M hs hst hD.left hM.right.left
-                            hM.right.right)) - (i.val + 1))
+                            hM.right.right)) - ↑(i.val + 1))
                                   Finset.univ ∪ Finset.image (fun j : Fin t =>
                                         (Classical.choose (construction_crt s t D M hs hst hD.left
-                                              hM.right.left hM.right.right)) + M + (j.val + 1) * D)
+                                              hM.right.left hM.right.right)) + ↑M
+                                          + ↑(j.val + 1) * ↑D)
                                                     Finset.univ, by
     convert small_set_card s t M D ( Classical.choose ( construction_crt s t D M hs hst hD.1 hM.2.1
           hM.2.2 ) ) ( by linarith ) using 1, by
@@ -900,11 +907,10 @@ lemma Lemma_3maxA_ge2 (s t : ℕ) (hs : 2 ≤ s) (ht : 2 ≤ t) (hst : s ≤ t)
       generalize_proofs at *; (
       norm_num [ h_sup ] at * ; linarith [ hb.2 ] ;)) ha_div
     obtain hb_case | hb_case := hb_cases;
-	    · simp [hb_case];
-	      exact Or.inl ⟨ ⟨ i - 1, by omega ⟩, by cases i <;> aesop ⟩;
-	    · simp [hb_case];
-	      exact Or.inr ⟨ ⟨ j - 1, by omega ⟩, Or.inl <| by cases j <;> norm_num at * ; linarith ⟩;
--/
+    · simp [hb_case];
+      exact Or.inl ⟨ ⟨ i - 1, by omega ⟩, by cases i <;> aesop ⟩;
+    · simp [hb_case];
+      exact Or.inr ⟨ ⟨ j - 1, by omega ⟩, Or.inl <| by cases j <;> norm_num at * ; linarith ⟩;
 
 -- For s=1, the 3maxA result via direct construction.
 lemma Lemma_3maxA_s1 (t : ℕ) (ht : 0 < t)
@@ -1196,7 +1202,7 @@ lemma case1_neighborhood_bound (A : Finset ℕ) (amax : ℕ)
                   have := largestMultiple_le b ( hA_pos b ( hS hb ) ) ( x + amax ) ;
                         have := largestMultiple_gt a ( hA_pos a ( hS ha ) ) ( x + amax ) ;
                               have := largestMultiple_gt b ( hA_pos b ( hS hb ) ) ( x + amax ) ;
-                                    norm_num at * ; linarith [ hA_pos a ( hS ha ),
+                                    linarith [ hA_pos a ( hS ha ),
                                           hA_pos b ( hS hb ) ]
         have h_gamma_bound : 2 * Real.sqrt (Finset.card S) ≤ (Finset.image (fun a =>
               largestMultiple a (x + amax)) S).card + (Finset.image (fun a =>
@@ -1368,8 +1374,6 @@ lemma lower_bound_case1 (m : ℕ) (hm : 0 < m) (A : Finset ℕ)
     (x : ℤ) (hx : ¬ (↑(A.sup id) : ℤ) ∣ x) :
     HasDivMatching A (Finset.Ioo x (x + 2 * ↑(A.sup id)))
       (min m ⌈(2 : ℝ) * Real.sqrt ↑m⌉₊) := by
-        sorry
-/-
         have g := matching_from_neighborhood_bound ( fun a : A => Finset.filter ( fun b =>
               ( a.1 : ℤ ) ∣ b ) ( Finset.Ioo x ( x + 2 * A.sup id ) ) ) ( fun n =>
                     min n ⌈2 * Real.sqrt n⌉₊ ) ?_ ?_ ?_ <;> norm_num at *;
@@ -1378,13 +1382,40 @@ lemma lower_bound_case1 (m : ℕ) (hm : 0 < m) (A : Finset ℕ)
         · intro S
           by_cases hS : S.Nonempty;
           · refine Classical.or_iff_not_imp_left.2 fun h => ?_;
-            convert case1_neighborhood_bound A _ rfl hA_pos ?_ x hx ( S.image Subtype.val )
-                  ?_ ?_ using 1 <;> norm_num [ Finset.card_image_of_injective, Function.Injective ]
-                        at *;
-            · congr with b ; aesop;
-            · exact ⟨ _, hS.choose.2 ⟩;
-            · exact Finset.image_subset_iff.mpr fun x hx => x.2;
-            · assumption;
+            obtain ⟨a₀, ha₀S⟩ := hS
+            have hA_ne : A.Nonempty := ⟨a₀.1, a₀.2⟩
+            have hS_subset : S.image Subtype.val ⊆ A := by
+              intro a ha
+              rcases Finset.mem_image.mp ha with ⟨a', _haS, rfl⟩
+              exact a'.2
+            have hS_image_ne : (S.image Subtype.val).Nonempty :=
+              ⟨a₀.1, Finset.mem_image.mpr ⟨a₀, ha₀S, rfl⟩⟩
+            have hbound :=
+              case1_neighborhood_bound A _ rfl hA_pos hA_ne x hx
+                (S.image Subtype.val) hS_subset hS_image_ne
+            have hcard_image : (S.image Subtype.val).card = S.card := by
+              simp [Finset.card_image_of_injective, Function.Injective]
+            have hfilter_eq :
+                ((Finset.Ioo x (x + 2 * ↑(A.sup id))).filter
+                    (fun b => ∃ a ∈ S.image Subtype.val, (a : ℤ) ∣ b)).card =
+                  (S.biUnion fun a =>
+                    Finset.filter (fun b => (a.1 : ℤ) ∣ b)
+                      (Finset.Ioo x (x + 2 * ↑(A.sup id)))).card := by
+              congr 1
+              ext b
+              constructor
+              · intro hb
+                rcases Finset.mem_filter.mp hb with ⟨hbIoo, a, ha, hadvd⟩
+                rcases Finset.mem_image.mp ha with ⟨a', haS, rfl⟩
+                exact Finset.mem_biUnion.mpr
+                  ⟨a', haS, Finset.mem_filter.mpr ⟨hbIoo, hadvd⟩⟩
+              · intro hb
+                rcases Finset.mem_biUnion.mp hb with ⟨a', haS, hbfilter⟩
+                rcases Finset.mem_filter.mp hbfilter with ⟨hbIoo, hadvd⟩
+                exact Finset.mem_filter.mpr
+                  ⟨hbIoo, ⟨a'.1, Finset.mem_image.mpr ⟨a', haS, rfl⟩, hadvd⟩⟩
+            rw [hcard_image, hfilter_eq] at hbound
+            exact hbound
           · aesop;
         · -- By definition of min, we know that min(s, ⌈2√s⌉₊) is either s or ⌈2√s⌉₊.
           intros s hs
@@ -1414,10 +1445,9 @@ lemma lower_bound_case1 (m : ℕ) (hm : 0 < m) (A : Finset ℕ)
                 | step hu ih =>
                   rename_i u
                   exact le_trans ih ( mod_cast h_diff u ( Nat.pos_of_ne_zero ( by aesop_cat ) ) );
-	              exact h_diff s ( Nat.pos_of_ne_zero ( by rintro rfl; norm_num at h_case ) )
-	                    m ( by linarith );
-	            grind +ring
--/
+              exact h_diff s ( Nat.pos_of_ne_zero ( by rintro rfl; norm_num at h_case ) )
+                    m ( by linarith );
+            grind +ring
 
 set_option maxHeartbeats 3200000 in
 -- The second lower-bound case is the most expensive generated proof in this file.

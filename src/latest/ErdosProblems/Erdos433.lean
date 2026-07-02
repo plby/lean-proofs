@@ -1,10 +1,10 @@
-/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
+/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 433.
 https://www.erdosproblems.com/forum/thread/433
 
 Formalization status:
-- Conditional on: knesers_addition_theorem
+- Includes a local proof of the finite Kneser input used below.
 
 Informal authors:
 - Jacques Dixmier
@@ -48,8 +48,6 @@ set_option synthInstance.maxHeartbeats 2000000
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
 
-local notation:max "#" s:max => Finset.card s
-
 /-
 per Gemini 3.0 Flash, the correspondence between Diximier and the Lean is as Follows
 Lemma 2.1  --> lemma_2_1_general
@@ -61,6 +59,972 @@ Lemma 2.6  --> lemma_2_6
 Lemma 3.1  --> lemma_3_1
 Lemma 3.2  --> lemma_3_2
 -/
+
+
+/-
+Copyright (c) 2023 Mantas Bakšys, Yaël Dillies. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Mantas Bakšys, Yaël Dillies
+-/
+
+
+/-!
+# Stabilizer of a finset
+
+This file defines the stabilizer of a finset of a group as a finset.
+
+## Main declarations
+
+* `Finset.mulStab`: The stabilizer of a **nonempty** finset as a finset.
+-/
+
+
+open Function MulAction
+open scoped Pointwise
+
+namespace Finset
+variable {ι α : Type*}
+
+local notation s " +ₛ " N => Finset.image ((↑) : α → α ⧸ N) s
+local notation s " +ˢ " N => Set.image ((↑) : α → α ⧸ N) s
+
+section Group
+variable [Group α] [DecidableEq α] {s t : Finset α} {a : α}
+
+instance (s : Finset α) : DecidablePred (· ∈ stabilizer α (s : Set α)) :=
+  fun a ↦ decidable_of_iff (a ∈ stabilizer α s) (by simp)
+
+/-- The stabilizer of `s` as a finset. As an exception, this sends `∅` to `∅`. -/
+def mulStab (s : Finset α) : Finset α := {a ∈ s / s | a • s = s}
+
+@[simp]
+lemma mem_mulStab (hs : s.Nonempty) : a ∈ s.mulStab ↔ a • s = s := by
+  rw [mulStab, mem_filter, mem_div, and_iff_right_of_imp]
+  obtain ⟨b, hb⟩ := hs
+  exact fun h ↦ ⟨_, by rw [← h]; exact smul_mem_smul_finset hb, _, hb, mul_div_cancel_right _ _⟩
+
+lemma mulStab_subset_div : s.mulStab ⊆ s / s := filter_subset _ _
+
+lemma mulStab_subset_div_right (ha : a ∈ s) : s.mulStab ⊆ s / {a} := by
+  refine fun b hb ↦ mem_div.2 ⟨_, ?_, _, mem_singleton_self _, mul_div_cancel_right _ _⟩
+  rw [mem_mulStab ⟨a, ha⟩] at hb
+  rw [← hb]
+  exact smul_mem_smul_finset ha
+
+@[simp]
+lemma coe_mulStab (hs : s.Nonempty) : (s.mulStab : Set α) = stabilizer α (s : Set α) := by
+  ext; simp [mem_mulStab hs]
+
+lemma mem_mulStab_iff_subset_smul_finset (hs : s.Nonempty) : a ∈ s.mulStab ↔ s ⊆ a • s := by
+  rw [← mem_coe, coe_mulStab hs, SetLike.mem_coe, stabilizer_coe_finset,
+    mem_stabilizer_finset_iff_subset_smul_finset]
+
+lemma mem_mulStab_iff_smul_finset_subset (hs : s.Nonempty) : a ∈ s.mulStab ↔ a • s ⊆ s := by
+  rw [← mem_coe, coe_mulStab hs, SetLike.mem_coe, stabilizer_coe_finset,
+    mem_stabilizer_finset_iff_smul_finset_subset]
+
+lemma mem_mulStab' (hs : s.Nonempty) : a ∈ s.mulStab ↔ ∀ ⦃b⦄, b ∈ s → a • b ∈ s := by
+  rw [← mem_coe, coe_mulStab hs, SetLike.mem_coe, stabilizer_coe_finset, mem_stabilizer_finset']
+
+@[simp]
+lemma mulStab_empty : mulStab (∅ : Finset α) = ∅ := by simp [mulStab]
+
+@[simp]
+lemma mulStab_singleton (a : α) : mulStab ({a} : Finset α) = 1 := by
+  simp [mulStab, singleton_one, filter_true_of_mem]
+
+lemma Nonempty.of_mulStab : s.mulStab.Nonempty → s.Nonempty := by
+  simp_rw [nonempty_iff_ne_empty, not_imp_not]; rintro rfl; exact mulStab_empty
+
+@[simp]
+lemma one_mem_mulStab : (1 : α) ∈ s.mulStab ↔ s.Nonempty :=
+  ⟨fun h ↦ Nonempty.of_mulStab ⟨_, h⟩, fun h ↦ (mem_mulStab h).2 <| one_smul _ _⟩
+
+protected alias ⟨_, Nonempty.one_mem_mulStab⟩ := one_mem_mulStab
+
+lemma Nonempty.mulStab (h : s.Nonempty) : s.mulStab.Nonempty := ⟨_, h.one_mem_mulStab⟩
+
+@[simp]
+lemma mulStab_nonempty : s.mulStab.Nonempty ↔ s.Nonempty := ⟨Nonempty.of_mulStab, Nonempty.mulStab⟩
+
+@[simp]
+lemma card_mulStab_eq_one : #s.mulStab = 1 ↔ s.mulStab = 1 := by
+  refine ⟨fun h ↦ ?_, fun h ↦ by rw [h, card_one]⟩
+  obtain ⟨a, ha⟩ := card_eq_one.1 h
+  rw [ha]
+  rw [eq_singleton_iff_nonempty_unique_mem, mulStab_nonempty, ← one_mem_mulStab] at ha
+  rw [← ha.2 _ ha.1, singleton_one]
+
+lemma Nonempty.mulStab_nontrivial (h : s.Nonempty) : s.mulStab.Nontrivial ↔ s.mulStab ≠ 1 :=
+  nontrivial_iff_ne_singleton h.one_mem_mulStab
+
+lemma subset_mulStab_mul_left (ht : t.Nonempty) : s.mulStab ⊆ (s * t).mulStab := by
+  obtain rfl | hs := s.eq_empty_or_nonempty
+  · simp
+  simp_rw [subset_iff, mem_mulStab hs, mem_mulStab (hs.mul ht)]
+  rintro a h
+  rw [← smul_mul_assoc, h]
+
+@[simp]
+lemma mulStab_mul (s : Finset α) : s.mulStab * s = s := by
+  obtain rfl | hs := s.eq_empty_or_nonempty
+  · exact mul_empty _
+  · simp only [← coe_inj, hs, coe_mul, coe_mulStab, stabilizer_mul_self]
+
+lemma mul_subset_right_iff (ht : t.Nonempty) : s * t ⊆ t ↔ s ⊆ t.mulStab := by
+  simp_rw [← smul_eq_mul, ← biUnion_smul_finset, biUnion_subset,
+    ← mem_mulStab_iff_smul_finset_subset ht, subset_iff]
+
+lemma mul_subset_right : s ⊆ t.mulStab → s * t ⊆ t := by
+  obtain rfl | ht := t.eq_empty_or_nonempty
+  · simp
+  · exact (mul_subset_right_iff ht).2
+
+lemma smul_mulStab (ha : a ∈ s.mulStab) : a • s.mulStab = s.mulStab := by
+  obtain rfl | hs := s.eq_empty_or_nonempty
+  · simp
+  rw [← mem_coe, coe_mulStab hs, SetLike.mem_coe] at ha
+  rw [← coe_inj, coe_smul_finset, coe_mulStab hs, smul_coe_set ha]
+
+@[simp]
+lemma mulStab_mul_mulStab (s : Finset α) : s.mulStab * s.mulStab = s.mulStab := by
+  obtain rfl | hs := s.eq_empty_or_nonempty
+  · simp
+  · simp_rw [← smul_eq_mul, ← biUnion_smul_finset, biUnion_congr rfl fun _ ↦ smul_mulStab,
+      ← sup_eq_biUnion, sup_const hs.mulStab]
+
+lemma inter_mulStab_subset_mulStab_union : s.mulStab ∩ t.mulStab ⊆ (s ∪ t).mulStab := by
+  obtain rfl | hs := s.eq_empty_or_nonempty
+  · simp
+  obtain rfl | ht := t.eq_empty_or_nonempty
+  · simp
+  intro x hx
+  rw [mem_mulStab (hs.mono subset_union_left), smul_finset_union,
+    (mem_mulStab hs).mp (mem_of_mem_inter_left hx),
+    (mem_mulStab ht).mp (mem_of_mem_inter_right hx)]
+
+end Group
+
+variable [CommGroup α] [DecidableEq α] {s t : Finset α} {a : α}
+
+lemma mulStab_subset_div_left (ha : a ∈ s) : s.mulStab ⊆ {a} / s := by
+  refine fun b hb ↦ mem_div.2 ⟨_, mem_singleton_self _, _, ?_, div_div_cancel _ _⟩
+  rw [mem_mulStab ⟨a, ha⟩] at hb
+  rwa [← hb, ← inv_smul_mem_iff, smul_eq_mul, inv_mul_eq_div] at ha
+
+lemma subset_mulStab_mul_right (hs : s.Nonempty) : t.mulStab ⊆ (s * t).mulStab := by
+  rw [mul_comm]; exact subset_mulStab_mul_left hs
+
+@[simp]
+lemma mul_mulStab (s : Finset α) : s * s.mulStab = s := by rw [mul_comm]; exact mulStab_mul _
+
+@[simp]
+lemma mul_mulStab_mul_mul_mul_mulStab_mul :
+    s * (s * t).mulStab * (t * (s * t).mulStab) = s * t := by
+  rw [mul_mul_mul_comm, mulStab_mul_mulStab, mul_mulStab]
+
+lemma smul_finset_mulStab_subset (ha : a ∈ s) : a • s.mulStab ⊆ s :=
+  (smul_finset_subset_smul ha).trans s.mul_mulStab.subset
+
+lemma mul_subset_left_iff (hs : s.Nonempty) : s * t ⊆ s ↔ t ⊆ s.mulStab := by
+  rw [mul_comm, mul_subset_right_iff hs]
+
+lemma mul_subset_left : t ⊆ s.mulStab → s * t ⊆ s := by rw [mul_comm]; exact mul_subset_right
+
+@[simp]
+lemma mulStab_idem (s : Finset α) : s.mulStab.mulStab = s.mulStab := by
+  obtain rfl | hs := s.eq_empty_or_nonempty
+  · simp
+  rw [← coe_inj, coe_mulStab hs, coe_mulStab hs.mulStab, coe_mulStab hs]
+  simp
+
+@[simp]
+lemma mulStab_smul (a : α) (s : Finset α) : (a • s).mulStab = s.mulStab := by
+  obtain rfl | hs := s.eq_empty_or_nonempty
+  · simp
+  · rw [← coe_inj, coe_mulStab hs, coe_mulStab hs.smul_finset, stabilizer_coe_finset,
+    stabilizer_coe_finset, stabilizer_smul_eq_right]
+
+lemma mulStab_image_coe_quotient (hs : s.Nonempty) :
+    (s.image (↑) : Finset (α ⧸ stabilizer α (s : Set α))).mulStab = 1 := by
+  simp_rw [← coe_inj, coe_mulStab (hs.image _), coe_image, coe_one]
+  rw [stabilizer_image_coe_quotient, Subgroup.coe_bot, Set.singleton_one]
+
+lemma preimage_image_quotientMk_stabilizer_eq_mul_mulStab (ht : t.Nonempty) (s : Finset α) :
+    QuotientGroup.mk ⁻¹' (s +ˢ stabilizer α (t : Set α)) = s * t.mulStab := by
+  rw [QuotientGroup.preimage_image_mk_eq_mul, coe_mulStab ht, stabilizer_coe_finset]
+
+omit [DecidableEq α] in
+lemma preimage_image_quotientMk_mulStabilizer (s : Finset α) :
+    QuotientGroup.mk ⁻¹' (s +ˢ stabilizer α (s : Set α)) = s := by
+  classical
+  obtain rfl | hs := s.eq_empty_or_nonempty
+  · simp
+  · rw [preimage_image_quotientMk_stabilizer_eq_mul_mulStab hs s, ← coe_mul, mul_mulStab]
+
+lemma pairwiseDisjoint_smul_finset_mulStab (s : Finset α) :
+    (Set.range fun a : α ↦ a • s.mulStab).PairwiseDisjoint id := by
+  obtain rfl | hs := s.eq_empty_or_nonempty
+  · simp
+  rintro _ ⟨a, rfl⟩ _ ⟨b, rfl⟩
+  simp only [onFun, id_eq]
+  simp_rw [← disjoint_coe, ← coe_injective.ne_iff, coe_smul_finset, coe_mulStab hs]
+  exact fun h ↦ isBlock_subgroup h
+
+lemma disjoint_smul_finset_mulStab_mul_mulStab :
+    ¬a • s.mulStab ⊆ t * s.mulStab → Disjoint (a • s.mulStab) (t * s.mulStab) := by
+  simp_rw [@not_imp_comm ((a • s.mulStab : Finset α) ⊆ t * s.mulStab) _,
+    ← smul_eq_mul, ← biUnion_smul_finset, disjoint_biUnion_right, Classical.not_forall]
+  rintro ⟨b, hb, h⟩
+  rw [s.pairwiseDisjoint_smul_finset_mulStab.eq (Set.mem_range_self _) (Set.mem_range_self _) h]
+  exact subset_biUnion_of_mem (· • mulStab s) hb
+
+lemma card_mulStab_dvd_card_mul_mulStab (s t : Finset α) : #t.mulStab ∣ #(s * t.mulStab) :=
+  card_dvd_card_smul_right <|
+    t.pairwiseDisjoint_smul_finset_mulStab.subset <| Set.image_subset_range _ _
+
+lemma card_mulStab_dvd_card (s : Finset α) : #s.mulStab ∣ #s := by
+  simpa only [mul_mulStab] using s.card_mulStab_dvd_card_mul_mulStab s
+
+lemma card_mulStab_le_card : #s.mulStab ≤ #s := by
+  obtain rfl | hs := s.eq_empty_or_nonempty
+  · rfl
+  · exact Nat.le_of_dvd hs.card_pos s.card_mulStab_dvd_card
+
+/-- A fintype instance for the stabilizer of a nonempty finset `s` in terms of `s.mulStab`. -/
+@[implicit_reducible]
+private def fintypeStabilizerOfMulStab (hs : s.Nonempty) : Fintype (stabilizer α s) where
+  elems := s.mulStab.attach.map
+    ⟨Subtype.map id fun _ ↦ (mem_mulStab hs).1, Subtype.map_injective _ injective_id⟩
+  complete a := mem_map.2
+    ⟨⟨_, (mem_mulStab hs).2 a.2⟩, mem_attach _ ⟨_, (mem_mulStab hs).2 a.2⟩, Subtype.ext rfl⟩
+
+lemma card_mulStab_dvd_card_mulStab (hs : s.Nonempty) (h : s.mulStab ⊆ t.mulStab) :
+    #s.mulStab ∣ #t.mulStab := by
+  obtain rfl | ht := t.eq_empty_or_nonempty
+  · simp
+  rw [← coe_subset, coe_mulStab hs, coe_mulStab ht, SetLike.coe_subset_coe] at h
+  letI : Fintype (stabilizer α s) := fintypeStabilizerOfMulStab hs
+  letI : Fintype (stabilizer α t) := fintypeStabilizerOfMulStab ht
+  convert Subgroup.card_dvd_of_le h using 1
+  · simp only [stabilizer_coe_finset, Nat.card_eq_fintype_card]
+    change _ = #(s.mulStab.attach.map
+    ⟨Subtype.map id fun _ ↦ (mem_mulStab hs).1, Subtype.map_injective _ injective_id⟩)
+    simp
+  · simp only [stabilizer_coe_finset, Nat.card_eq_fintype_card]
+    change _ = #(t.mulStab.attach.map
+      ⟨Subtype.map id fun _ ↦ (mem_mulStab ht).1, Subtype.map_injective _ injective_id⟩)
+    simp
+
+/-- A version of Lagrange's theorem. -/
+lemma card_mulStab_mul_card_image_coe' (s t : Finset α)
+    [DecidableEq (α ⧸ stabilizer α (t : Set α))] :
+    #t.mulStab * #(s +ₛ stabilizer α (t : Set α)) = #(s * t.mulStab) := by
+  obtain rfl | ht := t.eq_empty_or_nonempty
+  · simp
+  have := QuotientGroup.preimageMkEquivSubgroupProdSet _ (s +ˢ stabilizer α (t : Set α))
+  have that : ↥(stabilizer α (t : Set α)) = ↥t.mulStab := by
+    rw [← SetLike.coe_sort_coe, ← coe_mulStab ht, Finset.coe_sort_coe]
+  have temp := this.trans ((Equiv.cast that).prodCongr (Equiv.refl _))
+  rw [preimage_image_quotientMk_stabilizer_eq_mul_mulStab ht] at temp
+  simpa only [coe_sort_coe, ← coe_mul, Fintype.card_prod, Fintype.card_coe, Fintype.card_ofFinset,
+    toFinset_coe, mem_image, Set.mem_image, mem_coe, forall_const, eq_comm]
+    using Fintype.card_congr temp
+
+lemma card_mul_card_eq_mulStab_card_mul_coe (s t : Finset α) :
+    #(s * t) = #(s * t).mulStab * #((s * t) +ₛ stabilizer α (↑(s * t) : Set α)) := by
+  obtain rfl | hs := s.eq_empty_or_nonempty
+  · simp
+  obtain rfl | ht := t.eq_empty_or_nonempty
+  · simp
+  have := QuotientGroup.preimageMkEquivSubgroupProdSet _ <|
+    ↑(s * t) +ˢ stabilizer α (↑(s * t) : Set α)
+  have that : ↥(stabilizer α (↑(s * t) : Set α)) = ↥(s * t).mulStab := by
+    rw [← SetLike.coe_sort_coe, ← coe_mulStab (hs.mul ht), Finset.coe_sort_coe]
+  have temp := this.trans <| (Equiv.cast that).prodCongr (Equiv.refl _)
+  rw [preimage_image_quotientMk_mulStabilizer] at temp
+  simpa [-coe_mul] using Fintype.card_congr temp
+
+/-- A version of Lagrange's theorem. -/
+lemma card_mulStab_mul_card_image_coe (s t : Finset α) :
+    #(s * t).mulStab *
+      #((s +ₛ stabilizer α (↑(s * t) : Set α)) * (t +ₛ stabilizer α (↑(s * t) : Set α))) =
+        #(s * t) := by
+  obtain rfl | hs := s.eq_empty_or_nonempty
+  · simp
+  obtain rfl | ht := t.eq_empty_or_nonempty
+  · simp
+  let this := QuotientGroup.preimageMkEquivSubgroupProdSet (stabilizer α (↑(s * t) : Set α))
+    ((s +ˢ stabilizer α (↑(s * t) : Set α)) * (t +ˢ stabilizer α (↑(s * t) : Set α)))
+  have image_coe_mul :
+    ((↑(s * t) : Set α) +ˢ stabilizer α (↑(s * t) : Set α)) =
+      (s +ˢ stabilizer α (↑(s * t) : Set α)) * (t +ˢ stabilizer α (↑(s * t) : Set α)) := by
+    simpa [coe_mul] using Set.image_mul (QuotientGroup.mk' (stabilizer α (↑(s * t) : Set α)))
+  rw [← image_coe_mul, preimage_image_quotientMk_mulStabilizer, image_coe_mul] at this
+  have that :
+    (stabilizer α (↑(s * t) : Set α) ×
+      ↥((s +ˢ stabilizer α (↑(s * t) : Set α)) * (t +ˢ stabilizer α (↑(s * t) : Set α)))) =
+      ((s * t).mulStab ×
+        ↥((s +ˢ stabilizer α (↑(s * t) : Set α)) * (t +ˢ stabilizer α (↑(s * t) : Set α)))) := by
+    rw [← SetLike.coe_sort_coe, ← coe_mulStab (hs.mul ht), Finset.coe_sort_coe]
+  let temp := this.trans (Equiv.cast that)
+  replace temp := Fintype.card_congr temp
+  simp only [Fintype.card_prod, Fintype.card_coe] at temp
+  have h1 : Fintype.card ((s * t : Finset α) : Set α) = Fintype.card (s * t) := by congr
+  have h2 : (s +ˢ stabilizer α (↑(s * t) : Set α)) * (t +ˢ stabilizer α (↑(s * t) : Set α)) =
+    ↑((s +ₛ stabilizer α (↑(s * t) : Set α)) * (t +ₛ stabilizer α (↑(s * t) : Set α))) := by simp
+  have h3 :
+    Fintype.card ((s +ˢ stabilizer α (↑(s * t) : Set α)) * (t +ˢ stabilizer α (↑(s * t) : Set α))) =
+      Fintype.card ((s +ₛ stabilizer α (↑(s * t) : Set α)) *
+        (t +ₛ stabilizer α (↑(s * t) : Set α))) := by
+    simp_rw [h2]
+    congr
+  simp only [h1, h3, Fintype.card_coe] at temp
+  rw [temp]
+
+lemma subgroup_mul_card_eq_mul_of_mul_stab_subset (s : Subgroup α) [DecidablePred (· ∈ s)]
+    (t : Finset α) (hst : (s : Set α) ⊆ t.mulStab) : Nat.card s * #(t +ₛ s) = #t := by
+  suffices h : (t : Set α) * s = t by
+    simpa [h, eq_comm] using s.card_mul_eq_card_subgroup_mul_card_quotient  t
+  apply Set.Subset.antisymm (Set.Subset.trans (Set.mul_subset_mul_left hst) _)
+  · intro x
+    rw [Set.mem_mul]
+    aesop
+  · rw [← coe_mul, mul_mulStab]
+
+lemma mulStab_quotient_commute_subgroup (s : Subgroup α) [DecidablePred (· ∈ s)] (t : Finset α)
+    (hst : (s : Set α) ⊆ t.mulStab) : (t.mulStab +ₛ s) = (t +ₛ s).mulStab := by
+  obtain rfl | ht := t.eq_empty_or_nonempty
+  · simp
+  have hti : (image (QuotientGroup.mk (s := s)) t).Nonempty := by aesop
+  ext x;
+  simp only [mem_image, mem_mulStab hti]
+  constructor
+  · rintro ⟨a, hax⟩
+    rw [← hax.2]
+    ext z
+    simp only [mem_smul_finset, mem_image, smul_eq_mul, exists_exists_and_eq_and]
+    constructor
+    · rintro ⟨b, hbt, hbaz⟩
+      use (b * a)
+      rw [← mul_mulStab t]
+      refine ⟨mul_mem_mul hbt hax.1, ?_⟩
+      rw [← hbaz, QuotientGroup.mk_mul, mul_comm]
+    · rintro ⟨b, hbt, hbz⟩
+      rw [← hbz, ← mul_mulStab t, mul_comm]
+      use a⁻¹ * b
+      refine ⟨mul_mem_mul ?_ hbt, by simp⟩
+      rw [← mem_coe, coe_mulStab ht]
+      aesop
+  · intro hx
+    have : s ≤ stabilizer α t := by aesop
+    obtain ⟨y, hyx⟩ := Quotient.exists_rep x
+    refine ⟨y, (mem_mulStab_iff_subset_smul_finset ht).mpr ?_, by simpa⟩
+    intros z hzt
+    replace hx : image QuotientGroup.mk (y • t) = image (QuotientGroup.mk (s := s)) t := by
+      rw [← hx, ← hyx]
+      exact image_smul_comm QuotientGroup.mk y t (congrFun rfl)
+    have hyz : QuotientGroup.mk z ∈ image (QuotientGroup.mk (s := s)) (y • t) := by aesop
+    simp only [mem_image] at hyz
+    obtain ⟨a, ha, hayz⟩ := hyz
+    obtain ⟨b, hbt, haby⟩ := mem_smul_finset.mp ha
+    subst a
+    rw [QuotientGroup.eq, smul_eq_mul] at hayz
+    replace : ∃ c ∈ mulStab t, (y • b)⁻¹ * z = c := by aesop
+    obtain ⟨c, hct, hcbyz⟩ := this
+    rw [inv_mul_eq_iff_eq_mul] at hcbyz
+    rw [hcbyz, smul_mul_assoc, mul_comm, ← smul_eq_mul]
+    exact smul_mem_smul_finset ((mem_mulStab' ht).mp hct hbt)
+
+end Finset
+/-
+Copyright (c) 2023 Mantas Bakšys, Yaël Dillies. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Mantas Bakšys, Yaël Dillies
+-/
+
+
+/-!
+# Kneser's addition theorem
+
+This file proves Kneser's theorem. This states that `|s + H| + |t + H| - |H| ≤ |s + t|` where `s`,
+`t` are finite nonempty sets in a commutative group and `H` is the stabilizer of `s + t`. Further,
+if the inequality is strict, then we in fact have `|s + H| + |t + H| ≤ |s + t|`.
+
+## Main declarations
+
+* `Finset.mul_kneser`: Kneser's theorem.
+* `Finset.mul_strict_kneser`: Strict Kneser theorem.
+
+## References
+
+* [Imre Ruzsa, *Sumsets and structure*][ruzsa2009]
+* Matt DeVos, *A short proof of Kneser's addition theorem*
+-/
+
+
+open Function MulAction
+open scoped Pointwise
+
+variable {α : Type*} [CommGroup α] [DecidableEq α] {s s' t t' C : Finset α} {a b : α}
+
+namespace Finset
+
+/-! ### Auxiliary results -/
+
+lemma mulStab_mul_ssubset_mulStab (hs₁ : (s ∩ a • C.mulStab).Nonempty)
+    (ht₁ : (t ∩ b • C.mulStab).Nonempty) (hab : ¬(a * b) • C.mulStab ⊆ s * t) :
+    (s ∩ a • C.mulStab * (t ∩ b • C.mulStab)).mulStab ⊂ C.mulStab := by
+  have hCne : C.Nonempty := by
+    contrapose! hab
+    simp only [hab, mulStab_empty, smul_finset_empty, empty_subset]
+  obtain ⟨x, hx⟩ := hs₁
+  obtain ⟨y, hy⟩ := ht₁
+  obtain ⟨c, hc, hac⟩ := mem_smul_finset.mp (mem_of_mem_inter_right hx)
+  obtain ⟨d, hd, had⟩ := mem_smul_finset.mp (mem_of_mem_inter_right hy)
+  have hsubset : (s ∩ a • C.mulStab * (t ∩ b • C.mulStab)).mulStab ⊆ C.mulStab := by
+    have hxymem : x * y ∈ s ∩ a • C.mulStab * (t ∩ b • C.mulStab) := mul_mem_mul hx hy
+    apply subset_trans (mulStab_subset_div_right hxymem)
+    have : s ∩ a • C.mulStab * (t ∩ b • C.mulStab) ⊆ (x * y) • C.mulStab := by
+      apply subset_trans (mul_subset_mul inter_subset_right inter_subset_right)
+      rw [smul_mul_smul_comm]
+      rw [← hac, ← had, smul_mul_smul_comm, smul_assoc]
+      apply smul_finset_subset_smul_finset
+      rw [← smul_smul]
+      rw [mul_subset_iff]
+      intro x hx y hy
+      rw [smul_mulStab hd, smul_mulStab hc, mem_mulStab hCne, ← smul_smul,
+        (mem_mulStab hCne).mp hy, (mem_mulStab hCne).mp hx]
+    apply subset_trans (div_subset_div_right this) _
+    simp [singleton_mul, div_eq_inv_mul, smul_smul, mul_assoc]
+  have : (a * b) • C.mulStab = (a * c * (b * d)) • C.mulStab := by
+    rw [smul_eq_iff_eq_inv_smul, ← smul_assoc, smul_eq_mul, mul_assoc, mul_comm c _, ← mul_assoc, ←
+      mul_assoc, ← mul_assoc, mul_assoc _ a b, inv_mul_cancel (a * b), one_mul, ← smul_eq_mul,
+      smul_assoc, smul_mulStab hc, smul_mulStab hd]
+  have hsub : s ∩ a • C.mulStab * (t ∩ b • C.mulStab) ⊆ (a * b) • C.mulStab := by
+    apply subset_trans (mul_subset_mul inter_subset_right inter_subset_right)
+    simp only [smul_mul_smul_comm, mulStab_mul_mulStab, subset_refl]
+  have hxy : x * y ∈ s ∩ a • C.mulStab * (t ∩ b • C.mulStab) := mul_mem_mul hx hy
+  rw [this] at hsub
+  rw [this] at hab
+  obtain ⟨z, hz, hzst⟩ := not_subset.1 hab
+  obtain ⟨w, hw, hwz⟩ := mem_smul_finset.mp hz
+  refine (Finset.ssubset_iff_of_subset hsubset).mpr ⟨w, hw, ?_⟩
+  rw [mem_mulStab' ⟨x * y, hxy⟩]
+  push Not
+  refine ⟨a * c * (b * d), by simp_all, ?_⟩
+  rw [smul_eq_mul, mul_comm w, ← smul_eq_mul (b := w), hwz]
+  exact notMem_mono (mul_subset_mul inter_subset_left inter_subset_left) hzst
+
+lemma mulStab_union (hs₁ : (s ∩ a • C.mulStab).Nonempty) (ht₁ : (t ∩ b • C.mulStab).Nonempty)
+    (hab : ¬(a * b) • C.mulStab ⊆ s * t)
+    (hC : Disjoint C (s ∩ a • C.mulStab * (t ∩ b • C.mulStab))) :
+    (C ∪ s ∩ a • C.mulStab * (t ∩ b • C.mulStab)).mulStab =
+      (s ∩ a • C.mulStab * (t ∩ b • C.mulStab)).mulStab := by
+  obtain rfl | hCne := C.eq_empty_or_nonempty
+  · simp
+  refine
+    ((subset_inter (mulStab_mul_ssubset_mulStab hs₁ ht₁ hab).subset Subset.rfl).trans
+          inter_mulStab_subset_mulStab_union).antisymm'
+      fun x hx => ?_
+  replace hx := (mem_mulStab <| (hs₁.mul ht₁).mono subset_union_right).mp hx
+  rw [smul_finset_union] at hx
+  suffices hxC : x ∈ C.mulStab by
+    rw [(mem_mulStab hCne).mp hxC] at hx
+    rw [mem_mulStab_iff_subset_smul_finset (hs₁.mul ht₁)]
+    exact hC.symm.left_le_of_le_sup_left (le_sup_right.trans hx.ge)
+  rw [mem_mulStab_iff_smul_finset_subset hCne]
+  obtain h | h := disjoint_or_nonempty_inter (x • C) (s ∩ a • C.mulStab * (t ∩ b • C.mulStab))
+  · exact h.left_le_of_le_sup_right (le_sup_left.trans_eq hx)
+  have hUn :
+    ((C.biUnion fun y => x • y • C.mulStab) ∩
+        (s ∩ a • C.mulStab * (t ∩ b • C.mulStab))).Nonempty := by
+    have : (x • C.biUnion fun y => y • C.mulStab) = C.biUnion fun y => x • y • C.mulStab :=
+      biUnion_image
+    simpa [← this]
+  simp_rw [biUnion_inter, biUnion_nonempty, ← smul_assoc, smul_eq_mul] at hUn
+  obtain ⟨y, hy, hyne⟩ := hUn
+  have hxyCsubC : (x * y) • C.mulStab ⊆ x • C := by
+    rw [← smul_eq_mul, smul_assoc, smul_finset_subset_smul_finset_iff]
+    exact smul_finset_mulStab_subset hy
+  have hxyC : Disjoint ((x * y) • C.mulStab) C := by
+    convert disjoint_smul_finset_mulStab_mul_mulStab fun hxyC => _
+    · exact C.mul_mulStab.symm
+    rw [mul_mulStab] at hxyC
+    exact hyne.not_disjoint (hC.mono_left <| le_iff_subset.2 hxyC)
+  have hxysub : (x * y) • C.mulStab ⊆ s ∩ a • C.mulStab * (t ∩ b • C.mulStab) :=
+    hxyC.left_le_of_le_sup_left (hxyCsubC.trans <| subset_union_left.trans hx.subset)
+  suffices s ∩ a • C.mulStab * (t ∩ b • C.mulStab) ⊂ (a * b) • C.mulStab by
+    have := (card_le_card hxysub).not_gt ((card_lt_card this).trans_eq ?_)
+    cases this
+    simp_rw [card_smul_finset]
+  apply ssubset_of_subset_not_subset
+  · refine (mul_subset_mul inter_subset_right inter_subset_right).trans ?_
+    simp only [smul_mul_smul_comm, mulStab_mul_mulStab, subset_refl]
+  · contrapose! hab
+    exact hab.trans (mul_subset_mul inter_subset_left inter_subset_left)
+
+lemma mul_aux1
+    (ih : #(s' * (s' * t').mulStab) + #(t' * (s' * t').mulStab) ≤ #(s' * t') + #(s' * t').mulStab)
+    (hconv : #(s ∩ t) + #((s ∪ t) * C.mulStab) ≤ #C + #C.mulStab)
+    (hnotconv :
+      #(C ∪ s' * t') + #(C ∪ s' * t').mulStab < #(s ∩ t) + #((s ∪ t) * (C ∪ s' * t').mulStab))
+    (hCun : (C ∪ s' * t').mulStab = (s' * t').mulStab) (hdisj : Disjoint C (s' * t')) :
+    (#((s ∪ t) * C.mulStab) - #((s ∪ t) * (s' * t').mulStab) : ℤ) <
+      #C.mulStab - #(s' * (s' * t').mulStab) - #(t' * (s' * t').mulStab) := by
+  set H := C.mulStab
+  set H' := (s' * t').mulStab
+  set C' := C ∪ s' * t'
+  zify at hconv hnotconv ih
+  calc
+    (#((s ∪ t) * H) - #((s ∪ t) * H') : ℤ) < #C + #H - #(s ∩ t) - (#C' + #H' - #(s ∩ t)) := by
+      rw [← hCun]
+      linarith [hconv, hnotconv]
+    _ = #H - #(s' * t') - #H' := by
+      rw [card_union_of_disjoint hdisj, Int.natCast_add]
+      abel
+    _ ≤ #H - #(s' * H') - #(t' * H') := by linarith [ih]
+
+lemma disjoint_smul_mulStab (hst : s ⊆ t) (has : ¬a • s.mulStab ⊆ t) :
+    Disjoint s (a • s.mulStab) := by
+  suffices Disjoint (a • s.mulStab) (s * s.mulStab) by
+    simpa [mul_comm, disjoint_comm, mulStab_mul]
+  apply disjoint_smul_finset_mulStab_mul_mulStab
+  rw [mul_comm, mulStab_mul]
+  contrapose! has
+  exact subset_trans has hst
+
+lemma disjoint_mul_sub_card_le {a : α} (b : α) {s t C : Finset α} (has : a ∈ s)
+    (hsC : Disjoint t (a • C.mulStab))
+    (hst : (s ∩ a • C.mulStab * (t ∩ b • C.mulStab)).mulStab ⊆ C.mulStab) :
+    (#C.mulStab : ℤ) -
+        #(s ∩ a • C.mulStab * (s ∩ a • C.mulStab * (t ∩ b • C.mulStab)).mulStab) ≤
+      #((s ∪ t) * C.mulStab) -
+        #((s ∪ t) * (s ∩ a • C.mulStab * (t ∩ b • C.mulStab)).mulStab) := by
+  obtain rfl | hC := C.eq_empty_or_nonempty
+  · simp
+  calc
+    (#C.mulStab : ℤ) -
+          #(s ∩ a • C.mulStab * (s ∩ a • C.mulStab * (t ∩ b • C.mulStab)).mulStab) =
+        #(a • C.mulStab \
+            (s ∩ a • C.mulStab * (s ∩ a • C.mulStab * (t ∩ b • C.mulStab)).mulStab)) := by
+      rw [card_sdiff_of_subset
+          (subset_trans (mul_subset_mul_left hst)
+            (subset_trans (mul_subset_mul_right inter_subset_right) _)),
+        card_smul_finset, Int.ofNat_sub]
+      · apply le_trans (card_le_card (mul_subset_mul_left hst))
+        apply
+          le_trans (card_le_card inter_mul_subset)
+            (le_of_le_of_eq (card_le_card inter_subset_right) _)
+        rw [smul_mul_assoc, mulStab_mul_mulStab, card_smul_finset]
+      · simp only [smul_mul_assoc, mulStab_mul_mulStab, Subset.rfl]
+    _ ≤ #((s ∪ t) * C.mulStab) -
+          #((s ∪ t) * (s ∩ a • C.mulStab * (t ∩ b • C.mulStab)).mulStab) := by
+      rw [← Int.ofNat_sub (card_le_card (mul_subset_mul_left hst)),
+        ← card_sdiff_of_subset (mul_subset_mul_left hst)]
+      norm_cast
+      gcongr #?_
+      refine fun x hx => mem_sdiff.mpr ⟨?_, ?_⟩
+      · apply smul_finset_subset_smul (mem_union_left t has) (mem_sdiff.mp hx).1
+      have hx' := (mem_sdiff.mp hx).2
+      contrapose! hx'
+      obtain ⟨y, hyst, d, hd, hxyd⟩ := mem_mul.mp hx'
+      obtain ⟨c, hc, hcx⟩ := mem_smul_finset.mp (mem_sdiff.mp hx).1
+      rw [← hcx, ← eq_mul_inv_iff_mul_eq] at hxyd
+      have hyC : y ∈ a • C.mulStab := by
+        rw [hxyd, smul_mul_assoc, smul_mem_smul_finset_iff, ← mulStab_mul_mulStab]
+        apply mul_mem_mul hc ((mem_mulStab hC).mpr (inv_smul_eq_iff.mpr _))
+        exact Eq.symm ((mem_mulStab hC).mp (hst hd))
+      replace hyst : y ∈ s := by
+        apply or_iff_not_imp_right.mp (mem_union.mp hyst)
+        contrapose! hsC
+        exact not_disjoint_iff.mpr ⟨y, hsC, hyC⟩
+      rw [eq_mul_inv_iff_mul_eq, hcx] at hxyd
+      rw [← hxyd]
+      exact mul_mem_mul (mem_inter.mpr ⟨hyst, hyC⟩) hd
+
+lemma inter_mul_sub_card_le {a : α} {s t C : Finset α} (has : a ∈ s)
+    (hst : (s ∩ a • C.mulStab * (t ∩ a • C.mulStab)).mulStab ⊆ C.mulStab) :
+    (#C.mulStab : ℤ) -
+          #(s ∩ a • C.mulStab * (s ∩ a • C.mulStab * (t ∩ a • C.mulStab)).mulStab) -
+        #(t ∩ a • C.mulStab * (s ∩ a • C.mulStab * (t ∩ a • C.mulStab)).mulStab) ≤
+      #((s ∪ t) * C.mulStab) -
+        #((s ∪ t) * (s ∩ a • C.mulStab * (t ∩ a • C.mulStab)).mulStab) := by
+  obtain rfl | hC := C.eq_empty_or_nonempty
+  · simp
+  calc
+    (#C.mulStab : ℤ) -
+            #(s ∩ a • C.mulStab * (s ∩ a • C.mulStab * (t ∩ a • C.mulStab)).mulStab) -
+          #(t ∩ a • C.mulStab * (s ∩ a • C.mulStab * (t ∩ a • C.mulStab)).mulStab) ≤
+        #(a • C.mulStab \
+            ((s ∩ a • C.mulStab ∪ t ∩ a • C.mulStab) *
+              (s ∩ a • C.mulStab * (t ∩ a • C.mulStab)).mulStab)) := by
+      rw [card_sdiff_of_subset, Int.ofNat_sub (card_le_card _), card_smul_finset]
+      · grw [union_mul, le_sub_iff_add_le, card_union_le]
+        norm_num
+      all_goals
+        apply subset_trans (mul_subset_mul_left hst)
+        rw [← union_inter_distrib_right]
+        refine subset_trans (mul_subset_mul_right inter_subset_right) ?_
+        simp only [smul_mul_assoc, mulStab_mul_mulStab, Subset.rfl]
+    _ ≤ #((s ∪ t) * C.mulStab) -
+          #((s ∪ t) * (s ∩ a • C.mulStab * (t ∩ a • C.mulStab)).mulStab) := by
+      rw [← Int.ofNat_sub (card_le_card (mul_subset_mul_left hst)),
+        ← card_sdiff_of_subset (mul_subset_mul_left hst)]
+      norm_cast
+      apply card_le_card
+      refine fun x hx => mem_sdiff.mpr ⟨?_, ?_⟩
+      · apply smul_finset_subset_smul (mem_union_left t has) (mem_sdiff.mp hx).1
+      have hx' := (mem_sdiff.mp hx).2
+      contrapose! hx'
+      rw [← union_inter_distrib_right]
+      obtain ⟨y, hyst, d, hd, hxyd⟩ := mem_mul.mp hx'
+      obtain ⟨c, hc, hcx⟩ := mem_smul_finset.mp (mem_sdiff.mp hx).1
+      rw [← hcx, ← eq_mul_inv_iff_mul_eq] at hxyd
+      have hyC : y ∈ a • C.mulStab := by
+        rw [hxyd, smul_mul_assoc, smul_mem_smul_finset_iff, ← mulStab_mul_mulStab]
+        apply mul_mem_mul hc ((mem_mulStab hC).mpr (inv_smul_eq_iff.mpr _))
+        exact Eq.symm ((mem_mulStab hC).mp (hst hd))
+      rw [eq_mul_inv_iff_mul_eq, hcx] at hxyd
+      rw [← hxyd]
+      exact mul_mem_mul (mem_inter.mpr ⟨hyst, hyC⟩) hd
+
+set_option linter.dupNamespace false in
+private lemma card_mul_add_card_lt (hC : C.Nonempty) (hs : s' ⊆ s) (ht : t' ⊆ t)
+    (hCst : C ⊆ s * t) (hCst' : Disjoint C (s' * t')) :
+    #(s' * t') + #s' < #(s * t) + #s :=
+  add_lt_add_of_lt_of_le
+      (by
+        rw [← tsub_pos_iff_lt, ← card_sdiff_of_subset (mul_subset_mul hs ht), card_pos]
+        exact hC.mono (subset_sdiff.2 ⟨hCst, hCst'⟩)) <|
+    card_le_card hs
+
+/-! ### Kneser's theorem -/
+
+variable (s t)
+
+/-- **Kneser's multiplication theorem**: A lower bound on the size of `s * t` in terms of its
+stabilizer. -/
+theorem mul_kneser :
+    #(s * (s * t).mulStab) + #(t * (s * t).mulStab)
+      ≤ #(s * t) + #(s * t).mulStab := by
+  -- We're doing induction on `#(s * t) + #s` generalizing the group. This is a bit tricky
+  -- in Lean.
+  set n : ℕ := #(s * t) + #s with hn
+  clear_value n
+  induction n using Nat.strong_induction_on generalizing α with | h n ih =>
+  subst hn
+  -- The cases `s = ∅` and `t = ∅` are easily taken care of.
+  obtain rfl | hs := s.eq_empty_or_nonempty
+  · simp
+  obtain rfl | ht := t.eq_empty_or_nonempty
+  · simp
+  classical
+  -- We distinguish whether `s * t` has trivial stabilizer.
+  obtain hstab | hstab := ne_or_eq (s * t).mulStab 1
+  · have image_coe_mul :
+      ((s * t).image (↑) : Finset (α ⧸ stabilizer α (↑(s * t) : Set α))) =
+        s.image (↑) * t.image (↑) :=
+      image_mul (QuotientGroup.mk' _ : α →* α ⧸ stabilizer α (↑(s * t) : Set α))
+    suffices hineq :
+      #(s * t).mulStab *
+          (#(s.image (↑) : Finset (α ⧸ stabilizer α (↑(s * t) : Set α))) +
+              #(t.image (↑) : Finset (α ⧸ stabilizer α (↑(s * t) : Set α))) -  1) ≤
+        #(s * t) by
+    -- now to prove that `#(s * (s * t).mulStab) = #(s * t).mulStab * #(s.image (↑))` and
+    -- the analogous statement for `s` and `t` interchanged
+    -- this will conclude the proof of the first case immediately
+      rw [mul_tsub, mul_one, mul_add, tsub_le_iff_left, card_mulStab_mul_card_image_coe',
+        card_mulStab_mul_card_image_coe'] at hineq
+      convert! hineq using 1
+      exact add_comm _ _
+    refine le_of_le_of_eq (mul_le_mul_right ?_ _) (card_mul_card_eq_mulStab_card_mul_coe s t).symm
+    have := ih _ ?_ (s.image (↑) : Finset (α ⧸ stabilizer α (↑(s * t) : Set α))) (t.image (↑)) rfl
+    · classical
+      simpa only [← image_coe_mul, mulStab_image_coe_quotient (hs.mul ht), mul_one,
+        tsub_le_iff_right, card_one] using this
+    rw [← image_coe_mul, card_mul_card_eq_mulStab_card_mul_coe]
+    exact
+      add_lt_add_of_lt_of_le
+        (lt_mul_left ((hs.mul ht).image _).card_pos <|
+          Finset.one_lt_card.2 ((hs.mul ht).mulStab_nontrivial.2 hstab))
+        card_image_le
+  -- Simplify the induction hypothesis a bit. We will only need it over `α` from now on.
+  simp only [hstab, mul_one, card_one] at ih ⊢
+  replace ih := fun s' t' h => @ih _ h α _ _ s' t' rfl
+  obtain ⟨a, rfl⟩ | ⟨a, ha, b, hb, hab⟩ := hs.exists_eq_singleton_or_nontrivial
+  · rw [card_singleton, card_singleton_mul, add_comm]
+  have : b / a ∉ t.mulStab := by
+    refine fun h => hab (Eq.symm (eq_of_div_eq_one ?_))
+    replace h := subset_mulStab_mul_right hs h
+    rw [hstab, mem_one] at h
+    exact h
+  simp only [mem_mulStab' ht, smul_eq_mul, Classical.not_forall, exists_prop] at this
+  obtain ⟨c, hc, hbac⟩ := this
+  set t' := (a / c) • t with ht'
+  clear_value t'
+  rw [← inv_smul_eq_iff] at ht'
+  subst ht'
+  rename' t' => t
+  rw [mem_inv_smul_finset_iff, smul_eq_mul, div_mul_cancel] at hc
+  rw [div_mul_comm, mem_inv_smul_finset_iff, smul_eq_mul, ← mul_assoc, div_mul_div_cancel',
+    div_self', one_mul] at hbac
+  rw [smul_finset_nonempty] at ht
+  simp only [mul_smul_comm, mulStab_smul, card_smul_finset] at *
+  have hst : (s ∩ t).Nonempty := ⟨_, mem_inter.2 ⟨ha, hc⟩⟩
+  have hsts : s ∩ t ⊂ s :=
+    ⟨inter_subset_left, not_subset.2 ⟨_, hb, fun h => hbac <| inter_subset_right h⟩⟩
+  clear! a b
+  set convergent : Set (Finset α) :=
+    {C | C ⊆ s * t ∧ #(s ∩ t) + #((s ∪ t) * C.mulStab) ≤ #C + #C.mulStab}
+  have convergent_nonempty : convergent.Nonempty := by
+    refine ⟨s ∩ t * (s ∪ t), inter_mul_union_subset, (add_le_add_left (card_le_card <|
+      subset_mul_left _ <| one_mem_mulStab.2 <| hst.mul <| hs.mono subset_union_left) _).trans <|
+        ih (s ∩ t) (s ∪ t) ?_⟩
+    exact add_lt_add_of_le_of_lt (card_le_card inter_mul_union_subset) (card_lt_card hsts)
+  let C := argminOn (fun C : Finset α => #C.mulStab) _ convergent_nonempty
+  set H := C.mulStab with hH
+  obtain ⟨hCst, hCcard⟩ : C ∈ convergent := argminOn_mem _ _ _
+  have hCmin (D : Finset α) (hDH : D.mulStab ⊂ H) : D ∉ convergent := fun hD ↦
+    (card_lt_card hDH).not_ge <| argminOn_le (fun D : Finset α => #D.mulStab) _ hD
+  clear_value C
+  clear convergent_nonempty
+  obtain rfl | hC := C.eq_empty_or_nonempty
+  · simp [hst.ne_empty] at hCcard
+  -- If the stabilizer of `C` is trivial, then
+  -- `#s + #t - 1 = #(s ∩ t) + #(s ∪ t) - 1 = ≤ #C ≤ #(s * t)`
+  obtain hCstab | hCstab := eq_singleton_or_nontrivial (one_mem_mulStab.2 hC)
+  · simp only [hCstab, card_singleton, card_mul_singleton, card_inter_add_card_union] at hCcard
+    grw [hCcard, hCst]
+  exfalso
+  have : ¬s * t * H ⊆ s * t := by
+    rw [mul_subset_left_iff (hs.mul ht), hstab, ← coe_subset, coe_one]
+    exact hCstab.coe.not_subset_singleton
+  simp_rw [mul_subset_iff_left, Classical.not_forall, mem_mul] at this
+  obtain ⟨_, ⟨a, ha, b, hb, rfl⟩, hab⟩ := this
+  set s₁ := s ∩ a • H with hs₁
+  set s₂ := s ∩ b • H with hs₂
+  set t₁ := t ∩ b • H with ht₁
+  set t₂ := t ∩ a • H with ht₂
+  have hs₁s : s₁ ⊆ s := inter_subset_left
+  have hs₂s : s₂ ⊆ s := inter_subset_left
+  have ht₁t : t₁ ⊆ t := inter_subset_left
+  have ht₂t : t₂ ⊆ t := inter_subset_left
+  have has₁ : a ∈ s₁ := mem_inter.mpr ⟨ha, mem_smul_finset.2 ⟨1, one_mem_mulStab.2 hC, mul_one _⟩⟩
+  have hbt₁ : b ∈ t₁ := mem_inter.mpr ⟨hb, mem_smul_finset.2 ⟨1, one_mem_mulStab.2 hC, mul_one _⟩⟩
+  have hs₁ne : s₁.Nonempty := ⟨_, has₁⟩
+  have ht₁ne : t₁.Nonempty := ⟨_, hbt₁⟩
+  set C₁ := C ∪ s₁ * t₁
+  set C₂ := C ∪ s₂ * t₂
+  set H₁ := (s₁ * t₁).mulStab with hH₁
+  set H₂ := (s₂ * t₂).mulStab
+  have hC₁st : C₁ ⊆ s * t := union_subset hCst (mul_subset_mul hs₁s ht₁t)
+  have hC₂st : C₂ ⊆ s * t := union_subset hCst (mul_subset_mul hs₂s ht₂t)
+  have hstabH₁ : s₁ * t₁ ⊆ (a * b) • H := by
+    rw [hH, ← mulStab_mul_mulStab C, ← smul_mul_smul_comm]
+    apply mul_subset_mul inter_subset_right inter_subset_right
+  have hstabH₂ : s₂ * t₂ ⊆ (a * b) • H := by
+    rw [hH, ← mulStab_mul_mulStab C, ← smul_mul_smul_comm, mul_comm s₂ t₂]
+    apply mul_subset_mul inter_subset_right inter_subset_right
+  have hCst₁ := disjoint_of_subset_right hstabH₁ (disjoint_smul_mulStab hCst hab)
+  have hCst₂ := disjoint_of_subset_right hstabH₂ (disjoint_smul_mulStab hCst hab)
+  have hst₁ : #(s₁ * t₁) + #s₁ < #(s * t) + #s :=
+    card_mul_add_card_lt hC hs₁s ht₁t hCst hCst₁
+  have hst₂ : #(s₂ * t₂) + #s₂ < #(s * t) + #s :=
+    card_mul_add_card_lt hC hs₂s ht₂t hCst hCst₂
+  have hC₁stab : C₁.mulStab = H₁ := mulStab_union hs₁ne ht₁ne hab hCst₁
+  have hH₁H : H₁ ⊂ H := mulStab_mul_ssubset_mulStab hs₁ne ht₁ne hab
+  have aux1₁ :=
+    mul_aux1 (ih _ _ hst₁) hCcard
+      (not_le.1 fun h => hCmin _ (hC₁stab.trans_ssubset hH₁H) ⟨hC₁st, h⟩) hC₁stab hCst₁
+  obtain ht₂ | ht₂ne := t₂.eq_empty_or_nonempty
+  · have aux₁_contr :=
+      disjoint_mul_sub_card_le b (hs₁s has₁) (disjoint_iff_inter_eq_empty.2 ht₂) hH₁H.subset
+    linarith [aux1₁, aux₁_contr, Int.natCast_nonneg #(t₁ * (s₁ * t₁).mulStab)]
+  obtain hs₂ | hs₂ne := s₂.eq_empty_or_nonempty
+  · have aux1₁_contr :
+      (#C.mulStab : ℤ) - #(t₁ * (s₁ * t₁).mulStab) ≤
+        #((s ∪ t) * C.mulStab) - #((s ∪ t) * (s₁ * t₁).mulStab) := by
+      simpa [union_comm, mul_comm s₁ t₁] using
+        disjoint_mul_sub_card_le a (ht₁t hbt₁) (disjoint_iff_inter_eq_empty.2 hs₂)
+          (by rw [mul_comm]; exact hH₁H.subset)
+    linarith [aux1₁, aux1₁_contr, Int.natCast_nonneg #(s₁ * (s₁ * t₁).mulStab)]
+  have hC₂stab : C₂.mulStab = H₂ := mulStab_union hs₂ne ht₂ne (by rwa [mul_comm]) hCst₂
+  have hH₂H : H₂ ⊂ H := mulStab_mul_ssubset_mulStab hs₂ne ht₂ne (by rwa [mul_comm])
+  have aux1₂ :=
+    mul_aux1 (ih _ _ hst₂) hCcard
+      (not_le.1 fun h => hCmin _ (hC₂stab.trans_ssubset hH₂H) ⟨hC₂st, h⟩) hC₂stab hCst₂
+  obtain habH | habH := eq_or_ne (a • H) (b • H)
+  · rw [hH₁, hs₁, ht₁, ← habH, hH] at hH₁H
+    refine aux1₁.not_ge ?_
+    simp only [hs₁, ht₁, ← habH, inter_mul_sub_card_le (hs₁s has₁) hH₁H.subset, H]
+  -- temporarily skipping deduction of inequality (2)
+  set S := a • H \ (s₁ ∪ t₂) with hS
+  set T := b • H \ (s₂ ∪ t₁) with hT
+  have hST : Disjoint S T :=
+    (C.pairwiseDisjoint_smul_finset_mulStab (Set.mem_range_self _) (Set.mem_range_self _)
+          habH).mono
+      sdiff_le sdiff_le
+  have hSst : S ⊆ a • H \ (s ∪ t) := by
+    simp only [hS, hs₁, ht₂, ← union_inter_distrib_right, sdiff_inter_self_right, Subset.rfl]
+  have hTst : T ⊆ b • H \ (s ∪ t) := by
+    simp only [hT, hs₂, ht₁, ← union_inter_distrib_right, sdiff_inter_self_right, Subset.rfl]
+  have hSTst : Disjoint (S ∪ T) (s ∪ t) := (subset_sdiff.1 hSst).2.sup_left (subset_sdiff.1 hTst).2
+  have hstconv : s * t ∉ convergent := by
+    apply hCmin (s * t)
+    rw [hstab]
+    refine (hC.mulStab_nontrivial.mp hCstab).symm.ssubset_of_subset ?_
+    simp only [one_subset, one_mem_mulStab, hC]
+  simp only [Set.mem_setOf_eq, Subset.rfl, true_and, not_le, hstab, mul_one, card_one,
+    convergent] at hstconv
+  zify at hstconv
+  have hSTcard : (#S : ℤ) + #T + #(s ∪ t) ≤ #((s ∪ t) * H) := by
+    norm_cast
+    conv_lhs => rw [← card_union_of_disjoint hST, ← card_union_of_disjoint hSTst, ← mul_one (s ∪ t)]
+    refine card_le_card
+      (union_subset (union_subset ?_ ?_) <| mul_subset_mul_left <| one_subset.2 hC.one_mem_mulStab)
+    · exact hSst.trans (sdiff_subset.trans <| smul_finset_subset_smul <| mem_union_left _ ha)
+    · exact hTst.trans (sdiff_subset.trans <| smul_finset_subset_smul <| mem_union_right _ hb)
+  have hH₁ne : H₁.Nonempty := (hs₁ne.mul ht₁ne).mulStab
+  have hH₂ne : H₂.Nonempty := (hs₂ne.mul ht₂ne).mulStab
+  -- Now we prove inequality (2)
+  have aux2₁ : (#s₁ : ℤ) + #t₁ + #H₁ ≤ #H := by
+    rw [← le_sub_iff_add_le']
+    refine (Int.le_of_dvd ((sub_nonneg_of_le <| Nat.cast_le.2 <| card_le_card <|
+      mul_subset_mul_left hH₁H.subset).trans_lt aux1₁) <| dvd_sub
+        (dvd_sub (card_mulStab_dvd_card_mulStab (hs₁ne.mul ht₁ne) hH₁H.subset).natCast
+          (card_mulStab_dvd_card_mul_mulStab _ _).natCast) <|
+        (card_mulStab_dvd_card_mul_mulStab _ _).natCast).trans ?_
+    rw [sub_sub]
+    gcongr _ - (Nat.cast ?_ + Nat.cast ?_) <;> exact card_le_card_mul_right hH₁ne
+  have aux2₂ : (#s₂ : ℤ) + #t₂ + #H₂ ≤ #H := by
+    rw [← le_sub_iff_add_le']
+    refine (Int.le_of_dvd ((sub_nonneg_of_le <| Nat.cast_le.2 <| card_le_card <|
+      mul_subset_mul_left hH₂H.subset).trans_lt aux1₂) <| dvd_sub
+        (dvd_sub (card_mulStab_dvd_card_mulStab (hs₂ne.mul ht₂ne) hH₂H.subset).natCast
+          (card_mulStab_dvd_card_mul_mulStab _ _).natCast) <|
+        (card_mulStab_dvd_card_mul_mulStab _ _).natCast).trans ?_
+    rw [sub_sub]
+    exact sub_le_sub_left (add_le_add (Nat.cast_le.2 <| card_le_card_mul_right hH₂ne) <|
+      Nat.cast_le.2 <| card_le_card_mul_right hH₂ne) _
+  -- Now we deduce inequality (3) using the above lemma in addition to the facts that `s * t` is not
+  -- convergent and then induction hypothesis applied to `sᵢ` and `tᵢ`
+  have aux3₁ : (#S : ℤ) + #T + #s₁ + #t₁ - #H₁ < #H :=
+    calc
+      (#S : ℤ) + #T + #s₁ + #t₁ - #H₁
+        < #S + #T + #(s ∪ t) + #(s ∩ t) - #(s * t) + #(s₁ * t₁) := by
+        have ih₁ :=
+          (add_le_add (card_le_card_mul_right hH₁ne) <| card_le_card_mul_right hH₁ne).trans
+            (ih _ _ hst₁)
+        zify at ih₁
+        linarith [hstconv, ih₁]
+      _ ≤ #((s ∪ t) * H) + #(s ∩ t) - #C := by
+        suffices (#C : ℤ) + #(s₁ * t₁) ≤ #(s * t) by linarith [this, hSTcard]
+        · norm_cast
+          simpa only [← card_union_of_disjoint hCst₁] using card_le_card hC₁st
+      _ ≤ #H := by
+        simpa only [sub_le_iff_le_add, ← Int.natCast_add, Int.ofNat_le, add_comm _ #C,
+          add_comm _ #(s ∩ t)] using hCcard
+  have aux3₂ : (#S : ℤ) + #T + #s₂ + #t₂ - #H₂ < #H :=
+    calc
+      (#S : ℤ) + #T + #s₂ + #t₂ - #H₂
+       < #S + #T + #(s ∪ t) + #(s ∩ t) - #(s * t) + #(s₂ * t₂) := by
+        have ih₂ :=
+          (add_le_add (card_le_card_mul_right hH₂ne) <| card_le_card_mul_right hH₂ne).trans
+            (ih _ _ hst₂)
+        zify at hstconv ih₂
+        linarith [ih₂]
+      _ ≤ #((s ∪ t) * H) + #(s ∩ t) - #C := by
+        suffices (#C : ℤ) + #(s₂ * t₂) ≤ #(s * t) by linarith [this, hSTcard]
+        · norm_cast
+          simpa only [← card_union_of_disjoint hCst₂] using card_le_card hC₂st
+      _ ≤ #H := by
+        simpa only [sub_le_iff_le_add, ← Int.natCast_add, Int.ofNat_le, add_comm _ #C,
+          add_comm _ #(s ∩ t)] using hCcard
+  have aux4₁ : #H ≤ #S + (#s₁ + #t₂) := by
+    grw [← card_smul_finset a H, card_le_card_sdiff_add_card, card_union_le]
+  have aux4₂ : #H ≤ #T + (#s₂ + #t₁) := by
+    grw [← card_smul_finset b H, card_le_card_sdiff_add_card, card_union_le]
+  linarith [aux2₁, aux2₂, aux3₁, aux3₂, aux4₁, aux4₂]
+
+/-- The strict version of **Kneser's multiplication theorem**. If the LHS of `Finset.mul_kneser`
+does not equal the RHS, then it is in fact much smaller. -/
+lemma mul_strict_kneser (h : #(s * (s * t).mulStab) + #(t * (s * t).mulStab) <
+      #(s * t) + #(s * t).mulStab) :
+    #(s * (s * t).mulStab) + #(t * (s * t).mulStab) ≤ #(s * t) :=
+  Nat.le_of_lt_add_of_dvd h
+      ((card_mulStab_dvd_card_mul_mulStab _ _).add <| card_mulStab_dvd_card_mul_mulStab _ _) <|
+    card_mulStab_dvd_card _
+
+end Finset
+namespace Finset
+
+lemma image_add_ofAdd {α : Type*} [Add α] [DecidableEq α] (s t : Finset α) :
+    (s + t).image (Multiplicative.ofAdd : α → Multiplicative α) =
+      s.image Multiplicative.ofAdd * t.image Multiplicative.ofAdd := by
+  ext x
+  simp [Finset.mem_add, Finset.mem_mul]
+
+lemma image_vadd_ofAdd {α : Type*} [Add α] [DecidableEq α] (a : α) (s : Finset α) :
+    (a +ᵥ s).image (Multiplicative.ofAdd : α → Multiplicative α) =
+      Multiplicative.ofAdd a • s.image Multiplicative.ofAdd := by
+  ext x
+  simp [Finset.mem_vadd_finset, Finset.mem_smul_finset]
+
+lemma mulStab_image_ofAdd_eq_addStab_image {α : Type*} [AddCommGroup α] [DecidableEq α]
+    (u : Finset α) :
+    (u.image (Multiplicative.ofAdd : α → Multiplicative α)).mulStab =
+      u.addStab.image Multiplicative.ofAdd := by
+  ext x
+  constructor
+  · intro hx
+    rw [Finset.mulStab, Finset.mem_filter] at hx
+    refine Finset.mem_image.mpr ⟨Multiplicative.toAdd x, ?_, rfl⟩
+    rw [Finset.addStab, Finset.mem_filter]
+    constructor
+    · rw [Finset.mem_sub]
+      rw [Finset.mem_div] at hx
+      rcases hx.1 with ⟨a, ha, b, hb, hab⟩
+      rcases Finset.mem_image.mp ha with ⟨a', ha', rfl⟩
+      rcases Finset.mem_image.mp hb with ⟨b', hb', rfl⟩
+      refine ⟨a', ha', b', hb', ?_⟩
+      simpa using congrArg Multiplicative.toAdd hab
+    · apply (Finset.image_inj Multiplicative.ofAdd.injective).mp
+      simpa using (image_vadd_ofAdd (Multiplicative.toAdd x) u).trans hx.2
+  · intro hx
+    rcases Finset.mem_image.mp hx with ⟨a, ha, rfl⟩
+    rw [Finset.addStab, Finset.mem_filter] at ha
+    rw [Finset.mulStab, Finset.mem_filter]
+    constructor
+    · rw [Finset.mem_div]
+      rw [Finset.mem_sub] at ha
+      rcases ha.1 with ⟨b, hb, c, hc, hbc⟩
+      refine ⟨Multiplicative.ofAdd b, by simpa, Multiplicative.ofAdd c, by simpa, ?_⟩
+      simpa [hbc]
+    · rw [← image_vadd_ofAdd, ha.2]
+
+lemma add_kneser_local {α : Type*} [AddCommGroup α] [DecidableEq α] (s t : Finset α) :
+    (s + (s + t).addStab).card + (t + (s + t).addStab).card ≤
+      (s + t).card + ((s + t).addStab).card := by
+  let f : α → Multiplicative α := Multiplicative.ofAdd
+  let sM : Finset (Multiplicative α) := s.image f
+  let tM : Finset (Multiplicative α) := t.image f
+  have hstM : sM * tM = (s + t).image f := by
+    rw [image_add_ofAdd]
+  have hstabM : (sM * tM).mulStab = ((s + t).addStab).image f := by
+    rw [hstM, mulStab_image_ofAdd_eq_addStab_image]
+  have hs_prod : sM * (sM * tM).mulStab = (s + (s + t).addStab).image f := by
+    rw [hstabM, image_add_ofAdd]
+  have ht_prod : tM * (sM * tM).mulStab = (t + (s + t).addStab).image f := by
+    rw [hstabM, image_add_ofAdd]
+  have h := Finset.mul_kneser sM tM
+  rw [hs_prod, ht_prod, hstabM, hstM] at h
+  repeat rw [Finset.card_image_of_injective _ Multiplicative.ofAdd.injective] at h
+  simpa using h
+
+end Finset
+
+local notation:max "#" s:max => Finset.card s
 
 namespace Erdos433
 
@@ -447,7 +1411,16 @@ lemma lemma_2_2_existence_E' (a b : ℕ) (ha : a ≥ 3) (_hb : b > 0) (E : Finse
   (hE_subset : E ⊆ Finset.Icc 1 a) (hE_card : E.card = b) (hb_gt : b > a / 2)
   (h_not_in : a - 1 ∉ S (E : Set ℕ) ∨ a ∉ S (E : Set ℕ)) :
   ∃ E' : Finset ℕ, E' ⊆ Finset.Icc 1 (a - 2) ∧ E'.card > (a - 2) / 2 ∧ (E' : Set ℕ) ⊆ S (E : Set ℕ) := by
-    sorry
+    -- By `lemma_2_2_card_ineq`, $|S \cap [1, a]| \le |S \cap [1, a-2]| + 1$.
+    have lemma_2_2_card_ineq_applied : (Finset.filter (fun x => x ∈ S E) (Finset.Icc 1 a)).card ≤ (Finset.filter (fun x => x ∈ S E) (Finset.Icc 1 (a - 2))).card + 1 := by
+      simpa using
+        lemma_2_2_card_ineq (S (E : Set ℕ) : Set ℕ) a (by linarith) h_not_in
+    -- Since $E \subseteq S \cap [1, a]$, we have $|S \cap [1, a]| \ge b$.
+    have lemma_2_2_card_ge_b : (Finset.filter (fun x => x ∈ S E) (Finset.Icc 1 a)).card ≥ b := by
+      exact hE_card ▸ Finset.card_le_card fun x hx => Finset.mem_filter.mpr ⟨ hE_subset hx, AddSubsemigroup.subset_closure <| Finset.mem_coe.mpr hx ⟩;
+    refine ⟨ Finset.filter ( fun x => x ∈ S E ) ( Finset.Icc 1 ( a - 2 ) ), ?_, ?_, ?_ ⟩ <;> norm_num;
+    · omega;
+    · exact fun x hx => hx.2
 /-
 Inductive step for Lemma 2.2: If the lemma holds for a-2, then it holds for a (assuming a >= 3).
 -/
@@ -898,7 +1871,221 @@ lemma lemma_2_6 (a : ℕ) (ha : a > 0) (A B : Finset (ZMod a)) :
   let G := AddSubgroup.closure {(p : ZMod a)}
   ((A : Set (ZMod a)) + (B : Set (ZMod a)) + (G : Set (ZMod a)) = (A : Set (ZMod a)) + (B : Set (ZMod a))) ∧
   ((A : Set (ZMod a)) + B).ncard ≥ min a (((A : Set (ZMod a)) + G).ncard + ((B : Set (ZMod a)) + G).ncard - q) := by
-    sorry
+  letI : NeZero a := ⟨ha.ne'⟩
+  let H := AddAction.stabilizer (ZMod a) (A + B : Set (ZMod a))
+  obtain ⟨p, q, hp, hq, hpq, hH_card, hH_closure⟩ := lemma_subgroup_structure a ha H
+  use p, q
+  refine ⟨hp, hq, hpq, ?_, ?_⟩
+  · have h_stab := lemma_stabilizer_is_period (A + B : Set (ZMod a))
+    have h_G_eq_H : (AddSubgroup.closure {(p : ZMod a)} : Set (ZMod a)) = (H : Set (ZMod a)) := by
+      rw [hH_closure]
+    rw [h_G_eq_H]
+    exact h_stab
+  · -- Bridge: show (A + B).addStab as a Finset has the same coe as H
+    let H_fin := (A + B).addStab
+    -- We handle the case where A + B might be empty separately
+    by_cases hAB_nonempty : (A + B).Nonempty
+    · -- Case 1: A + B is nonempty
+      have hH_fin_coe : (H_fin : Set (ZMod a)) = (H : Set (ZMod a)) := by
+        ext x
+        simp only [H_fin, Finset.addStab, Finset.coe_filter, Set.mem_setOf_eq, H]
+        constructor
+        · rintro ⟨_hmem, hact⟩
+          -- hact : x +ᵥ A + B = A + B (Finset equality)
+          -- We need to show x ∈ ↑(AddAction.stabilizer (ZMod a) (↑A + ↑B))
+          simp only [SetLike.mem_coe, AddAction.mem_stabilizer_iff]
+          -- Goal: x +ᵥ (↑A + ↑B) = ↑A + ↑B (Set equality)
+          -- Key: relate Finset vadd/add to Set vadd/add
+          have h_coe : (↑(A + B) : Set (ZMod a)) = (↑A : Set (ZMod a)) + (↑B : Set (ZMod a)) := by
+            ext; simp
+          have h_vadd_coe : (↑(x +ᵥ (A + B)) : Set (ZMod a)) = x +ᵥ (↑(A + B) : Set (ZMod a)) := by
+            ext; simp
+          rw [← h_coe, ← h_vadd_coe, hact, h_coe]
+        · intro hmem
+          -- hmem : x ∈ ↑(AddAction.stabilizer (ZMod a) (↑A + ↑B))
+          -- We need: x ∈ A + B - (A + B) ∧ x +ᵥ A + B = A + B
+          simp only [SetLike.mem_coe, AddAction.mem_stabilizer_iff] at hmem
+          -- hmem : x +ᵥ (↑A + ↑B) = ↑A + ↑B (Set equality)
+          refine ⟨?_, ?_⟩
+          · -- show x ∈ A + B - (A + B) (as Finsets)
+            -- We know A + B is nonempty from hAB_nonempty
+            obtain ⟨c, hc⟩ := hAB_nonempty
+            have h_coe : (↑(A + B) : Set (ZMod a)) = (↑A : Set (ZMod a)) + (↑B : Set (ZMod a)) := by
+              ext; simp
+            have hc_in : c ∈ (↑A + ↑B : Set (ZMod a)) := by
+              rw [← h_coe]
+              exact Finset.mem_coe.mpr hc
+            have hxc : x + c ∈ (↑A + ↑B : Set (ZMod a)) := by
+              rw [← hmem]
+              simp only [Set.mem_vadd_set]
+              exact ⟨c, hc_in, rfl⟩
+            rw [Finset.mem_sub]
+            use x + c
+            constructor
+            · rw [← h_coe] at hxc
+              exact Finset.mem_coe.mp hxc
+            use c, hc
+            ring
+          · -- show x +ᵥ A + B = A + B (Finset equality)
+            ext y
+            have h_set_eq : (↑(A + B) : Set (ZMod a)) = (↑A : Set (ZMod a)) + (↑B : Set (ZMod a)) := by
+              simp [Finset.coe_add]
+            have h_vadd : (↑(x +ᵥ (A + B)) : Set (ZMod a)) = x +ᵥ (↑(A + B) : Set (ZMod a)) := by
+              ext z
+              simp [Set.mem_vadd_set]
+            constructor
+            · intro hy
+              have : y ∈ (↑(x +ᵥ (A + B)) : Set (ZMod a)) := Finset.mem_coe.mpr hy
+              rw [h_vadd, h_set_eq, hmem, ← h_set_eq] at this
+              exact Finset.mem_coe.mp this
+            · intro hy
+              have : y ∈ (↑A : Set (ZMod a)) + (↑B : Set (ZMod a)) := by
+                rw [← h_set_eq]
+                exact Finset.mem_coe.mpr hy
+              rw [← hmem, ← h_set_eq, ← h_vadd] at this
+              exact Finset.mem_coe.mp this
+      -- Convert ncard/Nat.card to Finset.card using hH_fin_coe
+      have h1 : ((A : Set (ZMod a)) + B).ncard = #(A + B) := by
+        rw [← Finset.coe_add, Set.ncard_coe_finset]
+      have h2 : ((A : Set (ZMod a)) + H).ncard = #(A + H_fin) := by
+        rw [← hH_fin_coe, ← Finset.coe_add, Set.ncard_coe_finset]
+      have h3 : ((B : Set (ZMod a)) + H).ncard = #(B + H_fin) := by
+        rw [← hH_fin_coe, ← Finset.coe_add, Set.ncard_coe_finset]
+      have h4 : q = #H_fin := by
+        have : Nat.card ↥H = #H_fin := by
+          rw [Nat.card_eq_fintype_card, ← Fintype.card_coe H_fin]
+          exact Fintype.card_congr (Equiv.setCongr hH_fin_coe).symm
+        linarith [hH_card.symm]
+      have h_G_eq_H : (AddSubgroup.closure {(p : ZMod a)} : Set (ZMod a)) = (H : Set (ZMod a)) := by
+        rw [hH_closure]
+      rw [h_G_eq_H, h1, h2, h3, h4]
+      -- Now apply the local proof of Kneser's theorem.
+      apply min_le_of_right_le
+      have h_kneser := Finset.add_kneser_local A B
+      -- h_kneser : #(A + (A+B).addStab) + #(B + (A+B).addStab) ≤ #(A+B) + #(A+B).addStab
+      -- Note that H_fin = (A + B).addStab
+      -- goal : #(A + H_fin) + #(B + H_fin) - #H_fin ≤ #(A+B)
+      have h_eq : H_fin = (A + B).addStab := rfl
+      rw [h_eq] at *
+      omega
+    · -- Case 2: A + B is empty
+      have hAB_empty : A + B = ∅ := Finset.not_nonempty_iff_eq_empty.mp hAB_nonempty
+      -- If A + B is empty, then A or B must be empty
+      by_cases hA_empty : A = ∅
+      · have h1 : ((A : Set (ZMod a)) + B).ncard = 0 := by
+          rw [hA_empty]
+          simp [Set.ncard_empty, Set.empty_add]
+        rw [h1]
+        simp only [ge_iff_le]
+        -- Show that the right side of min is ≤ 0
+        apply min_le_of_right_le
+        have h_AG : ((A : Set (ZMod a)) + (AddSubgroup.closure {(p : ZMod a)} : Set (ZMod a))).ncard = 0 := by
+          rw [hA_empty]
+          simp [Set.empty_add]
+        rw [h_AG]
+        simp only [zero_add]
+        -- We need (↑B + ↑G).ncard - q ≤ 0
+        -- Since (↑B + ↑G).ncard ≤ a and q > 0, we can bound this
+        have h_BG_bound : ((B : Set (ZMod a)) + (AddSubgroup.closure {(p : ZMod a)} : Set (ZMod a))).ncard ≤ q := by
+          -- G = H = <p> is a subgroup of ZMod a with |G| = q
+          -- B + G ⊆ ZMod a, so |B + G| ≤ a
+          -- But we can get a tighter bound. Since A is empty and A + B is empty, B must be empty too.
+          by_cases hB_empty : B = ∅
+          · rw [hB_empty]
+            simp [Set.empty_add]
+          · -- Let's use the fact that H = G and H is the stabilizer of A + B.
+            -- Since A + B = ∅ (as a set), the stabilizer is the whole group.
+            -- So H = ⊤, meaning q = a and p = 1.
+            have h_H_top : H = ⊤ := by
+              ext x
+              simp [H, AddAction.mem_stabilizer_iff]
+              have : (↑A : Set (ZMod a)) + (↑B : Set (ZMod a)) = ∅ := by
+                rw [hA_empty]
+                simp [Set.empty_add]
+              rw [this]
+              simp
+            have h_q_eq_a : q = a := by
+              rw [h_H_top] at hH_card
+              simp [Nat.card_eq_fintype_card] at hH_card
+              exact hH_card.symm
+            -- Since q = a, we need |B + G| ≤ a = q, which follows from |B + G| ≤ a.
+            have h_BG_le_a : ((B : Set (ZMod a)) + (AddSubgroup.closure {(p : ZMod a)} : Set (ZMod a))).ncard ≤ a := by
+              calc ((B : Set (ZMod a)) + (AddSubgroup.closure {(p : ZMod a)} : Set (ZMod a))).ncard
+                  ≤ Set.univ.ncard := Set.ncard_le_ncard (Set.subset_univ _) Set.univ.toFinite
+                _ = Nat.card (ZMod a) := Set.ncard_univ _
+                _ = a := Nat.card_zmod a
+            rw [h_q_eq_a]
+            exact h_BG_le_a
+        omega
+      · by_cases hB_empty : B = ∅
+        · have h1 : ((A : Set (ZMod a)) + B).ncard = 0 := by
+            rw [hB_empty]
+            simp [Set.ncard_empty, Set.add_empty]
+          rw [h1]
+          simp only [ge_iff_le]
+          -- Show that the right side of min is ≤ 0
+          apply min_le_of_right_le
+          have h_BG : ((B : Set (ZMod a)) + (AddSubgroup.closure {(p : ZMod a)} : Set (ZMod a))).ncard = 0 := by
+            rw [hB_empty]
+            simp
+          rw [h_BG]
+          simp only [add_zero]
+          by_cases h : ((A : Set (ZMod a)) + (AddSubgroup.closure {(p : ZMod a)} : Set (ZMod a))).ncard ≤ q
+          · omega
+          · push Not at h
+            -- Derive contradiction: when A+B = ∅, the stabilizer H = ZMod a, so q = a and G = ZMod a
+            -- Thus A + G = A + ZMod a = ZMod a (for A ≠ ∅), so ncard(A+G) = a = q
+            exfalso
+            -- First show that H = ⊤ (the whole group) when A + B = ∅
+            have h_H_top : H = ⊤ := by
+              ext x
+              simp [H, AddAction.mem_stabilizer_iff]
+              have : (↑A : Set (ZMod a)) + (↑B : Set (ZMod a)) = ∅ := by
+                rw [hB_empty]
+                simp [Set.add_empty]
+              rw [this]
+              simp
+            -- Then |H| = |ZMod a| = a, so q = a
+            have h_q_eq_a : q = a := by
+              rw [h_H_top] at hH_card
+              simp [Nat.card_eq_fintype_card] at hH_card
+              exact hH_card.symm
+            -- And G = <p> where p * q = a, so p = 1 and G = ZMod a
+            have h_p_eq_one : p = 1 := by
+              have : p * q = p * a := by rw [h_q_eq_a]
+              have : p * a = a := by rw [← this]; exact hpq
+              have : p * a = 1 * a := by rw [this]; ring
+              exact Nat.eq_of_mul_eq_mul_right ha this
+            -- So A + G = A + ZMod a = ZMod a (for A ≠ ∅)
+            have h_G_top : (AddSubgroup.closure {(p : ZMod a)} : Set (ZMod a)) = Set.univ := by
+              rw [h_p_eq_one]
+              ext x
+              simp only [AddSubgroup.mem_closure_singleton, SetLike.mem_coe, Set.mem_univ, iff_true]
+              use x.val
+              simp [ZMod.natCast_val, ZMod.cast_id']
+            have h_AG_univ : (↑A : Set (ZMod a)) + (AddSubgroup.closure {(p : ZMod a)} : Set (ZMod a)) = Set.univ := by
+              rw [h_G_top]
+              have h_A_nonempty : (↑A : Set (ZMod a)).Nonempty := by
+                simp [Set.Nonempty]
+                exact Finset.nonempty_iff_ne_empty.mpr hA_empty
+              exact Set.add_univ h_A_nonempty
+            -- Therefore ncard(A+G) = a = q
+            have h_AG_card : ((↑A : Set (ZMod a)) + (AddSubgroup.closure {(p : ZMod a)} : Set (ZMod a))).ncard = a := by
+              rw [h_AG_univ]
+              rw [Set.ncard_univ]
+              exact Nat.card_zmod a
+            rw [h_AG_card, h_q_eq_a] at h
+            omega
+        · -- Both A and B are nonempty, but A + B is empty
+          -- This is impossible in ZMod a
+          exfalso
+          obtain ⟨a_elem, ha_elem⟩ := Finset.nonempty_iff_ne_empty.mpr hA_empty
+          obtain ⟨b_elem, hb_elem⟩ := Finset.nonempty_iff_ne_empty.mpr hB_empty
+          have : a_elem + b_elem ∈ A + B := by
+            simp [Finset.mem_add]
+            use a_elem, ha_elem, b_elem, hb_elem
+          rw [hAB_empty] at this
+          exact Finset.notMem_empty _ this
 lemma lemma_3_1_kneser_step (a b : ℕ) (ha : a > 0) (E : Finset ℕ) (k : ℕ)
   (hE_card : E.card = b) (hE_max : a ∈ E) (_hE_gcd : Finset.gcd E id = 1) (hk : k ≥ 1)
   (hE_sub : E ⊆ Finset.Icc 1 a) :
@@ -912,7 +2099,180 @@ lemma lemma_3_1_kneser_step (a b : ℕ) (ha : a > 0) (E : Finset ℕ) (k : ℕ)
    (p > 1 ∧ q > 1 ∧
     ((F : Set (ZMod a)) + (G : Set (ZMod a))).ncard ≤ b + q - 2 ∧
     ((F : Set (ZMod a)) + Sk_bar).ncard ≥ ((F : Set (ZMod a)) + (G : Set (ZMod a))).ncard + (Sk_bar + (G : Set (ZMod a))).ncard - q)) := by
-      sorry
+  intro S_set
+  have h_Sk_fin : ((fun n : ℕ => (n : ZMod a)) '' S_k a S_set k).Finite := by
+    apply Set.Finite.image
+    apply Set.Finite.inter_of_right
+    apply Set.finite_Icc
+  let F_fin : Finset (ZMod a) := E.image (fun n => (n : ZMod a))
+  let Sk_bar_fin := h_Sk_fin.toFinset
+  rcases lemma_2_6 a ha F_fin Sk_bar_fin with ⟨p, q, hp_pos, hq_pos, hpq, h_stab, h_kneser⟩
+  refine ⟨p, q, hp_pos, hq_pos, hpq, ?_⟩
+  intros F Sk_bar G
+  have hSk_eq : Sk_bar = (fun n : ℕ => (n : ZMod a)) '' S_k a S_set k := rfl
+  have hG_eq : G = AddSubgroup.closure {(p : ZMod a)} := rfl
+  have hF_eq : F = F_fin := rfl
+  have hE_inj : Set.InjOn (fun (n : ℕ) => (n : ZMod a)) (↑E : Set ℕ) := by
+    intro x hx y hy hxy
+    have hx_icc := hE_sub hx; rw [Finset.mem_Icc] at hx_icc
+    have hy_icc := hE_sub hy; rw [Finset.mem_Icc] at hy_icc
+    have hxy_mod : x % a = y % a := (ZMod.natCast_eq_natCast_iff x y a).mp hxy
+    if hxa : x = a then
+      if hya : y = a then exact hxa.trans hya.symm else
+      have : y % a = 0 := by rw [← hxy_mod, hxa]; simp
+      obtain ⟨m, hm⟩ : a ∣ y := Nat.dvd_of_mod_eq_zero this
+      have : y = a := by
+        have : m ≤ 1 := by rw [hm] at hy_icc; nlinarith
+        interval_cases m
+        · rw [hm] at hy_icc; simp at hy_icc
+        · rw [hm]; simp
+      contradiction
+    else
+      if hya : y = a then
+        have : x % a = 0 := by rw [hxy_mod, hya]; simp
+        obtain ⟨m, hm⟩ : a ∣ x := Nat.dvd_of_mod_eq_zero this
+        have : x = a := by
+          have : m ≤ 1 := by rw [hm] at hx_icc; nlinarith
+          interval_cases m
+          · rw [hm] at hx_icc; simp at hx_icc
+          · rw [hm]; simp
+        contradiction
+      else
+        exact Nat.ModEq.eq_of_lt_of_lt hxy_mod (by omega) (by omega)
+  -- finished by Numina
+  have h_F_coe : (↑F_fin : Set (ZMod a)) = (fun n : ℕ => (n : ZMod a)) '' ↑E := by
+    ext x; simp [F_fin]
+  have h_F_ncard : (F : Set (ZMod a)).ncard = b := by
+    rw [hF_eq, h_F_coe, Set.InjOn.ncard_image hE_inj, Set.ncard_coe_finset]
+    exact hE_card
+  have h_Sk_plus_1_fin : ((fun n : ℕ => (n : ZMod a)) '' S_k a S_set (k + 1)).Finite := by
+    apply Set.Finite.image
+    apply Set.Finite.inter_of_right
+    apply Set.finite_Icc
+  have h_Sk_inj_m : ∀ m ≥ 1, Set.InjOn (fun (n : ℕ) => (n : ZMod a)) (S_k a S_set m) := by
+    intro m hm x hx y hy hxy
+    have h_div : ∀ n, ((m - 1) * a + 1 : ℕ) ≤ n ∧ n ≤ m * a → (n - 1) / a = m - 1 := by
+      intro n hn; have : a > 0 := ha; have : m ≥ 1 := hm
+      apply Nat.div_eq_of_lt_le
+      · have h1 : (m - 1) * a + 1 ≤ n := hn.1
+        have h2 : 1 ≤ n := by omega
+        rw [Nat.le_sub_iff_add_le h2]; exact h1
+      · have h1 : n ≤ m * a := hn.2
+        have h2 : 1 ≤ n := by omega
+        rw [Nat.sub_lt_iff_lt_add h2]
+        have h3 : m * a = (m - 1 + 1) * a := by rw [Nat.sub_add_cancel hm]
+        rw [h3] at h1; omega
+    have h_mod_val : ∀ n, ((m - 1) * a + 1 : ℕ) ≤ n ∧ n ≤ m * a → (n - 1) % a = n - 1 - (m - 1) * a := by
+      intro n hn; rw [Nat.mod_eq_sub_mul_div, h_div n hn, Nat.mul_comm]
+    have h_range_x : (m - 1) * a + 1 ≤ x ∧ x ≤ m * a := hx.2
+    have h_range_y : (m - 1) * a + 1 ≤ y ∧ y ≤ m * a := hy.2
+    have hxy_nat : x % a = y % a := (ZMod.natCast_eq_natCast_iff x y a).mp hxy
+    have h_eq : (x - 1) % a = (y - 1) % a := by
+      have hx1 : 1 ≤ x := by omega
+      have hy1 : 1 ≤ y := by omega
+      apply Nat.ModEq.add_right_cancel' 1
+      rw [Nat.sub_add_cancel hx1, Nat.sub_add_cancel hy1]
+      exact hxy_nat
+    rw [h_mod_val x h_range_x, h_mod_val y h_range_y] at h_eq
+    omega
+  have h_Sk_plus_1_bar : (S_k a S_set (k + 1)).ncard = ((fun n : ℕ => (n : ZMod a)) '' S_k a S_set (k + 1)).ncard := by
+    apply Eq.symm; apply Set.InjOn.ncard_image (h_Sk_inj_m (k + 1) (by omega))
+  have hF_sub : (F : Set (ZMod a)) ⊆ (fun (n : ℕ) => (n : ZMod a)) '' S_k a S_set 1 := by
+    rw [hF_eq, h_F_coe]; intro z hz; obtain ⟨n, hn, rfl⟩ := hz
+    use n
+    constructor
+    · constructor
+      · exact AddSubsemigroup.subset_closure hn
+      · rw [Set.mem_Icc]; have : a ∈ E := hE_max; have := hE_sub hn; rw [Finset.mem_Icc] at this; omega
+    · exact rfl
+  have h_Sk_F_sub : (F : Set (ZMod a)) + Sk_bar ⊆ ((fun n : ℕ => (n : ZMod a)) '' S_k a S_set (k + 1)) := by
+    have h_l := lemma_2_3 a (↑E : Set ℕ) hE_max 1 k (by omega) hk
+    rw [add_comm 1 k] at h_l
+    exact (Set.add_subset_add hF_sub hSk_eq.subset).trans h_l
+  have h_Sk_bar_ncard : Sk_bar.ncard = (S_k a S_set k).ncard := by
+    rw [hSk_eq]; exact Set.InjOn.ncard_image (h_Sk_inj_m k hk)
+  have h_Sk_card_ge : (S_k a S_set (k + 1)).ncard ≥ ((F : Set (ZMod a)) + Sk_bar).ncard := by
+    rw [h_Sk_plus_1_bar]; apply Set.ncard_le_ncard h_Sk_F_sub h_Sk_plus_1_fin
+  haveI : NeZero a := ⟨ha.ne'⟩
+  have hS_ka : ∀ n ≥ 1, n * a ∈ S_set := by
+    intro n hn; induction n, hn using Nat.le_induction with
+    | base =>
+        have ha_mem : a ∈ S (E : Set ℕ) := AddSubsemigroup.subset_closure hE_max
+        simpa [S_set] using ha_mem
+    | succ n _ ih => rw [Nat.succ_mul]; exact AddSubsemigroup.add_mem _ ih (AddSubsemigroup.subset_closure hE_max)
+  -- Case analysis from Dixmier Lemma 3.1
+  by_cases hq1 : q = 1
+  · left; subst q; rw [Nat.mul_one] at hpq; subst p
+    have hG0 : (G : Set (ZMod a)) = {0} := by
+      rw [hG_eq]; ext x_v
+      show x_v ∈ AddSubgroup.closure {(↑a : ZMod a)} ↔ x_v ∈ {(0 : ZMod a)}
+      rw [AddSubgroup.mem_closure_singleton]
+      constructor <;> intro h
+      · simp at h
+        rw [Set.mem_singleton_iff]; exact h.symm
+      · rw [Set.mem_singleton_iff] at h; subst h
+        simp
+    rw [hG0] at h_kneser
+    have h_kn : min a (b + (S_k a S_set k).ncard - 1) ≤ ((F : Set (ZMod a)) + Sk_bar).ncard := by
+      erw [← hF_eq, h_Sk_fin.coe_toFinset] at h_kneser
+      simp only [Set.add_singleton, add_zero] at h_kneser
+      have h_id : ∀ s : Set (ZMod a), (fun x => x) '' s = s := fun s => Set.image_id s
+      simp only [h_id] at h_kneser
+      rw [h_F_ncard, h_Sk_bar_ncard, ← hSk_eq] at h_kneser
+      exact h_kneser
+    exact le_trans h_kn h_Sk_card_ge
+  · by_cases hp1 : p = 1
+    · left; subst p; rw [Nat.one_mul] at hpq; subst q
+      have hG_univ : (G : Set (ZMod a)) = Set.univ := by
+        rw [hG_eq]; ext x_val; simp [AddSubgroup.mem_closure_singleton]
+        use (x_val.val : ℤ); simp
+      rw [hG_univ] at h_kneser
+      have hF_nonempty : (F : Set (ZMod a)).Nonempty := by
+        rw [hF_eq, h_F_coe]; use (0 : ZMod a); rw [Set.mem_image]; use a; exact ⟨hE_max, by simp⟩
+      have : (S_k a S_set (k + 1)).ncard ≥ a := by
+        have hSk_nonempty : (Sk_bar : Set (ZMod a)).Nonempty := by
+           use (k * a : (ZMod a)); rw [hSk_eq]; use k * a; constructor
+           · constructor; · exact hS_ka k hk
+            -- finished by Numina
+             · rw [Set.mem_Icc]; constructor
+               · have hk1 : k ≥ 1 := hk; have ha1 : a ≥ 1 := ha
+                 have : k - 1 + 1 = k := Nat.sub_add_cancel hk1
+                 calc (k - 1) * a + 1
+                   ≤ (k - 1) * a + a := Nat.add_le_add_left ha1 _
+                 _ = (k - 1) * a + 1 * a := by rw [Nat.one_mul]
+                 _ = ((k - 1) + 1) * a := by rw [← Nat.add_mul]
+                 _ = k * a := by rw [this]
+               · rfl
+           · simp
+        have h_kn := h_kneser
+        rw [← hF_eq, h_Sk_fin.coe_toFinset, ← hSk_eq] at h_kn
+        simp [Set.add_univ, hF_nonempty, hSk_nonempty] at h_kn
+        exact le_trans h_kn h_Sk_card_ge
+      exact le_trans (min_le_left _ _) this
+    · by_cases h_kn_step : (F + Sk_bar).ncard ≥ min a (b + (S_k a S_set k).ncard - 1)
+      · left; exact le_trans h_kn_step h_Sk_card_ge
+      · right; obtain ⟨hp_gt_1, hq_gt_1⟩ : p > 1 ∧ q > 1 := by constructor <;> omega
+        refine ⟨hp_gt_1, hq_gt_1, ?_, ?_⟩
+        · contrapose! h_kn_step
+          have hG_mem : (0 : ZMod a) ∈ (G : Set (ZMod a)) := by rw [hG_eq]; exact AddSubgroup.zero_mem _
+          have h_Sk_G_fin : (Sk_bar + (G : Set (ZMod a))).Finite := Set.toFinite _
+          have h_kn := h_kneser
+          rw [← hF_eq, ← hG_eq, h_Sk_fin.coe_toFinset] at h_kn
+          apply (min_le_min (le_refl _) _).trans h_kn
+          rw [hF_eq] at h_F_ncard h_kn_step
+          have hSk_G_ge : Sk_bar.ncard ≤ (Sk_bar + (G : Set (ZMod a))).ncard :=
+            Set.ncard_le_ncard (fun x hx => ⟨x, hx, 0, hG_mem, add_zero x⟩) h_Sk_G_fin
+          rw [h_Sk_bar_ncard] at hSk_G_ge
+          generalize ((F : Set (ZMod a)) + (G : Set (ZMod a))).ncard = r at h_kn_step
+          generalize (Sk_bar + (G : Set (ZMod a))).ncard = s at hSk_G_ge ⊢
+          omega
+        · have h_kn := h_kneser
+          rw [← hF_eq, ← hG_eq, h_Sk_fin.coe_toFinset] at h_kn
+          have h_lt_a : (F + Sk_bar).ncard < a := (not_le.mp h_kn_step).trans_le (min_le_left _ _)
+          rw [min_eq_right] at h_kn
+          · exact h_kn
+          -- finished by Numina
+          · contrapose! h_lt_a; rw [min_eq_left (le_of_lt h_lt_a)] at h_kn; exact h_kn
 -- proven by Gemini 3 Pro in ulam.ai scaffold
 lemma lemma_2_2_full_e_le_p (p q : ℕ) (hp : p > 1) (_hq : q > 1)
     (E E' : Finset ℕ) (hE_sub : E ⊆ E') (hE_nonempty : E.Nonempty)
@@ -1023,7 +2383,7 @@ lemma lemma_2_2_h_almost (p q a : ℕ) (ha : a = p * q) (hp : p > 1) (hq : q > 1
         have h1' := Finset.mem_Icc.mp h1
         have hx' := Finset.mem_Icc.mp hx2
         constructor
-        · intro h; unfold Nat.ModEq at h
+        · intro h
           cases Nat.eq_or_lt_of_le h1'.2 with
           | inl hr1p =>
               rw [hr1p, Nat.mod_self] at h
@@ -1040,7 +2400,7 @@ lemma lemma_2_2_h_almost (p q a : ℕ) (ha : a = p * q) (hp : p > 1) (hq : q > 1
         have h2' := Finset.mem_Icc.mp h2
         have hx' := Finset.mem_Icc.mp hx2
         constructor
-        · intro h; unfold Nat.ModEq at h
+        · intro h
           cases Nat.eq_or_lt_of_le h2'.2 with
           | inl hr2p =>
               rw [hr2p, Nat.mod_self] at h
@@ -1159,7 +2519,7 @@ lemma lemma_2_2_h_almost (p q a : ℕ) (ha : a = p * q) (hp : p > 1) (hq : q > 1
                       have hr1p := (Finset.mem_Icc.mp (Finset.mem_inter.mp (h_reps_eq ▸ hr1)).2).2
                       have hr2p := (Finset.mem_Icc.mp (Finset.mem_inter.mp (h_reps_eq ▸ hr2)).2).2
                       constructor
-                      · intro h; unfold Nat.ModEq at h
+                      · intro h
                         have h1_ge1 : 1 ≤ r1 := (Finset.mem_Icc.mp (Finset.mem_inter.mp (h_reps_eq ▸ hr1)).2).1
                         have h2_ge1 : 1 ≤ r2 := (Finset.mem_Icc.mp (Finset.mem_inter.mp (h_reps_eq ▸ hr2)).2).1
                         cases Nat.eq_or_lt_of_le hr1p with
@@ -3810,7 +5170,755 @@ lemma lemma_3_1 (a b : ℕ) (E : Finset ℕ) (hE_sub : (E : Set ℕ) ⊆ Set.Icc
   (hE_card : E.card = b) (hE_max : a ∈ E) (hE_gcd : Finset.gcd E id = 1) (k : ℕ) (hk : k ≥ 1) :
   let S_set := (S E : Set ℕ)
   (S_k a S_set (k + 1)).ncard ≥ min a (b + (S_k a S_set k).ncard - 1) := by
-    sorry
+  let S_set := (S E : Set ℕ)
+  -- Step 1.1: Replace E with S_1.
+  have h_S1_card_sub : (E : Set ℕ) ⊆ S_k a S_set 1 := by
+    intro x hx
+    simp only [S_k, Set.mem_inter_iff, Set.mem_Icc]
+    refine ⟨AddSubsemigroup.subset_closure hx, ?_⟩
+    simp only [one_mul, Nat.sub_self, zero_mul, zero_add]
+    exact hE_sub hx
+  -- Step 1.2: Sum-stability.
+  have h_sum_stable_S1 : ∀ x y, x ∈ S_k a S_set 1 → y ∈ S_k a S_set 1 → x + y ≤ a → x + y ∈ S_k a S_set 1 := by
+    intro x y hx hy hxy
+    simp only [S_k, Set.mem_inter_iff, Set.mem_Icc] at hx hy ⊢
+    refine ⟨AddSubsemigroup.add_mem _ hx.1 hy.1, ?_⟩
+    simp only [one_mul, Nat.sub_self, zero_mul, zero_add] at hx hy ⊢
+    omega
+  -- Step 1.3: Map to ZMod a.
+  have ha_pos_S1 : a > 0 := by
+    have : a ∈ Set.Icc 1 a := hE_sub (Finset.mem_coe.mpr hE_max)
+    simp only [Set.mem_Icc] at this
+    exact this.1
+  letI : NeZero a := ⟨ha_pos_S1.ne'⟩
+  have h_S1_fin_inst : (S_k a S_set 1).Finite := Set.Finite.inter_of_right (Set.finite_Icc _ _) _
+  haveI : Fintype (S_k a S_set 1) := h_S1_fin_inst.fintype
+  let F := (fun n : ℕ => (n : ZMod a)) '' (S_k a S_set 1)
+  have h_Sk_fin_inst : (S_k a S_set k).Finite := Set.Finite.inter_of_right (Set.finite_Icc _ _) _
+  haveI : Fintype (S_k a S_set k) := h_Sk_fin_inst.fintype
+  let Sk_bar := (fun n : ℕ => (n : ZMod a)) '' (S_k a S_set k)
+  -- Step 1.4: Sk+1 image inclusion.
+  have h_image_inc_S1 : (F : Set (ZMod a)) + Sk_bar ⊆ (fun n : ℕ => (n : ZMod a)) '' (S_k a S_set (k + 1)) := by
+    rw [add_comm]
+    exact lemma_2_3 a (E : Set ℕ) (by exact hE_max) k 1 hk (by omega)
+  -- Step 2.1: Invoke lemma_3_1_kneser_step.
+  let S1_finset := (S_k a S_set 1).toFinset
+  have hS1_card_vals : S1_finset.card = (S_k a S_set 1).ncard := by
+    rw [Set.ncard_eq_toFinset_card _ h_S1_fin_inst]
+    apply congr_arg Finset.card
+    apply Finset.ext; intro x; simp [S1_finset]
+  have hS1_max_val : a ∈ S1_finset := by
+    rw [Set.mem_toFinset]
+    exact h_S1_card_sub (Finset.mem_coe.mpr hE_max)
+  have hS1_gcd_val : S1_finset.gcd id = 1 := by
+    refine Nat.eq_one_of_dvd_one ?_
+    rw [← hE_gcd]
+    apply Finset.gcd_mono
+    intro x hx
+    rw [Set.mem_toFinset]
+    exact h_S1_card_sub hx
+  have hS1_sub : S1_finset ⊆ Finset.Icc 1 a := by
+    simp [S1_finset, S_k]
+  obtain ⟨p, q, hp, hq, hpq_val, h_kneser⟩ := lemma_3_1_kneser_step a (S_k a S_set 1).ncard ha_pos_S1 S1_finset k hS1_card_vals hS1_max_val hS1_gcd_val hk hS1_sub
+  have h_S_unify : (S S1_finset : Set ℕ) = S_set := by
+    apply Set.ext; intro x; constructor <;> intro h
+    · refine AddSubsemigroup.closure_induction ?_ ?_ h
+      · intro y hy
+        change y ∈ (S_k a S_set 1).toFinset at hy
+        rw [Set.mem_toFinset] at hy
+        exact hy.1
+      · intro y z _ _ hy hz
+        exact (S E).add_mem hy hz
+    · have h_E_sub_S1 : (E : Set ℕ) ⊆ S1_finset := by
+        intro z hz
+        change z ∈ (S_k a S_set 1).toFinset
+        rw [Set.mem_toFinset]
+        exact h_S1_card_sub hz
+      apply AddSubsemigroup.closure_mono h_E_sub_S1 h
+  -- Step 2.2: Branch 1 (Immediate): If meeting induction bound or full coverage.
+  rcases h_kneser with (h_closed | h_complex)
+  · -- Case Induction bound already met.
+    have h_S1_card_ge : (S_k a S_set 1).ncard ≥ b := by
+       rw [← hE_card, ← Set.ncard_coe_finset]
+       apply Set.ncard_le_ncard h_S1_card_sub (Set.toFinite _)
+    rw [h_S_unify] at h_closed
+    refine ge_trans h_closed ?_
+    apply min_le_min le_rfl
+    exact Nat.sub_le_sub_right (Nat.add_le_add_right h_S1_card_ge _) 1
+  -- Step 2.3: Branch 2 (Complex): p, q > 1 and small gap.
+  obtain ⟨hp1_val, hq1_val, h_gap_F_val, h_kneser_ineq_val⟩ := h_complex
+  -- Step 3.1: Define E'.
+  let G := AddSubgroup.closure {(p : ZMod a)}
+  let E'_set := {x | x ∈ Set.Icc 1 a ∧ (x : ZMod a) ∈ F + (G : Set (ZMod a))}
+  have h_E'_fin_inst : E'_set.Finite := Set.Finite.inter_of_left (Set.finite_Icc 1 a) _
+  haveI : Fintype E'_set := h_E'_fin_inst.fintype
+  let E'_finset := E'_set.toFinset
+  -- Step 3.2: Lemma 2.2 characterization. (proven with Gemini and Project Numina)
+  -- Now use E directly instead of S1_finset
+  have hE_sub_S1 : E ⊆ S1_finset := by
+    intro x hx
+    rw [Set.mem_toFinset]
+    exact h_S1_card_sub hx
+  have hE_sub_E'_val : S1_finset ⊆ E'_finset := by
+    intro x hx
+    rw [Set.mem_toFinset] at hx ⊢
+    simp only [E'_set, Set.mem_setOf_eq]
+    constructor
+    · obtain ⟨_, h_range⟩ := hx
+      simp at h_range
+      exact h_range
+    · apply Set.subset_add_left
+      · exact AddSubgroup.zero_mem G
+      · use x;
+  have hE_nonempty_val : S1_finset.Nonempty := by
+    use a
+  have hE'_card_val : E'_finset.card ≤ S1_finset.card + q - 2 := by
+    have h_bij : Set.InjOn (fun (x : ℕ) => (x : ZMod a)) E'_set := by
+      intro x hx y hy h_eq
+      have h_mod_eq : x ≡ y [MOD a] := (ZMod.natCast_eq_natCast_iff x y a).mp h_eq
+      have h_x_mem : x ∈ Set.Icc 1 a := hx.1
+      have h_y_mem : y ∈ Set.Icc 1 a := hy.1
+      rcases le_total x y with h_le | h_le
+      · have h_diff : y - x < a := by
+          calc y - x < y := Nat.sub_lt_self (Nat.pos_of_ne_zero (ne_of_gt h_x_mem.1)) h_le
+            _ ≤ a := h_y_mem.2
+        have h_dvd : a ∣ y - x := (Nat.modEq_iff_dvd' h_le).mp h_mod_eq
+        have h_eq_zero : y - x = 0 := Nat.eq_zero_of_dvd_of_lt h_dvd h_diff
+        exact le_antisymm h_le (Nat.sub_eq_zero_iff_le.mp h_eq_zero)
+      · have h_diff : x - y < a := by
+          calc x - y < x := Nat.sub_lt_self (Nat.pos_of_ne_zero (ne_of_gt h_y_mem.1)) h_le
+            _ ≤ a := h_x_mem.2
+        have h_dvd : a ∣ x - y := (Nat.modEq_iff_dvd' h_le).mp h_mod_eq.symm
+        have h_eq_zero : x - y = 0 := Nat.eq_zero_of_dvd_of_lt h_dvd h_diff
+        exact Eq.symm (le_antisymm h_le (Nat.sub_eq_zero_iff_le.mp h_eq_zero))
+    have h_image : (fun (x : ℕ) => (x : ZMod a)) '' E'_set = F + (G : Set (ZMod a)) := by
+      ext y
+      constructor
+      · rintro ⟨x, hx, rfl⟩
+        exact hx.2
+      · intro hy
+        by_cases h_zero : y.val = 0
+        · refine ⟨a, ?_, ?_⟩
+          · constructor
+            · simp only [Set.mem_Icc]; exact ⟨Nat.one_le_of_lt ha_pos_S1, le_rfl⟩
+            · convert hy using 1
+              simp only [ZMod.natCast_self]
+              exact ((ZMod.val_eq_zero y).mp h_zero).symm
+          · simp only [ZMod.natCast_self]
+            exact ((ZMod.val_eq_zero y).mp h_zero).symm
+        · refine ⟨y.val, ?_, ?_⟩
+          · constructor
+            · constructor
+              · apply Nat.one_le_of_lt; apply Nat.pos_of_ne_zero h_zero
+              · apply le_of_lt; apply ZMod.val_lt
+            · rw [ZMod.natCast_zmod_val]; exact hy
+          · apply ZMod.natCast_zmod_val
+    change E'_set.toFinset.card ≤ _
+    rw [← Set.ncard_coe_finset, Set.coe_toFinset, ← Set.InjOn.ncard_image h_bij, h_image]
+    have h_F_eq : F = (Finset.image (fun n : ℕ => (n : ZMod a)) S1_finset : Set (ZMod a)) := by
+       simp only [F, S1_finset, Finset.coe_image, Set.coe_toFinset]
+    rw [h_F_eq, hS1_card_vals]
+    convert h_gap_F_val using 1
+    · simp; congr
+  have hE_add_val : ∀ x y, x ∈ S1_finset → y ∈ S1_finset → x + y ≤ a → x + y ∈ S1_finset := by
+    intro x y hx hy hxy
+    rw [Set.mem_toFinset] at hx hy ⊢
+    exact h_sum_stable_S1 x y hx hy hxy
+  have hE'_periodic_val : ∀ x, x ∈ E'_finset ↔ (x ∈ Finset.Icc 1 a ∧ ∃ y ∈ E'_finset, x ≡ y [MOD p]) := by
+    intro x
+    constructor
+    · intro hx
+      rw [Set.mem_toFinset, Set.mem_setOf_eq] at hx
+      constructor
+      · exact Finset.mem_Icc.mpr (Set.mem_Icc.mp hx.1)
+      · use x; rw [Set.mem_toFinset]; exact ⟨hx, rfl⟩
+    · rintro ⟨hx_mem, y, hy, h_mod⟩
+      rw [Set.mem_toFinset] at hy ⊢
+      simp only [E'_set, Set.mem_setOf_eq] at hy ⊢
+      constructor
+      · exact Set.mem_Icc.mpr (Finset.mem_Icc.mp hx_mem)
+      · obtain ⟨-, h_y_in_FG⟩ := hy
+        have h_diff : (x : ZMod a) - (y : ZMod a) ∈ G := by
+          have h_div : (p : ℤ) ∣ (x : ℤ) - (y : ℤ) := by
+            apply Int.modEq_iff_dvd.mp
+            rw [Int.natCast_modEq_iff]
+            exact h_mod.symm
+          obtain ⟨k, hk⟩ := h_div
+          have : (x : ZMod a) - (y : ZMod a) = (k : ℤ) • (p : ZMod a) := by
+            have hk' : (x : ℤ) - (y : ℤ) = k * (p : ℤ) := by rw [mul_comm]; exact hk
+            rw [zsmul_eq_mul]
+            show (x : ZMod a) - (y : ZMod a) = ((k : ℤ) : ZMod a) * ((p : ℕ) : ZMod a)
+            rw [show (x : ZMod a) = ((x : ℤ) : ZMod a) by simp]
+            rw [show (y : ZMod a) = ((y : ℤ) : ZMod a) by simp]
+            rw [show ((p : ℕ) : ZMod a) = ((p : ℤ) : ZMod a) by simp]
+            rw [← Int.cast_sub, ← Int.cast_mul, hk']
+          rw [this]
+          apply AddSubgroup.zsmul_mem
+          apply AddSubgroup.subset_closure
+          exact Set.mem_singleton _
+        obtain ⟨f, hf, g, hg, h_y_eq⟩ := h_y_in_FG
+        use f, hf, g + ((x : ZMod a) - (y : ZMod a))
+        constructor
+        · apply AddSubgroup.add_mem _ hg h_diff
+        · show f + (g + ((x : ZMod a) - (y : ZMod a))) = (x : ZMod a)
+          calc f + (g + ((x : ZMod a) - (y : ZMod a)))
+              = (f + g) + ((x : ZMod a) - (y : ZMod a)) := by ring
+            _ = (y : ZMod a) + ((x : ZMod a) - (y : ZMod a)) := by rw [← h_y_eq]
+            _ = (x : ZMod a) := by ring
+  let e_min := E'_finset.min' (hE_nonempty_val.mono hE_sub_E'_val)
+  have he_min_def_val : e_min = E'_finset.min' (hE_nonempty_val.mono hE_sub_E'_val) := rfl
+  have ha_eq_pq : a = p * q := hpq_val.symm
+  have h_cases_E'_res := lemma_2_2_full p q a ha_eq_pq hp1_val hq1_val S1_finset E'_finset hE_sub_E'_val hE_nonempty_val hE'_card_val hE_add_val hE'_periodic_val e_min he_min_def_val
+  have hk_ge : k ≥ 1 := hk
+  rcases h_cases_E'_res with (h_case1 | h_case2 | h_case3)
+  · -- Step 3.3: Case 1. (group effort, including sonnet 4.6, gemini, and Numina)
+    -- h_case1 : E'_finset = (Finset.image (fun i => i * e_min) (Finset.Icc 1 (a / e_min))).filter (· ∈ Finset.Icc 1 a)
+    -- By proof.tex: gcd(S1_finset) = 1, so e_min = 1, so E' = [1,a].
+    -- Then |S1_finset| ≥ a - q + 2 > a/2. Apply lemma_2_2_final.
+    -- First, derive e_min = 1 from gcd = 1 and e_min ∈ E'_finset.
+    have he_min_in_E' : e_min ∈ E'_finset := Finset.min'_mem E'_finset (hE_nonempty_val.mono hE_sub_E'_val)
+    -- Actually prove e_min = 1 using gcd property
+    have he_min_pos : e_min ≥ 1 := by
+      have : e_min ∈ E'_finset := he_min_in_E'
+      rw [h_case1] at this
+      simp only [Finset.mem_filter, Finset.mem_image, Finset.mem_Icc] at this
+      obtain ⟨⟨i, ⟨hi_ge, _⟩, hi_eq⟩, h_icc⟩ := this
+      omega
+    have he_min_dvd_gcd : e_min ∣ S1_finset.gcd id := by
+      apply Finset.dvd_gcd
+      intro x hx
+      -- e_min is the minimum of E'_finset, S1_finset ⊆ E'_finset
+      -- x ∈ S1_finset ⊆ E'_finset
+      rw [id_eq]
+      have hx_E' : x ∈ E'_finset := hE_sub_E'_val hx
+      -- Since E' = multiples of e_min by h_case1
+      rw [h_case1] at hx_E'
+      simp only [Finset.mem_filter, Finset.mem_image, Finset.mem_Icc] at hx_E'
+      obtain ⟨⟨i, ⟨_, _⟩, hx_eq⟩, -⟩ := hx_E'
+      rw [← hx_eq]
+      exact Nat.dvd_mul_left e_min i
+    have he_min_eq_1 : e_min = 1 := by
+      rw [hS1_gcd_val] at he_min_dvd_gcd
+      exact Nat.eq_one_of_dvd_one he_min_dvd_gcd
+    -- E' = [1, a]
+    have hE'_eq_Icc : E'_finset = Finset.Icc 1 a := by
+      rw [h_case1, he_min_eq_1]
+      simp only [Nat.div_one]
+      ext x
+      simp only [Finset.mem_filter, Finset.mem_image, Finset.mem_Icc]
+      constructor
+      · rintro ⟨_, hx⟩
+        exact hx
+      · intro hx
+        refine ⟨⟨x, ⟨hx.1, hx.2⟩, by simp⟩, hx⟩
+    -- |S1_finset| ≥ a - q + 2 > a / 2
+    have hE'_card_eq_a : E'_finset.card = a := by
+      rw [hE'_eq_Icc]
+      have : (Finset.Icc 1 a).card = a + 1 - 1 := Nat.card_Icc 1 a
+      rw [this]
+      omega
+    have hS1_card_gt_half : S1_finset.card > a / 2 := by
+      have h1 : S1_finset.card + q - 2 ≥ a := by
+        rw [← hE'_card_eq_a]; exact hE'_card_val
+      -- q ≤ a / 2 since a = p * q, p > 1
+      have hq_le : q ≤ a / 2 := by
+        have h_pq : p * q = a := hpq_val
+        have h_p2 : p ≥ 2 := hp1_val
+        have : 2 * q ≤ p * q := Nat.mul_le_mul_right q h_p2
+        omega
+      omega
+    -- S1_finset.card > a / 2, so apply lemma_2_2_final to get S covers [a-1, ∞)
+    have hS1_card_pos : S1_finset.card > 0 := by omega
+    have hS1_sub_Icc : S1_finset ⊆ Finset.Icc 1 a := by
+      intro x hx
+      rw [Set.mem_toFinset] at hx
+      simp only [S_k, Set.mem_inter_iff, Set.mem_Icc, one_mul, Nat.sub_self, zero_mul, zero_add] at hx
+      exact Finset.mem_Icc.mpr hx.2
+    have h_S_covers : ∀ n, a - 1 ≤ n → n > 0 → n ∈ S (S1_finset : Set ℕ) :=
+      lemma_2_2_final a S1_finset.card ha_pos_S1 hS1_card_pos S1_finset hS1_sub_Icc rfl hS1_card_gt_half
+    -- Since a ∈ S_set and S covers [(k-1)a+1, ka] for k, ...
+    -- Actually: a-1 ∈ S, so (k-1)*a + a = ka ∈ S, etc.
+    -- S_k(k+1) = S ∩ [ka+1, (k+1)a]. Since h_S_covers says S ⊇ [a-1, ∞) and ka ≥ a-1 for k ≥ 1,
+    -- [ka+1, (k+1)a] ⊆ S, so ncard(S_{k+1}) = a.
+    have h_S1_eq_Sset : S (S1_finset : Set ℕ) = S_set := by
+      apply Set.ext; intro x; constructor
+      · intro hx
+        refine AddSubsemigroup.closure_induction ?_ ?_ hx
+        · intro y hy
+          change y ∈ (S_k a S_set 1).toFinset at hy
+          rw [Set.mem_toFinset] at hy
+          exact hy.1
+        · intro y z _ _ hy hz
+          exact AddSubsemigroup.add_mem _ hy hz
+      · intro hx
+        apply AddSubsemigroup.closure_mono _ hx
+        intro z hz
+        change z ∈ (S_k a S_set 1).toFinset
+        rw [Set.mem_toFinset]
+        exact h_S1_card_sub hz
+    have h_S_all : ∀ n ≥ a - 1, n > 0 → n ∈ S_set := by
+      intro n hn hn_pos
+      rw [← h_S1_eq_Sset]
+      exact h_S_covers n hn hn_pos
+    -- S_{k+1} = S ∩ [ka+1, (k+1)a]. Every element x of this interval satisfies x ≥ ka+1 ≥ a-1 (since k ≥ 1).
+    -- Also x > 0. So x ∈ S_set, meaning S_{k+1} = [(ka+1, (k+1)a].
+    have h_Sk1_full : S_k a S_set (k + 1) = Set.Icc ((k + 1 - 1) * a + 1) ((k + 1) * a) := by
+      ext x
+      simp only [S_k, Set.mem_inter_iff, Set.mem_Icc]
+      constructor
+      · intro hx; exact hx.2
+      · intro ⟨h_lo, h_hi⟩
+        refine ⟨?_, h_lo, h_hi⟩
+        apply h_S_all
+        · have h_eq1 : (k + 1 - 1) * a = k * a := by
+            conv_lhs => arg 1; rw [Nat.add_sub_cancel]
+          rw [h_eq1] at h_lo
+          have : k * a + 1 ≥ a - 1 := by
+            have : a ≤ k * a := by
+              calc a = 1 * a := by ring
+                _ ≤ k * a := Nat.mul_le_mul_right a hk_ge
+            omega
+          omega
+        · have h_eq1 : (k + 1 - 1) * a = k * a := by
+            conv_lhs => arg 1; rw [Nat.add_sub_cancel]
+          rw [h_eq1] at h_lo
+          have : k * a + 1 > 0 := by
+            have : k * a ≥ 0 := Nat.zero_le _
+            omega
+          omega
+    have h_Sk1_ncard : (S_k a S_set (k + 1)).ncard = a := by
+      rw [h_Sk1_full]
+      have h_eq : (k + 1 - 1) * a = k * a := by
+        have : k + 1 - 1 = k := by omega
+        rw [this]
+      rw [h_eq]
+      have h_finite : (Set.Icc (k * a + 1) ((k + 1) * a)).Finite := Set.finite_Icc _ _
+      rw [Set.ncard_eq_toFinset_card _ h_finite]
+      have h_eq2 : h_finite.toFinset = Finset.Icc (k * a + 1) ((k + 1) * a) := by
+        ext; simp
+      rw [h_eq2]
+      have h_card : (Finset.Icc (k * a + 1) ((k + 1) * a)).card = (k + 1) * a + 1 - (k * a + 1) :=
+        Nat.card_Icc (k * a + 1) ((k + 1) * a)
+      rw [h_card]
+      have : (k + 1) * a + 1 - (k * a + 1) = a := by
+        have : (k + 1) * a = k * a + a := by ring
+        rw [this]
+        omega
+      rw [this]
+    suffices h : (S_k a (↑(S ↑E)) (k + 1)).ncard ≥ min a (b + (S_k a (↑(S ↑E)) k).ncard - 1) by exact h
+    rw [h_Sk1_ncard]
+    exact min_le_left a _
+  · -- Step 3.4: Case 2 is impossible. (proven by Numina)
+    obtain ⟨x, hx_range, hE'_eq⟩ := h_case2
+    -- a ∈ S1_finset and S1_finset ⊆ E'_finset, so a ∈ E'_finset
+    have ha_in_E' : a ∈ E'_finset := hE_sub_E'_val hS1_max_val
+    -- Rewrite using the case 2 characterization
+    rw [hE'_eq] at ha_in_E'
+    -- a must have the form x + i * p for some i < q
+    simp only [Finset.mem_image, Finset.mem_range] at ha_in_E'
+    obtain ⟨i, hi_lt_q, ha_eq⟩ := ha_in_E'
+    -- Use ha_eq: x + i * p = a and ha_eq_pq: a = p * q
+    -- to get x + i * p = p * q
+    have h_eq_pq : x + i * p = p * q := by
+      rw [ha_eq, ha_eq_pq]
+    -- x is in the range [1, p-1], so x ≤ p - 1
+    have hx_le : x ≤ p - 1 := by
+      have : x ∈ Finset.Icc 1 (p - 1) := hx_range
+      simp only [Finset.mem_Icc] at this
+      exact this.2
+    -- From x + i * p = p * q, we need to show a contradiction
+    -- Note that x < p (since x ≤ p - 1) and p > 1
+    have hx_lt_p : x < p := by omega
+    -- Also, i < q implies i ≤ q - 1 (since i, q are natural numbers and q > 1)
+    have h_i_le : i ≤ q - 1 := by omega
+    -- From x + i * p = p * q, we have x = p * q - i * p = p * (q - i)
+    have h_i_lt_q_le : i ≤ q := Nat.le_of_lt hi_lt_q
+    have h_eq : x = p * (q - i) := by
+      have h1 : p * q = x + i * p := h_eq_pq.symm
+      have h3 : p * q - i * p = x := by
+        calc p * q - i * p = (x + i * p) - i * p := by rw [← h1]
+          _ = x + i * p - i * p := rfl
+          _ = x := Nat.add_sub_cancel x (i * p)
+      calc x = p * q - i * p := h3.symm
+        _ = p * q - p * i := by rw [mul_comm i p]
+        _ = p * (q - i) := (Nat.mul_sub_left_distrib p q i).symm
+    -- Since i ≤ q - 1, we have q - i ≥ 1
+    have h_qi_pos : q - i ≥ 1 := by omega
+    -- Therefore x = p * (q - i) ≥ p * 1 = p
+    have h_x_ge_p : x ≥ p := by
+      calc x = p * (q - i) := h_eq
+        _ ≥ p * 1 := Nat.mul_le_mul_left p h_qi_pos
+        _ = p := mul_one p
+    -- But x < p, contradiction
+    omega
+  -- Step 3.5: Case 3.
+  · obtain ⟨x, hx_range, hE'_eq, h_nonempty, h_all_ge⟩ := h_case3
+    -- Step 4.1: gcd(x, p) = 1. proven by Project Numina
+    have hE_sub_case3 : (E : Set ℕ) ⊆ (Finset.image (fun i => i * p) (Finset.Icc 1 q)) ∪ (Finset.image (fun i => x + i * p) (Finset.range q)) := by
+      intro e he
+      have he_S1 : e ∈ S1_finset := hE_sub_S1 he
+      have he_E' : e ∈ E'_finset := hE_sub_E'_val he_S1
+      rw [hE'_eq] at he_E'
+      simpa [Finset.coe_union] using he_E'
+    have hx_p_gcd1_val : Nat.gcd x p = 1 := lemma_3_1_case_3_gcd p q x E hE_gcd hE_sub_case3
+    -- Step 4.2: s1 bound. proven by Project Numina
+    let y_elem := (S1_finset ∩ Finset.image (fun i => x + i * p) (Finset.range q)).min' h_nonempty
+    have hy_elem : y_elem ∈ S1_finset ∩ Finset.image (fun i => x + i * p) (Finset.range q) := Finset.min'_mem _ _
+    have hy_bound : y_elem > a / 2 := h_all_ge y_elem hy_elem
+    have hy_in_image : y_elem ∈ Finset.image (fun i ↦ x + i * p) (Finset.range q) := (Finset.mem_inter.mp hy_elem).2
+    simp only [Finset.mem_image, Finset.mem_range] at hy_in_image
+    obtain ⟨s1, hs1_lt_q, hs1_eq⟩ := hy_in_image
+    have h_s1_bound_val : x + s1 * p > a / 2 := by
+      rw [hs1_eq]
+      exact hy_bound
+    -- Step 4.3: index n. proven by Project Numina
+    let n := (k - 1) * a / (x + s1 * p)
+    have h_s1_pos : x + s1 * p > 0 := by
+      calc x + s1 * p > a / 2 := h_s1_bound_val
+        _ ≥ 0 := by omega
+    have h_n_def_val : n * (x + s1 * p) ≤ (k - 1) * a ∧ (k - 1) * a < (n + 1) * (x + s1 * p) := by
+      have h_div_mod := Nat.div_add_mod ((k - 1) * a) (x + s1 * p)
+      have h_mod_lt := Nat.mod_lt ((k - 1) * a) h_s1_pos
+      constructor
+      · rw [mul_comm]
+        calc (x + s1 * p) * n
+            = (x + s1 * p) * ((k - 1) * a / (x + s1 * p)) := rfl
+          _ ≤ (x + s1 * p) * ((k - 1) * a / (x + s1 * p)) + ((k - 1) * a) % (x + s1 * p) := Nat.le_add_right _ _
+          _ = (k - 1) * a := h_div_mod
+      · calc (k - 1) * a
+            = (x + s1 * p) * ((k - 1) * a / (x + s1 * p)) + ((k - 1) * a) % (x + s1 * p) := h_div_mod.symm
+          _ < (x + s1 * p) * ((k - 1) * a / (x + s1 * p)) + (x + s1 * p) := Nat.add_lt_add_left h_mod_lt _
+          _ = (x + s1 * p) * (((k - 1) * a / (x + s1 * p)) + 1) := by ring
+          _ = (n + 1) * (x + s1 * p) := by ring
+    -- used thrice
+    have h_bind_is_image : (do let a_1 ← S1_finset; pure (a_1 : ZMod a)) = Finset.image (fun y : ℕ => (y : ZMod a)) S1_finset := by
+      ext z
+      simp [Finset.mem_image]
+    by_cases hn : n + 1 ≥ p - 1
+    · -- Step 5.2: n-Large.
+      have hS1_max_case3_val : a ∈ S1_finset := hE_sub_S1 hE_max
+      have h_xs1p_in_S1 : x + s1 * p ∈ S1_finset := by
+        rw [hs1_eq]
+        exact (Finset.mem_inter.mp hy_elem).1
+      have hs_gcd : S1_finset.gcd id = 1 := hS1_gcd_val
+      have hE_sub : S1_finset ⊆ Finset.Icc 1 a := by
+        intro x hx
+        rw [Set.mem_toFinset] at hx
+        simp only [S_k, Set.mem_inter_iff, Set.mem_Icc, one_mul, Nat.sub_self, zero_mul, zero_add] at hx
+        exact Finset.mem_Icc.mpr hx.2
+      have h_Sk_full_res := lemma_3_1_case_3_n_large a p q k x s1 n ha_pos_S1 hk_ge S1_finset ha_eq_pq hp1_val hx_p_gcd1_val h_s1_bound_val hS1_max_case3_val h_n_def_val hn h_xs1p_in_S1 hs_gcd hE_sub
+      have h_Sk1_full_ncard : (S_k a S_set (k + 1)).ncard = a := by
+        have h_FSk_ncard : ((F : Set (ZMod a)) + Sk_bar).ncard = a := by
+          have h_ge : ((F : Set (ZMod a)) + Sk_bar).ncard ≥ a := by
+            have h_FG_ncard : ((F : Set (ZMod a)) + (G : Set (ZMod a))).ncard ≥ q := by
+              have h_nonempty : (F : Set (ZMod a)).Nonempty := by
+                use 0
+                rw [← ZMod.natCast_self (n := a)]
+                apply Set.mem_image_of_mem
+                rw [← Set.mem_toFinset]
+                exact hS1_max_case3_val
+              have h_card_G : Nat.card (G : Set (ZMod a)) = q := by
+                have hG_def : G = AddSubgroup.closure {↑p} := rfl
+                have h_order : addOrderOf (p : ZMod a) = q := by
+                  rw [ZMod.addOrderOf_coe p ha_pos_S1.ne', ha_eq_pq]
+                  have h_gcd : (p * q).gcd p = p := by rw [Nat.gcd_comm]; apply Nat.gcd_eq_left (Nat.dvd_mul_right p q)
+                  rw [h_gcd]; exact Nat.mul_div_cancel_left q hp
+                rw [hG_def, ← AddSubgroup.zmultiples_eq_closure]
+                exact (Nat.card_zmultiples (p : ZMod a)).trans h_order
+              have h_coset : ∃ x : ZMod a, (x +ᵥ (G : Set (ZMod a))) ⊆ (F + (G : Set (ZMod a))) := by
+                obtain ⟨x, hx⟩ := h_nonempty
+                use x
+                intro y hy
+                simp only [Set.mem_add, Set.mem_vadd_set] at hy ⊢
+                obtain ⟨g, hg, rfl⟩ := hy
+                exact ⟨x, hx, g, hg, rfl⟩
+              have h_ge_G : ((F : Set (ZMod a)) + (G : Set (ZMod a))).ncard ≥ q := by
+                obtain ⟨x, h_sub⟩ := h_coset
+                have h_finite : (F + (G : Set (ZMod a))).Finite := Set.toFinite _
+                have h_le := Set.ncard_le_ncard h_sub h_finite
+                have h_vadd_ncard : (x +ᵥ (G : Set (ZMod a))).ncard = q := by
+                  have h_inj_on : Set.InjOn (fun g => x + g) (G : Set (ZMod a)) :=
+                    fun _ _ _ _ h => add_left_cancel h
+                  rw [show (x +ᵥ (G : Set (ZMod a))) = (fun g => x + g) '' (G : Set (ZMod a)) by rfl]
+                  rw [Set.InjOn.ncard_image h_inj_on]
+                  rw [← Nat.card_coe_set_eq, h_card_G]
+                rw [h_vadd_ncard] at h_le
+                exact h_le
+              exact h_ge_G
+            have h_SkG_ncard : (Sk_bar + (G : Set (ZMod a))).ncard = a := by
+              have h_Sk_match : Sk_bar = (fun n => ↑n) '' S_k a (S S1_finset : Set ℕ) k := by
+                rw [h_S_unify]
+              rw [h_Sk_match, h_Sk_full_res]
+              rw [Set.ncard_univ, Nat.card_zmod]
+            have h_Sk_match_F : Sk_bar = (fun n : ℕ => (n : ZMod a)) '' S_k a (S S1_finset : Set ℕ) k := by
+              rw [h_S_unify]
+            have h_F_match : F = (fun n : ℕ => (n : ZMod a)) '' S1_finset := by
+              simp only [F, S1_finset, Set.coe_toFinset]
+            -- fixed by Project Numina to work!
+            have h_kneser_res : (F + Sk_bar).ncard ≥ (F + (G : Set (ZMod a))).ncard + (Sk_bar + (G : Set (ZMod a))).ncard - q := by
+              -- Simplify the monad in h_kneser_ineq_val: (do let a_1 ← S1_finset; pure (a_1 : ZMod a)) = Finset.image (↑) S1_finset
+              rw [h_bind_is_image] at h_kneser_ineq_val
+              -- Now Finset.image (fun n => n) (Finset.image (↑) S1_finset) = Finset.image (↑) S1_finset
+              have h_image_id : (↑(Finset.image (fun n => n) (Finset.image (fun y : ℕ => (y : ZMod a)) S1_finset)) : Set (ZMod a)) = F := by
+                simp only [Finset.image_image, Finset.coe_image, Function.comp]
+                rw [h_F_match]
+              rw [h_image_id] at h_kneser_ineq_val
+              rw [← h_Sk_match_F] at h_kneser_ineq_val
+              exact h_kneser_ineq_val
+            -- fixed by Project Numina to work!
+            calc (F + Sk_bar).ncard
+                ≥ (F + ↑G).ncard + (Sk_bar + ↑G).ncard - q := h_kneser_res
+              _ ≥ q + a - q := by omega
+              _ = a := by omega
+          have h_le : ((F : Set (ZMod a)) + Sk_bar).ncard ≤ a := by
+            have h_sub : (F + Sk_bar) ⊆ Set.univ := Set.subset_univ _
+            calc
+              ((F : Set (ZMod a)) + Sk_bar).ncard ≤ Set.univ.ncard := Set.ncard_le_ncard h_sub (Set.toFinite _)
+              _ = a := by rw [Set.ncard_univ, Nat.card_zmod]
+          exact Nat.le_antisymm h_le h_ge
+        have h_image_inc := h_image_inc_S1
+        have h_image_surj : (fun n : ℕ => (n : ZMod a)) '' S_k a S_set (k + 1) = Set.univ := by
+          apply Set.eq_of_subset_of_ncard_le (Set.subset_univ _)
+          · rw [Set.ncard_univ, Nat.card_zmod]
+            refine le_trans ?_ (Set.ncard_le_ncard h_image_inc (Set.toFinite _))
+            rw [h_FSk_ncard]
+        have h_sk_inj : Set.InjOn (fun n : ℕ => (n : ZMod a)) (S_k a S_set (k + 1)) :=
+          sk_image_injective a (k + 1) ha_pos_S1 S_set
+        have h_ncard_eq : (S_k a S_set (k + 1)).ncard = ((fun n : ℕ => (n : ZMod a)) '' S_k a S_set (k + 1)).ncard := by
+          rw [Set.InjOn.ncard_image h_sk_inj]
+        rw [h_ncard_eq, h_image_surj, Set.ncard_univ, Nat.card_zmod]
+      suffices h_goal : (S_k a S_set (k + 1)).ncard ≥ min a (b + (S_k a S_set k).ncard - 1) by exact h_goal
+      rw [h_Sk1_full_ncard]
+      exact min_le_left a _
+    · -- Step 6.1: n-Small.
+      have hn_small_val : n ≤ p - 3 := by omega
+      -- Step 6.2: Sk gap.
+      have hS1_max_case3_sm_val : a ∈ S1_finset := hE_sub_S1 hE_max
+      let s_count := (S1_finset ∩ Finset.image (fun i => x + i * p) (Finset.range q)).card
+      have hs1_def_val : s_count = (S1_finset ∩ Finset.image (fun i => x + i * p) (Finset.range q)).card := rfl
+      have h_s1_in_S1 : x + s1 * p ∈ S1_finset := hs1_eq ▸ (Finset.mem_inter.mp hy_elem).1
+      have h_all_ge_coset : ∀ s < q, x + s * p ∈ S1_finset → x + s * p > a / 2 := by
+        intro s hs_lt hs_in
+        apply h_all_ge
+        simp only [Finset.mem_inter, Finset.mem_image, Finset.mem_range]
+        exact ⟨hs_in, s, hs_lt, rfl⟩
+      have h_s1_min : ∀ n ∈ S1_finset, n % p = x % p → n ≥ x + s1 * p := by
+        intro n hn hmod
+        have : n ∈ S1_finset ∩ Finset.image (fun i => x + i * p) (Finset.range q) := by
+          simp only [Finset.mem_inter, Finset.mem_image, Finset.mem_range]
+          refine ⟨hn, ?_⟩
+          have hx_lt_p : x < p := by
+            have : x ≤ p - 1 := (Finset.mem_Icc.mp hx_range).2
+            omega
+          have hx_eq : n % p = x := by
+            have : x % p = x := Nat.mod_eq_of_lt hx_lt_p
+            rw [hmod, this]
+          have h_le : x ≤ n := by
+            rw [← hx_eq]; exact Nat.mod_le n p
+          have h_dvd : p ∣ n - x := by
+            rw [← hx_eq]
+            exact Nat.dvd_sub_mod n
+          obtain ⟨i, hi_val⟩ := h_dvd
+          use i
+          constructor
+          · have h_n_le_a : n ≤ a := by
+              simp [S1_finset, S_k] at hn
+              exact hn.2.2
+            have h_n_eq : n = x + i * p := by
+              calc n = x + (n - x) := (Nat.add_sub_of_le h_le).symm
+                _ = x + p * i := by rw [hi_val]
+                _ = x + i * p := by rw [mul_comm]
+            rw [h_n_eq, ha_eq_pq] at h_n_le_a
+            -- We have x + i * p ≤ p * q
+            -- We need i < q
+            have hx_pos : x > 0 := (Finset.mem_Icc.mp hx_range).1
+            have h_ip_lt_pq : i * p < p * q := by
+              calc i * p < x + i * p := Nat.lt_add_of_pos_left hx_pos
+                _ ≤ p * q := h_n_le_a
+            rw [mul_comm i p] at h_ip_lt_pq
+            exact Nat.lt_of_mul_lt_mul_left h_ip_lt_pq
+          · have h_n_eq : n = x + i * p := by
+              calc n = x + (n - x) := (Nat.add_sub_of_le h_le).symm
+                _ = x + p * i := by rw [hi_val]
+                _ = x + i * p := by rw [mul_comm]
+            exact h_n_eq.symm
+        have := Finset.min'_le _ n this
+        rw [hs1_eq]
+        exact this
+      have hE_sub_S1x : (S1_finset : Set ℕ) ⊆ Set.Icc 1 a := by
+        intro x hx
+        have hx_set : x ∈ (S_k a S_set 1).toFinset := hx
+        rw [Set.mem_toFinset] at hx_set
+        simp only [S_k, Set.mem_inter_iff, Set.mem_Icc, Nat.sub_self, zero_mul, zero_add, one_mul] at hx_set ⊢
+        exact hx_set.2
+      have h_sub_prop : S1_finset ⊆ Finset.image (fun i => i * p) (Finset.Icc 1 q) ∪ Finset.image (fun i => x + i * p) (Finset.range q) := by
+        rw [← hE'_eq]
+        exact hE_sub_E'_val
+      have h_Sk_gap_res := lemma_3_1_case_3_gap_calc a p q k x s1 n ha_pos_S1 S1_finset
+          ha_eq_pq hp1_val hq1_val hk hx_range
+          hE_sub_S1x h_s1_bound_val h_s1_in_S1 h_s1_min h_n_def_val hn hx_p_gcd1_val h_sub_prop
+      -- Step 6.3: F gap. (proven by Numina)
+      have h_F_gap_res : ((F : Set (ZMod a)) + (G : Set (ZMod a))).ncard ≥ F.ncard + 0 := by
+        simp only [add_zero]
+        have : F ⊆ F + (G : Set (ZMod a)) := by
+          intro z hz
+          simp only [Set.mem_add]
+          use z, hz, 0, AddSubgroup.zero_mem G
+          simp only [add_zero]
+        have h_finite : (F + (G : Set (ZMod a))).Finite := by
+          haveI : Finite (ZMod a) := inferInstance
+          exact Set.toFinite _
+        apply Set.ncard_le_ncard this h_finite
+      -- Step 7.1: Final chain.
+      -- proven by Numina
+      have h_ncard_image_le : ((F : Set (ZMod a)) + Sk_bar).ncard ≤ ((fun n : ℕ => (n : ZMod a)) '' S_k a S_set (k + 1)).ncard :=
+        Set.ncard_le_ncard h_image_inc_S1 (Set.toFinite _)
+      -- proven by Numina
+      have h_F_ncard_ge_b : F.ncard ≥ b := by
+        -- F = image of S_k(1), and E ⊆ S_k(1), so by injectivity, F.ncard ≥ b
+        have h_Sk1_inj : Set.InjOn (fun n : ℕ => (n : ZMod a)) (S_k a S_set 1) :=
+          sk_image_injective a 1 ha_pos_S1 S_set
+        have h_F_ncard_eq : F.ncard = (S_k a S_set 1).ncard := Set.InjOn.ncard_image h_Sk1_inj
+        have h_Sk1_card_eq : (S_k a S_set 1).ncard = S1_finset.card := hS1_card_vals.symm
+        rw [h_F_ncard_eq, h_Sk1_card_eq, ← hE_card]
+        exact Finset.card_le_card hE_sub_S1
+      -- proven by Numina
+      have h_Sk_ncard_eq : Sk_bar.ncard = (S_k a S_set k).ncard := by
+        -- Sk_bar is the image of S_k(k) under casting to ZMod a
+        -- By sk_image_injective, this map is injective on S_k(k)
+        rw [show Sk_bar = (fun n : ℕ => (n : ZMod a)) '' S_k a S_set k by rfl]
+        exact Set.InjOn.ncard_image (sk_image_injective a k ha_pos_S1 S_set)
+      -- proven by Numina
+      have h_Sk1_ncard_eq : (S_k a S_set (k + 1)).ncard = ((fun n : ℕ => (n : ZMod a)) '' S_k a S_set (k + 1)).ncard := by
+        -- Same argument as h_Sk_ncard_eq
+        exact (Set.InjOn.ncard_image (sk_image_injective a (k + 1) ha_pos_S1 S_set)).symm
+      have h_kneser_res : (F + Sk_bar).ncard ≥ (F + (G : Set (ZMod a))).ncard + (Sk_bar + (G : Set (ZMod a))).ncard - q := by
+          -- Simplify the monad in h_kneser_ineq_val
+          rw [h_bind_is_image] at h_kneser_ineq_val
+          -- Now simplify Finset.image id
+          have h_image_id : (↑(Finset.image (fun n => n) (Finset.image (fun y : ℕ => (y : ZMod a)) S1_finset)) : Set (ZMod a)) = F := by
+            simp only [Finset.image_image, Finset.coe_image, Function.comp]
+            rw [show F = (fun n : ℕ => (n : ZMod a)) '' S1_finset by simp only [F, S1_finset, Set.coe_toFinset]]
+          rw [h_image_id] at h_kneser_ineq_val
+          -- Unify Sk_bar: h_kneser_ineq_val has (S ↑S1_finset), Sk_bar uses S_set
+          have h_Sk_match : (fun n : ℕ => (n : ZMod a)) '' S_k a (↑(S ↑S1_finset)) k = Sk_bar := by
+            rw [h_S_unify]
+          rw [h_Sk_match] at h_kneser_ineq_val
+          exact h_kneser_ineq_val
+        -- Step B: Lower bound on |F + G|: (F+G).ncard ≥ min a (F.ncard + s1).
+        -- This is the F-side analogue of h_Sk_gap_res, with s1 matching Dixmer's eq. (17).
+      have hS1_sub : (S1_finset : Set ℕ) ⊆ Set.Icc 1 a := by
+        simp [S1_finset, S_k]
+      have h_FG_lower : (F + (G : Set (ZMod a))).ncard ≥ min a (F.ncard + s1) := by
+        have hF : (↑(Finset.image (fun n => n) (Finset.image (fun y : ℕ => (y : ZMod a)) S1_finset)) : Set (ZMod a)) = F := by
+          simp only [F, S1_finset, Finset.image_image, Finset.coe_image, Set.coe_toFinset, Function.comp_def]
+        have h := lemma_3_1_step_b_h_FG_lower a p q x s1 ha_pos_S1 ha_eq_pq hp hq hp1_val hq1_val S1_finset
+          hS1_sub hx_range hs1_lt_q h_s1_in_S1 h_s1_min
+        -- Unify the type of h with the expected type
+        have hG_def : (AddSubgroup.closure {(p : ZMod a)} : Set (ZMod a)) = G := rfl
+        simp only [h_bind_is_image, hF, hG_def] at h
+        exact h
+      -- Step C: Sk_bar.ncard = (S_k a S_set k).ncard by injectivity.
+      have h_Sk_ncard_eq' : Sk_bar.ncard = (S_k a S_set k).ncard := by
+        rw [show Sk_bar = (fun n : ℕ => (n : ZMod a)) '' S_k a S_set k from rfl]
+        exact Set.InjOn.ncard_image (sk_image_injective a k ha_pos_S1 S_set)
+      -- Extract h_Sk_gap_res into a plain form: h_Sk_gap_res has unexpanded let-bindings
+      -- that linarith can't look through. We rewrite the internal Sk_bar using h_S_unify.
+      have h_Sk_gap_extracted : (Sk_bar + (G : Set (ZMod a))).ncard ≥ min a (Sk_bar.ncard + q - s1 - 1) := by
+        have h := h_Sk_gap_res
+        simp only [h_S_unify] at h
+        exact h
+      -- Combine all pieces via omega (handles ℕ truncated subtraction).
+      have h_FG_ge : (F + (G : Set (ZMod a))).ncard ≥ min a (F.ncard + s1) := h_FG_lower
+      have h_Sk_ge : (Sk_bar + (G : Set (ZMod a))).ncard ≥ min a (Sk_bar.ncard + q - s1 - 1) := h_Sk_gap_extracted
+      have h_FG_le_a : (F + (G : Set (ZMod a))).ncard ≤ a := by
+        have : (F + (G : Set (ZMod a))).Finite := Set.toFinite _
+        calc (F + (G : Set (ZMod a))).ncard ≤ Set.univ.ncard :=
+            Set.ncard_le_ncard (Set.subset_univ _) (Set.toFinite _)
+          _ = a := by rw [Set.ncard_univ, Nat.card_zmod]
+      have h_Sk_le_a : (Sk_bar + (G : Set (ZMod a))).ncard ≤ a := by
+        calc (Sk_bar + (G : Set (ZMod a))).ncard ≤ Set.univ.ncard :=
+            Set.ncard_le_ncard (Set.subset_univ _) (Set.toFinite _)
+          _ = a := by rw [Set.ncard_univ, Nat.card_zmod]
+      have h_F_nonempty : (F : Set (ZMod a)).Nonempty := by
+        use (0 : ZMod a)
+        have h0 : (0 : ZMod a) = (a : ZMod a) := by simp
+        rw [h0]
+        apply Set.mem_image_of_mem
+        exact Set.mem_toFinset.mp hS1_max_case3_sm_val
+      have h_Sk_nonempty : (Sk_bar : Set (ZMod a)).Nonempty := by
+        use (0 : ZMod a)
+        have h0 : (0 : ZMod a) = ↑(k * a) := by simp
+        rw [h0]
+        apply Set.mem_image_of_mem
+        simp only [S_k, Set.mem_inter_iff, Set.mem_Icc]
+        constructor
+        · have ha : a ∈ (S E : Set ℕ) := AddSubsemigroup.subset_closure (Finset.mem_coe.mpr hE_max)
+          have h_mul_mem : ∀ m : ℕ, m ≥ 1 → (m * a : ℕ) ∈ (S E : Set ℕ) := by
+            intro m hm
+            induction m with
+            | zero => omega
+            | succ m ih_m =>
+              if hm0 : m = 0 then
+                simp [hm0]; exact ha
+              else
+                have hm_pos : m ≥ 1 := Nat.pos_of_ne_zero hm0
+                rw [Nat.succ_mul, Nat.add_comm]
+                exact AddSubsemigroup.add_mem (S E) ha (ih_m hm_pos)
+          exact h_mul_mem k hk
+        -- proven by Numina
+        · have h_ka_ge_a : k * a ≥ a := by
+            calc k * a ≥ 1 * a := Nat.mul_le_mul_right a hk
+              _ = a := by ring
+          have h_expand : k * a = (k - 1) * a + a := by
+            have hk_eq : k = k - 1 + 1 := by omega
+            calc k * a
+                = (k - 1 + 1) * a := by rw [← hk_eq]
+              _ = (k - 1) * a + 1 * a := by ring
+              _ = (k - 1) * a + a := by ring
+          constructor
+          · calc (k - 1) * a + 1
+                ≤ (k - 1) * a + a := Nat.add_le_add_left (by omega) _
+              _ = k * a := h_expand.symm
+          · rfl
+      have h_G_card : (G : Set (ZMod a)).ncard = q := by
+        have h_card : Nat.card G = q := by
+          have hG_def : G = AddSubgroup.closure {(p : ZMod a)} := rfl
+          have : G = AddSubgroup.zmultiples (p : ZMod a) := hG_def.trans (AddSubgroup.zmultiples_eq_closure (p : ZMod a)).symm
+          rw [this, Nat.card_zmultiples, ZMod.addOrderOf_coe p (NeZero.ne a), ha_eq_pq]
+          rw [Nat.gcd_eq_right (Nat.dvd_mul_right p q), Nat.mul_div_cancel_left q hp]
+        rw [← Nat.card_coe_set_eq]
+        exact h_card
+      have h_FG_ge_q : q ≤ (F + (G : Set (ZMod a))).ncard := by
+        rw [← h_G_card]
+        exact add_subgroup_ncard_ge_card h_F_nonempty
+      have h_SkG_ge_q : q ≤ (Sk_bar + (G : Set (ZMod a))).ncard := by
+        rw [← h_G_card]
+        exact add_subgroup_ncard_ge_card h_Sk_nonempty
+      have h_a_ge_q : a ≥ q := by
+        rw [ha_eq_pq]
+        have : p ≥ 1 := hp
+        nlinarith
+      have h_final1 : min a (F.ncard + Sk_bar.ncard - 1) ≤ (F + Sk_bar).ncard := by
+        apply kneser_raw_bound a (F + (G : Set (ZMod a))).ncard (Sk_bar + (G : Set (ZMod a))).ncard (F + Sk_bar).ncard F.ncard Sk_bar.ncard s1 q
+        · exact hs1_lt_q
+        · exact h_a_ge_q
+        · exact h_FG_ge
+        · exact h_Sk_ge
+        · exact h_kneser_res
+        · exact h_FG_le_a
+        · exact h_Sk_le_a
+        · exact h_FG_ge_q
+        · exact h_SkG_ge_q
+      have h_final_bound : min a (b + (S_k a S_set k).ncard - 1) ≤ min a (F.ncard + Sk_bar.ncard - 1) := by
+        apply min_le_min le_rfl
+        rw [← h_Sk_ncard_eq]
+        exact Nat.sub_le_sub_right (Nat.add_le_add h_F_ncard_ge_b le_rfl) 1
+      calc (S_k a S_set (k + 1)).ncard
+          = ((fun n : ℕ => (n : ZMod a)) '' S_k a S_set (k + 1)).ncard := h_Sk1_ncard_eq
+        _ ≥ (F + Sk_bar).ncard := h_ncard_image_le
+        _ ≥ min a (F.ncard + Sk_bar.ncard - 1) := h_final1
+        _ ≥ min a (b + (S_k a S_set k).ncard - 1) := h_final_bound
 /-- Lemma 3.2: Inductive proof for the case max E = a.
 proven by Aristotle -/
 lemma lemma_3_2 (a b : ℕ) (E : Finset ℕ) (hE_sub : (E : Set ℕ) ⊆ Set.Icc 1 a)
@@ -4456,11 +6564,37 @@ lemma g_nonempty (a b : ℕ) (hb_ge_2 : b ≥ 2) (hb_lt_a : b < a) :
 /-- The lower bound of Theorem 1. -/
 lemma theorem_1_lower_bound (a b : ℕ) (hb_ge_2 : b ≥ 2) (hb_lt_a : b < a) :
   ⌊(a - 2 : ℝ) / (b - 1 : ℝ)⌋ * (a - b + 1) - 1 ≤ g b a := by
-    sorry
+  rw [g]
+  obtain ⟨E, hE_sub, hE_card, hE_gcd, hE_G⟩ := g_lower_bound_helper a b hb_ge_2 hb_lt_a
+  apply le_trans hE_G
+  norm_cast
+  apply le_csSup
+  · apply Set.Finite.bddAbove
+    let f : Finset ℕ → ℕ := fun E => G ↑E
+    let s : Set (Finset ℕ) := {E | ↑E ⊆ Set.Icc 1 a}
+    have h_fin : s.Finite := (Set.finite_mem_finset (Finset.powerset (Finset.Icc 1 a))).subset
+      (fun E h_sub => Finset.mem_powerset.mpr
+        (Finset.coe_subset.mp (by simpa [s, Finset.coe_Icc] using h_sub)))
+    exact (h_fin.image f).subset (fun x ⟨E, h_sub, _, _, hx⟩ => ⟨E, h_sub, hx⟩)
+  · exact ⟨E, hE_sub, hE_card, hE_gcd, rfl⟩
 /-- The upper bound of Theorem 1. -/
 lemma theorem_1_upper_bound (a b : ℕ) (hb_ge_2 : b ≥ 2) (hb_lt_a : b < a) :
   g b a ≤ (⌈(a - 1 : ℝ) / (b - 1 : ℝ)⌉ - 1) * a - 1 := by
-    sorry
+  rw [g]
+  have h_nse := g_nonempty a b hb_ge_2 hb_lt_a
+  let S_val := {G ↑E | (E : Finset ℕ) (_ : ↑E ⊆ Set.Icc 1 a) (_ : E.card = b) (_ : E.gcd id = 1)}
+  have h_bdd : BddAbove S_val := by
+    apply Set.Finite.bddAbove
+    let f : Finset ℕ → ℕ := fun E => G ↑E
+    let s : Set (Finset ℕ) := {E | ↑E ⊆ Set.Icc 1 a}
+    have : s.Finite := (Set.finite_mem_finset (Finset.powerset (Finset.Icc 1 a))).subset
+      (fun E h_sub => Finset.mem_powerset.mpr
+        (Finset.coe_subset.mp (by simpa [s, Finset.coe_Icc] using h_sub)))
+    exact (this.image f).subset (fun x ⟨E, hE_sub, _, _, hx⟩ => ⟨E, hE_sub, hx⟩)
+  obtain ⟨E, hE_sub, hE_card, hE_gcd, hE_val⟩ := Nat.sSup_mem h_nse h_bdd
+  rw [← hE_val]
+  show (G (E : Set ℕ) : ℤ) ≤ (⌈(a - 1 : ℝ) / (b - 1 : ℝ)⌉ - 1) * a - 1
+  exact g_upper_bound_helper a b hb_ge_2 hb_lt_a E hE_sub hE_card hE_gcd
 /-- Theorem 1: Main bounds on g(b, a). -/
 theorem theorem_1 (a b : ℕ) (hb_ge_2 : b ≥ 2) (hb_lt_a : b < a) :
   ⌊(a - 2 : ℝ) / (b - 1 : ℝ)⌋ * (a - b + 1) - 1 ≤ g b a ∧
@@ -4468,9 +6602,8 @@ theorem theorem_1 (a b : ℕ) (hb_ge_2 : b ≥ 2) (hb_lt_a : b < a) :
   constructor
   · exact theorem_1_lower_bound a b hb_ge_2 hb_lt_a
   · exact theorem_1_upper_bound a b hb_ge_2 hb_lt_a
--- 'theorem_1' depends on axioms: [propext, Classical.choice, Finset.add_kneser, Quot.sound]
+-- 'theorem_1' depends on axioms: [propext, Classical.choice, Quot.sound]
 #print axioms theorem_1
--- 'Erdos433.theorem_1' depends on axioms: [propext, Classical.choice, Finset.add_kneser,
--- Quot.sound]
+-- 'Erdos433.theorem_1' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos433

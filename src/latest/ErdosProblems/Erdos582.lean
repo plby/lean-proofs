@@ -222,7 +222,37 @@ def X_set : Set (Set W) := { S | Nonempty ((H'.induce S) ≃g (G_double_prime G 
 
 omit [Fintype V] [Fintype W] [DecidableEq V] [DecidableEq W] in
 lemma X_nonempty (h : VertexPartitionRamsey 2 H' (G_prime G v0)) : (X_set G v0 H').Nonempty := by
-  sorry
+  classical
+  -- By definition of $X_set$, we need to show that there exists a subset
+  -- $S \subseteq (G 인덱스 (SimpleGraph.induce {v0}ᶜ G)).vertexSet$ such that
+  -- $H'.induce (Gszczę (H'.induce {v0}ᶜ H')) S) \cong G''$.
+  obtain ⟨S, hS⟩ := h (fun _ => 0);
+  obtain ⟨ S', hS' ⟩ := hS;
+  obtain ⟨ f, hf ⟩ := hS'.2;
+  refine ⟨ ?_, ?_, ?_ ⟩;
+  focus
+    exact Set.image ( fun x : { x : V // x ≠ v0 ∧ G.Adj x v0 } => f ⟨ x, by
+      exact x.2.1 ⟩ ) ( Set.univ : Set { x : V // x ≠ v0 ∧ G.Adj x v0 } );
+  all_goals generalize_proofs at *;
+  focus
+    refine Equiv.ofBijective ?_ ⟨ ?_, ?_ ⟩;
+    focus
+      use fun x => ⟨ f.symm ⟨ x, by
+        grind ⟩, by
+        rcases x with ⟨ x, hx ⟩;
+        rcases hx with ⟨ y, -, rfl ⟩;
+        simp +decide [ V_double_prime ];
+        exact y.2.2 ⟩
+    all_goals generalize_proofs at *
+    all_goals generalize_proofs at *;
+    all_goals norm_num [ Function.Injective, Function.Surjective ];
+    focus
+      exact fun a ha ha' => ⟨ _, ⟨ a, ⟨ ha, ha' ⟩, rfl ⟩, by simp +decide ⟩
+  intro a x
+  let a' := f.symm ⟨(a : W), by grind⟩
+  let x' := f.symm ⟨(x : W), by grind⟩
+  simpa [G_double_prime, SimpleGraph.induce, a', x'] using (@hf a' x').symm
+
 /-
 Definitions of parameters and f_map.
 -/
@@ -291,9 +321,19 @@ Definition of GraphH using the previously defined AdjH.
 noncomputable def GraphH : SimpleGraph (VertexH G v0 H') where
   Adj := AdjH G v0 H'
   symm := by
-    sorry
-  loopless := by
-    sorry
+    constructor
+    intro x y hxy; induction y
+    · rcases x with ( ⟨ v', S', T' ⟩ | ⟨ w', i' ⟩ ) <;> simp +decide [ AdjH ] at hxy ⊢
+      all_goals generalize_proofs at *;
+      · exact ⟨ hxy.1.symm, hxy.2.1.symm, hxy.2.2.symm ⟩;
+      · exact hxy;
+    · cases x <;> simp +decide [ AdjH ] at hxy ⊢ ;
+      focus
+        aesop ( simp_config := { singlePass := true } ) ;
+      exact ⟨ hxy.1.symm, hxy.2.symm ⟩
+  loopless := ⟨fun x h => by
+    rcases x with ⟨v, S, T⟩ | ⟨w, i⟩ <;> simp [AdjH] at h⟩
+
 /-
 Lower bound on the clique number of H(2,G).
 -/
@@ -768,7 +808,63 @@ omit [DecidableEq V] [DecidableEq W] in
 lemma GraphH_cliqueNum_le
   (h_clique : H'.cliqueNum = (G_prime G v0).cliqueNum) :
   (GraphH G v0 H').cliqueNum ≤ G.cliqueNum := by
-    sorry
+    classical
+    -- Let $Q$ be a clique in $H(2,G)$. We show that $|Q| \le G.cliqueNum$ by
+    -- considering the cases with at least two, exactly one, or no type A vertices.
+    have h_clique_size :
+        ∀ Q : Finset (VertexH G v0 H'),
+          (GraphH G v0 H').IsClique Q → Q.card ≤ G.cliqueNum := by
+      intro Q hQ
+      generalize_proofs at *;
+      by_cases h_two_A :
+          ∃ x y : VertexH G v0 H',
+            x ∈ Q ∧ y ∈ Q ∧ x ≠ y ∧
+              (∃ a, x = Sum.inl a) ∧ (∃ b, y = Sum.inl b);
+      · obtain ⟨ x, y, hx, hy, hxy, ⟨ a, rfl ⟩, ⟨ b, rfl ⟩ ⟩ := h_two_A
+        exact clique_case_two_A G v0 H' Q hQ _ _ hx hy hxy ⟨ a, rfl ⟩ ⟨ b, rfl ⟩ ;
+      · by_cases h_one_A :
+            ∃ x : VertexH G v0 H',
+              x ∈ Q ∧ (∃ a, x = Sum.inl a) ∧
+                ∀ y ∈ Q, (∃ b, y = Sum.inl b) → y = x;
+        · obtain ⟨ x, hx₁, hx₂, hx₃ ⟩ := h_one_A
+          have h_card : Q.card ≤ (G_double_prime G v0).cliqueNum + 1 := by
+            apply clique_case_one_A G v0 H' Q hQ x hx₁ hx₂ hx₃
+          have h_card_le : (G_double_prime G v0).cliqueNum + 1 ≤ G.cliqueNum := by
+            exact cliqueNum_G_double_prime_le G v0
+          linarith [h_card, h_card_le];
+        · by_cases h_no_A : ∀ x ∈ Q, ∀ a, x ≠ Sum.inl a;
+          · refine le_trans ( clique_case_zero_A G v0 H' Q hQ h_no_A ) ?_;
+            rw [ h_clique ];
+            refine csSup_le ?_ ?_ <;> norm_num +zetaDelta at *;
+            · exact ⟨ 0, ⟨ ∅, by simp +decide [ SimpleGraph.isNClique_iff ] ⟩ ⟩;
+            · intro b x hx
+              have h_induce :
+                  (G_prime G v0).IsNClique b x →
+                    G.IsNClique b (Finset.image (fun v => v.val) x) := by
+                intro hx
+                have h_induce :
+                    ∀ u v : V_prime v0,
+                      u ∈ x → v ∈ x → u ≠ v → G.Adj u.val v.val := by
+                  exact fun u v hu hv huv =>
+                    hx.1 hu hv (by simpa [ Subtype.ext_iff ] using huv) |> fun h =>
+                      by simpa [G_prime] using h;
+                generalize_proofs at *;
+                simp_all +decide [ SimpleGraph.isNClique_iff ];
+                simp_all +decide [
+                  SimpleGraph.IsClique, Finset.card_image_of_injective, Function.Injective ];
+                intro a ha b hb hab; aesop;
+              generalize_proofs at *;
+              exact le_csSup
+                ⟨ Fintype.card V, fun n hn => by
+                  obtain ⟨ y, hy ⟩ := hn
+                  exact hy.card_eq ▸ Finset.card_le_univ _ ⟩
+                ⟨ _, h_induce hx ⟩;
+          · grind
+    generalize_proofs at *;
+    exact csSup_le' fun n hn => by
+      obtain ⟨ s, hs ⟩ := hn
+      simpa [ hs.2 ] using h_clique_size s hs.1;
+
 /-
 The clique number of H(2,G) is equal to the clique number of G.
 -/
@@ -896,7 +992,40 @@ lemma psi_map_preserves_adj
     (GraphH G v0 H').Adj
       (psi_map G v0 H' T S' phi S'' v1 i_star u)
       (psi_map G v0 H' T S' phi S'' v1 i_star v) := by
-        sorry
+    classical
+    have mem_phi_of_adj {x : V} (hx : x ≠ v0) (hadj : G.Adj x v0) :
+        (phi ⟨x, hx⟩).val ∈ S''.val := by
+      rw [h_S''_eq]
+      exact ⟨phi ⟨x, hx⟩, ⟨⟨x, hx⟩, by simpa [V_double_prime] using hadj, rfl⟩, rfl⟩
+    have adj_of_mem_phi {x : V} (hx : x ≠ v0)
+        (hmem : (phi ⟨x, hx⟩).val ∈ S''.val) : G.Adj x v0 := by
+      rw [h_S''_eq] at hmem
+      rcases hmem with ⟨z, ⟨y, hy, hyz⟩, hz⟩
+      have hz' : z = phi ⟨x, hx⟩ := Subtype.ext hz
+      have hy' : y = ⟨x, hx⟩ := phi.injective (by simpa [hz'] using hyz)
+      simpa [V_double_prime, hy'] using hy
+    by_cases hu : u = v0
+    · subst u
+      by_cases hv : v = v0
+      · subst v
+        simp [psi_map, GraphH]
+      · simp [psi_map, hv, GraphH, AdjH]
+        constructor
+        · intro huv
+          exact ⟨mem_phi_of_adj hv huv.symm, ⟨h_i_star_mem, h_i_star_map⟩⟩
+        · intro h
+          exact (adj_of_mem_phi hv h.1).symm
+    · by_cases hv : v = v0
+      · subst v
+        simp [psi_map, hu, GraphH, AdjH]
+        constructor
+        · intro huv
+          exact ⟨mem_phi_of_adj hu huv, ⟨h_i_star_mem, h_i_star_map⟩⟩
+        · intro h
+          exact adj_of_mem_phi hu h.1
+      · simp [psi_map, hu, hv, GraphH, AdjH]
+        simpa [G_prime] using h_phi_iso ⟨u, hu⟩ ⟨v, hv⟩
+
 /-
 Helper definitions for extracting the index $i^*$ corresponding to a vertex $v$
 under the bijection $f_T$.
@@ -945,7 +1074,11 @@ lemma psi_map_case_1_preserves_adj
     (GraphH G v0 H').Adj
       (psi_map_case_1 G v0 H' T S' phi S'' v1 u)
       (psi_map_case_1 G v0 H' T S' phi S'' v1 v) := by
-        sorry
+    classical
+    simpa [psi_map_case_1] using
+      psi_map_preserves_adj G v0 H' T S' phi h_phi_iso S'' h_S''_eq v1
+        (get_i_star T v1) (get_i_star_mem T v1) (f_map_get_i_star T v1) u v
+
 /-
 The set of vertices $U$ used in Case 1 of the Ramsey proof.
 -/
@@ -968,7 +1101,10 @@ lemma psi_map_case_1_injective
   (S'' : X_type G v0 H')
   (v1 : V) :
   Function.Injective (psi_map_case_1 G v0 H' T S' phi S'' v1) := by
-    sorry
+    classical
+    change Function.Injective (psi_map G v0 H' T S' phi S'' v1 (get_i_star T v1))
+    exact psi_map_injective G v0 H' T S' phi S'' v1 (get_i_star T v1)
+
 /-
 All vertices in the set $U$ constructed for Case 1 have color $k$.
 -/
@@ -1449,9 +1585,17 @@ The Folkman graph $G$.
 noncomputable def GraphG : SimpleGraph VertexG where
   Adj := AdjG
   symm := by
-    sorry
-  loopless := by
-    sorry
+    constructor
+    intro x y hxy;
+    -- By definition of $AdjG$, we need to check all possible cases.
+    cases x <;> cases y <;> simp [AdjG] at hxy ⊢;
+    · exact Or.imp ( fun h => ⟨ h.1.symm, h.2.symm ⟩ ) ( fun h => ⟨ h.1.symm, h.2.symm ⟩ ) hxy;
+    · exact hxy;
+    · exact hxy
+  loopless := ⟨fun x h => by
+    -- By definition of $AdjG`, no vertex is adjacent to itself.
+    cases x <;> simp [AdjG] at h⟩
+
 /-
 If a clique contains two vertices in different rows, then all its grid vertices lie in
 the same column.
@@ -1482,7 +1626,61 @@ lemma clique_in_row_le_two
   (u : V1)
   (h_subset : ∀ x ∈ Q, ∃ v, x = Sum.inl (u, v)) :
   Q.card ≤ 2 := by
-    sorry
+    have hK2_cliqueNum : K2.cliqueNum = 2 := by
+      unfold SimpleGraph.cliqueNum
+      simp +decide [K2]
+      rw [@csSup_eq_of_forall_le_of_forall_lt_exists_gt]
+      · exact ⟨0, ⟨∅, by simp +decide⟩⟩
+      · intro a ha
+        rcases ha with ⟨s, hs⟩
+        rw [← hs.card_eq]
+        exact Finset.card_le_univ s
+      · intro w hw
+        refine ⟨2, ?_, hw⟩
+        exact ⟨{0, 1}, by
+          simp +decide⟩
+    have h_row_clique : ∀ Q' : Finset V2, (H2.IsClique Q') → Q'.card ≤ 2 := by
+      -- By definition of clique number, any clique in $H_2$ has size at most 2.
+      have h_clique_num : ∀ (Q' : Finset V2), (H2.IsClique Q') → Q'.card ≤ H2.cliqueNum := by
+        intro Q' hQ'; exact (by
+        apply le_csSup (by
+        exact ⟨ Fintype.card V2, fun n hn => by
+          obtain ⟨ s, hs ⟩ := hn
+          exact hs.card_eq ▸ Finset.card_le_univ _ ⟩) (by
+        exact ⟨ Q', by simpa [ SimpleGraph.isNClique_iff ] using hQ' ⟩));
+      exact fun Q' hQ' =>
+        le_trans ( h_clique_num Q' hQ' ) (by rw [H2_props.1, hK2_cliqueNum])
+    let Q' : Finset V2 := Finset.filter (fun v => Sum.inl (u, v) ∈ Q) Finset.univ
+    have hQ_eq : Q = Finset.image (fun v => Sum.inl (u, v)) Q' := by
+      ext x
+      constructor
+      · intro hx
+        rcases h_subset x hx with ⟨v, rfl⟩
+        exact Finset.mem_image.mpr ⟨v, by simpa [Q'], rfl⟩
+      · intro hx
+        rcases Finset.mem_image.mp hx with ⟨v, hv, rfl⟩
+        exact (Finset.mem_filter.mp hv).2
+    have hQ'_clique : H2.IsClique Q' := by
+      intro v hv w hw hvw
+      have hvQ : Sum.inl (u, v) ∈ Q := by simpa [Q'] using hv
+      have hwQ : Sum.inl (u, w) ∈ Q := by simpa [Q'] using hw
+      have hne : (Sum.inl (u, v) : VertexG) ≠ Sum.inl (u, w) := by
+        intro h
+        exact hvw (congrArg Prod.snd (Sum.inl.inj h))
+      have hAdj := hQ hvQ hwQ hne
+      change (u = u ∧ H2.Adj v w) ∨ (v = w ∧ H1.Adj u u) at hAdj
+      rcases hAdj with hrow | hcol
+      · exact hrow.2
+      · exact False.elim (hvw hcol.1)
+    rw [hQ_eq]
+    have hcard : (Finset.image (fun v => (Sum.inl (u, v) : VertexG)) Q').card = Q'.card := by
+      rw [Finset.card_image_of_injective]
+      intro v w h
+      exact congrArg Prod.snd (Sum.inl.inj h)
+    change (Finset.image (fun v => (Sum.inl (u, v) : VertexG)) Q').card ≤ 2
+    rw [hcard]
+    exact h_row_clique Q' hQ'_clique
+
 /-
 A clique contained in a single column of the grid has size at most 3.
 -/
@@ -1564,7 +1762,84 @@ lemma clique_with_X_le_three
   (S : X_type_G)
   (hS : Sum.inr S ∈ Q) :
   Q.card ≤ 3 := by
-    sorry
+  obtain ⟨a, b, hne_ab, hSval⟩ : ∃ a b : V1, a ≠ b ∧ S.val = s(a, b) := by
+    rcases S with ⟨e, he⟩
+    rcases e with ⟨a, b⟩
+    exact ⟨a, b, by simpa [Sym2.mk_isDiag_iff] using he, rfl⟩
+  let R : Finset VertexG := Q \ {Sum.inr S}
+  have hR_clique : GraphG.IsClique R := by
+    intro x hx y hy hxy
+    exact hQ (Finset.mem_sdiff.mp hx).1 (Finset.mem_sdiff.mp hy).1 hxy
+  have hR_rows : ∀ y ∈ R, ∃ u v, y = Sum.inl (u, v) ∧ (u = a ∨ u = b) := by
+    intro y hy
+    rcases y with ⟨u, v⟩ | S'
+    · have hne : (Sum.inr S : VertexG) ≠ Sum.inl (u, v) := by simp
+      have hAdj := hQ hS (Finset.mem_sdiff.mp hy).1 hne
+      change u ∈ S.val at hAdj
+      have hu : u ∈ s(a, b) := by simpa [hSval] using hAdj
+      exact ⟨u, v, rfl, (Sym2.mem_iff.mp hu)⟩
+    · have hne : (Sum.inr S : VertexG) ≠ Sum.inr S' := by
+        intro h
+        exact (Finset.mem_sdiff.mp hy).2 (Finset.mem_singleton.mpr h.symm)
+      have hAdj := hQ hS (Finset.mem_sdiff.mp hy).1 hne
+      change False at hAdj
+      exact False.elim hAdj
+  have hQ_eq : Q = insert (Sum.inr S) R := by
+    ext x
+    constructor
+    · intro hx
+      by_cases hxS : x = Sum.inr S
+      · exact Finset.mem_insert.mpr (Or.inl hxS)
+      · exact Finset.mem_insert.mpr (Or.inr (Finset.mem_sdiff.mpr ⟨hx, by
+          intro hxmem
+          exact hxS (Finset.mem_singleton.mp hxmem)⟩))
+    · intro hx
+      rcases Finset.mem_insert.mp hx with hxS | hxR
+      · exact hxS ▸ hS
+      · exact (Finset.mem_sdiff.mp hxR).1
+  have hnotR : Sum.inr S ∉ R := by
+    intro h
+    exact (Finset.mem_sdiff.mp h).2 (Finset.mem_singleton_self _)
+  have hR_card : R.card ≤ 2 := by
+    by_cases hA : ∃ y ∈ R, ∃ v, y = Sum.inl (a, v)
+    · by_cases hB : ∃ y ∈ R, ∃ v, y = Sum.inl (b, v)
+      · obtain ⟨ya, hya, va, hya_eq⟩ := hA
+        obtain ⟨yb, hyb, vb, hyb_eq⟩ := hB
+        have hyaQ : Sum.inl (a, va) ∈ Q := by
+          exact hya_eq ▸ (Finset.mem_sdiff.mp hya).1
+        have hybQ : Sum.inl (b, vb) ∈ Q := by
+          exact hyb_eq ▸ (Finset.mem_sdiff.mp hyb).1
+        have hcol := clique_grid_force_col Q hQ a b va vb hyaQ hybQ hne_ab
+        have hR_subset : R ⊆ {Sum.inl (a, va), Sum.inl (b, va)} := by
+          intro x hx
+          obtain ⟨u, v, rfl, hu⟩ := hR_rows x hx
+          have hv : v = va := hcol.2 u v (Finset.mem_sdiff.mp hx).1
+          rcases hu with rfl | rfl
+          · rw [hv]
+            exact Finset.mem_insert_self _ _
+          · rw [hv]
+            exact Finset.mem_insert.mpr (Or.inr (Finset.mem_singleton_self _))
+        exact le_trans (Finset.card_le_card hR_subset) (Finset.card_insert_le _ _)
+      · have h_subset : ∀ x ∈ R, ∃ v, x = Sum.inl (a, v) := by
+          intro x hx
+          obtain ⟨u, v, rfl, hu⟩ := hR_rows x hx
+          rcases hu with rfl | rfl
+          · exact ⟨v, rfl⟩
+          · exact False.elim (hB ⟨_, hx, v, rfl⟩)
+        exact clique_in_row_le_two R hR_clique a h_subset
+    · have h_subset : ∀ x ∈ R, ∃ v, x = Sum.inl (b, v) := by
+        intro x hx
+        obtain ⟨u, v, rfl, hu⟩ := hR_rows x hx
+        rcases hu with rfl | rfl
+        · exact False.elim (hA ⟨_, hx, v, rfl⟩)
+        · exact ⟨v, rfl⟩
+      exact clique_in_row_le_two R hR_clique b h_subset
+  rw [hQ_eq]
+  have hcard : (insert (Sum.inr S) R).card = R.card + 1 :=
+    Finset.card_insert_of_notMem hnotR
+  rw [hcard]
+  omega
+
 /-
 The clique number of $G$ is at most 3.
 -/
@@ -1658,8 +1933,24 @@ noncomputable def induced_coloring (c : GraphG.edgeSet → Bool) (u : V1) : H2.e
     let v' := e.val.out.2
     let e_G : Sym2 VertexG := s(Sum.inl (u, v), Sum.inl (u, v'))
     have h_adj : GraphG.Adj (Sum.inl (u, v)) (Sum.inl (u, v')) := by
-      sorry
+      -- By definition of $GraphG.Adj$, adjacency in one row is adjacency in $H2$.
+      have h_adj :
+          GraphG.Adj (Sum.inl (u, v)) (Sum.inl (u, v')) ↔
+            v ≠ v' ∧ (H2.Adj v v' ∨ H2.Adj v' v) := by
+        constructor <;> intro h <;> simp_all +decide [ GraphG ];
+        · unfold AdjG at h; aesop;
+        · exact Or.inl ⟨ rfl, by cases h.2 <;> tauto ⟩
+      generalize_proofs at *;
+      -- Since $e$ is an edge in $H2$, by definition, $H2.Adj v v'$ must be true.
+      have h_adj_H2 : H2.Adj v v' := by
+        have h_edge : (s(v, v')) ∈ H2.edgeSet := by
+          convert e.2 using 1
+          generalize_proofs at *;
+          exact Quot.out_eq e.val ▸ rfl
+        simpa [SimpleGraph.mem_edgeSet] using h_edge
+      exact h_adj.mpr ⟨ by rintro h; simpa [ h ] using h_adj_H2.ne, Or.inl h_adj_H2 ⟩
     c ⟨e_G, h_adj⟩
+
 /-
 There exists a set $U \subseteq V_1$ inducing $2K_3$ in $H_1$ such that all rows
 in $U$ have the same induced coloring on $H_2$.
@@ -1745,7 +2036,12 @@ noncomputable instance (A B : Finset V) : DecidableEq (SigData A B) := by
 omit [Fintype V] in
 lemma card_SigData (A B : Finset V) (hA : A.card = 3) (hB : B.card = 3) :
   Fintype.card (SigData A B) = 36 := by
-    sorry
+    change
+      Fintype.card ({ x // x ∈ edgeWithVertexFinset A } ×
+        { x // x ∈ edgeWithVertexFinset B }) = 36
+    rw [Fintype.card_prod, Fintype.card_coe, Fintype.card_coe,
+      card_edgeWithVertexFinset A hA, card_edgeWithVertexFinset B hB]
+
 /-
 Edges in a signature are non-diagonal.
 -/
@@ -1966,7 +2262,93 @@ lemma exists_signature_for_v
       (hvw : GraphG.Adj v w) (huw : GraphG.Adj u w),
     ¬(c ⟨s(u, v), huv⟩ = c ⟨s(v, w), hvw⟩ ∧ c ⟨s(v, w), hvw⟩ = c ⟨s(u, w), huw⟩)) :
   ∃ (s : SigData A B), ValidSignature c A B v s := by
-    sorry
+    -- By Lemma 25, there exists a red edge (u, w) in A and a blue edge (p, q) in B.
+    obtain ⟨u, w, h_red⟩ :
+        ∃ u w : V1,
+          u ∈ A ∧ w ∈ A ∧ u ≠ w ∧
+            ∃ (h : GraphG.Adj (Sum.inl (u, v)) (Sum.inl (w, v))),
+              c ⟨s(Sum.inl (u, v), Sum.inl (w, v)), h⟩ = false := by
+      have h_exists_red_edge :
+          ∃ (u w : V1) (h : GraphG.Adj (Sum.inl (u, v)) (Sum.inl (w, v))),
+            u ∈ A ∧ w ∈ A ∧
+              c ⟨s(Sum.inl (u, v), Sum.inl (w, v)), h⟩ = false := by
+        apply exists_red_edge_in_clique3 c A hA hA_card v h_no_mono;
+      grind
+    obtain ⟨p, q, h_blue⟩ :
+        ∃ p q : V1,
+          p ∈ B ∧ q ∈ B ∧ p ≠ q ∧
+            ∃ (h : GraphG.Adj (Sum.inl (p, v)) (Sum.inl (q, v))),
+              c ⟨s(Sum.inl (p, v), Sum.inl (q, v)), h⟩ = true := by
+      convert exists_blue_edge_in_clique3 c B hB hB_card v h_no_mono using 1;
+      grind +ring;
+    -- By Lemma 25, there exists a blue edge (p, q) in B and a red edge (u, w) in A.
+    obtain ⟨u1, hu1⟩ :
+        ∃ u1 : V1, (u1 = u ∨ u1 = w) ∧
+          ∃ (h_nd : ¬(s(u, w)).IsDiag)
+            (h_adj : GraphG.Adj (Sum.inr ⟨s(u, w), h_nd⟩) (Sum.inl (u1, v))),
+            c ⟨s(Sum.inr ⟨s(u, w), h_nd⟩, Sum.inl (u1, v)), h_adj⟩ = true := by
+      apply exists_blue_edge_to_X c u w v h_red.2.2.1 h_red.2.2.2 h_no_mono
+    obtain ⟨u2, hu2⟩ :
+        ∃ u2 : V1, (u2 = p ∨ u2 = q) ∧
+          ∃ (h_nd : ¬(s(p, q)).IsDiag)
+            (h_adj : GraphG.Adj (Sum.inr ⟨s(p, q), h_nd⟩) (Sum.inl (u2, v))),
+            c ⟨s(Sum.inr ⟨s(p, q), h_nd⟩, Sum.inl (u2, v)), h_adj⟩ = false := by
+      apply Classical.byContradiction
+      intro h_no_u2;
+      exact h_no_mono
+        (Sum.inr ⟨ s(p, q), by aesop ⟩)
+        (Sum.inl (p, v)) (Sum.inl (q, v))
+        (by exact adj_X_col_redef _ (by aesop) _ (by aesop) _)
+        (by exact h_blue.2.2.2.choose)
+        (by exact adj_X_col_redef _ (by aesop) _ (by aesop) _) <| by aesop;
+    have hmem1 : (s(u, w), u1) ∈ edgeWithVertexFinset A := by
+      unfold edgeWithVertexFinset
+      rcases hu1.1 with hu1u | hu1w
+      · exact Finset.mem_image.mpr
+          ⟨(u, w),
+            Finset.mem_offDiag.mpr ⟨h_red.1, h_red.2.1, h_red.2.2.1⟩,
+            by simp [hu1u]⟩
+      · exact Finset.mem_image.mpr
+          ⟨(w, u),
+            Finset.mem_offDiag.mpr ⟨h_red.2.1, h_red.1, Ne.symm h_red.2.2.1⟩,
+            by simp [hu1w, Sym2.eq_swap]⟩
+    have hmem2 : (s(p, q), u2) ∈ edgeWithVertexFinset B := by
+      unfold edgeWithVertexFinset
+      rcases hu2.1 with hu2p | hu2q
+      · exact Finset.mem_image.mpr
+          ⟨(p, q),
+            Finset.mem_offDiag.mpr ⟨h_blue.1, h_blue.2.1, h_blue.2.2.1⟩,
+            by simp [hu2p]⟩
+      · exact Finset.mem_image.mpr
+          ⟨(q, p),
+            Finset.mem_offDiag.mpr ⟨h_blue.2.1, h_blue.1, Ne.symm h_blue.2.2.1⟩,
+            by simp [hu2q, Sym2.eq_swap]⟩
+    let sig : SigData A B := ⟨⟨(s(u, w), u1), hmem1⟩, ⟨(s(p, q), u2), hmem2⟩⟩
+    refine ⟨sig, ?_⟩
+    unfold ValidSignature
+    dsimp [sig]
+    refine ⟨?_, ?_, ?_, ?_⟩
+    · rcases sym2_out_eq_or_swap u w with hout | hout
+      · rw [hout]
+        exact h_red.2.2.2
+      · rw [hout]
+        obtain ⟨h_adj, h_col⟩ := h_red.2.2.2
+        refine ⟨h_adj.symm, ?_⟩
+        simpa [Sym2.eq_swap] using h_col
+    · obtain ⟨h_nd, h_adj, h_col⟩ := hu1.2
+      refine ⟨by simpa using h_adj, ?_⟩
+      simpa using h_col
+    · rcases sym2_out_eq_or_swap p q with hout | hout
+      · rw [hout]
+        exact h_blue.2.2.2
+      · rw [hout]
+        obtain ⟨h_adj, h_col⟩ := h_blue.2.2.2
+        refine ⟨h_adj.symm, ?_⟩
+        simpa [Sym2.eq_swap] using h_col
+    · obtain ⟨h_nd, h_adj, h_col⟩ := hu2.2
+      refine ⟨by simpa using h_adj, ?_⟩
+      simpa using h_col
+
 /-
 There exist two adjacent vertices in H2 that have the same signature.
 -/
@@ -2190,7 +2572,22 @@ lemma row_color_of_cliques_in_U
   (hk : chi ⟨s(v, w), hvw⟩ = k) :
   ∀ u, u ∈ A ∨ u ∈ B →
     c ⟨s(Sum.inl (u, v), Sum.inl (u, w)), adj_row_of_adj_H2 u v w hvw⟩ = k := by
-    sorry
+    -- By definition of `row_coloring_map`, it agrees with the corresponding row
+    -- edge color in `G`.
+    have h_row_coloring_map :
+        ∀ u ∈ U,
+          row_coloring_map c u ⟨s(v, w), hvw⟩ =
+            c ⟨s(Sum.inl (u, v), Sum.inl (u, w)), adj_row_of_adj_H2 u v w hvw⟩ := by
+      -- By definition, this is the color of the edge `(u, v) \sim (u, w)`.
+      simp [row_coloring_map, induced_coloring];
+      congr! 2
+      generalize_proofs at *; (
+      have := Quot.out_eq ( s(v, w) )
+      ( rcases h : Quot.out ( s(v, w) ) with ⟨ x, y ⟩ ; aesop; ) ;)
+    generalize_proofs at *; (
+    exact fun u hu =>
+      h_row_coloring_map u (hu.elim (fun hu => hA_sub hu) fun hu => hB_sub hu) ▸
+      hU_color u (hu.elim (fun hu => hA_sub hu) fun hu => hB_sub hu) ▸ hk ▸ rfl;)
 
 /-
 The graph G is edge-Ramsey for triangles.

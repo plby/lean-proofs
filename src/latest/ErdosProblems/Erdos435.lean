@@ -55,7 +55,115 @@ Helper lemma for Lemma 2 Part 1: A product inequality involving factorials/range
 lemma lemma2_part1_bound (y : ℕ) (hy : y ≥ 5) :
     ∏ i ∈ Finset.Icc (2 * y + 1) (3 * y), i ≥
       2 * y * ∏ i ∈ Finset.Icc (y + 1) (2 * y), i := by
-        sorry
+    -- By induction on $y$, we can show that the inequality holds for all $y \geq 5$.
+    induction y, Nat.succ_le_iff.mpr hy using Nat.le_induction with
+    | base =>
+      decide +kernel
+    | succ y hy ih =>
+      -- Let's simplify the goal using the induction hypothesis.
+      have h_simp :
+          (∏ i ∈ Finset.Icc (2 * y + 3) (3 * y + 3), i) =
+            (∏ i ∈ Finset.Icc (2 * y + 1) (3 * y), i) *
+              ((3 * y + 1) * (3 * y + 2) * (3 * y + 3)) /
+                ((2 * y + 1) * (2 * y + 2)) := by
+        have h_simp :
+            (∏ i ∈ Finset.Icc (2 * y + 3) (3 * y + 3), i) =
+              (∏ i ∈ Finset.Icc (2 * y + 1) (3 * y + 3), i) /
+                ((2 * y + 1) * (2 * y + 2)) := by
+          erw [ Finset.prod_Ico_eq_prod_range, Finset.prod_Ico_eq_prod_range ];
+          rw [ Nat.div_eq_of_eq_mul_left ];
+          · positivity;
+          · rw [
+              show
+                  3 * y + 3 + 1 - (2 * y + 1) =
+                    (3 * y + 3 + 1 - (2 * y + 3)) + 2 by
+                omega,
+              Finset.prod_range_succ', Finset.prod_range_succ']
+            norm_num
+            ring_nf
+        rw [ h_simp ];
+        erw [ Finset.prod_Ico_eq_prod_range, Finset.prod_Ico_eq_prod_range ]
+        norm_num [ add_assoc, mul_assoc, Finset.prod_range_succ ]
+        ring_nf
+        rw [
+          show
+              4 + y * 3 - (1 + y * 2) =
+                (1 + y * 3 - (1 + y * 2)) + 3 by
+            rw [Nat.sub_eq_of_eq_add]
+            linarith [
+              Nat.sub_add_cancel
+                (by linarith : 1 + y * 3 ≥ 1 + y * 2)]]
+        norm_num [Finset.prod_range_succ]
+        ring_nf
+        rw [
+          show 1 + y * 3 - (1 + y * 2) = y by
+            rw [Nat.sub_eq_of_eq_add]
+            ring]
+        ring_nf
+      -- Let's simplify the right-hand side of the inequality.
+      have h_rhs :
+          (∏ i ∈ Finset.Icc (y + 2) (2 * y + 2), i) =
+            (∏ i ∈ Finset.Icc (y + 1) (2 * y), i) *
+              ((2 * y + 1) * (2 * y + 2)) / (y + 1) := by
+        erw [ Finset.prod_Ico_eq_prod_range, Finset.prod_Ico_eq_prod_range ];
+        rw [
+          show 2 * y + 2 + 1 - (y + 2) = y + 1 by
+            rw [Nat.sub_eq_of_eq_add]
+            ring,
+          show 2 * y + 1 - (y + 1) = y by
+            rw [Nat.sub_eq_of_eq_add]
+            ring]
+        norm_num [Finset.prod_range_succ]
+        ring_nf
+        rw [ Nat.div_eq_of_eq_mul_left ] <;> try linarith;
+        have := Finset.prod_range_succ' (fun x => 1 + y + x) y
+        have := Finset.prod_range_succ' (fun x => 2 + y + x) y
+        norm_num [add_comm, add_left_comm, add_assoc, Finset.prod_range_succ] at *
+        nlinarith
+      -- Substitute the simplified forms into the inequality.
+      have h_subst :
+          (∏ i ∈ Finset.Icc (2 * y + 1) (3 * y), i) *
+                ((3 * y + 1) * (3 * y + 2) * (3 * y + 3)) /
+              ((2 * y + 1) * (2 * y + 2)) ≥
+            2 * (y + 1) *
+              ((∏ i ∈ Finset.Icc (y + 1) (2 * y), i) *
+                  ((2 * y + 1) * (2 * y + 2)) / (y + 1)) := by
+        refine Nat.le_div_iff_mul_le ( by positivity ) |>.2 ?_;
+        rw [ ← Nat.mul_div_assoc ];
+        · have h_div_cancel :
+              2 * (y + 1) *
+                    ((∏ i ∈ Finset.Icc (y + 1) (2 * y), i) *
+                      ((2 * y + 1) * (2 * y + 2))) / (y + 1) =
+                2 *
+                  ((∏ i ∈ Finset.Icc (y + 1) (2 * y), i) *
+                    ((2 * y + 1) * (2 * y + 2))) := by
+            rw [Nat.div_eq_of_eq_mul_left] <;> linarith
+          rw [h_div_cancel]
+          have hih :
+              ∏ i ∈ Finset.Icc (2 * y + 1) (3 * y), i ≥
+                2 * y * ∏ i ∈ Finset.Icc (y + 1) (2 * y), i :=
+            ‹y ≥ 5 →
+              ∏ i ∈ Finset.Icc (2 * y + 1) (3 * y), i ≥
+                2 * y * ∏ i ∈ Finset.Icc (y + 1) (2 * y), i› (by linarith : y ≥ 5)
+          nlinarith [
+            Nat.zero_le (∏ i ∈ Finset.Icc (y + 1) (2 * y), i),
+            Nat.zero_le ((2 * y + 1) * (2 * y + 2)),
+            Nat.zero_le ((3 * y + 1) * (3 * y + 2) * (3 * y + 3)),
+            mul_le_mul_right (by linarith : y ≥ 5) (∏ i ∈ Finset.Icc (y + 1) (2 * y), i),
+            mul_le_mul_right (by linarith : y ≥ 5) ((2 * y + 1) * (2 * y + 2)),
+            mul_le_mul_right (by linarith : y ≥ 5) ((3 * y + 1) * (3 * y + 2) * (3 * y + 3))]
+        · exact
+            dvd_mul_of_dvd_left
+              (Finset.dvd_prod_of_mem _
+                (Finset.mem_Icc.mpr ⟨by linarith, by linarith⟩))
+              _
+      rw [
+        show 2 * (y + 1) + 1 = 2 * y + 3 by ring,
+        show 3 * (y + 1) = 3 * y + 3 by ring,
+        show y + 1 + 1 = y + 2 by ring,
+        show 2 * (y + 1) = 2 * y + 2 by ring]
+      rw [h_simp, h_rhs]
+      exact h_subst
 /-
 Lemma 2 Part 1: For $y \ge 5$ and $n \ge 4y$, $\binom{n}{2y} \ge 2y \binom{n}{y}$.
 -/
@@ -452,7 +560,82 @@ Lemma 1 Equality: If $v_p(n) \ge j$, then $v_p(\binom{n}{p^j}) = v_p(n) - j$.
 lemma lemma1_equality (n j p : ℕ) (hp : p.Prime) (hj : j ≥ 1)
     (hjn : j ≤ padicValNat p n) :
     padicValNat p (Nat.choose n (p ^ j)) = padicValNat p n - j := by
-      sorry
+      have h_div :
+          padicValNat p (Nat.choose n (p ^ j)) =
+            padicValNat p (n / (p ^ j) * Nat.choose (n - 1) (p ^ j - 1)) := by
+        have h_div :
+            Nat.choose n (p ^ j) * (p ^ j) =
+              n * Nat.choose (n - 1) (p ^ j - 1) := by
+          cases n <;> cases p <;> cases j <;> simp_all +decide [ Nat.add_one_mul_choose_eq ];
+          rw [ Nat.sub_add_cancel ( Nat.one_le_pow _ _ ( Nat.succ_pos _ ) ) ];
+        have h_div :
+            Nat.choose n (p ^ j) =
+              (n / p ^ j) * Nat.choose (n - 1) (p ^ j - 1) := by
+          have h_div : p ^ j ∣ n := by
+            have h_div : p ^ (padicValNat p n) ∣ n := by
+              convert Nat.ordProj_dvd n p using 1;
+              rw [ Nat.factorization ] ; aesop;
+            exact dvd_trans ( pow_dvd_pow _ ‹_› ) h_div;
+          nlinarith [ Nat.div_mul_cancel h_div, pow_pos hp.pos j ];
+        rw [h_div];
+      have h_div :
+          padicValNat p (n / p ^ j * Nat.choose (n - 1) (p ^ j - 1)) =
+            padicValNat p (n / p ^ j) +
+              padicValNat p (Nat.choose (n - 1) (p ^ j - 1)) := by
+        convert padicValNat.mul _ _ using 1;
+        · exact ⟨ hp ⟩;
+        · refine Nat.ne_of_gt ( Nat.div_pos ?_ ( pow_pos hp.pos _ ) );
+          have h_div : p ^ j ∣ n := by
+            have h_div : p ^ padicValNat p n ∣ n := by
+              exact pow_padicValNat_dvd;
+            exact dvd_trans ( pow_dvd_pow _ ‹_› ) h_div;
+          apply Nat.le_of_dvd (Nat.pos_of_ne_zero (by
+          aesop)) h_div;
+        · refine Nat.ne_of_gt ( Nat.choose_pos ?_ );
+          gcongr;
+          have := Nat.ordProj_dvd n p;
+          exact
+            Nat.le_of_dvd
+              (Nat.pos_of_ne_zero (by aesop_cat))
+              (dvd_trans
+                (pow_dvd_pow _
+                  (by
+                    linarith! [
+                      show n.factorization p = padicValNat p n from by
+                        rw [Nat.factorization_def]
+                        aesop_cat]))
+                this)
+      have h_div : padicValNat p (n / p ^ j) = padicValNat p n - j := by
+        have h_div : padicValNat p (n / p ^ j) = padicValNat p n - padicValNat p (p ^ j) := by
+          have h_div : padicValNat p (n / p ^ j) = padicValNat p n - padicValNat p (p ^ j) := by
+            have h_div : p ^ j ∣ n := by
+              have h_div : p ^ (padicValNat p n) ∣ n := by
+                convert Nat.ordProj_dvd n p using 1;
+                rw [ Nat.factorization ] ; aesop;
+              exact dvd_trans ( pow_dvd_pow _ ‹_› ) h_div
+            have h_div : padicValNat p (n / p ^ j) = padicValNat p n - padicValNat p (p ^ j) := by
+              have h_div : n = p ^ j * (n / p ^ j) := by
+                rw [ Nat.mul_div_cancel' h_div ]
+              have h_div :
+                  padicValNat p (p ^ j * (n / p ^ j)) =
+                    padicValNat p (p ^ j) + padicValNat p (n / p ^ j) := by
+                convert padicValNat.mul _ _ using 1
+                · generalize_proofs at *
+                  exact ⟨ hp ⟩
+                · exact pow_ne_zero _ hp.ne_zero;
+                · intro h; simp_all +singlePass ;
+              generalize_proofs at *; (
+              grind)
+            generalize_proofs at *; (
+            exact h_div)
+          generalize_proofs at *;
+          exact h_div;
+        haveI := Fact.mk hp
+        rw [ h_div, padicValNat.pow ]
+        aesop
+      have h_div : padicValNat p (Nat.choose (n - 1) (p ^ j - 1)) = 0 := by
+        exact lemma1_lucas_step n j p hp hj hjn;
+      linarith [ Nat.sub_add_cancel hjn ]
 /-
 We define the set of generators as the binomial coefficients $\binom{n}{i}$ for
 $1 \le i < n$, cast to integers.
@@ -465,13 +648,112 @@ def generators_int (n : ℕ) : Set ℤ :=
 def Representable (n : ℕ) : AddSubmonoid ℤ :=
   AddSubmonoid.closure (generators_int n)
 
+set_option maxHeartbeats 50000000 in
+-- The super-increasing estimate expands `lemma2` over prime-power divisibility cases.
 lemma lemma_super_increasing (n : ℕ) (p : ℕ) (j : ℕ)
     (hp : p ∈ n.factorization.support)
     (hj : 1 ≤ j) (hj_lt : j < n.factorization p)
     (h_not_prime_pow : ∀ q k, Nat.Prime q → n ≠ q ^ k) :
     (Nat.choose n (p ^ (j + 1)) : ℤ) >
       (p - 1) * ∑ k ∈ Finset.Icc 1 j, (Nat.choose n (p ^ k) : ℤ) := by
-        sorry
+      -- By induction on $j$, we can show that the inequality holds for all $j$.
+      have h_ind :
+          ∀ j : ℕ, 1 ≤ j → j < Nat.factorization n p →
+            (Nat.choose n (p ^ (j + 1)) : ℤ) >
+              (p - 1) * (∑ k ∈ Finset.Icc 1 j, (Nat.choose n (p ^ k) : ℤ)) := by
+        intro j hj hj_lt
+        induction hj with
+        | refl =>
+          -- By Lemma 2, we have $\binom{n}{p^2} \ge p \binom{n}{p}$.
+          have h_lemma2 : (Nat.choose n (p ^ 2) : ℤ) ≥ p * (Nat.choose n p : ℤ) := by
+            have h_lemma2 : (Nat.choose n (p ^ 2) : ℤ) ≥ p * (Nat.choose n p : ℤ) := by
+              have h_lemma2_step :
+                  ∀ x y : ℕ, 2 ≤ x → x ≤ y → 2 * x * y ≤ n →
+                    (Nat.choose n (x * y) : ℤ) ≥
+                      x * (Nat.choose n x : ℤ) + y * (Nat.choose n y : ℤ) := by
+                intros x y hx hy hn
+                apply Int.ofNat_le.mpr
+                apply lemma2 n x y hx hy hn
+                intro q k hq hn_eq_qk
+                apply h_not_prime_pow q k hq hn_eq_qk
+              by_cases hp_ge_2 : 2 ≤ p;
+              · have h_lemma2_step : 2 * p * p ≤ n := by
+                  have h_lemma2_step : p ^ 2 ∣ n := by
+                    exact dvd_trans ( pow_dvd_pow _ hj_lt ) ( Nat.ordProj_dvd _ _ );
+                  obtain ⟨ k, hk ⟩ := h_lemma2_step;
+                  rcases k with ( _ | _ | k ) <;> simp_all +decide [ Nat.pow_succ', mul_assoc ];
+                  · exact h_not_prime_pow p 2 hp.1 ( by ring );
+                  · nlinarith only [ hp_ge_2, mul_le_mul_right hp_ge_2 p ];
+                simp_all +decide [ sq ];
+                grind;
+              · interval_cases p <;> simp_all +decide
+            exact h_lemma2;
+          rcases p with ( _ | _ | p ) <;> norm_num at *;
+          nlinarith [
+            Nat.choose_pos
+              (show p + 1 + 1 ≤ n from
+                Nat.le_of_dvd (Nat.pos_of_ne_zero hp.2.2) hp.2.1)]
+        | step hj ih =>
+          rename_i j
+          -- Apply Lemma 2 to the next power of `p`.
+          have h_lemma2 :
+              (Nat.choose n (p ^ (j + 2)) : ℤ) ≥
+                (p - 1) * (Nat.choose n (p ^ (j + 1)) : ℤ) +
+                  (Nat.choose n (p ^ (j + 1)) : ℤ) := by
+            -- Since $p^{j+1} \geq 5$, we can apply Lemma 2 with $x = p$ and $y = p^{j+1}$.
+            have h_lemma2 :
+                (Nat.choose n (p * p ^ (j + 1)) : ℤ) ≥
+                  p * (Nat.choose n p : ℤ) +
+                    p ^ (j + 1) * (Nat.choose n (p ^ (j + 1)) : ℤ) := by
+              have h_lemma2 :
+                  ∀ x y : ℕ, 2 ≤ x → x ≤ y → 2 * x * y ≤ n →
+                    (Nat.choose n (x * y) : ℤ) ≥
+                      x * (Nat.choose n x : ℤ) + y * (Nat.choose n y : ℤ) := by
+                intros x y hx hy hn
+                exact_mod_cast lemma2 n x y hx hy hn
+                  (fun q k hq => h_not_prime_pow q k hq)
+              have hp_prime : Nat.Prime p := Nat.prime_of_mem_primeFactors hp
+              have hn_ne_zero : n ≠ 0 := by
+                intro hn0
+                subst n
+                simp at hp
+              have hp_two : 2 ≤ p := hp_prime.two_le
+              have hp_le : p ≤ p ^ (j + 1) := Nat.le_self_pow (n := j + 1) (by omega) p
+              have hn_bound : 2 * p * p ^ (j + 1) ≤ n := by
+                have h_div : p ^ (j + 2) ∣ n := by
+                  exact Nat.dvd_trans (pow_dvd_pow _ hj_lt) (Nat.ordProj_dvd _ _)
+                obtain ⟨d, hd⟩ := h_div
+                have hd_two : 2 ≤ d := by
+                  rcases d with (_ | _ | d)
+                  · have hn0 : n = 0 := by simpa using hd
+                    exact False.elim (hn_ne_zero hn0)
+                  · exact False.elim (h_not_prime_pow p (j + 2) hp_prime (by simpa using hd))
+                  · omega
+                calc
+                  2 * p * p ^ (j + 1) = 2 * p ^ (j + 2) := by
+                    rw [show j + 2 = j + 1 + 1 by omega, pow_succ']
+                    ring
+                  _ = p ^ (j + 2) * 2 := by ring
+                  _ ≤ p ^ (j + 2) * d := by
+                    exact Nat.mul_le_mul_left _ hd_two
+                  _ = n := by rw [hd]
+              have h_raw := h_lemma2 p (p ^ (j + 1)) hp_two hp_le hn_bound
+              simpa [show j + 2 = j + 1 + 1 by omega, pow_succ', Nat.cast_pow] using h_raw
+            simp_all +decide [ pow_succ' ];
+            nlinarith [
+              Nat.Prime.one_lt hp.1,
+              pow_le_pow_right₀ hp.1.one_lt.le hj,
+              pow_pos hp.1.pos j,
+              pow_pos hp.1.pos (j + 1),
+              Nat.choose_pos
+                (show p ≤ n from
+                  Nat.le_of_dvd (Nat.pos_of_ne_zero hp.2.2) hp.2.1)]
+          simp_all +decide [
+            Finset.sum_Ioc_succ_top,
+            (Nat.succ_eq_succ ▸ Finset.Icc_succ_left_eq_Ioc)]
+          grind;
+      -- Apply the induction hypothesis with the given j.
+      apply h_ind j hj hj_lt
 /-
 If the valuation of an integer $n$ is $k+1$, then the valuation of $n/p$ is $k$.
 -/
@@ -708,7 +990,21 @@ lemma lemma_binom_is_super_sequence (n p : ℕ)
     (hp : p ∈ n.factorization.support)
     (h_not_prime_pow : ∀ q k, Nat.Prime q → n ≠ q ^ k) :
     IsSuperSequence p (n.factorization p) (fun j => (Nat.choose n (p ^ j) : ℤ)) := by
-      sorry
+      simp +zetaDelta at *;
+      refine ⟨ ?_, ?_, ?_ ⟩;
+      · -- Apply the lemma1_equality to each j in the range 1 to the factorization of n at p.
+        intros j hj
+        have h_val : padicValNat p (Nat.choose n (p ^ j)) = n.factorization p - j := by
+          have h_val : padicValNat p n ≥ j := by
+            rw [ ← Nat.factorization_def ]
+            · aesop
+            · exact hp.1
+          convert lemma1_equality n j p hp.1 ( Finset.mem_Icc.mp hj |>.1 ) h_val using 1;
+          rw [ Nat.factorization_def ] ; aesop;
+        exact h_val;
+      · convert lemma_super_increasing n p using 1;
+        aesop;
+      · exact fun j hj => Nat.cast_pos.mpr ( Nat.choose_pos ( show p ^ j ≤ n from Nat.le_of_dvd ( Nat.pos_of_ne_zero hp.2.2 ) ( Nat.dvd_trans ( pow_dvd_pow _ ( Finset.mem_Icc.mp hj |>.2 ) ) ( Nat.ordProj_dvd _ _ ) ) ) )
 /-
 If x and y are coprime and at least 2, and n is large enough and not a prime power, then binom(n, xy) >= x binom(n, x) + y binom(n, y).
 -/
@@ -799,7 +1095,63 @@ lemma lemma_decomposition_inequality (n m : ℕ)
     (h_not_prime_pow : ∀ p k, Nat.Prime p → n ≠ p ^ k)
     (h_m_not_prime_pow : ¬ IsPrimePow m) :
     (Nat.choose n m : ℤ) ≥ DecompositionSum n m := by
-      sorry
+      by_contra h_contra;
+      -- By strong induction on $m$, we can assume the inequality holds for all $m' < m$.
+      have h_ind : ∀ m' < m, ¬IsPrimePow m' → (Nat.choose n m' : ℤ) ≥ DecompositionSum n m' := by
+        intros m' hm' hm'_not_prime_pow
+        induction m' using Nat.strong_induction_on with
+        | h m' ih =>
+        by_cases hm'_gt_one : m' > 1;
+        · -- Since $m'$ is not a prime power, we can write $m' = x y$ where $x, y \ge 2$ are coprime.
+          obtain ⟨x, y, hx, hy, h_coprime, h_prod⟩ : ∃ x y : ℕ, x ≥ 2 ∧ y ≥ 2 ∧ Nat.Coprime x y ∧ m' = x * y := by
+            -- Since $m'$ is not a prime power, it must have at least two distinct prime factors.
+            obtain ⟨p, hp⟩ : ∃ p : ℕ, Nat.Prime p ∧ p ∣ m' ∧ ¬(p ^ (Nat.factorization m' p) = m') := by
+              by_cases h_prime_pow : ∀ p : ℕ, Nat.Prime p → p ∣ m' → p ^ (Nat.factorization m' p) = m';
+              · obtain ⟨p, hp⟩ : ∃ p : ℕ, Nat.Prime p ∧ p ∣ m' := by
+                  exact Nat.exists_prime_and_dvd hm'_gt_one.ne';
+                exact False.elim <| hm'_not_prime_pow <| h_prime_pow p hp.1 hp.2 ▸ hp.1.isPrimePow.pow ( Nat.ne_of_gt <| Nat.pos_of_ne_zero <| Finsupp.mem_support_iff.mp <| by aesop );
+              · exact by push Not at h_prime_pow; exact h_prime_pow;
+            refine ⟨ p ^ ( Nat.factorization m' p ), m' / p ^ ( Nat.factorization m' p ), ?_, ?_, ?_, ?_ ⟩;
+            · exact one_lt_pow₀ hp.1.one_lt ( Nat.ne_of_gt ( Nat.pos_of_ne_zero ( Finsupp.mem_support_iff.mp ( by aesop ) ) ) ) |> Nat.lt_of_lt_of_le <| Nat.le_refl _;
+            · exact Nat.lt_of_le_of_ne ( Nat.div_pos ( Nat.le_of_dvd hm'_gt_one.le ( Nat.ordProj_dvd _ _ ) ) ( pow_pos hp.1.pos _ ) ) ( Ne.symm <| by intro t; have := Nat.div_mul_cancel ( Nat.ordProj_dvd m' p ) ; aesop );
+            · exact Nat.Coprime.pow_left _ ( hp.1.coprime_iff_not_dvd.mpr <| Nat.not_dvd_ordCompl ( by aesop ) <| by aesop );
+            · rw [ Nat.mul_div_cancel' ( Nat.ordProj_dvd _ _ ) ];
+          have h_ind_x : ¬IsPrimePow x → (Nat.choose n x : ℤ) ≥ DecompositionSum n x := by
+            exact ih x ( by nlinarith ) ( by nlinarith )
+          have h_ind_y : ¬IsPrimePow y → (Nat.choose n y : ℤ) ≥ DecompositionSum n y := by
+            exact ih y ( by nlinarith ) ( by nlinarith )
+          have h_ind_step : (Nat.choose n (x * y) : ℤ) ≥ DecompositionSum n (x * y) := by
+            apply lemma_decomposition_inequality_step_v2 n x y hx hy h_coprime (by
+            nlinarith only [ hm', hm_lt, hn, h_prod ]) (by
+            exact h_not_prime_pow) (by
+            exact h_ind_x) (by
+            exact h_ind_y)
+          aesop;
+        · interval_cases m' <;> simp_all +decide [ DecompositionSum ];
+      -- Since $m$ is not a prime power, we can write $m = x y$ where $x, y \ge 2$ are coprime.
+      obtain ⟨x, y, hx, hy, h_coprime, h_prod⟩ : ∃ x y : ℕ, 2 ≤ x ∧ 2 ≤ y ∧ Nat.Coprime x y ∧ m = x * y := by
+        -- Since $m$ is not a prime power, there exists a prime $p$ such that $p^a \mid m$ but $p^{a+1} \nmid m$.
+        obtain ⟨p, a, hp, ha⟩ : ∃ p a : ℕ, Nat.Prime p ∧ a > 0 ∧ p^a ∣ m ∧ ¬p^(a+1) ∣ m := by
+          obtain ⟨p, hp_prime, hp_div⟩ : ∃ p : ℕ, Nat.Prime p ∧ p ∣ m := by
+            refine Nat.exists_prime_and_dvd ?_;
+            rintro rfl; simp_all +decide [ DecompositionSum ] ;
+          exact ⟨ p, Nat.factorization m p, hp_prime, Nat.pos_of_ne_zero ( Finsupp.mem_support_iff.mp ( by aesop ) ), Nat.ordProj_dvd _ _, Nat.pow_succ_factorization_not_dvd ( by aesop ) ( by aesop ) ⟩;
+        obtain ⟨x, y, hx, hy, h_coprime, h_prod⟩ : ∃ x y : ℕ, x = p^a ∧ y = m / p^a ∧ Nat.Coprime x y ∧ m = x * y := by
+          exact ⟨ _, _, rfl, rfl, Nat.Coprime.pow_left _ <| hp.coprime_iff_not_dvd.mpr fun h => ha.2.2 <| by
+            simpa [pow_succ', mul_comm, mul_left_comm, mul_assoc] using
+              Nat.mul_dvd_of_dvd_div ha.2.1 h,
+            by rw [ Nat.mul_div_cancel' ha.2.1 ] ⟩;
+        refine ⟨ x, y, ?_, ?_, h_coprime, h_prod ⟩ <;> subst_vars <;> norm_num at *;
+        · exact one_lt_pow₀ hp.one_lt ha.1.ne';
+        · rcases y with ( _ | _ | y ) <;> norm_num at *;
+          exact h_m_not_prime_pow <| hp.isPrimePow.pow <| by linarith;
+      -- Apply the decomposition inequality step with $x$ and $y$.
+      have h_step : (Nat.choose n (x * y) : ℤ) ≥ DecompositionSum n (x * y) := by
+        apply lemma_decomposition_inequality_step_v2 n x y hx hy h_coprime (by
+        grind) h_not_prime_pow (by
+        exact fun hx' => h_ind x ( by nlinarith ) hx' |> fun h => by aesop;) (by
+        exact fun h => h_ind y ( by nlinarith ) h |> fun h' => by simpa [ h_prod ] using h';);
+      aesop
 /-
 S_max is defined as K(n). target(n) is S_max(n) - n.
 -/
@@ -864,7 +1216,63 @@ lemma lemma_super_sequence_representation_induction_step (p m : ℕ) (A : ℕ �
              y ≡ ∑ j ∈ Finset.Icc 1 (m - 1), c' j * (A j / p) [ZMOD p ^ (m - 1)]) :
     ∀ x : ℤ, ∃ c : ℕ → ℤ, (∀ j ∈ Finset.Icc 1 m, 0 ≤ c j ∧ c j ≤ p - 1) ∧
              x ≡ ∑ j ∈ Finset.Icc 1 m, c j * A j [ZMOD p ^ m] := by
-               sorry
+               -- By the lemma_solve_mod_p, there exists a coefficient $c_m \in [0, p-1]$ such that $c_m A_m \equiv x \pmod{p}$.
+               have h_coeff_m : ∀ x : ℤ, ∃ c_m : ℤ, 0 ≤ c_m ∧ c_m ≤ p - 1 ∧ c_m * A m ≡ x [ZMOD p] := by
+                 intro x
+                 have h_not_div : ¬ (p : ℤ) ∣ A m := by
+                   have := hA.1 m ( Finset.mem_Icc.mpr ⟨ by linarith, by linarith ⟩ ) ; simp_all +decide [ ← Int.natCast_dvd_natCast ] ;
+                   cases max_cases ( A m ) 0 <;> simp_all +decide
+                   · exact this.resolve_left hp.ne_one |> Or.rec ( fun h => by linarith [ hA.2.2 m ( Finset.mem_Icc.mpr ⟨ by linarith, by linarith ⟩ ) ] ) fun h => h;
+                   · linarith [ hA.2.2 m ( Finset.mem_Icc.mpr ⟨ by linarith, by linarith ⟩ ) ]
+                 generalize_proofs at *; (
+                 haveI := Fact.mk hp; simp_all +decide [ ← ZMod.intCast_zmod_eq_zero_iff_dvd, Int.modEq_iff_dvd ] ;
+                 -- Since $A_m$ is not divisible by $p$, we can find $c_m$ such that $c_m \cdot A_m \equiv x \pmod{p}$.
+                 obtain ⟨c_m, hc_m⟩ : ∃ c_m : ZMod p, c_m * (A m : ZMod p) = x := by
+                   exact ⟨ x / A m, by rw [ div_mul_cancel₀ _ h_not_div ] ⟩;
+                 exact ⟨ c_m.val, by linarith [ c_m.val_lt ], by linarith [ c_m.val_lt ], by simpa [ ← ZMod.intCast_zmod_eq_zero_iff_dvd ] using sub_eq_zero.mpr hc_m.symm ⟩)
+               generalize_proofs at *; (
+               intro x
+               obtain ⟨c_m, hc_m⟩ := h_coeff_m x
+               set y := (x - c_m * A m) / p
+               obtain ⟨c', hc'⟩ := h_ind y
+               use fun j => if j = m then c_m else if j ∈ Finset.Icc 1 (m - 1) then c' j else 0
+               generalize_proofs at *; (
+               -- By combining the results from the induction hypothesis and the definition of y, we can conclude the proof.
+               have h_combined : x ≡ c_m * A m + p * (∑ j ∈ Finset.Icc 1 (m - 1), c' j * (A j / p)) [ZMOD p ^ m] := by
+                 have h_combined : x - c_m * A m ≡ p * (∑ j ∈ Finset.Icc 1 (m - 1), c' j * (A j / p)) [ZMOD p ^ m] := by
+                  rw [ Int.modEq_iff_dvd ] at *;
+                  have hy : (p : ℤ) * y = x - c_m * A m := by
+                    dsimp [y]
+                    exact Int.mul_ediv_cancel' hc_m.2.2
+                  have hpow : (p : ℤ) ^ m = (p : ℤ) * (p : ℤ) ^ (m - 1) := by
+                    rw [ ← pow_succ', Nat.sub_add_cancel ( by linarith ) ]
+                  have htarget :
+                      (p : ℤ) * (∑ j ∈ Finset.Icc 1 (m - 1), c' j * (A j / p) - y) =
+                        (p : ℤ) * (∑ j ∈ Finset.Icc 1 (m - 1), c' j * (A j / p)) -
+                          (x - c_m * A m) := by
+                    rw [← hy]
+                    ring
+                  rw [hpow]
+                  rw [← htarget]
+                  exact mul_dvd_mul_left ( p : ℤ ) hc'.2
+                 generalize_proofs at *; (
+                 simpa using h_combined.add_left ( c_m * A m ) |> Int.ModEq.trans <| by ring_nf; norm_num;)
+               generalize_proofs at *; (
+              refine ⟨ ?_, ?_ ⟩
+              · generalize_proofs at *
+                grind
+              · convert h_combined using 1 ; simp +decide [ Finset.sum_ite, Finset.filter_ne', Finset.filter_eq', Finset.mul_sum _ _ _, mul_left_comm, ] ; ring_nf;
+                rw [ if_pos ( by linarith ) ] ; simp +decide [ mul_comm, mul_left_comm ] ;
+                refine Finset.sum_bij ( fun x hx => x ) ?_ ?_ ?_ ?_ <;> simp +decide
+                · exact fun b hb₁ hb₂ => ⟨ ⟨ hb₁, lt_of_le_of_lt hb₂ ( Nat.pred_lt ( ne_bot_of_gt hm ) ) ⟩, hb₁, hb₂ ⟩;
+                · intro a ha₁ ha₂ ha₃ ha₄; rw [ Int.mul_ediv_cancel' ]
+                  · ring
+                  · exact ( by have := hA.1 a ( Finset.mem_Icc.mpr ⟨ by linarith, by linarith ⟩ ) ; exact ( by
+                     have h_div : p ^ (m - a) ∣ Int.toNat (A a) := by
+                       rw [ ← this ] ; exact pow_padicValNat_dvd;
+                     generalize_proofs at *; (
+                     rw [ ← Int.natCast_dvd_natCast ] at *; simp_all +decide [ Int.toNat_of_nonneg ( show 0 ≤ A a from hA.2.2 a ( Finset.mem_Icc.mpr ⟨ by linarith, by linarith ⟩ ) |> le_of_lt ) ] ;
+                     exact dvd_trans ( dvd_pow_self _ ( Nat.sub_ne_zero_of_lt ha₂ ) ) h_div) ) ) ;)))
 /-
 For any SuperSequence A of length m and any integer x, there exist coefficients c_j in [0, p-1] such that the linear combination matches x modulo p^m.
 -/
@@ -904,14 +1312,53 @@ lemma lemma_cross_term_vanishes (n : ℕ) (p q : ℕ) (j : ℕ)
     (hpq : p ≠ q)
     (hj_le : j ≤ n.factorization q) :
     (Nat.choose n (q ^ j) : ℤ) ≡ 0 [ZMOD p ^ (n.factorization p)] := by
-      sorry
+      -- By lemma_kummer_theorem, since p ≠ q, we have padicValNat p (Nat.choose n (q^j)) ≥ padicValNat p n.
+      have h_p_val : padicValNat p (Nat.choose n (q ^ j)) ≥ padicValNat p n := by
+        -- By Lemma Kummer, the p-adic valuation of $\binom{n}{q^j}$ is at least the p-adic valuation of $n$.
+        have h_kummer : padicValNat p (Nat.choose n (q ^ j) * q ^ j) ≥ padicValNat p n := by
+          have h_kummer : padicValNat p (Nat.choose n (q ^ j) * q ^ j) = padicValNat p (n * Nat.choose (n - 1) (q ^ j - 1)) := by
+            rw [ ← Nat.succ_pred_eq_of_pos ( Nat.one_le_pow j q ( Nat.pos_of_mem_primeFactors hq ) ) ];
+            cases n <;> cases q <;> simp_all +decide [ Nat.add_one_mul_choose_eq ];
+          have h_kummer : padicValNat p (n * Nat.choose (n - 1) (q ^ j - 1)) = padicValNat p n + padicValNat p (Nat.choose (n - 1) (q ^ j - 1)) := by
+            convert padicValNat.mul _ _ using 1;
+            · exact ⟨ Nat.prime_of_mem_primeFactors hp ⟩;
+            · aesop_cat;
+            · exact Nat.ne_of_gt <| Nat.choose_pos <| Nat.sub_le_sub_right ( show q ^ j ≤ n from Nat.le_of_dvd ( Nat.pos_of_ne_zero <| by aesop ) <| Nat.dvd_trans ( pow_dvd_pow _ hj_le ) <| Nat.ordProj_dvd _ _ ) _;
+          linarith [ Nat.zero_le ( padicValNat p ( Nat.choose ( n - 1 ) ( q ^ j - 1 ) ) ) ];
+        by_cases h : Nat.choose n ( q ^ j ) = 0 <;> by_cases h' : q ^ j = 0 <;> simp_all +decide [ padicValNat.mul ];
+        have hq_val : padicValNat p q = 0 := by
+          haveI := Fact.mk hp.1
+          exact padicValNat.eq_zero_of_not_dvd ( by rw [ Nat.dvd_prime hq.1 ] ; aesop )
+        nlinarith
+      -- Since $p^v divides $\binom{n}{q^j}$, we have $\binom{n}{q^j} \equiv 0 \pmod{p^v}$.
+      have h_div : p ^ (padicValNat p n) ∣ Nat.choose n (q ^ j) := by
+        have h_congr_zero : p ^ (Nat.factorization (Nat.choose n (q ^ j)) p) ∣ Nat.choose n (q ^ j) := by
+          exact Nat.ordProj_dvd _ _;
+        convert Nat.dvd_trans ( pow_dvd_pow _ _ ) h_congr_zero;
+        rw [ Nat.factorization_def ]
+        · aesop
+        · exact Nat.prime_of_mem_primeFactors hp
+      convert Int.modEq_zero_iff_dvd.mpr ( Int.natCast_dvd_natCast.mpr h_div ) using 1;
+      norm_num [ Nat.factorization ] at * ; aesop ( simp_config := { singlePass := true } ) ;
 /-
 The total sum of canonical terms is congruent to the local sum for p modulo p^(v_p(n)).
 -/
 lemma lemma_total_sum_congruence (n : ℕ) (c : ℕ → ℕ → ℤ) (p : ℕ) (hp : p ∈ n.factorization.support) :
     (∑ q ∈ n.factorization.support, ∑ j ∈ Finset.Icc 1 (n.factorization q), c q j * (Nat.choose n (q ^ j) : ℤ)) ≡
     (∑ j ∈ Finset.Icc 1 (n.factorization p), c p j * (Nat.choose n (p ^ j) : ℤ)) [ZMOD p ^ (n.factorization p)] := by
-      sorry
+      -- By Lemma~\ref{lem:cross_term_vanishes}, the binomial terms vanish modulo $p^{e_p}$.
+      have h_cross_term_vanishes : ∀ q ∈ n.factorization.support, q ≠ p → ∀ j ∈ Finset.Icc 1 (n.factorization q), (Nat.choose n (q ^ j) : ℤ) ≡ 0 [ZMOD p ^ (n.factorization p)] := by
+        norm_num +zetaDelta at *;
+        intros q hq hq' hn hqp j hj hj'; exact (by
+        have := @lemma_cross_term_vanishes n p q j; aesop;);
+      generalize_proofs at *; (
+      simp_all +decide
+      have h_split_sum : ∑ q ∈ n.primeFactors \ {p}, ∑ j ∈ Finset.Icc 1 (n.factorization q), c q j * (Nat.choose n (q ^ j) : ℤ) ≡ 0 [ZMOD p ^ (n.factorization p)] := by
+        exact Int.modEq_zero_iff_dvd.mpr <| Finset.dvd_sum fun q hq => Finset.dvd_sum fun j hj => dvd_mul_of_dvd_right ( Int.dvd_of_emod_eq_zero <| h_cross_term_vanishes q ( Nat.prime_of_mem_primeFactors <| Finset.mem_sdiff.mp hq |>.1 ) ( Nat.dvd_of_mem_primeFactors <| Finset.mem_sdiff.mp hq |>.1 ) ( by aesop ) j ( Finset.mem_Icc.mp hj |>.1 ) ( Finset.mem_Icc.mp hj |>.2 ) ) _;
+      generalize_proofs at *; (
+      convert h_split_sum.add_left ( ∑ j ∈ Finset.Icc 1 ( n.factorization p ), c p j * ( n.choose ( p ^ j ) : ℤ ) ) using 1
+      · rw [ Finset.sum_eq_add_sum_sdiff_singleton p ( fun q => ∑ j ∈ Finset.Icc 1 ( n.factorization q ), c q j * ( n.choose ( q ^ j ) : ℤ ) ) ( by intro hp_not; exact False.elim ( hp_not ( show p ∈ n.primeFactors from by aesop ) ) ) ]
+      · ring))
 /-
 If A is congruent to x modulo each prime power factor of n (where n is non-zero), then A is congruent to x modulo n.
 -/
@@ -1214,7 +1661,22 @@ lemma lemma_sum_super_sequence_bound (n p k : ℕ)
     (hk : 1 ≤ k) (hk_le : k ≤ n.factorization p)
     (h_not_prime_pow : ∀ q l, Nat.Prime q → n ≠ q ^ l) :
     ∑ j ∈ Finset.Icc 1 k, (p - 1) * (Nat.choose n (p ^ j) : ℤ) < p * (Nat.choose n (p ^ k) : ℤ) := by
-      sorry
+      -- Apply the super-increasing property repeatedly.
+      have h_super_increasing : ∀ j ∈ Finset.Icc 1 (k - 1), (Nat.choose n (p ^ (j + 1)) : ℤ) > (p - 1) * (∑ l ∈ Finset.Icc 1 j, (Nat.choose n (p ^ l) : ℤ)) := by
+        intro j hj; apply lemma_super_increasing
+        · aesop
+        · linarith [ Finset.mem_Icc.mp hj ];
+        · exact lt_of_le_of_lt ( Finset.mem_Icc.mp hj |>.2 ) ( Nat.lt_of_lt_of_le ( Nat.pred_lt ( ne_bot_of_gt hk ) ) hk_le );
+        · grind;
+      rcases k with ( _ | k ) <;> simp_all +decide [ Finset.sum_Ioc_succ_top, (Nat.succ_eq_succ ▸ Finset.Icc_succ_left_eq_Ioc) ];
+      induction k with
+      | zero =>
+        simp_all +decide [ pow_succ' ]
+        exact mul_lt_mul_of_pos_right ( sub_lt_self _ zero_lt_one ) ( Nat.cast_pos.mpr ( Nat.choose_pos ( Nat.le_of_dvd ( Nat.pos_of_ne_zero hp.2.2 ) hp.2.1 ) ) )
+      | succ k ih =>
+        simp_all +decide [ Finset.sum_Ioc_succ_top, pow_succ' ]
+        have := h_super_increasing ( k + 1 ) ( Nat.succ_pos _ ) ( by linarith ) ; simp_all +decide [ Finset.sum_Ioc_succ_top, pow_succ' ] ;
+        rw [ ← Finset.mul_sum _ _ _ ] ; nlinarith [ h_super_increasing 1 zero_lt_one ( by linarith ), h_super_increasing ( k + 1 ) ( Nat.succ_pos _ ) ( by linarith ), hp.1.two_le ] ;
 /-
 $p^k \binom{n}{p^k}$ is greater than the sum of $(p-1)\binom{n}{p^j}$ up to $k$.
 -/
@@ -1372,7 +1834,32 @@ lemma lemma_global_canonical_bound (n m : ℕ) (c : ℕ → ℕ → ℤ)
     (hc : ∀ p ∈ n.factorization.support, ∀ j ∈ Finset.Icc 1 (n.factorization p), 0 ≤ c p j ∧ c p j ≤ p - 1)
     (hc_zero : ∀ p ∈ n.factorization.support, ∀ j ∈ Finset.Icc 1 (n.factorization p), j > padicValNat p m → c p j = 0) :
     ∑ p ∈ n.factorization.support, ∑ j ∈ Finset.Icc 1 (n.factorization p), c p j * (Nat.choose n (p ^ j) : ℤ) ≤ DecompositionSum n m := by
-      sorry
+      -- The terms where $p \notin m$ contribute $0$ to both the canonical sum and the decomposition sum.
+      have h_sum_zero : ∑ p ∈ n.factorization.support \ m.factorization.support, ∑ j ∈ Finset.Icc 1 (n.factorization p), (c p j : ℤ) * (Nat.choose n (p ^ j) : ℤ) = 0 := by
+        refine Finset.sum_eq_zero fun p hp => Finset.sum_eq_zero fun j hj => mul_eq_zero_of_left ?_ _;
+        have hp_not_m : p ∉ m.factorization.support := (Finset.mem_sdiff.mp hp).2
+        have hp_prime : p.Prime := Nat.prime_of_mem_primeFactors (Finset.mem_sdiff.mp hp).1
+        have hfac : m.factorization p = 0 := by
+          by_contra hfac
+          exact hp_not_m (Finsupp.mem_support_iff.mpr hfac)
+        have hpadic : padicValNat p m = 0 := by
+          rw [← Nat.factorization_def m hp_prime]
+          exact hfac
+        have hj_gt_zero : j > 0 := by
+          exact lt_of_lt_of_le Nat.zero_lt_one (Finset.mem_Icc.mp hj).1
+        exact hc_zero p (Finset.mem_sdiff.mp hp).1 j hj ( by simpa [hpadic] using hj_gt_zero )
+      -- The terms where $p \in m$ contribute to both the canonical sum and the decomposition sum. We can apply `lemma_term_wise_bound_v3` to each of these terms.
+      have h_sum_nonzero : ∑ p ∈ n.factorization.support ∩ m.factorization.support, ∑ j ∈ Finset.Icc 1 (n.factorization p), (c p j : ℤ) * (Nat.choose n (p ^ j) : ℤ) ≤ ∑ p ∈ m.factorization.support, (p ^ (m.factorization p) : ℤ) * (Nat.choose n (p ^ (m.factorization p)) : ℤ) := by
+        have h_sum_nonzero : ∀ p ∈ n.factorization.support ∩ m.factorization.support, ∑ j ∈ Finset.Icc 1 (n.factorization p), (c p j : ℤ) * (Nat.choose n (p ^ j) : ℤ) ≤ (p ^ (m.factorization p) : ℤ) * (Nat.choose n (p ^ (m.factorization p)) : ℤ) := by
+          intros p hp_mem; apply_rules [ lemma_term_wise_bound ]
+          · aesop
+          · aesop;
+          · exact Finset.mem_of_mem_inter_left hp_mem;
+          · grind;
+        exact le_trans ( Finset.sum_le_sum h_sum_nonzero ) ( Finset.sum_le_sum_of_subset_of_nonneg ( Finset.inter_subset_right ) fun _ _ _ => mul_nonneg ( pow_nonneg ( Nat.cast_nonneg _ ) _ ) ( Nat.cast_nonneg _ ) );
+      rw [ ← Finset.sum_inter_add_sum_sdiff n.factorization.support m.factorization.support (fun p => ∑ j ∈ Finset.Icc 1 (n.factorization p), c p j * (Nat.choose n (p ^ j) : ℤ)) ]
+      rw [ h_sum_zero, add_zero ]
+      exact h_sum_nonzero
 /-
 Definitions of `CanonicalRep` and `CanonicalSumValue` and their properties.
 -/
@@ -1573,7 +2060,52 @@ lemma lemma_canonical_sum_for_prime_pow_is_local (n m : ℕ)
     CanonicalSumValue n (Nat.choose n m) hn h_not_prime_pow =
     let p := m.minFac
     ∑ j ∈ Finset.Icc 1 (n.factorization p), CanonicalRep n (Nat.choose n m) hn h_not_prime_pow p j * (Nat.choose n (p ^ j) : ℤ) := by
-      sorry
+      -- By definition of $IsPrimePow$, there exists a prime $p$ such that $m = p^k$.
+      obtain ⟨p, k, hp_prime, hk_pos, hm_eq⟩ : ∃ p k : ℕ, Nat.Prime p ∧ 0 < k ∧ p ^ k = m := by
+        exact (isPrimePow_nat_iff m).1 h_m_prime_pow
+      rw [← hm_eq] at hm_lt_n ⊢
+      -- Since $m = p^k$, we know that $v_q(m) = 0$ for any prime $q \neq p$.
+      have h_val_zero : ∀ q ∈ n.factorization.support, q ≠ p → padicValNat q (p ^ k) = 0 := by
+        intro q hq hqp
+        have hq_prime : q.Prime := Nat.prime_of_mem_primeFactors hq
+        have hq_not_dvd_p : ¬ q ∣ p := by
+          intro h
+          exact hqp <| by have := Nat.prime_dvd_prime_iff_eq hq_prime hp_prime; tauto
+        have hq_not_dvd_pow : ¬ q ∣ p ^ k := by
+          intro h
+          exact hq_not_dvd_p (hq_prime.dvd_of_dvd_pow h)
+        haveI := Fact.mk hq_prime
+        exact padicValNat.eq_zero_of_not_dvd hq_not_dvd_pow
+      -- Since $v_q(m) = 0$ for any prime $q \neq p$, the canonical coefficients for $q$ are all zero.
+      have h_coeff_zero : ∀ q ∈ n.factorization.support, q ≠ p → ∀ j ∈ Finset.Icc 1 (n.factorization q), CanonicalRep n (Nat.choose n (p ^ k)) hn h_not_prime_pow q j = 0 := by
+        intros q hq hqp j hj
+        have h_div : (Nat.choose n (p ^ k) : ℤ) ≡ 0 [ZMOD q ^ (n.factorization q)] := by
+          -- By Kummer's theorem, the valuation of $\binom{n}{p^k}$ at $q$ is at least $v_q(n)$.
+          have h_val_ge : padicValNat q (Nat.choose n (p ^ k)) ≥ padicValNat q n := by
+            have h_val_ge : padicValNat q (Nat.choose n (p ^ k)) ≥ padicValNat q n - padicValNat q (p ^ k) := by
+              apply lemma_valuation_binom_lower_bound n (p ^ k) q (by
+              exact Nat.prime_of_mem_primeFactors hq) (by
+              exact pow_pos hp_prime.pos _) (by
+              exact le_of_lt hm_lt_n)
+            rw [ h_val_zero q hq hqp ] at h_val_ge
+            simpa using h_val_ge
+          have h_div : q ^ (padicValNat q n) ∣ Nat.choose n (p ^ k) := by
+            have h_div : q ^ (padicValNat q (Nat.choose n (p ^ k))) ∣ Nat.choose n (p ^ k) := by
+              exact pow_padicValNat_dvd;
+            exact dvd_trans ( pow_dvd_pow _ h_val_ge ) h_div;
+          convert Int.modEq_zero_iff_dvd.mpr ( Int.natCast_dvd_natCast.mpr h_div ) using 1;
+          simp +decide [ Nat.factorization ];
+          exact fun h => False.elim <| h <| Nat.prime_of_mem_primeFactors hq;
+        have := lemma_canonical_sum_zero_of_divisible n ( Nat.choose n ( p ^ k ) ) q hn h_not_prime_pow hq h_div; aesop;
+      -- Apply the hypothesis `h_coeff_zero` to each term in the sum.
+      have h_sum_zero : ∑ q ∈ n.factorization.support, ∑ j ∈ Finset.Icc 1 (n.factorization q), CanonicalRep n (Nat.choose n (p ^ k)) hn h_not_prime_pow q j * (Nat.choose n (q ^ j) : ℤ) = ∑ j ∈ Finset.Icc 1 (n.factorization p), CanonicalRep n (Nat.choose n (p ^ k)) hn h_not_prime_pow p j * (Nat.choose n (p ^ j) : ℤ) := by
+        rw [ Finset.sum_eq_single p ] <;> simp_all +contextual [ Finset.sum_eq_zero_iff_of_nonneg ];
+        intro hpn; rw [ Nat.factorization_eq_zero_of_not_dvd hpn ] ; norm_num;
+      unfold CanonicalSumValue
+      dsimp
+      rw [← Nat.support_factorization n]
+      rw [h_sum_zero]
+      rw [ hp_prime.pow_minFac hk_pos.ne' ];
 /-
 If $m$ is a prime power not dividing $n$, the canonical sum for $\binom{n}{m}$ is bounded by the term for $v_p(n)$.
 -/

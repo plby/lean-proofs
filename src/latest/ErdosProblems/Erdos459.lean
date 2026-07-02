@@ -197,7 +197,28 @@ For k ≥ 2, f(2^k - 2) = (2^k - 2) + 2.
 set_option linter.flexible false in
 theorem f_eq_u_plus_two_of_u_eq_pow_two_sub_two {k : ℕ} (hk : 2 ≤ k) :
     f (2 ^ k - 2) = (2 ^ k - 2) + 2 := by
-      sorry
+  have hu_pos : 0 < 2 ^ k - 2 := by
+    have h4 : 4 ≤ 2 ^ k := by
+      simpa using Nat.pow_le_pow_right (by norm_num : 1 ≤ 2) hk
+    omega
+  have hu_ge_two : 2 ≤ 2 ^ k - 2 := by
+    have h4 : 4 ≤ 2 ^ k := by
+      simpa using Nat.pow_le_pow_right (by norm_num : 1 ≤ 2) hk
+    omega
+  have hu_even : Even (2 ^ k - 2) := by
+    rw [even_iff_two_dvd]
+    exact Nat.dvd_sub (dvd_pow_self 2 (Nat.ne_of_gt (by omega : 0 < k))) dvd_rfl
+  have h_lower : (2 ^ k - 2) + 2 ≤ f (2 ^ k - 2) := by
+    exact (f_bounds hu_ge_two).1
+  have hlog_lt : Nat.log 2 (2 ^ k - 2) < k := by
+    apply Nat.log_lt_of_lt_pow'
+    · exact ne_of_gt (lt_of_lt_of_le (by norm_num : 0 < 2) hk)
+    · exact Nat.sub_lt (pow_pos (by norm_num : 0 < 2) k) (by norm_num)
+  have h_upper : f (2 ^ k - 2) ≤ 2 ^ k := by
+    exact (f_even_le_next_pow_two hu_even hu_pos).trans
+      (Nat.pow_le_pow_right (by norm_num : 1 ≤ 2) (Nat.succ_le_of_lt hlog_lt))
+  have hsum : (2 ^ k - 2) + 2 = 2 ^ k := by omega
+  omega
 /-
 There are infinitely many u such that f(u) = u + 2.
 -/
@@ -220,7 +241,7 @@ theorem infinite_setOf_f_eq_self_add_two : Set.Infinite {u | f u = u + 2} := by
 There are infinitely many u such that f(u) = u^2.
 -/
 theorem infinite_setOf_f_eq_sq : Set.Infinite {u | f u = u ^ 2} := by
-  sorry
+  exact Nat.infinite_setOf_prime.mono fun p hp => f_prime hp
 /-
 A set $A \subseteq \mathbb{N}$ has natural density $d$ if
 $\lim_{n \to \infty} \frac{|A \cap \{0, \dots, n-1\}|}{n} = d$. The natural
@@ -655,7 +676,7 @@ lemma density_algebraic_identity (S : Finset ℕ) (hS : ∀ p ∈ S, p.Prime) :
           (∏ q ∈ S \ {p}, (1 - 1 / q : ℝ)) =
             (∏ q ∈ S, (1 - 1 / q : ℝ)) / (1 - 1 / p : ℝ) := by
       intro p hp
-      rw [ Finset.prod_eq_prod_diff_singleton_mul hp ]
+      rw [ Finset.prod_eq_prod_sdiff_singleton_mul hp ]
       rw [ mul_div_cancel_right₀ _
         ( sub_ne_zero_of_ne <| by
           norm_num
@@ -837,7 +858,37 @@ For distinct primes $p$ and $q$, the ratio $\frac{\log p}{\log q}$ is irrational
 -/
 lemma irrational_log_ratio (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p ≠ q) :
   Irrational (Real.log p / Real.log q) := by
-    sorry
+    rintro ⟨r, hr⟩
+    have hx_pos : 0 < Real.log p / Real.log q :=
+      div_pos hp.log_pos hq.log_pos
+    have hr_pos : 0 < (r : ℝ) := by
+      rwa [hr]
+    have hr_rat_pos : 0 < r := by exact_mod_cast hr_pos
+    have hnum_pos : 0 < r.num := Rat.num_pos.mpr hr_rat_pos
+    have hden_ne : (r.den : ℝ) ≠ 0 := by exact_mod_cast r.den_ne_zero
+    have hlogq_ne : Real.log q ≠ 0 := hq.log_ne_zero
+    have hdiv : Real.log p / Real.log q = (r.num : ℝ) / (r.den : ℝ) := by
+      rw [← hr, Rat.cast_def]
+    have hmul : (r.den : ℝ) * Real.log p = (r.num : ℝ) * Real.log q := by
+      field_simp [hden_ne, hlogq_ne] at hdiv
+      linarith
+    have hnum_cast : (r.num.natAbs : ℝ) = (r.num : ℝ) := by
+      exact congrArg (fun z : ℤ => (z : ℝ)) (Int.natAbs_of_nonneg hnum_pos.le)
+    have hlogpow : Real.log ((p : ℝ) ^ r.den) =
+        Real.log ((q : ℝ) ^ r.num.natAbs) := by
+      rw [Real.log_pow, Real.log_pow]
+      rw [hnum_cast, hmul]
+    have hpow_real : (p : ℝ) ^ r.den = (q : ℝ) ^ r.num.natAbs :=
+      Real.log_injOn_pos
+        (Set.mem_Ioi.2 <| pow_pos (Nat.cast_pos.mpr hp.pos) _)
+        (Set.mem_Ioi.2 <| pow_pos (Nat.cast_pos.mpr hq.pos) _)
+        hlogpow
+    have hpow_nat : p ^ r.den = q ^ r.num.natAbs := by
+      exact_mod_cast hpow_real
+    have hp_dvd_q_pow : p ∣ q ^ r.num.natAbs := by
+      rw [← hpow_nat]
+      exact dvd_pow_self p r.den_ne_zero
+    exact hpq ((Nat.prime_dvd_prime_iff_eq hp hq).mp (hp.dvd_of_dvd_pow hp_dvd_q_pow))
 /-
 Given a dense set $D$ and a compact set $K$, for any $\epsilon > 0$, there is
 a finite subset of $D$ that $\epsilon$-approximates $K$.
@@ -845,7 +896,23 @@ a finite subset of $D$ that $\epsilon$-approximates $K$.
 lemma compact_approx_by_finite_subset (D : Set ℝ) (hD : Dense D) (K : Set ℝ)
     (hK : IsCompact K) (ε : ℝ) (hε : 0 < ε) :
   ∃ F : Finset ℝ, (F : Set ℝ) ⊆ D ∧ ∀ x ∈ K, ∃ y ∈ F, |x - y| < ε := by
-    sorry
+    classical
+    have hcover : K ⊆ ⋃ y : D, Metric.ball (y : ℝ) ε := by
+      rw [Metric.dense_iff] at hD
+      intro x hx
+      obtain ⟨y, hy_dist, hyD⟩ := hD x ε hε
+      exact Set.mem_iUnion.2 ⟨⟨y, hyD⟩, by simpa [Metric.mem_ball, dist_comm] using hy_dist⟩
+    obtain ⟨t, ht⟩ :=
+      hK.elim_finite_subcover (fun y : D => Metric.ball (y : ℝ) ε)
+        (fun _ => Metric.isOpen_ball) hcover
+    refine ⟨t.map ⟨Subtype.val, Subtype.val_injective⟩, ?_, ?_⟩
+    · intro y hy
+      obtain ⟨z, hz, rfl⟩ := Finset.mem_map.mp hy
+      exact z.property
+    · intro x hx
+      obtain ⟨y, hyt, hyx⟩ := Set.mem_iUnion₂.mp (ht hx)
+      refine ⟨y, Finset.mem_map.mpr ⟨y, hyt, rfl⟩, ?_⟩
+      simpa [Metric.mem_ball, Real.dist_eq] using hyx
 /-
 For any positive irrational $\alpha$ and $\epsilon > 0$, there exist natural
 numbers $n, m$ such that $0 < n \alpha - m < \epsilon$.
@@ -992,7 +1059,64 @@ $\{ b v - a u \mid a, b \in \mathbb{N} \}$ is dense in $\mathbb{R}$.
 lemma dense_diff_submonoid_of_irrational_ratio (u v : ℝ) (hu : 0 < u)
     (hv : 0 < v) (h_irr : Irrational (u / v)) :
   Dense { x | ∃ a b : ℕ, x = (b : ℝ) * v - (a : ℝ) * u } := by
-    sorry
+    rw [Metric.dense_iff]
+    intro x ε hε
+    have hα_pos : 0 < v / u := div_pos hv hu
+    have hα_irr : Irrational (v / u) := by
+      convert h_irr.inv using 1
+      field_simp [hu.ne', hv.ne']
+    obtain ⟨n, m, hsmall_pos, hsmall_lt⟩ :=
+      exists_nat_mul_sub_nat_small (v / u) hα_pos hα_irr (ε / u) (div_pos hε hu)
+    let δ : ℝ := (n : ℝ) * v - (m : ℝ) * u
+    have hδ_eq : δ = u * ((n : ℝ) * (v / u) - m) := by
+      dsimp [δ]
+      field_simp [hu.ne']
+    have hδ_pos : 0 < δ := by
+      rw [hδ_eq]
+      exact mul_pos hu hsmall_pos
+    have hδ_lt : δ < ε := by
+      rw [hδ_eq]
+      have hmul := mul_lt_mul_of_pos_left hsmall_lt hu
+      have hcancel : u * (ε / u) = ε := by field_simp [hu.ne']
+      nlinarith
+    obtain ⟨A, hA⟩ := exists_nat_gt ((-x) / u)
+    have ht_nonneg : 0 ≤ x + (A : ℝ) * u := by
+      have hmul := mul_lt_mul_of_pos_right hA hu
+      field_simp [hu.ne'] at hmul
+      linarith
+    let k : ℕ := ⌊(x + (A : ℝ) * u) / δ⌋₊
+    have hquot_nonneg : 0 ≤ (x + (A : ℝ) * u) / δ :=
+      div_nonneg ht_nonneg hδ_pos.le
+    have hk_le : (k : ℝ) ≤ (x + (A : ℝ) * u) / δ := by
+      simpa [k] using Nat.floor_le hquot_nonneg
+    have hlt_k : (x + (A : ℝ) * u) / δ < (k : ℝ) + 1 := by
+      simpa [k] using Nat.lt_floor_add_one ((x + (A : ℝ) * u) / δ)
+    have hkδ_le : (k : ℝ) * δ ≤ x + (A : ℝ) * u := by
+      have hmul := mul_le_mul_of_nonneg_right hk_le hδ_pos.le
+      field_simp [hδ_pos.ne'] at hmul
+      linarith
+    have ht_lt_succ : x + (A : ℝ) * u < ((k : ℝ) + 1) * δ := by
+      have hmul := mul_lt_mul_of_pos_right hlt_k hδ_pos
+      field_simp [hδ_pos.ne'] at hmul
+      linarith
+    let y : ℝ := ((k * n : ℕ) : ℝ) * v - ((k * m + A : ℕ) : ℝ) * u
+    have hy_eq : y = (k : ℝ) * δ - (A : ℝ) * u := by
+      dsimp [y, δ]
+      norm_num [Nat.cast_add, Nat.cast_mul]
+      ring
+    have hy_ball : y ∈ Metric.ball x ε := by
+      rw [Metric.mem_ball, Real.dist_eq, hy_eq]
+      have habs : |(k : ℝ) * δ - (A : ℝ) * u - x| < ε := by
+        have hnonpos : (k : ℝ) * δ - (x + (A : ℝ) * u) ≤ 0 := by linarith
+        have hrewrite :
+            (k : ℝ) * δ - (A : ℝ) * u - x =
+              (k : ℝ) * δ - (x + (A : ℝ) * u) := by ring
+        rw [hrewrite, abs_of_nonpos hnonpos]
+        nlinarith
+      simpa [dist_eq_norm, Real.norm_eq_abs] using habs
+    have hy_set : y ∈ {x | ∃ a b : ℕ, x = (b : ℝ) * v - (a : ℝ) * u} := by
+      exact ⟨k * m + A, k * n, rfl⟩
+    exact ⟨y, hy_ball, hy_set⟩
 /-
 For any $\epsilon > 0$, there exists a finite set of indices
 $B \subset \mathbb{N}$ such that the set
