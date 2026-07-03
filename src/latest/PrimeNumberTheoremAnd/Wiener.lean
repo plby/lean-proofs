@@ -1238,10 +1238,8 @@ lemma cancel_main' {C : ℝ} {f g : ℕ → ℝ} (hf : 0 ≤ f) (hf0 : f 0 = 0) 
     ge_iff_le] at hf' hg ⊢ ; positivity
   | n + 2 =>
       convert cancel_aux' hf hg hf' hg' (n + 2) using 1
-      · simp [cumsum, Finset.sum_range_succ, Nat.add_comm, Nat.add_left_comm, Nat.add_assoc,
-          add_assoc, add_comm, add_left_comm]
-      · simp [cumsum_succ, Nat.cast_add, Nat.cast_ofNat, Nat.add_comm, Nat.add_left_comm,
-          Nat.add_assoc, add_assoc, add_comm, add_left_comm]
+      · simp [cumsum, Finset.sum_range_succ, add_comm, add_left_comm]
+      · simp [cumsum_succ, Nat.cast_add, Nat.cast_ofNat, add_assoc, add_comm]
         ring
 
 theorem sum_le_integral {x₀ : ℝ} {f : ℝ → ℝ} {n : ℕ} (hf : AntitoneOn f (Ioc x₀ (x₀ + n)))
@@ -1273,7 +1271,8 @@ theorem sum_le_integral {x₀ : ℝ} {f : ℝ → ℝ} {n : ℕ} (hf : AntitoneO
   have l1 : f (x₀ + 1) ≤ ∫ x in x₀..x₀ + 1, f x := by
     rw [← l6] ; apply intervalIntegral.integral_mono_ae_restrict (by linarith) (by simp) l4
     apply eventually_of_mem _ l5
-    have : (Ioc x₀ (x₀ + 1))ᶜ ∩ Icc x₀ (x₀ + 1) = {x₀} := by simp [← diff_eq_compl_inter]
+    have : (Ioc x₀ (x₀ + 1))ᶜ ∩ Icc x₀ (x₀ + 1) = {x₀} := by
+      simp [← sdiff_eq_compl_inter]
     simp [ae, this]
 
   have l2 : AntitoneOn (fun x ↦ f (x₀ + x)) (Icc 1 ↑(n + 1)) := by
@@ -1622,7 +1621,7 @@ lemma limiting_cor_W21 (ψ : W21) (hf : ∀ (σ' : ℝ), 1 < σ' → Summable (n
     apply hbound.trans_lt
     have hnorm :
         W21.norm (ψ - W21.ofCS2 (Ψ R)).toFun = W21.norm (ψ.toFun - (Ψ R).toFun) := by
-      simp [W1.sub, W21.ofCS2]
+      simp [W21.ofCS2]
     rw [hnorm]
     have hMle : M ≤ 1 + M := by linarith
     apply (mul_le_mul_of_nonneg_left hMle W21.norm_nonneg).trans_lt
@@ -2205,6 +2204,8 @@ lemma tendsto_S_S_zero {f : ℕ → ℝ} (hpos : 0 ≤ f) (hcheby : cheby f) :
   simpa [Real.dist_eq, ← S_sub_S h2.2] using l2.trans_lt h1
 
 set_option maxHeartbeats 1000000 in
+-- The Wiener-Ikehara argument below combines several long asymptotic estimates,
+-- and the final proof search exceeds Lean's default heartbeat limit.
 theorem WienerIkeharaTheorem' {f : ℕ → ℝ} (hpos : 0 ≤ f)
     (hf : ∀ (σ' : ℝ), 1 < σ' → Summable (nterm f σ'))
     (hcheby : cheby f) (hG : ContinuousOn G {s | 1 ≤ s.re})

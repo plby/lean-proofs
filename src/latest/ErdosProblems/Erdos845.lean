@@ -217,7 +217,14 @@ Definitions of S and M_0 with their properties extracted from lemma_ssize_v2.
 -/
 attribute [local instance] Classical.propDecidable
 
-def S_with_props (p : ℕ) (h : Odd p ∧ p > 1) :=
+theorem S_with_props (p : ℕ) (h : Odd p ∧ p > 1) :
+  ∃ S : Finset ℕ,
+    (∀ x ∈ S, x ∈ A p ∧ x ≠ 1) ∧
+    (∀ k : ℕ, 1 ≤ k → 2^k ≤ S.card → 2^k ∈ S) ∧
+    (∃ M₀ : ℕ, M₀ ≤ p ∧ M₀ > 0 ∧
+      ∀ x, M₀ ≤ x → x ≤ M₀ + S.card → is_sum_of_distinct_elements S x) ∧
+    S.card ≤ 1 + Nat.clog 2 p ∧
+    (∃ m ∈ S, p ≤ m ∧ ∀ x ∈ S, x ≤ m ∧ m ≤ 2^(Nat.clog 2 p)) :=
   lemma_ssize_v2 p h.1 h.2
 
 noncomputable def S (p : ℕ) : Finset ℕ :=

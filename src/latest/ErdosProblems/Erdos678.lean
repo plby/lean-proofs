@@ -620,7 +620,7 @@ theorem ratio_equality_final (k : ℕ) (x y : ℕ) (hk : k ≥ 2)
               exact hy_good.2.1;
             refine Nat.modEq_zero_iff_dvd.mpr <| dvd_trans ?_ <| Nat.dvd_of_mod_eq_zero h_mod_y;
             unfold m;
-            rw [ Finset.prod_eq_prod_diff_singleton_mul <| show p ∈ Finset.filter ( fun p => Nat.Prime p ∧ p * p ≤ k ) ( Finset.Icc 1 k ) from ?_ ];
+            rw [ Finset.prod_eq_prod_sdiff_singleton_mul <| show p ∈ Finset.filter ( fun p => Nat.Prime p ∧ p * p ≤ k ) ( Finset.Icc 1 k ) from ?_ ];
             · exact dvd_mul_of_dvd_right ( by rw [ Nat.factorization_def ] ; aesop ) _;
             · exact Finset.mem_filter.mpr ⟨ Finset.mem_Icc.mpr ⟨ hp.pos, by nlinarith [ Nat.sqrt_le k ] ⟩, hp, by nlinarith [ Nat.sqrt_le k ] ⟩;
         · by_cases h_case2 : p > k;

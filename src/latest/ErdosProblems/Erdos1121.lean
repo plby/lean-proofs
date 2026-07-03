@@ -451,13 +451,13 @@ theorem goodman_circle_covering_internal {n : ℕ}
             have h_infinite :
                 Set.Infinite (Set.Ioo (inner ℝ w (center i)) (inner ℝ w (center j))) :=
               Set.Ioo_infinite ‹_›
-            exact Exists.elim (h_infinite.diff h_finite |> Set.Infinite.nonempty)
+            exact Exists.elim (h_infinite.sdiff h_finite |> Set.Infinite.nonempty)
               fun x hx => ⟨x, hx.1.1, hx.1.2, hx.2⟩
           exact ⟨c, hc.2.2, ⟨i, hc.1⟩, ⟨j, hc.2.1⟩⟩
         · have h_finite : Set.Finite (Set.range (fun i => inner ℝ w (center i))) :=
             Set.toFinite _
           exact Exists.imp (by aesop) (Set.Infinite.nonempty
-            (Set.Infinite.diff (Set.Ioo_infinite
+            (Set.Infinite.sdiff (Set.Ioo_infinite
               (by linarith : inner ℝ w (center j) < inner ℝ w (center i))) h_finite))
       exact ⟨w, c, hw.1, fun i => sub_ne_zero_of_ne <| by aesop,
         by

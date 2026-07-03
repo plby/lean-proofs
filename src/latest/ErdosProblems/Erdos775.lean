@@ -1160,7 +1160,9 @@ lemma prefix_contraction_layered {k C : ℕ}
         subst iv
         change
           (contractionTree (prefixSubtree T s hs) hm_pref).degree
-              ⟨0, Nat.zero_lt_succ (s - (prefixSubtree T s hs).numChildren ⟨0, Nat.zero_lt_succ s⟩)⟩ ≤
+              ⟨0,
+                Nat.zero_lt_succ
+                  (s - (prefixSubtree T s hs).numChildren ⟨0, Nat.zero_lt_succ s⟩)⟩ ≤
             2 ^ (2 ^ C + C + S + 0)
         refine (contraction_root_degree_le_sum
             (prefixSubtree T s hs) (prefixSubtree_layered T hT s hs) hm_pref).trans ?_
@@ -2164,10 +2166,13 @@ lemma path_iterate_pos_of_depth {n t : ℕ} (X : ℕ → Finset (Fin n))
   · rename_i m ih
     rw [ OrderedRootedTree.depth ]
     split_ifs <;> simp_all +decide
-    convert ih ⟨ clParent X i.val, _ ⟩ _ using 1
-    · apply congrArg (clTree X t).depth
-      ext
-      rfl
+    have hi_pos : 0 < i.val := by omega
+    have hparent_lt : clParent X i.val < t + 1 :=
+      Nat.lt_trans (clParent_lt X i.val hi_pos) i.isLt
+    convert ih ⟨ clParent X i.val, hparent_lt ⟩ _ using 1
+    · exact congrArg (clTree X t).depth
+        (show (clTree X t).parent i = ⟨clParent X i.val, hparent_lt⟩ from
+          Fin.ext rfl)
     · rw [← Function.iterate_succ_apply (f := clParent X) (n := m) (x := i.val)]
       rw [Function.iterate_succ_apply' (f := clParent X) (n := m) (x := i.val)]
       exact hm

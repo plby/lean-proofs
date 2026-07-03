@@ -2800,7 +2800,7 @@ theorem infinitely_many_collisions (a b : ℕ) (hb : 1 ≤ b) (hgt : b < a)
     apply Set.Infinite.mono (s := {r | r.Prime} \ {r | r ∣ (a * b)})
     · intro r hr
       exact ⟨hr.1, hr.2⟩
-    · refine Set.Infinite.diff Nat.infinite_setOf_prime ?_
+    · refine Set.Infinite.sdiff Nat.infinite_setOf_prime ?_
       exact Set.Finite.subset (Set.finite_Icc 0 (a * b)) (fun r hr =>
         Set.mem_Icc.mpr ⟨Nat.zero_le _, Nat.le_of_dvd (Nat.mul_pos ha hb) hr⟩)
   -- Each such prime maps into S.

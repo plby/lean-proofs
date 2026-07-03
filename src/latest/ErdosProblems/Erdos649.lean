@@ -1089,7 +1089,7 @@ theorem infinite_strange_pairs : { q | StrangePair 2 q }.Infinite := by
   -- infinite.
   have h_infinite_primes_gt_5 : Set.Infinite {n : ℕ | n.Prime ∧ n > 5} := by
     exact Set.Infinite.mono ( by aesop_cat )
-      ( Nat.infinite_setOf_prime.diff ( Set.finite_le_nat 5 ) );
+      ( Nat.infinite_setOf_prime.sdiff ( Set.finite_le_nat 5 ) );
   rw [ Set.infinite_iff_exists_gt ] at *;
   -- For any prime $p > 5$, we can find a prime $q$ such that $\{2, q\}$ is a
   -- strange pair and $\ord_q(2) = 4p$.

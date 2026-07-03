@@ -851,7 +851,7 @@ theorem B_G_edge_count
         have := card_neighbors_in_P_S S l h_add h_mul h_F h_sub h_S;
         rw [ ← this, Set.ncard_eq_toFinset_card' ];
         rw [ Set.toFinset_card ];
-        convert rfl <;> rfl;
+        convert rfl; rfl;
       have h_card_edges : Fintype.card { e : (Line F q) × (Point F q) // e.2 ∈ P_S S ∧ e.1 ∉ D ∧ is_adjacent F q e.2 e.1 } = ∑ l ∈ Finset.univ.filter (fun l => l ∉ D), Fintype.card { p : Point F q // p ∈ P_S S ∧ is_adjacent F q p l } := by
         simp +decide only [Fintype.card_subtype];
         simp +decide only [Finset.card_filter];

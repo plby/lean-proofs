@@ -430,14 +430,14 @@ theorem lemma_quarter_limit_expression (A B : Set ℕ) (h_hyp : exact_complement
         have h_count_pairs : ((counting_function A x : ℝ) - (counting_function A (x / 4) : ℝ)) * ((counting_function B x : ℝ) - (counting_function B (3 * x / 4) : ℝ)) ≤ Nat.card {p : ℕ × ℕ | p.1 ∈ A ∧ p.2 ∈ B ∧ x / 4 < p.1 ∧ p.1 ≤ x ∧ 3 * x / 4 < p.2 ∧ p.2 ≤ x} := by
           have h_count_pairs : ((counting_function A x : ℝ) - (counting_function A (x / 4) : ℝ)) = Nat.card {a ∈ A | x / 4 < a ∧ a ≤ x} ∧ ((counting_function B x : ℝ) - (counting_function B (3 * x / 4) : ℝ)) = Nat.card {b ∈ B | 3 * x / 4 < b ∧ b ≤ x} := by
             constructor <;> unfold counting_function <;> norm_num [ Set.setOf_and ];
-            · rw [ show ( A ∩ { a : ℕ | x / 4 < ( a : ℝ ) } ∩ ( A ∩ { a : ℕ | ( a : ℝ ) ≤ x } ) ) = ( A ∩ { a : ℕ | ( a : ℝ ) ≤ x } ) \ ( A ∩ { a : ℕ | ( a : ℝ ) ≤ x / 4 } ) by ext; aesop, @Set.ncard_diff ];
+            · rw [ show ( A ∩ { a : ℕ | x / 4 < ( a : ℝ ) } ∩ ( A ∩ { a : ℕ | ( a : ℝ ) ≤ x } ) ) = ( A ∩ { a : ℕ | ( a : ℝ ) ≤ x } ) \ ( A ∩ { a : ℕ | ( a : ℝ ) ≤ x / 4 } ) by ext; aesop, @Set.ncard_sdiff ];
               · rw [ Nat.cast_sub ];
                 fapply Set.ncard_le_ncard;
                 · exact Set.inter_subset_inter_right _ fun a ha => le_trans ha.out <| by linarith;
                 · exact Set.finite_iff_bddAbove.mpr ⟨ ⌊x⌋₊, fun a ha => Nat.le_floor <| ha.2 ⟩;
               · exact Set.inter_subset_inter_right _ fun a ha => le_trans ha.out <| by linarith;
               · exact Set.finite_iff_bddAbove.mpr ⟨ ⌊x / 4⌋₊, fun a ha => Nat.le_floor <| ha.2 ⟩;
-            · rw [ show B ∩ { a : ℕ | 3 * x / 4 < ( a : ℝ ) } ∩ ( B ∩ { a : ℕ | ( a : ℝ ) ≤ x } ) = ( B ∩ { a : ℕ | ( a : ℝ ) ≤ x } ) \ ( B ∩ { a : ℕ | ( a : ℝ ) ≤ 3 * x / 4 } ) from ?_, @Set.ncard_diff ] <;> norm_num [ Set.ncard_eq_toFinset_card' ]
+            · rw [ show B ∩ { a : ℕ | 3 * x / 4 < ( a : ℝ ) } ∩ ( B ∩ { a : ℕ | ( a : ℝ ) ≤ x } ) = ( B ∩ { a : ℕ | ( a : ℝ ) ≤ x } ) \ ( B ∩ { a : ℕ | ( a : ℝ ) ≤ 3 * x / 4 } ) from ?_, @Set.ncard_sdiff ] <;> norm_num [ Set.ncard_eq_toFinset_card' ]
               focus
                 ring_nf
               · rw [ Nat.cast_sub ];
@@ -1102,7 +1102,7 @@ theorem lemma_exact_complements_symm (A B : Set ℕ) (h : exact_complements A B)
   obtain ⟨ h₁, h₂ ⟩ := h;
   constructor;
   · rw [ is_additive_complement ] at *;
-    simpa only [ add_comm, Set.diff_eq ] using h₁;
+    simpa only [ add_comm, Set.sdiff_eq ] using h₁;
   · simpa only [ mul_comm ] using h₂
 
 /-
@@ -1525,7 +1525,7 @@ theorem lemma_large_element_lower_bound (A B : Set ℕ) (x : ℝ) :
       -- Consider the set $S = \{b \in B \mid x - t < b \leq x\}$.
       set S := {b ∈ B | x - t < b ∧ b ≤ x} with hS_def;
       have hS_card : S.ncard = counting_function B x - counting_function B (x - t) := by
-        rw [ show S = { n ∈ B | ( n : ℝ ) ≤ x } \ { n ∈ B | ( n : ℝ ) ≤ x - t } from ?_, @Set.ncard_diff ];
+        rw [ show S = { n ∈ B | ( n : ℝ ) ≤ x } \ { n ∈ B | ( n : ℝ ) ≤ x - t } from ?_, @Set.ncard_sdiff ];
         · rfl;
         · exact fun n hn => ⟨ hn.1, hn.2.trans ( sub_le_self _ <| Nat.cast_nonneg _ ) ⟩;
         · exact Set.finite_iff_bddAbove.mpr ⟨ ⌊x - t⌋₊, fun n hn => Nat.le_floor <| hn.2 ⟩;
@@ -1569,7 +1569,7 @@ theorem lemma_A_at_plus_t_eq_A_x (A : Set ℕ) (x : ℝ) (t : ℕ)
         · refine le_csSup ?_ ?_;
           · exact ⟨ ⌊x⌋₊, fun n hn => Nat.le_floor <| mod_cast hn.2 ⟩;
           · exact ⟨ ha.2, by exact le_trans ( Nat.cast_le.mpr ha.1 ) ( Nat.floor_le ( show 0 ≤ x by exact le_of_not_gt fun h => by { rw [ Int.toNat_of_nonpos ( Int.floor_nonpos h.le ) ] at ha; linarith } ) ) ⟩;
-        · rename_i h; specialize h a ha.2; linarith [ show ( a : ℝ ) ≤ ⌊x⌋.toNat by exact_mod_cast ha.1, Int.floor_le x, Int.lt_floor_add_one x, show ( ⌊x⌋.toNat : ℝ ) ≤ ⌊x⌋ by exact_mod_cast Int.toNat_of_nonneg ( Int.floor_nonneg.mpr <| le_of_not_gt fun hx => by { have := h; norm_num at * ; linarith } ) |> le_of_eq ] ;
+        · rename_i h; specialize h a ha.2; linarith [ show ( a : ℝ ) ≤ ⌊x⌋.toNat by exact_mod_cast ha.1, Int.floor_le x, Int.lt_floor_add_one x, show ( ⌊x⌋.toNat : ℝ ) ≤ ⌊x⌋ by exact_mod_cast Int.toNat_of_nonneg ( Int.floor_nonneg.mpr <| le_of_not_gt fun hx => by { have := h; linarith } ) |> le_of_eq ] ;
       -- Since $t \leq a + t < x$, the interval $(a + t, x]$ contains no elements of $A$.
       have h_no_elements : ∀ n ∈ A, (a : ℝ) + t < (n : ℝ) ∧ (n : ℝ) ≤ x → False := by
         intros n hn hn_bounds

@@ -970,7 +970,7 @@ theorem La_degree_le_one (n : ℕ) [NeZero n] (p : ℕ) (a : EuclideanSpace ℝ 
       intro b hb
       contrapose! hb
       simp_all +decide [MvPolynomial.coeff_sum, MvPolynomial.coeff_C_mul,
-        MvPolynomial.coeff_X'];
+        MvPolynomial.coeff_X];
       rw [ Finset.sum_eq_zero ] ; aesop
 
 /-
@@ -1601,7 +1601,7 @@ theorem partition_refinement_indexed
       -- Define $P_i$ as $U_i$ minus the union of $U_j$ for $j < i$.
       set P : ι → Set α := fun i => U i \ ⋃ j < i, U j;
       refine ⟨ P, ?_, ?_, ?_ ⟩;
-      · exact fun i => Set.diff_subset;
+      · exact fun i => Set.sdiff_subset;
       · intro i j hij; cases lt_or_gt_of_ne hij <;> simp_all +decide [ Set.disjoint_left ] ;
         · aesop;
         · aesop;

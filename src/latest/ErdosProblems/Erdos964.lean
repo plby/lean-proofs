@@ -708,7 +708,9 @@ There exist 3 distinct primes coprime to n (for n != 0).
 lemma exists_three_primes (n : ℕ) (hn : n ≠ 0) : ∃ p : Fin 3 → ℕ, (∀ i, (p i).Prime) ∧ (∀ i j, i ≠ j → p i ≠ p j) ∧ (∀ i, (p i).Coprime n) := by
   -- Since there are infinitely many primes, we can choose three distinct primes that are coprime to n.
   have h_inf_primes : Set.Infinite {p : ℕ | Nat.Prime p ∧ Nat.Coprime p n} := by
-    exact Nat.infinite_setOf_prime.diff ( Set.finite_le_nat n ) |> Set.Infinite.mono fun p hp => ⟨ hp.1, Nat.Prime.coprime_iff_not_dvd hp.1 |>.2 fun h => hp.2 <| Nat.le_of_dvd ( Nat.pos_of_ne_zero hn ) h ⟩;
+    exact Nat.infinite_setOf_prime.sdiff ( Set.finite_le_nat n ) |>
+      Set.Infinite.mono fun p hp => ⟨ hp.1, Nat.Prime.coprime_iff_not_dvd hp.1 |>.2 fun h =>
+        hp.2 <| Nat.le_of_dvd ( Nat.pos_of_ne_zero hn ) h ⟩;
   have := h_inf_primes.exists_subset_card_eq 3; rcases this with ⟨ s, hs ⟩ ; rcases Finset.card_eq_three.mp hs.2 with ⟨ p, q, r, hp, hq, hr ⟩ ; use fun i => if i = 0 then p else if i = 1 then q else r; simp_all +decide [ Fin.forall_fin_succ ] ;
   grind
 

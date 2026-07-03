@@ -106,7 +106,7 @@ lemma exists_rat_in_interval_diff_finite (x y : ℝ) (hxy : x < y) (S : Set ℚ)
     rcases exists_rat_btwn hq.2 with ⟨ r, hr ⟩;
     norm_cast at *;
     exact Set.Infinite.mono ( fun a ha => ⟨ by exact hq.1.trans_le ( mod_cast ha.out.1.le ), by exact hr.2.trans_le' ( mod_cast ha.out.2.le ) ⟩ ) ( Set.Ioo_infinite ( show q < r by linarith ) );
-  exact Set.Infinite.nonempty ( h_inf.diff hS ) |> Exists.imp fun q => by aesop;
+  exact Set.Infinite.nonempty ( h_inf.sdiff hS ) |> Exists.imp fun q => by aesop;
 
 /-
 epsilon_seq n = (1/2)^(n+3). It is positive and sums to less than 1/2.
@@ -362,7 +362,7 @@ lemma M_val_pos (alpha : ℕ → ℝ) (n : ℕ) : 0 < M_val alpha n := by
           have h_interval : Set.Infinite (Set.image (fun x : ℝ => x : ℝ → ℂ) (Set.Icc 0 (n + 1))) := by
             exact Set.Infinite.image ( fun x => by aesop ) ( Set.Icc_infinite ( by positivity ) );
           exact h_interval.mono fun x hx => by rcases hx with ⟨ y, hy, rfl ⟩ ; exact Set.mem_setOf.mpr <| by simpa [ abs_of_nonneg hy.1 ] using hy.2;
-        exact Set.Infinite.nonempty ( h_compl_nonempty.diff <| Set.toFinite _ );
+        exact Set.Infinite.nonempty ( h_compl_nonempty.sdiff <| Set.toFinite _ );
       exact ⟨ z, hz.1, fun x hx => sub_ne_zero_of_ne <| by aesop ⟩;
   refine lt_of_lt_of_le ?_
     (le_csSup ?_ <| Set.mem_image_of_mem (fun z => ‖h_seq alpha n z‖) hz.1)
@@ -1440,7 +1440,7 @@ lemma next_step'_beta_odd (n : ℕ) (hn : n ≥ 1) (hodd : n % 2 = 1) (h_inv : I
 /-
 For odd n, the lambda component of the next step satisfies the required bound.
 -/
-lemma next_step'_lambda_bound_odd (n : ℕ) (hn : n ≥ 1) (hodd : n % 2 = 1) (h_inv : Invariant' (n - 1)) :
+lemma next_step'_lambda_bound_odd (n : ℕ) (hn : n ≥ 1) (hodd : n % 2 = 1) (_h_inv : Invariant' (n - 1)) :
   |(next_step' n (all_tuples' n)).2.2| < eta_seq' n := by
     have := @lambda_seq'_bound;
     refine lt_of_le_of_ne ( ?_ ) ?_;

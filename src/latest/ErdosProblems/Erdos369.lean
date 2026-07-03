@@ -654,7 +654,7 @@ lemma exists_crt_multiplier (k : ℕ) (hk : 2 ≤ k) (m : ℕ) (hm : m = k - 1)
     refine ⟨ e_q + M * ( Finset.sup ( Finset.Ico 1 k ) ( fun j => Nat.factorization j q ) + 1 ), ?_,
       ?_ ⟩ <;> simp_all +decide [ Nat.ModEq, Nat.dvd_iff_mod_eq_zero ];
     · intro j hj₁ hj₂ i hi; rw [ ← Nat.dvd_iff_mod_eq_zero ] ; simp +decide [ *,
-      Finset.prod_eq_prod_diff_singleton_mul <| Finset.mem_univ i ] ;
+      Finset.prod_eq_prod_sdiff_singleton_mul <| Finset.mem_univ i ] ;
       rw [ ← Nat.mod_add_div ( e_q + ( ∏ x ∈ Finset.univ \ { i },
         r x ) * r i * ( Finset.sup ( Finset.Ico 1 k ) ( fun j =>
         j.factorization q ) + 1 ) ) ( r i ), ← Nat.mod_add_div ( j.factorization q ) ( r i ) ] ;
@@ -960,7 +960,7 @@ lemma exists_crt_multiplier_strong (k : ℕ) (hk : 2 ≤ k) (m : ℕ) (hm : m = 
       · rw [ ← Nat.mod_add_div ( e_q + ( ∏ i : Fin m, r i ) * ( ∑ i : Fin m, ( i.val + 1
         |> Nat.factorization ) q + 1 ) ) ( r i ), ← Nat.mod_add_div ( ( i.val + 1
         |> Nat.factorization ) q ) ( r i ) ] ; simp +decide [ Nat.add_mod, Nat.mul_mod,
-        Finset.prod_eq_prod_diff_singleton_mul ( Finset.mem_univ i ), he_q ] ; ring_nf;
+        Finset.prod_eq_prod_sdiff_singleton_mul ( Finset.mem_univ i ), he_q ] ; ring_nf;
         norm_num [ Nat.add_sub_add_left, ← mul_tsub ];
       · exact le_add_of_nonneg_of_le ( Nat.zero_le _ ) ( by
           nlinarith [

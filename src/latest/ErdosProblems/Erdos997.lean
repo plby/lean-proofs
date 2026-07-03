@@ -33,7 +33,7 @@ import Mathlib.Algebra.Order.Ring.Star
 import Mathlib.Analysis.RCLike.Basic
 import Mathlib.Data.Int.Star
 import Mathlib.Data.Nat.Nth
-import Mathlib.Data.Real.StarOrdered
+import Mathlib.Algebra.Order.Star.Real
 import Mathlib.NumberTheory.DiophantineApproximation.Basic
 import ErdosProblems.Axioms
 

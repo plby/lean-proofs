@@ -680,7 +680,7 @@ lemma mixedBound_ibp (k : ℕ) :
             · rfl
             · rfl
             · funext y
-              simp [Pi.mul_apply, Pi.pow_apply, Pi.sub_apply, id] <;> ring_nf
+              simp [Pi.mul_apply, Pi.pow_apply, Pi.sub_apply, id]
             · cases k with
               | zero =>
                   simp [id]
@@ -697,7 +697,7 @@ lemma mixedBound_ibp (k : ℕ) :
             · rfl
             · rfl
             · funext y
-              simp [Pi.mul_apply, id] <;> ring_nf
+              simp [Pi.mul_apply, id]
             · simp [id]
               ring_nf
           have hF : HasDerivAt
@@ -710,7 +710,8 @@ lemma mixedBound_ibp (k : ℕ) :
             · rfl
             · rfl
             · funext y
-              simp [Pi.mul_apply, Pi.pow_apply, Pi.sub_apply, id] <;> ring_nf
+              simp [Pi.mul_apply]
+              ring_nf
             · cases k with
               | zero => ring_nf
               | succ n =>
@@ -1432,8 +1433,8 @@ theorem harmonicReal_approx :
               · rfl
               · rfl
               · funext y
-                simp [id] <;> ring_nf
-              · norm_num [id] <;> ring_nf
+                simp [id]
+              · norm_num [id]
             have hderiv :
                 deriv
                     (fun x : ℝ =>
@@ -1531,8 +1532,9 @@ theorem harmonicReal_approx :
           exact Summable.of_nonneg_of_le ( fun k => abs_nonneg _ )
             ( fun k => hC_bound _ ( by linarith ) )
             ( by
-              simpa [div_eq_mul_inv] using Summable.mul_left _ <| Real.summable_nat_pow_inv.2 ( by norm_num )
-                |> Summable.comp_injective <| add_right_injective n );
+              simpa [div_eq_mul_inv] using
+                (Summable.mul_left _ <| Real.summable_nat_pow_inv.2 (by norm_num)
+                  |> Summable.comp_injective <| add_right_injective n) );
         simpa using Filter.Tendsto.add ( h_lim.hasSum.tendsto_sum_nat ) ( Filter.Tendsto.abs
           ( h_conv.comp ( Filter.tendsto_atTop_mono ( fun N => by simp +arith +decide )
           Filter.tendsto_id ) ) );
@@ -1545,8 +1547,9 @@ theorem harmonicReal_approx :
       · exact Summable.of_nonneg_of_le ( fun k => abs_nonneg _ )
           ( fun k => hC_bound ( n + k ) ( by linarith ) )
           ( by
-            simpa [div_eq_mul_inv] using Summable.mul_left _ <| Real.summable_nat_pow_inv.2 ( by norm_num )
-              |> Summable.comp_injective <| add_right_injective n );
+            simpa [div_eq_mul_inv] using
+              (Summable.mul_left _ <| Real.summable_nat_pow_inv.2 (by norm_num)
+                |> Summable.comp_injective <| add_right_injective n) );
       · simpa [div_eq_mul_inv, Nat.add_comm] using Summable.mul_left C <| by
           simpa [div_eq_mul_inv, Nat.add_comm] using
             (summable_nat_add_iff n).2 (Real.summable_one_div_nat_pow.2 <| by norm_num)
@@ -1578,9 +1581,11 @@ theorem harmonicReal_approx :
             [ h_sum_bound ‹_› ] ;
         exact le_of_tendsto_of_tendsto' ( Summable.hasSum
           (by
-            simpa [div_eq_mul_inv, Nat.add_comm, Nat.add_assoc, add_comm, add_left_comm, add_assoc] using
+            simpa [div_eq_mul_inv, Nat.add_comm, Nat.add_assoc, add_comm, add_left_comm,
+              add_assoc] using
               (summable_nat_add_iff (n + 1)).2
-              (Real.summable_one_div_nat_pow.2 (by norm_num : (1 : ℕ) < 5))) |> HasSum.tendsto_sum_nat )
+              (Real.summable_one_div_nat_pow.2
+                (by norm_num : (1 : ℕ) < 5))) |> HasSum.tendsto_sum_nat )
           tendsto_const_nhds fun N => le_trans ( h_sum_ineq N ) ( sub_le_self _ <| by positivity );
       refine le_trans ‹_› ?_;
       exact add_le_add ( by gcongr <;> norm_cast ) h_sum_bound;

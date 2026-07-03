@@ -525,7 +525,7 @@ theorem log_Q_k_bound_eventually :
     filter_upwards [ hC ] with E hE
     intro k hk
     specialize hE k hk
-    simp_all +decide only [gt_iff_lt, Finset.mem_Icc, and_imp, eventually_atTop, ge_iff_le,
+    simp_all +decide only [gt_iff_lt, Finset.mem_Icc, and_imp, eventually_atTop,
       Q_k, Nat.cast_prod]
     rw [ Real.log_prod fun i hi =>
       Nat.cast_ne_zero.mpr <| Nat.Prime.ne_zero <| by

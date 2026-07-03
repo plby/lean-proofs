@@ -1124,7 +1124,7 @@ lemma b_div_s_tendsto_gamma : Filter.Tendsto (fun n : ℕ => (⌊alpha_star * n�
       ⟩
     rw [ Metric.tendsto_nhds ]
     intro ε a
-    simp_all only [gt_iff_lt, Filter.eventually_atTop, ge_iff_le]
+    simp_all only [gt_iff_lt, Filter.eventually_atTop]
     refine ⟨ ⌈ε⁻¹⌉₊ + 1, fun n hn => abs_lt.mpr ⟨ ?_, ?_ ⟩ ⟩ <;> nlinarith [ Nat.le_ceil ( ε⁻¹ ),
       mul_inv_cancel₀ ( ne_of_gt a ), h_floor n ( by linarith ), show ( n : ℝ ) ≥ ⌈ε⁻¹⌉₊ + 1 by
         exact_mod_cast hn, div_mul_cancel₀ ( ⌊alpha_star * ( n : ℝ ) ⌋₊ : ℝ ) ( show ( n : ℝ ) ≠ 0
@@ -1314,7 +1314,7 @@ theorem MaTang_edge_density_limit :
         constructor
         · refine Metric.tendsto_nhds.mpr ?_
           intro ε a
-          simp_all only [gt_iff_lt, one_div, Filter.eventually_atTop, ge_iff_le]
+          simp_all only [gt_iff_lt, one_div, Filter.eventually_atTop]
           refine ⟨ ⌈ε⁻¹⌉₊ + 1, fun n hn => abs_lt.mpr ⟨ ?_, ?_ ⟩ ⟩ <;>
             nlinarith [
               Nat.le_ceil ( ε⁻¹ ),
@@ -1333,7 +1333,7 @@ theorem MaTang_edge_density_limit :
                 linarith ]
         · refine Metric.tendsto_nhds.mpr ?_
           intro ε a
-          simp_all only [gt_iff_lt, one_div, Filter.eventually_atTop, ge_iff_le]
+          simp_all only [gt_iff_lt, one_div, Filter.eventually_atTop]
           refine ⟨ ⌈ε⁻¹⌉₊ + 1, fun n hn => abs_lt.mpr ⟨ ?_, ?_ ⟩ ⟩ <;>
             nlinarith [
               Nat.le_ceil ( ε⁻¹ ),
@@ -1490,8 +1490,9 @@ theorem MaTang_Y_upper_bound (ε : ℝ) (hε : 0 < ε) :
               div_mul_cancel₀ ( ⌈c1 alpha_star * n⌉₊ : ℝ ) (show ( n : ℝ ) ≠ 0 by
                 norm_cast
                 linarith) ]
-        simpa [div_eq_mul_inv] using Filter.Tendsto.add ( Filter.Tendsto.add ( tendsto_const_nhds.sub h_floor )
-          h_ceil ) ( tendsto_const_nhds.mul tendsto_inv_atTop_nhds_zero_nat )
+        simpa [div_eq_mul_inv] using
+          Filter.Tendsto.add (Filter.Tendsto.add (tendsto_const_nhds.sub h_floor) h_ceil)
+            (tendsto_const_nhds.mul tendsto_inv_atTop_nhds_zero_nat)
       -- Since the two expressions are equal, their limits are the same.
       have h_eq : ∀ n : ℕ, n ≥ 1 → ((n : ℝ) - ⌊alpha_star * n⌋₊ + (Nat.ceil (c1 alpha_star * n) +
         100)) / n = 1 - (⌊alpha_star * n⌋₊ : ℝ) / n + (Nat.ceil (c1 alpha_star * n) : ℝ) / n + 100 /

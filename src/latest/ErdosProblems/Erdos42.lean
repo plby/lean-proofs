@@ -39,9 +39,9 @@ import Mathlib.Data.Fintype.BigOperators
 import Mathlib.Data.Fintype.EquivFin
 import Mathlib.Data.Int.Interval
 import Mathlib.Data.PNat.Basic
-import Mathlib.Data.Real.Archimedean
+import Mathlib.Algebra.Order.Archimedean.Real.Basic
 import Mathlib.Data.Real.Basic
-import Mathlib.Data.Real.Sqrt
+import Mathlib.Analysis.Real.Sqrt
 import Mathlib.GroupTheory.Finiteness
 import Mathlib.LinearAlgebra.Finsupp.Defs
 import Mathlib.LinearAlgebra.FreeModule.PID
@@ -3070,7 +3070,7 @@ lemma finiteCliqueKernelWeightEdge_eq_single_mul
         ∏ e ∈ cliqueEdgePairs ℓ \ {e₀}, F e (x e.1 - x e.2) := by
   classical
   unfold finiteCliqueKernelWeightEdge
-  exact Finset.prod_eq_mul_prod_diff_singleton_of_mem he₀
+  exact Finset.prod_eq_mul_prod_sdiff_singleton_of_mem he₀
     (fun e => F e (x e.1 - x e.2))
 
 lemma finiteCliqueKernelWeightEdge_replace_eq_single_mul
@@ -10545,7 +10545,7 @@ theorem continuousCliqueDensity_pos_of_lt_one_or_levelOneSubgroupKernel
     [CompactSpace G] [T2Space G] [ConnectedSpace G]
     [MeasurableSpace G] [BorelSpace G] [MeasurableSub₂ G]
     [MeasurableAdd₂ G] [MeasurableNeg G]
-    (μ : Measure G) [μ.IsAddHaarMeasure] [IsProbabilityMeasure μ] [μ.IsOpenPosMeasure]
+    (μ : Measure G) [μ.IsAddHaarMeasure] [IsProbabilityMeasure μ]
     (M : ℕ)
     (g : G → ℝ) (hg_cont : Continuous g)
     (hg_nonneg : ∀ x, 0 ≤ g x)
@@ -10566,7 +10566,7 @@ theorem continuousCliqueDensity_pos_of_lt_one_or_levelOneSubgroupKernel_not_fini
     {G : Type u} [AddCommGroup G] [TopologicalSpace G] [IsTopologicalAddGroup G]
     [MeasurableSpace G] [BorelSpace G] [MeasurableSub₂ G]
     [MeasurableAdd₂ G] [MeasurableNeg G]
-    (μ : Measure G) [μ.IsAddHaarMeasure] [IsProbabilityMeasure μ] [μ.IsOpenPosMeasure]
+    (μ : Measure G) [μ.IsAddHaarMeasure] [IsProbabilityMeasure μ]
     (M : ℕ)
     (g : G → ℝ) (hg_cont : Continuous g)
     (hg_nonneg : ∀ x, 0 ≤ g x)
@@ -10593,7 +10593,7 @@ theorem continuousCliqueDensity_pos_of_lt_one_or_realHilbertKernelRepresentation
     [MeasurableSpace G] [BorelSpace G] [MeasurableSub₂ G]
     [MeasurableAdd₂ G] [MeasurableNeg G]
     [NormedAddCommGroup E] [InnerProductSpace ℝ E]
-    (μ : Measure G) [μ.IsAddHaarMeasure] [IsProbabilityMeasure μ] [μ.IsOpenPosMeasure]
+    (μ : Measure G) [μ.IsAddHaarMeasure] [IsProbabilityMeasure μ]
     (M : ℕ)
     (g : G → ℝ) (hg_cont : Continuous g)
     (hg_nonneg : ∀ x, 0 ≤ g x)

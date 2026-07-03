@@ -87,7 +87,7 @@ lemma L_s_natDegree (S : Finset F) (s : F) (hs : s ∈ S) :
       have hP_S_def : P_S S = (X - C s) * ((P_S S) /ₘ (X - C s)) := by
         rw [ Polynomial.divByMonic_eq_div _ ( Polynomial.monic_X_sub_C s ), EuclideanDomain.mul_div_cancel' ];
         · exact Polynomial.X_sub_C_ne_zero s;
-        · exact Polynomial.dvd_iff_isRoot.mpr ( by simp +decide [ P_S, Finset.prod_eq_prod_diff_singleton_mul hs ] );
+        · exact Polynomial.dvd_iff_isRoot.mpr ( by simp +decide [ P_S, Finset.prod_eq_prod_sdiff_singleton_mul hs ] );
       -- The degree of $P_S(x)$ is $|S|$.
       have hP_S_deg : (P_S S).natDegree = S.card := by
         erw [ Polynomial.natDegree_prod _ _ fun x hx => Polynomial.X_sub_C_ne_zero x ];
@@ -108,7 +108,7 @@ lemma L_s_eval_self (S : Finset F) (s : F) (hs : s ∈ S) :
       -- By definition of $L_s$, we know that
       have hL_s : (P_S S) = (Polynomial.X - Polynomial.C s) * (P_S S /ₘ (Polynomial.X - Polynomial.C s)) := by
         rw [ Polynomial.mul_divByMonic_eq_iff_isRoot.mpr ];
-        simp +decide [ P_S, Finset.prod_eq_prod_diff_singleton_mul hs ];
+        simp +decide [ P_S, Finset.prod_eq_prod_sdiff_singleton_mul hs ];
       unfold L_s at *; replace hL_s := congr_arg ( Polynomial.derivative ) hL_s; norm_num at hL_s; rcases eq_or_ne ( Polynomial.derivative ( P_S S ) |> Polynomial.eval s ) 0 <;> simp_all +singlePass ;
       · replace hL_s := congr_arg ( Polynomial.eval s ) hL_s ; simp_all
         exact absurd hL_s ( by rw [ P_S_derivative_eval_eq_prod S s hs ] ; exact Finset.prod_ne_zero_iff.2 fun x hx => sub_ne_zero_of_ne <| by aesop );
@@ -122,7 +122,7 @@ lemma L_s_eval_ne (S : Finset F) (s s' : F) (hs : s ∈ S) (hs' : s' ∈ S) (h :
       unfold L_s;
       have h_div : (P_S S) = (X - C s) * ((P_S S) /ₘ (X - C s)) := by
         rw [ Polynomial.mul_divByMonic_eq_iff_isRoot.mpr ];
-        simp +decide [ P_S, Finset.prod_eq_prod_diff_singleton_mul hs ];
+        simp +decide [ P_S, Finset.prod_eq_prod_sdiff_singleton_mul hs ];
       replace h_div := congr_arg ( Polynomial.eval s' ) h_div ; simp_all
       -- Since $s' \neq s$, we have $P_S(s') = 0$.
       have h_P_S_s'_zero : Polynomial.eval s' (P_S S) = 0 := by
@@ -155,7 +155,7 @@ lemma univariate_leading_coeff_identity (S : Finset F) (g : F[X]) (hS : S.Nonemp
         intro s hs
         have h_leading_coeff : Polynomial.leadingCoeff (L_s S s) = 1 / (Polynomial.derivative (P_S S)).eval s := by
           unfold L_s P_S; simp
-          rw [ show ( ∏ s ∈ S, ( Polynomial.X - Polynomial.C s ) ) = ( Polynomial.X - Polynomial.C s ) * ( ∏ s ∈ S \ { s }, ( Polynomial.X - Polynomial.C s ) ) by rw [ Finset.prod_eq_mul_prod_diff_singleton_of_mem hs ], Polynomial.divByMonic_eq_div _ ( Polynomial.monic_X_sub_C s ) ];
+          rw [ show ( ∏ s ∈ S, ( Polynomial.X - Polynomial.C s ) ) = ( Polynomial.X - Polynomial.C s ) * ( ∏ s ∈ S \ { s }, ( Polynomial.X - Polynomial.C s ) ) by rw [ Finset.prod_eq_mul_prod_sdiff_singleton_of_mem hs ], Polynomial.divByMonic_eq_div _ ( Polynomial.monic_X_sub_C s ) ];
           rw [ mul_div_cancel_left₀ _ ( Polynomial.X_sub_C_ne_zero s ) ] ; simp +decide [ Polynomial.leadingCoeff_prod ] ;
         rw [ ← h_leading_coeff, Polynomial.leadingCoeff, L_s_natDegree S s hs ];
       nth_rw 1 [ h_interpolate ];
@@ -272,7 +272,7 @@ lemma binomial_coeff_computation (n : ℕ) (hn : n ≥ 2) :
       ((MvPolynomial.X 0 - MvPolynomial.X 1) * (MvPolynomial.X 0 + MvPolynomial.X 1) ^ m : MvPolynomial (Fin 2) ℤ)) =
     (Nat.choose m (n - 2) - Nat.choose m (n - 1) : ℤ) := by
       norm_num [ mul_assoc, mul_add, sub_mul, MvPolynomial.coeff_mul ];
-      rw [ Finset.sum_eq_single ( Finsupp.single 0 1, Finsupp.equivFunOnFinite.symm ![ n - 2, n - 2 ] ), Finset.sum_eq_single ( Finsupp.single 1 1, Finsupp.equivFunOnFinite.symm ![ n - 1, n - 3 ] ) ] <;> simp +decide [ MvPolynomial.coeff_X' ];
+      rw [ Finset.sum_eq_single ( Finsupp.single 0 1, Finsupp.equivFunOnFinite.symm ![ n - 2, n - 2 ] ), Finset.sum_eq_single ( Finsupp.single 1 1, Finsupp.equivFunOnFinite.symm ![ n - 1, n - 3 ] ) ] <;> simp +decide [ MvPolynomial.coeff_X ];
       · -- By definition of polynomial multiplication and the binomial theorem, we can expand $(x + y)^{2n-4}$.
         have h_expand : (MvPolynomial.X 0 + MvPolynomial.X 1 : MvPolynomial (Fin 2) ℤ) ^ (2 * n - 4) = ∑ k ∈ Finset.range (2 * n - 3), MvPolynomial.monomial (Finsupp.single 0 k + Finsupp.single 1 (2 * n - 4 - k)) (Nat.choose (2 * n - 4) k : ℤ) := by
           rw [ add_pow ];
@@ -336,7 +336,7 @@ lemma prod_linear_factors_degree_sub_leading {p : ℕ} (S : Finset (ZMod p)) :
           refine le_trans ( Nat.mul_le_mul_right _ ( Nat.le_sub_one_of_lt hk ) ) ?_;
           refine mul_le_of_le_one_right ( Nat.zero_le _ ) ?_;
           norm_num [ MvPolynomial.totalDegree ];
-          intro b hb; rw [ MvPolynomial.coeff_X', MvPolynomial.coeff_X' ] at hb; aesop;
+          intro b hb; rw [ MvPolynomial.coeff_X, MvPolynomial.coeff_X ] at hb; aesop;
         exact totalDegree_finsetSum_le h_term_deg;
       simp_all +decide [ Finset.sum_range_succ ];
       convert h_simplify using 1;
@@ -360,7 +360,7 @@ lemma binomial_coeff_computation_zmod {p : ℕ} (n : ℕ) (hn : n ≥ 2) :
       convert congr_arg ( ( ↑ ) : ℤ → ZMod p ) h_binom using 1;
       · norm_num [ MvPolynomial.coeff_mul ];
         congr! 2;
-        · simp +decide [ MvPolynomial.coeff_X' ];
+        · simp +decide [ MvPolynomial.coeff_X ];
         · norm_num [ MvPolynomial.coeff_X_pow, add_pow ];
           simp +decide [ MvPolynomial.coeff_sum, MvPolynomial.coeff_mul, MvPolynomial.coeff_X_pow ];
           congr! 3;
@@ -407,7 +407,7 @@ lemma F_poly_coeff {p : ℕ} (C : Finset (ZMod p)) (n : ℕ) (hC : C.card = 2 * 
           refine le_trans ( MvPolynomial.totalDegree_mul _ _ ) ?_;
           refine add_le_add ?_ h_deg;
           norm_num [ MvPolynomial.totalDegree ];
-          intro b hb; rw [ MvPolynomial.coeff_X', MvPolynomial.coeff_X' ] at hb; aesop;
+          intro b hb; rw [ MvPolynomial.coeff_X, MvPolynomial.coeff_X ] at hb; aesop;
         rcases n with ( _ | _ | _ | n ) <;> simp_all +arith +decide;
         · simp [Function.support]
           rw [Finset.sum_filter]
@@ -487,7 +487,7 @@ theorem erdos_heilbronn_small (p : ℕ) [Fact p.Prime] (A : Finset (ZMod p))
             refine le_trans ( MvPolynomial.totalDegree_mul _ _ ) ?_;
             refine add_le_add ?_ ?_;
             · norm_num [ MvPolynomial.totalDegree ];
-              intro b hb; rw [ MvPolynomial.coeff_X', MvPolynomial.coeff_X' ] at hb; aesop;
+              intro b hb; rw [ MvPolynomial.coeff_X, MvPolynomial.coeff_X ] at hb; aesop;
             · -- The total degree of a product of polynomials is the sum of their total degrees.
               have h_deg_prod : ∀ (S : Finset (ZMod p)), (∏ c ∈ S, (MvPolynomial.X 0 + MvPolynomial.X 1 - (MvPolynomial.C : ZMod p → MvPolynomial (Fin 2) (ZMod p)) c)).totalDegree ≤ S.card := by
                 intro S
@@ -500,7 +500,7 @@ theorem erdos_heilbronn_small (p : ℕ) [Fact p.Prime] (A : Finset (ZMod p))
                   simp +decide [ Finset.card_insert_of_notMem hc ];
                   rw [ add_comm ];
                   norm_num [ MvPolynomial.totalDegree ];
-                  intro b hb; rw [ MvPolynomial.coeff_X', MvPolynomial.coeff_X' ] at hb; aesop;
+                  intro b hb; rw [ MvPolynomial.coeff_X, MvPolynomial.coeff_X ] at hb; aesop;
               exact h_deg_prod C;
           grind;
         · -- By Lemma 8, we know that the coefficient of $x^{n-1}y^{n-2}$ in $F$ is $\binom{2n-4}{n-2} - \binom{2n-4}{n-1}$.

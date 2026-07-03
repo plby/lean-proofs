@@ -1564,7 +1564,6 @@ theorem hoeffding_digit_sum_bound (p D : ℕ) (ε : ℝ) (hε : ε > 0) (hp : p 
             refine Finset.sum_congr rfl ?_
             intro f hf
             rw [← Real.exp_add]
-            push_cast
             ring_nf
             rw [show (2 - (p : ℝ) * 4 + (p : ℝ) ^ 2 * 2) =
               2 * (1 - (p : ℝ) * 2 + (p : ℝ) ^ 2) by ring]
@@ -2394,7 +2393,10 @@ theorem deriv_lambda_minus_at_one (p : ℕ) (hp : p ≥ 2) :
         rw [deriv_const, deriv_id'']
         ring
       rw [hderiv_linear, deriv_lambda_plus_at_one p hp]
-      rcases Nat.even_or_odd' p with ⟨k, rfl | rfl⟩ <;> norm_num [Nat.add_div] <;> ring
+      rcases Nat.even_or_odd' p with ⟨k, rfl | rfl⟩
+      · norm_num [Nat.add_div]
+      · norm_num [Nat.add_div]
+        ring
 
 /-
 If f(x0) = g(x0) and f'(x0) > g'(x0), then f(x) < g(x) for some x < x0.
@@ -3683,7 +3685,7 @@ theorem valuation_large_p (m k p : ℕ) [Fact p.Prime] (hk : k > 0) (hp : p > 2 
             exact congr_arg _ ( Finset.prod_congr rfl fun x hx => by cases k <;> norm_num at * ; omega );
           have h_vp_descFact : padicValNat p (∏ j ∈ Finset.Icc 1 k, (m + j)) = padicValNat p (m + i) + padicValNat p (∏ j ∈ Finset.Icc 1 k \ {i}, (m + j)) := by
             rw [ ← padicValNat.mul ];
-            · rw [ Finset.prod_eq_mul_prod_diff_singleton_of_mem hi₁ ];
+            · rw [ Finset.prod_eq_mul_prod_sdiff_singleton_of_mem hi₁ ];
             · aesop;
             · exact Finset.prod_ne_zero_iff.mpr fun x hx => by linarith [ Finset.mem_Icc.mp ( Finset.mem_sdiff.mp hx |>.1 ) ] ;
           simp_all +decide [ Nat.Prime.dvd_iff_not_coprime Fact.out ];

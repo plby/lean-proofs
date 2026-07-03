@@ -91,7 +91,7 @@ lemma rademacher_mgf_bound {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω} [I
               · exact Set.disjoint_left.mpr fun ω hω₁ hω₂ => by linarith [ Set.mem_setOf.mp hω₁, Set.mem_setOf.mp hω₂ ]
               · exact hX₁ ( MeasurableSingletonClass.measurableSet_singleton _ )
             have h_ae : P {ω | X ω ≠ 1 ∧ X ω ≠ -1} = P Set.univ - P {ω | X ω = 1 ∨ X ω = -1} := by
-              rw [ ← MeasureTheory.measure_diff ]
+              rw [ ← MeasureTheory.measure_sdiff ]
               · exact congr_arg _ ( by ext; aesop )
               · exact Set.subset_univ _
               · exact MeasurableSet.nullMeasurableSet ( by exact MeasurableSet.union ( hX₁ ( MeasurableSingletonClass.measurableSet_singleton _ ) ) ( hX₁ ( MeasurableSingletonClass.measurableSet_singleton _ ) ) )
@@ -170,7 +170,7 @@ theorem hoeffding_rademacher_sum_one_sided {Ω : Type*} [MeasurableSpace Ω] {P 
                       · exact Set.disjoint_left.mpr fun x hx₁ hx₂ => by linarith [ Set.mem_setOf.mp hx₁, Set.mem_setOf.mp hx₂ ]
                       · exact this.1 ( MeasurableSingletonClass.measurableSet_singleton _ )
                     have h_abs : P {ω | ξ i ω ≠ 1 ∧ ξ i ω ≠ -1} = P Set.univ - P {ω | ξ i ω = 1 ∨ ξ i ω = -1} := by
-                      rw [ ← MeasureTheory.measure_diff ] <;> norm_num [ Set.compl_setOf ]
+                      rw [ ← MeasureTheory.measure_sdiff ] <;> norm_num [ Set.compl_setOf ]
                       · exact congr_arg _ ( by ext; simp +decide [ not_or ] )
                       · exact MeasurableSet.nullMeasurableSet ( by exact MeasurableSet.union ( this.1 ( MeasurableSingletonClass.measurableSet_singleton _ ) ) ( this.1 ( MeasurableSingletonClass.measurableSet_singleton _ ) ) )
                     aesop
@@ -319,9 +319,9 @@ lemma coloring_product_measure_independent (n : ℕ) :
           rw [ show { x : Sym2 ( Fin n ) → Bool | x i ∈ sets i } ∩ ⋂ x ∈ S, { x_1 : Sym2 ( Fin n ) → Bool | x_1 x ∈ sets x } = ( Set.pi Set.univ fun j => if j = i then sets i else if j ∈ S then sets j else Set.univ ) from ?_ ]
           · rw [ show ( ⋂ i ∈ S, { x : Sym2 ( Fin n ) → Bool | x i ∈ sets i } ) = Set.pi Set.univ fun j => if j ∈ S then sets j else Set.univ from ?_ ]
             · rw [ MeasureTheory.Measure.pi_pi ]
-              rw [ Finset.prod_eq_mul_prod_diff_singleton_of_mem ( Finset.mem_univ i ) ]
+              rw [ Finset.prod_eq_mul_prod_sdiff_singleton_of_mem ( Finset.mem_univ i ) ]
               rw [ MeasureTheory.Measure.pi_pi ]
-              rw [ Finset.prod_eq_prod_diff_singleton_mul <| Finset.mem_univ i ]
+              rw [ Finset.prod_eq_prod_sdiff_singleton_mul <| Finset.mem_univ i ]
               simp +decide [ hiS ]
               rw [ ENNReal.mul_inv_cancel ] <;> norm_num
               exact congrArg _ ( Finset.prod_congr rfl fun x hx => by aesop )
@@ -358,7 +358,7 @@ lemma coloring_product_measure_rademacher (n : ℕ) (e : Sym2 (Fin n)) :
     · -- Apply the fact that the measure of a product set is the product of the measures of the individual sets.
       have h_prod : (coloringProductMeasure n) (Set.pi Set.univ fun i => if i = e then { Bool.true } else Set.univ) = ∏ i : Sym2 (Fin n), (PMF.uniformOfFintype Bool).toMeasure (if i = e then { Bool.true } else Set.univ) := by
         erw [ MeasureTheory.Measure.pi_pi ]
-      rw [ h_prod, Finset.prod_eq_mul_prod_diff_singleton_of_mem <| Finset.mem_univ e ]
+      rw [ h_prod, Finset.prod_eq_mul_prod_sdiff_singleton_of_mem <| Finset.mem_univ e ]
       norm_num +zetaDelta at *
       rw [ Finset.prod_congr rfl fun x hx => by aesop ] ; norm_num
       rw [ ← two_mul, ENNReal.mul_inv_cancel ] <;> norm_num
@@ -553,10 +553,10 @@ lemma prob_lt_one_implies_exists_good_coloring (n : ℕ) (P : Set (Sym2 (Fin n) 
       have h_compl : (coloringMeasure n) Pᶜ > 0 := by
         have h_compl : (coloringMeasure n) Pᶜ = 1 - (coloringMeasure n) P := by
           have h_compl : (coloringMeasure n) (Set.univ \ P) = 1 - (coloringMeasure n) P := by
-            rw [ MeasureTheory.measure_diff ] <;> norm_num
+            rw [ MeasureTheory.measure_sdiff ] <;> norm_num
             exact MeasurableSet.nullMeasurableSet ( by exact
               DiscreteMeasurableSpace.forall_measurableSet P )
-          simpa [ Set.diff_eq ] using h_compl
+          simpa [ Set.sdiff_eq ] using h_compl
         exact h_compl.symm ▸ tsub_pos_of_lt h
       contrapose! h_compl
       rw [ show Pᶜ = ∅ by aesop ] ; norm_num
@@ -1046,13 +1046,13 @@ lemma fourth_moment_rademacher_sum_finset {Ω : Type*} [MeasurableSpace Ω] {P :
                     have := this.1
                     have hY_cube_mean : P {ω | ξ a ω ≠ 1 ∧ ξ a ω ≠ -1} = 0 := by
                       have hY_cube_mean : P {ω | ξ a ω ≠ 1 ∧ ξ a ω ≠ -1} ≤ P {ω | ξ a ω ≠ 1} - P {ω | ξ a ω = -1} := by
-                        rw [ ← MeasureTheory.measure_diff ]
+                        rw [ ← MeasureTheory.measure_sdiff ]
                         · exact MeasureTheory.measure_mono fun x hx => by aesop
                         · exact fun x hx => by norm_num [ hx.out ]
                         · exact this ( MeasurableSingletonClass.measurableSet_singleton _ ) |> MeasurableSet.nullMeasurableSet
                         · exact ne_of_lt ( MeasureTheory.measure_lt_top _ _ )
                       have hY_cube_mean : P {ω | ξ a ω ≠ 1} = 1 - P {ω | ξ a ω = 1} := by
-                        rw [ show { ω | ξ a ω ≠ 1 } = ( Set.univ \ { ω | ξ a ω = 1 } ) by ext; simp +decide, MeasureTheory.measure_diff ] <;> norm_num
+                        rw [ show { ω | ξ a ω ≠ 1 } = ( Set.univ \ { ω | ξ a ω = 1 } ) by ext; simp +decide, MeasureTheory.measure_sdiff ] <;> norm_num
                         exact this.nullMeasurable ( MeasurableSingletonClass.measurableSet_singleton _ )
                       aesop
                     filter_upwards [ MeasureTheory.measure_eq_zero_iff_ae_notMem.mp hY_cube_mean ] with ω hω using by contrapose! hω; aesop
@@ -1314,7 +1314,7 @@ lemma vertex_measure_rademacher (n : ℕ) (i : Fin n) :
         have h_cylinder : (Measure.pi fun _ : Fin n => (PMF.uniformOfFintype Bool).toMeasure) {ω : Fin n → Bool | ω i = true} = (PMF.uniformOfFintype Bool).toMeasure {true} * ∏ j ∈ Finset.univ.erase i, (PMF.uniformOfFintype Bool).toMeasure Set.univ := by
           have h_cylinder : (Measure.pi fun _ : Fin n => (PMF.uniformOfFintype Bool).toMeasure) (Set.pi Set.univ (fun j => if j = i then {true} else Set.univ)) = (PMF.uniformOfFintype Bool).toMeasure {true} * ∏ j ∈ Finset.univ.erase i, (PMF.uniformOfFintype Bool).toMeasure Set.univ := by
             rw [ MeasureTheory.Measure.pi_pi ]
-            rw [ Finset.prod_eq_mul_prod_diff_singleton_of_mem <| Finset.mem_univ i ]
+            rw [ Finset.prod_eq_mul_prod_sdiff_singleton_of_mem <| Finset.mem_univ i ]
             rw [ Finset.sdiff_singleton_eq_erase ]
             exact congr_arg₂ _ ( by simp +decide ) ( Finset.prod_congr rfl fun j hj => by aesop )
           convert h_cylinder using 2
@@ -1333,13 +1333,12 @@ lemma vertex_measure_rademacher (n : ℕ) (i : Fin n) :
                 (PMF.uniformOfFintype Bool).toMeasure {false} *
                   ∏ j ∈ Finset.univ.erase i, (PMF.uniformOfFintype Bool).toMeasure Set.univ := by
             rw [ MeasureTheory.Measure.pi_pi ]
-            rw [ Finset.prod_eq_mul_prod_diff_singleton_of_mem <| Finset.mem_univ i ]
+            rw [ Finset.prod_eq_mul_prod_sdiff_singleton_of_mem <| Finset.mem_univ i ]
             rw [ Finset.sdiff_singleton_eq_erase ]
             exact congr_arg₂ _ ( by simp +decide ) ( Finset.prod_congr rfl fun j hj => by aesop )
           convert h_cylinder using 1
           focus
             norm_num [ PMF.uniformOfFintype ]
-          norm_num [ PMF.uniformOfFintype ]
           erw [ ENNReal.mul_inv_cancel ] <;> norm_num
         · grind
 
@@ -1369,10 +1368,10 @@ lemma expectation_abs_row_sum {n : ℕ} (A : Matrix (Fin n) (Fin n) ℝ)
               use fun i => ( fun x => ( if A j i = 1 then 1 else -1 ) * x ) ⁻¹' sets i
             · exact measurable_const.mul measurable_id' ( hsets i hi )
             · convert h_indep using 3
-              funext i
-              congr
-              ext ω
-              rfl
+              · funext i
+                congr
+              · ext ω
+                rfl
           · intro i
             -- The function (if A j i = 1 then 1 else -1) * (if ω i then 1 else -1) is a Rademacher variable because it takes values 1 and -1 with equal probability.
             have h_rademacher : IsRademacher (vertexMeasure n) (fun ω => if ω i then 1 else -1) := by

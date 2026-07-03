@@ -3022,7 +3022,7 @@ lemma sum_inv_sqrt_R_bound :
       intros ε hε₀ hε₁ n hn m
       convert mul_le_mul_of_nonneg_right ( hC ε hε₀ hε₁ m ) ( inv_nonneg.mpr ( Real.sqrt_nonneg n ) ) using 1
       focus
-        first | rfl | ring
+        rfl
       focus
         norm_num [ Real.sqrt_eq_rpow, ← Real.rpow_mul ( by positivity : ( 0 :ℝ ) ≤ 1 + ε / 2 ) ]
       focus
@@ -4678,7 +4678,7 @@ theorem PropertyP_bar_infty_finite_diff (A B : Set ℕ) (h : (A \ B).Finite ∧ 
     have h_finite : {a ∈ B | ¬Squarefree (n + a)} ⊆ ({a ∈ A | ¬Squarefree (n + a)} ∪ (B \ A)) := by
       exact fun x hx => if hx' : x ∈ A then Or.inl ⟨ hx', hx.2 ⟩ else Or.inr ⟨ hx.1, hx' ⟩
     exact Set.Finite.subset ( hn.union h.2 ) h_finite
-  · refine h'.diff ( h.1.union h.2 |> Set.Finite.image fun x => x ) |> fun h'' => h''.mono ?_
+  · refine h'.sdiff ( h.1.union h.2 |> Set.Finite.image fun x => x ) |> fun h'' => h''.mono ?_
     intro n hn
     simp_all +decide
     refine Set.Finite.subset ( hn.1.union ( h.1.union h.2 ) ) ?_
@@ -5930,7 +5930,7 @@ lemma prime_loglog_partial_sums_bounded :
         rw [show Finset.Ico 3 (Nat.log 2 (N - 1) + 1) =
             Finset.Icc 3 (Nat.log 2 (N - 1)) by
           ext k
-          simp [Nat.lt_succ_iff]]
+          simp]
         exact partial_sum_inv_mul_log_sq_le ( Nat.log 2 ( N - 1 ) )
       exact le_trans ( Finset.sum_le_sum_of_subset_of_nonneg ( Finset.Ico_subset_Ico ( by linarith ) le_rfl ) fun _ _ _ => by positivity ) h_sum_bound
     convert mul_le_mul_of_nonneg_left h_sum_bound ( show ( 0 : ℝ ) ≤ 8 * ( Real.log 4 + 1 ) / Real.log 2 by positivity ) using 1 <;> ring_nf
@@ -6201,7 +6201,7 @@ lemma bad_n_card_bound (P : ℕ) (x : ℝ) (W : ℕ) (hW : W > 0)
       norm_num [ div_eq_mul_inv, mul_add, mul_assoc, mul_comm, mul_left_comm,
         Finset.mul_sum _ _ _, Finset.sum_add_distrib ]
       unfold sum_S1 sum_S2
-      simp +decide [div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm,
+      simp +decide [div_eq_mul_inv, mul_assoc, mul_comm,
         Finset.mul_sum _ _ _]]
 
 /-
@@ -6806,7 +6806,7 @@ lemma sum_part1_tendsto (K : ℕ) :
             by_cases hprime : Nat.Prime p
             · by_cases hK : K < p
               · simp [hprime, hK, hpx]
-              · simp [hprime, hK, Nat.not_lt.mp hK]
+              · simp [hprime, hK]
             · simp [hprime]
           · intro p hp
             have hpx : ¬ p ≤ x := by
@@ -7028,7 +7028,7 @@ lemma p_upper_bound_term_asymptotics :
           ( fun x => x * ( Real.log ( Real.log x ) ) ^ 2 ) := by
         rw [Asymptotics.isBigO_iff]
         refine ⟨4, Filter.Eventually.of_forall fun x => ?_⟩
-        simp [p_upper_bound, Real.norm_of_nonneg, mul_assoc, mul_comm, mul_left_comm]
+        simp [p_upper_bound, mul_assoc, mul_comm, mul_left_comm]
       simpa [div_eq_mul_inv, pow_succ, pow_two, mul_assoc, mul_comm, mul_left_comm] using
         h_simplified.mul hpO
     -- We know that $\log P(x) \sim \log x$ and $\log \log P(x) \sim \log \log x$.
@@ -7121,7 +7121,7 @@ lemma bound_asymptotics :
           (fun x => x * (Real.log (Real.log x)) ^ 3 / Real.log x * (1 / x)) := by
       refine h_sum_part2_le.congr_left ?_
       intro x
-      simp [div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm]
+      simp [div_eq_mul_inv, mul_comm, mul_left_comm]
     refine h_sum_part2_le'.congr_right ?_
     intro x
     by_cases hx : x = 0
@@ -7459,7 +7459,7 @@ theorem theorem_overp_ii_conditional (assumps : SieveAssumptions) :
         · exact le_trans ( by linarith ) ( le_max_right _ _ ) |> le_trans ( le_max_right _ _ )
 
 /-- Construction of SieveAssumptions from Chebyshev bounds. -/
-def sieveAssumptionsFromChebyshev : SieveAssumptions :=
+theorem sieveAssumptionsFromChebyshev : SieveAssumptions :=
   ⟨tail_summable_from_chebyshev⟩
 
 /-

@@ -455,7 +455,7 @@ lemma card_Iio_omega1
   : Cardinal.mk.{u+1}
   (Set.Iio (Ordinal.omega.{u} 1)) = Cardinal.lift.{u+1, u}
   (Cardinal.aleph.{u} 1) := by
-  simpa [Ordinal.card_omega] using card_Iio_ordinal (Ordinal.omega.{u} 1)
+  simp [card_Iio_ordinal, Ordinal.card_omega]
 
 /-
 There is no injection from omega 1 to N.
@@ -1129,7 +1129,7 @@ The image of the appended value function is co-infinite.
 lemma T_append_cofinite (t : T_struct) (n : ℕ) :
   (Set.range (fun x : {β // β < Order.succ t.α} => T_append_val t n x.1 x.2))ᶜ.Infinite := by
     unfold T_append_val
-    refine Set.Infinite.mono ?_ ( t.val.2.2.diff <| Set.finite_singleton n )
+    refine Set.Infinite.mono ?_ ( t.val.2.2.sdiff <| Set.finite_singleton n )
     intro x hx
     aesop
 
@@ -1398,7 +1398,7 @@ lemma skipped_element_gt_last (t : T_struct) (ht : is_succ_ordinal t.α) :
     have h_nonempty : {n | n ∉ im t ∧ n > last t ht}.Nonempty := by
       have h_nonempty : Set.Infinite (Set.range (fun x : {β // β < t.α} => t.val.1 x.1 x.2))ᶜ := by
         convert t.val.2.2 using 1
-      exact Set.Infinite.nonempty (h_nonempty.diff (Set.finite_le_nat (last t ht))) |>
+      exact Set.Infinite.nonempty (h_nonempty.sdiff (Set.finite_le_nat (last t ht))) |>
         fun ⟨n, hn⟩ => ⟨n, hn.1, not_le.mp fun h => hn.2 <| Set.mem_setOf_eq.mpr h⟩
     -- Since the set {n | n ∉ im t ∧ n > last t ht} is non-empty, its infimum is greater
     -- than last t
@@ -2024,7 +2024,7 @@ lemma im_tn_succ_diff_im_vn
       im (get_tn c t0 ht0 h_counter (n + 1)) = im (get_vn c t0 ht0 h_counter n) ∪ {get_an c t0 ht0
       h_counter n} := by
       exact im_tn_succ_eq_im_vn_union_an c t0 ht0 h_counter n
-    rw [ h_im, Set.union_diff_cancel_left ]
+    rw [ h_im, Set.union_sdiff_cancel_left ]
     simp +zetaDelta only [subset_empty_iff, inter_singleton_eq_empty] at *
     exact get_an_not_mem_im_vn c t0 ht0 h_counter n
 
@@ -2322,7 +2322,7 @@ noncomputable def choose_claim_extension
   : T_struct :=
   Classical.choose (claim_true c t ht)
 
-noncomputable def choose_claim_extension_is_succ
+theorem choose_claim_extension_is_succ
   (c : G.Coloring ℕ)
   (t : T_struct)
   (ht : is_succ_ordinal t.α)
@@ -3062,7 +3062,7 @@ lemma min_diff_im_tn_prime
     · exact ⟨ 0, fun x hx => Nat.zero_le x ⟩
     · exact Set.mem_union_left _ ( Set.mem_singleton _ )
     · exact ⟨ _, Set.mem_union_left _ ( Set.mem_singleton _ ) ⟩
-    · simp +zetaDelta only [singleton_union, mem_insert_iff, mem_diff, forall_eq_or_imp,
+    · simp +zetaDelta only [singleton_union, mem_insert_iff, mem_sdiff, forall_eq_or_imp,
         Std.le_refl, and_imp, true_and] at *
       intro a ha₁ ha₂
       exact le_of_not_gt fun ha₃ => ha₂ <| by

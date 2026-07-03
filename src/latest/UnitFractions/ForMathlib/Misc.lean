@@ -96,7 +96,7 @@ theorem range_sdiff_Icc {x y : ℕ} (h : x ≤ y) :
 
 theorem Ici_diff_Icc {a b : ℝ} (hab : a ≤ b) : Set.Ici a \ Set.Icc a b = Set.Ioi b := by
   ext x
-  simp only [Set.mem_diff, Set.mem_Ici, Set.mem_Icc, Set.mem_Ioi]
+  simp only [Set.mem_sdiff, Set.mem_Ici, Set.mem_Icc, Set.mem_Ioi]
   constructor
   · intro hx
     exact lt_of_not_ge fun hxb => hx.2 ⟨hx.1, hxb⟩
@@ -104,7 +104,7 @@ theorem Ici_diff_Icc {a b : ℝ} (hab : a ≤ b) : Set.Ici a \ Set.Icc a b = Set
     exact ⟨hab.trans hbx.le, fun hx => (not_lt_of_ge hx.2) hbx⟩
 
 theorem Ioi_diff_Icc {a b : ℝ} (hab : a ≤ b) : Set.Ioi a \ Set.Ioc a b = Set.Ioi b := by
-  rw [Set.Ioi_diff_Ioc, max_eq_right hab]
+  rw [Set.Ioi_sdiff_Ioc, max_eq_right hab]
 
 theorem one_le_prod {ι R : Type*} [CommMonoidWithZero R] [Preorder R] [ZeroLEOneClass R]
     [PosMulMono R] {f : ι → R} {s : Finset ι}

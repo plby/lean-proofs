@@ -223,8 +223,9 @@ theorem cycle_directions_card_le_three {n : ℕ} {u : Fin n → ZMod 2}
           ∀ {u v : Fin n → ZMod 2} (p : (hypercubeGraph n).Walk u v),
             p.length = (walkIndices p).length := by
         intros u v p; induction p <;> aesop;
-      simpa [directionsUsed, ← h_walk_length p] using
-        (List.sum_toFinset_count_eq_length (walkIndices p))
+      change ∑ i ∈ (walkIndices p).toFinset, List.count i (walkIndices p) = p.length
+      rw [h_walk_length p]
+      exact List.sum_toFinset_count_eq_length (walkIndices p)
     generalize_proofs at *; (
     have := Finset.sum_le_sum h_even_count; simp_all +decide ; linarith;))
 
@@ -653,8 +654,9 @@ theorem cycle_uses_each_direction_twice {n : ℕ} {u : Fin n → ZMod 2}
           ∀ {u v : Fin n → ZMod 2} (p : (hypercubeGraph n).Walk u v),
             p.length = (walkIndices p).length := by
         intros u v p; induction p <;> aesop;
-      simpa [directionsUsed, ← h_walk_length p, hlen] using
-        (List.sum_toFinset_count_eq_length (walkIndices p))
+      change ∑ i ∈ (walkIndices p).toFinset, List.count i (walkIndices p) = 6
+      rw [← hlen, h_walk_length p]
+      exact List.sum_toFinset_count_eq_length (walkIndices p)
     have h_card_edges : directionsUsed p ⊆ Finset.univ ∧ Finset.card (directionsUsed p) = 3 := by
       exact ⟨ Finset.subset_univ _, cycle_directions_card_eq_three p hp hlen ⟩;
     have h_each_edge_twice : ∀ i ∈ directionsUsed p, (walkIndices p).count i ≥ 2 := by
@@ -1058,7 +1060,7 @@ theorem hypercube_card_edges (n : ℕ) :
           use i
           ext j
           by_cases hj : j = i <;>
-            simp_all +decide [ Finset.ext_iff, Function.update_apply ]
+            simp_all +decide [ Finset.ext_iff ]
           · cases Fin.exists_fin_two.mp ⟨ v i, rfl ⟩ <;>
               cases Fin.exists_fin_two.mp ⟨ w i, rfl ⟩ <;>
               specialize hi i <;>
@@ -1076,7 +1078,7 @@ theorem hypercube_card_edges (n : ℕ) :
       intro i j h
       replace h := congr_fun h i
       by_cases hi : i = j <;>
-        simp_all +decide [ Function.update_apply ]
+        simp_all +decide
     have := SimpleGraph.sum_degrees_eq_twice_card_edges ( hypercubeGraph n )
     simp_all +decide [ mul_comm ]
     cases n <;> simp_all +decide [ pow_succ' ] ; linarith

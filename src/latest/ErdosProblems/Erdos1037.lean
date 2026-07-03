@@ -899,7 +899,7 @@ theorem edge_indicators_independent (m : ℕ) (v : Fin m) :
           simp +decide [ ProbabilityTheory.uniformOn ];
         · have h_complement : {G : SimpleGraph (Fin m) | incidentEdgeInd_classical v u G = 0} = Set.univ \ {G : SimpleGraph (Fin m) | incidentEdgeInd_classical v u G = 1} := by
             ext G; simp [incidentEdgeInd_classical];
-          rw [ h_complement, MeasureTheory.measure_diff ] <;> norm_num [ incidentEdgeInd_classical_Bernoulli ];
+          rw [ h_complement, MeasureTheory.measure_sdiff ] <;> norm_num [ incidentEdgeInd_classical_Bernoulli ];
           erw [ ProbabilityTheory.uniformOn_univ ] ; norm_num;
           rw [ ENNReal.div_self ] <;> norm_num;
       by_cases h : ∃ u ∈ S, 0 ∉ A u ∧ 1 ∉ A u <;> simp_all +decide [ Finset.prod_ite ];
@@ -974,7 +974,7 @@ theorem degree_concentration_at_vertex (m : ℕ) (hm : m > 1) (v : Fin m) (t : �
         intro h;
         have hmeas_adj : MeasurableSet { G : SimpleGraph ( Fin m ) | G.Adj v ↑ ( bij i ) } := by
           simp
-        rw [ show { G : SimpleGraph ( Fin m ) | ¬G.Adj v ↑ ( bij i ) } = Set.univ \ { G : SimpleGraph ( Fin m ) | G.Adj v ↑ ( bij i ) } by ext; simp +decide, MeasureTheory.measure_diff ] <;> norm_num [ h, hmeas_adj, hmeas_adj.nullMeasurableSet ] ;
+        rw [ show { G : SimpleGraph ( Fin m ) | ¬G.Adj v ↑ ( bij i ) } = Set.univ \ { G : SimpleGraph ( Fin m ) | G.Adj v ↑ ( bij i ) } by ext; simp +decide, MeasureTheory.measure_sdiff ] <;> norm_num [ h, hmeas_adj, hmeas_adj.nullMeasurableSet ] ;
         unfold randomGraphMeasure;
         rw [ ProbabilityTheory.uniformOn ] ; norm_num;
       · intro i; filter_upwards [ ] with G; by_cases hi : G.Adj ( bij i |>.1 ) v <;> simp +decide
@@ -1147,7 +1147,7 @@ theorem Lemma_Base :
                     ∃ v : Fin m, |(G.degree v : ℝ) - (m - 1 : ℝ) / 2| ≥ t_val m}
                   = A ∪ (B ∪ C) := by
               ext G
-              simp [A, B, C, or_assoc]
+              simp [A, B, C]
             rw [hset]
             calc
               randomGraphMeasure (A ∪ (B ∪ C)) ≤
@@ -2158,11 +2158,9 @@ lemma Theorem_Main_Fixed_m (m : ℕ) (R : SimpleGraph (Fin m))
             · exact NumDistinctDegrees_map_equiv H e
           rw [hNum]
           exact hH.2.1
-        · change (((H.map e.toEmbedding).cliqueNum : ℝ) ≤ 12 * Real.logb 2 m)
-          rw [cliqueNum_map_equiv H e]
+        · rw [cliqueNum_map_equiv H e]
           exact hH.2.2.1
-        · change (((H.map e.toEmbedding).indepNum : ℝ) ≤ 12 * Real.logb 2 m)
-          rw [indepNum_map_equiv H e]
+        · rw [indepNum_map_equiv H e]
           exact hH.2.2.2
 
 /-

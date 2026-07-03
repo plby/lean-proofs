@@ -648,7 +648,7 @@ lemma local_construction (A : Set ℕ) (hA : A.Infinite) :
             intro b
             obtain ⟨s, hs⟩ :
                 ∃ s : Finset ℕ, s.card = b ∧ ∀ x ∈ s, x ∈ A ∧ 1 ≤ x := by
-              have := hA.diff (Set.finite_le_nat 0)
+              have := hA.sdiff (Set.finite_le_nat 0)
               rcases this.exists_subset_card_eq b with ⟨s, hs⟩
               use s
               aesop
@@ -898,7 +898,7 @@ lemma counting_function_tendsto_atTop {A : Set ℕ} (hA : A.Infinite) :
     -- Since $A$ is infinite, we can find $k$ elements in $A$ that are all greater
     -- than or equal to $1$.
     obtain ⟨S, hS⟩ : ∃ S : Finset ℕ, S.card = k ∧ ∀ x ∈ S, x ∈ A ∧ 1 ≤ x := by
-      have := hA.diff (Set.finite_le_nat 0)
+      have := hA.sdiff (Set.finite_le_nat 0)
       rcases this.exists_subset_card_eq k with ⟨S, hS⟩
       use S
       aesop
@@ -941,7 +941,7 @@ lemma eventually_counting_ge_3 {A : Set ℕ} (hA : A.Infinite) :
   -- Since $A$ is infinite, the counting function $counting\_function A$ tends to infinity.
   have h_count_inf : Filter.Tendsto (counting_function A) Filter.atTop Filter.atTop := by
     exact counting_function_tendsto_atTop hA
-  simp +zetaDelta only [Filter.eventually_atTop, ge_iff_le] at *
+  simp +zetaDelta only [Filter.eventually_atTop] at *
   -- Since the counting function tends to infinity, there exists some $M$ such
   -- that for all $m \geq M$, $counting\_function A m \geq 3$.
   obtain ⟨M, hM⟩ : ∃ M, ∀ m ≥ M, 3 ≤ counting_function A m := by

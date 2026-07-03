@@ -469,7 +469,7 @@ lemma mycielskian_not_colorable {V : Type*} {G : SimpleGraph V} {k : ℕ}
   have hc'_card : Set.range c' ⊆ Finset.univ.erase j := by
     rintro _ ⟨v, rfl⟩
     rw [hc']
-    simp only [Finset.coe_erase, Finset.coe_univ, Set.mem_diff, Set.mem_univ,
+    simp only [Finset.coe_erase, Finset.coe_univ, Set.mem_sdiff, Set.mem_univ,
       Set.mem_singleton_iff, true_and]
     split_ifs with h
     · simpa [hj] using

@@ -1203,7 +1203,7 @@ theorem exists_subgraph_large_cochrom_of_small_omega' {V : Type*} [Finite V]
         intro htop
         have hfinite := hcol_ind.chromaticNumber_le
         rw [htop] at hfinite
-        simpa using hfinite
+        simp at hfinite
       rw [hchi] at hle
       calc
         (m : ℕ∞) ≤ ((induce S G).chromaticNumber.toNat + ζ : ℕ) := by
@@ -1211,7 +1211,7 @@ theorem exists_subgraph_large_cochrom_of_small_omega' {V : Type*} [Finite V]
         _ = (induce S G).chromaticNumber + ζ := by
           cases h : (induce S G).chromaticNumber with
           | top => exact False.elim (hchi_ne_top h)
-          | coe n => simp [h]
+          | coe n => simp
     have h_combined : (m : ℕ∞) ≤ 4 * (2 * L) * cochromaticNumber H + ζ := by
       refine le_trans h_m_le (add_le_add ?_ le_rfl)
       refine hchi_bound.trans ?_

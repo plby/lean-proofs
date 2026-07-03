@@ -28,7 +28,7 @@ Authors: Pietro Monticone, Aristotle (Harmonic)
 import Mathlib.Algebra.Order.Ring.Star
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
 import Mathlib.Data.Int.Star
-import Mathlib.Data.Real.StarOrdered
+import Mathlib.Algebra.Order.Star.Real
 import Mathlib.Tactic.Cases
 import ErdosProblems.Axioms
 import Util.MertensThird

@@ -75,16 +75,19 @@ def block_start : ℕ → ℕ
 | 0 => 0
 | n + 1 => block_start n + (block n).length
 
-def A_val (n : ℕ) : ℕ :=
-  let b_idx := Nat.find (p := fun m => n < block_start (m + 1)) (by
+lemma exists_lt_block_start_succ (n : ℕ) : ∃ m, n < block_start (m + 1) := by
   -- Since $n$ is a natural number, we can choose $n_1 = n$.
-  use n;
+  use n
   -- We'll use that $block\_start (n + 1)$ is strictly increasing.
   have h_block_start_inc : StrictMono (fun n => block_start n) := by
-    refine strictMono_nat_of_lt_succ ?_;
-    simp +arith +decide [ block_start ];
-    unfold block; aesop;
-  exact lt_of_lt_of_le ( Nat.lt_succ_self _ ) ( h_block_start_inc.id_le _ ))
+    refine strictMono_nat_of_lt_succ ?_
+    simp +arith +decide [block_start]
+    unfold block
+    aesop
+  exact lt_of_lt_of_le (Nat.lt_succ_self _) (h_block_start_inc.id_le _)
+
+def A_val (n : ℕ) : ℕ :=
+  let b_idx := Nat.find (exists_lt_block_start_succ n)
   let inner_idx := n - block_start b_idx
   (block b_idx)[inner_idx]!
 
@@ -175,11 +178,7 @@ lemma M_transition_ineq (n : ℕ) : (2^(k n - 1) - 1) * M n + 1 ≤ M (n + 1) :=
 We define block_index(n) as the unique b such that block_start(b) <= n < block_start(b+1).
 -/
 def block_index (n : ℕ) : ℕ :=
-  Nat.find (p := fun m => n < block_start (m + 1)) (by
-  use n;
-  induction n with
-  | zero => simp_all +decide;
-  | succ n ih => simp_all +decide [ block_start ]; linarith [ block_length_pos ( n + 1 ) ])
+  Nat.find (exists_lt_block_start_succ n)
 
 /-
 block_index(n) is the unique b such that block_start(b) <= n < block_start(b+1).
@@ -256,8 +255,8 @@ theorem A_is_nondecreasing : Monotone A_val := by
           have h_A_val_n_def : A_val n = (block b_n)[n - block_start b_n]! := by
             exact
               Nat.add_zero
-                ((block (Nat.find (A_val._proof_1 n))).get!Internal
-                  (n - block_start (Nat.find (A_val._proof_1 n))));
+                ((block (Nat.find (exists_lt_block_start_succ n))).get!Internal
+                  (n - block_start (Nat.find (exists_lt_block_start_succ n))));
           rw [ h_A_val_n_def, show n - block_start b_n = ( block b_n |> List.length ) - 1 from by omega ];
         rw [ h_A_val_n_def ];
         unfold block; simp +decide;
@@ -416,7 +415,7 @@ lemma block_ratio_cross :
                 fun n => (1 / 2 : ℝ) - 1 / (2 ^ (k n) : ℝ) +
                   1 / (M n * 2 ^ (k n) : ℝ))
               Filter.atTop (nhds 2)
-          convert h_num.div h_den (by norm_num : (1 / 2 : ℝ) ≠ 0) using 1 <;> norm_num
+          convert h_num.div h_den (by norm_num : (1 / 2 : ℝ) ≠ 0) using 1; norm_num
         refine h_divide.congr' ?_;
         filter_upwards [ h_k_inf.eventually_gt_atTop 0 ] with n hn;
         field_simp [hn];
@@ -490,15 +489,15 @@ theorem A_ratio_limit : Filter.Tendsto (fun n => (A_val (n + 1) : ℝ) / A_val n
           · omega;
         · exact
           Nat.add_zero
-            ((block (Nat.find (A_val._proof_1 n))).get!Internal
-              (n - block_start (Nat.find (A_val._proof_1 n))))
+            ((block (Nat.find (exists_lt_block_start_succ n))).get!Internal
+              (n - block_start (Nat.find (exists_lt_block_start_succ n))))
       have h_first : A_val (n + 1) = M (block_index n + 1) := by
         have h_first : A_val (n + 1) = (block (block_index n + 1))[0]! := by
           have h_first : A_val (n + 1) = (block (block_index (n + 1)))[n + 1 - block_start (block_index (n + 1))]! := by
             exact
               Nat.add_zero
-                ((block (Nat.find (A_val._proof_1 (n + 1)))).get!Internal
-                  (n + 1 - block_start (Nat.find (A_val._proof_1 (n + 1)))));
+                ((block (Nat.find (exists_lt_block_start_succ (n + 1)))).get!Internal
+                  (n + 1 - block_start (Nat.find (exists_lt_block_start_succ (n + 1)))));
           simp_all +decide;
           rw [ show n + 1 - block_start ( block_index n + 1 ) = 0 from Nat.sub_eq_zero_of_le <| by linarith [ block_index_spec n, block_index_spec ( n + 1 ) ] ];
         rcases k : k ( block_index n + 1 ) with ( _ | _ | k ) <;> simp_all +decide;

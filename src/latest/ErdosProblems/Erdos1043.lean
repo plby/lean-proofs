@@ -188,12 +188,12 @@ noncomputable local instance instMeasureSpaceRealSpan (u : ℂ) : MeasureSpace �
 
 lemma measure_proj_ge (u : ℂ) (hu : ‖u‖ = 1) (S : Set ℂ)
     (h_symm : ∀ z ∈ S, -z ∈ S) (h_star : StarConvex ℝ 0 S) (z : ℂ) (hz : z ∈ S) :
-    volume ((ℝ ∙ u).orthogonalProjection '' S) ≥
-      ENNReal.ofReal (2 * ‖(ℝ ∙ u).orthogonalProjection z‖) := by
+    volume ((ℝ ∙ u).orthogonalProjectionOnto '' S) ≥
+      ENNReal.ofReal (2 * ‖(ℝ ∙ u).orthogonalProjectionOnto z‖) := by
   let P : Submodule ℝ ℂ := ℝ ∙ u
-  let v : P := P.orthogonalProjection z
+  let v : P := P.orthogonalProjectionOnto z
   have h0S : (0 : ℂ) ∈ S := h_star.mem ⟨z, hz⟩
-  have hball_subset : Metric.closedBall (0 : P) ‖v‖ ⊆ P.orthogonalProjection '' S := by
+  have hball_subset : Metric.closedBall (0 : P) ‖v‖ ⊆ P.orthogonalProjectionOnto '' S := by
     intro x hx
     obtain ⟨c, hc⟩ := (Submodule.mem_span_singleton.mp x.2)
     obtain ⟨a, ha⟩ := (Submodule.mem_span_singleton.mp v.2)
@@ -243,15 +243,15 @@ lemma measure_proj_ge (u : ℂ) (hu : ‖u‖ = 1) (S : Set ℂ)
       by_cases ht0 : 0 ≤ t
       · have ht1 : t ≤ 1 := (abs_le.mp ht_abs).2
         refine ⟨t • z, h_star.smul_mem hz ht0 ht1, ?_⟩
-        change P.orthogonalProjection (t • z) = x
+        change P.orthogonalProjectionOnto (t • z) = x
         rw [map_smul]
         exact hx_eq.symm
       · have ht0' : 0 ≤ -t := by linarith
         have ht1' : -t ≤ 1 := by linarith [(abs_le.mp ht_abs).1]
         refine ⟨(-t) • (-z), h_star.smul_mem (h_symm z hz) ht0' ht1', ?_⟩
-        change P.orthogonalProjection ((-t) • (-z)) = x
+        change P.orthogonalProjectionOnto ((-t) • (-z)) = x
         calc
-          P.orthogonalProjection ((-t) • (-z)) = (-t) • P.orthogonalProjection (-z) := by
+          P.orthogonalProjectionOnto ((-t) • (-z)) = (-t) • P.orthogonalProjectionOnto (-z) := by
             rw [map_smul]
           _ = (-t) • (-v) := by simp [v]
           _ = t • v := by simp
@@ -273,14 +273,14 @@ lemma measure_proj_ge (u : ℂ) (hu : ‖u‖ = 1) (S : Set ℂ)
       (inferInstanceAs (MeasurableSpace P))
       hB 0 hfin (0 : P) ‖v‖
     simpa [hfin, ENNReal.ofReal_mul, mul_comm, mul_left_comm, mul_assoc] using h
-  change ENNReal.ofReal (2 * ‖(ℝ ∙ u).orthogonalProjection z‖) ≤
-    volume ((ℝ ∙ u).orthogonalProjection '' S)
+  change ENNReal.ofReal (2 * ‖(ℝ ∙ u).orthogonalProjectionOnto z‖) ≤
+    volume ((ℝ ∙ u).orthogonalProjectionOnto '' S)
   calc
-    ENNReal.ofReal (2 * ‖(ℝ ∙ u).orthogonalProjection z‖)
+    ENNReal.ofReal (2 * ‖(ℝ ∙ u).orthogonalProjectionOnto z‖)
         = volume (Metric.closedBall (0 : P) ‖v‖) := by
           simpa [P, v] using hvol.symm
-    _ ≤ volume (P.orthogonalProjection '' S) := measure_mono hball_subset
-    _ = volume ((ℝ ∙ u).orthogonalProjection '' S) := by rfl
+    _ ≤ volume (P.orthogonalProjectionOnto '' S) := measure_mono hball_subset
+    _ = volume ((ℝ ∙ u).orthogonalProjectionOnto '' S) := by rfl
 
 /-
 **Erdős Problem 1043**:
@@ -298,7 +298,7 @@ Pommerenke [Po61] proved that the answer is no.
 theorem erdos_1043 :
     ¬ (∀ (f : ℂ[X]), f.Monic → f.degree ≥ 1 →
       ∃ (u : ℂ), ‖u‖ = 1 ∧
-      volume ((ℝ ∙ u).orthogonalProjection '' levelSet f) ≤ 2) := by
+      volume ((ℝ ∙ u).orthogonalProjectionOnto '' levelSet f) ≤ 2) := by
   simp +zetaDelta only [ge_iff_le, not_forall, not_exists, not_and, not_le] at *
   use counterexample_poly
   refine ⟨?_, ?_, ?_⟩

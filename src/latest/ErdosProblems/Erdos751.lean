@@ -25,7 +25,7 @@ import Mathlib.Combinatorics.SimpleGraph.Subgraph
 import Mathlib.Combinatorics.SimpleGraph.Trails
 import Mathlib.Combinatorics.SimpleGraph.Ends.Defs
 import Mathlib.Combinatorics.SimpleGraph.Girth
-import Mathlib.Combinatorics.SimpleGraph.Coloring.VertexColoring
+import Mathlib.Combinatorics.SimpleGraph.Coloring.Vertex
 import Mathlib.Data.Nat.Find
 import Mathlib.Data.Finset.Card
 import Mathlib.Data.Nat.Dist
@@ -383,7 +383,7 @@ theorem exists_path_in_bridge
   · exact (SimpleGraph.Path.isPath _)
   · intro t ht
     apply hsubset t
-    exact (SimpleGraph.Walk.support_toPath_subset (G := G) p) ht
+    exact (SimpleGraph.Walk.support_toPath_subset_support (G := G) p) ht
 
 omit [Fintype V] [DecidableRel G.Adj] in
 /-- From two attachments, build an x-y path whose internal vertices lie in the bridge. -/
@@ -550,11 +550,11 @@ private lemma shorter_cycle_of_chord
     exact hnot_adj_r this
   have hnot_edge_p : s(x, y) ∉ p.edges := by
     intro hmem
-    have hmem' : s(x, y) ∈ r.edges := (r.edges_takeUntil_subset hy') hmem
+    have hmem' : s(x, y) ∈ r.edges := (r.edges_takeUntil_subset_edges hy') hmem
     exact hnot_edge_r hmem'
   have hp_len_lt : p.length < r.length := by
     have hne : y ≠ x := (G.ne_of_adj hxy).symm
-    exact r.length_takeUntil_lt hy' hne
+    exact r.length_takeUntil_lt_length hy' hne
   have hlen_ne : p.length + 1 ≠ r.length := by
     intro hlen
     have hlen' : p.length = r.length - 1 := by omega
@@ -904,7 +904,7 @@ theorem compression
     intro v hv
     have hv' : v ∈ (r.dropUntil y hy').support := by
       simpa [a2, SimpleGraph.Walk.support_reverse] using hv
-    have hv'' : v ∈ r.support := (SimpleGraph.Walk.support_dropUntil_subset _ _ hv')
+    have hv'' : v ∈ r.support := (SimpleGraph.Walk.support_dropUntil_subset_support _ _ hv')
     have hv''' : v ∈ C.walk.support := by
       have : v ∈ r.toSubgraph.verts := by
         simpa [SimpleGraph.Walk.mem_verts_toSubgraph] using hv''
@@ -1049,13 +1049,13 @@ theorem compression
               have : e ∈ a2.edges := by simpa [A1, hz1] using heA
               simpa [a2, SimpleGraph.Walk.edges_reverse, List.mem_reverse] using this
             have heA''' : e ∈ r.edges :=
-              (SimpleGraph.Walk.edges_dropUntil_subset _ _ heA'')
+              (SimpleGraph.Walk.edges_dropUntil_subset_edges _ _ heA'')
             -- rotate preserves edges as a permutation
             simpa [r] using (C.walk.rotate_edges x hx_supp).mem_iff.mp heA'''
           · -- A1 = a1
             have heA'' : e ∈ a1.edges := by simpa [A1, hz1] using heA
             have heA''' : e ∈ r.edges :=
-              (SimpleGraph.Walk.edges_takeUntil_subset _ _ heA'')
+              (SimpleGraph.Walk.edges_takeUntil_subset_edges _ _ heA'')
             simpa [r] using (C.walk.rotate_edges x hx_supp).mem_iff.mp heA'''
         -- edge in Pxy.reverse has an endpoint outside C.vSet
         have heP' :
@@ -2219,7 +2219,7 @@ theorem exists_two_cycles_length_dist_1_or_2
     intro v hv
     have hv' : v ∈ (r.dropUntil y hy').support := by
       simpa [a2, SimpleGraph.Walk.support_reverse] using hv
-    have hv'' : v ∈ r.support := (SimpleGraph.Walk.support_dropUntil_subset _ _ hv')
+    have hv'' : v ∈ r.support := (SimpleGraph.Walk.support_dropUntil_subset_support _ _ hv')
     have hv''' : v ∈ C.walk.support := by
       have : v ∈ r.toSubgraph.verts := by
         simpa [SimpleGraph.Walk.mem_verts_toSubgraph] using hv''
@@ -2231,10 +2231,10 @@ theorem exists_two_cycles_length_dist_1_or_2
     exact (C.mem_vSet_iff (G := G)).2 hv''''
   -- compute a1 length = k
   have ha1_len_le : a1.length ≤ r.length :=
-    SimpleGraph.Walk.length_takeUntil_le (p := r) (h := hy')
+    SimpleGraph.Walk.length_takeUntil_le_length (p := r) (h := hy')
   have ha1_len_lt : a1.length < r.length := by
     have hxy' : y ≠ x := hxy.symm
-    exact SimpleGraph.Walk.length_takeUntil_lt (p := r) hy' hxy'
+    exact SimpleGraph.Walk.length_takeUntil_lt_length (p := r) hy' hxy'
   have ha1_len_pos : 1 ≤ a1.length := by
     have : ¬ a1.Nil := ha1_not_nil
     have : 0 < a1.length := (SimpleGraph.Walk.not_nil_iff_lt_length).1 this

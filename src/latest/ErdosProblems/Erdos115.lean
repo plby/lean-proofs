@@ -245,7 +245,7 @@ theorem polynomial_star_derivative_eval_zero (p : Polynomial ℂ) (hp : p.Monic)
         refine Finset.sum_congr rfl fun x hx => ?_;
         rw [ h_factor, Polynomial.eval_prod ];
         rw [ ← h_factor ];
-        norm_num [ Polynomial.derivative_pow, Polynomial.eval_prod, Finset.prod_eq_prod_diff_singleton_mul hx ];
+        norm_num [ Polynomial.derivative_pow, Polynomial.eval_prod, Finset.prod_eq_prod_sdiff_singleton_mul hx ];
         rw [ show ( -x ) ^ Polynomial.rootMultiplicity x p = ( -x ) ^ ( Polynomial.rootMultiplicity x p - 1 ) * ( -x ) by rw [ ← pow_succ, Nat.sub_add_cancel ( Nat.succ_le_of_lt ( Nat.pos_of_ne_zero ( by intro h; simp_all +singlePass ) ) ) ] ] ; ring_nf;
         by_cases hx' : x = 0 <;> simp +decide [ hx', mul_assoc, mul_comm x ];
         exact Or.inl fun h => False.elim <| h0 h
@@ -272,7 +272,7 @@ theorem polynomial_star_derivative_eval_zero (p : Polynomial ℂ) (hp : p.Monic)
           simp +decide [ Finset.prod_multiset_map_count ];
           simp +decide [ Polynomial.eval_prod ];
         rw [ h_deriv_star, h_eval_star, Finset.mul_sum _ _ _ ];
-        refine Finset.sum_congr rfl fun x hx => ?_ ; by_cases hx' : x = 0 <;> simp_all +decide [ Finset.prod_eq_prod_diff_singleton_mul hx ] ; ring_nf;
+        refine Finset.sum_congr rfl fun x hx => ?_ ; by_cases hx' : x = 0 <;> simp_all +decide [ Finset.prod_eq_prod_sdiff_singleton_mul hx ] ; ring_nf;
         cases n : Polynomial.rootMultiplicity x p <;> simp_all +decide [ pow_succ, mul_assoc ];
       -- Since $|(f^*)'(0)| = f^*(0) \sum \frac{1}{|z_k|}$ and $|p'(0)| = |p(0)| \left| \sum \frac{1}{z_k} \right|$, we need to show that $f^*(0) \sum \frac{1}{|z_k|} \ge |p(0)| \left| \sum \frac{1}{z_k} \right|$.
       have h_ineq : ‖(polynomial_star p).eval 0‖ * ∑ z ∈ p.roots.toFinset, (p.roots.count z) * (1 / (‖z‖ : ℝ)) ≥ ‖p.eval 0‖ * ‖∑ z ∈ p.roots.toFinset, (p.roots.count z) * (1 / (-z))‖ := by
@@ -2978,7 +2978,7 @@ lemma deriv_roots_strictly_negative_of_valid (n : ℕ) (hn : n ≥ 2) (p : Polyn
     norm_cast; omega
   have hp_deriv_ne_zero : p.derivative ≠ 0 := by
     intro h
-    have := Polynomial.natDegree_eq_zero_of_derivative_eq_zero h
+    have := Polynomial.derivative_eq_zero.mp h
     rw [hd] at this
     omega
   have h_p_roots_neg : ∀ r ∈ p.roots, r.re < 0 ∧ r.im = 0 := by

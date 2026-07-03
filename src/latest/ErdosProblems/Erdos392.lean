@@ -1303,7 +1303,7 @@ lemma Params.initial.sum_valuation_le (P : Params) (p : ℕ) :
       induction P.M with
       | zero => simp [Multiset.bind]
       | succ M ih =>
-          simp [Multiset.bind, ih, Nat.succ_mul, add_comm, add_left_comm, add_assoc]
+          simp [Multiset.bind, Nat.succ_mul, add_comm]
 
 theorem Params.initial.balance_small_prime_le (P : Params) {p : ℕ} :
     P.initial.balance p ≤ P.M * (Real.log P.n) / (Real.log 2) := by
@@ -2970,7 +2970,6 @@ theorem Solution_2 (ε : ℝ) (hε : ε > 0) :
     exact (pairProd_prod f.a.toList).symm
   · have ht_bound : ((pairProd f.a.toList).length : ℝ) ≤
         n / 2 - n / (2 * Real.log n) + ε * n / Real.log n := by
-      change ((pairProd f.a.toList).length : ℝ) ≤ _
       rw [pairProd_length f.a.toList, length_toList f.a]
       calc (((f.a.card + 1) / 2 : ℕ) : ℝ) ≤ (f.a.card + 1 : ℕ) / 2 := cast_div_le
         _ = (f.a.card : ℝ) / 2 + 1 / 2 := by simp only [cast_add, cast_one]; ring

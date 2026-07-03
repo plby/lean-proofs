@@ -590,7 +590,7 @@ lemma euler_mascheroni_convergence_rate :
     refine fract_mul_integrable _ ?_
     exact integrable_on_pow_inv_Ioi one_lt_two zero_lt_one
   rw [one_mul, euler_mascheroni, norm_of_nonneg (inv_nonneg.2 (zero_le_one.trans hx)),
-    sub_sub_sub_cancel_left, ← setIntegral_diff measurableSet_Ioc h Ioc_subset_Ioi_self,
+    sub_sub_sub_cancel_left, ← setIntegral_sdiff measurableSet_Ioc h Ioc_subset_Ioi_self,
     Ioi_diff_Icc hx, norm_of_nonneg]
   · refine (setIntegral_mono_on (h.mono_set (Ioi_subset_Ioi hx))
       (integrable_on_pow_inv_Ioi one_lt_two (zero_lt_one.trans_le hx))
@@ -727,7 +727,7 @@ lemma summatory_log {c : ℝ} (hc : 2 < c) :
     is_O_with_one_fract_mul _
   have f₂ : Asymptotics.IsLittleO atTop (fun x : ℝ ↦ (1 : ℝ)) log := is_o_one_log _
   have f₃ : Asymptotics.IsBigOWith 1 atTop (fun x : ℝ ↦ ∫ t in 1..x, Int.fract t * t⁻¹) log := by
-    simp only [Asymptotics.isBigOWith_iff, eventually_atTop, ge_iff_le, one_mul]
+    simp only [Asymptotics.isBigOWith_iff, eventually_atTop, one_mul]
     refine ⟨1, ?_⟩
     intro x hx
     rw [norm_of_nonneg (Real.log_nonneg hx), norm_of_nonneg, ← div_one x,

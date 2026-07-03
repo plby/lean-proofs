@@ -560,7 +560,7 @@ theorem pi_strictly_increasing (ω : ℕ → Fin 2) (h0 : ω 0 = 0) (h_not_zero 
               have hderiv' :
                   deriv ((((fun _ : ℝ => (1 : ℝ)) - id) * (fun r : ℝ => r ^ (n + 1)))) r =
                     (-1) * r ^ (n + 1) + (1 - r) * ((n + 1 : ℝ) * r ^ n) := by
-                  simpa using (h1.mul h2).deriv
+                  simp
               change deriv ((((fun _ : ℝ => (1 : ℝ)) - id) * (fun r : ℝ => r ^ (n + 1)))) r =
                 r ^ n * ((n + 1 : ℝ) - (n + 2 : ℝ) * r)
               ring_nf at hderiv' ⊢
@@ -2468,7 +2468,7 @@ theorem theorem_plus (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 / 2) :
           have := pi_code_of_mem_C rho hrho x this; aesop;
         by_cases h0 : ω 0 = 0;
         · subst hω
-          simp_all only [one_div, Fin.isValue, Set.mem_diff]
+          simp_all only [one_div, Fin.isValue, Set.mem_sdiff]
           obtain ⟨left, right⟩ := hrho
           obtain ⟨left_1, right_1⟩ := hx
           -- Apply the theorem that states if omega starts with 0 and is not eventually 1, then pi(omega) is in C_plus.

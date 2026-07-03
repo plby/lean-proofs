@@ -52,7 +52,7 @@ theorem erdos46 :
   have haInf' : (g ⁻¹' {a}).Infinite := by
     exact Set.infinite_coe_iff.mp haInf
   let K' : Set ℕ := (g ⁻¹' {a}) \ {0}
-  have hK' : K'.Infinite := Set.Infinite.diff haInf' (Set.finite_singleton 0)
+  have hK' : K'.Infinite := Set.Infinite.sdiff haInf' (Set.finite_singleton 0)
   let T : Set ℕ := {N : ℕ | (1 / (m : ℝ)) ≤ partial_density (Acol a) N}
   have himage : (fun k : ℕ => m * k) '' K' ⊆ T := by
     intro N hN

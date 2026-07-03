@@ -26,7 +26,7 @@ import Mathlib.Algebra.Order.Ring.Star
 import Mathlib.Analysis.PSeries
 import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
 import Mathlib.Data.Int.Star
-import Mathlib.Data.Real.StarOrdered
+import Mathlib.Algebra.Order.Star.Real
 import Mathlib.Tactic.NormNum.BigOperators
 import Mathlib.Topology.EMetricSpace.Paracompact
 import Mathlib.Topology.Separation.CompletelyRegular
@@ -1317,7 +1317,7 @@ lemma error_domination_3x (j : Fin 3) (k : ℕ) :
         3 * (1 / (nScale (500 + k) : ℝ) ^ 4 +
             1 / (7 * (500 + k) ^ 7 * 2310 ^ 4)) <
           1 / (1029000 * (nScale (500 + k)) ^ 3) := by
-      convert h_ineq using 1 <;> ring_nf
+      convert h_ineq using 1; ring_nf
     unfold eGameSeq aGameSeq
     exact lt_of_le_of_lt (by simpa only [K₀, add_assoc] using h_le) (by
       simpa [c_coeff, div_eq_mul_inv, mul_assoc, mul_left_comm, mul_comm] using h_lt)
