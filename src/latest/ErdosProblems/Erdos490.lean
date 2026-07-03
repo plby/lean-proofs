@@ -981,13 +981,13 @@ lemma block_estimate_iter (A : ℝ) (hA : A > Real.log 2) (f : ℕ → ℝ)
             X * Real.exp (-(J : ℝ) * A) * Real.exp (-A) := by
         rw [mul_assoc, ← Real.exp_add]
         congr 1
-        ring
+        ring_nf
       have hxexp_norm' :
           X * Real.exp (-A + -(J : ℝ) * A) =
             X * Real.exp (-(J : ℝ) * A) * Real.exp (-A) := by
         rw [mul_assoc, ← Real.exp_add]
         congr 1
-        ring
+        ring_nf
       have hdiv_norm :
           (X * Real.exp (-(J : ℝ) * A) * H_count f (X * Real.exp (-(J : ℝ) * A)) +
               1.66 / A ^ 2 * (X * Real.exp (-(J : ℝ) * A)) *
@@ -2813,7 +2813,7 @@ lemma summable_Y'_rpow :
     ring]
   rw [← Real.rpow_natCast, ← Real.rpow_mul (by exact le_of_lt lam0'_pos)]
   rw [← Real.rpow_natCast, ← Real.rpow_mul (by exact le_of_lt lam0'_pos)]
-  ring
+  ring_nf
 
 -- Summability of the conditional sum
 lemma summable_Y'_rpow_ite :
@@ -3465,6 +3465,5 @@ theorem main_theorem :
   exact ⟨N₀, fun n hn A B hA hB hinj => hN₀ n hn A B ⟨hA, hB, hinj⟩⟩
 
 #print axioms main_theorem
-#show_unused main_theorem
 
 end Erdos490

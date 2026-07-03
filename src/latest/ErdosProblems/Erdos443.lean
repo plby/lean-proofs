@@ -1467,7 +1467,7 @@ theorem heavy_indices_lower_bound (c : ℝ) (hc0 : 0 < c) (hc1 : c < 1) :
       gcongr;
     -- Simplify the expression $n^{4/3 - 3 / (\log \log n)^{1-c}} \cdot 0.5 n^{2/3 - 2 / \log \log n}$ to $0.5 n^{2 - 3 / (\log \log n)^{1-c} - 2 / \log \log n}$.
     have h_simplified : (n : ℝ) ^ (4 / 3 - 3 / (Real.log (Real.log n)) ^ (1 - c)) * (1 / 2 * (n : ℝ) ^ (2 / 3 - 2 / Real.log (Real.log n))) = (1 / 2 : ℝ) * (n : ℝ) ^ (2 - 3 / (Real.log (Real.log n)) ^ (1 - c) - 2 / Real.log (Real.log n)) := by
-      rw [ mul_left_comm, ← Real.rpow_add ( by norm_cast; linarith ) ] ; ring;
+      rw [ mul_left_comm, ← Real.rpow_add ( by norm_cast; linarith ) ] ; ring_nf;
     -- For large $n$, $3 / (\log \log n)^{1-c} + 2 / \log \log n > 0$, so $0.5 n^{2 - 3 / (\log \log n)^{1-c} - 2 / \log \log n} < 0.5 n^2$.
     have h_large_n : (n : ℝ) ^ (2 - 3 / (Real.log (Real.log n)) ^ (1 - c) - 2 / Real.log (Real.log n)) < (n : ℝ) ^ 2 := by
       have h_large_n : 3 / (Real.log (Real.log n)) ^ (1 - c) + 2 / Real.log (Real.log n) > 0 := by
@@ -1683,7 +1683,7 @@ lemma exponent_bound_lemma_const (c : ℝ) (hc0 : 0 < c) (hc1 : c < 1) :
       exact le_trans (hX₁ m (2 * (n : ℝ) ^ (Real.log (Real.log n)) ^ c) hm₁ hm₂)
         (by simpa [hconst] using hN₁n)
     rw [ Real.rpow_def_of_pos ( by linarith ), Real.rpow_def_of_pos ( by norm_cast; linarith ) ];
-    convert Real.exp_le_exp.mpr ( mul_le_mul_of_nonneg_left h_log_ratio <| show 0 ≤ 21 / 10 * Real.log 2 by positivity ) using 1 ; ring;
+    convert Real.exp_le_exp.mpr ( mul_le_mul_of_nonneg_left h_log_ratio <| show 0 ≤ 21 / 10 * Real.log 2 by positivity ) using 1 ; ring_nf;
     ring_nf ; norm_num
 
 /-
@@ -1788,7 +1788,7 @@ lemma algebraic_bound_simplified (c : ℝ) (hc0 : 0 < c) (hc1 : c < 1) :
       obtain ⟨ N, hN ⟩ := h_suff; use N; intros n hn; convert hN n hn using 1; ring_nf;
       by_cases hn' : n = 0 <;> norm_num [ hn', Real.rpow_def_of_pos ] ; ring_nf;
       · norm_num [ show 1 - c ≠ 0 by linarith ];
-      · rw [ ← Real.rpow_natCast, ← Real.rpow_mul ( by positivity ) ] ; rw [ ← Real.rpow_neg ( by positivity ) ] ; rw [ ← Real.rpow_add ( by positivity ) ] ; ring;
+      · rw [ ← Real.rpow_natCast, ← Real.rpow_mul ( by positivity ) ] ; rw [ ← Real.rpow_neg ( by positivity ) ] ; rw [ ← Real.rpow_add ( by positivity ) ] ; ring_nf;
     -- Dividing by $n^{4/3 - 3/L^{1-c}}$, we need $0.125 n^{1/L^{1-c} - 4/L} \ge 1$.
     suffices h_suff' : ∃ N : ℕ, ∀ n : ℕ, N ≤ n → (0.125 : ℝ) * (n : ℝ) ^ (1 / (Real.log (Real.log n)) ^ (1 - c) - 4 / Real.log (Real.log n)) ≥ 1 by
       obtain ⟨ N, hN ⟩ := h_suff'; use N + 3; intros n hn;
@@ -2171,7 +2171,7 @@ lemma final_algebraic_bound_adjusted (c : ℝ) (hc0 : 0 < c) (hc1 : c < 1) :
               exact tendsto_exp_div_rpow_atTop (1 - c);
             apply Filter.Tendsto.atTop_mul_pos;
             exacts [ show 0 < 1 by norm_num, h_factor, le_trans ( tendsto_const_nhds.sub <| tendsto_const_nhds.div_atTop <| tendsto_rpow_atTop ( by linarith ) |> Filter.Tendsto.comp <| Real.tendsto_log_atTop.comp <| Real.tendsto_log_atTop.comp <| tendsto_natCast_atTop_atTop ) <| by norm_num ];
-          refine h_factor.congr' ?_ ; filter_upwards [ Filter.eventually_gt_atTop 2 ] with n hn ; rw [ Real.rpow_sub ] <;> norm_num ; ring_nf ; norm_num [ ne_of_gt, Real.log_pos, hn ] ; ring;
+          refine h_factor.congr' ?_ ; filter_upwards [ Filter.eventually_gt_atTop 2 ] with n hn ; rw [ Real.rpow_sub ] <;> norm_num ; ring_nf ; norm_num [ ne_of_gt, Real.log_pos, hn ] ; ring_nf;
           · rw [ mul_inv_cancel_right₀ ( ne_of_gt ( Real.rpow_pos_of_pos ( Real.log_pos ( show 1 < Real.log n from by rw [ Real.lt_log_iff_exp_lt ( by positivity ) ] ; exact Real.exp_one_lt_d9.trans_le ( by norm_num; linarith [ show ( n : ℝ ) ≥ 3 by norm_cast ] ) ) ) _ ) ) ] ; ring;
           · exact Real.log_pos <| by rw [ Real.lt_log_iff_exp_lt <| by positivity ] ; exact Real.exp_one_lt_d9.trans_le <| by norm_num; linarith [ show ( n : ℝ ) ≥ 3 by norm_cast ] ;
         have h_exp : Filter.Tendsto (fun n : ℕ => Real.exp ((1 / (Real.log (Real.log n)) ^ (1 - c) - 4 / (Real.log (Real.log n))) * Real.log n)) Filter.atTop Filter.atTop := by

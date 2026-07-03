@@ -641,7 +641,7 @@ lemma padeBound_ibp (k : ℕ) :
         rw [h_parts, h_split, h_split_simplified]
         simp_rw [mul_assoc, mul_comm, mul_left_comm]
         norm_num [Nat.cast_add]
-        ring
+        ring_nf
 
 /-
 IBP identity: T(k) = (k+1)·(S(k) - 2·P(k)).

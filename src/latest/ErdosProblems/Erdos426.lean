@@ -2304,7 +2304,7 @@ lemma upper_tail_bound (N : ℕ) (t : ℝ) (ht : t ≥ 0) :
           _ = 2 ^ N * Real.exp (-(2 * t ^ 2 / N)) := by
                 congr 1
                 field_simp [hN]
-                ring
+                ring_nf
           _ ≤ 2 ^ N * Real.exp (-(2 * t ^ 2 / N)) := le_rfl
 
 /-! ## Step 5: Bit-flipping symmetry -/
@@ -2582,7 +2582,7 @@ theorem exp_moment_bound (n : ℕ) (f : (Fin n → Bool) → ℝ) (b : Fin n →
       _ = 2 ^ n.succ * Real.exp (lam ^ 2 / 8 * ∑ i : Fin n.succ, (b i) ^ 2) := by
             congr 1
             rw [Fin.sum_univ_succ]
-            ring
+            ring_nf
       _ ≤ 2 ^ n.succ * Real.exp (lam ^ 2 / 8 * ∑ i : Fin n.succ, (b i) ^ 2) := le_rfl
 
 /-! ## Part 5: Counting Markov's inequality -/
@@ -3443,7 +3443,7 @@ lemma binomial_anticoncentration {n : ℕ} (hn : 4 ≤ n) (m : ℕ) :
         have h_identity : (Nat.choose (2 * (k + 1)) (k + 1) : ℝ) = (2 * (2 * k + 1) / (k + 1)) * (Nat.choose (2 * k) k : ℝ) := by
           rw [ Nat.cast_choose, Nat.cast_choose ] <;> try linarith;
           norm_num [ two_mul, Nat.factorial ];
-          rw [ div_mul_div_comm, div_eq_div_iff ] <;> first | positivity | ring;
+          rw [ div_mul_div_comm, div_eq_div_iff ] <;> first | positivity | ring_nf;
           try rw [ show 1 + k * 2 = k * 2 + 1 by ring, Nat.factorial_succ ] ; push_cast ; ring;
         rw [ h_identity, pow_succ' ];
         refine le_trans ( mul_le_mul_of_nonneg_left ih <| by positivity ) ?_;

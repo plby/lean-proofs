@@ -2821,7 +2821,7 @@ lemma lcm_triple_of_upper_log_density_pos (A : Set ℕ) (hA_odd : ∀ a ∈ A, O
                   (N / 2 : ℝ) * log_density_sum A N - (S.card : ℝ) := by
               rw [log_density_sum]
               simp [S, Finset.sum_sub_distrib, Finset.mul_sum, Finset.sum_const, nsmul_eq_mul]
-              ring
+              ring_nf
             have hcard_le : (S.card : ℝ) ≤ N := by
               have hcard_nat : S.card ≤ N := by
                 calc

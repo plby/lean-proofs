@@ -4548,7 +4548,7 @@ theorem asymptotic_simplification (x : ℝ) (p : ℕ) (alpha : ℝ) (z : ℝ) (l
       have hrho_pow :
           rho ^ (Real.log x / Real.log p) = x ^ (Real.log rho / Real.log p) := by
         rw [Real.rpow_def_of_pos hrho_pos, Real.rpow_def_of_pos hx_pos]
-        ring
+        ring_nf
       calc
         lambda ^ (D_func p x) * z ^ (-(alpha * Real.log x / Real.log p))
             ≤ (lambda * lambda ^ (Real.log x / Real.log p)) *

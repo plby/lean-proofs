@@ -511,7 +511,7 @@ lemma hadamardSquare_posSemidef_rank_le_one_or_full
     · ext i j; simp +decide [ hu, hv, Matrix.mul_apply, mul_comm, mul_left_comm ] ;
       simp +decide [ ← mul_assoc, h₁.2, h₂.2 ] ; ring;
     · simp_all +decide [ Matrix.mul_apply, Fin.sum_univ_three ];
-      intro x; simp_all +decide [ Finsupp.sum_fintype ] ; ring;
+      intro x; simp_all +decide [ Finsupp.sum_fintype ] ; ring_nf;
       have h_nonneg : 0 ≤
           ∑ x_1 : Fin 3, ∑ x_2 : Fin 3,
             (x x_1 * u x_1 * e 0 * v x_2 * f 0 * e 1 * f 1 * v x_1 * u x_2 *

@@ -3026,7 +3026,7 @@ lemma sum_inv_sqrt_R_bound :
       focus
         norm_num [ Real.sqrt_eq_rpow, ← Real.rpow_mul ( by positivity : ( 0 :ℝ ) ≤ 1 + ε / 2 ) ]
       focus
-        first | rfl | ring
+        first | rfl | ring_nf
       · rw [ Finset.sum_mul _ _ _ ]
         refine Finset.sum_congr rfl fun _ _ => ?_ ; rw [ Real.mul_rpow ( by positivity ) ( by positivity ), ← Real.rpow_natCast, ← Real.rpow_mul ( by positivity ) ] ; ring_nf; norm_num [ ← Real.sqrt_eq_rpow ] ; ring_nf
         exact Or.inl ( by rw [ ← Real.rpow_neg ( by positivity ) ] ; ring_nf )
@@ -7835,7 +7835,7 @@ lemma A1_growth (C : ℝ) : GrowthCondition A1 C := by
         have hpow :
             Real.exp ((j + 1 : ℝ) * Real.log 2) = (2 : ℝ) ^ (j + 1) := by
           rw [Real.rpow_def_of_pos (by norm_num : (0 : ℝ) < 2)]
-          ring
+          ring_nf
         rw [hpow]
         exact le_add_of_nonneg_right zero_le_one)
   rw [ Filter.eventually_atTop ] at *
