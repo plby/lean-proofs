@@ -8,22 +8,23 @@ namespace CycleDoubleCoverConjecture
 
 abbrev F₂ := ZMod 2
 
-structure FiniteGraph (V E : Type*) [Fintype V] [Fintype E] where
+structure OrientedMultigraph (V E : Type*) [Fintype V] [Fintype E] where
   endAt : E → Fin 2 → V
   loopless : ∀ e, endAt e 0 ≠ endAt e 1
 
-namespace FiniteGraph
+namespace OrientedMultigraph
 
-def edgeIncidence {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E)
+def edgeIncidence {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : OrientedMultigraph V E)
     (v : V) (e : E) : F₂ :=
   (if G.endAt e 0 = v then 1 else 0) +
     (if G.endAt e 1 = v then 1 else 0)
 
-def IsEvenEdgeSet {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E)
+def IsEvenEdgeSet {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : OrientedMultigraph V E)
     (F : Finset E) : Prop :=
   ∀ v : V, ∑ e ∈ F, edgeIncidence G v e = 0
 
-structure Cycle {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) where
+structure Cycle {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    (G : OrientedMultigraph V E) where
   edges : Finset E
   nonempty : edges.Nonempty
   even : IsEvenEdgeSet G edges
@@ -31,25 +32,77 @@ structure Cycle {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : Finit
 
 
 structure CycleDoubleCover {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] [DecidableEq E]
-    (G : FiniteGraph V E) where
+    (G : OrientedMultigraph V E) where
   cycles : List (Cycle G)
   coveredTwice : ∀ e : E, (cycles.filter fun C ↦ e ∈ C.edges).length = 2
 
-def Crosses {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset V) (e : E) :
-    Prop :=
+def Crosses {V E : Type*} [Fintype V] [Fintype E] (G : OrientedMultigraph V E)
+    (S : Finset V) (e : E) : Prop :=
   (G.endAt e 0 ∈ S) ≠ (G.endAt e 1 ∈ S)
 
-noncomputable def cut {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset V) :
+noncomputable def cut {V E : Type*} [Fintype V] [Fintype E]
+    (G : OrientedMultigraph V E) (S : Finset V) :
     Finset E := by
   classical
   exact Finset.univ.filter ((Crosses G) S)
 
-def Bridgeless {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) : Prop :=
+def Bridgeless {V E : Type*} [Fintype V] [Fintype E] (G : OrientedMultigraph V E) : Prop :=
   ∀ S : Finset V, (cut G S).card ≠ 1
 
-end FiniteGraph
+end OrientedMultigraph
 
-open FiniteGraph
+abbrev _root_.Graph.Vertex {α β : Type*} (G : Graph α β) := {v // v ∈ G.vertexSet}
+
+abbrev _root_.Graph.Edge {α β : Type*} (G : Graph α β) := {e // e ∈ G.edgeSet}
+
+noncomputable instance _root_.Graph.vertexFintype
+    {α β : Type*} [Fintype α] (G : Graph α β) :
+    Fintype G.Vertex :=
+  @Subtype.fintype α (fun v => v ∈ G.vertexSet) (Classical.decPred _) inferInstance
+
+noncomputable instance _root_.Graph.edgeFintype
+    {α β : Type*} [Fintype β] (G : Graph α β) :
+    Fintype G.Edge :=
+  @Subtype.fintype β (fun e => e ∈ G.edgeSet) (Classical.decPred _) inferInstance
+
+def _root_.Graph.Loopless {α β : Type*} (G : Graph α β) : Prop :=
+  ∀ e x, ¬ G.IsLoopAt e x
+
+def _root_.Graph.Reachable {α β : Type*} (G : Graph α β) (u v : α) : Prop :=
+  Relation.ReflTransGen G.Adj u v
+
+def _root_.Graph.Connected {α β : Type*} (G : Graph α β) : Prop :=
+  G.vertexSet.Nonempty ∧
+    ∀ ⦃u v : α⦄, u ∈ G.vertexSet → v ∈ G.vertexSet → G.Reachable u v
+
+def _root_.Graph.Bridgeless {α β : Type*} (G : Graph α β) : Prop :=
+  G.Connected ∧
+    ∀ e ∈ G.edgeSet, (G.deleteEdges ({e} : Set β)).Connected
+
+noncomputable def _root_.Graph.toOrientedMultigraph
+    {α β : Type*} [Fintype α] [Fintype β] (G : Graph α β) (hG : G.Loopless) :
+    OrientedMultigraph G.Vertex G.Edge := by
+  classical
+  let edgeEndpoint (e : G.Edge) (j : Fin 2) : G.Vertex :=
+    let h := G.exists_isLink_of_mem_edgeSet e.2
+    if _hj : j = 0 then
+      ⟨h.choose, h.choose_spec.choose_spec.left_mem⟩
+    else
+      ⟨h.choose_spec.choose, h.choose_spec.choose_spec.right_mem⟩
+  exact
+    ({ endAt := edgeEndpoint
+       loopless := by
+        intro e h
+        dsimp [edgeEndpoint] at h
+        have hlink := (G.exists_isLink_of_mem_edgeSet e.2).choose_spec.choose_spec
+        have hval : (G.exists_isLink_of_mem_edgeSet e.2).choose =
+            (G.exists_isLink_of_mem_edgeSet e.2).choose_spec.choose :=
+          congrArg Subtype.val h
+        rw [← hval] at hlink
+        exact hG e.1 _ hlink } :
+      OrientedMultigraph G.Vertex G.Edge)
+
+open OrientedMultigraph
 
 
 abbrev Gamma := Fin 3 → F₂
@@ -367,21 +420,25 @@ noncomputable def cubic_even_double_cover {V E : Type*} [Fintype V] [Fintype E] 
 
 abbrev HalfEdge (E : Type*) := E × Fin 2
 
-def vertex {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (h : HalfEdge E) : V :=
+def vertex {V E : Type*} [Fintype V] [Fintype E] (G : OrientedMultigraph V E)
+    (h : HalfEdge E) : V :=
     G.endAt h.1 h.2
 
-def halfEdgesAt {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (v : V) :=
+def halfEdgesAt {V E : Type*} [Fintype V] [Fintype E] (G : OrientedMultigraph V E) (v : V) :=
     {h : HalfEdge E // (vertex G) h = v}
 
-instance {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) (v : V) :
+instance {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    (G : OrientedMultigraph V E) (v : V) :
     Fintype ((halfEdgesAt G) v) :=
   Subtype.fintype (fun h : HalfEdge E ↦ (vertex G) h = v)
 
-def degree {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) (v : V) : ℕ
-    := Fintype.card ((halfEdgesAt G) v)
+def degree {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    (G : OrientedMultigraph V E) (v : V) : ℕ :=
+  Fintype.card ((halfEdgesAt G) v)
 
-def IsFlow {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) {A : Type*}
-    [AddCommGroup A] (f : E → A) : Prop :=
+def IsFlow {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    (G : OrientedMultigraph V E) {A : Type*} [AddCommGroup A] (f : E → A) :
+    Prop :=
   ∀ v : V,
     (∑ e : E, if G.endAt e 0 = v then f e else 0) -
       (∑ e : E, if G.endAt e 1 = v then f e else 0) = 0
@@ -389,13 +446,13 @@ def IsFlow {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGrap
 def IsNowhereZero {E : Type*} {A : Type*} [Zero A] (f : E → A) : Prop := ∀ e, f e ≠ 0
 
 structure NowhereZeroFlow {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
-    (G : FiniteGraph V E) (A : Type*) [AddCommGroup A] [Zero A] where
+    (G : OrientedMultigraph V E) (A : Type*) [AddCommGroup A] [Zero A] where
   val : E → A
   conservation : (IsFlow G) val
   nowhereZero : IsNowhereZero val
 
 structure IndexedEvenDoubleCover {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
-    (G : FiniteGraph V E) where
+    (G : OrientedMultigraph V E) where
   member : Gamma → E → F₂
   vertexEven : ∀ s v,
     ∑ e : E,
@@ -404,8 +461,8 @@ structure IndexedEvenDoubleCover {V E : Type*} [Fintype V] [Fintype E] [Decidabl
   coveredTwice : ∀ e,
     (Finset.univ.filter fun s : Gamma ↦ member s e = 1).card = 2
 
-def CubicGraph.toFiniteGraph {V E : Type*} [Fintype V] [Fintype E] (K : CubicGraph V E) :
-    FiniteGraph V E where
+def CubicGraph.toOrientedMultigraph {V E : Type*} [Fintype V] [Fintype E] (K : CubicGraph V E) :
+    OrientedMultigraph V E where
   endAt := K.endAt
   loopless := by
     intro e
@@ -416,7 +473,7 @@ lemma CubicGraph.neg_gamma : ∀ x : Gamma, -x = x := by decide
 
 def CubicGraph.gammaFlowOfNowhereZero {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
     (K : CubicGraph V E)
-    (f : (NowhereZeroFlow (K.toFiniteGraph)) Gamma) : GammaFlow K where
+    (f : (NowhereZeroFlow (K.toOrientedMultigraph)) Gamma) : GammaFlow K where
   val := f.val
   nowhereZero := f.nowhereZero
   conservation := by
@@ -425,7 +482,7 @@ def CubicGraph.gammaFlowOfNowhereZero {V E : Type*} [Fintype V] [Fintype E] [Dec
     have hsigned :
         (∑ e : E, if K.endAt e 0 = v then f.val e else 0) +
           (∑ e : E, if K.endAt e 1 = v then f.val e else 0) = 0 := by
-      simpa [toFiniteGraph, IsFlow, sub_eq_add_neg] using h
+      simpa [toOrientedMultigraph, IsFlow, sub_eq_add_neg] using h
     have hinc :
         (∑ e : E, ∑ j : Fin 2, if K.endAt e j = v then f.val e else 0) =
           ∑ i : Fin 3, f.val (K.edgeAt v i) := by
@@ -443,13 +500,15 @@ def CubicGraph.gammaFlowOfNowhereZero {V E : Type*} [Fintype V] [Fintype E] [Dec
     rw [Finset.sum_add_distrib]
     exact hsigned
 
-def divergence {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E)
-    {A : Type*} [AddCommGroup A] (f : E → A) (v : V) : A :=
+def divergence {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    (G : OrientedMultigraph V E) {A : Type*} [AddCommGroup A] (f : E → A)
+    (v : V) : A :=
   (∑ k : E, if G.endAt k 0 = v then f k else 0) -
     ∑ k : E, if G.endAt k 1 = v then f k else 0
 
-lemma divergence_add {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E)
-    {A : Type*} [AddCommGroup A] (f g : E → A) (v : V) :
+lemma divergence_add {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    (G : OrientedMultigraph V E) {A : Type*} [AddCommGroup A] (f g : E → A)
+    (v : V) :
     (divergence G) (f + g) v = (divergence G) f v + (divergence G) g v := by
   have hsum (j : Fin 2) :
       (∑ k : E, if G.endAt k j = v then (f + g) k else 0) =
@@ -462,8 +521,9 @@ lemma divergence_add {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : 
   simp only [divergence, hsum]
   abel
 
-lemma divergence_neg {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E)
-    {A : Type*} [AddCommGroup A] (f : E → A) (v : V) :
+lemma divergence_neg {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    (G : OrientedMultigraph V E) {A : Type*} [AddCommGroup A] (f : E → A)
+    (v : V) :
     (divergence G) (-f) v = -(divergence G) f v := by
   unfold divergence
   have h (j : Fin 2) : (∑ k : E, if G.endAt k j = v then (-f) k else 0) =
@@ -475,20 +535,20 @@ lemma divergence_neg {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : 
   rw [h 0, h 1]
   abel
 
-def HasIntegerPath {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E)
-    (S : Finset E) (u v : V) : Prop :=
+def HasIntegerPath {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    (G : OrientedMultigraph V E) (S : Finset E) (u v : V) : Prop :=
   ∃ c : E → ℤ, (∀ k ∈ S, c k = 0) ∧ ∀ w : V,
     (divergence G) c w = (if u = w then 1 else 0) - (if v = w then 1 else 0)
 
 lemma divergence_single_one {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] [DecidableEq E]
-    (G : FiniteGraph V E) (k : E) (w : V) :
+    (G : OrientedMultigraph V E) (k : E) (w : V) :
     (divergence G) (Pi.single k (1 : ℤ)) w =
       (if G.endAt k 0 = w then 1 else 0) - (if G.endAt k 1 = w then 1 else 0) := by
   unfold divergence
   congr 1 <;> rw [Fintype.sum_eq_single k] <;> simp_all
 
 lemma hasIntegerPath_single {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
-    (G : FiniteGraph V E) (S : Finset E) (k : E) (hk : k ∉ S) :
+    (G : OrientedMultigraph V E) (S : Finset E) (k : E) (hk : k ∉ S) :
     (HasIntegerPath G) S (G.endAt k 0) (G.endAt k 1) := by
   classical
   refine ⟨Pi.single k 1, ?_, (divergence_single_one G) k⟩
@@ -496,7 +556,7 @@ lemma hasIntegerPath_single {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V
   simp [ne_of_mem_of_not_mem he hk]
 
 lemma HasIntegerPath.symm {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
-    (G : FiniteGraph V E) {S : Finset E} {u v : V}
+    (G : OrientedMultigraph V E) {S : Finset E} {u v : V}
     (h : (HasIntegerPath G) S u v) : (HasIntegerPath G) S v u := by
   rcases h with ⟨c,hc,h⟩
   exact ⟨-c, by simpa using hc, fun w ↦ by
@@ -504,7 +564,7 @@ lemma HasIntegerPath.symm {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
     omega⟩
 
 lemma HasIntegerPath.trans {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
-    (G : FiniteGraph V E) {S : Finset E} {u v w : V}
+    (G : OrientedMultigraph V E) {S : Finset E} {u v w : V}
     (h₁ : (HasIntegerPath G) S u v) (h₂ : (HasIntegerPath G) S v w) :
     (HasIntegerPath G) S u w := by
   rcases h₁ with ⟨f,hf,F⟩
@@ -517,15 +577,15 @@ lemma HasIntegerPath.trans {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
   omega
 
 def HasCycleCorrection {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] [DecidableEq E]
-    (G : FiniteGraph V E) (S : Finset E) (e : E) : Prop :=
+    (G : OrientedMultigraph V E) (S : Finset E) (e : E) : Prop :=
   ∃ c : E → ℤ, (IsFlow G) c ∧ c e = 1 ∧ ∀ k ∈ S.erase e, c k = 0
 
 def IndexedEvenDoubleCover.support {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
-    (G : FiniteGraph V E) (C : (IndexedEvenDoubleCover G)) (s : Gamma) : Finset E :=
+    (G : OrientedMultigraph V E) (C : (IndexedEvenDoubleCover G)) (s : Gamma) : Finset E :=
   Finset.univ.filter fun e ↦ C.member s e = 1
 
 noncomputable def IndexedEvenDoubleCover.toCycleDoubleCover {V E : Type*} [Fintype V] [Fintype E]
-    [DecidableEq V] [DecidableEq E] (G : FiniteGraph V E)
+    [DecidableEq V] [DecidableEq E] (G : OrientedMultigraph V E)
     (C : (IndexedEvenDoubleCover G)) : CycleDoubleCover G := by
   classical
   have decompose : ∀ (F : Finset E), IsEvenEdgeSet G F →
@@ -606,14 +666,15 @@ noncomputable def IndexedEvenDoubleCover.toCycleDoubleCover {V E : Type*} [Finty
   simp_rw [hpieces]
   simpa [IndexedEvenDoubleCover.support] using C.coveredTwice e
 
-structure RotationSystem {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) where
+structure RotationSystem {V E : Type*} [Fintype V] [Fintype E] (G : OrientedMultigraph V E) where
   next : Equiv.Perm (HalfEdge E)
   sameVertex : ∀ h, (vertex G) (next h) = (vertex G) h
   next_ne : ∀ h, next h ≠ h
   fiberTransitive : ∀ h k, (vertex G) h = (vertex G) k →
     ∃ n : ℕ, (next : HalfEdge E → HalfEdge E)^[n] h = k
 
-def halfEdgeSigmaEquiv {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) : HalfEdge E ≃
+def halfEdgeSigmaEquiv {V E : Type*} [Fintype V] [Fintype E]
+    (G : OrientedMultigraph V E) : HalfEdge E ≃
     (v : V) × (halfEdgesAt G) v where
   toFun h := ⟨(vertex G) h, h, rfl⟩
   invFun p := p.2.1
@@ -625,18 +686,18 @@ def halfEdgeSigmaEquiv {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V 
     rfl
 
 noncomputable def fiberCycle {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
-    (G : FiniteGraph V E) (v : V) : Equiv.Perm ((halfEdgesAt G) v) :=
+    (G : OrientedMultigraph V E) (v : V) : Equiv.Perm ((halfEdgesAt G) v) :=
   (Fintype.equivFin ((halfEdgesAt G) v)).trans
     ((finRotate (Fintype.card ((halfEdgesAt G) v))).trans
       (Fintype.equivFin ((halfEdgesAt G) v)).symm)
 
 noncomputable def rotationPerm {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
-    (G : FiniteGraph V E) : Equiv.Perm (HalfEdge E) :=
+    (G : OrientedMultigraph V E) : Equiv.Perm (HalfEdge E) :=
   (halfEdgeSigmaEquiv G).trans
     ((Equiv.sigmaCongrRight (fiberCycle G)).trans (halfEdgeSigmaEquiv G).symm)
 
 noncomputable def rotationSystemOfDegreeNeOne {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
-    (G : FiniteGraph V E) (hne : ∀ v, (degree G) v ≠ 1) :
+    (G : OrientedMultigraph V E) (hne : ∀ v, (degree G) v ≠ 1) :
     (RotationSystem G) := by
   have sameVertex (h : HalfEdge E) :
       (vertex G) (rotationPerm G h) = (vertex G) h := by
@@ -717,7 +778,7 @@ noncomputable def rotationSystemOfDegreeNeOne {V E : Type*} [Fintype V] [Fintype
       fiberTransitive := fiberTransitive }
 
 noncomputable def rotationSystemOfBridgeless {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
-    (G : FiniteGraph V E) (hb : (Bridgeless G)) : (RotationSystem G) := by
+    (G : OrientedMultigraph V E) (hb : (Bridgeless G)) : (RotationSystem G) := by
   have hdegree (v : V) : (degree G) v ≠ 1 := by
     intro hd
     obtain ⟨h, hh⟩ := Fintype.card_eq_one_iff.mp hd
@@ -756,11 +817,15 @@ noncomputable def rotationSystemOfBridgeless {V E : Type*} [Fintype V] [Fintype 
     exact hc (Finset.card_singleton e)
   exact rotationSystemOfDegreeNeOne G hdegree
 
-abbrev ExpandedVertex {V E : Type*} [Fintype V] [Fintype E] (_G : FiniteGraph V E) := HalfEdge E
+abbrev ExpandedVertex {V E : Type*} [Fintype V] [Fintype E]
+    (_G : OrientedMultigraph V E) :=
+  HalfEdge E
 
-abbrev ExpandedEdge {V E : Type*} [Fintype V] [Fintype E] (_G : FiniteGraph V E) := E ⊕ HalfEdge E
+abbrev ExpandedEdge {V E : Type*} [Fintype V] [Fintype E]
+    (_G : OrientedMultigraph V E) :=
+  E ⊕ HalfEdge E
 
-private def expansionToEnd {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+private def expansionToEnd {V E : Type*} [Fintype V] [Fintype E] (G : OrientedMultigraph V E)
     (R : (RotationSystem G)) :
     ((ExpandedVertex G) × Fin 3) → ((ExpandedEdge G) × Fin 2) := fun p ↦
   if p.2 = 0 then
@@ -770,13 +835,14 @@ private def expansionToEnd {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGrap
   else
     (Sum.inr (R.next.symm p.1), 1)
 
-private def expansionFromEnd {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+private def expansionFromEnd {V E : Type*} [Fintype V] [Fintype E] (G : OrientedMultigraph V E)
     (R : (RotationSystem G)) :
     ((ExpandedEdge G) × Fin 2) → ((ExpandedVertex G) × Fin 3)
   | (Sum.inl e, j) => ((e, j), 0)
   | (Sum.inr h, j) => if j = 0 then (h, 1) else (R.next h, 2)
 
-noncomputable def expansionIncidence {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+noncomputable def expansionIncidence {V E : Type*} [Fintype V] [Fintype E]
+    (G : OrientedMultigraph V E)
     (R : (RotationSystem G)) :
     ((ExpandedVertex G) × Fin 3) ≃ ((ExpandedEdge G) × Fin 2) := by
   have left_inv : Function.LeftInverse (expansionFromEnd G R) (expansionToEnd G R) := by
@@ -793,7 +859,7 @@ noncomputable def expansionIncidence {V E : Type*} [Fintype V] [Fintype E] (G : 
       left_inv := left_inv
       right_inv := right_inv }
 
-noncomputable def cubicExpansion {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+noncomputable def cubicExpansion {V E : Type*} [Fintype V] [Fintype E] (G : OrientedMultigraph V E)
     (R : (RotationSystem G)) : CubicGraph (ExpandedVertex G) (ExpandedEdge G) where
   incidence := expansionIncidence G R
   loopless := by
@@ -804,8 +870,8 @@ noncomputable def cubicExpansion {V E : Type*} [Fintype V] [Fintype E] (G : Fini
     | inr h =>
         simpa [expansionIncidence, expansionFromEnd] using (R.next_ne h).symm
 
-def expansionGraph {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
-    (R : (RotationSystem G)) : FiniteGraph (ExpandedVertex G) (ExpandedEdge G) where
+def expansionGraph {V E : Type*} [Fintype V] [Fintype E] (G : OrientedMultigraph V E)
+    (R : (RotationSystem G)) : OrientedMultigraph (ExpandedVertex G) (ExpandedEdge G) where
   endAt
     | Sum.inl e, j => (e, j)
     | Sum.inr h, j => if j = 0 then h else R.next h
@@ -818,22 +884,22 @@ def expansionGraph {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
     | inr h => simpa using (R.next_ne h).symm
 
 @[simp]
-lemma cubicExpansion_edgeAt_zero {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+lemma cubicExpansion_edgeAt_zero {V E : Type*} [Fintype V] [Fintype E] (G : OrientedMultigraph V E)
     (R : (RotationSystem G)) (h : (ExpandedVertex G)) :
     (cubicExpansion G R).edgeAt h 0 = Sum.inl h.1 := rfl
 
 @[simp]
-lemma cubicExpansion_edgeAt_one {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+lemma cubicExpansion_edgeAt_one {V E : Type*} [Fintype V] [Fintype E] (G : OrientedMultigraph V E)
     (R : (RotationSystem G)) (h : (ExpandedVertex G)) :
     (cubicExpansion G R).edgeAt h 1 = Sum.inr h := rfl
 
 @[simp]
-lemma cubicExpansion_edgeAt_two {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+lemma cubicExpansion_edgeAt_two {V E : Type*} [Fintype V] [Fintype E] (G : OrientedMultigraph V E)
     (R : (RotationSystem G)) (h : (ExpandedVertex G)) :
     (cubicExpansion G R).edgeAt h 2 = Sum.inr (R.next.symm h) := rfl
 
 noncomputable def projectEvenDoubleCover {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
-    (G : FiniteGraph V E) (R : (RotationSystem G))
+    (G : OrientedMultigraph V E) (R : (RotationSystem G))
     (C : CubicGraph.IndexedEvenDoubleCover (cubicExpansion G R)) :
     (IndexedEvenDoubleCover G) := by
   have vertexEven (s : Gamma) (v : V) :
@@ -889,39 +955,42 @@ noncomputable def projectEvenDoubleCover {V E : Type*} [Fintype V] [Fintype E] [
       vertexEven := vertexEven
       coveredTwice := fun e ↦ C.coveredTwice (Sum.inl e) }
 
-def supportGraph {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset E) :
-    SimpleGraph V :=
+def supportGraph {V E : Type*} [Fintype V] [Fintype E]
+    (G : OrientedMultigraph V E) (S : Finset E) : SimpleGraph V :=
   SimpleGraph.fromRel fun u v ↦
     ∃ e ∈ S, G.endAt e 0 = u ∧ G.endAt e 1 = v
 
-def ReachableIn {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset E) (u v : V)
-    : Prop :=
+def ReachableIn {V E : Type*} [Fintype V] [Fintype E]
+    (G : OrientedMultigraph V E) (S : Finset E) (u v : V) : Prop :=
   ((supportGraph G) S).Reachable u v
 
-def Connects {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset E) : Prop :=
+def Connects {V E : Type*} [Fintype V] [Fintype E]
+    (G : OrientedMultigraph V E) (S : Finset E) : Prop :=
   ((supportGraph G) S).Connected
 
-def IsSpanningTree {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset E) : Prop
-    :=
+def IsSpanningTree {V E : Type*} [Fintype V] [Fintype E]
+    (G : OrientedMultigraph V E) (S : Finset E) : Prop :=
   (Connects G) S ∧ S.card + 1 = Fintype.card V
 
-def HasTreePacking {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (k : ℕ) : Prop :=
+def HasTreePacking {V E : Type*} [Fintype V] [Fintype E]
+    (G : OrientedMultigraph V E) (k : ℕ) : Prop :=
   ∃ T : Fin k → Finset E,
     (∀ i, (IsSpanningTree G) (T i)) ∧
       ∀ i j, i ≠ j → Disjoint (T i) (T j)
 
-noncomputable def crossingEdges {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+noncomputable def crossingEdges {V E : Type*} [Fintype V] [Fintype E] (G : OrientedMultigraph V E)
     (P : Setoid V) : Finset E := by
   classical
   exact Finset.univ.filter fun e ↦ ¬ P.r (G.endAt e 0) (G.endAt e 1)
 
-noncomputable def crossingClass {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+noncomputable def crossingClass {V E : Type*} [Fintype V] [Fintype E] (G : OrientedMultigraph V E)
     (S : Finset E) (P : Setoid V) : Finset E := by
   classical
   exact S.filter fun e ↦ ¬ P.r (G.endAt e 0) (G.endAt e 1)
 
 @[simp]
-lemma mem_crossingClass {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {S : Finset E}
+lemma mem_crossingClass {V E : Type*} [Fintype V] [Fintype E]
+    (G : OrientedMultigraph V E) {S : Finset E}
     {P : Setoid V} {e : E} :
     e ∈ (crossingClass G) S P ↔
       e ∈ S ∧ ¬ P.r (G.endAt e 0) (G.endAt e 1) := by simp[crossingClass]
@@ -930,36 +999,37 @@ noncomputable instance quotientFintype {V : Type*} [Fintype V]
     (P : Setoid V) : Fintype (Quotient P) :=
   Fintype.ofFinite _
 
-noncomputable def quotientGraph {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+noncomputable def quotientGraph {V E : Type*} [Fintype V] [Fintype E] (G : OrientedMultigraph V E)
     (S : Finset E) (P : Setoid V) :
-    FiniteGraph (Quotient P) {e : E // e ∈ (crossingClass G) S P} where
+    OrientedMultigraph (Quotient P) {e : E // e ∈ (crossingClass G) S P} where
   endAt e i := Quotient.mk _ (G.endAt e.1 i)
   loopless e := by
     intro h
     have hrel : P.r (G.endAt e.1 0) (G.endAt e.1 1) := Quotient.eq'.mp h
     exact ((mem_crossingClass (G := G)).mp e.2).2 hrel
 
-def SatisfiesTreePackingCondition {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+def SatisfiesTreePackingCondition {V E : Type*} [Fintype V] [Fintype E] (G : OrientedMultigraph V E)
     (k : ℕ) : Prop :=
   ∀ P : Setoid V,
     k * (Nat.card (Quotient P) - 1) ≤ (crossingEdges (G := G) P).card
 
-def componentSetoid {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset E) :
-    Setoid V :=
+def componentSetoid {V E : Type*} [Fintype V] [Fintype E]
+    (G : OrientedMultigraph V E) (S : Finset E) : Setoid V :=
   ((supportGraph G) S).reachableSetoid
 
-noncomputable def insideEdges {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+noncomputable def insideEdges {V E : Type*} [Fintype V] [Fintype E] (G : OrientedMultigraph V E)
     (S : Finset E) (P : Setoid V) (u : V) : Finset E := by
   classical
   exact S.filter fun e ↦ P.r (G.endAt e 0) u ∧ P.r (G.endAt e 1) u
 
 @[simp]
-lemma mem_insideEdges {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {S : Finset E}
+lemma mem_insideEdges {V E : Type*} [Fintype V] [Fintype E]
+    (G : OrientedMultigraph V E) {S : Finset E}
     {P : Setoid V} {u : V} {e : E} :
     e ∈ (insideEdges G) S P u ↔
       e ∈ S ∧ P.r (G.endAt e 0) u ∧ P.r (G.endAt e 1) u := by simp[insideEdges]
 
-lemma insideEdges_eq_of_rel {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+lemma insideEdges_eq_of_rel {V E : Type*} [Fintype V] [Fintype E] (G : OrientedMultigraph V E)
     {S : Finset E} {P : Setoid V} {u v : V}
     (huv : P.r u v) : (insideEdges G) S P u = (insideEdges G) S P v := by
   have h (x) : P.r x u ↔ P.r x v :=
@@ -967,14 +1037,15 @@ lemma insideEdges_eq_of_rel {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGra
   ext e
   simp [insideEdges, h]
 
-lemma insideEdges_erase {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E] (G : FiniteGraph V E)
-    (S : Finset E) (P : Setoid V) (u : V) (e : E) :
+lemma insideEdges_erase {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E]
+    (G : OrientedMultigraph V E) (S : Finset E) (P : Setoid V) (u : V)
+    (e : E) :
     (insideEdges G) (S.erase e) P u = ((insideEdges G) S P u).erase e := by
   ext x
   simp [insideEdges]
   tauto
 
-noncomputable def refineSetoid {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+noncomputable def refineSetoid {V E : Type*} [Fintype V] [Fintype E] (G : OrientedMultigraph V E)
     (P : Setoid V) (S : Finset E) : Setoid V where
   r u v := P.r u v ∧ (ReachableIn G) ((insideEdges G) S P u) u v
   iseqv := by
@@ -1005,7 +1076,7 @@ lemma colorClass_disjoint {E : Type*} [Fintype E] {k : ℕ} (χ : E → Fin k) {
     Disjoint (colorClass χ i) (colorClass χ j) := by
   simp_all [Finset.disjoint_left]
 
-def PrefixTrees {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {k : ℕ}
+def PrefixTrees {V E : Type*} [Fintype V] [Fintype E] (G : OrientedMultigraph V E) {k : ℕ}
     (χ : E → Fin (k + 1)) : Prop :=
   ∀ i : Fin k, (IsSpanningTree G) (colorClass χ i.castSucc)
 
@@ -1013,20 +1084,20 @@ noncomputable def residualClass {E : Type*} [Fintype E] {k : ℕ} (χ : E → Fi
     Finset E :=
   colorClass χ (Fin.last k)
 
-noncomputable def residualComponents {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
-    {k : ℕ} (χ : E → Fin (k + 1)) : ℕ :=
+noncomputable def residualComponents {V E : Type*} [Fintype V] [Fintype E]
+    (G : OrientedMultigraph V E) {k : ℕ} (χ : E → Fin (k + 1)) : ℕ :=
   Nat.card ((supportGraph G) (residualClass χ)).ConnectedComponent
 
-def InternallyConnected {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset E)
-    (P : Setoid V) : Prop :=
+def InternallyConnected {V E : Type*} [Fintype V] [Fintype E]
+    (G : OrientedMultigraph V E) (S : Finset E) (P : Setoid V) : Prop :=
   ∀ u v : V, P.r u v → (ReachableIn G) ((insideEdges G) S P u) u v
 
-def NeedsRefinement {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {k : ℕ}
+def NeedsRefinement {V E : Type*} [Fintype V] [Fintype E] (G : OrientedMultigraph V E) {k : ℕ}
     (χ : E → Fin k) (P : Setoid V) : Prop :=
   ∃ i : Fin k, ¬ (InternallyConnected G) (colorClass χ i) P
 
-noncomputable def firstDisconnectedColor {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
-    {k : ℕ} (χ : E → Fin k) (P : Setoid V) :
+noncomputable def firstDisconnectedColor {V E : Type*} [Fintype V] [Fintype E]
+    (G : OrientedMultigraph V E) {k : ℕ} (χ : E → Fin k) (P : Setoid V) :
     Option (Fin k) := by
   classical
   exact if h : (NeedsRefinement G) χ P then
@@ -1037,12 +1108,12 @@ noncomputable def firstDisconnectedColor {V E : Type*} [Fintype V] [Fintype E] (
         exact ⟨i, by simp [hi]⟩))
   else none
 
-lemma firstDisconnectedColor_eq_none_iff {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
-    {k : ℕ} (χ : E → Fin k) (P : Setoid V) :
+lemma firstDisconnectedColor_eq_none_iff {V E : Type*} [Fintype V] [Fintype E]
+    (G : OrientedMultigraph V E) {k : ℕ} (χ : E → Fin k) (P : Setoid V) :
     (firstDisconnectedColor G) χ P = none ↔ ¬ (NeedsRefinement G) χ P := by
   simp [firstDisconnectedColor]
 
-lemma firstDisconnectedColor_spec {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+lemma firstDisconnectedColor_spec {V E : Type*} [Fintype V] [Fintype E] (G : OrientedMultigraph V E)
     {k : ℕ} {χ : E → Fin k} {P : Setoid V}
     {i : Fin k} (h : (firstDisconnectedColor G) χ P = some i) :
     ¬ (InternallyConnected G) (colorClass χ i) P := by
@@ -1057,7 +1128,7 @@ lemma firstDisconnectedColor_spec {V E : Type*} [Fintype V] [Fintype E] (G : Fin
   · cases h
 
 lemma internallyConnected_iff_of_refineSetoid_eq {V E : Type*} [Fintype V] [Fintype E]
-    (G : FiniteGraph V E)
+    (G : OrientedMultigraph V E)
     {S T : Finset E} {P : Setoid V}
     (hEq : (refineSetoid G) P S = (refineSetoid G) P T) :
     (InternallyConnected G) S P ↔ (InternallyConnected G) T P := by
@@ -1067,7 +1138,7 @@ lemma internallyConnected_iff_of_refineSetoid_eq {V E : Type*} [Fintype V] [Fint
   · exact (Eq.mp q.symm ⟨huv,h u v huv⟩).2
 
 lemma firstDisconnectedColor_internal_of_lt {V E : Type*} [Fintype V] [Fintype E]
-    (G : FiniteGraph V E) {k : ℕ}
+    (G : OrientedMultigraph V E) {k : ℕ}
     {χ : E → Fin k} {P : Setoid V} {c d : Fin k}
     (hc : (firstDisconnectedColor G) χ P = some c)
     (hdc : d < c) :
@@ -1088,7 +1159,7 @@ lemma firstDisconnectedColor_internal_of_lt {V E : Type*} [Fintype V] [Fintype E
   · cases hc
 
 lemma firstDisconnectedColor_eq_some_of_spec {V E : Type*} [Fintype V] [Fintype E]
-    (G : FiniteGraph V E) {k : ℕ}
+    (G : OrientedMultigraph V E) {k : ℕ}
     {χ : E → Fin k} {P : Setoid V} {c : Fin k}
     (hbad : ¬ (InternallyConnected G) (colorClass χ c) P)
     (hbefore : ∀ d : Fin k, d < c →
@@ -1112,19 +1183,20 @@ lemma firstDisconnectedColor_eq_some_of_spec {V E : Type*} [Fintype V] [Fintype 
       simpa [badSet] using hd
     exact le_of_not_gt fun h ↦ hd' (hbefore d h)
 
-noncomputable def refineOnce {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {k : ℕ}
-    (χ : E → Fin k) (P : Setoid V) : Setoid V :=
+noncomputable def refineOnce {V E : Type*} [Fintype V] [Fintype E]
+    (G : OrientedMultigraph V E) {k : ℕ} (χ : E → Fin k) (P : Setoid V) :
+    Setoid V :=
   match (firstDisconnectedColor G) χ P with
   | none => P
   | some i => (refineSetoid G) P (colorClass χ i)
 
-noncomputable def kaiserPartition {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+noncomputable def kaiserPartition {V E : Type*} [Fintype V] [Fintype E] (G : OrientedMultigraph V E)
     {k : ℕ} (χ : E → Fin k) : ℕ → Setoid V
   | 0 => ⊤
   | n + 1 => (refineOnce G) χ (kaiserPartition G χ n)
 
-lemma kaiserPartition_refines_of_le {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
-    {k : ℕ} (χ : E → Fin k)
+lemma kaiserPartition_refines_of_le {V E : Type*} [Fintype V] [Fintype E]
+    (G : OrientedMultigraph V E) {k : ℕ} (χ : E → Fin k)
     {m n : ℕ} (hmn : m ≤ n) {u v : V}
     (h : ((kaiserPartition G) χ n).r u v) :
     ((kaiserPartition G) χ m).r u v := by
@@ -1139,13 +1211,13 @@ lemma kaiserPartition_refines_of_le {V E : Type*} [Fintype V] [Fintype E] (G : F
     | none=>exact h
     | some i=>exact h.1
 
-def HasFiniteLevel {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {k : ℕ}
+def HasFiniteLevel {V E : Type*} [Fintype V] [Fintype E] (G : OrientedMultigraph V E) {k : ℕ}
     (χ : E → Fin k) (e : E) (m : ℕ) : Prop :=
   ((kaiserPartition G) χ m).r (G.endAt e 0) (G.endAt e 1) ∧
     ¬ ((kaiserPartition G) χ (m + 1)).r (G.endAt e 0) (G.endAt e 1)
 
-lemma exists_finiteLevel_of_not_rel {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
-    {k : ℕ} {χ : E → Fin k} {e : E} {n : ℕ}
+lemma exists_finiteLevel_of_not_rel {V E : Type*} [Fintype V] [Fintype E]
+    (G : OrientedMultigraph V E) {k : ℕ} {χ : E → Fin k} {e : E} {n : ℕ}
     (hnot : ¬ ((kaiserPartition G) χ n).r (G.endAt e 0) (G.endAt e 1)) :
     ∃ m : ℕ, (HasFiniteLevel G) χ e m := by
   induction n with
@@ -1155,20 +1227,21 @@ lemma exists_finiteLevel_of_not_rel {V E : Type*} [Fintype V] [Fintype E] (G : F
     · exact ⟨n, h, hnot⟩
     · exact ih h
 
-def IsCyclicEdge {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E] (G : FiniteGraph V E)
-    (S : Finset E) (e : E) : Prop :=
+def IsCyclicEdge {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E]
+    (G : OrientedMultigraph V E) (S : Finset E) (e : E) : Prop :=
   e ∈ S ∧ (ReachableIn G) (S.erase e) (G.endAt e 0) (G.endAt e 1)
 
-def IsSuperfluousAt {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E] (G : FiniteGraph V E)
-    {k : ℕ} (χ : E → Fin (k + 1)) (e : E) (m : ℕ) : Prop :=
+def IsSuperfluousAt {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E]
+    (G : OrientedMultigraph V E) {k : ℕ} (χ : E → Fin (k + 1)) (e : E)
+    (m : ℕ) : Prop :=
   (IsCyclicEdge G) (residualClass χ) e ∧ (HasFiniteLevel G) χ e m
 
-def HasSuperfluousEdge {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E] (G : FiniteGraph V E)
-    {k : ℕ} (χ : E → Fin (k + 1)) : Prop :=
+def HasSuperfluousEdge {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E]
+    (G : OrientedMultigraph V E) {k : ℕ} (χ : E → Fin (k + 1)) : Prop :=
   ∃ e m, (IsSuperfluousAt G) χ e m
 
-lemma insideEdges_top {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset E)
-    (u : V) :
+lemma insideEdges_top {V E : Type*} [Fintype V] [Fintype E]
+    (G : OrientedMultigraph V E) (S : Finset E) (u : V) :
     (insideEdges G) S ⊤ u = S := by
   aesop
 
@@ -1193,7 +1266,7 @@ lemma colorClass_swap_other {E : Type*} [Fintype E] [DecidableEq E] {k : ℕ} (�
   simp [swapColor, Function.update]
   aesop
 
-lemma supportGraph_adj_iff {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+lemma supportGraph_adj_iff {V E : Type*} [Fintype V] [Fintype E] (G : OrientedMultigraph V E)
     (S : Finset E) (u v : V) :
     ((supportGraph G) S).Adj u v ↔
       u ≠ v ∧ ∃ e ∈ S,
@@ -1202,11 +1275,11 @@ lemma supportGraph_adj_iff {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGrap
     simp [supportGraph]
     aesop
 
-def symEdge {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (e : E) : Sym2 V :=
+def symEdge {V E : Type*} [Fintype V] [Fintype E] (G : OrientedMultigraph V E) (e : E) : Sym2 V :=
     s(G.endAt e 0, G.endAt e 1)
 
 lemma edgeFinset_supportGraph {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
-    (G : FiniteGraph V E) (S : Finset E)
+    (G : OrientedMultigraph V E) (S : Finset E)
     [Fintype ((supportGraph G) S).edgeSet] :
     ((supportGraph G) S).edgeFinset = S.image (symEdge G) := by
   ext e
@@ -1223,8 +1296,8 @@ lemma edgeFinset_supportGraph {V E : Type*} [Fintype V] [Fintype E] [DecidableEq
     · exact G.loopless x (h.1.trans (huv.symm.trans h.2.symm))
   simpa [symEdge, supportGraph_adj_iff] using hloop
 
-lemma reachableIn_mono {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {S T : Finset E}
-    (hST : S ⊆ T) {u v : V}
+lemma reachableIn_mono {V E : Type*} [Fintype V] [Fintype E]
+    (G : OrientedMultigraph V E) {S T : Finset E} (hST : S ⊆ T) {u v : V}
     (h : (ReachableIn G) S u v) : (ReachableIn G) T u v := by
   apply h.mono
   intro x y a
@@ -1249,7 +1322,7 @@ lemma reachable_map_of_adj_reachable {V : Type*} {W : Type*} {H : SimpleGraph V}
   | cons a p ih=>exact (hstep a).trans ih
 
 lemma quotientGraph_connected_of_connects {V E : Type*} [Fintype V] [Fintype E]
-    (G : FiniteGraph V E) [Nonempty V] (S : Finset E) (P : Setoid V)
+    (G : OrientedMultigraph V E) [Nonempty V] (S : Finset E) (P : Setoid V)
     (hS : (Connects G) S) :
     (Connects ((quotientGraph G) S P)) Finset.univ := by
   rw[Connects,SimpleGraph.connected_iff]at hS ⊢
@@ -1280,7 +1353,7 @@ lemma quotientGraph_connected_of_connects {V E : Type*} [Fintype V] [Fintype E]
   · exact Nonempty.map (Quotient.mk P) hS.2
 
 lemma insideEdges_subset_erase_of_crossing {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E]
-    (G : FiniteGraph V E) {S : Finset E} {P : Setoid V} {e : E}
+    (G : OrientedMultigraph V E) {S : Finset E} {P : Setoid V} {e : E}
     (he : e ∈ (crossingClass G) S P) (u : V) :
     (insideEdges G) S P u ⊆ S.erase e := by
   intro f hf
@@ -1288,7 +1361,7 @@ lemma insideEdges_subset_erase_of_crossing {V E : Type*} [Fintype V] [Fintype E]
   exact ⟨fun h=>he.2 <| h ▸ P.trans hf.2.1 (P.symm hf.2.2),hf.1⟩
 
 lemma reachableIn_erase_of_cyclic {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E]
-    (G : FiniteGraph V E) {S : Finset E} {e : E}
+    (G : OrientedMultigraph V E) {S : Finset E} {e : E}
     (he : (IsCyclicEdge G) S e) {u v : V}
     (h : (ReachableIn G) S u v) : (ReachableIn G) (S.erase e) u v := by
   apply reachable_of_adj_reachable ?_ h
@@ -1305,7 +1378,7 @@ lemma reachableIn_erase_of_cyclic {V E : Type*} [Fintype V] [Fintype E] [Decidab
     exact ⟨hxy,k,Finset.mem_erase.mpr ⟨hke,hk⟩,hkxy⟩
 
 lemma exists_isSpanningTree_subset_of_connects {V E : Type*} [Fintype V] [Fintype E]
-    (G : FiniteGraph V E) [Nonempty V] (S : Finset E)
+    (G : OrientedMultigraph V E) [Nonempty V] (S : Finset E)
     (hS : (Connects G) S) :
     ∃ T : Finset E, T ⊆ S ∧ (IsSpanningTree G) T := by
   classical
@@ -1356,7 +1429,7 @@ lemma exists_isSpanningTree_subset_of_connects {V E : Type*} [Fintype V] [Fintyp
       exact hfi h
 
 lemma reachableIn_inside_of_walk_of_no_crossing {V E : Type*} [Fintype V] [Fintype E]
-    (G : FiniteGraph V E)
+    (G : OrientedMultigraph V E)
     {T : Finset E} {P : Setoid V} {a u v : V}
     (p : ((supportGraph G) T).Walk u v) (hua : P.r u a)
     (hno : ∀ f ∈ T, (symEdge G) f ∈ p.edges →
@@ -1386,7 +1459,7 @@ lemma reachableIn_inside_of_walk_of_no_crossing {V E : Type*} [Fintype V] [Finty
       exact hno e he (by simp [hep])
 
 lemma exists_crossing_tree_edge_of_not_internal_reachable {V E : Type*} [Fintype V] [Fintype E]
-    (G : FiniteGraph V E)
+    (G : OrientedMultigraph V E)
     {T : Finset E} {P : Setoid V} {u v : V}
     (p : ((supportGraph G) T).Walk u v)
     (hnot : ¬ (ReachableIn G) ((insideEdges G) T P u) u v) :
@@ -1398,7 +1471,7 @@ lemma exists_crossing_tree_edge_of_not_internal_reachable {V E : Type*} [Fintype
   exact hnot ((reachableIn_inside_of_walk_of_no_crossing G) p (P.refl u) h)
 
 lemma reachableIn_inside_exchange_of_path_edge_of_new_support {V E : Type*} [Fintype V] [Fintype E]
-    [DecidableEq E] (G : FiniteGraph V E)
+    [DecidableEq E] (G : OrientedMultigraph V E)
     {T : Finset E} {P : Setoid V} {u : V} {e e' : E}
     (p : ((supportGraph G) T).Path (G.endAt e 0) (G.endAt e 1))
     (he'path : (symEdge G) e' ∈ p.1.edges)
@@ -1475,7 +1548,7 @@ lemma reachableIn_inside_exchange_of_path_edge_of_new_support {V E : Type*} [Fin
   exact ⟨G.loopless e,e,by simp [U,mem_insideEdges,he0,he1],.inl ⟨rfl,rfl⟩⟩
 
 lemma reachableIn_inside_exchange_of_path_edge {V E : Type*} [Fintype V] [Fintype E]
-    [DecidableEq E] (G : FiniteGraph V E) [Nonempty V]
+    [DecidableEq E] (G : OrientedMultigraph V E) [Nonempty V]
     {T : Finset E} {P : Setoid V} {u : V} {e e' : E}
     (hT : (IsSpanningTree G) T)
     (p : ((supportGraph G) T).Path (G.endAt e 0) (G.endAt e 1))
@@ -1491,7 +1564,7 @@ lemma reachableIn_inside_exchange_of_path_edge {V E : Type*} [Fintype V] [Fintyp
       p he'path he0 he1 hpath) hT
 
 lemma cyclicEdge_of_mem_path_of_cyclic_edge {V E : Type*} [Fintype V] [Fintype E]
-    [DecidableEq E] (G : FiniteGraph V E)
+    [DecidableEq E] (G : OrientedMultigraph V E)
     {S : Finset E} {e f : E}
     (heCyc : (IsCyclicEdge G) S e)
     (p : ((supportGraph G) (S.erase e)).Path
@@ -1512,7 +1585,7 @@ lemma cyclicEdge_of_mem_path_of_cyclic_edge {V E : Type*} [Fintype V] [Fintype E
   · exact ⟨by rintro rfl; exact (Finset.mem_erase.mp hf).1 rfl, heCyc.1⟩
 
 lemma reachableIn_inside_erase_of_min_superfluous {V E : Type*} [Fintype V] [Fintype E]
-    [DecidableEq E] (G : FiniteGraph V E) [Nonempty V] {k : ℕ}
+    [DecidableEq E] (G : OrientedMultigraph V E) [Nonempty V] {k : ℕ}
     {χ : E → Fin (k + 1)} {e : E} {m t : ℕ} {u v : V}
     (hsuper : (IsSuperfluousAt G) χ e m)
     (hmin : ∀ f n, (IsSuperfluousAt G) χ f n → m ≤ n)
@@ -1558,7 +1631,7 @@ lemma reachableIn_inside_erase_of_min_superfluous {V E : Type*} [Fintype V] [Fin
     exact h
 
 lemma refineSetoid_exchange_eq_of_path_internal {V E : Type*} [Fintype V] [Fintype E]
-    [DecidableEq E] (G : FiniteGraph V E) [Nonempty V]
+    [DecidableEq E] (G : OrientedMultigraph V E) [Nonempty V]
     {T : Finset E} {P : Setoid V} {e e' : E}
     (hT : (IsSpanningTree G) T) (he' : e' ∈ T)
     (p : ((supportGraph G) T).Path (G.endAt e 0) (G.endAt e 1))
@@ -1621,17 +1694,18 @@ lemma residualClass_swap_of_residual_of_tree {E : Type*} [Fintype E] [DecidableE
   by_cases h : x = e <;> by_cases h' : x = e' <;>
     simp_all [residualClass, swapColor]
 
-def HasSuperfluousLevel {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E] (G : FiniteGraph V E)
-    {k : ℕ} (χ : E → Fin (k + 1)) (m : ℕ) : Prop :=
+def HasSuperfluousLevel {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E]
+    (G : OrientedMultigraph V E) {k : ℕ} (χ : E → Fin (k + 1)) (m : ℕ) :
+    Prop :=
   ∃ e : E, (IsSuperfluousAt G) χ e m
 
 noncomputable def minSuperfluousLevel {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E]
-    (G : FiniteGraph V E) {k : ℕ} (χ : E → Fin (k + 1)) : ℕ := by
+    (G : OrientedMultigraph V E) {k : ℕ} (χ : E → Fin (k + 1)) : ℕ := by
   classical
   exact if h : ∃ m, (HasSuperfluousLevel G) χ m then Nat.find h else 0
 
 lemma minSuperfluousLevel_le {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E]
-    (G : FiniteGraph V E) {k : ℕ} {χ : E → Fin (k + 1)} {m : ℕ}
+    (G : OrientedMultigraph V E) {k : ℕ} {χ : E → Fin (k + 1)} {m : ℕ}
     (hm : (HasSuperfluousLevel G) χ m) :
     (minSuperfluousLevel G) χ ≤ m := by
   classical
@@ -1639,7 +1713,7 @@ lemma minSuperfluousLevel_le {V E : Type*} [Fintype V] [Fintype E] [DecidableEq 
   exact Nat.find_min' _ hm
 
 def HasKaiserImprovementStep {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E]
-    (G : FiniteGraph V E) (k : ℕ) : Prop :=
+    (G : OrientedMultigraph V E) (k : ℕ) : Prop :=
   ∀ χ : E → Fin (k + 1), (PrefixTrees G) χ →
     ¬ (Connects G) (residualClass χ) →
       ∃ χ' : E → Fin (k + 1), (PrefixTrees G) χ' ∧
@@ -1651,11 +1725,12 @@ noncomputable def coloringOfPacking {E : Type*} [DecidableEq E] {k : ℕ} (T : F
     E → Fin (k + 1) := fun e ↦
   if h : ∃ i : Fin k, e ∈ T i then (Classical.choose h).castSucc else Fin.last k
 
-def IsThreeEdgeConnected {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E) : Prop :=
+def IsThreeEdgeConnected {V E : Type*} [Fintype V] [Fintype E]
+    (H : OrientedMultigraph V E) : Prop :=
   ∀ S : Finset V, S.Nonempty → S ≠ Finset.univ → 3 ≤ ((cut H) S).card
 
-def doubleGraph {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E) : FiniteGraph V
-    (E × Fin 2) where
+def doubleGraph {V E : Type*} [Fintype V] [Fintype E]
+    (H : OrientedMultigraph V E) : OrientedMultigraph V (E × Fin 2) where
   endAt e i := H.endAt e.1 i
   loopless e := H.loopless e.1
 
@@ -1669,14 +1744,14 @@ lemma mem_classFinset {V : Type*} [Fintype V] {P : Setoid V} {q : Quotient P} {v
     v ∈ classFinset P q ↔ Quotient.mk P v = q := by simp[classFinset]
 
 @[simp]
-lemma mem_cut_classFinset {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E) {P : Setoid V}
-    {q : Quotient P} {e : E} :
+lemma mem_cut_classFinset {V E : Type*} [Fintype V] [Fintype E]
+    (H : OrientedMultigraph V E) {P : Setoid V} {q : Quotient P} {e : E} :
     e ∈ (cut H) (classFinset P q) ↔
       (Quotient.mk P (H.endAt e 0) = q) ≠
         (Quotient.mk P (H.endAt e 1) = q) := by simp[cut,Crosses]
 
-def contractEdgeSetoid {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E) (e : E) : Setoid
-    V where
+def contractEdgeSetoid {V E : Type*} [Fintype V] [Fintype E]
+    (H : OrientedMultigraph V E) (e : E) : Setoid V where
   r u v := u = v ∨
     (u = H.endAt e 0 ∧ v = H.endAt e 1) ∨
       (u = H.endAt e 1 ∧ v = H.endAt e 0)
@@ -1701,25 +1776,26 @@ def contractEdgeSetoid {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V 
         · exact Or.inl rfl
         · exact (H.loopless e h).elim
 
-def SurvivesContraction {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E) (e f : E) : Prop
-    :=
+def SurvivesContraction {V E : Type*} [Fintype V] [Fintype E]
+    (H : OrientedMultigraph V E) (e f : E) : Prop :=
   ¬ ((contractEdgeSetoid H) e).r (H.endAt f 0) (H.endAt f 1)
 
 noncomputable instance contractEdgeQuotientDecidableEq
-    {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E) (e : E) :
+    {V E : Type*} [Fintype V] [Fintype E] (H : OrientedMultigraph V E) (e : E) :
     DecidableEq (Quotient ((contractEdgeSetoid H) e)) := Classical.decEq _
 
 noncomputable instance survivesContractionDecidablePred
-    {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E) (e : E) :
+    {V E : Type*} [Fintype V] [Fintype E] (H : OrientedMultigraph V E) (e : E) :
     DecidablePred ((SurvivesContraction H) e) := Classical.decPred _
 
 noncomputable instance survivesContractionFintype
-    {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E) (e : E) :
+    {V E : Type*} [Fintype V] [Fintype E] (H : OrientedMultigraph V E) (e : E) :
     Fintype {f : E // (SurvivesContraction H) e f} :=
   Fintype.ofFinite _
 
-noncomputable def contractEdge {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E) (e : E) :
-    FiniteGraph (Quotient ((contractEdgeSetoid H) e))
+noncomputable def contractEdge {V E : Type*} [Fintype V] [Fintype E]
+    (H : OrientedMultigraph V E) (e : E) :
+    OrientedMultigraph (Quotient ((contractEdgeSetoid H) e))
       {f : E // (SurvivesContraction H) e f} := by
   classical
   letI : Fintype (Quotient ((contractEdgeSetoid H) e)) := Fintype.ofFinite _
@@ -1730,19 +1806,21 @@ noncomputable def contractEdge {V E : Type*} [Fintype V] [Fintype E] (H : Finite
         intro f h
         exact f.2 (Quotient.eq'.mp h) }
 
-noncomputable def contractionPullback {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E)
-    (e : E)
+noncomputable def contractionPullback {V E : Type*} [Fintype V] [Fintype E]
+    (H : OrientedMultigraph V E) (e : E)
     (A : Finset (Quotient ((contractEdgeSetoid H) e))) : Finset V := by
   classical
   exact Finset.univ.filter fun v => Quotient.mk ((contractEdgeSetoid H) e) v ∈ A
 
 @[simp]
-lemma mem_contractionPullback {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E) {e : E}
+lemma mem_contractionPullback {V E : Type*} [Fintype V] [Fintype E]
+    (H : OrientedMultigraph V E) {e : E}
     {A : Finset (Quotient ((contractEdgeSetoid H) e))} {v : V} :
     v ∈ (contractionPullback H) e A ↔
       Quotient.mk ((contractEdgeSetoid H) e) v ∈ A := by simp[contractionPullback]
 
-lemma mem_contractEdge_cut_iff {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E) {e : E}
+lemma mem_contractEdge_cut_iff {V E : Type*} [Fintype V] [Fintype E]
+    (H : OrientedMultigraph V E) {e : E}
     (A : Finset (Quotient ((contractEdgeSetoid H) e)))
     (f : {f : E // (SurvivesContraction H) e f}) :
     f ∈ (cut ((contractEdge H) e)) A ↔
@@ -1751,7 +1829,7 @@ lemma mem_contractEdge_cut_iff {V E : Type*} [Fintype V] [Fintype E] (H : Finite
 def gammaUnit : Gamma := Pi.single 0 1
 
 lemma sum_cut_term_gamma_eq_sum_cut {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
-    (H : FiniteGraph V E) (φ : E → Gamma) (S : Finset V) :
+    (H : OrientedMultigraph V E) (φ : E → Gamma) (S : Finset V) :
     (∑ e : E,
       ((if H.endAt e 0 ∈ S then φ e else 0) -
         (if H.endAt e 1 ∈ S then φ e else 0))) =
@@ -1763,7 +1841,7 @@ lemma sum_cut_term_gamma_eq_sum_cut {V E : Type*} [Fintype V] [Fintype E] [Decid
   split_ifs <;> simp_all [CubicGraph.neg_gamma]
 
 lemma sum_lift_off_contract_endpoints {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
-    (H : FiniteGraph V E) {e : E}
+    (H : OrientedMultigraph V E) {e : E}
     (ψ : (NowhereZeroFlow ((contractEdge H) e)) Gamma) (a : Gamma)
     {v : V} (hv0 : v ≠ H.endAt e 0) (hv1 : v ≠ H.endAt e 1)
     (j : Fin 2) :
@@ -1814,34 +1892,34 @@ lemma sum_lift_off_contract_endpoints {V E : Type*} [Fintype V] [Fintype E] [Dec
     have hs := hsurv f (Finset.mem_filter.mp hf).2
     simp [hs]
 
-lemma endpoints_componentSetoid_rel {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E)
-    (e : E) :
+lemma endpoints_componentSetoid_rel {V E : Type*} [Fintype V] [Fintype E]
+    (H : OrientedMultigraph V E) (e : E) :
     ((componentSetoid H) Finset.univ).r (H.endAt e 0) (H.endAt e 1) := by
   apply SimpleGraph.Adj.reachable
   rw[(supportGraph_adj_iff H)]
   exact ⟨H.loopless e,e,by simp,.inl ⟨rfl,rfl⟩⟩
 
-abbrev ComponentVertex {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E)
+abbrev ComponentVertex {V E : Type*} [Fintype V] [Fintype E] (H : OrientedMultigraph V E)
     (q : Quotient ((componentSetoid H) Finset.univ)) :=
   {v : V // Quotient.mk ((componentSetoid H) Finset.univ) v = q}
 
-abbrev ComponentEdge {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E)
+abbrev ComponentEdge {V E : Type*} [Fintype V] [Fintype E] (H : OrientedMultigraph V E)
     (q : Quotient ((componentSetoid H) Finset.univ)) :=
   {e : E // Quotient.mk ((componentSetoid H) Finset.univ) (H.endAt e 0) = q}
 
 noncomputable instance componentVertexFintype
-    {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E)
+    {V E : Type*} [Fintype V] [Fintype E] (H : OrientedMultigraph V E)
     (q : Quotient ((componentSetoid H) Finset.univ)) : Fintype ((ComponentVertex H) q) :=
   Fintype.ofFinite _
 
 noncomputable instance componentEdgeFintype
-    {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E)
+    {V E : Type*} [Fintype V] [Fintype E] (H : OrientedMultigraph V E)
     (q : Quotient ((componentSetoid H) Finset.univ)) : Fintype ((ComponentEdge H) q) :=
   Fintype.ofFinite _
 
-noncomputable def componentGraph {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E)
+noncomputable def componentGraph {V E : Type*} [Fintype V] [Fintype E] (H : OrientedMultigraph V E)
     (q : Quotient ((componentSetoid H) Finset.univ)) :
-    FiniteGraph ((ComponentVertex H) q) ((ComponentEdge H) q) where
+    OrientedMultigraph ((ComponentVertex H) q) ((ComponentEdge H) q) where
   endAt e i := if i = 0 then
       ⟨H.endAt e.1 0, e.2⟩
     else
@@ -1856,7 +1934,7 @@ noncomputable def componentGraph {V E : Type*} [Fintype V] [Fintype E] (H : Fini
     exact congrArg Subtype.val h
 
 lemma mem_componentGraph_cut_iff {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
-    (H : FiniteGraph V E)
+    (H : OrientedMultigraph V E)
     (q : Quotient ((componentSetoid H) Finset.univ))
     (A : Finset ((ComponentVertex H) q)) (e : (ComponentEdge H) q) :
     e ∈ (cut ((componentGraph H) q)) A ↔
@@ -1866,7 +1944,7 @@ lemma mem_componentGraph_cut_iff {V E : Type*} [Fintype V] [Fintype E] [Decidabl
 
 lemma hasCycleCorrection_compl_of_isSpanningTree :
     ∀ {W F : Type u} [Fintype W] [Fintype F] [DecidableEq W]
-      [DecidableEq F] (H : FiniteGraph W F) [Nonempty W]
+      [DecidableEq F] (H : OrientedMultigraph W F) [Nonempty W]
       (T : Finset F), (IsSpanningTree H) T → ∀ e : F, e ∉ T →
         (HasCycleCorrection H) (Finset.univ \ T) e := by
   intro W F _ _ _ _ H _ T hT e he
@@ -1897,7 +1975,7 @@ lemma hasCycleCorrection_compl_of_isSpanningTree :
 
 lemma hasTreePacking_succ_of_hasKaiserImprovementStep : ∀ {W F : Type u} [Fintype W] [Fintype F]
     [DecidableEq F] [Nonempty W]
-    (H : FiniteGraph W F) (k : ℕ),
+    (H : OrientedMultigraph W F) (k : ℕ),
     (HasTreePacking H) k → (HasKaiserImprovementStep H) k →
       (HasTreePacking H) (k + 1) := by
   intro W F _ _ _ _ H k hpack hstep
@@ -1957,7 +2035,7 @@ lemma hasTreePacking_succ_of_hasKaiserImprovementStep : ∀ {W F : Type u} [Fint
 lemma connectedComponent_card_union_singleton_lt :
     ∀ {W F : Type u} [Fintype W] [Fintype F]
       [DecidableEq F]
-      (H : FiniteGraph W F) (S : Finset F) (f : F),
+      (H : OrientedMultigraph W F) (S : Finset F) (f : F),
       (¬ (ReachableIn H) S (H.endAt f 0) (H.endAt f 1)) →
         Nat.card ((supportGraph H) (S ∪ {f})).ConnectedComponent <
           Nat.card ((supportGraph H) S).ConnectedComponent := by
@@ -1993,7 +2071,7 @@ lemma connectedComponent_card_union_singleton_lt :
 
 lemma exists_kaiserImprovement_of_hasSuperfluousEdge : ∀ {W F : Type u} [Fintype W] [Fintype F]
     [DecidableEq F] [Nonempty W]
-    (H : FiniteGraph W F) (k : ℕ) (χ : F → Fin (k + 1)),
+    (H : OrientedMultigraph W F) (k : ℕ) (χ : F → Fin (k + 1)),
     (PrefixTrees H) χ → ¬ (Connects H) (residualClass χ) →
     (HasSuperfluousEdge H) χ →
     ∃ χ' : F → Fin (k + 1), (PrefixTrees H) χ' ∧
@@ -2469,7 +2547,7 @@ lemma exists_kaiserImprovement_of_hasSuperfluousEdge : ∀ {W F : Type u} [Finty
 lemma exists_kaiserPartition_firstDisconnectedColor_eq_none :
     ∀ {W F : Type u} [Fintype W] [Fintype F]
       [Nonempty W]
-      (H : FiniteGraph W F) (r : ℕ) (χ : F → Fin r),
+      (H : OrientedMultigraph W F) (r : ℕ) (χ : F → Fin r),
       ∃ n : ℕ,
         (firstDisconnectedColor H) χ ((kaiserPartition H) χ n) = none := by
   classical
@@ -2507,7 +2585,7 @@ lemma exists_kaiserPartition_firstDisconnectedColor_eq_none :
 lemma hasTreePacking_of_satisfiesTreePackingCondition :
     ∀ {W F : Type u} [Fintype W] [Fintype F]
       [Nonempty W]
-      (H : FiniteGraph W F) (k : ℕ),
+      (H : OrientedMultigraph W F) (k : ℕ),
       (SatisfiesTreePackingCondition H) k → (HasTreePacking H) k := by
   intro W F _ _ _ H k hc
   classical
@@ -2757,7 +2835,7 @@ lemma hasTreePacking_of_satisfiesTreePackingCondition :
 
 lemma nowhereZeroFlow_of_doubleGraph_treePacking_three :
     ∀ {W F : Type u} [Fintype W] [Fintype F] [DecidableEq W]
-      (H : FiniteGraph W F) [Nonempty W],
+      (H : OrientedMultigraph W F) [Nonempty W],
       (HasTreePacking ((doubleGraph H))) 3 → Nonempty ((NowhereZeroFlow H) Gamma) := by
   classical
   intro W F _ _ _ H _ hpacking
@@ -2884,7 +2962,7 @@ lemma nowhereZeroFlow_of_doubleGraph_treePacking_three :
 
 lemma nowhereZeroFlow_of_contractEdge_of_twoCut :
     ∀ {W F : Type u} [Fintype W] [Fintype F] [DecidableEq W]
-      [DecidableEq F] (H : FiniteGraph W F) (S : Finset W) (a b : F),
+      [DecidableEq F] (H : OrientedMultigraph W F) (S : Finset W) (a b : F),
       a ≠ b → (cut H) S = {a, b} →
       Nonempty ((NowhereZeroFlow ((contractEdge H) a)) Gamma) →
         Nonempty ((NowhereZeroFlow H) Gamma) := by
@@ -2971,7 +3049,7 @@ lemma nowhereZeroFlow_of_contractEdge_of_twoCut :
     · exact hx
 
 lemma contractEdge_bridgeless :
-    ∀ {W F : Type u} [Fintype W] [Fintype F] (H : FiniteGraph W F),
+    ∀ {W F : Type u} [Fintype W] [Fintype F] (H : OrientedMultigraph W F),
       (Bridgeless H) → ∀ a : F,
         (Bridgeless ((contractEdge H) a)) := by
   classical
@@ -2994,7 +3072,7 @@ lemma contractEdge_bridgeless :
   rwa [← hc]
 
 lemma contractEdge_connects :
-    ∀ {W F : Type u} [Fintype W] [Fintype F] (H : FiniteGraph W F) [Nonempty W],
+    ∀ {W F : Type u} [Fintype W] [Fintype F] (H : OrientedMultigraph W F) [Nonempty W],
       (Connects H) Finset.univ → ∀ a : F,
         (Connects ((contractEdge H) a)) Finset.univ := by
   classical
@@ -3023,10 +3101,10 @@ lemma contractEdge_connects :
 
 lemma connected_bridgeless_flow_of_threeEdgeConnected_case
     (base : ∀ {W F : Type u} [Fintype W] [Fintype F] [DecidableEq W]
-      [DecidableEq F] (H : FiniteGraph W F) [Nonempty W],
+      [DecidableEq F] (H : OrientedMultigraph W F) [Nonempty W],
         (IsThreeEdgeConnected H) → Nonempty ((NowhereZeroFlow H) Gamma)) :
     ∀ {W F : Type u} [Fintype W] [Fintype F] [DecidableEq W]
-      (H : FiniteGraph W F) [Nonempty W],
+      (H : OrientedMultigraph W F) [Nonempty W],
         (Connects H) Finset.univ → (Bridgeless H) →
           Nonempty ((NowhereZeroFlow H) Gamma) := by
   classical
@@ -3072,7 +3150,7 @@ lemma connected_bridgeless_flow_of_threeEdgeConnected_case
 
 lemma nowhereZeroFlow_of_componentGraph_flows :
     ∀ {W F : Type u} [Fintype W] [Fintype F]
-      [DecidableEq W] (H : FiniteGraph W F),
+      [DecidableEq W] (H : OrientedMultigraph W F),
       (∀ q : Quotient ((componentSetoid H) Finset.univ),
         Nonempty ((NowhereZeroFlow ((componentGraph H) q)) Gamma)) →
       Nonempty ((NowhereZeroFlow H) Gamma) := by
@@ -3120,7 +3198,7 @@ lemma nowhereZeroFlow_of_componentGraph_flows :
 
 lemma componentGraph_bridgeless :
     ∀ {W F : Type u} [Fintype W] [Fintype F]
-      (H : FiniteGraph W F)
+      (H : OrientedMultigraph W F)
       (q : Quotient ((componentSetoid H) Finset.univ)),
       (Bridgeless H) → (Bridgeless ((componentGraph H) q)) := by
   classical
@@ -3153,10 +3231,10 @@ lemma componentGraph_bridgeless :
 
 lemma bridgeless_flow_of_threeEdgeConnected_case
     (base : ∀ {W F : Type u} [Fintype W] [Fintype F] [DecidableEq W]
-      [DecidableEq F] (H : FiniteGraph W F) [Nonempty W],
+      [DecidableEq F] (H : OrientedMultigraph W F) [Nonempty W],
         (IsThreeEdgeConnected H) → Nonempty ((NowhereZeroFlow H) Gamma)) :
     ∀ {W F : Type u} [Fintype W] [Fintype F] [DecidableEq W]
-      (H : FiniteGraph W F), (Bridgeless H) →
+      (H : OrientedMultigraph W F), (Bridgeless H) →
         Nonempty ((NowhereZeroFlow H) Gamma) := by
   classical
   intro W F _ _ _ H hb
@@ -3184,7 +3262,7 @@ lemma bridgeless_flow_of_threeEdgeConnected_case
 
 lemma expansionGraph_bridgeless :
     ∀ {W F : Type u} [Fintype W] [Fintype F]
-      (H : FiniteGraph W F)
+      (H : OrientedMultigraph W F)
       (R : (RotationSystem H)),
       (Bridgeless H) → (Bridgeless ((expansionGraph H) R)) := by
   classical
@@ -3257,11 +3335,11 @@ lemma expansionGraph_bridgeless :
 
 theorem cycleDoubleCover_of_bridgeless
     {V E : Type u} [Fintype V] [Fintype E] [DecidableEq V] [DecidableEq E]
-    (G : FiniteGraph V E) (hb : (Bridgeless G)) :
+    (G : OrientedMultigraph V E) (hb : (Bridgeless G)) :
     Nonempty (CycleDoubleCover G) := by
   classical
   have b : ∀ {W F : Type u} [Fintype W] [Fintype F] [DecidableEq W]
-      [DecidableEq F] (H : FiniteGraph W F) [Nonempty W],
+      [DecidableEq F] (H : OrientedMultigraph W F) [Nonempty W],
       (IsThreeEdgeConnected H) → Nonempty ((NowhereZeroFlow H) Gamma) := by
     intro W F _ _ _ _ H _ ht
     apply (nowhereZeroFlow_of_doubleGraph_treePacking_three H)
@@ -3352,17 +3430,24 @@ theorem cycleDoubleCover_of_bridgeless
   obtain ⟨f⟩ := bridgeless_flow_of_threeEdgeConnected_case b
     ((expansionGraph G) R) ((expansionGraph_bridgeless G) R hb)
   have hend (e : (ExpandedEdge G)) (i : Fin 2) :
-      ((cubicExpansion G) R).toFiniteGraph.endAt e i =
+      ((cubicExpansion G) R).toOrientedMultigraph.endAt e i =
         ((expansionGraph G) R).endAt e i := by
     cases e <;> fin_cases i <;> rfl
-  have f' : NowhereZeroFlow (((cubicExpansion G) R).toFiniteGraph) Gamma :=
+  have f' : NowhereZeroFlow (((cubicExpansion G) R).toOrientedMultigraph) Gamma :=
     ⟨f.val, fun v ↦ by simpa only [hend] using f.conservation v, f.nowhereZero⟩
   let C := cubic_even_double_cover ((cubicExpansion G) R)
     (((cubicExpansion G) R).gammaFlowOfNowhereZero f')
   exact ⟨((projectEvenDoubleCover G) R C).toCycleDoubleCover⟩
 
-#print axioms cycleDoubleCover_of_bridgeless
--- 'CycleDoubleCoverConjecture.cycleDoubleCover_of_bridgeless' depends on axioms:
+theorem graph_cycleDoubleCover_of_oriented_bridgeless
+    {α β : Type u} [Fintype α] [Fintype β] [DecidableEq α] [DecidableEq β]
+    (G : Graph α β) (hG : G.Loopless)
+    (hb : OrientedMultigraph.Bridgeless (G.toOrientedMultigraph hG)) :
+    Nonempty (CycleDoubleCover (G.toOrientedMultigraph hG)) :=
+  cycleDoubleCover_of_bridgeless (G.toOrientedMultigraph hG) hb
+
+#print axioms graph_cycleDoubleCover_of_oriented_bridgeless
+-- 'CycleDoubleCoverConjecture.graph_cycleDoubleCover_of_oriented_bridgeless' depends on axioms:
 -- [propext, Classical.choice, Quot.sound]
 
 end CycleDoubleCoverConjecture
