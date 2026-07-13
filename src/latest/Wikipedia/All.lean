@@ -1,1 +1,1 @@
-import Wikipedia.CycleDoubleCover
+import Wikipedia.CycleDoubleCoverConjecture
