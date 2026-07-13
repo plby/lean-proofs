@@ -35,6 +35,18 @@ structure CycleDoubleCover {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
   cycles : List (Cycle G)
   coveredTwice : ∀ e : E, (cycles.filter fun C ↦ e ∈ C.edges).length = 2
 
+def Crosses {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset V) (e : E) :
+    Prop :=
+  (G.endAt e 0 ∈ S) ≠ (G.endAt e 1 ∈ S)
+
+noncomputable def cut {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset V) :
+    Finset E := by
+  classical
+  exact Finset.univ.filter ((Crosses G) S)
+
+def Bridgeless {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) : Prop :=
+  ∀ S : Finset V, (cut G S).card ≠ 1
+
 end FiniteGraph
 
 open FiniteGraph
@@ -367,18 +379,6 @@ instance {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph 
 
 def degree {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) (v : V) : ℕ
     := Fintype.card ((halfEdgesAt G) v)
-
-def Crosses {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset V) (e : E) :
-    Prop :=
-  (G.endAt e 0 ∈ S) ≠ (G.endAt e 1 ∈ S)
-
-noncomputable def cut {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset V) :
-    Finset E := by
-  classical
-  exact Finset.univ.filter ((Crosses G) S)
-
-def Bridgeless {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) : Prop :=
-  ∀ S : Finset V, (cut G S).card ≠ 1
 
 def IsFlow {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) {A : Type*}
     [AddCommGroup A] (f : E → A) : Prop :=
