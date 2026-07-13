@@ -79,6 +79,30 @@ def _root_.Graph.Bridgeless {α β : Type*} (G : Graph α β) : Prop :=
   G.Connected ∧
     ∀ e ∈ G.edgeSet, (G.deleteEdges ({e} : Set β)).Connected
 
+noncomputable def _root_.Graph.edgeIncidence {α β : Type*} (G : Graph α β)
+    (v : G.Vertex) (e : G.Edge) : F₂ := by
+  classical
+  exact if G.IsNonloopAt e.1 v.1 then 1 else 0
+
+def _root_.Graph.IsEvenEdgeSet
+    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α] (G : Graph α β)
+    (F : Finset G.Edge) : Prop :=
+  ∀ v : G.Vertex, ∑ e ∈ F, G.edgeIncidence v e = 0
+
+structure _root_.Graph.Cycle
+    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α] (G : Graph α β) where
+  edges : Finset G.Edge
+  nonempty : edges.Nonempty
+  even : G.IsEvenEdgeSet edges
+  minimal :
+    ∀ D : Finset G.Edge, D.Nonempty → D ⊆ edges → G.IsEvenEdgeSet D → D = edges
+
+structure _root_.Graph.CycleDoubleCover
+    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α] [DecidableEq β]
+    (G : Graph α β) where
+  cycles : List G.Cycle
+  coveredTwice : ∀ e : G.Edge, (cycles.filter fun C ↦ e ∈ C.edges).length = 2
+
 noncomputable def _root_.Graph.toOrientedMultigraph
     {α β : Type*} [Fintype α] [Fintype β] (G : Graph α β) (hG : G.Loopless) :
     OrientedMultigraph G.Vertex G.Edge := by
@@ -111,6 +135,90 @@ lemma _root_.Graph.toOrientedMultigraph_isLink
   let h := G.exists_isLink_of_mem_edgeSet e.2
   change G.IsLink e.1 h.choose h.choose_spec.choose
   exact h.choose_spec.choose_spec
+
+lemma _root_.Graph.toOrientedMultigraph_edgeIncidence
+    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α]
+    (G : Graph α β) (hG : G.Loopless) (v : G.Vertex) (e : G.Edge) :
+    OrientedMultigraph.edgeIncidence (G.toOrientedMultigraph hG) v e =
+      G.edgeIncidence v e := by
+  classical
+  let O := G.toOrientedMultigraph hG
+  have hlink : G.IsLink e.1 (O.endAt e 0).1 (O.endAt e 1).1 := by
+    simpa [O] using G.toOrientedMultigraph_isLink hG e
+  change ((if O.endAt e 0 = v then 1 else 0) +
+      if O.endAt e 1 = v then 1 else 0) =
+    (if G.IsNonloopAt e.1 v.1 then 1 else 0)
+  by_cases h0 : O.endAt e 0 = v
+  · have hnon : G.IsNonloopAt e.1 v.1 := by
+      refine ⟨(O.endAt e 1).1, ?_, ?_⟩
+      · intro hv
+        exact O.loopless e (by ext; exact h0 ▸ hv.symm)
+      · simpa [h0] using hlink
+    have h1 : O.endAt e 1 ≠ v := by
+      intro h1
+      exact O.loopless e (h0.trans h1.symm)
+    simp [h0, h1, hnon]
+  · by_cases h1 : O.endAt e 1 = v
+    · have hnon : G.IsNonloopAt e.1 v.1 := by
+        refine ⟨(O.endAt e 0).1, ?_, ?_⟩
+        · intro hv
+          exact O.loopless e (by ext; exact hv.trans (congrArg Subtype.val h1).symm)
+        · simpa [h1] using hlink.symm
+      simp [h0, h1, hnon]
+    · have hnon : ¬ G.IsNonloopAt e.1 v.1 := by
+        intro hnon
+        have hinc := hnon.inc
+        rcases hinc.eq_or_eq_of_isLink hlink with hv0 | hv1
+        · exact h0 (Subtype.ext hv0.symm)
+        · exact h1 (Subtype.ext hv1.symm)
+      simp [h0, h1, hnon]
+
+noncomputable def _root_.Graph.Cycle.ofOriented
+    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α]
+    (G : Graph α β) (hG : G.Loopless)
+    (C : OrientedMultigraph.Cycle (G.toOrientedMultigraph hG)) :
+    G.Cycle where
+  edges := C.edges
+  nonempty := C.nonempty
+  even := by
+    intro v
+    calc
+      ∑ e ∈ C.edges, G.edgeIncidence v e =
+          ∑ e ∈ C.edges,
+            OrientedMultigraph.edgeIncidence (G.toOrientedMultigraph hG) v e := by
+        apply Finset.sum_congr rfl
+        intro e _
+        exact (G.toOrientedMultigraph_edgeIncidence hG v e).symm
+      _ = 0 := C.even v
+  minimal := by
+    intro D hDne hDsub hDeven
+    apply C.minimal D hDne hDsub
+    intro v
+    calc
+      ∑ e ∈ D, OrientedMultigraph.edgeIncidence (G.toOrientedMultigraph hG) v e =
+          ∑ e ∈ D, G.edgeIncidence v e := by
+        apply Finset.sum_congr rfl
+        intro e _
+        exact G.toOrientedMultigraph_edgeIncidence hG v e
+      _ = 0 := hDeven v
+
+noncomputable def _root_.Graph.CycleDoubleCover.ofOriented
+    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α] [DecidableEq β]
+    (G : Graph α β) (hG : G.Loopless)
+    (C : OrientedMultigraph.CycleDoubleCover (G.toOrientedMultigraph hG)) :
+    G.CycleDoubleCover where
+  cycles := C.cycles.map (Graph.Cycle.ofOriented G hG)
+  coveredTwice := by
+    intro e
+    have hfilter (L : List (OrientedMultigraph.Cycle (G.toOrientedMultigraph hG))) :
+        ((L.map (Graph.Cycle.ofOriented G hG)).filter fun C ↦ e ∈ C.edges).length =
+          (L.filter fun C ↦ e ∈ C.edges).length := by
+      induction L with
+      | nil => simp
+      | cons C L ih =>
+          by_cases h : e ∈ C.edges <;> simp [Graph.Cycle.ofOriented, h, ih]
+    rw [hfilter]
+    exact C.coveredTwice e
 
 theorem _root_.Graph.toOrientedMultigraph_bridgeless
     {α β : Type*} [Fintype α] [Fintype β]
@@ -3531,9 +3639,10 @@ theorem cycleDoubleCover_of_bridgeless
 theorem graph_cycleDoubleCover_of_bridgeless
     {α β : Type u} [Fintype α] [Fintype β] [DecidableEq α] [DecidableEq β]
     (G : Graph α β) (hG : G.Loopless) (hb : G.Bridgeless) :
-    Nonempty (CycleDoubleCover (G.toOrientedMultigraph hG)) :=
-  cycleDoubleCover_of_bridgeless (G.toOrientedMultigraph hG)
+    Nonempty (Graph.CycleDoubleCover G) := by
+  obtain ⟨C⟩ := cycleDoubleCover_of_bridgeless (G.toOrientedMultigraph hG)
     (G.toOrientedMultigraph_bridgeless hG hb)
+  exact ⟨Graph.CycleDoubleCover.ofOriented G hG C⟩
 
 #print axioms graph_cycleDoubleCover_of_bridgeless
 -- 'CycleDoubleCoverConjecture.graph_cycleDoubleCover_of_bridgeless' depends on axioms:
