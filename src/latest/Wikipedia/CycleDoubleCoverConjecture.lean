@@ -8,6 +8,66 @@ namespace CycleDoubleCoverConjecture
 
 abbrev F₂ := ZMod 2
 
+end CycleDoubleCoverConjecture
+
+namespace Graph
+
+abbrev Vertex {α β : Type*} (G : Graph α β) := {v // v ∈ G.vertexSet}
+
+abbrev Edge {α β : Type*} (G : Graph α β) := {e // e ∈ G.edgeSet}
+
+noncomputable instance vertexFintype
+    {α β : Type*} [Fintype α] (G : Graph α β) :
+    Fintype G.Vertex :=
+  @Subtype.fintype α (fun v ↦ v ∈ G.vertexSet) (Classical.decPred _) inferInstance
+
+noncomputable instance edgeFintype
+    {α β : Type*} [Fintype β] (G : Graph α β) :
+    Fintype G.Edge :=
+  @Subtype.fintype β (fun e ↦ e ∈ G.edgeSet) (Classical.decPred _) inferInstance
+
+def Loopless {α β : Type*} (G : Graph α β) : Prop :=
+  ∀ e x, ¬ G.IsLoopAt e x
+
+def Reachable {α β : Type*} (G : Graph α β) (u v : α) : Prop :=
+  Relation.ReflTransGen G.Adj u v
+
+def Connected {α β : Type*} (G : Graph α β) : Prop :=
+  G.vertexSet.Nonempty ∧
+    ∀ ⦃u v : α⦄, u ∈ G.vertexSet → v ∈ G.vertexSet → G.Reachable u v
+
+def Bridgeless {α β : Type*} (G : Graph α β) : Prop :=
+  G.Connected ∧
+    ∀ e ∈ G.edgeSet, (G.deleteEdges ({e} : Set β)).Connected
+
+noncomputable def edgeIncidence {α β : Type*} (G : Graph α β)
+    (v : G.Vertex) (e : G.Edge) : CycleDoubleCoverConjecture.F₂ := by
+  classical
+  exact if G.IsNonloopAt e.1 v.1 then 1 else 0
+
+def IsEvenEdgeSet
+    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α] (G : Graph α β)
+    (F : Finset G.Edge) : Prop :=
+  ∀ v : G.Vertex, ∑ e ∈ F, G.edgeIncidence v e = 0
+
+structure Cycle
+    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α] (G : Graph α β) where
+  edges : Finset G.Edge
+  nonempty : edges.Nonempty
+  even : G.IsEvenEdgeSet edges
+  minimal :
+    ∀ D : Finset G.Edge, D.Nonempty → D ⊆ edges → G.IsEvenEdgeSet D → D = edges
+
+structure CycleDoubleCover
+    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α] [DecidableEq β]
+    (G : Graph α β) where
+  cycles : List G.Cycle
+  coveredTwice : ∀ e : G.Edge, (cycles.filter fun C ↦ e ∈ C.edges).length = 2
+
+end Graph
+
+namespace CycleDoubleCoverConjecture
+
 structure OrientedMultigraph (V E : Type*) [Fintype V] [Fintype E] where
   endAt : E → Fin 2 → V
   loopless : ∀ e, endAt e 0 ≠ endAt e 1
@@ -51,59 +111,13 @@ def Bridgeless {V E : Type*} [Fintype V] [Fintype E] (G : OrientedMultigraph V E
 
 end OrientedMultigraph
 
-abbrev _root_.Graph.Vertex {α β : Type*} (G : Graph α β) := {v // v ∈ G.vertexSet}
+end CycleDoubleCoverConjecture
 
-abbrev _root_.Graph.Edge {α β : Type*} (G : Graph α β) := {e // e ∈ G.edgeSet}
+namespace Graph
 
-noncomputable instance _root_.Graph.vertexFintype
-    {α β : Type*} [Fintype α] (G : Graph α β) :
-    Fintype G.Vertex :=
-  @Subtype.fintype α (fun v => v ∈ G.vertexSet) (Classical.decPred _) inferInstance
+open CycleDoubleCoverConjecture
 
-noncomputable instance _root_.Graph.edgeFintype
-    {α β : Type*} [Fintype β] (G : Graph α β) :
-    Fintype G.Edge :=
-  @Subtype.fintype β (fun e => e ∈ G.edgeSet) (Classical.decPred _) inferInstance
-
-def _root_.Graph.Loopless {α β : Type*} (G : Graph α β) : Prop :=
-  ∀ e x, ¬ G.IsLoopAt e x
-
-def _root_.Graph.Reachable {α β : Type*} (G : Graph α β) (u v : α) : Prop :=
-  Relation.ReflTransGen G.Adj u v
-
-def _root_.Graph.Connected {α β : Type*} (G : Graph α β) : Prop :=
-  G.vertexSet.Nonempty ∧
-    ∀ ⦃u v : α⦄, u ∈ G.vertexSet → v ∈ G.vertexSet → G.Reachable u v
-
-def _root_.Graph.Bridgeless {α β : Type*} (G : Graph α β) : Prop :=
-  G.Connected ∧
-    ∀ e ∈ G.edgeSet, (G.deleteEdges ({e} : Set β)).Connected
-
-noncomputable def _root_.Graph.edgeIncidence {α β : Type*} (G : Graph α β)
-    (v : G.Vertex) (e : G.Edge) : F₂ := by
-  classical
-  exact if G.IsNonloopAt e.1 v.1 then 1 else 0
-
-def _root_.Graph.IsEvenEdgeSet
-    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α] (G : Graph α β)
-    (F : Finset G.Edge) : Prop :=
-  ∀ v : G.Vertex, ∑ e ∈ F, G.edgeIncidence v e = 0
-
-structure _root_.Graph.Cycle
-    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α] (G : Graph α β) where
-  edges : Finset G.Edge
-  nonempty : edges.Nonempty
-  even : G.IsEvenEdgeSet edges
-  minimal :
-    ∀ D : Finset G.Edge, D.Nonempty → D ⊆ edges → G.IsEvenEdgeSet D → D = edges
-
-structure _root_.Graph.CycleDoubleCover
-    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α] [DecidableEq β]
-    (G : Graph α β) where
-  cycles : List G.Cycle
-  coveredTwice : ∀ e : G.Edge, (cycles.filter fun C ↦ e ∈ C.edges).length = 2
-
-noncomputable def _root_.Graph.toOrientedMultigraph
+noncomputable def toOrientedMultigraph
     {α β : Type*} [Fintype α] [Fintype β] (G : Graph α β) (hG : G.Loopless) :
     OrientedMultigraph G.Vertex G.Edge := by
   classical
@@ -126,7 +140,7 @@ noncomputable def _root_.Graph.toOrientedMultigraph
         exact hG e.1 _ hlink } :
       OrientedMultigraph G.Vertex G.Edge)
 
-lemma _root_.Graph.toOrientedMultigraph_isLink
+lemma toOrientedMultigraph_isLink
     {α β : Type*} [Fintype α] [Fintype β] (G : Graph α β) (hG : G.Loopless)
     (e : G.Edge) :
     G.IsLink e.1 ((G.toOrientedMultigraph hG).endAt e 0).1
@@ -136,7 +150,7 @@ lemma _root_.Graph.toOrientedMultigraph_isLink
   change G.IsLink e.1 h.choose h.choose_spec.choose
   exact h.choose_spec.choose_spec
 
-lemma _root_.Graph.toOrientedMultigraph_edgeIncidence
+lemma toOrientedMultigraph_edgeIncidence
     {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α]
     (G : Graph α β) (hG : G.Loopless) (v : G.Vertex) (e : G.Edge) :
     OrientedMultigraph.edgeIncidence (G.toOrientedMultigraph hG) v e =
@@ -173,7 +187,7 @@ lemma _root_.Graph.toOrientedMultigraph_edgeIncidence
         · exact h1 (Subtype.ext hv1.symm)
       simp [h0, h1, hnon]
 
-noncomputable def _root_.Graph.Cycle.ofOriented
+noncomputable def Cycle.ofOriented
     {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α]
     (G : Graph α β) (hG : G.Loopless)
     (C : OrientedMultigraph.Cycle (G.toOrientedMultigraph hG)) :
@@ -202,7 +216,7 @@ noncomputable def _root_.Graph.Cycle.ofOriented
         exact G.toOrientedMultigraph_edgeIncidence hG v e
       _ = 0 := hDeven v
 
-noncomputable def _root_.Graph.CycleDoubleCover.ofOriented
+noncomputable def CycleDoubleCover.ofOriented
     {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α] [DecidableEq β]
     (G : Graph α β) (hG : G.Loopless)
     (C : OrientedMultigraph.CycleDoubleCover (G.toOrientedMultigraph hG)) :
@@ -220,7 +234,7 @@ noncomputable def _root_.Graph.CycleDoubleCover.ofOriented
     rw [hfilter]
     exact C.coveredTwice e
 
-theorem _root_.Graph.toOrientedMultigraph_bridgeless
+theorem toOrientedMultigraph_bridgeless
     {α β : Type*} [Fintype α] [Fintype β]
     (G : Graph α β) (hG : G.Loopless) (hb : G.Bridgeless) :
     OrientedMultigraph.Bridgeless (G.toOrientedMultigraph hG) := by
@@ -298,6 +312,10 @@ theorem _root_.Graph.toOrientedMultigraph_bridgeless
   have hsides : u ∈ S ↔ v ∈ S :=
     (side_iff u).symm.trans (side_eq.trans (side_iff v))
   exact hcross (propext hsides)
+
+end Graph
+
+namespace CycleDoubleCoverConjecture
 
 open OrientedMultigraph
 
