@@ -102,6 +102,95 @@ noncomputable def _root_.Graph.toOrientedMultigraph
         exact hG e.1 _ hlink } :
       OrientedMultigraph G.Vertex G.Edge)
 
+lemma _root_.Graph.toOrientedMultigraph_isLink
+    {α β : Type*} [Fintype α] [Fintype β] (G : Graph α β) (hG : G.Loopless)
+    (e : G.Edge) :
+    G.IsLink e.1 ((G.toOrientedMultigraph hG).endAt e 0).1
+      ((G.toOrientedMultigraph hG).endAt e 1).1 := by
+  classical
+  let h := G.exists_isLink_of_mem_edgeSet e.2
+  change G.IsLink e.1 h.choose h.choose_spec.choose
+  exact h.choose_spec.choose_spec
+
+theorem _root_.Graph.toOrientedMultigraph_bridgeless
+    {α β : Type*} [Fintype α] [Fintype β]
+    (G : Graph α β) (hG : G.Loopless) (hb : G.Bridgeless) :
+    OrientedMultigraph.Bridgeless (G.toOrientedMultigraph hG) := by
+  classical
+  let O := G.toOrientedMultigraph hG
+  intro S hcard
+  obtain ⟨e, hcut_eq⟩ := Finset.card_eq_one.mp hcard
+  let u := O.endAt e 0
+  let v := O.endAt e 1
+  have hecut : e ∈ OrientedMultigraph.cut O S := by
+    simp [O, hcut_eq]
+  have hcross : (u ∈ S) ≠ (v ∈ S) := by
+    simpa [OrientedMultigraph.cut, OrientedMultigraph.Crosses, O, u, v] using hecut
+  let T : Set α := {x | ∃ hx : x ∈ G.vertexSet, (⟨x, hx⟩ : G.Vertex) ∈ S}
+  have side_iff (x : G.Vertex) : x.1 ∈ T ↔ x ∈ S := by
+    constructor
+    · rintro ⟨hx, hxS⟩
+      have hxEq : (⟨x.1, hx⟩ : G.Vertex) = x := Subtype.ext rfl
+      simpa [hxEq] using hxS
+    · intro hxS
+      exact ⟨x.2, hxS⟩
+  have cut_edge_of_cross {f : β} {x y : α} (hf : G.IsLink f x y)
+      (hxT : x ∈ T) (hyT : y ∉ T) :
+      (⟨f, hf.edge_mem⟩ : G.Edge) ∈ OrientedMultigraph.cut O S := by
+    let fe : G.Edge := ⟨f, hf.edge_mem⟩
+    have hchosen : G.IsLink f (O.endAt fe 0).1 (O.endAt fe 1).1 := by
+      simpa [O, fe] using G.toOrientedMultigraph_isLink hG fe
+    have hend := hf.eq_and_eq_or_eq_and_eq hchosen
+    have hcross_fe : OrientedMultigraph.Crosses O S fe := by
+      rcases hend with ⟨hx0, hy1⟩ | ⟨hx1, hy0⟩
+      · have h0T : (O.endAt fe 0).1 ∈ T := by simpa [← hx0] using hxT
+        have h1T : (O.endAt fe 1).1 ∉ T := by
+          intro h
+          exact hyT (by simpa [hy1] using h)
+        have h0S : O.endAt fe 0 ∈ S := (side_iff (O.endAt fe 0)).mp h0T
+        have h1S : O.endAt fe 1 ∉ S :=
+          fun hS ↦ h1T ((side_iff (O.endAt fe 1)).mpr hS)
+        intro hEq
+        exact h1S (Eq.mp hEq h0S)
+      · have h1T : (O.endAt fe 1).1 ∈ T := by simpa [← hx1] using hxT
+        have h0T : (O.endAt fe 0).1 ∉ T := by
+          intro h
+          exact hyT (by simpa [hy0] using h)
+        have h1S : O.endAt fe 1 ∈ S := (side_iff (O.endAt fe 1)).mp h1T
+        have h0S : O.endAt fe 0 ∉ S :=
+          fun hS ↦ h0T ((side_iff (O.endAt fe 0)).mpr hS)
+        intro hEq
+        exact h0S (Eq.mp hEq.symm h1S)
+    simpa [OrientedMultigraph.cut, hcross_fe]
+  have adj_preserve {x y : α} (hxy : (G.deleteEdges ({e.1} : Set β)).Adj x y) :
+      x ∈ T ↔ y ∈ T := by
+    have forward {a b : α} (hab : (G.deleteEdges ({e.1} : Set β)).Adj a b)
+        (haT : a ∈ T) : b ∈ T := by
+      by_contra hbT
+      rcases hab with ⟨f, hfdel_link⟩
+      have hfdel : G.IsLink f a b ∧ f ∉ ({e.1} : Set β) := by
+        simpa using hfdel_link
+      have hfcut := cut_edge_of_cross hfdel.1 haT hbT
+      have hfe_eq : (⟨f, hfdel.1.edge_mem⟩ : G.Edge) = e := by
+        simpa [O, hcut_eq] using hfcut
+      exact hfdel.2 (by simpa using congrArg Subtype.val hfe_eq)
+    constructor
+    · exact forward hxy
+    · intro hyT
+      exact forward hxy.symm hyT
+  have hdel_conn : (G.deleteEdges ({e.1} : Set β)).Connected := hb.2 e.1 e.2
+  have hreach : (G.deleteEdges ({e.1} : Set β)).Reachable u.1 v.1 :=
+    hdel_conn.2 (by simp) (by simp)
+  have side_eq : u.1 ∈ T ↔ v.1 ∈ T := by
+    change Relation.ReflTransGen (G.deleteEdges ({e.1} : Set β)).Adj u.1 v.1 at hreach
+    exact Relation.ReflTransGen.trans_induction_on hreach
+      (fun _ ↦ Iff.rfl)
+      (fun hxy ↦ adj_preserve hxy)
+      (fun _ _ ih₁ ih₂ ↦ ih₁.trans ih₂)
+  have hsides : u ∈ S ↔ v ∈ S :=
+    (side_iff u).symm.trans (side_eq.trans (side_iff v))
+  exact hcross (propext hsides)
+
 open OrientedMultigraph
 
 
@@ -3439,15 +3528,15 @@ theorem cycleDoubleCover_of_bridgeless
     (((cubicExpansion G) R).gammaFlowOfNowhereZero f')
   exact ⟨((projectEvenDoubleCover G) R C).toCycleDoubleCover⟩
 
-theorem graph_cycleDoubleCover_of_oriented_bridgeless
+theorem graph_cycleDoubleCover_of_bridgeless
     {α β : Type u} [Fintype α] [Fintype β] [DecidableEq α] [DecidableEq β]
-    (G : Graph α β) (hG : G.Loopless)
-    (hb : OrientedMultigraph.Bridgeless (G.toOrientedMultigraph hG)) :
+    (G : Graph α β) (hG : G.Loopless) (hb : G.Bridgeless) :
     Nonempty (CycleDoubleCover (G.toOrientedMultigraph hG)) :=
-  cycleDoubleCover_of_bridgeless (G.toOrientedMultigraph hG) hb
+  cycleDoubleCover_of_bridgeless (G.toOrientedMultigraph hG)
+    (G.toOrientedMultigraph_bridgeless hG hb)
 
-#print axioms graph_cycleDoubleCover_of_oriented_bridgeless
--- 'CycleDoubleCoverConjecture.graph_cycleDoubleCover_of_oriented_bridgeless' depends on axioms:
+#print axioms graph_cycleDoubleCover_of_bridgeless
+-- 'CycleDoubleCoverConjecture.graph_cycleDoubleCover_of_bridgeless' depends on axioms:
 -- [propext, Classical.choice, Quot.sound]
 
 end CycleDoubleCoverConjecture
