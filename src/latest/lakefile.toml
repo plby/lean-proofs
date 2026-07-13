@@ -34,3 +34,6 @@ name = "Util"
 
 [[lean_lib]]
 name = "UnitFractions"
+
+[[lean_lib]]
+name = "Wikipedia"
