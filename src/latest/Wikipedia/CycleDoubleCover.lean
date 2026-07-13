@@ -12,11 +12,13 @@ structure FiniteGraph (V E : Type*) [Fintype V] [Fintype E] where
   endAt : E → Fin 2 → V
   loopless : ∀ e, endAt e 0 ≠ endAt e 1
 
-def edgeIncidence {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) (v : V) (e : E) : F₂ :=
+def edgeIncidence {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E)
+    (v : V) (e : E) : F₂ :=
   (if G.endAt e 0 = v then 1 else 0) +
     (if G.endAt e 1 = v then 1 else 0)
 
-def IsEvenEdgeSet {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) (F : Finset E) : Prop :=
+def IsEvenEdgeSet {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E)
+    (F : Finset E) : Prop :=
   ∀ v : V, ∑ e ∈ F, edgeIncidence G v e = 0
 
 structure Cycle {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) where
@@ -27,7 +29,8 @@ structure Cycle {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : Finit
 
 end CycleDoubleCover
 
-structure CycleDoubleCover {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] [DecidableEq E] (G : CycleDoubleCover.FiniteGraph V E) where
+structure CycleDoubleCover {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] [DecidableEq E]
+    (G : CycleDoubleCover.FiniteGraph V E) where
   cycles : List (CycleDoubleCover.Cycle G)
   coveredTwice : ∀ e : E, (cycles.filter fun C ↦ e ∈ C.edges).length = 2
 
@@ -40,16 +43,20 @@ structure CubicGraph (V E : Type*) [Fintype V] [Fintype E] where
   loopless : ∀ e : E,
     (incidence.symm (e, 0)).1 ≠ (incidence.symm (e, 1)).1
 
-def CubicGraph.edgeAt {V E : Type*} [Fintype V] [Fintype E] (G : CubicGraph V E) (v : V) (i : Fin 3) : E := (G.incidence (v, i)).1
+def CubicGraph.edgeAt {V E : Type*} [Fintype V] [Fintype E] (G : CubicGraph V E) (v : V) (i : Fin 3)
+    : E := (G.incidence (v, i)).1
 
-def CubicGraph.endAt {V E : Type*} [Fintype V] [Fintype E] (G : CubicGraph V E) (e : E) (j : Fin 2) : V := (G.incidence.symm (e, j)).1
+def CubicGraph.endAt {V E : Type*} [Fintype V] [Fintype E] (G : CubicGraph V E) (e : E) (j : Fin 2)
+    : V := (G.incidence.symm (e, j)).1
 
 @[simp]
-lemma CubicGraph.endAt_edgeAt_incidence {V E : Type*} [Fintype V] [Fintype E] (G : CubicGraph V E) (v : V) (i : Fin 3) :
+lemma CubicGraph.endAt_edgeAt_incidence {V E : Type*} [Fintype V] [Fintype E] (G : CubicGraph V E)
+    (v : V) (i : Fin 3) :
     G.endAt (G.edgeAt v i) (G.incidence (v, i)).2 = v := by
   simp [edgeAt, endAt]
 
-lemma CubicGraph.edgeAt_injective {V E : Type*} [Fintype V] [Fintype E] (G : CubicGraph V E) (v : V) : Function.Injective (G.edgeAt v) := by
+lemma CubicGraph.edgeAt_injective {V E : Type*} [Fintype V] [Fintype E] (G : CubicGraph V E) (v : V)
+    : Function.Injective (G.edgeAt v) := by
   intro i j h
   refine congrArg Prod.snd (G.incidence.injective (Prod.ext h ?_))
   have := G.endAt_edgeAt_incidence v i
@@ -58,7 +65,8 @@ lemma CubicGraph.edgeAt_injective {V E : Type*} [Fintype V] [Fintype E] (G : Cub
   generalize (G.incidence (v, i)).2 = a, (G.incidence (v, j)).2 = b at *
   fin_cases a <;> fin_cases b <;> simp_all [endAt]
 
-lemma CubicGraph.sum_edgeEnds_eq_sum_vertexSlots {V E : Type*} [Fintype V] [Fintype E] (G : CubicGraph V E)
+lemma CubicGraph.sum_edgeEnds_eq_sum_vertexSlots {V E : Type*} [Fintype V] [Fintype E]
+    (G : CubicGraph V E)
     {A : Type*} [AddCommMonoid A] (h : E → Fin 2 → A) :
     ∑ e : E, ∑ j : Fin 2, h e j =
       ∑ v : V, ∑ i : Fin 3,
@@ -72,10 +80,12 @@ structure GammaFlow {V E : Type*} [Fintype V] [Fintype E] (G : CubicGraph V E) w
 
 def pairIndicator (p h s : Gamma) : F₂ := if s = p ∨ s = p + h then 1 else 0
 
-def localBase {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E] (G : CubicGraph V E) (f : GammaFlow G) (v : V) (e : E) : Gamma :=
+def localBase {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E] (G : CubicGraph V E)
+    (f : GammaFlow G) (v : V) (e : E) : Gamma :=
   if e = G.edgeAt v 1 then f.val (G.edgeAt v 0) else 0
 
-def compatibilityRhs {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E] (G : CubicGraph V E) (f : GammaFlow G) (e : E) : Gamma :=
+def compatibilityRhs {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E] (G : CubicGraph V E)
+    (f : GammaFlow G) (e : E) : Gamma :=
   localBase G f (G.endAt e 0) e + localBase G f (G.endAt e 1) e
 
 def compatibilityMap {V E : Type*} [Fintype V] [Fintype E] (G : CubicGraph V E) (f : GammaFlow G) :
@@ -94,7 +104,8 @@ def coordinateFunctional {E : Type*} [DecidableEq E] (φ : Module.Dual F₂ (E �
     Module.Dual F₂ Gamma :=
   φ.comp (LinearMap.single F₂ (fun _ : E ↦ Gamma) e)
 
-lemma dual_apply_eq_sum_coordinates {E : Type*} [Fintype E] [DecidableEq E] (φ : Module.Dual F₂ (E → Gamma)) (y : E → Gamma) :
+lemma dual_apply_eq_sum_coordinates {E : Type*} [Fintype E] [DecidableEq E]
+    (φ : Module.Dual F₂ (E → Gamma)) (y : E → Gamma) :
     φ y = ∑ e : E, coordinateFunctional φ e (y e) := by
   conv_lhs => rw [← LinearMap.sum_single_apply (fun _ : E ↦ Gamma) y]
   simp [coordinateFunctional]
@@ -117,8 +128,10 @@ lemma flow_triple_properties :
       z = x + y ∧ x ≠ y := by
   decide
 
-lemma compatibility_solvable {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] [DecidableEq E] (G : CubicGraph V E) (f : GammaFlow G) :
+lemma compatibility_solvable {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E]
+    (G : CubicGraph V E) (f : GammaFlow G) :
     compatibilityRhs G f ∈ LinearMap.range (compatibilityMap G f) := by
+  classical
   refine (Subspace.forall_mem_dualAnnihilator_apply_eq_zero_iff
     (compatibilityMap G f).range (compatibilityRhs G f)).mp ?_
   intro φ hφ
@@ -236,12 +249,14 @@ lemma compatibility_solvable {V E : Type*} [Fintype V] [Fintype E] [DecidableEq 
     _ = 0 := by
       simp [finite_check.2]
 
-structure CubicLabeling {V E : Type*} [Fintype V] [Fintype E] (G : CubicGraph V E) (f : GammaFlow G) where
+structure CubicLabeling {V E : Type*} [Fintype V] [Fintype E] (G : CubicGraph V E) (f : GammaFlow G)
+    where
   base : E → Gamma
   vertexParity : ∀ v s,
     ∑ i : Fin 3, pairIndicator (base (G.edgeAt v i)) (f.val (G.edgeAt v i)) s = 0
 
-noncomputable def cubic_labeling {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] [DecidableEq E] (G : CubicGraph V E) (f : GammaFlow G) : CubicLabeling G f := by
+noncomputable def cubic_labeling {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    [DecidableEq E] (G : CubicGraph V E) (f : GammaFlow G) : CubicLabeling G f := by
   have local_pair_parity :
       ∀ (x y t s : Gamma), x ≠ 0 → y ≠ 0 → x ≠ y →
         pairIndicator t x s +
@@ -311,13 +326,15 @@ noncomputable def cubic_labeling {V E : Type*} [Fintype V] [Fintype E] [Decidabl
       local_pair_parity x₀ y₀ (t v) s
         (f.nowhereZero _) (f.nowhereZero _) hxy
 
-structure CubicGraph.IndexedEvenDoubleCover {V E : Type*} [Fintype V] [Fintype E] (G : CubicGraph V E) where
+structure CubicGraph.IndexedEvenDoubleCover {V E : Type*} [Fintype V] [Fintype E]
+    (G : CubicGraph V E) where
   member : Gamma → E → F₂
   vertexEven : ∀ s v, ∑ i : Fin 3, member s (G.edgeAt v i) = 0
   coveredTwice : ∀ e,
     (Finset.univ.filter fun s : Gamma ↦ member s e = 1).card = 2
 
-noncomputable def cubic_even_double_cover {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] [DecidableEq E] (G : CubicGraph V E) (f : GammaFlow G) :
+noncomputable def cubic_even_double_cover {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    [DecidableEq E] (G : CubicGraph V E) (f : GammaFlow G) :
     CubicGraph.IndexedEvenDoubleCover G := by
   let P := cubic_labeling G f
   refine
@@ -334,45 +351,75 @@ noncomputable def cubic_even_double_cover {V E : Type*} [Fintype V] [Fintype E] 
 
 abbrev HalfEdge (E : Type*) := E × Fin 2
 
-def vertex {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (h : HalfEdge E) : V := G.endAt h.1 h.2
+def vertex {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (h : HalfEdge E) : V :=
+    G.endAt h.1 h.2
 
-namespace FiniteGraph export CycleDoubleCover (vertex HalfEdge) end FiniteGraph
+namespace FiniteGraph
 
-def halfEdgesAt {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (v : V) := {h : HalfEdge E // G.vertex h = v}
+export CycleDoubleCover (vertex HalfEdge
+)
 
-namespace FiniteGraph export CycleDoubleCover (halfEdgesAt) end FiniteGraph
+end FiniteGraph
 
-instance {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) (v : V) : Fintype (G.halfEdgesAt v) :=
+def halfEdgesAt {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (v : V) :=
+    {h : HalfEdge E // G.vertex h = v}
+
+namespace FiniteGraph
+
+export CycleDoubleCover (halfEdgesAt
+)
+
+end FiniteGraph
+
+instance {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) (v : V) :
+    Fintype (G.halfEdgesAt v) :=
   Subtype.fintype (fun h : HalfEdge E ↦ G.vertex h = v)
 
-def degree {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) (v : V) : ℕ := Fintype.card (G.halfEdgesAt v)
+def degree {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) (v : V) : ℕ
+    := Fintype.card (G.halfEdgesAt v)
 
-def Crosses {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset V) (e : E) : Prop :=
+def Crosses {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset V) (e : E) :
+    Prop :=
   (G.endAt e 0 ∈ S) ≠ (G.endAt e 1 ∈ S)
 
-namespace FiniteGraph export CycleDoubleCover (degree Crosses) end FiniteGraph
+namespace FiniteGraph
 
-noncomputable def cut {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset V) : Finset E := by
+export CycleDoubleCover (degree Crosses
+)
+
+end FiniteGraph
+
+noncomputable def cut {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset V) :
+    Finset E := by
   classical
   exact Finset.univ.filter (G.Crosses S)
 
-def Bridgeless {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) : Prop := ∀ S : Finset V, (cut G S).card ≠ 1
+def Bridgeless {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) : Prop :=
+  ∀ S : Finset V, (cut G S).card ≠ 1
 
-def IsFlow {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) {A : Type*} [AddCommGroup A] (f : E → A) : Prop :=
+def IsFlow {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) {A : Type*}
+    [AddCommGroup A] (f : E → A) : Prop :=
   ∀ v : V,
     (∑ e : E, if G.endAt e 0 = v then f e else 0) -
       (∑ e : E, if G.endAt e 1 = v then f e else 0) = 0
 
 def IsNowhereZero {E : Type*} {A : Type*} [Zero A] (f : E → A) : Prop := ∀ e, f e ≠ 0
 
-namespace FiniteGraph export CycleDoubleCover (cut Bridgeless IsFlow IsNowhereZero) end FiniteGraph
+namespace FiniteGraph
 
-structure NowhereZeroFlow {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) (A : Type*) [AddCommGroup A] [Zero A] where
+export CycleDoubleCover (cut Bridgeless IsFlow IsNowhereZero
+)
+
+end FiniteGraph
+
+structure NowhereZeroFlow {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    (G : FiniteGraph V E) (A : Type*) [AddCommGroup A] [Zero A] where
   val : E → A
   conservation : G.IsFlow val
   nowhereZero : IsNowhereZero val
 
-structure IndexedEvenDoubleCover {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) where
+structure IndexedEvenDoubleCover {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    (G : FiniteGraph V E) where
   member : Gamma → E → F₂
   vertexEven : ∀ s v,
     ∑ e : E,
@@ -381,7 +428,8 @@ structure IndexedEvenDoubleCover {V E : Type*} [Fintype V] [Fintype E] [Decidabl
   coveredTwice : ∀ e,
     (Finset.univ.filter fun s : Gamma ↦ member s e = 1).card = 2
 
-def CubicGraph.toFiniteGraph {V E : Type*} [Fintype V] [Fintype E] (K : CubicGraph V E) : FiniteGraph V E where
+def CubicGraph.toFiniteGraph {V E : Type*} [Fintype V] [Fintype E] (K : CubicGraph V E) :
+    FiniteGraph V E where
   endAt := K.endAt
   loopless := by
     intro e
@@ -390,9 +438,15 @@ def CubicGraph.toFiniteGraph {V E : Type*} [Fintype V] [Fintype E] (K : CubicGra
 @[simp]
 lemma CubicGraph.neg_gamma : ∀ x : Gamma, -x = x := by decide
 
-namespace FiniteGraph export CycleDoubleCover (NowhereZeroFlow IndexedEvenDoubleCover) end FiniteGraph
+namespace FiniteGraph
 
-def CubicGraph.gammaFlowOfNowhereZero {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (K : CubicGraph V E)
+export CycleDoubleCover (NowhereZeroFlow IndexedEvenDoubleCover
+)
+
+end FiniteGraph
+
+def CubicGraph.gammaFlowOfNowhereZero {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    (K : CubicGraph V E)
     (f : (K.toFiniteGraph).NowhereZeroFlow Gamma) : GammaFlow K where
   val := f.val
   nowhereZero := f.nowhereZero
@@ -420,13 +474,20 @@ def CubicGraph.gammaFlowOfNowhereZero {V E : Type*} [Fintype V] [Fintype E] [Dec
     rw [Finset.sum_add_distrib]
     exact hsigned
 
-def divergence {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) {A : Type*} [AddCommGroup A] (f : E → A) (v : V) : A :=
+def divergence {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E)
+    {A : Type*} [AddCommGroup A] (f : E → A) (v : V) : A :=
   (∑ k : E, if G.endAt k 0 = v then f k else 0) -
     ∑ k : E, if G.endAt k 1 = v then f k else 0
 
-namespace FiniteGraph export CycleDoubleCover (divergence) end FiniteGraph
+namespace FiniteGraph
 
-lemma divergence_add {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) {A : Type*} [AddCommGroup A] (f g : E → A) (v : V) :
+export CycleDoubleCover (divergence
+)
+
+end FiniteGraph
+
+lemma divergence_add {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E)
+    {A : Type*} [AddCommGroup A] (f g : E → A) (v : V) :
     G.divergence (f + g) v = G.divergence f v + G.divergence g v := by
   have hsum (j : Fin 2) :
       (∑ k : E, if G.endAt k j = v then (f + g) k else 0) =
@@ -439,7 +500,8 @@ lemma divergence_add {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : 
   simp only [divergence, hsum]
   abel
 
-lemma divergence_neg {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) {A : Type*} [AddCommGroup A] (f : E → A) (v : V) :
+lemma divergence_neg {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E)
+    {A : Type*} [AddCommGroup A] (f : E → A) (v : V) :
     G.divergence (-f) v = -G.divergence f v := by
   unfold divergence
   have h (j : Fin 2) : (∑ k : E, if G.endAt k j = v then (-f) k else 0) =
@@ -451,46 +513,64 @@ lemma divergence_neg {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : 
   rw [h 0, h 1]
   abel
 
-def HasIntegerPath {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) (S : Finset E) (u v : V) : Prop :=
+def HasIntegerPath {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E)
+    (S : Finset E) (u v : V) : Prop :=
   ∃ c : E → ℤ, (∀ k ∈ S, c k = 0) ∧ ∀ w : V,
     G.divergence c w = (if u = w then 1 else 0) - (if v = w then 1 else 0)
 
-lemma divergence_single_one {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] [DecidableEq E] (G : FiniteGraph V E) (k : E) (w : V) :
+lemma divergence_single_one {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] [DecidableEq E]
+    (G : FiniteGraph V E) (k : E) (w : V) :
     G.divergence (Pi.single k (1 : ℤ)) w =
       (if G.endAt k 0 = w then 1 else 0) - (if G.endAt k 1 = w then 1 else 0) := by
   unfold divergence
   congr 1 <;> rw [Fintype.sum_eq_single k] <;> simp_all
 
-namespace FiniteGraph export CycleDoubleCover (divergence_add divergence_neg HasIntegerPath divergence_single_one) end FiniteGraph
+namespace FiniteGraph
 
-lemma hasIntegerPath_single {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] [DecidableEq E] (G : FiniteGraph V E) (S : Finset E) (k : E) (hk : k ∉ S) :
+export CycleDoubleCover (divergence_add divergence_neg HasIntegerPath divergence_single_one
+)
+
+end FiniteGraph
+
+lemma hasIntegerPath_single {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    (G : FiniteGraph V E) (S : Finset E) (k : E) (hk : k ∉ S) :
     G.HasIntegerPath S (G.endAt k 0) (G.endAt k 1) := by
+  classical
   refine ⟨Pi.single k 1, ?_, G.divergence_single_one k⟩
   intro e he
   simp [ne_of_mem_of_not_mem he hk]
 
-lemma HasIntegerPath.symm {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) {S : Finset E} {u v : V}
+lemma HasIntegerPath.symm {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    (G : FiniteGraph V E) {S : Finset E} {u v : V}
     (h : G.HasIntegerPath S u v) : G.HasIntegerPath S v u := by
   rcases h with ⟨c,hc,h⟩
-  exact ⟨-c,by simpa using hc,fun w ↦ by rw [G.divergence_neg,h]; omega⟩
+  exact ⟨-c, by simpa using hc, fun w ↦ by
+    rw [G.divergence_neg, h]
+    omega⟩
 
-lemma HasIntegerPath.trans {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) {S : Finset E} {u v w : V}
+lemma HasIntegerPath.trans {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    (G : FiniteGraph V E) {S : Finset E} {u v w : V}
     (h₁ : G.HasIntegerPath S u v) (h₂ : G.HasIntegerPath S v w) :
     G.HasIntegerPath S u w := by
   rcases h₁ with ⟨f,hf,F⟩
   rcases h₂ with ⟨g,hg,H⟩
-  refine ⟨f+g,by intro k hk;simp [hf k hk,hg k hk],?_⟩
+  refine ⟨f + g, ?_, ?_⟩
+  · intro k hk
+    simp [hf k hk, hg k hk]
   intro x
   rw [G.divergence_add,F x,H x]
   omega
 
-def HasCycleCorrection {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] [DecidableEq E] (G : FiniteGraph V E) (S : Finset E) (e : E) : Prop :=
+def HasCycleCorrection {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] [DecidableEq E]
+    (G : FiniteGraph V E) (S : Finset E) (e : E) : Prop :=
   ∃ c : E → ℤ, G.IsFlow c ∧ c e = 1 ∧ ∀ k ∈ S.erase e, c k = 0
 
-def IndexedEvenDoubleCover.support {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) (C : G.IndexedEvenDoubleCover) (s : Gamma) : Finset E :=
+def IndexedEvenDoubleCover.support {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    (G : FiniteGraph V E) (C : G.IndexedEvenDoubleCover) (s : Gamma) : Finset E :=
   Finset.univ.filter fun e ↦ C.member s e = 1
 
-noncomputable def IndexedEvenDoubleCover.toCycleDoubleCover {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] [DecidableEq E] (G : FiniteGraph V E)
+noncomputable def IndexedEvenDoubleCover.toCycleDoubleCover {V E : Type*} [Fintype V] [Fintype E]
+    [DecidableEq V] [DecidableEq E] (G : FiniteGraph V E)
     (C : G.IndexedEvenDoubleCover) : _root_.CycleDoubleCover G := by
   classical
   have decompose : ∀ (F : Finset E), IsEvenEdgeSet G F →
@@ -578,7 +658,8 @@ structure RotationSystem {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph 
   fiberTransitive : ∀ h k, G.vertex h = G.vertex k →
     ∃ n : ℕ, (next : HalfEdge E → HalfEdge E)^[n] h = k
 
-def halfEdgeSigmaEquiv {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) : HalfEdge E ≃ (v : V) × G.halfEdgesAt v where
+def halfEdgeSigmaEquiv {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) : HalfEdge E ≃
+    (v : V) × G.halfEdgesAt v where
   toFun h := ⟨G.vertex h, h, rfl⟩
   invFun p := p.2.1
   left_inv _ := rfl
@@ -588,18 +669,27 @@ def halfEdgeSigmaEquiv {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V 
     subst v
     rfl
 
-noncomputable def fiberCycle {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) (v : V) : Equiv.Perm (G.halfEdgesAt v) :=
+noncomputable def fiberCycle {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    (G : FiniteGraph V E) (v : V) : Equiv.Perm (G.halfEdgesAt v) :=
   (Fintype.equivFin (G.halfEdgesAt v)).trans
     ((finRotate (Fintype.card (G.halfEdgesAt v))).trans
       (Fintype.equivFin (G.halfEdgesAt v)).symm)
 
-noncomputable def rotationPerm {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) : Equiv.Perm (HalfEdge E) :=
+noncomputable def rotationPerm {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    (G : FiniteGraph V E) : Equiv.Perm (HalfEdge E) :=
   (halfEdgeSigmaEquiv G).trans
     ((Equiv.sigmaCongrRight (fiberCycle G)).trans (halfEdgeSigmaEquiv G).symm)
 
-namespace FiniteGraph export CycleDoubleCover (hasIntegerPath_single HasCycleCorrection RotationSystem halfEdgeSigmaEquiv fiberCycle rotationPerm) end FiniteGraph
+namespace FiniteGraph
 
-noncomputable def rotationSystemOfDegreeNeOne {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) (hne : ∀ v, G.degree v ≠ 1) :
+export CycleDoubleCover (hasIntegerPath_single HasCycleCorrection RotationSystem
+  halfEdgeSigmaEquiv fiberCycle rotationPerm
+)
+
+end FiniteGraph
+
+noncomputable def rotationSystemOfDegreeNeOne {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    (G : FiniteGraph V E) (hne : ∀ v, G.degree v ≠ 1) :
     G.RotationSystem := by
   have sameVertex (h : HalfEdge E) :
       G.vertex (rotationPerm G h) = G.vertex h := by
@@ -679,7 +769,8 @@ noncomputable def rotationSystemOfDegreeNeOne {V E : Type*} [Fintype V] [Fintype
       next_ne := next_ne
       fiberTransitive := fiberTransitive }
 
-noncomputable def rotationSystemOfBridgeless {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) (hb : G.Bridgeless) : G.RotationSystem := by
+noncomputable def rotationSystemOfBridgeless {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    (G : FiniteGraph V E) (hb : G.Bridgeless) : G.RotationSystem := by
   have hdegree (v : V) : G.degree v ≠ 1 := by
     intro hd
     obtain ⟨h, hh⟩ := Fintype.card_eq_one_iff.mp hd
@@ -722,9 +813,16 @@ abbrev ExpandedVertex {V E : Type*} [Fintype V] [Fintype E] (_G : FiniteGraph V 
 
 abbrev ExpandedEdge {V E : Type*} [Fintype V] [Fintype E] (_G : FiniteGraph V E) := E ⊕ HalfEdge E
 
-namespace FiniteGraph export CycleDoubleCover (rotationSystemOfBridgeless ExpandedVertex ExpandedEdge rotationSystemOfDegreeNeOne) end FiniteGraph
+namespace FiniteGraph
 
-private def expansionToEnd {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (R : G.RotationSystem) :
+export CycleDoubleCover (rotationSystemOfBridgeless ExpandedVertex ExpandedEdge
+  rotationSystemOfDegreeNeOne
+)
+
+end FiniteGraph
+
+private def expansionToEnd {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+    (R : G.RotationSystem) :
     (G.ExpandedVertex × Fin 3) → (G.ExpandedEdge × Fin 2) := fun p ↦
   if p.2 = 0 then
     (Sum.inl p.1.1, p.1.2)
@@ -733,12 +831,14 @@ private def expansionToEnd {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGrap
   else
     (Sum.inr (R.next.symm p.1), 1)
 
-private def expansionFromEnd {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (R : G.RotationSystem) :
+private def expansionFromEnd {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+    (R : G.RotationSystem) :
     (G.ExpandedEdge × Fin 2) → (G.ExpandedVertex × Fin 3)
   | (Sum.inl e, j) => ((e, j), 0)
   | (Sum.inr h, j) => if j = 0 then (h, 1) else (R.next h, 2)
 
-noncomputable def expansionIncidence {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (R : G.RotationSystem) :
+noncomputable def expansionIncidence {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+    (R : G.RotationSystem) :
     (G.ExpandedVertex × Fin 3) ≃ (G.ExpandedEdge × Fin 2) := by
   have left_inv : Function.LeftInverse (expansionFromEnd G R) (expansionToEnd G R) := by
     rintro ⟨h, i⟩
@@ -754,7 +854,8 @@ noncomputable def expansionIncidence {V E : Type*} [Fintype V] [Fintype E] (G : 
       left_inv := left_inv
       right_inv := right_inv }
 
-noncomputable def cubicExpansion {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (R : G.RotationSystem) : CubicGraph G.ExpandedVertex G.ExpandedEdge where
+noncomputable def cubicExpansion {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+    (R : G.RotationSystem) : CubicGraph G.ExpandedVertex G.ExpandedEdge where
   incidence := expansionIncidence G R
   loopless := by
     intro e
@@ -764,7 +865,8 @@ noncomputable def cubicExpansion {V E : Type*} [Fintype V] [Fintype E] (G : Fini
     | inr h =>
         simpa [expansionIncidence, expansionFromEnd] using (R.next_ne h).symm
 
-def expansionGraph {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (R : G.RotationSystem) : FiniteGraph G.ExpandedVertex G.ExpandedEdge where
+def expansionGraph {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+    (R : G.RotationSystem) : FiniteGraph G.ExpandedVertex G.ExpandedEdge where
   endAt
     | Sum.inl e, j => (e, j)
     | Sum.inr h, j => if j = 0 then h else R.next h
@@ -777,18 +879,22 @@ def expansionGraph {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (
     | inr h => simpa using (R.next_ne h).symm
 
 @[simp]
-lemma cubicExpansion_edgeAt_zero {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (R : G.RotationSystem) (h : G.ExpandedVertex) :
+lemma cubicExpansion_edgeAt_zero {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+    (R : G.RotationSystem) (h : G.ExpandedVertex) :
     (cubicExpansion G R).edgeAt h 0 = Sum.inl h.1 := rfl
 
 @[simp]
-lemma cubicExpansion_edgeAt_one {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (R : G.RotationSystem) (h : G.ExpandedVertex) :
+lemma cubicExpansion_edgeAt_one {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+    (R : G.RotationSystem) (h : G.ExpandedVertex) :
     (cubicExpansion G R).edgeAt h 1 = Sum.inr h := rfl
 
 @[simp]
-lemma cubicExpansion_edgeAt_two {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (R : G.RotationSystem) (h : G.ExpandedVertex) :
+lemma cubicExpansion_edgeAt_two {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+    (R : G.RotationSystem) (h : G.ExpandedVertex) :
     (cubicExpansion G R).edgeAt h 2 = Sum.inr (R.next.symm h) := rfl
 
-noncomputable def projectEvenDoubleCover {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) (R : G.RotationSystem)
+noncomputable def projectEvenDoubleCover {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    (G : FiniteGraph V E) (R : G.RotationSystem)
     (C : CubicGraph.IndexedEvenDoubleCover (cubicExpansion G R)) :
     G.IndexedEvenDoubleCover := by
   have vertexEven (s : Gamma) (v : V) :
@@ -844,42 +950,70 @@ noncomputable def projectEvenDoubleCover {V E : Type*} [Fintype V] [Fintype E] [
       vertexEven := vertexEven
       coveredTwice := fun e ↦ C.coveredTwice (Sum.inl e) }
 
-def supportGraph {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset E) : SimpleGraph V :=
+def supportGraph {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset E) :
+    SimpleGraph V :=
   SimpleGraph.fromRel fun u v ↦
     ∃ e ∈ S, G.endAt e 0 = u ∧ G.endAt e 1 = v
 
-namespace FiniteGraph export CycleDoubleCover (cubicExpansion expansionGraph projectEvenDoubleCover supportGraph expansionToEnd expansionFromEnd expansionIncidence cubicExpansion_edgeAt_zero cubicExpansion_edgeAt_one cubicExpansion_edgeAt_two) end FiniteGraph
+namespace FiniteGraph
 
-def ReachableIn {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset E) (u v : V) : Prop :=
+export CycleDoubleCover (cubicExpansion expansionGraph projectEvenDoubleCover supportGraph
+  expansionToEnd expansionFromEnd expansionIncidence cubicExpansion_edgeAt_zero
+  cubicExpansion_edgeAt_one cubicExpansion_edgeAt_two
+)
+
+end FiniteGraph
+
+def ReachableIn {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset E) (u v : V)
+    : Prop :=
   (G.supportGraph S).Reachable u v
 
 def Connects {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset E) : Prop :=
   (G.supportGraph S).Connected
 
-namespace FiniteGraph export CycleDoubleCover (ReachableIn Connects) end FiniteGraph
+namespace FiniteGraph
 
-def IsSpanningTree {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset E) : Prop :=
+export CycleDoubleCover (ReachableIn Connects
+)
+
+end FiniteGraph
+
+def IsSpanningTree {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset E) : Prop
+    :=
   G.Connects S ∧ S.card + 1 = Fintype.card V
 
-namespace FiniteGraph export CycleDoubleCover (IsSpanningTree) end FiniteGraph
+namespace FiniteGraph
+
+export CycleDoubleCover (IsSpanningTree
+)
+
+end FiniteGraph
 
 def HasTreePacking {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (k : ℕ) : Prop :=
   ∃ T : Fin k → Finset E,
     (∀ i, G.IsSpanningTree (T i)) ∧
       ∀ i j, i ≠ j → Disjoint (T i) (T j)
 
-noncomputable def crossingEdges {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (P : Setoid V) : Finset E := by
+noncomputable def crossingEdges {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+    (P : Setoid V) : Finset E := by
   classical
   exact Finset.univ.filter fun e ↦ ¬ P.r (G.endAt e 0) (G.endAt e 1)
 
-noncomputable def crossingClass {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset E) (P : Setoid V) : Finset E := by
+noncomputable def crossingClass {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+    (S : Finset E) (P : Setoid V) : Finset E := by
   classical
   exact S.filter fun e ↦ ¬ P.r (G.endAt e 0) (G.endAt e 1)
 
-namespace FiniteGraph export CycleDoubleCover (HasTreePacking crossingEdges crossingClass) end FiniteGraph
+namespace FiniteGraph
+
+export CycleDoubleCover (HasTreePacking crossingEdges crossingClass
+)
+
+end FiniteGraph
 
 @[simp]
-lemma mem_crossingClass {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {S : Finset E} {P : Setoid V} {e : E} :
+lemma mem_crossingClass {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {S : Finset E}
+    {P : Setoid V} {e : E} :
     e ∈ G.crossingClass S P ↔
       e ∈ S ∧ ¬ P.r (G.endAt e 0) (G.endAt e 1) := by simp[crossingClass]
 
@@ -887,7 +1021,8 @@ noncomputable instance quotientFintype {V : Type*} [Fintype V]
     (P : Setoid V) : Fintype (Quotient P) :=
   Fintype.ofFinite _
 
-noncomputable def quotientGraph {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset E) (P : Setoid V) :
+noncomputable def quotientGraph {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+    (S : Finset E) (P : Setoid V) :
     FiniteGraph (Quotient P) {e : E // e ∈ G.crossingClass S P} where
   endAt e i := Quotient.mk _ (G.endAt e.1 i)
   loopless e := by
@@ -895,34 +1030,58 @@ noncomputable def quotientGraph {V E : Type*} [Fintype V] [Fintype E] (G : Finit
     have hrel : P.r (G.endAt e.1 0) (G.endAt e.1 1) := Quotient.eq'.mp h
     exact ((mem_crossingClass (G := G)).mp e.2).2 hrel
 
-def SatisfiesTreePackingCondition {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (k : ℕ) : Prop :=
+def SatisfiesTreePackingCondition {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+    (k : ℕ) : Prop :=
   ∀ P : Setoid V,
     k * (Nat.card (Quotient P) - 1) ≤ (crossingEdges (G := G) P).card
 
-def componentSetoid {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset E) : Setoid V :=
+def componentSetoid {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset E) :
+    Setoid V :=
   (G.supportGraph S).reachableSetoid
 
-noncomputable def insideEdges {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset E) (P : Setoid V) (u : V) : Finset E := by
+noncomputable def insideEdges {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+    (S : Finset E) (P : Setoid V) (u : V) : Finset E := by
   classical
   exact S.filter fun e ↦ P.r (G.endAt e 0) u ∧ P.r (G.endAt e 1) u
 
-namespace FiniteGraph export CycleDoubleCover (mem_crossingClass quotientGraph SatisfiesTreePackingCondition componentSetoid insideEdges quotientFintype) end FiniteGraph
+namespace FiniteGraph
+
+export CycleDoubleCover (mem_crossingClass quotientGraph SatisfiesTreePackingCondition
+  componentSetoid insideEdges quotientFintype
+)
+
+end FiniteGraph
 
 @[simp]
-lemma mem_insideEdges {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {S : Finset E} {P : Setoid V} {u : V} {e : E} :
+lemma mem_insideEdges {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {S : Finset E}
+    {P : Setoid V} {u : V} {e : E} :
     e ∈ G.insideEdges S P u ↔
       e ∈ S ∧ P.r (G.endAt e 0) u ∧ P.r (G.endAt e 1) u := by simp[insideEdges]
 
-lemma insideEdges_eq_of_rel {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {S : Finset E} {P : Setoid V} {u v : V}
-    (huv : P.r u v) : G.insideEdges S P u = G.insideEdges S P v := by have h(x):P.r x u↔P.r x v:=⟨(P.trans · huv),(P.trans · (P.symm huv))⟩;ext e;simp[insideEdges,h]
+lemma insideEdges_eq_of_rel {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+    {S : Finset E} {P : Setoid V} {u v : V}
+    (huv : P.r u v) : G.insideEdges S P u = G.insideEdges S P v := by
+  have h (x) : P.r x u ↔ P.r x v :=
+    ⟨(P.trans · huv), (P.trans · (P.symm huv))⟩
+  ext e
+  simp [insideEdges, h]
 
-lemma insideEdges_erase {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E] (G : FiniteGraph V E) (S : Finset E) (P : Setoid V) (u : V) (e : E) :
+lemma insideEdges_erase {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E] (G : FiniteGraph V E)
+    (S : Finset E) (P : Setoid V) (u : V) (e : E) :
     G.insideEdges (S.erase e) P u = (G.insideEdges S P u).erase e := by
-  ext x;simp[insideEdges];tauto
+  ext x
+  simp [insideEdges]
+  tauto
 
-namespace FiniteGraph export CycleDoubleCover (mem_insideEdges insideEdges_eq_of_rel insideEdges_erase) end FiniteGraph
+namespace FiniteGraph
 
-noncomputable def refineSetoid {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (P : Setoid V) (S : Finset E) : Setoid V where
+export CycleDoubleCover (mem_insideEdges insideEdges_eq_of_rel insideEdges_erase
+)
+
+end FiniteGraph
+
+noncomputable def refineSetoid {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+    (P : Setoid V) (S : Finset E) : Setoid V where
   r u v := P.r u v ∧ G.ReachableIn (G.insideEdges S P u) u v
   iseqv := by
     constructor
@@ -937,7 +1096,8 @@ noncomputable def refineSetoid {V E : Type*} [Fintype V] [Fintype E] (G : Finite
       have hEq := G.insideEdges_eq_of_rel (S := S) huv.1
       exact huv.2.trans (hEq ▸ hvw.2)
 
-noncomputable def colorClass {E : Type*} [Fintype E] {k : ℕ} (χ : E → Fin k) (i : Fin k) : Finset E := by
+noncomputable def colorClass {E : Type*} [Fintype E] {k : ℕ} (χ : E → Fin k) (i : Fin k) :
+    Finset E := by
   classical
   exact Finset.univ.filter fun e ↦ χ e = i
 
@@ -945,30 +1105,48 @@ noncomputable def colorClass {E : Type*} [Fintype E] {k : ℕ} (χ : E → Fin k
 lemma mem_colorClass {E : Type*} [Fintype E] {k : ℕ} {χ : E → Fin k} {i : Fin k} {e : E} :
     e ∈ colorClass χ i ↔ χ e = i := by simp[colorClass]
 
-lemma colorClass_disjoint {E : Type*} [Fintype E] {k : ℕ} (χ : E → Fin k) {i j : Fin k} (hij : i ≠ j) :
+lemma colorClass_disjoint {E : Type*} [Fintype E] {k : ℕ} (χ : E → Fin k) {i j : Fin k}
+    (hij : i ≠ j) :
     Disjoint (colorClass χ i) (colorClass χ j) := by
   simp_all [Finset.disjoint_left]
 
-def PrefixTrees {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {k : ℕ} (χ : E → Fin (k + 1)) : Prop :=
+def PrefixTrees {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {k : ℕ}
+    (χ : E → Fin (k + 1)) : Prop :=
   ∀ i : Fin k, G.IsSpanningTree (colorClass χ i.castSucc)
 
-noncomputable def residualClass {E : Type*} [Fintype E] {k : ℕ} (χ : E → Fin (k + 1)) : Finset E :=
+noncomputable def residualClass {E : Type*} [Fintype E] {k : ℕ} (χ : E → Fin (k + 1)) :
+    Finset E :=
   colorClass χ (Fin.last k)
 
-noncomputable def residualComponents {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {k : ℕ} (χ : E → Fin (k + 1)) : ℕ :=
+noncomputable def residualComponents {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+    {k : ℕ} (χ : E → Fin (k + 1)) : ℕ :=
   Nat.card (G.supportGraph (residualClass χ)).ConnectedComponent
 
-def InternallyConnected {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset E) (P : Setoid V) : Prop :=
+def InternallyConnected {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset E)
+    (P : Setoid V) : Prop :=
   ∀ u v : V, P.r u v → G.ReachableIn (G.insideEdges S P u) u v
 
-namespace FiniteGraph export CycleDoubleCover (refineSetoid PrefixTrees residualComponents InternallyConnected colorClass mem_colorClass colorClass_disjoint residualClass) end FiniteGraph
+namespace FiniteGraph
 
-def NeedsRefinement {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {k : ℕ} (χ : E → Fin k) (P : Setoid V) : Prop :=
+export CycleDoubleCover (refineSetoid PrefixTrees residualComponents InternallyConnected
+  colorClass mem_colorClass colorClass_disjoint residualClass
+)
+
+end FiniteGraph
+
+def NeedsRefinement {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {k : ℕ}
+    (χ : E → Fin k) (P : Setoid V) : Prop :=
   ∃ i : Fin k, ¬ G.InternallyConnected (colorClass χ i) P
 
-namespace FiniteGraph export CycleDoubleCover (NeedsRefinement) end FiniteGraph
+namespace FiniteGraph
 
-noncomputable def firstDisconnectedColor {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {k : ℕ} (χ : E → Fin k) (P : Setoid V) :
+export CycleDoubleCover (NeedsRefinement
+)
+
+end FiniteGraph
+
+noncomputable def firstDisconnectedColor {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+    {k : ℕ} (χ : E → Fin k) (P : Setoid V) :
     Option (Fin k) := by
   classical
   exact if h : G.NeedsRefinement χ P then
@@ -979,21 +1157,34 @@ noncomputable def firstDisconnectedColor {V E : Type*} [Fintype V] [Fintype E] (
         exact ⟨i, by simp [hi]⟩))
   else none
 
-namespace FiniteGraph export CycleDoubleCover (firstDisconnectedColor) end FiniteGraph
+namespace FiniteGraph
 
-lemma firstDisconnectedColor_eq_none_iff {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {k : ℕ} (χ : E → Fin k) (P : Setoid V) :
-    G.firstDisconnectedColor χ P = none ↔ ¬ G.NeedsRefinement χ P := by simp[firstDisconnectedColor]
+export CycleDoubleCover (firstDisconnectedColor
+)
 
-lemma firstDisconnectedColor_spec {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {k : ℕ} {χ : E → Fin k} {P : Setoid V}
+end FiniteGraph
+
+lemma firstDisconnectedColor_eq_none_iff {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+    {k : ℕ} (χ : E → Fin k) (P : Setoid V) :
+    G.firstDisconnectedColor χ P = none ↔ ¬ G.NeedsRefinement χ P := by
+  simp [firstDisconnectedColor]
+
+lemma firstDisconnectedColor_spec {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+    {k : ℕ} {χ : E → Fin k} {P : Setoid V}
     {i : Fin k} (h : G.firstDisconnectedColor χ P = some i) :
     ¬ G.InternallyConnected (colorClass χ i) P := by
   classical
-  simp [firstDisconnectedColor] at h
-  rcases h with ⟨_, rfl⟩
-  simpa using Finset.min'_mem (Finset.univ.filter fun i : Fin k ↦
-    ¬ G.InternallyConnected (colorClass χ i) P) _
+  unfold firstDisconnectedColor at h
+  split at h
+  · rename_i hneed
+    injection h with hmin
+    subst i
+    simpa using Finset.min'_mem (Finset.univ.filter fun i : Fin k ↦
+      ¬ G.InternallyConnected (colorClass χ i) P) _
+  · cases h
 
-lemma internallyConnected_iff_of_refineSetoid_eq {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+lemma internallyConnected_iff_of_refineSetoid_eq {V E : Type*} [Fintype V] [Fintype E]
+    (G : FiniteGraph V E)
     {S T : Finset E} {P : Setoid V}
     (hEq : G.refineSetoid P S = G.refineSetoid P T) :
     G.InternallyConnected S P ↔ G.InternallyConnected T P := by
@@ -1002,45 +1193,81 @@ lemma internallyConnected_iff_of_refineSetoid_eq {V E : Type*} [Fintype V] [Fint
   · exact (q.mp ⟨huv,h u v huv⟩).2
   · exact (Eq.mp q.symm ⟨huv,h u v huv⟩).2
 
-lemma firstDisconnectedColor_internal_of_lt {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {k : ℕ}
+lemma firstDisconnectedColor_internal_of_lt {V E : Type*} [Fintype V] [Fintype E]
+    (G : FiniteGraph V E) {k : ℕ}
     {χ : E → Fin k} {P : Setoid V} {c d : Fin k}
     (hc : G.firstDisconnectedColor χ P = some c)
     (hdc : d < c) :
     G.InternallyConnected (colorClass χ d) P := by
   classical
-  simp [firstDisconnectedColor, Finset.min'_eq_iff] at hc
-  by_contra hd
-  exact (not_le_of_gt hdc) (hc.2.2 d hd)
+  unfold firstDisconnectedColor at hc
+  split at hc
+  · rename_i hneed
+    injection hc with hmin
+    by_contra hd
+    have hdmem : d ∈ Finset.univ.filter fun i : Fin k ↦
+        ¬ G.InternallyConnected (colorClass χ i) P := by
+      simp [hd]
+    have hle : c ≤ d := by
+      rw [← hmin]
+      exact Finset.min'_le _ d hdmem
+    exact (not_le_of_gt hdc) hle
+  · cases hc
 
-lemma firstDisconnectedColor_eq_some_of_spec {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {k : ℕ}
+lemma firstDisconnectedColor_eq_some_of_spec {V E : Type*} [Fintype V] [Fintype E]
+    (G : FiniteGraph V E) {k : ℕ}
     {χ : E → Fin k} {P : Setoid V} {c : Fin k}
     (hbad : ¬ G.InternallyConnected (colorClass χ c) P)
     (hbefore : ∀ d : Fin k, d < c →
       G.InternallyConnected (colorClass χ d) P) :
     G.firstDisconnectedColor χ P = some c := by
   classical
-  simp [firstDisconnectedColor, NeedsRefinement]
-  refine ⟨⟨c,hbad⟩, le_antisymm (Finset.min'_le _ c ?_) ?_⟩
-  · simp [hbad]
+  unfold firstDisconnectedColor
+  let badSet := Finset.univ.filter fun i : Fin k ↦
+    ¬ G.InternallyConnected (colorClass χ i) P
+  have hneed : G.NeedsRefinement χ P := ⟨c, hbad⟩
+  have hc_mem : c ∈ badSet := by
+    simp [badSet, hbad]
+  rw [dif_pos hneed]
+  change some (badSet.min' _) = some c
+  congr
+  apply le_antisymm
+  · exact Finset.min'_le badSet c hc_mem
   · apply Finset.le_min'
     intro d hd
-    simp at hd
-    exact le_of_not_gt fun h ↦ hd (hbefore d h)
+    have hd' : ¬ G.InternallyConnected (colorClass χ d) P := by
+      simpa [badSet] using hd
+    exact le_of_not_gt fun h ↦ hd' (hbefore d h)
 
-noncomputable def refineOnce {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {k : ℕ} (χ : E → Fin k) (P : Setoid V) : Setoid V :=
+noncomputable def refineOnce {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {k : ℕ}
+    (χ : E → Fin k) (P : Setoid V) : Setoid V :=
   match G.firstDisconnectedColor χ P with
   | none => P
   | some i => G.refineSetoid P (colorClass χ i)
 
-namespace FiniteGraph export CycleDoubleCover (firstDisconnectedColor_eq_none_iff firstDisconnectedColor_spec internallyConnected_iff_of_refineSetoid_eq firstDisconnectedColor_internal_of_lt firstDisconnectedColor_eq_some_of_spec refineOnce) end FiniteGraph
+namespace FiniteGraph
 
-noncomputable def kaiserPartition {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {k : ℕ} (χ : E → Fin k) : ℕ → Setoid V
+export CycleDoubleCover (firstDisconnectedColor_eq_none_iff firstDisconnectedColor_spec
+  internallyConnected_iff_of_refineSetoid_eq firstDisconnectedColor_internal_of_lt
+  firstDisconnectedColor_eq_some_of_spec refineOnce
+)
+
+end FiniteGraph
+
+noncomputable def kaiserPartition {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+    {k : ℕ} (χ : E → Fin k) : ℕ → Setoid V
   | 0 => ⊤
   | n + 1 => G.refineOnce χ (kaiserPartition G χ n)
 
-namespace FiniteGraph export CycleDoubleCover (kaiserPartition) end FiniteGraph
+namespace FiniteGraph
 
-lemma kaiserPartition_refines_of_le {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {k : ℕ} (χ : E → Fin k)
+export CycleDoubleCover (kaiserPartition
+)
+
+end FiniteGraph
+
+lemma kaiserPartition_refines_of_le {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+    {k : ℕ} (χ : E → Fin k)
     {m n : ℕ} (hmn : m ≤ n) {u v : V}
     (h : (G.kaiserPartition χ n).r u v) :
     (G.kaiserPartition χ m).r u v := by
@@ -1055,13 +1282,20 @@ lemma kaiserPartition_refines_of_le {V E : Type*} [Fintype V] [Fintype E] (G : F
     | none=>exact h
     | some i=>exact h.1
 
-def HasFiniteLevel {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {k : ℕ} (χ : E → Fin k) (e : E) (m : ℕ) : Prop :=
+def HasFiniteLevel {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {k : ℕ}
+    (χ : E → Fin k) (e : E) (m : ℕ) : Prop :=
   (G.kaiserPartition χ m).r (G.endAt e 0) (G.endAt e 1) ∧
     ¬ (G.kaiserPartition χ (m + 1)).r (G.endAt e 0) (G.endAt e 1)
 
-namespace FiniteGraph export CycleDoubleCover (kaiserPartition_refines_of_le HasFiniteLevel) end FiniteGraph
+namespace FiniteGraph
 
-lemma exists_finiteLevel_of_not_rel {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {k : ℕ} {χ : E → Fin k} {e : E} {n : ℕ}
+export CycleDoubleCover (kaiserPartition_refines_of_le HasFiniteLevel
+)
+
+end FiniteGraph
+
+lemma exists_finiteLevel_of_not_rel {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+    {k : ℕ} {χ : E → Fin k} {e : E} {n : ℕ}
     (hnot : ¬ (G.kaiserPartition χ n).r (G.endAt e 0) (G.endAt e 1)) :
     ∃ m : ℕ, G.HasFiniteLevel χ e m := by
   induction n with
@@ -1071,57 +1305,98 @@ lemma exists_finiteLevel_of_not_rel {V E : Type*} [Fintype V] [Fintype E] (G : F
     · exact ⟨n, h, hnot⟩
     · exact ih h
 
-def IsCyclicEdge {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E] (G : FiniteGraph V E) (S : Finset E) (e : E) : Prop :=
+def IsCyclicEdge {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E] (G : FiniteGraph V E)
+    (S : Finset E) (e : E) : Prop :=
   e ∈ S ∧ G.ReachableIn (S.erase e) (G.endAt e 0) (G.endAt e 1)
 
-namespace FiniteGraph export CycleDoubleCover (exists_finiteLevel_of_not_rel IsCyclicEdge) end FiniteGraph
+namespace FiniteGraph
 
-def IsSuperfluousAt {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E] (G : FiniteGraph V E) {k : ℕ} (χ : E → Fin (k + 1)) (e : E) (m : ℕ) : Prop :=
+export CycleDoubleCover (exists_finiteLevel_of_not_rel IsCyclicEdge
+)
+
+end FiniteGraph
+
+def IsSuperfluousAt {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E] (G : FiniteGraph V E)
+    {k : ℕ} (χ : E → Fin (k + 1)) (e : E) (m : ℕ) : Prop :=
   G.IsCyclicEdge (residualClass χ) e ∧ G.HasFiniteLevel χ e m
 
-namespace FiniteGraph export CycleDoubleCover (IsSuperfluousAt) end FiniteGraph
+namespace FiniteGraph
 
-def HasSuperfluousEdge {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E] (G : FiniteGraph V E) {k : ℕ} (χ : E → Fin (k + 1)) : Prop :=
+export CycleDoubleCover (IsSuperfluousAt
+)
+
+end FiniteGraph
+
+def HasSuperfluousEdge {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E] (G : FiniteGraph V E)
+    {k : ℕ} (χ : E → Fin (k + 1)) : Prop :=
   ∃ e m, G.IsSuperfluousAt χ e m
 
-lemma insideEdges_top {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset E) (u : V) :
+lemma insideEdges_top {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset E)
+    (u : V) :
     G.insideEdges S ⊤ u = S := by
   aesop
 
-noncomputable def swapColor {E : Type*} [DecidableEq E] {k : ℕ} (χ : E → Fin k) (e e' : E) : E → Fin k :=
+noncomputable def swapColor {E : Type*} [DecidableEq E] {k : ℕ} (χ : E → Fin k) (e e' : E) :
+    E → Fin k :=
   Function.update (Function.update χ e (χ e')) e' (χ e)
 
-lemma colorClass_swap_right {E : Type*} [Fintype E] [DecidableEq E] {k : ℕ} (χ : E → Fin k) {e e' : E}
+lemma colorClass_swap_right {E : Type*} [Fintype E] [DecidableEq E] {k : ℕ} (χ : E → Fin k)
+    {e e' : E}
     (hee' : e ≠ e') (hcol : χ e ≠ χ e') :
     colorClass (swapColor χ e e') (χ e') =
       (colorClass χ (χ e')).erase e' ∪ {e} := by
-  ext x;simp[swapColor,Function.update_apply];aesop
+  ext x
+  simp [swapColor, Function.update_apply]
+  aesop
 
-lemma colorClass_swap_other {E : Type*} [Fintype E] [DecidableEq E] {k : ℕ} (χ : E → Fin k) {e e' : E} {i : Fin k}
+lemma colorClass_swap_other {E : Type*} [Fintype E] [DecidableEq E] {k : ℕ} (χ : E → Fin k)
+    {e e' : E} {i : Fin k}
     (hee' : e ≠ e') (hi : i ≠ χ e) (hi' : i ≠ χ e') :
     colorClass (swapColor χ e e') i = colorClass χ i := by
-  ext x;simp[swapColor,Function.update];aesop
+  ext x
+  simp [swapColor, Function.update]
+  aesop
 
-lemma supportGraph_adj_iff {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (S : Finset E) (u v : V) :
+lemma supportGraph_adj_iff {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+    (S : Finset E) (u v : V) :
     (G.supportGraph S).Adj u v ↔
       u ≠ v ∧ ∃ e ∈ S,
         (G.endAt e 0 = u ∧ G.endAt e 1 = v) ∨
-          (G.endAt e 0 = v ∧ G.endAt e 1 = u) := by simp[supportGraph];aesop
+          (G.endAt e 0 = v ∧ G.endAt e 1 = u) := by
+    simp [supportGraph]
+    aesop
 
-def symEdge {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (e : E) : Sym2 V := s(G.endAt e 0, G.endAt e 1)
+def symEdge {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) (e : E) : Sym2 V :=
+    s(G.endAt e 0, G.endAt e 1)
 
-namespace FiniteGraph export CycleDoubleCover (HasSuperfluousEdge insideEdges_top supportGraph_adj_iff symEdge swapColor colorClass_swap_right colorClass_swap_other) end FiniteGraph
+namespace FiniteGraph
 
-lemma edgeFinset_supportGraph {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E) (S : Finset E)
+export CycleDoubleCover (HasSuperfluousEdge insideEdges_top supportGraph_adj_iff symEdge
+  swapColor colorClass_swap_right colorClass_swap_other
+)
+
+end FiniteGraph
+
+lemma edgeFinset_supportGraph {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    (G : FiniteGraph V E) (S : Finset E)
     [Fintype (G.supportGraph S).edgeSet] :
     (G.supportGraph S).edgeFinset = S.image G.symEdge := by
   ext e
   refine Sym2.inductionOn e ?_
   intro u v
-  simp [symEdge, supportGraph_adj_iff]
-  rintro x _ (h | h) rfl <;> exact G.loopless x (h.1.trans h.2.symm)
+  have hloop :
+      ∀ x ∈ S,
+        ((G.endAt x 0 = u ∧ G.endAt x 1 = v) ∨
+          (G.endAt x 0 = v ∧ G.endAt x 1 = u)) →
+          u ≠ v := by
+    intro x _ h huv
+    rcases h with h | h
+    · exact G.loopless x (h.1.trans (huv.trans h.2.symm))
+    · exact G.loopless x (h.1.trans (huv.symm.trans h.2.symm))
+  simpa [symEdge, supportGraph_adj_iff] using hloop
 
-lemma reachableIn_mono {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {S T : Finset E} (hST : S ⊆ T) {u v : V}
+lemma reachableIn_mono {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) {S T : Finset E}
+    (hST : S ⊆ T) {u v : V}
     (h : G.ReachableIn S u v) : G.ReachableIn T u v := by
   apply h.mono
   intro x y a
@@ -1145,7 +1420,8 @@ lemma reachable_map_of_adj_reachable {V : Type*} {W : Type*} {H : SimpleGraph V}
   | nil=>exact ⟨.nil⟩
   | cons a p ih=>exact (hstep a).trans ih
 
-lemma quotientGraph_connected_of_connects {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E) [Nonempty V] (S : Finset E) (P : Setoid V)
+lemma quotientGraph_connected_of_connects {V E : Type*} [Fintype V] [Fintype E]
+    (G : FiniteGraph V E) [Nonempty V] (S : Finset E) (P : Setoid V)
     (hS : G.Connects S) :
     (G.quotientGraph S P).Connects Finset.univ := by
   rw[Connects,SimpleGraph.connected_iff]at hS ⊢
@@ -1175,14 +1451,16 @@ lemma quotientGraph_connected_of_connects {V E : Type*} [Fintype V] [Fintype E] 
     | cons h p ih=>exact (hstep h).trans ih
   · exact Nonempty.map (Quotient.mk P) hS.2
 
-lemma insideEdges_subset_erase_of_crossing {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E] (G : FiniteGraph V E) {S : Finset E} {P : Setoid V} {e : E}
+lemma insideEdges_subset_erase_of_crossing {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E]
+    (G : FiniteGraph V E) {S : Finset E} {P : Setoid V} {e : E}
     (he : e ∈ G.crossingClass S P) (u : V) :
     G.insideEdges S P u ⊆ S.erase e := by
   intro f hf
   simp only [mem_insideEdges,mem_crossingClass,Finset.mem_erase] at *
   exact ⟨fun h=>he.2 <| h ▸ P.trans hf.2.1 (P.symm hf.2.2),hf.1⟩
 
-lemma reachableIn_erase_of_cyclic {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E] (G : FiniteGraph V E) {S : Finset E} {e : E}
+lemma reachableIn_erase_of_cyclic {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E]
+    (G : FiniteGraph V E) {S : Finset E} {e : E}
     (he : G.IsCyclicEdge S e) {u v : V}
     (h : G.ReachableIn S u v) : G.ReachableIn (S.erase e) u v := by
   apply reachable_of_adj_reachable ?_ h
@@ -1198,9 +1476,17 @@ lemma reachableIn_erase_of_cyclic {V E : Type*} [Fintype V] [Fintype E] [Decidab
     rw [G.supportGraph_adj_iff]
     exact ⟨hxy,k,Finset.mem_erase.mpr ⟨hke,hk⟩,hkxy⟩
 
-namespace FiniteGraph export CycleDoubleCover (edgeFinset_supportGraph reachableIn_mono quotientGraph_connected_of_connects insideEdges_subset_erase_of_crossing reachableIn_erase_of_cyclic reachable_of_adj_reachable reachable_map_of_adj_reachable) end FiniteGraph
+namespace FiniteGraph
 
-lemma exists_isSpanningTree_subset_of_connects {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] [DecidableEq E] (G : FiniteGraph V E) [Nonempty V] (S : Finset E)
+export CycleDoubleCover (edgeFinset_supportGraph reachableIn_mono
+  quotientGraph_connected_of_connects insideEdges_subset_erase_of_crossing
+  reachableIn_erase_of_cyclic reachable_of_adj_reachable reachable_map_of_adj_reachable
+)
+
+end FiniteGraph
+
+lemma exists_isSpanningTree_subset_of_connects {V E : Type*} [Fintype V] [Fintype E]
+    (G : FiniteGraph V E) [Nonempty V] (S : Finset E)
     (hS : G.Connects S) :
     ∃ T : Finset E, T ⊆ S ∧ G.IsSpanningTree T := by
   classical
@@ -1250,7 +1536,8 @@ lemma exists_isSpanningTree_subset_of_connects {V E : Type*} [Fintype V] [Fintyp
     · intro x _ y _ h
       exact hfi h
 
-lemma reachableIn_inside_of_walk_of_no_crossing {V E : Type*} [Fintype V] [Fintype E] (G : FiniteGraph V E)
+lemma reachableIn_inside_of_walk_of_no_crossing {V E : Type*} [Fintype V] [Fintype E]
+    (G : FiniteGraph V E)
     {T : Finset E} {P : Setoid V} {a u v : V}
     (p : (G.supportGraph T).Walk u v) (hua : P.r u a)
     (hno : ∀ f ∈ T, G.symEdge f ∈ p.edges →
@@ -1279,19 +1566,28 @@ lemma reachableIn_inside_of_walk_of_no_crossing {V E : Type*} [Fintype V] [Finty
     · intro e he hep
       exact hno e he (by simp [hep])
 
-namespace FiniteGraph export CycleDoubleCover (exists_isSpanningTree_subset_of_connects reachableIn_inside_of_walk_of_no_crossing) end FiniteGraph
+namespace FiniteGraph
 
-lemma exists_crossing_tree_edge_of_not_internal_reachable {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (G : FiniteGraph V E)
+export CycleDoubleCover (exists_isSpanningTree_subset_of_connects
+  reachableIn_inside_of_walk_of_no_crossing
+)
+
+end FiniteGraph
+
+lemma exists_crossing_tree_edge_of_not_internal_reachable {V E : Type*} [Fintype V] [Fintype E]
+    (G : FiniteGraph V E)
     {T : Finset E} {P : Setoid V} {u v : V}
     (p : (G.supportGraph T).Walk u v)
     (hnot : ¬ G.ReachableIn (G.insideEdges T P u) u v) :
     ∃ f ∈ T, G.symEdge f ∈ p.edges ∧
       ¬ P.r (G.endAt f 0) (G.endAt f 1) := by
+  classical
   by_contra h
   push Not at h
   exact hnot (G.reachableIn_inside_of_walk_of_no_crossing p (P.refl u) h)
 
-lemma reachableIn_inside_exchange_of_path_edge_of_new_support {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] [DecidableEq E] (G : FiniteGraph V E)
+lemma reachableIn_inside_exchange_of_path_edge_of_new_support {V E : Type*} [Fintype V] [Fintype E]
+    [DecidableEq E] (G : FiniteGraph V E)
     {T : Finset E} {P : Setoid V} {u : V} {e e' : E}
     (p : (G.supportGraph T).Path (G.endAt e 0) (G.endAt e 1))
     (he'path : G.symEdge e' ∈ p.1.edges)
@@ -1367,9 +1663,16 @@ lemma reachableIn_inside_exchange_of_path_edge_of_new_support {V E : Type*} [Fin
   rw [G.supportGraph_adj_iff]
   exact ⟨G.loopless e,e,by simp [U,mem_insideEdges,he0,he1],.inl ⟨rfl,rfl⟩⟩
 
-namespace FiniteGraph export CycleDoubleCover (exists_crossing_tree_edge_of_not_internal_reachable reachableIn_inside_exchange_of_path_edge_of_new_support) end FiniteGraph
+namespace FiniteGraph
 
-lemma reachableIn_inside_exchange_of_path_edge {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] [DecidableEq E] (G : FiniteGraph V E) [Nonempty V]
+export CycleDoubleCover (exists_crossing_tree_edge_of_not_internal_reachable
+  reachableIn_inside_exchange_of_path_edge_of_new_support
+)
+
+end FiniteGraph
+
+lemma reachableIn_inside_exchange_of_path_edge {V E : Type*} [Fintype V] [Fintype E]
+    [DecidableEq E] (G : FiniteGraph V E) [Nonempty V]
     {T : Finset E} {P : Setoid V} {u : V} {e e' : E}
     (hT : G.IsSpanningTree T)
     (p : (G.supportGraph T).Path (G.endAt e 0) (G.endAt e 1))
@@ -1384,7 +1687,8 @@ lemma reachableIn_inside_exchange_of_path_edge {V E : Type*} [Fintype V] [Fintyp
     G.reachableIn_inside_exchange_of_path_edge_of_new_support
       p he'path he0 he1 hpath) hT
 
-lemma cyclicEdge_of_mem_path_of_cyclic_edge {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] [DecidableEq E] (G : FiniteGraph V E)
+lemma cyclicEdge_of_mem_path_of_cyclic_edge {V E : Type*} [Fintype V] [Fintype E]
+    [DecidableEq E] (G : FiniteGraph V E)
     {S : Finset E} {e f : E}
     (heCyc : G.IsCyclicEdge S e)
     (p : (G.supportGraph (S.erase e)).Path
@@ -1404,7 +1708,8 @@ lemma cyclicEdge_of_mem_path_of_cyclic_edge {V E : Type*} [Fintype V] [Fintype E
   · exact ⟨hxf, hxS⟩
   · exact ⟨by rintro rfl; exact (Finset.mem_erase.mp hf).1 rfl, heCyc.1⟩
 
-lemma reachableIn_inside_erase_of_min_superfluous {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] [DecidableEq E] (G : FiniteGraph V E) [Nonempty V] {k : ℕ}
+lemma reachableIn_inside_erase_of_min_superfluous {V E : Type*} [Fintype V] [Fintype E]
+    [DecidableEq E] (G : FiniteGraph V E) [Nonempty V] {k : ℕ}
     {χ : E → Fin (k + 1)} {e : E} {m t : ℕ} {u v : V}
     (hsuper : G.IsSuperfluousAt χ e m)
     (hmin : ∀ f n, G.IsSuperfluousAt χ f n → m ≤ n)
@@ -1449,9 +1754,16 @@ lemma reachableIn_inside_erase_of_min_superfluous {V E : Type*} [Fintype V] [Fin
   · rw [Finset.erase_eq_self.mpr he]
     exact h
 
-namespace FiniteGraph export CycleDoubleCover (reachableIn_inside_exchange_of_path_edge cyclicEdge_of_mem_path_of_cyclic_edge reachableIn_inside_erase_of_min_superfluous) end FiniteGraph
+namespace FiniteGraph
 
-lemma refineSetoid_exchange_eq_of_path_internal {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] [DecidableEq E] (G : FiniteGraph V E) [Nonempty V]
+export CycleDoubleCover (reachableIn_inside_exchange_of_path_edge
+  cyclicEdge_of_mem_path_of_cyclic_edge reachableIn_inside_erase_of_min_superfluous
+)
+
+end FiniteGraph
+
+lemma refineSetoid_exchange_eq_of_path_internal {V E : Type*} [Fintype V] [Fintype E]
+    [DecidableEq E] (G : FiniteGraph V E) [Nonempty V]
     {T : Finset E} {P : Setoid V} {e e' : E}
     (hT : G.IsSpanningTree T) (he' : e' ∈ T)
     (p : (G.supportGraph T).Path (G.endAt e 0) (G.endAt e 1))
@@ -1514,25 +1826,40 @@ lemma residualClass_swap_of_residual_of_tree {E : Type*} [Fintype E] [DecidableE
   by_cases h : x = e <;> by_cases h' : x = e' <;>
     simp_all [residualClass, swapColor]
 
-def HasSuperfluousLevel {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E] (G : FiniteGraph V E) {k : ℕ} (χ : E → Fin (k + 1)) (m : ℕ) : Prop :=
+def HasSuperfluousLevel {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E] (G : FiniteGraph V E)
+    {k : ℕ} (χ : E → Fin (k + 1)) (m : ℕ) : Prop :=
   ∃ e : E, G.IsSuperfluousAt χ e m
 
-namespace FiniteGraph export CycleDoubleCover (refineSetoid_exchange_eq_of_path_internal HasSuperfluousLevel residualClass_swap_of_residual_of_tree) end FiniteGraph
+namespace FiniteGraph
 
-noncomputable def minSuperfluousLevel {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E] (G : FiniteGraph V E) {k : ℕ} (χ : E → Fin (k + 1)) : ℕ := by
+export CycleDoubleCover (refineSetoid_exchange_eq_of_path_internal HasSuperfluousLevel
+  residualClass_swap_of_residual_of_tree
+)
+
+end FiniteGraph
+
+noncomputable def minSuperfluousLevel {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E]
+    (G : FiniteGraph V E) {k : ℕ} (χ : E → Fin (k + 1)) : ℕ := by
   classical
   exact if h : ∃ m, G.HasSuperfluousLevel χ m then Nat.find h else 0
 
-namespace FiniteGraph export CycleDoubleCover (minSuperfluousLevel) end FiniteGraph
+namespace FiniteGraph
 
-lemma minSuperfluousLevel_le {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E] (G : FiniteGraph V E) {k : ℕ} {χ : E → Fin (k + 1)} {m : ℕ}
+export CycleDoubleCover (minSuperfluousLevel
+)
+
+end FiniteGraph
+
+lemma minSuperfluousLevel_le {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E]
+    (G : FiniteGraph V E) {k : ℕ} {χ : E → Fin (k + 1)} {m : ℕ}
     (hm : G.HasSuperfluousLevel χ m) :
     G.minSuperfluousLevel χ ≤ m := by
   classical
   rw [minSuperfluousLevel, dif_pos ⟨m, hm⟩]
   exact Nat.find_min' _ hm
 
-def HasKaiserImprovementStep {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E] (G : FiniteGraph V E) (k : ℕ) : Prop :=
+def HasKaiserImprovementStep {V E : Type*} [Fintype V] [Fintype E] [DecidableEq E]
+    (G : FiniteGraph V E) (k : ℕ) : Prop :=
   ∀ χ : E → Fin (k + 1), G.PrefixTrees χ →
     ¬ G.Connects (residualClass χ) →
       ∃ χ' : E → Fin (k + 1), G.PrefixTrees χ' ∧
@@ -1547,11 +1874,13 @@ noncomputable def coloringOfPacking {E : Type*} [DecidableEq E] {k : ℕ} (T : F
 def IsThreeEdgeConnected {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E) : Prop :=
   ∀ S : Finset V, S.Nonempty → S ≠ Finset.univ → 3 ≤ (H.cut S).card
 
-def doubleGraph {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E) : FiniteGraph V (E × Fin 2) where
+def doubleGraph {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E) : FiniteGraph V
+    (E × Fin 2) where
   endAt e i := H.endAt e.1 i
   loopless e := H.loopless e.1
 
-noncomputable def classFinset {V : Type*} [Fintype V] (P : Setoid V) (q : Quotient P) : Finset V := by
+noncomputable def classFinset {V : Type*} [Fintype V] (P : Setoid V) (q : Quotient P) : Finset V :=
+    by
   classical
   exact Finset.univ.filter fun v => Quotient.mk P v = q
 
@@ -1560,12 +1889,14 @@ lemma mem_classFinset {V : Type*} [Fintype V] {P : Setoid V} {q : Quotient P} {v
     v ∈ classFinset P q ↔ Quotient.mk P v = q := by simp[classFinset]
 
 @[simp]
-lemma mem_cut_classFinset {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E) {P : Setoid V} {q : Quotient P} {e : E} :
+lemma mem_cut_classFinset {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E) {P : Setoid V}
+    {q : Quotient P} {e : E} :
     e ∈ H.cut (classFinset P q) ↔
       (Quotient.mk P (H.endAt e 0) = q) ≠
         (Quotient.mk P (H.endAt e 1) = q) := by simp[cut,Crosses]
 
-def contractEdgeSetoid {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E) (e : E) : Setoid V where
+def contractEdgeSetoid {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E) (e : E) : Setoid
+    V where
   r u v := u = v ∨
     (u = H.endAt e 0 ∧ v = H.endAt e 1) ∨
       (u = H.endAt e 1 ∧ v = H.endAt e 0)
@@ -1590,16 +1921,29 @@ def contractEdgeSetoid {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V 
         · exact Or.inl rfl
         · exact (H.loopless e h).elim
 
-namespace FiniteGraph export CycleDoubleCover (minSuperfluousLevel_le HasKaiserImprovementStep IsThreeEdgeConnected doubleGraph mem_cut_classFinset contractEdgeSetoid coloringOfPacking classFinset mem_classFinset) end FiniteGraph
+namespace FiniteGraph
 
-def SurvivesContraction {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E) (e f : E) : Prop :=
+export CycleDoubleCover (minSuperfluousLevel_le HasKaiserImprovementStep IsThreeEdgeConnected
+  doubleGraph mem_cut_classFinset contractEdgeSetoid coloringOfPacking classFinset
+  mem_classFinset
+)
+
+end FiniteGraph
+
+def SurvivesContraction {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E) (e f : E) : Prop
+    :=
   ¬ (H.contractEdgeSetoid e).r (H.endAt f 0) (H.endAt f 1)
 
 noncomputable instance contractEdgeQuotientDecidableEq
     {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E) (e : E) :
     DecidableEq (Quotient (H.contractEdgeSetoid e)) := Classical.decEq _
 
-namespace FiniteGraph export CycleDoubleCover (SurvivesContraction contractEdgeQuotientDecidableEq) end FiniteGraph
+namespace FiniteGraph
+
+export CycleDoubleCover (SurvivesContraction contractEdgeQuotientDecidableEq
+)
+
+end FiniteGraph
 
 noncomputable instance survivesContractionDecidablePred
     {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E) (e : E) :
@@ -1622,12 +1966,19 @@ noncomputable def contractEdge {V E : Type*} [Fintype V] [Fintype E] (H : Finite
         intro f h
         exact f.2 (Quotient.eq'.mp h) }
 
-noncomputable def contractionPullback {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E) (e : E)
+noncomputable def contractionPullback {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E)
+    (e : E)
     (A : Finset (Quotient (H.contractEdgeSetoid e))) : Finset V := by
   classical
   exact Finset.univ.filter fun v => Quotient.mk (H.contractEdgeSetoid e) v ∈ A
 
-namespace FiniteGraph export CycleDoubleCover (contractEdge contractionPullback survivesContractionDecidablePred survivesContractionFintype) end FiniteGraph
+namespace FiniteGraph
+
+export CycleDoubleCover (contractEdge contractionPullback survivesContractionDecidablePred
+  survivesContractionFintype
+)
+
+end FiniteGraph
 
 @[simp]
 lemma mem_contractionPullback {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E) {e : E}
@@ -1643,7 +1994,8 @@ lemma mem_contractEdge_cut_iff {V E : Type*} [Fintype V] [Fintype E] (H : Finite
 
 def gammaUnit : Gamma := Pi.single 0 1
 
-lemma sum_cut_term_gamma_eq_sum_cut {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] [DecidableEq E] (H : FiniteGraph V E) (φ : E → Gamma) (S : Finset V) :
+lemma sum_cut_term_gamma_eq_sum_cut {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    (H : FiniteGraph V E) (φ : E → Gamma) (S : Finset V) :
     (∑ e : E,
       ((if H.endAt e 0 ∈ S then φ e else 0) -
         (if H.endAt e 1 ∈ S then φ e else 0))) =
@@ -1654,7 +2006,8 @@ lemma sum_cut_term_gamma_eq_sum_cut {V E : Type*} [Fintype V] [Fintype E] [Decid
   intro e _
   split_ifs <;> simp_all [CubicGraph.neg_gamma]
 
-lemma sum_lift_off_contract_endpoints {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (H : FiniteGraph V E) {e : E}
+lemma sum_lift_off_contract_endpoints {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    (H : FiniteGraph V E) {e : E}
     (ψ : (H.contractEdge e).NowhereZeroFlow Gamma) (a : Gamma)
     {v : V} (hv0 : v ≠ H.endAt e 0) (hv1 : v ≠ H.endAt e 1)
     (j : Fin 2) :
@@ -1705,19 +2058,29 @@ lemma sum_lift_off_contract_endpoints {V E : Type*} [Fintype V] [Fintype E] [Dec
     have hs := hsurv f (Finset.mem_filter.mp hf).2
     simp [hs]
 
-lemma endpoints_componentSetoid_rel {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E) (e : E) :
+lemma endpoints_componentSetoid_rel {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E)
+    (e : E) :
     (H.componentSetoid Finset.univ).r (H.endAt e 0) (H.endAt e 1) := by
   apply SimpleGraph.Adj.reachable
   rw[H.supportGraph_adj_iff]
   exact ⟨H.loopless e,e,by simp,.inl ⟨rfl,rfl⟩⟩
 
-abbrev ComponentVertex {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E) (q : Quotient (H.componentSetoid Finset.univ)) :=
+abbrev ComponentVertex {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E)
+    (q : Quotient (H.componentSetoid Finset.univ)) :=
   {v : V // Quotient.mk (H.componentSetoid Finset.univ) v = q}
 
-abbrev ComponentEdge {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E) (q : Quotient (H.componentSetoid Finset.univ)) :=
+abbrev ComponentEdge {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E)
+    (q : Quotient (H.componentSetoid Finset.univ)) :=
   {e : E // Quotient.mk (H.componentSetoid Finset.univ) (H.endAt e 0) = q}
 
-namespace FiniteGraph export CycleDoubleCover (mem_contractEdge_cut_iff sum_cut_term_gamma_eq_sum_cut sum_lift_off_contract_endpoints endpoints_componentSetoid_rel ComponentVertex ComponentEdge mem_contractionPullback gammaUnit) end FiniteGraph
+namespace FiniteGraph
+
+export CycleDoubleCover (mem_contractEdge_cut_iff sum_cut_term_gamma_eq_sum_cut
+  sum_lift_off_contract_endpoints endpoints_componentSetoid_rel ComponentVertex ComponentEdge
+  mem_contractionPullback gammaUnit
+)
+
+end FiniteGraph
 
 noncomputable instance componentVertexFintype
     {V E : Type*} [Fintype V] [Fintype E] (H : FiniteGraph V E)
@@ -1745,9 +2108,15 @@ noncomputable def componentGraph {V E : Type*} [Fintype V] [Fintype E] (H : Fini
     apply H.loopless e.1
     exact congrArg Subtype.val h
 
-namespace FiniteGraph export CycleDoubleCover (componentGraph componentVertexFintype componentEdgeFintype) end FiniteGraph
+namespace FiniteGraph
 
-lemma mem_componentGraph_cut_iff {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] (H : FiniteGraph V E)
+export CycleDoubleCover (componentGraph componentVertexFintype componentEdgeFintype
+)
+
+end FiniteGraph
+
+lemma mem_componentGraph_cut_iff {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    (H : FiniteGraph V E)
     (q : Quotient (H.componentSetoid Finset.univ))
     (A : Finset (H.ComponentVertex q)) (e : H.ComponentEdge q) :
     e ∈ (H.componentGraph q).cut A ↔
@@ -1766,7 +2135,8 @@ lemma hasCycleCorrection_compl_of_isSpanningTree :
     rw [H.supportGraph_adj_iff] at a
     rcases a with ⟨_, f, hf, h | h⟩
     · simpa [S, h.1, h.2] using H.hasIntegerPath_single S f (by simp [S, hf])
-    · exact HasIntegerPath.symm H (by simpa [S, h.1, h.2] using H.hasIntegerPath_single S f (by simp [S, hf]))
+    · exact HasIntegerPath.symm H (by
+        simpa [S, h.1, h.2] using H.hasIntegerPath_single S f (by simp [S, hf]))
   have hw {u v} (p : (H.supportGraph T).Walk u v) : H.HasIntegerPath S u v := by
     induction p with
     | nil => exact ⟨0, by simp, by simp [divergence]⟩
@@ -1786,15 +2156,16 @@ lemma hasCycleCorrection_compl_of_isSpanningTree :
     simp [hk.1, hc k hk.2]
 
 lemma hasTreePacking_succ_of_hasKaiserImprovementStep : ∀ {W F : Type u} [Fintype W] [Fintype F]
-    [DecidableEq W] [DecidableEq F] [Nonempty W]
+    [DecidableEq F] [Nonempty W]
     (H : FiniteGraph W F) (k : ℕ),
     H.HasTreePacking k → H.HasKaiserImprovementStep k →
       H.HasTreePacking (k + 1) := by
-  intro W F _ _ _ _ _ H k hpack hstep
+  intro W F _ _ _ _ H k hpack hstep
   classical
   have finish : ∀ a b, ∀ χ : F → Fin (k + 1),
       H.residualComponents χ = a → H.minSuperfluousLevel χ = b →
-      H.PrefixTrees χ → ∃ χ' : F → Fin (k + 1), H.PrefixTrees χ' ∧ H.Connects (residualClass χ') := by
+      H.PrefixTrees χ →
+        ∃ χ' : F → Fin (k + 1), H.PrefixTrees χ' ∧ H.Connects (residualClass χ') := by
     intro a
     induction a using Nat.strong_induction_on with
     | h a ha =>
@@ -1845,13 +2216,13 @@ lemma hasTreePacking_succ_of_hasKaiserImprovementStep : ∀ {W F : Type u} [Fint
 
 lemma connectedComponent_card_union_singleton_lt :
     ∀ {W F : Type u} [Fintype W] [Fintype F]
-      [DecidableEq W] [DecidableEq F]
+      [DecidableEq F]
       (H : FiniteGraph W F) (S : Finset F) (f : F),
       (¬ H.ReachableIn S (H.endAt f 0) (H.endAt f 1)) →
         Nat.card (H.supportGraph (S ∪ {f})).ConnectedComponent <
           Nat.card (H.supportGraph S).ConnectedComponent := by
   classical
-  intro W F _ _ _ _ H S f hf
+  intro W F _ _ _ H S f hf
   let G := H.supportGraph S
   let K := H.supportGraph (S ∪ {f})
   let q : G.ConnectedComponent → K.ConnectedComponent :=
@@ -1881,7 +2252,7 @@ lemma connectedComponent_card_union_singleton_lt :
   simpa [G, K] using Fintype.card_lt_of_surjective_not_injective q hq hn
 
 lemma exists_kaiserImprovement_of_hasSuperfluousEdge : ∀ {W F : Type u} [Fintype W] [Fintype F]
-    [DecidableEq W] [DecidableEq F] [Nonempty W]
+    [DecidableEq F] [Nonempty W]
     (H : FiniteGraph W F) (k : ℕ) (χ : F → Fin (k + 1)),
     H.PrefixTrees χ → ¬ H.Connects (residualClass χ) →
     H.HasSuperfluousEdge χ →
@@ -1889,7 +2260,7 @@ lemma exists_kaiserImprovement_of_hasSuperfluousEdge : ∀ {W F : Type u} [Finty
       (H.residualComponents χ' < H.residualComponents χ ∨
         H.residualComponents χ' = H.residualComponents χ ∧
           H.minSuperfluousLevel χ' < H.minSuperfluousLevel χ) := by
-  intro W F _ _ _ _ _ H k χ htrees hres hsuperEdge
+  intro W F _ _ _ _ H k χ htrees hres hsuperEdge
   classical
   have hlevel : ∃ m, H.HasSuperfluousLevel χ m := by
     rcases hsuperEdge with ⟨e, m, he⟩
@@ -2355,12 +2726,12 @@ lemma exists_kaiserImprovement_of_hasSuperfluousEdge : ∀ {W F : Type u} [Finty
 
 lemma exists_kaiserPartition_firstDisconnectedColor_eq_none :
     ∀ {W F : Type u} [Fintype W] [Fintype F]
-      [DecidableEq W] [DecidableEq F] [Nonempty W]
+      [Nonempty W]
       (H : FiniteGraph W F) (r : ℕ) (χ : F → Fin r),
       ∃ n : ℕ,
         H.firstDisconnectedColor χ (H.kaiserPartition χ n) = none := by
   classical
-  intro W F _ _ _ _ _ H r χ
+  intro W F _ _ _ H r χ
   by_contra h
   push Not at h
   have hw(n): ∃ x:W×W, (H.kaiserPartition χ n) x.1 x.2 ∧
@@ -2391,14 +2762,23 @@ lemma exists_kaiserPartition_firstDisconnectedColor_eq_none :
       exact H.kaiserPartition_refines_of_le χ (Nat.succ_le_of_lt hbalt) (hf a.1).1
   simpa using Fintype.card_le_of_injective _ hinj
 
-namespace FiniteGraph export CycleDoubleCover (mem_componentGraph_cut_iff hasCycleCorrection_compl_of_isSpanningTree hasTreePacking_succ_of_hasKaiserImprovementStep connectedComponent_card_union_singleton_lt exists_kaiserImprovement_of_hasSuperfluousEdge exists_kaiserPartition_firstDisconnectedColor_eq_none) end FiniteGraph
+namespace FiniteGraph
+
+export CycleDoubleCover (mem_componentGraph_cut_iff hasCycleCorrection_compl_of_isSpanningTree
+  hasTreePacking_succ_of_hasKaiserImprovementStep connectedComponent_card_union_singleton_lt
+  exists_kaiserImprovement_of_hasSuperfluousEdge
+  exists_kaiserPartition_firstDisconnectedColor_eq_none
+)
+
+end FiniteGraph
 
 lemma hasTreePacking_of_satisfiesTreePackingCondition :
     ∀ {W F : Type u} [Fintype W] [Fintype F]
-      [DecidableEq W] [DecidableEq F] [Nonempty W]
+      [Nonempty W]
       (H : FiniteGraph W F) (k : ℕ),
       H.SatisfiesTreePackingCondition k → H.HasTreePacking k := by
-  intro W F _ _ _ _ _ H k hc
+  intro W F _ _ _ H k hc
+  classical
   induction k with
   | zero =>
       refine ⟨fun i ↦ Fin.elim0 i, ?_, ?_⟩ <;> intro i
@@ -2609,7 +2989,9 @@ lemma hasTreePacking_of_satisfiesTreePackingCondition :
             have hlt := QG.connectedComponent_card_union_singleton_lt S e hnr
             have hcard : (insert e S).card = S.card + 1 := by simp [he]
             rw [hcard]
-            rw [show insert e S = S ∪ {e} by ext; simp]
+            rw [show insert e S = S ∪ {e} by
+              ext
+              simp]
             omega
       have hcomp : 2 ≤ Nat.card (QG.supportGraph Finset.univ).ConnectedComponent := by
         have hex : ∃ a b : Quotient P,
@@ -2625,12 +3007,15 @@ lemma hasTreePacking_of_satisfiesTreePackingCondition :
             @Quotient.mk (Quotient P) (QG.supportGraph Finset.univ).reachableSetoid b]
         have hf : Function.Injective f := by
           intro i j hij
-          fin_cases i <;> fin_cases j <;> simp_all [f]
+          fin_cases i <;> fin_cases j <;>
+            simp_all only [Nat.reduceAdd, Fin.zero_eta, Fin.isValue, Fin.mk_one, zero_ne_one,
+              one_ne_zero]
           · apply (hab ?_).elim
             exact Quotient.eq'.mp hij
           · apply (hab ?_).elim
             exact Quotient.eq'.mp hij.symm
-        convert Nat.card_le_card_of_injective f hf using 1 ; norm_num
+        convert Nat.card_le_card_of_injective f hf using 1
+        norm_num
       have hb := hbound Finset.univ
       have hedgecard : (Finset.univ : Finset {f : F // f ∈ H.crossingClass R P}).card =
           (H.crossingClass R P).card := by simp
@@ -2639,10 +3024,10 @@ lemma hasTreePacking_of_satisfiesTreePackingCondition :
 
 lemma nowhereZeroFlow_of_doubleGraph_treePacking_three :
     ∀ {W F : Type u} [Fintype W] [Fintype F] [DecidableEq W]
-      [DecidableEq F] (H : FiniteGraph W F) [Nonempty W],
+      (H : FiniteGraph W F) [Nonempty W],
       (H.doubleGraph).HasTreePacking 3 → Nonempty (H.NowhereZeroFlow Gamma) := by
   classical
-  intro W F _ _ _ _ H _ hpacking
+  intro W F _ _ _ H _ hpacking
   let D := H.doubleGraph
   rcases hpacking with ⟨T, hT, hdisjoint⟩
   have missing_exists (e : F) :
@@ -2773,7 +3158,9 @@ lemma nowhereZeroFlow_of_contractEdge_of_twoCut :
   classical
   intro W F _ _ _ _ H S a b hab hcut ⟨ψ⟩
   have haCross : (H.endAt a 0 ∈ S) ≠ (H.endAt a 1 ∈ S) := by
-    have : a ∈ H.cut S := by rw [hcut]; simp
+    have : a ∈ H.cut S := by
+      rw [hcut]
+      simp
     simpa [cut, Crosses] using this
   have haNot : ¬ H.SurvivesContraction a a := by
     intro h
@@ -2851,11 +3238,11 @@ lemma nowhereZeroFlow_of_contractEdge_of_twoCut :
     · exact hx
 
 lemma contractEdge_bridgeless :
-    ∀ {W F : Type u} [Fintype W] [Fintype F] [DecidableEq W]
-      [DecidableEq F] (H : FiniteGraph W F), H.Bridgeless → ∀ a : F,
+    ∀ {W F : Type u} [Fintype W] [Fintype F] (H : FiniteGraph W F),
+      H.Bridgeless → ∀ a : F,
         (H.contractEdge a).Bridgeless := by
   classical
-  intro W F _ _ _ _ H hH a A hA
+  intro W F _ _ H hH a A hA
   let S := H.contractionPullback a A
   have survives {e : F} (he : e ∈ H.cut S) : H.SurvivesContraction a e := by
     intro hr
@@ -2874,12 +3261,11 @@ lemma contractEdge_bridgeless :
   rwa [← hc]
 
 lemma contractEdge_connects :
-    ∀ {W F : Type u} [Fintype W] [Fintype F] [DecidableEq W]
-      [DecidableEq F] (H : FiniteGraph W F) [Nonempty W],
+    ∀ {W F : Type u} [Fintype W] [Fintype F] (H : FiniteGraph W F) [Nonempty W],
       H.Connects Finset.univ → ∀ a : F,
         (H.contractEdge a).Connects Finset.univ := by
   classical
-  intro W F _ _ _ _ H _ h a
+  intro W F _ _ H _ h a
   rw [Connects, SimpleGraph.connected_iff] at h ⊢
   refine ⟨?_, Nonempty.map (Quotient.mk _) h.2⟩
   intro q r
@@ -2902,18 +3288,25 @@ lemma contractEdge_connects :
       · exact .inl ⟨congrArg _ he.1, congrArg _ he.2⟩
       · exact .inr ⟨congrArg _ he.1, congrArg _ he.2⟩
 
-namespace FiniteGraph export CycleDoubleCover (hasTreePacking_of_satisfiesTreePackingCondition nowhereZeroFlow_of_doubleGraph_treePacking_three nowhereZeroFlow_of_contractEdge_of_twoCut contractEdge_bridgeless contractEdge_connects) end FiniteGraph
+namespace FiniteGraph
+
+export CycleDoubleCover (hasTreePacking_of_satisfiesTreePackingCondition
+  nowhereZeroFlow_of_doubleGraph_treePacking_three nowhereZeroFlow_of_contractEdge_of_twoCut
+  contractEdge_bridgeless contractEdge_connects
+)
+
+end FiniteGraph
 
 lemma connected_bridgeless_flow_of_threeEdgeConnected_case
     (base : ∀ {W F : Type u} [Fintype W] [Fintype F] [DecidableEq W]
       [DecidableEq F] (H : FiniteGraph W F) [Nonempty W],
         H.IsThreeEdgeConnected → Nonempty (H.NowhereZeroFlow Gamma)) :
     ∀ {W F : Type u} [Fintype W] [Fintype F] [DecidableEq W]
-      [DecidableEq F] (H : FiniteGraph W F) [Nonempty W],
+      (H : FiniteGraph W F) [Nonempty W],
         H.Connects Finset.univ → H.Bridgeless →
           Nonempty (H.NowhereZeroFlow Gamma) := by
   classical
-  intro W F _ _ _ _ H _ hconn hbridge
+  intro W F _ _ _ H _ hconn hbridge
   generalize hn : Fintype.card W = n
   induction n using Nat.strong_induction_on generalizing W F with
   | h n ih =>
@@ -2955,12 +3348,12 @@ lemma connected_bridgeless_flow_of_threeEdgeConnected_case
 
 lemma nowhereZeroFlow_of_componentGraph_flows :
     ∀ {W F : Type u} [Fintype W] [Fintype F]
-      [DecidableEq W] [DecidableEq F] (H : FiniteGraph W F),
+      [DecidableEq W] (H : FiniteGraph W F),
       (∀ q : Quotient (H.componentSetoid Finset.univ),
         Nonempty ((H.componentGraph q).NowhereZeroFlow Gamma)) →
       Nonempty (H.NowhereZeroFlow Gamma) := by
   classical
-  intro W F _ _ _ _ H h
+  intro W F _ _ _ H h
   let Q := H.componentSetoid Finset.univ
   let ψ (q : Quotient Q) := Classical.choice (h q)
   let qedge (e : F) : Quotient Q := Quotient.mk Q (H.endAt e 0)
@@ -3003,11 +3396,11 @@ lemma nowhereZeroFlow_of_componentGraph_flows :
 
 lemma componentGraph_bridgeless :
     ∀ {W F : Type u} [Fintype W] [Fintype F]
-      [DecidableEq W] [DecidableEq F] (H : FiniteGraph W F)
+      (H : FiniteGraph W F)
       (q : Quotient (H.componentSetoid Finset.univ)),
       H.Bridgeless → (H.componentGraph q).Bridgeless := by
   classical
-  intro W F _ _ _ _ H q hH A
+  intro W F _ _ H q hH A
   let B := A.image Subtype.val
   have hc : ((H.componentGraph q).cut A).card = (H.cut B).card := by
     apply Finset.card_bij (fun e _ ↦ e.1)
@@ -3034,17 +3427,23 @@ lemma componentGraph_bridgeless :
   apply hH B
   rwa [← hc]
 
-namespace FiniteGraph export CycleDoubleCover (connected_bridgeless_flow_of_threeEdgeConnected_case nowhereZeroFlow_of_componentGraph_flows componentGraph_bridgeless) end FiniteGraph
+namespace FiniteGraph
+
+export CycleDoubleCover (connected_bridgeless_flow_of_threeEdgeConnected_case
+  nowhereZeroFlow_of_componentGraph_flows componentGraph_bridgeless
+)
+
+end FiniteGraph
 
 lemma bridgeless_flow_of_threeEdgeConnected_case
     (base : ∀ {W F : Type u} [Fintype W] [Fintype F] [DecidableEq W]
       [DecidableEq F] (H : FiniteGraph W F) [Nonempty W],
         H.IsThreeEdgeConnected → Nonempty (H.NowhereZeroFlow Gamma)) :
     ∀ {W F : Type u} [Fintype W] [Fintype F] [DecidableEq W]
-      [DecidableEq F] (H : FiniteGraph W F), H.Bridgeless →
+      (H : FiniteGraph W F), H.Bridgeless →
         Nonempty (H.NowhereZeroFlow Gamma) := by
   classical
-  intro W F _ _ _ _ H hb
+  intro W F _ _ _ H hb
   generalize hn : Fintype.card W = n
   induction n using Nat.strong_induction_on generalizing W F with
   | h n ih =>
@@ -3069,11 +3468,11 @@ lemma bridgeless_flow_of_threeEdgeConnected_case
 
 lemma expansionGraph_bridgeless :
     ∀ {W F : Type u} [Fintype W] [Fintype F]
-      [DecidableEq W] [DecidableEq F] (H : FiniteGraph W F)
+      (H : FiniteGraph W F)
       (R : H.RotationSystem),
       H.Bridgeless → (H.expansionGraph R).Bridgeless := by
   classical
-  intro W F _ _ _ _ H R hb A hcard
+  intro W F _ _ H R hb A hcard
   obtain ⟨x, hx⟩ := Finset.card_eq_one.mp hcard
   cases x with
   | inl e =>
@@ -3140,7 +3539,12 @@ lemma expansionGraph_bridgeless :
       rw [hs] at hs'
       norm_num at hs'
 
-namespace FiniteGraph export CycleDoubleCover (expansionGraph_bridgeless bridgeless_flow_of_threeEdgeConnected_case) end FiniteGraph
+namespace FiniteGraph
+
+export CycleDoubleCover (expansionGraph_bridgeless bridgeless_flow_of_threeEdgeConnected_case
+)
+
+end FiniteGraph
 
 theorem cycleDoubleCover_of_bridgeless
     {V E : Type u} [Fintype V] [Fintype E] [DecidableEq V] [DecidableEq E]
@@ -3171,7 +3575,9 @@ theorem cycleDoubleCover_of_bridgeless
         intro r s
         refine Quotient.inductionOn₂ r s fun v w ↦ ?_
         have h (x : W) : Quotient.mk P x = q :=
-          mem_classFinset.mp (by rw [hq]; simp)
+          mem_classFinset.mp (by
+            rw [hq]
+            simp)
         exact (h v).trans (h w).symm
       have hc (q : Quotient P) : 3 ≤ (H.cut (K q)).card :=
       ht _ ⟨Quotient.out q,
@@ -3222,8 +3628,12 @@ theorem cycleDoubleCover_of_bridgeless
             invFun := by
               rintro ⟨⟨e, he⟩, i⟩
               exact ⟨(e, i), by simpa [crossingEdges, doubleGraph] using he⟩
-            left_inv := by rintro ⟨⟨e, i⟩, h⟩; rfl
-            right_inv := by rintro ⟨⟨e, h⟩, i⟩; rfl }
+            left_inv := by
+              rintro ⟨⟨e, i⟩, h⟩
+              rfl
+            right_inv := by
+              rintro ⟨⟨e, h⟩, i⟩
+              rfl }
         have hc := Fintype.card_congr f
         simpa [Fintype.card_coe, mul_comm] using hc
       rw [hd]
@@ -3243,3 +3653,7 @@ theorem cycleDoubleCover_of_bridgeless
   exact ⟨(G.projectEvenDoubleCover R C).toCycleDoubleCover⟩
 
 end CycleDoubleCover
+
+#print axioms CycleDoubleCover.cycleDoubleCover_of_bridgeless
+-- 'CycleDoubleCover.cycleDoubleCover_of_bridgeless' depends on axioms:
+-- [propext, Classical.choice, Quot.sound]
