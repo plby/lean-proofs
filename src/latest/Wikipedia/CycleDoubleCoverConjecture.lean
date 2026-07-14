@@ -40,6 +40,15 @@ def Bridgeless {α β : Type*} (G : Graph α β) : Prop :=
   ∀ e ∈ G.edgeSet, ∀ ⦃x y : α⦄,
     G.Reachable x y → (G.deleteEdges ({e} : Set β)).Reachable x y
 
+def loopEdgeSet {α β : Type*} (G : Graph α β) : Set β :=
+  {e | ∃ x, G.IsLoopAt e x}
+
+def nonloopEdgeSet {α β : Type*} (G : Graph α β) : Set β :=
+  {e | ∃ x, G.IsNonloopAt e x}
+
+def restrictNonloops {α β : Type*} (G : Graph α β) : Graph α β :=
+  G.restrict G.nonloopEdgeSet
+
 noncomputable def edgeIncidence {α β : Type*} (G : Graph α β)
     (v : G.Vertex) (e : G.Edge) : CycleDoubleCoverConjecture.F₂ := by
   classical
@@ -63,6 +72,374 @@ structure CycleDoubleCover
     (G : Graph α β) where
   cycles : List G.Cycle
   coveredTwice : ∀ e : G.Edge, (cycles.filter fun C ↦ e ∈ C.edges).length = 2
+
+lemma restrictNonloops_loopless {α β : Type*} (G : Graph α β) :
+    G.restrictNonloops.Loopless := by
+  intro e x hloop
+  have hloopG : G.IsLoopAt e x := (Graph.restrict_isLoopAt.mp hloop).1
+  have hnon : e ∈ G.nonloopEdgeSet := (Graph.restrict_isLoopAt.mp hloop).2
+  rcases hnon with ⟨y, hnon_y⟩
+  exact hloopG.not_isNonloopAt y hnon_y
+
+lemma mem_nonloopEdgeSet_of_not_mem_loopEdgeSet
+    {α β : Type*} {G : Graph α β} {e : β}
+    (he : e ∈ G.edgeSet) (hloop : e ∉ G.loopEdgeSet) :
+    e ∈ G.nonloopEdgeSet := by
+  obtain ⟨x, y, hxy⟩ := G.exists_isLink_of_mem_edgeSet he
+  by_cases h : y = x
+  · exact (hloop ⟨x, by simpa [h] using hxy⟩).elim
+  · exact ⟨x, y, h, hxy⟩
+
+lemma restrictNonloops_bridgeless
+    {α β : Type*} {G : Graph α β} (hb : G.Bridgeless) :
+    G.restrictNonloops.Bridgeless := by
+  intro e he x y hxy
+  let H := G.restrictNonloops
+  have hHG : H ≤ G := by
+    simp [H, restrictNonloops]
+  have heG : e ∈ G.edgeSet := hHG.edgeSet_mono he
+  have hxyG : G.Reachable x y := by
+    exact hxy.mono fun _ _ hab ↦ hab.mono hHG
+  have hdelG : (G.deleteEdges ({e} : Set β)).Reachable x y := hb e heG hxyG
+  have step {a b : α} (hab : (G.deleteEdges ({e} : Set β)).Adj a b) :
+      (H.deleteEdges ({e} : Set β)).Reachable a b := by
+    rcases hab with ⟨f, hf⟩
+    have hfdel : G.IsLink f a b ∧ f ∉ ({e} : Set β) := by
+      simpa using hf
+    by_cases hab_eq : a = b
+    · subst b
+      exact Relation.ReflTransGen.refl
+    · have hfnon : f ∈ G.nonloopEdgeSet := by
+        refine ⟨a, b, ?_, hfdel.1⟩
+        exact fun hba ↦ hab_eq hba.symm
+      have hfH : H.IsLink f a b := by
+        change (G.restrict G.nonloopEdgeSet).IsLink f a b
+        exact ⟨hfnon, hfdel.1⟩
+      exact Relation.ReflTransGen.single
+        ⟨f, by simpa using ⟨hfH, hfdel.2⟩⟩
+  change Relation.ReflTransGen (G.deleteEdges ({e} : Set β)).Adj x y at hdelG
+  change Relation.ReflTransGen (H.deleteEdges ({e} : Set β)).Adj x y
+  exact Relation.ReflTransGen.trans_induction_on hdelG
+    (fun _ ↦ Relation.ReflTransGen.refl)
+    step
+    (fun _ _ ih₁ ih₂ ↦ ih₁.trans ih₂)
+
+noncomputable def loopCycle
+    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α]
+    (G : Graph α β) (e : G.Edge) (hloop : e.1 ∈ G.loopEdgeSet) :
+    G.Cycle where
+  edges := {e}
+  nonempty := by simp
+  even := by
+    intro v
+    rcases hloop with ⟨x, hx⟩
+    have hnot : ¬ G.IsNonloopAt e.1 v.1 := hx.not_isNonloopAt v.1
+    rw [Finset.sum_singleton]
+    simp [edgeIncidence, hnot]
+  minimal := by
+    intro D hDne hDsub _
+    obtain ⟨d, hdD⟩ := hDne
+    have hde : d = e := by simpa using hDsub hdD
+    ext f
+    constructor
+    · intro hfD
+      exact hDsub hfD
+    · intro hfe
+      have hfe' : f = e := by simpa using hfe
+      simpa [hfe', hde] using hdD
+
+@[simp]
+lemma mem_loopCycle_edges
+    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α]
+    (G : Graph α β) (e f : G.Edge) (hloop : e.1 ∈ G.loopEdgeSet) :
+    f ∈ (G.loopCycle e hloop).edges ↔ f = e := by
+  simp [loopCycle]
+
+def restrictEdgeEmbedding {α β : Type*} (G : Graph α β) (F : Set β) :
+    (G.restrict F).Edge ↪ G.Edge where
+  toFun e :=
+    ⟨e.1, by
+      have he : e.1 ∈ G.edgeSet ∩ F := e.2
+      exact he.1⟩
+  inj' e f h := by
+    apply Subtype.ext
+    exact congrArg (fun x : G.Edge ↦ x.1) h
+
+def restrictVertex {α β : Type*} (G : Graph α β) (F : Set β) :
+    G.Vertex → (G.restrict F).Vertex :=
+  fun v ↦ ⟨v.1, v.2⟩
+
+def originalVertexOfRestrict {α β : Type*} (G : Graph α β) (F : Set β) :
+    (G.restrict F).Vertex → G.Vertex :=
+  fun v ↦ ⟨v.1, v.2⟩
+
+lemma restrictVertex_originalVertexOfRestrict
+    {α β : Type*} (G : Graph α β) (F : Set β)
+    (v : (G.restrict F).Vertex) :
+    G.restrictVertex F (G.originalVertexOfRestrict F v) = v :=
+  Subtype.ext rfl
+
+lemma restrict_edgeIncidence_eq
+    {α β : Type*}
+    (G : Graph α β) (F : Set β) (v : G.Vertex) (e : (G.restrict F).Edge) :
+    (G.restrict F).edgeIncidence (G.restrictVertex F v) e =
+      G.edgeIncidence v (G.restrictEdgeEmbedding F e) := by
+  classical
+  have hiff :
+      (G.restrict F).IsNonloopAt e.1 v.1 ↔ G.IsNonloopAt e.1 v.1 :=
+    (Graph.restrict_le (G := G) (E₀ := F)).isNonloopAt_congr e.2
+  change (if (G.restrict F).IsNonloopAt e.1 v.1 then
+      (1 : CycleDoubleCoverConjecture.F₂) else 0) =
+    (if G.IsNonloopAt e.1 v.1 then 1 else 0)
+  rw [hiff]
+
+noncomputable def Cycle.ofRestrict
+    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α]
+    (G : Graph α β) (F : Set β) (C : (G.restrict F).Cycle) :
+    G.Cycle where
+  edges := C.edges.map (G.restrictEdgeEmbedding F)
+  nonempty := by
+    obtain ⟨e, he⟩ := C.nonempty
+    exact ⟨G.restrictEdgeEmbedding F e, Finset.mem_map_of_mem _ he⟩
+  even := by
+    intro v
+    calc
+      ∑ e ∈ C.edges.map (G.restrictEdgeEmbedding F), G.edgeIncidence v e =
+          ∑ e ∈ C.edges, G.edgeIncidence v (G.restrictEdgeEmbedding F e) := by
+        rw [Finset.sum_map]
+      _ = ∑ e ∈ C.edges,
+          (G.restrict F).edgeIncidence (G.restrictVertex F v) e := by
+        apply Finset.sum_congr rfl
+        intro e _
+        exact (G.restrict_edgeIncidence_eq F v e).symm
+      _ = 0 := C.even (G.restrictVertex F v)
+  minimal := by
+    classical
+    intro D hDne hDsub hDeven
+    let D' : Finset (G.restrict F).Edge :=
+      C.edges.filter fun e ↦ G.restrictEdgeEmbedding F e ∈ D
+    have hD'ne : D'.Nonempty := by
+      obtain ⟨d, hdD⟩ := hDne
+      rcases Finset.mem_map.mp (hDsub hdD) with ⟨d', hd'C, hd'eq⟩
+      refine ⟨d', Finset.mem_filter.mpr ⟨hd'C, ?_⟩⟩
+      exact hd'eq.symm ▸ hdD
+    have hD'sub : D' ⊆ C.edges := Finset.filter_subset _ _
+    have hD'map : D'.map (G.restrictEdgeEmbedding F) = D := by
+      ext d
+      constructor
+      · intro hd
+        rcases Finset.mem_map.mp hd with ⟨d', hd'D', hd'eq⟩
+        have hdD : G.restrictEdgeEmbedding F d' ∈ D :=
+          (Finset.mem_filter.mp hd'D').2
+        exact hd'eq ▸ hdD
+      · intro hdD
+        rcases Finset.mem_map.mp (hDsub hdD) with ⟨d', hd'C, hd'eq⟩
+        refine Finset.mem_map.mpr ⟨d', Finset.mem_filter.mpr ⟨hd'C, ?_⟩, hd'eq⟩
+        exact hd'eq.symm ▸ hdD
+    have hD'even : (G.restrict F).IsEvenEdgeSet D' := by
+      intro v
+      let vG := G.originalVertexOfRestrict F v
+      have hv : G.restrictVertex F vG = v :=
+        G.restrictVertex_originalVertexOfRestrict F v
+      calc
+        ∑ e ∈ D', (G.restrict F).edgeIncidence v e =
+            ∑ e ∈ D', (G.restrict F).edgeIncidence (G.restrictVertex F vG) e := by
+          rw [hv]
+        _ = ∑ e ∈ D', G.edgeIncidence vG (G.restrictEdgeEmbedding F e) := by
+          apply Finset.sum_congr rfl
+          intro e _
+          exact G.restrict_edgeIncidence_eq F vG e
+        _ = ∑ e ∈ D'.map (G.restrictEdgeEmbedding F), G.edgeIncidence vG e := by
+          rw [Finset.sum_map]
+        _ = ∑ e ∈ D, G.edgeIncidence vG e := by
+          rw [hD'map]
+        _ = 0 := hDeven vG
+    have hD'eq : D' = C.edges := C.minimal D' hD'ne hD'sub hD'even
+    rw [← hD'map, hD'eq]
+
+lemma length_toList_filter
+    {γ : Type*} (s : Finset γ) (p : γ → Prop) [DecidablePred p] :
+    (s.toList.filter p).length = (s.filter p).card := by
+  change ((s.toList.filter p : List γ) : Multiset γ).card =
+    (Multiset.filter p s.val).card
+  rw [← Multiset.filter_coe, Finset.coe_toList]
+
+noncomputable def loopCycleList
+    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α]
+    (G : Graph α β) : List G.Cycle := by
+  classical
+  exact (Finset.univ : Finset G.Edge).toList.flatMap fun e : G.Edge ↦
+    if h : e.1 ∈ G.loopEdgeSet then [G.loopCycle e h, G.loopCycle e h] else []
+
+open scoped Classical in
+lemma loopCycleList_filter_length_aux
+    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α] [DecidableEq β]
+    (G : Graph α β) (e : G.Edge) :
+    ∀ L : List G.Edge,
+      (List.filter (fun C ↦ e ∈ C.edges)
+        (L.flatMap fun f : G.Edge ↦
+          if h : f.1 ∈ G.loopEdgeSet then [G.loopCycle f h, G.loopCycle f h] else [])).length =
+        2 * (L.filter fun f : G.Edge ↦
+          decide (f = e) && decide (f.1 ∈ G.loopEdgeSet)).length
+  | [] => by simp
+  | f :: L => by
+      by_cases hfloop : f.1 ∈ G.loopEdgeSet
+      · by_cases hfe : f = e
+        · subst f
+          have ih := loopCycleList_filter_length_aux G e L
+          suffices
+              (List.filter (fun C ↦ e ∈ C.edges)
+                (L.flatMap fun f : G.Edge ↦
+                  if h : f.1 ∈ G.loopEdgeSet then
+                    [G.loopCycle f h, G.loopCycle f h]
+                  else [])).length + 1 + 1 =
+              2 * ((L.filter fun f : G.Edge ↦
+                decide (f = e) && decide (f.1 ∈ G.loopEdgeSet)).length + 1) by
+            simpa [hfloop] using this
+          rw [ih]
+          omega
+        · have hef : e ≠ f := fun h ↦ hfe h.symm
+          have ih := loopCycleList_filter_length_aux G e L
+          simpa [hfloop, hfe, hef] using ih
+      · simpa [hfloop] using loopCycleList_filter_length_aux G e L
+
+open scoped Classical in
+lemma loopCycleList_filter_length_of_loop
+    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α] [DecidableEq β]
+    (G : Graph α β) (e : G.Edge) (hloop : e.1 ∈ G.loopEdgeSet) :
+    ((G.loopCycleList.filter fun C ↦ e ∈ C.edges).length = 2) := by
+  classical
+  rw [loopCycleList]
+  rw [loopCycleList_filter_length_aux]
+  have hlen :
+      (List.filter
+        (fun f : G.Edge ↦ decide (f = e) && decide (f.1 ∈ G.loopEdgeSet))
+        (Finset.univ : Finset G.Edge).toList).length =
+      ((Finset.univ : Finset G.Edge).filter
+        (fun f : G.Edge ↦ f = e ∧ f.1 ∈ G.loopEdgeSet)).card := by
+    rw [← length_toList_filter (s := (Finset.univ : Finset G.Edge))
+      (p := fun f : G.Edge ↦ f = e ∧ f.1 ∈ G.loopEdgeSet)]
+    congr 1
+    apply List.filter_congr
+    intro f _
+    by_cases hfe : f = e <;>
+      by_cases hfl : f.1 ∈ G.loopEdgeSet <;>
+        simp [hfe, hfl]
+  have hfilter :
+      ((Finset.univ : Finset G.Edge).filter
+        (fun f : G.Edge ↦ f = e ∧ f.1 ∈ G.loopEdgeSet)) = {e} := by
+    ext f
+    constructor
+    · intro hf
+      simpa using (Finset.mem_filter.mp hf).2.1
+    · intro hfe
+      have hfeq : f = e := by simpa using hfe
+      exact Finset.mem_filter.mpr
+        ⟨Finset.mem_univ f, hfeq, by simpa [hfeq] using hloop⟩
+  rw [hlen, hfilter]
+  simp
+
+open scoped Classical in
+lemma loopCycleList_filter_length_of_not_loop
+    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α] [DecidableEq β]
+    (G : Graph α β) (e : G.Edge) (hloop : e.1 ∉ G.loopEdgeSet) :
+    ((G.loopCycleList.filter fun C ↦ e ∈ C.edges).length = 0) := by
+  classical
+  rw [loopCycleList]
+  rw [loopCycleList_filter_length_aux]
+  have hlen :
+      (List.filter
+        (fun f : G.Edge ↦ decide (f = e) && decide (f.1 ∈ G.loopEdgeSet))
+        (Finset.univ : Finset G.Edge).toList).length =
+      ((Finset.univ : Finset G.Edge).filter
+        (fun f : G.Edge ↦ f = e ∧ f.1 ∈ G.loopEdgeSet)).card := by
+    rw [← length_toList_filter (s := (Finset.univ : Finset G.Edge))
+      (p := fun f : G.Edge ↦ f = e ∧ f.1 ∈ G.loopEdgeSet)]
+    congr 1
+    apply List.filter_congr
+    intro f _
+    by_cases hfe : f = e <;>
+      by_cases hfl : f.1 ∈ G.loopEdgeSet <;>
+        simp [hfe, hfl]
+  have hfilter :
+      ((Finset.univ : Finset G.Edge).filter
+        (fun f : G.Edge ↦ f = e ∧ f.1 ∈ G.loopEdgeSet)) = ∅ := by
+    ext f
+    constructor
+    · intro hf
+      exact (hloop (by simpa [(Finset.mem_filter.mp hf).2.1] using
+        (Finset.mem_filter.mp hf).2.2)).elim
+    · intro hf
+      simp at hf
+  rw [hlen, hfilter]
+  simp
+
+lemma mem_cycle_ofRestrict_edges_iff_of_mem
+    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α]
+    (G : Graph α β) (F : Set β) (C : (G.restrict F).Cycle)
+    (e : G.Edge) (heF : e.1 ∈ F) :
+    e ∈ (Graph.Cycle.ofRestrict G F C).edges ↔
+      (⟨e.1, ⟨e.2, heF⟩⟩ : (G.restrict F).Edge) ∈ C.edges := by
+  let eH : (G.restrict F).Edge := ⟨e.1, ⟨e.2, heF⟩⟩
+  constructor
+  · intro h
+    rcases Finset.mem_map.mp h with ⟨f, hf, hfe⟩
+    have hval : f.1 = e.1 := congrArg (fun x : G.Edge ↦ x.1) hfe
+    have hf_eq : f = eH := Subtype.ext hval
+    simpa [eH, hf_eq] using hf
+  · intro h
+    refine Finset.mem_map.mpr ⟨eH, h, ?_⟩
+    exact Subtype.ext rfl
+
+lemma not_mem_cycle_ofRestrict_edges_of_loop
+    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α]
+    (G : Graph α β) (C : (G.restrict G.nonloopEdgeSet).Cycle)
+    (e : G.Edge) (hloop : e.1 ∈ G.loopEdgeSet) :
+    e ∉ (Graph.Cycle.ofRestrict G G.nonloopEdgeSet C).edges := by
+  intro h
+  rcases Finset.mem_map.mp h with ⟨f, _hf, hfe⟩
+  have hfmem : f.1 ∈ G.edgeSet ∩ G.nonloopEdgeSet := f.2
+  have hval : f.1 = e.1 := congrArg (fun x : G.Edge ↦ x.1) hfe
+  rcases hloop with ⟨x, hx⟩
+  rcases hfmem.2 with ⟨y, hy⟩
+  exact hx.not_isNonloopAt y (by simpa [hval] using hy)
+
+open scoped Classical in
+lemma liftRestrictCycles_filter_length_of_mem
+    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α] [DecidableEq β]
+    (G : Graph α β) (F : Set β) (C : (G.restrict F).CycleDoubleCover)
+    (e : G.Edge) (heF : e.1 ∈ F) :
+    (((C.cycles.map (Graph.Cycle.ofRestrict G F)).filter fun Z ↦
+      e ∈ Z.edges).length =
+      (C.cycles.filter fun Z ↦
+        (⟨e.1, ⟨e.2, heF⟩⟩ : (G.restrict F).Edge) ∈ Z.edges).length) := by
+  let eH : (G.restrict F).Edge := ⟨e.1, ⟨e.2, heF⟩⟩
+  have hiff (Z : (G.restrict F).Cycle) :
+      e ∈ (Graph.Cycle.ofRestrict G F Z).edges ↔ eH ∈ Z.edges := by
+    simpa [eH] using mem_cycle_ofRestrict_edges_iff_of_mem G F Z e heF
+  induction C.cycles with
+  | nil => simp
+  | cons Z L ih =>
+      by_cases hmem : eH ∈ Z.edges
+      · have hmemG : e ∈ (Graph.Cycle.ofRestrict G F Z).edges := (hiff Z).mpr hmem
+        simp [eH, hmem, hmemG, ih]
+      · have hmemG : e ∉ (Graph.Cycle.ofRestrict G F Z).edges :=
+          fun h ↦ hmem ((hiff Z).mp h)
+        simp [eH, hmem, hmemG, ih]
+
+open scoped Classical in
+lemma liftRestrictCycles_filter_length_of_loop
+    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α] [DecidableEq β]
+    (G : Graph α β) (C : (G.restrict G.nonloopEdgeSet).CycleDoubleCover)
+    (e : G.Edge) (hloop : e.1 ∈ G.loopEdgeSet) :
+    (((C.cycles.map (Graph.Cycle.ofRestrict G G.nonloopEdgeSet)).filter fun Z ↦
+      e ∈ Z.edges).length = 0) := by
+  have hnot (Z : (G.restrict G.nonloopEdgeSet).Cycle) :
+      e ∉ (Graph.Cycle.ofRestrict G G.nonloopEdgeSet Z).edges :=
+    not_mem_cycle_ofRestrict_edges_of_loop G Z e hloop
+  induction C.cycles with
+  | nil => simp
+  | cons Z L ih => simp [hnot Z, ih]
 
 end Graph
 
@@ -3800,11 +4177,50 @@ theorem cycleDoubleCover_of_bridgeless
 
 theorem graph_cycleDoubleCover_of_bridgeless
     {α β : Type u} [Fintype α] [Fintype β] [DecidableEq α] [DecidableEq β]
-    (G : Graph α β) (hG : G.Loopless) (hb : G.Bridgeless) :
+    (G : Graph α β) (hb : G.Bridgeless) :
     Nonempty (Graph.CycleDoubleCover G) := by
-  obtain ⟨C⟩ := cycleDoubleCover_of_bridgeless (G.toOrientedMultigraph hG)
-    (G.toOrientedMultigraph_bridgeless hG hb)
-  exact ⟨Graph.CycleDoubleCover.ofOriented G hG C⟩
+  classical
+  let H : Graph α β := G.restrict G.nonloopEdgeSet
+  have hHloopless : H.Loopless := by
+    simpa [H, Graph.restrictNonloops] using G.restrictNonloops_loopless
+  have hHbridgeless : H.Bridgeless := by
+    simpa [H, Graph.restrictNonloops] using Graph.restrictNonloops_bridgeless (G := G) hb
+  obtain ⟨C⟩ := cycleDoubleCover_of_bridgeless (H.toOrientedMultigraph hHloopless)
+    (H.toOrientedMultigraph_bridgeless hHloopless hHbridgeless)
+  let CH : H.CycleDoubleCover := Graph.CycleDoubleCover.ofOriented H hHloopless C
+  let nonloopCycles : List G.Cycle :=
+    CH.cycles.map (Graph.Cycle.ofRestrict G G.nonloopEdgeSet)
+  refine ⟨
+    { cycles := nonloopCycles ++ G.loopCycleList
+      coveredTwice := ?_ }⟩
+  intro e
+  change (((nonloopCycles ++ G.loopCycleList).filter fun Z ↦ e ∈ Z.edges).length = 2)
+  rw [List.filter_append, List.length_append]
+  by_cases hloop : e.1 ∈ G.loopEdgeSet
+  · have hnonloop_count :
+        (nonloopCycles.filter fun Z ↦ e ∈ Z.edges).length = 0 := by
+      simpa [nonloopCycles, CH, H] using
+        Graph.liftRestrictCycles_filter_length_of_loop G
+          (Graph.CycleDoubleCover.ofOriented H hHloopless C) e hloop
+    have hloop_count :
+        (G.loopCycleList.filter fun Z ↦ e ∈ Z.edges).length = 2 :=
+      G.loopCycleList_filter_length_of_loop e hloop
+    rw [hnonloop_count, hloop_count]
+  · have hnon : e.1 ∈ G.nonloopEdgeSet :=
+      Graph.mem_nonloopEdgeSet_of_not_mem_loopEdgeSet e.2 hloop
+    let eH : H.Edge := ⟨e.1, ⟨e.2, hnon⟩⟩
+    have hnonloop_count :
+        (nonloopCycles.filter fun Z ↦ e ∈ Z.edges).length =
+          (CH.cycles.filter fun Z ↦ eH ∈ Z.edges).length := by
+      simpa [nonloopCycles, CH, H, eH] using
+        Graph.liftRestrictCycles_filter_length_of_mem G G.nonloopEdgeSet
+          (Graph.CycleDoubleCover.ofOriented H hHloopless C) e hnon
+    have hcover : (CH.cycles.filter fun Z ↦ eH ∈ Z.edges).length = 2 :=
+      CH.coveredTwice eH
+    have hloop_count :
+        (G.loopCycleList.filter fun Z ↦ e ∈ Z.edges).length = 0 :=
+      G.loopCycleList_filter_length_of_not_loop e hloop
+    rw [hnonloop_count, hcover, hloop_count]
 
 noncomputable def simpleGraphAsGraph {α : Type*} (G : SimpleGraph α) :
     Graph α (Sym2 α) where
@@ -4108,7 +4524,7 @@ theorem simpleGraph_cycleDoubleCoverConjecture
     Nonempty (SimpleGraph.CycleDoubleCover G) := by
   letI := Fintype.ofFinite α
   obtain ⟨C⟩ := graph_cycleDoubleCover_of_bridgeless (simpleGraphAsGraph G)
-    (simpleGraphAsGraph_loopless G) (simpleGraphAsGraph_bridgeless G hb)
+    (simpleGraphAsGraph_bridgeless G hb)
   exact ⟨simpleGraphCycleDoubleCoverOfGraph G C⟩
 
 open scoped Classical in
@@ -4144,8 +4560,475 @@ theorem simpleGraph_cycleDoubleCoverConjecture_walkMultiset
     rw [hfilter]
     simpa [SimpleGraph.Cycle.edges] using C.coveredTwice e he
 
-#print axioms simpleGraph_cycleDoubleCoverConjecture_walkMultiset
--- 'CycleDoubleCoverConjecture.simpleGraph_cycleDoubleCoverConjecture_walkMultiset'
+lemma exists_mem_of_filter_length_eq_two {α : Type*} (L : List α)
+    (p : α → Prop) [DecidablePred p] (h : (L.filter p).length = 2) :
+    ∃ x ∈ L, p x := by
+  cases hfilter : L.filter p with
+  | nil =>
+      simp [hfilter] at h
+  | cons x xs =>
+      have hx : x ∈ L.filter p := by
+        rw [hfilter]
+        simp
+      exact ⟨x, (List.mem_filter.mp hx).1, of_decide_eq_true (List.mem_filter.mp hx).2⟩
+
+lemma cycle_mem_of_cycleDoubleCover
+    {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V] [DecidableEq E]
+    {G : OrientedMultigraph V E} (C : CycleDoubleCover G) (e : E) :
+    ∃ Z : Cycle G, Z ∈ C.cycles ∧ e ∈ Z.edges := by
+  exact exists_mem_of_filter_length_eq_two C.cycles (fun Z ↦ e ∈ Z.edges) (C.coveredTwice e)
+
+lemma graph_cycle_mem_of_cycleDoubleCover
+    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α] [DecidableEq β]
+    {G : Graph α β} (C : Graph.CycleDoubleCover G) (e : G.Edge) :
+    ∃ Z : G.Cycle, Z ∈ C.cycles ∧ e ∈ Z.edges := by
+  exact exists_mem_of_filter_length_eq_two C.cycles (fun Z ↦ e ∈ Z.edges) (C.coveredTwice e)
+
+lemma simpleGraph_cycle_mem_of_cycleDoubleCover
+    {α : Type*} [DecidableEq α] {G : SimpleGraph α}
+    (C : SimpleGraph.CycleDoubleCover G) {e : Sym2 α} (he : e ∈ G.edgeSet) :
+    ∃ Z : G.Cycle, Z ∈ C.cycles ∧ e ∈ Z.edges := by
+  exact exists_mem_of_filter_length_eq_two C.cycles (fun Z ↦ e ∈ Z.edges)
+    (C.coveredTwice e he)
+
+def graphEdgeCrosses {α β : Type*} (G : Graph α β)
+    (S : Finset G.Vertex) (e : G.Edge) : Prop :=
+  ∃ x y, ∃ h : G.IsLink e.1 x y,
+    ((⟨x, h.left_mem⟩ : G.Vertex) ∈ S) ≠
+      ((⟨y, h.right_mem⟩ : G.Vertex) ∈ S)
+
+open scoped Classical in
+lemma graph_sum_edgeIncidence_eq_of_isLink
+    {α β : Type*} [DecidableEq α] (G : Graph α β) (S : Finset G.Vertex) (e : G.Edge)
+    {x y : α} (hxy : G.IsLink e.1 x y) :
+    (∑ v ∈ S, G.edgeIncidence v e) =
+      if x = y then 0
+      else
+        (if (⟨x, hxy.left_mem⟩ : G.Vertex) ∈ S then (1 : F₂) else 0) +
+          if (⟨y, hxy.right_mem⟩ : G.Vertex) ∈ S then (1 : F₂) else 0 := by
+  classical
+  by_cases hloop : x = y
+  · subst y
+    have hloopAt : G.IsLoopAt e.1 x := hxy
+    have hnot (v : G.Vertex) : ¬ G.IsNonloopAt e.1 v.1 :=
+      hloopAt.not_isNonloopAt v.1
+    simp [Graph.edgeIncidence, hnot]
+  · let vx : G.Vertex := ⟨x, hxy.left_mem⟩
+    let vy : G.Vertex := ⟨y, hxy.right_mem⟩
+    have hvxy : vx ≠ vy := by
+      intro h
+      exact hloop (congrArg Subtype.val h)
+    have hiff (v : G.Vertex) :
+        G.IsNonloopAt e.1 v.1 ↔ v = vx ∨ v = vy := by
+      constructor
+      · intro hv
+        rcases hv.inc.eq_or_eq_of_isLink hxy with hvx | hvy
+        · exact Or.inl (Subtype.ext hvx)
+        · exact Or.inr (Subtype.ext hvy)
+      · rintro (rfl | rfl)
+        · exact ⟨y, fun hyx ↦ hloop hyx.symm, hxy⟩
+        · exact ⟨x, hloop, hxy.symm⟩
+    simp only [Graph.edgeIncidence]
+    rw [Finset.sum_boole]
+    by_cases hxS : vx ∈ S
+    · by_cases hyS : vy ∈ S
+      · have hfilter :
+            S.filter (fun v ↦ G.IsNonloopAt e.1 v.1) = {vx, vy} := by
+          ext v
+          constructor
+          · intro hv
+            rcases (hiff v).mp (Finset.mem_filter.mp hv).2 with rfl | rfl
+            · simp
+            · simp
+          · intro hv
+            have hv' : v = vx ∨ v = vy := by simpa [hvxy] using hv
+            rcases hv' with rfl | rfl
+            · exact Finset.mem_filter.mpr ⟨hxS, (hiff vx).mpr (Or.inl rfl)⟩
+            · exact Finset.mem_filter.mpr ⟨hyS, (hiff vy).mpr (Or.inr rfl)⟩
+        rw [hfilter]
+        simp [vx, vy, hloop, hxS, hyS, hvxy]
+        norm_num
+      · have hfilter :
+            S.filter (fun v ↦ G.IsNonloopAt e.1 v.1) = {vx} := by
+          ext v
+          constructor
+          · intro hv
+            have hvS := (Finset.mem_filter.mp hv).1
+            rcases (hiff v).mp (Finset.mem_filter.mp hv).2 with rfl | rfl
+            · simp
+            · exact (hyS hvS).elim
+          · intro hv
+            have hv' : v = vx := by simpa using hv
+            subst v
+            exact Finset.mem_filter.mpr ⟨hxS, (hiff vx).mpr (Or.inl rfl)⟩
+        rw [hfilter]
+        simp [vx, vy, hloop, hxS, hyS]
+    · by_cases hyS : vy ∈ S
+      · have hfilter :
+            S.filter (fun v ↦ G.IsNonloopAt e.1 v.1) = {vy} := by
+          ext v
+          constructor
+          · intro hv
+            have hvS := (Finset.mem_filter.mp hv).1
+            rcases (hiff v).mp (Finset.mem_filter.mp hv).2 with rfl | rfl
+            · exact (hxS hvS).elim
+            · simp
+          · intro hv
+            have hv' : v = vy := by simpa using hv
+            subst v
+            exact Finset.mem_filter.mpr ⟨hyS, (hiff vy).mpr (Or.inr rfl)⟩
+        rw [hfilter]
+        simp [vx, vy, hloop, hxS, hyS]
+      · have hfilter :
+            S.filter (fun v ↦ G.IsNonloopAt e.1 v.1) = ∅ := by
+          ext v
+          constructor
+          · intro hv
+            have hvS := (Finset.mem_filter.mp hv).1
+            rcases (hiff v).mp (Finset.mem_filter.mp hv).2 with rfl | rfl
+            · exact (hxS hvS).elim
+            · exact (hyS hvS).elim
+          · intro hv
+            simp at hv
+        rw [hfilter]
+        simp [vx, vy, hloop, hxS, hyS]
+
+open scoped Classical in
+lemma graph_sum_edgeIncidence_eq_crosses
+    {α β : Type*} (G : Graph α β) (S : Finset G.Vertex) (e : G.Edge) :
+    (∑ v ∈ S, G.edgeIncidence v e) =
+      if graphEdgeCrosses G S e then (1 : F₂) else 0 := by
+  classical
+  by_cases hcross : graphEdgeCrosses G S e
+  · rcases hcross with ⟨x, y, hxy, hside⟩
+    have hcross' : graphEdgeCrosses G S e := ⟨x, y, hxy, hside⟩
+    have hnot : x ≠ y := by
+      intro hxy_eq
+      subst y
+      exact hside rfl
+    rw [graph_sum_edgeIncidence_eq_of_isLink G S e hxy]
+    by_cases hxS : (⟨x, hxy.left_mem⟩ : G.Vertex) ∈ S
+    · by_cases hyS : (⟨y, hxy.right_mem⟩ : G.Vertex) ∈ S
+      · exact False.elim (hside (propext ⟨fun _ ↦ hyS, fun _ ↦ hxS⟩))
+      · simp [hcross', hnot, hxS, hyS]
+    · by_cases hyS : (⟨y, hxy.right_mem⟩ : G.Vertex) ∈ S
+      · simp [hcross', hnot, hxS, hyS]
+      · exact False.elim
+          (hside (propext ⟨fun h ↦ False.elim (hxS h), fun h ↦ False.elim (hyS h)⟩))
+  · obtain ⟨x, y, hxy⟩ := G.exists_isLink_of_mem_edgeSet e.2
+    have hside :
+        ((⟨x, hxy.left_mem⟩ : G.Vertex) ∈ S) =
+          ((⟨y, hxy.right_mem⟩ : G.Vertex) ∈ S) := by
+      by_contra hne
+      exact hcross ⟨x, y, hxy, hne⟩
+    rw [graph_sum_edgeIncidence_eq_of_isLink G S e hxy]
+    by_cases hloop : x = y
+    · simp [hcross, hloop]
+    · by_cases hyS : (⟨y, hxy.right_mem⟩ : G.Vertex) ∈ S
+      · have hone : (1 : F₂) + 1 = 0 := by decide
+        simpa [hcross, hloop, hside, hyS] using hone
+      · simp [hcross, hloop, hside, hyS]
+
+open scoped Classical in
+lemma graph_even_edgeSet_cut_card_eq_zero
+    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α]
+    (G : Graph α β) {F : Finset G.Edge} (hF : G.IsEvenEdgeSet F)
+    (S : Finset G.Vertex) :
+    (((F.filter fun e ↦ graphEdgeCrosses G S e).card : ℕ) : F₂) = 0 := by
+  classical
+  calc
+    (((F.filter fun e ↦ graphEdgeCrosses G S e).card : ℕ) : F₂) =
+        ∑ e ∈ F, (if graphEdgeCrosses G S e then (1 : F₂) else 0) := by
+      rw [Finset.sum_boole]
+    _ = ∑ e ∈ F, ∑ v ∈ S, G.edgeIncidence v e := by
+      apply Finset.sum_congr rfl
+      intro e _
+      exact (graph_sum_edgeIncidence_eq_crosses G S e).symm
+    _ = ∑ v ∈ S, ∑ e ∈ F, G.edgeIncidence v e := by
+      rw [Finset.sum_comm]
+    _ = 0 := by
+      apply Finset.sum_eq_zero
+      intro v _
+      exact hF v
+
+lemma graph_cycle_not_unique_cut
+    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α]
+    (G : Graph α β) (C : G.Cycle) {S : Finset G.Vertex} {e : G.Edge}
+    (heC : e ∈ C.edges) (heCross : graphEdgeCrosses G S e)
+    (hunique : ∀ f : G.Edge, graphEdgeCrosses G S f → f = e) :
+    False := by
+  classical
+  have hfilter : C.edges.filter (fun f ↦ graphEdgeCrosses G S f) = {e} := by
+    ext f
+    constructor
+    · intro hf
+      have hfe := hunique f (Finset.mem_filter.mp hf).2
+      simp [hfe]
+    · intro hf
+      have hfe : f = e := by simpa using hf
+      subst f
+      exact Finset.mem_filter.mpr ⟨heC, heCross⟩
+  have hzero := graph_even_edgeSet_cut_card_eq_zero G C.even S
+  rw [hfilter] at hzero
+  norm_num at hzero
+
+lemma graph_adj_deleteEdges_of_cycle
+    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α]
+    (G : Graph α β) {e : G.Edge} {C : G.Cycle} (heC : e ∈ C.edges)
+    {x y : α} (hxy : G.Adj x y) :
+    (G.deleteEdges ({e.1} : Set β)).Reachable x y := by
+  classical
+  obtain ⟨f, hf⟩ := hxy
+  by_cases hfe : f = e.1
+  · subst f
+    by_cases hxy_eq : x = y
+    · subst y
+      exact Relation.ReflTransGen.refl
+    · by_contra hnot
+      let H := G.deleteEdges ({e.1} : Set β)
+      let S : Finset G.Vertex := Finset.univ.filter fun v : G.Vertex ↦ H.Reachable x v.1
+      have hxS : (⟨x, hf.left_mem⟩ : G.Vertex) ∈ S := by
+        exact Finset.mem_filter.mpr ⟨Finset.mem_univ _, Relation.ReflTransGen.refl⟩
+      have hyS : (⟨y, hf.right_mem⟩ : G.Vertex) ∉ S := by
+        intro hy
+        exact hnot (Finset.mem_filter.mp hy).2
+      have heCross : graphEdgeCrosses G S e := by
+        refine ⟨x, y, hf, ?_⟩
+        intro hside
+        exact hyS (Eq.mp hside hxS)
+      have hunique (g : G.Edge) (hgCross : graphEdgeCrosses G S g) : g = e := by
+        rcases hgCross with ⟨a, b, hab, habSide⟩
+        by_cases hge : g.1 = e.1
+        · exact Subtype.ext hge
+        · exfalso
+          have hHab : H.Adj a b := by
+            refine ⟨g.1, ?_⟩
+            simpa [H] using ⟨hab, by simp [hge]⟩
+          have habReach : H.Reachable a b :=
+            Relation.ReflTransGen.single hHab
+          have hbaReach : H.Reachable b a :=
+            Relation.ReflTransGen.single hHab.symm
+          apply habSide
+          apply propext
+          constructor
+          · intro haS
+            exact Finset.mem_filter.mpr
+              ⟨Finset.mem_univ _, (Finset.mem_filter.mp haS).2.trans habReach⟩
+          · intro hbS
+            exact Finset.mem_filter.mpr
+              ⟨Finset.mem_univ _, (Finset.mem_filter.mp hbS).2.trans hbaReach⟩
+      exact graph_cycle_not_unique_cut G C heC heCross hunique
+  · exact Relation.ReflTransGen.single
+      ⟨f, by simpa using ⟨hf, by simp [hfe]⟩⟩
+
+lemma graph_reachable_deleteEdges_of_cycle
+    {α β : Type*} [Fintype α] [Fintype β] [DecidableEq α]
+    (G : Graph α β) {e : G.Edge} {C : G.Cycle} (heC : e ∈ C.edges)
+    {x y : α} (hxy : G.Reachable x y) :
+    (G.deleteEdges ({e.1} : Set β)).Reachable x y := by
+  exact Relation.ReflTransGen.trans_induction_on hxy
+    (fun _ ↦ Relation.ReflTransGen.refl)
+    (fun h ↦ graph_adj_deleteEdges_of_cycle G heC h)
+    (fun _ _ ih₁ ih₂ ↦ ih₁.trans ih₂)
+
+open scoped Classical in
+lemma oriented_sum_edgeIncidence_eq_crosses
+    {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    (G : OrientedMultigraph V E) (S : Finset V) (e : E) :
+    (∑ v ∈ S, OrientedMultigraph.edgeIncidence G v e) =
+      if OrientedMultigraph.Crosses G S e then (1 : F₂) else 0 := by
+  classical
+  have h0 :
+      (∑ v ∈ S, if G.endAt e 0 = v then (1 : F₂) else 0) =
+        if G.endAt e 0 ∈ S then (1 : F₂) else 0 := by
+    by_cases h : G.endAt e 0 ∈ S
+    · have hfilter : Finset.filter (fun v ↦ G.endAt e 0 = v) S = {G.endAt e 0} := by
+        ext v
+        constructor
+        · intro hv
+          exact by simpa using (Finset.mem_filter.mp hv).2.symm
+        · intro hv
+          have hv0 : v = G.endAt e 0 := by simpa using hv
+          exact Finset.mem_filter.mpr ⟨by simpa [hv0] using h, by simp [hv0]⟩
+      rw [Finset.sum_boole, hfilter]
+      simp [h]
+    · have hfilter : Finset.filter (fun v ↦ G.endAt e 0 = v) S = ∅ := by
+        ext v
+        constructor
+        · intro hv
+          exact (h (by simpa [(Finset.mem_filter.mp hv).2] using
+            (Finset.mem_filter.mp hv).1)).elim
+        · intro hv
+          simp at hv
+      rw [Finset.sum_boole, hfilter]
+      simp [h]
+  have h1 :
+      (∑ v ∈ S, if G.endAt e 1 = v then (1 : F₂) else 0) =
+        if G.endAt e 1 ∈ S then (1 : F₂) else 0 := by
+    by_cases h : G.endAt e 1 ∈ S
+    · have hfilter : Finset.filter (fun v ↦ G.endAt e 1 = v) S = {G.endAt e 1} := by
+        ext v
+        constructor
+        · intro hv
+          exact by simpa using (Finset.mem_filter.mp hv).2.symm
+        · intro hv
+          have hv1 : v = G.endAt e 1 := by simpa using hv
+          exact Finset.mem_filter.mpr ⟨by simpa [hv1] using h, by simp [hv1]⟩
+      rw [Finset.sum_boole, hfilter]
+      simp [h]
+    · have hfilter : Finset.filter (fun v ↦ G.endAt e 1 = v) S = ∅ := by
+        ext v
+        constructor
+        · intro hv
+          exact (h (by simpa [(Finset.mem_filter.mp hv).2] using
+            (Finset.mem_filter.mp hv).1)).elim
+        · intro hv
+          simp at hv
+      rw [Finset.sum_boole, hfilter]
+      simp [h]
+  simp only [OrientedMultigraph.edgeIncidence, Finset.sum_add_distrib, h0, h1]
+  have hone : (1 : F₂) + 1 = 0 := by decide
+  by_cases hS0 : G.endAt e 0 ∈ S
+  · by_cases hS1 : G.endAt e 1 ∈ S
+    · simpa [OrientedMultigraph.Crosses, hS0, hS1] using hone
+    · simp [OrientedMultigraph.Crosses, hS0, hS1]
+  · by_cases hS1 : G.endAt e 1 ∈ S
+    · simp [OrientedMultigraph.Crosses, hS0, hS1]
+    · simp [OrientedMultigraph.Crosses, hS0, hS1]
+
+open scoped Classical in
+lemma oriented_even_edgeSet_cut_card_eq_zero
+    {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    (G : OrientedMultigraph V E) {F : Finset E} (hF : IsEvenEdgeSet G F)
+    (S : Finset V) :
+    (((F.filter fun e ↦ OrientedMultigraph.Crosses G S e).card : ℕ) : F₂) = 0 := by
+  classical
+  calc
+    (((F.filter fun e ↦ OrientedMultigraph.Crosses G S e).card : ℕ) : F₂) =
+        ∑ e ∈ F, (if OrientedMultigraph.Crosses G S e then (1 : F₂) else 0) := by
+      rw [Finset.sum_boole]
+    _ = ∑ e ∈ F, ∑ v ∈ S, OrientedMultigraph.edgeIncidence G v e := by
+      apply Finset.sum_congr rfl
+      intro e _
+      exact (oriented_sum_edgeIncidence_eq_crosses G S e).symm
+    _ = ∑ v ∈ S, ∑ e ∈ F, OrientedMultigraph.edgeIncidence G v e := by
+      rw [Finset.sum_comm]
+    _ = 0 := by
+      apply Finset.sum_eq_zero
+      intro v _
+      exact hF v
+
+lemma oriented_cycle_not_unique_cut
+    {V E : Type*} [Fintype V] [Fintype E] [DecidableEq V]
+    (G : OrientedMultigraph V E) (C : Cycle G) {S : Finset V} {e : E}
+    (heC : e ∈ C.edges) (hcut : OrientedMultigraph.cut G S = {e}) :
+    False := by
+  classical
+  have hfilter : C.edges.filter (fun f ↦ OrientedMultigraph.Crosses G S f) = {e} := by
+    ext f
+    constructor
+    · intro hf
+      have hfcross := (Finset.mem_filter.mp hf).2
+      have hfcut : f ∈ OrientedMultigraph.cut G S := by
+        simpa [OrientedMultigraph.cut] using hfcross
+      exact hcut ▸ hfcut
+    · intro hf
+      have hfe : f = e := by simpa using hf
+      subst f
+      have hecut : e ∈ OrientedMultigraph.cut G S := by simp [hcut]
+      have hecross : OrientedMultigraph.Crosses G S e := by
+        simpa [OrientedMultigraph.cut] using hecut
+      exact Finset.mem_filter.mpr ⟨heC, hecross⟩
+  have hzero := oriented_even_edgeSet_cut_card_eq_zero G C.even S
+  rw [hfilter] at hzero
+  norm_num at hzero
+
+theorem orientedMultigraph_bridgeless_iff_every_edge_mem_cycle
+    {V E : Type u} [Fintype V] [Fintype E] [DecidableEq V]
+    (G : OrientedMultigraph V E) :
+    Bridgeless G ↔ ∀ e : E, ∃ Z : Cycle G, e ∈ Z.edges := by
+  classical
+  constructor
+  · intro hb e
+    obtain ⟨C⟩ := cycleDoubleCover_of_bridgeless G hb
+    obtain ⟨Z, _, hZ⟩ := cycle_mem_of_cycleDoubleCover C e
+    exact ⟨Z, hZ⟩
+  · intro h S hcard
+    obtain ⟨e, hcut⟩ := Finset.card_eq_one.mp hcard
+    obtain ⟨Z, hZ⟩ := h e
+    exact oriented_cycle_not_unique_cut G Z hZ hcut
+
+theorem orientedMultigraph_cycleDoubleCover_iff_every_edge_mem_cycle
+    {V E : Type u} [Fintype V] [Fintype E] [DecidableEq V] [DecidableEq E]
+    (G : OrientedMultigraph V E) :
+    Nonempty (CycleDoubleCover G) ↔ ∀ e : E, ∃ Z : Cycle G, e ∈ Z.edges := by
+  constructor
+  · rintro ⟨C⟩ e
+    obtain ⟨Z, _, hZ⟩ := cycle_mem_of_cycleDoubleCover C e
+    exact ⟨Z, hZ⟩
+  · intro h
+    exact cycleDoubleCover_of_bridgeless G
+      ((orientedMultigraph_bridgeless_iff_every_edge_mem_cycle G).mpr h)
+
+theorem graph_bridgeless_iff_every_edge_mem_cycle
+    {α β : Type u} [Fintype α] [Fintype β] [DecidableEq α]
+    (G : Graph α β) :
+    G.Bridgeless ↔ ∀ e : G.Edge, ∃ Z : G.Cycle, e ∈ Z.edges := by
+  classical
+  constructor
+  · intro hb e
+    obtain ⟨C⟩ := graph_cycleDoubleCover_of_bridgeless G hb
+    obtain ⟨Z, _, hZ⟩ := graph_cycle_mem_of_cycleDoubleCover C e
+    exact ⟨Z, hZ⟩
+  · intro h e he x y hxy
+    let e' : G.Edge := ⟨e, he⟩
+    obtain ⟨Z, hZ⟩ := h e'
+    simpa [e'] using graph_reachable_deleteEdges_of_cycle G hZ hxy
+
+theorem graph_cycleDoubleCover_iff_every_edge_mem_cycle
+    {α β : Type u} [Fintype α] [Fintype β] [DecidableEq α] [DecidableEq β]
+    (G : Graph α β) :
+    Nonempty (Graph.CycleDoubleCover G) ↔ ∀ e : G.Edge, ∃ Z : G.Cycle, e ∈ Z.edges := by
+  constructor
+  · rintro ⟨C⟩ e
+    obtain ⟨Z, _, hZ⟩ := graph_cycle_mem_of_cycleDoubleCover C e
+    exact ⟨Z, hZ⟩
+  · intro h
+    exact graph_cycleDoubleCover_of_bridgeless G
+      ((graph_bridgeless_iff_every_edge_mem_cycle G).mpr h)
+
+theorem simpleGraph_bridgeless_iff_every_edge_mem_cycle
+    {α : Type u} [DecidableEq α] (G : SimpleGraph α) :
+    (∀ e ∈ G.edgeSet, ¬ G.IsBridge e) ↔
+      ∀ e ∈ G.edgeSet, ∃ Z : G.Cycle, e ∈ Z.edges := by
+  constructor
+  · intro hb e he
+    have hnot : ¬ ∀ ⦃u : α⦄ (p : G.Walk u u), p.IsCycle → e ∉ p.edges := by
+      simpa [SimpleGraph.isBridge_iff_forall_cycle_notMem he] using hb e he
+    rw [not_forall] at hnot
+    obtain ⟨v, hv⟩ := hnot
+    push Not at hv
+    obtain ⟨p, hp, hep⟩ := hv
+    exact ⟨⟨v, p, hp⟩, by simpa [SimpleGraph.Cycle.edges] using hep⟩
+  · intro h e he hbridge
+    obtain ⟨Z, hZ⟩ := h e he
+    exact hbridge.notMem_edges_of_isCycle Z.isCycle
+      (by simpa [SimpleGraph.Cycle.edges] using hZ)
+
+theorem simpleGraph_cycleDoubleCover_iff_every_edge_mem_cycle
+    {α : Type u} [Finite α] [DecidableEq α] (G : SimpleGraph α) :
+    Nonempty (SimpleGraph.CycleDoubleCover G) ↔
+      ∀ e ∈ G.edgeSet, ∃ Z : G.Cycle, e ∈ Z.edges := by
+  constructor
+  · rintro ⟨C⟩ e he
+    obtain ⟨Z, _, hZ⟩ := simpleGraph_cycle_mem_of_cycleDoubleCover C he
+    exact ⟨Z, hZ⟩
+  · intro h
+    exact simpleGraph_cycleDoubleCoverConjecture G
+      ((simpleGraph_bridgeless_iff_every_edge_mem_cycle G).mpr h)
+
+#print axioms simpleGraph_cycleDoubleCover_iff_every_edge_mem_cycle
+-- 'CycleDoubleCoverConjecture.simpleGraph_cycleDoubleCover_iff_every_edge_mem_cycle'
 -- depends on axioms:
 -- [propext, Classical.choice, Quot.sound]
 
