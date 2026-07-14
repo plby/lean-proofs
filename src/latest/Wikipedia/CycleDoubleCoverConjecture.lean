@@ -37,8 +37,8 @@ def Connected {α β : Type*} (G : Graph α β) : Prop :=
     ∀ ⦃u v : α⦄, u ∈ G.vertexSet → v ∈ G.vertexSet → G.Reachable u v
 
 def Bridgeless {α β : Type*} (G : Graph α β) : Prop :=
-  G.Connected ∧
-    ∀ e ∈ G.edgeSet, (G.deleteEdges ({e} : Set β)).Connected
+  ∀ e ∈ G.edgeSet, ∀ ⦃x y : α⦄,
+    G.Reachable x y → (G.deleteEdges ({e} : Set β)).Reachable x y
 
 noncomputable def edgeIncidence {α β : Type*} (G : Graph α β)
     (v : G.Vertex) (e : G.Edge) : CycleDoubleCoverConjecture.F₂ := by
@@ -441,9 +441,12 @@ theorem toOrientedMultigraph_bridgeless
     · exact forward hxy
     · intro hyT
       exact forward hxy.symm hyT
-  have hdel_conn : (G.deleteEdges ({e.1} : Set β)).Connected := hb.2 e.1 e.2
+  have hlink : G.IsLink e.1 u.1 v.1 := by
+    simpa [O, u, v] using G.toOrientedMultigraph_isLink hG e
+  have hreachG : G.Reachable u.1 v.1 :=
+    Relation.ReflTransGen.single hlink.adj
   have hreach : (G.deleteEdges ({e.1} : Set β)).Reachable u.1 v.1 :=
-    hdel_conn.2 (by simp) (by simp)
+    hb e.1 e.2 hreachG
   have side_eq : u.1 ∈ T ↔ v.1 ∈ T := by
     change Relation.ReflTransGen (G.deleteEdges ({e.1} : Set β)).Adj u.1 v.1 at hreach
     exact Relation.ReflTransGen.trans_induction_on hreach
@@ -4046,6 +4049,28 @@ lemma simpleGraphAsGraph_deleteEdges_reachable {α : Type*} (G : SimpleGraph α)
     exact h.mono fun x y hxy ↦
       (simpleGraphAsGraph_deleteEdges_adj G F x y).mpr hxy
 
+lemma SimpleGraph.deleteEdges_reachable_of_forall_not_isBridge
+    {α : Type*} (G : SimpleGraph α)
+    (hb : ∀ e ∈ G.edgeSet, ¬ G.IsBridge e) {e : Sym2 α} {x y : α}
+    (hxy : G.Reachable x y) :
+    (G.deleteEdges ({e} : Set (Sym2 α))).Reachable x y := by
+  classical
+  rw [SimpleGraph.reachable_iff_reflTransGen] at hxy ⊢
+  exact Relation.ReflTransGen.trans_induction_on hxy
+    (fun _ ↦ Relation.ReflTransGen.refl)
+    (fun {a b} hab ↦ by
+      by_cases hab_edge : s(a, b) = e
+      · have hnot : ¬ G.IsBridge s(a, b) := hb s(a, b) (by simpa using hab)
+        have hdel :
+            (G.deleteEdges ({s(a, b)} : Set (Sym2 α))).Reachable a b := by
+          rw [SimpleGraph.isBridge_iff] at hnot
+          exact Classical.not_not.mp hnot
+        rw [SimpleGraph.reachable_iff_reflTransGen] at hdel
+        simpa [hab_edge] using hdel
+      · exact Relation.ReflTransGen.single
+          (SimpleGraph.deleteEdges_adj.mpr ⟨hab, by simp [hab_edge]⟩))
+    (fun _ _ ih₁ ih₂ ↦ ih₁.trans ih₂)
+
 lemma simpleGraphAsGraph_loopless {α : Type*} (G : SimpleGraph α) :
     (simpleGraphAsGraph G).Loopless := by
   intro e x h
@@ -4070,27 +4095,58 @@ lemma simpleGraphAsGraph_deleteEdges_connected {α : Type*} (G : SimpleGraph α)
     exact (simpleGraphAsGraph_deleteEdges_reachable G F u v).mpr (hG u v)
 
 lemma simpleGraphAsGraph_bridgeless {α : Type*} (G : SimpleGraph α)
-    (hG : G.Connected) (hb : ∀ e ∈ G.edgeSet, ¬ G.IsBridge e) :
+    (hb : ∀ e ∈ G.edgeSet, ¬ G.IsBridge e) :
     (simpleGraphAsGraph G).Bridgeless := by
-  refine ⟨simpleGraphAsGraph_connected G hG, ?_⟩
-  intro e he
-  apply simpleGraphAsGraph_deleteEdges_connected
-  revert he
-  refine Sym2.inductionOn e ?_
-  intro x y he
-  exact hG.connected_delete_edge_of_not_isBridge (hb s(x, y) he)
+  intro e _he x y hxy
+  apply (simpleGraphAsGraph_deleteEdges_reachable G ({e} : Set (Sym2 α)) x y).mpr
+  exact SimpleGraph.deleteEdges_reachable_of_forall_not_isBridge G hb
+    ((simpleGraphAsGraph_reachable G x y).mp hxy)
 
 theorem simpleGraph_cycleDoubleCoverConjecture
     {α : Type u} [Finite α] [DecidableEq α] (G : SimpleGraph α)
-    (hG : G.Connected) (hb : ∀ e ∈ G.edgeSet, ¬ G.IsBridge e) :
+    (hb : ∀ e ∈ G.edgeSet, ¬ G.IsBridge e) :
     Nonempty (SimpleGraph.CycleDoubleCover G) := by
   letI := Fintype.ofFinite α
   obtain ⟨C⟩ := graph_cycleDoubleCover_of_bridgeless (simpleGraphAsGraph G)
-    (simpleGraphAsGraph_loopless G) (simpleGraphAsGraph_bridgeless G hG hb)
+    (simpleGraphAsGraph_loopless G) (simpleGraphAsGraph_bridgeless G hb)
   exact ⟨simpleGraphCycleDoubleCoverOfGraph G C⟩
 
-#print axioms simpleGraph_cycleDoubleCoverConjecture
--- 'CycleDoubleCoverConjecture.simpleGraph_cycleDoubleCoverConjecture' depends on axioms:
+open scoped Classical in
+theorem simpleGraph_cycleDoubleCoverConjecture_walkMultiset
+    {V : Type u} [Finite V] {G : SimpleGraph V}
+    (h : ∀ e ∈ G.edgeSet, ¬ G.IsBridge e) :
+    ∃ s : Multiset (Σ v, G.Walk v v),
+      (∀ p ∈ s, p.snd.IsCycle) ∧
+      (∀ e ∈ G.edgeSet, (s.filter (e ∈ ·.snd.edgeSet)).card = 2) := by
+  classical
+  obtain ⟨C⟩ := simpleGraph_cycleDoubleCoverConjecture G h
+  let s : Multiset (Σ v, G.Walk v v) :=
+    (C.cycles : Multiset G.Cycle).map fun C ↦
+      (⟨C.vertex, C.walk⟩ : Σ v, G.Walk v v)
+  refine ⟨s, ?_, ?_⟩
+  · intro p hp
+    change p ∈ (C.cycles : Multiset G.Cycle).map
+      (fun C ↦ (⟨C.vertex, C.walk⟩ : Σ v, G.Walk v v)) at hp
+    obtain ⟨Z, _, rfl⟩ := Multiset.mem_map.mp hp
+    exact Z.isCycle
+  · intro e he
+    have hfilter :
+        (s.filter (e ∈ ·.snd.edgeSet)).card =
+          (C.cycles.filter fun C ↦ e ∈ C.walk.edges).length := by
+      simp only [s, Multiset.filter_map, Multiset.filter_coe,
+        Multiset.map_coe, SimpleGraph.Walk.mem_edgeSet, Function.comp_apply]
+      induction C.cycles with
+      | nil => simp
+      | cons C L ih =>
+          by_cases hmem : e ∈ C.walk.edges
+          · simp [hmem]
+          · simp [hmem, ih]
+    rw [hfilter]
+    simpa [SimpleGraph.Cycle.edges] using C.coveredTwice e he
+
+#print axioms simpleGraph_cycleDoubleCoverConjecture_walkMultiset
+-- 'CycleDoubleCoverConjecture.simpleGraph_cycleDoubleCoverConjecture_walkMultiset'
+-- depends on axioms:
 -- [propext, Classical.choice, Quot.sound]
 
 end CycleDoubleCoverConjecture
