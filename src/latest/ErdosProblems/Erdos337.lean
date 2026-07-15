@@ -1173,7 +1173,8 @@ theorem iterated_sumset_mono (S T : Set ℕ) (k : ℕ) (h : S ⊆ T) :
     -- We proceed by induction on $k$.
     induction k with
     | zero =>
-      exact LE.le.subset fun ⦃a⦄ ↦ congrArg fun ⦃a⦄ ↦ a
+      intro x hx
+      exact hx
     | succ k ih =>
       exact Set.add_subset_add h ih
 

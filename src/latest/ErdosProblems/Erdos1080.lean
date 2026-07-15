@@ -752,7 +752,7 @@ theorem B_C6_free
       have h_image_cycle : ∃ w' : (B F q).Walk (Sum.inl (zero_Point hq)) (Sum.inl (zero_Point hq)), w'.IsCycle ∧ w'.length = 6 := by
         have h_image_cycle : ∃ w' : (B F q).Walk (phi (Sum.inl p)) (phi (Sum.inl p)), w'.IsCycle ∧ w'.length = 6 := by
           refine ⟨w.map phi.toHom, ?_, ?_⟩
-          · exact (SimpleGraph.Walk.map_isCycle_iff_of_injective (p := w)
+          · exact (SimpleGraph.Walk.isCycle_map_iff_of_injective (p := w)
               (f := phi.toHom) phi.injective).2 hw_cycle
           · exact (SimpleGraph.Walk.length_map phi.toHom w).trans hw_length
         rw [hphi] at h_image_cycle

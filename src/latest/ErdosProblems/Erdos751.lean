@@ -1171,7 +1171,7 @@ theorem compression
       simpa using h
     have hcycle' : (Psub.map (SimpleGraph.Embedding.induce (G := G) (s := W)).toHom).IsCycle := by
       simpa [hmap] using hPcycle
-    exact (SimpleGraph.Walk.map_isCycle_iff_of_injective (p := Psub)
+    exact (SimpleGraph.Walk.isCycle_map_iff_of_injective (p := Psub)
       (f := (SimpleGraph.Embedding.induce (G := G) (s := W)).toHom) hinj).1 hcycle'
   -- get a chordless cycle in the induced graph, then map back to G
   have hcycW : ∃ _ : Cycle (G := G.induce W), True := by
@@ -1204,7 +1204,7 @@ theorem compression
         have hinj : Function.Injective f.toHom := by
           intro a b h
           exact f.injective h
-        exact (SimpleGraph.Walk.map_isCycle_iff_of_injective
+        exact (SimpleGraph.Walk.isCycle_map_iff_of_injective
           (p := C'.walk) (f := f.toHom) hinj).2 C'.isCycle
       len_ge_three := by
         simpa using C'.len_ge_three }

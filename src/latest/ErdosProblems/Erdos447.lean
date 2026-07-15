@@ -30,7 +30,6 @@ set_option linter.style.setOption false
 set_option linter.flexible false
 set_option linter.style.cases false
 set_option linter.style.cdot false
-set_option linter.style.commandStart false
 set_option linter.style.docString false
 set_option linter.style.emptyLine false
 set_option linter.style.longLine false

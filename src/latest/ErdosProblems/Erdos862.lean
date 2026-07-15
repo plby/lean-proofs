@@ -452,7 +452,7 @@ theorem ErdosTuran : ∀ ε : ℝ, 0 < ε → ∃ N0 : ℕ, ∀ N : ℕ, N0 ≤ 
           Set.Finite {B : Finset ℕ | B ⊆ Finset.Icc 1 N ∧ Sidon (B : Set ℕ)} := by
         exact
           Set.finite_iff_bddAbove.mpr
-            ⟨Finset.Icc 1 N, fun B hB => Finset.le_iff_subset.mpr hB.1⟩;
+            ⟨Finset.Icc 1 N, fun B hB => hB.1⟩;
       have h_max :
           ∃ A ∈ {B : Finset ℕ | B ⊆ Finset.Icc 1 N ∧ Sidon (B : Set ℕ)},
             ∀ B ∈ {B : Finset ℕ | B ⊆ Finset.Icc 1 N ∧ Sidon (B : Set ℕ)},
@@ -1045,7 +1045,7 @@ lemma lem_extend (N : ℕ) (S : Finset ℕ) (hS : S ⊆ Finset.range N) (hSidon 
           apply_rules [ Set.exists_max_image ];
           · exact
               Set.finite_iff_bddAbove.mpr
-                ⟨Finset.range N, fun M hM => Finset.le_iff_subset.mpr hM.2.2⟩;
+                ⟨Finset.range N, fun M hM => hM.2.2⟩;
           · exact ⟨ S, ⟨ Finset.Subset.refl _, hSidon, hS ⟩ ⟩;
         refine ⟨ M, hM.1.1, hM.1.2.1, hM.1.2.2, fun M' hM' hM'' hM''' => ?_ ⟩;
         exact

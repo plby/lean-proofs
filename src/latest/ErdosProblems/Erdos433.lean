@@ -551,7 +551,7 @@ lemma mulStab_union (hs₁ : (s ∩ a • C.mulStab).Nonempty) (ht₁ : (t ∩ b
     convert disjoint_smul_finset_mulStab_mul_mulStab fun hxyC => _
     · exact C.mul_mulStab.symm
     rw [mul_mulStab] at hxyC
-    exact hyne.not_disjoint (hC.mono_left <| le_iff_subset.2 hxyC)
+    exact hyne.not_disjoint (hC.mono_left hxyC)
   have hxysub : (x * y) • C.mulStab ⊆ s ∩ a • C.mulStab * (t ∩ b • C.mulStab) :=
     hxyC.left_le_of_le_sup_left (hxyCsubC.trans <| subset_union_left.trans hx.subset)
   suffices s ∩ a • C.mulStab * (t ∩ b • C.mulStab) ⊂ (a * b) • C.mulStab by

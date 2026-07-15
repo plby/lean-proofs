@@ -1188,7 +1188,7 @@ lemma exists_minimal_subset
   -- Pick T₀ ⊆ S in U with minimum card.
   let candidates : Finset (Finset α) := U.filter fun T => T ⊆ S
   have hSc : S ∈ candidates := by
-    simp [candidates, hS, subset_refl]
+    simp [candidates, hS]
   rcases candidates.exists_min_image Finset.card ⟨S, hSc⟩ with ⟨T₀, hT₀, hmin⟩
   have hT₀U : T₀ ∈ U := (Finset.mem_filter.mp hT₀).1
   have hT₀S : T₀ ⊆ S := (Finset.mem_filter.mp hT₀).2

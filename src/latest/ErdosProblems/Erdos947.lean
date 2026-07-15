@@ -54,14 +54,12 @@ theorem coeff_geometric_progression_mul (a n m : ℕ) (h_a : a < n) :
   simp +decide [sub_mul, one_mul]
   split_ifs with h <;> simp_all +decide [PowerSeries.coeff_mul]
   · simp +decide [
-      PowerSeries.coeff_X_pow,
       Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk
     ]
     simp +decide [geometric_progression]
     rw [if_pos (Nat.mod_eq_of_lt h_a), if_neg (by linarith)]
     norm_num
   · simp +decide [
-      PowerSeries.coeff_X_pow,
       Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk
     ]
     split_ifs <;> simp_all +decide [geometric_progression]
