@@ -99,7 +99,7 @@ lemma restrictNonloops_bridgeless
     simp [H, restrictNonloops]
   have heG : e ∈ G.edgeSet := hHG.edgeSet_mono he
   have hxyG : G.Reachable x y := by
-    exact hxy.mono fun _ _ hab ↦ hab.mono hHG
+    exact Relation.ReflTransGen.mono (fun _ _ hab ↦ hab.mono hHG) _ _ hxy
   have hdelG : (G.deleteEdges ({e} : Set β)).Reachable x y := hb e heG hxyG
   have step {a b : α} (hab : (G.deleteEdges ({e} : Set β)).Adj a b) :
       (H.deleteEdges ({e} : Set β)).Reachable a b := by
@@ -4446,10 +4446,12 @@ lemma simpleGraphAsGraph_reachable {α : Type*} (G : SimpleGraph α) (u v : α) 
   constructor
   · intro h
     rw [SimpleGraph.reachable_iff_reflTransGen]
-    exact h.mono fun x y hxy ↦ (simpleGraphAsGraph_adj G x y).mp hxy
+    exact Relation.ReflTransGen.mono
+      (fun x y hxy ↦ (simpleGraphAsGraph_adj G x y).mp hxy) _ _ h
   · intro h
     rw [SimpleGraph.reachable_iff_reflTransGen] at h
-    exact h.mono fun x y hxy ↦ (simpleGraphAsGraph_adj G x y).mpr hxy
+    exact Relation.ReflTransGen.mono
+      (fun x y hxy ↦ (simpleGraphAsGraph_adj G x y).mpr hxy) _ _ h
 
 lemma simpleGraphAsGraph_deleteEdges_reachable {α : Type*} (G : SimpleGraph α)
     (F : Set (Sym2 α)) (u v : α) :
@@ -4458,12 +4460,12 @@ lemma simpleGraphAsGraph_deleteEdges_reachable {α : Type*} (G : SimpleGraph α)
   constructor
   · intro h
     rw [SimpleGraph.reachable_iff_reflTransGen]
-    exact h.mono fun x y hxy ↦
-      (simpleGraphAsGraph_deleteEdges_adj G F x y).mp hxy
+    exact Relation.ReflTransGen.mono
+      (fun x y hxy ↦ (simpleGraphAsGraph_deleteEdges_adj G F x y).mp hxy) _ _ h
   · intro h
     rw [SimpleGraph.reachable_iff_reflTransGen] at h
-    exact h.mono fun x y hxy ↦
-      (simpleGraphAsGraph_deleteEdges_adj G F x y).mpr hxy
+    exact Relation.ReflTransGen.mono
+      (fun x y hxy ↦ (simpleGraphAsGraph_deleteEdges_adj G F x y).mpr hxy) _ _ h
 
 lemma SimpleGraph.deleteEdges_reachable_of_forall_not_isBridge
     {α : Type*} (G : SimpleGraph α)

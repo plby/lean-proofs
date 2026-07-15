@@ -1,1 +1,2 @@
 import Wikipedia.CycleDoubleCoverConjecture
+import Wikipedia.SmallCircuitDoubleCoverConjecture
